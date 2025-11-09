@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{c5c0cd0d-3efc-47ee-8020-c44edc6eaf9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application">
+      <UniqueIdentifier>{e7d1d0d0-6e19-4087-b425-de822a493622}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework">
+      <UniqueIdentifier>{cb8f399b-7f69-4a06-b547-203ff39a35f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Utility">
+      <UniqueIdentifier>{2688e377-1594-4410-b3d6-4f58ce844999}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Scene">
+      <UniqueIdentifier>{71900a38-6984-4cc0-b114-42ddf8b9ce38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine">
+      <UniqueIdentifier>{b3bdf23e-a214-415a-bcfe-5e96e6dba00a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Core">
+      <UniqueIdentifier>{ae35e4be-79a9-48b8-8c04-3125e0793e60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\SceneManager">
+      <UniqueIdentifier>{89959b49-bbd1-4852-9540-2493d2173e39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Shader">
+      <UniqueIdentifier>{cee6ef98-8009-4e59-bf61-48124ec628a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Shader\ShaderCommon">
+      <UniqueIdentifier>{a7792a03-dfb8-47cb-8487-e75151c2ac79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D">
+      <UniqueIdentifier>{de50d15e-49c7-402f-988e-c082e75172d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\Buffer">
+      <UniqueIdentifier>{f81afd5b-e1ac-490c-ad28-a0542e937d3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Shader\RootSignature">
+      <UniqueIdentifier>{2ff589a9-e416-4b98-a80d-c1fd310224ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Shader\SimpleShader">
+      <UniqueIdentifier>{f1eb6130-5532-4716-a5ee-45e2721ec9ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Shader\PipelineState">
+      <UniqueIdentifier>{b6e5e4c4-d52d-4d72-8fae-a4046932d4c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\Model">
+      <UniqueIdentifier>{d8e14865-4375-4f4f-ae6c-1b810a018ddf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\Model\ModelLoader">
+      <UniqueIdentifier>{54ab3b36-f46d-4b06-9c15-d28e903dad99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\Model\ModelLoader\GLTF">
+      <UniqueIdentifier>{cf4fb874-4f5b-4cab-a489-140c8c03f889}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\Model\ModelScene">
+      <UniqueIdentifier>{d64c2d3e-2d26-4295-988d-a6517e1bfb17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\Model\ModelScene\Mesh">
+      <UniqueIdentifier>{c0a49792-14f0-4587-b46b-aa655d30acdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\Model\ModelScene\Material">
+      <UniqueIdentifier>{c1f63aab-1df5-4947-a7b6-3a30402df13a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\Model\ModelScene\Animation">
+      <UniqueIdentifier>{11a44bab-30e7-4f79-bb06-f032b4c8aaaa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Core\RenderingEngine.cpp">
+      <Filter>Source\Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Pch.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\SceneManager\SceneManager.cpp">
+      <Filter>Source\Engine\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Scene\BaseScene.cpp">
+      <Filter>Source\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Core\App.cpp">
+      <Filter>Source\Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Direct3D\Buffer\VertexBuffer.cpp">
+      <Filter>Source\Framework\Direct3D\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Direct3D\Buffer\ConstantBuffer.cpp">
+      <Filter>Source\Framework\Direct3D\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Shader\RootSignature\RootSignature.cpp">
+      <Filter>Source\Framework\Shader\RootSignature</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Shader\ShaderCommon\SharedStruct.cpp">
+      <Filter>Source\Framework\Shader\ShaderCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Shader\PipelineState\PipelineState.cpp">
+      <Filter>Source\Framework\Shader\PipelineState</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Direct3D\Buffer\IndexBuffer.cpp">
+      <Filter>Source\Framework\Direct3D\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Direct3D\Model\ModelLoader\GLTF\GLTFLoader.cpp">
+      <Filter>Source\Framework\Direct3D\Model\ModelLoader\GLTF</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Mesh\Mesh.cpp">
+      <Filter>Source\Framework\Direct3D\Model\ModelScene\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Animation\Animation.cpp">
+      <Filter>Source\Framework\Direct3D\Model\ModelScene\Animation</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Engine\Core\RenderingEngine.h">
+      <Filter>Source\Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Pch.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\SceneManager\SceneManager.h">
+      <Filter>Source\Engine\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\BaseScene.h">
+      <Filter>Source\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Core\App.h">
+      <Filter>Source\Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Shader\ShaderCommon\SharedStruct.h">
+      <Filter>Source\Framework\Shader\ShaderCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Direct3D\Buffer\VertexBuffer.h">
+      <Filter>Source\Framework\Direct3D\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Direct3D\Buffer\ConstantBuffer.h">
+      <Filter>Source\Framework\Direct3D\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Shader\RootSignature\RootSignature.h">
+      <Filter>Source\Framework\Shader\RootSignature</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Shader\PipelineState\PipelineState.h">
+      <Filter>Source\Framework\Shader\PipelineState</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Direct3D\Buffer\IndexBuffer.h">
+      <Filter>Source\Framework\Direct3D\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Direct3D\Model\ModelLoader\GLTF\GLTFLoader.h">
+      <Filter>Source\Framework\Direct3D\Model\ModelLoader\GLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Utility\FileUtility.h">
+      <Filter>Source\Framework\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Mesh\Mesh.h">
+      <Filter>Source\Framework\Direct3D\Model\ModelScene\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Animation\Animation.h">
+      <Filter>Source\Framework\Direct3D\Model\ModelScene\Animation</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\Framework\Shader\SimpleShader\SimpleVS.hlsl">
+      <Filter>Source\Framework\Shader\SimpleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Framework\Shader\SimpleShader\SimplePS.hlsl">
+      <Filter>Source\Framework\Shader\SimpleShader</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
