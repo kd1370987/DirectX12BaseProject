@@ -70,3 +70,6 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 //===============================================
 
 #include "Framework/Utility/FileUtility.h"
+
+
+// ƒRƒƒ“ƒg‚ª‚±‚¤‚â‚Á‚Ä“ú–{Œê‚ÅŒ©‚¦‚é‚È‚çOK
