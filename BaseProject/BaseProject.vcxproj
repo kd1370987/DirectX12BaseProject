@@ -160,9 +160,11 @@
     <ClCompile Include="Source\Framework\Direct3D\Buffer\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Framework\Direct3D\Buffer\IndexBuffer.cpp" />
     <ClCompile Include="Source\Framework\Direct3D\Buffer\VertexBuffer.cpp" />
+    <ClCompile Include="Source\Framework\Direct3D\Model\Model.cpp" />
     <ClCompile Include="Source\Framework\Direct3D\Model\ModelLoader\GLTF\GLTFLoader.cpp" />
     <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Animation\Animation.cpp" />
     <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Mesh\Mesh.cpp" />
+    <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Node\Node.cpp" />
     <ClCompile Include="Source\Framework\Shader\PipelineState\PipelineState.cpp" />
     <ClCompile Include="Source\Framework\Shader\RootSignature\RootSignature.cpp" />
     <ClCompile Include="Source\Framework\Shader\ShaderCommon\SharedStruct.cpp" />
@@ -184,9 +186,12 @@
     <ClInclude Include="Source\Framework\Direct3D\Buffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Framework\Direct3D\Buffer\IndexBuffer.h" />
     <ClInclude Include="Source\Framework\Direct3D\Buffer\VertexBuffer.h" />
+    <ClInclude Include="Source\Framework\Direct3D\Model\Model.h" />
     <ClInclude Include="Source\Framework\Direct3D\Model\ModelLoader\GLTF\GLTFLoader.h" />
     <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Animation\Animation.h" />
     <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Mesh\Mesh.h" />
+    <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Node\Node.h" />
+    <ClInclude Include="Source\Framework\Framework.h" />
     <ClInclude Include="Source\Framework\Shader\PipelineState\PipelineState.h" />
     <ClInclude Include="Source\Framework\Shader\RootSignature\RootSignature.h" />
     <ClInclude Include="Source\Framework\Shader\ShaderCommon\SharedStruct.h" />
