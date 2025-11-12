@@ -1,20 +1,21 @@
 ﻿#include "SceneManager.h"
 
-#include "../Core/RenderingEngine.h"
-#include "../Core/App.h"
+#include "Application/App.h"
+#include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+
 
 #include "Framework/Shader/ShaderCommon/SharedStruct.h"
-#include "Framework/Shader/RootSignature/RootSignature.h"
-#include "Framework/Shader/PipelineState/PipelineState.h"
 
-#include "Framework/Direct3D/Buffer/VertexBuffer.h"
-#include "Framework/Direct3D/Buffer/ConstantBuffer.h"
-#include "Framework/Direct3D/Buffer/IndexBuffer.h"
+#include "Engine/GPUResource/Buffer/ConstantBuffer/ConstantBuffer.h"
+#include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
+#include "Engine/GPUResource/Buffer/VertexBuffer/VertexBuffer.h"
 
-#include "Framework/Direct3D/Model/ModelLoader/Assimp/AssimpLoader.h"
+#include "Engine/GPUResource/RootSignature/RootSignature.h"
+#include "Engine/GPUResource/PipeLineState/PipelineState.h"
+#include "Engine/GPUResource/DescriptorHeap/DescriptorHeap.h"
 
-#include "Framework/Direct3D/DescriptorHeap/DescriptorHeap.h"
-#include "Framework/Direct3D/Texture/Texture2D/Texture2D.h"
+#include "Engine/GPUResource/Model/ModelLoader/Assimp/AssimpLoader.h"
+#include "Engine/GPUResource/Texture/Texture2D/Texture2D.h"
 
 using namespace DirectX;
 

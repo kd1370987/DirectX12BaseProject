@@ -67,8 +67,8 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 //===============================================
 //
-// Framework
+// 自分で作った共通ヘッダー
 //
 //===============================================
 
-#include "Framework/Framework.h"
+#include "Core/Core.h"

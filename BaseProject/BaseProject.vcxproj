@@ -129,6 +129,8 @@
       <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>assimp-vc143-mtd.dll</DelayLoadDLLs>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,22 +158,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Application\App.cpp" />
     <ClCompile Include="Source\Application\Scene\BaseScene.cpp" />
-    <ClCompile Include="Source\Engine\Core\App.cpp" />
-    <ClCompile Include="Source\Engine\Core\RenderingEngine.cpp" />
-    <ClCompile Include="Source\Engine\SceneManager\SceneManager.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\Buffer\ConstantBuffer.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\Buffer\IndexBuffer.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\Buffer\VertexBuffer.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\DescriptorHeap\DescriptorHeap.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\Model\ModelLoader\Assimp\AssimpLoader.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\Texture\Texture2D\Texture2D.cpp" />
-    <ClCompile Include="Source\Framework\Shader\PipelineState\PipelineState.cpp" />
-    <ClCompile Include="Source\Framework\Shader\RootSignature\RootSignature.cpp" />
+    <ClCompile Include="Source\Engine\GameScene\SceneManager\SceneManager.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\Buffer\VertexBuffer\VertexBuffer.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\Model\ModelLoader\Assimp\AssimpLoader.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Mesh\Mesh.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\PipeLineState\PipelineState.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\RootSignature\RootSignature.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\Texture\Texture2D\Texture2D.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.cpp" />
     <ClCompile Include="Source\Framework\Shader\ShaderCommon\SharedStruct.cpp" />
-    <ClCompile Include="Source\main.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -180,52 +181,35 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Application\App.h" />
     <ClInclude Include="Source\Application\Scene\BaseScene.h" />
-    <ClInclude Include="Source\Engine\Core\App.h" />
-    <ClInclude Include="Source\Engine\Core\RenderingEngine.h" />
-    <ClInclude Include="Source\Engine\SceneManager\SceneManager.h" />
-    <ClInclude Include="Source\Framework\Direct3D\Buffer\ConstantBuffer.h" />
-    <ClInclude Include="Source\Framework\Direct3D\Buffer\IndexBuffer.h" />
-    <ClInclude Include="Source\Framework\Direct3D\Buffer\VertexBuffer.h" />
-    <ClInclude Include="Source\Framework\Direct3D\DescriptorHeap\DescriptorHeap.h" />
-    <ClInclude Include="Source\Framework\Direct3D\Model\ModelLoader\Assimp\AssimpLoader.h" />
-    <ClInclude Include="Source\Framework\Direct3D\Texture\Texture2D\Texture2D.h" />
-    <ClInclude Include="Source\Framework\Framework.h" />
-    <ClInclude Include="Source\Framework\Shader\PipelineState\PipelineState.h" />
-    <ClInclude Include="Source\Framework\Shader\RootSignature\RootSignature.h" />
+    <ClInclude Include="Source\Core\Core.h" />
+    <ClInclude Include="Source\Core\Utility\FileUtility.h" />
+    <ClInclude Include="Source\Core\Utility\StringUtillity.h" />
+    <ClInclude Include="Source\Engine\GameScene\SceneManager\SceneManager.h" />
+    <ClInclude Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.h" />
+    <ClInclude Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.h" />
+    <ClInclude Include="Source\Engine\GPUResource\Buffer\VertexBuffer\VertexBuffer.h" />
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.h" />
+    <ClInclude Include="Source\Engine\GPUResource\Model\ModelLoader\Assimp\AssimpLoader.h" />
+    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Mesh\Mesh.h" />
+    <ClInclude Include="Source\Engine\GPUResource\PipeLineState\PipelineState.h" />
+    <ClInclude Include="Source\Engine\GPUResource\RootSignature\RootSignature.h" />
+    <ClInclude Include="Source\Engine\GPUResource\Texture\Texture2D\Texture2D.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.h" />
     <ClInclude Include="Source\Framework\Shader\ShaderCommon\SharedStruct.h" />
-    <ClInclude Include="Source\Framework\Utility\FileUtility.h" />
-    <ClInclude Include="Source\Framework\Utility\StringUtillity.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\Framework\Shader\SimpleShader\SimplePS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pixel</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pixel</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+    <FxCompile Include="Asset\Shader\SimpleShader\SimplePS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pixel</EntryPointName>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pixel</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="Source\Framework\Shader\SimpleShader\SimpleVS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">vert</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">vert</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vert</EntryPointName>
+    <FxCompile Include="Asset\Shader\SimpleShader\SimpleVS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vert</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vert</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

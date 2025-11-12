@@ -1,7 +1,7 @@
 ﻿#include "DescriptorHeap.h"
 
-#include "../../../Engine/Core/RenderingEngine.h"
-#include "../Texture/Texture2D/Texture2D.h"
+#include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+#include "Engine/GPUResource/Texture/Texture2D/Texture2D.h"
 
 const UINT HANDLE_MAX = 512;
 

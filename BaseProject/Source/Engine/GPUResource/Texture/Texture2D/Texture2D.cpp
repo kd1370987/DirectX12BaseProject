@@ -1,6 +1,6 @@
 ﻿#include "Texture2D.h"
 
-#include "Engine/Core/RenderingEngine.h"
+#include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 
 // 読み込んだテクスチャを返す
 Texture2D* Texture2D::Get(std::string a_path)

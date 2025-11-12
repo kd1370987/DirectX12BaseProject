@@ -1,6 +1,7 @@
 ﻿#include "AssimpLoader.h"
 
-#include "../../../../Shader/ShaderCommon/SharedStruct.h"
+#include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+#include "Framework/Shader/ShaderCommon/SharedStruct.h"
 
 #ifdef _DEBUG
 #pragma comment(lib,"assimp-vc143-mtd.lib")
