@@ -164,7 +164,11 @@
     <ClCompile Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Buffer\VertexBuffer\VertexBuffer.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\CommandList\CommandList.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\Device\Device.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Model\ModelLoader\Assimp\AssimpLoader.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\PipeLineState\PipelineState.cpp" />
@@ -190,7 +194,11 @@
     <ClInclude Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\VertexBuffer\VertexBuffer.h" />
+    <ClInclude Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.h" />
+    <ClInclude Include="Source\Engine\GPUResource\CommandList\CommandList.h" />
+    <ClInclude Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.h" />
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.h" />
+    <ClInclude Include="Source\Engine\GPUResource\Device\Device.h" />
     <ClInclude Include="Source\Engine\GPUResource\Model\ModelLoader\Assimp\AssimpLoader.h" />
     <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Mesh\Mesh.h" />
     <ClInclude Include="Source\Engine\GPUResource\PipeLineState\PipelineState.h" />

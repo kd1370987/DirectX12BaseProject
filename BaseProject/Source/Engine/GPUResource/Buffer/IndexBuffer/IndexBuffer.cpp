@@ -7,7 +7,7 @@ IndexBuffer::IndexBuffer(size_t a_size, const uint32_t* a_pInitData)
 	D3D12_RESOURCE_DESC _desc = CD3DX12_RESOURCE_DESC::Buffer(a_size);	// リソースの設定
 
 	// リソースを生成
-	auto _hr = RenderingEngine::Instance().Device()->CreateCommittedResource(
+	auto _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
 		&_prop,										// ヒートプロパティ
 		D3D12_HEAP_FLAG_NONE,						// ヒープフラグ
 		&_desc,										// リソース記述子（サイズ、フォーマット）

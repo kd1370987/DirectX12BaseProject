@@ -65,7 +65,7 @@ void PipelineState::SetPS(std::wstring a_filePath)
 void PipelineState::Create()
 {
 	// パイプラインステート
-	auto _hr = RenderingEngine::Instance().Device()->CreateGraphicsPipelineState(
+	auto _hr = RenderingEngine::Instance().GetDevice()->CreateGraphicsPipelineState(
 		&m_desc, 
 		IID_PPV_ARGS(m_pPipelineState.ReleaseAndGetAddressOf())
 	);

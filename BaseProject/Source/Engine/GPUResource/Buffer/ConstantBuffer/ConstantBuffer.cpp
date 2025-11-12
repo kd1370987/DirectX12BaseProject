@@ -10,7 +10,7 @@ ConstantBuffer::ConstantBuffer(size_t a_size)
 	auto _desc = CD3DX12_RESOURCE_DESC::Buffer(_sizeAligned);			// リソースの設定
 
 	// リソースを生成
-	auto _hr = RenderingEngine::Instance().Device()->CreateCommittedResource(
+	auto _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
 		&_prop,
 		D3D12_HEAP_FLAG_NONE,
 		&_desc,

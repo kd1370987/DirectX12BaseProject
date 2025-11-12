@@ -11,7 +11,7 @@ VertexBuffer::VertexBuffer(size_t a_size, size_t a_stride, const void* a_pInitDa
 	auto _desc = CD3DX12_RESOURCE_DESC::Buffer(a_size);					// リソースの設定
 
 	// リソースの生成
-	auto _hr = RenderingEngine::Instance().Device()->CreateCommittedResource(
+	auto _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
 		&_prop,
 		D3D12_HEAP_FLAG_NONE,
 		&_desc,

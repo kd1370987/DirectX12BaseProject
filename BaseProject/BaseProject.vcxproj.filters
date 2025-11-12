@@ -109,6 +109,18 @@
     <Filter Include="Source\Engine\GPUResource\Model\ModelResource\Animation">
       <UniqueIdentifier>{53aa668a-10df-4d5c-b079-4d6375e0050d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\GPUResource\Device">
+      <UniqueIdentifier>{d13fa245-4b93-43a9-9771-b333ba270ee2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\CommandQueue">
+      <UniqueIdentifier>{272fe8a9-2d45-4032-95e2-b0960c00b91e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\CommandList">
+      <UniqueIdentifier>{764b6e9f-ccc6-4c40-a95d-1f33307c22dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\CommandAllocator">
+      <UniqueIdentifier>{3200aca0-8fb6-47fb-b76a-aca5d02061b7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -158,6 +170,18 @@
     </ClCompile>
     <ClCompile Include="Source\main.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Device\Device.cpp">
+      <Filter>Source\Engine\GPUResource\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.cpp">
+      <Filter>Source\Engine\GPUResource\CommandQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\CommandList\CommandList.cpp">
+      <Filter>Source\Engine\GPUResource\CommandList</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.cpp">
+      <Filter>Source\Engine\GPUResource\CommandAllocator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -214,6 +238,18 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Mesh\Mesh.h">
       <Filter>Source\Engine\GPUResource\Model\ModelResource\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Device\Device.h">
+      <Filter>Source\Engine\GPUResource\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.h">
+      <Filter>Source\Engine\GPUResource\CommandQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\CommandList\CommandList.h">
+      <Filter>Source\Engine\GPUResource\CommandList</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.h">
+      <Filter>Source\Engine\GPUResource\CommandAllocator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -49,7 +49,7 @@ RootSignature::RootSignature()
 	}
 
 	// ルートシグネチャ生成
-	_hr = RenderingEngine::Instance().Device()->CreateRootSignature(
+	_hr = RenderingEngine::Instance().GetDevice()->CreateRootSignature(
 		0,												// GPUが複数ある場合のノード（基本一個想定でいいから0）
 		_pBlob->GetBufferPointer(),						// シリアライズしたデータのポインタ
 		_pBlob->GetBufferSize(),						// シリアライズしたデータのサイズ

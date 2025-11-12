@@ -72,3 +72,9 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 //===============================================
 
 #include "Core/Core.h"
+
+// バッファリング数
+enum
+{
+	FRAME_BUFFER_COUNT = 2		// 今回はダブルバッファリング
+};

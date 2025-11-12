@@ -24,7 +24,7 @@ PipelineState* g_pipelineState;
 
 VertexBuffer* g_vertexBuffer;
 IndexBuffer* g_indexBuffer;
-ConstantBuffer* g_constantBuffer[RenderingEngine::FRAME_BUFFER_COUNT];
+ConstantBuffer* g_constantBuffer[FRAME_BUFFER_COUNT];
 
 const wchar_t* MODEL_FILE_PATH = L"Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX";
 std::vector<Mesh> g_meshes;
@@ -91,7 +91,7 @@ bool SceneManager::Init()
 	auto _fov = XMConvertToRadians(60);															// 視野角
 	auto _aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);		// アスペクト比
 
-	for (size_t _i = 0; _i < RenderingEngine::FRAME_BUFFER_COUNT; ++_i)
+	for (size_t _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
 	{
 		g_constantBuffer[_i] = new ConstantBuffer(sizeof(Transform));
 		if (!g_constantBuffer[_i]->IsValid())

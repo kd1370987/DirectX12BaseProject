@@ -18,7 +18,7 @@ DescriptorHeap::DescriptorHeap()
 	_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
 	// デバイスの取得
-	auto _device = RenderingEngine::Instance().Device();
+	auto _device = RenderingEngine::Instance().GetDevice();
 
 	// ディスクリプタヒープの生成
 	auto _hr = _device->CreateDescriptorHeap(
@@ -63,7 +63,7 @@ DescriptorHandle* DescriptorHeap::Register(Texture2D* a_texture)
 	_pHandle->HandoleCPU = _handleCPU;
 	_pHandle->HandoleGPU = _handleGPU;
 
-	auto _device = RenderingEngine::Instance().Device();
+	auto _device = RenderingEngine::Instance().GetDevice();
 	auto _resource = a_texture->Resource();
 	auto _desc = a_texture->ViewDesc();
 

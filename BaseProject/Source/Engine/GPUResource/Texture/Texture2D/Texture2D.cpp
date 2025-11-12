@@ -130,7 +130,7 @@ bool Texture2D::Load(std::wstring& a_path)
 	);
 
 	// リソースを生成
-	_hr = RenderingEngine::Instance().Device()->CreateCommittedResource(
+	_hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
 		&_prop,
 		D3D12_HEAP_FLAG_NONE,
 		&_desc,
@@ -168,7 +168,7 @@ ID3D12Resource* Texture2D::GetDefaultResource(size_t a_width, size_t a_height)
 	auto _texHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
 
 	ID3D12Resource* _pBuff = nullptr;
-	auto _result = RenderingEngine::Instance().Device()->CreateCommittedResource(
+	auto _result = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
 		&_texHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&_resDesc,
