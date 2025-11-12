@@ -70,6 +70,18 @@
     <Filter Include="Source\Framework\Direct3D\Model\ModelScene\Node">
       <UniqueIdentifier>{d390925e-4edd-4d41-b6a9-71317ba17d10}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Framework\Direct3D\Texture">
+      <UniqueIdentifier>{d1837271-52ba-4071-a25f-af9ae3468c54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\Model\ModelLoader\Assimp">
+      <UniqueIdentifier>{182e0f8c-ac24-4e51-b984-69f3259da7d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\DescriptorHeap">
+      <UniqueIdentifier>{8903c9ae-ca1a-489a-9893-5f26b01c1908}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Framework\Direct3D\Texture\Texture2D">
+      <UniqueIdentifier>{967fb7d2-fa92-4018-903a-77e810235bb5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\main.cpp">
@@ -108,20 +120,14 @@
     <ClCompile Include="Source\Framework\Direct3D\Buffer\IndexBuffer.cpp">
       <Filter>Source\Framework\Direct3D\Buffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Direct3D\Model\ModelLoader\GLTF\GLTFLoader.cpp">
-      <Filter>Source\Framework\Direct3D\Model\ModelLoader\GLTF</Filter>
+    <ClCompile Include="Source\Framework\Direct3D\Model\ModelLoader\Assimp\AssimpLoader.cpp">
+      <Filter>Source\Framework\Direct3D\Model\ModelLoader\Assimp</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Mesh\Mesh.cpp">
-      <Filter>Source\Framework\Direct3D\Model\ModelScene\Mesh</Filter>
+    <ClCompile Include="Source\Framework\Direct3D\DescriptorHeap\DescriptorHeap.cpp">
+      <Filter>Source\Framework\Direct3D\DescriptorHeap</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Animation\Animation.cpp">
-      <Filter>Source\Framework\Direct3D\Model\ModelScene\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Framework\Direct3D\Model\Model.cpp">
-      <Filter>Source\Framework\Direct3D\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Node\Node.cpp">
-      <Filter>Source\Framework\Direct3D\Model\ModelScene\Node</Filter>
+    <ClCompile Include="Source\Framework\Direct3D\Texture\Texture2D\Texture2D.cpp">
+      <Filter>Source\Framework\Direct3D\Texture\Texture2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -158,26 +164,23 @@
     <ClInclude Include="Source\Framework\Direct3D\Buffer\IndexBuffer.h">
       <Filter>Source\Framework\Direct3D\Buffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Direct3D\Model\ModelLoader\GLTF\GLTFLoader.h">
-      <Filter>Source\Framework\Direct3D\Model\ModelLoader\GLTF</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Framework\Utility\FileUtility.h">
       <Filter>Source\Framework\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Mesh\Mesh.h">
-      <Filter>Source\Framework\Direct3D\Model\ModelScene\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Animation\Animation.h">
-      <Filter>Source\Framework\Direct3D\Model\ModelScene\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Framework\Direct3D\Model\Model.h">
-      <Filter>Source\Framework\Direct3D\Model</Filter>
     </ClInclude>
     <ClInclude Include="Source\Framework\Framework.h">
       <Filter>Source\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Node\Node.h">
-      <Filter>Source\Framework\Direct3D\Model\ModelScene\Node</Filter>
+    <ClInclude Include="Source\Framework\Direct3D\Model\ModelLoader\Assimp\AssimpLoader.h">
+      <Filter>Source\Framework\Direct3D\Model\ModelLoader\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Utility\StringUtillity.h">
+      <Filter>Source\Framework\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Direct3D\DescriptorHeap\DescriptorHeap.h">
+      <Filter>Source\Framework\Direct3D\DescriptorHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Direct3D\Texture\Texture2D\Texture2D.h">
+      <Filter>Source\Framework\Direct3D\Texture\Texture2D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

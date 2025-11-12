@@ -63,8 +63,8 @@ public:
 private:
 
 	// バッファ
-	VertexBuffer					m_vertexBuffer;		// 頂点バッファ
-	IndexBuffer						m_indexBuffer;		// インデックスバッファ
+	//VertexBuffer					m_vertexBuffer;		// 頂点バッファ
+	//IndexBuffer						m_indexBuffer;		// インデックスバッファ
 
 	// サブセット情報
 	std::vector<MeshSubset>			m_subsets;

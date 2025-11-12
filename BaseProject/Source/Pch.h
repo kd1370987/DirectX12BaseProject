@@ -52,6 +52,7 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #pragma comment(lib, "d3d12.lib")			// d3d12ライブラリをリンクする
 #pragma comment(lib, "dxgi.lib")			// dxgiライブラリをリンクする
 #pragma comment(lib,"d3dcompiler.lib")
+#pragma comment(lib, "DirectXTex.lib")	// DirectXTexライブラリをリンクする
 
 #include <d3d12.h>           // D3D12のメインヘッダー
 #include "d3dx12.h"          // D3DX12ユーティリティ（構造体のラッパー）
@@ -71,6 +72,3 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 //===============================================
 
 #include "Framework/Framework.h"
-
-
-// コメントがこうやって日本語で見えるならOK

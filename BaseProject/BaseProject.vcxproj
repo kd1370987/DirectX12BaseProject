@@ -117,7 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;packages\assimp\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -126,8 +126,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Library\DirectTex\Bin\Desktop_2022\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>assimp-vc143-mtd.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -138,18 +139,20 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;packages\assimp\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Library\DirectTex\Bin\Desktop_2022\x64\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Release;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>assimp-vc143-mt.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -160,11 +163,9 @@
     <ClCompile Include="Source\Framework\Direct3D\Buffer\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Framework\Direct3D\Buffer\IndexBuffer.cpp" />
     <ClCompile Include="Source\Framework\Direct3D\Buffer\VertexBuffer.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\Model\Model.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\Model\ModelLoader\GLTF\GLTFLoader.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Animation\Animation.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Mesh\Mesh.cpp" />
-    <ClCompile Include="Source\Framework\Direct3D\Model\ModelScene\Node\Node.cpp" />
+    <ClCompile Include="Source\Framework\Direct3D\DescriptorHeap\DescriptorHeap.cpp" />
+    <ClCompile Include="Source\Framework\Direct3D\Model\ModelLoader\Assimp\AssimpLoader.cpp" />
+    <ClCompile Include="Source\Framework\Direct3D\Texture\Texture2D\Texture2D.cpp" />
     <ClCompile Include="Source\Framework\Shader\PipelineState\PipelineState.cpp" />
     <ClCompile Include="Source\Framework\Shader\RootSignature\RootSignature.cpp" />
     <ClCompile Include="Source\Framework\Shader\ShaderCommon\SharedStruct.cpp" />
@@ -186,16 +187,15 @@
     <ClInclude Include="Source\Framework\Direct3D\Buffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Framework\Direct3D\Buffer\IndexBuffer.h" />
     <ClInclude Include="Source\Framework\Direct3D\Buffer\VertexBuffer.h" />
-    <ClInclude Include="Source\Framework\Direct3D\Model\Model.h" />
-    <ClInclude Include="Source\Framework\Direct3D\Model\ModelLoader\GLTF\GLTFLoader.h" />
-    <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Animation\Animation.h" />
-    <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Mesh\Mesh.h" />
-    <ClInclude Include="Source\Framework\Direct3D\Model\ModelScene\Node\Node.h" />
+    <ClInclude Include="Source\Framework\Direct3D\DescriptorHeap\DescriptorHeap.h" />
+    <ClInclude Include="Source\Framework\Direct3D\Model\ModelLoader\Assimp\AssimpLoader.h" />
+    <ClInclude Include="Source\Framework\Direct3D\Texture\Texture2D\Texture2D.h" />
     <ClInclude Include="Source\Framework\Framework.h" />
     <ClInclude Include="Source\Framework\Shader\PipelineState\PipelineState.h" />
     <ClInclude Include="Source\Framework\Shader\RootSignature\RootSignature.h" />
     <ClInclude Include="Source\Framework\Shader\ShaderCommon\SharedStruct.h" />
     <ClInclude Include="Source\Framework\Utility\FileUtility.h" />
+    <ClInclude Include="Source\Framework\Utility\StringUtillity.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>
   <ItemGroup>

@@ -2,6 +2,7 @@
 
 // ユーティリティ系
 #include "Utility/FileUtility.h"					// ファイル系
+#include "Utility/StringUtillity.h"					// 文字系
 
 // バッファー
 #include "Direct3D/Buffer/ConstantBuffer.h"			// 定数バッファ

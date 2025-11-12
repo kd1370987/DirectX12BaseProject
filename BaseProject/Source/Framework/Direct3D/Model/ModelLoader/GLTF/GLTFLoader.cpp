@@ -730,10 +730,12 @@ std::shared_ptr<GLTFModel> GLTFLoader::LoadGLTFModel(std::string_view a_filePath
 			if (_length)	continue;
 
 			// 上方向（Y軸）を基準に法線とクロスして接線を作る
-			DirectX::XMVECTOR _up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向ベクトル
-			DirectX::XMVECTOR _normal = DirectX::XMLoadFloat3(&_vertex.normal);		// 法線ベクトル
-			DirectX::XMVECTOR _tangent = DirectX::XMVector3Cross(_up, _normal);		// クロス積を計算
-			DirectX::XMStoreFloat3(&_vertex.tangent, _tangent);						// 結果を保存
+			{
+				DirectX::XMVECTOR _up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向ベクトル
+				DirectX::XMVECTOR _normal = DirectX::XMLoadFloat3(&_vertex.normal);		// 法線ベクトル
+				DirectX::XMVECTOR _tangent = DirectX::XMVector3Cross(_up, _normal);		// クロス積を計算
+				DirectX::XMStoreFloat3(&_vertex.tangent, _tangent);						// 結果を保存
+			}
 
 			// クロス結果がゼロベクトルの場合
 			if (_vertex.tangent.x == 0 && _vertex.tangent.y == 0 && _vertex.tangent.z == 0)
