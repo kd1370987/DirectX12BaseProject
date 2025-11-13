@@ -1,10 +1,19 @@
 ﻿#include "IndexBuffer.h"
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 
-IndexBuffer::IndexBuffer(size_t a_size, const uint32_t* a_pInitData)
+bool IndexBuffer::Create(
+	size_t a_size, 
+	size_t a_stride,
+	const uint32_t* a_pInitData,
+	DXGI_FORMAT a_format
+)
 {
+	// バッファのサイズ
+	size_t _bufferSize = a_size * a_stride;
+
+	// インデックスバッファの生成
 	auto _prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);		// ヒーププロパティ
-	D3D12_RESOURCE_DESC _desc = CD3DX12_RESOURCE_DESC::Buffer(a_size);	// リソースの設定
+	D3D12_RESOURCE_DESC _desc = CD3DX12_RESOURCE_DESC::Buffer(_bufferSize);	// リソースの設定
 
 	// リソースを生成
 	auto _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
@@ -18,14 +27,14 @@ IndexBuffer::IndexBuffer(size_t a_size, const uint32_t* a_pInitData)
 	if (FAILED(_hr))
 	{
 		printf("[OnInit]　インデックスバッファのリソースの生成に失敗");
-		return;
+		return false;
 	}
 
 	// インデックバッファのビュー設定
 	m_view = {};
 	m_view.BufferLocation = m_pBuffer->GetGPUVirtualAddress();
-	m_view.Format = DXGI_FORMAT_R32_UINT;
-	m_view.SizeInBytes = static_cast<UINT>(a_size);
+	m_view.Format = a_format;
+	m_view.SizeInBytes = static_cast<UINT>(_bufferSize);
 
 	// マッピングする(GPUのVRAM上にあるリソースをCPUから直接触れるようにアドレスを紐づけること)
 	if (a_pInitData != nullptr)
@@ -39,20 +48,19 @@ IndexBuffer::IndexBuffer(size_t a_size, const uint32_t* a_pInitData)
 
 		// インデックスデータをマッピング先に設定
 		// CPUからGPUのバッファに直接アクセス
-		memcpy(_ptr, a_pInitData, a_size);
+		memcpy(_ptr, a_pInitData, _bufferSize);
 
 		// マッピング解除(CPUとGPUの紐づけを解除)
 		m_pBuffer->Unmap(0, nullptr);
 	}
-	m_isValid = true;
+
+	m_format = a_format;
+	m_count = static_cast<UINT>(_bufferSize / ((a_format == DXGI_FORMAT_R16_UINT) ? 2 : 4));
+
+	return true;
 }
 
-bool IndexBuffer::IsValid()
-{
-	return m_isValid;
-}
-
-D3D12_INDEX_BUFFER_VIEW IndexBuffer::View() const
+const D3D12_INDEX_BUFFER_VIEW& IndexBuffer::View() const
 {
 	return m_view;
 }

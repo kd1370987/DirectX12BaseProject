@@ -4,15 +4,29 @@ class VertexBuffer
 {
 public:
 
-	// コンストラクタでバッファを生成
-	VertexBuffer(size_t a_size, size_t a_stride, const void* a_pInitData);
+	VertexBuffer() = default;
+	~VertexBuffer() = default;
 
-	D3D12_VERTEX_BUFFER_VIEW View()const;				// 頂点バッファビューを取得
-	bool IsValid();										// バッファの生成に成功したかを取得
+	/// <summary>
+	/// 頂点バッファ作成
+	/// </summary>
+	/// <param name="a_size">頂点数</param>
+	/// <param name="a_stride">頂点一つ分のサイズ</param>
+	/// <param name="a_pInitData">実際のデータ</param>
+	/// <returns></returns>
+	bool Create(
+		size_t a_size, 
+		size_t a_stride, 
+		const void* a_pInitData
+	);
+
+	/// <summary>
+	/// 頂点バッファビューを取得
+	/// </summary>
+	const D3D12_VERTEX_BUFFER_VIEW& View()const;				// 頂点バッファビューを取得
 
 private:
 
-	bool m_isValid = false;								// バッファの生成に成功したかを取得
 	ComPtr<ID3D12Resource> m_pBuffer = nullptr;			// バッファ本体
 	D3D12_VERTEX_BUFFER_VIEW m_view = {};				// 頂点バッファビュー
 

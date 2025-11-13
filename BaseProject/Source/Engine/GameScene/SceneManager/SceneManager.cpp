@@ -56,11 +56,11 @@ bool SceneManager::Init()
 	g_vertexBuffers.reserve(g_meshes.size());			// 要素数は増えないがメモリは確保される(再確保を防ぐため)
 	for (size_t _i = 0; _i < g_meshes.size(); ++_i)
 	{
-		auto _size = sizeof(Vertex) * g_meshes[_i].vertices.size();
+		auto _size = g_meshes[_i].vertices.size();
 		auto _stride = sizeof(Vertex);
 		auto _vertices = g_meshes[_i].vertices.data();
-		auto _pVB = new VertexBuffer(_size, _stride, _vertices);
-		if (!_pVB->IsValid())
+		auto _pVB = new VertexBuffer();
+		if (!_pVB->Create(_size, _stride, _vertices))
 		{
 			printf("頂点バッファの生成に失敗\n");
 			return false;
@@ -72,10 +72,11 @@ bool SceneManager::Init()
 	g_indexBuffers.reserve(g_meshes.size());
 	for (size_t _i = 0; _i < g_meshes.size(); ++_i)
 	{
-		auto _size = sizeof(uint32_t) * g_meshes[_i].indices.size();
+		auto _size = g_meshes[_i].indices.size();
 		auto _indices = g_meshes[_i].indices.data();
-		auto _pIB = new IndexBuffer(_size, _indices);
-		if (!_pIB->IsValid())
+		auto _pIB = new IndexBuffer();
+		
+		if (!_pIB->Create(_size, sizeof(uint32_t),_indices))
 		{
 			printf("インデックスバッファの生成に失敗\n");
 			return false;

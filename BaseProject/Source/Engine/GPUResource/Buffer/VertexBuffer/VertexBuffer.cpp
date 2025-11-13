@@ -2,13 +2,19 @@
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 
-VertexBuffer::VertexBuffer(size_t a_size, size_t a_stride, const void* a_pInitData)
+bool VertexBuffer::Create(
+	size_t a_size,
+	size_t a_stride, 
+	const void* a_pInitData
+)
 {
 	// 頂点バッファの生成
+	size_t _bufferSize = a_size * a_stride;
+
 
 	// 初期化情報
 	auto _prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);		// ヒーププロパティ
-	auto _desc = CD3DX12_RESOURCE_DESC::Buffer(a_size);					// リソースの設定
+	auto _desc = CD3DX12_RESOURCE_DESC::Buffer(_bufferSize);					// リソースの設定
 
 	// リソースの生成
 	auto _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
@@ -22,12 +28,12 @@ VertexBuffer::VertexBuffer(size_t a_size, size_t a_stride, const void* a_pInitDa
 	if (FAILED(_hr))
 	{
 		printf("頂点バッファリソースの生成に失敗");
-		return;
+		return false;
 	}
 
 	// 頂点バッファビューの設定
 	m_view.BufferLocation = m_pBuffer->GetGPUVirtualAddress();
-	m_view.SizeInBytes = static_cast<UINT>(a_size);
+	m_view.SizeInBytes = static_cast<UINT>(_bufferSize);
 	m_view.StrideInBytes = static_cast<UINT>(a_stride);
 
 	// マッピングする
@@ -38,26 +44,21 @@ VertexBuffer::VertexBuffer(size_t a_size, size_t a_stride, const void* a_pInitDa
 		if (FAILED(_hr))
 		{
 			printf("頂点バッファマッピングに失敗");
-			return;
+			return false;
 		}
 
 		// 頂点データをマッピング先に設定
-		memcpy(_ptr, a_pInitData, a_size);
+		memcpy(_ptr, a_pInitData, _bufferSize);
 
 		// マッピング解除
 		m_pBuffer->Unmap(0, nullptr);
 	}
 
 	// 作成成功
-	m_isValid = true;
+	return true;
 }
 
-D3D12_VERTEX_BUFFER_VIEW VertexBuffer::View() const
+const D3D12_VERTEX_BUFFER_VIEW& VertexBuffer::View() const
 {
 	return m_view;
-}
-
-bool VertexBuffer::IsValid()
-{
-	return m_isValid;
 }
