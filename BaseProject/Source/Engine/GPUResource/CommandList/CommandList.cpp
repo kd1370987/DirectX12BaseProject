@@ -15,6 +15,13 @@ bool CommandList::Init(
 	return true;
 }
 
+bool CommandList::Reset(ID3D12CommandAllocator* a_pCommandAllocator)
+{
+	m_pCommandList->Reset(a_pCommandAllocator,nullptr);
+
+	return true;
+}
+
 bool CommandList::CreateCommandList(
 	ID3D12Device8* a_pDevice, 
 	ID3D12CommandAllocator* a_pCommandAllocator, 

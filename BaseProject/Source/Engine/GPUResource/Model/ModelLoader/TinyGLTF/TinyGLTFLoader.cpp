@@ -1,7 +1,7 @@
-﻿#include "GLTFLoader.h"
+﻿#include "TinyGLTFLoader.h"
 
-#include "../../ModelScene/Animation/Animation.h"
-#include "../../ModelScene/Mesh/Mesh.h"
+#include "../../ModelResource/Animation/Animation.h"
+#include "../../ModelResource/Mesh/Mesh.h"
 
 // TinyGLTF
 #define TINYGLTF_IMPLEMENTATION
@@ -456,7 +456,7 @@ std::shared_ptr<GLTFModel> GLTFLoader::LoadGLTFModel(std::string_view a_filePath
         // 作業データ
         struct GLTFPrimitive
         {
-            std::vector<MeshVertex>     vertices;
+            std::vector<MeshVertex8bit>     vertices;
             std::vector<MeshFace>       faces;
 
             UINT                        materialNumber = 0;
@@ -684,7 +684,7 @@ std::shared_ptr<GLTFModel> GLTFLoader::LoadGLTFModel(std::string_view a_filePath
 				UINT _st = static_cast<UINT>(_destNode->nodeMesh.vertices.size());
 				_destNode->nodeMesh.vertices.resize(_destNode->nodeMesh.vertices.size() + _primitive->vertices.size());
 				memcpy(&_destNode->nodeMesh.vertices[_st],
-					&_primitive->vertices[0], _primitive->vertices.size() * sizeof(MeshVertex)
+					&_primitive->vertices[0], _primitive->vertices.size() * sizeof(MeshVertex8bit)
 				);
 			}
 

@@ -121,6 +121,12 @@
     <Filter Include="Source\Engine\GPUResource\CommandAllocator">
       <UniqueIdentifier>{3200aca0-8fb6-47fb-b76a-aca5d02061b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Window">
+      <UniqueIdentifier>{4903a1c3-ef1a-452c-aa19-3c12f2daf394}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\Fence">
+      <UniqueIdentifier>{d960394c-0030-40db-b9f7-73b0a231c2a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -182,6 +188,27 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.cpp">
       <Filter>Source\Engine\GPUResource\CommandAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Window\Window.cpp">
+      <Filter>Source\Engine\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Fence\Fence.cpp">
+      <Filter>Source\Engine\GPUResource\Fence</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Model\Model.cpp">
+      <Filter>Source\Engine\GPUResource\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Node\Node.cpp">
+      <Filter>Source\Engine\GPUResource\Model\ModelResource\Node</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Material\Material.cpp">
+      <Filter>Source\Engine\GPUResource\Model\ModelResource\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Animation\Animation.cpp">
+      <Filter>Source\Engine\GPUResource\Model\ModelResource\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF\TinyGLTFLoader.cpp">
+      <Filter>Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -250,6 +277,27 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.h">
       <Filter>Source\Engine\GPUResource\CommandAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Window\Window.h">
+      <Filter>Source\Engine\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Fence\Fence.h">
+      <Filter>Source\Engine\GPUResource\Fence</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Model\Model.h">
+      <Filter>Source\Engine\GPUResource\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Node\Node.h">
+      <Filter>Source\Engine\GPUResource\Model\ModelResource\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Material\Material.h">
+      <Filter>Source\Engine\GPUResource\Model\ModelResource\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Animation\Animation.h">
+      <Filter>Source\Engine\GPUResource\Model\ModelResource\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF\TinyGLTFLoader.h">
+      <Filter>Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

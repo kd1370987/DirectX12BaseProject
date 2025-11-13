@@ -24,7 +24,7 @@ public:
 	//=================================================
 	// モデルをファイルからロード
 	//=================================================
-	bool Load(std::string_view a_filePath);
+	bool Load(const std::string& a_filePath);
 
 	//=================================================
 	// アクセサ
@@ -78,6 +78,9 @@ private:
 	std::vector<int>							m_meshNodeIndices;			// メッシュが存在するノード
 	std::vector<int>							m_collisionMeshNodeIndices;	// 子リジョンメッシュが存在するノード
 	std::vector<int>							m_drawMeshNodeIndices;		// 描画するノード
+
+	// メッシュ
+	std::vector<std::shared_ptr<Mesh>>			m_spMeshes;					// メッシュ配列
 };
 
 

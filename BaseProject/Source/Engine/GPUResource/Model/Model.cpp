@@ -1,11 +1,14 @@
 ﻿#include "Model.h"
 
-#include "ModelScene/Animation/Animation.h"
-#include "ModelScene/Mesh/Mesh.h"
-#include "ModelScene/Node/Node.h"
-#include "ModelScene/Material/Material.h"
+// モデルローダー
+#include "ModelLoader/Assimp/AssimpLoader.h"
+#include "ModelLoader/TinyGLTF/TinyGLTFLoader.h"
 
-#include "ModelLoader/GLTF/GLTFLoader.h"
+
+#include "ModelResource/Animation/Animation.h"
+#include "ModelResource/Mesh/Mesh.h"
+#include "ModelResource/Node/Node.h"
+#include "ModelResource/Material/Material.h"
 
 //==========================================================
 // 
@@ -25,13 +28,24 @@ ModelResource::~ModelResource()
 // モデル読み込み
 // 
 //==========================================================
-bool ModelResource::Load(std::string_view a_filePath)
+bool ModelResource::Load(const std::string& a_filePath)
 {
 	// データをクリア
 	Release();
 
-	// ファイルのディレクトリを取得
-	std::string _fileDir = FileUtility::GetDirFromPath(a_filePath.data());
+	//-------------------------------------
+	// Assimpを使用する場合
+	//-------------------------------------
+
+	const wchar_t* _modelPath = StringUtility::ToWideString(a_filePath).c_str();		// 文字列変換
+	ImportSettings _impSet = 
+	{
+		_modelPath,
+		m_meshes,
+	};
+	AssimpLoader _assimp;
+	if(_assimp.Load())
+
 
 	// モデル読み込み（とりあえずGLTFのみ）
 	std::shared_ptr<GLTFModel> _spGltfModel = GLTFLoader::LoadGLTFModel(a_filePath.data());

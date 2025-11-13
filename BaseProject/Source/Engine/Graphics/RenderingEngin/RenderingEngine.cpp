@@ -2,45 +2,60 @@
 
 bool RenderingEngine::Init(HWND a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
 {
-	m_frameBufferWidth = a_windowWidth;
-	m_frameBufferHeight = a_windowHeight;
-	m_hWnd = a_hWnd;
-
 	// GPUリソース初期化
+
+	// デバイス作成
 	if (!m_device.Init()) 
 	{
 		return false;
 	}
+	// コマンドキュー作成
 	if (!m_commandQueue.Init(m_device.GetDevice()))
 	{
 		return false;
 	}
-	if (!CreateSwapChain())
+	// スワップチェイン作成
+	if (!CreateSwapChain(a_hWnd, a_windowWidth, a_windowHeight))
 	{
 		printf("スワップチェインの生成に失敗");
 		return false;
 	}
-	if (!CreateCommandList())
+	// コマンドアロケーター作成
+	if (!m_commandAllocator.Init(m_device.GetDevice()))
 	{
-		printf("コマンドリストの生成に失敗");
 		return false;
 	}
-	if (!CreateFence())
+	// コマンドリスト作成
+	if (!m_commandList.Init(
+		m_device.GetDevice(), m_commandAllocator.GetCCurrentAllocator(m_currentBackBufferIndex), m_currentBackBufferIndex))
 	{
-		printf("フェンスの生成に失敗");
 		return false;
 	}
 
+	// フェンス作成
+	for (auto _i = 0u; _i < FRAME_BUFFER_COUNT; ++_i)
+	{
+		m_fenceValue[_i] = 0;
+	}
+	if (m_fence.Init(m_device.GetDevice()))
+	{
+		return false;
+	}
+	m_fenceValue[m_currentBackBufferIndex]++;
+
+	// 同期を行うときのイベントハンドラを作成する
+	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+
 	// ビューポートとシザー矩形を生成
-	CreateViewPort();
-	CreateScissorRect();
+	CreateViewPort(a_windowWidth, a_windowHeight);
+	CreateScissorRect(a_windowWidth, a_windowHeight);
 
 	if (!CreateRenderTarget())
 	{
 		printf("レンダーターゲットの生成に失敗");
 		return false;
 	}
-	if (!CreateDepthStencil())
+	if (!CreateDepthStencil(a_windowWidth, a_windowHeight))
 	{
 		printf("デプスステンシルバッファの生成に失敗");
 		return false;
@@ -62,12 +77,12 @@ void RenderingEngine::BeginRender()
 	m_currentRenderTarget = m_pRenderTargets[m_currentBackBufferIndex].Get();
 
 	// コマンドキューを初期化して命令をためる準備をする
-	m_pAllocator[m_currentBackBufferIndex]->Reset();
-	m_pCommandList->Reset(m_pAllocator[m_currentBackBufferIndex].Get(), nullptr);
+	m_commandAllocator.Reset(m_currentBackBufferIndex);
+	m_commandList.Reset(m_commandAllocator.GetCCurrentAllocator(m_currentBackBufferIndex));
 
 	// ビューポートとシザー矩形を設定
-	m_pCommandList->RSSetViewports(1, &m_viewPort);
-	m_pCommandList->RSSetScissorRects(1, &m_scissor);
+	m_commandList.GetCommandList()->RSSetViewports(1, &m_viewPort);
+	m_commandList.GetCommandList()->RSSetScissorRects(1,&m_scissor);
 
 	// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
 	auto _currentRtvHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
@@ -80,17 +95,17 @@ void RenderingEngine::BeginRender()
 	auto _burrier = CD3DX12_RESOURCE_BARRIER::Transition(
 		m_currentRenderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
-	m_pCommandList->ResourceBarrier(1, &_burrier);
+	m_commandList.GetCommandList()->ResourceBarrier(1, &_burrier);
 
 	// レンダーターゲットを設定
-	m_pCommandList->OMSetRenderTargets(1, &_currentRtvHandle, FALSE, &_currentDsvHandle);
+	m_commandList.GetCommandList()->OMSetRenderTargets(1, &_currentRtvHandle, FALSE, &_currentDsvHandle);
 
 	// レンダーターゲットをクリア
 	const float _clearColor[] = { 0.25f,0.25f,1.0f,1.0f };									// バックバッファの色
-	m_pCommandList->ClearRenderTargetView(_currentRtvHandle, _clearColor, 0, nullptr);
+	m_commandList.GetCommandList()->ClearRenderTargetView(_currentRtvHandle, _clearColor, 0, nullptr);
 
 	// 深度ステンシルビューをクリア
-	m_pCommandList->ClearDepthStencilView(_currentDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	m_commandList.GetCommandList()->ClearDepthStencilView(_currentDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
 void RenderingEngine::EndRender()
 {
@@ -98,13 +113,13 @@ void RenderingEngine::EndRender()
 	auto _barrier = CD3DX12_RESOURCE_BARRIER::Transition(
 		m_currentRenderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT
 	);
-	m_pCommandList->ResourceBarrier(1, &_barrier);
+	m_commandList.GetCommandList()->ResourceBarrier(1, &_barrier);
 
 	// コマンドの記録を終了
-	m_pCommandList->Close();
+	m_commandList.GetCommandList()->Close();
 
 	// コマンドを実行
-	ID3D12CommandList* _ppCmdLists[] = { m_pCommandList.Get() };
+	ID3D12CommandList* _ppCmdLists[] = { m_commandList.GetCommandList() };
 	m_commandQueue.Get()->ExecuteCommandLists(1, _ppCmdLists);
 
 	// スワップチェーンを切替
@@ -126,12 +141,11 @@ ID3D12Device6* RenderingEngine::GetDevice()
 {
 	// デバイスの取得
 	return m_device.GetDevice();
-	//return m_pDevice.Get();
 }
-ID3D12GraphicsCommandList* RenderingEngine::CommandList()
+ID3D12GraphicsCommandList* RenderingEngine::GetCommandList()
 {
 	// コマンドリストの取得
-	return m_pCommandList.Get();
+	return m_commandList.GetCommandList();
 }
 UINT RenderingEngine::CurrentBackBufferIndex()
 {
@@ -144,32 +158,7 @@ UINT RenderingEngine::CurrentBackBufferIndex()
 // DirectX12初期化に使う
 // 
 //==================================================================================
-//bool RenderingEngine::CreateDevice()
-//{
-//	// ComPtrのRelease...を使うことでm_pDeviceの中身をクリアして割り当て
-//	auto _hr = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(m_pDevice.ReleaseAndGetAddressOf()));
-//	return SUCCEEDED(_hr);
-//}
-//bool RenderingEngine::CreateCommandQueue()
-//{
-//	// コマンドキュー
-//	// デバイスに送るための描画コマンドの投稿や、描画コマンド実行の同期処理を行うもの
-//
-//	// 仕様書生成
-//	D3D12_COMMAND_QUEUE_DESC _desc = {};
-//	_desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;				// コマンドリストの種類を決定(今回は描画用)
-//	_desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;		// キューの優先度設定
-//	_desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;				// キューの追加オプション（なし）
-//	_desc.NodeMask = 0;											// マルチGPU環境なら変更（基本シングルなので0or1）
-//
-//	// コマンドキュー生成
-//	//auto _hr = m_pDevice->CreateCommandQueue(&_desc,IID_PPV_ARGS(m_pQueue.ReleaseAndGetAddressOf()));
-//	auto _hr = m_device.GetDevice()->CreateCommandQueue(&_desc, IID_PPV_ARGS(m_pQueue.ReleaseAndGetAddressOf()));
-//
-//	// 生存チェック・リターン（成功ならS_OK(0)を返す）
-//	return SUCCEEDED(_hr);
-//}
-bool RenderingEngine::CreateSwapChain()
+bool RenderingEngine::CreateSwapChain(HWND a_hWnd, UINT a_frameBufferWidth, UINT a_frameBufferHeight)
 {
 	// スワップチェイン
 	// 描画先を複数用意して、順番に描画をしていくことで、ちらつきなどを抑える
@@ -185,8 +174,8 @@ bool RenderingEngine::CreateSwapChain()
 
 	// 仕様書作成
 	DXGI_SWAP_CHAIN_DESC _desc = {};
-	_desc.BufferDesc.Width = m_frameBufferWidth;									// 幅
-	_desc.BufferDesc.Height = m_frameBufferHeight;									// 高さ
+	_desc.BufferDesc.Width = a_frameBufferWidth;									// 幅
+	_desc.BufferDesc.Height = a_frameBufferHeight;									// 高さ
 	_desc.BufferDesc.RefreshRate.Numerator = 60;									// 何回(60 / 1 = 60)
 	_desc.BufferDesc.RefreshRate.Denominator = 1;									// 何秒間の間に(60 / 1 = 1)
 	_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;		// 映像のスキャン順序
@@ -196,7 +185,7 @@ bool RenderingEngine::CreateSwapChain()
 	_desc.SampleDesc.Quality = 0;													// アンチエイリアス設定
 	_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;							// バッファの用途（出力）
 	_desc.BufferCount = FRAME_BUFFER_COUNT;											// バッファ数
-	_desc.OutputWindow = m_hWnd;													// 出力先
+	_desc.OutputWindow = a_hWnd;													// 出力先
 	_desc.Windowed = TRUE;															// ウィンドウモード指定
 	_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;								// 切替の方式
 	_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;							// フルスクリーン切替許可
@@ -230,71 +219,7 @@ bool RenderingEngine::CreateSwapChain()
 
 	return true;
 }
-bool RenderingEngine::CreateCommandList()
-{
-	// コマンドリスト
-	// 描画命令をためておく
-
-	// コマンドアロケーター
-	// コマンドリスト生成に必要なもの
-
-	// コマンドアロケーターの作成
-	HRESULT _hr;
-	for (size_t _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
-	{
-		_hr = m_device.GetDevice()->CreateCommandAllocator(
-			D3D12_COMMAND_LIST_TYPE_DIRECT,
-			IID_PPV_ARGS(m_pAllocator[_i].ReleaseAndGetAddressOf())
-		);
-	}
-	if (FAILED(_hr))
-	{
-		printf("コマンドアロケーターの作成に失敗");
-		return false;
-	}
-
-	// コマンドリストの生成
-	_hr = m_device.GetDevice()->CreateCommandList(
-		0,
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		m_pAllocator[m_currentBackBufferIndex].Get(),
-		nullptr,
-		IID_PPV_ARGS(&m_pCommandList)
-	);
-	if (FAILED(_hr))
-	{
-		return false;
-	}
-
-	// コマンドリストは開かれている状態で作成されるため、一度閉じる
-	m_pCommandList->Close();
-
-	return true;;
-}
-bool RenderingEngine::CreateFence()
-{
-	// フェンス
-	// GPUとCPUの同期を行うためのもの
-	// 描画が完了したかどうかは、フェンスの値がインクリメントされたかどうかで判定する
-
-	for (auto _i = 0u; _i < FRAME_BUFFER_COUNT; ++_i)
-	{
-		m_fenceValue[_i] = 0;
-	}
-	auto _hr = m_device.GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_pFence.ReleaseAndGetAddressOf()));
-	if (FAILED(_hr))
-	{
-		printf("フェンスの作成に失敗");
-		return false;
-	}
-
-	m_fenceValue[m_currentBackBufferIndex]++;
-
-	// 同期を行うときのイベントハンドラを作成する
-	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-	return m_fenceEvent != nullptr;
-}
-void RenderingEngine::CreateViewPort()
+void RenderingEngine::CreateViewPort(UINT a_frameBufferWidth, UINT a_frameBufferHeight)
 {
 	// ビューポート
 	// ウィンドウに対してレンダリング結果をどう表示するかの設定
@@ -304,23 +229,23 @@ void RenderingEngine::CreateViewPort()
 	m_viewPort.TopLeftY = 0;
 
 	// 幅・高さ
-	m_viewPort.Width = static_cast<float>(m_frameBufferWidth);
-	m_viewPort.Height = static_cast<float>(m_frameBufferHeight);
+	m_viewPort.Width = static_cast<float>(a_frameBufferWidth);
+	m_viewPort.Height = static_cast<float>(a_frameBufferHeight);
 
 	// 深度のマッピング範囲（奥行情報・Zバッファの値）
 	m_viewPort.MinDepth = 0.0f;
 	m_viewPort.MaxDepth = 1.0f;
 
 }
-void RenderingEngine::CreateScissorRect()
+void RenderingEngine::CreateScissorRect(UINT a_frameBufferWidth, UINT a_frameBufferHeight)
 {
 	// シザー矩形
 	// ビューポートに表示された画像のどこからどこまでを画面に映し出すのかの設定
 
 	m_scissor.left = 0;
-	m_scissor.right = m_frameBufferWidth;
+	m_scissor.right = a_frameBufferWidth;
 	m_scissor.top = 0;
-	m_scissor.bottom = m_frameBufferHeight;
+	m_scissor.bottom = a_frameBufferHeight;
 }
 
 //==================================================================================
@@ -364,7 +289,7 @@ bool RenderingEngine::CreateRenderTarget()
 	}
 	return true;
 }
-bool RenderingEngine::CreateDepthStencil()
+bool RenderingEngine::CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBufferHeight)
 {
 	// 深度ステンシルバッファの生成
 	// レンダーターゲット内にあるポリゴンがどっちが手前でどっちが奥かを判別する物
@@ -396,8 +321,8 @@ bool RenderingEngine::CreateDepthStencil()
 	CD3DX12_RESOURCE_DESC _resourceDesc(
 		D3D12_RESOURCE_DIMENSION_TEXTURE2D,														// 2Dテクスチャとして使う
 		0,
-		m_frameBufferWidth,																		// 画面サイズに合わせる
-		m_frameBufferHeight,																	// 画面サイズに合わせる
+		a_frameBufferWidth,																		// 画面サイズに合わせる
+		a_frameBufferHeight,																	// 画面サイズに合わせる
 		1,
 		1,
 		DXGI_FORMAT_D32_FLOAT,																	// 深度値は32bit float
@@ -432,15 +357,14 @@ void RenderingEngine::WaitRender()
 {
 	// 描画終了待ち
 	const UINT64 _fenceValue = m_fenceValue[m_currentBackBufferIndex];
-	m_commandQueue.Get()->Signal(m_pFence.Get(), _fenceValue);
+	m_commandQueue.Get()->Signal(m_fence.GetFence(), _fenceValue);
 	m_fenceValue[m_currentBackBufferIndex]++;				// インクリメントが待機完了
 
 	// 次のフレームの描画準備がまだであれば待機する
-	if (m_pFence->GetCompletedValue() < _fenceValue)
+	if (m_fence.GetCompletedValue() < _fenceValue)
 	{
 		// 完了時にイベントを設定
-		auto _hr = m_pFence->SetEventOnCompletion(_fenceValue, m_fenceEvent);
-		if (FAILED(_hr))
+		if (m_fence.SetEventOnCompletion(_fenceValue, m_fenceEvent))
 		{
 			return;
 		}

@@ -167,7 +167,7 @@ void SceneManager::Update()
 void SceneManager::Draw()
 {
 	auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();	// 現在のフレーム番号
-	auto _commandList = RenderingEngine::Instance().CommandList();				// コマンドリスト
+	auto _commandList = RenderingEngine::Instance().GetCommandList();				// コマンドリスト
 	auto _materialHeap = g_descriptorHeap->GetHeap();							// マテリアル用ディスクリプタヒープ
 
 	// メッシュの数だけインデックス分の描画を行う処理を回す

@@ -15,8 +15,12 @@ public:
 		D3D12_COMMAND_LIST_TYPE a_commandListType = D3D12_COMMAND_LIST_TYPE_DIRECT
 	);
 
+	// コマンドリストリセット
+	bool Reset(ID3D12CommandAllocator* a_pCommandAllocator);
+
 	// コマンドリストの取得
 	ID3D12GraphicsCommandList* GetCommandList() { return m_pCommandList.Get(); }
+
 private:
 
 	// コマンドリストの生成
