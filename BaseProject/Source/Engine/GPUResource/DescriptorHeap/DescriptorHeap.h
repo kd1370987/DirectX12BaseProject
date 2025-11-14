@@ -55,6 +55,9 @@ private:
 	UINT m_incrementSize = 0;
 	D3D12_DESCRIPTOR_HEAP_TYPE m_type{};
 	ComPtr<ID3D12DescriptorHeap> m_pHeap = nullptr;		// ディスクリプタヒープ本体
+	
 	UINT m_maxSize = 0;
-	std::vector<DescriptorHandle> m_pHandles;			// 登録されているハンドル
+	//std::vector<DescriptorHandle> m_handles;			// 登録されているハンドル
+
+	size_t m_currentIndex = 0;
 };

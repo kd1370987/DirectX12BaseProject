@@ -1,16 +1,19 @@
 ﻿#pragma once
 
 class DescriptorHeap;
+struct DescriptorHandle;
 
 class DescriptorHeapManager
 {
 public:
 
+	void Init();
 
+	DescriptorHandle RegisterSRV(ID3D12Resource* a_resource);
 
 private:
 
-	DescriptorHeap* m_descriptorHeap;
+	std::shared_ptr<DescriptorHeap> m_spSRVHeap = nullptr;
 
 // シングルトン
 private:

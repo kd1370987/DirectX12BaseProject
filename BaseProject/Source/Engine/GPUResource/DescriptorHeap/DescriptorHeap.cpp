@@ -4,8 +4,9 @@
 
 bool DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE a_type, UINT a_numDescriptors, D3D12_DESCRIPTOR_HEAP_FLAGS a_flags, UINT a_mask)
 {
-	m_pHandles.clear();							// クリア
-	m_pHandles.reserve(a_numDescriptors);		// メモリ確保
+	//m_handles.clear();							// クリア
+	//m_handles.reserve(a_numDescriptors);		// メモリ確保
+	m_currentIndex = 0;
 
 	// ディスクリプタヒープの仕様書作成
 	D3D12_DESCRIPTOR_HEAP_DESC _desc = {};
@@ -46,7 +47,8 @@ DescriptorHandle DescriptorHeap::RegisterCPUOnly()
 
 DescriptorHandle DescriptorHeap::RegisterSRV(ID3D12Resource* a_resource)
 {
-	auto _count = m_pHandles.size();
+	//auto _count = m_handles.size();
+	size_t _count = m_currentIndex;
 	if (m_maxSize <= _count)
 	{
 		return {};
@@ -84,7 +86,8 @@ DescriptorHandle DescriptorHeap::RegisterSRV(ID3D12Resource* a_resource)
 	);
 
 	// ハンドルリストに追加
-	m_pHandles.push_back(_handle);
+	//m_handles.push_back(_handle);
+	m_currentIndex++;
 
 	// ハンドルを返す
 	return _handle;
