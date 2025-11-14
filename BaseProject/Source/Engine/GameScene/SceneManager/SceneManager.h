@@ -1,4 +1,6 @@
-#pragma once
+ï»¿#pragma once
+
+class ModelResource;
 
 class SceneManager
 {
@@ -12,16 +14,18 @@ public:
 	void Draw();
 
 private:
-	// ƒV[ƒ“
+	// ã‚·ãƒ¼ãƒ³
 	
 	float m_rotateY;
 
+	std::shared_ptr<ModelResource> m_spModel;
+
 private:
-	// ƒVƒ“ƒOƒ‹ƒgƒ“‰»
+	// ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³åŒ–
 	SceneManager() {}
 	~SceneManager() {}
 public:
-	// ƒCƒ“ƒXƒ^ƒ“ƒXæ“¾
+	// ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹å–å¾—
 	static SceneManager& Instance()
 	{
 		static SceneManager _instance;

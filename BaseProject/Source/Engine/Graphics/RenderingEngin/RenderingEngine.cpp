@@ -1,5 +1,20 @@
 ﻿#include "RenderingEngine.h"
 
+//#include "Engine/GPUResource/Model/Model.h"
+//#include "Engine/GPUResource/Model/ModelResource/Mesh/Mesh.h"
+//#include "Engine/GPUResource/RootSignature/RootSignature.h"
+//#include "Engine/GPUResource/PipeLineState/PipelineState.h"
+//
+//#include "Engine/GPUResource/Buffer/ConstantBuffer/ConstantBuffer.h"
+//#include "Engine/GPUResource/DescriptorHeap/DescriptorHeap.h"
+//
+//struct alignas(256) Transform
+//{
+//	DirectX::XMMATRIX world;		// ワールド行列
+//	DirectX::XMMATRIX view;			// ビュー行列
+//	DirectX::XMMATRIX proj;			// 投影行列
+//};
+
 bool RenderingEngine::Init(HWND a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
 {
 	// GPUリソース初期化
@@ -63,6 +78,70 @@ bool RenderingEngine::Init(HWND a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
 
 	// 初期化成功
 	printf("描画エンジンの初期化に成功\n");
+
+//	m_spRootSignature = std::make_shared<RootSignature>();
+//	if (m_spRootSignature->IsValid())
+//	{
+//		printf("ルートシグネチャの生成に成功\n");
+//		return false;
+//	}
+//
+//	// パイプラインステートの作成
+//	m_spPipeLineState = std::make_shared<PipelineState>();
+//	const int _inputElementCount = 5;
+//	const D3D12_INPUT_ELEMENT_DESC _inputElements[_inputElementCount] = 
+//	{
+//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }, // float3のPOSITION
+//	{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }, // float3のNORMAL
+//	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }, // float2のTEXCOORD
+//	{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }, // float3のTANGENT
+//	{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }, // float4のCOLOR
+//	};
+//	const D3D12_INPUT_LAYOUT_DESC _inputLayout =
+//	{
+//		_inputElements,
+//		_inputElementCount
+//	};
+//	m_spPipeLineState->SetInputLayout(_inputLayout);
+//	m_spPipeLineState->SetRootSignature(m_spRootSignature->Get());
+//#ifdef _DEBUG
+//	m_spPipeLineState->SetVS(L"x64/Debug/SimpleVS.cso");
+//	m_spPipeLineState->SetPS(L"x64/Debug/SimplePS.cso");
+//#else
+//	m_spPipeLineState->SetVS(L"x64/Release/SimpleVS.cso");
+//	m_spPipeLineState->SetPS(L"x64/Release/SimplePS.cso");
+//#endif
+//	m_spPipeLineState->Create();
+//	if (!m_spPipeLineState->IsValid())
+//	{
+//		printf("パイプラインステートの生成に失敗\n");
+//		return false;
+//	}
+//	auto _eyePos = DirectX::XMVectorSet(0.0f, 120.0f, 75.0f, 0.0f);											// 視点の位置
+//	auto _targetPos = DirectX::XMVectorSet(0.0f, 120.0f, 0.0f, 0.0f);										// 視点を向ける座標
+//	auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);											// 上方向を表すベクトル
+//	auto _fov = DirectX::XMConvertToRadians(60);															// 視野角
+//	auto _aspect = static_cast<float>(a_windowWidth) / static_cast<float>(a_windowHeight);		// アスペクト比
+//
+//	for (size_t _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
+//	{
+//		m_spCameraConstantBuffer[_i] = std::make_shared<ConstantBuffer>(sizeof(Transform));
+//		if (!m_spCameraConstantBuffer[_i]->IsValid())
+//		{
+//			printf("変換行列用定数バッファの生成に失敗\n");
+//			return false;
+//		}
+//
+//		// 変換行列の登録
+//		auto _ptr = m_spCameraConstantBuffer[_i]->GetPtr<Transform>();
+//		_ptr->world = DirectX::XMMatrixIdentity();
+//		_ptr->view = DirectX::XMMatrixLookAtRH(_eyePos, _targetPos, _upward);
+//		_ptr->proj = DirectX::XMMatrixPerspectiveFovRH(_fov, _aspect, 0.3f, 1000.0f);
+//	}
+//
+//	// マテリアルの読み込み
+//	m_spDescriptorHeap = std::make_shared<DescriptorHeap>();
+
 	return true;
 }
 
@@ -130,6 +209,58 @@ void RenderingEngine::EndRender()
 
 	// バックバッファ番号更新
 	m_currentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+}
+
+//==================================================================================
+// 
+// シンプル描画
+//
+//==================================================================================
+void RenderingEngine::BeginSimpleRender()
+{
+	//// ルートシグネチャ・パイプラインステート・定数バッファをセット
+	//m_commandList.GetCommandList()->SetGraphicsRootSignature(m_spRootSignature->Get());
+	//m_commandList.GetCommandList()->SetPipelineState(m_spPipeLineState->Get());
+	//m_commandList.GetCommandList()->SetGraphicsRootConstantBufferView(
+	//	0,m_spCameraConstantBuffer[m_currentBackBufferIndex]->GetAddres());
+	//// プリミティブトポロジーをセット
+	//m_commandList.GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+}
+void RenderingEngine::EndSimpleRender()
+{
+}
+
+//==================================================================================
+// 
+// モデル描画
+// 
+//==================================================================================
+void RenderingEngine::DrawModel(
+	const ModelResource& a_modelResource,
+	const DirectX::XMFLOAT4X4& a_worldMat, 
+	const DirectX::XMFLOAT4& a_colorScale, 
+	const DirectX::XMFLOAT3& a_emissive
+)
+{
+	
+}
+
+//==================================================================================
+//
+// メッシュ描画
+//
+//==================================================================================
+void RenderingEngine::DrawMesh(
+	const Mesh* a_mesh,
+	const DirectX::XMFLOAT4X4& a_worldMat,
+	const DirectX::XMFLOAT4& a_colorScale, 
+	const DirectX::XMFLOAT3& a_emissive
+)
+{
+	
+
+
 }
 
 //==================================================================================

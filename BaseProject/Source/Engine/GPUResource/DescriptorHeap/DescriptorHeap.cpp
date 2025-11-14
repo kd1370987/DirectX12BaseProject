@@ -1,40 +1,37 @@
 ﻿#include "DescriptorHeap.h"
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
-#include "Engine/GPUResource/Texture/Texture2D/Texture2D.h"
 
-const UINT HANDLE_MAX = 512;
-
-DescriptorHeap::DescriptorHeap()
+bool DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE a_type, UINT a_numDescriptors, D3D12_DESCRIPTOR_HEAP_FLAGS a_flags, UINT a_mask)
 {
-	m_pHandles.clear();					// クリア
-	m_pHandles.reserve(HANDLE_MAX);		// メモリ確保
+	m_pHandles.clear();							// クリア
+	m_pHandles.reserve(a_numDescriptors);		// メモリ確保
 
 	// ディスクリプタヒープの仕様書作成
 	D3D12_DESCRIPTOR_HEAP_DESC _desc = {};
-	_desc.NodeMask = 1;
-	_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	_desc.NumDescriptors = HANDLE_MAX;
-	_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	_desc.NodeMask = a_mask;
+	_desc.Type = a_type;
+	_desc.NumDescriptors = a_numDescriptors;
+	_desc.Flags = a_flags;
 
 	// デバイスの取得
 	auto _device = RenderingEngine::Instance().GetDevice();
 
 	// ディスクリプタヒープの生成
 	auto _hr = _device->CreateDescriptorHeap(
-		&_desc, 
+		&_desc,
 		IID_PPV_ARGS(m_pHeap.ReleaseAndGetAddressOf())
 	);
 	if (FAILED(_hr))
 	{
-		m_isValid = false;
-		return;
+		return false;
 	}
 
+	// インクリメントサイズの取得
 	m_incrementSize = _device->GetDescriptorHandleIncrementSize(_desc.Type);
-	m_isValid = true;
-
-	printf("ディスクリプタヒープの生成に成功\n");
+	m_type = a_type;
+	m_maxSize = a_numDescriptors;
+	return true;
 }
 
 ID3D12DescriptorHeap* DescriptorHeap::GetHeap()
@@ -42,41 +39,64 @@ ID3D12DescriptorHeap* DescriptorHeap::GetHeap()
 	return m_pHeap.Get();
 }
 
-DescriptorHandle* DescriptorHeap::Register(Texture2D* a_texture)
+DescriptorHandle DescriptorHeap::RegisterCPUOnly()
+{
+	return DescriptorHandle();
+}
+
+DescriptorHandle DescriptorHeap::RegisterSRV(ID3D12Resource* a_resource)
 {
 	auto _count = m_pHandles.size();
-	if (HANDLE_MAX <= _count)
+	if (m_maxSize <= _count)
 	{
-		return nullptr;
+		return {};
+	}
+	if (m_type != D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+	{
+		return {};
 	}
 
+	//==============================================================
 	// ハンドルの作成
-	DescriptorHandle* _pHandle = new DescriptorHandle();
-
+	//==============================================================
+	DescriptorHandle _handle;
 	auto _handleCPU = m_pHeap->GetCPUDescriptorHandleForHeapStart();		// ディスクリプタヒープの先頭ハンドル取得
 	_handleCPU.ptr += m_incrementSize * _count;			// 最初のアドレスからcount番目が今回追加されたリソースのハンドル
-
 	auto _handleGPU = m_pHeap->GetGPUDescriptorHandleForHeapStart();		// ディスクリプタヒープの先頭ハンドル取得
 	_handleGPU.ptr += m_incrementSize * _count;			// 最初のアドレスからcount番目が今回追加されたリソースのハンドル
 
+	//==============================================================
 	// ハンドルの登録
-	_pHandle->HandoleCPU = _handleCPU;
-	_pHandle->HandoleGPU = _handleGPU;
+	//==============================================================
+	_handle.handleCPU = _handleCPU;
+	_handle.handleGPU = _handleGPU;
 
 	auto _device = RenderingEngine::Instance().GetDevice();
-	auto _resource = a_texture->Resource();
-	auto _desc = a_texture->ViewDesc();
+	auto _resource = a_resource;
+	D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
+	_srvDesc.Format = a_resource->GetDesc().Format;									// フォーマット
 
 	// SRVの生成
 	_device->CreateShaderResourceView(
 		_resource,
-		&_desc,
-		_pHandle->HandoleCPU
+		&_srvDesc,
+		_handle.handleCPU
 	);
 
 	// ハンドルリストに追加
-	m_pHandles.push_back(_pHandle);
+	m_pHandles.push_back(_handle);
 
 	// ハンドルを返す
-	return _pHandle;
+	return _handle;
 }
+
+DescriptorHandle DescriptorHeap::RegisterUAV(ID3D12Resource* a_resource)
+{
+	return DescriptorHandle();
+}
+
+DescriptorHandle DescriptorHeap::RegisterSampler()
+{
+	return DescriptorHandle();
+}
+

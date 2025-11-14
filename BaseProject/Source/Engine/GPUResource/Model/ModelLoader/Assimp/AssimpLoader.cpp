@@ -133,3 +133,6 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, Mesh& a_dst, const ai
 		printf("テクスチャなし\n");
 	}
 }
+
+
+

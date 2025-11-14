@@ -6,6 +6,15 @@
 #include "../../GPUResource/CommandList/CommandList.h"
 #include "../../GPUResource/Fence/Fence.h"
 
+class RootSignature;
+class PipelineState;
+class DescriptorHeap;
+
+class ModelResource;
+class Mesh;
+
+class ConstantBuffer;
+
 class RenderingEngine
 {
 public:
@@ -16,6 +25,25 @@ public:
 	// 描画開始・描画終了
 	void BeginRender();
 	void EndRender();
+
+	// シンプル描画
+	void BeginSimpleRender();
+	void EndSimpleRender();
+
+	// 描画（モデル）
+	void DrawModel(
+		const ModelResource& a_modelResource,
+		const DirectX::XMFLOAT4X4& a_worldMat,
+		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
+		const DirectX::XMFLOAT3& a_emissive = { 1,1,1 }
+	);
+	// 描画（メッシュ）
+	void DrawMesh(
+		const Mesh* a_mesh,
+		const DirectX::XMFLOAT4X4& a_worldMat,
+		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
+		const DirectX::XMFLOAT3& a_emissive = { 1,1,1 }
+	);
 
 public:
 	// ゲッター
@@ -56,6 +84,13 @@ private:
 	UINT m_dsvDescriptorSize = 0;								// 深度ステンシルのディスクリプターサイズ
 	ComPtr<ID3D12DescriptorHeap> m_pDsvHeap = nullptr;			// 深度ステンシルのディスクリプタヒープ
 	ComPtr<ID3D12Resource> m_pDeptchStencilBuffer = nullptr;	// 深度ステンシルバッファ（こっちは一つ）
+
+	std::shared_ptr<RootSignature> m_spRootSignature = nullptr;		// ルートシグネチャ
+	std::shared_ptr<PipelineState> m_spPipeLineState = nullptr;		// パイプラインステート
+
+	// カメラ用定数バッファ
+	std::shared_ptr<ConstantBuffer> m_spCameraConstantBuffer[FRAME_BUFFER_COUNT] = { nullptr };	// カメラ用定数バッファ
+	std::shared_ptr<DescriptorHeap> m_spDescriptorHeap = nullptr;	// ディスクリプタヒープ
 
 private:
 	// 描画ループで使用するもの

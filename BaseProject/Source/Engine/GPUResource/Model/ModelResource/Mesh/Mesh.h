@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
+#include "Engine/GPUResource/Buffer/VertexBuffer/VertexBuffer.h"
+
 //==========================================================
 // メッシュ用 頂点情報
 //==========================================================
@@ -56,10 +59,17 @@ public:
 	//=================================================
 	// 作成・解放
 	//=================================================
-	Mesh() {}
-	~Mesh() {}
+	Mesh() = default;
+	~Mesh() = default;
 
-	// メッシュ作成（成功 : true / 失敗 : false）
+	/// <summary>
+	/// メッシュ作成
+	/// </summary>
+	/// <param name="a_vertices">頂点配列</param>
+	/// <param name="a_face">面インデックス情報</param>
+	/// <param name="a_subsets">サブセット情報配列</param>
+	/// <param name="a_isSkinMesh">スキンメッシュ持ちかどうか</param>
+	/// <returns>作成に成功したらtrue</returns>
 	bool Create(
 		const std::vector<MeshVertex8bit>&	a_vertices,		// 頂点配列
 		const std::vector<MeshFace>&	a_face,				// 面インデックス情報配列
@@ -67,15 +77,31 @@ public:
 		bool							a_isSkinMesh		// スキンメッシュ持ちかどうか
 	);
 
-	// メッシュ解放
+	/// <summary>
+	/// メッシュの解放と初期化
+	/// </summary>
 	void Release();
 
+	//=================================================
+	// アクセサ
+	//=================================================
+	const VertexBuffer& GetVertexBuffer()		const { return m_vertexBuffer; }		// 頂点バッファ取得
+	const IndexBuffer& GetIndexBuffer()			const { return m_indexBuffer; }			// インデックスバッファ取得
+
+	const std::vector<MeshSubset>& GetSubsets() const { return m_subsets; }				// サブセット情報取得
+	const std::vector<DirectX::XMFLOAT3>& GetPositions() const { return m_positions; }	// 座標配列取得
+	const std::vector<MeshFace>& GetFaces()		const { return m_faces; }				// 面情報配列取得
+
+	const DirectX::BoundingBox& GetAABB()		const { return m_aabb; }				// 軸平行境界ボックス取得
+	const DirectX::BoundingSphere& GetBSphere()	const { return m_bSphere; }				// 境界球取得
+	
+	bool IsSkinMesh()							const { return m_isSkinMesh; }			// スキンメッシュ持ちかどうか
 
 private:
 
 	// バッファ
-	//VertexBuffer					m_vertexBuffer;		// 頂点バッファ
-	//IndexBuffer						m_indexBuffer;		// インデックスバッファ
+	VertexBuffer					m_vertexBuffer;		// 頂点バッファ
+	IndexBuffer						m_indexBuffer;		// インデックスバッファ
 
 	// サブセット情報
 	std::vector<MeshSubset>			m_subsets;

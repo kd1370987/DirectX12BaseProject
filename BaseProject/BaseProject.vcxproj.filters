@@ -127,6 +127,9 @@
     <Filter Include="Source\Engine\GPUResource\Fence">
       <UniqueIdentifier>{d960394c-0030-40db-b9f7-73b0a231c2a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\DescriptorHeapManager">
+      <UniqueIdentifier>{a2d4242a-21eb-484a-a22f-a70d8b11be37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -195,9 +198,6 @@
     <ClCompile Include="Source\Engine\GPUResource\Fence\Fence.cpp">
       <Filter>Source\Engine\GPUResource\Fence</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Model\Model.cpp">
-      <Filter>Source\Engine\GPUResource\Model</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Node\Node.cpp">
       <Filter>Source\Engine\GPUResource\Model\ModelResource\Node</Filter>
     </ClCompile>
@@ -209,6 +209,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF\TinyGLTFLoader.cpp">
       <Filter>Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Model\Model.cpp">
+      <Filter>Source\Engine\GPUResource\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Texture\Texture.cpp">
+      <Filter>Source\Engine\GPUResource\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.cpp">
+      <Filter>Source\Engine\Graphics\DescriptorHeapManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -284,9 +293,6 @@
     <ClInclude Include="Source\Engine\GPUResource\Fence\Fence.h">
       <Filter>Source\Engine\GPUResource\Fence</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Model\Model.h">
-      <Filter>Source\Engine\GPUResource\Model</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Node\Node.h">
       <Filter>Source\Engine\GPUResource\Model\ModelResource\Node</Filter>
     </ClInclude>
@@ -298,6 +304,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF\TinyGLTFLoader.h">
       <Filter>Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Model\Model.h">
+      <Filter>Source\Engine\GPUResource\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Texture\Texture.h">
+      <Filter>Source\Engine\GPUResource\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.h">
+      <Filter>Source\Engine\Graphics\DescriptorHeapManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

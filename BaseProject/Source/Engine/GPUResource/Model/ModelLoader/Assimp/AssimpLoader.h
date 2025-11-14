@@ -3,6 +3,10 @@
 struct Mesh;
 struct Vertex;
 
+struct Material;
+struct Node;
+struct AnimationData;
+
 struct aiMesh;
 struct aiMaterial;
 
@@ -15,11 +19,12 @@ struct ImportSettings
 	bool				isInverseV = true;		// V座標を反転させるかどうか
 };
 
+
 class AssimpLoader
 {
 public:
 
-	bool Load(ImportSettings a_setting); // モデルのロード
+	bool Load(ImportSettings a_setting);		// モデルのロード
 
 private:
 

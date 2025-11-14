@@ -21,5 +21,5 @@ struct Node
 
 	int						boneIndex = -1;				// ボーンノードのとき、先頭から何番目のボーンか
 
-	bool					isSkinMesh = false;
+	bool					isSkinMesh = false;			// スキンメッシュ持ちかどうか
 };	
