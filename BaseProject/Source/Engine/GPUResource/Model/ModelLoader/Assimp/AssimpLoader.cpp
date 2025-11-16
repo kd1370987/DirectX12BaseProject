@@ -66,7 +66,7 @@ bool AssimpLoader::Load(ImportSettings a_setting)
 }
 
 // メッシュの読み込み
-void AssimpLoader::LoadMesh(Mesh& a_dst, const aiMesh* a_src, bool a_isInverseU, bool a_isInverseV)
+void AssimpLoader::LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInverseU, bool a_isInverseV)
 {
 	aiVector3D	_zero3D(0.0f, 0.0f, 0.0f);
 	aiColor4D	_zeroColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -92,7 +92,7 @@ void AssimpLoader::LoadMesh(Mesh& a_dst, const aiMesh* a_src, bool a_isInverseU,
 		}
 
 		// 頂点情報代入
-		Vertex _vertex = {};
+		AssimpVertex _vertex = {};
 		_vertex.position	= { _position->x, _position->y, _position->z };		// 位置座標
 		_vertex.normal		= { _normal->x, _normal->y, _normal->z };			// 法線
 		_vertex.uv			= { _uv->x, _uv->y };								// uv座標
@@ -114,7 +114,7 @@ void AssimpLoader::LoadMesh(Mesh& a_dst, const aiMesh* a_src, bool a_isInverseU,
 }
 
 // テクスチャ読み込み
-void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, Mesh& a_dst, const aiMaterial* a_src)
+void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, const aiMaterial* a_src)
 {
 	aiString _path;
 	printf("マテリアル情報読み込み\n");

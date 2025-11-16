@@ -84,7 +84,7 @@ bool Window::Create(
 	ShowWindow(m_hWnd, SW_SHOWNORMAL);
 
 	// ウィンドウの更新
-	UpdateWindow(m_hWnd);
+	//UpdateWindow(m_hWnd);
 
 	// ウィンドウにフォーカスする
 	SetFocus(m_hWnd);					// キー入力受付開始命令も含む
@@ -93,7 +93,7 @@ bool Window::Create(
 bool Window::ProcessMessage()
 {
 	// アプリごとのメッセージキューにアクセスしてメッセージを処理
-	MSG _msg;
+	MSG _msg = {};
 	while (PeekMessage(&_msg, nullptr, 0, 0, PM_REMOVE))
 	{
 		// 終了メッセージが来た

@@ -1,4 +1,13 @@
-﻿#include "Model.h"
+﻿#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
+struct MemCheck {
+	MemCheck() {
+		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	}
+} g_memCheck;
+
+#include "Model.h"
 
 #include "ModelLoader/TinyGLTF/TinyGLTFLoader.h"
 
@@ -18,7 +27,7 @@ ModelResource::ModelResource()
 }
 ModelResource::~ModelResource()
 {
-	Release();
+	//Release();
 }
 
 //==========================================================
@@ -31,7 +40,7 @@ bool ModelResource::Load(const std::string& a_filePath)
 	//-------------------------------------
 	// データをクリア
 	//-------------------------------------
-	Release();
+	//Release();
 
 	//-------------------------------------
 	// 対応形式チェック
@@ -149,7 +158,7 @@ void ModelResource::CreateNodes(const std::shared_ptr<GLTFModel>& a_spGltfModel)
 		if (_srcNode.isMesh)
 		{
 			// メッシュ作成
-			_dstNode.spMesh = std::make_shared<Mesh>();
+			//_dstNode.spMesh = std::make_shared<Mesh>();
 
 			// メッシュデータコピー
 			if (_dstNode.spMesh)

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-struct Mesh;
-struct Vertex;
+struct AssimpMesh;
+struct AssimpVertex;
 
 struct Material;
 struct Node;
@@ -14,7 +14,7 @@ struct aiMaterial;
 struct ImportSettings
 {
 	const wchar_t*		pFilePath = nullptr;	// インポートするファイルパス
-	std::vector<Mesh>&	meshes;					// メッシュデータの出力先
+	std::vector<AssimpMesh>&	meshes;					// メッシュデータの出力先
 	bool				isInverseU = false;		// U座標を反転させるかどうか
 	bool				isInverseV = true;		// V座標を反転させるかどうか
 };
@@ -28,8 +28,8 @@ public:
 
 private:
 
-	void LoadMesh(Mesh& a_dst, const aiMesh* a_src, bool a_isInverseU, bool a_isInverseV);
-	void LoadTexture(const wchar_t* a_pFilePath, Mesh& a_dst, const aiMaterial* a_src);
+	void LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInverseU, bool a_isInverseV);
+	void LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, const aiMaterial* a_src);
 };
 
 
