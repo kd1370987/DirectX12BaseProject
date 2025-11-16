@@ -40,54 +40,14 @@ bool Texture::Load(const std::string& a_path)
 		return false;
 	}
 
-	//----------------------------------------
-	// 変数準備
-	//----------------------------------------
-	//auto* _device = RenderingEngine::Instance().GetDevice();
-	//auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-
-	////----------------------------------------
-	//// GPUテクスチャリソース（default heap）
-	////----------------------------------------
-	//ComPtr<ID3D12Resource> _tex;
-	//_hr = DirectX::CreateTexture(
-	//	_device,
-	//	_meta,
-	//	&_tex
-	//);
-	//if (FAILED(_hr))
-	//{
-	//	return false;
-	//}
-
-	////----------------------------------------
-	//// アップロードヒープの作成
-	////----------------------------------------
-	//std::vector<D3D12_SUBRESOURCE_DATA> _subresources;
-	//_hr = DirectX::PrepareUpload(
-	//	_device,
-	//	_sImg.GetImages(),
-	//	_sImg.GetImageCount(),
-	//	_meta,
-	//	_subresources
-	//);
-	//if (FAILED(_hr))
-	//{
-	//	return false;
-	//}
-
-	//const UINT64 _uploadSize = GetRequiredIntermediateSize(
-	//	_tex.Get(),
-	//	0,
-	//	static_cast<UINT>(_subresources.size())
-	//);
-
 	// 仕様書設定
 	auto _img = _sImg.GetImage(0, 0, 0);
 	D3D12_HEAP_PROPERTIES _heapProp = {};
 	_heapProp.Type					= D3D12_HEAP_TYPE_CUSTOM;
 	_heapProp.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
 	_heapProp.MemoryPoolPreference	= D3D12_MEMORY_POOL_L0;
+	_heapProp.CreationNodeMask		= 0;
+	_heapProp.VisibleNodeMask		= 0;
 	D3D12_RESOURCE_DESC _desc = {};
 	_desc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(_meta.dimension);
 	_desc.Format = _meta.format;
@@ -96,25 +56,28 @@ bool Texture::Load(const std::string& a_path)
 	_desc.DepthOrArraySize = static_cast<UINT16>(_meta.arraySize);
 	_desc.MipLevels = static_cast<UINT16>(_meta.mipLevels);
 	_desc.SampleDesc.Count = 1;
+	_desc.SampleDesc.Quality = 0;
+	_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-	auto img = _sImg.GetImage(0, 0, 0);
-	auto prop = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
-	auto desc = CD3DX12_RESOURCE_DESC::Tex2D(
-		_meta.format,
-		_meta.width,
-		_meta.height,
-		static_cast<UINT16>(_meta.arraySize),
-		static_cast<UINT16>(_meta.mipLevels));
+	//auto img = _sImg.GetImage(0, 0, 0);
+	//auto prop = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
+	//auto desc = CD3DX12_RESOURCE_DESC::Tex2D(
+	//	_meta.format,
+	//	_meta.width,
+	//	_meta.height,
+	//	static_cast<UINT16>(_meta.arraySize),
+	//	static_cast<UINT16>(_meta.mipLevels));
 
-	// auto _desc = CD3DX12_RESOURCE_DESC::Buffer(_uploadSize);
+	//// auto _desc = CD3DX12_RESOURCE_DESC::Buffer(_uploadSize);
 
 	//----------------------------------------
 	// リソースの生成
 	//----------------------------------------
 	_hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
-		&prop,
+		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,
-		&desc,
+		&_desc,
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
 		nullptr,
 		IID_PPV_ARGS(m_textureResource.ReleaseAndGetAddressOf())

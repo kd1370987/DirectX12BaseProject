@@ -56,7 +56,7 @@ bool Window::Create(
 	}
 
 	// ウィンドウサイズの設定（クライアント領域の設定 = 描画できる中身の部分）
-	RECT _rect = {};
+	RECT _rect = { 0,0,0,0 };
 	_rect.right = static_cast<LONG>(a_clientWidth);
 	_rect.bottom = static_cast<LONG>(a_clientHeight);
 

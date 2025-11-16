@@ -17,9 +17,9 @@ public:
 
 	bool Create(
 		D3D12_DESCRIPTOR_HEAP_TYPE a_type,
-		UINT a_numDescriptors = 512U,
+		UINT a_numDescriptors = 512,
 		D3D12_DESCRIPTOR_HEAP_FLAGS a_flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-		UINT a_mask = 0U
+		UINT a_mask = 0
 	);
 
 	ID3D12DescriptorHeap* GetHeap();					// ディスクリプタヒープ本体を取得

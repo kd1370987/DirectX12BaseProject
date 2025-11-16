@@ -25,6 +25,7 @@ bool DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE a_type, UINT a_numDescrip
 	);
 	if (FAILED(_hr))
 	{
+		printf("ディスクリプタヒープ作成失敗\n");
 		return false;
 	}
 
@@ -32,6 +33,7 @@ bool DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE a_type, UINT a_numDescrip
 	m_incrementSize = _device->GetDescriptorHandleIncrementSize(_desc.Type);
 	m_type = a_type;
 	m_maxSize = a_numDescriptors;
+	printf("ディスクリプタヒープ作成成功\n");
 	return true;
 }
 
@@ -77,6 +79,9 @@ DescriptorHandle DescriptorHeap::RegisterSRV(ID3D12Resource* a_resource)
 	auto _resource = a_resource;
 	D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
 	_srvDesc.Format = a_resource->GetDesc().Format;									// フォーマット
+	_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	_srvDesc.Texture2D.MipLevels = 1;
 
 	// SRVの生成
 	_device->CreateShaderResourceView(

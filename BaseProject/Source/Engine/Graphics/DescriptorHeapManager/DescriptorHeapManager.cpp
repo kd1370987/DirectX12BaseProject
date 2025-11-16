@@ -8,7 +8,7 @@ void DescriptorHeapManager::Init()
 	m_spSRVHeap = std::make_shared<DescriptorHeap>();
 	m_spSRVHeap->Create(
 		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-		2048,
+		512,
 		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
 	);
 }
