@@ -15,7 +15,7 @@ bool Texture::Load(const std::string& a_path)
 	//----------------------------------------
 	// 拡張子によって読み込み方法を変える
 	//----------------------------------------
-	HRESULT _hr = S_FALSE;
+	HRESULT _hr = E_FAIL;
 	if (_ext == L"png" || _ext == L"jpg" || _ext == L"jpeg")
 	{
 		_hr = DirectX::LoadFromWICFile(
@@ -60,17 +60,6 @@ bool Texture::Load(const std::string& a_path)
 	_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-	//auto img = _sImg.GetImage(0, 0, 0);
-	//auto prop = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
-	//auto desc = CD3DX12_RESOURCE_DESC::Tex2D(
-	//	_meta.format,
-	//	_meta.width,
-	//	_meta.height,
-	//	static_cast<UINT16>(_meta.arraySize),
-	//	static_cast<UINT16>(_meta.mipLevels));
-
-	//// auto _desc = CD3DX12_RESOURCE_DESC::Buffer(_uploadSize);
-
 	//----------------------------------------
 	// リソースの生成
 	//----------------------------------------
@@ -109,22 +98,13 @@ bool Texture::Load(const std::string& a_path)
 	//----------------------------------------
 	// 最終状態
 	//----------------------------------------
-	//auto _resourceBarrier = CD3DX12_RESOURCE_BARRIER::Transition(
-	//							_tex.Get(),
-	//							D3D12_RESOURCE_STATE_COPY_DEST,
-	//							D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-	//						);
-
-	//_cmdList->ResourceBarrier(
-	//	1,
-	//	&_resourceBarrier
-	//);
-
 	// メタデータの保存
-	//m_textureResource = _tex;
 	width = _meta.width;
 	height = _meta.height;
 	mipLevels = _meta.mipLevels;
 	format = _meta.format;
+
+	printf("テクスチャの生成成功 : %s", a_path.c_str());
+
 	return true;
 }

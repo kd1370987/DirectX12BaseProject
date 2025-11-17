@@ -130,6 +130,9 @@
     <Filter Include="Source\Engine\Graphics\DescriptorHeapManager">
       <UniqueIdentifier>{a2d4242a-21eb-484a-a22f-a70d8b11be37}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderContext">
+      <UniqueIdentifier>{ac53ba98-b34c-40d7-aee4-ecaa9ee05c09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -218,6 +221,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.cpp">
       <Filter>Source\Engine\Graphics\DescriptorHeapManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
+      <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -313,6 +319,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.h">
       <Filter>Source\Engine\Graphics\DescriptorHeapManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
+      <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

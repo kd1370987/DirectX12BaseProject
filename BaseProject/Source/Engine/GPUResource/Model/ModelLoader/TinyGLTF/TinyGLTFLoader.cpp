@@ -153,7 +153,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 
     // 戻り値用データを準備
     std::shared_ptr<GLTFModel> _destModel = std::make_shared<GLTFModel>();
-	printf("マテリアル読み込み開始\n");
 
     //----------------------------------------------------
     // マテリアル
@@ -253,7 +252,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
     {
         _destModel->materials.resize(1);
     }
-	printf("マテリアル数:%zu\n", _destModel->materials.size());
 
     //----------------------------------------------------
     // ノード
@@ -341,7 +339,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
             _destNode->isMesh = true;
         }
     }
-	printf("ノード数:%zu\n", _destModel->nodes.size());
     //----------------------------------------------------
     // ノードノードのみの参照リスト
     //----------------------------------------------------
@@ -349,8 +346,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
     {
         _destModel->rootNodeIndices.push_back(_idx);
     }
-
-	printf("ノードのみの参照リスト\n");
 
     //----------------------------------------------------
     // 各ノードのTransformからWorldTransformを算出
@@ -385,8 +380,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
     {
         _rec(&_destModel->nodes[_nodeIdx], nullptr);
     }
-
-	printf("ノードトランスフォームの算出\n");
 
     //----------------------------------------------------
     // ボーン
@@ -446,8 +439,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
         }
     }
 
-	printf("ボーンリスト\n");
-
     //----------------------------------------------------
     // メッシュ
     //----------------------------------------------------
@@ -476,12 +467,9 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
         };
         std::vector<std::shared_ptr<GLTFPrimitive>> _tmpPrimitives(_tinyModel.meshes[_meshIdx].primitives.size());
 
-		printf("メッシュ\n");
-
         //-----------------------
         // 全プリミティブ
         //-----------------------
-		printf("プリ見tぃ部リスト\n");
         for (size_t _primitiveIdx = 0; _primitiveIdx < _tinyModel.meshes[_meshIdx].primitives.size(); ++_primitiveIdx)
         {
             // コピー元準備
@@ -653,7 +641,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
             //-----------------------
             // インデックスバッファ
             //-----------------------
-			printf("インデックスバッファ\n");
             GLTFBufferGetter _indexGetter(&_tinyModel, _srcPrimitive.indices);      // ゲッター生成
             _destPrimitive->faces.resize(_indexGetter.GetAccsessor()->count / 3);   // 面の数分配列を確保
             for (UINT _faceIdx = 0; _faceIdx < _destPrimitive->faces.size(); ++_faceIdx)
@@ -669,7 +656,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 		// マテリアル
 		//-----------------------
 		// ソート
-		printf("マテリアルソート\n");
 		std::sort(
 			_tmpPrimitives.begin(),
 			_tmpPrimitives.end(),
@@ -680,7 +666,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 		);
 
 		// マテリアルの最大数分サブセット作成
-		printf("サブセット作成\n");
 		_destNode->nodeMesh.subsets.resize(_tmpPrimitives.size());
 		for (UINT _priIdx = 0; _priIdx < _tmpPrimitives.size(); ++_priIdx)
 		{
@@ -689,7 +674,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 		}
 
 		// 全プリミティブを合成し、１つのメッシュにする
-		printf("プリミティブ合成\n");
 		UINT _currentVertexIdx = 0;
 		UINT _currentFaceIdx = 0;
 		for (UINT _priIdx = 0; _priIdx < _tmpPrimitives.size(); ++_priIdx)
@@ -698,7 +682,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 			auto _primitive = _tmpPrimitives[_priIdx];
 
 			// 頂点バッファの合成
-			printf("vb\n");
 			if (_primitive->vertices.size() >= 1)
 			{
 				UINT _st = static_cast<UINT>(_destNode->nodeMesh.vertices.size());
@@ -709,7 +692,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 			}
 
 			// インデックス合成
-			printf("ib\n");
 			if (_primitive->faces.size() >= 1)
 			{
 				UINT _st = static_cast<UINT>(_destNode->nodeMesh.faces.size());
@@ -724,7 +706,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 			}
 
 			// サブセット
-			printf("サブセット\n");
 			_destNode->nodeMesh.subsets[_priIdx].faceCount += static_cast<UINT>(_primitive->faces.size());		// 面数を加算
 
 			// 頂点数・面数を次の開始位置に設定
@@ -736,7 +717,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 		_tmpPrimitives.clear();
 
 		// サブセットのオフセットをもとめる
-		printf("サブセットオフセット\n");
 		UINT _offset = 0;
 		for (UINT _priIdx = 0; _priIdx < _destNode->nodeMesh.subsets.size(); ++_priIdx)
 		{
@@ -770,18 +750,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 			}
 		}
     }
-
-	printf("メッシュ数:%zu\n",
-		std::count_if(
-			_destModel->nodes.begin(),
-			_destModel->nodes.end(),
-			[](const GLTFNode& a_node)
-			{
-				return a_node.isMesh;
-			}
-		)
-	);
-
 
 	//----------------------------------------------------
 	// アニメーション
@@ -945,8 +913,6 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 			_spAnimation->spAnimationNodes.push_back(_n);
 		}
 	}
-
-	printf("アニメーション数:%zu\n", _destModel->animations.size());
 
 	// シリアライズしたモデルを返す
 	printf("GLTFモデルの変換終了\n");

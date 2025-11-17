@@ -35,7 +35,7 @@ std::vector<IndexBuffer*> g_indexBuffers;		// インデックスバッファ配�
 DescriptorHeap* g_descriptorHeap;
 std::vector<DescriptorHandle> g_materialHandles;		// テクスチャハンドル配列
 
-//#include "Engine/GPUResource/Model/Model.h"
+#include "Engine/GPUResource/Model/Model.h"
 
 bool SceneManager::Init()
 {
@@ -47,14 +47,14 @@ bool SceneManager::Init()
 		true
 	};
 
-	/*DescriptorHeapManager::Instance().Init();
+	DescriptorHeapManager::Instance().Init();
 
 	m_spModel = std::make_shared<ModelResource>();
 	if (!m_spModel->Load("Asset/Model/tank/tank.gltf"))
 	{
 		printf("モデルの読み込みに失敗\n");
 		return false;
-	}*/
+	}
 
 	AssimpLoader _loader;
 	if (!_loader.Load(_importSettings))

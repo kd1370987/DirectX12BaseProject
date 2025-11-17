@@ -182,6 +182,7 @@
     <ClCompile Include="Source\Engine\GPUResource\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Texture\Texture2D\Texture2D.cpp" />
     <ClCompile Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.cpp" />
     <ClCompile Include="Source\Engine\Window\Window.cpp" />
     <ClCompile Include="Source\Framework\Shader\ShaderCommon\SharedStruct.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="Source\Engine\GPUResource\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\GPUResource\Texture\Texture2D\Texture2D.h" />
     <ClInclude Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.h" />
     <ClInclude Include="Source\Engine\Window\Window.h" />
     <ClInclude Include="Source\Framework\Shader\ShaderCommon\SharedStruct.h" />

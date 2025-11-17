@@ -23,17 +23,15 @@ namespace StringUtility
 	inline std::wstring ToWideString(const std::string& a_str)
 	{
 		// マルチバイト解析
-		auto _num1 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, a_str.c_str(), -1, nullptr, 0);
+		auto _num1 = MultiByteToWideChar(
+			CP_ACP, 0, a_str.c_str(), (int)a_str.size(), nullptr, 0);
 
 		// ワイド文字列用意
 		std::wstring _wstr;
 		_wstr.resize(_num1);
 
 		// 変換
-		auto _num2 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, a_str.c_str(), -1, &_wstr[0], _num1);
-
-		// 変換したのに同じだった場合
-		assert(_num1 == _num2);
+		MultiByteToWideChar(CP_ACP, 0, a_str.c_str(), (int)a_str.size(), &_wstr[0], _num1);
 
 		return _wstr;
 	}

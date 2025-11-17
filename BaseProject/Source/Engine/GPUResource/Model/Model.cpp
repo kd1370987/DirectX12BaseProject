@@ -27,7 +27,7 @@ ModelResource::ModelResource()
 }
 ModelResource::~ModelResource()
 {
-	//Release();
+	Release();
 }
 
 //==========================================================
@@ -40,7 +40,7 @@ bool ModelResource::Load(const std::string& a_filePath)
 	//-------------------------------------
 	// データをクリア
 	//-------------------------------------
-	//Release();
+	Release();
 
 	//-------------------------------------
 	// 対応形式チェック
