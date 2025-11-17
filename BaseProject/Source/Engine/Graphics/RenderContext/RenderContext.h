@@ -1,7 +1,14 @@
 ﻿#pragma once
 
+class RootSignature;
+class PipelineState;
+class DescriptorHeap;
+
 class ModelResource;
 class Mesh;
+struct Material;
+
+class ConstantBuffer;
 
 class RenderContext
 {
@@ -44,12 +51,23 @@ public:
 	/// <param name="a_emissive">エミッシブのスケール値</param>
 	void DrawMesh(
 		const Mesh* a_mesh,
-		const DirectX::XMFLOAT4X4& a_worldMat,
+		const DirectX::XMMATRIX& a_worldMat,
+		const std::vector<Material>& a_materials,
 		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
 		const DirectX::XMFLOAT3& a_emissive = { 1,1,1 }
 	);
 
 private:
+
+private:
+
+	// 描画ストリーム
+	std::shared_ptr<RootSignature> m_spRootSignature;		// ルートシグネチャ
+	std::shared_ptr<PipelineState> m_spPipelineState;		// パイプラインステート
+
+	// カメラ用定数バッファ
+	std::shared_ptr<ConstantBuffer> m_spCameraConstantBuffer[FRAME_BUFFER_COUNT] = {nullptr};		// カメラ用定数バッファ
+	std::shared_ptr<DescriptorHeap> m_spDescriptorHeap = nullptr;									// ディスクリプタヒープ
 
 // シングルトン
 private:

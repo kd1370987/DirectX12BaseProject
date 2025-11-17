@@ -26,30 +26,15 @@ public:
 	void BeginRender();
 	void EndRender();
 
-	// シンプル描画
-	void BeginSimpleRender();
-	void EndSimpleRender();
-
-	// 描画（モデル）
-	void DrawModel(
-		const ModelResource& a_modelResource,
-		const DirectX::XMFLOAT4X4& a_worldMat,
-		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
-		const DirectX::XMFLOAT3& a_emissive = { 1,1,1 }
-	);
-	// 描画（メッシュ）
-	void DrawMesh(
-		const Mesh* a_mesh,
-		const DirectX::XMFLOAT4X4& a_worldMat,
-		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
-		const DirectX::XMFLOAT3& a_emissive = { 1,1,1 }
-	);
-
 public:
 	// ゲッター
 	ID3D12Device6* GetDevice();						// デバイス
 	ID3D12GraphicsCommandList* GetCommandList();	// コマンドリスト
 	UINT CurrentBackBufferIndex();					// 現在のフレーム番号
+	// バックバッファのサイズ
+	UINT GetBackBufferWidth() { return m_backBufferWidth; }
+	UINT GetBackBufferHeight() { return m_backBufferHeight; }
+
 
 private:
 	// DirectX12初期化に使う
@@ -59,20 +44,21 @@ private:
 
 private:
 	// 描画に使うDirectX12のオブジェクト
-	UINT m_currentBackBufferIndex = 0;													// 現在のバッファ添え字
+	UINT m_currentBackBufferIndex = 0;							// 現在のバッファ添え字
 
-	Device m_device;																	// デバイス
-	CommandQueue m_commandQueue;														// コマンドキュー
-	ComPtr<IDXGISwapChain3> m_pSwapChain = nullptr;										// スワップチェイン
-	CommandAllocator m_commandAllocator;												// コマンドアロケーター
-	CommandList m_commandList;															// コマンドリスト
-	HANDLE m_fenceEvent = nullptr;														// フェンスで使うイベント
-	Fence m_fence;																		// フェンス
-	UINT64 m_fenceValue[FRAME_BUFFER_COUNT];											// フェンスの数
-	D3D12_VIEWPORT m_viewPort;															// ビューポート
-	D3D12_RECT m_scissor;																// シザー矩形
+	Device m_device;											// デバイス
+	CommandQueue m_commandQueue;								// コマンドキュー
+	ComPtr<IDXGISwapChain3> m_pSwapChain = nullptr;				// スワップチェイン
+	CommandAllocator m_commandAllocator;						// コマンドアロケーター
+	CommandList m_commandList;									// コマンドリスト
+	HANDLE m_fenceEvent = nullptr;								// フェンスで使うイベント
+	Fence m_fence;												// フェンス
+	UINT64 m_fenceValue[FRAME_BUFFER_COUNT];					// フェンスの数
+	D3D12_VIEWPORT m_viewPort;									// ビューポート
+	D3D12_RECT m_scissor;										// シザー矩形
 
 private:
+
 	// 描画に使うオブジェクトとその生成関数群
 	bool CreateRenderTarget();			// レンダーターゲットを生成
 	bool CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBufferHeight);			// 深度ステンシルバッファを生成
@@ -92,6 +78,9 @@ private:
 	std::shared_ptr<ConstantBuffer> m_spCameraConstantBuffer[FRAME_BUFFER_COUNT] = { nullptr };	// カメラ用定数バッファ
 	std::shared_ptr<DescriptorHeap> m_spDescriptorHeap = nullptr;	// ディスクリプタヒープ
 
+	UINT m_backBufferWidth = 0;
+	UINT m_backBufferHeight = 0;
+
 private:
 	// 描画ループで使用するもの
 	ID3D12Resource* m_currentRenderTarget = nullptr;		// 現在のフレームのレンダーターゲット
@@ -99,8 +88,8 @@ private:
 
 private:
 	// シングルトン
-	RenderingEngine(){}
-	~RenderingEngine(){}
+	RenderingEngine() = default;
+	~RenderingEngine() = default;
 public:
 	// インスタンス取得
 	static RenderingEngine& Instance()

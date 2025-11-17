@@ -174,12 +174,12 @@ bool SceneManager::Release()
 
 void SceneManager::Update()
 {
-	//m_rotateY += 0.2f;
-	//// 現在のフレーム番号
-	//auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();
-	//// 現在のフレーム番号に対応する定数バッファを取得
-	//auto _currentTransform = g_constantBuffer[_currentIdx]->GetPtr<Transform>();
-	//_currentTransform->world = DirectX::XMMatrixRotationY(m_rotateY);
+	m_rotateY += 0.05f;
+	// 現在のフレーム番号
+	auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();
+	// 現在のフレーム番号に対応する定数バッファを取得
+	auto _currentTransform = g_constantBuffer[_currentIdx]->GetPtr<AssimpTransform>();
+	_currentTransform->world = DirectX::XMMatrixRotationY(m_rotateY);
 }
 
 void SceneManager::Draw()

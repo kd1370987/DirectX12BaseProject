@@ -17,3 +17,8 @@ DescriptorHandle DescriptorHeapManager::RegisterSRV(ID3D12Resource* a_resource)
 {
 	return m_spSRVHeap->RegisterSRV(a_resource);	
 }
+
+ID3D12DescriptorHeap* DescriptorHeapManager::GetSRVHeap() const
+{
+	return m_spSRVHeap->GetHeap();
+}

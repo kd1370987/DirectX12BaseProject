@@ -11,6 +11,7 @@ public:
 
 	DescriptorHandle RegisterSRV(ID3D12Resource* a_resource);
 
+	ID3D12DescriptorHeap* GetSRVHeap() const;
 private:
 
 	std::shared_ptr<DescriptorHeap> m_spSRVHeap = nullptr;
