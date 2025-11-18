@@ -3,6 +3,11 @@
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 #include "Framework/Shader/ShaderCommon/SharedStruct.h"
 
+#include "Engine/GPUResource/Model/ModelResource/Mesh/Mesh.h"
+#include "Engine/GPUResource/Model/ModelResource/Material/Material.h"
+#include "Engine/GPUResource/Model/ModelResource/Animation/Animation.h"
+#include "Engine/GPUResource/Model/ModelResource/Node/Node.h"
+
 #ifdef _DEBUG
 #pragma comment(lib,"assimp-vc143-mtd.lib")
 #else
@@ -64,6 +69,8 @@ bool AssimpLoader::Load(ImportSettings a_setting)
 	_scene = nullptr;
 	return true;
 }
+
+
 
 // メッシュの読み込み
 void AssimpLoader::LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInverseU, bool a_isInverseV)

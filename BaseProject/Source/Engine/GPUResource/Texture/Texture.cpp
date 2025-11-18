@@ -1,6 +1,9 @@
 ﻿#include "Texture.h"
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+#include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
+
+#include "Engine/GPUResource/DescriptorHeap/DescriptorHeap.h"
 
 bool Texture::Load(const std::string& a_path)
 {
@@ -96,6 +99,13 @@ bool Texture::Load(const std::string& a_path)
 	}
 
 	//----------------------------------------
+	// ディスクリプタヒープに登録
+	//----------------------------------------
+	auto _handle = DescriptorHeapManager::Instance().RegisterSRV(m_textureResource.Get());
+	m_cpuSrvHandle = _handle.handleCPU;
+	m_gpuSrvHandle = _handle.handleGPU;
+
+	//----------------------------------------
 	// 最終状態
 	//----------------------------------------
 	// メタデータの保存
@@ -104,7 +114,7 @@ bool Texture::Load(const std::string& a_path)
 	mipLevels = _meta.mipLevels;
 	format = _meta.format;
 
-	printf("テクスチャの生成成功 : %s", a_path.c_str());
+	printf("テクスチャの生成成功 : %s\n", a_path.c_str());
 
 	return true;
 }

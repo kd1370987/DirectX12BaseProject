@@ -7,6 +7,11 @@ public:
 	Texture() = default;
 	~Texture() = default;
 	//=================================================
+	// 読込
+	//=================================================
+	bool Load(const std::string& a_path);
+
+	//=================================================
 	// アクセサ
 	//=================================================
 	ID3D12Resource* GetResource() const { return m_textureResource.Get(); }	// テクスチャリソース取得
@@ -17,14 +22,17 @@ public:
 	size_t GetMipLevels() const { return mipLevels; }	// ミップレベル数取得
 	DXGI_FORMAT GetFormat() const { return format; }	// フォーマット取得
 
-	bool Load(const std::string& a_path);
-
+	//=================================================	
+	// セッター
+	//=================================================
+	void SetGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE a_handle = {}) { m_gpuSrvHandle = a_handle; }
+	void SetCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE a_handle = {}) { m_cpuSrvHandle = a_handle; }
 
 private:
 
 	ComPtr<ID3D12Resource> m_textureResource;			// テクスチャリソース
-	D3D12_GPU_DESCRIPTOR_HANDLE m_gpuSrvHandle;			// SRVハンドル
-	D3D12_CPU_DESCRIPTOR_HANDLE m_cpuSrvHandle;			// CPU側SRVハンドル
+	D3D12_GPU_DESCRIPTOR_HANDLE m_gpuSrvHandle{};			// SRVハンドル
+	D3D12_CPU_DESCRIPTOR_HANDLE m_cpuSrvHandle{};			// CPU側SRVハンドル
 
 	// メタデータ
 	size_t width = 0;

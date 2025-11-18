@@ -31,21 +31,21 @@ struct Material
 	// 材質データ
 	//---------------------------------------
 	// 名前
-	std::string					m_name;
+	std::string					name;
 
 	// 基本色
-	std::shared_ptr<Texture>	m_spBaseColorTex = nullptr;
-	DirectX::XMFLOAT4			m_baseColor = { 1,1,1,1 };
+	std::shared_ptr<Texture>	spBaseColorTex = nullptr;
+	DirectX::XMFLOAT4			baseColor = { 1,1,1,1 };
 
 	// メタリック・ラフネス
-	std::shared_ptr<Texture>	m_spMetallicRoughnessTex = nullptr;
-	float						m_metallic = 0.0f;						// B : 金属製
-	float						m_roughness = 1.0f;						// G : 粗さ
+	std::shared_ptr<Texture>	spMetallicRoughnessTex = nullptr;
+	float						metallic = 0.0f;						// B : 金属製
+	float						roughness = 1.0f;						// G : 粗さ
 
 	// エミッシブ
-	std::shared_ptr<Texture>	m_spEmissiveTex = nullptr;
-	DirectX::XMFLOAT3			m_emissive = { 1.0f,1.0f,1.0f };
+	std::shared_ptr<Texture>	spEmissiveTex = nullptr;
+	DirectX::XMFLOAT3			emissive = { 1.0f,1.0f,1.0f };
 
 	// 法線マップ
-	std::shared_ptr<Texture>	m_spNormalTex = nullptr;
+	std::shared_ptr<Texture>	spNormalTex = nullptr;
 };

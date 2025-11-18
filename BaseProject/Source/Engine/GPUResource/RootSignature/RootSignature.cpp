@@ -64,6 +64,11 @@ RootSignature::RootSignature()
 	m_isValid = true;
 }
 
+bool RootSignature::Create()
+{
+	return false;
+}
+
 bool RootSignature::IsValid()
 {
 	return m_isValid;

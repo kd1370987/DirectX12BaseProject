@@ -1,15 +1,7 @@
-﻿#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-
-struct MemCheck {
-	MemCheck() {
-		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	}
-} g_memCheck;
-
-#include "Model.h"
+﻿#include "Model.h"
 
 #include "ModelLoader/TinyGLTF/TinyGLTFLoader.h"
+#include "ModelLoader/Assimp/AssimpLoader.h"
 
 
 #include "ModelResource/Animation/Animation.h"
@@ -158,7 +150,7 @@ void ModelResource::CreateNodes(const std::shared_ptr<GLTFModel>& a_spGltfModel)
 		if (_srcNode.isMesh)
 		{
 			// メッシュ作成
-			//_dstNode.spMesh = std::make_shared<Mesh>();
+			_dstNode.spMesh = std::make_shared<Mesh>();
 
 			// メッシュデータコピー
 			if (_dstNode.spMesh)
@@ -248,7 +240,7 @@ void ModelResource::CreateMaterials(const std::shared_ptr<GLTFModel>& a_spGltfMo
 		Material& _dstMaterial = m_materials[_i];							// 出力先
 
 		// マテリアル情報コピー
-		_dstMaterial.m_name = _srcMaterial.name;									// マテリアル名
+		_dstMaterial.name = _srcMaterial.name;									// マテリアル名
 
 		// テクスチャセット
 		_dstMaterial.SetTexture2D(
@@ -260,10 +252,10 @@ void ModelResource::CreateMaterials(const std::shared_ptr<GLTFModel>& a_spGltfMo
 		);
 
 		// 材質データ
-		_dstMaterial.m_baseColor = _srcMaterial.baseColorFactor;				// 基本色
-		_dstMaterial.m_metallic = _srcMaterial.metallicFactor;					// 金属製
-		_dstMaterial.m_roughness = _srcMaterial.roughnessFactor;				// 粗さ
-		_dstMaterial.m_emissive = _srcMaterial.emissiveFactor;					// エミッシブ
+		_dstMaterial.baseColor = _srcMaterial.baseColorFactor;				// 基本色
+		_dstMaterial.metallic = _srcMaterial.metallicFactor;					// 金属製
+		_dstMaterial.roughness = _srcMaterial.roughnessFactor;				// 粗さ
+		_dstMaterial.emissive = _srcMaterial.emissiveFactor;					// エミッシブ
 	}
 }
 void ModelResource::CreateAnimations(const std::shared_ptr<GLTFModel>& a_spGltfModel)

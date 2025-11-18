@@ -30,7 +30,6 @@ public:
 	// アクセサ
 	//=================================================
 	const std::shared_ptr<Mesh> GetMesh(UINT a_idx) const;							// メッシュ取得
-	const std::vector<std::shared_ptr<Mesh>>& GetMeshes() const { return m_spMeshes; }	// メッシュ配列取得
 	Node* FindNode(std::string a_name);												// ノード探索
 
 	const std::vector<Material>& GetMaterials() const { return m_materials; }		// マテリアル配列
@@ -55,9 +54,9 @@ private:
 	//=================================================
 	// モデルシーンクリエイト関数
 	//=================================================
-	void CreateNodes(const std::shared_ptr<GLTFModel>& a_spGltfModel);										// ノード作成
-	void CreateMaterials(const std::shared_ptr<GLTFModel>& a_spGltfModel,const std::string& a_fileDir);		// マテリアル作成
-	void CreateAnimations(const std::shared_ptr<GLTFModel>& a_spGltfModel);									// アニメーション作成
+	void CreateNodes(const std::shared_ptr<GLTFModel>& a_spGltfModel);									// ノード作成
+	void CreateMaterials(const std::shared_ptr<GLTFModel>& a_spGltfModel,const std::string& a_fileDir);	// マテリアル作成
+	void CreateAnimations(const std::shared_ptr<GLTFModel>& a_spGltfModel);								// アニメーション作成
 
 	//=================================================
 	// 解放処理
@@ -79,9 +78,6 @@ private:
 	std::vector<int>							m_meshNodeIndices;			// メッシュが存在するノード
 	std::vector<int>							m_collisionMeshNodeIndices;	// 子リジョンメッシュが存在するノード
 	std::vector<int>							m_drawMeshNodeIndices;		// 描画するノード
-
-	// メッシュ
-	std::vector<std::shared_ptr<Mesh>>			m_spMeshes;					// メッシュ配列
 };
 
 

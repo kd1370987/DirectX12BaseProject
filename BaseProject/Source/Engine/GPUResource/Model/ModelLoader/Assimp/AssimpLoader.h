@@ -5,6 +5,7 @@ struct AssimpVertex;
 
 struct Material;
 struct Node;
+class Mesh;
 struct AnimationData;
 
 struct aiMesh;
