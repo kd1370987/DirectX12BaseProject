@@ -8,7 +8,7 @@
 void PSOManager::Init()
 {
 	m_spRootSignature = std::make_shared<RootSignature>();
-	if (!m_spRootSignature->Create({ RangeType::CBV,RangeType::SRV }))
+	if (!m_spRootSignature->Create({ RangeType::CBV,RangeType::CBV,RangeType::SRV }))
 	//if (!m_spRootSignature->IsValid())
 	{
 		assert( 0 && "ルートシグネチャの生成に失敗");

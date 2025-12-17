@@ -15,20 +15,19 @@ class RenderContext
 public:
 
 	// カメラ用定数バッファ
-	struct cbCamera
+	struct alignas(256) CBCamera
 	{
 		DirectX::XMFLOAT4X4 viewMat;			// ビュー行列
 		DirectX::XMFLOAT4X4 projMat;			// 射影行列
 		DirectX::XMFLOAT4X4 projInvMat;			// 射影逆行列
 
-		DirectX::XMFLOAT3 camPos;				// カメラのワールド座標
-		float pad = 0;
-
+		DirectX::XMFLOAT3 cameraPos = { 0.0f,0.0f,0.0f };	// カメラのワールド座標
+		float pad = 0.0f;
 	};
 
 
 	// 定数バッファ(オブジェクト単位での更新)
-	struct CBObject
+	struct alignas(256) CBObject
 	{
 		// UV操作
 		DirectX::XMFLOAT2 uvOffset = { 0.0f,0.0f };
@@ -36,13 +35,13 @@ public:
 	};
 
 	// メッシュ座標用定数バッファ
-	struct CBMeshTrans
+	struct alignas(256) CBMeshTrans
 	{
 		DirectX::XMFLOAT4X4 worldMat;
 	};
 
 	// マテリアル単位更新用定数バッファ
-	struct CBMaterial
+	struct alignas(256) CBMaterial
 	{
 		DirectX::XMFLOAT4 baseColor = { 1.0f,1.0f,1.0f,1.0f };
 
@@ -73,7 +72,23 @@ public:
 	/// <summary>
 	/// カメラの情報を定数バッファに乗せてシェーダーに転送
 	/// </summary>
-	void SetToShader();
+	void SetToShader(
+		const DirectX::XMFLOAT4X4& a_worldMat
+	);
+
+	/// <summary>
+	/// プロジェクション行列の設定
+	/// </summary>
+	/// <param name="a_fov">視野角</param>
+	/// <param name="a_aspect">アスペクト比</param>
+	/// <param name="a_near">ニアクリップ</param>
+	/// <param name="a_far">ファークリップ</param>
+	void SetProjectionMatrix(
+		float a_fov,
+		float a_aspect,
+		float a_near,
+		float a_far
+	);
 
 	/// <summary>
 	/// モデル描画
@@ -108,13 +123,12 @@ public:
 private:
 
 	// カメラ用定数バッファ
-	std::shared_ptr<ConstantBuffer> m_spCameraConstantBuffer[FRAME_BUFFER_COUNT] = {nullptr};		// カメラ用定数バッファ
-	std::shared_ptr<DescriptorHeap> m_spDescriptorHeap = nullptr;									// ディスクリプタヒープ
+	std::shared_ptr<ConstantBuffer> m_spCB0_Camera[FRAME_BUFFER_COUNT] = {nullptr};
 
 	// オブジェクト用定数バッファ
-	std::shared_ptr<ConstantBuffer> m_spCB0_Object;			// オブジェクト単位で更新
-	std::shared_ptr<ConstantBuffer> m_spCB1_MeshTrans;		// メッシュ毎に更新
-	std::shared_ptr<ConstantBuffer> m_spCB2_Material;		// マテリアル毎に更新
+	std::shared_ptr<ConstantBuffer> m_spCB1_Object[FRAME_BUFFER_COUNT];	// オブジェクト単位で更新
+	std::shared_ptr<ConstantBuffer> m_spCB2_MeshTrans[FRAME_BUFFER_COUNT];	// メッシュ毎に更新
+	std::shared_ptr<ConstantBuffer> m_spCB3_Material[FRAME_BUFFER_COUNT];	// マテリアル毎に更新
 
 
 // シングルトン

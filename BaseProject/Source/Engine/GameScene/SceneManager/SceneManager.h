@@ -20,6 +20,8 @@ private:
 
 	std::shared_ptr<ModelResource> m_spModel;
 
+	DirectX::XMFLOAT4X4 m_cameraMat;
+
 private:
 	// シングルトン化
 	SceneManager() {}

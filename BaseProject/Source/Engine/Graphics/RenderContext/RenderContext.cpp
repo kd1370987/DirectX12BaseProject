@@ -20,13 +20,6 @@
 #include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/GPUResource/Buffer/ConstantBuffer/ConstantBuffer.h"
 
-struct alignas(256) WorldView
-{
-	DirectX::XMMATRIX world;		// ワールド行列
-	DirectX::XMMATRIX view;			// ビュー行列
-	DirectX::XMMATRIX proj;			// 投影行列
-};
-
 //============================================================================================
 //
 // 初期化
@@ -35,31 +28,35 @@ struct alignas(256) WorldView
 void RenderContext::Init()
 {
 	// カメラ用意
-	auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, -10.0f, 0.0f);											// 視点の位置
-	auto _targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);										// 視点を向ける座標
-	auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);											// 上方向を表すベクトル
-	auto _fov = DirectX::XMConvertToRadians(60);															// 視野角
+	auto _eyePos = DirectX::XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);	// 視点の位置
+	auto _targetPos = DirectX::XMVectorSet(0.0f, 120.0f, 0.0f, 0.0f);	// 視点を向ける座標
+	auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向を表すベクトル
+	auto _fov = DirectX::XMConvertToRadians(60.0f);						// 視野角
+
 	auto _aspect = static_cast<float>(1280) / static_cast<float>(720);		// アスペクト比
 
 	for (size_t _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
 	{
-		m_spCameraConstantBuffer[_i] = std::make_shared<ConstantBuffer>(sizeof(WorldView));
-		if (!m_spCameraConstantBuffer[_i]->IsValid())
+		m_spCB0_Camera[_i] = std::make_shared<ConstantBuffer>(sizeof(CBCamera));
+		if (!m_spCB0_Camera[_i]->IsValid())
 		{
 			printf("変換行列用定数バッファの生成に失敗\n");
 			return;
 		}
 
 		// 変換行列の登録
-		auto _ptr = m_spCameraConstantBuffer[_i]->GetPtr<WorldView>();
-		_ptr->world = DirectX::XMMatrixIdentity();
-		_ptr->view = DirectX::XMMatrixLookAtRH(_eyePos, _targetPos, _upward);
-		_ptr->proj = DirectX::XMMatrixPerspectiveFovRH(_fov, _aspect, 0.3f, 1000.0f);
+		auto* _ptr = m_spCB0_Camera[_i]->GetPtr<CBCamera>();
+		DirectX::XMStoreFloat3(&_ptr->cameraPos, _eyePos);
+		DirectX::XMStoreFloat4x4(&_ptr->viewMat, DirectX::XMMatrixLookAtRH(_eyePos, _targetPos, _upward));
+		DirectX::XMStoreFloat4x4(&_ptr->projMat, DirectX::XMMatrixPerspectiveFovRH(_fov, _aspect, 0.3f, 1000.0f));
+		 
+
+		m_spCB1_Object[_i] = std::make_shared<ConstantBuffer>(sizeof(CBObject));
+		m_spCB2_MeshTrans[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMeshTrans));
+		m_spCB3_Material[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMaterial));
 	}
 
-	m_spCB0_Object = std::make_shared<ConstantBuffer>(sizeof(CBObject));
-	m_spCB1_MeshTrans = std::make_shared<ConstantBuffer>(sizeof(CBMeshTrans));
-	m_spCB2_Material = std::make_shared<ConstantBuffer>(sizeof(CBMaterial));
+	
 
 
 	PSOManager::Instance().Init();
@@ -88,12 +85,44 @@ void RenderContext::EndSimpleRender()
 // カメラ
 //
 //============================================================================================
-void RenderContext::SetToShader()
+void RenderContext::SetToShader(
+	const DirectX::XMFLOAT4X4& a_worldMat
+)
 {
+	// 定数バッファに転送
+	auto* _ptr = m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetPtr<CBCamera>();
+	_ptr->cameraPos = {
+		a_worldMat._41,
+		a_worldMat._42,
+		a_worldMat._43
+	};
+
+	// ビュー行列を計算して格納
+	DirectX::XMMATRIX _wMat = DirectX::XMLoadFloat4x4(&a_worldMat);
+	DirectX::XMMATRIX _vMat = DirectX::XMMatrixInverse(nullptr, _wMat);
+	DirectX::XMStoreFloat4x4(&_ptr->viewMat, _vMat);
+
+	// カメラ用定数バッファに転送
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
 	_cmdList->SetGraphicsRootConstantBufferView(
 		0,
-		m_spCameraConstantBuffer[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetAddres()
+		m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetAddres()
+	);
+}
+
+void RenderContext::SetProjectionMatrix(
+	float a_fov, float a_aspect, float a_near, float a_far
+)
+{
+	auto* _ptr = m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetPtr<CBCamera>();
+	DirectX::XMStoreFloat4x4(
+		&_ptr->projMat,
+		DirectX::XMMatrixPerspectiveFovRH(
+			a_fov,
+			a_aspect,
+			a_near,
+			a_far
+		)
 	);
 }
 

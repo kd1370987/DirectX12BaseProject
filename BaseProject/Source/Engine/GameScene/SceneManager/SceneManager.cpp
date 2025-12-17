@@ -22,9 +22,14 @@
 #include "Engine/GPUResource/Model/ModelLoader/Assimp/AssimpLoader.h"
 #include "Engine/GPUResource/Texture/Texture2D/Texture2D.h"
 
+struct alignas(256) trans
+{
+	DirectX::XMFLOAT4X4 mat;
+};
+
 using namespace DirectX;
 
-ConstantBuffer* g_constantBuffer[FRAME_BUFFER_COUNT];
+ConstantBuffer* g_matBff[FRAME_BUFFER_COUNT];
 
 const wchar_t* MODEL_FILE_PATH = L"Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX";
 std::vector<AssimpMesh> g_meshes;
@@ -56,26 +61,33 @@ bool SceneManager::Init()
 		return false;
 	}
 
-	auto _eyePos = XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);											// 視点の位置
-	auto _targetPos = XMVectorSet(0.0f,120.0f,0.0f,0.0f);										// 視点を向ける座標
-	auto _upward = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);											// 上方向を表すベクトル
+	auto _eyePos = XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);								// 視点の位置
+	auto _targetPos = XMVectorSet(0.0f,120.0f,0.0f,0.0f);								// 視点を向ける座標
+	auto _upward = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);									// 上方向を表すベクトル
 	auto _fov = XMConvertToRadians(60);															// 視野角
 	auto _aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);		// アスペクト比
 
+	DirectX::XMStoreFloat4x4(
+		&m_cameraMat,
+		DirectX::XMMatrixTranslationFromVector(_eyePos)
+	);
+
 	for (size_t _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
 	{
-		g_constantBuffer[_i] = new ConstantBuffer(sizeof(AssimpTransform));
-		if (!g_constantBuffer[_i]->IsValid())
+		g_matBff[_i] = new ConstantBuffer(sizeof(trans));
+		if (!g_matBff[_i]->IsValid())
 		{
-			printf("変換行列用定数バッファの生成に失敗\n");
+			printf("マテリアル用定数バッファの生成に失敗\n");
 			return false;
 		}
-
-		// 変換行列の登録
-		auto _ptr = g_constantBuffer[_i]->GetPtr<AssimpTransform>();
-		_ptr->world = XMMatrixIdentity();
-		_ptr->view = XMMatrixLookAtRH(_eyePos, _targetPos, _upward);
-		_ptr->proj = XMMatrixPerspectiveFovRH(_fov, _aspect, 0.3f, 1000.0f);
+		auto _ptrMat = g_matBff[_i]->GetPtr <trans>();
+		_ptrMat->mat = DirectX::XMFLOAT4X4
+		{
+			1.0f,0.0f,0.0f,0.0f,
+			0.0f,1.0f,0.0f,0.0f,
+			0.0f,0.0f,1.0f,0.0f,
+			0.0f,0.0f,0.0f,1.0f
+		};
 	}
 
 	printf("シーンの初期化に成功\n");
@@ -93,13 +105,18 @@ void SceneManager::Update()
 	// 現在のフレーム番号
 	auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();
 	// 現在のフレーム番号に対応する定数バッファを取得
-	auto _currentTransform = g_constantBuffer[_currentIdx]->GetPtr<AssimpTransform>();
-	_currentTransform->world = DirectX::XMMatrixRotationY(m_rotateY);
+	auto _currentMat = g_matBff[_currentIdx]->GetPtr <trans>();
+
+	DirectX::XMMATRIX rotY = DirectX::XMMatrixRotationY(m_rotateY);
+	DirectX::XMStoreFloat4x4(&_currentMat->mat, rotY);
 }
 
 void SceneManager::Draw()
 {
+	
 	RenderContext::Instance().BeginSimpleRender();
+
+	RenderContext::Instance().SetToShader(m_cameraMat);
 
 	auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();			// 現在のフレーム番号
 	auto _commandList = RenderingEngine::Instance().GetCommandList();				// コマンドリスト
@@ -115,11 +132,12 @@ void SceneManager::Draw()
 		auto _ibView = g_meshes[_i].indexBuffer->View();		// そのメッシュに対応するインデックスバッファビューを取得
 
 	
-		_commandList->IASetVertexBuffers(0, 1, &_vbView);									// 頂点バッファをセット
-		_commandList->IASetIndexBuffer(&_ibView);											// インデックスバッファをセット
+		_commandList->IASetVertexBuffers(0, 1, &_vbView);				// 頂点バッファをセット
+		_commandList->IASetIndexBuffer(&_ibView);						// インデックスバッファをセット
 
-		_commandList->SetGraphicsRootConstantBufferView(0, g_constantBuffer[_currentIdx]->GetAddres());
-		_commandList->SetGraphicsRootDescriptorTable(1, g_meshes[_i].materialHandle->handleGPU);	// マテリアルテクスチャをセット
+		_commandList->SetGraphicsRootConstantBufferView(1, g_matBff[_currentIdx]->GetAddres());
+
+		_commandList->SetGraphicsRootDescriptorTable(2, g_meshes[_i].materialHandle->handleGPU);	// マテリアルテクスチャをセット
 		
 		_commandList->DrawIndexedInstanced(static_cast<UINT>(g_meshes[_i].indices.size()), 1, 0, 0, 0);	// インデックスの数分描画
 	}
