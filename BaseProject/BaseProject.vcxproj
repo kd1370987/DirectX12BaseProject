@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -81,6 +81,7 @@
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -101,6 +102,7 @@
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>packages/Assimp_native_4.1_v142.4.1.0/build/native/include/assimp</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,6 +124,7 @@
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,6 +149,7 @@
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,7 +171,11 @@
     <ClCompile Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap\RTVHeap.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\SRVHeap\SRVHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Device\Device.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Fence\Fence.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Model\Model.cpp" />
@@ -179,9 +187,13 @@
     <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Node\Node.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\PipeLineState\PipelineState.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\RootSignature\RootSignature.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\ScissorRectangle\ScissorRectangle.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\SwapChain\SwapChain.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Texture\Texture2D\Texture2D.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\Viewport\Viewport.cpp" />
     <ClCompile Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\PSOManager\PSOManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.cpp" />
     <ClCompile Include="Source\Engine\Window\Window.cpp" />
@@ -207,7 +219,11 @@
     <ClInclude Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.h" />
     <ClInclude Include="Source\Engine\GPUResource\CommandList\CommandList.h" />
     <ClInclude Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.h" />
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.h" />
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.h" />
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.h" />
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap\RTVHeap.h" />
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\SRVHeap\SRVHeap.h" />
     <ClInclude Include="Source\Engine\GPUResource\Device\Device.h" />
     <ClInclude Include="Source\Engine\GPUResource\Fence\Fence.h" />
     <ClInclude Include="Source\Engine\GPUResource\Model\Model.h" />
@@ -219,9 +235,13 @@
     <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Node\Node.h" />
     <ClInclude Include="Source\Engine\GPUResource\PipeLineState\PipelineState.h" />
     <ClInclude Include="Source\Engine\GPUResource\RootSignature\RootSignature.h" />
+    <ClInclude Include="Source\Engine\GPUResource\ScissorRectangle\ScissorRectangle.h" />
+    <ClInclude Include="Source\Engine\GPUResource\SwapChain\SwapChain.h" />
     <ClInclude Include="Source\Engine\GPUResource\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\GPUResource\Texture\Texture2D\Texture2D.h" />
+    <ClInclude Include="Source\Engine\GPUResource\Viewport\Viewport.h" />
     <ClInclude Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\PSOManager\PSOManager.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.h" />
     <ClInclude Include="Source\Engine\Window\Window.h" />

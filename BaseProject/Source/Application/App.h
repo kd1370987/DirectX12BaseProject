@@ -2,8 +2,8 @@
 
 #include "Engine/Window/Window.h"
 
-constexpr UINT WINDOW_WIDTH = 1920;
-constexpr UINT WINDOW_HEIGHT = 1080;
+constexpr UINT WINDOW_WIDTH = 1280;
+constexpr UINT WINDOW_HEIGHT = 720;
 
 class Application
 {

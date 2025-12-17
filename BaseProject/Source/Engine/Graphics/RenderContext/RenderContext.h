@@ -22,7 +22,7 @@ public:
 		DirectX::XMFLOAT4X4 projInvMat;			// 射影逆行列
 
 		DirectX::XMFLOAT3 camPos;				// カメラのワールド座標
-		int pad = 0;
+		float pad = 0;
 
 	};
 
@@ -83,8 +83,8 @@ public:
 	/// <param name="a_colorScale">色のスケール値</param>
 	/// <param name="a_emissiveScale">エミッシブのスケール値</param>
 	void DrawModel(
-		const ModelResource& a_modelResource,
-		const DirectX::XMFLOAT4X4& a_worldMat,
+		const std::shared_ptr<ModelResource> a_modelResource,
+		const DirectX::XMMATRIX& a_worldMat = DirectX::XMMatrixIdentity(),
 		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
 		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
 	);
@@ -104,13 +104,8 @@ public:
 		const DirectX::XMFLOAT3& a_emissive = { 1,1,1 }
 	);
 
-private:
 
 private:
-
-	// 描画ストリーム
-	std::shared_ptr<RootSignature> m_spRootSignature;		// ルートシグネチャ
-	std::shared_ptr<PipelineState> m_spPipelineState;		// パイプラインステート
 
 	// カメラ用定数バッファ
 	std::shared_ptr<ConstantBuffer> m_spCameraConstantBuffer[FRAME_BUFFER_COUNT] = {nullptr};		// カメラ用定数バッファ

@@ -21,9 +21,17 @@ struct alignas(256) AssimpTransform
 	DirectX::XMMATRIX proj;			// 投影行列
 };
 
+class VertexBuffer;
+class IndexBuffer;
+struct DescriptorHandle;
+
 struct AssimpMesh
 {
 	std::vector<AssimpVertex> vertices;		// 頂点データの配列
 	std::vector<uint32_t> indices;			// インデックスの配列
 	std::wstring diffuseMap;				// テクスチャのファイルパス
+
+	VertexBuffer* vertexBuffer;		// 頂点バッファ
+	IndexBuffer* indexBuffer;			// インデックスバッファ
+	DescriptorHandle* materialHandle;	// テクスチャハンドル
 };

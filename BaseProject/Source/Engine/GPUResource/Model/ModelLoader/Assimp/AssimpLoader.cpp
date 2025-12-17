@@ -1,6 +1,9 @@
 ﻿#include "AssimpLoader.h"
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+#include "Engine/GPUResource/DescriptorHeap/SRVHeap/SRVHeap.h"
+#include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/GPUResource/Texture/Texture2D/Texture2D.h"
 #include "Framework/Shader/ShaderCommon/SharedStruct.h"
 
 #include "Engine/GPUResource/Model/ModelResource/Mesh/Mesh.h"
@@ -17,6 +20,9 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+#include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
+#include "Engine/GPUResource/Buffer/VertexBuffer/VertexBuffer.h"
 
 bool AssimpLoader::Load(ImportSettings a_setting)
 {
@@ -118,6 +124,24 @@ void AssimpLoader::LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInv
 		a_dst.indices[_i * 3 + 1] = _face.mIndices[1];
 		a_dst.indices[_i * 3 + 2] = _face.mIndices[2];
 	}
+
+	//頂点バッファ作成
+	auto _pVB = new VertexBuffer();
+	if (!_pVB->Create(a_dst.vertices.size(), sizeof(AssimpVertex), a_dst.vertices.data()))
+	{
+		printf("頂点バッファの生成に失敗\n");
+		return;
+	}
+	a_dst.vertexBuffer = _pVB;
+
+	// インデックスバッファ作成
+	auto _pIB = new IndexBuffer();
+	if (!_pIB->Create(a_dst.indices.size(), sizeof(uint32_t), a_dst.indices.data()))
+	{
+		printf("インデックスバッファの生成に失敗\n");
+		return;
+	}
+	a_dst.indexBuffer = _pIB;
 }
 
 // テクスチャ読み込み
@@ -133,6 +157,14 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 		auto _file = std::string(_path.C_Str());
 		a_dst.diffuseMap = _dir + StringUtility::ToWideString(_file);
 		printf("テクスチャパス:%ls\n", a_dst.diffuseMap.c_str());
+
+		auto _texPath = FileUtility::ReplaceFilePathExtension(a_dst.diffuseMap, "tga");
+		auto _mainTex = Texture2D::Get(_texPath);
+		auto _handle = DescriptorHeapManager::Instance().GetDescriptorSRV()->Register(_mainTex->Resource());
+
+		DescriptorHandle* _pDH = new DescriptorHandle();
+		*_pDH = _handle;
+		a_dst.materialHandle = _pDH;
 	}
 	else
 	{

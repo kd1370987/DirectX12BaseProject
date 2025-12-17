@@ -1,7 +1,11 @@
 ﻿#include "App.h"
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+#include "Engine/Graphics/RenderContext/RenderContext.h"
+
 #include "Engine/GameScene/SceneManager/SceneManager.h"
+
+#include "Engine/GPUResource/Model/Model.h"
 
 //==================================================================================
 // 
@@ -40,6 +44,9 @@ bool Application::Init()
 		assert(0 && "描画エンジンの初期化に失敗");
 		return false;
 	}
+
+	RenderContext::Instance().Init();
+
 	// シーンの初期化
 	if (!SceneManager::Instance().Init())
 	{

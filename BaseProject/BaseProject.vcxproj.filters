@@ -133,6 +133,33 @@
     <Filter Include="Source\Engine\Graphics\RenderContext">
       <UniqueIdentifier>{ac53ba98-b34c-40d7-aee4-ecaa9ee05c09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\SRVHeap">
+      <UniqueIdentifier>{73b445a6-3a73-4763-96fa-47fbf5dc767d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\UAVHeap">
+      <UniqueIdentifier>{d1f667fa-9a45-4ead-87fc-3098c35e82ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap">
+      <UniqueIdentifier>{51cd4a3a-db62-4bae-b8bf-420eb2ce6574}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap">
+      <UniqueIdentifier>{bd9b1ccf-2377-4a3c-81b3-951250a0774f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap">
+      <UniqueIdentifier>{1ba473aa-5267-4b90-846d-29cf41d4bf05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\PSOManager">
+      <UniqueIdentifier>{f6e99e52-70c5-4c03-8a8d-25019546e376}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\ScissorRectangle">
+      <UniqueIdentifier>{1184e91c-35d9-431a-9e61-0fa8d044250c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\Viewport">
+      <UniqueIdentifier>{34988d4c-29b8-403f-a229-4f3083600dc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\SwapChain">
+      <UniqueIdentifier>{fe52202b-da60-402b-8ac7-faa5c5c5edc4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -224,6 +251,30 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\SRVHeap\SRVHeap.cpp">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\SRVHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\PSOManager\PSOManager.cpp">
+      <Filter>Source\Engine\Graphics\PSOManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.cpp">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\DSVHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap\RTVHeap.cpp">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\RTVHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\ScissorRectangle\ScissorRectangle.cpp">
+      <Filter>Source\Engine\GPUResource\ScissorRectangle</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Viewport\Viewport.cpp">
+      <Filter>Source\Engine\GPUResource\Viewport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\SwapChain\SwapChain.cpp">
+      <Filter>Source\Engine\GPUResource\SwapChain</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.cpp">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\CBVHeap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -322,6 +373,30 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\SRVHeap\SRVHeap.h">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\SRVHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\PSOManager\PSOManager.h">
+      <Filter>Source\Engine\Graphics\PSOManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.h">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\DSVHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap\RTVHeap.h">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\RTVHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\ScissorRectangle\ScissorRectangle.h">
+      <Filter>Source\Engine\GPUResource\ScissorRectangle</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Viewport\Viewport.h">
+      <Filter>Source\Engine\GPUResource\Viewport</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\SwapChain\SwapChain.h">
+      <Filter>Source\Engine\GPUResource\SwapChain</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.h">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\CBVHeap</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

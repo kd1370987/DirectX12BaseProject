@@ -1,5 +1,6 @@
 ﻿#include "ConstantBuffer.h"
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+#include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
 
 ConstantBuffer::ConstantBuffer(size_t a_size)
 {
@@ -35,6 +36,8 @@ ConstantBuffer::ConstantBuffer(size_t a_size)
 	m_desc = {};
 	m_desc.BufferLocation = m_pBuffer->GetGPUVirtualAddress();
 	m_desc.SizeInBytes = UINT(_sizeAligned);
+
+	m_handle = DescriptorHeapManager::Instance().RegisterCBV(m_pBuffer.Get()).handleGPU;
 
 	m_isValid = true;
 }

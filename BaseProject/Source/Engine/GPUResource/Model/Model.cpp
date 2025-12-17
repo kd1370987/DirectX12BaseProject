@@ -43,8 +43,6 @@ bool ModelResource::Load(const std::string& a_filePath)
 	// 対応拡張子のファイルをディレクトリ内から全て取得
 	auto _modelBinFile = FileUtility::FindExtensionInDirectory(_fileDir, ".modelBin");
 	
-	printf("モデル読み込み開始 : %s\n", a_filePath.c_str());
-
 	//-------------------------------------
 	// 独自の形式があった場合
 	//-------------------------------------

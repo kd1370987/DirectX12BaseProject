@@ -82,3 +82,9 @@ enum
 {
 	FRAME_BUFFER_COUNT = 2		// 今回はダブルバッファリング
 };
+// ディスクリプタハンドル構造体
+struct DescriptorHandle
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE handleCPU{};
+	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU{};
+};

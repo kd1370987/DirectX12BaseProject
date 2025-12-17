@@ -9,16 +9,16 @@ public:
 
 	void Init();
 	
+	ID3D12PipelineState* GetPipelineState(const std::string& a_name);
+
+	void SetPipelienStaet(const std::string& a_name);
 
 private:
 
-	// ルートシグネチャ
-	std::shared_ptr<RootSignature> m_spRootSignature;
+	std::shared_ptr<RootSignature> m_spRootSignature = nullptr;
 
 	// パイプラインステート
-	std::shared_ptr<PipelineState> m_spPipelineState;
-
-	
+	std::unordered_map<std::string, std::shared_ptr<PipelineState>> m_pipelineMap = {};
 
 private:
 	// シングルトン

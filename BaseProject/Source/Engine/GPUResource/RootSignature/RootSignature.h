@@ -9,6 +9,13 @@
 
 struct ID3D12RootSignature;
 
+enum class RangeType
+{
+	CBV,
+	SRV,
+	UAV
+};
+
 class RootSignature
 {
 public:
@@ -18,8 +25,7 @@ public:
 
 
 	bool Create(
-		D3D12_ROOT_SIGNATURE_FLAGS a_flg,
-
+		std::vector<RangeType> a_rangeTypeVec
 	);
 
 	bool IsValid();					// ルートシグネチャの生成に成功しているか

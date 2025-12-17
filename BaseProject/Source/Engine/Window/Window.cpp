@@ -21,6 +21,11 @@ LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_
 	return DefWindowProc(a_hWnd, a_message, a_wParam, a_lParam);
 }
 
+//==================================================================================
+// 
+// ウィンドウの作成
+//
+//==================================================================================
 bool Window::Create(
 	UINT a_clientWidth, 
 	UINT a_clientHeight, 
@@ -38,15 +43,15 @@ bool Window::Create(
 
 	// ウィンドウの仕様書作成
 	WNDCLASSEX _wc = {};
-	_wc.cbSize = sizeof(WNDCLASSEX);						// 構造体サイズ
-	_wc.style = CS_HREDRAW | CS_VREDRAW;					// 描画スタイル
-	_wc.lpfnWndProc = (WNDPROC)WndProc;						// ウィンドウ関数
-	_wc.hIcon = LoadIcon(m_hInst, IDI_APPLICATION);			// ウィンドウのアイコン（Alt+Tabなど）
-	_wc.hCursor = LoadCursor(m_hInst, IDC_ARROW);			// ウィンドウ内のデフォルトカーソル
+	_wc.cbSize = sizeof(WNDCLASSEX);												// 構造体サイズ
+	_wc.style = CS_HREDRAW | CS_VREDRAW;									// 描画スタイル
+	_wc.lpfnWndProc = (WNDPROC)WndProc;										// ウィンドウ関数
+	_wc.hIcon = LoadIcon(m_hInst, IDI_APPLICATION);						// ウィンドウのアイコン（Alt+Tabなど）
+	_wc.hCursor = LoadCursor(m_hInst, IDC_ARROW);						// ウィンドウ内のデフォルトカーソル
 	_wc.hbrBackground = GetSysColorBrush(COLOR_BACKGROUND);	// 初期の背景塗りつぶし色
-	_wc.lpszMenuName = nullptr;								// ウィンドウクラスのメニューリソースID
-	_wc.lpszClassName = a_windowClassName.c_str();			// ウィンドウのクラス名（ユニーク性必須）
-	_wc.hIconSm = LoadIcon(m_hInst, IDI_APPLICATION);		// タスクバーとかのアイコン
+	_wc.lpszMenuName = nullptr;														// ウィンドウクラスのメニューリソースID
+	_wc.lpszClassName = a_windowClassName.c_str();						// ウィンドウのクラス名（ユニーク性必須）
+	_wc.hIconSm = LoadIcon(m_hInst, IDI_APPLICATION);					// タスクバーとかのアイコン
 
 	// ウィンドウクラスの登録（同じクラス名は使わないこと）
 	if (!RegisterClassEx(&_wc))
@@ -79,15 +84,21 @@ bool Window::Create(
 		m_hInst,					// 登録したときと同じハンドルを渡す
 		nullptr						// 作成パラメタ　追加オプション
 	);
+	if (!m_hWnd) {
+		DWORD err = GetLastError();
+		assert(0 && "CreateWindowEx failed");
+		return false;
+	}
 
 	// ウィンドウを表示
 	ShowWindow(m_hWnd, SW_SHOWNORMAL);
 
 	// ウィンドウの更新
-	//UpdateWindow(m_hWnd);
+	UpdateWindow(m_hWnd);
 
 	// ウィンドウにフォーカスする
 	SetFocus(m_hWnd);					// キー入力受付開始命令も含む
+	return true;
 }
 
 bool Window::ProcessMessage()

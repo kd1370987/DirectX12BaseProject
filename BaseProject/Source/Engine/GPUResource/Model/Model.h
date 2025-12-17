@@ -72,7 +72,7 @@ private:
 	std::vector<std::shared_ptr<AnimationData>> m_spAnimations;				// データリスト
 
 	// ノード
-	std::vector<Node>							m_originalNodes;			// 全ノード配列
+	std::vector<Node>						m_originalNodes;			// 全ノード配列
 	std::vector<int>							m_rootNodeIndices;			// Rootノード
 	std::vector<int>							m_boneNodeIndices;			// ボーンノード
 	std::vector<int>							m_meshNodeIndices;			// メッシュが存在するノード
