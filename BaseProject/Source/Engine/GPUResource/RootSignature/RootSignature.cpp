@@ -25,24 +25,25 @@ bool RootSignature::Create(std::vector<RangeType> a_rangeTypeVec)
 	// ルートパラメーター・レンジ作成
 	for (size_t _i = 0; _i < _rangeCount; ++_i)
 	{
+		_rootParams[_i] = {};
 		_ranges[_i] = {};
+
 		_ranges[_i].NumDescriptors = 1;
 		_ranges[_i].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 		switch (a_rangeTypeVec[_i])
 		{
 		case RangeType::CBV:		// 定数バッファビュー
-			_ranges[_i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-			_ranges[_i].BaseShaderRegister = _cbvCount;
 			_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 			_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-			_rootParams[_i].DescriptorTable.pDescriptorRanges = nullptr;
-			_rootParams[_i].DescriptorTable.NumDescriptorRanges = 0;
 			_rootParams[_i].Descriptor.ShaderRegister = _cbvCount;
+			_rootParams[_i].Descriptor.RegisterSpace = 0;
 			++_cbvCount;
 			break;
 		case RangeType::SRV:		// シェーダーリソースビュー
 			_ranges[_i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 			_ranges[_i].BaseShaderRegister = _srvCount;
+			_ranges[_i].RegisterSpace = 0;
+
 			_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 			_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 			_rootParams[_i].DescriptorTable.pDescriptorRanges = &_ranges[_i];
@@ -52,6 +53,7 @@ bool RootSignature::Create(std::vector<RangeType> a_rangeTypeVec)
 		case RangeType::UAV:		// アンオーダーアクセスビュー
 			_ranges[_i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
 			_ranges[_i].BaseShaderRegister = _uavCount;
+			_ranges[_i].RegisterSpace = 0;
 			_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 			_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 			_rootParams[_i].DescriptorTable.pDescriptorRanges = &_ranges[_i];

@@ -71,7 +71,7 @@ private:
 	// 描画ループで使用するもの
 	ID3D12Resource* m_currentRenderTarget = nullptr;		// 現在のフレームのレンダーターゲット
 	void WaitRender();										// 描画完了を待つ処理
-
+	void SignalRenderFence();								// フェンスにシグナルを送る処理
 private:
 	// シングルトン
 	// ユニークポインタ使用のため処理はないがcpp側に書いている

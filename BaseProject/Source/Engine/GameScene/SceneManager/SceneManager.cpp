@@ -27,14 +27,36 @@ struct alignas(256) trans
 	DirectX::XMFLOAT4X4 mat;
 };
 
+// 定数バッファ(オブジェクト単位での更新)
+struct alignas(256) CBObject
+{
+	// UV操作
+	DirectX::XMFLOAT2 uvOffset = { 0.0f,0.0f };
+	DirectX::XMFLOAT2 uvTiling = { 1.0f,1.0f };
+};
+
+// マテリアル単位更新用定数バッファ
+struct alignas(256) CBMaterial
+{
+	DirectX::XMFLOAT4 baseColor = { 1.0f,1.0f,1.0f,1.0f };
+
+	DirectX::XMFLOAT3 emissive = { 1.0f,1.0f,1.0f };
+	float metallic = 0.0f;
+
+	float roughness = 1.0f;
+	float pad[3] = { 0.f,0.f,0.f };
+};
+
 using namespace DirectX;
 
+ConstantBuffer* g_objBff[FRAME_BUFFER_COUNT];
 ConstantBuffer* g_matBff[FRAME_BUFFER_COUNT];
+ConstantBuffer* g_materialBff[FRAME_BUFFER_COUNT];
 
 const wchar_t* MODEL_FILE_PATH = L"Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX";
 std::vector<AssimpMesh> g_meshes;
 
-#include "Engine/GPUResource/Model/Model.h"
+//#include "Engine/GPUResource/Model/Model.h"
 
 bool SceneManager::Init()
 {
@@ -47,26 +69,26 @@ bool SceneManager::Init()
 		true
 	};
 
-	m_spModel = std::make_shared<ModelResource>();
-	if (!m_spModel->Load("Asset/Model/tank/tank.gltf"))
+	//m_spModel = std::make_shared<ModelResource>();
+	/*if (!m_spModel->Load("Asset/Model/tank/tank.gltf"))
 	{
-		printf("モデルの読み込みに失敗\n");
+		assert(0 && "GLTFモデル読み込みに失敗\n");
 		return false;
-	}
+	}*/
 
 	AssimpLoader _loader;
 	if (!_loader.Load(_importSettings))
 	{
-		printf("モデルの読み込みに失敗\n");
+		assert(0 && "Assimpモデル読み込みに失敗\n");
 		return false;
 	}
 
-	auto _eyePos = XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);								// 視点の位置
-	auto _targetPos = XMVectorSet(0.0f,120.0f,0.0f,0.0f);								// 視点を向ける座標
-	auto _upward = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);									// 上方向を表すベクトル
-	auto _fov = XMConvertToRadians(60);															// 視野角
-	auto _aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);		// アスペクト比
+	
 
+	
+
+	// カメラ座標設定
+	auto _eyePos = XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);
 	DirectX::XMStoreFloat4x4(
 		&m_cameraMat,
 		DirectX::XMMatrixTranslationFromVector(_eyePos)
@@ -77,7 +99,7 @@ bool SceneManager::Init()
 		g_matBff[_i] = new ConstantBuffer(sizeof(trans));
 		if (!g_matBff[_i]->IsValid())
 		{
-			printf("マテリアル用定数バッファの生成に失敗\n");
+			assert(0 && "マテリアル用定数バッファの作成に失敗\n");
 			return false;
 		}
 		auto _ptrMat = g_matBff[_i]->GetPtr <trans>();
@@ -88,9 +110,31 @@ bool SceneManager::Init()
 			0.0f,0.0f,1.0f,0.0f,
 			0.0f,0.0f,0.0f,1.0f
 		};
-	}
+		g_matBff[_i]->UnMap();
+		
+		g_objBff[_i] = new ConstantBuffer(sizeof(CBObject));
+		if (!g_objBff[_i]->IsValid())
+		{
+			assert(0 && "オブジェクト用定数バッファの作成に失敗\n");
+			return false;
+		}
+		g_objBff[_i]->GetPtr<CBObject>()->uvOffset = { 1.0f,1.0f };
+		g_objBff[_i]->GetPtr<CBObject>()->uvTiling = { 1.0f,1.0f };
+		g_objBff[_i]->UnMap();
 
-	printf("シーンの初期化に成功\n");
+		g_materialBff[_i] = new ConstantBuffer(sizeof(CBMaterial));
+		if (!g_materialBff[_i]->IsValid())
+		{
+			assert(0 && "マテリアル用定数バッファの生成に失敗\n");
+			return false;
+		}
+		g_materialBff[_i]->GetPtr<CBMaterial>()->baseColor = { 0.0f,1.0f,0.0f,1.0f };
+		g_materialBff[_i]->GetPtr<CBMaterial>()->emissive = { 1.0f,1.0f,1.0f };
+		g_materialBff[_i]->GetPtr<CBMaterial>()->metallic = 0.0f;
+		g_materialBff[_i]->GetPtr<CBMaterial>()->roughness = 1.0f;
+		g_materialBff[_i]->UnMap();
+
+	}
 	return true;
 }
 
@@ -109,6 +153,7 @@ void SceneManager::Update()
 
 	DirectX::XMMATRIX rotY = DirectX::XMMatrixRotationY(m_rotateY);
 	DirectX::XMStoreFloat4x4(&_currentMat->mat, rotY);
+	g_matBff[_currentIdx]->UnMap();
 }
 
 void SceneManager::Draw()
@@ -125,6 +170,9 @@ void SceneManager::Draw()
 			DescriptorHeapManager::Instance().GetDescriptorSRV()->GetHeap()
 	};
 	_commandList->SetDescriptorHeaps(std::size(_heaps), _heaps);								// ディスクリプタヒープをセット
+
+	_commandList->SetGraphicsRootConstantBufferView(1, g_objBff[_currentIdx]->GetAddres());
+
 	// メッシュの数だけインデックス分の描画を行う処理を回す
 	for (size_t _i = 0; _i < g_meshes.size(); ++_i)
 	{
@@ -135,12 +183,11 @@ void SceneManager::Draw()
 		_commandList->IASetVertexBuffers(0, 1, &_vbView);				// 頂点バッファをセット
 		_commandList->IASetIndexBuffer(&_ibView);						// インデックスバッファをセット
 
-		_commandList->SetGraphicsRootConstantBufferView(1, g_matBff[_currentIdx]->GetAddres());
+		_commandList->SetGraphicsRootConstantBufferView(2, g_matBff[_currentIdx]->GetAddres());
+		_commandList->SetGraphicsRootConstantBufferView(3, g_materialBff[_currentIdx]->GetAddres());
 
-		_commandList->SetGraphicsRootDescriptorTable(2, g_meshes[_i].materialHandle->handleGPU);	// マテリアルテクスチャをセット
+		_commandList->SetGraphicsRootDescriptorTable(4, g_meshes[_i].materialHandle->handleGPU);	// マテリアルテクスチャをセット
 		
 		_commandList->DrawIndexedInstanced(static_cast<UINT>(g_meshes[_i].indices.size()), 1, 0, 0, 0);	// インデックスの数分描画
 	}
-
-	//RenderContext::Instance().DrawModel(m_spModel);
 }

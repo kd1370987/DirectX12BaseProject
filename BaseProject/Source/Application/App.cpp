@@ -2,6 +2,7 @@
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "Engine/GameScene/SceneManager/SceneManager.h"
 
@@ -38,6 +39,7 @@ bool Application::Init()
 		assert(0 && "ウィンドウ作成失敗");
 		return false;
 	}
+
 	// 描画エンジンの初期化
 	if (!RenderingEngine::Instance().Init(m_window.GetWindowHandle(), WINDOW_WIDTH, WINDOW_HEIGHT))
 	{
@@ -45,6 +47,7 @@ bool Application::Init()
 		return false;
 	}
 
+	
 	RenderContext::Instance().Init();
 
 	// シーンの初期化

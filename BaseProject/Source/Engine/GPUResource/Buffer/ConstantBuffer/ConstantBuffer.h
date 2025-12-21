@@ -20,6 +20,8 @@ public:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetHandle() { return m_handle; }
 
+	void UnMap();
+
 private:
 	bool m_isValid = false;					// 定数バッファ生成に成功したか
 	ComPtr<ID3D12Resource> m_pBuffer;		// 定数バッファ

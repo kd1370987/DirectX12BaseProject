@@ -28,8 +28,9 @@
 void RenderContext::Init()
 {
 	// カメラ用意
+	//auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, -0.0f, 0.0f);	// 視点の位置
 	auto _eyePos = DirectX::XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);	// 視点の位置
-	auto _targetPos = DirectX::XMVectorSet(0.0f, 120.0f, 0.0f, 0.0f);	// 視点を向ける座標
+	auto _targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);	// 視点を向ける座標
 	auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向を表すベクトル
 	auto _fov = DirectX::XMConvertToRadians(60.0f);						// 視野角
 
@@ -49,11 +50,12 @@ void RenderContext::Init()
 		DirectX::XMStoreFloat3(&_ptr->cameraPos, _eyePos);
 		DirectX::XMStoreFloat4x4(&_ptr->viewMat, DirectX::XMMatrixLookAtRH(_eyePos, _targetPos, _upward));
 		DirectX::XMStoreFloat4x4(&_ptr->projMat, DirectX::XMMatrixPerspectiveFovRH(_fov, _aspect, 0.3f, 1000.0f));
+		m_spCB0_Camera[_i]->UnMap();
 		 
 
-		m_spCB1_Object[_i] = std::make_shared<ConstantBuffer>(sizeof(CBObject));
+	/*	m_spCB1_Object[_i] = std::make_shared<ConstantBuffer>(sizeof(CBObject));
 		m_spCB2_MeshTrans[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMeshTrans));
-		m_spCB3_Material[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMaterial));
+		m_spCB3_Material[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMaterial));*/
 	}
 
 	
@@ -142,6 +144,14 @@ void RenderContext::DrawModel(
 	// ノード抽出
 	auto& _dataNodes = a_modelResource->GetOriginalNodes();
 
+	// コマンドリスト取得
+	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+	auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();
+
+	// オブジェクト単位の定数バッファをセット
+	_cmdList->SetGraphicsRootConstantBufferView(1, m_spCB1_Object[_currentIdx]->GetAddres());
+
+
 	// 全描画用メッシュノードを描画
 	for (auto& _nodeIdx : a_modelResource->GetDrawMeshNodeIndices())
 	{
@@ -167,14 +177,25 @@ void RenderContext::DrawMesh(
 	// コマンドリスト取得
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
 
+	auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();
+
 	// メッシュの情報を送信
-	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);	// プリミティブトポロジーをセット
 	_cmdList->IASetVertexBuffers(0,1,&a_mesh->GetVertexBuffer().View());	// 頂点バッファをセット
 	_cmdList->IASetIndexBuffer(&a_mesh->GetIndexBuffer().View());			// インデックスバッファをセット
 	
 	// ディスクリプタヒープ
-	auto _mateHeap = DescriptorHeapManager::Instance().GetDescriptorSRV()->GetHeap();
-	_cmdList->SetDescriptorHeaps(1, &_mateHeap);			// ディスクリプタヒープをセット
+	auto _materialHeap = DescriptorHeapManager::Instance().GetDescriptorSRV()->GetHeap();				// マテリアル用ディスクリプタヒープ
+	ID3D12DescriptorHeap* _heaps[] = {
+			DescriptorHeapManager::Instance().GetDescriptorSRV()->GetHeap()
+	};
+	_cmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+	// メッシュ変換行列の転送
+	{
+		auto* _ptr = m_spCB2_MeshTrans[_currentIdx]->GetPtr<CBMeshTrans>();
+		DirectX::XMStoreFloat4x4(&_ptr->worldMat, a_worldMat);
+	}
+	_cmdList->SetGraphicsRootConstantBufferView(2,m_spCB2_MeshTrans[_currentIdx]->GetAddres());
+
 
 	for (UINT _subIdx = 0; _subIdx < a_mesh->GetSubsets().size(); ++_subIdx)
 	{
@@ -182,17 +203,19 @@ void RenderContext::DrawMesh(
 		if (a_mesh->GetSubsets()[_subIdx].faceCount == 0) continue;
 
 		// マテリアルデータの転送
-		//_cmdList->SetGraphicsRootDescriptorTable(1, );	// マテリアルテクスチャをセット	
-		// 参照
-		//const Material& _material = a_materials[a_mesh->GetSubsets()[_subIdx].materialNumber];
-		//auto _colorScale = DirectX::XMLoadFloat4(&a_colorScale);
-		//auto _emiScale = DirectX::XMLoadFloat3(&a_emissive);
-		//auto _ptr = m_spCB2_Material->GetPtr<CBMaterial>();
+		const Material& _material = a_materials[a_mesh->GetSubsets()[_subIdx].materialNumber];
+		auto _colorScale = DirectX::XMLoadFloat4(&a_colorScale);
+		auto _emiScale = DirectX::XMLoadFloat3(&a_emissive);
+		auto _ptr = m_spCB3_Material[_currentIdx]->GetPtr<CBMaterial>();
 
-		//// ベースカラー
-		//auto _baseColor = DirectX::XMLoadFloat4(&_material.baseColor);
-		//DirectX::XMStoreFloat4(&_ptr->baseColor, DirectX::XMVectorMultiply(_baseColor, _colorScale));
-		//_cmdList->SetGraphicsRootDescriptorTable(1,_material.spBaseColorTex->GetGpuSrvHandle());
+		// ベースカラー
+		auto _baseColor = DirectX::XMLoadFloat4(&_material.baseColor);
+		DirectX::XMStoreFloat4(&_ptr->baseColor, DirectX::XMVectorMultiply(_baseColor, _colorScale));
+
+		_cmdList->SetGraphicsRootConstantBufferView(3, m_spCB3_Material[_currentIdx]->GetAddres());
+
+
+		//_cmdList->SetGraphicsRootDescriptorTable(4,_material.spBaseColorTex->GetGpuSrvHandle());
 
 		// 描画
 		_cmdList->DrawIndexedInstanced(

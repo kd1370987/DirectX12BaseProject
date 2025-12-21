@@ -61,3 +61,8 @@ void* ConstantBuffer::GetPtr() const
 {
 	return m_pMappedPtr;
 }
+
+void ConstantBuffer::UnMap()
+{
+	m_pBuffer->Unmap(0, nullptr);
+}

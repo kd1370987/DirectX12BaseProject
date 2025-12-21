@@ -22,6 +22,8 @@ private:
 
 	DirectX::XMFLOAT4X4 m_cameraMat;
 
+	DirectX::XMFLOAT4X4 m_charaMat;
+
 private:
 	// シングルトン化
 	SceneManager() {}

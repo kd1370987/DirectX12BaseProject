@@ -5,7 +5,7 @@
 #include "../../GPUResource/DescriptorHeap/DSVHeap/DSVHeap.h"
 #include "../../GPUResource/DescriptorHeap/RTVHeap/RTVHeap.h"
 
-DescriptorHandle DescriptorHeapManager::RegisterCBV(ID3D12Resource* a_resource)
+void DescriptorHeapManager::Init()
 {
 	// ディスクリプタヒープがまだ作成されていなかったら作成
 	if (!m_spCBVHeap)
@@ -18,11 +18,7 @@ DescriptorHandle DescriptorHeapManager::RegisterCBV(ID3D12Resource* a_resource)
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
 		);
 	}
-	return m_spCBVHeap->Register(a_resource);
-}
 
-DescriptorHandle DescriptorHeapManager::RegisterSRV(ID3D12Resource* a_resource)
-{
 	// ディスクリプタヒープがまだ作成されていなかったら作成
 	if (!m_spSRVHeap)
 	{
@@ -34,11 +30,7 @@ DescriptorHandle DescriptorHeapManager::RegisterSRV(ID3D12Resource* a_resource)
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
 		);
 	}
-	return m_spSRVHeap->Register(a_resource);	
-}
 
-DescriptorHandle DescriptorHeapManager::RegisterDSV(ID3D12Resource* a_resource)
-{
 	if (!m_spDSVHeap)
 	{
 		m_spDSVHeap = std::make_shared<DSVHeap>();
@@ -48,11 +40,7 @@ DescriptorHandle DescriptorHeapManager::RegisterDSV(ID3D12Resource* a_resource)
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE
 		);
 	}
-	return m_spDSVHeap->Register(a_resource);
-}
 
-DescriptorHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource)
-{
 	if (!m_spRTVHeap)
 	{
 		m_spRTVHeap = std::make_shared<RTVHeap>();
@@ -62,6 +50,29 @@ DescriptorHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource)
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE
 		);
 	}
+}
+
+DescriptorHandle DescriptorHeapManager::RegisterCBV(ID3D12Resource* a_resource)
+{
+	
+	return m_spCBVHeap->Register(a_resource);
+}
+
+DescriptorHandle DescriptorHeapManager::RegisterSRV(ID3D12Resource* a_resource)
+{
+	
+	return m_spSRVHeap->Register(a_resource);	
+}
+
+DescriptorHandle DescriptorHeapManager::RegisterDSV(ID3D12Resource* a_resource)
+{
+	
+	return m_spDSVHeap->Register(a_resource);
+}
+
+DescriptorHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource)
+{
+	
 	return m_spRTVHeap->Register(a_resource);
 }
 

@@ -10,30 +10,30 @@ cbuffer camera : register(b0)
 }
 
 // ワールド変換の定数バッファ
-cbuffer Transform : register(b1)
-{
-	float4x4 mat; // ワールド行列
-}
-
-//cbuffer CBObject : register(b1)
-//{
-//	float2 uvOffset; // UVオフセット
-//	float2 uvTiling; // UVタイル
-//}
-
-//cbuffer Transform : register(b2)
+//cbuffer Transform : register(b1)
 //{
 //	float4x4 mat; // ワールド行列
 //}
 
+cbuffer CBObject : register(b1)
+{
+	float2 uvOffset; // UVオフセット
+	float2 uvTiling; // UVタイル
+}
 
-//cbuffer CBMaterial : register(b3)
-//{
-//	float4 baseColor; // ベースカラー
-//	float3 emissiveColor; // エミッシブカラー
-//	float metallic; // メタリック
-//	float roughness; // ラフネス
-//}
+cbuffer Transform : register(b2)
+{
+	float4x4 mat; // ワールド行列
+}
+
+
+cbuffer CBMaterial : register(b3)
+{
+	float4 baseColor; // ベースカラー
+	float3 emissiveColor; // エミッシブカラー
+	float metallic; // メタリック
+	float roughness; // ラフネス
+}
 
 SamplerState smp : register(s0); // サンプラー
 

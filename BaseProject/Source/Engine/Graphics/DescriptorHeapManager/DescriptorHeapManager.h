@@ -12,6 +12,8 @@ class DescriptorHeapManager
 {
 public:
 
+	void Init();
+
 	/// <summary>
 	/// 定数バッファビュー登録
 	/// </summary>

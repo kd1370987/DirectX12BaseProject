@@ -65,6 +65,8 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	m_upScissorRect->Create(a_windowWidth, a_windowHeight);
 
 
+	DescriptorHeapManager::Instance().Init();
+
 	if (!CreateRenderTarget())
 	{
 		printf("レンダーターゲットの生成に失敗");
@@ -89,6 +91,8 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 //==================================================================================
 void RenderingEngine::BeginRender()
 {
+	WaitRender();
+
 	// 現在のレンダーターゲットを更新
 	m_currentRenderTarget = m_pRenderTargets[m_upSwapChain->GetCurrentBackBufferIndex()].Get();
 
@@ -142,11 +146,13 @@ void RenderingEngine::EndRender()
 	ID3D12CommandList* _ppCmdLists[] = { m_commandList.NGet() };
 	m_commandQueue.Get()->ExecuteCommandLists(1, _ppCmdLists);
 
+	SignalRenderFence();
+
 	// スワップチェーンを切替
 	m_upSwapChain->Present(1,0);
 
 	// 描画完了を待つ
-	WaitRender();
+	//WaitRender();
 
 	// バックバッファ番号更新
 	m_upSwapChain->Update();
@@ -254,15 +260,15 @@ bool RenderingEngine::CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBu
 void RenderingEngine::WaitRender()
 {
 	// 描画終了待ち
-	const UINT64 _fenceValue = m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()];
-	m_commandQueue.Get()->Signal(m_fence.GetFence(), _fenceValue);
-	m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]++;				// インクリメントが待機完了
+	//const UINT64 _fenceValue = m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()];
+	//m_commandQueue.Get()->Signal(m_fence.GetFence(), _fenceValue);
+	//m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]++;				// インクリメントが待機完了
 
 	// 次のフレームの描画準備がまだであれば待機する
-	if (m_fence.GetCompletedValue() < _fenceValue)
+	if (m_fence.GetCompletedValue() < m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()])
 	{
 		// 完了時にイベントを設定
-		if (m_fence.SetEventOnCompletion(_fenceValue, m_fenceEvent))
+		if (m_fence.SetEventOnCompletion(m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()], m_fenceEvent))
 		{
 			return;
 		}
@@ -273,6 +279,15 @@ void RenderingEngine::WaitRender()
 			return;
 		}
 	}
+}
+
+void RenderingEngine::SignalRenderFence()
+{
+	m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]++;
+	m_commandQueue.Get()->Signal(
+		m_fence.GetFence(),
+		m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]
+	);
 }
 
 RenderingEngine::RenderingEngine()

@@ -8,8 +8,13 @@
 void PSOManager::Init()
 {
 	m_spRootSignature = std::make_shared<RootSignature>();
-	if (!m_spRootSignature->Create({ RangeType::CBV,RangeType::CBV,RangeType::SRV }))
-	//if (!m_spRootSignature->IsValid())
+	if (!m_spRootSignature->Create({ 
+		RangeType::CBV,
+		RangeType::CBV,
+		RangeType::CBV,
+		RangeType::CBV,
+		RangeType::SRV 
+		}))
 	{
 		assert( 0 && "ルートシグネチャの生成に失敗");
 		return;
@@ -40,8 +45,8 @@ void PSOManager::Init()
 	_spPipelineState->SetVS(L"x64/Debug/SimpleVS.cso");
 	_spPipelineState->SetPS(L"x64/Debug/SimplePS.cso");
 #else
-	_spPipeLineState->SetVS(L"x64/Release/SimpleVS.cso");
-	_spPipeLineState->SetPS(L"x64/Release/SimplePS.cso");
+	_spPipelineState->SetVS(L"x64/Release/SimpleVS.cso");
+	_spPipelineState->SetPS(L"x64/Release/SimplePS.cso");
 #endif
 	_spPipelineState->Create();
 	if (!_spPipelineState->IsValid())

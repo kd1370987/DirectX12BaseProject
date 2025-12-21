@@ -160,6 +160,9 @@
     <Filter Include="Source\Engine\GPUResource\SwapChain">
       <UniqueIdentifier>{fe52202b-da60-402b-8ac7-faa5c5c5edc4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Core\Math">
+      <UniqueIdentifier>{668a86f1-7438-485b-8aaf-50c03b2e43c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -397,6 +400,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.h">
       <Filter>Source\Engine\GPUResource\DescriptorHeap\CBVHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Math\Alignment.h">
+      <Filter>Source\Core\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,6 @@
 ﻿#include "Application/App.h"
 
-int wmain(int argc, wchar_t** argv, wchar_t** envp)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 	Application::Instance().Excute();
 	return 0;

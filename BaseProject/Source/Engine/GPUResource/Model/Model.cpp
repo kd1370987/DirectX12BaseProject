@@ -49,7 +49,7 @@ bool ModelResource::Load(const std::string& a_filePath)
 	if (_modelBinFile.size() > 0)
 	{
 		// モデルクラスをバイナリ化したデータを読み込む
-		printf("独自形式のモデル読み込みは未実装\n");
+		assert(0 && "独自の読み込みは未対応");
 	}
 	//-------------------------------------
 	// TinyGLTFを使用する場合
@@ -63,7 +63,7 @@ bool ModelResource::Load(const std::string& a_filePath)
 		if (!_spGltfModel)
 		{
 			// 読み込み失敗
-			printf("モデルの読み込みに失敗\n");
+			assert(0 && "GLTFのシリアライズに失敗");
 			return false;
 		}
 
@@ -74,7 +74,7 @@ bool ModelResource::Load(const std::string& a_filePath)
 		// アニメーション作成
 		CreateAnimations(_spGltfModel);
 
-		printf("モデルの読み込みに成功 : %s\n", a_filePath.c_str());
+		//printf("モデルの読み込みに成功 : %s\n", a_filePath.c_str());
 	}
 	//-------------------------------------
 	// Assimpを使用する場合
