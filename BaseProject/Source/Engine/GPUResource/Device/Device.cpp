@@ -6,13 +6,11 @@ bool Device::Init()
 	if (!CreateDxgiFactory())
 	{
 		assert(0 && "DXGIファクトリの生成に失敗");
-		printf("DXGIファクトリの生成に失敗");
 		return false;
 	}
 	if (!CreateDevice())
 	{
 		assert(0 && "デバイスの生成に失敗");
-		printf("デバイスの生成に失敗");
 		return false;
 	}
 

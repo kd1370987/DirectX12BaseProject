@@ -54,7 +54,7 @@ bool AssimpLoader::Load(ImportSettings a_setting)
 	if (_scene == nullptr)
 	{
 		// 読み込み失敗
-		printf("モデルの読み込みに失敗 : %s\n", _importer.GetErrorString());
+		assert(0 && "モデルの読み込みに失敗 : %s\n", _importer.GetErrorString());
 		return false;
 	}
 
@@ -129,7 +129,7 @@ void AssimpLoader::LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInv
 	auto _pVB = new VertexBuffer();
 	if (!_pVB->Create(a_dst.vertices.size(), sizeof(AssimpVertex), a_dst.vertices.data()))
 	{
-		printf("頂点バッファの生成に失敗\n");
+		assert(0 && "頂点バッファの生成に失敗\n");
 		return;
 	}
 	a_dst.vertexBuffer = _pVB;
@@ -138,7 +138,7 @@ void AssimpLoader::LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInv
 	auto _pIB = new IndexBuffer();
 	if (!_pIB->Create(a_dst.indices.size(), sizeof(uint32_t), a_dst.indices.data()))
 	{
-		printf("インデックスバッファの生成に失敗\n");
+		assert(0 && "インデックスバッファの生成に失敗\n");
 		return;
 	}
 	a_dst.indexBuffer = _pIB;
@@ -148,7 +148,6 @@ void AssimpLoader::LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInv
 void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, const aiMaterial* a_src)
 {
 	aiString _path;
-	printf("マテリアル情報読み込み\n");
 	// ディフューズテクスチャのパスを取得
 	if (a_src->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), _path) == AI_SUCCESS)
 	{
@@ -156,8 +155,7 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 		auto _dir = FileUtility::GetDirectoryPath(a_pFilePath);
 		auto _file = std::string(_path.C_Str());
 		a_dst.diffuseMap = _dir + StringUtility::ToWideString(_file);
-		printf("テクスチャパス:%ls\n", a_dst.diffuseMap.c_str());
-
+		
 		auto _texPath = FileUtility::ReplaceFilePathExtension(a_dst.diffuseMap, "tga");
 		auto _mainTex = Texture2D::Get(_texPath);
 		auto _handle = DescriptorHeapManager::Instance().GetDescriptorSRV()->Register(_mainTex->Resource());
@@ -169,7 +167,6 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 	else
 	{
 		a_dst.diffuseMap.clear();
-		printf("テクスチャなし\n");
 	}
 }
 

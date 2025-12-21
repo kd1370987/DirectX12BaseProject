@@ -8,7 +8,7 @@ bool CommandAllocator::Init(
 {
 	if (!CreateCommandAllocator(a_pDevice, a_frameBufferCount, a_commandListType))
 	{
-		printf("コマンドアロケーターの生成に失敗\n");
+		assert(0 && "コマンドアロケーターの生成に失敗\n");
 		return false;
 	}
 	return true;

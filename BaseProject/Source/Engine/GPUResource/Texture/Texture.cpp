@@ -39,7 +39,7 @@ bool Texture::Load(const std::string& a_path)
 	if (FAILED(_hr))
 	{
 		// ファイルの読み込み失敗
-		printf("テクスチャファイルの読み込みに失敗 : %ls\n", _path.c_str());
+		assert(0 && "テクスチャファイルの読み込みに失敗 : %ls\n", _path.c_str());
 		return false;
 	}
 
@@ -77,7 +77,7 @@ bool Texture::Load(const std::string& a_path)
 	if (FAILED(_hr))
 	{
 		// テクスチャリソースの生成失敗
-		printf("テクスチャリソースの生成に失敗 : %ls\n", _path.c_str());
+		assert(0 && "テクスチャリソースの生成に失敗 : %ls\n", _path.c_str());
 		return false;
 	}
 
@@ -94,7 +94,7 @@ bool Texture::Load(const std::string& a_path)
 	if (FAILED(_hr))
 	{
 		// テクスチャデータのコピー失敗
-		printf("テクスチャデータのコピーに失敗 : %ls\n", _path.c_str());
+		assert(0 && "テクスチャデータのコピーに失敗 : %ls\n", _path.c_str());
 		return false;
 	}
 
@@ -113,8 +113,6 @@ bool Texture::Load(const std::string& a_path)
 	height = _meta.height;
 	mipLevels = _meta.mipLevels;
 	format = _meta.format;
-
-	printf("テクスチャの生成成功 : %s\n", a_path.c_str());
 
 	return true;
 }

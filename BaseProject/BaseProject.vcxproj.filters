@@ -163,6 +163,9 @@
     <Filter Include="Source\Core\Math">
       <UniqueIdentifier>{668a86f1-7438-485b-8aaf-50c03b2e43c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap">
+      <UniqueIdentifier>{27207339-f6de-4c31-a562-998217d60d18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -279,6 +282,10 @@
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.cpp">
       <Filter>Source\Engine\GPUResource\DescriptorHeap\CBVHeap</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAV.cpp">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -403,6 +410,9 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Math\Alignment.h">
       <Filter>Source\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.h">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -17,7 +17,7 @@ bool CommandQueue::Init(
 	// コマンドキュー生成
 	if (!CreateCommandQueue(a_pDevice, _desc))
 	{
-		printf("コマンドキューの生成に失敗");
+		assert(0 && "コマンドキューの生成に失敗");
 		return false;
 	}
 	return true;

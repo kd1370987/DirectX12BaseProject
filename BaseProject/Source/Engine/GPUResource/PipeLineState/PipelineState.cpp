@@ -42,7 +42,7 @@ void PipelineState::SetVS(std::wstring a_filePath)
 	auto _hr = D3DReadFileToBlob(a_filePath.c_str(),m_pVSBlob.GetAddressOf());
 	if (FAILED(_hr))
 	{
-		printf("頂点シェーダの読み込みに失敗");
+		assert(0 && "頂点シェーダの読み込みに失敗");
 		return;
 	}
 
@@ -55,7 +55,7 @@ void PipelineState::SetPS(std::wstring a_filePath)
 	auto _hr = D3DReadFileToBlob(a_filePath.c_str(),m_pPSBlob.GetAddressOf());
 	if (FAILED(_hr))
 	{
-		printf("ピクセルシェーダーの読込に失敗");
+		assert(0 && "ピクセルシェーダーの読込に失敗");
 		return;
 	}
 
@@ -71,7 +71,7 @@ void PipelineState::Create()
 	);
 	if (FAILED(_hr))
 	{
-		printf("パイプラインステートの生成に失敗\n");
+		assert(0 && "パイプラインステートの生成に失敗\n");
 		return;
 	}
 

@@ -9,16 +9,10 @@ cbuffer camera : register(b0)
 	float padding1; // パディング
 }
 
-// ワールド変換の定数バッファ
-//cbuffer Transform : register(b1)
-//{
-//	float4x4 mat; // ワールド行列
-//}
-
+// オブジェクトの定数バッファ
 cbuffer CBObject : register(b1)
 {
-	float2 uvOffset; // UVオフセット
-	float2 uvTiling; // UVタイル
+	float4 uvTransform; // UV変換 (x: offsetU, y: offsetV, z: tilingU, w: tilingV)
 }
 
 cbuffer Transform : register(b2)
@@ -26,20 +20,20 @@ cbuffer Transform : register(b2)
 	float4x4 mat; // ワールド行列
 }
 
-
 cbuffer CBMaterial : register(b3)
 {
 	float4 baseColor; // ベースカラー
-	float3 emissiveColor; // エミッシブカラー
-	float metallic; // メタリック
-	float roughness; // ラフネス
+	float4 emissiveColor; // エミッシブカラー
+	float4 metallicRoughness; // めたりっくラフネス	(x: metallic, y: roughness, z: unused, w: unused)
 }
 
-SamplerState smp : register(s0); // サンプラー
+// サンプラー
+SamplerState smp : register(s0);
 
+// テクスチャ
+Texture2D _MainTex : register(t0);
 
-Texture2D _MainTex : register(t0); // テクスチャ
-
+// 頂点シェーダー入出力構造体
 struct VSInput
 {
 	float3 pos : POSITION; // 頂点座標
@@ -49,6 +43,7 @@ struct VSInput
 	float4 color : COLOR; // 頂点色
 };
 
+// 頂点シェーダー出力構造体
 struct VSOutput
 {
 	float4 svpos : SV_Position; // 変換された座標

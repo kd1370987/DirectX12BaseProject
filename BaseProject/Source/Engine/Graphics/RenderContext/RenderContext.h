@@ -30,8 +30,7 @@ public:
 	struct alignas(256) CBObject
 	{
 		// UV操作
-		DirectX::XMFLOAT2 uvOffset = { 0.0f,0.0f };
-		DirectX::XMFLOAT2 uvTiling = { 1.0f,1.0f };
+		DirectX::XMFLOAT4 uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
 	};
 
 	// メッシュ座標用定数バッファ
@@ -43,13 +42,9 @@ public:
 	// マテリアル単位更新用定数バッファ
 	struct alignas(256) CBMaterial
 	{
-		DirectX::XMFLOAT4 baseColor = { 1.0f,1.0f,1.0f,1.0f };
-
-		DirectX::XMFLOAT3 emissive = { 1.0f,1.0f,1.0f };
-		float metallic = 0.0f;
-
-		float roughness = 1.0f;
-		float pad[3] = { 0.f,0.f,0.f };
+		DirectX::XMFLOAT4 baseColorXYZW			= { 1.0f,1.0f,1.0f,1.0f };
+		DirectX::XMFLOAT4 emissiveXYZ			= { 0.0f,0.0f,0.0f,0.0f };
+		DirectX::XMFLOAT4 metallicRoughnessXY	= { 0.0f,0.0f,0.0f,0.0f };
 	};
 
 

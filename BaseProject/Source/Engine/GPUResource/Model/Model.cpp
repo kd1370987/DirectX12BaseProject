@@ -73,8 +73,6 @@ bool ModelResource::Load(const std::string& a_filePath)
 		CreateMaterials(_spGltfModel, _fileDir);
 		// アニメーション作成
 		CreateAnimations(_spGltfModel);
-
-		//printf("モデルの読み込みに成功 : %s\n", a_filePath.c_str());
 	}
 	//-------------------------------------
 	// Assimpを使用する場合
@@ -82,11 +80,8 @@ bool ModelResource::Load(const std::string& a_filePath)
 	else
 	{
 		// Assimpを使用してモデルデータを読み込む
-		printf("Assimpを使用したモデル読み込みは未実装\n");
+		assert(0 && "Assimpを使用したモデル読み込みは未実装\n");
 	}
-	
-	printf("モデル読み込み終了 : %s\n", a_filePath.c_str());
-
 	// 読み込み成功
 	return true;
 }

@@ -38,10 +38,12 @@ void RenderContext::Init()
 
 	for (size_t _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
 	{
-		m_spCB0_Camera[_i] = std::make_shared<ConstantBuffer>(sizeof(CBCamera));
+		//m_spCB0_Camera[_i] = std::make_shared<ConstantBuffer>(sizeof(CBCamera));
+		m_spCB0_Camera[_i] = std::make_shared<ConstantBuffer>();
+		m_spCB0_Camera[_i]->Create(sizeof(CBCamera));
 		if (!m_spCB0_Camera[_i]->IsValid())
 		{
-			printf("変換行列用定数バッファの生成に失敗\n");
+			assert(0 && "変換行列用定数バッファの生成に失敗\n");
 			return;
 		}
 
@@ -53,9 +55,17 @@ void RenderContext::Init()
 		m_spCB0_Camera[_i]->UnMap();
 		 
 
-	/*	m_spCB1_Object[_i] = std::make_shared<ConstantBuffer>(sizeof(CBObject));
-		m_spCB2_MeshTrans[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMeshTrans));
-		m_spCB3_Material[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMaterial));*/
+		//m_spCB1_Object[_i] = std::make_shared<ConstantBuffer>(sizeof(CBObject));
+		//m_spCB1_Object[_i] = std::make_shared<ConstantBuffer>();
+		//m_spCB0_Camera[_i]->Create(sizeof(CBObject));
+
+		////m_spCB2_MeshTrans[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMeshTrans));
+		//m_spCB2_MeshTrans[_i] = std::make_shared<ConstantBuffer>();
+		//m_spCB2_MeshTrans[_i]->Create(sizeof(CBMeshTrans));
+
+		////m_spCB3_Material[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMaterial));
+		//m_spCB3_Material[_i] = std::make_shared<ConstantBuffer>();
+		//m_spCB3_Material[_i]->Create(sizeof(CBMaterial));
 	}
 
 	
@@ -106,9 +116,9 @@ void RenderContext::SetToShader(
 
 	// カメラ用定数バッファに転送
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-	_cmdList->SetGraphicsRootConstantBufferView(
+	_cmdList->SetGraphicsRootDescriptorTable(
 		0,
-		m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetAddres()
+		m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetHandle()
 	);
 }
 
@@ -149,7 +159,10 @@ void RenderContext::DrawModel(
 	auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();
 
 	// オブジェクト単位の定数バッファをセット
-	_cmdList->SetGraphicsRootConstantBufferView(1, m_spCB1_Object[_currentIdx]->GetAddres());
+	_cmdList->SetGraphicsRootDescriptorTable(
+		1,
+		m_spCB1_Object[_currentIdx]->GetHandle()
+	);
 
 
 	// 全描画用メッシュノードを描画
@@ -210,7 +223,7 @@ void RenderContext::DrawMesh(
 
 		// ベースカラー
 		auto _baseColor = DirectX::XMLoadFloat4(&_material.baseColor);
-		DirectX::XMStoreFloat4(&_ptr->baseColor, DirectX::XMVectorMultiply(_baseColor, _colorScale));
+		DirectX::XMStoreFloat4(&_ptr->baseColorXYZW, DirectX::XMVectorMultiply(_baseColor, _colorScale));
 
 		_cmdList->SetGraphicsRootConstantBufferView(3, m_spCB3_Material[_currentIdx]->GetAddres());
 

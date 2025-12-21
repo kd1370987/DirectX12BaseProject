@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+
 namespace Alignment
 {
 	// 指定したサイズにアラインメントを合わせる

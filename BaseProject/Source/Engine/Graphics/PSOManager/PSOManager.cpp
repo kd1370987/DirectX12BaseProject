@@ -51,7 +51,7 @@ void PSOManager::Init()
 	_spPipelineState->Create();
 	if (!_spPipelineState->IsValid())
 	{
-		printf("パイプラインステートの生成に失敗\n");
+		assert(0 && "パイプラインステートの生成に失敗\n");
 		return;
 	}
 

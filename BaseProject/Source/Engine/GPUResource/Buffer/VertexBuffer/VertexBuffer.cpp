@@ -27,7 +27,7 @@ bool VertexBuffer::Create(
 	);
 	if (FAILED(_hr))
 	{
-		printf("頂点バッファリソースの生成に失敗");
+		assert(0 && "頂点バッファリソースの生成に失敗");
 		return false;
 	}
 
@@ -43,7 +43,7 @@ bool VertexBuffer::Create(
 		_hr = m_pBuffer->Map(0, nullptr, &_ptr);
 		if (FAILED(_hr))
 		{
-			printf("頂点バッファマッピングに失敗");
+			assert(0 && "頂点バッファマッピングに失敗");
 			return false;
 		}
 

@@ -17,6 +17,7 @@ public:
 	/// <param name="a_mask">アダプタ数によって変化</param>
 	/// <returns>成功 = true</returns>
 	bool Create(
+		ID3D12Device* a_pDevice,
 		D3D12_DESCRIPTOR_HEAP_TYPE a_type,
 		UINT a_numDescriptors = 100,
 		D3D12_DESCRIPTOR_HEAP_FLAGS a_flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
@@ -40,6 +41,8 @@ protected:
 	UINT m_incrementSize = 0;												// 移動距離
 	D3D12_DESCRIPTOR_HEAP_TYPE m_type{};						// ディスクリプタヒープのタイプ
 	ComPtr<ID3D12DescriptorHeap> m_cpHeap = nullptr;		// ディスクリプタヒープ本体
+
+	ID3D12Device* m_pDevice = nullptr;			// デバイスのポインタ
 	
 	UINT m_maxSize = 0;					// ディスクリプタヒープに乗せれる上限
 	size_t m_currentIndex = 0;			// 今何番目か

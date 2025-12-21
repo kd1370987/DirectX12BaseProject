@@ -7,6 +7,8 @@ class CBVHeap;
 class SRVHeap;
 class DSVHeap;
 class RTVHeap;
+#include "../../GPUResource/DescriptorHeap/CBV_SRV_UAVHeap/CBV_SRV_UAVHeap.h"
+
 
 class DescriptorHeapManager
 {
@@ -15,11 +17,25 @@ public:
 	void Init();
 
 	/// <summary>
+	/// CBV_SRV_UAVヒープクラスのポインタを返す
+	/// </summary>
+	/// <returns>CBV_SRV_UAVクラスポインタ</returns>
+	std::shared_ptr<CBV_SRV_UAVHeap> GetDescriptorCBV_SRV_UAV() const { return m_spCBV_SRV_UAVHeap; }
+
+	/// <summary>
 	/// 定数バッファビュー登録
 	/// </summary>
 	/// <param name="a_resource">登録するリソース</param>
 	/// <returns>登録したハンドル</returns>
 	DescriptorHandle RegisterCBV(ID3D12Resource* a_resource);
+
+	DescriptorHandle RegisterCBV(ID3D12Resource* a_resource,size_t a_size);
+
+	template<typename T>
+	DescriptorHandle RegisterCBV(ID3D12Resource* a_resource)
+	{
+		return m_spCBV_SRV_UAVHeap->RegisterCBV<T>(a_resource);
+	}
 
 	/// <summary>
 	/// CBVヒープクラスのポインタを返す
@@ -69,6 +85,9 @@ public:
 
 
 private:
+
+	// CBV_SRV_UAVヒープ
+	std::shared_ptr<CBV_SRV_UAVHeap> m_spCBV_SRV_UAVHeap = nullptr;
 
 	// CBVヒープ
 	std::shared_ptr<CBVHeap> m_spCBVHeap = nullptr;

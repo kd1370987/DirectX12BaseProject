@@ -5,3 +5,5 @@
 // ユーティリティ
 #include "Utility/FileUtility.h"                     // ファイルユーティリティ
 #include "Utility/StringUtillity.h"                  // 文字列ユーティリティ
+
+#include "Math/Alignment.h"

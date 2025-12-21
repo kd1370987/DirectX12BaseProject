@@ -26,7 +26,7 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	m_upSwapChain = std::make_unique<SwapChain>();
 	if (!m_upSwapChain->Create(a_hWnd, a_windowWidth, a_windowHeight, m_commandQueue.Get()))
 	{
-		printf("スワップチェインの生成に失敗");
+		assert(0 && "スワップチェインの生成に失敗");
 		return false;
 	}
 	// コマンドアロケーター作成
@@ -69,18 +69,16 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 
 	if (!CreateRenderTarget())
 	{
-		printf("レンダーターゲットの生成に失敗");
+		assert(0 && "レンダーターゲットの生成に失敗");
 		return false;
 	}
 	if (!CreateDepthStencil(a_windowWidth, a_windowHeight))
 	{
-		printf("デプスステンシルバッファの生成に失敗");
+		assert(0 && "デプスステンシルバッファの生成に失敗");
 		return false;
 	}
 
 	// 初期化成功
-	printf("描画エンジンの初期化に成功\n");
-
 	return true;
 }
 

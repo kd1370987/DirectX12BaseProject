@@ -172,6 +172,8 @@
     <ClCompile Include="Source\Engine\GPUResource\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAV.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap\RTVHeap.cpp" />
@@ -221,6 +223,7 @@
     <ClInclude Include="Source\Engine\GPUResource\CommandList\CommandList.h" />
     <ClInclude Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.h" />
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.h" />
+    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.h" />
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.h" />
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.h" />
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap\RTVHeap.h" />

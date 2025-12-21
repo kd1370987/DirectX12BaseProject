@@ -4,11 +4,15 @@ class ConstantBuffer
 {
 public:
 	// コンストラクタで定数バッファを生成
-	ConstantBuffer(size_t a_size);
+	//ConstantBuffer(size_t a_size);
+	ConstantBuffer();
+
+	void Create(size_t a_size);
 
 	bool IsValid();										// バッファの生成に成功したか
 	D3D12_GPU_VIRTUAL_ADDRESS GetAddres() const;		// バッファのGPU上のアドレスを返す
 	D3D12_CONSTANT_BUFFER_VIEW_DESC ViewDesc();			// 定数バッファビューを返す
+	
 
 	void* GetPtr() const;								// 定数バッファにマッピングされたポインタを返す
 

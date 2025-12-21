@@ -26,7 +26,7 @@ bool IndexBuffer::Create(
 	);
 	if (FAILED(_hr))
 	{
-		printf("[OnInit]　インデックスバッファのリソースの生成に失敗");
+		assert(0 && "[OnInit]　インデックスバッファのリソースの生成に失敗");
 		return false;
 	}
 
@@ -43,7 +43,7 @@ bool IndexBuffer::Create(
 		_hr = m_pBuffer->Map(0, nullptr, &_ptr);
 		if (FAILED(_hr))
 		{
-			printf("[OnInit] インデックスバッファマッピングに失敗");
+			assert(0 && "[OnInit] インデックスバッファマッピングに失敗");
 		}
 
 		// インデックスデータをマッピング先に設定

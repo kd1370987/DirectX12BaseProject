@@ -915,6 +915,5 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 	}
 
 	// シリアライズしたモデルを返す
-	printf("GLTFモデルの変換終了\n");
 	return _destModel;
 }
