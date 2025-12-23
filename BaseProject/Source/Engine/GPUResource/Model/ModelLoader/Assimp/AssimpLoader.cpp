@@ -162,6 +162,7 @@ bool AssimpLoader::Load(std::string a_filePath, AssimpModel& a_model, bool a_isI
 		const auto _pMaterial = _scene->mMaterials[_i];
 		//LoadTexture(a_pFilePath, _meshes[_i], _pMaterial);
 		LoadTexture(StringUtility::ToWideString(a_filePath).c_str(), *_model.nodes[_i].spMesh.get(), _pMaterial);
+		_model.nodes[_i].spMesh->materialIndex = _i;
 	}
 
 	// 読み込み成功
@@ -198,8 +199,8 @@ void AssimpLoader::LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInv
 		}
 
 		// 頂点情報代入
-		AssimpVertex _vertex = {};
-		_vertex.position	= { _position->x, _position->y, _position->z };		// 位置座標
+		MeshVertexFloat _vertex = {};
+		_vertex.pos	= { _position->x, _position->y, _position->z };		// 位置座標
 		_vertex.normal		= { _normal->x, _normal->y, _normal->z };			// 法線
 		_vertex.uv			= { _uv->x, _uv->y };								// uv座標
 		_vertex.tangent		= { _tangent->x, _tangent->y, _tangent->z };		// 接空間
@@ -220,7 +221,7 @@ void AssimpLoader::LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInv
 
 	//頂点バッファ作成
 	auto _pVB = new VertexBuffer();
-	if (!_pVB->Create(a_dst.vertices.size(), sizeof(AssimpVertex), a_dst.vertices.data()))
+	if (!_pVB->Create(a_dst.vertices.size(), sizeof(MeshVertexFloat), a_dst.vertices.data()))
 	{
 		assert(0 && "頂点バッファの生成に失敗\n");
 		return;

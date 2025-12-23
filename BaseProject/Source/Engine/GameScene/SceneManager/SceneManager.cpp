@@ -4,6 +4,7 @@
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/ResourceManager/ResourceManager.h"
 #include "Engine/Graphics/PSOManager/PSOManager.h"
 
 #include "Engine/GPUResource/Buffer/ConstantBuffer/ConstantBuffer.h"
@@ -12,6 +13,12 @@
 
 #include "Engine/GPUResource/Model/ModelLoader/Assimp/AssimpLoader.h"
 #include "Engine/GPUResource/Texture/Texture2D/Texture2D.h"
+#include "Engine/GPUResource/Texture/Texture.h"
+
+#include "Engine/GPUResource/Model/Model.h"
+#include "Engine/GPUResource/Model/ModelResource/Mesh/Mesh.h"
+#include "Engine/GPUResource/Model/ModelResource/Node/Node.h"
+#include "Engine/GPUResource/Model/ModelResource/Material/Material.h"
 
 struct alignas(256) trans
 {
@@ -87,7 +94,7 @@ bool SceneManager::Init()
 		DirectX::XMMatrixTranslationFromVector(_eyePos)
 	);
 
-	for (size_t _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
+	/*for (size_t _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
 	{
 		g_matBff[_i] = new ConstantBuffer(RenderingEngine::Instance().GetDevice());
 		if (!g_matBff[_i]->Create(sizeof(trans)))
@@ -124,7 +131,7 @@ bool SceneManager::Init()
 		g_materialBff[_i]->GetPtr<CBMaterial>()->baseColorXYZW = { 0.0f,1.0f,0.0f,1.0f };
 		g_materialBff[_i]->GetPtr<CBMaterial>()->emissiveXYZ = { 1.0f,1.0f,1.0f ,0.0f};
 		g_materialBff[_i]->GetPtr<CBMaterial>()->metalicRoughnessXY = {0.0f,1.0f,0.0f,0.0f};
-	}
+	}*/
 	return true;
 }
 
@@ -135,14 +142,14 @@ bool SceneManager::Release()
 
 void SceneManager::Update()
 {
-	m_rotateY += 0.05f;
-	// 現在のフレーム番号
-	auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();
-	// 現在のフレーム番号に対応する定数バッファを取得
-	auto _currentMat = g_matBff[_currentIdx]->GetPtr <trans>();
+	//m_rotateY += 0.05f;
+	//// 現在のフレーム番号
+	//auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();
+	//// 現在のフレーム番号に対応する定数バッファを取得
+	//auto _currentMat = g_matBff[_currentIdx]->GetPtr <trans>();
 
-	DirectX::XMMATRIX rotY = DirectX::XMMatrixRotationY(m_rotateY);
-	DirectX::XMStoreFloat4x4(&_currentMat->mat, rotY);
+	//DirectX::XMMATRIX rotY = DirectX::XMMatrixRotationY(m_rotateY);
+	//DirectX::XMStoreFloat4x4(&_currentMat->mat, rotY);
 }
 
 void SceneManager::Draw()
@@ -151,24 +158,30 @@ void SceneManager::Draw()
 	RenderContext::Instance().BeginSimpleRender();
 
 	auto _commandList = RenderingEngine::Instance().GetCommandList();				// コマンドリスト
-	ID3D12DescriptorHeap* _heaps[] = {
-		DescriptorHeapManager::Instance().GetDescriptorCBV_SRV_UAV()->GetHeap()
-	};
-	_commandList->SetDescriptorHeaps(std::size(_heaps), _heaps);								// ディスクリプタヒープをセット
-
+	
 	RenderContext::Instance().SetToShader(m_cameraMat);
 
-	auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();			// 現在のフレーム番号
-	
-	// マテリアル用ディスクリプタヒープ
-	_commandList->SetGraphicsRootDescriptorTable(1, g_objBff[_currentIdx]->GetHandle());
+	RenderContext::Instance().DrawModel(
+		m_spModel,
+		DirectX::XMMatrixIdentity(),
+		DirectX::XMFLOAT4{1.0f,1.0f,1.0f,1.0f},
+		DirectX::XMFLOAT3{1.0f,1.0f,1.0f}
+	);
 
-	// メッシュの数だけインデックス分の描画を行う処理を回す
-	//for (size_t _i = 0; _i < g_meshes.size(); ++_i)
+	//auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();			// 現在のフレーム番号
+	//
+	//// マテリアル用ディスクリプタヒープ
+	//_commandList->SetGraphicsRootDescriptorTable(1, g_objBff[_currentIdx]->GetHandle());
+
+	//// メッシュの数だけインデックス分の描画を行う処理を回す
+	////for (size_t _i = 0; _i < g_assimpModel.nodes.size(); ++_i)
+	//for (size_t _i = 0; _i < m_spModel->GetOriginalNodes().size(); ++_i)
 	//{
 	//	// 頂点バッファ・インデックスバッファをセット
-	//	auto _vbView = g_meshes[_i].vertexBuffer->View();
-	//	auto _ibView = g_meshes[_i].indexBuffer->View();
+	//	//auto _vbView = g_assimpModel.nodes[_i].spMesh->vertexBuffer->View();
+	//	auto _vbView = m_spModel->GetOriginalNodes()[_i].spMesh->GetVertexBuffer().View();
+	//	//auto _ibView = g_assimpModel.nodes[_i].spMesh->indexBuffer->View();
+	//	auto _ibView = m_spModel->GetOriginalNodes()[_i].spMesh->GetIndexBuffer().View();
 	//	_commandList->IASetVertexBuffers(0, 1, &_vbView);
 	//	_commandList->IASetIndexBuffer(&_ibView);
 
@@ -176,28 +189,23 @@ void SceneManager::Draw()
 	//	_commandList->SetGraphicsRootDescriptorTable(3, g_materialBff[_currentIdx]->GetHandle());
 
 	//	// マテリアルテクスチャをセット
-	//	_commandList->SetGraphicsRootDescriptorTable(4, g_meshes[_i].materialHandle->handleGPU);
-	//	
+	//	/*_commandList->SetGraphicsRootDescriptorTable(
+	//		4, 
+	//		g_assimpModel.nodes[_i].spMesh->materialHandle->handleGPU
+	//	);*/
+	//	m_spModel->GetOriginalNodes()[_i].spMesh->GetSubsets();
+	//	const Material& _material = m_spModel->GetMaterials()[m_spModel->GetOriginalNodes()[_i].spMesh->GetSubsets()[0].materialNumber];
+	//	_commandList->SetGraphicsRootDescriptorTable(
+	//		4, 
+	//		ResourceManager::Instance().GetTexture(_material.baseColorTexKey).lock()->GetGpuSrvHandle()
+	//	);
+
 	//	// インデックスの数分描画
-	//	_commandList->DrawIndexedInstanced(static_cast<UINT>(g_meshes[_i].indices.size()), 1, 0, 0, 0);
+	//	/*_commandList->DrawIndexedInstanced(static_cast<UINT>(g_assimpModel.nodes[_i].spMesh->indices.size()), 1, 0, 0, 0);*/
+
+	//	_commandList->DrawIndexedInstanced(
+	//		static_cast<UINT>(m_spModel->GetOriginalNodes()[_i].spMesh->GetSubsets()[0].faceCount * 3)
+	//		, 1, 0, 0, 0
+	//	);
 	//}
-
-	// メッシュの数だけインデックス分の描画を行う処理を回す
-	for (size_t _i = 0; _i < g_assimpModel.nodes.size(); ++_i)
-	{
-		// 頂点バッファ・インデックスバッファをセット
-		auto _vbView = g_assimpModel.nodes[_i].spMesh->vertexBuffer->View();
-		auto _ibView = g_assimpModel.nodes[_i].spMesh->indexBuffer->View();
-		_commandList->IASetVertexBuffers(0, 1, &_vbView);
-		_commandList->IASetIndexBuffer(&_ibView);
-
-		_commandList->SetGraphicsRootDescriptorTable(2, g_matBff[_currentIdx]->GetHandle());
-		_commandList->SetGraphicsRootDescriptorTable(3, g_materialBff[_currentIdx]->GetHandle());
-
-		// マテリアルテクスチャをセット
-		_commandList->SetGraphicsRootDescriptorTable(4, g_assimpModel.nodes[_i].spMesh->materialHandle->handleGPU);
-
-		// インデックスの数分描画
-		_commandList->DrawIndexedInstanced(static_cast<UINT>(g_assimpModel.nodes[_i].spMesh->indices.size()), 1, 0, 0, 0);
-	}
 }

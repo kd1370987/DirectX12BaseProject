@@ -106,10 +106,11 @@ bool Mesh::CreateFloat(
 		//------------------------------
 		if (!m_vertexBuffer.Create(
 			(UINT)a_vertices.size(),
-			sizeof(MeshVertex8bit),
+			sizeof(MeshVertexFloat),
 			a_vertices.data()
 		))
 		{
+			assert(0 && "頂点バッファの生成に失敗");
 			return false;
 		}
 
@@ -152,10 +153,11 @@ bool Mesh::CreateFloat(
 
 		if (!m_indexBuffer.Create(
 			(UINT)_indices.size(),
-			sizeof(UINT),
+			sizeof(uint32_t),
 			_indices.data()
 		))
 		{
+			assert(0 && "インデックスバッファの生成に失敗");
 			return false;
 		}
 	}

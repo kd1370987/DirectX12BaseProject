@@ -151,6 +151,9 @@
     <Filter Include="Source\Core\Storage">
       <UniqueIdentifier>{f1d64f31-8d46-4534-aad0-654c93255a80}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\GPUResource\Model\ModelResource\Vertex">
+      <UniqueIdentifier>{d546a749-c07b-4c76-ac27-b30adb7a6292}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -389,6 +392,9 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Storage\Storage.h">
       <Filter>Source\Core\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Vertex\Vertex.h">
+      <Filter>Source\Engine\GPUResource\Model\ModelResource\Vertex</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

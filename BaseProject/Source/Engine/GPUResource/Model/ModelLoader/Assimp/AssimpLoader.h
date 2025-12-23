@@ -4,18 +4,6 @@ struct aiMesh;
 struct aiMaterial;
 
 //=========================================================
-// Assimp頂点データ
-//=========================================================
-struct AssimpVertex
-{
-	DirectX::XMFLOAT3 position;		// 位置座標
-	DirectX::XMFLOAT3 normal;		// 法線
-	DirectX::XMFLOAT2 uv;			// uv座標
-	DirectX::XMFLOAT3 tangent;		// 接空間
-	DirectX::XMFLOAT4 color;		// 頂点色
-};
-
-//=========================================================
 // Assimpマテリアルデータ
 //=========================================================
 struct AssimpMaterial
@@ -28,7 +16,7 @@ struct AssimpMaterial
 //=========================================================
 struct AssimpMesh
 {
-	std::vector<AssimpVertex> vertices;		// 頂点データの配列
+	std::vector<MeshVertexFloat> vertices;		// 頂点データの配列
 	std::vector<uint32_t> indices;			// インデックスの配列
 	AssimpMaterial material;				// マテリアルデータ
 

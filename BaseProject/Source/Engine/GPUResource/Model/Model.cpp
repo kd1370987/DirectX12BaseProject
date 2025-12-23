@@ -87,8 +87,8 @@ bool ModelResource::Load(const std::string& a_filePath)
 		if (!_loader.Load(
 			_filePath,
 			*_spAssimpModel.get(),
-			true,
-			false
+			false,
+			true
 		))
 		{
 			assert(0 && "モデル読み込みに失敗\n");
@@ -334,14 +334,7 @@ void ModelResource::CreateNodes(const std::shared_ptr<AssimpModel>& a_assimpMode
 			_vertices.resize(_srcNode.spMesh->vertices.size());
 			for (size_t _i = 0; _i < _srcNode.spMesh->vertices.size(); ++_i)
 			{
-				AssimpVertex& _srcVertex = _srcNode.spMesh->vertices[_i];
-				MeshVertexFloat _dstVertex = {};
-
-				_dstVertex.pos = _srcVertex.position;
-				_dstVertex.uv = _srcVertex.uv;
-				_dstVertex.color = _srcVertex.color;
-				_dstVertex.normal = _srcVertex.normal;
-				_dstVertex.tangent = _srcVertex.tangent;
+				MeshVertexFloat _dstVertex = _srcNode.spMesh->vertices[_i];
 				_vertices[_i] = _dstVertex;
 			}
 
@@ -361,7 +354,8 @@ void ModelResource::CreateNodes(const std::shared_ptr<AssimpModel>& a_assimpMode
 			_subset.faceStart = 0;
 			_subset.faceCount = (UINT)_faces.size() * 3;
 			_subset.materialNumber = _srcNode.spMesh->materialIndex;
-			std::vector<MeshSubset> _subsets = { _subset };
+			std::vector<MeshSubset> _subsets = {};
+			_subsets.push_back(_subset);
 
 			// メッシュデータコピー
 			if (_dstNode.spMesh)

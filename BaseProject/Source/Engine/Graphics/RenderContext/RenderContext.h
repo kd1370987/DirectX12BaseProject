@@ -93,7 +93,7 @@ public:
 	/// <param name="a_colorScale">色のスケール値</param>
 	/// <param name="a_emissiveScale">エミッシブのスケール値</param>
 	void DrawModel(
-		const std::shared_ptr<ModelResource> a_modelResource,
+		std::shared_ptr<ModelResource> a_modelResource,
 		const DirectX::XMMATRIX& a_worldMat = DirectX::XMMatrixIdentity(),
 		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
 		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }

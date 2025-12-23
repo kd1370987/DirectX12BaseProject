@@ -77,6 +77,8 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include "Engine/GPUResource/Buffer/VertexBuffer/VertexBuffer.h"
 #include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
 
+#include "Engine/GPUResource/Model/ModelResource/Vertex/Vertex.h"
+
 // バッファリング数
 enum
 {

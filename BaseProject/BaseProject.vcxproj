@@ -234,6 +234,7 @@
     <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Material\Material.h" />
     <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Mesh\Mesh.h" />
     <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Node\Node.h" />
+    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Vertex\Vertex.h" />
     <ClInclude Include="Source\Engine\GPUResource\PipeLineState\PipelineState.h" />
     <ClInclude Include="Source\Engine\GPUResource\RootSignature\RootSignature.h" />
     <ClInclude Include="Source\Engine\GPUResource\ScissorRectangle\ScissorRectangle.h" />
