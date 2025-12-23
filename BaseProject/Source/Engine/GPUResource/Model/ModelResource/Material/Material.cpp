@@ -4,6 +4,7 @@
 
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/GPUResource/DescriptorHeap/DescriptorHeap.h"
+#include "Engine/ResourceManager/ResourceManager.h"
 
 void Material::SetTexture2D(
 	const std::shared_ptr<Texture> a_spBaseColerTex,

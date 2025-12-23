@@ -3,6 +3,9 @@ struct AnimationData;
 struct GLTFModel;
 struct Node;
 
+struct AssimpMesh;
+struct AssimpModel;
+
 class Mesh;
 class Material;
 
@@ -54,10 +57,13 @@ private:
 	//=================================================
 	// モデルシーンクリエイト関数
 	//=================================================
-	void CreateNodes(const std::shared_ptr<GLTFModel>& a_spGltfModel);									// ノード作成
-	void CreateMaterials(const std::shared_ptr<GLTFModel>& a_spGltfModel,const std::string& a_fileDir);	// マテリアル作成
-	void CreateAnimations(const std::shared_ptr<GLTFModel>& a_spGltfModel);								// アニメーション作成
+	void CreateNodes(const std::shared_ptr<GLTFModel>& a_spGltfModel);
+	void CreateMaterials(const std::shared_ptr<GLTFModel>& a_spGltfModel,const std::string& a_fileDir);
+	void CreateAnimations(const std::shared_ptr<GLTFModel>& a_spGltfModel);
 
+	void CreateNodes(const std::shared_ptr<AssimpModel>& a_assimpModel);
+	void CreateMaterials(const std::shared_ptr<AssimpModel>& a_assimpModel, const std::string& a_fileDir);
+	void CreateAnimations(const std::shared_ptr<AssimpModel>& a_assimpModel);
 	//=================================================
 	// 解放処理
 	//=================================================

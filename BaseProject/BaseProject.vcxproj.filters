@@ -7,20 +7,11 @@
     <Filter Include="Source\Application">
       <UniqueIdentifier>{e7d1d0d0-6e19-4087-b425-de822a493622}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Framework">
-      <UniqueIdentifier>{cb8f399b-7f69-4a06-b547-203ff39a35f6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Scene">
       <UniqueIdentifier>{71900a38-6984-4cc0-b114-42ddf8b9ce38}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine">
       <UniqueIdentifier>{b3bdf23e-a214-415a-bcfe-5e96e6dba00a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Framework\Shader">
-      <UniqueIdentifier>{cee6ef98-8009-4e59-bf61-48124ec628a7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Framework\Shader\ShaderCommon">
-      <UniqueIdentifier>{a7792a03-dfb8-47cb-8487-e75151c2ac79}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset">
       <UniqueIdentifier>{7cbb302a-b997-4612-a99b-30898bdb4d67}</UniqueIdentifier>
@@ -33,9 +24,6 @@
     </Filter>
     <Filter Include="Source\Core">
       <UniqueIdentifier>{911a77bf-e785-42a9-86b4-58f0a388a354}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Tool">
-      <UniqueIdentifier>{405c5b9c-8533-4a37-89f9-ce7e062ae1a0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Core\Utility">
       <UniqueIdentifier>{3ca93ed8-0d29-4541-bed6-d70076ffaf30}</UniqueIdentifier>
@@ -133,17 +121,8 @@
     <Filter Include="Source\Engine\Graphics\RenderContext">
       <UniqueIdentifier>{ac53ba98-b34c-40d7-aee4-ecaa9ee05c09}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\SRVHeap">
-      <UniqueIdentifier>{73b445a6-3a73-4763-96fa-47fbf5dc767d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\UAVHeap">
-      <UniqueIdentifier>{d1f667fa-9a45-4ead-87fc-3098c35e82ae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap">
       <UniqueIdentifier>{51cd4a3a-db62-4bae-b8bf-420eb2ce6574}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap">
-      <UniqueIdentifier>{bd9b1ccf-2377-4a3c-81b3-951250a0774f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap">
       <UniqueIdentifier>{1ba473aa-5267-4b90-846d-29cf41d4bf05}</UniqueIdentifier>
@@ -166,6 +145,12 @@
     <Filter Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap">
       <UniqueIdentifier>{27207339-f6de-4c31-a562-998217d60d18}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\ResourceManager">
+      <UniqueIdentifier>{cfc7eb9f-2780-4392-8169-b7650a8e9189}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Storage">
+      <UniqueIdentifier>{f1d64f31-8d46-4534-aad0-654c93255a80}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -173,9 +158,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Scene\BaseScene.cpp">
       <Filter>Source\Application\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Framework\Shader\ShaderCommon\SharedStruct.cpp">
-      <Filter>Source\Framework\Shader\ShaderCommon</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\App.cpp">
       <Filter>Source\Application</Filter>
@@ -258,9 +240,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\SRVHeap\SRVHeap.cpp">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\SRVHeap</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\PSOManager\PSOManager.cpp">
       <Filter>Source\Engine\Graphics\PSOManager</Filter>
     </ClCompile>
@@ -279,13 +258,13 @@
     <ClCompile Include="Source\Engine\GPUResource\SwapChain\SwapChain.cpp">
       <Filter>Source\Engine\GPUResource\SwapChain</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.cpp">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\CBVHeap</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAV.cpp">
       <Filter>Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp" />
+    <ClCompile Include="Source\Engine\ResourceManager\ResourceManager.cpp">
+      <Filter>Source\Engine\ResourceManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -293,9 +272,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Scene\BaseScene.h">
       <Filter>Source\Application\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Framework\Shader\ShaderCommon\SharedStruct.h">
-      <Filter>Source\Framework\Shader\ShaderCommon</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Utility\FileUtility.h">
       <Filter>Source\Core\Utility</Filter>
@@ -384,9 +360,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\SRVHeap\SRVHeap.h">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\SRVHeap</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\PSOManager\PSOManager.h">
       <Filter>Source\Engine\Graphics\PSOManager</Filter>
     </ClInclude>
@@ -405,14 +378,17 @@
     <ClInclude Include="Source\Engine\GPUResource\SwapChain\SwapChain.h">
       <Filter>Source\Engine\GPUResource\SwapChain</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.h">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\CBVHeap</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Math\Alignment.h">
       <Filter>Source\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.h">
       <Filter>Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ResourceManager\ResourceManager.h">
+      <Filter>Source\Engine\ResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Storage\Storage.h">
+      <Filter>Source\Core\Storage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

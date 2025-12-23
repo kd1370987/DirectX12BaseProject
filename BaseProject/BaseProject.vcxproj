@@ -171,13 +171,11 @@
     <ClCompile Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.cpp" />
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAV.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap\RTVHeap.cpp" />
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\SRVHeap\SRVHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Device\Device.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Fence\Fence.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Model\Model.cpp" />
@@ -198,8 +196,8 @@
     <ClCompile Include="Source\Engine\Graphics\PSOManager\PSOManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.cpp" />
+    <ClCompile Include="Source\Engine\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Window\Window.cpp" />
-    <ClCompile Include="Source\Framework\Shader\ShaderCommon\SharedStruct.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -213,6 +211,7 @@
     <ClInclude Include="Source\Application\Scene\BaseScene.h" />
     <ClInclude Include="Source\Core\Core.h" />
     <ClInclude Include="Source\Core\Math\Alignment.h" />
+    <ClInclude Include="Source\Core\Storage\Storage.h" />
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
     <ClInclude Include="Source\Core\Utility\StringUtillity.h" />
     <ClInclude Include="Source\Engine\GameScene\SceneManager\SceneManager.h" />
@@ -222,12 +221,10 @@
     <ClInclude Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.h" />
     <ClInclude Include="Source\Engine\GPUResource\CommandList\CommandList.h" />
     <ClInclude Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.h" />
-    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBVHeap\CBVHeap.h" />
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.h" />
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.h" />
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.h" />
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap\RTVHeap.h" />
-    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\SRVHeap\SRVHeap.h" />
     <ClInclude Include="Source\Engine\GPUResource\Device\Device.h" />
     <ClInclude Include="Source\Engine\GPUResource\Fence\Fence.h" />
     <ClInclude Include="Source\Engine\GPUResource\Model\Model.h" />
@@ -248,8 +245,8 @@
     <ClInclude Include="Source\Engine\Graphics\PSOManager\PSOManager.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.h" />
+    <ClInclude Include="Source\Engine\ResourceManager\ResourceManager.h" />
     <ClInclude Include="Source\Engine\Window\Window.h" />
-    <ClInclude Include="Source\Framework\Shader\ShaderCommon\SharedStruct.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>
   <ItemGroup>

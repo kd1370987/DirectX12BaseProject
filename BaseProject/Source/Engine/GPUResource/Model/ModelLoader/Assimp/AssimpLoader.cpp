@@ -1,15 +1,15 @@
 ﻿#include "AssimpLoader.h"
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
-#include "Engine/GPUResource/DescriptorHeap/SRVHeap/SRVHeap.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/GPUResource/Texture/Texture2D/Texture2D.h"
-#include "Framework/Shader/ShaderCommon/SharedStruct.h"
-
+#include "Engine/GPUResource/Texture/Texture.h"
 #include "Engine/GPUResource/Model/ModelResource/Mesh/Mesh.h"
 #include "Engine/GPUResource/Model/ModelResource/Material/Material.h"
 #include "Engine/GPUResource/Model/ModelResource/Animation/Animation.h"
 #include "Engine/GPUResource/Model/ModelResource/Node/Node.h"
+
+#include "Engine/ResourceManager/ResourceManager.h"
 
 #ifdef _DEBUG
 #pragma comment(lib,"assimp-vc143-mtd.lib")
@@ -69,6 +69,99 @@ bool AssimpLoader::Load(ImportSettings a_setting)
 		// テクスチャ読み込み
 		const auto _pMaterial = _scene->mMaterials[_i];
 		LoadTexture(a_setting.pFilePath, _meshes[_i], _pMaterial);
+	}
+
+	// 読み込み成功
+	_scene = nullptr;
+	return true;
+}
+
+bool AssimpLoader::Load(
+	std::string& 			a_filePath,
+	std::vector<AssimpMesh>& a_meshes, 
+	bool a_isInverseU, bool a_isInverseV)
+{
+	auto& _meshes = a_meshes;
+	auto _isInvrseU = a_isInverseU;
+	auto _isInvrseV = a_isInverseV;
+
+	// Assimpで読み込み
+	Assimp::Importer _importer;
+	unsigned int _flg = 0;
+	_flg |= aiProcess_Triangulate;					// 三角形化
+	_flg |= aiProcess_PreTransformVertices;			// すべてのノードをルートノードに変換
+	_flg |= aiProcess_CalcTangentSpace;				// 接空間計算
+	_flg |= aiProcess_GenSmoothNormals;				// スムーズシェーディング用法線計算
+	_flg |= aiProcess_GenUVCoords;					// UV座標生成
+	_flg |= aiProcess_RemoveRedundantMaterials;		// 冗長なマテリアル削除
+	_flg |= aiProcess_OptimizeMeshes;				// メッシュ最適化
+
+	auto _scene = _importer.ReadFile(a_filePath, _flg);
+	if (_scene == nullptr)
+	{
+		// 読み込み失敗
+		assert(0 && "モデルの読み込みに失敗 : %s\n", _importer.GetErrorString());
+		return false;
+	}
+
+	// 読み込んだデータを自分で定義したMesh構造体に変換する
+	_meshes.clear();
+	_meshes.resize(_scene->mNumMeshes);
+	for (size_t _i = 0; _i < _meshes.size(); ++_i)
+	{
+		// メッシュの読み込み
+		const auto _pMesh = _scene->mMeshes[_i];
+		LoadMesh(_meshes[_i], _pMesh, _isInvrseU, _isInvrseV);
+		// テクスチャ読み込み
+		const auto _pMaterial = _scene->mMaterials[_i];
+		//LoadTexture(a_pFilePath, _meshes[_i], _pMaterial);
+		LoadTexture(StringUtility::ToWideString(a_filePath).c_str(), _meshes[_i], _pMaterial);
+	}
+
+	// 読み込み成功
+	_scene = nullptr;
+	return true;
+}
+
+bool AssimpLoader::Load(std::string a_filePath, AssimpModel& a_model, bool a_isInverseU, bool a_isInverseV)
+{
+	auto& _model = a_model;
+	_model = {};
+	auto _isInvrseU = a_isInverseU;
+	auto _isInvrseV = a_isInverseV;
+
+	// Assimpで読み込み
+	Assimp::Importer _importer;
+	unsigned int _flg = 0;
+	_flg |= aiProcess_Triangulate;					// 三角形化
+	_flg |= aiProcess_PreTransformVertices;			// すべてのノードをルートノードに変換
+	_flg |= aiProcess_CalcTangentSpace;				// 接空間計算
+	_flg |= aiProcess_GenSmoothNormals;				// スムーズシェーディング用法線計算
+	_flg |= aiProcess_GenUVCoords;					// UV座標生成
+	_flg |= aiProcess_RemoveRedundantMaterials;		// 冗長なマテリアル削除
+	_flg |= aiProcess_OptimizeMeshes;				// メッシュ最適化
+
+	auto _scene = _importer.ReadFile(a_filePath, _flg);
+	if (_scene == nullptr)
+	{
+		// 読み込み失敗
+		assert(0 && "モデルの読み込みに失敗 : %s\n", _importer.GetErrorString());
+		return false;
+	}
+
+	// 読み込んだデータを自分で定義したMesh構造体に変換する
+	_model = {};
+	_model.nodes.resize(_scene->mNumMeshes);
+	for (size_t _i = 0; _i < _scene->mNumMeshes; ++_i)
+	{
+		_model.nodes[_i].spMesh = std::make_shared<AssimpMesh>();
+		// メッシュの読み込み
+		const auto _pMesh = _scene->mMeshes[_i];
+		LoadMesh(*_model.nodes[_i].spMesh.get(), _pMesh, _isInvrseU, _isInvrseV);
+		// テクスチャ読み込み
+		const auto _pMaterial = _scene->mMaterials[_i];
+		//LoadTexture(a_pFilePath, _meshes[_i], _pMaterial);
+		LoadTexture(StringUtility::ToWideString(a_filePath).c_str(), *_model.nodes[_i].spMesh.get(), _pMaterial);
 	}
 
 	// 読み込み成功
@@ -154,19 +247,29 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 		// テクスチャパスは相対パスで入っているので、元のファイルパスからディレクトリ部分を取得して結合する
 		auto _dir = FileUtility::GetDirectoryPath(a_pFilePath);
 		auto _file = std::string(_path.C_Str());
-		a_dst.diffuseMap = _dir + StringUtility::ToWideString(_file);
+		a_dst.material.diffuseMap = _dir + StringUtility::ToWideString(_file);
 		
-		auto _texPath = FileUtility::ReplaceFilePathExtension(a_dst.diffuseMap, "tga");
-		auto _mainTex = Texture2D::Get(_texPath);
-		auto _handle = DescriptorHeapManager::Instance().GetDescriptorSRV()->Register(_mainTex->Resource());
+		auto _texPath = FileUtility::ReplaceFilePathExtension(a_dst.material.diffuseMap, "tga");
+		//auto _mainTex = Texture2D::Get(_texPath);
+		auto _mainTex = ResourceManager::Instance().GetTexture(StringUtility::ToUTF8(_texPath));
+
+		//auto _handle = DescriptorHeapManager::Instance().RegisterSRV(_mainTex->Resource());
 
 		DescriptorHandle* _pDH = new DescriptorHandle();
-		*_pDH = _handle;
+		//*_pDH = _handle;
+		std::shared_ptr<Texture> _tex = _mainTex.lock();
+		if (!_tex)
+		{
+			assert(0 && "テクスチャの取得に失敗\n");
+		}
+		_pDH->handleCPU = _tex->GetCpuSrvHandle();
+		_pDH->handleGPU = _tex->GetGpuSrvHandle();
 		a_dst.materialHandle = _pDH;
 	}
 	else
 	{
-		a_dst.diffuseMap.clear();
+		//a_dst.diffuseMap.clear();
+		a_dst.material.diffuseMap.clear();
 	}
 }
 

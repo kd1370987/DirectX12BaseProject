@@ -1,18 +1,13 @@
 ﻿#pragma once
 
+
 class ConstantBuffer
 {
 public:
 	// コンストラクタで定数バッファを生成
-	//ConstantBuffer(size_t a_size);
-	ConstantBuffer();
+	ConstantBuffer(ID3D12Device* a_pDevice);
 
-	void Create(size_t a_size);
-
-	bool IsValid();										// バッファの生成に成功したか
-	D3D12_GPU_VIRTUAL_ADDRESS GetAddres() const;		// バッファのGPU上のアドレスを返す
-	D3D12_CONSTANT_BUFFER_VIEW_DESC ViewDesc();			// 定数バッファビューを返す
-	
+	bool Create(size_t a_size);
 
 	void* GetPtr() const;								// 定数バッファにマッピングされたポインタを返す
 
@@ -24,14 +19,14 @@ public:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetHandle() { return m_handle; }
 
-	void UnMap();
-
 private:
-	bool m_isValid = false;					// 定数バッファ生成に成功したか
-	ComPtr<ID3D12Resource> m_pBuffer;		// 定数バッファ
-	D3D12_CONSTANT_BUFFER_VIEW_DESC m_desc;	// 定数バッファビューの設定
-	void* m_pMappedPtr = nullptr;
 
+	// デバイス
+	ID3D12Device* m_pDevice = nullptr;
+
+	// 定数バッファ
+	ComPtr<ID3D12Resource> m_cpBuffer = nullptr;
+	void* m_pMappedPtr = nullptr;
 	D3D12_GPU_DESCRIPTOR_HANDLE m_handle;
 
 	// コピー禁止

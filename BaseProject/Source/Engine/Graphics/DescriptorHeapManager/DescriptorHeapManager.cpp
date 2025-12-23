@@ -1,7 +1,5 @@
 ﻿#include "DescriptorHeapManager.h"
 
-#include "../../GPUResource/DescriptorHeap/CBVHeap/CBVHeap.h"
-#include "../../GPUResource/DescriptorHeap/SRVHeap/SRVHeap.h"
 #include "../../GPUResource/DescriptorHeap/DSVHeap/DSVHeap.h"
 #include "../../GPUResource/DescriptorHeap/RTVHeap/RTVHeap.h"
 
@@ -17,32 +15,6 @@ void DescriptorHeapManager::Init()
 		// CBV_SRV_UAV用ディスクリプタヒープの作成
 		m_spCBV_SRV_UAVHeap = std::make_shared<CBV_SRV_UAVHeap>();
 		m_spCBV_SRV_UAVHeap->Create(
-			_device,
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-			100,
-			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
-		);
-	}
-
-	// ディスクリプタヒープがまだ作成されていなかったら作成
-	if (!m_spCBVHeap)
-	{
-		// CBV用ディスクリプタヒープの作成
-		m_spCBVHeap = std::make_shared<CBVHeap>();
-		m_spCBVHeap->Create(
-			_device,
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-			100,
-			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
-		);
-	}
-
-	// ディスクリプタヒープがまだ作成されていなかったら作成
-	if (!m_spSRVHeap)
-	{
-		// SRV用ディスクリプタヒープの作成
-		m_spSRVHeap = std::make_shared<SRVHeap>();
-		m_spSRVHeap->Create(
 			_device,
 			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
 			100,
@@ -73,11 +45,6 @@ void DescriptorHeapManager::Init()
 	}
 }
 
-DescriptorHandle DescriptorHeapManager::RegisterCBV(ID3D12Resource* a_resource)
-{
-	
-	return m_spCBVHeap->Register(a_resource);
-}
 
 DescriptorHandle DescriptorHeapManager::RegisterCBV(ID3D12Resource* a_resource, size_t a_size)
 {
@@ -86,8 +53,6 @@ DescriptorHandle DescriptorHeapManager::RegisterCBV(ID3D12Resource* a_resource, 
 
 DescriptorHandle DescriptorHeapManager::RegisterSRV(ID3D12Resource* a_resource)
 {
-	
-	//return m_spSRVHeap->Register(a_resource);	
 	return m_spCBV_SRV_UAVHeap->RegisterSRV(a_resource);
 }
 

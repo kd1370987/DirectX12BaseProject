@@ -84,4 +84,15 @@ namespace FileUtility
 		_file.close();
 		return _isOpen;
 	}
+
+	/// <summary>
+	/// ファイル名取得
+	/// </summary>
+	/// <param name="a_filePath">ファイルパス</param>
+	/// <returns>ファイル名のみ返す</returns>
+	inline std::string GetFileName(const std::string& a_filePath)
+	{
+		std::filesystem::path _p = a_filePath;
+		return _p.filename().string();
+	}
 }

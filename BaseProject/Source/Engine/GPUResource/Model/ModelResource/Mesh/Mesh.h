@@ -20,10 +20,10 @@ struct MeshVertex8bit
 struct MeshVertexFloat
 {
 	DirectX::XMFLOAT3		pos;					// 座標
-	DirectX::XMFLOAT2		uv;						// uv座標
-	DirectX::XMFLOAT4		color;					// RGBA(各色0.0f～1.0fのFLOAT型)
 	DirectX::XMFLOAT3		normal;					// 法線
+	DirectX::XMFLOAT2		uv;						// uv座標
 	DirectX::XMFLOAT3		tangent;				// 接線
+	DirectX::XMFLOAT4		color;					// RGBA(各色0.0f～1.0fのFLOAT型)
 
 	std::array<short, 4>	skinIndexList;			// スキニングIndexリスト
 	std::array<float, 4>	skinWeightList;			// スキニングウェイトリスト
@@ -63,7 +63,7 @@ public:
 	~Mesh() = default;
 
 	/// <summary>
-	/// メッシュ作成
+	/// メッシュ作成(ビット版)
 	/// </summary>
 	/// <param name="a_vertices">頂点配列</param>
 	/// <param name="a_face">面インデックス情報</param>
@@ -75,6 +75,21 @@ public:
 		const std::vector<MeshFace>&	a_face,				// 面インデックス情報配列
 		const std::vector<MeshSubset>&	a_subsets,			// サブセット情報配列
 		bool							a_isSkinMesh		// スキンメッシュ持ちかどうか
+	);
+
+	/// <summary>
+	/// メッシュ作成(float版)
+	/// </summary>
+	/// <param name="a_vertices">頂点配列</param>
+	/// <param name="a_face">面インデックス情報</param>
+	/// <param name="a_subsets">サブセット情報配列</param>
+	/// <param name="a_isSkinMesh">スキンメッシュ持ちかどうか</param>
+	/// <returns>作成に成功したらtrue</returns>
+	bool CreateFloat(
+		const std::vector<MeshVertexFloat>&	a_vertices,		// 頂点配列
+		const std::vector<MeshFace>&		a_face,			// 面インデックス情報配列
+		const std::vector<MeshSubset>&		a_subsets,		// サブセット情報配列
+		bool								a_isSkinMesh	// スキンメッシュ持ちかどうか
 	);
 
 	/// <summary>
