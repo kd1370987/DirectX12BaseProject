@@ -7,7 +7,11 @@ DescriptorHandle CBV_SRV_UAVHeap::Register(ID3D12Resource* a_resource)
     return DescriptorHandle();
 }
 
-DescriptorHandle CBV_SRV_UAVHeap::RegisterCBV(ID3D12Resource* a_resource, size_t a_size)
+DescriptorHandle CBV_SRV_UAVHeap::RegisterCBV(
+	ID3D12Resource* a_resource,
+	size_t a_size,
+	D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
+)
 {
 	size_t _count = m_currentIndex;
 	if (m_maxSize <= _count)
@@ -33,7 +37,7 @@ DescriptorHandle CBV_SRV_UAVHeap::RegisterCBV(ID3D12Resource* a_resource, size_t
 	D3D12_CONSTANT_BUFFER_VIEW_DESC _cbvDesc = {};
 	_cbvDesc.BufferLocation = a_resource->GetGPUVirtualAddress();
 	_cbvDesc.SizeInBytes = (a_size + 255) & ~255;
-
+	a_cbvDesc = _cbvDesc;
 
 	// CBVの生成
 	m_pDevice->CreateConstantBufferView(

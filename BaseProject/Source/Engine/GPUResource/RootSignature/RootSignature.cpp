@@ -13,10 +13,15 @@ bool RootSignature::Create(std::vector<RangeType> a_rangeTypeVec)
 	int _rangeCount = a_rangeTypeVec.size();
 
 	// アプリケーションの入力アセンブラ使用
-	auto _flag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	auto _flag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
-	std::vector<D3D12_ROOT_PARAMETER> _rootParams(_rangeCount);
-	std::vector<D3D12_DESCRIPTOR_RANGE> _ranges(_rangeCount);
+	//std::vector<D3D12_ROOT_PARAMETER> _rootParams(_rangeCount);
+	//std::vector<D3D12_DESCRIPTOR_RANGE> _ranges(_rangeCount);
+	_rootParams.resize(_rangeCount);
+	_ranges.resize(_rangeCount);
 
 	UINT _cbvCount = 0;
 	UINT _srvCount = 0;

@@ -46,7 +46,7 @@ void RenderContext::Init()
 
 		// 変換行列の登録
 		auto* _ptr = m_spCB0_Camera[_i]->GetPtr<CBCamera>();
-		DirectX::XMStoreFloat3(&_ptr->cameraPos, _eyePos);
+		DirectX::XMStoreFloat4(&_ptr->cameraPosXYZ, _eyePos);
 		DirectX::XMStoreFloat4x4(&_ptr->viewMat, DirectX::XMMatrixLookAtRH(_eyePos, _targetPos, _upward));
 		DirectX::XMStoreFloat4x4(&_ptr->projMat, DirectX::XMMatrixPerspectiveFovRH(_fov, _aspect, 0.3f, 1000.0f));
 
@@ -120,10 +120,11 @@ void RenderContext::SetToShader(
 
 	// 定数バッファに転送
 	auto* _ptr = m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetPtr<CBCamera>();
-	_ptr->cameraPos = {
+	_ptr->cameraPosXYZ = {
 		a_worldMat._41,
 		a_worldMat._42,
-		a_worldMat._43
+		a_worldMat._43,
+		0.0f
 	};
 
 	// ビュー行列を計算して格納
@@ -136,6 +137,11 @@ void RenderContext::SetToShader(
 		0,
 		m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetHandle()
 	);
+
+	/*_cmdList->SetGraphicsRootConstantBufferView(
+		0,
+		m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetCBVDesc().BufferLocation
+	);*/
 }
 
 void RenderContext::SetProjectionMatrix(
@@ -179,6 +185,11 @@ void RenderContext::DrawModel(
 		m_spCB1_Object[_currentIdx]->GetHandle()
 	);
 
+	/*_cmdList->SetGraphicsRootConstantBufferView(
+		1,
+		m_spCB1_Object[_currentIdx]->GetCBVDesc().BufferLocation
+	);*/
+
 
 	// 全描画用メッシュノードを描画
 	for (auto& _nodeIdx : a_modelResource->GetDrawMeshNodeIndices())
@@ -187,12 +198,21 @@ void RenderContext::DrawModel(
 		DirectX::XMMATRIX _worldMat = a_worldMat;
 		DrawMesh(
 			_dataNodes[_nodeIdx].spMesh.get(),
-			_nodeTransMat * _worldMat,
+			_worldMat,
 			a_modelResource->GetMaterials(),
 			a_colorScale,
 			a_emissiveScale
 		);
 	}
+}
+void RenderContext::DrawModel(std::shared_ptr<ModelResource> a_modelResource, const DirectX::XMFLOAT4X4& a_worldMat, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
+{
+	DrawModel(
+		a_modelResource,
+		DirectX::XMLoadFloat4x4(&a_worldMat),
+		a_colorScale,
+		a_emissiveScale
+	);
 }
 void RenderContext::DrawMesh(
 	const Mesh* a_mesh,
@@ -212,9 +232,17 @@ void RenderContext::DrawMesh(
 	_cmdList->IASetIndexBuffer(&a_mesh->GetIndexBuffer().View());			// インデックスバッファをセット
 	
 	// メッシュ変換行列の転送
+	auto _ptr = m_spCB2_MeshTrans[_currentIdx]->GetPtr<CBMeshTrans>();
+	DirectX::XMStoreFloat4x4(&_ptr->worldMat, a_worldMat);
+
+
 	_cmdList->SetGraphicsRootDescriptorTable(
 		2, m_spCB2_MeshTrans[_currentIdx]->GetHandle()
 	);
+
+	/*_cmdList->SetGraphicsRootConstantBufferView(
+		2, m_spCB2_MeshTrans[_currentIdx]->GetCBVDesc().BufferLocation
+	);*/
 
 
 	for (UINT _subIdx = 0; _subIdx < a_mesh->GetSubsets().size(); ++_subIdx)
@@ -236,7 +264,10 @@ void RenderContext::DrawMesh(
 			3, m_spCB3_Material[_currentIdx]->GetHandle()
 		);
 
-		//_cmdList->SetGraphicsRootDescriptorTable(4,_material.spBaseColorTex->GetGpuSrvHandle());
+		/*_cmdList->SetGraphicsRootConstantBufferView(
+			3, m_spCB3_Material[_currentIdx]->GetCBVDesc().BufferLocation
+		);*/
+
 		_cmdList->SetGraphicsRootDescriptorTable(
 			4,
 			ResourceManager::Instance().GetTexture(_material.baseColorTexKey).lock()->GetGpuSrvHandle()

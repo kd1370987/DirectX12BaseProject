@@ -19,6 +19,8 @@ public:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetHandle() { return m_handle; }
 
+	const D3D12_CONSTANT_BUFFER_VIEW_DESC& GetCBVDesc() const { return m_cbvDesc; }
+
 private:
 
 	// デバイス
@@ -28,6 +30,8 @@ private:
 	ComPtr<ID3D12Resource> m_cpBuffer = nullptr;
 	void* m_pMappedPtr = nullptr;
 	D3D12_GPU_DESCRIPTOR_HANDLE m_handle;
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC m_cbvDesc;
 
 	// コピー禁止
 	ConstantBuffer(const ConstantBuffer&) = delete;

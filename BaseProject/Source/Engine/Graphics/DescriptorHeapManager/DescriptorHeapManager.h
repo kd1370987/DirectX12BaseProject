@@ -28,7 +28,11 @@ public:
 	/// <param name="a_resource">リソース</param>
 	/// <param name="a_size">サイズ</param>
 	/// <returns>登録したハンドル</returns>
-	DescriptorHandle RegisterCBV(ID3D12Resource* a_resource,size_t a_size);
+	DescriptorHandle RegisterCBV(
+		ID3D12Resource* a_resource,
+		size_t a_size,
+		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
+	);
 
 	/// <summary>
 	/// シェーダーリソースビュー作成

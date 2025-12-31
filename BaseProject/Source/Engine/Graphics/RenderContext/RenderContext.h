@@ -21,8 +21,7 @@ public:
 		DirectX::XMFLOAT4X4 projMat;			// 射影行列
 		DirectX::XMFLOAT4X4 projInvMat;			// 射影逆行列
 
-		DirectX::XMFLOAT3 cameraPos = { 0.0f,0.0f,0.0f };	// カメラのワールド座標
-		float pad = 0.0f;
+		DirectX::XMFLOAT4 cameraPosXYZ = { 0.0f,0.0f,0.0f,0.0f };	// カメラのワールド座標
 	};
 
 
@@ -95,6 +94,13 @@ public:
 	void DrawModel(
 		std::shared_ptr<ModelResource> a_modelResource,
 		const DirectX::XMMATRIX& a_worldMat = DirectX::XMMatrixIdentity(),
+		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
+		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
+	);
+
+	void DrawModel(
+		std::shared_ptr<ModelResource> a_modelResource,
+		const DirectX::XMFLOAT4X4& a_worldMat,
 		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
 		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
 	);

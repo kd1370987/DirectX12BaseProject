@@ -1,5 +1,11 @@
 ﻿#include "RenderingEngine.h"
 
+#include "../../GPUResource/Device/Device.h"
+#include "../../GPUResource/CommandQueue/CommandQueue.h"
+#include "../../GPUResource/CommandAllocator/CommandAllocator.h"
+#include "../../GPUResource/CommandList/CommandList.h"
+#include "../../GPUResource/Fence/Fence.h"
+
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/GPUResource/DescriptorHeap/DSVHeap/DSVHeap.h"
 #include "Engine/GPUResource/DescriptorHeap/RTVHeap/RTVHeap.h"
@@ -13,31 +19,53 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	// GPUリソース初期化
 
 	// デバイス作成
-	if (!m_device.Init()) 
+	m_upDevice = std::make_unique<Device>();
+	if (!m_upDevice->Init()) 
 	{
+		assert(0 && "デバイス&ファクトリの生成に失敗");
 		return false;
 	}
 	// コマンドキュー作成
-	if (!m_commandQueue.Init(m_device.GetDevice()))
+	m_upCommandQueue = std::make_unique<CommandQueue>();
+	if (!m_upCommandQueue->Init(
+			m_upDevice->GetDevice(),
+			D3D12_COMMAND_LIST_TYPE_DIRECT,
+			D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+			D3D12_COMMAND_QUEUE_FLAG_NONE
+		)
+	)
 	{
+		assert(0 && "コマンドキューの生成に失敗");
 		return false;
 	}
 	// スワップチェイン作成
 	m_upSwapChain = std::make_unique<SwapChain>();
-	if (!m_upSwapChain->Create(a_hWnd, a_windowWidth, a_windowHeight, m_commandQueue.Get()))
+	if (!m_upSwapChain->Create(
+			a_hWnd, 
+			a_windowWidth,
+			a_windowHeight,
+			m_upCommandQueue->Get()
+		)
+	)
 	{
 		assert(0 && "スワップチェインの生成に失敗");
 		return false;
 	}
 	// コマンドアロケーター作成
-	if (!m_commandAllocator.Init(m_device.GetDevice()))
+	m_upCommandAllocator = std::make_unique<CommandAllocator>();
+	if (!m_upCommandAllocator->Init(
+			m_upDevice->GetDevice()
+		)
+	)
 	{
+		assert(0 && "コマンドアロケーターの生成に失敗");
 		return false;
 	}
 	// コマンドリスト作成
-	if (!m_commandList.Create(
-			m_device.GetDevice(), 
-			m_commandAllocator.GetCCurrentAllocator(m_upSwapChain->GetCurrentBackBufferIndex()),
+	m_upCommandList = std::make_unique<CommandList>();
+	if (!m_upCommandList->Create(
+			m_upDevice->GetDevice(), 
+			m_upCommandAllocator->GetCCurrentAllocator(m_upSwapChain->GetCurrentBackBufferIndex()),
 			m_upSwapChain->GetCurrentBackBufferIndex()
 		))
 	{
@@ -49,7 +77,8 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	{
 		m_fenceValue[_i] = 0;
 	}
-	if (m_fence.Init(m_device.GetDevice()))
+	m_upFence = std::make_unique<Fence>();
+	if (m_upFence->Init(m_upDevice->GetDevice()))
 	{
 		return false;
 	}
@@ -95,12 +124,12 @@ void RenderingEngine::BeginRender()
 	m_currentRenderTarget = m_pRenderTargets[m_upSwapChain->GetCurrentBackBufferIndex()].Get();
 
 	// コマンドキューを初期化して命令をためる準備をする
-	m_commandAllocator.Reset(m_upSwapChain->GetCurrentBackBufferIndex());
-	m_commandList.Reset(m_commandAllocator.GetCCurrentAllocator(m_upSwapChain->GetCurrentBackBufferIndex()));
+	m_upCommandAllocator->Reset(m_upSwapChain->GetCurrentBackBufferIndex());
+	m_upCommandList->Reset(m_upCommandAllocator->GetCCurrentAllocator(m_upSwapChain->GetCurrentBackBufferIndex()));
 
 	// ビューポートとシザー矩形を設定
-	m_commandList.SetViewports(1,&m_upViewport->Get());
-	m_commandList.SetScissorRects(1,&m_upScissorRect->Get());
+	m_upCommandList->SetViewports(1,&m_upViewport->Get());
+	m_upCommandList->SetScissorRects(1,&m_upScissorRect->Get());
 
 	// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
 	auto _currentRtvHandle = DescriptorHeapManager::Instance().GetDescriptorRTV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();;
@@ -110,14 +139,14 @@ void RenderingEngine::BeginRender()
 	auto _currentDsvHandle = DescriptorHeapManager::Instance().GetDescriptorDSV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();
 
 	// レンダーターゲットが使用可能になるまで待つ
-	m_commandList.ResourceBarrier(
+	m_upCommandList->ResourceBarrier(
 		m_currentRenderTarget, 
 		D3D12_RESOURCE_STATE_PRESENT, 
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
 
 	// レンダーターゲットを設定
-	m_commandList.SetRenderTarget(
+	m_upCommandList->SetRenderTarget(
 		1,
 		&_currentRtvHandle, 
 		FALSE, 
@@ -125,24 +154,24 @@ void RenderingEngine::BeginRender()
 	);
 
 	// バッファクリア
-	m_commandList.ClearRenderTargetView(_currentRtvHandle);		// レンダーターゲット
-	m_commandList.ClearDepthStencilView(_currentDsvHandle);		// 深度ステンシル
+	m_upCommandList->ClearRenderTargetView(_currentRtvHandle);		// レンダーターゲット
+	m_upCommandList->ClearDepthStencilView(_currentDsvHandle);		// 深度ステンシル
 }
 void RenderingEngine::EndRender()
 {
 	// レンダーターゲットに書き込みが終わるまで待つ
-	m_commandList.ResourceBarrier(
+	m_upCommandList->ResourceBarrier(
 		m_currentRenderTarget,
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
 		D3D12_RESOURCE_STATE_PRESENT
 	);
 
 	// コマンドの記録を終了
-	m_commandList.Close();
+	m_upCommandList->Close();
 
 	// コマンドを実行
-	ID3D12CommandList* _ppCmdLists[] = { m_commandList.NGet() };
-	m_commandQueue.Get()->ExecuteCommandLists(1, _ppCmdLists);
+	ID3D12CommandList* _ppCmdLists[] = { m_upCommandList->NGet() };
+	m_upCommandQueue->Get()->ExecuteCommandLists(1, _ppCmdLists);
 
 	SignalRenderFence();
 
@@ -166,12 +195,12 @@ void RenderingEngine::EndRender()
 ID3D12Device6* RenderingEngine::GetDevice()
 {
 	// デバイスの取得
-	return m_device.GetDevice();
+	return m_upDevice->GetDevice();
 }
 ID3D12GraphicsCommandList* RenderingEngine::GetCommandList()
 {
 	// コマンドリストの取得
-	return m_commandList.NGet();
+	return m_upCommandList->NGet();
 }
 UINT RenderingEngine::CurrentBackBufferIndex()
 {
@@ -208,7 +237,7 @@ bool RenderingEngine::CreateRenderTarget()
 		);
 		DescriptorHeapManager::Instance().RegisterRTV(m_pRenderTargets[_i].Get());
 	}
-	m_rtvDescriptorSize = m_device.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	m_rtvDescriptorSize = m_upDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	return true;
 }
 bool RenderingEngine::CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBufferHeight)
@@ -236,7 +265,7 @@ bool RenderingEngine::CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBu
 	);
 
 	// リソースを実際に作成(GPU上に)
-	auto _hr = m_device.GetDevice()->CreateCommittedResource(
+	auto _hr = m_upDevice->GetDevice()->CreateCommittedResource(
 		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&_resourceDesc,
@@ -263,10 +292,10 @@ void RenderingEngine::WaitRender()
 	//m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]++;				// インクリメントが待機完了
 
 	// 次のフレームの描画準備がまだであれば待機する
-	if (m_fence.GetCompletedValue() < m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()])
+	if (m_upFence->GetCompletedValue() < m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()])
 	{
 		// 完了時にイベントを設定
-		if (m_fence.SetEventOnCompletion(m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()], m_fenceEvent))
+		if (m_upFence->SetEventOnCompletion(m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()], m_fenceEvent))
 		{
 			return;
 		}
@@ -282,8 +311,8 @@ void RenderingEngine::WaitRender()
 void RenderingEngine::SignalRenderFence()
 {
 	m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]++;
-	m_commandQueue.Get()->Signal(
-		m_fence.GetFence(),
+	m_upCommandQueue->Get()->Signal(
+		m_upFence->GetFence(),
 		m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]
 	);
 }

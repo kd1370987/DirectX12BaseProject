@@ -8,7 +8,11 @@ public:
 
 	DescriptorHandle Register(ID3D12Resource* a_resource = nullptr) override;
 
-	DescriptorHandle RegisterCBV(ID3D12Resource* a_resource, size_t a_size);
+	DescriptorHandle RegisterCBV(
+		ID3D12Resource* a_resource,
+		size_t a_size,
+		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
+	);
 
 	template<typename T>
 	DescriptorHandle RegisterCBV(ID3D12Resource* a_resource)

@@ -36,4 +36,7 @@ private:
 	bool m_isValid = false;				// ルートシグネチャの生成に成功したか
 	ComPtr<ID3D12RootSignature> m_pRootSignatrue = nullptr;		// ルートシグネチャ
 
+	std::vector<D3D12_ROOT_PARAMETER> _rootParams;
+	std::vector<D3D12_DESCRIPTOR_RANGE> _ranges;
+
 };

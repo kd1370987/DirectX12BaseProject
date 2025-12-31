@@ -11,6 +11,7 @@ VSOutput vert(VSInput a_input)
     
     _output.svpos = _projPos;           // 投影変換された座標をピクセルシェーダーに渡す
     _output.color = a_input.color;      // 頂点色をそのままピクセルシェーダーに渡す
+    _output.color = a_input.color + baseColor;      // 頂点色をそのままピクセルシェーダーに渡す
 	_output.uv = a_input.uv;	// uv座標をそのままピクセルシェーダーに渡す
     
     return _output;

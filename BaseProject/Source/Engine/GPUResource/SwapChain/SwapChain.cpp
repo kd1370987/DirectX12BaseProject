@@ -18,21 +18,21 @@ bool SwapChain::Create(HWND a_hWnd, UINT a_frameBufferWidth, UINT a_frameBufferH
 
 	// 仕様書作成
 	DXGI_SWAP_CHAIN_DESC _desc = {};
-	_desc.BufferDesc.Width = a_frameBufferWidth;																// 幅
-	_desc.BufferDesc.Height = a_frameBufferHeight;															// 高さ
-	_desc.BufferDesc.RefreshRate.Numerator = 60;																// 何回(60 / 1 = 60)
-	_desc.BufferDesc.RefreshRate.Denominator = 1;																// 何秒間の間に(60 / 1 = 1)
+	_desc.BufferDesc.Width = a_frameBufferWidth;									// 幅
+	_desc.BufferDesc.Height = a_frameBufferHeight;									// 高さ
+	_desc.BufferDesc.RefreshRate.Numerator = 60;									// 何回(60 / 1 = 60)
+	_desc.BufferDesc.RefreshRate.Denominator = 1;									// 何秒間の間に(60 / 1 = 1)
 	_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;		// 映像のスキャン順序
-	_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;									// スケーリング方法
-	_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;										// ピクセルのフォーマット
-	_desc.SampleDesc.Count = 1;																						// マルチサンプリング（なし）
-	_desc.SampleDesc.Quality = 0;																						// アンチエイリアス設定
-	_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;										// バッファの用途（出力）
-	_desc.BufferCount = FRAME_BUFFER_COUNT;																// バッファ数
-	_desc.OutputWindow = a_hWnd;																					// 出力先
-	_desc.Windowed = TRUE;																								// ウィンドウモード指定
-	_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;												// 切替の方式
-	_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;									// フルスクリーン切替許可
+	_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;						// スケーリング方法
+	_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;							// ピクセルのフォーマット
+	_desc.SampleDesc.Count = 1;														// マルチサンプリング（なし）
+	_desc.SampleDesc.Quality = 0;													// アンチエイリアス設定
+	_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;							// バッファの用途（出力）
+	_desc.BufferCount = FRAME_BUFFER_COUNT;											// バッファ数
+	_desc.OutputWindow = a_hWnd;													// 出力先
+	_desc.Windowed = TRUE;															// ウィンドウモード指定
+	_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;								// 切替の方式
+	_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;							// フルスクリーン切替許可
 
 	// スワップチェインの生成
 	IDXGISwapChain* _pSwapChain = nullptr;

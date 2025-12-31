@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "../../GPUResource/Device/Device.h"
-#include "../../GPUResource/CommandQueue/CommandQueue.h"
-#include "../../GPUResource/CommandAllocator/CommandAllocator.h"
-#include "../../GPUResource/CommandList/CommandList.h"
-#include "../../GPUResource/Fence/Fence.h"
+class Device;
+class CommandQueue;
+class CommandAllocator;
+class CommandList;
+class Fence;
 
 class RootSignature;
 class PipelineState;
@@ -40,17 +40,20 @@ public:
 	ID3D12Resource* GetCurrentRenderTarget();
 
 private:
-	// 描画に使うDirectX12のオブジェクト
-	Device m_device;											// デバイス
-	CommandQueue m_commandQueue;								// コマンドキュー
-	std::unique_ptr<SwapChain>			m_upSwapChain = nullptr;				// スワップチェイン
-	CommandAllocator m_commandAllocator;						// コマンドアロケーター
-	CommandList m_commandList;									// コマンドリスト
-	HANDLE m_fenceEvent = nullptr;								// フェンスで使うイベント
-	Fence m_fence;												// フェンス
-	UINT64 m_fenceValue[FRAME_BUFFER_COUNT];					// フェンスの数
-	std::unique_ptr<Viewport>				m_upViewport = nullptr;				// ビューポート
-	std::unique_ptr<ScissorRectangle>	m_upScissorRect = nullptr;			// シザー矩形
+	// DirectX12のオブジェクト
+	std::unique_ptr<Device>				m_upDevice				= nullptr;		// デバイス
+	std::unique_ptr<SwapChain>			m_upSwapChain			= nullptr;		// スワップチェイン
+
+	std::unique_ptr<CommandQueue>		m_upCommandQueue		= nullptr;		// コマンドキュー
+	std::unique_ptr<CommandAllocator>	m_upCommandAllocator	= nullptr;		// コマンドアロケーター
+	std::unique_ptr<CommandList>		m_upCommandList			= nullptr;		// コマンドリスト
+
+	HANDLE								m_fenceEvent			= nullptr;		// フェンスで使うイベント
+	std::unique_ptr<Fence>				m_upFence				= nullptr;		// フェンス
+	UINT64								m_fenceValue[FRAME_BUFFER_COUNT];		// フェンスの数
+
+	std::unique_ptr<Viewport>			m_upViewport			= nullptr;		// ビューポート
+	std::unique_ptr<ScissorRectangle>	m_upScissorRect			= nullptr;		// シザー矩形
 
 private:
 
