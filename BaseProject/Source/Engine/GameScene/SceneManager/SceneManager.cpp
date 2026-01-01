@@ -12,15 +12,16 @@
 bool SceneManager::Init()
 {
 	m_spModel = std::make_shared<ModelResource>();
-	if (!m_spModel->Load("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX"))
-	//if (!m_spModel->Load("Asset/Model/tank/tank.gltf"))
+	//if (!m_spModel->Load("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX"))
+	if (!m_spModel->Load("Asset/Model/tank/tank.gltf"))
 	{
 		assert(0 && "FBXモデル読み込みに失敗\n");
 		return false;
 	}
 
 	// カメラ座標設定
-	auto _eyePos = DirectX::XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);
+	//auto _eyePos = DirectX::XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);
+	auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f);
 	DirectX::XMStoreFloat4x4(
 		&m_cameraMat,
 		DirectX::XMMatrixTranslationFromVector(_eyePos)

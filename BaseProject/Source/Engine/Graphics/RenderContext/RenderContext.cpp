@@ -27,8 +27,8 @@
 void RenderContext::Init()
 {
 	// カメラ用意
-	//auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, -0.0f, 0.0f);	// 視点の位置
-	auto _eyePos = DirectX::XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);	// 視点の位置
+	auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f);	// 視点の位置
+	//auto _eyePos = DirectX::XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);	// 視点の位置
 	auto _targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);	// 視点を向ける座標
 	auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向を表すベクトル
 	auto _fov = DirectX::XMConvertToRadians(60.0f);						// 視野角
@@ -94,6 +94,8 @@ void RenderContext::BeginSimpleRender()
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
 	PSOManager::Instance().SetPipelienStaet("SimplePipeline");
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// プリミティブトポロジー
+	//_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN);		// プリミティブトポロジー
+	//_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);		// プリミティブトポロジー
 	
 }
 void RenderContext::EndSimpleRender()
@@ -195,7 +197,10 @@ void RenderContext::DrawModel(
 	for (auto& _nodeIdx : a_modelResource->GetDrawMeshNodeIndices())
 	{
 		DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
+		//DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].localTransform);
 		DirectX::XMMATRIX _worldMat = a_worldMat;
+		//_worldMat = DirectX::XMMatrixMultiply(_worldMat,_nodeTransMat);
+		_worldMat = DirectX::XMMatrixMultiply(_nodeTransMat, _worldMat);
 		DrawMesh(
 			_dataNodes[_nodeIdx].spMesh.get(),
 			_worldMat,
@@ -281,6 +286,14 @@ void RenderContext::DrawMesh(
 			0,
 			0
 			);
+
+		/*_cmdList->DrawInstanced(
+			static_cast<UINT>(a_mesh->GetSubsets()[_subIdx].faceCount * 3),
+			1,
+			0,
+			0
+		);*/
+
 	}
 	
 }

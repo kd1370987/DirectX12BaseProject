@@ -10,8 +10,19 @@ std::weak_ptr<Texture> ResourceManager::GetTexture(const std::string& a_key)
 {
 	if (a_key.empty())
 	{
-		assert(0 && "テクスチャのファイルパス不明");
-		return std::weak_ptr<Texture>{};
+		//assert(0 && "テクスチャのファイルパス不明");
+		// 白色テクスチャを作成して返す
+		auto _spTexture = std::make_shared<Texture>();
+		if (!_spTexture->WhiteTexture())
+		{
+			// 読み込み失敗
+			assert(0 && "テクスチャの読み込みに失敗");
+			return std::weak_ptr<Texture>{};
+		}
+
+		m_textureStorage.Add("WhiteTex", _spTexture);
+
+		return _spTexture;
 	}
 
 	// すでに読み込まれているか確認

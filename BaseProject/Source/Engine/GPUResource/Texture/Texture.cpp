@@ -116,3 +116,65 @@ bool Texture::Load(const std::string& a_path)
 
 	return true;
 }
+
+bool Texture::WhiteTexture()
+{
+
+	// 白テクスチャ生成
+	m_textureResource.Reset();
+	auto _pBuff = GetDefaultResource(4, 4);
+	if (_pBuff == nullptr)
+	{
+		return false;
+	}
+	std::vector<unsigned char> _data(4 * 4 * 4);			// RGBA32ビットデータ
+	std::fill(_data.begin(), _data.end(), 0xff);			// 全てのピクセルを白にする
+
+	// テクスチャデータを書き込む
+	auto _hr = _pBuff->WriteToSubresource(
+		0,
+		nullptr,
+		_data.data(),
+		4 * 4,			// 1ラインのバイトサイズ
+		_data.size()			// 全データのバイトサイズ
+	);
+	if (FAILED(_hr))
+	{
+		assert(0 && "白テクスチャデータのコピーに失敗\n");
+		return false;
+	}
+
+	m_textureResource.Attach(_pBuff);
+
+	return true;
+}
+
+ID3D12Resource* Texture::GetDefaultResource(size_t a_width, size_t a_height)
+{
+	auto _resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		a_width,
+		a_height,
+		1,			// 配列サイズ
+		1			// ミップレベル数
+	);
+	auto _heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
+
+	// リソースを生成
+	ID3D12Resource* _pResource = nullptr;
+	HRESULT _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+		&_heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&_resDesc,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		nullptr,
+		IID_PPV_ARGS(&_pResource)
+	);
+	if (FAILED(_hr))
+	{
+		// テクスチャリソースの生成失敗
+		assert(0 && "デフォルトテクスチャリソースの生成に失敗\n");
+		return nullptr;
+	}
+	return _pResource;
+}

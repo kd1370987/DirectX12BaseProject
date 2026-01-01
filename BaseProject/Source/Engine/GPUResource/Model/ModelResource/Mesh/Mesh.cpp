@@ -58,7 +58,6 @@ bool Mesh::Create(
 		// インデックスバッファ作成
 		//------------------------------
 		std::vector<UINT> _indices;		// インデックス配列作成
-		_indices.resize(a_face.size() * 3);		// サイズ確保
 		for (auto& _f : a_face)
 		{
 			_indices.push_back(_f.idx[0]);
@@ -143,7 +142,7 @@ bool Mesh::CreateFloat(
 		// インデックスバッファ作成
 		//------------------------------
 		std::vector<UINT> _indices;		// インデックス配列作成
-		_indices.resize(a_face.size() * 3);		// サイズ確保
+		//_indices.resize(a_face.size() * 3);		// サイズ確保
 		for (auto& _f : a_face)
 		{
 			_indices.push_back(_f.idx[0]);

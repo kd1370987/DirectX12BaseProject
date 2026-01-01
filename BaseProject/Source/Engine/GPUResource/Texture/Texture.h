@@ -10,6 +10,8 @@ public:
 	// 読込
 	//=================================================
 	bool Load(const std::string& a_path);
+	bool WhiteTexture();
+	ID3D12Resource* GetDefaultResource(size_t a_width, size_t a_height);
 
 	//=================================================
 	// アクセサ

@@ -360,7 +360,8 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
             // 計算するために XMFLOAT4x4 から XMMATRIX に変換
             DirectX::XMMATRIX _localMat = DirectX::XMLoadFloat4x4(&a_node->localTransform);
             DirectX::XMMATRIX _parentMat = DirectX::XMLoadFloat4x4(a_parentMat);
-            DirectX::XMMATRIX _worldMat = _localMat * _parentMat;
+            //DirectX::XMMATRIX _worldMat = _localMat * _parentMat;
+			DirectX::XMMATRIX _worldMat = DirectX::XMMatrixMultiply(_parentMat, _localMat);
             DirectX::XMStoreFloat4x4(&a_node->worldTransform, _worldMat);
         }
         else
@@ -368,6 +369,7 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
             a_node->worldTransform = a_node->localTransform;
         }
 
+		
         // 子の再帰
         for (auto&& _child : a_node->children)
         {

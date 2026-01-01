@@ -166,8 +166,31 @@ void ModelResource::CreateNodes(const std::shared_ptr<GLTFModel>& a_spGltfModel)
 			// メッシュデータコピー
 			if (_dstNode.spMesh)
 			{
-				_dstNode.spMesh->Create(
-					_srcNode.nodeMesh.vertices,
+				// 頂点配列作成
+				std::vector<MeshVertexFloat> _vertices = {};
+				_vertices.resize(_srcNode.nodeMesh.vertices.size());
+				for (size_t _i = 0; _i < _srcNode.nodeMesh.vertices.size(); ++_i)
+				{
+					MeshVertexFloat _dstVertex = {};
+		
+					unsigned int _srcColor = _srcNode.nodeMesh.vertices[_i].color;
+					float r = ((float)((_srcColor >> 24) & 0xFF)) / 255.0f;
+					float g = ((float)((_srcColor >> 16) & 0xFF)) / 255.0f;
+					float b = ((float)((_srcColor >> 8) & 0xFF)) / 255.0f;
+					float a = ((float)((_srcColor >> 0) & 0xFF)) / 255.0f;
+					_dstVertex.color = DirectX::XMFLOAT4(r, g, b, a);
+
+					_dstVertex.normal = _srcNode.nodeMesh.vertices[_i].normal;
+					_dstVertex.pos = _srcNode.nodeMesh.vertices[_i].pos;
+					_dstVertex.tangent = _srcNode.nodeMesh.vertices[_i].tangent;
+					_dstVertex.uv = _srcNode.nodeMesh.vertices[_i].uv;
+
+					_vertices[_i] = _dstVertex;
+				}
+
+				_dstNode.spMesh->CreateFloat(
+					//_srcNode.nodeMesh.vertices,
+					_vertices,
 					_srcNode.nodeMesh.faces,
 					_srcNode.nodeMesh.subsets,
 					_srcNode.nodeMesh.isSkinMesh
@@ -180,7 +203,6 @@ void ModelResource::CreateNodes(const std::shared_ptr<GLTFModel>& a_spGltfModel)
 
 		// ノード情報セット
 		_dstNode.name = _srcNode.name;										// ノード名
-
 		_dstNode.localTransform = _srcNode.localTransform;					// ローカル行列
 		_dstNode.worldTransform = _srcNode.worldTransform;					// ワールド行列
 		_dstNode.boneInverseWorldMatrix = _srcNode.inverseBindMatrix;		// ボーンのオフセット行列
@@ -315,7 +337,6 @@ void ModelResource::CreateNodes(const std::shared_ptr<AssimpModel>& a_assimpMode
 	//=================================================
 	// ノード作成
 	//=================================================
-	//m_originalNodes.resize(a_spGltfModel->nodes.size());		// ノード配列確保
 	m_originalNodes.resize(_assimpModel->nodes.size());		// ノード配列確保
 	for (UINT _i = 0; _i < _assimpModel->nodes.size(); ++_i)
 	{
@@ -375,8 +396,21 @@ void ModelResource::CreateNodes(const std::shared_ptr<AssimpModel>& a_assimpMode
 		// ノード情報セット
 		_dstNode.name = _srcNode.name;										// ノード名
 
-		_dstNode.localTransform = _srcNode.localTransform;					// ローカル行列
-		_dstNode.worldTransform = _srcNode.worldTransform;					// ワールド行列
+		_dstNode.localTransform = DirectX::XMFLOAT4X4
+		(
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1
+		);	// ローカル行列
+		_dstNode.worldTransform = DirectX::XMFLOAT4X4
+		(
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1
+		);	// ワールド行列
+
 		_dstNode.boneInverseWorldMatrix = {};		// ボーンのオフセット行列
 
 		_dstNode.parent = -1;									// 親インデックス
