@@ -33,7 +33,7 @@ public:
     // float取得
     float GetValue_Float(int a_idx)
     {
-        if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_BYTE)                 return Get<char>(a_idx) / static_cast<float>(SCHAR_MAX);
+		if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_BYTE)                 return Get<char>(a_idx) / (float)(SCHAR_MAX);
         else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE)	return Get<BYTE>(a_idx) / (float)UCHAR_MAX;
         else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_SHORT)			return Get<short>(a_idx) / (float)SHRT_MAX;
         else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT)	return Get<unsigned short>(a_idx) / (float)USHRT_MAX;
@@ -116,40 +116,42 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
     //
     //===============================================
     tinygltf::Model _tinyModel;                     // モデルデータの入れもの
-    tinygltf::TinyGLTF _gltf_ctx;               // 読込用オブジェクト
-    std::string _err;
-    std::string _warn;
-    std::string _input_filename(a_filePath);
-    std::string _ext = FileUtility::GetFilePathExtension(_input_filename);
+	{
+		tinygltf::TinyGLTF _gltf_ctx;               // 読込用オブジェクト
+		std::string _err;
+		std::string _warn;
+		std::string _input_filename(a_filePath);
+		std::string _ext = FileUtility::GetFilePathExtension(_input_filename);
 
-    // GLTF読込
-    bool _ret = false;
-    if (_ext.compare("glb") == 0)
-    {
-        // GLB読込
-        _ret = _gltf_ctx.LoadBinaryFromFile(&_tinyModel, &_err, &_warn, _input_filename.c_str());
-    }
-    else
-    {
-        // GLTF読込
-        _ret = _gltf_ctx.LoadASCIIFromFile(&_tinyModel, &_err, &_warn, _input_filename.c_str());
-    }
+		// GLTF読込
+		bool _ret = false;
+		if (_ext.compare("glb") == 0)
+		{
+			// GLB読込
+			_ret = _gltf_ctx.LoadBinaryFromFile(&_tinyModel, &_err, &_warn, _input_filename.c_str());
+		}
+		else
+		{
+			// GLTF読込
+			_ret = _gltf_ctx.LoadASCIIFromFile(&_tinyModel, &_err, &_warn, _input_filename.c_str());
+		}
 
-    if (!_warn.empty())
-    {
-        printf("Warn : %s\n", _warn.c_str());
-    }
+		if (!_warn.empty())
+		{
+			printf("Warn : %s\n", _warn.c_str());
+		}
 
-    if (!_err.empty())
-    {
-        printf("Err : %s\n", _err.c_str());
-    }
+		if (!_err.empty())
+		{
+			printf("Err : %s\n", _err.c_str());
+		}
 
-    if (!_ret)
-    {
-        printf("Failed to parse gltf\n");
-        return nullptr;
-    }
+		if (!_ret)
+		{
+			printf("Failed to parse gltf\n");
+			return nullptr;
+		}
+	}
 
     // 戻り値用データを準備
     std::shared_ptr<GLTFModel> _destModel = std::make_shared<GLTFModel>();
@@ -157,101 +159,76 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
     //----------------------------------------------------
     // マテリアル
     //----------------------------------------------------
-    // 指定Indexのテクスチャ名取得
-    auto _getTextureFilename = [&_tinyModel](int a_texIndex) -> std::string
-    {
-        if (a_texIndex < 0) return "";
-        int _imgIndex = _tinyModel.textures[a_texIndex].source;
-        if (_imgIndex < 0) return "";
+	{
+		// 指定Indexのテクスチャ名取得
+		auto GetTextureFilename = [&_tinyModel](int a_texIndex) -> std::string
+		{
+			if (a_texIndex < 0) return "";
+			int _imgIndex = _tinyModel.textures[a_texIndex].source;
+			if (_imgIndex < 0) return "";
+			return _tinyModel.images[_imgIndex].uri;
+		};
 
-        const auto& _img = _tinyModel.images[_imgIndex];
+		// マテリアル数だけ、配列を確保
+		_destModel->materials.resize(_tinyModel.materials.size());
 
-        if (!_img.uri.empty())
-        {
-            // 通常のGLTFファイル
-            return _img.uri;
-        }
-        else if (!_img.image.empty())
-        {
-            // GLBの場合
-            // ファイル名がないので一時的な仮名を生成
-            // 実際の読み込みは子のバイナリデータを使って行う
-            return "[GLB_EMBEDDED_IMAGE_" + std::to_string(_imgIndex) + "]";
-        }
+		// 全マテリアルデータをコピーする
+		for (UINT _materialIdx = 0; _materialIdx < _destModel->materials.size(); ++_materialIdx)
+		{
+			const auto& _srcMaterial = _tinyModel.materials[_materialIdx];        // コピー元確保
+			auto& _destMaterial = _destModel->materials[_materialIdx];            // コピー先確保
 
-        return "";
-    };
+			// マテリアル名
+			_destMaterial.name = _srcMaterial.name;
 
-    // テクスチャの埋め込みチェック
-    auto _checkEmbedded = [](const std::string& a_name) -> bool
-    {
-        return a_name.starts_with("[GLB_EMBEDDED_IMAGE_");
-    };
+			// 透明モード設定
+			_destMaterial.alphaMode = _srcMaterial.alphaMode;                           // モード
+			_destMaterial.AlphaCutoff = (float)(_srcMaterial.alphaCutoff);				// 閾値
+			_destMaterial.doubleSided = _srcMaterial.doubleSided;                       // 設定面
 
-    // マテリアル数だけ、配列を確保
-    _destModel->materials.resize(_tinyModel.materials.size());
+			// 基本色
+			_destMaterial.baseColorTexName = GetTextureFilename(_srcMaterial.pbrMetallicRoughness.baseColorTexture.index); // 名前
+			if (_srcMaterial.pbrMetallicRoughness.baseColorFactor.size() == 4)
+			{
+				// 乗算用値
+				_destMaterial.baseColorFactor = {
+					static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[0]),
+					static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[1]),
+					static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[2]),
+					static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[3])
+				};
+			}
 
-    // 全マテリアルデータをコピーする
-    for (UINT _materialIdx = 0; _materialIdx < _destModel->materials.size(); ++_materialIdx)
-    {
-        const auto& _srcMaterial = _tinyModel.materials[_materialIdx];        // コピー元確保
-        auto& _destMaterial = _destModel->materials[_materialIdx];            // コピー先確保
 
-        // マテリアル名
-        _destMaterial.name = _srcMaterial.name;
+			// 金属製・粗さ
+			_destMaterial.metallicRoughnessTexName = GetTextureFilename(_srcMaterial.pbrMetallicRoughness.metallicRoughnessTexture.index);
+			_destMaterial.metallicFactor = static_cast<float>(_srcMaterial.pbrMetallicRoughness.metallicFactor);
+			_destMaterial.roughnessFactor = static_cast<float>(_srcMaterial.pbrMetallicRoughness.roughnessFactor);
 
-        // 透明モード設定
-        _destMaterial.alphaMode = _srcMaterial.alphaMode;                           // モード
-        _destMaterial.AlphaCutoff = static_cast<float>(_srcMaterial.alphaCutoff);   // 閾値
-        _destMaterial.doubleSided = _srcMaterial.doubleSided;                       // 設定面
+			// エミッシブ
+			_destMaterial.emissiveTexName = GetTextureFilename(_srcMaterial.emissiveTexture.index);
+			if (_srcMaterial.emissiveFactor.size() == 3)
+			{
+				_destMaterial.emissiveFactor = {
+					static_cast<float>(_srcMaterial.emissiveFactor[0]),
+					static_cast<float>(_srcMaterial.emissiveFactor[1]),
+					static_cast<float>(_srcMaterial.emissiveFactor[2])
+				};
+			}
 
-        // 基本色
-        _destMaterial.baseColorTexName = _getTextureFilename(_srcMaterial.pbrMetallicRoughness.baseColorTexture.index); // 名前
-        _destMaterial.isEmbeddedBaseColorTex = _checkEmbedded(_destMaterial.baseColorTexName);                          // 外部依存かどうか
-        if(_srcMaterial.pbrMetallicRoughness.baseColorFactor.size() == 4)
-        {
-            // 乗算用値
-            _destMaterial.baseColorFactor = {
-                static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[0]),
-                static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[1]),
-                static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[2]),
-                static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[3])
-            };
-        }
-            
+			// 法線マップ
+			_destMaterial.normalTexName = GetTextureFilename(_srcMaterial.normalTexture.index);
 
-        // 金属製・粗さ
-        _destMaterial.metallicRoughnessTexName = _getTextureFilename(_srcMaterial.pbrMetallicRoughness.metallicRoughnessTexture.index);
-        _destMaterial.isEmbeddedMetallicRoughnessTex = _checkEmbedded(_destMaterial.metallicRoughnessTexName);
-        _destMaterial.metallicFactor = static_cast<float>(_srcMaterial.pbrMetallicRoughness.metallicFactor);
-        _destMaterial.roughnessFactor = static_cast<float>(_srcMaterial.pbrMetallicRoughness.roughnessFactor);
+			// オクルージョンマップ
+			_destMaterial.occlusionTexName = GetTextureFilename(_srcMaterial.occlusionTexture.index);
+		}
 
-        // エミッシブ
-        _destMaterial.emissiveTexName = _getTextureFilename(_srcMaterial.emissiveTexture.index);
-        _destMaterial.isEmbeddedEmissiveTex = _checkEmbedded(_destMaterial.emissiveTexName);
-        if (_srcMaterial.emissiveFactor.size() == 3)
-        {
-            _destMaterial.emissiveFactor = {
-                static_cast<float>(_srcMaterial.emissiveFactor[0]),
-                static_cast<float>(_srcMaterial.emissiveFactor[1]),
-                static_cast<float>(_srcMaterial.emissiveFactor[2])
-            };
-        }
-
-        // 法線マップ
-        _destMaterial.normalTexName = _getTextureFilename(_srcMaterial.normalTexture.index);
-        _destMaterial.isEmbeddedNormalTex = _checkEmbedded(_destMaterial.normalTexName);
-
-        // オクルージョンマップ
-        _destMaterial.occlusionTexName = _getTextureFilename(_srcMaterial.occlusionTexture.index);
-        _destMaterial.isEmbeddedOcclusionTex = _checkEmbedded(_destMaterial.occlusionTexName);
-    }
-
-    // マテリアルがゼロの場合は、１つだけ作成しておく
-    if (_destModel->materials.size() == 0)
-    {
-        _destModel->materials.resize(1);
-    }
+		// マテリアルがゼロの場合は、１つだけ作成しておく
+		if (_destModel->materials.size() == 0)
+		{
+			_destModel->materials.resize(1);
+		}
+	}
 
     //----------------------------------------------------
     // ノード
@@ -259,7 +236,9 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
     
     _destModel->nodes.resize(_tinyModel.nodes.size());      // 全ノード分メモリを確保
 
+	//-------------------------
     // 全ノード　基本情報設定
+	//-------------------------
     for (UINT _nodeIdx = 0; _nodeIdx < _destModel->nodes.size(); ++_nodeIdx)
     {
         auto* _destNode = &_destModel->nodes[_nodeIdx];     // コピー先
@@ -304,7 +283,8 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 
             // 変換して計算
             DirectX::XMVECTOR _quat = DirectX::XMLoadFloat4(&_quatFloat4);
-            _rotationMat = DirectX::XMMatrixRotationQuaternion(_quat);
+			DirectX::XMVECTOR _nQuat = DirectX::XMQuaternionNormalize(_quat);
+            _rotationMat = DirectX::XMMatrixRotationQuaternion(_nQuat);
         }
         // 移動
         if (_tinyModel.nodes[_nodeIdx].translation.size() != 0)
@@ -316,19 +296,20 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
             );
         }
         // 行列
-        if (_tinyModel.nodes[_nodeIdx].matrix.size() != 0)
+        if (_tinyModel.nodes[_nodeIdx].matrix.size() == 0)
         {
-            for (int _i = 0; _i < 16; ++_i)
-            {
-                ((float*)&_mat)[_i] = static_cast<float>(_tinyModel.nodes[_nodeIdx].matrix[_i]);
-            }
-            _scaleMat = DirectX::XMLoadFloat4x4(&_mat);
+			DirectX::XMStoreFloat4x4(&_mat, _scaleMat * _rotationMat * _transMat);
         }
+		else
+		{
+			const auto& _m = _tinyModel.nodes[_nodeIdx].matrix;
+			_mat._11 = (float)_m[0]; _mat._12 = (float)_m[4];  _mat._13 = (float)_m[8];  _mat._14 = (float)_m[12];
+			_mat._21 = (float)_m[1]; _mat._22 = (float)_m[5];  _mat._23 = (float)_m[9];  _mat._24 = (float)_m[13];
+			_mat._31 = (float)_m[2]; _mat._32 = (float)_m[6];  _mat._33 = (float)_m[10]; _mat._34 = (float)_m[14];
+			_mat._41 = (float)_m[3]; _mat._42 = (float)_m[7];  _mat._43 = (float)_m[11]; _mat._44 = (float)_m[15];
+		}
 
-        // 行列変換
-		DirectX::XMMATRIX _localTrans = DirectX::XMMatrixIdentity();
-		_localTrans = _scaleMat * _rotationMat * _transMat;
-        DirectX::XMStoreFloat4x4(&_destNode->localTransform, _localTrans);
+        _destNode->localTransform = _mat;
         // Z軸ミラーリング
         XMFLOAT4X4MirrorZ(_destNode->localTransform);
        
@@ -350,38 +331,41 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
     //----------------------------------------------------
     // 各ノードのTransformからWorldTransformを算出
     //----------------------------------------------------
-    // 行列計算用再起関数
-    std::function<void(GLTFNode*, const DirectX::XMFLOAT4X4*)> _rec =
-    [&_rec, &_destModel](GLTFNode* a_node, const DirectX::XMFLOAT4X4* a_parentMat)
-    {
-        // ワールド行列をもとめる
-        if (a_parentMat)
-        {
-            // 計算するために XMFLOAT4x4 から XMMATRIX に変換
-            DirectX::XMMATRIX _localMat = DirectX::XMLoadFloat4x4(&a_node->localTransform);
-            DirectX::XMMATRIX _parentMat = DirectX::XMLoadFloat4x4(a_parentMat);
-            //DirectX::XMMATRIX _worldMat = _localMat * _parentMat;
-			DirectX::XMMATRIX _worldMat = DirectX::XMMatrixMultiply(_parentMat, _localMat);
-            DirectX::XMStoreFloat4x4(&a_node->worldTransform, _worldMat);
-        }
-        else
-        {
-            a_node->worldTransform = a_node->localTransform;
-        }
+	{
+		// 行列計算用再起関数
+		std::function<void(GLTFNode*, const DirectX::XMFLOAT4X4*)> _rec =
+			[&_rec, &_destModel](GLTFNode* a_node, const DirectX::XMFLOAT4X4* a_parentMat)
+			{
+				// ワールド行列をもとめる
+				if (a_parentMat)
+				{
+					// 計算するために XMFLOAT4x4 から XMMATRIX に変換
+					DirectX::XMMATRIX _localMat = DirectX::XMLoadFloat4x4(&a_node->localTransform);
+					DirectX::XMMATRIX _parentMat = DirectX::XMLoadFloat4x4(a_parentMat);
+					DirectX::XMMATRIX _worldMat = _localMat * _parentMat;
+					DirectX::XMStoreFloat4x4(&a_node->worldTransform, _worldMat);
+				}
+				else
+				{
+					a_node->worldTransform = a_node->localTransform;
+				}
+
+
+				// 子の再帰
+				for (auto&& _child : a_node->children)
+				{
+					_rec(&_destModel->nodes[_child], &a_node->worldTransform);
+				}
+			};
+
+		// 親子関係から行列を作成
+		for (int _nodeIdx : _destModel->rootNodeIndices)
+		{
+			_rec(&_destModel->nodes[_nodeIdx], nullptr);
+		}
 
 		
-        // 子の再帰
-        for (auto&& _child : a_node->children)
-        {
-            _rec(&_destModel->nodes[_child], &a_node->worldTransform);
-        }
-    };
-
-    // 親子関係から行列を作成
-    for (int _nodeIdx : _destModel->rootNodeIndices)
-    {
-        _rec(&_destModel->nodes[_nodeIdx], nullptr);
-    }
+	}
 
     //----------------------------------------------------
     // ボーン

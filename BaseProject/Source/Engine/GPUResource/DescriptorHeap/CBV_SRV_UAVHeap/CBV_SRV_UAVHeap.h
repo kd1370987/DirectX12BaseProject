@@ -1,66 +1,65 @@
 ﻿#pragma once
 
-#include "../DescriptorHeap.h"
-
-class CBV_SRV_UAVHeap : public DescriptorHeap
+class CBV_SRV_UAVHeap
 {
 public:
 
-	DescriptorHandle Register(ID3D12Resource* a_resource = nullptr) override;
+	/// <summary>
+	/// ディスクリプタヒープ作成
+	/// </summary>
+	/// <param name="a_type">作成する種類</param>
+	/// <param name="a_numDescriptors">ディスクリプタに乗せれる上限</param>
+	/// <param name="a_flags">シェーダから見えるかどうか</param>
+	/// <param name="a_mask">アダプタ数によって変化</param>
+	/// <returns>成功 = true</returns>
+	bool Create(
+		ID3D12Device* a_pDevice,
+		D3D12_DESCRIPTOR_HEAP_TYPE a_type,
+		DirectX::XMFLOAT3 a_maxCounts = { 100, 100, 100 },
+		D3D12_DESCRIPTOR_HEAP_FLAGS a_flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+		UINT a_mask = 0
+	);
 
+	/// <summary>
+	/// ディスクリプタヒープ取得
+	/// </summary>
+	/// <returns>ディスクリプタヒープポインタ</returns>
+	ID3D12DescriptorHeap* GetHeap();
+
+	/// <summary>
+	/// CPU ハンドル取得
+	/// </summary>
+	/// <param name="a_number">生成時のインデックス</param>
+	const D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT a_number) const;
+
+	/// <summary>
+	/// GPU ハンドル取得
+	/// </summary>
+	/// <param name="a_number">生成時のインデックス</param>
+	const D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT a_number) const;
+
+	/*UINT RegisterCBV(
+		ID3D12Resource* a_resource,
+		size_t a_size,
+		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
+	);*/
 	DescriptorHandle RegisterCBV(
 		ID3D12Resource* a_resource,
 		size_t a_size,
 		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
 	);
-
-	template<typename T>
-	DescriptorHandle RegisterCBV(ID3D12Resource* a_resource)
-	{
-		size_t _count = m_currentIndex;
-		if (m_maxSize <= _count)
-		{
-			assert(0 && "CBVHeapのヒープ領域を使い切りました");
-			return {};
-		}
-
-		// ハンドルの作成
-		DescriptorHandle _handle = {};
-		auto _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
-		_handleCPU.ptr += m_incrementSize * _count;
-		auto _handleGPU = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
-		_handleGPU.ptr += m_incrementSize * _count;
-
-		// ハンドルの登録
-		_handle.handleCPU = _handleCPU;
-		_handle.handleGPU = _handleGPU;
-
-		// CBVの仕様書作成
-		auto _resource = a_resource;
-
-		D3D12_CONSTANT_BUFFER_VIEW_DESC _cbvDesc = {};
-		_cbvDesc.BufferLocation = a_resource->GetGPUVirtualAddress();
-		_cbvDesc.SizeInBytes = (sizeof(T) + 255) & ~255;
-
-
-		// CBVの生成
-		m_pDevice->CreateConstantBufferView(
-			&_cbvDesc,
-			_handle.handleCPU
-		);
-
-		++m_currentIndex;
-		return _handle;
-	}
-
-	DescriptorHandle RegisterSRV(ID3D12Resource* a_resource = nullptr);
-	DescriptorHandle RegisterUAV(ID3D12Resource* a_resource = nullptr);
+	DescriptorHandle RegisterSRV(ID3D12Resource* a_resource);
+	DescriptorHandle RegisterUAV(ID3D12Resource* a_resource);
 
 private:
 
-	// CBV・SRV・UAVのカウント
-	UINT m_cbvCount = 0;
-	UINT m_srvCount = 0;
-	UINT m_uavCount = 0;
+	UINT m_incrementSize = 0;							// 移動距離
+	D3D12_DESCRIPTOR_HEAP_TYPE m_type{};				// ディスクリプタヒープのタイプ
+	ComPtr<ID3D12DescriptorHeap> m_cpHeap = nullptr;	// ディスクリプタヒープ本体
 
+	ID3D12Device* m_pDevice = nullptr;					// デバイスのポインタ
+
+	// CBV・SRV・UAVのカウント
+	DirectX::XMFLOAT3 m_maxCounts = {};					// ディスクリプタヒープに乗せれる上限
+	DirectX::XMFLOAT3 m_currentCounts = {};				// 今何番目か
 };

@@ -47,3 +47,17 @@ ID3D12DescriptorHeap* DescriptorHeap::GetHeap()
 {
 	return m_cpHeap.Get();
 }
+
+const D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetCPUHandle(UINT a_number) const
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE _handle = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+	_handle.ptr += m_incrementSize * a_number;
+	return _handle;
+}
+
+const D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetGPUHandle(UINT a_number) const
+{
+	D3D12_GPU_DESCRIPTOR_HANDLE _handle = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
+	_handle.ptr += m_incrementSize * a_number;
+	return _handle;
+}

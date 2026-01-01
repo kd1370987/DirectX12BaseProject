@@ -90,6 +90,10 @@ bool Mesh::CreateFloat(
 	bool a_isSkinMesh
 )
 {
+	m_subsets.clear();
+	m_positions.clear();
+	m_faces.clear();
+
 	//------------------------------
 	// サブセット情報
 	//------------------------------
@@ -152,7 +156,7 @@ bool Mesh::CreateFloat(
 
 		if (!m_indexBuffer.Create(
 			(UINT)_indices.size(),
-			sizeof(uint32_t),
+			sizeof(UINT),
 			_indices.data()
 		))
 		{

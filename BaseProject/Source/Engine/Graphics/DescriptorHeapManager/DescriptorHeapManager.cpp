@@ -17,7 +17,7 @@ void DescriptorHeapManager::Init()
 		m_spCBV_SRV_UAVHeap->Create(
 			_device,
 			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-			100,
+			DirectX::XMFLOAT3(100.0f, 100.0f, 100.0f),
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
 		);
 	}

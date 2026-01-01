@@ -19,10 +19,12 @@ private:
 	float m_rotateY;
 
 	std::shared_ptr<ModelResource> m_spModel;
+	std::shared_ptr<ModelResource> m_spModel2;
 
 	DirectX::XMFLOAT4X4 m_cameraMat;
 
 	DirectX::XMFLOAT4X4 m_charaMat;
+	DirectX::XMFLOAT4X4 m_charaMat2;
 
 private:
 	// シングルトン化

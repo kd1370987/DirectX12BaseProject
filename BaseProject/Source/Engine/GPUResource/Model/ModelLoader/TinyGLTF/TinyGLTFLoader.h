@@ -9,25 +9,27 @@ struct GLTFMaterial
 	// 基本情報
 	//---------------------------------
 	std::string			name;							// マテリアル名（ないことある）
-	
+
+	// 透明
+	std::string			alphaMode = "OPAQUE";			// 透明モード設定
+	float				AlphaCutoff = 0.5f;				// 半透明モードのときの閾値
+	bool				doubleSided = false;			// 両面するかどうか
+
 	//---------------------------------
 	// PBR材質データ
 	//---------------------------------
 
 	// 基本色テクスチャ
 	std::string			baseColorTexName;				// ファイル名
-	bool				isEmbeddedBaseColorTex = false;	// GLB埋め込み形式かどうか(false = 外部テクスチャ依存、true = バイナリデータ)
 	DirectX::XMFLOAT4	baseColorFactor = { 1,1,1,1 };	// 乗算用
 
 	// 金属性・粗さ
 	std::string			metallicRoughnessTexName;		// 緑成分 = ラフネス 青成分 = メタリック
-	bool				isEmbeddedMetallicRoughnessTex;	// 埋め込み形式かどうか
 	float				metallicFactor = 1.0f;			// メタリックの乗算用、テクスチャがなければそのまま使用
 	float				roughnessFactor = 1.0f;			// ラフネスの乗算用、テクスチャがなければそのまま使用
 
 	// エミッシブ
 	std::string			emissiveTexName;				// エミッシブのテクスチャ名 RGB使用
-	bool				isEmbeddedEmissiveTex;			// 埋め込み形式かどうか
 	DirectX::XMFLOAT3	emissiveFactor = { 1,1,1 };		// エミッシブの乗算用
 
 	//---------------------------------
@@ -35,16 +37,9 @@ struct GLTFMaterial
 	//---------------------------------
 	// 法線マップ
 	std::string			normalTexName;					// テクスチャ名
-	bool				isEmbeddedNormalTex;			// 埋め込み形式かどうか
 
 	// 光の遮蔽度テクスチャ
 	std::string			occlusionTexName;				// 赤成分のみ使用
-	bool				isEmbeddedOcclusionTex;			// 埋め込み形式かどうか
-
-	// 透明
-	std::string			alphaMode = "OPAQUE";			// 透明モード設定
-	float				AlphaCutoff = 0.5f;				// 半透明モードのときの閾値
-	bool				doubleSided = false;			// 両面するかどうか
 };
 
 //=========================================================
@@ -126,6 +121,7 @@ struct GLTFModel
 // GLTF,GLB モデル読み込み専用クラス
 // 
 //=========================================================
+
 class TinyGLTFLoader
 {
 public:
@@ -134,5 +130,7 @@ public:
 	
 
 private:
+
+		
 
 };

@@ -173,7 +173,6 @@
     <ClCompile Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.cpp" />
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAV.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.cpp" />

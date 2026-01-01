@@ -2,10 +2,104 @@
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 
-DescriptorHandle CBV_SRV_UAVHeap::Register(ID3D12Resource* a_resource)
+bool CBV_SRV_UAVHeap::Create(
+	ID3D12Device* a_pDevice, 
+	D3D12_DESCRIPTOR_HEAP_TYPE a_type, 
+	DirectX::XMFLOAT3 a_maxCounts,
+	D3D12_DESCRIPTOR_HEAP_FLAGS a_flags,
+	UINT a_mask
+)
 {
-    return DescriptorHandle();
+	if (a_pDevice == nullptr)
+	{
+		assert(0 && "デバイスがnullptrです\n");
+		return false;
+	}
+	m_pDevice = a_pDevice;
+
+	//m_currentIndex = 0;
+	m_currentCounts = { 0.0f, 0.0f, 0.0f };
+
+	// ディスクリプタヒープの仕様書作成
+	D3D12_DESCRIPTOR_HEAP_DESC _desc = {};
+	_desc.NodeMask = a_mask;
+	_desc.Type = a_type;
+	_desc.NumDescriptors = static_cast<UINT>(a_maxCounts.x + a_maxCounts.y + a_maxCounts.z);
+	_desc.Flags = a_flags;
+
+	// ディスクリプタヒープの生成
+	auto _hr = m_pDevice->CreateDescriptorHeap(
+		&_desc,
+		IID_PPV_ARGS(m_cpHeap.ReleaseAndGetAddressOf())
+	);
+	if (FAILED(_hr))
+	{
+		assert(0 && "ディスクリプタヒープ作成失敗\n");
+		return false;
+	}
+
+	// インクリメントサイズの取得
+	m_incrementSize = m_pDevice->GetDescriptorHandleIncrementSize(_desc.Type);
+	m_type = a_type;
+	m_maxCounts = a_maxCounts;
+	
+	return true;
 }
+
+ID3D12DescriptorHeap* CBV_SRV_UAVHeap::GetHeap()
+{
+	return m_cpHeap.Get();
+}
+
+const D3D12_CPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetCPUHandle(UINT a_number) const
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE _handle = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+	_handle.ptr += m_incrementSize * a_number;
+	return _handle;
+}
+
+const D3D12_GPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetGPUHandle(UINT a_number) const
+{
+	D3D12_GPU_DESCRIPTOR_HANDLE _handle = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
+	_handle.ptr += m_incrementSize * a_number;
+	return _handle;
+}
+
+
+
+//UINT CBV_SRV_UAVHeap::RegisterCBV(
+//	ID3D12Resource* a_resource,
+//	size_t a_size,
+//	D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
+//)
+//{
+//	if (static_cast<UINT>(m_maxCounts.x) <= static_cast<UINT>(m_currentCounts.x))
+//	{
+//		assert(0 && "CBVHeapのヒープ領域を使い切りました");
+//		return {};
+//	}
+//
+//	// ハンドルの作成
+//	auto _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+//	_handleCPU.ptr += m_incrementSize * static_cast<UINT>(m_currentCounts.x);
+//	
+//
+//	// CBVの仕様書作成
+//	auto _resource = a_resource;
+//
+//	D3D12_CONSTANT_BUFFER_VIEW_DESC _cbvDesc = {};
+//	_cbvDesc.BufferLocation = a_resource->GetGPUVirtualAddress();
+//	_cbvDesc.SizeInBytes = (a_size + 255) & ~255;
+//	a_cbvDesc = _cbvDesc;
+//
+//	// CBVの生成
+//	m_pDevice->CreateConstantBufferView(
+//		&_cbvDesc,
+//		_handleCPU
+//	);
+//
+//	return m_currentCounts.x++;
+//}
 
 DescriptorHandle CBV_SRV_UAVHeap::RegisterCBV(
 	ID3D12Resource* a_resource,
@@ -13,8 +107,9 @@ DescriptorHandle CBV_SRV_UAVHeap::RegisterCBV(
 	D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
 )
 {
-	size_t _count = m_currentIndex;
-	if (m_maxSize <= _count)
+	//size_t _count = m_currentIndex;
+	UINT _count = static_cast<UINT>(m_currentCounts.x);
+	if (m_maxCounts.x <= _count)
 	{
 		assert(0 && "CBVHeapのヒープ領域を使い切りました");
 		return {};
@@ -45,16 +140,18 @@ DescriptorHandle CBV_SRV_UAVHeap::RegisterCBV(
 		_handle.handleCPU
 	);
 
-	++m_currentIndex;
+	//++m_currentIndex;
+	++m_currentCounts.x;
 	return _handle;
 }
 
 
+
 DescriptorHandle CBV_SRV_UAVHeap::RegisterSRV(ID3D12Resource* a_resource)
 {
-	size_t _count = m_currentIndex;
-
-	if (m_maxSize <= _count)
+	//size_t _count = m_currentIndex;
+	UINT _count = static_cast<UINT>(m_currentCounts.y);
+	if (m_maxCounts.y <= _count)
 	{
 		assert(0 && "SRVHeapのヒープ領域を使い切りました");
 		return {};
@@ -88,15 +185,17 @@ DescriptorHandle CBV_SRV_UAVHeap::RegisterSRV(ID3D12Resource* a_resource)
 		_handle.handleCPU
 	);
 
-	++m_currentIndex;
+//	++m_currentIndex;
+	++m_currentCounts.y;
 	return _handle;
 }
 
 DescriptorHandle CBV_SRV_UAVHeap::RegisterUAV(ID3D12Resource* a_resource)
 {
-	size_t _count = m_currentIndex;
+	//size_t _count = m_currentIndex;
+	UINT _count = static_cast<UINT>(m_currentCounts.z);
 
-	if (m_maxSize <= _count)
+	if (m_maxCounts.z <= _count)
 	{
 		assert(0 && "CBV_SRV_UAVHeapのヒープ領域を使い切りました");
 		return {};

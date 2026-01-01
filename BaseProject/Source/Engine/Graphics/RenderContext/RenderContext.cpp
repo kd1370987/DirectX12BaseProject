@@ -28,7 +28,6 @@ void RenderContext::Init()
 {
 	// カメラ用意
 	auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f);	// 視点の位置
-	//auto _eyePos = DirectX::XMVectorSet(0.0f, 120.0f, 100.0f, 0.0f);	// 視点の位置
 	auto _targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);	// 視点を向ける座標
 	auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向を表すベクトル
 	auto _fov = DirectX::XMConvertToRadians(60.0f);						// 視野角
@@ -47,16 +46,14 @@ void RenderContext::Init()
 		// 変換行列の登録
 		auto* _ptr = m_spCB0_Camera[_i]->GetPtr<CBCamera>();
 		DirectX::XMStoreFloat4(&_ptr->cameraPosXYZ, _eyePos);
-		DirectX::XMStoreFloat4x4(&_ptr->viewMat, DirectX::XMMatrixLookAtRH(_eyePos, _targetPos, _upward));
-		DirectX::XMStoreFloat4x4(&_ptr->projMat, DirectX::XMMatrixPerspectiveFovRH(_fov, _aspect, 0.3f, 1000.0f));
+		DirectX::XMStoreFloat4x4(&_ptr->viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
+		DirectX::XMStoreFloat4x4(&_ptr->projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
 
-		//m_spCB1_Object[_i] = std::make_shared<ConstantBuffer>(sizeof(CBObject));
 		m_spCB1_Object[_i] = std::make_shared<ConstantBuffer>(RenderingEngine::Instance().GetDevice());
 		m_spCB1_Object[_i]->Create(sizeof(CBObject));
 		auto _objPtr = m_spCB1_Object[_i]->GetPtr<CBObject>();	
 		_objPtr->uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
 
-		//m_spCB2_MeshTrans[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMeshTrans));
 		m_spCB2_MeshTrans[_i] = std::make_shared<ConstantBuffer>(RenderingEngine::Instance().GetDevice());
 		m_spCB2_MeshTrans[_i]->Create(sizeof(CBMeshTrans));
 		auto _meshPtr = m_spCB2_MeshTrans[_i]->GetPtr<CBMeshTrans>();
@@ -67,7 +64,6 @@ void RenderContext::Init()
 			0.0f,0.0f,0.0f,1.0f
 		};
 
-		//m_spCB3_Material[_i] = std::make_shared<ConstantBuffer>(sizeof(CBMaterial));
 		m_spCB3_Material[_i] = std::make_shared<ConstantBuffer>(RenderingEngine::Instance().GetDevice());
 		m_spCB3_Material[_i]->Create(sizeof(CBMaterial));
 		auto _matPtr = m_spCB3_Material[_i]->GetPtr<CBMaterial>();
@@ -94,8 +90,6 @@ void RenderContext::BeginSimpleRender()
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
 	PSOManager::Instance().SetPipelienStaet("SimplePipeline");
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// プリミティブトポロジー
-	//_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN);		// プリミティブトポロジー
-	//_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);		// プリミティブトポロジー
 	
 }
 void RenderContext::EndSimpleRender()
@@ -153,7 +147,7 @@ void RenderContext::SetProjectionMatrix(
 	auto* _ptr = m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetPtr<CBCamera>();
 	DirectX::XMStoreFloat4x4(
 		&_ptr->projMat,
-		DirectX::XMMatrixPerspectiveFovRH(
+		DirectX::XMMatrixPerspectiveFovLH(
 			a_fov,
 			a_aspect,
 			a_near,
@@ -187,20 +181,14 @@ void RenderContext::DrawModel(
 		m_spCB1_Object[_currentIdx]->GetHandle()
 	);
 
-	/*_cmdList->SetGraphicsRootConstantBufferView(
-		1,
-		m_spCB1_Object[_currentIdx]->GetCBVDesc().BufferLocation
-	);*/
-
-
 	// 全描画用メッシュノードを描画
 	for (auto& _nodeIdx : a_modelResource->GetDrawMeshNodeIndices())
 	{
+		// ノードのワールド行列を計算
 		DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
-		//DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].localTransform);
-		DirectX::XMMATRIX _worldMat = a_worldMat;
-		//_worldMat = DirectX::XMMatrixMultiply(_worldMat,_nodeTransMat);
-		_worldMat = DirectX::XMMatrixMultiply(_nodeTransMat, _worldMat);
+		DirectX::XMMATRIX _worldMat = _nodeTransMat * a_worldMat;
+		
+		// メッシュ描画
 		DrawMesh(
 			_dataNodes[_nodeIdx].spMesh.get(),
 			_worldMat,
@@ -209,6 +197,39 @@ void RenderContext::DrawModel(
 			a_emissiveScale
 		);
 	}
+
+	//{
+	//	int _nodeIdx = 1;
+
+	//	// ノードのワールド行列を計算
+	//	DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
+	//	DirectX::XMMATRIX _worldMat = _nodeTransMat * a_worldMat;
+
+	//	// メッシュ描画
+	//	DrawMesh(
+	//		_dataNodes[_nodeIdx].spMesh.get(),
+	//		_worldMat,
+	//		a_modelResource->GetMaterials(),
+	//		a_colorScale,
+	//		a_emissiveScale
+	//	);
+
+	//	_nodeIdx = 0;
+
+	//	// ノードのワールド行列を計算
+	//	_nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
+	//	_worldMat = _nodeTransMat * a_worldMat;
+
+	//	// メッシュ描画
+	//	DrawMesh(
+	//		_dataNodes[_nodeIdx].spMesh.get(),
+	//		_worldMat,
+	//		a_modelResource->GetMaterials(),
+	//		a_colorScale,
+	//		a_emissiveScale
+	//	);
+	//}
+
 }
 void RenderContext::DrawModel(std::shared_ptr<ModelResource> a_modelResource, const DirectX::XMFLOAT4X4& a_worldMat, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
 {
@@ -227,9 +248,13 @@ void RenderContext::DrawMesh(
 	const DirectX::XMFLOAT3& a_emissive
 )
 {
+	if (a_mesh == nullptr)
+	{
+		return;
+	}
+
 	// コマンドリスト取得
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-
 	auto _currentIdx = RenderingEngine::Instance().CurrentBackBufferIndex();
 
 	// メッシュの情報を送信
@@ -245,11 +270,7 @@ void RenderContext::DrawMesh(
 		2, m_spCB2_MeshTrans[_currentIdx]->GetHandle()
 	);
 
-	/*_cmdList->SetGraphicsRootConstantBufferView(
-		2, m_spCB2_MeshTrans[_currentIdx]->GetCBVDesc().BufferLocation
-	);*/
-
-
+	// サブセット単位で描画
 	for (UINT _subIdx = 0; _subIdx < a_mesh->GetSubsets().size(); ++_subIdx)
 	{
 		// 面が一枚もない場合はスキップ
@@ -269,10 +290,6 @@ void RenderContext::DrawMesh(
 			3, m_spCB3_Material[_currentIdx]->GetHandle()
 		);
 
-		/*_cmdList->SetGraphicsRootConstantBufferView(
-			3, m_spCB3_Material[_currentIdx]->GetCBVDesc().BufferLocation
-		);*/
-
 		_cmdList->SetGraphicsRootDescriptorTable(
 			4,
 			ResourceManager::Instance().GetTexture(_material.baseColorTexKey).lock()->GetGpuSrvHandle()
@@ -280,20 +297,7 @@ void RenderContext::DrawMesh(
 
 		// 描画
 		_cmdList->DrawIndexedInstanced(
-			static_cast<UINT>(a_mesh->GetSubsets()[_subIdx].faceCount * 3),
-			1,
-			0,
-			0,
-			0
-			);
-
-		/*_cmdList->DrawInstanced(
-			static_cast<UINT>(a_mesh->GetSubsets()[_subIdx].faceCount * 3),
-			1,
-			0,
-			0
-		);*/
-
+			static_cast<UINT>(a_mesh->GetSubsets()[_subIdx].faceCount * 3),1,0,0,0
+		);
 	}
-	
 }

@@ -261,12 +261,11 @@
     <ClCompile Include="Source\Engine\GPUResource\SwapChain\SwapChain.cpp">
       <Filter>Source\Engine\GPUResource\SwapChain</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAV.cpp">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp" />
     <ClCompile Include="Source\Engine\ResourceManager\ResourceManager.cpp">
       <Filter>Source\Engine\ResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp">
+      <Filter>Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -37,6 +37,18 @@ public:
 	/// <returns>ハンドル構造体</returns>
 	virtual DescriptorHandle Register(ID3D12Resource* a_resource = nullptr) = 0;
 
+	/// <summary>
+	/// CPU ハンドル取得
+	/// </summary>
+	/// <param name="a_number">生成時のインデックス</param>
+	const D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT a_number) const;
+
+	/// <summary>
+	/// GPU ハンドル取得
+	/// </summary>
+	/// <param name="a_number">生成時のインデックス</param>
+	const D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT a_number) const;
+
 protected:
 	UINT m_incrementSize = 0;												// 移動距離
 	D3D12_DESCRIPTOR_HEAP_TYPE m_type{};						// ディスクリプタヒープのタイプ
@@ -45,5 +57,5 @@ protected:
 	ID3D12Device* m_pDevice = nullptr;			// デバイスのポインタ
 	
 	UINT m_maxSize = 0;					// ディスクリプタヒープに乗せれる上限
-	size_t m_currentIndex = 0;			// 今何番目か
+	UINT m_currentIndex = 0;			// 今何番目か
 };
