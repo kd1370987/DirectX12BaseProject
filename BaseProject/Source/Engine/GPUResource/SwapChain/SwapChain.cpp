@@ -28,7 +28,7 @@ bool SwapChain::Create(HWND a_hWnd, UINT a_frameBufferWidth, UINT a_frameBufferH
 	_desc.SampleDesc.Count = 1;														// マルチサンプリング（なし）
 	_desc.SampleDesc.Quality = 0;													// アンチエイリアス設定
 	_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;							// バッファの用途（出力）
-	_desc.BufferCount = FRAME_BUFFER_COUNT;											// バッファ数
+	_desc.BufferCount = BACKBUFFER_COUNT;											// バッファ数
 	_desc.OutputWindow = a_hWnd;													// 出力先
 	_desc.Windowed = TRUE;															// ウィンドウモード指定
 	_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;								// 切替の方式
@@ -77,7 +77,6 @@ void SwapChain::Present(UINT a_f, UINT a_s)
 
 UINT SwapChain::GetCurrentBackBufferIndex()
 {
-	//return m_cpSwapChain->GetCurrentBackBufferIndex();
 	return m_currentBackBufferIndex;
 }
 

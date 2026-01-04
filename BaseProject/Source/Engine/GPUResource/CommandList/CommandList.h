@@ -18,7 +18,6 @@ public:
 	bool Create(
 		ID3D12Device8* a_pDevice,
 		ID3D12CommandAllocator* a_pCommandAllocator,
-		UINT a_currentBackBufferIndex,
 		D3D12_COMMAND_LIST_TYPE a_commandListType = D3D12_COMMAND_LIST_TYPE_DIRECT
 	);
 

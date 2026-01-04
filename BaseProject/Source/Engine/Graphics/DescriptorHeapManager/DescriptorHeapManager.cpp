@@ -39,7 +39,7 @@ void DescriptorHeapManager::Init()
 		m_spRTVHeap->Create(
 			_device,
 			D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-			FRAME_BUFFER_COUNT,
+			BACKBUFFER_COUNT,
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE
 		);
 	}

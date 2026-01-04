@@ -82,7 +82,8 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 // バッファリング数
 enum
 {
-	FRAME_BUFFER_COUNT = 2		// 今回はダブルバッファリング
+	BACKBUFFER_COUNT = 2,		// 今回はダブルバッファリング
+	CPU_FRAME_COUNT = 4				// フレームリソース管理用
 };
 // ディスクリプタハンドル構造体
 struct DescriptorHandle

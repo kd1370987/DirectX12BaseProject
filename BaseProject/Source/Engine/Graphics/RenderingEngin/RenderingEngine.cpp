@@ -54,7 +54,9 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	// コマンドアロケーター作成
 	m_upCommandAllocator = std::make_unique<CommandAllocator>();
 	if (!m_upCommandAllocator->Init(
-			m_upDevice->GetDevice()
+			m_upDevice->GetDevice(),
+			CPU_FRAME_COUNT,
+			D3D12_COMMAND_LIST_TYPE_DIRECT
 		)
 	)
 	{
@@ -63,17 +65,21 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	}
 	// コマンドリスト作成
 	m_upCommandList = std::make_unique<CommandList>();
-	if (!m_upCommandList->Create(
+	/*if (!m_upCommandList->Create(
 			m_upDevice->GetDevice(), 
 			m_upCommandAllocator->GetCCurrentAllocator(m_upSwapChain->GetCurrentBackBufferIndex()),
 			m_upSwapChain->GetCurrentBackBufferIndex()
-		))
+		))*/
+	if (!m_upCommandList->Create(
+		m_upDevice->GetDevice(),
+		m_upCommandAllocator->GetCCurrentAllocator(m_cpuFrameIndex)
+	))
 	{
 		return false;
 	}
 
 	// フェンス作成
-	for (auto _i = 0u; _i < FRAME_BUFFER_COUNT; ++_i)
+	for (auto _i = 0u; _i < CPU_FRAME_COUNT; ++_i)
 	{
 		m_fenceValue[_i] = 0;
 	}
@@ -118,14 +124,22 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 //==================================================================================
 void RenderingEngine::BeginRender()
 {
+	// バックバッファ番号更新
+	m_upSwapChain->Update();
+
+	m_cpuFrameIndex = (m_cpuFrameIndex + 1) % static_cast<UINT>(CPU_FRAME_COUNT);
+
+	// 次のフレームの描画準備がまだであれば待機する
 	WaitRender();
 
 	// 現在のレンダーターゲットを更新
 	m_currentRenderTarget = m_pRenderTargets[m_upSwapChain->GetCurrentBackBufferIndex()].Get();
 
 	// コマンドキューを初期化して命令をためる準備をする
-	m_upCommandAllocator->Reset(m_upSwapChain->GetCurrentBackBufferIndex());
-	m_upCommandList->Reset(m_upCommandAllocator->GetCCurrentAllocator(m_upSwapChain->GetCurrentBackBufferIndex()));
+	/*m_upCommandAllocator->Reset(m_upSwapChain->GetCurrentBackBufferIndex());
+	m_upCommandList->Reset(m_upCommandAllocator->GetCCurrentAllocator(m_upSwapChain->GetCurrentBackBufferIndex()));*/
+	m_upCommandAllocator->Reset(m_cpuFrameIndex);
+	m_upCommandList->Reset(m_upCommandAllocator->GetCCurrentAllocator(m_cpuFrameIndex));
 
 	// ビューポートとシザー矩形を設定
 	m_upCommandList->SetViewports(1,&m_upViewport->Get());
@@ -177,12 +191,6 @@ void RenderingEngine::EndRender()
 
 	// スワップチェーンを切替
 	m_upSwapChain->Present(1,0);
-
-	// 描画完了を待つ
-	//WaitRender();
-
-	// バックバッファ番号更新
-	m_upSwapChain->Update();
 }
 
 
@@ -208,6 +216,11 @@ UINT RenderingEngine::CurrentBackBufferIndex()
 	return m_upSwapChain->GetCurrentBackBufferIndex();
 }
 
+UINT RenderingEngine::CurrentCPUFrameIndex()
+{
+	return m_cpuFrameIndex;
+}
+
 IDXGISwapChain3* RenderingEngine::GetSwapChain()
 {
 	return m_upSwapChain->Get();
@@ -228,7 +241,7 @@ bool RenderingEngine::CreateRenderTarget()
 	// レンダーターゲット
 	// キャンバスのようなもの。
 	// 描画先のバックバッファやテクスチャなどのリソースを指す
-	for (UINT _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
+	for (UINT _i = 0; _i < BACKBUFFER_COUNT; ++_i)
 	{
 		// スワップチェインから描画するテクスチャリソースを取得
 		m_upSwapChain->Get()->GetBuffer(
@@ -286,16 +299,13 @@ bool RenderingEngine::CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBu
 }
 void RenderingEngine::WaitRender()
 {
-	// 描画終了待ち
-	//const UINT64 _fenceValue = m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()];
-	//m_commandQueue.Get()->Signal(m_fence.GetFence(), _fenceValue);
-	//m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]++;				// インクリメントが待機完了
-
 	// 次のフレームの描画準備がまだであれば待機する
-	if (m_upFence->GetCompletedValue() < m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()])
+	//if (m_upFence->GetCompletedValue() < m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()])
+	if (m_upFence->GetCompletedValue() < m_fenceValue[m_cpuFrameIndex])
 	{
 		// 完了時にイベントを設定
-		if (m_upFence->SetEventOnCompletion(m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()], m_fenceEvent))
+		//if (m_upFence->SetEventOnCompletion(m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()], m_fenceEvent))
+		if (m_upFence->SetEventOnCompletion(m_fenceValue[m_cpuFrameIndex], m_fenceEvent))
 		{
 			return;
 		}
@@ -310,10 +320,15 @@ void RenderingEngine::WaitRender()
 
 void RenderingEngine::SignalRenderFence()
 {
-	m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]++;
-	m_upCommandQueue->Get()->Signal(
+	//m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]++;
+	m_fenceValue[m_cpuFrameIndex]++;
+	/*m_upCommandQueue->Get()->Signal(
 		m_upFence->GetFence(),
 		m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]
+	);*/
+	m_upCommandQueue->Get()->Signal(
+		m_upFence->GetFence(),
+		m_fenceValue[m_cpuFrameIndex]
 	);
 }
 

@@ -11,8 +11,8 @@ public:
 	// コマンドアロケーターの初期化
 	bool Init(
 		ID3D12Device8* a_pDevice,
-		UINT a_frameBufferCount = FRAME_BUFFER_COUNT,
-		D3D12_COMMAND_LIST_TYPE a_commandListType = D3D12_COMMAND_LIST_TYPE_DIRECT
+		UINT a_frameBufferCount,
+		D3D12_COMMAND_LIST_TYPE a_commandListType
 	);
 
 	// リセット

@@ -126,15 +126,19 @@ public:
 private:
 
 	// カメラ用定数バッファ
-	CBCamera m_cb0_camera = {};
+	//CBCamera m_cb0_camera = {};
+	CBCamera m_cb0_camera[CPU_FRAME_COUNT] = {};
 
 	// オブジェクト用定数バッファ
-	CBObject m_cb1_object = {};
-	CBMeshTrans m_cb2_MeshTrans = {};
-	CBMaterial m_cb3_Material = {};
+	//CBObject m_cb1_object = {};
+	CBObject m_cb1_object[CPU_FRAME_COUNT] = {};
+	//CBMeshTrans m_cb2_MeshTrans = {};
+	CBMeshTrans m_cb2_MeshTrans[CPU_FRAME_COUNT] = {};
+	//CBMaterial m_cb3_Material = {};
+	CBMaterial m_cb3_Material[CPU_FRAME_COUNT] = {};
 
-	//std::unique_ptr<CBAllocater> m_spCBAllocater;
-	std::unique_ptr<CBAllocater> m_spCBAllocater[FRAME_BUFFER_COUNT];
+	//std::unique_ptr<CBAllocater> m_spCBAllocater[CPU_FRAME_COUNT];
+	std::unique_ptr<CBAllocater> m_spCBAllocater;
 
 
 // シングルトン
