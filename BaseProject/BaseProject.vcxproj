@@ -166,6 +166,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Application\App.cpp" />
     <ClCompile Include="Source\Application\Scene\BaseScene.cpp" />
+    <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp" />
     <ClCompile Include="Source\Engine\GameScene\SceneManager\SceneManager.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="Source\Core\Storage\Storage.h" />
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
     <ClInclude Include="Source\Core\Utility\StringUtillity.h" />
+    <ClInclude Include="Source\Engine\CBAllocater\CBAllocater.h" />
     <ClInclude Include="Source\Engine\GameScene\SceneManager\SceneManager.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.h" />

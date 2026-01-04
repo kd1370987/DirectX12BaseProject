@@ -9,6 +9,7 @@
 
 #include "Engine/GPUResource/Model/Model.h"
 
+
 bool SceneManager::Init()
 {
 	m_spModel = std::make_shared<ModelResource>();
@@ -21,8 +22,8 @@ bool SceneManager::Init()
 	}
 
 	m_spModel2 = std::make_shared<ModelResource>();
-	//if (!m_spModel2->Load("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX"))
-	if (!m_spModel2->Load("Asset/Model/Robot/woodRobot.gltf"))
+	if (!m_spModel2->Load("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX"))
+	//if (!m_spModel2->Load("Asset/Model/Robot/woodRobot.gltf"))
 	{
 		assert(0 && "FBXモデル読み込みに失敗\n");
 		return false;
@@ -49,7 +50,7 @@ bool SceneManager::Init()
 		1.0f,0.0f,0.0f,0.0f,
 		0.0f,1.0f,0.0f,0.0f,
 		0.0f,0.0f,1.0f,0.0f,
-		5.0f,0.0f, 0.0f,1.0f
+		5.0f,-100.0f, 200.0f,1.0f
 	};
 
 	return true;
@@ -66,6 +67,11 @@ void SceneManager::Update()
 
 	DirectX::XMMATRIX rotY = DirectX::XMMatrixRotationY(m_rotateY);
 	DirectX::XMStoreFloat4x4(&m_charaMat, rotY);
+
+	DirectX::XMMATRIX _rotY2 = DirectX::XMMatrixRotationY(-m_rotateY);
+	DirectX::XMMATRIX _trans2 = DirectX::XMMatrixTranslation(5.0f, -100.0f, 200.0f);
+	_rotY2 = DirectX::XMMatrixMultiply(_rotY2, _trans2);
+	DirectX::XMStoreFloat4x4(&m_charaMat2, _rotY2);
 }
 
 void SceneManager::Draw()

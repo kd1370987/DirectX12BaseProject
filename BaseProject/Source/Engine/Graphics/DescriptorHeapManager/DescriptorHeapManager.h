@@ -28,7 +28,13 @@ public:
 	/// <param name="a_resource">リソース</param>
 	/// <param name="a_size">サイズ</param>
 	/// <returns>登録したハンドル</returns>
-	DescriptorHandle RegisterCBV(
+	/*DescriptorHandle RegisterCBV(
+		ID3D12Resource* a_resource,
+		size_t a_size,
+		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
+	);*/
+
+	UINT RegisterCBV(
 		ID3D12Resource* a_resource,
 		size_t a_size,
 		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
@@ -68,6 +74,15 @@ public:
 	std::shared_ptr<RTVHeap> GetDescriptorRTV() const { return m_spRTVHeap; }
 
 
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT a_index)
+	{
+		return m_spCBV_SRV_UAVHeap->GetGPUHandle(a_index);
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT a_index)
+	{
+		return m_spCBV_SRV_UAVHeap->GetCPUHandle(a_index);
+	}
 
 private:
 

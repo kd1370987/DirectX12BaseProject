@@ -26,6 +26,9 @@ public:
 	/// <returns>ディスクリプタヒープポインタ</returns>
 	ID3D12DescriptorHeap* GetHeap();
 
+	DirectX::XMFLOAT3 GetMaxCounts() const { return m_maxCounts; }
+	DirectX::XMFLOAT3 GetCurrentCounts() const { return m_currentCounts; }
+
 	/// <summary>
 	/// CPU ハンドル取得
 	/// </summary>
@@ -38,16 +41,16 @@ public:
 	/// <param name="a_number">生成時のインデックス</param>
 	const D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT a_number) const;
 
-	/*UINT RegisterCBV(
-		ID3D12Resource* a_resource,
-		size_t a_size,
-		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
-	);*/
-	DescriptorHandle RegisterCBV(
+	UINT RegisterCBV(
 		ID3D12Resource* a_resource,
 		size_t a_size,
 		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
 	);
+	/*DescriptorHandle RegisterCBV(
+		ID3D12Resource* a_resource,
+		size_t a_size,
+		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
+	);*/
 	DescriptorHandle RegisterSRV(ID3D12Resource* a_resource);
 	DescriptorHandle RegisterUAV(ID3D12Resource* a_resource);
 

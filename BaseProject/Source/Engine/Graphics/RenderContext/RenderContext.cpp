@@ -19,6 +19,8 @@
 #include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/GPUResource/Buffer/ConstantBuffer/ConstantBuffer.h"
 
+
+#include "Engine/CBAllocater/CBAllocater.h"
 //============================================================================================
 //
 // 初期化
@@ -72,10 +74,10 @@ void RenderContext::Init()
 		_matPtr->metallicRoughnessXY = { 0.0f,1.0f,0.0f,0.0f };
 	}
 
-	
-
-
 	PSOManager::Instance().Init();
+
+	m_spCBAllocater = std::make_shared<CBAllocater>();
+	m_spCBAllocater->Init(RenderingEngine::Instance().GetDevice());
 
 }
 
@@ -105,6 +107,9 @@ void RenderContext::SetToShader(
 	const DirectX::XMFLOAT4X4& a_worldMat
 )
 {
+
+	m_spCBAllocater->ResetUse();
+
 	// コマンドリスト取得
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
 
@@ -129,9 +134,18 @@ void RenderContext::SetToShader(
 	DirectX::XMStoreFloat4x4(&_ptr->viewMat, _vMat);
 
 	// カメラ用定数バッファに転送
-	_cmdList->SetGraphicsRootDescriptorTable(
+	/*_cmdList->SetGraphicsRootDescriptorTable(
 		0,
 		m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetHandle()
+	);*/
+	/*_cmdList->SetGraphicsRootDescriptorTable(
+		0, DescriptorHeapManager::Instance().GetDescriptorCBV_SRV_UAV()->GetGPUHandle(m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetIndex())
+	);*/
+	// カメラ用定数バッファに転送
+	m_spCBAllocater->BindAndAttachData<CBCamera>(
+		_cmdList,
+		0,
+		*_ptr
 	);
 
 	/*_cmdList->SetGraphicsRootConstantBufferView(
@@ -175,10 +189,10 @@ void RenderContext::DrawModel(
 	// ノード抽出
 	auto& _dataNodes = a_modelResource->GetOriginalNodes();
 
-	// オブジェクト単位の定数バッファをセット
-	_cmdList->SetGraphicsRootDescriptorTable(
+	m_spCBAllocater->BindAndAttachData<CBObject>(
+		_cmdList,
 		1,
-		m_spCB1_Object[_currentIdx]->GetHandle()
+		*m_spCB1_Object[_currentIdx]->GetPtr<CBObject>()
 	);
 
 	// 全描画用メッシュノードを描画
@@ -197,39 +211,6 @@ void RenderContext::DrawModel(
 			a_emissiveScale
 		);
 	}
-
-	//{
-	//	int _nodeIdx = 1;
-
-	//	// ノードのワールド行列を計算
-	//	DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
-	//	DirectX::XMMATRIX _worldMat = _nodeTransMat * a_worldMat;
-
-	//	// メッシュ描画
-	//	DrawMesh(
-	//		_dataNodes[_nodeIdx].spMesh.get(),
-	//		_worldMat,
-	//		a_modelResource->GetMaterials(),
-	//		a_colorScale,
-	//		a_emissiveScale
-	//	);
-
-	//	_nodeIdx = 0;
-
-	//	// ノードのワールド行列を計算
-	//	_nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
-	//	_worldMat = _nodeTransMat * a_worldMat;
-
-	//	// メッシュ描画
-	//	DrawMesh(
-	//		_dataNodes[_nodeIdx].spMesh.get(),
-	//		_worldMat,
-	//		a_modelResource->GetMaterials(),
-	//		a_colorScale,
-	//		a_emissiveScale
-	//	);
-	//}
-
 }
 void RenderContext::DrawModel(std::shared_ptr<ModelResource> a_modelResource, const DirectX::XMFLOAT4X4& a_worldMat, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
 {
@@ -264,10 +245,12 @@ void RenderContext::DrawMesh(
 	// メッシュ変換行列の転送
 	auto _ptr = m_spCB2_MeshTrans[_currentIdx]->GetPtr<CBMeshTrans>();
 	DirectX::XMStoreFloat4x4(&_ptr->worldMat, a_worldMat);
+	
 
-
-	_cmdList->SetGraphicsRootDescriptorTable(
-		2, m_spCB2_MeshTrans[_currentIdx]->GetHandle()
+	m_spCBAllocater->BindAndAttachData<CBMeshTrans>(
+		_cmdList,
+		2,
+		*_ptr
 	);
 
 	// サブセット単位で描画
@@ -286,8 +269,10 @@ void RenderContext::DrawMesh(
 		auto _baseColor = DirectX::XMLoadFloat4(&_material.baseColor);
 		DirectX::XMStoreFloat4(&_ptr->baseColorXYZW, DirectX::XMVectorMultiply(_baseColor, _colorScale));
 
-		_cmdList->SetGraphicsRootDescriptorTable(
-			3, m_spCB3_Material[_currentIdx]->GetHandle()
+		m_spCBAllocater->BindAndAttachData<CBMaterial>(
+			_cmdList,
+			3,
+			*_ptr
 		);
 
 		_cmdList->SetGraphicsRootDescriptorTable(

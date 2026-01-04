@@ -17,7 +17,9 @@ public:
 		return reinterpret_cast<T*>(GetPtr());
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetHandle() { return m_handle; }
+	//D3D12_GPU_DESCRIPTOR_HANDLE GetHandle() { return m_handle; }
+
+	const UINT GetIndex() const { return m_index; }
 
 	const D3D12_CONSTANT_BUFFER_VIEW_DESC& GetCBVDesc() const { return m_cbvDesc; }
 
@@ -29,9 +31,11 @@ private:
 	// 定数バッファ
 	ComPtr<ID3D12Resource> m_cpBuffer = nullptr;
 	void* m_pMappedPtr = nullptr;
-	D3D12_GPU_DESCRIPTOR_HANDLE m_handle;
 
+	//D3D12_GPU_DESCRIPTOR_HANDLE m_handle;
 	D3D12_CONSTANT_BUFFER_VIEW_DESC m_cbvDesc;
+
+	UINT m_index = 0;
 
 	// コピー禁止
 	ConstantBuffer(const ConstantBuffer&) = delete;

@@ -154,6 +154,9 @@
     <Filter Include="Source\Engine\GPUResource\Model\ModelResource\Vertex">
       <UniqueIdentifier>{d546a749-c07b-4c76-ac27-b30adb7a6292}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\CBAllocater">
+      <UniqueIdentifier>{4cb1296a-31d6-4714-b011-876b38a56f8e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -266,6 +269,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp">
       <Filter>Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp">
+      <Filter>Source\Engine\CBAllocater</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -394,6 +400,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Vertex\Vertex.h">
       <Filter>Source\Engine\GPUResource\Model\ModelResource\Vertex</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\CBAllocater\CBAllocater.h">
+      <Filter>Source\Engine\CBAllocater</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -39,7 +39,8 @@ bool ConstantBuffer::Create(size_t a_size)
 	}
 
 	m_cbvDesc = {};
-	m_handle = DescriptorHeapManager::Instance().RegisterCBV(m_cpBuffer.Get(), _sizeAligned,m_cbvDesc).handleGPU;
+	//m_handle = DescriptorHeapManager::Instance().RegisterCBV(m_cpBuffer.Get(), _sizeAligned,m_cbvDesc).handleGPU;
+	m_index = DescriptorHeapManager::Instance().RegisterCBV(m_cpBuffer.Get(), _sizeAligned,m_cbvDesc);
 
 
 	//ID3D12DescriptorHeap* _pHeap = nullptr;

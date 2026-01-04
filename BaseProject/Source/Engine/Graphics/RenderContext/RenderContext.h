@@ -10,6 +10,8 @@ struct Material;
 
 class ConstantBuffer;
 
+class CBAllocater;
+
 class RenderContext
 {
 public:
@@ -130,6 +132,8 @@ private:
 	std::shared_ptr<ConstantBuffer> m_spCB1_Object[FRAME_BUFFER_COUNT];	// オブジェクト単位で更新
 	std::shared_ptr<ConstantBuffer> m_spCB2_MeshTrans[FRAME_BUFFER_COUNT];	// メッシュ毎に更新
 	std::shared_ptr<ConstantBuffer> m_spCB3_Material[FRAME_BUFFER_COUNT];	// マテリアル毎に更新
+
+	std::shared_ptr<CBAllocater> m_spCBAllocater = nullptr;
 
 
 // シングルトン
