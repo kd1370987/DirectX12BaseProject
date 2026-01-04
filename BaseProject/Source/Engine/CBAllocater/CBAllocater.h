@@ -36,6 +36,7 @@ inline void CBAllocater::BindAndAttachData(
 
 	
 	size_t _dataSize = (1024 + 0xff) & ~0xff; // 256バイトアライメント
+	//size_t _dataSize = (sizeof(T) + 0xff) & ~0xff; // 256バイトアライメント
 	int _useValue = _dataSize / 0x100;
 	if (m_usedCount + _useValue > m_pHeap->GetMaxCounts().x)
 	{

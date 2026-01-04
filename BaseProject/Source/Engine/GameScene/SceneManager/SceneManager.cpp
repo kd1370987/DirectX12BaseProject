@@ -69,7 +69,7 @@ void SceneManager::Update()
 	DirectX::XMStoreFloat4x4(&m_charaMat, rotY);
 
 	DirectX::XMMATRIX _rotY2 = DirectX::XMMatrixRotationY(-m_rotateY);
-	DirectX::XMMATRIX _trans2 = DirectX::XMMatrixTranslation(5.0f, -100.0f, 200.0f);
+	DirectX::XMMATRIX _trans2 = DirectX::XMMatrixTranslation(50.0f, -100.0f, 200.0f);
 	_rotY2 = DirectX::XMMatrixMultiply(_rotY2, _trans2);
 	DirectX::XMStoreFloat4x4(&m_charaMat2, _rotY2);
 }

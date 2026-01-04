@@ -126,21 +126,22 @@ public:
 private:
 
 	// カメラ用定数バッファ
-	std::shared_ptr<ConstantBuffer> m_spCB0_Camera[FRAME_BUFFER_COUNT] = {nullptr};
+	CBCamera m_cb0_camera = {};
 
 	// オブジェクト用定数バッファ
-	std::shared_ptr<ConstantBuffer> m_spCB1_Object[FRAME_BUFFER_COUNT];	// オブジェクト単位で更新
-	std::shared_ptr<ConstantBuffer> m_spCB2_MeshTrans[FRAME_BUFFER_COUNT];	// メッシュ毎に更新
-	std::shared_ptr<ConstantBuffer> m_spCB3_Material[FRAME_BUFFER_COUNT];	// マテリアル毎に更新
+	CBObject m_cb1_object = {};
+	CBMeshTrans m_cb2_MeshTrans = {};
+	CBMaterial m_cb3_Material = {};
 
-	std::shared_ptr<CBAllocater> m_spCBAllocater = nullptr;
+	//std::unique_ptr<CBAllocater> m_spCBAllocater;
+	std::unique_ptr<CBAllocater> m_spCBAllocater[FRAME_BUFFER_COUNT];
 
 
 // シングルトン
 private:
 
-	RenderContext() = default;
-	~RenderContext() = default;
+	RenderContext();
+	~RenderContext();
 
 public:
 

@@ -36,49 +36,33 @@ void RenderContext::Init()
 
 	auto _aspect = static_cast<float>(1280) / static_cast<float>(720);		// アスペクト比
 
-	for (size_t _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
-	{
-		m_spCB0_Camera[_i] = std::make_shared<ConstantBuffer>(RenderingEngine::Instance().GetDevice());
-		if (!m_spCB0_Camera[_i]->Create(sizeof(CBCamera)))
-		{
-			assert(0 && "変換行列用定数バッファの生成に失敗\n");
-			return;
-		}
-
-		// 変換行列の登録
-		auto* _ptr = m_spCB0_Camera[_i]->GetPtr<CBCamera>();
-		DirectX::XMStoreFloat4(&_ptr->cameraPosXYZ, _eyePos);
-		DirectX::XMStoreFloat4x4(&_ptr->viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
-		DirectX::XMStoreFloat4x4(&_ptr->projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
-
-		m_spCB1_Object[_i] = std::make_shared<ConstantBuffer>(RenderingEngine::Instance().GetDevice());
-		m_spCB1_Object[_i]->Create(sizeof(CBObject));
-		auto _objPtr = m_spCB1_Object[_i]->GetPtr<CBObject>();	
-		_objPtr->uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
-
-		m_spCB2_MeshTrans[_i] = std::make_shared<ConstantBuffer>(RenderingEngine::Instance().GetDevice());
-		m_spCB2_MeshTrans[_i]->Create(sizeof(CBMeshTrans));
-		auto _meshPtr = m_spCB2_MeshTrans[_i]->GetPtr<CBMeshTrans>();
-		_meshPtr->worldMat = {
-			1.0f,0.0f,0.0f,0.0f,
-			0.0f,1.0f,0.0f,0.0f,
-			0.0f,0.0f,1.0f,0.0f,
-			0.0f,0.0f,0.0f,1.0f
-		};
-
-		m_spCB3_Material[_i] = std::make_shared<ConstantBuffer>(RenderingEngine::Instance().GetDevice());
-		m_spCB3_Material[_i]->Create(sizeof(CBMaterial));
-		auto _matPtr = m_spCB3_Material[_i]->GetPtr<CBMaterial>();
-		_matPtr->baseColorXYZW = { 1.0f,1.0f,1.0f,1.0f };
-		_matPtr->emissiveXYZ = { 1.0f,1.0f,1.0f,0.0f };
-		_matPtr->metallicRoughnessXY = { 0.0f,1.0f,0.0f,0.0f };
-	}
+	// cb0
+	DirectX::XMStoreFloat4(&m_cb0_camera.cameraPosXYZ, _eyePos);
+	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
+	DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
+	// cb1
+	m_cb1_object.uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
+	// cb2
+	m_cb2_MeshTrans.worldMat = {
+		1.0f,0.0f,0.0f,0.0f,
+		0.0f,1.0f,0.0f,0.0f,
+		0.0f,0.0f,1.0f,0.0f,
+		0.0f,0.0f,0.0f,1.0f
+	};
+	/// cb3
+	m_cb3_Material.baseColorXYZW = {1.0f,1.0f,1.0f,1.0f};
+	m_cb3_Material.emissiveXYZ = { 1.0f,1.0f,1.0f,0.0f };
+	m_cb3_Material.metallicRoughnessXY = { 0.0f,1.0f,0.0f,0.0f };
 
 	PSOManager::Instance().Init();
 
-	m_spCBAllocater = std::make_shared<CBAllocater>();
-	m_spCBAllocater->Init(RenderingEngine::Instance().GetDevice());
-
+	for (int _i = 0; _i < FRAME_BUFFER_COUNT; ++_i)
+	{
+		/*m_spCBAllocater = std::make_unique<CBAllocater>();
+		m_spCBAllocater->Init(RenderingEngine::Instance().GetDevice());*/
+		m_spCBAllocater[_i] = std::make_unique<CBAllocater>();
+		m_spCBAllocater[_i]->Init(RenderingEngine::Instance().GetDevice());
+	}
 }
 
 //============================================================================================
@@ -107,11 +91,13 @@ void RenderContext::SetToShader(
 	const DirectX::XMFLOAT4X4& a_worldMat
 )
 {
-
-	m_spCBAllocater->ResetUse();
-
 	// コマンドリスト取得
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+	UINT _frameIndex = RenderingEngine::Instance().CurrentBackBufferIndex();
+
+	// 定数バッファの初期化
+	m_spCBAllocater[_frameIndex]->ResetUse();
+	//m_spCBAllocater->ResetUse();
 
 	// ディスクリプタヒープをセット
 	ID3D12DescriptorHeap* _heaps[] = {
@@ -119,9 +105,8 @@ void RenderContext::SetToShader(
 	};
 	_cmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 
-	// 定数バッファに転送
-	auto* _ptr = m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetPtr<CBCamera>();
-	_ptr->cameraPosXYZ = {
+	// カメラの位置を更新
+	m_cb0_camera.cameraPosXYZ = {
 		a_worldMat._41,
 		a_worldMat._42,
 		a_worldMat._43,
@@ -131,36 +116,23 @@ void RenderContext::SetToShader(
 	// ビュー行列を計算して格納
 	DirectX::XMMATRIX _wMat = DirectX::XMLoadFloat4x4(&a_worldMat);
 	DirectX::XMMATRIX _vMat = DirectX::XMMatrixInverse(nullptr, _wMat);
-	DirectX::XMStoreFloat4x4(&_ptr->viewMat, _vMat);
+	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, _vMat);
 
 	// カメラ用定数バッファに転送
-	/*_cmdList->SetGraphicsRootDescriptorTable(
-		0,
-		m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetHandle()
-	);*/
-	/*_cmdList->SetGraphicsRootDescriptorTable(
-		0, DescriptorHeapManager::Instance().GetDescriptorCBV_SRV_UAV()->GetGPUHandle(m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetIndex())
-	);*/
-	// カメラ用定数バッファに転送
-	m_spCBAllocater->BindAndAttachData<CBCamera>(
+	m_spCBAllocater[_frameIndex]->BindAndAttachData<CBCamera>(
+	//m_spCBAllocater->BindAndAttachData<CBCamera>(
 		_cmdList,
 		0,
-		*_ptr
+		m_cb0_camera
 	);
-
-	/*_cmdList->SetGraphicsRootConstantBufferView(
-		0,
-		m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetCBVDesc().BufferLocation
-	);*/
 }
 
 void RenderContext::SetProjectionMatrix(
 	float a_fov, float a_aspect, float a_near, float a_far
 )
-{
-	auto* _ptr = m_spCB0_Camera[RenderingEngine::Instance().CurrentBackBufferIndex()]->GetPtr<CBCamera>();
+{	
 	DirectX::XMStoreFloat4x4(
-		&_ptr->projMat,
+		&m_cb0_camera.projMat,
 		DirectX::XMMatrixPerspectiveFovLH(
 			a_fov,
 			a_aspect,
@@ -189,10 +161,11 @@ void RenderContext::DrawModel(
 	// ノード抽出
 	auto& _dataNodes = a_modelResource->GetOriginalNodes();
 
-	m_spCBAllocater->BindAndAttachData<CBObject>(
+	m_spCBAllocater[_currentIdx]->BindAndAttachData<CBObject>(
+	//m_spCBAllocater->BindAndAttachData<CBObject>(
 		_cmdList,
 		1,
-		*m_spCB1_Object[_currentIdx]->GetPtr<CBObject>()
+		m_cb1_object
 	);
 
 	// 全描画用メッシュノードを描画
@@ -243,14 +216,12 @@ void RenderContext::DrawMesh(
 	_cmdList->IASetIndexBuffer(&a_mesh->GetIndexBuffer().View());			// インデックスバッファをセット
 	
 	// メッシュ変換行列の転送
-	auto _ptr = m_spCB2_MeshTrans[_currentIdx]->GetPtr<CBMeshTrans>();
-	DirectX::XMStoreFloat4x4(&_ptr->worldMat, a_worldMat);
-	
-
-	m_spCBAllocater->BindAndAttachData<CBMeshTrans>(
+	DirectX::XMStoreFloat4x4(&m_cb2_MeshTrans.worldMat, a_worldMat);
+	m_spCBAllocater[_currentIdx]->BindAndAttachData<CBMeshTrans>(
+	//m_spCBAllocater->BindAndAttachData<CBMeshTrans>(
 		_cmdList,
 		2,
-		*_ptr
+		m_cb2_MeshTrans
 	);
 
 	// サブセット単位で描画
@@ -263,17 +234,16 @@ void RenderContext::DrawMesh(
 		const Material& _material = a_materials[a_mesh->GetSubsets()[_subIdx].materialNumber];
 		auto _colorScale = DirectX::XMLoadFloat4(&a_colorScale);
 		auto _emiScale = DirectX::XMLoadFloat3(&a_emissive);
-		auto _ptr = m_spCB3_Material[_currentIdx]->GetPtr<CBMaterial>();
-
+		
 		// ベースカラー
 		auto _baseColor = DirectX::XMLoadFloat4(&_material.baseColor);
-		DirectX::XMStoreFloat4(&_ptr->baseColorXYZW, DirectX::XMVectorMultiply(_baseColor, _colorScale));
-
-		m_spCBAllocater->BindAndAttachData<CBMaterial>(
+		DirectX::XMStoreFloat4(&m_cb3_Material.baseColorXYZW, DirectX::XMVectorMultiply(_baseColor, _colorScale));
+		m_spCBAllocater[_currentIdx]->BindAndAttachData<CBMaterial>(
+		//m_spCBAllocater->BindAndAttachData<CBMaterial>(
 			_cmdList,
 			3,
-			*_ptr
-		);
+			m_cb3_Material
+		); 
 
 		_cmdList->SetGraphicsRootDescriptorTable(
 			4,
@@ -285,4 +255,12 @@ void RenderContext::DrawMesh(
 			static_cast<UINT>(a_mesh->GetSubsets()[_subIdx].faceCount * 3),1,0,0,0
 		);
 	}
+}
+
+RenderContext::RenderContext()
+{
+}
+
+RenderContext::~RenderContext()
+{
 }
