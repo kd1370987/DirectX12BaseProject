@@ -51,7 +51,8 @@ private:
 
 	HANDLE								m_fenceEvent			= nullptr;		// フェンスで使うイベント
 	std::unique_ptr<Fence>				m_upFence				= nullptr;		// フェンス
-	UINT64								m_fenceValue[CPU_FRAME_COUNT];		// フェンスの数
+	UINT64								m_fenceValue[CPU_FRAME_COUNT] = {0};		// フェンスの数
+	UINT								m_currentFenceValue = 0;
 
 	std::unique_ptr<Viewport>			m_upViewport			= nullptr;		// ビューポート
 	std::unique_ptr<ScissorRectangle>	m_upScissorRect			= nullptr;		// シザー矩形

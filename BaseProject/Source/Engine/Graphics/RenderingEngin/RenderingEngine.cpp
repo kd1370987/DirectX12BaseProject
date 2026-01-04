@@ -88,7 +88,7 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	{
 		return false;
 	}
-	m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]++;
+	m_fenceValue[m_cpuFrameIndex]++;
 
 	// 同期を行うときのイベントハンドラを作成する
 	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -136,8 +136,6 @@ void RenderingEngine::BeginRender()
 	m_currentRenderTarget = m_pRenderTargets[m_upSwapChain->GetCurrentBackBufferIndex()].Get();
 
 	// コマンドキューを初期化して命令をためる準備をする
-	/*m_upCommandAllocator->Reset(m_upSwapChain->GetCurrentBackBufferIndex());
-	m_upCommandList->Reset(m_upCommandAllocator->GetCCurrentAllocator(m_upSwapChain->GetCurrentBackBufferIndex()));*/
 	m_upCommandAllocator->Reset(m_cpuFrameIndex);
 	m_upCommandList->Reset(m_upCommandAllocator->GetCCurrentAllocator(m_cpuFrameIndex));
 
@@ -300,13 +298,12 @@ bool RenderingEngine::CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBu
 void RenderingEngine::WaitRender()
 {
 	// 次のフレームの描画準備がまだであれば待機する
-	//if (m_upFence->GetCompletedValue() < m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()])
 	if (m_upFence->GetCompletedValue() < m_fenceValue[m_cpuFrameIndex])
 	{
 		// 完了時にイベントを設定
-		//if (m_upFence->SetEventOnCompletion(m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()], m_fenceEvent))
-		if (m_upFence->SetEventOnCompletion(m_fenceValue[m_cpuFrameIndex], m_fenceEvent))
+		if (!m_upFence->SetEventOnCompletion(m_fenceValue[m_cpuFrameIndex], m_fenceEvent))
 		{
+			assert(0 && "フェンスイベントエラー");
 			return;
 		}
 
@@ -320,16 +317,15 @@ void RenderingEngine::WaitRender()
 
 void RenderingEngine::SignalRenderFence()
 {
-	//m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]++;
-	m_fenceValue[m_cpuFrameIndex]++;
-	/*m_upCommandQueue->Get()->Signal(
-		m_upFence->GetFence(),
-		m_fenceValue[m_upSwapChain->GetCurrentBackBufferIndex()]
-	);*/
+
+	m_currentFenceValue++;
+	
 	m_upCommandQueue->Get()->Signal(
 		m_upFence->GetFence(),
-		m_fenceValue[m_cpuFrameIndex]
+		m_currentFenceValue
 	);
+
+	m_fenceValue[m_cpuFrameIndex] = m_currentFenceValue;
 }
 
 RenderingEngine::RenderingEngine()
