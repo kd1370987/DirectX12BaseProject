@@ -115,10 +115,10 @@ DescriptorHandle CBV_SRV_UAVHeap::RegisterSRV(ID3D12Resource* a_resource)
 	DescriptorHandle _handle;
 	auto _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();		// ディスクリプタヒープの先頭ハンドル取得
 	//_handleCPU.ptr += m_incrementSize * (m_currentCounts.x + _count);				// 最初のアドレスからcount番目が/今回追加されたリソースのハンドル
-	_handleCPU.ptr += m_incrementSize * (_count + 100);				// 最初のアドレスからcount番目が今回追加されたリソースのハンドル
+	_handleCPU.ptr += m_incrementSize * (_count + static_cast<UINT>(m_maxCounts.x));				// 最初のアドレスからcount番目が今回追加されたリソースのハンドル
 	auto _handleGPU = m_cpHeap->GetGPUDescriptorHandleForHeapStart();		// GPU版
 	//_handleGPU.ptr += m_incrementSize * (m_currentCounts.x + _count);				// GPUが知るべき場所
-	_handleGPU.ptr += m_incrementSize * (_count + 100);				// GPUが知るべき場所
+	_handleGPU.ptr += m_incrementSize * (_count + static_cast<UINT>(m_maxCounts.x));				// GPUが知るべき場所
 
 	// ハンドルの登録
 	_handle.handleCPU = _handleCPU;

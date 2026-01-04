@@ -310,6 +310,7 @@ void RenderingEngine::WaitRender()
 		// 待機処理
 		if (WAIT_OBJECT_0 != WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE))
 		{
+			assert(0 && "待機処理エラー");
 			return;
 		}
 	}

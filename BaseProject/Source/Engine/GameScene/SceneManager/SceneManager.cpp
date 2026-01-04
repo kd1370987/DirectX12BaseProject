@@ -12,13 +12,16 @@
 
 bool SceneManager::Init()
 {
-	m_spModel = std::make_shared<ModelResource>();
-	//if (!m_spModel->Load("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX"))
-	if (!m_spModel->Load("Asset/Model/tank/tank.gltf"))
-	//if (!m_spModel->Load("Asset/Model/Robot/woodRobot.gltf"))
+	for (int _i = 0; _i < 20; ++_i)
 	{
-		assert(0 && "FBXモデル読み込みに失敗\n");
-		return false;
+		m_spModel[_i] = std::make_shared<ModelResource>();
+		//if (!m_spModel->Load("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX"))
+		if (!m_spModel[_i]->Load("Asset/Model/tank/tank.gltf"))
+			//if (!m_spModel->Load("Asset/Model/Robot/woodRobot.gltf"))
+		{
+			assert(0 && "FBXモデル読み込みに失敗\n");
+			return false;
+		}
 	}
 
 	m_spModel2 = std::make_shared<ModelResource>();
@@ -65,9 +68,6 @@ void SceneManager::Update()
 {
 	m_rotateY += 0.05f;
 
-	DirectX::XMMATRIX rotY = DirectX::XMMatrixRotationY(m_rotateY);
-	DirectX::XMStoreFloat4x4(&m_charaMat, rotY);
-
 	DirectX::XMMATRIX _rotY2 = DirectX::XMMatrixRotationY(-m_rotateY);
 	DirectX::XMMATRIX _trans2 = DirectX::XMMatrixTranslation(50.0f, -100.0f, 200.0f);
 	_rotY2 = DirectX::XMMatrixMultiply(_rotY2, _trans2);
@@ -81,12 +81,21 @@ void SceneManager::Draw()
 
 	RenderContext::Instance().SetToShader(m_cameraMat);
 
-	RenderContext::Instance().DrawModel(
-		m_spModel,
-		m_charaMat,
-		DirectX::XMFLOAT4{1.0f,0.0f,1.0f,1.0f},
-		DirectX::XMFLOAT3{1.0f,1.0f,1.0f}
-	);
+	for(int _i = 0; _i < 20; ++_i)
+	{
+
+		DirectX::XMMATRIX _rotY = DirectX::XMMatrixRotationY(m_rotateY);
+		DirectX::XMMATRIX _trans = DirectX::XMMatrixTranslation(0.0f, -15.0f, 10.0f + (_i * 5));
+		_rotY = DirectX::XMMatrixMultiply(_rotY, _trans);
+		DirectX::XMStoreFloat4x4(&m_charaMat, _rotY);
+
+		RenderContext::Instance().DrawModel(
+			m_spModel[_i],
+			m_charaMat,
+			DirectX::XMFLOAT4{ 1.0f,0.0f,1.0f,1.0f },
+			DirectX::XMFLOAT3{ 1.0f,1.0f,1.0f }
+		);
+	}
 
 	RenderContext::Instance().DrawModel(
 		m_spModel2,
