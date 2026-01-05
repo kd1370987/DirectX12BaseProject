@@ -60,6 +60,8 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <d3dcompiler.h>
 #include <comdef.h>
 
+#include <SimpleMath.h>			// 数学ライブラリ
+
 #include <DirectXMath.h>		// 数学ライブラリ（ベクトル・行列）
 #include <DirectXColors.h>		// 色定義（Colors::Whiteなど）
 #include <DirectXTex.h>			// テクスチャ読み込み（外部ライブラリ）

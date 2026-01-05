@@ -62,7 +62,8 @@ void RenderContext::Init()
 	{
 		
 		m_spCBAllocater[_i] = std::make_unique<CBAllocater>();
-		m_spCBAllocater[_i]->Init(RenderingEngine::Instance().GetDevice());
+		//m_spCBAllocater[_i]->Init(RenderingEngine::Instance().GetDevice());
+		m_spCBAllocater[_i]->RootCBVCreate(RenderingEngine::Instance().GetDevice(), 32 * 1024 * 1024);
 	}
 }
 
@@ -119,7 +120,8 @@ void RenderContext::SetToShader(
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, _vMat);
 
 	// カメラ用定数バッファに転送
-	m_spCBAllocater[_currentIdx]->BindAndAttachData<CBCamera>(
+	//m_spCBAllocater[_currentIdx]->BindAndAttachData<CBCamera>(
+	m_spCBAllocater[_currentIdx]->BindAndAttachDataRootCBV<CBCamera>(
 		_cmdList,
 		0,
 		m_cb0_camera
@@ -160,7 +162,8 @@ void RenderContext::DrawModel(
 	// ノード抽出
 	auto& _dataNodes = a_modelResource->GetOriginalNodes();
 
-	m_spCBAllocater[_currentIdx]->BindAndAttachData<CBObject>(
+	//m_spCBAllocater[_currentIdx]->BindAndAttachData<CBObject>(
+	m_spCBAllocater[_currentIdx]->BindAndAttachDataRootCBV<CBObject>(
 		_cmdList,
 		1,
 		m_cb1_object
@@ -215,7 +218,8 @@ void RenderContext::DrawMesh(
 	
 	// メッシュ変換行列の転送
 	DirectX::XMStoreFloat4x4(&m_cb2_MeshTrans.worldMat, a_worldMat);
-	m_spCBAllocater[_currentIdx]->BindAndAttachData<CBMeshTrans>(
+	//m_spCBAllocater[_currentIdx]->BindAndAttachData<CBMeshTrans>(
+	m_spCBAllocater[_currentIdx]->BindAndAttachDataRootCBV<CBMeshTrans>(
 		_cmdList,
 		2,
 		m_cb2_MeshTrans
@@ -235,7 +239,8 @@ void RenderContext::DrawMesh(
 		// ベースカラー
 		auto _baseColor = DirectX::XMLoadFloat4(&_material.baseColor);
 		DirectX::XMStoreFloat4(&m_cb3_Material.baseColorXYZW, DirectX::XMVectorMultiply(_baseColor, _colorScale));
-		m_spCBAllocater[_currentIdx]->BindAndAttachData<CBMaterial>(
+//		m_spCBAllocater[_currentIdx]->BindAndAttachData<CBMaterial>(
+		m_spCBAllocater[_currentIdx]->BindAndAttachDataRootCBV<CBMaterial>(
 			_cmdList,
 			3,
 			m_cb3_Material

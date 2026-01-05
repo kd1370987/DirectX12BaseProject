@@ -12,12 +12,10 @@
 
 bool SceneManager::Init()
 {
-	for (int _i = 0; _i < 20; ++_i)
+	for (int _i = 0; _i < 500; ++_i)
 	{
 		m_spModel[_i] = std::make_shared<ModelResource>();
-		//if (!m_spModel->Load("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX"))
 		if (!m_spModel[_i]->Load("Asset/Model/tank/tank.gltf"))
-			//if (!m_spModel->Load("Asset/Model/Robot/woodRobot.gltf"))
 		{
 			assert(0 && "FBXモデル読み込みに失敗\n");
 			return false;
@@ -26,14 +24,12 @@ bool SceneManager::Init()
 
 	m_spModel2 = std::make_shared<ModelResource>();
 	if (!m_spModel2->Load("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX"))
-	//if (!m_spModel2->Load("Asset/Model/Robot/woodRobot.gltf"))
 	{
 		assert(0 && "FBXモデル読み込みに失敗\n");
 		return false;
 	}
 
 	// カメラ座標設定
-	//auto _eyePos = DirectX::XMVectorSet(0.0f, 120.0f, -100.0f, 0.0f);
 	auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, -10.0f, 0.0f);
 	DirectX::XMStoreFloat4x4(
 		&m_cameraMat,
@@ -81,7 +77,7 @@ void SceneManager::Draw()
 
 	RenderContext::Instance().SetToShader(m_cameraMat);
 
-	for(int _i = 0; _i < 20; ++_i)
+	for(int _i = 0; _i < 500; ++_i)
 	{
 
 		DirectX::XMMATRIX _rotY = DirectX::XMMatrixRotationY(m_rotateY);

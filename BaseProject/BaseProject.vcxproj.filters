@@ -417,5 +417,6 @@
     <None Include="Asset\Shader\SimpleShader\SimpleShader.hlsli">
       <Filter>Asset\Shader\SimpleShader</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

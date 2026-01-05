@@ -42,15 +42,15 @@ bool RootSignature::Create(std::vector<RangeType> a_rangeTypeVec)
 			_ranges[_i].BaseShaderRegister = _cbvCount;
 			_ranges[_i].RegisterSpace = 0;
 
-			/*_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 			_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 			_rootParams[_i].Descriptor.ShaderRegister = _cbvCount;
-			_rootParams[_i].Descriptor.RegisterSpace = 0;*/
+			_rootParams[_i].Descriptor.RegisterSpace = 0;
 
-			_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			/*_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 			_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 			_rootParams[_i].DescriptorTable.pDescriptorRanges = &_ranges[_i];
-			_rootParams[_i].DescriptorTable.NumDescriptorRanges = 1;
+			_rootParams[_i].DescriptorTable.NumDescriptorRanges = 1;*/
 			++_cbvCount;
 			break;
 		case RangeType::SRV:		// シェーダーリソースビュー
