@@ -18,7 +18,7 @@ private:
 	
 	float m_rotateY;
 
-	std::shared_ptr<ModelResource> m_spModel[500];
+	std::shared_ptr<ModelResource> m_spModel[5];
 	std::shared_ptr<ModelResource> m_spModel2;
 
 	DirectX::XMFLOAT4X4 m_cameraMat;

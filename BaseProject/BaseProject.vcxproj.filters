@@ -157,6 +157,12 @@
     <Filter Include="Source\Engine\CBAllocater">
       <UniqueIdentifier>{4cb1296a-31d6-4714-b011-876b38a56f8e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Core\Time">
+      <UniqueIdentifier>{102b7fe9-bb8b-4869-84be-d8d95fa56625}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Time\FPSController">
+      <UniqueIdentifier>{72d8140b-c80a-489f-92f7-9b508b661a43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -272,6 +278,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp">
       <Filter>Source\Engine\CBAllocater</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp">
+      <Filter>Source\Core\Time\FPSController</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -403,6 +412,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\CBAllocater\CBAllocater.h">
       <Filter>Source\Engine\CBAllocater</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Time\FPSController\FPSController.h">
+      <Filter>Source\Core\Time\FPSController</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

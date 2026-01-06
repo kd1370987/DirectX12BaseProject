@@ -18,13 +18,13 @@ bool Device::Init()
 }
 
 
-ID3D12Device8* Device::GetDevice()
+ID3D12Device* Device::GetDevice()
 {
-	return m_pDevice.Get();
+	return m_cpDevice.Get();
 }
 IDXGIFactory6* Device::GetDxgiFactory()
 {
-	return m_pDxgFactory.Get();
+	return m_cpDxgFactory.Get();
 }
 
 
@@ -39,7 +39,7 @@ bool Device::CreateDevice()
 	{
 		// デバイスを検索し、見つかれば格納
 		_pAdapters.push_back(nullptr);
-		HRESULT _hr = m_pDxgFactory->EnumAdapters(_i, &_pAdapters[_i]);
+		HRESULT _hr = m_cpDxgFactory->EnumAdapters(_i, &_pAdapters[_i]);
 
 		// デバイスが見つからなければ終了
 		if (_hr == DXGI_ERROR_NOT_FOUND) break;
@@ -113,7 +113,7 @@ bool Device::CreateDevice()
 		_hr = D3D12CreateDevice(
 			_pSelectAdapter.Get(),
 			_level,
-			IID_PPV_ARGS(m_pDevice.ReleaseAndGetAddressOf())
+			IID_PPV_ARGS(m_cpDevice.ReleaseAndGetAddressOf())
 		);
 		if (SUCCEEDED(_hr))
 		{
@@ -126,6 +126,9 @@ bool Device::CreateDevice()
 		assert(0 && "デバイスの生成に失敗");
 		return false;
 	}
+
+	m_cpDevice.As(&m_cpDevice5);
+
 	return true;
 }
 bool Device::CreateDxgiFactory()
@@ -139,7 +142,7 @@ bool Device::CreateDxgiFactory()
 	// DXGIファクトリの生成
 	HRESULT _hr = CreateDXGIFactory2(
 		_flgsDXGI, 
-		IID_PPV_ARGS(m_pDxgFactory.ReleaseAndGetAddressOf())
+		IID_PPV_ARGS(m_cpDxgFactory.ReleaseAndGetAddressOf())
 	);
 	if (FAILED(_hr))
 	{

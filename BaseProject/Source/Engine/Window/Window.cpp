@@ -43,13 +43,14 @@ bool Window::Create(
 
 	// ウィンドウの仕様書作成
 	WNDCLASSEX _wc = {};
-	_wc.cbSize = sizeof(WNDCLASSEX);												// 構造体サイズ
-	_wc.style = CS_HREDRAW | CS_VREDRAW;									// 描画スタイル
-	_wc.lpfnWndProc = (WNDPROC)WndProc;										// ウィンドウ関数
+	_wc.cbSize = sizeof(WNDCLASSEX);									// 構造体サイズ
+	_wc.style = CS_OWNDC;												// 描画スタイル
+	_wc.lpfnWndProc = (WNDPROC)WndProc;									// ウィンドウ関数
 	_wc.hIcon = LoadIcon(m_hInst, IDI_APPLICATION);						// ウィンドウのアイコン（Alt+Tabなど）
 	_wc.hCursor = LoadCursor(m_hInst, IDC_ARROW);						// ウィンドウ内のデフォルトカーソル
-	_wc.hbrBackground = GetSysColorBrush(COLOR_BACKGROUND);	// 初期の背景塗りつぶし色
-	_wc.lpszMenuName = nullptr;														// ウィンドウクラスのメニューリソースID
+	_wc.hInstance = m_hInst;											// インスタンスハンドル
+	_wc.hbrBackground = nullptr;										// 初期の背景塗りつぶし色
+	_wc.lpszMenuName = nullptr;											// ウィンドウクラスのメニューリソースID
 	_wc.lpszClassName = a_windowClassName.c_str();						// ウィンドウのクラス名（ユニーク性必須）
 	_wc.hIconSm = LoadIcon(m_hInst, IDI_APPLICATION);					// タスクバーとかのアイコン
 
@@ -75,8 +76,8 @@ bool Window::Create(
 		a_windowClassName.c_str(),	// ウィンドウのクラス名（登録したのと同じもの）
 		a_titleName.c_str(),		// タイトルバーの名前
 		_style,						// ウィンドウのスタイル
-		CW_USEDEFAULT,				// ウィンドウの X座標（OSに任せる）
-		CW_USEDEFAULT,				// ウィンドウの Y座標（OSに任せる）
+		0,							// ウィンドウの X座標
+		0,							// ウィンドウの Y座標
 		_rect.right - _rect.left,	// 幅
 		_rect.bottom - _rect.top,	// 高さ
 		nullptr,					// 親ウィンドウハンドル（トップレベルのため無し）

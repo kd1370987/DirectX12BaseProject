@@ -27,7 +27,7 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	}
 	// コマンドキュー作成
 	m_upCommandQueue = std::make_unique<CommandQueue>();
-	if (!m_upCommandQueue->Init(
+	if (!m_upCommandQueue->Create(
 			m_upDevice->GetDevice(),
 			D3D12_COMMAND_LIST_TYPE_DIRECT,
 			D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
@@ -41,6 +41,7 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	// スワップチェイン作成
 	m_upSwapChain = std::make_unique<SwapChain>();
 	if (!m_upSwapChain->Create(
+		m_upDevice->GetDxgiFactory(),
 			a_hWnd, 
 			a_windowWidth,
 			a_windowHeight,
@@ -53,7 +54,7 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	}
 	// コマンドアロケーター作成
 	m_upCommandAllocator = std::make_unique<CommandAllocator>();
-	if (!m_upCommandAllocator->Init(
+	if (!m_upCommandAllocator->Create(
 			m_upDevice->GetDevice(),
 			CPU_FRAME_COUNT,
 			D3D12_COMMAND_LIST_TYPE_DIRECT
@@ -65,16 +66,12 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	}
 	// コマンドリスト作成
 	m_upCommandList = std::make_unique<CommandList>();
-	/*if (!m_upCommandList->Create(
-			m_upDevice->GetDevice(), 
-			m_upCommandAllocator->GetCCurrentAllocator(m_upSwapChain->GetCurrentBackBufferIndex()),
-			m_upSwapChain->GetCurrentBackBufferIndex()
-		))*/
 	if (!m_upCommandList->Create(
 		m_upDevice->GetDevice(),
-		m_upCommandAllocator->GetCCurrentAllocator(m_cpuFrameIndex)
+		m_upCommandAllocator->Get(m_cpuFrameIndex)
 	))
 	{
+		assert(0 && "コマンドリスト作成失敗");
 		return false;
 	}
 
@@ -84,8 +81,9 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 		m_fenceValue[_i] = 0;
 	}
 	m_upFence = std::make_unique<Fence>();
-	if (m_upFence->Init(m_upDevice->GetDevice()))
+	if (!m_upFence->Create(m_upDevice->GetDevice()))
 	{
+		assert(0 && "フェンス作成失敗");
 		return false;
 	}
 	m_fenceValue[m_cpuFrameIndex]++;
@@ -93,14 +91,13 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	// 同期を行うときのイベントハンドラを作成する
 	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
+	DescriptorHeapManager::Instance().Init();
+
 	// ビューポートとシザー矩形を生成
 	m_upViewport = std::make_unique<Viewport>();
 	m_upViewport->Create(a_windowWidth, a_windowHeight);
 	m_upScissorRect = std::make_unique<ScissorRectangle>();
 	m_upScissorRect->Create(a_windowWidth, a_windowHeight);
-
-
-	DescriptorHeapManager::Instance().Init();
 
 	if (!CreateRenderTarget())
 	{
@@ -137,7 +134,7 @@ void RenderingEngine::BeginRender()
 
 	// コマンドキューを初期化して命令をためる準備をする
 	m_upCommandAllocator->Reset(m_cpuFrameIndex);
-	m_upCommandList->Reset(m_upCommandAllocator->GetCCurrentAllocator(m_cpuFrameIndex));
+	m_upCommandList->Reset(m_upCommandAllocator->Get(m_cpuFrameIndex));
 
 	// ビューポートとシザー矩形を設定
 	m_upCommandList->SetViewports(1,&m_upViewport->Get());
@@ -188,7 +185,7 @@ void RenderingEngine::EndRender()
 	SignalRenderFence();
 
 	// スワップチェーンを切替
-	m_upSwapChain->Present(1,0);
+	m_upSwapChain->Present(true);
 }
 
 
@@ -198,7 +195,7 @@ void RenderingEngine::EndRender()
 // ゲッター
 // 
 //==================================================================================
-ID3D12Device6* RenderingEngine::GetDevice()
+ID3D12Device* RenderingEngine::GetDevice()
 {
 	// デバイスの取得
 	return m_upDevice->GetDevice();
@@ -219,7 +216,7 @@ UINT RenderingEngine::CurrentCPUFrameIndex()
 	return m_cpuFrameIndex;
 }
 
-IDXGISwapChain3* RenderingEngine::GetSwapChain()
+IDXGISwapChain* RenderingEngine::GetSwapChain()
 {
 	return m_upSwapChain->Get();
 }

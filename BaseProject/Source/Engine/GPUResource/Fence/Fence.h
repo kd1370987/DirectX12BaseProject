@@ -8,28 +8,28 @@ public:
 	~Fence() = default;
 
 	/// <summary>
-	/// フェンスの初期化
+	/// フェンスの生成
 	/// </summary>
-	/// <param name="ID3D12Device8*">GPU/アダプタ</param>
-	/// <returns>初期化成功でtrueを返す</returns>
-	bool Init(
-		ID3D12Device8* a_pDevice
-
+	/// <param name="ID3D12Device*">GPU/アダプタ</param>
+	/// <returns>成功 = true</returns>
+	bool Create(
+		ID3D12Device* a_pDevice
 	);
 
 	ID3D12Fence* GetFence() { return m_pFence.Get(); }
 	UINT64 GetCompletedValue() { return m_pFence->GetCompletedValue(); }
-	bool SetEventOnCompletion(UINT64 a_fenceValue, HANDLE a_fenceEvent);
-private:
 
-	// フェンス作成
-	bool CreateFence(
-		ID3D12Device8* a_pDecice
-	);
+	/// <summary>
+	/// イベント生成
+	/// </summary>
+	/// <param name="a_fenceValue">フェンスの値</param>
+	/// <param name="a_fenceEvent">イベント</param>
+	/// <returns></returns>
+	bool SetEventOnCompletion(UINT64 a_fenceValue, HANDLE a_fenceEvent);
 
 private:
 
 	// フェンス
-	ComPtr<ID3D12Fence> m_pFence = nullptr;
+	ComPtr<ID3D12Fence1> m_pFence = nullptr;
 
 };

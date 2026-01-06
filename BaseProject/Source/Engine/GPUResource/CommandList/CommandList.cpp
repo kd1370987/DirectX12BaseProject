@@ -1,7 +1,7 @@
 ﻿#include "CommandList.h"
 
 bool CommandList::Create(
-	ID3D12Device8* a_pDevice,
+	ID3D12Device* a_pDevice,
 	ID3D12CommandAllocator* a_pCommandAllocator,
 	D3D12_COMMAND_LIST_TYPE a_commandListType
 )
@@ -28,15 +28,23 @@ bool CommandList::Create(
 
 void CommandList::Reset(ID3D12CommandAllocator* a_pCommandAllocator)
 {
-	m_cpCommandList->Reset(a_pCommandAllocator,nullptr);
+	HRESULT _hr = m_cpCommandList->Reset(a_pCommandAllocator,nullptr);
+	if (FAILED(_hr))
+	{
+		assert(0 && "コマンドリストリセット失敗");
+	}
 }
 
 void CommandList::ResourceBarrier(ID3D12Resource* a_pResource, D3D12_RESOURCE_STATES a_before, D3D12_RESOURCE_STATES a_after)
 {
 	D3D12_RESOURCE_BARRIER _barrier = {};
+	_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	_barrier.Transition.pResource = a_pResource;
 	_barrier.Transition.StateAfter = a_after;
 	_barrier.Transition.StateBefore = a_before;
+	_barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
 	m_cpCommandList->ResourceBarrier(1, &_barrier);
 }
 

@@ -33,11 +33,11 @@ public:
 
 public:
 	// ゲッター
-	ID3D12Device6* GetDevice();									// デバイス
+	ID3D12Device* GetDevice();									// デバイス
 	ID3D12GraphicsCommandList* GetCommandList();	// コマンドリスト
 	UINT CurrentBackBufferIndex();									// 現在のフレーム番号
 	UINT CurrentCPUFrameIndex();
-	IDXGISwapChain3* GetSwapChain(); 
+	IDXGISwapChain* GetSwapChain(); 
 	ID3D12Resource* GetCurrentRenderTarget();
 
 private:

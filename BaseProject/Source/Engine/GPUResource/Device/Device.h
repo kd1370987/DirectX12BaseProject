@@ -11,7 +11,7 @@ public:
 	bool Init();
 
 	// ゲッター
-	ID3D12Device8* GetDevice();			// デバイス取得
+	ID3D12Device* GetDevice();			// デバイス取得
 	IDXGIFactory6* GetDxgiFactory();	// DXGIファクトリ取得
 
 
@@ -33,7 +33,8 @@ private:
 		Kind,
 	};
 
-	ComPtr<ID3D12Device8> m_pDevice = nullptr;		// GPUデバイス
-	ComPtr<IDXGIFactory6> m_pDxgFactory = nullptr;	// DXGIファクトリ
+	ComPtr<ID3D12Device> m_cpDevice = nullptr;		// GPUデバイス
+	ComPtr<ID3D12Device5> m_cpDevice5 = nullptr;		// GPUデバイス
+	ComPtr<IDXGIFactory6> m_cpDxgFactory = nullptr;	// DXGIファクトリ
 
 };

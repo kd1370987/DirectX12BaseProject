@@ -12,7 +12,7 @@
 
 bool SceneManager::Init()
 {
-	for (int _i = 0; _i < 500; ++_i)
+	for (int _i = 0; _i < 5; ++_i)
 	{
 		m_spModel[_i] = std::make_shared<ModelResource>();
 		if (!m_spModel[_i]->Load("Asset/Model/tank/tank.gltf"))
@@ -77,7 +77,7 @@ void SceneManager::Draw()
 
 	RenderContext::Instance().SetToShader(m_cameraMat);
 
-	for(int _i = 0; _i < 500; ++_i)
+	for(int _i = 0; _i < 5; ++_i)
 	{
 
 		DirectX::XMMATRIX _rotY = DirectX::XMMatrixRotationY(m_rotateY);

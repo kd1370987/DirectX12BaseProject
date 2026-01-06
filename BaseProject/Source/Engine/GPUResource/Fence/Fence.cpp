@@ -1,13 +1,18 @@
 ﻿#include "Fence.h"
 
-bool Fence::Init(
-	ID3D12Device8* a_pDevice
-)
+bool Fence::Create(ID3D12Device* a_pDevice)
 {
-	if (!CreateFence(a_pDevice))
+	HRESULT _hr = a_pDevice->CreateFence(
+		0,
+		D3D12_FENCE_FLAG_NONE,
+		IID_PPV_ARGS(m_pFence.ReleaseAndGetAddressOf())
+	);
+	if (FAILED(_hr))
 	{
+		assert(0 && "フェンスの作成に失敗");
 		return false;
 	}
+
 	return true;
 }
 
@@ -19,20 +24,4 @@ bool Fence::SetEventOnCompletion(UINT64 a_fenceValue, HANDLE a_fenceEvent)
 		return false;
 	}
 	return true;
-}
-
-bool Fence::CreateFence(
-	ID3D12Device8* a_pDecice
-)
-{
-	HRESULT _hr = a_pDecice->CreateFence(
-		0,
-		D3D12_FENCE_FLAG_NONE,
-		IID_PPV_ARGS(m_pFence.ReleaseAndGetAddressOf())
-	);
-	if (FAILED(_hr))
-	{
-		assert(0 && "フェンスの作成に失敗");
-		return false;
-	}
 }

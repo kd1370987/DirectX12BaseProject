@@ -8,6 +8,8 @@
 
 #include "Engine/GPUResource/Model/Model.h"
 
+#include "Core/Time/FPSController/FPSController.h"
+
 //==================================================================================
 // 
 // 初回呼び出し
@@ -40,6 +42,10 @@ bool Application::Init()
 		return false;
 	}
 
+	// FPSコントローラー作成
+	m_upFPSController = std::make_unique<FPSController>();
+	m_upFPSController->SetMaxFPS(200);
+	
 	// 描画エンジンの初期化
 	if (!RenderingEngine::Instance().Init(m_window.GetWindowHandle(), WINDOW_WIDTH, WINDOW_HEIGHT))
 	{
@@ -67,11 +73,18 @@ void Application::MainLoop()
 {
 	while (true)
 	{
+		// フレーム開始
+		m_upFPSController->BeginFrame();
+
 		// メッセージ処理
 		if (!m_window.ProcessMessage())
 		{
 			break;
 		}
+
+		// タイトル文字列変更
+		std::string _str = "FPS = " + std::to_string(m_upFPSController->GetNowFPS());
+		SetWindowTextA(m_window.GetWindowHandle(),_str.c_str());
 
 		// 更新
 		SceneManager::Instance().Update();
@@ -83,5 +96,16 @@ void Application::MainLoop()
 			SceneManager::Instance().Draw();				// 描画
 		}
 		RenderingEngine::Instance().EndRender();			// 描画終了
+
+		// フレーム終了
+		m_upFPSController->EndFrame();
 	}
+}
+
+Application::Application()
+{
+}
+
+Application::~Application()
+{
 }

@@ -16,7 +16,7 @@ public:
 	/// <param name="a_commandListType">コマンドリストタイプ</param>
 	/// <returns>成功 = true</returns>
 	bool Create(
-		ID3D12Device8* a_pDevice,
+		ID3D12Device* a_pDevice,
 		ID3D12CommandAllocator* a_pCommandAllocator,
 		D3D12_COMMAND_LIST_TYPE a_commandListType = D3D12_COMMAND_LIST_TYPE_DIRECT
 	);
@@ -120,5 +120,5 @@ public:
 
 private:
 
-	ComPtr<ID3D12GraphicsCommandList> m_cpCommandList = nullptr;	// コマンドリスト
+	ComPtr<ID3D12GraphicsCommandList4> m_cpCommandList = nullptr;	// コマンドリスト
 };

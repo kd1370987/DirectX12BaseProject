@@ -8,30 +8,28 @@ public:
 	CommandAllocator() = default;
 	~CommandAllocator() = default;
 
-	// コマンドアロケーターの初期化
-	bool Init(
-		ID3D12Device8* a_pDevice,
+	/// <summary>
+	/// コマンドアロケーターの生成
+	/// </summary>
+	/// <param name="a_pDevice">デバイスのポインタ</param>
+	/// <param name="a_frameBufferCount">生成数</param>
+	/// <param name="a_commandListType">コマンドリストのタイプ</param>
+	/// <returns>成功 = true</returns>
+	bool Create(
+		ID3D12Device* a_pDevice,
 		UINT a_frameBufferCount,
 		D3D12_COMMAND_LIST_TYPE a_commandListType
 	);
+
 
 	// リセット
 	void Reset(UINT a_frameIdx);
 
 	// コマンドアロケーターの取得
-	ID3D12CommandAllocator* GetCCurrentAllocator(UINT a_frameIdx) 
+	ID3D12CommandAllocator* Get(UINT a_frameIdx) 
 	{
 		return m_pCommandAllocatorVec[a_frameIdx].Get(); 
 	}
-
-private:
-
-	// コマンドアロケーターの生成
-	bool CreateCommandAllocator(
-		ID3D12Device8* a_pDevice,
-		UINT a_frameBufferCount,
-		D3D12_COMMAND_LIST_TYPE a_commandListType
-	);
 
 private:
 
