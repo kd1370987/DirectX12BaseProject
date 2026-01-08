@@ -165,12 +165,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\App.cpp" />
-    <ClCompile Include="Source\Application\Scene\BaseScene.cpp" />
+    <ClCompile Include="Source\Application\Scene\BaseScene\BaseScene.cpp" />
+    <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp" />
+    <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp" />
     <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp" />
-    <ClCompile Include="Source\Engine\GameScene\SceneManager\SceneManager.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.cpp" />
+    <ClCompile Include="Source\Engine\GPUResource\Buffer\RenderTarget\RenderTarget.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Buffer\VertexBuffer\VertexBuffer.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\CommandList\CommandList.cpp" />
@@ -211,7 +213,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\App.h" />
-    <ClInclude Include="Source\Application\Scene\BaseScene.h" />
+    <ClInclude Include="Source\Application\AppInc.h" />
+    <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />
+    <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h" />
+    <ClInclude Include="Source\Application\Scene\SceneManager.h" />
+    <ClInclude Include="Source\Application\Scene\SceneType.h" />
     <ClInclude Include="Source\Core\Core.h" />
     <ClInclude Include="Source\Core\Math\Alignment.h" />
     <ClInclude Include="Source\Core\Storage\Storage.h" />
@@ -219,9 +225,9 @@
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
     <ClInclude Include="Source\Core\Utility\StringUtillity.h" />
     <ClInclude Include="Source\Engine\CBAllocater\CBAllocater.h" />
-    <ClInclude Include="Source\Engine\GameScene\SceneManager\SceneManager.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.h" />
+    <ClInclude Include="Source\Engine\GPUResource\Buffer\RenderTarget\RenderTarget.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\VertexBuffer\VertexBuffer.h" />
     <ClInclude Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.h" />
     <ClInclude Include="Source\Engine\GPUResource\CommandList\CommandList.h" />

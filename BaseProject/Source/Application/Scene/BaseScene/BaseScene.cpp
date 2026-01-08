@@ -1,8 +1,12 @@
 ﻿#include "BaseScene.h"
 
-bool BaseScene::Init()
+void BaseScene::Enter()
 {
-	return false;
+	SetSceneType();
+}
+
+void BaseScene::Exit()
+{
 }
 
 void BaseScene::Update()

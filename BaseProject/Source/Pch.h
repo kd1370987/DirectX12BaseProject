@@ -73,6 +73,7 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 //
 //===============================================
 
+#include "Application/AppInc.h"
 #include "Core/Core.h"
 
 #include "Engine/GPUResource/Buffer/ConstantBuffer/ConstantBuffer.h"

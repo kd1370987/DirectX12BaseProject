@@ -34,14 +34,8 @@
     <Filter Include="Source\Engine\Graphics\RenderingEngin">
       <UniqueIdentifier>{db33fc25-52b5-41b1-95be-ea75d90d4931}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\GameScene">
-      <UniqueIdentifier>{492b4108-1d07-4173-a2bb-bcbc5da95818}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\GPUResource">
       <UniqueIdentifier>{ce5792c0-6c3b-4a5c-a560-38002b9fb96c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GameScene\SceneManager">
-      <UniqueIdentifier>{b89bae85-7c4f-459d-9c89-9114bd460d19}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\GPUResource\Buffer">
       <UniqueIdentifier>{6a14dd88-9ebe-42e0-baa0-3d4596d6905f}</UniqueIdentifier>
@@ -163,13 +157,22 @@
     <Filter Include="Source\Core\Time\FPSController">
       <UniqueIdentifier>{72d8140b-c80a-489f-92f7-9b508b661a43}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\GPUResource\Buffer\RenderTarget">
+      <UniqueIdentifier>{23394c16-3f01-46a4-988c-bfc79e9be0e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GPUResource\Buffer\DepthStencilBuffer">
+      <UniqueIdentifier>{d88b4281-9f3f-4233-8f73-926ad03b4eac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Scene\BaseScene">
+      <UniqueIdentifier>{5554be73-f5da-4fc4-be59-54da30fffdcf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Scene\GameScene">
+      <UniqueIdentifier>{d6e1e312-6f87-4c3f-93e0-b4e49cd079e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
       <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Scene\BaseScene.cpp">
-      <Filter>Source\Application\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\App.cpp">
       <Filter>Source\Application</Filter>
@@ -188,9 +191,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GPUResource\Buffer\VertexBuffer\VertexBuffer.cpp">
       <Filter>Source\Engine\GPUResource\Buffer\VertexBuffer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GameScene\SceneManager\SceneManager.cpp">
-      <Filter>Source\Engine\GameScene\SceneManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GPUResource\PipeLineState\PipelineState.cpp">
       <Filter>Source\Engine\GPUResource\PipelineState</Filter>
@@ -282,13 +282,22 @@
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp">
       <Filter>Source\Core\Time\FPSController</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\GPUResource\Buffer\RenderTarget\RenderTarget.cpp">
+      <Filter>Source\Engine\GPUResource\Buffer\RenderTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Scene\SceneManager.cpp">
+      <Filter>Source\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Scene\BaseScene\BaseScene.cpp">
+      <Filter>Source\Application\Scene\BaseScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp">
+      <Filter>Source\Application\Scene\GameScene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
       <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Scene\BaseScene.h">
-      <Filter>Source\Application\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Utility\FileUtility.h">
       <Filter>Source\Core\Utility</Filter>
@@ -316,9 +325,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GPUResource\Buffer\VertexBuffer\VertexBuffer.h">
       <Filter>Source\Engine\GPUResource\Buffer\VertexBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GameScene\SceneManager\SceneManager.h">
-      <Filter>Source\Engine\GameScene\SceneManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GPUResource\PipeLineState\PipelineState.h">
       <Filter>Source\Engine\GPUResource\PipelineState</Filter>
@@ -415,6 +421,24 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Time\FPSController\FPSController.h">
       <Filter>Source\Core\Time\FPSController</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GPUResource\Buffer\RenderTarget\RenderTarget.h">
+      <Filter>Source\Engine\GPUResource\Buffer\RenderTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\SceneManager.h">
+      <Filter>Source\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h">
+      <Filter>Source\Application\Scene\BaseScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h">
+      <Filter>Source\Application\Scene\GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Scene\SceneType.h">
+      <Filter>Source\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\AppInc.h">
+      <Filter>Source\Application</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

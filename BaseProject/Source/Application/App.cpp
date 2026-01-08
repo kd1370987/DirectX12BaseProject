@@ -4,7 +4,7 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "Engine/GameScene/SceneManager/SceneManager.h"
+#include "Scene/SceneManager.h"
 
 #include "Engine/GPUResource/Model/Model.h"
 

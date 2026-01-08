@@ -1,6 +1,7 @@
 ﻿#include "ResourceManager.h"
 
 #include "Engine/GPUResource/Texture/Texture.h"
+#include "Engine/GPUResource/Model/Model.h"
 
 void ResourceManager::Init()
 {
@@ -47,4 +48,31 @@ std::weak_ptr<Texture> ResourceManager::GetTexture(const std::string& a_key)
 	// ストレージに登録
 	m_textureStorage.Add(a_key, _spTexture);
 	return _spTexture;
+}
+
+std::weak_ptr<ModelResource> ResourceManager::GetModel(const std::string& a_key)
+{
+	if (a_key.empty())
+	{
+		assert(0 && "ファイルパス未入力");
+		return std::weak_ptr<ModelResource>{};
+	}
+
+	// モデルが読み込まれてるか確認
+	auto _spModel = m_modelStorage.Get(a_key);
+	if (!_spModel)
+	{
+		// モデルが読み込まれてなかったら読み込み開始
+		_spModel = std::make_shared<ModelResource>();
+		if (!_spModel->Load(a_key))
+		{
+			assert(0 && "モデル読み込みに失敗");
+			return std::weak_ptr<ModelResource>{};
+		}
+
+		// ストレージに追加
+		m_modelStorage.Add(a_key, _spModel);
+	}
+
+	return _spModel;
 }

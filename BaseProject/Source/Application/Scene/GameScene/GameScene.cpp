@@ -1,4 +1,4 @@
-﻿#include "SceneManager.h"
+﻿#include "GameScene.h"
 
 #include "Application/App.h"
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
@@ -10,24 +10,17 @@
 #include "Engine/GPUResource/Model/Model.h"
 
 
-bool SceneManager::Init()
+void GameScene::Enter()
 {
+	BaseScene::Enter();
+
+	// ECS移行時には特定のクラスがモデルを持つことすらなくなるから、ウィークポインタ関連の挙動は後回し
 	for (int _i = 0; _i < 5; ++_i)
 	{
-		m_spModel[_i] = std::make_shared<ModelResource>();
-		if (!m_spModel[_i]->Load("Asset/Model/tank/tank.gltf"))
-		{
-			assert(0 && "FBXモデル読み込みに失敗\n");
-			return false;
-		}
+		m_wpModel[_i] = ResourceManager::Instance().GetModel("Asset/Model/tank/tank.gltf");
 	}
 
-	m_spModel2 = std::make_shared<ModelResource>();
-	if (!m_spModel2->Load("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX"))
-	{
-		assert(0 && "FBXモデル読み込みに失敗\n");
-		return false;
-	}
+	m_wpModel2 = ResourceManager::Instance().GetModel("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX");
 
 	// カメラ座標設定
 	auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, -10.0f, 0.0f);
@@ -51,16 +44,14 @@ bool SceneManager::Init()
 		0.0f,0.0f,1.0f,0.0f,
 		5.0f,-100.0f, 200.0f,1.0f
 	};
-
-	return true;
 }
 
-bool SceneManager::Release()
+void GameScene::Exit()
 {
-	return true;
+	BaseScene::Exit();
 }
 
-void SceneManager::Update()
+void GameScene::Update()
 {
 	m_rotateY += 0.05f;
 
@@ -68,25 +59,33 @@ void SceneManager::Update()
 	DirectX::XMMATRIX _trans2 = DirectX::XMMatrixTranslation(50.0f, -100.0f, 200.0f);
 	_rotY2 = DirectX::XMMatrixMultiply(_rotY2, _trans2);
 	DirectX::XMStoreFloat4x4(&m_charaMat2, _rotY2);
+
+	if (GetAsyncKeyState('A'))
+	{
+		m_moveX -= 0.1f;
+	}
+	if (GetAsyncKeyState('D'))
+	{
+		m_moveX += 0.1f;
+	}
 }
 
-void SceneManager::Draw()
+void GameScene::Draw()
 {
-	
 	RenderContext::Instance().BeginSimpleRender();
 
 	RenderContext::Instance().SetToShader(m_cameraMat);
 
-	for(int _i = 0; _i < 5; ++_i)
+	for (int _i = 0; _i < 5; ++_i)
 	{
 
 		DirectX::XMMATRIX _rotY = DirectX::XMMatrixRotationY(m_rotateY);
-		DirectX::XMMATRIX _trans = DirectX::XMMatrixTranslation(0.0f, -15.0f, 10.0f + (_i * 5));
+		DirectX::XMMATRIX _trans = DirectX::XMMatrixTranslation(0.0f + m_moveX, -15.0f, 10.0f + (_i * 5));
 		_rotY = DirectX::XMMatrixMultiply(_rotY, _trans);
 		DirectX::XMStoreFloat4x4(&m_charaMat, _rotY);
 
 		RenderContext::Instance().DrawModel(
-			m_spModel[_i],
+			m_wpModel[_i].lock(),
 			m_charaMat,
 			DirectX::XMFLOAT4{ 1.0f,0.0f,1.0f,1.0f },
 			DirectX::XMFLOAT3{ 1.0f,1.0f,1.0f }
@@ -94,9 +93,10 @@ void SceneManager::Draw()
 	}
 
 	RenderContext::Instance().DrawModel(
-		m_spModel2,
+		m_wpModel2.lock(),
 		m_charaMat2,
 		DirectX::XMFLOAT4{ 0.0f,1.0f,1.0f,1.0f },
 		DirectX::XMFLOAT3{ 1.0f,1.0f,1.0f }
 	);
+
 }

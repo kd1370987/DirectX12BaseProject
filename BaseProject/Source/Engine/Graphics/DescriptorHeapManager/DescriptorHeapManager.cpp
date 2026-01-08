@@ -46,12 +46,6 @@ void DescriptorHeapManager::Init()
 }
 
 
-//DescriptorHandle DescriptorHeapManager::RegisterCBV(
-//	ID3D12Resource* a_resource, size_t a_size, D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
-//)
-//{
-//	return m_spCBV_SRV_UAVHeap->RegisterCBV(a_resource, a_size, a_cbvDesc);
-//}
 UINT DescriptorHeapManager::RegisterCBV(
 	ID3D12Resource* a_resource, size_t a_size, D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
 )
