@@ -121,3 +121,8 @@ bool Window::ProcessMessage()
 
 	return true;
 }
+
+void Window::ChangeTitle(const std::string& a_title)
+{
+	SetWindowTextA(m_hWnd, a_title.c_str());
+}

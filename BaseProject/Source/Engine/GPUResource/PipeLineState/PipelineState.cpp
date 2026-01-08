@@ -49,6 +49,11 @@ void PipelineState::SetVS(std::wstring a_filePath)
 	m_desc.VS = CD3DX12_SHADER_BYTECODE(m_pVSBlob.Get());
 }
 
+void PipelineState::SetVS(D3D12_SHADER_BYTECODE a_byteCode)
+{
+	m_desc.VS = a_byteCode;
+}
+
 void PipelineState::SetPS(std::wstring a_filePath)
 {
 	// ピクセルシェーダー読み込み
@@ -60,6 +65,11 @@ void PipelineState::SetPS(std::wstring a_filePath)
 	}
 
 	m_desc.PS = CD3DX12_SHADER_BYTECODE(m_pPSBlob.Get());
+}
+
+void PipelineState::SetPS(D3D12_SHADER_BYTECODE a_byteCode)
+{
+	m_desc.PS = a_byteCode;
 }
 
 void PipelineState::Create()

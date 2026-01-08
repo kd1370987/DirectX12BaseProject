@@ -1,7 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/Window/Window.h"
-
+class Window;
 class FPSController;
 
 constexpr UINT WINDOW_WIDTH = 1280;
@@ -25,11 +24,13 @@ private:
 
 	// メインループ
 	void MainLoop();
+
 private:
 
-	Window m_window;
+	std::unique_ptr<Window>			m_upWindow			= nullptr;
+	std::unique_ptr<FPSController>	m_upFPSController	= nullptr;
 
-	std::unique_ptr<FPSController> m_upFPSController = nullptr;
+	bool m_isVsync = false;
 
 // シングルトン
 private:

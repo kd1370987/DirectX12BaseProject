@@ -198,9 +198,11 @@
     <ClCompile Include="Source\Engine\GPUResource\Texture\Texture2D\Texture2D.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Viewport\Viewport.cpp" />
     <ClCompile Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\PSOManager\PSOManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Window\Window.cpp" />
     <ClCompile Include="Source\main.cpp" />
@@ -254,9 +256,11 @@
     <ClInclude Include="Source\Engine\GPUResource\Texture\Texture2D\Texture2D.h" />
     <ClInclude Include="Source\Engine\GPUResource\Viewport\Viewport.h" />
     <ClInclude Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.h" />
-    <ClInclude Include="Source\Engine\Graphics\PSOManager\PSOManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.h" />
+    <ClInclude Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Source\Engine\ResourceManager\ResourceManager.h" />
     <ClInclude Include="Source\Engine\Window\Window.h" />
     <ClInclude Include="Source\Pch.h" />

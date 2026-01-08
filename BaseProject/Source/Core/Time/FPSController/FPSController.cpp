@@ -11,15 +11,20 @@ void FPSController::BeginFrame()
 	m_frameStart = std::chrono::steady_clock::now();
 }
 
-void FPSController::EndFrame()
+void FPSController::EndFrame(bool a_isVsync)
 {
-	//auto _elapsed = std::chrono::steady_clock::now() - m_frameStart;
+	// 垂直同期がない場合のみFPSを制御する
+	if (!a_isVsync)
+	{
+		auto _elapsed = std::chrono::steady_clock::now() - m_frameStart;
 
-	//if (_elapsed < m_target)
-	//{
-	//	std::this_thread::sleep_for(m_target - _elapsed);
-	//}
+		if (_elapsed < m_target)
+		{
+			std::this_thread::sleep_for(m_target - _elapsed);
+		}
+	}
 
+	// 現在のFPSを測定
 	FPSMonitor();
 }
 

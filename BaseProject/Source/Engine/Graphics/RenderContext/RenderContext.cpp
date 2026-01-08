@@ -2,7 +2,6 @@
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "Engine/Graphics/PSOManager/PSOManager.h"
 #include "Engine/GPUResource/Texture/Texture.h"
 
 #include "Engine/GPUResource/Model/Model.h"
@@ -19,6 +18,9 @@
 #include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/GPUResource/Buffer/ConstantBuffer/ConstantBuffer.h"
 
+#include "Engine/Graphics/ShaderManager/ShaderManager.h"
+#include "Engine/Graphics/RootSignatureManager/RootSignatureManager.h"
+#include "Engine/Graphics/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 
 #include "Engine/CBAllocater/CBAllocater.h"
 //============================================================================================
@@ -28,42 +30,59 @@
 //============================================================================================
 void RenderContext::Init()
 {
-	// カメラ用意
+	// シェーダー用意
+	m_spShaderManger = std::make_shared<ShaderManager>();
+	ShaderID _vsID = m_spShaderManger->Register("x64/Debug/SimpleVS.cso", ShaderStage::Vertex);
+	ShaderID _psID = m_spShaderManger->Register("x64/Debug/SimplePS.cso", ShaderStage::Pixel);
+
+	// ルートシグネチャ用意
+	m_spRootSigManager = std::make_shared<RootSignatureManager>();
+	m_spRootSigManager->Init();
+	
+
+	// パイプラインステート用意
+	m_spGraphicsPSOManager = std::make_shared<GraphicsPSOManager>();
+	m_spGraphicsPSOManager->Init(m_spShaderManger,m_spRootSigManager);
+
+	PSOSetting _psoSetting = {};
+	_psoSetting.rootsignatureID = 0;
+	_psoSetting.vsStage = _vsID;
+	_psoSetting.psStage = _psID;
+
+	m_spGraphicsPSOManager->Register(_psoSetting);
+
+	// cb0
 	auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f);	// 視点の位置
 	auto _targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);	// 視点を向ける座標
 	auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向を表すベクトル
-	auto _fov = DirectX::XMConvertToRadians(60.0f);						// 視野角
+	constexpr float _fovF = 60.0f;
+	constexpr auto _fov = DirectX::XMConvertToRadians(_fovF);						// 視野角
 
 	auto _aspect = static_cast<float>(1280) / static_cast<float>(720);		// アスペクト比
+	DirectX::XMStoreFloat4(&m_cb0_camera.cameraPosXYZ, _eyePos);
+	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
+	DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
+	// cb1
+	m_cb1_object.uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
+	// cb2
+	m_cb2_MeshTrans.worldMat = {
+		1.0f,0.0f,0.0f,0.0f,
+		0.0f,1.0f,0.0f,0.0f,
+		0.0f,0.0f,1.0f,0.0f,
+		0.0f,0.0f,0.0f,1.0f
+	};
+	/// cb3
+	m_cb3_Material.baseColorXYZW = { 1.0f,1.0f,1.0f,1.0f };
+	m_cb3_Material.emissiveXYZ = { 1.0f,1.0f,1.0f,0.0f };
+	m_cb3_Material.metallicRoughnessXY = { 0.0f,1.0f,0.0f,0.0f };
 
-	{
-		// cb0
-		DirectX::XMStoreFloat4(&m_cb0_camera.cameraPosXYZ, _eyePos);
-		DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
-		DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
-		// cb1
-		m_cb1_object.uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
-		// cb2
-		m_cb2_MeshTrans.worldMat = {
-			1.0f,0.0f,0.0f,0.0f,
-			0.0f,1.0f,0.0f,0.0f,
-			0.0f,0.0f,1.0f,0.0f,
-			0.0f,0.0f,0.0f,1.0f
-		};
-		/// cb3
-		m_cb3_Material.baseColorXYZW = { 1.0f,1.0f,1.0f,1.0f };
-		m_cb3_Material.emissiveXYZ = { 1.0f,1.0f,1.0f,0.0f };
-		m_cb3_Material.metallicRoughnessXY = { 0.0f,1.0f,0.0f,0.0f };
-	}
-
-	PSOManager::Instance().Init();
-
+	// フレームリソース
 	for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
 	{
-		
-		m_spCBAllocater[_i] = std::make_unique<CBAllocater>();
-		//m_spCBAllocater[_i]->Init(RenderingEngine::Instance().GetDevice());
-		m_spCBAllocater[_i]->RootCBVCreate(RenderingEngine::Instance().GetDevice(), 32 * 1024 * 1024);
+		m_frameResource[_i].upCamAndObjectCBAllocater = std::make_unique<CBAllocater>();
+		m_frameResource[_i].upCamAndObjectCBAllocater->RootCBVCreate(
+			RenderingEngine::Instance().GetDevice(), 32 * 1024 * 1024
+		);
 	}
 }
 
@@ -76,7 +95,8 @@ void RenderContext::BeginSimpleRender()
 {
 	// ルートシグネチャ・パイプラインステート・定数バッファをセット
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-	PSOManager::Instance().SetPipelienStaet("SimplePipeline");
+	_cmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(0));
+	_cmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(0));
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// プリミティブトポロジー
 	
 }
@@ -98,7 +118,7 @@ void RenderContext::SetToShader(
 	UINT _currentIdx = RenderingEngine::Instance().CurrentCPUFrameIndex();
 
 	// 定数バッファの初期化
-	m_spCBAllocater[_currentIdx]->ResetUse();
+	m_frameResource[_currentIdx].upCamAndObjectCBAllocater->ResetUse();
 
 	// ディスクリプタヒープをセット
 	ID3D12DescriptorHeap* _heaps[] = {
@@ -120,8 +140,8 @@ void RenderContext::SetToShader(
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, _vMat);
 
 	// カメラ用定数バッファに転送
-	//m_spCBAllocater[_currentIdx]->BindAndAttachData<CBCamera>(
-	m_spCBAllocater[_currentIdx]->BindAndAttachDataRootCBV<CBCamera>(
+	//m_spCBAllocater[_currentIdx]->BindAndAttachDataRootCBV<CBCamera>(
+	m_frameResource[_currentIdx].upCamAndObjectCBAllocater->BindAndAttachDataRootCBV<CBCamera>(
 		_cmdList,
 		0,
 		m_cb0_camera
@@ -162,8 +182,7 @@ void RenderContext::DrawModel(
 	// ノード抽出
 	auto& _dataNodes = a_modelResource->GetOriginalNodes();
 
-	//m_spCBAllocater[_currentIdx]->BindAndAttachData<CBObject>(
-	m_spCBAllocater[_currentIdx]->BindAndAttachDataRootCBV<CBObject>(
+	m_frameResource[_currentIdx].upCamAndObjectCBAllocater->BindAndAttachDataRootCBV<CBObject>(
 		_cmdList,
 		1,
 		m_cb1_object
@@ -218,8 +237,7 @@ void RenderContext::DrawMesh(
 	
 	// メッシュ変換行列の転送
 	DirectX::XMStoreFloat4x4(&m_cb2_MeshTrans.worldMat, a_worldMat);
-	//m_spCBAllocater[_currentIdx]->BindAndAttachData<CBMeshTrans>(
-	m_spCBAllocater[_currentIdx]->BindAndAttachDataRootCBV<CBMeshTrans>(
+	m_frameResource[_currentIdx].upCamAndObjectCBAllocater->BindAndAttachDataRootCBV<CBMeshTrans>(
 		_cmdList,
 		2,
 		m_cb2_MeshTrans
@@ -239,8 +257,9 @@ void RenderContext::DrawMesh(
 		// ベースカラー
 		auto _baseColor = DirectX::XMLoadFloat4(&_material.baseColor);
 		DirectX::XMStoreFloat4(&m_cb3_Material.baseColorXYZW, DirectX::XMVectorMultiply(_baseColor, _colorScale));
-//		m_spCBAllocater[_currentIdx]->BindAndAttachData<CBMaterial>(
-		m_spCBAllocater[_currentIdx]->BindAndAttachDataRootCBV<CBMaterial>(
+
+
+		m_frameResource[_currentIdx].upCamAndObjectCBAllocater->BindAndAttachDataRootCBV<CBMaterial>(
 			_cmdList,
 			3,
 			m_cb3_Material

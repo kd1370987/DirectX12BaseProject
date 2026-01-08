@@ -166,7 +166,7 @@ void RenderingEngine::BeginRender()
 	m_upCommandList->ClearRenderTargetView(_currentRtvHandle);		// レンダーターゲット
 	m_upCommandList->ClearDepthStencilView(_currentDsvHandle);		// 深度ステンシル
 }
-void RenderingEngine::EndRender()
+void RenderingEngine::EndRender(bool a_isVsync)
 {
 	// レンダーターゲットに書き込みが終わるまで待つ
 	m_upCommandList->ResourceBarrier(
@@ -185,7 +185,7 @@ void RenderingEngine::EndRender()
 	SignalRenderFence();
 
 	// スワップチェーンを切替
-	m_upSwapChain->Present(true);
+	m_upSwapChain->Present(a_isVsync);
 }
 
 

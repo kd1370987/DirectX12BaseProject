@@ -29,7 +29,7 @@ public:
 
 	// 描画開始・描画終了
 	void BeginRender();
-	void EndRender();
+	void EndRender(bool a_isVsync = true);
 
 public:
 	// ゲッター

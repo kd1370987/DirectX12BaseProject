@@ -12,6 +12,10 @@ class ConstantBuffer;
 
 class CBAllocater;
 
+class ShaderManager;
+class RootSignatureManager;
+class GraphicsPSOManager;
+
 class RenderContext
 {
 public:
@@ -46,6 +50,13 @@ public:
 		DirectX::XMFLOAT4 baseColorXYZW			= { 1.0f,1.0f,1.0f,1.0f };
 		DirectX::XMFLOAT4 emissiveXYZ			= { 0.0f,0.0f,0.0f,0.0f };
 		DirectX::XMFLOAT4 metallicRoughnessXY	= { 0.0f,0.0f,0.0f,0.0f };
+	};
+
+	// フレームで消費するリソース
+	struct FrameResource
+	{
+		// カメラとオブジェクトの定数バッファアロケーター
+		std::unique_ptr<CBAllocater> upCamAndObjectCBAllocater = nullptr;
 	};
 
 
@@ -125,16 +136,21 @@ public:
 
 private:
 
-	// カメラ用定数バッファ
+	// カメラ用定数バッファデータ
 	CBCamera m_cb0_camera = {};
 	
-	// オブジェクト用定数バッファ
+	// オブジェクト用定数バッファデータ
 	CBObject m_cb1_object = {};
 	CBMeshTrans m_cb2_MeshTrans = {};
 	CBMaterial m_cb3_Material = {};
 
-	// 定数バッファアロケーター
-	std::unique_ptr<CBAllocater> m_spCBAllocater[CPU_FRAME_COUNT];
+	// 1フレームで消費するリソース
+	FrameResource m_frameResource[CPU_FRAME_COUNT];
+
+	// マネージャー
+	std::shared_ptr<ShaderManager>			m_spShaderManger		= nullptr;
+	std::shared_ptr<RootSignatureManager>	m_spRootSigManager		= nullptr;
+	std::shared_ptr<GraphicsPSOManager>		m_spGraphicsPSOManager	= nullptr;
 
 // シングルトン
 private:

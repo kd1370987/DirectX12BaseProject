@@ -1,5 +1,7 @@
 ﻿#include "App.h"
 
+#include "Engine/Window/Window.h"
+
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
@@ -36,7 +38,8 @@ void Application::Excute()
 bool Application::Init()
 {
 	// ウィンドウの生成（ここの変数も外部からとってきたい）
-	if (!m_window.Create(WINDOW_WIDTH, WINDOW_HEIGHT, L"DirectX12", L"Window"))
+	m_upWindow = std::make_unique<Window>();
+	if (!m_upWindow->Create(WINDOW_WIDTH, WINDOW_HEIGHT, L"DirectX12", L"Window"))
 	{
 		assert(0 && "ウィンドウ作成失敗");
 		return false;
@@ -47,7 +50,7 @@ bool Application::Init()
 	m_upFPSController->SetMaxFPS(200);
 	
 	// 描画エンジンの初期化
-	if (!RenderingEngine::Instance().Init(m_window.GetWindowHandle(), WINDOW_WIDTH, WINDOW_HEIGHT))
+	if (!RenderingEngine::Instance().Init(m_upWindow->GetWindowHandle(), WINDOW_WIDTH, WINDOW_HEIGHT))
 	{
 		assert(0 && "描画エンジンの初期化に失敗");
 		return false;
@@ -61,6 +64,10 @@ bool Application::Init()
 	{
 		return false;
 	}
+
+	// 垂直同期
+	m_isVsync = true;
+
 	return true;
 }
 
@@ -77,14 +84,14 @@ void Application::MainLoop()
 		m_upFPSController->BeginFrame();
 
 		// メッセージ処理
-		if (!m_window.ProcessMessage())
+		if (!m_upWindow->ProcessMessage())
 		{
 			break;
 		}
 
 		// タイトル文字列変更
 		std::string _str = "FPS = " + std::to_string(m_upFPSController->GetNowFPS());
-		SetWindowTextA(m_window.GetWindowHandle(),_str.c_str());
+		m_upWindow->ChangeTitle(_str);
 
 		// 更新
 		SceneManager::Instance().Update();
@@ -95,10 +102,10 @@ void Application::MainLoop()
 		{
 			SceneManager::Instance().Draw();				// 描画
 		}
-		RenderingEngine::Instance().EndRender();			// 描画終了
+		RenderingEngine::Instance().EndRender(m_isVsync);	// 描画終了
 
 		// フレーム終了
-		m_upFPSController->EndFrame();
+		m_upFPSController->EndFrame(m_isVsync);
 	}
 }
 

@@ -9,7 +9,7 @@ public:
 	void SetMaxFPS(UINT a_fps);
 
 	void BeginFrame();
-	void EndFrame();
+	void EndFrame(bool a_isVsync);
 
 	UINT GetNowFPS() { return m_nowFPS; }
 

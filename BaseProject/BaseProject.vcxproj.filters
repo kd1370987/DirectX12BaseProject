@@ -169,6 +169,15 @@
     <Filter Include="Source\Application\Scene\GameScene">
       <UniqueIdentifier>{d6e1e312-6f87-4c3f-93e0-b4e49cd079e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\ShaderManager">
+      <UniqueIdentifier>{78a39d7b-3982-4230-a5bb-7681977688ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RootSignatureManager">
+      <UniqueIdentifier>{5769ef81-d3f3-40ed-8fe6-0ad2d0c0096e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager">
+      <UniqueIdentifier>{60087a97-a0b3-4b8e-94cf-382b0f9c051d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -252,9 +261,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\PSOManager\PSOManager.cpp">
-      <Filter>Source\Engine\Graphics\PSOManager</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.cpp">
       <Filter>Source\Engine\GPUResource\DescriptorHeap\DSVHeap</Filter>
     </ClCompile>
@@ -293,6 +299,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp">
       <Filter>Source\Application\Scene\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp">
+      <Filter>Source\Engine\Graphics\ShaderManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp">
+      <Filter>Source\Engine\Graphics\PSOManager\GraphicsPSOManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.cpp">
+      <Filter>Source\Engine\Graphics\RootSignatureManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -383,9 +398,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\PSOManager\PSOManager.h">
-      <Filter>Source\Engine\Graphics\PSOManager</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.h">
       <Filter>Source\Engine\GPUResource\DescriptorHeap\DSVHeap</Filter>
     </ClInclude>
@@ -439,6 +451,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\AppInc.h">
       <Filter>Source\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h">
+      <Filter>Source\Engine\Graphics\ShaderManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h">
+      <Filter>Source\Engine\Graphics\PSOManager\GraphicsPSOManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.h">
+      <Filter>Source\Engine\Graphics\RootSignatureManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

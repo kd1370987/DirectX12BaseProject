@@ -13,6 +13,13 @@ public:
 	{
 		m_storageMap[a_key] = a_data;
 	}
+
+	void Add(const Key& a_key, const Data& a_data)
+	{
+		auto _spData = std::make_shared<Data>();
+		m_storageMap[a_key] = _spData;
+	}
+
 	// データの取得
 	std::shared_ptr<Data> Get(const Key& a_key)
 	{

@@ -30,6 +30,12 @@ public:
 	/// </summary>
 	const HWND& GetWindowHandle() { return m_hWnd; }
 
+	/// <summary>
+	/// タイトル文字列更新
+	/// </summary>
+	/// <param name="a_title">タイトル文字列</param>
+	void ChangeTitle(const std::string& a_title);
+
 private:
 
 	HWND		m_hWnd;			// ウィンドウハンドル
