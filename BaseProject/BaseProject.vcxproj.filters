@@ -178,13 +178,40 @@
     <Filter Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager">
       <UniqueIdentifier>{60087a97-a0b3-4b8e-94cf-382b0f9c051d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\ECS">
+      <UniqueIdentifier>{12c35b8e-1beb-4790-a19a-e2272c7f4387}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\World">
+      <UniqueIdentifier>{a8bfb0ea-9994-4cff-ab08-9997f32b94bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\ArchetypeChunk">
+      <UniqueIdentifier>{a2549b44-9b16-43f1-9a15-aaefe5944170}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\SystemManager">
+      <UniqueIdentifier>{8b4ef0c6-5cd7-44d9-9086-d7b9345f0dc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\ArchetypeChunkManager">
+      <UniqueIdentifier>{52f60f06-f7e5-4d57-b582-bd2a54bb1fca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\EntityManager">
+      <UniqueIdentifier>{6511711c-4897-4dd7-ad7b-ef58eb315646}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\ComponentMetaRegistry">
+      <UniqueIdentifier>{cc2b9cac-1543-47b7-83bc-e32b967057fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\Internal">
+      <UniqueIdentifier>{b1f66a51-fdb3-4899-8779-3087dc0f4322}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components">
+      <UniqueIdentifier>{f333e1bb-ae3a-4568-9dd9-1e92776b5477}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems">
+      <UniqueIdentifier>{066ecb91-591e-4b7d-9127-cab942012e27}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
       <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\App.cpp">
-      <Filter>Source\Application</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.cpp">
       <Filter>Source\Engine\Graphics\RenderingEngin</Filter>
@@ -308,6 +335,24 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.cpp">
       <Filter>Source\Engine\Graphics\RootSignatureManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\App.cpp">
+      <Filter>Source\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\World\World.cpp">
+      <Filter>Source\Engine\ECS\World</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\EntityManager\EntityManager.cpp">
+      <Filter>Source\Engine\ECS\EntityManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\SystemManager\SystemManager.cpp">
+      <Filter>Source\Engine\ECS\SystemManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp">
+      <Filter>Source\Engine\ECS\ArchetypeChunkManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.cpp">
+      <Filter>Source\Engine\ECS\ComponentMetaRegistry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -460,6 +505,33 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.h">
       <Filter>Source\Engine\Graphics\RootSignatureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\World\World.h">
+      <Filter>Source\Engine\ECS\World</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\ECSCommon.h">
+      <Filter>Source\Engine\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\EntityManager\EntityManager.h">
+      <Filter>Source\Engine\ECS\EntityManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\SystemManager\SystemManager.h">
+      <Filter>Source\Engine\ECS\SystemManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.h">
+      <Filter>Source\Engine\ECS\ArchetypeChunkManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\ArchetypeChunk\ArchetypeChunk.h">
+      <Filter>Source\Engine\ECS\ArchetypeChunk</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.h">
+      <Filter>Source\Engine\ECS\ComponentMetaRegistry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Internal\EntityLocation.h">
+      <Filter>Source\Engine\ECS\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\TransformComponent.h">
+      <Filter>Source\Application\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

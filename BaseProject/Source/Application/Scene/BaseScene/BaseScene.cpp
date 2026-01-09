@@ -1,5 +1,7 @@
 ﻿#include "BaseScene.h"
 
+#include "Engine/ECS/World/World.h"
+
 void BaseScene::Enter()
 {
 	SetSceneType();

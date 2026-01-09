@@ -1,0 +1,74 @@
+﻿#pragma once
+
+struct ComponentMeta
+{
+	std::string name;
+
+	size_t compSize			= 0;		// サイズ
+	size_t compAlign		= 0;		// アライメント
+	size_t compAlignSize	= 0;		// アライメントサイズ
+
+};
+
+class ComponentMetaRegistry
+{
+public:
+
+	ECS::ComponentTypeID GetTypeID(const std::type_index& a_index) const;
+
+	const ComponentMeta& GetMetaData(const ECS::ComponentTypeID& a_id) const;
+	const ComponentMeta& GetMetaData(const std::type_index& a_index) const;
+	
+
+	/// <summary>
+	/// コンポーネントを登録し、メタ情報を記憶する
+	/// </summary>
+	/// <typeparam name="Comp">コンポーネント構造体</typeparam>
+	/// <param name="a_name">保存名</param>
+	/// <returns>登録ID</returns>
+	template<typename Comp>
+	ECS::ComponentTypeID RegisterType(const std::string& a_name)
+	{
+		// 上限チェック
+		if (m_typeIndexMap.size() > ECS::Limits::MAX_COMPONENT_TYPES)
+		{
+			assert(0 && "登録できるコンポーネント数の上限に達しました");
+			return ECS::Limits::INVALID_COMPONENTTYPEID;
+		}
+
+		// 型情報を取得
+		std::type_index _idx = typeid(Comp);
+
+		// 登録
+		auto _it = m_typeIndexMap.find(_idx);
+		if (_it != m_typeIndexMap.end())
+		{
+			return _it->second;
+		}
+
+		// 新たなタイプIDを生成
+		ECS::ComponentTypeID _typeID = static_cast<ECS::ComponentTypeID>(m_typeIndexMap.size());
+
+		// データの生成
+		ComponentMeta _data = {};
+		_data.name = a_name;
+		_data.compSize = sizeof(Comp);
+		_data.compAlign = alignof(Comp);
+		_data.compAlignSize = Alignment::Up(_data.compSize, _data.compAlign);
+
+		// 登録
+		m_typeIndexMap.emplace(_idx,_typeID);
+		m_compTypeMap.emplace(_typeID,_data);
+
+		return _typeID;
+	}
+
+
+private:
+
+
+	std::unordered_map<std::type_index, ECS::ComponentTypeID> m_typeIndexMap;
+
+	std::unordered_map<ECS::ComponentTypeID, ComponentMeta> m_compTypeMap;
+
+};

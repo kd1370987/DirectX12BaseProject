@@ -12,6 +12,9 @@
 
 #include "Core/Time/FPSController/FPSController.h"
 
+// ECS
+#include "Engine/ECS/World/World.h"
+
 //==================================================================================
 // 
 // 初回呼び出し
@@ -56,8 +59,11 @@ bool Application::Init()
 		return false;
 	}
 
-	
+	// 描画初期化
 	RenderContext::Instance().Init();
+
+	// ECSの初期化
+	World::Instance().Init();
 
 	// シーンの初期化
 	if (!SceneManager::Instance().Init())

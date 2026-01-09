@@ -3,19 +3,25 @@
 
 namespace Alignment
 {
-	// 指定したサイズにアラインメントを合わせる
-	inline size_t AlignUp(size_t a_size, size_t a_alignment)
+	/// <summary>
+	/// 任意のアライメントンに切り上げ
+	/// </summary>
+	/// <param name="a_size">変えたいサイズ</param>
+	/// <param name="a_alignment">指定アライメント</param>
+	/// <returns>サイズ以上でアライメントに切り上げ</returns>
+	inline size_t Up(size_t a_size, size_t a_alignment)
 	{
 		return (a_size + (a_alignment - 1)) & ~(a_alignment - 1);
 	}
-	// 指定したサイズがアラインメントに合っているか確認
-	inline bool IsAligned(size_t a_size, size_t a_alignment)
+
+	/// <summary>
+	/// 指定アライメントでアライメントされているか
+	/// </summary>
+	/// <param name="a_size">チェックしたい数値</param>
+	/// <param name="a_alignment">指定アライメント</param>
+	/// <returns>アライメント済み = true</returns>
+	inline bool Is(size_t a_size, size_t a_alignment)
 	{
 		return (a_size & (a_alignment - 1)) == 0;
-	}
-
-	constexpr UINT Align256(UINT a_size)
-	{
-		return (a_size + 255) & ~255;
 	}
 }

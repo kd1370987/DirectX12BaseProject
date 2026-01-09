@@ -8,6 +8,9 @@
 
 #include "Engine/GPUResource/Model/Model.h"
 
+#include "Engine/ECS/World/World.h"
+
+#include "../../Components/TransformComponent.h"
 
 void GameScene::Enter()
 {
@@ -43,6 +46,19 @@ void GameScene::Enter()
 		0.0f,0.0f,1.0f,0.0f,
 		5.0f,-100.0f, 200.0f,1.0f
 	};
+
+	ECS::Signature _sig;
+	_sig.set(World::Instance().GetCompTypeID(typeid(TransformComponent)));
+	m_entity = World::Instance().CreateEntity(_sig);
+
+	TransformComponent* _ref = reinterpret_cast<TransformComponent*>(World::Instance().RefData(m_entity, typeid(TransformComponent)));
+	_ref->worldMat = DirectX::XMFLOAT4X4
+	{
+		1.0f,0.0f,0.0f,0.0f,
+		0.0f,1.0f,0.0f,0.0f,
+		0.0f,0.0f,1.0f,0.0f,
+		5.0f,-100.0f, 200.0f,1.0f
+	};
 }
 
 void GameScene::Exit()
@@ -54,10 +70,14 @@ void GameScene::Update()
 {
 	m_rotateY += 0.05f;
 
+	TransformComponent* _ref = reinterpret_cast<TransformComponent*>(World::Instance().RefData(m_entity, typeid(TransformComponent)));
+	
+
 	DirectX::XMMATRIX _rotY2 = DirectX::XMMatrixRotationY(-m_rotateY);
 	DirectX::XMMATRIX _trans2 = DirectX::XMMatrixTranslation(50.0f, -100.0f, 200.0f);
 	_rotY2 = DirectX::XMMatrixMultiply(_rotY2, _trans2);
-	DirectX::XMStoreFloat4x4(&m_charaMat2, _rotY2);
+	//DirectX::XMStoreFloat4x4(&m_charaMat2, _rotY2);
+	DirectX::XMStoreFloat4x4(&_ref->worldMat, _rotY2);
 
 	if (GetAsyncKeyState('A'))
 	{
@@ -91,9 +111,14 @@ void GameScene::Draw()
 		);
 	}
 
+
+	TransformComponent* _ref = reinterpret_cast<TransformComponent*>(World::Instance().RefData(m_entity, typeid(TransformComponent)));
+	
+
 	RenderContext::Instance().DrawModel(
 		m_wpModel2.lock(),
-		m_charaMat2,
+		//m_charaMat2,
+		_ref->worldMat,
 		DirectX::XMFLOAT4{ 0.0f,1.0f,1.0f,1.0f },
 		DirectX::XMFLOAT3{ 1.0f,1.0f,1.0f }
 	);

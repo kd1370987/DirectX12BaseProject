@@ -40,7 +40,9 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <mutex>
 #include <future>
 #include <fileSystem>
-
+#include <typeindex>
+#include <bitset>
+#include <cinttypes>
 #include <cstdint>
 
 //===============================================
@@ -81,6 +83,8 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
 
 #include "Engine/GPUResource/Model/ModelResource/Vertex/Vertex.h"
+
+#include "Engine/ECS/ECSCommon.h"
 
 // バッファリング数
 enum

@@ -28,6 +28,8 @@ private:
 
 private:
 
+	ECS::Entity m_entity;
+
 	float m_rotateY;
 
 	float m_moveX = 0;
