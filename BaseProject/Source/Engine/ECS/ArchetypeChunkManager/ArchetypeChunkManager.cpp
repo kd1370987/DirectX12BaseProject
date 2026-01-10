@@ -26,9 +26,33 @@ ArchetypeChunkManager::~ArchetypeChunkManager()
 	}
 }
 
-ArchetypeChunk* ArchetypeChunkManager::GetArchetypeChunk(const ECS::Signature& a_sig)
+const std::vector<ArchetypeChunk*>& ArchetypeChunkManager::GetArchetypeChunk(const ECS::Signature& a_sig)
 {
-	return nullptr;
+	auto _it = m_pArchetypeChunkMap.find(a_sig);
+	if (_it != m_pArchetypeChunkMap.end())
+	{
+		return _it->second;
+	}
+
+	assert(0 && "登録されていないアーキタイプです");
+	return std::vector<ArchetypeChunk*>();
+}
+
+std::vector<ArchetypeChunk*> ArchetypeChunkManager::MatchingArchetypeChunkVec(const ECS::Signature& a_sig)
+{
+	std::vector<ArchetypeChunk*> _matches;
+	_matches.reserve(24);
+
+	for (auto& [_sig, _chunkVec] : m_pArchetypeChunkMap)
+	{
+		// and検索
+		if ((_sig & a_sig) == a_sig)
+		{
+			_matches.insert(_matches.end(), _chunkVec.begin(),_chunkVec.end());
+		}
+	}
+
+	return _matches;
 }
 
 EntityLocation ArchetypeChunkManager::AllocateEntity(const ECS::Entity& a_entity, const ECS::Signature& a_sig)
@@ -84,6 +108,22 @@ uint8_t* ArchetypeChunkManager::RefComponent(const EntityLocation& a_loca, const
 	}
 
 	return _chunk->data + _offset + (_stride * a_loca.chunkIndex);
+}
+
+uint8_t* ArchetypeChunkManager::RefComponentArray(ArchetypeChunk* a_chunk, const ECS::ComponentTypeID& a_typeID)
+{
+	ArchetypeChunk* _chunk = a_chunk;
+	size_t _offset = 0;
+	size_t _stride = 0;
+
+	auto _it = _chunk->layoutMap.find(a_typeID);
+	if (_it != _chunk->layoutMap.end())
+	{
+		_offset = _it->second.offset;
+		_stride = _it->second.stride;
+	}
+
+	return _chunk->data + _offset;
 }
 
 ArchetypeChunk* ArchetypeChunkManager::CreateArchetypeChunk(const ECS::Signature& a_sig)

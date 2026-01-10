@@ -1,10 +1,13 @@
 ﻿#pragma once
 
-class EntityManager;
-class SystemManager;
-class ArchetypeChunkManager;
+#include "../EntityManager/EntityManager.h"
+#include "../SystemManager/SystemManager.h"
+#include "../ArchetypeChunkManager/ArchetypeChunkManager.h"
+#include "../ArchetypeChunk/ArchetypeChunk.h"
 
-class ComponentMetaRegistry;
+#include "../ComponentMetaRegistry/ComponentMetaRegistry.h"
+
+#include "../Internal/SystemComon.h"
 
 class World
 {
@@ -38,7 +41,51 @@ public:
 	/// <returns></returns>
 	ECS::ComponentTypeID GetCompTypeID(const std::type_index& a_index);
 
+	/// <summary>
+	/// データの取得
+	/// </summary>
+	/// <param name="a_entity"></param>
+	/// <param name="a_index"></param>
+	/// <returns></returns>
 	uint8_t* RefData(const ECS::Entity& a_entity, const std::type_index& a_index);
+
+	void RunSystem(SystemType a_type,float a_dt);
+
+	template<typename Comp>
+	Comp* GetComponentArray(ArchetypeChunk* a_chunk)
+	{
+		return reinterpret_cast<Comp*>(m_upArchetypeChunkManager->RefComponentArray(a_chunk, m_spComponentMetaRegistry->GetTypeID<Comp>()));
+	}
+
+	template<typename... Components,typename Func>
+	void ForEach(Func a_func)
+	{
+		// シグネチャを生成
+		ECS::Signature _sig;
+		(_sig.set(m_spComponentMetaRegistry->GetTypeID<Components>()), ...);
+
+		// チャンクの配列を取得
+		for (auto* _chunk : m_upArchetypeChunkManager->MatchingArchetypeChunkVec(_sig))
+		{
+			if (!_chunk || _chunk->count == 0) continue;
+
+			// 操作しやすいように配列にして返す
+			auto _arrays = std::forward_as_tuple(
+				GetComponentArray<Components>(_chunk)...
+			);
+
+			std::apply(
+				[&](auto... a_data)
+				{
+					a_func(_chunk,_chunk->count,a_data...);
+				},
+				_arrays
+			);
+		}
+
+	};
+
+	
 
 private:
 
@@ -70,5 +117,5 @@ public:
 	{
 		static World _instance;
 		return _instance;
-	}
+	};
 };

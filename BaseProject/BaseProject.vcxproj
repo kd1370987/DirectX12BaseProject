@@ -168,6 +168,7 @@
     <ClCompile Include="Source\Application\Scene\BaseScene\BaseScene.cpp" />
     <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
+    <ClCompile Include="Source\Application\Systems\DrawSystem.cpp" />
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp" />
     <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp" />
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
@@ -221,11 +222,13 @@
   <ItemGroup>
     <ClInclude Include="Source\Application\App.h" />
     <ClInclude Include="Source\Application\AppInc.h" />
+    <ClInclude Include="Source\Application\Components\ModelComponent.h" />
     <ClInclude Include="Source\Application\Components\TransformComponent.h" />
     <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />
     <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Source\Application\Scene\SceneManager.h" />
     <ClInclude Include="Source\Application\Scene\SceneType.h" />
+    <ClInclude Include="Source\Application\Systems\DrawSystem.h" />
     <ClInclude Include="Source\Core\Core.h" />
     <ClInclude Include="Source\Core\Math\Alignment.h" />
     <ClInclude Include="Source\Core\Storage\Storage.h" />
@@ -239,7 +242,10 @@
     <ClInclude Include="Source\Engine\ECS\ECSCommon.h" />
     <ClInclude Include="Source\Engine\ECS\EntityManager\EntityManager.h" />
     <ClInclude Include="Source\Engine\ECS\Internal\EntityLocation.h" />
+    <ClInclude Include="Source\Engine\ECS\Internal\SystemComon.h" />
     <ClInclude Include="Source\Engine\ECS\SystemManager\SystemManager.h" />
+    <ClInclude Include="Source\Engine\ECS\System\ISystem\ISystem.h" />
+    <ClInclude Include="Source\Engine\ECS\System\SystemBase\SystemBase.h" />
     <ClInclude Include="Source\Engine\ECS\World\World.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.h" />

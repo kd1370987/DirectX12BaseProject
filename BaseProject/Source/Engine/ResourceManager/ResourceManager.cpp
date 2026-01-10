@@ -72,7 +72,20 @@ std::weak_ptr<ModelResource> ResourceManager::GetModel(const std::string& a_key)
 
 		// ストレージに追加
 		m_modelStorage.Add(a_key, _spModel);
+
+		m_modelIDMap.emplace(a_key,m_count);
+		m_count++;
 	}
 
 	return _spModel;
+}
+
+UINT ResourceManager::GetModelID(const std::string& a_key)
+{
+	auto _it = m_modelIDMap.find(a_key);
+	if (_it != m_modelIDMap.end())
+	{
+		return _it->second;
+	}
+	return 1000;
 }

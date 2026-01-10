@@ -1,20 +1,18 @@
 ﻿#include "World.h"
 
-#include "../EntityManager/EntityManager.h"
-#include "../SystemManager/SystemManager.h"
-#include "../ArchetypeChunkManager/ArchetypeChunkManager.h"
-
-#include "../ComponentMetaRegistry/ComponentMetaRegistry.h"
-
 #include "../Internal/EntityLocation.h"
 
 #include "../../../Application/Components/TransformComponent.h"
+#include "../../../Application/Components/ModelComponent.h"
+
+#include "../../../Application/Systems/DrawSystem.h"
 
 void World::Init()
 {
 	// コンポーネントメタレジストリの作成
 	m_spComponentMetaRegistry = std::make_shared<ComponentMetaRegistry>();
 	m_spComponentMetaRegistry->RegisterType<TransformComponent>("TrasformComponent");
+	m_spComponentMetaRegistry->RegisterType<ModelComponent>("ModelComponent");
 
 	// エンティティマネージャー作成
 	m_upEntityManager = std::make_unique<EntityManager>();
@@ -22,6 +20,7 @@ void World::Init()
 
 	// システムマネージャー作成
 	m_upSystemManager = std::make_unique<SystemManager>();
+	m_upSystemManager->Register<DrawSystem>();
 
 	// アーキタイプチャンクマネージャー作成
 	m_upArchetypeChunkManager = std::make_unique<ArchetypeChunkManager>(m_spComponentMetaRegistry.get());
@@ -59,6 +58,11 @@ uint8_t* World::RefData(const ECS::Entity& a_entity, const std::type_index& a_in
 	const EntityLocation& _loca = m_upEntityManager->GetLocation(a_entity);
 	ECS::ComponentTypeID _typeID = m_spComponentMetaRegistry->GetTypeID(a_index);
 	return m_upArchetypeChunkManager->RefComponent(_loca,_typeID);
+}
+
+void World::RunSystem(SystemType a_type, float a_dt)
+{
+	m_upSystemManager->RunSystem(*this, a_type, a_dt);
 }
 
 // コンストラクタ・デストラクタ

@@ -11,6 +11,8 @@
 #include "Engine/ECS/World/World.h"
 
 #include "../../Components/TransformComponent.h"
+#include "../../Components/ModelComponent.h"
+
 
 void GameScene::Enter()
 {
@@ -49,7 +51,13 @@ void GameScene::Enter()
 
 	ECS::Signature _sig;
 	_sig.set(World::Instance().GetCompTypeID(typeid(TransformComponent)));
+	_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
 	m_entity = World::Instance().CreateEntity(_sig);
+
+	ModelComponent* _model = reinterpret_cast<ModelComponent*>(World::Instance().RefData(m_entity, typeid(ModelComponent)));
+	_model->modelID = ResourceManager::Instance().GetModelID("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX");
+
+
 
 	TransformComponent* _ref = reinterpret_cast<TransformComponent*>(World::Instance().RefData(m_entity, typeid(TransformComponent)));
 	_ref->worldMat = DirectX::XMFLOAT4X4
@@ -110,17 +118,7 @@ void GameScene::Draw()
 			DirectX::XMFLOAT3{ 1.0f,1.0f,1.0f }
 		);
 	}
-
-
-	TransformComponent* _ref = reinterpret_cast<TransformComponent*>(World::Instance().RefData(m_entity, typeid(TransformComponent)));
 	
-
-	RenderContext::Instance().DrawModel(
-		m_wpModel2.lock(),
-		//m_charaMat2,
-		_ref->worldMat,
-		DirectX::XMFLOAT4{ 0.0f,1.0f,1.0f,1.0f },
-		DirectX::XMFLOAT3{ 1.0f,1.0f,1.0f }
-	);
+	World::Instance().RunSystem(SystemType::Draw,0.0f);
 
 }

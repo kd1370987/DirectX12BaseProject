@@ -18,7 +18,9 @@ public:
 	/// </summary>
 	/// <param name="a_sig">アーキタイプ指定</param>
 	/// <returns>チャンクポインタ</returns>
-	ArchetypeChunk* GetArchetypeChunk(const ECS::Signature& a_sig);
+	const std::vector<ArchetypeChunk*>& GetArchetypeChunk(const ECS::Signature& a_sig);
+
+	std::vector<ArchetypeChunk*> MatchingArchetypeChunkVec(const ECS::Signature& a_sig);
 
 	/// <summary>
 	/// エンティティを割り当てる
@@ -29,8 +31,15 @@ public:
 	EntityLocation AllocateEntity(const ECS::Entity& a_entity,const ECS::Signature& a_sig);
 
 
-	
+	/// <summary>
+	/// 単体にアクセス
+	/// </summary>
+	/// <param name="a_loca"></param>
+	/// <param name="a_typeID"></param>
+	/// <returns></returns>
 	uint8_t* RefComponent(const EntityLocation& a_loca, const ECS::ComponentTypeID& a_typeID);
+
+	uint8_t* RefComponentArray(ArchetypeChunk* a_chunk,const ECS::ComponentTypeID& a_typeID);
 
 private:
 

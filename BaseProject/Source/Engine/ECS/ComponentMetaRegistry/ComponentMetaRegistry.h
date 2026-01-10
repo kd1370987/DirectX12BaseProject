@@ -14,6 +14,15 @@ class ComponentMetaRegistry
 {
 public:
 
+	template<typename Comp>
+	ECS::ComponentTypeID GetTypeID()
+	{
+		auto _it = m_typeIndexMap.find(typeid(Comp));
+		if (_it != m_typeIndexMap.end())
+		{
+			return _it->second;
+		}
+	}
 	ECS::ComponentTypeID GetTypeID(const std::type_index& a_index) const;
 
 	const ComponentMeta& GetMetaData(const ECS::ComponentTypeID& a_id) const;

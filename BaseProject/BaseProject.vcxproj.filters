@@ -208,6 +208,15 @@
     <Filter Include="Source\Application\Systems">
       <UniqueIdentifier>{066ecb91-591e-4b7d-9127-cab942012e27}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\ECS\System">
+      <UniqueIdentifier>{30477082-dd3b-487a-bb4c-1689acad1fc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\System\ISystem">
+      <UniqueIdentifier>{ac483713-58d5-49b5-9f9e-97f242ca5db3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\System\SystemBase">
+      <UniqueIdentifier>{c0be9fda-23c6-4eb0-9a06-c94ee361ea47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -353,6 +362,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.cpp">
       <Filter>Source\Engine\ECS\ComponentMetaRegistry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\DrawSystem.cpp">
+      <Filter>Source\Application\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -531,6 +543,21 @@
       <Filter>Source\Engine\ECS\Internal</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\TransformComponent.h">
+      <Filter>Source\Application\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Internal\SystemComon.h">
+      <Filter>Source\Engine\ECS\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\System\ISystem\ISystem.h">
+      <Filter>Source\Engine\ECS\System\ISystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\System\SystemBase\SystemBase.h">
+      <Filter>Source\Engine\ECS\System\SystemBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\DrawSystem.h">
+      <Filter>Source\Application\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\ModelComponent.h">
       <Filter>Source\Application\Components</Filter>
     </ClInclude>
   </ItemGroup>
