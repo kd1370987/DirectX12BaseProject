@@ -2,28 +2,13 @@
 
 #include "../Internal/EntityLocation.h"
 
-#include "../../../Application/Components/TransformComponent.h"
-#include "../../../Application/Components/ModelComponent.h"
-
-#include "../../../Application/Systems/DrawSystem.h"
-
 void World::Init()
 {
-	// コンポーネントメタレジストリの作成
-	m_spComponentMetaRegistry = std::make_shared<ComponentMetaRegistry>();
-	m_spComponentMetaRegistry->RegisterType<TransformComponent>("TrasformComponent");
-	m_spComponentMetaRegistry->RegisterType<ModelComponent>("ModelComponent");
-
 	// エンティティマネージャー作成
-	m_upEntityManager = std::make_unique<EntityManager>();
-	m_upEntityManager->Init();
-
-	// システムマネージャー作成
-	m_upSystemManager = std::make_unique<SystemManager>();
-	m_upSystemManager->Register<DrawSystem>();
+	m_entityManager.Init();
 
 	// アーキタイプチャンクマネージャー作成
-	m_upArchetypeChunkManager = std::make_unique<ArchetypeChunkManager>(m_spComponentMetaRegistry.get());
+	m_archetypeChunkManager.Init(&m_componentMetaRegistry);
 }
 void World::Release()
 {
@@ -31,38 +16,39 @@ void World::Release()
 
 void World::ClaerMemory()
 {
-	m_upEntityManager->Init();
+	m_entityManager.Init();
 }
 
 ECS::Entity World::CreateEntity(const ECS::Signature& a_sig)
 {
 	// エンティティIDの生成
-	ECS::Entity _entity = m_upEntityManager->CreateEntity(a_sig);
+	ECS::Entity _entity = m_entityManager.CreateEntity(a_sig);
 
 	// エンティティをチャンクに割り当てる
-	EntityLocation _loca = m_upArchetypeChunkManager->AllocateEntity(_entity, a_sig);
+	EntityLocation _loca = m_archetypeChunkManager.AllocateEntity(_entity, a_sig);
 
 	// エンティティのロケーションを記録
-	m_upEntityManager->SetEntityLocation(_entity,_loca);
+	m_entityManager.SetEntityLocation(_entity,_loca);
 
 	return _entity;
 }
 
 ECS::ComponentTypeID World::GetCompTypeID(const std::type_index& a_index)
 {
-	return m_spComponentMetaRegistry->GetTypeID(a_index);
+	return m_componentMetaRegistry.GetTypeID(a_index);
 }
 
-uint8_t* World::RefData(const ECS::Entity& a_entity, const std::type_index& a_index)
+uint8_t* World::NRefData(const ECS::Entity& a_entity, const std::type_index& a_index)
 {
-	const EntityLocation& _loca = m_upEntityManager->GetLocation(a_entity);
-	ECS::ComponentTypeID _typeID = m_spComponentMetaRegistry->GetTypeID(a_index);
-	return m_upArchetypeChunkManager->RefComponent(_loca,_typeID);
+	const EntityLocation& _loca = m_entityManager.GetLocation(a_entity);
+	ECS::ComponentTypeID _typeID = m_componentMetaRegistry.GetTypeID(a_index);
+	return m_archetypeChunkManager.RefComponent(_loca, _typeID);
 }
+
 
 void World::RunSystem(SystemType a_type, float a_dt)
 {
-	m_upSystemManager->RunSystem(*this, a_type, a_dt);
+	m_systemManager.RunSystem(*this, a_type, a_dt);
 }
 
 // コンストラクタ・デストラクタ

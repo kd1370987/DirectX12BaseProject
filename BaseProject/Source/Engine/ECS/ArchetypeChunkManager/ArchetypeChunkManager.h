@@ -10,8 +10,14 @@ class ArchetypeChunkManager
 {
 public:
 
-	ArchetypeChunkManager(ComponentMetaRegistry* a_pMetaRegister);
+	ArchetypeChunkManager();
 	~ArchetypeChunkManager();
+
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="a_pMetaRegister">コンポーネントメタレジストリ参照</param>
+	void Init(ComponentMetaRegistry* a_pMetaRegister);
 
 	/// <summary>
 	/// アーキタイプチャンクを取得

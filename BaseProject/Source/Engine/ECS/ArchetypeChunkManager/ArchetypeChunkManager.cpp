@@ -3,7 +3,7 @@
 #include "../ArchetypeChunk/ArchetypeChunk.h"
 #include "../ComponentMetaRegistry/ComponentMetaRegistry.h"
 
-ArchetypeChunkManager::ArchetypeChunkManager(ComponentMetaRegistry* a_pMetaRegister) : m_pMetaRegister(a_pMetaRegister)
+ArchetypeChunkManager::ArchetypeChunkManager()
 {
 }
 
@@ -24,6 +24,11 @@ ArchetypeChunkManager::~ArchetypeChunkManager()
 			delete _chunk;
 		}
 	}
+}
+
+void ArchetypeChunkManager::Init(ComponentMetaRegistry* a_pMetaRegister)
+{
+	m_pMetaRegister = a_pMetaRegister;
 }
 
 const std::vector<ArchetypeChunk*>& ArchetypeChunkManager::GetArchetypeChunk(const ECS::Signature& a_sig)

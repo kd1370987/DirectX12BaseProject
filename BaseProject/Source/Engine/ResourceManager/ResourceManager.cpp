@@ -50,42 +50,47 @@ std::weak_ptr<Texture> ResourceManager::GetTexture(const std::string& a_key)
 	return _spTexture;
 }
 
-std::weak_ptr<ModelResource> ResourceManager::GetModel(const std::string& a_key)
+const ModelID& ResourceManager::GetModel(const std::string& a_path)
 {
-	if (a_key.empty())
+	if (a_path.empty())
 	{
 		assert(0 && "ファイルパス未入力");
-		return std::weak_ptr<ModelResource>{};
+		return INVALID_MODEL_ID;
 	}
 
 	// モデルが読み込まれてるか確認
-	auto _spModel = m_modelStorage.Get(a_key);
-	if (!_spModel)
-	{
-		// モデルが読み込まれてなかったら読み込み開始
-		_spModel = std::make_shared<ModelResource>();
-		if (!_spModel->Load(a_key))
-		{
-			assert(0 && "モデル読み込みに失敗");
-			return std::weak_ptr<ModelResource>{};
-		}
-
-		// ストレージに追加
-		m_modelStorage.Add(a_key, _spModel);
-
-		m_modelIDMap.emplace(a_key,m_count);
-		m_count++;
-	}
-
-	return _spModel;
-}
-
-UINT ResourceManager::GetModelID(const std::string& a_key)
-{
-	auto _it = m_modelIDMap.find(a_key);
+	auto _it = m_modelIDMap.find(a_path);
 	if (_it != m_modelIDMap.end())
 	{
 		return _it->second;
 	}
-	return 1000;
+	else
+	{
+		// モデルが読み込まれてなかったら読み込み開始
+		auto _spModel = std::make_shared<ModelResource>();
+		if (!_spModel->Load(a_path))
+		{
+			assert(0 && "モデル読み込みに失敗");
+			return INVALID_MODEL_ID;
+		}
+
+		// ストレージに追加
+		m_modelIDStorage.Add(m_count, _spModel);
+		m_modelIDMap.emplace(a_path, m_count);
+
+		m_count++;
+	}
+
+	return m_modelIDMap[a_path];
+}
+
+ModelResource* ResourceManager::NGetModelResource(UINT a_modelID)
+{
+	auto _spModel = m_modelIDStorage.Get(a_modelID);
+	if (_spModel)
+	{
+		return _spModel.get();
+	}
+
+	return nullptr;
 }

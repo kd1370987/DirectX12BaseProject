@@ -118,6 +118,20 @@ public:
 		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
 	);
 
+	void DrawModel(
+		uint32_t a_modelID,
+		const DirectX::XMFLOAT4X4& a_worldMat,
+		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
+		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
+	);
+
+	void DrawModel(
+		ModelResource* a_pModelResource,
+		const DirectX::XMMATRIX& a_worldMat = DirectX::XMMatrixIdentity(),
+		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
+		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
+	);
+
 	/// <summary>
 	/// メッシュ描画
 	/// </summary>

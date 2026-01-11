@@ -217,6 +217,36 @@
     <Filter Include="Source\Engine\ECS\System\SystemBase">
       <UniqueIdentifier>{c0be9fda-23c6-4eb0-9a06-c94ee361ea47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Init">
+      <UniqueIdentifier>{8e76d589-19f7-49ba-9c3b-eb65b949f5ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Draw">
+      <UniqueIdentifier>{8a19ad69-35e6-4c78-8dff-7c70b7b793cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update">
+      <UniqueIdentifier>{b8b91857-15ea-4fda-b358-c147198a9fd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Input">
+      <UniqueIdentifier>{a7c9d3df-9600-4d35-841f-c08cbb2142bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Move">
+      <UniqueIdentifier>{550c6c31-d728-45f7-8a5c-f26ced4132bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Rotation">
+      <UniqueIdentifier>{07358f17-d813-47be-8b91-9be84e093201}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Scale">
+      <UniqueIdentifier>{1b6ef525-aeb7-4cf8-8011-48e356f5fd2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Transform">
+      <UniqueIdentifier>{15c82016-4427-4fe7-a457-4e543116d420}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Resource">
+      <UniqueIdentifier>{ced6497b-3356-4a3a-a60a-06f9dd757d55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\CalcMatrix">
+      <UniqueIdentifier>{a6737e74-9846-4989-86ce-463da654a3c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -365,6 +395,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\DrawSystem.cpp">
       <Filter>Source\Application\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Rotation\RotationSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Rotation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\CalcMatrix\CalcMatrixSystem.cpp">
+      <Filter>Source\Application\Systems\Update\CalcMatrix</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -542,9 +578,6 @@
     <ClInclude Include="Source\Engine\ECS\Internal\EntityLocation.h">
       <Filter>Source\Engine\ECS\Internal</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\TransformComponent.h">
-      <Filter>Source\Application\Components</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Internal\SystemComon.h">
       <Filter>Source\Engine\ECS\Internal</Filter>
     </ClInclude>
@@ -557,8 +590,20 @@
     <ClInclude Include="Source\Application\Systems\DrawSystem.h">
       <Filter>Source\Application\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\ModelComponent.h">
-      <Filter>Source\Application\Components</Filter>
+    <ClInclude Include="Source\Application\Systems\Update\Rotation\RotationSystem.h">
+      <Filter>Source\Application\Systems\Update\Rotation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Transform\TRSComponent.h">
+      <Filter>Source\Application\Components\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h">
+      <Filter>Source\Application\Components\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\CalcMatrix\CalcMatrixSystem.h">
+      <Filter>Source\Application\Systems\Update\CalcMatrix</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

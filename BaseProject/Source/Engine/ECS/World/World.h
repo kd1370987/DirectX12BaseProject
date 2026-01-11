@@ -13,6 +13,12 @@ class World
 {
 public:
 
+	//==========================================================================================
+	// 
+	// ワールドに対しての操作関連
+	// 
+	//==========================================================================================
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -28,11 +34,31 @@ public:
 	/// </summary>
 	void ClaerMemory();
 
+	//==========================================================================================
+	// 
+	// エンティティ関連
+	// 
+	//==========================================================================================
+
 	/// <summary>
 	/// エンティティの生成
 	/// </summary>
 	/// <param name="a_sig">アーキタイプを指定</param>
 	ECS::Entity CreateEntity(const ECS::Signature& a_sig);
+
+	//==========================================================================================
+	// 
+	// コンポーネント関連
+	// 
+	//==========================================================================================
+
+	/// <summary>
+	/// コンポーネントの型情報を登録
+	/// </summary>
+	/// <typeparam name="Comp">コンポーネントの型</typeparam>
+	/// <param name="a_name">保存時の名前</param>
+	template<typename Comp>
+	void RegisterComponentType(const std::string& a_name);
 
 	/// <summary>
 	/// 型情報からIDを取得
@@ -42,59 +68,67 @@ public:
 	ECS::ComponentTypeID GetCompTypeID(const std::type_index& a_index);
 
 	/// <summary>
-	/// データの取得
+	/// ネイティブなバイトデータへのポインタを取得
 	/// </summary>
-	/// <param name="a_entity"></param>
-	/// <param name="a_index"></param>
+	/// <param name="a_entity">エンティティID</param>
+	/// <param name="a_index">コンポーネント型</param>
 	/// <returns></returns>
-	uint8_t* RefData(const ECS::Entity& a_entity, const std::type_index& a_index);
+	uint8_t* NRefData(const ECS::Entity& a_entity, const std::type_index& a_index);
 
-	void RunSystem(SystemType a_type,float a_dt);
-
+	/// <summary>
+	/// コンポーネントを型として参照取得
+	/// </summary>
+	/// <typeparam name="Comp">型情報</typeparam>
+	/// <param name="a_entity">エンティティID</param>
 	template<typename Comp>
-	Comp* GetComponentArray(ArchetypeChunk* a_chunk)
-	{
-		return reinterpret_cast<Comp*>(m_upArchetypeChunkManager->RefComponentArray(a_chunk, m_spComponentMetaRegistry->GetTypeID<Comp>()));
-	}
+	Comp* RefData(const ECS::Entity& a_entity);
 
+	/// <summary>
+	/// 指定した ArchetypeChunk からテンプレート型 Comp のコンポーネント配列へのポインタを取得します
+	/// </summary>
+	/// <typeparam name="Comp">取得するコンポーネントの型</typeparam>
+	/// <param name="a_chunk">コンポーネント配列を取得する対象の ArchetypeChunk を指すポインタ</param>
+	/// <returns>チャンク内の Comp 型コンポーネント配列へのポインタ</returns>
+	template<typename Comp>
+	Comp* GetComponentArray(ArchetypeChunk* a_chunk);
+
+	//==========================================================================================
+	// 
+	// システム関連
+	// 
+	//==========================================================================================
+
+	/// <summary>
+	/// システムの登録
+	/// </summary>
+	/// <typeparam name="System">登録したいクラス</typeparam>
+	template<typename System>
+	void RegisterSystem();
+
+	/// <summary>
+	/// システムの実行
+	/// </summary>
+	/// <param name="a_type">実行してほしいシステムタイプ</param>
+	/// <param name="a_dt">デルタタイム</param>
+	void RunSystem(SystemType a_type, float a_dt);
+
+	/// <summary>
+	/// 指定したコンポーネント群を持つすべてのチャンクに対して、指定された関数を実行します
+	/// </summary>
+	/// <typeparam name="...Components">必要なコンポーネント</typeparam>
+	/// <typeparam name="Func">引数を入れる関数</typeparam>
+	/// <param name="a_func">引数を入れる関数</param>
 	template<typename... Components,typename Func>
-	void ForEach(Func a_func)
-	{
-		// シグネチャを生成
-		ECS::Signature _sig;
-		(_sig.set(m_spComponentMetaRegistry->GetTypeID<Components>()), ...);
-
-		// チャンクの配列を取得
-		for (auto* _chunk : m_upArchetypeChunkManager->MatchingArchetypeChunkVec(_sig))
-		{
-			if (!_chunk || _chunk->count == 0) continue;
-
-			// 操作しやすいように配列にして返す
-			auto _arrays = std::forward_as_tuple(
-				GetComponentArray<Components>(_chunk)...
-			);
-
-			std::apply(
-				[&](auto... a_data)
-				{
-					a_func(_chunk,_chunk->count,a_data...);
-				},
-				_arrays
-			);
-		}
-
-	};
-
-	
+	void ForEach(Func a_func);
 
 private:
 
 	// マネージャー軍
-	std::unique_ptr<EntityManager> m_upEntityManager = nullptr;
-	std::unique_ptr<SystemManager> m_upSystemManager = nullptr;
-	std::unique_ptr<ArchetypeChunkManager> m_upArchetypeChunkManager = nullptr;
+	EntityManager m_entityManager;
+	SystemManager m_systemManager;
+	ArchetypeChunkManager m_archetypeChunkManager;
 
-	std::shared_ptr<ComponentMetaRegistry> m_spComponentMetaRegistry = nullptr;
+	ComponentMetaRegistry m_componentMetaRegistry;
 
 
 // シングルトン
@@ -119,3 +153,58 @@ public:
 		return _instance;
 	};
 };
+
+template<typename Comp>
+inline void World::RegisterComponentType(const std::string& a_name)
+{
+	m_componentMetaRegistry.RegisterType<Comp>(a_name);
+}
+
+template<typename Comp>
+inline Comp* World::RefData(const ECS::Entity& a_entity)
+{
+	return reinterpret_cast<Comp*>(
+		NRefData(a_entity, typeid(Comp))
+		);
+}
+
+template<typename Comp>
+inline Comp* World::GetComponentArray(ArchetypeChunk* a_chunk)
+{
+	return reinterpret_cast<Comp*>(
+		m_archetypeChunkManager.RefComponentArray(a_chunk, m_componentMetaRegistry.GetTypeID<Comp>())
+		);
+}
+
+template<typename System>
+inline void World::RegisterSystem()
+{
+	m_systemManager.Register<System>();
+}
+
+template<typename ...Components, typename Func>
+inline void World::ForEach(Func a_func)
+{
+	// シグネチャを生成
+	ECS::Signature _sig;
+	(_sig.set(m_componentMetaRegistry.GetTypeID<Components>()), ...);
+
+	// チャンクの配列を取得
+	for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVec(_sig))
+	{
+		if (!_chunk || _chunk->count == 0) continue;
+
+		// 操作しやすいように配列にして返す
+		auto _arrays = std::forward_as_tuple(
+			GetComponentArray<Components>(_chunk)...
+		);
+
+		std::apply(
+			[&](auto... a_data)
+			{
+				a_func(_chunk, _chunk->count, a_data...);
+			},
+			_arrays
+		);
+	}
+}

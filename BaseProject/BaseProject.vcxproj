@@ -169,6 +169,8 @@
     <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Application\Systems\DrawSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\CalcMatrix\CalcMatrixSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Rotation\RotationSystem.cpp" />
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp" />
     <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp" />
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
@@ -222,13 +224,16 @@
   <ItemGroup>
     <ClInclude Include="Source\Application\App.h" />
     <ClInclude Include="Source\Application\AppInc.h" />
-    <ClInclude Include="Source\Application\Components\ModelComponent.h" />
-    <ClInclude Include="Source\Application\Components\TransformComponent.h" />
+    <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h" />
+    <ClInclude Include="Source\Application\Components\Transform\TRSComponent.h" />
+    <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />
     <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Source\Application\Scene\SceneManager.h" />
     <ClInclude Include="Source\Application\Scene\SceneType.h" />
     <ClInclude Include="Source\Application\Systems\DrawSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\CalcMatrix\CalcMatrixSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Rotation\RotationSystem.h" />
     <ClInclude Include="Source\Core\Core.h" />
     <ClInclude Include="Source\Core\Math\Alignment.h" />
     <ClInclude Include="Source\Core\Storage\Storage.h" />

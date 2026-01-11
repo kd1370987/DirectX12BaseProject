@@ -2,6 +2,7 @@
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/ResourceManager/ResourceManager.h"
 #include "Engine/GPUResource/Texture/Texture.h"
 
 #include "Engine/GPUResource/Model/Model.h"
@@ -175,12 +176,40 @@ void RenderContext::DrawModel(
 	const DirectX::XMFLOAT3& a_emissiveScale
 )
 {
+	DrawModel(
+		a_modelResource.get(),
+		a_worldMat,
+		a_colorScale,
+		a_emissiveScale
+	);
+}
+void RenderContext::DrawModel(std::shared_ptr<ModelResource> a_modelResource, const DirectX::XMFLOAT4X4& a_worldMat, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
+{
+	DrawModel(
+		a_modelResource.get(),
+		DirectX::XMLoadFloat4x4(&a_worldMat),
+		a_colorScale,
+		a_emissiveScale
+	);
+}
+void RenderContext::DrawModel(uint32_t a_modelID, const DirectX::XMFLOAT4X4& a_worldMat, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
+{
+	ModelResource* _pModelResource = ResourceManager::Instance().NGetModelResource(a_modelID);
+	DrawModel(
+		_pModelResource,
+		DirectX::XMLoadFloat4x4(&a_worldMat),
+		a_colorScale,
+		a_emissiveScale
+	);
+}
+void RenderContext::DrawModel(ModelResource* a_pModelResource, const DirectX::XMMATRIX& a_worldMat , const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
+{
 	// コマンドリスト取得
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
 	auto _currentIdx = RenderingEngine::Instance().CurrentCPUFrameIndex();
 
 	// ノード抽出
-	auto& _dataNodes = a_modelResource->GetOriginalNodes();
+	auto& _dataNodes = a_pModelResource->GetOriginalNodes();
 
 	m_frameResource[_currentIdx].upCamAndObjectCBAllocater->BindAndAttachDataRootCBV<CBObject>(
 		_cmdList,
@@ -189,30 +218,21 @@ void RenderContext::DrawModel(
 	);
 
 	// 全描画用メッシュノードを描画
-	for (auto& _nodeIdx : a_modelResource->GetDrawMeshNodeIndices())
+	for (auto& _nodeIdx : a_pModelResource->GetDrawMeshNodeIndices())
 	{
 		// ノードのワールド行列を計算
 		DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
 		DirectX::XMMATRIX _worldMat = _nodeTransMat * a_worldMat;
-		
+
 		// メッシュ描画
 		DrawMesh(
 			_dataNodes[_nodeIdx].spMesh.get(),
 			_worldMat,
-			a_modelResource->GetMaterials(),
+			a_pModelResource->GetMaterials(),
 			a_colorScale,
 			a_emissiveScale
 		);
 	}
-}
-void RenderContext::DrawModel(std::shared_ptr<ModelResource> a_modelResource, const DirectX::XMFLOAT4X4& a_worldMat, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
-{
-	DrawModel(
-		a_modelResource,
-		DirectX::XMLoadFloat4x4(&a_worldMat),
-		a_colorScale,
-		a_emissiveScale
-	);
 }
 void RenderContext::DrawMesh(
 	const Mesh* a_mesh,

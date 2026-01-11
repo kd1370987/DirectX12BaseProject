@@ -38,6 +38,10 @@ public:
 	template<typename Comp>
 	ECS::ComponentTypeID RegisterType(const std::string& a_name)
 	{
+		// トリビアルコピー可能かつ標準レイアウトであることを確認
+		static_assert(std::is_trivially_copyable_v<Comp>,"トリビアルコピー不可能");
+		static_assert(std::is_standard_layout_v<Comp>,"標準レイアウトでない");
+
 		// 上限チェック
 		if (m_typeIndexMap.size() > ECS::Limits::MAX_COMPONENT_TYPES)
 		{
