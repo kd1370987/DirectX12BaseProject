@@ -12,6 +12,9 @@
 #include "Engine/ECS/World/World.h"
 
 // コンポーネント関連
+#include "../../Components/Force/GravityComponent.h"
+#include "../../Components/Force/VelocityComponent.h"
+
 #include "../../Components/Transform/TRSComponent.h"
 #include "../../Components/Transform/WorldMatrixComponent.h"
 
@@ -20,6 +23,8 @@
 // システム関連
 #include "../../Systems/DrawSystem.h"
 #include "../../Systems/Update/CalcMatrix/CalcMatrixSystem.h"
+#include "../../Systems/Update/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
+#include "../../Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
 
 
 void GameScene::Enter()
@@ -27,19 +32,23 @@ void GameScene::Enter()
 	BaseScene::Enter();
 
 	// カメラ座標設定
-	auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, -10.0f, 0.0f);
+	auto _eyePos = DirectX::XMVectorSet(0.0f, 10.0f, -10.0f, 0.0f);
 	DirectX::XMStoreFloat4x4(
 		&m_cameraMat,
 		DirectX::XMMatrixTranslationFromVector(_eyePos)
 	);
 
 	// コンポーネント登録
+	World::Instance().RegisterComponentType<VelocityComponent>("Velocity");
+	World::Instance().RegisterComponentType<GravityComponent>("Gravity");
 	World::Instance().RegisterComponentType<TRSComponent>("Transform");
 	World::Instance().RegisterComponentType<WorldMatrixComponent>("WorldMatrix");
 	World::Instance().RegisterComponentType<ModelComponent>("Model");
 
 	// システム登録
 	World::Instance().RegisterSystem<DrawSystem>();
+	World::Instance().RegisterSystem<InputMoveSystem>();
+	World::Instance().RegisterSystem<PositionIntegrationSystem>();
 	World::Instance().RegisterSystem<CalcMatrixSystem>();
 
 	// エンティティ生成
@@ -47,7 +56,7 @@ void GameScene::Enter()
 	{
 		for (size_t _y = 0; _y < 10; ++_y)
 		{
-			ECS::Signature _sig;
+		/*	ECS::Signature _sig;
 			_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
 			_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
 			_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
@@ -58,26 +67,48 @@ void GameScene::Enter()
 			_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 			_model->emissiveScale = { 0.0f,0.0f,0.0f };
 			TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
-			_ref->pos = { -50.f + (_x * 5), -15.0f, 10.0f + (_y * 5) };
+			_ref->pos = { -50.f + (_x * 5), 5.0f, 10.0f + (_y * 5) };
 			_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
-			_ref->scale = { 1.0f,1.0f,1.0f };
+			_ref->scale = { 1.0f,1.0f,1.0f };*/
 		}
 	}
 
-	ECS::Signature _sig;
-	_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
-	_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
-	_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
-	auto _entity = World::Instance().CreateEntity(_sig);
+	{
+		/*ECS::Signature _sig;
+		_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
+		auto _entity = World::Instance().CreateEntity(_sig);
 
-	ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
-	_model->modelID = ResourceManager::Instance().GetModel("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX");
-	_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
-	_model->emissiveScale = { 0.0f,0.0f,0.0f };
-	TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
-	_ref->pos = { 0.0f, -100.0f, 200.0f };
-	_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
-	_ref->scale = { 1.0f,1.0f,1.0f };
+		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
+		_model->modelID = ResourceManager::Instance().GetModel("Asset/Model/Alicia/FBX/Alicia_solid_Unity.FBX");
+		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
+		_model->emissiveScale = { 0.0f,0.0f,0.0f };
+		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
+		_ref->pos = { 0.0f, -100.0f, 200.0f };
+		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
+		_ref->scale = { 1.0f,1.0f,1.0f };*/
+	}
+
+	// 地面
+	{
+		ECS::Signature _sig;
+		_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(GravityComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(VelocityComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
+		auto _entity = World::Instance().CreateEntity(_sig);
+
+		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
+		_model->modelID = ResourceManager::Instance().GetModel("Asset/Model/Stage/StageMap.gltf");
+		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
+		_model->emissiveScale = { 0.0f,0.0f,0.0f };
+		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
+		_ref->pos = { 0.0f, 0.0f, 0.0f };
+		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
+		_ref->scale = { 1.0f,1.0f,1.0f };
+	}
 }
 
 void GameScene::Exit()
@@ -88,6 +119,8 @@ void GameScene::Exit()
 void GameScene::Update()
 {
 	World::Instance().RunSystem(SystemType::Update, 0.0f);
+
+	m_cameraMat._42 += -0.001f;
 }
 
 void GameScene::Draw()

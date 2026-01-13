@@ -13,8 +13,6 @@
 #include "Engine/GPUResource/RootSignature/RootSignature.h"
 #include "Engine/GPUResource/PipeLineState/PipelineState.h"
 
-#include "Engine/ResourceManager/ResourceManager.h"
-
 #include "Engine/GPUResource/Buffer/VertexBuffer/VertexBuffer.h"
 #include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/GPUResource/Buffer/ConstantBuffer/ConstantBuffer.h"
@@ -291,8 +289,10 @@ void RenderContext::DrawMesh(
 		);
 
 		// 描画
+		UINT _faceCount = static_cast<UINT>(a_mesh->GetSubsets()[_subIdx].faceCount);
+		UINT _faceStart = static_cast<UINT>(a_mesh->GetSubsets()[_subIdx].faceStart);
 		_cmdList->DrawIndexedInstanced(
-			static_cast<UINT>(a_mesh->GetSubsets()[_subIdx].faceCount * 3),1,0,0,0
+			_faceCount * 3, 1, _faceStart * 3, 0, 0
 		);
 	}
 }
