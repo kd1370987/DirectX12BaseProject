@@ -704,6 +704,9 @@
     <ClInclude Include="Source\Engine\TimeManager\TimeManager.h">
       <Filter>Source\Engine\TimeManager</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Force\InertiaComponent.h">
+      <Filter>Source\Application\Components\Force</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\SimpleShader\SimplePS.hlsl">

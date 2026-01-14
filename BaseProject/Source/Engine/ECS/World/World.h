@@ -9,6 +9,9 @@
 
 #include "../Internal/SystemComon.h"
 
+template<typename... Excludes>
+struct Exclude {};
+
 class World
 {
 public:
@@ -120,6 +123,32 @@ public:
 	/// <param name="a_func">引数を入れる関数</param>
 	template<typename... Components,typename Func>
 	void ForEach(Func a_func);
+
+	template<typename... Components,typename... Excludes, typename Func>
+	void ForEachEx(Func a_func,Exclude<Excludes...>)
+	{
+		// シグネチャを生成
+		ECS::Signature _sig;
+		(_sig.set(m_componentMetaRegistry.GetTypeID<Components>()), ...);
+		ECS::Signature _excludeSig;
+		(_excludeSig.set(m_componentMetaRegistry.GetTypeID<Excludes>()), ...);
+		// チャンクの配列を取得
+		for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_sig,_excludeSig))
+		{
+			if (!_chunk || _chunk->count == 0) continue;
+			// 操作しやすいように配列にして返す
+			auto _arrays = std::forward_as_tuple(
+				GetComponentArray<Components>(_chunk)...
+			);
+			std::apply(
+				[&](auto... a_data)
+				{
+					a_func(_chunk, _chunk->count, a_data...);
+				},
+				_arrays
+			);
+		}
+	}
 
 private:
 

@@ -3,6 +3,7 @@
 #include "Engine/ECS/World/World.h"
 
 #include "../../../../Components/Force/VelocityComponent.h"
+#include "../../../../Components/Force/InertiaComponent.h"
 
 void InputMoveSystem::Run(World& a_world, float a_dt)
 {
@@ -26,7 +27,7 @@ void InputMoveSystem::Run(World& a_world, float a_dt)
 		inputDir.x += 1.0f;
 	}
 
-	a_world.ForEach<VelocityComponent>
+	a_world.ForEachEx<VelocityComponent>
 		(
 			[&a_world, a_dt,inputDir]
 			(
@@ -38,10 +39,11 @@ void InputMoveSystem::Run(World& a_world, float a_dt)
 				for (size_t _i = 0; _i < a_count; ++_i)
 				{
 					VelocityComponent& _velComp = a_velocityArray[_i];
+					_velComp.value = {};
 					_velComp.value.x += inputDir.x;
 					_velComp.value.y += inputDir.y;
 				}
-				
-			}
+			},
+			Exclude<InertiaComponent>()
 		);
 }

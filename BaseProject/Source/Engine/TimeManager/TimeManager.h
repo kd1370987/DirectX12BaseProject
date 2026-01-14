@@ -17,6 +17,11 @@ public:
 	void Init(float a_targetFPS);
 
 	/// <summary>
+	/// 解放
+	/// </summary>
+	void Release();
+
+	/// <summary>
 	/// フレームの初めに計測
 	/// </summary>
 	void BeginFrame();

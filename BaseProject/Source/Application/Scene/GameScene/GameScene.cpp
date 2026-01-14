@@ -21,6 +21,7 @@
 
 #include "../../Components/Force/GravityComponent.h"
 #include "../../Components/Force/VelocityComponent.h"
+#include "../../Components/Force/InertiaComponent.h"
 
 #include "../../Components/Transform/TRSComponent.h"
 #include "../../Components/Transform/WorldMatrixComponent.h"
@@ -48,8 +49,11 @@ void GameScene::Enter()
 	World::Instance().RegisterComponentType<CameraParamComponent>("CameraParam");
 	World::Instance().RegisterComponentType<ProjMatComponent>("ProjMat");
 	World::Instance().RegisterComponentType<FocusParamComponent>("FocusParam");
+
 	World::Instance().RegisterComponentType<VelocityComponent>("Velocity");
 	World::Instance().RegisterComponentType<GravityComponent>("Gravity");
+	World::Instance().RegisterComponentType<InertiaComponent>("Inertia");
+
 	World::Instance().RegisterComponentType<TRSComponent>("Transform");
 	World::Instance().RegisterComponentType<WorldMatrixComponent>("WorldMatrix");
 	World::Instance().RegisterComponentType<ModelComponent>("Model");

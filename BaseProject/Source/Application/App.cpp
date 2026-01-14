@@ -51,7 +51,7 @@ bool Application::Init()
 
 	// タイムマネージャー作成
 	m_upTimeManager = std::make_unique<TimeManager>();
-	m_upTimeManager->Init(60.0f);
+	m_upTimeManager->Init(120.0f);
 	
 	// 描画エンジンの初期化
 	if (!RenderingEngine::Instance().Init(m_upWindow->GetWindowHandle(), WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -73,9 +73,21 @@ bool Application::Init()
 	}
 
 	// 垂直同期
-	m_isVsync = true;
+	m_isVsync = false;
 
 	return true;
+}
+
+void Application::Release()
+{
+	// シーン解放
+	//SceneManager::Instance().Release();
+	// ECS解放
+	World::Instance().Release();
+	// 描画エンジン解放
+	//RenderingEngine::Instance().Release();
+	// タイムマネージャー解放
+	m_upTimeManager->Release();
 }
 
 //==================================================================================

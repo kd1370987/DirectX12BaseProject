@@ -26,7 +26,20 @@ public:
 	/// <returns>チャンクポインタ</returns>
 	const std::vector<ArchetypeChunk*>& GetArchetypeChunk(const ECS::Signature& a_sig);
 
+	/// <summary>
+	/// or検索でマッチするアーキタイプチャンク群を取得
+	/// </summary>
+	/// <param name="a_sig">絶対に入っていてほしいシグネチャ</param>
+	/// <returns>ヒットしたアーキタイプポインタ配列</returns>
 	std::vector<ArchetypeChunk*> MatchingArchetypeChunkVec(const ECS::Signature& a_sig);
+
+	/// <summary>
+	/// or,not検索でマッチするアーキタイプチャンク群を取得
+	/// </summary>
+	/// <param name="a_sig">入っていてほしいシグネチャ</param>
+	/// <param name="a_excludeSig">含めないシグネチャ</param>
+	/// <returns>ヒットしたアーキタイプポインタ配列</returns>
+	std::vector<ArchetypeChunk*> MatchingArchetypeChunkVecEx(const ECS::Signature& a_sig, const ECS::Signature& a_excludeSig);
 
 	/// <summary>
 	/// エンティティを割り当てる

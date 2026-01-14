@@ -235,6 +235,7 @@
     <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\ProjMatComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\GravityComponent.h" />
+    <ClInclude Include="Source\Application\Components\Force\InertiaComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h" />
     <ClInclude Include="Source\Application\Components\Tag\ActiveCameraTag.h" />

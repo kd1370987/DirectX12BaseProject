@@ -60,6 +60,22 @@ std::vector<ArchetypeChunk*> ArchetypeChunkManager::MatchingArchetypeChunkVec(co
 	return _matches;
 }
 
+std::vector<ArchetypeChunk*> ArchetypeChunkManager::MatchingArchetypeChunkVecEx(const ECS::Signature& a_sig, const ECS::Signature& a_excludeSig)
+{
+	std::vector<ArchetypeChunk*> _matches;
+	_matches.reserve(24);
+	for (auto& [_sig, _chunkVec] : m_pArchetypeChunkMap)
+	{
+		// and検索
+		if (((_sig & a_sig) == a_sig) && ((_sig & a_excludeSig).none()))
+		{
+			_matches.insert(_matches.end(), _chunkVec.begin(), _chunkVec.end());
+		}
+	}
+
+	return _matches;
+}
+
 EntityLocation ArchetypeChunkManager::AllocateEntity(const ECS::Entity& a_entity, const ECS::Signature& a_sig)
 {
 	EntityLocation _loca = {};

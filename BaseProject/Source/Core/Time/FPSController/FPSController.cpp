@@ -16,11 +16,19 @@ void FPSController::EndFrame(bool a_isVsync)
 	// 垂直同期がない場合のみFPSを制御する
 	if (!a_isVsync)
 	{
-		auto _elapsed = std::chrono::steady_clock::now() - m_frameStart;
-
-		if (_elapsed < m_target)
+		// ターゲット時間までスリープ
+		while (true)
 		{
-			std::this_thread::sleep_for(m_target - _elapsed);
+			auto _elapsed = std::chrono::steady_clock::now() - m_frameStart;
+			if (_elapsed >= m_target) break;
+			if (m_target - _elapsed > std::chrono::milliseconds(2))
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+			else
+			{
+				_mm_pause();
+			}
 		}
 	}
 

@@ -22,6 +22,9 @@ private:
 	// 初期化
 	bool Init();
 
+	// 解放
+	void Release();
+
 	// メインループ
 	void MainLoop();
 
