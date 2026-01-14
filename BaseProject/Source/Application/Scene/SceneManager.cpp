@@ -14,7 +14,7 @@ bool SceneManager::Init()
 	return true;
 }
 
-void SceneManager::Update()
+void SceneManager::Update(float a_dt)
 {
 	// シーンの更新
 	if (!m_isOneUpdate)
@@ -22,14 +22,14 @@ void SceneManager::Update()
 		// すべてのシーンを更新
 		for (auto& _scene : m_upBaseSceneVec)
 		{
-			_scene->Update();
+			_scene->Update(a_dt);
 		}
 	}
 	else
 	{
 		// 最前面のみ更新
 		auto& _scene = m_upBaseSceneVec.back();
-		_scene->Update();
+		_scene->Update(a_dt);
 	}
 	
 

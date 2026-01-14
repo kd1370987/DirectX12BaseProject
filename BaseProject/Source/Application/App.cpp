@@ -9,6 +9,7 @@
 #include "Scene/SceneManager.h"
 
 #include "Engine/GPUResource/Model/Model.h"
+#include "Engine/TimeManager/TimeManager.h"
 
 #include "Core/Time/FPSController/FPSController.h"
 
@@ -48,9 +49,9 @@ bool Application::Init()
 		return false;
 	}
 
-	// FPSコントローラー作成
-	m_upFPSController = std::make_unique<FPSController>();
-	m_upFPSController->SetMaxFPS(200);
+	// タイムマネージャー作成
+	m_upTimeManager = std::make_unique<TimeManager>();
+	m_upTimeManager->Init(60.0f);
 	
 	// 描画エンジンの初期化
 	if (!RenderingEngine::Instance().Init(m_upWindow->GetWindowHandle(), WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -87,7 +88,7 @@ void Application::MainLoop()
 	while (true)
 	{
 		// フレーム開始
-		m_upFPSController->BeginFrame();
+		m_upTimeManager->BeginFrame();
 
 		// メッセージ処理
 		if (!m_upWindow->ProcessMessage())
@@ -96,11 +97,12 @@ void Application::MainLoop()
 		}
 
 		// タイトル文字列変更
-		std::string _str = "FPS = " + std::to_string(m_upFPSController->GetNowFPS());
+		std::string _str = "FPS = " + std::to_string(m_upTimeManager->GetNowFPS()) + 
+			"; DELTATIME = " + std::to_string(m_upTimeManager->GetDeltaTime()) + ";";
 		m_upWindow->ChangeTitle(_str);
 
 		// 更新
-		SceneManager::Instance().Update();
+		SceneManager::Instance().Update(m_upTimeManager->GetDeltaTime());
 		
 
 		// 描画
@@ -111,7 +113,7 @@ void Application::MainLoop()
 		RenderingEngine::Instance().EndRender(m_isVsync);	// 描画終了
 
 		// フレーム終了
-		m_upFPSController->EndFrame(m_isVsync);
+		m_upTimeManager->EndFrame(m_isVsync);
 	}
 }
 

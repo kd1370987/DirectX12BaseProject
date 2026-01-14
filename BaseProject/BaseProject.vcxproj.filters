@@ -265,6 +265,24 @@
     <Filter Include="Source\Application\Systems\Update\Input\InputMoveSystem">
       <UniqueIdentifier>{e9f84f47-835c-44aa-8770-254f2194047d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Components\Camera">
+      <UniqueIdentifier>{67fb5110-7b83-4489-8018-f162f2d5598b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Draw\PreDraw">
+      <UniqueIdentifier>{c6ebcc9f-8a71-4c63-88bb-e199c2f2168e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem">
+      <UniqueIdentifier>{644a61c0-8983-477a-957e-fd10b32ffe37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Tag">
+      <UniqueIdentifier>{e7384a31-8102-44e5-87cf-f40438673d20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Time\DeltaTime">
+      <UniqueIdentifier>{5f768013-0e63-4759-a2f7-a146aade3ef9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\TimeManager">
+      <UniqueIdentifier>{8f670516-c860-4f6a-9167-f2225834d5f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -431,6 +449,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp">
       <Filter>Source\Application\Systems\Update\Input\InputMoveSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Time\DeltaTime\DeltaTime.cpp">
+      <Filter>Source\Core\Time\DeltaTime</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\TimeManager\TimeManager.cpp">
+      <Filter>Source\Engine\TimeManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -652,6 +679,30 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h">
       <Filter>Source\Application\Systems\Update\Input\InputMoveSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\ProjMatComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\CameraParamComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h">
+      <Filter>Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Tag\CameraTag.h">
+      <Filter>Source\Application\Components\Tag</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Tag\ActiveCameraTag.h">
+      <Filter>Source\Application\Components\Tag</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Time\DeltaTime\DeltaTime.h">
+      <Filter>Source\Core\Time\DeltaTime</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\TimeManager\TimeManager.h">
+      <Filter>Source\Engine\TimeManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

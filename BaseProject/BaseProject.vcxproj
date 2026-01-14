@@ -169,12 +169,14 @@
     <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Application\Systems\DrawSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Acceleration\GravitySystem\GravitySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\CalcMatrix\CalcMatrixSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Rotation\RotationSystem.cpp" />
+    <ClCompile Include="Source\Core\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp" />
     <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp" />
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
@@ -216,6 +218,7 @@
     <ClCompile Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\ResourceManager\ResourceManager.cpp" />
+    <ClCompile Include="Source\Engine\TimeManager\TimeManager.cpp" />
     <ClCompile Include="Source\Engine\Window\Window.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Pch.cpp">
@@ -228,9 +231,14 @@
   <ItemGroup>
     <ClInclude Include="Source\Application\App.h" />
     <ClInclude Include="Source\Application\AppInc.h" />
+    <ClInclude Include="Source\Application\Components\Camera\CameraParamComponent.h" />
+    <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h" />
+    <ClInclude Include="Source\Application\Components\Camera\ProjMatComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\GravityComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h" />
+    <ClInclude Include="Source\Application\Components\Tag\ActiveCameraTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\CameraTag.h" />
     <ClInclude Include="Source\Application\Components\Transform\TRSComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />
@@ -238,6 +246,7 @@
     <ClInclude Include="Source\Application\Scene\SceneManager.h" />
     <ClInclude Include="Source\Application\Scene\SceneType.h" />
     <ClInclude Include="Source\Application\Systems\DrawSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Acceleration\GravitySystem\GravitySystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\CalcMatrix\CalcMatrixSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h" />
@@ -247,6 +256,7 @@
     <ClInclude Include="Source\Core\Core.h" />
     <ClInclude Include="Source\Core\Math\Alignment.h" />
     <ClInclude Include="Source\Core\Storage\Storage.h" />
+    <ClInclude Include="Source\Core\Time\DeltaTime\DeltaTime.h" />
     <ClInclude Include="Source\Core\Time\FPSController\FPSController.h" />
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
     <ClInclude Include="Source\Core\Utility\StringUtillity.h" />
@@ -297,6 +307,7 @@
     <ClInclude Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.h" />
     <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Source\Engine\ResourceManager\ResourceManager.h" />
+    <ClInclude Include="Source\Engine\TimeManager\TimeManager.h" />
     <ClInclude Include="Source\Engine\Window\Window.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>

@@ -12,6 +12,13 @@
 #include "Engine/ECS/World/World.h"
 
 // コンポーネント関連
+#include "../../Components/Tag/ActiveCameraTag.h"
+#include "../../Components/Tag/CameraTag.h"
+
+#include "../../Components/Camera/CameraParamComponent.h"
+#include "../../Components/Camera/FocusParamComponent.h"
+#include "../../Components/Camera/ProjMatComponent.h"
+
 #include "../../Components/Force/GravityComponent.h"
 #include "../../Components/Force/VelocityComponent.h"
 
@@ -21,24 +28,26 @@
 #include "../../Components/Resource/ModelComponent.h"
 
 // システム関連
-#include "../../Systems/DrawSystem.h"
+
 #include "../../Systems/Update/CalcMatrix/CalcMatrixSystem.h"
 #include "../../Systems/Update/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
 #include "../../Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
+
+#include "../../Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
+
+#include "../../Systems/DrawSystem.h"
 
 
 void GameScene::Enter()
 {
 	BaseScene::Enter();
 
-	// カメラ座標設定
-	auto _eyePos = DirectX::XMVectorSet(0.0f, 10.0f, -10.0f, 0.0f);
-	DirectX::XMStoreFloat4x4(
-		&m_cameraMat,
-		DirectX::XMMatrixTranslationFromVector(_eyePos)
-	);
-
 	// コンポーネント登録
+	World::Instance().RegisterComponentType<ActiveCameraTag>("ActiveCameraTag");
+	World::Instance().RegisterComponentType<CameraTag>("CameraTag");
+	World::Instance().RegisterComponentType<CameraParamComponent>("CameraParam");
+	World::Instance().RegisterComponentType<ProjMatComponent>("ProjMat");
+	World::Instance().RegisterComponentType<FocusParamComponent>("FocusParam");
 	World::Instance().RegisterComponentType<VelocityComponent>("Velocity");
 	World::Instance().RegisterComponentType<GravityComponent>("Gravity");
 	World::Instance().RegisterComponentType<TRSComponent>("Transform");
@@ -47,6 +56,7 @@ void GameScene::Enter()
 
 	// システム登録
 	World::Instance().RegisterSystem<DrawSystem>();
+	World::Instance().RegisterSystem<CamSetShaderSystem>();
 	World::Instance().RegisterSystem<InputMoveSystem>();
 	World::Instance().RegisterSystem<PositionIntegrationSystem>();
 	World::Instance().RegisterSystem<CalcMatrixSystem>();
@@ -94,18 +104,50 @@ void GameScene::Enter()
 	{
 		ECS::Signature _sig;
 		_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
-		_sig.set(World::Instance().GetCompTypeID(typeid(GravityComponent)));
-		_sig.set(World::Instance().GetCompTypeID(typeid(VelocityComponent)));
 		_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
 		_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
 		auto _entity = World::Instance().CreateEntity(_sig);
-
+		
 		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
 		_model->modelID = ResourceManager::Instance().GetModel("Asset/Model/Stage/StageMap.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
 		_ref->pos = { 0.0f, 0.0f, 0.0f };
+		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
+		_ref->scale = { 1.0f,1.0f,1.0f };
+	}
+
+	// カメラ
+	{
+		ECS::Signature _sig;
+		_sig.set(World::Instance().GetCompTypeID(typeid(ActiveCameraTag)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(CameraTag)));
+
+		_sig.set(World::Instance().GetCompTypeID(typeid(CameraParamComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(FocusParamComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(ProjMatComponent)));
+
+		_sig.set(World::Instance().GetCompTypeID(typeid(VelocityComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
+		auto _entity = World::Instance().CreateEntity(_sig);
+
+		CameraParamComponent* _camParam = World::Instance().RefData<CameraParamComponent>(_entity);
+		_camParam->aspectRatio = static_cast<float>(1280) / static_cast<float>(720);
+		_camParam->fovY = 60.f;
+		_camParam->nearZ = 0.1f;
+		_camParam->farZ= 1000.0f;
+		FocusParamComponent* _focusPram = World::Instance().RefData<FocusParamComponent>(_entity);
+		*_focusPram = {};
+		ProjMatComponent* _projMat = World::Instance().RefData<ProjMatComponent>(_entity);
+		DirectX::XMStoreFloat4x4(&_projMat->projMat, DirectX::XMMatrixPerspectiveFovLH(
+			DirectX::XMConvertToRadians(_camParam->fovY), _camParam->aspectRatio, _camParam->nearZ, _camParam->farZ)
+		);
+		VelocityComponent* _velocity = World::Instance().RefData<VelocityComponent>(_entity);
+		_velocity->value = { 0.0f,0.0f,0.0f };
+		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
+		_ref->pos = { 0.0f, 10.0f, -10.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
 	}
@@ -116,18 +158,16 @@ void GameScene::Exit()
 	BaseScene::Exit();
 }
 
-void GameScene::Update()
+void GameScene::Update(float a_dt)
 {
-	World::Instance().RunSystem(SystemType::Update, 0.0f);
-
-	m_cameraMat._42 += -0.001f;
+	World::Instance().RunSystem(SystemType::Update, a_dt);
 }
 
 void GameScene::Draw()
 {
 	RenderContext::Instance().BeginSimpleRender();
 
-	RenderContext::Instance().SetToShader(m_cameraMat);
+	World::Instance().RunSystem(SystemType::PreDraw,0.0f);
 
 	World::Instance().RunSystem(SystemType::Draw,0.0f);
 

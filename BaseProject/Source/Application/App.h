@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 class Window;
-class FPSController;
+class TimeManager;
 
 constexpr UINT WINDOW_WIDTH = 1280;
 constexpr UINT WINDOW_HEIGHT = 720;
@@ -28,7 +28,7 @@ private:
 private:
 
 	std::unique_ptr<Window>			m_upWindow			= nullptr;
-	std::unique_ptr<FPSController>	m_upFPSController	= nullptr;
+	std::unique_ptr<TimeManager>	m_upTimeManager		= nullptr;
 
 	bool m_isVsync = false;
 

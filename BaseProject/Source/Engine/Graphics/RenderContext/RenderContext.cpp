@@ -139,7 +139,6 @@ void RenderContext::SetToShader(
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, _vMat);
 
 	// カメラ用定数バッファに転送
-	//m_spCBAllocater[_currentIdx]->BindAndAttachDataRootCBV<CBCamera>(
 	m_frameResource[_currentIdx].upCamAndObjectCBAllocater->BindAndAttachDataRootCBV<CBCamera>(
 		_cmdList,
 		0,
@@ -160,6 +159,11 @@ void RenderContext::SetProjectionMatrix(
 			a_far
 		)
 	);
+}
+
+void RenderContext::SetProjectionMatrix(DirectX::XMFLOAT4X4 a_projMat)
+{
+	m_cb0_camera.projMat = a_projMat;
 }
 
 //============================================================================================

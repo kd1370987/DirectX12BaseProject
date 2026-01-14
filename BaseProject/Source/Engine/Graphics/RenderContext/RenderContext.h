@@ -98,6 +98,14 @@ public:
 	);
 
 	/// <summary>
+	/// プロジェクション行列の設定
+	/// </summary>
+	/// <param name="a_projMat">入れたい値</param>
+	void SetProjectionMatrix(
+		DirectX::XMFLOAT4X4 a_projMat
+	);
+
+	/// <summary>
 	/// モデル描画
 	/// </summary>
 	/// <param name="a_modelResource">モデルクラス</param>

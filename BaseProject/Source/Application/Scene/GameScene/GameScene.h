@@ -15,7 +15,7 @@ public:
 
 	void Exit() override;
 
-	void Update() override;
+	void Update(float a_dt) override;
 
 	void Draw() override;
 
@@ -25,9 +25,5 @@ private:
 	{
 		m_sceneType = SceneType::Game;
 	}
-
-private:
-
-	DirectX::XMFLOAT4X4 m_cameraMat;
 
 };

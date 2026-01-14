@@ -20,7 +20,7 @@ public:
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	virtual void Update();
+	virtual void Update(float a_dt);
 
 	/// <summary>
 	/// 描画処理

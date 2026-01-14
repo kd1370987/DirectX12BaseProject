@@ -11,7 +11,7 @@ void BaseScene::Exit()
 {
 }
 
-void BaseScene::Update()
+void BaseScene::Update(float a_dt)
 {
 }
 

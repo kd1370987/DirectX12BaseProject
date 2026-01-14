@@ -6,6 +6,7 @@ enum class SystemType
 
 	Update,
 
+	PreDraw,
 	Draw,
 };
 
