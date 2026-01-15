@@ -27,5 +27,7 @@ namespace ECS
 
 	// コンポーネントタイプのビットセット
 	using Signature = std::bitset<ECS::Limits::MAX_COMPONENT_TYPES>;
+
+	using Flg = uint8_t;
 };
 

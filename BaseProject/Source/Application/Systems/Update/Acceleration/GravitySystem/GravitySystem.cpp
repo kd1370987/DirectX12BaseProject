@@ -7,7 +7,7 @@
 void GravitySystem::Run(World& a_world, float a_dt)
 {
 	a_world.ForEach<GravityComponent,VelocityComponent>(
-		[&a_world]
+		[&a_world,a_dt]
 		(
 			ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

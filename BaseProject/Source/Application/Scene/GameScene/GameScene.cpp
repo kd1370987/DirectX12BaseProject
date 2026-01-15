@@ -26,6 +26,9 @@
 #include "../../Components/Transform/TRSComponent.h"
 #include "../../Components/Transform/WorldMatrixComponent.h"
 
+#include "../../Components/Collision/Collider.h"
+#include "../../Components/Collision/RayCollider.h"
+
 #include "../../Components/Resource/ModelComponent.h"
 
 // システム関連
@@ -33,6 +36,9 @@
 #include "../../Systems/Update/CalcMatrix/CalcMatrixSystem.h"
 #include "../../Systems/Update/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
 #include "../../Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
+#include "../../Systems/Update/Acceleration/GravitySystem/GravitySystem.h"
+#include "../../Systems/Physics/RayCollisionSystem.h"
+
 
 #include "../../Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
 
@@ -54,6 +60,9 @@ void GameScene::Enter()
 	World::Instance().RegisterComponentType<GravityComponent>("Gravity");
 	World::Instance().RegisterComponentType<InertiaComponent>("Inertia");
 
+	World::Instance().RegisterComponentType<ColliderComponent>("Col");
+	World::Instance().RegisterComponentType<RayColliderComponent>("RayCol");
+
 	World::Instance().RegisterComponentType<TRSComponent>("Transform");
 	World::Instance().RegisterComponentType<WorldMatrixComponent>("WorldMatrix");
 	World::Instance().RegisterComponentType<ModelComponent>("Model");
@@ -62,29 +71,42 @@ void GameScene::Enter()
 	World::Instance().RegisterSystem<DrawSystem>();
 	World::Instance().RegisterSystem<CamSetShaderSystem>();
 	World::Instance().RegisterSystem<InputMoveSystem>();
+	World::Instance().RegisterSystem<GravitySystem>();
 	World::Instance().RegisterSystem<PositionIntegrationSystem>();
 	World::Instance().RegisterSystem<CalcMatrixSystem>();
+	World::Instance().RegisterSystem<RayCollisionSystem>();
+	
 
 	// エンティティ生成
-	for(size_t _x = 0; _x < 10; ++_x)
 	{
-		for (size_t _y = 0; _y < 10; ++_y)
-		{
-		/*	ECS::Signature _sig;
-			_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
-			_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
-			_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
-			ECS::Entity _entity = World::Instance().CreateEntity(_sig);
-
-			ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
-			_model->modelID = ResourceManager::Instance().GetModel("Asset/Model/tank/tank.gltf");
-			_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
-			_model->emissiveScale = { 0.0f,0.0f,0.0f };
-			TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
-			_ref->pos = { -50.f + (_x * 5), 5.0f, 10.0f + (_y * 5) };
-			_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
-			_ref->scale = { 1.0f,1.0f,1.0f };*/
-		}
+		ECS::Signature _sig;
+		_sig.set(World::Instance().GetCompTypeID(typeid(GravityComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(VelocityComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(ColliderComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(RayColliderComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
+		ECS::Entity _entity = World::Instance().CreateEntity(_sig);
+		ColliderComponent* _collider = World::Instance().RefData<ColliderComponent>(_entity);
+		_collider->layer = Layer::DiynamicObject;
+		_collider->collideLayer = Layer::StaticObject;
+		RayColliderComponent* _rayCol = World::Instance().RefData<RayColliderComponent>(_entity);
+		_rayCol->length = 0.1f;
+		_rayCol->dir = { 0.0f,-1.0f,0.0f };
+		_rayCol->pos = { 0.0f,0.0f,0.0f };
+		GravityComponent* _gravity = World::Instance().RefData<GravityComponent>(_entity);
+		_gravity->scale = -1.f;
+		VelocityComponent* _velocity = World::Instance().RefData<VelocityComponent>(_entity);
+		_velocity->value = { 0.0f,0.0f,0.0f };
+		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
+		_model->modelID = ResourceManager::Instance().GetModel("Asset/Model/tank/tank.gltf");
+		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
+		_model->emissiveScale = { 0.0f,0.0f,0.0f };
+		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
+		_ref->pos = { 0.0f, 5.0f, 10.0f };
+		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
+		_ref->scale = { 1.0f,1.0f,1.0f };
 	}
 
 	{
@@ -107,11 +129,14 @@ void GameScene::Enter()
 	// 地面
 	{
 		ECS::Signature _sig;
+		_sig.set(World::Instance().GetCompTypeID(typeid(ColliderComponent)));
 		_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
 		_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
 		_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
 		auto _entity = World::Instance().CreateEntity(_sig);
-		
+		ColliderComponent* _collider = World::Instance().RefData<ColliderComponent>(_entity);
+		_collider->layer = Layer::StaticObject;
+		_collider->collideLayer = Layer::DiynamicObject;
 		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
 		_model->modelID = ResourceManager::Instance().GetModel("Asset/Model/Stage/StageMap.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
@@ -151,7 +176,7 @@ void GameScene::Enter()
 		VelocityComponent* _velocity = World::Instance().RefData<VelocityComponent>(_entity);
 		_velocity->value = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
-		_ref->pos = { 0.0f, 10.0f, -10.0f };
+		_ref->pos = { 0.0f, 5.0f, -10.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
 	}
@@ -165,13 +190,17 @@ void GameScene::Exit()
 void GameScene::Update(float a_dt)
 {
 	World::Instance().RunSystem(SystemType::Update, a_dt);
+
+	World::Instance().RunSystem(SystemType::Physics, a_dt);
+
+	World::Instance().RunSystem(SystemType::PostUpdate, a_dt);
 }
 
 void GameScene::Draw()
 {
 	RenderContext::Instance().BeginSimpleRender();
 
-	World::Instance().RunSystem(SystemType::PreDraw,0.0f);
+	World::Instance().RunSystem(SystemType::Camera, 0.0f);
 
 	World::Instance().RunSystem(SystemType::Draw,0.0f);
 

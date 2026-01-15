@@ -39,7 +39,6 @@ void InputMoveSystem::Run(World& a_world, float a_dt)
 				for (size_t _i = 0; _i < a_count; ++_i)
 				{
 					VelocityComponent& _velComp = a_velocityArray[_i];
-					_velComp.value = {};
 					_velComp.value.x += inputDir.x;
 					_velComp.value.y += inputDir.y;
 				}

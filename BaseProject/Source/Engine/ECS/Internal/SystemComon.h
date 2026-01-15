@@ -4,9 +4,13 @@ enum class SystemType
 {
 	Init,
 
+	Input,
+	PreUpdate,
 	Update,
+	Physics,
+	PostUpdate,
+	Camera,
 
-	PreDraw,
 	Draw,
 };
 

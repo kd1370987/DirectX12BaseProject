@@ -5,9 +5,11 @@
 #include "../../../../Components/Force/VelocityComponent.h"
 #include "../../../../Components/Transform/TRSComponent.h"
 
+#include "../../../../Components/Force/InertiaComponent.h"
+
 void PositionIntegrationSystem::Run(World& a_world, float a_dt)
 {
-	a_world.ForEach<VelocityComponent, TRSComponent>
+	a_world.ForEachEx<VelocityComponent, TRSComponent>
 		(
 			[&a_world, a_dt]
 			(
@@ -24,7 +26,10 @@ void PositionIntegrationSystem::Run(World& a_world, float a_dt)
 					_trsComp.pos.x += _velComp.value.x * a_dt;
 					_trsComp.pos.y += _velComp.value.y * a_dt;
 					_trsComp.pos.z += _velComp.value.z * a_dt;
+
+					_velComp.value = {};
 				}
-			}
+			},
+			Exclude<InertiaComponent>()
 		);
 }

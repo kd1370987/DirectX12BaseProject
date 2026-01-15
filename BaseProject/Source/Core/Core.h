@@ -7,5 +7,6 @@
 #include "Utility/StringUtillity.h"                  // 文字列ユーティリティ
 
 #include "Math/Alignment.h"
+#include "Math/Collider.h"
 
 #include "Storage/Storage.h";					 // 汎用ストレージクラス

@@ -170,12 +170,14 @@
     <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Application\Systems\DrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Physics\RayCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Acceleration\GravitySystem\GravitySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\CalcMatrix\CalcMatrixSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Rotation\RotationSystem.cpp" />
+    <ClCompile Include="Source\Core\Math\Collider.cpp" />
     <ClCompile Include="Source\Core\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp" />
     <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp" />
@@ -234,6 +236,9 @@
     <ClInclude Include="Source\Application\Components\Camera\CameraParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\ProjMatComponent.h" />
+    <ClInclude Include="Source\Application\Components\Collision\Collider.h" />
+    <ClInclude Include="Source\Application\Components\Collision\RayCollider.h" />
+    <ClInclude Include="Source\Application\Components\Collision\SphreCollider.h" />
     <ClInclude Include="Source\Application\Components\Force\GravityComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\InertiaComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
@@ -248,6 +253,7 @@
     <ClInclude Include="Source\Application\Scene\SceneType.h" />
     <ClInclude Include="Source\Application\Systems\DrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Physics\RayCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Acceleration\GravitySystem\GravitySystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\CalcMatrix\CalcMatrixSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h" />
@@ -256,6 +262,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Rotation\RotationSystem.h" />
     <ClInclude Include="Source\Core\Core.h" />
     <ClInclude Include="Source\Core\Math\Alignment.h" />
+    <ClInclude Include="Source\Core\Math\Collider.h" />
     <ClInclude Include="Source\Core\Storage\Storage.h" />
     <ClInclude Include="Source\Core\Time\DeltaTime\DeltaTime.h" />
     <ClInclude Include="Source\Core\Time\FPSController\FPSController.h" />
