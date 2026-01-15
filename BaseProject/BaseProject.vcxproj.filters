@@ -292,6 +292,21 @@
     <Filter Include="Source\Application\Systems\Physics\RayCollisionSystem">
       <UniqueIdentifier>{4523f411-44d6-4a72-9d3e-78f7be259ebc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Collision">
+      <UniqueIdentifier>{fa21b5c7-49e4-440c-a50c-3b190fdac3e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\NarrowPhase">
+      <UniqueIdentifier>{c1bed41e-ccf7-4279-b5cd-d08bccac7b13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\BroadPhase">
+      <UniqueIdentifier>{d5a5abef-fb1f-43f8-bee4-1fe568fc196d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\Gather">
+      <UniqueIdentifier>{eafdf882-fc61-43aa-9144-3c1a4c457e08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\Query">
+      <UniqueIdentifier>{0f15cf9c-3377-4017-b212-d1815ff6f5df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -472,6 +487,18 @@
       <Filter>Source\Application\Systems\Physics\RayCollisionSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Math\Collider.cpp" />
+    <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp">
+      <Filter>Source\Engine\Collision\BroadPhase</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.cpp">
+      <Filter>Source\Engine\Collision\NarrowPhase</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp">
+      <Filter>Source\Engine\Collision\Gather</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Collision\Collision.cpp">
+      <Filter>Source\Engine\Collision</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -734,6 +761,21 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Math\Collider.h">
       <Filter>Source\Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\Query\Raycast.h">
+      <Filter>Source\Engine\Collision\Query</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h">
+      <Filter>Source\Engine\Collision\BroadPhase</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.h">
+      <Filter>Source\Engine\Collision\NarrowPhase</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\Gather\Gather.h">
+      <Filter>Source\Engine\Collision\Gather</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\Collision.h">
+      <Filter>Source\Engine\Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

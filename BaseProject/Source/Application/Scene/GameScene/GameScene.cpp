@@ -92,9 +92,9 @@ void GameScene::Enter()
 		_collider->layer = Layer::DiynamicObject;
 		_collider->collideLayer = Layer::StaticObject;
 		RayColliderComponent* _rayCol = World::Instance().RefData<RayColliderComponent>(_entity);
-		_rayCol->length = 0.1f;
+		_rayCol->length = 1.0f;
 		_rayCol->dir = { 0.0f,-1.0f,0.0f };
-		_rayCol->pos = { 0.0f,0.0f,0.0f };
+		_rayCol->pos = { 0.0f,1.0f,0.0f };
 		GravityComponent* _gravity = World::Instance().RefData<GravityComponent>(_entity);
 		_gravity->scale = -1.f;
 		VelocityComponent* _velocity = World::Instance().RefData<VelocityComponent>(_entity);

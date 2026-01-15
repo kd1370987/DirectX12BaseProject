@@ -181,6 +181,10 @@
     <ClCompile Include="Source\Core\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp" />
     <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp" />
+    <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp" />
+    <ClCompile Include="Source\Engine\Collision\Collision.cpp" />
+    <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp" />
+    <ClCompile Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.cpp" />
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\ECS\EntityManager\EntityManager.cpp" />
@@ -269,6 +273,11 @@
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
     <ClInclude Include="Source\Core\Utility\StringUtillity.h" />
     <ClInclude Include="Source\Engine\CBAllocater\CBAllocater.h" />
+    <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h" />
+    <ClInclude Include="Source\Engine\Collision\Collision.h" />
+    <ClInclude Include="Source\Engine\Collision\Gather\Gather.h" />
+    <ClInclude Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.h" />
+    <ClInclude Include="Source\Engine\Collision\Query\Raycast.h" />
     <ClInclude Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.h" />
     <ClInclude Include="Source\Engine\ECS\ArchetypeChunk\ArchetypeChunk.h" />
     <ClInclude Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.h" />
