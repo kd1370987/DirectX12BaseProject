@@ -31,6 +31,10 @@ public:
 	void BeginRender();
 	void EndRender(bool a_isVsync = true);
 
+	void CommandQueueReset();
+
+	void WaitRender();										// 描画完了を待つ処理
+	void SignalRenderFence();								// フェンスにシグナルを送る処理
 public:
 	// ゲッター
 	ID3D12Device* GetDevice();									// デバイス
@@ -39,6 +43,7 @@ public:
 	UINT CurrentCPUFrameIndex();
 	IDXGISwapChain* GetSwapChain(); 
 	ID3D12Resource* GetCurrentRenderTarget();
+	ID3D12CommandQueue* GetCommandQueue();
 
 private:
 	// DirectX12のオブジェクト
@@ -76,8 +81,7 @@ private:
 	// 描画ループで使用するもの
 	UINT m_cpuFrameIndex = 0;
 	ID3D12Resource* m_currentRenderTarget = nullptr;		// 現在のフレームのレンダーターゲット
-	void WaitRender();										// 描画完了を待つ処理
-	void SignalRenderFence();								// フェンスにシグナルを送る処理
+	
 private:
 	// シングルトン
 	// ユニークポインタ使用のため処理はないがcpp側に書いている

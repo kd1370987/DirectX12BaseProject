@@ -40,4 +40,6 @@ struct Material
 
 	// 法線マップ
 	std::string 				normalTexKey;
+
+	DescriptorHandle			srvHandle;		// SRVハンドル
 };

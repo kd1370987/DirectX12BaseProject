@@ -4,13 +4,15 @@
 
 void RootSignatureManager::Init()
 {
+	
 	auto _spRootSig = std::make_shared<RootSignature>();
 	if (!_spRootSig->Create({
 		{RootParameterType::RootCBV,{}},
 		{RootParameterType::RootCBV,{}},
 		{RootParameterType::RootCBV,{}},
 		{RootParameterType::RootCBV,{}},
-		{RootParameterType::DescriptorTable,{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV}},
+		{RootParameterType::DescriptorTable,{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV}}
+		//{RootParameterType::DescriptorTable,{RangeType::SRV}}
 		})
 		)
 	{

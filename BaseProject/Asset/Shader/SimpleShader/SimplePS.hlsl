@@ -22,4 +22,3 @@ float4 pixel(VSOutput a_input) : SV_Target
 
 	return base * brightness;
 }
-

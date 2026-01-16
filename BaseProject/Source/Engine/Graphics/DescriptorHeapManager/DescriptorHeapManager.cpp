@@ -58,6 +58,12 @@ DescriptorHandle DescriptorHeapManager::RegisterSRV(ID3D12Resource* a_resource)
 	return m_spCBV_SRV_UAVHeap->RegisterSRV(a_resource);
 }
 
+DescriptorHandle DescriptorHeapManager::AllocateSRVRange(std::vector<ID3D12Resource*> a_resource)
+{
+	//return m_spCBV_SRV_UAVHeap->AllocateSRVRange(static_cast<UINT>(a_resource.size()));
+	return m_spCBV_SRV_UAVHeap->AllocateSRVRange(a_resource);
+}
+
 DescriptorHandle DescriptorHeapManager::RegisterDSV(ID3D12Resource* a_resource)
 {
 	

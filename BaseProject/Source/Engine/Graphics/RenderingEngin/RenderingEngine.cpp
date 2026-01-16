@@ -132,9 +132,7 @@ void RenderingEngine::BeginRender()
 	// 現在のレンダーターゲットを更新
 	m_currentRenderTarget = m_pRenderTargets[m_upSwapChain->GetCurrentBackBufferIndex()].Get();
 
-	// コマンドキューを初期化して命令をためる準備をする
-	m_upCommandAllocator->Reset(m_cpuFrameIndex);
-	m_upCommandList->Reset(m_upCommandAllocator->Get(m_cpuFrameIndex));
+	CommandQueueReset();
 
 	// ビューポートとシザー矩形を設定
 	m_upCommandList->SetViewports(1,&m_upViewport->Get());
@@ -188,6 +186,13 @@ void RenderingEngine::EndRender(bool a_isVsync)
 	m_upSwapChain->Present(a_isVsync);
 }
 
+void RenderingEngine::CommandQueueReset()
+{
+	// コマンドキューを初期化して命令をためる準備をする
+	m_upCommandAllocator->Reset(m_cpuFrameIndex);
+	m_upCommandList->Reset(m_upCommandAllocator->Get(m_cpuFrameIndex));
+}
+
 
 
 //==================================================================================
@@ -224,6 +229,11 @@ IDXGISwapChain* RenderingEngine::GetSwapChain()
 ID3D12Resource* RenderingEngine::GetCurrentRenderTarget()
 {
 	return m_pRenderTargets[m_upSwapChain->GetCurrentBackBufferIndex()].Get();
+}
+
+ID3D12CommandQueue* RenderingEngine::GetCommandQueue()
+{
+	return m_upCommandQueue->Get();
 }
 
 //==================================================================================

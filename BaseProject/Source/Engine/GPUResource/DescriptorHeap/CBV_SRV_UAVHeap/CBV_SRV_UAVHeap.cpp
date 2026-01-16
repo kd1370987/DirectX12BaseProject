@@ -146,6 +146,66 @@ DescriptorHandle CBV_SRV_UAVHeap::RegisterSRV(ID3D12Resource* a_resource)
 	return _handle;
 }
 
+DescriptorHandle CBV_SRV_UAVHeap::AllocateSRVRange(UINT a_count)
+{
+	UINT _startIndex = static_cast<UINT>(m_currentCounts.y);
+
+	assert(
+		(m_maxCounts.y - m_currentCounts.y) >= a_count &&
+		"SRVHeapのヒープ領域を使い切りました"
+	);
+
+	// ハンドルの作成
+	DescriptorHandle _handle;
+	auto _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+	_handleCPU.ptr += m_incrementSize * (_startIndex + static_cast<UINT>(m_maxCounts.x));
+	auto _handleGPU = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
+	_handleGPU.ptr += m_incrementSize * (_startIndex + static_cast<UINT>(m_maxCounts.x));
+
+	// ハンドルの登録
+	_handle.handleCPU = _handleCPU;
+	_handle.handleGPU = _handleGPU;
+	m_currentCounts.y += static_cast<float>(a_count);
+	return _handle;
+}
+
+DescriptorHandle CBV_SRV_UAVHeap::AllocateSRVRange(std::vector<ID3D12Resource*> a_resource)
+{
+	auto _handle = AllocateSRVRange(static_cast<UINT>(a_resource.size()));
+	
+	// SRVの仕様書作成
+	auto _device = RenderingEngine::Instance().GetDevice();
+	auto _resource = a_resource;
+	//for (auto& _res : a_resource)
+	for (UINT _i = 0; _i < a_resource.size(); ++_i)
+	{
+		auto& _res = a_resource[_i];
+
+		if (_res == nullptr)
+		{
+			continue;
+		}
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
+		_srvDesc.Format = _res->GetDesc().Format;
+		_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		_srvDesc.Texture2D.MipLevels = 1;
+
+		_handle.handleCPU.ptr = 
+			_handle.handleCPU.ptr + static_cast<unsigned int>(m_incrementSize * _i);
+
+		// SRVの生成
+		_device->CreateShaderResourceView(
+			_res,
+			&_srvDesc,
+			_handle.handleCPU
+		);
+	}
+
+	return _handle;
+}
+
 DescriptorHandle CBV_SRV_UAVHeap::RegisterUAV(ID3D12Resource* a_resource)
 {
 	//size_t _count = m_currentIndex;

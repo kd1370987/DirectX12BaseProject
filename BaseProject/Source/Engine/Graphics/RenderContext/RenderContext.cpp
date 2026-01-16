@@ -288,28 +288,12 @@ void RenderContext::DrawMesh(
 			m_cb3_Material
 		); 
 
+		// SRVの送信
+		auto _handle = _material.srvHandle.handleGPU;
 		_cmdList->SetGraphicsRootDescriptorTable(
 			4,
-			ResourceManager::Instance().GetTexture(_material.baseColorTexKey).lock()->GetGpuSrvHandle()
+			_handle
 		);
-		if (!_material.emissiveTexKey.empty())
-		{
-			_cmdList->SetGraphicsRootDescriptorTable(
-			4,
-			ResourceManager::Instance().GetTexture(_material.emissiveTexKey).lock()->GetGpuSrvHandle());
-		}
-		if (!_material.metallicRoughnessTexKey.empty())
-		{
-			_cmdList->SetGraphicsRootDescriptorTable(
-			4,
-			ResourceManager::Instance().GetTexture(_material.metallicRoughnessTexKey).lock()->GetGpuSrvHandle());
-		}
-		if (_material.normalTexKey != "")
-		{
-			_cmdList->SetGraphicsRootDescriptorTable(
-			4,
-			ResourceManager::Instance().GetTexture(_material.normalTexKey).lock()->GetGpuSrvHandle());
-		}
 
 		// 描画
 		UINT _faceCount = static_cast<UINT>(a_mesh->GetSubsets()[_subIdx].faceCount);

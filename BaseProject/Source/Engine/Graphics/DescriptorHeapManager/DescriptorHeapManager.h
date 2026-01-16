@@ -47,6 +47,8 @@ public:
 	/// <returns>登録した場所を返す</returns>
 	DescriptorHandle RegisterSRV(ID3D12Resource* a_resource);
 
+	DescriptorHandle AllocateSRVRange(std::vector<ID3D12Resource*> a_resource);
+
 	/// <summary>
 	/// デプスステンシルビュー登録
 	/// </summary>

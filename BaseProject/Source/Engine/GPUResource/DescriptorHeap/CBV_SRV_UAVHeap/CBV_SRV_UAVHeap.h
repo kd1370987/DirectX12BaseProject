@@ -52,7 +52,15 @@ public:
 		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
 	);*/
 	DescriptorHandle RegisterSRV(ID3D12Resource* a_resource);
+
+	DescriptorHandle AllocateSRVRange(UINT a_count);
+
+	DescriptorHandle AllocateSRVRange(std::vector<ID3D12Resource*> a_resource);
+
 	DescriptorHandle RegisterUAV(ID3D12Resource* a_resource);
+
+
+	
 
 private:
 

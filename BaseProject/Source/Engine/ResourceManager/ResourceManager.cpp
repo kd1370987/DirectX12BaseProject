@@ -38,7 +38,7 @@ std::weak_ptr<Texture> ResourceManager::GetTexture(const std::string& a_key)
 	
 	// テクスチャを新規作成して読み込む
 	_spTexture = std::make_shared<Texture>();
-	if (!_spTexture->Load(a_key))
+	if (!_spTexture->NormalMapLoad(a_key))
 	{
 		// 読み込み失敗
 		assert(0 && "テクスチャの読み込みに失敗");

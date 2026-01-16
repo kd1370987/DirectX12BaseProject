@@ -10,6 +10,8 @@ public:
 	// 読込
 	//=================================================
 	bool Load(const std::string& a_path);
+	bool NormalMapLoad(const std::string& a_path);
+
 	bool WhiteTexture();
 	ID3D12Resource* GetDefaultResource(size_t a_width, size_t a_height);
 
@@ -17,24 +19,14 @@ public:
 	// アクセサ
 	//=================================================
 	ID3D12Resource* GetResource() const { return m_textureResource.Get(); }	// テクスチャリソース取得
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuSrvHandle() const { return m_gpuSrvHandle; }	// GPU側SRVハンドル取得
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCpuSrvHandle() const { return m_cpuSrvHandle; }	// CPU側SRVハンドル取得
 	size_t GetWidth() const { return width; }			// 幅取得
 	size_t GetHeight() const { return height; }		// 高さ取得
 	size_t GetMipLevels() const { return mipLevels; }	// ミップレベル数取得
 	DXGI_FORMAT GetFormat() const { return format; }	// フォーマット取得
 
-	//=================================================	
-	// セッター
-	//=================================================
-	void SetGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE a_handle = {}) { m_gpuSrvHandle = a_handle; }
-	void SetCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE a_handle = {}) { m_cpuSrvHandle = a_handle; }
-
 private:
 
 	ComPtr<ID3D12Resource> m_textureResource;			// テクスチャリソース
-	D3D12_GPU_DESCRIPTOR_HANDLE m_gpuSrvHandle{};			// SRVハンドル
-	D3D12_CPU_DESCRIPTOR_HANDLE m_cpuSrvHandle{};			// CPU側SRVハンドル
 
 	// メタデータ
 	size_t width = 0;
