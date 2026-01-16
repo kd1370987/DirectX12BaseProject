@@ -6,19 +6,19 @@ void RootSignatureManager::Init()
 {
 	auto _spRootSig = std::make_shared<RootSignature>();
 	if (!_spRootSig->Create({
-			RangeType::CBV,
-			RangeType::CBV,
-			RangeType::CBV,
-			RangeType::CBV,
-			RangeType::SRV,
+		{RootParameterType::RootCBV,{}},
+		{RootParameterType::RootCBV,{}},
+		{RootParameterType::RootCBV,{}},
+		{RootParameterType::RootCBV,{}},
+		{RootParameterType::DescriptorTable,{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV}},
 		})
-	)
+		)
 	{
 		assert(0 && "ルートシグネチャの生成に失敗");
 		return;
 	}
 
-	m_rootSigStorage.Add(m_id,_spRootSig);
+	m_rootSigStorage.Add(m_id, _spRootSig);
 	m_id++;
 }
 

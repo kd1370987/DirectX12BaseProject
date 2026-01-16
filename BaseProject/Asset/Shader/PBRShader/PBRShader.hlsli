@@ -30,10 +30,7 @@ cbuffer CBMaterial : register(b3)
 SamplerState smp : register(s0);
 
 // テクスチャ
-Texture2D g_mainTex : register(t0);
-Texture2D g_emiTex : register(t1);
-Texture2D g_metRogTex : register(t2);
-Texture2D g_normalTex : register(t3);
+Texture2D _MainTex : register(t0);
 
 // 頂点シェーダー入出力構造体
 struct VSInput
@@ -48,11 +45,12 @@ struct VSInput
 // 頂点シェーダー出力構造体
 struct VSOutput
 {
-	float4 svpos : SV_Position; // 変換された座標
-	float4 color : COLOR; // 変換された色
-	float2 uv : TEXCOORD; // uv座標
-	float3 normal : NORMAL; // 法線
+	float4 svPos : SV_Position; // 変換された座標
+	float3 wPos : WORLDPOS; // ワールド座標
 	
+	float4 color : COLOR; // 変換された色
+	float2 uv : TEXCOORD0; // uv座標
+
 	float3 wN : TEXCOORD1; // ワールド法線
 	float3 wT : TEXCOORD2; // ワールド接線
 	float3 wB : TEXCOORD3; // ワールド副接線(従法線)

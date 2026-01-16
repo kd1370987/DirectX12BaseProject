@@ -11,8 +11,15 @@ VSOutput vert(VSInput a_input)
     
     _output.svpos = _projPos;           // 投影変換された座標をピクセルシェーダーに渡す
     _output.color = a_input.color;      // 頂点色をそのままピクセルシェーダーに渡す
-  //  _output.color = a_input.color + baseColor;      // 頂点色をそのままピクセルシェーダーに渡す
 	_output.uv = a_input.uv;	// uv座標をそのままピクセルシェーダーに渡す
+	_output.normal = a_input.normal; // 法線をそのままピクセルシェーダーに渡す
+
+		// ワールド法線、接線、副接線
+	_output.wN = normalize(mul((float3x3) mat, a_input.normal));
+	_output.wT = normalize(mul((float3x3) mat, a_input.tangent.xyz));
+
+	float3 _binormal = cross(a_input.normal, a_input.tangent.xyz);
+	_output.wB = normalize(mul((float3x3) mat, _binormal));
     
     return _output;
 }

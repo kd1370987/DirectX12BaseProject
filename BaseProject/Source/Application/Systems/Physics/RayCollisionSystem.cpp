@@ -37,7 +37,7 @@ void RayCollisionSystem::Run(World& a_world, float a_dt)
 		auto _result = Result{};
 		if (Collision::Raycast(_ray, _colliderViewVec, _result))
 		{
-			_ray.pTRS->pos = { 0,0.2f,0 };
+			_ray.pTRS->pos = _result.hitPos;
 		}
 	};
 }

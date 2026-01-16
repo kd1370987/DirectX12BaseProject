@@ -307,6 +307,15 @@
     <Filter Include="Source\Engine\Collision\Query">
       <UniqueIdentifier>{0f15cf9c-3377-4017-b212-d1815ff6f5df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Draw\ShadowDraw">
+      <UniqueIdentifier>{47d0afb2-6760-4fe7-be43-b9700091845e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Draw\SimpleDraw">
+      <UniqueIdentifier>{1cccb728-09d8-4164-b865-0b5f56074cad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\PBRShader">
+      <UniqueIdentifier>{34049356-8dec-48f2-bdb7-a6fd4c039475}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -785,11 +794,20 @@
     <FxCompile Include="Asset\Shader\SimpleShader\SimpleVS.hlsl">
       <Filter>Asset\Shader\SimpleShader</Filter>
     </FxCompile>
+    <FxCompile Include="Asset\Shader\PBRShader\PBR_VS.hlsl">
+      <Filter>Asset\Shader\PBRShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\PBRShader\PBR_PS.hlsl">
+      <Filter>Asset\Shader\PBRShader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\SimpleShader\SimpleShader.hlsli">
       <Filter>Asset\Shader\SimpleShader</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="Asset\Shader\PBRShader\PBRShader.hlsli">
+      <Filter>Asset\Shader\PBRShader</Filter>
+    </None>
   </ItemGroup>
 </Project>

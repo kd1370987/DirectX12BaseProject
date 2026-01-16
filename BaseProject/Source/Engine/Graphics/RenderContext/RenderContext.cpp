@@ -279,7 +279,8 @@ void RenderContext::DrawMesh(
 		// ベースカラー
 		auto _baseColor = DirectX::XMLoadFloat4(&_material.baseColor);
 		DirectX::XMStoreFloat4(&m_cb3_Material.baseColorXYZW, DirectX::XMVectorMultiply(_baseColor, _colorScale));
-
+		m_cb3_Material.emissiveXYZ = { a_emissive.x,a_emissive.y,a_emissive.z,0 };
+		m_cb3_Material.metallicRoughnessXY = { _material.metallic ,_material.roughness,0,0 };
 
 		m_frameResource[_currentIdx].upCamAndObjectCBAllocater->BindAndAttachDataRootCBV<CBMaterial>(
 			_cmdList,
@@ -291,6 +292,24 @@ void RenderContext::DrawMesh(
 			4,
 			ResourceManager::Instance().GetTexture(_material.baseColorTexKey).lock()->GetGpuSrvHandle()
 		);
+		if (!_material.emissiveTexKey.empty())
+		{
+			_cmdList->SetGraphicsRootDescriptorTable(
+			4,
+			ResourceManager::Instance().GetTexture(_material.emissiveTexKey).lock()->GetGpuSrvHandle());
+		}
+		if (!_material.metallicRoughnessTexKey.empty())
+		{
+			_cmdList->SetGraphicsRootDescriptorTable(
+			4,
+			ResourceManager::Instance().GetTexture(_material.metallicRoughnessTexKey).lock()->GetGpuSrvHandle());
+		}
+		if (_material.normalTexKey != "")
+		{
+			_cmdList->SetGraphicsRootDescriptorTable(
+			4,
+			ResourceManager::Instance().GetTexture(_material.normalTexKey).lock()->GetGpuSrvHandle());
+		}
 
 		// 描画
 		UINT _faceCount = static_cast<UINT>(a_mesh->GetSubsets()[_subIdx].faceCount);

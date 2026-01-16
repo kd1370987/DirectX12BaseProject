@@ -13,7 +13,13 @@ enum class RangeType
 {
 	CBV,
 	SRV,
-	UAV
+	UAV,
+};
+
+enum class RootParameterType
+{
+	DescriptorTable,
+	RootCBV,
 };
 
 class RootSignature
@@ -23,9 +29,8 @@ public:
 	// コンストラクタでルートシグネチャを生成
 	RootSignature();
 
-
 	bool Create(
-		std::vector<RangeType> a_rangeTypeVec
+		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec
 	);
 
 	bool IsValid();					// ルートシグネチャの生成に成功しているか
@@ -36,7 +41,8 @@ private:
 	bool m_isValid = false;				// ルートシグネチャの生成に成功したか
 	ComPtr<ID3D12RootSignature> m_pRootSignatrue = nullptr;		// ルートシグネチャ
 
-	std::vector<D3D12_ROOT_PARAMETER> _rootParams;
-	std::vector<D3D12_DESCRIPTOR_RANGE> _ranges;
+	std::vector<D3D12_ROOT_PARAMETER> m_rootParams;
+
+	std::vector<std::pair<D3D12_ROOT_PARAMETER, std::vector<D3D12_DESCRIPTOR_RANGE>>> m_rootParameters;
 
 };

@@ -6,11 +6,12 @@ RootSignature::RootSignature()
 {
 	
 }
-
-bool RootSignature::Create(std::vector<RangeType> a_rangeTypeVec)
+bool RootSignature::Create(
+	const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec
+)
 {
-	// 指定したレンジ数
-	int _rangeCount = a_rangeTypeVec.size();
+	// パラメーター数
+	int _paramCount = a_rootParamsVec.size();
 
 	// アプリケーションの入力アセンブラ使用
 	auto _flag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
@@ -18,68 +19,78 @@ bool RootSignature::Create(std::vector<RangeType> a_rangeTypeVec)
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
-	//std::vector<D3D12_ROOT_PARAMETER> _rootParams(_rangeCount);
-	//std::vector<D3D12_DESCRIPTOR_RANGE> _ranges(_rangeCount);
-	_rootParams.resize(_rangeCount);
-	_ranges.resize(_rangeCount);
+	m_rootParameters.resize(_paramCount);
 
 	UINT _cbvCount = 0;
 	UINT _srvCount = 0;
 	UINT _uavCount = 0;
 
 	// ルートパラメーター・レンジ作成
-	for (size_t _i = 0; _i < _rangeCount; ++_i)
+	for (size_t _i = 0; _i < _paramCount; ++_i)
 	{
-		_rootParams[_i] = {};
-		_ranges[_i] = {};
-
-		_ranges[_i].NumDescriptors = 1;
-		_ranges[_i].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		switch (a_rangeTypeVec[_i])
+		switch (a_rootParamsVec[_i].first)
 		{
-		case RangeType::CBV:		// 定数バッファビュー
-			_ranges[_i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-			_ranges[_i].BaseShaderRegister = _cbvCount;
-			_ranges[_i].RegisterSpace = 0;
-
-			_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-			_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-			_rootParams[_i].Descriptor.ShaderRegister = _cbvCount;
-			_rootParams[_i].Descriptor.RegisterSpace = 0;
-
-			/*_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-			_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			_rootParams[_i].DescriptorTable.pDescriptorRanges = &_ranges[_i];
-			_rootParams[_i].DescriptorTable.NumDescriptorRanges = 1;*/
+		case RootParameterType::RootCBV:
+			m_rootParameters[_i].first = {};
+			m_rootParameters[_i].first.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			m_rootParameters[_i].first.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+			m_rootParameters[_i].first.Descriptor.ShaderRegister = _cbvCount;
+			m_rootParameters[_i].first.Descriptor.RegisterSpace = 0;
 			++_cbvCount;
 			break;
-		case RangeType::SRV:		// シェーダーリソースビュー
-			_ranges[_i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-			_ranges[_i].BaseShaderRegister = _srvCount;
-			_ranges[_i].RegisterSpace = 0;
-
-			_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-			_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			_rootParams[_i].DescriptorTable.pDescriptorRanges = &_ranges[_i];
-			_rootParams[_i].DescriptorTable.NumDescriptorRanges = 1;
-			++_srvCount;
-			break;
-		case RangeType::UAV:		// アンオーダーアクセスビュー
-			_ranges[_i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-			_ranges[_i].BaseShaderRegister = _uavCount;
-			_ranges[_i].RegisterSpace = 0;
-			_rootParams[_i].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-			_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			_rootParams[_i].DescriptorTable.pDescriptorRanges = &_ranges[_i];
-			_rootParams[_i].DescriptorTable.NumDescriptorRanges = 1;
-			++_uavCount;
-			break;
+		case RootParameterType::DescriptorTable:
+		{
+			std::vector<D3D12_DESCRIPTOR_RANGE> _ranges(a_rootParamsVec[_i].second.size());
+			// レンジ作成
+			for (size_t j = 0; j < a_rootParamsVec[_i].second.size(); ++j)
+			{
+				_ranges[j] = {};
+				_ranges[j].NumDescriptors = 1;
+				_ranges[j].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+				switch (a_rootParamsVec[_i].second[j])
+				{
+				case RangeType::CBV:		// 定数バッファビュー
+					_ranges[j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+					_ranges[j].BaseShaderRegister = _cbvCount;
+					_ranges[j].RegisterSpace = 0;
+					++_cbvCount;
+					break;
+				case RangeType::SRV:		// シェーダーリソースビュー
+					_ranges[j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+					_ranges[j].BaseShaderRegister = _srvCount;
+					_ranges[j].RegisterSpace = 0;
+					++_srvCount;
+					break;
+				case RangeType::UAV:		// アンオーダーアクセスビュー
+					_ranges[j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+					_ranges[j].BaseShaderRegister = _uavCount;
+					_ranges[j].RegisterSpace = 0;
+					++_uavCount;
+					break;
+				default:
+					break;
+				}
+			}
+			// ルートパラメーター設定
+			D3D12_ROOT_PARAMETER _param = {};
+			m_rootParameters[_i].second = _ranges;
+			m_rootParameters[_i].first.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			m_rootParameters[_i].first.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			m_rootParameters[_i].first.DescriptorTable.pDescriptorRanges = 
+				m_rootParameters[_i].second.data();
+			m_rootParameters[_i].first.DescriptorTable.NumDescriptorRanges = 
+				static_cast<UINT>(m_rootParameters[_i].second.size());
+		}
+		break;
 		default:
 			break;
 		}
+	}
 
-
-		
+	for (auto& param : m_rootParameters)
+	{
+		// ルートパラメーター配列に追加
+		m_rootParams.push_back(param.first);
 	}
 
 	// スタティックサンプラーの設定
@@ -87,9 +98,9 @@ bool RootSignature::Create(std::vector<RangeType> a_rangeTypeVec)
 
 	// ルートシグネチャの設定（設定したいルートパラメーターとスタティックサンプラーを入れる）
 	D3D12_ROOT_SIGNATURE_DESC _desc = {};
-	_desc.NumParameters = std::size(_rootParams);	// ルートパラメーターの個数を入れる
+	_desc.NumParameters = std::size(m_rootParams);	// ルートパラメーターの個数を入れる
 	_desc.NumStaticSamplers = 1;								// サンプラーの個数を入れる
-	_desc.pParameters = _rootParams.data();				// ルートパラメーターのポインタを入れる
+	_desc.pParameters = m_rootParams.data();				// ルートパラメーターのポインタを入れる
 	_desc.pStaticSamplers = &_sampler;						// サンプラーのポインタを入れる
 	_desc.Flags = _flag;												// フラグを設定
 
