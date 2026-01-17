@@ -19,14 +19,14 @@ void Material::SetTexture2D(
 	ID3D12Resource* _emissiveTexResource = nullptr;
 	ID3D12Resource* _normalTexResource = nullptr;
 	// 基本色テクスチャ
-	if (!a_baseColorTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_baseColorTexFileName))
+	//if (!a_baseColorTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_baseColorTexFileName))
 	{
 		auto _wpTex = ResourceManager::Instance().GetTexture(a_fileDir + a_baseColorTexFileName);
 		baseColorTexKey = a_fileDir + a_baseColorTexFileName;
 		_defaultTexResource = _wpTex.lock()->GetResource();
 	}
 	// メタリック・ラフネステクスチャ
-	if (!a_metallicRoughnessTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_metallicRoughnessTexFileName))
+	//if (!a_metallicRoughnessTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_metallicRoughnessTexFileName))
 	{
 		auto _wpTex = ResourceManager::Instance().GetTexture(a_fileDir + a_metallicRoughnessTexFileName);
 		metallicRoughnessTexKey = a_fileDir + a_metallicRoughnessTexFileName;
@@ -35,14 +35,14 @@ void Material::SetTexture2D(
 		_metallicRoughnessTexResource = _wpTex.lock()->GetResource();
 	}
 	// エミッシブテクスチャ
-	if (!a_emissiveTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_emissiveTexFileName))
+	///if (!a_emissiveTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_emissiveTexFileName))
 	{
 		auto _wpTex = ResourceManager::Instance().GetTexture(a_fileDir + a_emissiveTexFileName);
 		emissiveTexKey = a_fileDir + a_emissiveTexFileName;
 		_emissiveTexResource = _wpTex.lock()->GetResource();
 	}
 	// 法線マップテクスチャ
-	if (!a_normalTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_normalTexFileName))
+//	if (!a_normalTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_normalTexFileName))
 	{
 		auto _wpTex = ResourceManager::Instance().GetTexture(a_fileDir + a_normalTexFileName);
 		normalTexKey = a_fileDir + a_normalTexFileName;
