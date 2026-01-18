@@ -12,7 +12,6 @@ void RootSignatureManager::Init()
 		{RootParameterType::RootCBV,{}},
 		{RootParameterType::RootCBV,{}},
 		{RootParameterType::DescriptorTable,{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV}}
-		//{RootParameterType::DescriptorTable,{RangeType::SRV}}
 		})
 		)
 	{

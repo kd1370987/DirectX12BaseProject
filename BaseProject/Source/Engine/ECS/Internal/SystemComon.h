@@ -8,9 +8,10 @@ enum class SystemType
 	PreUpdate,
 	Update,
 	Physics,
-	PostUpdate,
 	Camera,
+	PostUpdate,
 
+	PreDraw,
 	Draw,
 };
 

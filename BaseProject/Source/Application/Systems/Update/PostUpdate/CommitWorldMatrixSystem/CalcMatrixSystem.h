@@ -2,11 +2,11 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class DrawSystem : public SystemBase<DrawSystem>
+class CalcMatrixSystem : public SystemBase<CalcMatrixSystem>
 {
 public:
 
-	static constexpr SystemType s_type = SystemType::Draw;
+	static constexpr SystemType s_type = SystemType::PostUpdate;
 
 	void Run(World& a_world, float a_dt);
 };

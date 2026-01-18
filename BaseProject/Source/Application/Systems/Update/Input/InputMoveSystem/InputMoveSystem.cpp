@@ -2,8 +2,8 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "../../../../Components/Force/VelocityComponent.h"
-#include "../../../../Components/Force/InertiaComponent.h"
+#include "Application/Components/Force/VelocityComponent.h"
+#include "Application/Components/Force/InertiaComponent.h"
 
 void InputMoveSystem::Run(World& a_world, float a_dt)
 {

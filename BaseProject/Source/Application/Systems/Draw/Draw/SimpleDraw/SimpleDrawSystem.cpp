@@ -1,14 +1,14 @@
-﻿#include "DrawSystem.h"
+﻿#include "SimpleDrawSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
-#include "../Components/Transform/WorldMatrixComponent.h"
-#include "../Components/Resource/ModelComponent.h"
+#include "Application/Components/Transform/WorldMatrixComponent.h"
+#include "Application/Components/Resource/ModelComponent.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/ResourceManager/ResourceManager.h"
 
-void DrawSystem::Run(World& a_world, float a_dt)
+void SimpleDrawSystem::Run(World& a_world, float a_dt)
 {
 	RenderContext::Instance().BeginSimpleRender();
 

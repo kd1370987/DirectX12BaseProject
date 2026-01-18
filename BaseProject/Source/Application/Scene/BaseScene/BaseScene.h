@@ -10,22 +10,22 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	virtual void Enter();
+	void Enter();
 
 	/// <summary>
 	/// 解放
 	/// </summary>
-	virtual void Exit();
+	void Exit();
 
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	virtual void Update(float a_dt);
+	void Update(float a_dt);
 
 	/// <summary>
 	/// 描画処理
 	/// </summary>
-	virtual void Draw();
+	void Draw();
 
 	/// <summary>
 	/// シーンのタイプを取得
@@ -36,6 +36,13 @@ public:
 protected:
 
 	virtual void SetSceneType() = 0;
+
+	virtual void Init() {};
+	virtual void Release() {};
+
+	virtual void RegistryComponent() {};
+	virtual void RegistrySystem() {};
+	virtual void RegistryEntity() {};
 
 protected:
 

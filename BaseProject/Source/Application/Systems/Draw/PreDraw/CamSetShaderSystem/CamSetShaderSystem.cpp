@@ -2,14 +2,14 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "../../../../Components/Tag/CameraTag.h"
-#include "../../../../Components/Tag/ActiveCameraTag.h"
+#include "Application/Components/Tag/CameraTag.h"
+#include "Application/Components/Tag/ActiveCameraTag.h"
 
-#include "../../../../Components/Transform/WorldMatrixComponent.h"
+#include "Application/Components/Transform/WorldMatrixComponent.h"
 
-#include "../../../../Components/Camera/CameraParamComponent.h"
-#include "../../../../Components/Camera/FocusParamComponent.h"
-#include "../../../../Components/Camera/ProjMatComponent.h"
+#include "Application/Components/Camera/CameraParamComponent.h"
+#include "Application/Components/Camera/FocusParamComponent.h"
+#include "Application/Components/Camera/ProjMatComponent.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 

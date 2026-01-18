@@ -32,22 +32,26 @@
 #include "../../Components/Resource/ModelComponent.h"
 
 // システム関連
+#include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
 
-#include "../../Systems/Update/CalcMatrix/CalcMatrixSystem.h"
-#include "../../Systems/Update/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
-#include "../../Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
-#include "../../Systems/Update/Acceleration/GravitySystem/GravitySystem.h"
-#include "../../Systems/Physics/RayCollisionSystem.h"
+#include "Application/Systems/Update/Update/Acceleration/GravitySystem/GravitySystem.h"
 
+#include "Application/Systems/Update/Physics/RayCollisionSystem/RayCollisionSystem.h"
+#include "Application/Systems/Update/Physics/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
 
-#include "../../Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
-
-#include "../../Systems/DrawSystem.h"
+#include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
 
 
-void GameScene::Enter()
+#include "Application/Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
+
+#include "Application/Systems/Draw/Draw/SimpleDraw/SimpleDrawSystem.h"
+
+void GameScene::Init()
 {
-	BaseScene::Enter();
+}
+
+void GameScene::RegistryComponent()
+{
 
 	// コンポーネント登録
 	World::Instance().RegisterComponentType<ActiveCameraTag>("ActiveCameraTag");
@@ -67,16 +71,22 @@ void GameScene::Enter()
 	World::Instance().RegisterComponentType<WorldMatrixComponent>("WorldMatrix");
 	World::Instance().RegisterComponentType<ModelComponent>("Model");
 
+}
+
+void GameScene::RegistrySystem()
+{
 	// システム登録
-	World::Instance().RegisterSystem<DrawSystem>();
+	World::Instance().RegisterSystem<SimpleDrawSystem>();
 	World::Instance().RegisterSystem<CamSetShaderSystem>();
 	World::Instance().RegisterSystem<InputMoveSystem>();
 	World::Instance().RegisterSystem<GravitySystem>();
 	World::Instance().RegisterSystem<PositionIntegrationSystem>();
 	World::Instance().RegisterSystem<CalcMatrixSystem>();
 	World::Instance().RegisterSystem<RayCollisionSystem>();
-	
+}
 
+void GameScene::RegistryEntity()
+{
 	// エンティティ生成
 	{
 		ECS::Signature _sig;
@@ -166,7 +176,7 @@ void GameScene::Enter()
 		_camParam->aspectRatio = static_cast<float>(1280) / static_cast<float>(720);
 		_camParam->fovY = 60.f;
 		_camParam->nearZ = 0.1f;
-		_camParam->farZ= 1000.0f;
+		_camParam->farZ = 1000.0f;
 		FocusParamComponent* _focusPram = World::Instance().RefData<FocusParamComponent>(_entity);
 		*_focusPram = {};
 		ProjMatComponent* _projMat = World::Instance().RefData<ProjMatComponent>(_entity);
@@ -182,26 +192,3 @@ void GameScene::Enter()
 	}
 }
 
-void GameScene::Exit()
-{
-	BaseScene::Exit();
-}
-
-void GameScene::Update(float a_dt)
-{
-	World::Instance().RunSystem(SystemType::Update, a_dt);
-
-	World::Instance().RunSystem(SystemType::Physics, a_dt);
-
-	World::Instance().RunSystem(SystemType::PostUpdate, a_dt);
-}
-
-void GameScene::Draw()
-{
-	RenderContext::Instance().BeginSimpleRender();
-
-	World::Instance().RunSystem(SystemType::Camera, 0.0f);
-
-	World::Instance().RunSystem(SystemType::Draw,0.0f);
-
-}

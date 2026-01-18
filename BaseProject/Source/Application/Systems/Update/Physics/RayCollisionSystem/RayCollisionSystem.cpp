@@ -2,13 +2,12 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "../../Components/Collision/Collider.h"
-#include "../../Components/Collision/RayCollider.h"
+#include "Application/Components/Collision/Collider.h"
+#include "Application/Components/Collision/RayCollider.h"
+#include "Application/Components/Transform/TRSComponent.h"
+#include "Application/Components/Transform/WorldMatrixComponent.h"
+#include "Application/Components/Resource/ModelComponent.h"
 
-#include "../../Components/Transform/TRSComponent.h"
-#include "../../Components/Transform/WorldMatrixComponent.h"
-
-#include "../../Components/Resource/ModelComponent.h"
 #include "Engine/ResourceManager/ResourceManager.h"
 
 #include "Engine/GPUResource/Model/Model.h"

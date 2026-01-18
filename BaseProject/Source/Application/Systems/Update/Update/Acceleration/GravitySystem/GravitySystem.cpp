@@ -1,8 +1,8 @@
 ﻿#include "GravitySystem.h"
 
 #include "Engine/ECS/World/World.h"
-#include "../../../../Components/Force/VelocityComponent.h"
-#include "../../../../Components/Force/GravityComponent.h"
+#include "Application/Components/Force/VelocityComponent.h"
+#include "Application/Components/Force/GravityComponent.h"
 
 void GravitySystem::Run(World& a_world, float a_dt)
 {

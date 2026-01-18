@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "../../../../Components/Force/VelocityComponent.h"
+#include "Application/Components/Force/VelocityComponent.h"
 
 void VelocityIntegrationSystem::Run(World& a_world, float a_dt)
 {
