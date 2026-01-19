@@ -170,6 +170,7 @@
     <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp" />
@@ -239,7 +240,11 @@
     <ClInclude Include="Source\Application\AppInc.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h" />
+    <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\ProjMatComponent.h" />
+    <ClInclude Include="Source\Application\Components\Camera\TPSLookAngleComponent.h" />
+    <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h" />
+    <ClInclude Include="Source\Application\Components\Charactor\Player\PlayerLookAngleComponent.h" />
     <ClInclude Include="Source\Application\Components\Collision\Collider.h" />
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\SphreCollider.h" />
@@ -248,7 +253,9 @@
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h" />
     <ClInclude Include="Source\Application\Components\Tag\ActiveCameraTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\PlayerControllTag.h" />
     <ClInclude Include="Source\Application\Components\Transform\TRSComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />
@@ -257,6 +264,7 @@
     <ClInclude Include="Source\Application\Scene\SceneType.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h" />

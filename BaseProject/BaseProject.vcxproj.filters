@@ -331,6 +331,18 @@
     <Filter Include="Source\Application\Systems\Draw\Draw\SimpleDraw">
       <UniqueIdentifier>{b5fd83f2-e2be-4994-936c-77004366b3a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Components\Input">
+      <UniqueIdentifier>{95bc3de0-79f5-48ea-a766-31f025ad20a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Camera\TPSSystem">
+      <UniqueIdentifier>{eff4e858-a3a9-4f9f-a51a-3b9ae7f28481}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Charactor">
+      <UniqueIdentifier>{2101dfbd-ff66-4f2e-a0d4-87591abfee1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Charactor\Player">
+      <UniqueIdentifier>{723370ac-ccb4-4cd9-a894-fa742c82c92f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -524,6 +536,9 @@
     </ClCompile>
     <ClCompile Include="Source\Core\Math\Collider.cpp">
       <Filter>Source\Core\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -802,6 +817,27 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\SimpleDraw</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h">
+      <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Tag\PlayerControllTag.h">
+      <Filter>Source\Application\Components\Tag</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h">
+      <Filter>Source\Application\Components\Tag</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\TPSLookAngleComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Charactor\Player\PlayerLookAngleComponent.h">
+      <Filter>Source\Application\Components\Charactor\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

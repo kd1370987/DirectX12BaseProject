@@ -5,42 +5,66 @@
 #include "Application/Components/Force/VelocityComponent.h"
 #include "Application/Components/Force/InertiaComponent.h"
 
+#include "Application/Components/Tag/PlayerControllTag.h"
+
+#include "Application/Components/Charactor/Player/PlayerLookAngleComponent.h"
+
 void InputMoveSystem::Run(World& a_world, float a_dt)
 {
 	DirectX::XMFLOAT3 inputDir = { 0.0f,0.0f,0.0f };
-	if (GetAsyncKeyState(VK_UP) & 0x8000)
+	float inputLook = 0.0f;
+	if (GetAsyncKeyState('W') & 0x8000)
 	{
-		inputDir.y += 1.0f;
+		inputDir.z += 1.0f;
 	}
-	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+	if (GetAsyncKeyState('S') & 0x8000)
 	{
 
-		inputDir.y -= 1.0f;
+		inputDir.z -= 1.0f;
 	}
-	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+	if (GetAsyncKeyState('A') & 0x8000)
 	{
 		inputDir.x -= 1.0f;
 
 	}
-	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+	if (GetAsyncKeyState('D') & 0x8000)
 	{
 		inputDir.x += 1.0f;
 	}
 
-	a_world.ForEachEx<VelocityComponent>
+	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+	{
+		inputLook -= 1.0f;
+	}
+	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+	{
+		inputLook += 1.0f;
+	}
+
+	a_world.ForEachEx<PlayerControllTag,VelocityComponent,PlayerLookAngleComponent>
 		(
-			[&a_world, a_dt,inputDir]
+			[&a_world, a_dt,inputDir,inputLook]
 			(
 				ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
-				VelocityComponent* a_velocityArray
+				PlayerControllTag* a_tags,
+				VelocityComponent* a_velocityArray,
+				PlayerLookAngleComponent* a_playerLookArray
 				)
 			{
 				for (size_t _i = 0; _i < a_count; ++_i)
 				{
+					PlayerLookAngleComponent& _lookComp = a_playerLookArray[_i];
+					_lookComp.Yaw += inputLook;
+
+					float _rad = DirectX::XMConvertToRadians(_lookComp.Yaw);
+					float _sinY = sinf(_rad);
+					float _cosY = cosf(_rad);
+
 					VelocityComponent& _velComp = a_velocityArray[_i];
-					_velComp.value.x += inputDir.x;
+					_velComp.value.x += inputDir.x * _cosY + inputDir.z * _sinY;
 					_velComp.value.y += inputDir.y;
+					_velComp.value.z += inputDir.z * _cosY - inputDir.x * _sinY;
 				}
 			},
 			Exclude<InertiaComponent>()
