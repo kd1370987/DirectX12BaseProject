@@ -14,12 +14,16 @@ void DescriptorHeapManager::Init()
 	{
 		// CBV_SRV_UAV用ディスクリプタヒープの作成
 		m_spCBV_SRV_UAVHeap = std::make_shared<CBV_SRV_UAVHeap>();
-		m_spCBV_SRV_UAVHeap->Create(
-			_device,
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-			DirectX::XMFLOAT3(100.0f, 100.0f, 100.0f),
-			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
-		);
+		CBV_SRV_UAVInitInfo _info = {};
+		_info.pDevice = _device;
+		_info.maxCBVCount = 100;
+		_info.maxSRVCount = 100;
+		_info.maxUAVCount = 100;
+		_info.useImGuiSRVCount = 128;
+		_info.type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		_info.flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		_info.mask = 0;
+		m_spCBV_SRV_UAVHeap->Create(_info);
 	}
 
 	if (!m_spDSVHeap)
@@ -43,6 +47,11 @@ void DescriptorHeapManager::Init()
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE
 		);
 	}
+}
+
+ID3D12DescriptorHeap* DescriptorHeapManager::NGetCBV_SRV_UAVHeap() const
+{
+	return m_spCBV_SRV_UAVHeap->GetHeap();
 }
 
 

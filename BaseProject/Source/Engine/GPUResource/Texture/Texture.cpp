@@ -254,6 +254,8 @@ bool Texture::BuildFromScratchiImage(DirectX::TexMetadata& a_meta, DirectX::Scra
 	height = a_meta.height;
 	mipLevels = a_meta.mipLevels;
 	format = a_meta.format;
+
+	return true;
 }
 
 ID3D12Resource* Texture::CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc)

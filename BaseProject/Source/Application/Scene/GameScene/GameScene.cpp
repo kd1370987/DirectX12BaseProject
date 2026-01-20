@@ -133,7 +133,7 @@ void GameScene::RegistryEntity()
 		_rayCol->dir = { 0.0f,-1.0f,0.0f };
 		_rayCol->pos = { 0.0f,1.0f,0.0f };
 		GravityComponent* _gravity = World::Instance().RefData<GravityComponent>(_player);
-		_gravity->scale = -1.f;
+		_gravity->scale = -9.f;
 		VelocityComponent* _velocity = World::Instance().RefData<VelocityComponent>(_player);
 		_velocity->value = { 0.0f,0.0f,0.0f };
 		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_player);
@@ -144,6 +144,7 @@ void GameScene::RegistryEntity()
 		_ref->pos = { 0.0f, 5.0f, 10.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
+		//"C:\02_授業資料\DirectX12BaseProject\BaseProject\Asset\Model\Robot\Robot.gltf"
 	}
 
 	{
@@ -233,4 +234,6 @@ void GameScene::RegistryEntity()
 		_ref->scale = { 1.0f,1.0f,1.0f };
 	}
 }
+
+	
 

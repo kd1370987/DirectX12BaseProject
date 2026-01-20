@@ -21,6 +21,7 @@ public:
 	/// </summary>
 	/// <returns>CBV_SRV_UAVクラスポインタ</returns>
 	std::shared_ptr<CBV_SRV_UAVHeap> GetDescriptorCBV_SRV_UAV() const { return m_spCBV_SRV_UAVHeap; }
+	ID3D12DescriptorHeap* NGetCBV_SRV_UAVHeap()const;
 
 	/// <summary>
 	/// 定数バッファを登録

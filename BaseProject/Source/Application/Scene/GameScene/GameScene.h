@@ -23,5 +23,4 @@ private:
 	void RegistryComponent() override;
 	void RegistrySystem() override;
 	void RegistryEntity() override;
-
 };

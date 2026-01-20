@@ -1,5 +1,7 @@
 ﻿#include "Window.h"
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 //==================================================================================
 // 
 // メッセージの取得
@@ -7,6 +9,9 @@
 //==================================================================================
 LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(a_hWnd, a_message, a_wParam, a_lParam))
+		return true;
+
 	// ウィンドウズからのメッセージを処理
 	switch (a_message)
 	{

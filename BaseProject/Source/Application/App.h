@@ -3,6 +3,8 @@
 class Window;
 class TimeManager;
 
+class ImGuiContex;
+
 constexpr UINT WINDOW_WIDTH = 1280;
 constexpr UINT WINDOW_HEIGHT = 720;
 
@@ -32,6 +34,7 @@ private:
 
 	std::unique_ptr<Window>			m_upWindow			= nullptr;
 	std::unique_ptr<TimeManager>	m_upTimeManager		= nullptr;
+	std::unique_ptr<ImGuiContex>	m_upImGuiContex		= nullptr;
 
 	bool m_isVsync = false;
 

@@ -1,5 +1,17 @@
 ﻿#pragma once
 
+struct CBV_SRV_UAVInitInfo
+{
+	ID3D12Device* pDevice = nullptr;
+	D3D12_DESCRIPTOR_HEAP_TYPE type;
+	D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	UINT maxCBVCount = 100;
+	UINT maxSRVCount = 100;
+	UINT maxUAVCount = 100;
+	UINT mask = 0;
+	UINT useImGuiSRVCount = 128;
+};
+
 class CBV_SRV_UAVHeap
 {
 public:
@@ -7,18 +19,8 @@ public:
 	/// <summary>
 	/// ディスクリプタヒープ作成
 	/// </summary>
-	/// <param name="a_type">作成する種類</param>
-	/// <param name="a_numDescriptors">ディスクリプタに乗せれる上限</param>
-	/// <param name="a_flags">シェーダから見えるかどうか</param>
-	/// <param name="a_mask">アダプタ数によって変化</param>
 	/// <returns>成功 = true</returns>
-	bool Create(
-		ID3D12Device* a_pDevice,
-		D3D12_DESCRIPTOR_HEAP_TYPE a_type,
-		DirectX::XMFLOAT3 a_maxCounts = { 100, 100, 100 },
-		D3D12_DESCRIPTOR_HEAP_FLAGS a_flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-		UINT a_mask = 0
-	);
+	bool Create(const CBV_SRV_UAVInitInfo& a_info);
 
 	/// <summary>
 	/// ディスクリプタヒープ取得
@@ -59,7 +61,8 @@ public:
 
 	DescriptorHandle RegisterUAV(ID3D12Resource* a_resource);
 
-
+	D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiCPUHandle();
+	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle();
 	
 
 private:
@@ -73,4 +76,6 @@ private:
 	// CBV・SRV・UAVのカウント
 	DirectX::XMFLOAT3 m_maxCounts = {};					// ディスクリプタヒープに乗せれる上限
 	DirectX::XMFLOAT3 m_currentCounts = {};				// 今何番目か
+
+	CBV_SRV_UAVInitInfo m_initInfo = {};		// 初期設定
 };

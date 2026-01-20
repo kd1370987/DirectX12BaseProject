@@ -16,6 +16,9 @@
 // ECS
 #include "Engine/ECS/World/World.h"
 
+// デバッグ・エディター
+#include "Engine/Editor/ImGui/ImGuiContext.h"
+
 //==================================================================================
 // 
 // 初回呼び出し
@@ -66,6 +69,10 @@ bool Application::Init()
 	// ECSの初期化
 	World::Instance().Init();
 
+	m_upImGuiContex = std::make_unique<ImGuiContex>();
+	m_upImGuiContex->Init(m_upWindow->GetWindowHandle());
+
+
 	// シーンの初期化
 	if (!SceneManager::Instance().Init())
 	{
@@ -88,6 +95,8 @@ void Application::Release()
 	//RenderingEngine::Instance().Release();
 	// タイムマネージャー解放
 	m_upTimeManager->Release();
+
+	m_upImGuiContex->Release();
 }
 
 //==================================================================================
@@ -109,7 +118,7 @@ void Application::MainLoop()
 		}
 
 		// タイトル文字列変更
-		std::string _str = "FPS = " + std::to_string(m_upTimeManager->GetNowFPS()) + 
+		std::string _str = "DX12_FrameWork FPS = " + std::to_string(m_upTimeManager->GetNowFPS()) +
 			"; DELTATIME = " + std::to_string(m_upTimeManager->GetDeltaTime()) + ";";
 		m_upWindow->ChangeTitle(_str);
 
@@ -121,6 +130,8 @@ void Application::MainLoop()
 		RenderingEngine::Instance().BeginRender();			// 描画開始
 		{
 			SceneManager::Instance().Draw();				// 描画
+
+			m_upImGuiContex->CallImGuiDrawData(RenderingEngine::Instance().GetCommandList());
 		}
 		RenderingEngine::Instance().EndRender(m_isVsync);	// 描画終了
 

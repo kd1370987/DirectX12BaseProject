@@ -62,9 +62,9 @@ void InputMoveSystem::Run(World& a_world, float a_dt)
 					float _cosY = cosf(_rad);
 
 					VelocityComponent& _velComp = a_velocityArray[_i];
-					_velComp.value.x += inputDir.x * _cosY + inputDir.z * _sinY;
+					_velComp.value.x += (inputDir.x * _cosY + inputDir.z * _sinY) * 5.0f;
 					_velComp.value.y += inputDir.y;
-					_velComp.value.z += inputDir.z * _cosY - inputDir.x * _sinY;
+					_velComp.value.z += (inputDir.z * _cosY - inputDir.x * _sinY) * 5.0f;
 				}
 			},
 			Exclude<InertiaComponent>()

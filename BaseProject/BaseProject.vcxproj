@@ -87,8 +87,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -111,8 +110,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -131,11 +129,11 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>assimp-vc143-mtd.dll</DelayLoadDLLs>
       <EntryPointSymbol>
       </EntryPointSymbol>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -158,12 +156,19 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Release;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>assimp-vc143-mt.dll</DelayLoadDLLs>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Release;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Library\imgui-docking\imgui.cpp" />
+    <ClCompile Include="..\Library\imgui-docking\imgui_demo.cpp" />
+    <ClCompile Include="..\Library\imgui-docking\imgui_draw.cpp" />
+    <ClCompile Include="..\Library\imgui-docking\imgui_impl_dx12.cpp" />
+    <ClCompile Include="..\Library\imgui-docking\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\Library\imgui-docking\imgui_tables.cpp" />
+    <ClCompile Include="..\Library\imgui-docking\imgui_widgets.cpp" />
     <ClCompile Include="Source\Application\App.cpp" />
     <ClCompile Include="Source\Application\Scene\BaseScene\BaseScene.cpp" />
     <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp" />
@@ -191,6 +196,7 @@
     <ClCompile Include="Source\Engine\ECS\EntityManager\EntityManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\SystemManager\SystemManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\World\World.cpp" />
+    <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.cpp" />
     <ClCompile Include="Source\Engine\GPUResource\Buffer\RenderTarget\RenderTarget.cpp" />
@@ -236,6 +242,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Library\imgui-docking\imconfig.h" />
+    <ClInclude Include="..\Library\imgui-docking\imgui.h" />
+    <ClInclude Include="..\Library\imgui-docking\imgui_impl_dx12.h" />
+    <ClInclude Include="..\Library\imgui-docking\imgui_impl_win32.h" />
+    <ClInclude Include="..\Library\imgui-docking\imgui_internal.h" />
+    <ClInclude Include="..\Library\imgui-docking\imstb_rectpack.h" />
+    <ClInclude Include="..\Library\imgui-docking\imstb_textedit.h" />
+    <ClInclude Include="..\Library\imgui-docking\imstb_truetype.h" />
     <ClInclude Include="Source\Application\App.h" />
     <ClInclude Include="Source\Application\AppInc.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraParamComponent.h" />
@@ -297,6 +311,7 @@
     <ClInclude Include="Source\Engine\ECS\System\ISystem\ISystem.h" />
     <ClInclude Include="Source\Engine\ECS\System\SystemBase\SystemBase.h" />
     <ClInclude Include="Source\Engine\ECS\World\World.h" />
+    <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.h" />
     <ClInclude Include="Source\Engine\GPUResource\Buffer\RenderTarget\RenderTarget.h" />
@@ -395,6 +410,9 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Library\imgui-docking\.editorconfig" />
+    <None Include="..\Library\imgui-docking\.gitattributes" />
+    <None Include="..\Library\imgui-docking\.gitignore" />
     <None Include="Asset\Shader\PBRShader\PBRShader.hlsli" />
     <None Include="Asset\Shader\SimpleShader\SimpleShader.hlsli" />
     <None Include="packages.config" />

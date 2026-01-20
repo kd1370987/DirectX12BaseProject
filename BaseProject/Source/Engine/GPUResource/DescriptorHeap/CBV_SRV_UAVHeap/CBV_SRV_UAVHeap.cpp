@@ -2,30 +2,26 @@
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 
-bool CBV_SRV_UAVHeap::Create(
-	ID3D12Device* a_pDevice, 
-	D3D12_DESCRIPTOR_HEAP_TYPE a_type, 
-	DirectX::XMFLOAT3 a_maxCounts,
-	D3D12_DESCRIPTOR_HEAP_FLAGS a_flags,
-	UINT a_mask
-)
+bool CBV_SRV_UAVHeap::Create(const CBV_SRV_UAVInitInfo& a_info)
 {
-	if (a_pDevice == nullptr)
+	m_pDevice = a_info.pDevice;
+	if (m_pDevice == nullptr)
 	{
 		assert(0 && "デバイスがnullptrです\n");
 		return false;
 	}
-	m_pDevice = a_pDevice;
 
 	//m_currentIndex = 0;
 	m_currentCounts = { 0.0f, 0.0f, 0.0f };
 
+
+
 	// ディスクリプタヒープの仕様書作成
 	D3D12_DESCRIPTOR_HEAP_DESC _desc = {};
-	_desc.NodeMask = a_mask;
-	_desc.Type = a_type;
-	_desc.NumDescriptors = static_cast<UINT>(a_maxCounts.x + a_maxCounts.y + a_maxCounts.z);
-	_desc.Flags = a_flags;
+	_desc.NodeMask = a_info.mask;
+	_desc.Type = a_info.type;
+	_desc.NumDescriptors = static_cast<UINT>(a_info.maxCBVCount + (a_info.maxSRVCount + a_info.useImGuiSRVCount) + a_info.maxUAVCount);
+	_desc.Flags = a_info.flags;
 
 	// ディスクリプタヒープの生成
 	auto _hr = m_pDevice->CreateDescriptorHeap(
@@ -40,9 +36,15 @@ bool CBV_SRV_UAVHeap::Create(
 
 	// インクリメントサイズの取得
 	m_incrementSize = m_pDevice->GetDescriptorHandleIncrementSize(_desc.Type);
-	m_type = a_type;
-	m_maxCounts = a_maxCounts;
-	
+	m_type = a_info.type;
+	m_maxCounts = { 
+		static_cast<float>(a_info.maxCBVCount),
+		static_cast<float>(a_info.maxSRVCount + a_info.useImGuiSRVCount),
+		static_cast<float>(a_info.maxUAVCount)
+	};
+
+	m_initInfo = a_info;
+
 	return true;
 }
 
@@ -218,3 +220,18 @@ DescriptorHandle CBV_SRV_UAVHeap::RegisterUAV(ID3D12Resource* a_resource)
 	}
 	return DescriptorHandle();
 }
+
+D3D12_CPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetImGuiCPUHandle()
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE _cpu = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+	_cpu.ptr += m_incrementSize * m_initInfo.useImGuiSRVCount;
+	return _cpu;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetImGuiGPUHandle()
+{
+	D3D12_GPU_DESCRIPTOR_HANDLE _gpu = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
+	_gpu.ptr += m_incrementSize * m_initInfo.useImGuiSRVCount;
+	return _gpu;
+}
+

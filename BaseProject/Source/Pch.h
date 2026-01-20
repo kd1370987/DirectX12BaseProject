@@ -71,6 +71,17 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 //===============================================
 //
+// ImGui
+//
+//===============================================
+
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui-docking/imgui.h"
+#include "imgui-docking/imgui_impl_dx12.h"
+#include "imgui-docking/imgui_impl_win32.h"
+
+//===============================================
+//
 // 自分で作った共通ヘッダー
 //
 //===============================================

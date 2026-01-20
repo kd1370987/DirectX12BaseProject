@@ -21,7 +21,4 @@ float4 pixel(VSOutput a_input) : SV_Target
 	float brightness = saturate(dot(-lightDir, nWS));
 
 	return base * brightness;
-
-	return float4(nWS + 0.5f * 0.5f, 0);
-
 }
