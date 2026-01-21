@@ -1,18 +1,18 @@
 ﻿#include "RenderingEngine.h"
 
-#include "../../GPUResource/Device/Device.h"
-#include "../../GPUResource/CommandQueue/CommandQueue.h"
-#include "../../GPUResource/CommandAllocator/CommandAllocator.h"
-#include "../../GPUResource/CommandList/CommandList.h"
-#include "../../GPUResource/Fence/Fence.h"
+#include "../../D3D12//D3DObject/Device/Device.h"
+#include "../../D3D12//D3DObject/CommandQueue/CommandQueue.h"
+#include "../../D3D12//D3DObject/CommandAllocator/CommandAllocator.h"
+#include "../../D3D12//D3DObject/CommandList/CommandList.h"
+#include "../../D3D12//D3DObject/Fence/Fence.h"
 
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "Engine/GPUResource/DescriptorHeap/DSVHeap/DSVHeap.h"
-#include "Engine/GPUResource/DescriptorHeap/RTVHeap/RTVHeap.h"
+#include "Engine/D3D12//D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
+#include "Engine/D3D12//D3DObject/DescriptorHeap/RTVHeap/RTVHeap.h"
 
-#include "Engine/GPUResource/SwapChain/SwapChain.h"
-#include "Engine/GPUResource/Viewport/Viewport.h"
-#include "Engine/GPUResource/ScissorRectangle/ScissorRectangle.h"
+#include "Engine/D3D12//D3DObject/SwapChain/SwapChain.h"
+#include "Engine/D3D12//D3DObject/Viewport/Viewport.h"
+#include "Engine/D3D12//D3DObject/ScissorRectangle/ScissorRectangle.h"
 
 bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
 {

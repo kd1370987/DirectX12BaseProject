@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/GPUResource/DescriptorHeap/CBV_SRV_UAVHeap/CBV_SRV_UAVHeap.h"
+#include "Engine/D3D12//D3DObject/DescriptorHeap/CBV_SRV_UAVHeap/CBV_SRV_UAVHeap.h"
 
 class CBAllocater
 {

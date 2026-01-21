@@ -1,7 +1,7 @@
 ﻿#include "TinyGLTFLoader.h"
 
-#include "../../ModelResource/Animation/Animation.h"
-#include "../../ModelResource/Mesh/Mesh.h"
+#include "../../../Resource/Model/ModelResource/Animation/Animation.h"
+#include "../../../Resource/Model/ModelResource/Mesh/Mesh.h"
 
 // TinyGLTF
 #define TINYGLTF_IMPLEMENTATION

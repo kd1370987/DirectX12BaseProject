@@ -6,7 +6,7 @@
 #include "Application/Components/Resource/ModelComponent.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/ResourceManager/ResourceManager.h"
+#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 void SimpleDrawSystem::Run(World& a_world, float a_dt)
 {

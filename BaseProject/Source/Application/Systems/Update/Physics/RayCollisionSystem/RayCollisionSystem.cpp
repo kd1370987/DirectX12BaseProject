@@ -8,11 +8,11 @@
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
 
-#include "Engine/ResourceManager/ResourceManager.h"
+#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
-#include "Engine/GPUResource/Model/Model.h"
-#include "Engine/GPUResource/Model/ModelResource/Mesh/Mesh.h"
-#include "Engine/GPUResource/Model/ModelResource/Node/Node.h"
+#include "Engine/GraphicResource/Resource/Model/Model.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Mesh/Mesh.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Node/Node.h"
 
 #include "Engine/Collision/Gather/Gather.h"
 #include "Engine/Collision/Collision.h"

@@ -1,7 +1,7 @@
 ﻿#include "Model.h"
 
-#include "ModelLoader/TinyGLTF/TinyGLTFLoader.h"
-#include "ModelLoader/Assimp/AssimpLoader.h"
+#include "../../Loader/ModelLoader/TinyGLTFLoader/TinyGLTFLoader.h"
+#include "../../Loader/ModelLoader/AssimpLoader/AssimpLoader.h"
 
 #include "ModelResource/Animation/Animation.h"
 #include "ModelResource/Mesh/Mesh.h"

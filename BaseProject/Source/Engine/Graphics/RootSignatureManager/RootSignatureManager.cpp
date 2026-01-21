@@ -1,6 +1,6 @@
 ﻿#include "RootSignatureManager.h"
 
-#include "Engine/GPUResource/RootSignature/RootSignature.h"
+#include "Engine/D3D12//D3DObject/RootSignature/RootSignature.h"
 
 void RootSignatureManager::Init()
 {

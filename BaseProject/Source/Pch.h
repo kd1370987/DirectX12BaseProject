@@ -89,11 +89,11 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include "Application/AppInc.h"
 #include "Core/Core.h"
 
-#include "Engine/GPUResource/Buffer/ConstantBuffer/ConstantBuffer.h"
-#include "Engine/GPUResource/Buffer/VertexBuffer/VertexBuffer.h"
-#include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/VertexBuffer/VertexBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
 
-#include "Engine/GPUResource/Model/ModelResource/Vertex/Vertex.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Vertex/Vertex.h"
 
 #include "Engine/ECS/ECSCommon.h"
 

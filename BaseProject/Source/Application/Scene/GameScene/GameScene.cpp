@@ -4,9 +4,8 @@
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/ResourceManager/ResourceManager.h"
+#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
-#include "Engine/GPUResource/Model/Model.h"
 
 // ECS関連
 #include "Engine/ECS/World/World.h"
@@ -137,7 +136,7 @@ void GameScene::RegistryEntity()
 		VelocityComponent* _velocity = World::Instance().RefData<VelocityComponent>(_player);
 		_velocity->value = { 0.0f,0.0f,0.0f };
 		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_player);
-		_model->modelID = ResourceManager::Instance().GetModel("Asset/Model/tank/tank.gltf");
+		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/tank/tank.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_player);
@@ -176,7 +175,7 @@ void GameScene::RegistryEntity()
 		_collider->layer = Layer::StaticObject;
 		_collider->collideLayer = Layer::DiynamicObject;
 		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
-		_model->modelID = ResourceManager::Instance().GetModel("Asset/Model/Stage/StageMap.gltf");
+		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Stage/StageMap.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);

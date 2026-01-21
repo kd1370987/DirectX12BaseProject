@@ -1,9 +1,9 @@
 ﻿#include "Collision.h"
 
-#include "Engine/ResourceManager/ResourceManager.h"
-#include "Engine/GPUResource/Model/Model.h"
-#include "Engine/GPUResource/Model/ModelResource/Mesh/Mesh.h"
-#include "Engine/GPUResource/Model/ModelResource/Node/Node.h"
+#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/GraphicResource/Resource/Model/Model.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Mesh/Mesh.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Node/Node.h"
 
 #include "Application/Components/Collision/Collider.h"
 #include "Application/Components/Collision/RayCollider.h"
@@ -42,7 +42,7 @@ bool Collision::Raycast(
 		if (_colView.pCollider->layer != Layer::StaticObject)
 			continue;
 
-		ModelResource* _modelRes = ResourceManager::Instance().NGetModelResource(_colView.pModelComp->modelID);
+		ModelResource* _modelRes = GraphicResourceManager::Instance().NGetModelResource(_colView.pModelComp->modelID);
 
 		for (int _idx : _modelRes->GetCollisionMeshNodeIndices())
 		{

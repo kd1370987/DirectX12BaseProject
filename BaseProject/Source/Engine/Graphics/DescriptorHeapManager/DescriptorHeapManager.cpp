@@ -1,7 +1,7 @@
 ﻿#include "DescriptorHeapManager.h"
 
-#include "../../GPUResource/DescriptorHeap/DSVHeap/DSVHeap.h"
-#include "../../GPUResource/DescriptorHeap/RTVHeap/RTVHeap.h"
+#include "../../D3D12//D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
+#include "../../D3D12//D3DObject/DescriptorHeap/RTVHeap/RTVHeap.h"
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 

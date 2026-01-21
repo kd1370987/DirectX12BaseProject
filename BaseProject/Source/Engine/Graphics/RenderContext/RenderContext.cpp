@@ -2,20 +2,20 @@
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "Engine/ResourceManager/ResourceManager.h"
-#include "Engine/GPUResource/Texture/Texture.h"
+#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/GraphicResource/Resource/Texture/Texture.h"
 
-#include "Engine/GPUResource/Model/Model.h"
-#include "Engine/GPUResource/Model/ModelResource/Mesh/Mesh.h"
-#include "Engine/GPUResource/Model/ModelResource/Node/Node.h"
-#include "Engine/GPUResource/Model/ModelResource/Material/Material.h"
+#include "Engine/GraphicResource/Resource/Model/Model.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Mesh/Mesh.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Node/Node.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Material/Material.h"
 
-#include "Engine/GPUResource/RootSignature/RootSignature.h"
-#include "Engine/GPUResource/PipeLineState/PipelineState.h"
+#include "Engine/D3D12//D3DObject/RootSignature/RootSignature.h"
+#include "Engine/D3D12//D3DObject/PipeLineState/PipelineState.h"
 
-#include "Engine/GPUResource/Buffer/VertexBuffer/VertexBuffer.h"
-#include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
-#include "Engine/GPUResource/Buffer/ConstantBuffer/ConstantBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/VertexBuffer/VertexBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
 
 #include "Engine/Graphics/ShaderManager/ShaderManager.h"
 #include "Engine/Graphics/RootSignatureManager/RootSignatureManager.h"
@@ -196,7 +196,7 @@ void RenderContext::DrawModel(std::shared_ptr<ModelResource> a_modelResource, co
 }
 void RenderContext::DrawModel(uint32_t a_modelID, const DirectX::XMFLOAT4X4& a_worldMat, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
 {
-	ModelResource* _pModelResource = ResourceManager::Instance().NGetModelResource(a_modelID);
+	ModelResource* _pModelResource = GraphicResourceManager::Instance().NGetModelResource(a_modelID);
 	DrawModel(
 		_pModelResource,
 		DirectX::XMLoadFloat4x4(&a_worldMat),

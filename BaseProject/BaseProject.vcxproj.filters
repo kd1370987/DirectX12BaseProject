@@ -34,80 +34,8 @@
     <Filter Include="Source\Engine\Graphics\RenderingEngin">
       <UniqueIdentifier>{db33fc25-52b5-41b1-95be-ea75d90d4931}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\GPUResource">
-      <UniqueIdentifier>{ce5792c0-6c3b-4a5c-a560-38002b9fb96c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Buffer">
-      <UniqueIdentifier>{6a14dd88-9ebe-42e0-baa0-3d4596d6905f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\DescriptorHeap">
-      <UniqueIdentifier>{dd464160-d67c-4422-8fad-ff1d003d02e1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Model">
-      <UniqueIdentifier>{0b27c4bd-e864-4d05-b21b-88cdc3e4a2bf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Texture">
-      <UniqueIdentifier>{31c18e42-12e4-47fa-acb6-d734c218eb5a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Texture\Texture2D">
-      <UniqueIdentifier>{c7e18503-6b8f-42c4-ba84-2ad3378c21d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Buffer\ConstantBuffer">
-      <UniqueIdentifier>{19772e19-4912-4c75-8627-27012848e65e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Buffer\IndexBuffer">
-      <UniqueIdentifier>{736a27a4-f5ad-4c59-a3db-66eab40e0892}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Buffer\VertexBuffer">
-      <UniqueIdentifier>{6b082775-0866-42e0-8abc-4f1f2eeeba73}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\PipelineState">
-      <UniqueIdentifier>{78fbdd9b-895b-41b1-8910-5741e9ccd38b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\RootSignature">
-      <UniqueIdentifier>{bb239da7-4f49-4373-b33c-e0ee3f9190cc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Model\ModelLoader">
-      <UniqueIdentifier>{5b0df8bb-583d-4409-842c-1dec54c2fa93}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Model\ModelResource">
-      <UniqueIdentifier>{eb818934-6d81-47c3-af6a-529dc00e70a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Model\ModelLoader\Assimp">
-      <UniqueIdentifier>{0fe059d8-0b82-426d-98d8-0a2402c5f1a3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF">
-      <UniqueIdentifier>{99ca2ecf-b54f-42b9-ad03-44f3c6880562}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Model\ModelResource\Node">
-      <UniqueIdentifier>{5d19b037-1c80-472b-9b6e-262f0a4d3551}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Model\ModelResource\Mesh">
-      <UniqueIdentifier>{48bf4ba9-6449-46fc-b668-4d69cb6c4dee}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Model\ModelResource\Material">
-      <UniqueIdentifier>{8e174b08-17aa-4520-b9de-413d8d0e04da}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Model\ModelResource\Animation">
-      <UniqueIdentifier>{53aa668a-10df-4d5c-b079-4d6375e0050d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Device">
-      <UniqueIdentifier>{d13fa245-4b93-43a9-9771-b333ba270ee2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\CommandQueue">
-      <UniqueIdentifier>{272fe8a9-2d45-4032-95e2-b0960c00b91e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\CommandList">
-      <UniqueIdentifier>{764b6e9f-ccc6-4c40-a95d-1f33307c22dc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\CommandAllocator">
-      <UniqueIdentifier>{3200aca0-8fb6-47fb-b76a-aca5d02061b7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Window">
       <UniqueIdentifier>{4903a1c3-ef1a-452c-aa19-3c12f2daf394}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Fence">
-      <UniqueIdentifier>{d960394c-0030-40db-b9f7-73b0a231c2a7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\DescriptorHeapManager">
       <UniqueIdentifier>{a2d4242a-21eb-484a-a22f-a70d8b11be37}</UniqueIdentifier>
@@ -115,38 +43,14 @@
     <Filter Include="Source\Engine\Graphics\RenderContext">
       <UniqueIdentifier>{ac53ba98-b34c-40d7-aee4-ecaa9ee05c09}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap">
-      <UniqueIdentifier>{51cd4a3a-db62-4bae-b8bf-420eb2ce6574}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap">
-      <UniqueIdentifier>{1ba473aa-5267-4b90-846d-29cf41d4bf05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\PSOManager">
       <UniqueIdentifier>{f6e99e52-70c5-4c03-8a8d-25019546e376}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\ScissorRectangle">
-      <UniqueIdentifier>{1184e91c-35d9-431a-9e61-0fa8d044250c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Viewport">
-      <UniqueIdentifier>{34988d4c-29b8-403f-a229-4f3083600dc1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\SwapChain">
-      <UniqueIdentifier>{fe52202b-da60-402b-8ac7-faa5c5c5edc4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Core\Math">
       <UniqueIdentifier>{668a86f1-7438-485b-8aaf-50c03b2e43c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap">
-      <UniqueIdentifier>{27207339-f6de-4c31-a562-998217d60d18}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\ResourceManager">
-      <UniqueIdentifier>{cfc7eb9f-2780-4392-8169-b7650a8e9189}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Core\Storage">
       <UniqueIdentifier>{f1d64f31-8d46-4534-aad0-654c93255a80}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Model\ModelResource\Vertex">
-      <UniqueIdentifier>{d546a749-c07b-4c76-ac27-b30adb7a6292}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\CBAllocater">
       <UniqueIdentifier>{4cb1296a-31d6-4714-b011-876b38a56f8e}</UniqueIdentifier>
@@ -156,12 +60,6 @@
     </Filter>
     <Filter Include="Source\Core\Time\FPSController">
       <UniqueIdentifier>{72d8140b-c80a-489f-92f7-9b508b661a43}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Buffer\RenderTarget">
-      <UniqueIdentifier>{23394c16-3f01-46a4-988c-bfc79e9be0e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\GPUResource\Buffer\DepthStencilBuffer">
-      <UniqueIdentifier>{d88b4281-9f3f-4233-8f73-926ad03b4eac}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Scene\BaseScene">
       <UniqueIdentifier>{5554be73-f5da-4fc4-be59-54da30fffdcf}</UniqueIdentifier>
@@ -355,6 +253,126 @@
     <Filter Include="Library\imgui-docking">
       <UniqueIdentifier>{397ba751-7665-4e60-8c12-b3c36761772b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\D3D12">
+      <UniqueIdentifier>{1d727b94-84b5-4847-a0f9-b3e57b2c5b80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3D12Wrapper">
+      <UniqueIdentifier>{c7841127-5280-45c2-8628-f04b05253005}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject">
+      <UniqueIdentifier>{fa7a398f-5a7b-4b2d-ae43-74742227591e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\Buffer">
+      <UniqueIdentifier>{f8062518-7e36-40f9-a99b-3e79e90a04c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\CommandAllocator">
+      <UniqueIdentifier>{7a1ce13f-7ccd-4df3-af00-a5f29a164284}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\CommandList">
+      <UniqueIdentifier>{70b6474b-c5dc-4ea6-a84d-2932414fd0b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\CommandQueue">
+      <UniqueIdentifier>{f1561df8-1440-4841-82a6-a08182036ecd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\DescriptorHeap">
+      <UniqueIdentifier>{bfec92b1-ad29-4086-8a85-1d26e0f68ac4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\Device">
+      <UniqueIdentifier>{c33719ba-2dff-46f3-a5e1-3d91dd993313}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\Fence">
+      <UniqueIdentifier>{b392acb2-1e2d-4d17-9876-71f088c40548}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\PipelineState">
+      <UniqueIdentifier>{6be1140f-7390-4a6c-b0ee-439d8f2d0827}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\RootSignature">
+      <UniqueIdentifier>{9a56534d-2180-4194-9056-0be0ac6d694b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\ScissorRectangle">
+      <UniqueIdentifier>{9a4672f9-5c39-4ad9-93ae-78a67cb3a1bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\SwapChain">
+      <UniqueIdentifier>{e5059084-1dd2-4b1f-b32d-5cdee2eb6852}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\Viewport">
+      <UniqueIdentifier>{c9a1fdd0-75e1-48a0-9499-6afd0bb3ce33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer">
+      <UniqueIdentifier>{2f1e8228-3ce3-4ad3-89c4-3909c34b7e70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\DepthStencilBuffer">
+      <UniqueIdentifier>{503d51f9-c56a-4a34-9cd7-11d638f58cbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer">
+      <UniqueIdentifier>{72975e9a-9f87-44d6-9865-0b58e7458b7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget">
+      <UniqueIdentifier>{0dfe52dd-5346-49c7-8465-b8a174baffbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\VertexBuffer">
+      <UniqueIdentifier>{899b12ae-466b-4c7e-9bff-e74585ab69d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap">
+      <UniqueIdentifier>{e98ae1e1-8442-4e72-a0cd-81703784f571}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap">
+      <UniqueIdentifier>{983f09e3-b6b9-40c2-b9a9-8215043d6b32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap">
+      <UniqueIdentifier>{b6ac0900-d0c0-456b-9009-a2cbe85e2440}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource">
+      <UniqueIdentifier>{6817d1ee-7732-4577-8b37-6b11c795d5d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\GraphicResourceManager">
+      <UniqueIdentifier>{206c9651-bc56-45ee-9b59-a422b542c49a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Loader">
+      <UniqueIdentifier>{045b90f6-f6be-4e39-aef3-cc4c8180ed26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Loader\ModelLoader">
+      <UniqueIdentifier>{7e6641c9-8fdc-44c5-a392-ce21881e0bf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Loader\TextureLoader">
+      <UniqueIdentifier>{8e231cf2-c573-4ebe-85ca-77d51585a143}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Resource">
+      <UniqueIdentifier>{61f38442-cf41-49cf-b450-05c642e73a97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Resource\Model">
+      <UniqueIdentifier>{20a22382-b9db-488b-b8a1-1805f173c6b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Resource\Texture">
+      <UniqueIdentifier>{4967422b-4931-4c9f-a8dc-d58406f76a22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Resource\Model\ModelResource">
+      <UniqueIdentifier>{031e152b-27b2-484d-bf50-700c70076162}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Animation">
+      <UniqueIdentifier>{dfbb829c-3e5b-4b24-9265-e6c5fbf34054}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Material">
+      <UniqueIdentifier>{10b8d983-9bb2-4204-8466-7ba0e61be5f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Mesh">
+      <UniqueIdentifier>{8d8be8c9-5d78-4cc6-81d5-b9bc7058f5da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Node">
+      <UniqueIdentifier>{20fc9226-9ab0-4e1d-a938-ddc7f41228b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Vertex">
+      <UniqueIdentifier>{bc3c5979-0212-4d49-a4d2-6177b74bc4ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Loader\ModelLoader\AssimpLoader">
+      <UniqueIdentifier>{a89678ed-4eed-451a-b239-b81aa28c4a06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Loader\ModelLoader\TinyGLTFLoader">
+      <UniqueIdentifier>{8974814d-898f-440f-8dea-2cd7e8b9d2d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\CBAllocater">
+      <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -363,71 +381,11 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.cpp">
       <Filter>Source\Engine\Graphics\RenderingEngin</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.cpp">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.cpp">
-      <Filter>Source\Engine\GPUResource\Buffer\ConstantBuffer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.cpp">
-      <Filter>Source\Engine\GPUResource\Buffer\IndexBuffer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Buffer\VertexBuffer\VertexBuffer.cpp">
-      <Filter>Source\Engine\GPUResource\Buffer\VertexBuffer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\PipeLineState\PipelineState.cpp">
-      <Filter>Source\Engine\GPUResource\PipelineState</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\RootSignature\RootSignature.cpp">
-      <Filter>Source\Engine\GPUResource\RootSignature</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Texture\Texture2D\Texture2D.cpp">
-      <Filter>Source\Engine\GPUResource\Texture\Texture2D</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Model\ModelLoader\Assimp\AssimpLoader.cpp">
-      <Filter>Source\Engine\GPUResource\Model\ModelLoader\Assimp</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Mesh\Mesh.cpp">
-      <Filter>Source\Engine\GPUResource\Model\ModelResource\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="Source\main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Device\Device.cpp">
-      <Filter>Source\Engine\GPUResource\Device</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.cpp">
-      <Filter>Source\Engine\GPUResource\CommandQueue</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\CommandList\CommandList.cpp">
-      <Filter>Source\Engine\GPUResource\CommandList</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.cpp">
-      <Filter>Source\Engine\GPUResource\CommandAllocator</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Window\Window.cpp">
       <Filter>Source\Engine\Window</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Fence\Fence.cpp">
-      <Filter>Source\Engine\GPUResource\Fence</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Node\Node.cpp">
-      <Filter>Source\Engine\GPUResource\Model\ModelResource\Node</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Material\Material.cpp">
-      <Filter>Source\Engine\GPUResource\Model\ModelResource\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Model\ModelResource\Animation\Animation.cpp">
-      <Filter>Source\Engine\GPUResource\Model\ModelResource\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF\TinyGLTFLoader.cpp">
-      <Filter>Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Model\Model.cpp">
-      <Filter>Source\Engine\GPUResource\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Texture\Texture.cpp">
-      <Filter>Source\Engine\GPUResource\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.cpp">
       <Filter>Source\Engine\Graphics\DescriptorHeapManager</Filter>
@@ -435,35 +393,11 @@
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.cpp">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\DSVHeap</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap\RTVHeap.cpp">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\RTVHeap</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\ScissorRectangle\ScissorRectangle.cpp">
-      <Filter>Source\Engine\GPUResource\ScissorRectangle</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Viewport\Viewport.cpp">
-      <Filter>Source\Engine\GPUResource\Viewport</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\SwapChain\SwapChain.cpp">
-      <Filter>Source\Engine\GPUResource\SwapChain</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\ResourceManager\ResourceManager.cpp">
-      <Filter>Source\Engine\ResourceManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp">
       <Filter>Source\Engine\CBAllocater</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp">
       <Filter>Source\Core\Time\FPSController</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\GPUResource\Buffer\RenderTarget\RenderTarget.cpp">
-      <Filter>Source\Engine\GPUResource\Buffer\RenderTarget</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Scene\SceneManager.cpp">
       <Filter>Source\Application\Scene</Filter>
@@ -576,6 +510,87 @@
     <ClCompile Include="..\Library\imgui-docking\imgui_widgets.cpp">
       <Filter>Library\imgui-docking</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\VertexBuffer\VertexBuffer.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\Buffer\VertexBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\Buffer\RenderTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer\IndexBuffer.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandAllocator\CommandAllocator.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\CommandAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandList\CommandList.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\CommandList</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandQueue\CommandQueue.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\CommandQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap\DSVHeap.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap\RTVHeap.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\Device\Device.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\Fence\Fence.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\Fence</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\Viewport</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\SwapChain\SwapChain.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\SwapChain</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\ScissorRectangle\ScissorRectangle.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\ScissorRectangle</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\RootSignature\RootSignature.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\RootSignature</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\PipeLineState\PipelineState.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\PipelineState</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\Resource\Texture\Texture.cpp">
+      <Filter>Source\Engine\GraphicResource\Resource\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\Resource\Model\Model.cpp">
+      <Filter>Source\Engine\GraphicResource\Resource\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Node\Node.cpp">
+      <Filter>Source\Engine\GraphicResource\Resource\Model\ModelResource\Node</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Mesh\Mesh.cpp">
+      <Filter>Source\Engine\GraphicResource\Resource\Model\ModelResource\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Material\Material.cpp">
+      <Filter>Source\Engine\GraphicResource\Resource\Model\ModelResource\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Animation\Animation.cpp">
+      <Filter>Source\Engine\GraphicResource\Resource\Model\ModelResource\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\Loader\ModelLoader\AssimpLoader\AssimpLoader.cpp">
+      <Filter>Source\Engine\GraphicResource\Loader\ModelLoader\AssimpLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\Loader\ModelLoader\TinyGLTFLoader\TinyGLTFLoader.cpp">
+      <Filter>Source\Engine\GraphicResource\Loader\ModelLoader\TinyGLTFLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\GraphicResourceManager\GraphicResourceManager.cpp">
+      <Filter>Source\Engine\GraphicResource\GraphicResourceManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -596,68 +611,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.h">
       <Filter>Source\Engine\Graphics\RenderingEngin</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DescriptorHeap.h">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Buffer\ConstantBuffer\ConstantBuffer.h">
-      <Filter>Source\Engine\GPUResource\Buffer\ConstantBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Buffer\IndexBuffer\IndexBuffer.h">
-      <Filter>Source\Engine\GPUResource\Buffer\IndexBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Buffer\VertexBuffer\VertexBuffer.h">
-      <Filter>Source\Engine\GPUResource\Buffer\VertexBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\PipeLineState\PipelineState.h">
-      <Filter>Source\Engine\GPUResource\PipelineState</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\RootSignature\RootSignature.h">
-      <Filter>Source\Engine\GPUResource\RootSignature</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Texture\Texture2D\Texture2D.h">
-      <Filter>Source\Engine\GPUResource\Texture\Texture2D</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Model\ModelLoader\Assimp\AssimpLoader.h">
-      <Filter>Source\Engine\GPUResource\Model\ModelLoader\Assimp</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Mesh\Mesh.h">
-      <Filter>Source\Engine\GPUResource\Model\ModelResource\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Device\Device.h">
-      <Filter>Source\Engine\GPUResource\Device</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\CommandQueue\CommandQueue.h">
-      <Filter>Source\Engine\GPUResource\CommandQueue</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\CommandList\CommandList.h">
-      <Filter>Source\Engine\GPUResource\CommandList</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\CommandAllocator\CommandAllocator.h">
-      <Filter>Source\Engine\GPUResource\CommandAllocator</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Window\Window.h">
       <Filter>Source\Engine\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Fence\Fence.h">
-      <Filter>Source\Engine\GPUResource\Fence</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Node\Node.h">
-      <Filter>Source\Engine\GPUResource\Model\ModelResource\Node</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Material\Material.h">
-      <Filter>Source\Engine\GPUResource\Model\ModelResource\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Animation\Animation.h">
-      <Filter>Source\Engine\GPUResource\Model\ModelResource\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF\TinyGLTFLoader.h">
-      <Filter>Source\Engine\GPUResource\Model\ModelLoader\TinyGLTF</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Model\Model.h">
-      <Filter>Source\Engine\GPUResource\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Texture\Texture.h">
-      <Filter>Source\Engine\GPUResource\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.h">
       <Filter>Source\Engine\Graphics\DescriptorHeapManager</Filter>
@@ -665,44 +620,17 @@
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\DSVHeap\DSVHeap.h">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\DSVHeap</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\RTVHeap\RTVHeap.h">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\RTVHeap</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\ScissorRectangle\ScissorRectangle.h">
-      <Filter>Source\Engine\GPUResource\ScissorRectangle</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Viewport\Viewport.h">
-      <Filter>Source\Engine\GPUResource\Viewport</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\SwapChain\SwapChain.h">
-      <Filter>Source\Engine\GPUResource\SwapChain</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Math\Alignment.h">
       <Filter>Source\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.h">
-      <Filter>Source\Engine\GPUResource\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\ResourceManager\ResourceManager.h">
-      <Filter>Source\Engine\ResourceManager</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Storage\Storage.h">
       <Filter>Source\Core\Storage</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Model\ModelResource\Vertex\Vertex.h">
-      <Filter>Source\Engine\GPUResource\Model\ModelResource\Vertex</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\CBAllocater\CBAllocater.h">
       <Filter>Source\Engine\CBAllocater</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Time\FPSController\FPSController.h">
       <Filter>Source\Core\Time\FPSController</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\GPUResource\Buffer\RenderTarget\RenderTarget.h">
-      <Filter>Source\Engine\GPUResource\Buffer\RenderTarget</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Scene\SceneManager.h">
       <Filter>Source\Application\Scene</Filter>
@@ -901,6 +829,93 @@
     </ClInclude>
     <ClInclude Include="..\Library\imgui-docking\imstb_truetype.h">
       <Filter>Library\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\VertexBuffer\VertexBuffer.h">
+      <Filter>Source\Engine\D3D12\D3DObject\Buffer\VertexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.h">
+      <Filter>Source\Engine\D3D12\D3DObject\Buffer\RenderTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer\IndexBuffer.h">
+      <Filter>Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.h">
+      <Filter>Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandAllocator\CommandAllocator.h">
+      <Filter>Source\Engine\D3D12\D3DObject\CommandAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandList\CommandList.h">
+      <Filter>Source\Engine\D3D12\D3DObject\CommandList</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandQueue\CommandQueue.h">
+      <Filter>Source\Engine\D3D12\D3DObject\CommandQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h">
+      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.h">
+      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap\DSVHeap.h">
+      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap\RTVHeap.h">
+      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\Device\Device.h">
+      <Filter>Source\Engine\D3D12\D3DObject\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\Fence\Fence.h">
+      <Filter>Source\Engine\D3D12\D3DObject\Fence</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.h">
+      <Filter>Source\Engine\D3D12\D3DObject\Viewport</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\SwapChain\SwapChain.h">
+      <Filter>Source\Engine\D3D12\D3DObject\SwapChain</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\ScissorRectangle\ScissorRectangle.h">
+      <Filter>Source\Engine\D3D12\D3DObject\ScissorRectangle</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\RootSignature\RootSignature.h">
+      <Filter>Source\Engine\D3D12\D3DObject\RootSignature</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\PipeLineState\PipelineState.h">
+      <Filter>Source\Engine\D3D12\D3DObject\PipelineState</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Resource\Texture\Texture.h">
+      <Filter>Source\Engine\GraphicResource\Resource\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\Model.h">
+      <Filter>Source\Engine\GraphicResource\Resource\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Vertex\Vertex.h">
+      <Filter>Source\Engine\GraphicResource\Resource\Model\ModelResource\Vertex</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Node\Node.h">
+      <Filter>Source\Engine\GraphicResource\Resource\Model\ModelResource\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Mesh\Mesh.h">
+      <Filter>Source\Engine\GraphicResource\Resource\Model\ModelResource\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Material\Material.h">
+      <Filter>Source\Engine\GraphicResource\Resource\Model\ModelResource\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Animation\Animation.h">
+      <Filter>Source\Engine\GraphicResource\Resource\Model\ModelResource\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Loader\ModelLoader\AssimpLoader\AssimpLoader.h">
+      <Filter>Source\Engine\GraphicResource\Loader\ModelLoader\AssimpLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Loader\ModelLoader\TinyGLTFLoader\TinyGLTFLoader.h">
+      <Filter>Source\Engine\GraphicResource\Loader\ModelLoader\TinyGLTFLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\GraphicResourceManager\GraphicResourceManager.h">
+      <Filter>Source\Engine\GraphicResource\GraphicResourceManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Storage\VectorStorage.h">
+      <Filter>Source\Core\Storage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

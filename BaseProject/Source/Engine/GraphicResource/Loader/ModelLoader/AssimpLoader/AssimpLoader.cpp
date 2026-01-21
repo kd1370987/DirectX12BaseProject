@@ -2,14 +2,14 @@
 
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "Engine/GPUResource/Texture/Texture2D/Texture2D.h"
-#include "Engine/GPUResource/Texture/Texture.h"
-#include "Engine/GPUResource/Model/ModelResource/Mesh/Mesh.h"
-#include "Engine/GPUResource/Model/ModelResource/Material/Material.h"
-#include "Engine/GPUResource/Model/ModelResource/Animation/Animation.h"
-#include "Engine/GPUResource/Model/ModelResource/Node/Node.h"
 
-#include "Engine/ResourceManager/ResourceManager.h"
+#include "Engine/GraphicResource/Resource/Texture/Texture.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Mesh/Mesh.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Material/Material.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Animation/Animation.h"
+#include "Engine/GraphicResource/Resource/Model/ModelResource/Node/Node.h"
+
+#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 #ifdef _DEBUG
 #pragma comment(lib,"assimp-vc143-mtd.lib")
@@ -21,8 +21,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "Engine/GPUResource/Buffer/IndexBuffer/IndexBuffer.h"
-#include "Engine/GPUResource/Buffer/VertexBuffer/VertexBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/VertexBuffer/VertexBuffer.h"
 
 bool AssimpLoader::Load(ImportSettings a_setting)
 {
@@ -251,7 +251,7 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 		a_dst.material.diffuseMap = _dir + StringUtility::ToWideString(_file);
 		
 		auto _texPath = FileUtility::ReplaceFilePathExtension(a_dst.material.diffuseMap, "tga");
-		auto _mainTex = ResourceManager::Instance().GetTexture(StringUtility::ToUTF8(_texPath));
+		auto _mainTex = GraphicResourceManager::Instance().GetTexture(StringUtility::ToUTF8(_texPath));
 
 		
 		DescriptorHandle* _pDH = new DescriptorHandle();

@@ -6,7 +6,7 @@ class ModelResource;
 using ModelID = uint32_t;
 constexpr ModelID INVALID_MODEL_ID = static_cast<ModelID>(-1);
 
-class ResourceManager
+class GraphicResourceManager
 {
 public:
 	
@@ -45,14 +45,14 @@ private:
 
 private:
 
-	ResourceManager() = default;
-	~ResourceManager() = default;
+	GraphicResourceManager() = default;
+	~GraphicResourceManager() = default;
 
 public:
 
-	static ResourceManager& Instance()
+	static GraphicResourceManager& Instance()
 	{
-		static ResourceManager _instance;
+		static GraphicResourceManager _instance;
 		return _instance;
 	}
 };

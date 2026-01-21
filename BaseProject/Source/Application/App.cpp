@@ -8,7 +8,6 @@
 
 #include "Scene/SceneManager.h"
 
-#include "Engine/GPUResource/Model/Model.h"
 #include "Engine/TimeManager/TimeManager.h"
 
 #include "Core/Time/FPSController/FPSController.h"

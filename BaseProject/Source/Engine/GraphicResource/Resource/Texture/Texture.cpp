@@ -3,7 +3,7 @@
 #include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "Engine/GPUResource/DescriptorHeap/DescriptorHeap.h"
+#include "Engine/D3D12//D3DObject/DescriptorHeap/DescriptorHeap.h"
 
 bool Texture::Load(const std::string& a_path)
 {

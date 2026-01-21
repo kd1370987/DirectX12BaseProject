@@ -1,13 +1,13 @@
-﻿#include "ResourceManager.h"
+﻿#include "GraphicResourceManager.h"
 
-#include "Engine/GPUResource/Texture/Texture.h"
-#include "Engine/GPUResource/Model/Model.h"
+#include "../Resource/Texture/Texture.h"
+#include "../Resource/Model/Model.h"
 
-void ResourceManager::Init()
+void GraphicResourceManager::Init()
 {
 }
 
-std::weak_ptr<Texture> ResourceManager::GetTexture(const std::string& a_key)
+std::weak_ptr<Texture> GraphicResourceManager::GetTexture(const std::string& a_key)
 {
 	if (a_key.empty())
 	{
@@ -50,7 +50,7 @@ std::weak_ptr<Texture> ResourceManager::GetTexture(const std::string& a_key)
 	return _spTexture;
 }
 
-const ModelID& ResourceManager::GetModel(const std::string& a_path)
+const ModelID& GraphicResourceManager::GetModel(const std::string& a_path)
 {
 	if (a_path.empty())
 	{
@@ -84,7 +84,7 @@ const ModelID& ResourceManager::GetModel(const std::string& a_path)
 	return m_modelIDMap[a_path];
 }
 
-ModelResource* ResourceManager::NGetModelResource(UINT a_modelID)
+ModelResource* GraphicResourceManager::NGetModelResource(UINT a_modelID)
 {
 	auto _spModel = m_modelIDStorage.Get(a_modelID);
 	if (_spModel)

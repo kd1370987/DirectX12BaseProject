@@ -7,7 +7,7 @@ class CBVHeap;
 class SRVHeap;
 class DSVHeap;
 class RTVHeap;
-#include "../../GPUResource/DescriptorHeap/CBV_SRV_UAVHeap/CBV_SRV_UAVHeap.h"
+#include "../../D3D12//D3DObject/DescriptorHeap/CBV_SRV_UAVHeap/CBV_SRV_UAVHeap.h"
 
 
 class DescriptorHeapManager
