@@ -224,6 +224,8 @@
     <ClCompile Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Node\Node.cpp" />
     <ClCompile Include="Source\Engine\GraphicResource\Resource\Texture\Texture.cpp" />
+    <ClCompile Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.cpp" />
+    <ClCompile Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.cpp" />
     <ClCompile Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
@@ -289,7 +291,6 @@
     <ClInclude Include="Source\Core\Math\Alignment.h" />
     <ClInclude Include="Source\Core\Math\Collider.h" />
     <ClInclude Include="Source\Core\Storage\Storage.h" />
-    <ClInclude Include="Source\Core\Storage\VectorStorage.h" />
     <ClInclude Include="Source\Core\Time\DeltaTime\DeltaTime.h" />
     <ClInclude Include="Source\Core\Time\FPSController\FPSController.h" />
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
@@ -331,6 +332,7 @@
     <ClInclude Include="Source\Engine\ECS\World\World.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
     <ClInclude Include="Source\Engine\GraphicResource\GraphicResourceManager\GraphicResourceManager.h" />
+    <ClInclude Include="Source\Engine\GraphicResource\GraphicResourceManager\ResourceSlotStorage\ResourceSlotStorage.h" />
     <ClInclude Include="Source\Engine\GraphicResource\Loader\ModelLoader\AssimpLoader\AssimpLoader.h" />
     <ClInclude Include="Source\Engine\GraphicResource\Loader\ModelLoader\TinyGLTFLoader\TinyGLTFLoader.h" />
     <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\Model.h" />
@@ -340,6 +342,8 @@
     <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Node\Node.h" />
     <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Vertex\Vertex.h" />
     <ClInclude Include="Source\Engine\GraphicResource\Resource\Texture\Texture.h" />
+    <ClInclude Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.h" />
+    <ClInclude Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.h" />
     <ClInclude Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.h" />
     <ClInclude Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />

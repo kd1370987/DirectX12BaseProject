@@ -373,6 +373,33 @@
     <Filter Include="Source\Engine\D3D12\CBAllocater">
       <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\GraphicResource\GraphicResourceManager\ResourceSlotStorage">
+      <UniqueIdentifier>{4dd62e8a-d073-44d7-887c-b84553a4abbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Serialize">
+      <UniqueIdentifier>{f1337c28-7c85-4096-b4ac-9ff8d5374987}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Serialize\ModelSerialize">
+      <UniqueIdentifier>{a714dc8b-3170-4c15-ab1b-0e13b3f37b95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize">
+      <UniqueIdentifier>{64b88335-4bb3-4149-b779-15c3e841ae0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize">
+      <UniqueIdentifier>{59283702-e09f-40cb-a733-188fe66f12ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager">
+      <UniqueIdentifier>{669008e8-9307-48ec-90bd-30cfce7a8471}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\PSOManager">
+      <UniqueIdentifier>{52b62cdd-c40c-46f5-846f-6f9627b15af5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\RootSignatureManager">
+      <UniqueIdentifier>{a4c76ca6-d0b7-4abd-a8a3-e1c3afa6d557}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\PSOManager\PSOManager">
+      <UniqueIdentifier>{2e2ead88-4e2d-4c36-904f-f4e9cc99b4c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -590,6 +617,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicResource\GraphicResourceManager\GraphicResourceManager.cpp">
       <Filter>Source\Engine\GraphicResource\GraphicResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.cpp">
+      <Filter>Source\Engine\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.cpp">
+      <Filter>Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -914,8 +947,14 @@
     <ClInclude Include="Source\Engine\GraphicResource\GraphicResourceManager\GraphicResourceManager.h">
       <Filter>Source\Engine\GraphicResource\GraphicResourceManager</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Storage\VectorStorage.h">
-      <Filter>Source\Core\Storage</Filter>
+    <ClInclude Include="Source\Engine\GraphicResource\GraphicResourceManager\ResourceSlotStorage\ResourceSlotStorage.h">
+      <Filter>Source\Engine\GraphicResource\GraphicResourceManager\ResourceSlotStorage</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.h">
+      <Filter>Source\Engine\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.h">
+      <Filter>Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

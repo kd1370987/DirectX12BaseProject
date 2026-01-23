@@ -108,14 +108,14 @@ static void XMFLOAT4X4MirrorZ(DirectX::XMFLOAT4X4& a_mat)
     a_mat._43 *= -1;
 }
 
-std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath)
+std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 {
-    //===============================================
-    //
-    // モデルデータの読み込み
-    //
-    //===============================================
-    tinygltf::Model _tinyModel;                     // モデルデータの入れもの
+	//===============================================
+   //
+   // モデルデータの読み込み
+   //
+   //===============================================
+	tinygltf::Model _tinyModel;                     // モデルデータの入れもの
 	{
 		tinygltf::TinyGLTF _gltf_ctx;               // 読込用オブジェクト
 		std::string _err;
@@ -153,21 +153,21 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 		}
 	}
 
-    // 戻り値用データを準備
-    std::shared_ptr<GLTFModel> _destModel = std::make_shared<GLTFModel>();
+	// 戻り値用データを準備
+	std::shared_ptr<GLTFModel> _destModel = std::make_shared<GLTFModel>();
 
-    //----------------------------------------------------
-    // マテリアル
-    //----------------------------------------------------
+	//----------------------------------------------------
+	// マテリアル
+	//----------------------------------------------------
 	{
 		// 指定Indexのテクスチャ名取得
 		auto GetTextureFilename = [&_tinyModel](int a_texIndex) -> std::string
-		{
-			if (a_texIndex < 0) return "";
-			int _imgIndex = _tinyModel.textures[a_texIndex].source;
-			if (_imgIndex < 0) return "";
-			return _tinyModel.images[_imgIndex].uri;
-		};
+			{
+				if (a_texIndex < 0) return "";
+				int _imgIndex = _tinyModel.textures[a_texIndex].source;
+				if (_imgIndex < 0) return "";
+				return _tinyModel.images[_imgIndex].uri;
+			};
 
 		// マテリアル数だけ、配列を確保
 		_destModel->materials.resize(_tinyModel.materials.size());
@@ -230,76 +230,76 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 		}
 	}
 
-    //----------------------------------------------------
-    // ノード
-    //----------------------------------------------------
-    
-    _destModel->nodes.resize(_tinyModel.nodes.size());      // 全ノード分メモリを確保
+	//----------------------------------------------------
+	// ノード
+	//----------------------------------------------------
+
+	_destModel->nodes.resize(_tinyModel.nodes.size());      // 全ノード分メモリを確保
 
 	//-------------------------
-    // 全ノード　基本情報設定
+	// 全ノード　基本情報設定
 	//-------------------------
-    for (UINT _nodeIdx = 0; _nodeIdx < _destModel->nodes.size(); ++_nodeIdx)
-    {
-        auto* _destNode = &_destModel->nodes[_nodeIdx];     // コピー先
+	for (UINT _nodeIdx = 0; _nodeIdx < _destModel->nodes.size(); ++_nodeIdx)
+	{
+		auto* _destNode = &_destModel->nodes[_nodeIdx];     // コピー先
 
-        //-----------------------
-        // 情報
-        //-----------------------
-        _destNode->name = _tinyModel.nodes[_nodeIdx].name;              // 名前
-        _destNode->children = _tinyModel.nodes[_nodeIdx].children;      // 子インデックス配列
-        
-        // 全ての子に、親を設定
-        for (auto&& _idx : _destNode->children)
-        {
-            _destModel->nodes[_idx].parent = _nodeIdx;
-        }
+		//-----------------------
+		// 情報
+		//-----------------------
+		_destNode->name = _tinyModel.nodes[_nodeIdx].name;              // 名前
+		_destNode->children = _tinyModel.nodes[_nodeIdx].children;      // 子インデックス配列
 
-        //-----------------------
-        // 変換行列取得
-        //-----------------------
+		// 全ての子に、親を設定
+		for (auto&& _idx : _destNode->children)
+		{
+			_destModel->nodes[_idx].parent = _nodeIdx;
+		}
+
+		//-----------------------
+		// 変換行列取得
+		//-----------------------
 		DirectX::XMMATRIX _scaleMat = DirectX::XMMatrixIdentity();
 		DirectX::XMMATRIX _rotationMat = DirectX::XMMatrixIdentity();
 		DirectX::XMMATRIX _transMat = DirectX::XMMatrixIdentity();
-        DirectX::XMFLOAT4X4 _mat;
-        // 拡縮
-        if (_tinyModel.nodes[_nodeIdx].scale.size() != 0)
-        {
-            _scaleMat = DirectX::XMMatrixScaling(
-                static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[0]),
-                static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[1]),
-                static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[2])
-            );
-        }
-        // 回転
-        if (_tinyModel.nodes[_nodeIdx].rotation.size() != 0)
-        {
-            DirectX::XMFLOAT4 _quatFloat4(
-                static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[0]),
-                static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[1]),
-                static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[2]),
-                static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[3])
-            );
+		DirectX::XMFLOAT4X4 _mat;
+		// 拡縮
+		if (_tinyModel.nodes[_nodeIdx].scale.size() != 0)
+		{
+			_scaleMat = DirectX::XMMatrixScaling(
+				static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[0]),
+				static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[1]),
+				static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[2])
+			);
+		}
+		// 回転
+		if (_tinyModel.nodes[_nodeIdx].rotation.size() != 0)
+		{
+			DirectX::XMFLOAT4 _quatFloat4(
+				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[0]),
+				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[1]),
+				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[2]),
+				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[3])
+			);
 
-            // 変換して計算
-            DirectX::XMVECTOR _quat = DirectX::XMLoadFloat4(&_quatFloat4);
+			// 変換して計算
+			DirectX::XMVECTOR _quat = DirectX::XMLoadFloat4(&_quatFloat4);
 			DirectX::XMVECTOR _nQuat = DirectX::XMQuaternionNormalize(_quat);
-            _rotationMat = DirectX::XMMatrixRotationQuaternion(_nQuat);
-        }
-        // 移動
-        if (_tinyModel.nodes[_nodeIdx].translation.size() != 0)
-        {
-            _transMat = DirectX::XMMatrixTranslation(
-                static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[0]),
-                static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[1]),
-                static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[2])
-            );
-        }
-        // 行列
-        if (_tinyModel.nodes[_nodeIdx].matrix.size() == 0)
-        {
+			_rotationMat = DirectX::XMMatrixRotationQuaternion(_nQuat);
+		}
+		// 移動
+		if (_tinyModel.nodes[_nodeIdx].translation.size() != 0)
+		{
+			_transMat = DirectX::XMMatrixTranslation(
+				static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[0]),
+				static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[1]),
+				static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[2])
+			);
+		}
+		// 行列
+		if (_tinyModel.nodes[_nodeIdx].matrix.size() == 0)
+		{
 			DirectX::XMStoreFloat4x4(&_mat, _scaleMat * _rotationMat * _transMat);
-        }
+		}
 		else
 		{
 			const auto& _m = _tinyModel.nodes[_nodeIdx].matrix;
@@ -309,28 +309,28 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 			_mat._41 = (float)_m[3]; _mat._42 = (float)_m[7];  _mat._43 = (float)_m[11]; _mat._44 = (float)_m[15];
 		}
 
-        _destNode->localTransform = _mat;
-        // Z軸ミラーリング
-        XMFLOAT4X4MirrorZ(_destNode->localTransform);
-       
-        // メッシュあり
-        if (_tinyModel.nodes[_nodeIdx].mesh >= 0)
-        {
-            // メッシュフラグON
-            _destNode->isMesh = true;
-        }
-    }
-    //----------------------------------------------------
-    // ノードノードのみの参照リスト
-    //----------------------------------------------------
-    for (auto&& _idx : _tinyModel.scenes[0].nodes)
-    {
-        _destModel->rootNodeIndices.push_back(_idx);
-    }
+		_destNode->localTransform = _mat;
+		// Z軸ミラーリング
+		XMFLOAT4X4MirrorZ(_destNode->localTransform);
 
-    //----------------------------------------------------
-    // 各ノードのTransformからWorldTransformを算出
-    //----------------------------------------------------
+		// メッシュあり
+		if (_tinyModel.nodes[_nodeIdx].mesh >= 0)
+		{
+			// メッシュフラグON
+			_destNode->isMesh = true;
+		}
+	}
+	//----------------------------------------------------
+	// ノードノードのみの参照リスト
+	//----------------------------------------------------
+	for (auto&& _idx : _tinyModel.scenes[0].nodes)
+	{
+		_destModel->rootNodeIndices.push_back(_idx);
+	}
+
+	//----------------------------------------------------
+	// 各ノードのTransformからWorldTransformを算出
+	//----------------------------------------------------
 	{
 		// 行列計算用再起関数
 		std::function<void(GLTFNode*, const DirectX::XMFLOAT4X4*)> _rec =
@@ -364,279 +364,279 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 			_rec(&_destModel->nodes[_nodeIdx], nullptr);
 		}
 
-		
+
 	}
 
-    //----------------------------------------------------
-    // ボーン
-    //----------------------------------------------------
-    if (_tinyModel.skins.size() > 0)
-    {
-        // 配列確保
-        _destModel->boneNodeIndices = _tinyModel.skins[0].joints;
+	//----------------------------------------------------
+	// ボーン
+	//----------------------------------------------------
+	if (_tinyModel.skins.size() > 0)
+	{
+		// 配列確保
+		_destModel->boneNodeIndices = _tinyModel.skins[0].joints;
 
-        // InverseBindMarices(オフセット行列)取得用
-        GLTFBufferGetter _ibmGetter(&_tinyModel, _tinyModel.skins[0].inverseBindMatrices);
+		// InverseBindMarices(オフセット行列)取得用
+		GLTFBufferGetter _ibmGetter(&_tinyModel, _tinyModel.skins[0].inverseBindMatrices);
 
-        // ボーンだけのノード参照配列
-        for (UINT _jointIdx = 0; _jointIdx < _tinyModel.skins[0].joints.size(); ++_jointIdx)
-        {
-            // _jointIdx番目のボーンの、ノード内でのIndex
-            int _originNodeIdx = _tinyModel.skins[0].joints[_jointIdx];
+		// ボーンだけのノード参照配列
+		for (UINT _jointIdx = 0; _jointIdx < _tinyModel.skins[0].joints.size(); ++_jointIdx)
+		{
+			// _jointIdx番目のボーンの、ノード内でのIndex
+			int _originNodeIdx = _tinyModel.skins[0].joints[_jointIdx];
 
-            GLTFNode* _boneNode = &_destModel->nodes[_originNodeIdx];
-            _boneNode->boneNodeIndex = _jointIdx;
+			GLTFNode* _boneNode = &_destModel->nodes[_originNodeIdx];
+			_boneNode->boneNodeIndex = _jointIdx;
 
-            // オフセット行列取得
-            DirectX::XMFLOAT4X4 _invBindMat;
-            for (int _matIdx = 0; _matIdx < 16; ++_matIdx)
-            {
-                (&_invBindMat._11)[_matIdx] = _ibmGetter.GetValue_Float(_jointIdx * 16 + _matIdx);
-            }
-            // Z軸ミラーリング
-            XMFLOAT4X4MirrorZ(_invBindMat);
+			// オフセット行列取得
+			DirectX::XMFLOAT4X4 _invBindMat;
+			for (int _matIdx = 0; _matIdx < 16; ++_matIdx)
+			{
+				(&_invBindMat._11)[_matIdx] = _ibmGetter.GetValue_Float(_jointIdx * 16 + _matIdx);
+			}
+			// Z軸ミラーリング
+			XMFLOAT4X4MirrorZ(_invBindMat);
 
-            // 格納
-            _boneNode->inverseBindMatrix = _invBindMat;
+			// 格納
+			_boneNode->inverseBindMatrix = _invBindMat;
 
-            // 変換行列へ変換
-            const DirectX::XMMATRIX _mat = DirectX::XMLoadFloat4x4(&_invBindMat);
-            DirectX::XMVECTOR _det;
-            DirectX::XMMATRIX _inv = DirectX::XMMatrixInverse(&_det, _mat);
-            DirectX::XMStoreFloat4x4(&_boneNode->worldTransform, _inv);
-        }
+			// 変換行列へ変換
+			const DirectX::XMMATRIX _mat = DirectX::XMLoadFloat4x4(&_invBindMat);
+			DirectX::XMVECTOR _det;
+			DirectX::XMMATRIX _inv = DirectX::XMMatrixInverse(&_det, _mat);
+			DirectX::XMStoreFloat4x4(&_boneNode->worldTransform, _inv);
+		}
 
-        // ボーンLocalMat算出
-        for (int _nodeIdx : _destModel->boneNodeIndices)
-        {
-            GLTFNode* _boneNode = &_destModel->nodes[_nodeIdx];
+		// ボーンLocalMat算出
+		for (int _nodeIdx : _destModel->boneNodeIndices)
+		{
+			GLTFNode* _boneNode = &_destModel->nodes[_nodeIdx];
 
-            if (_boneNode->parent >= 0)
-            {
-                DirectX::XMMATRIX _worldMat = DirectX::XMLoadFloat4x4(&_boneNode->worldTransform);
-                DirectX::XMMATRIX _invBindMat = DirectX::XMLoadFloat4x4(&_destModel->nodes[_boneNode->parent].inverseBindMatrix);
-                DirectX::XMMATRIX _mat = _worldMat * _invBindMat;
-                DirectX::XMStoreFloat4x4(&_boneNode->localTransform, _mat);
-            }
-            else
-            {
-                _boneNode->localTransform = _boneNode->worldTransform;
-            }
-        }
-    }
+			if (_boneNode->parent >= 0)
+			{
+				DirectX::XMMATRIX _worldMat = DirectX::XMLoadFloat4x4(&_boneNode->worldTransform);
+				DirectX::XMMATRIX _invBindMat = DirectX::XMLoadFloat4x4(&_destModel->nodes[_boneNode->parent].inverseBindMatrix);
+				DirectX::XMMATRIX _mat = _worldMat * _invBindMat;
+				DirectX::XMStoreFloat4x4(&_boneNode->localTransform, _mat);
+			}
+			else
+			{
+				_boneNode->localTransform = _boneNode->worldTransform;
+			}
+		}
+	}
 
-    //----------------------------------------------------
-    // メッシュ
-    //----------------------------------------------------
-    for (UINT _nodeIdx = 0; _nodeIdx < _destModel->nodes.size(); ++_nodeIdx)
-    {
-        auto* _destNode = &_destModel->nodes[_nodeIdx]; // コピー先確保
+	//----------------------------------------------------
+	// メッシュ
+	//----------------------------------------------------
+	for (UINT _nodeIdx = 0; _nodeIdx < _destModel->nodes.size(); ++_nodeIdx)
+	{
+		auto* _destNode = &_destModel->nodes[_nodeIdx]; // コピー先確保
 
-        //-----------------------
-        // メッシュの場合
-        //-----------------------
-        int _meshIdx = _tinyModel.nodes[_nodeIdx].mesh;     // メッシュIndex取得
-        if (_meshIdx < 0)continue;                          // メッシュなし
+		//-----------------------
+		// メッシュの場合
+		//-----------------------
+		int _meshIdx = _tinyModel.nodes[_nodeIdx].mesh;     // メッシュIndex取得
+		if (_meshIdx < 0)continue;                          // メッシュなし
 
-        // メッシュフラグON
-        _destNode->isMesh = true;
+		// メッシュフラグON
+		_destNode->isMesh = true;
 
-        // 作業データ
-        struct GLTFPrimitive
-        {
-            std::vector<MeshVertex8bit>     vertices;
-            std::vector<MeshFace>       faces;
+		// 作業データ
+		struct GLTFPrimitive
+		{
+			std::vector<MeshVertex8bit>     vertices;
+			std::vector<MeshFace>       faces;
 
-            UINT                        materialNumber = 0;
+			UINT                        materialNumber = 0;
 
-            std::map<std::string, int>  attributes;
-        };
-        std::vector<std::shared_ptr<GLTFPrimitive>> _tmpPrimitives(_tinyModel.meshes[_meshIdx].primitives.size());
+			std::map<std::string, int>  attributes;
+		};
+		std::vector<std::shared_ptr<GLTFPrimitive>> _tmpPrimitives(_tinyModel.meshes[_meshIdx].primitives.size());
 
-        //-----------------------
-        // 全プリミティブ
-        //-----------------------
-        for (size_t _primitiveIdx = 0; _primitiveIdx < _tinyModel.meshes[_meshIdx].primitives.size(); ++_primitiveIdx)
-        {
-            // コピー元準備
-            auto& _srcPrimitive = _tinyModel.meshes[_meshIdx].primitives[_primitiveIdx];
+		//-----------------------
+		// 全プリミティブ
+		//-----------------------
+		for (size_t _primitiveIdx = 0; _primitiveIdx < _tinyModel.meshes[_meshIdx].primitives.size(); ++_primitiveIdx)
+		{
+			// コピー元準備
+			auto& _srcPrimitive = _tinyModel.meshes[_meshIdx].primitives[_primitiveIdx];
 
-            // TRIANGLES以外は無視（メッシュの基本図形はこれだけで十分だから）
-            if (_srcPrimitive.mode != TINYGLTF_MODE_TRIANGLES)continue;
+			// TRIANGLES以外は無視（メッシュの基本図形はこれだけで十分だから）
+			if (_srcPrimitive.mode != TINYGLTF_MODE_TRIANGLES)continue;
 
-            // 作成
-            std::shared_ptr<GLTFPrimitive> _destPrimitive = std::make_shared<GLTFPrimitive>();
-            _tmpPrimitives[_primitiveIdx] = _destPrimitive;
-            _destPrimitive->attributes = _srcPrimitive.attributes;
+			// 作成
+			std::shared_ptr<GLTFPrimitive> _destPrimitive = std::make_shared<GLTFPrimitive>();
+			_tmpPrimitives[_primitiveIdx] = _destPrimitive;
+			_destPrimitive->attributes = _srcPrimitive.attributes;
 
-            // マテリアルナンバー
-            _destPrimitive->materialNumber = std::max(0, _srcPrimitive.material);
+			// マテリアルナンバー
+			_destPrimitive->materialNumber = std::max(0, _srcPrimitive.material);
 
-			
-            //-----------------------
-            // 頂点バッファ
-            //-----------------------
 
-            // 座標
-            {
-                // 座標ゲッター生成
-                GLTFBufferGetter _posGetter(&_tinyModel, _srcPrimitive.attributes["POSITION"]);
+			//-----------------------
+			// 頂点バッファ
+			//-----------------------
 
-                DirectX::XMFLOAT3 _pos;
-                _destPrimitive->vertices.resize(_posGetter.GetAccsessor()->count);      // 配列確保
-                for (UINT _vertexIdx = 0; _vertexIdx < _posGetter.GetAccsessor()->count; ++_vertexIdx)
-                {
-                    // コピー先
-                    auto& _ver = _destPrimitive->vertices[_vertexIdx];
+			// 座標
+			{
+				// 座標ゲッター生成
+				GLTFBufferGetter _posGetter(&_tinyModel, _srcPrimitive.attributes["POSITION"]);
 
-                    // ガード
-                    if (_posGetter.GetAccsessor()->type != TINYGLTF_TYPE_VEC3)
-                    {
-                        assert(0 && "この頂点形式には対応していません");
-                    }
+				DirectX::XMFLOAT3 _pos;
+				_destPrimitive->vertices.resize(_posGetter.GetAccsessor()->count);      // 配列確保
+				for (UINT _vertexIdx = 0; _vertexIdx < _posGetter.GetAccsessor()->count; ++_vertexIdx)
+				{
+					// コピー先
+					auto& _ver = _destPrimitive->vertices[_vertexIdx];
 
-                    // コピー
-                    _ver.pos.x = _posGetter.GetValue_Float(_vertexIdx * 3 + 0);
-                    _ver.pos.y = _posGetter.GetValue_Float(_vertexIdx * 3 + 1);
-                    _ver.pos.z = _posGetter.GetValue_Float(_vertexIdx * 3 + 2) * -1;    // Z軸ミラー
-                }
-            }
+					// ガード
+					if (_posGetter.GetAccsessor()->type != TINYGLTF_TYPE_VEC3)
+					{
+						assert(0 && "この頂点形式には対応していません");
+					}
 
-            // 法線
-            if (_srcPrimitive.attributes.count("NORMAL") > 0)
-            {
-                // 法線ゲッター生成
-                GLTFBufferGetter _normalGetter(&_tinyModel, _srcPrimitive.attributes["NORMAL"]);
-                for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
-                {
-                    // コピー先設定
-                    auto& _nor = _destPrimitive->vertices[_vertexIdx].normal;
-                    // コピー
-                    _nor.x = _normalGetter.GetValue_Float(_vertexIdx * 3 + 0);
-                    _nor.y = _normalGetter.GetValue_Float(_vertexIdx * 3 + 1);
-                    _nor.z = _normalGetter.GetValue_Float(_vertexIdx * 3 + 2) * -1;    // Z軸ミラー
-                }
-            }
+					// コピー
+					_ver.pos.x = _posGetter.GetValue_Float(_vertexIdx * 3 + 0);
+					_ver.pos.y = _posGetter.GetValue_Float(_vertexIdx * 3 + 1);
+					_ver.pos.z = _posGetter.GetValue_Float(_vertexIdx * 3 + 2) * -1;    // Z軸ミラー
+				}
+			}
 
-            // UV
-            if (_srcPrimitive.attributes.count("TEXCOORD_0") > 0)
-            {
-                // UVゲッター生成
-                GLTFBufferGetter _uvGetter(&_tinyModel,_srcPrimitive.attributes["TEXCOORD_0"]);
-                for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
-                {
-                    // コピー先設定
-                    auto& _uv = _destPrimitive->vertices[_vertexIdx].uv;
-                    // コピー
-                    _uv.x = _uvGetter.GetValue_Float(_vertexIdx * 2 + 0);
-                    _uv.y = _uvGetter.GetValue_Float(_vertexIdx * 2 + 1);
-                }
-            }
+			// 法線
+			if (_srcPrimitive.attributes.count("NORMAL") > 0)
+			{
+				// 法線ゲッター生成
+				GLTFBufferGetter _normalGetter(&_tinyModel, _srcPrimitive.attributes["NORMAL"]);
+				for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
+				{
+					// コピー先設定
+					auto& _nor = _destPrimitive->vertices[_vertexIdx].normal;
+					// コピー
+					_nor.x = _normalGetter.GetValue_Float(_vertexIdx * 3 + 0);
+					_nor.y = _normalGetter.GetValue_Float(_vertexIdx * 3 + 1);
+					_nor.z = _normalGetter.GetValue_Float(_vertexIdx * 3 + 2) * -1;    // Z軸ミラー
+				}
+			}
 
-            // 頂点カラー
-            if (_srcPrimitive.attributes.count("COLOR_0") > 0)
-            {
-                // 色ゲッター生成
-                GLTFBufferGetter _colorGetter(&_tinyModel, _srcPrimitive.attributes["COLOR_0"]);
-                for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
-                {
-                    DirectX::XMFLOAT4 _color(1, 1, 1, 1);
-                    
-                    // RGB
-                    if (_colorGetter.GetAccsessor()->type == TINYGLTF_TYPE_VEC3)
-                    {
-                        _color.x = _colorGetter.GetValue_Float(_vertexIdx * 3 + 0);
-                        _color.y = _colorGetter.GetValue_Float(_vertexIdx * 3 + 1);
-                        _color.z = _colorGetter.GetValue_Float(_vertexIdx * 3 + 2);
-                    }
-                    // RGBA
-                    else if (_colorGetter.GetAccsessor()->type == TINYGLTF_TYPE_VEC4)
-                    {
-                        _color.x = _colorGetter.GetValue_Float(_vertexIdx * 4 + 0);
-                        _color.y = _colorGetter.GetValue_Float(_vertexIdx * 4 + 1);
-                        _color.z = _colorGetter.GetValue_Float(_vertexIdx * 4 + 2);
-                        _color.w = _colorGetter.GetValue_Float(_vertexIdx * 4 + 3);
-                    }
+			// UV
+			if (_srcPrimitive.attributes.count("TEXCOORD_0") > 0)
+			{
+				// UVゲッター生成
+				GLTFBufferGetter _uvGetter(&_tinyModel, _srcPrimitive.attributes["TEXCOORD_0"]);
+				for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
+				{
+					// コピー先設定
+					auto& _uv = _destPrimitive->vertices[_vertexIdx].uv;
+					// コピー
+					_uv.x = _uvGetter.GetValue_Float(_vertexIdx * 2 + 0);
+					_uv.y = _uvGetter.GetValue_Float(_vertexIdx * 2 + 1);
+				}
+			}
 
-                    // float(0.0～1.0) -> byte(0～255)に変換
-                    unsigned char _r = static_cast<unsigned char>(std::clamp(_color.x, 0.0f, 1.0f) * 255.0f);
-                    unsigned char _g = static_cast<unsigned char>(std::clamp(_color.y, 0.0f, 1.0f) * 255.0f);
-                    unsigned char _b = static_cast<unsigned char>(std::clamp(_color.z, 0.0f, 1.0f) * 255.0f);
-                    unsigned char _a = static_cast<unsigned char>(std::clamp(_color.w, 0.0f, 1.0f) * 255.0f);
+			// 頂点カラー
+			if (_srcPrimitive.attributes.count("COLOR_0") > 0)
+			{
+				// 色ゲッター生成
+				GLTFBufferGetter _colorGetter(&_tinyModel, _srcPrimitive.attributes["COLOR_0"]);
+				for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
+				{
+					DirectX::XMFLOAT4 _color(1, 1, 1, 1);
 
-                    // RGBA -> 32Bit UINTにパック
-                    unsigned int _packedColor = (_r) | (_g << 8) | (_b << 16) | (_a << 24);
-                    _destPrimitive->vertices[_vertexIdx].color = _packedColor;
-                }
+					// RGB
+					if (_colorGetter.GetAccsessor()->type == TINYGLTF_TYPE_VEC3)
+					{
+						_color.x = _colorGetter.GetValue_Float(_vertexIdx * 3 + 0);
+						_color.y = _colorGetter.GetValue_Float(_vertexIdx * 3 + 1);
+						_color.z = _colorGetter.GetValue_Float(_vertexIdx * 3 + 2);
+					}
+					// RGBA
+					else if (_colorGetter.GetAccsessor()->type == TINYGLTF_TYPE_VEC4)
+					{
+						_color.x = _colorGetter.GetValue_Float(_vertexIdx * 4 + 0);
+						_color.y = _colorGetter.GetValue_Float(_vertexIdx * 4 + 1);
+						_color.z = _colorGetter.GetValue_Float(_vertexIdx * 4 + 2);
+						_color.w = _colorGetter.GetValue_Float(_vertexIdx * 4 + 3);
+					}
 
-            }
+					// float(0.0～1.0) -> byte(0～255)に変換
+					unsigned char _r = static_cast<unsigned char>(std::clamp(_color.x, 0.0f, 1.0f) * 255.0f);
+					unsigned char _g = static_cast<unsigned char>(std::clamp(_color.y, 0.0f, 1.0f) * 255.0f);
+					unsigned char _b = static_cast<unsigned char>(std::clamp(_color.z, 0.0f, 1.0f) * 255.0f);
+					unsigned char _a = static_cast<unsigned char>(std::clamp(_color.w, 0.0f, 1.0f) * 255.0f);
 
-            // スキンメッシュ情報が無ければ無視
-            if (_tinyModel.skins.size() > 0)
-            {
-                // スキンIndex
-                if (_srcPrimitive.attributes.count("JOINTS_0") > 0)
-                {
-                    _destNode->nodeMesh.isSkinMesh = true;      // スキンメッシュ持ち
-                    GLTFBufferGetter _jointGetter(&_tinyModel,_srcPrimitive.attributes["JOINTS_0"]);
-                    for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
-                    {
-                        auto& _skinIdx = _destPrimitive->vertices[_vertexIdx].skinIndexList;
+					// RGBA -> 32Bit UINTにパック
+					unsigned int _packedColor = (_r) | (_g << 8) | (_b << 16) | (_a << 24);
+					_destPrimitive->vertices[_vertexIdx].color = _packedColor;
+				}
 
-                        _skinIdx[0] = static_cast<short>(_jointGetter.GetValue_Int(_vertexIdx * 4 + 0));
-                        _skinIdx[1] = static_cast<short>(_jointGetter.GetValue_Int(_vertexIdx * 4 + 1));
-                        _skinIdx[2] = static_cast<short>(_jointGetter.GetValue_Int(_vertexIdx * 4 + 2));
-                        _skinIdx[3] = static_cast<short>(_jointGetter.GetValue_Int(_vertexIdx * 4 + 3));
-                    }
-                }
+			}
 
-                // スキンウェイト
-                if (_srcPrimitive.attributes.count("WEIGHTS_0") > 0)
-                {
-                    _destNode->nodeMesh.isSkinMesh = true;      // スキンメッシュ持ち
-                    GLTFBufferGetter _weightGetter(&_tinyModel, _srcPrimitive.attributes["WEIGHTS_0"]);
-                    for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
-                    {
-                        auto& _skinWeights = _destPrimitive->vertices[_vertexIdx].skinWeightList;
+			// スキンメッシュ情報が無ければ無視
+			if (_tinyModel.skins.size() > 0)
+			{
+				// スキンIndex
+				if (_srcPrimitive.attributes.count("JOINTS_0") > 0)
+				{
+					_destNode->nodeMesh.isSkinMesh = true;      // スキンメッシュ持ち
+					GLTFBufferGetter _jointGetter(&_tinyModel, _srcPrimitive.attributes["JOINTS_0"]);
+					for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
+					{
+						auto& _skinIdx = _destPrimitive->vertices[_vertexIdx].skinIndexList;
 
-                        _skinWeights[0] = _weightGetter.GetValue_UNORM(_vertexIdx * 4 + 0);
-                        _skinWeights[1] = _weightGetter.GetValue_UNORM(_vertexIdx * 4 + 1);
-                        _skinWeights[2] = _weightGetter.GetValue_UNORM(_vertexIdx * 4 + 2);
-                        _skinWeights[3] = _weightGetter.GetValue_UNORM(_vertexIdx * 4 + 3);
+						_skinIdx[0] = static_cast<short>(_jointGetter.GetValue_Int(_vertexIdx * 4 + 0));
+						_skinIdx[1] = static_cast<short>(_jointGetter.GetValue_Int(_vertexIdx * 4 + 1));
+						_skinIdx[2] = static_cast<short>(_jointGetter.GetValue_Int(_vertexIdx * 4 + 2));
+						_skinIdx[3] = static_cast<short>(_jointGetter.GetValue_Int(_vertexIdx * 4 + 3));
+					}
+				}
 
-                        if (_skinWeights[0] == 0) _skinWeights[0] = 1.0f;
+				// スキンウェイト
+				if (_srcPrimitive.attributes.count("WEIGHTS_0") > 0)
+				{
+					_destNode->nodeMesh.isSkinMesh = true;      // スキンメッシュ持ち
+					GLTFBufferGetter _weightGetter(&_tinyModel, _srcPrimitive.attributes["WEIGHTS_0"]);
+					for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
+					{
+						auto& _skinWeights = _destPrimitive->vertices[_vertexIdx].skinWeightList;
 
-                        // ウェイト補正
-                        int _cnt = 0;
-                        for (UINT _x = 0; _x < 4; ++_x)
-                        {
-                            if (_skinWeights[_x] == 0.0f)break;
-                            _cnt++;
-                        }
-                        float _totalWeight = 0;
-                        for (int _x = 0; _x < _cnt - 1; ++_x)
-                        {
-                            _totalWeight += _skinWeights[_x];
-                        }
-                        _skinWeights[_cnt - 1] = 1.0f - _totalWeight;
-                    }
+						_skinWeights[0] = _weightGetter.GetValue_UNORM(_vertexIdx * 4 + 0);
+						_skinWeights[1] = _weightGetter.GetValue_UNORM(_vertexIdx * 4 + 1);
+						_skinWeights[2] = _weightGetter.GetValue_UNORM(_vertexIdx * 4 + 2);
+						_skinWeights[3] = _weightGetter.GetValue_UNORM(_vertexIdx * 4 + 3);
 
-                }
-            }
+						if (_skinWeights[0] == 0) _skinWeights[0] = 1.0f;
 
-            //-----------------------
-            // インデックスバッファ
-            //-----------------------
-            GLTFBufferGetter _indexGetter(&_tinyModel, _srcPrimitive.indices);      // ゲッター生成
-            _destPrimitive->faces.resize(_indexGetter.GetAccsessor()->count / 3);   // 面の数分配列を確保
-            for (UINT _faceIdx = 0; _faceIdx < _destPrimitive->faces.size(); ++_faceIdx)
-            {
-                // データ型のバイト数をもとめる（Z軸ミラーのため、1 と 2 を入れ替える）
-                _destPrimitive->faces[_faceIdx].idx[0] = static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 0));
-                _destPrimitive->faces[_faceIdx].idx[1] = static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 1));
-                _destPrimitive->faces[_faceIdx].idx[2] = static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 2));
-            }
-        }
+						// ウェイト補正
+						int _cnt = 0;
+						for (UINT _x = 0; _x < 4; ++_x)
+						{
+							if (_skinWeights[_x] == 0.0f)break;
+							_cnt++;
+						}
+						float _totalWeight = 0;
+						for (int _x = 0; _x < _cnt - 1; ++_x)
+						{
+							_totalWeight += _skinWeights[_x];
+						}
+						_skinWeights[_cnt - 1] = 1.0f - _totalWeight;
+					}
+
+				}
+			}
+
+			//-----------------------
+			// インデックスバッファ
+			//-----------------------
+			GLTFBufferGetter _indexGetter(&_tinyModel, _srcPrimitive.indices);      // ゲッター生成
+			_destPrimitive->faces.resize(_indexGetter.GetAccsessor()->count / 3);   // 面の数分配列を確保
+			for (UINT _faceIdx = 0; _faceIdx < _destPrimitive->faces.size(); ++_faceIdx)
+			{
+				// データ型のバイト数をもとめる（Z軸ミラーのため、1 と 2 を入れ替える）
+				_destPrimitive->faces[_faceIdx].idx[0] = static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 0));
+				_destPrimitive->faces[_faceIdx].idx[1] = static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 1));
+				_destPrimitive->faces[_faceIdx].idx[2] = static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 2));
+			}
+		}
 
 		//-----------------------
 		// マテリアル
@@ -735,7 +735,7 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 				DirectX::XMStoreFloat3(&_vertex.tangent, _tangent);						// 結果を保存
 			}
 		}
-    }
+	}
 
 	//----------------------------------------------------
 	// アニメーション
@@ -774,7 +774,7 @@ std::shared_ptr<GLTFModel> TinyGLTFLoader::LoadModel(std::string_view a_filePath
 
 			GLTFBufferGetter _timeGetter(&_tinyModel, _sampler.input);		// 時間アクセサ
 			GLTFBufferGetter _valueGetter(&_tinyModel, _sampler.output);	// データアクセサ
-			
+
 			// 座標のアニメーションノード設定
 			if (_channel.target_path == "translation")
 			{

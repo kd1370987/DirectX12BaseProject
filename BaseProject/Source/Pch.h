@@ -97,6 +97,9 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 #include "Engine/ECS/ECSCommon.h"
 
+#include "Engine/GraphicResource/Serialize/ModelSerialize/TinyGLTFSerialize/TinyGLTFSerialize.h"
+#include "Engine/GraphicResource/Serialize/ModelSerialize/AssimpSerialize/AssimpSerialize.h"
+
 // バッファリング数
 enum
 {

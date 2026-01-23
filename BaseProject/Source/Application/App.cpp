@@ -6,6 +6,8 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
 
+#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+
 #include "Scene/SceneManager.h"
 
 #include "Engine/TimeManager/TimeManager.h"
@@ -64,6 +66,8 @@ bool Application::Init()
 
 	// 描画初期化
 	RenderContext::Instance().Init();
+
+	GraphicResourceManager::Instance().Init();
 
 	// ECSの初期化
 	World::Instance().Init();

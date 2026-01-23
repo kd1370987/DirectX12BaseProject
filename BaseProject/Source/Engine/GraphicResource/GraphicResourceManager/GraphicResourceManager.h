@@ -1,47 +1,58 @@
 ﻿#pragma once
 
-class Texture;
-class ModelResource;
-
-using ModelID = uint32_t;
-constexpr ModelID INVALID_MODEL_ID = static_cast<ModelID>(-1);
+#include "ResourceSlotStorage/ResourceSlotStorage.h"
 
 class GraphicResourceManager
 {
 public:
 	
-	void Init();	// 初期化
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	void Init();
 
 	/// <summary>
 	/// テクスチャの取得
 	/// </summary>
 	/// <param name="a_key">ファイルパス</param>
 	/// <returns>テクスチャのウィークポインタ</returns>
-	std::weak_ptr<Texture> GetTexture(const std::string& a_key);
+	//std::weak_ptr<Texture> GetTexture(const std::string& a_key);
+	Resource::ID GetTexture(const std::string& a_key);
+
+	/// <summary>
+	/// テクスチャ取得
+	/// </summary>
+	/// <param name="a_texID">登録ID</param>
+	/// <returns>テクスチャのポインタ</returns>
+	const Texture* NGetTexture(const uint32_t& a_texID);
 
 	/// <summary>
 	/// モデル取得
 	/// </summary>
 	/// <param name="a_key">ファイルパス</param>
-	const ModelID& GetModel(const std::string& a_path);
+	const Resource::ID& GetModel(const std::string& a_path);
 
 	/// <summary>
 	/// モデル取得
 	/// </summary>
 	/// <param name="a_modelID">登録ID</param>
 	/// <returns>生ポインタ</returns>
-	ModelResource* NGetModelResource(UINT a_modelID);
+	//const ModelResource* NGetModelResource(uint32_t a_modelID);
+	const Model* NGetModelResource(uint32_t a_modelID);
 
 private:
-	
-	Storage<std::string, Texture>		m_textureStorage;	// テクスチャストレージ
 
+	// テクスチャ
+	void LoadTextureFromPath(Texture& a_tex,const std::string& a_path);
 
-	
-	std::unordered_map<std::string, UINT> m_modelIDMap;
-	Storage<ModelID, ModelResource> m_modelIDStorage; // モデルIDストレージ
+	// モデルの読み込み
+	void LoadModelFromPath(Model& a_model,const std::string& a_path);
 
-	UINT m_count = 0;
+private:
+
+	ResourceSlotStorage<Texture> m_texStorage;
+
+	ResourceSlotStorage<Model> m_modelStorage;
 
 private:
 

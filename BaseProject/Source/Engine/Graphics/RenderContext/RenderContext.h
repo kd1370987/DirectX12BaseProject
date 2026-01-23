@@ -4,7 +4,6 @@ class RootSignature;
 class PipelineState;
 class DescriptorHeap;
 
-class ModelResource;
 class Mesh;
 struct Material;
 
@@ -15,6 +14,8 @@ class CBAllocater;
 class ShaderManager;
 class RootSignatureManager;
 class GraphicsPSOManager;
+
+class Model;
 
 class RenderContext
 {
@@ -112,19 +113,6 @@ public:
 	/// <param name="a_worldMat">モデルの行列</param>
 	/// <param name="a_colorScale">色のスケール値</param>
 	/// <param name="a_emissiveScale">エミッシブのスケール値</param>
-	void DrawModel(
-		std::shared_ptr<ModelResource> a_modelResource,
-		const DirectX::XMMATRIX& a_worldMat = DirectX::XMMatrixIdentity(),
-		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
-		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
-	);
-
-	void DrawModel(
-		std::shared_ptr<ModelResource> a_modelResource,
-		const DirectX::XMFLOAT4X4& a_worldMat,
-		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
-		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
-	);
 
 	void DrawModel(
 		uint32_t a_modelID,
@@ -132,9 +120,9 @@ public:
 		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
 		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
 	);
-
+	
 	void DrawModel(
-		ModelResource* a_pModelResource,
+		const Model* a_pModel,
 		const DirectX::XMMATRIX& a_worldMat = DirectX::XMMatrixIdentity(),
 		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
 		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }

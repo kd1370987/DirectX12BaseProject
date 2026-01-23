@@ -42,11 +42,14 @@ bool Collision::Raycast(
 		if (_colView.pCollider->layer != Layer::StaticObject)
 			continue;
 
-		ModelResource* _modelRes = GraphicResourceManager::Instance().NGetModelResource(_colView.pModelComp->modelID);
+		//const ModelResource* _modelRes = GraphicResourceManager::Instance().NGetModelResource(_colView.pModelComp->modelID);
+		const Model* _model = GraphicResourceManager::Instance().NGetModelResource(_colView.pModelComp->modelID);
 
-		for (int _idx : _modelRes->GetCollisionMeshNodeIndices())
+		//for (int _idx : _modelRes->GetCollisionMeshNodeIndices())
+		for (int _idx : _model->collisionMeshNodeIndices)
 		{
-			const Node& _node = _modelRes->GetOriginalNodes()[_idx];
+			//const Node& _node = _modelRes->GetOriginalNodes()[_idx];
+			const Node& _node = _model->originalNodes[_idx];
 			if (_node.spMesh == nullptr)
 				continue;
 

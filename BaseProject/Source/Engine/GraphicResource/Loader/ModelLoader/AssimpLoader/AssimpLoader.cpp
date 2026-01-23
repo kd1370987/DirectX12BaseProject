@@ -252,10 +252,11 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 		
 		auto _texPath = FileUtility::ReplaceFilePathExtension(a_dst.material.diffuseMap, "tga");
 		auto _mainTex = GraphicResourceManager::Instance().GetTexture(StringUtility::ToUTF8(_texPath));
-
+		
 		
 		DescriptorHandle* _pDH = new DescriptorHandle();
-		std::shared_ptr<Texture> _tex = _mainTex.lock();
+		//std::shared_ptr<Texture> _tex = _mainTex.lock();
+		const Texture* _tex = GraphicResourceManager::Instance().NGetTexture(_mainTex);
 		if (!_tex)
 		{
 			assert(0 && "テクスチャの取得に失敗\n");

@@ -118,19 +118,11 @@ struct GLTFModel
 
 //=========================================================
 // 
-// GLTF,GLB モデル読み込み専用クラス
+// GLTF,GLB モデル読み込み専用
 // 
 //=========================================================
 
-class TinyGLTFLoader
+namespace Load
 {
-public:
-
-	static std::shared_ptr<GLTFModel> LoadModel(std::string_view a_filePath);
-	
-
-private:
-
-		
-
-};
+	std::shared_ptr<GLTFModel> Model(std::string_view a_filePath);
+}

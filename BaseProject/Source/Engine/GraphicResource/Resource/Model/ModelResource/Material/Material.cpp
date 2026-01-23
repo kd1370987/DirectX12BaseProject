@@ -19,34 +19,30 @@ void Material::SetTexture2D(
 	ID3D12Resource* _emissiveTexResource = nullptr;
 	ID3D12Resource* _normalTexResource = nullptr;
 	// 基本色テクスチャ
-	//if (!a_baseColorTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_baseColorTexFileName))
 	{
 		auto _wpTex = GraphicResourceManager::Instance().GetTexture(a_fileDir + a_baseColorTexFileName);
-		baseColorTexKey = a_fileDir + a_baseColorTexFileName;
-		_defaultTexResource = _wpTex.lock()->GetResource();
+		baseTexID = _wpTex;
+		_defaultTexResource = GraphicResourceManager::Instance().NGetTexture(_wpTex)->GetResource();
 	}
 	// メタリック・ラフネステクスチャ
-	//if (!a_metallicRoughnessTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_metallicRoughnessTexFileName))
 	{
 		auto _wpTex = GraphicResourceManager::Instance().GetTexture(a_fileDir + a_metallicRoughnessTexFileName);
-		metallicRoughnessTexKey = a_fileDir + a_metallicRoughnessTexFileName;
+		metallicRoughnessTexID = _wpTex;
 		metallic = 1.0f;
 		roughness = 1.0f;
-		_metallicRoughnessTexResource = _wpTex.lock()->GetResource();
+		_metallicRoughnessTexResource = GraphicResourceManager::Instance().NGetTexture(_wpTex)->GetResource();
 	}
 	// エミッシブテクスチャ
-	///if (!a_emissiveTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_emissiveTexFileName))
 	{
 		auto _wpTex = GraphicResourceManager::Instance().GetTexture(a_fileDir + a_emissiveTexFileName);
-		emissiveTexKey = a_fileDir + a_emissiveTexFileName;
-		_emissiveTexResource = _wpTex.lock()->GetResource();
+		emissiveTexID = _wpTex;
+		_emissiveTexResource = GraphicResourceManager::Instance().NGetTexture(_wpTex)->GetResource();
 	}
 	// 法線マップテクスチャ
-//	if (!a_normalTexFileName.empty() && FileUtility::IsExistFile(a_fileDir + a_normalTexFileName))
 	{
 		auto _wpTex = GraphicResourceManager::Instance().GetTexture(a_fileDir + a_normalTexFileName);
-		normalTexKey = a_fileDir + a_normalTexFileName;
-		_normalTexResource = _wpTex.lock()->GetResource();
+		normalTexID = _wpTex;
+		_normalTexResource = GraphicResourceManager::Instance().NGetTexture(_wpTex)->GetResource();
 	}
 
 	

@@ -26,20 +26,20 @@ struct Material
 	std::string					name;
 
 	// 基本色
-	std::string 				baseColorTexKey;
+	uint32_t					baseTexID = 0;
 	DirectX::XMFLOAT4			baseColor = { 1,1,1,1 };
 
 	// メタリック・ラフネス
-	std::string 				metallicRoughnessTexKey;
+	uint32_t					metallicRoughnessTexID = 0;
 	float						metallic = 0.0f;						// B : 金属製
 	float						roughness = 1.0f;						// G : 粗さ
 
 	// エミッシブ
-	std::string 				emissiveTexKey;
+	uint32_t					emissiveTexID = 0;
 	DirectX::XMFLOAT3			emissive = { 1.0f,1.0f,1.0f };
 
 	// 法線マップ
-	std::string 				normalTexKey;
+	uint32_t					normalTexID = 0;
 
 	DescriptorHandle			srvHandle;		// SRVハンドル
 };
