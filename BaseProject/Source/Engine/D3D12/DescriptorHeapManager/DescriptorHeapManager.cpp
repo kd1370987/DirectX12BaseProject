@@ -3,7 +3,7 @@
 #include "../../D3D12//D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
 #include "../../D3D12//D3DObject/DescriptorHeap/RTVHeap/RTVHeap.h"
 
-#include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
 
 void DescriptorHeapManager::Init()
 {

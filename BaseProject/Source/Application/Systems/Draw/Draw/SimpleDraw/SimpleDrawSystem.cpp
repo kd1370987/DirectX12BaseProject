@@ -10,8 +10,6 @@
 
 void SimpleDrawSystem::Run(World& a_world, float a_dt)
 {
-	RenderContext::Instance().BeginSimpleRender();
-
 	a_world.ForEach<WorldMatrixComponent,ModelComponent>(
 		[&a_world, a_dt]
 		(

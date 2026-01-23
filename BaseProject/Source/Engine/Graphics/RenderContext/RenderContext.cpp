@@ -1,7 +1,8 @@
 ﻿#include "RenderContext.h"
 
-#include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
-#include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/D3D12/D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
 #include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 #include "Engine/GraphicResource/Resource/Texture/Texture.h"
 
@@ -18,10 +19,12 @@
 #include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
 
 #include "Engine/Graphics/ShaderManager/ShaderManager.h"
-#include "Engine/Graphics/RootSignatureManager/RootSignatureManager.h"
-#include "Engine/Graphics/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
+#include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
+#include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 
-#include "Engine/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/CBAllocater/CBAllocater.h"
+
+#include "Engine/Graphics/OffScreen/OffScreen.h"
 //============================================================================================
 //
 // 初期化
@@ -83,6 +86,13 @@ void RenderContext::Init()
 			RenderingEngine::Instance().GetDevice(), 32 * 1024 * 1024
 		);
 	}
+
+	// オフスクリーン生成
+	m_upOffScreen = std::make_unique<OffScreen>();
+	m_upOffScreen->CreatePostProcessResource(*RenderingEngine::Instance().GetCurrentRenderTarget());
+	m_upOffScreen->CreateScreenVertex();
+	m_upOffScreen->CreateScreenPipeline();
+
 }
 
 //============================================================================================
@@ -92,8 +102,23 @@ void RenderContext::Init()
 //============================================================================================
 void RenderContext::BeginSimpleRender()
 {
-	// ルートシグネチャ・パイプラインステート・定数バッファをセット
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+
+	RenderingEngine::Instance().ResourceBarrier(
+		m_upOffScreen->Get(),
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_RENDER_TARGET
+	);
+
+	auto _currentDsvHandle = DescriptorHeapManager::Instance().GetDescriptorDSV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();
+	m_upOffScreen->SetRenderTarget(
+		_cmdList,
+		_currentDsvHandle
+	);
+
+	RenderingEngine::Instance().ClearRenderTargetView(m_upOffScreen->GetRTVHandle());
+
+	// ルートシグネチャ・パイプラインステート・定数バッファをセット
 	_cmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(0));
 	_cmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(0));
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// プリミティブトポロジー
@@ -101,6 +126,20 @@ void RenderContext::BeginSimpleRender()
 }
 void RenderContext::EndSimpleRender()
 {
+	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+	RenderingEngine::Instance().SetBackBuffer();
+
+	_cmdList->SetPipelineState(m_upOffScreen->m_screenPipelineDefault.Get());
+	_cmdList->SetGraphicsRootSignature(m_upOffScreen->m_screenRootSignature.Get());
+
+	_cmdList->SetDescriptorHeaps(1,m_upOffScreen->m_postProcessSRVHeap.GetAddressOf());
+
+	auto _handle = m_upOffScreen->m_postProcessSRVHeap->GetGPUDescriptorHandleForHeapStart();
+	_cmdList->SetGraphicsRootDescriptorTable(0,_handle);
+
+	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
+	_cmdList->IASetVertexBuffers(0,1,&m_upOffScreen->m_screenVBView);
+	_cmdList->DrawInstanced(4,1,0,0);
 }
 
 //============================================================================================

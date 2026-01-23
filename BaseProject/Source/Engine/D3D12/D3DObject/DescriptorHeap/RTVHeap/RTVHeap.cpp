@@ -1,6 +1,6 @@
 ﻿#include "RTVHeap.h"
 
-#include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
 
 DescriptorHandle RTVHeap::Register(ID3D12Resource* a_resource)
 {

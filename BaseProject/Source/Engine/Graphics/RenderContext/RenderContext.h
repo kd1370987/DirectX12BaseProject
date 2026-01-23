@@ -17,6 +17,8 @@ class GraphicsPSOManager;
 
 class Model;
 
+class OffScreen;
+
 class RenderContext
 {
 public:
@@ -161,6 +163,8 @@ private:
 	std::shared_ptr<ShaderManager>			m_spShaderManger		= nullptr;
 	std::shared_ptr<RootSignatureManager>	m_spRootSigManager		= nullptr;
 	std::shared_ptr<GraphicsPSOManager>		m_spGraphicsPSOManager	= nullptr;
+
+	std::unique_ptr<OffScreen> m_upOffScreen = nullptr;
 
 // シングルトン
 private:

@@ -1,7 +1,7 @@
 ﻿#include "ImGuiContext.h"
 
-#include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
-#include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 void ImGuiContex::Init(HWND a_hwnd)
 {

@@ -35,6 +35,47 @@ public:
 
 	void WaitRender();										// 描画完了を待つ処理
 	void SignalRenderFence();								// フェンスにシグナルを送る処理
+
+	void ResourceBarrier(
+		ID3D12Resource* a_pResource,
+		D3D12_RESOURCE_STATES a_before,
+		D3D12_RESOURCE_STATES a_after
+	);
+
+	/// <summary>
+	/// レンダーターゲットをクリア
+	/// </summary>
+	/// <param name="a_renderTargetView">指定レンダーターゲット</param>
+	/// <param name="a_colorRGBA">レンダーターゲットのクリアカラー</param>
+	/// <param name="a_numRects">矩形数</param>
+	/// <param name="a_pRects">矩形ポインタ</param>
+	void ClearRenderTargetView(
+		D3D12_CPU_DESCRIPTOR_HANDLE a_renderTargetView,
+		DirectX::XMFLOAT4 a_colorRGBA = { 0.0f,0.0f,1.0f,1.0f },
+		UINT a_numRects = 0,
+		const D3D12_RECT* a_pRects = nullptr
+	);
+
+
+	/// <summary>
+	/// 深度ステンシルビューをクリア
+	/// </summary>
+	/// <param name="a_depthStencilView">指定対象のハンドル</param>
+	/// <param name="a_clearFlags">クリアフラグ</param>
+	/// <param name="a_depth">奥(1.0)</param>
+	/// <param name="a_stencil">手前(0.0)</param>
+	/// <param name="a_numRects">矩形数</param>
+	/// <param name="a_pRects">矩形ポインタ</param>
+	void ClearDepthStencilView(
+		D3D12_CPU_DESCRIPTOR_HANDLE a_depthStencilView,
+		D3D12_CLEAR_FLAGS a_clearFlags = D3D12_CLEAR_FLAG_DEPTH,
+		float a_depth = 1.0f,
+		float a_stencil = 0.0f,
+		UINT a_numRects = 0,
+		const D3D12_RECT* a_pRects = nullptr
+	);
+
+	void SetBackBuffer();
 public:
 	// ゲッター
 	ID3D12Device* GetDevice();									// デバイス

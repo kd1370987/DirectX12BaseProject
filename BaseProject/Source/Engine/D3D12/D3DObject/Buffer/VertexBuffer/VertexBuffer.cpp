@@ -1,6 +1,6 @@
 ﻿#include "VertexBuffer.h"
 
-#include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
 
 bool VertexBuffer::Create(
 	size_t a_size,

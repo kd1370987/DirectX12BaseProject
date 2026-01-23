@@ -1,6 +1,6 @@
 ﻿#include "CBV_SRV_UAVHeap.h"
 
-#include "Engine/Graphics/RenderingEngin/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
 
 bool CBV_SRV_UAVHeap::Create(const CBV_SRV_UAVInitInfo& a_info)
 {

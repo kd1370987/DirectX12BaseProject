@@ -31,29 +31,17 @@
     <Filter Include="Source\Engine\Graphics">
       <UniqueIdentifier>{6ff526d7-ee38-4be8-8fd8-0b85917fddf9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderingEngin">
-      <UniqueIdentifier>{db33fc25-52b5-41b1-95be-ea75d90d4931}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Window">
       <UniqueIdentifier>{4903a1c3-ef1a-452c-aa19-3c12f2daf394}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\DescriptorHeapManager">
-      <UniqueIdentifier>{a2d4242a-21eb-484a-a22f-a70d8b11be37}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderContext">
       <UniqueIdentifier>{ac53ba98-b34c-40d7-aee4-ecaa9ee05c09}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\PSOManager">
-      <UniqueIdentifier>{f6e99e52-70c5-4c03-8a8d-25019546e376}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Core\Math">
       <UniqueIdentifier>{668a86f1-7438-485b-8aaf-50c03b2e43c1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Core\Storage">
       <UniqueIdentifier>{f1d64f31-8d46-4534-aad0-654c93255a80}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\CBAllocater">
-      <UniqueIdentifier>{4cb1296a-31d6-4714-b011-876b38a56f8e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Core\Time">
       <UniqueIdentifier>{102b7fe9-bb8b-4869-84be-d8d95fa56625}</UniqueIdentifier>
@@ -69,12 +57,6 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\ShaderManager">
       <UniqueIdentifier>{78a39d7b-3982-4230-a5bb-7681977688ac}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RootSignatureManager">
-      <UniqueIdentifier>{5769ef81-d3f3-40ed-8fe6-0ad2d0c0096e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager">
-      <UniqueIdentifier>{60087a97-a0b3-4b8e-94cf-382b0f9c051d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\ECS">
       <UniqueIdentifier>{12c35b8e-1beb-4790-a19a-e2272c7f4387}</UniqueIdentifier>
@@ -397,16 +379,19 @@
     <Filter Include="Source\Engine\D3D12\RootSignatureManager">
       <UniqueIdentifier>{a4c76ca6-d0b7-4abd-a8a3-e1c3afa6d557}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\PSOManager\PSOManager">
+    <Filter Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager">
       <UniqueIdentifier>{2e2ead88-4e2d-4c36-904f-f4e9cc99b4c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\OffScreen">
+      <UniqueIdentifier>{67a2c939-4c6f-4ffb-b438-6d37e0523579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\QuadRenderingShader">
+      <UniqueIdentifier>{0ac1b532-8bea-4078-9496-475760880b2e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
       <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.cpp">
-      <Filter>Source\Engine\Graphics\RenderingEngin</Filter>
     </ClCompile>
     <ClCompile Include="Source\main.cpp">
       <Filter>Source</Filter>
@@ -414,14 +399,8 @@
     <ClCompile Include="Source\Engine\Window\Window.cpp">
       <Filter>Source\Engine\Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.cpp">
-      <Filter>Source\Engine\Graphics\DescriptorHeapManager</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp">
-      <Filter>Source\Engine\CBAllocater</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp">
       <Filter>Source\Core\Time\FPSController</Filter>
@@ -437,12 +416,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp">
       <Filter>Source\Engine\Graphics\ShaderManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp">
-      <Filter>Source\Engine\Graphics\PSOManager\GraphicsPSOManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.cpp">
-      <Filter>Source\Engine\Graphics\RootSignatureManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\App.cpp">
       <Filter>Source\Application</Filter>
@@ -624,6 +597,24 @@
     <ClCompile Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.cpp">
       <Filter>Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.cpp">
+      <Filter>Source\Engine\D3D12\RootSignatureManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp">
+      <Filter>Source\Engine\D3D12\PSOManager\GraphicsPSOManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\RenderingEngine.cpp">
+      <Filter>Source\Engine\D3D12\D3D12Wrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp">
+      <Filter>Source\Engine\D3D12\CBAllocater</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\OffScreen\OffScreen.cpp">
+      <Filter>Source\Engine\Graphics\OffScreen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -641,14 +632,8 @@
     <ClInclude Include="Source\Application\App.h">
       <Filter>Source\Application</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.h">
-      <Filter>Source\Engine\Graphics\RenderingEngin</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Window\Window.h">
       <Filter>Source\Engine\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.h">
-      <Filter>Source\Engine\Graphics\DescriptorHeapManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
@@ -658,9 +643,6 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Storage\Storage.h">
       <Filter>Source\Core\Storage</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\CBAllocater\CBAllocater.h">
-      <Filter>Source\Engine\CBAllocater</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Time\FPSController\FPSController.h">
       <Filter>Source\Core\Time\FPSController</Filter>
@@ -682,12 +664,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h">
       <Filter>Source\Engine\Graphics\ShaderManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h">
-      <Filter>Source\Engine\Graphics\PSOManager\GraphicsPSOManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.h">
-      <Filter>Source\Engine\Graphics\RootSignatureManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\World\World.h">
       <Filter>Source\Engine\ECS\World</Filter>
@@ -956,6 +932,24 @@
     <ClInclude Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.h">
       <Filter>Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.h">
+      <Filter>Source\Engine\D3D12\RootSignatureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h">
+      <Filter>Source\Engine\D3D12\PSOManager\GraphicsPSOManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3D12Wrapper\RenderingEngine.h">
+      <Filter>Source\Engine\D3D12\D3D12Wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h">
+      <Filter>Source\Engine\D3D12\CBAllocater</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\OffScreen\OffScreen.h">
+      <Filter>Source\Engine\Graphics\OffScreen</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\SimpleShader\SimplePS.hlsl">
@@ -969,6 +963,12 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\PBRShader\PBR_PS.hlsl">
       <Filter>Asset\Shader\PBRShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\QuadRenderingShader\QuadRenderingVS.hlsl">
+      <Filter>Asset\Shader\QuadRenderingShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\QuadRenderingShader\QuadRenderingPS.hlsl">
+      <Filter>Asset\Shader\QuadRenderingShader</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -987,6 +987,9 @@
     </None>
     <None Include="..\Library\imgui-docking\.gitignore">
       <Filter>Library\imgui-docking</Filter>
+    </None>
+    <None Include="Asset\Shader\QuadRenderingShader\QuadRenderingShader.hlsli">
+      <Filter>Asset\Shader\QuadRenderingShader</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -43,4 +43,6 @@ void BaseScene::Draw()
 	World::Instance().RunSystem(SystemType::PreDraw, 0.0f);
 
 	World::Instance().RunSystem(SystemType::Draw, 0.0f);
+
+	RenderContext::Instance().EndSimpleRender();
 }

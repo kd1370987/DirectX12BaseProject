@@ -186,11 +186,12 @@
     <ClCompile Include="Source\Core\Math\Collider.cpp" />
     <ClCompile Include="Source\Core\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp" />
-    <ClCompile Include="Source\Engine\CBAllocater\CBAllocater.cpp" />
     <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp" />
     <ClCompile Include="Source\Engine\Collision\Collision.cpp" />
     <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp" />
     <ClCompile Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\RenderingEngine.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer\IndexBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.cpp" />
@@ -209,6 +210,9 @@
     <ClCompile Include="Source\Engine\D3D12\D3DObject\ScissorRectangle\ScissorRectangle.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\SwapChain\SwapChain.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\ECS\EntityManager\EntityManager.cpp" />
@@ -226,11 +230,8 @@
     <ClCompile Include="Source\Engine\GraphicResource\Resource\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.cpp" />
     <ClCompile Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\OffScreen\OffScreen.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\TimeManager\TimeManager.cpp" />
     <ClCompile Include="Source\Engine\Window\Window.cpp" />
@@ -295,12 +296,13 @@
     <ClInclude Include="Source\Core\Time\FPSController\FPSController.h" />
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
     <ClInclude Include="Source\Core\Utility\StringUtillity.h" />
-    <ClInclude Include="Source\Engine\CBAllocater\CBAllocater.h" />
     <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h" />
     <ClInclude Include="Source\Engine\Collision\Collision.h" />
     <ClInclude Include="Source\Engine\Collision\Gather\Gather.h" />
     <ClInclude Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.h" />
     <ClInclude Include="Source\Engine\Collision\Query\Raycast.h" />
+    <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h" />
+    <ClInclude Include="Source\Engine\D3D12\D3D12Wrapper\RenderingEngine.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer\IndexBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.h" />
@@ -319,6 +321,9 @@
     <ClInclude Include="Source\Engine\D3D12\D3DObject\ScissorRectangle\ScissorRectangle.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\SwapChain\SwapChain.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.h" />
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />
+    <ClInclude Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h" />
+    <ClInclude Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.h" />
     <ClInclude Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.h" />
     <ClInclude Include="Source\Engine\ECS\ArchetypeChunk\ArchetypeChunk.h" />
     <ClInclude Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.h" />
@@ -344,11 +349,8 @@
     <ClInclude Include="Source\Engine\GraphicResource\Resource\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.h" />
     <ClInclude Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.h" />
-    <ClInclude Include="Source\Engine\Graphics\DescriptorHeapManager\DescriptorHeapManager.h" />
-    <ClInclude Include="Source\Engine\Graphics\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\OffScreen\OffScreen.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderingEngin\RenderingEngine.h" />
-    <ClInclude Include="Source\Engine\Graphics\RootSignatureManager\RootSignatureManager.h" />
     <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Source\Engine\TimeManager\TimeManager.h" />
     <ClInclude Include="Source\Engine\Window\Window.h" />
@@ -381,6 +383,34 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vert</EntryPointName>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vert</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\QuadRenderingShader\QuadRenderingPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\QuadRenderingShader\QuadRenderingVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs</EntryPointName>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Asset\Shader\SimpleShader\SimplePS.hlsl">
@@ -417,6 +447,7 @@
     <None Include="..\Library\imgui-docking\.gitattributes" />
     <None Include="..\Library\imgui-docking\.gitignore" />
     <None Include="Asset\Shader\PBRShader\PBRShader.hlsli" />
+    <None Include="Asset\Shader\QuadRenderingShader\QuadRenderingShader.hlsli" />
     <None Include="Asset\Shader\SimpleShader\SimpleShader.hlsli" />
     <None Include="packages.config" />
   </ItemGroup>

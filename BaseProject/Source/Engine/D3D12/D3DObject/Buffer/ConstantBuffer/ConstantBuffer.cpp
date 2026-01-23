@@ -1,5 +1,5 @@
 ﻿#include "ConstantBuffer.h"
-#include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 ConstantBuffer::ConstantBuffer(ID3D12Device* a_pDevice) : m_pDevice(a_pDevice)
 {

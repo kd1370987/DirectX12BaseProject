@@ -1,18 +1,18 @@
 ﻿#include "RenderingEngine.h"
 
-#include "../../D3D12//D3DObject/Device/Device.h"
-#include "../../D3D12//D3DObject/CommandQueue/CommandQueue.h"
-#include "../../D3D12//D3DObject/CommandAllocator/CommandAllocator.h"
-#include "../../D3D12//D3DObject/CommandList/CommandList.h"
-#include "../../D3D12//D3DObject/Fence/Fence.h"
+#include "../../D3D12/D3DObject/Device/Device.h"
+#include "../../D3D12/D3DObject/CommandQueue/CommandQueue.h"
+#include "../../D3D12/D3DObject/CommandAllocator/CommandAllocator.h"
+#include "../../D3D12/D3DObject/CommandList/CommandList.h"
+#include "../../D3D12/D3DObject/Fence/Fence.h"
 
-#include "Engine/Graphics/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "Engine/D3D12//D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
-#include "Engine/D3D12//D3DObject/DescriptorHeap/RTVHeap/RTVHeap.h"
+#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/D3D12/D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
+#include "Engine/D3D12/D3DObject/DescriptorHeap/RTVHeap/RTVHeap.h"
 
-#include "Engine/D3D12//D3DObject/SwapChain/SwapChain.h"
-#include "Engine/D3D12//D3DObject/Viewport/Viewport.h"
-#include "Engine/D3D12//D3DObject/ScissorRectangle/ScissorRectangle.h"
+#include "Engine/D3D12/D3DObject/SwapChain/SwapChain.h"
+#include "Engine/D3D12/D3DObject/Viewport/Viewport.h"
+#include "Engine/D3D12/D3DObject/ScissorRectangle/ScissorRectangle.h"
 
 bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
 {
@@ -153,15 +153,15 @@ void RenderingEngine::BeginRender()
 	);
 
 	// レンダーターゲットを設定
-	m_upCommandList->SetRenderTarget(
+	/*m_upCommandList->SetRenderTarget(
 		1,
 		&_currentRtvHandle, 
 		FALSE, 
 		&_currentDsvHandle
-	);
+	);*/
 
 	// バッファクリア
-	m_upCommandList->ClearRenderTargetView(_currentRtvHandle);		// レンダーターゲット
+	//m_upCommandList->ClearRenderTargetView(_currentRtvHandle);		// レンダーターゲット
 	m_upCommandList->ClearDepthStencilView(_currentDsvHandle);		// 深度ステンシル
 }
 void RenderingEngine::EndRender(bool a_isVsync)
@@ -192,8 +192,6 @@ void RenderingEngine::CommandQueueReset()
 	m_upCommandAllocator->Reset(m_cpuFrameIndex);
 	m_upCommandList->Reset(m_upCommandAllocator->Get(m_cpuFrameIndex));
 }
-
-
 
 //==================================================================================
 // 
@@ -334,6 +332,72 @@ void RenderingEngine::SignalRenderFence()
 	);
 
 	m_fenceValue[m_cpuFrameIndex] = m_currentFenceValue;
+}
+
+void RenderingEngine::ResourceBarrier(
+	ID3D12Resource* a_pResource,
+	D3D12_RESOURCE_STATES a_before,
+	D3D12_RESOURCE_STATES a_after
+)
+{
+	// レンダーターゲットに書き込みが終わるまで待つ
+	m_upCommandList->ResourceBarrier(
+		a_pResource,
+		a_before,
+		a_after
+	);
+}
+
+void RenderingEngine::ClearRenderTargetView(
+	D3D12_CPU_DESCRIPTOR_HANDLE a_renderTargetView,
+	DirectX::XMFLOAT4 a_colorRGBA, 
+	UINT a_numRects,
+	const D3D12_RECT* a_pRects
+)
+{
+	m_upCommandList->ClearRenderTargetView(
+		a_renderTargetView,
+		a_colorRGBA,
+		a_numRects,
+		a_pRects
+	);
+}
+
+void RenderingEngine::ClearDepthStencilView(
+	D3D12_CPU_DESCRIPTOR_HANDLE a_depthStencilView,
+	D3D12_CLEAR_FLAGS a_clearFlags,
+	float a_depth, 
+	float a_stencil,
+	UINT a_numRects, 
+	const D3D12_RECT* a_pRects
+)
+{
+	m_upCommandList->ClearDepthStencilView(
+		a_depthStencilView,
+		a_clearFlags,
+		a_depth,
+		a_stencil,
+		a_numRects,
+		a_pRects
+	);
+}
+
+void RenderingEngine::SetBackBuffer()
+{
+	// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
+	auto _currentRtvHandle = DescriptorHeapManager::Instance().GetDescriptorRTV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();;
+	_currentRtvHandle.ptr += m_upSwapChain->GetCurrentBackBufferIndex() * m_rtvDescriptorSize;
+
+	// レンダーターゲットを設定
+	m_upCommandList->SetRenderTarget(
+		1,
+		&_currentRtvHandle,
+		FALSE,
+		nullptr
+	);
+
+	// バッファクリア
+	m_upCommandList->ClearRenderTargetView(_currentRtvHandle);		// レンダーターゲット
 }
 
 RenderingEngine::RenderingEngine()
