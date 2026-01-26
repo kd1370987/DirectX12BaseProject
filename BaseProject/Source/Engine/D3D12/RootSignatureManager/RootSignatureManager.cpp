@@ -2,33 +2,28 @@
 
 #include "Engine/D3D12//D3DObject/RootSignature/RootSignature.h"
 
-void RootSignatureManager::Init()
+void RootSignatureManager::Init(const UINT& a_slotMax)
 {
-	
+	// 管理スロット確保
+	m_rootStorage.Init(a_slotMax);
+}
+
+Resource::ID RootSignatureManager::Register(
+	const std::string& a_key,
+	const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec
+)
+{
 	auto _spRootSig = std::make_shared<RootSignature>();
-	if (!_spRootSig->Create({
-		{RootParameterType::RootCBV,{}},
-		{RootParameterType::RootCBV,{}},
-		{RootParameterType::RootCBV,{}},
-		{RootParameterType::RootCBV,{}},
-		{RootParameterType::DescriptorTable,{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV}}
-		})
-		)
+	if (!_spRootSig->Create(a_rootParamsVec))
 	{
 		assert(0 && "ルートシグネチャの生成に失敗");
-		return;
+		return Resource::Limits::MAX_STORAGE;
 	}
 
-	m_rootSigStorage.Add(m_id, _spRootSig);
-	m_id++;
+	return m_rootStorage.Add(a_key,_spRootSig);
 }
 
-std::shared_ptr<RootSignature> RootSignatureManager::Get(RootSigID a_id)
+ID3D12RootSignature* RootSignatureManager::NGet(Resource::ID a_id)
 {
-	return m_rootSigStorage.Get(a_id);
-}
-
-ID3D12RootSignature* RootSignatureManager::NGet(RootSigID a_id)
-{
-	return m_rootSigStorage.Get(a_id)->Get();
+	return m_rootStorage.Ref(a_id)->Get();
 }

@@ -1,6 +1,7 @@
 ﻿#include "OffScreen.h"
 
 #include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 bool OffScreen::CreatePostProcessResource(ID3D12Resource& a_backBuffer)
 {

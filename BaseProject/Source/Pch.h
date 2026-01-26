@@ -88,17 +88,7 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 #include "Application/AppInc.h"
 #include "Core/Core.h"
-
-#include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
-#include "Engine/D3D12//D3DObject/Buffer/VertexBuffer/VertexBuffer.h"
-#include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
-
-#include "Engine/GraphicResource/Resource/Model/ModelResource/Vertex/Vertex.h"
-
-#include "Engine/ECS/ECSCommon.h"
-
-#include "Engine/GraphicResource/Serialize/ModelSerialize/TinyGLTFSerialize/TinyGLTFSerialize.h"
-#include "Engine/GraphicResource/Serialize/ModelSerialize/AssimpSerialize/AssimpSerialize.h"
+#include "Engine/EngineCommon.h"
 
 // バッファリング数
 enum

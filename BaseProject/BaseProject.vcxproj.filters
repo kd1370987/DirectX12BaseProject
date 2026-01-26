@@ -388,6 +388,27 @@
     <Filter Include="Asset\Shader\QuadRenderingShader">
       <UniqueIdentifier>{0ac1b532-8bea-4078-9496-475760880b2e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass">
+      <UniqueIdentifier>{b7ca8a92-62ab-4fcb-9e26-4f375a5877c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\SlotStorage">
+      <UniqueIdentifier>{e38dc4ce-5d49-4a58-9251-73a8035eb33e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\OffScreenPass">
+      <UniqueIdentifier>{21dfd9b7-9063-4f61-a719-898fbd71fade}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\StandardPass">
+      <UniqueIdentifier>{1b329d9b-41e5-4852-b1fd-73761290ec89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\StandardPass\SimplePass">
+      <UniqueIdentifier>{20085510-6449-476f-b1cc-bcd3f0fc4f87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffectPass">
+      <UniqueIdentifier>{5e075f56-173b-495c-8c30-bb27a3467aa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ShadowPass">
+      <UniqueIdentifier>{e67f9a55-caee-42a6-b3a7-065d96ba329c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -614,6 +635,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\OffScreen\OffScreen.cpp">
       <Filter>Source\Engine\Graphics\OffScreen</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\SlotStorage\SlotStorage.cpp">
+      <Filter>Source\Engine\SlotStorage</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\StandardPass\StandardPassBase.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\StandardPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\StandardPass\SimplePass\SimplePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\StandardPass\SimplePass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -949,6 +979,21 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\OffScreen\OffScreen.h">
       <Filter>Source\Engine\Graphics\OffScreen</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\SlotStorage\SlotStorage.h">
+      <Filter>Source\Engine\SlotStorage</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EngineCommon.h">
+      <Filter>Source\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3D12Common.h">
+      <Filter>Source\Engine\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\StandardPass\StandardPassBase.h">
+      <Filter>Source\Engine\Graphics\RenderPass\StandardPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\StandardPass\SimplePass\SimplePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\StandardPass\SimplePass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

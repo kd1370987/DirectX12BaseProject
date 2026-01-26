@@ -1,21 +1,35 @@
 ﻿#pragma once
 
-using RootSigID = uint32_t;
-
 class RootSignature;
 
 class RootSignatureManager
 {
 public:
 
-	void Init();
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="a_slotMax">管理スロット数</param>
+	void Init(const UINT& a_slotMax = 10);
 
-	std::shared_ptr<RootSignature> Get(RootSigID a_id);
+	/// <summary>
+	/// ルートシグネチャを作成
+	/// </summary>
+	/// <param name="a_key">ルートシグネチャ名</param>
+	/// <param name="a_rootParamsVec">ルートシグネチャの構成</param>
+	/// <returns>管理ID</returns>
+	Resource::ID Register(
+		const std::string& a_key,
+		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec
+	);
 
-	ID3D12RootSignature* NGet(RootSigID a_id);
+	/// <summary>
+	/// ID3D12RootSignatureの生ポインタを直接取得
+	/// </summary>
+	/// <param name="a_id">管理ID</param>
+	ID3D12RootSignature* NGet(Resource::ID a_id);
 
 private:
 
-	Storage<RootSigID, RootSignature> m_rootSigStorage;
-	RootSigID m_id = 0;
+	SlotStorage<RootSignature> m_rootStorage;
 };

@@ -14,6 +14,9 @@ class DescriptorHeapManager
 {
 public:
 
+	/// <summary>
+	/// 各ディスクリプタの生成
+	/// </summary>
 	void Init();
 
 	/// <summary>
@@ -21,7 +24,7 @@ public:
 	/// </summary>
 	/// <returns>CBV_SRV_UAVクラスポインタ</returns>
 	std::shared_ptr<CBV_SRV_UAVHeap> GetDescriptorCBV_SRV_UAV() const { return m_spCBV_SRV_UAVHeap; }
-	ID3D12DescriptorHeap* NGetCBV_SRV_UAVHeap()const;
+	
 
 	/// <summary>
 	/// 定数バッファを登録
@@ -29,12 +32,6 @@ public:
 	/// <param name="a_resource">リソース</param>
 	/// <param name="a_size">サイズ</param>
 	/// <returns>登録したハンドル</returns>
-	/*DescriptorHandle RegisterCBV(
-		ID3D12Resource* a_resource,
-		size_t a_size,
-		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
-	);*/
-
 	UINT RegisterCBV(
 		ID3D12Resource* a_resource,
 		size_t a_size,
@@ -48,6 +45,11 @@ public:
 	/// <returns>登録した場所を返す</returns>
 	DescriptorHandle RegisterSRV(ID3D12Resource* a_resource);
 
+	/// <summary>
+	/// 一括でSRVを確保
+	/// </summary>
+	/// <param name="a_resource">登録するリソースの配列</param>
+	/// <returns>登録した配列の先頭のハンドル</returns>
 	DescriptorHandle AllocateSRVRange(std::vector<ID3D12Resource*> a_resource);
 
 	/// <summary>

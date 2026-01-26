@@ -49,10 +49,6 @@ void DescriptorHeapManager::Init()
 	}
 }
 
-ID3D12DescriptorHeap* DescriptorHeapManager::NGetCBV_SRV_UAVHeap() const
-{
-	return m_spCBV_SRV_UAVHeap->GetHeap();
-}
 
 
 UINT DescriptorHeapManager::RegisterCBV(

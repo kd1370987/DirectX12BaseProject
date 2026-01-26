@@ -10,6 +10,8 @@
 
 void SimpleDrawSystem::Run(World& a_world, float a_dt)
 {
+	RenderContext::Instance().BeginPass(RenderPassID::Simple);
+
 	a_world.ForEach<WorldMatrixComponent,ModelComponent>(
 		[&a_world, a_dt]
 		(
@@ -24,7 +26,7 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 				WorldMatrixComponent& _worldMatComp = a_matArray[_i];
 				ModelComponent& _modelComp = a_modelArray[_i];
 
-				RenderContext::Instance().DrawModel(
+				RenderContext::Instance().DrawModelPass(
 					_modelComp.modelID,
 					_worldMatComp.worldMat,
 					_modelComp.colorScale,
@@ -33,4 +35,6 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 			}
 		}
 	);
+
+	RenderContext::Instance().EndPass();
 }

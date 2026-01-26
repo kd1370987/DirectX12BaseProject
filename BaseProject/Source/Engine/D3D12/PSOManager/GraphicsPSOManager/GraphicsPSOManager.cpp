@@ -6,15 +6,18 @@
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 
 void GraphicsPSOManager::Init(
+	const UINT& a_slotSize,
 	std::shared_ptr<ShaderManager> a_spShaderManager,
 	std::shared_ptr<RootSignatureManager> a_spRootSigManager
 )
 {
+	m_psoSlot.Init(a_slotSize);
+
 	m_wpShaderManager = a_spShaderManager;
 	m_wpRootSigManager = a_spRootSigManager;
 }
 
-GraphicsPSOID GraphicsPSOManager::Register(const PSOSetting& a_setting)
+Resource::ID GraphicsPSOManager::Register(const std::string& a_key, const PSOSetting& a_setting)
 {
 	if (m_wpShaderManager.expired())
 	{
@@ -33,11 +36,11 @@ GraphicsPSOID GraphicsPSOManager::Register(const PSOSetting& a_setting)
 	// PSO作成
 	std::shared_ptr<PipelineState> _spPSO = std::make_shared<PipelineState>();
 
-	auto _layout = _spShaderManager->Get(a_setting.vsStage)->vsInputLayout;
+	auto _layout = _spShaderManager->NGet(a_setting.vsStage)->vsInputLayout;
 	_spPSO->SetInputLayout(_layout);
-	auto _vs = _spShaderManager->Get(a_setting.vsStage)->byteCode;
+	auto _vs = _spShaderManager->NGet(a_setting.vsStage)->byteCode;
 	_spPSO->SetVS(_vs);
-	auto _ps = _spShaderManager->Get(a_setting.psStage)->byteCode;
+	auto _ps = _spShaderManager->NGet(a_setting.psStage)->byteCode;
 	_spPSO->SetPS(_ps);
 
 	_spPSO->SetRootSignature(_spRootSigManager->NGet(a_setting.rootsignatureID));
@@ -45,11 +48,11 @@ GraphicsPSOID GraphicsPSOManager::Register(const PSOSetting& a_setting)
 	_spPSO->Create();
 
 	// 登録
-	m_pipelineStorage.Add(m_id, _spPSO);
-	return m_id++;
+	return m_psoSlot.Add(a_key,_spPSO);
 }
 
-ID3D12PipelineState* GraphicsPSOManager::NGet(const GraphicsPSOID& a_id)
+ID3D12PipelineState* GraphicsPSOManager::NGet(const Resource::ID& a_id)
 {
-	return m_pipelineStorage.Get(a_id)->Get();
+	return m_psoSlot.Ref(a_id)->Get();
 }
+

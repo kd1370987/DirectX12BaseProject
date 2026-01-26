@@ -19,6 +19,17 @@ class Model;
 
 class OffScreen;
 
+class StandardPassBase;
+
+enum class RenderPassID
+{
+	Simple,
+	Shadow,
+	GBuffer,
+	Lighting,
+	PostEffect
+};
+
 class RenderContext
 {
 public:
@@ -33,33 +44,11 @@ public:
 		DirectX::XMFLOAT4 cameraPosXYZ = { 0.0f,0.0f,0.0f,0.0f };	// カメラのワールド座標
 	};
 
-
-	// 定数バッファ(オブジェクト単位での更新)
-	struct alignas(256) CBObject
-	{
-		// UV操作
-		DirectX::XMFLOAT4 uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
-	};
-
-	// メッシュ座標用定数バッファ
-	struct alignas(256) CBMeshTrans
-	{
-		DirectX::XMFLOAT4X4 worldMat;
-	};
-
-	// マテリアル単位更新用定数バッファ
-	struct alignas(256) CBMaterial
-	{
-		DirectX::XMFLOAT4 baseColorXYZW			= { 1.0f,1.0f,1.0f,1.0f };
-		DirectX::XMFLOAT4 emissiveXYZ			= { 0.0f,0.0f,0.0f,0.0f };
-		DirectX::XMFLOAT4 metallicRoughnessXY	= { 0.0f,0.0f,0.0f,0.0f };
-	};
-
 	// フレームで消費するリソース
 	struct FrameResource
 	{
 		// カメラとオブジェクトの定数バッファアロケーター
-		std::unique_ptr<CBAllocater> upCamAndObjectCBAllocater = nullptr;
+		std::shared_ptr<CBAllocater> spCamAndObjectCBAllocater = nullptr;
 	};
 
 
@@ -108,53 +97,25 @@ public:
 		DirectX::XMFLOAT4X4 a_projMat
 	);
 
-	/// <summary>
-	/// モデル描画
-	/// </summary>
-	/// <param name="a_modelResource">モデルクラス</param>
-	/// <param name="a_worldMat">モデルの行列</param>
-	/// <param name="a_colorScale">色のスケール値</param>
-	/// <param name="a_emissiveScale">エミッシブのスケール値</param>
 
-	void DrawModel(
+
+	CBAllocater* BindCB();
+
+	void BeginPass(const RenderPassID& a_pPass);
+	void DrawModelPass(
 		uint32_t a_modelID,
 		const DirectX::XMFLOAT4X4& a_worldMat,
 		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
 		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
 	);
-	
-	void DrawModel(
-		const Model* a_pModel,
-		const DirectX::XMMATRIX& a_worldMat = DirectX::XMMatrixIdentity(),
-		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
-		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
-	);
+	void EndPass();
 
-	/// <summary>
-	/// メッシュ描画
-	/// </summary>
-	/// <param name="a_mesh">メッシュのポインタ</param>
-	/// <param name="a_worldMat">メッシュのワールド行列</param>
-	/// <param name="a_colorScale">色のスケール値</param>
-	/// <param name="a_emissive">エミッシブのスケール値</param>
-	void DrawMesh(
-		const Mesh* a_mesh,
-		const DirectX::XMMATRIX& a_worldMat,
-		const std::vector<Material>& a_materials,
-		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
-		const DirectX::XMFLOAT3& a_emissive = { 1,1,1 }
-	);
 
 
 private:
 
 	// カメラ用定数バッファデータ
 	CBCamera m_cb0_camera = {};
-	
-	// オブジェクト用定数バッファデータ
-	CBObject m_cb1_object = {};
-	CBMeshTrans m_cb2_MeshTrans = {};
-	CBMaterial m_cb3_Material = {};
 
 	// 1フレームで消費するリソース
 	FrameResource m_frameResource[CPU_FRAME_COUNT];
@@ -165,6 +126,11 @@ private:
 	std::shared_ptr<GraphicsPSOManager>		m_spGraphicsPSOManager	= nullptr;
 
 	std::unique_ptr<OffScreen> m_upOffScreen = nullptr;
+
+	// 描画パス
+	std::unordered_map<RenderPassID, std::shared_ptr<StandardPassBase>> m_spRenderPassMap;
+	StandardPassBase* m_pCurrentStandardPass = nullptr;
+	RenderPassID m_currentPassID;
 
 // シングルトン
 private:

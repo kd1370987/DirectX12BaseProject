@@ -1,16 +1,13 @@
 ﻿#pragma once
 
-#include "../../Resource/Model/Model.h"
-#include "../../Resource/Texture/Texture.h"
-
 template<typename T>
-class ResourceSlotStorage
+class SlotStorage
 {
 public:
 
 	struct Data
 	{
-		T data;
+		std::shared_ptr<T> spData;
 		Resource::DataGeneration gen = 0;
 		bool isAlive = false;
 	};
@@ -28,12 +25,16 @@ public:
 	/// <returns>データのポインタ</returns>
 	const T* Get(const Resource::ID& a_id) const;
 
+	T* Ref(const Resource::ID& a_id)const;
+
 	/// <summary>
 	/// 登録した時の文字列で検索
 	/// </summary>
 	/// <param name="a_key">文字列キー</param>
 	/// <returns>データのポインタ</returns>
 	const T* Get(const std::string& a_key) const;
+
+	
 
 	/// <summary>
 	/// キーからIDを取得
@@ -48,7 +49,7 @@ public:
 	/// <param name="a_key">文字列キー</param>
 	/// <param name="a_data">データの実態</param>
 	/// <returns>保存したID</returns>
-	Resource::ID Add(const std::string& a_key, T&& a_data);
+	Resource::ID Add(const std::string& a_key, std::shared_ptr<T> a_spData);
 
 	/// <summary>
 	/// データの削除
@@ -99,13 +100,13 @@ private:
 	std::unordered_map<std::string, Resource::ID> m_idMap;
 	std::vector<std::string> m_toString;
 	std::vector<Data> m_dataVec;
-	
+
 
 	std::queue<Resource::DataIndex> m_indexQueue;
 };
 
 template<typename T>
-inline void ResourceSlotStorage<T>::Init(UINT a_maxCount)
+inline void SlotStorage<T>::Init(UINT a_maxCount)
 {
 	// オーバーフローチェック
 	assert(a_maxCount <= std::numeric_limits<Resource::DataIndex>::max());
@@ -120,7 +121,7 @@ inline void ResourceSlotStorage<T>::Init(UINT a_maxCount)
 }
 
 template<typename T>
-inline const T* ResourceSlotStorage<T>::Get(const Resource::ID& a_id) const
+inline const T* SlotStorage<T>::Get(const Resource::ID& a_id) const
 {
 	Resource::DataIndex _idx = static_cast<Resource::DataIndex>(GetIndex(a_id));
 	Resource::DataGeneration _gen = static_cast<Resource::DataGeneration>(GetGeneration(a_id));
@@ -140,11 +141,35 @@ inline const T* ResourceSlotStorage<T>::Get(const Resource::ID& a_id) const
 		return nullptr;
 	}
 
-	return &_slot.data;
+	return _slot.spData.get();
 }
 
 template<typename T>
-inline const T* ResourceSlotStorage<T>::Get(const std::string& a_key) const
+inline T* SlotStorage<T>::Ref(const Resource::ID& a_id) const
+{
+	Resource::DataIndex _idx = static_cast<Resource::DataIndex>(GetIndex(a_id));
+	Resource::DataGeneration _gen = static_cast<Resource::DataGeneration>(GetGeneration(a_id));
+
+	if (_idx >= m_dataVec.size())
+	{
+		return nullptr;
+	}
+
+	const Data& _slot = m_dataVec[_idx];
+	if (!_slot.isAlive)
+	{
+		return nullptr;
+	}
+	if (_slot.gen != _gen)
+	{
+		return nullptr;
+	}
+
+	return _slot.spData.get();
+}
+
+template<typename T>
+inline const T* SlotStorage<T>::Get(const std::string& a_key) const
 {
 	auto _it = m_idMap.find(a_key);
 	if (_it == m_idMap.end())
@@ -156,7 +181,7 @@ inline const T* ResourceSlotStorage<T>::Get(const std::string& a_key) const
 }
 
 template<typename T>
-inline Resource::ID ResourceSlotStorage<T>::GetID(const std::string& a_key)
+inline Resource::ID SlotStorage<T>::GetID(const std::string& a_key)
 {
 	// 名前でIDを検索
 	auto _it = m_idMap.find(a_key);
@@ -171,7 +196,7 @@ inline Resource::ID ResourceSlotStorage<T>::GetID(const std::string& a_key)
 }
 
 template<typename T>
-inline Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T&& a_data)
+inline Resource::ID SlotStorage<T>::Add(const std::string& a_key, std::shared_ptr<T> a_spData)
 {
 	if (m_indexQueue.empty())
 	{
@@ -189,7 +214,7 @@ inline Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T&& a_
 		// 既存のストレージに上書き
 		m_toString[_idx] = a_key;
 		Data& _data = m_dataVec[_idx];
-		_data.data = std::move(a_data);
+		_data.spData = a_spData;
 		_data.isAlive = true;
 		Resource::ID _newId = CreateID(_idx, _data.gen);
 		m_idMap.emplace(a_key, _newId);
@@ -199,13 +224,13 @@ inline Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T&& a_
 	else
 	{
 		Resource::DataIndex _idx = GetIndex(_id);
-		m_dataVec[_idx].data = std::move(a_data);
+		m_dataVec[_idx].spData = a_spData;
 		return _id;
 	}
 }
 
 template<typename T>
-inline void ResourceSlotStorage<T>::Destroy(const Resource::ID& a_id)
+inline void SlotStorage<T>::Destroy(const Resource::ID& a_id)
 {
 	Resource::DataIndex _idx = GetIndex(a_id);
 	Resource::DataGeneration _gen = GetGeneration(a_id);
@@ -232,25 +257,25 @@ inline void ResourceSlotStorage<T>::Destroy(const Resource::ID& a_id)
 }
 
 template<typename T>
-inline bool ResourceSlotStorage<T>::IsValid(const Resource::ID& a_id)
+inline bool SlotStorage<T>::IsValid(const Resource::ID& a_id)
 {
 	return a_id != Resource::Limits::MAX_STORAGE;
 }
 
 template<typename T>
-inline bool ResourceSlotStorage<T>::Has(const std::string& a_key)
+inline bool SlotStorage<T>::Has(const std::string& a_key)
 {
 	return IsValid(GetID(a_key));
 }
 
 template<typename T>
-inline Resource::DataGeneration ResourceSlotStorage<T>::GetGeneration(Resource::ID a_id) const
+inline Resource::DataGeneration SlotStorage<T>::GetGeneration(Resource::ID a_id) const
 {
 	return uint16_t(a_id >> 16);
 }
 
 template<typename T>
-inline Resource::DataIndex ResourceSlotStorage<T>::GetIndex(Resource::ID a_id) const
+inline Resource::DataIndex SlotStorage<T>::GetIndex(Resource::ID a_id) const
 {
 	return static_cast<Resource::DataIndex>(uint16_t(a_id & 0xFFFF));
 }

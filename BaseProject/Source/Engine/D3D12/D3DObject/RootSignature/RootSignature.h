@@ -9,19 +9,6 @@
 
 struct ID3D12RootSignature;
 
-enum class RangeType
-{
-	CBV,
-	SRV,
-	UAV,
-};
-
-enum class RootParameterType
-{
-	DescriptorTable,
-	RootCBV,
-};
-
 class RootSignature
 {
 public:

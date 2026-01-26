@@ -39,32 +39,7 @@ bool ConstantBuffer::Create(size_t a_size)
 	}
 
 	m_cbvDesc = {};
-	//m_handle = DescriptorHeapManager::Instance().RegisterCBV(m_cpBuffer.Get(), _sizeAligned,m_cbvDesc).handleGPU;
-	m_index = DescriptorHeapManager::Instance().RegisterCBV(m_cpBuffer.Get(), _sizeAligned,m_cbvDesc);
-
-
-	//ID3D12DescriptorHeap* _pHeap = nullptr;
-	//D3D12_DESCRIPTOR_HEAP_DESC _heapDesc = {};
-	//_heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	//_heapDesc.NumDescriptors = 1;
-	//_heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	//_heapDesc.NodeMask = 0;
-
-	//_hr = m_pDevice->CreateDescriptorHeap(&_heapDesc, IID_PPV_ARGS(&_pHeap));
-	//if (FAILED(_hr))
-	//{
-	//	assert(0 && "定数バッファ用ディスクリプタヒープの生成に失敗\n");
-	//	return false;
-	//}
-
-	//auto _cpuHandle = _pHeap->GetCPUDescriptorHandleForHeapStart();
-
-	//// 定数バッファビューの作成
-	//m_cbvDesc.BufferLocation = m_cpBuffer->GetGPUVirtualAddress();
-	//m_cbvDesc.SizeInBytes = static_cast<UINT>(_sizeAligned);
-
-	//m_pDevice->CreateConstantBufferView(&m_cbvDesc, _cpuHandle);
-
+	
 	return true;
 }
 

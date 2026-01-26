@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-using ShaderID = uint32_t;
-
 enum class ShaderStage
 {
 	Vertex,
@@ -26,28 +24,38 @@ struct Shader
 	D3D12_INPUT_LAYOUT_DESC vsInputLayout{};
 };
 
+struct ShaderItem
+{
+	std::string path;
+	ShaderStage stage;
+	D3D12_INPUT_LAYOUT_DESC* pInputDesc = nullptr;
+};
+
 class ShaderManager
 {
 public:
 
 	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="a_slotSize">スロットのサイズ</param>
+	void Init(const UINT& a_slotSize);
+	
+	/// <summary>
 	/// シェーダーの登録
 	/// </summary>
-	/// <param name="a_path">ファイルパス</param>
-	/// <param name="a_stage">シェーダーのステージ</param>
-	/// <returns>管理番号</returns>
-	ShaderID Register(const std::string& a_path, const ShaderStage& a_stage);
+	/// <param name="a_dst">登録するシェーダーの基本情報</param>
+	/// <returns>管理ID</returns>
+	Resource::ID Register(const ShaderItem& a_dst);
 
 	/// <summary>
-	/// シェーダーの取得
+	/// シェーダの生ポインタ取得
 	/// </summary>
-	/// <param name="a_id">ID</param>
-	/// <returns>シェーダーのシェアードポインタ</returns>
-	std::shared_ptr<Shader> Get(const ShaderID& a_id);
+	/// <param name="a_id">管理ID</param>
+	const Shader* NGet(const Resource::ID& a_id);
 
 
 private:
 
-	ShaderID m_id = 0;
-	Storage<ShaderID, Shader> m_shaderStorage;
+	SlotStorage<Shader> m_shaderSlot;
 };
