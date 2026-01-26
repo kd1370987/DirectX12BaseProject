@@ -72,6 +72,9 @@ public:
 	/// <returns>登録した場所を返す</returns>
 	DescriptorHandle RegisterRTV(ID3D12Resource* a_resource);
 
+
+	UINT RegisterRTV(ID3D12Resource* a_resource,D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc);
+
 	/// <summary>
 	/// RTVヒープクラスのポインタを返す
 	/// </summary>

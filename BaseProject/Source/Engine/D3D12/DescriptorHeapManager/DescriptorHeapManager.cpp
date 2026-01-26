@@ -43,7 +43,7 @@ void DescriptorHeapManager::Init()
 		m_spRTVHeap->Create(
 			_device,
 			D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-			BACKBUFFER_COUNT,
+			100,
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE
 		);
 	}
@@ -79,5 +79,10 @@ DescriptorHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource)
 {
 	
 	return m_spRTVHeap->Register(a_resource);
+}
+
+UINT DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource, D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc)
+{
+	return m_spRTVHeap->RegisterRTV(a_resource,a_pRtvDesc);
 }
 

@@ -251,7 +251,7 @@ bool RenderingEngine::CreateRenderTarget()
 			_i,
 			IID_PPV_ARGS(m_pRenderTargets[_i].ReleaseAndGetAddressOf())
 		);
-		DescriptorHeapManager::Instance().RegisterRTV(m_pRenderTargets[_i].Get());
+		DescriptorHeapManager::Instance().RegisterRTV(m_pRenderTargets[_i].Get(),nullptr);
 	}
 	m_rtvDescriptorSize = m_upDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	return true;

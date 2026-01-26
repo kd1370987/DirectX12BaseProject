@@ -17,7 +17,7 @@ public:
 
 	ID3D12Resource* Get()
 	{
-		return m_offScreenResource.Get();
+		return m_offScreenRT.Ref();
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle()
@@ -25,9 +25,6 @@ public:
 		return m_postProcessRTVHeap->GetCPUDescriptorHandleForHeapStart();
 	}
 
-
-
-	ComPtr<ID3D12Resource> m_offScreenResource;
 
 	ComPtr<ID3D12DescriptorHeap> m_postProcessRTVHeap = nullptr;
 	ComPtr<ID3D12DescriptorHeap> m_postProcessSRVHeap = nullptr;
@@ -37,4 +34,7 @@ public:
 
 	ComPtr<ID3D12RootSignature> m_screenRootSignature;
 	ComPtr<ID3D12PipelineState> m_screenPipelineDefault;
+
+	// レンダーターゲット
+	RenderTarget m_offScreenRT;
 };
