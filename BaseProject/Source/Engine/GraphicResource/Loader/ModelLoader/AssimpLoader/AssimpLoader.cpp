@@ -261,9 +261,7 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 		{
 			assert(0 && "テクスチャの取得に失敗\n");
 		}
-		*_pDH = DescriptorHeapManager::Instance().RegisterSRV(_tex->GetResource());
-
-		a_dst.materialHandle = _pDH;
+		a_dst.srvHandle = DescriptorHeapManager::Instance().RegisterSRV(_tex->GetResource());
 	}
 	else
 	{

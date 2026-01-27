@@ -9,4 +9,5 @@
 #include "Math/Alignment.h"
 #include "Math/Collider.h"
 
-#include "Storage/Storage.h";					 // 汎用ストレージクラス
+//#include "Storage/Storage.h";					 // 汎用ストレージクラス
+#include "Storage/FreeRange/FreeRange.h";		// 連続性が保証されているスロット

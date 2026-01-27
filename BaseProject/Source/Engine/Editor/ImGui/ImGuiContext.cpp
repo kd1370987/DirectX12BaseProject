@@ -37,9 +37,9 @@ void ImGuiContex::Init(HWND a_hwnd)
 	_initInfo.NumFramesInFlight = static_cast<int>(CPU_FRAME_COUNT);
 	_initInfo.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	_initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;
-	_initInfo.SrvDescriptorHeap = _pDescriptorManager.GetDescriptorCBV_SRV_UAV()->GetHeap();
-	_initInfo.LegacySingleSrvCpuDescriptor = _pDescriptorManager.GetDescriptorCBV_SRV_UAV()->GetImGuiCPUHandle();
-	_initInfo.LegacySingleSrvGpuDescriptor = _pDescriptorManager.GetDescriptorCBV_SRV_UAV()->GetImGuiGPUHandle();
+	_initInfo.SrvDescriptorHeap = _pDescriptorManager.GetCBV_SRV_UAVHeap();
+	_initInfo.LegacySingleSrvCpuDescriptor = _pDescriptorManager.GetImGuiCPUHandle();
+	_initInfo.LegacySingleSrvGpuDescriptor = _pDescriptorManager.GetImGuiGPUHandle();
 	ImGui_ImplDX12_Init(&_initInfo);
 
 

@@ -2,6 +2,7 @@
 
 #include "../../D3D12//D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
 #include "../../D3D12//D3DObject/DescriptorHeap/RTVHeap/RTVHeap.h"
+#include "../../D3D12//D3DObject/DescriptorHeap/CBV_SRV_UAVHeap/CBV_SRV_UAVHeap.h"
 
 #include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
 
@@ -50,23 +51,39 @@ void DescriptorHeapManager::Init()
 }
 
 
-
-UINT DescriptorHeapManager::RegisterCBV(
-	ID3D12Resource* a_resource, size_t a_size, D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
-)
+Storage::Range DescriptorHeapManager::RegisterSRV(ID3D12Resource* a_resource)
 {
-	return m_spCBV_SRV_UAVHeap->RegisterCBV(a_resource, a_size, a_cbvDesc);
+	return m_spCBV_SRV_UAVHeap->AllocateSRVRange({ {a_resource,nullptr} });
 }
 
-DescriptorHandle DescriptorHeapManager::RegisterSRV(ID3D12Resource* a_resource)
+Storage::Range DescriptorHeapManager::AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec)
 {
-	return m_spCBV_SRV_UAVHeap->RegisterSRV(a_resource);
+	return m_spCBV_SRV_UAVHeap->AllocateSRVRange(a_viewInitVec);
 }
 
-DescriptorHandle DescriptorHeapManager::AllocateSRVRange(std::vector<ID3D12Resource*> a_resource)
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetSRVCPUHandle(Storage::Range a_range)
 {
-	//return m_spCBV_SRV_UAVHeap->AllocateSRVRange(static_cast<UINT>(a_resource.size()));
-	return m_spCBV_SRV_UAVHeap->AllocateSRVRange(a_resource);
+	return m_spCBV_SRV_UAVHeap->GetSRVCPUHandle(a_range);
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetSRVGPUHandle(Storage::Range a_range)
+{
+	return m_spCBV_SRV_UAVHeap->GetSRVGPUHandle(a_range);
+}
+
+ID3D12DescriptorHeap* DescriptorHeapManager::GetCBV_SRV_UAVHeap() const
+{
+	return m_spCBV_SRV_UAVHeap->GetHeap();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiCPUHandle()
+{
+	return m_spCBV_SRV_UAVHeap->GetImGuiCPUHandle();
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiGPUHandle()
+{
+	return m_spCBV_SRV_UAVHeap->GetImGuiGPUHandle();
 }
 
 DescriptorHandle DescriptorHeapManager::RegisterDSV(ID3D12Resource* a_resource)
@@ -75,14 +92,14 @@ DescriptorHandle DescriptorHeapManager::RegisterDSV(ID3D12Resource* a_resource)
 	return m_spDSVHeap->Register(a_resource);
 }
 
-DescriptorHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource)
-{
-	
-	return m_spRTVHeap->Register(a_resource);
-}
-
-UINT DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource, D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc)
+RTVHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource, D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc)
 {
 	return m_spRTVHeap->RegisterRTV(a_resource,a_pRtvDesc);
 }
+
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetRTVCPUHandle(RTVHandle a_handle)
+{
+	return m_spRTVHeap->GetCPUHandle(a_handle);
+}
+
 

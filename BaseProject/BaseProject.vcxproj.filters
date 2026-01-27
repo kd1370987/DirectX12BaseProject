@@ -409,6 +409,18 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\ShadowPass">
       <UniqueIdentifier>{e67f9a55-caee-42a6-b3a7-065d96ba329c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Core\Storage\FreeRange">
+      <UniqueIdentifier>{bc47e094-84b8-45f7-887e-eee059fd1a5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\StandardPass\ForwardPass">
+      <UniqueIdentifier>{e471d93f-c4c2-4111-bea0-0967acb0db3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\StandardPass\DeferredPass">
+      <UniqueIdentifier>{6d00910c-9294-4188-8a0d-92e24bcd58c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderGraph">
+      <UniqueIdentifier>{faeedf32-9637-470c-bae5-f88b29fa74e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -645,6 +657,12 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\StandardPass\SimplePass\SimplePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\StandardPass\SimplePass</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\Storage\FreeRange\FreeRange.cpp">
+      <Filter>Source\Core\Storage\FreeRange</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp">
+      <Filter>Source\Engine\Graphics\RenderGraph</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -670,9 +688,6 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Math\Alignment.h">
       <Filter>Source\Core\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Storage\Storage.h">
-      <Filter>Source\Core\Storage</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Time\FPSController\FPSController.h">
       <Filter>Source\Core\Time\FPSController</Filter>
@@ -994,6 +1009,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\StandardPass\SimplePass\SimplePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\StandardPass\SimplePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Storage\FreeRange\FreeRange.h">
+      <Filter>Source\Core\Storage\FreeRange</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h">
+      <Filter>Source\Engine\Graphics\RenderGraph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

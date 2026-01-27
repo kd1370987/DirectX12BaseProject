@@ -20,14 +20,10 @@ public:
 		return m_offScreenRT.Ref();
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle()
-	{
-		return m_postProcessRTVHeap->GetCPUDescriptorHandleForHeapStart();
-	}
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle();
 
 
-	ComPtr<ID3D12DescriptorHeap> m_postProcessRTVHeap = nullptr;
-	ComPtr<ID3D12DescriptorHeap> m_postProcessSRVHeap = nullptr;
+	//ComPtr<ID3D12DescriptorHeap> m_postProcessSRVHeap = nullptr;
 
 	ComPtr<ID3D12Resource> m_screenVB;
 	D3D12_VERTEX_BUFFER_VIEW m_screenVBView;
@@ -37,4 +33,6 @@ public:
 
 	// レンダーターゲット
 	RenderTarget m_offScreenRT;
+	RTVHandle m_rtvHandle;			// RTV
+	Storage::Range m_srvRange;			// SRV
 };

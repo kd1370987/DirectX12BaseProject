@@ -13,64 +13,21 @@ bool OffScreen::CreatePostProcessResource(ID3D12Resource& a_backBuffer)
 	m_offScreenRT.SetResourceDesc(_resDesc);
 	m_offScreenRT.Create(_pDevice);
 
-	// ディスクリプタヒープの仕様書作成
-	D3D12_DESCRIPTOR_HEAP_DESC _desc = {};
-	_desc.NodeMask = 0;
-	_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	_desc.NumDescriptors = 1;
-	_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-
-	// ディスクリプタヒープの生成
-	auto _hr = _pDevice->CreateDescriptorHeap(
-		&_desc,
-		IID_PPV_ARGS(m_postProcessRTVHeap.ReleaseAndGetAddressOf())
-	);
-	if (FAILED(_hr))
-	{
-		assert(0 && "ディスクリプタヒープ作成失敗\n");
-		return false;
-	}
-
+	// レンダーターゲットビューの作成
 	D3D12_RENDER_TARGET_VIEW_DESC _rtvDesc = {};
 	_rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	_rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	m_rtvHandle = DescriptorHeapManager::Instance().RegisterRTV(m_offScreenRT.Ref(), &_rtvDesc);
 
-	auto _handle = m_postProcessRTVHeap->GetCPUDescriptorHandleForHeapStart();
-	_pDevice->CreateRenderTargetView(
-		m_offScreenRT.Ref(),
-		&_rtvDesc,
-		_handle
-	);
-
-	_desc.NumDescriptors = 1;
-	_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	_desc.NodeMask = 0;
-
-	_hr = _pDevice->CreateDescriptorHeap(
-		&_desc,
-		IID_PPV_ARGS(m_postProcessSRVHeap.ReleaseAndGetAddressOf())
-	);
-	if (FAILED(_hr))
-	{
-		assert(0 && "OffScreenのSRVヒープの作成失敗");
-		return false;
-	}
-
+	// SRV作成
 	D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
 	_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	_srvDesc.Format = _rtvDesc.Format;
 	_srvDesc.Texture2D.MipLevels = 1;
 	_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	m_srvRange = DescriptorHeapManager::Instance().AllocateSRVRange({ {m_offScreenRT.Ref(),&_srvDesc}});
 
-	_handle = m_postProcessSRVHeap->GetCPUDescriptorHandleForHeapStart();
-
-	_pDevice->CreateShaderResourceView(
-		m_offScreenRT.Ref(),
-		&_srvDesc,
-		_handle
-	);
-
+	
 	return true;
 }
 
@@ -251,7 +208,12 @@ void OffScreen::SetRenderTarget(
 	ID3D12GraphicsCommandList* a_pCmdList, D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle
 )
 {
-	auto _rtvHeapPointer = m_postProcessRTVHeap->GetCPUDescriptorHandleForHeapStart();
+	auto _rtvHeapPointer = DescriptorHeapManager::Instance().GetRTVCPUHandle(m_rtvHandle);
 
 	a_pCmdList->OMSetRenderTargets(1, &_rtvHeapPointer, false, &a_depthHandle);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE OffScreen::GetRTVHandle()
+{
+	return DescriptorHeapManager::Instance().GetRTVCPUHandle(m_rtvHandle);
 }

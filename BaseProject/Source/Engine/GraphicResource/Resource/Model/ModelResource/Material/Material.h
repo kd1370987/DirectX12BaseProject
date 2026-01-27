@@ -41,5 +41,6 @@ struct Material
 	// 法線マップ
 	uint32_t					normalTexID = 0;
 
-	DescriptorHandle			srvHandle;		// SRVハンドル
+	//DescriptorHandle			srvHandle;		// SRVハンドル
+	Storage::Range			srvHandle;		// SRVハンドル
 };

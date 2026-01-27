@@ -130,17 +130,13 @@ void RenderingEngine::BeginRender()
 	WaitRender();
 
 	// 現在のレンダーターゲットを更新
-	m_currentRenderTarget = m_pRenderTargets[m_upSwapChain->GetCurrentBackBufferIndex()].Get();
+	m_currentRenderTarget = m_backBuffer[m_upSwapChain->GetCurrentBackBufferIndex()].renderTarget.Ref();
 
 	CommandQueueReset();
 
 	// ビューポートとシザー矩形を設定
 	m_upCommandList->SetViewports(1,&m_upViewport->Get());
 	m_upCommandList->SetScissorRects(1,&m_upScissorRect->Get());
-
-	// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
-	auto _currentRtvHandle = DescriptorHeapManager::Instance().GetDescriptorRTV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();;
-	_currentRtvHandle.ptr += m_upSwapChain->GetCurrentBackBufferIndex() * m_rtvDescriptorSize;
 
 	// 深度ステンシルのディスクリプタヒープの開始アドレス取得
 	auto _currentDsvHandle = DescriptorHeapManager::Instance().GetDescriptorDSV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();
@@ -152,16 +148,6 @@ void RenderingEngine::BeginRender()
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
 
-	// レンダーターゲットを設定
-	/*m_upCommandList->SetRenderTarget(
-		1,
-		&_currentRtvHandle, 
-		FALSE, 
-		&_currentDsvHandle
-	);*/
-
-	// バッファクリア
-	//m_upCommandList->ClearRenderTargetView(_currentRtvHandle);		// レンダーターゲット
 	m_upCommandList->ClearDepthStencilView(_currentDsvHandle);		// 深度ステンシル
 }
 void RenderingEngine::EndRender(bool a_isVsync)
@@ -226,7 +212,7 @@ IDXGISwapChain* RenderingEngine::GetSwapChain()
 
 ID3D12Resource* RenderingEngine::GetCurrentRenderTarget()
 {
-	return m_pRenderTargets[m_upSwapChain->GetCurrentBackBufferIndex()].Get();
+	return m_backBuffer[m_upSwapChain->GetCurrentBackBufferIndex()].renderTarget.Ref();
 }
 
 ID3D12CommandQueue* RenderingEngine::GetCommandQueue()
@@ -247,13 +233,9 @@ bool RenderingEngine::CreateRenderTarget()
 	for (UINT _i = 0; _i < BACKBUFFER_COUNT; ++_i)
 	{
 		// スワップチェインから描画するテクスチャリソースを取得
-		m_upSwapChain->Get()->GetBuffer(
-			_i,
-			IID_PPV_ARGS(m_pRenderTargets[_i].ReleaseAndGetAddressOf())
-		);
-		DescriptorHeapManager::Instance().RegisterRTV(m_pRenderTargets[_i].Get(),nullptr);
+		m_backBuffer[_i].renderTarget.Create(m_upSwapChain->Get(),_i);
+		m_backBuffer[_i].rtvHandle = DescriptorHeapManager::Instance().RegisterRTV(m_backBuffer[_i].renderTarget.Ref(), nullptr);
 	}
-	m_rtvDescriptorSize = m_upDevice->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	return true;
 }
 bool RenderingEngine::CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBufferHeight)
@@ -385,19 +367,20 @@ void RenderingEngine::ClearDepthStencilView(
 void RenderingEngine::SetBackBuffer()
 {
 	// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
-	auto _currentRtvHandle = DescriptorHeapManager::Instance().GetDescriptorRTV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();;
-	_currentRtvHandle.ptr += m_upSwapChain->GetCurrentBackBufferIndex() * m_rtvDescriptorSize;
+	auto _cpuHandle = DescriptorHeapManager::Instance().GetRTVCPUHandle(
+		m_backBuffer[m_upSwapChain->GetCurrentBackBufferIndex()].rtvHandle
+	);
 
 	// レンダーターゲットを設定
 	m_upCommandList->SetRenderTarget(
 		1,
-		&_currentRtvHandle,
+		&_cpuHandle,
 		FALSE,
 		nullptr
 	);
 
 	// バッファクリア
-	m_upCommandList->ClearRenderTargetView(_currentRtvHandle);		// レンダーターゲット
+	m_upCommandList->ClearRenderTargetView(_cpuHandle);		// レンダーターゲット
 }
 
 RenderingEngine::RenderingEngine()

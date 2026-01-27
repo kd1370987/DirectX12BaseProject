@@ -37,6 +37,16 @@ bool RenderTarget::Create(ID3D12Device* a_pDevice)
 
 }
 
+void RenderTarget::Create(IDXGISwapChain* a_pSwapChain, UINT a_bufferIndex)
+{
+	// スワップチェインからバックバッファを生成
+	a_pSwapChain->GetBuffer(
+		a_bufferIndex,
+		IID_PPV_ARGS(m_cpResource.ReleaseAndGetAddressOf())
+	);
+}
+
+
 void RenderTarget::SetResourceDesc(const D3D12_RESOURCE_DESC& a_desc)
 {
 	m_upResourceDesc = std::make_unique<D3D12_RESOURCE_DESC>(a_desc);

@@ -1,6 +1,7 @@
 ﻿#include "SimplePass.h"
 
 #include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
@@ -96,7 +97,8 @@ void SimplePass::DrawMesh(const Mesh* a_mesh, const DirectX::XMMATRIX& a_worldMa
 		);
 
 		// SRVの送信
-		auto _handle = _material.srvHandle.handleGPU;
+		//auto _handle = _material.srvHandle.handleGPU;
+		auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(_material.srvHandle);
 		_cmdList->SetGraphicsRootDescriptorTable(
 			4,
 			_handle
@@ -132,11 +134,23 @@ void SimplePass::CreatePass()
 	);
 
 	// パイプラインステート登録
-	PSOSetting _psoSetting = {};
-	_psoSetting.rootsignatureID = 0;
-	_psoSetting.vsStage = m_shaderIDVec[0];
-	_psoSetting.psStage = m_shaderIDVec[1];
-	m_psoID = m_pGraphicPSOManager->Register("SimplePass",_psoSetting);
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC _psoDesc = {};
+	_psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);		// ラスタライザーステート
+	_psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;				// カリングなし
+	_psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);				// ブレンドステートもデフォルト
+	_psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);	// 深度ステンシルはデフォルトを使用
+	_psoDesc.SampleMask = UINT_MAX;											// どのピクセルを描画可能にするか
+	_psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;// 三角形を描画
+	_psoDesc.NumRenderTargets = 1;											// 描画対象数
+	_psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;				// カラーフォーマット
+	_psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;								// 深度フォーマット（Zバッファの精度）
+	_psoDesc.SampleDesc.Count = 1;											// サンプラーは１
+	_psoDesc.SampleDesc.Quality = 0;
+	_psoDesc.InputLayout = m_pShaderManager->NGet(m_shaderIDVec[0])->vsInputLayout;;
+	_psoDesc.VS = m_pShaderManager->NGet(m_shaderIDVec[0])->byteCode;
+	_psoDesc.PS = m_pShaderManager->NGet(m_shaderIDVec[1])->byteCode;
+	_psoDesc.pRootSignature = m_pRootSignatureManager->NGet(m_rootSigID);
+	m_psoID = m_pGraphicPSOManager->Register("SimplePass",_psoDesc);
 
 	// プリミティブトポロジー設定
 	m_primitive = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;

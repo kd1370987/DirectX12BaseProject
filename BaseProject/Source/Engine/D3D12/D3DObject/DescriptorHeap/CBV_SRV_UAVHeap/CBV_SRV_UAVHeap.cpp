@@ -11,9 +11,7 @@ bool CBV_SRV_UAVHeap::Create(const CBV_SRV_UAVInitInfo& a_info)
 		return false;
 	}
 
-	//m_currentIndex = 0;
-	m_currentCounts = { 0.0f, 0.0f, 0.0f };
-
+	m_srvRange.Init(a_info.maxSRVCount);
 
 
 	// ディスクリプタヒープの仕様書作成
@@ -37,12 +35,6 @@ bool CBV_SRV_UAVHeap::Create(const CBV_SRV_UAVInitInfo& a_info)
 	// インクリメントサイズの取得
 	m_incrementSize = m_pDevice->GetDescriptorHandleIncrementSize(_desc.Type);
 	m_type = a_info.type;
-	m_maxCounts = { 
-		static_cast<float>(a_info.maxCBVCount),
-		static_cast<float>(a_info.maxSRVCount + a_info.useImGuiSRVCount),
-		static_cast<float>(a_info.maxUAVCount)
-	};
-
 	m_initInfo = a_info;
 
 	return true;
@@ -53,185 +45,110 @@ ID3D12DescriptorHeap* CBV_SRV_UAVHeap::GetHeap()
 	return m_cpHeap.Get();
 }
 
-const D3D12_CPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetCPUHandle(UINT a_number) const
+Storage::Range CBV_SRV_UAVHeap::AllocateSRVRange(std::vector<SRVViewInit> a_initVec)
 {
-	D3D12_CPU_DESCRIPTOR_HANDLE _handle = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
-	_handle.ptr += m_incrementSize * a_number;
-	return _handle;
-}
-
-const D3D12_GPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetGPUHandle(UINT a_number) const
-{
-	D3D12_GPU_DESCRIPTOR_HANDLE _handle = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
-	_handle.ptr += m_incrementSize * a_number;
-	return _handle;
-}
-
-
-
-UINT CBV_SRV_UAVHeap::RegisterCBV(
-	ID3D12Resource* a_resource,
-	size_t a_size,
-	D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
-)
-{
-	if (static_cast<UINT>(m_maxCounts.x) <= static_cast<UINT>(m_currentCounts.x))
-	{
-		assert(0 && "CBVHeapのヒープ領域を使い切りました");
-		return {};
-	}
+	// 領域確保
+	UINT _resSize = static_cast<UINT>(a_initVec.size());		// 確保予定のサイズ
+	Storage::Range _range = m_srvRange.Allocate(_resSize);
 
 	// ハンドルの作成
-	auto _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
-	_handleCPU.ptr += m_incrementSize * static_cast<UINT>(m_currentCounts.x);
-	
-
-	// CBVの仕様書作成
-	auto _resource = a_resource;
-
-	D3D12_CONSTANT_BUFFER_VIEW_DESC _cbvDesc = {};
-	_cbvDesc.BufferLocation = a_resource->GetGPUVirtualAddress();
-	_cbvDesc.SizeInBytes = (a_size + 255) & ~255;
-	a_cbvDesc = _cbvDesc;
-
-	// CBVの生成
-	m_pDevice->CreateConstantBufferView(
-		&_cbvDesc,
-		_handleCPU
-	);
-
-	return m_currentCounts.x++;
-}
-
-DescriptorHandle CBV_SRV_UAVHeap::RegisterSRV(ID3D12Resource* a_resource)
-{
-	//size_t _count = m_currentIndex;
-	UINT _count = static_cast<UINT>(m_currentCounts.y);
-	if (m_maxCounts.y <= _count)
-	{
-		assert(0 && "SRVHeapのヒープ領域を使い切りました");
-		return {};
-	}
-
-	// ハンドルの作成
-	DescriptorHandle _handle;
-	auto _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();		// ディスクリプタヒープの先頭ハンドル取得
-	//_handleCPU.ptr += m_incrementSize * (m_currentCounts.x + _count);				// 最初のアドレスからcount番目が/今回追加されたリソースのハンドル
-	_handleCPU.ptr += m_incrementSize * (_count + static_cast<UINT>(m_maxCounts.x));				// 最初のアドレスからcount番目が今回追加されたリソースのハンドル
-	auto _handleGPU = m_cpHeap->GetGPUDescriptorHandleForHeapStart();		// GPU版
-	//_handleGPU.ptr += m_incrementSize * (m_currentCounts.x + _count);				// GPUが知るべき場所
-	_handleGPU.ptr += m_incrementSize * (_count + static_cast<UINT>(m_maxCounts.x));				// GPUが知るべき場所
-
-	// ハンドルの登録
-	_handle.handleCPU = _handleCPU;
-	_handle.handleGPU = _handleGPU;
-
+	auto _handle = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+	_handle.ptr += m_incrementSize * (static_cast<UINT>(m_initInfo.maxCBVCount) + _range.startIndex);
+		
 	// SRVの仕様書作成
-	auto _device = RenderingEngine::Instance().GetDevice();
-	auto _resource = a_resource;
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
-	_srvDesc.Format = a_resource->GetDesc().Format;
-	_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	_srvDesc.Texture2D.MipLevels = 1;
-
-	// SRVの生成
-	_device->CreateShaderResourceView(
-		_resource,
-		&_srvDesc,
-		_handle.handleCPU
-	);
-
-//	++m_currentIndex;
-	++m_currentCounts.y;
-	return _handle;
-}
-
-DescriptorHandle CBV_SRV_UAVHeap::AllocateSRVRange(UINT a_count)
-{
-	UINT _startIndex = static_cast<UINT>(m_currentCounts.y);
-
-	assert(
-		(m_maxCounts.y - m_currentCounts.y) >= a_count &&
-		"SRVHeapのヒープ領域を使い切りました"
-	);
-
-	// ハンドルの作成
-	DescriptorHandle _handle;
-	auto _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
-	_handleCPU.ptr += m_incrementSize * (_startIndex + static_cast<UINT>(m_maxCounts.x));
-	auto _handleGPU = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
-	_handleGPU.ptr += m_incrementSize * (_startIndex + static_cast<UINT>(m_maxCounts.x));
-
-	// ハンドルの登録
-	_handle.handleCPU = _handleCPU;
-	_handle.handleGPU = _handleGPU;
-	m_currentCounts.y += static_cast<float>(a_count);
-	return _handle;
-}
-
-DescriptorHandle CBV_SRV_UAVHeap::AllocateSRVRange(std::vector<ID3D12Resource*> a_resource)
-{
-	auto _handle = AllocateSRVRange(static_cast<UINT>(a_resource.size()));
-	
-	// SRVの仕様書作成
-	auto _device = RenderingEngine::Instance().GetDevice();
-	auto _resource = a_resource;
-	//for (auto& _res : a_resource)
-	for (UINT _i = 0; _i < a_resource.size(); ++_i)
+	for (UINT _i = 0; _i < a_initVec.size(); ++_i)
 	{
-		auto& _res = a_resource[_i];
+		auto& _res = a_initVec[_i];
 
-		if (_res == nullptr)
+		if (_res.pResource == nullptr)
 		{
 			continue;
 		}
 
+		// SRVの仕様書があればそれを使う
 		D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
-		_srvDesc.Format = _res->GetDesc().Format;
-		_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		_srvDesc.Texture2D.MipLevels = 1;
+		if (a_initVec[_i].pDesc)
+		{
+			_srvDesc = *a_initVec[_i].pDesc;
+		}
+		{
+			_srvDesc.Format = _res.pResource->GetDesc().Format;
+			_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			_srvDesc.Texture2D.MipLevels = 1;
+		}
 
-		_handle.handleCPU.ptr = 
-			_handle.handleCPU.ptr + static_cast<unsigned int>(m_incrementSize * _i);
+		_handle.ptr += static_cast<unsigned int>(m_incrementSize * _i);
 
 		// SRVの生成
-		_device->CreateShaderResourceView(
-			_res,
+		m_pDevice->CreateShaderResourceView(
+			_res.pResource,
 			&_srvDesc,
-			_handle.handleCPU
+			_handle
 		);
 	}
 
-	return _handle;
+	return _range;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetSRVCPUHandle(Storage::Range a_handle)
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+	_handleCPU.ptr += m_incrementSize * (static_cast<UINT>(m_initInfo.maxCBVCount) + a_handle.startIndex);
+	return _handleCPU;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetSRVGPUHandle(Storage::Range a_handle)
+{
+	D3D12_GPU_DESCRIPTOR_HANDLE _handleGPU = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
+	_handleGPU.ptr += m_incrementSize * (static_cast<UINT>(m_initInfo.maxCBVCount) + a_handle.startIndex);
+	return _handleGPU;
 }
 
 DescriptorHandle CBV_SRV_UAVHeap::RegisterUAV(ID3D12Resource* a_resource)
 {
-	//size_t _count = m_currentIndex;
-	UINT _count = static_cast<UINT>(m_currentCounts.z);
-
-	if (m_maxCounts.z <= _count)
-	{
-		assert(0 && "CBV_SRV_UAVHeapのヒープ領域を使い切りました");
-		return {};
-	}
 	return DescriptorHandle();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetUAVCPUHandle(UAVHandle a_handle)
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+	UINT _index = (
+		static_cast<UINT>(m_initInfo.maxCBVCount) +
+		static_cast<UINT>(m_initInfo.maxSRVCount) +
+		static_cast<UINT>(m_initInfo.useImGuiSRVCount)
+	);
+	_index += a_handle.index;
+	_handleCPU.ptr += m_incrementSize * _index;
+	return _handleCPU;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetUAVGPUHandle(UAVHandle a_handle)
+{
+	D3D12_GPU_DESCRIPTOR_HANDLE _handleGPU = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
+	UINT _index = (
+		static_cast<UINT>(m_initInfo.maxCBVCount) +
+		static_cast<UINT>(m_initInfo.maxSRVCount) +
+		static_cast<UINT>(m_initInfo.useImGuiSRVCount)
+		);
+	_index += a_handle.index;
+	_handleGPU.ptr += m_incrementSize * _index;
+	return _handleGPU;
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetImGuiCPUHandle()
 {
-	D3D12_CPU_DESCRIPTOR_HANDLE _cpu = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
-	_cpu.ptr += m_incrementSize * m_initInfo.useImGuiSRVCount;
-	return _cpu;
+	D3D12_CPU_DESCRIPTOR_HANDLE _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+	_handleCPU.ptr += 
+		m_incrementSize * (static_cast<UINT>(m_initInfo.maxCBVCount) + static_cast<UINT>(m_initInfo.maxSRVCount));
+	return _handleCPU;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetImGuiGPUHandle()
 {
-	D3D12_GPU_DESCRIPTOR_HANDLE _gpu = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
-	_gpu.ptr += m_incrementSize * m_initInfo.useImGuiSRVCount;
-	return _gpu;
+	D3D12_GPU_DESCRIPTOR_HANDLE _handleGPU = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
+	_handleGPU.ptr += 
+		m_incrementSize * (static_cast<UINT>(m_initInfo.maxCBVCount) + static_cast<UINT>(m_initInfo.maxSRVCount));
+	return _handleGPU;
 }
 

@@ -3,12 +3,9 @@
 //class DescriptorHeap;
 struct DescriptorHandle;
 
-class CBVHeap;
-class SRVHeap;
+class CBV_SRV_UAVHeap;
 class DSVHeap;
 class RTVHeap;
-#include "../../D3D12//D3DObject/DescriptorHeap/CBV_SRV_UAVHeap/CBV_SRV_UAVHeap.h"
-
 
 class DescriptorHeapManager
 {
@@ -19,39 +16,59 @@ public:
 	/// </summary>
 	void Init();
 
-	/// <summary>
-	/// CBV_SRV_UAVヒープクラスのポインタを返す
-	/// </summary>
-	/// <returns>CBV_SRV_UAVクラスポインタ</returns>
-	std::shared_ptr<CBV_SRV_UAVHeap> GetDescriptorCBV_SRV_UAV() const { return m_spCBV_SRV_UAVHeap; }
-	
-
-	/// <summary>
-	/// 定数バッファを登録
-	/// </summary>
-	/// <param name="a_resource">リソース</param>
-	/// <param name="a_size">サイズ</param>
-	/// <returns>登録したハンドル</returns>
-	UINT RegisterCBV(
-		ID3D12Resource* a_resource,
-		size_t a_size,
-		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
-	);
-
+	//==========================================================================================
+	// 
+	// CBV_SRV_UAV
+	// 
+	//==========================================================================================
 	/// <summary>
 	/// シェーダーリソースビュー作成
 	/// </summary>
 	/// <param name="a_resource">登録するリソース</param>
 	/// <returns>登録した場所を返す</returns>
-	DescriptorHandle RegisterSRV(ID3D12Resource* a_resource);
+	Storage::Range RegisterSRV(ID3D12Resource* a_resource);
 
 	/// <summary>
 	/// 一括でSRVを確保
 	/// </summary>
 	/// <param name="a_resource">登録するリソースの配列</param>
 	/// <returns>登録した配列の先頭のハンドル</returns>
-	DescriptorHandle AllocateSRVRange(std::vector<ID3D12Resource*> a_resource);
+	Storage::Range AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec);
 
+	/// <summary>
+	/// SRVのCPUハンドルを取得
+	/// </summary>
+	/// <param name="a_range">レンジ</param>
+	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUHandle(Storage::Range a_range);
+
+	/// <summary>
+	/// SRVのGPUハンドルを取得
+	/// </summary>
+	/// <param name="a_range">レンジ</param>
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUHandle(Storage::Range a_range);
+
+	/// <summary>
+	/// ヒープの生ポインタ取得
+	/// </summary>
+	ID3D12DescriptorHeap* GetCBV_SRV_UAVHeap() const;
+
+	/// <summary>
+	/// ImGui用のSRVのCPUハンドルを取得
+	/// </summary>
+	/// <param name="a_range">レンジ</param>
+	D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiCPUHandle();
+
+	/// <summary>
+	/// ImGui用のSRVのGPUハンドルを取得
+	/// </summary>
+	/// <param name="a_range">レンジ</param>
+	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle();
+
+	//==========================================================================================
+	// 
+	// DSV
+	// 
+	//==========================================================================================
 	/// <summary>
 	/// デプスステンシルビュー登録
 	/// </summary>
@@ -65,33 +82,23 @@ public:
 	/// <returns>DSVヒープクラスポインタ</returns>
 	std::shared_ptr<DSVHeap> GetDescriptorDSV() const { return m_spDSVHeap; }
 
+	//==========================================================================================
+	// 
+	// RTV
+	// 
+	//==========================================================================================
 	/// <summary>
 	/// レンダーターゲットビュー登録
 	/// </summary>
 	/// <param name="a_resource">登録するリソース</param>
-	/// <returns>登録した場所を返す</returns>
-	DescriptorHandle RegisterRTV(ID3D12Resource* a_resource);
-
-
-	UINT RegisterRTV(ID3D12Resource* a_resource,D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc);
+	/// <returns>登録したインデックス</returns>
+	RTVHandle RegisterRTV(ID3D12Resource* a_resource,D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc);
 
 	/// <summary>
-	/// RTVヒープクラスのポインタを返す
+	/// RTVのCPUハンドルを取得
 	/// </summary>
-	/// <returns>RTVヒープクラスポインタ</returns>
-	std::shared_ptr<RTVHeap> GetDescriptorRTV() const { return m_spRTVHeap; }
-
-
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT a_index)
-	{
-		return m_spCBV_SRV_UAVHeap->GetGPUHandle(a_index);
-	}
-
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT a_index)
-	{
-		return m_spCBV_SRV_UAVHeap->GetCPUHandle(a_index);
-	}
-
+	/// <param name="a_index">インデックス</param>
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVCPUHandle(RTVHandle a_handle);
 private:
 
 	// CBV_SRV_UAVヒープ

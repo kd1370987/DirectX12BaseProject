@@ -20,6 +20,12 @@ class SwapChain;
 class Viewport;
 class ScissorRectangle;
 
+struct BackBuffer
+{
+	RenderTarget renderTarget;
+	RTVHandle rtvHandle;
+};
+
 class RenderingEngine
 {
 public:
@@ -109,14 +115,10 @@ private:
 	bool CreateRenderTarget();			// レンダーターゲットを生成
 	bool CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBufferHeight);			// 深度ステンシルバッファを生成
 
-	UINT m_rtvDescriptorSize = 0;						// レンダーターゲットビューのディスクリプタサイズ
-	ComPtr<ID3D12Resource> m_pRenderTargets[BACKBUFFER_COUNT] = { nullptr };		// レンダーターゲット
+	// バックバッファー
+	BackBuffer m_backBuffer[BACKBUFFER_COUNT];
 
 	ComPtr<ID3D12Resource> m_pDeptchStencilBuffer = nullptr;	// 深度ステンシルバッファ（こっちは一つ）
-
-	std::shared_ptr<RootSignature> m_spRootSignature = nullptr;		// ルートシグネチャ
-	std::shared_ptr<PipelineState> m_spPipeLineState = nullptr;		// パイプラインステート
-
 
 private:
 	// 描画ループで使用するもの

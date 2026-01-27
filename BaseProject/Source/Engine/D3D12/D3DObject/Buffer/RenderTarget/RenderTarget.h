@@ -15,6 +15,13 @@ public:
 	bool Create(ID3D12Device* a_pDevice);
 
 	/// <summary>
+	/// バックバッファ生成用
+	/// </summary>
+	/// <param name="a_pSwapChain">スワップチェイン</param>
+	/// <param name="a_bufferIndex">バッファインデックス</param>
+	void Create(IDXGISwapChain* a_pSwapChain,UINT a_bufferIndex);
+
+	/// <summary>
 	/// 作成前に呼ぶことで作成時につかうリソース仕様書を決定することができる
 	/// </summary>
 	void SetResourceDesc(const D3D12_RESOURCE_DESC& a_desc);

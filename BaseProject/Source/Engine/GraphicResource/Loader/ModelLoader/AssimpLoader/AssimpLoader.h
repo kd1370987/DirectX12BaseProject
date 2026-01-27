@@ -22,7 +22,8 @@ struct AssimpMesh
 
 	VertexBuffer* vertexBuffer;		// 頂点バッファ
 	IndexBuffer* indexBuffer;			// インデックスバッファ
-	DescriptorHandle* materialHandle;	// テクスチャハンドル
+	//DescriptorHandle* materialHandle;	// テクスチャハンドル
+	Storage::Range srvHandle;
 
 	uint32_t materialIndex = 0;		// マテリアルインデックス
 	bool isSkinMesh = false;		// スキンメッシュかどうか

@@ -4,8 +4,13 @@ class RTVHeap
 {
 public:
 
-	DescriptorHandle Register(ID3D12Resource* a_resource);
-	UINT RegisterRTV(ID3D12Resource* a_resource,D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc);
+	/// <summary>
+	/// レンダーターゲットビューの作成・登録
+	/// </summary>
+	/// <param name="a_resource">登録リソース</param>
+	/// <param name="a_pRtvDesc">ビュー設定</param>
+	/// <returns>登録したインデックス</returns>
+	RTVHandle RegisterRTV(ID3D12Resource* a_resource,D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc);
 
 	/// <summary>
 	/// ディスクリプタヒープ作成
@@ -33,24 +38,16 @@ public:
 	/// CPU ハンドル取得
 	/// </summary>
 	/// <param name="a_number">生成時のインデックス</param>
-	const D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT a_number) const;
-
-	/// <summary>
-	/// GPU ハンドル取得
-	/// </summary>
-	/// <param name="a_number">生成時のインデックス</param>
-	const D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT a_number) const;
+	const D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(RTVHandle a_handleIndex) const;
 
 protected:
-	UINT m_incrementSize = 0;												// 移動距離
-	D3D12_DESCRIPTOR_HEAP_TYPE m_type{};						// ディスクリプタヒープのタイプ
-	ComPtr<ID3D12DescriptorHeap> m_cpHeap = nullptr;		// ディスクリプタヒープ本体
 
-	ID3D12Device* m_pDevice = nullptr;			// デバイスのポインタ
+	// デバイスのポインタ
+	ID3D12Device* m_pDevice = nullptr;
 
-	UINT m_maxSize = 0;					// ディスクリプタヒープに乗せれる上限
-	UINT m_currentIndex = 0;			// 今何番目か
+	UINT m_incrementSize = 0;									// 移動距
+	ComPtr<ID3D12DescriptorHeap> m_cpHeap = nullptr;			// ディスクリプタヒープ本体
 
-	std::queue<UINT> m_indexQueue;
-
+	// 使用インデックスの待ち行列
+	std::queue<RTVHandle> m_indexQueue;
 };

@@ -23,9 +23,7 @@ public:
 	/// <param name="a_spShaderManager">シェーダーマネージャーのポインタ</param>
 	/// <param name="a_spRootSigManager">ルートシグネチャマネージャーのポインタ</param>
 	void Init(
-		const UINT& a_slotSize,
-		std::shared_ptr<ShaderManager> a_spShaderManager,
-		std::shared_ptr<RootSignatureManager> a_spRootSigManager
+		const UINT& a_slotSize
 	);
 
 	/// <summary>
@@ -33,7 +31,10 @@ public:
 	/// </summary>
 	/// <param name="a_setting">生成パラメタ</param>
 	/// <returns>管理場所ID</returns>
-	Resource::ID Register(const std::string& a_key,const PSOSetting& a_setting);
+	Resource::ID Register(
+		const std::string& a_key,
+		const D3D12_GRAPHICS_PIPELINE_STATE_DESC& a_psoDesc
+	);
 
 	/// <summary>
 	/// パイプラインステートのセット
@@ -43,9 +44,6 @@ public:
 	ID3D12PipelineState* NGet(const Resource::ID& a_id);
 
 private:
-
-	std::weak_ptr<ShaderManager> m_wpShaderManager;
-	std::weak_ptr<RootSignatureManager> m_wpRootSigManager;
 
 	SlotStorage<PipelineState> m_psoSlot;
 };

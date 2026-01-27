@@ -15,7 +15,11 @@ struct CBV_SRV_UAVInitInfo
 class CBV_SRV_UAVHeap
 {
 public:
-
+	//==========================================================================================
+	// 
+	// CBV_SRV_UAV
+	// 
+	//==========================================================================================
 	/// <summary>
 	/// ディスクリプタヒープ作成
 	/// </summary>
@@ -28,43 +32,76 @@ public:
 	/// <returns>ディスクリプタヒープポインタ</returns>
 	ID3D12DescriptorHeap* GetHeap();
 
-	DirectX::XMFLOAT3 GetMaxCounts() const { return m_maxCounts; }
-	DirectX::XMFLOAT3 GetCurrentCounts() const { return m_currentCounts; }
-
-	/// <summary>
-	/// CPU ハンドル取得
-	/// </summary>
-	/// <param name="a_number">生成時のインデックス</param>
-	const D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT a_number) const;
-
-	/// <summary>
-	/// GPU ハンドル取得
-	/// </summary>
-	/// <param name="a_number">生成時のインデックス</param>
-	const D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT a_number) const;
-
-	UINT RegisterCBV(
-		ID3D12Resource* a_resource,
-		size_t a_size,
-		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
-	);
-	/*DescriptorHandle RegisterCBV(
+	//==========================================================================================
+	// 
+	// CBV
+	// 
+	//==========================================================================================
+	/*UINT RegisterCBV(
 		ID3D12Resource* a_resource,
 		size_t a_size,
 		D3D12_CONSTANT_BUFFER_VIEW_DESC& a_cbvDesc
 	);*/
-	DescriptorHandle RegisterSRV(ID3D12Resource* a_resource);
+	
+	//==========================================================================================
+	// 
+	// SRV
+	// 
+	//==========================================================================================
+	
+	/// <summary>
+	/// SRVを一括で確保する
+	/// </summary>
+	/// <param name="a_intVec">リソースとビューの設定の配列</param>
+	/// <returns>保存した情報</returns>
+	Storage::Range AllocateSRVRange(std::vector<SRVViewInit> a_intVec);
 
-	DescriptorHandle AllocateSRVRange(UINT a_count);
+	/// <summary>
+	/// SRVが使える領域のハンドルを取得
+	/// </summary>
+	/// <param name="a_handle">指定インデックス</param>
+	/// <returns>CPUハンドル</returns>
+	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUHandle(Storage::Range a_handle);
 
-	DescriptorHandle AllocateSRVRange(std::vector<ID3D12Resource*> a_resource);
+	/// <summary>
+	/// SRVが使える領域のハンドルを取得
+	/// </summary>
+	/// <param name="a_handle">指定インデックス</param>
+	/// <returns>GPUハンドル</returns>
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUHandle(Storage::Range a_handle);
 
+	/// <summary>
+	/// ImGuiが使えるSRV領域のハンドルを取得
+	/// </summary>
+	/// <returns>CPUハンドル</returns>
+	D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiCPUHandle();
+
+	/// <summary>
+	/// ImGuiが使えるSRV領域のハンドルを取得
+	/// </summary>
+	/// <returns>GPUハンドル</returns>
+	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle();
+
+	//==========================================================================================
+	// 
+	// UAV
+	// 
+	//==========================================================================================
 	DescriptorHandle RegisterUAV(ID3D12Resource* a_resource);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiCPUHandle();
-	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle();
-	
+	/// <summary>
+	/// UAVが使える領域のハンドルを取得
+	/// </summary>
+	/// <param name="a_handle">指定インデックス</param>
+	/// <returns>CPUハンドル</returns>
+	D3D12_CPU_DESCRIPTOR_HANDLE GetUAVCPUHandle(UAVHandle a_handle);
 
+	/// <summary>
+	/// UAVが使える領域のハンドルを取得
+	/// </summary>
+	/// <param name="a_handle">指定インデックス</param>
+	/// <returns>GPUハンドル</returns>
+	D3D12_GPU_DESCRIPTOR_HANDLE GetUAVGPUHandle(UAVHandle a_handle);
 private:
 
 	UINT m_incrementSize = 0;							// 移動距離
@@ -73,9 +110,7 @@ private:
 
 	ID3D12Device* m_pDevice = nullptr;					// デバイスのポインタ
 
-	// CBV・SRV・UAVのカウント
-	DirectX::XMFLOAT3 m_maxCounts = {};					// ディスクリプタヒープに乗せれる上限
-	DirectX::XMFLOAT3 m_currentCounts = {};				// 今何番目か
-
 	CBV_SRV_UAVInitInfo m_initInfo = {};		// 初期設定
+
+	FreeRange m_srvRange;
 };
