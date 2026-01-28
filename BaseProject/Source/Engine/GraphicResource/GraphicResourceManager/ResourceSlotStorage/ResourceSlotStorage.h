@@ -27,6 +27,7 @@ public:
 	/// <param name="a_id">登録ID</param>
 	/// <returns>データのポインタ</returns>
 	const T* Get(const Resource::ID& a_id) const;
+	T* Ref(const Resource::ID& a_id);
 
 	/// <summary>
 	/// 登録した時の文字列で検索
@@ -131,6 +132,30 @@ inline const T* ResourceSlotStorage<T>::Get(const Resource::ID& a_id) const
 	}
 
 	const Data& _slot = m_dataVec[_idx];
+	if (!_slot.isAlive)
+	{
+		return nullptr;
+	}
+	if (_slot.gen != _gen)
+	{
+		return nullptr;
+	}
+
+	return &_slot.data;
+}
+
+template<typename T>
+inline T* ResourceSlotStorage<T>::Ref(const Resource::ID& a_id)
+{
+	Resource::DataIndex _idx = static_cast<Resource::DataIndex>(GetIndex(a_id));
+	Resource::DataGeneration _gen = static_cast<Resource::DataGeneration>(GetGeneration(a_id));
+
+	if (_idx >= m_dataVec.size())
+	{
+		return nullptr;
+	}
+
+	Data& _slot = m_dataVec[_idx];
 	if (!_slot.isAlive)
 	{
 		return nullptr;

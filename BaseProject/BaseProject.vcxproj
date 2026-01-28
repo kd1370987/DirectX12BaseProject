@@ -234,6 +234,11 @@
     <ClCompile Include="Source\Engine\Graphics\OffScreen\OffScreen.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\DrawPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass\ForwardLightingPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass\MonotonePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\StandardPass\SimplePass\SimplePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\StandardPass\StandardPassBase.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp" />
@@ -356,9 +361,15 @@
     <ClInclude Include="Source\Engine\GraphicResource\Resource\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.h" />
     <ClInclude Include="Source\Engine\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.h" />
+    <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\OffScreen\OffScreen.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\DrawPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass\ForwardLightingPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass\MonotonePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RenderPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\StandardPass\SimplePass\SimplePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\StandardPass\StandardPassBase.h" />
     <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h" />

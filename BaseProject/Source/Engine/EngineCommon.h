@@ -52,3 +52,5 @@ struct UAVHandle
 {
 	UINT index = INVALID_INDEX;
 };
+
+#include "Graphics/GraphicCommon.h"

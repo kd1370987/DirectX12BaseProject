@@ -1,83 +1,35 @@
 ﻿#pragma once
 
-enum class LoadOp
-{
-	Load,
-	Clear,
-	DontCare
-};
+#include "../RenderPass/RenderPass.h"
 
-enum class StoreOp
+enum class ResourceUsage : uint32_t
 {
-	Store,
-	DontCare
-};
-
-enum class RenderQueueType
-{
-	Opaque,			// 不透明
-	Transparent,	// 透明
-	Shadow,			// 影
-	PostEffect		// ポストエフェクト
+	None = 0,
+	RenderTarget = 1 << 0,
+	DepthStencil = 1 << 1,
+	ShaderRead = 1 << 2,
+	ShaderWrite = 1 << 3,   // UAV 用
 };
 
 struct ResourceDesc
 {
 	std::string name;
 	DXGI_FORMAT format;
-	uint32_t width;
-	uint32_t height;
-};
-
-// レンダーターゲットを使うときの処理
-struct AttachementDesc
-{
-	Resource::ID resource;
-	LoadOp load;
-	StoreOp store;
-};
-
-struct PassDesc
-{
-	std::string name;
-
-	UINT rootSigID;
-	UINT psoID;
-
-	std::vector<Resource::ID> readResource;		// 入力(SRV,Mesh,Vertex)
-	std::vector<Resource::ID> writeResource;	// 出力(RTV,UAV)
-
-	RenderQueueType queueType;
-
-	bool isCulled = false;		// 依存関係的に不要ならスキップ
-	bool isAsync = false;		// 将来用
-
-	std::vector<AttachementDesc> colorAttachements;
-	std::optional<AttachementDesc> depthAttachement;
-};
-
-class RenderPass
-{
-public:
-
-	virtual ~RenderPass() = default;
-	const PassDesc& GetDesc() const
-	{
-		return m_passDesc;
-	}
-
-	virtual void Excute(RenderContext* a_ctx) = 0;
-
-protected:
-	PassDesc m_passDesc;
+	ResourceUsage usage;
 };
 
 class RenderGraph
 {
 public:
 
-	void Compile();		// Pass追加後
-	void Excute();		// パスを順次実行
+	
+	void Init();							// 初回
+
+	void Compile();							// Pass追加後
+	void Excute(RenderContext* a_pCtx);		// パスを順次実行
+
+	Resource::ID CreateResource(const ResourceDesc& a_desc);
+	Resource::ID GetID(const std::string& a_key);
 
 
 private:
@@ -87,4 +39,6 @@ private:
 
 	// 実態は持たないが、どのリソース、いつ作られた、いつ破棄予定を計算するためのもの
 	std::unordered_map<Resource::ID, ResourceDesc> m_resource;
+
+	SlotStorage<ResourceDesc> m_resourceStorage;
 };

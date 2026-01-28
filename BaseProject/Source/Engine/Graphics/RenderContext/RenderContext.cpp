@@ -331,34 +331,16 @@ void RenderContext::Excute()
 
 	Sort();
 
-	UINT _currentRoot = UINT_MAX;
-	UINT _currentPSO = UINT_MAX;
-	Mesh* _pMesh = nullptr;
+	m_currentRootSigID = Resource::Limits::MAX_STORAGE;
+	m_currentPSOID = Resource::Limits::MAX_STORAGE;
+	m_pCurrentMaterial = nullptr;
+	m_pCurrentMesh = nullptr;
 
 	for (auto& _cmd : m_commandVec)
 	{
-		// ルートシグネチャセット
-		if (_cmd.rootSigID != _currentRoot)
-		{
-			_cmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(_cmd.rootSigID));
-			_currentRoot = _cmd.rootSigID;
-		}
+		SetRootSig(_cmd.rootSigID);
 
-		// パイプラインステートセット
-		if (_cmd.psoID != _currentPSO)
-		{
-			_cmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(_cmd.psoID));
-			_currentPSO = _cmd.psoID;
-		}
-
-		// 描画
-		if (_cmd.pMesh != _pMesh)
-		{
-			_cmdList->IASetVertexBuffers(0,1,&_cmd.pMesh->GetVertexBuffer().View());
-			_cmdList->IASetIndexBuffer(&_cmd.pMesh->GetIndexBuffer().View());
-			_pMesh = _cmd.pMesh;
-		}
-		auto _model = GraphicResourceManager::Instance().NGetModelResource(_cmd.modelID);
+		SetGraphicPSO(_cmd.psoID);
 
 		BindCB()->BindAndAttachDataRootCBV<CBObject>(
 			_cmdList,
@@ -366,21 +348,11 @@ void RenderContext::Excute()
 			m_cb1_object
 		);
 
-		// ノードのワールド行列を計算
-		auto& _dataNodes = _model->originalNodes;
-		DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_cmd.nodeIndex].worldTransform);
-		DirectX::XMMATRIX _wM = DirectX::XMLoadFloat4x4(&_cmd.worldMat);
-		DirectX::XMMATRIX _worldMat = _nodeTransMat * _wM;
+		BindMaterial(_cmd.pMaterial,_cmd.colorScale,_cmd.emissiveScale);
 
-		// メッシュ変換行列の転送
-		DirectX::XMStoreFloat4x4(&m_cb2_MeshTrans.worldMat, _worldMat);
-		BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
-			_cmdList,
-			2,
-			m_cb2_MeshTrans
-		);
+		BindMesh(_cmd.pMesh,_cmd.worldMat);
 
-		DrawPrimitive(_cmd);
+		Draw(_cmd.pMesh,_cmd.subIdx);
 	}
 }
 
@@ -409,53 +381,6 @@ void RenderContext::Sort()
 	);
 }
 
-void RenderContext::DrawPrimitive(const RenderCommand& a_cmd)
-{
-	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-	auto _model = GraphicResourceManager::Instance().NGetModelResource(a_cmd.modelID);
-
-	auto* _pMesh = a_cmd.pMesh;
-	auto _subIdx = a_cmd.primitiveIndex;
-	auto& _materials = _model->materials;
-	auto& _colorScale4 = a_cmd.colorScale;
-	auto& _emissiveScale = a_cmd.emissiveScale;
-
-	// 面が一枚もない場合はスキップ
-	if (_pMesh->GetSubsets()[_subIdx].faceCount == 0) return;
-
-	// マテリアルデータの転送
-	const Material& _material = _materials[_pMesh->GetSubsets()[_subIdx].materialNumber];
-	auto _colorScale = DirectX::XMLoadFloat4(&_colorScale4);
-	auto _emiScale = DirectX::XMLoadFloat3(&_emissiveScale);
-
-	// ベースカラー
-	auto _baseColor = DirectX::XMLoadFloat4(&_material.baseColor);
-	DirectX::XMStoreFloat4(&m_cb3_Material.baseColorXYZW, DirectX::XMVectorMultiply(_baseColor, _colorScale));
-	m_cb3_Material.emissiveXYZ = { _emissiveScale.x,_emissiveScale.y,_emissiveScale.z,0 };
-	m_cb3_Material.metallicRoughnessXY = { _material.metallic ,_material.roughness,0,0 };
-
-	BindCB()->BindAndAttachDataRootCBV<CBMaterial>(
-		_cmdList,
-		3,
-		m_cb3_Material
-	);
-
-	// SRVの送信
-	//auto _handle = _material.srvHandle.handleGPU;
-	auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(_material.srvHandle);
-	_cmdList->SetGraphicsRootDescriptorTable(
-		4,
-		_handle
-	);
-
-	// 描画
-	UINT _faceCount = static_cast<UINT>(_pMesh->GetSubsets()[_subIdx].faceCount);
-	UINT _faceStart = static_cast<UINT>(_pMesh->GetSubsets()[_subIdx].faceStart);
-	_cmdList->DrawIndexedInstanced(
-		_faceCount * 3, 1, _faceStart * 3, 0, 0
-	);
-}
-
 uint64_t RenderContext::MakeSortKey(
 	uint32_t a_rootSigID,
 	uint32_t a_psoID,
@@ -474,6 +399,122 @@ uint64_t RenderContext::MakeSortKey(
 	_key |= uint64_t(a_primitiveIndex & 0xFF);			// 8bit
 
 	return _key;
+}
+
+void RenderContext::SetRootSig(const Resource::ID& a_rootSigID)
+{
+	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+
+	// ルートシグネチャセット
+	if (a_rootSigID != m_currentRootSigID)
+	{
+		_pCmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(a_rootSigID));
+		m_currentRootSigID = a_rootSigID;
+	}
+}
+
+void RenderContext::SetGraphicPSO(const Resource::ID& a_psoID)
+{
+	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+
+	// パイプラインステートセット
+	if (a_psoID != m_currentPSOID)
+	{
+		_pCmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(a_psoID));
+		m_currentPSOID = a_psoID;
+	}
+}
+
+void RenderContext::BindMaterial(
+	Material* a_pMaterial, 
+	const DirectX::XMFLOAT4& a_colorScale, 
+	const DirectX::XMFLOAT3& a_emissiveScale
+)
+{
+	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+
+	auto _colorScale = DirectX::XMLoadFloat4(&a_colorScale);
+	auto& _emissiveScale = a_emissiveScale;
+
+	// ベースカラー
+	auto _baseColor = DirectX::XMLoadFloat4(&a_pMaterial->baseColor);
+	DirectX::XMStoreFloat4(&m_cb3_Material.baseColorXYZW, DirectX::XMVectorMultiply(_baseColor, _colorScale));
+	m_cb3_Material.emissiveXYZ = { _emissiveScale.x,_emissiveScale.y,_emissiveScale.z,0 };
+	m_cb3_Material.metallicRoughnessXY = { a_pMaterial->metallic ,a_pMaterial->roughness,0,0 };
+
+	BindCB()->BindAndAttachDataRootCBV<CBMaterial>(
+		_pCmdList,
+		3,
+		m_cb3_Material
+	);
+
+	// SRVの送信
+	if(a_pMaterial != m_pCurrentMaterial)
+	{
+		auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(a_pMaterial->srvHandle);
+		_pCmdList->SetGraphicsRootDescriptorTable(
+			4,
+			_handle
+		);
+		m_pCurrentMaterial = a_pMaterial;
+	}
+}
+
+void RenderContext::BindMesh(Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
+{
+	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+
+	// メッシュ変換行列の転送
+	m_cb2_MeshTrans.worldMat = a_worldMat;
+	BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
+		_pCmdList,
+		2,
+		m_cb2_MeshTrans
+	);
+
+	if (a_pMesh != m_pCurrentMesh)
+	{
+		_pCmdList->IASetVertexBuffers(0, 1, &a_pMesh->GetVertexBuffer().View());
+		_pCmdList->IASetIndexBuffer(&a_pMesh->GetIndexBuffer().View());
+		m_pCurrentMesh = a_pMesh;
+	}
+}
+
+void RenderContext::Draw(Mesh* a_pMesh, UINT a_subIdx)
+{
+	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+
+	// 描画
+	UINT _faceCount = static_cast<UINT>(a_pMesh->GetSubsets()[a_subIdx].faceCount);
+	UINT _faceStart = static_cast<UINT>(a_pMesh->GetSubsets()[a_subIdx].faceStart);
+	_pCmdList->DrawIndexedInstanced(
+		_faceCount * 3, 1, _faceStart * 3, 0, 0
+	);
+}
+
+void RenderContext::SetRenderTarget(
+	const std::vector<AttachementDesc>& a_attachementDescVec,
+	std::optional<AttachementDesc> a_attachementDescDepth
+)
+{
+	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuVec;
+	for (auto& _desc : a_attachementDescVec)
+	{
+		_cpuVec.push_back(DescriptorHeapManager::Instance().GetRTVCPUHandle(_desc._rtvHandle));
+	}
+
+	ChangeRenderTarget(
+		_cpuVec,
+		&DescriptorHeapManager::Instance().GetRTVCPUHandle(a_attachementDescDepth->_rtvHandle)
+	);
+}
+
+void RenderContext::SetViewPort()
+{
+}
+
+void RenderContext::SetScissorRect()
+{
 }
 
 RenderContext::RenderContext()

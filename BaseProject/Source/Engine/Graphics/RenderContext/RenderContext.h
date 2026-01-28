@@ -36,18 +36,29 @@ struct RenderCommand
 	UINT rootSigID;
 	UINT psoID;
 
+	Material* pMaterial;
+	UINT subIdx;
+
 	Mesh* pMesh;				// メッシュポインタ
-	UINT primitiveIndex;		// サブセット番号
-	//UINT materialIndex;			// Primitiveからmaterialを引く
 
 	DirectX::XMFLOAT4X4 worldMat;
 	DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
 	DirectX::XMFLOAT3	emissiveScale = { 1,1,1 };
 
 	uint64_t sortKey;
+};
 
-	Resource::ID modelID;
-	int nodeIndex;
+struct DrawItem
+{
+	Material* pMaterial;
+	UINT subIdx;
+	Mesh* pMesh;
+
+	DirectX::XMFLOAT4X4 worldMat;
+	DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
+	DirectX::XMFLOAT3	emissiveScale = { 1,1,1 };
+
+	uint64_t sortKey;
 };
 
 class RenderContext
@@ -199,8 +210,6 @@ public:
 
 	void Sort();
 
-	void DrawPrimitive(const RenderCommand& a_cmd);
-
 	uint64_t MakeSortKey(
 		uint32_t a_rootSigID,
 		uint32_t a_psoID,
@@ -208,6 +217,27 @@ public:
 		uint32_t a_meshID,
 		uint32_t a_primitiveIndex
 	);
+
+	void SetRootSig(const Resource::ID& a_rootSigID);
+	void SetGraphicPSO(const Resource::ID& a_psoID);
+	void BindMaterial(
+		Material* a_pMaterial,
+		const DirectX::XMFLOAT4& a_colorScale,
+		const DirectX::XMFLOAT3& a_emissiveScale
+	);
+	void BindMesh(
+		Mesh* a_pMesh,
+		const DirectX::XMFLOAT4X4& a_worldMat
+	);
+	void Draw(Mesh* a_pMesh,UINT a_subIdx);
+
+	void SetRenderTarget(
+		const std::vector<AttachementDesc>& a_cpuHnadleVec,
+		std::optional<AttachementDesc> a_depthHandle
+	);
+
+	void SetViewPort();
+	void SetScissorRect();
 
 private:
 
@@ -235,6 +265,11 @@ private:
 	CBMeshTrans m_cb2_MeshTrans = {};
 	CBMaterial m_cb3_Material = {};
 
+
+	Resource::ID m_currentRootSigID;
+	Resource::ID m_currentPSOID;
+	Material* m_pCurrentMaterial = nullptr;
+	Mesh* m_pCurrentMesh = nullptr;
 
 // シングルトン
 private:

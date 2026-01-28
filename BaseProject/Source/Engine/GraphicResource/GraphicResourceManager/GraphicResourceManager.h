@@ -39,6 +39,7 @@ public:
 	/// <returns>生ポインタ</returns>
 	//const ModelResource* NGetModelResource(uint32_t a_modelID);
 	const Model* NGetModelResource(uint32_t a_modelID);
+	Model* NGetModel(uint32_t a_modelID);
 
 private:
 

@@ -403,9 +403,6 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\StandardPass\SimplePass">
       <UniqueIdentifier>{20085510-6449-476f-b1cc-bcd3f0fc4f87}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffectPass">
-      <UniqueIdentifier>{5e075f56-173b-495c-8c30-bb27a3467aa5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\ShadowPass">
       <UniqueIdentifier>{e67f9a55-caee-42a6-b3a7-065d96ba329c}</UniqueIdentifier>
     </Filter>
@@ -420,6 +417,15 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderGraph">
       <UniqueIdentifier>{faeedf32-9637-470c-bae5-f88b29fa74e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\DrawPass">
+      <UniqueIdentifier>{758c8f4c-1a44-4288-a2b0-b2802f3ddedc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass">
+      <UniqueIdentifier>{19957bbc-1bc6-4c2e-95ab-9f51720a7c37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass">
+      <UniqueIdentifier>{66c513fc-8cbc-463d-9d77-c33e24606ba1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -662,6 +668,21 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp">
       <Filter>Source\Engine\Graphics\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RenderPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\DrawPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass\ForwardLightingPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass\MonotonePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1015,6 +1036,24 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h">
       <Filter>Source\Engine\Graphics\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RenderPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h">
+      <Filter>Source\Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\DrawPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass\ForwardLightingPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass\MonotonePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

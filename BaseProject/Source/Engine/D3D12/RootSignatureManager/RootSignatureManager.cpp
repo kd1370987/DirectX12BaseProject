@@ -27,3 +27,8 @@ ID3D12RootSignature* RootSignatureManager::NGet(Resource::ID a_id)
 {
 	return m_rootStorage.Ref(a_id)->Get();
 }
+
+Resource::ID RootSignatureManager::GetID(const std::string& a_key)
+{
+	return m_rootStorage.GetID(a_key);
+}

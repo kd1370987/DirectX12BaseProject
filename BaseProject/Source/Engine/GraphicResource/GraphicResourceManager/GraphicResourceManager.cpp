@@ -48,6 +48,11 @@ const Model* GraphicResourceManager::NGetModelResource(uint32_t a_modelID)
 	return m_modelStorage.Get(a_modelID);
 }
 
+Model* GraphicResourceManager::NGetModel(uint32_t a_modelID)
+{
+	return m_modelStorage.Ref(a_modelID);
+}
+
 void GraphicResourceManager::LoadTextureFromPath(Texture& a_tex, const std::string& a_path)
 {
 	if (a_path.empty())

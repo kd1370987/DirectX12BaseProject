@@ -28,6 +28,7 @@ public:
 	/// </summary>
 	/// <param name="a_id">管理ID</param>
 	ID3D12RootSignature* NGet(Resource::ID a_id);
+	Resource::ID GetID(const std::string& a_key);
 
 private:
 
