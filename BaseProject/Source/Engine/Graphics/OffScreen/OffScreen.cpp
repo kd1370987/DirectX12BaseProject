@@ -2,6 +2,9 @@
 
 #include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
+#include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
+#include "Engine/Graphics/ShaderManager/ShaderManager.h"
 
 bool OffScreen::CreatePostProcessResource(ID3D12Resource& a_backBuffer)
 {
@@ -74,85 +77,19 @@ bool OffScreen::CreateScreenVertex()
 	return true;
 }
 
-bool OffScreen::CreateScreenPipeline()
+bool OffScreen::CreateScreenPipeline(
+	ShaderManager* a_pShaderManager,
+	RootSignatureManager* a_pRootSigManager, 
+	GraphicsPSOManager* a_pPSOManager
+)
 {
-	D3D12_DESCRIPTOR_RANGE _range[1] = {};
-
-	_range[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	_range[0].BaseShaderRegister = 0;
-	_range[0].NumDescriptors = 1;
-
-	D3D12_ROOT_PARAMETER _rp[1] = {};
-
-	_rp[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	_rp[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	_rp[0].DescriptorTable.pDescriptorRanges = &_range[0];
-	_rp[0].DescriptorTable.NumDescriptorRanges = 1;
-
-	D3D12_ROOT_SIGNATURE_DESC _rsDesc = {};
-	_rsDesc.NumParameters = 1;
-	_rsDesc.pParameters = _rp;
-
-	D3D12_STATIC_SAMPLER_DESC _sampler = CD3DX12_STATIC_SAMPLER_DESC(0);
-	_sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	_sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	_sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	_rsDesc.pStaticSamplers = &_sampler;
-	_rsDesc.NumStaticSamplers = 1;
-	_rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-	ComPtr<ID3DBlob> _rsBlob;
-	ComPtr<ID3DBlob> _errBlob;
-
-	auto _hr = D3D12SerializeRootSignature(
-		&_rsDesc,
-		D3D_ROOT_SIGNATURE_VERSION_1,
-		_rsBlob.ReleaseAndGetAddressOf(),
-		_errBlob.ReleaseAndGetAddressOf()
+	// ルートシグネチャ登録
+	m_rootSigID = a_pRootSigManager->Register(
+		"QuadRendering",
+		{
+			{RootParameterType::DescriptorTable,{RangeType::SRV}}
+		}
 	);
-	if (FAILED(_hr))
-	{
-		assert(0 && "OffScreenのルートシグネチャのシリアライズに失敗");
-		return false;
-	}
-
-	_hr = RenderingEngine::Instance().GetDevice()->CreateRootSignature(
-		0,
-		_rsBlob->GetBufferPointer(),
-		_rsBlob->GetBufferSize(),
-		IID_PPV_ARGS(m_screenRootSignature.ReleaseAndGetAddressOf())
-	);
-	if (FAILED(_hr))
-	{
-		assert(0 && "OffScreenのルートしぐねちゃ生成に失敗");
-		return false;
-	}
-
-	ComPtr<ID3DBlob> _vs;
-	ComPtr<ID3DBlob> _ps;
-
-	_hr = D3DCompileFromFile(
-		L"Asset/Shader/QuadRenderingShader/QuadRenderingVS.hlsl",
-		nullptr,
-		D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"vs",
-		"vs_5_0",
-		0,
-		0,
-		_vs.ReleaseAndGetAddressOf(),
-		_errBlob.ReleaseAndGetAddressOf()
-	);
-	if (FAILED(_hr))
-	{
-		assert(0 && "頂点シェーダー読み込み失敗");
-		return false;
-	}
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC _gpsDesc = {};
-	_gpsDesc.VS = CD3DX12_SHADER_BYTECODE(_vs.Get());
-	_gpsDesc.DepthStencilState.DepthEnable = false;	
-	_gpsDesc.DepthStencilState.StencilEnable = false;
-
 	D3D12_INPUT_ELEMENT_DESC _layout[2] =
 	{
 		{"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,
@@ -160,9 +97,24 @@ bool OffScreen::CreateScreenPipeline()
 		{"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,
 		D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
 	};
+	D3D12_INPUT_LAYOUT_DESC _desc = {
+		.pInputElementDescs = _layout,
+		.NumElements = 2
+	};
+	
 
-	_gpsDesc.InputLayout.NumElements = std::size(_layout);
-	_gpsDesc.InputLayout.pInputElementDescs = _layout;
+	m_vsID = a_pShaderManager->Register(
+		{ "x64/Debug/QuadRenderingVS.cso",ShaderStage::Vertex,&_desc }
+	);
+	m_psID = a_pShaderManager->Register(
+		{ "x64/Debug/QuadRenderingPS.cso",ShaderStage::Pixel }
+	);
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC _gpsDesc = {};
+	_gpsDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	_gpsDesc.DepthStencilState.DepthEnable = false;
+	_gpsDesc.DepthStencilState.StencilEnable = false;
+	_gpsDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 	_gpsDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	_gpsDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	_gpsDesc.NumRenderTargets = 1;
@@ -172,34 +124,12 @@ bool OffScreen::CreateScreenPipeline()
 	_gpsDesc.SampleDesc.Count = 1;
 	_gpsDesc.SampleDesc.Quality = 0;
 	_gpsDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-	_gpsDesc.pRootSignature = m_screenRootSignature.Get();
+	_gpsDesc.pRootSignature = a_pRootSigManager->NGet(m_rootSigID);
+	_gpsDesc.VS = a_pShaderManager->NGet(m_vsID)->byteCode;
+	_gpsDesc.InputLayout = a_pShaderManager->NGet(m_vsID)->vsInputLayout;
+	_gpsDesc.PS = a_pShaderManager->NGet(m_psID)->byteCode;
 
-	_hr = D3DCompileFromFile(
-		L"Asset/Shader/QuadRenderingShader/QuadRenderingPS.hlsl",
-		nullptr,
-		D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"ps",
-		"ps_5_0",
-		0,
-		0,
-		_ps.ReleaseAndGetAddressOf(),
-		_errBlob.ReleaseAndGetAddressOf()
-	);
-	if (FAILED(_hr))
-	{
-		assert(0 && "ピクセルシェーダーの読み込み失敗");
-		return false;
-	}
-
-	_gpsDesc.PS = CD3DX12_SHADER_BYTECODE(_ps.Get());
-	_hr = RenderingEngine::Instance().GetDevice()->CreateGraphicsPipelineState(
-		&_gpsDesc,IID_PPV_ARGS(m_screenPipelineDefault.ReleaseAndGetAddressOf())
-	);
-	if (FAILED(_hr))
-	{
-		assert(0 && "オフスクリーンのパイプラインステート生成失敗");
-		return false;
-	}
+	m_graphicPSOID = a_pPSOManager->Register("QuadRenderingPipeline",_gpsDesc);
 
 	return true;
 }

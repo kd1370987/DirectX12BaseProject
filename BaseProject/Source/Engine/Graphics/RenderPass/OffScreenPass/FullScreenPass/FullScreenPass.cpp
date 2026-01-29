@@ -1,21 +1,16 @@
-﻿#include "ForwardLightingPass.h"
+﻿#include "FullScreenPass.h"
 
 #include "Engine/Graphics/ShaderManager/ShaderManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 
-void ForwardLightingPass::Excute(RenderContext* a_pCtx)
+void FullScreenPass::Excute(RenderContext* a_pCtx)
 {
-	Begin(a_pCtx);
 
-	DrawQueue(a_pCtx,RenderQueueType::Opaque);
-	DrawQueue(a_pCtx,RenderQueueType::Transparent);
-
-	End(a_pCtx);
 }
 
-void ForwardLightingPass::CreatePass()
+void FullScreenPass::CreatePass()
 {
 	Resource::ID _vsID = m_pShaderMana->Register({ "x64/Debug/SimpleVS.cso", ShaderStage::Vertex });
 	Resource::ID _psID = m_pShaderMana->Register({ "x64/Debug/SimplePS.cso", ShaderStage::Pixel });
@@ -52,7 +47,7 @@ void ForwardLightingPass::CreatePass()
 	m_passDesc.readResource.push_back(
 		m_pRenderGraph->GetID("Depth")
 	);
-	
+
 	// 出力先
 	m_passDesc.writeResource.push_back(
 		m_pRenderGraph->GetID("OffScreenColor")

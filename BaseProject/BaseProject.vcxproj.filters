@@ -19,9 +19,6 @@
     <Filter Include="Asset\Shader">
       <UniqueIdentifier>{9ed406b3-4512-43a6-8dde-13bdaa5d9236}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\SimpleShader">
-      <UniqueIdentifier>{601b6799-5a8b-45ca-a3de-c1673ffe451e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Core">
       <UniqueIdentifier>{911a77bf-e785-42a9-86b4-58f0a388a354}</UniqueIdentifier>
     </Filter>
@@ -156,9 +153,6 @@
     </Filter>
     <Filter Include="Source\Engine\Collision\Query">
       <UniqueIdentifier>{0f15cf9c-3377-4017-b212-d1815ff6f5df}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\PBRShader">
-      <UniqueIdentifier>{34049356-8dec-48f2-bdb7-a6fd4c039475}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate">
       <UniqueIdentifier>{92e1804e-1dd1-4801-b8ae-22c3f2e892a5}</UniqueIdentifier>
@@ -385,9 +379,6 @@
     <Filter Include="Source\Engine\Graphics\OffScreen">
       <UniqueIdentifier>{67a2c939-4c6f-4ffb-b438-6d37e0523579}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\QuadRenderingShader">
-      <UniqueIdentifier>{0ac1b532-8bea-4078-9496-475760880b2e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass">
       <UniqueIdentifier>{b7ca8a92-62ab-4fcb-9e26-4f375a5877c6}</UniqueIdentifier>
     </Filter>
@@ -426,6 +417,24 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass">
       <UniqueIdentifier>{66c513fc-8cbc-463d-9d77-c33e24606ba1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass">
+      <UniqueIdentifier>{18af906d-ad2c-4e28-be52-f197d50aa8b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source">
+      <UniqueIdentifier>{cc9dc5a7-2f85-4209-bb7a-ac97ab6da640}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\SimpleShader">
+      <UniqueIdentifier>{59a0f0d6-e32e-46cd-b7dd-436c3311869b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\QuadRenderingShader">
+      <UniqueIdentifier>{3374d3dd-87ac-4f6b-aa65-e30fdc0fde34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\PBRShader">
+      <UniqueIdentifier>{0d5ba27d-b357-4c0f-bf06-c2254a9d0dd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compiled">
+      <UniqueIdentifier>{b82a5c0a-b5a7-4fd6-b9d8-4d1b238c5707}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -683,6 +692,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass\MonotonePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass\FullScreenPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1055,35 +1067,12 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass\MonotonePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass\FullScreenPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Asset\Shader\SimpleShader\SimplePS.hlsl">
-      <Filter>Asset\Shader\SimpleShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\SimpleShader\SimpleVS.hlsl">
-      <Filter>Asset\Shader\SimpleShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\PBRShader\PBR_VS.hlsl">
-      <Filter>Asset\Shader\PBRShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\PBRShader\PBR_PS.hlsl">
-      <Filter>Asset\Shader\PBRShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\QuadRenderingShader\QuadRenderingVS.hlsl">
-      <Filter>Asset\Shader\QuadRenderingShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\QuadRenderingShader\QuadRenderingPS.hlsl">
-      <Filter>Asset\Shader\QuadRenderingShader</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Asset\Shader\SimpleShader\SimpleShader.hlsli">
-      <Filter>Asset\Shader\SimpleShader</Filter>
-    </None>
     <None Include="packages.config" />
-    <None Include="Asset\Shader\PBRShader\PBRShader.hlsli">
-      <Filter>Asset\Shader\PBRShader</Filter>
-    </None>
     <None Include="..\Library\imgui-docking\.editorconfig">
       <Filter>Library\imgui-docking</Filter>
     </None>
@@ -1093,8 +1082,28 @@
     <None Include="..\Library\imgui-docking\.gitignore">
       <Filter>Library\imgui-docking</Filter>
     </None>
-    <None Include="Asset\Shader\QuadRenderingShader\QuadRenderingShader.hlsli">
-      <Filter>Asset\Shader\QuadRenderingShader</Filter>
+    <None Include="Asset\Shader\Soruce\SimpleShader\SimpleShader.hlsli">
+      <Filter>Asset\Shader\Source\SimpleShader</Filter>
     </None>
+    <None Include="Asset\Shader\Soruce\QuadRenderingShader\QuadRenderingShader.hlsli">
+      <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
+    </None>
+    <None Include="Asset\Shader\Compiled\HLSLCompile.bat">
+      <Filter>Asset\Shader\Compiled</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Asset\Shader\Soruce\SimpleShader\SimplePS.hlsl">
+      <Filter>Asset\Shader\Source\SimpleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Soruce\SimpleShader\SimpleVS.hlsl">
+      <Filter>Asset\Shader\Source\SimpleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Soruce\QuadRenderingShader\QuadRenderingPS.hlsl">
+      <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Soruce\QuadRenderingShader\QuadRenderingVS.hlsl">
+      <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

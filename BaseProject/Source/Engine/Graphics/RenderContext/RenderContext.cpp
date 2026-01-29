@@ -74,7 +74,11 @@ void RenderContext::Init()
 	m_upOffScreen = std::make_unique<OffScreen>();
 	m_upOffScreen->CreatePostProcessResource(*RenderingEngine::Instance().GetCurrentRenderTarget());
 	m_upOffScreen->CreateScreenVertex();
-	m_upOffScreen->CreateScreenPipeline();
+	m_upOffScreen->CreateScreenPipeline(
+		m_spShaderManger.get(),
+		m_spRootSigManager.get(),
+		m_spGraphicsPSOManager.get()
+	);
 
 	
 	auto _spPass = std::make_shared<SimplePass>();
@@ -233,8 +237,10 @@ void RenderContext::EndOffScreen()
 	RenderingEngine::Instance().SetBackBuffer();
 
 	// クワッドレンダリング用のルートシグネチャとパイプラインに変更
-	_cmdList->SetPipelineState(m_upOffScreen->m_screenPipelineDefault.Get());
-	_cmdList->SetGraphicsRootSignature(m_upOffScreen->m_screenRootSignature.Get());
+	//_cmdList->SetPipelineState(m_upOffScreen->m_screenPipelineDefault.Get());
+	_cmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(m_upOffScreen->m_graphicPSOID));
+	//_cmdList->SetGraphicsRootSignature(m_upOffScreen->m_screenRootSignature.Get());
+	_cmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(m_upOffScreen->m_rootSigID));
 
 	// ディスクリプタヒープをセット
 	ID3D12DescriptorHeap* _heaps[] = {
@@ -503,9 +509,11 @@ void RenderContext::SetRenderTarget(
 		_cpuVec.push_back(DescriptorHeapManager::Instance().GetRTVCPUHandle(_desc._rtvHandle));
 	}
 
+	auto _depth = DescriptorHeapManager::Instance().GetRTVCPUHandle(a_attachementDescDepth->_rtvHandle);
+
 	ChangeRenderTarget(
 		_cpuVec,
-		&DescriptorHeapManager::Instance().GetRTVCPUHandle(a_attachementDescDepth->_rtvHandle)
+		&_depth
 	);
 }
 

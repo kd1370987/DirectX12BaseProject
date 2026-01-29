@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+class ShaderManager;
+class RootSignatureManager;
+class GraphicsPSOManager;
+
 class OffScreen
 {
 public:
@@ -8,7 +12,11 @@ public:
 
 	bool CreateScreenVertex();
 
-	bool CreateScreenPipeline();
+	bool CreateScreenPipeline(
+		ShaderManager* a_pShaderManager,
+		RootSignatureManager* a_pRootSigManager,
+		GraphicsPSOManager* a_pPSOManager
+	);
 
 	void SetRenderTarget(
 		ID3D12GraphicsCommandList* a_pCmdList,
@@ -34,5 +42,11 @@ public:
 	// レンダーターゲット
 	RenderTarget m_offScreenRT;
 	RTVHandle m_rtvHandle;			// RTV
-	Storage::Range m_srvRange;			// SRV
+	Storage::Range m_srvRange;		// SRV
+
+	Resource::ID m_rootSigID = 0;
+	Resource::ID m_vsID = 0;
+	Resource::ID m_psID = 0;
+	Resource::ID m_graphicPSOID = 0;
+	
 };

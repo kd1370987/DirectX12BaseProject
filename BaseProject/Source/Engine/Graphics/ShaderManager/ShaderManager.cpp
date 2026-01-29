@@ -14,7 +14,10 @@ Resource::ID ShaderManager::Register(const ShaderItem& a_dst)
 	std::shared_ptr<Shader> _spShader = std::make_shared<Shader>();
 
 	// シェーダーの読み込み
-	auto _hr = D3DReadFileToBlob(_wstr.c_str(), _spShader->blob.GetAddressOf());
+	auto _hr = D3DReadFileToBlob(
+		_wstr.c_str(), 
+		_spShader->blob.GetAddressOf()
+	);
 	if (FAILED(_hr))
 	{
 		assert(0 && "シェーダーの読み込みに失敗");
@@ -49,6 +52,11 @@ Resource::ID ShaderManager::Register(const ShaderItem& a_dst)
 			_spShader->vsInputElemnetVec = {};
 			_spShader->vsInputLayout = {};
 		}
+	}
+	else
+	{
+		_spShader->vsInputLayout.pInputElementDescs = a_dst.pInputDesc->pInputElementDescs;
+		_spShader->vsInputLayout.NumElements = a_dst.pInputDesc->NumElements;
 	}
 	
 	// シェーダーを登録
