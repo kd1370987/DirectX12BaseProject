@@ -117,8 +117,8 @@ void SimplePass::CreatePass()
 {
 	// シェーダー登録
 	m_shaderIDVec.clear();
-	m_shaderIDVec.push_back(m_pShaderManager->Register({ "x64/Debug/SimpleVS.cso", ShaderStage::Vertex }));
-	m_shaderIDVec.push_back(m_pShaderManager->Register({ "x64/Debug/SimplePS.cso", ShaderStage::Pixel }));
+	m_shaderIDVec.push_back(m_pShaderManager->Register({ "Asset/Shader/Compiled/SimpleShader/SimpleVS.cso", ShaderStage::Vertex }));
+	m_shaderIDVec.push_back(m_pShaderManager->Register({ "Asset/Shader/Compiled/SimpleShader/SimplePS.cso", ShaderStage::Pixel }));
 
 	// ルートシグネチャ登録
 	m_rootSigID = m_pRootSignatureManager->Register(
