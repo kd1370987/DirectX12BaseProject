@@ -17,9 +17,7 @@ void ForwardLightingPass::Excute(RenderContext* a_pCtx)
 
 void ForwardLightingPass::CreatePass()
 {
-//	Resource::ID _vsID = m_pShaderMana->Register({ "x64/Debug/SimpleVS.cso", ShaderStage::Vertex });
 	Resource::ID _vsID = m_pShaderMana->Register({ "Asset/Shader/Compiled/SimpleShader/SimpleVS.cso", ShaderStage::Vertex });
-//	Resource::ID _psID = m_pShaderMana->Register({ "x64/Debug/SimplePS.cso", ShaderStage::Pixel });
 	Resource::ID _psID = m_pShaderMana->Register({ "Asset/Shader/Compiled/SimpleShader/SimplePS.cso", ShaderStage::Pixel });
 
 	Resource::ID _rootSigID = m_pRootSigMana->GetID("BaseRootSig");
@@ -57,7 +55,7 @@ void ForwardLightingPass::CreatePass()
 	
 	// 出力先
 	m_passDesc.writeResource.push_back(
-		m_pRenderGraph->GetID("OffScreenColor")
+		m_pRenderGraph->GetID("MainColor")
 	);
 
 	m_passDesc.queueType = RenderQueueType::Opaque;

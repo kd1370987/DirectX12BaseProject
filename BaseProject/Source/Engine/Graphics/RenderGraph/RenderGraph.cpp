@@ -1,8 +1,39 @@
 ﻿#include "RenderGraph.h"
 
-void RenderGraph::Init()
-{
+#include "../RenderPass/DrawPass/ForwardLightingPass/ForwardLightingPass.h"
 
+void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRootSigMana, GraphicsPSOManager* a_pPSOMana)
+{
+	m_resourceStorage.Init(20);
+
+	// リソース作成
+	CreateResource({
+		.name = "BuckBuffer",
+		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.usage = ResourceUsage::ShaderRead
+	});
+	CreateResource({
+		.name = "Depth",
+		.format = DXGI_FORMAT_R32_FLOAT,
+		.usage = ResourceUsage::ShaderRead
+	});
+	CreateResource({
+		.name = "MainColor",
+		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.usage = ResourceUsage::ShaderRead
+	});
+	CreateResource({
+		.name = "QuadTexture",
+		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.usage = ResourceUsage::ShaderRead
+	});
+
+	RegisterPass<ForwardLightingPass>();
+
+	for (auto _sp : m_spPassVec)
+	{
+		_sp->Init(this,a_pShaderMana,a_pRootSigMana,a_pPSOMana);
+	}
 }
 
 void RenderGraph::Compile()

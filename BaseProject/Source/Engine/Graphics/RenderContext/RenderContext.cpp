@@ -28,6 +28,8 @@
 
 // スタンダードパス
 #include "Engine/Graphics/RenderPass/StandardPass/SimplePass/SimplePass.h"
+
+#include "../RenderGraph/RenderGraph.h"
 //============================================================================================
 //
 // 初期化
@@ -91,6 +93,14 @@ void RenderContext::Init()
 			m_spGraphicsPSOManager.get()
 		);
 	}
+
+	m_upRenderGraph = std::make_unique<RenderGraph>();
+	m_upRenderGraph->Init(
+		m_spShaderManger.get(),
+		m_spRootSigManager.get(),
+		m_spGraphicsPSOManager.get()
+
+	);
 
 
 	// cb1
@@ -320,6 +330,26 @@ void RenderContext::ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle)
 	RenderingEngine::Instance().ClearDepthStencilView(a_depthHandle);
 }
 
+void RenderContext::AddItem(const RenderQueueType& a_type, const DrawItem& a_item)
+{
+	m_drawItemMap[a_type].push_back(a_item);
+}
+
+const std::vector<DrawItem>& RenderContext::GetItemVec(const RenderQueueType& a_type) const
+{
+	auto _it = m_drawItemMap.find(a_type);
+	if (_it != m_drawItemMap.end())
+	{
+		return _it->second;
+	}
+	return std::vector<DrawItem>{};
+}
+
+void RenderContext::ResetItem()
+{
+	m_drawItemMap.clear();
+}
+
 void RenderContext::AddCommand(const RenderCommand& a_cmd)
 {
 	m_commandVec.push_back(a_cmd);
@@ -344,7 +374,7 @@ void RenderContext::Excute()
 
 	for (auto& _cmd : m_commandVec)
 	{
-		SetRootSig(_cmd.rootSigID);
+		/*SetRootSig(_cmd.rootSigID);
 
 		SetGraphicPSO(_cmd.psoID);
 
@@ -358,7 +388,9 @@ void RenderContext::Excute()
 
 		BindMesh(_cmd.pMesh,_cmd.worldMat);
 
-		Draw(_cmd.pMesh,_cmd.subIdx);
+		Draw(_cmd.pMesh,_cmd.subIdx);*/
+
+		m_upRenderGraph->Excute(this);
 	}
 }
 
@@ -429,6 +461,22 @@ void RenderContext::SetGraphicPSO(const Resource::ID& a_psoID)
 		_pCmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(a_psoID));
 		m_currentPSOID = a_psoID;
 	}
+}
+
+void RenderContext::BineObuje(const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)
+{
+	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+
+	m_cb1_object.uvOffsetTiling.x = a_uv.x;
+	m_cb1_object.uvOffsetTiling.y = a_uv.y;
+	m_cb1_object.uvOffsetTiling.z = a_tile.x;
+	m_cb1_object.uvOffsetTiling.w = a_tile.y;
+
+	BindCB()->BindAndAttachDataRootCBV<CBObject>(
+		_pCmdList,
+		1,
+		m_cb1_object
+	);
 }
 
 void RenderContext::BindMaterial(
@@ -503,6 +551,15 @@ void RenderContext::SetRenderTarget(
 	std::optional<AttachementDesc> a_attachementDescDepth
 )
 {
+	if (a_attachementDescDepth.has_value())
+	{
+		return;
+	}
+	if (a_attachementDescVec.empty())
+	{
+		return;
+	}
+
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuVec;
 	for (auto& _desc : a_attachementDescVec)
 	{
@@ -510,6 +567,8 @@ void RenderContext::SetRenderTarget(
 	}
 
 	auto _depth = DescriptorHeapManager::Instance().GetRTVCPUHandle(a_attachementDescDepth->_rtvHandle);
+
+	if (_cpuVec.empty()) return;
 
 	ChangeRenderTarget(
 		_cpuVec,

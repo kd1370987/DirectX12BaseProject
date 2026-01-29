@@ -4,11 +4,11 @@
 
 void DrawPass::DrawQueue(RenderContext* a_pCtx, RenderQueueType a_type)
 {
-	/*auto _draws = a_pCtx->GetDraw(a_type);
-	for (auto& _draw : _draws)
+	auto _draws = a_pCtx->GetItemVec(a_type);
+	for (auto& _item : _draws)
 	{
-		a_pCtx->BindMaterial(_draw.pMaterial,_draw.colorScale,_draw.emissiveScale);
-		a_pCtx->BindMesh(_draw.pMesh);
-		a_pCtx->DrawPrimitive(_draw);
-	}*/
+		a_pCtx->BindMaterial(_item.pMaterial,_item.colorScale,_item.emissiveScale);
+		a_pCtx->BindMesh(_item.pMesh,_item.worldMat);
+		a_pCtx->Draw(_item.pMesh,_item.subIdx);
+	}
 }

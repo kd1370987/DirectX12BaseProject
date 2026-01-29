@@ -21,6 +21,8 @@ class OffScreen;
 
 class StandardPassBase;
 
+class RenderGraph;
+
 enum class RenderPassID
 {
 	Simple,
@@ -202,6 +204,12 @@ public:
 	// 
 	//============================================================================================
 
+	void AddItem(const RenderQueueType& a_type,const DrawItem& a_item);
+
+	const std::vector<DrawItem>& GetItemVec(const RenderQueueType& a_type) const;
+
+	void ResetItem();
+
 	void AddCommand(const RenderCommand& a_cmd);
 
 	void ClearCommand();
@@ -220,6 +228,11 @@ public:
 
 	void SetRootSig(const Resource::ID& a_rootSigID);
 	void SetGraphicPSO(const Resource::ID& a_psoID);
+	void BineObuje(
+		const DirectX::XMFLOAT2& a_uv = {0.0f,0.0f},
+		const DirectX::XMFLOAT2& a_tile = {1.0f,1.0f}
+	);
+
 	void BindMaterial(
 		Material* a_pMaterial,
 		const DirectX::XMFLOAT4& a_colorScale,
@@ -270,6 +283,11 @@ private:
 	Resource::ID m_currentPSOID;
 	Material* m_pCurrentMaterial = nullptr;
 	Mesh* m_pCurrentMesh = nullptr;
+
+	// ECSからの分離
+	std::unordered_map<RenderQueueType, std::vector<DrawItem>> m_drawItemMap;
+
+	std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;
 
 // シングルトン
 private:

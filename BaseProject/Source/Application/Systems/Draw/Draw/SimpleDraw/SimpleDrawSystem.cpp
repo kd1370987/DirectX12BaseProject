@@ -24,6 +24,12 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 				WorldMatrixComponent& _worldMatComp = a_matArray[_i];
 				ModelComponent& _modelComp = a_modelArray[_i];
 
+				DrawItem _item = {};
+
+				_item.worldMat = _worldMatComp.worldMat;
+				_item.colorScale = _modelComp.colorScale;
+				_item.emissiveScale = _modelComp.emissiveScale;
+
 				RenderCommand _cmd = {};
 				_cmd.rootSigID = 1;
 				_cmd.psoID = 1;
@@ -36,15 +42,16 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 				
 				for (auto& _nodeIdx : _model->drawMeshNodeIndices)
 				{
-					_cmd.pMesh = _dataNodes[_nodeIdx].spMesh.get();
+					_item.pMesh = _dataNodes[_nodeIdx].spMesh.get();
 
-					_dataNodes[_nodeIdx].worldTransform;
+					_cmd.pMesh = _dataNodes[_nodeIdx].spMesh.get();
 
 					// ノードのワールド行列を計算
 					DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
 					DirectX::XMMATRIX _wM = DirectX::XMLoadFloat4x4(&_worldMatComp.worldMat);
 					DirectX::XMMATRIX _worldMat = _nodeTransMat * _wM;
 					DirectX::XMStoreFloat4x4(&_cmd.worldMat,_worldMat);
+					DirectX::XMStoreFloat4x4(&_item.worldMat,_worldMat);
 					for (UINT _subIdx = 0; _subIdx < _cmd.pMesh->GetSubsets().size(); ++_subIdx)
 					{
 						// 面が一枚もない場合はスキップ
@@ -52,6 +59,10 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 						_cmd.subIdx = _subIdx;
 						_cmd.pMaterial = &_model->materials[_cmd.pMesh->GetSubsets()[_subIdx].materialNumber];
 						RenderContext::Instance().AddCommand(_cmd);
+
+
+						_item.pMaterial = &_model->materials[_cmd.pMesh->GetSubsets()[_subIdx].materialNumber];
+						RenderContext::Instance().AddItem(RenderQueueType::Opaque,_item);
 					}
 				}
 				

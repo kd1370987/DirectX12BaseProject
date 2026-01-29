@@ -41,6 +41,9 @@ void BaseScene::Draw()
 	RenderContext::Instance().BeginSimpleRender();
 	RenderContext::Instance().BeginOffScreen();
 
+	RenderContext::Instance().ResetItem();
+
+
 	World::Instance().RunSystem(SystemType::PreDraw, 0.0f);
 
 	World::Instance().RunSystem(SystemType::Draw, 0.0f);

@@ -104,11 +104,9 @@ bool OffScreen::CreateScreenPipeline(
 	
 
 	m_vsID = a_pShaderManager->Register(
-		//{ "x64/Debug/QuadRenderingVS.cso",ShaderStage::Vertex,&_desc }
 		{ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingVS.cso",ShaderStage::Vertex,&_desc }
 	);
 	m_psID = a_pShaderManager->Register(
-		//{ "x64/Debug/QuadRenderingPS.cso",ShaderStage::Pixel }
 		{ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingPS.cso",ShaderStage::Pixel }
 	);
 
