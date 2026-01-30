@@ -82,6 +82,8 @@ public:
 	/// <returns>DSVヒープクラスポインタ</returns>
 	std::shared_ptr<DSVHeap> GetDescriptorDSV() const { return m_spDSVHeap; }
 
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDSV();
+
 	//==========================================================================================
 	// 
 	// RTV

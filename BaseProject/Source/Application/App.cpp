@@ -27,6 +27,11 @@
 //==================================================================================
 void Application::Excute()
 {
+	ComPtr<ID3D12Debug> debug;
+	D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
+	debug->EnableDebugLayer();
+
+
 	// アプリケーション初期化
 	if (!Init())
 	{

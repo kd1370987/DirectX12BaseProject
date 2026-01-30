@@ -39,6 +39,17 @@ inline bool HasFlag(ResourceUsage value, ResourceUsage flag)
 		static_cast<uint32_t>(flag)) != 0;
 }
 
+struct ResourceDesc
+{
+	std::string name;
+	DXGI_FORMAT format;
+
+	uint32_t widht = 1280;
+	uint32_t height = 720;
+
+	ResourceUsage usage;
+};
+
 
 struct RGResource
 {
@@ -50,17 +61,6 @@ struct RGResource
 
 	D3D12_RESOURCE_STATES currentState;
 	uint32_t lastWritePass = 0;
-};
-
-struct ResourceDesc
-{
-	std::string name;
-	DXGI_FORMAT format;
-
-	uint32_t widht = 1280;
-	uint32_t height = 960;
-
-	ResourceUsage usage;
 };
 
 struct RGBarrier

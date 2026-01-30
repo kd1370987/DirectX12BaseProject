@@ -1,8 +1,12 @@
 ﻿#include "RenderGraph.h"
 
 #include "../RenderPass/DrawPass/ForwardLightingPass/ForwardLightingPass.h"
+#include "../RenderPass/OffScreenPass/FullScreenPass/FullScreenPass.h"
 
 #include "../RenderContext/RenderContext.h"
+
+#include "../../D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRootSigMana, GraphicsPSOManager* a_pPSOMana)
 {
@@ -10,7 +14,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 
 	// リソース作成
 	CreateResource({
-		.name = "BuckBuffer",
+		.name = "BackBuffer",
 		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
 		.usage = ResourceUsage::ShaderRead
 	});
@@ -22,7 +26,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	CreateResource({
 		.name = "MainColor",
 		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
-		.usage = ResourceUsage::ShaderRead
+		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
 	});
 	CreateResource({
 		.name = "QuadTexture",
@@ -30,6 +34,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 		.usage = ResourceUsage::ShaderRead
 	});
 
+	RegisterPass<FullScreenPass>();
 	RegisterPass<ForwardLightingPass>();
 
 	for (auto _sp : m_spPassVec)
@@ -65,6 +70,38 @@ void RenderGraph::Compile()
 		}
 	);
 
+	// リソース用作ようにリソースの使い方を収集
+	for (auto* _pass : m_sortedPassed)
+	{
+		for (auto _id : _pass->GetDesc().readResource)
+		{
+			m_rgResourceMap[_id].desc.usage |= ResourceUsage::ShaderRead;
+		}
+		for (auto _id : _pass->GetDesc().writeResource)
+		{
+			m_rgResourceMap[_id].desc.usage |= ResourceUsage::ShaderWrite;
+		}
+	}
+
+	// RGResourceの作成
+	for (auto& [_id, _res] : m_rgResourceMap)
+	{
+		RGTextureDesc _desc = {};
+		_desc.width = _res.desc.widht;
+		_desc.height = _res.desc.height;
+		_desc.format = _res.desc.format;
+		
+		_desc.allowSRV = HasFlag(_res.desc.usage,ResourceUsage::ShaderRead);
+		_desc.allowRTV = HasFlag(_res.desc.usage,ResourceUsage::RenderTarget);
+		_desc.allowUAV = HasFlag(_res.desc.usage,ResourceUsage::ShaderWrite);
+		_desc.allowDSV = HasFlag(_res.desc.usage,ResourceUsage::DepthStencil);
+
+		_res.spRGTexture = std::make_shared<RGTexture>();
+		_res.spRGTexture->Create(_desc);
+
+		_res.currentState = D3D12_RESOURCE_STATE_COMMON;
+	}
+
 	// リソース実態の作成
 	for (uint32_t _passIdx = 0; _passIdx < m_sortedPassed.size(); ++_passIdx)
 	{
@@ -75,16 +112,11 @@ void RenderGraph::Compile()
 		auto _ProcesssRes = [&](Resource::ID a_id, bool a_isWrite)
 			{
 				auto& _res = m_rgResourceMap[a_id];
-				auto _next = ToD3DState(_res.desc.usage, a_isWrite);
+				//auto _next = ToD3DState(_res.desc.usage, a_isWrite);
+				
+				D3D12_RESOURCE_STATES _next = 
+					a_isWrite ? D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE : D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-				if (!_res.spRGTexture)
-				{
-					RGTextureDesc _desc = {};
-					_desc.width = _res.desc.widht;
-					_desc.height = _res.desc.height;
-					_desc.format = _res.desc.format;
-					_res.spRGTexture->Create(_desc);
-				}
 
 				if (_res.currentState != _next)
 				{
@@ -124,13 +156,52 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 	{
 		for (auto& _barrier : _cp.barrierVec)
 		{
-			a_pCtx->Transition(
+
+			assert(_barrier.texture->GetResource() != nullptr);
+
+			/*a_pCtx->Transition(
 				_barrier.texture->GetResource(),
 				_barrier.before,
 				_barrier.after
-			);
+			);*/
 		}
 
+		// RTV
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvs;
+		for (auto& _att : _cp.pPass->GetDesc().colorAttachements)
+		{
+			auto& _tex = m_rgResourceMap[_att.id].spRGTexture;
+			assert(_tex->GetRTVHandle().ptr != 0);
+			_rtvs.push_back(_tex->GetRTVHandle());
+		}
+
+		// DSV
+		D3D12_CPU_DESCRIPTOR_HANDLE _dsv = {};
+		if (_cp.pPass->GetDesc().depthAttachement.has_value())
+		{
+			auto& _tex = m_rgResourceMap[_cp.pPass->GetDesc().depthAttachement->id].spRGTexture;
+			_dsv = DescriptorHeapManager::Instance().GetCPUDSV();
+		}
+		
+
+		// レンダーターゲットを変更
+		//	a_pCtx->ChangeRenderTarget(_rtvs,&_dsv);
+
+		// クリア
+		auto _size = _cp.pPass->GetDesc().colorAttachements.size();
+		for (size_t _i = 0; _i < _size; ++_i)
+		{
+			if (_cp.pPass->GetDesc().colorAttachements[_i].load == LoadOp::Clear)
+			{
+				a_pCtx->ClearRenderTarget(_rtvs[_i]);
+			}
+		}
+		if (_cp.pPass->GetDesc().depthAttachement && _cp.pPass->GetDesc().depthAttachement->load == LoadOp::Clear)
+		{
+			a_pCtx->ClearDepth(_dsv);
+		}
+
+		// パスの実行
 		_cp.pPass->Excute(a_pCtx);
 	}
 }

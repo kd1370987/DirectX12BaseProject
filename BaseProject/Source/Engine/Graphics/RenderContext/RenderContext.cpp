@@ -53,6 +53,12 @@ void RenderContext::Init()
 			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV}}
 		}
 	);
+	m_spRootSigManager->Register(
+		"QuadRendering",
+		{
+			{RootParameterType::DescriptorTable,{RangeType::SRV}}
+		}
+	);
 
 	// パイプラインステート用意
 	m_spGraphicsPSOManager = std::make_shared<GraphicsPSOManager>();
@@ -117,37 +123,6 @@ void RenderContext::Init()
 }
 
 //============================================================================================
-// 
-// 描画準備・終了
-//
-//============================================================================================
-void RenderContext::BeginSimpleRender()
-{
-	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-
-	RenderingEngine::Instance().ResourceBarrier(
-		m_upOffScreen->Get(),
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_RENDER_TARGET
-	);
-
-	auto _currentDsvHandle = DescriptorHeapManager::Instance().GetDescriptorDSV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();
-	auto _rtvHeapPointer = DescriptorHeapManager::Instance().GetRTVCPUHandle(m_upOffScreen->m_rtvHandle);
-	ChangeRenderTarget({ _rtvHeapPointer }, &_currentDsvHandle);
-	ClearRenderTarget({ _rtvHeapPointer });
-
-	// ルートシグネチャ・パイプラインステート・定数バッファをセット
-	_cmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(0));
-	_cmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(0));
-	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		// プリミティブトポロジー
-	
-}
-void RenderContext::EndSimpleRender()
-{
-
-}
-
-//============================================================================================
 //
 // カメラ
 //
@@ -183,7 +158,18 @@ void RenderContext::SetToShader(
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, _vMat);
 
 	// カメラ用定数バッファに転送
-	m_frameResource[_currentIdx].spCamAndObjectCBAllocater->BindAndAttachDataRootCBV<CBCamera>(
+	/*m_frameResource[_currentIdx].spCamAndObjectCBAllocater->BindAndAttachDataRootCBV<CBCamera>(
+		_cmdList,
+		0,
+		m_cb0_camera
+	);*/
+}
+
+void RenderContext::BindCameraCB()
+{
+	// カメラ用定数バッファに転送
+	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+	BindCB()->BindAndAttachDataRootCBV<CBCamera>(
 		_cmdList,
 		0,
 		m_cb0_camera
@@ -235,31 +221,31 @@ void RenderContext::BeginOffScreen()
 	ClearRenderTarget({ _rtvHeapPointer });
 }
 
-void RenderContext::EndOffScreen()
-{
-	// コマンドリストの取得
-	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-
-	// レンダーターゲットをバックバッファへ切り替える
-	RenderingEngine::Instance().SetBackBuffer();
-
-	// クワッドレンダリング用のルートシグネチャとパイプラインに変更
-	_cmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(m_upOffScreen->m_graphicPSOID));
-	_cmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(m_upOffScreen->m_rootSigID));
-
-	// ディスクリプタヒープをセット
-	ID3D12DescriptorHeap* _heaps[] = {
-			DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
-	};
-	_cmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
-
-	auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
-	_cmdList->SetGraphicsRootDescriptorTable(0, _handle);
-
-	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
-	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);
-	_cmdList->DrawInstanced(4, 1, 0, 0);
-}
+//void RenderContext::EndOffScreen()
+//{
+//	// コマンドリストの取得
+//	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+//
+//	// レンダーターゲットをバックバッファへ切り替える
+//	RenderingEngine::Instance().SetBackBuffer();
+//
+//	// クワッドレンダリング用のルートシグネチャとパイプラインに変更
+//	_cmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(m_upOffScreen->m_graphicPSOID));
+//	_cmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(m_upOffScreen->m_rootSigID));
+//
+//	// ディスクリプタヒープをセット
+//	ID3D12DescriptorHeap* _heaps[] = {
+//			DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
+//	};
+//	_cmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+//
+//	auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
+//	_cmdList->SetGraphicsRootDescriptorTable(0, _handle);
+//
+//	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
+//	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);
+//	_cmdList->DrawInstanced(4, 1, 0, 0);
+//}
 
 
 void RenderContext::ChangeRenderTarget(
@@ -283,6 +269,11 @@ void RenderContext::ClearRenderTarget(const std::vector<D3D12_CPU_DESCRIPTOR_HAN
 	{
 		RenderingEngine::Instance().ClearRenderTargetView(_handle);
 	}
+}
+
+void RenderContext::ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHnadle)
+{
+	RenderingEngine::Instance().ClearRenderTargetView(a_cpuHnadle);
 }
 
 void RenderContext::ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle)
@@ -508,6 +499,23 @@ void RenderContext::Transition(ID3D12Resource* a_pResource, D3D12_RESOURCE_STATE
 		a_before,
 		a_after
 	);
+}
+
+void RenderContext::DrawQuad()
+{
+	// コマンドリストの取得
+	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+
+	// レンダーターゲットをバックバッファへ切り替える
+	RenderingEngine::Instance().SetBackBuffer();
+
+	
+	auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
+	_cmdList->SetGraphicsRootDescriptorTable(0, _handle);
+
+	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
+	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);
+	_cmdList->DrawInstanced(4, 1, 0, 0);
 }
 
 RenderContext::RenderContext()

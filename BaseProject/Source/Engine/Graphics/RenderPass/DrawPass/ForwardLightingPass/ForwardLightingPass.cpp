@@ -49,8 +49,9 @@ void ForwardLightingPass::CreatePass()
 	m_passDesc.psoID = _psoID;
 
 	// 入力元
+	auto _depth = m_pRenderGraph->GetID("Depth");
 	m_passDesc.readResource.push_back(
-		m_pRenderGraph->GetID("Depth")
+		_depth
 	);
 	
 	// 出力先
@@ -64,5 +65,7 @@ void ForwardLightingPass::CreatePass()
 	m_passDesc.colorAttachements = {
 		{_mainColorID,LoadOp::Clear,StoreOp::Store}
 	};
-	m_passDesc.depthAttachement = {};
+	m_passDesc.depthAttachement = {
+		{_depth,LoadOp::Clear,StoreOp::DontCare}
+	};
 }

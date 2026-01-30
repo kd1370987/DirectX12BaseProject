@@ -92,6 +92,11 @@ DescriptorHandle DescriptorHeapManager::RegisterDSV(ID3D12Resource* a_resource)
 	return m_spDSVHeap->Register(a_resource);
 }
 
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetCPUDSV()
+{
+	return m_spDSVHeap->GetHeap()->GetCPUDescriptorHandleForHeapStart();
+}
+
 RTVHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource, D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc)
 {
 	return m_spRTVHeap->RegisterRTV(a_resource,a_pRtvDesc);

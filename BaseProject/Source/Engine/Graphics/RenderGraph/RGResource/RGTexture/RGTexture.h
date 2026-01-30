@@ -28,9 +28,15 @@ public:
 
 	const RGTextureDesc& GetDesc()const { return m_desc; }
 
+	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVHandle();
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle();
+
 private:
 
 	ComPtr<ID3D12Resource> m_cpResource = nullptr;
 
 	RGTextureDesc m_desc;
+
+	RTVHandle		 m_rtvHandle{};
+	Storage::Range	 m_srvHandle;
 };

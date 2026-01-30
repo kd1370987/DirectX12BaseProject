@@ -97,20 +97,13 @@ public:
 	void Init();
 
 	/// <summary>
-	/// シンプルシェーダーを使った描画開始
-	/// </summary>
-	void BeginSimpleRender();
-	/// <summary>
-	/// シンプルシェーダーを使った描画終了
-	/// </summary>
-	void EndSimpleRender();
-
-	/// <summary>
 	/// カメラの情報を定数バッファに乗せてシェーダーに転送
 	/// </summary>
 	void SetToShader(
 		const DirectX::XMFLOAT4X4& a_worldMat
 	);
+
+	void BindCameraCB();
 
 	/// <summary>
 	/// プロジェクション行列の設定
@@ -140,7 +133,6 @@ public:
 
 	void BeginOffScreen();
 
-	void EndOffScreen();
 
 	/// <summary>
 	/// レンダーターゲットの切り替え
@@ -153,6 +145,7 @@ public:
 	);
 
 	void ClearRenderTarget(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec);
+	void ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHnadle);
 
 	void ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle);
 
@@ -211,6 +204,8 @@ public:
 		D3D12_RESOURCE_STATES a_before,
 		D3D12_RESOURCE_STATES a_after
 	);
+
+	void DrawQuad();
 
 private:
 
