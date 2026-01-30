@@ -2,6 +2,8 @@
 
 #include "../RenderPass/DrawPass/ForwardLightingPass/ForwardLightingPass.h"
 
+#include "../RenderContext/RenderContext.h"
+
 void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRootSigMana, GraphicsPSOManager* a_pPSOMana)
 {
 	m_resourceStorage.Init(20);
@@ -34,17 +36,102 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	{
 		_sp->Init(this,a_pShaderMana,a_pRootSigMana,a_pPSOMana);
 	}
+
+	Compile();
 }
 
 void RenderGraph::Compile()
 {
+	m_compiledPasses.clear();
+
+	// ソート配列の作成
+	Graph::TopologicalSort(
+		m_spPassVec,
+		m_sortedPassed,
+		[&](auto& a, auto& b)
+		{
+			// 依存があるかどうか
+			for (auto& _write : b.GetDesc().writeResource)
+			{
+				for (auto& _read : a.GetDesc().readResource)
+				{
+					if (_write == _read)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	);
+
+	// リソース実態の作成
+	for (uint32_t _passIdx = 0; _passIdx < m_sortedPassed.size(); ++_passIdx)
+	{
+		auto* _pass = m_sortedPassed[_passIdx];
+		CompiledPass _cp;
+		_cp.pPass = _pass;
+
+		auto _ProcesssRes = [&](Resource::ID a_id, bool a_isWrite)
+			{
+				auto& _res = m_rgResourceMap[a_id];
+				auto _next = ToD3DState(_res.desc.usage, a_isWrite);
+
+				if (!_res.spRGTexture)
+				{
+					RGTextureDesc _desc = {};
+					_desc.width = _res.desc.widht;
+					_desc.height = _res.desc.height;
+					_desc.format = _res.desc.format;
+					_res.spRGTexture->Create(_desc);
+				}
+
+				if (_res.currentState != _next)
+				{
+					_cp.barrierVec.push_back(
+						{
+							_res.spRGTexture.get(),
+							_res.currentState,
+							_next
+						}
+					);
+					_res.currentState = _next;
+				}
+
+				if (a_isWrite)
+				{
+					_res.lastWritePass = _passIdx;
+				}
+			};
+
+		for (auto _id : _pass->GetDesc().readResource)
+		{
+			_ProcesssRes(_id,false);
+		}
+		for (auto _id : _pass->GetDesc().writeResource)
+		{
+			_ProcesssRes(_id, true);
+		}
+
+		// 実行データに入れていく
+		m_compiledPasses.push_back(_cp);
+	}
 }
 
 void RenderGraph::Excute(RenderContext* a_pCtx)
 {
-	for (auto* _excute : m_sortedPassed)
+	for (auto& _cp : m_compiledPasses)
 	{
-		_excute->Excute(a_pCtx);
+		for (auto& _barrier : _cp.barrierVec)
+		{
+			a_pCtx->Transition(
+				_barrier.texture->GetResource(),
+				_barrier.before,
+				_barrier.after
+			);
+		}
+
+		_cp.pPass->Excute(a_pCtx);
 	}
 }
 
@@ -57,7 +144,17 @@ Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)
 	}
 
 	// 登録してかえす
-	return m_resourceStorage.Add(a_desc.name,std::make_shared<ResourceDesc>(a_desc));
+	Resource::ID _id = 
+		m_resourceStorage.Add(a_desc.name, std::make_shared<ResourceDesc>(a_desc));
+
+	RGResource _rgRes{};
+	_rgRes.id = _id;
+	_rgRes.desc = a_desc;
+	_rgRes.currentState = D3D12_RESOURCE_STATE_COMMON;
+
+	m_rgResourceMap[_id] = _rgRes;
+
+	return _id;
 }
 
 Resource::ID RenderGraph::GetID(const std::string& a_key)
@@ -67,4 +164,31 @@ Resource::ID RenderGraph::GetID(const std::string& a_key)
 		return m_resourceStorage.GetID(a_key);
 	}
 	assert(0 && "登録されていないリソースです");
+}
+
+D3D12_RESOURCE_STATES RenderGraph::ToD3DState(ResourceUsage a_usage, bool a_isWrite)
+{
+	if (a_isWrite)
+	{
+		if (HasFlag(a_usage ,ResourceUsage::RenderTarget))
+			return D3D12_RESOURCE_STATE_RENDER_TARGET;
+		if (HasFlag(a_usage, ResourceUsage::DepthStencil))
+			return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+		if (HasFlag(a_usage, ResourceUsage::ShaderWrite))
+			return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	}
+	else
+	{
+		if (HasFlag(a_usage, ResourceUsage::ShaderRead))
+			return D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
+		if (HasFlag(a_usage, ResourceUsage::DepthStencil))
+			return D3D12_RESOURCE_STATE_DEPTH_READ;
+	}
+
+	return D3D12_RESOURCE_STATE_COMMON;
+}
+
+void RenderGraph::ProcessRes(Resource::ID a_id, bool a_isWrite)
+{
+
 }

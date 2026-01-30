@@ -7,7 +7,11 @@
 
 void FullScreenPass::Excute(RenderContext* a_pCtx)
 {
+	Begin(a_pCtx);
 
+
+
+	End(a_pCtx);
 }
 
 void FullScreenPass::CreatePass()

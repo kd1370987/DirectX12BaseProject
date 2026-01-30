@@ -143,31 +143,6 @@ public:
 	void EndOffScreen();
 
 	/// <summary>
-	/// 指定した描画パスの開始
-	/// </summary>
-	/// <param name="a_pPass">指定パス</param>
-	void BeginPass(const RenderPassID& a_pPass);
-
-	/// <summary>
-	/// BeginPassと対になっている。そのパスの終了を示す
-	/// </summary>
-	void EndPass();
-
-	/// <summary>
-	/// モデル描画
-	/// </summary>
-	/// <param name="a_modelID">モデルリソースID</param>
-	/// <param name="a_worldMat">ワールド行列</param>
-	/// <param name="a_colorScale">色の調整値</param>
-	/// <param name="a_emissiveScale">エミッシブの調整値</param>
-	void DrawModelPass(
-		Resource::ID a_modelID,
-		const DirectX::XMFLOAT4X4& a_worldMat,
-		const DirectX::XMFLOAT4& a_colorScale = { 1,1,1,1 },
-		const DirectX::XMFLOAT3& a_emissiveScale = { 1,1,1 }
-	);
-
-	/// <summary>
 	/// レンダーターゲットの切り替え
 	/// </summary>
 	/// <param name="a_cpuHnadleVec">RTVハンドル配列</param>
@@ -230,6 +205,12 @@ public:
 
 	void SetViewPort();
 	void SetScissorRect();
+
+	void Transition(
+		ID3D12Resource* a_pResource,
+		D3D12_RESOURCE_STATES a_before,
+		D3D12_RESOURCE_STATES a_after
+	);
 
 private:
 

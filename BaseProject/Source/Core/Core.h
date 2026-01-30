@@ -11,3 +11,8 @@
 
 //#include "Storage/Storage.h";					 // 汎用ストレージクラス
 #include "Storage/FreeRange/FreeRange.h";		// 連続性が保証されているスロット
+
+// アルゴリズム
+
+// グラフ
+#include "Algorithm/Graph/TopologicalSort.h"

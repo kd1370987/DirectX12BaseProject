@@ -2,6 +2,8 @@
 
 #include "../RenderPass/RenderPass.h"
 
+#include "RGResource/RGTexture/RGTexture.h"
+
 enum class ResourceUsage : uint32_t
 {
 	None = 0,
@@ -11,11 +13,67 @@ enum class ResourceUsage : uint32_t
 	ShaderWrite = 1 << 3,   // UAV 用
 };
 
+inline ResourceUsage operator|(ResourceUsage a, ResourceUsage b)
+{
+	return static_cast<ResourceUsage>(
+		static_cast<uint32_t>(a) | static_cast<uint32_t>(b)
+		);
+}
+
+inline ResourceUsage operator&(ResourceUsage a, ResourceUsage b)
+{
+	return static_cast<ResourceUsage>(
+		static_cast<uint32_t>(a) & static_cast<uint32_t>(b)
+		);
+}
+
+inline ResourceUsage& operator|=(ResourceUsage& a, ResourceUsage b)
+{
+	a = a | b;
+	return a;
+}
+
+inline bool HasFlag(ResourceUsage value, ResourceUsage flag)
+{
+	return (static_cast<uint32_t>(value) &
+		static_cast<uint32_t>(flag)) != 0;
+}
+
+
+struct RGResource
+{
+	Resource::ID id;
+	ResourceDesc desc;
+
+	// コンパイル後に決まる
+	std::shared_ptr<RGTexture> spRGTexture = nullptr;
+
+	D3D12_RESOURCE_STATES currentState;
+	uint32_t lastWritePass = 0;
+};
+
 struct ResourceDesc
 {
 	std::string name;
 	DXGI_FORMAT format;
+
+	uint32_t widht = 1280;
+	uint32_t height = 960;
+
 	ResourceUsage usage;
+};
+
+struct RGBarrier
+{
+	RGTexture* texture;
+	D3D12_RESOURCE_STATES before;
+	D3D12_RESOURCE_STATES after;
+};
+
+struct CompiledPass
+{
+	RenderPass* pPass;
+	std::vector<RGBarrier> barrierVec;
 };
 
 class RenderGraph
@@ -41,17 +99,24 @@ public:
 	{
 		std::shared_ptr<RenderPass> _pass = std::make_shared<Pass>();
 		m_spPassVec.push_back(_pass);
-		m_sortedPassed.push_back(_pass.get());
 	}
 
 private:
+
+	D3D12_RESOURCE_STATES ToD3DState(ResourceUsage a_usage,bool a_isWrite);
+
+	void ProcessRes(Resource::ID a_id,bool a_isWrite);
+
+private:
+
+	// パスの保管場所
 	std::vector<std::shared_ptr<RenderPass>> m_spPassVec;
 	std::vector<RenderPass*> m_sortedPassed;			// ソート後のパス
-	std::unordered_map<Resource::ID, RenderPass*> m_resourceProducer;		// このリソースを最後に書いたパスは誰
-	std::unordered_map<RenderPass*, std::vector<RenderPass*>> m_edges;		// パスA→パスBへの依存関係
 
-	// 実態は持たないが、どのリソース、いつ作られた、いつ破棄予定を計算するためのもの
-	std::unordered_map<Resource::ID, ResourceDesc> m_resource;
-
+	// リソース仕様書のストレージ
 	SlotStorage<ResourceDesc> m_resourceStorage;
+	std::unordered_map<Resource::ID, RGResource> m_rgResourceMap;
+
+	// コンパイル後のパス
+	std::vector<CompiledPass> m_compiledPasses;
 };

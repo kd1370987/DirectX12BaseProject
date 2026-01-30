@@ -54,12 +54,15 @@ void ForwardLightingPass::CreatePass()
 	);
 	
 	// 出力先
+	auto _mainColorID = m_pRenderGraph->GetID("MainColor");
 	m_passDesc.writeResource.push_back(
-		m_pRenderGraph->GetID("MainColor")
+		_mainColorID
 	);
 
 	m_passDesc.queueType = RenderQueueType::Opaque;
 
-	m_passDesc.colorAttachements = {};
+	m_passDesc.colorAttachements = {
+		{_mainColorID,LoadOp::Clear,StoreOp::Store}
+	};
 	m_passDesc.depthAttachement = {};
 }

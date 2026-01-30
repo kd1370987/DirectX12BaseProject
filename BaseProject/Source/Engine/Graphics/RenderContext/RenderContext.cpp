@@ -26,9 +26,6 @@
 
 #include "Engine/Graphics/OffScreen/OffScreen.h"
 
-// スタンダードパス
-#include "Engine/Graphics/RenderPass/StandardPass/SimplePass/SimplePass.h"
-
 #include "../RenderGraph/RenderGraph.h"
 //============================================================================================
 //
@@ -44,6 +41,18 @@ void RenderContext::Init()
 	// ルートシグネチャ用意
 	m_spRootSigManager = std::make_shared<RootSignatureManager>();
 	m_spRootSigManager->Init(10);
+
+	m_spRootSigManager->Register(
+		"BaseRootSig",
+		{
+			{RootParameterType::RootCBV,{}},
+			{RootParameterType::RootCBV,{}},
+			{RootParameterType::RootCBV,{}},
+			{RootParameterType::RootCBV,{}},
+			{RootParameterType::DescriptorTable,
+			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV}}
+		}
+	);
 
 	// パイプラインステート用意
 	m_spGraphicsPSOManager = std::make_shared<GraphicsPSOManager>();
@@ -81,18 +90,6 @@ void RenderContext::Init()
 		m_spRootSigManager.get(),
 		m_spGraphicsPSOManager.get()
 	);
-
-	
-	auto _spPass = std::make_shared<SimplePass>();
-	m_spRenderPassMap[RenderPassID::Simple] = _spPass;
-	for (auto& [_id, _spPss] : m_spRenderPassMap)
-	{
-		_spPss->Init(
-			m_spShaderManger.get(),
-			m_spRootSigManager.get(),
-			m_spGraphicsPSOManager.get()
-		);
-	}
 
 	m_upRenderGraph = std::make_unique<RenderGraph>();
 	m_upRenderGraph->Init(
@@ -264,41 +261,6 @@ void RenderContext::EndOffScreen()
 	_cmdList->DrawInstanced(4, 1, 0, 0);
 }
 
-void RenderContext::BeginPass(const RenderPassID& a_pPass)
-{
-	auto _it = m_spRenderPassMap.find(a_pPass);
-	if (_it == m_spRenderPassMap.end())
-	{
-		return;
-	}
-	_it->second->Begin();
-	m_pCurrentStandardPass = _it->second.get();
-}
-
-void RenderContext::DrawModelPass(
-	Resource::ID a_modelID,
-	const DirectX::XMFLOAT4X4& a_worldMat,
-	const DirectX::XMFLOAT4& a_colorScale, 
-	const DirectX::XMFLOAT3& a_emissiveScale
-)
-{
-	if (!m_pCurrentStandardPass) return;
-
-	m_pCurrentStandardPass->DrawModel(
-		a_modelID,
-		a_worldMat,
-		a_colorScale,
-		a_emissiveScale
-	);
-}
-
-void RenderContext::EndPass()
-{
-	if (!m_pCurrentStandardPass) return;
-
-	m_pCurrentStandardPass->End();
-	m_pCurrentStandardPass = nullptr;
-}
 
 void RenderContext::ChangeRenderTarget(
 	const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec,
@@ -529,20 +491,6 @@ void RenderContext::SetRenderTarget(
 		return;
 	}
 
-	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuVec;
-	for (auto& _desc : a_attachementDescVec)
-	{
-		_cpuVec.push_back(DescriptorHeapManager::Instance().GetRTVCPUHandle(_desc._rtvHandle));
-	}
-
-	auto _depth = DescriptorHeapManager::Instance().GetRTVCPUHandle(a_attachementDescDepth->_rtvHandle);
-
-	if (_cpuVec.empty()) return;
-
-	ChangeRenderTarget(
-		_cpuVec,
-		&_depth
-	);
 }
 
 void RenderContext::SetViewPort()
@@ -551,6 +499,15 @@ void RenderContext::SetViewPort()
 
 void RenderContext::SetScissorRect()
 {
+}
+
+void RenderContext::Transition(ID3D12Resource* a_pResource, D3D12_RESOURCE_STATES a_before, D3D12_RESOURCE_STATES a_after)
+{
+	RenderingEngine::Instance().ResourceBarrier(
+		a_pResource,
+		a_before,
+		a_after
+	);
 }
 
 RenderContext::RenderContext()
