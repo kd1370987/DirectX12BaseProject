@@ -247,9 +247,7 @@ void RenderContext::EndOffScreen()
 	RenderingEngine::Instance().SetBackBuffer();
 
 	// クワッドレンダリング用のルートシグネチャとパイプラインに変更
-	//_cmdList->SetPipelineState(m_upOffScreen->m_screenPipelineDefault.Get());
 	_cmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(m_upOffScreen->m_graphicPSOID));
-	//_cmdList->SetGraphicsRootSignature(m_upOffScreen->m_screenRootSignature.Get());
 	_cmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(m_upOffScreen->m_rootSigID));
 
 	// ディスクリプタヒープをセット
@@ -350,16 +348,6 @@ void RenderContext::ResetItem()
 	m_drawItemMap.clear();
 }
 
-void RenderContext::AddCommand(const RenderCommand& a_cmd)
-{
-	m_commandVec.push_back(a_cmd);
-}
-
-void RenderContext::ClearCommand()
-{
-	m_commandVec.clear();
-	m_commandVec.reserve(100);
-}
 
 void RenderContext::Excute()
 {
@@ -372,31 +360,12 @@ void RenderContext::Excute()
 	m_pCurrentMaterial = nullptr;
 	m_pCurrentMesh = nullptr;
 
-	for (auto& _cmd : m_commandVec)
-	{
-		/*SetRootSig(_cmd.rootSigID);
-
-		SetGraphicPSO(_cmd.psoID);
-
-		BindCB()->BindAndAttachDataRootCBV<CBObject>(
-			_cmdList,
-			1,
-			m_cb1_object
-		);
-
-		BindMaterial(_cmd.pMaterial,_cmd.colorScale,_cmd.emissiveScale);
-
-		BindMesh(_cmd.pMesh,_cmd.worldMat);
-
-		Draw(_cmd.pMesh,_cmd.subIdx);*/
-
-		m_upRenderGraph->Excute(this);
-	}
+	m_upRenderGraph->Excute(this);
 }
 
 void RenderContext::Sort()
 {
-	auto& _src = m_commandVec;
+	/*auto& _src = m_commandVec;
 
 	for (auto& _cmd : _src)
 	{
@@ -416,7 +385,7 @@ void RenderContext::Sort()
 		{
 			return a_a.sortKey < a_b.sortKey;
 		}
-	);
+	);*/
 }
 
 uint64_t RenderContext::MakeSortKey(
@@ -463,7 +432,7 @@ void RenderContext::SetGraphicPSO(const Resource::ID& a_psoID)
 	}
 }
 
-void RenderContext::BineObuje(const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)
+void RenderContext::BindObuje(const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)
 {
 	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
 

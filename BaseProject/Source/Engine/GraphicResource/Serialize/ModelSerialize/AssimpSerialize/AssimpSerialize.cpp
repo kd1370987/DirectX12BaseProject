@@ -165,7 +165,7 @@ namespace
 			);
 
 			// 材質データ
-			_dstMaterial.baseColor = { 1.0f,1.0f,1.0f,1.0f };				// 基本色
+			//_dstMaterial.baseColor = { 1.0f,1.0f,1.0f,1.0f };				// 基本色
 			_dstMaterial.metallic = 0.0f;					// 金属製
 			_dstMaterial.roughness = 1.0f;				// 粗さ
 			_dstMaterial.emissive = { 1.0f,1.0f,1.0f };					// エミッシブ

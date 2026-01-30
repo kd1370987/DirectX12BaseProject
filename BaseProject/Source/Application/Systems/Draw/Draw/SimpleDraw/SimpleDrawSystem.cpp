@@ -25,17 +25,9 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 				ModelComponent& _modelComp = a_modelArray[_i];
 
 				DrawItem _item = {};
-
 				_item.worldMat = _worldMatComp.worldMat;
 				_item.colorScale = _modelComp.colorScale;
 				_item.emissiveScale = _modelComp.emissiveScale;
-
-				RenderCommand _cmd = {};
-				_cmd.rootSigID = 1;
-				_cmd.psoID = 1;
-				_cmd.worldMat = _worldMatComp.worldMat;
-				_cmd.colorScale = _modelComp.colorScale;
-				_cmd.emissiveScale = _modelComp.emissiveScale;
 
 				auto* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
 				auto& _dataNodes = _model->originalNodes;
@@ -44,24 +36,17 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 				{
 					_item.pMesh = _dataNodes[_nodeIdx].spMesh.get();
 
-					_cmd.pMesh = _dataNodes[_nodeIdx].spMesh.get();
-
 					// ノードのワールド行列を計算
 					DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
 					DirectX::XMMATRIX _wM = DirectX::XMLoadFloat4x4(&_worldMatComp.worldMat);
 					DirectX::XMMATRIX _worldMat = _nodeTransMat * _wM;
-					DirectX::XMStoreFloat4x4(&_cmd.worldMat,_worldMat);
 					DirectX::XMStoreFloat4x4(&_item.worldMat,_worldMat);
-					for (UINT _subIdx = 0; _subIdx < _cmd.pMesh->GetSubsets().size(); ++_subIdx)
+					for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
 					{
 						// 面が一枚もない場合はスキップ
-						if (_cmd.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
-						_cmd.subIdx = _subIdx;
-						_cmd.pMaterial = &_model->materials[_cmd.pMesh->GetSubsets()[_subIdx].materialNumber];
-						RenderContext::Instance().AddCommand(_cmd);
-
-
-						_item.pMaterial = &_model->materials[_cmd.pMesh->GetSubsets()[_subIdx].materialNumber];
+						if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
+						_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
+						_item.subIdx = _subIdx;
 						RenderContext::Instance().AddItem(RenderQueueType::Opaque,_item);
 					}
 				}

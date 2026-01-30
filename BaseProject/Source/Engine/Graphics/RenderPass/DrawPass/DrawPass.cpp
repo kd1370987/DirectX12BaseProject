@@ -7,6 +7,11 @@ void DrawPass::DrawQueue(RenderContext* a_pCtx, RenderQueueType a_type)
 	auto _draws = a_pCtx->GetItemVec(a_type);
 	for (auto& _item : _draws)
 	{
+		a_pCtx->BindObuje(
+			{0.0f,0.0f},
+			{1.0f,1.0f}
+		);
+
 		a_pCtx->BindMaterial(_item.pMaterial,_item.colorScale,_item.emissiveScale);
 		a_pCtx->BindMesh(_item.pMesh,_item.worldMat);
 		a_pCtx->Draw(_item.pMesh,_item.subIdx);

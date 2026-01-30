@@ -32,24 +32,7 @@ enum class RenderPassID
 	PostEffect
 };
 
-// １DrawCall当たりの命令
-struct RenderCommand
-{
-	UINT rootSigID;
-	UINT psoID;
-
-	Material* pMaterial;
-	UINT subIdx;
-
-	Mesh* pMesh;				// メッシュポインタ
-
-	DirectX::XMFLOAT4X4 worldMat;
-	DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
-	DirectX::XMFLOAT3	emissiveScale = { 1,1,1 };
-
-	uint64_t sortKey;
-};
-
+// １DrawCall当たりアイテム
 struct DrawItem
 {
 	Material* pMaterial;
@@ -210,10 +193,6 @@ public:
 
 	void ResetItem();
 
-	void AddCommand(const RenderCommand& a_cmd);
-
-	void ClearCommand();
-
 	void Excute();
 
 	void Sort();
@@ -228,7 +207,7 @@ public:
 
 	void SetRootSig(const Resource::ID& a_rootSigID);
 	void SetGraphicPSO(const Resource::ID& a_psoID);
-	void BineObuje(
+	void BindObuje(
 		const DirectX::XMFLOAT2& a_uv = {0.0f,0.0f},
 		const DirectX::XMFLOAT2& a_tile = {1.0f,1.0f}
 	);
@@ -272,12 +251,9 @@ private:
 	StandardPassBase* m_pCurrentStandardPass = nullptr;
 
 	// 描画コマンド
-	std::vector<RenderCommand> m_commandVec;
-
 	CBObject m_cb1_object = {};
 	CBMeshTrans m_cb2_MeshTrans = {};
 	CBMaterial m_cb3_Material = {};
-
 
 	Resource::ID m_currentRootSigID;
 	Resource::ID m_currentPSOID;
