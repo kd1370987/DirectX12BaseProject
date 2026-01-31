@@ -40,8 +40,8 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	const D3D12_CLEAR_VALUE* _pClear = nullptr;
 
 	D3D12_CLEAR_VALUE _clear{};
-	if (a_desc.clearValue.has_value() &&
-		(a_desc.allowRTV || a_desc.allowDSV))
+	if (a_desc.clearValue.has_value() && (a_desc.allowRTV || a_desc.allowDSV))
+	//if (a_desc.allowRTV || a_desc.allowDSV)
 	{
 		_clear = a_desc.clearValue.value();
 		_pClear = &_clear;
@@ -100,7 +100,13 @@ D3D12_CPU_DESCRIPTOR_HANDLE RGTexture::GetSRVHandle()
 	return DescriptorHeapManager::Instance().GetSRVCPUHandle(m_srvHandle);
 }
 
+D3D12_GPU_DESCRIPTOR_HANDLE RGTexture::GPUSRVHandle()
+{
+	return DescriptorHeapManager::Instance().GetSRVGPUHandle(m_srvHandle);
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE RGTexture::GetRTVHandle()
 {
 	return DescriptorHeapManager::Instance().GetRTVCPUHandle(m_rtvHandle);
 }
+

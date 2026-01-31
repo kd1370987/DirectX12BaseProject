@@ -67,15 +67,15 @@ void FullScreenPass::CreatePass()
 	);
 
 	// 出力先
-	/*auto _quadID = m_pRenderGraph->GetID("BackBuffer");
+	auto _quadID = m_pRenderGraph->GetID("BackBuffer");
 	m_passDesc.writeResource.push_back(
 		_quadID
-	);*/
+	);
 
 	m_passDesc.queueType = RenderQueueType::Opaque;
 
 	m_passDesc.colorAttachements = {
-		//{_quadID,LoadOp::Clear,StoreOp::Store}
+		{_quadID,LoadOp::Clear,StoreOp::Store}
 	};
 	m_passDesc.depthAttachement = {};
 }

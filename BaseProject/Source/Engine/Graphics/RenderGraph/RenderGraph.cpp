@@ -16,7 +16,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	CreateResource({
 		.name = "BackBuffer",
 		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
-		.usage = ResourceUsage::ShaderRead
+		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
 	});
 	CreateResource({
 		.name = "Depth",
@@ -113,10 +113,16 @@ void RenderGraph::Compile()
 			{
 				auto& _res = m_rgResourceMap[a_id];
 				//auto _next = ToD3DState(_res.desc.usage, a_isWrite);
-				
-				D3D12_RESOURCE_STATES _next = 
-					a_isWrite ? D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE : D3D12_RESOURCE_STATE_RENDER_TARGET;
-
+				D3D12_RESOURCE_STATES _next;
+				if (!a_isWrite)
+				{
+					//_next = D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE;
+					_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+				}
+				else
+				{
+					_next = D3D12_RESOURCE_STATE_RENDER_TARGET;
+				}
 
 				if (_res.currentState != _next)
 				{
@@ -159,11 +165,11 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 
 			assert(_barrier.texture->GetResource() != nullptr);
 
-			/*a_pCtx->Transition(
+			a_pCtx->Transition(
 				_barrier.texture->GetResource(),
 				_barrier.before,
 				_barrier.after
-			);*/
+			);
 		}
 
 		// RTV
@@ -176,16 +182,17 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 		}
 
 		// DSV
-		D3D12_CPU_DESCRIPTOR_HANDLE _dsv = {};
+		D3D12_CPU_DESCRIPTOR_HANDLE* _dsv = nullptr;
 		if (_cp.pPass->GetDesc().depthAttachement.has_value())
 		{
 			auto& _tex = m_rgResourceMap[_cp.pPass->GetDesc().depthAttachement->id].spRGTexture;
-			_dsv = DescriptorHeapManager::Instance().GetCPUDSV();
+			_dsv = new D3D12_CPU_DESCRIPTOR_HANDLE;
+			*_dsv = DescriptorHeapManager::Instance().GetCPUDSV();
 		}
 		
 
 		// レンダーターゲットを変更
-		//	a_pCtx->ChangeRenderTarget(_rtvs,&_dsv);
+		a_pCtx->ChangeRenderTarget(_rtvs,_dsv);
 
 		// クリア
 		auto _size = _cp.pPass->GetDesc().colorAttachements.size();
@@ -198,12 +205,20 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 		}
 		if (_cp.pPass->GetDesc().depthAttachement && _cp.pPass->GetDesc().depthAttachement->load == LoadOp::Clear)
 		{
-			a_pCtx->ClearDepth(_dsv);
+			if(_dsv)
+			{
+				a_pCtx->ClearDepth(*_dsv);
+			}
 		}
 
 		// パスの実行
 		_cp.pPass->Excute(a_pCtx);
+
+		if (_dsv) delete _dsv;
 	}
+	auto _id = m_resourceStorage.GetID("BackBuffer");
+	D3D12_GPU_DESCRIPTOR_HANDLE _final = m_rgResourceMap[_id].spRGTexture->GPUSRVHandle();
+	a_pCtx->DrawQuad(_final);
 }
 
 Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)

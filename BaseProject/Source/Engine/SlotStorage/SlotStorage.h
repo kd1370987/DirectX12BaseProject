@@ -188,6 +188,7 @@ inline Resource::ID SlotStorage<T>::GetID(const std::string& a_key)
 	if (_it == m_idMap.end())
 	{
 		// ないとき
+		//assert(0 && "IDが見つかりません");
 		return Resource::Limits::MAX_STORAGE;
 	}
 

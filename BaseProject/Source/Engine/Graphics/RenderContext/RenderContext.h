@@ -206,6 +206,7 @@ public:
 	);
 
 	void DrawQuad();
+	void DrawQuad(D3D12_GPU_DESCRIPTOR_HANDLE a_gpu);
 
 private:
 

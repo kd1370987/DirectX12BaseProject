@@ -29,6 +29,8 @@ public:
 	const RGTextureDesc& GetDesc()const { return m_desc; }
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVHandle();
+	D3D12_GPU_DESCRIPTOR_HANDLE GPUSRVHandle();
+
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle();
 
 private:

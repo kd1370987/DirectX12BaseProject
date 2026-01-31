@@ -38,7 +38,7 @@ void BaseScene::Update(float a_dt)
 
 void BaseScene::Draw()
 {
-	RenderContext::Instance().BeginOffScreen();
+	//RenderContext::Instance().BeginOffScreen();
 
 	RenderContext::Instance().ResetItem();
 

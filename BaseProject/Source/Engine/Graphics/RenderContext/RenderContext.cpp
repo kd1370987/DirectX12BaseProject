@@ -255,6 +255,8 @@ void RenderContext::ChangeRenderTarget(
 {
 	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
 	
+	if (a_cpuHnadleVec.empty()) return;
+
 	_pCmdList->OMSetRenderTargets(
 		std::size(a_cpuHnadleVec),
 		a_cpuHnadleVec.data(),
@@ -507,11 +509,26 @@ void RenderContext::DrawQuad()
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
 
 	// レンダーターゲットをバックバッファへ切り替える
-	RenderingEngine::Instance().SetBackBuffer();
+	//RenderingEngine::Instance().SetBackBuffer();
 
 	
-	auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
-	_cmdList->SetGraphicsRootDescriptorTable(0, _handle);
+	/*auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
+	_cmdList->SetGraphicsRootDescriptorTable(0, _handle);*/
+
+	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
+	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);
+	_cmdList->DrawInstanced(4, 1, 0, 0);
+}
+
+void RenderContext::DrawQuad(D3D12_GPU_DESCRIPTOR_HANDLE a_gpu)
+{
+	// コマンドリストの取得
+	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+
+	// レンダーターゲットをバックバッファへ切り替える
+	RenderingEngine::Instance().SetBackBuffer();
+
+	_cmdList->SetGraphicsRootDescriptorTable(0, a_gpu);
 
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
 	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);
