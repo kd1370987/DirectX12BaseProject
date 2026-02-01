@@ -263,6 +263,36 @@ void RenderContext::ChangeRenderTarget(
 		false, 
 		a_depthHandle
 	);
+
+	RenderingEngine::Instance().SetViewportAndRect();
+}
+
+void RenderContext::ChangeRenderTarget(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec, bool a_detph)
+{
+	if (a_cpuHnadleVec.empty()) return;
+
+	// コマンドリストの取得
+	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+
+	// レンダーターゲットをセット・クリア
+	auto _currentDsvHandle = DescriptorHeapManager::Instance().GetDescriptorDSV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();
+	auto _rtvHeapPointer = DescriptorHeapManager::Instance().GetRTVCPUHandle(m_upOffScreen->m_rtvHandle);
+
+	if(a_detph)
+	{
+		_pCmdList->OMSetRenderTargets(
+			std::size(a_cpuHnadleVec),
+			a_cpuHnadleVec.data(),
+			false,
+			&_currentDsvHandle
+		);
+		ClearRenderTarget(a_cpuHnadleVec[0]);
+	}
+	else
+	{
+		ChangeRenderTarget({ _rtvHeapPointer },nullptr);
+		ClearRenderTarget({ _rtvHeapPointer });
+	}
 }
 
 void RenderContext::ClearRenderTarget(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec)
@@ -275,7 +305,12 @@ void RenderContext::ClearRenderTarget(const std::vector<D3D12_CPU_DESCRIPTOR_HAN
 
 void RenderContext::ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHnadle)
 {
-	RenderingEngine::Instance().ClearRenderTargetView(a_cpuHnadle);
+	RenderingEngine::Instance().ClearRenderTargetView(
+		a_cpuHnadle,
+		{1,0,1,1},
+		0,
+		nullptr
+	);
 }
 
 void RenderContext::ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle)
@@ -308,7 +343,7 @@ void RenderContext::Excute()
 {
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
 
-	Sort();
+	//Sort();
 
 	m_currentRootSigID = Resource::Limits::MAX_STORAGE;
 	m_currentPSOID = Resource::Limits::MAX_STORAGE;
@@ -509,10 +544,10 @@ void RenderContext::DrawQuad()
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
 
 	// レンダーターゲットをバックバッファへ切り替える
-	//RenderingEngine::Instance().SetBackBuffer();
+	/*RenderingEngine::Instance().SetBackBuffer();
 
 	
-	/*auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
+	auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
 	_cmdList->SetGraphicsRootDescriptorTable(0, _handle);*/
 
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
@@ -529,6 +564,9 @@ void RenderContext::DrawQuad(D3D12_GPU_DESCRIPTOR_HANDLE a_gpu)
 	RenderingEngine::Instance().SetBackBuffer();
 
 	_cmdList->SetGraphicsRootDescriptorTable(0, a_gpu);
+
+	/*auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
+	_cmdList->SetGraphicsRootDescriptorTable(0, _handle);*/
 
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
 	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);

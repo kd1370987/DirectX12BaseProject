@@ -48,17 +48,15 @@ void ForwardLightingPass::CreatePass()
 	m_passDesc.rootSigID = _rootSigID;
 	m_passDesc.psoID = _psoID;
 
-	// 入力元
 	auto _depth = m_pRenderGraph->GetID("Depth");
-	m_passDesc.readResource.push_back(
-		_depth
-	);
+	auto _mainColorID = m_pRenderGraph->GetID("MainColor");
+
+	// 入力元
+	//m_passDesc.readResource.push_back(_depth);
+	m_passDesc.readResource.push_back(_mainColorID);
 	
 	// 出力先
-	auto _mainColorID = m_pRenderGraph->GetID("MainColor");
-	m_passDesc.writeResource.push_back(
-		_mainColorID
-	);
+	m_passDesc.writeResource.push_back(_mainColorID);
 
 	m_passDesc.queueType = RenderQueueType::Opaque;
 

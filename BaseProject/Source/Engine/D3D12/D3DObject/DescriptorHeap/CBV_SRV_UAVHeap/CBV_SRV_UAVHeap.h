@@ -87,21 +87,12 @@ public:
 	// UAV
 	// 
 	//==========================================================================================
-	DescriptorHandle RegisterUAV(ID3D12Resource* a_resource);
+	
+	UAVHandle AllocateUAV(const std::vector<UAVViewInit>& a_initVec);
 
-	/// <summary>
-	/// UAVが使える領域のハンドルを取得
-	/// </summary>
-	/// <param name="a_handle">指定インデックス</param>
-	/// <returns>CPUハンドル</returns>
-	D3D12_CPU_DESCRIPTOR_HANDLE GetUAVCPUHandle(UAVHandle a_handle);
+	D3D12_CPU_DESCRIPTOR_HANDLE GetUAVCPUHandle(const UAVHandle& a_handel);
+	D3D12_GPU_DESCRIPTOR_HANDLE GetUAVGPUHandle(const UAVHandle& a_handel);
 
-	/// <summary>
-	/// UAVが使える領域のハンドルを取得
-	/// </summary>
-	/// <param name="a_handle">指定インデックス</param>
-	/// <returns>GPUハンドル</returns>
-	D3D12_GPU_DESCRIPTOR_HANDLE GetUAVGPUHandle(UAVHandle a_handle);
 private:
 
 	UINT m_incrementSize = 0;							// 移動距離
@@ -113,4 +104,5 @@ private:
 	CBV_SRV_UAVInitInfo m_initInfo = {};		// 初期設定
 
 	FreeRange m_srvRange;
+	FreeRange m_uavRange;
 };

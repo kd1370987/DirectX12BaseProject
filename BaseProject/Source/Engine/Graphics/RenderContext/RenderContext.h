@@ -144,6 +144,11 @@ public:
 		D3D12_CPU_DESCRIPTOR_HANDLE* a_depthHandle = nullptr
 	);
 
+	void ChangeRenderTarget(
+		const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec,
+		bool a_detph
+	);
+
 	void ClearRenderTarget(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec);
 	void ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHnadle);
 

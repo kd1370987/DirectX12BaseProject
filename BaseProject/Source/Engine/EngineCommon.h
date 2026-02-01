@@ -26,31 +26,7 @@ namespace Resource
 
 #include "Engine/SlotStorage/SlotStorage.h"
 
-#include "D3D12/D3D12Common.h"
-
 constexpr UINT INVALID_INDEX = UINT_MAX;
-
-struct RTVHandle
-{
-	UINT index = INVALID_INDEX;
-};
-
-struct DSVHandle
-{
-	UINT index = INVALID_INDEX;
-};
-
-struct CBVHandle
-{
-	UINT index = INVALID_INDEX;
-};
-struct SRVHandle
-{
-	UINT index = INVALID_INDEX;
-};
-struct UAVHandle
-{
-	UINT index = INVALID_INDEX;
-};
+#include "D3D12/D3D12Common.h"
 
 #include "Graphics/GraphicCommon.h"

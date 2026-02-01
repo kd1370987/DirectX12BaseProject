@@ -179,6 +179,13 @@ void RenderingEngine::CommandQueueReset()
 	m_upCommandList->Reset(m_upCommandAllocator->Get(m_cpuFrameIndex));
 }
 
+void RenderingEngine::SetViewportAndRect()
+{
+	// ビューポートとシザー矩形を設定
+	m_upCommandList->SetViewports(1, &m_upViewport->Get());
+	m_upCommandList->SetScissorRects(1, &m_upScissorRect->Get());
+}
+
 //==================================================================================
 // 
 // ゲッター

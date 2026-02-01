@@ -1079,11 +1079,19 @@
     <None Include="Asset\Shader\Soruce\SimpleShader\SimpleShader.hlsli">
       <Filter>Asset\Shader\Source\SimpleShader</Filter>
     </None>
-    <None Include="Asset\Shader\Soruce\QuadRenderingShader\QuadRenderingShader.hlsli">
-      <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
-    </None>
     <None Include="Asset\Shader\Compiled\HLSLCompile.bat">
       <Filter>Asset\Shader\Compiled</Filter>
     </None>
+    <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli">
+      <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
+      <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingVS.hlsl">
+      <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

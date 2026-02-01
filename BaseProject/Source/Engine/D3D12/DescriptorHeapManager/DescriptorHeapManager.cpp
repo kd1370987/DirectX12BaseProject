@@ -71,6 +71,21 @@ D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetSRVGPUHandle(Storage::Rang
 	return m_spCBV_SRV_UAVHeap->GetSRVGPUHandle(a_range);
 }
 
+UAVHandle DescriptorHeapManager::AllocateUAVRange(const std::vector<UAVViewInit>& a_viewInitVec)
+{
+	return UAVHandle{};
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::UAVCPUHandle(const UAVHandle& a_handle)
+{
+	return D3D12_CPU_DESCRIPTOR_HANDLE();
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::UAVGPUHandle(const UAVHandle& a_handle)
+{
+	return D3D12_GPU_DESCRIPTOR_HANDLE();
+}
+
 ID3D12DescriptorHeap* DescriptorHeapManager::GetCBV_SRV_UAVHeap() const
 {
 	return m_spCBV_SRV_UAVHeap->GetHeap();

@@ -14,28 +14,30 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 
 	// リソース作成
 	CreateResource({
-		.name = "BackBuffer",
-		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
-		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
-	});
-	CreateResource({
 		.name = "Depth",
-		.format = DXGI_FORMAT_R32_FLOAT,
-		.usage = ResourceUsage::ShaderRead
+		.format = DXGI_FORMAT_D32_FLOAT,
+		.widht = 1280,
+		.height = 720,
+		.usage = ResourceUsage::DepthStencil
 	});
 	CreateResource({
 		.name = "MainColor",
 		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.widht = 1280,
+		.height = 720,
 		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
 	});
 	CreateResource({
 		.name = "QuadTexture",
 		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
-		.usage = ResourceUsage::ShaderRead
+		.widht = 1280,
+		.height = 720,
+		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
 	});
 
-	RegisterPass<FullScreenPass>();
+	
 	RegisterPass<ForwardLightingPass>();
+	RegisterPass<FullScreenPass>();
 
 	for (auto _sp : m_spPassVec)
 	{
@@ -116,12 +118,23 @@ void RenderGraph::Compile()
 				D3D12_RESOURCE_STATES _next;
 				if (!a_isWrite)
 				{
-					//_next = D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE;
 					_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 				}
 				else
 				{
-					_next = D3D12_RESOURCE_STATE_RENDER_TARGET;
+					if (HasFlag(_res.desc.usage, ResourceUsage::DepthStencil))
+					{
+						_next = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+					}
+					/*else if (HasFlag(_res.desc.usage, ResourceUsage::ShaderWrite))
+					{
+					// まだUAVは実装していない
+						_next = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+					}*/
+					else
+					{
+						_next = D3D12_RESOURCE_STATE_RENDER_TARGET;
+					}
 				}
 
 				if (_res.currentState != _next)
@@ -182,17 +195,18 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 		}
 
 		// DSV
-		D3D12_CPU_DESCRIPTOR_HANDLE* _dsv = nullptr;
+		D3D12_CPU_DESCRIPTOR_HANDLE _dsv = {};
+		D3D12_CPU_DESCRIPTOR_HANDLE* _pDsv = nullptr;
 		if (_cp.pPass->GetDesc().depthAttachement.has_value())
 		{
-			auto& _tex = m_rgResourceMap[_cp.pPass->GetDesc().depthAttachement->id].spRGTexture;
-			_dsv = new D3D12_CPU_DESCRIPTOR_HANDLE;
-			*_dsv = DescriptorHeapManager::Instance().GetCPUDSV();
-		}
-		
-
+			// auto& _tex = m_rgResourceMap[_cp.pPass->GetDesc().depthAttachement->id].spRGTexture;
+			// テストのため
+			_dsv = DescriptorHeapManager::Instance().GetCPUDSV();
+			_pDsv = &_dsv;
+		}		
+	
 		// レンダーターゲットを変更
-		a_pCtx->ChangeRenderTarget(_rtvs,_dsv);
+		a_pCtx->ChangeRenderTarget(_rtvs,_pDsv);
 
 		// クリア
 		auto _size = _cp.pPass->GetDesc().colorAttachements.size();
@@ -205,20 +219,21 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 		}
 		if (_cp.pPass->GetDesc().depthAttachement && _cp.pPass->GetDesc().depthAttachement->load == LoadOp::Clear)
 		{
-			if(_dsv)
+			if(_pDsv)
 			{
-				a_pCtx->ClearDepth(*_dsv);
+				a_pCtx->ClearDepth(_dsv);
 			}
 		}
 
 		// パスの実行
 		_cp.pPass->Excute(a_pCtx);
-
-		if (_dsv) delete _dsv;
 	}
-	auto _id = m_resourceStorage.GetID("BackBuffer");
-	D3D12_GPU_DESCRIPTOR_HANDLE _final = m_rgResourceMap[_id].spRGTexture->GPUSRVHandle();
-	a_pCtx->DrawQuad(_final);
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE RenderGraph::GetGPUHandle(const std::string& a_name)
+{
+	auto _id = m_resourceStorage.GetID(a_name);
+	return m_rgResourceMap[_id].spRGTexture->GPUSRVHandle();
 }
 
 Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)

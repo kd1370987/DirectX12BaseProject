@@ -89,6 +89,8 @@ public:
 	void Compile();							// Pass追加後
 	void Excute(RenderContext* a_pCtx);		// パスを順次実行
 
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(const std::string& a_name);
+
 	// リソース作成
 	Resource::ID CreateResource(const ResourceDesc& a_desc);
 	Resource::ID GetID(const std::string& a_key);

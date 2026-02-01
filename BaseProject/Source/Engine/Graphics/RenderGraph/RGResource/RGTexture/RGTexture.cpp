@@ -25,6 +25,8 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	if (a_desc.allowDSV)
 	{
 		_desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+		return false;
 	}
 	if (a_desc.allowUAV)
 	{
@@ -76,7 +78,7 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	{
 		
 	}
-	if (!a_desc.allowSRV)
+	if (a_desc.allowSRV)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv{};
 		srv.Format = a_desc.format;
@@ -92,6 +94,52 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 
 	m_desc = a_desc;
 
+	return true;
+}
+
+bool RGTexture::Create(const D3D12_RESOURCE_DESC& a_desc)
+{
+	auto _desc = a_desc;
+
+	// ヒーププロパティの作成
+	D3D12_HEAP_PROPERTIES _heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+
+	// クリアバリューの作成
+	float _clsClr[4] = { 0.0f,0.0f,0.0f,1.0f };
+	D3D12_CLEAR_VALUE _clearValue = CD3DX12_CLEAR_VALUE(DXGI_FORMAT_R8G8B8A8_UNORM, _clsClr);
+
+	HRESULT _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+		&_heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&a_desc,
+		D3D12_RESOURCE_STATE_COMMON,
+		&_clearValue,
+		IID_PPV_ARGS(&m_cpResource)
+	);
+	if (FAILED(_hr))
+	{
+		assert(0 && "RGTextureの生成に失敗");
+		return false;
+	}
+
+	
+	D3D12_RENDER_TARGET_VIEW_DESC _rtvDesc = {};
+	_rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	_rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	m_rtvHandle = DescriptorHeapManager::Instance().RegisterRTV(m_cpResource.Get(), &_rtvDesc);
+
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srv{};
+	srv.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srv.Texture2D.MipLevels = 1;
+	srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+	SRVViewInit _srvInit = {};
+	_srvInit.pDesc = &srv;
+	_srvInit.pResource = m_cpResource.Get();
+	m_srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange({ _srvInit });
+	
 	return true;
 }
 

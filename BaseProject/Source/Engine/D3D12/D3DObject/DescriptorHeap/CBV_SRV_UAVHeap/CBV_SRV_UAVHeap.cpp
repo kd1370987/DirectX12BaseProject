@@ -12,7 +12,7 @@ bool CBV_SRV_UAVHeap::Create(const CBV_SRV_UAVInitInfo& a_info)
 	}
 
 	m_srvRange.Init(a_info.maxSRVCount);
-
+	m_uavRange.Init(a_info.maxUAVCount);
 
 	// ディスクリプタヒープの仕様書作成
 	D3D12_DESCRIPTOR_HEAP_DESC _desc = {};
@@ -105,37 +105,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetSRVGPUHandle(Storage::Range a_ha
 	return _handleGPU;
 }
 
-DescriptorHandle CBV_SRV_UAVHeap::RegisterUAV(ID3D12Resource* a_resource)
-{
-	return DescriptorHandle();
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetUAVCPUHandle(UAVHandle a_handle)
-{
-	D3D12_CPU_DESCRIPTOR_HANDLE _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
-	UINT _index = (
-		static_cast<UINT>(m_initInfo.maxCBVCount) +
-		static_cast<UINT>(m_initInfo.maxSRVCount) +
-		static_cast<UINT>(m_initInfo.useImGuiSRVCount)
-	);
-	_index += a_handle.index;
-	_handleCPU.ptr += m_incrementSize * _index;
-	return _handleCPU;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetUAVGPUHandle(UAVHandle a_handle)
-{
-	D3D12_GPU_DESCRIPTOR_HANDLE _handleGPU = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
-	UINT _index = (
-		static_cast<UINT>(m_initInfo.maxCBVCount) +
-		static_cast<UINT>(m_initInfo.maxSRVCount) +
-		static_cast<UINT>(m_initInfo.useImGuiSRVCount)
-		);
-	_index += a_handle.index;
-	_handleGPU.ptr += m_incrementSize * _index;
-	return _handleGPU;
-}
-
 D3D12_CPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetImGuiCPUHandle()
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE _handleCPU = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
@@ -150,5 +119,20 @@ D3D12_GPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetImGuiGPUHandle()
 	_handleGPU.ptr += 
 		m_incrementSize * (static_cast<UINT>(m_initInfo.maxCBVCount) + static_cast<UINT>(m_initInfo.maxSRVCount));
 	return _handleGPU;
+}
+
+UAVHandle CBV_SRV_UAVHeap::AllocateUAV(const std::vector<UAVViewInit>& a_initVec)
+{
+	return UAVHandle{};
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetUAVCPUHandle(const UAVHandle& a_handel)
+{
+	return D3D12_CPU_DESCRIPTOR_HANDLE();
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE CBV_SRV_UAVHeap::GetUAVGPUHandle(const UAVHandle& a_handel)
+{
+	return D3D12_GPU_DESCRIPTOR_HANDLE();
 }
 

@@ -39,6 +39,8 @@ public:
 
 	void CommandQueueReset();
 
+	void SetViewportAndRect();
+
 	void WaitRender();										// 描画完了を待つ処理
 	void SignalRenderFence();								// フェンスにシグナルを送る処理
 

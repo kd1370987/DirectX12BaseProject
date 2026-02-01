@@ -23,6 +23,7 @@ class RGTexture
 public:
 
 	bool Create(const RGTextureDesc& a_desc);
+	bool Create(const D3D12_RESOURCE_DESC& a_desc);
 
 	ID3D12Resource* GetResource() const { return m_cpResource.Get(); }
 
