@@ -65,7 +65,7 @@ void FullScreenPass::CreatePass()
 	m_passDesc.psoID = _psoID;
 
 	// 入力元
-	//m_passDesc.readResource.push_back(m_pRenderGraph->GetID("MainColor"));
+	m_passDesc.readResource.push_back(m_pRenderGraph->GetID("MainColor"));
 
 	// 出力先
 	/*auto _quadID = m_pRenderGraph->GetID("QuadTexture");

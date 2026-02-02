@@ -30,7 +30,7 @@ public:
 	/// モデル取得
 	/// </summary>
 	/// <param name="a_key">ファイルパス</param>
-	const Resource::ID& GetModel(const std::string& a_path);
+	Resource::ID GetModel(const std::string& a_path);
 
 	/// <summary>
 	/// モデル取得

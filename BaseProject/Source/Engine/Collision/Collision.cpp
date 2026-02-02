@@ -42,13 +42,16 @@ bool Collision::Raycast(
 		if (_colView.pCollider->layer != Layer::StaticObject)
 			continue;
 
-		//const ModelResource* _modelRes = GraphicResourceManager::Instance().NGetModelResource(_colView.pModelComp->modelID);
 		const Model* _model = GraphicResourceManager::Instance().NGetModelResource(_colView.pModelComp->modelID);
 
-		//for (int _idx : _modelRes->GetCollisionMeshNodeIndices())
+		if (!_model)
+		{
+			assert(0 && "モデルが取れていないためレイ判定失敗");
+			return false;
+		}
+
 		for (int _idx : _model->collisionMeshNodeIndices)
 		{
-			//const Node& _node = _modelRes->GetOriginalNodes()[_idx];
 			const Node& _node = _model->originalNodes[_idx];
 			if (_node.spMesh == nullptr)
 				continue;

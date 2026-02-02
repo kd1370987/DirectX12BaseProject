@@ -16,7 +16,7 @@ Resource::ID GraphicResourceManager::GetTexture(const std::string& a_key)
 	{
 		Texture _tex;
 		LoadTextureFromPath(_tex,a_key);
-		return m_texStorage.Add(a_key, std::move(_tex));
+		return m_texStorage.Add(a_key, _tex);
 	}
 	else
 	{
@@ -29,13 +29,13 @@ const Texture* GraphicResourceManager::NGetTexture(const uint32_t& a_texID)
 	return m_texStorage.Get(a_texID);
 }
 
-const Resource::ID& GraphicResourceManager::GetModel(const std::string& a_path)
+Resource::ID GraphicResourceManager::GetModel(const std::string& a_path)
 {
 	if (!m_modelStorage.Has(a_path))
 	{
 		Model _model = {};
 		LoadModelFromPath(_model,a_path);
-		return m_modelStorage.Add(a_path, std::move(_model));
+		return m_modelStorage.Add(a_path, _model);
 	}
 	else
 	{

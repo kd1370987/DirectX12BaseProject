@@ -49,7 +49,7 @@ public:
 	/// <param name="a_key">文字列キー</param>
 	/// <param name="a_data">データの実態</param>
 	/// <returns>保存したID</returns>
-	Resource::ID Add(const std::string& a_key, T&& a_data);
+	Resource::ID Add(const std::string& a_key, T a_data);
 
 	/// <summary>
 	/// データの削除
@@ -118,6 +118,7 @@ inline void ResourceSlotStorage<T>::Init(UINT a_maxCount)
 
 	m_dataVec.resize(a_maxCount);
 	m_toString.resize(a_maxCount);
+	m_idMap.clear();
 }
 
 template<typename T>
@@ -196,7 +197,7 @@ inline Resource::ID ResourceSlotStorage<T>::GetID(const std::string& a_key)
 }
 
 template<typename T>
-inline Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T&& a_data)
+inline Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T a_data)
 {
 	if (m_indexQueue.empty())
 	{
