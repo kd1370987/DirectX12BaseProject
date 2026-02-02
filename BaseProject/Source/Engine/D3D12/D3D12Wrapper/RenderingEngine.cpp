@@ -7,8 +7,6 @@
 #include "../../D3D12/D3DObject/Fence/Fence.h"
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "Engine/D3D12/D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
-#include "Engine/D3D12/D3DObject/DescriptorHeap/RTVHeap/RTVHeap.h"
 
 #include "Engine/D3D12/D3DObject/SwapChain/SwapChain.h"
 #include "Engine/D3D12/D3DObject/Viewport/Viewport.h"
@@ -104,14 +102,30 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 		assert(0 && "レンダーターゲットの生成に失敗");
 		return false;
 	}
-	if (!CreateDepthStencil(a_windowWidth, a_windowHeight))
-	{
-		assert(0 && "デプスステンシルバッファの生成に失敗");
-		return false;
-	}
 
 	// 初期化成功
 	return true;
+}
+
+void RenderingEngine::Shutdown()
+{
+	SignalRenderFence();
+	WaitRender();
+
+	for (auto& _bb : m_backBuffer)
+	{
+		_bb.renderTarget.Reset();
+	}
+
+	m_currentRenderTarget = nullptr;
+
+	m_upCommandList.reset();
+	m_upCommandAllocator.reset();
+	m_upFence.reset();
+
+	m_upSwapChain.reset();
+	m_upCommandQueue.reset();
+	m_upDevice.reset();
 }
 
 //==================================================================================
@@ -138,17 +152,12 @@ void RenderingEngine::BeginRender()
 	m_upCommandList->SetViewports(1,&m_upViewport->Get());
 	m_upCommandList->SetScissorRects(1,&m_upScissorRect->Get());
 
-	// 深度ステンシルのディスクリプタヒープの開始アドレス取得
-	auto _currentDsvHandle = DescriptorHeapManager::Instance().GetDescriptorDSV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();
-
 	// レンダーターゲットが使用可能になるまで待つ
 	m_upCommandList->ResourceBarrier(
 		m_currentRenderTarget, 
 		D3D12_RESOURCE_STATE_PRESENT, 
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
-
-	m_upCommandList->ClearDepthStencilView(_currentDsvHandle);		// 深度ステンシル
 }
 void RenderingEngine::EndRender(bool a_isVsync)
 {
@@ -243,50 +252,6 @@ bool RenderingEngine::CreateRenderTarget()
 		m_backBuffer[_i].renderTarget.Create(m_upSwapChain->Get(),_i);
 		m_backBuffer[_i].rtvHandle = DescriptorHeapManager::Instance().RegisterRTV(m_backBuffer[_i].renderTarget.Ref(), nullptr);
 	}
-	return true;
-}
-bool RenderingEngine::CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBufferHeight)
-{
-	// 初期値を作成
-	D3D12_CLEAR_VALUE _dsvClearValue;
-	_dsvClearValue.Format = DXGI_FORMAT_D32_FLOAT;			// 深度を32bitで表現
-	_dsvClearValue.DepthStencil.Depth = 1.0f;				// カメラから最も遠い（初期値 = 1.0f）
-	_dsvClearValue.DepthStencil.Stencil = 0;				// ステンシル値の初期化
-
-	// 深度ステンシル用リソース（テクスチャ）を作成
-	auto _heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-	CD3DX12_RESOURCE_DESC _resourceDesc(
-		D3D12_RESOURCE_DIMENSION_TEXTURE2D,														// 2Dテクスチャとして使う
-		0,
-		a_frameBufferWidth,																		// 画面サイズに合わせる
-		a_frameBufferHeight,																	// 画面サイズに合わせる
-		1,
-		1,
-		DXGI_FORMAT_D32_FLOAT,																	// 深度値は32bit float
-		1,
-		0,
-		D3D12_TEXTURE_LAYOUT_UNKNOWN,
-		D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE		// 用途指定 | 参照禁止
-	);
-
-	// リソースを実際に作成(GPU上に)
-	auto _hr = m_upDevice->GetDevice()->CreateCommittedResource(
-		&_heapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&_resourceDesc,
-		D3D12_RESOURCE_STATE_DEPTH_WRITE,									// 深度書き込み可として作成
-		&_dsvClearValue,													// 初期クリア値を指定
-		IID_PPV_ARGS(m_pDeptchStencilBuffer.ReleaseAndGetAddressOf())		// 実際のＺバッファを保持するメンバ
-	);
-	if (FAILED(_hr))
-	{
-		return false;
-	}
-
-	// ディスクリプタを作成
-	// 作成したリソースに対するビューを生成（使うための窓口）
-	DescriptorHeapManager::Instance().RegisterDSV(m_pDeptchStencilBuffer.Get());
-
 	return true;
 }
 void RenderingEngine::WaitRender()

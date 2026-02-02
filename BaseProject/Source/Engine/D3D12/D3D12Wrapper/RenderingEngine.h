@@ -33,6 +33,8 @@ public:
 	// エンジン初期化
 	bool Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight);
 
+	void Shutdown();
+
 	// 描画開始・描画終了
 	void BeginRender();
 	void EndRender(bool a_isVsync = true);
@@ -115,12 +117,9 @@ private:
 
 	// 描画に使うオブジェクトとその生成関数群
 	bool CreateRenderTarget();			// レンダーターゲットを生成
-	bool CreateDepthStencil(UINT a_frameBufferWidth, UINT a_frameBufferHeight);			// 深度ステンシルバッファを生成
 
 	// バックバッファー
-	BackBuffer m_backBuffer[BACKBUFFER_COUNT];
-
-	ComPtr<ID3D12Resource> m_pDeptchStencilBuffer = nullptr;	// 深度ステンシルバッファ（こっちは一つ）
+	BackBuffer m_backBuffer[BACKBUFFER_COUNT];;
 
 private:
 	// 描画ループで使用するもの

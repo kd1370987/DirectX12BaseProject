@@ -27,11 +27,6 @@
 //==================================================================================
 void Application::Excute()
 {
-	ComPtr<ID3D12Debug> debug;
-	D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
-	debug->EnableDebugLayer();
-
-
 	// アプリケーション初期化
 	if (!Init())
 	{
@@ -41,6 +36,9 @@ void Application::Excute()
 
 	// メインループ（更新処理・描画処理）
 	MainLoop();
+
+	// 解放
+	Release();
 }
 
 //==================================================================================
@@ -50,6 +48,17 @@ void Application::Excute()
 //==================================================================================
 bool Application::Init()
 {
+	// DX12デバッグワイヤーオン
+#ifdef _DEBUG
+	{
+		ComPtr<ID3D12Debug> _debug;
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&_debug))))
+		{
+			_debug->EnableDebugLayer();
+		}
+	}
+#endif
+
 	// ウィンドウの生成（ここの変数も外部からとってきたい）
 	m_upWindow = std::make_unique<Window>();
 	if (!m_upWindow->Create(WINDOW_WIDTH, WINDOW_HEIGHT, L"DirectX12", L"Window"))
@@ -99,12 +108,31 @@ void Application::Release()
 	//SceneManager::Instance().Release();
 	// ECS解放
 	World::Instance().Release();
-	// 描画エンジン解放
-	//RenderingEngine::Instance().Release();
+
 	// タイムマネージャー解放
 	m_upTimeManager->Release();
 
 	m_upImGuiContex->Release();
+
+	RenderContext::Instance().Shutdown();
+
+	// 描画エンジン解放
+	RenderingEngine::Instance().Shutdown();
+
+	// 解放時にエラー検出
+#if _DEBUG
+	{
+		ComPtr<IDXGIDebug1> debug;
+		if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
+		{
+			debug->ReportLiveObjects(
+				DXGI_DEBUG_ALL,
+				DXGI_DEBUG_RLO_DETAIL
+			);
+		}
+	}
+#endif
+
 }
 
 //==================================================================================

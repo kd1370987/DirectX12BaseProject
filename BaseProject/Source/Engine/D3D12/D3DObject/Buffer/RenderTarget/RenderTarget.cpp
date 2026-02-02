@@ -1,5 +1,10 @@
 ﻿#include "RenderTarget.h"
 
+void RenderTarget::Reset()
+{
+	m_cpResource.Reset();
+}
+
 bool RenderTarget::Create(ID3D12Device* a_pDevice)
 {
 	// 仕様書作成

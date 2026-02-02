@@ -24,9 +24,8 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	}
 	if (a_desc.allowDSV)
 	{
-		_desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-		return false;
+		_desc.Flags |= 
+			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 	}
 	if (a_desc.allowUAV)
 	{
@@ -43,7 +42,6 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 
 	D3D12_CLEAR_VALUE _clear{};
 	if (a_desc.clearValue.has_value() && (a_desc.allowRTV || a_desc.allowDSV))
-	//if (a_desc.allowRTV || a_desc.allowDSV)
 	{
 		_clear = a_desc.clearValue.value();
 		_pClear = &_clear;
@@ -72,13 +70,14 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	}
 	if (a_desc.allowDSV)
 	{
-		
+		m_dsvHandle = 
+			DescriptorHeapManager::Instance().RefDSVHeap().RegisterDSV(m_cpResource.Get(),nullptr);
 	}
 	if (a_desc.allowUAV)
 	{
 		
 	}
-	if (a_desc.allowSRV)
+	if (a_desc.allowSRV && !a_desc.allowDSV)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv{};
 		srv.Format = a_desc.format;
@@ -156,5 +155,10 @@ D3D12_GPU_DESCRIPTOR_HANDLE RGTexture::GPUSRVHandle()
 D3D12_CPU_DESCRIPTOR_HANDLE RGTexture::GetRTVHandle()
 {
 	return DescriptorHeapManager::Instance().GetRTVCPUHandle(m_rtvHandle);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE RGTexture::GetDSVHandle()
+{
+	return DescriptorHeapManager::Instance().RefDSVHeap().GetCPUHandle(m_dsvHandle);
 }
 

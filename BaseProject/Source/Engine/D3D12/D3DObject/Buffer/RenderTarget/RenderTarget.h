@@ -7,6 +7,8 @@ public:
 	RenderTarget() = default;
 	~RenderTarget() = default;
 
+	void Reset();
+
 	/// <summary>
 	/// 作成
 	/// </summary>

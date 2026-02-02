@@ -35,16 +35,27 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
 	});
 
-	
+	// パス登録
 	RegisterPass<ForwardLightingPass>();
 	RegisterPass<FullScreenPass>();
 
+	// パスの初期化
 	for (auto _sp : m_spPassVec)
 	{
 		_sp->Init(this,a_pShaderMana,a_pRootSigMana,a_pPSOMana);
 	}
 
+	// コンパイル
 	Compile();
+}
+
+void RenderGraph::Release()
+{
+	m_compiledPasses.clear();
+	m_resourceStorage.Release();
+	m_rgResourceMap.clear();
+	m_sortedPassed.clear();
+	m_spPassVec.clear();
 }
 
 void RenderGraph::Compile()
@@ -96,7 +107,16 @@ void RenderGraph::Compile()
 		_desc.allowSRV = HasFlag(_res.desc.usage,ResourceUsage::ShaderRead);
 		_desc.allowRTV = HasFlag(_res.desc.usage,ResourceUsage::RenderTarget);
 		_desc.allowUAV = HasFlag(_res.desc.usage,ResourceUsage::ShaderWrite);
-		_desc.allowDSV = HasFlag(_res.desc.usage,ResourceUsage::DepthStencil);
+		if (HasFlag(_res.desc.usage, ResourceUsage::DepthStencil))
+		{
+			_desc.allowDSV = true;
+			_desc.clearValue = std::make_optional<D3D12_CLEAR_VALUE>();
+			D3D12_CLEAR_VALUE _dsvClearValue;
+			_dsvClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+			_dsvClearValue.DepthStencil.Depth = 1.0f;
+			_dsvClearValue.DepthStencil.Stencil = 0.0f;
+			_desc.clearValue.emplace(_dsvClearValue);
+		}
 
 		_res.spRGTexture = std::make_shared<RGTexture>();
 		_res.spRGTexture->Create(_desc);
@@ -114,7 +134,6 @@ void RenderGraph::Compile()
 		auto _ProcesssRes = [&](Resource::ID a_id, bool a_isWrite)
 			{
 				auto& _res = m_rgResourceMap[a_id];
-				//auto _next = ToD3DState(_res.desc.usage, a_isWrite);
 				D3D12_RESOURCE_STATES _next;
 				if (!a_isWrite)
 				{
@@ -171,13 +190,12 @@ void RenderGraph::Compile()
 
 void RenderGraph::Excute(RenderContext* a_pCtx)
 {
+	// コンパイル済みパスを順次実行していく
 	for (auto& _cp : m_compiledPasses)
 	{
+		// 使用するリソースバリア
 		for (auto& _barrier : _cp.barrierVec)
 		{
-
-			assert(_barrier.texture->GetResource() != nullptr);
-
 			a_pCtx->Transition(
 				_barrier.texture->GetResource(),
 				_barrier.before,
@@ -190,7 +208,6 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 		for (auto& _att : _cp.pPass->GetDesc().colorAttachements)
 		{
 			auto& _tex = m_rgResourceMap[_att.id].spRGTexture;
-			assert(_tex->GetRTVHandle().ptr != 0);
 			_rtvs.push_back(_tex->GetRTVHandle());
 		}
 
@@ -199,9 +216,8 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 		D3D12_CPU_DESCRIPTOR_HANDLE* _pDsv = nullptr;
 		if (_cp.pPass->GetDesc().depthAttachement.has_value())
 		{
-			// auto& _tex = m_rgResourceMap[_cp.pPass->GetDesc().depthAttachement->id].spRGTexture;
-			// テストのため
-			_dsv = DescriptorHeapManager::Instance().GetCPUDSV();
+			auto& _depth = m_rgResourceMap[_cp.pPass->GetDesc().depthAttachement.value().id].spRGTexture;
+			_dsv = _depth->GetDSVHandle();
 			_pDsv = &_dsv;
 		}		
 	
@@ -265,31 +281,4 @@ Resource::ID RenderGraph::GetID(const std::string& a_key)
 		return m_resourceStorage.GetID(a_key);
 	}
 	assert(0 && "登録されていないリソースです");
-}
-
-D3D12_RESOURCE_STATES RenderGraph::ToD3DState(ResourceUsage a_usage, bool a_isWrite)
-{
-	if (a_isWrite)
-	{
-		if (HasFlag(a_usage ,ResourceUsage::RenderTarget))
-			return D3D12_RESOURCE_STATE_RENDER_TARGET;
-		if (HasFlag(a_usage, ResourceUsage::DepthStencil))
-			return D3D12_RESOURCE_STATE_DEPTH_WRITE;
-		if (HasFlag(a_usage, ResourceUsage::ShaderWrite))
-			return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-	}
-	else
-	{
-		if (HasFlag(a_usage, ResourceUsage::ShaderRead))
-			return D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
-		if (HasFlag(a_usage, ResourceUsage::DepthStencil))
-			return D3D12_RESOURCE_STATE_DEPTH_READ;
-	}
-
-	return D3D12_RESOURCE_STATE_COMMON;
-}
-
-void RenderGraph::ProcessRes(Resource::ID a_id, bool a_isWrite)
-{
-
 }

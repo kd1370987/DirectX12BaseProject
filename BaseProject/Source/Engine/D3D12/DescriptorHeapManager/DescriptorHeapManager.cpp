@@ -27,16 +27,14 @@ void DescriptorHeapManager::Init()
 		m_spCBV_SRV_UAVHeap->Create(_info);
 	}
 
-	if (!m_spDSVHeap)
-	{
-		m_spDSVHeap = std::make_shared<DSVHeap>();
-		m_spDSVHeap->Create(
-			_device,
-			D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
-			1,
-			D3D12_DESCRIPTOR_HEAP_FLAG_NONE
-		);
-	}
+	
+	// DSVテーブルの作成
+	m_dsvHeap.Create(
+		_device,
+		D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+		10,
+		D3D12_DESCRIPTOR_HEAP_FLAG_NONE
+	);
 
 	if (!m_spRTVHeap)
 	{
@@ -101,17 +99,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiGPUHandle()
 	return m_spCBV_SRV_UAVHeap->GetImGuiGPUHandle();
 }
 
-DescriptorHandle DescriptorHeapManager::RegisterDSV(ID3D12Resource* a_resource)
-{
-	
-	return m_spDSVHeap->Register(a_resource);
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetCPUDSV()
-{
-	return m_spDSVHeap->GetHeap()->GetCPUDescriptorHandleForHeapStart();
-}
-
 RTVHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource, D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc)
 {
 	return m_spRTVHeap->RegisterRTV(a_resource,a_pRtvDesc);
@@ -120,6 +107,11 @@ RTVHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource, D3D12_R
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetRTVCPUHandle(RTVHandle a_handle)
 {
 	return m_spRTVHeap->GetCPUHandle(a_handle);
+}
+
+DSVHeap& DescriptorHeapManager::RefDSVHeap()
+{
+	return m_dsvHeap;
 }
 
 

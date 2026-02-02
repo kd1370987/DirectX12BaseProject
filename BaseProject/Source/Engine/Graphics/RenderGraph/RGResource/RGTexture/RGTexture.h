@@ -34,6 +34,8 @@ public:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle();
 
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle();
+
 private:
 
 	ComPtr<ID3D12Resource> m_cpResource = nullptr;
@@ -41,5 +43,6 @@ private:
 	RGTextureDesc m_desc;
 
 	RTVHandle		 m_rtvHandle{};
+	DSVHandle		 m_dsvHandle{};
 	Storage::Range	 m_srvHandle;
 };

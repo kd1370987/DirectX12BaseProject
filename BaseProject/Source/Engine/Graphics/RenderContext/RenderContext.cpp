@@ -89,13 +89,7 @@ void RenderContext::Init()
 
 	// オフスクリーン生成
 	m_upOffScreen = std::make_unique<OffScreen>();
-	m_upOffScreen->CreatePostProcessResource(*RenderingEngine::Instance().GetCurrentRenderTarget());
 	m_upOffScreen->CreateScreenVertex();
-	m_upOffScreen->CreateScreenPipeline(
-		m_spShaderManger.get(),
-		m_spRootSigManager.get(),
-		m_spGraphicsPSOManager.get()
-	);
 
 	m_upRenderGraph = std::make_unique<RenderGraph>();
 	m_upRenderGraph->Init(
@@ -120,6 +114,28 @@ void RenderContext::Init()
 	m_cb3_Material.emissiveXYZ = { 1.0f,1.0f,1.0f,0.0f };
 	m_cb3_Material.metallicRoughnessXY = { 0.0f,1.0f,0.0f,0.0f };
 
+}
+
+void RenderContext::Shutdown()
+{
+	for (auto& _spFR : m_frameResource)
+	{
+		_spFR.spCamAndObjectCBAllocater.reset();
+	}
+
+	m_upOffScreen.reset();
+
+	m_pCurrentMaterial = nullptr;
+	m_pCurrentMesh = nullptr;
+
+	m_drawItemMap.clear();
+
+	m_upRenderGraph->Release();
+	m_upRenderGraph.reset();
+
+	m_spShaderManger.reset();
+	m_spRootSigManager.reset();
+	m_spGraphicsPSOManager.reset();
 }
 
 //============================================================================================
@@ -156,13 +172,6 @@ void RenderContext::SetToShader(
 	DirectX::XMMATRIX _wMat = DirectX::XMLoadFloat4x4(&a_worldMat);
 	DirectX::XMMATRIX _vMat = DirectX::XMMatrixInverse(nullptr, _wMat);
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, _vMat);
-
-	// カメラ用定数バッファに転送
-	/*m_frameResource[_currentIdx].spCamAndObjectCBAllocater->BindAndAttachDataRootCBV<CBCamera>(
-		_cmdList,
-		0,
-		m_cb0_camera
-	);*/
 }
 
 void RenderContext::BindCameraCB()
@@ -202,51 +211,6 @@ CBAllocater* RenderContext::BindCB()
 	return m_frameResource[_currentIdx].spCamAndObjectCBAllocater.get();
 }
 
-void RenderContext::BeginOffScreen()
-{
-	// コマンドリストの取得
-	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-
-	// オフスクリーンテクスチャをレンダーターゲットへ切り替える
-	RenderingEngine::Instance().ResourceBarrier(
-		m_upOffScreen->Get(),
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_RENDER_TARGET
-	);
-
-	// レンダーターゲットをセット・クリア
-	auto _currentDsvHandle = DescriptorHeapManager::Instance().GetDescriptorDSV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();
-	auto _rtvHeapPointer = DescriptorHeapManager::Instance().GetRTVCPUHandle(m_upOffScreen->m_rtvHandle);
-	ChangeRenderTarget({ _rtvHeapPointer }, &_currentDsvHandle);
-	ClearRenderTarget({ _rtvHeapPointer });
-}
-
-//void RenderContext::EndOffScreen()
-//{
-//	// コマンドリストの取得
-//	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-//
-//	// レンダーターゲットをバックバッファへ切り替える
-//	RenderingEngine::Instance().SetBackBuffer();
-//
-//	// クワッドレンダリング用のルートシグネチャとパイプラインに変更
-//	_cmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(m_upOffScreen->m_graphicPSOID));
-//	_cmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(m_upOffScreen->m_rootSigID));
-//
-//	// ディスクリプタヒープをセット
-//	ID3D12DescriptorHeap* _heaps[] = {
-//			DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
-//	};
-//	_cmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
-//
-//	auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
-//	_cmdList->SetGraphicsRootDescriptorTable(0, _handle);
-//
-//	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
-//	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);
-//	_cmdList->DrawInstanced(4, 1, 0, 0);
-//}
-
 
 void RenderContext::ChangeRenderTarget(
 	const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec,
@@ -265,42 +229,6 @@ void RenderContext::ChangeRenderTarget(
 	);
 
 	RenderingEngine::Instance().SetViewportAndRect();
-}
-
-void RenderContext::ChangeRenderTarget(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec, bool a_detph)
-{
-	if (a_cpuHnadleVec.empty()) return;
-
-	// コマンドリストの取得
-	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
-
-	// レンダーターゲットをセット・クリア
-	auto _currentDsvHandle = DescriptorHeapManager::Instance().GetDescriptorDSV()->GetHeap()->GetCPUDescriptorHandleForHeapStart();
-	auto _rtvHeapPointer = DescriptorHeapManager::Instance().GetRTVCPUHandle(m_upOffScreen->m_rtvHandle);
-
-	if(a_detph)
-	{
-		_pCmdList->OMSetRenderTargets(
-			std::size(a_cpuHnadleVec),
-			a_cpuHnadleVec.data(),
-			false,
-			&_currentDsvHandle
-		);
-		ClearRenderTarget(a_cpuHnadleVec[0]);
-	}
-	else
-	{
-		ChangeRenderTarget({ _rtvHeapPointer },nullptr);
-		ClearRenderTarget({ _rtvHeapPointer });
-	}
-}
-
-void RenderContext::ClearRenderTarget(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec)
-{
-	for (auto& _handle : a_cpuHnadleVec)
-	{
-		RenderingEngine::Instance().ClearRenderTargetView(_handle);
-	}
 }
 
 void RenderContext::ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHnadle)
@@ -333,72 +261,23 @@ const std::vector<DrawItem>& RenderContext::GetItemVec(const RenderQueueType& a_
 	return std::vector<DrawItem>{};
 }
 
-void RenderContext::ResetItem()
-{
-	m_drawItemMap.clear();
-}
-
 
 void RenderContext::Excute()
 {
-	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-
-	//Sort();
-
+	// バインド対象のクリア
 	m_currentRootSigID = Resource::Limits::MAX_STORAGE;
 	m_currentPSOID = Resource::Limits::MAX_STORAGE;
 	m_pCurrentMaterial = nullptr;
 	m_pCurrentMesh = nullptr;
 
+	// レンダーパスの実行
 	m_upRenderGraph->Excute(this);
+
+	// 描画対象アイテムリストのクリア
+	m_drawItemMap.clear();
 }
 
-void RenderContext::Sort()
-{
-	/*auto& _src = m_commandVec;
-
-	for (auto& _cmd : _src)
-	{
-		_cmd.sortKey = MakeSortKey(
-			_cmd.rootSigID,
-			_cmd.psoID,
-			0,
-			0,
-			0
-		);
-	}
-
-	std::sort(
-		m_commandVec.begin(),
-		m_commandVec.end(),
-		[](const RenderCommand& a_a, const RenderCommand& a_b)
-		{
-			return a_a.sortKey < a_b.sortKey;
-		}
-	);*/
-}
-
-uint64_t RenderContext::MakeSortKey(
-	uint32_t a_rootSigID,
-	uint32_t a_psoID,
-	uint32_t a_materialID, 
-	uint32_t a_meshID,
-	uint32_t a_primitiveIndex
-)
-{
-
-	// 重要度の高い順に上位ビットへ配置
-	uint64_t _key = 0;
-	_key |= uint64_t(a_rootSigID & 0xFF)		<< 56;	// 8bit
-	_key |= uint64_t(a_psoID & 0xFFF)			<< 44;	// 12bit
-	_key |= uint64_t(a_materialID & 0xFFFF)		<< 28;	// 16bit
-	_key |= uint64_t(a_meshID & 0xFFFFF)		<< 8;	// 20bit
-	_key |= uint64_t(a_primitiveIndex & 0xFF);			// 8bit
-
-	return _key;
-}
-
-void RenderContext::SetRootSig(const Resource::ID& a_rootSigID)
+void RenderContext::SetGraphicsRootSignature(const Resource::ID& a_rootSigID)
 {
 	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
 
@@ -529,30 +408,17 @@ void RenderContext::SetScissorRect()
 {
 }
 
-void RenderContext::Transition(ID3D12Resource* a_pResource, D3D12_RESOURCE_STATES a_before, D3D12_RESOURCE_STATES a_after)
+void RenderContext::Transition(
+	ID3D12Resource* a_pResource, 
+	D3D12_RESOURCE_STATES a_before, 
+	D3D12_RESOURCE_STATES a_after
+)
 {
 	RenderingEngine::Instance().ResourceBarrier(
 		a_pResource,
 		a_before,
 		a_after
 	);
-}
-
-void RenderContext::DrawQuad()
-{
-	// コマンドリストの取得
-	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-
-	// レンダーターゲットをバックバッファへ切り替える
-	/*RenderingEngine::Instance().SetBackBuffer();
-
-	
-	auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
-	_cmdList->SetGraphicsRootDescriptorTable(0, _handle);*/
-
-	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
-	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);
-	_cmdList->DrawInstanced(4, 1, 0, 0);
 }
 
 void RenderContext::DrawQuad(D3D12_GPU_DESCRIPTOR_HANDLE a_gpu)
@@ -564,9 +430,6 @@ void RenderContext::DrawQuad(D3D12_GPU_DESCRIPTOR_HANDLE a_gpu)
 	RenderingEngine::Instance().SetBackBuffer();
 
 	_cmdList->SetGraphicsRootDescriptorTable(0, a_gpu);
-
-	/*auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(m_upOffScreen->m_srvRange);
-	_cmdList->SetGraphicsRootDescriptorTable(0, _handle);*/
 
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
 	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);

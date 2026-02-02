@@ -45,3 +45,6 @@ struct CBVHandle
 
 using SRVHandle = Storage::Range;
 using UAVHandle = Storage::Range;
+
+#include "D3DObject/DescriptorHeap/RTVHeap/RTVHeap.h"
+#include "D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"

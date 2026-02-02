@@ -62,6 +62,9 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <d3dcompiler.h>
 #include <comdef.h>
 
+#include <dxgidebug.h>
+#pragma comment(lib,"dxguid.lib")
+
 #include <SimpleMath.h>			// 数学ライブラリ
 
 #include <DirectXMath.h>		// 数学ライブラリ（ベクトル・行列）

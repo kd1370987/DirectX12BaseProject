@@ -86,6 +86,8 @@ public:
 		GraphicsPSOManager* a_pPSOMana
 	);							// 初回
 
+	void Release();
+
 	void Compile();							// Pass追加後
 	void Excute(RenderContext* a_pCtx);		// パスを順次実行
 
@@ -102,12 +104,6 @@ public:
 		std::shared_ptr<RenderPass> _pass = std::make_shared<Pass>();
 		m_spPassVec.push_back(_pass);
 	}
-
-private:
-
-	D3D12_RESOURCE_STATES ToD3DState(ResourceUsage a_usage,bool a_isWrite);
-
-	void ProcessRes(Resource::ID a_id,bool a_isWrite);
 
 private:
 

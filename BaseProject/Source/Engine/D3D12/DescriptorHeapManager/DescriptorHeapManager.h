@@ -4,8 +4,6 @@
 struct DescriptorHandle;
 
 class CBV_SRV_UAVHeap;
-class DSVHeap;
-class RTVHeap;
 
 class DescriptorHeapManager
 {
@@ -94,20 +92,8 @@ public:
 	// DSV
 	// 
 	//==========================================================================================
-	/// <summary>
-	/// デプスステンシルビュー登録
-	/// </summary>
-	/// <param name="a_resource">登録するリソース</param>
-	/// <returns>登録した場所を返す</returns>
-	DescriptorHandle RegisterDSV(ID3D12Resource* a_resource);
 
-	/// <summary>
-	/// DSVヒープクラスのポインタを返す
-	/// </summary>
-	/// <returns>DSVヒープクラスポインタ</returns>
-	std::shared_ptr<DSVHeap> GetDescriptorDSV() const { return m_spDSVHeap; }
-
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDSV();
+	DSVHeap& RefDSVHeap();
 
 	//==========================================================================================
 	// 
@@ -132,7 +118,7 @@ private:
 	std::shared_ptr<CBV_SRV_UAVHeap> m_spCBV_SRV_UAVHeap = nullptr;
 
 	// DSVヒープ
-	std::shared_ptr<DSVHeap> m_spDSVHeap = nullptr;
+	DSVHeap m_dsvHeap;
 
 	// RTVヒープ
 	std::shared_ptr<RTVHeap> m_spRTVHeap = nullptr;

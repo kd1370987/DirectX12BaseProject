@@ -19,8 +19,6 @@ class Model;
 
 class OffScreen;
 
-class StandardPassBase;
-
 class RenderGraph;
 
 enum class RenderPassID
@@ -96,6 +94,8 @@ public:
 	/// </summary>
 	void Init();
 
+	void Shutdown();
+
 	/// <summary>
 	/// カメラの情報を定数バッファに乗せてシェーダーに転送
 	/// </summary>
@@ -127,12 +127,7 @@ public:
 		DirectX::XMFLOAT4X4 a_projMat
 	);
 
-
-
 	CBAllocater* BindCB();
-
-	void BeginOffScreen();
-
 
 	/// <summary>
 	/// レンダーターゲットの切り替え
@@ -144,12 +139,6 @@ public:
 		D3D12_CPU_DESCRIPTOR_HANDLE* a_depthHandle = nullptr
 	);
 
-	void ChangeRenderTarget(
-		const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec,
-		bool a_detph
-	);
-
-	void ClearRenderTarget(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec);
 	void ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHnadle);
 
 	void ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle);
@@ -164,37 +153,71 @@ public:
 
 	const std::vector<DrawItem>& GetItemVec(const RenderQueueType& a_type) const;
 
-	void ResetItem();
-
 	void Excute();
 
-	void Sort();
+	//============================================================================================
+	// 
+	// 描画パス構築
+	// 
+	//============================================================================================
 
-	uint64_t MakeSortKey(
-		uint32_t a_rootSigID,
-		uint32_t a_psoID,
-		uint32_t a_materialID,
-		uint32_t a_meshID,
-		uint32_t a_primitiveIndex
+	/// <summary>
+	/// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
+	/// </summary>
+	/// <param name="a_rootSigID">ルートシグネチャマネージャーに登録した際のID</param>
+	void SetGraphicsRootSignature(
+		const Resource::ID& a_rootSigID
 	);
 
-	void SetRootSig(const Resource::ID& a_rootSigID);
-	void SetGraphicPSO(const Resource::ID& a_psoID);
+	/// <summary>
+	/// パイプラインステートをセット、前回と変更がない場合はスキップ
+	/// </summary>
+	/// <param name="a_rootSigID">パイプラインステートマネージャーに登録した際のID</param>
+	void SetGraphicPSO(
+		const Resource::ID& a_psoID
+	);
+
+	/// <summary>
+	/// 1Draw当たりのオブジェクトに対する定数
+	/// </summary>
+	/// <param name="a_uv">UV開始位置</param>
+	/// <param name="a_tile">移動値</param>
 	void BindObuje(
 		const DirectX::XMFLOAT2& a_uv = {0.0f,0.0f},
 		const DirectX::XMFLOAT2& a_tile = {1.0f,1.0f}
 	);
 
+	/// <summary>
+	/// マテリアルをSRVとして送信、その際にマテリアルの定数も送信
+	/// </summary>
+	/// <param name="a_pMaterial">マテリアルのポインタ</param>
+	/// <param name="a_colorScale">ベース色のスケール値</param>
+	/// <param name="a_emissiveScale">エミッシブのスケール値</param>
 	void BindMaterial(
 		Material* a_pMaterial,
 		const DirectX::XMFLOAT4& a_colorScale,
 		const DirectX::XMFLOAT3& a_emissiveScale
 	);
+
+	/// <summary>
+	/// mesh情報を送信、前回と変更がなければスキップ
+	/// </summary>
+	/// <param name="a_pMesh">メッシュポインタ</param>
+	/// <param name="a_worldMat">メッシュのワールド行列</param>
 	void BindMesh(
 		Mesh* a_pMesh,
 		const DirectX::XMFLOAT4X4& a_worldMat
 	);
-	void Draw(Mesh* a_pMesh,UINT a_subIdx);
+
+	/// <summary>
+	/// モデルの描画
+	/// </summary>
+	/// <param name="a_pMesh"></param>
+	/// <param name="a_subIdx"></param>
+	void Draw(
+		Mesh* a_pMesh,
+		UINT a_subIdx
+	);
 
 	void SetRenderTarget(
 		const std::vector<AttachementDesc>& a_cpuHnadleVec,
@@ -210,7 +233,6 @@ public:
 		D3D12_RESOURCE_STATES a_after
 	);
 
-	void DrawQuad();
 	void DrawQuad(D3D12_GPU_DESCRIPTOR_HANDLE a_gpu);
 
 private:
@@ -227,10 +249,6 @@ private:
 	std::shared_ptr<GraphicsPSOManager>		m_spGraphicsPSOManager	= nullptr;
 
 	std::unique_ptr<OffScreen> m_upOffScreen = nullptr;
-
-	// 描画パス
-	std::unordered_map<RenderPassID, std::shared_ptr<StandardPassBase>> m_spRenderPassMap;
-	StandardPassBase* m_pCurrentStandardPass = nullptr;
 
 	// 描画コマンド
 	CBObject m_cb1_object = {};

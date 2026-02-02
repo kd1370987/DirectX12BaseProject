@@ -52,7 +52,6 @@ void ForwardLightingPass::CreatePass()
 	auto _mainColorID = m_pRenderGraph->GetID("MainColor");
 
 	// 入力元
-	//m_passDesc.readResource.push_back(_depth);
 	m_passDesc.readResource.push_back(_mainColorID);
 	
 	// 出力先
