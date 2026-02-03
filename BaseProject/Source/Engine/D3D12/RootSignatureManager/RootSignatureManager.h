@@ -2,6 +2,8 @@
 
 class RootSignature;
 
+constexpr UINT ERR_UINT = UINT_MAX;
+
 class RootSignatureManager
 {
 public:
@@ -23,6 +25,11 @@ public:
 		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec
 	);
 
+	Resource::ID CreateRootSig(
+		const std::string& a_key,
+		const std::vector<RootSigLayout>& a_rootParamsVec
+	);
+
 	/// <summary>
 	/// ID3D12RootSignatureの生ポインタを直接取得
 	/// </summary>
@@ -30,7 +37,10 @@ public:
 	ID3D12RootSignature* NGet(Resource::ID a_id);
 	Resource::ID GetID(const std::string& a_key);
 
+	UINT GetRegiNum(Resource::ID a_id,RootSigSemantic a_sema);
+
 private:
 
 	SlotStorage<RootSignature> m_rootStorage;
+	std::unordered_map<Resource::ID, std::vector<RootSigLayout>> m_rootLayout;
 };

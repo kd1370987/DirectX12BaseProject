@@ -433,6 +433,27 @@
     <Filter Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture">
       <UniqueIdentifier>{a41045ba-cd20-4fe0-8f63-ff5d3c380bf7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Source\ZPreShader">
+      <UniqueIdentifier>{0b143661-65ff-4b30-bb80-d87eef28d888}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass">
+      <UniqueIdentifier>{b4bf51a3-447a-495b-aa4f-1df33b3ced77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RootSigLayout">
+      <UniqueIdentifier>{861b4f3f-c139-4ae6-b886-74368188214e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\DrawPass\GBufferPass">
+      <UniqueIdentifier>{317dd911-3ade-4702-831c-8d3cf859f0ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\GBufferShader">
+      <UniqueIdentifier>{f087fe0a-b487-41d2-96c4-ccd507e0996d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\DeferredLightingShader">
+      <UniqueIdentifier>{b44b6e49-c1be-485b-a652-9f9732478622}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass">
+      <UniqueIdentifier>{0cf98864-4da0-4f29-8ff2-0b0049b576cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -689,6 +710,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.cpp">
       <Filter>Source\Engine\Graphics\RenderGraph\RGResource\RGTexture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass\ZPrePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\GBufferPass\GBufferPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\GBufferPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass\DeferredLightingPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1064,6 +1094,18 @@
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.h">
       <Filter>Source\Engine\Graphics\RenderGraph\RGResource\RGTexture</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass\ZPrePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RootSigLayout\RootSigLayout.h">
+      <Filter>Source\Engine\Graphics\RootSigLayout</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\GBufferPass\GBufferPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\GBufferPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass\DeferredLightingPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1076,14 +1118,23 @@
     <None Include="..\Library\imgui-docking\.gitignore">
       <Filter>Library\imgui-docking</Filter>
     </None>
-    <None Include="Asset\Shader\Soruce\SimpleShader\SimpleShader.hlsli">
-      <Filter>Asset\Shader\Source\SimpleShader</Filter>
-    </None>
     <None Include="Asset\Shader\Compiled\HLSLCompile.bat">
       <Filter>Asset\Shader\Compiled</Filter>
     </None>
     <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli">
       <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\SimpleShader\SimpleShader.hlsli">
+      <Filter>Asset\Shader\Source\SimpleShader</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli">
+      <Filter>Asset\Shader\Source\ZPreShader</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\GBufferShader\GBufferShader.hlsli">
+      <Filter>Asset\Shader\Source\GBufferShader</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingShader.hlsli">
+      <Filter>Asset\Shader\Source\DeferredLightingShader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -1092,6 +1143,27 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingVS.hlsl">
       <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\SimpleShader\SimplePS.hlsl">
+      <Filter>Asset\Shader\Source\SimpleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\SimpleShader\SimpleVS.hlsl">
+      <Filter>Asset\Shader\Source\SimpleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\ZPreShader\ZPreVS.hlsl">
+      <Filter>Asset\Shader\Source\ZPreShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\GBufferShader\GBufferPS.hlsl">
+      <Filter>Asset\Shader\Source\GBufferShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\GBufferShader\GBufferVS.hlsl">
+      <Filter>Asset\Shader\Source\GBufferShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingPS.hlsl">
+      <Filter>Asset\Shader\Source\DeferredLightingShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingVS.hlsl">
+      <Filter>Asset\Shader\Source\DeferredLightingShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

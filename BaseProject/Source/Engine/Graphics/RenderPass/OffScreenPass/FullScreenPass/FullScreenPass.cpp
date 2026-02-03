@@ -11,8 +11,11 @@ void FullScreenPass::Excute(RenderContext* a_pCtx)
 	Begin(a_pCtx);
 
 
-	auto _main = m_pRenderGraph->GetGPUHandle("MainColor");
-	//auto _main = m_pRenderGraph->GetGPUHandle("QuadTexture");
+	//auto _main = m_pRenderGraph->GetGPUHandle("GBufferAlbedo");
+	/*auto _main = m_pRenderGraph->GetGPUHandle("GBufferNormal");
+	auto _main = m_pRenderGraph->GetGPUHandle("GBufferMaterial");*/
+	//auto _main = m_pRenderGraph->GetGPUHandle("MainColor");
+	auto _main = m_pRenderGraph->GetGPUHandle("QuadTexture");
 	a_pCtx->DrawQuad(_main);
 
 	End(a_pCtx);
@@ -64,19 +67,17 @@ void FullScreenPass::CreatePass()
 	m_passDesc.rootSigID = _rootSigID;
 	m_passDesc.psoID = _psoID;
 
+
+	//auto _id = m_pRenderGraph->GetID("GBufferAlbedo");
+	auto _id = m_pRenderGraph->GetID("QuadTexture");
+
 	// 入力元
-	m_passDesc.readResource.push_back(m_pRenderGraph->GetID("MainColor"));
+	m_passDesc.readResource.push_back(_id);
 
 	// 出力先
-	/*auto _quadID = m_pRenderGraph->GetID("QuadTexture");
-	m_passDesc.writeResource.push_back(
-		_quadID
-	);*/
 
-	m_passDesc.queueType = RenderQueueType::Opaque;
-
-	m_passDesc.colorAttachements = {
-		//{_quadID,LoadOp::Clear,StoreOp::Store}
+	// リソース
+	m_passDesc.resourceAccessVec = {
+		{_id,AccessType::SRV,LoadOp::Load,StoreOp::DontCare}
 	};
-	m_passDesc.depthAttachement = {};
 }

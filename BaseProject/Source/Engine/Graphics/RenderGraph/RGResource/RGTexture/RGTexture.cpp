@@ -24,8 +24,7 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	}
 	if (a_desc.allowDSV)
 	{
-		_desc.Flags |= 
-			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+		_desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 	}
 	if (a_desc.allowUAV)
 	{
@@ -33,33 +32,72 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	}
 	if (!a_desc.allowSRV)
 	{
+		
 		_desc.Flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 	}
 
 	auto _heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
+	D3D12_CLEAR_VALUE _clear{};
 	const D3D12_CLEAR_VALUE* _pClear = nullptr;
 
-	D3D12_CLEAR_VALUE _clear{};
-	if (a_desc.clearValue.has_value() && (a_desc.allowRTV || a_desc.allowDSV))
+	if (a_desc.allowDSV)
+	{
+		_clear.Format = DXGI_FORMAT_D32_FLOAT;
+		_clear.DepthStencil.Depth = 1.0f;
+		_clear.DepthStencil.Stencil = 0.0f;
+		_pClear = &_clear;
+	}
+	else if (a_desc.allowRTV)
+	{
+	
+		_clear.Format = _desc.Format;
+		_clear.Color[0] = 0;
+		_clear.Color[1] = 0;
+		_clear.Color[2] = 0;
+		_clear.Color[3] = 1;
+		_pClear = &_clear;
+	}
+	else if (a_desc.clearValue.has_value())
 	{
 		_clear = a_desc.clearValue.value();
 		_pClear = &_clear;
 	}
 
-	HRESULT _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
-		&_heapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&_desc,
-		D3D12_RESOURCE_STATE_COMMON,
-		_pClear,
-		IID_PPV_ARGS(&m_cpResource)
-	);
-	if (FAILED(_hr))
+	if (a_desc.allowDSV)
 	{
-		assert(0 && "RGTextureの生成に失敗");
-		return false;
+		HRESULT _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+			&_heapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&_desc,
+			D3D12_RESOURCE_STATE_DEPTH_WRITE,
+			_pClear,
+			IID_PPV_ARGS(&m_cpResource)
+		);
+		if (FAILED(_hr))
+		{
+			assert(0 && "RGTextureの生成に失敗");
+			return false;
+		}
 	}
+	else
+	{
+		HRESULT _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+			&_heapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&_desc,
+			D3D12_RESOURCE_STATE_COMMON,
+			_pClear,
+			IID_PPV_ARGS(&m_cpResource)
+		);
+		if (FAILED(_hr))
+		{
+			assert(0 && "RGTextureの生成に失敗");
+			return false;
+		}
+	}
+
+
 
 	if (a_desc.allowRTV)
 	{
@@ -70,17 +108,27 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	}
 	if (a_desc.allowDSV)
 	{
+		D3D12_DEPTH_STENCIL_VIEW_DESC _dsv{};
+		_dsv.Format = DXGI_FORMAT_D32_FLOAT;
+		_dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		m_dsvHandle = 
-			DescriptorHeapManager::Instance().RefDSVHeap().RegisterDSV(m_cpResource.Get(),nullptr);
+			DescriptorHeapManager::Instance().RefDSVHeap().RegisterDSV(m_cpResource.Get(),&_dsv);
 	}
 	if (a_desc.allowUAV)
 	{
 		
 	}
-	if (a_desc.allowSRV && !a_desc.allowDSV)
+	if (a_desc.allowSRV)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv{};
-		srv.Format = a_desc.format;
+		if (a_desc.allowDSV)
+		{
+			srv.Format = DXGI_FORMAT_R32_FLOAT;
+		}
+		else
+		{
+			srv.Format = a_desc.format;
+		}
 		srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srv.Texture2D.MipLevels = a_desc.mipLevel;
 		srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;

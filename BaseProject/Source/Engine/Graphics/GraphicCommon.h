@@ -25,13 +25,20 @@ enum class StoreOp
 	DontCare		// これ以上後ろで使われることがない
 };
 
-// レンダーターゲットを使うときの処理
-struct AttachementDesc
+enum class AccessType
 {
-	// レンダーターゲット
-	Resource::ID id;
+	SRV,
+	RTV,
+	Depth_Read,
+	Depth_Write,
+	UAV
+};
 
-	// レンダーパス協会のふるまい
+struct AccessResource
+{
+	Resource::ID id;
+	AccessType type;
+
 	LoadOp load;
 	StoreOp store;
 };
@@ -57,6 +64,7 @@ struct PassDesc
 	ScissorRectangle scissor;
 
 	// レンダーパス開始・終了時のAPI設定
-	std::vector<AttachementDesc> colorAttachements;
-	std::optional<AttachementDesc> depthAttachement;
+	std::vector<AccessResource> resourceAccessVec;
 };
+
+#include "RootSigLayout/RootSigLayout.h"

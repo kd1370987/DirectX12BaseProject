@@ -2,6 +2,9 @@
 
 #include "../RenderPass/DrawPass/ForwardLightingPass/ForwardLightingPass.h"
 #include "../RenderPass/OffScreenPass/FullScreenPass/FullScreenPass.h"
+#include "../RenderPass/DrawPass/ZPrePass/ZPrePass.h"
+#include "../RenderPass/DrawPass/GBufferPass/GBufferPass.h"
+#include "../RenderPass/OffScreenPass/DeferredLightingPass/DeferredLightingPass.h"
 
 #include "../RenderContext/RenderContext.h"
 
@@ -11,15 +14,9 @@
 void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRootSigMana, GraphicsPSOManager* a_pPSOMana)
 {
 	m_resourceStorage.Init(20);
-
 	// リソース作成
-	CreateResource({
-		.name = "Depth",
-		.format = DXGI_FORMAT_D32_FLOAT,
-		.widht = 1280,
-		.height = 720,
-		.usage = ResourceUsage::DepthStencil
-	});
+
+
 	CreateResource({
 		.name = "MainColor",
 		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -35,9 +32,44 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
 	});
 
+	CreateResource({
+		.name = "GBufferAlbedo",
+		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.widht = 1280,
+		.height = 720,
+		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
+		});
+	CreateResource({
+		.name = "GBufferNormal",
+		.format = DXGI_FORMAT_R16G16_FLOAT,
+		.widht = 1280,
+		.height = 720,
+		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
+		});
+	CreateResource({
+		.name = "GBufferMaterial",
+		// R = Roughness, G = Matallic, B = Specular or AO , A = EmissiveMask
+		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.widht = 1280,
+		.height = 720,
+		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
+	});
+	CreateResource({
+		.name = "Depth",
+		.format = DXGI_FORMAT_R32_TYPELESS,
+		.widht = 1280,
+		.height = 720,
+		.usage = ResourceUsage::DepthStencil | ResourceUsage::ShaderRead
+	});
+
 	// パス登録
+	
+	
 	RegisterPass<ForwardLightingPass>();
+	RegisterPass<ZPrePass>();
 	RegisterPass<FullScreenPass>();
+	RegisterPass<GBufferPass>();
+	RegisterPass<DeferredLightingPass>();
 
 	// パスの初期化
 	for (auto _sp : m_spPassVec)
@@ -86,13 +118,28 @@ void RenderGraph::Compile()
 	// リソース用作ようにリソースの使い方を収集
 	for (auto* _pass : m_sortedPassed)
 	{
-		for (auto _id : _pass->GetDesc().readResource)
+		for (const AccessResource& _access : _pass->GetDesc().resourceAccessVec)
 		{
-			m_rgResourceMap[_id].desc.usage |= ResourceUsage::ShaderRead;
-		}
-		for (auto _id : _pass->GetDesc().writeResource)
-		{
-			m_rgResourceMap[_id].desc.usage |= ResourceUsage::ShaderWrite;
+			if (_access.type == AccessType::SRV)
+			{
+				m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::ShaderRead;
+			}
+			if (_access.type == AccessType::RTV)
+			{
+				m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::RenderTarget;
+			}
+			if (_access.type == AccessType::UAV)
+			{
+				m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::ShaderWrite;
+			}
+			if (_access.type == AccessType::Depth_Read)
+			{
+				m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::DepthStencil;
+			}
+			if (_access.type == AccessType::Depth_Write)
+			{
+				m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::DepthStencil;
+			}
 		}
 	}
 
@@ -107,16 +154,7 @@ void RenderGraph::Compile()
 		_desc.allowSRV = HasFlag(_res.desc.usage,ResourceUsage::ShaderRead);
 		_desc.allowRTV = HasFlag(_res.desc.usage,ResourceUsage::RenderTarget);
 		_desc.allowUAV = HasFlag(_res.desc.usage,ResourceUsage::ShaderWrite);
-		if (HasFlag(_res.desc.usage, ResourceUsage::DepthStencil))
-		{
-			_desc.allowDSV = true;
-			_desc.clearValue = std::make_optional<D3D12_CLEAR_VALUE>();
-			D3D12_CLEAR_VALUE _dsvClearValue;
-			_dsvClearValue.Format = DXGI_FORMAT_D32_FLOAT;
-			_dsvClearValue.DepthStencil.Depth = 1.0f;
-			_dsvClearValue.DepthStencil.Stencil = 0.0f;
-			_desc.clearValue.emplace(_dsvClearValue);
-		}
+		_desc.allowDSV = HasFlag(_res.desc.usage, ResourceUsage::DepthStencil);
 
 		_res.spRGTexture = std::make_shared<RGTexture>();
 		_res.spRGTexture->Create(_desc);
@@ -131,56 +169,43 @@ void RenderGraph::Compile()
 		CompiledPass _cp;
 		_cp.pPass = _pass;
 
-		auto _ProcesssRes = [&](Resource::ID a_id, bool a_isWrite)
+		// リソース遷移作成
+		for (auto _access : _pass->GetDesc().resourceAccessVec)
+		{
+			D3D12_RESOURCE_STATES _next = D3D12_RESOURCE_STATE_COMMON;
+			if (_access.type == AccessType::SRV)
 			{
-				auto& _res = m_rgResourceMap[a_id];
-				D3D12_RESOURCE_STATES _next;
-				if (!a_isWrite)
-				{
-					_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-				}
-				else
-				{
-					if (HasFlag(_res.desc.usage, ResourceUsage::DepthStencil))
+				_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+			}
+			if (_access.type == AccessType::RTV)
+			{
+				_next = D3D12_RESOURCE_STATE_RENDER_TARGET;
+			}
+			if (_access.type == AccessType::UAV)
+			{
+				_next = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+			}
+			if (_access.type == AccessType::Depth_Read)
+			{
+				_next = D3D12_RESOURCE_STATE_DEPTH_READ;
+			}
+			if (_access.type == AccessType::Depth_Write)
+			{
+				_next = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			}
+
+			auto& _res = m_rgResourceMap[_access.id];
+			if (_res.currentState != _next)
+			{
+				_cp.barrierVec.push_back(
 					{
-						_next = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+						_res.spRGTexture.get(),
+						_res.currentState,
+						_next
 					}
-					/*else if (HasFlag(_res.desc.usage, ResourceUsage::ShaderWrite))
-					{
-					// まだUAVは実装していない
-						_next = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-					}*/
-					else
-					{
-						_next = D3D12_RESOURCE_STATE_RENDER_TARGET;
-					}
-				}
-
-				if (_res.currentState != _next)
-				{
-					_cp.barrierVec.push_back(
-						{
-							_res.spRGTexture.get(),
-							_res.currentState,
-							_next
-						}
-					);
-					_res.currentState = _next;
-				}
-
-				if (a_isWrite)
-				{
-					_res.lastWritePass = _passIdx;
-				}
-			};
-
-		for (auto _id : _pass->GetDesc().readResource)
-		{
-			_ProcesssRes(_id,false);
-		}
-		for (auto _id : _pass->GetDesc().writeResource)
-		{
-			_ProcesssRes(_id, true);
+				);
+				_res.currentState = _next;
+			}
 		}
 
 		// 実行データに入れていく
@@ -205,40 +230,54 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 
 		// RTV
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvs;
-		for (auto& _att : _cp.pPass->GetDesc().colorAttachements)
-		{
-			auto& _tex = m_rgResourceMap[_att.id].spRGTexture;
-			_rtvs.push_back(_tex->GetRTVHandle());
-		}
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _clearRTVs;
 
 		// DSV
 		D3D12_CPU_DESCRIPTOR_HANDLE _dsv = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE* _pDsv = nullptr;
-		if (_cp.pPass->GetDesc().depthAttachement.has_value())
+		bool _isClear = false;
+		
+		auto _si = _cp.pPass->GetDesc().resourceAccessVec.size();
+		for (auto& _resAcc : _cp.pPass->GetDesc().resourceAccessVec)
 		{
-			auto& _depth = m_rgResourceMap[_cp.pPass->GetDesc().depthAttachement.value().id].spRGTexture;
-			_dsv = _depth->GetDSVHandle();
-			_pDsv = &_dsv;
-		}		
+			// レンダーターゲット
+			if (_resAcc.type == AccessType::RTV)
+			{
+				auto& _tex = m_rgResourceMap[_resAcc.id].spRGTexture;
+				_rtvs.push_back(_tex->GetRTVHandle());
+				// クリアを入れるかどうか
+				if (_resAcc.load == LoadOp::Clear)
+				{
+					_clearRTVs.push_back(_tex->GetRTVHandle());
+				}
+			}
+
+			// 深度値
+			if (_resAcc.type == AccessType::Depth_Write || 
+				_resAcc.type == AccessType::Depth_Read)
+			{
+				auto& _depth = m_rgResourceMap[_resAcc.id].spRGTexture;
+				_dsv = _depth->GetDSVHandle();
+				_pDsv = &_dsv;
+				// クリアを入れるかどうか
+				if (_resAcc.load == LoadOp::Clear)
+				{
+					_isClear = true;
+				}
+			}
+		}
 	
 		// レンダーターゲットを変更
 		a_pCtx->ChangeRenderTarget(_rtvs,_pDsv);
 
 		// クリア
-		auto _size = _cp.pPass->GetDesc().colorAttachements.size();
-		for (size_t _i = 0; _i < _size; ++_i)
+		for (auto& _handle : _clearRTVs)
 		{
-			if (_cp.pPass->GetDesc().colorAttachements[_i].load == LoadOp::Clear)
-			{
-				a_pCtx->ClearRenderTarget(_rtvs[_i]);
-			}
+			a_pCtx->ClearRenderTarget(_handle);
 		}
-		if (_cp.pPass->GetDesc().depthAttachement && _cp.pPass->GetDesc().depthAttachement->load == LoadOp::Clear)
+		if (_isClear)
 		{
-			if(_pDsv)
-			{
-				a_pCtx->ClearDepth(_dsv);
-			}
+			a_pCtx->ClearDepth(_dsv);
 		}
 
 		// パスの実行

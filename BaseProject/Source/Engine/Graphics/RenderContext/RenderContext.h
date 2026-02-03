@@ -48,37 +48,6 @@ class RenderContext
 {
 public:
 
-	struct alignas(256) CBObject
-	{
-		// UV操作
-		DirectX::XMFLOAT4 uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
-	};
-
-	// メッシュ座標用定数バッファ
-	struct alignas(256) CBMeshTrans
-	{
-		DirectX::XMFLOAT4X4 worldMat;
-	};
-
-	// マテリアル単位更新用定数バッファ
-	struct alignas(256) CBMaterial
-	{
-		DirectX::XMFLOAT4 baseColorXYZW = { 1.0f,1.0f,1.0f,1.0f };
-		DirectX::XMFLOAT4 emissiveXYZ = { 0.0f,0.0f,0.0f,0.0f };
-		DirectX::XMFLOAT4 metallicRoughnessXY = { 0.0f,0.0f,0.0f,0.0f };
-	};
-
-
-	// カメラ用定数バッファ
-	struct alignas(256) CBCamera
-	{
-		DirectX::XMFLOAT4X4 viewMat;			// ビュー行列
-		DirectX::XMFLOAT4X4 projMat;			// 射影行列
-		DirectX::XMFLOAT4X4 projInvMat;			// 射影逆行列
-
-		DirectX::XMFLOAT4 cameraPosXYZ = { 0.0f,0.0f,0.0f,0.0f };	// カメラのワールド座標
-	};
-
 	// フレームで消費するリソース
 	struct FrameResource
 	{
@@ -104,6 +73,8 @@ public:
 	);
 
 	void BindCameraCB();
+
+	void BindCB(RootSigSemantic a_sema);
 
 	/// <summary>
 	/// プロジェクション行列の設定
@@ -137,6 +108,12 @@ public:
 	void ChangeRenderTarget(
 		const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec,
 		D3D12_CPU_DESCRIPTOR_HANDLE* a_depthHandle = nullptr
+	);
+
+
+	void BindSRV(
+		RootSigSemantic a_sema,
+		const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
 	);
 
 	void ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHnadle);
@@ -217,11 +194,6 @@ public:
 	void Draw(
 		Mesh* a_pMesh,
 		UINT a_subIdx
-	);
-
-	void SetRenderTarget(
-		const std::vector<AttachementDesc>& a_cpuHnadleVec,
-		std::optional<AttachementDesc> a_depthHandle
 	);
 
 	void SetViewPort();

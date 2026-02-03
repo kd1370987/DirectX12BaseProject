@@ -30,28 +30,8 @@ Resource::ID ShaderManager::Register(const ShaderItem& a_dst)
 	// 頂点シェーダーのみインプット関係を使用
 	if (!a_dst.pInputDesc)
 	{
-		if (a_dst.stage == ShaderStage::Vertex)
-		{
-			const int _inputElementCount = 5;										// 入力情報数を指定
-			_spShader->vsInputElemnetVec.push_back(
-				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-			_spShader->vsInputElemnetVec.push_back(
-				{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-			_spShader->vsInputElemnetVec.push_back(
-				{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-			_spShader->vsInputElemnetVec.push_back(
-				{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-			_spShader->vsInputElemnetVec.push_back(
-				{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-			_spShader->vsInputLayout.pInputElementDescs = _spShader->vsInputElemnetVec.data();
-			_spShader->vsInputLayout.NumElements = _inputElementCount;
-
-		}
-		else
-		{
-			_spShader->vsInputElemnetVec = {};
-			_spShader->vsInputLayout = {};
-		}
+		_spShader->vsInputLayout.pInputElementDescs = nullptr;
+		_spShader->vsInputLayout.NumElements = 0;
 	}
 	else
 	{

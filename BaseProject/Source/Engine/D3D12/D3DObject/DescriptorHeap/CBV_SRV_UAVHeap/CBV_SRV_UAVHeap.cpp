@@ -72,7 +72,6 @@ Storage::Range CBV_SRV_UAVHeap::AllocateSRVRange(std::vector<SRVViewInit> a_init
 			_srvDesc = *a_initVec[_i].pDesc;
 		}
 		{
-			_srvDesc.Format = _res.pResource->GetDesc().Format;
 			_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 			_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 			_srvDesc.Texture2D.MipLevels = 1;

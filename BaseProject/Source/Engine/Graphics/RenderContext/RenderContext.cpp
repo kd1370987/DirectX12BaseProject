@@ -42,21 +42,34 @@ void RenderContext::Init()
 	m_spRootSigManager = std::make_shared<RootSignatureManager>();
 	m_spRootSigManager->Init(10);
 
-	m_spRootSigManager->Register(
+	//m_spRootSigManager->Register(
+	m_spRootSigManager->CreateRootSig(
 		"BaseRootSig",
 		{
-			{RootParameterType::RootCBV,{}},
-			{RootParameterType::RootCBV,{}},
-			{RootParameterType::RootCBV,{}},
-			{RootParameterType::RootCBV,{}},
+			{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::ObjectCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::MaterialCB,true},
 			{RootParameterType::DescriptorTable,
-			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV}}
+			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
+			RootSigSemantic::MaterialSRV,false}
 		}
 	);
-	m_spRootSigManager->Register(
+	m_spRootSigManager->CreateRootSig(
 		"QuadRendering",
 		{
-			{RootParameterType::DescriptorTable,{RangeType::SRV}}
+			{RootParameterType::DescriptorTable,{RangeType::SRV},
+			RootSigSemantic::PostScreenSRV,false}
+		}
+	);
+
+	m_spRootSigManager->CreateRootSig(
+		"DeferredLighting",
+		{
+			{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
+			{RootParameterType::DescriptorTable,
+			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
+			RootSigSemantic::PostScreenSRV,false}
 		}
 	);
 
@@ -176,13 +189,70 @@ void RenderContext::SetToShader(
 
 void RenderContext::BindCameraCB()
 {
-	// カメラ用定数バッファに転送
+	// レジスター番号取得
+	UINT _regiIdx = 
+		m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::CameraCB);
+
+	// ルートシグネチャにカメラCBが含まれているのなら
+	if (ERR_UINT != _regiIdx)
+	{
+		// カメラ用定数バッファに転送
+		auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+		BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
+			_cmdList,
+			_regiIdx,
+			m_cb0_camera
+		);
+	}
+}
+
+void RenderContext::BindCB(RootSigSemantic a_sema)
+{
+	// レジスター番号取得
+	UINT _regiIdx =
+		m_spRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
 	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-	BindCB()->BindAndAttachDataRootCBV<CBCamera>(
-		_cmdList,
-		0,
-		m_cb0_camera
-	);
+
+	if (ERR_UINT != _regiIdx)
+	{
+		switch (a_sema)
+		{
+		case RootSigSemantic::CameraCB:
+			BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
+				_cmdList,
+				_regiIdx,
+				m_cb0_camera
+			);
+			break;
+		case RootSigSemantic::ObjectCB:
+			BindCB()->BindSemanticCBV<RootSigSemantic::ObjectCB>(
+				_cmdList,
+				_regiIdx,
+				m_cb1_object
+			);
+			break;
+		case RootSigSemantic::MeshTransCB:
+			BindCB()->BindSemanticCBV<RootSigSemantic::MeshTransCB>(
+				_cmdList,
+				_regiIdx,
+				m_cb2_MeshTrans
+			);
+			break;
+		case RootSigSemantic::MaterialCB:
+			BindCB()->BindSemanticCBV<RootSigSemantic::MaterialCB>(
+				_cmdList,
+				_regiIdx,
+				m_cb3_Material
+			);
+			break;
+		case RootSigSemantic::MaterialSRV:
+			break;
+		case RootSigSemantic::PostScreenSRV:
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void RenderContext::SetProjectionMatrix(
@@ -229,6 +299,30 @@ void RenderContext::ChangeRenderTarget(
 	);
 
 	RenderingEngine::Instance().SetViewportAndRect();
+}
+
+void RenderContext::BindSRV(
+	RootSigSemantic a_sema,
+	const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
+)
+{
+	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+
+	UINT _regiIdx =
+		m_spRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
+
+
+	// SRVセット
+	if (ERR_UINT != _regiIdx)
+	{
+		for(UINT _i = 0; _i < a_srvHandle.size(); ++_i)
+		{
+			_pCmdList->SetGraphicsRootDescriptorTable(
+				_regiIdx,
+				a_srvHandle[0]
+			);
+		}
+	}
 }
 
 void RenderContext::ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHnadle)
@@ -382,22 +476,6 @@ void RenderContext::Draw(Mesh* a_pMesh, UINT a_subIdx)
 	_pCmdList->DrawIndexedInstanced(
 		_faceCount * 3, 1, _faceStart * 3, 0, 0
 	);
-}
-
-void RenderContext::SetRenderTarget(
-	const std::vector<AttachementDesc>& a_attachementDescVec,
-	std::optional<AttachementDesc> a_attachementDescDepth
-)
-{
-	if (a_attachementDescDepth.has_value())
-	{
-		return;
-	}
-	if (a_attachementDescVec.empty())
-	{
-		return;
-	}
-
 }
 
 void RenderContext::SetViewPort()
