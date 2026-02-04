@@ -15,6 +15,7 @@ enum class RootParameterType
 
 enum class RootSigSemantic
 {
+	None,
 	CameraCB,
 	ObjectCB,
 	MeshTransCB,
@@ -25,24 +26,24 @@ enum class RootSigSemantic
 
 struct RootSigLayout
 {
-	RootParameterType parameType;
-	std::vector<RangeType> rangeTypeVec;
+	RootParameterType parameType = RootParameterType::DescriptorTable;
+	std::vector<RangeType> rangeTypeVec = {};
 
-	RootSigSemantic semantic;
+	RootSigSemantic semantic = RootSigSemantic::None;
 	bool isCBV = false;
 };
 
 // 構造体
+// UV操作
 struct alignas(256) CBObject
 {
-	// UV操作
 	DirectX::XMFLOAT4 uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
 };
 
 // メッシュ座標用定数バッファ
 struct alignas(256) CBMeshTrans
 {
-	DirectX::XMFLOAT4X4 worldMat;
+	DirectX::XMFLOAT4X4 worldMat = {};
 };
 
 // マテリアル単位更新用定数バッファ
@@ -57,9 +58,9 @@ struct alignas(256) CBMaterial
 // カメラ用定数バッファ
 struct alignas(256) CBCamera
 {
-	DirectX::XMFLOAT4X4 viewMat;			// ビュー行列
-	DirectX::XMFLOAT4X4 projMat;			// 射影行列
-	DirectX::XMFLOAT4X4 projInvMat;			// 射影逆行列
+	DirectX::XMFLOAT4X4 viewMat = {};			// ビュー行列
+	DirectX::XMFLOAT4X4 projMat = {};			// 射影行列
+	DirectX::XMFLOAT4X4 projInvMat = {};			// 射影逆行列
 
 	DirectX::XMFLOAT4 cameraPosXYZ = { 0.0f,0.0f,0.0f,0.0f };	// カメラのワールド座標
 };

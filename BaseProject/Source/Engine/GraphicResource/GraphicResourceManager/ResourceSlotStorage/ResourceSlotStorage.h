@@ -189,7 +189,7 @@ inline Resource::ID ResourceSlotStorage<T>::GetID(const std::string& a_key)
 	if (_it == m_idMap.end())
 	{
 		// ないとき
-		return Resource::Limits::MAX_STORAGE;
+		return Resource::Limits::INVALID_ID;
 	}
 
 	// あったときは返す
@@ -202,12 +202,12 @@ inline Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T a_da
 	if (m_indexQueue.empty())
 	{
 		assert(0 && "ストレージの設定上限に達しました");
-		return Resource::Limits::MAX_STORAGE;
+		return Resource::Limits::INVALID_ID;
 	}
 
 
 	auto _id = GetID(a_key);
-	if (_id == Resource::Limits::MAX_STORAGE)
+	if (_id == Resource::Limits::INVALID_ID)
 	{
 		Resource::DataIndex _idx = m_indexQueue.front();
 		m_indexQueue.pop();
@@ -260,7 +260,7 @@ inline void ResourceSlotStorage<T>::Destroy(const Resource::ID& a_id)
 template<typename T>
 inline bool ResourceSlotStorage<T>::IsValid(const Resource::ID& a_id)
 {
-	return a_id != Resource::Limits::MAX_STORAGE;
+	return a_id != Resource::Limits::INVALID_ID;
 }
 
 template<typename T>

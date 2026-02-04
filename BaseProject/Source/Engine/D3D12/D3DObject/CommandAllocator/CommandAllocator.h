@@ -21,6 +21,12 @@ public:
 		D3D12_COMMAND_LIST_TYPE a_commandListType
 	);
 
+	// 単体生成
+	bool Create(
+		ID3D12Device* a_pDevice,
+		D3D12_COMMAND_LIST_TYPE a_commandListType
+	);
+
 
 	// リセット
 	void Reset(UINT a_frameIdx);
@@ -35,4 +41,6 @@ private:
 
 	// コマンドアロケーター群
 	std::vector<ComPtr<ID3D12CommandAllocator>> m_pCommandAllocatorVec;
+
+	ComPtr<ID3D12CommandAllocator> m_cpCommandAllocator = nullptr;
 };

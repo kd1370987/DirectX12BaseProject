@@ -1,6 +1,6 @@
 ﻿#include "OffScreen.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
@@ -15,15 +15,15 @@ bool OffScreen::CreateScreenVertex()
 	};
 
 	ScreenVertex _sv[4] = {
-		{{-1,-1,0.1},{0,1}},
-		{{-1, 1,0.1},{0,0}},
-		{{ 1,-1,0.1},{1,1}},
-		{{ 1, 1,0.1},{1,0}}
+		{{-1.0f,-1.0f,0.1f},{0.0f,1.0f}},
+		{{-1.0f, 1.0f,0.1f},{0.0f,0.0f}},
+		{{ 1.0f,-1.0f,0.1f},{1.0f,1.0f}},
+		{{ 1.0f, 1.0f,0.1f},{1.0f,0.0f}}
 	};
 
 	auto _heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	auto _resDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(_sv));
-	auto _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+	auto _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&_resDesc,

@@ -54,14 +54,14 @@ struct GLTFNode
 	//---------------------------------
 	// 基本情報
 	//---------------------------------
-	std::string				name;					// 名前
-	std::vector<int>		children;				// 子Indexリスト
+	std::string				name = "none";					// 名前
+	std::vector<int>		children = {};				// 子Indexリスト
 	int						parent = -1;			// 親のIndex
 	int						boneNodeIndex = -1;		// ボーンの場合のIndex
 
-	DirectX::XMFLOAT4X4		localTransform;			// ローカル行列	中心点からの座標
-	DirectX::XMFLOAT4X4		worldTransform;			// ワールド行列 中心点
-	DirectX::XMFLOAT4X4		inverseBindMatrix;		// ボーンのオフセット行列
+	DirectX::XMFLOAT4X4		localTransform = {};			// ローカル行列	中心点からの座標
+	DirectX::XMFLOAT4X4		worldTransform = {};			// ワールド行列 中心点
+	DirectX::XMFLOAT4X4		inverseBindMatrix = {};		// ボーンのオフセット行列
 
 	//---------------------------------
 	// Mesh専用
@@ -69,13 +69,13 @@ struct GLTFNode
 	bool						isMesh = false;		// メッシュがあるかどうか
 	struct NodeMesh
 	{
-		std::vector<MeshVertex8bit>	vertices;			// 頂点配列
-		std::vector<MeshFace>	faces;				// 面情報配列
-		std::vector<MeshSubset> subsets;			// サブセット配列
+		std::vector<MeshVertex8bit>	vertices = {};			// 頂点配列
+		std::vector<MeshFace>	faces = {};				// 面情報配列
+		std::vector<MeshSubset> subsets = {};			// サブセット配列
 
 		bool					isSkinMesh = false;	// スキンメッシュはあるかどうか
 	};
-	NodeMesh					nodeMesh;
+	NodeMesh					nodeMesh = {};
 };
 
 //=========================================================
@@ -88,9 +88,9 @@ struct GLTFAnimationData
 	//---------------------------------
 	// 基本情報
 	//---------------------------------
-	std::string									name;					// 名前
+	std::string									name = "none";					// 名前
 	float										maxLength = 0;			// アニメーションの長さ
-	std::vector<std::shared_ptr<AnimationNode>> spAnimationNodes;		// 全ノード用アニメーションデータ
+	std::vector<std::shared_ptr<AnimationNode>> spAnimationNodes = { nullptr };		// 全ノード用アニメーションデータ
 };
 
 //=========================================================
@@ -101,19 +101,19 @@ struct GLTFModel
 	//---------------------------------
 	// ノードデータ
 	//---------------------------------
-	std::vector<GLTFNode>		nodes;							// 全ノードデータ
-	std::vector<int>			rootNodeIndices;				// ルートノードのみのIndexリスト
-	std::vector<int>			boneNodeIndices;				// ボーンノードのみのIndexリスト
+	std::vector<GLTFNode>		nodes = {};							// 全ノードデータ
+	std::vector<int>			rootNodeIndices = {};				// ルートノードのみのIndexリスト
+	std::vector<int>			boneNodeIndices = {};				// ボーンノードのみのIndexリスト
 
 	//---------------------------------
 	// マテリアル
 	//---------------------------------
-	std::vector<GLTFMaterial>	materials;						// 一覧
+	std::vector<GLTFMaterial>	materials = {};						// 一覧
 
 	//---------------------------------
 	// アニメーション
 	//---------------------------------
-	std::vector<std::shared_ptr<GLTFAnimationData>> animations;	// アニメーションデータリスト
+	std::vector<std::shared_ptr<GLTFAnimationData>> animations = {};	// アニメーションデータリスト
 };
 
 //=========================================================

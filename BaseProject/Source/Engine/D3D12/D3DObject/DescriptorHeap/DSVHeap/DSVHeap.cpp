@@ -1,6 +1,6 @@
 ﻿#include "DSVHeap.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 DSVHandle DSVHeap::RegisterDSV(ID3D12Resource* a_resource, D3D12_DEPTH_STENCIL_VIEW_DESC* a_pDSVDesc)
 {

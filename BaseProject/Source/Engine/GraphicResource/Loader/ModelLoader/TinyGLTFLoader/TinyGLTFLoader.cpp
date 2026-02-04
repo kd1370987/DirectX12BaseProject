@@ -444,12 +444,12 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		// 作業データ
 		struct GLTFPrimitive
 		{
-			std::vector<MeshVertex8bit>     vertices;
-			std::vector<MeshFace>       faces;
+			std::vector<MeshVertex8bit>     vertices = {};
+			std::vector<MeshFace>       faces = {};
 
 			UINT                        materialNumber = 0;
 
-			std::map<std::string, int>  attributes;
+			std::map<std::string, int>  attributes = {};
 		};
 		std::vector<std::shared_ptr<GLTFPrimitive>> _tmpPrimitives(_tinyModel.meshes[_meshIdx].primitives.size());
 
@@ -482,7 +482,6 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 				// 座標ゲッター生成
 				GLTFBufferGetter _posGetter(&_tinyModel, _srcPrimitive.attributes["POSITION"]);
 
-				DirectX::XMFLOAT3 _pos;
 				_destPrimitive->vertices.resize(_posGetter.GetAccsessor()->count);      // 配列確保
 				for (UINT _vertexIdx = 0; _vertexIdx < _posGetter.GetAccsessor()->count; ++_vertexIdx)
 				{
@@ -722,7 +721,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			{
 				DirectX::XMVECTOR _up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向ベクトル
 				DirectX::XMVECTOR _normal = DirectX::XMLoadFloat3(&_vertex.normal);		// 法線ベクトル
-				DirectX::XMVECTOR _tangent = DirectX::XMVector3Cross(_up, _normal);		// クロス積を計算
+				_tangent = DirectX::XMVector3Cross(_up, _normal);		// クロス積を計算
 				DirectX::XMStoreFloat3(&_vertex.tangent, _tangent);						// 結果を保存
 			}
 
@@ -731,7 +730,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			{
 				DirectX::XMVECTOR _up = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);	// 別方向の上ベクトル
 				DirectX::XMVECTOR _normal = DirectX::XMLoadFloat3(&_vertex.normal);		// 法線ベクトル
-				DirectX::XMVECTOR _tangent = DirectX::XMVector3Cross(_up, _normal);		// クロス積を計算
+				_tangent = DirectX::XMVector3Cross(_up, _normal);		// クロス積を計算
 				DirectX::XMStoreFloat3(&_vertex.tangent, _tangent);						// 結果を保存
 			}
 		}

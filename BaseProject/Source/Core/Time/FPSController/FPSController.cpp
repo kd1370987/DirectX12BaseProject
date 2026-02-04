@@ -49,7 +49,7 @@ void FPSController::FPSMonitor()
 	{
 		double _seconds = std::chrono::duration<double>(_elapsed).count();
 
-		m_nowFPS = m_frameCount / _seconds;
+		m_nowFPS = static_cast<UINT>(m_frameCount / _seconds);
 
 		m_countFrameStart = _now;
 		m_frameCount = 0;

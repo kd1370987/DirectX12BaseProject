@@ -28,10 +28,10 @@ namespace
 				// 頂点配列作成
 				std::vector<MeshVertexFloat> _vertices = {};
 				_vertices.resize(_srcNode.spMesh->vertices.size());
-				for (size_t _i = 0; _i < _srcNode.spMesh->vertices.size(); ++_i)
+				for (size_t _j = 0; _j < _srcNode.spMesh->vertices.size(); ++_j)
 				{
-					MeshVertexFloat _dstVertex = _srcNode.spMesh->vertices[_i];
-					_vertices[_i] = _dstVertex;
+					MeshVertexFloat _dstVertex = _srcNode.spMesh->vertices[_j];
+					_vertices[_j] = _dstVertex;
 				}
 
 				// フェイス情報作成

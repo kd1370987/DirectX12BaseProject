@@ -15,7 +15,7 @@ class ShaderManager;
 class RootSignatureManager;
 class GraphicsPSOManager;
 
-class Model;
+struct Model;
 
 class OffScreen;
 
@@ -33,15 +33,15 @@ enum class RenderPassID
 // １DrawCall当たりアイテム
 struct DrawItem
 {
-	Material* pMaterial;
-	UINT subIdx;
-	Mesh* pMesh;
+	Material* pMaterial = nullptr;
+	UINT subIdx = 0;
+	Mesh* pMesh = nullptr;
 
-	DirectX::XMFLOAT4X4 worldMat;
+	DirectX::XMFLOAT4X4 worldMat = {};
 	DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
 	DirectX::XMFLOAT3	emissiveScale = { 1,1,1 };
 
-	uint64_t sortKey;
+	uint64_t sortKey = 0;
 };
 
 class RenderContext
@@ -63,7 +63,13 @@ public:
 	/// </summary>
 	void Init();
 
+	/// <summary>
+	/// 終了処理
+	/// </summary>
 	void Shutdown();
+
+	void BeginFrame();
+	void EndFrame();
 
 	/// <summary>
 	/// カメラの情報を定数バッファに乗せてシェーダーに転送
@@ -116,7 +122,12 @@ public:
 		const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
 	);
 
-	void ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHnadle);
+	void ClearRenderTarget(
+		const D3D12_CPU_DESCRIPTOR_HANDLE& a_renderTargetView,
+		const DirectX::XMFLOAT4& a_colorRGBA = { 0.0f,0.0f,1.0f,1.0f },
+		const UINT& a_numRects = 0,
+		const D3D12_RECT* a_pRects = nullptr
+	);
 
 	void ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle);
 
@@ -205,7 +216,14 @@ public:
 		D3D12_RESOURCE_STATES a_after
 	);
 
-	void DrawQuad(D3D12_GPU_DESCRIPTOR_HANDLE a_gpu);
+
+	void ChangeBackBuffer();
+
+	/// <summary>
+	/// クワッド描画
+	/// </summary>
+	/// <param name="a_gpu">クワッド画面に描画するテクスチャハンドル</param>
+	void DrawQuad();
 
 private:
 
@@ -213,7 +231,7 @@ private:
 	CBCamera m_cb0_camera = {};
 
 	// 1フレームで消費するリソース
-	FrameResource m_frameResource[CPU_FRAME_COUNT];
+	FrameResource m_frameResource[CPU_FRAME_COUNT] = {};
 
 	// マネージャー
 	std::shared_ptr<ShaderManager>			m_spShaderManger		= nullptr;
@@ -227,15 +245,17 @@ private:
 	CBMeshTrans m_cb2_MeshTrans = {};
 	CBMaterial m_cb3_Material = {};
 
-	Resource::ID m_currentRootSigID;
-	Resource::ID m_currentPSOID;
+	Resource::ID m_currentRootSigID = Resource::Limits::INVALID_ID;
+	Resource::ID m_currentPSOID = Resource::Limits::INVALID_ID;
 	Material* m_pCurrentMaterial = nullptr;
 	Mesh* m_pCurrentMesh = nullptr;
 
 	// ECSからの分離
-	std::unordered_map<RenderQueueType, std::vector<DrawItem>> m_drawItemMap;
+	std::unordered_map<RenderQueueType, std::vector<DrawItem>> m_drawItemMap = {};
 
 	std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;
+
+	
 
 // シングルトン
 private:

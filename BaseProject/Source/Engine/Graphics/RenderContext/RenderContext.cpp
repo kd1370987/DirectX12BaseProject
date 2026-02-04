@@ -1,6 +1,6 @@
 ﻿#include "RenderContext.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/D3D12/D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
 #include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
@@ -96,7 +96,7 @@ void RenderContext::Init()
 	{
 		m_frameResource[_i].spCamAndObjectCBAllocater = std::make_shared<CBAllocater>();
 		m_frameResource[_i].spCamAndObjectCBAllocater->RootCBVCreate(
-			RenderingEngine::Instance().GetDevice(), 32 * 1024 * 1024
+			D3D12Wrapper::Instance().GetDevice(), 32 * 1024 * 1024
 		);
 	}
 
@@ -127,6 +127,11 @@ void RenderContext::Init()
 	m_cb3_Material.emissiveXYZ = { 1.0f,1.0f,1.0f,0.0f };
 	m_cb3_Material.metallicRoughnessXY = { 0.0f,1.0f,0.0f,0.0f };
 
+
+	m_currentPSOID = Resource::Limits::INVALID_ID;
+	m_currentRootSigID = Resource::Limits::INVALID_ID;
+	m_pCurrentMaterial = nullptr;
+	m_pCurrentMesh = nullptr;
 }
 
 void RenderContext::Shutdown()
@@ -151,6 +156,16 @@ void RenderContext::Shutdown()
 	m_spGraphicsPSOManager.reset();
 }
 
+void RenderContext::BeginFrame()
+{
+	
+}
+
+void RenderContext::EndFrame()
+{
+
+}
+
 //============================================================================================
 //
 // カメラ
@@ -161,8 +176,8 @@ void RenderContext::SetToShader(
 )
 {
 	// コマンドリスト取得
-	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-	UINT _currentIdx = RenderingEngine::Instance().CurrentCPUFrameIndex();
+	auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
+	UINT _currentIdx = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 
 	// 定数バッファの初期化
 	m_frameResource[_currentIdx].spCamAndObjectCBAllocater->ResetUse();
@@ -197,7 +212,7 @@ void RenderContext::BindCameraCB()
 	if (ERR_UINT != _regiIdx)
 	{
 		// カメラ用定数バッファに転送
-		auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+		auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
 		BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
 			_cmdList,
 			_regiIdx,
@@ -211,7 +226,7 @@ void RenderContext::BindCB(RootSigSemantic a_sema)
 	// レジスター番号取得
 	UINT _regiIdx =
 		m_spRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
-	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
+	auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	if (ERR_UINT != _regiIdx)
 	{
@@ -277,7 +292,7 @@ void RenderContext::SetProjectionMatrix(DirectX::XMFLOAT4X4 a_projMat)
 
 CBAllocater* RenderContext::BindCB()
 {
-	auto _currentIdx = RenderingEngine::Instance().CurrentCPUFrameIndex();
+	auto _currentIdx = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 	return m_frameResource[_currentIdx].spCamAndObjectCBAllocater.get();
 }
 
@@ -287,18 +302,18 @@ void RenderContext::ChangeRenderTarget(
 	D3D12_CPU_DESCRIPTOR_HANDLE* a_depthHandle
 )
 {
-	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 	
 	if (a_cpuHnadleVec.empty()) return;
 
 	_pCmdList->OMSetRenderTargets(
-		std::size(a_cpuHnadleVec),
+		static_cast<UINT>(std::size(a_cpuHnadleVec)),
 		a_cpuHnadleVec.data(),
 		false, 
 		a_depthHandle
 	);
 
-	RenderingEngine::Instance().SetViewportAndRect();
+	D3D12Wrapper::Instance().SetViewportAndRect();
 }
 
 void RenderContext::BindSRV(
@@ -306,7 +321,7 @@ void RenderContext::BindSRV(
 	const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
 )
 {
-	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	UINT _regiIdx =
 		m_spRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
@@ -325,19 +340,19 @@ void RenderContext::BindSRV(
 	}
 }
 
-void RenderContext::ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHnadle)
+void RenderContext::ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle, const DirectX::XMFLOAT4& a_colorRGBA, const UINT& a_numRects, const D3D12_RECT* a_pRects)
 {
-	RenderingEngine::Instance().ClearRenderTargetView(
-		a_cpuHnadle,
-		{1,0,1,1},
-		0,
-		nullptr
+	D3D12Wrapper::Instance().ClearRenderTargetView(
+		a_cpuHandle,
+		a_colorRGBA,
+		a_numRects,
+		a_pRects
 	);
 }
 
 void RenderContext::ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle)
 {
-	RenderingEngine::Instance().ClearDepthStencilView(a_depthHandle);
+	D3D12Wrapper::Instance().ClearDepthStencilView(a_depthHandle);
 }
 
 void RenderContext::AddItem(const RenderQueueType& a_type, const DrawItem& a_item)
@@ -352,15 +367,16 @@ const std::vector<DrawItem>& RenderContext::GetItemVec(const RenderQueueType& a_
 	{
 		return _it->second;
 	}
-	return std::vector<DrawItem>{};
+	std::vector<DrawItem> _items = {};
+	return _items;
 }
 
 
 void RenderContext::Excute()
 {
 	// バインド対象のクリア
-	m_currentRootSigID = Resource::Limits::MAX_STORAGE;
-	m_currentPSOID = Resource::Limits::MAX_STORAGE;
+	m_currentRootSigID = Resource::Limits::INVALID_ID;
+	m_currentPSOID = Resource::Limits::INVALID_ID;
 	m_pCurrentMaterial = nullptr;
 	m_pCurrentMesh = nullptr;
 
@@ -373,7 +389,7 @@ void RenderContext::Excute()
 
 void RenderContext::SetGraphicsRootSignature(const Resource::ID& a_rootSigID)
 {
-	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	// ルートシグネチャセット
 	if (a_rootSigID != m_currentRootSigID)
@@ -385,7 +401,7 @@ void RenderContext::SetGraphicsRootSignature(const Resource::ID& a_rootSigID)
 
 void RenderContext::SetGraphicPSO(const Resource::ID& a_psoID)
 {
-	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	// パイプラインステートセット
 	if (a_psoID != m_currentPSOID)
@@ -397,7 +413,7 @@ void RenderContext::SetGraphicPSO(const Resource::ID& a_psoID)
 
 void RenderContext::BindObuje(const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)
 {
-	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	m_cb1_object.uvOffsetTiling.x = a_uv.x;
 	m_cb1_object.uvOffsetTiling.y = a_uv.y;
@@ -417,7 +433,7 @@ void RenderContext::BindMaterial(
 	const DirectX::XMFLOAT3& a_emissiveScale
 )
 {
-	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	auto _colorScale = DirectX::XMLoadFloat4(&a_colorScale);
 	auto& _emissiveScale = a_emissiveScale;
@@ -448,7 +464,7 @@ void RenderContext::BindMaterial(
 
 void RenderContext::BindMesh(Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
 {
-	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	// メッシュ変換行列の転送
 	m_cb2_MeshTrans.worldMat = a_worldMat;
@@ -468,7 +484,7 @@ void RenderContext::BindMesh(Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMa
 
 void RenderContext::Draw(Mesh* a_pMesh, UINT a_subIdx)
 {
-	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	// 描画
 	UINT _faceCount = static_cast<UINT>(a_pMesh->GetSubsets()[a_subIdx].faceCount);
@@ -492,22 +508,23 @@ void RenderContext::Transition(
 	D3D12_RESOURCE_STATES a_after
 )
 {
-	RenderingEngine::Instance().ResourceBarrier(
+	D3D12Wrapper::Instance().ResourceBarrier(
 		a_pResource,
 		a_before,
 		a_after
 	);
 }
 
-void RenderContext::DrawQuad(D3D12_GPU_DESCRIPTOR_HANDLE a_gpu)
+void RenderContext::ChangeBackBuffer()
+{
+	// レンダーターゲットをバックバッファへ切り替える
+	D3D12Wrapper::Instance().SetBackBuffer();
+}
+
+void RenderContext::DrawQuad()
 {
 	// コマンドリストの取得
-	auto* _cmdList = RenderingEngine::Instance().GetCommandList();
-
-	// レンダーターゲットをバックバッファへ切り替える
-	RenderingEngine::Instance().SetBackBuffer();
-
-	_cmdList->SetGraphicsRootDescriptorTable(0, a_gpu);
+	auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
 	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);
@@ -516,6 +533,8 @@ void RenderContext::DrawQuad(D3D12_GPU_DESCRIPTOR_HANDLE a_gpu)
 
 RenderContext::RenderContext()
 {
+	m_currentPSOID = Resource::Limits::INVALID_ID;
+	m_currentRootSigID = Resource::Limits::INVALID_ID;
 }
 
 RenderContext::~RenderContext()

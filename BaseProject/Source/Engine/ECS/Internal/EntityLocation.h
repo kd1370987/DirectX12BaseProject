@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class ArchetypeChunk;
+struct ArchetypeChunk;
 
 // エンティティの住所
 struct EntityLocation

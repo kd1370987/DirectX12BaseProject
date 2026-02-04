@@ -7,7 +7,7 @@ public:
 
 	struct Data
 	{
-		std::shared_ptr<T> spData;
+		std::shared_ptr<T> spData = nullptr;
 		Resource::DataGeneration gen = 0;
 		bool isAlive = false;
 	};
@@ -102,12 +102,12 @@ private:
 
 private:
 
-	std::unordered_map<std::string, Resource::ID> m_idMap;
-	std::vector<std::string> m_toString;
-	std::vector<Data> m_dataVec;
+	std::unordered_map<std::string, Resource::ID> m_idMap = {};
+	std::vector<std::string> m_toString = {};
+	std::vector<Data> m_dataVec = {};
 
 
-	std::queue<Resource::DataIndex> m_indexQueue;
+	std::queue<Resource::DataIndex> m_indexQueue = {};
 };
 
 template<typename T>
@@ -203,7 +203,7 @@ inline Resource::ID SlotStorage<T>::GetID(const std::string& a_key)
 	{
 		// ないとき
 		//assert(0 && "IDが見つかりません");
-		return Resource::Limits::MAX_STORAGE;
+		return Resource::Limits::INVALID_ID;
 	}
 
 	// あったときは返す
@@ -216,12 +216,12 @@ inline Resource::ID SlotStorage<T>::Add(const std::string& a_key, std::shared_pt
 	if (m_indexQueue.empty())
 	{
 		assert(0 && "ストレージの設定上限に達しました");
-		return Resource::Limits::MAX_STORAGE;
+		return Resource::Limits::INVALID_ID;
 	}
 
 
 	auto _id = GetID(a_key);
-	if (_id == Resource::Limits::MAX_STORAGE)
+	if (_id == Resource::Limits::INVALID_ID)
 	{
 		Resource::DataIndex _idx = m_indexQueue.front();
 		m_indexQueue.pop();
@@ -274,7 +274,7 @@ inline void SlotStorage<T>::Destroy(const Resource::ID& a_id)
 template<typename T>
 inline bool SlotStorage<T>::IsValid(const Resource::ID& a_id)
 {
-	return a_id != Resource::Limits::MAX_STORAGE;
+	return a_id != Resource::Limits::INVALID_ID;
 }
 
 template<typename T>

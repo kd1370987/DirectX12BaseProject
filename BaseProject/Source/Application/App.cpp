@@ -2,7 +2,7 @@
 
 #include "Engine/Window/Window.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
@@ -72,7 +72,7 @@ bool Application::Init()
 	m_upTimeManager->Init(120.0f);
 	
 	// 描画エンジンの初期化
-	if (!RenderingEngine::Instance().Init(m_upWindow->GetWindowHandle(), WINDOW_WIDTH, WINDOW_HEIGHT))
+	if (!D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), WINDOW_WIDTH, WINDOW_HEIGHT))
 	{
 		assert(0 && "描画エンジンの初期化に失敗");
 		return false;
@@ -117,7 +117,7 @@ void Application::Release()
 	RenderContext::Instance().Shutdown();
 
 	// 描画エンジン解放
-	RenderingEngine::Instance().Shutdown();
+	D3D12Wrapper::Instance().Shutdown();
 
 	// 解放時にエラー検出
 #if _DEBUG
@@ -163,13 +163,13 @@ void Application::MainLoop()
 		
 
 		// 描画
-		RenderingEngine::Instance().BeginRender();			// 描画開始
+		D3D12Wrapper::Instance().BeginRender();			// 描画開始
 		{
 			SceneManager::Instance().Draw();				// 描画
 
-			m_upImGuiContex->CallImGuiDrawData(RenderingEngine::Instance().GetCommandList());
+			m_upImGuiContex->CallImGuiDrawData(D3D12Wrapper::Instance().GetCommandList());
 		}
-		RenderingEngine::Instance().EndRender(m_isVsync);	// 描画終了
+		D3D12Wrapper::Instance().EndRender(m_isVsync);	// 描画終了
 
 		// フレーム終了
 		m_upTimeManager->EndFrame(m_isVsync);

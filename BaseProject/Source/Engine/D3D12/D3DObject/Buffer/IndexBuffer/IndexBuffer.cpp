@@ -1,5 +1,5 @@
 ﻿#include "IndexBuffer.h"
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 bool IndexBuffer::Create(
 	size_t a_size, 
@@ -16,7 +16,7 @@ bool IndexBuffer::Create(
 	D3D12_RESOURCE_DESC _desc = CD3DX12_RESOURCE_DESC::Buffer(_bufferSize);	// リソースの設定
 
 	// リソースを生成
-	auto _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+	auto _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_prop,										// ヒートプロパティ
 		D3D12_HEAP_FLAG_NONE,						// ヒープフラグ
 		&_desc,										// リソース記述子（サイズ、フォーマット）

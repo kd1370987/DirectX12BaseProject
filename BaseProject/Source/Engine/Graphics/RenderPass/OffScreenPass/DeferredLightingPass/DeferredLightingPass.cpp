@@ -6,7 +6,7 @@
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 void DeferredLightingPass::Excute(RenderContext* a_pCtx)
 {
@@ -27,7 +27,7 @@ void DeferredLightingPass::Excute(RenderContext* a_pCtx)
 		_gpuVec
 	);
 
-	auto* _pCmdList = RenderingEngine::Instance().GetCommandList();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	// 描画
 	_pCmdList->DrawInstanced(

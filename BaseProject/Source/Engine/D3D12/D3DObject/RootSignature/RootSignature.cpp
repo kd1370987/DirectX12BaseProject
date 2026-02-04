@@ -1,6 +1,6 @@
 ﻿#include "RootSignature.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 RootSignature::RootSignature()
 {
@@ -11,7 +11,7 @@ bool RootSignature::Create(
 )
 {
 	// パラメーター数
-	int _paramCount = a_rootParamsVec.size();
+	int _paramCount = static_cast<int>(a_rootParamsVec.size());
 
 	// アプリケーションの入力アセンブラ使用
 	auto _flag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
@@ -98,15 +98,15 @@ bool RootSignature::Create(
 
 	// ルートシグネチャの設定（設定したいルートパラメーターとスタティックサンプラーを入れる）
 	D3D12_ROOT_SIGNATURE_DESC _desc = {};
-	_desc.NumParameters = std::size(m_rootParams);	// ルートパラメーターの個数を入れる
-	_desc.NumStaticSamplers = 1;								// サンプラーの個数を入れる
+	_desc.NumParameters = static_cast<UINT>(std::size(m_rootParams));	// ルートパラメーターの個数
+	_desc.NumStaticSamplers = static_cast<UINT>(1);						// サンプラーの個数を入れる
 	_desc.pParameters = m_rootParams.data();				// ルートパラメーターのポインタを入れる
 	_desc.pStaticSamplers = &_sampler;						// サンプラーのポインタを入れる
 	_desc.Flags = _flag;												// フラグを設定
 
 	// バイナリデータを保持するための汎用バッファ
-	ComPtr<ID3DBlob> _pBlob;		// シリアライズ済みルートシグネチャ(GPUに渡す最終バイナリ)を受け取るためのバッファ
-	ComPtr<ID3DBlob> _pErrorBlob;	// シリアライズに失敗したときのエラーメッセージが入るバッファ	
+	ComPtr<ID3DBlob> _pBlob = nullptr;		// シリアライズ済みルートシグネチャ(GPUに渡す最終バイナリ)を受け取るためのバッファ
+	ComPtr<ID3DBlob> _pErrorBlob = nullptr;	// シリアライズに失敗したときのエラーメッセージが入るバッファ	
 
 	// シリアライズ
 	auto _hr = D3D12SerializeRootSignature(
@@ -122,7 +122,7 @@ bool RootSignature::Create(
 	}
 
 	// ルートシグネチャ生成
-	_hr = RenderingEngine::Instance().GetDevice()->CreateRootSignature(
+	_hr = D3D12Wrapper::Instance().GetDevice()->CreateRootSignature(
 		0,												// GPUが複数ある場合のノード（基本一個想定でいいから0）
 		_pBlob->GetBufferPointer(),						// シリアライズしたデータのポインタ
 		_pBlob->GetBufferSize(),						// シリアライズしたデータのサイズ

@@ -15,7 +15,7 @@ void DeltaTime::CalcDeltaTime()
 	auto _currentTime = std::chrono::high_resolution_clock::now();
 
 	// 経過時間を計算(ミリ秒単位)
-	m_dt = std::chrono::duration_cast<std::chrono::milliseconds>(_currentTime - m_previousTime).count();
+	m_dt = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(_currentTime - m_previousTime).count());
 
 	// 秒単位に変換
 	m_dt *= 0.001f;

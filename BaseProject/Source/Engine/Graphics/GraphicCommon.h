@@ -27,6 +27,7 @@ enum class StoreOp
 
 enum class AccessType
 {
+	None,
 	SRV,
 	RTV,
 	Depth_Read,
@@ -36,35 +37,35 @@ enum class AccessType
 
 struct AccessResource
 {
-	Resource::ID id;
-	AccessType type;
+	Resource::ID id = Resource::Limits::INVALID_ID;
+	AccessType type = AccessType::None;
 
-	LoadOp load;
-	StoreOp store;
+	LoadOp load = LoadOp::Clear;
+	StoreOp store = StoreOp::Store;
 };
 
 struct PassDesc
 {
 	// パスの識別名
-	std::string name;
+	std::string name = "none";
 
-	UINT rootSigID;		// パスが使用するルートシグネチャID
-	UINT psoID;			// パスが使用するパイプラインステートID
+	UINT rootSigID = UINT_MAX;		// パスが使用するルートシグネチャID
+	UINT psoID = UINT_MAX;;			// パスが使用するパイプラインステートID
 
 	// 依存関係・トポロジカルソート用
-	std::vector<Resource::ID> readResource;		// 入力(SRV)
-	std::vector<Resource::ID> writeResource;	// 出力(RTV,UAV)
+	std::vector<Resource::ID> readResource = {};		// 入力(SRV)
+	std::vector<Resource::ID> writeResource = {};	// 出力(RTV,UAV)
 
-	RenderQueueType queueType;		// 描画アイテムタイプ
+	RenderQueueType queueType = RenderQueueType::Opaque;		// 描画アイテムタイプ
 
 	bool isCulled = false;		// 依存関係的に不要ならスキップ
 	bool isAsync = false;		// 将来用
 
-	Viewport viewport;
-	ScissorRectangle scissor;
+	Viewport viewport = {};
+	ScissorRectangle scissor = {};
 
 	// レンダーパス開始・終了時のAPI設定
-	std::vector<AccessResource> resourceAccessVec;
+	std::vector<AccessResource> resourceAccessVec = {};
 };
 
 #include "RootSigLayout/RootSigLayout.h"

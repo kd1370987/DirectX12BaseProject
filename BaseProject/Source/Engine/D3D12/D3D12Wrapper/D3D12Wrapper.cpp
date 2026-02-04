@@ -1,4 +1,4 @@
-﻿#include "RenderingEngine.h"
+﻿#include "D3D12Wrapper.h"
 
 #include "../../D3D12/D3DObject/Device/Device.h"
 #include "../../D3D12/D3DObject/CommandQueue/CommandQueue.h"
@@ -12,7 +12,7 @@
 #include "Engine/D3D12/D3DObject/Viewport/Viewport.h"
 #include "Engine/D3D12/D3DObject/ScissorRectangle/ScissorRectangle.h"
 
-bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
+bool D3D12Wrapper::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
 {
 	// GPUリソース初期化
 
@@ -50,6 +50,15 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 		assert(0 && "スワップチェインの生成に失敗");
 		return false;
 	}
+
+	// フレームリソース生成
+	for (size_t _i = 0; _i < static_cast<size_t>(CPU_FRAME_COUNT); ++_i)
+	{
+		m_frameResource[_i].upCommandAllocator = std::make_unique<CommandAllocator>();
+		m_frameResource[_i].upCommandAllocator->Create(m_upDevice->GetDevice(),D3D12_COMMAND_LIST_TYPE_DIRECT);
+		m_frameResource[_i].fenceValue = 0;
+	}
+
 	// コマンドアロケーター作成
 	m_upCommandAllocator = std::make_unique<CommandAllocator>();
 	if (!m_upCommandAllocator->Create(
@@ -107,7 +116,7 @@ bool RenderingEngine::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_window
 	return true;
 }
 
-void RenderingEngine::Shutdown()
+void D3D12Wrapper::Shutdown()
 {
 	SignalRenderFence();
 	WaitRender();
@@ -133,7 +142,7 @@ void RenderingEngine::Shutdown()
 // 描画開始・描画終了
 // 
 //==================================================================================
-void RenderingEngine::BeginRender()
+void D3D12Wrapper::BeginRender()
 {
 	// バックバッファ番号更新
 	m_upSwapChain->Update();
@@ -159,7 +168,7 @@ void RenderingEngine::BeginRender()
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
 }
-void RenderingEngine::EndRender(bool a_isVsync)
+void D3D12Wrapper::EndRender(bool a_isVsync)
 {
 	// レンダーターゲットに書き込みが終わるまで待つ
 	m_upCommandList->ResourceBarrier(
@@ -181,14 +190,14 @@ void RenderingEngine::EndRender(bool a_isVsync)
 	m_upSwapChain->Present(a_isVsync);
 }
 
-void RenderingEngine::CommandQueueReset()
+void D3D12Wrapper::CommandQueueReset()
 {
 	// コマンドキューを初期化して命令をためる準備をする
 	m_upCommandAllocator->Reset(m_cpuFrameIndex);
 	m_upCommandList->Reset(m_upCommandAllocator->Get(m_cpuFrameIndex));
 }
 
-void RenderingEngine::SetViewportAndRect()
+void D3D12Wrapper::SetViewportAndRect()
 {
 	// ビューポートとシザー矩形を設定
 	m_upCommandList->SetViewports(1, &m_upViewport->Get());
@@ -200,38 +209,38 @@ void RenderingEngine::SetViewportAndRect()
 // ゲッター
 // 
 //==================================================================================
-ID3D12Device* RenderingEngine::GetDevice()
+ID3D12Device* D3D12Wrapper::GetDevice()
 {
 	// デバイスの取得
 	return m_upDevice->GetDevice();
 }
-ID3D12GraphicsCommandList* RenderingEngine::GetCommandList()
+ID3D12GraphicsCommandList* D3D12Wrapper::GetCommandList()
 {
 	// コマンドリストの取得
 	return m_upCommandList->NGet();
 }
-UINT RenderingEngine::CurrentBackBufferIndex()
+UINT D3D12Wrapper::CurrentBackBufferIndex()
 {
 	// 現在のフレーム番号取得
 	return m_upSwapChain->GetCurrentBackBufferIndex();
 }
 
-UINT RenderingEngine::CurrentCPUFrameIndex()
+UINT D3D12Wrapper::CurrentCPUFrameIndex()
 {
 	return m_cpuFrameIndex;
 }
 
-IDXGISwapChain* RenderingEngine::GetSwapChain()
+IDXGISwapChain* D3D12Wrapper::GetSwapChain()
 {
 	return m_upSwapChain->Get();
 }
 
-ID3D12Resource* RenderingEngine::GetCurrentRenderTarget()
+ID3D12Resource* D3D12Wrapper::GetCurrentRenderTarget()
 {
 	return m_backBuffer[m_upSwapChain->GetCurrentBackBufferIndex()].renderTarget.Ref();
 }
 
-ID3D12CommandQueue* RenderingEngine::GetCommandQueue()
+ID3D12CommandQueue* D3D12Wrapper::GetCommandQueue()
 {
 	return m_upCommandQueue->Get();
 }
@@ -241,7 +250,7 @@ ID3D12CommandQueue* RenderingEngine::GetCommandQueue()
 // 描画に使う関数
 // 
 //==================================================================================
-bool RenderingEngine::CreateRenderTarget()
+bool D3D12Wrapper::CreateRenderTarget()
 {
 	// レンダーターゲット
 	// キャンバスのようなもの。
@@ -254,7 +263,7 @@ bool RenderingEngine::CreateRenderTarget()
 	}
 	return true;
 }
-void RenderingEngine::WaitRender()
+void D3D12Wrapper::WaitRender()
 {
 	// 次のフレームの描画準備がまだであれば待機する
 	if (m_upFence->GetCompletedValue() < m_fenceValue[m_cpuFrameIndex])
@@ -275,7 +284,7 @@ void RenderingEngine::WaitRender()
 	}
 }
 
-void RenderingEngine::SignalRenderFence()
+void D3D12Wrapper::SignalRenderFence()
 {
 
 	m_currentFenceValue++;
@@ -288,7 +297,7 @@ void RenderingEngine::SignalRenderFence()
 	m_fenceValue[m_cpuFrameIndex] = m_currentFenceValue;
 }
 
-void RenderingEngine::ResourceBarrier(
+void D3D12Wrapper::ResourceBarrier(
 	ID3D12Resource* a_pResource,
 	D3D12_RESOURCE_STATES a_before,
 	D3D12_RESOURCE_STATES a_after
@@ -302,7 +311,7 @@ void RenderingEngine::ResourceBarrier(
 	);
 }
 
-void RenderingEngine::ClearRenderTargetView(
+void D3D12Wrapper::ClearRenderTargetView(
 	D3D12_CPU_DESCRIPTOR_HANDLE a_renderTargetView,
 	DirectX::XMFLOAT4 a_colorRGBA, 
 	UINT a_numRects,
@@ -317,7 +326,7 @@ void RenderingEngine::ClearRenderTargetView(
 	);
 }
 
-void RenderingEngine::ClearDepthStencilView(
+void D3D12Wrapper::ClearDepthStencilView(
 	D3D12_CPU_DESCRIPTOR_HANDLE a_depthStencilView,
 	D3D12_CLEAR_FLAGS a_clearFlags,
 	float a_depth, 
@@ -336,7 +345,7 @@ void RenderingEngine::ClearDepthStencilView(
 	);
 }
 
-void RenderingEngine::SetBackBuffer()
+void D3D12Wrapper::SetBackBuffer()
 {
 	// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
 	auto _cpuHandle = DescriptorHeapManager::Instance().GetRTVCPUHandle(
@@ -355,10 +364,10 @@ void RenderingEngine::SetBackBuffer()
 	m_upCommandList->ClearRenderTargetView(_cpuHandle);		// レンダーターゲット
 }
 
-RenderingEngine::RenderingEngine()
+D3D12Wrapper::D3D12Wrapper()
 {
 }
 
-RenderingEngine::~RenderingEngine()
+D3D12Wrapper::~D3D12Wrapper()
 {
 }

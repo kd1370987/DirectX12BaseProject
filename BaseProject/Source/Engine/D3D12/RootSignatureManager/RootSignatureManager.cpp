@@ -17,7 +17,7 @@ Resource::ID RootSignatureManager::Register(
 	if (!_spRootSig->Create(a_rootParamsVec))
 	{
 		assert(0 && "ルートシグネチャの生成に失敗");
-		return Resource::Limits::MAX_STORAGE;
+		return Resource::Limits::INVALID_ID;
 	}
 
 	return m_rootStorage.Add(a_key,_spRootSig);
@@ -36,7 +36,7 @@ Resource::ID RootSignatureManager::CreateRootSig(const std::string& a_key, const
 	if (!_spRootSig->Create(_inputLayout))
 	{
 		assert(0 && "ルートシグネチャの生成に失敗");
-		return Resource::Limits::MAX_STORAGE;
+		return Resource::Limits::INVALID_ID;
 	}
 
 	Resource::ID _id = m_rootStorage.Add(a_key, _spRootSig);

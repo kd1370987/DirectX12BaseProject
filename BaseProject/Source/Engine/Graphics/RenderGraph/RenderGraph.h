@@ -41,39 +41,40 @@ inline bool HasFlag(ResourceUsage value, ResourceUsage flag)
 
 struct ResourceDesc
 {
-	std::string name;
-	DXGI_FORMAT format;
+	std::string name = "none";
+	DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
 
 	uint32_t widht = 1280;
 	uint32_t height = 720;
 
-	ResourceUsage usage;
+	ResourceUsage usage = ResourceUsage::None;
 };
 
 
 struct RGResource
 {
-	Resource::ID id;
-	ResourceDesc desc;
+	Resource::ID id = Resource::Limits::INVALID_ID;
+	ResourceDesc desc = {};
 
 	// コンパイル後に決まる
 	std::shared_ptr<RGTexture> spRGTexture = nullptr;
 
-	D3D12_RESOURCE_STATES currentState;
+	D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
 	uint32_t lastWritePass = 0;
 };
 
 struct RGBarrier
 {
-	RGTexture* texture;
-	D3D12_RESOURCE_STATES before;
-	D3D12_RESOURCE_STATES after;
+	RGTexture* texture = nullptr;
+	D3D12_RESOURCE_STATES before = D3D12_RESOURCE_STATE_COMMON;
+	D3D12_RESOURCE_STATES after = D3D12_RESOURCE_STATE_COMMON;
+	Resource::ID resID = Resource::Limits::INVALID_ID;
 };
 
 struct CompiledPass
 {
-	RenderPass* pPass;
-	std::vector<RGBarrier> barrierVec;
+	RenderPass* pPass = nullptr;
+	std::vector<RGBarrier> barrierVec = {};
 };
 
 class RenderGraph
@@ -107,14 +108,18 @@ public:
 
 private:
 
+
+
+private:
+
 	// パスの保管場所
-	std::vector<std::shared_ptr<RenderPass>> m_spPassVec;
-	std::vector<RenderPass*> m_sortedPassed;			// ソート後のパス
+	std::vector<std::shared_ptr<RenderPass>> m_spPassVec = {};
+	std::vector<RenderPass*> m_sortedPassed = {};			// ソート後のパス
 
 	// リソース仕様書のストレージ
-	SlotStorage<ResourceDesc> m_resourceStorage;
-	std::unordered_map<Resource::ID, RGResource> m_rgResourceMap;
+	SlotStorage<ResourceDesc> m_resourceStorage = {};
+	std::unordered_map<Resource::ID, RGResource> m_rgResourceMap = {};
 
 	// コンパイル後のパス
-	std::vector<CompiledPass> m_compiledPasses;
+	std::vector<CompiledPass> m_compiledPasses = {};
 };

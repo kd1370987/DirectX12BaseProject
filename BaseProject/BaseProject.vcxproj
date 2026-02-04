@@ -72,17 +72,20 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;packages\assimp\include</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -96,7 +99,7 @@ exit /b 0</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -104,10 +107,14 @@ exit /b 0</Command>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>packages/Assimp_native_4.1_v142.4.1.0/build/native/include/assimp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;packages\assimp\include</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -123,7 +130,7 @@ exit /b 0</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -133,6 +140,10 @@ exit /b 0</Command>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,7 +161,7 @@ exit /b 0</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -162,6 +173,10 @@ exit /b 0</Command>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -208,7 +223,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp" />
     <ClCompile Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.cpp" />
     <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\RenderingEngine.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer\IndexBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.cpp" />
@@ -333,7 +348,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Collision\Query\Raycast.h" />
     <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Common.h" />
-    <ClInclude Include="Source\Engine\D3D12\D3D12Wrapper\RenderingEngine.h" />
+    <ClInclude Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer\IndexBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.h" />

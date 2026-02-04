@@ -1,6 +1,6 @@
 ﻿#include "VertexBuffer.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 bool VertexBuffer::Create(
 	size_t a_size,
@@ -17,7 +17,7 @@ bool VertexBuffer::Create(
 	auto _desc = CD3DX12_RESOURCE_DESC::Buffer(_bufferSize);					// リソースの設定
 
 	// リソースの生成
-	auto _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+	auto _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_prop,
 		D3D12_HEAP_FLAG_NONE,
 		&_desc,

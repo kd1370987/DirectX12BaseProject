@@ -2,15 +2,18 @@
 
 // Coreは基本的にOS,DirectXなどの依存がない物をまとめるディレクトリ
 
-// ユーティリティ
-#include "Utility/FileUtility.h"                     // ファイルユーティリティ
-#include "Utility/StringUtillity.h"                  // 文字列ユーティリティ
+// ファイルユーティリティ
+#include "Utility/FileUtility.h"
+// 文字列ユーティリティ
+#include "Utility/StringUtillity.h"
 
 #include "Math/Alignment.h"
 #include "Math/Collider.h"
 
-//#include "Storage/Storage.h";					 // 汎用ストレージクラス
-#include "Storage/FreeRange/FreeRange.h";		// 連続性が保証されているスロット
+// 汎用ストレージクラス
+//#include "Storage/Storage.h";					 
+// 連続性が保証されているスロット
+#include "Storage/FreeRange/FreeRange.h"
 
 // アルゴリズム
 

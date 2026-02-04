@@ -36,8 +36,8 @@ public:
 
 private:
 
-	ComPtr<ID3D12Resource> m_pBuffer;		// インデックスバッファ
-	D3D12_INDEX_BUFFER_VIEW m_view;			// インデックスバッファビュー
+	ComPtr<ID3D12Resource> m_pBuffer = nullptr;		// インデックスバッファ
+	D3D12_INDEX_BUFFER_VIEW m_view = {};			// インデックスバッファビュー
 
 	DXGI_FORMAT m_format = DXGI_FORMAT_R32_UINT;	// インデックスフォーマット
 	UINT m_count = 0;								// インデックス数

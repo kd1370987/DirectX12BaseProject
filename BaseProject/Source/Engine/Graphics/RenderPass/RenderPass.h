@@ -11,6 +11,10 @@ class RenderPass
 {
 public:
 
+	RenderPass()
+	{
+		m_passDesc = {};
+	}
 	virtual ~RenderPass() = default;
 	
 	void Init(
@@ -31,7 +35,7 @@ protected:
 
 	virtual void CreatePass() = 0;
 
-	PassDesc m_passDesc;
+	PassDesc m_passDesc = {};
 
 	ShaderManager* m_pShaderMana = nullptr;
 	RootSignatureManager* m_pRootSigMana = nullptr;

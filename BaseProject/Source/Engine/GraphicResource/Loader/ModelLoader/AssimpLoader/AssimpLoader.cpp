@@ -1,6 +1,6 @@
 ﻿#include "AssimpLoader.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "Engine/GraphicResource/Resource/Texture/Texture.h"
@@ -54,7 +54,7 @@ bool AssimpLoader::Load(ImportSettings a_setting)
 	if (_scene == nullptr)
 	{
 		// 読み込み失敗
-		assert(0 && "モデルの読み込みに失敗 : %s\n", _importer.GetErrorString());
+		assert(0 && "モデルの読み込みに失敗");
 		return false;
 	}
 
@@ -100,7 +100,7 @@ bool AssimpLoader::Load(
 	if (_scene == nullptr)
 	{
 		// 読み込み失敗
-		assert(0 && "モデルの読み込みに失敗 : %s\n", _importer.GetErrorString());
+		assert(0 && "モデルの読み込みに失敗");
 		return false;
 	}
 
@@ -145,7 +145,7 @@ bool AssimpLoader::Load(std::string a_filePath, AssimpModel& a_model, bool a_isI
 	if (_scene == nullptr)
 	{
 		// 読み込み失敗
-		assert(0 && "モデルの読み込みに失敗 : %s\n", _importer.GetErrorString());
+		assert(0 && "モデルの読み込みに失敗");
 		return false;
 	}
 
@@ -162,7 +162,7 @@ bool AssimpLoader::Load(std::string a_filePath, AssimpModel& a_model, bool a_isI
 		const auto _pMaterial = _scene->mMaterials[_i];
 		//LoadTexture(a_pFilePath, _meshes[_i], _pMaterial);
 		LoadTexture(StringUtility::ToWideString(a_filePath).c_str(), *_model.nodes[_i].spMesh.get(), _pMaterial);
-		_model.nodes[_i].spMesh->materialIndex = _i;
+		_model.nodes[_i].spMesh->materialIndex = static_cast<uint32_t>(_i);
 	}
 
 	// 読み込み成功
@@ -253,13 +253,12 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 		auto _texPath = FileUtility::ReplaceFilePathExtension(a_dst.material.diffuseMap, "tga");
 		auto _mainTex = GraphicResourceManager::Instance().GetTexture(StringUtility::ToUTF8(_texPath));
 		
-		
-		DescriptorHandle* _pDH = new DescriptorHandle();
-		//std::shared_ptr<Texture> _tex = _mainTex.lock();
+	
 		const Texture* _tex = GraphicResourceManager::Instance().NGetTexture(_mainTex);
 		if (!_tex)
 		{
 			assert(0 && "テクスチャの取得に失敗\n");
+			return;
 		}
 		a_dst.srvHandle = DescriptorHeapManager::Instance().RegisterSRV(_tex->GetResource());
 	}

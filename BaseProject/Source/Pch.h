@@ -56,9 +56,12 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "DirectXTex.lib")	// DirectXTexライブラリをリンクする
 
-#include <d3d12.h>           // D3D12のメインヘッダー
-#include "d3dx12.h"          // D3DX12ユーティリティ（構造体のラッパー）
+// 警告OFF
+#pragma warning(push, 0)
 #include <dxgi1_6.h>         // スワップチェーンなどDXGI関連（DirectXの基盤）
+#include <d3d12.h>			 // D3D12のメインヘッダー
+
+#include "d3dx12.h"          // D3DX12ユーティリティ（構造体のラッパー）
 #include <d3dcompiler.h>
 #include <comdef.h>
 
@@ -79,9 +82,11 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 //===============================================
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include "imgui-docking/imgui.h"
-#include "imgui-docking/imgui_impl_dx12.h"
-#include "imgui-docking/imgui_impl_win32.h"
+#include <imgui-docking/imgui.h>
+#include <imgui-docking/imgui_impl_dx12.h>
+#include <imgui-docking/imgui_impl_win32.h>
+
+#pragma warning(pop)
 
 //===============================================
 //

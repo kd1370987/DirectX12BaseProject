@@ -25,5 +25,5 @@ public:
 
 private:
 
-	D3D12_VIEWPORT m_viewport;
+	D3D12_VIEWPORT m_viewport = {};
 };

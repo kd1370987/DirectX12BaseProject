@@ -21,7 +21,7 @@ namespace Graph
 		a_outVec.clear();
 
 		// ノード情報
-		const UINT _nodeNum = a_nodeVec.size();
+		const UINT _nodeNum = static_cast<UINT>(a_nodeVec.size());
 
 		// 辺と頂点を構築
 		std::vector<std::vector<UINT>> _edges(_nodeNum);		// 自身が依存する頂点先を記録　多←１
@@ -58,7 +58,7 @@ namespace Graph
 		// 作ったキューをもとにソートする
 		while (!_queue.empty())
 		{
-			UINT _queueSize = _queue.size();
+			UINT _queueSize = static_cast<UINT>(_queue.size());
 			for (UINT _i = 0; _i < _queueSize; ++_i)
 			{
 				// キュー内にあるのは依存先がなくなったもののみなので

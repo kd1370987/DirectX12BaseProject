@@ -8,7 +8,7 @@ bool Collider::RayVsMesh(
 	float& a_outT
 )
 {
-	constexpr float EPS = 0.000001;
+	constexpr float EPS = static_cast<float>(0.000001);
 
 	DirectX::XMVECTOR edge1 = DirectX::XMVectorSubtract(v1,v0);
 	DirectX::XMVECTOR edge2 = DirectX::XMVectorSubtract(v2, v0);

@@ -10,7 +10,6 @@ class RootSignature;
 class PipelineState;
 class DescriptorHeap;
 
-class ModelResource;
 class Mesh;
 
 class ConstantBuffer;
@@ -26,13 +25,36 @@ struct BackBuffer
 	RTVHandle rtvHandle;
 };
 
-class RenderingEngine
+// フレーム数分必要なリソース
+struct D3DFrameResource
+{
+	// コマンドアロケーター
+	std::unique_ptr<CommandAllocator>	upCommandAllocator = nullptr;
+
+	// フレーム中にフェンスが見た最後の値記録
+	UINT64								fenceValue =  0;		
+};
+
+class D3D12Wrapper
 {
 public:
 
-	// エンジン初期化
-	bool Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight);
+	/// <summary>
+	/// 初期化処理
+	/// </summary>
+	/// <param name="a_hWnd">ウィンドウハンドル</param>
+	/// <param name="a_windowWidth">ウィンドウ横</param>
+	/// <param name="a_windowHeight">ウィンドウ縦</param>
+	/// <returns>初期化成功 = true</returns>
+	bool Init(
+		const HWND& a_hWnd,
+		UINT a_windowWidth,
+		UINT a_windowHeight
+	);
 
+	/// <summary>
+	/// 終了処理
+	/// </summary>
 	void Shutdown();
 
 	// 描画開始・描画終了
@@ -107,7 +129,7 @@ private:
 
 	HANDLE								m_fenceEvent			= nullptr;		// フェンスで使うイベント
 	std::unique_ptr<Fence>				m_upFence				= nullptr;		// フェンス
-	UINT64								m_fenceValue[CPU_FRAME_COUNT] = {0};		// フェンスの数
+	UINT64								m_fenceValue[CPU_FRAME_COUNT] = {0};	// フェンスの数
 	UINT								m_currentFenceValue = 0;
 
 	std::unique_ptr<Viewport>			m_upViewport			= nullptr;		// ビューポート
@@ -119,7 +141,10 @@ private:
 	bool CreateRenderTarget();			// レンダーターゲットを生成
 
 	// バックバッファー
-	BackBuffer m_backBuffer[BACKBUFFER_COUNT];;
+	BackBuffer m_backBuffer[BACKBUFFER_COUNT];
+
+	// フレームリソース
+	D3DFrameResource m_frameResource[CPU_FRAME_COUNT] = {};
 
 private:
 	// 描画ループで使用するもの
@@ -129,13 +154,13 @@ private:
 private:
 	// シングルトン
 	// ユニークポインタ使用のため処理はないがcpp側に書いている
-	RenderingEngine();
-	~RenderingEngine();
+	D3D12Wrapper();
+	~D3D12Wrapper();
 public:
 	// インスタンス取得
-	static RenderingEngine& Instance()
+	static D3D12Wrapper& Instance()
 	{
-		static RenderingEngine _instance;
+		static D3D12Wrapper _instance;
 		return _instance;
 	}
 };

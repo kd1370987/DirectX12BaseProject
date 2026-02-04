@@ -20,7 +20,7 @@ namespace Resource
 
 	namespace Limits
 	{
-		constexpr ID MAX_STORAGE = 0xFFFFFFFF;
+		constexpr ID INVALID_ID = std::numeric_limits<ID>::max();
 	}
 }
 

@@ -14,6 +14,17 @@ bool Device::Init()
 		return false;
 	}
 
+#ifdef _DEBUG
+
+	ComPtr<ID3D12DebugDevice> _debDev;
+	if (SUCCEEDED(m_cpDevice->QueryInterface(IID_PPV_ARGS(&_debDev))))
+	{
+		_debDev->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
+	}
+
+#endif // _DEBUG
+
+
 	return true;
 }
 

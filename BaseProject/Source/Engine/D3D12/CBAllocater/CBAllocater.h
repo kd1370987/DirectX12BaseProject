@@ -40,7 +40,7 @@ inline void CBAllocater::BindAndAttachDataRootCBV(
 {
 	size_t _dataSize = (sizeof(T) + 0xff) & ~0xff; // 256バイトアライメント
 
-	int _useValue = _dataSize / 0x100;
+	int _useValue = static_cast<int>(_dataSize / 0x100);
 	if ((m_usedCount + _useValue) * 256 > m_capacity)
 	{
 		// ヒープに登録できる数を超えた
@@ -68,7 +68,7 @@ inline void CBAllocater::BindSemanticCBV(ID3D12GraphicsCommandList* a_pCmdList, 
 {
 	size_t _dataSize = (sizeof(typename RootSemanticTraits<s>::Type) + 0xff) & ~0xff; // 256バイトアライメント
 
-	int _useValue = _dataSize / 0x100;
+	int _useValue = static_cast<int>(_dataSize / 0x100);
 	if ((m_usedCount + _useValue) * 256 > m_capacity)
 	{
 		// ヒープに登録できる数を超えた

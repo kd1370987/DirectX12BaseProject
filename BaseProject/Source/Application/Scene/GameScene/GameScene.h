@@ -2,8 +2,6 @@
 
 #include "../BaseScene/BaseScene.h"
 
-class ModelResource;
-
 class GameScene : public BaseScene
 {
 public:

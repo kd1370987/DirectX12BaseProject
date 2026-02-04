@@ -25,5 +25,5 @@ public:
 
 private:
 
-	D3D12_RECT m_scissorRectangle;
+	D3D12_RECT m_scissorRectangle = {};
 };

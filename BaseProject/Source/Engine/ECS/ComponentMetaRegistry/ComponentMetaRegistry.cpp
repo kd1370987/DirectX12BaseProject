@@ -7,6 +7,7 @@ ECS::ComponentTypeID ComponentMetaRegistry::GetTypeID(const std::type_index& a_i
 	{
 		return _it->second;
 	}
+	return ECS::Limits::INVALID_COMPONENTTYPEID;
 }
 
 const ComponentMeta& ComponentMetaRegistry::GetMetaData(const ECS::ComponentTypeID& a_id) const
@@ -18,7 +19,8 @@ const ComponentMeta& ComponentMetaRegistry::GetMetaData(const ECS::ComponentType
 	}
 
 	assert(0 && "登録していないコンポーネントです");
-	return ComponentMeta();
+	ComponentMeta _meta = {};
+	return _meta;
 }
 
 const ComponentMeta& ComponentMetaRegistry::GetMetaData(const std::type_index& a_index) const
@@ -30,5 +32,6 @@ const ComponentMeta& ComponentMetaRegistry::GetMetaData(const std::type_index& a
 	}
 
 	assert(0 && "登録していないコンポーネントです");
-	return ComponentMeta();
+	ComponentMeta _meta = {};
+	return _meta;
 }

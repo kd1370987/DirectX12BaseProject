@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-class Model;
-class GLTFModel;
+struct Model;
+struct GLTFModel;
 
 namespace Serialize
 {

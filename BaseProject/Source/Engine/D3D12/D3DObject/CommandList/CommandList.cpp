@@ -106,7 +106,7 @@ void CommandList::ClearDepthStencilView(
 		a_depthStencilView,
 		a_clearFlags,
 		a_depth,
-		a_stencil,
+		static_cast<UINT8>(a_stencil),
 		a_numRects,
 		a_pRects
 	);

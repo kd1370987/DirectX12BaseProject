@@ -29,27 +29,27 @@ namespace
 					// 頂点配列作成
 					std::vector<MeshVertexFloat> _vertices = {};
 					_vertices.resize(_srcNode.nodeMesh.vertices.size());
-					for (size_t _i = 0; _i < _srcNode.nodeMesh.vertices.size(); ++_i)
+					for (size_t _j = 0; _j < _srcNode.nodeMesh.vertices.size(); ++_j)
 					{
 						MeshVertexFloat _dstVertex = {};
 
-						unsigned int _srcColor = _srcNode.nodeMesh.vertices[_i].color;
+						unsigned int _srcColor = _srcNode.nodeMesh.vertices[_j].color;
 						float r = ((float)((_srcColor >> 24) & 0xFF)) / 255.0f;
 						float g = ((float)((_srcColor >> 16) & 0xFF)) / 255.0f;
 						float b = ((float)((_srcColor >> 8) & 0xFF)) / 255.0f;
 						float a = ((float)((_srcColor >> 0) & 0xFF)) / 255.0f;
 						_dstVertex.color = DirectX::XMFLOAT4(r, g, b, a);
 
-						_dstVertex.normal = _srcNode.nodeMesh.vertices[_i].normal;
-						_dstVertex.pos = _srcNode.nodeMesh.vertices[_i].pos;
-						_dstVertex.tangent = _srcNode.nodeMesh.vertices[_i].tangent;
-						_dstVertex.uv = _srcNode.nodeMesh.vertices[_i].uv;
+						_dstVertex.normal = _srcNode.nodeMesh.vertices[_j].normal;
+						_dstVertex.pos = _srcNode.nodeMesh.vertices[_j].pos;
+						_dstVertex.tangent = _srcNode.nodeMesh.vertices[_j].tangent;
+						_dstVertex.uv = _srcNode.nodeMesh.vertices[_j].uv;
 
-						_vertices[_i] = _dstVertex;
+						_vertices[_j] = _dstVertex;
 					}
 
+					// メッシュ作成
 					_dstNode.spMesh->CreateFloat(
-						//_srcNode.nodeMesh.vertices,
 						_vertices,
 						_srcNode.nodeMesh.faces,
 						_srcNode.nodeMesh.subsets,

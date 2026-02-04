@@ -57,7 +57,6 @@ bool Collision::Raycast(
 				continue;
 
 			auto* _mesh = _node.spMesh.get();
-			float _nearestDist = _rayInfo.maxDistance;
 
 			for (uint32_t _i = 0; _i < _mesh->GetFaces().size(); ++_i)
 			{

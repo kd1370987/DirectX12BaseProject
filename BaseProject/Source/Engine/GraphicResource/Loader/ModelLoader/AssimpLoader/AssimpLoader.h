@@ -8,7 +8,7 @@ struct aiMaterial;
 //=========================================================
 struct AssimpMaterial
 {
-	std::wstring diffuseMap;			// ディフューズテクスチャのファイルパス
+	std::wstring diffuseMap = L"none";			// ディフューズテクスチャのファイルパス
 };
 
 //=========================================================
@@ -16,14 +16,14 @@ struct AssimpMaterial
 //=========================================================
 struct AssimpMesh
 {
-	std::vector<MeshVertexFloat> vertices;		// 頂点データの配列
-	std::vector<uint32_t> indices;			// インデックスの配列
-	AssimpMaterial material;				// マテリアルデータ
+	std::vector<MeshVertexFloat> vertices = {};		// 頂点データの配列
+	std::vector<uint32_t> indices = {};			// インデックスの配列
+	AssimpMaterial material = {};				// マテリアルデータ
 
-	VertexBuffer* vertexBuffer;		// 頂点バッファ
-	IndexBuffer* indexBuffer;			// インデックスバッファ
+	VertexBuffer* vertexBuffer = nullptr;		// 頂点バッファ
+	IndexBuffer* indexBuffer = nullptr;			// インデックスバッファ
 	//DescriptorHandle* materialHandle;	// テクスチャハンドル
-	Storage::Range srvHandle;
+	Storage::Range srvHandle = {};
 
 	uint32_t materialIndex = 0;		// マテリアルインデックス
 	bool isSkinMesh = false;		// スキンメッシュかどうか
@@ -34,18 +34,18 @@ struct AssimpMesh
 //=========================================================
 struct AssimpNode
 {
-	std::string					name;				// ノード名
+	std::string					name = "none";				// ノード名
 
-	DirectX::XMFLOAT4X4			localTransform;		// ローカル行列
-	DirectX::XMFLOAT4X4			worldTransform;		// ワールド行列
+	DirectX::XMFLOAT4X4			localTransform = {};		// ローカル行列
+	DirectX::XMFLOAT4X4			worldTransform = {};		// ワールド行列
 	
 	int 						parent = -1;		// 親インデックス
-	std::vector<int>			children;			// 子供リスト
+	std::vector<int>			children = {};			// 子供リスト
 
 	int 						boneIndex = -1;		// ボーンインデックス
 	bool 						isSkinMesh = false;	// スキンメッシュ持ちかどうか
 
-	std::shared_ptr<AssimpMesh>		spMesh;				// メッシュ
+	std::shared_ptr<AssimpMesh>		spMesh = nullptr;				// メッシュ
 };
 
 //=========================================================
@@ -53,7 +53,7 @@ struct AssimpNode
 //=========================================================
 struct AssimpModel
 {
-	std::vector<AssimpNode>			nodes;			// ノードリスト
+	std::vector<AssimpNode>			nodes = {};			// ノードリスト
 };
 
 // インポートするときのパラメーター

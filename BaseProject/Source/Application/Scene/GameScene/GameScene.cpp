@@ -1,7 +1,7 @@
 ﻿#include "GameScene.h"
 
 #include "Application/App.h"
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"

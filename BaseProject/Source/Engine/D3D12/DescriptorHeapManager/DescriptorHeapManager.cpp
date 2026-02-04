@@ -4,12 +4,12 @@
 #include "../../D3D12//D3DObject/DescriptorHeap/RTVHeap/RTVHeap.h"
 #include "../../D3D12//D3DObject/DescriptorHeap/CBV_SRV_UAVHeap/CBV_SRV_UAVHeap.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 void DescriptorHeapManager::Init()
 {
 
-	ID3D12Device* _device = RenderingEngine::Instance().GetDevice();
+	ID3D12Device* _device = D3D12Wrapper::Instance().GetDevice();
 
 	if(!m_spCBV_SRV_UAVHeap)
 	{

@@ -1,6 +1,6 @@
 #include "GBufferShader.hlsli"
 
-PSOutput ps(VSOutput a_input) : SV_TARGET
+PSOutput ps(VSOutput a_input)
 {
 	PSOutput _out;
 

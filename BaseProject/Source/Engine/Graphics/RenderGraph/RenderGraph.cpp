@@ -8,7 +8,7 @@
 
 #include "../RenderContext/RenderContext.h"
 
-#include "../../D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRootSigMana, GraphicsPSOManager* a_pPSOMana)
@@ -63,8 +63,6 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	});
 
 	// パス登録
-	
-	
 	RegisterPass<ForwardLightingPass>();
 	RegisterPass<ZPrePass>();
 	RegisterPass<FullScreenPass>();
@@ -72,7 +70,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	RegisterPass<DeferredLightingPass>();
 
 	// パスの初期化
-	for (auto _sp : m_spPassVec)
+	for (auto& _sp : m_spPassVec)
 	{
 		_sp->Init(this,a_pShaderMana,a_pRootSigMana,a_pPSOMana);
 	}
@@ -115,7 +113,7 @@ void RenderGraph::Compile()
 		}
 	);
 
-	// リソース用作ようにリソースの使い方を収集
+	// リソース作成用にリソースの使い方を収集
 	for (auto* _pass : m_sortedPassed)
 	{
 		for (const AccessResource& _access : _pass->GetDesc().resourceAccessVec)
@@ -201,7 +199,8 @@ void RenderGraph::Compile()
 					{
 						_res.spRGTexture.get(),
 						_res.currentState,
-						_next
+						_next,
+						_res.id
 					}
 				);
 				_res.currentState = _next;
@@ -226,18 +225,18 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 				_barrier.before,
 				_barrier.after
 			);
+			m_rgResourceMap[_barrier.resID].currentState = _barrier.after;
 		}
 
 		// RTV
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvs;
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _clearRTVs;
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvs = {};
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _clearRTVs = {};
 
 		// DSV
 		D3D12_CPU_DESCRIPTOR_HANDLE _dsv = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE* _pDsv = nullptr;
 		bool _isClear = false;
 		
-		auto _si = _cp.pPass->GetDesc().resourceAccessVec.size();
 		for (auto& _resAcc : _cp.pPass->GetDesc().resourceAccessVec)
 		{
 			// レンダーターゲット
@@ -283,6 +282,19 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 		// パスの実行
 		_cp.pPass->Excute(a_pCtx);
 	}
+
+	for (auto& [_id, _res] : m_rgResourceMap)
+	{
+		if (_res.currentState != D3D12_RESOURCE_STATE_COMMON)
+		{
+			a_pCtx->Transition(
+				_res.spRGTexture->GetResource(),
+				_res.currentState,
+				D3D12_RESOURCE_STATE_COMMON
+			);
+			_res.currentState = D3D12_RESOURCE_STATE_COMMON;
+		}
+	}
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE RenderGraph::GetGPUHandle(const std::string& a_name)
@@ -320,4 +332,5 @@ Resource::ID RenderGraph::GetID(const std::string& a_key)
 		return m_resourceStorage.GetID(a_key);
 	}
 	assert(0 && "登録されていないリソースです");
+	return Resource::Limits::INVALID_ID;
 }

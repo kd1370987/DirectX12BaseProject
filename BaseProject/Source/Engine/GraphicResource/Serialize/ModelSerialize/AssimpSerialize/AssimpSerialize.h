@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-class Model;
-class AssimpModel;
+struct Model;
+struct AssimpModel;
 
 namespace Serialize
 {

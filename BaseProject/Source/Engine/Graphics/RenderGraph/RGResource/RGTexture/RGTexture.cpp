@@ -1,6 +1,6 @@
 ﻿#include "RGTexture.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
@@ -11,7 +11,7 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	_desc.Width = a_desc.width;
 	_desc.Height = a_desc.height;
 	_desc.DepthOrArraySize = 1;
-	_desc.MipLevels = a_desc.mipLevel;
+	_desc.MipLevels = static_cast<UINT16>(a_desc.mipLevel);
 	_desc.Format = a_desc.format;
 	_desc.SampleDesc.Count = a_desc.sampleCount;
 	_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
@@ -44,8 +44,8 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	if (a_desc.allowDSV)
 	{
 		_clear.Format = DXGI_FORMAT_D32_FLOAT;
-		_clear.DepthStencil.Depth = 1.0f;
-		_clear.DepthStencil.Stencil = 0.0f;
+		_clear.DepthStencil.Depth = static_cast<FLOAT>(1.0f);
+		_clear.DepthStencil.Stencil = static_cast<UINT8>(0.0f);
 		_pClear = &_clear;
 	}
 	else if (a_desc.allowRTV)
@@ -66,7 +66,7 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 
 	if (a_desc.allowDSV)
 	{
-		HRESULT _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+		HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 			&_heapProp,
 			D3D12_HEAP_FLAG_NONE,
 			&_desc,
@@ -82,7 +82,7 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 	}
 	else
 	{
-		HRESULT _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+		HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 			&_heapProp,
 			D3D12_HEAP_FLAG_NONE,
 			&_desc,
@@ -155,7 +155,7 @@ bool RGTexture::Create(const D3D12_RESOURCE_DESC& a_desc)
 	float _clsClr[4] = { 0.0f,0.0f,0.0f,1.0f };
 	D3D12_CLEAR_VALUE _clearValue = CD3DX12_CLEAR_VALUE(DXGI_FORMAT_R8G8B8A8_UNORM, _clsClr);
 
-	HRESULT _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+	HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&a_desc,

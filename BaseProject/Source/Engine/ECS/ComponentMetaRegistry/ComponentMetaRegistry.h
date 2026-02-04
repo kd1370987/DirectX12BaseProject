@@ -2,7 +2,7 @@
 
 struct ComponentMeta
 {
-	std::string name;
+	std::string name = "none";
 
 	size_t compSize			= 0;		// サイズ
 	size_t compAlign		= 0;		// アライメント
@@ -22,6 +22,7 @@ public:
 		{
 			return _it->second;
 		}
+		return ECS::Limits::INVALID_COMPONENTTYPEID;
 	}
 	ECS::ComponentTypeID GetTypeID(const std::type_index& a_index) const;
 

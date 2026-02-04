@@ -1,6 +1,6 @@
 ﻿#include "Texture.h"
 
-#include "Engine/D3D12/D3D12Wrapper/RenderingEngine.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "Engine/D3D12//D3DObject/DescriptorHeap/DescriptorHeap.h"
@@ -184,7 +184,7 @@ bool Texture::BuildFromScratchiImage(DirectX::TexMetadata& a_meta, DirectX::Scra
 	_texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	_texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 	// リソース生成（テクスチャ）
-	_hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+	_hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_texHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&_texDesc,
@@ -209,7 +209,7 @@ bool Texture::BuildFromScratchiImage(DirectX::TexMetadata& a_meta, DirectX::Scra
 	_srcLocation.pResource = _uploadBuffer;								// コピー元リソース
 	_srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;		// 配置されたフットプリント
 	_srcLocation.PlacedFootprint.Offset = 0;
-	RenderingEngine::Instance().GetDevice()->GetCopyableFootprints(
+	D3D12Wrapper::Instance().GetDevice()->GetCopyableFootprints(
 		&_texDesc,
 		0,
 		1,
@@ -262,7 +262,7 @@ ID3D12Resource* Texture::CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc)
 {
 	// サイズ計算
 	UINT64 _uploadSize = 0;
-	RenderingEngine::Instance().GetDevice()->GetCopyableFootprints(
+	D3D12Wrapper::Instance().GetDevice()->GetCopyableFootprints(
 		&a_texDesc,
 		0,
 		1,
@@ -295,7 +295,7 @@ ID3D12Resource* Texture::CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc)
 
 	// リソース生成（中間バッファ）
 	ID3D12Resource* _uploadBuffer = nullptr;
-	HRESULT _hr = RenderingEngine::Instance().GetDevice()->CreateCommittedResource(
+	HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,					// 特に指定はなし
 		&_desc,
@@ -315,10 +315,10 @@ ID3D12Resource* Texture::CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc)
 void Texture::CopyTexRegion(D3D12_TEXTURE_COPY_LOCATION& a_dstLoca, D3D12_TEXTURE_COPY_LOCATION& a_srcLoca)
 {
 	// コマンドリストを取得
-	auto _cmdList = RenderingEngine::Instance().GetCommandList();
+	auto _cmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	// コマンドキュー使用前にはリセット必須s
-	RenderingEngine::Instance().CommandQueueReset();
+	D3D12Wrapper::Instance().CommandQueueReset();
 
 	_cmdList->CopyTextureRegion(
 		&a_dstLoca,			// コピー先
@@ -344,10 +344,10 @@ void Texture::CopyTexRegion(D3D12_TEXTURE_COPY_LOCATION& a_dstLoca, D3D12_TEXTUR
 
 	// コマンドキューに積む
 	ID3D12CommandList* _ppCommandLists[] = { _cmdList };
-	auto* _cmdQueue = RenderingEngine::Instance().GetCommandQueue();
+	auto* _cmdQueue = D3D12Wrapper::Instance().GetCommandQueue();
 	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	// 終了待ち
-	RenderingEngine::Instance().SignalRenderFence();
-	RenderingEngine::Instance().WaitRender();
+	D3D12Wrapper::Instance().SignalRenderFence();
+	D3D12Wrapper::Instance().WaitRender();
 }
