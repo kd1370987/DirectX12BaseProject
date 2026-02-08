@@ -28,6 +28,13 @@ bool Device::Init()
 	return true;
 }
 
+void Device::Release()
+{
+	ComPtr<ID3D12DebugDevice> _dd;
+	m_cpDevice->QueryInterface(IID_PPV_ARGS(&_dd));
+	_dd->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
+}
+
 
 ID3D12Device* Device::GetDevice()
 {

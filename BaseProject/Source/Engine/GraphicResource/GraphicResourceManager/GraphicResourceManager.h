@@ -12,6 +12,11 @@ public:
 	void Init();
 
 	/// <summary>
+	/// 解放
+	/// </summary>
+	void Release();
+
+	/// <summary>
 	/// テクスチャの取得
 	/// </summary>
 	/// <param name="a_key">ファイルパス</param>

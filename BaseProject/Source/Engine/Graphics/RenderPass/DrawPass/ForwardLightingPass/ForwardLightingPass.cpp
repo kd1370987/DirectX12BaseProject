@@ -9,8 +9,8 @@ void ForwardLightingPass::Excute(RenderContext* a_pCtx)
 {
 	Begin(a_pCtx);
 
-	DrawQueue(a_pCtx,RenderQueueType::Opaque);
-	DrawQueue(a_pCtx,RenderQueueType::Transparent);
+	//DrawQueue(a_pCtx,RenderQueueType::Opaque);
+	//DrawQueue(a_pCtx,RenderQueueType::Transparent);
 
 	End(a_pCtx);
 }

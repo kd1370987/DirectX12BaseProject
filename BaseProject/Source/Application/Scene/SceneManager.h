@@ -7,10 +7,15 @@ class SceneManager
 public:
 
 	/// <summary>
-	/// 初期化
+	/// シーンの生成、初期化
 	/// </summary>
 	/// <returns>成功 = true</returns>
 	bool Init();
+
+	/// <summary>
+	/// シーンが持つものを解放1
+	/// </summary>
+	void Release();
 
 	/// <summary>
 	/// 更新処理

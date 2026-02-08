@@ -64,39 +64,19 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 		_pClear = &_clear;
 	}
 
-	if (a_desc.allowDSV)
+	HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
+		&_heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&_desc,
+		D3D12_RESOURCE_STATE_COMMON,
+		_pClear,
+		IID_PPV_ARGS(&m_cpResource)
+	);
+	if (FAILED(_hr))
 	{
-		HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
-			&_heapProp,
-			D3D12_HEAP_FLAG_NONE,
-			&_desc,
-			D3D12_RESOURCE_STATE_DEPTH_WRITE,
-			_pClear,
-			IID_PPV_ARGS(&m_cpResource)
-		);
-		if (FAILED(_hr))
-		{
-			assert(0 && "RGTextureの生成に失敗");
-			return false;
-		}
+		assert(0 && "RGTextureの生成に失敗");
+		return false;
 	}
-	else
-	{
-		HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
-			&_heapProp,
-			D3D12_HEAP_FLAG_NONE,
-			&_desc,
-			D3D12_RESOURCE_STATE_COMMON,
-			_pClear,
-			IID_PPV_ARGS(&m_cpResource)
-		);
-		if (FAILED(_hr))
-		{
-			assert(0 && "RGTextureの生成に失敗");
-			return false;
-		}
-	}
-
 
 
 	if (a_desc.allowRTV)

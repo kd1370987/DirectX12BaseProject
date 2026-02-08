@@ -1,0 +1,72 @@
+﻿#include "AnimationOptionalDraw.h"
+
+#include "Engine/ECS/World/World.h"
+
+#include "Application/Components/Resource/SkeletonPoseComponent.h"
+#include "Application/Components/Resource/ModelComponent.h"
+#include "Application/Components/Resource/AnimatorComponent.h"
+#include "Application/Components/Transform/WorldMatrixComponent.h"
+
+#include "Engine/GraphicResource/Resource/Model/Model.h"
+#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+
+#include "Engine/Graphics/RenderContext/RenderContext.h"
+
+void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
+{
+	a_world.ForEach<WorldMatrixComponent, ModelComponent, SkeletonPoseComponent, AnimatorComponent>(
+		[&a_world, a_dt]
+		(
+			ArchetypeChunk* a_pChunk,
+			uint32_t a_count,
+			WorldMatrixComponent* a_matArray,
+			ModelComponent* a_modelArray,
+			SkeletonPoseComponent* a_skeArray,
+			AnimatorComponent* a_aniArray
+		)
+		{
+			for (size_t _i = 0; _i < a_count; ++_i)
+			{
+				WorldMatrixComponent& _matComp = a_matArray[_i];
+				ModelComponent& _modelComp = a_modelArray[_i];
+				SkeletonPoseComponent& _skeComp = a_skeArray[_i];
+				AnimatorComponent& _aniComp = a_aniArray[_i];
+
+				// 描画アイテム
+				DrawItem _item = {};
+				_item.worldMat = _matComp.worldMat;
+				_item.colorScale = _modelComp.colorScale;
+				_item.emissiveScale = _modelComp.emissiveScale;
+
+				// モデル取得
+				auto* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+				if (!_model) return;
+
+				auto& _dataNodes = _model->originalNodes;
+				for (auto& _nodeIdx : _model->drawMeshNodeIndices)
+				{
+					// 描画メッシュ取得
+					_item.pMesh = _dataNodes[_nodeIdx].spMesh.get();
+
+					// ワールド行列
+					DXSM::Matrix _skinAniMat(_skeComp.palette[_aniComp.currentClipID]);
+					DXSM::Matrix _nodeTransMat(_dataNodes[_nodeIdx].worldTransform);
+					DXSM::Matrix _worldMat(_matComp.worldMat);
+					DXSM::Matrix _mat = _nodeTransMat * _worldMat;
+					_item.worldMat = _mat;
+
+					for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
+					{
+						// マテリアルセット
+						if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
+						_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
+						_item.subIdx = _subIdx;
+
+						// 描画アイテムキューに送信
+						RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque,_item);
+					}
+				}
+			}
+		}
+	);
+}

@@ -73,6 +73,7 @@ void FullScreenPass::CreatePass()
 
 	//auto _id = m_pRenderGraph->GetID("GBufferAlbedo");
 	auto _id = m_pRenderGraph->GetID("QuadTexture");
+	//auto _id = m_pRenderGraph->GetID("MainColor");
 
 	// 入力元
 	m_passDesc.readResource.push_back(_id);

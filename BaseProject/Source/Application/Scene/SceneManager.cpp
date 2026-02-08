@@ -14,6 +14,12 @@ bool SceneManager::Init()
 	return true;
 }
 
+void SceneManager::Release()
+{
+	m_sceneCreateFuncMap.clear();
+	m_upBaseSceneVec.clear();
+}
+
 void SceneManager::Update(float a_dt)
 {
 	// シーンの更新

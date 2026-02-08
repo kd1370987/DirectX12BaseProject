@@ -136,14 +136,15 @@ void GameScene::RegistryEntity()
 		VelocityComponent* _velocity = World::Instance().RefData<VelocityComponent>(_player);
 		_velocity->value = { 0.0f,0.0f,0.0f };
 		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_player);
-		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/tank/tank.gltf");
+		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Man/scene.gltf");
+		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Robot/Robot.gltf");
+		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/tank/tank.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_player);
-		_ref->pos = { 0.0f, 5.0f, 10.0f };
+		_ref->pos = { 0.0f, 3.0f, 5.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
-		//"C:\02_授業資料\DirectX12BaseProject\BaseProject\Asset\Model\Robot\Robot.gltf"
 	}
 
 	{
@@ -209,8 +210,8 @@ void GameScene::RegistryEntity()
 
 		TPSOffsetComponent* _offset = World::Instance().RefData<TPSOffsetComponent>(_entity);
 		_offset->x = 0;
-		_offset->y = 3;
-		_offset->z = -10;
+		_offset->y = 2;
+		_offset->z = -5;
 
 		FollowTargetComponent* _follow = World::Instance().RefData<FollowTargetComponent>(_entity);
 		_follow->target = _player;
@@ -231,6 +232,41 @@ void GameScene::RegistryEntity()
 		_ref->pos = { 0.0f, 5.0f, -10.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
+	}
+
+	{
+		// テストモデル
+		float _xMax = 10;
+		float _yMax = 1;
+		float _zMax = 1;
+
+		float _pad = 5;
+
+		// 高さ
+		for (int _y = 0; _y < _yMax; ++_y)
+		{
+			// 一面
+			for (int _x = 0; _x < _xMax; ++_x)
+			{
+				for (int _z = 0; _z < _zMax; ++_z)
+				{
+					ECS::Signature _sig;
+					_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
+					_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
+					_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
+					auto _entity = World::Instance().CreateEntity(_sig);
+
+					ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
+					_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/TestModelWhite/testModelWhite.gltf");
+					_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
+					_model->emissiveScale = { 0.0f,0.0f,0.0f };
+					TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
+					_ref->pos = { _x * _pad,  _y * _pad, -_z * _pad };
+					_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
+					_ref->scale = { 1.0f,1.0f,1.0f };
+				}
+			}
+		}
 	}
 }
 

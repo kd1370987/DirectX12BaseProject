@@ -4,6 +4,7 @@
 
 void DrawPass::DrawQueue(RenderContext* a_pCtx, RenderQueueType a_type)
 {
+	//return;
 	auto& _draws = a_pCtx->GetItemVec(a_type);
 	if (_draws.size() == 0) return;
 	for (auto& _item : _draws)

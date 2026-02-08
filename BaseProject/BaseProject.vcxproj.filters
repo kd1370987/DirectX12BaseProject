@@ -454,6 +454,21 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass">
       <UniqueIdentifier>{0cf98864-4da0-4f29-8ff2-0b0049b576cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\ImGui\Log">
+      <UniqueIdentifier>{1e8eaa4a-e3f0-4c01-85b5-1eb7065a71ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\ImGui\Watch">
+      <UniqueIdentifier>{b837d62f-2751-40d2-b252-d26f705905d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\ImGui\OperationBox">
+      <UniqueIdentifier>{7ada4956-e6cf-4123-b5e7-290ea44e1078}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem">
+      <UniqueIdentifier>{3025c83e-fc74-49a4-b298-22098ab9184d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw">
+      <UniqueIdentifier>{7efaeed9-0018-4292-91f8-03a3d71ee4b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -719,6 +734,18 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass\DeferredLightingPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\ImGui\Log\Log.cpp">
+      <Filter>Source\Engine\Editor\ImGui\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\ImGui\Watch\Watch.cpp">
+      <Filter>Source\Engine\Editor\ImGui\Watch</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\AnimationSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp">
+      <Filter>Source\Application\Systems\Draw\Draw\AnimationOptionalDraw</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -998,9 +1025,6 @@
     <ClInclude Include="Source\Engine\GraphicResource\Resource\Texture\Texture.h">
       <Filter>Source\Engine\GraphicResource\Resource\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\Model.h">
-      <Filter>Source\Engine\GraphicResource\Resource\Model</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\ModelResource\Vertex\Vertex.h">
       <Filter>Source\Engine\GraphicResource\Resource\Model\ModelResource\Vertex</Filter>
     </ClInclude>
@@ -1105,6 +1129,30 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass\DeferredLightingPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\ImGui\Log\Log.h">
+      <Filter>Source\Engine\Editor\ImGui\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\ImGui\Watch\Watch.h">
+      <Filter>Source\Engine\Editor\ImGui\Watch</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\ImGui\OperationBox\OperationBox.h">
+      <Filter>Source\Engine\Editor\ImGui\OperationBox</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\AnimatorComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\SkeletonPoseComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\AnimationSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GraphicResource\Resource\Model\Model.h">
+      <Filter>Source\Engine\GraphicResource\Resource\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h">
+      <Filter>Source\Application\Systems\Draw\Draw\AnimationOptionalDraw</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

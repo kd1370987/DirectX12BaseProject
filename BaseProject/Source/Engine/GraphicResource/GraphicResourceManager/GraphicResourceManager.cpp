@@ -10,6 +10,12 @@ void GraphicResourceManager::Init()
 	m_modelStorage.Init(100);
 }
 
+void GraphicResourceManager::Release()
+{
+	m_texStorage.Clear();
+	m_modelStorage.Clear();
+}
+
 Resource::ID GraphicResourceManager::GetTexture(const std::string& a_key)
 {
 	if (!m_texStorage.Has(a_key))

@@ -20,12 +20,16 @@ void DeferredLightingPass::Excute(RenderContext* a_pCtx)
 	auto _gbMaterialID = m_pRenderGraph->GetGPUHandle("GBufferMaterial");
 	auto _depth = m_pRenderGraph->GetGPUHandle("Depth");
 
+	auto _rtv = m_pRenderGraph->RTVCPU("QuadTexture");
+
 	_gpuVec = { _gbAlbedoID,_gbNormalID,_gbMaterialID,_depth };
 
 	a_pCtx->BindSRV(
 		RootSigSemantic::PostScreenSRV,
 		_gpuVec
 	);
+
+	a_pCtx->ClearRenderTarget(_rtv, { 1,0,0,1 });
 
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 

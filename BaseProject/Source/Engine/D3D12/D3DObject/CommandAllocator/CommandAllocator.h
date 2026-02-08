@@ -30,11 +30,16 @@ public:
 
 	// リセット
 	void Reset(UINT a_frameIdx);
+	void Reset();
 
 	// コマンドアロケーターの取得
 	ID3D12CommandAllocator* Get(UINT a_frameIdx) 
 	{
 		return m_pCommandAllocatorVec[a_frameIdx].Get(); 
+	}
+	ID3D12CommandAllocator* Get()
+	{
+		return m_cpCommandAllocator.Get();
 	}
 
 private:

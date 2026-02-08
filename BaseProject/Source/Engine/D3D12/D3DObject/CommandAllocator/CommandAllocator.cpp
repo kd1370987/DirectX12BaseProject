@@ -8,6 +8,11 @@ void CommandAllocator::Reset(UINT a_frameIdx)
 	}
 }
 
+void CommandAllocator::Reset()
+{
+	m_cpCommandAllocator->Reset();
+}
+
 bool CommandAllocator::Create(
 	ID3D12Device* a_pDevice,
 	UINT a_frameBufferCount,

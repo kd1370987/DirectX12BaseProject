@@ -54,46 +54,33 @@ bool D3D12Wrapper::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHei
 	// フレームリソース生成
 	for (size_t _i = 0; _i < static_cast<size_t>(CPU_FRAME_COUNT); ++_i)
 	{
+		// コマンドアロケーター作成
 		m_frameResource[_i].upCommandAllocator = std::make_unique<CommandAllocator>();
 		m_frameResource[_i].upCommandAllocator->Create(m_upDevice->GetDevice(),D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+		// フェンスバリュー設定
 		m_frameResource[_i].fenceValue = 0;
 	}
 
-	// コマンドアロケーター作成
-	m_upCommandAllocator = std::make_unique<CommandAllocator>();
-	if (!m_upCommandAllocator->Create(
-			m_upDevice->GetDevice(),
-			CPU_FRAME_COUNT,
-			D3D12_COMMAND_LIST_TYPE_DIRECT
-		)
-	)
-	{
-		assert(0 && "コマンドアロケーターの生成に失敗");
-		return false;
-	}
 	// コマンドリスト作成
 	m_upCommandList = std::make_unique<CommandList>();
 	if (!m_upCommandList->Create(
 		m_upDevice->GetDevice(),
-		m_upCommandAllocator->Get(m_cpuFrameIndex)
-	))
+		m_frameResource[m_cpuFrameIndex].upCommandAllocator->Get())
+	)
 	{
 		assert(0 && "コマンドリスト作成失敗");
 		return false;
 	}
 
 	// フェンス作成
-	for (auto _i = 0u; _i < CPU_FRAME_COUNT; ++_i)
-	{
-		m_fenceValue[_i] = 0;
-	}
 	m_upFence = std::make_unique<Fence>();
 	if (!m_upFence->Create(m_upDevice->GetDevice()))
 	{
 		assert(0 && "フェンス作成失敗");
 		return false;
 	}
-	m_fenceValue[m_cpuFrameIndex]++;
+	m_frameResource[m_cpuFrameIndex].fenceValue++;
 
 	// 同期を行うときのイベントハンドラを作成する
 	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -119,7 +106,7 @@ bool D3D12Wrapper::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHei
 void D3D12Wrapper::Shutdown()
 {
 	SignalRenderFence();
-	WaitRender();
+	WaitRender(m_cpuFrameIndex);
 
 	for (auto& _bb : m_backBuffer)
 	{
@@ -129,11 +116,15 @@ void D3D12Wrapper::Shutdown()
 	m_currentRenderTarget = nullptr;
 
 	m_upCommandList.reset();
-	m_upCommandAllocator.reset();
+	for (auto& _res : m_frameResource)
+	{
+		_res.upCommandAllocator.reset();
+	}
 	m_upFence.reset();
 
 	m_upSwapChain.reset();
 	m_upCommandQueue.reset();
+	m_upDevice->Release();
 	m_upDevice.reset();
 }
 
@@ -142,15 +133,16 @@ void D3D12Wrapper::Shutdown()
 // 描画開始・描画終了
 // 
 //==================================================================================
-void D3D12Wrapper::BeginRender()
+void D3D12Wrapper::BeginFrame()
 {
 	// バックバッファ番号更新
 	m_upSwapChain->Update();
 
+	// フレームインデックス更新
 	m_cpuFrameIndex = (m_cpuFrameIndex + 1) % static_cast<UINT>(CPU_FRAME_COUNT);
 
 	// 次のフレームの描画準備がまだであれば待機する
-	WaitRender();
+	WaitRender(m_cpuFrameIndex);
 
 	// 現在のレンダーターゲットを更新
 	m_currentRenderTarget = m_backBuffer[m_upSwapChain->GetCurrentBackBufferIndex()].renderTarget.Ref();
@@ -168,7 +160,7 @@ void D3D12Wrapper::BeginRender()
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
 }
-void D3D12Wrapper::EndRender(bool a_isVsync)
+void D3D12Wrapper::EndFrame(bool a_isVsync)
 {
 	// レンダーターゲットに書き込みが終わるまで待つ
 	m_upCommandList->ResourceBarrier(
@@ -193,8 +185,8 @@ void D3D12Wrapper::EndRender(bool a_isVsync)
 void D3D12Wrapper::CommandQueueReset()
 {
 	// コマンドキューを初期化して命令をためる準備をする
-	m_upCommandAllocator->Reset(m_cpuFrameIndex);
-	m_upCommandList->Reset(m_upCommandAllocator->Get(m_cpuFrameIndex));
+	m_frameResource[m_cpuFrameIndex].upCommandAllocator->Reset();
+	m_upCommandList->Reset(m_frameResource[m_cpuFrameIndex].upCommandAllocator->Get());
 }
 
 void D3D12Wrapper::SetViewportAndRect()
@@ -263,13 +255,34 @@ bool D3D12Wrapper::CreateRenderTarget()
 	}
 	return true;
 }
+void D3D12Wrapper::WaitRender(UINT a_frameIndex)
+{
+	// 次のフレームの描画準備がまだであれば待機する
+	if(m_upFence->GetCompletedValue() < m_frameResource[a_frameIndex].fenceValue)
+	{
+		// 完了時にイベントを設定
+		if (!m_upFence->SetEventOnCompletion(m_frameResource[a_frameIndex].fenceValue, m_fenceEvent))
+		{
+			assert(0 && "フェンスイベントエラー");
+			return;
+		}
+
+		// 待機処理
+		if (WAIT_OBJECT_0 != WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE))
+		{
+			assert(0 && "待機処理エラー");
+			return;
+		}
+	}
+}
+
 void D3D12Wrapper::WaitRender()
 {
 	// 次のフレームの描画準備がまだであれば待機する
-	if (m_upFence->GetCompletedValue() < m_fenceValue[m_cpuFrameIndex])
+	if(m_upFence->GetCompletedValue() < m_frameResource[m_cpuFrameIndex].fenceValue)
 	{
 		// 完了時にイベントを設定
-		if (!m_upFence->SetEventOnCompletion(m_fenceValue[m_cpuFrameIndex], m_fenceEvent))
+		if (!m_upFence->SetEventOnCompletion(m_frameResource[m_cpuFrameIndex].fenceValue, m_fenceEvent))
 		{
 			assert(0 && "フェンスイベントエラー");
 			return;
@@ -294,7 +307,7 @@ void D3D12Wrapper::SignalRenderFence()
 		m_currentFenceValue
 	);
 
-	m_fenceValue[m_cpuFrameIndex] = m_currentFenceValue;
+	m_frameResource[m_cpuFrameIndex].fenceValue = m_currentFenceValue;
 }
 
 void D3D12Wrapper::ResourceBarrier(

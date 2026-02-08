@@ -28,11 +28,7 @@
 void Application::Excute()
 {
 	// アプリケーション初期化
-	if (!Init())
-	{
-		assert(0 && "アプリケーション初期化に失敗");
-		return;
-	}
+	Init();
 
 	// メインループ（更新処理・描画処理）
 	MainLoop();
@@ -71,28 +67,33 @@ bool Application::Init()
 	m_upTimeManager = std::make_unique<TimeManager>();
 	m_upTimeManager->Init(120.0f);
 	
-	// 描画エンジンの初期化
+	// DirectX12関係の初期化
 	if (!D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), WINDOW_WIDTH, WINDOW_HEIGHT))
 	{
 		assert(0 && "描画エンジンの初期化に失敗");
 		return false;
 	}
 
+	// ImGui初期化
+	if (!ImGuiContex::Instance().Init(m_upWindow->GetWindowHandle()))
+	{
+		assert(0 && "ImGuiの初期化に失敗");
+		return false;
+	}
+
 	// 描画初期化
 	RenderContext::Instance().Init();
 
+	// リソースマネージャーの初期化
 	GraphicResourceManager::Instance().Init();
 
 	// ECSの初期化
 	World::Instance().Init();
 
-	m_upImGuiContex = std::make_unique<ImGuiContex>();
-	m_upImGuiContex->Init(m_upWindow->GetWindowHandle());
-
-
 	// シーンの初期化
 	if (!SceneManager::Instance().Init())
 	{
+		assert(0 && "シーンマネージャの初期化に失敗");
 		return false;
 	}
 
@@ -105,19 +106,32 @@ bool Application::Init()
 void Application::Release()
 {
 	// シーン解放
-	//SceneManager::Instance().Release();
+	SceneManager::Instance().Release();
+
 	// ECS解放
 	World::Instance().Release();
 
-	// タイムマネージャー解放
-	m_upTimeManager->Release();
+	// GPU同期待ち
+	for (UINT _i = 0; _i < static_cast<UINT>(CPU_FRAME_COUNT); ++_i)
+	{
+		D3D12Wrapper::Instance().WaitRender(_i);
+	}
 
-	m_upImGuiContex->Release();
 
+	// グラフィックリソースの解放
+	GraphicResourceManager::Instance().Release();
+
+	// レンダーコンテキスト解放
 	RenderContext::Instance().Shutdown();
+
+	// ImGui解放
+	ImGuiContex::Instance().Release();
 
 	// 描画エンジン解放
 	D3D12Wrapper::Instance().Shutdown();
+
+	// タイムマネージャー解放
+	m_upTimeManager->Release();
 
 	// 解放時にエラー検出
 #if _DEBUG
@@ -163,13 +177,15 @@ void Application::MainLoop()
 		
 
 		// 描画
-		D3D12Wrapper::Instance().BeginRender();			// 描画開始
+		D3D12Wrapper::Instance().BeginFrame();			// 描画開始
 		{
-			SceneManager::Instance().Draw();				// 描画
+			// 通常描画
+			SceneManager::Instance().Draw();
 
-			m_upImGuiContex->CallImGuiDrawData(D3D12Wrapper::Instance().GetCommandList());
+			// ImGui描画
+			ImGuiContex::Instance().CallImGuiDrawData(D3D12Wrapper::Instance().GetCommandList());
 		}
-		D3D12Wrapper::Instance().EndRender(m_isVsync);	// 描画終了
+		D3D12Wrapper::Instance().EndFrame(m_isVsync);	// 描画終了
 
 		// フレーム終了
 		m_upTimeManager->EndFrame(m_isVsync);

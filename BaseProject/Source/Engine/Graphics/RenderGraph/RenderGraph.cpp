@@ -214,18 +214,40 @@ void RenderGraph::Compile()
 
 void RenderGraph::Excute(RenderContext* a_pCtx)
 {
+	/*ImGuiContex::Instance().AddLog("===============================================================================\n");
+	ImGuiContex::Instance().AddLog("Frame開始\n");
+	ImGuiContex::Instance().AddLog("===============================================================================\n");*/
+
+	ImGuiContex::Instance().StartWatch("RenderGraphStart");
+
+	int m_barrierSize = 0;
+
 	// コンパイル済みパスを順次実行していく
 	for (auto& _cp : m_compiledPasses)
 	{
 		// 使用するリソースバリア
 		for (auto& _barrier : _cp.barrierVec)
 		{
-			a_pCtx->Transition(
-				_barrier.texture->GetResource(),
-				_barrier.before,
-				_barrier.after
-			);
-			m_rgResourceMap[_barrier.resID].currentState = _barrier.after;
+			if(m_rgResourceMap[_barrier.resID].currentState != _barrier.after)
+			{
+				a_pCtx->Transition(
+					_barrier.texture->GetResource(),
+					m_rgResourceMap[_barrier.resID].currentState,
+					_barrier.after
+				);
+			/*	ImGuiContex::Instance().AddLog(
+					"Resource : %s\n",
+					m_rgResourceMap[_barrier.resID].desc.name.c_str()
+				);
+				ImGuiContex::Instance().AddLog(
+					"beffor = % s, affter = % s\n",
+					magic_enum::enum_name(m_rgResourceMap[_barrier.resID].currentState).data(),
+					magic_enum::enum_name(_barrier.after).data()
+				);*/
+				m_rgResourceMap[_barrier.resID].currentState = _barrier.after;
+
+				m_barrierSize++;
+			}
 		}
 
 		// RTV
@@ -248,7 +270,13 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 				if (_resAcc.load == LoadOp::Clear)
 				{
 					_clearRTVs.push_back(_tex->GetRTVHandle());
+					//ImGuiContex::Instance().AddLog("ClearRTV:%s\n", m_rgResourceMap[_resAcc.id].desc.name.c_str());
 				}
+				else
+				{
+					//ImGuiContex::Instance().AddLog("rtv:%s\n", m_rgResourceMap[_resAcc.id].desc.name.c_str());
+				}
+				
 			}
 
 			// 深度値
@@ -262,6 +290,11 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 				if (_resAcc.load == LoadOp::Clear)
 				{
 					_isClear = true;
+					//ImGuiContex::Instance().AddLog("ClearDSV:%s\n", m_rgResourceMap[_resAcc.id].desc.name.c_str());
+				}
+				else
+				{
+					///ImGuiContex::Instance().AddLog("DSV:%s\n", m_rgResourceMap[_resAcc.id].desc.name.c_str());
 				}
 			}
 		}
@@ -281,26 +314,27 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 
 		// パスの実行
 		_cp.pPass->Excute(a_pCtx);
-	}
 
-	for (auto& [_id, _res] : m_rgResourceMap)
-	{
-		if (_res.currentState != D3D12_RESOURCE_STATE_COMMON)
-		{
-			a_pCtx->Transition(
-				_res.spRGTexture->GetResource(),
-				_res.currentState,
-				D3D12_RESOURCE_STATE_COMMON
-			);
-			_res.currentState = D3D12_RESOURCE_STATE_COMMON;
-		}
+		//ImGuiContex::Instance().AddLog("===============================================================================\n");
+		
 	}
+	ImGuiContex::Instance().AddLog("%d\n",m_barrierSize);
+	/*ImGuiContex::Instance().AddLog("===============================================================================\n");
+	ImGuiContex::Instance().AddLog("Frame終了\n");
+	ImGuiContex::Instance().AddLog("===============================================================================\n");*/
+	ImGuiContex::Instance().EndWatch("RenderGraphStart");
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE RenderGraph::GetGPUHandle(const std::string& a_name)
 {
 	auto _id = m_resourceStorage.GetID(a_name);
 	return m_rgResourceMap[_id].spRGTexture->GPUSRVHandle();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::RTVCPU(const std::string& a_name)
+{
+	auto _id = m_resourceStorage.GetID(a_name);
+	return m_rgResourceMap[_id].spRGTexture->GetRTVHandle();
 }
 
 Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)

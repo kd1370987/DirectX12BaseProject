@@ -3,7 +3,10 @@
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-void ImGuiContex::Init(HWND a_hwnd)
+#include "Log/Log.h"
+#include "Watch/Watch.h"
+
+bool ImGuiContex::Init(HWND a_hwnd)
 {
 	auto& _pD3DWrapper = D3D12Wrapper::Instance();
 	auto& _pDescriptorManager = DescriptorHeapManager::Instance();
@@ -42,7 +45,14 @@ void ImGuiContex::Init(HWND a_hwnd)
 	_initInfo.LegacySingleSrvGpuDescriptor = _pDescriptorManager.GetImGuiGPUHandle();
 	ImGui_ImplDX12_Init(&_initInfo);
 
+	// ログ
+	if(!m_upLog)
+	{
+		m_upLog = std::make_unique<Log>();
+		m_upLog->Init();
+	}
 
+	return true;
 }
 
 void ImGuiContex::CallImGuiDrawData(ID3D12GraphicsCommandList* a_pCmdList)
@@ -52,17 +62,67 @@ void ImGuiContex::CallImGuiDrawData(ID3D12GraphicsCommandList* a_pCmdList)
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	// 任意のimgui関数の呼び出し
-	ImGui::Begin("Hello, world");
-	ImGui::End();
+	// ログ表示
+	m_upLog->Draw("Log");
+
+	// 計測表示
+	for (auto& [_name, _watch] : m_upWatchMap)
+	{
+		_watch->DrawResult(_name);
+	}
 
 	ImGui::Render();
 
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(),a_pCmdList);
 }
 
+void ImGuiContex::AddLog(const char* a_fmt, ...)
+{
+	if (!m_upLog) return;
+
+	va_list _args;
+	va_start(_args,a_fmt);
+	m_upLog->AddLog(a_fmt);
+	va_end(_args);
+}
+
+void ImGuiContex::StartWatch(const std::string& a_name)
+{
+	auto _it = m_upWatchMap.find(a_name);
+	if (_it != m_upWatchMap.end())
+	{
+		_it->second->Start();
+	}
+	else
+	{
+		m_upWatchMap[a_name] = std::make_unique<Watch>();
+		m_upWatchMap[a_name]->Start();
+	}
+}
+
+void ImGuiContex::EndWatch(const std::string& a_name)
+{
+	auto _it = m_upWatchMap.find(a_name);
+	if (_it != m_upWatchMap.end())
+	{
+		_it->second->End();
+		return;
+	}
+	assert(0 && "登録されていない計測です");
+}
+
+ImGuiContex::ImGuiContex()
+{
+}
+
+ImGuiContex::~ImGuiContex()
+{
+}
+
 void ImGuiContex::Release()
 {
+	m_upLog = nullptr;
+
 	// メモリの解放
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();

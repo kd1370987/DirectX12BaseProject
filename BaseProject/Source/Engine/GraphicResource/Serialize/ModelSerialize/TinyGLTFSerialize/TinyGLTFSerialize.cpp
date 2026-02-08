@@ -160,25 +160,25 @@ namespace
 
 		for (UINT _i = 0; _i < a_dst.spAnimations.size(); ++_i)
 		{
-			const GLTFAnimationData& _srcAnimation = *a_src->animations[_i];	// 元データ
+			auto _srcAnimation = a_src->animations[_i];	// 元データ
 
 			a_dst.spAnimations[_i] = std::make_shared<AnimationData>();
 			AnimationData& _dstAnimation = *a_dst.spAnimations[_i];							// 出力先
 
 			// アニメーション情報コピー
-			_dstAnimation.name = _srcAnimation.name;									// 名前
-			_dstAnimation.maxLength = _srcAnimation.maxLength;							// アニメーションの長さ
+			_dstAnimation.name = _srcAnimation->name;									// 名前
+			_dstAnimation.maxLength = _srcAnimation->maxLength;							// アニメーションの長さ
 
-			_dstAnimation.nodes.resize(_srcAnimation.spAnimationNodes.size());			// ノード配列確保
+			_dstAnimation.nodes.resize(_srcAnimation->spAnimationNodes.size());			// ノード配列確保
 			for (UINT _nIdx = 0; _nIdx < _dstAnimation.nodes.size(); ++_nIdx)
 			{
-				const AnimationNode& _srcAnimaNode = *_srcAnimation.spAnimationNodes[_nIdx];	// 元データ
+				auto _srcNode = _srcAnimation->spAnimationNodes[_nIdx];	// 元データ
 				AnimationNode& _dstAnimaNode = _dstAnimation.nodes[_nIdx];						// 出力先
 				// ノード情報コピー
-				_dstAnimaNode.nodeOffset = _srcAnimaNode.nodeOffset;				// 対象ノードのオフセット
-				_dstAnimaNode.translations = _srcAnimaNode.translations;			// 座標キーリスト
-				_dstAnimaNode.rotations = _srcAnimaNode.rotations;					// 回転キーリスト
-				_dstAnimaNode.scales = _srcAnimaNode.scales;						// 拡縮キーリスト
+				_dstAnimaNode.nodeOffset = _srcNode->nodeOffset;				// 対象ノードのオフセット
+				_dstAnimaNode.translations = _srcNode->translations;			// 座標キーリスト
+				_dstAnimaNode.rotations = _srcNode->rotations;					// 回転キーリスト
+				_dstAnimaNode.scales = _srcNode->scales;						// 拡縮キーリスト
 			}
 
 		}

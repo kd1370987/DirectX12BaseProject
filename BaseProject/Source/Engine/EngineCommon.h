@@ -30,3 +30,5 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 #include "D3D12/D3D12Common.h"
 
 #include "Graphics/GraphicCommon.h"
+
+#include "Editor/ImGui/ImGuiContext.h"

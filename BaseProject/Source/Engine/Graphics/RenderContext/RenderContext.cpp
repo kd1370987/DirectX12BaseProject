@@ -182,12 +182,6 @@ void RenderContext::SetToShader(
 	// 定数バッファの初期化
 	m_frameResource[_currentIdx].spCamAndObjectCBAllocater->ResetUse();
 
-	// ディスクリプタヒープをセット
-	ID3D12DescriptorHeap* _heaps[] = {
-			DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
-	};
-	_cmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
-
 	// カメラの位置を更新
 	m_cb0_camera.cameraPosXYZ = {
 		a_worldMat._41,
@@ -204,15 +198,22 @@ void RenderContext::SetToShader(
 
 void RenderContext::BindCameraCB()
 {
+	auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
 	// レジスター番号取得
 	UINT _regiIdx = 
 		m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::CameraCB);
+
+	// ディスクリプタヒープをセット
+	ID3D12DescriptorHeap* _heaps[] = {
+			DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
+	};
+	_cmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+
 
 	// ルートシグネチャにカメラCBが含まれているのなら
 	if (ERR_UINT != _regiIdx)
 	{
 		// カメラ用定数バッファに転送
-		auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
 		BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
 			_cmdList,
 			_regiIdx,

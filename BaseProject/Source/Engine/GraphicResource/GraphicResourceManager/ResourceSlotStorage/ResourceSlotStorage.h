@@ -22,6 +22,11 @@ public:
 	void Init(UINT a_maxCount);
 
 	/// <summary>
+	/// 解放
+	/// </summary>
+	void Clear();
+
+	/// <summary>
 	/// 登録IDで検索
 	/// </summary>
 	/// <param name="a_id">登録ID</param>
@@ -119,6 +124,15 @@ inline void ResourceSlotStorage<T>::Init(UINT a_maxCount)
 	m_dataVec.resize(a_maxCount);
 	m_toString.resize(a_maxCount);
 	m_idMap.clear();
+}
+
+template<typename T>
+inline void ResourceSlotStorage<T>::Clear()
+{
+	m_idMap.clear();
+	m_toString.clear();
+	m_dataVec.clear();
+	m_indexQueue = {};
 }
 
 template<typename T>

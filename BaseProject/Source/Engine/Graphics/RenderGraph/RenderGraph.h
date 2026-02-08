@@ -94,6 +94,8 @@ public:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(const std::string& a_name);
 
+	D3D12_CPU_DESCRIPTOR_HANDLE RTVCPU(const std::string& a_name);
+
 	// リソース作成
 	Resource::ID CreateResource(const ResourceDesc& a_desc);
 	Resource::ID GetID(const std::string& a_key);

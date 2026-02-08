@@ -5,17 +5,7 @@ class CommandQueue;
 class CommandAllocator;
 class CommandList;
 class Fence;
-
-class RootSignature;
-class PipelineState;
-class DescriptorHeap;
-
-class Mesh;
-
-class ConstantBuffer;
-
 class SwapChain;
-
 class Viewport;
 class ScissorRectangle;
 
@@ -57,14 +47,24 @@ public:
 	/// </summary>
 	void Shutdown();
 
-	// 描画開始・描画終了
-	void BeginRender();
-	void EndRender(bool a_isVsync = true);
+	/// <summary>
+	/// フレーム開始処理
+	/// </summary>
+	void BeginFrame();
+
+	/// <summary>
+	/// フレーム終了処理
+	/// </summary>
+	/// <param name="a_isVsync">垂直同期有効化フラグ</param>
+	void EndFrame(
+		bool a_isVsync = true
+	);
 
 	void CommandQueueReset();
 
 	void SetViewportAndRect();
 
+	void WaitRender(UINT a_frameIndex);										// 描画完了を待つ処理
 	void WaitRender();										// 描画完了を待つ処理
 	void SignalRenderFence();								// フェンスにシグナルを送る処理
 
@@ -124,12 +124,10 @@ private:
 	std::unique_ptr<SwapChain>			m_upSwapChain			= nullptr;		// スワップチェイン
 
 	std::unique_ptr<CommandQueue>		m_upCommandQueue		= nullptr;		// コマンドキュー
-	std::unique_ptr<CommandAllocator>	m_upCommandAllocator	= nullptr;		// コマンドアロケーター
 	std::unique_ptr<CommandList>		m_upCommandList			= nullptr;		// コマンドリスト
 
 	HANDLE								m_fenceEvent			= nullptr;		// フェンスで使うイベント
 	std::unique_ptr<Fence>				m_upFence				= nullptr;		// フェンス
-	UINT64								m_fenceValue[CPU_FRAME_COUNT] = {0};	// フェンスの数
 	UINT								m_currentFenceValue = 0;
 
 	std::unique_ptr<Viewport>			m_upViewport			= nullptr;		// ビューポート
@@ -146,9 +144,8 @@ private:
 	// フレームリソース
 	D3DFrameResource m_frameResource[CPU_FRAME_COUNT] = {};
 
-private:
 	// 描画ループで使用するもの
-	UINT m_cpuFrameIndex = 0;
+	UINT m_cpuFrameIndex = 0;								// 現在のフレームインデックス
 	ID3D12Resource* m_currentRenderTarget = nullptr;		// 現在のフレームのレンダーターゲット
 	
 private:

@@ -892,6 +892,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		}
 
 		// アニメーションで使用していない不必要なノードを除外したリストを作成
+		_spAnimation->spAnimationNodes.clear();
 		for (auto&& _n : _tmpNodes)
 		{
 			if (_n == nullptr)continue;

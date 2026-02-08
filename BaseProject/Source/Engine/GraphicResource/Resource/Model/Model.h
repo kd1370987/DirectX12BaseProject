@@ -14,7 +14,7 @@ struct Model
 	std::vector<std::shared_ptr<AnimationData>> spAnimations;				// データリスト
 
 	// ノード
-	std::vector<Node>							originalNodes;			// 全ノード配列
+	std::vector<Node>							originalNodes;				// 全ノード配列
 	std::vector<int>							rootNodeIndices;			// Rootノード
 	std::vector<int>							boneNodeIndices;			// ボーンノード
 	std::vector<int>							meshNodeIndices;			// メッシュが存在するノード

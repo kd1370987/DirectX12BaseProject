@@ -75,6 +75,8 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <DirectXTex.h>			// テクスチャ読み込み（外部ライブラリ）
 #include <DirectXCollision.h>   // 当たり判定
 
+namespace DXSM = DirectX::SimpleMath;
+
 //===============================================
 //
 // ImGui
@@ -85,6 +87,13 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <imgui-docking/imgui.h>
 #include <imgui-docking/imgui_impl_dx12.h>
 #include <imgui-docking/imgui_impl_win32.h>
+
+//===============================================
+//
+// magic_enmu
+//
+//===============================================
+#include <magic_enum/magic_enum.hpp>
 
 #pragma warning(pop)
 
@@ -101,7 +110,7 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 // バッファリング数
 enum
 {
-	BACKBUFFER_COUNT = 2,		// 今回はダブルバッファリング
+	BACKBUFFER_COUNT = 3,		// 今回はダブルバッファリング
 	CPU_FRAME_COUNT = 3				// フレームリソース管理用
 };
 // ディスクリプタハンドル構造体

@@ -49,6 +49,7 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 						DirectX::XMMATRIX _wM = DirectX::XMLoadFloat4x4(&_worldMatComp.worldMat);
 						DirectX::XMMATRIX _worldMat = _nodeTransMat * _wM;
 						DirectX::XMStoreFloat4x4(&_item.worldMat, _worldMat);
+						if (_item.pMesh == nullptr) continue;
 						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
 						{
 							// 面が一枚もない場合はスキップ

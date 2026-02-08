@@ -9,6 +9,7 @@ public:
 
 	// デバイスの初期化
 	bool Init();
+	void Release();
 
 	// ゲッター
 	ID3D12Device* GetDevice();			// デバイス取得
