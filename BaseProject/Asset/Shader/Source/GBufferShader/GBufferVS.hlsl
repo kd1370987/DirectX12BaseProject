@@ -1,5 +1,15 @@
 #include "GBufferShader.hlsli"
 
+// 頂点シェーダー入出力構造体
+struct VSInput
+{
+	float3 pos : POSITION; // 頂点座標
+	float3 normal : NORMAL; // 法線
+	float2 uv : TEXCOORD; // uv座標
+	float3 tangent : TANGENT; // 接空間
+	float4 color : COLOR; // 頂点色
+};
+
 VSOutput vs( VSInput a_input )
 {
 	VSOutput _output = (VSOutput) 0; // アウトプット構造体を定義

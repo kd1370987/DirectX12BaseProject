@@ -469,6 +469,15 @@
     <Filter Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw">
       <UniqueIdentifier>{7efaeed9-0018-4292-91f8-03a3d71ee4b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass">
+      <UniqueIdentifier>{560806ed-bd33-42db-8b5e-1f5192958e41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem">
+      <UniqueIdentifier>{c26e8c89-9daa-4733-aa78-de4365361a03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem">
+      <UniqueIdentifier>{811e3abc-16d3-410e-86d9-a2dddf791863}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -746,6 +755,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\AnimationOptionalDraw</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass\AnimationGBufferPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\CalcNodeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1154,6 +1172,18 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h">
       <Filter>Source\Application\Systems\Draw\Draw\AnimationOptionalDraw</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass\AnimationGBufferPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\NodePoseComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\CalcNodeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1212,6 +1242,9 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingVS.hlsl">
       <Filter>Asset\Shader\Source\DeferredLightingShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\GBufferShader\AnimationGBufferVS.hlsl">
+      <Filter>Asset\Shader\Source\GBufferShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

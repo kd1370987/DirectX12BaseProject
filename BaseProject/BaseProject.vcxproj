@@ -212,7 +212,9 @@ exit /b 0</Command>
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.cpp" />
@@ -270,6 +272,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass\AnimationGBufferPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\DrawPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass\ForwardLightingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\GBufferPass\GBufferPass.cpp" />
@@ -317,6 +320,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\AnimatorComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h" />
+    <ClInclude Include="Source\Application\Components\Resource\NodePoseComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\SkeletonPoseComponent.h" />
     <ClInclude Include="Source\Application\Components\Tag\ActiveCameraTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h" />
@@ -336,7 +340,9 @@ exit /b 0</Command>
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h" />
@@ -412,6 +418,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass\AnimationGBufferPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\DrawPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass\ForwardLightingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\GBufferPass\GBufferPass.h" />
@@ -457,6 +464,20 @@ exit /b 0</Command>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\GBufferShader\AnimationGBufferVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>

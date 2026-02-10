@@ -56,6 +56,19 @@ void RenderContext::Init()
 		}
 	);
 	m_spRootSigManager->CreateRootSig(
+		"AnimationRootSig",
+		{
+			{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::ObjectCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::MaterialCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
+			{RootParameterType::DescriptorTable,
+			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
+			RootSigSemantic::MaterialSRV,false}
+		}
+	);
+	m_spRootSigManager->CreateRootSig(
 		"QuadRendering",
 		{
 			{RootParameterType::DescriptorTable,{RangeType::SRV},
@@ -452,11 +465,13 @@ void RenderContext::BindMaterial(
 	);
 
 	// SRVの送信
+	UINT _regiIdx =
+		m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
 	if(a_pMaterial != m_pCurrentMaterial)
 	{
 		auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(a_pMaterial->srvHandle);
 		_pCmdList->SetGraphicsRootDescriptorTable(
-			4,
+			_regiIdx,
 			_handle
 		);
 		m_pCurrentMaterial = a_pMaterial;
@@ -481,6 +496,27 @@ void RenderContext::BindMesh(Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMa
 		_pCmdList->IASetIndexBuffer(&a_pMesh->GetIndexBuffer().View());
 		m_pCurrentMesh = a_pMesh;
 	}
+}
+
+void RenderContext::BindBone(const DirectX::XMFLOAT4X4* a_pMatVec,UINT a_count)
+{
+	// 定数バッファにコピー
+	if(a_pMatVec)
+	{
+		std::memcpy(m_cb4_Bone.boneMat, a_pMatVec, sizeof(DirectX::XMFLOAT4X4) * a_count);
+	}
+
+	// ルートパラムインデックス確保
+	UINT _regiIdx =
+		m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::BoneCB);
+	auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
+
+	// バッファにコピー
+	BindCB()->BindAndAttachDataRootCBV<CBBone>(
+		_cmdList,
+		_regiIdx,
+		m_cb4_Bone
+	);
 }
 
 void RenderContext::Draw(Mesh* a_pMesh, UINT a_subIdx)

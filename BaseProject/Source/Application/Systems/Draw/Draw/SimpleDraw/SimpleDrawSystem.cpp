@@ -8,9 +8,11 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
+#include "Application/Components/Resource/AnimatorComponent.h"
+
 void SimpleDrawSystem::Run(World& a_world, float a_dt)
 {
-	a_world.ForEach<WorldMatrixComponent,ModelComponent>(
+	a_world.ForEachEx<WorldMatrixComponent,ModelComponent>(
 		[&a_world, a_dt]
 		(
 			ArchetypeChunk* a_pChunk,
@@ -43,6 +45,7 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 					for (auto& _nodeIdx : _model->drawMeshNodeIndices)
 					{
 						_item.pMesh = _dataNodes[_nodeIdx].spMesh.get();
+						if (!_item.pMesh) continue;
 
 						// ノードのワールド行列を計算
 						DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
@@ -62,7 +65,9 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 				}
 				
 			}
-		}
+		},
+		Exclude<AnimatorComponent>()
+		//Exclude<>()
 	);
 
 }

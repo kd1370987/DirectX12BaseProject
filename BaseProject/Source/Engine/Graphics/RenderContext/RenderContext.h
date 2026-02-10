@@ -37,6 +37,9 @@ struct DrawItem
 	UINT subIdx = 0;
 	Mesh* pMesh = nullptr;
 
+	DirectX::XMFLOAT4X4* pBoneMatrices = nullptr;
+	UINT boneCount = 0;
+
 	DirectX::XMFLOAT4X4 worldMat = {};
 	DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
 	DirectX::XMFLOAT3	emissiveScale = { 1,1,1 };
@@ -197,6 +200,11 @@ public:
 		const DirectX::XMFLOAT4X4& a_worldMat
 	);
 
+	void BindBone(
+		const DirectX::XMFLOAT4X4* a_pMatVec,
+		UINT a_count
+	);
+
 	/// <summary>
 	/// モデルの描画
 	/// </summary>
@@ -244,6 +252,7 @@ private:
 	CBObject m_cb1_object = {};
 	CBMeshTrans m_cb2_MeshTrans = {};
 	CBMaterial m_cb3_Material = {};
+	CBBone m_cb4_Bone = {};
 
 	Resource::ID m_currentRootSigID = Resource::Limits::INVALID_ID;
 	Resource::ID m_currentPSOID = Resource::Limits::INVALID_ID;

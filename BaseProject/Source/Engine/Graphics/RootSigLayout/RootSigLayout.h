@@ -20,6 +20,7 @@ enum class RootSigSemantic
 	ObjectCB,
 	MeshTransCB,
 	MaterialCB,
+	BoneCB,
 	MaterialSRV,
 	PostScreenSRV,
 };
@@ -65,6 +66,12 @@ struct alignas(256) CBCamera
 	DirectX::XMFLOAT4 cameraPosXYZ = { 0.0f,0.0f,0.0f,0.0f };	// カメラのワールド座標
 };
 
+// スキニング
+struct alignas(256) CBBone
+{
+	DirectX::XMFLOAT4X4 boneMat[300] = {};
+};
+
 // Traitsパターン。セマンティクスごとにTraits定義
 template<RootSigSemantic s>
 struct RootSemanticTraits;
@@ -91,4 +98,10 @@ template<>
 struct RootSemanticTraits<RootSigSemantic::MaterialCB>
 {
 	using Type = CBMaterial;
+};
+
+template<>
+struct RootSemanticTraits<RootSigSemantic::BoneCB>
+{
+	using Type = CBBone;
 };

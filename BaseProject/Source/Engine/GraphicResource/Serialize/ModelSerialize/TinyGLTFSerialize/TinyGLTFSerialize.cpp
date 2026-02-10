@@ -11,7 +11,7 @@ namespace
 		// ノード作成
 		//=================================================
 		a_dst.originalNodes.resize(a_src->nodes.size());		// ノード配列確保
-		for (UINT _i = 0; _i < a_src->nodes.size(); ++_i)
+		for (UINT _i = 0; _i < static_cast<UINT>(a_src->nodes.size()); ++_i)
 		{
 			// ノード情報
 			const GLTFNode& _srcNode = a_src->nodes[_i];	// 元データ

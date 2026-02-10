@@ -5,6 +5,7 @@
 #include "Application/Components/Resource/SkeletonPoseComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
+#include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
 #include "Engine/GraphicResource/Resource/Model/Model.h"
@@ -14,7 +15,7 @@
 
 void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
 {
-	a_world.ForEach<WorldMatrixComponent, ModelComponent, SkeletonPoseComponent, AnimatorComponent>(
+	a_world.ForEach<WorldMatrixComponent, ModelComponent, SkeletonPoseComponent, AnimatorComponent,NodePoseComponent>(
 		[&a_world, a_dt]
 		(
 			ArchetypeChunk* a_pChunk,
@@ -22,7 +23,8 @@ void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
 			WorldMatrixComponent* a_matArray,
 			ModelComponent* a_modelArray,
 			SkeletonPoseComponent* a_skeArray,
-			AnimatorComponent* a_aniArray
+			AnimatorComponent* a_aniArray,
+			NodePoseComponent* a_nodePoseArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
@@ -31,6 +33,7 @@ void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
 				ModelComponent& _modelComp = a_modelArray[_i];
 				SkeletonPoseComponent& _skeComp = a_skeArray[_i];
 				AnimatorComponent& _aniComp = a_aniArray[_i];
+				NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
 
 				// 描画アイテム
 				DrawItem _item = {};
@@ -42,15 +45,25 @@ void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
 				auto* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
 				if (!_model) return;
 
+				// 全ノード
+				auto& _workNodes = _nodePoseComp;
 				auto& _dataNodes = _model->originalNodes;
+
+				// ボーンノード	
+				_item.pBoneMatrices = _skeComp.palette;
+				_item.boneCount = 300;
+				
+
+				// 描画ノード
 				for (auto& _nodeIdx : _model->drawMeshNodeIndices)
 				{
 					// 描画メッシュ取得
 					_item.pMesh = _dataNodes[_nodeIdx].spMesh.get();
+					if (!_item.pMesh) continue;
 
 					// ワールド行列
-					DXSM::Matrix _skinAniMat(_skeComp.palette[_aniComp.currentClipID]);
-					DXSM::Matrix _nodeTransMat(_dataNodes[_nodeIdx].worldTransform);
+					//DXSM::Matrix _nodeTransMat(_dataNodes[_nodeIdx].worldTransform);
+					DXSM::Matrix _nodeTransMat(_workNodes.world[_nodeIdx]);
 					DXSM::Matrix _worldMat(_matComp.worldMat);
 					DXSM::Matrix _mat = _nodeTransMat * _worldMat;
 					_item.worldMat = _mat;

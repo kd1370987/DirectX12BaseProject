@@ -4,6 +4,7 @@
 #include "../RenderPass/OffScreenPass/FullScreenPass/FullScreenPass.h"
 #include "../RenderPass/DrawPass/ZPrePass/ZPrePass.h"
 #include "../RenderPass/DrawPass/GBufferPass/GBufferPass.h"
+#include "../RenderPass/DrawPass/AnimationGBufferPass/AnimationGBufferPass.h"
 #include "../RenderPass/OffScreenPass/DeferredLightingPass/DeferredLightingPass.h"
 
 #include "../RenderContext/RenderContext.h"
@@ -67,6 +68,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	RegisterPass<ZPrePass>();
 	RegisterPass<FullScreenPass>();
 	RegisterPass<GBufferPass>();
+	RegisterPass<AnimationGBufferPass>();
 	RegisterPass<DeferredLightingPass>();
 
 	// パスの初期化

@@ -36,6 +36,9 @@
 #include "../../Components/Collision/RayCollider.h"
 
 #include "../../Components/Resource/ModelComponent.h"
+#include "../../Components/Resource/AnimatorComponent.h"
+#include "../../Components/Resource/SkeletonPoseComponent.h"
+#include "../../Components/Resource/NodePoseComponent.h"
 
 // システム関連
 #include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
@@ -49,11 +52,14 @@
 #include "Application/Systems/Update/Camera/TPSSystem/TPSSystem.h"
 
 #include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
-
+#include "Application/Systems/Update/PostUpdate/AnimationSystem/AnimationSystem.h"
+#include "Application/Systems/Update/PostUpdate/SkinningSystem/SkinningSystem.h"
+#include "Application/Systems/Update/PostUpdate/CalcNodeSystem/CalcNodeSystem.h"
 
 #include "Application/Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
 
 #include "Application/Systems/Draw/Draw/SimpleDraw/SimpleDrawSystem.h"
+#include "Application/Systems/Draw/Draw/AnimationOptionalDraw/AnimationOptionalDraw.h"
 
 void GameScene::Init()
 {
@@ -86,24 +92,35 @@ void GameScene::RegistryComponent()
 
 	World::Instance().RegisterComponentType<TRSComponent>("Transform");
 	World::Instance().RegisterComponentType<WorldMatrixComponent>("WorldMatrix");
+
 	World::Instance().RegisterComponentType<ModelComponent>("Model");
+	World::Instance().RegisterComponentType<AnimatorComponent>("Anima");
+	World::Instance().RegisterComponentType<SkeletonPoseComponent>("SkePose");
+	World::Instance().RegisterComponentType<NodePoseComponent>("NodePose");
 
 }
 
 void GameScene::RegistrySystem()
 {
 	// システム登録
-	World::Instance().RegisterSystem<SimpleDrawSystem>();
 	World::Instance().RegisterSystem<CamSetShaderSystem>();
 	World::Instance().RegisterSystem<InputMoveSystem>();
 
 	World::Instance().RegisterSystem<GravitySystem>();
 	World::Instance().RegisterSystem<RotationSystem>();
 
+	World::Instance().RegisterSystem<AnimationSystem>();
+	World::Instance().RegisterSystem<CalcNodeSystem>();
+	World::Instance().RegisterSystem<SkinningSystem>();
 	World::Instance().RegisterSystem<PositionIntegrationSystem>();
+
 	World::Instance().RegisterSystem<TPSSystem>();
+
 	World::Instance().RegisterSystem<CalcMatrixSystem>();
 	World::Instance().RegisterSystem<RayCollisionSystem>();
+
+	World::Instance().RegisterSystem<SimpleDrawSystem>();
+	World::Instance().RegisterSystem<AnimationOptionalDrawSystem>();
 }
 
 void GameScene::RegistryEntity()
@@ -121,6 +138,9 @@ void GameScene::RegistryEntity()
 		_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
 		_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
 		_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(SkeletonPoseComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(AnimatorComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(NodePoseComponent)));
 		_player = World::Instance().CreateEntity(_sig);
 		PlayerLookAngleComponent* _lookAng = World::Instance().RefData<PlayerLookAngleComponent>(_player);
 		_lookAng->Yaw = 0;
@@ -137,7 +157,8 @@ void GameScene::RegistryEntity()
 		_velocity->value = { 0.0f,0.0f,0.0f };
 		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_player);
 		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Man/scene.gltf");
-		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Robot/Robot.gltf");
+		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Robot/Robot.gltf");
+		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/SkinMeshMan/SkinMeshMan.gltf");
 		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/tank/tank.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
@@ -145,6 +166,31 @@ void GameScene::RegistryEntity()
 		_ref->pos = { 0.0f, 3.0f, 5.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
+		SkeletonPoseComponent* _pSkePose = World::Instance().RefData<SkeletonPoseComponent>(_player);
+		for (auto& _pose : _pSkePose->palette)
+		{
+			_pose = DXSM::Matrix::Identity;
+		}
+		AnimatorComponent* _pAni = World::Instance().RefData<AnimatorComponent>(_player);
+		_pAni->currentClipID = 0;
+		_pAni->time = 0.0f;
+		_pAni->nextClipID = 1;
+		_pAni->blendTime = 1.0f;
+		_pAni->isLoop = true;
+		NodePoseComponent* _pNodePose = World::Instance().RefData<NodePoseComponent>(_player);
+		auto* _pModel = GraphicResourceManager::Instance().NGetModel(_model->modelID);
+		_pNodePose->nodeCount = static_cast<uint16_t>(_pModel->originalNodes.size());
+		for (int _i = 0; _i < MAX_NODEINDEX; ++_i)
+		{
+			_pNodePose->local[_i] = DXSM::Matrix::Identity;
+			_pNodePose->world[_i] = DXSM::Matrix::Identity;
+		}
+		for (int _i = 0; _i < static_cast<int>(_pNodePose->nodeCount); ++_i)
+		{
+			_pNodePose->local[_i] = _pModel->originalNodes[_i].localTransform;
+			_pNodePose->world[_i] = _pModel->originalNodes[_i].worldTransform;
+		}
+		
 	}
 
 	{
