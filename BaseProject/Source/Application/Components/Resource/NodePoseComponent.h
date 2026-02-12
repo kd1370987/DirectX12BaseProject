@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-constexpr UINT MAX_NODEINDEX = 256;
+constexpr UINT MAX_NODEINDEX = 100;
 
 struct NodePoseComponent
 {

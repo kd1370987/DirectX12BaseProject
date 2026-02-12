@@ -14,8 +14,8 @@ namespace
 		for (UINT _i = 0; _i < static_cast<UINT>(a_src->nodes.size()); ++_i)
 		{
 			// ノード情報
-			const GLTFNode& _srcNode = a_src->nodes[_i];	// 元データ
-			Node& _dstNode = a_dst.originalNodes[_i];						// 出力先
+			const GLTFNode& _srcNode = a_src->nodes[_i];	// 入力元
+			Node& _dstNode = a_dst.originalNodes[_i];		// 出力先
 
 			// 基本情報コピー
 			if (_srcNode.isMesh)
@@ -129,8 +129,8 @@ namespace
 		for (UINT _i = 0; _i < a_dst.materials.size(); ++_i)
 		{
 			// マテリアル情報
-			const GLTFMaterial& _srcMaterial = a_src->materials[_i];	// 元データ
-			Material& _dstMaterial = a_dst.materials[_i];							// 出力先
+			const GLTFMaterial& _srcMaterial = a_src->materials[_i];	// 入力元
+			Material& _dstMaterial = a_dst.materials[_i];				// 出力先
 
 			// マテリアル情報コピー
 			_dstMaterial.name = _srcMaterial.name;									// マテリアル名
@@ -146,9 +146,9 @@ namespace
 
 			// 材質データ
 			_dstMaterial.baseColor = _srcMaterial.baseColorFactor;				// 基本色
-			_dstMaterial.metallic = _srcMaterial.metallicFactor;					// 金属製
+			_dstMaterial.metallic = _srcMaterial.metallicFactor;				// 金属製
 			_dstMaterial.roughness = _srcMaterial.roughnessFactor;				// 粗さ
-			_dstMaterial.emissive = _srcMaterial.emissiveFactor;					// エミッシブ
+			_dstMaterial.emissive = _srcMaterial.emissiveFactor;				// エミッシブ
 		}
 	}
 	void CreateAnimations(Model& a_dst, const std::shared_ptr<GLTFModel>& a_src)
@@ -187,6 +187,16 @@ namespace
 
 void Serialize::TinyGLTF(Model& a_dst, std::shared_ptr<GLTFModel> a_src, const std::string& a_fileDir)
 {
+	a_dst.materials.clear();
+	a_dst.originalNodes.clear();
+
+	a_dst.rootNodeIndices.clear();
+	a_dst.boneNodeIndices.clear();
+	a_dst.meshNodeIndices.clear();
+	a_dst.drawMeshNodeIndices.clear();
+	a_dst.collisionMeshNodeIndices.clear();
+	a_dst.spAnimations.clear();
+
 	// ノード作成
 	CreateNodes(a_dst, a_src);
 

@@ -22,6 +22,8 @@ void AnimationSystem::Run(World& a_world, float a_dt)
 			NodePoseComponent* a_NodePoseArray
 			)
 		{
+			return;
+
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				ModelComponent& _modelComp = a_modelArray[_i];
@@ -47,7 +49,11 @@ void AnimationSystem::Run(World& a_world, float a_dt)
 				{
 					UINT _idx = _rAnimNode.nodeOffset;
 
-					Animation::Interpolate(_spAni->nodes[_idx], _nodeComp.local[_idx]);
+					auto prev = _spAni->nodes[_idx];
+
+					Animation::Interpolate(_spAni->nodes[_idx],_aniComp.time, _nodeComp.local[_idx]);
+
+					prev = _spAni->nodes[_idx];
 				}
 
 				// アニメーションタイム進行

@@ -29,12 +29,12 @@ void SkinningSystem::Run(World& a_world, float a_dt)
 				SkeletonPoseComponent& _skeComp = a_skePoseArray[_i];
 
 				// モデル取得
-				auto* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+				const auto* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
 				if (!_model) return;
 
 				// 全ノード
 				auto& _workNodes = _nodeComp;
-				auto& _dataNodes = _model->originalNodes;
+				const auto& _dataNodes = _model->originalNodes;
 
 				for (auto& _s : _skeComp.palette)
 				{
@@ -44,11 +44,12 @@ void SkinningSystem::Run(World& a_world, float a_dt)
 				// ボーンノード
 				for (auto&& _nodeIdx : _model->boneNodeIndices)
 				{
-					auto& _dataNode = _dataNodes[_nodeIdx];
+					const auto& _dataNode = _dataNodes[_nodeIdx];
 					
 					DXSM::Matrix _nodeWorldMat(_nodeComp.world[_nodeIdx]);
 					DXSM::Matrix _invMat(_dataNodes[_nodeIdx].boneInverseWorldMatrix);
 					_skeComp.palette[_dataNode.boneIndex] = _invMat * _nodeWorldMat;
+					int i = 0;
 				}
 			}
 		}

@@ -28,36 +28,19 @@ void CalcNodeSystem::Run(World& a_world, float a_dt)
 				AnimatorComponent& _aniComp = a_animatorArray[_i];
 				NodePoseComponent& _nodeComp = a_nodePoseArray[_i];
 
+				// モデル取得
 				auto* _pModel = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
 
-				std::function<void(int)> _CalcNode;
-				_CalcNode = [&](int nodeIdx)
-					{
-						auto& _data = _pModel->originalNodes[nodeIdx];
-
-						// 親合成
-						if (_data.parent >= 0)
-						{
-							DXSM::Matrix _l(_nodeComp.local[nodeIdx]);
-							DXSM::Matrix _p(_nodeComp.world[_data.parent]);
-							_nodeComp.world[nodeIdx] = (_l * _p);
-						}
-						else
-						{
-							_nodeComp.world[nodeIdx] = _nodeComp.local[nodeIdx];
-						}
-
-						// 子供再帰
-						for (int _child : _data.children)
-						{
-							_CalcNode(_child);
-						}
-					};
-
 				// ルートから開始
-				for (int root : _pModel->rootNodeIndices)
+				for (int _rootIdx : _pModel->rootNodeIndices)
 				{
-					_CalcNode(root);
+					Animation::CalcNodeMatrix(
+						_rootIdx,
+						-1,
+						_pModel,
+						_nodeComp.local,
+						_nodeComp.world
+					);
 				}
 
 			}

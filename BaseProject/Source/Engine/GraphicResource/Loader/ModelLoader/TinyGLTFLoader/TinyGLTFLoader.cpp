@@ -138,17 +138,17 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 
 		if (!_warn.empty())
 		{
-			printf("Warn : %s\n", _warn.c_str());
+			ImGuiContex::Instance().AddLog("Warn : %s\n", _warn.c_str());
 		}
 
 		if (!_err.empty())
 		{
-			printf("Err : %s\n", _err.c_str());
+			ImGuiContex::Instance().AddLog("Err : %s\n", _err.c_str());
 		}
 
 		if (!_ret)
 		{
-			printf("Failed to parse gltf\n");
+			ImGuiContex::Instance().AddLog("Failed to parse gltf: %s", a_filePath.data());
 			return nullptr;
 		}
 	}
@@ -182,9 +182,9 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			_destMaterial.name = _srcMaterial.name;
 
 			// 透明モード設定
-			_destMaterial.alphaMode = _srcMaterial.alphaMode;                           // モード
-			_destMaterial.AlphaCutoff = (float)(_srcMaterial.alphaCutoff);				// 閾値
-			_destMaterial.doubleSided = _srcMaterial.doubleSided;                       // 設定面
+			_destMaterial.alphaMode = _srcMaterial.alphaMode;			   // モード
+			_destMaterial.AlphaCutoff = (float)(_srcMaterial.alphaCutoff); // 閾値
+			_destMaterial.doubleSided = _srcMaterial.doubleSided;          // 設定面
 
 			// 基本色
 			_destMaterial.baseColorTexName = GetTextureFilename(_srcMaterial.pbrMetallicRoughness.baseColorTexture.index); // 名前
@@ -258,14 +258,13 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		//-----------------------
 		// 変換行列取得
 		//-----------------------
-		DirectX::XMMATRIX _scaleMat = DirectX::XMMatrixIdentity();
-		DirectX::XMMATRIX _rotationMat = DirectX::XMMatrixIdentity();
-		DirectX::XMMATRIX _transMat = DirectX::XMMatrixIdentity();
-		DirectX::XMFLOAT4X4 _mat;
+		DXSM::Matrix _sMat = DXSM::Matrix::Identity;
+		DXSM::Matrix _rMat = DXSM::Matrix::Identity;
+		DXSM::Matrix _tMat = DXSM::Matrix::Identity;
 		// 拡縮
 		if (_tinyModel.nodes[_nodeIdx].scale.size() != 0)
 		{
-			_scaleMat = DirectX::XMMatrixScaling(
+			_sMat = DXSM::Matrix::CreateScale(
 				static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[0]),
 				static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[1]),
 				static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[2])
@@ -274,42 +273,36 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		// 回転
 		if (_tinyModel.nodes[_nodeIdx].rotation.size() != 0)
 		{
-			DirectX::XMFLOAT4 _quatFloat4(
+			DXSM::Quaternion _quat(
 				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[0]),
 				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[1]),
 				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[2]),
 				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[3])
 			);
-
-			// 変換して計算
-			DirectX::XMVECTOR _quat = DirectX::XMLoadFloat4(&_quatFloat4);
-			DirectX::XMVECTOR _nQuat = DirectX::XMQuaternionNormalize(_quat);
-			_rotationMat = DirectX::XMMatrixRotationQuaternion(_nQuat);
+			_rMat = DXSM::Matrix::CreateFromQuaternion(_quat);
 		}
 		// 移動
 		if (_tinyModel.nodes[_nodeIdx].translation.size() != 0)
 		{
-			_transMat = DirectX::XMMatrixTranslation(
+			_tMat = DXSM::Matrix::CreateTranslation(
 				static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[0]),
 				static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[1]),
 				static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[2])
 			);
 		}
 		// 行列
-		if (_tinyModel.nodes[_nodeIdx].matrix.size() == 0)
+		if (_tinyModel.nodes[_nodeIdx].matrix.size() != 0)
 		{
-			DirectX::XMStoreFloat4x4(&_mat, _scaleMat * _rotationMat * _transMat);
-		}
-		else
-		{
-			const auto& _m = _tinyModel.nodes[_nodeIdx].matrix;
-			_mat._11 = (float)_m[0]; _mat._12 = (float)_m[4];  _mat._13 = (float)_m[8];  _mat._14 = (float)_m[12];
-			_mat._21 = (float)_m[1]; _mat._22 = (float)_m[5];  _mat._23 = (float)_m[9];  _mat._24 = (float)_m[13];
-			_mat._31 = (float)_m[2]; _mat._32 = (float)_m[6];  _mat._33 = (float)_m[10]; _mat._34 = (float)_m[14];
-			_mat._41 = (float)_m[3]; _mat._42 = (float)_m[7];  _mat._43 = (float)_m[11]; _mat._44 = (float)_m[15];
+			for (int _n = 0; _n < 16; ++_n)
+			{
+				*(&_sMat._11 + _n) = (float)_tinyModel.nodes[_nodeIdx].matrix[_n];
+			}
 		}
 
-		_destNode->localTransform = _mat;
+		// 変換行列を格納
+		//_destNode->localTransform = _sMat * _rMat * _tMat;
+		_destNode->localTransform = _sMat * _rMat * _tMat;
+
 		// Z軸ミラーリング
 		XMFLOAT4X4MirrorZ(_destNode->localTransform);
 
@@ -339,11 +332,9 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 				// ワールド行列をもとめる
 				if (a_parentMat)
 				{
-					// 計算するために XMFLOAT4x4 から XMMATRIX に変換
-					DirectX::XMMATRIX _localMat = DirectX::XMLoadFloat4x4(&a_node->localTransform);
-					DirectX::XMMATRIX _parentMat = DirectX::XMLoadFloat4x4(a_parentMat);
-					DirectX::XMMATRIX _worldMat = _localMat * _parentMat;
-					DirectX::XMStoreFloat4x4(&a_node->worldTransform, _worldMat);
+					DXSM::Matrix _localMat(a_node->localTransform);
+					DXSM::Matrix _parentMat(*a_parentMat);
+					a_node->worldTransform = _localMat * _parentMat;
 				}
 				else
 				{
@@ -388,41 +379,36 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			_boneNode->boneNodeIndex = _jointIdx;
 
 			// オフセット行列取得
-			DirectX::XMFLOAT4X4 _invBindMat;
+			DXSM::Matrix _invBindMat = DXSM::Matrix::Identity;
 			for (int _matIdx = 0; _matIdx < 16; ++_matIdx)
 			{
 				(&_invBindMat._11)[_matIdx] = _ibmGetter.GetValue_Float(_jointIdx * 16 + _matIdx);
 			}
-			// Z軸ミラーリング
-			XMFLOAT4X4MirrorZ(_invBindMat);
 
-			// 格納
+			// Z軸ミラーリングして格納
+			XMFLOAT4X4MirrorZ(_invBindMat);
 			_boneNode->inverseBindMatrix = _invBindMat;
 
 			// 変換行列へ変換
-			const DirectX::XMMATRIX _mat = DirectX::XMLoadFloat4x4(&_invBindMat);
-			DirectX::XMVECTOR _det;
-			DirectX::XMMATRIX _inv = DirectX::XMMatrixInverse(&_det, _mat);
-			DirectX::XMStoreFloat4x4(&_boneNode->worldTransform, _inv);
+			_boneNode->worldTransform = _invBindMat.Invert();
 		}
 
 		// ボーンLocalMat算出
-		for (int _nodeIdx : _destModel->boneNodeIndices)
+		/*for (int _nodeIdx : _destModel->boneNodeIndices)
 		{
 			GLTFNode* _boneNode = &_destModel->nodes[_nodeIdx];
 
 			if (_boneNode->parent >= 0)
 			{
-				DirectX::XMMATRIX _worldMat = DirectX::XMLoadFloat4x4(&_boneNode->worldTransform);
-				DirectX::XMMATRIX _invBindMat = DirectX::XMLoadFloat4x4(&_destModel->nodes[_boneNode->parent].inverseBindMatrix);
-				DirectX::XMMATRIX _mat = _worldMat * _invBindMat;
-				DirectX::XMStoreFloat4x4(&_boneNode->localTransform, _mat);
+				DXSM::Matrix _boneWorldMat(_boneNode->worldTransform);
+				DXSM::Matrix _invBindMat(_destModel->nodes[_boneNode->parent].inverseBindMatrix);
+				_boneNode->localTransform = _boneWorldMat * _invBindMat;
 			}
 			else
 			{
 				_boneNode->localTransform = _boneNode->worldTransform;
 			}
-		}
+		}*/
 	}
 
 	//----------------------------------------------------
@@ -444,7 +430,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		// 作業データ
 		struct GLTFPrimitive
 		{
-			std::vector<MeshVertex8bit>     vertices = {};
+			std::vector<MeshVertex8bit> vertices = {};
 			std::vector<MeshFace>       faces = {};
 
 			UINT                        materialNumber = 0;
@@ -527,8 +513,8 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 					// コピー先設定
 					auto& _uv = _destPrimitive->vertices[_vertexIdx].uv;
 					// コピー
-					_uv.x = _uvGetter.GetValue_Float(_vertexIdx * 2 + 0);
-					_uv.y = _uvGetter.GetValue_Float(_vertexIdx * 2 + 1);
+					_uv.x = _uvGetter.GetValue_UNORM(_vertexIdx * 2 + 0);
+					_uv.y = _uvGetter.GetValue_UNORM(_vertexIdx * 2 + 1);
 				}
 			}
 
@@ -537,6 +523,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			{
 				// 色ゲッター生成
 				GLTFBufferGetter _colorGetter(&_tinyModel, _srcPrimitive.attributes["COLOR_0"]);
+
 				for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
 				{
 					DirectX::XMFLOAT4 _color(1, 1, 1, 1);
@@ -631,9 +618,12 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			for (UINT _faceIdx = 0; _faceIdx < _destPrimitive->faces.size(); ++_faceIdx)
 			{
 				// データ型のバイト数をもとめる（Z軸ミラーのため、1 と 2 を入れ替える）
-				_destPrimitive->faces[_faceIdx].idx[0] = static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 0));
-				_destPrimitive->faces[_faceIdx].idx[1] = static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 1));
-				_destPrimitive->faces[_faceIdx].idx[2] = static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 2));
+				_destPrimitive->faces[_faceIdx].idx[0] = 
+					static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 0));
+				_destPrimitive->faces[_faceIdx].idx[2] = 
+					static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 1));
+				_destPrimitive->faces[_faceIdx].idx[1] = 
+					static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 2));
 			}
 		}
 
@@ -664,7 +654,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		for (UINT _priIdx = 0; _priIdx < _tmpPrimitives.size(); ++_priIdx)
 		{
 			// 参照先確保
-			auto _primitive = _tmpPrimitives[_priIdx];
+			const auto& _primitive = _tmpPrimitives[_priIdx];
 
 			// 頂点バッファの合成
 			if (_primitive->vertices.size() >= 1)
@@ -713,26 +703,20 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		for (auto&& _vertex : _destNode->nodeMesh.vertices)
 		{
 			// 接線が存在する場合はスキップ
-			DirectX::XMVECTOR _tangent = DirectX::XMLoadFloat3(&_vertex.tangent);
-			float _length = DirectX::XMVectorGetX(DirectX::XMVector3Length(_tangent));
-			if (_length)	continue;
+			DXSM::Vector3 _tangent = _vertex.tangent;
+			if (_tangent.LengthSquared() > 0.0f)	continue;
 
-			// 上方向（Y軸）を基準に法線とクロスして接線を作る
-			{
-				DirectX::XMVECTOR _up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向ベクトル
-				DirectX::XMVECTOR _normal = DirectX::XMLoadFloat3(&_vertex.normal);		// 法線ベクトル
-				_tangent = DirectX::XMVector3Cross(_up, _normal);		// クロス積を計算
-				DirectX::XMStoreFloat3(&_vertex.tangent, _tangent);						// 結果を保存
-			}
+			DXSM::Vector3 _normal = _vertex.normal;
 
-			// クロス結果がゼロベクトルの場合
-			if (_vertex.tangent.x == 0 && _vertex.tangent.y == 0 && _vertex.tangent.z == 0)
-			{
-				DirectX::XMVECTOR _up = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);	// 別方向の上ベクトル
-				DirectX::XMVECTOR _normal = DirectX::XMLoadFloat3(&_vertex.normal);		// 法線ベクトル
-				_tangent = DirectX::XMVector3Cross(_up, _normal);		// クロス積を計算
-				DirectX::XMStoreFloat3(&_vertex.tangent, _tangent);						// 結果を保存
-			}
+			// 法線と平衡になりにくい基準ベクトルを用意
+			DXSM::Vector3 _ref = (fabs(_normal.y) < 0.999f) ? DXSM::Vector3::Up : DXSM::Vector3::Forward;
+
+			// クロス結果を求めて正規化
+			DXSM::Vector3 _t = _ref.Cross(_normal);
+			_t.Normalize();
+
+			// 結果を格納
+			_vertex.tangent = _t;
 		}
 	}
 

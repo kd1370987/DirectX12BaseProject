@@ -140,6 +140,11 @@ void RenderContext::Init()
 	m_cb3_Material.emissiveXYZ = { 1.0f,1.0f,1.0f,0.0f };
 	m_cb3_Material.metallicRoughnessXY = { 0.0f,1.0f,0.0f,0.0f };
 
+	// cb4
+	for (auto& _mat : m_cb4_Bone.boneMat)
+	{
+		_mat = DXSM::Matrix::Identity;
+	};
 
 	m_currentPSOID = Resource::Limits::INVALID_ID;
 	m_currentRootSigID = Resource::Limits::INVALID_ID;
