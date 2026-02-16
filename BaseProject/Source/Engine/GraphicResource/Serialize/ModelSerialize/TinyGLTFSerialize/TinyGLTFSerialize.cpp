@@ -21,10 +21,12 @@ namespace
 			if (_srcNode.isMesh)
 			{
 				// メッシュ作成
-				_dstNode.spMesh = std::make_shared<Mesh>();
+				//_dstNode.spMesh = std::make_shared<Mesh>();
+				auto _spMesh = std::make_shared<Mesh>();
 
 				// メッシュデータコピー
-				if (_dstNode.spMesh)
+				//if (_dstNode.spMesh)
+				if (_spMesh)
 				{
 					// 頂点配列作成
 					std::vector<MeshVertexFloat> _vertices = {};
@@ -52,7 +54,8 @@ namespace
 					}
 
 					// メッシュ作成
-					_dstNode.spMesh->CreateFloat(
+					//_dstNode.spMesh->CreateFloat(
+					_spMesh->CreateFloat(
 						_vertices,
 						_srcNode.nodeMesh.faces,
 						_srcNode.nodeMesh.subsets,
@@ -62,6 +65,9 @@ namespace
 
 				// メッシュノードリストにインデックス登録
 				a_dst.meshNodeIndices.push_back(_i);
+
+				_dstNode.meshIndices.push_back(static_cast<int>(a_dst.spMeshVec.size()));
+				a_dst.spMeshVec.push_back(_spMesh);
 			}
 
 			// ノード情報セット
@@ -69,12 +75,6 @@ namespace
 			_dstNode.localTransform = _srcNode.localTransform;					// ローカル行列
 			_dstNode.worldTransform = _srcNode.worldTransform;					// ワールド行列
 			_dstNode.boneInverseWorldMatrix = _srcNode.inverseBindMatrix;		// ボーンのオフセット行列
-
-			ImGuiContex::Instance().AddLog("---------------------------------------------------");
-			ImGuiContex::Instance().AddLogMatrix(_dstNode.name,_dstNode.localTransform);
-			ImGuiContex::Instance().AddLogMatrix(_dstNode.name,_dstNode.worldTransform);
-			ImGuiContex::Instance().AddLogMatrix(_dstNode.name,_dstNode.boneInverseWorldMatrix);
-
 
 			_dstNode.parent = _srcNode.parent;									// 親インデックス
 			_dstNode.children = _srcNode.children;								// 子供リスト

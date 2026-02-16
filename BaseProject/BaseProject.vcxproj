@@ -222,6 +222,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Core\Storage\FreeRange\FreeRange.cpp" />
     <ClCompile Include="Source\Core\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp" />
+    <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.cpp" />
     <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp" />
     <ClCompile Include="Source\Engine\Collision\Collision.cpp" />
     <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp" />
@@ -355,6 +356,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Core\Time\FPSController\FPSController.h" />
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
     <ClInclude Include="Source\Core\Utility\StringUtillity.h" />
+    <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h" />
     <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h" />
     <ClInclude Include="Source\Engine\Collision\Collision.h" />
     <ClInclude Include="Source\Engine\Collision\Gather\Gather.h" />

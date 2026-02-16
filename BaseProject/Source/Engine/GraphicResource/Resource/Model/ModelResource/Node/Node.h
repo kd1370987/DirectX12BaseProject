@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-class Mesh;
-
 //==========================================================
 // 
 // ノード：モデルを形成するメッシュを扱うための最小単位
@@ -10,7 +8,8 @@ class Mesh;
 struct Node
 {
 	std::string				name;						//ノード名
-	std::shared_ptr<Mesh>	spMesh;						// メッシュ
+
+	std::vector<int>		meshIndices;				// メッシュのインデックスリスト
 
 	DirectX::XMFLOAT4X4		localTransform = {};				// 直属の親ボーンからの行列
 	DirectX::XMFLOAT4X4		worldTransform = {};				// 原点からの行列

@@ -478,6 +478,12 @@
     <Filter Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem">
       <UniqueIdentifier>{29d208e6-31fb-42f8-8dc2-2f171faa9124}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Animation">
+      <UniqueIdentifier>{970309e0-5b86-474c-b88d-2359ee56a5eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Animation\AnimationEvaluator">
+      <UniqueIdentifier>{92203f8b-16d4-4ea8-a1cc-eda91ae7c482}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -764,6 +770,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.cpp">
+      <Filter>Source\Engine\Animation\AnimationEvaluator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1183,6 +1192,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h">
+      <Filter>Source\Engine\Animation\AnimationEvaluator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

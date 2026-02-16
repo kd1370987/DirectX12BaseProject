@@ -44,22 +44,26 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 
 					for (auto& _nodeIdx : _model->drawMeshNodeIndices)
 					{
-						_item.pMesh = _dataNodes[_nodeIdx].spMesh.get();
-						if (!_item.pMesh) continue;
-
-						// ノードのワールド行列を計算
-						DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
-						DirectX::XMMATRIX _wM = DirectX::XMLoadFloat4x4(&_worldMatComp.worldMat);
-						DirectX::XMMATRIX _worldMat = _nodeTransMat * _wM;
-						DirectX::XMStoreFloat4x4(&_item.worldMat, _worldMat);
-						if (_item.pMesh == nullptr) continue;
-						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
+						for (auto& _meshIdx : _dataNodes[_nodeIdx].meshIndices)
 						{
-							// 面が一枚もない場合はスキップ
-							if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
-							_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
-							_item.subIdx = _subIdx;
-							RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
+						//	_item.pMesh = _dataNodes[_nodeIdx].spMesh.get();
+							_item.pMesh = _model->spMeshVec[_meshIdx].get();
+							if (!_item.pMesh) continue;
+
+							// ノードのワールド行列を計算
+							DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
+							DirectX::XMMATRIX _wM = DirectX::XMLoadFloat4x4(&_worldMatComp.worldMat);
+							DirectX::XMMATRIX _worldMat = _nodeTransMat * _wM;
+							DirectX::XMStoreFloat4x4(&_item.worldMat, _worldMat);
+							if (_item.pMesh == nullptr) continue;
+							for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
+							{
+								// 面が一枚もない場合はスキップ
+								if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
+								_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
+								_item.subIdx = _subIdx;
+								RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
+							}
 						}
 					}
 				}

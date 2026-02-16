@@ -23,7 +23,7 @@ namespace
 			if (_srcNode.spMesh)
 			{
 				// メッシュ作成
-				_dstNode.spMesh = std::make_shared<Mesh>();
+				auto _spMesh = std::make_shared<Mesh>();
 
 				// 頂点配列作成
 				std::vector<MeshVertexFloat> _vertices = {};
@@ -54,9 +54,9 @@ namespace
 				_subsets.push_back(_subset);
 
 				// メッシュデータコピー
-				if (_dstNode.spMesh)
+				if(_spMesh)
 				{
-					_dstNode.spMesh->CreateFloat(
+					_spMesh->CreateFloat(
 						_vertices,
 						_faces,
 						_subsets,
@@ -66,6 +66,9 @@ namespace
 
 				// メッシュノードリストにインデックス登録
 				a_dst.meshNodeIndices.push_back(_i);
+
+				_dstNode.meshIndices.push_back(_i);		// ノードのメッシュインデックスリストに登録
+				a_dst.spMeshVec.push_back(_spMesh);
 			}
 
 			// ノード情報セット

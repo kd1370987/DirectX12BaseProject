@@ -57,25 +57,28 @@ void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
 				// 描画ノード
 				for (auto& _nodeIdx : _model->drawMeshNodeIndices)
 				{
-					// 描画メッシュ取得
-					_item.pMesh = _dataNodes[_nodeIdx].spMesh.get();
-					if (!_item.pMesh) continue;
-
-					// ワールド行列
-					DXSM::Matrix _nodeTransMat(_workNodes.world[_nodeIdx]);
-					DXSM::Matrix _worldMat(_matComp.worldMat);
-					DXSM::Matrix _mat = _nodeTransMat * _worldMat;
-					_item.worldMat = _mat;
-
-					for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
+					for (auto& _meshIdx : _dataNodes[_nodeIdx].meshIndices)
 					{
-						// マテリアルセット
-						if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
-						_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
-						_item.subIdx = _subIdx;
+						// 描画メッシュ取得
+						_item.pMesh = _model->spMeshVec[_meshIdx].get();
+						if (!_item.pMesh) continue;
 
-						// 描画アイテムキューに送信
-						RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque,_item);
+						// ワールド行列
+						DXSM::Matrix _nodeTransMat(_workNodes.world[_nodeIdx]);
+						DXSM::Matrix _worldMat(_matComp.worldMat);
+						DXSM::Matrix _mat = _nodeTransMat * _worldMat;
+						_item.worldMat = _mat;
+
+						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
+						{
+							// マテリアルセット
+							if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
+							_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
+							_item.subIdx = _subIdx;
+
+							// 描画アイテムキューに送信
+							RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
+						}
 					}
 				}
 			}

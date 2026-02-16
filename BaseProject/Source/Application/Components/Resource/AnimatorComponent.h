@@ -2,11 +2,9 @@
 
 struct AnimatorComponent
 {
-	uint32_t currentClipID = 0;
+	uint32_t clipID = 0;
 	float time = 0.0f;
-
-	uint32_t nextClipID = 0;
-	float blendTime = 0.0f;
+	float speed = 1.0f;
 
 	ECS::Flg isLoop = 0;
 };

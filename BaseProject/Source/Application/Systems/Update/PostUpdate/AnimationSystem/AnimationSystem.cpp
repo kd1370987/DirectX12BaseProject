@@ -8,6 +8,7 @@
 
 #include "Engine/GraphicResource/Resource/Model/Model.h"
 #include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/Animation/AnimationEvaluator/AnimationEvaluator.h"
 
 
 void AnimationSystem::Run(World& a_world, float a_dt)
@@ -31,15 +32,8 @@ void AnimationSystem::Run(World& a_world, float a_dt)
 				auto* _pModel = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
 
 				// アニメーション取得
-				std::shared_ptr<AnimationData> _spAni = nullptr;
-				for (auto&& _anime : _pModel->spAnimations)
-				{
-					if (_anime->name == "Walk")
-					{
-						_spAni = _anime;;
-					}
-				}
-
+				
+				std::shared_ptr<AnimationData> _spAni = ModelUtility::GetSPAnimation(*_pModel, _aniComp.clipID);
 				if (!_spAni) return;
 
 				// すべてのアニメーションノードの行列保管を実行する
@@ -55,8 +49,8 @@ void AnimationSystem::Run(World& a_world, float a_dt)
 				}
 
 				// アニメーションタイム進行
-				_aniComp.time += _aniComp.blendTime;
-
+				_aniComp.time += a_dt * _aniComp.speed;
+				
 				if (_aniComp.time >= _spAni->maxLength)
 				{
 					if (_aniComp.isLoop != 0)

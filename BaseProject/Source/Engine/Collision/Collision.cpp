@@ -53,40 +53,41 @@ bool Collision::Raycast(
 		for (int _idx : _model->collisionMeshNodeIndices)
 		{
 			const Node& _node = _model->originalNodes[_idx];
-			if (_node.spMesh == nullptr)
-				continue;
-
-			auto* _mesh = _node.spMesh.get();
-
-			for (uint32_t _i = 0; _i < _mesh->GetFaces().size(); ++_i)
+			for (auto& _meshIdx : _node.meshIndices)
 			{
-				DirectX::XMMATRIX _world = DirectX::XMLoadFloat4x4(&_colView.pWorldMat->worldMat);
+				auto _mesh = _model->spMeshVec[_meshIdx];
+				if (!_mesh) continue;
 
-				DirectX::XMVECTOR _v0 = DirectX::XMVector3Transform(
-					DirectX::XMLoadFloat3(
-						&_mesh->GetPositions()[_mesh->GetFaces()[_i].idx[0]]), _world
-				);
-				DirectX::XMVECTOR _v1 = DirectX::XMVector3Transform(
-					DirectX::XMLoadFloat3(
-						&_mesh->GetPositions()[_mesh->GetFaces()[_i].idx[1]]), _world
-				);
-				DirectX::XMVECTOR _v2 = DirectX::XMVector3Transform(
-					DirectX::XMLoadFloat3(
-						&_mesh->GetPositions()[_mesh->GetFaces()[_i].idx[2]]), _world
-				);
-
-				float _dist = 0.0f;
-				if (Collider::RayVsMesh(_rayInfo, _v0, _v1, _v2, _dist))
+				for (uint32_t _i = 0; _i < _mesh->GetFaces().size(); ++_i)
 				{
-					a_outResult.isHit = true;
-					a_outResult.hitDistance = _dist;
-					a_outResult.hitEntity = _colView.entity;
-					a_outResult.hitNormal = _rayInfo.direction; // 仮
-					a_outResult.hitPos.x = _rayInfo.origin.x + _rayInfo.direction.x * _dist;
-					a_outResult.hitPos.y = _rayInfo.origin.y + _rayInfo.direction.y * _dist;
-					a_outResult.hitPos.z = _rayInfo.origin.z + _rayInfo.direction.z * _dist;
-					_isHit = true;
-					break;
+					DirectX::XMMATRIX _world = DirectX::XMLoadFloat4x4(&_colView.pWorldMat->worldMat);
+
+					DirectX::XMVECTOR _v0 = DirectX::XMVector3Transform(
+						DirectX::XMLoadFloat3(
+							&_mesh->GetPositions()[_mesh->GetFaces()[_i].idx[0]]), _world
+					);
+					DirectX::XMVECTOR _v1 = DirectX::XMVector3Transform(
+						DirectX::XMLoadFloat3(
+							&_mesh->GetPositions()[_mesh->GetFaces()[_i].idx[1]]), _world
+					);
+					DirectX::XMVECTOR _v2 = DirectX::XMVector3Transform(
+						DirectX::XMLoadFloat3(
+							&_mesh->GetPositions()[_mesh->GetFaces()[_i].idx[2]]), _world
+					);
+
+					float _dist = 0.0f;
+					if (Collider::RayVsMesh(_rayInfo, _v0, _v1, _v2, _dist))
+					{
+						a_outResult.isHit = true;
+						a_outResult.hitDistance = _dist;
+						a_outResult.hitEntity = _colView.entity;
+						a_outResult.hitNormal = _rayInfo.direction; // 仮
+						a_outResult.hitPos.x = _rayInfo.origin.x + _rayInfo.direction.x * _dist;
+						a_outResult.hitPos.y = _rayInfo.origin.y + _rayInfo.direction.y * _dist;
+						a_outResult.hitPos.z = _rayInfo.origin.z + _rayInfo.direction.z * _dist;
+						_isHit = true;
+						break;
+					}
 				}
 			}
 			if (_isHit)

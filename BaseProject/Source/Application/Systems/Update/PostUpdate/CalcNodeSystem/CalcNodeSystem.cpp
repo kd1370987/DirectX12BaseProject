@@ -8,6 +8,7 @@
 
 #include "Engine/GraphicResource/Resource/Model/Model.h"
 #include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/Animation/AnimationEvaluator/AnimationEvaluator.h"
 
 
 void CalcNodeSystem::Run(World& a_world, float a_dt)

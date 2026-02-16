@@ -173,10 +173,9 @@ void GameScene::RegistryEntity()
 			_pose = DXSM::Matrix::Identity;
 		}
 		AnimatorComponent* _pAni = World::Instance().RefData<AnimatorComponent>(_player);
-		_pAni->currentClipID = 0;
+		_pAni->clipID = ModelUtility::GetAnimationClipCount(*GraphicResourceManager::Instance().NGetModel(_model->modelID),"Walk");
 		_pAni->time = 0.0f;
-		_pAni->nextClipID = 1;
-		_pAni->blendTime = 1.0f;
+		_pAni->speed = 30.0f;
 		_pAni->isLoop = true;
 		NodePoseComponent* _pNodePose = World::Instance().RefData<NodePoseComponent>(_player);
 		auto* _pModel = GraphicResourceManager::Instance().NGetModel(_model->modelID);
