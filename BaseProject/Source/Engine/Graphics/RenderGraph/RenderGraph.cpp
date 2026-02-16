@@ -320,7 +320,7 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 		//ImGuiContex::Instance().AddLog("===============================================================================\n");
 		
 	}
-	ImGuiContex::Instance().AddLog("%d\n",m_barrierSize);
+	//ImGuiContex::Instance().AddLog("%d\n",m_barrierSize);
 	/*ImGuiContex::Instance().AddLog("===============================================================================\n");
 	ImGuiContex::Instance().AddLog("Frame終了\n");
 	ImGuiContex::Instance().AddLog("===============================================================================\n");*/

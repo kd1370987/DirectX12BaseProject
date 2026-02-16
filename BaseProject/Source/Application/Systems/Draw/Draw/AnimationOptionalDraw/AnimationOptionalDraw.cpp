@@ -62,7 +62,6 @@ void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
 					if (!_item.pMesh) continue;
 
 					// ワールド行列
-					//DXSM::Matrix _nodeTransMat(_dataNodes[_nodeIdx].worldTransform);
 					DXSM::Matrix _nodeTransMat(_workNodes.world[_nodeIdx]);
 					DXSM::Matrix _worldMat(_matComp.worldMat);
 					DXSM::Matrix _mat = _nodeTransMat * _worldMat;

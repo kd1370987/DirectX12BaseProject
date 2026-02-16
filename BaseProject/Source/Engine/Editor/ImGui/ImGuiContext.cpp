@@ -86,6 +86,20 @@ void ImGuiContex::AddLog(const char* a_fmt, ...)
 	va_end(_args);
 }
 
+void ImGuiContex::AddLogMatrix(const std::string& a_name, const DirectX::XMFLOAT4X4& a_mat)
+{
+	AddLog("MatrixName : %s\n", a_name.c_str());
+
+	for (size_t _row = 0; _row < 4; ++_row)
+	{
+		for (size_t _col = 0; _col < 4; ++_col)
+		{
+			AddLog("%f ", a_mat.m[_row][_col]);
+		}
+		AddLog("\n");
+	}
+}
+
 void ImGuiContex::StartWatch(const std::string& a_name)
 {
 	auto _it = m_upWatchMap.find(a_name);

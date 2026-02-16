@@ -160,9 +160,6 @@
     <Filter Include="Source\Application\Systems\Update\Update">
       <UniqueIdentifier>{9c94d8aa-5ad0-4728-bb08-da6840b9b69d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics">
-      <UniqueIdentifier>{b6e81472-8dc5-4f90-8151-63c41b7b1c91}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Update\Camera">
       <UniqueIdentifier>{2bc460fd-a3a4-48dd-b4c0-01aace9c3929}</UniqueIdentifier>
     </Filter>
@@ -187,20 +184,11 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem">
       <UniqueIdentifier>{0040f83e-bfab-46de-8dce-75676fefed1d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\RayCollisionSystem">
-      <UniqueIdentifier>{dd3f9846-de26-4539-bf1c-aa5bceea153e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\Integral">
       <UniqueIdentifier>{04ee34ef-8e37-4fe6-a04c-13ad79f3d5e3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem">
       <UniqueIdentifier>{d61ed4a8-8f6b-4583-b004-1bf59a92ef2c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\Integral">
-      <UniqueIdentifier>{898bb7b0-5ce6-4e20-8ebd-9434cd7798a7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem">
-      <UniqueIdentifier>{29d208e6-31fb-42f8-8dc2-2f171faa9124}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Draw\Draw\SimpleDraw">
       <UniqueIdentifier>{b5fd83f2-e2be-4994-936c-77004366b3a1}</UniqueIdentifier>
@@ -477,6 +465,18 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem">
       <UniqueIdentifier>{811e3abc-16d3-410e-86d9-a2dddf791863}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Physics">
+      <UniqueIdentifier>{b6e81472-8dc5-4f90-8151-63c41b7b1c91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Physics\RayCollisionSystem">
+      <UniqueIdentifier>{dd3f9846-de26-4539-bf1c-aa5bceea153e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Physics\Integral">
+      <UniqueIdentifier>{898bb7b0-5ce6-4e20-8ebd-9434cd7798a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem">
+      <UniqueIdentifier>{29d208e6-31fb-42f8-8dc2-2f171faa9124}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

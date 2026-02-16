@@ -49,7 +49,6 @@ void SkinningSystem::Run(World& a_world, float a_dt)
 					DXSM::Matrix _nodeWorldMat(_nodeComp.world[_nodeIdx]);
 					DXSM::Matrix _invMat(_dataNodes[_nodeIdx].boneInverseWorldMatrix);
 					_skeComp.palette[_dataNode.boneIndex] = _invMat * _nodeWorldMat;
-					int i = 0;
 				}
 			}
 		}

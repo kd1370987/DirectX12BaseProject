@@ -14,7 +14,7 @@ struct VSInput
 	float3 tangent : TANGENT; // 接空間
 	float4 color : COLOR; // 頂点色
 	uint4 skinIndex : SKININDEX; // スキンメッシュのボーンインデックス（何番目のボーンに影響しているかのデータ（最大４））
-	float4 skinWeight : SKINWEIGHT;	// ボーンの影響度（最大４）
+	float4 skinWeight : SKINWEIGHT; // ボーンの影響度（最大４）
 };
 
 VSOutput vs( VSInput a_input)
@@ -24,7 +24,7 @@ VSOutput vs( VSInput a_input)
 	[unroll]
 	for (int _i = 0; _i < 4; ++_i)
 	{
-		_mBones += g_mBones[a_input.skinIndex[_i] * a_input.skinWeight[_i]];
+		_mBones += g_mBones[a_input.skinIndex[_i]] * a_input.skinWeight[_i];
 	}
 
 	// 座標と法線に適用
@@ -32,7 +32,7 @@ VSOutput vs( VSInput a_input)
 	a_input.pos = skinnedPos.xyz;
 	a_input.normal = mul(a_input.normal, (float3x3) _mBones);
 	
-	
+	// 出力用構造体
 	VSOutput _out;
 
 	float4 _localPos = float4(a_input.pos, 1.0f); // 頂点座標

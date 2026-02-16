@@ -45,6 +45,9 @@ namespace
 						_dstVertex.tangent = _srcNode.nodeMesh.vertices[_j].tangent;
 						_dstVertex.uv = _srcNode.nodeMesh.vertices[_j].uv;
 
+						_dstVertex.skinIndexList = _srcNode.nodeMesh.vertices[_j].skinIndexList;
+						_dstVertex.skinWeightList = _srcNode.nodeMesh.vertices[_j].skinWeightList;
+
 						_vertices[_j] = _dstVertex;
 					}
 
@@ -66,6 +69,12 @@ namespace
 			_dstNode.localTransform = _srcNode.localTransform;					// ローカル行列
 			_dstNode.worldTransform = _srcNode.worldTransform;					// ワールド行列
 			_dstNode.boneInverseWorldMatrix = _srcNode.inverseBindMatrix;		// ボーンのオフセット行列
+
+			ImGuiContex::Instance().AddLog("---------------------------------------------------");
+			ImGuiContex::Instance().AddLogMatrix(_dstNode.name,_dstNode.localTransform);
+			ImGuiContex::Instance().AddLogMatrix(_dstNode.name,_dstNode.worldTransform);
+			ImGuiContex::Instance().AddLogMatrix(_dstNode.name,_dstNode.boneInverseWorldMatrix);
+
 
 			_dstNode.parent = _srcNode.parent;									// 親インデックス
 			_dstNode.children = _srcNode.children;								// 子供リスト
@@ -112,7 +121,7 @@ namespace
 		}
 
 		// 当たり判定用ノードがなければ、a_dst.drawMeshNodeと同じ割り当てを行う
-		if (a_dst.collisionMeshNodeIndices.size() == 0)
+		if (!a_dst.collisionMeshNodeIndices.size())
 		{
 			a_dst.collisionMeshNodeIndices = a_dst.drawMeshNodeIndices;
 		}

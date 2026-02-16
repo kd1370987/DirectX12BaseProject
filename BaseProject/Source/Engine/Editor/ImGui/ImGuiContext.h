@@ -32,9 +32,23 @@ public:
 	/// </summary>
 	/// <param name="a_fmt">引数あり文字列</param>
 	void AddLog(const char* a_fmt, ...);
+	/// <summary>
+	/// ログの追加 : 行列用
+	/// </summary>
+	void AddLogMatrix(const std::string& a_name, const DirectX::XMFLOAT4X4& a_mat);
 
+
+	/// <summary>
+	/// 時間を測るときに使用する関数
+	/// </summary>
+	/// <param name="a_name">ウィンドウネーム</param>
 	void StartWatch(const std::string& a_name);
+	/// <summary>
+	/// 時間を測るときに使用する関数
+	/// </summary>
+	/// <param name="a_name">ウィンドウネーム</param>
 	void EndWatch(const std::string& a_name);
+
 private:
 
 	// ログ
@@ -42,7 +56,6 @@ private:
 
 	// 計測
 	std::unordered_map<std::string, std::unique_ptr<Watch>> m_upWatchMap = {};
-
 private:
 
 	ImGuiContex();

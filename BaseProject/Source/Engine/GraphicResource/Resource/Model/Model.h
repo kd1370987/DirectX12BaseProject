@@ -22,13 +22,6 @@ struct Model
 	std::vector<int>							drawMeshNodeIndices;		// 描画するノード
 };
 
-struct ModelWork
-{
-	Model* pModelData = nullptr;
-
-	std::vector<Node> copyNodes = {};
-};
-
 namespace Animation
 {
 	void Interpolate(AnimationNode& a_node, float a_currentTime, DirectX::XMFLOAT4X4& a_rDst);

@@ -235,13 +235,15 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 	//----------------------------------------------------
 
 	_destModel->nodes.resize(_tinyModel.nodes.size());      // 全ノード分メモリを確保
-
 	//-------------------------
 	// 全ノード　基本情報設定
 	//-------------------------
 	for (UINT _nodeIdx = 0; _nodeIdx < _destModel->nodes.size(); ++_nodeIdx)
 	{
 		auto* _destNode = &_destModel->nodes[_nodeIdx];     // コピー先
+		_destNode->localTransform = DXSM::Matrix::Identity;
+		_destNode->worldTransform = DXSM::Matrix::Identity;
+		_destNode->inverseBindMatrix = DXSM::Matrix::Identity;
 
 		//-----------------------
 		// 情報
@@ -300,7 +302,6 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		}
 
 		// 変換行列を格納
-		//_destNode->localTransform = _sMat * _rMat * _tMat;
 		_destNode->localTransform = _sMat * _rMat * _tMat;
 
 		// Z軸ミラーリング
@@ -354,8 +355,6 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		{
 			_rec(&_destModel->nodes[_nodeIdx], nullptr);
 		}
-
-
 	}
 
 	//----------------------------------------------------
@@ -394,7 +393,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		}
 
 		// ボーンLocalMat算出
-		/*for (int _nodeIdx : _destModel->boneNodeIndices)
+		for (int _nodeIdx : _destModel->boneNodeIndices)
 		{
 			GLTFNode* _boneNode = &_destModel->nodes[_nodeIdx];
 
@@ -408,7 +407,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			{
 				_boneNode->localTransform = _boneNode->worldTransform;
 			}
-		}*/
+		}
 	}
 
 	//----------------------------------------------------

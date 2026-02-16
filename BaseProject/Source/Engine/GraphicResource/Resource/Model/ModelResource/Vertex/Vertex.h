@@ -21,4 +21,7 @@ struct MeshVertexFloat
 	DirectX::XMFLOAT2		uv = { 0.0f,0.0f };						// uv座標
 	DirectX::XMFLOAT3		tangent = {1.0f,1.0f,1.0f};				// 接線
 	DirectX::XMFLOAT4		color = {1.0f,1.0f,1.0f,1.0f};					// RGBA(各色0.0f～1.0fのFLOAT型)
+
+	std::array<short, 4>	skinIndexList = {};			// スキニングIndexリスト
+	std::array<float, 4>	skinWeightList = {};			// スキニングウェイトリスト
 };
