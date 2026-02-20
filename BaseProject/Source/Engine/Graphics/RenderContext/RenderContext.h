@@ -253,6 +253,7 @@ private:
 	CBMeshTrans m_cb2_MeshTrans = {};
 	CBMaterial m_cb3_Material = {};
 	CBBone m_cb4_Bone = {};
+	CBAmbient m_cb5_Ambient = {};
 
 	Resource::ID m_currentRootSigID = Resource::Limits::INVALID_ID;
 	Resource::ID m_currentPSOID = Resource::Limits::INVALID_ID;

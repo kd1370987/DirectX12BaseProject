@@ -21,6 +21,7 @@ enum class RootSigSemantic
 	MeshTransCB,
 	MaterialCB,
 	BoneCB,
+	AmbientCB,
 	MaterialSRV,
 	PostScreenSRV,
 };
@@ -72,6 +73,17 @@ struct alignas(256) CBBone
 	DirectX::XMFLOAT4X4 boneMat[300] = {};
 };
 
+// 環境
+struct alignas(256) CBAmbient
+{
+	// 環境光の強さを表す定数バッファ
+	DirectX::XMFLOAT4 ambientLightColor = { 0.f,0.f,0.f,0.f };
+
+	// DirectionalLightの情報を表す定数バッファ
+	DirectX::XMFLOAT4 directionalLightDir = { 0.f,0.f,0.f,0.f };
+	DirectX::XMFLOAT4 directionalLightColor = { 0.f,0.f,0.f,0.f };
+};
+
 // Traitsパターン。セマンティクスごとにTraits定義
 template<RootSigSemantic s>
 struct RootSemanticTraits;
@@ -104,4 +116,10 @@ template<>
 struct RootSemanticTraits<RootSigSemantic::BoneCB>
 {
 	using Type = CBBone;
+};
+
+template<>
+struct RootSemanticTraits<RootSigSemantic::AmbientCB>
+{
+	using Type = CBAmbient;
 };

@@ -75,6 +75,8 @@ public:
 	// 
 	//==========================================================================================
 
+	ID3D12DescriptorHeap* GetImGuiHeap() const;
+
 	/// <summary>
 	/// ImGui用のSRVのCPUハンドルを取得
 	/// </summary>
@@ -116,6 +118,9 @@ private:
 
 	// CBV_SRV_UAVヒープ
 	std::shared_ptr<CBV_SRV_UAVHeap> m_spCBV_SRV_UAVHeap = nullptr;
+
+	// ImGui用SRVヒープ
+	std::shared_ptr<CBV_SRV_UAVHeap> m_spImGuiSRVHeap = nullptr;
 
 	// DSVヒープ
 	DSVHeap m_dsvHeap;

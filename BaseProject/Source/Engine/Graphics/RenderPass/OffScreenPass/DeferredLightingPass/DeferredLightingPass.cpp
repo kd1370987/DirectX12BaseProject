@@ -18,11 +18,12 @@ void DeferredLightingPass::Excute(RenderContext* a_pCtx)
 	auto _gbAlbedoID = m_pRenderGraph->GetGPUHandle("GBufferAlbedo");
 	auto _gbNormalID = m_pRenderGraph->GetGPUHandle("GBufferNormal");
 	auto _gbMaterialID = m_pRenderGraph->GetGPUHandle("GBufferMaterial");
+	auto _gbEmiID = m_pRenderGraph->GetGPUHandle("GBufferEmissiv");
 	auto _depth = m_pRenderGraph->GetGPUHandle("Depth");
 
 	auto _rtv = m_pRenderGraph->RTVCPU("QuadTexture");
 
-	_gpuVec = { _gbAlbedoID,_gbNormalID,_gbMaterialID,_depth };
+	_gpuVec = { _gbAlbedoID,_gbNormalID,_gbMaterialID,_gbEmiID,_depth };
 
 	a_pCtx->BindSRV(
 		RootSigSemantic::PostScreenSRV,
@@ -82,6 +83,7 @@ void DeferredLightingPass::CreatePass()
 	auto _gbAlbedoID = m_pRenderGraph->GetID("GBufferAlbedo");
 	auto _gbNormalID = m_pRenderGraph->GetID("GBufferNormal");
 	auto _gbMaterialID = m_pRenderGraph->GetID("GBufferMaterial");
+	auto _gbEmiID = m_pRenderGraph->GetID("GBufferEmissiv");
 
 	auto _quadID = m_pRenderGraph->GetID("QuadTexture");
 
@@ -90,6 +92,7 @@ void DeferredLightingPass::CreatePass()
 	m_passDesc.readResource.push_back(_gbAlbedoID);
 	m_passDesc.readResource.push_back(_gbNormalID);
 	m_passDesc.readResource.push_back(_gbMaterialID);
+	m_passDesc.readResource.push_back(_gbEmiID);
 
 	// 出力先
 	m_passDesc.writeResource.push_back(_quadID);
@@ -99,6 +102,7 @@ void DeferredLightingPass::CreatePass()
 		{_gbAlbedoID,AccessType::SRV,LoadOp::Load,StoreOp::Store},
 		{_gbNormalID,AccessType::SRV,LoadOp::Load,StoreOp::Store},
 		{_gbMaterialID,AccessType::SRV,LoadOp::Load,StoreOp::Store},
+		{_gbEmiID,AccessType::SRV,LoadOp::Load,StoreOp::Store},
 		{_depth,AccessType::Depth_Read,LoadOp::Load,StoreOp::Store},
 		{_quadID,AccessType::RTV,LoadOp::Clear,StoreOp::Store}
 	};

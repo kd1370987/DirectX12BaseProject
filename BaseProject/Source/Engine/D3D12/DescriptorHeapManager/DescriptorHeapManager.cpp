@@ -27,6 +27,22 @@ void DescriptorHeapManager::Init()
 		m_spCBV_SRV_UAVHeap->Create(_info);
 	}
 
+	// ImGui用SRVヒープの作成
+	if (!m_spImGuiSRVHeap)
+	{
+		m_spImGuiSRVHeap = std::make_shared<CBV_SRV_UAVHeap>();
+		CBV_SRV_UAVInitInfo _info = {};
+		_info.pDevice = _device;
+		_info.maxCBVCount = 0;
+		_info.maxSRVCount = 128;
+		_info.maxUAVCount = 0;
+		_info.useImGuiSRVCount = 128;
+		_info.type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		_info.flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		_info.mask = 0;
+		m_spImGuiSRVHeap->Create(_info);
+	}
+
 	
 	// DSVテーブルの作成
 	m_dsvHeap.Create(
@@ -89,14 +105,19 @@ ID3D12DescriptorHeap* DescriptorHeapManager::GetCBV_SRV_UAVHeap() const
 	return m_spCBV_SRV_UAVHeap->GetHeap();
 }
 
+ID3D12DescriptorHeap* DescriptorHeapManager::GetImGuiHeap() const
+{
+	return m_spImGuiSRVHeap->GetHeap();
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiCPUHandle()
 {
-	return m_spCBV_SRV_UAVHeap->GetImGuiCPUHandle();
+	return m_spImGuiSRVHeap->GetImGuiCPUHandle();
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiGPUHandle()
 {
-	return m_spCBV_SRV_UAVHeap->GetImGuiGPUHandle();
+	return m_spImGuiSRVHeap->GetImGuiGPUHandle();
 }
 
 RTVHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource, D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc)

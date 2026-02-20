@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "ModelResource/Material/Material.h"
-#include "ModelResource/Animation/Animation.h"
-#include "ModelResource/Mesh/Mesh.h"
-#include "ModelResource/Node/Node.h"
+#include "../Material/Material.h"
+#include "../Animation/Animation.h"
+#include "../Mesh/Mesh.h"
+#include "../Node/Node.h"
 
 struct Model
 {

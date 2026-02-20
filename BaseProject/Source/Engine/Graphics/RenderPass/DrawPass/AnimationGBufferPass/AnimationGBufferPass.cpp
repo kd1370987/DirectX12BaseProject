@@ -49,10 +49,11 @@ void AnimationGBufferPass::CreatePass()
 	_psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);	// 深度ステンシルはデフォルトを使用
 	_psoDesc.SampleMask = UINT_MAX;											// どのピクセルを描画可能にするか
 	_psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;// 三角形を描画
-	_psoDesc.NumRenderTargets = 3;											// 描画対象数
+	_psoDesc.NumRenderTargets = 4;											// 描画対象数
 	_psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;				// カラーフォーマット
 	_psoDesc.RTVFormats[1] = DXGI_FORMAT_R16G16_FLOAT;						// 法線
 	_psoDesc.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;					// マテリアル
+	_psoDesc.RTVFormats[3] = DXGI_FORMAT_R8G8B8A8_UNORM;					// エミッシブ
 	_psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;								// 深度フォーマット（Zバッファの精度）
 	_psoDesc.SampleDesc.Count = 1;											// サンプラーは１
 	_psoDesc.SampleDesc.Quality = 0;
@@ -75,6 +76,7 @@ void AnimationGBufferPass::CreatePass()
 	auto _gbAlbedoID = m_pRenderGraph->GetID("GBufferAlbedo");
 	auto _gbNormalID = m_pRenderGraph->GetID("GBufferNormal");
 	auto _gbMaterialID = m_pRenderGraph->GetID("GBufferMaterial");
+	auto _gbEmiID = m_pRenderGraph->GetID("GBufferEmissiv");
 
 	// 入力元
 
@@ -83,12 +85,14 @@ void AnimationGBufferPass::CreatePass()
 	m_passDesc.writeResource.push_back(_gbAlbedoID);
 	m_passDesc.writeResource.push_back(_gbNormalID);
 	m_passDesc.writeResource.push_back(_gbMaterialID);
+	m_passDesc.writeResource.push_back(_gbEmiID);
 
 	// リソース
 	m_passDesc.resourceAccessVec = {
 		{_gbAlbedoID,AccessType::RTV,LoadOp::Load,StoreOp::Store},
 		{_gbNormalID,AccessType::RTV,LoadOp::Load,StoreOp::Store},
 		{_gbMaterialID,AccessType::RTV,LoadOp::Load,StoreOp::Store},
+		{_gbEmiID,AccessType::RTV,LoadOp::Load,StoreOp::Store},
 		{_depth,AccessType::Depth_Read,LoadOp::Load,StoreOp::Store}
 	};
 }

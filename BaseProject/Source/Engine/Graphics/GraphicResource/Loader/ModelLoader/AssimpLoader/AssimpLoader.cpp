@@ -3,13 +3,13 @@
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "Engine/GraphicResource/Resource/Texture/Texture.h"
-#include "Engine/GraphicResource/Resource/Model/ModelResource/Mesh/Mesh.h"
-#include "Engine/GraphicResource/Resource/Model/ModelResource/Material/Material.h"
-#include "Engine/GraphicResource/Resource/Model/ModelResource/Animation/Animation.h"
-#include "Engine/GraphicResource/Resource/Model/ModelResource/Node/Node.h"
+#include "Engine/Graphics/GraphicResource/Resource/Texture/Texture.h"
+#include "Engine/Graphics/GraphicResource/Resource/Mesh/Mesh.h"
+#include "Engine/Graphics/GraphicResource/Resource/Material/Material.h"
+#include "Engine/Graphics/GraphicResource/Resource/Animation/Animation.h"
+#include "Engine/Graphics/GraphicResource/Resource/Node/Node.h"
 
-#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 #ifdef _DEBUG
 #pragma comment(lib,"assimp-vc143-mtd.lib")
@@ -251,16 +251,18 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 		a_dst.material.diffuseMap = _dir + StringUtility::ToWideString(_file);
 		
 		auto _texPath = FileUtility::ReplaceFilePathExtension(a_dst.material.diffuseMap, "tga");
-		auto _mainTex = GraphicResourceManager::Instance().GetTexture(StringUtility::ToUTF8(_texPath));
+		auto _mainTex = GraphicResourceManager::Instance().GetTexture(StringUtility::ToUTF8(_texPath), TextureUse::Albedo);
 		
 	
+		//const TextureResource* _tex = GraphicResourceManager::Instance().NGetTexture(_mainTex);
 		const Texture* _tex = GraphicResourceManager::Instance().NGetTexture(_mainTex);
 		if (!_tex)
 		{
 			assert(0 && "テクスチャの取得に失敗\n");
 			return;
 		}
-		a_dst.srvHandle = DescriptorHeapManager::Instance().RegisterSRV(_tex->GetResource());
+		//a_dst.srvHandle = DescriptorHeapManager::Instance().RegisterSRV(_tex->GetResource());
+		a_dst.srvHandle = DescriptorHeapManager::Instance().RegisterSRV(_tex->cpResource.Get());
 	}
 	else
 	{

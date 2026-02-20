@@ -27,7 +27,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	});
 	CreateResource({
 		.name = "QuadTexture",
-		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.format = DXGI_FORMAT_R16G16B16A16_FLOAT,
 		.widht = 1280,
 		.height = 720,
 		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
@@ -49,12 +49,18 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 		});
 	CreateResource({
 		.name = "GBufferMaterial",
-		// R = Roughness, G = Matallic, B = Specular or AO , A = EmissiveMask
 		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
 		.widht = 1280,
 		.height = 720,
 		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
 	});
+	CreateResource({
+		.name = "GBufferEmissiv",
+		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.widht = 1280,
+		.height = 720,
+		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
+		});
 	CreateResource({
 		.name = "Depth",
 		.format = DXGI_FORMAT_R32_TYPELESS,

@@ -12,7 +12,7 @@ PSOutput ps(VSOutput a_input)
 
 	// 法線
 	float3 _nTex = g_normalTex.Sample(smp, _uv).xyz * 2 - 1;
-
+	
 	float3x3 TBN =
 		{
 		normalize(a_input.wT),
@@ -24,15 +24,20 @@ PSOutput ps(VSOutput a_input)
 	_out.normal = EncodeNormalOct(normalize(_wNormal));
 
 	// マテリアル
-	float2 _mr = g_metRogTex.Sample(smp, _uv).rg;
+	float3 _mr = g_metRogTex.Sample(smp, _uv).rgb;
 	_out.material = float4(
-		_mr.r,
-		_mr.g,
-		1.0,					// AO仮
-		emissiveColor.r
+		_mr.r,				// AO
+		_mr.g * metallicRoughness.y,	 // 滑らかさ
+		_mr.b * metallicRoughness.x,	 // 金属
+		1.0f				// 予備
 	);
-	
-	return _out;
+
+	// エミッシブ
+	float4 _eTex = g_emiTex.Sample(smp, _uv);
+	//_out.emissiv = _eTex * emissiveColor;
+	_out.emissiv = _eTex;
 
 	
+	
+	return _out;
 }

@@ -1,9 +1,6 @@
 #include "GBufferShader.hlsli"
 
-cbuffer cbBones : register(b4)
-{
-	row_major float4x4 g_mBones[300];
-};
+
 
 // 頂点シェーダー入出力構造体
 struct VSInput

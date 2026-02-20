@@ -1,4 +1,5 @@
 #include "DeferredLightingShader.hlsli"
+#include "../CalcLighting.hlsli"
 
 float3 ReconstructViewPos(float2 uv, float depth)
 {
@@ -7,24 +8,62 @@ float3 ReconstructViewPos(float2 uv, float depth)
 	return view.xyz / view.w;
 }
 
-float4 ps(VSOutput i) : SV_Target
+float4 ps(VSOutput a_in) : SV_Target
 {
-	//float d = g_depthTex.Sample(g_samp, i.uv).r;
-	//return float4(d, d, d, 1);
+	// GBufferから情報を取得
+	float3 _albedo = g_albedoTex.Sample(g_samp, a_in.uv).rgb;				// アルベド
+	float3 _normal = g_normalTex.Sample(g_samp, a_in.uv).xyz * 2 - 1;		// 法線
+	float _depth = g_depthTex.Sample(g_samp, a_in.uv).r; // 深度
 
-	//return float4(g_albedoTex.Sample(g_samp, i.uv).rgb, 1);
+	float3 _specular = _albedo; // スペキュラはアルベドと同じにしておく（今回はスペキュラを考慮しないため）
 
-	float3 albedo = g_albedoTex.Sample(g_samp, i.uv).rgb;
-	float3 normal = g_normalTex.Sample(g_samp, i.uv).xyz * 2 - 1;
-	float depth = g_depthTex.Sample(g_samp, i.uv).r;
+	float _metallic = g_materialTex.Sample(g_samp, a_in.uv).b; // 金属度
+	float _roughness = g_materialTex.Sample(g_samp, a_in.uv).g; // 粗さ
+	float _smoothness = 1.0f - _roughness; // 滑らかさ
 
-	float3 viewPos = ReconstructViewPos(i.uv, depth);
+	// 3D空間での位置を復元
+	float3 _viewPos = ReconstructViewPos(a_in.uv, _depth);
 
-    // 仮ライト
-	float3 L = normalize(float3(1, 1, -1));
-	float NdotL = saturate(dot(normal, L));
+	float3 _V = -normalize(_viewPos); // 視点に向かうベクトル
 
-	float3 color = albedo * NdotL;
+	// 出力色
+	float3 _outColor = float3(0, 0, 0);
+	
+    // 平行光
+	float3 _L = -(normalize(float3(g_DL_Dir.xyz)));
+	float _NdotL = saturate(dot(_normal, _L));
 
-	return float4(color, 1);
+	// シンプルなディズニーベースの拡散反射を実装する
+	// フレネル販社を考慮した拡散反射を計算
+	float _diffuseFromFresnel = CalcDiffuseFromFresnel(
+		_normal,
+		_L,
+		_V
+	);
+
+	// 正規化Lambert拡散反射を求める
+	float3 _lambertDiffuse = g_DL_Color * _NdotL / PI;
+
+	// 最終的な拡散反射光を計算
+	float3 _diffuse = _albedo * _diffuseFromFresnel * _lambertDiffuse;
+
+	// Cook-Torranceモデルを利用した鏡面反射を計算
+	float _spec = CookTorranceSpecular(
+		_L,
+		_V,
+		_normal,
+		_metallic
+	);
+	_spec *= g_DL_Color;
+
+	// 金属度が高ければ、鏡面反射はスペキュラカラー、低ければ白
+	_spec *= lerp(float3(1.0f, 1.0f, 1.0f), _specular, _metallic);
+
+	// 滑らかさを考慮した拡散反射を計算
+	_outColor += _diffuse * (1.0f - _roughness) + _spec;
+
+	// アンビエント
+	_outColor += g_ambientColor.rgb * _albedo;
+
+	return float4(_outColor, 1);
 }

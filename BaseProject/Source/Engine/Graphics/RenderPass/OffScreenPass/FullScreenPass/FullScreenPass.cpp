@@ -10,12 +10,12 @@ void FullScreenPass::Excute(RenderContext* a_pCtx)
 {
 	Begin(a_pCtx);
 
-
 	//auto _main = m_pRenderGraph->GetGPUHandle("GBufferAlbedo");
 	//auto _main = m_pRenderGraph->GetGPUHandle("GBufferNormal");
 	//auto _main = m_pRenderGraph->GetGPUHandle("GBufferMaterial");
 	//auto _main = m_pRenderGraph->GetGPUHandle("MainColor");
-	auto _main = m_pRenderGraph->GetGPUHandle("QuadTexture");
+	auto _main = m_pRenderGraph->GetGPUHandle("GBufferEmissiv");
+	//auto _main = m_pRenderGraph->GetGPUHandle("QuadTexture");
 
 	a_pCtx->ChangeBackBuffer();
 	a_pCtx->BindSRV(RootSigSemantic::PostScreenSRV,{_main});

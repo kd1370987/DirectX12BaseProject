@@ -40,7 +40,7 @@ bool ImGuiContex::Init(HWND a_hwnd)
 	_initInfo.NumFramesInFlight = static_cast<int>(CPU_FRAME_COUNT);
 	_initInfo.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	_initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;
-	_initInfo.SrvDescriptorHeap = _pDescriptorManager.GetCBV_SRV_UAVHeap();
+	_initInfo.SrvDescriptorHeap = _pDescriptorManager.GetImGuiHeap();
 	_initInfo.LegacySingleSrvCpuDescriptor = _pDescriptorManager.GetImGuiCPUHandle();
 	_initInfo.LegacySingleSrvGpuDescriptor = _pDescriptorManager.GetImGuiGPUHandle();
 	ImGui_ImplDX12_Init(&_initInfo);
@@ -52,11 +52,14 @@ bool ImGuiContex::Init(HWND a_hwnd)
 		m_upLog->Init();
 	}
 
+	m_isInit = true;
 	return true;
 }
 
 void ImGuiContex::CallImGuiDrawData(ID3D12GraphicsCommandList* a_pCmdList)
 {
+	if (!m_isInit) return;
+
 	// ImGuiフレームの描画開始
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -78,6 +81,7 @@ void ImGuiContex::CallImGuiDrawData(ID3D12GraphicsCommandList* a_pCmdList)
 
 void ImGuiContex::AddLog(const char* a_fmt, ...)
 {
+	if (!m_isInit) return;
 	if (!m_upLog) return;
 
 	va_list _args;
@@ -88,6 +92,9 @@ void ImGuiContex::AddLog(const char* a_fmt, ...)
 
 void ImGuiContex::AddLogMatrix(const std::string& a_name, const DirectX::XMFLOAT4X4& a_mat)
 {
+	if (!m_isInit) return;
+	if( !m_upLog) return;
+
 	AddLog("MatrixName : %s\n", a_name.c_str());
 
 	for (size_t _row = 0; _row < 4; ++_row)
@@ -102,6 +109,7 @@ void ImGuiContex::AddLogMatrix(const std::string& a_name, const DirectX::XMFLOAT
 
 void ImGuiContex::StartWatch(const std::string& a_name)
 {
+	if (!m_isInit) return;
 	auto _it = m_upWatchMap.find(a_name);
 	if (_it != m_upWatchMap.end())
 	{
@@ -116,6 +124,7 @@ void ImGuiContex::StartWatch(const std::string& a_name)
 
 void ImGuiContex::EndWatch(const std::string& a_name)
 {
+	if (!m_isInit) return;
 	auto _it = m_upWatchMap.find(a_name);
 	if (_it != m_upWatchMap.end())
 	{

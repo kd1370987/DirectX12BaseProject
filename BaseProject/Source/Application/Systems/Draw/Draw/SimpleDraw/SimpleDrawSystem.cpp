@@ -6,7 +6,7 @@
 #include "Application/Components/Resource/ModelComponent.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 #include "Application/Components/Resource/AnimatorComponent.h"
 

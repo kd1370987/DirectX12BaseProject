@@ -1,5 +1,5 @@
 ﻿#include "AnimationEvaluator.h"
-#include "Engine/GraphicResource/Resource/Model/Model.h"
+#include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"
 
 /// <summary>
 /// 二分探索で、指定時間から次の配列要素のkeyIndexを求める

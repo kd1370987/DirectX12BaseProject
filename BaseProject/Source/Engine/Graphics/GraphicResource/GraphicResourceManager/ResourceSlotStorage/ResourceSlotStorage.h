@@ -34,6 +34,8 @@ public:
 	const T* Get(const Resource::ID& a_id) const;
 	T* Ref(const Resource::ID& a_id);
 
+	const std::string& GetString(const Resource::ID& a_id) const;
+
 	/// <summary>
 	/// 登録した時の文字列で検索
 	/// </summary>
@@ -184,6 +186,18 @@ inline T* ResourceSlotStorage<T>::Ref(const Resource::ID& a_id)
 }
 
 template<typename T>
+inline const std::string& ResourceSlotStorage<T>::GetString(const Resource::ID& a_id) const
+{
+	auto _idx = GetIndex(a_id);
+	if (_idx >= m_toString.size())
+	{
+		static std::string _empty = "";
+		return _empty;
+	}
+	return m_toString[_idx];
+}
+
+template<typename T>
 inline const T* ResourceSlotStorage<T>::Get(const std::string& a_key) const
 {
 	auto _it = m_idMap.find(a_key);
@@ -280,7 +294,9 @@ inline bool ResourceSlotStorage<T>::IsValid(const Resource::ID& a_id)
 template<typename T>
 inline bool ResourceSlotStorage<T>::Has(const std::string& a_key)
 {
-	return IsValid(GetID(a_key));
+	auto _id = GetID(a_key);
+	bool _res = IsValid(_id);
+	return _res;
 }
 
 template<typename T>

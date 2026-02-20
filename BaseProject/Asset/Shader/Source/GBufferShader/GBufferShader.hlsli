@@ -26,13 +26,18 @@ cbuffer CBMaterial : register(b3)
 	float4 metallicRoughness; // めたりっくラフネス	(x: metallic, y: roughness, z: unused, w: unused)
 }
 
+cbuffer cbBones : register(b4)
+{
+	row_major float4x4 g_mBones[300];
+};
+
 // サンプラー
 SamplerState smp : register(s0);
 
 // テクスチャ
 Texture2D g_mainTex : register(t0);
-Texture2D g_emiTex : register(t1);
-Texture2D g_metRogTex : register(t2);
+Texture2D g_metRogTex : register(t1);
+Texture2D g_emiTex : register(t2);
 Texture2D g_normalTex : register(t3);
 
 // 頂点シェーダー出力構造体
@@ -54,6 +59,7 @@ struct PSOutput
 	float4 albedo : SV_Target0;
 	float2 normal : SV_Target1;
 	float4 material : SV_Target2;
+	float4 emissiv : SV_Target3;
 };
 
 float2 EncodeNormalOct(float3 a_n)

@@ -56,6 +56,8 @@ private:
 
 	// 計測
 	std::unordered_map<std::string, std::unique_ptr<Watch>> m_upWatchMap = {};
+
+	bool m_isInit = false;
 private:
 
 	ImGuiContex();

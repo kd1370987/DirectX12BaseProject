@@ -6,7 +6,7 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 #include "Scene/SceneManager.h"
 

@@ -144,6 +144,12 @@ namespace
 			// マテリアル情報コピー
 			_dstMaterial.name = _srcMaterial.name;									// マテリアル名
 
+			// 材質データ
+			_dstMaterial.baseColor = _srcMaterial.baseColorFactor;				// 基本色
+			_dstMaterial.metallic = _srcMaterial.metallicFactor;				// 金属製
+			_dstMaterial.roughness = _srcMaterial.roughnessFactor;				// 粗さ
+			_dstMaterial.emissive = _srcMaterial.emissiveFactor;				// エミッシブ
+
 			// テクスチャセット
 			_dstMaterial.SetTexture2D(
 				a_fileDir,
@@ -152,12 +158,6 @@ namespace
 				_srcMaterial.emissiveTexName,
 				_srcMaterial.normalTexName
 			);
-
-			// 材質データ
-			_dstMaterial.baseColor = _srcMaterial.baseColorFactor;				// 基本色
-			_dstMaterial.metallic = _srcMaterial.metallicFactor;				// 金属製
-			_dstMaterial.roughness = _srcMaterial.roughnessFactor;				// 粗さ
-			_dstMaterial.emissive = _srcMaterial.emissiveFactor;				// エミッシブ
 		}
 	}
 	void CreateAnimations(Model& a_dst, const std::shared_ptr<GLTFModel>& a_src)

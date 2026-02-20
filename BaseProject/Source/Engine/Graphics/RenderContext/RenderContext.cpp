@@ -3,13 +3,13 @@
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/D3D12/D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
-#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
-#include "Engine/GraphicResource/Resource/Texture/Texture.h"
+#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/Graphics/GraphicResource/Resource/Texture/Texture.h"
 
-#include "Engine/GraphicResource/Resource/Model/Model.h"
-#include "Engine/GraphicResource/Resource/Model/ModelResource/Mesh/Mesh.h"
-#include "Engine/GraphicResource/Resource/Model/ModelResource/Node/Node.h"
-#include "Engine/GraphicResource/Resource/Model/ModelResource/Material/Material.h"
+#include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"
+#include "Engine/Graphics/GraphicResource/Resource/Mesh/Mesh.h"
+#include "Engine/Graphics/GraphicResource/Resource/Node/Node.h"
+#include "Engine/Graphics/GraphicResource/Resource/Material/Material.h"
 
 #include "Engine/D3D12//D3DObject/RootSignature/RootSignature.h"
 #include "Engine/D3D12//D3DObject/PipeLineState/PipelineState.h"
@@ -50,6 +50,7 @@ void RenderContext::Init()
 			{RootParameterType::RootCBV,{},RootSigSemantic::ObjectCB,true},
 			{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
 			{RootParameterType::RootCBV,{},RootSigSemantic::MaterialCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
 			{RootParameterType::DescriptorTable,
 			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
 			RootSigSemantic::MaterialSRV,false}
@@ -80,8 +81,9 @@ void RenderContext::Init()
 		"DeferredLighting",
 		{
 			{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::AmbientCB,true},
 			{RootParameterType::DescriptorTable,
-			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
+			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
 			RootSigSemantic::PostScreenSRV,false}
 		}
 	);
@@ -150,6 +152,11 @@ void RenderContext::Init()
 	m_currentRootSigID = Resource::Limits::INVALID_ID;
 	m_pCurrentMaterial = nullptr;
 	m_pCurrentMesh = nullptr;
+
+	// cb5
+	m_cb5_Ambient.ambientLightColor = { 0.3f,0.3f,0.3f,1.0f };
+	m_cb5_Ambient.directionalLightColor = { 10.0f,10.0f,10.0f,1.0f };
+	m_cb5_Ambient.directionalLightDir = { 1.0f,1.0f,1.0f,0.0f };
 }
 
 void RenderContext::Shutdown()
@@ -236,6 +243,18 @@ void RenderContext::BindCameraCB()
 			_cmdList,
 			_regiIdx,
 			m_cb0_camera
+		);
+	}
+
+	_regiIdx =
+		m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::AmbientCB);
+
+	if (ERR_UINT != _regiIdx)
+	{
+		BindCB()->BindSemanticCBV<RootSigSemantic::AmbientCB>(
+			_cmdList,
+			_regiIdx,
+			m_cb5_Ambient
 		);
 	}
 }
@@ -428,6 +447,9 @@ void RenderContext::SetGraphicPSO(const Resource::ID& a_psoID)
 		_pCmdList->SetPipelineState(m_spGraphicsPSOManager->NGet(a_psoID));
 		m_currentPSOID = a_psoID;
 	}
+
+	// プリミティブトポロジーセット
+	_pCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void RenderContext::BindObuje(const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)

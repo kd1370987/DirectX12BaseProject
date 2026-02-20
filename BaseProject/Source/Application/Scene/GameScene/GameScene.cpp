@@ -4,7 +4,7 @@
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 
 // ECS関連
@@ -282,7 +282,7 @@ void GameScene::RegistryEntity()
 
 	{
 		// テストモデル
-		float _xMax = 10;
+		float _xMax = 5;
 		float _yMax = 1;
 		float _zMax = 1;
 
@@ -313,6 +313,23 @@ void GameScene::RegistryEntity()
 				}
 			}
 		}
+	}
+
+	{
+		ECS::Signature _sig;
+		_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(ModelComponent)));
+		auto _entity = World::Instance().CreateEntity(_sig);
+
+		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
+		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/TEST_metarogh/MRModel.gltf");
+		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
+		_model->emissiveScale = { 0.0f,0.0f,0.0f };
+		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
+		_ref->pos = { 0,2,0 };
+		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
+		_ref->scale = { 1.0f,1.0f,1.0f };
 	}
 }
 

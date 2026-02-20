@@ -5,12 +5,12 @@
 #include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/D3D12//D3DObject/Buffer/RenderTarget/RenderTarget.h"
 
-#include "Engine/GraphicResource/Resource/Model/ModelResource/Vertex/Vertex.h"
+#include "Engine/Graphics/GraphicResource/Resource/Vertex/Vertex.h"
 
 #include "Engine/ECS/ECSCommon.h"
 
-#include "Engine/GraphicResource/Serialize/ModelSerialize/TinyGLTFSerialize/TinyGLTFSerialize.h"
-#include "Engine/GraphicResource/Serialize/ModelSerialize/AssimpSerialize/AssimpSerialize.h"
+#include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/TinyGLTFSerialize/TinyGLTFSerialize.h"
+#include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/AssimpSerialize/AssimpSerialize.h"
 
 namespace Resource
 {
