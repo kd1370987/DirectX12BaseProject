@@ -22,6 +22,7 @@ enum class RootSigSemantic
 	MaterialCB,
 	BoneCB,
 	AmbientCB,
+	UICB,
 	MaterialSRV,
 	PostScreenSRV,
 };
@@ -85,6 +86,14 @@ struct alignas(256) CBAmbient
 	DirectX::XMFLOAT4 directionalLightColor = { 0.f,0.f,0.f,0.f };
 };
 
+// UI
+struct alignas(256) CBUI
+{
+	DirectX::XMFLOAT4X4 uiMat = {};
+
+	DirectX::XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f };
+};
+
 // Traitsパターン。セマンティクスごとにTraits定義
 template<RootSigSemantic s>
 struct RootSemanticTraits;
@@ -123,4 +132,10 @@ template<>
 struct RootSemanticTraits<RootSigSemantic::AmbientCB>
 {
 	using Type = CBAmbient;
+};
+
+template<>
+struct RootSemanticTraits<RootSigSemantic::UICB>
+{
+	using Type = CBUI;
 };

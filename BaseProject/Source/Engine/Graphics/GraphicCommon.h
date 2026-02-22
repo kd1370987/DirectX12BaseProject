@@ -8,10 +8,10 @@ enum class RenderQueueType
 	AnimationOpaque,
 	Transparent,
 	AnimationTransparent,
-	GBuffer,
 	Bloom,
 	Lighting,
-	Depth
+	ScreenUI,
+	WorldUI
 };
 
 enum class LoadOp

@@ -340,9 +340,6 @@
     <Filter Include="Asset\Shader\Source\QuadRenderingShader">
       <UniqueIdentifier>{3374d3dd-87ac-4f6b-aa65-e30fdc0fde34}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Source\PBRShader">
-      <UniqueIdentifier>{0d5ba27d-b357-4c0f-bf06-c2254a9d0dd5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Compiled">
       <UniqueIdentifier>{b82a5c0a-b5a7-4fd6-b9d8-4d1b238c5707}</UniqueIdentifier>
     </Filter>
@@ -480,6 +477,12 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\TinyGLTFLoader">
       <UniqueIdentifier>{27506523-6d72-4fce-bd7d-a090839893fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Screen2DShader">
+      <UniqueIdentifier>{2c96e27e-f605-4ae0-b40e-a78de7768d85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass">
+      <UniqueIdentifier>{67dec688-aad6-4660-933e-454def0130fb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -776,6 +779,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Model\Model.cpp">
       <Filter>Source\Engine\Graphics\GraphicResource\Resource\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass\ScreenUIPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1205,6 +1211,9 @@
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Model\Model.h">
       <Filter>Source\Engine\Graphics\GraphicResource\Resource\Model</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass\ScreenUIPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1241,6 +1250,9 @@
     <None Include="Asset\Shader\Source\CalcNormal.hlsli">
       <Filter>Asset\Shader\Source</Filter>
     </None>
+    <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli">
+      <Filter>Asset\Shader\Source\Screen2DShader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
@@ -1272,6 +1284,12 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\GBufferShader\AnimationGBufferVS.hlsl">
       <Filter>Asset\Shader\Source\GBufferShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Screen2DShader\Screen2DVS.hlsl">
+      <Filter>Asset\Shader\Source\Screen2DShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Screen2DShader\Screen2DPS.hlsl">
+      <Filter>Asset\Shader\Source\Screen2DShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -57,19 +57,6 @@ void RenderContext::Init()
 		}
 	);
 	m_spRootSigManager->CreateRootSig(
-		"AnimationRootSig",
-		{
-			{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
-			{RootParameterType::RootCBV,{},RootSigSemantic::ObjectCB,true},
-			{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
-			{RootParameterType::RootCBV,{},RootSigSemantic::MaterialCB,true},
-			{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
-			{RootParameterType::DescriptorTable,
-			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
-			RootSigSemantic::MaterialSRV,false}
-		}
-	);
-	m_spRootSigManager->CreateRootSig(
 		"QuadRendering",
 		{
 			{RootParameterType::DescriptorTable,{RangeType::SRV},
@@ -85,6 +72,14 @@ void RenderContext::Init()
 			{RootParameterType::DescriptorTable,
 			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
 			RootSigSemantic::PostScreenSRV,false}
+		}
+	);
+
+	m_spRootSigManager->CreateRootSig(
+		"2DRootSig",
+		{
+			{RootParameterType::RootCBV,{},RootSigSemantic::UICB,true},
+			{RootParameterType::DescriptorTable,{RangeType::SRV},RootSigSemantic::MaterialSRV,false}
 		}
 	);
 
@@ -596,6 +591,50 @@ void RenderContext::DrawQuad()
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);		// プリミティブトポロジー
 	_cmdList->IASetVertexBuffers(0, 1, &m_upOffScreen->m_screenVBView);
 	_cmdList->DrawInstanced(4, 1, 0, 0);
+}
+
+void RenderContext::DrawQueue(RenderQueueType a_type)
+{
+	//return;
+	auto& _draws = GetItemVec(a_type);
+	if (_draws.size() == 0) return;
+	for (auto& _item : _draws)
+	{
+		BindObuje(
+			{ 0.0f,0.0f },
+			{ 1.0f,1.0f }
+		);
+
+		BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
+		BindMesh(_item.pMesh, _item.worldMat);
+
+		if (a_type == RenderQueueType::AnimationOpaque || a_type == RenderQueueType::AnimationTransparent)
+		{
+			BindBone(
+				_item.pBoneMatrices,
+				_item.boneCount
+			);
+		}
+
+		Draw(_item.pMesh, _item.subIdx);
+	}
+}
+
+void RenderContext::DrawUIQueue(RenderQueueType a_type)
+{
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+
+	// 描画アイテム取得
+	auto& _draws = GetItemVec(a_type);
+	if (_draws.size() == 0) return;
+	for (auto& _item : _draws)
+	{
+		BindCB()->BindAndAttachDataRootCBV<CBUI>(
+			_pCmdList,
+			1,
+			m_cbUI
+		);
+	}
 }
 
 RenderContext::RenderContext()

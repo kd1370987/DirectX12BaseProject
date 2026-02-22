@@ -233,6 +233,10 @@ public:
 	/// <param name="a_gpu">クワッド画面に描画するテクスチャハンドル</param>
 	void DrawQuad();
 
+	void DrawQueue(RenderQueueType a_type);
+
+	void DrawUIQueue(RenderQueueType a_type);
+
 private:
 
 	// 1フレームで消費するリソース
@@ -252,6 +256,7 @@ private:
 	CBMaterial m_cb3_Material = {};
 	CBBone m_cb4_Bone = {};
 	CBAmbient m_cb5_Ambient = {};
+	CBUI m_cbUI = {};
 
 	// 描画コマンド
 	Resource::ID m_currentRootSigID = Resource::Limits::INVALID_ID;
