@@ -1,5 +1,7 @@
 #include "GBufferShader.hlsli"
 
+#include "../CalcNormal.hlsli"
+
 PSOutput ps(VSOutput a_input)
 {
 	PSOutput _out;
@@ -34,10 +36,7 @@ PSOutput ps(VSOutput a_input)
 
 	// エミッシブ
 	float4 _eTex = g_emiTex.Sample(smp, _uv);
-	//_out.emissiv = _eTex * emissiveColor;
+	_out.emissiv = _eTex * emissiveColor;
 	_out.emissiv = _eTex;
-
-	
-	
 	return _out;
 }

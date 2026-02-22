@@ -27,27 +27,30 @@ VSOutput vs( VSInput a_input)
 	// 座標と法線に適用
 	float4 skinnedPos = mul(float4(a_input.pos, 1), _mBones);
 	a_input.pos = skinnedPos.xyz;
-	a_input.normal = mul(a_input.normal, (float3x3) _mBones);
+	//a_input.normal = mul(a_input.normal, (float3x3) _mBones);
+	float3 _skiningNormal = mul(a_input.normal, (float3x3) _mBones);
+	_skiningNormal = normalize(_skiningNormal);
 	
 	// 出力用構造体
-	VSOutput _out;
-
+	VSOutput _output = (VSOutput) 0; // アウトプット構造体を定義
+    
 	float4 _localPos = float4(a_input.pos, 1.0f); // 頂点座標
 	float4 _worldPos = mul(mat, _localPos); // ワールド座標に変換
 	float4 _viewPos = mul(cView, _worldPos); // ビュー座標に変換
 	float4 _projPos = mul(cProj, _viewPos); // 投影変換
     
-	_out.svpos = _projPos; // 投影変換された座標をピクセルシェーダーに渡す
-	_out.color = a_input.color; // 頂点色をそのままピクセルシェーダーに渡す
-	_out.uv = a_input.uv; // uv座標をそのままピクセルシェーダーに渡す
-	_out.normal = a_input.normal; // 法線をそのままピクセルシェーダーに渡す
+	_output.svpos = _projPos; // 投影変換された座標をピクセルシェーダーに渡す
+	_output.color = a_input.color; // 頂点色をそのままピクセルシェーダーに渡す
+	_output.uv = a_input.uv; // uv座標をそのままピクセルシェーダーに渡す
+	_output.normal = a_input.normal; // 法線をそのままピクセルシェーダーに渡す
 
 		// ワールド法線、接線、副接線
-	_out.wN = normalize(mul((float3x3) mat, a_input.normal));
-	_out.wT = normalize(mul((float3x3) mat, a_input.tangent.xyz));
+	float3x3 _normalMat = (float3x3) transpose(mat); // ワールド行列の上位3x3部分を取得
+	_output.wN = normalize(mul((float3x3) _normalMat, a_input.normal));
+	_output.wT = normalize(mul((float3x3) mat, a_input.tangent.xyz));
 
 	float3 _binormal = cross(a_input.normal, a_input.tangent.xyz);
-	_out.wB = normalize(mul((float3x3) mat, _binormal));
-	
-	return _out;
+	_output.wB = normalize(mul((float3x3) mat, _binormal));
+    
+	return _output;
 }

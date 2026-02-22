@@ -18,150 +18,26 @@ void GraphicResourceManager::Release()
 	m_modelStorage.Clear();
 }
 
-Resource::ID GraphicResourceManager::GetTexture(const std::string& a_key, TextureUse a_use)
-{
-	if (!m_texStorage.Has(a_key))
-	{
-		Texture _tex = {};
-		if (!TextureLoad::Load(a_key, _tex))
-		{
-			switch (a_use)
-			{
-			case TextureUse::Albedo:
-				_tex = TextureLoad::White();
-				break;
-			case TextureUse::MetallicRoughness:
-				_tex = TextureLoad::ORM();	
-				break;
-			case TextureUse::Emissive:
-				_tex = TextureLoad::Black();
-				break;
-			case TextureUse::Normal:
-				_tex = TextureLoad::NormalWhite();
-				break;
-			default:
-				break;
-			}
-		}
-		return m_texStorage.Add(a_key, _tex);
-	}
-	else
-	{
-		return m_texStorage.GetID(a_key);
-	}
-}
-
-Resource::ID GraphicResourceManager::GetTexture(const std::string& a_dir, const std::string& a_key, TextureUse a_use)
-{
-	if (a_key == "")
-	{
-		switch (a_use)
-		{
-		case TextureUse::Albedo:
-			return m_texStorage.Add(a_dir + "Albedo", TextureLoad::White());
-			break;
-		case TextureUse::MetallicRoughness:
-			return m_texStorage.Add(a_dir + "MetaRoug", TextureLoad::ORM());
-			break;
-		case TextureUse::Emissive:
-			return m_texStorage.Add(a_dir + "Emissive", TextureLoad::Black());
-			break;
-		case TextureUse::Normal:
-			return m_texStorage.Add(a_dir + "Normal", TextureLoad::NormalWhite());
-			break;
-		default:
-			break;
-		}
-	}
-
-	std::string _fullPath = a_dir + a_key;
-
-	if (!m_texStorage.Has(_fullPath))
-	{
-		Texture _tex = {};
-		if (!TextureLoad::Load(_fullPath, _tex))
-		{
-			switch (a_use)
-			{
-			case TextureUse::Albedo:
-				_tex = TextureLoad::White();
-				break;
-			case TextureUse::MetallicRoughness:
-				_tex = TextureLoad::ORM();
-				break;
-			case TextureUse::Emissive:
-				_tex = TextureLoad::Black();
-				break;
-			case TextureUse::Normal:
-				_tex = TextureLoad::NormalWhite();
-				break;
-			default:
-				break;
-			}
-		}
-		return m_texStorage.Add(_fullPath, _tex);
-	}
-	else
-	{
-		return m_texStorage.GetID(_fullPath);
-	}
-}
-
-bool GraphicResourceManager::GetTexture(Resource::ID& a_outID, const std::string& a_key, TextureUse a_use)
-{
-	if (!m_texStorage.Has(a_key))
-	{
-		Texture _tex = {};
-		if (!TextureLoad::Load(a_key, _tex))
-		{
-			switch (a_use)
-			{
-			case TextureUse::Albedo:
-				_tex = TextureLoad::White();
-				break;
-			case TextureUse::MetallicRoughness:
-				_tex = TextureLoad::ORM();
-				break;
-			case TextureUse::Emissive:
-				_tex = TextureLoad::Black();
-				break;
-			case TextureUse::Normal:
-				_tex = TextureLoad::NormalWhite();
-				break;
-			default:
-				break;
-			}
-			a_outID = m_texStorage.Add(a_key, _tex);
-			return false;
-		}
-		a_outID =  m_texStorage.Add(a_key, _tex);
-		return true;
-	}
-	else
-	{
-		a_outID = m_texStorage.GetID(a_key);
-		return true;
-	}
-}
-
 bool GraphicResourceManager::GetTexture(Resource::ID& a_outID, const std::string& a_dir, const std::string& a_key, TextureUse a_use)
 {
+	ImGuiContex::Instance().AddLog("GetTexture: %s\n", (a_dir + a_key).c_str());
+
 	if (a_key == "")
 	{
 		switch (a_use)
 		{
 		case TextureUse::Albedo:
-			a_outID = m_texStorage.Add(a_dir + a_key, TextureLoad::White());
+			a_outID = m_texStorage.Add(a_dir + "Albedo", TextureLoad::White());
 			return false;
 			break;
 		case TextureUse::MetallicRoughness:
 			a_outID = m_texStorage.Add(a_dir + "MetaRoug", TextureLoad::ORM());
 			return false;
 		case TextureUse::Emissive:
-			a_outID = m_texStorage.Add(a_dir + a_key, TextureLoad::Black());
+			a_outID = m_texStorage.Add(a_dir + "Emissive", TextureLoad::Black());
 			return false;
 		case TextureUse::Normal:
-			a_outID =  m_texStorage.Add(a_dir + a_key, TextureLoad::NormalWhite());
+			a_outID =  m_texStorage.Add(a_dir + "Normal", TextureLoad::NormalWhite());
 			return false;
 
 		default:

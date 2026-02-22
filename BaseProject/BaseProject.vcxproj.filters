@@ -1238,6 +1238,9 @@
     <None Include="Asset\Shader\Source\CalcLighting.hlsli">
       <Filter>Asset\Shader\Source</Filter>
     </None>
+    <None Include="Asset\Shader\Source\CalcNormal.hlsli">
+      <Filter>Asset\Shader\Source</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">

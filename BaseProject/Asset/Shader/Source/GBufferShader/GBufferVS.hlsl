@@ -25,7 +25,8 @@ VSOutput vs( VSInput a_input )
 	_output.normal = a_input.normal; // 法線をそのままピクセルシェーダーに渡す
 
 		// ワールド法線、接線、副接線
-	_output.wN = normalize(mul((float3x3) mat, a_input.normal));
+	float3x3 _normalMat = (float3x3) transpose(mat); // ワールド行列の上位3x3部分を取得
+	_output.wN = normalize(mul((float3x3) _normalMat, a_input.normal));
 	_output.wT = normalize(mul((float3x3) mat, a_input.tangent.xyz));
 
 	float3 _binormal = cross(a_input.normal, a_input.tangent.xyz);

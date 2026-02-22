@@ -29,10 +29,6 @@ public:
 	/// </summary>
 	/// <param name="a_key">ファイルパス</param>
 	/// <returns>テクスチャのウィークポインタ</returns>
-	Resource::ID GetTexture(const std::string& a_key,TextureUse a_use);
-	Resource::ID GetTexture(const std::string& a_dir,const std::string& a_key,TextureUse a_use);
-
-	bool GetTexture(Resource::ID& a_outID, const std::string& a_key, TextureUse a_use);
 	bool GetTexture(Resource::ID& a_outID, const std::string& a_dir,const std::string& a_key, TextureUse a_use);
 
 	/// <summary>

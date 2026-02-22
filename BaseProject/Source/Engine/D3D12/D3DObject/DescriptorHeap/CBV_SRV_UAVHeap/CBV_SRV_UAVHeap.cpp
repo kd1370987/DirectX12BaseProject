@@ -52,8 +52,8 @@ Storage::Range CBV_SRV_UAVHeap::AllocateSRVRange(std::vector<SRVViewInit> a_init
 	Storage::Range _range = m_srvRange.Allocate(_resSize);
 
 	// ハンドルの作成
-	auto _handle = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
-	_handle.ptr += m_incrementSize * (static_cast<UINT>(m_initInfo.maxCBVCount) + _range.startIndex);
+	auto _baseHandle = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+	_baseHandle.ptr += m_incrementSize * (static_cast<UINT>(m_initInfo.maxCBVCount) + _range.startIndex);
 		
 	// SRVの仕様書作成
 	for (UINT _i = 0; _i < a_initVec.size(); ++_i)
@@ -71,12 +71,14 @@ Storage::Range CBV_SRV_UAVHeap::AllocateSRVRange(std::vector<SRVViewInit> a_init
 		{
 			_srvDesc = *a_initVec[_i].pDesc;
 		}
+		else
 		{
 			_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 			_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 			_srvDesc.Texture2D.MipLevels = 1;
 		}
 
+		D3D12_CPU_DESCRIPTOR_HANDLE _handle = _baseHandle;
 		_handle.ptr += static_cast<unsigned int>(m_incrementSize * _i);
 
 		// SRVの生成

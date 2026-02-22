@@ -252,8 +252,8 @@ inline Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T a_da
 	}
 	else
 	{
-		Resource::DataIndex _idx = GetIndex(_id);
-		m_dataVec[_idx].data = std::move(a_data);
+		//Resource::DataIndex _idx = GetIndex(_id);
+		//m_dataVec[_idx].data = std::move(a_data);
 		return _id;
 	}
 }

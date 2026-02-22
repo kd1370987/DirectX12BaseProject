@@ -1,5 +1,6 @@
 #include "DeferredLightingShader.hlsli"
 #include "../CalcLighting.hlsli"
+#include "../CalcNormal.hlsli"
 
 float3 ReconstructViewPos(float2 uv, float depth)
 {
@@ -8,12 +9,15 @@ float3 ReconstructViewPos(float2 uv, float depth)
 	return view.xyz / view.w;
 }
 
+
 float4 ps(VSOutput a_in) : SV_Target
 {
 	// GBufferから情報を取得
-	float3 _albedo = g_albedoTex.Sample(g_samp, a_in.uv).rgb;				// アルベド
-	float3 _normal = g_normalTex.Sample(g_samp, a_in.uv).xyz * 2 - 1;		// 法線
-	float _depth = g_depthTex.Sample(g_samp, a_in.uv).r; // 深度
+	float3 _albedo = g_albedoTex.Sample(g_samp, a_in.uv).rgb;	// アルベド
+	float2 _enc = g_normalTex.Sample(g_samp, a_in.uv).rg;		// 法線
+	float3 _normal = DecsodeNormal(_enc);						// 法線を復元
+	
+	float _depth = g_depthTex.Sample(g_samp, a_in.uv).r;		// 深度
 
 	float3 _specular = _albedo; // スペキュラはアルベドと同じにしておく（今回はスペキュラを考慮しないため）
 
@@ -30,7 +34,7 @@ float4 ps(VSOutput a_in) : SV_Target
 	float3 _outColor = float3(0, 0, 0);
 	
     // 平行光
-	float3 _L = -(normalize(float3(g_DL_Dir.xyz)));
+	float3 _L = (normalize(float3(g_DL_Dir.xyz)));
 	float _NdotL = saturate(dot(_normal, _L));
 
 	// シンプルなディズニーベースの拡散反射を実装する

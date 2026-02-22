@@ -40,6 +40,7 @@ Texture2D g_metRogTex : register(t1);
 Texture2D g_emiTex : register(t2);
 Texture2D g_normalTex : register(t3);
 
+
 // 頂点シェーダー出力構造体
 struct VSOutput
 {
@@ -62,17 +63,6 @@ struct PSOutput
 	float4 emissiv : SV_Target3;
 };
 
-float2 EncodeNormalOct(float3 a_n)
-{
-	a_n /= (abs(a_n.x) + abs(a_n.y) + abs(a_n.z));
-	float2 _enc = a_n.xy;
 
-	if (a_n.z < 0)
-	{
-		_enc = (1 - abs(_enc.yx)) * (_enc.xy >= 0 ? 1 : -1);
-	}
-	
-	return _enc * 0.5 + 0.5;
-};
 
 
