@@ -1,11 +1,11 @@
 // カメラの定数バッファ
 cbuffer camera : register(b0)
 {
-	float4x4 cView; // ビュー行列
-	float4x4 cProj; // 投影行列
-	float4x4 cProjInv; // 投影行列の逆行列
+	float4x4 mView; // ビュー行列
+	float4x4 mProj; // 投影行列
+	float4x4 mProjInv; // 投影行列の逆行列
 
-	float4 cCameraPos; // カメラ位置
+	float4 cameraPos; // カメラ位置
 }
 
 // オブジェクトの定数バッファ
@@ -44,14 +44,15 @@ Texture2D g_normalTex : register(t3);
 // 頂点シェーダー出力構造体
 struct VSOutput
 {
-	float4 svpos : SV_Position; // 変換された座標
-	float4 color : COLOR; // 変換された色
-	float2 uv : TEXCOORD; // uv座標
-	float3 normal : NORMAL; // 法線
-	
-	float3 wN : TEXCOORD1; // ワールド法線
-	float3 wT : TEXCOORD2; // ワールド接線
-	float3 wB : TEXCOORD3; // ワールド副接線(従法線)
+	float4 pos : SV_Position; // 射影座標
+	float3 wPos : TEXCOORD0; // ワールド3D座標
+
+	float2 uv : TEXCOORD1; // UV座標
+	float4 color : TEXCOORD2; // 色
+
+	float3 wN : TEXCOORD3; // ワールド法線
+	float3 wT : TEXCOORD4; // ワールド接線
+	float3 wB : TEXCOORD5; // ワールド従法線
 };
 
 // GBuffer用出力
