@@ -156,7 +156,7 @@ void RenderContext::Init()
 	// cb5
 	m_cb5_Ambient.ambientLightColor = { 0.3f,0.3f,0.3f,1.0f };
 	m_cb5_Ambient.directionalLightColor = { 10.0f,10.0f,10.0f,1.0f };
-	m_cb5_Ambient.directionalLightDir = { 1.0f,1.0f,1.0f,0.0f };
+	m_cb5_Ambient.directionalLightDir = { -1.0f,-1.0f,-1.0f,0.0f };
 }
 
 void RenderContext::Shutdown()
@@ -219,6 +219,9 @@ void RenderContext::SetToShader(
 	DirectX::XMMATRIX _wMat = DirectX::XMLoadFloat4x4(&a_worldMat);
 	DirectX::XMMATRIX _vMat = DirectX::XMMatrixInverse(nullptr, _wMat);
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, _vMat);
+	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewInvMat, _wMat);
+
+	
 }
 
 void RenderContext::BindCameraCB()

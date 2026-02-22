@@ -11,13 +11,13 @@ static const float PI = 3.1415926f;
 // @param a_N 法線ベクトル
 // @param a_L 光源に向かうベクトル
 // @param a_V 視点に向かうベクトル
-float CalcDiffuseFromFresnel(float3 a_N, float3 a_L, float3 a_V)
+float CalcDiffuseFromFresnel(float3 a_N, float3 a_L, float3 a_V,float a_roughness)
 {
 	// 光源に向かうベクトルと視線に向かうベクトルのハーフベクトルを求める
 	float3 _H = normalize(a_L + a_V);
 
 	// 粗さは0.5で固定しておく
-	float _roughness = 0.5f;
+	float _roughness = a_roughness;
 
 	// エネルギーバイアス = 粗さが大きいほど、フレネル反射が強いほど、拡散反射が弱くなるようにするための値
 	float _energyBias = lerp(0.0, 0.5, _roughness);
@@ -92,15 +92,15 @@ float CookTorranceSpecular(float3 a_L,float3 a_V, float3 a_N,float a_metallic)
 	float _D = Beckmann(_microfacet, _NdotH);
 
 	// F項をSchlick近似を用いて計算する
+	_f0 = lerp(0.04f,1.0f,a_metallic);
 	float _F = SpcFresnel(_f0, _VdotH);
 
 	// G項をSmithの方法を用いて計算する
-	float _G = min(1.0f, min((2.0f * _NdotH * _NdotV) / _VdotH, (2.0f * _NdotH * _NdotL) / _VdotH));
+	float _G = min(1.0f, min((2.0f * _NdotH * _NdotV) / max(_VdotH, 0.001f), (2.0f * _NdotH * _NdotL) / max(_VdotH, 0.001f)));
 
 	// m項を計算する
-	float _m = PI * _NdotV * _NdotH;
-
+	float _denom = 4.0f * _NdotL * _NdotV + 0.0001f; // ゼロ割り防止のための微小値
+	
 	// Cook-Torranceモデルの鏡面反射を計算する
-	return (_F * _D * _G / _m, 0.0);
-
+	return max(_F * _D * _G / _denom,0.0f);
 }

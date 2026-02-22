@@ -2,6 +2,7 @@
 cbuffer camera : register(b0)
 {
 	float4x4 cView; // ビュー行列
+	float4x4 cViewInv; // ビュー行列
 	float4x4 cProj; // 投影行列
 	float4x4 cProjInv; // 投影行列の逆行列
 

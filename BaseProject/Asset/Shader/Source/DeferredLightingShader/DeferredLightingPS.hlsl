@@ -11,30 +11,30 @@ float3 ReconstructViewPos(float2 uv, float depth)
 
 
 float4 ps(VSOutput a_in) : SV_Target
-{
+{	
 	// GBufferから情報を取得
 	float3 _albedo = g_albedoTex.Sample(g_samp, a_in.uv).rgb;	// アルベド
 	float2 _enc = g_normalTex.Sample(g_samp, a_in.uv).rg;		// 法線
 	float3 _normal = DecsodeNormal(_enc);						// 法線を復元
-	
 	float _depth = g_depthTex.Sample(g_samp, a_in.uv).r;		// 深度
-
-	float3 _specular = _albedo; // スペキュラはアルベドと同じにしておく（今回はスペキュラを考慮しないため）
-
-	float _metallic = g_materialTex.Sample(g_samp, a_in.uv).b; // 金属度
+	float _metallic = g_materialTex.Sample(g_samp, a_in.uv).b;	// 金属度
 	float _roughness = g_materialTex.Sample(g_samp, a_in.uv).g; // 粗さ
-	float _smoothness = 1.0f - _roughness; // 滑らかさ
-
+	
 	// 3D空間での位置を復元
 	float3 _viewPos = ReconstructViewPos(a_in.uv, _depth);
+	float4 _worldPos4 = mul(float4(_viewPos, 1), cViewInv);
+	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
 
-	float3 _V = -normalize(_viewPos); // 視点に向かうベクトル
+	float3 _specular = _albedo; // スペキュラはアルベドと同じにしておく（今回はスペキュラを考慮しないため）
+	float _smoothness = 1.0f - _roughness; // 滑らかさ
+	
+	float3 _V = normalize(cCameraPos.xyz - _worldPos); // カメラ位置からワールド位置へのベクトル
 
 	// 出力色
 	float3 _outColor = float3(0, 0, 0);
 	
     // 平行光
-	float3 _L = (normalize(float3(g_DL_Dir.xyz)));
+	float3 _L = normalize(-g_DL_Dir.xyz);
 	float _NdotL = saturate(dot(_normal, _L));
 
 	// シンプルなディズニーベースの拡散反射を実装する
@@ -42,7 +42,8 @@ float4 ps(VSOutput a_in) : SV_Target
 	float _diffuseFromFresnel = CalcDiffuseFromFresnel(
 		_normal,
 		_L,
-		_V
+		_V,
+		0.5f
 	);
 
 	// 正規化Lambert拡散反射を求める
@@ -64,10 +65,10 @@ float4 ps(VSOutput a_in) : SV_Target
 	_spec *= lerp(float3(1.0f, 1.0f, 1.0f), _specular, _metallic);
 
 	// 滑らかさを考慮した拡散反射を計算
-	_outColor += _diffuse * (1.0f - _roughness) + _spec;
+	_outColor += _diffuse * (1.0f) + _spec;
 
 	// アンビエント
 	_outColor += g_ambientColor.rgb * _albedo;
-
+	
 	return float4(_outColor, 1);
 }

@@ -39,7 +39,7 @@ void AnimationGBufferPass::CreatePass()
 	Resource::ID _psID = m_pShaderMana->Register(
 		{ "Asset/Shader/Compiled/GBufferShader/GBufferPS.cso", ShaderStage::Pixel });
 
-	Resource::ID _rootSigID = m_pRootSigMana->GetID("AnimationRootSig");
+	Resource::ID _rootSigID = m_pRootSigMana->GetID("BaseRootSig");
 
 	// パイプラインステート登録
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC _psoDesc = {};

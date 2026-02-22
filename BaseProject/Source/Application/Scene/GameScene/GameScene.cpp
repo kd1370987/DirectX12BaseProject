@@ -161,6 +161,7 @@ void GameScene::RegistryEntity()
 		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/SkinMeshMan/SkinMeshMan.gltf");
 		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/TreasureBox/TreasureBox.gltf");
 		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/tank/tank.gltf");
+		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/TestModelWhite/testModelWhite.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_player);
@@ -190,7 +191,6 @@ void GameScene::RegistryEntity()
 			_pNodePose->local[_i] = _pModel->originalNodes[_i].localTransform;
 			_pNodePose->world[_i] = _pModel->originalNodes[_i].worldTransform;
 		}
-		
 	}
 
 	{

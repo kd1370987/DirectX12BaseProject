@@ -2,6 +2,7 @@
 cbuffer camera : register(b0)
 {
 	float4x4 cView; // ビュー行列
+	float4x4 cViewInv; // ビュー行列
 	float4x4 cProj; // 投影行列
 	float4x4 cProjInv; // 投影行列の逆行列
 
@@ -26,6 +27,11 @@ cbuffer CBMaterial : register(b3)
 	float4 metallicRoughness; // めたりっくラフネス	(x: metallic, y: roughness, z: unused, w: unused)
 }
 
+cbuffer cbBones : register(b4)
+{
+	row_major float4x4 g_mBones[300];
+};
+
 // サンプラー
 SamplerState smp : register(s0);
 
@@ -39,6 +45,12 @@ Texture2D g_normalTex : register(t3);
 struct VSInput
 {
 	float3 pos : POSITION; // 頂点座標
+	float3 normal : NORMAL; // 法線
+	float2 uv : TEXCOORD; // uv座標
+	float3 tangent : TANGENT; // 接空間
+	float4 color : COLOR; // 頂点色
+	uint4 skinIndex : SKININDEX; // スキンメッシュのボーンインデックス（何番目のボーンに影響しているかのデータ（最大４））
+	float4 skinWeight : SKINWEIGHT; // ボーンの影響度（最大４）
 };
 
 // 頂点シェーダー出力構造体

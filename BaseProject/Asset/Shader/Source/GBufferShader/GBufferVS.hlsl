@@ -10,32 +10,27 @@ struct VSInput
 	float4 color : COLOR; // 頂点色
 };
 
-VSOutput vs( VSInput a_input )
+VSOutput vs(VSInput a_input)
 {
 	VSOutput _output = (VSOutput) 0; // アウトプット構造体を定義
-
-	// 座標変換
-	float4 _pos = float4(a_input.pos, 1);
-	_output.pos = mul(_pos, mat); // ワールド行列を掛ける
-	_output.wPos = _output.pos.xyz; // ワールド座標を保存
-	_output.pos = mul(_output.pos, mView); // ビュー行列を掛ける
-	_output.pos = mul(_output.pos, mProj); // 投影行列を掛ける
-
-	// 頂点色
+    
+	float4 _localPos = float4(a_input.pos, 1.0f); // 頂点座標
+	float4 _worldPos = mul(mat, _localPos); // ワールド座標に変換
+	float4 _viewPos = mul(cView, _worldPos); // ビュー座標に変換
+	float4 _projPos = mul(cProj, _viewPos); // 投影変換
+    
+	_output.svpos = _projPos; // 投影変換された座標をピクセルシェーダーに渡す
 	_output.color = a_input.color; // 頂点色をそのままピクセルシェーダーに渡す
+	_output.uv = a_input.uv; // uv座標をそのままピクセルシェーダーに渡す
+	_output.normal = a_input.normal; // 法線をそのままピクセルシェーダーに渡す
 
-	// 法線
-	_output.wN = mul(a_input.normal, (float3x3) mat);
+		// ワールド法線、接線、副接線
+	float3x3 _normalMat = (float3x3) mat; // ワールド行列の上位3x3部分を取得
+	_output.wN = normalize(mul((float3x3) _normalMat, a_input.normal));
+	_output.wT = normalize(mul((float3x3) mat, a_input.tangent.xyz));
 
-	// 接線
-	_output.wT = mul(a_input.tangent, (float3x3) mat);
-
-	// 従法線
-	float3 _binormal = cross(a_input.normal, a_input.tangent);
-	_output.wB = normalize(mul(_binormal, (float3x3) mat));
-
-	// uv座標
-	_output.uv = a_input.uv * uvTransform.zw + uvTransform.xy;
+	float3 _binormal = cross(a_input.normal, a_input.tangent.xyz);
+	_output.wB = normalize(mul((float3x3) mat, _binormal));
     
 	return _output;
 }

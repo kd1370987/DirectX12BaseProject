@@ -235,9 +235,6 @@ public:
 
 private:
 
-	// カメラ用定数バッファデータ
-	CBCamera m_cb0_camera = {};
-
 	// 1フレームで消費するリソース
 	FrameResource m_frameResource[CPU_FRAME_COUNT] = {};
 
@@ -248,13 +245,15 @@ private:
 
 	std::unique_ptr<OffScreen> m_upOffScreen = nullptr;
 
-	// 描画コマンド
+	// 定数バッファ
+	CBCamera m_cb0_camera = {};
 	CBObject m_cb1_object = {};
 	CBMeshTrans m_cb2_MeshTrans = {};
 	CBMaterial m_cb3_Material = {};
 	CBBone m_cb4_Bone = {};
 	CBAmbient m_cb5_Ambient = {};
 
+	// 描画コマンド
 	Resource::ID m_currentRootSigID = Resource::Limits::INVALID_ID;
 	Resource::ID m_currentPSOID = Resource::Limits::INVALID_ID;
 	Material* m_pCurrentMaterial = nullptr;

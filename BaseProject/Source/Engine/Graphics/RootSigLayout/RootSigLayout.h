@@ -61,6 +61,7 @@ struct alignas(256) CBMaterial
 struct alignas(256) CBCamera
 {
 	DirectX::XMFLOAT4X4 viewMat = {};			// ビュー行列
+	DirectX::XMFLOAT4X4 viewInvMat = {};			// ビュー行列
 	DirectX::XMFLOAT4X4 projMat = {};			// 射影行列
 	DirectX::XMFLOAT4X4 projInvMat = {};			// 射影逆行列
 
