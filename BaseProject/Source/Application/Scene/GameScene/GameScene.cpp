@@ -39,6 +39,7 @@
 #include "../../Components/Resource/AnimatorComponent.h"
 #include "../../Components/Resource/SkeletonPoseComponent.h"
 #include "../../Components/Resource/NodePoseComponent.h"
+#include "../../Components/Resource/UIComponent.h"
 
 // システム関連
 #include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
@@ -60,6 +61,7 @@
 
 #include "Application/Systems/Draw/Draw/SimpleDraw/SimpleDrawSystem.h"
 #include "Application/Systems/Draw/Draw/AnimationOptionalDraw/AnimationOptionalDraw.h"
+#include "Application/Systems/Draw/Draw/ScreenUIDraw/ScreenUIDrawSystem.h"
 
 void GameScene::Init()
 {
@@ -97,6 +99,7 @@ void GameScene::RegistryComponent()
 	World::Instance().RegisterComponentType<AnimatorComponent>("Anima");
 	World::Instance().RegisterComponentType<SkeletonPoseComponent>("SkePose");
 	World::Instance().RegisterComponentType<NodePoseComponent>("NodePose");
+	World::Instance().RegisterComponentType<UIComponent>("UI");
 
 }
 
@@ -121,6 +124,7 @@ void GameScene::RegistrySystem()
 
 	World::Instance().RegisterSystem<SimpleDrawSystem>();
 	World::Instance().RegisterSystem<AnimationOptionalDrawSystem>();
+	World::Instance().RegisterSystem<ScreenUIDrawSystem>();
 }
 
 void GameScene::RegistryEntity()
@@ -330,6 +334,27 @@ void GameScene::RegistryEntity()
 		_ref->pos = { 0,2,0 };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
+	}
+
+	{
+		ECS::Signature _sig;
+		_sig.set(World::Instance().GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(WorldMatrixComponent)));
+		_sig.set(World::Instance().GetCompTypeID(typeid(UIComponent)));
+		auto _entity = World::Instance().CreateEntity(_sig);
+
+		UIComponent* _ui = World::Instance().RefData<UIComponent>(_entity);
+		GraphicResourceManager::Instance().GetTexture(_ui->texID, "Asset/Texture/Test/", "uiTest.png", TextureUse::Albedo);
+		_ui->color = { 1.0f,1.0f,1.0f,0.5f };
+		std::vector<SRVViewInit> _initVec = {};
+		ID3D12Resource* _tex = GraphicResourceManager::Instance().NGetTexture(_ui->texID)->cpResource.Get();
+		_initVec.push_back({_tex});
+		_ui->srvRange = DescriptorHeapManager::Instance().AllocateSRVRange(_initVec);
+		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);
+		_ref->pos = { 0,0,0 };
+		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
+		_ref->scale = { 0.5f,0.5f,1.0f };
+		World::Instance().RefData<WorldMatrixComponent>(_entity)->worldMat = DXSM::Matrix::Identity;
 	}
 }
 

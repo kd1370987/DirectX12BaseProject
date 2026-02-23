@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -205,6 +205,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp" />
@@ -268,6 +269,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Model\Model.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Node\Node.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon\QuadPolygon.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.cpp" />
@@ -326,6 +328,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\NodePoseComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\SkeletonPoseComponent.h" />
+    <ClInclude Include="Source\Application\Components\Resource\UIComponent.h" />
     <ClInclude Include="Source\Application\Components\Tag\ActiveCameraTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraTag.h" />
@@ -337,6 +340,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Application\Scene\SceneManager.h" />
     <ClInclude Include="Source\Application\Scene\SceneType.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h" />
@@ -417,6 +421,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Mesh\Mesh.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Model\Model.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Node\Node.h" />
+    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon\QuadPolygon.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Vertex\Vertex.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.h" />

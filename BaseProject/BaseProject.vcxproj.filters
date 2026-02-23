@@ -484,6 +484,12 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass">
       <UniqueIdentifier>{67dec688-aad6-4660-933e-454def0130fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw">
+      <UniqueIdentifier>{d315c984-99cf-4bc8-aa90-3b388df863ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon">
+      <UniqueIdentifier>{29e4cbfb-59ce-40d0-9d85-11d07860f7d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -782,6 +788,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass\ScreenUIPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon\QuadPolygon.cpp">
+      <Filter>Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1213,6 +1225,13 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass\ScreenUIPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\UIComponent.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h">
+      <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon\QuadPolygon.h">
+      <Filter>Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

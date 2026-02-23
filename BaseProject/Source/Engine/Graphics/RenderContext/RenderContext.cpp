@@ -7,6 +7,7 @@
 #include "Engine/Graphics/GraphicResource/Resource/Texture/Texture.h"
 
 #include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"
+#include "Engine/Graphics/GraphicResource/Resource/QuadPolygon/QuadPolygon.h"
 #include "Engine/Graphics/GraphicResource/Resource/Mesh/Mesh.h"
 #include "Engine/Graphics/GraphicResource/Resource/Node/Node.h"
 #include "Engine/Graphics/GraphicResource/Resource/Material/Material.h"
@@ -152,6 +153,9 @@ void RenderContext::Init()
 	m_cb5_Ambient.ambientLightColor = { 0.3f,0.3f,0.3f,1.0f };
 	m_cb5_Ambient.directionalLightColor = { 10.0f,10.0f,10.0f,1.0f };
 	m_cb5_Ambient.directionalLightDir = { -1.0f,-1.0f,-1.0f,0.0f };
+
+	m_spQuadPolygon = std::make_shared<QuadPolygon>();
+	m_spQuadPolygon->Init();
 }
 
 void RenderContext::Shutdown()
@@ -396,6 +400,11 @@ void RenderContext::AddItem(const RenderQueueType& a_type, const DrawItem& a_ite
 	m_drawItemMap[a_type].push_back(a_item);
 }
 
+void RenderContext::AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec)
+{
+	m_drawItem2DMap[a_type].push_back(a_itemVec);
+}
+
 const std::vector<DrawItem>& RenderContext::GetItemVec(const RenderQueueType& a_type) const
 {
 	auto _it = m_drawItemMap.find(a_type);
@@ -407,6 +416,17 @@ const std::vector<DrawItem>& RenderContext::GetItemVec(const RenderQueueType& a_
 	return _items;
 }
 
+const std::vector<DrawItem2D>& RenderContext::GetItemVec(const RenderQueueType2D& a_type) const
+{
+	auto _it = m_drawItem2DMap.find(a_type);
+	if (_it != m_drawItem2DMap.end())
+	{
+		return _it->second;
+	}
+	std::vector<DrawItem2D> _items = {};
+	return _items;
+}
+
 
 void RenderContext::Excute()
 {
@@ -415,12 +435,19 @@ void RenderContext::Excute()
 	m_currentPSOID = Resource::Limits::INVALID_ID;
 	m_pCurrentMaterial = nullptr;
 	m_pCurrentMesh = nullptr;
+	m_pCurrentPoly = nullptr;
 
 	// レンダーパスの実行
 	m_upRenderGraph->Excute(this);
 
 	// 描画対象アイテムリストのクリア
 	m_drawItemMap.clear();
+	m_drawItem2DMap.clear();
+}
+
+void RenderContext::AddItem(const DrawItem& a_item)
+{
+	m_drawItemVec.push_back(a_item);
 }
 
 void RenderContext::SetGraphicsRootSignature(const Resource::ID& a_rootSigID)
@@ -593,13 +620,13 @@ void RenderContext::DrawQuad()
 	_cmdList->DrawInstanced(4, 1, 0, 0);
 }
 
-void RenderContext::DrawQueue(RenderQueueType a_type)
+void RenderContext::DrawQueue(RenderPassID a_passID, LightingType a_lightingType)
 {
-	//return;
-	auto& _draws = GetItemVec(a_type);
-	if (_draws.size() == 0) return;
-	for (auto& _item : _draws)
+	for (auto& _item : m_drawItemVec)
 	{
+		if (_item.passID != a_passID) continue;
+		if (_item.lightingType != a_lightingType) continue;
+
 		BindObuje(
 			{ 0.0f,0.0f },
 			{ 1.0f,1.0f }
@@ -608,7 +635,8 @@ void RenderContext::DrawQueue(RenderQueueType a_type)
 		BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
 		BindMesh(_item.pMesh, _item.worldMat);
 
-		if (a_type == RenderQueueType::AnimationOpaque || a_type == RenderQueueType::AnimationTransparent)
+		// ボーン行列があるのなら転送
+		if (_item.pBoneMatrices)
 		{
 			BindBone(
 				_item.pBoneMatrices,
@@ -620,21 +648,49 @@ void RenderContext::DrawQueue(RenderQueueType a_type)
 	}
 }
 
+
 void RenderContext::DrawUIQueue(RenderQueueType2D a_type)
 {
-	//auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
-	//// 描画アイテム取得
-	//auto& _draws = GetItemVec(a_type);
-	//if (_draws.size() == 0) return;
-	//for (auto& _item : _draws)
-	//{
-	//	BindCB()->BindAndAttachDataRootCBV<CBUI>(
-	//		_pCmdList,
-	//		1,
-	//		m_cbUI
-	//	);
-	//}
+	// 描画アイテム取得
+	auto& _draws = GetItemVec(a_type);
+	if (_draws.size() == 0) return;
+	for (auto& _item : _draws)
+	{
+		m_cbUI.uiMat = _item.worldMat;
+		m_cbUI.color = _item.colorScale;
+
+		BindCB()->BindAndAttachDataRootCBV<CBUI>(
+			_pCmdList,
+			0,
+			m_cbUI
+		);
+
+		// SRVの送信
+		UINT _regiIdx =
+			m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
+		auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(_item.srvHandleRange);
+		_pCmdList->SetGraphicsRootDescriptorTable(
+			_regiIdx,
+			_handle
+		);
+
+		
+		// メッシュ変換行列の転送
+		if(m_pCurrentPoly != m_spQuadPolygon.get())
+		{
+			_pCmdList->IASetVertexBuffers(0, 1, &m_spQuadPolygon->GetVBView());
+			_pCmdList->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
+
+			m_pCurrentPoly = m_spQuadPolygon.get();
+		}
+
+		// 描画
+		_pCmdList->DrawIndexedInstanced(
+			6, 1, 0, 0, 0
+		);
+	}
 }
 
 RenderContext::RenderContext()

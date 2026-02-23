@@ -4,12 +4,13 @@
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
+#include "Engine/Graphics/RenderContext/RenderContext.h"
 
 void ScreenUIPass::Excute(RenderContext* a_pCtx)
 {
 	Begin(a_pCtx);
 
-	
+	a_pCtx->DrawUIQueue(RenderQueueType2D::ScreenUI);
 
 	End(a_pCtx);
 }
@@ -19,7 +20,7 @@ void ScreenUIPass::CreatePass()
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC _layout[2] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
 	D3D12_INPUT_LAYOUT_DESC _desc = {
@@ -54,7 +55,7 @@ void ScreenUIPass::CreatePass()
 	// パイプラインステート登録
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC _psoDesc = {};
 	_psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);		// ラスタライザーステート
-	_psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;				// カリングなし
+	_psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;				// カリングなし
 	_psoDesc.BlendState = _blendDesc;										// ブレンドステート
 	_psoDesc.DepthStencilState = _depthDesc;								// 深度ステンシル
 	_psoDesc.SampleMask = UINT_MAX;											// どのピクセルを描画可能にするか

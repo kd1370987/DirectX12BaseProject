@@ -14,7 +14,7 @@ SamplerState g_smp : register(s0);
 // 頂点シェーダー入力
 struct VSInput
 {
-	float3 pos : POSITION; // 頂点座標
+	float4 pos : POSITION; // 頂点座標
 	float2 uv : TEXCOORD; // uv座標
 };
 

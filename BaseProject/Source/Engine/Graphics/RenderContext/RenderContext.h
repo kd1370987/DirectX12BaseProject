@@ -16,6 +16,7 @@ class RootSignatureManager;
 class GraphicsPSOManager;
 
 struct Model;
+class QuadPolygon;
 
 class OffScreen;
 
@@ -23,16 +24,27 @@ class RenderGraph;
 
 enum class RenderPassID
 {
-	Simple,
-	Shadow,
-	GBuffer,
-	Lighting,
-	PostEffect
+	ZPrePass,
+	ShadowMapPass,
+	GBufferPass,
+	ForwardPass,
+	PostProcessPass,
+	ScreenUIPass,
+};
+
+enum class LightingType
+{
+	None,
+	Tone,
+	PBR,
 };
 
 // １DrawCall当たりアイテム
 struct DrawItem
 {
+	RenderPassID passID = RenderPassID::ZPrePass;
+	LightingType lightingType = LightingType::PBR;
+
 	Material* pMaterial = nullptr;
 	UINT subIdx = 0;
 	Mesh* pMesh = nullptr;
@@ -43,8 +55,14 @@ struct DrawItem
 	DirectX::XMFLOAT4X4 worldMat = {};
 	DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
 	DirectX::XMFLOAT3	emissiveScale = { 1,1,1 };
+};
 
-	uint64_t sortKey = 0;
+struct DrawItem2D
+{
+	Storage::Range srvHandleRange = {};
+
+	DirectX::XMFLOAT4X4 worldMat = {};
+	DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
 };
 
 class RenderContext
@@ -142,9 +160,17 @@ public:
 
 	void AddItem(const RenderQueueType& a_type,const DrawItem& a_item);
 
+	void AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec);
+
 	const std::vector<DrawItem>& GetItemVec(const RenderQueueType& a_type) const;
 
+	const std::vector<DrawItem2D>& GetItemVec(const RenderQueueType2D& a_type) const;
+
 	void Excute();
+
+	void AddItem(const DrawItem& a_item);
+
+	
 
 	//============================================================================================
 	// 
@@ -233,7 +259,7 @@ public:
 	/// <param name="a_gpu">クワッド画面に描画するテクスチャハンドル</param>
 	void DrawQuad();
 
-	void DrawQueue(RenderQueueType a_type);
+	void DrawQueue(RenderPassID a_passID,LightingType a_lightingType);
 
 	void DrawUIQueue(RenderQueueType2D a_type);
 
@@ -263,13 +289,20 @@ private:
 	Resource::ID m_currentPSOID = Resource::Limits::INVALID_ID;
 	Material* m_pCurrentMaterial = nullptr;
 	Mesh* m_pCurrentMesh = nullptr;
+	QuadPolygon* m_pCurrentPoly = nullptr;
 
 	// ECSからの分離
 	std::unordered_map<RenderQueueType, std::vector<DrawItem>> m_drawItemMap = {};
 
+	std::unordered_map<RenderQueueType2D, std::vector<DrawItem2D>> m_drawItem2DMap = {};
+
 	std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;
 
 	
+	std::vector<DrawItem> m_drawItemVec = {};
+
+
+	std::shared_ptr<QuadPolygon> m_spQuadPolygon = nullptr;
 
 // シングルトン
 private:

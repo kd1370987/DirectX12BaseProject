@@ -5,6 +5,7 @@
 #include "../RenderPass/DrawPass/ZPrePass/ZPrePass.h"
 #include "../RenderPass/DrawPass/GBufferPass/GBufferPass.h"
 #include "../RenderPass/DrawPass/AnimationGBufferPass/AnimationGBufferPass.h"
+#include "../RenderPass/DrawPass/ScreenUIPass/ScreenUIPass.h"
 #include "../RenderPass/OffScreenPass/DeferredLightingPass/DeferredLightingPass.h"
 
 #include "../RenderContext/RenderContext.h"
@@ -76,6 +77,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	RegisterPass<GBufferPass>();
 	RegisterPass<AnimationGBufferPass>();
 	RegisterPass<DeferredLightingPass>();
+	RegisterPass<ScreenUIPass>();
 
 	// パスの初期化
 	for (auto& _sp : m_spPassVec)
@@ -217,15 +219,12 @@ void RenderGraph::Compile()
 
 		// 実行データに入れていく
 		m_compiledPasses.push_back(_cp);
+		ImGuiContex::Instance().AddLog("PassName : %s\n",_cp.pPass->GetDesc().name.c_str());
 	}
 }
 
 void RenderGraph::Excute(RenderContext* a_pCtx)
 {
-	/*ImGuiContex::Instance().AddLog("===============================================================================\n");
-	ImGuiContex::Instance().AddLog("Frame開始\n");
-	ImGuiContex::Instance().AddLog("===============================================================================\n");*/
-
 	ImGuiContex::Instance().StartWatch("RenderGraphStart");
 
 	int m_barrierSize = 0;
@@ -243,15 +242,6 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 					m_rgResourceMap[_barrier.resID].currentState,
 					_barrier.after
 				);
-			/*	ImGuiContex::Instance().AddLog(
-					"Resource : %s\n",
-					m_rgResourceMap[_barrier.resID].desc.name.c_str()
-				);
-				ImGuiContex::Instance().AddLog(
-					"beffor = % s, affter = % s\n",
-					magic_enum::enum_name(m_rgResourceMap[_barrier.resID].currentState).data(),
-					magic_enum::enum_name(_barrier.after).data()
-				);*/
 				m_rgResourceMap[_barrier.resID].currentState = _barrier.after;
 
 				m_barrierSize++;
@@ -278,13 +268,7 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 				if (_resAcc.load == LoadOp::Clear)
 				{
 					_clearRTVs.push_back(_tex->GetRTVHandle());
-					//ImGuiContex::Instance().AddLog("ClearRTV:%s\n", m_rgResourceMap[_resAcc.id].desc.name.c_str());
 				}
-				else
-				{
-					//ImGuiContex::Instance().AddLog("rtv:%s\n", m_rgResourceMap[_resAcc.id].desc.name.c_str());
-				}
-				
 			}
 
 			// 深度値
@@ -298,11 +282,6 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 				if (_resAcc.load == LoadOp::Clear)
 				{
 					_isClear = true;
-					//ImGuiContex::Instance().AddLog("ClearDSV:%s\n", m_rgResourceMap[_resAcc.id].desc.name.c_str());
-				}
-				else
-				{
-					///ImGuiContex::Instance().AddLog("DSV:%s\n", m_rgResourceMap[_resAcc.id].desc.name.c_str());
 				}
 			}
 		}
@@ -322,14 +301,8 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 
 		// パスの実行
 		_cp.pPass->Excute(a_pCtx);
-
-		//ImGuiContex::Instance().AddLog("===============================================================================\n");
-		
 	}
-	//ImGuiContex::Instance().AddLog("%d\n",m_barrierSize);
-	/*ImGuiContex::Instance().AddLog("===============================================================================\n");
-	ImGuiContex::Instance().AddLog("Frame終了\n");
-	ImGuiContex::Instance().AddLog("===============================================================================\n");*/
+
 	ImGuiContex::Instance().EndWatch("RenderGraphStart");
 }
 
