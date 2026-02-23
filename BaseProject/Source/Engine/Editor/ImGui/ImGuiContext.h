@@ -6,6 +6,8 @@ class DescriptorHeapManager;
 class Log;
 class Watch;
 
+class RenderGraphView;
+
 class ImGuiContex
 {
 public:
@@ -56,6 +58,9 @@ private:
 
 	// 計測
 	std::unordered_map<std::string, std::unique_ptr<Watch>> m_upWatchMap = {};
+
+	// レンダーグラフビュー
+	std::unique_ptr<RenderGraphView> m_upRGView = nullptr;
 
 	bool m_isInit = false;
 private:

@@ -36,6 +36,8 @@ public:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle();
 
+	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVHandle();
+
 private:
 
 	ComPtr<ID3D12Resource> m_cpResource = nullptr;
@@ -45,4 +47,7 @@ private:
 	RTVHandle		 m_rtvHandle{};
 	DSVHandle		 m_dsvHandle{};
 	Storage::Range	 m_srvHandle;
+
+	// ImGui用ハンドル
+	Storage::Range m_imguiSRVHandle{};
 };

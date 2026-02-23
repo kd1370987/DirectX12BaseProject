@@ -263,6 +263,11 @@ public:
 
 	void DrawUIQueue(RenderQueueType2D a_type);
 
+	// レンダーグラフのテクスチャのハンドル取得
+	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle(const std::string& a_name);
+
+	std::vector<std::string> GetRGResourceList();
+
 private:
 
 	// 1フレームで消費するリソース

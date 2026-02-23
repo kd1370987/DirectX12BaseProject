@@ -117,6 +117,7 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 		_srvInit.pDesc = &srv;
 		_srvInit.pResource = m_cpResource.Get();
 		m_srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange({_srvInit});
+		m_imguiSRVHandle = DescriptorHeapManager::Instance().AllocateImGuiSRVRange({ _srvInit });
 	}
 
 	m_desc = a_desc;
@@ -166,6 +167,7 @@ bool RGTexture::Create(const D3D12_RESOURCE_DESC& a_desc)
 	_srvInit.pDesc = &srv;
 	_srvInit.pResource = m_cpResource.Get();
 	m_srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange({ _srvInit });
+	m_imguiSRVHandle = DescriptorHeapManager::Instance().AllocateImGuiSRVRange({ _srvInit });
 	
 	return true;
 }
@@ -188,5 +190,10 @@ D3D12_CPU_DESCRIPTOR_HANDLE RGTexture::GetRTVHandle()
 D3D12_CPU_DESCRIPTOR_HANDLE RGTexture::GetDSVHandle()
 {
 	return DescriptorHeapManager::Instance().RefDSVHeap().GetCPUHandle(m_dsvHandle);
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE RGTexture::GetImGuiSRVHandle()
+{
+	return DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(m_imguiSRVHandle);
 }
 

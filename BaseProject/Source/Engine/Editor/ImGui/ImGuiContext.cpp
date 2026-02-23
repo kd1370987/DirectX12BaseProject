@@ -6,6 +6,10 @@
 #include "Log/Log.h"
 #include "Watch/Watch.h"
 
+#include "../RenderGraphView/RenderGraphView.h"
+
+#include "Engine/Graphics/RenderContext/RenderContext.h"
+
 bool ImGuiContex::Init(HWND a_hwnd)
 {
 	auto& _pD3DWrapper = D3D12Wrapper::Instance();
@@ -20,6 +24,7 @@ bool ImGuiContex::Init(HWND a_hwnd)
 	ImGuiIO& _io = ImGui::GetIO(); (void)_io;
 	_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;		// キーボードを使用可能に
 	_io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;		// ゲームパッドを使用可能に
+	_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;			// ImGuiDockingの有効化
 
 	// ImGuiのセットアップ
 	ImGui::StyleColorsDark();
@@ -53,6 +58,10 @@ bool ImGuiContex::Init(HWND a_hwnd)
 	}
 
 	m_isInit = true;
+
+	m_upRGView = std::make_unique<RenderGraphView>();
+	m_upRGView->Init();
+
 	return true;
 }
 
@@ -65,6 +74,36 @@ void ImGuiContex::CallImGuiDrawData(ID3D12GraphicsCommandList* a_pCmdList)
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
+
+	// ウィンドウサイズをゲーム画面に合わせる
+	ImGui::SetWindowPos(ImVec2(0, 0));
+	ImGui::SetWindowSize(ImVec2(1280, 720));
+
+	// ビューポート切り替え
+	ImGui::Begin(
+		"MainDockWindow",
+		nullptr,
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus |
+		ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoDocking
+	);
+	{
+		// ベース
+		ImGuiID _dockSpaceID = ImGui::GetID("MyDockSpace");
+		ImGui::DockSpace(_dockSpaceID, ImGui::GetContentRegionAvail(),ImGuiDockNodeFlags_PassthruCentralNode);
+
+		ImVec2 avail = ImGui::GetContentRegionAvail();
+		AddLog("avail: %f %f\n", avail.x, avail.y);
+	}
+	ImGui::End();
+
+	// レンダーグラフビュー
+	m_upRGView->Draw();
+
 	// ログ表示
 	m_upLog->Draw("Log");
 
@@ -74,6 +113,7 @@ void ImGuiContex::CallImGuiDrawData(ID3D12GraphicsCommandList* a_pCmdList)
 		_watch->DrawResult(_name);
 	}
 
+	// ImGui描画
 	ImGui::Render();
 
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(),a_pCmdList);

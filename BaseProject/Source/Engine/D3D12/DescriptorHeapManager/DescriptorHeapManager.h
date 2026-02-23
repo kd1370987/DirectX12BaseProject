@@ -78,6 +78,13 @@ public:
 	ID3D12DescriptorHeap* GetImGuiHeap() const;
 
 	/// <summary>
+	/// 一括でSRVを確保
+	/// </summary>
+	/// <param name="a_resource">登録するリソースの配列</param>
+	/// <returns>登録した配列の先頭のハンドル</returns>
+	Storage::Range AllocateImGuiSRVRange(std::vector<SRVViewInit> a_viewInitVec);
+
+	/// <summary>
 	/// ImGui用のSRVのCPUハンドルを取得
 	/// </summary>
 	/// <param name="a_range">レンジ</param>
@@ -88,6 +95,18 @@ public:
 	/// </summary>
 	/// <param name="a_range">レンジ</param>
 	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle();
+
+	/// <summary>
+	/// SRVのCPUハンドルを取得
+	/// </summary>
+	/// <param name="a_range">レンジ</param>
+	D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Storage::Range a_range);
+
+	/// <summary>
+	/// SRVのGPUハンドルを取得
+	/// </summary>
+	/// <param name="a_range">レンジ</param>
+	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Storage::Range a_range);
 
 	//==========================================================================================
 	// 

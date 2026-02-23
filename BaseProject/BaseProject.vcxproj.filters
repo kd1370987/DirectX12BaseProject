@@ -490,6 +490,9 @@
     <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon">
       <UniqueIdentifier>{29e4cbfb-59ce-40d0-9d85-11d07860f7d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\RenderGraphView">
+      <UniqueIdentifier>{b4e20a7d-3b5c-4ddf-a169-304782d641ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -794,6 +797,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon\QuadPolygon.cpp">
       <Filter>Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.cpp">
+      <Filter>Source\Engine\Editor\RenderGraphView</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1232,6 +1238,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon\QuadPolygon.h">
       <Filter>Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.h">
+      <Filter>Source\Engine\Editor\RenderGraphView</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

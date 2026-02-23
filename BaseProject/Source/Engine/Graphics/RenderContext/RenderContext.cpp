@@ -693,6 +693,16 @@ void RenderContext::DrawUIQueue(RenderQueueType2D a_type)
 	}
 }
 
+D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetImGuiGPUHandle(const std::string& a_name)
+{
+	return m_upRenderGraph->GetImGuiGPUHandle(a_name);
+}
+
+std::vector<std::string> RenderContext::GetRGResourceList()
+{
+	return m_upRenderGraph->GetRGResourceList();
+}
+
 RenderContext::RenderContext()
 {
 	m_currentPSOID = Resource::Limits::INVALID_ID;

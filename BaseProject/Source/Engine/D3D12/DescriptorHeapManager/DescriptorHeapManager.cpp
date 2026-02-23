@@ -110,6 +110,11 @@ ID3D12DescriptorHeap* DescriptorHeapManager::GetImGuiHeap() const
 	return m_spImGuiSRVHeap->GetHeap();
 }
 
+Storage::Range DescriptorHeapManager::AllocateImGuiSRVRange(std::vector<SRVViewInit> a_viewInitVec)
+{
+	return m_spImGuiSRVHeap->AllocateSRVRange(a_viewInitVec);
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiCPUHandle()
 {
 	return m_spImGuiSRVHeap->GetImGuiCPUHandle();
@@ -118,6 +123,16 @@ D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiCPUHandle()
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiGPUHandle()
 {
 	return m_spImGuiSRVHeap->GetImGuiGPUHandle();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVCPUHandle(Storage::Range a_range)
+{
+	return m_spImGuiSRVHeap->GetSRVCPUHandle(a_range);
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVGPUHandle(Storage::Range a_range)
+{
+	return m_spImGuiSRVHeap->GetSRVGPUHandle(a_range);
 }
 
 RTVHandle DescriptorHeapManager::RegisterRTV(ID3D12Resource* a_resource, D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc)

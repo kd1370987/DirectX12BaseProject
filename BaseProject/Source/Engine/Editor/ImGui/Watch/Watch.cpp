@@ -37,8 +37,9 @@ void Watch::DrawResult(const std::string& a_name, double a_watchTime, TimeUnit a
 		ImGui::Text("Min : %.3f", m_minTime);
 		ImGui::Text("Max : %.3f", m_maxTime);
 
-		ImGui::End();
+		
 	}
+	ImGui::End();
 }
 
 void Watch::Reset()

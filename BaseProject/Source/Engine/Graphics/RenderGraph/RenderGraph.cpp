@@ -349,3 +349,21 @@ Resource::ID RenderGraph::GetID(const std::string& a_key)
 	assert(0 && "登録されていないリソースです");
 	return Resource::Limits::INVALID_ID;
 }
+
+D3D12_GPU_DESCRIPTOR_HANDLE RenderGraph::GetImGuiGPUHandle(const std::string& a_name)
+{
+	auto _id = m_resourceStorage.GetID(a_name);
+	return m_rgResourceMap[_id].spRGTexture->GetImGuiSRVHandle();
+}
+
+std::vector<std::string> RenderGraph::GetRGResourceList()
+{
+	std::vector<std::string> _nameVec = {};
+
+	for (auto& [_id, _spRgTex] : m_rgResourceMap)
+	{
+		_nameVec.push_back(_spRgTex.desc.name);
+	}
+
+	return _nameVec;
+}

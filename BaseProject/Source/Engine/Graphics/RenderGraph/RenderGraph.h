@@ -108,9 +108,9 @@ public:
 		m_spPassVec.push_back(_pass);
 	}
 
-private:
+	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle(const std::string& a_name);
 
-
+	std::vector<std::string> GetRGResourceList();
 
 private:
 
