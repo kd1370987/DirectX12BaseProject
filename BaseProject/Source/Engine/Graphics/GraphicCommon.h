@@ -10,6 +10,10 @@ enum class RenderQueueType
 	AnimationTransparent,
 	Bloom,
 	Lighting,
+};
+
+enum class RenderQueueType2D
+{
 	ScreenUI,
 	WorldUI
 };

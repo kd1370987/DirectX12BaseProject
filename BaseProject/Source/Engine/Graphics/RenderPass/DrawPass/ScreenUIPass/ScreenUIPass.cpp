@@ -9,7 +9,7 @@ void ScreenUIPass::Excute(RenderContext* a_pCtx)
 {
 	Begin(a_pCtx);
 
-	DrawQueue(a_pCtx, RenderQueueType::ScreenUI);
+	
 
 	End(a_pCtx);
 }
@@ -76,8 +76,6 @@ void ScreenUIPass::CreatePass()
 
 	m_passDesc.rootSigID = _rootSigID;
 	m_passDesc.psoID = _psoID;
-
-	m_passDesc.queueType = RenderQueueType::ScreenUI;
 
 	auto _tex = m_pRenderGraph->GetID("QuadTexture");
 

@@ -235,7 +235,7 @@ public:
 
 	void DrawQueue(RenderQueueType a_type);
 
-	void DrawUIQueue(RenderQueueType a_type);
+	void DrawUIQueue(RenderQueueType2D a_type);
 
 private:
 

@@ -620,21 +620,21 @@ void RenderContext::DrawQueue(RenderQueueType a_type)
 	}
 }
 
-void RenderContext::DrawUIQueue(RenderQueueType a_type)
+void RenderContext::DrawUIQueue(RenderQueueType2D a_type)
 {
-	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+	//auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
-	// 描画アイテム取得
-	auto& _draws = GetItemVec(a_type);
-	if (_draws.size() == 0) return;
-	for (auto& _item : _draws)
-	{
-		BindCB()->BindAndAttachDataRootCBV<CBUI>(
-			_pCmdList,
-			1,
-			m_cbUI
-		);
-	}
+	//// 描画アイテム取得
+	//auto& _draws = GetItemVec(a_type);
+	//if (_draws.size() == 0) return;
+	//for (auto& _item : _draws)
+	//{
+	//	BindCB()->BindAndAttachDataRootCBV<CBUI>(
+	//		_pCmdList,
+	//		1,
+	//		m_cbUI
+	//	);
+	//}
 }
 
 RenderContext::RenderContext()
