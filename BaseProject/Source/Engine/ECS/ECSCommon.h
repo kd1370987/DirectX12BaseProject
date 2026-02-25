@@ -9,7 +9,7 @@ namespace ECS
 	using Entity = uint64_t;
 
 	// 型情報をビット変換
-	using ComponentTypeID = uint8_t;
+	using ComponentTypeID = uint32_t;
 
 	// 上限・エラー数値
 	namespace Limits

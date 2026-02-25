@@ -44,6 +44,7 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <bitset>
 #include <cinttypes>
 #include <cstdint>
+#include <span>
 
 //===============================================
 //

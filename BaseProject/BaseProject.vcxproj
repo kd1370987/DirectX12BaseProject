@@ -256,6 +256,8 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\ECS\EntityManager\EntityManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\SystemManager\SystemManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\World\World.cpp" />
+    <ClCompile Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.cpp" />
+    <ClCompile Include="Source\Engine\Editor\ECSView\ECSView.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\Log\Log.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\Watch\Watch.cpp" />
@@ -405,6 +407,8 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\ECS\System\ISystem\ISystem.h" />
     <ClInclude Include="Source\Engine\ECS\System\SystemBase\SystemBase.h" />
     <ClInclude Include="Source\Engine\ECS\World\World.h" />
+    <ClInclude Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.h" />
+    <ClInclude Include="Source\Engine\Editor\ECSView\ECSView.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\Log\Log.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\OperationBox\OperationBox.h" />

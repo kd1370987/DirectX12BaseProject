@@ -32,12 +32,33 @@ public:
 	/// <param name="a_loca">ロケーションデータ</param>
 	void SetEntityLocation(const ECS::Entity& a_entity,const EntityLocation& a_loca);
 
+	/// <summary>
+	/// エンティティを指定してロケーションを取得
+	/// </summary>
 	const EntityLocation& GetLocation(const ECS::Entity& a_entity);
 
+	/// <summary>
+	/// 全エンティティのロケーションを返す
+	/// </summary>
+	const std::vector<EntityLocation>& GetAllEntityLocation();
+	
+	/// <summary>
+	/// 現在のエンティティの生存数を返す
+	/// </summary>
+	UINT GetAliveEntityCount();
+
+	/// <summary>
+	/// エンティティのシグネチャを取得する
+	/// </summary>
+	const ECS::Signature& GetSignature(const ECS::Entity& a_entity);
 
 private:
 
-	
+	uint32_t GetGeneration(const ECS::Entity& a_entity);
+	uint32_t GetIndex(const ECS::Entity& a_entity);
+
+private:
+
 	std::vector<EntityLocation>		m_entityLocationVec;	// エンティティの住所
 	std::vector<ECS::Signature>		m_signatureVec;			// エンティティとシグネチャを紐づけるもの
 	std::vector<ECS::Generation>	m_entityGeneVec;		// 世代を含めたエンティティリスト
@@ -45,5 +66,6 @@ private:
 	// 次に使用するEntityのインデックス
 	std::queue<ECS::EntityIndex> m_availbleEntitiyQueue;
 
+	// 生存中のエンティティ
 	UINT m_aliveCount = 0;
 };

@@ -7,6 +7,9 @@ class Log;
 class Watch;
 
 class RenderGraphView;
+class ECSView;
+
+class ComponentEdit;
 
 class ImGuiContex
 {
@@ -51,6 +54,11 @@ public:
 	/// <param name="a_name">ウィンドウネーム</param>
 	void EndWatch(const std::string& a_name);
 
+	/// <summary>
+	/// コンポーネントエディットを登録するために、エディットクラスを返す
+	/// </summary>
+	std::shared_ptr<ComponentEdit> GetCompEdit();
+
 private:
 
 	// ログ
@@ -61,6 +69,8 @@ private:
 
 	// レンダーグラフビュー
 	std::unique_ptr<RenderGraphView> m_upRGView = nullptr;
+	// ECS
+	std::unique_ptr<ECSView> m_upECSView = nullptr;
 
 	bool m_isInit = false;
 private:

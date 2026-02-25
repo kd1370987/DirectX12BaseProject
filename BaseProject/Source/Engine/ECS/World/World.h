@@ -28,6 +28,11 @@ public:
 	void Init();
 
 	/// <summary>
+	/// 初期化済みかどうか
+	/// </summary>
+	bool IsInit();
+
+	/// <summary>
 	/// 解放
 	/// </summary>
 	void Release();
@@ -49,6 +54,31 @@ public:
 	/// <param name="a_sig">アーキタイプを指定</param>
 	ECS::Entity CreateEntity(const ECS::Signature& a_sig);
 
+	/// <summary>
+	/// 生存中のエンティティリストを返す
+	/// </summary>
+	const std::vector<EntityLocation>& GetEntityList();
+
+	/// <summary>
+	/// エンティティのロケーションを取得
+	/// </summary>
+	const EntityLocation& GetLocation(const ECS::Entity& a_entity);
+
+	/// <summary>
+	/// 生存エンティティ数を返す
+	/// </summary>
+	UINT GetAliveEntityCount();
+
+	/// <summary>
+	/// ロケーションからエンティティを取得
+	/// </summary>
+	const ECS::Entity& GetEntity(const EntityLocation& a_location);
+
+	/// <summary>
+	/// エンティティのシグネチャを取得
+	/// </summary>
+	ECS::Signature GetSignature(const ECS::Entity& a_entity);
+
 	//==========================================================================================
 	// 
 	// コンポーネント関連
@@ -61,7 +91,7 @@ public:
 	/// <typeparam name="Comp">コンポーネントの型</typeparam>
 	/// <param name="a_name">保存時の名前</param>
 	template<typename Comp>
-	void RegisterComponentType(const std::string& a_name);
+	ECS::ComponentTypeID RegisterComponentType(const std::string& a_name);
 
 	/// <summary>
 	/// 型情報からIDを取得
@@ -77,6 +107,7 @@ public:
 	/// <param name="a_index">コンポーネント型</param>
 	/// <returns></returns>
 	uint8_t* NRefData(const ECS::Entity& a_entity, const std::type_index& a_index);
+	uint8_t* NRefData(const ECS::Entity& a_entity, const ECS::ComponentTypeID& a_typeID);
 
 	/// <summary>
 	/// コンポーネントを型として参照取得
@@ -94,6 +125,11 @@ public:
 	/// <returns>チャンク内の Comp 型コンポーネント配列へのポインタ</returns>
 	template<typename Comp>
 	Comp* GetComponentArray(ArchetypeChunk* a_chunk);
+
+	/// <summary>
+	/// コンポーネントメタデータの取得
+	/// </summary>
+	const ComponentMeta& GetComponentMetaData(const ECS::ComponentTypeID& a_typeID);
 
 	//==========================================================================================
 	// 
@@ -159,6 +195,8 @@ private:
 
 	ComponentMetaRegistry m_componentMetaRegistry;
 
+	bool m_isInit = false;
+
 
 // シングルトン
 private:
@@ -184,9 +222,9 @@ public:
 };
 
 template<typename Comp>
-inline void World::RegisterComponentType(const std::string& a_name)
+inline ECS::ComponentTypeID World::RegisterComponentType(const std::string& a_name)
 {
-	m_componentMetaRegistry.RegisterType<Comp>(a_name);
+	return m_componentMetaRegistry.RegisterType<Comp>(a_name);
 }
 
 template<typename Comp>

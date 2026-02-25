@@ -24,7 +24,7 @@ void Watch::DrawResult(const std::string& a_name, double a_watchTime, TimeUnit a
 	// 表示ボックス
 	if (ImGui::Begin(a_name.c_str()))
 	{
-		ImGui::Text("最新計測");
+		ImGui::Text("NowTime");
 		ImGui::Text("MS : %.3f",m_calcTime);
 
 		if (m_count > 0)

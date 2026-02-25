@@ -7,6 +7,7 @@
 #include "Watch/Watch.h"
 
 #include "../RenderGraphView/RenderGraphView.h"
+#include "../ECSView/ECSView.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
@@ -62,6 +63,9 @@ bool ImGuiContex::Init(HWND a_hwnd)
 	m_upRGView = std::make_unique<RenderGraphView>();
 	m_upRGView->Init();
 
+	m_upECSView = std::make_unique<ECSView>();
+	m_upECSView->Init();
+
 	return true;
 }
 
@@ -103,6 +107,9 @@ void ImGuiContex::CallImGuiDrawData(ID3D12GraphicsCommandList* a_pCmdList)
 
 	// レンダーグラフビュー
 	m_upRGView->Draw();
+
+	// ECS
+	m_upECSView->Draw();
 
 	// ログ表示
 	m_upLog->Draw("Log");
@@ -172,6 +179,11 @@ void ImGuiContex::EndWatch(const std::string& a_name)
 		return;
 	}
 	assert(0 && "登録されていない計測です");
+}
+
+std::shared_ptr<ComponentEdit> ImGuiContex::GetCompEdit()
+{
+	return m_upECSView->GetCompEdit();
 }
 
 ImGuiContex::ImGuiContex()

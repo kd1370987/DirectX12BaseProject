@@ -10,11 +10,6 @@ void FullScreenPass::Excute(RenderContext* a_pCtx)
 {
 	Begin(a_pCtx);
 
-	//auto _main = m_pRenderGraph->GetGPUHandle("GBufferAlbedo");
-	//auto _main = m_pRenderGraph->GetGPUHandle("GBufferNormal");
-	//auto _main = m_pRenderGraph->GetGPUHandle("GBufferMaterial");
-	//auto _main = m_pRenderGraph->GetGPUHandle("MainColor");
-	//auto _main = m_pRenderGraph->GetGPUHandle("GBufferEmissiv");
 	auto _main = m_pRenderGraph->GetGPUHandle("QuadTexture");
 
 	a_pCtx->ChangeBackBuffer();
@@ -70,10 +65,7 @@ void FullScreenPass::CreatePass()
 	m_passDesc.rootSigID = _rootSigID;
 	m_passDesc.psoID = _psoID;
 
-
-	//auto _id = m_pRenderGraph->GetID("GBufferAlbedo");
 	auto _id = m_pRenderGraph->GetID("QuadTexture");
-	//auto _id = m_pRenderGraph->GetID("MainColor");
 
 	// 入力元
 	m_passDesc.readResource.push_back(_id);

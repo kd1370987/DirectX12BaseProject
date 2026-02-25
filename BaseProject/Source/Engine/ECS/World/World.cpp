@@ -9,6 +9,13 @@ void World::Init()
 
 	// アーキタイプチャンクマネージャー作成
 	m_archetypeChunkManager.Init(&m_componentMetaRegistry);
+
+	// 初期化済み
+	m_isInit = true;
+}
+bool World::IsInit()
+{
+	return m_isInit;
 }
 void World::Release()
 {
@@ -33,6 +40,33 @@ ECS::Entity World::CreateEntity(const ECS::Signature& a_sig)
 	return _entity;
 }
 
+const std::vector<EntityLocation>& World::GetEntityList()
+{
+	return m_entityManager.GetAllEntityLocation();
+}
+
+const EntityLocation& World::GetLocation(const ECS::Entity& a_entity)
+{
+	return m_entityManager.GetLocation(a_entity);
+}
+
+UINT World::GetAliveEntityCount()
+{
+	return m_entityManager.GetAliveEntityCount();
+}
+
+const ECS::Entity& World::GetEntity(const EntityLocation& a_location)
+{
+	if (!a_location.pArchetypeChunk) return ECS::Limits::INVALID_ENTITY;
+
+	return a_location.pArchetypeChunk->entityData[a_location.chunkIndex];
+}
+
+ECS::Signature World::GetSignature(const ECS::Entity& a_entity)
+{
+	return m_entityManager.GetSignature(a_entity);
+}
+
 ECS::ComponentTypeID World::GetCompTypeID(const std::type_index& a_index)
 {
 	return m_componentMetaRegistry.GetTypeID(a_index);
@@ -45,6 +79,17 @@ uint8_t* World::NRefData(const ECS::Entity& a_entity, const std::type_index& a_i
 	return m_archetypeChunkManager.RefComponent(_loca, _typeID);
 }
 
+uint8_t* World::NRefData(const ECS::Entity& a_entity, const ECS::ComponentTypeID& a_typeID)
+{
+	const EntityLocation& _loca = m_entityManager.GetLocation(a_entity);
+	return m_archetypeChunkManager.RefComponent(_loca, a_typeID);
+}
+
+
+const ComponentMeta& World::GetComponentMetaData(const ECS::ComponentTypeID& a_typeID)
+{
+	return m_componentMetaRegistry.GetMetaData(a_typeID);
+}
 
 void World::RunSystem(SystemType a_type, float a_dt)
 {

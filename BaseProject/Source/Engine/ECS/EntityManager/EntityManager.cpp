@@ -94,3 +94,29 @@ const EntityLocation& EntityManager::GetLocation(const ECS::Entity& a_entity)
 
 	return m_entityLocationVec[_idx];
 }
+
+const std::vector<EntityLocation>& EntityManager::GetAllEntityLocation()
+{
+	return m_entityLocationVec;
+}
+
+UINT EntityManager::GetAliveEntityCount()
+{
+	return m_aliveCount;
+}
+
+const ECS::Signature& EntityManager::GetSignature(const ECS::Entity& a_entity)
+{
+	uint32_t _idx = GetIndex(a_entity);
+	return m_signatureVec[_idx];
+}
+
+uint32_t EntityManager::GetGeneration(const ECS::Entity& a_entity)
+{
+	return uint32_t(a_entity >> 32);;
+}
+
+uint32_t EntityManager::GetIndex(const ECS::Entity& a_entity)
+{
+	return uint32_t(a_entity & 0xFFFFFFFF);
+}
