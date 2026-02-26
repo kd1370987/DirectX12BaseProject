@@ -42,6 +42,9 @@ public:
 		UINT a_windowHeight
 	);
 
+	// 描画に使うオブジェクトとその生成関数群
+	bool CreateRenderTarget();			// レンダーターゲットを生成
+
 	/// <summary>
 	/// 終了処理
 	/// </summary>
@@ -135,8 +138,6 @@ private:
 
 private:
 
-	// 描画に使うオブジェクトとその生成関数群
-	bool CreateRenderTarget();			// レンダーターゲットを生成
 
 	// バックバッファー
 	BackBuffer m_backBuffer[BACKBUFFER_COUNT];

@@ -4,21 +4,39 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
-void CopyTexRegion(ID3D12Resource* a_pResource,D3D12_TEXTURE_COPY_LOCATION& a_dstLoca, D3D12_TEXTURE_COPY_LOCATION& a_srcLoca)
+void CopyTexRegion(ID3D12Resource* a_pResource, const UploadBuffer& a_uploadBuffer)
 {
 	// コマンドリストを取得
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
+	// コマンドキューリセット
 	D3D12Wrapper::Instance().CommandQueueReset();
 
-	_pCmdList->CopyTextureRegion(
-		&a_dstLoca,			// コピー先
-		0,					// Xオフセット
-		0,					// Yオフセット
-		0,					// Zオフセット
-		&a_srcLoca,			// コピー元
-		nullptr				// コピー元ボックス（全領域）
-	);
+	for (UINT _i = 0; _i < a_uploadBuffer.subresourceCount; ++_i)
+	{
+		// 参照元
+		D3D12_TEXTURE_COPY_LOCATION _src = {};
+		_src.pResource = a_uploadBuffer.pResource;
+		_src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+		_src.PlacedFootprint = a_uploadBuffer.layoutVec[_i];
+
+		// コピー先
+		D3D12_TEXTURE_COPY_LOCATION _dst = {};
+		_dst.pResource = a_pResource;
+		_dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+		_dst.SubresourceIndex = _i;
+
+
+		// GPUへこぴー
+		_pCmdList->CopyTextureRegion(
+			&_dst,			// コピー先
+			0,					// Xオフセット
+			0,					// Yオフセット
+			0,					// Zオフセット
+			&_src,			// コピー元
+			nullptr				// コピー元ボックス（全領域）
+		);
+	}
 
 	// コピー操作はGPUに対する命令なので、実行するにはコマンドリストをクローズして
 	// コマンドキューに積む必要がある
@@ -43,20 +61,33 @@ void CopyTexRegion(ID3D12Resource* a_pResource,D3D12_TEXTURE_COPY_LOCATION& a_ds
 	D3D12Wrapper::Instance().WaitRender();
 }
 
-ID3D12Resource* CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc)
+UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)
 {
+	UploadBuffer _uploadBuffer = {};
+
+	// サブリソース総数
+	_uploadBuffer.subresourceCount = a_meta.mipLevels * a_meta.arraySize;
+
+	std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> _layoutVec(_uploadBuffer.subresourceCount);
+	std::vector<UINT> _numRowVec(_uploadBuffer.subresourceCount);
+	std::vector<UINT64> _rowSizeVec(_uploadBuffer.subresourceCount);
+
 	// サイズ計算
 	UINT64 _uploadSize = 0;
 	D3D12Wrapper::Instance().GetDevice()->GetCopyableFootprints(
 		&a_texDesc,
 		0,
-		1,
+		_uploadBuffer.subresourceCount,
 		0,
-		nullptr,
-		nullptr,
-		nullptr,
+		_layoutVec.data(),
+		_numRowVec.data(),
+		_rowSizeVec.data(),
 		&_uploadSize
 	);
+
+	_uploadBuffer.layoutVec = _layoutVec;
+	_uploadBuffer.numRowVec = _numRowVec;
+	_uploadBuffer.rowSizeVec = _rowSizeVec;
 
 	// 中間バッファの作成（Uploadヒープ）
 	D3D12_HEAP_PROPERTIES _heapProp = {};
@@ -79,19 +110,18 @@ ID3D12Resource* CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc)
 	_desc.SampleDesc.Quality = 0;
 
 	// リソース生成（中間バッファ）
-	ID3D12Resource* _uploadBuffer = nullptr;
 	HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,					// 特に指定はなし
 		&_desc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,		// CPUから書き込み可能、GPUからは読み取り可能
 		nullptr,
-		IID_PPV_ARGS(&_uploadBuffer)
+		IID_PPV_ARGS(&_uploadBuffer.pResource)
 	);
 	if (FAILED(_hr))
 	{
 		assert(0 && "リソース生成に失敗中間バッファ");
-		return nullptr;
+		return UploadBuffer();
 	}
 
 	return _uploadBuffer;
@@ -144,51 +174,36 @@ bool BuildFromScratchiImage(Texture& a_tex, DirectX::TexMetadata& a_meta, Direct
 	}
 
 	// アップロードヒープ作成
-	ID3D12Resource* _uploadBuffer = CreateUploadHeap(_texDesc);;
-
-	auto _img = a_sImg.GetImage(0, 0, 0);
-
-
-	D3D12_TEXTURE_COPY_LOCATION _srcLocation = {};
-	_srcLocation.pResource = _uploadBuffer;								// コピー元リソース
-	_srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;		// 配置されたフットプリント
-	_srcLocation.PlacedFootprint.Offset = 0;
-	D3D12Wrapper::Instance().GetDevice()->GetCopyableFootprints(
-		&_texDesc,
-		0,
-		1,
-		0,
-		&_srcLocation.PlacedFootprint,
-		nullptr,
-		nullptr,
-		nullptr
-	);
-
-	D3D12_TEXTURE_COPY_LOCATION _dstLocation = {};
-	_dstLocation.pResource = a_tex.cpResource.Get();					// コピー先リソース
-	_dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;		// サブリソースインデックス	
-	_dstLocation.SubresourceIndex = 0;
+	UploadBuffer _uploadBuffer = CreateUploadHeap(_texDesc,a_meta);
 
 	// 中間バッファへデータコピー
 	void* _pData = nullptr;
-	_hr = _uploadBuffer->Map(
+	_hr = _uploadBuffer.pResource->Map(
 		0,
 		nullptr,
 		&_pData
 	);
-	uint8_t* _dst = static_cast<uint8_t*>(_pData);
-	const uint8_t* _src = _img->pixels;
 
-	for (UINT _y = 0; _y < _srcLocation.PlacedFootprint.Footprint.Height; ++_y)
+	// サブリソースごとにコピー
+	for (UINT _i = 0; _i < _uploadBuffer.subresourceCount; ++_i)
 	{
-		std::memcpy(_dst, _src, _img->rowPitch);
-		_src += _img->rowPitch;
-		_dst += _srcLocation.PlacedFootprint.Footprint.RowPitch;
-	};
-	_uploadBuffer->Unmap(0, nullptr);
+		const DirectX::Image* _img = a_sImg.GetImage(_i % a_meta.mipLevels, _i / a_meta.mipLevels, 0);
+
+		uint8_t* _dst = static_cast<uint8_t*>(_pData) + _uploadBuffer.layoutVec[_i].Offset;
+		const uint8_t* _src = _img->pixels;
+
+		for (UINT _row = 0; _row < _uploadBuffer.numRowVec[_i]; ++_row)
+		{
+			std::memcpy(_dst,_src,_uploadBuffer.rowSizeVec[_i]);
+			_dst += _uploadBuffer.layoutVec[_i].Footprint.RowPitch;
+			_src += _img->rowPitch;
+		}
+	}
+	// 操作の終了
+	_uploadBuffer.pResource->Unmap(0, nullptr);
 
 	// GPUにコピー
-	CopyTexRegion(a_tex.cpResource.Get(), _dstLocation, _srcLocation);
+	CopyTexRegion(a_tex.cpResource.Get(), _uploadBuffer);
 
 	return true;
 }
@@ -250,6 +265,24 @@ bool TextureLoad::Load(const std::string& a_path, Texture& a_dstTex, D3D12_RESOU
 
 		a_dstTex.pDesc = a_desc;
 	}
+
+	// みっぷマップ計算
+	DirectX::ScratchImage _mipChain;
+	HRESULT _hr = DirectX::GenerateMipMaps(
+		_sImg.GetImages(),
+		_sImg.GetImageCount(),
+		_sImg.GetMetadata(),
+		DirectX::TEX_FILTER_DEFAULT,
+		0,		// 0 = フルミップ
+		_mipChain
+	);
+	if (FAILED(_hr))
+	{
+		return false;
+	}
+
+	_sImg = std::move(_mipChain);
+	_meta = _sImg.GetMetadata();
 
 	// テクスチャを構築
 	BuildFromScratchiImage(a_dstTex, _meta, _sImg);

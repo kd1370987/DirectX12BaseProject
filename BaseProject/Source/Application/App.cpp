@@ -74,6 +74,10 @@ bool Application::Init()
 		return false;
 	}
 
+	DescriptorHeapManager::Instance().Init();
+
+	D3D12Wrapper::Instance().CreateRenderTarget();
+
 	// ImGui初期化
 	if (!ImGuiContex::Instance().Init(m_upWindow->GetWindowHandle()))
 	{
@@ -132,6 +136,8 @@ void Application::Release()
 
 	// タイムマネージャー解放
 	m_upTimeManager->Release();
+
+	m_upWindow->Release();
 
 	// 解放時にエラー検出
 #if _DEBUG

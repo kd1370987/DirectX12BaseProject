@@ -85,19 +85,18 @@ bool D3D12Wrapper::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHei
 	// 同期を行うときのイベントハンドラを作成する
 	m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
-	DescriptorHeapManager::Instance().Init();
-
+	
 	// ビューポートとシザー矩形を生成
 	m_upViewport = std::make_unique<Viewport>();
 	m_upViewport->Create(a_windowWidth, a_windowHeight);
 	m_upScissorRect = std::make_unique<ScissorRectangle>();
 	m_upScissorRect->Create(a_windowWidth, a_windowHeight);
 
-	if (!CreateRenderTarget())
-	{
-		assert(0 && "レンダーターゲットの生成に失敗");
-		return false;
-	}
+	//if (!CreateRenderTarget())
+	//{
+	//	assert(0 && "レンダーターゲットの生成に失敗");
+	//	return false;
+	//}
 
 	// 初期化成功
 	return true;

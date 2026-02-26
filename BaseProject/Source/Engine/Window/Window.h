@@ -20,6 +20,11 @@ public:
 	);
 
 	/// <summary>
+	/// ウィンドウの解放
+	/// </summary>
+	void Release();
+
+	/// <summary>
 	/// ウィンドウメッセージ処理
 	/// </summary>
 	/// <returns>終了メッセージが来るとfalseを返す</returns>
@@ -38,8 +43,10 @@ public:
 
 private:
 
+	// Window
 	HWND		m_hWnd;			// ウィンドウハンドル
 	HINSTANCE	m_hInst;		// ウィンドウインスタンス
+	std::wstring m_className;	// ウィンドウクラスネーム
 
 	// クライアント領域サイズ
 	UINT m_clientWidth = 0;

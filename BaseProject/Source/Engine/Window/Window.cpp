@@ -104,7 +104,16 @@ bool Window::Create(
 
 	// ウィンドウにフォーカスする
 	SetFocus(m_hWnd);					// キー入力受付開始命令も含む
+
+	m_className = a_windowClassName;
+
 	return true;
+}
+
+void Window::Release()
+{
+	// ウィンドウの解放
+	UnregisterClass(m_className.c_str(),m_hInst);
 }
 
 bool Window::ProcessMessage()

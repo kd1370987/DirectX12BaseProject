@@ -6,7 +6,7 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
-void DescriptorHeapManager::Init()
+bool DescriptorHeapManager::Init()
 {
 
 	ID3D12Device* _device = D3D12Wrapper::Instance().GetDevice();
@@ -62,6 +62,15 @@ void DescriptorHeapManager::Init()
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE
 		);
 	}
+
+	return true;
+}
+
+void DescriptorHeapManager::Release()
+{
+	m_spCBV_SRV_UAVHeap.reset();
+	m_spImGuiSRVHeap.reset();
+	m_spRTVHeap.reset();
 }
 
 

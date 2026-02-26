@@ -2,6 +2,17 @@
 
 struct Texture;
 
+struct UploadBuffer
+{
+	ID3D12Resource* pResource = nullptr;
+
+	UINT subresourceCount = 0;
+
+	std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layoutVec;
+	std::vector<UINT> numRowVec;
+	std::vector<UINT64> rowSizeVec;
+};
+
 namespace TextureLoad
 {
 	/// <summary>
