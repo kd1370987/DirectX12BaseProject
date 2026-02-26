@@ -19,7 +19,7 @@ struct EngineConfig
 		// 実行中
 		struct Runtime
 		{
-			bool m_isVsync = false;				// 垂直同期
+			bool isVsync = false;				// 垂直同期
 		} runtime = {};
 	} graphics;
 
@@ -40,6 +40,10 @@ class Engine
 {
 public:
 
+	// コンストラクタ・デストラクタ
+	Engine();
+	~Engine();
+
 	// 初期化・解放
 	void Init(EngineConfig a_config);
 	void Release();
@@ -51,6 +55,9 @@ public:
 	// 描画関係
 	void BeginDraw();
 	void EndDraw();
+
+	// デルタタイム取得
+	float GetDeltaTime();
 
 private:
 

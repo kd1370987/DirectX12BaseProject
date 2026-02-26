@@ -32,3 +32,16 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 #include "Graphics/GraphicCommon.h"
 
 #include "Editor/ImGui/ImGuiContext.h"
+
+// バッファリング数
+enum
+{
+	BACKBUFFER_COUNT = 3,		// 今回はダブルバッファリング
+	CPU_FRAME_COUNT = 3				// フレームリソース管理用
+};
+// ディスクリプタハンドル構造体
+struct DescriptorHandle
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE handleCPU{};
+	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU{};
+};

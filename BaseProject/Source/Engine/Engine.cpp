@@ -8,6 +8,14 @@
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 #include "Engine/ECS/World/World.h"
 
+Engine::Engine()
+{
+}
+
+Engine::~Engine()
+{
+}
+
 void Engine::Init(EngineConfig a_config)
 {
 	// DirectX12でGPUの詳細なエラーを確認するためのもの
@@ -21,6 +29,8 @@ void Engine::Init(EngineConfig a_config)
 	}
 
 	// ウィンドウクラスの生成
+	m_windowWidth = 1280;
+	m_windowHeight = 720;
 	m_upWindow = std::make_unique<Window>();
 	if (!m_upWindow->Create(m_windowWidth, m_windowHeight, L"DirectX12", L"Window"))
 	{
@@ -127,26 +137,40 @@ bool Engine::BegineFrame()
 		return false;
 	}
 
-	return true;
-
 	// タイトル文字列変更
 	std::string _str = "DX12_FrameWork FPS = " + std::to_string(m_upTimeManager->GetNowFPS()) +
 		"; DELTATIME = " + std::to_string(m_upTimeManager->GetDeltaTime()) + ";";
 	m_upWindow->ChangeTitle(_str);
+
+	return true;
 }
 
 void Engine::EndFrame()
 {
 	// フレーム終了
-	m_upTimeManager->EndFrame(m_config.graphics.runtime.m_isVsync);
+	m_upTimeManager->EndFrame(m_config.graphics.runtime.isVsync);
 }
 
 void Engine::BeginDraw()
 {
-	D3D12Wrapper::Instance().BeginFrame();									// 描画開始
+	// 描画開始
+	D3D12Wrapper::Instance().BeginFrame();
 }
 
 void Engine::EndDraw()
 {
-	D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.m_isVsync);	// 描画終了
+	// ゲームモード以外の処理
+	if (m_config.app.mode != EngineConfig::Application::Mode::Game)
+	{
+		// エディター描画
+		ImGuiContex::Instance().CallImGuiDrawData(D3D12Wrapper::Instance().GetCommandList());
+	}
+
+	// 描画終了
+	D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.isVsync);
+}
+
+float Engine::GetDeltaTime()
+{
+	return m_upTimeManager->GetDeltaTime();
 }

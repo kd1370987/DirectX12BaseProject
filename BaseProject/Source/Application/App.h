@@ -1,13 +1,5 @@
 ﻿#pragma once
 
-class Window;
-class TimeManager;
-
-class ImGuiContex;
-
-constexpr UINT WINDOW_WIDTH = 1280;
-constexpr UINT WINDOW_HEIGHT = 720;
-
 class Engine;
 
 class Application
@@ -34,12 +26,8 @@ private:
 
 private:
 
-	std::unique_ptr<Window>			m_upWindow			= nullptr;
-	std::unique_ptr<TimeManager>	m_upTimeManager		= nullptr;
-
+	// エンジン
 	std::unique_ptr<Engine> m_upEngine = nullptr;
-
-	bool m_isVsync = false;
 
 // シングルトン
 private:
