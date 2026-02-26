@@ -78,6 +78,8 @@ void Engine::Init(EngineConfig a_config)
 
 	// ECSの初期化
 	World::Instance().Init();
+
+	m_config = a_config;
 }
 
 void Engine::Release()

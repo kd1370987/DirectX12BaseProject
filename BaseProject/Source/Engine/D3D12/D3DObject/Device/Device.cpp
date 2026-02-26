@@ -1,7 +1,10 @@
 ﻿#include "Device.h"
 
-bool Device::Init()
+bool Device::Init(bool a_isDebug)
 {
+	// デバッグフラグ
+	m_isDebug = a_isDebug;
+
 	// ファクトリを生成して、アダプタをみつけて、デバイスを生成する
 	if (!CreateDxgiFactory())
 	{
@@ -14,25 +17,26 @@ bool Device::Init()
 		return false;
 	}
 
-#ifdef _DEBUG
-
-	ComPtr<ID3D12DebugDevice> _debDev;
-	if (SUCCEEDED(m_cpDevice->QueryInterface(IID_PPV_ARGS(&_debDev))))
+	if(m_isDebug)
 	{
-		_debDev->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
+		ComPtr<ID3D12DebugDevice> _debDev;
+		if (SUCCEEDED(m_cpDevice->QueryInterface(IID_PPV_ARGS(&_debDev))))
+		{
+			_debDev->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
+		}
 	}
-
-#endif // _DEBUG
-
 
 	return true;
 }
 
 void Device::Release()
 {
-	ComPtr<ID3D12DebugDevice> _dd;
-	m_cpDevice->QueryInterface(IID_PPV_ARGS(&_dd));
-	_dd->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
+	if(m_isDebug)
+	{
+		ComPtr<ID3D12DebugDevice> _dd;
+		m_cpDevice->QueryInterface(IID_PPV_ARGS(&_dd));
+		_dd->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
+	}
 }
 
 

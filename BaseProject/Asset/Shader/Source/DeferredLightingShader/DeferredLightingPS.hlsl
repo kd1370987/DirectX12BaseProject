@@ -14,6 +14,7 @@ float4 ps(VSOutput a_in) : SV_Target
 {	
 	// GBufferから情報を取得
 	float3 _albedo = g_albedoTex.Sample(g_samp, a_in.uv).rgb;	// アルベド
+	float _arpha = g_albedoTex.Sample(g_samp, a_in.uv).a;		// アルファ
 	float2 _enc = g_normalTex.Sample(g_samp, a_in.uv).rg;		// 法線
 	float3 _normal = DecsodeNormal(_enc);						// 法線を復元
 	float _depth = g_depthTex.Sample(g_samp, a_in.uv).r;		// 深度
@@ -70,5 +71,5 @@ float4 ps(VSOutput a_in) : SV_Target
 	// アンビエント
 	_outColor += g_ambientColor.rgb * _albedo;
 	
-	return float4(_outColor, 1);
+	return float4(_outColor, _arpha);
 }

@@ -62,6 +62,7 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 								if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
 								_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
 								_item.subIdx = _subIdx;
+								_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber]
 								RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
 							}
 						}

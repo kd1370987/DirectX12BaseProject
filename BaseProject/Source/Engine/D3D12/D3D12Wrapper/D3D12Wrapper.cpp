@@ -18,7 +18,7 @@ bool D3D12Wrapper::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHei
 
 	// デバイス作成
 	m_upDevice = std::make_unique<Device>();
-	if (!m_upDevice->Init()) 
+	if (!m_upDevice->Init(false)) 
 	{
 		assert(0 && "デバイス&ファクトリの生成に失敗");
 		return false;

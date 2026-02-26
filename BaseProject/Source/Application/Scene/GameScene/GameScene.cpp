@@ -310,6 +310,7 @@ void GameScene::RegistryEntity()
 		_collider->collideLayer = Layer::DiynamicObject;
 		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
 		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Stage/StageMap.gltf");
+		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Test/Scene_01/scene.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);

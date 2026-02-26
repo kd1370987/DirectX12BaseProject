@@ -8,7 +8,7 @@ public:
 	~Device(){}
 
 	// デバイスの初期化
-	bool Init();
+	bool Init(bool a_isDebug);
 	void Release();
 
 	// ゲッター
@@ -38,4 +38,6 @@ private:
 	ComPtr<ID3D12Device5> m_cpDevice5 = nullptr;		// GPUデバイス
 	ComPtr<IDXGIFactory6> m_cpDxgFactory = nullptr;	// DXGIファクトリ
 
+
+	bool m_isDebug = false;
 };

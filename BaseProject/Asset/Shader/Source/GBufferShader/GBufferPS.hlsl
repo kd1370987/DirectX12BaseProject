@@ -10,6 +10,10 @@ PSOutput ps(VSOutput a_input)
 
 	// アルベド
 	float4 _baseTex = g_mainTex.Sample(smp, _uv);
+	if(_baseTex.w < 0.5f)
+	{
+		discard;
+	}
 	_out.albedo = _baseTex * baseColor;
 
 	// 法線
