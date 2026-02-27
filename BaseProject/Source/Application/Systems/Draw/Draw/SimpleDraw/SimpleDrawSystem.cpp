@@ -26,44 +26,56 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 				WorldMatrixComponent& _worldMatComp = a_matArray[_i];
 				ModelComponent& _modelComp = a_modelArray[_i];
 
+				// 描画アイテム
 				DrawItem _item = {};
 				_item.worldMat = _worldMatComp.worldMat;
 				_item.colorScale = _modelComp.colorScale;
 				_item.emissiveScale = _modelComp.emissiveScale;
 
+				// モデル取得
+				Model* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+				if (!_model) return;
+
+				// ノード
+				auto& _dataNodes = _model->originalNodes;
+
+				// 描画ノード
+				for (auto& _nodeIdx : _model->drawMeshNodeIndices)
 				{
-					auto _id = _modelComp.modelID;
-					auto* _model = GraphicResourceManager::Instance().NGetModel(_id);
-
-					if (!_model)
+					for (auto& _meshIdx : _dataNodes[_nodeIdx].meshIndices)
 					{
-						return;
-					}
+						// 描画メッシュ取得
+						_item.pMesh = _model->spMeshVec[_meshIdx].get();
+						if (!_item.pMesh) continue;
 
-					auto& _dataNodes = _model->originalNodes;
+						// ノードのワールド行列を計算
+						DXSM::Matrix _nodeTransMat(_dataNodes[_nodeIdx].worldTransform);
+						DXSM::Matrix _worldMat(_worldMatComp.worldMat);
+						_item.worldMat = _nodeTransMat * _worldMat;
 
-					for (auto& _nodeIdx : _model->drawMeshNodeIndices)
-					{
-						for (auto& _meshIdx : _dataNodes[_nodeIdx].meshIndices)
+						// サブセットごとに描画
+						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
 						{
-						//	_item.pMesh = _dataNodes[_nodeIdx].spMesh.get();
-							_item.pMesh = _model->spMeshVec[_meshIdx].get();
-							if (!_item.pMesh) continue;
+							// 面が一枚もない場合はスキップ
+							if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
+							_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
+							_item.subIdx = _subIdx;
 
-							// ノードのワールド行列を計算
-							DirectX::XMMATRIX _nodeTransMat = DirectX::XMLoadFloat4x4(&_dataNodes[_nodeIdx].worldTransform);
-							DirectX::XMMATRIX _wM = DirectX::XMLoadFloat4x4(&_worldMatComp.worldMat);
-							DirectX::XMMATRIX _worldMat = _nodeTransMat * _wM;
-							DirectX::XMStoreFloat4x4(&_item.worldMat, _worldMat);
-							if (_item.pMesh == nullptr) continue;
-							for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
+							// アルファモードによって描画先を変える
+							Alpha _mode = _model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
+							switch (_mode)
 							{
-								// 面が一枚もない場合はスキップ
-								if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
-								_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
-								_item.subIdx = _subIdx;
-								_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber]
+							case Alpha::Opaque:
 								RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
+								break;
+							case Alpha::Mask:
+								RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
+								break;
+							case Alpha::Blend:
+								RenderContext::Instance().AddItem(RenderQueueType::Transparent, _item);
+								break;
+							default:
+								break;
 							}
 						}
 					}
@@ -72,7 +84,6 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 			}
 		},
 		Exclude<AnimatorComponent>()
-		//Exclude<>()
 	);
 
 }

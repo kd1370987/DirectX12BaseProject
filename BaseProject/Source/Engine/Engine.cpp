@@ -176,3 +176,8 @@ float Engine::GetDeltaTime()
 {
 	return m_upTimeManager->GetDeltaTime();
 }
+
+void Engine::ChangeMode(EngineConfig::Application::Mode a_mode)
+{
+	m_config.app.mode = a_mode;
+}

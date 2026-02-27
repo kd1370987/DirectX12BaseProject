@@ -43,7 +43,6 @@ void RenderContext::Init()
 	m_spRootSigManager = std::make_shared<RootSignatureManager>();
 	m_spRootSigManager->Init(10);
 
-	//m_spRootSigManager->Register(
 	m_spRootSigManager->CreateRootSig(
 		"BaseRootSig",
 		{
@@ -57,6 +56,21 @@ void RenderContext::Init()
 			RootSigSemantic::MaterialSRV,false}
 		}
 	);
+	m_spRootSigManager->CreateRootSig(
+		"ForwardLithingPass",
+		{
+			{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::ObjectCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::MaterialCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::AmbientCB,true},
+			{RootParameterType::DescriptorTable,
+			{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
+			RootSigSemantic::MaterialSRV,false}
+		}
+	);
+
 	m_spRootSigManager->CreateRootSig(
 		"QuadRendering",
 		{
@@ -436,6 +450,7 @@ void RenderContext::Excute()
 	m_pCurrentMaterial = nullptr;
 	m_pCurrentMesh = nullptr;
 	m_pCurrentPoly = nullptr;
+	
 
 	// レンダーパスの実行
 	m_upRenderGraph->Excute(this);

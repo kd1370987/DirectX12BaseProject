@@ -499,6 +499,9 @@
     <Filter Include="Source\Engine\Editor\ECSView\ComponentEdit">
       <UniqueIdentifier>{c874b40e-fee3-458b-bd40-acb4179522ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Source\ForwardLightingShader">
+      <UniqueIdentifier>{eb44b64b-2ec7-4517-8223-e7b0272a5244}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1244,7 +1247,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass\ScreenUIPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\UIComponent.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
     </ClInclude>
@@ -1259,6 +1261,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.h">
       <Filter>Source\Engine\Editor\ECSView\ComponentEdit</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\UIComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1299,6 +1304,9 @@
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli">
       <Filter>Asset\Shader\Source\Screen2DShader</Filter>
     </None>
+    <None Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingShader.hlsli">
+      <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
@@ -1336,6 +1344,15 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\Screen2DShader\Screen2DPS.hlsl">
       <Filter>Asset\Shader\Source\Screen2DShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingVS.hlsl">
+      <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingPS.hlsl">
+      <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\ForwardLightingShader\AnimationForwardLightingVS.hlsl">
+      <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

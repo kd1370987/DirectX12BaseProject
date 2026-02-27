@@ -144,6 +144,20 @@ namespace
 			// マテリアル情報コピー
 			_dstMaterial.name = _srcMaterial.name;									// マテリアル名
 
+			// アルファ
+			if (_srcMaterial.alphaMode == "OPAQUE")
+			{
+				_dstMaterial.alphaMode = Alpha::Opaque;
+			}
+			else if (_srcMaterial.alphaMode == "MASK")
+			{
+				_dstMaterial.alphaMode = Alpha::Mask;
+			}
+			else if (_srcMaterial.alphaMode == "BLEND")
+			{
+				_dstMaterial.alphaMode = Alpha::Blend;
+			}
+
 			// 材質データ
 			_dstMaterial.baseColor = _srcMaterial.baseColorFactor;				// 基本色
 			_dstMaterial.metallic = _srcMaterial.metallicFactor;				// 金属製

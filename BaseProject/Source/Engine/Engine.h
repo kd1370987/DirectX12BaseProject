@@ -59,6 +59,9 @@ public:
 	// デルタタイム取得
 	float GetDeltaTime();
 
+	// モード切替
+	void ChangeMode(EngineConfig::Application::Mode a_mode);
+
 private:
 
 	// ウィンドウクラス

@@ -35,12 +35,15 @@ void GBufferPass::CreatePass()
 
 	Resource::ID _rootSigID = m_pRootSigMana->GetID("BaseRootSig");
 
+	// 深度ステンシルステート
+	auto _depthDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);	// 深度ステンシルはデフォルトを使用
+
 	// パイプラインステート登録
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC _psoDesc = {};
 	_psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);		// ラスタライザーステート
 	_psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;				// カリングなし
 	_psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);				// ブレンドステートもデフォルト
-	_psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);	// 深度ステンシルはデフォルトを使用
+	_psoDesc.DepthStencilState = _depthDesc;								// 深度ステンシルはデフォルトを使用
 	_psoDesc.SampleMask = UINT_MAX;											// どのピクセルを描画可能にするか
 	_psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;// 三角形を描画
 	_psoDesc.NumRenderTargets = 4;											// 描画対象数
@@ -49,6 +52,7 @@ void GBufferPass::CreatePass()
 	_psoDesc.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;					// マテリアル
 	_psoDesc.RTVFormats[3] = DXGI_FORMAT_R8G8B8A8_UNORM;					// エミッシブ
 	_psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;								// 深度フォーマット（Zバッファの精度）
+	//_psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;								// 深度フォーマット（Zバッファの精度）
 	_psoDesc.SampleDesc.Count = 1;											// サンプラーは１
 	_psoDesc.SampleDesc.Quality = 0;
 	_psoDesc.InputLayout = m_pShaderMana->NGet(_vsID)->vsInputLayout;
@@ -87,6 +91,6 @@ void GBufferPass::CreatePass()
 		{_gbNormalID,AccessType::RTV,LoadOp::Clear,StoreOp::Store},
 		{_gbMaterialID,AccessType::RTV,LoadOp::Clear,StoreOp::Store},
 		{_gbEmiID,AccessType::RTV,LoadOp::Clear,StoreOp::Store},
-		{_depth,AccessType::Depth_Read,LoadOp::Load,StoreOp::Store}
+		{_depth,AccessType::Depth_Write,LoadOp::Load,StoreOp::Store}
 	};
 }

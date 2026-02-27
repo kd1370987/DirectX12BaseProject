@@ -77,7 +77,23 @@ void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
 							_item.subIdx = _subIdx;
 
 							// 描画アイテムキューに送信
-							RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
+							
+							// アルファモードによって描画先を変える
+							Alpha _mode = _model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
+							switch (_mode)
+							{
+							case Alpha::Opaque:
+								RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
+								break;
+							case Alpha::Mask:
+								RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
+								break;
+							case Alpha::Blend:
+								RenderContext::Instance().AddItem(RenderQueueType::AnimationTransparent, _item);
+								break;
+							default:
+								break;
+							}
 						}
 					}
 				}

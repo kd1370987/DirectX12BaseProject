@@ -77,7 +77,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	RegisterPass<GBufferPass>();
 	RegisterPass<AnimationGBufferPass>();
 	RegisterPass<DeferredLightingPass>();
-	RegisterPass<ScreenUIPass>();
+	//RegisterPass<ScreenUIPass>();
 
 	// パスの初期化
 	for (auto& _sp : m_spPassVec)
@@ -227,8 +227,6 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 {
 	ImGuiContex::Instance().StartWatch("RenderGraphStart");
 
-	int m_barrierSize = 0;
-
 	// コンパイル済みパスを順次実行していく
 	for (auto& _cp : m_compiledPasses)
 	{
@@ -243,8 +241,6 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 					_barrier.after
 				);
 				m_rgResourceMap[_barrier.resID].currentState = _barrier.after;
-
-				m_barrierSize++;
 			}
 		}
 

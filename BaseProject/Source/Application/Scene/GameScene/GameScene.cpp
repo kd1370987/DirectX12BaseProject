@@ -239,7 +239,7 @@ void GameScene::RegistryEntity()
 		_rayCol->dir = { 0.0f,-1.0f,0.0f };
 		_rayCol->pos = { 0.0f,1.0f,0.0f };
 		GravityComponent* _gravity = World::Instance().RefData<GravityComponent>(_player);
-		_gravity->scale = -9.f;
+		_gravity->scale = 0.f;
 		VelocityComponent* _velocity = World::Instance().RefData<VelocityComponent>(_player);
 		_velocity->value = { 0.0f,0.0f,0.0f };
 		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_player);
@@ -309,8 +309,8 @@ void GameScene::RegistryEntity()
 		_collider->layer = Layer::StaticObject;
 		_collider->collideLayer = Layer::DiynamicObject;
 		ModelComponent* _model = World::Instance().RefData<ModelComponent>(_entity);
-		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Stage/StageMap.gltf");
-		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Test/Scene_01/scene.gltf");
+		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Stage/StageMap.gltf");
+		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Test/Scene_01/scene.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = World::Instance().RefData<TRSComponent>(_entity);

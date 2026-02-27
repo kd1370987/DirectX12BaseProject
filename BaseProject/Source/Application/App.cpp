@@ -73,10 +73,20 @@ void Application::MainLoop()
 			break;
 		}
 
+		// モード切替
+		if (GetAsyncKeyState('O'))
+		{
+			m_upEngine->ChangeMode(EngineConfig::Application::Mode::Debug);
+		}
+		if (GetAsyncKeyState('P'))
+		{
+			m_upEngine->ChangeMode(EngineConfig::Application::Mode::Game);
+		}
+
+
 		// 更新
 		SceneManager::Instance().Update(m_upEngine->GetDeltaTime());
 		
-
 		// 描画
 		m_upEngine->BeginDraw();				// 描画開始
 		{

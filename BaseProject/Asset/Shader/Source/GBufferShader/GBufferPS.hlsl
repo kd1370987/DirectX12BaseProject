@@ -42,5 +42,6 @@ PSOutput ps(VSOutput a_input)
 	float4 _eTex = g_emiTex.Sample(smp, _uv);
 	_out.emissiv = _eTex * emissiveColor;
 	_out.emissiv = _eTex;
+	
 	return _out;
 }

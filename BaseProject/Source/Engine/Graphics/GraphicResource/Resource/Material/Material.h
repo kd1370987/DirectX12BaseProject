@@ -2,6 +2,13 @@
 
 class Texture;
 
+enum class Alpha
+{
+	Opaque,			// アルファ値を無視してすべてを不透明としてレンダリング
+	Mask,			// アルファ値が閾値以下なら描画しない
+	Blend			// アルファ値に基づいて背景色と描画する色を混ぜる
+};
+
 //==========================================================
 // シェーダー描画用マテリアル
 //==========================================================
@@ -25,6 +32,9 @@ struct Material
 	// 名前
 	std::string					name;
 
+	// アルファデータ
+	Alpha alphaMode = Alpha::Opaque;
+
 	// 基本色
 	uint32_t					baseTexID = 0;
 	DirectX::XMFLOAT4			baseColor = { 1,1,1,1 };
@@ -41,6 +51,6 @@ struct Material
 	// 法線マップ
 	uint32_t					normalTexID = 0;
 
-	//DescriptorHandle			srvHandle;		// SRVハンドル
-	Storage::Range			srvHandle;		// SRVハンドル
+	// SRVハンドル
+	Storage::Range			srvHandle;
 };
