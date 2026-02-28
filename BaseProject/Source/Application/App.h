@@ -2,6 +2,16 @@
 
 class Engine;
 
+struct AppConfig
+{
+	// フルスクリーンかどうか
+	bool isFullScreen = false;
+
+	// ウィンドウサイズ
+	float windowWidth = 1280;
+	float windowHegiht = 720;
+};
+
 class Application
 {
 public:
@@ -12,6 +22,11 @@ public:
 	/// </summary>
 	/// <returns>初期化に成功したらtrue</returns>
 	void Excute();
+
+	/// <summary>
+	/// アプリケーション設定を取得
+	/// </summary>
+	const AppConfig& GetConfig();
 
 private:
 
@@ -28,6 +43,9 @@ private:
 
 	// エンジン
 	std::unique_ptr<Engine> m_upEngine = nullptr;
+
+	// アプリケーション設定
+	AppConfig m_config = {};
 
 // シングルトン
 private:

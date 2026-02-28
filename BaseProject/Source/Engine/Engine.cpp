@@ -7,6 +7,8 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
+#include "Application/App.h"
+
 Engine::Engine()
 {
 }
@@ -17,6 +19,10 @@ Engine::~Engine()
 
 void Engine::Init(EngineConfig a_config)
 {
+	// ウィンドウ設定取得
+	m_windowWidth = Application::Instance().GetConfig().windowWidth;
+	m_windowHeight = Application::Instance().GetConfig().windowHegiht;
+
 	// DirectX12でGPUの詳細なエラーを確認するためのもの
 	if (a_config.graphics.init.isDebugLayer)
 	{
@@ -28,8 +34,6 @@ void Engine::Init(EngineConfig a_config)
 	}
 
 	// ウィンドウクラスの生成
-	m_windowWidth = 1280;
-	m_windowHeight = 720;
 	m_upWindow = std::make_unique<Window>();
 	if (!m_upWindow->Create(m_windowWidth, m_windowHeight, L"DirectX12", L"Window"))
 	{
