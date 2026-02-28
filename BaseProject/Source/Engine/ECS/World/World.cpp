@@ -21,21 +21,9 @@ bool World::IsInit()
 	return m_isInit;
 }
 
-void World::Clear(const ClearEdit& a_edit)
-{
-	// エンティティの全消去
-	if (a_edit.isClearEntity)
-	{
-		for (auto& _location : m_entityManager.GetAllEntityLocation())
-		{
-			if (!_location.pArchetypeChunk) continue;
-			ECS::Entity _entity = _location.pArchetypeChunk->entityData[_location.chunkIndex];
-			RemoveEntity(_entity);
-		}
-	}
-}
 void World::Release()
 {
+	
 }
 
 void World::ClaerMemory()

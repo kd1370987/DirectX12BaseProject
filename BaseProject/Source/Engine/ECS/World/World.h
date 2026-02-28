@@ -12,11 +12,6 @@
 template<typename... Excludes>
 struct Exclude {};
 
-struct ClearEdit
-{
-	bool isClearEntity = false;
-};
-
 class World
 {
 public:
@@ -36,11 +31,6 @@ public:
 	/// 初期化済みかどうか
 	/// </summary>
 	bool IsInit();
-
-	/// <summary>
-	/// エンティティ関係の初期化
-	/// </summary>
-	void Clear(const ClearEdit& a_edit);
 
 	/// <summary>
 	/// 解放

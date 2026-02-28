@@ -49,7 +49,6 @@ void GameScene::Event()
 
 void GameScene::Release()
 {
-	m_upWorld->Clear({true});
 }
 
 void GameScene::RegistryComponent()
