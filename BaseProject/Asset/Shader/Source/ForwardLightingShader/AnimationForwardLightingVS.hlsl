@@ -1,4 +1,4 @@
-#include "ForwardLightingShader.hlsli"
+#include "../../RootSignatureIncl/ForwardLightingRoot.hlsli"
 
 // 頂点シェーダー入出力構造体
 struct VSInput

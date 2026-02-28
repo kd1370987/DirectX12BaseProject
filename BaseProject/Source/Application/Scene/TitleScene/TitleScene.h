@@ -2,23 +2,21 @@
 
 #include "../BaseScene/BaseScene.h"
 
-class GameScene : public BaseScene
+class TitleScene : public BaseScene
 {
 public:
 
-	GameScene() = default;
-	~GameScene() = default;
+	TitleScene() = default;
+	~TitleScene() = default;
 
 private:
 
 	void SetSceneType() override
 	{
-		m_sceneType = SceneType::Game;
+		m_sceneType = SceneType::Title;
 	}
 
 	void Event() override;
-
-	void Release() override;
 
 	void RegistryComponent() override;
 	void RegistrySystem() override;

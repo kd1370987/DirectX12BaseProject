@@ -60,6 +60,18 @@ public:
 
 	uint8_t* RefComponentArray(ArchetypeChunk* a_chunk,const ECS::ComponentTypeID& a_typeID);
 
+	//------------------------------------------------------------------------------------------
+	// エンティティの削除
+	//------------------------------------------------------------------------------------------
+
+	/// <summary>
+	/// エンティティの消去
+	/// </summary>
+	/// <param name="a_location">削除エンティティロケーション</param>
+	/// <returns>スワップされたエンティティとインデックスを返す</returns>
+	std::pair<ECS::Entity,uint32_t> RemoveEntity(const EntityLocation& a_location);
+
+
 private:
 
 	/// <summary>

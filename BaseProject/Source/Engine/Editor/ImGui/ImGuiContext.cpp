@@ -99,9 +99,6 @@ void ImGuiContex::CallImGuiDrawData(ID3D12GraphicsCommandList* a_pCmdList)
 		// ベース
 		ImGuiID _dockSpaceID = ImGui::GetID("MyDockSpace");
 		ImGui::DockSpace(_dockSpaceID, ImGui::GetContentRegionAvail(),ImGuiDockNodeFlags_PassthruCentralNode);
-
-		ImVec2 avail = ImGui::GetContentRegionAvail();
-		AddLog("avail: %f %f\n", avail.x, avail.y);
 	}
 	ImGui::End();
 

@@ -204,6 +204,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Application\Scene\BaseScene\BaseScene.cpp" />
     <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
+    <ClCompile Include="Source\Application\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.cpp" />
@@ -342,6 +343,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Source\Application\Scene\SceneManager.h" />
     <ClInclude Include="Source\Application\Scene\SceneType.h" />
+    <ClInclude Include="Source\Application\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.h" />
@@ -459,10 +461,11 @@ exit /b 0</Command>
     <None Include="..\Library\imgui-docking\.gitattributes" />
     <None Include="..\Library\imgui-docking\.gitignore" />
     <None Include="Asset\Shader\Compiled\HLSLCompile.bat" />
+    <None Include="Asset\Shader\RootSignatureIncl\ForwardLightingRoot.hlsli" />
+    <None Include="Asset\Shader\RootSignatureIncl\GBufferRoot.hlsli" />
     <None Include="Asset\Shader\Source\CalcLighting.hlsli" />
     <None Include="Asset\Shader\Source\CalcNormal.hlsli" />
     <None Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingShader.hlsli" />
-    <None Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingShader.hlsli" />
     <None Include="Asset\Shader\Source\GBufferShader\GBufferShader.hlsli" />
     <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli" />
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli" />

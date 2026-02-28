@@ -10,6 +10,8 @@ class SystemManager
 {
 public:
 
+	void Init();
+
 	/// <summary>
 	/// システムの登録
 	/// </summary>
@@ -51,6 +53,6 @@ inline void SystemManager::Register()
 	}
 	else
 	{
-		m_systemMap.emplace(System::s_type, std::vector<std::shared_ptr<ISystem>>{ _spSys });
+		ImGuiContex::Instance().AddLog("登録済みシステムです");
 	}
 }

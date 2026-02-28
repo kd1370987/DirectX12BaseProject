@@ -3,6 +3,8 @@
 #include "../ArchetypeChunk/ArchetypeChunk.h"
 #include "../ComponentMetaRegistry/ComponentMetaRegistry.h"
 
+#include "../World/World.h"
+
 ArchetypeChunkManager::ArchetypeChunkManager()
 {
 }
@@ -145,6 +147,42 @@ uint8_t* ArchetypeChunkManager::RefComponentArray(ArchetypeChunk* a_chunk, const
 	}
 
 	return _chunk->data + _offset;
+}
+
+std::pair<ECS::Entity, uint32_t> ArchetypeChunkManager::RemoveEntity(const EntityLocation& a_location)
+{
+	// 参照
+	auto* _pChunk = a_location.pArchetypeChunk;
+	uint32_t _idx = a_location.chunkIndex;
+	uint32_t _lastIdx = _pChunk->count - 1;
+
+	// スワップしたエンティティとインデックス
+	std::pair<ECS::Entity, uint32_t> _swapEntity;
+
+	// 削除するエンティティが最後のエンティティでは無ければ
+	if (_idx != _lastIdx)
+	{
+		// すべてのコンポーネント配列に対して同じ操作をする
+		for (auto& [_compID, _layout] : _pChunk->layoutMap)
+		{
+			void* _removeData = _pChunk->data + _layout.offset + (_layout.stride * _idx);	// 削除データ
+			void* _lastData = _pChunk->data + _layout.offset + (_layout.stride * _lastIdx);	// 最後データ
+
+			// スワップ
+			std::memcpy(_removeData,_lastData,_layout.stride);
+		}
+
+		// エンティティ配列も移動
+		ECS::Entity _moved = _pChunk->entityData[_lastIdx];
+		_pChunk->entityData[_idx] = _moved;
+
+		_swapEntity = {_moved,_idx};
+	}
+
+	// チャンクのサイズをデクリメント
+	--_pChunk->count;
+
+	return _swapEntity;
 }
 
 ArchetypeChunk* ArchetypeChunkManager::CreateArchetypeChunk(const ECS::Signature& a_sig)

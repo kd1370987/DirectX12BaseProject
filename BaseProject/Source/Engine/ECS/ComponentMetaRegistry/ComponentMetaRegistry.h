@@ -39,6 +39,12 @@ public:
 	template<typename Comp>
 	ECS::ComponentTypeID RegisterType(const std::string& a_name)
 	{
+		if (ECS::Limits::INVALID_COMPONENTTYPEID != GetTypeID(typeid(Comp)))
+		{
+			ImGuiContex::Instance().AddLog("すでに登録済みです : %s\n", a_name.c_str());
+			return GetTypeID(typeid(Comp));
+		}
+
 		// トリビアルコピー可能かつ標準レイアウトであることを確認
 		static_assert(std::is_trivially_copyable_v<Comp>,"トリビアルコピー不可能");
 		static_assert(std::is_standard_layout_v<Comp>,"標準レイアウトでない");

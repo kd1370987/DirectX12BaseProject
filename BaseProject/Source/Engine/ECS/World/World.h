@@ -12,6 +12,11 @@
 template<typename... Excludes>
 struct Exclude {};
 
+struct ClearEdit
+{
+	bool isClearEntity = false;
+};
+
 class World
 {
 public:
@@ -31,6 +36,11 @@ public:
 	/// 初期化済みかどうか
 	/// </summary>
 	bool IsInit();
+
+	/// <summary>
+	/// エンティティ関係の初期化
+	/// </summary>
+	void Clear(const ClearEdit& a_edit);
 
 	/// <summary>
 	/// 解放
@@ -78,6 +88,24 @@ public:
 	/// エンティティのシグネチャを取得
 	/// </summary>
 	ECS::Signature GetSignature(const ECS::Entity& a_entity);
+
+	/// <summary>
+	/// フレーム初めにエンティティを生成する
+	/// </summary>
+	void SpawnEntity();
+
+	//------------------------------------------------------------------------------------------
+	// エンティティの削除
+	//------------------------------------------------------------------------------------------
+
+	// フレームの初めにエンティティを削除する
+	void RemoveEntityStorage();
+	
+	// 削除予定エンティティを追加
+	void AddRemoveEntity(const ECS::Entity& a_entity);
+
+	// エンティティの削除
+	void RemoveEntity(const ECS::Entity& a_entity);
 
 	//==========================================================================================
 	// 
@@ -160,31 +188,13 @@ public:
 	template<typename... Components,typename Func>
 	void ForEach(Func a_func);
 
+	/// <summary>
+	/// 除外指定もできる検索
+	/// </summary>
+	/// <typeparam name="...Components">必要なコンポーネント</typeparam>
+	/// <typeparam name="...Excludes">除外するコンポーネント</typeparam>
 	template<typename... Components,typename... Excludes, typename Func>
-	void ForEachEx(Func a_func,Exclude<Excludes...>)
-	{
-		// シグネチャを生成
-		ECS::Signature _sig;
-		(_sig.set(m_componentMetaRegistry.GetTypeID<Components>()), ...);
-		ECS::Signature _excludeSig;
-		(_excludeSig.set(m_componentMetaRegistry.GetTypeID<Excludes>()), ...);
-		// チャンクの配列を取得
-		for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_sig,_excludeSig))
-		{
-			if (!_chunk || _chunk->count == 0) continue;
-			// 操作しやすいように配列にして返す
-			auto _arrays = std::forward_as_tuple(
-				GetComponentArray<Components>(_chunk)...
-			);
-			std::apply(
-				[&](auto... a_data)
-				{
-					a_func(_chunk, _chunk->count, a_data...);
-				},
-				_arrays
-			);
-		}
-	}
+	void ForEachEx(Func a_func, Exclude<Excludes...>);
 
 private:
 
@@ -193,10 +203,17 @@ private:
 	SystemManager m_systemManager;
 	ArchetypeChunkManager m_archetypeChunkManager;
 
+	// コンポーネントメタ情報管理
 	ComponentMetaRegistry m_componentMetaRegistry;
 
+	// 初期化済み
 	bool m_isInit = false;
 
+	// 生成予定エンティティ
+	std::vector<ECS::Entity> m_spawnEntityStorage;
+
+	// 削除予定エンティティ
+	std::vector<ECS::Entity> m_removeEntityStorage;
 
 // シングルトン
 private:
@@ -266,6 +283,32 @@ inline void World::ForEach(Func a_func)
 			GetComponentArray<Components>(_chunk)...
 		);
 
+		std::apply(
+			[&](auto... a_data)
+			{
+				a_func(_chunk, _chunk->count, a_data...);
+			},
+			_arrays
+		);
+	}
+}
+
+template<typename ...Components, typename ...Excludes, typename Func>
+inline void World::ForEachEx(Func a_func, Exclude<Excludes...>)
+{
+	// シグネチャを生成
+	ECS::Signature _sig;
+	(_sig.set(m_componentMetaRegistry.GetTypeID<Components>()), ...);
+	ECS::Signature _excludeSig;
+	(_excludeSig.set(m_componentMetaRegistry.GetTypeID<Excludes>()), ...);
+	// チャンクの配列を取得
+	for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_sig, _excludeSig))
+	{
+		if (!_chunk || _chunk->count == 0) continue;
+		// 操作しやすいように配列にして返す
+		auto _arrays = std::forward_as_tuple(
+			GetComponentArray<Components>(_chunk)...
+		);
 		std::apply(
 			[&](auto... a_data)
 			{

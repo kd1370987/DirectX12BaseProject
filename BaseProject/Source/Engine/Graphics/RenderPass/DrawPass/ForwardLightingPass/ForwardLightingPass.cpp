@@ -33,7 +33,7 @@ void ForwardLightingPass::CreatePass()
 	Resource::ID _psID = m_pShaderMana->Register({
 		"Asset/Shader/Compiled/ForwardLightingShader/ForwardLightingPS.cso", ShaderStage::Pixel });
 
-	Resource::ID _rootSigID = m_pRootSigMana->GetID("BaseRootSig");
+	Resource::ID _rootSigID = m_pRootSigMana->GetID("ForwardLithingPass");
 
 	// ブレンドステート
 	D3D12_BLEND_DESC _blend = CD3DX12_BLEND_DESC(D3D12_DEFAULT);

@@ -2,14 +2,16 @@
 
 #include "BaseScene/BaseScene.h"
 #include "GameScene/GameScene.h"
+#include "TitleScene/TitleScene.h"
 
 bool SceneManager::Init()
 {
 	// シーン登録
 	RegisterScene<GameScene>(SceneType::Game);
+	RegisterScene<TitleScene>(SceneType::Title);
 
 	// 初回シーン
-	PushScene(SceneType::Game);
+	PushScene(SceneType::Title);
 
 	return true;
 }

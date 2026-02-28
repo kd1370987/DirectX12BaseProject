@@ -262,9 +262,9 @@ void RenderContext::BindCameraCB()
 		);
 	}
 
+	// 環境
 	_regiIdx =
 		m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::AmbientCB);
-
 	if (ERR_UINT != _regiIdx)
 	{
 		BindCB()->BindSemanticCBV<RootSigSemantic::AmbientCB>(
@@ -516,15 +516,21 @@ void RenderContext::BindMaterial(
 {
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
-	auto _colorScale = DirectX::XMLoadFloat4(&a_colorScale);
-	auto& _emissiveScale = a_emissiveScale;
-
 	// ベースカラー
-	auto _baseColor = DirectX::XMLoadFloat4(&a_pMaterial->baseColor);
-	DirectX::XMStoreFloat4(&m_cb3_Material.baseColorXYZW, DirectX::XMVectorMultiply(_baseColor, _colorScale));
-	m_cb3_Material.emissiveXYZ = { _emissiveScale.x,_emissiveScale.y,_emissiveScale.z,0 };
+	DXSM::Vector4 _colorScale(a_colorScale);
+	DXSM::Vector4 _materialScale(a_pMaterial->baseColor);
+	m_cb3_Material.baseColorXYZW = _materialScale *_colorScale;
+
+	// エミッシブ
+	DXSM::Vector3 _emissiveScale(a_emissiveScale);
+	DXSM::Vector3 _materialEmissiveScale(a_pMaterial->emissive);
+	DXSM::Vector3 _emiVec3 = _materialEmissiveScale * _emissiveScale;
+	m_cb3_Material.emissiveXYZ = { _emiVec3.x,_emiVec3.y,_emiVec3.z,1 };
+
+	// マテリアルラフネス
 	m_cb3_Material.metallicRoughnessXY = { a_pMaterial->metallic ,a_pMaterial->roughness,0,0 };
 
+	// マテリアルバッファバインド
 	BindCB()->BindAndAttachDataRootCBV<CBMaterial>(
 		_pCmdList,
 		3,

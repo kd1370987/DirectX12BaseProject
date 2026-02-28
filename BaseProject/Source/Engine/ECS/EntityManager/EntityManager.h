@@ -37,6 +37,9 @@ public:
 	/// </summary>
 	const EntityLocation& GetLocation(const ECS::Entity& a_entity);
 
+	// ロケーション操作
+	EntityLocation& RefEntityLocation(const ECS::Entity& a_entity);
+
 	/// <summary>
 	/// 全エンティティのロケーションを返す
 	/// </summary>

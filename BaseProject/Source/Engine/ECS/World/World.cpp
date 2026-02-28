@@ -10,12 +10,29 @@ void World::Init()
 	// アーキタイプチャンクマネージャー作成
 	m_archetypeChunkManager.Init(&m_componentMetaRegistry);
 
+	// システムマネージャー
+	m_systemManager.Init();
+
 	// 初期化済み
 	m_isInit = true;
 }
 bool World::IsInit()
 {
 	return m_isInit;
+}
+
+void World::Clear(const ClearEdit& a_edit)
+{
+	// エンティティの全消去
+	if (a_edit.isClearEntity)
+	{
+		for (auto& _location : m_entityManager.GetAllEntityLocation())
+		{
+			if (!_location.pArchetypeChunk) continue;
+			ECS::Entity _entity = _location.pArchetypeChunk->entityData[_location.chunkIndex];
+			RemoveEntity(_entity);
+		}
+	}
 }
 void World::Release()
 {
@@ -65,6 +82,50 @@ const ECS::Entity& World::GetEntity(const EntityLocation& a_location)
 ECS::Signature World::GetSignature(const ECS::Entity& a_entity)
 {
 	return m_entityManager.GetSignature(a_entity);
+}
+
+void World::SpawnEntity()
+{
+}
+
+void World::RemoveEntityStorage()
+{
+	// 消去予定エンティティがなければスキップ
+	if (m_removeEntityStorage.size() == 0) return;
+
+	// ストレージにあるのは消去
+	for (auto& _entity : m_removeEntityStorage)
+	{
+		RemoveEntity(_entity);
+	}
+
+	// 空にする
+	m_removeEntityStorage.clear();
+
+	// メモリだけ確保
+	m_removeEntityStorage.reserve(100);
+}
+
+void World::AddRemoveEntity(const ECS::Entity& a_entity)
+{
+	m_removeEntityStorage.push_back(a_entity);
+}
+
+void World::RemoveEntity(const ECS::Entity& a_entity)
+{
+	// ロケーション取得
+	const auto& _loca = m_entityManager.GetLocation(a_entity);
+	if (!_loca.pArchetypeChunk)return;
+
+	// アーキタイプから削除して、移動したエンティティの情報をもらう
+	auto [_entity,_idx] = m_archetypeChunkManager.RemoveEntity(_loca);
+
+	// エンティティマネージャーからも消去
+	m_entityManager.DestroyEntity(a_entity);
+
+	// 移動したエンティティのロケーションを変更
+	auto& _swapLoca = m_entityManager.RefEntityLocation(_entity);
+	_swapLoca.chunkIndex = _idx;
 }
 
 ECS::ComponentTypeID World::GetCompTypeID(const std::type_index& a_index)

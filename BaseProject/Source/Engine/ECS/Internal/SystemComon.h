@@ -13,6 +13,8 @@ enum class SystemType
 
 	PreDraw,
 	Draw,
+
+	Num
 };
 
 template<typename... Systems>

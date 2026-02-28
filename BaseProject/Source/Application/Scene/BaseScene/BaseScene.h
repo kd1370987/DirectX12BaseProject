@@ -35,14 +35,20 @@ public:
 
 protected:
 
+	// シーンタイプの設定
 	virtual void SetSceneType() = 0;
 
+	// シーンでの初期化・解放処理
 	virtual void Init() {};
 	virtual void Release() {};
 
-	virtual void RegistryComponent() {};
-	virtual void RegistrySystem() {};
-	virtual void RegistryEntity() {};
+	// シーンごとのECS設定
+	virtual void RegistryComponent();
+	virtual void RegistrySystem();
+	virtual void RegistryEntity();
+
+	// シーン特有のイベント処理
+	virtual void Event() {};
 
 protected:
 

@@ -32,6 +32,14 @@ cbuffer cbBones : register(b4)
 	row_major float4x4 g_mBones[300];
 };
 
+cbuffer cbAmbient : register(b5)
+{
+	float4 ambientLightColor;
+
+	float4 DL_dir;
+	float4 DL_color;
+}
+
 // サンプラー
 SamplerState g_samp : register(s0);
 

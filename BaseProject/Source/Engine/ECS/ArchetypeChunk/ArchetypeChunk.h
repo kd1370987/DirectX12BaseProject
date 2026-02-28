@@ -2,8 +2,8 @@
 
 struct Layout
 {
-	size_t offset;
-	size_t stride;
+	size_t offset;				// 配列のサイズ
+	size_t stride;				// 一つ一つのサイズ
 };
 
 struct ArchetypeChunk

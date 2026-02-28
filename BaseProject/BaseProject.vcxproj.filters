@@ -502,6 +502,12 @@
     <Filter Include="Asset\Shader\Source\ForwardLightingShader">
       <UniqueIdentifier>{eb44b64b-2ec7-4517-8223-e7b0272a5244}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\RootSignetureIncl">
+      <UniqueIdentifier>{51273623-1d16-4fb6-b87b-33a752964d39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Scene\TitleScene">
+      <UniqueIdentifier>{bc9d74b2-f3b3-46ba-ba39-98cd9450c63d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -815,6 +821,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.cpp">
       <Filter>Source\Engine\Editor\ECSView\ComponentEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Scene\TitleScene\TitleScene.cpp">
+      <Filter>Source\Application\Scene\TitleScene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1265,6 +1274,9 @@
     <ClInclude Include="Source\Application\Components\Resource\UIComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Scene\TitleScene\TitleScene.h">
+      <Filter>Source\Application\Scene\TitleScene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1304,8 +1316,11 @@
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli">
       <Filter>Asset\Shader\Source\Screen2DShader</Filter>
     </None>
-    <None Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingShader.hlsli">
-      <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
+    <None Include="Asset\Shader\RootSignatureIncl\GBufferRoot.hlsli">
+      <Filter>Asset\Shader\RootSignetureIncl</Filter>
+    </None>
+    <None Include="Asset\Shader\RootSignatureIncl\ForwardLightingRoot.hlsli">
+      <Filter>Asset\Shader\RootSignetureIncl</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

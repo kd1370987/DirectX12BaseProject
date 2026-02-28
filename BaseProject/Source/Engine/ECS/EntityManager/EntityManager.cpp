@@ -95,6 +95,13 @@ const EntityLocation& EntityManager::GetLocation(const ECS::Entity& a_entity)
 	return m_entityLocationVec[_idx];
 }
 
+EntityLocation& EntityManager::RefEntityLocation(const ECS::Entity& a_entity)
+{
+	uint32_t _idx = GetIndex(a_entity);
+
+	return m_entityLocationVec[_idx];
+}
+
 const std::vector<EntityLocation>& EntityManager::GetAllEntityLocation()
 {
 	return m_entityLocationVec;
