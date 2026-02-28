@@ -1,65 +1,66 @@
 ﻿#pragma once
 
 class BaseScene;
+class World;
+
+enum class SceneChangeType
+{
+	Puch,		// 重ねる
+	Pop,		// 一つ消去
+	Replace,	// 切り替え
+	Clear		// 全消去
+};
+
+struct SceneChangeCmd
+{
+	SceneType type = SceneType::None;
+	SceneChangeType changeType = SceneChangeType::Replace;
+};
 
 class SceneManager
 {
 public:
 
+	//------------------------------------------------------------------------------------------
+	// メイン処理
+	//------------------------------------------------------------------------------------------
+	bool Init();				// 初期化
+	void Release();				// 解放
+	void Update(float a_dt);	// 更新
+	void Draw();				// 描画
+
+	//------------------------------------------------------------------------------------------
+	// シーンの切り替え
+	//------------------------------------------------------------------------------------------
+	
 	/// <summary>
-	/// シーンの生成、初期化
+	/// シーンの切り替え命令
 	/// </summary>
-	/// <returns>成功 = true</returns>
-	bool Init();
+	/// <param name="a_nextScene">切り替え先のシーンタイプ</param>
+	/// <param name="a_changeType">切り替え方法</param>
+	void SetNextScene(const SceneType& a_nextScene,const SceneChangeType& a_changeType);
+
+	//------------------------------------------------------------------------------------------
+	// 取得
+	//------------------------------------------------------------------------------------------
 
 	/// <summary>
-	/// シーンが持つものを解放1
+	/// 現在のシーンのワールドを参照
 	/// </summary>
-	void Release();
-
-	/// <summary>
-	/// 更新処理
-	/// </summary>
-	void Update(float a_dt);
-
-	/// <summary>
-	/// 描画処理
-	/// </summary>
-	void Draw();
-
-	/// <summary>
-	/// シーンの追加
-	/// </summary>
-	/// <param name="a_sceneType">追加したいタイプ</param>
-	/// ポーズ、オプションなど
-	void PushScene(const SceneType& a_sceneType);	
-
-	/// <summary>
-	/// 最前面のシーンを消去
-	/// </summary>
-	void PopScene();
-
-	/// <summary>
-	/// シーンの切り替え
-	/// </summary>
-	/// <param name="a_sceneType">切り替え後のタイプ</param>
-	void ReplaceScene(const SceneType& a_sceneType);
+	World* RefWorld();
 
 private:
 
-	/// <summary>
-	/// シーンの登録
-	/// </summary>
-	/// <typeparam name="Scene">シーンタイプ</typeparam>
-	/// <param name="a_sceneType">登録するシーンクラス</param>
+	//------------------------------------------------------------------------------------------
+	// シーン
+	//------------------------------------------------------------------------------------------
+	void ChangeScenen();								// フレームの初めにシーンの切り替えを実行する
+	void ReplaceScene(const SceneType& a_sceneType);	// シーンの切り替え
+	void PushScene(const SceneType& a_sceneType);		// シーンを重ねる
+	void PopScene();									// 最前面のシーンを消去
+
 	template<typename Scene>
-	void RegisterScene(const SceneType& a_sceneType)
-	{
-		// ベースシーンへ変換
-		static_assert(std::is_base_of<BaseScene, Scene>::value, "ベースシーンへの変換に失敗しました");
-		// 登録
-		m_sceneCreateFuncMap[a_sceneType] = []() {return std::make_unique<Scene>(); };
-	}
+	void RegisterScene(const SceneType& a_sceneType);	// シーンの登録
 
 private:
 
@@ -67,6 +68,9 @@ private:
 	std::vector<std::unique_ptr<BaseScene>> m_upBaseSceneVec;
 	std::unordered_map<SceneType, std::function<std::unique_ptr<BaseScene>()>> m_sceneCreateFuncMap;
 	bool m_isOneUpdate = false;
+
+	// シーン切り替え命令スタック
+	std::queue<SceneChangeCmd> m_sceneChangeCmd = {};
 
 	
 private:
@@ -82,3 +86,12 @@ public:
 		return _instance;
 	}
 };
+
+template<typename Scene>
+inline void SceneManager::RegisterScene(const SceneType& a_sceneType)
+{
+	// ベースシーンへ変換
+	static_assert(std::is_base_of<BaseScene, Scene>::value, "ベースシーンへの変換に失敗しました");
+	// 登録
+	m_sceneCreateFuncMap[a_sceneType] = []() {return std::make_unique<Scene>(); };
+}

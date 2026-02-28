@@ -8,17 +8,17 @@ void ComponentEdit::Init()
 {
 }
 
-void ComponentEdit::Register(ECS::ComponentTypeID a_typeID, const std::vector<FielMeta>& a_data)
+void ComponentEdit::Register(World* a_pWorld,ECS::ComponentTypeID a_typeID, const std::vector<FielMeta>& a_data)
 {
-	EditFunc _func = [this,a_typeID,a_data](const ECS::Entity& a_entity) 
+	EditFunc _func = [this,a_pWorld,a_typeID,a_data](const ECS::Entity& a_entity) 
 		{
-			auto& _metaData = World::Instance().GetComponentMetaData(a_typeID);
+			auto& _metaData = a_pWorld->GetComponentMetaData(a_typeID);
 
 			ImGui::Text(_metaData.name.c_str());
 
 			ImGui::Separator();
 
-			uint8_t* _refData = World::Instance().NRefData(a_entity, a_typeID);
+			uint8_t* _refData = a_pWorld->NRefData(a_entity, a_typeID);
 			for (auto& _field : a_data)
 			{
 				void* _data = _refData + _field.offset;
@@ -99,7 +99,7 @@ void ComponentEdit::Register(ECS::ComponentTypeID a_typeID, const std::vector<Fi
 	m_editFuncMap[a_typeID] = _func;
 }
 
-EditFunc ComponentEdit::GetCompEditFunc(ECS::ComponentTypeID a_typeID)
+EditFunc ComponentEdit::GetCompEditFunc(World* a_pWorld, ECS::ComponentTypeID a_typeID)
 {
 	auto _it = m_editFuncMap.find(a_typeID);
 	if (_it != m_editFuncMap.end())
@@ -107,9 +107,9 @@ EditFunc ComponentEdit::GetCompEditFunc(ECS::ComponentTypeID a_typeID)
 		return _it->second;
 	}
 
-	EditFunc _func = [a_typeID](const ECS::Entity& a_entity)
+	EditFunc _func = [a_typeID,a_pWorld](const ECS::Entity& a_entity)
 		{
-			auto& _metaData = World::Instance().GetComponentMetaData(a_typeID);
+			auto& _metaData = a_pWorld->GetComponentMetaData(a_typeID);
 
 			ImGui::Text(_metaData.name.c_str());
 

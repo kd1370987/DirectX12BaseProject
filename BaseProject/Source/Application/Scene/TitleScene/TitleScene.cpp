@@ -6,7 +6,7 @@ void TitleScene::Event()
 {
 	if (GetAsyncKeyState('E'))
 	{
-		SceneManager::Instance().ReplaceScene(SceneType::Game);
+		SceneManager::Instance().SetNextScene(SceneType::Game,SceneChangeType::Replace);
 	}
 }
 

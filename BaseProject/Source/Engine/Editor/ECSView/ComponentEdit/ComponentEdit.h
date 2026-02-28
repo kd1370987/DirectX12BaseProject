@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+class World;
+
 struct FielMeta
 {
 	const char* name;
@@ -29,10 +31,10 @@ public:
 
 	void Init();
 
-	void Register(ECS::ComponentTypeID a_typeID,const std::vector<FielMeta>& a_data);
+	void Register(World* a_pWorld,ECS::ComponentTypeID a_typeID,const std::vector<FielMeta>& a_data);
 
 	
-	EditFunc GetCompEditFunc(ECS::ComponentTypeID a_typeID);
+	EditFunc GetCompEditFunc(World* a_pWorld, ECS::ComponentTypeID a_typeID);
 
 	template<typename E>
 	void DrawEnumCombo(const char* a_lable, E& a_value);

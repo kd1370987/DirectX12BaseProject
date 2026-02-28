@@ -1,11 +1,13 @@
 ﻿#pragma once
 
+class World;
+
 class BaseScene
 {
 public:
 
-	BaseScene() = default;
-	virtual ~BaseScene() = default;
+	BaseScene();
+	virtual ~BaseScene();
 	
 	/// <summary>
 	/// 初期化
@@ -33,6 +35,8 @@ public:
 	/// <returns>シーンのタイプ</returns>
 	const SceneType& GetType() {return m_sceneType;}
 
+	World* RefWorld() { return m_upWorld.get(); }
+
 protected:
 
 	// シーンタイプの設定
@@ -54,4 +58,5 @@ protected:
 
 	SceneType m_sceneType = SceneType::None;
 
+	std::unique_ptr<World> m_upWorld = nullptr;
 };

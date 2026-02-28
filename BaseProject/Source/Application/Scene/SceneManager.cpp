@@ -11,7 +11,7 @@ bool SceneManager::Init()
 	RegisterScene<TitleScene>(SceneType::Title);
 
 	// 初回シーン
-	PushScene(SceneType::Title);
+	PushScene(SceneType::Game);
 
 	return true;
 }
@@ -24,6 +24,9 @@ void SceneManager::Release()
 
 void SceneManager::Update(float a_dt)
 {
+	// シーンの切り替え
+	ChangeScenen();
+
 	// シーンの更新
 	if (!m_isOneUpdate)
 	{
@@ -79,6 +82,49 @@ void SceneManager::ReplaceScene(const SceneType& a_sceneType)
 
 	PopScene();
 	PushScene(a_sceneType);
+}
+
+World* SceneManager::RefWorld()
+{
+	return m_upBaseSceneVec.back()->RefWorld();
+}
+
+void SceneManager::SetNextScene(const SceneType& a_nextScene, const SceneChangeType& a_changeType)
+{
+	m_sceneChangeCmd.push({a_nextScene,a_changeType});
+}
+
+void SceneManager::ChangeScenen()
+{
+	// 命令がある間
+	while (!m_sceneChangeCmd.empty())
+	{
+		auto& _cmd = m_sceneChangeCmd.front();
+		switch (_cmd.changeType)
+		{
+		case SceneChangeType::Puch : 
+			PushScene(_cmd.type);
+			break;
+		case SceneChangeType::Pop:
+			PopScene();
+			break;
+		case SceneChangeType::Replace:
+			ReplaceScene(_cmd.type);
+			break;
+		case SceneChangeType::Clear:
+			while (!m_upBaseSceneVec.empty())
+			{
+				m_upBaseSceneVec.back()->Exit();
+				m_upBaseSceneVec.pop_back();
+			}
+			break;
+		default:
+			break;
+		}
+
+		// 命令消去
+		m_sceneChangeCmd.pop();
+	}
 }
 
 

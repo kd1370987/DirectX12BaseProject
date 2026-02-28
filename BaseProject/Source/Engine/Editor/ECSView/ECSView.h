@@ -4,6 +4,8 @@ struct EntityLocation;
 
 class ComponentEdit;
 
+class World;
+
 class ECSView
 {
 public:
@@ -17,12 +19,12 @@ public:
 private:
 
 	// ヒエラルキー
-	void HierarchyWindow();
+	void HierarchyWindow(World* a_pWorld);
 
-	void DrawEntity(const EntityLocation& a_location);
+	void DrawEntity(World* a_pWorld,const EntityLocation& a_location);
 
 	// インスペクターウィンドウ
-	void InspectorWindow();
+	void InspectorWindow(World* a_pWorld);
 
 private:
 

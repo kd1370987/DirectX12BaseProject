@@ -215,9 +215,8 @@ private:
 	// 削除予定エンティティ
 	std::vector<ECS::Entity> m_removeEntityStorage;
 
-// シングルトン
-private:
-
+public:
+	// コンストラクタデストラクタ
 	World();
 	~World();
 
@@ -228,14 +227,6 @@ private:
 	// ムーブ禁止
 	World(World&&) = default;
 	World& operator = (World&&) = default;
-
-public:
-
-	static World& Instance()
-	{
-		static World _instance;
-		return _instance;
-	};
 };
 
 template<typename Comp>

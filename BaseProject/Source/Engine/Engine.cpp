@@ -6,7 +6,6 @@
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
-#include "Engine/ECS/World/World.h"
 
 Engine::Engine()
 {
@@ -76,9 +75,6 @@ void Engine::Init(EngineConfig a_config)
 	// リソースマネージャーの初期化
 	GraphicResourceManager::Instance().Init();
 
-	// ECSの初期化
-	World::Instance().Init();
-
 	m_config = a_config;
 }
 
@@ -89,9 +85,6 @@ void Engine::Release()
 	{
 		D3D12Wrapper::Instance().WaitRender(_i);
 	}
-
-	// ECS解放
-	World::Instance().Release();
 
 	// リソースマネージャーの解放
 	GraphicResourceManager::Instance().Release();
