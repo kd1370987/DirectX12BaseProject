@@ -1,5 +1,4 @@
 ﻿#include "AnimationEvaluator.h"
-#include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"
 
 /// <summary>
 /// 二分探索で、指定時間から次の配列要素のkeyIndexを求める
@@ -29,7 +28,7 @@ int BinarySearchNextAnimKey(const std::vector<T>& a_list, float a_currentTime)
 	return _low;
 }
 
-void Animation::Interpolate(AnimationNode& a_node, float a_currentTime, DirectX::XMFLOAT4X4& a_rDst)
+void Animation::Interpolate(Engine::Resource::AnimationNode& a_node, float a_currentTime, DirectX::XMFLOAT4X4& a_rDst)
 {
 	bool _isChange = false;
 
@@ -49,7 +48,7 @@ void Animation::Interpolate(AnimationNode& a_node, float a_currentTime, DirectX:
 	}
 }
 
-bool Animation::InterpolateTranslations(AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
+bool Animation::InterpolateTranslations(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
 {
 	if (a_node.translations.size() == 0) return false;
 
@@ -87,7 +86,7 @@ bool Animation::InterpolateTranslations(AnimationNode& a_node, float a_currentTi
 	return true;
 }
 
-bool Animation::InterpolateRotations(AnimationNode& a_node, float a_currentTime, DXSM::Quaternion& a_resullt)
+bool Animation::InterpolateRotations(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Quaternion& a_resullt)
 {
 	if (a_node.rotations.size() == 0) return false;
 
@@ -125,7 +124,7 @@ bool Animation::InterpolateRotations(AnimationNode& a_node, float a_currentTime,
 	return true;
 }
 
-bool Animation::InterpolateScale(AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
+bool Animation::InterpolateScale(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
 {
 	if (a_node.scales.size() == 0) return false;
 
@@ -163,7 +162,7 @@ bool Animation::InterpolateScale(AnimationNode& a_node, float a_currentTime, DXS
 	return true;
 }
 
-void Animation::CalcNodeMatrix(int a_nodeIdx, int a_parentNodeIdx, Model* a_model, DirectX::XMFLOAT4X4* a_pOutLocalMat, DirectX::XMFLOAT4X4* a_pOutWorldMat)
+void Animation::CalcNodeMatrix(int a_nodeIdx, int a_parentNodeIdx, Engine::Resource::Model* a_model, DirectX::XMFLOAT4X4* a_pOutLocalMat, DirectX::XMFLOAT4X4* a_pOutWorldMat)
 {
 	const auto& _node = a_model->originalNodes[a_nodeIdx];
 

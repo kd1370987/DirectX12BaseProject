@@ -6,7 +6,6 @@
 #include "Application/Components/Resource/AnimatorComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
 
-#include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 #include "Engine/Animation/AnimationEvaluator/AnimationEvaluator.h"
 

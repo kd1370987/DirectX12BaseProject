@@ -10,10 +10,6 @@
 
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
-#include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"
-#include "Engine/Graphics/GraphicResource/Resource/Mesh/Mesh.h"
-#include "Engine/Graphics/GraphicResource/Resource/Node/Node.h"
-
 #include "Engine/Collision/Gather/Gather.h"
 #include "Engine/Collision/Collision.h"
 #include "Engine/Collision/Query/Raycast.h"
@@ -34,7 +30,7 @@ void RayCollisionSystem::Run(World& a_world, float a_dt)
 	for (auto& _ray : _rayColliderViewVec)
 	{
 		auto _result = Result{};
-		if (Collision::Raycast(_ray, _colliderViewVec, _result))
+		if (Engine::Collision::Raycast(_ray, _colliderViewVec, _result))
 		{
 			_ray.pTRS->pos = _result.hitPos;
 		}

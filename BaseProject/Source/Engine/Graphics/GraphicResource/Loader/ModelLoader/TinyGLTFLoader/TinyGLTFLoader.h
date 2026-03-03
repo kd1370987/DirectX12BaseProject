@@ -45,10 +45,6 @@ struct GLTFMaterial
 //=========================================================
 // GLTFノードデータ
 //=========================================================
-struct MeshVertex8bit;
-struct MeshFace;
-struct MeshSubset;
-
 struct GLTFNode
 {
 	//---------------------------------
@@ -69,9 +65,9 @@ struct GLTFNode
 	bool						isMesh = false;		// メッシュがあるかどうか
 	struct NodeMesh
 	{
-		std::vector<MeshVertex8bit>	vertices = {};			// 頂点配列
-		std::vector<MeshFace>	faces = {};				// 面情報配列
-		std::vector<MeshSubset> subsets = {};			// サブセット配列
+		std::vector<Engine::Resource::MeshVertex8bit>	vertices = {};			// 頂点配列
+		std::vector<Engine::Resource::MeshFace>	faces = {};				// 面情報配列
+		std::vector<Engine::Resource::MeshSubset> subsets = {};			// サブセット配列
 
 		bool					isSkinMesh = false;	// スキンメッシュはあるかどうか
 	};
@@ -81,7 +77,6 @@ struct GLTFNode
 //=========================================================
 // GLTFアニメーションデータ
 //=========================================================
-struct AnimationNode;
 
 struct GLTFAnimationData
 {
@@ -90,7 +85,7 @@ struct GLTFAnimationData
 	//---------------------------------
 	std::string									name = "none";					// 名前
 	float										maxLength = 0;			// アニメーションの長さ
-	std::vector<std::shared_ptr<AnimationNode>> spAnimationNodes = { nullptr };		// 全ノード用アニメーションデータ
+	std::vector<std::shared_ptr<Engine::Resource::AnimationNode>> spAnimationNodes = { nullptr };		// 全ノード用アニメーションデータ
 };
 
 //=========================================================

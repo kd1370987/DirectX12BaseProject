@@ -5,7 +5,7 @@
 
 namespace
 {
-	void CreateNodes(Model& a_dst, const std::shared_ptr<AssimpModel>& a_src)
+	void CreateNodes(Engine::Resource::Model& a_dst, const std::shared_ptr<AssimpModel>& a_src)
 	{
 		AssimpModel* _assimpModel = a_src.get();
 
@@ -17,25 +17,25 @@ namespace
 		{
 			// ノード情報
 			const AssimpNode& _srcNode = _assimpModel->nodes[_i];	// 元データ
-			Node& _dstNode = a_dst.originalNodes[_i];						// 出力先
+			Engine::Resource::Node& _dstNode = a_dst.originalNodes[_i];						// 出力先
 
 			// 基本情報コピー
 			if (_srcNode.spMesh)
 			{
 				// メッシュ作成
-				auto _spMesh = std::make_shared<Mesh>();
+				auto _spMesh = std::make_shared<Engine::Resource::Mesh>();
 
 				// 頂点配列作成
-				std::vector<MeshVertexFloat> _vertices = {};
+				std::vector<Engine::Resource::MeshVertexFloat> _vertices = {};
 				_vertices.resize(_srcNode.spMesh->vertices.size());
 				for (size_t _j = 0; _j < _srcNode.spMesh->vertices.size(); ++_j)
 				{
-					MeshVertexFloat _dstVertex = _srcNode.spMesh->vertices[_j];
+					Engine::Resource::MeshVertexFloat _dstVertex = _srcNode.spMesh->vertices[_j];
 					_vertices[_j] = _dstVertex;
 				}
 
 				// フェイス情報作成
-				std::vector<MeshFace> _faces;
+				std::vector<Engine::Resource::MeshFace> _faces;
 				UINT _faceCount = (UINT)_srcNode.spMesh->indices.size() / 3;
 				_faces.resize(_faceCount);
 				for (UINT _fIdx = 0; _fIdx < _faceCount; ++_fIdx)
@@ -46,11 +46,11 @@ namespace
 				}
 
 				// サブセット生成
-				MeshSubset _subset = {};
+				Engine::Resource::MeshSubset _subset = {};
 				_subset.faceStart = 0;
 				_subset.faceCount = (UINT)_faces.size() * 3;
 				_subset.materialNumber = _srcNode.spMesh->materialIndex;
-				std::vector<MeshSubset> _subsets = {};
+				std::vector<Engine::Resource::MeshSubset> _subsets = {};
 				_subsets.push_back(_subset);
 
 				// メッシュデータコピー
@@ -141,7 +141,7 @@ namespace
 			a_dst.collisionMeshNodeIndices = a_dst.drawMeshNodeIndices;
 		}
 	}
-	void CreateMaterials(Model& a_dst, const std::shared_ptr<AssimpModel>& a_src, const std::string& a_fileDir)
+	void CreateMaterials(Engine::Resource::Model& a_dst, const std::shared_ptr<AssimpModel>& a_src, const std::string& a_fileDir)
 	{
 		//=================================================
 	// マテリアル作成
@@ -153,7 +153,7 @@ namespace
 		{
 			// マテリアル情報
 			const AssimpMaterial& _srcMaterial = a_src->nodes[_i].spMesh->material;	// 元データ
-			Material& _dstMaterial = a_dst.materials[_i];							// 出力先
+			Engine::Resource::Material& _dstMaterial = a_dst.materials[_i];							// 出力先
 
 			// マテリアル情報コピー
 			_dstMaterial.name = "";									// マテリアル名
@@ -174,13 +174,13 @@ namespace
 			_dstMaterial.emissive = { 1.0f,1.0f,1.0f };					// エミッシブ
 		}
 	}
-	void CreateAnimations(Model& a_dst, const std::shared_ptr<AssimpModel>& a_src)
+	void CreateAnimations(Engine::Resource::Model& a_dst, const std::shared_ptr<AssimpModel>& a_src)
 	{
 
 	}
 }
 
-void Serialize::Assimp(Model& a_dst, std::shared_ptr<AssimpModel> a_src, const std::string& a_fileDir)
+void Serialize::Assimp(Engine::Resource::Model& a_dst, std::shared_ptr<AssimpModel> a_src, const std::string& a_fileDir)
 {
 	CreateNodes(a_dst,a_src);
 

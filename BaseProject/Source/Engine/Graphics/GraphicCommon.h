@@ -10,6 +10,7 @@ enum class RenderQueueType
 	AnimationTransparent,
 	Bloom,
 	Lighting,
+	Debug
 };
 
 enum class RenderQueueType2D

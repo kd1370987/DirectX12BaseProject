@@ -16,7 +16,7 @@ struct AssimpMaterial
 //=========================================================
 struct AssimpMesh
 {
-	std::vector<MeshVertexFloat> vertices = {};		// 頂点データの配列
+	std::vector<Engine::Resource::MeshVertexFloat> vertices = {};		// 頂点データの配列
 	std::vector<uint32_t> indices = {};			// インデックスの配列
 	AssimpMaterial material = {};				// マテリアルデータ
 

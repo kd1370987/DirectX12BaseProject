@@ -36,13 +36,13 @@ struct EngineConfig
 	} app;
 };
 
-class Engine
+class MainEngine
 {
 public:
 
 	// コンストラクタ・デストラクタ
-	Engine();
-	~Engine();
+	MainEngine();
+	~MainEngine();
 
 	// 初期化・解放
 	void Init(EngineConfig a_config);

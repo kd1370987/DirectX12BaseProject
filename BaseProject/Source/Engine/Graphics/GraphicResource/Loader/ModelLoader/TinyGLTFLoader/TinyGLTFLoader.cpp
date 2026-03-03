@@ -429,8 +429,8 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		// 作業データ
 		struct GLTFPrimitive
 		{
-			std::vector<MeshVertex8bit> vertices = {};
-			std::vector<MeshFace>       faces = {};
+			std::vector<Engine::Resource::MeshVertex8bit> vertices = {};
+			std::vector<Engine::Resource::MeshFace>       faces = {};
 
 			UINT                        materialNumber = 0;
 
@@ -661,7 +661,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 				UINT _st = static_cast<UINT>(_destNode->nodeMesh.vertices.size());
 				_destNode->nodeMesh.vertices.resize(_destNode->nodeMesh.vertices.size() + _primitive->vertices.size());
 				memcpy(&_destNode->nodeMesh.vertices[_st],
-					&_primitive->vertices[0], _primitive->vertices.size() * sizeof(MeshVertex8bit)
+					&_primitive->vertices[0], _primitive->vertices.size() * sizeof(Engine::Resource::MeshVertex8bit)
 				);
 			}
 
@@ -735,7 +735,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 		_spAnimation->name = _srcAnima.name;
 
 		// アニメーションノード
-		std::vector<std::shared_ptr<AnimationNode>> _tmpNodes;		// 一時的な作業データ準備
+		std::vector<std::shared_ptr<Engine::Resource::AnimationNode>> _tmpNodes;		// 一時的な作業データ準備
 		_tmpNodes.resize(_destModel->nodes.size());					// 配列確保
 
 		// 全チャンネル
@@ -750,7 +750,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			// 初回のみ
 			if (_destAnimaNode == nullptr)
 			{
-				_destAnimaNode = std::make_shared<AnimationNode>();
+				_destAnimaNode = std::make_shared<Engine::Resource::AnimationNode>();
 				_destAnimaNode->nodeOffset = _channel.target_node;
 			}
 
@@ -762,7 +762,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			{
 				for (UINT _kIdx = 0; _kIdx < _timeGetter.GetAccsessor()->count; ++_kIdx)
 				{
-					AnimationKeyXMFLOAT3 _vec;
+					Engine::Resource::AnimationKeyXMFLOAT3 _vec;
 
 					// 時間
 					_vec.time = _timeGetter.GetValue_Float(_kIdx) * 60.0f;		// 元が60fpsとして変換
@@ -799,7 +799,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			{
 				for (UINT _kIdx = 0; _kIdx < _timeGetter.GetAccsessor()->count; ++_kIdx)
 				{
-					AnimationKeyXMFLOAT3 _vec;
+					Engine::Resource::AnimationKeyXMFLOAT3 _vec;
 
 					// 時間
 					_vec.time = _timeGetter.GetValue_Float(_kIdx) * 60.0f;		// 元が60fpsとして変換
@@ -836,7 +836,7 @@ std::shared_ptr<GLTFModel> Load::Model(std::string_view a_filePath)
 			{
 				for (UINT _kIdx = 0; _kIdx < _timeGetter.GetAccsessor()->count; ++_kIdx)
 				{
-					AnimationKeyQuaternion _quat;
+					Engine::Resource::AnimationKeyQuaternion _quat;
 
 					// 時間
 					_quat.time = _timeGetter.GetValue_Float(_kIdx) * 60.0f;		// 元が60fpsとして変換

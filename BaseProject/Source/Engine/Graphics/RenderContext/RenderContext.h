@@ -45,9 +45,9 @@ struct DrawItem
 	RenderPassID passID = RenderPassID::ZPrePass;
 	LightingType lightingType = LightingType::PBR;
 
-	Material* pMaterial = nullptr;
+	Engine::Resource::Material* pMaterial = nullptr;
 	UINT subIdx = 0;
-	Mesh* pMesh = nullptr;
+	Engine::Resource::Mesh* pMesh = nullptr;
 
 	DirectX::XMFLOAT4X4* pBoneMatrices = nullptr;
 	UINT boneCount = 0;
@@ -63,6 +63,11 @@ struct DrawItem2D
 
 	DirectX::XMFLOAT4X4 worldMat = {};
 	DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
+};
+
+struct DebugDrawInfo
+{
+	UINT startIndex;		// インデックスバッファの開始位置
 };
 
 class RenderContext
@@ -177,95 +182,84 @@ public:
 	// 描画パス構築
 	// 
 	//============================================================================================
-
-	/// <summary>
-	/// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
-	/// </summary>
-	/// <param name="a_rootSigID">ルートシグネチャマネージャーに登録した際のID</param>
+	// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
 	void SetGraphicsRootSignature(
 		const Resource::ID& a_rootSigID
 	);
 
-	/// <summary>
-	/// パイプラインステートをセット、前回と変更がない場合はスキップ
-	/// </summary>
-	/// <param name="a_rootSigID">パイプラインステートマネージャーに登録した際のID</param>
+	// パイプラインステートをセット、前回と変更がない場合はスキップ
 	void SetGraphicPSO(
 		const Resource::ID& a_psoID
 	);
 
-	/// <summary>
-	/// 1Draw当たりのオブジェクトに対する定数
-	/// </summary>
-	/// <param name="a_uv">UV開始位置</param>
-	/// <param name="a_tile">移動値</param>
+	// 1Draw当たりのオブジェクトに対する定数
 	void BindObuje(
 		const DirectX::XMFLOAT2& a_uv = {0.0f,0.0f},
 		const DirectX::XMFLOAT2& a_tile = {1.0f,1.0f}
 	);
 
-	/// <summary>
-	/// マテリアルをSRVとして送信、その際にマテリアルの定数も送信
-	/// </summary>
-	/// <param name="a_pMaterial">マテリアルのポインタ</param>
-	/// <param name="a_colorScale">ベース色のスケール値</param>
-	/// <param name="a_emissiveScale">エミッシブのスケール値</param>
+	// マテリアルをSRVとして送信、その際にマテリアルの定数も送信
 	void BindMaterial(
-		Material* a_pMaterial,
+		Engine::Resource::Material* a_pMaterial,
 		const DirectX::XMFLOAT4& a_colorScale,
 		const DirectX::XMFLOAT3& a_emissiveScale
 	);
 
-	/// <summary>
-	/// mesh情報を送信、前回と変更がなければスキップ
-	/// </summary>
-	/// <param name="a_pMesh">メッシュポインタ</param>
-	/// <param name="a_worldMat">メッシュのワールド行列</param>
+	// mesh情報を送信、前回と変更がなければスキップ
 	void BindMesh(
-		Mesh* a_pMesh,
+		Engine::Resource::Mesh* a_pMesh,
 		const DirectX::XMFLOAT4X4& a_worldMat
 	);
 
+	// ボーン行列を送信、配列と長さを入れる
 	void BindBone(
 		const DirectX::XMFLOAT4X4* a_pMatVec,
 		UINT a_count
 	);
 
-	/// <summary>
-	/// モデルの描画
-	/// </summary>
-	/// <param name="a_pMesh"></param>
-	/// <param name="a_subIdx"></param>
+	// ビューポート設定
+	void SetViewPort();
+
+	// シザーレクト設定
+	void SetScissorRect();
+
+	// モデルの描画
 	void Draw(
-		Mesh* a_pMesh,
+		Engine::Resource::Mesh* a_pMesh,
 		UINT a_subIdx
 	);
 
-	void SetViewPort();
-	void SetScissorRect();
-
+	
+	//リソースバリア設定
 	void Transition(
 		ID3D12Resource* a_pResource,
 		D3D12_RESOURCE_STATES a_before,
 		D3D12_RESOURCE_STATES a_after
 	);
 
-
+	// バックバッファに切り替え
 	void ChangeBackBuffer();
 
-	/// <summary>
-	/// クワッド描画
-	/// </summary>
-	/// <param name="a_gpu">クワッド画面に描画するテクスチャハンドル</param>
+	
+	// クワッド描画
 	void DrawQuad();
 
-	void DrawQueue(RenderPassID a_passID,LightingType a_lightingType);
+	void DrawQueue(
+		RenderPassID a_passID,
+		LightingType a_lightingType
+	);
 
-	void DrawUIQueue(RenderQueueType2D a_type);
+	// UI描画
+	void DrawUIQueue(
+		RenderQueueType2D a_type
+	);
 
 	// レンダーグラフのテクスチャのハンドル取得
-	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle(const std::string& a_name);
+	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle(
+		const std::string& a_name
+	);
 
+	// レンダーグラフが持っているリソースを返す
 	std::vector<std::string> GetRGResourceList();
 
 private:
@@ -292,8 +286,8 @@ private:
 	// 描画コマンド
 	Resource::ID m_currentRootSigID = Resource::Limits::INVALID_ID;
 	Resource::ID m_currentPSOID = Resource::Limits::INVALID_ID;
-	Material* m_pCurrentMaterial = nullptr;
-	Mesh* m_pCurrentMesh = nullptr;
+	Engine::Resource::Material* m_pCurrentMaterial = nullptr;
+	Engine::Resource::Mesh* m_pCurrentMesh = nullptr;
 	QuadPolygon* m_pCurrentPoly = nullptr;
 
 	// ECSからの分離

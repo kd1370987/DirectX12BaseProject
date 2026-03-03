@@ -5,7 +5,7 @@
 
 namespace
 {
-	void CreateNodes(Model& a_dst, const std::shared_ptr<GLTFModel>& a_src)
+	void CreateNodes(Engine::Resource::Model& a_dst, const std::shared_ptr<GLTFModel>& a_src)
 	{
 		//=================================================
 		// ノード作成
@@ -15,25 +15,25 @@ namespace
 		{
 			// ノード情報
 			const GLTFNode& _srcNode = a_src->nodes[_i];	// 入力元
-			Node& _dstNode = a_dst.originalNodes[_i];		// 出力先
+			Engine::Resource::Node& _dstNode = a_dst.originalNodes[_i];		// 出力先
 
 			// 基本情報コピー
 			if (_srcNode.isMesh)
 			{
 				// メッシュ作成
 				//_dstNode.spMesh = std::make_shared<Mesh>();
-				auto _spMesh = std::make_shared<Mesh>();
+				auto _spMesh = std::make_shared<Engine::Resource::Mesh>();
 
 				// メッシュデータコピー
 				//if (_dstNode.spMesh)
 				if (_spMesh)
 				{
 					// 頂点配列作成
-					std::vector<MeshVertexFloat> _vertices = {};
+					std::vector<Engine::Resource::MeshVertexFloat> _vertices = {};
 					_vertices.resize(_srcNode.nodeMesh.vertices.size());
 					for (size_t _j = 0; _j < _srcNode.nodeMesh.vertices.size(); ++_j)
 					{
-						MeshVertexFloat _dstVertex = {};
+						Engine::Resource::MeshVertexFloat _dstVertex = {};
 
 						unsigned int _srcColor = _srcNode.nodeMesh.vertices[_j].color;
 						float r = ((float)((_srcColor >> 24) & 0xFF)) / 255.0f;
@@ -121,12 +121,20 @@ namespace
 		}
 
 		// 当たり判定用ノードがなければ、a_dst.drawMeshNodeと同じ割り当てを行う
-		if (!a_dst.collisionMeshNodeIndices.size())
+		if (a_dst.collisionMeshNodeIndices.size() == 0)
 		{
 			a_dst.collisionMeshNodeIndices = a_dst.drawMeshNodeIndices;
+
+			for(auto& _idx : a_dst.collisionMeshNodeIndices)
+			{
+				for (auto& _meshIdx : a_dst.originalNodes[_idx].meshIndices)
+				{
+					a_dst.spMeshVec[_meshIdx]->CreateCollision();
+				}
+			}
 		}
 	}
-	void CreateMaterials(Model& a_dst, const std::shared_ptr<GLTFModel>& a_src, const std::string& a_fileDir)
+	void CreateMaterials(Engine::Resource::Model& a_dst, const std::shared_ptr<GLTFModel>& a_src, const std::string& a_fileDir)
 	{
 		//=================================================
 		// マテリアル作成
@@ -139,7 +147,7 @@ namespace
 		{
 			// マテリアル情報
 			const GLTFMaterial& _srcMaterial = a_src->materials[_i];	// 入力元
-			Material& _dstMaterial = a_dst.materials[_i];				// 出力先
+			Engine::Resource::Material& _dstMaterial = a_dst.materials[_i];				// 出力先
 
 			// マテリアル情報コピー
 			_dstMaterial.name = _srcMaterial.name;									// マテリアル名
@@ -147,15 +155,15 @@ namespace
 			// アルファ
 			if (_srcMaterial.alphaMode == "OPAQUE")
 			{
-				_dstMaterial.alphaMode = Alpha::Opaque;
+				_dstMaterial.alphaMode = Engine::Resource::Alpha::Opaque;
 			}
 			else if (_srcMaterial.alphaMode == "MASK")
 			{
-				_dstMaterial.alphaMode = Alpha::Mask;
+				_dstMaterial.alphaMode = Engine::Resource::Alpha::Mask;
 			}
 			else if (_srcMaterial.alphaMode == "BLEND")
 			{
-				_dstMaterial.alphaMode = Alpha::Blend;
+				_dstMaterial.alphaMode = Engine::Resource::Alpha::Blend;
 			}
 
 			// 材質データ
@@ -174,7 +182,7 @@ namespace
 			);
 		}
 	}
-	void CreateAnimations(Model& a_dst, const std::shared_ptr<GLTFModel>& a_src)
+	void CreateAnimations(Engine::Resource::Model& a_dst, const std::shared_ptr<GLTFModel>& a_src)
 	{
 		//=================================================
 		// アニメーション作成
@@ -185,8 +193,8 @@ namespace
 		{
 			auto _srcAnimation = a_src->animations[_i];	// 元データ
 
-			a_dst.spAnimations[_i] = std::make_shared<AnimationData>();
-			AnimationData& _dstAnimation = *a_dst.spAnimations[_i];							// 出力先
+			a_dst.spAnimations[_i] = std::make_shared<Engine::Resource::AnimationData>();
+			Engine::Resource::AnimationData& _dstAnimation = *a_dst.spAnimations[_i];							// 出力先
 
 			// アニメーション情報コピー
 			_dstAnimation.name = _srcAnimation->name;									// 名前
@@ -196,7 +204,7 @@ namespace
 			for (UINT _nIdx = 0; _nIdx < _dstAnimation.nodes.size(); ++_nIdx)
 			{
 				auto _srcNode = _srcAnimation->spAnimationNodes[_nIdx];	// 元データ
-				AnimationNode& _dstAnimaNode = _dstAnimation.nodes[_nIdx];						// 出力先
+				Engine::Resource::AnimationNode& _dstAnimaNode = _dstAnimation.nodes[_nIdx];						// 出力先
 				// ノード情報コピー
 				_dstAnimaNode.nodeOffset = _srcNode->nodeOffset;				// 対象ノードのオフセット
 				_dstAnimaNode.translations = _srcNode->translations;			// 座標キーリスト
@@ -208,7 +216,7 @@ namespace
 	}
 }
 
-void Serialize::TinyGLTF(Model& a_dst, std::shared_ptr<GLTFModel> a_src, const std::string& a_fileDir)
+void Serialize::TinyGLTF(Engine::Resource::Model& a_dst, std::shared_ptr<GLTFModel> a_src, const std::string& a_fileDir)
 {
 	a_dst.materials.clear();
 	a_dst.originalNodes.clear();

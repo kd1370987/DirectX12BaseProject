@@ -4,13 +4,6 @@
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/D3D12/D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
-#include "Engine/Graphics/GraphicResource/Resource/Texture/Texture.h"
-
-#include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"
-#include "Engine/Graphics/GraphicResource/Resource/QuadPolygon/QuadPolygon.h"
-#include "Engine/Graphics/GraphicResource/Resource/Mesh/Mesh.h"
-#include "Engine/Graphics/GraphicResource/Resource/Node/Node.h"
-#include "Engine/Graphics/GraphicResource/Resource/Material/Material.h"
 
 #include "Engine/D3D12//D3DObject/RootSignature/RootSignature.h"
 #include "Engine/D3D12//D3DObject/PipeLineState/PipelineState.h"
@@ -95,6 +88,15 @@ void RenderContext::Init()
 		{
 			{RootParameterType::RootCBV,{},RootSigSemantic::UICB,true},
 			{RootParameterType::DescriptorTable,{RangeType::SRV},RootSigSemantic::MaterialSRV,false}
+		}
+	);
+
+	m_spRootSigManager->CreateRootSig(
+		"DebugLine",
+		{
+			{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
+			{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
 		}
 	);
 
@@ -509,7 +511,7 @@ void RenderContext::BindObuje(const DirectX::XMFLOAT2& a_uv, const DirectX::XMFL
 }
 
 void RenderContext::BindMaterial(
-	Material* a_pMaterial, 
+	Engine::Resource::Material* a_pMaterial,
 	const DirectX::XMFLOAT4& a_colorScale, 
 	const DirectX::XMFLOAT3& a_emissiveScale
 )
@@ -551,7 +553,7 @@ void RenderContext::BindMaterial(
 	}
 }
 
-void RenderContext::BindMesh(Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
+void RenderContext::BindMesh(Engine::Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
 {
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
@@ -592,7 +594,7 @@ void RenderContext::BindBone(const DirectX::XMFLOAT4X4* a_pMatVec,UINT a_count)
 	);
 }
 
-void RenderContext::Draw(Mesh* a_pMesh, UINT a_subIdx)
+void RenderContext::Draw(Engine::Resource::Mesh* a_pMesh, UINT a_subIdx)
 {
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 

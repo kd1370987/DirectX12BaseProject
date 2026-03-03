@@ -39,7 +39,7 @@ bool Application::Init()
 	_config.graphics.init.isGPUValidation = true;
 	_config.graphics.runtime.isVsync = false;
 	_config.app.mode = EngineConfig::Application::Mode::Debug;
-	m_upEngine = std::make_unique<Engine>();
+	m_upEngine = std::make_unique<MainEngine>();
 	m_upEngine->Init(_config);
 
 

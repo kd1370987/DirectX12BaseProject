@@ -78,6 +78,11 @@ public:
 	/// <returns>持っていたらture</returns>
 	bool Has(const std::string& a_key);
 
+	/// <summary>
+	/// ストレージサイズを返す
+	/// </summary>
+	size_t GetSize();
+
 private:
 
 	Resource::ID CreateID(
@@ -297,6 +302,12 @@ inline bool ResourceSlotStorage<T>::Has(const std::string& a_key)
 	auto _id = GetID(a_key);
 	bool _res = IsValid(_id);
 	return _res;
+}
+
+template<typename T>
+inline size_t ResourceSlotStorage<T>::GetSize()
+{
+	return m_dataVec.size();
 }
 
 template<typename T>

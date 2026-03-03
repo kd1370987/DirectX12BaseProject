@@ -6,7 +6,6 @@
 #include "Application/Components/Resource/AnimatorComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
 
-#include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 #include "Engine/Animation/AnimationEvaluator/AnimationEvaluator.h"
 
@@ -33,7 +32,7 @@ void AnimationSystem::Run(World& a_world, float a_dt)
 
 				// アニメーション取得
 				
-				std::shared_ptr<AnimationData> _spAni = ModelUtility::GetSPAnimation(*_pModel, _aniComp.clipID);
+				std::shared_ptr<Engine::Resource::AnimationData> _spAni = ModelUtility::GetSPAnimation(*_pModel, _aniComp.clipID);
 				if (!_spAni) return;
 
 				// すべてのアニメーションノードの行列保管を実行する

@@ -94,7 +94,7 @@ Resource::ID GraphicResourceManager::GetModel(const std::string& a_path)
 {
 	if (!m_modelStorage.Has(a_path))
 	{
-		Model _model = {};
+		Engine::Resource::Model _model = {};
 		LoadModelFromPath(_model,a_path);
 		return m_modelStorage.Add(a_path, _model);
 	}
@@ -104,17 +104,22 @@ Resource::ID GraphicResourceManager::GetModel(const std::string& a_path)
 	}
 }
 
-const Model* GraphicResourceManager::NGetModelResource(uint32_t a_modelID)
+const Engine::Resource::Model* GraphicResourceManager::NGetModelResource(uint32_t a_modelID)
 {
 	return m_modelStorage.Get(a_modelID);
 }
 
-Model* GraphicResourceManager::NGetModel(uint32_t a_modelID)
+Engine::Resource::Model* GraphicResourceManager::NGetModel(uint32_t a_modelID)
 {
 	return m_modelStorage.Ref(a_modelID);
 }
 
-void GraphicResourceManager::LoadModelFromPath(Model& a_model, const std::string& a_path)
+UINT GraphicResourceManager::GetModelResourceStorageSize()
+{
+	return static_cast<UINT>(m_modelStorage.GetSize());
+}
+
+void GraphicResourceManager::LoadModelFromPath(Engine::Resource::Model& a_model, const std::string& a_path)
 {
 	//-------------------------------------
 	// 対応形式チェック

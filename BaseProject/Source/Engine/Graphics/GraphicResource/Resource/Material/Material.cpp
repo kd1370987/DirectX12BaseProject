@@ -1,12 +1,10 @@
 ﻿#include "Material.h"
 
-#include "Engine/Graphics/GraphicResource/Resource/Texture/Texture.h"
-
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/D3D12//D3DObject/DescriptorHeap/DescriptorHeap.h"
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
-void Material::SetTexture2D(
+void Engine::Resource::Material::SetTexture2D(
 	const std::string& a_fileDir,
 	const std::string& a_baseColorTexFileName,
 	const std::string& a_metallicRoughnessTexFileName,

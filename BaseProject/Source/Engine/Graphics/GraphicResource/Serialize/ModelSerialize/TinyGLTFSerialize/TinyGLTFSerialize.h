@@ -1,9 +1,12 @@
 ﻿#pragma once
 
-struct Model;
 struct GLTFModel;
+namespace Engine::Resource
+{
+	struct Model;
+}
 
 namespace Serialize
 {
-	void TinyGLTF(Model& a_dst,std::shared_ptr<GLTFModel> a_src,const std::string& a_fileDir);
+	void TinyGLTF(Engine::Resource::Model& a_dst,std::shared_ptr<GLTFModel> a_src,const std::string& a_fileDir);
 }

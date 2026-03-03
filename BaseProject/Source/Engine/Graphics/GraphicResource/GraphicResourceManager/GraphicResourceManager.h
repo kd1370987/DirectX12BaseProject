@@ -13,7 +13,12 @@ enum class TextureUse
 class GraphicResourceManager
 {
 public:
-	
+	//==========================================================================================
+	// 
+	// マネージャーに対しての操作関連
+	// 
+	//==========================================================================================
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -23,6 +28,12 @@ public:
 	/// 解放
 	/// </summary>
 	void Release();
+
+	//==========================================================================================
+	// 
+	// テクスチャ関連
+	// 
+	//==========================================================================================
 
 	/// <summary>
 	/// テクスチャの取得
@@ -40,6 +51,12 @@ public:
 
 	const std::string& GetTexturePath(const uint32_t& a_texID);
 
+	//==========================================================================================
+	// 
+	// モデル
+	//
+	//==========================================================================================
+
 	/// <summary>
 	/// モデル取得
 	/// </summary>
@@ -51,19 +68,21 @@ public:
 	/// </summary>
 	/// <param name="a_modelID">登録ID</param>
 	/// <returns>生ポインタ</returns>
-	const Model* NGetModelResource(uint32_t a_modelID);
-	Model* NGetModel(uint32_t a_modelID);
+	const Engine::Resource::Model* NGetModelResource(uint32_t a_modelID);
+	Engine::Resource::Model* NGetModel(uint32_t a_modelID);
+
+	UINT GetModelResourceStorageSize();
 
 private:
 
 	// モデルの読み込み
-	void LoadModelFromPath(Model& a_model,const std::string& a_path);
+	void LoadModelFromPath(Engine::Resource::Model& a_model,const std::string& a_path);
 
 private:
 
 	ResourceSlotStorage<Texture> m_texStorage;
 
-	ResourceSlotStorage<Model> m_modelStorage;
+	ResourceSlotStorage<Engine::Resource::Model> m_modelStorage;
 
 private:
 

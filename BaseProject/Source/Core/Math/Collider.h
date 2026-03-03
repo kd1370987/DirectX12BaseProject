@@ -24,7 +24,7 @@ namespace Collider
 	};
 
 	bool RayVsMesh(
-		RayInfo& a_ray,
+		const RayInfo& a_ray,
 		DirectX::XMVECTOR v0,
 		DirectX::XMVECTOR v1,
 		DirectX::XMVECTOR v2,

@@ -8,6 +8,7 @@
 
 #include "../RenderGraphView/RenderGraphView.h"
 #include "../ECSView/ECSView.h"
+#include "../AssetResourceView/AssetResourceView.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
@@ -66,6 +67,9 @@ bool ImGuiContex::Init(HWND a_hwnd)
 	m_upECSView = std::make_unique<ECSView>();
 	m_upECSView->Init();
 
+	m_upAssetResourceView = std::make_unique<AssetResourceView>();
+	m_upAssetResourceView->Init();
+
 	return true;
 }
 
@@ -107,6 +111,9 @@ void ImGuiContex::CallImGuiDrawData(ID3D12GraphicsCommandList* a_pCmdList)
 
 	// ECS
 	m_upECSView->Draw();
+
+	// アセット表示
+	m_upAssetResourceView->Draw();
 
 	// ログ表示
 	m_upLog->Draw("Log");

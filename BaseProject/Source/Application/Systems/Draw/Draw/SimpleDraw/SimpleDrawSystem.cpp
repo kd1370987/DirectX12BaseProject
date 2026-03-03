@@ -33,7 +33,7 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 				_item.emissiveScale = _modelComp.emissiveScale;
 
 				// モデル取得
-				Model* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+				Engine::Resource::Model* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
 				if (!_model) return;
 
 				// ノード
@@ -62,16 +62,16 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 							_item.subIdx = _subIdx;
 
 							// アルファモードによって描画先を変える
-							Alpha _mode = _model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
+							Engine::Resource::Alpha _mode = _model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
 							switch (_mode)
 							{
-							case Alpha::Opaque:
+							case Engine::Resource::Alpha::Opaque:
 								RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
 								break;
-							case Alpha::Mask:
+							case Engine::Resource::Alpha::Mask:
 								RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
 								break;
-							case Alpha::Blend:
+							case Engine::Resource::Alpha::Blend:
 								RenderContext::Instance().AddItem(RenderQueueType::Transparent, _item);
 								break;
 							default:

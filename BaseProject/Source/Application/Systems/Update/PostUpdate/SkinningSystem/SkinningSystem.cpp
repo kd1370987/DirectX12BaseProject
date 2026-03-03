@@ -6,7 +6,6 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Resource/SkeletonPoseComponent.h"
 
-#include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 

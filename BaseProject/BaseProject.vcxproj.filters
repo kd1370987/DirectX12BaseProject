@@ -508,6 +508,24 @@
     <Filter Include="Source\Application\Scene\TitleScene">
       <UniqueIdentifier>{bc9d74b2-f3b3-46ba-ba39-98cd9450c63d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Collision\Query\CollisionMesh">
+      <UniqueIdentifier>{a75f7300-0d30-4717-ae5f-4342c6dd51bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\DrawPass\DebugLinePass">
+      <UniqueIdentifier>{e83784fd-8520-47c6-8e12-4afe4a613837}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\DebugLineShader">
+      <UniqueIdentifier>{4fb4a89d-b31e-4a0a-bca6-899dcc27166e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\AssetResourceView">
+      <UniqueIdentifier>{75f1beeb-2678-4a0c-a894-4adfa08327b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\AssetResourceView\ModelView">
+      <UniqueIdentifier>{048a82c5-b7f9-4428-b1d5-0ed76222bcb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\AssetResourceView\TextureView">
+      <UniqueIdentifier>{5fec39aa-d923-49be-b078-c0f5dd907f0f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -824,6 +842,18 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Scene\TitleScene\TitleScene.cpp">
       <Filter>Source\Application\Scene\TitleScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Collision\Query\CollisionMesh\CollisionMesh.cpp">
+      <Filter>Source\Engine\Collision\Query\CollisionMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\DebugLinePass\DebugLinePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\DebugLinePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.cpp">
+      <Filter>Source\Engine\Editor\AssetResourceView</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\AssetResourceView\ModelView\ModelView.cpp">
+      <Filter>Source\Engine\Editor\AssetResourceView\ModelView</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1277,6 +1307,18 @@
     <ClInclude Include="Source\Application\Scene\TitleScene\TitleScene.h">
       <Filter>Source\Application\Scene\TitleScene</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\Query\CollisionMesh\CollisionMesh.h">
+      <Filter>Source\Engine\Collision\Query\CollisionMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\DebugLinePass\DebugLinePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\DebugLinePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.h">
+      <Filter>Source\Engine\Editor\AssetResourceView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\AssetResourceView\ModelView\ModelView.h">
+      <Filter>Source\Engine\Editor\AssetResourceView\ModelView</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1320,6 +1362,9 @@
       <Filter>Asset\Shader\RootSignetureIncl</Filter>
     </None>
     <None Include="Asset\Shader\RootSignatureIncl\ForwardLightingRoot.hlsli">
+      <Filter>Asset\Shader\RootSignetureIncl</Filter>
+    </None>
+    <None Include="Asset\Shader\RootSignatureIncl\DebugLineRoot.hlsli">
       <Filter>Asset\Shader\RootSignetureIncl</Filter>
     </None>
   </ItemGroup>
@@ -1368,6 +1413,12 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ForwardLightingShader\AnimationForwardLightingVS.hlsl">
       <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
+      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
+      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

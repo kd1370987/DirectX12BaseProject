@@ -1,6 +1,6 @@
 ﻿#include "Mesh.h"
 
-bool Mesh::Create(
+bool Engine::Resource::Mesh::Create(
 	const std::vector<MeshVertex8bit>& a_vertices,
 	const std::vector<MeshFace>& a_face,
 	const std::vector<MeshSubset>& a_subsets,
@@ -83,7 +83,7 @@ bool Mesh::Create(
 	return true;
 }
 
-bool Mesh::CreateFloat(
+bool Engine::Resource::Mesh::CreateFloat(
 	const std::vector<MeshVertexFloat>& a_vertices,
 	const std::vector<MeshFace>& a_face,
 	const std::vector<MeshSubset>& a_subsets,
@@ -173,7 +173,25 @@ bool Mesh::CreateFloat(
 	return true;
 }
 
-void Mesh::Release()
+void Engine::Resource::Mesh::CreateCollision()
+{
+	std::vector<DirectX::XMFLOAT3> _vec;
+	_vec.resize(m_faces.size());
+	for(int _i = 0; _i < m_faces.size(); ++_i)
+	{
+		_vec[_i].x = m_faces[_i].idx[0];
+		_vec[_i].y = m_faces[_i].idx[1];
+		_vec[_i].z = m_faces[_i].idx[2];
+	}
+	
+	// 生成
+	m_opCollisionMesh = Engine::Collision::CreateMesh(
+		m_positions,
+		_vec
+	);
+}
+
+void Engine::Resource::Mesh::Release()
 {
 	m_subsets.clear();
 	m_positions.clear();

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class Engine;
+class MainEngine;
 
 struct AppConfig
 {
@@ -42,7 +42,7 @@ private:
 private:
 
 	// エンジン
-	std::unique_ptr<Engine> m_upEngine = nullptr;
+	std::unique_ptr<MainEngine> m_upEngine = nullptr;
 
 	// アプリケーション設定
 	AppConfig m_config = {};

@@ -229,6 +229,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Collision\Collision.cpp" />
     <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp" />
     <ClCompile Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.cpp" />
+    <ClCompile Include="Source\Engine\Collision\Query\CollisionMesh\CollisionMesh.cpp" />
     <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
@@ -257,6 +258,8 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\ECS\EntityManager\EntityManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\SystemManager\SystemManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\World\World.cpp" />
+    <ClCompile Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.cpp" />
+    <ClCompile Include="Source\Engine\Editor\AssetResourceView\ModelView\ModelView.cpp" />
     <ClCompile Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\ECSView\ECSView.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp" />
@@ -282,6 +285,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass\AnimationGBufferPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\DebugLinePass\DebugLinePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\DrawPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass\ForwardLightingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\GBufferPass\GBufferPass.cpp" />
@@ -373,6 +377,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Collision\Collision.h" />
     <ClInclude Include="Source\Engine\Collision\Gather\Gather.h" />
     <ClInclude Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.h" />
+    <ClInclude Include="Source\Engine\Collision\Query\CollisionMesh\CollisionMesh.h" />
     <ClInclude Include="Source\Engine\Collision\Query\Raycast.h" />
     <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Common.h" />
@@ -409,6 +414,8 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\ECS\System\ISystem\ISystem.h" />
     <ClInclude Include="Source\Engine\ECS\System\SystemBase\SystemBase.h" />
     <ClInclude Include="Source\Engine\ECS\World\World.h" />
+    <ClInclude Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.h" />
+    <ClInclude Include="Source\Engine\Editor\AssetResourceView\ModelView\ModelView.h" />
     <ClInclude Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.h" />
     <ClInclude Include="Source\Engine\Editor\ECSView\ECSView.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
@@ -439,6 +446,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass\AnimationGBufferPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\DebugLinePass\DebugLinePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\DrawPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass\ForwardLightingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\GBufferPass\GBufferPass.h" />
@@ -461,6 +469,7 @@ exit /b 0</Command>
     <None Include="..\Library\imgui-docking\.gitattributes" />
     <None Include="..\Library\imgui-docking\.gitignore" />
     <None Include="Asset\Shader\Compiled\HLSLCompile.bat" />
+    <None Include="Asset\Shader\RootSignatureIncl\DebugLineRoot.hlsli" />
     <None Include="Asset\Shader\RootSignatureIncl\ForwardLightingRoot.hlsli" />
     <None Include="Asset\Shader\RootSignatureIncl\GBufferRoot.hlsli" />
     <None Include="Asset\Shader\Source\CalcLighting.hlsli" />
@@ -475,6 +484,34 @@ exit /b 0</Command>
   </ItemGroup>
   <ItemGroup>
     <!-- <None Iclude="Asset\Shader\Source\**\*.hlsl" /> -->
+    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

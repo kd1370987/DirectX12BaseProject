@@ -1,6 +1,6 @@
 ﻿#include "Model.h"
 
-uint32_t ModelUtility::GetAnimationClipCount(const Model& a_model, const std::string& a_animeNmae)
+uint32_t ModelUtility::GetAnimationClipCount(const Engine::Resource::Model& a_model, const std::string& a_animeNmae)
 {
 	// アニメーション取得
 	for(size_t _i = 0; _i < a_model.spAnimations.size(); ++_i)
@@ -15,10 +15,10 @@ uint32_t ModelUtility::GetAnimationClipCount(const Model& a_model, const std::st
 	return MAX_ANIMATIONCLIP;
 }
 
-std::shared_ptr<AnimationData> ModelUtility::GetSPAnimation(const Model& a_model, uint32_t a_clipID)
+std::shared_ptr<Engine::Resource::AnimationData> ModelUtility::GetSPAnimation(const Engine::Resource::Model& a_model, uint32_t a_clipID)
 {
 	// アニメーション取得
-	std::shared_ptr<AnimationData> _spAni = nullptr;
+	std::shared_ptr<Engine::Resource::AnimationData> _spAni = nullptr;
 	
 	if (a_clipID < a_model.spAnimations.size())
 	{

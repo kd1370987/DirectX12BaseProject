@@ -11,6 +11,8 @@ class ECSView;
 
 class ComponentEdit;
 
+class AssetResourceView;
+
 class ImGuiContex
 {
 public:
@@ -71,6 +73,9 @@ private:
 	std::unique_ptr<RenderGraphView> m_upRGView = nullptr;
 	// ECS
 	std::unique_ptr<ECSView> m_upECSView = nullptr;
+
+	// アセットビュー
+	std::unique_ptr<AssetResourceView> m_upAssetResourceView = nullptr;
 
 	bool m_isInit = false;
 private:

@@ -3,12 +3,6 @@
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "Engine/Graphics/GraphicResource/Resource/Texture/Texture.h"
-#include "Engine/Graphics/GraphicResource/Resource/Mesh/Mesh.h"
-#include "Engine/Graphics/GraphicResource/Resource/Material/Material.h"
-#include "Engine/Graphics/GraphicResource/Resource/Animation/Animation.h"
-#include "Engine/Graphics/GraphicResource/Resource/Node/Node.h"
-
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 #ifdef _DEBUG
@@ -199,7 +193,7 @@ void AssimpLoader::LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInv
 		}
 
 		// 頂点情報代入
-		MeshVertexFloat _vertex = {};
+		Engine::Resource::MeshVertexFloat _vertex = {};
 		_vertex.pos	= { _position->x, _position->y, _position->z };		// 位置座標
 		_vertex.normal		= { _normal->x, _normal->y, _normal->z };			// 法線
 		_vertex.uv			= { _uv->x, _uv->y };								// uv座標
@@ -221,7 +215,7 @@ void AssimpLoader::LoadMesh(AssimpMesh& a_dst, const aiMesh* a_src, bool a_isInv
 
 	//頂点バッファ作成
 	auto _pVB = new VertexBuffer();
-	if (!_pVB->Create(a_dst.vertices.size(), sizeof(MeshVertexFloat), a_dst.vertices.data()))
+	if (!_pVB->Create(a_dst.vertices.size(), sizeof(Engine::Resource::MeshVertexFloat), a_dst.vertices.data()))
 	{
 		assert(0 && "頂点バッファの生成に失敗\n");
 		return;

@@ -9,15 +9,15 @@
 
 #include "Application/App.h"
 
-Engine::Engine()
+MainEngine::MainEngine()
 {
 }
 
-Engine::~Engine()
+MainEngine::~MainEngine()
 {
 }
 
-void Engine::Init(EngineConfig a_config)
+void MainEngine::Init(EngineConfig a_config)
 {
 	// ウィンドウ設定取得
 	m_windowWidth = Application::Instance().GetConfig().windowWidth;
@@ -82,7 +82,7 @@ void Engine::Init(EngineConfig a_config)
 	m_config = a_config;
 }
 
-void Engine::Release()
+void MainEngine::Release()
 {
 	// GPU同期待ち
 	for (UINT _i = 0; _i < static_cast<UINT>(CPU_FRAME_COUNT); ++_i)
@@ -125,7 +125,7 @@ void Engine::Release()
 	}
 }
 
-bool Engine::BegineFrame()
+bool MainEngine::BegineFrame()
 {
 	// フレーム開始
 	m_upTimeManager->BeginFrame();
@@ -144,19 +144,19 @@ bool Engine::BegineFrame()
 	return true;
 }
 
-void Engine::EndFrame()
+void MainEngine::EndFrame()
 {
 	// フレーム終了
 	m_upTimeManager->EndFrame(m_config.graphics.runtime.isVsync);
 }
 
-void Engine::BeginDraw()
+void MainEngine::BeginDraw()
 {
 	// 描画開始
 	D3D12Wrapper::Instance().BeginFrame();
 }
 
-void Engine::EndDraw()
+void MainEngine::EndDraw()
 {
 	// ゲームモード以外の処理
 	if (m_config.app.mode != EngineConfig::Application::Mode::Game)
@@ -169,12 +169,12 @@ void Engine::EndDraw()
 	D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.isVsync);
 }
 
-float Engine::GetDeltaTime()
+float MainEngine::GetDeltaTime()
 {
 	return m_upTimeManager->GetDeltaTime();
 }
 
-void Engine::ChangeMode(EngineConfig::Application::Mode a_mode)
+void MainEngine::ChangeMode(EngineConfig::Application::Mode a_mode)
 {
 	m_config.app.mode = a_mode;
 }

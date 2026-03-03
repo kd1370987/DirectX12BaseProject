@@ -8,7 +8,6 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
-#include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
@@ -79,16 +78,16 @@ void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
 							// 描画アイテムキューに送信
 							
 							// アルファモードによって描画先を変える
-							Alpha _mode = _model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
+							Engine::Resource::Alpha _mode = _model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
 							switch (_mode)
 							{
-							case Alpha::Opaque:
+							case Engine::Resource::Alpha::Opaque:
 								RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
 								break;
-							case Alpha::Mask:
+							case Engine::Resource::Alpha::Mask:
 								RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
 								break;
-							case Alpha::Blend:
+							case Engine::Resource::Alpha::Blend:
 								RenderContext::Instance().AddItem(RenderQueueType::AnimationTransparent, _item);
 								break;
 							default:
