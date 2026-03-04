@@ -21,6 +21,16 @@ public:
 	);
 
 	/// <summary>
+	/// 更新
+	/// </summary>
+	/// <param name="a_count">頂点数</param>
+	/// <param name="a_data">頂点配列データ</param>
+	void Update(
+		size_t a_count,
+		const void* a_data
+	);
+
+	/// <summary>
 	/// 頂点バッファビューを取得
 	/// </summary>
 	const D3D12_VERTEX_BUFFER_VIEW& View()const;				// 頂点バッファビューを取得

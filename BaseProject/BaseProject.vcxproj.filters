@@ -526,6 +526,15 @@
     <Filter Include="Source\Engine\Editor\AssetResourceView\TextureView">
       <UniqueIdentifier>{5fec39aa-d923-49be-b078-c0f5dd907f0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderContext\ShapeDraw">
+      <UniqueIdentifier>{f84af803-ebe6-4293-805e-b49bb0870354}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Shape">
+      <UniqueIdentifier>{ae837e11-32f5-4e8a-94f7-c8669d7051af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Common">
+      <UniqueIdentifier>{07b77938-0301-436b-9ed7-35f996590c7b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -854,6 +863,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\AssetResourceView\ModelView\ModelView.cpp">
       <Filter>Source\Engine\Editor\AssetResourceView\ModelView</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp">
+      <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1318,6 +1330,18 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\AssetResourceView\ModelView\ModelView.h">
       <Filter>Source\Engine\Editor\AssetResourceView\ModelView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.h">
+      <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Shape\Capsule.h">
+      <Filter>Source\Core\Shape</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Common\Color.h">
+      <Filter>Source\Engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Algorithm\Graph\GroupTopologicalSort.h">
+      <Filter>Source\Core\Algorithm\Graph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

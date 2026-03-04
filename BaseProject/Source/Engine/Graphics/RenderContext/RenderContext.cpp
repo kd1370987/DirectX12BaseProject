@@ -21,6 +21,8 @@
 #include "Engine/Graphics/OffScreen/OffScreen.h"
 
 #include "../RenderGraph/RenderGraph.h"
+
+#include "ShapeDraw/ShapeDraw.h"
 //============================================================================================
 //
 // 初期化
@@ -96,7 +98,7 @@ void RenderContext::Init()
 		{
 			{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
 			{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
-			{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
+			//{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
 		}
 	);
 
@@ -117,13 +119,23 @@ void RenderContext::Init()
 	DirectX::XMStoreFloat4(&m_cb0_camera.cameraPosXYZ, _eyePos);
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
+
+	m_upShapeDraw = std::make_unique<Engine::Graphic::ShapeDraw>();
 	
 	// フレームリソース
 	for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
 	{
+		// ルート定数バッファアロケーター
 		m_frameResource[_i].spCamAndObjectCBAllocater = std::make_shared<CBAllocater>();
 		m_frameResource[_i].spCamAndObjectCBAllocater->RootCBVCreate(
 			D3D12Wrapper::Instance().GetDevice(), 32 * 1024 * 1024
+		);
+
+		// 線描画用バッファー
+		m_frameResource[_i].shapeVertexBuffer.Create(
+			m_upShapeDraw->GetMaxCount(),
+			sizeof(Engine::Graphic::Vertex),
+			nullptr
 		);
 	}
 
@@ -198,12 +210,15 @@ void RenderContext::Shutdown()
 
 void RenderContext::BeginFrame()
 {
-	
+	UINT _currentIdx = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+
+	// 定数バッファの初期化
+	m_frameResource[_currentIdx].spCamAndObjectCBAllocater->ResetUse();
 }
 
 void RenderContext::EndFrame()
 {
-
+	m_upShapeDraw->Reset();
 }
 
 //============================================================================================
@@ -215,13 +230,6 @@ void RenderContext::SetToShader(
 	const DirectX::XMFLOAT4X4& a_worldMat
 )
 {
-	// コマンドリスト取得
-	auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
-	UINT _currentIdx = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
-
-	// 定数バッファの初期化
-	m_frameResource[_currentIdx].spCamAndObjectCBAllocater->ResetUse();
-
 	// カメラの位置を更新
 	m_cb0_camera.cameraPosXYZ = {
 		a_worldMat._41,
@@ -234,9 +242,7 @@ void RenderContext::SetToShader(
 	DirectX::XMMATRIX _wMat = DirectX::XMLoadFloat4x4(&a_worldMat);
 	DirectX::XMMATRIX _vMat = DirectX::XMMatrixInverse(nullptr, _wMat);
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, _vMat);
-	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewInvMat, _wMat);
-
-	
+	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewInvMat, _wMat);	
 }
 
 void RenderContext::BindCameraCB()
@@ -411,6 +417,11 @@ void RenderContext::ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle)
 	D3D12Wrapper::Instance().ClearDepthStencilView(a_depthHandle);
 }
 
+Engine::Graphic::ShapeDraw* RenderContext::RefShapeDraw()
+{
+	return m_upShapeDraw.get();
+}
+
 void RenderContext::AddItem(const RenderQueueType& a_type, const DrawItem& a_item)
 {
 	m_drawItemMap[a_type].push_back(a_item);
@@ -559,9 +570,11 @@ void RenderContext::BindMesh(Engine::Resource::Mesh* a_pMesh, const DirectX::XMF
 
 	// メッシュ変換行列の転送
 	m_cb2_MeshTrans.worldMat = a_worldMat;
+	UINT _regiIdx =
+		m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MeshTransCB);
 	BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
 		_pCmdList,
-		2,
+		_regiIdx,
 		m_cb2_MeshTrans
 	);
 
@@ -724,6 +737,41 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetImGuiGPUHandle(const std::string& 
 std::vector<std::string> RenderContext::GetRGResourceList()
 {
 	return m_upRenderGraph->GetRGResourceList();
+}
+
+void RenderContext::SetPrimitive(D3D_PRIMITIVE_TOPOLOGY a_topology)
+{
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+
+	// プリミティブトポロジーセット
+	_pCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+void RenderContext::SetRasterizerFillMode(D3D12_FILL_MODE a_fillMode)
+{
+
+}
+
+void RenderContext::ShapeDraw()
+{
+	// フレーム情報
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+	auto _currentIdx = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+
+	// フレーム頂点バッファ更新
+	UINT _vertexCount = static_cast<UINT>(m_upShapeDraw->GetVertexVec().size());
+	m_frameResource[_currentIdx].shapeVertexBuffer.Update(
+		_vertexCount,
+		m_upShapeDraw->GetVertexVec().data()
+	);
+
+	// 頂点バッファ送信
+	_pCmdList->IASetVertexBuffers(0, 1, &m_frameResource[_currentIdx].shapeVertexBuffer.View());
+
+	// 描画
+	_pCmdList->DrawInstanced(
+		_vertexCount, 1, 0, 0
+	);
 }
 
 RenderContext::RenderContext()

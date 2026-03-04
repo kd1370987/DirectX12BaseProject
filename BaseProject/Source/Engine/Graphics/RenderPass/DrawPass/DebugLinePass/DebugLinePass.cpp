@@ -10,12 +10,18 @@ void DebugLinePass::Excute(RenderContext* a_pCtx)
 {
 	Begin(a_pCtx);
 
-	DrawQueue(a_pCtx, RenderQueueType::Opaque);
-	DrawQueue(a_pCtx, RenderQueueType::AnimationOpaque);
-	DrawQueue(a_pCtx, RenderQueueType::Transparent);
-	DrawQueue(a_pCtx, RenderQueueType::AnimationTransparent);
+	a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	DrawQueue(a_pCtx, RenderQueueType::Debug);
+	auto& _draws = a_pCtx->GetItemVec(RenderQueueType::Debug);
+	if (_draws.size() == 0) return;
+	for (auto& _item : _draws)
+	{
+		a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
+
+		a_pCtx->Draw(_item.pMesh, _item.subIdx);
+	}
+
+	a_pCtx->ShapeDraw();
 
 	End(a_pCtx);
 }
@@ -32,15 +38,16 @@ void DebugLinePass::CreatePass()
 		.NumElements = 1
 	};
 	Resource::ID _vsID = m_pShaderMana->Register(
-		{ "Asset/Shader/Compiled/DebugLineShader/DebugLineVS.hlsl", ShaderStage::Vertex ,&_desc });
+		{ "Asset/Shader/Compiled/DebugLineShader/DebugLineVS.cso", ShaderStage::Vertex ,&_desc });
 	Resource::ID _psID = m_pShaderMana->Register(
-		{ "Asset/Shader/Compiled/DebugLineShader/DebugLinePS.hlsl", ShaderStage::Pixel });
+		{ "Asset/Shader/Compiled/DebugLineShader/DebugLinePS.cso", ShaderStage::Pixel });
 
 	// ルートシグネチャ
 	Resource::ID _rootSigID = m_pRootSigMana->GetID("DebugLine");
 
 	// 深度ステンシルステート
 	auto _depthDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);	// 深度ステンシルはデフォルトを使用
+	_depthDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 
 
@@ -48,6 +55,7 @@ void DebugLinePass::CreatePass()
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC _psoDesc = {};
 	_psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);		// ラスタライザーステート
 	_psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;				// カリングなし
+	_psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;			// ワイヤーフレーム描画
 	_psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);				// ブレンドステートもデフォルト
 	_psoDesc.DepthStencilState = _depthDesc;								// 深度ステンシルはデフォルトを使用
 	_psoDesc.SampleMask = UINT_MAX;											// どのピクセルを描画可能にするか
@@ -72,7 +80,7 @@ void DebugLinePass::CreatePass()
 
 	m_passDesc.queueType = RenderQueueType::Opaque;
 
-	auto _mainTexID = m_pRenderGraph->GetID("MainTexture");
+	auto _mainTexID = m_pRenderGraph->GetID("MainColor");
 	auto _depthTexID = m_pRenderGraph->GetID("Depth");
 
 	// 入力元

@@ -58,6 +58,23 @@ bool VertexBuffer::Create(
 	return true;
 }
 
+void VertexBuffer::Update(size_t a_count, const void* a_data)
+{
+	// バッファーサイズ
+	size_t _bufferSize = a_count * m_view.StrideInBytes;
+
+	// マップして更新
+	void* _ptr = nullptr;
+	m_pBuffer->Map(0,nullptr,&_ptr);
+
+	std::memcpy(_ptr,a_data,_bufferSize);
+
+	m_pBuffer->Unmap(0, nullptr);
+
+	// ビュー情報修正
+	m_view.SizeInBytes = static_cast<UINT>(_bufferSize);
+}
+
 const D3D12_VERTEX_BUFFER_VIEW& VertexBuffer::View() const
 {
 	return m_view;

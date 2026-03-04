@@ -282,6 +282,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.cpp" />
     <ClCompile Include="Source\Engine\Graphics\OffScreen\OffScreen.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass\AnimationGBufferPass.cpp" />
@@ -363,10 +364,12 @@ exit /b 0</Command>
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h" />
+    <ClInclude Include="Source\Core\Algorithm\Graph\GroupTopologicalSort.h" />
     <ClInclude Include="Source\Core\Algorithm\Graph\TopologicalSort.h" />
     <ClInclude Include="Source\Core\Core.h" />
     <ClInclude Include="Source\Core\Math\Alignment.h" />
     <ClInclude Include="Source\Core\Math\Collider.h" />
+    <ClInclude Include="Source\Core\Shape\Capsule.h" />
     <ClInclude Include="Source\Core\Storage\FreeRange\FreeRange.h" />
     <ClInclude Include="Source\Core\Time\DeltaTime\DeltaTime.h" />
     <ClInclude Include="Source\Core\Time\FPSController\FPSController.h" />
@@ -379,6 +382,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.h" />
     <ClInclude Include="Source\Engine\Collision\Query\CollisionMesh\CollisionMesh.h" />
     <ClInclude Include="Source\Engine\Collision\Query\Raycast.h" />
+    <ClInclude Include="Source\Engine\Common\Color.h" />
     <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Common.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.h" />
@@ -443,6 +447,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.h" />
     <ClInclude Include="Source\Engine\Graphics\OffScreen\OffScreen.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass\AnimationGBufferPass.h" />

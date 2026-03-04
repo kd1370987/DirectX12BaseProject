@@ -70,6 +70,11 @@ struct DebugDrawInfo
 	UINT startIndex;		// インデックスバッファの開始位置
 };
 
+namespace Engine::Graphic
+{
+	class ShapeDraw;
+}
+
 class RenderContext
 {
 public:
@@ -79,6 +84,7 @@ public:
 	{
 		// カメラとオブジェクトの定数バッファアロケーター
 		std::shared_ptr<CBAllocater> spCamAndObjectCBAllocater = nullptr;
+		VertexBuffer shapeVertexBuffer;
 	};
 
 
@@ -157,6 +163,8 @@ public:
 
 	void ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle);
 
+	Engine::Graphic::ShapeDraw* RefShapeDraw();
+
 	//============================================================================================
 	// 
 	// 描画コマンド
@@ -174,8 +182,6 @@ public:
 	void Excute();
 
 	void AddItem(const DrawItem& a_item);
-
-	
 
 	//============================================================================================
 	// 
@@ -262,6 +268,15 @@ public:
 	// レンダーグラフが持っているリソースを返す
 	std::vector<std::string> GetRGResourceList();
 
+	// プリミティブトポロジーの設定
+	void SetPrimitive(D3D_PRIMITIVE_TOPOLOGY a_topology);
+
+	// ラスタライザーモード設定
+	void SetRasterizerFillMode(D3D12_FILL_MODE a_fillMode);
+
+	// 形状描画
+	void ShapeDraw();
+
 private:
 
 	// 1フレームで消費するリソース
@@ -273,6 +288,9 @@ private:
 	std::shared_ptr<GraphicsPSOManager>		m_spGraphicsPSOManager	= nullptr;
 
 	std::unique_ptr<OffScreen> m_upOffScreen = nullptr;
+
+	// 形状描画クラス
+	std::unique_ptr<Engine::Graphic::ShapeDraw> m_upShapeDraw = nullptr;
 
 	// 定数バッファ
 	CBCamera m_cb0_camera = {};

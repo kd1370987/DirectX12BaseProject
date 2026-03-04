@@ -7,6 +7,7 @@
 #include "../RenderPass/DrawPass/AnimationGBufferPass/AnimationGBufferPass.h"
 #include "../RenderPass/DrawPass/ScreenUIPass/ScreenUIPass.h"
 #include "../RenderPass/OffScreenPass/DeferredLightingPass/DeferredLightingPass.h"
+#include "../RenderPass/DrawPass/DebugLinePass/DebugLinePass.h"
 
 #include "../RenderContext/RenderContext.h"
 
@@ -77,6 +78,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	RegisterPass<GBufferPass>();
 	RegisterPass<AnimationGBufferPass>();
 	RegisterPass<DeferredLightingPass>();
+	RegisterPass<DebugLinePass>();
 	//RegisterPass<ScreenUIPass>();
 
 	// パスの初期化
@@ -122,6 +124,29 @@ void RenderGraph::Compile()
 			return false;
 		}
 	);
+
+	// ソート配列の作成
+	Algorithm::Graph::GroupTopologicalSort(
+		m_spPassVec,
+		m_groupSortedPassed,
+		[&](auto& a, auto& b)
+		{
+			// 依存があるかどうか
+			for (auto& _write : b.GetDesc().writeResource)
+			{
+				for (auto& _read : a.GetDesc().readResource)
+				{
+					if (_write == _read)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	);
+
+	
 
 	// リソース作成用にリソースの使い方を収集
 	for (auto* _pass : m_sortedPassed)

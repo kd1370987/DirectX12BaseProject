@@ -6,6 +6,8 @@
 #include "Application/Components/Resource/ModelComponent.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/Graphics/RenderContext/ShapeDraw/ShapeDraw.h"
+
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 #include "Application/Components/Resource/AnimatorComponent.h"
@@ -67,16 +69,26 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 							{
 							case Engine::Resource::Alpha::Opaque:
 								RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
+								RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Mask:
 								RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
+								RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Blend:
 								RenderContext::Instance().AddItem(RenderQueueType::Transparent, _item);
+								RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
 								break;
 							default:
 								break;
 							}
+						}
+
+						// 当たり判定描画
+						auto& _coll = _item.pMesh->GetCollision();
+						for (auto& _cell : _coll.grid.cellVec)
+						{
+							RenderContext::Instance().RefShapeDraw()->AABB(_cell.box);
 						}
 					}
 				}

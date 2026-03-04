@@ -154,6 +154,9 @@ void MainEngine::BeginDraw()
 {
 	// 描画開始
 	D3D12Wrapper::Instance().BeginFrame();
+
+	// 描画フレームリソース
+	RenderContext::Instance().BeginFrame();
 }
 
 void MainEngine::EndDraw()
@@ -164,6 +167,9 @@ void MainEngine::EndDraw()
 		// エディター描画
 		ImGuiContex::Instance().CallImGuiDrawData(D3D12Wrapper::Instance().GetCommandList());
 	}
+
+	// 描画フレームリソース
+	RenderContext::Instance().EndFrame();
 
 	// 描画終了
 	D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.isVsync);

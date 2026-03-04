@@ -16,10 +16,10 @@ cbuffer cbTransform : register(b1)
 }
 
 // ボーン行列
-cbuffer cbBones : register(b2)
-{
-	row_major float4x4 boneMats[300];
-};
+//cbuffer cbBones : register(b2)
+//{
+//	row_major float4x4 boneMats[300];
+//};
 
 // 頂点シェーダー入力構造体
 struct VSInput

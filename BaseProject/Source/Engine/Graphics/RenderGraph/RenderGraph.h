@@ -116,7 +116,8 @@ private:
 
 	// パスの保管場所
 	std::vector<std::shared_ptr<RenderPass>> m_spPassVec = {};
-	std::vector<RenderPass*> m_sortedPassed = {};			// ソート後のパス
+	std::vector<RenderPass*> m_sortedPassed = {};							// ソート後のパス
+	std::vector<std::vector<RenderPass*>> m_groupSortedPassed = {};			// ソート後のパス
 
 	// リソース仕様書のストレージ
 	SlotStorage<ResourceDesc> m_resourceStorage = {};
