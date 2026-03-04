@@ -77,9 +77,10 @@ void GBufferPass::CreatePass()
 	auto _gbEmiID = m_pRenderGraph->GetID("GBufferEmissiv");
 
 	// 入力元
+	m_passDesc.readResource.push_back(_depth);
 
 	// 出力先
-	m_passDesc.writeResource.push_back(_depth);			// ZPreの後でもこれ必要
+	//m_passDesc.writeResource.push_back(_depth);			// ZPreの後でもこれ必要
 	m_passDesc.writeResource.push_back(_gbAlbedoID);
 	m_passDesc.writeResource.push_back(_gbNormalID);
 	m_passDesc.writeResource.push_back(_gbMaterialID);

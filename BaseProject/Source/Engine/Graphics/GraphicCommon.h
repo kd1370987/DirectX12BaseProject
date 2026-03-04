@@ -51,6 +51,12 @@ struct AccessResource
 	StoreOp store = StoreOp::Store;
 };
 
+struct ResourceHandle
+{
+	Resource::ID id;
+	uint32_t version;
+};
+
 struct PassDesc
 {
 	// パスの識別名

@@ -51,6 +51,11 @@ struct ResourceDesc
 };
 
 
+struct RGresourceVersion
+{
+	uint32_t writerPass;
+};
+
 struct RGResource
 {
 	Resource::ID id = Resource::Limits::INVALID_ID;
@@ -61,6 +66,8 @@ struct RGResource
 
 	D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
 	uint32_t lastWritePass = 0;
+
+	std::vector<RGresourceVersion> versionVec = {};
 };
 
 struct RGBarrier
@@ -114,9 +121,15 @@ public:
 
 private:
 
+	void ReadVersion(uint32_t a_writePass);
+
+	void RiteVersion(uint32_t a_writePass);
+
+private:
+
 	// パスの保管場所
 	std::vector<std::shared_ptr<RenderPass>> m_spPassVec = {};
-	std::vector<RenderPass*> m_sortedPassed = {};							// ソート後のパス
+	//std::vector<RenderPass*> m_sortedPassed = {};							// ソート後のパス
 	std::vector<std::vector<RenderPass*>> m_groupSortedPassed = {};			// ソート後のパス
 
 	// リソース仕様書のストレージ

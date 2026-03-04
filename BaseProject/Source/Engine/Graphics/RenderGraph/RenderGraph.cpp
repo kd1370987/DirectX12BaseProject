@@ -79,7 +79,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	RegisterPass<AnimationGBufferPass>();
 	RegisterPass<DeferredLightingPass>();
 	RegisterPass<DebugLinePass>();
-	//RegisterPass<ScreenUIPass>();
+	RegisterPass<ScreenUIPass>();
 
 	// パスの初期化
 	for (auto& _sp : m_spPassVec)
@@ -96,7 +96,7 @@ void RenderGraph::Release()
 	m_compiledPasses.clear();
 	m_resourceStorage.Release();
 	m_rgResourceMap.clear();
-	m_sortedPassed.clear();
+	//m_sortedPassed.clear();
 	m_spPassVec.clear();
 }
 
@@ -105,25 +105,39 @@ void RenderGraph::Compile()
 	m_compiledPasses.clear();
 
 	// ソート配列の作成
-	Graph::TopologicalSort(
-		m_spPassVec,
-		m_sortedPassed,
-		[&](auto& a, auto& b)
+	//Graph::TopologicalSort(
+	//	m_spPassVec,
+	//	m_sortedPassed,
+	//	[&](auto& a, auto& b)
+	//	{
+	//		// 依存があるかどうか
+	//		for (auto& _write : b.GetDesc().writeResource)
+	//		{
+	//			for (auto& _read : a.GetDesc().readResource)
+	//			{
+	//				if (_write == _read)
+	//				{
+	//					return true;
+	//				}
+	//			}
+	//		}
+	//		return false;
+	//	}
+	//);
+
+	// リソースのバージョン作成
+	for (auto& _pass : m_spPassVec)
+	{
+		for (auto& _readID : _pass->GetDesc().readResource)
 		{
-			// 依存があるかどうか
-			for (auto& _write : b.GetDesc().writeResource)
-			{
-				for (auto& _read : a.GetDesc().readResource)
-				{
-					if (_write == _read)
-					{
-						return true;
-					}
-				}
-			}
-			return false;
+			
 		}
-	);
+
+		for (auto& _writeID : _pass->GetDesc().writeResource)
+		{
+
+		}
+	}
 
 	// ソート配列の作成
 	Algorithm::Graph::GroupTopologicalSort(
@@ -149,29 +163,33 @@ void RenderGraph::Compile()
 	
 
 	// リソース作成用にリソースの使い方を収集
-	for (auto* _pass : m_sortedPassed)
+	//for (auto* _pass : m_sortedPassed)
+	for (auto& _group : m_groupSortedPassed)
 	{
-		for (const AccessResource& _access : _pass->GetDesc().resourceAccessVec)
+		for(auto* _pass : _group)
 		{
-			if (_access.type == AccessType::SRV)
+			for (const AccessResource& _access : _pass->GetDesc().resourceAccessVec)
 			{
-				m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::ShaderRead;
-			}
-			if (_access.type == AccessType::RTV)
-			{
-				m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::RenderTarget;
-			}
-			if (_access.type == AccessType::UAV)
-			{
-				m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::ShaderWrite;
-			}
-			if (_access.type == AccessType::Depth_Read)
-			{
-				m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::DepthStencil;
-			}
-			if (_access.type == AccessType::Depth_Write)
-			{
-				m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::DepthStencil;
+				if (_access.type == AccessType::SRV)
+				{
+					m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::ShaderRead;
+				}
+				if (_access.type == AccessType::RTV)
+				{
+					m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::RenderTarget;
+				}
+				if (_access.type == AccessType::UAV)
+				{
+					m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::ShaderWrite;
+				}
+				if (_access.type == AccessType::Depth_Read)
+				{
+					m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::DepthStencil;
+				}
+				if (_access.type == AccessType::Depth_Write)
+				{
+					m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::DepthStencil;
+				}
 			}
 		}
 	}
@@ -196,55 +214,60 @@ void RenderGraph::Compile()
 	}
 
 	// リソース実態の作成
-	for (uint32_t _passIdx = 0; _passIdx < m_sortedPassed.size(); ++_passIdx)
+	//for (uint32_t _passIdx = 0; _passIdx < m_sortedPassed.size(); ++_passIdx)
+	for (uint32_t _groupIdx = 0; _groupIdx < m_groupSortedPassed.size(); ++_groupIdx)
 	{
-		auto* _pass = m_sortedPassed[_passIdx];
-		CompiledPass _cp;
-		_cp.pPass = _pass;
-
-		// リソース遷移作成
-		for (auto _access : _pass->GetDesc().resourceAccessVec)
+		auto& _group = m_groupSortedPassed[_groupIdx];
+		for(uint32_t _passIdx = 0; _passIdx < m_groupSortedPassed[_groupIdx].size(); ++_passIdx)
 		{
-			D3D12_RESOURCE_STATES _next = D3D12_RESOURCE_STATE_COMMON;
-			if (_access.type == AccessType::SRV)
+			auto* _pass = _group[_passIdx];
+			CompiledPass _cp;
+			_cp.pPass = _pass;
+
+			// リソース遷移作成
+			for (auto _access : _pass->GetDesc().resourceAccessVec)
 			{
-				_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-			}
-			if (_access.type == AccessType::RTV)
-			{
-				_next = D3D12_RESOURCE_STATE_RENDER_TARGET;
-			}
-			if (_access.type == AccessType::UAV)
-			{
-				_next = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-			}
-			if (_access.type == AccessType::Depth_Read)
-			{
-				_next = D3D12_RESOURCE_STATE_DEPTH_READ;
-			}
-			if (_access.type == AccessType::Depth_Write)
-			{
-				_next = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+				D3D12_RESOURCE_STATES _next = D3D12_RESOURCE_STATE_COMMON;
+				if (_access.type == AccessType::SRV)
+				{
+					_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+				}
+				if (_access.type == AccessType::RTV)
+				{
+					_next = D3D12_RESOURCE_STATE_RENDER_TARGET;
+				}
+				if (_access.type == AccessType::UAV)
+				{
+					_next = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+				}
+				if (_access.type == AccessType::Depth_Read)
+				{
+					_next = D3D12_RESOURCE_STATE_DEPTH_READ;
+				}
+				if (_access.type == AccessType::Depth_Write)
+				{
+					_next = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+				}
+
+				auto& _res = m_rgResourceMap[_access.id];
+				if (_res.currentState != _next)
+				{
+					_cp.barrierVec.push_back(
+						{
+							_res.spRGTexture.get(),
+							_res.currentState,
+							_next,
+							_res.id
+						}
+					);
+					_res.currentState = _next;
+				}
 			}
 
-			auto& _res = m_rgResourceMap[_access.id];
-			if (_res.currentState != _next)
-			{
-				_cp.barrierVec.push_back(
-					{
-						_res.spRGTexture.get(),
-						_res.currentState,
-						_next,
-						_res.id
-					}
-				);
-				_res.currentState = _next;
-			}
+			// 実行データに入れていく
+			m_compiledPasses.push_back(_cp);
+			ImGuiContex::Instance().AddLog("PassName : %s\n", _cp.pPass->GetDesc().name.c_str());
 		}
-
-		// 実行データに入れていく
-		m_compiledPasses.push_back(_cp);
-		ImGuiContex::Instance().AddLog("PassName : %s\n",_cp.pPass->GetDesc().name.c_str());
 	}
 }
 
