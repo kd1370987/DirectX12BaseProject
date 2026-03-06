@@ -29,13 +29,13 @@ void ScreenUIPass::CreatePass()
 	};
 
 	// シェーダー登録
-	Resource::ID _vsID = m_pShaderMana->Register(
+	Engine::Resource::ID _vsID = m_pShaderMana->Register(
 		{ "Asset/Shader/Compiled/Screen2DShader/Screen2DVS.cso", ShaderStage::Vertex ,&_desc });
-	Resource::ID _psID = m_pShaderMana->Register(
+	Engine::Resource::ID _psID = m_pShaderMana->Register(
 		{ "Asset/Shader/Compiled/Screen2DShader/Screen2DPS.cso", ShaderStage::Pixel });
 
 	// ルートシグネチャ
-	Resource::ID _rootSigID = m_pRootSigMana->GetID("2DRootSig");
+	Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("2DRootSig");
 
 	// 深度ステンシルステート
 	auto _depthDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);	// 深度ステンシルはデフォルトを使用
@@ -69,7 +69,7 @@ void ScreenUIPass::CreatePass()
 	_psoDesc.VS = m_pShaderMana->NGet(_vsID)->byteCode;
 	_psoDesc.PS = m_pShaderMana->NGet(_psID)->byteCode;
 	_psoDesc.pRootSignature = m_pRootSigMana->NGet(_rootSigID);
-	Resource::ID _psoID = m_pPSOMana->Register("ScreenUIPass", _psoDesc);
+	Engine::Resource::ID _psoID = m_pPSOMana->Register("ScreenUIPass", _psoDesc);
 
 	// Desc構造体作成
 	m_passDesc = {};

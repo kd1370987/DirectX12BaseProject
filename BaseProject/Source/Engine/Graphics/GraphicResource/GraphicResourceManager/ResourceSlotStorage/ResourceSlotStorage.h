@@ -11,7 +11,7 @@ public:
 	struct Data
 	{
 		T data;
-		Resource::DataGeneration gen = 0;
+		Engine::Resource::DataGeneration gen = 0;
 		bool isAlive = false;
 	};
 
@@ -31,10 +31,10 @@ public:
 	/// </summary>
 	/// <param name="a_id">登録ID</param>
 	/// <returns>データのポインタ</returns>
-	const T* Get(const Resource::ID& a_id) const;
-	T* Ref(const Resource::ID& a_id);
+	const T* Get(const Engine::Resource::ID& a_id) const;
+	T* Ref(const Engine::Resource::ID& a_id);
 
-	const std::string& GetString(const Resource::ID& a_id) const;
+	const std::string& GetString(const Engine::Resource::ID& a_id) const;
 
 	/// <summary>
 	/// 登録した時の文字列で検索
@@ -48,7 +48,7 @@ public:
 	/// </summary>
 	/// <param name="a_key">文字列</param>
 	/// <returns>失敗したときはMAX_STORAGRが帰る</returns>
-	Resource::ID GetID(const std::string& a_key);
+	Engine::Resource::ID GetID(const std::string& a_key);
 
 	/// <summary>
 	/// データの追加
@@ -56,20 +56,20 @@ public:
 	/// <param name="a_key">文字列キー</param>
 	/// <param name="a_data">データの実態</param>
 	/// <returns>保存したID</returns>
-	Resource::ID Add(const std::string& a_key, T a_data);
+	Engine::Resource::ID Add(const std::string& a_key, T a_data);
 
 	/// <summary>
 	/// データの削除
 	/// </summary>
 	/// <param name="a_id"></param>
-	void Destroy(const Resource::ID& a_id);
+	void Destroy(const Engine::Resource::ID& a_id);
 
 	/// <summary>
 	/// IDの有効性チェック
 	/// </summary>
 	/// <param name="a_id"></param>
 	/// <returns></returns>
-	bool IsValid(const Resource::ID& a_id);
+	bool IsValid(const Engine::Resource::ID& a_id);
 
 	/// <summary>
 	/// 登録されているかのチェック
@@ -85,12 +85,12 @@ public:
 
 private:
 
-	Resource::ID CreateID(
-		Resource::DataIndex a_idx,
-		Resource::DataGeneration a_gen
+	Engine::Resource::ID CreateID(
+		Engine::Resource::DataIndex a_idx,
+		Engine::Resource::DataGeneration a_gen
 	)
 	{
-		return (Resource::ID(a_gen) << 16) | a_idx;
+		return (Engine::Resource::ID(a_gen) << 16) | a_idx;
 	}
 
 	/// <summary>
@@ -98,32 +98,32 @@ private:
 	/// </summary>
 	/// <param name="a_id">ID</param>
 	/// <returns>IDから抽出した世代</returns>
-	Resource::DataGeneration GetGeneration(Resource::ID a_id) const;
+	Engine::Resource::DataGeneration GetGeneration(Engine::Resource::ID a_id) const;
 
 	/// <summary>
 	/// インデックス取得
 	/// </summary>
 	/// <param name="a_id">ID</param>
 	/// <returns>IDから取得したインデックス</returns>
-	Resource::DataIndex GetIndex(Resource::ID a_id) const;
+	Engine::Resource::DataIndex GetIndex(Engine::Resource::ID a_id) const;
 
 private:
 
-	std::unordered_map<std::string, Resource::ID> m_idMap;
+	std::unordered_map<std::string, Engine::Resource::ID> m_idMap;
 	std::vector<std::string> m_toString;
 	std::vector<Data> m_dataVec;
 	
 
-	std::queue<Resource::DataIndex> m_indexQueue;
+	std::queue<Engine::Resource::DataIndex> m_indexQueue;
 };
 
 template<typename T>
 inline void ResourceSlotStorage<T>::Init(UINT a_maxCount)
 {
 	// オーバーフローチェック
-	assert(a_maxCount <= std::numeric_limits<Resource::DataIndex>::max());
+	assert(a_maxCount <= std::numeric_limits<Engine::Resource::DataIndex>::max());
 
-	for (Resource::DataIndex _idx = 0; _idx < static_cast<Resource::DataIndex>(a_maxCount); ++_idx)
+	for (Engine::Resource::DataIndex _idx = 0; _idx < static_cast<Engine::Resource::DataIndex>(a_maxCount); ++_idx)
 	{
 		m_indexQueue.push(_idx);
 	}
@@ -143,10 +143,10 @@ inline void ResourceSlotStorage<T>::Clear()
 }
 
 template<typename T>
-inline const T* ResourceSlotStorage<T>::Get(const Resource::ID& a_id) const
+inline const T* ResourceSlotStorage<T>::Get(const Engine::Resource::ID& a_id) const
 {
-	Resource::DataIndex _idx = static_cast<Resource::DataIndex>(GetIndex(a_id));
-	Resource::DataGeneration _gen = static_cast<Resource::DataGeneration>(GetGeneration(a_id));
+	Engine::Resource::DataIndex _idx = static_cast<Engine::Resource::DataIndex>(GetIndex(a_id));
+	Engine::Resource::DataGeneration _gen = static_cast<Engine::Resource::DataGeneration>(GetGeneration(a_id));
 
 	if (_idx >= m_dataVec.size())
 	{
@@ -167,10 +167,10 @@ inline const T* ResourceSlotStorage<T>::Get(const Resource::ID& a_id) const
 }
 
 template<typename T>
-inline T* ResourceSlotStorage<T>::Ref(const Resource::ID& a_id)
+inline T* ResourceSlotStorage<T>::Ref(const Engine::Resource::ID& a_id)
 {
-	Resource::DataIndex _idx = static_cast<Resource::DataIndex>(GetIndex(a_id));
-	Resource::DataGeneration _gen = static_cast<Resource::DataGeneration>(GetGeneration(a_id));
+	Engine::Resource::DataIndex _idx = static_cast<Engine::Resource::DataIndex>(GetIndex(a_id));
+	Engine::Resource::DataGeneration _gen = static_cast<Engine::Resource::DataGeneration>(GetGeneration(a_id));
 
 	if (_idx >= m_dataVec.size())
 	{
@@ -191,7 +191,7 @@ inline T* ResourceSlotStorage<T>::Ref(const Resource::ID& a_id)
 }
 
 template<typename T>
-inline const std::string& ResourceSlotStorage<T>::GetString(const Resource::ID& a_id) const
+inline const std::string& ResourceSlotStorage<T>::GetString(const Engine::Resource::ID& a_id) const
 {
 	auto _idx = GetIndex(a_id);
 	if (_idx >= m_toString.size())
@@ -215,14 +215,14 @@ inline const T* ResourceSlotStorage<T>::Get(const std::string& a_key) const
 }
 
 template<typename T>
-inline Resource::ID ResourceSlotStorage<T>::GetID(const std::string& a_key)
+inline Engine::Resource::ID ResourceSlotStorage<T>::GetID(const std::string& a_key)
 {
 	// 名前でIDを検索
 	auto _it = m_idMap.find(a_key);
 	if (_it == m_idMap.end())
 	{
 		// ないとき
-		return Resource::Limits::INVALID_ID;
+		return Engine::Resource::Limits::INVALID_ID;
 	}
 
 	// あったときは返す
@@ -230,19 +230,19 @@ inline Resource::ID ResourceSlotStorage<T>::GetID(const std::string& a_key)
 }
 
 template<typename T>
-inline Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T a_data)
+inline Engine::Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T a_data)
 {
 	if (m_indexQueue.empty())
 	{
 		assert(0 && "ストレージの設定上限に達しました");
-		return Resource::Limits::INVALID_ID;
+		return Engine::Resource::Limits::INVALID_ID;
 	}
 
 
 	auto _id = GetID(a_key);
-	if (_id == Resource::Limits::INVALID_ID)
+	if (_id == Engine::Resource::Limits::INVALID_ID)
 	{
-		Resource::DataIndex _idx = m_indexQueue.front();
+		Engine::Resource::DataIndex _idx = m_indexQueue.front();
 		m_indexQueue.pop();
 
 		// 既存のストレージに上書き
@@ -250,7 +250,7 @@ inline Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T a_da
 		Data& _data = m_dataVec[_idx];
 		_data.data = std::move(a_data);
 		_data.isAlive = true;
-		Resource::ID _newId = CreateID(_idx, _data.gen);
+		Engine::Resource::ID _newId = CreateID(_idx, _data.gen);
 		m_idMap.emplace(a_key, _newId);
 
 		return _newId;
@@ -264,10 +264,10 @@ inline Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key, T a_da
 }
 
 template<typename T>
-inline void ResourceSlotStorage<T>::Destroy(const Resource::ID& a_id)
+inline void ResourceSlotStorage<T>::Destroy(const Engine::Resource::ID& a_id)
 {
-	Resource::DataIndex _idx = GetIndex(a_id);
-	Resource::DataGeneration _gen = GetGeneration(a_id);
+	Engine::Resource::DataIndex _idx = GetIndex(a_id);
+	Engine::Resource::DataGeneration _gen = GetGeneration(a_id);
 
 	Data& _data = m_dataVec[_idx];
 	if (!_data.isAlive)
@@ -291,9 +291,9 @@ inline void ResourceSlotStorage<T>::Destroy(const Resource::ID& a_id)
 }
 
 template<typename T>
-inline bool ResourceSlotStorage<T>::IsValid(const Resource::ID& a_id)
+inline bool ResourceSlotStorage<T>::IsValid(const Engine::Resource::ID& a_id)
 {
-	return a_id != Resource::Limits::INVALID_ID;
+	return a_id != Engine::Resource::Limits::INVALID_ID;
 }
 
 template<typename T>
@@ -311,13 +311,13 @@ inline size_t ResourceSlotStorage<T>::GetSize()
 }
 
 template<typename T>
-inline Resource::DataGeneration ResourceSlotStorage<T>::GetGeneration(Resource::ID a_id) const
+inline Engine::Resource::DataGeneration ResourceSlotStorage<T>::GetGeneration(Engine::Resource::ID a_id) const
 {
 	return uint16_t(a_id >> 16);
 }
 
 template<typename T>
-inline Resource::DataIndex ResourceSlotStorage<T>::GetIndex(Resource::ID a_id) const
+inline Engine::Resource::DataIndex ResourceSlotStorage<T>::GetIndex(Engine::Resource::ID a_id) const
 {
-	return static_cast<Resource::DataIndex>(uint16_t(a_id & 0xFFFF));
+	return static_cast<Engine::Resource::DataIndex>(uint16_t(a_id & 0xFFFF));
 }

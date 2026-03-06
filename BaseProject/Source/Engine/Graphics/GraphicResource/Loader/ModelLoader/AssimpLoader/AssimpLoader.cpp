@@ -245,7 +245,7 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 		a_dst.material.diffuseMap = _dir + StringUtility::ToWideString(_file);
 		
 		auto _texPath = FileUtility::ReplaceFilePathExtension(a_dst.material.diffuseMap, "tga");
-		Resource::ID _texID = 0;
+		Engine::Resource::ID _texID = 0;
 		//auto _mainTex = GraphicResourceManager::Instance().GetTexture(_texID,StringUtility::ToUTF8(_texPath), TextureUse::Albedo);
 		
 	

@@ -3,7 +3,7 @@
 struct UIComponent
 {
 	// テクスチャID
-	Resource::ID texID = Resource::Limits::INVALID_ID;
+	Engine::Resource::ID texID = Engine::Resource::Limits::INVALID_ID;
 
 	Storage::Range srvRange = {};
 

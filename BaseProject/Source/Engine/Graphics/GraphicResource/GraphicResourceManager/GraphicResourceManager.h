@@ -40,7 +40,7 @@ public:
 	/// </summary>
 	/// <param name="a_key">ファイルパス</param>
 	/// <returns>テクスチャのウィークポインタ</returns>
-	bool GetTexture(Resource::ID& a_outID, const std::string& a_dir,const std::string& a_key, TextureUse a_use);
+	bool GetTexture(Engine::Resource::ID& a_outID, const std::string& a_dir,const std::string& a_key, TextureUse a_use);
 
 	/// <summary>
 	/// テクスチャ取得
@@ -61,7 +61,7 @@ public:
 	/// モデル取得
 	/// </summary>
 	/// <param name="a_key">ファイルパス</param>
-	Resource::ID GetModel(const std::string& a_path);
+	Engine::Resource::ID GetModel(const std::string& a_path);
 
 	/// <summary>
 	/// モデル取得

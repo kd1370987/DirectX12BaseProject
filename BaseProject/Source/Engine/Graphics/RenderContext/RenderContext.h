@@ -190,12 +190,12 @@ public:
 	//============================================================================================
 	// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
 	void SetGraphicsRootSignature(
-		const Resource::ID& a_rootSigID
+		const Engine::Resource::ID& a_rootSigID
 	);
 
 	// パイプラインステートをセット、前回と変更がない場合はスキップ
 	void SetGraphicPSO(
-		const Resource::ID& a_psoID
+		const Engine::Resource::ID& a_psoID
 	);
 
 	// 1Draw当たりのオブジェクトに対する定数
@@ -302,8 +302,8 @@ private:
 	CBUI m_cbUI = {};
 
 	// 描画コマンド
-	Resource::ID m_currentRootSigID = Resource::Limits::INVALID_ID;
-	Resource::ID m_currentPSOID = Resource::Limits::INVALID_ID;
+	Engine::Resource::ID m_currentRootSigID = Engine::Resource::Limits::INVALID_ID;
+	Engine::Resource::ID m_currentPSOID = Engine::Resource::Limits::INVALID_ID;
 	Engine::Resource::Material* m_pCurrentMaterial = nullptr;
 	Engine::Resource::Mesh* m_pCurrentMesh = nullptr;
 	QuadPolygon* m_pCurrentPoly = nullptr;

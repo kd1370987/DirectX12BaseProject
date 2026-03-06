@@ -7,10 +7,10 @@ class RootSignatureManager;
 
 struct PSOSetting
 {
-	Resource::ID vsStage = 0;
-	Resource::ID psStage = 0;
+	Engine::Resource::ID vsStage = 0;
+	Engine::Resource::ID psStage = 0;
 
-	Resource::ID rootsignatureID = 0;
+	Engine::Resource::ID rootsignatureID = 0;
 };
 
 class GraphicsPSOManager
@@ -31,7 +31,7 @@ public:
 	/// </summary>
 	/// <param name="a_setting">生成パラメタ</param>
 	/// <returns>管理場所ID</returns>
-	Resource::ID Register(
+	Engine::Resource::ID Register(
 		const std::string& a_key,
 		const D3D12_GRAPHICS_PIPELINE_STATE_DESC& a_psoDesc
 	);
@@ -41,7 +41,7 @@ public:
 	/// </summary>
 	/// <param name="a_id">使用PSOID</param>
 	/// <param name="a_pCmdList">コマンドリスト</param>
-	ID3D12PipelineState* NGet(const Resource::ID& a_id);
+	ID3D12PipelineState* NGet(const Engine::Resource::ID& a_id);
 
 private:
 

@@ -28,12 +28,12 @@ void ForwardLightingPass::CreatePass()
 		.pInputElementDescs = _layout,
 		.NumElements = 5
 	};
-	Resource::ID _vsID = m_pShaderMana->Register(
+	Engine::Resource::ID _vsID = m_pShaderMana->Register(
 		{"Asset/Shader/Compiled/ForwardLightingShader/ForwardLightingVS.cso", ShaderStage::Vertex,&_desc });
-	Resource::ID _psID = m_pShaderMana->Register({
+	Engine::Resource::ID _psID = m_pShaderMana->Register({
 		"Asset/Shader/Compiled/ForwardLightingShader/ForwardLightingPS.cso", ShaderStage::Pixel });
 
-	Resource::ID _rootSigID = m_pRootSigMana->GetID("ForwardLithingPass");
+	Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("ForwardLithingPass");
 
 	// ブレンドステート
 	D3D12_BLEND_DESC _blend = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -68,7 +68,7 @@ void ForwardLightingPass::CreatePass()
 	_psoDesc.VS = m_pShaderMana->NGet(_vsID)->byteCode;
 	_psoDesc.PS = m_pShaderMana->NGet(_psID)->byteCode;
 	_psoDesc.pRootSignature = m_pRootSigMana->NGet(_rootSigID);
-	Resource::ID _psoID = m_pPSOMana->Register("SimplePass", _psoDesc);
+	Engine::Resource::ID _psoID = m_pPSOMana->Register("SimplePass", _psoDesc);
 
 	// Desc構造体作成
 	m_passDesc = {};

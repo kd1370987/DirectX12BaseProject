@@ -535,6 +535,9 @@
     <Filter Include="Source\Engine\Common">
       <UniqueIdentifier>{07b77938-0301-436b-9ed7-35f996590c7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource">
+      <UniqueIdentifier>{c00699f5-a297-41d3-ac51-8f2d9ace2428}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -866,6 +869,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp">
       <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGResource.cpp">
+      <Filter>Source\Engine\Graphics\RenderGraph\RGResource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1342,6 +1348,9 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Algorithm\Graph\GroupTopologicalSort.h">
       <Filter>Source\Core\Algorithm\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGResource.h">
+      <Filter>Source\Engine\Graphics\RenderGraph\RGResource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -72,14 +72,14 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	});
 
 	// パス登録
-	RegisterPass<ForwardLightingPass>();
 	RegisterPass<ZPrePass>();
-	RegisterPass<FullScreenPass>();
 	RegisterPass<GBufferPass>();
 	RegisterPass<AnimationGBufferPass>();
 	RegisterPass<DeferredLightingPass>();
-	RegisterPass<DebugLinePass>();
-	RegisterPass<ScreenUIPass>();
+	RegisterPass<ForwardLightingPass>();
+	RegisterPass<FullScreenPass>();
+	//RegisterPass<DebugLinePass>();
+	//RegisterPass<ScreenUIPass>();
 
 	// パスの初期化
 	for (auto& _sp : m_spPassVec)
@@ -126,18 +126,18 @@ void RenderGraph::Compile()
 	//);
 
 	// リソースのバージョン作成
-	for (auto& _pass : m_spPassVec)
-	{
-		for (auto& _readID : _pass->GetDesc().readResource)
-		{
-			
-		}
+	//for (auto& _pass : m_spPassVec)
+	//{
+	//	for (auto& _readID : _pass->GetDesc().readResource)
+	//	{
+	//		auto& _res = GetRGresource(_readID);
+	//	}
 
-		for (auto& _writeID : _pass->GetDesc().writeResource)
-		{
+	//	for (auto& _writeID : _pass->GetDesc().writeResource)
+	//	{
 
-		}
-	}
+	//	}
+	//}
 
 	// ソート配列の作成
 	Algorithm::Graph::GroupTopologicalSort(
@@ -362,7 +362,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::RTVCPU(const std::string& a_name)
 	return m_rgResourceMap[_id].spRGTexture->GetRTVHandle();
 }
 
-Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)
+Engine::Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)
 {
 	// 持っているものを返す
 	if (m_resourceStorage.Has(a_desc.name))
@@ -371,7 +371,7 @@ Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)
 	}
 
 	// 登録してかえす
-	Resource::ID _id = 
+	Engine::Resource::ID _id =
 		m_resourceStorage.Add(a_desc.name, std::make_shared<ResourceDesc>(a_desc));
 
 	RGResource _rgRes{};
@@ -384,14 +384,14 @@ Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)
 	return _id;
 }
 
-Resource::ID RenderGraph::GetID(const std::string& a_key)
+Engine::Resource::ID RenderGraph::GetID(const std::string& a_key)
 {
 	if (m_resourceStorage.Has(a_key))
 	{
 		return m_resourceStorage.GetID(a_key);
 	}
 	assert(0 && "登録されていないリソースです");
-	return Resource::Limits::INVALID_ID;
+	return Engine::Resource::Limits::INVALID_ID;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE RenderGraph::GetImGuiGPUHandle(const std::string& a_name)
@@ -410,4 +410,15 @@ std::vector<std::string> RenderGraph::GetRGResourceList()
 	}
 
 	return _nameVec;
+}
+
+RGResource& RenderGraph::GetRGresource(const Engine::Resource::ID& a_id)
+{
+	auto _it = m_rgResourceMap.find(a_id);
+	if (_it != m_rgResourceMap.end())
+	{
+		return _it->second;
+	}
+
+	assert(0 && "RGリソースが見つかりません %d", a_id);
 }

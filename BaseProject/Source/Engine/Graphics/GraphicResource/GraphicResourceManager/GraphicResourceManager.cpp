@@ -18,7 +18,7 @@ void GraphicResourceManager::Release()
 	m_modelStorage.Clear();
 }
 
-bool GraphicResourceManager::GetTexture(Resource::ID& a_outID, const std::string& a_dir, const std::string& a_key, TextureUse a_use)
+bool GraphicResourceManager::GetTexture(Engine::Resource::ID& a_outID, const std::string& a_dir, const std::string& a_key, TextureUse a_use)
 {
 	ImGuiContex::Instance().AddLog("GetTexture: %s\n", (a_dir + a_key).c_str());
 
@@ -90,7 +90,7 @@ const std::string& GraphicResourceManager::GetTexturePath(const uint32_t& a_texI
 	return m_texStorage.GetString(a_texID);
 }
 
-Resource::ID GraphicResourceManager::GetModel(const std::string& a_path)
+Engine::Resource::ID GraphicResourceManager::GetModel(const std::string& a_path)
 {
 	if (!m_modelStorage.Has(a_path))
 	{

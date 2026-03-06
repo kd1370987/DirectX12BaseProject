@@ -172,8 +172,8 @@ void RenderContext::Init()
 		_mat = DXSM::Matrix::Identity;
 	};
 
-	m_currentPSOID = Resource::Limits::INVALID_ID;
-	m_currentRootSigID = Resource::Limits::INVALID_ID;
+	m_currentPSOID = Engine::Resource::Limits::INVALID_ID;
+	m_currentRootSigID = Engine::Resource::Limits::INVALID_ID;
 	m_pCurrentMaterial = nullptr;
 	m_pCurrentMesh = nullptr;
 
@@ -458,8 +458,8 @@ const std::vector<DrawItem2D>& RenderContext::GetItemVec(const RenderQueueType2D
 void RenderContext::Excute()
 {
 	// バインド対象のクリア
-	m_currentRootSigID = Resource::Limits::INVALID_ID;
-	m_currentPSOID = Resource::Limits::INVALID_ID;
+	m_currentRootSigID = Engine::Resource::Limits::INVALID_ID;
+	m_currentPSOID = Engine::Resource::Limits::INVALID_ID;
 	m_pCurrentMaterial = nullptr;
 	m_pCurrentMesh = nullptr;
 	m_pCurrentPoly = nullptr;
@@ -478,7 +478,7 @@ void RenderContext::AddItem(const DrawItem& a_item)
 	m_drawItemVec.push_back(a_item);
 }
 
-void RenderContext::SetGraphicsRootSignature(const Resource::ID& a_rootSigID)
+void RenderContext::SetGraphicsRootSignature(const Engine::Resource::ID& a_rootSigID)
 {
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
@@ -490,7 +490,7 @@ void RenderContext::SetGraphicsRootSignature(const Resource::ID& a_rootSigID)
 	}
 }
 
-void RenderContext::SetGraphicPSO(const Resource::ID& a_psoID)
+void RenderContext::SetGraphicPSO(const Engine::Resource::ID& a_psoID)
 {
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
@@ -776,8 +776,8 @@ void RenderContext::ShapeDraw()
 
 RenderContext::RenderContext()
 {
-	m_currentPSOID = Resource::Limits::INVALID_ID;
-	m_currentRootSigID = Resource::Limits::INVALID_ID;
+	m_currentPSOID = Engine::Resource::Limits::INVALID_ID;
+	m_currentRootSigID = Engine::Resource::Limits::INVALID_ID;
 }
 
 RenderContext::~RenderContext()

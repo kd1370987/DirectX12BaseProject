@@ -50,19 +50,29 @@ struct ResourceDesc
 	ResourceUsage usage = ResourceUsage::None;
 };
 
-
+// リソースのバージョン管理用
 struct RGresourceVersion
 {
-	uint32_t writerPass;
+	uint32_t version = 0;
+	uint32_t writerPass = 0;
 };
 
+// リソースの運用用
+
+
+
+// 描画先リソース
 struct RGResource
 {
-	Resource::ID id = Resource::Limits::INVALID_ID;
+	// このリソースの識別ID
+	Engine::Resource::ID id = Engine::Resource::Limits::INVALID_ID;
+
+	// このリソースの設定
 	ResourceDesc desc = {};
 
-	// コンパイル後に決まる
+	// 実際のテクスチャデータ
 	std::shared_ptr<RGTexture> spRGTexture = nullptr;
+
 
 	D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
 	uint32_t lastWritePass = 0;
@@ -75,7 +85,7 @@ struct RGBarrier
 	RGTexture* texture = nullptr;
 	D3D12_RESOURCE_STATES before = D3D12_RESOURCE_STATE_COMMON;
 	D3D12_RESOURCE_STATES after = D3D12_RESOURCE_STATE_COMMON;
-	Resource::ID resID = Resource::Limits::INVALID_ID;
+	Engine::Resource::ID resID = Engine::Resource::Limits::INVALID_ID;
 };
 
 struct CompiledPass
@@ -104,8 +114,8 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE RTVCPU(const std::string& a_name);
 
 	// リソース作成
-	Resource::ID CreateResource(const ResourceDesc& a_desc);
-	Resource::ID GetID(const std::string& a_key);
+	Engine::Resource::ID CreateResource(const ResourceDesc& a_desc);
+	Engine::Resource::ID GetID(const std::string& a_key);
 
 	// パス登録
 	template<typename Pass>
@@ -118,6 +128,9 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle(const std::string& a_name);
 
 	std::vector<std::string> GetRGResourceList();
+
+	// リソース取得
+	RGResource& GetRGresource(const Engine::Resource::ID& a_id);
 
 private:
 
@@ -134,7 +147,7 @@ private:
 
 	// リソース仕様書のストレージ
 	SlotStorage<ResourceDesc> m_resourceStorage = {};
-	std::unordered_map<Resource::ID, RGResource> m_rgResourceMap = {};
+	std::unordered_map<Engine::Resource::ID, RGResource> m_rgResourceMap = {};
 
 	// コンパイル後のパス
 	std::vector<CompiledPass> m_compiledPasses = {};

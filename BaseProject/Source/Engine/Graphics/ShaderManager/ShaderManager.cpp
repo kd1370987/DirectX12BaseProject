@@ -5,7 +5,7 @@ void ShaderManager::Init(const UINT& a_slotSize)
 	m_shaderSlot.Init(a_slotSize);
 }
 
-Resource::ID ShaderManager::Register(const ShaderItem& a_dst)
+Engine::Resource::ID ShaderManager::Register(const ShaderItem& a_dst)
 {
 	// ワイルド文字列に変換
 	std::wstring _wstr = StringUtility::ToWideString(a_dst.path);
@@ -43,7 +43,7 @@ Resource::ID ShaderManager::Register(const ShaderItem& a_dst)
 	return m_shaderSlot.Add(a_dst.path, _spShader);
 }
 
-const Shader* ShaderManager::NGet(const Resource::ID& a_id)
+const Shader* ShaderManager::NGet(const Engine::Resource::ID& a_id)
 {
 	return m_shaderSlot.Get(a_id);
 }

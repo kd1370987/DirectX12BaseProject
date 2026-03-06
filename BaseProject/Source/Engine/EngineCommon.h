@@ -35,7 +35,7 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 // ストレージ管理
 // 
 //==========================================================================================
-namespace Resource
+namespace Engine::Resource
 {
 	using DataIndex = uint16_t;
 	using DataGeneration = uint16_t;

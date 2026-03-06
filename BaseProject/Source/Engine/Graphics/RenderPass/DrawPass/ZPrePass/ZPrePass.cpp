@@ -35,12 +35,12 @@ void ZPrePass::CreatePass()
 		.pInputElementDescs = _layout,
 		.NumElements = 7
 	};
-	Resource::ID _vsID = m_pShaderMana->Register(
+	Engine::Resource::ID _vsID = m_pShaderMana->Register(
 		{ "Asset/Shader/Compiled/ZPreShader/ZPreVS.cso", ShaderStage::Vertex,&_desc }
 	);
 
 	// ルートシグネチャ
-	Resource::ID _rootSigID = m_pRootSigMana->GetID("BaseRootSig");
+	Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("BaseRootSig");
 
 	// パイプラインステート登録
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC _psoDesc = {};
@@ -60,7 +60,7 @@ void ZPrePass::CreatePass()
 	_psoDesc.VS = m_pShaderMana->NGet(_vsID)->byteCode;
 	_psoDesc.PS = {nullptr,0};
 	_psoDesc.pRootSignature = m_pRootSigMana->NGet(_rootSigID);
-	Resource::ID _psoID = m_pPSOMana->Register("ZPrePass", _psoDesc);
+	Engine::Resource::ID _psoID = m_pPSOMana->Register("ZPrePass", _psoDesc);
 
 	// パス情報
 	m_passDesc = {};

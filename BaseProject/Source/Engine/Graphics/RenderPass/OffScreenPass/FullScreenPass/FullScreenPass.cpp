@@ -32,10 +32,10 @@ void FullScreenPass::CreatePass()
 		.pInputElementDescs = _layout,
 		.NumElements = 2
 	};
-	Resource::ID _vsID = m_pShaderMana->Register({ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingVS.cso",ShaderStage::Vertex,&_desc });
-	Resource::ID _psID = m_pShaderMana->Register({ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingPS.cso",ShaderStage::Pixel });
+	Engine::Resource::ID _vsID = m_pShaderMana->Register({ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingVS.cso",ShaderStage::Vertex,&_desc });
+	Engine::Resource::ID _psID = m_pShaderMana->Register({ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingPS.cso",ShaderStage::Pixel });
 
-	Resource::ID _rootSigID = m_pRootSigMana->GetID("QuadRendering");
+	Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("QuadRendering");
 
 	// パイプラインステート登録
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC _gpsDesc = {};
@@ -56,7 +56,7 @@ void FullScreenPass::CreatePass()
 	_gpsDesc.VS = m_pShaderMana->NGet(_vsID)->byteCode;
 	_gpsDesc.PS = m_pShaderMana->NGet(_psID)->byteCode;
 	_gpsDesc.pRootSignature = m_pRootSigMana->NGet(_rootSigID);
-	Resource::ID _psoID = m_pPSOMana->Register("FullScreenPass", _gpsDesc);
+	Engine::Resource::ID _psoID = m_pPSOMana->Register("FullScreenPass", _gpsDesc);
 
 	// Desc構造体作成
 	m_passDesc = {};

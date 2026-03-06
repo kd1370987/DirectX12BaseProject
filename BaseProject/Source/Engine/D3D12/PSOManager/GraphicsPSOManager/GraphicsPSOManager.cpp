@@ -10,7 +10,7 @@ void GraphicsPSOManager::Init(
 	m_psoSlot.Init(a_slotSize);
 }
 
-Resource::ID GraphicsPSOManager::Register(
+Engine::Resource::ID GraphicsPSOManager::Register(
 	const std::string& a_key,
 	const D3D12_GRAPHICS_PIPELINE_STATE_DESC& a_psoDesc
 )
@@ -23,7 +23,7 @@ Resource::ID GraphicsPSOManager::Register(
 	return m_psoSlot.Add(a_key, _spPSO);
 }
 
-ID3D12PipelineState* GraphicsPSOManager::NGet(const Resource::ID& a_id)
+ID3D12PipelineState* GraphicsPSOManager::NGet(const Engine::Resource::ID& a_id)
 {
 	return m_psoSlot.Ref(a_id)->Get();
 }

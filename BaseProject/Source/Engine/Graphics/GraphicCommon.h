@@ -44,7 +44,7 @@ enum class AccessType
 
 struct AccessResource
 {
-	Resource::ID id = Resource::Limits::INVALID_ID;
+	Engine::Resource::ID id = Engine::Resource::Limits::INVALID_ID;
 	AccessType type = AccessType::None;
 
 	LoadOp load = LoadOp::Clear;
@@ -53,7 +53,7 @@ struct AccessResource
 
 struct ResourceHandle
 {
-	Resource::ID id;
+	Engine::Resource::ID id;
 	uint32_t version;
 };
 
@@ -66,8 +66,8 @@ struct PassDesc
 	UINT psoID = UINT_MAX;;			// パスが使用するパイプラインステートID
 
 	// 依存関係・トポロジカルソート用
-	std::vector<Resource::ID> readResource = {};		// 入力(SRV)
-	std::vector<Resource::ID> writeResource = {};	// 出力(RTV,UAV)
+	std::vector<Engine::Resource::ID> readResource = {};		// 入力(SRV)
+	std::vector<Engine::Resource::ID> writeResource = {};	// 出力(RTV,UAV)
 
 	RenderQueueType queueType = RenderQueueType::Opaque;		// 描画アイテムタイプ
 

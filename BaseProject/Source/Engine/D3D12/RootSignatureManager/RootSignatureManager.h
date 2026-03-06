@@ -20,12 +20,12 @@ public:
 	/// <param name="a_key">ルートシグネチャ名</param>
 	/// <param name="a_rootParamsVec">ルートシグネチャの構成</param>
 	/// <returns>管理ID</returns>
-	Resource::ID Register(
+	Engine::Resource::ID Register(
 		const std::string& a_key,
 		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec
 	);
 
-	Resource::ID CreateRootSig(
+	Engine::Resource::ID CreateRootSig(
 		const std::string& a_key,
 		const std::vector<RootSigLayout>& a_rootParamsVec
 	);
@@ -34,13 +34,13 @@ public:
 	/// ID3D12RootSignatureの生ポインタを直接取得
 	/// </summary>
 	/// <param name="a_id">管理ID</param>
-	ID3D12RootSignature* NGet(Resource::ID a_id);
-	Resource::ID GetID(const std::string& a_key);
+	ID3D12RootSignature* NGet(Engine::Resource::ID a_id);
+	Engine::Resource::ID GetID(const std::string& a_key);
 
-	UINT GetRegiNum(Resource::ID a_id,RootSigSemantic a_sema);
+	UINT GetRegiNum(Engine::Resource::ID a_id,RootSigSemantic a_sema);
 
 private:
 
 	SlotStorage<RootSignature> m_rootStorage;
-	std::unordered_map<Resource::ID, std::vector<RootSigLayout>> m_rootLayout;
+	std::unordered_map<Engine::Resource::ID, std::vector<RootSigLayout>> m_rootLayout;
 };

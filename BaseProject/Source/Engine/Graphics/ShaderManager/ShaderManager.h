@@ -46,13 +46,13 @@ public:
 	/// </summary>
 	/// <param name="a_dst">登録するシェーダーの基本情報</param>
 	/// <returns>管理ID</returns>
-	Resource::ID Register(const ShaderItem& a_dst);
+	Engine::Resource::ID Register(const ShaderItem& a_dst);
 
 	/// <summary>
 	/// シェーダの生ポインタ取得
 	/// </summary>
 	/// <param name="a_id">管理ID</param>
-	const Shader* NGet(const Resource::ID& a_id);
+	const Shader* NGet(const Engine::Resource::ID& a_id);
 
 
 private:

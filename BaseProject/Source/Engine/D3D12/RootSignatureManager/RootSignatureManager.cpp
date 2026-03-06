@@ -8,7 +8,7 @@ void RootSignatureManager::Init(const UINT& a_slotMax)
 	m_rootStorage.Init(a_slotMax);
 }
 
-Resource::ID RootSignatureManager::Register(
+Engine::Resource::ID RootSignatureManager::Register(
 	const std::string& a_key,
 	const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec
 )
@@ -17,13 +17,13 @@ Resource::ID RootSignatureManager::Register(
 	if (!_spRootSig->Create(a_rootParamsVec))
 	{
 		assert(0 && "ルートシグネチャの生成に失敗");
-		return Resource::Limits::INVALID_ID;
+		return Engine::Resource::Limits::INVALID_ID;
 	}
 
 	return m_rootStorage.Add(a_key,_spRootSig);
 }
 
-Resource::ID RootSignatureManager::CreateRootSig(const std::string& a_key, const std::vector<RootSigLayout>& a_rootParamsVec)
+Engine::Resource::ID RootSignatureManager::CreateRootSig(const std::string& a_key, const std::vector<RootSigLayout>& a_rootParamsVec)
 {
 	std::vector< std::pair<RootParameterType, std::vector<RangeType>>> _inputLayout;
 	for (auto& _layout : a_rootParamsVec)
@@ -36,10 +36,10 @@ Resource::ID RootSignatureManager::CreateRootSig(const std::string& a_key, const
 	if (!_spRootSig->Create(_inputLayout))
 	{
 		assert(0 && "ルートシグネチャの生成に失敗");
-		return Resource::Limits::INVALID_ID;
+		return Engine::Resource::Limits::INVALID_ID;
 	}
 
-	Resource::ID _id = m_rootStorage.Add(a_key, _spRootSig);
+	Engine::Resource::ID _id = m_rootStorage.Add(a_key, _spRootSig);
 
 	for (auto& _layout : a_rootParamsVec)
 	{
@@ -49,17 +49,17 @@ Resource::ID RootSignatureManager::CreateRootSig(const std::string& a_key, const
 	return _id;
 }
 
-ID3D12RootSignature* RootSignatureManager::NGet(Resource::ID a_id)
+ID3D12RootSignature* RootSignatureManager::NGet(Engine::Resource::ID a_id)
 {
 	return m_rootStorage.Ref(a_id)->Get();
 }
 
-Resource::ID RootSignatureManager::GetID(const std::string& a_key)
+Engine::Resource::ID RootSignatureManager::GetID(const std::string& a_key)
 {
 	return m_rootStorage.GetID(a_key);
 }
 
-UINT RootSignatureManager::GetRegiNum(Resource::ID a_id, RootSigSemantic a_sema)
+UINT RootSignatureManager::GetRegiNum(Engine::Resource::ID a_id, RootSigSemantic a_sema)
 {
 	auto _it = m_rootLayout.find(a_id);
 	if (_it != m_rootLayout.end())

@@ -284,6 +284,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGResource.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass\AnimationGBufferPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\DebugLinePass\DebugLinePass.cpp" />
@@ -449,6 +450,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGResource.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\AnimationGBufferPass\AnimationGBufferPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\DebugLinePass\DebugLinePass.h" />

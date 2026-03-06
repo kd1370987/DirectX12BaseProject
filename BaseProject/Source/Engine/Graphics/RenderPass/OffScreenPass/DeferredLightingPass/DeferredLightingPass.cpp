@@ -39,14 +39,14 @@ void DeferredLightingPass::Excute(RenderContext* a_pCtx)
 
 void DeferredLightingPass::CreatePass()
 {
-	Resource::ID _vsID = m_pShaderMana->Register(
+	Engine::Resource::ID _vsID = m_pShaderMana->Register(
 		{ "Asset/Shader/Compiled/DeferredLightingShader/DeferredLightingVS.cso",ShaderStage::Vertex }
 	);
-	Resource::ID _psID = m_pShaderMana->Register(
+	Engine::Resource::ID _psID = m_pShaderMana->Register(
 		{ "Asset/Shader/Compiled/DeferredLightingShader/DeferredLightingPS.cso",ShaderStage::Pixel }
 	);
 
-	Resource::ID _rootSigID = m_pRootSigMana->GetID("DeferredLighting");
+	Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("DeferredLighting");
 
 	// 深度ステンシルステート
 	auto _depthDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);	// 深度ステンシルはデフォルトを使用
@@ -72,7 +72,7 @@ void DeferredLightingPass::CreatePass()
 	_psoDesc.VS = m_pShaderMana->NGet(_vsID)->byteCode;
 	_psoDesc.PS = m_pShaderMana->NGet(_psID)->byteCode;
 	_psoDesc.pRootSignature = m_pRootSigMana->NGet(_rootSigID);
-	Resource::ID _psoID = m_pPSOMana->Register("DeferredLightingPass", _psoDesc);
+	Engine::Resource::ID _psoID = m_pPSOMana->Register("DeferredLightingPass", _psoDesc);
 
 	// Desc構造体作成
 	m_passDesc = {};
