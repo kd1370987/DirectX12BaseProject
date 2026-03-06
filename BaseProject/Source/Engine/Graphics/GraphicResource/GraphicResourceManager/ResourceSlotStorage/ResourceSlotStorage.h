@@ -11,7 +11,7 @@ public:
 	struct Data
 	{
 		T data;
-		Engine::Resource::DataGeneration gen = 0;
+		Engine::Resource::Generation gen = 0;
 		bool isAlive = false;
 	};
 
@@ -86,8 +86,8 @@ public:
 private:
 
 	Engine::Resource::ID CreateID(
-		Engine::Resource::DataIndex a_idx,
-		Engine::Resource::DataGeneration a_gen
+		Engine::Resource::Index a_idx,
+		Engine::Resource::Generation a_gen
 	)
 	{
 		return (Engine::Resource::ID(a_gen) << 16) | a_idx;
@@ -98,14 +98,14 @@ private:
 	/// </summary>
 	/// <param name="a_id">ID</param>
 	/// <returns>IDから抽出した世代</returns>
-	Engine::Resource::DataGeneration GetGeneration(Engine::Resource::ID a_id) const;
+	Engine::Resource::Generation GetGeneration(Engine::Resource::ID a_id) const;
 
 	/// <summary>
 	/// インデックス取得
 	/// </summary>
 	/// <param name="a_id">ID</param>
 	/// <returns>IDから取得したインデックス</returns>
-	Engine::Resource::DataIndex GetIndex(Engine::Resource::ID a_id) const;
+	Engine::Resource::Index GetIndex(Engine::Resource::ID a_id) const;
 
 private:
 
@@ -114,7 +114,7 @@ private:
 	std::vector<Data> m_dataVec;
 	
 
-	std::queue<Engine::Resource::DataIndex> m_indexQueue;
+	std::queue<Engine::Resource::Index> m_indexQueue;
 };
 
 template<typename T>
@@ -242,7 +242,7 @@ inline Engine::Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key
 	auto _id = GetID(a_key);
 	if (_id == Engine::Resource::Limits::INVALID_ID)
 	{
-		Engine::Resource::DataIndex _idx = m_indexQueue.front();
+		Engine::Resource::Index _idx = m_indexQueue.front();
 		m_indexQueue.pop();
 
 		// 既存のストレージに上書き
@@ -311,13 +311,13 @@ inline size_t ResourceSlotStorage<T>::GetSize()
 }
 
 template<typename T>
-inline Engine::Resource::DataGeneration ResourceSlotStorage<T>::GetGeneration(Engine::Resource::ID a_id) const
+inline Engine::Resource::Generation ResourceSlotStorage<T>::GetGeneration(Engine::Resource::ID a_id) const
 {
 	return uint16_t(a_id >> 16);
 }
 
 template<typename T>
-inline Engine::Resource::DataIndex ResourceSlotStorage<T>::GetIndex(Engine::Resource::ID a_id) const
+inline Engine::Resource::Index ResourceSlotStorage<T>::GetIndex(Engine::Resource::ID a_id) const
 {
 	return static_cast<Engine::Resource::DataIndex>(uint16_t(a_id & 0xFFFF));
 }

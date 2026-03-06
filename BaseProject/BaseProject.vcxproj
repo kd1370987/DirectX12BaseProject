@@ -299,6 +299,10 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Importer\Model\ModelImporter.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.cpp" />
     <ClCompile Include="Source\Engine\SlotStorage\SlotStorage.cpp" />
     <ClCompile Include="Source\Engine\TimeManager\TimeManager.cpp" />
     <ClCompile Include="Source\Engine\Window\Window.cpp" />
@@ -466,6 +470,11 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RenderPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RootSigLayout\RootSigLayout.h" />
     <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h" />
+    <ClInclude Include="Source\Engine\Resource\Common\Common.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Model\Model.h" />
+    <ClInclude Include="Source\Engine\Resource\Importer\Model\ModelImporter.h" />
+    <ClInclude Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.h" />
+    <ClInclude Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.h" />
     <ClInclude Include="Source\Engine\SlotStorage\SlotStorage.h" />
     <ClInclude Include="Source\Engine\TimeManager\TimeManager.h" />
     <ClInclude Include="Source\Engine\Window\Window.h" />

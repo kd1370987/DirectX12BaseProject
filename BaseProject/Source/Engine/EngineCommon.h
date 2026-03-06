@@ -37,13 +37,15 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 //==========================================================================================
 namespace Engine::Resource
 {
-	using DataIndex = uint16_t;
-	using DataGeneration = uint16_t;
+	using Index = uint16_t;
+	using Generation = uint16_t;
 	using ID = uint32_t;
 
 	namespace Limits
 	{
-		constexpr ID INVALID_ID = std::numeric_limits<ID>::max();
+		constexpr ID			INVALID_ID			= std::numeric_limits<ID>::max();
+		constexpr Index			INVALID_INDEX		= std::numeric_limits<Index>::max();
+		constexpr Generation	INVALID_GENERATION	= std::numeric_limits<Generation>::max();
 	}
 }
 
@@ -103,3 +105,8 @@ struct DescriptorHandle
 //------------------------------------------------------------------------------------------
 #include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/TinyGLTFSerialize/TinyGLTFSerialize.h"
 #include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/AssimpSerialize/AssimpSerialize.h"
+
+//------------------------------------------------------------------------------------------
+// リソース
+//------------------------------------------------------------------------------------------
+#include "Engine/Resource/Common/Common.h"

@@ -538,6 +538,57 @@
     <Filter Include="Source\Engine\Resource">
       <UniqueIdentifier>{c00699f5-a297-41d3-ac51-8f2d9ace2428}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Data">
+      <UniqueIdentifier>{6062637c-08e6-4c7e-bf79-22e848b47b22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Importer">
+      <UniqueIdentifier>{46c2bf06-9e71-4ecb-8588-6b77fe35044e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Manager">
+      <UniqueIdentifier>{1cf18801-36cc-48e9-940a-0a68a93a4332}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\TextureManager">
+      <UniqueIdentifier>{5f896168-aced-43a2-9c4b-a1fe910253cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\ModelManager">
+      <UniqueIdentifier>{1eca8f5c-6047-47f0-bddb-ebded8d03df0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\ShaderManager">
+      <UniqueIdentifier>{80a68e47-11c8-488f-be15-2f9b8c0401cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Model">
+      <UniqueIdentifier>{5ca1df84-3886-47f6-ab35-e5ef1b7cfea6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Texture">
+      <UniqueIdentifier>{c31d7aef-d478-45e5-9ac9-505426b409e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Animation">
+      <UniqueIdentifier>{8d90e9d0-bb1c-43bb-9a42-a6315e9364d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Material">
+      <UniqueIdentifier>{541e9b80-d0e6-4532-9b11-ccc3633b4087}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Mesh">
+      <UniqueIdentifier>{904e2046-b2ec-438d-8105-63721717d9ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Node">
+      <UniqueIdentifier>{456c1406-29aa-4ece-be7c-a02ed1e52053}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Vertex">
+      <UniqueIdentifier>{e2390e37-8811-4dd8-87b3-fa1275936ff5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Common">
+      <UniqueIdentifier>{666603a7-3a83-44d4-9175-ebe53e764a2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Importer\Model">
+      <UniqueIdentifier>{0e325097-7b94-4e02-9f94-08737e595470}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Importer\Texture">
+      <UniqueIdentifier>{4ed9b1f0-fe89-4d83-a61c-3dbfe71ae2d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Importer\Model\tinyGLTF">
+      <UniqueIdentifier>{7c8e6a9e-ea24-4b7e-9a7d-1d6bf2afa8ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -872,6 +923,18 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGResource.cpp">
       <Filter>Source\Engine\Graphics\RenderGraph\RGResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp">
+      <Filter>Source\Engine\Resource\Data\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.cpp">
+      <Filter>Source\Engine\Resource\Manager\ModelManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Importer\Model\ModelImporter.cpp">
+      <Filter>Source\Engine\Resource\Importer\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.cpp">
+      <Filter>Source\Engine\Resource\Importer\Model\tinyGLTF</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1351,6 +1414,21 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGResource.h">
       <Filter>Source\Engine\Graphics\RenderGraph\RGResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Model\Model.h">
+      <Filter>Source\Engine\Resource\Data\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.h">
+      <Filter>Source\Engine\Resource\Manager\ModelManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Common\Common.h">
+      <Filter>Source\Engine\Resource\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Importer\Model\ModelImporter.h">
+      <Filter>Source\Engine\Resource\Importer\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.h">
+      <Filter>Source\Engine\Resource\Importer\Model\tinyGLTF</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
