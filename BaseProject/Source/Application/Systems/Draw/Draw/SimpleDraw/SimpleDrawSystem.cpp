@@ -9,7 +9,7 @@
 #include "Engine/Graphics/RenderContext/ShapeDraw/ShapeDraw.h"
 
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
-
+#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
 
 void SimpleDrawSystem::Run(World& a_world, float a_dt)
@@ -35,7 +35,8 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 				_item.emissiveScale = _modelComp.emissiveScale;
 
 				// モデル取得
-				Engine::Resource::Model* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+				//Engine::Resource::Model* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+				auto* _model = Engine::Resource::ModelManager::Instnace().RefModel(_modelComp.handle);
 				if (!_model) return;
 
 				// ノード

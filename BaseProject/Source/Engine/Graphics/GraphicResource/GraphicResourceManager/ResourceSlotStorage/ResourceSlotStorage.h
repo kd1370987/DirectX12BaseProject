@@ -1,8 +1,5 @@
 ﻿#pragma once
 
-#include "../../Resource/Model/Model.h"
-#include "../../Resource/Texture/Texture.h"
-
 template<typename T>
 class ResourceSlotStorage
 {
@@ -121,9 +118,9 @@ template<typename T>
 inline void ResourceSlotStorage<T>::Init(UINT a_maxCount)
 {
 	// オーバーフローチェック
-	assert(a_maxCount <= std::numeric_limits<Engine::Resource::DataIndex>::max());
+	assert(a_maxCount <= std::numeric_limits<Engine::Resource::Index>::max());
 
-	for (Engine::Resource::DataIndex _idx = 0; _idx < static_cast<Engine::Resource::DataIndex>(a_maxCount); ++_idx)
+	for (Engine::Resource::Index _idx = 0; _idx < static_cast<Engine::Resource::Index>(a_maxCount); ++_idx)
 	{
 		m_indexQueue.push(_idx);
 	}
@@ -145,8 +142,8 @@ inline void ResourceSlotStorage<T>::Clear()
 template<typename T>
 inline const T* ResourceSlotStorage<T>::Get(const Engine::Resource::ID& a_id) const
 {
-	Engine::Resource::DataIndex _idx = static_cast<Engine::Resource::DataIndex>(GetIndex(a_id));
-	Engine::Resource::DataGeneration _gen = static_cast<Engine::Resource::DataGeneration>(GetGeneration(a_id));
+	Engine::Resource::Index _idx = static_cast<Engine::Resource::Index>(GetIndex(a_id));
+	Engine::Resource::Generation _gen = static_cast<Engine::Resource::Generation>(GetGeneration(a_id));
 
 	if (_idx >= m_dataVec.size())
 	{
@@ -169,8 +166,8 @@ inline const T* ResourceSlotStorage<T>::Get(const Engine::Resource::ID& a_id) co
 template<typename T>
 inline T* ResourceSlotStorage<T>::Ref(const Engine::Resource::ID& a_id)
 {
-	Engine::Resource::DataIndex _idx = static_cast<Engine::Resource::DataIndex>(GetIndex(a_id));
-	Engine::Resource::DataGeneration _gen = static_cast<Engine::Resource::DataGeneration>(GetGeneration(a_id));
+	Engine::Resource::Index _idx = static_cast<Engine::Resource::Index>(GetIndex(a_id));
+	Engine::Resource::Generation _gen = static_cast<Engine::Resource::Generation>(GetGeneration(a_id));
 
 	if (_idx >= m_dataVec.size())
 	{
@@ -257,7 +254,7 @@ inline Engine::Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key
 	}
 	else
 	{
-		//Resource::DataIndex _idx = GetIndex(_id);
+		//Resource::Index _idx = GetIndex(_id);
 		//m_dataVec[_idx].data = std::move(a_data);
 		return _id;
 	}
@@ -266,8 +263,8 @@ inline Engine::Resource::ID ResourceSlotStorage<T>::Add(const std::string& a_key
 template<typename T>
 inline void ResourceSlotStorage<T>::Destroy(const Engine::Resource::ID& a_id)
 {
-	Engine::Resource::DataIndex _idx = GetIndex(a_id);
-	Engine::Resource::DataGeneration _gen = GetGeneration(a_id);
+	Engine::Resource::Index _idx = GetIndex(a_id);
+	Engine::Resource::Generation _gen = GetGeneration(a_id);
 
 	Data& _data = m_dataVec[_idx];
 	if (!_data.isAlive)
@@ -319,5 +316,5 @@ inline Engine::Resource::Generation ResourceSlotStorage<T>::GetGeneration(Engine
 template<typename T>
 inline Engine::Resource::Index ResourceSlotStorage<T>::GetIndex(Engine::Resource::ID a_id) const
 {
-	return static_cast<Engine::Resource::DataIndex>(uint16_t(a_id & 0xFFFF));
+	return static_cast<Engine::Resource::Index>(uint16_t(a_id & 0xFFFF));
 }

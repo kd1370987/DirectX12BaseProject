@@ -1,6 +1,6 @@
 ﻿#include "ModelManager.h"
 
-#include "Engine/Graphics/GraphicResource/Loader/ModelLoader/TinyGLTFLoader/TinyGLTFLoader.h"
+#include "Engine/Resource/Importer/Model/ModelImporter.h"
 
 Engine::Resource::Handle<Engine::Resource::Model> Engine::Resource::ModelManager::LoadModel(
 	const std::string& a_path
@@ -31,15 +31,7 @@ Engine::Resource::Handle<Engine::Resource::Model> Engine::Resource::ModelManager
 	//-------------------------------------
 	else if (_ext == "gltf" || _ext == "glb")
 	{
-		// GLTFもしくはGLB形式のモデルデータを読み込む
-		auto _spGltfModel = Load::Model(a_path);
-		if (!_spGltfModel)
-		{
-			// 読み込み失敗
-			assert(0 && "GLTFのシリアライズに失敗");
-			return;
-		}
-		Serialize::TinyGLTF(_model, _spGltfModel, _fileDir);
+		_model = ImportModel(a_path);
 	}
 	//-------------------------------------
 	// Assimpを使用する場合
@@ -66,14 +58,12 @@ Engine::Resource::Handle<Engine::Resource::Model> Engine::Resource::ModelManager
 	return Add(_model);
 }
 
-Engine::Resource::Handle<Engine::Resource::Model> Engine::Resource::ModelManager::LoadModel(
-	std::string_view a_metaName
-)
+const Engine::Resource::Model* Engine::Resource::ModelManager::GetModel(const Engine::Resource::Handle<Engine::Resource::Model>& a_handle)
 {
-	return Engine::Resource::Handle<Engine::Resource::Model>();
+	return RefModel(a_handle);
 }
 
-const Engine::Resource::Model* Engine::Resource::ModelManager::GetModel(const Engine::Resource::Handle<Engine::Resource::Model>& a_handle)
+Engine::Resource::Model* Engine::Resource::ModelManager::RefModel(const Engine::Resource::Handle<Engine::Resource::Model>& a_handle)
 {
 	// インデックスサイズチェック
 	if (a_handle.idx >= m_slotStorage.size())
@@ -84,6 +74,11 @@ const Engine::Resource::Model* Engine::Resource::ModelManager::GetModel(const En
 
 	// 問題なければデータを返す
 	return &m_slotStorage[a_handle.idx].data;
+}
+
+std::vector<Engine::Resource::SharedSlot<Engine::Resource::Model>>& Engine::Resource::ModelManager::GetAllModel()
+{
+	return m_slotStorage;
 }
 
 Engine::Resource::Handle<Engine::Resource::Model> Engine::Resource::ModelManager::Add(const Model& a_model)
@@ -130,4 +125,12 @@ void Engine::Resource::ModelManager::Subtract(const Engine::Resource::Handle<Eng
 
 	// インデックスをキューに返還
 	m_indexQueue.push(a_handle.idx);
+}
+
+Engine::Resource::ModelManager::ModelManager()
+{
+}
+
+Engine::Resource::ModelManager::~ModelManager()
+{
 }

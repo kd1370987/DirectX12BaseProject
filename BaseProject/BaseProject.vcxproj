@@ -269,7 +269,6 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Engine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\GraphicResourceManager\GraphicResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader\AssimpLoader.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\TinyGLTFLoader\TinyGLTFLoader.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Loader\TextureLoader\TextureLoader.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Animation\Animation.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Material\Material.cpp" />
@@ -277,9 +276,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Model\Model.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Node\Node.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon\QuadPolygon.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.cpp" />
     <ClCompile Include="Source\Engine\Graphics\OffScreen\OffScreen.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp" />
@@ -299,7 +296,6 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp" />
     <ClCompile Include="Source\Engine\Resource\Importer\Model\ModelImporter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.cpp" />
@@ -438,7 +434,6 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\GraphicResourceManager\GraphicResourceManager.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\GraphicResourceManager\ResourceSlotStorage\ResourceSlotStorage.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader\AssimpLoader.h" />
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\TinyGLTFLoader\TinyGLTFLoader.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Loader\TextureLoader\TextureLoader.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Animation\Animation.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Material\Material.h" />
@@ -446,10 +441,9 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Model\Model.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Node\Node.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon\QuadPolygon.h" />
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Texture\Texture.h" />
+    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Texture\TextureS.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Vertex\Vertex.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.h" />
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.h" />
     <ClInclude Include="Source\Engine\Graphics\OffScreen\OffScreen.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.h" />
@@ -471,7 +465,6 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\RootSigLayout\RootSigLayout.h" />
     <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Source\Engine\Resource\Common\Common.h" />
-    <ClInclude Include="Source\Engine\Resource\Data\Model\Model.h" />
     <ClInclude Include="Source\Engine\Resource\Importer\Model\ModelImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.h" />

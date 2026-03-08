@@ -3,15 +3,7 @@ namespace Engine::Resource
 {
 	namespace GLTF
 	{
-		// GLTFデータをモデルとして読み込み
-		Engine::Resource::Model Import(const std::string& a_filePath);
-
-		// GLTFモデルの読み込み
-		std::shared_ptr<Engine::Resource::GLTF::ModelData> Load(std::string_view a_filePath);
-
-		// モデルデータに変換
-		Engine::Resource::Model Serialize(std::shared_ptr<Engine::Resource::GLTF::ModelData>);
-
+		
 		//=========================================================
 		// GLTFマテリアルデータ
 		//=========================================================
@@ -122,5 +114,20 @@ namespace Engine::Resource
 			//---------------------------------
 			std::vector<std::shared_ptr<AnimationData>> animations = {};	// アニメーションデータリスト
 		};
+
+
+		// GLTFデータをモデルとして読み込み
+		Engine::Resource::Model Import(const std::string& a_filePath);
+
+		// GLTFモデルの読み込み
+		std::shared_ptr<Engine::Resource::GLTF::ModelData> Load(
+			std::string_view a_filePath
+		);
+
+		// モデルデータに変換
+		Engine::Resource::Model Serialize(
+			const std::string& a_filePath,
+			std::shared_ptr<Engine::Resource::GLTF::ModelData> a_spGLTFModel
+		);
 	}
 }

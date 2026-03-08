@@ -439,9 +439,6 @@
     <Filter Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize">
       <UniqueIdentifier>{c6371e47-cb89-498e-9c7d-1fe3e6d5b171}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize">
-      <UniqueIdentifier>{81f080e3-8a7a-4549-a96d-bead6d8a030c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\Model">
       <UniqueIdentifier>{1ac45e25-f745-49fe-9e22-c2b2a1c6e9a1}</UniqueIdentifier>
     </Filter>
@@ -474,9 +471,6 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader">
       <UniqueIdentifier>{38178856-bbe1-49c8-899c-661afa1a0245}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\TinyGLTFLoader">
-      <UniqueIdentifier>{27506523-6d72-4fce-bd7d-a090839893fa}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Source\Screen2DShader">
       <UniqueIdentifier>{2c96e27e-f605-4ae0-b40e-a78de7768d85}</UniqueIdentifier>
@@ -544,18 +538,6 @@
     <Filter Include="Source\Engine\Resource\Importer">
       <UniqueIdentifier>{46c2bf06-9e71-4ecb-8588-6b77fe35044e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Manager">
-      <UniqueIdentifier>{1cf18801-36cc-48e9-940a-0a68a93a4332}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\TextureManager">
-      <UniqueIdentifier>{5f896168-aced-43a2-9c4b-a1fe910253cb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\ModelManager">
-      <UniqueIdentifier>{1eca8f5c-6047-47f0-bddb-ebded8d03df0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\ShaderManager">
-      <UniqueIdentifier>{80a68e47-11c8-488f-be15-2f9b8c0401cc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Data\Model">
       <UniqueIdentifier>{5ca1df84-3886-47f6-ab35-e5ef1b7cfea6}</UniqueIdentifier>
     </Filter>
@@ -588,6 +570,24 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Importer\Model\tinyGLTF">
       <UniqueIdentifier>{7c8e6a9e-ea24-4b7e-9a7d-1d6bf2afa8ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Manager">
+      <UniqueIdentifier>{1cf18801-36cc-48e9-940a-0a68a93a4332}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\TextureManager">
+      <UniqueIdentifier>{5f896168-aced-43a2-9c4b-a1fe910253cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\ModelManager">
+      <UniqueIdentifier>{1eca8f5c-6047-47f0-bddb-ebded8d03df0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\ShaderManager">
+      <UniqueIdentifier>{80a68e47-11c8-488f-be15-2f9b8c0401cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Create">
+      <UniqueIdentifier>{d9a92ef6-12a6-4d22-ad7d-66c92a959948}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Create\Texture">
+      <UniqueIdentifier>{4a40c2cc-c81c-4508-83ba-5edb9cac1683}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -852,9 +852,6 @@
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\GraphicResourceManager\GraphicResourceManager.cpp">
       <Filter>Source\Engine\Graphics\GraphicResource\GraphicResourceManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\TinyGLTFLoader\TinyGLTFLoader.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\TinyGLTFLoader</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader\AssimpLoader.cpp">
       <Filter>Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader</Filter>
     </ClCompile>
@@ -863,12 +860,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.cpp">
       <Filter>Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Texture\Texture.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Node\Node.cpp">
       <Filter>Source\Engine\Graphics\GraphicResource\Resource\Node</Filter>
@@ -923,9 +914,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGResource.cpp">
       <Filter>Source\Engine\Graphics\RenderGraph\RGResource</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp">
-      <Filter>Source\Engine\Resource\Data\Model</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.cpp">
       <Filter>Source\Engine\Resource\Manager\ModelManager</Filter>
@@ -1328,9 +1316,6 @@
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\GraphicResourceManager\ResourceSlotStorage\ResourceSlotStorage.h">
       <Filter>Source\Engine\Graphics\GraphicResource\GraphicResourceManager\ResourceSlotStorage</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\TinyGLTFLoader\TinyGLTFLoader.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\TinyGLTFLoader</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader\AssimpLoader.h">
       <Filter>Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader</Filter>
     </ClInclude>
@@ -1340,10 +1325,7 @@
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.h">
       <Filter>Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize\TinyGLTFSerialize.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\TinyGLTFSerialize</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Texture\Texture.h">
+    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Texture\TextureS.h">
       <Filter>Source\Engine\Graphics\GraphicResource\Resource\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Node\Node.h">
@@ -1414,9 +1396,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGResource.h">
       <Filter>Source\Engine\Graphics\RenderGraph\RGResource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\Model\Model.h">
-      <Filter>Source\Engine\Resource\Data\Model</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.h">
       <Filter>Source\Engine\Resource\Manager\ModelManager</Filter>

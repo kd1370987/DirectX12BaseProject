@@ -2,6 +2,7 @@
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 
 #include "../SceneManager.h"
 
@@ -96,12 +97,9 @@ void GameScene::RegistryEntity()
 		VelocityComponent* _velocity = m_upWorld->RefData<VelocityComponent>(_player);
 		_velocity->value = { 0.0f,0.0f,0.0f };
 		ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_player);
-		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Man/scene.gltf");
-		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Robot/Robot.gltf");
-		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/SkinMeshMan/SkinMeshMan.gltf");
-		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/TreasureBox/TreasureBox.gltf");
-		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/tank/tank.gltf");
-		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/TestModelWhite/testModelWhite.gltf");
+		_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel(
+			"Asset/Model/SkinMeshMan/SkinMeshMan.gltf"
+		);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_player);
@@ -114,12 +112,15 @@ void GameScene::RegistryEntity()
 			_pose = DXSM::Matrix::Identity;
 		}
 		AnimatorComponent* _pAni = m_upWorld->RefData<AnimatorComponent>(_player);
-		_pAni->clipID = ModelUtility::GetAnimationClipCount(*GraphicResourceManager::Instance().NGetModel(_model->modelID),"Walk");
+		_pAni->clipID = ModelUtility::GetAnimationClipCount(
+			*Engine::Resource::ModelManager::Instnace().GetModel(_model->handle),
+			"Walk"
+		);
 		_pAni->time = 0.0f;
 		_pAni->speed = 30.0f;
 		_pAni->isLoop = true;
 		NodePoseComponent* _pNodePose = m_upWorld->RefData<NodePoseComponent>(_player);
-		auto* _pModel = GraphicResourceManager::Instance().NGetModel(_model->modelID);
+		auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_model->handle);
 		_pNodePose->nodeCount = static_cast<uint16_t>(_pModel->originalNodes.size());
 		for (int _i = 0; _i < MAX_NODEINDEX; ++_i)
 		{
@@ -162,8 +163,7 @@ void GameScene::RegistryEntity()
 		_collider->layer = Layer::StaticObject;
 		_collider->collideLayer = Layer::DiynamicObject;
 		ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_entity);
-		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Stage/StageMap.gltf");
-		//_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/Test/Scene_01/scene.gltf");
+		_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel("Asset/Model/Stage/StageMap.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);
@@ -244,7 +244,9 @@ void GameScene::RegistryEntity()
 					auto _entity = m_upWorld->CreateEntity(_sig);
 
 					ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_entity);
-					_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/TestModelWhite/testModelWhite.gltf");
+					_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel(
+						"Asset/Model/TestModelWhite/testModelWhite.gltf"
+					);
 					_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 					_model->emissiveScale = { 0.0f,0.0f,0.0f };
 					TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);
@@ -264,7 +266,9 @@ void GameScene::RegistryEntity()
 		auto _entity = m_upWorld->CreateEntity(_sig);
 
 		ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_entity);
-		_model->modelID = GraphicResourceManager::Instance().GetModel("Asset/Model/TEST_metarogh/MRModel.gltf");
+		_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel(
+			"Asset/Model/TEST_metarogh/MRModel.gltf"
+		);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);

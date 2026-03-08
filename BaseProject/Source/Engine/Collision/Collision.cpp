@@ -1,6 +1,7 @@
 ﻿#include "Collision.h"
 
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
+#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 
 #include "Application/Components/Collision/Collider.h"
 #include "Application/Components/Collision/RayCollider.h"
@@ -43,7 +44,7 @@ bool Engine::Collision::Raycast(
 			continue;
 
 		// モデル取得
-		const Engine::Resource::Model* _model = GraphicResourceManager::Instance().NGetModelResource(_colView.pModelComp->modelID);
+		auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(_colView.pModelComp->handle);
 		if (!_model)
 		{
 			assert(0 && "モデルが取れていないためレイ判定失敗");

@@ -8,7 +8,7 @@
 
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 #include "Engine/Animation/AnimationEvaluator/AnimationEvaluator.h"
-
+#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 
 void CalcNodeSystem::Run(World& a_world, float a_dt)
 {
@@ -29,7 +29,8 @@ void CalcNodeSystem::Run(World& a_world, float a_dt)
 				NodePoseComponent& _nodeComp = a_nodePoseArray[_i];
 
 				// モデル取得
-				auto* _pModel = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+				//auto* _pModel = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+				auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
 
 				// ルートから開始
 				for (int _rootIdx : _pModel->rootNodeIndices)

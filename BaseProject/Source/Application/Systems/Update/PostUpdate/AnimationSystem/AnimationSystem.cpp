@@ -8,6 +8,7 @@
 
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 #include "Engine/Animation/AnimationEvaluator/AnimationEvaluator.h"
+#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 
 
 void AnimationSystem::Run(World& a_world, float a_dt)
@@ -28,7 +29,8 @@ void AnimationSystem::Run(World& a_world, float a_dt)
 				AnimatorComponent& _aniComp = a_animatorArray[_i];
 				NodePoseComponent& _nodeComp = a_NodePoseArray[_i];
 
-				auto* _pModel = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+//				auto* _pModel = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+				auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
 
 				// アニメーション取得
 				

@@ -8,7 +8,7 @@ public:
 	struct Data
 	{
 		std::shared_ptr<T> spData = nullptr;
-		Engine::Resource::DataGeneration gen = 0;
+		Engine::Resource::Generation gen = 0;
 		bool isAlive = false;
 	};
 
@@ -79,8 +79,8 @@ public:
 private:
 
 	Engine::Resource::ID CreateID(
-		Engine::Resource::DataIndex a_idx,
-		Engine::Resource::DataGeneration a_gen
+		Engine::Resource::Index a_idx,
+		Engine::Resource::Generation a_gen
 	)
 	{
 		return (Engine::Resource::ID(a_gen) << 16) | a_idx;
@@ -91,14 +91,14 @@ private:
 	/// </summary>
 	/// <param name="a_id">ID</param>
 	/// <returns>IDから抽出した世代</returns>
-	Engine::Resource::DataGeneration GetGeneration(Engine::Resource::ID a_id) const;
+	Engine::Resource::Generation GetGeneration(Engine::Resource::ID a_id) const;
 
 	/// <summary>
 	/// インデックス取得
 	/// </summary>
 	/// <param name="a_id">ID</param>
 	/// <returns>IDから取得したインデックス</returns>
-	Engine::Resource::DataIndex GetIndex(Engine::Resource::ID a_id) const;
+	Engine::Resource::Index GetIndex(Engine::Resource::ID a_id) const;
 
 private:
 
@@ -107,16 +107,16 @@ private:
 	std::vector<Data> m_dataVec = {};
 
 
-	std::queue<Engine::Resource::DataIndex> m_indexQueue = {};
+	std::queue<Engine::Resource::Index> m_indexQueue = {};
 };
 
 template<typename T>
 inline void SlotStorage<T>::Init(UINT a_maxCount)
 {
 	// オーバーフローチェック
-	assert(a_maxCount <= std::numeric_limits<Engine::Resource::DataIndex>::max());
+	assert(a_maxCount <= std::numeric_limits<Engine::Resource::Index>::max());
 
-	for (Engine::Resource::DataIndex _idx = 0; _idx < static_cast<Engine::Resource::DataIndex>(a_maxCount); ++_idx)
+	for (Engine::Resource::Index _idx = 0; _idx < static_cast<Engine::Resource::Index>(a_maxCount); ++_idx)
 	{
 		m_indexQueue.push(_idx);
 	}
@@ -137,8 +137,8 @@ inline void SlotStorage<T>::Release()
 template<typename T>
 inline const T* SlotStorage<T>::Get(const Engine::Resource::ID& a_id) const
 {
-	Engine::Resource::DataIndex _idx = static_cast<Engine::Resource::DataIndex>(GetIndex(a_id));
-	Engine::Resource::DataGeneration _gen = static_cast<Engine::Resource::DataGeneration>(GetGeneration(a_id));
+	Engine::Resource::Index _idx = static_cast<Engine::Resource::Index>(GetIndex(a_id));
+	Engine::Resource::Generation _gen = static_cast<Engine::Resource::Generation>(GetGeneration(a_id));
 
 	if (_idx >= m_dataVec.size())
 	{
@@ -161,8 +161,8 @@ inline const T* SlotStorage<T>::Get(const Engine::Resource::ID& a_id) const
 template<typename T>
 inline T* SlotStorage<T>::Ref(const Engine::Resource::ID& a_id) const
 {
-	Engine::Resource::DataIndex _idx = static_cast<Engine::Resource::DataIndex>(GetIndex(a_id));
-	Engine::Resource::DataGeneration _gen = static_cast<Engine::Resource::DataGeneration>(GetGeneration(a_id));
+	Engine::Resource::Index _idx = static_cast<Engine::Resource::Index>(GetIndex(a_id));
+	Engine::Resource::Generation _gen = static_cast<Engine::Resource::Generation>(GetGeneration(a_id));
 
 	if (_idx >= m_dataVec.size())
 	{
@@ -223,7 +223,7 @@ inline Engine::Resource::ID SlotStorage<T>::Add(const std::string& a_key, std::s
 	auto _id = GetID(a_key);
 	if (_id == Engine::Resource::Limits::INVALID_ID)
 	{
-		Engine::Resource::DataIndex _idx = m_indexQueue.front();
+		Engine::Resource::Index _idx = m_indexQueue.front();
 		m_indexQueue.pop();
 
 		// 既存のストレージに上書き
@@ -238,7 +238,7 @@ inline Engine::Resource::ID SlotStorage<T>::Add(const std::string& a_key, std::s
 	}
 	else
 	{
-		Engine::Resource::DataIndex _idx = GetIndex(_id);
+		Engine::Resource::Index _idx = GetIndex(_id);
 		m_dataVec[_idx].spData = a_spData;
 		return _id;
 	}
@@ -247,8 +247,8 @@ inline Engine::Resource::ID SlotStorage<T>::Add(const std::string& a_key, std::s
 template<typename T>
 inline void SlotStorage<T>::Destroy(const Engine::Resource::ID& a_id)
 {
-	Engine::Resource::DataIndex _idx = GetIndex(a_id);
-	Engine::Resource::DataGeneration _gen = GetGeneration(a_id);
+	Engine::Resource::Index _idx = GetIndex(a_id);
+	Engine::Resource::Generation _gen = GetGeneration(a_id);
 
 	Data& _data = m_dataVec[_idx];
 	if (!_data.isAlive)
@@ -284,13 +284,13 @@ inline bool SlotStorage<T>::Has(const std::string& a_key)
 }
 
 template<typename T>
-inline Engine::Resource::DataGeneration SlotStorage<T>::GetGeneration(Engine::Resource::ID a_id) const
+inline Engine::Resource::Generation SlotStorage<T>::GetGeneration(Engine::Resource::ID a_id) const
 {
 	return uint16_t(a_id >> 16);
 }
 
 template<typename T>
-inline Engine::Resource::DataIndex SlotStorage<T>::GetIndex(Engine::Resource::ID a_id) const
+inline Engine::Resource::Index SlotStorage<T>::GetIndex(Engine::Resource::ID a_id) const
 {
-	return static_cast<Engine::Resource::DataIndex>(uint16_t(a_id & 0xFFFF));
+	return static_cast<Engine::Resource::Index>(uint16_t(a_id & 0xFFFF));
 }

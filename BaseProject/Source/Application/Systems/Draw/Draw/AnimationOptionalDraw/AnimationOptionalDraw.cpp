@@ -9,7 +9,7 @@
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
-
+#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
 void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
@@ -41,7 +41,7 @@ void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
 				_item.emissiveScale = _modelComp.emissiveScale;
 
 				// モデル取得
-				auto* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
+				auto* _model = Engine::Resource::ModelManager::Instnace().RefModel(_modelComp.handle);
 				if (!_model) return;
 
 				// 全ノード

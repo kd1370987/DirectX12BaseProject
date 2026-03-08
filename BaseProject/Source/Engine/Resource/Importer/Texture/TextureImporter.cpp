@@ -1,8 +1,10 @@
-﻿#include "TextureLoader.h"
+﻿#include "TextureImporter.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
-void CopyTexRegion(ID3D12Resource* a_pResource, const UploadBuffer& a_uploadBuffer)
+#include "../../Data/Texture/Texture.h"
+
+void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBuffer& a_uploadBuffer)
 {
 	// コマンドリストを取得
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
@@ -59,9 +61,9 @@ void CopyTexRegion(ID3D12Resource* a_pResource, const UploadBuffer& a_uploadBuff
 	D3D12Wrapper::Instance().WaitRender();
 }
 
-UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)
+Engine::Resource::UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)
 {
-	UploadBuffer _uploadBuffer = {};
+	Engine::Resource::UploadBuffer _uploadBuffer = {};
 
 	// サブリソース総数
 	_uploadBuffer.subresourceCount = a_meta.mipLevels * a_meta.arraySize;
@@ -119,13 +121,17 @@ UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc, const Direct
 	if (FAILED(_hr))
 	{
 		assert(0 && "リソース生成に失敗中間バッファ");
-		return UploadBuffer();
+		return Engine::Resource::UploadBuffer();
 	}
 
 	return _uploadBuffer;
 }
 
-bool BuildFromScratchiImage(Texture& a_tex, DirectX::TexMetadata& a_meta, DirectX::ScratchImage& a_sImg)
+bool BuildFromScratchiImage(
+	Engine::Resource::TextureDesc& a_tex, 
+	DirectX::TexMetadata& a_meta,
+	DirectX::ScratchImage& a_sImg
+)
 {
 	HRESULT _hr = E_FAIL;
 	// テクスチャのためのヒープ設定
@@ -138,23 +144,17 @@ bool BuildFromScratchiImage(Texture& a_tex, DirectX::TexMetadata& a_meta, Direct
 
 	// テクスチャリソース仕様書
 	D3D12_RESOURCE_DESC _texDesc = {};
-	if (a_tex.pDesc)
-	{
-		_texDesc = *a_tex.pDesc;
-	}
-	else
-	{
-		_texDesc.Format = a_meta.format;
-		_texDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(a_meta.dimension);
-		_texDesc.Width = static_cast<UINT64>(a_meta.width);
-		_texDesc.Height = static_cast<UINT>(a_meta.height);
-		_texDesc.DepthOrArraySize = static_cast<UINT16>(a_meta.arraySize);
-		_texDesc.MipLevels = static_cast<UINT16>(a_meta.mipLevels);
-		_texDesc.SampleDesc.Count = 1;
-		_texDesc.SampleDesc.Quality = 0;
-		_texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		_texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-	}
+	_texDesc.Format = a_meta.format;
+	_texDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(a_meta.dimension);
+	_texDesc.Width = static_cast<UINT64>(a_meta.width);
+	_texDesc.Height = static_cast<UINT>(a_meta.height);
+	_texDesc.DepthOrArraySize = static_cast<UINT16>(a_meta.arraySize);
+	_texDesc.MipLevels = static_cast<UINT16>(a_meta.mipLevels);
+	_texDesc.SampleDesc.Count = 1;
+	_texDesc.SampleDesc.Quality = 0;
+	_texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	_texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	
 	// リソース生成（テクスチャ）
 	_hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_texHeapProp,
@@ -172,7 +172,7 @@ bool BuildFromScratchiImage(Texture& a_tex, DirectX::TexMetadata& a_meta, Direct
 	}
 
 	// アップロードヒープ作成
-	UploadBuffer _uploadBuffer = CreateUploadHeap(_texDesc,a_meta);
+	Engine::Resource::UploadBuffer _uploadBuffer = CreateUploadHeap(_texDesc, a_meta);
 
 	// 中間バッファへデータコピー
 	void* _pData = nullptr;
@@ -192,7 +192,7 @@ bool BuildFromScratchiImage(Texture& a_tex, DirectX::TexMetadata& a_meta, Direct
 
 		for (UINT _row = 0; _row < _uploadBuffer.numRowVec[_i]; ++_row)
 		{
-			std::memcpy(_dst,_src,_uploadBuffer.rowSizeVec[_i]);
+			std::memcpy(_dst, _src, _uploadBuffer.rowSizeVec[_i]);
 			_dst += _uploadBuffer.layoutVec[_i].Footprint.RowPitch;
 			_src += _img->rowPitch;
 		}
@@ -237,20 +237,23 @@ bool LoadFromPath(DirectX::TexMetadata& a_metaData, DirectX::ScratchImage& a_img
 	return true;
 }
 
-bool TextureLoad::Load(const std::string& a_path, Texture& a_dstTex, D3D12_RESOURCE_DESC* a_desc)
+Engine::Resource::TextureDesc Engine::Resource::ImportTexture(
+	const std::string& a_filePath, 
+	D3D12_RESOURCE_DESC* a_desc
+)
 {
 	//----------------------------------------
 	// データ準備
 	//----------------------------------------
-	a_dstTex = {};
-	std::wstring _path = StringUtility::ToWideString(a_path);
+	Engine::Resource::TextureDesc _texDesc = {};
+	std::wstring _path = StringUtility::ToWideString(a_filePath);
 	DirectX::TexMetadata _meta = {};
 	DirectX::ScratchImage _sImg = {};
 
 	// テクスチャ読み込み
 	if (!LoadFromPath(_meta, _sImg, _path))
 	{
-		return false;
+		return _texDesc;
 	}
 
 	if (a_desc)
@@ -261,7 +264,11 @@ bool TextureLoad::Load(const std::string& a_path, Texture& a_dstTex, D3D12_RESOU
 		_meta.arraySize = static_cast<size_t>(a_desc->DepthOrArraySize);
 		_meta.mipLevels = static_cast<size_t>(a_desc->MipLevels);
 
-		a_dstTex.pDesc = a_desc;
+		_texDesc.desc.Format = _meta.format;
+		_texDesc.desc.Width = static_cast<size_t>(_meta.width);
+		_texDesc.desc.Height = static_cast<size_t>(_meta.height);
+		_texDesc.desc.DepthOrArraySize = static_cast<size_t>(_meta.arraySize);
+		_texDesc.desc.MipLevels = static_cast<size_t>(_meta.mipLevels);
 	}
 
 	// みっぷマップ計算
@@ -276,21 +283,21 @@ bool TextureLoad::Load(const std::string& a_path, Texture& a_dstTex, D3D12_RESOU
 	);
 	if (FAILED(_hr))
 	{
-		return false;
+		return _texDesc;
 	}
 
 	_sImg = std::move(_mipChain);
 	_meta = _sImg.GetMetadata();
 
 	// テクスチャを構築
-	BuildFromScratchiImage(a_dstTex, _meta, _sImg);
+	BuildFromScratchiImage(_texDesc, _meta, _sImg);
 
-	return true;
+	return _texDesc;
 }
 
-Texture TextureLoad::Default(DirectX::XMFLOAT4 a_color)
+Engine::Resource::TextureDesc Engine::Resource::DefaultTexture(DirectX::XMFLOAT4 a_color)
 {
-	Texture _tex = {};
+	TextureDesc _texDesc = {};
 	DirectX::TexMetadata _meta = {};
 	DirectX::ScratchImage _sImg = {};
 	_sImg = {};
@@ -313,23 +320,23 @@ Texture TextureLoad::Default(DirectX::XMFLOAT4 a_color)
 	}
 	_meta = _sImg.GetMetadata();
 	// テクスチャを構築
-	BuildFromScratchiImage(_tex, _meta, _sImg);
-	return _tex;
+	BuildFromScratchiImage(_texDesc, _meta, _sImg);
+	return _texDesc;
 }
 
-Texture TextureLoad::White()
+Engine::Resource::TextureDesc Engine::Resource::WhiteTexture()
 {
-	return Default({
+	return DefaultTexture({
 		255,
 		255,
-		255, 
+		255,
 		255
 	});
 }
 
-Texture TextureLoad::Black()
+Engine::Resource::TextureDesc Engine::Resource::BlackTexture()
 {
-	return Default({
+	return DefaultTexture({
 		0,
 		0,
 		0,
@@ -337,9 +344,9 @@ Texture TextureLoad::Black()
 	});
 }
 
-Texture TextureLoad::NormalWhite()
+Engine::Resource::TextureDesc Engine::Resource::NormalWhiteTexture()
 {
-	return Default({
+	return DefaultTexture({
 		128,
 		128,
 		255,
@@ -347,9 +354,9 @@ Texture TextureLoad::NormalWhite()
 	});
 }
 
-Texture TextureLoad::ORM()
+Engine::Resource::TextureDesc Engine::Resource::ORMTexture()
 {
-	return Default({
+	return DefaultTexture({
 		0,
 		255,
 		255,

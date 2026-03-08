@@ -99,12 +99,12 @@ struct DescriptorHandle
 
 #include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"				// モデル
 #include "Engine/Graphics/GraphicResource/Resource/QuadPolygon/QuadPolygon.h"	// クアッドポリゴン
-#include "Engine/Graphics/GraphicResource/Resource/Texture/Texture.h"			// テクスチャ
+#include "Engine/Graphics/GraphicResource/Resource/Texture/TextureS.h"			// テクスチャ
 //------------------------------------------------------------------------------------------
 // リソースの読み込み
 //------------------------------------------------------------------------------------------
-#include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/TinyGLTFSerialize/TinyGLTFSerialize.h"
-#include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/AssimpSerialize/AssimpSerialize.h"
+//#include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/TinyGLTFSerialize/TinyGLTFSerialize.h"
+//#include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/AssimpSerialize/AssimpSerialize.h"
 
 //------------------------------------------------------------------------------------------
 // リソース

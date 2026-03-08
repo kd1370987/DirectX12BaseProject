@@ -51,38 +51,10 @@ public:
 
 	const std::string& GetTexturePath(const uint32_t& a_texID);
 
-	//==========================================================================================
-	// 
-	// モデル
-	//
-	//==========================================================================================
-
-	/// <summary>
-	/// モデル取得
-	/// </summary>
-	/// <param name="a_key">ファイルパス</param>
-	Engine::Resource::ID GetModel(const std::string& a_path);
-
-	/// <summary>
-	/// モデル取得
-	/// </summary>
-	/// <param name="a_modelID">登録ID</param>
-	/// <returns>生ポインタ</returns>
-	const Engine::Resource::Model* NGetModelResource(uint32_t a_modelID);
-	Engine::Resource::Model* NGetModel(uint32_t a_modelID);
-
-	UINT GetModelResourceStorageSize();
-
-private:
-
-	// モデルの読み込み
-	void LoadModelFromPath(Engine::Resource::Model& a_model,const std::string& a_path);
-
 private:
 
 	ResourceSlotStorage<Texture> m_texStorage;
 
-	ResourceSlotStorage<Engine::Resource::Model> m_modelStorage;
 
 private:
 

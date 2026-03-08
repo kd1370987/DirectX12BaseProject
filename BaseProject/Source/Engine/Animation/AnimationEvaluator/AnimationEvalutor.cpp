@@ -162,7 +162,13 @@ bool Animation::InterpolateScale(Engine::Resource::AnimationNode& a_node, float 
 	return true;
 }
 
-void Animation::CalcNodeMatrix(int a_nodeIdx, int a_parentNodeIdx, Engine::Resource::Model* a_model, DirectX::XMFLOAT4X4* a_pOutLocalMat, DirectX::XMFLOAT4X4* a_pOutWorldMat)
+void Animation::CalcNodeMatrix(
+	int a_nodeIdx, 
+	int a_parentNodeIdx,
+	const Engine::Resource::Model* a_model,
+	DirectX::XMFLOAT4X4* a_pOutLocalMat, 
+	DirectX::XMFLOAT4X4* a_pOutWorldMat
+)
 {
 	const auto& _node = a_model->originalNodes[a_nodeIdx];
 

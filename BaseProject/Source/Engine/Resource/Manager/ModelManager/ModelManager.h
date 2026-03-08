@@ -2,16 +2,6 @@
 
 namespace Engine::Resource
 {
-
-	template<typename Data>
-	struct SharedSlot
-	{
-		Data data;
-		Generation gen = Limits::INVALID_GENERATION;
-		uint32_t sharedCount = 0;
-	};
-
-
 	//==========================================================================================
 	// 
 	// モデル管理クラス
@@ -25,12 +15,14 @@ namespace Engine::Resource
 		// リソースの読み込み
 		//------------------------------------------------------------------------------------------
 		Engine::Resource::Handle<Engine::Resource::Model> LoadModel(const std::string& a_path);
-		Engine::Resource::Handle<Engine::Resource::Model> LoadModel(std::string_view a_metaName);
 
 		//------------------------------------------------------------------------------------------
 		// リソースの取得
 		//------------------------------------------------------------------------------------------
 		const Engine::Resource::Model* GetModel(const Engine::Resource::Handle<Engine::Resource::Model>& a_handle);
+		Engine::Resource::Model* RefModel(const Engine::Resource::Handle<Engine::Resource::Model>& a_handle);
+
+		std::vector<SharedSlot<Model>>& GetAllModel();
 
 	private:
 
@@ -48,5 +40,18 @@ namespace Engine::Resource
 		// 使用可能場所リスト
 		std::queue<Index> m_indexQueue = {};
 		UINT m_indexQueueMaxSize = 0;
+
+	private:
+
+		ModelManager();
+		~ModelManager();
+
+	public:
+
+		static ModelManager& Instnace()
+		{
+			static ModelManager _instance;
+			return _instance;
+		}
 	};
 }

@@ -108,11 +108,11 @@ static void XMFLOAT4X4MirrorZ(DirectX::XMFLOAT4X4& a_mat)
 
 Engine::Resource::Model Engine::Resource::GLTF::Import(const std::string& a_filePath)
 {
+	// GLTFを読み込み
 	auto _spGLTFModel = Load(a_filePath);
 
-	
-
-	return Engine::Resource::Model();
+	// モデルデータにシリアライズして返す
+	return Engine::Resource::GLTF::Serialize(a_filePath,_spGLTFModel);
 }
 
 std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(std::string_view a_filePath)
@@ -895,4 +895,254 @@ std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(
 
 	// シリアライズしたモデルを返す
 	return _destModel;
+}
+void CreateNodes(
+	Engine::Resource::Model& a_dst,
+	const std::shared_ptr<Engine::Resource::GLTF::ModelData>& a_src
+)
+{
+	//=================================================
+	// ノード作成
+	//=================================================
+	a_dst.originalNodes.resize(a_src->nodes.size());		// ノード配列確保
+	for (UINT _i = 0; _i < static_cast<UINT>(a_src->nodes.size()); ++_i)
+	{
+		// ノード情報
+		const Engine::Resource::GLTF::Node& _srcNode = a_src->nodes[_i];	// 入力元
+		Engine::Resource::Node& _dstNode = a_dst.originalNodes[_i];		// 出力先
+
+		// 基本情報コピー
+		if (_srcNode.isMesh)
+		{
+			// メッシュ作成
+			//_dstNode.spMesh = std::make_shared<Mesh>();
+			auto _spMesh = std::make_shared<Engine::Resource::Mesh>();
+
+			// メッシュデータコピー
+			//if (_dstNode.spMesh)
+			if (_spMesh)
+			{
+				// 頂点配列作成
+				std::vector<Engine::Resource::MeshVertexFloat> _vertices = {};
+				_vertices.resize(_srcNode.nodeMesh.vertices.size());
+				for (size_t _j = 0; _j < _srcNode.nodeMesh.vertices.size(); ++_j)
+				{
+					Engine::Resource::MeshVertexFloat _dstVertex = {};
+
+					unsigned int _srcColor = _srcNode.nodeMesh.vertices[_j].color;
+					float r = ((float)((_srcColor >> 24) & 0xFF)) / 255.0f;
+					float g = ((float)((_srcColor >> 16) & 0xFF)) / 255.0f;
+					float b = ((float)((_srcColor >> 8) & 0xFF)) / 255.0f;
+					float a = ((float)((_srcColor >> 0) & 0xFF)) / 255.0f;
+					_dstVertex.color = DirectX::XMFLOAT4(r, g, b, a);
+
+					_dstVertex.normal = _srcNode.nodeMesh.vertices[_j].normal;
+					_dstVertex.pos = _srcNode.nodeMesh.vertices[_j].pos;
+					_dstVertex.tangent = _srcNode.nodeMesh.vertices[_j].tangent;
+					_dstVertex.uv = _srcNode.nodeMesh.vertices[_j].uv;
+
+					_dstVertex.skinIndexList = _srcNode.nodeMesh.vertices[_j].skinIndexList;
+					_dstVertex.skinWeightList = _srcNode.nodeMesh.vertices[_j].skinWeightList;
+
+					_vertices[_j] = _dstVertex;
+				}
+
+				// メッシュ作成
+				//_dstNode.spMesh->CreateFloat(
+				_spMesh->CreateFloat(
+					_vertices,
+					_srcNode.nodeMesh.faces,
+					_srcNode.nodeMesh.subsets,
+					_srcNode.nodeMesh.isSkinMesh
+				);
+			}
+
+			// メッシュノードリストにインデックス登録
+			a_dst.meshNodeIndices.push_back(_i);
+
+			_dstNode.meshIndices.push_back(static_cast<int>(a_dst.spMeshVec.size()));
+			a_dst.spMeshVec.push_back(_spMesh);
+		}
+
+		// ノード情報セット
+		_dstNode.name = _srcNode.name;										// ノード名
+		_dstNode.localTransform = _srcNode.localTransform;					// ローカル行列
+		_dstNode.worldTransform = _srcNode.worldTransform;					// ワールド行列
+		_dstNode.boneInverseWorldMatrix = _srcNode.inverseBindMatrix;		// ボーンのオフセット行列
+
+		_dstNode.parent = _srcNode.parent;									// 親インデックス
+		_dstNode.children = _srcNode.children;								// 子供リスト
+
+		_dstNode.boneIndex = _srcNode.boneNodeIndex;						// ボーンインデックス
+		_dstNode.isSkinMesh = _srcNode.nodeMesh.isSkinMesh;					// スキンメッシュ持ちかどうか
+
+		// 当たり判定用ノードの検索
+		if (_dstNode.name.find("COL") != std::string::npos)
+		{
+			// 判定用ノードに割り当て
+			a_dst.collisionMeshNodeIndices.push_back(_i);
+		}
+		else
+		{
+			// 描画用ノードに割り当て
+			a_dst.drawMeshNodeIndices.push_back(_i);
+		}
+	}
+
+	//=================================================
+	// ルートノード・ボーンノードリスト作成
+	//=================================================
+	for (UINT _nodeIdx = 0; _nodeIdx < a_src->nodes.size(); ++_nodeIdx)
+	{
+		// ルートノードの登録
+		if (a_src->nodes[_nodeIdx].parent == -1)
+		{
+			a_dst.rootNodeIndices.push_back(_nodeIdx);
+		}
+		// ボーンノードの登録
+		int _boneIdx = a_src->nodes[_nodeIdx].boneNodeIndex;		// ボーンインデックス取得
+		if (_boneIdx >= 0)
+		{
+			// ボーンノードリストのサイズ確保
+			if (_boneIdx >= (int)a_dst.boneNodeIndices.size())
+			{
+				a_dst.boneNodeIndices.resize(_boneIdx + 1);
+			}
+
+			// 登録
+			a_dst.boneNodeIndices[_boneIdx] = _nodeIdx;
+		}
+	}
+
+	// 当たり判定用ノードがなければ、a_dst.drawMeshNodeと同じ割り当てを行う
+	if (a_dst.collisionMeshNodeIndices.size() == 0)
+	{
+		a_dst.collisionMeshNodeIndices = a_dst.drawMeshNodeIndices;
+
+		for (auto& _idx : a_dst.collisionMeshNodeIndices)
+		{
+			for (auto& _meshIdx : a_dst.originalNodes[_idx].meshIndices)
+			{
+				a_dst.spMeshVec[_meshIdx]->CreateCollision();
+			}
+		}
+	}
+}
+void CreateMaterials(
+	Engine::Resource::Model& a_dst, 
+	const std::shared_ptr<Engine::Resource::GLTF::ModelData>& a_src,
+	const std::string& a_fileDir
+)
+{
+	//=================================================
+	// マテリアル作成
+	//=================================================
+
+	// マテリアル配列を受け取れるサイズのメモリを確保
+	a_dst.materials.resize(a_src->materials.size());
+
+	for (UINT _i = 0; _i < a_dst.materials.size(); ++_i)
+	{
+		// マテリアル情報
+		const Engine::Resource::GLTF::Material& _srcMaterial = a_src->materials[_i];	// 入力元
+		Engine::Resource::Material& _dstMaterial = a_dst.materials[_i];					// 出力先
+
+		// マテリアル情報コピー
+		_dstMaterial.name = _srcMaterial.name;									// マテリアル名
+
+		// アルファ
+		if (_srcMaterial.alphaMode == "OPAQUE")
+		{
+			_dstMaterial.alphaMode = Engine::Resource::Alpha::Opaque;
+		}
+		else if (_srcMaterial.alphaMode == "MASK")
+		{
+			_dstMaterial.alphaMode = Engine::Resource::Alpha::Mask;
+		}
+		else if (_srcMaterial.alphaMode == "BLEND")
+		{
+			_dstMaterial.alphaMode = Engine::Resource::Alpha::Blend;
+		}
+
+		// 材質データ
+		_dstMaterial.baseColor = _srcMaterial.baseColorFactor;				// 基本色
+		_dstMaterial.metallic = _srcMaterial.metallicFactor;				// 金属製
+		_dstMaterial.roughness = _srcMaterial.roughnessFactor;				// 粗さ
+		_dstMaterial.emissive = _srcMaterial.emissiveFactor;				// エミッシブ
+
+		// テクスチャセット
+		_dstMaterial.SetTexture2D(
+			a_fileDir,
+			_srcMaterial.baseColorTexName,
+			_srcMaterial.metallicRoughnessTexName,
+			_srcMaterial.emissiveTexName,
+			_srcMaterial.normalTexName
+		);
+	}
+}
+void CreateAnimations(
+	Engine::Resource::Model& a_dst, 
+	const std::shared_ptr<Engine::Resource::GLTF::ModelData>& a_src
+)
+{
+	//=================================================
+	// アニメーション作成
+	//=================================================
+	a_dst.spAnimations.resize(a_src->animations.size());		// アニメーション配列確保
+
+	for (UINT _i = 0; _i < a_dst.spAnimations.size(); ++_i)
+	{
+		auto _srcAnimation = a_src->animations[_i];	// 元データ
+
+		a_dst.spAnimations[_i] = std::make_shared<Engine::Resource::AnimationData>();
+		Engine::Resource::AnimationData& _dstAnimation = *a_dst.spAnimations[_i];							// 出力先
+
+		// アニメーション情報コピー
+		_dstAnimation.name = _srcAnimation->name;									// 名前
+		_dstAnimation.maxLength = _srcAnimation->maxLength;							// アニメーションの長さ
+
+		_dstAnimation.nodes.resize(_srcAnimation->spAnimationNodes.size());			// ノード配列確保
+		for (UINT _nIdx = 0; _nIdx < _dstAnimation.nodes.size(); ++_nIdx)
+		{
+			auto _srcNode = _srcAnimation->spAnimationNodes[_nIdx];	// 元データ
+			Engine::Resource::AnimationNode& _dstAnimaNode = _dstAnimation.nodes[_nIdx];						// 出力先
+			// ノード情報コピー
+			_dstAnimaNode.nodeOffset = _srcNode->nodeOffset;				// 対象ノードのオフセット
+			_dstAnimaNode.translations = _srcNode->translations;			// 座標キーリスト
+			_dstAnimaNode.rotations = _srcNode->rotations;					// 回転キーリスト
+			_dstAnimaNode.scales = _srcNode->scales;						// 拡縮キーリスト
+		}
+
+	}
+}
+
+Engine::Resource::Model Engine::Resource::GLTF::Serialize(
+	const std::string& a_filePath,
+	std::shared_ptr<Engine::Resource::GLTF::ModelData> a_spGLTFModel
+)
+{
+	// ファイルのディレクトリパスを取得
+	std::string _fileDir = FileUtility::GetDirFromPath(a_filePath);
+
+	// モデル構造体を準備
+	Engine::Resource::Model _model = {};
+	_model.materials.clear();
+	_model.originalNodes.clear();
+	_model.rootNodeIndices.clear();
+	_model.boneNodeIndices.clear();
+	_model.meshNodeIndices.clear();
+	_model.drawMeshNodeIndices.clear();
+	_model.collisionMeshNodeIndices.clear();
+	_model.spAnimations.clear();
+
+	// ノード作成
+	CreateNodes(_model, a_spGLTFModel);
+
+	// マテリアル作成
+	CreateMaterials(_model, a_spGLTFModel, _fileDir);
+
+	// アニメーション
+	CreateAnimations(_model, a_spGLTFModel);
+
+	return _model;
 }
