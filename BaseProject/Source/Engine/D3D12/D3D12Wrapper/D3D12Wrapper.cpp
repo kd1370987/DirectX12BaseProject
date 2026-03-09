@@ -250,7 +250,7 @@ bool D3D12Wrapper::CreateRenderTarget()
 	{
 		// スワップチェインから描画するテクスチャリソースを取得
 		m_backBuffer[_i].renderTarget.Create(m_upSwapChain->Get(),_i);
-		m_backBuffer[_i].rtvHandle = DescriptorHeapManager::Instance().RegisterRTV(m_backBuffer[_i].renderTarget.Ref(), nullptr);
+		m_backBuffer[_i].rtvHandle = DescriptorHeapManager::Instance().AllocateRTV(m_backBuffer[_i].renderTarget.Ref(), nullptr);
 	}
 	return true;
 }

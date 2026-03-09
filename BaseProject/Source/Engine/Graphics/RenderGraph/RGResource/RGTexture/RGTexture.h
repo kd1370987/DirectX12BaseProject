@@ -44,10 +44,12 @@ private:
 
 	RGTextureDesc m_desc;
 
-	RTVHandle		 m_rtvHandle{};
-	DSVHandle		 m_dsvHandle{};
-	Storage::Range	 m_srvHandle;
+
+	Engine::Resource::Handle<RTV> m_rtvHandle;
+	Engine::Resource::Handle<DSV> m_dsvHandle{};
+	Engine::Resource::HandleRange<SRV>	 m_srvHandle;
+
 
 	// ImGui用ハンドル
-	Storage::Range m_imguiSRVHandle{};
+	Engine::Resource::HandleRange<SRV> m_imguiSRVHandle{};
 };

@@ -28,7 +28,6 @@ void SkinningSystem::Run(World& a_world, float a_dt)
 				SkeletonPoseComponent& _skeComp = a_skePoseArray[_i];
 
 				// モデル取得
-				//const auto* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
 				auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
 				if (!_model) return;
 

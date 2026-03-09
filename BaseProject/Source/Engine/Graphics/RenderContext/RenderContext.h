@@ -59,7 +59,8 @@ struct DrawItem
 
 struct DrawItem2D
 {
-	Storage::Range srvHandleRange = {};
+	//Storage::Range srvHandleRange = {};
+	Engine::Resource::HandleRange<SRV> srvHandleRange = {};
 
 	DirectX::XMFLOAT4X4 worldMat = {};
 	DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };

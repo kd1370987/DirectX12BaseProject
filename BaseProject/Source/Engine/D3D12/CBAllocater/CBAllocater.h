@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "Engine/D3D12//D3DObject/DescriptorHeap/CBV_SRV_UAVHeap/CBV_SRV_UAVHeap.h"
 
 class CBAllocater
 {
@@ -23,7 +22,6 @@ public:
 
 private:
 	UINT m_usedCount = 0;
-	CBV_SRV_UAVHeap* m_pHeap = nullptr;
 	ID3D12Device* m_pDevice = nullptr;
 	ComPtr<ID3D12Resource> m_spResource = nullptr;
 	struct { uint8_t buff[256]; }*m_pMappedData = nullptr;

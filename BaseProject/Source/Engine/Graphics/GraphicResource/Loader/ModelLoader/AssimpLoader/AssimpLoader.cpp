@@ -257,7 +257,7 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 			return;
 		}
 		//a_dst.srvHandle = DescriptorHeapManager::Instance().RegisterSRV(_tex->GetResource());
-		a_dst.srvHandle = DescriptorHeapManager::Instance().RegisterSRV(_tex->cpResource.Get());
+		//a_dst.srvHandle = DescriptorHeapManager::Instance().RegisterSRV(_tex->cpResource.Get());
 	}
 	else
 	{

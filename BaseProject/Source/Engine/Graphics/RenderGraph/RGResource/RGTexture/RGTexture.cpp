@@ -84,7 +84,7 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 		D3D12_RENDER_TARGET_VIEW_DESC _rtvDesc = {};
 		_rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 		_rtvDesc.Format = a_desc.format;
-		m_rtvHandle = DescriptorHeapManager::Instance().RegisterRTV(m_cpResource.Get(),&_rtvDesc);
+		m_rtvHandle = DescriptorHeapManager::Instance().AllocateRTV(m_cpResource.Get(),&_rtvDesc);
 	}
 	if (a_desc.allowDSV)
 	{
@@ -92,7 +92,7 @@ bool RGTexture::Create(const RGTextureDesc& a_desc)
 		_dsv.Format = DXGI_FORMAT_D32_FLOAT;
 		_dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		m_dsvHandle = 
-			DescriptorHeapManager::Instance().RefDSVHeap().RegisterDSV(m_cpResource.Get(),&_dsv);
+			DescriptorHeapManager::Instance().AllocateDSV(m_cpResource.Get(),&_dsv);
 	}
 	if (a_desc.allowUAV)
 	{
@@ -154,7 +154,7 @@ bool RGTexture::Create(const D3D12_RESOURCE_DESC& a_desc)
 	D3D12_RENDER_TARGET_VIEW_DESC _rtvDesc = {};
 	_rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	_rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	m_rtvHandle = DescriptorHeapManager::Instance().RegisterRTV(m_cpResource.Get(), &_rtvDesc);
+	m_rtvHandle = DescriptorHeapManager::Instance().AllocateRTV(m_cpResource.Get(), &_rtvDesc);
 
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srv{};
@@ -189,7 +189,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE RGTexture::GetRTVHandle()
 
 D3D12_CPU_DESCRIPTOR_HANDLE RGTexture::GetDSVHandle()
 {
-	return DescriptorHeapManager::Instance().RefDSVHeap().GetCPUHandle(m_dsvHandle);
+	return DescriptorHeapManager::Instance().GetDSVCPUHandle(m_dsvHandle);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE RGTexture::GetImGuiSRVHandle()

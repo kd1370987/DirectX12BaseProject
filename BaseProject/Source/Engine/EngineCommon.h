@@ -50,6 +50,10 @@ namespace Engine::Resource
 }
 
 #include "Engine/SlotStorage/SlotStorage.h"
+//------------------------------------------------------------------------------------------
+// リソース
+//------------------------------------------------------------------------------------------
+#include "Engine/Resource/Common/Common.h"
 
 //==========================================================================================
 // 
@@ -106,7 +110,3 @@ struct DescriptorHandle
 //#include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/TinyGLTFSerialize/TinyGLTFSerialize.h"
 //#include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/AssimpSerialize/AssimpSerialize.h"
 
-//------------------------------------------------------------------------------------------
-// リソース
-//------------------------------------------------------------------------------------------
-#include "Engine/Resource/Common/Common.h"

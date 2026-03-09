@@ -12,7 +12,7 @@ class ScissorRectangle;
 struct BackBuffer
 {
 	RenderTarget renderTarget;
-	RTVHandle rtvHandle;
+	Engine::Resource::Handle<RTV> rtvHandle;
 };
 
 // フレーム数分必要なリソース

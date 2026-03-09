@@ -239,10 +239,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandAllocator\CommandAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandQueue\CommandQueue.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap\DSVHeap.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap\RTVHeap.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Device\Device.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Fence\Fence.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\PipeLineState\PipelineState.cpp" />
@@ -250,6 +247,9 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\ScissorRectangle\ScissorRectangle.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\SwapChain\SwapChain.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator\DSVAllocator.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.cpp" />
@@ -394,10 +394,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandAllocator\CommandAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandList\CommandList.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandQueue\CommandQueue.h" />
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h" />
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap\DSVHeap.h" />
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap\RTVHeap.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Device\Device.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Fence\Fence.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\PipeLineState\PipelineState.h" />
@@ -405,6 +402,9 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\ScissorRectangle\ScissorRectangle.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\SwapChain\SwapChain.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.h" />
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator\DSVAllocator.h" />
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.h" />
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />
     <ClInclude Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h" />
     <ClInclude Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.h" />

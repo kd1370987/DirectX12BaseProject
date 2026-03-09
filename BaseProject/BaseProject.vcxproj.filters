@@ -277,15 +277,6 @@
     <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\VertexBuffer">
       <UniqueIdentifier>{899b12ae-466b-4c7e-9bff-e74585ab69d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap">
-      <UniqueIdentifier>{e98ae1e1-8442-4e72-a0cd-81703784f571}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap">
-      <UniqueIdentifier>{983f09e3-b6b9-40c2-b9a9-8215043d6b32}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap">
-      <UniqueIdentifier>{b6ac0900-d0c0-456b-9009-a2cbe85e2440}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\CBAllocater">
       <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
     </Filter>
@@ -589,6 +580,24 @@
     <Filter Include="Source\Engine\Resource\Create\Texture">
       <UniqueIdentifier>{4a40c2cc-c81c-4508-83ba-5edb9cac1683}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater">
+      <UniqueIdentifier>{ade7b42e-8596-43f4-8159-e6f73163c1d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\CBAllocator">
+      <UniqueIdentifier>{684a7f1f-fd41-4f5e-8327-89431fe10404}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator">
+      <UniqueIdentifier>{cf08894e-7549-498b-a262-a5bc12ec010c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator">
+      <UniqueIdentifier>{974c3405-80a5-4e0a-8de6-744e75852567}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator">
+      <UniqueIdentifier>{38bed350-8fb0-4aa6-9579-aa7a97f6cbd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator">
+      <UniqueIdentifier>{ef416847-9e12-4a7d-8017-8861835838eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -734,15 +743,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp">
       <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap\DSVHeap.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap\RTVHeap.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Device\Device.cpp">
       <Filter>Source\Engine\D3D12\D3DObject\Device</Filter>
@@ -923,6 +923,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.cpp">
       <Filter>Source\Engine\Resource\Importer\Model\tinyGLTF</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.cpp">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator\DSVAllocator.cpp">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.cpp">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1169,15 +1178,6 @@
     <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h">
       <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap\CBV_SRV_UAVHeap.h">
-      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\CBV_SRV_UAVHeap</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap\DSVHeap.h">
-      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\DSVHeap</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap\RTVHeap.h">
-      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap\RTVHeap</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Device\Device.h">
       <Filter>Source\Engine\D3D12\D3DObject\Device</Filter>
     </ClInclude>
@@ -1408,6 +1408,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.h">
       <Filter>Source\Engine\Resource\Importer\Model\tinyGLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.h">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator\DSVAllocator.h">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.h">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

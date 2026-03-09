@@ -15,10 +15,10 @@ struct UAVViewInit
 	D3D12_UNORDERED_ACCESS_VIEW_DESC* pDesc = nullptr;
 };
 
-struct RTVHandle
-{
-	UINT index = INVALID_INDEX;
-};
+//struct RTVHandle
+//{
+//	UINT index = INVALID_INDEX;
+//};
 
 struct DSVHandle
 {
@@ -30,8 +30,13 @@ struct CBVHandle
 	UINT index = INVALID_INDEX;
 };
 
+struct CBV {};
+struct SRV {};
+struct UAV {};
+struct RTV {};
+struct DSV {};
+
 using SRVHandle = Storage::Range;
 using UAVHandle = Storage::Range;
 
-#include "D3DObject/DescriptorHeap/RTVHeap/RTVHeap.h"
-#include "D3DObject/DescriptorHeap/DSVHeap/DSVHeap.h"
+#include "Engine/D3D12/D3DObject/DescriptorHeap/DescriptorHeap.h"

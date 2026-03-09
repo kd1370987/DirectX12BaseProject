@@ -56,7 +56,9 @@ namespace Engine
 			uint32_t					normalTexID = 0;
 
 			// SRVハンドル
-			Storage::Range			srvHandle;
+			//Storage::Range			srvHandle;
+			Engine::Resource::HandleRange<SRV>			srvHandle;
+
 		};
 	}
 }

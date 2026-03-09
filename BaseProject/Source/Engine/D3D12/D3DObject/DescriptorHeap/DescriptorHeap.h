@@ -1,61 +1,107 @@
 ﻿#pragma once
 
-class DescriptorHeap
+namespace Engine::D3D12
 {
-public:
+	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
+	class DescriptorHeap
+	{
+	public:
 
-	DescriptorHeap() = default;
-	~DescriptorHeap() = default;
+		// 生成
+		bool Create(
+			ID3D12Device* a_pDevice,
+			UINT a_maxCount,
+			D3D12_DESCRIPTOR_HEAP_FLAGS a_flags,
+			UINT a_mask
+		);
 
+		// ハンドル確保
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(UINT a_index);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(UINT a_index);
 
-	/// <summary>
-	/// ディスクリプタヒープ作成
-	/// </summary>
-	/// <param name="a_type">作成する種類</param>
-	/// <param name="a_numDescriptors">ディスクリプタに乗せれる上限</param>
-	/// <param name="a_flags">シェーダから見えるかどうか</param>
-	/// <param name="a_mask">アダプタ数によって変化</param>
-	/// <returns>成功 = true</returns>
-	bool Create(
+		// ヒープの生ポインタ取得
+		ID3D12DescriptorHeap* GetHeap() const;
+
+		// ヒープサイズ確保
+		UINT GetMaxSize();
+
+	private:
+
+		ID3D12Device* m_pDevice = nullptr;					// デバイスポインタ
+
+		ComPtr<ID3D12DescriptorHeap> m_cpHeap = nullptr;	// ヒープ
+		UINT m_incrementSize = 0;							// ヒープのインクリメントサイズ
+
+		// 確保ヒープサイズ
+		UINT m_maxSize = 0;
+	};
+
+	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
+	inline bool DescriptorHeap<HeapType>::Create(
 		ID3D12Device* a_pDevice,
-		D3D12_DESCRIPTOR_HEAP_TYPE a_type,
-		UINT a_numDescriptors = 100,
-		D3D12_DESCRIPTOR_HEAP_FLAGS a_flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-		UINT a_mask = 0
-	);
+		UINT a_maxCount,
+		D3D12_DESCRIPTOR_HEAP_FLAGS a_flags,
+		UINT a_mask
+	)
+	{
+		// デバイスチェック
+		m_pDevice = a_pDevice;
+		if (!m_pDevice)
+		{
+			assert(0 && "デバイスがありません");
+			return false;
+		}
 
-	/// <summary>
-	/// ディスクリプタヒープ取得
-	/// </summary>
-	/// <returns>ディスクリプタヒープポインタ</returns>
-	ID3D12DescriptorHeap* GetHeap();
+		// ディスクリプタヒープの仕様書作成
+		D3D12_DESCRIPTOR_HEAP_DESC _desc = {};
+		_desc.NodeMask = a_mask;
+		_desc.Type = HeapType;
+		_desc.NumDescriptors = a_maxCount;
+		_desc.Flags = a_flags;
 
-	/// <summary>
-	/// ディスクリプタヒープに登録
-	/// </summary>
-	/// <param name="a_resource">登録するリソース</param>
-	/// <returns>ハンドル構造体</returns>
-	virtual DescriptorHandle Register(ID3D12Resource* a_resource = nullptr) = 0;
+		// ディスクリプタヒープの生成
+		HRESULT _hr = m_pDevice->CreateDescriptorHeap(
+			&_desc,
+			IID_PPV_ARGS(m_cpHeap.ReleaseAndGetAddressOf())
+		);
+		if (FAILED(_hr))
+		{
+			assert(0 && "ディスクリプタヒープ作成失敗");
+			return false;
+		}
 
-	/// <summary>
-	/// CPU ハンドル取得
-	/// </summary>
-	/// <param name="a_number">生成時のインデックス</param>
-	const D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UINT a_number) const;
+		// インクリメントサイズの取得
+		m_incrementSize = m_pDevice->GetDescriptorHandleIncrementSize(HeapType);
+		m_maxSize = a_maxCount;
+		return true;
+	}
+	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
+	inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap<HeapType>::GetCPU(
+		UINT a_index
+	)
+	{
+		D3D12_CPU_DESCRIPTOR_HANDLE _handle = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
+		_handle.ptr += m_incrementSize * static_cast<UINT>(a_index);
+		return _handle;
+	}
+	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
+	inline D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap<HeapType>::GetGPU(
+		UINT a_index
+	)
+	{
+		D3D12_GPU_DESCRIPTOR_HANDLE _handle = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
+		_handle.ptr += m_incrementSize * static_cast<UINT>(a_index);
+		return _handle;
+	}
+	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
+	inline ID3D12DescriptorHeap* DescriptorHeap<HeapType>::GetHeap() const
+	{
+		return m_cpHeap.Get();
+	}
+	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
+	inline UINT DescriptorHeap<HeapType>::GetMaxSize()
+	{
+		return m_maxSize;
+	}
+}
 
-	/// <summary>
-	/// GPU ハンドル取得
-	/// </summary>
-	/// <param name="a_number">生成時のインデックス</param>
-	const D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(UINT a_number) const;
-
-protected:
-	UINT m_incrementSize = 0;												// 移動距離
-	D3D12_DESCRIPTOR_HEAP_TYPE m_type{};						// ディスクリプタヒープのタイプ
-	ComPtr<ID3D12DescriptorHeap> m_cpHeap = nullptr;		// ディスクリプタヒープ本体
-
-	ID3D12Device* m_pDevice = nullptr;			// デバイスのポインタ
-	
-	UINT m_maxSize = 0;					// ディスクリプタヒープに乗せれる上限
-	UINT m_currentIndex = 0;			// 今何番目か
-};
