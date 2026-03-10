@@ -1,6 +1,4 @@
 ﻿#include "ModelView.h"
-
-#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 #include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 
 void ModelView::Init()

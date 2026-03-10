@@ -409,60 +409,6 @@
     <Filter Include="Source\Engine\Animation\AnimationEvaluator">
       <UniqueIdentifier>{92203f8b-16d4-4ea8-a1cc-eda91ae7c482}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource">
-      <UniqueIdentifier>{2e469bde-75b3-4289-833c-29d279b42961}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Loader">
-      <UniqueIdentifier>{9c62c610-f431-4132-9839-9392cf327c5e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Serialize">
-      <UniqueIdentifier>{1e7448bb-bf48-4212-9e14-c839fa2bb90b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\GraphicResourceManager">
-      <UniqueIdentifier>{c3a78b6f-63d0-4e94-b092-c1288e249591}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Resource">
-      <UniqueIdentifier>{76389443-2874-40a9-8094-6861faf5febf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize">
-      <UniqueIdentifier>{b6f9965c-62f8-4aa0-ba75-f6a4e24c242c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize">
-      <UniqueIdentifier>{c6371e47-cb89-498e-9c7d-1fe3e6d5b171}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\Model">
-      <UniqueIdentifier>{1ac45e25-f745-49fe-9e22-c2b2a1c6e9a1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\Texture">
-      <UniqueIdentifier>{44a9ea0d-3174-4d17-8595-32d3f61abfa2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\Material">
-      <UniqueIdentifier>{0ccea6df-dd1b-44ae-bd1f-002f02317a8c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\Animation">
-      <UniqueIdentifier>{ca843254-5586-45a1-83ed-983863bf7cb1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\Mesh">
-      <UniqueIdentifier>{f174026d-4656-494d-a3c7-31e214244da0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\Node">
-      <UniqueIdentifier>{08c34544-985b-47db-b6fb-fafdf23d4b67}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\Vertex">
-      <UniqueIdentifier>{fe7931fd-387e-46bb-9ac7-43c34b4a6711}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader">
-      <UniqueIdentifier>{1eda9aff-21d9-48ef-ad7e-a1a0dda8ed94}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Loader\TextureLoader">
-      <UniqueIdentifier>{9ad7a419-e508-45ff-9e5e-1a2d8daa82c4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\GraphicResourceManager\ResourceSlotStorage">
-      <UniqueIdentifier>{2ed7c263-5cb5-4872-8df3-e09d0d8a5515}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader">
-      <UniqueIdentifier>{38178856-bbe1-49c8-899c-661afa1a0245}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Source\Screen2DShader">
       <UniqueIdentifier>{2c96e27e-f605-4ae0-b40e-a78de7768d85}</UniqueIdentifier>
     </Filter>
@@ -471,9 +417,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw">
       <UniqueIdentifier>{d315c984-99cf-4bc8-aa90-3b388df863ad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon">
-      <UniqueIdentifier>{29e4cbfb-59ce-40d0-9d85-11d07860f7d5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Editor\RenderGraphView">
       <UniqueIdentifier>{b4e20a7d-3b5c-4ddf-a169-304782d641ad}</UniqueIdentifier>
@@ -597,6 +540,9 @@
     </Filter>
     <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator">
       <UniqueIdentifier>{ef416847-9e12-4a7d-8017-8861835838eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\QuadPolygon">
+      <UniqueIdentifier>{7683df0e-a1b6-4bf0-a1b3-b7f5f25af163}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -849,41 +795,11 @@
     <ClCompile Include="Source\Engine\Engine.cpp">
       <Filter>Source\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\GraphicResourceManager\GraphicResourceManager.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\GraphicResourceManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader\AssimpLoader.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Loader\TextureLoader\TextureLoader.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Loader\TextureLoader</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Node\Node.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Node</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Mesh\Mesh.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Animation\Animation.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Material\Material.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Material</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\Model\Model.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Model</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass\ScreenUIPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon\QuadPolygon.cpp">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.cpp">
       <Filter>Source\Engine\Editor\RenderGraphView</Filter>
@@ -947,6 +863,24 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.cpp">
       <Filter>Source\Engine\Editor\AssetResourceView\TextureView</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Animation\Animation.cpp">
+      <Filter>Source\Engine\Resource\Data\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Material\Material.cpp">
+      <Filter>Source\Engine\Resource\Data\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Mesh\Mesh.cpp">
+      <Filter>Source\Engine\Resource\Data\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp">
+      <Filter>Source\Engine\Resource\Data\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Node\Node.cpp">
+      <Filter>Source\Engine\Resource\Data\Node</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.cpp">
+      <Filter>Source\Engine\Resource\Data\QuadPolygon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1319,56 +1253,17 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h">
+    <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.h">
       <Filter>Source\Engine\Animation\AnimationEvaluator</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Engine.h">
       <Filter>Source\Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\GraphicResourceManager\GraphicResourceManager.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\GraphicResourceManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\GraphicResourceManager\ResourceSlotStorage\ResourceSlotStorage.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\GraphicResourceManager\ResourceSlotStorage</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader\AssimpLoader.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Loader\ModelLoader\AssimpLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Loader\TextureLoader\TextureLoader.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Loader\TextureLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize\AssimpSerialize.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Serialize\ModelSerialize\AssimpSerialize</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Texture\TextureS.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Node\Node.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Node</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Vertex\Vertex.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Vertex</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Mesh\Mesh.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Animation\Animation.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Material\Material.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Material</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\Model\Model.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\Model</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass\ScreenUIPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon\QuadPolygon.h">
-      <Filter>Source\Engine\Graphics\GraphicResource\Resource\QuadPolygon</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.h">
       <Filter>Source\Engine\Editor\RenderGraphView</Filter>
@@ -1447,6 +1342,27 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.h">
       <Filter>Source\Engine\Editor\AssetResourceView\TextureView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Animation\Animation.h">
+      <Filter>Source\Engine\Resource\Data\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Material\Material.h">
+      <Filter>Source\Engine\Resource\Data\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Mesh\Mesh.h">
+      <Filter>Source\Engine\Resource\Data\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Model\Model.h">
+      <Filter>Source\Engine\Resource\Data\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Node\Node.h">
+      <Filter>Source\Engine\Resource\Data\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Vertex\Vertex.h">
+      <Filter>Source\Engine\Resource\Data\Vertex</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.h">
+      <Filter>Source\Engine\Resource\Data\QuadPolygon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

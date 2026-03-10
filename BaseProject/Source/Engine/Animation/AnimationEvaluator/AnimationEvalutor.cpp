@@ -1,4 +1,4 @@
-﻿#include "AnimationEvaluator.h"
+﻿#include "AnimationEvalutor.h"
 
 /// <summary>
 /// 二分探索で、指定時間から次の配列要素のkeyIndexを求める
@@ -28,7 +28,7 @@ int BinarySearchNextAnimKey(const std::vector<T>& a_list, float a_currentTime)
 	return _low;
 }
 
-void Animation::Interpolate(Engine::Resource::AnimationNode& a_node, float a_currentTime, DirectX::XMFLOAT4X4& a_rDst)
+void Engine::Animation::Interpolate(Engine::Resource::AnimationNode& a_node, float a_currentTime, DirectX::XMFLOAT4X4& a_rDst)
 {
 	bool _isChange = false;
 
@@ -48,7 +48,7 @@ void Animation::Interpolate(Engine::Resource::AnimationNode& a_node, float a_cur
 	}
 }
 
-bool Animation::InterpolateTranslations(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
+bool Engine::Animation::InterpolateTranslations(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
 {
 	if (a_node.translations.size() == 0) return false;
 
@@ -86,7 +86,7 @@ bool Animation::InterpolateTranslations(Engine::Resource::AnimationNode& a_node,
 	return true;
 }
 
-bool Animation::InterpolateRotations(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Quaternion& a_resullt)
+bool Engine::Animation::InterpolateRotations(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Quaternion& a_resullt)
 {
 	if (a_node.rotations.size() == 0) return false;
 
@@ -124,7 +124,7 @@ bool Animation::InterpolateRotations(Engine::Resource::AnimationNode& a_node, fl
 	return true;
 }
 
-bool Animation::InterpolateScale(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
+bool Engine::Animation::InterpolateScale(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
 {
 	if (a_node.scales.size() == 0) return false;
 
@@ -162,7 +162,7 @@ bool Animation::InterpolateScale(Engine::Resource::AnimationNode& a_node, float 
 	return true;
 }
 
-void Animation::CalcNodeMatrix(
+void Engine::Animation::CalcNodeMatrix(
 	int a_nodeIdx, 
 	int a_parentNodeIdx,
 	const Engine::Resource::Model* a_model,

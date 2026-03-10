@@ -6,14 +6,12 @@
 //==========================================================================================
 #include "Engine/Common/Color.h"		// 色
 
-
-
-//==========================================================================================
-// 
-// ECS
-// 
-//==========================================================================================
-#include "Engine/ECS/ECSCommon.h"
+// バッファリング数
+enum
+{
+	BACKBUFFER_COUNT = 3,		// 今回はダブルバッファリング
+	CPU_FRAME_COUNT = 3				// フレームリソース管理用
+};
 
 //==========================================================================================
 // 
@@ -50,10 +48,30 @@ namespace Engine::Resource
 }
 
 #include "Engine/SlotStorage/SlotStorage.h"
-//------------------------------------------------------------------------------------------
+
+//==========================================================================================
+// 
+// 当たり判定
+// 
+//==========================================================================================
+#include "Engine/Collision/Query/CollisionMesh/CollisionMesh.h"		// コリジョンメッシュ
+
+//==========================================================================================
+// 
 // リソース
-//------------------------------------------------------------------------------------------
+// 
+//==========================================================================================
 #include "Engine/Resource/Common/Common.h"
+
+#include "Engine/Resource/Data/Texture/Texture.h"			// テクスチャ
+#include "Engine/Resource/Data/Vertex/Vertex.h"				// 頂点データ
+#include "Engine/Resource/Data/Mesh/Mesh.h"					// メッシュ
+#include "Engine/Resource/Data/Animation/Animation.h"		// アニメーションデータ
+#include "Engine/Resource/Data/Material/Material.h"			// マテリアル
+#include "Engine/Resource/Data/Node/Node.h"					// ノード
+
+#include "Engine/Resource/Data/Model/Model.h"				// モデル
+#include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"	// クアッドポリゴン
 
 //==========================================================================================
 // 
@@ -64,52 +82,29 @@ namespace Engine::Resource
 
 //==========================================================================================
 // 
+// ECS
+// 
+//==========================================================================================
+#include "Engine/ECS/ECSCommon.h"
+
+
+//==========================================================================================
+// 
 // エディター
 // 
 //==========================================================================================
 #include "Editor/ImGui/ImGuiContext.h"
 
-// バッファリング数
-enum
-{
-	BACKBUFFER_COUNT = 3,		// 今回はダブルバッファリング
-	CPU_FRAME_COUNT = 3				// フレームリソース管理用
-};
-// ディスクリプタハンドル構造体
-struct DescriptorHandle
-{
-	D3D12_CPU_DESCRIPTOR_HANDLE handleCPU{};
-	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU{};
-};
-
 //==========================================================================================
 // 
-// 当たり判定
+// アニメーション
 // 
 //==========================================================================================
-#include "Engine/Collision/Query/CollisionMesh/CollisionMesh.h"		// コリジョンメッシュ
+#include "Animation/AnimationEvaluator/AnimationEvalutor.h"
 
 
-//==========================================================================================
-// 
-// リソース
-// 
-//==========================================================================================
 
-#include "Engine/Resource/Data/Texture/Texture.h"								// テクスチャ
 
-#include "Engine/Graphics/GraphicResource/Resource/Vertex/Vertex.h"				// 頂点データ
-#include "Engine/Graphics/GraphicResource/Resource/Mesh/Mesh.h"					// メッシュ
-#include "Engine/Graphics/GraphicResource/Resource/Animation/Animation.h"		// アニメーションデータ
-#include "Engine/Graphics/GraphicResource/Resource/Material/Material.h"			// マテリアル
-#include "Engine/Graphics/GraphicResource/Resource/Node/Node.h"					// ノード
 
-#include "Engine/Graphics/GraphicResource/Resource/Model/Model.h"				// モデル
-#include "Engine/Graphics/GraphicResource/Resource/QuadPolygon/QuadPolygon.h"	// クアッドポリゴン
-#include "Engine/Graphics/GraphicResource/Resource/Texture/TextureS.h"			// テクスチャ
-//------------------------------------------------------------------------------------------
-// リソースの読み込み
-//------------------------------------------------------------------------------------------
-//#include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/TinyGLTFSerialize/TinyGLTFSerialize.h"
-//#include "Engine/Graphics/GraphicResource/Serialize/ModelSerialize/AssimpSerialize/AssimpSerialize.h"
+
 

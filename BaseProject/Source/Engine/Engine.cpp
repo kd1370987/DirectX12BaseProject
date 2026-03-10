@@ -5,7 +5,6 @@
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 
 #include "Application/App.h"
 
@@ -76,8 +75,6 @@ void MainEngine::Init(EngineConfig a_config)
 	// 描画初期化
 	RenderContext::Instance().Init();
 
-	// リソースマネージャーの初期化
-	GraphicResourceManager::Instance().Init();
 
 	m_config = a_config;
 }
@@ -90,8 +87,6 @@ void MainEngine::Release()
 		D3D12Wrapper::Instance().WaitRender(_i);
 	}
 
-	// リソースマネージャーの解放
-	GraphicResourceManager::Instance().Release();
 
 	// レンダーコンテキスト解放
 	RenderContext::Instance().Shutdown();

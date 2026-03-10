@@ -2,7 +2,7 @@
 
 void QuadPolygon::Init()
 {
-	SimpleVertex _vertices[] = {
+	Engine::Resource::SimpleVertex _vertices[] = {
 		{
 			{-1.0f,-1.0f,0.0f,1.0f},
 			{0.0f,1.0f}
@@ -23,7 +23,7 @@ void QuadPolygon::Init()
 
 	if (!m_vertexBuffer.Create(
 		4,
-		sizeof(SimpleVertex),
+		sizeof(Engine::Resource::SimpleVertex),
 		_vertices
 	))
 	{

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Animation
+namespace Engine::Animation
 {
 	void Interpolate(Engine::Resource::AnimationNode& a_node, float a_currentTime, DirectX::XMFLOAT4X4& a_rDst);
 

@@ -6,8 +6,6 @@
 #include "Application/Components/Resource/AnimatorComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
 
-#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
-#include "Engine/Animation/AnimationEvaluator/AnimationEvaluator.h"
 #include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 
 
@@ -29,7 +27,6 @@ void AnimationSystem::Run(World& a_world, float a_dt)
 				AnimatorComponent& _aniComp = a_animatorArray[_i];
 				NodePoseComponent& _nodeComp = a_NodePoseArray[_i];
 
-//				auto* _pModel = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
 				auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
 
 				// アニメーション取得
@@ -44,7 +41,7 @@ void AnimationSystem::Run(World& a_world, float a_dt)
 
 					auto prev = _spAni->nodes[_idx];
 
-					Animation::Interpolate(_spAni->nodes[_idx],_aniComp.time, _nodeComp.local[_idx]);
+					Engine::Animation::Interpolate(_spAni->nodes[_idx],_aniComp.time, _nodeComp.local[_idx]);
 
 					prev = _spAni->nodes[_idx];
 				}

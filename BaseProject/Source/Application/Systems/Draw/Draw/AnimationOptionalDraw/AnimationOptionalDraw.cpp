@@ -8,7 +8,6 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
-#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 #include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 

@@ -5,8 +5,6 @@
 #include "Application/Components/Resource/UIComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
-#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
-
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
 #include "Engine/Resource/Manager/TextureManager/TextureManager.h"

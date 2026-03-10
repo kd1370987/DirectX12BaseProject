@@ -6,7 +6,6 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Resource/SkeletonPoseComponent.h"
 
-#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 #include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 
 void SkinningSystem::Run(World& a_world, float a_dt)

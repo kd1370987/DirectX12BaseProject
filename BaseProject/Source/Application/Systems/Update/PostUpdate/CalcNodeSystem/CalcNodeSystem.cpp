@@ -5,9 +5,6 @@
 #include "Application/Components/Resource/ModelComponent.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
-
-#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
-#include "Engine/Animation/AnimationEvaluator/AnimationEvaluator.h"
 #include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 
 void CalcNodeSystem::Run(World& a_world, float a_dt)
@@ -35,7 +32,7 @@ void CalcNodeSystem::Run(World& a_world, float a_dt)
 				// ルートから開始
 				for (int _rootIdx : _pModel->rootNodeIndices)
 				{
-					Animation::CalcNodeMatrix(
+					Engine::Animation::CalcNodeMatrix(
 						_rootIdx,
 						-1,
 						_pModel,

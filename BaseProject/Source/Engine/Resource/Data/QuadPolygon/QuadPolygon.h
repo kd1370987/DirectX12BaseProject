@@ -1,14 +1,5 @@
 ﻿#pragma once
 
-#include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
-#include "Engine/D3D12//D3DObject/Buffer/VertexBuffer/VertexBuffer.h"
-
-struct SimpleVertex
-{
-	DirectX::XMFLOAT4 pos = {0.0f,0.0f,0.0f,0.0f};
-	DirectX::XMFLOAT2 uv = {0.0f,0.0f};
-};
-
 class QuadPolygon
 {
 public:

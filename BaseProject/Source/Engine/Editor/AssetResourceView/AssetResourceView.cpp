@@ -1,7 +1,5 @@
 ﻿#include "AssetResourceView.h"
 
-#include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
-
 #include "ModelView/ModelView.h"
 #include "TextureView/TextureView.h"
 
