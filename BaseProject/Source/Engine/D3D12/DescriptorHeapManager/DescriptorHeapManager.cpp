@@ -56,17 +56,17 @@ void DescriptorHeapManager::Release()
 {
 }
 
-Engine::Resource::HandleRange<SRV> DescriptorHeapManager::AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec)
+std::vector<Engine::Resource::Handle<SRV>> DescriptorHeapManager::AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec)
 {	
 	return m_upSRVAllocator->Allocate(a_viewInitVec);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetSRVCPUHandle(Engine::Resource::HandleRange<SRV> a_range)
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetSRVCPUHandle(Engine::Resource::Handle<SRV> a_range)
 {
 	return m_upSRVAllocator->GetCPU(a_range);
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetSRVGPUHandle(Engine::Resource::HandleRange<SRV> a_range)
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetSRVGPUHandle(Engine::Resource::Handle<SRV> a_range)
 {
 	return m_upSRVAllocator->GetGPU(a_range);
 }
@@ -81,7 +81,7 @@ ID3D12DescriptorHeap* DescriptorHeapManager::GetImGuiHeap() const
 	return m_imguiHeap.GetHeap();
 }
 
-Engine::Resource::HandleRange<SRV> DescriptorHeapManager::AllocateImGuiSRVRange(std::vector<SRVViewInit> a_viewInitVec)
+std::vector<Engine::Resource::Handle<SRV>> DescriptorHeapManager::AllocateImGuiSRVRange(std::vector<SRVViewInit> a_viewInitVec)
 {
 	return m_upImGuiSRVAllocator->Allocate(a_viewInitVec);
 }
@@ -96,12 +96,12 @@ D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiGPUHandle()
 	return m_imguiHeap.GetGPU(0);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVCPUHandle(Engine::Resource::HandleRange<SRV> a_range)
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVCPUHandle(Engine::Resource::Handle<SRV> a_range)
 {
 	return m_upImGuiSRVAllocator->GetCPU(a_range);
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVGPUHandle(Engine::Resource::HandleRange<SRV> a_range)
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVGPUHandle(Engine::Resource::Handle<SRV> a_range)
 {
 	return m_upImGuiSRVAllocator->GetGPU(a_range);;
 }

@@ -125,7 +125,7 @@ UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc, const Direct
 	return _uploadBuffer;
 }
 
-bool BuildFromScratchiImage(Texture& a_tex, DirectX::TexMetadata& a_meta, DirectX::ScratchImage& a_sImg)
+bool BuildFromScratchiImage(TextureS& a_tex, DirectX::TexMetadata& a_meta, DirectX::ScratchImage& a_sImg)
 {
 	HRESULT _hr = E_FAIL;
 	// テクスチャのためのヒープ設定
@@ -237,7 +237,7 @@ bool LoadFromPath(DirectX::TexMetadata& a_metaData, DirectX::ScratchImage& a_img
 	return true;
 }
 
-bool TextureLoad::Load(const std::string& a_path, Texture& a_dstTex, D3D12_RESOURCE_DESC* a_desc)
+bool TextureLoad::Load(const std::string& a_path, TextureS& a_dstTex, D3D12_RESOURCE_DESC* a_desc)
 {
 	//----------------------------------------
 	// データ準備
@@ -288,9 +288,9 @@ bool TextureLoad::Load(const std::string& a_path, Texture& a_dstTex, D3D12_RESOU
 	return true;
 }
 
-Texture TextureLoad::Default(DirectX::XMFLOAT4 a_color)
+TextureS TextureLoad::Default(DirectX::XMFLOAT4 a_color)
 {
-	Texture _tex = {};
+	TextureS _tex = {};
 	DirectX::TexMetadata _meta = {};
 	DirectX::ScratchImage _sImg = {};
 	_sImg = {};
@@ -317,7 +317,7 @@ Texture TextureLoad::Default(DirectX::XMFLOAT4 a_color)
 	return _tex;
 }
 
-Texture TextureLoad::White()
+TextureS TextureLoad::White()
 {
 	return Default({
 		255,
@@ -327,7 +327,7 @@ Texture TextureLoad::White()
 	});
 }
 
-Texture TextureLoad::Black()
+TextureS TextureLoad::Black()
 {
 	return Default({
 		0,
@@ -337,7 +337,7 @@ Texture TextureLoad::Black()
 	});
 }
 
-Texture TextureLoad::NormalWhite()
+TextureS TextureLoad::NormalWhite()
 {
 	return Default({
 		128,
@@ -347,7 +347,7 @@ Texture TextureLoad::NormalWhite()
 	});
 }
 
-Texture TextureLoad::ORM()
+TextureS TextureLoad::ORM()
 {
 	return Default({
 		0,

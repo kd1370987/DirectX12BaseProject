@@ -260,6 +260,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\ECS\World\World.cpp" />
     <ClCompile Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.cpp" />
     <ClCompile Include="Source\Engine\Editor\AssetResourceView\ModelView\ModelView.cpp" />
+    <ClCompile Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.cpp" />
     <ClCompile Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\ECSView\ECSView.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp" />
@@ -296,9 +297,13 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Create\Texture\TextureCreater.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\Resource\Importer\Model\ModelImporter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Importer\Texture\TextureImporter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.cpp" />
     <ClCompile Include="Source\Engine\SlotStorage\SlotStorage.cpp" />
     <ClCompile Include="Source\Engine\TimeManager\TimeManager.cpp" />
     <ClCompile Include="Source\Engine\Window\Window.cpp" />
@@ -421,6 +426,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\ECS\World\World.h" />
     <ClInclude Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.h" />
     <ClInclude Include="Source\Engine\Editor\AssetResourceView\ModelView\ModelView.h" />
+    <ClInclude Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.h" />
     <ClInclude Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.h" />
     <ClInclude Include="Source\Engine\Editor\ECSView\ECSView.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
@@ -465,9 +471,13 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\RootSigLayout\RootSigLayout.h" />
     <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Source\Engine\Resource\Common\Common.h" />
+    <ClInclude Include="Source\Engine\Resource\Create\Texture\TextureCreater.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\Resource\Importer\Model\ModelImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.h" />
+    <ClInclude Include="Source\Engine\Resource\Importer\Texture\TextureImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.h" />
+    <ClInclude Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.h" />
     <ClInclude Include="Source\Engine\SlotStorage\SlotStorage.h" />
     <ClInclude Include="Source\Engine\TimeManager\TimeManager.h" />
     <ClInclude Include="Source\Engine\Window\Window.h" />

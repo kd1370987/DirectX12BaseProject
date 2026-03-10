@@ -47,9 +47,11 @@ private:
 
 	Engine::Resource::Handle<RTV> m_rtvHandle;
 	Engine::Resource::Handle<DSV> m_dsvHandle{};
-	Engine::Resource::HandleRange<SRV>	 m_srvHandle;
+	//Engine::Resource::HandleRange<SRV>	 m_srvHandle;
+	Engine::Resource::Handle<SRV>	 m_srvHandle;
 
 
 	// ImGui用ハンドル
-	Engine::Resource::HandleRange<SRV> m_imguiSRVHandle{};
+	//Engine::Resource::HandleRange<SRV> m_imguiSRVHandle{};
+	Engine::Resource::Handle<SRV> m_imguiSRVHandle{};
 };

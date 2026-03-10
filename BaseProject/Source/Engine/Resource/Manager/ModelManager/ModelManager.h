@@ -34,6 +34,8 @@ namespace Engine::Resource
 
 	private:
 
+		std::unordered_map<std::string, Engine::Resource::Handle<Engine::Resource::Model>> m_handleMap = {};
+
 		// 読み込まれたモデルデータを管理
 		std::vector<SharedSlot<Model>> m_slotStorage = {};
 

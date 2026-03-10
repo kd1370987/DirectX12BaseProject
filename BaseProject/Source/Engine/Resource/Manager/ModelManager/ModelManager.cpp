@@ -6,6 +6,13 @@ Engine::Resource::Handle<Engine::Resource::Model> Engine::Resource::ModelManager
 	const std::string& a_path
 )
 {
+	
+	auto _it = m_handleMap.find(a_path);
+	if (_it != m_handleMap.end())
+	{
+		return _it->second;
+	}
+
 	//-------------------------------------
 	// 対応形式チェック
 	//-------------------------------------
@@ -55,7 +62,9 @@ Engine::Resource::Handle<Engine::Resource::Model> Engine::Resource::ModelManager
 		//Serialize::Assimp(a_model, _spAssimpModel, _fileDir);
 	}
 	// 読み込み成功
-	return Add(_model);
+	auto _handle = Add(_model);
+	m_handleMap.emplace(a_path,_handle);
+	return _handle;
 }
 
 const Engine::Resource::Model* Engine::Resource::ModelManager::GetModel(const Engine::Resource::Handle<Engine::Resource::Model>& a_handle)

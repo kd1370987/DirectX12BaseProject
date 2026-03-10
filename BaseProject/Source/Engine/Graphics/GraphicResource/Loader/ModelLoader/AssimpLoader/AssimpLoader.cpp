@@ -250,7 +250,7 @@ void AssimpLoader::LoadTexture(const wchar_t* a_pFilePath, AssimpMesh& a_dst, co
 		
 	
 		//const TextureResource* _tex = GraphicResourceManager::Instance().NGetTexture(_mainTex);
-		const Texture* _tex = GraphicResourceManager::Instance().NGetTexture(_texID);
+		const TextureS* _tex = GraphicResourceManager::Instance().NGetTexture(_texID);
 		if (!_tex)
 		{
 			assert(0 && "テクスチャの取得に失敗\n");

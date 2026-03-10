@@ -95,6 +95,9 @@ struct DescriptorHandle
 // リソース
 // 
 //==========================================================================================
+
+#include "Engine/Resource/Data/Texture/Texture.h"								// テクスチャ
+
 #include "Engine/Graphics/GraphicResource/Resource/Vertex/Vertex.h"				// 頂点データ
 #include "Engine/Graphics/GraphicResource/Resource/Mesh/Mesh.h"					// メッシュ
 #include "Engine/Graphics/GraphicResource/Resource/Animation/Animation.h"		// アニメーションデータ

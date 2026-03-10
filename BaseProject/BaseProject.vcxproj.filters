@@ -933,6 +933,21 @@
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.cpp">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.cpp">
+      <Filter>Source\Engine\Resource\Manager\TextureManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp">
+      <Filter>Source\Engine\Resource\Data\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Importer\Texture\TextureImporter.cpp">
+      <Filter>Source\Engine\Resource\Importer\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Create\Texture\TextureCreater.cpp">
+      <Filter>Source\Engine\Resource\Create\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.cpp">
+      <Filter>Source\Engine\Editor\AssetResourceView\TextureView</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -1417,6 +1432,21 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.h">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.h">
+      <Filter>Source\Engine\Resource\Manager\TextureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h">
+      <Filter>Source\Engine\Resource\Data\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Importer\Texture\TextureImporter.h">
+      <Filter>Source\Engine\Resource\Importer\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Create\Texture\TextureCreater.h">
+      <Filter>Source\Engine\Resource\Create\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.h">
+      <Filter>Source\Engine\Editor\AssetResourceView\TextureView</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

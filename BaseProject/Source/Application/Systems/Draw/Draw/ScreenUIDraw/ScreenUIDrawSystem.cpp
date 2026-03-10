@@ -9,6 +9,8 @@
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
+#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
+
 void ScreenUIDrawSystem::Run(World& a_world, float a_dt)
 {
 	a_world.ForEach<WorldMatrixComponent, UIComponent>(
@@ -28,7 +30,8 @@ void ScreenUIDrawSystem::Run(World& a_world, float a_dt)
 				// 描画アイテム
 				DrawItem2D _item = {};
 				_item.worldMat = _matComp.worldMat;
-				_item.srvHandleRange = _uiComp.srvRange;
+				//_item.srvHandleRange = _uiComp.srvHandle;
+				_item.srvHandleRange = Engine::Resource::TextureManager::Instance().GetTexture(_uiComp.texHandle).GetSRV();
 				_item.colorScale = _uiComp.color;
 
 				RenderContext::Instance().AddItem(RenderQueueType2D::ScreenUI, _item);

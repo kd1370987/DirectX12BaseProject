@@ -9,6 +9,7 @@ struct SRVViewInit
 	D3D12_SHADER_RESOURCE_VIEW_DESC* pDesc = nullptr;
 };
 
+
 struct UAVViewInit
 {
 	ID3D12Resource* pResource = nullptr;

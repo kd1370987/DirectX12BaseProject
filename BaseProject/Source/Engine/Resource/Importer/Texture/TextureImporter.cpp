@@ -128,7 +128,7 @@ Engine::Resource::UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_tex
 }
 
 bool BuildFromScratchiImage(
-	Engine::Resource::TextureDesc& a_tex, 
+	ComPtr<ID3D12Resource>& a_cpRes,
 	DirectX::TexMetadata& a_meta,
 	DirectX::ScratchImage& a_sImg
 )
@@ -162,7 +162,7 @@ bool BuildFromScratchiImage(
 		&_texDesc,
 		D3D12_RESOURCE_STATE_COPY_DEST,
 		nullptr,
-		IID_PPV_ARGS(a_tex.cpResource.ReleaseAndGetAddressOf())
+		IID_PPV_ARGS(a_cpRes.ReleaseAndGetAddressOf())
 	);
 	if (FAILED(_hr))
 	{
@@ -201,12 +201,12 @@ bool BuildFromScratchiImage(
 	_uploadBuffer.pResource->Unmap(0, nullptr);
 
 	// GPUにコピー
-	CopyTexRegion(a_tex.cpResource.Get(), _uploadBuffer);
+	CopyTexRegion(a_cpRes.Get(), _uploadBuffer);
 
 	return true;
 }
 
-bool LoadFromPath(DirectX::TexMetadata& a_metaData, DirectX::ScratchImage& a_img, std::wstring& a_path)
+bool ImportFromPath(DirectX::TexMetadata& a_metaData, DirectX::ScratchImage& a_img, std::wstring& a_path)
 {
 	//----------------------------------------
 	// 拡張子によって読み込み方法を変える
@@ -237,7 +237,7 @@ bool LoadFromPath(DirectX::TexMetadata& a_metaData, DirectX::ScratchImage& a_img
 	return true;
 }
 
-Engine::Resource::TextureDesc Engine::Resource::ImportTexture(
+ComPtr<ID3D12Resource> Engine::Resource::ImportTexture(
 	const std::string& a_filePath, 
 	D3D12_RESOURCE_DESC* a_desc
 )
@@ -245,15 +245,15 @@ Engine::Resource::TextureDesc Engine::Resource::ImportTexture(
 	//----------------------------------------
 	// データ準備
 	//----------------------------------------
-	Engine::Resource::TextureDesc _texDesc = {};
+	ComPtr<ID3D12Resource> _cpRes = nullptr;
 	std::wstring _path = StringUtility::ToWideString(a_filePath);
 	DirectX::TexMetadata _meta = {};
 	DirectX::ScratchImage _sImg = {};
 
 	// テクスチャ読み込み
-	if (!LoadFromPath(_meta, _sImg, _path))
+	if (!ImportFromPath(_meta, _sImg, _path))
 	{
-		return _texDesc;
+		return _cpRes;
 	}
 
 	if (a_desc)
@@ -263,12 +263,6 @@ Engine::Resource::TextureDesc Engine::Resource::ImportTexture(
 		_meta.height = static_cast<size_t>(a_desc->Height);
 		_meta.arraySize = static_cast<size_t>(a_desc->DepthOrArraySize);
 		_meta.mipLevels = static_cast<size_t>(a_desc->MipLevels);
-
-		_texDesc.desc.Format = _meta.format;
-		_texDesc.desc.Width = static_cast<size_t>(_meta.width);
-		_texDesc.desc.Height = static_cast<size_t>(_meta.height);
-		_texDesc.desc.DepthOrArraySize = static_cast<size_t>(_meta.arraySize);
-		_texDesc.desc.MipLevels = static_cast<size_t>(_meta.mipLevels);
 	}
 
 	// みっぷマップ計算
@@ -283,21 +277,22 @@ Engine::Resource::TextureDesc Engine::Resource::ImportTexture(
 	);
 	if (FAILED(_hr))
 	{
-		return _texDesc;
+		return _cpRes;
 	}
 
 	_sImg = std::move(_mipChain);
 	_meta = _sImg.GetMetadata();
 
 	// テクスチャを構築
-	BuildFromScratchiImage(_texDesc, _meta, _sImg);
+	BuildFromScratchiImage(_cpRes, _meta, _sImg);
 
-	return _texDesc;
+	return _cpRes;
 }
 
-Engine::Resource::TextureDesc Engine::Resource::DefaultTexture(DirectX::XMFLOAT4 a_color)
+ComPtr<ID3D12Resource> Engine::Resource::DefaultTexture(DirectX::XMFLOAT4 a_color)
 {
-	TextureDesc _texDesc = {};
+	ComPtr<ID3D12Resource> _cpRes = nullptr;
+
 	DirectX::TexMetadata _meta = {};
 	DirectX::ScratchImage _sImg = {};
 	_sImg = {};
@@ -320,11 +315,11 @@ Engine::Resource::TextureDesc Engine::Resource::DefaultTexture(DirectX::XMFLOAT4
 	}
 	_meta = _sImg.GetMetadata();
 	// テクスチャを構築
-	BuildFromScratchiImage(_texDesc, _meta, _sImg);
-	return _texDesc;
+	BuildFromScratchiImage(_cpRes, _meta, _sImg);
+	return _cpRes;
 }
 
-Engine::Resource::TextureDesc Engine::Resource::WhiteTexture()
+ComPtr<ID3D12Resource> Engine::Resource::WhiteTexture()
 {
 	return DefaultTexture({
 		255,
@@ -334,7 +329,7 @@ Engine::Resource::TextureDesc Engine::Resource::WhiteTexture()
 	});
 }
 
-Engine::Resource::TextureDesc Engine::Resource::BlackTexture()
+ComPtr<ID3D12Resource> Engine::Resource::BlackTexture()
 {
 	return DefaultTexture({
 		0,
@@ -344,7 +339,7 @@ Engine::Resource::TextureDesc Engine::Resource::BlackTexture()
 	});
 }
 
-Engine::Resource::TextureDesc Engine::Resource::NormalWhiteTexture()
+ComPtr<ID3D12Resource> Engine::Resource::NormalWhiteTexture()
 {
 	return DefaultTexture({
 		128,
@@ -354,7 +349,7 @@ Engine::Resource::TextureDesc Engine::Resource::NormalWhiteTexture()
 	});
 }
 
-Engine::Resource::TextureDesc Engine::Resource::ORMTexture()
+ComPtr<ID3D12Resource> Engine::Resource::ORMTexture()
 {
 	return DefaultTexture({
 		0,

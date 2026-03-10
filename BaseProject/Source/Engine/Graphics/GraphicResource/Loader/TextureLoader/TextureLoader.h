@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-struct Texture;
-
 struct UploadBuffer
 {
 	ID3D12Resource* pResource = nullptr;
@@ -22,19 +20,19 @@ namespace TextureLoad
 	/// <param name="a_dstTex">出力変数</param>
 	/// <param name="a_desc">生成時の設定</param>
 	/// <returns>読み込みに成功 = true</returns>
-	bool Load(const std::string& a_path, Texture& a_dstTex, D3D12_RESOURCE_DESC* a_desc = nullptr);
+	bool Load(const std::string& a_path, TextureS& a_dstTex, D3D12_RESOURCE_DESC* a_desc = nullptr);
 
-	Texture Default(DirectX::XMFLOAT4 a_color);
+	TextureS Default(DirectX::XMFLOAT4 a_color);
 
 	// 白テクスチャ
-	Texture White();
+	TextureS White();
 
 	// 黒テクスチャ
-	Texture Black();
+	TextureS Black();
 
 	// ノーマルマップ白テクスチャ
-	Texture NormalWhite();
+	TextureS NormalWhite();
 
 	// ORMテクスチャ
-	Texture ORM();
+	TextureS ORM();
 }

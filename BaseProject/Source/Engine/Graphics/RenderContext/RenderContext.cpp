@@ -554,7 +554,7 @@ void RenderContext::BindMaterial(
 		m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
 	if(a_pMaterial != m_pCurrentMaterial)
 	{
-		auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(a_pMaterial->srvHandle);
+		auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(a_pMaterial->startSRVHandle);
 		_pCmdList->SetGraphicsRootDescriptorTable(
 			_regiIdx,
 			_handle

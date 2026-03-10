@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 class ModelView;
+class TextureView;
 
 class AssetResourceView
 {
@@ -16,5 +17,6 @@ public:
 private:
 
 	std::unique_ptr<ModelView> m_upModelView = nullptr;
+	std::unique_ptr<TextureView> m_upTextureView = nullptr;
 
 };

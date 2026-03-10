@@ -47,13 +47,13 @@ public:
 	/// </summary>
 	/// <param name="a_texID">登録ID</param>
 	/// <returns>テクスチャのポインタ</returns>
-	const Texture* NGetTexture(const uint32_t& a_texID);
+	const TextureS* NGetTexture(const uint32_t& a_texID);
 
 	const std::string& GetTexturePath(const uint32_t& a_texID);
 
 private:
 
-	ResourceSlotStorage<Texture> m_texStorage;
+	ResourceSlotStorage<TextureS> m_texStorage;
 
 
 private:

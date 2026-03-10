@@ -44,7 +44,7 @@ bool GraphicResourceManager::GetTexture(Engine::Resource::ID& a_outID, const std
 
 	if (!m_texStorage.Has(_fullPath))
 	{
-		Texture _tex = {};
+		TextureS _tex = {};
 		if (!TextureLoad::Load(_fullPath, _tex))
 		{
 			switch (a_use)
@@ -75,7 +75,7 @@ bool GraphicResourceManager::GetTexture(Engine::Resource::ID& a_outID, const std
 	}
 }
 
-const Texture* GraphicResourceManager::NGetTexture(const uint32_t& a_texID)
+const TextureS* GraphicResourceManager::NGetTexture(const uint32_t& a_texID)
 {
 	return m_texStorage.Get(a_texID);
 }

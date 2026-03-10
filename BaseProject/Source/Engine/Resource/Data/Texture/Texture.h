@@ -4,11 +4,11 @@ namespace Engine::Resource
 {
 
 
-	class TextureRes
+	class Texture
 	{
 	public:
-		TextureRes() = default;
-		~TextureRes() = default;
+		Texture() = default;
+		~Texture() = default;
 
 		// テクスチャ生成
 		void Import(
@@ -24,9 +24,26 @@ namespace Engine::Resource
 		
 		// 名前変更
 		void SetName(const std::string& a_name);
+		const std::string& GetName();
 
-		// リソース取得
-		ID3D12Resource* GetResource();
+		// リソース情報
+		ID3D12Resource* GetResource();				// 生データ
+		const TextureUsage& GetUsage() const;		// 使用フラグ
+		const D3D12_RESOURCE_DESC& GetDesc() const;	// テクスチャ設定
+
+		// ビュー情報取得
+		const Engine::Resource::Handle<RTV>& GetRTV() const;
+		const Engine::Resource::Handle<DSV>& GetDSV() const;
+		const Engine::Resource::Handle<SRV>& GetSRV() const;
+		const Engine::Resource::Handle<UAV>& GetUAV() const;
+		const Engine::Resource::Handle<SRV>& GetImGuiSRV() const;
+
+		// ビュー情報セット
+		void SetRTV(const Engine::Resource::Handle<RTV>& a_handle);
+		void SetDSV(const Engine::Resource::Handle<DSV>& a_handle);
+		void SetSRV(const Engine::Resource::Handle<SRV>& a_handle);
+		void SetUAV(const Engine::Resource::Handle<UAV>& a_handle);
+		void SetImGuiSRV(const Engine::Resource::Handle<SRV>& a_handle);
 
 	private:
 
@@ -37,12 +54,12 @@ namespace Engine::Resource
 		TextureUsage m_useFlg = TextureUsage::None;			// テクスチャの使用方法
 
 		// 使用方法ごとのハンドル
-		RTVHandle		 m_rtvHandle{};
-		DSVHandle		 m_dsvHandle{};
-		Storage::Range	 m_srvHandle;
-		Storage::Range	 m_uavHandle;
+		Engine::Resource::Handle<RTV>	 m_rtvHandle{};
+		Engine::Resource::Handle<DSV>	 m_dsvHandle{};
+		Engine::Resource::Handle<SRV>	 m_srvHandle{};
+		Engine::Resource::Handle<UAV>	 m_uavHandle{};
 
 		// ImGui用ハンドル
-		Storage::Range m_imguiSRVHandle{};
+		Engine::Resource::Handle<SRV>	 m_imguiSRVHandle{};
 	};
 }

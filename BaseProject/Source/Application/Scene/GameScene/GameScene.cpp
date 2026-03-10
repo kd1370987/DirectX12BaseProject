@@ -3,6 +3,7 @@
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/Graphics/GraphicResource/GraphicResourceManager/GraphicResourceManager.h"
 #include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 
 #include "../SceneManager.h"
 
@@ -278,24 +279,25 @@ void GameScene::RegistryEntity()
 	}
 
 	{
-		ECS::Signature _sig;
-		_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
-		_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
-		_sig.set(m_upWorld->GetCompTypeID(typeid(UIComponent)));
-		auto _entity = m_upWorld->CreateEntity(_sig);
+		//ECS::Signature _sig;
+		//_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
+		//_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
+		//_sig.set(m_upWorld->GetCompTypeID(typeid(UIComponent)));
+		//auto _entity = m_upWorld->CreateEntity(_sig);
 
-		UIComponent* _ui = m_upWorld->RefData<UIComponent>(_entity);
-		GraphicResourceManager::Instance().GetTexture(_ui->texID, "Asset/Texture/Test/", "uiTest.png", TextureUse::Albedo);
-		_ui->color = { 1.0f,1.0f,1.0f,0.5f };
-		std::vector<SRVViewInit> _initVec = {};
-		ID3D12Resource* _tex = GraphicResourceManager::Instance().NGetTexture(_ui->texID)->cpResource.Get();
-		_initVec.push_back({_tex});
-		_ui->srvRange = DescriptorHeapManager::Instance().AllocateSRVRange(_initVec);
-		TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);
-		_ref->pos = { 0,0,0 };
-		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
-		_ref->scale = { 0.5f,0.5f,1.0f };
-		m_upWorld->RefData<WorldMatrixComponent>(_entity)->worldMat = DXSM::Matrix::Identity;
+		//UIComponent* _ui = m_upWorld->RefData<UIComponent>(_entity);
+		////GraphicResourceManager::Instance().GetTexture(_ui->texID, "Asset/Texture/Test/", "uiTest.png", TextureUse::Albedo);
+		//_ui->color = { 1.0f,1.0f,1.0f,0.5f };
+		////std::vector<SRVViewInit> _initVec = {};
+		////ID3D12Resource* _tex = GraphicResourceManager::Instance().NGetTexture(_ui->texID)->cpResource.Get();
+		////_initVec.push_back({_tex});
+		////_ui->srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange(_initVec)[0];
+		//_ui->texHandle = Engine::Resource::TextureManager::Instance().LoadTexture("Asset/Texture/Test/uiTest.png");
+		//TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);
+		//_ref->pos = { 0,0,0 };
+		//_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
+		//_ref->scale = { 0.5f,0.5f,1.0f };
+		//m_upWorld->RefData<WorldMatrixComponent>(_entity)->worldMat = DXSM::Matrix::Identity;
 	}
 }
 

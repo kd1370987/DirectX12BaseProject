@@ -12,12 +12,11 @@ bool Engine::D3D12::SRVAllocator::Create(
 	m_pHeap = a_pHeap;
 
 	// インデックス行列作成
-	m_entoryVec.resize(a_srvCount);
+	m_genVec.resize(a_srvCount);
 	for (UINT _idx = 0; _idx < a_srvCount; ++_idx)
 	{
 		m_indexQueue.push(_idx);
-		m_entoryVec[_idx].count = 0;
-		m_entoryVec[_idx].gen = 0;
+		m_genVec[_idx] = 0;
 	}
 
 	// SRV開始位置
@@ -27,7 +26,7 @@ bool Engine::D3D12::SRVAllocator::Create(
 	return true;
 }
 
-Engine::Resource::HandleRange<SRV> Engine::D3D12::SRVAllocator::Allocate(
+std::vector<Engine::Resource::Handle<SRV>> Engine::D3D12::SRVAllocator::Allocate(
 	std::vector<SRVViewInit> a_resourceVec
 )
 {
@@ -37,18 +36,13 @@ Engine::Resource::HandleRange<SRV> Engine::D3D12::SRVAllocator::Allocate(
 		assert(0 && "SRVの使用上限に達しました");
 	}
 
-	// ハンドルレンジ作成
-	Engine::Resource::HandleRange<SRV> _handleRange = {};
-	_handleRange.idx = m_indexQueue.front(); m_indexQueue.pop();
-	_handleRange.gen = m_entoryVec[_handleRange.idx].gen;
+	// リザルト用意
+	std::vector<Engine::Resource::Handle<SRV>> _result = {};
+	_result.resize(a_resourceVec.size());
 
-	// 領域確保
-	Storage::Range _range = m_srvRangeList.Allocate(static_cast<UINT>(a_resourceVec.size()));
-	m_entoryVec[_handleRange.idx].start = _range.startIndex;
-	m_entoryVec[_handleRange.idx].count = _range.rangeSize;
-
-	// すべてのリソースに対してビューを作成していく
-	for (UINT _i = 0; _i < _range.rangeSize; ++_i)
+	// インデックス取得
+	auto _range = m_srvRangeList.Allocate(a_resourceVec.size());
+	for (UINT _i = 0; _i < _result.size(); ++_i)
 	{
 		// リソースごとのハンドル取得
 		auto _handle = m_pHeap->GetCPU(m_srvStartIndex + _range.startIndex + _i);
@@ -72,41 +66,52 @@ Engine::Resource::HandleRange<SRV> Engine::D3D12::SRVAllocator::Allocate(
 			&_srvDesc,
 			_handle
 		);
+
+		// リザルト作成
+		_result[_i].idx = _range.startIndex + _i;
+		_result[_i].gen = m_genVec[_result[_i].idx];
 	}
-	
-	return _handleRange;
+
+	return _result;
 }
 
 void Engine::D3D12::SRVAllocator::Remove(Engine::Resource::Handle<SRV> a_handle)
 {
-	if (m_entoryVec[a_handle.idx].gen != a_handle.gen)
+	if(Check(a_handle))
 	{
-		return;
+		m_indexQueue.push(a_handle.idx);
+		m_genVec[a_handle.idx]++;
 	}
-	m_entoryVec[a_handle.idx].gen++;
-	m_indexQueue.push(a_handle.idx);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Engine::D3D12::SRVAllocator::GetCPU(
-	const Engine::Resource::HandleRange<SRV>& a_handle
+	const Engine::Resource::Handle<SRV>& a_handle
 ) const
 {
-	if (m_entoryVec[a_handle.idx].gen == a_handle.gen)
+	if (Check(a_handle))
 	{
-		auto _idx = m_entoryVec[a_handle.idx].start;
-		return m_pHeap->GetCPU(m_srvStartIndex + static_cast<UINT>(_idx));
+		return m_pHeap->GetCPU(m_srvStartIndex + static_cast<UINT>(a_handle.idx));
 	}
 	assert(0 && "SRVの世代が違います");
 	return D3D12_CPU_DESCRIPTOR_HANDLE();
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Engine::D3D12::SRVAllocator::GetGPU(const Engine::Resource::HandleRange<SRV>& a_handle) const
+D3D12_GPU_DESCRIPTOR_HANDLE Engine::D3D12::SRVAllocator::GetGPU(const Engine::Resource::Handle<SRV>& a_handle) const
 {
-	if (m_entoryVec[a_handle.idx].gen == a_handle.gen)
+	if (Check(a_handle))
 	{
-		auto _idx = m_entoryVec[a_handle.idx].start;
-		return m_pHeap->GetGPU(m_srvStartIndex + static_cast<UINT>(_idx));
+		return m_pHeap->GetGPU(m_srvStartIndex + static_cast<UINT>(a_handle.idx));
 	}
 	assert(0 && "SRVの世代が違います");
 	return D3D12_GPU_DESCRIPTOR_HANDLE();
+}
+
+bool Engine::D3D12::SRVAllocator::Check(const Engine::Resource::Handle<SRV>& a_handle) const
+{
+
+	if (m_genVec[a_handle.idx] == a_handle.gen)
+	{
+		return true;
+	}
+	return false;
 }

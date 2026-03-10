@@ -22,23 +22,23 @@ namespace Engine::Resource
 	};
 
 	// テクスチャ読み込み
-	TextureDesc ImportTexture(
+	ComPtr<ID3D12Resource> ImportTexture(
 		const std::string& a_filePath,
 		D3D12_RESOURCE_DESC* a_desc = nullptr
 	);
 
 	// 色を指定してデフォルトテクスチャ生成
-	TextureDesc DefaultTexture(DirectX::XMFLOAT4 a_color);
+	ComPtr<ID3D12Resource> DefaultTexture(DirectX::XMFLOAT4 a_color);
 
 	// 白テクスチャ
-	TextureDesc WhiteTexture();
+	ComPtr<ID3D12Resource> WhiteTexture();
 
 	// 黒テクスチャ
-	TextureDesc BlackTexture();
+	ComPtr<ID3D12Resource> BlackTexture();
 
 	// ノーマルマップ白テクスチャ
-	TextureDesc NormalWhiteTexture();
+	ComPtr<ID3D12Resource> NormalWhiteTexture();
 
 	// ORMテクスチャ
-	TextureDesc ORMTexture();
+	ComPtr<ID3D12Resource> ORMTexture();
 }

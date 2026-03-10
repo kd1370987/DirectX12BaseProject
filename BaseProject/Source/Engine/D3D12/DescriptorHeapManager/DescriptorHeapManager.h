@@ -31,11 +31,11 @@ public:
 	// SRV
 	//------------------------------------------------------------------------------------------
 	// 一括でSRVを確保
-	Engine::Resource::HandleRange<SRV> AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec);
+	std::vector<Engine::Resource::Handle<SRV>> AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec);
 
 	// SRVのCPUハンドルを取得
-	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUHandle(Engine::Resource::HandleRange<SRV> a_range);
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUHandle(Engine::Resource::HandleRange<SRV> a_range);
+	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUHandle(Engine::Resource::Handle<SRV> a_range);
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUHandle(Engine::Resource::Handle<SRV> a_range);
 
 	//------------------------------------------------------------------------------------------
 	// UAV
@@ -55,11 +55,11 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle();
 
 	/// 一括でSRVを確保
-	Engine::Resource::HandleRange<SRV> AllocateImGuiSRVRange(std::vector<SRVViewInit> a_viewInitVec);
+	std::vector<Engine::Resource::Handle<SRV>> AllocateImGuiSRVRange(std::vector<SRVViewInit> a_viewInitVec);
 
 	// ImGuiのSRVハンドルを取得
-	D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Resource::HandleRange<SRV> a_range);
-	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Engine::Resource::HandleRange<SRV> a_range);
+	D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Resource::Handle<SRV> a_range);
+	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Engine::Resource::Handle<SRV> a_range);
 
 	//==========================================================================================
 	// 
