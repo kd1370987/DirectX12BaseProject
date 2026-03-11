@@ -29,6 +29,8 @@ bool Engine::Resource::Mesh::Create(
 			return false;
 		}
 
+		m_vertexBuffer.CreateSRV();
+
 		//------------------------------
 		// 座標のみの配列
 		//------------------------------
@@ -79,6 +81,12 @@ bool Engine::Resource::Mesh::Create(
 	// スキンメッシュ持ちかどうか
 	//------------------------------
 	m_isSkinMesh = a_isSkinMesh;
+
+	//------------------------------
+	// BLAS作成
+	//------------------------------
+	m_indexBuffer.CreateSRV();
+	m_vertexBuffer.CreateSRV();
 
 	return true;
 }
@@ -169,6 +177,13 @@ bool Engine::Resource::Mesh::CreateFloat(
 	// スキンメッシュ持ちかどうか
 	//------------------------------
 	m_isSkinMesh = a_isSkinMesh;
+
+	
+	//------------------------------
+	// BLAS作成
+	//------------------------------
+	m_indexBuffer.CreateSRV();
+	m_vertexBuffer.CreateSRV();
 
 	return true;
 }

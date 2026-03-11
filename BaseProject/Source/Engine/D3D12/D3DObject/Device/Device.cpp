@@ -40,9 +40,9 @@ void Device::Release()
 }
 
 
-ID3D12Device* Device::GetDevice()
+ID3D12Device5* Device::GetDevice()
 {
-	return m_cpDevice.Get();
+	return m_cpDevice5.Get();
 }
 IDXGIFactory6* Device::GetDxgiFactory()
 {
@@ -135,7 +135,7 @@ bool Device::CreateDevice()
 		_hr = D3D12CreateDevice(
 			_pSelectAdapter.Get(),
 			_level,
-			IID_PPV_ARGS(m_cpDevice.ReleaseAndGetAddressOf())
+			IID_PPV_ARGS(m_cpDevice5.ReleaseAndGetAddressOf())
 		);
 		if (SUCCEEDED(_hr))
 		{
@@ -149,7 +149,7 @@ bool Device::CreateDevice()
 		return false;
 	}
 
-	m_cpDevice.As(&m_cpDevice5);
+	//m_cpDevice.As(&m_cpDevice5);
 
 	return true;
 }

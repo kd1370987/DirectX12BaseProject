@@ -1,6 +1,6 @@
 ﻿#include "VertexBuffer.h"
-
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../../../DescriptorHeapManager/DescriptorHeapManager.h"
 
 bool VertexBuffer::Create(
 	size_t a_size,
@@ -11,6 +11,8 @@ bool VertexBuffer::Create(
 	// 頂点バッファの生成
 	size_t _bufferSize = a_size * a_stride;
 
+	m_vertexCount = a_size;
+	m_strideSize = a_stride;
 
 	// 初期化情報
 	auto _prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);		// ヒーププロパティ
@@ -54,8 +56,33 @@ bool VertexBuffer::Create(
 		m_pBuffer->Unmap(0, nullptr);
 	}
 
+
+
 	// 作成成功
 	return true;
+}
+
+void VertexBuffer::CreateSRV()
+{
+	// 仕様書作成
+	D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
+	_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	_desc.Format = DXGI_FORMAT_UNKNOWN;
+	_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	_desc.Buffer.FirstElement = 0;
+	_desc.Buffer.NumElements = m_vertexCount;
+	_desc.Buffer.StructureByteStride = m_strideSize;
+	_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+	SRVViewInit _viewInit = {};
+	_viewInit.pResource = m_pBuffer.Get();
+	_viewInit.pDesc = &_desc;
+	m_srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewInit })[0];
+}
+
+Engine::Resource::Handle<SRV> VertexBuffer::GetHandle()
+{
+	return m_srvHandle;
 }
 
 void VertexBuffer::Update(size_t a_count, const void* a_data)

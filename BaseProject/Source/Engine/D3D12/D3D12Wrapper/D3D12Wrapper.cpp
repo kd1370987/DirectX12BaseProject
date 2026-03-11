@@ -205,6 +205,10 @@ ID3D12Device* D3D12Wrapper::GetDevice()
 	// デバイスの取得
 	return m_upDevice->GetDevice();
 }
+ID3D12Device5* D3D12Wrapper::GetDevice5()
+{
+	return m_upDevice->GetDevice();
+}
 ID3D12GraphicsCommandList* D3D12Wrapper::GetCommandList()
 {
 	// コマンドリストの取得

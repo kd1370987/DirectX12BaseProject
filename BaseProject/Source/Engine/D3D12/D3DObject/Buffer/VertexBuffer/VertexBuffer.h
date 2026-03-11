@@ -21,6 +21,14 @@ public:
 	);
 
 	/// <summary>
+	/// レイトレーシング時に使うため構造体バッファとして扱えるようにする
+	/// </summary>
+	void CreateSRV();
+
+	// SRVハンドルを返す
+	Engine::Resource::Handle<SRV> GetHandle();
+
+	/// <summary>
 	/// 更新
 	/// </summary>
 	/// <param name="a_count">頂点数</param>
@@ -39,6 +47,11 @@ private:
 
 	ComPtr<ID3D12Resource> m_pBuffer = nullptr;			// バッファ本体
 	D3D12_VERTEX_BUFFER_VIEW m_view = {};				// 頂点バッファビュー
+	Engine::Resource::Handle<SRV> m_srvHandle = {};
+
+	// 構成情報
+	size_t m_vertexCount = 0;
+	size_t m_strideSize = 0;
 
 	// コピー禁止
 	VertexBuffer(const VertexBuffer&) = delete;

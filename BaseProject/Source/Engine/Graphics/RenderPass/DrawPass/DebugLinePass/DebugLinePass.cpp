@@ -80,8 +80,8 @@ void DebugLinePass::CreatePass()
 
 	m_passDesc.queueType = RenderQueueType::Opaque;
 
-	//auto _mainTexID = m_pRenderGraph->GetID("MainColor");
-	auto _mainTexID = m_pRenderGraph->GetID("QuadTexture");
+	auto _mainTexID = m_pRenderGraph->GetID("MainColor");
+	//auto _mainTexID = m_pRenderGraph->GetID("QuadTexture");
 	auto _depthTexID = m_pRenderGraph->GetID("Depth");
 
 	// 入力元
@@ -94,7 +94,7 @@ void DebugLinePass::CreatePass()
 
 	// リソース
 	m_passDesc.resourceAccessVec = {
-		{_mainTexID,AccessType::RTV,LoadOp::Load,StoreOp::Store},
+		{_mainTexID,AccessType::RTV,LoadOp::Clear,StoreOp::Store},
 		{_depthTexID,AccessType::Depth_Write,LoadOp::Load,StoreOp::Store}
 	};
 }

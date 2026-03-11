@@ -2,59 +2,29 @@
 
 namespace Engine::Graphic
 {
-	enum class ResourceUsage : uint32_t
+	// パスの巡回を解消するための倫理リソース
+	struct LogicalResource
 	{
-		None = 0,
-		RenderTarget = 1 << 0,
-		DepthStencil = 1 << 1,
-		ShaderRead = 1 << 2,
-		ShaderWrite = 1 << 3,   // UAV 用
-	};
-
-	inline ResourceUsage operator|(ResourceUsage a, ResourceUsage b)
-	{
-		return static_cast<ResourceUsage>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b)
-			);
-	}
-
-	inline ResourceUsage operator&(ResourceUsage a, ResourceUsage b)
-	{
-		return static_cast<ResourceUsage>(
-			static_cast<uint32_t>(a) & static_cast<uint32_t>(b)
-			);
-	}
-
-	inline ResourceUsage& operator|=(ResourceUsage& a, ResourceUsage b)
-	{
-		a = a | b;
-		return a;
-	}
-
-	inline bool HasFlag(ResourceUsage value, ResourceUsage flag)
-	{
-		return (static_cast<uint32_t>(value) &
-			static_cast<uint32_t>(flag)) != 0;
-	}
-
-	// レンダーグラフで使うリソースクラス
-	// レンダーターゲットや深度値などのテクスチャを扱う
-	class RGResource
-	{
-	public:
-
-
-	private:
+		// 参照するリソース
+		Resource::ID m_id = Resource::Limits::INVALID_ID;
 
 		// リソース設定
-		Resource::ID m_id = Resource::Limits::INVALID_ID;	// 識別ID
-		std::string m_name = "none";						// リソースネーム
-		ResourceUsage m_usage = ResourceUsage::None;		// 使用フラグ
+		uint32_t m_version = 0;								// このリソースが書かれたときのバージョン
+	};
+
+	// レンダーグラフで使うリソースクラス
+	struct RGResource
+	{
+		// リソース名
+		std::string m_name = "RGResource";
+
+		// 識別ID
+		Engine::Resource::ID m_id = Engine::Resource::Limits::INVALID_ID;
+
+		// リソースが参照するテクスチャ
+		Engine::Resource::Handle<Engine::Resource::Texture> m_texHandle = {};
 
 		// 実行中のステータス
 		D3D12_RESOURCE_STATES m_currentState = D3D12_RESOURCE_STATE_COMMON;
-
-		
-		
 	};
 }

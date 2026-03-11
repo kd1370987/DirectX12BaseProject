@@ -143,6 +143,7 @@ void RenderContext::Init()
 
 	m_upRenderGraph = std::make_unique<RenderGraph>();
 	m_upRenderGraph->Init(
+		this,
 		m_spShaderManger.get(),
 		m_spRootSigManager.get(),
 		m_spGraphicsPSOManager.get()

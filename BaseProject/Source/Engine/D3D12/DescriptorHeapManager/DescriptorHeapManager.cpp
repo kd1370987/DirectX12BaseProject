@@ -57,7 +57,9 @@ void DescriptorHeapManager::Release()
 }
 
 std::vector<Engine::Resource::Handle<SRV>> DescriptorHeapManager::AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec)
-{	
+{
+	ImGuiContex::Instance().AddLog("-------------------------\n");
+	ImGuiContex::Instance().AddLog("SRVAllocate\n");
 	return m_upSRVAllocator->Allocate(a_viewInitVec);
 }
 
@@ -83,17 +85,19 @@ ID3D12DescriptorHeap* DescriptorHeapManager::GetImGuiHeap() const
 
 std::vector<Engine::Resource::Handle<SRV>> DescriptorHeapManager::AllocateImGuiSRVRange(std::vector<SRVViewInit> a_viewInitVec)
 {
+	ImGuiContex::Instance().AddLog("-------------------------\n");
+	ImGuiContex::Instance().AddLog("IMMGUIALLOCATE\n");
 	return m_upImGuiSRVAllocator->Allocate(a_viewInitVec);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiCPUHandle()
 {
-	return m_imguiHeap.GetCPU(0);
+	return m_imguiHeap.GetCPU(100);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiGPUHandle()
 {
-	return m_imguiHeap.GetGPU(0);
+	return m_imguiHeap.GetGPU(100);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVCPUHandle(Engine::Resource::Handle<SRV> a_range)

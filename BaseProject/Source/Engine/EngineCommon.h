@@ -11,22 +11,7 @@ enum
 {
 	BACKBUFFER_COUNT = 3,		// 今回はダブルバッファリング
 	CPU_FRAME_COUNT = 3				// フレームリソース管理用
-};
-
-//==========================================================================================
-// 
-// DirectX12ラッパー
-// 
-//==========================================================================================
-constexpr UINT INVALID_INDEX = UINT_MAX;
-#include "D3D12/D3D12Common.h"
-//------------------------------------------------------------------------------------------
-// バッファー
-//------------------------------------------------------------------------------------------
-#include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
-#include "Engine/D3D12//D3DObject/Buffer/VertexBuffer/VertexBuffer.h"
-#include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
-#include "Engine/D3D12//D3DObject/Buffer/RenderTarget/RenderTarget.h"
+}; 
 
 //==========================================================================================
 // 
@@ -41,13 +26,31 @@ namespace Engine::Resource
 
 	namespace Limits
 	{
-		constexpr ID			INVALID_ID			= std::numeric_limits<ID>::max();
-		constexpr Index			INVALID_INDEX		= std::numeric_limits<Index>::max();
-		constexpr Generation	INVALID_GENERATION	= std::numeric_limits<Generation>::max();
+		constexpr ID			INVALID_ID = std::numeric_limits<ID>::max();
+		constexpr Index			INVALID_INDEX = std::numeric_limits<Index>::max();
+		constexpr Generation	INVALID_GENERATION = std::numeric_limits<Generation>::max();
 	}
 }
 
 #include "Engine/SlotStorage/SlotStorage.h"
+
+#include "Engine/Resource/Common/Common.h"
+
+//==========================================================================================
+// 
+// DirectX12ラッパー
+// 
+//==========================================================================================
+constexpr UINT INVALID_INDEX = UINT_MAX;
+#include "D3D12/D3D12Common.h"
+
+//------------------------------------------------------------------------------------------
+// バッファー
+//------------------------------------------------------------------------------------------
+#include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/VertexBuffer/VertexBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
+#include "Engine/D3D12//D3DObject/Buffer/RenderTarget/RenderTarget.h"
 
 //==========================================================================================
 // 
@@ -61,7 +64,7 @@ namespace Engine::Resource
 // リソース
 // 
 //==========================================================================================
-#include "Engine/Resource/Common/Common.h"
+
 
 #include "Engine/Resource/Data/Texture/Texture.h"			// テクスチャ
 #include "Engine/Resource/Data/Vertex/Vertex.h"				// 頂点データ

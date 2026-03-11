@@ -1,5 +1,6 @@
 ﻿#include "IndexBuffer.h"
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../../../DescriptorHeapManager/DescriptorHeapManager.h"
 
 bool IndexBuffer::Create(
 	size_t a_size, 
@@ -10,6 +11,8 @@ bool IndexBuffer::Create(
 {
 	// バッファのサイズ
 	size_t _bufferSize = a_size * a_stride;
+
+	m_stride = a_stride;
 
 	// インデックスバッファの生成
 	auto _prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);		// ヒーププロパティ
@@ -57,7 +60,32 @@ bool IndexBuffer::Create(
 	m_format = a_format;
 	m_count = static_cast<UINT>(_bufferSize / ((a_format == DXGI_FORMAT_R16_UINT) ? 2 : 4));
 
+	//CreateSRV();
+
 	return true;
+}
+
+void IndexBuffer::CreateSRV()
+{
+	// 仕様書作成
+	D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
+	_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	_desc.Format = DXGI_FORMAT_UNKNOWN;
+	_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	_desc.Buffer.FirstElement = 0;
+	_desc.Buffer.NumElements = m_count;
+	_desc.Buffer.StructureByteStride = m_stride;
+	_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+	SRVViewInit _viewInit = {};
+	_viewInit.pResource = m_pBuffer.Get();
+	_viewInit.pDesc = &_desc;
+	m_srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewInit })[0];
+}
+
+Engine::Resource::Handle<SRV> IndexBuffer::GetHandle()
+{
+	return m_srvHandle;
 }
 
 const D3D12_INDEX_BUFFER_VIEW& IndexBuffer::View() const

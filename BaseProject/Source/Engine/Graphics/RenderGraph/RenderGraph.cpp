@@ -14,7 +14,12 @@
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRootSigMana, GraphicsPSOManager* a_pPSOMana)
+void RenderGraph::Init(
+	RenderContext* a_pCtx,
+	ShaderManager* a_pShaderMana,
+	RootSignatureManager* a_pRootSigMana,
+	GraphicsPSOManager* a_pPSOMana
+)
 {
 	m_resourceStorage.Init(20);
 	// リソース作成
@@ -78,7 +83,7 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	RegisterPass<DeferredLightingPass>();
 	RegisterPass<ForwardLightingPass>();
 	RegisterPass<FullScreenPass>();
-	//RegisterPass<DebugLinePass>();
+	RegisterPass<DebugLinePass>();
 	//RegisterPass<ScreenUIPass>();
 
 	// パスの初期化
@@ -86,6 +91,8 @@ void RenderGraph::Init(ShaderManager* a_pShaderMana, RootSignatureManager* a_pRo
 	{
 		_sp->Init(this,a_pShaderMana,a_pRootSigMana,a_pPSOMana);
 	}
+
+	m_pCtx = a_pCtx;
 
 	// コンパイル
 	Compile();
@@ -105,39 +112,39 @@ void RenderGraph::Compile()
 	m_compiledPasses.clear();
 
 	// ソート配列の作成
-	//Graph::TopologicalSort(
-	//	m_spPassVec,
-	//	m_sortedPassed,
-	//	[&](auto& a, auto& b)
-	//	{
-	//		// 依存があるかどうか
-	//		for (auto& _write : b.GetDesc().writeResource)
-	//		{
-	//			for (auto& _read : a.GetDesc().readResource)
-	//			{
-	//				if (_write == _read)
-	//				{
-	//					return true;
-	//				}
-	//			}
-	//		}
-	//		return false;
-	//	}
-	//);
+	Algorithm::Graph::TopologicalSort(
+		m_spPassVec,
+		m_sortedPassed,
+		[&](auto& a, auto& b)
+		{
+			// 依存があるかどうか
+			for (auto& _write : b.GetDesc().writeResource)
+			{
+				for (auto& _read : a.GetDesc().readResource)
+				{
+					if (_write == _read)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	);
 
 	// リソースのバージョン作成
-	//for (auto& _pass : m_spPassVec)
-	//{
-	//	for (auto& _readID : _pass->GetDesc().readResource)
-	//	{
-	//		auto& _res = GetRGresource(_readID);
-	//	}
+	for (auto& _pass : m_spPassVec)
+	{
+		for (auto& _readID : _pass->GetDesc().readResource)
+		{
+			auto& _res = GetRGresource(_readID);
+		}
 
-	//	for (auto& _writeID : _pass->GetDesc().writeResource)
-	//	{
+		for (auto& _writeID : _pass->GetDesc().writeResource)
+		{
 
-	//	}
-	//}
+		}
+	}
 
 	// ソート配列の作成
 	Algorithm::Graph::GroupTopologicalSort(
@@ -278,70 +285,11 @@ void RenderGraph::Excute(RenderContext* a_pCtx)
 	// コンパイル済みパスを順次実行していく
 	for (auto& _cp : m_compiledPasses)
 	{
-		// 使用するリソースバリア
-		for (auto& _barrier : _cp.barrierVec)
-		{
-			if(m_rgResourceMap[_barrier.resID].currentState != _barrier.after)
-			{
-				a_pCtx->Transition(
-					_barrier.texture->GetResource(),
-					m_rgResourceMap[_barrier.resID].currentState,
-					_barrier.after
-				);
-				m_rgResourceMap[_barrier.resID].currentState = _barrier.after;
-			}
-		}
+		// リソースバリア
+		AutoBarrier(_cp);
 
-		// RTV
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvs = {};
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _clearRTVs = {};
-
-		// DSV
-		D3D12_CPU_DESCRIPTOR_HANDLE _dsv = {};
-		D3D12_CPU_DESCRIPTOR_HANDLE* _pDsv = nullptr;
-		bool _isClear = false;
-		
-		for (auto& _resAcc : _cp.pPass->GetDesc().resourceAccessVec)
-		{
-			// レンダーターゲット
-			if (_resAcc.type == AccessType::RTV)
-			{
-				auto& _tex = m_rgResourceMap[_resAcc.id].spRGTexture;
-				_rtvs.push_back(_tex->GetRTVHandle());
-				// クリアを入れるかどうか
-				if (_resAcc.load == LoadOp::Clear)
-				{
-					_clearRTVs.push_back(_tex->GetRTVHandle());
-				}
-			}
-
-			// 深度値
-			if (_resAcc.type == AccessType::Depth_Write || 
-				_resAcc.type == AccessType::Depth_Read)
-			{
-				auto& _depth = m_rgResourceMap[_resAcc.id].spRGTexture;
-				_dsv = _depth->GetDSVHandle();
-				_pDsv = &_dsv;
-				// クリアを入れるかどうか
-				if (_resAcc.load == LoadOp::Clear)
-				{
-					_isClear = true;
-				}
-			}
-		}
-	
-		// レンダーターゲットを変更
-		a_pCtx->ChangeRenderTarget(_rtvs,_pDsv);
-
-		// クリア
-		for (auto& _handle : _clearRTVs)
-		{
-			a_pCtx->ClearRenderTarget(_handle);
-		}
-		if (_isClear)
-		{
-			a_pCtx->ClearDepth(_dsv);
-		}
+		// リソースクリア
+		AutoClear(_cp);
 
 		// パスの実行
 		_cp.pPass->Excute(a_pCtx);
@@ -380,6 +328,8 @@ Engine::Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)
 	_rgRes.currentState = D3D12_RESOURCE_STATE_COMMON;
 
 	m_rgResourceMap[_id] = _rgRes;
+
+	m_currentVersion[_id] = 0;
 
 	return _id;
 }
@@ -421,4 +371,75 @@ RGResource& RenderGraph::GetRGresource(const Engine::Resource::ID& a_id)
 	}
 
 	assert(0 && "RGリソースが見つかりません %d", a_id);
+}
+
+void RenderGraph::AutoBarrier(CompiledPass& a_pass)
+{
+	// 使用するリソースバリア
+	for (auto& _barrier : a_pass.barrierVec)
+	{
+		if (m_rgResourceMap[_barrier.resID].currentState != _barrier.after)
+		{
+			m_pCtx->Transition(
+				_barrier.texture->GetResource(),
+				m_rgResourceMap[_barrier.resID].currentState,
+				_barrier.after
+			);
+			m_rgResourceMap[_barrier.resID].currentState = _barrier.after;
+		}
+	}
+}
+
+void RenderGraph::AutoClear(CompiledPass& a_pass)
+{
+	// RTV
+	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvs = {};
+	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _clearRTVs = {};
+
+	// DSV
+	D3D12_CPU_DESCRIPTOR_HANDLE _dsv = {};
+	D3D12_CPU_DESCRIPTOR_HANDLE* _pDsv = nullptr;
+	bool _isClear = false;
+
+	for (auto& _resAcc : a_pass.pPass->GetDesc().resourceAccessVec)
+	{
+		// レンダーターゲット
+		if (_resAcc.type == AccessType::RTV)
+		{
+			auto& _tex = m_rgResourceMap[_resAcc.id].spRGTexture;
+			_rtvs.push_back(_tex->GetRTVHandle());
+			// クリアを入れるかどうか
+			if (_resAcc.load == LoadOp::Clear)
+			{
+				_clearRTVs.push_back(_tex->GetRTVHandle());
+			}
+		}
+
+		// 深度値
+		if (_resAcc.type == AccessType::Depth_Write ||
+			_resAcc.type == AccessType::Depth_Read)
+		{
+			auto& _depth = m_rgResourceMap[_resAcc.id].spRGTexture;
+			_dsv = _depth->GetDSVHandle();
+			_pDsv = &_dsv;
+			// クリアを入れるかどうか
+			if (_resAcc.load == LoadOp::Clear)
+			{
+				_isClear = true;
+			}
+		}
+	}
+
+	// レンダーターゲットを変更
+	m_pCtx->ChangeRenderTarget(_rtvs, _pDsv);
+
+	// クリア
+	for (auto& _handle : _clearRTVs)
+	{
+		m_pCtx->ClearRenderTarget(_handle);
+	}
+	if (_isClear)
+	{
+		m_pCtx->ClearDepth(_dsv);
+	}
 }

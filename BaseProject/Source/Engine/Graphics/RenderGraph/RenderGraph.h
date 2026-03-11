@@ -99,6 +99,7 @@ class RenderGraph
 public:
 
 	void Init(
+		RenderContext* a_pCtx,
 		ShaderManager* a_pShaderMana,
 		RootSignatureManager* a_pRootSigMana,
 		GraphicsPSOManager* a_pPSOMana
@@ -138,11 +139,16 @@ private:
 
 	void RiteVersion(uint32_t a_writePass);
 
+
+	// 実行中の関数
+	void AutoBarrier(CompiledPass& a_pass);		// バリア更新
+	void AutoClear(CompiledPass& a_pass);		// リソースクリア
+
 private:
 
 	// パスの保管場所
 	std::vector<std::shared_ptr<RenderPass>> m_spPassVec = {};
-	//std::vector<RenderPass*> m_sortedPassed = {};							// ソート後のパス
+	std::vector<RenderPass*> m_sortedPassed = {};							// ソート後のパス
 	std::vector<std::vector<RenderPass*>> m_groupSortedPassed = {};			// ソート後のパス
 
 	// リソース仕様書のストレージ
@@ -151,4 +157,9 @@ private:
 
 	// コンパイル後のパス
 	std::vector<CompiledPass> m_compiledPasses = {};
+
+	// コンパイル情報
+	std::unordered_map<Engine::Resource::ID, uint32_t> m_currentVersion = {};
+
+	RenderContext* m_pCtx = nullptr;
 };

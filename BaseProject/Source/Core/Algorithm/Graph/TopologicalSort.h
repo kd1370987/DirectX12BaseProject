@@ -1,6 +1,6 @@
 ﻿#pragma once
  
-namespace Graph
+namespace Algorithm::Graph
 {
 	/// <summary>
 	/// 依存関係のあるグラフを一方向の配列に解決するソート

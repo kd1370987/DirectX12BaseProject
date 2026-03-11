@@ -114,6 +114,7 @@ public:
 public:
 	// ゲッター
 	ID3D12Device* GetDevice();									// デバイス
+	ID3D12Device5* GetDevice5();
 	ID3D12GraphicsCommandList* GetCommandList();	// コマンドリスト
 	UINT CurrentBackBufferIndex();									// 現在のフレーム番号
 	UINT CurrentCPUFrameIndex();

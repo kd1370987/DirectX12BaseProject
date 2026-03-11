@@ -127,5 +127,5 @@ void Engine::Resource::Texture::SetUAV(const Engine::Resource::Handle<UAV>& a_ha
 
 void Engine::Resource::Texture::SetImGuiSRV(const Engine::Resource::Handle<SRV>& a_handle)
 {
-	m_srvHandle = a_handle;
+	m_imguiSRVHandle = a_handle;
 }

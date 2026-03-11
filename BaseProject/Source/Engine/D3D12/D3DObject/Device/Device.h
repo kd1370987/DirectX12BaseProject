@@ -12,7 +12,7 @@ public:
 	void Release();
 
 	// ゲッター
-	ID3D12Device* GetDevice();			// デバイス取得
+	ID3D12Device5* GetDevice();			// デバイス取得
 	IDXGIFactory6* GetDxgiFactory();	// DXGIファクトリ取得
 
 
