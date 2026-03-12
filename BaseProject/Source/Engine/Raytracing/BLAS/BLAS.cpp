@@ -2,24 +2,54 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
+void Engine::Raytracing::BLAS::Create(const VertexBuffer& a_vertexBuffer, const IndexBuffer& a_indexBuffer)
+{
+	// ジオメトリ情報生成
+	D3D12_RAYTRACING_GEOMETRY_DESC _desc = {};
+	_desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+	_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+	_desc.Triangles.VertexBuffer.StartAddress = a_vertexBuffer.GetGPUVirtualAddress();
+	_desc.Triangles.VertexBuffer.StrideInBytes = a_vertexBuffer.GetStrideSize();
+	_desc.Triangles.VertexCount = a_vertexBuffer.GetCount();
+	_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+
+	_desc.Triangles.IndexBuffer = a_indexBuffer.GetGPUVirtualAddress();
+	_desc.Triangles.IndexCount = a_indexBuffer.GetCount();
+	_desc.Triangles.IndexFormat = a_indexBuffer.GetFormat();
+
+	// BLAS生成
+	auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
+	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
+	std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> _descVec = {};
+	_descVec.push_back(_desc);
+
+	Build(
+		_pDevice5,
+		_pCmdList4,
+		_descVec
+	);
+}
+
+
 bool Engine::Raytracing::BLAS::Build(
 	ID3D12Device5* a_pDevice, 
 	ID3D12GraphicsCommandList4* a_cmdList, 
 	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec
 )
 {
-	auto _pDevice = D3D12Wrapper::Instance().GetDevice5();
-
 	// スクラッチリソース構築
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS _inputs = {};
 	_inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-	_inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
-	_inputs.NumDescs = 1;
+	_inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+	_inputs.NumDescs = static_cast<UINT>(a_geometryDescVec.size());
 	_inputs.pGeometryDescs = a_geometryDescVec.data();
 	_inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
 
+	// BLASのサイズを問い合わせる
+	// ResultDataMaxSizeBytes == BLASサイズ
+	// ScratchDataSizeInBytes == ビルド用スクラッチ
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO _info;
-	_pDevice->GetRaytracingAccelerationStructurePrebuildInfo(&_inputs,&_info);
+	a_pDevice->GetRaytracingAccelerationStructurePrebuildInfo(&_inputs,&_info);
 
 	// 設定
 	D3D12_RESOURCE_DESC _bufDesc = {};
@@ -47,7 +77,34 @@ bool Engine::Raytracing::BLAS::Build(
 		IID_PPV_ARGS(m_cpScratch.ReleaseAndGetAddressOf())
 	);
 
+	// BLASバッファ作成
+	auto _blasDesc = CD3DX12_RESOURCE_DESC::Buffer(
+		_info.ResultDataMaxSizeInBytes,
+		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
+	);
 
+	a_pDevice->CreateCommittedResource(
+		&_prop,
+		D3D12_HEAP_FLAG_NONE,
+		&_blasDesc,
+		D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+		nullptr,
+		IID_PPV_ARGS(m_cpResource.ReleaseAndGetAddressOf())
+	);
 
-	return false;
+	// Buildコマンド発行
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _buildDesc{};
+	_buildDesc.Inputs = _inputs;
+	_buildDesc.ScratchAccelerationStructureData = m_cpScratch->GetGPUVirtualAddress();
+	_buildDesc.DestAccelerationStructureData = m_cpResource->GetGPUVirtualAddress();
+	a_cmdList->BuildRaytracingAccelerationStructure(&_buildDesc, 0, nullptr);
+
+	// UAVバリア
+	D3D12_RESOURCE_BARRIER _barrier = {};
+	_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	_barrier.UAV.pResource = m_cpResource.Get();
+
+	a_cmdList->ResourceBarrier(1,&_barrier);
+
+	return true;
 }

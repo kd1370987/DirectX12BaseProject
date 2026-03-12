@@ -2,9 +2,21 @@
 
 namespace Engine::Raytracing
 {
+	struct Instance
+	{
+		DirectX::XMFLOAT4X4 worldMat = DXSM::Matrix::Identity;
+		BLAS* pBLAS = nullptr;
+	};
+
 	class World
 	{
 	public:
+
+		// モデルとワールド行列を登録して内部でインスタンスに返還
+		void Register(
+			const DirectX::XMFLOAT4X4& a_worldMat,
+			const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
+		);
 
 	private:
 
@@ -17,8 +29,7 @@ namespace Engine::Raytracing
 			float nearClip = 0.1f;			// 近平面
 		};
 
-		Camera m_camera;			// レイトレワールドのカメラ
-		std::vector<>
-
+		Camera m_camera;								// レイトレワールドのカメラ
+		std::vector<Instance> m_instanceVec = {};		// レイトレワールドインスタンス
 	};
 }

@@ -117,6 +117,9 @@ namespace Engine
 			// 当たり判定
 			std::optional<Engine::Collision::Mesh> m_opCollisionMesh;
 
+			// BLAS
+			Engine::Raytracing::BLAS m_BLAS;
+
 		private:
 			// コピー禁止
 			Mesh(const Mesh& src) = delete;

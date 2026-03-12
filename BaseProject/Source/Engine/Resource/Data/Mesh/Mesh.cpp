@@ -88,6 +88,11 @@ bool Engine::Resource::Mesh::Create(
 	m_indexBuffer.CreateSRV();
 	m_vertexBuffer.CreateSRV();
 
+	m_BLAS.Create(
+		m_vertexBuffer,
+		m_indexBuffer
+	);
+
 	return true;
 }
 
@@ -184,6 +189,11 @@ bool Engine::Resource::Mesh::CreateFloat(
 	//------------------------------
 	m_indexBuffer.CreateSRV();
 	m_vertexBuffer.CreateSRV();
+
+	m_BLAS.Create(
+		m_vertexBuffer,
+		m_indexBuffer
+	);
 
 	return true;
 }

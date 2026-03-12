@@ -34,6 +34,8 @@ public:
 	/// <returns>生ポインタ</returns>
 	ID3D12GraphicsCommandList* NGet() { return m_cpCommandList.Get(); }
 
+	ID3D12GraphicsCommandList4* Get4() { return m_cpCommandList.Get(); }
+
 	/// <summary>
 	/// リソースバリアを張る
 	/// </summary>

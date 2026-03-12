@@ -106,3 +106,18 @@ const D3D12_VERTEX_BUFFER_VIEW& VertexBuffer::View() const
 {
 	return m_view;
 }
+
+const D3D12_GPU_VIRTUAL_ADDRESS& VertexBuffer::GetGPUVirtualAddress() const
+{
+	return m_pBuffer->GetGPUVirtualAddress();
+}
+
+UINT64 VertexBuffer::GetStrideSize() const
+{
+	return static_cast<UINT64>(m_strideSize);
+}
+
+UINT VertexBuffer::GetCount() const
+{
+	return static_cast<UINT>(m_vertexCount);
+}

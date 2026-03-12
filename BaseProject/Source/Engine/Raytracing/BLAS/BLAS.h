@@ -6,6 +6,11 @@ namespace Engine::Raytracing
 	{
 	public:
 
+		void Create(
+			const VertexBuffer& a_vertexBuffer,
+			const IndexBuffer& a_indexBuffer
+		);
+
 		bool Build(
 			ID3D12Device5* a_pDevice,
 			ID3D12GraphicsCommandList4* a_cmdList,

@@ -214,6 +214,10 @@ ID3D12GraphicsCommandList* D3D12Wrapper::GetCommandList()
 	// コマンドリストの取得
 	return m_upCommandList->NGet();
 }
+ID3D12GraphicsCommandList4* D3D12Wrapper::GetCommandList4()
+{
+	return m_upCommandList->Get4();
+}
 UINT D3D12Wrapper::CurrentBackBufferIndex()
 {
 	// 現在のフレーム番号取得

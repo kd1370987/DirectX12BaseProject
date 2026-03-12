@@ -42,6 +42,11 @@ public:
 	/// </summary>
 	UINT GetCount() const { return m_count; }
 
+	// リソースのGPUアドレスを返す
+	const D3D12_GPU_VIRTUAL_ADDRESS& GetGPUVirtualAddress() const;
+
+	DXGI_FORMAT GetFormat() const;
+
 private:
 
 	ComPtr<ID3D12Resource> m_pBuffer = nullptr;		// インデックスバッファ

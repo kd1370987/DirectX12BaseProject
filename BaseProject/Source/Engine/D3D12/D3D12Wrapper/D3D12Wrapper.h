@@ -116,6 +116,7 @@ public:
 	ID3D12Device* GetDevice();									// デバイス
 	ID3D12Device5* GetDevice5();
 	ID3D12GraphicsCommandList* GetCommandList();	// コマンドリスト
+	ID3D12GraphicsCommandList4* GetCommandList4();	// コマンドリスト
 	UINT CurrentBackBufferIndex();									// 現在のフレーム番号
 	UINT CurrentCPUFrameIndex();
 	IDXGISwapChain* GetSwapChain(); 

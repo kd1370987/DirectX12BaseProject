@@ -92,3 +92,13 @@ const D3D12_INDEX_BUFFER_VIEW& IndexBuffer::View() const
 {
 	return m_view;
 }
+
+const D3D12_GPU_VIRTUAL_ADDRESS& IndexBuffer::GetGPUVirtualAddress() const
+{
+	return m_pBuffer->GetGPUVirtualAddress();
+}
+
+DXGI_FORMAT IndexBuffer::GetFormat() const
+{
+	return m_format;
+}
