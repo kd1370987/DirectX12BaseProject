@@ -6,6 +6,8 @@
 
 #include "../SceneManager.h"
 
+#include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
+
 // ECS関連
 #include "Engine/ECS/World/World.h"
 
@@ -275,6 +277,8 @@ void GameScene::RegistryEntity()
 		_ref->pos = { 0,2,0 };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
+
+		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity,_model->handle);
 	}
 
 	{
@@ -298,6 +302,8 @@ void GameScene::RegistryEntity()
 		//_ref->scale = { 0.5f,0.5f,1.0f };
 		//m_upWorld->RefData<WorldMatrixComponent>(_entity)->worldMat = DXSM::Matrix::Identity;
 	}
+
+	Engine::Raytracing::RayEngine::Instance().CommitWorld();
 }
 
 

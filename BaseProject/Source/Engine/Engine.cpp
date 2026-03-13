@@ -6,6 +6,8 @@
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
+#include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
+
 #include "Application/App.h"
 
 MainEngine::MainEngine()
@@ -75,6 +77,8 @@ void MainEngine::Init(EngineConfig a_config)
 	// 描画初期化
 	RenderContext::Instance().Init();
 
+	// レイエンジン初期化
+	Engine::Raytracing::RayEngine::Instance().Create();
 
 	m_config = a_config;
 }

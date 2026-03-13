@@ -145,10 +145,8 @@ void World::RunSystem(SystemType a_type, float a_dt)
 	m_systemManager.RunSystem(*this, a_type, a_dt);
 }
 
-// コンストラクタ・デストラクタ
 World::World()
-{
-}
+{}
+
 World::~World()
-{
-}
+{}

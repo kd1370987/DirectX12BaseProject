@@ -556,9 +556,6 @@
     <Filter Include="Source\Engine\Raytracing\RaytracingWorld">
       <UniqueIdentifier>{301f758a-5748-4a63-ba4b-7c2c54492dce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Raytracing\TLASBuffer">
-      <UniqueIdentifier>{14257255-6ffb-4ff3-bb90-d7a95fe078d0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Raytracing\RaytracingShaderTable">
       <UniqueIdentifier>{0b927251-41ee-42ac-94d4-17d54c8d88cc}</UniqueIdentifier>
     </Filter>
@@ -570,6 +567,12 @@
     </Filter>
     <Filter Include="Source\Engine\Raytracing\BLAS">
       <UniqueIdentifier>{0037a7c8-2860-4c64-bec1-637b239cf301}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Raytracing\TLAS">
+      <UniqueIdentifier>{14257255-6ffb-4ff3-bb90-d7a95fe078d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Raytracing\RayPSO">
+      <UniqueIdentifier>{c2db2572-03c4-4c82-9685-5281acec1199}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -917,6 +920,18 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Raytracing\BLAS\BLAS.cpp">
       <Filter>Source\Engine\Raytracing\BLAS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Raytracing\TLAS\TLAS.cpp">
+      <Filter>Source\Engine\Raytracing\TLAS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.cpp">
+      <Filter>Source\Engine\Raytracing\RaytracingEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator\UAVAllocator.cpp">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp">
+      <Filter>Source\Engine\Raytracing\RayPSO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1411,6 +1426,18 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Raytracing\BLAS\BLAS.h">
       <Filter>Source\Engine\Raytracing\BLAS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Raytracing\TLAS\TLAS.h">
+      <Filter>Source\Engine\Raytracing\TLAS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.h">
+      <Filter>Source\Engine\Raytracing\RaytracingEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator\UAVAllocator.h">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Raytracing\RayPSO\RayPSO.h">
+      <Filter>Source\Engine\Raytracing\RayPSO</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

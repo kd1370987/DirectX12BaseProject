@@ -3,6 +3,11 @@
 class Window;
 class TimeManager;
 
+namespace Engine::Raytracing
+{
+	class RayEngine;
+}
+
 // エンジン設定
 struct EngineConfig
 {
@@ -70,7 +75,6 @@ private:
 	// 時間管理クラス
 	std::unique_ptr<TimeManager> m_upTimeManager = nullptr;
 
-	
 	// エンジン設定
 	EngineConfig m_config = {};
 

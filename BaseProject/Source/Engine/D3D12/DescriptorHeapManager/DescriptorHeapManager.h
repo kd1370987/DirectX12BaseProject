@@ -5,6 +5,7 @@ namespace Engine::D3D12
 	class RTVAllocator;
 	class DSVAllocator;
 	class SRVAllocator;
+	class UAVAllocator;
 }
 
 class DescriptorHeapManager
@@ -40,7 +41,11 @@ public:
 	//------------------------------------------------------------------------------------------
 	// UAV
 	//------------------------------------------------------------------------------------------
+	std::vector<Engine::Resource::Handle<UAV>> AllocateUAVRange(std::vector<UAVViewInit> a_viewInitVec);
 
+	// UAVのCPUハンドルを取得
+	D3D12_CPU_DESCRIPTOR_HANDLE GetUAVCPUHandle(Engine::Resource::Handle<UAV> a_range);
+	D3D12_GPU_DESCRIPTOR_HANDLE GetUAVGPUHandle(Engine::Resource::Handle<UAV> a_range);
 
 
 	//==========================================================================================
@@ -107,6 +112,7 @@ private:
 	std::unique_ptr<Engine::D3D12::RTVAllocator> m_upRTVAllocator = nullptr;
 	std::unique_ptr<Engine::D3D12::DSVAllocator> m_upDSVAllocator = nullptr;
 	std::unique_ptr<Engine::D3D12::SRVAllocator> m_upSRVAllocator = nullptr;
+	std::unique_ptr<Engine::D3D12::UAVAllocator> m_upUAVAllocator = nullptr;
 	std::unique_ptr<Engine::D3D12::SRVAllocator> m_upImGuiSRVAllocator = nullptr;
 
 // シングルトン

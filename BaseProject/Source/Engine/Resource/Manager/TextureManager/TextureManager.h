@@ -57,8 +57,6 @@ namespace Engine::Resource
 		void Subtract(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle);		// 削除
 
 		// ビュー作成
-		void CreateView(Engine::Resource::Texture& a_outTex);
-		
 		void CreateView(const std::vector<Engine::Resource::Handle<Engine::Resource::Texture>>& a_outTex);
 
 		// 世代チェック

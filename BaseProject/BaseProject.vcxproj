@@ -251,6 +251,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator\DSVAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator\UAVAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.cpp" />
@@ -289,7 +290,10 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\BLAS\BLAS.cpp" />
+    <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp" />
+    <ClCompile Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RaytracingWorld\RaytracingWorld.cpp" />
+    <ClCompile Include="Source\Engine\Raytracing\TLAS\TLAS.cpp" />
     <ClCompile Include="Source\Engine\Resource\Create\Texture\TextureCreater.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Animation\Animation.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Material\Material.cpp" />
@@ -410,6 +414,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator\DSVAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.h" />
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator\UAVAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />
     <ClInclude Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h" />
     <ClInclude Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.h" />
@@ -459,7 +464,10 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Source\Engine\Raytracing\BLAS\BLAS.h" />
     <ClInclude Include="Source\Engine\Raytracing\Common\RaytracingInstance.h" />
+    <ClInclude Include="Source\Engine\Raytracing\RayPSO\RayPSO.h" />
+    <ClInclude Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.h" />
     <ClInclude Include="Source\Engine\Raytracing\RaytracingWorld\RaytracingWorld.h" />
+    <ClInclude Include="Source\Engine\Raytracing\TLAS\TLAS.h" />
     <ClInclude Include="Source\Engine\Resource\Common\Common.h" />
     <ClInclude Include="Source\Engine\Resource\Create\Texture\TextureCreater.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Animation\Animation.h" />

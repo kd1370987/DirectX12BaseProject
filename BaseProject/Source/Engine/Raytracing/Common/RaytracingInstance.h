@@ -4,7 +4,7 @@ namespace Engine::Raytracing
 {
 	struct Instance
 	{
-		D3D12_RAYTRACING_GEOMETRY_DESC geometoryDesc;		// ジオメトリ情報
-		
+		DirectX::XMFLOAT4X4 worldMat = DXSM::Matrix::Identity;
+		BLAS* pBLAS = nullptr;
 	};
 }

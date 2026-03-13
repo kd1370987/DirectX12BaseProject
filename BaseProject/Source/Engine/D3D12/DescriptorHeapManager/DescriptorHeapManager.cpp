@@ -5,6 +5,7 @@
 #include "Engine/D3D12/DescriptorHeapManager/Allocater/RTVAllocator/RTVAllocator.h"
 #include "Engine/D3D12/DescriptorHeapManager/Allocater/DSVAllocator/DSVAllocator.h"
 #include "Engine/D3D12/DescriptorHeapManager/Allocater/SRVAllocator/SRVAllocator.h"
+#include "Engine/D3D12/DescriptorHeapManager/Allocater/UAVAllocator/UAVAllocator.h"
 
 bool DescriptorHeapManager::Init()
 {
@@ -44,7 +45,10 @@ bool DescriptorHeapManager::Init()
 	m_upDSVAllocator->Create(&m_dsvHeap);
 
 	m_upSRVAllocator = std::make_unique<Engine::D3D12::SRVAllocator>();
-	m_upSRVAllocator->Create(&m_cbv_srv_uavHeap,100,100);
+	m_upSRVAllocator->Create(&m_cbv_srv_uavHeap,100,100);		// 100番目から100個の容量
+
+	m_upUAVAllocator = std::make_unique<Engine::D3D12::UAVAllocator>();
+	m_upUAVAllocator->Create(&m_cbv_srv_uavHeap,200,100);		// 200番目から100個の容量
 
 	m_upImGuiSRVAllocator = std::make_unique<Engine::D3D12::SRVAllocator>();
 	m_upImGuiSRVAllocator->Create(&m_imguiHeap,0,300);
@@ -71,6 +75,21 @@ D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetSRVCPUHandle(Engine::Resou
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetSRVGPUHandle(Engine::Resource::Handle<SRV> a_range)
 {
 	return m_upSRVAllocator->GetGPU(a_range);
+}
+
+std::vector<Engine::Resource::Handle<UAV>> DescriptorHeapManager::AllocateUAVRange(std::vector<UAVViewInit> a_viewInitVec)
+{
+	return m_upUAVAllocator->Allocate(a_viewInitVec);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetUAVCPUHandle(Engine::Resource::Handle<UAV> a_range)
+{
+	return m_upUAVAllocator->GetCPU(a_range);
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetUAVGPUHandle(Engine::Resource::Handle<UAV> a_range)
+{
+	return m_upUAVAllocator->GetGPU(a_range);
 }
 
 ID3D12DescriptorHeap* DescriptorHeapManager::GetCBV_SRV_UAVHeap() const

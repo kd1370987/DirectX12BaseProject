@@ -27,22 +27,24 @@ ComPtr<ID3D12Resource> Engine::Resource::CreateTexture(
 	auto _heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
 	// クリアバリュー作成
+	D3D12_CLEAR_VALUE clearValue = {};
 	D3D12_CLEAR_VALUE* _pClear = nullptr;
+
 	if (HasFlag(a_desc.usage, TextureUsage::DSV))
 	{
-		_pClear = new(D3D12_CLEAR_VALUE);
-		_pClear->Format = DXGI_FORMAT_D32_FLOAT;
-		_pClear->DepthStencil.Depth = static_cast<FLOAT>(1.0f);
-		_pClear->DepthStencil.Stencil= static_cast<UINT8>(0.0f);
+		clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		clearValue.DepthStencil.Depth = 1.0f;
+		clearValue.DepthStencil.Stencil = 0;
+		_pClear = &clearValue;
 	}
-	else
+	else if(HasFlag(a_desc.usage,TextureUsage::RTV))
 	{
-		_pClear = new(D3D12_CLEAR_VALUE);
-		_pClear->Format = _desc.Format;
-		_pClear->Color[0] = 0;
-		_pClear->Color[1] = 0;
-		_pClear->Color[2] = 0;
-		_pClear->Color[3] = 1;
+		clearValue.Format = _desc.Format;
+		clearValue.Color[0] = 0;
+		clearValue.Color[1] = 0;
+		clearValue.Color[2] = 0;
+		clearValue.Color[3] = 1;
+		_pClear = &clearValue;
 	}
 
 	// リソース作成
@@ -52,7 +54,7 @@ ComPtr<ID3D12Resource> Engine::Resource::CreateTexture(
 		&_desc,
 		D3D12_RESOURCE_STATE_COMMON,
 		_pClear,
-		IID_PPV_ARGS(&_cpResource)
+		IID_PPV_ARGS(_cpResource.ReleaseAndGetAddressOf())
 	);
 	if (FAILED(_hr))
 	{

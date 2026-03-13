@@ -58,6 +58,7 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 // 
 //==========================================================================================
 #include "Engine/Raytracing/BLAS/BLAS.h"
+#include "Engine/Raytracing/Common/RaytracingInstance.h"
 
 //==========================================================================================
 // 

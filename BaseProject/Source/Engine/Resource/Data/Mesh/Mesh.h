@@ -89,8 +89,10 @@ namespace Engine
 
 			bool IsSkinMesh()							const { return m_isSkinMesh; }			// スキンメッシュ持ちかどうか
 
-			bool HasCollision() const { return m_opCollisionMesh.has_value(); };
-			const Engine::Collision::Mesh& GetCollision()const { return *m_opCollisionMesh; }
+			bool HasCollision() const { return m_opCollisionMesh.has_value(); };				// 当たり判定を持っているかどうか
+			const Engine::Collision::Mesh& GetCollision()const { return *m_opCollisionMesh; }	// 当たり判定取得
+
+			Engine::Raytracing::BLAS* GetBLAS() { return &m_BLAS; }
 
 		private:
 

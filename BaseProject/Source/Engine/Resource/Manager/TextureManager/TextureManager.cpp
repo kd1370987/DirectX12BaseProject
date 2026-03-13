@@ -19,7 +19,7 @@ Engine::Resource::Handle<Engine::Resource::Texture> Engine::Resource::TextureMan
 	m_handleMap[a_path] = Add(_texture);
 
 	// ビュー作成
-	CreateView(_texture);
+	CreateView({ m_handleMap[a_path] });
 
 	return m_handleMap[a_path];
 }
@@ -80,6 +80,9 @@ Engine::Resource::Handle<Engine::Resource::Texture> Engine::Resource::TextureMan
 	_texture.SetName(a_name);
 
 	m_handleMap[a_name] = Add(_texture);
+
+	CreateView({m_handleMap[a_name]});
+
 	return m_handleMap[a_name];
 }
 
@@ -155,49 +158,6 @@ void Engine::Resource::TextureManager::Subtract(const Engine::Resource::Handle<E
 	m_indexQueue.push(a_handle.idx);
 }
 
-void Engine::Resource::TextureManager::CreateView(Engine::Resource::Texture& a_outTex)
-{
-	// 使用種別取得
-	auto& _usage = a_outTex.GetUsage();
-	auto& _desc = a_outTex.GetDesc();
-
-	// 持っているフラグによってビューを作成
-	if (HasFlag(_usage, TextureUsage::RTV))
-	{
-		// レンダーターゲット作成
-		D3D12_RENDER_TARGET_VIEW_DESC _rtvDesc = {};
-		_rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-		_rtvDesc.Format = _desc.Format;
-		a_outTex.SetRTV(DescriptorHeapManager::Instance().AllocateRTV(a_outTex.GetResource(), &_rtvDesc));
-	}
-	if (HasFlag(_usage, TextureUsage::DSV))
-	{
-		// 深度ステンシル作成
-		D3D12_DEPTH_STENCIL_VIEW_DESC _dsvDesc = {};
-		_dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-		_dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		a_outTex.SetDSV(DescriptorHeapManager::Instance().AllocateDSV(a_outTex.GetResource(), &_dsvDesc));
-	}
-	if (HasFlag(_usage, TextureUsage::UAV))
-	{
-	}
-	if (HasFlag(_usage, TextureUsage::SRV))
-	{
-		// シェーダーリソースビュー作成
-		D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
-		_srvDesc.Format = HasFlag(_usage, TextureUsage::DSV) ? DXGI_FORMAT_R32_FLOAT : _desc.Format;
-		_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		_srvDesc.Texture2D.MipLevels = _desc.MipLevels;
-		_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
-		SRVViewInit _initData = {};
-		_initData.pResource = a_outTex.GetResource();
-		_initData.pDesc = &_srvDesc;
-		a_outTex.SetSRV(DescriptorHeapManager::Instance().AllocateSRVRange({ _initData })[0]);
-		a_outTex.SetImGuiSRV(DescriptorHeapManager::Instance().AllocateImGuiSRVRange({ _initData })[0]);
-	}
-}
-
 void Engine::Resource::TextureManager::CreateView(
 	const std::vector<Engine::Resource::Handle<Engine::Resource::Texture>>& a_outTex
 )
@@ -251,6 +211,32 @@ void Engine::Resource::TextureManager::CreateView(
 		_dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		_dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		_tex.SetDSV(DescriptorHeapManager::Instance().AllocateDSV(_tex.GetResource(), &_dsvDesc));
+	}
+
+	// UAV作成
+	if (_uavIdx.size() > 0)
+	{
+		// ビュー作成情報
+		std::vector<UAVViewInit> _viewInitVec = {};
+		_viewInitVec.resize(_uavIdx.size());
+		for (UINT _i = 0; _i < _srvIdx.size(); ++_i)
+		{
+			int _idx = _srvIdx[_i];
+			auto& _tex = RefTexture(a_outTex[_idx]);
+			
+			// 作成情報を入れる
+			_viewInitVec[_i].pResource = _tex.GetResource();
+			_viewInitVec[_i].pDesc = nullptr;
+		}
+
+		// UAVをレンジで確保
+		auto _range = DescriptorHeapManager::Instance().AllocateUAVRange(_viewInitVec);
+		for (UINT _i = 0; _i < _srvIdx.size(); ++_i)
+		{
+			int _idx = _srvIdx[_i];
+			auto& _tex = RefTexture(a_outTex[_idx]);
+			_tex.SetUAV(_range[_i]);
+		}
 	}
 
 	// SRV作成
