@@ -556,9 +556,6 @@
     <Filter Include="Source\Engine\Raytracing\RaytracingWorld">
       <UniqueIdentifier>{301f758a-5748-4a63-ba4b-7c2c54492dce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Raytracing\RaytracingShaderTable">
-      <UniqueIdentifier>{0b927251-41ee-42ac-94d4-17d54c8d88cc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Raytracing\Common">
       <UniqueIdentifier>{dfec8c58-9d0f-420a-9923-ef53b2e1ca43}</UniqueIdentifier>
     </Filter>
@@ -573,6 +570,9 @@
     </Filter>
     <Filter Include="Source\Engine\Raytracing\RayPSO">
       <UniqueIdentifier>{c2db2572-03c4-4c82-9685-5281acec1199}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Raytracing\ShaderTable">
+      <UniqueIdentifier>{0b927251-41ee-42ac-94d4-17d54c8d88cc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -932,6 +932,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp">
       <Filter>Source\Engine\Raytracing\RayPSO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.cpp">
+      <Filter>Source\Engine\Raytracing\ShaderTable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1438,6 +1441,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Raytracing\RayPSO\RayPSO.h">
       <Filter>Source\Engine\Raytracing\RayPSO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Raytracing\Common\Common.h">
+      <Filter>Source\Engine\Raytracing\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.h">
+      <Filter>Source\Engine\Raytracing\ShaderTable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

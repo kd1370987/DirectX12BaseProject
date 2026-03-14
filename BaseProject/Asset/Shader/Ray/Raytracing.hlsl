@@ -4,6 +4,8 @@ struct Camera
 	float4x4 rotMat;	// カメラの回転行列
 	float3 pos;			// カメラの座標
 	float aspect;		// カメラのアスペクト比
+	float farClip;		// 遠平面
+	float nearClip;		// 近平面
 };
 
 cbuffer cbCamera : register(b0)
@@ -21,7 +23,7 @@ struct RayPayload
 };
 
 // レイ生成シェーダー
-[shader("RayGeneration")]
+[shader("raygeneration")]
 void RayGen()
 {
 	uint3 _launchIndex = DispatchRaysIndex();
@@ -37,13 +39,15 @@ void RayGen()
 	RayDesc _ray;
 	_ray.Origin = g_camera.pos;
 	_ray.Direction = normalize(float3(_d.x * g_camera.aspect, -_d.y, -1));
-	_ray.Direction = mul(g_camera.rotMat,_ray.Direction);
+	_ray.Direction = mul((float3x3)g_camera.rotMat,_ray.Direction);
 
 	_ray.TMin = 0;
 	_ray.TMax = 10000;
 
 
 	RayPayload _payload;
+	_payload.color = float3(0,0,0);
+	
 	TraceRay(g_raytracingWorld,0,0xFF,0,0,0,_ray,_payload);
 
 	float3 _col = _payload.color;
@@ -60,7 +64,7 @@ void Miss(inout RayPayload a_payload)
 
 // レイがポリゴンにヒットしたときに呼び出されるシェーダー
 [shader("closesthit")]
-void CHS(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)
+void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)
 {
 	a_payload.color = float3(1, 0, 0);
 

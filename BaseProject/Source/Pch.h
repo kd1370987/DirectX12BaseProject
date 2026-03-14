@@ -2,7 +2,7 @@
 
 //===============================================
 //
-// 基本
+// ウィンドウズ
 //
 //===============================================
 
@@ -11,72 +11,101 @@
 #include <stdio.h>
 
 #include <wrl/client.h>      // Microsoft::WRL::ComPtr（スマートポインタ）
-template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+template<typename T> 
+using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 //===============================================
 //
 // STL
 //
 //===============================================
+#include <array>
+#include <vector>
+#include <list>
+#include <stack>
+#include <queue>
+
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
+
 #include <string>
-#include <array>
-#include <vector>
-#include <stack>
-#include <list>
-#include <iterator>
-#include <queue>
-#include <algorithm>
-#include <memory>
-#include <random>
+#include <sstream>
 #include <fstream>
 #include <iostream>
-#include <sstream>
+
+#include <memory>
 #include <functional>
+#include <algorithm>
+#include <iterator>
+
 #include <thread>
-#include <atomic>
 #include <mutex>
 #include <future>
-#include <fileSystem>
+#include <atomic>
+
+#include <random>
+
+#include <filesystem>
 #include <typeindex>
 #include <bitset>
-#include <cinttypes>
-#include <cstdint>
 #include <span>
 
+#include <cstdint>
+#include <cinttypes>
+
 //===============================================
 //
-// Direct3D12
+// DirectX12
 //
 //===============================================
 
-#pragma comment(lib, "d3d12.lib")			// d3d12ライブラリをリンクする
-#pragma comment(lib, "dxgi.lib")			// dxgiライブラリをリンクする
-#pragma comment(lib,"d3dcompiler.lib")
-#pragma comment(lib, "DirectXTex.lib")	// DirectXTexライブラリをリンクする
-
-// 警告OFF
-#pragma warning(push, 0)
-#include <dxgi1_6.h>         // スワップチェーンなどDXGI関連（DirectXの基盤）
-#include <d3d12.h>			 // D3D12のメインヘッダー
-
-#include "d3dx12.h"          // D3DX12ユーティリティ（構造体のラッパー）
-#include <d3dcompiler.h>
-#include <comdef.h>
-
-#include <dxgidebug.h>
+#pragma comment(lib, "d3d12.lib")		// d3d12ライブラリをリンクする
+#pragma comment(lib, "dxgi.lib")		// dxgiライブラリをリンクする
 #pragma comment(lib,"dxguid.lib")
 
-#include <SimpleMath.h>			// 数学ライブラリ
+#pragma warning(push, 0)				// 警告OFF
 
-#include <DirectXMath.h>		// 数学ライブラリ（ベクトル・行列）
-#include <DirectXColors.h>		// 色定義（Colors::Whiteなど）
-#include <DirectXTex.h>			// テクスチャ読み込み（外部ライブラリ）
-#include <DirectXCollision.h>   // 当たり判定
+#include <dxgi1_6.h>         // スワップチェーンなどDXGI関連（DirectXの基盤）
+#include <dxgidebug.h>
 
+#include <d3d12.h>			 // D3D12のメインヘッダー
+#include "d3dx12.h"          // D3DX12ユーティリティ（構造体のラッパー）
+
+#include <comdef.h>
+//===============================================
+//
+// ShaderCompiler
+//
+//===============================================
+
+#pragma comment(lib,"d3dcompiler.lib")
+#pragma comment(lib, "dxcompiler.lib")
+
+#include <d3dcompiler.h>
+#include <dxcapi.h>
+#include <d3d12shader.h>
+
+//===============================================
+//
+// DirectX Math / Utility
+//
+//===============================================
+
+#include <DirectXMath.h>				// 数学ライブラリ（ベクトル・行列）
+#include <DirectXColors.h>				// 色定義（Colors::Whiteなど）
+#include <DirectXCollision.h>			// 当たり判定
+
+#include <SimpleMath.h>					// 数学ライブラリ
 namespace DXSM = DirectX::SimpleMath;
+
+//===============================================
+//
+// Texture
+//
+//===============================================
+#pragma comment(lib, "DirectXTex.lib")	// DirectXTexライブラリをリンクする
+#include <DirectXTex.h>			// テクスチャ読み込み（外部ライブラリ）
 
 //===============================================
 //
@@ -91,10 +120,10 @@ namespace DXSM = DirectX::SimpleMath;
 
 //===============================================
 //
-// magic_enmu
+// Utility Libraries
 //
 //===============================================
-#include <magic_enum/magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>			// enumの拡張
 
 #pragma warning(pop)
 

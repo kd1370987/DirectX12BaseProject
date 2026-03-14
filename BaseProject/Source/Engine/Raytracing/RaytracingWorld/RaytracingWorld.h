@@ -19,6 +19,8 @@ namespace Engine::Raytracing
 
 		void Commit();
 
+		D3D12_GPU_VIRTUAL_ADDRESS GetTLAS();
+
 	private:
 
 		std::vector<Instance> m_instanceVec = {};		// レイトレワールドインスタンス

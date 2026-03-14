@@ -34,3 +34,8 @@ void Engine::Raytracing::RayWorld::Commit()
 	}
 	m_upTLAS->Create(m_instanceVec);
 }
+
+D3D12_GPU_VIRTUAL_ADDRESS Engine::Raytracing::RayWorld::GetTLAS()
+{
+	return m_upTLAS->GetGPUAddress();
+}

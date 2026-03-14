@@ -110,6 +110,15 @@ public:
 		const DirectX::XMFLOAT4X4& a_worldMat
 	);
 
+	// カメラ情報取得
+	float GetCameraAspectRate()
+	{
+		return m_aspectRate;
+	}
+	const DirectX::XMFLOAT4X4& GetCameraRotMat();
+
+	const DXSM::Vector3& GetCameraPOS();
+
 	void BindCameraCB();
 
 	void BindCB(RootSigSemantic a_sema);
@@ -294,6 +303,8 @@ private:
 
 	// 定数バッファ
 	CBCamera m_cb0_camera = {};
+	float m_aspectRate = 0.0f;
+
 	CBObject m_cb1_object = {};
 	CBMeshTrans m_cb2_MeshTrans = {};
 	CBMaterial m_cb3_Material = {};

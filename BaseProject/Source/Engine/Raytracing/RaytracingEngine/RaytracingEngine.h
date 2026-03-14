@@ -3,11 +3,14 @@
 namespace Engine::Raytracing
 {
 	class RayWorld;
+	class RayPSO;
+	class ShaderTable;
 
 	class RayEngine
 	{
 	public:
 
+		// エンジン初期化
 		void Create();
 
 		// レイトレーシングをディスパッチ
@@ -34,11 +37,11 @@ namespace Engine::Raytracing
 
 		Camera m_camera;
 
-		// レイトレワールド
-		std::unique_ptr<RayWorld> m_upRayWorld = nullptr;
-
-		// 出力用UAVテクスチャ
-		Engine::Resource::Handle<Engine::Resource::Texture> m_outTex;
+		// レイトレ用クラス
+		std::unique_ptr<RayWorld> m_upRayWorld = nullptr;				// レイトレワールド
+		Engine::Resource::Handle<Engine::Resource::Texture> m_outTex;	// 出力用UAVテクスチャ
+		std::unique_ptr<RayPSO> m_upPSO = nullptr;						// レイトレ用PSO
+		std::unique_ptr<ShaderTable> m_upShaderTable = nullptr;			// シェーダーテーブル
 
 	private:
 

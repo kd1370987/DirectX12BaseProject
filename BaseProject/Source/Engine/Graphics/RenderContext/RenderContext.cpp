@@ -114,6 +114,7 @@ void RenderContext::Init()
 	constexpr auto _fov = DirectX::XMConvertToRadians(_fovF);						// 視野角
 
 	auto _aspect = static_cast<float>(1280) / static_cast<float>(720);		// アスペクト比
+	m_aspectRate = _aspect;
 	DirectX::XMStoreFloat4(&m_cb0_camera.cameraPosXYZ, _eyePos);
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
@@ -242,6 +243,24 @@ void RenderContext::SetToShader(
 	DirectX::XMMATRIX _vMat = DirectX::XMMatrixInverse(nullptr, _wMat);
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, _vMat);
 	DirectX::XMStoreFloat4x4(&m_cb0_camera.viewInvMat, _wMat);	
+}
+
+const DirectX::XMFLOAT4X4& RenderContext::GetCameraRotMat()
+{
+	DXSM::Matrix _mat = m_cb0_camera.viewInvMat;
+	DXSM::Vector3 _pos;
+	DXSM::Quaternion _rot;
+	DXSM::Vector3 _scale;
+
+	_mat.Decompose(_scale,_rot,_pos);
+
+	return DXSM::Matrix::CreateFromQuaternion(_rot);
+}
+
+const DXSM::Vector3& RenderContext::GetCameraPOS()
+{
+	DXSM::Vector3 _pos = { m_cb0_camera.cameraPosXYZ.x,m_cb0_camera.cameraPosXYZ.y,m_cb0_camera.cameraPosXYZ.z };
+	return _pos;
 }
 
 void RenderContext::BindCameraCB()

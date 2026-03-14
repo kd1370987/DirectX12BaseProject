@@ -160,6 +160,8 @@ void MainEngine::BeginDraw()
 
 void MainEngine::EndDraw()
 {
+	Engine::Raytracing::RayEngine::Instance().Dispatch();
+
 	// ゲームモード以外の処理
 	if (m_config.app.mode != EngineConfig::Application::Mode::Game)
 	{

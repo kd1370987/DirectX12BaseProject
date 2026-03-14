@@ -90,7 +90,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>call "$(ProjectDir)Asset\Shader\Compiled\HLSLCompile.bat"
@@ -152,7 +152,7 @@ exit /b 0</Command>
       <DelayLoadDLLs>assimp-vc143-mtd.dll</DelayLoadDLLs>
       <EntryPointSymbol>
       </EntryPointSymbol>
-      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>call "$(ProjectDir)Asset\Shader\Compiled\HLSLCompile.bat"
@@ -293,6 +293,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RaytracingWorld\RaytracingWorld.cpp" />
+    <ClCompile Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\TLAS\TLAS.cpp" />
     <ClCompile Include="Source\Engine\Resource\Create\Texture\TextureCreater.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Animation\Animation.cpp" />
@@ -463,10 +464,12 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\RootSigLayout\RootSigLayout.h" />
     <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Source\Engine\Raytracing\BLAS\BLAS.h" />
+    <ClInclude Include="Source\Engine\Raytracing\Common\Common.h" />
     <ClInclude Include="Source\Engine\Raytracing\Common\RaytracingInstance.h" />
     <ClInclude Include="Source\Engine\Raytracing\RayPSO\RayPSO.h" />
     <ClInclude Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.h" />
     <ClInclude Include="Source\Engine\Raytracing\RaytracingWorld\RaytracingWorld.h" />
+    <ClInclude Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.h" />
     <ClInclude Include="Source\Engine\Raytracing\TLAS\TLAS.h" />
     <ClInclude Include="Source\Engine\Resource\Common\Common.h" />
     <ClInclude Include="Source\Engine\Resource\Create\Texture\TextureCreater.h" />
