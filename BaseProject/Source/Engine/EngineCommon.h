@@ -73,8 +73,6 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 // リソース
 // 
 //==========================================================================================
-
-
 #include "Engine/Resource/Data/Texture/Texture.h"			// テクスチャ
 #include "Engine/Resource/Data/Vertex/Vertex.h"				// 頂点データ
 #include "Engine/Resource/Data/Mesh/Mesh.h"					// メッシュ
@@ -84,6 +82,8 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 
 #include "Engine/Resource/Data/Model/Model.h"				// モデル
 #include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"	// クアッドポリゴン
+
+#include "Engine/Resource/Data/ShaderLibrary/ShaderLibrary.h"	// シェーダーライブラリ
 
 //==========================================================================================
 // 

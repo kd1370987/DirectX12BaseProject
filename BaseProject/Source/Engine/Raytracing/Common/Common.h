@@ -2,13 +2,35 @@
 
 namespace Engine::Raytracing
 {
-	enum EShader
+	// レイ用シェーダーのカテゴリ
+	enum ShaderCategory
 	{
-		Raygeneration,		// カメラレイを生成するシェーダー
-		Miss,				// カメラレイがどこにもぶつからなかったときに交差したときに呼ばれるシェーダー
-		PBRChs,				// もっとも近いポリゴンとカメラレイが交差したときに呼ばれるシェーダー
-		ShadowChs,			// もっとも近いポリゴンとシャドウレイが交差したときに呼ばれるシェーダー
-		ShadowMiss,			// シャドウレイがどこにもぶつからなかったときに呼ばれるシェーダー
-		Count				// シェーダーの数
+		RayGenerator,		// レイを生成するシェーダー
+		Miss,				// レイが当たらなかったときに走るシェーダー
+		ClosestHit			// もっとっも近いポリゴンとレイが交差したときに呼ばれるシェーダー
+	};
+
+	//ローカルルートシグネチャ
+	enum LocalRootSignature
+	{
+		Empty,				//空のローカルルートシグネチャ。
+		RayGen,				//レイ生成シェーダー用のローカルルートシグネチャ。
+		PBRMaterialHit,		//PBRマテリアルにヒットしたときのローカルルートシグネチャ。
+	};
+
+	// レイ用シェーダー
+	struct RayShader
+	{
+		const wchar_t* entryName;		// エントリーポイント名
+		LocalRootSignature rootsigType;
+		ShaderCategory category;	// シェーダーのカテゴリ
+	};
+
+	// ヒットグループ
+	struct HitGroup
+	{
+		const wchar_t* name;			// ヒットグループの名前
+		const wchar_t* closestHit;		// 最も近いポリゴンにヒットしたときに呼ばれるシェーダー
+		const wchar_t* anyHitShader;	// それ以外
 	};
 }

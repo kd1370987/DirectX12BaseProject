@@ -10,9 +10,6 @@ namespace Engine::Raytracing
 	{
 	public:
 
-		// エンジン初期化
-		void Create();
-
 		// レイトレーシングをディスパッチ
 		void Dispatch();
 

@@ -83,7 +83,7 @@ void RenderGraph::Init(
 	RegisterPass<DeferredLightingPass>();
 	RegisterPass<ForwardLightingPass>();
 	RegisterPass<FullScreenPass>();
-	RegisterPass<DebugLinePass>();
+	//RegisterPass<DebugLinePass>();
 	//RegisterPass<ScreenUIPass>();
 
 	// パスの初期化

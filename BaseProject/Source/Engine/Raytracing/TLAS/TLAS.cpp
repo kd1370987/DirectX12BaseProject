@@ -36,7 +36,12 @@ void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec
 	//}
 	//else 新規
 	{
-		auto _prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		D3D12_HEAP_PROPERTIES _defaultHeapProp = {
+			D3D12_HEAP_TYPE_DEFAULT,
+			D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+			D3D12_MEMORY_POOL_UNKNOWN,
+			0,0
+		};
 
 		// スクラッチバッファ作成
 		CreateBuffer(
@@ -45,7 +50,7 @@ void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec
 			_scratchSize,
 			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-			_prop
+			_defaultHeapProp
 		);
 		// リザルトバッファ作成
 		CreateBuffer(
@@ -54,7 +59,7 @@ void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec
 			_resultSize,
 			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
 			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-			_prop
+			_defaultHeapProp
 		);
 
 		// インスタンスバッファ作成

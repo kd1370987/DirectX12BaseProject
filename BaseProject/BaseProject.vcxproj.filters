@@ -574,6 +574,21 @@
     <Filter Include="Source\Engine\Raytracing\ShaderTable">
       <UniqueIdentifier>{0b927251-41ee-42ac-94d4-17d54c8d88cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Shader">
+      <UniqueIdentifier>{dd498193-cbd7-49ed-88ba-38d10840d1f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Importer\Shader">
+      <UniqueIdentifier>{4bba8d0c-39eb-4e84-b3f5-f62b132a065e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Importer\Shader\Rasterizer">
+      <UniqueIdentifier>{e43f51e2-3834-47f2-a2a7-9eaf68e4a912}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\ShaderLibrary">
+      <UniqueIdentifier>{611509b6-f06f-471f-a6b6-fc831d3111eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Importer\Shader\DXIL">
+      <UniqueIdentifier>{4e0ed88d-5db2-44ab-a768-97da6ca2b624}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -935,6 +950,18 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.cpp">
       <Filter>Source\Engine\Raytracing\ShaderTable</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp">
+      <Filter>Source\Engine\Resource\Data\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Importer\Shader\Rasterizer\RasterizerImport.cpp">
+      <Filter>Source\Engine\Resource\Importer\Shader\Rasterizer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.cpp">
+      <Filter>Source\Engine\Resource\Data\ShaderLibrary</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Importer\Shader\DXIL\DXIL.cpp">
+      <Filter>Source\Engine\Resource\Importer\Shader\DXIL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1447,6 +1474,18 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.h">
       <Filter>Source\Engine\Raytracing\ShaderTable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h">
+      <Filter>Source\Engine\Resource\Data\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Importer\Shader\Rasterizer\RasterizerImport.h">
+      <Filter>Source\Engine\Resource\Importer\Shader\Rasterizer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.h">
+      <Filter>Source\Engine\Resource\Data\ShaderLibrary</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Importer\Shader\DXIL\DXIL.h">
+      <Filter>Source\Engine\Resource\Importer\Shader\DXIL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

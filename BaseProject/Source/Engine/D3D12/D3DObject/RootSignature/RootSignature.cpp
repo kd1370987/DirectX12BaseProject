@@ -38,6 +38,14 @@ bool RootSignature::Create(
 			m_rootParameters[_i].first.Descriptor.RegisterSpace = 0;
 			++_cbvCount;
 			break;
+		case RootParameterType::RootSRV:
+			m_rootParameters[_i].first = {};
+			m_rootParameters[_i].first.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			m_rootParameters[_i].first.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+			m_rootParameters[_i].first.Descriptor.ShaderRegister = _srvCount;
+			m_rootParameters[_i].first.Descriptor.RegisterSpace = 0;
+			++_srvCount;
+			break;
 		case RootParameterType::DescriptorTable:
 		{
 			std::vector<D3D12_DESCRIPTOR_RANGE> _ranges(a_rootParamsVec[_i].second.size());

@@ -34,12 +34,12 @@ const AppConfig& Application::GetConfig()
 bool Application::Init()
 {
 	// エンジンの初期化
-	EngineConfig _config;
+	Engine::EngineConfig _config;
 	_config.graphics.init.isDebugLayer = false;
 	_config.graphics.init.isGPUValidation = true;
 	_config.graphics.runtime.isVsync = false;
-	_config.app.mode = EngineConfig::Application::Mode::Debug;
-	m_upEngine = std::make_unique<MainEngine>();
+	_config.app.mode = Engine::EngineConfig::Application::Mode::Debug;
+	m_upEngine = std::make_unique<Engine::MainEngine>();
 	m_upEngine->Init(_config);
 
 
@@ -81,11 +81,11 @@ void Application::MainLoop()
 		// モード切替
 		if (GetAsyncKeyState('O'))
 		{
-			m_upEngine->ChangeMode(EngineConfig::Application::Mode::Debug);
+			m_upEngine->ChangeMode(Engine::EngineConfig::Application::Mode::Debug);
 		}
 		if (GetAsyncKeyState('P'))
 		{
-			m_upEngine->ChangeMode(EngineConfig::Application::Mode::Game);
+			m_upEngine->ChangeMode(Engine::EngineConfig::Application::Mode::Game);
 		}
 
 

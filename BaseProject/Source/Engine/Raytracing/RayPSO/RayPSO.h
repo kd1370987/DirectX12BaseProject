@@ -25,10 +25,24 @@ namespace Engine::Raytracing
 
 	private:
 
+		// ルートシグネチャ定義
+		struct RootSignatureDesc
+		{
+			D3D12_ROOT_SIGNATURE_DESC desc = {};
+			std::vector<D3D12_DESCRIPTOR_RANGE> range;
+			std::vector<D3D12_ROOT_PARAMETER> rootParam;
+		};
+
+	private:
+
 		ComPtr<ID3D12StateObject> m_cpPSO;
-		ComPtr<ID3D12RootSignature> m_cpRootSig;
-		ComPtr<IDxcBlob> m_dxcBlob;				// DXCコンパイラを使用したときのシェーダーデータ
 
 		RootSignature m_rootSig;
+
+		RootSignature m_rayGenRootSig;
+		RootSignature m_hitRootSig;
+		RootSignature m_emptyRootSig;
+
+		Resource::ShaderLibrary m_shader;
 	};
 }

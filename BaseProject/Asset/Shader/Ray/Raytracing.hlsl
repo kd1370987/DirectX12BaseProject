@@ -51,6 +51,7 @@ void RayGen()
 	TraceRay(g_raytracingWorld,0,0xFF,0,0,0,_ray,_payload);
 
 	float3 _col = _payload.color;
+	_col = float3(1,0,0);
 
 	gOutPut[_launchIndex.xy] = float4(_col,1);
 }

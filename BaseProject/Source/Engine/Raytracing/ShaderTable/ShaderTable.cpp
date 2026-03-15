@@ -15,11 +15,11 @@ void Engine::Raytracing::ShaderTable::Init(const Engine::Raytracing::RayWorld& a
 	assert(_missID);
 	assert(_hitID);
 
-	uint32_t _recordSize = Alignment::Up(
-			D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES,
-			D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
-		);
-	uint32_t _tableSize = _recordSize * 3;
+	uint32_t _recordSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+	uint32_t _tableSize = Alignment::Up(
+		_recordSize * 3,
+		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
+	); 
 
 	D3D12_RESOURCE_DESC _desc = {};
 	_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
