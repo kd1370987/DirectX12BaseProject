@@ -35,23 +35,39 @@ void RayGen()
 	float2 _d = ((_crd / _dims) * 2.f - 1.f);
 	float _aspectRatio = _dims.x / _dims.y;
 
+	float2 _uv = (_crd + 0.5) / _dims;
+	_uv = _uv + 2.0 - 1.0;
+
+	_uv.x *= g_camera.aspect;
+
+	float3 _dir = normalize(float3(_uv.x,-_uv.y,-1.0f));
+
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
 	_ray.Origin = g_camera.pos;
-	_ray.Direction = normalize(float3(_d.x * g_camera.aspect, -_d.y, -1));
-	_ray.Direction = mul((float3x3)g_camera.rotMat,_ray.Direction);
+	//_ray.Direction = normalize(float3(_d.x * g_camera.aspect, -_d.y, -1));
+	//_ray.Direction = mul((float3x3)g_camera.rotMat,_ray.Direction);
+	_ray.Direction = mul((float3x3)g_camera.rotMat,_dir);
 
-	_ray.TMin = 0;
+	_ray.TMin = 0.001;
 	_ray.TMax = 10000;
 
 
 	RayPayload _payload;
 	_payload.color = float3(0,0,0);
 	
-	TraceRay(g_raytracingWorld,0,0xFF,0,0,0,_ray,_payload);
+	TraceRay(
+		g_raytracingWorld,
+		0,
+		0xFF,
+		0,
+		0,
+		0,
+		_ray,
+		_payload
+	);
 
 	float3 _col = _payload.color;
-	_col = float3(1,0,0);
 
 	gOutPut[_launchIndex.xy] = float4(_col,1);
 }
@@ -60,7 +76,7 @@ void RayGen()
 [shader("miss")]
 void Miss(inout RayPayload a_payload)
 {
-	a_payload.color = float3(0.2,0.2,0.4);
+	a_payload.color = float3(0.2,0.2,0.2);
 }
 
 // レイがポリゴンにヒットしたときに呼び出されるシェーダー

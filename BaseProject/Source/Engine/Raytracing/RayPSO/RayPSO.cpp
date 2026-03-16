@@ -89,7 +89,7 @@ namespace Engine::Raytracing
 		{
 			PipelineConfigSubObject()
 			{
-				config.MaxTraceRecursionDepth = 4;
+				config.MaxTraceRecursionDepth = 1;
 
 				subObjcet.Type = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
 				subObjcet.pDesc = &config;
@@ -150,7 +150,7 @@ namespace Engine::Raytracing
 
 		// DXIL Libraryを登録
 		D3D12_DXIL_LIBRARY_DESC _dxilLibDesc = {};
-		auto _blob = m_shader.GetIDxcBlob();
+		auto* _blob = m_shader.GetIDxcBlob();
 		_dxilLibDesc.DXILLibrary.BytecodeLength = _blob->GetBufferSize();
 		_dxilLibDesc.DXILLibrary.pShaderBytecode = _blob->GetBufferPointer();
 		_dxilLibDesc.NumExports = _countof(exports);
@@ -173,65 +173,72 @@ namespace Engine::Raytracing
 			_subObjects[_index++] = _hitGroupSOVce[_i].subObject; 
 		}
 
-		// ルートシグネチャとシェーダーの関連付けを行うサブオブジェクトを作っていく
-		m_rayGenRootSig.Create(
-			{
-				//{RootParameterType::DescriptorTable,{RangeType::UAV,RangeType::SRV,RangeType::CBV}}
-			}
-		);
-		m_hitRootSig.Create(
-			{
-				//{RootParameterType::DescriptorTable,{RangeType::SRV}}
-			}
-		);
-		m_emptyRootSig.Create({
-			
-			});
-		auto BuildAndRegistRootSignatureAndAssSubObjectFunc = [&]
-		(
-			BuildSubObjectHelper::LocalRootSignatureSubObject& a_rsSO,
-			BuildSubObjectHelper::ExportAssociationSubObject& a_eaSO,
-			LocalRootSignature a_rootSig,
-			const WCHAR* a_exportNames[]
-		) 
+		//// ルートシグネチャとシェーダーの関連付けを行うサブオブジェクトを作っていく
+		//m_rayGenRootSig.Create(
+		//	{
+		//		//{RootParameterType::DescriptorTable,{RangeType::UAV,RangeType::SRV,RangeType::CBV}}
+		//	}
+		//);
+		//m_hitRootSig.Create(
+		//	{
+		//		//{RootParameterType::DescriptorTable,{RangeType::SRV}}
+		//	}
+		//);
+		//m_emptyRootSig.Create({
+		//	
+		//	});
+		//auto BuildAndRegistRootSignatureAndAssSubObjectFunc = [&]
+		//(
+		//	BuildSubObjectHelper::LocalRootSignatureSubObject& a_rsSO,
+		//	BuildSubObjectHelper::ExportAssociationSubObject& a_eaSO,
+		//	LocalRootSignature a_rootSig,
+		//	const WCHAR* a_exportNames[]
+		//) 
+		//{
+		//	if (a_rootSig == LocalRootSignature::RayGen)
+		//	{
+		//		a_rsSO.Init(m_rayGenRootSig.Get());
+		//	}
+		//	if (a_rootSig == LocalRootSignature::PBRMaterialHit)
+		//	{
+		//		a_rsSO.Init(m_hitRootSig.Get());
+		//	}
+		//	if (a_rootSig == LocalRootSignature::Empty)
+		//	{
+		//		a_rsSO.Init(m_emptyRootSig.Get());
+		//	}
+		//	_subObjects[_index] = a_rsSO.subObject;
+		//	uint32_t _rgSOIndex = _index++;
+
+		//	int _useRootSig = 0;
+		//	for (auto& _shaderData : _exportRayShader)
+		//	{
+		//		if (_shaderData.rootsigType == a_rootSig)
+		//		{
+		//			a_exportNames[_useRootSig] = _shaderData.entryName;
+		//			_useRootSig++;
+		//		}
+		//	}
+		//	a_eaSO.Init(a_exportNames, _useRootSig, &(_subObjects[_rgSOIndex]));
+		//	_subObjects[_index++] = a_eaSO.subObject;
+		//};
+
+		////// 関連付け
+		//BuildSubObjectHelper::LocalRootSignatureSubObject _rayGenSigSO, _modelSigSO, _emptySigSO;
+		//BuildSubObjectHelper::ExportAssociationSubObject _rayGenAssSO, _modelAssSO, _emptyAssSO;
+		//const WCHAR* _rayGenExportName[3];
+		//const WCHAR* _modelExportName[3];
+		//const WCHAR* _emptyExportName[3];
+		//BuildAndRegistRootSignatureAndAssSubObjectFunc(_rayGenSigSO,_rayGenAssSO,LocalRootSignature::RayGen,_rayGenExportName);
+		//BuildAndRegistRootSignatureAndAssSubObjectFunc(_modelSigSO,_modelAssSO,LocalRootSignature::PBRMaterialHit,_modelExportName);
+		//BuildAndRegistRootSignatureAndAssSubObjectFunc(_emptySigSO,_emptyAssSO,LocalRootSignature::Empty,_emptyExportName);
+
+		const wchar_t* _exports[] =
 		{
-			if (a_rootSig == LocalRootSignature::RayGen)
-			{
-				a_rsSO.Init(m_rayGenRootSig.Get());
-			}
-			if (a_rootSig == LocalRootSignature::PBRMaterialHit)
-			{
-				a_rsSO.Init(m_hitRootSig.Get());
-			}
-			if (a_rootSig == LocalRootSignature::Empty)
-			{
-				a_rsSO.Init(m_emptyRootSig.Get());
-			}
-			_subObjects[_index] = a_rsSO.subObject;
-			uint32_t _rgSOIndex = _index++;
-
-			int _useRootSig = 0;
-			for (auto& _shaderData : _exportRayShader)
-			{
-				if (_shaderData.rootsigType == a_rootSig)
-				{
-					a_exportNames[_useRootSig] = _shaderData.entryName;
-					_useRootSig++;
-				}
-			}
-			a_eaSO.Init(a_exportNames, _useRootSig, &(_subObjects[_rgSOIndex]));
-			_subObjects[_index++] = a_eaSO.subObject;
+			L"RayGen",
+			L"Miss",
+			L"ClosestHit"
 		};
-
-		// 関連付け
-		BuildSubObjectHelper::LocalRootSignatureSubObject _rayGenSigSO, _modelSigSO, _emptySigSO;
-		BuildSubObjectHelper::ExportAssociationSubObject _rayGenAssSO, _modelAssSO, _emptyAssSO;
-		const WCHAR* _rayGenExportName[3];
-		const WCHAR* _modelExportName[3];
-		const WCHAR* _emptyExportName[3];
-		BuildAndRegistRootSignatureAndAssSubObjectFunc(_rayGenSigSO,_rayGenAssSO,LocalRootSignature::RayGen,_rayGenExportName);
-		BuildAndRegistRootSignatureAndAssSubObjectFunc(_modelSigSO,_modelAssSO,LocalRootSignature::PBRMaterialHit,_modelExportName);
-		BuildAndRegistRootSignatureAndAssSubObjectFunc(_emptySigSO,_emptyAssSO,LocalRootSignature::Empty,_emptyExportName);
 
 		// シェーダー設定
 		// ペイロードサイズ
@@ -278,19 +285,6 @@ namespace Engine::Raytracing
 		auto _hr = _pDevice5->CreateStateObject(&_desc,IID_PPV_ARGS(&m_cpPSO));
 		if (FAILED(_hr))
 		{
-			UINT64 count = infoQueue->GetNumStoredMessages();
-
-			for (UINT64 i = 0; i < count; i++)
-			{
-				SIZE_T size = 0;
-				infoQueue->GetMessage(i, nullptr, &size);
-				std::vector<char> data(size);
-				auto msg = (D3D12_MESSAGE*)data.data();
-				infoQueue->GetMessage(i, msg, &size);
-
-				OutputDebugStringA(msg->pDescription);
-			}
-
 			assert(0 && "レイトレ用パイプラインステートの作成に失敗");
 			return;
 		}

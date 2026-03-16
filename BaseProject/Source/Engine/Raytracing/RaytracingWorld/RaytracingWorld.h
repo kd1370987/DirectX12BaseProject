@@ -20,6 +20,7 @@ namespace Engine::Raytracing
 		void Commit();
 
 		D3D12_GPU_VIRTUAL_ADDRESS GetTLAS();
+		D3D12_GPU_DESCRIPTOR_HANDLE GetSRVTLAS();
 
 	private:
 

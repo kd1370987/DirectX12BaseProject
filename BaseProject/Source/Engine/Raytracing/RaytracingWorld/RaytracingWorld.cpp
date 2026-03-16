@@ -39,3 +39,8 @@ D3D12_GPU_VIRTUAL_ADDRESS Engine::Raytracing::RayWorld::GetTLAS()
 {
 	return m_upTLAS->GetGPUAddress();
 }
+
+D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetSRVTLAS()
+{
+	return m_upTLAS->GetGPUHandle();
+}

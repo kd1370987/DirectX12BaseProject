@@ -153,12 +153,12 @@ namespace Engine
 
 		// 描画フレームリソース
 		RenderContext::Instance().BeginFrame();
-
 	}
 
 	void MainEngine::EndDraw()
 	{
-		//Engine::Raytracing::RayEngine::Instance().Dispatch();
+
+		Engine::Raytracing::RayEngine::Instance().Dispatch();
 
 		// ゲームモード以外の処理
 		if (m_config.app.mode != EngineConfig::Application::Mode::Game)

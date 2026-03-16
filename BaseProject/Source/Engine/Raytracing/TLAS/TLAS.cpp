@@ -2,6 +2,7 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
+#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec)
 {
@@ -120,10 +121,26 @@ void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec
 	_uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 	_uavBarrier.UAV.pResource = m_cpResource.Get();
 	_pCmdList->ResourceBarrier(1,&_uavBarrier);
+
+	// SRVとして登録
+	D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
+	_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
+	_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	_srvDesc.RaytracingAccelerationStructure.Location = GetGPUAddress();
+	SRVViewInit _init;
+	_init.pResource = nullptr;
+	_init.pDesc = &_srvDesc;
+	m_srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange({_init})[0];
 }
 
 void Engine::Raytracing::TLAS::Build(ID3D12GraphicsCommandList4* a_pCmdList)
-{}
+{
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::TLAS::GetGPUHandle()
+{
+	return DescriptorHeapManager::Instance().GetSRVGPUHandle(m_srvHandle);
+}
 
 void Engine::Raytracing::TLAS::CreateBuffer(ID3D12Device5 * a_pDevice, ComPtr<ID3D12Resource>& a_cpRes, uint64_t a_size, D3D12_RESOURCE_FLAGS a_flags, D3D12_RESOURCE_STATES a_initState, const D3D12_HEAP_PROPERTIES & a_heapProps)
 {

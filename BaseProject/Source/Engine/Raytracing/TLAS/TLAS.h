@@ -20,6 +20,8 @@ namespace Engine::Raytracing
 			return m_cpResource->GetGPUVirtualAddress();
 		}
 
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle();
+
 	private:
 
 		void CreateBuffer(
@@ -44,5 +46,8 @@ namespace Engine::Raytracing
 		// インスタンスバッファ
 		ComPtr<ID3D12Resource> m_cpInstanceBuffer = nullptr;
 		uint32_t m_instnaceCount = 0;
+
+		// SRVハンドル
+		Engine::Resource::Handle<SRV> m_srvHandle = {};
 	};
 }

@@ -35,7 +35,7 @@ bool Application::Init()
 {
 	// エンジンの初期化
 	Engine::EngineConfig _config;
-	_config.graphics.init.isDebugLayer = false;
+	_config.graphics.init.isDebugLayer = true;
 	_config.graphics.init.isGPUValidation = true;
 	_config.graphics.runtime.isVsync = false;
 	_config.app.mode = Engine::EngineConfig::Application::Mode::Debug;
