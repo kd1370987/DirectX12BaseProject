@@ -24,6 +24,15 @@ namespace Engine::Raytracing
 
 	private:
 
+		struct InstanceData
+		{
+			UINT vertexSRVIndex;
+			UINT indexSRVIndex;
+		};
+
+		// GPU送信用データ
+		Engine::D3D12::StructuredBuffer<InstanceData> m_instanceDataBuffer;
+
 		std::vector<Instance> m_instanceVec = {};		// レイトレワールドインスタンス
 		std::unique_ptr<TLAS> m_upTLAS = nullptr;		// レイトレワールドTLAS
 	};

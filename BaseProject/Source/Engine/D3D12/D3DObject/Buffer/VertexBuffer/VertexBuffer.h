@@ -26,7 +26,7 @@ public:
 	void CreateSRV();
 
 	// SRVハンドルを返す
-	Engine::Resource::Handle<SRV> GetHandle();
+	Engine::Resource::Handle<SRV> GetHandle() const;
 
 	/// <summary>
 	/// 更新

@@ -56,7 +56,6 @@ void Engine::Raytracing::RayEngine::Dispatch()
 	);
 
 	// 出力用UAVセット
-
 	_pCmdList4->SetComputeRootDescriptorTable(
 		2,
 		DescriptorHeapManager::Instance().GetUAVGPUHandle(_tex.GetUAV())

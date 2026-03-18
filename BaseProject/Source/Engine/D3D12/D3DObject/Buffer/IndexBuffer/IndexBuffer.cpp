@@ -83,7 +83,7 @@ void IndexBuffer::CreateSRV()
 	m_srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewInit })[0];
 }
 
-Engine::Resource::Handle<SRV> IndexBuffer::GetHandle()
+Engine::Resource::Handle<SRV> IndexBuffer::GetHandle() const
 {
 	return m_srvHandle;
 }

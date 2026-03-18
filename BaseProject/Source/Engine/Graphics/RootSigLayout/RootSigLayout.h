@@ -11,7 +11,8 @@ enum class RootParameterType
 {
 	DescriptorTable,
 	RootCBV,
-	RootSRV
+	RootSRV,
+	Bindless
 };
 
 enum class RootSigSemantic

@@ -51,6 +51,7 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 #include "Engine/D3D12//D3DObject/Buffer/VertexBuffer/VertexBuffer.h"
 #include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/D3D12//D3DObject/Buffer/RenderTarget/RenderTarget.h"
+#include "Engine/D3D12/D3DObject/Buffer/StructuredBuffer/StructuredBuffer.h"
 
 //==========================================================================================
 // 

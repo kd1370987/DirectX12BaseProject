@@ -17,7 +17,8 @@ public:
 	RootSignature();
 
 	bool Create(
-		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec
+		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec,
+		const D3D12_ROOT_SIGNATURE_FLAGS* a_pFlags = nullptr
 	);
 
 	bool IsValid();					// ルートシグネチャの生成に成功しているか

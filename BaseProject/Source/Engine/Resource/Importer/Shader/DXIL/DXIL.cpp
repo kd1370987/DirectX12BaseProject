@@ -56,7 +56,7 @@ ComPtr<IDxcBlob> Engine::Resource::Import::DXIL(const std::string& a_path)
 		_sourceBlob.Get(),					// データ
 		_filePath.c_str(),					// ファイルネーム
 		L"",								// エントリーポインタ
-		L"lib_6_3",							// ターゲットプロファイル
+		L"lib_6_6",							// ターゲットプロファイル
 		_args,								// アーギュメントデータ
 		_countof(_args),					// アーギュメント数
 		nullptr,							// デファイン

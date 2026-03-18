@@ -32,6 +32,7 @@ namespace Engine::Raytracing
 			float nearClip = 0.1f;			// 近平面
 		};
 
+		// GPUに送信するデータ
 		Camera m_camera;
 
 		// レイトレ用クラス

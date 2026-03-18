@@ -267,11 +267,17 @@ namespace Engine::Raytracing
 		_subObjects[_index++] = _config.subObjcet;
 
 		// グローバルルートシグネチャのサブオブジェクト作成
+		D3D12_ROOT_SIGNATURE_FLAGS _rootFlags = 
+			D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED |			// 通常の使い方
+			D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;				// バインドレス指定
 		m_rootSig.Create({
-			{RootParameterType::RootCBV,{}},
-			{RootParameterType::DescriptorTable,{RangeType::SRV}},
-			{RootParameterType::DescriptorTable,{RangeType::UAV}}
-			});
+			{RootParameterType::RootCBV,{}},							// カメラ
+			{RootParameterType::DescriptorTable,{RangeType::SRV}},		// TLAS
+			{RootParameterType::DescriptorTable,{RangeType::UAV}},		// 出力
+			{RootParameterType::Bindless,{}}							// ディスクリプタヒープ
+			},
+			&_rootFlags
+		);
 		BuildSubObjectHelper::LocalRootSignatureSubObject _gRootSig;
 		_gRootSig.Init(m_rootSig.Get());
 		_gRootSig.subObject.Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;

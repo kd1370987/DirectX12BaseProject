@@ -7,17 +7,26 @@ RootSignature::RootSignature()
 	
 }
 bool RootSignature::Create(
-	const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec
+	const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec,
+	const D3D12_ROOT_SIGNATURE_FLAGS* a_pFlags
 )
 {
 	// パラメーター数
 	int _paramCount = static_cast<int>(a_rootParamsVec.size());
 
 	// アプリケーションの入力アセンブラ使用
-	auto _flag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+	D3D12_ROOT_SIGNATURE_FLAGS _flag;
+	if(!a_pFlags)
+	{
+		_flag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+	}
+	else
+	{
+		_flag = *a_pFlags;
+	}
 
 	m_rootParameters.resize(_paramCount);
 

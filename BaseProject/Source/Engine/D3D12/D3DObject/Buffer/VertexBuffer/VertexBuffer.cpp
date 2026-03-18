@@ -80,7 +80,7 @@ void VertexBuffer::CreateSRV()
 	m_srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewInit })[0];
 }
 
-Engine::Resource::Handle<SRV> VertexBuffer::GetHandle()
+Engine::Resource::Handle<SRV> VertexBuffer::GetHandle() const
 {
 	return m_srvHandle;
 }
