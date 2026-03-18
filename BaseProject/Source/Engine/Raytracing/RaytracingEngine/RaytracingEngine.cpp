@@ -46,14 +46,14 @@ void Engine::Raytracing::RayEngine::Dispatch()
 	);
 
 	// TLASをバインド
-	//_pCmdList4->SetComputeRootShaderResourceView(
-	//	1,
-	//	m_upRayWorld->GetTLAS()
-	//);
-	_pCmdList4->SetComputeRootDescriptorTable(
+	_pCmdList4->SetComputeRootShaderResourceView(
 		1,
-		m_upRayWorld->GetSRVTLAS()
+		m_upRayWorld->GetTLAS()
 	);
+	//_pCmdList4->SetComputeRootDescriptorTable(
+	//	1,
+	//	m_upRayWorld->GetSRVTLAS()
+	//);
 
 	// 出力用UAVセット
 	_pCmdList4->SetComputeRootDescriptorTable(
@@ -125,6 +125,7 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 		m_upRayWorld = std::make_unique<RayWorld>();
 	}
 	m_upRayWorld->Commit();
+	m_upRayWorld->Create();
 
 	// シェーダーテーブルの作成
 	m_upShaderTable = std::make_unique<ShaderTable>();

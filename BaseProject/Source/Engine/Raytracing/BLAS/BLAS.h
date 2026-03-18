@@ -5,11 +5,13 @@ namespace Engine::Raytracing
 	class BLAS
 	{
 	public:
-
+		// 頂点バッファとインデックスバッファから作成
 		void Create(
 			const VertexBuffer& a_vertexBuffer,
 			const IndexBuffer& a_indexBuffer
 		);
+		// ジオメトリ情報から作成
+		void Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_desc);
 
 		bool Build(
 			ID3D12Device5* a_pDevice,

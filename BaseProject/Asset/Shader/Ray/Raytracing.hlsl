@@ -26,17 +26,11 @@ struct RayPayload
 [shader("raygeneration")]
 void RayGen()
 {
-	uint3 _launchIndex = DispatchRaysIndex();
-	uint3 _launchDim = DispatchRaysDimensions();
-
-	float2 _crd = float2(_launchIndex.xy);
-	float2 _dims = float2(_launchDim.xy);
-
-	float2 _d = ((_crd / _dims) * 2.f - 1.f);
-	float _aspectRatio = _dims.x / _dims.y;
-
-	float2 _uv = (_crd + 0.5) / _dims;
-	_uv = _uv + 2.0 - 1.0;
+	uint2 _id = DispatchRaysIndex().xy;
+	uint2 _dim = DispatchRaysDimensions().xy;
+	
+	float2 _uv = (_id + 0.5) / _dim;
+	_uv = _uv * 2.0 - 1.0;
 
 	_uv.x *= g_camera.aspect;
 
@@ -44,11 +38,10 @@ void RayGen()
 
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
-	_ray.Origin = g_camera.pos;
-	//_ray.Direction = normalize(float3(_d.x * g_camera.aspect, -_d.y, -1));
-	//_ray.Direction = mul((float3x3)g_camera.rotMat,_ray.Direction);
-	_ray.Direction = mul((float3x3)g_camera.rotMat,_dir);
-
+	//_ray.Origin = g_camera.pos;
+	_ray.Origin = float3(0,0,-5);
+	//_ray.Direction = mul((float3x3)g_camera.rotMat,_dir);
+	_ray.Direction = float3(0,0,-1);
 	_ray.TMin = 0.001;
 	_ray.TMax = 10000;
 
@@ -61,7 +54,7 @@ void RayGen()
 		0,
 		0xFF,
 		0,
-		0,
+		1,
 		0,
 		_ray,
 		_payload
@@ -69,20 +62,26 @@ void RayGen()
 
 	float3 _col = _payload.color;
 
-	gOutPut[_launchIndex.xy] = float4(_col,1);
+	gOutPut[_id] = float4(_col,1);
 }
 
 // レイがどのポリゴンとも接触しなかったときに呼び出されるシェーダー
 [shader("miss")]
 void Miss(inout RayPayload a_payload)
 {
-	a_payload.color = float3(0.2,0.2,0.2);
+	a_payload.color = float3(0.2,0.2,1.0);
 }
 
 // レイがポリゴンにヒットしたときに呼び出されるシェーダー
 [shader("closesthit")]
 void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)
 {
+	float3 _color;
+	_color.x = 1.0 - a_attr.barycentrics.x - a_attr.barycentrics.y;
+	_color.y = a_attr.barycentrics.x;
+	_color.z = a_attr.barycentrics.y;
+	
+	a_payload.color = _color;
 	a_payload.color = float3(1, 0, 0);
 
 }

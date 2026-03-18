@@ -95,7 +95,23 @@ void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec
 		_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = 0;
 		_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 		_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
-		memcpy(_pInstanceDesc[_i].Transform,&a_instanceVec[_i].worldMat,sizeof(_pInstanceDesc[_i].Transform));
+		auto& m = a_instanceVec[_i].worldMat;
+
+		_pInstanceDesc[_i].Transform[0][0] = m._11;
+		_pInstanceDesc[_i].Transform[0][1] = m._12;
+		_pInstanceDesc[_i].Transform[0][2] = m._13;
+		_pInstanceDesc[_i].Transform[0][3] = m._41;
+
+		_pInstanceDesc[_i].Transform[1][0] = m._21;
+		_pInstanceDesc[_i].Transform[1][1] = m._22;
+		_pInstanceDesc[_i].Transform[1][2] = m._23;
+		_pInstanceDesc[_i].Transform[1][3] = m._42;
+
+		_pInstanceDesc[_i].Transform[2][0] = m._31;
+		_pInstanceDesc[_i].Transform[2][1] = m._32;
+		_pInstanceDesc[_i].Transform[2][2] = m._33;
+		_pInstanceDesc[_i].Transform[2][3] = m._43;
+
 		_pInstanceDesc[_i].InstanceMask = 0xFF;
 	}
 

@@ -163,9 +163,10 @@ namespace Engine::Raytracing
 		
 		// ヒットグループのサブオブジェクトの作成
 		std::vector<BuildSubObjectHelper::HitGroupSubObject> _hitGroupSOVce;
-		HitGroup _hitGroup = {
-			L"HitGroup", L"ClosestHit",nullptr
-		};
+		HitGroup _hitGroup = {};
+		_hitGroup.name = L"HitGroup";
+		_hitGroup.closestHit = L"ClosestHit";
+		_hitGroup.anyHitShader = nullptr;
 		_hitGroupSOVce.resize(1);		// 今のところカメラレイのみ
 		for (int _i = 0; _i < 1; ++_i)
 		{
@@ -272,7 +273,7 @@ namespace Engine::Raytracing
 			D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;				// バインドレス指定
 		m_rootSig.Create({
 			{RootParameterType::RootCBV,{}},							// カメラ
-			{RootParameterType::DescriptorTable,{RangeType::SRV}},		// TLAS
+			{RootParameterType::RootSRV,{}},							// TLAS
 			{RootParameterType::DescriptorTable,{RangeType::UAV}},		// 出力
 			{RootParameterType::Bindless,{}}							// ディスクリプタヒープ
 			},

@@ -17,6 +17,8 @@ namespace Engine::Raytracing
 			const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
 		);
 
+		void Create();
+
 		void Commit();
 
 		D3D12_GPU_VIRTUAL_ADDRESS GetTLAS();
@@ -35,5 +37,18 @@ namespace Engine::Raytracing
 
 		std::vector<Instance> m_instanceVec = {};		// レイトレワールドインスタンス
 		std::unique_ptr<TLAS> m_upTLAS = nullptr;		// レイトレワールドTLAS
+
+		// テスト用
+		struct Vertex
+		{
+			float x, y, z;
+		};
+		Vertex m_testVert[3] = {};
+		uint32_t m_testIndex[3] = {};
+		VertexBuffer m_testVertBuff;
+		IndexBuffer m_testIndexBuff;
+
+		std::unique_ptr<BLAS> m_upTestBLAS = nullptr;
+		std::unique_ptr<TLAS> m_upTestTLAS = nullptr;
 	};
 }

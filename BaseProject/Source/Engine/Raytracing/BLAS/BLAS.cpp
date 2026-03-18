@@ -17,16 +17,23 @@ void Engine::Raytracing::BLAS::Create(const VertexBuffer& a_vertexBuffer, const 
 	_desc.Triangles.IndexCount = a_indexBuffer.GetCount();
 	_desc.Triangles.IndexFormat = a_indexBuffer.GetFormat();
 
+	_desc.Triangles.Transform3x4 = 0;
+
+	// BLAS生成
+	Create(_desc);
+}
+
+void Engine::Raytracing::BLAS::Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_desc)
+{
 	// BLAS生成
 	auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
 	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
-	std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> _descVec = {};
-	_descVec.push_back(_desc);
-
+	m_geometryDescVec.clear();
+	m_geometryDescVec.push_back(a_desc);
 	Build(
 		_pDevice5,
 		_pCmdList4,
-		_descVec
+		m_geometryDescVec
 	);
 }
 
@@ -72,7 +79,7 @@ bool Engine::Raytracing::BLAS::Build(
 		&_prop,
 		D3D12_HEAP_FLAG_NONE,
 		&_bufDesc,
-		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		nullptr,
 		IID_PPV_ARGS(m_cpScratch.ReleaseAndGetAddressOf())
 	);
