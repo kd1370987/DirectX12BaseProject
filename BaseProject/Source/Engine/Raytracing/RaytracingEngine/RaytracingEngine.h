@@ -23,7 +23,8 @@ namespace Engine::Raytracing
 		void CommitWorld();
 	private:
 
-		struct Camera
+		struct alignas(256) Camera
+		//struct Camera
 		{
 			DXSM::Matrix rotMat = {};		// 回転行列
 			DXSM::Vector3 pos = {};			// 座標

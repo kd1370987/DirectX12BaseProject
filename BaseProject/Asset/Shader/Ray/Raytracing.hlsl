@@ -26,62 +26,68 @@ struct RayPayload
 [shader("raygeneration")]
 void RayGen()
 {
-	uint2 _id = DispatchRaysIndex().xy;
-	uint2 _dim = DispatchRaysDimensions().xy;
-	
-	float2 _uv = (_id + 0.5) / _dim;
-	_uv = _uv * 2.0 - 1.0;
+	uint3 launchIndex = DispatchRaysIndex();
+	uint3 launchDim = DispatchRaysDimensions();
 
-	_uv.x *= g_camera.aspect;
+	float2 crd = float2(launchIndex.xy);
+	float2 dims = float2(launchDim.xy);
 
-	float3 _dir = normalize(float3(_uv.x,-_uv.y,-1.0f));
+	float2 d = ((crd / dims) * 2.f - 1.f);
+	float aspectRatio = dims.x / dims.y;
 
-	// ピクセル方向に打ち出すレイを作成する
-	RayDesc _ray;
-	//_ray.Origin = g_camera.pos;
-	_ray.Origin = float3(0,0,-5);
-	//_ray.Direction = mul((float3x3)g_camera.rotMat,_dir);
-	_ray.Direction = float3(0,0,-1);
-	_ray.TMin = 0.001;
-	_ray.TMax = 10000;
+	RayDesc ray;
+	ray.Origin = g_camera.pos;
+	ray.Direction = normalize(float3(d.x * g_camera.aspect, -d.y, -1));
+	ray.Direction = mul(g_camera.rotMat, ray.Direction);
 
+	ray.TMin = 0;
+	ray.TMax = 10000;
 
-	RayPayload _payload;
-	_payload.color = float3(0,0,0);
-	
+	RayPayload payload;
 	TraceRay(
 		g_raytracingWorld,
-		0,
+		0 /*rayFlags*/,
 		0xFF,
+		0 /* ray index*/,
 		0,
-		1,
 		0,
-		_ray,
-		_payload
+		ray,
+		payload
 	);
 
-	float3 _col = _payload.color;
+	
+	float3 col = float3(1, 0, 0);
+	col = payload.color;
+	gOutPut[launchIndex.xy] = float4(col, 1);
 
-	gOutPut[_id] = float4(_col,1);
 }
 
 // レイがどのポリゴンとも接触しなかったときに呼び出されるシェーダー
 [shader("miss")]
 void Miss(inout RayPayload a_payload)
 {
-	a_payload.color = float3(0.2,0.2,1.0);
+	a_payload.color = float3(0.2,0.2,0.2);
 }
 
 // レイがポリゴンにヒットしたときに呼び出されるシェーダー
 [shader("closesthit")]
-void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)
+void Chs(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)
 {
 	float3 _color;
 	_color.x = 1.0 - a_attr.barycentrics.x - a_attr.barycentrics.y;
 	_color.y = a_attr.barycentrics.x;
 	_color.z = a_attr.barycentrics.y;
-	
 	a_payload.color = _color;
-	a_payload.color = float3(1, 0, 0);
+}
 
+[shader("closesthit")]
+void ShadowChs(inout RayPayload a_payload,in BuiltInTriangleIntersectionAttributes a_attribs)
+{
+	
+}
+
+[shader("miss")]
+void ShadowMiss(inout RayPayload a_payload)
+{
+	
 }

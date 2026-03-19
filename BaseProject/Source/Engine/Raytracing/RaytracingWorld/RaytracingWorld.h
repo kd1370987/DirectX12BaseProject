@@ -17,6 +17,11 @@ namespace Engine::Raytracing
 			const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
 		);
 
+		// ジオメトリー登録
+		void RegisterGeometory(
+			const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
+		);
+
 		void Create();
 
 		void Commit();

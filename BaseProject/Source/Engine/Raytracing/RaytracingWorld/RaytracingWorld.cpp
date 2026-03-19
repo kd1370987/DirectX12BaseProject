@@ -30,12 +30,17 @@ void Engine::Raytracing::RayWorld::Register(const DirectX::XMFLOAT4X4& a_worldMa
 	}
 }
 
+void Engine::Raytracing::RayWorld::RegisterGeometory(const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle)
+{
+
+}
+
 void Engine::Raytracing::RayWorld::Create()
 {
 	// 三角形構築
-	m_testVert[0] = {-1,-1,-3};
-	m_testVert[1] = {1,-1,-3};
-	m_testVert[2] = {0,0,-3};
+	m_testVert[0] = {-1,-1,3};
+	m_testVert[1] = {1,-1,3};
+	m_testVert[2] = {0,0,3};
 	m_testIndex[0] = 0;
 	m_testIndex[1] = 1;
 	m_testIndex[2] = 2;
@@ -80,6 +85,8 @@ void Engine::Raytracing::RayWorld::Create()
 	m_upTestTLAS->Create(
 		{_tlasInst}
 	);
+
+	return;
 }
 
 void Engine::Raytracing::RayWorld::Commit()

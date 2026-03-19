@@ -10,4 +10,10 @@ namespace Engine::Raytracing
 		Engine::Resource::Handle<SRV> vertexHandle = {};
 		Engine::Resource::Handle<SRV> indexHandle = {};
 	};
+
+	struct InstanceGeo
+	{
+		D3D12_RAYTRACING_GEOMETRY_DESC geometoryDesc;	// ジオメトリ情報
+
+	};
 }

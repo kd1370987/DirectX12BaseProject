@@ -50,10 +50,6 @@ void Engine::Raytracing::RayEngine::Dispatch()
 		1,
 		m_upRayWorld->GetTLAS()
 	);
-	//_pCmdList4->SetComputeRootDescriptorTable(
-	//	1,
-	//	m_upRayWorld->GetSRVTLAS()
-	//);
 
 	// 出力用UAVセット
 	_pCmdList4->SetComputeRootDescriptorTable(
