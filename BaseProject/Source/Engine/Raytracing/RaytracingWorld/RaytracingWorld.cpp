@@ -7,6 +7,7 @@
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../Resource/Manager/TextureManager/TextureManager.h"
 
 Engine::Raytracing::RayWorld::RayWorld()
 {
@@ -28,7 +29,11 @@ void Engine::Raytracing::RayWorld::Register(const DirectX::XMFLOAT4X4& a_worldMa
 		_rayInst.pBLAS = _spMesh->GetBLAS();
 		_rayInst.vertexHandle = _spMesh->GetVertexBuffer().GetHandle();
 		_rayInst.indexHandle = _spMesh->GetIndexBuffer().GetHandle();
-		m_instanceVec.push_back(_rayInst);
+		for (auto& _subset : _spMesh->GetSubsets())
+		{
+			_rayInst.pMaterial = &_model->materials[_subset.materialNumber];
+			m_instanceVec.push_back(_rayInst);
+		}
 	}
 }
 
@@ -68,7 +73,10 @@ void Engine::Raytracing::RayWorld::Commit()
 	for (auto& _instance : m_instanceVec)
 	{
 		Material _mate = {};
-		_mate.baseColor = { 1,1,1,1 };
+		_mate.baseColor = _instance.pMaterial->baseColor;
+		auto _tex = Engine::Resource::TextureManager::Instance().GetTexture(_instance.pMaterial->baseColorTex);
+		auto _srvH = _tex.GetSRV();
+		_mate.baseTexSRV = static_cast<int>(_srvH.idx);
 		_materialVec.push_back(_mate);
 	}
 	m_materialDataBuffer.Create(_pDevice,m_instanceVec.size(),_materialVec.data());

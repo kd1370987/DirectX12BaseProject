@@ -35,6 +35,7 @@ struct Vertex
 struct Material
 {
 	float4 baseColor;
+	int baseTexSRV;
 };
 
 RaytracingAccelerationStructure g_raytracingWorld : register(t0);		// レイトレワールド
@@ -105,7 +106,11 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	_color.y = a_attr.barycentrics.x;
 	_color.z = a_attr.barycentrics.y;
 
-	_color = float3(g_materialData[0].baseColor.xyz);
+	Material _material = g_materialData[InstanceID()];
+	_color = float3(_material.baseColor.xyz);
+
+	Texture2D _baseTex = ResourceDescriptorHeap[_material.baseTexSRV];
+	
 	
 	a_payload.color = _color;
 }

@@ -43,6 +43,7 @@ namespace Engine::Raytracing
 		struct Material
 		{
 			DirectX::XMFLOAT4 baseColor = {1,1,1,1};
+			int baseTexSRV = 0;
 		};
 
 		// GPU送信用データ

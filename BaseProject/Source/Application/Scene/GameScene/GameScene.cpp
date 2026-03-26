@@ -172,6 +172,8 @@ void GameScene::RegistryEntity()
 		_ref->pos = { 0.0f, 0.0f, 0.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
+
+		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _model->handle);
 	}
 
 	// カメラ
