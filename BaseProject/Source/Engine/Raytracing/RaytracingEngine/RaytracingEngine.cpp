@@ -25,6 +25,9 @@ void Engine::Raytracing::RayEngine::Dispatch()
 
 	_pCmdList4->ResourceBarrier(1, &barrier);
 
+	// 
+	m_upRayWorld->Update();
+
 	// PSOとルートシグネチャセット
 	_pCmdList4->SetPipelineState1(m_upPSO->Get());
 	_pCmdList4->SetComputeRootSignature(m_upPSO->GetRootSig());
@@ -55,6 +58,18 @@ void Engine::Raytracing::RayEngine::Dispatch()
 	_pCmdList4->SetComputeRootDescriptorTable(
 		2,
 		DescriptorHeapManager::Instance().GetUAVGPUHandle(_tex.GetUAV())
+	);
+
+	// 構造体バッファセット
+	_pCmdList4->SetComputeRootDescriptorTable(
+		3,
+		m_upRayWorld->GetInstanceDataSRV()
+	);
+
+	// マテリアル送信
+	_pCmdList4->SetComputeRootDescriptorTable(
+		4,
+		m_upRayWorld->GetMaterialSRV()
 	);
 
 	// シェーダーテーブル
@@ -121,7 +136,6 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 		m_upRayWorld = std::make_unique<RayWorld>();
 	}
 	m_upRayWorld->Commit();
-	m_upRayWorld->Create();
 
 	// シェーダーテーブルの作成
 	m_upShaderTable = std::make_unique<ShaderTable>();

@@ -25,6 +25,16 @@ namespace Engine::Raytracing
 
 	private:
 
+		// ルートシグネチャ定義
+		struct RootSignatureDesc
+		{
+			D3D12_ROOT_SIGNATURE_DESC desc = {};
+			std::vector<D3D12_DESCRIPTOR_RANGE> range;
+			std::vector<D3D12_ROOT_PARAMETER> rootParam;
+		};
+
+	private:
+
 		ComPtr<ID3D12StateObject> m_cpPSO;
 
 		RootSignature m_rootSig;

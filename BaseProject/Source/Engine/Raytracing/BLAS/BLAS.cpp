@@ -39,12 +39,12 @@ void Engine::Raytracing::BLAS::Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_de
 
 
 bool Engine::Raytracing::BLAS::Build(
-	ID3D12Device5* a_pDevice,
-	ID3D12GraphicsCommandList4* a_cmdList,
+	ID3D12Device5* a_pDevice, 
+	ID3D12GraphicsCommandList4* a_cmdList, 
 	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec
 )
 {
-	// GPU操作のためリセット
+	// コマンドキューリセット
 	D3D12Wrapper::Instance().CommandQueueReset();
 
 	// スクラッチリソース構築
@@ -59,7 +59,7 @@ bool Engine::Raytracing::BLAS::Build(
 	// ResultDataMaxSizeBytes == BLASサイズ
 	// ScratchDataSizeInBytes == ビルド用スクラッチ
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO _info;
-	a_pDevice->GetRaytracingAccelerationStructurePrebuildInfo(&_inputs, &_info);
+	a_pDevice->GetRaytracingAccelerationStructurePrebuildInfo(&_inputs,&_info);
 
 	// 設定
 	D3D12_RESOURCE_DESC _bufDesc = {};
@@ -78,19 +78,21 @@ bool Engine::Raytracing::BLAS::Build(
 	auto _prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
 	// 生成
-	auto _hr = a_pDevice->CreateCommittedResource(
+	a_pDevice->CreateCommittedResource(
 		&_prop,
 		D3D12_HEAP_FLAG_NONE,
 		&_bufDesc,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_COMMON,
 		nullptr,
 		IID_PPV_ARGS(m_cpScratch.ReleaseAndGetAddressOf())
 	);
-	if (FAILED(_hr))
-	{
-		assert(0 && "BLAS作成失敗");
-		return false;
-	}
+
+	auto barrierAS2 = CD3DX12_RESOURCE_BARRIER::Transition(
+		m_cpScratch.Get(),
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+	);
+	a_cmdList->ResourceBarrier(1, &barrierAS2);
 
 	// BLASバッファ作成
 	auto _blasDesc = CD3DX12_RESOURCE_DESC::Buffer(
@@ -98,7 +100,7 @@ bool Engine::Raytracing::BLAS::Build(
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
 	);
 
-	_hr = a_pDevice->CreateCommittedResource(
+	a_pDevice->CreateCommittedResource(
 		&_prop,
 		D3D12_HEAP_FLAG_NONE,
 		&_blasDesc,
@@ -106,11 +108,7 @@ bool Engine::Raytracing::BLAS::Build(
 		nullptr,
 		IID_PPV_ARGS(m_cpResource.ReleaseAndGetAddressOf())
 	);
-	if (FAILED(_hr))
-	{
-		assert(0 && "コマンド命令が正しく実行されませんでした。");
-		return false;
-	}
+
 	// Buildコマンド発行
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _buildDesc{};
 	_buildDesc.Inputs = _inputs;
@@ -121,20 +119,20 @@ bool Engine::Raytracing::BLAS::Build(
 	// UAVバリア
 	D3D12_RESOURCE_BARRIER _barrier = {};
 	_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
-	_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	_barrier.UAV.pResource = m_cpResource.Get();
 
-	a_cmdList->ResourceBarrier(1, &_barrier);
+	a_cmdList->ResourceBarrier(1,&_barrier);
 	a_cmdList->Close();
 
-	// コマンド実行
-	ID3D12CommandList* _ppCmdLists[] = { a_cmdList };
+	// コマンドキューに積む
+	ID3D12CommandList* _ppCommandLists[] = { a_cmdList };
 	auto* _cmdQueue = D3D12Wrapper::Instance().GetCommandQueue();
-	_cmdQueue->ExecuteCommandLists(std::size(_ppCmdLists),_ppCmdLists);
+	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	// 終了待ち
 	D3D12Wrapper::Instance().SignalRenderFence();
 	D3D12Wrapper::Instance().WaitRender();
+
 
 	return true;
 }

@@ -6,7 +6,7 @@
 
 void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec)
 {
-	// GPU操作のためリセット
+	// コマンドキューリセット
 	D3D12Wrapper::Instance().CommandQueueReset();
 
 	// 参照
@@ -15,30 +15,12 @@ void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec
 	int _numInstance = static_cast<int>(a_instanceVec.size());
 	ID3D12GraphicsCommandList4* _pCmdList = D3D12Wrapper::Instance().GetCommandList4();
 
-	// インスタンスバッファ作成
-	D3D12_HEAP_PROPERTIES _uploadHeapProp = {
-		D3D12_HEAP_TYPE_UPLOAD,
-		D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
-		D3D12_MEMORY_POOL_UNKNOWN,
-		0,
-		0
-	};
-	CreateBuffer(
-		_pDevice5,
-		m_cpInstanceBuffer,
-		sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * _numInstance,
-		D3D12_RESOURCE_FLAG_NONE,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		_uploadHeapProp
-	);
-
 	// インプット情報
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS _inputs = {};
 	_inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
 	_inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
 	_inputs.NumDescs = _numInstance;
 	_inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
-	_inputs.InstanceDescs = m_cpInstanceBuffer->GetGPUVirtualAddress();
 
 	// 出力構造体
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO _info;
@@ -68,23 +50,41 @@ void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec
 		// スクラッチバッファ作成
 		CreateBuffer(
 			_pDevice5,
+			_pCmdList,
 			m_cpScratch,
 			_scratchSize,
 			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_COMMON,
 			_defaultHeapProp
 		);
 		// リザルトバッファ作成
 		CreateBuffer(
 			_pDevice5,
+			_pCmdList,
 			m_cpResource,
 			_resultSize,
 			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
 			_defaultHeapProp
 		);
 
-
+		// インスタンスバッファ作成
+		D3D12_HEAP_PROPERTIES _uploadHeapProp = {
+			D3D12_HEAP_TYPE_UPLOAD,
+			D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+			D3D12_MEMORY_POOL_UNKNOWN,
+			0,
+			0
+		};
+		CreateBuffer(
+			_pDevice5,
+			_pCmdList,
+			m_cpInstanceBuffer,
+			sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * _numInstance,
+			D3D12_RESOURCE_FLAG_NONE,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			_uploadHeapProp
+		);
 
 		// サイズ記録
 		_tlasSize = _info.ResultDataMaxSizeInBytes;
@@ -130,6 +130,15 @@ void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec
 	_asDesc.DestAccelerationStructureData = m_cpResource->GetGPUVirtualAddress();
 	_asDesc.ScratchAccelerationStructureData = m_cpScratch->GetGPUVirtualAddress();
 
+	// Scratch
+	auto barrierScratch = CD3DX12_RESOURCE_BARRIER::Transition(
+		m_cpScratch.Get(),
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+	);
+	_pCmdList->ResourceBarrier(1, &barrierScratch);
+
+
 	//if (a_isUpdate)
 	//{
 	//	_asDesc.Inputs.Flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
@@ -143,19 +152,16 @@ void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec
 	_uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 	_uavBarrier.UAV.pResource = m_cpResource.Get();
 	_pCmdList->ResourceBarrier(1,&_uavBarrier);
-
-
 	_pCmdList->Close();
 
-	// コマンド実行
-	ID3D12CommandList* _ppCmdLists[] = { _pCmdList };
+	// コマンドキューに積む
+	ID3D12CommandList* _ppCommandLists[] = { _pCmdList };
 	auto* _cmdQueue = D3D12Wrapper::Instance().GetCommandQueue();
-	_cmdQueue->ExecuteCommandLists(std::size(_ppCmdLists), _ppCmdLists);
+	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	// 終了待ち
 	D3D12Wrapper::Instance().SignalRenderFence();
 	D3D12Wrapper::Instance().WaitRender();
-
 
 	// SRVとして登録
 	D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
@@ -177,7 +183,15 @@ D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::TLAS::GetGPUHandle()
 	return DescriptorHeapManager::Instance().GetSRVGPUHandle(m_srvHandle);
 }
 
-void Engine::Raytracing::TLAS::CreateBuffer(ID3D12Device5 * a_pDevice, ComPtr<ID3D12Resource>& a_cpRes, uint64_t a_size, D3D12_RESOURCE_FLAGS a_flags, D3D12_RESOURCE_STATES a_initState, const D3D12_HEAP_PROPERTIES & a_heapProps)
+void Engine::Raytracing::TLAS::CreateBuffer(
+	ID3D12Device5 * a_pDevice, 
+	ID3D12GraphicsCommandList* a_pCmdList,
+	ComPtr<ID3D12Resource>& a_cpRes,
+	uint64_t a_size,
+	D3D12_RESOURCE_FLAGS a_flags,
+	D3D12_RESOURCE_STATES a_initState,
+	const D3D12_HEAP_PROPERTIES & a_heapProps
+)
 {
 	D3D12_RESOURCE_DESC bufDesc = {};
 	bufDesc.Alignment = 0;

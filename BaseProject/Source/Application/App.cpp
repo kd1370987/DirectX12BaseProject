@@ -38,7 +38,7 @@ bool Application::Init()
 	_config.graphics.init.isDebugLayer = true;
 	_config.graphics.init.isGPUValidation = true;
 	_config.graphics.runtime.isVsync = false;
-	_config.app.mode = Engine::EngineConfig::Application::Mode::Game;
+	_config.app.mode = Engine::EngineConfig::Application::Mode::Debug;
 	m_upEngine = std::make_unique<Engine::MainEngine>();
 	m_upEngine->Init(_config);
 

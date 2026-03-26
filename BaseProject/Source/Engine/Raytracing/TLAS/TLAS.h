@@ -26,6 +26,7 @@ namespace Engine::Raytracing
 
 		void CreateBuffer(
 			ID3D12Device5* a_pDevice,
+			ID3D12GraphicsCommandList* a_pCmdList,
 			ComPtr<ID3D12Resource>& a_cpRes,
 			uint64_t a_size,
 			D3D12_RESOURCE_FLAGS a_flags,

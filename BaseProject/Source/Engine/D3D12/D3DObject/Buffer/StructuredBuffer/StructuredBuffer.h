@@ -23,7 +23,7 @@ namespace Engine::D3D12
 
 		// SRV生成時用にリソースを返す
 		ID3D12Resource* GetResource();
-		D3D12_SHADER_RESOURCE_VIEW_DESC GetViewDesc();
+		D3D12_SHADER_RESOURCE_VIEW_DESC* GetViewDesc();
 
 		// SRVをセット
 		void SetHandle(const Engine::Resource::Handle<SRV>& a_handle)
@@ -67,6 +67,9 @@ namespace Engine::D3D12
 
 		// 操作があったかどうか
 		bool m_isDarty = false;
+
+		// ビュー構造体
+		D3D12_SHADER_RESOURCE_VIEW_DESC m_viewDesc = {};
 	};
 
 	template<typename T>
@@ -120,6 +123,17 @@ namespace Engine::D3D12
 
 		m_isDarty = true;
 
+		// ビュー構造体作成
+		m_viewDesc = {};
+		m_viewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		m_viewDesc.Format = DXGI_FORMAT_UNKNOWN;
+		m_viewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+		m_viewDesc.Buffer.FirstElement = 0;
+		m_viewDesc.Buffer.NumElements = m_numElement;
+		m_viewDesc.Buffer.StructureByteStride = sizeof(T);
+		m_viewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
 		return true;
 	}
 	template<typename T>
@@ -128,16 +142,9 @@ namespace Engine::D3D12
 		return m_cpGPUBuffer.Get();
 	}
 	template<typename T>
-	inline D3D12_SHADER_RESOURCE_VIEW_DESC StructuredBuffer<T>::GetViewDesc()
+	inline D3D12_SHADER_RESOURCE_VIEW_DESC* StructuredBuffer<T>::GetViewDesc()
 	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
-		_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-		_desc.Format = DXGI_FORMAT_UNKNOWN;
-		_desc.Buffer.NumElements = m_numElement;
-		_desc.Buffer.StructureByteStride = sizeof(T);
-		_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		return _desc;
+		return &m_viewDesc;
 	}
 	template<typename T>
 	inline T& StructuredBuffer<T>::RefData(uint32_t a_index)

@@ -78,12 +78,6 @@ namespace Engine
 		RenderContext::Instance().Init();
 
 		m_config = a_config;
-
-		BegineFrame();
-		BeginDraw();
-		EndDraw();
-		EndFrame();
-
 	}
 
 	void MainEngine::Release()
@@ -164,7 +158,7 @@ namespace Engine
 	void MainEngine::EndDraw()
 	{
 
-	//	Engine::Raytracing::RayEngine::Instance().Dispatch();
+		Engine::Raytracing::RayEngine::Instance().Dispatch();
 
 		// ゲームモード以外の処理
 		if (m_config.app.mode != EngineConfig::Application::Mode::Game)
