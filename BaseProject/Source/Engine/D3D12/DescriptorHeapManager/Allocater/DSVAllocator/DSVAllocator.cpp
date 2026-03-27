@@ -57,6 +57,6 @@ D3D12_CPU_DESCRIPTOR_HANDLE Engine::D3D12::DSVAllocator::GetCPU(const Engine::Re
 	{
 		return m_pHeap->GetCPU(a_handle.idx);
 	}
-	assert(0 && "RTVの世代が違います");
+	assert(0 && "DSVの世代が違います");
 	return D3D12_CPU_DESCRIPTOR_HANDLE();
 }

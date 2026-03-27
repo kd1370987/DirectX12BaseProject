@@ -18,7 +18,13 @@ public:
 
 	bool Create(
 		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec,
+		bool a_isUseStaticSampler = true,
 		const D3D12_ROOT_SIGNATURE_FLAGS* a_pFlags = nullptr
+	);
+	bool Create(
+		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec,
+		D3D12_ROOT_SIGNATURE_FLAGS a_flags,
+		bool a_isUseStaticSampler = true
 	);
 
 	bool IsValid();					// ルートシグネチャの生成に成功しているか

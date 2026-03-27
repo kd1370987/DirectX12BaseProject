@@ -5,6 +5,7 @@ enum class RangeType
 	CBV,
 	SRV,
 	UAV,
+	Sampler,
 };
 
 enum class RootParameterType

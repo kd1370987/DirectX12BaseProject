@@ -28,15 +28,18 @@ void Engine::Raytracing::RayEngine::Dispatch()
 	// 
 	m_upRayWorld->Update();
 
+	// ディスクリプタヒープセット
+	ID3D12DescriptorHeap* _heaps[] = {
+		DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap(),
+		DescriptorHeapManager::Instance().RefSamplerHeap()
+	};
+	_pCmdList4->SetDescriptorHeaps(ARRAYSIZE(_heaps), _heaps);
+
+
 	// PSOとルートシグネチャセット
 	_pCmdList4->SetPipelineState1(m_upPSO->Get());
 	_pCmdList4->SetComputeRootSignature(m_upPSO->GetRootSig());
 
-	// ディスクリプタヒープセット
-	ID3D12DescriptorHeap* _heaps[] = {
-		DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
-	};
-	_pCmdList4->SetDescriptorHeaps(1,_heaps);
 
 	// 定数バッファをバインド
 	m_camera.aspectRate = RenderContext::Instance().GetCameraAspectRate();
@@ -71,6 +74,11 @@ void Engine::Raytracing::RayEngine::Dispatch()
 		4,
 		m_upRayWorld->GetMaterialSRV()
 	);
+
+	//_pCmdList4->SetComputeRootDescriptorTable(
+	//	5,
+	//	DescriptorHeapManager::Instance().GetLinearWrap()
+	//);
 
 	// シェーダーテーブル
 	const auto& _desc = m_upShaderTable->GetDispatchDesc();

@@ -6,6 +6,7 @@
 #include "Engine/D3D12/DescriptorHeapManager/Allocater/DSVAllocator/DSVAllocator.h"
 #include "Engine/D3D12/DescriptorHeapManager/Allocater/SRVAllocator/SRVAllocator.h"
 #include "Engine/D3D12/DescriptorHeapManager/Allocater/UAVAllocator/UAVAllocator.h"
+#include "Engine/D3D12/DescriptorHeapManager/Allocater/SamplerAllocator/SamplerAllocator.h"
 
 bool DescriptorHeapManager::Init()
 {
@@ -36,22 +37,59 @@ bool DescriptorHeapManager::Init()
 		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 		0
 	);
+	m_samplerHeap.Create(
+		_device,
+		3,
+		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+		0
+	);
 
 	// アロケーター生成
+	// RTV
 	m_upRTVAllocator = std::make_unique<Engine::D3D12::RTVAllocator>();
 	m_upRTVAllocator->Create(&m_rtvHeap);
 
+	// DSV
 	m_upDSVAllocator = std::make_unique<Engine::D3D12::DSVAllocator>();
 	m_upDSVAllocator->Create(&m_dsvHeap);
 
+	// SRV
 	m_upSRVAllocator = std::make_unique<Engine::D3D12::SRVAllocator>();
 	m_upSRVAllocator->Create(&m_cbv_srv_uavHeap,100,100);		// 100番目から100個の容量
 
+	// UAV
 	m_upUAVAllocator = std::make_unique<Engine::D3D12::UAVAllocator>();
 	m_upUAVAllocator->Create(&m_cbv_srv_uavHeap,200,100);		// 200番目から100個の容量
 
+	// ImGUI用SRV
 	m_upImGuiSRVAllocator = std::make_unique<Engine::D3D12::SRVAllocator>();
 	m_upImGuiSRVAllocator->Create(&m_imguiHeap,0,300);
+
+	// Sampler
+	m_upSamplerAllocator = std::make_unique<Engine::D3D12::SamplerAllocator>();
+	m_upSamplerAllocator->Create(&m_samplerHeap);
+
+	// 主要サンプラー作成
+	D3D12_SAMPLER_DESC _linerDesc = {};
+	_linerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	_linerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	_linerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	_linerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	m_linerWrap = CreateSampler(_device,_linerDesc);
+	D3D12_SAMPLER_DESC _pointDesc = {};
+	_pointDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+	_pointDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	_pointDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	_pointDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	m_pointClamp = CreateSampler(_device,_pointDesc);
+	D3D12_SAMPLER_DESC _shadowDesc = {};
+	_shadowDesc.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	_shadowDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	_shadowDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	_shadowDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	_shadowDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	m_shadow = CreateSampler(_device,_shadowDesc);
+
 
 	return true;
 }
@@ -62,8 +100,6 @@ void DescriptorHeapManager::Release()
 
 std::vector<Engine::Resource::Handle<SRV>> DescriptorHeapManager::AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec)
 {
-	ImGuiContex::Instance().AddLog("-------------------------\n");
-	ImGuiContex::Instance().AddLog("SRVAllocate\n");
 	return m_upSRVAllocator->Allocate(a_viewInitVec);
 }
 
@@ -104,8 +140,6 @@ ID3D12DescriptorHeap* DescriptorHeapManager::GetImGuiHeap() const
 
 std::vector<Engine::Resource::Handle<SRV>> DescriptorHeapManager::AllocateImGuiSRVRange(std::vector<SRVViewInit> a_viewInitVec)
 {
-	ImGuiContex::Instance().AddLog("-------------------------\n");
-	ImGuiContex::Instance().AddLog("IMMGUIALLOCATE\n");
 	return m_upImGuiSRVAllocator->Allocate(a_viewInitVec);
 }
 
@@ -164,6 +198,31 @@ void DescriptorHeapManager::RemoveRTV(Engine::Resource::Handle<RTV> a_handle)
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetRTVCPUHandle(Engine::Resource::Handle<RTV> a_handle)
 {
 	return m_upRTVAllocator->GetCPU(a_handle);
+}
+
+Engine::Resource::Handle<SAMPLER> DescriptorHeapManager::CreateSampler(ID3D12Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
+{
+	return m_upSamplerAllocator->Allocate(a_pDevice,a_desc);
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetLinearWrap()
+{
+	return m_upSamplerAllocator->GetGPU(m_linerWrap);;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetPointClamp()
+{
+	return m_upSamplerAllocator->GetGPU(m_pointClamp);;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetShadow()
+{
+	return m_upSamplerAllocator->GetGPU(m_shadow);;
+}
+
+ID3D12DescriptorHeap* DescriptorHeapManager::RefSamplerHeap()
+{
+	return m_samplerHeap.GetHeap();
 }
 
 DescriptorHeapManager::DescriptorHeapManager()

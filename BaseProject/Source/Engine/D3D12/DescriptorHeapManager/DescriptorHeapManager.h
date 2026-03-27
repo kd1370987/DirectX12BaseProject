@@ -6,6 +6,7 @@ namespace Engine::D3D12
 	class DSVAllocator;
 	class SRVAllocator;
 	class UAVAllocator;
+	class SamplerAllocator;
 }
 
 class DescriptorHeapManager
@@ -100,20 +101,47 @@ public:
 	// CPUハンドル取得
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVCPUHandle(Engine::Resource::Handle<RTV> a_handle);
 
+	//==========================================================================================
+	// 
+	// SAMPLER
+	// 
+	//==========================================================================================
+	// 作成
+	Engine::Resource::Handle<SAMPLER> CreateSampler(
+		ID3D12Device* a_pDevice,
+		const D3D12_SAMPLER_DESC& a_desc
+	);
+
+	// 取得
+	D3D12_GPU_DESCRIPTOR_HANDLE GetLinearWrap();
+	D3D12_GPU_DESCRIPTOR_HANDLE GetPointClamp();
+	D3D12_GPU_DESCRIPTOR_HANDLE GetShadow();
+
+	// ヒープ
+	ID3D12DescriptorHeap* RefSamplerHeap();
+
+
 private:
 
 	// ヒープ本体
 	Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavHeap;
 	Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_DSV>			m_dsvHeap;
 	Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_RTV>			m_rtvHeap;
+	Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>		m_samplerHeap;
 	Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_imguiHeap;
 
 	// ヒープアロケーター
-	std::unique_ptr<Engine::D3D12::RTVAllocator> m_upRTVAllocator = nullptr;
-	std::unique_ptr<Engine::D3D12::DSVAllocator> m_upDSVAllocator = nullptr;
-	std::unique_ptr<Engine::D3D12::SRVAllocator> m_upSRVAllocator = nullptr;
-	std::unique_ptr<Engine::D3D12::UAVAllocator> m_upUAVAllocator = nullptr;
-	std::unique_ptr<Engine::D3D12::SRVAllocator> m_upImGuiSRVAllocator = nullptr;
+	std::unique_ptr<Engine::D3D12::RTVAllocator>		m_upRTVAllocator		= nullptr;
+	std::unique_ptr<Engine::D3D12::DSVAllocator>		m_upDSVAllocator		= nullptr;
+	std::unique_ptr<Engine::D3D12::SRVAllocator>		m_upSRVAllocator		= nullptr;
+	std::unique_ptr<Engine::D3D12::UAVAllocator>		m_upUAVAllocator		= nullptr;
+	std::unique_ptr<Engine::D3D12::SamplerAllocator>	m_upSamplerAllocator	= nullptr;
+	std::unique_ptr<Engine::D3D12::SRVAllocator>		m_upImGuiSRVAllocator	= nullptr;
+
+	// サンプラー
+	Engine::Resource::Handle<SAMPLER> m_linerWrap;
+	Engine::Resource::Handle<SAMPLER> m_pointClamp;
+	Engine::Resource::Handle<SAMPLER> m_shadow;
 
 // シングルトン
 private:

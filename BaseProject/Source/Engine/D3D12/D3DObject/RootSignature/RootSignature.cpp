@@ -8,6 +8,7 @@ RootSignature::RootSignature()
 }
 bool RootSignature::Create(
 	const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec,
+	bool a_isUseStaticSampler,
 	const D3D12_ROOT_SIGNATURE_FLAGS* a_pFlags
 )
 {
@@ -33,6 +34,7 @@ bool RootSignature::Create(
 	UINT _cbvCount = 0;
 	UINT _srvCount = 0;
 	UINT _uavCount = 0;
+	UINT _samplerCount = 0;
 
 	// ルートパラメーター・レンジ作成
 	for (size_t _i = 0; _i < _paramCount; ++_i)
@@ -84,6 +86,12 @@ bool RootSignature::Create(
 					_ranges[j].RegisterSpace = 0;
 					++_uavCount;
 					break;
+				case RangeType::Sampler:
+					_ranges[j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+					_ranges[j].BaseShaderRegister = _samplerCount;
+					_ranges[j].RegisterSpace = 0;
+					++_samplerCount;
+					break;
 				default:
 					break;
 				}
@@ -115,11 +123,24 @@ bool RootSignature::Create(
 
 	// ルートシグネチャの設定（設定したいルートパラメーターとスタティックサンプラーを入れる）
 	D3D12_ROOT_SIGNATURE_DESC _desc = {};
-	_desc.NumParameters = static_cast<UINT>(std::size(m_rootParams));	// ルートパラメーターの個数
-	_desc.NumStaticSamplers = static_cast<UINT>(1);						// サンプラーの個数を入れる
-	_desc.pParameters = m_rootParams.data();				// ルートパラメーターのポインタを入れる
-	_desc.pStaticSamplers = &_sampler;						// サンプラーのポインタを入れる
-	_desc.Flags = _flag;												// フラグを設定
+
+	// スタティックサンプラーを使うかどうか
+	if (a_isUseStaticSampler)
+	{
+		_desc.NumParameters		= static_cast<UINT>(std::size(m_rootParams));	// ルートパラメーターの個数
+		_desc.pParameters		= m_rootParams.data();							// ルートパラメーターのポインタを入れる
+		_desc.NumStaticSamplers = static_cast<UINT>(1);							// サンプラーの個数を入れる
+		_desc.pStaticSamplers	= &_sampler;									// サンプラーのポインタを入れる
+		_desc.Flags				= _flag;										// フラグを設定
+	}
+	else
+	{
+		_desc.NumParameters		= static_cast<UINT>(std::size(m_rootParams));	// ルートパラメーターの個数
+		_desc.pParameters		= m_rootParams.data();							// ルートパラメーターのポインタを入れる
+		_desc.NumStaticSamplers = 0;											// サンプラーの個数を入れる
+		_desc.pStaticSamplers	= nullptr;										// サンプラーのポインタを入れる
+		_desc.Flags				= _flag;										// フラグを設定
+	}
 
 	// バイナリデータを保持するための汎用バッファ
 	ComPtr<ID3DBlob> _pBlob = nullptr;		// シリアライズ済みルートシグネチャ(GPUに渡す最終バイナリ)を受け取るためのバッファ
@@ -152,6 +173,18 @@ bool RootSignature::Create(
 	}
 
 	return true;
+}
+
+bool RootSignature::Create(const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec, D3D12_ROOT_SIGNATURE_FLAGS a_flags, bool a_isUseStaticSampler)
+{
+	D3D12_ROOT_SIGNATURE_FLAGS _flags;
+	_flags = a_flags;
+
+	return Create(
+		a_rootParamsVec,
+		a_isUseStaticSampler,
+		&_flags
+	);
 }
 
 bool RootSignature::IsValid()

@@ -250,6 +250,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator\DSVAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator\UAVAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
@@ -419,6 +420,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator\DSVAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.h" />
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator\UAVAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />

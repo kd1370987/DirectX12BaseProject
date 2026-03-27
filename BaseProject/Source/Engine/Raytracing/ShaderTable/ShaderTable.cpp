@@ -21,11 +21,21 @@ void Engine::Raytracing::ShaderTable::Init(const Engine::Raytracing::RayWorld& a
 		_shaderIDSize,
 		D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT
 	);
-	uint32_t _tableSize = Alignment::Up(
-		_recordSize * 3,
+	// 各シェーダーごとのオフセット値を求める
+	uint32_t _raygenOffset = 0;
+	uint32_t _missOffset = Alignment::Up(
+		_raygenOffset + _recordSize,
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
-	); 
+	);
+	uint32_t _hitOffset = Alignment::Up(
+		_missOffset + _recordSize,
+		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
+	);
 
+	// テーブルサイズを求める
+	uint32_t _tableSize = _hitOffset + _recordSize;
+
+	// 仕様書
 	D3D12_RESOURCE_DESC _desc = {};
 	_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	_desc.Width = _tableSize;
@@ -56,9 +66,9 @@ void Engine::Raytracing::ShaderTable::Init(const Engine::Raytracing::RayWorld& a
 	uint8_t* _mapped;
 	m_cpShaderTable->Map(0, nullptr, (void**)&_mapped);
 
-	memcpy(_mapped, _raygenID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-	memcpy(_mapped + _recordSize, _missID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-	memcpy(_mapped + _recordSize * 2, _hitID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+	memcpy(_mapped + _raygenOffset, _raygenID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+	memcpy(_mapped + _missOffset, _missID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+	memcpy(_mapped + _hitOffset, _hitID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 
 	m_cpShaderTable->Unmap(0, nullptr);
 
@@ -66,14 +76,14 @@ void Engine::Raytracing::ShaderTable::Init(const Engine::Raytracing::RayWorld& a
 	D3D12_DISPATCH_RAYS_DESC _dispatchDesc = {};
 	uint64_t _base = m_cpShaderTable->GetGPUVirtualAddress();
 
-	_dispatchDesc.RayGenerationShaderRecord.StartAddress = _base;
+	_dispatchDesc.RayGenerationShaderRecord.StartAddress = _base + _raygenOffset;
 	_dispatchDesc.RayGenerationShaderRecord.SizeInBytes = _recordSize;
 
-	_dispatchDesc.MissShaderTable.StartAddress = _base + _recordSize;
+	_dispatchDesc.MissShaderTable.StartAddress = _base + _missOffset;
 	_dispatchDesc.MissShaderTable.SizeInBytes = _recordSize;
 	_dispatchDesc.MissShaderTable.StrideInBytes = _recordSize;
 
-	_dispatchDesc.HitGroupTable.StartAddress = _base + _recordSize * 2;
+	_dispatchDesc.HitGroupTable.StartAddress = _base + _hitOffset;
 	_dispatchDesc.HitGroupTable.SizeInBytes = _recordSize;
 	_dispatchDesc.HitGroupTable.StrideInBytes = _recordSize;
 

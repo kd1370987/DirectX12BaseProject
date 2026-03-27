@@ -43,6 +43,14 @@ RWTexture2D<float4> gOutPut : register(u0);								// カラー出力先
 StructuredBuffer<InstanceData> g_instanceData : register(t1);							// インスタンスごとのデータ
 StructuredBuffer<Material> g_materialData : register(t2);							// インスタンスごとのデータ
 
+sampler gSamp : register(s0);
+
+Texture2D g_albedoTex : register(t3);
+Texture2D g_metaRogTex : register(t4);
+Texture2D g_emiTex : register(t5);
+Texture2D g_normalTex : register(t6);
+
+
 // レイ
 struct RayPayload
 {
@@ -106,11 +114,9 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	_color.y = a_attr.barycentrics.x;
 	_color.z = a_attr.barycentrics.y;
 
+	// インスタンスごとの情報を取得
+	InstanceData _instData = g_instanceData[InstanceID()];
 	Material _material = g_materialData[InstanceID()];
-	_color = float3(_material.baseColor.xyz);
 
-	Texture2D _baseTex = ResourceDescriptorHeap[_material.baseTexSRV];
-	
-	
 	a_payload.color = _color;
 }

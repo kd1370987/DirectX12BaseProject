@@ -174,62 +174,58 @@ namespace Engine::Raytracing
 			_subObjects[_index++] = _hitGroupSOVce[_i].subObject; 
 		}
 
-		//// ルートシグネチャとシェーダーの関連付けを行うサブオブジェクトを作っていく
-		//m_rayGenRootSig.Create(
-		//	{
-		//		//{RootParameterType::DescriptorTable,{RangeType::UAV,RangeType::SRV,RangeType::CBV}}
-		//	}
-		//);
-		//m_hitRootSig.Create(
-		//	{
-		//		//{RootParameterType::DescriptorTable,{RangeType::SRV}}
-		//	}
-		//);
-		//m_emptyRootSig.Create({
-		//	
-		//	});
-		//auto BuildAndRegistRootSignatureAndAssSubObjectFunc = [&]
-		//(
-		//	BuildSubObjectHelper::LocalRootSignatureSubObject& a_rsSO,
-		//	BuildSubObjectHelper::ExportAssociationSubObject& a_eaSO,
-		//	LocalRootSignature a_rootSig,
-		//	const WCHAR* a_exportNames[]
-		//) 
-		//{
-		//	if (a_rootSig == LocalRootSignature::RayGen)
-		//	{
-		//		a_rsSO.Init(m_rayGenRootSig.Get());
-		//	}
-		//	if (a_rootSig == LocalRootSignature::PBRMaterialHit)
-		//	{
-		//		a_rsSO.Init(m_hitRootSig.Get());
-		//	}
-		//	if (a_rootSig == LocalRootSignature::Empty)
-		//	{
-		//		a_rsSO.Init(m_emptyRootSig.Get());
-		//	}
-		//	_subObjects[_index] = a_rsSO.subObject;
-		//	uint32_t _rgSOIndex = _index++;
+		// ルートシグネチャとシェーダーの関連付けを行うサブオブジェクトを作っていく
+		//m_rayGenRootSig.Create({});
+		m_hitRootSig.Create(
+			{
+				{RootParameterType::DescriptorTable,{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV}}
+			},
+			D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE,
+			false
+		);
+		//m_emptyRootSig.Create({});
+		auto BuildAndRegistRootSignatureAndAssSubObjectFunc = [&]
+		(
+			BuildSubObjectHelper::LocalRootSignatureSubObject& a_rsSO,
+			BuildSubObjectHelper::ExportAssociationSubObject& a_eaSO,
+			LocalRootSignature a_rootSig,
+			const WCHAR* a_exportNames[]
+		) 
+		{
+			if (a_rootSig == LocalRootSignature::RayGen)
+			{
+				a_rsSO.Init(m_rayGenRootSig.Get());
+			}
+			if (a_rootSig == LocalRootSignature::PBRMaterialHit)
+			{
+				a_rsSO.Init(m_hitRootSig.Get());
+			}
+			if (a_rootSig == LocalRootSignature::Empty)
+			{
+				a_rsSO.Init(m_emptyRootSig.Get());
+			}
+			_subObjects[_index] = a_rsSO.subObject;
+			uint32_t _rgSOIndex = _index++;
 
-		//	int _useRootSig = 0;
-		//	for (auto& _shaderData : _exportRayShader)
-		//	{
-		//		if (_shaderData.rootsigType == a_rootSig)
-		//		{
-		//			a_exportNames[_useRootSig] = _shaderData.entryName;
-		//			_useRootSig++;
-		//		}
-		//	}
-		//	a_eaSO.Init(a_exportNames, _useRootSig, &(_subObjects[_rgSOIndex]));
-		//	_subObjects[_index++] = a_eaSO.subObject;
-		//};
+			int _useRootSig = 0;
+			for (auto& _shaderData : _exportRayShader)
+			{
+				if (_shaderData.rootsigType == a_rootSig)
+				{
+					a_exportNames[_useRootSig] = _shaderData.entryName;
+					_useRootSig++;
+				}
+			}
+			a_eaSO.Init(a_exportNames, _useRootSig, &(_subObjects[_rgSOIndex]));
+			_subObjects[_index++] = a_eaSO.subObject;
+		};
 
-		////// 関連付け
-		//BuildSubObjectHelper::LocalRootSignatureSubObject _rayGenSigSO, _modelSigSO, _emptySigSO;
-		//BuildSubObjectHelper::ExportAssociationSubObject _rayGenAssSO, _modelAssSO, _emptyAssSO;
-		//const WCHAR* _rayGenExportName[3];
-		//const WCHAR* _modelExportName[3];
-		//const WCHAR* _emptyExportName[3];
+		// 関連付け
+		BuildSubObjectHelper::LocalRootSignatureSubObject _rayGenSigSO, _modelSigSO, _emptySigSO;
+		BuildSubObjectHelper::ExportAssociationSubObject _rayGenAssSO, _modelAssSO, _emptyAssSO;
+		const WCHAR* _rayGenExportName[3];
+		const WCHAR* _modelExportName[3];
+		const WCHAR* _emptyExportName[3];
 		//BuildAndRegistRootSignatureAndAssSubObjectFunc(_rayGenSigSO,_rayGenAssSO,LocalRootSignature::RayGen,_rayGenExportName);
 		//BuildAndRegistRootSignatureAndAssSubObjectFunc(_modelSigSO,_modelAssSO,LocalRootSignature::PBRMaterialHit,_modelExportName);
 		//BuildAndRegistRootSignatureAndAssSubObjectFunc(_emptySigSO,_emptyAssSO,LocalRootSignature::Empty,_emptyExportName);
@@ -268,19 +264,13 @@ namespace Engine::Raytracing
 		_subObjects[_index++] = _config.subObjcet;
 
 		// グローバルルートシグネチャのサブオブジェクト作成
-		D3D12_ROOT_SIGNATURE_FLAGS _rootFlags = 
-			D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED |			// 通常の使い方
-			D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;				// バインドレス指定
 		m_rootSig.Create({
 			{RootParameterType::RootCBV,{}},							// カメラ
 			{RootParameterType::RootSRV,{}},							// TLAS
 			{RootParameterType::DescriptorTable,{RangeType::UAV}},		// 出力
 			{RootParameterType::DescriptorTable,{RangeType::SRV}},		// インスタンス配列
 			{RootParameterType::DescriptorTable,{RangeType::SRV}},		// マテリアル
-			//{RootParameterType::Bindless,{}}							// ディスクリプタヒープ
-			},
-			&_rootFlags
-		);
+		});
 		BuildSubObjectHelper::LocalRootSignatureSubObject _gRootSig;
 		_gRootSig.Init(m_rootSig.Get());
 		_gRootSig.subObject.Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
