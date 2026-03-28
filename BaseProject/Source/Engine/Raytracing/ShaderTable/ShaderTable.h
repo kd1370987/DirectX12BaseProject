@@ -20,12 +20,16 @@ namespace Engine::Raytracing
 			return m_dispatchDesc;
 		}
 
+		// ディスパッチ設定作成
+		D3D12_DISPATCH_RAYS_DESC CreateDispatchDesc(UINT a_instnaceNum);
+
 	private:
-		// 各シェーダー数をカウントする
-		void CountUpNumShader();
 
 		// シェーダーテーブルの構成サイズ計算
-		void CulcShaderTableSize(UINT a_instanceNum);
+		void CalucShaderTableSize(UINT a_instanceNum);
+
+		// テクスチャのハンドルを獲得
+		D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGPUHandle(const Resource::Handle<Resource::Texture>& a_texHandle);
 
 	private:
 

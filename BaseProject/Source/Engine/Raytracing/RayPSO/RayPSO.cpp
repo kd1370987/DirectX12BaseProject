@@ -182,13 +182,6 @@ namespace Engine::Raytracing
 			{RangeType::SRV,3},{RangeType::SRV,4},{RangeType::SRV,5},{RangeType::SRV,6}
 		});
 		_hitSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
-		//m_hitRootSig.Create(
-		//	{
-		//		{RootParameterType::DescriptorTable,{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV}}
-		//	},
-		//	D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE,
-		//	false
-		//);
 		m_hitRootSig.Create(_hitSigInit);
 		//m_emptyRootSig.Create({});
 		auto BuildAndRegistRootSignatureAndAssSubObjectFunc = [&]

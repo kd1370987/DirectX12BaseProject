@@ -118,5 +118,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	InstanceData _instData = g_instanceData[InstanceID()];
 	Material _material = g_materialData[InstanceID()];
 
+	_color = g_albedoTex.SampleLevel(gSamp, float2(0.5,0.5),0).rgb;
+
 	a_payload.color = _color;
 }

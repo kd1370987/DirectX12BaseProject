@@ -98,7 +98,7 @@ void Engine::Raytracing::TLAS::Create(const std::vector<Instance>& a_instanceVec
 	for (int _i = 0; _i < _numInstance; ++_i)
 	{
 		_pInstanceDesc[_i].InstanceID = _i;
-		_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = 0;
+		_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = _i;
 		_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 		_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
 		auto& m = a_instanceVec[_i].worldMat;

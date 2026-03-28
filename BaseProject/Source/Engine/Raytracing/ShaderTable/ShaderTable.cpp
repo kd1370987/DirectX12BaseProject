@@ -4,12 +4,15 @@
 #include "../RayPSO/RayPSO.h"
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../../Resource/Manager/TextureManager/TextureManager.h"
+#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 void Engine::Raytracing::ShaderTable::Init(
 	const Engine::Raytracing::RayWorld& a_rayWorld,
 	Engine::Raytracing::RayPSO& a_rayPSO
 )
 {
+	// シェーダーID取得
 	void* _raygenID = a_rayPSO.GetShaderID("RayGen");
 	void* _missID = a_rayPSO.GetShaderID("Miss");
 	void* _hitID = a_rayPSO.GetShaderID("HitGroup");
@@ -18,42 +21,26 @@ void Engine::Raytracing::ShaderTable::Init(
 	assert(_missID);
 	assert(_hitID);
 
-	// シェーダーIDのサイズ
-	uint32_t _shaderIDSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
-	// ローカルルートシグネチャサイズ
-	uint32_t _localRootSize = sizeof(D3D12_GPU_DESCRIPTOR_HANDLE) * 4;
+	// インスタンス配列
+	auto& _instanceVec = a_rayWorld.GetInstnace();
 
-	// シェーダー一つ分のサイズ
-	uint32_t _recordSize = Alignment::Up(
-		_shaderIDSize + _localRootSize,
-		D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT
-	);
-	// 各シェーダーごとのオフセット値を求める
-	uint32_t _raygenOffset = 0;
-	uint32_t _missOffset = Alignment::Up(
-		_raygenOffset + _recordSize,
-		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
-	);
-	uint32_t _hitOffset = Alignment::Up(
-		_missOffset + _recordSize,
-		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
-	);
-
-	// テーブルサイズを求める
-	uint32_t _tableSize = _hitOffset + _recordSize;
+	// シェーダーサイズ計算
+	CalucShaderTableSize(_instanceVec.size());
 
 	// 仕様書
 	D3D12_RESOURCE_DESC _desc = {};
 	_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	_desc.Width = _tableSize;
+	_desc.Width = m_tableSize;
 	_desc.Height = 1;
 	_desc.DepthOrArraySize = 1;
 	_desc.MipLevels = 1;
 	_desc.SampleDesc.Count = 1;
 	_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
+	// ヒープ作成
 	auto _heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
+	// シェーダーテーブル作成
 	auto* _pDevice = D3D12Wrapper::Instance().GetDevice5();
 	auto _hr = _pDevice->CreateCommittedResource(
 		&_heapProp,
@@ -73,55 +60,60 @@ void Engine::Raytracing::ShaderTable::Init(
 	uint8_t* _mapped;
 	m_cpShaderTable->Map(0, nullptr, (void**)&_mapped);
 
-	memcpy(_mapped + _raygenOffset, _raygenID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-	memcpy(_mapped + _missOffset, _missID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+	memcpy(_mapped + m_rayGenOffset, _raygenID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+	memcpy(_mapped + m_missOffset, _missID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 
 	// ヒットシェーダーのデータ
-	uint8_t* _hitPtr = _mapped + _hitOffset;						// アドレス
-	memcpy(_hitPtr, _hitID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);	// シェーダーIDコピー
+	for (size_t _i = 0; _i < _instanceVec.size(); ++_i)
+	{
+		// インスタンス取得
+		auto& _instance = _instanceVec[_i];
 
-	// ハンドル格納先ポインタアドレス
-	auto* _handles = reinterpret_cast<D3D12_GPU_DESCRIPTOR_HANDLE*>(_hitPtr + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-	//_handles[0] = ;
-	//_handles[1] = ;
-	//_handles[2] = ;
-	//_handles[3] = ;
+		uint8_t* _hitPtr = _mapped + m_hitOffset + _i * m_recordSize;	// アドレス
+		memcpy(_hitPtr, _hitID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);	// シェーダーIDコピー
 
+		// ハンドル格納先ポインタアドレス
+		auto* _handles = 
+			reinterpret_cast<D3D12_GPU_DESCRIPTOR_HANDLE*>(_hitPtr + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+		_handles[0] = GetTextureGPUHandle(_instance.pMaterial->baseColorTex);
+		_handles[1] = GetTextureGPUHandle(_instance.pMaterial->metaRoughTex);
+		_handles[2] = GetTextureGPUHandle(_instance.pMaterial->emissiveTex);
+		_handles[3] = GetTextureGPUHandle(_instance.pMaterial->normalTex);
+	}
 
 	m_cpShaderTable->Unmap(0, nullptr);
 
 	// シェーダーテーブル設定決定(ディスパッチレイ構造体作成)
+	m_dispatchDesc = {};
+	m_dispatchDesc = CreateDispatchDesc(_instanceVec.size());
+}
+
+D3D12_DISPATCH_RAYS_DESC Engine::Raytracing::ShaderTable::CreateDispatchDesc(UINT a_instnaceNum)
+{
+	// シェーダーテーブル設定決定(ディスパッチレイ構造体作成)
 	D3D12_DISPATCH_RAYS_DESC _dispatchDesc = {};
 	uint64_t _base = m_cpShaderTable->GetGPUVirtualAddress();
 
-	_dispatchDesc.RayGenerationShaderRecord.StartAddress = _base + _raygenOffset;
-	_dispatchDesc.RayGenerationShaderRecord.SizeInBytes = _recordSize;
+	_dispatchDesc.RayGenerationShaderRecord.StartAddress = _base + m_rayGenOffset;
+	_dispatchDesc.RayGenerationShaderRecord.SizeInBytes = m_recordSize;
 
-	_dispatchDesc.MissShaderTable.StartAddress = _base + _missOffset;
-	_dispatchDesc.MissShaderTable.SizeInBytes = _recordSize;
-	_dispatchDesc.MissShaderTable.StrideInBytes = _recordSize;
+	_dispatchDesc.MissShaderTable.StartAddress = _base + m_missOffset;
+	_dispatchDesc.MissShaderTable.SizeInBytes = m_recordSize;
+	_dispatchDesc.MissShaderTable.StrideInBytes = m_recordSize;
 
-	_dispatchDesc.HitGroupTable.StartAddress = _base + _hitOffset;
-	_dispatchDesc.HitGroupTable.SizeInBytes = _recordSize;
-	_dispatchDesc.HitGroupTable.StrideInBytes = _recordSize;
+	_dispatchDesc.HitGroupTable.StartAddress = _base + m_hitOffset;
+	_dispatchDesc.HitGroupTable.SizeInBytes = m_recordSize * a_instnaceNum;
+	_dispatchDesc.HitGroupTable.StrideInBytes = m_recordSize;
 
+	// ディスプレイ設定
 	_dispatchDesc.Width = 1280;
 	_dispatchDesc.Height = 720;
 	_dispatchDesc.Depth = 1;
 
-	m_dispatchDesc = {};
-	m_dispatchDesc = _dispatchDesc;
+	return _dispatchDesc;
 }
 
-void Engine::Raytracing::ShaderTable::CountUpNumShader()
-{
-	m_numRayGenShader = 0;
-	m_numMissShader = 0;
-	m_numHitShader = 0;
-
-}
-
-void Engine::Raytracing::ShaderTable::CulcShaderTableSize(UINT a_instanceNum)
+void Engine::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_instanceNum)
 {
 	// シェーダーIDのサイズ
 	uint32_t _shaderIDSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
@@ -136,20 +128,30 @@ void Engine::Raytracing::ShaderTable::CulcShaderTableSize(UINT a_instanceNum)
 
 	// 各シェーダーごとのオフセット値を求める
 	// レイ生成シェーダー開始位置
-	uint32_t _raygenOffset = 0;
+	m_rayGenOffset = 0;
 
 	// ミスシェーダー開始位置
-	uint32_t _missOffset = Alignment::Up(
-		_raygenOffset + m_recordSize,
+	m_missOffset = Alignment::Up(
+		m_rayGenOffset + m_recordSize,
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
 	);
 
 	// ヒットシェーダー開始位置
 	 m_hitOffset = Alignment::Up(
-		_missOffset + m_recordSize,
+		m_missOffset + m_recordSize,
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
 	);
 
-	// テーブルサイズを求める
-	m_tableSize = m_hitOffset + m_recordSize;
+	// テーブルサイズを求める（ヒットシェーダーはインスタンス数確保）
+	m_tableSize = m_hitOffset + m_recordSize * a_instanceNum;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::ShaderTable::GetTextureGPUHandle(
+	const Resource::Handle<Resource::Texture>& a_texHandle
+)
+{
+	auto& _tex = Resource::TextureManager::Instance().GetTexture(a_texHandle);
+
+
+	return DescriptorHeapManager::Instance().GetSRVGPUHandle(_tex.GetSRV());
 }
