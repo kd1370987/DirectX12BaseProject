@@ -22,7 +22,10 @@ namespace Engine::Raytracing
 
 	private:
 		// 各シェーダー数をカウントする
-		void CountUpNumRayGenMissHitShader();
+		void CountUpNumShader();
+
+		// シェーダーテーブルの構成サイズ計算
+		void CulcShaderTableSize(UINT a_instanceNum);
 
 	private:
 
@@ -36,6 +39,15 @@ namespace Engine::Raytracing
 		int m_numRayGenShader = 0;
 		int m_numMissShader = 0;
 		int m_numHitShader = 0;
+
+		// シェーダーテーブルオフセット
+		uint32_t m_rayGenOffset = 0;	// レイジェネレーションシェーダー開始位置
+		uint32_t m_missOffset = 0;		// ミスシェーダー開始位置
+		uint32_t m_hitOffset = 0;		// ヒットシェーダー開始位置
+
+		// テーブルサイズ
+		uint32_t m_tableSize = 0;	// テーブル全体のサイズ
+		uint32_t m_recordSize = 0;		// 1レコードサイズ
 
 	};
 }
