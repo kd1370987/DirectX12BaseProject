@@ -2,6 +2,15 @@
 
 namespace Engine::Raytracing
 {
+	struct Vertex
+	{
+		//DirectX::XMFLOAT3 pos;
+		//DirectX::XMFLOAT3 normal;
+		DirectX::XMFLOAT2 uv;
+		
+
+	};
+
 	// メッシュごと
 	struct Instance
 	{
@@ -14,5 +23,8 @@ namespace Engine::Raytracing
 
 		// マテリアル
 		const Engine::Resource::Material* pMaterial = nullptr;
+
+		Engine::D3D12::StructuredBuffer<Vertex> vertexBuffer;
+		Engine::D3D12::StructuredBuffer<UINT> indexBuffer;
 	};
 }

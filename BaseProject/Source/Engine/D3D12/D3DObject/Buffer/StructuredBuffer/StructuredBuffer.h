@@ -17,8 +17,9 @@ namespace Engine::D3D12
 		/// <param name="a_pInitData">初期化時情報</param>
 		bool Create(
 			ID3D12Device* a_pDevice,
+			ID3D12GraphicsCommandList* a_pCmdList,
 			int a_numElement,
-			T* a_pInitData = nullptr
+			const T* a_pInitData = nullptr
 		);
 
 		// SRV生成時用にリソースを返す
@@ -43,7 +44,7 @@ namespace Engine::D3D12
 	private:
 
 		// GPUバッファを作成
-		void CreateCopyBuffer(ID3D12Device* a_pDevice,size_t a_memSize);
+		void CreateCopyBuffer(ID3D12Device* a_pDevice, ID3D12GraphicsCommandList* a_pCmdList,size_t a_memSize);
 
 		// GPUバッファにコピー
 		void CopyToGPU(ID3D12Device* a_pDevice, ID3D12GraphicsCommandList* a_pCmdList);
@@ -70,6 +71,9 @@ namespace Engine::D3D12
 
 		// ビュー構造体
 		D3D12_SHADER_RESOURCE_VIEW_DESC m_viewDesc = {};
+
+		// 初回仕様かどうか
+		bool m_isFarst = true;
 	};
 
 	template<typename T>
@@ -77,12 +81,12 @@ namespace Engine::D3D12
 	{
 		if (m_cpUploadBuffer)
 		{
-			m_cpUploadBuffer->Unmap(0,nullptr);
+			//m_cpUploadBuffer->Unmap(0,nullptr);
 		}
 	}
 
 	template<typename T>
-	inline bool StructuredBuffer<T>::Create(ID3D12Device* a_pDevice, int a_numElement, T* a_pInitData)
+	inline bool StructuredBuffer<T>::Create(ID3D12Device* a_pDevice, ID3D12GraphicsCommandList* a_pCmdList, int a_numElement, const T* a_pInitData)
 	{
 		// サイズ
 		m_sizeOfElement = sizeof(T);	// １要素当たりのサイズ
@@ -119,7 +123,7 @@ namespace Engine::D3D12
 		}
 
 		// GPUバッファ作成
-		CreateCopyBuffer(a_pDevice,_totalSize);
+		CreateCopyBuffer(a_pDevice,a_pCmdList,_totalSize);
 
 		m_isDarty = true;
 
@@ -163,7 +167,7 @@ namespace Engine::D3D12
 		}
 	}
 	template<typename T>
-	inline void StructuredBuffer<T>::CreateCopyBuffer(ID3D12Device* a_pDevice, size_t a_memSize)
+	inline void StructuredBuffer<T>::CreateCopyBuffer(ID3D12Device* a_pDevice, ID3D12GraphicsCommandList* a_pCmdList, size_t a_memSize)
 	{
 		// リソース作成情報
 		auto _prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -174,17 +178,31 @@ namespace Engine::D3D12
 			&_prop,
 			D3D12_HEAP_FLAG_NONE,
 			&_desc,
-			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+			D3D12_RESOURCE_STATE_COMMON,
 			nullptr,
 			IID_PPV_ARGS(&m_cpGPUBuffer)
 		);
 
 		// サイズ記憶
 		m_maxCopyMemSize = a_memSize;
+
+		m_isFarst = true;
 	}
 	template<typename T>
 	inline void StructuredBuffer<T>::CopyToGPU(ID3D12Device* a_pDevice, ID3D12GraphicsCommandList* a_pCmdList)
 	{
+		if (m_isFarst)
+		{
+			// バリア
+			auto _barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+				m_cpGPUBuffer.Get(),
+				D3D12_RESOURCE_STATE_COMMON,
+				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
+			);
+			a_pCmdList->ResourceBarrier(1, &_barrier);
+			m_isFarst = false;
+		}
+
 		// バリア
 		auto _barrier = CD3DX12_RESOURCE_BARRIER::Transition(
 			m_cpGPUBuffer.Get(),

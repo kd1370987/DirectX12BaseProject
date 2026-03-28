@@ -178,9 +178,11 @@ namespace Engine::Raytracing
 		//m_rayGenRootSig.Create({});
 		RootSigInit _hitSigInit = {};
 		_hitSigInit.isUseStaticSampler = false;
-		_hitSigInit.AddDescriptorHeap({
-			{RangeType::SRV,3},{RangeType::SRV,4},{RangeType::SRV,5},{RangeType::SRV,6}
-		});
+		//_hitSigInit.AddDescriptorHeap({{RangeType::SRV,3},{RangeType::SRV,4},{RangeType::SRV,5},{RangeType::SRV,6}});
+		_hitSigInit.AddDescriptorHeap({ {RangeType::SRV,3} });
+		_hitSigInit.AddDescriptorHeap({ {RangeType::SRV,4} });
+		_hitSigInit.AddDescriptorHeap({ { RangeType::SRV,5 } });
+		//_hitSigInit.AddDescriptorHeap({ { RangeType::SRV,8 } });
 		_hitSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
 		m_hitRootSig.Create(_hitSigInit);
 		//m_emptyRootSig.Create({});
@@ -260,18 +262,11 @@ namespace Engine::Raytracing
 
 		RootSigInit _globalRootSigInit = {};
 		_globalRootSigInit.isUseStaticSampler = true;
-		_globalRootSigInit.AddRoot(RootParameterType::RootCBV,0);
-		_globalRootSigInit.AddRoot(RootParameterType::RootSRV,0);
-		_globalRootSigInit.AddDescriptorHeap({ {RangeType::UAV,0} });
-		_globalRootSigInit.AddDescriptorHeap({ {RangeType::SRV,1} });
-		_globalRootSigInit.AddDescriptorHeap({ {RangeType::SRV,2} });
-		//m_rootSig.Create({
-		//	{RootParameterType::RootCBV,{}},							// カメラ
-		//	{RootParameterType::RootSRV,{}},							// TLAS
-		//	{RootParameterType::DescriptorTable,{RangeType::UAV}},		// 出力
-		//	{RootParameterType::DescriptorTable,{RangeType::SRV}},		// インスタンス配列
-		//	{RootParameterType::DescriptorTable,{RangeType::SRV}},		// マテリアル
-		//});
+		_globalRootSigInit.AddRoot(RootParameterType::RootCBV,0);		// カメラ
+		_globalRootSigInit.AddRoot(RootParameterType::RootSRV,0);		// TLAS
+		_globalRootSigInit.AddDescriptorHeap({ {RangeType::UAV,0} });	// 出力
+		_globalRootSigInit.AddDescriptorHeap({ {RangeType::SRV,1} });	// インスタンス配列
+		_globalRootSigInit.AddDescriptorHeap({ {RangeType::SRV,2} });	// マテリアル
 		m_rootSig.Create(_globalRootSigInit);
 		BuildSubObjectHelper::LocalRootSignatureSubObject _gRootSig;
 		_gRootSig.Init(m_rootSig.Get());

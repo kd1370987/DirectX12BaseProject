@@ -21,18 +21,50 @@ Engine::Raytracing::RayWorld::~RayWorld()
 void Engine::Raytracing::RayWorld::Register(const DirectX::XMFLOAT4X4& a_worldMat, const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle)
 {
 
+	auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
+	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+
 	auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(a_modelHandle);
 	for (auto& _spMesh : _model->spMeshVec)
 	{
 		Engine::Raytracing::Instance _rayInst = {};
 		_rayInst.worldMat = a_worldMat;
 		_rayInst.pBLAS = _spMesh->GetBLAS();
-		_rayInst.vertexHandle = _spMesh->GetVertexBuffer().GetHandle();
-		_rayInst.indexHandle = _spMesh->GetIndexBuffer().GetHandle();
+		_rayInst.vertexHandle = _spMesh->GetSVertexBuff().GetHandle();
+		_rayInst.indexHandle = _spMesh->GetSIndexBuff().GetHandle();
+		//_rayInst.vertexHandle = _spMesh->GetVertexBuffer().GetHandle();
+		//_rayInst.indexHandle = _spMesh->GetIndexBuffer().GetHandle();
 		for (auto& _subset : _spMesh->GetSubsets())
 		{
 			_rayInst.pMaterial = &_model->materials[_subset.materialNumber];
-			m_instanceVec.push_back(_rayInst);
+
+			// 頂点用構造体バッファ作成
+			auto& _vertexData = _spMesh->GetVertexData();
+			std::vector<Vertex> _rtVertData = {};
+			for (auto& _data : _vertexData)
+			{
+				Vertex _vert = {};
+				_vert.uv = _data.uv;
+				_rtVertData.push_back(_vert);
+			}
+			_rayInst.vertexBuffer.Create(_pDevice, _pCmdList,_rtVertData.size(), _rtVertData.data());
+			SRVViewInit _viewInit = {};
+			_viewInit.pResource = _rayInst.vertexBuffer.GetResource();
+			_viewInit.pDesc = _rayInst.vertexBuffer.GetViewDesc();
+			auto _handle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewInit })[0];
+			_rayInst.vertexBuffer.SetHandle(_handle);
+
+			// インデックス用構造体バッファ作成
+			auto& _indexData = _spMesh->GetIndexData();
+			_rayInst.indexBuffer.Create(_pDevice, _pCmdList, _indexData.size(),_indexData.data());
+			_viewInit = {};
+			_viewInit.pResource = _rayInst.indexBuffer.GetResource();
+			_viewInit.pDesc = _rayInst.indexBuffer.GetViewDesc();
+			_handle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewInit })[0];
+			_rayInst.indexBuffer.SetHandle(_handle);
+
+			//m_instanceVec.push_back(_rayInst);
+			m_instanceVec.emplace_back(std::move(_rayInst));
 		}
 	}
 }
@@ -60,7 +92,7 @@ void Engine::Raytracing::RayWorld::Commit()
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	// インスタンスデータ作成
-	m_instanceDataBuffer.Create(_pDevice,m_instanceVec.size(),_instanceDataVec.data());
+	m_instanceDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(),_instanceDataVec.data());
 
 	SRVViewInit _viewInit = {};
 	_viewInit.pResource = m_instanceDataBuffer.GetResource();
@@ -79,7 +111,7 @@ void Engine::Raytracing::RayWorld::Commit()
 		_mate.baseTexSRV = static_cast<int>(_srvH.idx);
 		_materialVec.push_back(_mate);
 	}
-	m_materialDataBuffer.Create(_pDevice,m_instanceVec.size(),_materialVec.data());
+	m_materialDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(),_materialVec.data());
 	SRVViewInit _viewmateInit = {};
 	_viewmateInit.pResource = m_materialDataBuffer.GetResource();
 	_viewmateInit.pDesc = m_materialDataBuffer.GetViewDesc();

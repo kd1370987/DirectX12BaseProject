@@ -8,7 +8,7 @@ namespace Engine::Raytracing
 	public:
 
 		void Create(
-			const std::vector<Instance>& a_instanceVec
+			std::vector<Instance>& a_instanceVec
 		);
 
 		void Build(

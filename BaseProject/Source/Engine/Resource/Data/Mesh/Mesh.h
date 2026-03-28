@@ -22,6 +22,12 @@ namespace Engine
 			UINT faceCount = 0;				// 面数    : faceStartから、何枚の面が使用されているかの数
 		};
 
+		struct RTVertex
+		{
+			DirectX::XMFLOAT2 uv;
+			DirectX::XMFLOAT2 pad;
+		};
+
 		//==========================================================
 		// 
 		// メッシュ用クラス
@@ -37,33 +43,11 @@ namespace Engine
 			Mesh() = default;
 			~Mesh() = default;
 
-			/// <summary>
-			/// メッシュ作成(ビット版)
-			/// </summary>
-			/// <param name="a_vertices">頂点配列</param>
-			/// <param name="a_face">面インデックス情報</param>
-			/// <param name="a_subsets">サブセット情報配列</param>
-			/// <param name="a_isSkinMesh">スキンメッシュ持ちかどうか</param>
-			/// <returns>作成に成功したらtrue</returns>
-			bool Create(
-				const std::vector<MeshVertex8bit>& a_vertices,		// 頂点配列
-				const std::vector<MeshFace>& a_face,				// 面インデックス情報配列
-				const std::vector<MeshSubset>& a_subsets,			// サブセット情報配列
-				bool							a_isSkinMesh		// スキンメッシュ持ちかどうか
-			);
-
-			/// <summary>
-			/// メッシュ作成(float版)
-			/// </summary>
-			/// <param name="a_vertices">頂点配列</param>
-			/// <param name="a_face">面インデックス情報</param>
-			/// <param name="a_subsets">サブセット情報配列</param>
-			/// <param name="a_isSkinMesh">スキンメッシュ持ちかどうか</param>
-			/// <returns>作成に成功したらtrue</returns>
+			// メッシュ作成
 			bool CreateFloat(
 				const std::vector<MeshVertexFloat>& a_vertices,		// 頂点配列
-				const std::vector<MeshFace>& a_face,			// 面インデックス情報配列
-				const std::vector<MeshSubset>& a_subsets,		// サブセット情報配列
+				const std::vector<MeshFace>& a_face,				// 面インデックス情報配列
+				const std::vector<MeshSubset>& a_subsets,			// サブセット情報配列
 				bool								a_isSkinMesh	// スキンメッシュ持ちかどうか
 			);
 
@@ -94,6 +78,12 @@ namespace Engine
 
 			Engine::Raytracing::BLAS* GetBLAS() { return &m_BLAS; }
 
+			const std::vector<MeshVertexFloat>& GetVertexData() const  { return m_vertexData; }
+			const std::vector<UINT>& GetIndexData()const { return m_indexData; }
+
+			const Engine::D3D12::StructuredBuffer<RTVertex>& GetSVertexBuff() { return m_sVertexBuffer; };
+			const Engine::D3D12::StructuredBuffer<UINT>& GetSIndexBuff() { return m_sIndexBuffer; }
+
 		private:
 
 			// バッファ
@@ -119,9 +109,14 @@ namespace Engine
 			// 当たり判定
 			std::optional<Engine::Collision::Mesh> m_opCollisionMesh;
 
-			// BLAS
+			// レイトレ用データ
 			Engine::Raytracing::BLAS m_BLAS;
 
+			std::vector<MeshVertexFloat> m_vertexData = {};
+			std::vector<UINT> m_indexData = {};
+
+			Engine::D3D12::StructuredBuffer<RTVertex> m_sVertexBuffer;
+			Engine::D3D12::StructuredBuffer<UINT> m_sIndexBuffer;
 		private:
 			// コピー禁止
 			Mesh(const Mesh& src) = delete;

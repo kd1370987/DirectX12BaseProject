@@ -76,9 +76,11 @@ void Engine::Raytracing::ShaderTable::Init(
 		auto* _handles = 
 			reinterpret_cast<D3D12_GPU_DESCRIPTOR_HANDLE*>(_hitPtr + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 		_handles[0] = GetTextureGPUHandle(_instance.pMaterial->baseColorTex);
-		_handles[1] = GetTextureGPUHandle(_instance.pMaterial->metaRoughTex);
-		_handles[2] = GetTextureGPUHandle(_instance.pMaterial->emissiveTex);
-		_handles[3] = GetTextureGPUHandle(_instance.pMaterial->normalTex);
+		//_handles[1] = GetTextureGPUHandle(_instance.pMaterial->metaRoughTex);
+		//_handles[2] = GetTextureGPUHandle(_instance.pMaterial->emissiveTex);
+		//_handles[3] = GetTextureGPUHandle(_instance.pMaterial->normalTex);
+		_handles[1] = DescriptorHeapManager::Instance().GetSRVGPUHandle(_instance.indexHandle);
+		_handles[2] = DescriptorHeapManager::Instance().GetSRVGPUHandle(_instance.vertexHandle);
 	}
 
 	m_cpShaderTable->Unmap(0, nullptr);
@@ -118,7 +120,7 @@ void Engine::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_instanceNum)
 	// シェーダーIDのサイズ
 	uint32_t _shaderIDSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
 	// ローカルルートシグネチャサイズ
-	uint32_t _localRootSize = sizeof(D3D12_GPU_DESCRIPTOR_HANDLE) * 4;
+	uint32_t _localRootSize = sizeof(D3D12_GPU_DESCRIPTOR_HANDLE) * 3;
 
 	// シェーダー一つ分のサイズ
 	m_recordSize = Alignment::Up(

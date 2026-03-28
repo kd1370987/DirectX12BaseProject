@@ -27,7 +27,7 @@ void RenderGraph::Init(
 
 	CreateResource({
 		.name = "MainColor",
-		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
 		.widht = 1280,
 		.height = 720,
 		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
@@ -42,7 +42,7 @@ void RenderGraph::Init(
 
 	CreateResource({
 		.name = "GBufferAlbedo",
-		.format = DXGI_FORMAT_R8G8B8A8_UNORM,
+		.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
 		.widht = 1280,
 		.height = 720,
 		.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
