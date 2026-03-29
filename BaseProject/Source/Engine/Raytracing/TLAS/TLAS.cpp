@@ -10,12 +10,6 @@ void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
 	D3D12Wrapper::Instance().CommandQueueReset();
 	auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
 	ID3D12GraphicsCommandList4* _pCmdList = D3D12Wrapper::Instance().GetCommandList4();
-	// インスタンスのデータ更新
-	for (auto& _instance : a_instanceVec)
-	{
-		_instance.vertexBuffer.Update(_pDevice5, _pCmdList);
-		_instance.indexBuffer.Update(_pDevice5, _pCmdList);
-	}
 
 	// 参照
 	uint64_t _tlasSize;

@@ -13,7 +13,7 @@ namespace Engine::Raytracing
 
 		// モデルとワールド行列を登録して内部でインスタンスに返還
 		void Register(
-			const DirectX::XMFLOAT4X4& a_worldMat,
+			const DXSM::Matrix& a_worldMat,
 			const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
 		);
 

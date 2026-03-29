@@ -12,6 +12,7 @@ namespace Engine::Raytracing
 		);
 		// ジオメトリ情報から作成
 		void Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_desc);
+		void Create(const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc);
 
 		bool Build(
 			ID3D12Device5* a_pDevice,

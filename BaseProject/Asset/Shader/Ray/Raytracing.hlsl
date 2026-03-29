@@ -40,12 +40,12 @@ StructuredBuffer<Material> g_materialData : register(t2);							// インスタ�
 sampler gSamp : register(s0);
 
 Texture2D g_albedoTex : register(t3);
-//Texture2D g_metaRogTex : register(t4);
-//Texture2D g_emiTex : register(t5);
-//Texture2D g_normalTex : register(t6);
+Texture2D g_metaRogTex : register(t4);
+Texture2D g_emiTex : register(t5);
+Texture2D g_normalTex : register(t6);
 
-StructuredBuffer<int> g_indexBuff : register(t4);
-StructuredBuffer<Vertex> g_vertexBuff : register(t5);
+StructuredBuffer<int> g_indexBuff : register(t7);
+StructuredBuffer<Vertex> g_vertexBuff : register(t8);
 
 
 // レイ
@@ -81,31 +81,6 @@ float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs)
 	return _uv;
 }
 
-float2 GetUV2(BuiltInTriangleIntersectionAttributes a_attribs)
-{
-    // 1. 重心座標の取得 (x=v1の重み, y=v2の重み)
-	float2 b = a_attribs.barycentrics;
-    
-    // 2. 1番目の頂点(v0)の重みを計算
-	float w0 = 1.0 - b.x - b.y;
-	float w1 = b.x;
-	float w2 = b.y;
-
-    // 3. プリミティブIDとインデックスの取得
-	uint _primID = PrimitiveIndex();
-	uint _v0 = g_indexBuff[_primID * 3];
-	uint _v1 = g_indexBuff[_primID * 3 + 1];
-	uint _v2 = g_indexBuff[_primID * 3 + 2];
-
-    // 4. 各頂点のUV取得
-	float2 uv0 = g_vertexBuff[_v0].uv;
-	float2 uv1 = g_vertexBuff[_v1].uv;
-	float2 uv2 = g_vertexBuff[_v2].uv;
-
-    // 5. 線形補間
-    // uv = (1-x-y)*uv0 + x*uv1 + y*uv2
-	return w0 * uv0 + w1 * uv1 + w2 * uv2;
-}
 
 // レイ生成シェーダー
 [shader("raygeneration")]
@@ -177,12 +152,13 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	uint _v2 = g_indexBuff[_primID * 3 + 2];
 
 	// UV取得
-	float2 _uv = GetUV2(a_attr);
+	float2 _uv = GetUV(a_attr);
 	
 	
 	// インスタンスごとの情報を取得
 	Material _material = g_materialData[InstanceID()];
 	_color = g_albedoTex.SampleLevel(gSamp, _uv,0).rgb;
+	//_color = g_normalTex.SampleLevel(gSamp, _uv,0).rgb;
 
 	//_color = float3(_uv,0);
 	//_color = float3(_v0,_v1,_v2);

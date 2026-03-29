@@ -1,13 +1,13 @@
 ﻿#pragma once
 
-namespace Engine::D3D12::Buffer
+namespace Engine::D3D12
 {
-	// バイトデータでバッファを管理するクラス
-	class Resource
+	class GPUBuffer
 	{
 	public:
 
+		
 	private:
-		ComPtr<ID3D12Resource> m_cpResource = nullptr;
+		ComPtr<ID3D12Resource> m_cpBuffer = nullptr;			// バッファ本体
 	};
 }

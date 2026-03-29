@@ -23,8 +23,5 @@ namespace Engine::Raytracing
 
 		// マテリアル
 		const Engine::Resource::Material* pMaterial = nullptr;
-
-		Engine::D3D12::StructuredBuffer<Vertex> vertexBuffer;
-		Engine::D3D12::StructuredBuffer<UINT> indexBuffer;
 	};
 }

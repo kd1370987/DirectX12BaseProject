@@ -99,10 +99,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 	m_indexBuffer.CreateSRV();
 	m_vertexBuffer.CreateSRV();
 
-	m_BLAS.Create(
-		m_vertexBuffer,
-		m_indexBuffer
-	);
+	CreateBLAS();
 
 	m_vertexData = a_vertices;
 
@@ -175,5 +172,32 @@ void Engine::Resource::Mesh::Release()
 	m_subsets.clear();
 	m_positions.clear();
 	m_faces.clear();
+}
+
+void Engine::Resource::Mesh::CreateBLAS()
+{
+	std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> _descVec;
+	// レイトレーシング用データ作成
+	for (auto& _subset : m_subsets)
+	{
+		// ジオメトリ記述作成
+		D3D12_RAYTRACING_GEOMETRY_DESC _desc = {};
+		_desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+		_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+		// 頂点バッファ
+		_desc.Triangles.VertexBuffer.StartAddress = m_vertexBuffer.GetGPUVirtualAddress();
+		_desc.Triangles.VertexBuffer.StrideInBytes = m_vertexBuffer.GetStrideSize();
+		_desc.Triangles.VertexCount = m_vertexBuffer.GetCount();
+
+		// インデックスバッファ
+		_desc.Triangles.IndexBuffer = m_indexBuffer.GetGPUVirtualAddress() + sizeof(UINT) * _subset.faceStart * 3;
+		_desc.Triangles.IndexCount = _subset.faceCount * 3;
+		_desc.Triangles.IndexFormat = m_indexBuffer.GetFormat();
+
+		_descVec.push_back(_desc);
+	}
+
+	// BLAS作成
+	m_BLAS.Create(_descVec);
 }
 

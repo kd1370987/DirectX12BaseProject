@@ -178,11 +178,9 @@ namespace Engine::Raytracing
 		//m_rayGenRootSig.Create({});
 		RootSigInit _hitSigInit = {};
 		_hitSigInit.isUseStaticSampler = false;
-		//_hitSigInit.AddDescriptorHeap({{RangeType::SRV,3},{RangeType::SRV,4},{RangeType::SRV,5},{RangeType::SRV,6}});
-		_hitSigInit.AddDescriptorHeap({ {RangeType::SRV,3} });
-		_hitSigInit.AddDescriptorHeap({ {RangeType::SRV,4} });
-		_hitSigInit.AddDescriptorHeap({ { RangeType::SRV,5 } });
-		//_hitSigInit.AddDescriptorHeap({ { RangeType::SRV,8 } });
+		_hitSigInit.AddDescriptorHeap({{RangeType::SRV,3},{RangeType::SRV,4},{RangeType::SRV,5},{RangeType::SRV,6}});
+		_hitSigInit.AddDescriptorHeap({ {RangeType::SRV,7} });
+		_hitSigInit.AddDescriptorHeap({ { RangeType::SRV,8 } });
 		_hitSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
 		m_hitRootSig.Create(_hitSigInit);
 		//m_emptyRootSig.Create({});

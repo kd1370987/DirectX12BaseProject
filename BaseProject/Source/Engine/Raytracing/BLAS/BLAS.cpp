@@ -37,6 +37,20 @@ void Engine::Raytracing::BLAS::Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_de
 	);
 }
 
+void Engine::Raytracing::BLAS::Create(const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc)
+{
+	// BLAS生成
+	auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
+	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
+	m_geometryDescVec.clear();
+	m_geometryDescVec = a_desc;
+	Build(
+		_pDevice5,
+		_pCmdList4,
+		m_geometryDescVec
+	);
+}
+
 
 bool Engine::Raytracing::BLAS::Build(
 	ID3D12Device5* a_pDevice, 

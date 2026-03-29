@@ -280,9 +280,6 @@
     <Filter Include="Source\Engine\D3D12\CBAllocater">
       <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager">
-      <UniqueIdentifier>{669008e8-9307-48ec-90bd-30cfce7a8471}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\PSOManager">
       <UniqueIdentifier>{52b62cdd-c40c-46f5-846f-6f9627b15af5}</UniqueIdentifier>
     </Filter>
@@ -523,24 +520,6 @@
     <Filter Include="Source\Engine\Resource\Create\Texture">
       <UniqueIdentifier>{4a40c2cc-c81c-4508-83ba-5edb9cac1683}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater">
-      <UniqueIdentifier>{ade7b42e-8596-43f4-8159-e6f73163c1d9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\CBAllocator">
-      <UniqueIdentifier>{684a7f1f-fd41-4f5e-8327-89431fe10404}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator">
-      <UniqueIdentifier>{cf08894e-7549-498b-a262-a5bc12ec010c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator">
-      <UniqueIdentifier>{974c3405-80a5-4e0a-8de6-744e75852567}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator">
-      <UniqueIdentifier>{38bed350-8fb0-4aa6-9579-aa7a97f6cbd1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator">
-      <UniqueIdentifier>{ef416847-9e12-4a7d-8017-8861835838eb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Data\QuadPolygon">
       <UniqueIdentifier>{7683df0e-a1b6-4bf0-a1b3-b7f5f25af163}</UniqueIdentifier>
     </Filter>
@@ -594,6 +573,27 @@
     </Filter>
     <Filter Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer">
       <UniqueIdentifier>{b5886805-75f3-4a66-984e-6b1969f6e1c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager">
+      <UniqueIdentifier>{669008e8-9307-48ec-90bd-30cfce7a8471}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater">
+      <UniqueIdentifier>{ade7b42e-8596-43f4-8159-e6f73163c1d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\CBAllocator">
+      <UniqueIdentifier>{684a7f1f-fd41-4f5e-8327-89431fe10404}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator">
+      <UniqueIdentifier>{cf08894e-7549-498b-a262-a5bc12ec010c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator">
+      <UniqueIdentifier>{974c3405-80a5-4e0a-8de6-744e75852567}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator">
+      <UniqueIdentifier>{38bed350-8fb0-4aa6-9579-aa7a97f6cbd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator">
+      <UniqueIdentifier>{ef416847-9e12-4a7d-8017-8861835838eb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator">
       <UniqueIdentifier>{bedfc60f-5166-4ae4-a8fa-a080184979ed}</UniqueIdentifier>
