@@ -46,7 +46,7 @@ namespace Engine::Resource
 		);
 		
 		std::unordered_map<std::string, Engine::Resource::Handle<Engine::Resource::Texture>>& RefAllTex();
-		std::vector<Engine::Resource::SharedSlot<Engine::Resource::Texture>>& GetAllTex();
+		std::vector<Engine::Resource::Texture>& GetAllTex();
 
 	private:
 
@@ -59,18 +59,18 @@ namespace Engine::Resource
 		// ビュー作成
 		void CreateView(const std::vector<Engine::Resource::Handle<Engine::Resource::Texture>>& a_outTex);
 
-		// 世代チェック
-		bool GenCheck(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle) const;
+		// 登録されているかのチェック
+		bool Has(const std::string& a_name) const;
 
 	private:
 
-		// テクスチャデータ管理
-		std::unordered_map<std::string, Handle<Texture>> m_handleMap = {};		// 重なり防止
-		std::vector<SharedSlot<Texture>> m_slotStorage = {};					// 実データ
+		// 重なり防止
+		std::unordered_map<std::string, Handle<Texture>> m_nameMap = {};
 
-		// 使用可能場所リスト
-		std::queue<Index> m_indexQueue = {};
-		UINT m_indexQueueMaxSize = 0;
+		// ハンドルで実データ管理
+		Storage::HandleStorage<Texture> m_handleStorage;		// ハンドルストレージ
+		std::vector<Texture>			m_texData = {};			// テクスチャデータ
+		std::vector<UINT>				m_sharedCount = {};		// 共有カウント
 
 	private:
 		TextureManager();

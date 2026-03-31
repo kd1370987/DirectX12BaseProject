@@ -22,12 +22,6 @@ namespace Engine
 			UINT faceCount = 0;				// 面数    : faceStartから、何枚の面が使用されているかの数
 		};
 
-		struct RTVertex
-		{
-			DirectX::XMFLOAT2 uv;
-			DirectX::XMFLOAT2 pad;
-		};
-
 		//==========================================================
 		// 
 		// メッシュ用クラス

@@ -2,195 +2,47 @@
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
+#include "BuildSubObjectHelper.h"
+
 namespace Engine::Raytracing
 {
-	namespace 
+	bool RayPSO::Init(const RayPSOInit& a_init)
 	{
-		ComPtr<ID3D12RootSignature> CreateRootSignature(
-			const D3D12_ROOT_SIGNATURE_DESC& a_desc,const std::string& a_name
-		)
-		{
-			std::wstring _name = StringUtility::ToWideString(a_name);
-
-			auto _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
-			ComPtr<ID3DBlob> _cpSigBlob;
-			ComPtr<ID3DBlob> _cpErrorBlob;
-			HRESULT _hr = D3D12SerializeRootSignature(&a_desc,D3D_ROOT_SIGNATURE_VERSION_1,&_cpSigBlob,&_cpErrorBlob);
-			if (FAILED(_hr))
-			{
-				assert(0 && "レイトレ用ローカルルートシグネチャ生成に失敗");
-				return nullptr;
-			}
-			ComPtr<ID3D12RootSignature> _cpRootSig;
-			_pDevice5->CreateRootSignature(
-				0,_cpSigBlob->GetBufferPointer(),_cpSigBlob->GetBufferSize(),IID_PPV_ARGS(&_cpRootSig)
-			);
-			_cpRootSig->SetName(_name.c_str());
-			return _cpRootSig;
-		}
-	}
-
-
-	// サブオブジェクト生成用ヘルパー
-	namespace BuildSubObjectHelper
-	{
-		// ローカルルートシグネチャのサブオブジェクト作成のヘルパー構造体
-		struct LocalRootSignatureSubObject
-		{
-			LocalRootSignatureSubObject() {};
-
-			void Init(ID3D12RootSignature* a_pData)
-			{
-				pRoot = a_pData;
-				subObject.pDesc = &pRoot;
-				subObject.Type = D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
-			}
-			ID3D12RootSignature* pRoot = nullptr;
-			D3D12_STATE_SUBOBJECT subObject = {};
-		};
-
-		// ExportAssociationのサブオブジェクト作成のヘルパー構造体
-		struct ExportAssociationSubObject
-		{
-			void Init(
-				const WCHAR* a_exprtNmaes[], uint32_t a_exportCount,
-				const D3D12_STATE_SUBOBJECT* a_pSubObjectToAssociate
-			)
-			{
-				association.NumExports = a_exportCount;
-				association.pExports = a_exprtNmaes;
-				association.pSubobjectToAssociate = a_pSubObjectToAssociate;
-
-				subObject.Type = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
-				subObject.pDesc = &association;
-			}
-
-			D3D12_STATE_SUBOBJECT subObject = {};
-			D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION association = {};
-		};
-
-		// シェーダーコンフィグのサブオブジェクト作成ヘルパー構造体
-		struct ShaderConfigSubObject
-		{
-			void Init(uint32_t a_maxAttributeSizeInBytes, uint32_t a_maxPayloadSizeInBaytes)
-			{
-				shaderConfig.MaxAttributeSizeInBytes = a_maxAttributeSizeInBytes;
-				shaderConfig.MaxPayloadSizeInBytes = a_maxPayloadSizeInBaytes;
-
-				subObject.Type = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG;
-				subObject.pDesc = &shaderConfig;
-			}
-			D3D12_RAYTRACING_SHADER_CONFIG shaderConfig = {};
-			D3D12_STATE_SUBOBJECT subObject = {};
-		};
-
-		// パイプライン設定のサブオブジェクト作成のヘルパー構造体
-		struct PipelineConfigSubObject
-		{
-			PipelineConfigSubObject()
-			{
-				config.MaxTraceRecursionDepth = 1;
-
-				subObjcet.Type = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
-				subObjcet.pDesc = &config;
-			}
-			D3D12_RAYTRACING_PIPELINE_CONFIG config = {};
-			D3D12_STATE_SUBOBJECT subObjcet = {};
-		};
-
-		// ヒットグループのサブオブジェクト作成のヘルパー構造体
-		struct HitGroupSubObject
-		{
-			HitGroupSubObject() {}
-			void Init(const HitGroup& a_hitGroup)
-			{
-				desc = {};
-				desc.AnyHitShaderImport = a_hitGroup.anyHitShader;
-				desc.ClosestHitShaderImport = a_hitGroup.closestHit;
-				desc.HitGroupExport = a_hitGroup.name;
-				desc.Type = D3D12_HIT_GROUP_TYPE_TRIANGLES;
-
-				subObject.Type = D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP;
-				subObject.pDesc = &desc;
-			}
-			D3D12_HIT_GROUP_DESC desc = {};
-			D3D12_STATE_SUBOBJECT subObject = {};
-		};
-	};
-
-
-	void RayPSO::Init()
-	{
-		// 変数用意
-		auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
-		std::array<D3D12_STATE_SUBOBJECT, 14> _subObjects;
-		uint32_t _index = 0;
-
 		// エラー出力
+		auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
 		ComPtr<ID3D12InfoQueue> infoQueue;
 		_pDevice5->QueryInterface(IID_PPV_ARGS(&infoQueue));
 
+		// 変数用意
+		std::vector<D3D12_STATE_SUBOBJECT> _subObjects;
+		_subObjects.reserve(14);
 
 		// DXILライブラリを用いてシェーダーをロード
-		m_shader.Load("Asset/Shader/Ray/Raytracing.hlsl");
-
-		// シェーダー情報定義（後で可変式にする予定とりまテスト）
-		RayShader _exportRayShader[] = {
-			{L"RayGen",LocalRootSignature::RayGen,ShaderCategory::RayGenerator},
-			{L"Miss",LocalRootSignature::Empty,ShaderCategory::Miss},
-			{L"ClosestHit",LocalRootSignature::PBRMaterialHit,ShaderCategory::ClosestHit}
-		};
-		D3D12_EXPORT_DESC exports[] =
-		{
-			{ L"RayGen",      nullptr, D3D12_EXPORT_FLAG_NONE },
-			{ L"Miss",        nullptr, D3D12_EXPORT_FLAG_NONE },
-			{ L"ClosestHit",  nullptr, D3D12_EXPORT_FLAG_NONE }//ClosestHit
-		};
-
+		m_shader.Load(a_init.shaderPass);
 
 		// DXIL Libraryを登録
-		D3D12_DXIL_LIBRARY_DESC _dxilLibDesc = {};
-		auto* _blob = m_shader.GetIDxcBlob();
-		_dxilLibDesc.DXILLibrary.BytecodeLength = _blob->GetBufferSize();
-		_dxilLibDesc.DXILLibrary.pShaderBytecode = _blob->GetBufferPointer();
-		_dxilLibDesc.NumExports = _countof(exports);
-		_dxilLibDesc.pExports = exports;
+		BuildSubObjectHelper::DXILLibrarySubObject _dxilLibSO;
+		_dxilLibSO.Init(m_shader.GetIDxcBlob(), a_init.shaderDataVec);
+		_subObjects.push_back(_dxilLibSO.subObject);
 
-		_subObjects[_index].Type = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
-		_subObjects[_index].pDesc = &_dxilLibDesc;
-
-		_index++;
-		
 		// ヒットグループのサブオブジェクトの作成
 		std::vector<BuildSubObjectHelper::HitGroupSubObject> _hitGroupSOVce;
-		HitGroup _hitGroup = {};
-		_hitGroup.name = L"HitGroup";
-		_hitGroup.closestHit = L"ClosestHit";
-		_hitGroup.anyHitShader = nullptr;
-		_hitGroupSOVce.resize(1);		// 今のところカメラレイのみ
-		for (int _i = 0; _i < 1; ++_i)
+		_hitGroupSOVce.resize(a_init.hitGroupVec.size());
+		for (int _i = 0; _i < a_init.hitGroupVec.size(); ++_i)
 		{
-			_hitGroupSOVce[_i].Init(_hitGroup);
-			_subObjects[_index++] = _hitGroupSOVce[_i].subObject; 
+			_hitGroupSOVce[_i].Init(a_init.hitGroupVec[_i]);
+			_subObjects.push_back(_hitGroupSOVce[_i].subObject);
 		}
 
+
 		// ルートシグネチャとシェーダーの関連付けを行うサブオブジェクトを作っていく
-		//m_rayGenRootSig.Create({});
-		RootSigInit _hitSigInit = {};
-		_hitSigInit.isUseStaticSampler = false;
-		_hitSigInit.AddDescriptorHeap({{RangeType::SRV,3},{RangeType::SRV,4},{RangeType::SRV,5},{RangeType::SRV,6}});
-		_hitSigInit.AddDescriptorHeap({ {RangeType::SRV,7} });
-		_hitSigInit.AddDescriptorHeap({ { RangeType::SRV,8 } });
-		_hitSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
-		m_hitRootSig.Create(_hitSigInit);
-		//m_emptyRootSig.Create({});
 		auto BuildAndRegistRootSignatureAndAssSubObjectFunc = [&]
 		(
 			BuildSubObjectHelper::LocalRootSignatureSubObject& a_rsSO,
 			BuildSubObjectHelper::ExportAssociationSubObject& a_eaSO,
 			LocalRootSignature a_rootSig,
 			const WCHAR* a_exportNames[]
-		) 
+		)
 		{
 			if (a_rootSig == LocalRootSignature::RayGen)
 			{
@@ -204,11 +56,11 @@ namespace Engine::Raytracing
 			{
 				a_rsSO.Init(m_emptyRootSig.Get());
 			}
-			_subObjects[_index] = a_rsSO.subObject;
-			uint32_t _rgSOIndex = _index++;
+			_subObjects.push_back(a_rsSO.subObject);
+			uint32_t _rgSOIndex = _subObjects.size() - 1;
 
 			int _useRootSig = 0;
-			for (auto& _shaderData : _exportRayShader)
+			for (auto& _shaderData : a_init.shaderDataVec)
 			{
 				if (_shaderData.rootsigType == a_rootSig)
 				{
@@ -217,71 +69,85 @@ namespace Engine::Raytracing
 				}
 			}
 			a_eaSO.Init(a_exportNames, _useRootSig, &(_subObjects[_rgSOIndex]));
-			_subObjects[_index++] = a_eaSO.subObject;
+			_subObjects.push_back(a_eaSO.subObject);
 		};
-
-		// 関連付け
 		BuildSubObjectHelper::LocalRootSignatureSubObject _rayGenSigSO, _modelSigSO, _emptySigSO;
 		BuildSubObjectHelper::ExportAssociationSubObject _rayGenAssSO, _modelAssSO, _emptyAssSO;
-		const WCHAR* _rayGenExportName[3];
-		const WCHAR* _modelExportName[3];
-		const WCHAR* _emptyExportName[3];
-		//BuildAndRegistRootSignatureAndAssSubObjectFunc(_rayGenSigSO,_rayGenAssSO,LocalRootSignature::RayGen,_rayGenExportName);
-		BuildAndRegistRootSignatureAndAssSubObjectFunc(_modelSigSO,_modelAssSO,LocalRootSignature::PBRMaterialHit,_modelExportName);
-		//BuildAndRegistRootSignatureAndAssSubObjectFunc(_emptySigSO,_emptyAssSO,LocalRootSignature::Empty,_emptyExportName);
+		const WCHAR* _rayGenExportName[5];
+		const WCHAR* _modelExportName[5];
+		const WCHAR* _emptyExportName[5];
+		// レイジェネレーションシェーダーにルートシグネチャがあれば関連付ける
+		if (a_init.opRayGenRootSigInit.has_value())
+		{
+			m_rayGenRootSig.Create(a_init.opRayGenRootSigInit.value_or(RootSigInit()));
+			BuildAndRegistRootSignatureAndAssSubObjectFunc(
+				_rayGenSigSO, _rayGenAssSO, LocalRootSignature::RayGen, _rayGenExportName);
+		}
+		// ヒットシェーダーにルートシグネチャがあれば関連付ける
+		if (a_init.opHitRootSigInit.has_value())
+		{
+			m_hitRootSig.Create(a_init.opHitRootSigInit.value_or(RootSigInit()));
+			BuildAndRegistRootSignatureAndAssSubObjectFunc(
+				_modelSigSO, _modelAssSO, LocalRootSignature::PBRMaterialHit, _modelExportName);
+		}
+		// ミスシェーダーにルートシグネチャがあれば関連付ける
+		if (a_init.opMissRootSigInit.has_value())
+		{
+			m_emptyRootSig.Create(a_init.opMissRootSigInit.value_or(RootSigInit()));
+			BuildAndRegistRootSignatureAndAssSubObjectFunc(
+				_emptySigSO, _emptyAssSO, LocalRootSignature::Empty, _emptyExportName);
+		}
 
-		// シェーダー設定
-		// ペイロードサイズ
+		// シェーダー設定(ペイロード)
 		BuildSubObjectHelper::ShaderConfigSubObject _shaderConfig;
 		struct RayPayload
 		{
 			DXSM::Vector3 color;
 			float pad;
+			int hit;
+			DXSM::Vector3 pad3_0;
+			int depth;
+			DXSM::Vector3 pad3_1;
 		};
-		_shaderConfig.Init(8,sizeof(RayPayload));
-		_subObjects[_index] = _shaderConfig.subObject;
+		_shaderConfig.Init(8, sizeof(RayPayload));
+		_subObjects.push_back(_shaderConfig.subObject);
 		
-		uint32_t _shaderConfigIndex = _index++;
+		// シェーダー設定とシェーダーの関連付け
+		uint32_t _shaderConfigIndex = _subObjects.size() - 1;
 		BuildSubObjectHelper::ExportAssociationSubObject _configAssociationSO;
-		const WCHAR* _entoryPointNames[4];
-		for (int _i = 0; _i < 3; ++_i)
-		{
-			_entoryPointNames[_i] = _exportRayShader[_i].entryName;
-		}
-		_entoryPointNames[3] = L"HitGroup";
-		_configAssociationSO.Init(_entoryPointNames,4,&_subObjects[_shaderConfigIndex]);
-		_subObjects[_index++] = _configAssociationSO.subObject;
-
+		_configAssociationSO.Init(a_init.shaderDataVec, &_subObjects[_shaderConfigIndex]);
+		_subObjects.push_back(_configAssociationSO.subObject);
+		
 		// パイプライン設定のオブジェクトを作成
-		BuildSubObjectHelper::PipelineConfigSubObject _config;
-		_subObjects[_index++] = _config.subObjcet;
-
+		BuildSubObjectHelper::PipelineConfigSubObject _config(a_init.maxRecursionDepth);
+		_subObjects.push_back(_config.subObjcet);
+		
 		// グローバルルートシグネチャのサブオブジェクト作成
-
-		RootSigInit _globalRootSigInit = {};
-		_globalRootSigInit.isUseStaticSampler = true;
-		_globalRootSigInit.AddRoot(RootParameterType::RootCBV,0);		// カメラ
-		_globalRootSigInit.AddRoot(RootParameterType::RootSRV,0);		// TLAS
-		_globalRootSigInit.AddDescriptorHeap({ {RangeType::UAV,0} });	// 出力
-		_globalRootSigInit.AddDescriptorHeap({ {RangeType::SRV,1} });	// インスタンス配列
-		_globalRootSigInit.AddDescriptorHeap({ {RangeType::SRV,2} });	// マテリアル
-		m_rootSig.Create(_globalRootSigInit);
-		BuildSubObjectHelper::LocalRootSignatureSubObject _gRootSig;
+		if (a_init.opGlobalRootSigInit.has_value())
+		{
+			m_rootSig.Create(a_init.opGlobalRootSigInit.value_or(RootSigInit()));
+		}
+		else
+		{
+			m_rootSig.Create(RootSigInit());
+		}
+		BuildSubObjectHelper::GlobalRootSignatureSubObject _gRootSig;
 		_gRootSig.Init(m_rootSig.Get());
-		_gRootSig.subObject.Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
-		_subObjects[_index++] = _gRootSig.subObject;
-
+		_subObjects.push_back(_gRootSig.subObject);
+		
 		// パイプライン作成
 		D3D12_STATE_OBJECT_DESC _desc;
-		_desc.NumSubobjects = _index;
+		_desc.NumSubobjects = static_cast<UINT>(_subObjects.size());
 		_desc.pSubobjects = _subObjects.data();
 		_desc.Type = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
-		auto _hr = _pDevice5->CreateStateObject(&_desc,IID_PPV_ARGS(&m_cpPSO));
+		auto _hr = _pDevice5->CreateStateObject(&_desc, IID_PPV_ARGS(&m_cpPSO));
 		if (FAILED(_hr))
 		{
 			assert(0 && "レイトレ用パイプラインステートの作成に失敗");
-			return;
+			return false;
 		}
+
+		return true;
 	}
 
 	void* Engine::Raytracing::RayPSO::GetShaderID(const std::string& a_shaderEntry)

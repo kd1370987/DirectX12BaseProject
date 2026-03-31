@@ -33,4 +33,27 @@ namespace Engine::Resource
 		std::array<short, 4>	skinIndexList = {};			// スキニングIndexリスト
 		std::array<float, 4>	skinWeightList = {};			// スキニングウェイトリスト
 	};
+
+	//==========================================================
+	// レイトレ
+	//==========================================================
+	struct RTVertex
+	{
+		DXSM::Vector3 pos;
+		DXSM::Vector3 normal;
+		DXSM::Vector2 uv;
+		DXSM::Vector3 tangent;
+		DXSM::Vector4 color;
+
+		RTVertex& operator=(const MeshVertexFloat& a_vertFloat)
+		{
+			pos = a_vertFloat.pos;
+			normal = a_vertFloat.normal;
+			uv = a_vertFloat.uv;
+			tangent = a_vertFloat.tangent;
+			color = a_vertFloat.color;
+
+			return *this;
+		}
+	};
 }

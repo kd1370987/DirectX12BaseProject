@@ -18,12 +18,12 @@ namespace Engine::Raytracing
 		PBRMaterialHit,		//PBRマテリアルにヒットしたときのローカルルートシグネチャ。
 	};
 
-	// レイ用シェーダー
-	struct RayShader
+	// レイ用シェーダーのデータ
+	struct RayShaderData
 	{
 		const wchar_t* entryName;		// エントリーポイント名
-		LocalRootSignature rootsigType;
-		ShaderCategory category;	// シェーダーのカテゴリ
+		LocalRootSignature rootsigType;	// ローカルルートシグネチャの種類
+		ShaderCategory category;		// シェーダーのカテゴリ
 	};
 
 	// ヒットグループ

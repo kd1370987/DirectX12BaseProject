@@ -124,7 +124,53 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 
 	// レイPSO作成
 	m_upPSO = std::make_unique<RayPSO>();
-	m_upPSO->Init();
+
+	// グローバルルートシグネチャ構築
+	RootSigInit _globalRootSigInit = {};
+	_globalRootSigInit.isUseStaticSampler = true;
+	_globalRootSigInit.AddRoot(RootParameterType::RootCBV, 0);		// カメラ
+	_globalRootSigInit.AddRoot(RootParameterType::RootSRV, 0);		// TLAS
+	_globalRootSigInit.AddDescriptorHeap({ {RangeType::UAV,0} });	// 出力
+	_globalRootSigInit.AddDescriptorHeap({ {RangeType::SRV,1} });	// インスタンス配列
+	_globalRootSigInit.AddDescriptorHeap({ {RangeType::SRV,2} });	// マテリアル
+
+	// ローカルルートシグネチャ構築
+	// レイジェネレーション
+	RootSigInit _rayGenSigInit = {};
+	_rayGenSigInit.isUseStaticSampler = false;
+	_rayGenSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+	
+	// ヒットシェーダー用
+	RootSigInit _hitSigInit = {};
+	_hitSigInit.isUseStaticSampler = false;
+	_hitSigInit.AddDescriptorHeap({ {RangeType::SRV,3},{RangeType::SRV,4},{RangeType::SRV,5},{RangeType::SRV,6} });
+	_hitSigInit.AddDescriptorHeap({ {RangeType::SRV,7} });
+	_hitSigInit.AddDescriptorHeap({ { RangeType::SRV,8 } });
+	_hitSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+
+	// missシェーダー用
+	RootSigInit _missSigInit = {};
+	_missSigInit.isUseStaticSampler = false;
+	_missSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+
+	// PSO初期化情報構築
+	RayPSOInit _psoInit = {};
+	_psoInit.shaderPass = "Asset/Shader/Ray/Raytracing.hlsl";
+	_psoInit.AddShader(L"RayGen",		LocalRootSignature::RayGen,			ShaderCategory::RayGenerator);
+	_psoInit.AddShader(L"Miss",			LocalRootSignature::Empty,			ShaderCategory::Miss);
+	_psoInit.AddShader(L"ClosestHit",	LocalRootSignature::PBRMaterialHit, ShaderCategory::ClosestHit);
+	_psoInit.AddShader(L"ShadowCHS",	LocalRootSignature::PBRMaterialHit, ShaderCategory::ClosestHit);
+	_psoInit.AddShader(L"ShadowMiss",	LocalRootSignature::Empty,			ShaderCategory::Miss);
+	_psoInit.AddHitGroup(L"HitGroup", L"ClosestHit");
+	_psoInit.AddHitGroup(L"ShadowHitGroup", L"ShadowCHS");
+	_psoInit.maxRecursionDepth = 4;
+	_psoInit.opGlobalRootSigInit = _globalRootSigInit;
+	_psoInit.opHitRootSigInit = _hitSigInit;
+	_psoInit.opRayGenRootSigInit = _rayGenSigInit;
+	_psoInit.opMissRootSigInit = _missSigInit;
+
+	// PSO初期化
+	m_upPSO->Init(_psoInit);
 
 	// レイワールドの作成
 	if (!m_upRayWorld)

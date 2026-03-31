@@ -36,6 +36,8 @@ namespace Engine::Resource
 
 #include "Engine/Resource/Common/Common.h"
 
+#include "Engine/Storage/HandleStorage/HandleStorage.h"			// ハンドルストレージ
+
 //==========================================================================================
 // 
 // DirectX12ラッパー

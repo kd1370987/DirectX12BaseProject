@@ -110,7 +110,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 	for (auto& _vert : a_vertices)
 	{
 		RTVertex _rt = {};
-		_rt.uv = _vert.uv;
+		_rt = _vert;
 		_rtVertDataVec.push_back(_rt);
 	}
 	//m_sVertexBuffer.Create(_pDevice,_pCmdList,a_vertices.size(),a_vertices.data());

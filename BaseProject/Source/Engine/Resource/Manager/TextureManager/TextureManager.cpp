@@ -6,22 +6,26 @@ Engine::Resource::Handle<Engine::Resource::Texture> Engine::Resource::TextureMan
 	const std::string& a_path
 )
 {
-	auto _it = m_handleMap.find(a_path);
-	if (_it != m_handleMap.end())
+	// 登録されているかのチェック
+	if (Has(a_path))
 	{
-		return _it->second;
+		return m_nameMap[a_path];
 	}
 
+	// テクスチャ作成
 	Engine::Resource::Texture _texture = {};
-	m_handleMap.emplace(a_path, Engine::Resource::Handle<Engine::Resource::Texture>{});
 	_texture.Import(a_path);
 
-	m_handleMap[a_path] = Add(_texture);
+	// ハンドルマップを追加
+	auto _handle = Add(_texture);
+
+	// 登録
+	m_nameMap.emplace(a_path, _handle);
 
 	// ビュー作成
-	CreateView({ m_handleMap[a_path] });
+	CreateView({ _handle });
 
-	return m_handleMap[a_path];
+	return _handle;
 }
 
 std::vector<Engine::Resource::Handle<Engine::Resource::Texture>>
@@ -35,7 +39,7 @@ Engine::Resource::TextureManager::LoadTextureRange(const std::vector<TextureInit
 	{
 		auto _path = _init.pathName;
 		// ハンドルマップを追加
-		m_handleMap.emplace(_path, Engine::Resource::Handle<Engine::Resource::Texture>{});
+		m_nameMap.emplace(_path, Engine::Resource::Handle<Engine::Resource::Texture>{});
 
 		// テクスチャ作成
 		Engine::Resource::Texture _texture = {};
@@ -43,7 +47,7 @@ Engine::Resource::TextureManager::LoadTextureRange(const std::vector<TextureInit
 
 		// 登録
 		auto _handle = Add(_texture);
-		m_handleMap[_path] = _handle;
+		m_nameMap[_path] = _handle;
 		_result.push_back(_handle);
 
 	}
@@ -63,13 +67,13 @@ Engine::Resource::Handle<Engine::Resource::Texture> Engine::Resource::TextureMan
 	const TextureUsage& a_usage
 )
 {
-	auto _it = m_handleMap.find(a_name);
-	if (_it != m_handleMap.end())
+	// 登録されているかのチェック
+	if (Has(a_name))
 	{
-		return _it->second;
+		return m_nameMap[a_name];
 	}
 
-	m_handleMap.emplace(a_name, Engine::Resource::Handle<Engine::Resource::Texture>{});
+	// テクスチャ作成
 	Engine::Resource::Texture _texture;
 	_texture.Create(
 		a_width,
@@ -79,83 +83,76 @@ Engine::Resource::Handle<Engine::Resource::Texture> Engine::Resource::TextureMan
 	);
 	_texture.SetName(a_name);
 
-	m_handleMap[a_name] = Add(_texture);
+	// ハンドルマップを追加
+	auto _handle = Add(_texture);
 
-	CreateView({m_handleMap[a_name]});
+	// 登録
+	CreateView({ _handle });
 
-	return m_handleMap[a_name];
+	m_nameMap.emplace(a_name, _handle);
+
+	return _handle;
 }
 
 const Engine::Resource::Texture& Engine::Resource::TextureManager::GetTexture(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle)
 {
-	if (GenCheck(a_handle))
+	if (m_handleStorage.IsValid(a_handle))
 	{
-		return m_slotStorage[a_handle.idx].data;
+		return m_texData[a_handle.idx];
 	}
 }
 
 Engine::Resource::Texture& Engine::Resource::TextureManager::RefTexture(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle)
 {
-	if (GenCheck(a_handle))
+	if (m_handleStorage.IsValid(a_handle))
 	{
-		return m_slotStorage[a_handle.idx].data;
+		return m_texData[a_handle.idx];
 	}
 }
 
 std::unordered_map<std::string, Engine::Resource::Handle<Engine::Resource::Texture>>& Engine::Resource::TextureManager::RefAllTex()
 {
-	return m_handleMap;
+	return m_nameMap;
 }
 
-std::vector<Engine::Resource::SharedSlot<Engine::Resource::Texture>>& Engine::Resource::TextureManager::GetAllTex()
+std::vector<Engine::Resource::Texture>& Engine::Resource::TextureManager::GetAllTex()
 {
-	return m_slotStorage;
+	return m_texData;
 }
 
 Engine::Resource::Handle<Engine::Resource::Texture> Engine::Resource::TextureManager::Add(const Texture& a_texture)
 {
-	// キューが空なら、サイズを広げる
-	if (m_indexQueue.empty())
+	// ハンドルをもらう
+	auto _handle = m_handleStorage.Allocate();
+	if (_handle.idx >= m_texData.size())
 	{
-		m_indexQueue.push(m_indexQueueMaxSize);
-		m_indexQueueMaxSize++;
+		m_texData.resize(_handle.idx + 1);
+		m_sharedCount.resize(_handle.idx + 1);
 	}
-
-	// キューからインデックスをもらう
-	Engine::Resource::Index _idx = m_indexQueue.front();
-	m_indexQueue.pop();
-
-	// ストレージに追加
-	if (_idx >= m_slotStorage.size())
-	{
-		m_slotStorage.resize(_idx + 1);
-	}
-	m_slotStorage[_idx].data = a_texture;
-	m_slotStorage[_idx].gen = 0;
-	m_slotStorage[_idx].sharedCount = 1;
-
-	// ハンドルを作成して返す
-	Engine::Resource::Handle<Engine::Resource::Texture> _handle = {};
-	_handle.gen = 0;
-	_handle.idx = _idx;
+	m_texData[_handle.idx] = a_texture;
+	m_sharedCount[_handle.idx]++;
 
 	return _handle;
 }
 
 void Engine::Resource::TextureManager::Subtract(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle)
 {
-	// 安全チェック
-	if (a_handle.idx >= m_slotStorage.size())
+	// ハンドルが有効かどうか
+	if (!m_handleStorage.IsValid(a_handle))
+	{
 		return;
-	if (m_slotStorage[a_handle.idx].gen != a_handle.gen)
+	}
+
+	// シェアード数を減らす
+	if (m_sharedCount[a_handle.idx] > 0)
+	{
+		m_sharedCount[a_handle.idx]--;
 		return;
+	}
 
-	// 空のデータを入れる
-	m_slotStorage[a_handle.idx].data = Engine::Resource::Texture{};
-	m_slotStorage[a_handle.idx].gen++;
-
-	// インデックスをキューに返還
-	m_indexQueue.push(a_handle.idx);
+	// データ削除
+	m_handleStorage.Remove(a_handle);
+	m_nameMap.erase(m_texData[a_handle.idx].GetName());
 }
 
 void Engine::Resource::TextureManager::CreateView(
@@ -278,9 +275,11 @@ void Engine::Resource::TextureManager::CreateView(
 	}
 }
 
-bool Engine::Resource::TextureManager::GenCheck(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle) const
+
+bool Engine::Resource::TextureManager::Has(const std::string& a_name) const
 {
-	if (m_slotStorage[a_handle.idx].gen == a_handle.gen)
+	auto _it = m_nameMap.find(a_name);
+	if (_it != m_nameMap.end())
 	{
 		return true;
 	}

@@ -15,15 +15,13 @@ namespace Engine::Raytracing
 		// シェーダーテーブル更新
 		void Update(const RayWorld& a_rayWorld,Engine::Raytracing::RayPSO& a_rayPSO);
 
-		const D3D12_DISPATCH_RAYS_DESC& GetDispatchDesc()
-		{
-			return m_dispatchDesc;
-		}
+		// ディスパッチレイ構造体取得
+		const D3D12_DISPATCH_RAYS_DESC& GetDispatchDesc();
+
+	private:
 
 		// ディスパッチ設定作成
 		D3D12_DISPATCH_RAYS_DESC CreateDispatchDesc(UINT a_instnaceNum);
-
-	private:
 
 		// シェーダーテーブルの構成サイズ計算
 		void CalucShaderTableSize(UINT a_instanceNum);

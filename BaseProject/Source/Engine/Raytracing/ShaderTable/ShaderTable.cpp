@@ -21,9 +21,6 @@ void Engine::Raytracing::ShaderTable::Init(
 	assert(_missID);
 	assert(_hitID);
 
-	// インスタンス配列
-	auto& _instanceVec = a_rayWorld.GetInstnace();
-
 	// シェーダーサイズ計算
 	//CalucShaderTableSize(_instanceVec.size());
 	CalucShaderTableSize(1000);
@@ -59,30 +56,6 @@ void Engine::Raytracing::ShaderTable::Init(
 
 	// 更新
 	m_cpShaderTable->Map(0, nullptr, (void**)&m_pShaderTableData);
-
-	memcpy(m_pShaderTableData + m_rayGenOffset, _raygenID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-	memcpy(m_pShaderTableData + m_missOffset, _missID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-
-	// ヒットシェーダーのデータ
-	for (size_t _i = 0; _i < _instanceVec.size(); ++_i)
-	{
-		// インスタンス取得
-		auto& _instance = _instanceVec[_i];
-
-		uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + _i * m_recordSize;	// アドレス
-		memcpy(_hitPtr, _hitID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);	// シェーダーIDコピー
-
-		// ハンドル格納先ポインタアドレス
-		auto* _handles = 
-			reinterpret_cast<D3D12_GPU_DESCRIPTOR_HANDLE*>(_hitPtr + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-		_handles[0] = GetTextureGPUHandle(_instance.pMaterial->baseColorTex);
-		_handles[1] = DescriptorHeapManager::Instance().GetSRVGPUHandle(_instance.indexHandle);
-		_handles[2] = DescriptorHeapManager::Instance().GetSRVGPUHandle(_instance.vertexHandle);
-	}
-
-	// シェーダーテーブル設定決定(ディスパッチレイ構造体作成)
-	m_dispatchDesc = {};
-	m_dispatchDesc = CreateDispatchDesc(_instanceVec.size());
 }
 
 void Engine::Raytracing::ShaderTable::Update(const RayWorld& a_rayWorld, Engine::Raytracing::RayPSO& a_rayPSO)
@@ -91,16 +64,20 @@ void Engine::Raytracing::ShaderTable::Update(const RayWorld& a_rayWorld, Engine:
 	void* _raygenID = a_rayPSO.GetShaderID("RayGen");
 	void* _missID = a_rayPSO.GetShaderID("Miss");
 	void* _hitID = a_rayPSO.GetShaderID("HitGroup");
+	void* _shadowHitID = a_rayPSO.GetShaderID("ShadowHitGroup");
+	void* _shadowMissID = a_rayPSO.GetShaderID("ShadowMiss");
 
 	assert(_raygenID);
 	assert(_missID);
 	assert(_hitID);
+
 
 	// インスタンス配列
 	auto& _instanceVec = a_rayWorld.GetInstnace();
 
 	memcpy(m_pShaderTableData + m_rayGenOffset, _raygenID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 	memcpy(m_pShaderTableData + m_missOffset, _missID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+	memcpy(m_pShaderTableData + m_missOffset + m_recordSize, _shadowMissID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 
 	// ヒットシェーダーのデータ
 	for (size_t _i = 0; _i < _instanceVec.size(); ++_i)
@@ -118,9 +95,32 @@ void Engine::Raytracing::ShaderTable::Update(const RayWorld& a_rayWorld, Engine:
 		_handles[1] = DescriptorHeapManager::Instance().GetSRVGPUHandle(_instance.indexHandle);
 		_handles[2] = DescriptorHeapManager::Instance().GetSRVGPUHandle(_instance.vertexHandle);
 	}
+	// 影ヒットシェーダーのデータ
+	for (size_t _i = 0; _i < _instanceVec.size(); ++_i)
+	{
+		// インスタンス取得
+		auto& _instance = _instanceVec[_i];
+
+		uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + _instanceVec.size() * m_recordSize;	// アドレス
+		_hitPtr += _i * m_recordSize;
+		memcpy(_hitPtr, _shadowHitID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);	// シェーダーIDコピー
+
+		// ハンドル格納先ポインタアドレス
+		auto* _handles =
+			reinterpret_cast<D3D12_GPU_DESCRIPTOR_HANDLE*>(_hitPtr + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+		_handles[0] = GetTextureGPUHandle(_instance.pMaterial->baseColorTex);
+		_handles[1] = DescriptorHeapManager::Instance().GetSRVGPUHandle(_instance.indexHandle);
+		_handles[2] = DescriptorHeapManager::Instance().GetSRVGPUHandle(_instance.vertexHandle);
+	}
 
 	// シェーダーテーブル設定決定(ディスパッチレイ構造体作成)
 	m_dispatchDesc = CreateDispatchDesc(_instanceVec.size());
+
+}
+
+const D3D12_DISPATCH_RAYS_DESC& Engine::Raytracing::ShaderTable::GetDispatchDesc()
+{
+	return m_dispatchDesc;
 }
 
 D3D12_DISPATCH_RAYS_DESC Engine::Raytracing::ShaderTable::CreateDispatchDesc(UINT a_instnaceNum)
