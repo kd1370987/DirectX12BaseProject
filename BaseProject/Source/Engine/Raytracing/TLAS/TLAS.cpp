@@ -34,94 +34,87 @@ void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
 		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT
 	));
 
-	//if (a_isUpdate)
-	//{
-	//	更新
-	//}
-	//else 新規
-	{
-		D3D12_HEAP_PROPERTIES _defaultHeapProp = {
-			D3D12_HEAP_TYPE_DEFAULT,
-			D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
-			D3D12_MEMORY_POOL_UNKNOWN,
-			0,0
-		};
 
-		// スクラッチバッファ作成
-		CreateBuffer(
-			_pDevice5,
-			_pCmdList,
-			m_cpScratch,
-			_scratchSize,
-			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_COMMON,
-			_defaultHeapProp
-		);
-		// リザルトバッファ作成
-		CreateBuffer(
-			_pDevice5,
-			_pCmdList,
-			m_cpResource,
-			_resultSize,
-			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-			D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
-			_defaultHeapProp
-		);
+	D3D12_HEAP_PROPERTIES _defaultHeapProp = {
+		D3D12_HEAP_TYPE_DEFAULT,
+		D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+		D3D12_MEMORY_POOL_UNKNOWN,
+		0,0
+	};
 
-		// インスタンスバッファ作成
-		D3D12_HEAP_PROPERTIES _uploadHeapProp = {
-			D3D12_HEAP_TYPE_UPLOAD,
-			D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
-			D3D12_MEMORY_POOL_UNKNOWN,
-			0,
-			0
-		};
-		CreateBuffer(
-			_pDevice5,
-			_pCmdList,
-			m_cpInstanceBuffer,
-			sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * _numInstance,
-			D3D12_RESOURCE_FLAG_NONE,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			_uploadHeapProp
-		);
+	// スクラッチバッファ作成
+	CreateBuffer(
+		_pDevice5,
+		_pCmdList,
+		m_cpScratch,
+		_scratchSize,
+		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_COMMON,
+		_defaultHeapProp
+	);
+	// リザルトバッファ作成
+	CreateBuffer(
+		_pDevice5,
+		_pCmdList,
+		m_cpResource,
+		_resultSize,
+		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+		_defaultHeapProp
+	);
 
-		// サイズ記録
-		_tlasSize = _info.ResultDataMaxSizeInBytes;
-	}
+	// インスタンスバッファ作成
+	D3D12_HEAP_PROPERTIES _uploadHeapProp = {
+		D3D12_HEAP_TYPE_UPLOAD,
+		D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+		D3D12_MEMORY_POOL_UNKNOWN,
+		0,
+		0
+	};
+	CreateBuffer(
+		_pDevice5,
+		_pCmdList,
+		m_cpInstanceBuffer,
+		sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_maxInstanceCount,
+		D3D12_RESOURCE_FLAG_NONE,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		_uploadHeapProp
+	);
+
+	// サイズ記録
+	_tlasSize = _info.ResultDataMaxSizeInBytes;
+	
 
 	// インスタンスバッファ構造体
-	D3D12_RAYTRACING_INSTANCE_DESC* _pInstanceDesc = nullptr;
-	m_cpInstanceBuffer->Map(0,nullptr,(void**)&_pInstanceDesc);
-	ZeroMemory(_pInstanceDesc,sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * _numInstance);
+	m_pInstanceDesc = nullptr;
+	m_cpInstanceBuffer->Map(0,nullptr,(void**)&m_pInstanceDesc);
+	ZeroMemory(m_pInstanceDesc,sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_maxInstanceCount);
 
 	for (int _i = 0; _i < _numInstance; ++_i)
 	{
-		_pInstanceDesc[_i].InstanceID = _i;
-		_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = _i;
-		_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
-		_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
+		m_pInstanceDesc[_i].InstanceID = _i;
+		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = _i;
+		m_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
+		m_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
 		auto& m = a_instanceVec[_i].worldMat;
 
-		_pInstanceDesc[_i].Transform[0][0] = m._11;
-		_pInstanceDesc[_i].Transform[0][1] = m._12;
-		_pInstanceDesc[_i].Transform[0][2] = m._13;
-		_pInstanceDesc[_i].Transform[0][3] = m._41;
+		m_pInstanceDesc[_i].Transform[0][0] = m._11;
+		m_pInstanceDesc[_i].Transform[0][1] = m._12;
+		m_pInstanceDesc[_i].Transform[0][2] = m._13;
+		m_pInstanceDesc[_i].Transform[0][3] = m._41;
 
-		_pInstanceDesc[_i].Transform[1][0] = m._21;
-		_pInstanceDesc[_i].Transform[1][1] = m._22;
-		_pInstanceDesc[_i].Transform[1][2] = m._23;
-		_pInstanceDesc[_i].Transform[1][3] = m._42;
+		m_pInstanceDesc[_i].Transform[1][0] = m._21;
+		m_pInstanceDesc[_i].Transform[1][1] = m._22;
+		m_pInstanceDesc[_i].Transform[1][2] = m._23;
+		m_pInstanceDesc[_i].Transform[1][3] = m._42;
 
-		_pInstanceDesc[_i].Transform[2][0] = m._31;
-		_pInstanceDesc[_i].Transform[2][1] = m._32;
-		_pInstanceDesc[_i].Transform[2][2] = m._33;
-		_pInstanceDesc[_i].Transform[2][3] = m._43;
+		m_pInstanceDesc[_i].Transform[2][0] = m._31;
+		m_pInstanceDesc[_i].Transform[2][1] = m._32;
+		m_pInstanceDesc[_i].Transform[2][2] = m._33;
+		m_pInstanceDesc[_i].Transform[2][3] = m._43;
 
-		_pInstanceDesc[_i].InstanceMask = 0xFF;
+		m_pInstanceDesc[_i].InstanceMask = 0xFF;
 	}
-
-	m_cpInstanceBuffer->Unmap(0,nullptr);
 
 	// TLASを作成
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _asDesc = {};
@@ -139,11 +132,6 @@ void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
 	_pCmdList->ResourceBarrier(1, &barrierScratch);
 
 
-	//if (a_isUpdate)
-	//{
-	//	_asDesc.Inputs.Flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
-	//	_asDesc.SourceAccelerationStructureData = m_cpResource->GetGPUVirtualAddress();
-	//}
 	_pCmdList->BuildRaytracingAccelerationStructure(&_asDesc, 0, nullptr);
 
 
@@ -174,9 +162,62 @@ void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
 	m_srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange({_init})[0];
 }
 
-void Engine::Raytracing::TLAS::Build(ID3D12GraphicsCommandList4* a_pCmdList)
+void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec)
 {
+	ID3D12GraphicsCommandList4* _pCmdList = D3D12Wrapper::Instance().GetCommandList4();
+
+	// インスタンスバッファ構造体更新
+	for (int _i = 0; _i < a_instanceVec.size(); ++_i)
+	{
+		m_pInstanceDesc[_i].InstanceID = _i;
+		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = _i;
+		m_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
+		m_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
+		auto& m = a_instanceVec[_i].worldMat;
+
+		m_pInstanceDesc[_i].Transform[0][0] = m._11;
+		m_pInstanceDesc[_i].Transform[0][1] = m._12;
+		m_pInstanceDesc[_i].Transform[0][2] = m._13;
+		m_pInstanceDesc[_i].Transform[0][3] = m._41;
+
+		m_pInstanceDesc[_i].Transform[1][0] = m._21;
+		m_pInstanceDesc[_i].Transform[1][1] = m._22;
+		m_pInstanceDesc[_i].Transform[1][2] = m._23;
+		m_pInstanceDesc[_i].Transform[1][3] = m._42;
+
+		m_pInstanceDesc[_i].Transform[2][0] = m._31;
+		m_pInstanceDesc[_i].Transform[2][1] = m._32;
+		m_pInstanceDesc[_i].Transform[2][2] = m._33;
+		m_pInstanceDesc[_i].Transform[2][3] = m._43;
+
+		m_pInstanceDesc[_i].InstanceMask = 0xFF;
+	}
+
+	// インプット情報
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS _inputs = {};
+	_inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+	_inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+	_inputs.NumDescs = a_instanceVec.size();
+	_inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
+
+	// TLASを作成
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _asDesc = {};
+	_asDesc.Inputs = _inputs;
+	_asDesc.Inputs.InstanceDescs = m_cpInstanceBuffer->GetGPUVirtualAddress();
+	_asDesc.DestAccelerationStructureData = m_cpResource->GetGPUVirtualAddress();
+	_asDesc.ScratchAccelerationStructureData = m_cpScratch->GetGPUVirtualAddress();
+	//_asDesc.Inputs.Flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+	//_asDesc.SourceAccelerationStructureData = m_cpResource->GetGPUVirtualAddress();
+
+	_pCmdList->BuildRaytracingAccelerationStructure(&_asDesc, 0, nullptr);
+
+	// レイトレーシングアクセラレーション構造のビルド官僚待ちのバリア
+	D3D12_RESOURCE_BARRIER _uavBarrier = {};
+	_uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	_uavBarrier.UAV.pResource = m_cpResource.Get();
+	_pCmdList->ResourceBarrier(1, &_uavBarrier);
 }
+
 
 D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::TLAS::GetGPUHandle()
 {

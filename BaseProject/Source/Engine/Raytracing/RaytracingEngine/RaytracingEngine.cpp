@@ -25,8 +25,14 @@ void Engine::Raytracing::RayEngine::Dispatch()
 
 	_pCmdList4->ResourceBarrier(1, &barrier);
 
-	// 
-	m_upRayWorld->Update();
+	// ワールドを更新
+	if(!m_isCommit)
+	{
+		m_upRayWorld->Commit();
+		m_upShaderTable->Update(*m_upRayWorld.get(), *m_upPSO.get());
+
+		m_isCommit = true;
+	}
 
 	// ディスクリプタヒープセット
 	ID3D12DescriptorHeap* _heaps[] = {
@@ -75,11 +81,6 @@ void Engine::Raytracing::RayEngine::Dispatch()
 		m_upRayWorld->GetMaterialSRV()
 	);
 
-	//_pCmdList4->SetComputeRootDescriptorTable(
-	//	5,
-	//	DescriptorHeapManager::Instance().GetLinearWrap()
-	//);
-
 	// シェーダーテーブル
 	const auto& _desc = m_upShaderTable->GetDispatchDesc();
 	_pCmdList4->DispatchRays(
@@ -106,12 +107,12 @@ void Engine::Raytracing::RayEngine::RegistModel(const DirectX::XMFLOAT4X4& a_wor
 
 	// モデル登録
 	m_upRayWorld->Register(a_worldMat,a_modelHandle);
+
+	m_isCommit = false;
 }
 
 void Engine::Raytracing::RayEngine::CommitWorld()
 {
-	//D3D12Wrapper::Instance().BeginFrame();
-
 	// 出力テクスチャ作成
 	m_outTex = Engine::Resource::TextureManager::Instance().CreateTexture(
 		"RayOutTex",
@@ -120,19 +121,6 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 	);
-
-	//// UAVバリア
-	//auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
-	//auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(m_outTex);
-	//auto _barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-	//	_tex.GetResource(),
-	//	D3D12_RESOURCE_STATE_COMMON,
-	//	D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-	//);
-	//_pCmdList4->ResourceBarrier(
-	//	1,
-	//	&_barrier
-	//);
 
 	// レイPSO作成
 	m_upPSO = std::make_unique<RayPSO>();
@@ -143,7 +131,7 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 	{
 		m_upRayWorld = std::make_unique<RayWorld>();
 	}
-	m_upRayWorld->Commit();
+	m_upRayWorld->Init();
 
 	// シェーダーテーブルの作成
 	m_upShaderTable = std::make_unique<ShaderTable>();
@@ -151,8 +139,6 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 		*m_upRayWorld.get(),
 		*m_upPSO.get()
 	);
-
-	//D3D12Wrapper::Instance().EndFrame();
 }
 
 Engine::Raytracing::RayEngine::RayEngine()

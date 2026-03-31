@@ -7,13 +7,11 @@ namespace Engine::Raytracing
 	{
 	public:
 
-		void Create(
-			std::vector<Instance>& a_instanceVec
-		);
+		// 作成
+		void Create(std::vector<Instance>& a_instanceVec);
 
-		void Build(
-			ID3D12GraphicsCommandList4* a_pCmdList
-		);
+		// 更新
+		void Update(const std::vector<Instance>& a_instanceVec);
 
 		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const
 		{
@@ -47,6 +45,8 @@ namespace Engine::Raytracing
 		// インスタンスバッファ
 		ComPtr<ID3D12Resource> m_cpInstanceBuffer = nullptr;
 		uint32_t m_instnaceCount = 0;
+		const uint32_t m_maxInstanceCount = 1000;
+		D3D12_RAYTRACING_INSTANCE_DESC* m_pInstanceDesc = nullptr;		// マップしておく
 
 		// SRVハンドル
 		Engine::Resource::Handle<SRV> m_srvHandle = {};

@@ -41,6 +41,8 @@ namespace Engine::Raytracing
 		std::unique_ptr<RayPSO> m_upPSO = nullptr;						// レイトレ用PSO
 		std::unique_ptr<ShaderTable> m_upShaderTable = nullptr;			// シェーダーテーブル
 
+		bool m_isCommit = false;		// コミットされたかどうか
+
 	private:
 
 		RayEngine();

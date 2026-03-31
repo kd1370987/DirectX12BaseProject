@@ -10,10 +10,10 @@ namespace Engine::Raytracing
 	public:
 
 		// シェーダーテーブル初期化
-		void Init(
-			const RayWorld& a_rayWorld,
-			RayPSO& a_rayPSO
-		);
+		void Init(const RayWorld& a_rayWorld,RayPSO& a_rayPSO);
+
+		// シェーダーテーブル更新
+		void Update(const RayWorld& a_rayWorld,Engine::Raytracing::RayPSO& a_rayPSO);
 
 		const D3D12_DISPATCH_RAYS_DESC& GetDispatchDesc()
 		{
@@ -36,13 +36,10 @@ namespace Engine::Raytracing
 
 		// シェーダーテーブル
 		ComPtr<ID3D12Resource> m_cpShaderTable;
+		uint8_t* m_pShaderTableData = nullptr;	// マップしておく
 
+		// ディスパッチレイ構造体
 		D3D12_DISPATCH_RAYS_DESC m_dispatchDesc;
-
-		uint32_t m_shaderTableEntrySize = 0;
-		int m_numRayGenShader = 0;
-		int m_numMissShader = 0;
-		int m_numHitShader = 0;
 
 		// シェーダーテーブルオフセット
 		uint32_t m_rayGenOffset = 0;	// レイジェネレーションシェーダー開始位置

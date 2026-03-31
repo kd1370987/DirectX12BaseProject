@@ -48,6 +48,15 @@ void GameScene::Event()
 	{
 		SceneManager::Instance().SetNextScene(SceneType::Title,SceneChangeType::Replace);
 	}
+
+	static bool _is = false;
+	if(!_is && GetAsyncKeyState('T'))
+	{
+		auto _handle = Engine::Resource::ModelManager::Instnace().LoadModel(
+			"Asset/Model/TestModelWhite/testModelWhite.gltf");
+		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
+		_is = true;
+	}
 }
 
 void GameScene::Release()

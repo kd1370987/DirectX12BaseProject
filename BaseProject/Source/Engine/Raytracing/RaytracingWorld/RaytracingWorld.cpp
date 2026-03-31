@@ -18,8 +18,12 @@ Engine::Raytracing::RayWorld::~RayWorld()
 {
 }
 
-void Engine::Raytracing::RayWorld::Register(const DXSM::Matrix& a_worldMat, const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle)
+void Engine::Raytracing::RayWorld::Register(
+	const DXSM::Matrix& a_worldMat,
+	const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
+)
 {
+	// レイワールドにインスタンスを登録する処理
 	auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
@@ -34,6 +38,7 @@ void Engine::Raytracing::RayWorld::Register(const DXSM::Matrix& a_worldMat, cons
 
 			DXSM::Matrix _nodeMat = _node.worldTransform;
 
+			// インスタンス作成
 			Engine::Raytracing::Instance _rayInst = {};
 			_rayInst.worldMat = _nodeMat * a_worldMat;
 			_rayInst.pBLAS = _spMesh->GetBLAS();
@@ -46,12 +51,14 @@ void Engine::Raytracing::RayWorld::Register(const DXSM::Matrix& a_worldMat, cons
 			}
 		}
 	}
+
+	// コミットされていない状態に
+	m_isCommit = false;
 }
 
-
-void Engine::Raytracing::RayWorld::Commit()
+void Engine::Raytracing::RayWorld::Init()
 {
-	if(!m_upTLAS)
+	if (!m_upTLAS)
 	{
 		m_upTLAS = std::make_unique<TLAS>();
 	}
@@ -71,7 +78,7 @@ void Engine::Raytracing::RayWorld::Commit()
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	// インスタンスデータ作成
-	m_instanceDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(),_instanceDataVec.data());
+	m_instanceDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _instanceDataVec.data());
 
 	SRVViewInit _viewInit = {};
 	_viewInit.pResource = m_instanceDataBuffer.GetResource();
@@ -90,19 +97,24 @@ void Engine::Raytracing::RayWorld::Commit()
 		_mate.baseTexSRV = static_cast<int>(_srvH.idx);
 		_materialVec.push_back(_mate);
 	}
-	m_materialDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(),_materialVec.data());
+	m_materialDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _materialVec.data());
 	SRVViewInit _viewmateInit = {};
 	_viewmateInit.pResource = m_materialDataBuffer.GetResource();
 	_viewmateInit.pDesc = m_materialDataBuffer.GetViewDesc();
-	auto _matehandle = DescriptorHeapManager::Instance().AllocateSRVRange({_viewmateInit})[0];
+	auto _matehandle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewmateInit })[0];
 	m_materialDataBuffer.SetHandle(_matehandle);
 }
 
-void Engine::Raytracing::RayWorld::Update()
+
+void Engine::Raytracing::RayWorld::Commit()
 {
 	auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
+	// TLAS更新
+	m_upTLAS->Update(m_instanceVec);
+	
+	// 構造体バッファ更新
 	m_instanceDataBuffer.Update(_pDevice, _pCmdList);
 	m_materialDataBuffer.Update(_pDevice, _pCmdList);
 }

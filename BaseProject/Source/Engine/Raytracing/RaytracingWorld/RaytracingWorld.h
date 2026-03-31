@@ -17,11 +17,11 @@ namespace Engine::Raytracing
 			const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
 		);
 
+		// 初期化
+		void Init();
+
 		// レイトレワールド構築
 		void Commit();
-
-		// 
-		void Update();
 
 		// TLASアドレス取得
 		D3D12_GPU_VIRTUAL_ADDRESS GetTLAS();
@@ -55,5 +55,8 @@ namespace Engine::Raytracing
 
 		std::vector<Instance> m_instanceVec = {};		// レイトレワールドインスタンス
 		std::unique_ptr<TLAS> m_upTLAS = nullptr;		// レイトレワールドTLAS
+
+		// 更新
+		bool m_isCommit = false;		// コミットされたかどうか
 	};
 }
