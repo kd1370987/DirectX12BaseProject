@@ -188,6 +188,7 @@ void Engine::Resource::Mesh::CreateBLAS()
 		_desc.Triangles.VertexBuffer.StartAddress = m_vertexBuffer.GetGPUVirtualAddress();
 		_desc.Triangles.VertexBuffer.StrideInBytes = m_vertexBuffer.GetStrideSize();
 		_desc.Triangles.VertexCount = m_vertexBuffer.GetCount();
+		_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 
 		// インデックスバッファ
 		_desc.Triangles.IndexBuffer = m_indexBuffer.GetGPUVirtualAddress() + sizeof(UINT) * _subset.faceStart * 3;

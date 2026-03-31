@@ -173,7 +173,7 @@ void TraceReflectionRay(inout RayPayload a_rayPayload,float3 a_normal)
 		// 反射レイを飛ばす
 		RayDesc _ray;
 		_ray.Origin = _posW;
-		_ray.Direction = normalize(_reflectDir);
+		_ray.Direction = _reflectDir;
 		_ray.TMin = 0.01f;
 		_ray.TMax = 1000;
 
@@ -181,7 +181,7 @@ void TraceReflectionRay(inout RayPayload a_rayPayload,float3 a_normal)
 			g_raytracingWorld,
 			0,
 			0xFF,
-			0,
+			1,
 			0,
 			1,
 			_ray,
@@ -221,7 +221,7 @@ void RayGen()
 		0,
 		0xFF,
 		0,
-		1,
+		0,
 		0,
 		_ray,
 		_payload

@@ -46,7 +46,7 @@ void FullScreenPass::CreatePass()
 	_gpsDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	_gpsDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	_gpsDesc.NumRenderTargets = 1;
-	_gpsDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	_gpsDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	_gpsDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	_gpsDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	_gpsDesc.SampleDesc.Count = 1;

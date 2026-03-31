@@ -43,6 +43,8 @@ namespace Engine::Raytracing
 		uint32_t m_rayGenOffset = 0;	// レイジェネレーションシェーダー開始位置
 		uint32_t m_missOffset = 0;		// ミスシェーダー開始位置
 		uint32_t m_hitOffset = 0;		// ヒットシェーダー開始位置
+		uint32_t m_shadowHitOffset = 0;	// シャドウヒットシェーダー開始位置
+		uint32_t m_shadowMissOffset = 0;	// シャドウミスシェーダー開始位置
 
 		// テーブルサイズ
 		uint32_t m_tableSize = 0;	// テーブル全体のサイズ
