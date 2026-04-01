@@ -181,7 +181,7 @@ void TraceReflectionRay(inout RayPayload a_rayPayload,float3 a_normal)
 			g_raytracingWorld,
 			0,
 			0xFF,
-			1,
+			0,
 			0,
 			1,
 			_ray,
@@ -254,9 +254,13 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	// UV取得
 	float2 _uv = GetUV(a_attr);
 
+	float3 _color3 = g_albedoTex.SampleLevel(gSamp, _uv, 0).rgb;
+	a_payload.color = _color3;
+	return;
 	// 法線取得
 	float3 _normal = GetNormal(a_attr, _uv);
 
+	
 	// ワールド空間に変換
 	float _cs = cos(-1.57f);
 	float _sn = sin(-1.57f);
@@ -285,7 +289,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	_normal = mul(m, _normal);
 
 	// 光源に向かってレイを飛ばす
-	TraceLightRay(a_payload,_normal);
+	//TraceLightRay(a_payload,_normal);
 	float _lig = 0.0f;
 	if(a_payload.hit == 0)
 	{
@@ -301,7 +305,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	_refPayload.color = float3(0, 0, 0);
 
 	// 反射レイを飛ばす
-	TraceReflectionRay(_refPayload, _normal);
+	//TraceReflectionRay(_refPayload, _normal);
 
 	// このプリミティブの反射率を取得
 	Material _material = g_materialData[InstanceID()];

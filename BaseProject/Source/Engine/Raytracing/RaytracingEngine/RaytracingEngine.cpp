@@ -159,10 +159,10 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 	_psoInit.AddShader(L"RayGen",		LocalRootSignature::RayGen,			ShaderCategory::RayGenerator);
 	_psoInit.AddShader(L"Miss",			LocalRootSignature::Empty,			ShaderCategory::Miss);
 	_psoInit.AddShader(L"ClosestHit",	LocalRootSignature::PBRMaterialHit, ShaderCategory::ClosestHit);
-	_psoInit.AddShader(L"ShadowCHS",	LocalRootSignature::PBRMaterialHit, ShaderCategory::ClosestHit);
-	_psoInit.AddShader(L"ShadowMiss",	LocalRootSignature::Empty,			ShaderCategory::Miss);
+	//_psoInit.AddShader(L"ShadowCHS",	LocalRootSignature::PBRMaterialHit, ShaderCategory::ClosestHit);
+	//_psoInit.AddShader(L"ShadowMiss",	LocalRootSignature::Empty,			ShaderCategory::Miss);
 	_psoInit.AddHitGroup(L"HitGroup", L"ClosestHit");
-	_psoInit.AddHitGroup(L"ShadowHitGroup", L"ShadowCHS");
+	//_psoInit.AddHitGroup(L"ShadowHitGroup", L"ShadowCHS");
 	_psoInit.maxRecursionDepth = 4;
 	_psoInit.opGlobalRootSigInit = _globalRootSigInit;
 	_psoInit.opHitRootSigInit = _hitSigInit;
