@@ -280,7 +280,8 @@ void GameScene::RegistryEntity()
 
 		ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_entity);
 		_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel(
-			"Asset/Model/TEST_metarogh/MRModel.gltf"
+			//"Asset/Model/TEST_metarogh/MRModel.gltf"
+			"Asset/Model/Test/BALL/ball.gltf"
 		);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
@@ -289,7 +290,8 @@ void GameScene::RegistryEntity()
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
 
-		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity,_model->handle);
+		DXSM::Matrix _worldMat = DXSM::Matrix::CreateTranslation(0,3,0);
+		Engine::Raytracing::RayEngine::Instance().RegistModel(_worldMat,_model->handle);
 	}
 
 	{

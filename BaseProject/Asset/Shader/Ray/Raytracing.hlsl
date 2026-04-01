@@ -183,7 +183,8 @@ void TraceReflectionRay(inout RayPayload a_rayPayload, float3 a_normal)
 	
 	// 反射レイを飛ばす
 	RayDesc _ray;
-	_ray.Origin = _posW + a_normal * 0.001f;
+	_ray.Origin = _posW + a_normal * 0.1f;
+	//_ray.Origin = _posW;
 	_ray.Direction = _reflectDir;
 	_ray.TMin = 0.01f;
 	_ray.TMax = 1000;
@@ -271,34 +272,6 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	// 法線取得
 	float3 _normal = GetNormal(a_attr, _uv);
 
-	
-	// ワールド空間に変換
-	float _cs = cos(-1.57f);
-	float _sn = sin(-1.57f);
-	float4x4 m;
-	m[0][0] = 1.0f;
-	m[0][1] = 0.0f;
-	m[0][2] = 0.0f;
-	m[0][3] = 0.0f;
-
-	m[1][0] = 0.0f;
-	m[1][1] = _cs;
-	m[1][2] = _sn;
-	m[1][3] = 0.0f;
-
-	m[2][0] = 0.0f;
-	m[2][1] = -_sn;
-	m[2][2] = _cs;
-	m[2][3] = 0.0f;
-
-	m[3][0] = 0.0f;
-	m[3][1] = 0.0f;
-	m[3][2] = 0.0f;
-	m[3][3] = 1.0f;
-
-	m = transpose(m);
-	_normal = mul(m, _normal);
-
 	// 光源に向かってレイを飛ばす
 	TraceLightRay(a_payload,_normal);
 	float _lig = 0.0f;
@@ -318,10 +291,15 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	// 反射レイを飛ばす
 	TraceReflectionRay(_refPayload, _normal);
 
+	
+	float dist = RayTCurrent();
+	float lod = log2(dist * 0.2); // 調整必要
+	lod = clamp(lod, 0, 5);
+	
 	// このプリミティブの反射率を取得
 	Material _material = g_materialData[InstanceID()];
-	float _reflectRate = g_metaRogTex.SampleLevel(gSamp, _uv, 0).b * _material.metallic;
-	float3 _color = g_albedoTex.SampleLevel(gSamp, _uv,0).rgb;
+	float _reflectRate = g_metaRogTex.SampleLevel(gSamp, _uv, lod).b * _material.metallic;
+	float3 _color = g_albedoTex.SampleLevel(gSamp, _uv, lod).rgb;
 	_color *= _lig;
 	a_payload.color = lerp(_color,_refPayload.color,_reflectRate);
 	
