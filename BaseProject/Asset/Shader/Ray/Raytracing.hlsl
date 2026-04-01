@@ -32,7 +32,9 @@ struct Vertex
 struct Material
 {
 	float4 baseColor;
-	int baseTexSRV;
+	float metallic;
+	float roughness;
+	float3 emissive;
 };
 
 RaytracingAccelerationStructure g_raytracingWorld : register(t0);		// レイトレワールド
@@ -144,50 +146,60 @@ void TraceLightRay(inout RayPayload a_rayPayload,float3 a_normal)
 	_ray.TMax = 100;
 	
 	TraceRay(
-		g_raytracingWorld,
-		0,
-		0xFF,
-		1,
-		0,
-		1,
-		_ray,
-		a_rayPayload
+		g_raytracingWorld,	// TLAS
+		0,					// RayFlags
+		0xFF,				// InstanceInclusionMask
+		1,					// RayContributionToHitGroupIndex
+		2,					// MultiplierForGeometryContributionToHitGroupIndex
+		1,					// MissShaderIndex
+		_ray,				// Ray
+		a_rayPayload		// RayPayload
 	);
 }
 
 // 反射レイを飛ばす
-void TraceReflectionRay(inout RayPayload a_rayPayload,float3 a_normal)
+void TraceReflectionRay(inout RayPayload a_rayPayload, float3 a_normal)
 {
-	if(a_rayPayload.depth < 3)
+	if (a_rayPayload.depth >= 3)
 	{
-		float _hitT = RayTCurrent(); // レイが当たった距離
-		float3 _rayDirW = WorldRayDirection(); // レイのワールド空間での方向
-		float3 _rayOriginW = WorldRayOrigin(); // レイのワールド空間での開始位置
+		return;
+	}
+	
+	
+	float _hitT = RayTCurrent(); // レイが当たった距離
+	float3 _rayDirW = WorldRayDirection(); // レイのワールド空間での方向
+	float3 _rayOriginW = WorldRayOrigin(); // レイのワールド空間での開始位置
 
 		// 反射ベクトルを計算
-		float3 _reflectDir = reflect(_rayDirW, a_normal);
+	float3 _reflectDir = reflect(_rayDirW, a_normal);
 
 		// 反射レイの情報をセット
-		float3 _posW = _rayOriginW + _hitT * _rayDirW;
+	float3 _posW = _rayOriginW + _hitT * _rayDirW;
 
-		// 反射レイを飛ばす
-		RayDesc _ray;
-		_ray.Origin = _posW;
-		_ray.Direction = _reflectDir;
-		_ray.TMin = 0.01f;
-		_ray.TMax = 1000;
+	RayPayload _refPayload;
+	_refPayload.color = float3(0, 0, 0);
+	_refPayload.depth = a_rayPayload.depth;
+	_refPayload.hit = 0;
+	
+	// 反射レイを飛ばす
+	RayDesc _ray;
+	_ray.Origin = _posW + a_normal * 0.001f;
+	_ray.Direction = _reflectDir;
+	_ray.TMin = 0.01f;
+	_ray.TMax = 1000;
 
-		TraceRay(
+	TraceRay(
 			g_raytracingWorld,
 			0,
 			0xFF,
 			0,
+			2,
 			0,
-			1,
 			_ray,
-			a_rayPayload
+			_refPayload
 		);
-	}
+
+	a_rayPayload.color = _refPayload.color;
 }
 
 
@@ -215,13 +227,15 @@ void RayGen()
 
 	RayPayload _payload;
 	_payload.color = float3(0,0,0);
+	_payload.depth = 0;
+	_payload.hit = 0;
 	
 	TraceRay(
 		g_raytracingWorld,
 		0,
 		0xFF,
 		0,
-		0,
+		2,
 		0,
 		_ray,
 		_payload
@@ -254,9 +268,6 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	// UV取得
 	float2 _uv = GetUV(a_attr);
 
-	float3 _color3 = g_albedoTex.SampleLevel(gSamp, _uv, 0).rgb;
-	a_payload.color = _color3;
-	return;
 	// 法線取得
 	float3 _normal = GetNormal(a_attr, _uv);
 
@@ -289,9 +300,9 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	_normal = mul(m, _normal);
 
 	// 光源に向かってレイを飛ばす
-	//TraceLightRay(a_payload,_normal);
+	TraceLightRay(a_payload,_normal);
 	float _lig = 0.0f;
-	if(a_payload.hit == 0)
+	if (a_payload.hit == 0)
 	{
 		float3 _ligDir = normalize(float3(0.5, 0.5, 0.2));
 		float _t = max(0, dot(_normal, _ligDir));
@@ -305,15 +316,17 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	_refPayload.color = float3(0, 0, 0);
 
 	// 反射レイを飛ばす
-	//TraceReflectionRay(_refPayload, _normal);
+	TraceReflectionRay(_refPayload, _normal);
 
 	// このプリミティブの反射率を取得
 	Material _material = g_materialData[InstanceID()];
-	float _reflectRate = g_metaRogTex.SampleLevel(gSamp, _uv, 0).r;
+	float _reflectRate = g_metaRogTex.SampleLevel(gSamp, _uv, 0).b * _material.metallic;
 	float3 _color = g_albedoTex.SampleLevel(gSamp, _uv,0).rgb;
 	_color *= _lig;
 	a_payload.color = lerp(_color,_refPayload.color,_reflectRate);
+	
 	a_payload.depth--;
+	
 }
 
 [shader("closesthit")]

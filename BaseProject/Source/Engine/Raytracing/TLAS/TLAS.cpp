@@ -93,7 +93,7 @@ void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
 	for (int _i = 0; _i < _numInstance; ++_i)
 	{
 		m_pInstanceDesc[_i].InstanceID = _i;
-		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = _i;
+		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = m_hitGroupNum * _i;
 		m_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 		m_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
 		auto& m = a_instanceVec[_i].worldMat;
@@ -170,7 +170,7 @@ void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec
 	for (int _i = 0; _i < a_instanceVec.size(); ++_i)
 	{
 		m_pInstanceDesc[_i].InstanceID = _i;
-		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = _i;
+		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = _i * m_hitGroupNum;
 		m_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 		m_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
 		auto& m = a_instanceVec[_i].worldMat;
@@ -206,8 +206,6 @@ void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec
 	_asDesc.Inputs.InstanceDescs = m_cpInstanceBuffer->GetGPUVirtualAddress();
 	_asDesc.DestAccelerationStructureData = m_cpResource->GetGPUVirtualAddress();
 	_asDesc.ScratchAccelerationStructureData = m_cpScratch->GetGPUVirtualAddress();
-	//_asDesc.Inputs.Flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
-	//_asDesc.SourceAccelerationStructureData = m_cpResource->GetGPUVirtualAddress();
 
 	_pCmdList->BuildRaytracingAccelerationStructure(&_asDesc, 0, nullptr);
 

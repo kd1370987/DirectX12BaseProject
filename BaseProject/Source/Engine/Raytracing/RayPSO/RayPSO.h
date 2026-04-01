@@ -42,7 +42,8 @@ namespace Engine::Raytracing
 		// パイプラインステート作成
 		bool Init(const RayPSOInit& a_init);
 
-		void* GetShaderID(const std::string& a_shaderEntry);
+		const void* GetShaderID(const std::string& a_shaderEntry) const;
+		const void* GetShaderID(const const wchar_t* a_shaderEntry) const;
 
 		ID3D12StateObject* Get()
 		{

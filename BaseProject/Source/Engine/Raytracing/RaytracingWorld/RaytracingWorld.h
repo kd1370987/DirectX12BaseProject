@@ -18,7 +18,7 @@ namespace Engine::Raytracing
 		);
 
 		// 初期化
-		void Init();
+		void Init(uint32_t a_hitGroupNum);
 
 		// レイトレワールド構築
 		void Commit();
@@ -45,8 +45,10 @@ namespace Engine::Raytracing
 
 		struct Material
 		{
-			DirectX::XMFLOAT4 baseColor = {1,1,1,1};
-			int baseTexSRV = 0;
+			DXSM::Vector4 baseColor = { 1,1,1,1 };
+			float						metallic = 0.0f;						// B : 金属製
+			float						roughness = 1.0f;						// G : 粗さ
+			DirectX::XMFLOAT3			emissive = { 1.0f,1.0f,1.0f };
 		};
 
 		// GPU送信用データ

@@ -29,7 +29,7 @@ void Engine::Raytracing::RayEngine::Dispatch()
 	if(!m_isCommit)
 	{
 		m_upRayWorld->Commit();
-		m_upShaderTable->Update(*m_upRayWorld.get(), *m_upPSO.get());
+		m_upShaderTable->Update(*m_upRayWorld.get());
 
 		m_isCommit = true;
 	}
@@ -159,10 +159,10 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 	_psoInit.AddShader(L"RayGen",		LocalRootSignature::RayGen,			ShaderCategory::RayGenerator);
 	_psoInit.AddShader(L"Miss",			LocalRootSignature::Empty,			ShaderCategory::Miss);
 	_psoInit.AddShader(L"ClosestHit",	LocalRootSignature::PBRMaterialHit, ShaderCategory::ClosestHit);
-	//_psoInit.AddShader(L"ShadowCHS",	LocalRootSignature::PBRMaterialHit, ShaderCategory::ClosestHit);
-	//_psoInit.AddShader(L"ShadowMiss",	LocalRootSignature::Empty,			ShaderCategory::Miss);
+	_psoInit.AddShader(L"ShadowCHS",	LocalRootSignature::PBRMaterialHit, ShaderCategory::ClosestHit);
+	_psoInit.AddShader(L"ShadowMiss",	LocalRootSignature::Empty,			ShaderCategory::Miss);
 	_psoInit.AddHitGroup(L"HitGroup", L"ClosestHit");
-	//_psoInit.AddHitGroup(L"ShadowHitGroup", L"ShadowCHS");
+	_psoInit.AddHitGroup(L"ShadowHitGroup", L"ShadowCHS");
 	_psoInit.maxRecursionDepth = 4;
 	_psoInit.opGlobalRootSigInit = _globalRootSigInit;
 	_psoInit.opHitRootSigInit = _hitSigInit;
@@ -177,14 +177,19 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 	{
 		m_upRayWorld = std::make_unique<RayWorld>();
 	}
-	m_upRayWorld->Init();
+	m_upRayWorld->Init(_psoInit.hitGroupVec.size());
 
 	// シェーダーテーブルの作成
+	ShaderTableInit _shaderTableInit = {
+		.pRayPSO = m_upPSO.get(),
+		.shaderData = _psoInit.shaderDataVec,
+		.hitGroup = _psoInit.hitGroupVec,
+		.maxInstance = 1000,
+		.maxLocalRootSize = sizeof(D3D12_GPU_DESCRIPTOR_HANDLE) * 3
+	};
+
 	m_upShaderTable = std::make_unique<ShaderTable>();
-	m_upShaderTable->Init(
-		*m_upRayWorld.get(),
-		*m_upPSO.get()
-	);
+	m_upShaderTable->Init(_shaderTableInit);
 }
 
 Engine::Raytracing::RayEngine::RayEngine()

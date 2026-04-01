@@ -20,6 +20,11 @@ namespace Engine::Raytracing
 
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle();
 
+		void SetHitGroupNum(uint32_t a_num)
+		{
+			m_hitGroupNum = a_num;
+		}
+
 	private:
 
 		void CreateBuffer(
@@ -50,5 +55,8 @@ namespace Engine::Raytracing
 
 		// SRVハンドル
 		Engine::Resource::Handle<SRV> m_srvHandle = {};
+
+		// ヒットグループ数
+		uint32_t m_hitGroupNum = 0;
 	};
 }

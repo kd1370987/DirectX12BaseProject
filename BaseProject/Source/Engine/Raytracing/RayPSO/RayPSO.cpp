@@ -150,7 +150,7 @@ namespace Engine::Raytracing
 		return true;
 	}
 
-	void* Engine::Raytracing::RayPSO::GetShaderID(const std::string& a_shaderEntry)
+	const void* Engine::Raytracing::RayPSO::GetShaderID(const std::string& a_shaderEntry) const
 	{
 		ComPtr<ID3D12StateObjectProperties> _props;
 		m_cpPSO.As(&_props);
@@ -158,5 +158,12 @@ namespace Engine::Raytracing
 		std::wstring _entry = StringUtility::ToWideString(a_shaderEntry);
 
 		return _props->GetShaderIdentifier(_entry.c_str());
+	}
+	const void* RayPSO::GetShaderID(const const wchar_t* a_shaderEntry) const
+	{
+		ComPtr<ID3D12StateObjectProperties> _props;
+		m_cpPSO.As(&_props);
+
+		return _props->GetShaderIdentifier(a_shaderEntry);
 	}
 }

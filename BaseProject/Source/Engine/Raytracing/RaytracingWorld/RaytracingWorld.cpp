@@ -56,12 +56,13 @@ void Engine::Raytracing::RayWorld::Register(
 	m_isCommit = false;
 }
 
-void Engine::Raytracing::RayWorld::Init()
+void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 {
 	if (!m_upTLAS)
 	{
 		m_upTLAS = std::make_unique<TLAS>();
 	}
+	m_upTLAS->SetHitGroupNum(a_hitGroupNum);
 	m_upTLAS->Create(m_instanceVec);
 
 	// 構造体バッファ作成
@@ -92,9 +93,9 @@ void Engine::Raytracing::RayWorld::Init()
 	{
 		Material _mate = {};
 		_mate.baseColor = _instance.pMaterial->baseColor;
-		auto _tex = Engine::Resource::TextureManager::Instance().GetTexture(_instance.pMaterial->baseColorTex);
-		auto _srvH = _tex.GetSRV();
-		_mate.baseTexSRV = static_cast<int>(_srvH.idx);
+		_mate.metallic = _instance.pMaterial->metallic;
+		_mate.roughness = _instance.pMaterial->roughness;
+		_mate.emissive = _instance.pMaterial->emissive;
 		_materialVec.push_back(_mate);
 	}
 	m_materialDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _materialVec.data());
