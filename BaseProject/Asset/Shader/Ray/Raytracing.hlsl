@@ -35,6 +35,8 @@ struct Material
 	float metallic;
 	float roughness;
 	float3 emissive;
+
+	int baseIndex;
 };
 
 RaytracingAccelerationStructure g_raytracingWorld : register(t0);		// レイトレワールド
@@ -293,18 +295,23 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 
 	
 	float dist = RayTCurrent();
-	float lod = log2(dist * 0.2); // 調整必要
+	float lod = log2(dist * 0.5); // 調整必要
 	lod = clamp(lod, 0, 5);
 	
 	// このプリミティブの反射率を取得
 	Material _material = g_materialData[InstanceID()];
 	float _reflectRate = g_metaRogTex.SampleLevel(gSamp, _uv, lod).b * _material.metallic;
 	float3 _color = g_albedoTex.SampleLevel(gSamp, _uv, lod).rgb;
+
+	//float3 _baseTex = ResourceDescriptorHeap[4].SampleLevel(gSamp, _uv, lod).rgb;
+	Texture2D _baseTex = (Texture2D) ResourceDescriptorHeap[4];
+	_color = _baseTex.SampleLevel(gSamp, _uv, lod).rgb;
+	//_color = _baseTex;
+	
 	_color *= _lig;
 	a_payload.color = lerp(_color,_refPayload.color,_reflectRate);
 	
 	a_payload.depth--;
-	
 }
 
 [shader("closesthit")]

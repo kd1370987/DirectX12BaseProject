@@ -133,6 +133,7 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 	_globalRootSigInit.AddDescriptorHeap({ {RangeType::UAV,0} });	// 出力
 	_globalRootSigInit.AddDescriptorHeap({ {RangeType::SRV,1} });	// インスタンス配列
 	_globalRootSigInit.AddDescriptorHeap({ {RangeType::SRV,2} });	// マテリアル
+	_globalRootSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 
 	// ローカルルートシグネチャ構築
 	// レイジェネレーション

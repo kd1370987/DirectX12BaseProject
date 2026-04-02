@@ -8,7 +8,7 @@ public:
 	~Device(){}
 
 	// デバイスの初期化
-	bool Init(bool a_isDebug);
+	bool Init(bool a_isDebug,bool a_isDynamic = true);
 	void Release();
 
 	// ゲッター
@@ -18,7 +18,7 @@ public:
 
 private:
 
-	bool CreateDevice();				// デバイスの生成
+	bool CreateDevice(bool a_isDynamic);				// デバイスの生成
 	bool CreateDxgiFactory();			// DXGIファクトリの生成
 
 private:
@@ -34,10 +34,11 @@ private:
 		Kind,
 	};
 
-	ComPtr<ID3D12Device> m_cpDevice = nullptr;		// GPUデバイス
-	ComPtr<ID3D12Device5> m_cpDevice5 = nullptr;		// GPUデバイス
+	ComPtr<ID3D12Device5> m_cpDevice5 = nullptr;	// GPUデバイス
 	ComPtr<IDXGIFactory6> m_cpDxgFactory = nullptr;	// DXGIファクトリ
 
 
 	bool m_isDebug = false;
+
+	bool m_isDynamicResourceSupported = false;		// 動的リソースがサポートされているか
 };

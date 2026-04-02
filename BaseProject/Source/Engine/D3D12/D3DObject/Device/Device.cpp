@@ -1,6 +1,6 @@
 ﻿#include "Device.h"
 
-bool Device::Init(bool a_isDebug)
+bool Device::Init(bool a_isDebug, bool a_isDynamic)
 {
 	// デバッグフラグ
 	m_isDebug = a_isDebug;
@@ -11,7 +11,7 @@ bool Device::Init(bool a_isDebug)
 		assert(0 && "DXGIファクトリの生成に失敗");
 		return false;
 	}
-	if (!CreateDevice())
+	if (!CreateDevice(a_isDynamic))
 	{
 		assert(0 && "デバイスの生成に失敗");
 		return false;
@@ -20,7 +20,7 @@ bool Device::Init(bool a_isDebug)
 	if(m_isDebug)
 	{
 		ComPtr<ID3D12DebugDevice> _debDev;
-		if (SUCCEEDED(m_cpDevice->QueryInterface(IID_PPV_ARGS(&_debDev))))
+		if (SUCCEEDED(m_cpDevice5->QueryInterface(IID_PPV_ARGS(&_debDev))))
 		{
 			_debDev->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
 		}
@@ -34,7 +34,7 @@ void Device::Release()
 	if(m_isDebug)
 	{
 		ComPtr<ID3D12DebugDevice> _dd;
-		m_cpDevice->QueryInterface(IID_PPV_ARGS(&_dd));
+		m_cpDevice5->QueryInterface(IID_PPV_ARGS(&_dd));
 		_dd->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
 	}
 }
@@ -50,7 +50,7 @@ IDXGIFactory6* Device::GetDxgiFactory()
 }
 
 
-bool Device::CreateDevice()
+bool Device::CreateDevice(bool a_isDynamic)
 {
 	ComPtr<IDXGIAdapter> _pSelectAdapter = nullptr;		// 選択アダプタ
 	std::vector<ComPtr<IDXGIAdapter>> _pAdapters;		// 発見したアダプタ群
@@ -150,6 +150,25 @@ bool Device::CreateDevice()
 	}
 
 	//m_cpDevice.As(&m_cpDevice5);
+
+	m_isDynamicResourceSupported = false;
+	if (a_isDynamic)
+	{
+		D3D12_FEATURE_DATA_D3D12_OPTIONS _featureOptions = {};
+		D3D12_FEATURE_DATA_SHADER_MODEL _shaderModel = {};
+		_shaderModel.HighestShaderModel = D3D_SHADER_MODEL_6_6;
+		if (SUCCEEDED(m_cpDevice5.Get()->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &_featureOptions, sizeof(_featureOptions)))
+			&& SUCCEEDED(m_cpDevice5.Get()->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL,&_shaderModel,sizeof(_shaderModel))))
+		{
+			bool _isTier3 = _featureOptions.ResourceBindingTier == D3D12_RESOURCE_BINDING_TIER_3;
+			m_isDynamicResourceSupported = _isTier3;
+		}
+	}
+	if (!m_isDynamicResourceSupported)
+	{
+		assert(0 && "動的リソースがサポートされていないGPUが選択されました。");
+	}
+	
 
 	return true;
 }

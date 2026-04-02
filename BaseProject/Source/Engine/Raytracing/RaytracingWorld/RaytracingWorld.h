@@ -49,6 +49,8 @@ namespace Engine::Raytracing
 			float						metallic = 0.0f;						// B : 金属製
 			float						roughness = 1.0f;						// G : 粗さ
 			DirectX::XMFLOAT3			emissive = { 1.0f,1.0f,1.0f };
+
+			int baseIndex = 0;
 		};
 
 		// GPU送信用データ
