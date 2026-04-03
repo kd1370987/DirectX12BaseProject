@@ -26,13 +26,13 @@ void ScreenUIDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				UIComponent& _uiComp = a_uiArray[_i];
 
 				// 描画アイテム
-				DrawItem2D _item = {};
+				Engine::Graphics::DrawItem2D _item = {};
 				_item.worldMat = _matComp.worldMat;
 				//_item.srvHandleRange = _uiComp.srvHandle;
 				_item.srvHandleRange = Engine::Resource::TextureManager::Instance().GetTexture(_uiComp.texHandle).GetSRV();
 				_item.colorScale = _uiComp.color;
 
-				RenderContext::Instance().AddItem(RenderQueueType2D::ScreenUI, _item);
+				Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType2D::ScreenUI, _item);
 			}
 		});
 }

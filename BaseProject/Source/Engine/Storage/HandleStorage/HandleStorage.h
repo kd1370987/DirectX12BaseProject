@@ -17,7 +17,7 @@ namespace Engine::Storage
 		// データの削除
 		void Remove(const Engine::Resource::Handle<T>& a_handle);
 
-		// 有効かどうか
+		// 有効かどうか : true = 使える値、有効
 		bool IsValid(const Engine::Resource::Handle<T>& a_handle) const;
 
 	private:

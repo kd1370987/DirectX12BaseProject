@@ -9,6 +9,8 @@ namespace Engine::Resource
 		// 管理場所と世代
 		Engine::Resource::Index idx = Engine::Resource::Limits::INVALID_INDEX;
 		Engine::Resource::Generation gen = Engine::Resource::Limits::INVALID_GENERATION;
+
+		auto operator<=>(const Handle&)const = default;
 	};
 
 	// レンジハンドル

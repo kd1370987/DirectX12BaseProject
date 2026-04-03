@@ -273,7 +273,6 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
     <ClCompile Include="Source\Engine\MainEngine.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\OffScreen\OffScreen.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp" />
@@ -288,7 +287,6 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass\ZPrePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass\DeferredLightingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass\FullScreenPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass\MonotonePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp" />
@@ -455,7 +453,6 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\MainEngine.h" />
     <ClInclude Include="Source\Engine\EngineCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />
-    <ClInclude Include="Source\Engine\Graphics\OffScreen\OffScreen.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h" />
@@ -470,7 +467,6 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass\ZPrePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\DeferredLightingPass\DeferredLightingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass\FullScreenPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass\MonotonePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RenderPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RootSigLayout\RootSigLayout.h" />

@@ -115,7 +115,7 @@ void BaseScene::Draw()
 
 	m_upWorld->RunSystem(Engine::ECS::ESystemType::Draw, 0.0f);
 
-	RenderContext::Instance().Excute();
+	Engine::Graphics::RenderContext::Instance().Excute();
 }
 
 void BaseScene::RegistryComponent()

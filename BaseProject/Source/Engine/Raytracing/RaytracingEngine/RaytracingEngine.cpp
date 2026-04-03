@@ -48,10 +48,10 @@ void Engine::Raytracing::RayEngine::Dispatch()
 
 
 	// 定数バッファをバインド
-	m_camera.aspectRate = RenderContext::Instance().GetCameraAspectRate();
-	m_camera.rotMat = RenderContext::Instance().GetCameraRotMat();
-	m_camera.pos = RenderContext::Instance().GetCameraPOS();
-	RenderContext::Instance().BindCB()->BindAndAttachDataComputeRootCBV<Camera>(
+	m_camera.aspectRate = Graphics::RenderContext::Instance().GetCameraAspectRate();
+	m_camera.rotMat = Graphics::RenderContext::Instance().GetCameraRotMat();
+	m_camera.pos = Graphics::RenderContext::Instance().GetCameraPOS();
+	Graphics::RenderContext::Instance().BindCB()->BindAndAttachDataComputeRootCBV<Camera>(
 		_pCmdList4,
 		0,
 		m_camera

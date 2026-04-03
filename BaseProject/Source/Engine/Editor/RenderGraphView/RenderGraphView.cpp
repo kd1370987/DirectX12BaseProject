@@ -10,7 +10,7 @@ void RenderGraphView::Draw()
 {
 	if (ImGui::Begin("RGTextureList"))
 	{
-		std::vector<std::string> _nameList = RenderContext::Instance().GetRGResourceList();
+		std::vector<std::string> _nameList = Engine::Graphics::RenderContext::Instance().GetRGResourceList();
 
 		for (int _i = 0; _i < _nameList.size(); ++_i)
 		{
@@ -33,7 +33,7 @@ void RenderGraphView::Draw()
 	// シーンビュー
 	if (ImGui::Begin("SceneView"))
 	{
-		ImTextureID  _RGTexture = (ImTextureID)(RenderContext::Instance().GetImGuiGPUHandle(m_rgTexName).ptr);
+		ImTextureID  _RGTexture = (ImTextureID)(Engine::Graphics::RenderContext::Instance().GetImGuiGPUHandle(m_rgTexName).ptr);
 		ImVec2 _winSize = ImGui::GetContentRegionAvail();
 
 		float _aspectRatio = 1280.0f / 720.0f;

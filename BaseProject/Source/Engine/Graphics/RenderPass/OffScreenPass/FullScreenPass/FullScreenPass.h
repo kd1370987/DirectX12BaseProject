@@ -2,13 +2,16 @@
 
 #include "../OffScreenPass.h"
 
-class FullScreenPass final : public OffScreenPass
+namespace Engine::Graphics
 {
-public:
+	class FullScreenPass final : public OffScreenPass
+	{
+	public:
 
-	void Excute(RenderContext* a_pCtx) override;
+		void Excute(RenderContext* a_pCtx) override;
 
-private:
+	private:
 
-	void CreatePass() override;
-};
+		void CreatePass() override;
+	};
+}

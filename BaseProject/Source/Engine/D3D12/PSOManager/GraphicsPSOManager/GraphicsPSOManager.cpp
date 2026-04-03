@@ -2,29 +2,51 @@
 
 #include "Engine/D3D12//D3DObject/PipeLineState/PipelineState.h"
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
-
-void GraphicsPSOManager::Init(
-	const UINT& a_slotSize
-)
+namespace Engine::D3D12
 {
-	m_psoSlot.Init(a_slotSize);
+	void GraphicsPSOManager::Init(ID3D12Device* a_pDevice)
+	{
+		m_pDevice = a_pDevice;
+	}
+
+	Resource::Handle<PipelineState> GraphicsPSOManager::Request(const GraphicsPipelineDesc& a_desc)
+	{
+		// 重なり防止
+		auto _it = m_handleMap.find(a_desc.name);
+		if (_it != m_handleMap.end())
+		{
+			return _it->second;
+		}
+
+		// ハンドル取得
+		Resource::Handle<PipelineState> _handle = m_handleStorage.Allocate();
+		
+		// データを入れる
+		if (m_pipelineData.size() <= _handle.idx)
+		{
+			m_pipelineData.resize(_handle.idx + 1);
+		}
+		m_pipelineData[_handle.idx].Create(m_pDevice,a_desc);
+		m_handleMap[a_desc.name] = _handle;
+		return _handle;
+	}
+
+	const ID3D12PipelineState* GraphicsPSOManager::Get(const Resource::Handle<PipelineState>& a_handle) const
+	{
+		if (m_handleStorage.IsValid(a_handle))
+		{
+			return m_pipelineData[a_handle.idx].Get();
+		}
+		return nullptr;
+	}
+
+	ID3D12PipelineState* GraphicsPSOManager::Ref(const Resource::Handle<PipelineState>& a_handle)
+	{
+		if (m_handleStorage.IsValid(a_handle))
+		{
+			return m_pipelineData[a_handle.idx].Ref();
+		}
+		return nullptr;
+	}
+
 }
-
-Engine::Resource::ID GraphicsPSOManager::Register(
-	const std::string& a_key,
-	const D3D12_GRAPHICS_PIPELINE_STATE_DESC& a_psoDesc
-)
-{
-	// 作成
-	std::shared_ptr<PipelineState> _spPSO = std::make_shared<PipelineState>();
-	_spPSO->Create(D3D12Wrapper::Instance().GetDevice(), a_psoDesc);
-
-	// 登録
-	return m_psoSlot.Add(a_key, _spPSO);
-}
-
-ID3D12PipelineState* GraphicsPSOManager::NGet(const Engine::Resource::ID& a_id)
-{
-	return m_psoSlot.Ref(a_id)->Get();
-}
-

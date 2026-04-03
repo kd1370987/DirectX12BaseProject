@@ -34,7 +34,7 @@ void AnimationOptionalDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
 
 				// 描画アイテム
-				DrawItem _item = {};
+				Engine::Graphics::DrawItem _item = {};
 				_item.worldMat = _matComp.worldMat;
 				_item.colorScale = _modelComp.colorScale;
 				_item.emissiveScale = _modelComp.emissiveScale;
@@ -81,13 +81,13 @@ void AnimationOptionalDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 							switch (_mode)
 							{
 							case Engine::Resource::Alpha::Opaque:
-								RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
+								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
 								break;
 							case Engine::Resource::Alpha::Mask:
-								RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
+								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
 								break;
 							case Engine::Resource::Alpha::Blend:
-								RenderContext::Instance().AddItem(RenderQueueType::AnimationTransparent, _item);
+								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::AnimationTransparent, _item);
 								break;
 							default:
 								break;

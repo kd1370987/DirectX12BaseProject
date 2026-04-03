@@ -289,9 +289,6 @@
     <Filter Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager">
       <UniqueIdentifier>{2e2ead88-4e2d-4c36-904f-f4e9cc99b4c4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\OffScreen">
-      <UniqueIdentifier>{67a2c939-4c6f-4ffb-b438-6d37e0523579}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass">
       <UniqueIdentifier>{b7ca8a92-62ab-4fcb-9e26-4f375a5877c6}</UniqueIdentifier>
     </Filter>
@@ -312,9 +309,6 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass">
       <UniqueIdentifier>{19957bbc-1bc6-4c2e-95ab-9f51720a7c37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass">
-      <UniqueIdentifier>{66c513fc-8cbc-463d-9d77-c33e24606ba1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass">
       <UniqueIdentifier>{18af906d-ad2c-4e28-be52-f197d50aa8b9}</UniqueIdentifier>
@@ -786,9 +780,6 @@
     <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp">
       <Filter>Source\Engine\D3D12\CBAllocater</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\OffScreen\OffScreen.cpp">
-      <Filter>Source\Engine\Graphics\OffScreen</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\SlotStorage\SlotStorage.cpp">
       <Filter>Source\Engine\SlotStorage</Filter>
     </ClCompile>
@@ -809,9 +800,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass\ForwardLightingPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass\MonotonePass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass\FullScreenPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass</Filter>
@@ -1274,9 +1262,6 @@
     <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h">
       <Filter>Source\Engine\D3D12\CBAllocater</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\OffScreen\OffScreen.h">
-      <Filter>Source\Engine\Graphics\OffScreen</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\SlotStorage\SlotStorage.h">
       <Filter>Source\Engine\SlotStorage</Filter>
     </ClInclude>
@@ -1306,9 +1291,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass\ForwardLightingPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ForwardLightingPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass\MonotonePass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\MonotonePass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass\FullScreenPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass</Filter>

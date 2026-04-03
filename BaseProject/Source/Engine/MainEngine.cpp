@@ -81,7 +81,7 @@ namespace Engine
 		}
 
 		// 描画初期化
-		RenderContext::Instance().Init();
+		Engine::Graphics::RenderContext::Instance().Init();
 
 		m_config = a_config;
 	}
@@ -96,7 +96,7 @@ namespace Engine
 
 
 		// レンダーコンテキスト解放
-		RenderContext::Instance().Shutdown();
+		Engine::Graphics::RenderContext::Instance().Shutdown();
 
 		// ImGui解放
 		ImGuiContex::Instance().Release();
@@ -158,7 +158,7 @@ namespace Engine
 		D3D12Wrapper::Instance().BeginFrame();
 
 		// 描画フレームリソース
-		RenderContext::Instance().BeginFrame();
+		Engine::Graphics::RenderContext::Instance().BeginFrame();
 	}
 
 	void MainEngine::EndDraw()
@@ -174,7 +174,7 @@ namespace Engine
 		}
 
 		// 描画フレームリソース
-		RenderContext::Instance().EndFrame();
+		Engine::Graphics::RenderContext::Instance().EndFrame();
 
 		// 描画終了
 		D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.isVsync);

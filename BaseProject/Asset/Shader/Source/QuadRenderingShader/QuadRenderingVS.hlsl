@@ -1,9 +1,15 @@
 #include "QuadRenderingShader.hlsli"
 
-Output vs( float4 a_pos : POSITION ,float2 a_uv : TEXCOORD) 
+Output vs(uint a_id : SV_VertexID)
 {
 	Output _output;
-	_output.svPos = a_pos;
-	_output.uv = a_uv;
+	float2 _uv = float2(
+        (a_id << 1) & 2,
+        a_id & 2
+    );
+
+	_output.uv = _uv;
+	_output.svPos = float4(_uv * float2(2, -2) + float2(-1, 1), 0, 1);
+	
 	return _output;
 }

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::Graphic
+namespace Engine::Graphics
 {
 	// パスの巡回を解消するための倫理リソース
 	struct LogicalResource

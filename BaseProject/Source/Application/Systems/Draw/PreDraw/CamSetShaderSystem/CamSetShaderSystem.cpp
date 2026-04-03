@@ -28,9 +28,9 @@ void CamSetShaderSystem::Run(Engine::ECS::World& a_world, float a_dt)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				RenderContext::Instance().SetProjectionMatrix(a_projMatArray[_i].projMat);
+				Engine::Graphics::RenderContext::Instance().SetProjectionMatrix(a_projMatArray[_i].projMat);
 
-				RenderContext::Instance().SetToShader(a_wMatArray[_i].worldMat);
+				Engine::Graphics::RenderContext::Instance().SetToShader(a_wMatArray[_i].worldMat);
 			}
 		}
 	);

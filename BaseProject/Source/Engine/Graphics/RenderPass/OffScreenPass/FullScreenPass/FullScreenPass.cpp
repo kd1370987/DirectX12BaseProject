@@ -5,75 +5,76 @@
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-
-void FullScreenPass::Excute(RenderContext* a_pCtx)
+namespace Engine::Graphics
 {
-	Begin(a_pCtx);
-
-	auto _main = m_pRenderGraph->GetGPUHandle("QuadTexture");
-
-	a_pCtx->ChangeBackBuffer();
-	a_pCtx->BindSRV(RootSigSemantic::PostScreenSRV,{_main});
-	a_pCtx->DrawQuad();
-
-	End(a_pCtx);
-}
-
-void FullScreenPass::CreatePass()
-{
-	D3D12_INPUT_ELEMENT_DESC _layout[2] =
+	void FullScreenPass::Excute(RenderContext* a_pCtx)
 	{
-		{"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,
-		D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
-		{"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,
-		D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
-	};
-	D3D12_INPUT_LAYOUT_DESC _desc = {
-		.pInputElementDescs = _layout,
-		.NumElements = 2
-	};
-	Engine::Resource::ID _vsID = m_pShaderMana->Register({ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingVS.cso",ShaderStage::Vertex,&_desc });
-	Engine::Resource::ID _psID = m_pShaderMana->Register({ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingPS.cso",ShaderStage::Pixel });
+		Begin(a_pCtx);
 
-	Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("QuadRendering");
+		auto _main = m_pRenderGraph->GetGPUHandle("QuadTexture");
 
-	// パイプラインステート登録
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC _gpsDesc = {};
-	_gpsDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	_gpsDesc.DepthStencilState.DepthEnable = false;
-	_gpsDesc.DepthStencilState.StencilEnable = false;
-	_gpsDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
-	_gpsDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	_gpsDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	_gpsDesc.NumRenderTargets = 1;
-	_gpsDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	_gpsDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	_gpsDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	_gpsDesc.SampleDesc.Count = 1;
-	_gpsDesc.SampleDesc.Quality = 0;
-	_gpsDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-	_gpsDesc.InputLayout = m_pShaderMana->NGet(_vsID)->vsInputLayout;
-	_gpsDesc.VS = m_pShaderMana->NGet(_vsID)->byteCode;
-	_gpsDesc.PS = m_pShaderMana->NGet(_psID)->byteCode;
-	_gpsDesc.pRootSignature = m_pRootSigMana->NGet(_rootSigID);
-	Engine::Resource::ID _psoID = m_pPSOMana->Register("FullScreenPass", _gpsDesc);
+		a_pCtx->ChangeBackBuffer();
+		a_pCtx->BindSRV(RootSigSemantic::PostScreenSRV, { _main });
+		a_pCtx->DrawQuad();
 
-	// Desc構造体作成
-	m_passDesc = {};
-	m_passDesc.name = "FullScreenPass";
+		End(a_pCtx);
+	}
 
-	m_passDesc.rootSigID = _rootSigID;
-	m_passDesc.psoID = _psoID;
+	void FullScreenPass::CreatePass()
+	{
+		//D3D12_INPUT_ELEMENT_DESC _layout[2] =
+		//{
+		//	{"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,
+		//	D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
+		//	{"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,
+		//	D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
+		//};
+		//D3D12_INPUT_LAYOUT_DESC _desc = {
+		//	.pInputElementDescs = _layout,
+		//	.NumElements = 2
+		//};
+		//Engine::Resource::ID _vsID = m_pShaderMana->Register({ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingVS.cso",ShaderStage::Vertex,&_desc });
+		Engine::Resource::ID _vsID = m_pShaderMana->Register({ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingVS.cso",ShaderStage::Vertex});
+		Engine::Resource::ID _psID = m_pShaderMana->Register({ "Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingPS.cso",ShaderStage::Pixel });
 
-	auto _id = m_pRenderGraph->GetID("QuadTexture");
+		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("QuadRendering");
 
-	// 入力元
-	m_passDesc.readResource.push_back(_id);
+		// パイプラインステート初期化
+		D3D12::GraphicsPipelineDesc _gPSODesc = {};
+		_gPSODesc.SetName("FullScreenPass");
 
-	// 出力先
+		_gPSODesc.DepthEnable(false);
+		_gPSODesc.StencilEnable(false);
 
-	// リソース
-	m_passDesc.resourceAccessVec = {
-		{_id,AccessType::SRV,LoadOp::Load,StoreOp::DontCare}
-	};
+		// 描画先
+		_gPSODesc.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+	
+
+		// 基本情報
+		_gPSODesc.SetInputLayout(m_pShaderMana->NGet(_vsID)->vsInputLayout);
+		_gPSODesc.SetVS(m_pShaderMana->NGet(_vsID)->byteCode);
+		_gPSODesc.SetPS(m_pShaderMana->NGet(_psID)->byteCode);
+		_gPSODesc.SetRootSignature(m_pRootSigMana->NGet(_rootSigID));
+
+		// リクエスト
+		Resource::Handle<D3D12::PipelineState> _psoID = m_pPSOMana->Request(_gPSODesc);
+		// Desc構造体作成
+		m_passDesc = {};
+		m_passDesc.name = "FullScreenPass";
+
+		m_passDesc.rootSigID = _rootSigID;
+		m_passDesc.psoID = _psoID;
+
+		auto _id = m_pRenderGraph->GetID("QuadTexture");
+
+		// 入力元
+		m_passDesc.readResource.push_back(_id);
+
+		// 出力先
+
+		// リソース
+		m_passDesc.resourceAccessVec = {
+			{_id,AccessType::SRV,LoadOp::Load,StoreOp::DontCare}
+		};
+	}
 }

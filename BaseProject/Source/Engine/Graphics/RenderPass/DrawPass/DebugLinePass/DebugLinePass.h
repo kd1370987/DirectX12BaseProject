@@ -1,14 +1,16 @@
 ﻿#pragma once
 
 #include "../DrawPass.h"
-
-class DebugLinePass final : public DrawPass
+namespace Engine::Graphics
 {
-public:
+	class DebugLinePass final : public DrawPass
+	{
+	public:
 
-	void Excute(RenderContext* a_pCtx) override;
+		void Excute(RenderContext* a_pCtx) override;
 
-private:
+	private:
 
-	void CreatePass() override;
-};
+		void CreatePass() override;
+	};
+}

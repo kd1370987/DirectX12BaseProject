@@ -28,7 +28,7 @@ void SimpleDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				ModelComponent& _modelComp = a_modelArray[_i];
 
 				// 描画アイテム
-				DrawItem _item = {};
+				Engine::Graphics::DrawItem _item = {};
 				_item.worldMat = _worldMatComp.worldMat;
 				_item.colorScale = _modelComp.colorScale;
 				_item.emissiveScale = _modelComp.emissiveScale;
@@ -68,16 +68,16 @@ void SimpleDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 							switch (_mode)
 							{
 							case Engine::Resource::Alpha::Opaque:
-								RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
-								RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
+								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
+								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Mask:
-								RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
-								RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
+								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
+								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Blend:
-								RenderContext::Instance().AddItem(RenderQueueType::Transparent, _item);
-								RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
+								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Transparent, _item);
+								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
 								break;
 							default:
 								break;
@@ -88,7 +88,7 @@ void SimpleDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 						auto& _coll = _item.pMesh->GetCollision();
 						for (auto& _cell : _coll.grid.cellVec)
 						{
-							RenderContext::Instance().RefShapeDraw()->AABB(_cell.box);
+							Engine::Graphics::RenderContext::Instance().RefShapeDraw()->AABB(_cell.box);
 						}
 					}
 				}

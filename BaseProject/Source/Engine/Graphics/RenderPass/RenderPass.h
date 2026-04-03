@@ -2,43 +2,49 @@
 
 class ShaderManager;
 class RootSignatureManager;
-class GraphicsPSOManager;
-class RenderGraph;
-
-class RenderContext;
-
-class RenderPass
+namespace Engine::D3D12
 {
-public:
+	class GraphicsPSOManager;
+}
 
-	RenderPass()
+namespace Engine::Graphics
+{
+	class RenderGraph;
+	class RenderContext;
+
+	class RenderPass
 	{
-		m_passDesc = {};
-	}
-	virtual ~RenderPass() = default;
-	
-	void Init(
-		RenderGraph* a_graph,
-		ShaderManager* a_pShaderMana,
-		RootSignatureManager* a_pRootSigMana,
-		GraphicsPSOManager* a_pPSOMana
-	);
+	public:
 
-	const PassDesc& GetDesc() const
-	{
-		return m_passDesc;
-	}
+		RenderPass()
+		{
+			m_passDesc = {};
+		}
+		virtual ~RenderPass() = default;
 
-	virtual void Excute(RenderContext* a_ctx) = 0;
+		void Init(
+			RenderGraph* a_graph,
+			ShaderManager* a_pShaderMana,
+			RootSignatureManager* a_pRootSigMana,
+			Engine::D3D12::GraphicsPSOManager* a_pPSOMana
+		);
 
-protected:
+		const PassDesc& GetDesc() const
+		{
+			return m_passDesc;
+		}
 
-	virtual void CreatePass() = 0;
+		virtual void Excute(RenderContext* a_ctx) = 0;
 
-	PassDesc m_passDesc = {};
+	protected:
 
-	ShaderManager* m_pShaderMana = nullptr;
-	RootSignatureManager* m_pRootSigMana = nullptr;
-	GraphicsPSOManager* m_pPSOMana = nullptr;
-	RenderGraph* m_pRenderGraph = nullptr;
-};
+		virtual void CreatePass() = 0;
+
+		PassDesc m_passDesc = {};
+
+		ShaderManager* m_pShaderMana = nullptr;
+		RootSignatureManager* m_pRootSigMana = nullptr;
+		Engine::D3D12::GraphicsPSOManager* m_pPSOMana = nullptr;
+		RenderGraph* m_pRenderGraph = nullptr;
+	};
+}
