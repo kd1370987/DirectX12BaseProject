@@ -13,12 +13,12 @@
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
-void CamSetShaderSystem::Run(World& a_world, float a_dt)
+void CamSetShaderSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	a_world.ForEach<ActiveCameraTag,CameraTag, ProjMatComponent, WorldMatrixComponent>(
 		[&a_world, a_dt]
 		(
-			ArchetypeChunk* a_archeChunk,
+			Engine::ECS::ArchetypeChunk* a_archeChunk,
 			size_t a_count,
 			ActiveCameraTag* a_aTag,
 			CameraTag* a_cTag,

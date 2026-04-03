@@ -6,5 +6,5 @@ struct AnimatorComponent
 	float time = 0.0f;
 	float speed = 1.0f;
 
-	ECS::Flg isLoop = 0;
+	Engine::ECS::Flg isLoop = 0;
 };

@@ -14,7 +14,7 @@
 #include "Engine/Collision/Query/Raycast.h"
 
 
-void RayCollisionSystem::Run(World& a_world, float a_dt)
+void RayCollisionSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 
 	// レイコライダー取得

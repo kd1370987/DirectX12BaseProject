@@ -271,7 +271,8 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Editor\ImGui\Log\Log.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\Watch\Watch.cpp" />
     <ClCompile Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.cpp" />
-    <ClCompile Include="Source\Engine\Engine.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
+    <ClCompile Include="Source\Engine\MainEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\OffScreen\OffScreen.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp" />
@@ -318,7 +319,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Storage\HandleStorage\HandleStorage.cpp" />
     <ClCompile Include="Source\Engine\Storage\Storage.cpp" />
     <ClCompile Include="Source\Engine\TimeManager\TimeManager.cpp" />
-    <ClCompile Include="Source\Engine\Window\Window.cpp" />
+    <ClCompile Include="Source\Engine\Window\NativeWindow.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -450,7 +451,8 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Editor\ImGui\OperationBox\OperationBox.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\Watch\Watch.h" />
     <ClInclude Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.h" />
-    <ClInclude Include="Source\Engine\Engine.h" />
+    <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h" />
+    <ClInclude Include="Source\Engine\MainEngine.h" />
     <ClInclude Include="Source\Engine\EngineCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\OffScreen\OffScreen.h" />
@@ -505,7 +507,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Storage\HandleStorage\HandleStorage.h" />
     <ClInclude Include="Source\Engine\Storage\Storage.h" />
     <ClInclude Include="Source\Engine\TimeManager\TimeManager.h" />
-    <ClInclude Include="Source\Engine\Window\Window.h" />
+    <ClInclude Include="Source\Engine\Window\NativeWindow.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>
   <ItemGroup>

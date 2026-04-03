@@ -612,7 +612,7 @@
     <ClCompile Include="Source\main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Window\Window.cpp">
+    <ClCompile Include="Source\Engine\Window\NativeWindow.cpp">
       <Filter>Source\Engine\Window</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
@@ -852,7 +852,7 @@
     <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.cpp">
       <Filter>Source\Engine\Animation\AnimationEvaluator</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Engine.cpp">
+    <ClCompile Include="Source\Engine\MainEngine.cpp">
       <Filter>Source\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass\ScreenUIPass.cpp">
@@ -990,6 +990,9 @@
     <ClCompile Include="Source\Engine\Storage\HandleStorage\HandleStorage.cpp">
       <Filter>Source\Engine\Storage\HandleStorage</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp">
+      <Filter>Source\Engine\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -1007,7 +1010,7 @@
     <ClInclude Include="Source\Application\App.h">
       <Filter>Source\Application</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Window\Window.h">
+    <ClInclude Include="Source\Engine\Window\NativeWindow.h">
       <Filter>Source\Engine\Window</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
@@ -1364,7 +1367,7 @@
     <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.h">
       <Filter>Source\Engine\Animation\AnimationEvaluator</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Engine.h">
+    <ClInclude Include="Source\Engine\MainEngine.h">
       <Filter>Source\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ScreenUIPass\ScreenUIPass.h">
@@ -1528,6 +1531,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Raytracing\RayPSO\BuildSubObjectHelper.h">
       <Filter>Source\Engine\Raytracing\RayPSO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h">
+      <Filter>Source\Engine\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

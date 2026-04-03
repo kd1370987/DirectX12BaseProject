@@ -71,7 +71,7 @@ void BaseScene::Enter()
 	SetSceneType();
 
 	// ワールド作成
-	m_upWorld = std::make_unique<World>();
+	m_upWorld = std::make_unique<Engine::ECS::World>();
 	m_upWorld->Init();
 
 	// ワールド設定
@@ -82,7 +82,7 @@ void BaseScene::Enter()
 	// シーン初期化
 	Init();
 
-	m_upWorld->RunSystem(SystemType::Init,0.0f);
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::Init,0.0f);
 }
 
 void BaseScene::Exit()
@@ -96,24 +96,24 @@ void BaseScene::Update(float a_dt)
 	Event();
 
 	// シーンのシステム処理
-	m_upWorld->RunSystem(SystemType::Input, a_dt);
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::Input, a_dt);
 
-	m_upWorld->RunSystem(SystemType::PreUpdate, a_dt);
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::PreUpdate, a_dt);
 
-	m_upWorld->RunSystem(SystemType::Update, a_dt);
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::Update, a_dt);
 
-	m_upWorld->RunSystem(SystemType::Physics, a_dt);
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::Physics, a_dt);
 
-	m_upWorld->RunSystem(SystemType::Camera, a_dt);
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::Camera, a_dt);
 
-	m_upWorld->RunSystem(SystemType::PostUpdate, a_dt);
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::PostUpdate, a_dt);
 }
 
 void BaseScene::Draw()
 {
-	m_upWorld->RunSystem(SystemType::PreDraw, 0.0f);
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::PreDraw, 0.0f);
 
-	m_upWorld->RunSystem(SystemType::Draw, 0.0f);
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::Draw, 0.0f);
 
 	RenderContext::Instance().Excute();
 }
@@ -121,7 +121,7 @@ void BaseScene::Draw()
 void BaseScene::RegistryComponent()
 {
 	// コンポーネント登録
-	ECS::ComponentTypeID _id = 0;
+	Engine::ECS::ComponentTypeID _id = 0;
 	_id = m_upWorld->RegisterComponentType<ActiveCameraTag>("ActiveCameraTag");
 	ImGuiContex::Instance().GetCompEdit()->Register(RefWorld(),_id, {});
 	_id = m_upWorld->RegisterComponentType<CameraTag>("CameraTag");

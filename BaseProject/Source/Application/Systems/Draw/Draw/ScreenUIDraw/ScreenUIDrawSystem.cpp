@@ -9,12 +9,12 @@
 
 #include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 
-void ScreenUIDrawSystem::Run(World& a_world, float a_dt)
+void ScreenUIDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	a_world.ForEach<WorldMatrixComponent, UIComponent>(
 		[&a_world, a_dt]
 		(
-			ArchetypeChunk* a_pChunk,
+			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			WorldMatrixComponent* a_matArray,
 			UIComponent* a_uiArray

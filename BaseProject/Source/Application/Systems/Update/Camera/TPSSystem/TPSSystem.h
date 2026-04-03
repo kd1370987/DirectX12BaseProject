@@ -2,11 +2,11 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class TPSSystem : public SystemBase<TPSSystem>
+class TPSSystem : public Engine::ECS::SystemBase<TPSSystem>
 {
 public:
 
-	static constexpr SystemType s_type = SystemType::Camera;
+	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Camera;
 
-	void Run(World& a_world, float a_dt);
+	void Run(Engine::ECS::World& a_world, float a_dt);
 };

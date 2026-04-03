@@ -11,14 +11,14 @@
 
 #include "Application/Components/Resource/ModelComponent.h"
 
-void Gather::GatherColliderViews(World& a_world, std::vector<ColliderView>& a_outColliderViewVec)
+void Gather::GatherColliderViews(Engine::ECS::World& a_world, std::vector<ColliderView>& a_outColliderViewVec)
 {
 	a_outColliderViewVec.reserve(256);
 	a_world.ForEach<ColliderComponent, TRSComponent, WorldMatrixComponent,ModelComponent>
 		(
 			[&a_world,&a_outColliderViewVec]
 			(
-				ArchetypeChunk* a_pChunk,
+				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
 				ColliderComponent* a_colliderArray,
 				TRSComponent* a_trsArray,
@@ -40,14 +40,14 @@ void Gather::GatherColliderViews(World& a_world, std::vector<ColliderView>& a_ou
 		);
 }
 
-void Gather::GatherRayColliderViews(World& a_world, std::vector<RayColliderView>& a_outRayColliderViewVec)
+void Gather::GatherRayColliderViews(Engine::ECS::World& a_world, std::vector<RayColliderView>& a_outRayColliderViewVec)
 {
 	a_outRayColliderViewVec.reserve(64);
 	a_world.ForEach<RayColliderComponent, ColliderComponent, TRSComponent>
 		(
 			[&a_world,&a_outRayColliderViewVec]
 			(
-				ArchetypeChunk* a_pChunk,
+				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
 				RayColliderComponent* a_rayColliderArray,
 				ColliderComponent* a_colliderArray,

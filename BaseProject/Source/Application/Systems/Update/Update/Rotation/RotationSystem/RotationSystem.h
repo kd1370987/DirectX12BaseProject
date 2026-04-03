@@ -2,11 +2,11 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class RotationSystem : public SystemBase<RotationSystem>
+class RotationSystem : public Engine::ECS::SystemBase<RotationSystem>
 {
 public:
 
-	static constexpr SystemType s_type = SystemType::Update;
+	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Update;
 
-	void Run(World& a_world, float a_dt);
+	void Run(Engine::ECS::World& a_world, float a_dt);
 };

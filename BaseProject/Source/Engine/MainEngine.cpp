@@ -1,6 +1,6 @@
-﻿#include "Engine.h"
+﻿#include "MainEngine.h"
 
-#include "Engine/Window/Window.h"
+#include "Engine/Window/NativeWindow.h"
 #include "Engine/TimeManager/TimeManager.h"
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
@@ -21,8 +21,8 @@ namespace Engine
 	void MainEngine::Init(EngineConfig a_config)
 	{
 		// ウィンドウ設定取得
-		m_windowWidth = Application::Instance().GetConfig().windowWidth;
-		m_windowHeight = Application::Instance().GetConfig().windowHegiht;
+		auto _windowWidth = Application::Instance().GetConfig().windowWidth;
+		auto _windowHeight = Application::Instance().GetConfig().windowHegiht;
 
 		// DirectX12でGPUの詳細なエラーを確認するためのもの
 		if (a_config.graphics.init.isDebugLayer)
@@ -35,8 +35,14 @@ namespace Engine
 		}
 
 		// ウィンドウクラスの生成
-		m_upWindow = std::make_unique<Window>();
-		if (!m_upWindow->Create(m_windowWidth, m_windowHeight, L"DirectX12", L"Window"))
+		m_upWindow = std::make_unique<Window::NativeWindow>();
+		Window::WindowDesc _desc = {};
+		_desc.width = _windowWidth;
+		_desc.height = _windowHeight;
+		_desc.titleName = L"DirectX12";
+		_desc.className = L"AppWindow";
+		_desc.windowMode = Window::EWindowMode::Windowed;
+		if (!m_upWindow->Create(_desc))
 		{
 			assert(0 && "ウィンドウ作成失敗");
 			return;
@@ -47,7 +53,7 @@ namespace Engine
 		m_upTimeManager->Init(120.0f);
 
 		// DirectX12関連オブジェクトの初期化
-		if (!D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), m_windowWidth, m_windowHeight))
+		if (!D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), m_upWindow->GetClientWidth(), m_upWindow->GetClientHeight()))
 		{
 			assert(0 && "D3D12Wrapperの初期化失敗");
 			return;

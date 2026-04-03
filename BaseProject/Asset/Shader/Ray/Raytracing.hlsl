@@ -304,8 +304,8 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float3 _color = g_albedoTex.SampleLevel(gSamp, _uv, lod).rgb;
 
 	//float3 _baseTex = ResourceDescriptorHeap[4].SampleLevel(gSamp, _uv, lod).rgb;
-	Texture2D _baseTex = (Texture2D) ResourceDescriptorHeap[4];
-	_color = _baseTex.SampleLevel(gSamp, _uv, lod).rgb;
+	//Texture2D _baseTex = (Texture2D) ResourceDescriptorHeap[4];
+	//_color = _baseTex.SampleLevel(gSamp, _uv, lod).rgb;
 	//_color = _baseTex;
 	
 	_color *= _lig;

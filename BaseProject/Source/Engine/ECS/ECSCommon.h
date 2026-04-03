@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace ECS
+namespace Engine::ECS
 {
 	// エンティティの情報
 	using Generation = uint32_t;

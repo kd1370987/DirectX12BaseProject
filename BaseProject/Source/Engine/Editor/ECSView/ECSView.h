@@ -1,10 +1,13 @@
 ﻿#pragma once
 
-struct EntityLocation;
 
 class ComponentEdit;
+namespace Engine::ECS
+{
+	struct EntityLocation;
 
-class World;
+	class World;
+}
 
 class ECSView
 {
@@ -19,17 +22,17 @@ public:
 private:
 
 	// ヒエラルキー
-	void HierarchyWindow(World* a_pWorld);
+	void HierarchyWindow(Engine::ECS::World* a_pWorld);
 
-	void DrawEntity(World* a_pWorld,const EntityLocation& a_location);
+	void DrawEntity(Engine::ECS::World* a_pWorld,const Engine::ECS::EntityLocation& a_location);
 
 	// インスペクターウィンドウ
-	void InspectorWindow(World* a_pWorld);
+	void InspectorWindow(Engine::ECS::World* a_pWorld);
 
 private:
 
 	// 現在選択中のエンティティ
-	ECS::Entity m_currentEntity = ECS::Limits::INVALID_ENTITY;
+	Engine::ECS::Entity m_currentEntity = Engine::ECS::Limits::INVALID_ENTITY;
 
 	// コンポーネントごとのエディット設定
 	std::shared_ptr<ComponentEdit> m_spCompEdlit = nullptr;

@@ -2,9 +2,9 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class CamSetShaderSystem : public SystemBase<CamSetShaderSystem>
+class CamSetShaderSystem : public Engine::ECS::SystemBase<CamSetShaderSystem>
 {
 	public:
-	static constexpr SystemType s_type = SystemType::PreDraw;
-	void Run(World& a_world, float a_dt);
+	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::PreDraw;
+	void Run(Engine::ECS::World& a_world, float a_dt);
 };

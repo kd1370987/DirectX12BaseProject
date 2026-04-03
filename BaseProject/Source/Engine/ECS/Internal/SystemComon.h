@@ -1,28 +1,38 @@
 ﻿#pragma once
 
-enum class SystemType
+namespace Engine::ECS
 {
-	Init,
+	// システムの種類
+	enum class ESystemType
+	{
+		// 初期化
+		Init,
 
-	Input,
-	PreUpdate,
-	Update,
-	Physics,
-	Camera,
-	PostUpdate,
+		// 更新
+		Input,
+		PreUpdate,
+		Update,
+		Physics,
+		Camera,
+		PostUpdate,
 
-	PreDraw,
-	Draw,
+		// 描画
+		PreDraw,
+		Draw,
 
-	Num
-};
+		// システム分類総数
+		Num
+	};
 
-template<typename... Systems>
-struct TypeList {};
+	// システムの型
+	template<typename... Systems>
+	struct TypeList {};
 
-template<typename System>
-struct SystemTraits
-{
-	using Reads = TypeList<>;
-	using Writes = TypeList<>;
-};
+	// システムの依存関係解決用
+	template<typename System>
+	struct SystemTraits
+	{
+		using Reads = TypeList<>;
+		using Writes = TypeList<>;
+	};
+}

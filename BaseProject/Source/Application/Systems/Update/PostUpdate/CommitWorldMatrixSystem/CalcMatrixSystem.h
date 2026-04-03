@@ -2,11 +2,11 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class CalcMatrixSystem : public SystemBase<CalcMatrixSystem>
+class CalcMatrixSystem : public Engine::ECS::SystemBase<CalcMatrixSystem>
 {
 public:
 
-	static constexpr SystemType s_type = SystemType::PostUpdate;
+	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::PostUpdate;
 
-	void Run(World& a_world, float a_dt);
+	void Run(Engine::ECS::World& a_world, float a_dt);
 };

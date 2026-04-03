@@ -9,7 +9,7 @@
 
 #include "Application/Components/Charactor/Player/PlayerLookAngleComponent.h"
 
-void InputMoveSystem::Run(World& a_world, float a_dt)
+void InputMoveSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	DirectX::XMFLOAT3 inputDir = { 0.0f,0.0f,0.0f };
 	float inputLook = 0.0f;
@@ -45,7 +45,7 @@ void InputMoveSystem::Run(World& a_world, float a_dt)
 		(
 			[&a_world, a_dt,inputDir,inputLook]
 			(
-				ArchetypeChunk* a_pChunk,
+				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
 				PlayerControllTag* a_tags,
 				VelocityComponent* a_velocityArray,
@@ -67,6 +67,6 @@ void InputMoveSystem::Run(World& a_world, float a_dt)
 					_velComp.value.z += (inputDir.z * _cosY - inputDir.x * _sinY) * 5.0f;
 				}
 			},
-			Exclude<InertiaComponent>()
+			Engine::ECS::Exclude<InertiaComponent>()
 		);
 }

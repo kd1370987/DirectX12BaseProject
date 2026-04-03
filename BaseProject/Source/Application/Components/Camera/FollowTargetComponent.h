@@ -2,5 +2,5 @@
 
 struct FollowTargetComponent
 {
-	ECS::Entity target = ECS::Limits::INVALID_ENTITY;
+	Engine::ECS::Entity target = Engine::ECS::Limits::INVALID_ENTITY;
 };

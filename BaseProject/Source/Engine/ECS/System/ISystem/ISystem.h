@@ -2,10 +2,14 @@
 
 #include "../../Internal/SystemComon.h"
 
-class World;
-
-class ISystem
+namespace Engine::ECS
 {
-public:
-	virtual void Update(World& a_world, float a_dt) = 0;
-};
+	class World;
+
+	class ISystem
+	{
+	public:
+		virtual void Update(World& a_world, float a_dt) = 0;
+	};
+}
+

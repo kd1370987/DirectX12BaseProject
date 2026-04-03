@@ -7,13 +7,13 @@
 
 #include "Application/Components/Force/InertiaComponent.h"
 
-void PositionIntegrationSystem::Run(World& a_world, float a_dt)
+void PositionIntegrationSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	a_world.ForEachEx<VelocityComponent, TRSComponent>
 		(
 			[&a_world, a_dt]
 			(
-				ArchetypeChunk* a_pChunk,
+				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
 				VelocityComponent* a_velocityArray,
 				TRSComponent* a_trsArray
@@ -30,6 +30,6 @@ void PositionIntegrationSystem::Run(World& a_world, float a_dt)
 					_velComp.value = {};
 				}
 			},
-			Exclude<InertiaComponent>()
+			Engine::ECS::Exclude<InertiaComponent>()
 		);
 }

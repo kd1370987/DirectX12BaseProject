@@ -5,12 +5,12 @@
 #include "Application/Components/Transform/TRSComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
-void CalcMatrixSystem::Run(World& a_world, float a_dt)
+void CalcMatrixSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	a_world.ForEach<TRSComponent, WorldMatrixComponent>(
 		[&a_world, a_dt]
 		(
-			ArchetypeChunk* a_pChunk,
+			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			TRSComponent* a_trsArray,
 			WorldMatrixComponent* a_worldMatArray

@@ -2,7 +2,7 @@
 
 struct Result
 {
-	ECS::Entity hitEntity = ECS::Limits::INVALID_ENTITY;
+	Engine::ECS::Entity hitEntity = Engine::ECS::Limits::INVALID_ENTITY;
 	DirectX::XMFLOAT3 hitPos = { 0.0f,0.0f,0.0f };
 	DirectX::XMFLOAT3 hitNormal = { 0.0f,0.0f,0.0f };
 	float hitDistance = 0.0f;

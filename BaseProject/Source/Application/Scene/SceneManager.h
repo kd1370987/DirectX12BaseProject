@@ -1,7 +1,10 @@
 ﻿#pragma once
 
 class BaseScene;
-class World;
+namespace Engine::ECS
+{
+	class World;
+}
 
 enum class SceneChangeType
 {
@@ -47,7 +50,7 @@ public:
 	/// <summary>
 	/// 現在のシーンのワールドを参照
 	/// </summary>
-	World* RefWorld();
+	Engine::ECS::World* RefWorld();
 
 private:
 

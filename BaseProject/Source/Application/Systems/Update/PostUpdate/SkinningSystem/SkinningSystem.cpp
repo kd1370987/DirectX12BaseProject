@@ -8,12 +8,12 @@
 
 #include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 
-void SkinningSystem::Run(World& a_world, float a_dt)
+void SkinningSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	a_world.ForEach<ModelComponent, NodePoseComponent,SkeletonPoseComponent>(
 		[&a_world, a_dt]
 		(
-			ArchetypeChunk* a_pChunk,
+			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			ModelComponent* a_modelArray,
 			NodePoseComponent* a_nodePoseArray,

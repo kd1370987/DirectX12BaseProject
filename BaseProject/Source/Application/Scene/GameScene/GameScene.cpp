@@ -78,9 +78,9 @@ void GameScene::RegistryEntity()
 	BaseScene::RegistryEntity();
 
 	// エンティティ生成
-	ECS::Entity _player;
+	Engine::ECS::Entity _player;
 	{
-		ECS::Signature _sig;
+		Engine::ECS::Signature _sig;
 		_sig.set(m_upWorld->GetCompTypeID(typeid(PlayerControllTag)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(PlayerLookAngleComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(GravityComponent)));
@@ -164,7 +164,7 @@ void GameScene::RegistryEntity()
 
 	// 地面
 	{
-		ECS::Signature _sig;
+		Engine::ECS::Signature _sig;
 		_sig.set(m_upWorld->GetCompTypeID(typeid(ColliderComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
@@ -187,7 +187,7 @@ void GameScene::RegistryEntity()
 
 	// カメラ
 	{
-		ECS::Signature _sig;
+		Engine::ECS::Signature _sig;
 		_sig.set(m_upWorld->GetCompTypeID(typeid(ActiveCameraTag)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(CameraTag)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(CameraControllTag)));
@@ -250,7 +250,7 @@ void GameScene::RegistryEntity()
 			{
 				for (int _z = 0; _z < _zMax; ++_z)
 				{
-					ECS::Signature _sig;
+					Engine::ECS::Signature _sig;
 					_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
 					_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 					_sig.set(m_upWorld->GetCompTypeID(typeid(ModelComponent)));
@@ -272,7 +272,7 @@ void GameScene::RegistryEntity()
 	}
 
 	{
-		ECS::Signature _sig;
+		Engine::ECS::Signature _sig;
 		_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(ModelComponent)));

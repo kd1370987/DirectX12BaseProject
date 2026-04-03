@@ -2,9 +2,9 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class RayCollisionSystem : public SystemBase<RayCollisionSystem>
+class RayCollisionSystem : public Engine::ECS::SystemBase<RayCollisionSystem>
 {
 public:
-	static constexpr SystemType s_type = SystemType::Physics;
-	void Run(World& a_world, float a_dt);
+	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Physics;
+	void Run(Engine::ECS::World& a_world, float a_dt);
 };

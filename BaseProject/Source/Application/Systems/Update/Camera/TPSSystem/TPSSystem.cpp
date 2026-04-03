@@ -13,12 +13,12 @@
 #include "Application/Components/Charactor/Player/PlayerLookAngleComponent.h"
 
 
-void TPSSystem::Run(World& a_world, float a_dt)
+void TPSSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	a_world.ForEach<FollowTargetComponent,TPSOffsetComponent,TPSLookAngleComponent, TRSComponent>(
 		[&a_world, a_dt]
 		(
-			ArchetypeChunk* a_pChunk,
+			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			FollowTargetComponent* a_targetArray,
 			TPSOffsetComponent* a_offsetArray,
@@ -28,7 +28,7 @@ void TPSSystem::Run(World& a_world, float a_dt)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				ECS::Entity _target = a_targetArray[_i].target;
+				Engine::ECS::Entity _target = a_targetArray[_i].target;
 				const TRSComponent* _targetTRS = a_world.RefData<TRSComponent>(_target);
 				const PlayerLookAngleComponent* _targetLook = a_world.RefData<PlayerLookAngleComponent>(_target);
 				TRSComponent& _trsComp = a_trsArray[_i];

@@ -2,10 +2,10 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class GravitySystem : public SystemBase<GravitySystem>
+class GravitySystem : public Engine::ECS::SystemBase<GravitySystem>
 {
 public:
-	static constexpr SystemType s_type = SystemType::Update;
+	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Update;
 
-	void Run(World& a_world, float a_dt);
+	void Run(Engine::ECS::World& a_world, float a_dt);
 };

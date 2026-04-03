@@ -1,6 +1,9 @@
 ﻿#pragma once
 
-class World;
+namespace Engine::ECS
+{
+	class World;
+}
 
 class BaseScene
 {
@@ -35,7 +38,7 @@ public:
 	/// <returns>シーンのタイプ</returns>
 	const SceneType& GetType() {return m_sceneType;}
 
-	World* RefWorld() { return m_upWorld.get(); }
+	Engine::ECS::World* RefWorld() { return m_upWorld.get(); }
 
 protected:
 
@@ -58,5 +61,5 @@ protected:
 
 	SceneType m_sceneType = SceneType::None;
 
-	std::unique_ptr<World> m_upWorld = nullptr;
+	std::unique_ptr<Engine::ECS::World> m_upWorld = nullptr;
 };

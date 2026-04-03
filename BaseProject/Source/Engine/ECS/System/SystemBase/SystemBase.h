@@ -2,14 +2,17 @@
 
 #include "../ISystem/ISystem.h"
 
-template<typename System>
-class SystemBase : public ISystem
+namespace Engine::ECS
 {
-public:
-	static constexpr SystemType s_type = System::s_type;
-
-	void Update(World& a_world, float a_dt) final
+	template<typename System>
+	class SystemBase : public ISystem
 	{
-		static_cast<System*>(this)->Run(a_world,a_dt);
-	}
-};
+	public:
+		static constexpr ESystemType s_type = System::s_type;
+
+		void Update(World& a_world, float a_dt) final
+		{
+			static_cast<System*>(this)->Run(a_world, a_dt);
+		}
+	};
+}

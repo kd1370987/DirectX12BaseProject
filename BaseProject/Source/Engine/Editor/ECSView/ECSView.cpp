@@ -13,7 +13,7 @@ void ECSView::Init()
 
 void ECSView::Draw()
 {
-	World* _pWorld = SceneManager::Instance().RefWorld();
+	Engine::ECS::World* _pWorld = SceneManager::Instance().RefWorld();
 	if (!_pWorld)return;
 	if (!_pWorld->IsInit()) return;
 
@@ -29,7 +29,7 @@ std::shared_ptr<ComponentEdit> ECSView::GetCompEdit()
 	return m_spCompEdlit;
 }
 
-void ECSView::HierarchyWindow(World* a_pWorld)
+void ECSView::HierarchyWindow(Engine::ECS::World* a_pWorld)
 {
 	
 
@@ -39,7 +39,7 @@ void ECSView::HierarchyWindow(World* a_pWorld)
 		// フィルター
 
 		// 全エンティティ取得
-		const std::vector<EntityLocation>& _entityLocationList = a_pWorld->GetEntityList();
+		const std::vector<Engine::ECS::EntityLocation>& _entityLocationList = a_pWorld->GetEntityList();
 		UINT _aliveEntityCount = a_pWorld->GetAliveEntityCount();
 		// エンティティ総数
 		ImGui::Text("EntityNum : %d", _aliveEntityCount);
@@ -60,11 +60,11 @@ void ECSView::HierarchyWindow(World* a_pWorld)
 	ImGui::End();
 }
 
-void ECSView::DrawEntity(World* a_pWorld,const EntityLocation& a_location)
+void ECSView::DrawEntity(Engine::ECS::World* a_pWorld,const Engine::ECS::EntityLocation& a_location)
 {
 	// エンティティを取得
-	ECS::Entity _entity = a_pWorld->GetEntity(a_location);
-	if (_entity == ECS::Limits::INVALID_ENTITY) return;
+	Engine::ECS::Entity _entity = a_pWorld->GetEntity(a_location);
+	if (_entity == Engine::ECS::Limits::INVALID_ENTITY) return;
 
 	// ツリーノード設定
 	ImGuiTreeNodeFlags _flags = ImGuiBackendFlags_None;
@@ -92,11 +92,11 @@ void ECSView::DrawEntity(World* a_pWorld,const EntityLocation& a_location)
 }
 
 
-void ECSView::InspectorWindow(World* a_pWorld)
+void ECSView::InspectorWindow(Engine::ECS::World* a_pWorld)
 {
 	if (ImGui::Begin("Inspector"))
 	{
-		if (m_currentEntity == ECS::Limits::INVALID_ENTITY)
+		if (m_currentEntity == Engine::ECS::Limits::INVALID_ENTITY)
 		{
 			ImGui::End();
 			return;
@@ -105,8 +105,8 @@ void ECSView::InspectorWindow(World* a_pWorld)
 		ImGui::Text("%d",m_currentEntity);
 
 		// エンティティが持っているコンポーネントを羅列する
-		const EntityLocation& _location = a_pWorld->GetLocation(m_currentEntity);
-		ECS::Signature _sig = a_pWorld->GetSignature(m_currentEntity);
+		const Engine::ECS::EntityLocation& _location = a_pWorld->GetLocation(m_currentEntity);
+		Engine::ECS::Signature _sig = a_pWorld->GetSignature(m_currentEntity);
 
 		for (size_t _typeID = 0; _typeID < _sig.size(); ++_typeID)
 		{
@@ -114,7 +114,7 @@ void ECSView::InspectorWindow(World* a_pWorld)
 			if (_sig.test(_typeID))
 			{
 				// ツリーノード表示
-				auto& _metaData = a_pWorld->GetComponentMetaData(static_cast<ECS::ComponentTypeID>(_typeID));
+				auto& _metaData = a_pWorld->GetComponentMetaData(static_cast<Engine::ECS::ComponentTypeID>(_typeID));
 				
 				if (ImGui::TreeNodeEx(_metaData.name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 				{

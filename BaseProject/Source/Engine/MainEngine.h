@@ -1,15 +1,21 @@
 ﻿#pragma once
 
-class Window;
 class TimeManager;
 
-namespace Engine::Raytracing
-{
-	class RayEngine;
-}
 
 namespace Engine
 {
+	// 前方宣言
+	namespace Window
+	{
+		class NativeWindow;
+	}
+	namespace Raytracing
+	{
+		class RayEngine;
+	}
+
+
 	// エンジン設定
 	struct EngineConfig
 	{
@@ -73,16 +79,12 @@ namespace Engine
 	private:
 
 		// ウィンドウクラス
-		std::unique_ptr<Window> m_upWindow = nullptr;
+		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;
 
 		// 時間管理クラス
 		std::unique_ptr<TimeManager> m_upTimeManager = nullptr;
 
 		// エンジン設定
 		EngineConfig m_config = {};
-
-		// ウィンドウサイズ
-		UINT m_windowWidth = 0;
-		UINT m_windowHeight = 0;
 	};
 }

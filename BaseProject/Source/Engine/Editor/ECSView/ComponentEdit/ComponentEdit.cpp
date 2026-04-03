@@ -8,9 +8,9 @@ void ComponentEdit::Init()
 {
 }
 
-void ComponentEdit::Register(World* a_pWorld,ECS::ComponentTypeID a_typeID, const std::vector<FielMeta>& a_data)
+void ComponentEdit::Register(Engine::ECS::World* a_pWorld, Engine::ECS::ComponentTypeID a_typeID, const std::vector<FielMeta>& a_data)
 {
-	EditFunc _func = [this,a_pWorld,a_typeID,a_data](const ECS::Entity& a_entity) 
+	EditFunc _func = [this,a_pWorld,a_typeID,a_data](const Engine::ECS::Entity& a_entity)
 		{
 			auto& _metaData = a_pWorld->GetComponentMetaData(a_typeID);
 
@@ -27,8 +27,8 @@ void ComponentEdit::Register(World* a_pWorld,ECS::ComponentTypeID a_typeID, cons
 				{
 				case FielMeta::Type::Bool: 
 				{
-					bool _value = (*(ECS::Flg*)_data) != 0;
-					if (ImGui::Checkbox(_field.name, &_value))*(ECS::Flg*)_data = _value ? 1u : 0u;
+					bool _value = (*(Engine::ECS::Flg*)_data) != 0;
+					if (ImGui::Checkbox(_field.name, &_value))*(Engine::ECS::Flg*)_data = _value ? 1u : 0u;
 					break;
 				}
 				case FielMeta::Type::Float:
@@ -99,7 +99,7 @@ void ComponentEdit::Register(World* a_pWorld,ECS::ComponentTypeID a_typeID, cons
 	m_editFuncMap[a_typeID] = _func;
 }
 
-EditFunc ComponentEdit::GetCompEditFunc(World* a_pWorld, ECS::ComponentTypeID a_typeID)
+EditFunc ComponentEdit::GetCompEditFunc(Engine::ECS::World* a_pWorld, Engine::ECS::ComponentTypeID a_typeID)
 {
 	auto _it = m_editFuncMap.find(a_typeID);
 	if (_it != m_editFuncMap.end())
@@ -107,7 +107,7 @@ EditFunc ComponentEdit::GetCompEditFunc(World* a_pWorld, ECS::ComponentTypeID a_
 		return _it->second;
 	}
 
-	EditFunc _func = [a_typeID,a_pWorld](const ECS::Entity& a_entity)
+	EditFunc _func = [a_typeID,a_pWorld](const Engine::ECS::Entity& a_entity)
 		{
 			auto& _metaData = a_pWorld->GetComponentMetaData(a_typeID);
 

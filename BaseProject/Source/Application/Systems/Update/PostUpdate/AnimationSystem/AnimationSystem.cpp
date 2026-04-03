@@ -9,12 +9,12 @@
 #include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 
 
-void AnimationSystem::Run(World& a_world, float a_dt)
+void AnimationSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	a_world.ForEach<ModelComponent, AnimatorComponent, NodePoseComponent>(
 		[&a_world, a_dt]
 		(
-			ArchetypeChunk* a_pChunk,
+			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			ModelComponent* a_modelArray,
 			AnimatorComponent* a_animatorArray,

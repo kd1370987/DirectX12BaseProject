@@ -1,6 +1,8 @@
 ﻿#pragma once
-
-class World;
+namespace Engine::ECS
+{
+	class World;
+}
 
 struct FielMeta
 {
@@ -23,7 +25,7 @@ struct FielMeta
 	} type;
 };
 
-using EditFunc = std::function<void(const ECS::Entity&)>;
+using EditFunc = std::function<void(const Engine::ECS::Entity&)>;
 
 class ComponentEdit
 {
@@ -31,10 +33,10 @@ public:
 
 	void Init();
 
-	void Register(World* a_pWorld,ECS::ComponentTypeID a_typeID,const std::vector<FielMeta>& a_data);
+	void Register(Engine::ECS::World* a_pWorld, Engine::ECS::ComponentTypeID a_typeID,const std::vector<FielMeta>& a_data);
 
 	
-	EditFunc GetCompEditFunc(World* a_pWorld, ECS::ComponentTypeID a_typeID);
+	EditFunc GetCompEditFunc(Engine::ECS::World* a_pWorld, Engine::ECS::ComponentTypeID a_typeID);
 
 	template<typename E>
 	void DrawEnumCombo(const char* a_lable, E& a_value);
@@ -46,7 +48,7 @@ private:
 
 	EditFunc m_defaultFunc;
 
-	std::unordered_map<ECS::ComponentTypeID, EditFunc> m_editFuncMap = {};
+	std::unordered_map<Engine::ECS::ComponentTypeID, EditFunc> m_editFuncMap = {};
 
 
 };

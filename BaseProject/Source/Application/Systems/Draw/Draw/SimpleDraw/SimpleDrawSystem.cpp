@@ -11,12 +11,12 @@
 #include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
 
-void SimpleDrawSystem::Run(World& a_world, float a_dt)
+void SimpleDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	a_world.ForEachEx<WorldMatrixComponent,ModelComponent>(
 		[&a_world, a_dt]
 		(
-			ArchetypeChunk* a_pChunk,
+			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			WorldMatrixComponent* a_matArray,
 			ModelComponent* a_modelArray
@@ -95,7 +95,7 @@ void SimpleDrawSystem::Run(World& a_world, float a_dt)
 				
 			}
 		},
-		Exclude<AnimatorComponent>()
+		Engine::ECS::Exclude<AnimatorComponent>()
 	);
 
 }

@@ -2,73 +2,79 @@
 
 #include "../Internal/EntityLocation.h"
 
-class EntityManager
+namespace Engine::ECS
 {
-public:
-
-	EntityManager();
-	~EntityManager();
-
-	/// <summary>
-	/// 初期化
-	/// </summary>
-	void Init();
 
 
-	/// <summary>
-	/// エンティティの作成
-	/// </summary>
-	/// <returns>作成されたEntityが返される</returns>
-	ECS::Entity CreateEntity(const ECS::Signature& a_sig);
-	
-	/// <summary>
-	/// エンティティの削除
-	/// </summary>
-	void DestroyEntity(const ECS::Entity& a_entity);
+	class EntityManager
+	{
+	public:
 
-	/// <summary>
-	/// エンティティのロケーションを記憶
-	/// </summary>
-	/// <param name="a_loca">ロケーションデータ</param>
-	void SetEntityLocation(const ECS::Entity& a_entity,const EntityLocation& a_loca);
+		EntityManager();
+		~EntityManager();
 
-	/// <summary>
-	/// エンティティを指定してロケーションを取得
-	/// </summary>
-	const EntityLocation& GetLocation(const ECS::Entity& a_entity);
+		/// <summary>
+		/// 初期化
+		/// </summary>
+		void Init();
 
-	// ロケーション操作
-	EntityLocation& RefEntityLocation(const ECS::Entity& a_entity);
 
-	/// <summary>
-	/// 全エンティティのロケーションを返す
-	/// </summary>
-	const std::vector<EntityLocation>& GetAllEntityLocation();
-	
-	/// <summary>
-	/// 現在のエンティティの生存数を返す
-	/// </summary>
-	UINT GetAliveEntityCount();
+		/// <summary>
+		/// エンティティの作成
+		/// </summary>
+		/// <returns>作成されたEntityが返される</returns>
+		Entity CreateEntity(const Signature& a_sig);
 
-	/// <summary>
-	/// エンティティのシグネチャを取得する
-	/// </summary>
-	const ECS::Signature& GetSignature(const ECS::Entity& a_entity);
+		/// <summary>
+		/// エンティティの削除
+		/// </summary>
+		void DestroyEntity(const Entity& a_entity);
 
-private:
+		/// <summary>
+		/// エンティティのロケーションを記憶
+		/// </summary>
+		/// <param name="a_loca">ロケーションデータ</param>
+		void SetEntityLocation(const Entity& a_entity, const EntityLocation& a_loca);
 
-	uint32_t GetGeneration(const ECS::Entity& a_entity);
-	uint32_t GetIndex(const ECS::Entity& a_entity);
+		/// <summary>
+		/// エンティティを指定してロケーションを取得
+		/// </summary>
+		const EntityLocation& GetLocation(const Entity& a_entity);
 
-private:
+		// ロケーション操作
+		EntityLocation& RefEntityLocation(const Entity& a_entity);
 
-	std::vector<EntityLocation>		m_entityLocationVec;	// エンティティの住所
-	std::vector<ECS::Signature>		m_signatureVec;			// エンティティとシグネチャを紐づけるもの
-	std::vector<ECS::Generation>	m_entityGeneVec;		// 世代を含めたエンティティリスト
-	
-	// 次に使用するEntityのインデックス
-	std::queue<ECS::EntityIndex> m_availbleEntitiyQueue;
+		/// <summary>
+		/// 全エンティティのロケーションを返す
+		/// </summary>
+		const std::vector<EntityLocation>& GetAllEntityLocation();
 
-	// 生存中のエンティティ
-	UINT m_aliveCount = 0;
-};
+		/// <summary>
+		/// 現在のエンティティの生存数を返す
+		/// </summary>
+		UINT GetAliveEntityCount();
+
+		/// <summary>
+		/// エンティティのシグネチャを取得する
+		/// </summary>
+		const Signature& GetSignature(const Entity& a_entity);
+
+	private:
+
+		uint32_t GetGeneration(const Entity& a_entity);
+		uint32_t GetIndex(const Entity& a_entity);
+
+	private:
+
+		std::vector<EntityLocation>		m_entityLocationVec;	// エンティティの住所
+		std::vector<Signature>		m_signatureVec;			// エンティティとシグネチャを紐づけるもの
+		std::vector<Generation>	m_entityGeneVec;		// 世代を含めたエンティティリスト
+
+		// 次に使用するEntityのインデックス
+		std::queue<EntityIndex> m_availbleEntitiyQueue;
+
+		// 生存中のエンティティ
+		UINT m_aliveCount = 0;
+	};
+
+}

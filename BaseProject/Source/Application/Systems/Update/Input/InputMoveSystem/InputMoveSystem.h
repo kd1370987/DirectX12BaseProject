@@ -2,10 +2,10 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class InputMoveSystem : public SystemBase<InputMoveSystem>
+class InputMoveSystem : public Engine::ECS::SystemBase<InputMoveSystem>
 {
 public:
-	static constexpr SystemType s_type = SystemType::Update;
+	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Update;
 
-	void Run(World& a_world, float a_dt);
+	void Run(Engine::ECS::World& a_world, float a_dt);
 };

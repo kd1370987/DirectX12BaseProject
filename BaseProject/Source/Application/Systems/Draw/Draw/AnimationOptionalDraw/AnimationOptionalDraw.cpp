@@ -11,12 +11,12 @@
 #include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
-void AnimationOptionalDrawSystem::Run(World& a_world, float a_dt)
+void AnimationOptionalDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	a_world.ForEach<WorldMatrixComponent, ModelComponent, SkeletonPoseComponent, AnimatorComponent,NodePoseComponent>(
 		[&a_world, a_dt]
 		(
-			ArchetypeChunk* a_pChunk,
+			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			WorldMatrixComponent* a_matArray,
 			ModelComponent* a_modelArray,

@@ -84,7 +84,7 @@ void SceneManager::ReplaceScene(const SceneType& a_sceneType)
 	PushScene(a_sceneType);
 }
 
-World* SceneManager::RefWorld()
+Engine::ECS::World* SceneManager::RefWorld()
 {
 	return m_upBaseSceneVec.back()->RefWorld();
 }

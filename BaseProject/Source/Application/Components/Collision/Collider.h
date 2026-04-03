@@ -12,7 +12,7 @@ struct ColliderComponent
 {
 	Layer layer = Layer::StaticObject;		// 自分が属するレイヤー
 	Layer collideLayer = Layer::None;	// 衝突したいレイヤー
-	ECS::Flg isPhysical = 1;					// 物理解決するかどうか(衝突時にイベントだけほしいとか)
+	Engine::ECS::Flg isPhysical = 1;					// 物理解決するかどうか(衝突時にイベントだけほしいとか)
 };
 
 inline Layer operator|(Layer a, Layer b)

@@ -6,12 +6,12 @@
 
 #include "Application/Components/Transform/TRSComponent.h"
 
-void RotationSystem::Run(World& a_world, float a_dt)
+void RotationSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
 	a_world.ForEach<PlayerLookAngleComponent, TRSComponent>(
 		[&a_world, a_dt]
 		(
-			ArchetypeChunk* a_pChunk,
+			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			PlayerLookAngleComponent* a_lookArray,
 			TRSComponent* a_trsArray

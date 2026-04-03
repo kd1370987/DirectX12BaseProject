@@ -2,11 +2,11 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class AnimationOptionalDrawSystem : public SystemBase<AnimationOptionalDrawSystem>
+class AnimationOptionalDrawSystem : public Engine::ECS::SystemBase<AnimationOptionalDrawSystem>
 {
 public:
 
-	static constexpr SystemType s_type = SystemType::Draw;
+	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Draw;
 
-	void Run(World& a_world, float a_dt);
+	void Run(Engine::ECS::World& a_world, float a_dt);
 };
