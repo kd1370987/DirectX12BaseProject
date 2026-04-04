@@ -19,9 +19,9 @@ namespace Engine::Graphics
 	{
 		// シェーダー登録
 		Resource::Handle<Resource::Shader> _vsHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/ForwardLightingShader/ForwardLightingVS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/ForwardLightingShader/ForwardLightingVS.cso");
 		Resource::Handle<Resource::Shader> _psHandle =
-			m_pShaderMana->Request("Asset/Shader/Compiled/ForwardLightingShader/ForwardLightingPS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/ForwardLightingShader/ForwardLightingPS.cso");
 
 		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("ForwardLithingPass");
 

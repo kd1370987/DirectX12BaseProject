@@ -20,9 +20,9 @@ namespace Engine::Graphics
 	void AnimationGBufferPass::CreatePass()
 	{
 		Resource::Handle<Resource::Shader> _vsHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/GBufferShader/AnimationGBufferVS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/GBufferShader/AnimationGBufferVS.cso");
 		Resource::Handle<Resource::Shader> _psHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/GBufferShader/GBufferPS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/GBufferShader/GBufferPS.cso");
 
 		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("BaseRootSig");
 

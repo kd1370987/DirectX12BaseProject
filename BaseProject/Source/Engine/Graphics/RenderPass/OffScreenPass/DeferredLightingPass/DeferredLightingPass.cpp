@@ -41,9 +41,9 @@ namespace Engine::Graphics
 	void DeferredLightingPass::CreatePass()
 	{
 		Resource::Handle<Resource::Shader> _vsHandle =
-			m_pShaderMana->Request("Asset/Shader/Compiled/DeferredLightingShader/DeferredLightingVS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
 		Resource::Handle<Resource::Shader> _psHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/DeferredLightingShader/DeferredLightingPS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/DeferredLightingShader/DeferredLightingPS.cso");
 
 		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("DeferredLighting");
 

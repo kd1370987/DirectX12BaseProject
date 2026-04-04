@@ -20,9 +20,9 @@ namespace Engine::Graphics
 	{
 		// シェーダー登録
 		Resource::Handle<Resource::Shader> _vsHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/Screen2DShader/Screen2DVS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/Screen2DShader/Screen2DVS.cso");
 		Resource::Handle<Resource::Shader> _psHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/Screen2DShader/Screen2DPS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/Screen2DShader/Screen2DPS.cso");
 
 		// ルートシグネチャ
 		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("2DRootSig");

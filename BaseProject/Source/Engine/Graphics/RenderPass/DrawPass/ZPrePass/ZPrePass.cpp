@@ -21,7 +21,7 @@ namespace Engine::Graphics
 	{
 		// シェーダー
 		Resource::Handle<Resource::Shader> _vsHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/ZPreShader/ZPreVS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/ZPreShader/ZPreVS.cso");
 
 		// ルートシグネチャ
 		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("BaseRootSig");

@@ -31,9 +31,9 @@ namespace Engine::Graphics
 	{
 		// シェーダー
 		Resource::Handle<Resource::Shader> _vsHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/DebugLineShader/DebugLineVS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/DebugLineShader/DebugLineVS.cso");
 		Resource::Handle<Resource::Shader> _psHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/DebugLineShader/DebugLinePS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/DebugLineShader/DebugLinePS.cso");
 
 		// ルートシグネチャ
 		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("DebugLine");

@@ -24,9 +24,9 @@ namespace Engine::Graphics
 	{
 
 		Resource::Handle<Resource::Shader> _vsHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingVS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso");
 		Resource::Handle<Resource::Shader> _psHandle = 
-			m_pShaderMana->Request("Asset/Shader/Compiled/QuadRenderingShader/QuadRenderingPS.cso");
+			m_pShaderMana->Request("Asset/Shader/Source/QuadRenderingShader/QuadRenderingPS.cso");
 
 		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("QuadRendering");
 
