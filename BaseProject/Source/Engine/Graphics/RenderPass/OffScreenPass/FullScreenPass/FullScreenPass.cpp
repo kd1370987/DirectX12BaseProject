@@ -22,7 +22,7 @@ namespace Engine::Graphics
 
 	void FullScreenPass::CreatePass()
 	{
-
+		// シェーダー読み込み
 		Resource::Handle<Resource::Shader> _vsHandle = 
 			m_pShaderMana->Request("Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso");
 		Resource::Handle<Resource::Shader> _psHandle = 

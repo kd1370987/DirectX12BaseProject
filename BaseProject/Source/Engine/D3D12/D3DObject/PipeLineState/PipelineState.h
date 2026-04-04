@@ -33,6 +33,7 @@ namespace Engine::D3D12
 		void DepthEnable(bool a_isEnable);					// 深度テストの有効・無効をセット
 		void StencilEnable(bool a_isEnable);				// 深度テストの有効・無効をセット
 		void DepthWriteMask(bool a_isMask);					// 深度書き込みの有効・無効をセット
+		void DepthFunc(D3D12_COMPARISON_FUNC a_func);
 		void SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC& a_desc);
 
 		// レンダーターゲットセット

@@ -29,7 +29,7 @@ namespace Engine::Graphics
 		_gPSODesc.SetName("GBufferPass");
 
 		// ラスタライザ
-		_gPSODesc.CullMode(D3D12_CULL_MODE_NONE);
+		_gPSODesc.CullMode(D3D12_CULL_MODE_BACK);
 
 		// 描画先
 		_gPSODesc.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
@@ -65,7 +65,6 @@ namespace Engine::Graphics
 		m_passDesc.readResource.push_back(_depth);
 
 		// 出力先
-		//m_passDesc.writeResource.push_back(_depth);			// ZPreの後でもこれ必要
 		m_passDesc.writeResource.push_back(_gbAlbedoID);
 		m_passDesc.writeResource.push_back(_gbNormalID);
 		m_passDesc.writeResource.push_back(_gbMaterialID);
@@ -77,7 +76,7 @@ namespace Engine::Graphics
 			{_gbNormalID,AccessType::RTV,LoadOp::Clear,StoreOp::Store},
 			{_gbMaterialID,AccessType::RTV,LoadOp::Clear,StoreOp::Store},
 			{_gbEmiID,AccessType::RTV,LoadOp::Clear,StoreOp::Store},
-			{_depth,AccessType::Depth_Write,LoadOp::Load,StoreOp::Store}
+			{_depth,AccessType::Depth_Read,LoadOp::Load,StoreOp::Store}
 		};
 	}
 }

@@ -378,8 +378,6 @@ namespace Engine::Graphics
 	{
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
-		if (a_cpuHnadleVec.empty()) return;
-
 		_pCmdList->OMSetRenderTargets(
 			static_cast<UINT>(std::size(a_cpuHnadleVec)),
 			a_cpuHnadleVec.data(),

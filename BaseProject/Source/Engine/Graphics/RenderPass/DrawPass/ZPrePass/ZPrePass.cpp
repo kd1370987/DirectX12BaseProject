@@ -26,16 +26,16 @@ namespace Engine::Graphics
 		// ルートシグネチャ
 		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("BaseRootSig");
 
-		auto _ds = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);					// 深度ステンシルはデフォルトを使用
-		_ds.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-		
 		// パイプラインステート初期化
 		D3D12::GraphicsPipelineDesc _gPSODesc = {};
 		_gPSODesc.SetName("ZPrePass");
 
+		_gPSODesc.DepthEnable(true);
+		_gPSODesc.DepthWriteMask(true);
+		_gPSODesc.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
+
 		// ラスタライザ
 		_gPSODesc.CullMode(D3D12_CULL_MODE_BACK);
-		_gPSODesc.SetDepthStencilState(_ds);
 
 		// 基本情報
 		_gPSODesc.SetInputLayout(D3D12::Input::AnimationInputLayout);

@@ -199,15 +199,13 @@ namespace Engine::D3D12
 	{
 		DepthStencilStateDefault();
 		desc.DepthStencilState.DepthWriteMask = a_isMask ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
-		if (a_isMask)
-		{
-			desc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-		}
-		else
-		{
-			desc.DSVFormat = DXGI_FORMAT_UNKNOWN;
-		}
 	}
+
+	void GraphicsPipelineDesc::DepthFunc(D3D12_COMPARISON_FUNC a_func)
+	{
+		desc.DepthStencilState.DepthFunc = a_func;
+	}
+
 
 	void Engine::D3D12::GraphicsPipelineDesc::SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC& a_desc)
 	{

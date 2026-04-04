@@ -319,9 +319,6 @@
     <Filter Include="Asset\Shader\Source\QuadRenderingShader">
       <UniqueIdentifier>{3374d3dd-87ac-4f6b-aa65-e30fdc0fde34}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compiled">
-      <UniqueIdentifier>{b82a5c0a-b5a7-4fd6-b9d8-4d1b238c5707}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Core\Algorithm">
       <UniqueIdentifier>{5b94ae64-f52a-45fa-b820-e9788bd24494}</UniqueIdentifier>
     </Filter>
@@ -1508,9 +1505,6 @@
     <None Include="..\Library\imgui-docking\.gitignore">
       <Filter>Library\imgui-docking</Filter>
     </None>
-    <None Include="Asset\Shader\Compiled\HLSLCompile.bat">
-      <Filter>Asset\Shader\Compiled</Filter>
-    </None>
     <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli">
       <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
     </None>
@@ -1602,9 +1596,6 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Ray\Raytracing.hlsl">
       <Filter>Asset\Shader\Ray</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\DebugLineShader\VertexShader.hlsl">
-      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

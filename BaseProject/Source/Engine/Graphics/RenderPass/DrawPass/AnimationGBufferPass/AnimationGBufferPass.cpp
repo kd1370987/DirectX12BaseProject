@@ -30,8 +30,12 @@ namespace Engine::Graphics
 		D3D12::GraphicsPipelineDesc _gPSODesc = {};
 		_gPSODesc.SetName("AnimationGBufferPass");
 
+		_gPSODesc.DepthEnable(true);
+		_gPSODesc.DepthWriteMask(false);
+		_gPSODesc.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
+
 		// ラスタライザ
-		_gPSODesc.CullMode(D3D12_CULL_MODE_NONE);
+		_gPSODesc.CullMode(D3D12_CULL_MODE_BACK);
 
 		// 描画先
 		_gPSODesc.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
@@ -68,7 +72,6 @@ namespace Engine::Graphics
 		m_passDesc.readResource.push_back(_depth);
 
 		// 出力先
-		//m_passDesc.writeResource.push_back(_depth);			// ZPreの後でもこれ必要
 		m_passDesc.writeResource.push_back(_gbAlbedoID);
 		m_passDesc.writeResource.push_back(_gbNormalID);
 		m_passDesc.writeResource.push_back(_gbMaterialID);
