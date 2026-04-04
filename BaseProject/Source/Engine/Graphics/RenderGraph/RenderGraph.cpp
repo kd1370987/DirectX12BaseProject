@@ -18,7 +18,7 @@ namespace Engine::Graphics
 {
 	void RenderGraph::Init(
 		RenderContext* a_pCtx,
-		ShaderManager* a_pShaderMana,
+		Resource::ShaderManager* a_pShaderMana,
 		RootSignatureManager* a_pRootSigMana,
 		Engine::D3D12::GraphicsPSOManager* a_pPSOMana
 	)

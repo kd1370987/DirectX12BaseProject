@@ -10,7 +10,7 @@
 #include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
 
-#include "Engine/Graphics/ShaderManager/ShaderManager.h"
+#include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 
@@ -29,9 +29,8 @@ namespace Engine::Graphics
 	void RenderContext::Init()
 	{
 		// シェーダー用意
-		m_spShaderManger = std::make_shared<ShaderManager>();
-		m_spShaderManger->Init(50);
-
+		m_spShaderManger = std::make_shared<Resource::ShaderManager>();
+		
 		// ルートシグネチャ用意
 		m_spRootSigManager = std::make_shared<RootSignatureManager>();
 		m_spRootSigManager->Init(10);

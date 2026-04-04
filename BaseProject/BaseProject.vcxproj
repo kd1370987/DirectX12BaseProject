@@ -289,7 +289,6 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass\FullScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RenderPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\BLAS\BLAS.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.cpp" />
@@ -312,6 +311,7 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Resource\Importer\Shader\Rasterizer\RasterizerImport.cpp" />
     <ClCompile Include="Source\Engine\Resource\Importer\Texture\TextureImporter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Manager\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.cpp" />
     <ClCompile Include="Source\Engine\SlotStorage\SlotStorage.cpp" />
     <ClCompile Include="Source\Engine\Storage\HandleStorage\HandleStorage.cpp" />
@@ -470,7 +470,6 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RenderPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RootSigLayout\RootSigLayout.h" />
-    <ClInclude Include="Source\Engine\Graphics\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Source\Engine\Raytracing\BLAS\BLAS.h" />
     <ClInclude Include="Source\Engine\Raytracing\Common\Common.h" />
     <ClInclude Include="Source\Engine\Raytracing\Common\RaytracingInstance.h" />
@@ -498,6 +497,7 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Resource\Importer\Shader\Rasterizer\RasterizerImport.h" />
     <ClInclude Include="Source\Engine\Resource\Importer\Texture\TextureImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.h" />
+    <ClInclude Include="Source\Engine\Resource\Manager\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.h" />
     <ClInclude Include="Source\Engine\SlotStorage\SlotStorage.h" />
     <ClInclude Include="Source\Engine\Storage\HandleStorage\HandleStorage.h" />

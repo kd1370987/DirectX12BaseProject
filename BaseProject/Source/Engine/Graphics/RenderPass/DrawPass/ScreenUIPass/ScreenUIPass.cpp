@@ -1,6 +1,6 @@
 ﻿#include "ScreenUIPass.h"
 
-#include "Engine/Graphics/ShaderManager/ShaderManager.h"
+#include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -18,22 +18,11 @@ namespace Engine::Graphics
 
 	void ScreenUIPass::CreatePass()
 	{
-		// 頂点レイアウト
-		D3D12_INPUT_ELEMENT_DESC _layout[2] =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		};
-		D3D12_INPUT_LAYOUT_DESC _desc = {
-			.pInputElementDescs = _layout,
-			.NumElements = 2
-		};
-
 		// シェーダー登録
-		Engine::Resource::ID _vsID = m_pShaderMana->Register(
-			{ "Asset/Shader/Compiled/Screen2DShader/Screen2DVS.cso", ShaderStage::Vertex ,&_desc });
-		Engine::Resource::ID _psID = m_pShaderMana->Register(
-			{ "Asset/Shader/Compiled/Screen2DShader/Screen2DPS.cso", ShaderStage::Pixel });
+		Resource::Handle<Resource::Shader> _vsHandle = 
+			m_pShaderMana->Request("Asset/Shader/Compiled/Screen2DShader/Screen2DVS.cso");
+		Resource::Handle<Resource::Shader> _psHandle = 
+			m_pShaderMana->Request("Asset/Shader/Compiled/Screen2DShader/Screen2DPS.cso");
 
 		// ルートシグネチャ
 		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("2DRootSig");
@@ -67,9 +56,9 @@ namespace Engine::Graphics
 		
 
 		// 基本情報
-		_gPSODesc.SetInputLayout(m_pShaderMana->NGet(_vsID)->vsInputLayout);
-		_gPSODesc.SetVS(m_pShaderMana->NGet(_vsID)->byteCode);
-		_gPSODesc.SetPS(m_pShaderMana->NGet(_psID)->byteCode);
+		_gPSODesc.SetInputLayout(D3D12::Input::Static2DLayout);
+		_gPSODesc.SetVS(m_pShaderMana->GetByteCode(_vsHandle));
+		_gPSODesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
 		_gPSODesc.SetRootSignature(m_pRootSigMana->NGet(_rootSigID));
 
 		// リクエスト

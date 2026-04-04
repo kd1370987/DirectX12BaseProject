@@ -4,12 +4,11 @@ namespace Engine::Resource
 {
 	namespace Import
 	{
-		struct ShaderData
-		{
-			ComPtr<ID3DBlob> cpBlob;
-			D3D12_SHADER_BYTECODE byteCode;
-		};
+		// ブロッブ作成
+		ComPtr<ID3DBlob> RasterizerShader(const std::string& a_path);
 
-		ShaderData RasterizerShader(const std::string& a_path);
+		// バイトコード作成
+		D3D12_SHADER_BYTECODE CreateShaderByteCode(ID3DBlob* a_pBlob);
+
 	}
 }

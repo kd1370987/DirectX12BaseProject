@@ -4,13 +4,13 @@
 
 void Engine::Resource::Shader::Load(const std::string& a_path)
 {
-	auto _data = Import::RasterizerShader(a_path);
+	m_cpBlob = Import::RasterizerShader(a_path);
+	m_byteCode = Import::CreateShaderByteCode(m_cpBlob.Get());
 
-	m_cpBlob = _data.cpBlob;
-	m_byteCode = _data.byteCode;
+	m_path = a_path;
 }
 
-D3D12_SHADER_BYTECODE Engine::Resource::Shader::GetByteCode()
+const D3D12_SHADER_BYTECODE& Engine::Resource::Shader::GetByteCode() const
 {
 	return m_byteCode;
 }

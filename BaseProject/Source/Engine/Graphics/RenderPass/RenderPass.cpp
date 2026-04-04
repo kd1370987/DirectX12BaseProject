@@ -2,7 +2,7 @@
 
 namespace Engine::Graphics
 {
-	void RenderPass::Init(RenderGraph* a_graph, ShaderManager* a_pShaderMana, RootSignatureManager* a_pRootSigMana, Engine::D3D12::GraphicsPSOManager* a_pPSOMana)
+	void RenderPass::Init(RenderGraph* a_graph, Resource::ShaderManager* a_pShaderMana, RootSignatureManager* a_pRootSigMana, Engine::D3D12::GraphicsPSOManager* a_pPSOMana)
 	{
 		m_passDesc = {};
 

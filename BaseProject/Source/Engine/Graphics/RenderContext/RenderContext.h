@@ -11,7 +11,11 @@ class ConstantBuffer;
 
 class CBAllocater;
 
-class ShaderManager;
+namespace Engine::Resource
+{
+	class ShaderManager;
+}
+
 class RootSignatureManager;
 namespace Engine::D3D12
 {
@@ -293,7 +297,7 @@ namespace Engine::Graphics
 		FrameResource m_frameResource[CPU_FRAME_COUNT] = {};
 
 		// マネージャー
-		std::shared_ptr<ShaderManager>			m_spShaderManger = nullptr;
+		std::shared_ptr<Resource::ShaderManager>			m_spShaderManger = nullptr;
 		std::shared_ptr<RootSignatureManager>	m_spRootSigManager = nullptr;
 		std::shared_ptr<D3D12::GraphicsPSOManager>		m_spGraphicsPSOManager = nullptr;
 

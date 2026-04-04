@@ -88,6 +88,7 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 #include "Engine/Resource/Data/Model/Model.h"				// モデル
 #include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"	// クアッドポリゴン
 
+#include "Resource/Data/Shader/Shader.h"
 #include "Engine/Resource/Data/ShaderLibrary/ShaderLibrary.h"	// シェーダーライブラリ
 //==========================================================================================
 // 
