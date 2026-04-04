@@ -14,6 +14,8 @@
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
+#include "../../Resource/Manager/TextureManager/TextureManager.h"
+
 namespace Engine::Graphics
 {
 	void RenderGraph::Init(
@@ -32,14 +34,14 @@ namespace Engine::Graphics
 			.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
 			.widht = 1280,
 			.height = 720,
-			.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
+			.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 			});
 		CreateResource({
 			.name = "QuadTexture",
 			.format = DXGI_FORMAT_R16G16B16A16_FLOAT,
 			.widht = 1280,
 			.height = 720,
-			.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
+			.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 			});
 
 		CreateResource({
@@ -47,35 +49,35 @@ namespace Engine::Graphics
 			.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
 			.widht = 1280,
 			.height = 720,
-			.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
+			.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 			});
 		CreateResource({
 			.name = "GBufferNormal",
 			.format = DXGI_FORMAT_R16G16_FLOAT,
 			.widht = 1280,
 			.height = 720,
-			.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
+			.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 			});
 		CreateResource({
 			.name = "GBufferMaterial",
 			.format = DXGI_FORMAT_R8G8B8A8_UNORM,
 			.widht = 1280,
 			.height = 720,
-			.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
+			.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 			});
 		CreateResource({
 			.name = "GBufferEmissiv",
 			.format = DXGI_FORMAT_R8G8B8A8_UNORM,
 			.widht = 1280,
 			.height = 720,
-			.usage = ResourceUsage::ShaderRead | ResourceUsage::RenderTarget
+			.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 			});
 		CreateResource({
 			.name = "Depth",
 			.format = DXGI_FORMAT_R32_TYPELESS,
 			.widht = 1280,
 			.height = 720,
-			.usage = ResourceUsage::DepthStencil | ResourceUsage::ShaderRead
+			.usage = Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
 			});
 
 		// パス登録
@@ -181,23 +183,23 @@ namespace Engine::Graphics
 				{
 					if (_access.type == AccessType::SRV)
 					{
-						m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::ShaderRead;
+						m_rgResourceMap[_access.id].desc.usage |= Resource::TextureUsage::SRV;
 					}
 					if (_access.type == AccessType::RTV)
 					{
-						m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::RenderTarget;
+						m_rgResourceMap[_access.id].desc.usage |= Resource::TextureUsage::RTV;
 					}
 					if (_access.type == AccessType::UAV)
 					{
-						m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::ShaderWrite;
+						m_rgResourceMap[_access.id].desc.usage |= Resource::TextureUsage::UAV;
 					}
 					if (_access.type == AccessType::Depth_Read)
 					{
-						m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::DepthStencil;
+						m_rgResourceMap[_access.id].desc.usage |= Resource::TextureUsage::DSV;
 					}
 					if (_access.type == AccessType::Depth_Write)
 					{
-						m_rgResourceMap[_access.id].desc.usage |= ResourceUsage::DepthStencil;
+						m_rgResourceMap[_access.id].desc.usage |= Resource::TextureUsage::DSV;
 					}
 				}
 			}
@@ -211,13 +213,21 @@ namespace Engine::Graphics
 			_desc.height = _res.desc.height;
 			_desc.format = _res.desc.format;
 
-			_desc.allowSRV = HasFlag(_res.desc.usage, ResourceUsage::ShaderRead);
-			_desc.allowRTV = HasFlag(_res.desc.usage, ResourceUsage::RenderTarget);
-			_desc.allowUAV = HasFlag(_res.desc.usage, ResourceUsage::ShaderWrite);
-			_desc.allowDSV = HasFlag(_res.desc.usage, ResourceUsage::DepthStencil);
+			_desc.allowSRV = HasFlag(_res.desc.usage, Resource::TextureUsage::SRV);
+			_desc.allowRTV = HasFlag(_res.desc.usage, Resource::TextureUsage::RTV);
+			_desc.allowUAV = HasFlag(_res.desc.usage, Resource::TextureUsage::UAV);
+			_desc.allowDSV = HasFlag(_res.desc.usage, Resource::TextureUsage::DSV);
 
 			_res.spRGTexture = std::make_shared<RGTexture>();
 			_res.spRGTexture->Create(_desc);
+
+			_res.texHandle = CreateTexture(
+				_res.desc.name,
+				_res.desc.format,
+				_res.desc.widht,
+				_res.desc.height,
+				_res.desc.usage
+			);
 
 			_res.currentState = D3D12_RESOURCE_STATE_COMMON;
 		}
@@ -264,6 +274,7 @@ namespace Engine::Graphics
 						_cp.barrierVec.push_back(
 							{
 								_res.spRGTexture.get(),
+								_res.texHandle,
 								_res.currentState,
 								_next,
 								_res.id
@@ -336,6 +347,24 @@ namespace Engine::Graphics
 		return _id;
 	}
 
+	Engine::Resource::Handle<Engine::Resource::Texture> RenderGraph::CreateTexture(
+		const std::string& a_name,
+		const DXGI_FORMAT& a_format,
+		const UINT64& a_widht,
+		const UINT& a_height,
+		const Resource::TextureUsage& a_texUsage
+	)
+	{
+		Resource::CreateTextureDesc _desc = {
+			.name = a_name,
+			.width = a_widht,
+			.height = a_height,
+			.format = a_format,
+			.usage = a_texUsage
+		};
+		return Resource::TextureManager::Instance().CreateTexture(_desc);
+	}
+
 	Engine::Resource::ID RenderGraph::GetID(const std::string& a_key)
 	{
 		if (m_resourceStorage.Has(a_key))
@@ -387,6 +416,11 @@ namespace Engine::Graphics
 					m_rgResourceMap[_barrier.resID].currentState,
 					_barrier.after
 				);
+				//m_pCtx->Transition(
+				//	Resource::TextureManager::Instance().RefTexture(_barrier.texHandle).GetResource(),
+				//	m_rgResourceMap[_barrier.resID].currentState,
+				//	_barrier.after
+				//);
 				m_rgResourceMap[_barrier.resID].currentState = _barrier.after;
 			}
 		}

@@ -115,11 +115,11 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 {
 	// 出力テクスチャ作成
 	m_outTex = Engine::Resource::TextureManager::Instance().CreateTexture(
-		"RayOutTex",
+		{ "RayOutTex",
 		1280,
 		720,
 		DXGI_FORMAT_R8G8B8A8_UNORM,
-		Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV }
 	);
 
 	// レイPSO作成

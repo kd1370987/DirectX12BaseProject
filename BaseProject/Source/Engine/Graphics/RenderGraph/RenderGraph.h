@@ -6,41 +6,6 @@
 
 namespace Engine::Graphics
 {
-	enum class ResourceUsage : uint32_t
-	{
-		None = 0,
-		RenderTarget = 1 << 0,
-		DepthStencil = 1 << 1,
-		ShaderRead = 1 << 2,
-		ShaderWrite = 1 << 3,   // UAV 用
-	};
-
-	inline ResourceUsage operator|(ResourceUsage a, ResourceUsage b)
-	{
-		return static_cast<ResourceUsage>(
-			static_cast<uint32_t>(a) | static_cast<uint32_t>(b)
-			);
-	}
-
-	inline ResourceUsage operator&(ResourceUsage a, ResourceUsage b)
-	{
-		return static_cast<ResourceUsage>(
-			static_cast<uint32_t>(a) & static_cast<uint32_t>(b)
-			);
-	}
-
-	inline ResourceUsage& operator|=(ResourceUsage& a, ResourceUsage b)
-	{
-		a = a | b;
-		return a;
-	}
-
-	inline bool HasFlag(ResourceUsage value, ResourceUsage flag)
-	{
-		return (static_cast<uint32_t>(value) &
-			static_cast<uint32_t>(flag)) != 0;
-	}
-
 	struct ResourceDesc
 	{
 		std::string name = "none";
@@ -49,7 +14,7 @@ namespace Engine::Graphics
 		uint32_t widht = 1280;
 		uint32_t height = 720;
 
-		ResourceUsage usage = ResourceUsage::None;
+		Resource::TextureUsage usage = Resource::TextureUsage::None;
 	};
 
 	// リソースのバージョン管理用
@@ -67,14 +32,14 @@ namespace Engine::Graphics
 	struct RGResource
 	{
 		// このリソースの識別ID
-		Engine::Resource::ID id = Engine::Resource::Limits::INVALID_ID;
+		Resource::ID id = Resource::Limits::INVALID_ID;
+		Resource::Handle<Resource::Texture> texHandle = {};
 
 		// このリソースの設定
 		ResourceDesc desc = {};
 
 		// 実際のテクスチャデータ
 		std::shared_ptr<RGTexture> spRGTexture = nullptr;
-
 
 		D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
 		uint32_t lastWritePass = 0;
@@ -85,6 +50,7 @@ namespace Engine::Graphics
 	struct RGBarrier
 	{
 		RGTexture* texture = nullptr;
+		Resource::Handle<Resource::Texture> texHandle = {};
 		D3D12_RESOURCE_STATES before = D3D12_RESOURCE_STATE_COMMON;
 		D3D12_RESOURCE_STATES after = D3D12_RESOURCE_STATE_COMMON;
 		Engine::Resource::ID resID = Engine::Resource::Limits::INVALID_ID;
@@ -118,6 +84,13 @@ namespace Engine::Graphics
 
 		// リソース作成
 		Engine::Resource::ID CreateResource(const ResourceDesc& a_desc);
+		Engine::Resource::Handle<Engine::Resource::Texture> CreateTexture(
+			const std::string& a_name,
+			const DXGI_FORMAT& format,
+			const UINT64& a_widht,
+			const UINT& a_height,
+			const Resource::TextureUsage& a_texUsage
+		);
 		Engine::Resource::ID GetID(const std::string& a_key);
 
 		// パス登録

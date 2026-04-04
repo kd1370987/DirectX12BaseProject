@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-class Texture;
-
 namespace Engine
 {
 	namespace Resource

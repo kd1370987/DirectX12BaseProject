@@ -59,29 +59,23 @@ Engine::Resource::TextureManager::LoadTextureRange(const std::vector<TextureInit
 	return _result;
 }
 
-Engine::Resource::Handle<Engine::Resource::Texture> Engine::Resource::TextureManager::CreateTexture(
-	const std::string& a_name,
-	const UINT64& a_width,
-	const UINT& a_height,
-	const DXGI_FORMAT& a_format,
-	const TextureUsage& a_usage
-)
+Engine::Resource::Handle<Engine::Resource::Texture> Engine::Resource::TextureManager::CreateTexture(const CreateTextureDesc& a_init)
 {
 	// 登録されているかのチェック
-	if (Has(a_name))
+	if (Has(a_init.name))
 	{
-		return m_nameMap[a_name];
+		return m_nameMap[a_init.name];
 	}
 
 	// テクスチャ作成
 	Engine::Resource::Texture _texture;
 	_texture.Create(
-		a_width,
-		a_height,
-		a_format,
-		a_usage
+		a_init.width,
+		a_init.height,
+		a_init.format,
+		a_init.usage
 	);
-	_texture.SetName(a_name);
+	_texture.SetName(a_init.name);
 
 	// ハンドルマップを追加
 	auto _handle = Add(_texture);
@@ -89,7 +83,7 @@ Engine::Resource::Handle<Engine::Resource::Texture> Engine::Resource::TextureMan
 	// 登録
 	CreateView({ _handle });
 
-	m_nameMap.emplace(a_name, _handle);
+	m_nameMap.emplace(a_init.name, _handle);
 
 	return _handle;
 }

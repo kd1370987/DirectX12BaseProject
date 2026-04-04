@@ -58,6 +58,7 @@ void Engine::Resource::Texture::Create(
 void Engine::Resource::Texture::SetName(const std::string& a_name)
 {
 	m_name = a_name;
+	m_cpResource.Get()->SetName(StringUtility::ToWideString(m_name).c_str());
 }
 
 const std::string& Engine::Resource::Texture::GetName()
