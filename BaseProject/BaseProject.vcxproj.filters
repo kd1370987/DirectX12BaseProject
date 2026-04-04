@@ -1603,5 +1603,8 @@
     <FxCompile Include="Asset\Shader\Ray\Raytracing.hlsl">
       <Filter>Asset\Shader\Ray</Filter>
     </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\DebugLineShader\VertexShader.hlsl">
+      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
