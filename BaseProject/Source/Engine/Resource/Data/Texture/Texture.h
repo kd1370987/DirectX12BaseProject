@@ -16,6 +16,7 @@ namespace Engine::Resource
 			const DirectX::XMFLOAT4& a_defoltData = { 255,255,255,255 }
 		);
 		void Create(
+			const std::string& a_name,
 			const UINT64& a_width,
 			const UINT& a_height,
 			const DXGI_FORMAT& a_format,
@@ -30,6 +31,10 @@ namespace Engine::Resource
 		ID3D12Resource* GetResource();				// 生データ
 		const TextureUsage& GetUsage() const;		// 使用フラグ
 		const D3D12_RESOURCE_DESC& GetDesc() const;	// テクスチャ設定
+
+		// ステート
+		D3D12_RESOURCE_STATES GetState() { return m_currentSutate; }
+		void ChangeState(D3D12_RESOURCE_STATES a_state) { m_currentSutate = a_state; }
 
 		// ビュー情報取得
 		const Engine::Resource::Handle<RTV>& GetRTV() const;
@@ -52,6 +57,10 @@ namespace Engine::Resource
 		ComPtr<ID3D12Resource> m_cpResource = nullptr;		// テクスチャ本体			
 		D3D12_RESOURCE_DESC m_desc;							// テクスチャの仕様書
 		TextureUsage m_useFlg = TextureUsage::None;			// テクスチャの使用方法
+
+		// 実行中のステート
+		D3D12_RESOURCE_STATES m_currentSutate = D3D12_RESOURCE_STATE_GENERIC_READ;
+
 
 		// 使用方法ごとのハンドル
 		Engine::Resource::Handle<RTV>	 m_rtvHandle{};

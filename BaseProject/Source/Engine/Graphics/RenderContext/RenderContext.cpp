@@ -11,6 +11,7 @@
 #include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
 
 #include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
+#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 
@@ -389,6 +390,30 @@ namespace Engine::Graphics
 		D3D12Wrapper::Instance().SetViewportAndRect();
 	}
 
+	void RenderContext::ChangeRenderTarget(const std::vector<Resource::Handle<RTV>>& a_rtvHandleVec, const Resource::Handle<DSV>& a_dsvHandle)
+	{
+		// 変数用意
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvCPUVec = {};
+		D3D12_CPU_DESCRIPTOR_HANDLE _dsvCPU;
+		D3D12_CPU_DESCRIPTOR_HANDLE* _pDSVCPU = nullptr;
+
+		// RTVをハンドルへ変換
+		for (auto& _rtv : a_rtvHandleVec)
+		{
+			_rtvCPUVec.push_back(DescriptorHeapManager::Instance().GetRTVCPUHandle(_rtv));
+		}
+		// 初期値じゃなければ
+		if (a_dsvHandle != Resource::Handle<DSV>())
+		{
+			_dsvCPU = DescriptorHeapManager::Instance().GetDSVCPUHandle(a_dsvHandle);
+			_pDSVCPU = &_dsvCPU;
+		}
+
+		// チェンジ
+		ChangeRenderTarget(_rtvCPUVec,_pDSVCPU);
+	}
+
+
 	void RenderContext::BindSRV(
 		RootSigSemantic a_sema,
 		const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
@@ -423,9 +448,41 @@ namespace Engine::Graphics
 		);
 	}
 
+	void RenderContext::ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle)
+	{
+		auto& _tex = Resource::TextureManager::Instance().RefTexture(a_texHandle);
+		if (
+			_tex.GetState() != D3D12_RESOURCE_STATE_RENDER_TARGET && 
+			!Resource::HasFlag(_tex.GetUsage(),Resource::TextureUsage::RTV)
+		)
+		{
+			return;
+		}
+		auto _cpu = DescriptorHeapManager::Instance().GetRTVCPUHandle(_tex.GetRTV());
+		D3D12Wrapper::Instance().ClearRenderTargetView(_cpu);
+	}
+
 	void RenderContext::ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle)
 	{
 		D3D12Wrapper::Instance().ClearDepthStencilView(a_depthHandle);
+	}
+
+	void RenderContext::ClearDSV(const Resource::Handle<DSV>& a_DSVHandle)
+	{
+		auto _cpu = DescriptorHeapManager::Instance().GetDSVCPUHandle(a_DSVHandle);
+		D3D12Wrapper::Instance().ClearDepthStencilView(_cpu);
+	}
+
+	void RenderContext::ClearDepth(const Resource::Handle<Resource::Texture>& a_texHandle)
+	{
+		auto& _tex = Resource::TextureManager::Instance().RefTexture(a_texHandle);
+		if (!Resource::HasFlag(_tex.GetUsage(), Resource::TextureUsage::DSV))
+		{
+			return;
+		}
+
+		auto _cpu = DescriptorHeapManager::Instance().GetDSVCPUHandle(_tex.GetDSV());
+		D3D12Wrapper::Instance().ClearDepthStencilView(_cpu);
 	}
 
 	ShapeRenderer* RenderContext::RefShapeDraw()
@@ -739,7 +796,8 @@ namespace Engine::Graphics
 
 	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetImGuiGPUHandle(const std::string& a_name)
 	{
-		return m_upRenderGraph->GetImGuiGPUHandle(a_name);
+		//return m_upRenderGraph->GetImGuiGPUHandle(a_name);
+		return D3D12_GPU_DESCRIPTOR_HANDLE();
 	}
 
 	std::vector<std::string> RenderContext::GetRGResourceList()

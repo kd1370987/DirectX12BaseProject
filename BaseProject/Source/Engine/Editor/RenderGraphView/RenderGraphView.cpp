@@ -33,24 +33,24 @@ void RenderGraphView::Draw()
 	// シーンビュー
 	if (ImGui::Begin("SceneView"))
 	{
-		ImTextureID  _RGTexture = (ImTextureID)(Engine::Graphics::RenderContext::Instance().GetImGuiGPUHandle(m_rgTexName).ptr);
-		ImVec2 _winSize = ImGui::GetContentRegionAvail();
+		//ImTextureID  _RGTexture = (ImTextureID)(Engine::Graphics::RenderContext::Instance().GetImGuiGPUHandle(m_rgTexName).ptr);
+		//ImVec2 _winSize = ImGui::GetContentRegionAvail();
 
-		float _aspectRatio = 1280.0f / 720.0f;
-		if (_winSize.x / _winSize.y > _aspectRatio)
-		{
-			_winSize.x = _winSize.y * _aspectRatio;
-		}
-		else
-		{
-			_winSize.y = _winSize.x / _aspectRatio;
-		}
-		// 最小サイズの設定
-		const float MIN_SIZE = 100.0f;
-		_winSize.x = std::max(_winSize.x, MIN_SIZE);
-		_winSize.y = std::max(_winSize.y, MIN_SIZE);
+		//float _aspectRatio = 1280.0f / 720.0f;
+		//if (_winSize.x / _winSize.y > _aspectRatio)
+		//{
+		//	_winSize.x = _winSize.y * _aspectRatio;
+		//}
+		//else
+		//{
+		//	_winSize.y = _winSize.x / _aspectRatio;
+		//}
+		//// 最小サイズの設定
+		//const float MIN_SIZE = 100.0f;
+		//_winSize.x = std::max(_winSize.x, MIN_SIZE);
+		//_winSize.y = std::max(_winSize.y, MIN_SIZE);
 
-		ImGui::Image(_RGTexture, _winSize, ImVec2(0, 0), ImVec2(1, 1));
+		//ImGui::Image(_RGTexture, _winSize, ImVec2(0, 0), ImVec2(1, 1));
 	}
 	ImGui::End();
 }

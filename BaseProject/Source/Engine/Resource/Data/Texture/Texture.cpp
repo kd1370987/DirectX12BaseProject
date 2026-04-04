@@ -32,12 +32,7 @@ void Engine::Resource::Texture::Import(
 	m_useFlg = TextureUsage::SRV;
 }
 
-void Engine::Resource::Texture::Create(
-	const UINT64& a_width,
-	const UINT& a_height, 
-	const DXGI_FORMAT& a_format,
-	const TextureUsage& a_usage
-)
+void Engine::Resource::Texture::Create(const std::string& a_name, const UINT64& a_width, const UINT& a_height, const DXGI_FORMAT& a_format, const TextureUsage& a_usage)
 {
 	// 仕様書作成
 	TextureCreateDesc _desc = {};
@@ -48,10 +43,12 @@ void Engine::Resource::Texture::Create(
 
 	// リソース作成
 	m_cpResource = Engine::Resource::CreateTexture(_desc, &m_desc);
+	m_currentSutate = D3D12_RESOURCE_STATE_COMMON;
 
-	// 名前決定
-	m_name = "CreateTextures";
+	m_cpResource.Get()->SetName(StringUtility::ToWideString(a_name).c_str());
 
+	// 変数保存
+	m_name = a_name;
 	m_useFlg = a_usage;
 }
 

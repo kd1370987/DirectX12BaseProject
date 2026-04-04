@@ -2,8 +2,6 @@
 
 #include "../RenderPass/RenderPass.h"
 
-#include "RGResource/RGTexture/RGTexture.h"
-
 namespace Engine::Graphics
 {
 	struct ResourceDesc
@@ -38,9 +36,6 @@ namespace Engine::Graphics
 		// このリソースの設定
 		ResourceDesc desc = {};
 
-		// 実際のテクスチャデータ
-		std::shared_ptr<RGTexture> spRGTexture = nullptr;
-
 		D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
 		uint32_t lastWritePass = 0;
 
@@ -49,7 +44,6 @@ namespace Engine::Graphics
 
 	struct RGBarrier
 	{
-		RGTexture* texture = nullptr;
 		Resource::Handle<Resource::Texture> texHandle = {};
 		D3D12_RESOURCE_STATES before = D3D12_RESOURCE_STATE_COMMON;
 		D3D12_RESOURCE_STATES after = D3D12_RESOURCE_STATE_COMMON;
@@ -79,9 +73,6 @@ namespace Engine::Graphics
 		void Excute(RenderContext* a_pCtx);		// パスを順次実行
 
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(const std::string& a_name);
-
-		D3D12_CPU_DESCRIPTOR_HANDLE RTVCPU(const std::string& a_name);
-
 		// リソース作成
 		Engine::Resource::ID CreateResource(const ResourceDesc& a_desc);
 		Engine::Resource::Handle<Engine::Resource::Texture> CreateTexture(
@@ -101,8 +92,6 @@ namespace Engine::Graphics
 			m_spPassVec.push_back(_pass);
 		}
 
-		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle(const std::string& a_name);
-
 		std::vector<std::string> GetRGResourceList();
 
 		// リソース取得
@@ -110,14 +99,15 @@ namespace Engine::Graphics
 
 	private:
 
-		void ReadVersion(uint32_t a_writePass);
-
-		void RiteVersion(uint32_t a_writePass);
-
-
 		// 実行中の関数
 		void AutoBarrier(CompiledPass& a_pass);		// バリア更新
 		void AutoClear(CompiledPass& a_pass);		// リソースクリア
+
+		// ハンドル取得のヘルパー
+		Resource::Handle<RTV> GetRTVHandle(Resource::Handle<Resource::Texture> a_handle);
+		Resource::Handle<DSV> GetDSVHandle(Resource::Handle<Resource::Texture> a_handle);
+		Resource::Handle<SRV> GetSRVHandle(Resource::Handle<Resource::Texture> a_handle);
+		Resource::Handle<SRV> GetImGuiSRVHandle(Resource::Handle<Resource::Texture> a_handle);
 
 	private:
 

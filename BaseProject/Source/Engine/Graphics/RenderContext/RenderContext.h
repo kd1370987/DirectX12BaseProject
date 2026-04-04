@@ -162,6 +162,10 @@ namespace Engine::Graphics
 			const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec,
 			D3D12_CPU_DESCRIPTOR_HANDLE* a_depthHandle = nullptr
 		);
+		void ChangeRenderTarget(
+			const std::vector<Resource::Handle<RTV>>& a_rtvHandleVec,
+			const Resource::Handle<DSV>& a_dsvHandle
+		);
 
 
 		void BindSRV(
@@ -175,8 +179,11 @@ namespace Engine::Graphics
 			const UINT& a_numRects = 0,
 			const D3D12_RECT* a_pRects = nullptr
 		);
+		void ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle);
 
 		void ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle);
+		void ClearDSV(const Resource::Handle<DSV>& a_DSVHandle);
+		void ClearDepth(const Resource::Handle<Resource::Texture>& a_texHandle);
 
 		ShapeRenderer* RefShapeDraw();
 

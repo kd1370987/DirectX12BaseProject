@@ -328,12 +328,6 @@
     <Filter Include="Source\Core\Algorithm\Graph">
       <UniqueIdentifier>{ec0ceaa2-c77e-4492-94ff-374d697dc423}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderGraph\RGResource">
-      <UniqueIdentifier>{0400eb1a-23f0-4ff1-acbf-fbd36fe6adc1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture">
-      <UniqueIdentifier>{a41045ba-cd20-4fe0-8f63-ff5d3c380bf7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Source\ZPreShader">
       <UniqueIdentifier>{0b143661-65ff-4b30-bb80-d87eef28d888}</UniqueIdentifier>
     </Filter>
@@ -798,9 +792,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass\FullScreenPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.cpp">
-      <Filter>Source\Engine\Graphics\RenderGraph\RGResource\RGTexture</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass\ZPrePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass</Filter>
     </ClCompile>
@@ -869,9 +860,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp">
       <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGResource\RGResource.cpp">
-      <Filter>Source\Engine\Graphics\RenderGraph\RGResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.cpp">
       <Filter>Source\Engine\Resource\Manager\ModelManager</Filter>
@@ -1292,9 +1280,6 @@
     <ClInclude Include="Source\Core\Algorithm\Graph\TopologicalSort.h">
       <Filter>Source\Core\Algorithm\Graph</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGTexture\RGTexture.h">
-      <Filter>Source\Engine\Graphics\RenderGraph\RGResource\RGTexture</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass\ZPrePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass</Filter>
     </ClInclude>
@@ -1390,9 +1375,6 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Algorithm\Graph\GroupTopologicalSort.h">
       <Filter>Source\Core\Algorithm\Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGResource\RGResource.h">
-      <Filter>Source\Engine\Graphics\RenderGraph\RGResource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.h">
       <Filter>Source\Engine\Resource\Manager\ModelManager</Filter>

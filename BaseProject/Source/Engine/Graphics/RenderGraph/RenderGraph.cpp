@@ -107,7 +107,6 @@ namespace Engine::Graphics
 		m_compiledPasses.clear();
 		m_resourceStorage.Release();
 		m_rgResourceMap.clear();
-		//m_sortedPassed.clear();
 		m_spPassVec.clear();
 	}
 
@@ -174,7 +173,6 @@ namespace Engine::Graphics
 
 
 		// リソース作成用にリソースの使い方を収集
-		//for (auto* _pass : m_sortedPassed)
 		for (auto& _group : m_groupSortedPassed)
 		{
 			for (auto* _pass : _group)
@@ -208,19 +206,6 @@ namespace Engine::Graphics
 		// RGResourceの作成
 		for (auto& [_id, _res] : m_rgResourceMap)
 		{
-			RGTextureDesc _desc = {};
-			_desc.width = _res.desc.widht;
-			_desc.height = _res.desc.height;
-			_desc.format = _res.desc.format;
-
-			_desc.allowSRV = HasFlag(_res.desc.usage, Resource::TextureUsage::SRV);
-			_desc.allowRTV = HasFlag(_res.desc.usage, Resource::TextureUsage::RTV);
-			_desc.allowUAV = HasFlag(_res.desc.usage, Resource::TextureUsage::UAV);
-			_desc.allowDSV = HasFlag(_res.desc.usage, Resource::TextureUsage::DSV);
-
-			_res.spRGTexture = std::make_shared<RGTexture>();
-			_res.spRGTexture->Create(_desc);
-
 			_res.texHandle = CreateTexture(
 				_res.desc.name,
 				_res.desc.format,
@@ -228,12 +213,10 @@ namespace Engine::Graphics
 				_res.desc.height,
 				_res.desc.usage
 			);
-
 			_res.currentState = D3D12_RESOURCE_STATE_COMMON;
 		}
 
 		// リソース実態の作成
-		//for (uint32_t _passIdx = 0; _passIdx < m_sortedPassed.size(); ++_passIdx)
 		for (uint32_t _groupIdx = 0; _groupIdx < m_groupSortedPassed.size(); ++_groupIdx)
 		{
 			auto& _group = m_groupSortedPassed[_groupIdx];
@@ -273,7 +256,6 @@ namespace Engine::Graphics
 					{
 						_cp.barrierVec.push_back(
 							{
-								_res.spRGTexture.get(),
 								_res.texHandle,
 								_res.currentState,
 								_next,
@@ -313,14 +295,10 @@ namespace Engine::Graphics
 
 	D3D12_GPU_DESCRIPTOR_HANDLE RenderGraph::GetGPUHandle(const std::string& a_name)
 	{
-		auto _id = m_resourceStorage.GetID(a_name);
-		return m_rgResourceMap[_id].spRGTexture->GPUSRVHandle();
-	}
+		
+		auto _tex = Resource::TextureManager::Instance().GetTexture(a_name);
+		return DescriptorHeapManager::Instance().GetSRVGPUHandle(_tex.GetSRV());
 
-	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::RTVCPU(const std::string& a_name)
-	{
-		auto _id = m_resourceStorage.GetID(a_name);
-		return m_rgResourceMap[_id].spRGTexture->GetRTVHandle();
 	}
 
 	Engine::Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)
@@ -375,12 +353,6 @@ namespace Engine::Graphics
 		return Engine::Resource::Limits::INVALID_ID;
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE RenderGraph::GetImGuiGPUHandle(const std::string& a_name)
-	{
-		auto _id = m_resourceStorage.GetID(a_name);
-		return m_rgResourceMap[_id].spRGTexture->GetImGuiSRVHandle();
-	}
-
 	std::vector<std::string> RenderGraph::GetRGResourceList()
 	{
 		std::vector<std::string> _nameVec = {};
@@ -409,18 +381,16 @@ namespace Engine::Graphics
 		// 使用するリソースバリア
 		for (auto& _barrier : a_pass.barrierVec)
 		{
+			// 現在のステートと変更予定ステートが違うのならば変更する
 			if (m_rgResourceMap[_barrier.resID].currentState != _barrier.after)
 			{
+				// ステート変更
 				m_pCtx->Transition(
-					_barrier.texture->GetResource(),
+					Resource::TextureManager::Instance().RefTexture(_barrier.texHandle).GetResource(),
 					m_rgResourceMap[_barrier.resID].currentState,
 					_barrier.after
 				);
-				//m_pCtx->Transition(
-				//	Resource::TextureManager::Instance().RefTexture(_barrier.texHandle).GetResource(),
-				//	m_rgResourceMap[_barrier.resID].currentState,
-				//	_barrier.after
-				//);
+				// 現在のステートを更新
 				m_rgResourceMap[_barrier.resID].currentState = _barrier.after;
 			}
 		}
@@ -428,26 +398,23 @@ namespace Engine::Graphics
 
 	void RenderGraph::AutoClear(CompiledPass& a_pass)
 	{
-		// RTV
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvs = {};
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _clearRTVs = {};
 
-		// DSV
-		D3D12_CPU_DESCRIPTOR_HANDLE _dsv = {};
-		D3D12_CPU_DESCRIPTOR_HANDLE* _pDsv = nullptr;
 		bool _isClear = false;
+
+		std::vector<Resource::Handle<RTV>> _rtvHandleVec = {};
+		Resource::Handle<DSV> _dsvHandle = {};
+		std::vector<Resource::Handle<Resource::Texture>> _rtvTexHandleVec = {};
 
 		for (auto& _resAcc : a_pass.pPass->GetDesc().resourceAccessVec)
 		{
 			// レンダーターゲット
 			if (_resAcc.type == AccessType::RTV)
 			{
-				auto& _tex = m_rgResourceMap[_resAcc.id].spRGTexture;
-				_rtvs.push_back(_tex->GetRTVHandle());
+				_rtvHandleVec.push_back(GetRTVHandle(m_rgResourceMap[_resAcc.id].texHandle));
 				// クリアを入れるかどうか
 				if (_resAcc.load == LoadOp::Clear)
 				{
-					_clearRTVs.push_back(_tex->GetRTVHandle());
+					_rtvTexHandleVec.push_back(m_rgResourceMap[_resAcc.id].texHandle);
 				}
 			}
 
@@ -455,9 +422,8 @@ namespace Engine::Graphics
 			if (_resAcc.type == AccessType::Depth_Write ||
 				_resAcc.type == AccessType::Depth_Read)
 			{
-				auto& _depth = m_rgResourceMap[_resAcc.id].spRGTexture;
-				_dsv = _depth->GetDSVHandle();
-				_pDsv = &_dsv;
+				_dsvHandle = GetDSVHandle(m_rgResourceMap[_resAcc.id].texHandle);
+				
 				// クリアを入れるかどうか
 				if (_resAcc.load == LoadOp::Clear)
 				{
@@ -467,16 +433,32 @@ namespace Engine::Graphics
 		}
 
 		// レンダーターゲットを変更
-		m_pCtx->ChangeRenderTarget(_rtvs, _pDsv);
-
+		m_pCtx->ChangeRenderTarget(_rtvHandleVec, _dsvHandle);
+		
 		// クリア
-		for (auto& _handle : _clearRTVs)
+		for (auto& _handle : _rtvTexHandleVec)
 		{
 			m_pCtx->ClearRenderTarget(_handle);
 		}
 		if (_isClear)
 		{
-			m_pCtx->ClearDepth(_dsv);
+			m_pCtx->ClearDSV(_dsvHandle);
 		}
+	}
+	Resource::Handle<RTV> RenderGraph::GetRTVHandle(Resource::Handle<Resource::Texture> a_handle)
+	{
+		return Resource::TextureManager::Instance().GetTexture(a_handle).GetRTV();
+	}
+	Resource::Handle<DSV> RenderGraph::GetDSVHandle(Resource::Handle<Resource::Texture> a_handle)
+	{
+		return Resource::TextureManager::Instance().GetTexture(a_handle).GetDSV();
+	}
+	Resource::Handle<SRV> RenderGraph::GetSRVHandle(Resource::Handle<Resource::Texture> a_handle)
+	{
+		return Resource::TextureManager::Instance().GetTexture(a_handle).GetSRV();
+	}
+	Resource::Handle<SRV> RenderGraph::GetImGuiSRVHandle(Resource::Handle<Resource::Texture> a_handle)
+	{
+		return Resource::TextureManager::Instance().GetTexture(a_handle).GetImGuiSRV();
 	}
 }
