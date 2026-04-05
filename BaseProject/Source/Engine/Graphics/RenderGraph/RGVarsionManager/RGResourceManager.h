@@ -32,6 +32,11 @@ namespace Engine::Graphics
 		// 書き込み用 : テクスチャ名、書き込み時の使用方法
 		RGResource Write(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage);
 
+		// 今まで登録された情報でテクスチャを作成
+		void CreateAllTexture();
+
+	private:
+
 	private:
 
 		struct ResourceData

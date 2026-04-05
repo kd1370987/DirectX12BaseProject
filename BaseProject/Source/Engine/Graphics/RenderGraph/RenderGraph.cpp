@@ -187,6 +187,30 @@ namespace Engine::Graphics
 			// リソース遷移作成
 			for (auto _access : _pass->GetDesc().resourceAccessVec)
 			{
+				// クリア作成
+				auto& _res = m_rgResourceMap[_access.id];
+
+				if (_access.type == AccessType::RTV)
+				{
+					auto _rtv = GetRTVHandle(_res.texHandle);
+					_cp.rtvHadles.push_back(_rtv);
+					if (_access.load == LoadOp::Clear)
+					{
+						_cp.clearRTVs.push_back(_res.texHandle);
+					}
+				}
+				else if (_access.type == AccessType::Depth_Write || 
+						_access.type == AccessType::Depth_Read
+					)
+				{
+					_cp.dsvHandle = GetDSVHandle(_res.texHandle);
+					if (_access.load == LoadOp::Clear)
+					{
+						_cp.isDepthClear = true;
+					}
+				}
+
+				// バリア作成
 				D3D12_RESOURCE_STATES _next = D3D12_RESOURCE_STATE_COMMON;
 				if (_access.type == AccessType::SRV)
 				{
@@ -209,7 +233,7 @@ namespace Engine::Graphics
 					_next = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 				}
 
-				auto& _res = m_rgResourceMap[_access.id];
+				
 				if (_res.currentState != _next)
 				{
 					_cp.barrierVec.push_back(
@@ -353,51 +377,17 @@ namespace Engine::Graphics
 
 	void RenderGraph::AutoClear(CompiledPass& a_pass)
 	{
-
-		bool _isClear = false;
-
-		std::vector<Resource::Handle<RTV>> _rtvHandleVec = {};
-		Resource::Handle<DSV> _dsvHandle = {};
-		std::vector<Resource::Handle<Resource::Texture>> _rtvTexHandleVec = {};
-
-		for (auto& _resAcc : a_pass.pPass->GetDesc().resourceAccessVec)
-		{
-			// レンダーターゲット
-			if (_resAcc.type == AccessType::RTV)
-			{
-				_rtvHandleVec.push_back(GetRTVHandle(m_rgResourceMap[_resAcc.id].texHandle));
-				// クリアを入れるかどうか
-				if (_resAcc.load == LoadOp::Clear)
-				{
-					_rtvTexHandleVec.push_back(m_rgResourceMap[_resAcc.id].texHandle);
-				}
-			}
-
-			// 深度値
-			if (_resAcc.type == AccessType::Depth_Write ||
-				_resAcc.type == AccessType::Depth_Read)
-			{
-				_dsvHandle = GetDSVHandle(m_rgResourceMap[_resAcc.id].texHandle);
-				
-				// クリアを入れるかどうか
-				if (_resAcc.load == LoadOp::Clear)
-				{
-					_isClear = true;
-				}
-			}
-		}
-
-		// レンダーターゲットを変更
-		m_pCtx->ChangeRenderTarget(_rtvHandleVec, _dsvHandle);
+		// レンダーターゲット変更
+		m_pCtx->ChangeRenderTarget(a_pass.rtvHadles,a_pass.dsvHandle);
 		
-		// クリア
-		for (auto& _handle : _rtvTexHandleVec)
+		// クリア処理
+		for (auto& _tex : a_pass.clearRTVs)
 		{
-			m_pCtx->ClearRenderTarget(_handle);
+			m_pCtx->ClearRenderTarget(_tex);
 		}
-		if (_isClear)
+		if (a_pass.isDepthClear)
 		{
-			m_pCtx->ClearDSV(_dsvHandle);
+			m_pCtx->ClearDSV(a_pass.dsvHandle);
 		}
 	}
 	Resource::Handle<RTV> RenderGraph::GetRTVHandle(Resource::Handle<Resource::Texture> a_handle)

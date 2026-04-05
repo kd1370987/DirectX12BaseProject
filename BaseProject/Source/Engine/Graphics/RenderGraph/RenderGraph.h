@@ -38,8 +38,19 @@ namespace Engine::Graphics
 
 	struct CompiledPass
 	{
+		// パス
 		RenderPass* pPass = nullptr;
+
+		// バリア
 		std::vector<RGBarrier> barrierVec = {};
+
+		// RTV・DSVチェンジ用
+		std::vector<Resource::Handle<RTV>> rtvHadles = {};
+		Resource::Handle<DSV> dsvHandle = {};
+
+		// RTV・DSVクリア用
+		std::vector<Resource::Handle<Resource::Texture>> clearRTVs = {};
+		bool isDepthClear = false;
 	};
 
 	class RGResourceManager;

@@ -1,5 +1,7 @@
 ﻿#include "RGResourceManager.h"
 
+#include "../../../Resource/Manager/TextureManager/TextureManager.h"
+
 namespace Engine::Graphics
 {
 	void Engine::Graphics::RGResourceManager::Register(
@@ -63,5 +65,19 @@ namespace Engine::Graphics
 			return { a_resourceName , _data.currentVarsion };
 		}
 		return {};
+	}
+	void RGResourceManager::CreateAllTexture()
+	{
+		for (auto& [_name, _res] : m_resourceMap)
+		{
+			Resource::CreateTextureDesc _desc = {
+				.name = _res.name,
+				.width = _res.widht,
+				.height = _res.height,
+				.format = _res.format,
+				.usage = _res.usage
+			};
+			_res.texHandle = Resource::TextureManager::Instance().CreateTexture(_desc);
+		}
 	}
 }

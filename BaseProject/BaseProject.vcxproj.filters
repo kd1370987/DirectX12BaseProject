@@ -1511,6 +1511,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h">
       <Filter>Source\Engine\Graphics\RenderGraph\RGPassBuilder</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGCommon.h">
+      <Filter>Source\Engine\Graphics\RenderGraph</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

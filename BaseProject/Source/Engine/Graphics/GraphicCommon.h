@@ -69,14 +69,6 @@ struct PassDesc
 	std::vector<Engine::Resource::ID> readResource = {};		// 入力(SRV)
 	std::vector<Engine::Resource::ID> writeResource = {};	// 出力(RTV,UAV)
 
-	RenderQueueType queueType = RenderQueueType::Opaque;		// 描画アイテムタイプ
-
-	bool isCulled = false;		// 依存関係的に不要ならスキップ
-	bool isAsync = false;		// 将来用
-
-	Viewport viewport = {};
-	ScissorRectangle scissor = {};
-
 	// レンダーパス開始・終了時のAPI設定
 	std::vector<AccessResource> resourceAccessVec = {};
 };

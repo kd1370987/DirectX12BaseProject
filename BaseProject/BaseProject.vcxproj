@@ -470,6 +470,7 @@
     <ClInclude Include="Source\Engine\Editor\ImGui\Watch\Watch.h" />
     <ClInclude Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h" />
     <ClInclude Include="Source\Engine\MainEngine.h" />
