@@ -12,13 +12,14 @@ namespace Engine::Graphics
 		const Resource::TextureUsage& a_texUsage
 	)
 	{
-		auto _it = m_resourceMap.find(a_name);
-		if (_it != m_resourceMap.end())
+		auto _it = m_stringMap.find(a_name);
+		if (_it != m_stringMap.end())
 		{
+			// 登録済み
 			return;
 		}
 
-		ResourceData _data = {};
+		LogicalResource _data = {};
 		_data.name = a_name;
 		_data.format = a_format;
 		_data.widht = a_widht;
@@ -32,43 +33,44 @@ namespace Engine::Graphics
 		_data.texHandle = {};
 
 		// 登録
-		m_resourceMap[a_name] = _data;
+		m_stringMap[a_name] = m_resourceVec.size();
+		m_resourceVec.push_back(_data);
 	}
 
-	RGResource RGResourceManager::Read(
+	Resource::ID RGResourceManager::Read(
 		const std::string& a_resourceName,
 		const Resource::TextureUsage& a_texUsage
 	)
 	{
 		// 登録されているか検索
-		auto _it = m_resourceMap.find(a_resourceName);
-		if (_it != m_resourceMap.end())
+		auto _it = m_stringMap.find(a_resourceName);
+		if (_it != m_stringMap.end())
 		{
 			// 最新のリソースを返す
-			auto& _data = _it->second;
+			auto& _data = m_resourceVec[_it->second];
 			_data.usage |= a_texUsage;	// 使用方法を追加
-			return {a_resourceName , _data.currentVarsion};
+			return Resource::GetID(_it->second,_data.currentVarsion);
 		}
-		return {};
+		return Resource::Limits::INVALID_ID;
 	}
 
-	RGResource RGResourceManager::Write(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage)
+	Resource::ID RGResourceManager::Write(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage)
 	{
 		// 登録されているか検索
-		auto _it = m_resourceMap.find(a_resourceName);
-		if (_it != m_resourceMap.end())
+		auto _it = m_stringMap.find(a_resourceName);
+		if (_it != m_stringMap.end())
 		{
 			// リソースのバージョンを上げて返す
-			auto& _data = _it->second;
+			auto& _data = m_resourceVec[_it->second];
 			_data.currentVarsion++;		// バージョンを上げる
 			_data.usage |= a_texUsage;	// 使用方法を追加
-			return { a_resourceName , _data.currentVarsion };
+			return Resource::GetID(_it->second, _data.currentVarsion);
 		}
-		return {};
+		return Resource::Limits::INVALID_ID;
 	}
 	void RGResourceManager::CreateAllTexture()
 	{
-		for (auto& [_name, _res] : m_resourceMap)
+		for (auto& _res : m_resourceVec)
 		{
 			Resource::CreateTextureDesc _desc = {
 				.name = _res.name,

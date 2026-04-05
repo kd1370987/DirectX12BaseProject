@@ -59,6 +59,9 @@ namespace Engine::Graphics
 	{
 	public:
 
+		RenderGraph();
+		~RenderGraph();
+
 		void Init(
 			RenderContext* a_pCtx,
 			Resource::ShaderManager* a_pShaderMana,
@@ -82,6 +85,8 @@ namespace Engine::Graphics
 			const Resource::TextureUsage& a_texUsage
 		);
 		Engine::Resource::ID GetID(const std::string& a_key);
+		Resource::ID Read(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage);
+		Resource::ID Write(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage);
 
 		// パス登録
 		template<typename Pass>
@@ -100,7 +105,6 @@ namespace Engine::Graphics
 
 		// 実行中の関数
 		void AutoBarrier(CompiledPass& a_pass);		// バリア更新
-		void AutoClear(CompiledPass& a_pass);		// リソースクリア
 
 		// ハンドル取得のヘルパー
 		Resource::Handle<RTV> GetRTVHandle(Resource::Handle<Resource::Texture> a_handle);
@@ -120,6 +124,9 @@ namespace Engine::Graphics
 
 		// コンパイル後のパス
 		std::vector<CompiledPass> m_compiledPasses = {};
+
+		// リソース管理
+		std::unique_ptr<RGResourceManager> m_upRGResourceManager = nullptr;
 
 		RenderContext* m_pCtx = nullptr;
 	};

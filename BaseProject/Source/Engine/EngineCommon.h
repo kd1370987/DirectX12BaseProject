@@ -30,6 +30,19 @@ namespace Engine::Resource
 		constexpr Index			INVALID_INDEX = std::numeric_limits<Index>::max();
 		constexpr Generation	INVALID_GENERATION = std::numeric_limits<Generation>::max();
 	}
+
+	inline Index GetIndex(ID a_id)
+	{
+		return Index(a_id & 0xFFFF);
+	}
+	inline Generation GetGeneration(ID a_id)
+	{
+		return Generation(a_id >> 16);
+	}
+	inline ID GetID(Index a_idx,Generation a_gen)
+	{
+		return ID(a_gen) << 16 | a_idx;
+	}
 }
 
 #include "Engine/SlotStorage/SlotStorage.h"

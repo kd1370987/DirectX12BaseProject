@@ -1,4 +1,5 @@
 ﻿#include "RenderGraph.h"
+#include "RGVarsionManager/RGResourceManager.h"
 
 #include "../RenderPass/DrawPass/ForwardLightingPass/ForwardLightingPass.h"
 #include "../RenderPass/OffScreenPass/FullScreenPass/FullScreenPass.h"
@@ -18,6 +19,11 @@
 
 namespace Engine::Graphics
 {
+	RenderGraph::RenderGraph()
+	{}
+	RenderGraph::~RenderGraph()
+	{}
+
 	void RenderGraph::Init(
 		RenderContext* a_pCtx,
 		Resource::ShaderManager* a_pShaderMana,
@@ -25,6 +31,16 @@ namespace Engine::Graphics
 		Engine::D3D12::GraphicsPSOManager* a_pPSOMana
 	)
 	{
+		// リソースマネージャー作成
+		m_upRGResourceManager = std::make_unique<RGResourceManager>();
+		m_upRGResourceManager->Register(
+			"MainColor",
+			DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+			1280,
+			720,
+			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
+		);
+
 		m_resourceStorage.Init(20);
 		// リソース作成
 
@@ -178,6 +194,9 @@ namespace Engine::Graphics
 			_res.currentState = D3D12_RESOURCE_STATE_COMMON;
 		}
 
+		// テクスチャの作成
+		m_upRGResourceManager->CreateAllTexture();
+
 		// リソース実態の作成
 		for(auto* _pass : m_sortedPassed)
 		{
@@ -266,7 +285,18 @@ namespace Engine::Graphics
 			AutoBarrier(_cp);
 
 			// リソースクリア
-			AutoClear(_cp);
+			// レンダーターゲット変更
+			m_pCtx->ChangeRenderTarget(_cp.rtvHadles, _cp.dsvHandle);
+
+			// クリア処理
+			for (auto& _tex : _cp.clearRTVs)
+			{
+				m_pCtx->ClearRenderTarget(_tex);
+			}
+			if (_cp.isDepthClear)
+			{
+				m_pCtx->ClearDSV(_cp.dsvHandle);
+			}
 
 			// パスの実行
 			_cp.pPass->Excute(a_pCtx);
@@ -332,6 +362,16 @@ namespace Engine::Graphics
 		return Engine::Resource::Limits::INVALID_ID;
 	}
 
+	Resource::ID RenderGraph::Read(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage)
+	{
+		return m_upRGResourceManager->Read(a_resourceName,a_texUsage);
+	}
+
+	Resource::ID RenderGraph::Write(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage)
+	{
+		return m_upRGResourceManager->Write(a_resourceName, a_texUsage);
+	}
+
 	std::vector<std::string> RenderGraph::GetRGResourceList()
 	{
 		std::vector<std::string> _nameVec = {};
@@ -375,21 +415,6 @@ namespace Engine::Graphics
 		}
 	}
 
-	void RenderGraph::AutoClear(CompiledPass& a_pass)
-	{
-		// レンダーターゲット変更
-		m_pCtx->ChangeRenderTarget(a_pass.rtvHadles,a_pass.dsvHandle);
-		
-		// クリア処理
-		for (auto& _tex : a_pass.clearRTVs)
-		{
-			m_pCtx->ClearRenderTarget(_tex);
-		}
-		if (a_pass.isDepthClear)
-		{
-			m_pCtx->ClearDSV(a_pass.dsvHandle);
-		}
-	}
 	Resource::Handle<RTV> RenderGraph::GetRTVHandle(Resource::Handle<Resource::Texture> a_handle)
 	{
 		return Resource::TextureManager::Instance().GetTexture(a_handle).GetRTV();
