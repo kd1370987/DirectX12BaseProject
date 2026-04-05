@@ -51,23 +51,29 @@ namespace Engine::Graphics
 	}
 	void RenderPass::AddRead(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
 	{
-		auto _resID = m_pRenderGraph->GetID(a_texName);
+		//auto _resID = m_pRenderGraph->GetID(a_texName);
+		auto _resID = m_pRenderGraph->Read(a_texName, AccessType::SRV);
 		m_passDesc.readResource.push_back(_resID);
+
 
 		m_passDesc.resourceAccessVec.push_back({ _resID ,a_type,a_loadOp,a_storeOp });
 	}
 	void RenderPass::AddRead(const std::string& a_texName)
 	{
-		auto _resID = m_pRenderGraph->GetID(a_texName);
+		//auto _resID = m_pRenderGraph->GetID(a_texName);
+		auto _resID = m_pRenderGraph->Read(a_texName,AccessType::SRV);
+
 		m_passDesc.readResource.push_back(_resID);
 	}
 	void RenderPass::AddWrite(const std::string & a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
 	{
-		auto _resID = m_pRenderGraph->GetID(a_texName);
+		//auto _resID = m_pRenderGraph->GetID(a_texName);
+		auto _resID = m_pRenderGraph->Write(a_texName,a_type);
 		m_passDesc.writeResource.push_back(_resID);
 
-		auto& _res = m_pRenderGraph->GetRGresource(_resID);
-		m_psoDesc.AddRenderTargetFormat(_res.desc.format);
+		//auto& _res = m_pRenderGraph->GetRGresource(_resID);
+		auto _format = m_pRenderGraph->GetDXGIFormat(_resID);
+		m_psoDesc.AddRenderTargetFormat(_format);
 
 		m_passDesc.resourceAccessVec.push_back({ _resID ,a_type,a_loadOp,a_storeOp });
 	}

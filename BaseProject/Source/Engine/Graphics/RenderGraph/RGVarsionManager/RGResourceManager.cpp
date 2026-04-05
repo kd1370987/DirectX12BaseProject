@@ -82,4 +82,37 @@ namespace Engine::Graphics
 			_res.texHandle = Resource::TextureManager::Instance().CreateTexture(_desc);
 		}
 	}
+	Resource::Handle<Resource::Texture> RGResourceManager::GetTexHandle(Resource::ID a_id)
+	{
+		auto _idx = Resource::GetIndex(a_id);
+		return m_resourceVec[_idx].texHandle;
+	}
+	Resource::Handle<RTV> RGResourceManager::GetRTVHandle(Resource::ID a_id)
+	{
+		auto _idx = Resource::GetIndex(a_id);
+		auto& _res = m_resourceVec[_idx];
+
+		auto& _tex = Resource::TextureManager::Instance().GetTexture(_res.texHandle);
+		return _tex.GetRTV();
+	}
+	Resource::Handle<DSV> RGResourceManager::GetDSVHandle(Resource::ID a_id)
+	{
+		auto _idx = Resource::GetIndex(a_id);
+		auto& _res = m_resourceVec[_idx];
+
+		auto& _tex = Resource::TextureManager::Instance().GetTexture(_res.texHandle);
+		return _tex.GetDSV();
+	}
+	D3D12_RESOURCE_STATES& RGResourceManager::RefCurrentState(Resource::ID a_id)
+	{
+		auto _idx = Resource::GetIndex(a_id);
+		auto& _res = m_resourceVec[_idx];
+		return _res.currentState;
+	}
+	DXGI_FORMAT RGResourceManager::GetDXGIFormat(Resource::ID a_id)
+	{
+		auto _idx = Resource::GetIndex(a_id);
+		auto& _res = m_resourceVec[_idx];
+		return _res.format;
+	}
 }

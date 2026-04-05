@@ -4,29 +4,29 @@
 
 namespace Engine::Graphics
 {
-	struct ResourceDesc
-	{
-		std::string name = "none";
-		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
+	//struct ResourceDesc
+	//{
+	//	std::string name = "none";
+	//	DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
 
-		uint32_t widht = 1280;
-		uint32_t height = 720;
+	//	uint32_t widht = 1280;
+	//	uint32_t height = 720;
 
-		Resource::TextureUsage usage = Resource::TextureUsage::None;
-	};
+	//	Resource::TextureUsage usage = Resource::TextureUsage::None;
+	//};
 
 	// 描画先リソース
-	struct RGResource
-	{
-		// このリソースの識別ID
-		Resource::ID id = Resource::Limits::INVALID_ID;
-		Resource::Handle<Resource::Texture> texHandle = {};
+	//struct RGResource
+	//{
+	//	// このリソースの識別ID
+	//	Resource::ID id = Resource::Limits::INVALID_ID;
+	//	Resource::Handle<Resource::Texture> texHandle = {};
 
-		// このリソースの設定
-		ResourceDesc desc = {};
+	//	// このリソースの設定
+	//	ResourceDesc desc = {};
 
-		D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
-	};
+	//	D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
+	//};
 
 	struct RGBarrier
 	{
@@ -76,7 +76,6 @@ namespace Engine::Graphics
 
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(const std::string& a_name);
 		// リソース作成
-		Engine::Resource::ID CreateResource(const ResourceDesc& a_desc);
 		Engine::Resource::Handle<Engine::Resource::Texture> CreateTexture(
 			const std::string& a_name,
 			const DXGI_FORMAT& format,
@@ -84,9 +83,9 @@ namespace Engine::Graphics
 			const UINT& a_height,
 			const Resource::TextureUsage& a_texUsage
 		);
-		Engine::Resource::ID GetID(const std::string& a_key);
-		Resource::ID Read(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage);
-		Resource::ID Write(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage);
+
+		Resource::ID Read(const std::string& a_resourceName, const AccessType& a_type);
+		Resource::ID Write(const std::string& a_resourceName, const AccessType& a_type);
 
 		// パス登録
 		template<typename Pass>
@@ -98,9 +97,8 @@ namespace Engine::Graphics
 
 		std::vector<std::string> GetRGResourceList();
 
-		// リソース取得
-		RGResource& GetRGresource(const Engine::Resource::ID& a_id);
-
+		// アクセサ
+		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);	// フォーマット取得
 	private:
 
 		// 実行中の関数
@@ -117,10 +115,6 @@ namespace Engine::Graphics
 		// パスの保管場所
 		std::vector<std::shared_ptr<RenderPass>> m_spPassVec = {};
 		std::vector<RenderPass*> m_sortedPassed = {};							// ソート後のパス
-
-		// リソース仕様書のストレージ
-		SlotStorage<ResourceDesc> m_resourceStorage = {};
-		std::unordered_map<Engine::Resource::ID, RGResource> m_rgResourceMap = {};
 
 		// コンパイル後のパス
 		std::vector<CompiledPass> m_compiledPasses = {};

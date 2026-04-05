@@ -27,6 +27,14 @@ namespace Engine::Graphics
 		// 今まで登録された情報でテクスチャを作成
 		void CreateAllTexture();
 
+		// アクセサ
+		Resource::Handle<Resource::Texture> GetTexHandle(Resource::ID a_id);
+		Resource::Handle<RTV> GetRTVHandle(Resource::ID a_id);
+		Resource::Handle<DSV> GetDSVHandle(Resource::ID a_id);
+		D3D12_RESOURCE_STATES& RefCurrentState(Resource::ID a_id);
+		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);
+
+
 	private:
 
 		// 論理リソース
@@ -41,6 +49,9 @@ namespace Engine::Graphics
 
 			// 実行順を決定するためのバージョン
 			Resource::Generation currentVarsion = 0;
+
+			// コンパイル時にバリアを作るためのステート
+			D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
 
 			// コンパイル時に作成される
 			Resource::Handle<Resource::Texture> texHandle = {};
