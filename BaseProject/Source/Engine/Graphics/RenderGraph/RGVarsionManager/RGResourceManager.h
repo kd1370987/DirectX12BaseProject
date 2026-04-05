@@ -27,13 +27,19 @@ namespace Engine::Graphics
 		// 今まで登録された情報でテクスチャを作成
 		void CreateAllTexture();
 
+		// 実行に移るためステートをテクスチャに合わせる
+		void StateReset();
+
 		// アクセサ
 		Resource::Handle<Resource::Texture> GetTexHandle(Resource::ID a_id);
-		Resource::Handle<RTV> GetRTVHandle(Resource::ID a_id);
-		Resource::Handle<DSV> GetDSVHandle(Resource::ID a_id);
-		D3D12_RESOURCE_STATES& RefCurrentState(Resource::ID a_id);
-		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);
 
+		Resource::Handle<RTV> GetRTVHandle(Resource::ID a_id);		// RTVハンドル
+		Resource::Handle<DSV> GetDSVHandle(Resource::ID a_id);		// DSVハンドル
+
+		D3D12_RESOURCE_STATES& RefCurrentState(Resource::ID a_id);	// 現在のステート
+		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);				// リソースのフォーマット
+
+		std::vector<std::string> GetResourceNameVec();				// リソース名一覧
 
 	private:
 

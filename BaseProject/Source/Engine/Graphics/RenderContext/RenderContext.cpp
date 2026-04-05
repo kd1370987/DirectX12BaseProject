@@ -808,7 +808,7 @@ namespace Engine::Graphics
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 		// プリミティブトポロジーセット
-		_pCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		_pCmdList->IASetPrimitiveTopology(a_topology);
 	}
 
 	void RenderContext::SetRasterizerFillMode(D3D12_FILL_MODE a_fillMode)

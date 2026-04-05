@@ -24,7 +24,7 @@ namespace Engine::Graphics
 		SetPS("Asset/Shader/Source/GBufferShader/GBufferPS.cso");
 		SetRootSig("BaseRootSig");
 
-		AddRead("Depth", AccessType::Depth_Read, LoadOp::Load, StoreOp::Store);
+		AddRead("Depth", AccessType::Depth_Write, LoadOp::Load, StoreOp::Store);
 
 		AddWrite("GBufferAlbedo", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 		AddWrite("GBufferNormal", AccessType::RTV, LoadOp::Clear, StoreOp::Store);

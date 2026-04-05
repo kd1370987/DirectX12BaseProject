@@ -44,6 +44,6 @@ namespace Engine::Graphics
 		m_psoDesc.SetBlendState(_blendDesc);
 
 		AddRead("QuadTexture");
-		AddWrite("QuadTexture", AccessType::Depth_Write, LoadOp::Clear, StoreOp::Store);
+		AddWrite("QuadTexture", AccessType::RTV, LoadOp::Load, StoreOp::Store);
 	}
 }

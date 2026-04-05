@@ -15,30 +15,35 @@ bool DescriptorHeapManager::Init()
 	// ヒープ作成
 	m_cbv_srv_uavHeap.Create(
 		_device,
+		L"CBV_SRV_UAV",
 		300,
 		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 		0
 	);
 	m_dsvHeap.Create(
 		_device,
+		L"DSV",
 		10,
 		D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
 		0
 	);
 	m_rtvHeap.Create(
 		_device,
+		L"RTV",
 		100,
 		D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
 		0
 	);
 	m_imguiHeap.Create(
 		_device,
+		L"ImGui",
 		300,
 		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 		0
 	);
 	m_samplerHeap.Create(
 		_device,
+		L"Sampler",
 		3,
 		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 		0

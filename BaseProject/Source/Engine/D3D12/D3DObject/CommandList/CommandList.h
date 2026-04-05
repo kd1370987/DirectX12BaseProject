@@ -96,7 +96,7 @@ public:
 	/// <param name="a_pRects">矩形ポインタ</param>
 	void ClearRenderTargetView(
 		D3D12_CPU_DESCRIPTOR_HANDLE a_renderTargetView, 
-		DirectX::XMFLOAT4 a_colorRGBA = {0.0f,0.0f,1.0f,1.0f},
+		DirectX::XMFLOAT4 a_colorRGBA = {0.0f,0.0f,0.0f,1.0f},
 		UINT a_numRects = 0, 
 		const D3D12_RECT* a_pRects = nullptr
 	);

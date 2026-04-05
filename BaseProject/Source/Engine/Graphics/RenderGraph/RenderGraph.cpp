@@ -83,58 +83,6 @@ namespace Engine::Graphics
 			Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
 		);
 
-		//m_resourceStorage.Init(20);
-		// リソース作成
-		//CreateResource({
-		//	.name = "MainColor",
-		//	.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-		//	.widht = 1280,
-		//	.height = 720,
-		//	.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		//	});
-		//CreateResource({
-		//	.name = "QuadTexture",
-		//	.format = DXGI_FORMAT_R16G16B16A16_FLOAT,
-		//	.widht = 1280,
-		//	.height = 720,
-		//	.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		//	});
-		//CreateResource({
-		//	.name = "GBufferAlbedo",
-		//	.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-		//	.widht = 1280,
-		//	.height = 720,
-		//	.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		//	});
-		//CreateResource({
-		//	.name = "GBufferNormal",
-		//	.format = DXGI_FORMAT_R16G16_FLOAT,
-		//	.widht = 1280,
-		//	.height = 720,
-		//	.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		//	});
-		//CreateResource({
-		//	.name = "GBufferMaterial",
-		//	.format = DXGI_FORMAT_R8G8B8A8_UNORM,
-		//	.widht = 1280,
-		//	.height = 720,
-		//	.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		//	});
-		//CreateResource({
-		//	.name = "GBufferEmissiv",
-		//	.format = DXGI_FORMAT_R8G8B8A8_UNORM,
-		//	.widht = 1280,
-		//	.height = 720,
-		//	.usage = Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		//	});
-		//CreateResource({
-		//	.name = "Depth",
-		//	.format = DXGI_FORMAT_R32_TYPELESS,
-		//	.widht = 1280,
-		//	.height = 720,
-		//	.usage = Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
-		//	});
-
 		// パス登録
 		RegisterPass<ZPrePass>();
 		RegisterPass<GBufferPass>();
@@ -142,7 +90,7 @@ namespace Engine::Graphics
 		RegisterPass<DeferredLightingPass>();
 		RegisterPass<ForwardLightingPass>();
 		RegisterPass<FullScreenPass>();
-		//RegisterPass<DebugLinePass>();
+		RegisterPass<DebugLinePass>();
 		//RegisterPass<ScreenUIPass>();
 
 		// パスの初期化
@@ -160,8 +108,6 @@ namespace Engine::Graphics
 	void RenderGraph::Release()
 	{
 		m_compiledPasses.clear();
-		//m_resourceStorage.Release();
-		//m_rgResourceMap.clear();
 		m_spPassVec.clear();
 	}
 
@@ -190,49 +136,6 @@ namespace Engine::Graphics
 			}
 		);
 
-		// リソース作成用にリソースの使い方を収集
-		//for (auto& _pass : m_sortedPassed)
-		//{
-
-		//	for (const AccessResource& _access : _pass->GetDesc().resourceAccessVec)
-		//	{
-		//		if (_access.type == AccessType::SRV)
-		//		{
-		//			m_rgResourceMap[_access.id].desc.usage |= Resource::TextureUsage::SRV;
-		//		}
-		//		if (_access.type == AccessType::RTV)
-		//		{
-		//			m_rgResourceMap[_access.id].desc.usage |= Resource::TextureUsage::RTV;
-		//		}
-		//		if (_access.type == AccessType::UAV)
-		//		{
-		//			m_rgResourceMap[_access.id].desc.usage |= Resource::TextureUsage::UAV;
-		//		}
-		//		if (_access.type == AccessType::Depth_Read)
-		//		{
-		//			m_rgResourceMap[_access.id].desc.usage |= Resource::TextureUsage::DSV;
-		//		}
-		//		if (_access.type == AccessType::Depth_Write)
-		//		{
-		//			m_rgResourceMap[_access.id].desc.usage |= Resource::TextureUsage::DSV;
-		//		}
-		//	}
-		//}
-		//
-
-		//// RGResourceの作成
-		//for (auto& [_id, _res] : m_rgResourceMap)
-		//{
-		//	_res.texHandle = CreateTexture(
-		//		_res.desc.name,
-		//		_res.desc.format,
-		//		_res.desc.widht,
-		//		_res.desc.height,
-		//		_res.desc.usage
-		//	);
-		//	_res.currentState = D3D12_RESOURCE_STATE_COMMON;
-		//}
-
 		// テクスチャの作成
 		m_upRGResourceManager->CreateAllTexture();
 
@@ -246,17 +149,12 @@ namespace Engine::Graphics
 			for (auto _access : _pass->GetDesc().resourceAccessVec)
 			{
 				// クリア作成
-				//auto& _res = m_rgResourceMap[_access.id];
-				
-
 				if (_access.type == AccessType::RTV)
 				{
-					//auto _rtv = GetRTVHandle(_res.texHandle);
 					auto _rtv = m_upRGResourceManager->GetRTVHandle(_access.id);
 					_cp.rtvHadles.push_back(_rtv);
 					if (_access.load == LoadOp::Clear)
 					{
-						//_cp.clearRTVs.push_back(_res.texHandle);
 						_cp.clearRTVs.push_back(m_upRGResourceManager->GetTexHandle(_access.id));
 					}
 				}
@@ -264,7 +162,6 @@ namespace Engine::Graphics
 						_access.type == AccessType::Depth_Read
 					)
 				{
-					//_cp.dsvHandle = GetDSVHandle(_res.texHandle);
 					_cp.dsvHandle = m_upRGResourceManager->GetDSVHandle(_access.id);
 					if (_access.load == LoadOp::Clear)
 					{
@@ -296,7 +193,6 @@ namespace Engine::Graphics
 				}
 
 				auto& _currentState = m_upRGResourceManager->RefCurrentState(_access.id);
-				//if (_res.currentState != _next)
 				if (_currentState != _next)
 				{
 					_cp.barrierVec.push_back(
@@ -307,15 +203,6 @@ namespace Engine::Graphics
 							_access.id
 						}
 					);
-					//_cp.barrierVec.push_back(
-					//	{
-					//		_res.texHandle,
-					//		_res.currentState,
-					//		_next,
-					//		_res.id
-					//	}
-					//);
-					//_res.currentState = _next;
 					_currentState = _next;
 				}
 			}
@@ -325,6 +212,7 @@ namespace Engine::Graphics
 			ImGuiContex::Instance().AddLog("PassName : %s\n", _cp.pPass->GetDesc().name.c_str());
 		}
 		
+		m_upRGResourceManager->StateReset();
 	}
 
 	void RenderGraph::Excute(RenderContext* a_pCtx)
@@ -365,27 +253,6 @@ namespace Engine::Graphics
 		return DescriptorHeapManager::Instance().GetSRVGPUHandle(_tex.GetSRV());
 
 	}
-
-	//Engine::Resource::ID RenderGraph::CreateResource(const ResourceDesc& a_desc)
-	//{
-	//	// 持っているものを返す
-	//	if (m_resourceStorage.Has(a_desc.name))
-	//	{
-	//		return m_resourceStorage.GetID(a_desc.name);
-	//	}
-
-	//	// 登録してかえす
-	//	Engine::Resource::ID _id =
-	//		m_resourceStorage.Add(a_desc.name, std::make_shared<ResourceDesc>(a_desc));
-
-	//	RGResource _rgRes{};
-	//	_rgRes.id = _id;
-	//	_rgRes.desc = a_desc;
-	//	_rgRes.currentState = D3D12_RESOURCE_STATE_COMMON;
-
-	//	m_rgResourceMap[_id] = _rgRes;
-	//	return _id;
-	//}
 
 	Engine::Resource::Handle<Engine::Resource::Texture> RenderGraph::CreateTexture(
 		const std::string& a_name,
@@ -446,38 +313,11 @@ namespace Engine::Graphics
 		return Resource::ID();
 	}
 
-	//Engine::Resource::ID RenderGraph::GetID(const std::string& a_key)
-	//{
-	//	if (m_resourceStorage.Has(a_key))
-	//	{
-	//		return m_resourceStorage.GetID(a_key);
-	//	}
-	//	assert(0 && "登録されていないリソースです");
-	//	return Engine::Resource::Limits::INVALID_ID;
-	//}
-
 	std::vector<std::string> RenderGraph::GetRGResourceList()
 	{
-		std::vector<std::string> _nameVec = {};
-
-		//for (auto& [_id, _spRgTex] : m_rgResourceMap)
-		//{
-		//	_nameVec.push_back(_spRgTex.desc.name);
-		//}
-
-		return _nameVec;
+		return m_upRGResourceManager->GetResourceNameVec();
 	}
 
-	//RGResource& RenderGraph::GetRGresource(const Engine::Resource::ID& a_id)
-	//{
-	//	auto _it = m_rgResourceMap.find(a_id);
-	//	if (_it != m_rgResourceMap.end())
-	//	{
-	//		return _it->second;
-	//	}
-
-	//	assert(0 && "RGリソースが見つかりません %d", a_id);
-	//}
 
 	DXGI_FORMAT RenderGraph::GetDXGIFormat(Resource::ID a_id)
 	{
@@ -490,37 +330,18 @@ namespace Engine::Graphics
 		for (auto& _barrier : a_pass.barrierVec)
 		{
 			// 現在のステートと変更予定ステートが違うのならば変更する
-			//if (m_rgResourceMap[_barrier.resID].currentState != _barrier.after)
 			if (m_upRGResourceManager->RefCurrentState(_barrier.resID) != _barrier.after)
 			{
 				// ステート変更
 				m_pCtx->Transition(
 					Resource::TextureManager::Instance().RefTexture(_barrier.texHandle).GetResource(),
-				//	m_rgResourceMap[_barrier.resID].currentState,
 					m_upRGResourceManager->RefCurrentState(_barrier.resID),
 					_barrier.after
 				);
 				// 現在のステートを更新
-				//m_rgResourceMap[_barrier.resID].currentState = _barrier.after;
 				m_upRGResourceManager->RefCurrentState(_barrier.resID) = _barrier.after;
 			}
 		}
 	}
 
-	Resource::Handle<RTV> RenderGraph::GetRTVHandle(Resource::Handle<Resource::Texture> a_handle)
-	{
-		return Resource::TextureManager::Instance().GetTexture(a_handle).GetRTV();
-	}
-	Resource::Handle<DSV> RenderGraph::GetDSVHandle(Resource::Handle<Resource::Texture> a_handle)
-	{
-		return Resource::TextureManager::Instance().GetTexture(a_handle).GetDSV();
-	}
-	Resource::Handle<SRV> RenderGraph::GetSRVHandle(Resource::Handle<Resource::Texture> a_handle)
-	{
-		return Resource::TextureManager::Instance().GetTexture(a_handle).GetSRV();
-	}
-	Resource::Handle<SRV> RenderGraph::GetImGuiSRVHandle(Resource::Handle<Resource::Texture> a_handle)
-	{
-		return Resource::TextureManager::Instance().GetTexture(a_handle).GetImGuiSRV();
-	}
 }

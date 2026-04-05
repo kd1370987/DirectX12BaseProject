@@ -17,6 +17,7 @@ struct UAVViewInit
 
 struct CBV {};
 struct SRV {};
+struct ImGuiSRV {};
 struct UAV {};
 struct RTV {};
 struct DSV {};

@@ -82,6 +82,13 @@ namespace Engine::Graphics
 			_res.texHandle = Resource::TextureManager::Instance().CreateTexture(_desc);
 		}
 	}
+	void RGResourceManager::StateReset()
+	{
+		for (auto& _res : m_resourceVec)
+		{
+			_res.currentState = D3D12_RESOURCE_STATE_COMMON;
+		}
+	}
 	Resource::Handle<Resource::Texture> RGResourceManager::GetTexHandle(Resource::ID a_id)
 	{
 		auto _idx = Resource::GetIndex(a_id);
@@ -114,5 +121,14 @@ namespace Engine::Graphics
 		auto _idx = Resource::GetIndex(a_id);
 		auto& _res = m_resourceVec[_idx];
 		return _res.format;
+	}
+	std::vector<std::string> RGResourceManager::GetResourceNameVec()
+	{
+		std::vector<std::string> _nameVec = {};
+		for (auto& [_name, _idx] : m_stringMap)
+		{
+			_nameVec.push_back(_name);
+		}
+		return _nameVec;
 	}
 }

@@ -10,6 +10,7 @@ namespace Engine::D3D12
 		// 生成
 		bool Create(
 			ID3D12Device* a_pDevice,
+			const std::wstring& a_name,
 			UINT a_maxCount,
 			D3D12_DESCRIPTOR_HEAP_FLAGS a_flags,
 			UINT a_mask
@@ -39,6 +40,7 @@ namespace Engine::D3D12
 	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
 	inline bool DescriptorHeap<HeapType>::Create(
 		ID3D12Device* a_pDevice,
+		const std::wstring& a_name,
 		UINT a_maxCount,
 		D3D12_DESCRIPTOR_HEAP_FLAGS a_flags,
 		UINT a_mask
@@ -73,6 +75,8 @@ namespace Engine::D3D12
 		// インクリメントサイズの取得
 		m_incrementSize = m_pDevice->GetDescriptorHandleIncrementSize(HeapType);
 		m_maxSize = a_maxCount;
+
+		m_cpHeap.Get()->SetName(a_name.c_str());
 		return true;
 	}
 	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>

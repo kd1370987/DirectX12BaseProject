@@ -175,7 +175,7 @@ namespace Engine::Graphics
 
 		void ClearRenderTarget(
 			const D3D12_CPU_DESCRIPTOR_HANDLE& a_renderTargetView,
-			const DirectX::XMFLOAT4& a_colorRGBA = { 0.0f,0.0f,1.0f,1.0f },
+			const DirectX::XMFLOAT4& a_colorRGBA = { 0.0f,0.0f,0.0f,1.0f },
 			const UINT& a_numRects = 0,
 			const D3D12_RECT* a_pRects = nullptr
 		);

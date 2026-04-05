@@ -95,20 +95,13 @@ namespace Engine::Graphics
 			m_spPassVec.push_back(_pass);
 		}
 
-		std::vector<std::string> GetRGResourceList();
-
 		// アクセサ
 		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);	// フォーマット取得
+		std::vector<std::string> GetRGResourceList();	// リソース名一覧
 	private:
 
 		// 実行中の関数
 		void AutoBarrier(CompiledPass& a_pass);		// バリア更新
-
-		// ハンドル取得のヘルパー
-		Resource::Handle<RTV> GetRTVHandle(Resource::Handle<Resource::Texture> a_handle);
-		Resource::Handle<DSV> GetDSVHandle(Resource::Handle<Resource::Texture> a_handle);
-		Resource::Handle<SRV> GetSRVHandle(Resource::Handle<Resource::Texture> a_handle);
-		Resource::Handle<SRV> GetImGuiSRVHandle(Resource::Handle<Resource::Texture> a_handle);
 
 	private:
 

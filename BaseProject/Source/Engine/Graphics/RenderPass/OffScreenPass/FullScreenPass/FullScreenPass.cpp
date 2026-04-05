@@ -32,5 +32,8 @@ namespace Engine::Graphics
 		m_psoDesc.StencilEnable(false);
 
 		AddRead("QuadTexture", AccessType::SRV, LoadOp::Load, StoreOp::DontCare);
+
+		// バックバッファは登録されていないため手動で
+		m_psoDesc.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
 }
