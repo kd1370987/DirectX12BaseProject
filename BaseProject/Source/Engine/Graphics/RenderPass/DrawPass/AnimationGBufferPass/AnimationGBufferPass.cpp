@@ -19,71 +19,23 @@ namespace Engine::Graphics
 
 	void AnimationGBufferPass::CreatePass()
 	{
-		Resource::Handle<Resource::Shader> _vsHandle = 
-			m_pShaderMana->Request("Asset/Shader/Source/GBufferShader/AnimationGBufferVS.cso");
-		Resource::Handle<Resource::Shader> _psHandle = 
-			m_pShaderMana->Request("Asset/Shader/Source/GBufferShader/GBufferPS.cso");
 
-		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("BaseRootSig");
+		SetName("AnimationGBufferPass");
 
-		// パイプラインステート初期化
-		D3D12::GraphicsPipelineDesc _gPSODesc = {};
-		_gPSODesc.SetName("AnimationGBufferPass");
+		SetInputLayout(D3D12::Input::AnimationInputLayout);
+		SetVS("Asset/Shader/Source/GBufferShader/AnimationGBufferVS.cso");
+		SetPS("Asset/Shader/Source/GBufferShader/GBufferPS.cso");
+		SetRootSig("BaseRootSig");
 
-		_gPSODesc.DepthEnable(true);
-		_gPSODesc.DepthWriteMask(false);
-		_gPSODesc.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
+		m_psoDesc.DepthEnable(true);
+		m_psoDesc.DepthWriteMask(false);
+		m_psoDesc.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
 
-		// ラスタライザ
-		_gPSODesc.CullMode(D3D12_CULL_MODE_BACK);
+		AddRead("Depth", AccessType::Depth_Read, LoadOp::Load, StoreOp::Store);
 
-		// 描画先
-		_gPSODesc.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
-		_gPSODesc.AddRenderTargetFormat(DXGI_FORMAT_R16G16_FLOAT);
-		_gPSODesc.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
-		_gPSODesc.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
-
-		// 基本情報
-		_gPSODesc.SetInputLayout(D3D12::Input::AnimationInputLayout);
-		_gPSODesc.SetVS(m_pShaderMana->GetByteCode(_vsHandle));
-		_gPSODesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
-		_gPSODesc.SetRootSignature(m_pRootSigMana->NGet(_rootSigID));
-
-		// リクエスト
-		Resource::Handle<D3D12::PipelineState> _psoID = m_pPSOMana->Request(_gPSODesc);
-
-
-		// Desc構造体作成
-		m_passDesc = {};
-		m_passDesc.name = "AnimationGBufferPass";
-
-		m_passDesc.rootSigID = _rootSigID;
-		m_passDesc.psoID = _psoID;
-
-		m_passDesc.queueType = RenderQueueType::Opaque;
-
-		auto _depth = m_pRenderGraph->GetID("Depth");
-		auto _gbAlbedoID = m_pRenderGraph->GetID("GBufferAlbedo");
-		auto _gbNormalID = m_pRenderGraph->GetID("GBufferNormal");
-		auto _gbMaterialID = m_pRenderGraph->GetID("GBufferMaterial");
-		auto _gbEmiID = m_pRenderGraph->GetID("GBufferEmissiv");
-
-		// 入力元
-		m_passDesc.readResource.push_back(_depth);
-
-		// 出力先
-		m_passDesc.writeResource.push_back(_gbAlbedoID);
-		m_passDesc.writeResource.push_back(_gbNormalID);
-		m_passDesc.writeResource.push_back(_gbMaterialID);
-		m_passDesc.writeResource.push_back(_gbEmiID);
-
-		// リソース
-		m_passDesc.resourceAccessVec = {
-			{_gbAlbedoID,AccessType::RTV,LoadOp::Load,StoreOp::Store},
-			{_gbNormalID,AccessType::RTV,LoadOp::Load,StoreOp::Store},
-			{_gbMaterialID,AccessType::RTV,LoadOp::Load,StoreOp::Store},
-			{_gbEmiID,AccessType::RTV,LoadOp::Load,StoreOp::Store},
-			{_depth,AccessType::Depth_Read,LoadOp::Load,StoreOp::Store}
-		};
+		AddWrite("GBufferAlbedo", AccessType::RTV, LoadOp::Load, StoreOp::Store);
+		AddWrite("GBufferNormal", AccessType::RTV, LoadOp::Load, StoreOp::Store);
+		AddWrite("GBufferMaterial", AccessType::RTV, LoadOp::Load, StoreOp::Store);
+		AddWrite("GBufferEmissiv", AccessType::RTV, LoadOp::Load, StoreOp::Store);
 	}
 }

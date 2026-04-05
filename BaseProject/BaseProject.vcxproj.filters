@@ -586,6 +586,12 @@
     <Filter Include="Source\Engine\Storage\HandleStorage">
       <UniqueIdentifier>{81ed203d-5f94-4f65-8f7e-ce0bdebc764a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager">
+      <UniqueIdentifier>{73a9c6a7-959d-4f5f-bc8a-806fe4172bc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder">
+      <UniqueIdentifier>{d0a3246f-ccdc-4b7a-947c-58fe8b31d89a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -962,6 +968,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Manager\ShaderManager\ShaderManager.cpp">
       <Filter>Source\Engine\Resource\Manager\ShaderManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp">
+      <Filter>Source\Engine\Graphics\RenderGraph\RGVarsionManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp">
+      <Filter>Source\Engine\Graphics\RenderGraph\RGPassBuilder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1492,6 +1504,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Manager\ShaderManager\ShaderManager.h">
       <Filter>Source\Engine\Resource\Manager\ShaderManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h">
+      <Filter>Source\Engine\Graphics\RenderGraph\RGVarsionManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h">
+      <Filter>Source\Engine\Graphics\RenderGraph\RGPassBuilder</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -15,17 +15,6 @@ namespace Engine::Graphics
 		Resource::TextureUsage usage = Resource::TextureUsage::None;
 	};
 
-	// リソースのバージョン管理用
-	struct RGresourceVersion
-	{
-		uint32_t version = 0;
-		uint32_t writerPass = 0;
-	};
-
-	// リソースの運用用
-
-
-
 	// 描画先リソース
 	struct RGResource
 	{
@@ -37,9 +26,6 @@ namespace Engine::Graphics
 		ResourceDesc desc = {};
 
 		D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
-		uint32_t lastWritePass = 0;
-
-		std::vector<RGresourceVersion> versionVec = {};
 	};
 
 	struct RGBarrier
@@ -55,6 +41,8 @@ namespace Engine::Graphics
 		RenderPass* pPass = nullptr;
 		std::vector<RGBarrier> barrierVec = {};
 	};
+
+	class RGResourceManager;
 
 	class RenderGraph
 	{
@@ -114,7 +102,6 @@ namespace Engine::Graphics
 		// パスの保管場所
 		std::vector<std::shared_ptr<RenderPass>> m_spPassVec = {};
 		std::vector<RenderPass*> m_sortedPassed = {};							// ソート後のパス
-		std::vector<std::vector<RenderPass*>> m_groupSortedPassed = {};			// ソート後のパス
 
 		// リソース仕様書のストレージ
 		SlotStorage<ResourceDesc> m_resourceStorage = {};
@@ -122,9 +109,6 @@ namespace Engine::Graphics
 
 		// コンパイル後のパス
 		std::vector<CompiledPass> m_compiledPasses = {};
-
-		// コンパイル情報
-		std::unordered_map<Engine::Resource::ID, uint32_t> m_currentVersion = {};
 
 		RenderContext* m_pCtx = nullptr;
 	};

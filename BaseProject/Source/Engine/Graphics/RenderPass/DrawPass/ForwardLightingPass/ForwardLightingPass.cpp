@@ -17,14 +17,6 @@ namespace Engine::Graphics
 
 	void ForwardLightingPass::CreatePass()
 	{
-		// シェーダー登録
-		Resource::Handle<Resource::Shader> _vsHandle = 
-			m_pShaderMana->Request("Asset/Shader/Source/ForwardLightingShader/ForwardLightingVS.cso");
-		Resource::Handle<Resource::Shader> _psHandle =
-			m_pShaderMana->Request("Asset/Shader/Source/ForwardLightingShader/ForwardLightingPS.cso");
-
-		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("ForwardLithingPass");
-
 		// ブレンドステート
 		D3D12_BLEND_DESC _blend = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		_blend.RenderTarget[0].BlendEnable = TRUE;
@@ -38,54 +30,21 @@ namespace Engine::Graphics
 
 		// 深度
 		D3D12_DEPTH_STENCIL_DESC _depth = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		_depth.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+		_depth.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 深度値書き込みなし
 		_depth.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
-		// パイプラインステート初期化
-		D3D12::GraphicsPipelineDesc _gPSODesc = {};
-		_gPSODesc.SetName("ForwardLithingPSO");
+		SetName("ForwardLithingPSO");
 
-		// ラスタライザ
-		_gPSODesc.CullMode(D3D12_CULL_MODE_NONE);
+		SetInputLayout(D3D12::Input::StaticLayout);
+		SetVS("Asset/Shader/Source/ForwardLightingShader/ForwardLightingVS.cso");
+		SetPS("Asset/Shader/Source/ForwardLightingShader/ForwardLightingPS.cso");
+		SetRootSig("ForwardLithingPass");
 
-		_gPSODesc.SetBlendState(_blend);
+		m_psoDesc.SetDepthStencilState(_depth);
+		m_psoDesc.SetBlendState(_blend);
 
-		_gPSODesc.SetDepthStencilState(_depth);
-		_gPSODesc.desc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-
-		// 描画先
-		_gPSODesc.AddRenderTargetFormat(DXGI_FORMAT_R16G16B16A16_FLOAT);
-
-
-		// 基本情報
-		_gPSODesc.SetInputLayout(D3D12::Input::StaticLayout);
-		_gPSODesc.SetVS(m_pShaderMana->GetByteCode(_vsHandle));
-		_gPSODesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
-		_gPSODesc.SetRootSignature(m_pRootSigMana->NGet(_rootSigID));
-
-		// リクエスト
-		Resource::Handle<D3D12::PipelineState> _psoID = m_pPSOMana->Request(_gPSODesc);
-
-		// Desc構造体作成
-		m_passDesc = {};
-		m_passDesc.name = "ForwardLightingPass";
-
-		m_passDesc.rootSigID = _rootSigID;
-		m_passDesc.psoID = _psoID;
-
-		auto _depthRes = m_pRenderGraph->GetID("Depth");
-		auto _mainColorID = m_pRenderGraph->GetID("QuadTexture");
-
-		// 入力元
-		m_passDesc.readResource.push_back(_depthRes);
-		m_passDesc.readResource.push_back(_mainColorID);
-
-		m_passDesc.writeResource.push_back(_mainColorID);
-
-		// リソース
-		m_passDesc.resourceAccessVec = {
-			{_mainColorID,AccessType::RTV,LoadOp::Load,StoreOp::Store},
-			{_depthRes,AccessType::Depth_Write,LoadOp::Load,StoreOp::DontCare}
-		};
+		AddRead("Depth",AccessType::Depth_Write, LoadOp::Load, StoreOp::DontCare);
+		AddRead("QuadTexture");
+		AddWrite("QuadTexture", AccessType::RTV, LoadOp::Load, StoreOp::Store);
 	}
 }

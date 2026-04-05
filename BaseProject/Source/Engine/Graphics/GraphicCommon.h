@@ -45,8 +45,8 @@ enum class AccessType
 struct AccessResource
 {
 	Engine::Resource::ID id = Engine::Resource::Limits::INVALID_ID;
-	AccessType type = AccessType::None;
 
+	AccessType type = AccessType::None;
 	LoadOp load = LoadOp::Clear;
 	StoreOp store = StoreOp::Store;
 };

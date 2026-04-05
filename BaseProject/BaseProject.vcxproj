@@ -93,8 +93,8 @@
       <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>call "$(ProjectDir)Asset\Shader\Compiled\HLSLCompile.bat"
-exit /b 0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <FxCompile>
       <ObjectFileOutput>$(ProjectDir)%(RelativeDir)%(Filename).cso</ObjectFileOutput>
@@ -129,8 +129,8 @@ exit /b 0</Command>
       <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>call "$(ProjectDir)Asset\Shader\Compiled\HLSLCompile.bat"
-exit /b 0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <FxCompile>
       <ObjectFileOutput>$(ProjectDir)%(RelativeDir)%(Filename).cso</ObjectFileOutput>
@@ -165,8 +165,8 @@ exit /b 0</Command>
       <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>call "$(ProjectDir)Asset\Shader\Compiled\HLSLCompile.bat"
-exit /b 0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <FxCompile>
       <ObjectFileOutput>$(ProjectDir)%(RelativeDir)%(Filename).cso</ObjectFileOutput>
@@ -203,8 +203,8 @@ exit /b 0</Command>
       <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Release;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>call "$(ProjectDir)Asset\Shader\Compiled\HLSLCompile.bat"
-exit /b 0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <FxCompile>
       <ObjectFileOutput>$(ProjectDir)%(RelativeDir)%(Filename).cso</ObjectFileOutput>
@@ -292,6 +292,8 @@ exit /b 0</Command>
     <ClCompile Include="Source\Engine\Editor\ImGui\Watch\Watch.cpp" />
     <ClCompile Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp" />
     <ClCompile Include="Source\Engine\MainEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp" />
@@ -468,6 +470,8 @@ exit /b 0</Command>
     <ClInclude Include="Source\Engine\Editor\ImGui\Watch\Watch.h" />
     <ClInclude Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h" />
     <ClInclude Include="Source\Engine\MainEngine.h" />
     <ClInclude Include="Source\Engine\EngineCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />

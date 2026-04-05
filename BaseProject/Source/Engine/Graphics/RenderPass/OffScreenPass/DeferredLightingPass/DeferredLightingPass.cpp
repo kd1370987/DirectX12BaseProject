@@ -40,68 +40,22 @@ namespace Engine::Graphics
 
 	void DeferredLightingPass::CreatePass()
 	{
-		Resource::Handle<Resource::Shader> _vsHandle =
-			m_pShaderMana->Request("Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
-		Resource::Handle<Resource::Shader> _psHandle = 
-			m_pShaderMana->Request("Asset/Shader/Source/DeferredLightingShader/DeferredLightingPS.cso");
 
-		Engine::Resource::ID _rootSigID = m_pRootSigMana->GetID("DeferredLighting");
+		SetName("DeferredLighting");
 
-		// パイプラインステート初期化
-		D3D12::GraphicsPipelineDesc _gPSODesc = {};
-		_gPSODesc.SetName("DeferredLighting");
+		SetVS("Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
+		SetPS("Asset/Shader/Source/DeferredLightingShader/DeferredLightingPS.cso");
+		SetRootSig("DeferredLighting");
 
-		// ラスタライザ
-		_gPSODesc.CullMode(D3D12_CULL_MODE_NONE);
-		// 深度テスト・深度書き込みなし
-		_gPSODesc.DepthEnable(false);
-		_gPSODesc.DepthWriteMask(false);
+		m_psoDesc.DepthEnable(false);
+		m_psoDesc.DepthWriteMask(false);
 
-		// 描画先
-		_gPSODesc.AddRenderTargetFormat(DXGI_FORMAT_R16G16B16A16_FLOAT);
+		AddRead("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		AddRead("GBufferAlbedo", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		AddRead("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		AddRead("GBufferMaterial", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		AddRead("GBufferEmissiv", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
-		// 基本情報
-		_gPSODesc.SetVS(m_pShaderMana->GetByteCode(_vsHandle));
-		_gPSODesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
-		_gPSODesc.SetRootSignature(m_pRootSigMana->NGet(_rootSigID));
-
-		// リクエスト
-		Resource::Handle<D3D12::PipelineState> _psoID = m_pPSOMana->Request(_gPSODesc);
-
-		// Desc構造体作成
-		m_passDesc = {};
-		m_passDesc.name = "DeferredLightingPass";
-
-		m_passDesc.rootSigID = _rootSigID;
-		m_passDesc.psoID = _psoID;
-
-		auto _depth = m_pRenderGraph->GetID("Depth");
-		auto _gbAlbedoID = m_pRenderGraph->GetID("GBufferAlbedo");
-		auto _gbNormalID = m_pRenderGraph->GetID("GBufferNormal");
-		auto _gbMaterialID = m_pRenderGraph->GetID("GBufferMaterial");
-		auto _gbEmiID = m_pRenderGraph->GetID("GBufferEmissiv");
-
-		auto _quadID = m_pRenderGraph->GetID("QuadTexture");
-
-		// 入力元
-		m_passDesc.readResource.push_back(_depth);
-		m_passDesc.readResource.push_back(_gbAlbedoID);
-		m_passDesc.readResource.push_back(_gbNormalID);
-		m_passDesc.readResource.push_back(_gbMaterialID);
-		m_passDesc.readResource.push_back(_gbEmiID);
-
-		// 出力先
-		m_passDesc.writeResource.push_back(_quadID);
-
-		// リソース
-		m_passDesc.resourceAccessVec = {
-			{_gbAlbedoID,AccessType::SRV,LoadOp::Load,StoreOp::Store},
-			{_gbNormalID,AccessType::SRV,LoadOp::Load,StoreOp::Store},
-			{_gbMaterialID,AccessType::SRV,LoadOp::Load,StoreOp::Store},
-			{_gbEmiID,AccessType::SRV,LoadOp::Load,StoreOp::Store},
-			{_depth,AccessType::SRV,LoadOp::Load,StoreOp::Store},
-
-			{_quadID,AccessType::RTV,LoadOp::Clear,StoreOp::Store}
-		};
+		AddWrite("QuadTexture", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 	}
 }
