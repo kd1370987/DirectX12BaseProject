@@ -170,21 +170,26 @@ namespace Engine
 
 	void MainEngine::EndDraw()
 	{
+		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 		Engine::Raytracing::RayEngine::Instance().Dispatch();
 
 		// ゲームモード以外の処理
 		if (m_config.app.mode != EngineConfig::Application::Mode::Game)
 		{
-			// エディター描画
-			ImGuiContex::Instance().CallImGuiDrawData(D3D12Wrapper::Instance().GetCommandList());
-			auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 			// ディスクリプタヒープをセット
 			ID3D12DescriptorHeap* _heaps[] = {
-					DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
+					DescriptorHeapManager::Instance().GetImGuiHeap()
 			};
 			_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+			// エディター描画
+			ImGuiContex::Instance().CallImGuiDrawData(D3D12Wrapper::Instance().GetCommandList());
 		}
+		// ディスクリプタヒープをセット
+		ID3D12DescriptorHeap* _heaps[] = {
+				DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
+		};
+		_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 
 		// 描画フレームリソース
 		Engine::Graphics::RenderContext::Instance().EndFrame();

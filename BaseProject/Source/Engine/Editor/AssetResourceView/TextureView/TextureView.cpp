@@ -31,7 +31,7 @@ void TextureView::DrawTextureView(Engine::Resource::Texture& a_Texture)
 {
 	if (ImGui::Begin("TextureView"))
 	{
-		auto _gpuHandle = DescriptorHeapManager::Instance().GetSRVGPUHandle(a_Texture.GetSRV());
+		auto _gpuHandle = DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(a_Texture.GetSRV());
 		ImTextureID _imTex = (ImTextureID)(_gpuHandle.ptr);
 		ImVec2 _winSize = ImGui::GetContentRegionAvail();
 
