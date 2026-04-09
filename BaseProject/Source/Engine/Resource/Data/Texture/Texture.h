@@ -34,7 +34,7 @@ namespace Engine::Resource
 
 		// ステート
 		D3D12_RESOURCE_STATES GetState() { return m_currentSutate; }
-		void ChangeState(D3D12_RESOURCE_STATES a_state) { m_currentSutate = a_state; }
+		void ChangeState(ID3D12GraphicsCommandList* a_pCmdList,D3D12_RESOURCE_STATES a_state);
 
 		// ビュー情報取得
 		const Engine::Resource::Handle<RTV>& GetRTV() const;

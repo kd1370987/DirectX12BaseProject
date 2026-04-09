@@ -78,6 +78,24 @@ const D3D12_RESOURCE_DESC& Engine::Resource::Texture::GetDesc() const
 	return m_desc;
 }
 
+void Engine::Resource::Texture::ChangeState(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_state)
+{
+	if (m_currentSutate != a_state)
+	{
+		// UAVバリア
+		auto _barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+			m_cpResource.Get(),
+			m_currentSutate,
+			a_state
+		);
+		a_pCmdList->ResourceBarrier(
+			1,
+			&_barrier
+		);
+		m_currentSutate = a_state;
+	}
+}
+
 const Engine::Resource::Handle<RTV>& Engine::Resource::Texture::GetRTV() const
 {
 	return m_rtvHandle;

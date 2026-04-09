@@ -185,11 +185,6 @@ namespace Engine
 			// エディター描画
 			ImGuiContex::Instance().CallImGuiDrawData(D3D12Wrapper::Instance().GetCommandList());
 		}
-		// ディスクリプタヒープをセット
-		ID3D12DescriptorHeap* _heaps[] = {
-				DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
-		};
-		_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 
 		// 描画フレームリソース
 		Engine::Graphics::RenderContext::Instance().EndFrame();

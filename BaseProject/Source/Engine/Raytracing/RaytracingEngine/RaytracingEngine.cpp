@@ -15,10 +15,13 @@
 
 void Engine::Raytracing::RayEngine::Dispatch()
 {
-
 	// UAVバリア
 	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
 	auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(m_outTex);
+
+	// ステートチェンジ
+	_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
 	auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(
 		_tex.GetResource()
 	);
@@ -95,6 +98,9 @@ void Engine::Raytracing::RayEngine::Dispatch()
 		1,
 		&_barrier
 	);
+
+	// テクスチャのステート切り替え
+	_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 
