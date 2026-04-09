@@ -120,13 +120,13 @@ void Engine::Raytracing::RayEngine::RegistModel(const DirectX::XMFLOAT4X4& a_wor
 void Engine::Raytracing::RayEngine::CommitWorld()
 {
 	// 出力テクスチャ作成
-	m_outTex = Engine::Resource::TextureManager::Instance().CreateTexture(
-		{ "RayOutTex",
-		1280,
-		720,
-		DXGI_FORMAT_R8G8B8A8_UNORM,
-		Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV }
-	);
+	Resource::TextureCreateDesc _desc = {};
+	_desc.name = "RayOutTex";
+	_desc.width = 1280;
+	_desc.height = 720;
+	_desc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	_desc.usage = Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV;
+	m_outTex = Engine::Resource::TextureManager::Instance().CreateTexture(_desc);
 
 	// レイPSO作成
 	m_upPSO = std::make_unique<RayPSO>();

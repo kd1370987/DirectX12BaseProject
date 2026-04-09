@@ -1,23 +1,25 @@
 ﻿#pragma once
-
-class QuadPolygon
+namespace Engine::Resource
 {
-public:
-
-	void Init();
-
-	const D3D12_VERTEX_BUFFER_VIEW& GetVBView()
+	class QuadPolygon
 	{
-		return m_vertexBuffer.View();
-	}
+	public:
 
-	const D3D12_INDEX_BUFFER_VIEW& GetIBView()
-	{
-		return m_indexBuffer.View();
-	}
+		void Init();
 
-private:
+		const D3D12_VERTEX_BUFFER_VIEW& GetVBView()
+		{
+			return m_vertexBuffer.View();
+		}
 
-	VertexBuffer m_vertexBuffer;
-	IndexBuffer m_indexBuffer;
-};
+		const D3D12_INDEX_BUFFER_VIEW& GetIBView()
+		{
+			return m_indexBuffer.View();
+		}
+
+	private:
+
+		VertexBuffer m_vertexBuffer;
+		IndexBuffer m_indexBuffer;
+	};
+}

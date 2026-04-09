@@ -68,6 +68,8 @@ namespace Engine::Graphics
 			"QuadRendering",
 			{
 				{RootParameterType::DescriptorTable,{RangeType::SRV},
+				RootSigSemantic::PostScreenSRV,false},
+				{RootParameterType::DescriptorTable,{RangeType::SRV},
 				RootSigSemantic::PostScreenSRV,false}
 			}
 		);
@@ -179,7 +181,7 @@ namespace Engine::Graphics
 		m_cb5_Ambient.directionalLightColor = { 10.0f,10.0f,10.0f,1.0f };
 		m_cb5_Ambient.directionalLightDir = { -1.0f,-1.0f,-1.0f,0.0f };
 
-		m_spQuadPolygon = std::make_shared<QuadPolygon>();
+		m_spQuadPolygon = std::make_shared<Resource::QuadPolygon>();
 		m_spQuadPolygon->Init();
 	}
 
@@ -412,6 +414,15 @@ namespace Engine::Graphics
 	}
 
 
+	void RenderContext::BindSRV(int a_rootIndex, const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle)
+	{
+		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+		_pCmdList->SetGraphicsRootDescriptorTable(
+			a_rootIndex,
+			a_srvHandle[0]
+		);
+	}
+
 	void RenderContext::BindSRV(
 		RootSigSemantic a_sema,
 		const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
@@ -457,7 +468,7 @@ namespace Engine::Graphics
 			return;
 		}
 		auto _cpu = DescriptorHeapManager::Instance().GetRTVCPUHandle(_tex.GetRTV());
-		D3D12Wrapper::Instance().ClearRenderTargetView(_cpu);
+		D3D12Wrapper::Instance().ClearRenderTargetView(_cpu,_tex.GetClearColor());
 	}
 
 	void RenderContext::ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle)

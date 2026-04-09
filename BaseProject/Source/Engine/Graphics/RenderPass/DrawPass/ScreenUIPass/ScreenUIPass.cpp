@@ -43,7 +43,6 @@ namespace Engine::Graphics
 		m_psoDesc.SetDepthStencilState(_depthDesc);
 		m_psoDesc.SetBlendState(_blendDesc);
 
-		AddRead("QuadTexture");
-		AddWrite("QuadTexture", AccessType::RTV, LoadOp::Load, StoreOp::Store);
+		AddWrite("UITexture", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 	}
 }

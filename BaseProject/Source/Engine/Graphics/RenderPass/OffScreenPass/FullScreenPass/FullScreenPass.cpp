@@ -12,9 +12,11 @@ namespace Engine::Graphics
 		Begin(a_pCtx);
 
 		auto _main = m_pRenderGraph->GetGPUHandle("QuadTexture");
+		auto _ui = m_pRenderGraph->GetGPUHandle("UITexture");
 
 		a_pCtx->ChangeBackBuffer();
 		a_pCtx->BindSRV(RootSigSemantic::PostScreenSRV, { _main });
+		a_pCtx->BindSRV(1, { _ui });
 		a_pCtx->DrawQuad();
 
 		End(a_pCtx);
@@ -32,6 +34,7 @@ namespace Engine::Graphics
 		m_psoDesc.StencilEnable(false);
 
 		AddRead("QuadTexture", AccessType::SRV, LoadOp::Load, StoreOp::DontCare);
+		AddRead("UITexture", AccessType::SRV, LoadOp::Load, StoreOp::DontCare);
 
 		// バックバッファは登録されていないため手動で
 		m_psoDesc.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);

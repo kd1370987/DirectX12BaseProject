@@ -4,29 +4,6 @@
 
 namespace Engine::Graphics
 {
-	//struct ResourceDesc
-	//{
-	//	std::string name = "none";
-	//	DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
-
-	//	uint32_t widht = 1280;
-	//	uint32_t height = 720;
-
-	//	Resource::TextureUsage usage = Resource::TextureUsage::None;
-	//};
-
-	// 描画先リソース
-	//struct RGResource
-	//{
-	//	// このリソースの識別ID
-	//	Resource::ID id = Resource::Limits::INVALID_ID;
-	//	Resource::Handle<Resource::Texture> texHandle = {};
-
-	//	// このリソースの設定
-	//	ResourceDesc desc = {};
-
-	//	D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
-	//};
 
 	struct RGBarrier
 	{

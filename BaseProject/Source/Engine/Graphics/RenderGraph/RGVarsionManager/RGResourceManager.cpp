@@ -4,13 +4,7 @@
 
 namespace Engine::Graphics
 {
-	void Engine::Graphics::RGResourceManager::Register(
-		const std::string& a_name,
-		const DXGI_FORMAT& a_format,
-		const UINT64& a_widht,
-		const UINT& a_height,
-		const Resource::TextureUsage& a_texUsage
-	)
+	void RGResourceManager::Register(const std::string& a_name, const DXGI_FORMAT& a_format, const UINT64& a_widht, const UINT& a_height, const Resource::TextureUsage& a_texUsage, const DXSM::Color& a_clerColor)
 	{
 		auto _it = m_stringMap.find(a_name);
 		if (_it != m_stringMap.end())
@@ -25,6 +19,7 @@ namespace Engine::Graphics
 		_data.widht = a_widht;
 		_data.height = a_height;
 		_data.usage = a_texUsage;
+		_data.clerColor = a_clerColor;
 
 		// バージョンは0
 		_data.currentVarsion = 0;
@@ -36,6 +31,7 @@ namespace Engine::Graphics
 		m_stringMap[a_name] = m_resourceVec.size();
 		m_resourceVec.push_back(_data);
 	}
+
 
 	Resource::ID RGResourceManager::Read(
 		const std::string& a_resourceName,
@@ -72,13 +68,14 @@ namespace Engine::Graphics
 	{
 		for (auto& _res : m_resourceVec)
 		{
-			Resource::CreateTextureDesc _desc = {
+			Resource::TextureCreateDesc _desc = {
 				.name = _res.name,
 				.width = _res.widht,
 				.height = _res.height,
 				.format = _res.format,
 				.usage = _res.usage
 			};
+			_desc.opClerValue = _res.clerColor;
 			_res.texHandle = Resource::TextureManager::Instance().CreateTexture(_desc);
 		}
 	}

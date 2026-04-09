@@ -1,30 +1,20 @@
 ﻿#pragma once
 
 class RootSignature;
-
-class DescriptorHeap;
-
-class Mesh;
-struct Material;
-
-class ConstantBuffer;
+class RootSignatureManager;
 
 class CBAllocater;
 
 namespace Engine::Resource
 {
 	class ShaderManager;
+	class QuadPolygon;
 }
 
-class RootSignatureManager;
 namespace Engine::D3D12
 {
 	class GraphicsPSOManager;
 }
-
-struct Model;
-class QuadPolygon;
-
 
 namespace Engine::Graphics
 {
@@ -167,7 +157,10 @@ namespace Engine::Graphics
 			const Resource::Handle<DSV>& a_dsvHandle
 		);
 
-
+		void BindSRV(
+			int a_rootIndex,
+			const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
+		);
 		void BindSRV(
 			RootSigSemantic a_sema,
 			const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
@@ -327,7 +320,7 @@ namespace Engine::Graphics
 		Resource::Handle<D3D12::PipelineState> m_currentPSOID;
 		Resource::Material* m_pCurrentMaterial = nullptr;
 		Resource::Mesh* m_pCurrentMesh = nullptr;
-		QuadPolygon* m_pCurrentPoly = nullptr;
+		Resource::QuadPolygon* m_pCurrentPoly = nullptr;
 
 		// ECSからの分離
 		std::unordered_map<RenderQueueType, std::vector<DrawItem>> m_drawItemMap = {};
@@ -340,7 +333,7 @@ namespace Engine::Graphics
 		std::vector<DrawItem> m_drawItemVec = {};
 
 
-		std::shared_ptr<QuadPolygon> m_spQuadPolygon = nullptr;
+		std::shared_ptr<Resource::QuadPolygon> m_spQuadPolygon = nullptr;
 
 		// シングルトン
 	private:

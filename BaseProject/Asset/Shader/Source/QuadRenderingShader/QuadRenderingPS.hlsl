@@ -12,11 +12,16 @@ float3 ACESFilm(float3 x)
 
 float4 ps(Output a_input) : SV_TARGET
 {
+	float4 _result = float4(0, 0, 0, 1);
+	
 	float4 _texColor = g_tex.Sample(g_smp,a_input.uv);
-	float4 _result = _texColor;
-
 	// ACESフィルムライクトーンマッピングを適用
-	_result.rgb = ACESFilm(_result.rgb);
+	_texColor.rgb = ACESFilm(_texColor.rgb);
+	
+	float4 _ui = g_ui.Sample(g_smp,a_input.uv);
+
+	_result.rgb = _ui.rgb + _texColor.rgb * (1.0 - _ui.a);
+	_result.a = 1.0;
 	
 	return _result;
 }

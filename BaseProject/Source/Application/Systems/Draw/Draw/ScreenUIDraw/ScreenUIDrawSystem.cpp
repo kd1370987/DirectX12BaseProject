@@ -28,7 +28,6 @@ void ScreenUIDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				// 描画アイテム
 				Engine::Graphics::DrawItem2D _item = {};
 				_item.worldMat = _matComp.worldMat;
-				//_item.srvHandleRange = _uiComp.srvHandle;
 				_item.srvHandleRange = Engine::Resource::TextureManager::Instance().GetTexture(_uiComp.texHandle).GetSRV();
 				_item.colorScale = _uiComp.color;
 

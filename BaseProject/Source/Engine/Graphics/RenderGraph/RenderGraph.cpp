@@ -48,6 +48,14 @@ namespace Engine::Graphics
 			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
+			"UITexture",
+			DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+			1280,
+			720,
+			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV,
+			{0,0,0,0}
+		);
+		m_upRGResourceManager->Register(
 			"GBufferAlbedo",
 			DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
 			1280,
@@ -91,7 +99,7 @@ namespace Engine::Graphics
 		RegisterPass<ForwardLightingPass>();
 		RegisterPass<FullScreenPass>();
 		RegisterPass<DebugLinePass>();
-		//RegisterPass<ScreenUIPass>();
+		RegisterPass<ScreenUIPass>();
 
 		// パスの初期化
 		for (auto& _sp : m_spPassVec)
@@ -262,7 +270,7 @@ namespace Engine::Graphics
 		const Resource::TextureUsage& a_texUsage
 	)
 	{
-		Resource::CreateTextureDesc _desc = {
+		Resource::TextureCreateDesc _desc = {
 			.name = a_name,
 			.width = a_widht,
 			.height = a_height,

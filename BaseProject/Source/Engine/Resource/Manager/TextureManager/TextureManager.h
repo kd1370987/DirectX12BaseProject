@@ -8,15 +8,6 @@ namespace Engine::Resource
 		DirectX::XMFLOAT4 data = {255,255,255,255};
 	};
 
-	struct CreateTextureDesc
-	{
-		std::string name = "CreateTexture";
-		UINT64 width = 0;
-		UINT height = 0;
-		DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		TextureUsage usage = TextureUsage::None;
-	};
-
 	//==========================================================================================
 	// 
 	// テクスチャ管理クラス
@@ -36,7 +27,7 @@ namespace Engine::Resource
 		//------------------------------------------------------------------------------------------
 		// リソース作成
 		//------------------------------------------------------------------------------------------
-		Engine::Resource::Handle<Engine::Resource::Texture> CreateTexture(const CreateTextureDesc& a_init);
+		Engine::Resource::Handle<Engine::Resource::Texture> CreateTexture(const TextureCreateDesc& a_init);
 
 		//------------------------------------------------------------------------------------------
 		// リソース取得

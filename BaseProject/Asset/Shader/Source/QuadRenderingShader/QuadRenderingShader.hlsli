@@ -1,4 +1,5 @@
 Texture2D<float4> g_tex : register(t0);
+Texture2D<float4> g_ui : register(t1);
 
 SamplerState g_smp : register(s0);
 

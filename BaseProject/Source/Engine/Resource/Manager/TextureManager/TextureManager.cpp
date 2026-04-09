@@ -61,7 +61,7 @@ namespace Engine::Resource
 		return _result;
 	}
 
-	Handle<Texture> TextureManager::CreateTexture(const CreateTextureDesc& a_init)
+	Handle<Texture> TextureManager::CreateTexture(const TextureCreateDesc& a_init)
 	{
 		// 登録されているかのチェック
 		if (Has(a_init.name))
@@ -71,13 +71,7 @@ namespace Engine::Resource
 
 		// テクスチャ作成
 		Texture _texture;
-		_texture.Create(
-			a_init.name,
-			a_init.width,
-			a_init.height,
-			a_init.format,
-			a_init.usage
-		);
+		_texture.Create(a_init);
 		_texture.SetName(a_init.name);
 
 		// ハンドルマップを追加

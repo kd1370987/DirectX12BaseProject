@@ -39,11 +39,23 @@ ComPtr<ID3D12Resource> Engine::Resource::CreateTexture(
 	}
 	else if(HasFlag(a_desc.usage,TextureUsage::RTV))
 	{
-		clearValue.Format = _desc.Format;
-		clearValue.Color[0] = 0;
-		clearValue.Color[1] = 0;
-		clearValue.Color[2] = 0;
-		clearValue.Color[3] = 1;
+		if (a_desc.opClerValue.has_value())
+		{
+			DXSM::Color _color = a_desc.opClerValue.value();
+			clearValue.Format = _desc.Format;
+			clearValue.Color[0] = _color.R();
+			clearValue.Color[1] = _color.G();
+			clearValue.Color[2] = _color.B();
+			clearValue.Color[3] = _color.A();
+		}
+		else
+		{
+			clearValue.Format = _desc.Format;
+			clearValue.Color[0] = 0;
+			clearValue.Color[1] = 0;
+			clearValue.Color[2] = 0;
+			clearValue.Color[3] = 1;
+		}
 		_pClear = &clearValue;
 	}
 

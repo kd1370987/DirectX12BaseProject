@@ -13,7 +13,8 @@ namespace Engine::Graphics
 			const DXGI_FORMAT& format,
 			const UINT64& a_widht,
 			const UINT& a_height,
-			const Resource::TextureUsage& a_texUsage
+			const Resource::TextureUsage& a_texUsage,
+			const DXSM::Color& a_clerColor = {0,0,0,1}
 		);
 
 		// 既存の最新バージョンを取得する
@@ -52,6 +53,7 @@ namespace Engine::Graphics
 			uint32_t widht = 0;
 			uint32_t height = 0;
 			Resource::TextureUsage usage = Resource::TextureUsage::None;
+			DXSM::Color clerColor = {0,0,0,1};
 
 			// 実行順を決定するためのバージョン
 			Resource::Generation currentVarsion = 0;

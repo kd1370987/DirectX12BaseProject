@@ -2,7 +2,24 @@
 
 namespace Engine::Resource
 {
+	// テクスチャ生成設定
+	struct TextureCreateDesc
+	{
+		std::string name = "Texture";
 
+		UINT64 width = 0;
+		UINT height = 0;
+
+		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
+
+		UINT mipLevel = 1;
+		UINT sampleCount = 1;
+
+		// テクスチャの使用方法
+		TextureUsage usage = TextureUsage::None;
+
+		std::optional<DXSM::Color> opClerValue;
+	};
 
 	class Texture
 	{
@@ -16,11 +33,7 @@ namespace Engine::Resource
 			const DirectX::XMFLOAT4& a_defoltData = { 255,255,255,255 }
 		);
 		void Create(
-			const std::string& a_name,
-			const UINT64& a_width,
-			const UINT& a_height,
-			const DXGI_FORMAT& a_format,
-			const TextureUsage& a_usage
+			const TextureCreateDesc& a_desc
 		);
 		
 		// 名前変更
@@ -35,6 +48,9 @@ namespace Engine::Resource
 		// ステート
 		D3D12_RESOURCE_STATES GetState() { return m_currentSutate; }
 		void ChangeState(ID3D12GraphicsCommandList* a_pCmdList,D3D12_RESOURCE_STATES a_state);
+
+		// クリアバリュー
+		const DXSM::Color& GetClearColor() { return m_clearValue; }
 
 		// ビュー情報取得
 		const Engine::Resource::Handle<RTV>& GetRTV() const;
@@ -70,5 +86,8 @@ namespace Engine::Resource
 
 		// ImGui用ハンドル
 		Engine::Resource::Handle<SRV>	 m_imguiSRVHandle{};
+
+		// 色
+		DXSM::Color m_clearValue = {0,0,0,1};
 	};
 }
