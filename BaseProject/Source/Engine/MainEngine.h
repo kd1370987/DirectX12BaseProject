@@ -1,8 +1,5 @@
 ﻿#pragma once
 
-class TimeManager;
-
-
 namespace Engine
 {
 	// 前方宣言
@@ -14,7 +11,11 @@ namespace Engine
 	{
 		class RayEngine;
 	}
+	namespace Time
+	{
+		class TimeManager;
 
+	}
 
 	// エンジン設定
 	struct EngineConfig
@@ -82,7 +83,7 @@ namespace Engine
 		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;
 
 		// 時間管理クラス
-		std::unique_ptr<TimeManager> m_upTimeManager = nullptr;
+		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;
 
 		// エンジン設定
 		EngineConfig m_config = {};

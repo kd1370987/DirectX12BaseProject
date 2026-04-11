@@ -41,6 +41,6 @@ public:
 
 private:
 
-	SlotStorage<RootSignature> m_rootStorage;
+	Engine::Storage::SlotStorage<RootSignature> m_rootStorage;
 	std::unordered_map<Engine::Resource::ID, std::vector<RootSigLayout>> m_rootLayout;
 };

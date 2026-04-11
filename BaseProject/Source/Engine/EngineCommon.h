@@ -45,7 +45,7 @@ namespace Engine::Resource
 	}
 }
 
-#include "Engine/SlotStorage/SlotStorage.h"
+#include "Engine/Storage/SlotStorage/SlotStorage.h"				// ストレージ
 
 #include "Engine/Resource/Common/Common.h"
 

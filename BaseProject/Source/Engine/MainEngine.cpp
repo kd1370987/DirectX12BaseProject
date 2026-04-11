@@ -49,7 +49,7 @@ namespace Engine
 		}
 
 		// タイムマネージャークラスの生成
-		m_upTimeManager = std::make_unique<TimeManager>();
+		m_upTimeManager = std::make_unique<Time::TimeManager>();
 		m_upTimeManager->Init(120.0f);
 
 		// DirectX12関連オブジェクトの初期化
