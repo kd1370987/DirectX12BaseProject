@@ -42,7 +42,7 @@ std::vector<Engine::Resource::Handle<SRV>> Engine::D3D12::SRVAllocator::Allocate
 
 	// インデックス取得
 	auto _range = m_srvRangeList.Allocate(a_resourceVec.size());
-	ImGuiContex::Instance().AddLog("Range : %d , %d\n", _range.startIndex,_range.rangeSize);
+	//ImGuiContex::Instance().AddLog("Range : %d , %d\n", _range.startIndex,_range.rangeSize);
 	for (UINT _i = 0; _i < _result.size(); ++_i)
 	{
 		// リソースごとのハンドル取得
@@ -72,7 +72,7 @@ std::vector<Engine::Resource::Handle<SRV>> Engine::D3D12::SRVAllocator::Allocate
 		_result[_i].idx = _range.startIndex + _i;
 		_result[_i].gen = m_genVec[_result[_i].idx];
 
-		ImGuiContex::Instance().AddLog("Allocate : %d\n" ,_result[_i].idx);
+		//ImGuiContex::Instance().AddLog("Allocate : %d\n" ,_result[_i].idx);
 	}
 
 	return _result;

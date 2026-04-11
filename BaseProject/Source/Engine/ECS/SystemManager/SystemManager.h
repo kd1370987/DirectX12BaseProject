@@ -56,7 +56,7 @@ namespace Engine::ECS
 		}
 		else
 		{
-			ImGuiContex::Instance().AddLog("登録済みシステムです");
+			//ImGuiContex::Instance().AddLog("登録済みシステムです");
 		}
 	}
 

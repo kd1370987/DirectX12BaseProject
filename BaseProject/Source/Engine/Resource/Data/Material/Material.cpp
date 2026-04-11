@@ -49,6 +49,4 @@ void Engine::Resource::Material::SetTexture2D(
 
 	auto& _startTex = Engine::Resource::TextureManager::Instance().GetTexture(baseColorTex);
 	startSRVHandle = _startTex.GetSRV();
-
-	ImGuiContex::Instance().AddLog("StartIndex : %d\n",startSRVHandle.idx);
 }

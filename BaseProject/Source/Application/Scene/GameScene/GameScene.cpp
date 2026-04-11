@@ -302,12 +302,7 @@ void GameScene::RegistryEntity()
 		auto _entity = m_upWorld->CreateEntity(_sig);
 
 		UIComponent* _ui = m_upWorld->RefData<UIComponent>(_entity);
-		//GraphicResourceManager::Instance().GetTexture(_ui->texID, "Asset/Texture/Test/", "uiTest.png", TextureUse::Albedo);
 		_ui->color = { 1.0f,1.0f,1.0f,0.5f };
-		//std::vector<SRVViewInit> _initVec = {};
-		//ID3D12Resource* _tex = GraphicResourceManager::Instance().NGetTexture(_ui->texID)->cpResource.Get();
-		//_initVec.push_back({_tex});
-		//_ui->srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange(_initVec)[0];
 		_ui->texHandle = Engine::Resource::TextureManager::Instance().LoadTexture("Asset/Texture/Test/uiTest.png");
 		TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);
 		_ref->pos = { 0,0,0 };

@@ -145,17 +145,17 @@ std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(
 
 		if (!_warn.empty())
 		{
-			ImGuiContex::Instance().AddLog("Warn : %s\n", _warn.c_str());
+			//ImGuiContex::Instance().AddLog("Warn : %s\n", _warn.c_str());
 		}
 
 		if (!_err.empty())
 		{
-			ImGuiContex::Instance().AddLog("Err : %s\n", _err.c_str());
+			//ImGuiContex::Instance().AddLog("Err : %s\n", _err.c_str());
 		}
 
 		if (!_ret)
 		{
-			ImGuiContex::Instance().AddLog("Failed to parse gltf: %s", a_filePath.data());
+			//ImGuiContex::Instance().AddLog("Failed to parse gltf: %s", a_filePath.data());
 			return nullptr;
 		}
 	}

@@ -217,7 +217,6 @@ namespace Engine::Graphics
 
 			// 実行データに入れていく
 			m_compiledPasses.push_back(_cp);
-			ImGuiContex::Instance().AddLog("PassName : %s\n", _cp.pPass->GetDesc().name.c_str());
 		}
 		
 		m_upRGResourceManager->StateReset();
@@ -225,8 +224,6 @@ namespace Engine::Graphics
 
 	void RenderGraph::Excute(RenderContext* a_pCtx)
 	{
-		ImGuiContex::Instance().StartWatch("RenderGraphStart");
-
 		// コンパイル済みパスを順次実行していく
 		for (auto& _cp : m_compiledPasses)
 		{
@@ -250,8 +247,6 @@ namespace Engine::Graphics
 			// パスの実行
 			_cp.pPass->Excute(a_pCtx);
 		}
-
-		ImGuiContex::Instance().EndWatch("RenderGraphStart");
 	}
 
 	D3D12_GPU_DESCRIPTOR_HANDLE RenderGraph::GetGPUHandle(const std::string& a_name)

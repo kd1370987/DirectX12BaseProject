@@ -46,7 +46,7 @@ namespace Engine::ECS
 		{
 			if (Limits::INVALID_COMPONENTTYPEID != GetTypeID(typeid(Comp)))
 			{
-				ImGuiContex::Instance().AddLog("すでに登録済みです : %s\n", a_name.c_str());
+				//ImGuiContex::Instance().AddLog("すでに登録済みです : %s\n", a_name.c_str());
 				return GetTypeID(typeid(Comp));
 			}
 

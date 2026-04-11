@@ -11,199 +11,97 @@
 #include "../AssetResourceView/AssetResourceView.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-
-bool ImGuiContex::Init(HWND a_hwnd)
+namespace Engine::Editor
 {
-	auto& _pD3DWrapper = D3D12Wrapper::Instance();
-	auto& _pDescriptorManager = DescriptorHeapManager::Instance();
-
-	// メインモニターのスケールとDPI作成
-	ImGui_ImplWin32_EnableDpiAwareness();
-	float _mainScale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{0,0},MONITOR_DEFAULTTOPRIMARY));
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& _io = ImGui::GetIO(); (void)_io;
-	_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;		// キーボードを使用可能に
-	_io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;		// ゲームパッドを使用可能に
-	_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;			// ImGuiDockingの有効化
-
-	// ImGuiのセットアップ
-	ImGui::StyleColorsDark();
-
-	// サイズのセットアップ
-	ImGuiStyle& _style = ImGui::GetStyle();
-	_style.ScaleAllSizes(_mainScale);		// 取得したモニターサイズと合わせる
-	_style.FontScaleDpi = _mainScale;		// 数値としても記録
-
-
-	// 描画するバックエンド・プラットフォームを設定
-	ImGui_ImplWin32_Init(a_hwnd);
-
-	// DX12オブジェクトをセット
-	ImGui_ImplDX12_InitInfo _initInfo = {};
-	_initInfo.Device = _pD3DWrapper.GetDevice();
-	_initInfo.CommandQueue = _pD3DWrapper.GetCommandQueue();
-	_initInfo.NumFramesInFlight = static_cast<int>(CPU_FRAME_COUNT);
-	_initInfo.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-	_initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;
-	_initInfo.SrvDescriptorHeap = _pDescriptorManager.GetImGuiHeap();
-	_initInfo.LegacySingleSrvCpuDescriptor = _pDescriptorManager.GetImGuiCPUHandle();
-	_initInfo.LegacySingleSrvGpuDescriptor = _pDescriptorManager.GetImGuiGPUHandle();
-	ImGui_ImplDX12_Init(&_initInfo);
-
-	// ログ
-	if(!m_upLog)
+	bool ImGuiContext::Init(HWND a_hwnd)
 	{
-		m_upLog = std::make_unique<Log>();
-		m_upLog->Init();
+		auto& _pD3DWrapper = D3D12Wrapper::Instance();
+		auto& _pDescriptorManager = DescriptorHeapManager::Instance();
+
+		// メインモニターのスケールとDPI作成
+		ImGui_ImplWin32_EnableDpiAwareness();
+		float _mainScale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0,0 }, MONITOR_DEFAULTTOPRIMARY));
+
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& _io = ImGui::GetIO(); (void)_io;
+		_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;		// キーボードを使用可能に
+		_io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;		// ゲームパッドを使用可能に
+		_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;			// ImGuiDockingの有効化
+
+		// ImGuiのセットアップ
+		ImGui::StyleColorsDark();
+
+		// サイズのセットアップ
+		ImGuiStyle& _style = ImGui::GetStyle();
+		_style.ScaleAllSizes(_mainScale);		// 取得したモニターサイズと合わせる
+		_style.FontScaleDpi = _mainScale;		// 数値としても記録
+
+
+		// 描画するバックエンド・プラットフォームを設定
+		ImGui_ImplWin32_Init(a_hwnd);
+
+		// DX12オブジェクトをセット
+		ImGui_ImplDX12_InitInfo _initInfo = {};
+		_initInfo.Device = _pD3DWrapper.GetDevice();
+		_initInfo.CommandQueue = _pD3DWrapper.GetCommandQueue();
+		_initInfo.NumFramesInFlight = static_cast<int>(CPU_FRAME_COUNT);
+		_initInfo.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+		_initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;
+		_initInfo.SrvDescriptorHeap = _pDescriptorManager.GetImGuiHeap();
+		_initInfo.LegacySingleSrvCpuDescriptor = _pDescriptorManager.GetImGuiCPUHandle();
+		_initInfo.LegacySingleSrvGpuDescriptor = _pDescriptorManager.GetImGuiGPUHandle();
+		ImGui_ImplDX12_Init(&_initInfo);
+
+		return true;
 	}
 
-	m_isInit = true;
-
-	m_upRGView = std::make_unique<RenderGraphView>();
-	m_upRGView->Init();
-
-	m_upECSView = std::make_unique<ECSView>();
-	m_upECSView->Init();
-
-	m_upAssetResourceView = std::make_unique<AssetResourceView>();
-	m_upAssetResourceView->Init();
-
-	return true;
-}
-
-void ImGuiContex::CallImGuiDrawData(ID3D12GraphicsCommandList* a_pCmdList)
-{
-	if (!m_isInit) return;
-
-	// ImGuiフレームの描画開始
-	ImGui_ImplDX12_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-
-	// ウィンドウサイズをゲーム画面に合わせる
-	ImGui::SetWindowPos(ImVec2(0, 0));
-	ImGui::SetWindowSize(ImVec2(1280, 720));
-
-	// ビューポート切り替え
-	ImGui::Begin(
-		"MainDockWindow",
-		nullptr,
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoCollapse |
-		ImGuiWindowFlags_NoResize |
-		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoBringToFrontOnFocus |
-		ImGuiWindowFlags_NoNavFocus |
-		ImGuiWindowFlags_NoDocking
-	);
+	void ImGuiContext::Begin(UINT a_width, UINT a_height)
 	{
-		// ベース
-		ImGuiID _dockSpaceID = ImGui::GetID("MyDockSpace");
-		ImGui::DockSpace(_dockSpaceID, ImGui::GetContentRegionAvail(),ImGuiDockNodeFlags_PassthruCentralNode);
-	}
-	ImGui::End();
+	
+		// ImGuiフレームの描画開始
+		ImGui_ImplDX12_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
 
-	// レンダーグラフビュー
-	m_upRGView->Draw();
 
-	// ECS
-	m_upECSView->Draw();
+		// ウィンドウサイズをゲーム画面に合わせる
+		ImGui::SetWindowPos(ImVec2(0, 0));
+		ImGui::SetWindowSize(ImVec2(a_width, a_height));
 
-	// アセット表示
-	m_upAssetResourceView->Draw();
-
-	// ログ表示
-	m_upLog->Draw("Log");
-
-	// 計測表示
-	for (auto& [_name, _watch] : m_upWatchMap)
-	{
-		_watch->DrawResult(_name);
-	}
-
-	// ImGui描画
-	ImGui::Render();
-
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(),a_pCmdList);
-}
-
-void ImGuiContex::AddLog(const char* a_fmt, ...)
-{
-	if (!m_isInit) return;
-	if (!m_upLog) return;
-
-	va_list _args;
-	va_start(_args,a_fmt);
-	m_upLog->AddLog(a_fmt);
-	va_end(_args);
-}
-
-void ImGuiContex::AddLogMatrix(const std::string& a_name, const DirectX::XMFLOAT4X4& a_mat)
-{
-	if (!m_isInit) return;
-	if( !m_upLog) return;
-
-	AddLog("MatrixName : %s\n", a_name.c_str());
-
-	for (size_t _row = 0; _row < 4; ++_row)
-	{
-		for (size_t _col = 0; _col < 4; ++_col)
+		// ビューポート切り替え
+		ImGui::Begin(
+			"MainDockWindow",
+			nullptr,
+			ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoBringToFrontOnFocus |
+			ImGuiWindowFlags_NoNavFocus |
+			ImGuiWindowFlags_NoDocking
+		);
 		{
-			AddLog("%f ", a_mat.m[_row][_col]);
+			// ベース
+			ImGuiID _dockSpaceID = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(_dockSpaceID, ImGui::GetContentRegionAvail(), ImGuiDockNodeFlags_PassthruCentralNode);
 		}
-		AddLog("\n");
+		ImGui::End();
 	}
-}
 
-void ImGuiContex::StartWatch(const std::string& a_name)
-{
-	if (!m_isInit) return;
-	auto _it = m_upWatchMap.find(a_name);
-	if (_it != m_upWatchMap.end())
+	void ImGuiContext::End(ID3D12GraphicsCommandList * a_pCmdList)
 	{
-		_it->second->Start();
+		// ImGui描画
+		ImGui::Render();
+
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), a_pCmdList);
 	}
-	else
+
+	void ImGuiContext::Release()
 	{
-		m_upWatchMap[a_name] = std::make_unique<Watch>();
-		m_upWatchMap[a_name]->Start();
+		// メモリの解放
+		ImGui_ImplDX12_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
 	}
-}
-
-void ImGuiContex::EndWatch(const std::string& a_name)
-{
-	if (!m_isInit) return;
-	auto _it = m_upWatchMap.find(a_name);
-	if (_it != m_upWatchMap.end())
-	{
-		_it->second->End();
-		return;
-	}
-	assert(0 && "登録されていない計測です");
-}
-
-std::shared_ptr<ComponentEdit> ImGuiContex::GetCompEdit()
-{
-	return m_upECSView->GetCompEdit();
-}
-
-ImGuiContex::ImGuiContex()
-{
-}
-
-ImGuiContex::~ImGuiContex()
-{
-}
-
-void ImGuiContex::Release()
-{
-	m_upLog = nullptr;
-
-	// メモリの解放
-	ImGui_ImplDX12_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
 }

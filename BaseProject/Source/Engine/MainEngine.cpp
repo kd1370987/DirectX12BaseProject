@@ -74,7 +74,7 @@ namespace Engine
 		}
 
 		// エディター初期化
-		if (!ImGuiContex::Instance().Init(m_upWindow->GetWindowHandle()))
+		if (!Engine::Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle()))
 		{
 			assert(0 && "エディターの初期化に失敗");
 			return;
@@ -99,7 +99,7 @@ namespace Engine
 		Engine::Graphics::RenderContext::Instance().Shutdown();
 
 		// ImGui解放
-		ImGuiContex::Instance().Release();
+		Engine::Editor::MainEditor::Instance().Release();
 
 		// ディスクリプタヒープマネージャー解放
 		DescriptorHeapManager::Instance().Release();
@@ -183,7 +183,7 @@ namespace Engine
 			};
 			_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 			// エディター描画
-			ImGuiContex::Instance().CallImGuiDrawData(D3D12Wrapper::Instance().GetCommandList());
+			Engine::Editor::MainEditor::Instance().Draw(D3D12Wrapper::Instance().GetCommandList());
 		}
 
 		// 描画フレームリソース
