@@ -6,7 +6,7 @@ namespace Engine::Editor
 	void RenderGraphView::Init()
 	{}
 
-	void RenderGraphView::Draw()
+	void RenderGraphView::Draw(UINT a_widht, UINT a_height)
 	{
 		if (ImGui::Begin("RGTextureList"))
 		{

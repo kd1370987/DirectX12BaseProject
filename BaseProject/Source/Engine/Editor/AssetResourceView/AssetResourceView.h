@@ -13,7 +13,7 @@ namespace Engine::Editor
 
 		void Init();
 
-		void Draw();
+		void Draw(UINT a_widht, UINT a_height);
 
 	private:
 

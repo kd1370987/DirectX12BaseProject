@@ -12,7 +12,7 @@ namespace Engine::Editor
 		m_spCompEdlit->Init();
 	}
 
-	void ECSView::Draw()
+	void ECSView::Draw(UINT a_widht, UINT a_height)
 	{
 		Engine::ECS::World* _pWorld = SceneManager::Instance().RefWorld();
 		if (!_pWorld)return;

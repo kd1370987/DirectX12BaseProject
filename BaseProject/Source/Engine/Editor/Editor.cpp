@@ -71,11 +71,11 @@ namespace Engine::Editor
 		m_upImGuiContext->Begin(a_widht, a_height);
 
 		// レンダーグラフビュー
-		m_upRGView->Draw();
+		m_upRGView->Draw(a_widht, a_height);
 		// ECSビュー
-		m_upECSView->Draw();
+		m_upECSView->Draw(a_widht, a_height);
 		// アセットビュー
-		m_upAssetResourceView->Draw();
+		m_upAssetResourceView->Draw(a_widht, a_height);
 
 		// ログ表示
 		m_upLog->Draw("Log");

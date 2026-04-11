@@ -19,10 +19,10 @@ namespace Engine::Editor
 		m_upTextureView->Init();
 	}
 
-	void AssetResourceView::Draw()
+	void AssetResourceView::Draw(UINT a_widht, UINT a_height)
 	{
 		m_upModelView->Draw();
 
-		m_upTextureView->Draw();
+		m_upTextureView->Draw(a_widht, a_height);
 	}
 }

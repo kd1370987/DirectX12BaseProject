@@ -5,9 +5,11 @@
 namespace Engine::Editor
 {
 	void TextureView::Init()
-	{}
+	{
+		m_minSize = 100.f;
+	}
 
-	void TextureView::Draw()
+	void TextureView::Draw(UINT a_widht, UINT a_height)
 	{
 		if (ImGui::Begin("TextureView"))
 		{
@@ -18,7 +20,7 @@ namespace Engine::Editor
 					ImGui::Text("Handle : IDX = %d GEN = %d", _handle.idx, _handle.gen);
 
 					auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(_handle);
-					DrawTextureView(_tex);
+					DrawTextureView(_tex, a_widht, a_height);
 
 					ImGui::TreePop();
 				}
@@ -27,7 +29,7 @@ namespace Engine::Editor
 		ImGui::End();
 	}
 
-	void TextureView::DrawTextureView(Engine::Resource::Texture& a_Texture)
+	void TextureView::DrawTextureView(Engine::Resource::Texture& a_Texture, UINT a_widht, UINT a_height)
 	{
 		if (ImGui::Begin("TextureView"))
 		{
@@ -35,7 +37,7 @@ namespace Engine::Editor
 			ImTextureID _imTex = (ImTextureID)(_gpuHandle.ptr);
 			ImVec2 _winSize = ImGui::GetContentRegionAvail();
 
-			float _aspectRatio = 1280.0f / 720.0f;
+			float _aspectRatio = (float)a_widht / (float)a_height;
 			if (_winSize.x / _winSize.y > _aspectRatio)
 			{
 				_winSize.x = _winSize.y * _aspectRatio;
@@ -45,9 +47,8 @@ namespace Engine::Editor
 				_winSize.y = _winSize.x / _aspectRatio;
 			}
 			// 最小サイズの設定
-			const float MIN_SIZE = 100.0f;
-			_winSize.x = std::max(_winSize.x, MIN_SIZE);
-			_winSize.y = std::max(_winSize.y, MIN_SIZE);
+			_winSize.x = std::max(_winSize.x, m_minSize);
+			_winSize.y = std::max(_winSize.y, m_minSize);
 
 			ImGui::Image(_imTex, _winSize, ImVec2(0, 0), ImVec2(1, 1));
 		}
