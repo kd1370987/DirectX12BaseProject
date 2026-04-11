@@ -133,92 +133,92 @@ void BaseScene::RegistryComponent()
 
 	_id = m_upWorld->RegisterComponentType<CameraParamComponent>("CameraParam");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, {
-		{"FovY",offsetof(CameraParamComponent,fovY),FielMeta::Type::Float},
-		{"AspectRate",offsetof(CameraParamComponent,aspectRatio),FielMeta::Type::Float},
-		{"NearClip",offsetof(CameraParamComponent,nearZ),FielMeta::Type::Float},
-		{"FarClip",offsetof(CameraParamComponent,farZ),FielMeta::Type::Float}
+		{"FovY",offsetof(CameraParamComponent,fovY),Engine::Editor::FielMeta::Type::Float},
+		{"AspectRate",offsetof(CameraParamComponent,aspectRatio),Engine::Editor::FielMeta::Type::Float},
+		{"NearClip",offsetof(CameraParamComponent,nearZ),Engine::Editor::FielMeta::Type::Float},
+		{"FarClip",offsetof(CameraParamComponent,farZ),Engine::Editor::FielMeta::Type::Float}
 		});
 	_id = m_upWorld->RegisterComponentType<ProjMatComponent>("ProjMat");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, {
-		{"ProjMat",offsetof(ProjMatComponent,projMat),FielMeta::Type::Matrix},
-		{"ProjInvMat",offsetof(ProjMatComponent,projInvMat),FielMeta::Type::Matrix}
+		{"ProjMat",offsetof(ProjMatComponent,projMat),Engine::Editor::FielMeta::Type::Matrix},
+		{"ProjInvMat",offsetof(ProjMatComponent,projInvMat),Engine::Editor::FielMeta::Type::Matrix}
 		});
 	_id = m_upWorld->RegisterComponentType<FocusParamComponent>("FocusParam");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"ForcusDistance",offsetof(FocusParamComponent,focusDistance),FielMeta::Type::Float},
-		{"ForcusRange",offsetof(FocusParamComponent,forcusRange),FielMeta::Type::Float},
-		{"ForcusBackRange",offsetof(FocusParamComponent,forcusBackRange),FielMeta::Type::Float},
+		{"ForcusDistance",offsetof(FocusParamComponent,focusDistance),Engine::Editor::FielMeta::Type::Float},
+		{"ForcusRange",offsetof(FocusParamComponent,forcusRange),Engine::Editor::FielMeta::Type::Float},
+		{"ForcusBackRange",offsetof(FocusParamComponent,forcusBackRange),Engine::Editor::FielMeta::Type::Float},
 		});
 	_id = m_upWorld->RegisterComponentType<FollowTargetComponent>("FollowTarget");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"TargetEntity",offsetof(FollowTargetComponent,target),FielMeta::Type::U64},
+		{"TargetEntity",offsetof(FollowTargetComponent,target),Engine::Editor::FielMeta::Type::U64},
 		});
 	_id = m_upWorld->RegisterComponentType<TPSOffsetComponent>("TPSOffset");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"x",offsetof(TPSOffsetComponent,x),FielMeta::Type::Float},
-		{"y",offsetof(TPSOffsetComponent,y),FielMeta::Type::Float},
-		{"z",offsetof(TPSOffsetComponent,z),FielMeta::Type::Float},
+		{"x",offsetof(TPSOffsetComponent,x),Engine::Editor::FielMeta::Type::Float},
+		{"y",offsetof(TPSOffsetComponent,y),Engine::Editor::FielMeta::Type::Float},
+		{"z",offsetof(TPSOffsetComponent,z),Engine::Editor::FielMeta::Type::Float},
 		});
 	_id = m_upWorld->RegisterComponentType<TPSLookAngleComponent>("TPSLookAngle");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Pitch",offsetof(TPSLookAngleComponent,Pitch),FielMeta::Type::Float},
-		{"ClampPitch",offsetof(TPSLookAngleComponent,ClampPitch),FielMeta::Type::Float},
+		{"Pitch",offsetof(TPSLookAngleComponent,Pitch),Engine::Editor::FielMeta::Type::Float},
+		{"ClampPitch",offsetof(TPSLookAngleComponent,ClampPitch),Engine::Editor::FielMeta::Type::Float},
 		});
 
 	_id = m_upWorld->RegisterComponentType<VelocityComponent>("Velocity");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Value",offsetof(VelocityComponent,value),FielMeta::Type::Float3},
+		{"Value",offsetof(VelocityComponent,value),Engine::Editor::FielMeta::Type::Float3},
 		});
 	_id = m_upWorld->RegisterComponentType<GravityComponent>("Gravity");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Scale",offsetof(GravityComponent,scale),FielMeta::Type::Float},
+		{"Scale",offsetof(GravityComponent,scale),Engine::Editor::FielMeta::Type::Float},
 		});
 	_id = m_upWorld->RegisterComponentType<InertiaComponent>("Inertia");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Value",offsetof(InertiaComponent,value),FielMeta::Type::Float},
+		{"Value",offsetof(InertiaComponent,value),Engine::Editor::FielMeta::Type::Float},
 		});
 
 	_id = m_upWorld->RegisterComponentType<PlayerLookAngleComponent>("PlayerLookAngle");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Yaw",offsetof(PlayerLookAngleComponent,Yaw),FielMeta::Type::Float},
+		{"Yaw",offsetof(PlayerLookAngleComponent,Yaw),Engine::Editor::FielMeta::Type::Float},
 		});
 
 	_id = m_upWorld->RegisterComponentType<ColliderComponent>("Col");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Layer",offsetof(ColliderComponent,layer),FielMeta::Type::Enum},
-		{"CollideLayer",offsetof(ColliderComponent,collideLayer),FielMeta::Type::EnumFlag},
-		{"IsPhysical",offsetof(ColliderComponent,isPhysical),FielMeta::Type::Bool},
+		{"Layer",offsetof(ColliderComponent,layer),Engine::Editor::FielMeta::Type::Enum},
+		{"CollideLayer",offsetof(ColliderComponent,collideLayer),Engine::Editor::FielMeta::Type::EnumFlag},
+		{"IsPhysical",offsetof(ColliderComponent,isPhysical),Engine::Editor::FielMeta::Type::Bool},
 		});
 	_id = m_upWorld->RegisterComponentType<RayColliderComponent>("RayCol");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Length",offsetof(RayColliderComponent,length),FielMeta::Type::Float},
-		{"Dir",offsetof(RayColliderComponent,dir),FielMeta::Type::Float3},
-		{"Position",offsetof(RayColliderComponent,pos),FielMeta::Type::Float3},
+		{"Length",offsetof(RayColliderComponent,length),Engine::Editor::FielMeta::Type::Float},
+		{"Dir",offsetof(RayColliderComponent,dir),Engine::Editor::FielMeta::Type::Float3},
+		{"Position",offsetof(RayColliderComponent,pos),Engine::Editor::FielMeta::Type::Float3},
 		});
 
 	_id = m_upWorld->RegisterComponentType<TRSComponent>("Transform");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"position",offsetof(TRSComponent,pos),FielMeta::Type::Float3},
-		{"rotation",offsetof(TRSComponent,quat),FielMeta::Type::Float4},
-		{"scale",offsetof(TRSComponent,scale),FielMeta::Type::Float3},
+		{"position",offsetof(TRSComponent,pos),Engine::Editor::FielMeta::Type::Float3},
+		{"rotation",offsetof(TRSComponent,quat),Engine::Editor::FielMeta::Type::Float4},
+		{"scale",offsetof(TRSComponent,scale),Engine::Editor::FielMeta::Type::Float3},
 		});
 	_id = m_upWorld->RegisterComponentType<WorldMatrixComponent>("WorldMatrix");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"WorldMat",offsetof(WorldMatrixComponent,worldMat),FielMeta::Type::Matrix}
+		{"WorldMat",offsetof(WorldMatrixComponent,worldMat),Engine::Editor::FielMeta::Type::Matrix}
 		});
 
 	_id = m_upWorld->RegisterComponentType<ModelComponent>("Model");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"ModelID",offsetof(ModelComponent,modelID),FielMeta::Type::U32},
-		{"ColorScale",offsetof(ModelComponent,colorScale),FielMeta::Type::Float4},
-		{"EmissiveScale",offsetof(ModelComponent,emissiveScale),FielMeta::Type::Float3}
+		{"ModelID",offsetof(ModelComponent,modelID),Engine::Editor::FielMeta::Type::U32},
+		{"ColorScale",offsetof(ModelComponent,colorScale),Engine::Editor::FielMeta::Type::Float4},
+		{"EmissiveScale",offsetof(ModelComponent,emissiveScale),Engine::Editor::FielMeta::Type::Float3}
 		});
 	_id = m_upWorld->RegisterComponentType<AnimatorComponent>("Anima");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"ClipID",offsetof(AnimatorComponent,clipID),FielMeta::Type::U32},
-		{"Time",offsetof(AnimatorComponent,time),FielMeta::Type::Float},
-		{"Speed",offsetof(AnimatorComponent,speed),FielMeta::Type::Float},
-		{"IsLoop",offsetof(AnimatorComponent,isLoop),FielMeta::Type::Bool}
+		{"ClipID",offsetof(AnimatorComponent,clipID),Engine::Editor::FielMeta::Type::U32},
+		{"Time",offsetof(AnimatorComponent,time),Engine::Editor::FielMeta::Type::Float},
+		{"Speed",offsetof(AnimatorComponent,speed),Engine::Editor::FielMeta::Type::Float},
+		{"IsLoop",offsetof(AnimatorComponent,isLoop),Engine::Editor::FielMeta::Type::Bool}
 		});
 	_id = m_upWorld->RegisterComponentType<SkeletonPoseComponent>("SkePose");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {});
@@ -226,9 +226,9 @@ void BaseScene::RegistryComponent()
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {});
 	_id = m_upWorld->RegisterComponentType<UIComponent>("UI");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"TexID",offsetof(UIComponent,texID),FielMeta::Type::U32},
-		{"UV",offsetof(UIComponent,uvOffsetTiling),FielMeta::Type::Float4},
-		{"Color",offsetof(UIComponent,color),FielMeta::Type::Float4}
+		{"TexID",offsetof(UIComponent,texID),Engine::Editor::FielMeta::Type::U32},
+		{"UV",offsetof(UIComponent,uvOffsetTiling),Engine::Editor::FielMeta::Type::Float4},
+		{"Color",offsetof(UIComponent,color),Engine::Editor::FielMeta::Type::Float4}
 		});
 }
 

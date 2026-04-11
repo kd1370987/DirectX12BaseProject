@@ -183,7 +183,7 @@ namespace Engine
 			};
 			_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 			// エディター描画
-			Engine::Editor::MainEditor::Instance().Draw(D3D12Wrapper::Instance().GetCommandList());
+			Engine::Editor::MainEditor::Instance().Draw(D3D12Wrapper::Instance().GetCommandList(),m_upWindow->GetClientWidth(),m_upWindow->GetClientHeight());
 		}
 
 		// 描画フレームリソース

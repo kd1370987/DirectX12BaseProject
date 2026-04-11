@@ -1,22 +1,24 @@
 ﻿#pragma once
-
-class ModelView;
-class TextureView;
-
-class AssetResourceView
+namespace Engine::Editor
 {
-public:
+	class ModelView;
+	class TextureView;
 
-	AssetResourceView();
-	~AssetResourceView();
+	class AssetResourceView
+	{
+	public:
 
-	void Init();
+		AssetResourceView();
+		~AssetResourceView();
 
-	void Draw();
+		void Init();
 
-private:
+		void Draw();
 
-	std::unique_ptr<ModelView> m_upModelView = nullptr;
-	std::unique_ptr<TextureView> m_upTextureView = nullptr;
+	private:
 
-};
+		std::unique_ptr<ModelView> m_upModelView = nullptr;
+		std::unique_ptr<TextureView> m_upTextureView = nullptr;
+
+	};
+}

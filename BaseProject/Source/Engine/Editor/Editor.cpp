@@ -65,9 +65,10 @@ namespace Engine::Editor
 	{
 		m_upImGuiContext->Release();
 	}
-	void MainEditor::Draw(ID3D12GraphicsCommandList * a_pCmdList)
+	void MainEditor::Draw(ID3D12GraphicsCommandList * a_pCmdList, UINT a_widht, UINT a_height)
 	{
-		m_upImGuiContext->Begin(1280,720);
+		// ImGui描画開始
+		m_upImGuiContext->Begin(a_widht, a_height);
 
 		// レンダーグラフビュー
 		m_upRGView->Draw();
@@ -84,6 +85,7 @@ namespace Engine::Editor
 			_watch->DrawResult(_name);
 		}
 
+		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);
 	}
 	std::shared_ptr<ComponentEdit> MainEditor::GetCompEdit()

@@ -1,39 +1,44 @@
 ﻿#pragma once
 
 
-class ComponentEdit;
 namespace Engine::ECS
 {
 	struct EntityLocation;
 
 	class World;
 }
-
-class ECSView
+namespace Engine::Editor
 {
-public:
+	// 前方宣言
+	class ComponentEdit;
 
-	void Init();
+	// ECSを管理するためのエディター
+	class ECSView
+	{
+	public:
 
-	void Draw();
+		void Init();
 
-	std::shared_ptr<ComponentEdit> GetCompEdit();
+		void Draw();
 
-private:
+		std::shared_ptr<ComponentEdit> GetCompEdit();
 
-	// ヒエラルキー
-	void HierarchyWindow(Engine::ECS::World* a_pWorld);
+	private:
 
-	void DrawEntity(Engine::ECS::World* a_pWorld,const Engine::ECS::EntityLocation& a_location);
+		// ヒエラルキー
+		void HierarchyWindow(Engine::ECS::World* a_pWorld);
 
-	// インスペクターウィンドウ
-	void InspectorWindow(Engine::ECS::World* a_pWorld);
+		void DrawEntity(Engine::ECS::World* a_pWorld, const Engine::ECS::EntityLocation& a_location);
 
-private:
+		// インスペクターウィンドウ
+		void InspectorWindow(Engine::ECS::World* a_pWorld);
 
-	// 現在選択中のエンティティ
-	Engine::ECS::Entity m_currentEntity = Engine::ECS::Limits::INVALID_ENTITY;
+	private:
 
-	// コンポーネントごとのエディット設定
-	std::shared_ptr<ComponentEdit> m_spCompEdlit = nullptr;
-};
+		// 現在選択中のエンティティ
+		Engine::ECS::Entity m_currentEntity = Engine::ECS::Limits::INVALID_ENTITY;
+
+		// コンポーネントごとのエディット設定
+		std::shared_ptr<ComponentEdit> m_spCompEdlit = nullptr;
+	};
+}

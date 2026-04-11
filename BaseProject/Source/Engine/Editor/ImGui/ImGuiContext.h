@@ -1,17 +1,5 @@
 ﻿#pragma once
 
-class RenderingEngine;
-class DescriptorHeapManager;
-
-class Log;
-class Watch;
-
-class RenderGraphView;
-class ECSView;
-
-class ComponentEdit;
-
-class AssetResourceView;
 namespace Engine::Editor
 {
 	class ImGuiContext

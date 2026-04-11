@@ -2,27 +2,27 @@
 
 #include "ModelView/ModelView.h"
 #include "TextureView/TextureView.h"
-
-AssetResourceView::AssetResourceView()
+namespace Engine::Editor
 {
-}
+	AssetResourceView::AssetResourceView()
+	{}
 
-AssetResourceView::~AssetResourceView()
-{
-}
+	AssetResourceView::~AssetResourceView()
+	{}
 
-void AssetResourceView::Init()
-{
-	m_upModelView = std::make_unique<ModelView>();
-	m_upModelView->Init();
+	void AssetResourceView::Init()
+	{
+		m_upModelView = std::make_unique<ModelView>();
+		m_upModelView->Init();
 
-	m_upTextureView = std::make_unique<TextureView>();
-	m_upTextureView->Init();
-}
+		m_upTextureView = std::make_unique<TextureView>();
+		m_upTextureView->Init();
+	}
 
-void AssetResourceView::Draw()
-{
-	m_upModelView->Draw();
+	void AssetResourceView::Draw()
+	{
+		m_upModelView->Draw();
 
-	m_upTextureView->Draw();
+		m_upTextureView->Draw();
+	}
 }

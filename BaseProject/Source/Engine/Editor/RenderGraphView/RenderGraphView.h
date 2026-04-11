@@ -1,15 +1,17 @@
 ﻿#pragma once
-
-class RenderGraphView
+namespace Engine::Editor
 {
-public:
+	class RenderGraphView
+	{
+	public:
 
-	void Init();
+		void Init();
 
-	void Draw();
+		void Draw();
 
-private:
+	private:
 
-	int m_currentSelected = 0;
-	std::string m_rgTexName = "";
-};
+		int m_currentSelected = 0;
+		std::string m_rgTexName = "";
+	};
+}

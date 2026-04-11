@@ -1,18 +1,13 @@
 ﻿#pragma once
-
-class Log;
-class Watch;
-
-class RenderGraphView;
-class ECSView;
-
-class ComponentEdit;
-
-class AssetResourceView;
-
 namespace Engine::Editor
 {
 	// 前方宣言
+	class Log;
+	class Watch;
+	class RenderGraphView;
+	class ECSView;
+	class ComponentEdit;
+	class AssetResourceView;
 	class ImGuiContext;
 
 	//=======================================================================
@@ -31,14 +26,14 @@ namespace Engine::Editor
 		void Release();
 
 		// 描画
-		void Draw(ID3D12GraphicsCommandList* a_pCmdList);
+		void Draw(ID3D12GraphicsCommandList* a_pCmdList,UINT a_widht,UINT a_height);
 
 		// コンポーネントエディットの取得
 		std::shared_ptr<ComponentEdit> GetCompEdit();
 
-	//=======================================================================
-	// ログ関連
-	//=======================================================================
+		//=======================================================================
+		// ログ関連
+		//=======================================================================
 	public:
 		// ログの追加
 		// 文字列と可変引数でログを追加する関数
@@ -46,9 +41,9 @@ namespace Engine::Editor
 		// 行列をログに追加する関数
 		void AddLogMatrix(const std::string& a_name, const DirectX::XMFLOAT4X4& a_mat);
 
-	//=======================================================================
-	// 計測関連
-	//=======================================================================
+		//=======================================================================
+		// 計測関連
+		//=======================================================================
 	public:
 		// 計測開始
 		void StartWatch(const std::string& a_name);
@@ -56,7 +51,7 @@ namespace Engine::Editor
 		void EndWatch(const std::string& a_name);
 
 	private:
-		
+
 		// ImGuiコンテキスト
 		std::unique_ptr<ImGuiContext> m_upImGuiContext = nullptr;
 

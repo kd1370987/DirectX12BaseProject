@@ -1,14 +1,16 @@
 ﻿#pragma once
-
-class TextureView
+namespace Engine::Editor
 {
-public:
+	class TextureView
+	{
+	public:
 
-	void Init();
+		void Init();
 
-	void Draw();
+		void Draw();
 
-private:
+	private:
 
-	void DrawTextureView(Engine::Resource::Texture& a_Texture);
-};
+		void DrawTextureView(Engine::Resource::Texture& a_Texture);
+	};
+}

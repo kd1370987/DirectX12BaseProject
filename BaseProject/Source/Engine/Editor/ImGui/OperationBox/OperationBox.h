@@ -1,1 +1,4 @@
-#pragma once
+﻿#pragma once
+namespace Engine::Editor
+{
+}

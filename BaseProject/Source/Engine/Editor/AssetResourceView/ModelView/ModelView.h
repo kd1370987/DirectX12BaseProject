@@ -1,22 +1,24 @@
 ﻿#pragma once
-
-class ModelView
+namespace Engine::Editor
 {
-public:
+	class ModelView
+	{
+	public:
 
-	void Init();
+		void Init();
 
-	void Draw();
+		void Draw();
 
-private:
+	private:
 
-	//void DrawModelView(Engine::Resource::Model* a_pModel);
-	void DrawModelView(Engine::Resource::Model& a_model);
+		//void DrawModelView(Engine::Resource::Model* a_pModel);
+		void DrawModelView(Engine::Resource::Model& a_model);
 
-	void NodeView(Engine::Resource::Node& a_node);
+		void NodeView(Engine::Resource::Node& a_node);
 
-	void MaterialView(Engine::Resource::Material& a_material);
-	void MeshView(Engine::Resource::Mesh* a_pMesh);
-	void AnimationView(Engine::Resource::AnimationData& a_animationData);
-	void CollisionView(Engine::Resource::Mesh& a_pMesh);
-};
+		void MaterialView(Engine::Resource::Material& a_material);
+		void MeshView(Engine::Resource::Mesh* a_pMesh);
+		void AnimationView(Engine::Resource::AnimationData& a_animationData);
+		void CollisionView(Engine::Resource::Mesh& a_pMesh);
+	};
+}
