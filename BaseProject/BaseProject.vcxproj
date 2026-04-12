@@ -295,6 +295,12 @@
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputCollector\InputCollector.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindows\InputAxisForWindows.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows\InputButtonForWindows.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputManager\InputManager.cpp" />
     <ClCompile Include="Source\Engine\MainEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp" />
@@ -473,6 +479,13 @@
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h" />
+    <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
+    <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.h" />
+    <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.h" />
+    <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindows\InputAxisForWindows.h" />
+    <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonBase.h" />
+    <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows\InputButtonForWindows.h" />
+    <ClInclude Include="Source\Engine\Input\InputManager\InputManager.h" />
     <ClInclude Include="Source\Engine\MainEngine.h" />
     <ClInclude Include="Source\Engine\EngineCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />
