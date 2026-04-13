@@ -1,29 +1,53 @@
 ﻿#pragma once
 
-#include "../InputCommon.h"
-#include "../InputAction.h"
-
 namespace Engine::Input
 {
-	class IInputDevice;
-	class Button;
+	class InputCollector;
 
+	// 様々な入力を管理するクラス : 複数のInputCllectorを管理
 	class InputManager
 	{
 	public:
 
-		// アクション追加
-		void AddAction(Action a_action,EActionType a_eActionType);
+		// 更新
+		// 毎フレーム必須
+		void Update();
 
-		// アクションに対するボタン追加
-		void AddButton(Action a_action,Button a_button);
+		// すべての有効な入力装置からのボタン入力状態を取得
+		short GetButtonState(std::string_view a_name) const;
+
+		bool IsFree(std::string_view a_name) const;
+		bool IsPress(std::string_view a_name) const;
+		bool IsHold(std::string_view a_name) const;
+		bool IsRelease(std::string_view a_name) const;
+
+		// すべての有効な入力装置からの軸入力状態を取得
+		DXSM::Vector2 GetAxisState(std::string_view a_name) const;
+
+		// 入力装置の登録
+		void AddDevice(std::string_view a_name,InputCollector* a_pInputDevice);
+		void AddDevice(std::string_view a_name,std::unique_ptr<InputCollector> a_upInputDevice);
+
+		// アクセサ
+		const std::unique_ptr<InputCollector>& GetDevice(std::string_view a_name) const;
+		std::unique_ptr<InputCollector>& RefDevice(std::string_view a_name);
+
+		// 解放
+		void Release();
 
 	private:
 
-		// 登録されているデバイス
-		std::vector<IInputDevice> m_inputDeviceVec = {};
+		std::unordered_map<std::string, std::unique_ptr<InputCollector>> m_upInputDeviceMap = {};
 
-		// アクションごとのデータ
-		std::unordered_map<Action, ActionData> m_actionDataMap = {};	
+	private:
+		InputManager();
+		~InputManager();
+	public:
+
+		static InputManager& Instance()
+		{
+			static InputManager _instance;
+			return _instance;
+		}
 	};
 }

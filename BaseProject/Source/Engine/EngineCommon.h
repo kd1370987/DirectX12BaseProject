@@ -75,6 +75,16 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 
 //==========================================================================================
 // 
+// 入力
+// 
+//==========================================================================================
+#include "Input/InputManager/InputManager.h"
+#include "Input/InputCollector/InputCollector.h"
+#include "Input/InputDevice/Axis/InputAxisBase.h"
+#include "Input/InputDevice/Button/InputButtonBase.h"
+
+//==========================================================================================
+// 
 // 当たり判定
 // 
 //==========================================================================================
@@ -140,6 +150,8 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 // 
 //==========================================================================================
 #include "Animation/AnimationEvaluator/AnimationEvalutor.h"
+
+
 
 
 

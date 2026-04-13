@@ -17,7 +17,8 @@ private:
 	}
 
 	void Event() override;
-
+	
+	void Init() override;
 	void Release() override;
 
 	void RegistryComponent() override;

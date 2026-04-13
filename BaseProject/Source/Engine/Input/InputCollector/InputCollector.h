@@ -21,8 +21,8 @@ namespace Engine::Input
 			Enable,			// 有効 : アプリに入力の影響を与える
 		};
 
-		InputCollector() = default;
-		~InputCollector() = default;
+		InputCollector();
+		~InputCollector();
 
 		void Update();
 
@@ -45,7 +45,8 @@ namespace Engine::Input
 		void AddAxis(std::string_view a_name, InputAxisBase* a_pAxis);
 		void AddAxis(std::string_view a_name, std::shared_ptr<InputAxisBase> a_spAxis);
 
-		const std::shared_ptr
+		const std::shared_ptr<InputButtonBase> GetButton(std::string_view a_name)  const;
+		const std::shared_ptr<InputAxisBase> GetAxis(std::string_view a_name) const;
 
 	private:
 

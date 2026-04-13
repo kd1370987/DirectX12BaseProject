@@ -11,39 +11,21 @@
 
 void InputMoveSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
-	DirectX::XMFLOAT3 inputDir = { 0.0f,0.0f,0.0f };
-	float inputLook = 0.0f;
-	if (GetAsyncKeyState('W') & 0x8000)
-	{
-		inputDir.z += 1.0f;
-	}
-	if (GetAsyncKeyState('S') & 0x8000)
-	{
+	DXSM::Vector3 _move = {};
 
-		inputDir.z -= 1.0f;
-	}
-	if (GetAsyncKeyState('A') & 0x8000)
-	{
-		inputDir.x -= 1.0f;
+	DXSM::Vector2 _inputMove = {};
+	DXSM::Vector2 _look = {};
 
-	}
-	if (GetAsyncKeyState('D') & 0x8000)
-	{
-		inputDir.x += 1.0f;
-	}
-
-	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-	{
-		inputLook -= 1.0f;
-	}
-	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-	{
-		inputLook += 1.0f;
-	}
+	// 移動
+	_inputMove = Engine::Input::InputManager::Instance().GetAxisState("Move");
+	_move = { _inputMove.x,0,_inputMove.y };
+	
+	// 視点
+	_look = Engine::Input::InputManager::Instance().GetAxisState("Look");
 
 	a_world.ForEachEx<PlayerControllTag,VelocityComponent,PlayerLookAngleComponent>
 		(
-			[&a_world, a_dt,inputDir,inputLook]
+			[&a_world, a_dt, _move, _look]
 			(
 				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
@@ -55,16 +37,16 @@ void InputMoveSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				for (size_t _i = 0; _i < a_count; ++_i)
 				{
 					PlayerLookAngleComponent& _lookComp = a_playerLookArray[_i];
-					_lookComp.Yaw += inputLook;
+					_lookComp.Yaw += _look.x;
 
 					float _rad = DirectX::XMConvertToRadians(_lookComp.Yaw);
 					float _sinY = sinf(_rad);
 					float _cosY = cosf(_rad);
 
 					VelocityComponent& _velComp = a_velocityArray[_i];
-					_velComp.value.x += (inputDir.x * _cosY + inputDir.z * _sinY) * 5.0f;
-					_velComp.value.y += inputDir.y;
-					_velComp.value.z += (inputDir.z * _cosY - inputDir.x * _sinY) * 5.0f;
+					_velComp.value.x += (_move.x * _cosY + _move.z * _sinY) * 5.0f;
+					_velComp.value.y += _move.y;
+					_velComp.value.z += (_move.z * _cosY - _move.x * _sinY) * 5.0f;
 				}
 			},
 			Engine::ECS::Exclude<InertiaComponent>()

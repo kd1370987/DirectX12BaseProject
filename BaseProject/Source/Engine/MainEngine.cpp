@@ -143,6 +143,9 @@ namespace Engine
 			"; DELTATIME = " + std::to_string(m_upTimeManager->GetDeltaTime()) + ";";
 		m_upWindow->ChangeTitle(_str);
 
+		// 入力更新
+		Input::InputManager::Instance().Update();
+
 		return true;
 	}
 

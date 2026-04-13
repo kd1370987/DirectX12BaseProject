@@ -42,6 +42,14 @@
 #include "../../Components/Resource/NodePoseComponent.h"
 #include "../../Components/Resource/UIComponent.h"
 
+// インプット
+#include "../../../Engine/Input/InputCollector/InputCollector.h"
+
+#include "../../../Engine/Input/InputDevice/Axis/InputAxisForWindowsMouse/InputAxisForWindowsMouse.h"
+#include "../../../Engine/Input/InputDevice/Axis/InputAxisForWindows/InputAxisForWindows.h"
+
+#include "../../../Engine/Input/InputDevice/Button/InputButtonForWindows/InputButtonForWindows.h"
+
 void GameScene::Event()
 {
 	if (GetAsyncKeyState('R'))
@@ -50,12 +58,41 @@ void GameScene::Event()
 	}
 
 	static bool _is = false;
-	if(!_is && GetAsyncKeyState('T'))
+	//if(!_is && GetAsyncKeyState('T'))
+	if (Engine::Input::InputManager::Instance().IsPress("Add"))
 	{
 		auto _handle = Engine::Resource::ModelManager::Instnace().LoadModel(
 			"Asset/Model/TestModelWhite/testModelWhite.gltf");
 		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
 		_is = true;
+	}
+}
+
+void GameScene::Init()
+{
+	// デバイス追加
+	{
+		Engine::Input::InputCollector _keyboard;
+		Engine::Input::InputButtonForWindows _add('T');
+		_keyboard.AddButton("Add", std::make_shared<Engine::Input::InputButtonForWindows>(_add));
+
+		// 移動
+		Engine::Input::InputAxisForWindows _move('W', 'D', 'S', 'A');
+		_keyboard.AddAxis("Move",std::make_shared<Engine::Input::InputAxisForWindows>(_move));
+
+		// 視点
+		Engine::Input::InputAxisForWindows _look(VK_UP, VK_RIGHT, VK_DOWN, VK_LEFT);
+		_keyboard.AddAxis("Look",std::make_shared<Engine::Input::InputAxisForWindows>(_look));
+
+		Engine::Input::InputManager::Instance().AddDevice("Keyboard", std::make_unique<Engine::Input::InputCollector>(_keyboard));
+	}
+
+	{
+		// 視点
+		Engine::Input::InputCollector _mouse;
+		_mouse.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForWindowsMouse>());
+
+		Engine::Input::InputManager::Instance().AddDevice("Mouse", std::make_unique<Engine::Input::InputCollector>(_mouse));
 	}
 }
 
