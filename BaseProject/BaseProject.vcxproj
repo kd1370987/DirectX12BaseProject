@@ -299,7 +299,9 @@
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindows\InputAxisForWindows.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForXInput\InputAxisForXInput.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows\InputButtonForWindows.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput\InputButtonForXInput.cpp" />
     <ClCompile Include="Source\Engine\Input\InputManager\InputManager.cpp" />
     <ClCompile Include="Source\Engine\MainEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
@@ -483,8 +485,10 @@
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindows\InputAxisForWindows.h" />
+    <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForXInput\InputAxisForXInput.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonBase.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows\InputButtonForWindows.h" />
+    <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput\InputButtonForXInput.h" />
     <ClInclude Include="Source\Engine\Input\InputManager\InputManager.h" />
     <ClInclude Include="Source\Engine\MainEngine.h" />
     <ClInclude Include="Source\Engine\EngineCommon.h" />

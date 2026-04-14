@@ -54,6 +54,11 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <cstdint>
 #include <cinttypes>
 
+// コントローラー対応
+#pragma comment(lib,"Xinput.lib")
+#include <Xinput.h>
+
+
 //===============================================
 //
 // DirectX12

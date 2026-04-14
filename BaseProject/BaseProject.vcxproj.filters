@@ -619,6 +619,12 @@
     <Filter Include="Source\Engine\Input\InputCollector">
       <UniqueIdentifier>{b035f981-695f-4e8d-9227-d5f2ac500724}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Input\InputDevice\Axis\InputAxisForXInput">
+      <UniqueIdentifier>{b0d63b78-d321-4f37-b342-688c060c9e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput">
+      <UniqueIdentifier>{f89b2795-6458-4e63-bbcb-78d31d711aea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1016,6 +1022,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Input\InputCollector\InputCollector.cpp">
       <Filter>Source\Engine\Input\InputCollector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForXInput\InputAxisForXInput.cpp">
+      <Filter>Source\Engine\Input\InputDevice\Axis\InputAxisForXInput</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput\InputButtonForXInput.cpp">
+      <Filter>Source\Engine\Input\InputDevice\Button\InputButtonForXInput</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1579,6 +1591,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h">
       <Filter>Source\Engine\Input\InputCollector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForXInput\InputAxisForXInput.h">
+      <Filter>Source\Engine\Input\InputDevice\Axis\InputAxisForXInput</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput\InputButtonForXInput.h">
+      <Filter>Source\Engine\Input\InputDevice\Button\InputButtonForXInput</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

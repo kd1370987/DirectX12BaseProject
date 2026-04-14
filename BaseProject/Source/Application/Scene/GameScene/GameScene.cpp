@@ -47,8 +47,10 @@
 
 #include "../../../Engine/Input/InputDevice/Axis/InputAxisForWindowsMouse/InputAxisForWindowsMouse.h"
 #include "../../../Engine/Input/InputDevice/Axis/InputAxisForWindows/InputAxisForWindows.h"
+#include "../../../Engine/Input/InputDevice/Axis/InputAxisForXInput/InputAxisForXInput.h"
 
 #include "../../../Engine/Input/InputDevice/Button/InputButtonForWindows/InputButtonForWindows.h"
+#include "../../../Engine/Input/InputDevice/Button/InputButtonForXInput/InputButtonForXInput.h"
 
 void GameScene::Event()
 {
@@ -57,20 +59,17 @@ void GameScene::Event()
 		SceneManager::Instance().SetNextScene(SceneType::Title,SceneChangeType::Replace);
 	}
 
-	static bool _is = false;
-	//if(!_is && GetAsyncKeyState('T'))
 	if (Engine::Input::InputManager::Instance().IsPress("Add"))
 	{
 		auto _handle = Engine::Resource::ModelManager::Instnace().LoadModel(
 			"Asset/Model/TestModelWhite/testModelWhite.gltf");
 		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
-		_is = true;
 	}
 }
 
 void GameScene::Init()
 {
-	// デバイス追加
+	// キーボード
 	{
 		Engine::Input::InputCollector _keyboard;
 		Engine::Input::InputButtonForWindows _add('T');
@@ -86,13 +85,23 @@ void GameScene::Init()
 
 		Engine::Input::InputManager::Instance().AddDevice("Keyboard", std::make_unique<Engine::Input::InputCollector>(_keyboard));
 	}
-
+	// マウス
 	{
 		// 視点
 		Engine::Input::InputCollector _mouse;
 		_mouse.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForWindowsMouse>());
 
 		Engine::Input::InputManager::Instance().AddDevice("Mouse", std::make_unique<Engine::Input::InputCollector>(_mouse));
+	}
+	// コントローラー
+	{
+		Engine::Input::InputCollector _cont;
+		_cont.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForXInput>(0,false));
+		_cont.AddAxis("Move", std::make_shared<Engine::Input::InputAxisForXInput>(0,true));
+
+		
+
+		Engine::Input::InputManager::Instance().AddDevice("Controller", std::make_unique<Engine::Input::InputCollector>(_cont));
 	}
 }
 
