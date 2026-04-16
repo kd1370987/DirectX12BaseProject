@@ -11,8 +11,9 @@ enum class Layer : uint32_t
 struct ColliderComponent
 {
 	Layer layer = Layer::StaticObject;		// 自分が属するレイヤー
-	Layer collideLayer = Layer::None;	// 衝突したいレイヤー
-	Engine::ECS::Flg isPhysical = 1;					// 物理解決するかどうか(衝突時にイベントだけほしいとか)
+	Layer collideLayer = Layer::None;		// 衝突したいレイヤー
+	Engine::ECS::Flg isPhysical = 1;		// 物理解決するかどうか(衝突時にイベントだけほしいとか)
+	
 };
 
 inline Layer operator|(Layer a, Layer b)

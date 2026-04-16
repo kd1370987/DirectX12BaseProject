@@ -32,12 +32,11 @@ namespace Engine::Editor
 
 	void ECSView::HierarchyWindow(Engine::ECS::World* a_pWorld)
 	{
-
-
 		// ウィンドウ開始
 		if (ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_MenuBar))
 		{
 			// フィルター
+			EntityFilter();
 
 			// 全エンティティ取得
 			const std::vector<Engine::ECS::EntityLocation>& _entityLocationList = a_pWorld->GetEntityList();
@@ -59,6 +58,23 @@ namespace Engine::Editor
 			ImGui::EndChild();
 		}
 		ImGui::End();
+	}
+
+	void ECSView::EntityFilter()
+	{
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Filter"))
+			{
+				if (ImGui::MenuItem("None", nullptr, m_filterType == EFilterType::None))
+				{
+					m_filterType = m_filterType;
+				}
+
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
 	}
 
 	void ECSView::DrawEntity(Engine::ECS::World* a_pWorld, const Engine::ECS::EntityLocation& a_location)

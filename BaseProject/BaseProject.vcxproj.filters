@@ -625,6 +625,12 @@
     <Filter Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput">
       <UniqueIdentifier>{f89b2795-6458-4e63-bbcb-78d31d711aea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem">
+      <UniqueIdentifier>{7702b738-78e0-4488-8a9f-2f487215d957}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem">
+      <UniqueIdentifier>{4691fe19-0ec0-4da5-a990-509f297c78e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">

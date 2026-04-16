@@ -95,13 +95,11 @@ void GameScene::Init()
 	}
 	// コントローラー
 	{
-		Engine::Input::InputCollector _cont;
-		_cont.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForXInput>(0,false));
-		_cont.AddAxis("Move", std::make_shared<Engine::Input::InputAxisForXInput>(0,true));
+		//Engine::Input::InputCollector _cont;
+		//_cont.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForXInput>(0,false));
+		//_cont.AddAxis("Move", std::make_shared<Engine::Input::InputAxisForXInput>(0,true));
 
-		
-
-		Engine::Input::InputManager::Instance().AddDevice("Controller", std::make_unique<Engine::Input::InputCollector>(_cont));
+		//Engine::Input::InputManager::Instance().AddDevice("Controller", std::make_unique<Engine::Input::InputCollector>(_cont));
 	}
 }
 

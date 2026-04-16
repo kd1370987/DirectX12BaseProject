@@ -27,6 +27,7 @@ namespace Engine::Editor
 
 		// ヒエラルキー
 		void HierarchyWindow(Engine::ECS::World* a_pWorld);
+		void EntityFilter();
 
 		void DrawEntity(Engine::ECS::World* a_pWorld, const Engine::ECS::EntityLocation& a_location);
 
@@ -40,5 +41,16 @@ namespace Engine::Editor
 
 		// コンポーネントごとのエディット設定
 		std::shared_ptr<ComponentEdit> m_spCompEdlit = nullptr;
+
+		// 検索時のフィルター
+		enum class EFilterType
+		{
+			None,
+			Player,
+			Camera,
+			Ground,
+			UI,
+		};
+		EFilterType m_filterType = EFilterType::None;
 	};
 }
