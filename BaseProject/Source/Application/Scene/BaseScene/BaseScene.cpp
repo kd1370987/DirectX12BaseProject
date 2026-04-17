@@ -134,8 +134,6 @@ void BaseScene::RegistryComponent()
 	_id = m_upWorld->RegisterComponentType<PlayerControllTag>("PlayerControllTag");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, {});
 
-	//_id = m_upWorld->RegisterComponentType<CameraParamComponent>("CameraParam");
-	//Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, CameraParamComponent::GetMeta());
 	m_upWorld->RegisterComponent<CameraParamComponent>("CameraParam");
 	_id = m_upWorld->RegisterComponentType<ProjMatComponent>("ProjMat");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, {
@@ -207,11 +205,12 @@ void BaseScene::RegistryComponent()
 		});
 
 	_id = m_upWorld->RegisterComponentType<ModelComponent>("Model");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"ModelID",offsetof(ModelComponent,modelID),Engine::Editor::FielMeta::Type::U32},
-		{"ColorScale",offsetof(ModelComponent,colorScale),Engine::Editor::FielMeta::Type::Float4},
-		{"EmissiveScale",offsetof(ModelComponent,emissiveScale),Engine::Editor::FielMeta::Type::Float3}
-		});
+	//Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
+	//	{"ModelID",offsetof(ModelComponent,modelID),Engine::Editor::FielMeta::Type::U32},
+	//	{"ColorScale",offsetof(ModelComponent,colorScale),Engine::Editor::FielMeta::Type::Float4},
+	//	{"EmissiveScale",offsetof(ModelComponent,emissiveScale),Engine::Editor::FielMeta::Type::Float3}
+	//	});
+	Engine::Editor::MainEditor::Instance().GetCompEdit()->RegisterFunc(RefWorld(),_id,ModelComponent::GetFuncMeta());
 	_id = m_upWorld->RegisterComponentType<AnimatorComponent>("Anima");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
 		{"ClipID",offsetof(AnimatorComponent,clipID),Engine::Editor::FielMeta::Type::U32},

@@ -21,6 +21,7 @@ namespace Engine::Resource
 		//------------------------------------------------------------------------------------------
 		const Engine::Resource::Model* GetModel(const Engine::Resource::Handle<Engine::Resource::Model>& a_handle);
 		Engine::Resource::Model* RefModel(const Engine::Resource::Handle<Engine::Resource::Model>& a_handle);
+		const Engine::Resource::Handle<Engine::Resource::Model>& GetHandle(const std::string& a_name);
 
 		std::vector<SharedSlot<Model>>& GetAllModel();
 

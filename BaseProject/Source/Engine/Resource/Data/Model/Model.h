@@ -11,6 +11,8 @@ namespace Engine
 	{
 		struct Model
 		{
+			std::string name;
+
 			// マテリアル
 			std::vector<Material>						materials;
 

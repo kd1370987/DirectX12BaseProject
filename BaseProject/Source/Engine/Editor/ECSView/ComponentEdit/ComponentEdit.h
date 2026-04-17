@@ -28,6 +28,15 @@ namespace Engine::Editor
 		} type;
 	};
 
+	struct CompEditFuncMeta
+	{
+		// データ取得用に構造体内のオフセットを取得
+		size_t offset;
+
+		// 関数登録型
+		std::function<void(void*)> draw;
+	};
+
 	using EditFunc = std::function<void(const Engine::ECS::Entity&)>;
 
 	class ComponentEdit
@@ -37,6 +46,7 @@ namespace Engine::Editor
 		void Init();
 
 		void Register(Engine::ECS::World* a_pWorld, Engine::ECS::ComponentTypeID a_typeID, const std::vector<FielMeta>& a_data);
+		void RegisterFunc(Engine::ECS::World* a_pWorld, Engine::ECS::ComponentTypeID a_typeID, const std::vector<CompEditFuncMeta>& a_funcVec);
 
 
 		EditFunc GetCompEditFunc(Engine::ECS::World* a_pWorld, Engine::ECS::ComponentTypeID a_typeID);

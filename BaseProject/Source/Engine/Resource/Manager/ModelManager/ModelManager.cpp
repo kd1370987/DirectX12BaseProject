@@ -61,6 +61,10 @@ Engine::Resource::Handle<Engine::Resource::Model> Engine::Resource::ModelManager
 
 		//Serialize::Assimp(a_model, _spAssimpModel, _fileDir);
 	}
+
+	// 一時的にパスを名前として使用
+	_model.name = a_path;
+
 	// 読み込み成功
 	auto _handle = Add(_model);
 	m_handleMap.emplace(a_path,_handle);
@@ -83,6 +87,16 @@ Engine::Resource::Model* Engine::Resource::ModelManager::RefModel(const Engine::
 
 	// 問題なければデータを返す
 	return &m_slotStorage[a_handle.idx].data;
+}
+
+const Engine::Resource::Handle<Engine::Resource::Model>& Engine::Resource::ModelManager::GetHandle(const std::string& a_name)
+{
+	auto _it = m_handleMap.find(a_name);
+	if (_it != m_handleMap.end())
+	{
+		return _it->second;
+	}
+	return Engine::Resource::Handle<Model>();
 }
 
 std::vector<Engine::Resource::SharedSlot<Engine::Resource::Model>>& Engine::Resource::ModelManager::GetAllModel()

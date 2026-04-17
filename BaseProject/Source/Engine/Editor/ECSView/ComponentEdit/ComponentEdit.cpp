@@ -92,19 +92,7 @@ namespace Engine::Editor
 					}
 					case FielMeta::Type::Model:
 					{
-						// 現在のモデル表示
-
-
-						// モデル変更
-						auto& _modelVec = Resource::ModelManager::Instnace().GetAllModel();
-
-						if (ImGui::BeginCombo("Change Model","Select"))
-						{
-							for (auto& _model : _modelVec)
-							{
-								if(_data)
-							}
-						}
+						
 						break;
 					}
 					case FielMeta::Type::Texture:
@@ -120,6 +108,44 @@ namespace Engine::Editor
 				}
 			};
 
+
+		m_editFuncMap[a_typeID] = _func;
+	}
+
+	void ComponentEdit::RegisterFunc(Engine::ECS::World* a_pWorld, Engine::ECS::ComponentTypeID a_typeID, const std::vector<CompEditFuncMeta>& a_funcVec)
+	{
+		EditFunc _func = [this, a_pWorld, a_typeID, a_funcVec](const Engine::ECS::Entity& a_entity)
+		{
+			// コンポーネントのメタ情報取得
+			auto& _metaData = a_pWorld->GetComponentMetaData(a_typeID);
+
+			// コンポーネント名表示
+			ImGui::Text(_metaData.name.c_str());
+
+			ImGui::Separator();
+
+			// エンティティのデータ取得
+			uint8_t* _refData = a_pWorld->NRefData(a_entity, a_typeID);
+
+			for (auto& _field : a_funcVec)
+			{
+				// 構造体の配置場所まで移動
+				void* _data = _refData + _field.offset;
+				if (_field.draw)
+				{
+					// 登録された関数に流す
+					_field.draw(_data);
+				}
+				else
+				{
+					// デフォルト処理
+
+				}
+
+				// 終了線
+				ImGui::Separator();
+			}
+		};
 
 		m_editFuncMap[a_typeID] = _func;
 	}
