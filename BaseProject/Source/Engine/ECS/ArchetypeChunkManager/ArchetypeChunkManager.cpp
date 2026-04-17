@@ -123,7 +123,6 @@ namespace Engine::ECS
 		ArchetypeChunk* _chunk = a_loca.pArchetypeChunk;
 		size_t _offset = 0;
 		size_t _stride = 0;
-
 		auto _it = _chunk->layoutMap.find(a_typeID);
 		if (_it != _chunk->layoutMap.end())
 		{
@@ -204,6 +203,9 @@ namespace Engine::ECS
 		_chunk->data = reinterpret_cast<uint8_t*>(
 			operator new[](_chunkMemorySize, std::align_val_t(_chunk->maxAlign))
 			);
+
+		// ０初期化
+		memset(_chunk->data,0,_chunkMemorySize);
 
 		return _chunk;
 	}

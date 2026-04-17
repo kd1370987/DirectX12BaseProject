@@ -4,7 +4,7 @@ namespace Engine::ECS
 {
 	struct Layout
 	{
-		size_t offset;				// 配列のサイズ
+		size_t offset;				// 先頭バイト
 		size_t stride;				// 一つ一つのサイズ
 	};
 
@@ -15,10 +15,9 @@ namespace Engine::ECS
 		uint32_t		capacity = 0;				// チャンクが持つ最大エンティティ数
 		uint32_t		count = 0;					// 現在のエンティティ数
 
-		// コンポーネント
-		//std::vector<size_t> layoutVec;				// 配置レイアウト
+		// コンポーネント配置
 		std::unordered_map<ECS::ComponentTypeID, Layout> layoutMap;
-		size_t			maxAlign = 0;				// チャンク内のコンポーネントの最大アライメント
+		size_t			maxAlign = 0;	// チャンク内のコンポーネントの最大アライメント
 		uint8_t* data = nullptr;		// バイトデータ
 	};
 }

@@ -143,6 +143,7 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 // 
 //==========================================================================================
 #include "Editor/Editor.h"
+#include "Editor/ECSView/ComponentEdit/ComponentEdit.h"
 
 //==========================================================================================
 // 

@@ -4,6 +4,8 @@
 #include "Engine/ECS/World/World.h"
 
 #include "ComponentEdit/ComponentEdit.h"
+
+#include "../../../Application/Components/Transform/TRSComponent.h"
 namespace Engine::Editor
 {
 	void ECSView::Init()
@@ -48,14 +50,7 @@ namespace Engine::Editor
 			ImGui::Separator();
 
 			// エンティティ一覧表示
-			ImGui::BeginChild("EntityList");
-			{
-				for (auto& _location : _entityLocationList)
-				{
-					DrawEntity(a_pWorld, _location);
-				}
-			}
-			ImGui::EndChild();
+			DrawEntityList(a_pWorld);
 		}
 		ImGui::End();
 	}
@@ -68,13 +63,71 @@ namespace Engine::Editor
 			{
 				if (ImGui::MenuItem("None", nullptr, m_filterType == EFilterType::None))
 				{
-					m_filterType = m_filterType;
+					m_filterType = EFilterType::None;
+				}
+				if (ImGui::MenuItem("Player", nullptr, m_filterType == EFilterType::Player))
+				{
+					m_filterType = EFilterType::Player;
+				}
+				if (ImGui::MenuItem("Camera", nullptr, m_filterType == EFilterType::Camera))
+				{
+					m_filterType = EFilterType::Camera;
+				}
+				if (ImGui::MenuItem("UI", nullptr, m_filterType == EFilterType::UI))
+				{
+					m_filterType = EFilterType::UI;
+				}
+				if (ImGui::MenuItem("Ground", nullptr, m_filterType == EFilterType::Ground))
+				{
+					m_filterType = EFilterType::Ground;
 				}
 
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
 		}
+	}
+
+	void ECSView::DrawEntityList(Engine::ECS::World* a_pWorld)
+	{
+		// エンティティ一覧表示
+		ImGui::BeginChild("EntityList");
+		{
+			//if (ImGui::BeginPopupContextItem("EntityPopup"))
+			{
+				// 空のエンティティの追加
+				if (ImGui::Button("AddEntity"))
+				{
+					AddEntity(a_pWorld);
+				}
+			}
+
+			const std::vector<Engine::ECS::EntityLocation>& _entityLocationList = a_pWorld->GetEntityList();
+			for (auto& _location : _entityLocationList)
+			{
+				//for (auto& [_compID, _data] : _location.pArchetypeChunk->layoutMap)
+				//{
+				//	switch (m_filterType)
+				//	{
+				//	case Engine::Editor::ECSView::EFilterType::None:
+				//		break;
+				//	case Engine::Editor::ECSView::EFilterType::Player:
+				//		break;
+				//	case Engine::Editor::ECSView::EFilterType::Camera:
+				//		break;
+				//	case Engine::Editor::ECSView::EFilterType::Ground:
+				//		break;
+				//	case Engine::Editor::ECSView::EFilterType::UI:
+				//		break;
+				//	default:
+				//		break;
+				//	}
+				//}
+
+				DrawEntity(a_pWorld, _location);
+			}
+		}
+		ImGui::EndChild();
 	}
 
 	void ECSView::DrawEntity(Engine::ECS::World* a_pWorld, const Engine::ECS::EntityLocation& a_location)
@@ -108,6 +161,17 @@ namespace Engine::Editor
 		}
 	}
 
+	void ECSView::AddEntity(Engine::ECS::World* a_pWorld)
+	{
+		//空のエンティティ追加
+		//if (ImGui::Selectable("AddGameObject"))
+		{
+			Engine::ECS::Signature _sig = {};
+			_sig.set(a_pWorld->GetCompTypeID(typeid(TRSComponent)));
+
+			a_pWorld->AddEntity(_sig);
+		}
+	}
 
 	void ECSView::InspectorWindow(Engine::ECS::World* a_pWorld)
 	{
@@ -144,7 +208,31 @@ namespace Engine::Editor
 				}
 			}
 
+			// エンティティに対してコンポーネントを増やす
+			AddComponent(a_pWorld);
+
 		}
 		ImGui::End();
+	}
+	void ECSView::AddComponent(Engine::ECS::World* a_pWorld)
+	{
+		if (ImGui::BeginCombo("Add Component", "Select..."))
+		{
+			const ECS::Signature& _sig = a_pWorld->GetSignature(m_currentEntity);
+			for (auto& [_typeID, _meta] : a_pWorld->GetAllComponentMetaData())
+			{
+				// 所持していたら表示しない
+				if (_sig.test(_typeID)) continue;
+
+				// メタ情報から名前表示
+				if (ImGui::Selectable(_meta.name.c_str()))
+				{
+					// コンポーネントの追加
+					a_pWorld->AddComponent(_typeID,m_currentEntity);
+				}
+			}
+
+			ImGui::EndCombo();
+		}
 	}
 }

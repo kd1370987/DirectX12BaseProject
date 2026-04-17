@@ -44,31 +44,25 @@ namespace Engine::ECS
 		// ロケーション操作
 		EntityLocation& RefEntityLocation(const Entity& a_entity);
 
-		/// <summary>
-		/// 全エンティティのロケーションを返す
-		/// </summary>
-		const std::vector<EntityLocation>& GetAllEntityLocation();
+		// アクセサ
+		const std::vector<EntityLocation>& GetAllEntityLocation();	// エンティティの場所配列を返す
+		UINT GetAliveEntityCount();									// 生存しているエンティティの数
 
-		/// <summary>
-		/// 現在のエンティティの生存数を返す
-		/// </summary>
-		UINT GetAliveEntityCount();
-
-		/// <summary>
-		/// エンティティのシグネチャを取得する
-		/// </summary>
-		const Signature& GetSignature(const Entity& a_entity);
+		// エンティティとシグネチャ
+		const Signature& GetSignature(const Entity& a_entity);					// シグネチャの取得
+		void SetSignature(const Entity& a_entity, const Signature& a_sig);		// シグネチャのセット
 
 	private:
 
-		uint32_t GetGeneration(const Entity& a_entity);
-		uint32_t GetIndex(const Entity& a_entity);
+		// ヘルパー関数
+		uint32_t GetGeneration(const Entity& a_entity);		// 世代取得
+		uint32_t GetIndex(const Entity& a_entity);			// インデックス取得
 
 	private:
 
-		std::vector<EntityLocation>		m_entityLocationVec;	// エンティティの住所
+		std::vector<EntityLocation>	m_entityLocationVec;	// エンティティの住所
 		std::vector<Signature>		m_signatureVec;			// エンティティとシグネチャを紐づけるもの
-		std::vector<Generation>	m_entityGeneVec;		// 世代を含めたエンティティリスト
+		std::vector<Generation>		m_entityGeneVec;		// 世代を含めたエンティティリスト
 
 		// 次に使用するEntityのインデックス
 		std::queue<EntityIndex> m_availbleEntitiyQueue;

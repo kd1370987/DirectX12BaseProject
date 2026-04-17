@@ -119,6 +119,12 @@ namespace Engine::ECS
 		return m_signatureVec[_idx];
 	}
 
+	void EntityManager::SetSignature(const Entity& a_entity, const Signature& a_sig)
+	{
+		uint32_t _index = GetIndex(a_entity);
+		m_signatureVec[_index] = a_sig;
+	}
+
 	uint32_t EntityManager::GetGeneration(const ECS::Entity& a_entity)
 	{
 		return uint32_t(a_entity >> 32);;

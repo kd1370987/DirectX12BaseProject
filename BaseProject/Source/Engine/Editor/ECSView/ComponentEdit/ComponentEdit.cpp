@@ -3,6 +3,10 @@
 #include "Engine/ECS/World/World.h"
 
 #include "Application/Components/Collision/Collider.h"
+
+#include "../../../Resource/Manager/ModelManager/ModelManager.h"
+#include "../../../Resource/Manager/TextureManager/TextureManager.h"
+
 namespace Engine::Editor
 {
 	void ComponentEdit::Init()
@@ -84,6 +88,27 @@ namespace Engine::Editor
 					case FielMeta::Type::EnumFlag:
 					{
 						DrawEnumFlagsCombo<Layer>(_field.name, *reinterpret_cast<Layer*>(_data));
+						break;
+					}
+					case FielMeta::Type::Model:
+					{
+						// 現在のモデル表示
+
+
+						// モデル変更
+						auto& _modelVec = Resource::ModelManager::Instnace().GetAllModel();
+
+						if (ImGui::BeginCombo("Change Model","Select"))
+						{
+							for (auto& _model : _modelVec)
+							{
+								if(_data)
+							}
+						}
+						break;
+					}
+					case FielMeta::Type::Texture:
+					{
 						break;
 					}
 					default:

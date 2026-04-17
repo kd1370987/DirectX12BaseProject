@@ -32,6 +32,7 @@ namespace Engine::ECS
 		// メタ情報取得
 		const ComponentMeta& GetMetaData(const ComponentTypeID& a_id) const;
 		const ComponentMeta& GetMetaData(const std::type_index& a_index) const;
+		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllMetaData() const;
 
 		/// <summary>
 		/// コンポーネントを登録し、メタ情報を記憶する

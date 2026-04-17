@@ -125,10 +125,17 @@ namespace DXSM = DirectX::SimpleMath;
 
 //===============================================
 //
-// Utility Libraries
+// magic_enum
 //
 //===============================================
 #include <magic_enum/magic_enum.hpp>			// enumの拡張
+
+//===============================================
+//
+// nlohmannJSON
+//
+//===============================================
+#include <nlohmannJSON/json.hpp>
 
 #pragma warning(pop)
 

@@ -92,6 +92,9 @@ void BaseScene::Exit()
 
 void BaseScene::Update(float a_dt)
 {
+	// シーンの初めに一括でエンティティを生成・削除
+	m_upWorld->BegineFrame();
+
 	// シーン特有処理
 	Event();
 
@@ -131,13 +134,9 @@ void BaseScene::RegistryComponent()
 	_id = m_upWorld->RegisterComponentType<PlayerControllTag>("PlayerControllTag");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, {});
 
-	_id = m_upWorld->RegisterComponentType<CameraParamComponent>("CameraParam");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, {
-		{"FovY",offsetof(CameraParamComponent,fovY),Engine::Editor::FielMeta::Type::Float},
-		{"AspectRate",offsetof(CameraParamComponent,aspectRatio),Engine::Editor::FielMeta::Type::Float},
-		{"NearClip",offsetof(CameraParamComponent,nearZ),Engine::Editor::FielMeta::Type::Float},
-		{"FarClip",offsetof(CameraParamComponent,farZ),Engine::Editor::FielMeta::Type::Float}
-		});
+	//_id = m_upWorld->RegisterComponentType<CameraParamComponent>("CameraParam");
+	//Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, CameraParamComponent::GetMeta());
+	m_upWorld->RegisterComponent<CameraParamComponent>("CameraParam");
 	_id = m_upWorld->RegisterComponentType<ProjMatComponent>("ProjMat");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, {
 		{"ProjMat",offsetof(ProjMatComponent,projMat),Engine::Editor::FielMeta::Type::Matrix},

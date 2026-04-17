@@ -39,4 +39,9 @@ namespace Engine::ECS
 		return _meta;
 	}
 
+	const std::unordered_map<ComponentTypeID, ComponentMeta>& ComponentMetaRegistry::GetAllMetaData() const
+	{
+		return m_compTypeMap;
+	}
+
 }

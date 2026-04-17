@@ -29,10 +29,16 @@ namespace Engine::Editor
 		void HierarchyWindow(Engine::ECS::World* a_pWorld);
 		void EntityFilter();
 
+		void DrawEntityList(Engine::ECS::World* a_pWorld);
+
 		void DrawEntity(Engine::ECS::World* a_pWorld, const Engine::ECS::EntityLocation& a_location);
+
+		// エンティティの追加
+		void AddEntity(Engine::ECS::World* a_pWorld);
 
 		// インスペクターウィンドウ
 		void InspectorWindow(Engine::ECS::World* a_pWorld);
+		void AddComponent(Engine::ECS::World* a_pWorld);
 
 	private:
 

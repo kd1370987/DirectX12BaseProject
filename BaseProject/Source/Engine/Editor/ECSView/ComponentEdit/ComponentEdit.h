@@ -23,6 +23,8 @@ namespace Engine::Editor
 			Text,
 			Enum,
 			EnumFlag,
+			Model,
+			Texture,
 		} type;
 	};
 

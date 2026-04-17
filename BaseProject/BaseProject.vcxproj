@@ -318,6 +318,9 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\FullScreenPass\FullScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RenderPass.cpp" />
+    <ClCompile Include="Source\Engine\Persistence\Deserializer\DeserializerBase.cpp" />
+    <ClCompile Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.cpp" />
+    <ClCompile Include="Source\Engine\Persistence\Serializer\SerializerBase.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\BLAS\BLAS.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.cpp" />
@@ -344,6 +347,7 @@
     <ClCompile Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.cpp" />
     <ClCompile Include="Source\Engine\Storage\Storage.cpp" />
     <ClCompile Include="Source\Engine\TimeManager\TimeManager.cpp" />
+    <ClCompile Include="Source\Engine\Utility\GUID\GUID.cpp" />
     <ClCompile Include="Source\Engine\Window\NativeWindow.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Pch.cpp">
@@ -508,6 +512,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\OffScreenPass\OffScreenPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RenderPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RootSigLayout\RootSigLayout.h" />
+    <ClInclude Include="Source\Engine\Persistence\Deserializer\DeserializerBase.h" />
+    <ClInclude Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.h" />
+    <ClInclude Include="Source\Engine\Persistence\Serializer\SerializerBase.h" />
     <ClInclude Include="Source\Engine\Raytracing\BLAS\BLAS.h" />
     <ClInclude Include="Source\Engine\Raytracing\Common\Common.h" />
     <ClInclude Include="Source\Engine\Raytracing\Common\RaytracingInstance.h" />
@@ -541,6 +548,7 @@
     <ClInclude Include="Source\Engine\Storage\SlotStorage\SlotStorage.h" />
     <ClInclude Include="Source\Engine\Storage\Storage.h" />
     <ClInclude Include="Source\Engine\TimeManager\TimeManager.h" />
+    <ClInclude Include="Source\Engine\Utility\GUID\GUID.h" />
     <ClInclude Include="Source\Engine\Window\NativeWindow.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>

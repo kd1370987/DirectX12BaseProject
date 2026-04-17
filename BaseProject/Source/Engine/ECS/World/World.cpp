@@ -34,6 +34,27 @@ namespace Engine::ECS
 		m_entityManager.Init();
 	}
 
+	void World::BegineFrame()
+	{
+		// エンティティの一括作成
+		CreateAllEntity();
+
+		// エンティティの引っ越し
+		for (auto _chanCmd : m_changeEntityVec)
+		{
+			ChangeSigneture(_chanCmd);
+		}
+		m_changeEntityVec.clear();
+
+		// エンティティの一括削除
+		RemoveEntityStorage();
+	}
+
+	void World::AddEntity(const Signature& a_sig)
+	{
+		m_addEntityVec.push_back(a_sig);
+	}
+
 	ECS::Entity World::CreateEntity(const ECS::Signature& a_sig)
 	{
 		// エンティティIDの生成
@@ -75,30 +96,36 @@ namespace Engine::ECS
 		return m_entityManager.GetSignature(a_entity);
 	}
 
-	void World::SpawnEntity()
-	{}
+	void World::CreateAllEntity()
+	{
+		for (auto& _sig : m_addEntityVec)
+		{
+			CreateEntity(_sig);
+		}
+		m_addEntityVec.clear();
+	}
 
 	void World::RemoveEntityStorage()
 	{
 		// 消去予定エンティティがなければスキップ
-		if (m_removeEntityStorage.size() == 0) return;
+		if (m_removeEntityVec.size() == 0) return;
 
 		// ストレージにあるのは消去
-		for (auto& _entity : m_removeEntityStorage)
+		for (auto& _entity : m_removeEntityVec)
 		{
 			RemoveEntity(_entity);
 		}
 
 		// 空にする
-		m_removeEntityStorage.clear();
+		m_removeEntityVec.clear();
 
 		// メモリだけ確保
-		m_removeEntityStorage.reserve(100);
+		m_removeEntityVec.reserve(100);
 	}
 
 	void World::AddRemoveEntity(const ECS::Entity& a_entity)
 	{
-		m_removeEntityStorage.push_back(a_entity);
+		m_removeEntityVec.push_back(a_entity);
 	}
 
 	void World::RemoveEntity(const ECS::Entity& a_entity)
@@ -116,6 +143,82 @@ namespace Engine::ECS
 		// 移動したエンティティのロケーションを変更
 		auto& _swapLoca = m_entityManager.RefEntityLocation(_entity);
 		_swapLoca.chunkIndex = _idx;
+	}
+
+	void World::AddComponent(ComponentTypeID a_typeID, Entity a_entity)
+	{
+		// エンティティのシグネチャを変更
+		Signature _oldSig = m_entityManager.GetSignature(a_entity);
+		// 新たにシグネチャを作成
+		if (_oldSig.test(a_typeID)) return;		// すでに持っていたらリターン
+		_oldSig.set(a_typeID);
+
+		// 命令の発行
+		ChangeEntityCmd	_cmd = {};
+		_cmd.entity = a_entity;
+		_cmd.toSig = _oldSig;
+		m_changeEntityVec.push_back(_cmd);
+	}
+
+	void World::ChangeSigneture(ChangeEntityCmd a_cmd)
+	{
+		// エンティティシグネチャの取得
+		const Signature& _oldSig = m_entityManager.GetSignature(a_cmd.entity);
+		const EntityLocation& _oldLoca = m_entityManager.GetLocation(a_cmd.entity);
+		// 古いエンティティのデータを一時的に記憶
+		std::queue<uint8_t*> _oldData = {};
+		for (ComponentTypeID _compID = 0; _compID < _oldSig.size(); ++_compID)
+		{
+			if (!_oldSig.test(_compID)) continue;
+			_oldData.push(NRefData(a_cmd.entity,_compID));
+		}
+
+		// エンティティの削除
+		{
+			// アーキタイプから削除して、移動したエンティティの情報をもらう
+			auto [_entity, _idx] = m_archetypeChunkManager.RemoveEntity(_oldLoca);
+
+			// 移動したエンティティのロケーションを変更
+			auto& _swapLoca = m_entityManager.RefEntityLocation(_entity);
+			_swapLoca.chunkIndex = _idx;
+		}
+
+		// 新しい場所にエンティティを割り当てる
+		EntityLocation _loca = m_archetypeChunkManager.AllocateEntity(a_cmd.entity,a_cmd.toSig);
+
+		// 新しいシグネチャのデータを初期化する
+		for (ComponentTypeID _compID = 0; _compID < a_cmd.toSig.size(); ++_compID)
+		{
+			// 前のシグネチャと一致していたらそのデータをコピー
+			if (_oldSig.test(_compID))
+			{
+				uint8_t* _pData = NRefData(a_cmd.entity,_compID);
+				memcpy(_pData,_oldData.front(),GetComponentMetaData(_compID).compSize);
+				_oldData.pop();
+			}
+
+			// 指定されたデータがあればこっちで上書き
+			auto _it = a_cmd.dataMap.find(_compID);
+			if (_it != a_cmd.dataMap.end())
+			{
+				uint8_t* _pData = NRefData(a_cmd.entity, _compID);
+				memcpy(_pData, _it->second, GetComponentMetaData(_compID).compSize);
+			}
+		}
+
+		// エンティティのロケーションを記録
+		m_entityManager.SetEntityLocation(a_cmd.entity, _loca);
+		m_entityManager.SetSignature(a_cmd.entity,a_cmd.toSig);
+	}
+
+	void World::MoveEntityToArchetype(Entity a_entity, ArchetypeChunk* a_pChunk, Signature a_sig)
+	{
+		// 古いチャンクからデータを取得し新たなアーキタイプに移動
+		EntityLocation _oldLoc = m_entityManager.GetLocation(a_entity);
+		Signature _oldSig = m_entityManager.GetSignature(a_entity);
+
+		// 新しいチャンクにコピー
+		
 	}
 
 	ECS::ComponentTypeID World::GetCompTypeID(const std::type_index& a_index)
@@ -140,6 +243,11 @@ namespace Engine::ECS
 	const ComponentMeta& World::GetComponentMetaData(const ECS::ComponentTypeID& a_typeID)
 	{
 		return m_componentMetaRegistry.GetMetaData(a_typeID);
+	}
+
+	const std::unordered_map<ComponentTypeID, ComponentMeta>& World::GetAllComponentMetaData() const
+	{
+		return m_componentMetaRegistry.GetAllMetaData();
 	}
 
 	void World::RunSystem(ESystemType a_type, float a_dt)

@@ -15,6 +15,17 @@ namespace Engine::ECS
 	template<typename... Excludes>
 	struct Exclude {};
 
+	// エンティティの移動用
+	struct ChangeEntityCmd
+	{
+		Entity entity;		// エンティティ
+		Signature toSig;	// 変更予定シグネチャ
+
+		// 指定したデータに書き換え
+		std::unordered_map<ComponentTypeID, uint8_t*> dataMap = {};
+	};
+
+
 	class World
 	{
 	public:
@@ -24,38 +35,24 @@ namespace Engine::ECS
 		// ワールドに対しての操作関連
 		// 
 		//==========================================================================================
+		
+		// 初期化
+		void Init();	// 生成後に実行
+		bool IsInit();	// 初期化されているかどうか
 
-		/// <summary>
-		/// 初期化
-		/// </summary>
-		void Init();
+		// 解放時に実行
+		void Release();		// 解放処理
+		void ClaerMemory();	// 任意のリセットしたいタイミング
 
-		/// <summary>
-		/// 初期化済みかどうか
-		/// </summary>
-		bool IsInit();
-
-		/// <summary>
-		/// 解放
-		/// </summary>
-		void Release();
-
-		/// <summary>
-		/// すべてのデータのリセット
-		/// </summary>
-		void ClaerMemory();
+		// フレームの初めに呼び出す関数
+		// シングルフレームで実行したい、生成や破棄、引っ越しを行う
+		void BegineFrame();
 
 		//==========================================================================================
 		// 
 		// エンティティ関連
 		// 
 		//==========================================================================================
-
-		/// <summary>
-		/// エンティティの生成
-		/// </summary>
-		/// <param name="a_sig">アーキタイプを指定</param>
-		Entity CreateEntity(const Signature& a_sig);
 
 		/// <summary>
 		/// 生存中のエンティティリストを返す
@@ -82,10 +79,13 @@ namespace Engine::ECS
 		/// </summary>
 		Signature GetSignature(const Entity& a_entity);
 
-		/// <summary>
-		/// フレーム初めにエンティティを生成する
-		/// </summary>
-		void SpawnEntity();
+		//------------------------------------------------------------------------------------------
+		// エンティティの生成
+		//------------------------------------------------------------------------------------------
+
+		void AddEntity(const Signature& a_sig);			// コマンド発行
+		Entity CreateEntity(const Signature& a_sig);	// 実体の作成
+		void CreateAllEntity();							// 一括作成
 
 		//------------------------------------------------------------------------------------------
 		// エンティティの削除
@@ -100,6 +100,15 @@ namespace Engine::ECS
 		// エンティティの削除
 		void RemoveEntity(const Entity& a_entity);
 
+		//------------------------------------------------------------------------------------------
+		// エンティティの操作
+		//------------------------------------------------------------------------------------------
+		// エンティティに対してコンポーネントを追加
+		void AddComponent(ComponentTypeID a_typeID,Entity a_entity);
+		void ChangeSigneture(ChangeEntityCmd a_cmd);
+
+		void MoveEntityToArchetype(Entity a_entity,ArchetypeChunk* a_pChunk,Signature a_sig);
+
 		//==========================================================================================
 		// 
 		// コンポーネント関連
@@ -113,6 +122,9 @@ namespace Engine::ECS
 		/// <param name="a_name">保存時の名前</param>
 		template<typename Comp>
 		ComponentTypeID RegisterComponentType(const std::string& a_name);
+
+		template<typename Comp>
+		ComponentTypeID RegisterComponent(const std::string& a_name);
 
 		/// <summary>
 		/// 型情報からIDを取得
@@ -151,6 +163,8 @@ namespace Engine::ECS
 		/// コンポーネントメタデータの取得
 		/// </summary>
 		const ComponentMeta& GetComponentMetaData(const ComponentTypeID& a_typeID);
+		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllComponentMetaData() const;
+		
 
 		//==========================================================================================
 		// 
@@ -202,11 +216,14 @@ namespace Engine::ECS
 		// 初期化済み
 		bool m_isInit = false;
 
-		// 生成予定エンティティ
-		std::vector<Entity> m_spawnEntityStorage;
+		// 生成予定エンティティリスト
+		std::vector<Signature> m_addEntityVec = {};
 
 		// 削除予定エンティティ
-		std::vector<Entity> m_removeEntityStorage;
+		std::vector<Entity> m_removeEntityVec = {};
+
+		// 移動予定エンティティ
+		std::vector<ChangeEntityCmd> m_changeEntityVec = {};
 
 	public:
 		// コンストラクタデストラクタ
@@ -226,6 +243,14 @@ namespace Engine::ECS
 	inline ComponentTypeID World::RegisterComponentType(const std::string& a_name)
 	{
 		return m_componentMetaRegistry.RegisterType<Comp>(a_name);
+	}
+
+	template<typename Comp>
+	inline ComponentTypeID World::RegisterComponent(const std::string& a_name)
+	{
+		auto _id = m_componentMetaRegistry.RegisterType<Comp>(a_name);
+		Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(this, _id, Comp::GetMeta());
+		return _id;
 	}
 
 	template<typename Comp>
