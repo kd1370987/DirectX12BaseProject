@@ -165,12 +165,20 @@ namespace Engine::ECS
 		// エンティティシグネチャの取得
 		const Signature& _oldSig = m_entityManager.GetSignature(a_cmd.entity);
 		const EntityLocation& _oldLoca = m_entityManager.GetLocation(a_cmd.entity);
-		// 古いエンティティのデータを一時的に記憶
-		std::queue<uint8_t*> _oldData = {};
+		
+		// 古いエンティティのデータを値として退避する
+		std::unordered_map<ComponentTypeID, std::vector<uint8_t>> _oldData = {};
+
 		for (ComponentTypeID _compID = 0; _compID < _oldSig.size(); ++_compID)
 		{
 			if (!_oldSig.test(_compID)) continue;
-			_oldData.push(NRefData(a_cmd.entity,_compID));
+
+			size_t _size = GetComponentMetaData(_compID).compSize;
+
+			std::vector<uint8_t> _buffer(_size);
+			memcpy(_buffer.data(),NRefData(a_cmd.entity,_compID),_size);
+
+			_oldData[_compID] = _buffer;
 		}
 
 		// エンティティの削除
@@ -193,8 +201,7 @@ namespace Engine::ECS
 			if (_oldSig.test(_compID))
 			{
 				uint8_t* _pData = NRefData(a_cmd.entity,_compID);
-				memcpy(_pData,_oldData.front(),GetComponentMetaData(_compID).compSize);
-				_oldData.pop();
+				memcpy(_pData,_oldData[_compID].data(), GetComponentMetaData(_compID).compSize);
 			}
 
 			// 指定されたデータがあればこっちで上書き
