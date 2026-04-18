@@ -124,58 +124,22 @@ void BaseScene::Draw()
 void BaseScene::RegistryComponent()
 {
 	// コンポーネント登録
-	Engine::ECS::ComponentTypeID _id = 0;
-	_id = m_upWorld->RegisterComponentType<ActiveCameraTag>("ActiveCameraTag");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {});
-	_id = m_upWorld->RegisterComponentType<CameraTag>("CameraTag");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {});
-	_id = m_upWorld->RegisterComponentType<CameraControllTag>("CameraControllTag");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, {});
-	_id = m_upWorld->RegisterComponentType<PlayerControllTag>("PlayerControllTag");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, {});
+	
+	m_upWorld->RegisterComponentTag<ActiveCameraTag>("ActiveCameraTag");
+	m_upWorld->RegisterComponentTag<CameraTag>("CameraTag");
+	m_upWorld->RegisterComponentTag<CameraControllTag>("CameraControllTag");
+	m_upWorld->RegisterComponentTag<PlayerControllTag>("PlayerControllTag");
 
 	m_upWorld->RegisterComponent<CameraParamComponent>("CameraParam");
-	_id = m_upWorld->RegisterComponentType<ProjMatComponent>("ProjMat");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(), _id, {
-		{"ProjMat",offsetof(ProjMatComponent,projMat),Engine::Editor::FielMeta::Type::Matrix},
-		{"ProjInvMat",offsetof(ProjMatComponent,projInvMat),Engine::Editor::FielMeta::Type::Matrix}
-		});
-	_id = m_upWorld->RegisterComponentType<FocusParamComponent>("FocusParam");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"ForcusDistance",offsetof(FocusParamComponent,focusDistance),Engine::Editor::FielMeta::Type::Float},
-		{"ForcusRange",offsetof(FocusParamComponent,forcusRange),Engine::Editor::FielMeta::Type::Float},
-		{"ForcusBackRange",offsetof(FocusParamComponent,forcusBackRange),Engine::Editor::FielMeta::Type::Float},
-		});
-	_id = m_upWorld->RegisterComponentType<FollowTargetComponent>("FollowTarget");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"TargetEntity",offsetof(FollowTargetComponent,target),Engine::Editor::FielMeta::Type::U64},
-		});
-	_id = m_upWorld->RegisterComponentType<TPSOffsetComponent>("TPSOffset");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"x",offsetof(TPSOffsetComponent,x),Engine::Editor::FielMeta::Type::Float},
-		{"y",offsetof(TPSOffsetComponent,y),Engine::Editor::FielMeta::Type::Float},
-		{"z",offsetof(TPSOffsetComponent,z),Engine::Editor::FielMeta::Type::Float},
-		});
-	_id = m_upWorld->RegisterComponentType<TPSLookAngleComponent>("TPSLookAngle");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Pitch",offsetof(TPSLookAngleComponent,Pitch),Engine::Editor::FielMeta::Type::Float},
-		{"ClampPitch",offsetof(TPSLookAngleComponent,ClampPitch),Engine::Editor::FielMeta::Type::Float},
-		});
-
-	_id = m_upWorld->RegisterComponentType<VelocityComponent>("Velocity");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Value",offsetof(VelocityComponent,value),Engine::Editor::FielMeta::Type::Float3},
-		});
-	_id = m_upWorld->RegisterComponentType<GravityComponent>("Gravity");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Scale",offsetof(GravityComponent,scale),Engine::Editor::FielMeta::Type::Float},
-		});
-	_id = m_upWorld->RegisterComponentType<InertiaComponent>("Inertia");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Value",offsetof(InertiaComponent,value),Engine::Editor::FielMeta::Type::Float},
-		});
-
-	_id = m_upWorld->RegisterComponentType<PlayerLookAngleComponent>("PlayerLookAngle");
+	m_upWorld->RegisterComponent<ProjMatComponent>("ProjMat");
+	m_upWorld->RegisterComponent<FocusParamComponent>("FocusParam");
+	m_upWorld->RegisterComponent<FollowTargetComponent>("FollowTarget");
+	m_upWorld->RegisterComponent<TPSOffsetComponent>("TPSOffset");
+	m_upWorld->RegisterComponent<TPSLookAngleComponent>("TPSLookAngle");
+	m_upWorld->RegisterComponent<VelocityComponent>("Velocity");
+	m_upWorld->RegisterComponent<GravityComponent>("Gravity");
+	m_upWorld->RegisterComponent<InertiaComponent>("Inertia");
+	m_upWorld->RegisterComponent<PlayerLookAngleComponent>("PlayerLookAngle");
 	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
 		{"Yaw",offsetof(PlayerLookAngleComponent,Yaw),Engine::Editor::FielMeta::Type::Float},
 		});

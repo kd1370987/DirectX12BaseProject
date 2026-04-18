@@ -381,6 +381,9 @@
     <ClInclude Include="Source\Application\Components\Force\GravityComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\InertiaComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
+    <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h" />
+    <ClInclude Include="Source\Application\Components\Persistence\GUIDComponent.h" />
+    <ClInclude Include="Source\Application\Components\Persistence\NameComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\AnimatorComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\NodePoseComponent.h" />

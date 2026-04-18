@@ -194,6 +194,10 @@ namespace Engine::ECS
 		// 新しい場所にエンティティを割り当てる
 		EntityLocation _loca = m_archetypeChunkManager.AllocateEntity(a_cmd.entity,a_cmd.toSig);
 
+		// エンティティのロケーションを記録
+		m_entityManager.SetEntityLocation(a_cmd.entity, _loca);
+		m_entityManager.SetSignature(a_cmd.entity, a_cmd.toSig);
+
 		// 新しいシグネチャのデータを初期化する
 		for (ComponentTypeID _compID = 0; _compID < a_cmd.toSig.size(); ++_compID)
 		{
@@ -201,7 +205,10 @@ namespace Engine::ECS
 			if (_oldSig.test(_compID))
 			{
 				uint8_t* _pData = NRefData(a_cmd.entity,_compID);
-				memcpy(_pData,_oldData[_compID].data(), GetComponentMetaData(_compID).compSize);
+				if (_oldData[_compID].data())
+				{
+					memcpy(_pData, _oldData[_compID].data(), GetComponentMetaData(_compID).compSize);
+				}
 			}
 
 			// 指定されたデータがあればこっちで上書き
@@ -212,20 +219,6 @@ namespace Engine::ECS
 				memcpy(_pData, _it->second, GetComponentMetaData(_compID).compSize);
 			}
 		}
-
-		// エンティティのロケーションを記録
-		m_entityManager.SetEntityLocation(a_cmd.entity, _loca);
-		m_entityManager.SetSignature(a_cmd.entity,a_cmd.toSig);
-	}
-
-	void World::MoveEntityToArchetype(Entity a_entity, ArchetypeChunk* a_pChunk, Signature a_sig)
-	{
-		// 古いチャンクからデータを取得し新たなアーキタイプに移動
-		EntityLocation _oldLoc = m_entityManager.GetLocation(a_entity);
-		Signature _oldSig = m_entityManager.GetSignature(a_entity);
-
-		// 新しいチャンクにコピー
-		
 	}
 
 	ECS::ComponentTypeID World::GetCompTypeID(const std::type_index& a_index)

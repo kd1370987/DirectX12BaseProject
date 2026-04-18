@@ -4,28 +4,24 @@
 
 struct ModelComponent
 {
-	uint32_t modelID;
 	DirectX::XMFLOAT4 colorScale = { 1.0f,1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT3 emissiveScale = { 1.0f,1.0f,1.0f };
 
 	Engine::Resource::Handle<Engine::Resource::Model> handle = {};
 
-	static constexpr auto GetMeta()
-	{
-		return std::vector{
-			Engine::Editor::FielMeta{
-				"modelID", offsetof(ModelComponent, modelID), Engine::Editor::FielMeta::Type::Float},
-			Engine::Editor::FielMeta{
-				"ColorScale", offsetof(ModelComponent, colorScale), Engine::Editor::FielMeta::Type::Float},
-			Engine::Editor::FielMeta{
-				"EmissiveScale", offsetof(ModelComponent, emissiveScale), Engine::Editor::FielMeta::Type::Float}
-		};
-	}
-
 	static constexpr auto GetFuncMeta()
 	{
 		using namespace Engine;
 		return std::vector{
+			Editor::CompEditFuncMeta{
+				offsetof(ModelComponent,emissiveScale),
+				[](void* a_data)
+				{
+				// 現在の表示
+				ImGui::Text("EmissiveScale");
+				ImGui::ColorPicker4("Color",(float*)a_data);
+				}
+			},
 			Editor::CompEditFuncMeta{
 				offsetof(ModelComponent,colorScale),
 				[](void* a_data)

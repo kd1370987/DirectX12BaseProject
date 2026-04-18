@@ -7,13 +7,44 @@ struct CameraParamComponent
 	float nearZ			= 0.1f;			// ニアクリップ距離
 	float farZ			= 1000.0f;	    // ファークリップ距離
 
-	static constexpr auto GetMeta()
+	static constexpr auto GetFuncMeta()
 	{
+		using namespace Engine;
 		return std::vector{
-			Engine::Editor::FielMeta{"FovY", offsetof(CameraParamComponent, fovY), Engine::Editor::FielMeta::Type::Float},
-			Engine::Editor::FielMeta{"AspectRate", offsetof(CameraParamComponent, aspectRatio), Engine::Editor::FielMeta::Type::Float},
-			Engine::Editor::FielMeta{"NearClip", offsetof(CameraParamComponent, nearZ), Engine::Editor::FielMeta::Type::Float},
-			Engine::Editor::FielMeta{"FarClip", offsetof(CameraParamComponent, farZ), Engine::Editor::FielMeta::Type::Float}
+			Editor::CompEditFuncMeta{
+				offsetof(CameraParamComponent,fovY),
+				[](void* a_data)
+				{
+					float& _fovY = Editor::GetValue<float>(a_data);
+					ImGui::DragFloat("FovY",&_fovY);
+				}
+			},
+			Editor::CompEditFuncMeta{
+				offsetof(CameraParamComponent,aspectRatio),
+				[](void* a_data)
+				{
+					float& _asp = Editor::GetValue<float>(a_data);
+					ImGui::DragFloat("AspectRatio",&_asp);
+				}
+			},
+			Editor::CompEditFuncMeta{
+				offsetof(CameraParamComponent,nearZ),
+				[](void* a_data)
+				{
+					// スケール
+					float& _near = Editor::GetValue<float>(a_data);
+					ImGui::DragFloat("Near",&_near);
+				}
+			},
+			Editor::CompEditFuncMeta{
+				offsetof(CameraParamComponent,farZ),
+				[](void* a_data)
+				{
+				// スケール
+				float& _farZ = Editor::GetValue<float>(a_data);
+				ImGui::DragFloat("Far",&_farZ);
+			}
+		}
 		};
-	}
+	};
 };

@@ -4,9 +4,6 @@ struct UIComponent
 {
 	// テクスチャID
 	Engine::Resource::ID texID = Engine::Resource::Limits::INVALID_ID;
-
-	//Storage::Range srvRange = {};
-	//Engine::Resource::Handle<SRV> srvHandle = {};
 	Engine::Resource::Handle<Engine::Resource::Texture> texHandle = {};
 
 	// UVオフセットとタイル

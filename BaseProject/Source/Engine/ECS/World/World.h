@@ -107,8 +107,6 @@ namespace Engine::ECS
 		void AddComponent(ComponentTypeID a_typeID,Entity a_entity);
 		void ChangeSigneture(ChangeEntityCmd a_cmd);
 
-		void MoveEntityToArchetype(Entity a_entity,ArchetypeChunk* a_pChunk,Signature a_sig);
-
 		//==========================================================================================
 		// 
 		// コンポーネント関連
@@ -125,6 +123,8 @@ namespace Engine::ECS
 
 		template<typename Comp>
 		ComponentTypeID RegisterComponent(const std::string& a_name);
+		template<typename Comp>
+		ComponentTypeID RegisterComponentTag(const std::string& a_name);
 
 		/// <summary>
 		/// 型情報からIDを取得
@@ -249,7 +249,15 @@ namespace Engine::ECS
 	inline ComponentTypeID World::RegisterComponent(const std::string& a_name)
 	{
 		auto _id = m_componentMetaRegistry.RegisterType<Comp>(a_name);
-		Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(this, _id, Comp::GetMeta());
+		Engine::Editor::MainEditor::Instance().GetCompEdit()->RegisterFunc(this, _id, Comp::GetFuncMeta());
+		return _id;
+	}
+
+	template<typename Comp>
+	inline ComponentTypeID World::RegisterComponentTag(const std::string& a_name)
+	{
+		auto _id = m_componentMetaRegistry.RegisterType<Comp>(a_name);
+		Engine::Editor::MainEditor::Instance().GetCompEdit()->RegisterFunc(this, _id, {});
 		return _id;
 	}
 

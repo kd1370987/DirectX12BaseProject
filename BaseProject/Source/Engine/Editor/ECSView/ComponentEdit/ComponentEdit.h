@@ -37,6 +37,12 @@ namespace Engine::Editor
 		std::function<void(void*)> draw;
 	};
 
+	template<typename T>
+	T& GetValue(void* a_data)
+	{
+		return *reinterpret_cast<T*>(a_data);
+	}
+
 	using EditFunc = std::function<void(const Engine::ECS::Entity&)>;
 
 	class ComponentEdit
