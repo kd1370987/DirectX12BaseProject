@@ -10,6 +10,8 @@
 #include <Windows.h>         // WinAPIの基本（必須）
 #include <stdio.h>
 
+#pragma comment(lib, "Rpcrt4.lib")
+
 #include <wrl/client.h>      // Microsoft::WRL::ComPtr（スマートポインタ）
 template<typename T> 
 using ComPtr = Microsoft::WRL::ComPtr<T>;

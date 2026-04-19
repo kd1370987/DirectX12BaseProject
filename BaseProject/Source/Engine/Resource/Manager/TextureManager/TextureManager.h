@@ -32,17 +32,15 @@ namespace Engine::Resource
 		//------------------------------------------------------------------------------------------
 		// リソース取得
 		//------------------------------------------------------------------------------------------
-		const Engine::Resource::Texture& GetTexture(
-			const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle
-		);
+		const Engine::Resource::Texture& GetTexture(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle);
 		const Texture& GetTexture(const std::string& a_name);
-		Engine::Resource::Texture& RefTexture(
-			const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle
-		);
+		Engine::Resource::Texture& RefTexture(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle);
 		Texture& RefTexture(const std::string& a_name);
 		
 		std::unordered_map<std::string, Engine::Resource::Handle<Engine::Resource::Texture>>& RefAllTex();
 		std::vector<Engine::Resource::Texture>& GetAllTex();
+
+		const Handle<Texture>& GetHandle(const std::string& a_name);
 
 	private:
 

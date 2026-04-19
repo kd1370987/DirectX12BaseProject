@@ -129,6 +129,15 @@ namespace Engine::Resource
 		return m_texData;
 	}
 
+	const Handle<Texture>& TextureManager::GetHandle(const std::string& a_name)
+	{
+		if (Has(a_name))
+		{
+			return m_nameMap[a_name];
+		}
+		return {};
+	}
+
 	Handle<Texture> TextureManager::Add(const Texture& a_texture)
 	{
 		// ハンドルをもらう

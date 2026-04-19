@@ -25,7 +25,7 @@ struct TRSComponent
 				{
 					// クォータニオンは変換して操作
 					DirectX::XMFLOAT4& _quat = *reinterpret_cast<DirectX::XMFLOAT4*>(a_data);
-					ImGui::DragFloat3("Position",&_quat.x);
+					ImGui::DragFloat4("Quaternion",&_quat.x);
 				}
 			},
 			Editor::CompEditFuncMeta{

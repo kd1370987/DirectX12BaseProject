@@ -140,58 +140,15 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<GravityComponent>("Gravity");
 	m_upWorld->RegisterComponent<InertiaComponent>("Inertia");
 	m_upWorld->RegisterComponent<PlayerLookAngleComponent>("PlayerLookAngle");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Yaw",offsetof(PlayerLookAngleComponent,Yaw),Engine::Editor::FielMeta::Type::Float},
-		});
-
-	_id = m_upWorld->RegisterComponentType<ColliderComponent>("Col");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Layer",offsetof(ColliderComponent,layer),Engine::Editor::FielMeta::Type::Enum},
-		{"CollideLayer",offsetof(ColliderComponent,collideLayer),Engine::Editor::FielMeta::Type::EnumFlag},
-		{"IsPhysical",offsetof(ColliderComponent,isPhysical),Engine::Editor::FielMeta::Type::Bool},
-		});
-	_id = m_upWorld->RegisterComponentType<RayColliderComponent>("RayCol");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"Length",offsetof(RayColliderComponent,length),Engine::Editor::FielMeta::Type::Float},
-		{"Dir",offsetof(RayColliderComponent,dir),Engine::Editor::FielMeta::Type::Float3},
-		{"Position",offsetof(RayColliderComponent,pos),Engine::Editor::FielMeta::Type::Float3},
-		});
-
-	_id = m_upWorld->RegisterComponentType<TRSComponent>("Transform");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"position",offsetof(TRSComponent,pos),Engine::Editor::FielMeta::Type::Float3},
-		{"rotation",offsetof(TRSComponent,quat),Engine::Editor::FielMeta::Type::Float4},
-		{"scale",offsetof(TRSComponent,scale),Engine::Editor::FielMeta::Type::Float3},
-		});
-	_id = m_upWorld->RegisterComponentType<WorldMatrixComponent>("WorldMatrix");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"WorldMat",offsetof(WorldMatrixComponent,worldMat),Engine::Editor::FielMeta::Type::Matrix}
-		});
-
-	_id = m_upWorld->RegisterComponentType<ModelComponent>("Model");
-	//Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-	//	{"ModelID",offsetof(ModelComponent,modelID),Engine::Editor::FielMeta::Type::U32},
-	//	{"ColorScale",offsetof(ModelComponent,colorScale),Engine::Editor::FielMeta::Type::Float4},
-	//	{"EmissiveScale",offsetof(ModelComponent,emissiveScale),Engine::Editor::FielMeta::Type::Float3}
-	//	});
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->RegisterFunc(RefWorld(),_id,ModelComponent::GetFuncMeta());
-	_id = m_upWorld->RegisterComponentType<AnimatorComponent>("Anima");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"ClipID",offsetof(AnimatorComponent,clipID),Engine::Editor::FielMeta::Type::U32},
-		{"Time",offsetof(AnimatorComponent,time),Engine::Editor::FielMeta::Type::Float},
-		{"Speed",offsetof(AnimatorComponent,speed),Engine::Editor::FielMeta::Type::Float},
-		{"IsLoop",offsetof(AnimatorComponent,isLoop),Engine::Editor::FielMeta::Type::Bool}
-		});
-	_id = m_upWorld->RegisterComponentType<SkeletonPoseComponent>("SkePose");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {});
-	_id = m_upWorld->RegisterComponentType<NodePoseComponent>("NodePose");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {});
-	_id = m_upWorld->RegisterComponentType<UIComponent>("UI");
-	Engine::Editor::MainEditor::Instance().GetCompEdit()->Register(RefWorld(),_id, {
-		{"TexID",offsetof(UIComponent,texID),Engine::Editor::FielMeta::Type::U32},
-		{"UV",offsetof(UIComponent,uvOffsetTiling),Engine::Editor::FielMeta::Type::Float4},
-		{"Color",offsetof(UIComponent,color),Engine::Editor::FielMeta::Type::Float4}
-		});
+	m_upWorld->RegisterComponent<ColliderComponent>("Col");
+	m_upWorld->RegisterComponent<RayColliderComponent>("RayCol");
+	m_upWorld->RegisterComponent<TRSComponent>("Transform");
+	m_upWorld->RegisterComponent<WorldMatrixComponent>("WorldMatrix");
+	m_upWorld->RegisterComponent<ModelComponent>("Model");
+	m_upWorld->RegisterComponent<AnimatorComponent>("Anima");
+	m_upWorld->RegisterComponent<SkeletonPoseComponent>("SkePose");
+	m_upWorld->RegisterComponent<NodePoseComponent>("NodePose");
+	m_upWorld->RegisterComponent<UIComponent>("UI");
 }
 
 void BaseScene::RegistrySystem()
