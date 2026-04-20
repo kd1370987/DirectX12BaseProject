@@ -124,6 +124,8 @@ namespace Engine::ECS
 		template<typename Comp>
 		ComponentTypeID RegisterComponent(const std::string& a_name);
 		template<typename Comp>
+		void RegisterComponentSerialize();
+		template<typename Comp>
 		ComponentTypeID RegisterComponentTag(const std::string& a_name);
 
 		/// <summary>
@@ -164,6 +166,8 @@ namespace Engine::ECS
 		/// </summary>
 		const ComponentMeta& GetComponentMetaData(const ComponentTypeID& a_typeID);
 		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllComponentMetaData() const;
+		const std::optional<SerializeFunc>& ComponentSerializeFunc(const ComponentTypeID& a_typeID) const;
+		const std::optional<DeserializeFunc>& ComponentDeserializeFunc(const ComponentTypeID& a_typeID) const;
 		
 
 		//==========================================================================================
@@ -251,6 +255,12 @@ namespace Engine::ECS
 		auto _id = m_componentMetaRegistry.RegisterType<Comp>(a_name);
 		Engine::Editor::MainEditor::Instance().GetCompEdit()->RegisterFunc(this, _id, Comp::GetFuncMeta());
 		return _id;
+	}
+
+	template<typename Comp>
+	inline void World::RegisterComponentSerialize()
+	{
+		m_componentMetaRegistry.RegisterSerializeFunc<Comp>();
 	}
 
 	template<typename Comp>

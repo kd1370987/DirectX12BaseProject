@@ -3,6 +3,18 @@ struct GUIDComponent
 {
 	UUID guid = {};
 
+	static void Serialize(const void* a_ptr,nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<const GUIDComponent*>(a_ptr);
+		a_json["guid"] = Engine::GUID::ToString(_comp->guid);
+	}
+
+	static void Deserialize(void* a_ptr,const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<GUIDComponent*>(a_ptr);
+		_comp->guid = Engine::GUID::FromString(a_json.at("guid"));
+	}
+
 	static constexpr auto GetFuncMeta()
 	{
 		using namespace Engine;

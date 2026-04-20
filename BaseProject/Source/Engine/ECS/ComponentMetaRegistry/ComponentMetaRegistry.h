@@ -33,6 +33,8 @@ namespace Engine::ECS
 		const ComponentMeta& GetMetaData(const ComponentTypeID& a_id) const;
 		const ComponentMeta& GetMetaData(const std::type_index& a_index) const;
 		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllMetaData() const;
+		const std::optional<SerializeFunc>& GetSerializeFunc(const ComponentTypeID& a_id) const;
+		const std::optional<DeserializeFunc>& GetDeserializeFunc(const ComponentTypeID& a_id) const;
 
 		/// <summary>
 		/// コンポーネントを登録し、メタ情報を記憶する
@@ -42,6 +44,9 @@ namespace Engine::ECS
 		/// <returns>登録ID</returns>
 		template<typename Comp>
 		ComponentTypeID RegisterType(const std::string& a_name);
+
+		template<typename Comp>
+		void RegisterSerializeFunc();
 
 	private:
 
@@ -53,6 +58,9 @@ namespace Engine::ECS
 		// コンポーネントと、その構造体情報を結ぶ
 		std::unordered_map<ComponentTypeID, ComponentMeta> m_compTypeMap;
 
+		// シリアライズ用関数
+		std::unordered_map<ComponentTypeID, std::optional<SerializeFunc>>	m_compSerializeFuncMap;
+		std::unordered_map<ComponentTypeID, std::optional<DeserializeFunc>>	m_compDeserializeFuncMap;
 	};
 
 	template<typename Comp>
@@ -113,6 +121,16 @@ namespace Engine::ECS
 		m_compTypeMap.emplace(_typeID, _data);
 
 		return _typeID;
+	}
+
+	template<typename Comp>
+	inline void ComponentMetaRegistry::RegisterSerializeFunc()
+	{
+		// 型情報を取得
+		std::type_index _idx = typeid(Comp);
+		ComponentTypeID _typeID = m_typeIndexMap[_idx];
+		m_compSerializeFuncMap[_typeID] = &Comp::Serialize;
+		m_compDeserializeFuncMap[_typeID] = &Comp::Deserialize;
 	}
 
 }

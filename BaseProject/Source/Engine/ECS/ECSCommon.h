@@ -29,5 +29,9 @@ namespace Engine::ECS
 	using Signature = std::bitset<ECS::Limits::MAX_COMPONENT_TYPES>;
 
 	using Flg = uint8_t;
+
+	// シリアライズ、デシリアライズ用関数
+	using SerializeFunc = void(*)(const void*, nlohmann::json&);
+	using DeserializeFunc = void(*)(void*, const nlohmann::json&);
 };
 

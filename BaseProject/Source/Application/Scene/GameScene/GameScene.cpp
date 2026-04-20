@@ -8,6 +8,8 @@
 
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
+#include "../../../Engine/Persistence/PersistenceManager/PersistenceManager.h"
+
 // ECS関連
 #include "Engine/ECS/World/World.h"
 
@@ -65,6 +67,12 @@ void GameScene::Event()
 			"Asset/Model/TestModelWhite/testModelWhite.gltf");
 		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
 	}
+
+	if (Engine::Input::InputManager::Instance().IsPress("Save"))
+	{
+		Engine::Persistence::PersistenceManager _pers = {};
+		_pers.SeceneSerialize("Asset/Data/Scene/GameScene_01.json");
+	}
 }
 
 void GameScene::Init()
@@ -74,6 +82,8 @@ void GameScene::Init()
 		Engine::Input::InputCollector _keyboard;
 		Engine::Input::InputButtonForWindows _add('T');
 		_keyboard.AddButton("Add", std::make_shared<Engine::Input::InputButtonForWindows>(_add));
+		Engine::Input::InputButtonForWindows _save('K');
+		_keyboard.AddButton("Save",std::make_shared<Engine::Input::InputButtonForWindows>(_save));
 
 		// 移動
 		Engine::Input::InputAxisForWindows _move('W', 'D', 'S', 'A');

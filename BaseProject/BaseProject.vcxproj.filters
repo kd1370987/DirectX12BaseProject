@@ -1098,6 +1098,9 @@
     <ClCompile Include="Source\Engine\Persistence\Serializer\SerializerBase.cpp">
       <Filter>Source\Engine\Persistence\Serializer</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Persistence\EntitySerializeField.cpp">
+      <Filter>Source\Engine\ECS\Persistence</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -1687,6 +1690,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Persistence\NameComponent.h">
       <Filter>Source\Application\Components\Persistence</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Persistence\EntitySerializeField.h">
+      <Filter>Source\Engine\ECS\Persistence</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

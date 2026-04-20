@@ -44,4 +44,22 @@ namespace Engine::ECS
 		return m_compTypeMap;
 	}
 
+	const std::optional<SerializeFunc>& ComponentMetaRegistry::GetSerializeFunc(const ComponentTypeID& a_id) const
+	{
+		auto _it = m_compSerializeFuncMap.find(a_id);
+		if (_it != m_compSerializeFuncMap.end())
+		{
+			return _it->second;
+		}
+		return std::optional<SerializeFunc>();
+	}
+	const std::optional<DeserializeFunc>& ComponentMetaRegistry::GetDeserializeFunc(const ComponentTypeID& a_id) const
+	{
+		auto _it = m_compDeserializeFuncMap.find(a_id);
+		if (_it != m_compDeserializeFuncMap.end())
+		{
+			return _it->second;
+		}
+		return std::optional<DeserializeFunc>();
+	}
 }

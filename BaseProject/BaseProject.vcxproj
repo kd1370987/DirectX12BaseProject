@@ -280,6 +280,7 @@
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\ECS\EntityManager\EntityManager.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Persistence\EntitySerializeField.cpp" />
     <ClCompile Include="Source\Engine\ECS\SystemManager\SystemManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\World\World.cpp" />
     <ClCompile Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.cpp" />
@@ -469,6 +470,7 @@
     <ClInclude Include="Source\Engine\ECS\EntityManager\EntityManager.h" />
     <ClInclude Include="Source\Engine\ECS\Internal\EntityLocation.h" />
     <ClInclude Include="Source\Engine\ECS\Internal\SystemComon.h" />
+    <ClInclude Include="Source\Engine\ECS\Persistence\EntitySerializeField.h" />
     <ClInclude Include="Source\Engine\ECS\SystemManager\SystemManager.h" />
     <ClInclude Include="Source\Engine\ECS\System\ISystem\ISystem.h" />
     <ClInclude Include="Source\Engine\ECS\System\SystemBase\SystemBase.h" />

@@ -35,6 +35,11 @@
 #include "../../Components/Resource/NodePoseComponent.h"
 #include "../../Components/Resource/UIComponent.h"
 
+#include "../../Components/Persistence/GUIDComponent.h"
+#include "../../Components/Persistence/NameComponent.h"
+
+#include "../../Components/Hierarchy/HierarchyComponent.h"
+
 // システム関連
 #include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
 
@@ -124,7 +129,6 @@ void BaseScene::Draw()
 void BaseScene::RegistryComponent()
 {
 	// コンポーネント登録
-	
 	m_upWorld->RegisterComponentTag<ActiveCameraTag>("ActiveCameraTag");
 	m_upWorld->RegisterComponentTag<CameraTag>("CameraTag");
 	m_upWorld->RegisterComponentTag<CameraControllTag>("CameraControllTag");
@@ -143,12 +147,18 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<ColliderComponent>("Col");
 	m_upWorld->RegisterComponent<RayColliderComponent>("RayCol");
 	m_upWorld->RegisterComponent<TRSComponent>("Transform");
+	m_upWorld->RegisterComponentSerialize<TRSComponent>();
 	m_upWorld->RegisterComponent<WorldMatrixComponent>("WorldMatrix");
 	m_upWorld->RegisterComponent<ModelComponent>("Model");
 	m_upWorld->RegisterComponent<AnimatorComponent>("Anima");
 	m_upWorld->RegisterComponent<SkeletonPoseComponent>("SkePose");
 	m_upWorld->RegisterComponent<NodePoseComponent>("NodePose");
 	m_upWorld->RegisterComponent<UIComponent>("UI");
+	m_upWorld->RegisterComponent<NameComponent>("Name");
+	m_upWorld->RegisterComponent<GUIDComponent>("GUID");
+	m_upWorld->RegisterComponentSerialize<GUIDComponent>();
+	
+	m_upWorld->RegisterComponent<HierarchyComponent>("Hierarchy");
 }
 
 void BaseScene::RegistrySystem()

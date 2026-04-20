@@ -250,6 +250,16 @@ namespace Engine::ECS
 		return m_componentMetaRegistry.GetAllMetaData();
 	}
 
+	const std::optional<SerializeFunc>& World::ComponentSerializeFunc(const ComponentTypeID& a_typeID) const
+	{
+		return m_componentMetaRegistry.GetSerializeFunc(a_typeID);
+	}
+
+	const std::optional<DeserializeFunc>& World::ComponentDeserializeFunc(const ComponentTypeID& a_typeID) const
+	{
+		return m_componentMetaRegistry.GetDeserializeFunc(a_typeID);
+	}
+
 	void World::RunSystem(ESystemType a_type, float a_dt)
 	{
 		m_systemManager.RunSystem(*this, a_type, a_dt);
