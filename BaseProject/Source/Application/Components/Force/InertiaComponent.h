@@ -6,18 +6,22 @@ struct InertiaComponent
 {
 	float value = 0.0f;
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
-		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(InertiaComponent,value),
-				[](void* a_data)
-				{
-					DirectX::XMFLOAT3& _value = Editor::GetValue<DirectX::XMFLOAT3>(a_data);
-					ImGui::DragFloat("InertiaScale",&_value.x,0.1f);
-				}
-			}
-		};
-	};
+		auto* _comp = static_cast<const InertiaComponent*>(a_ptr);
+		a_json["Inertia"] = _comp->value;
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<InertiaComponent*>(a_ptr);
+		_comp->value = a_json.at("Inertia");
+	}
+
+	static void Edit(void* a_data)
+	{
+		InertiaComponent& _comp = Engine::Editor::GetValue<InertiaComponent>(a_data);
+		ImGui::DragFloat("Inertia", &_comp.value, 0.1f);
+
+	}
 };

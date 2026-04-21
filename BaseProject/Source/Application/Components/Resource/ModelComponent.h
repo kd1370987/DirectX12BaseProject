@@ -7,62 +7,58 @@ struct ModelComponent
 	DirectX::XMFLOAT4 colorScale = { 1.0f,1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT3 emissiveScale = { 1.0f,1.0f,1.0f };
 
+	// ランタイム用
 	Engine::Resource::Handle<Engine::Resource::Model> handle = {};
+	// 記録用
+	UUID modelGUID = {};
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<const ModelComponent*>(a_ptr);
+		a_json["colorScale"] = { _comp->colorScale.x,_comp->colorScale.y ,_comp->colorScale.z ,_comp->colorScale.w };
+		a_json["emissiveScale"] = { _comp->emissiveScale.x,_comp->emissiveScale.y ,_comp->emissiveScale.z};
+		a_json["modelGUID"] = Engine::GUID::ToString(_comp->modelGUID);
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<ModelComponent*>(a_ptr);
+		//_comp->colorScale = a_json.at("colorScale");
+		_comp->modelGUID = Engine::GUID::FromString(a_json.at("modelGUID"));
+	}
+
+	static void Edit(void* a_data)
 	{
 		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(ModelComponent,emissiveScale),
-				[](void* a_data)
+		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_data);
+		ImGui::Text("EmissiveScale");
+		ImGui::ColorPicker4("Color", (float*)&_comp.emissiveScale.x);
+
+		ImGui::Text("ColorScale");
+		ImGui::ColorPicker4("Color", (float*)&_comp.colorScale.x);
+
+		auto* _model = Resource::ModelManager::Instnace().RefModel(_comp.handle);
+		// 現在の表示
+		ImGui::Text("Model : %s", _model->name.c_str());
+
+		auto& _models = Resource::ModelManager::Instnace().GetAllModel();
+
+		// 選択UI
+		if (ImGui::BeginCombo("Change Model", "Select..."))
+		{
+			for (auto& _model : _models)
+			{
+				// 選択中のモデルだったらフラグを立てる
+				auto _thisHandle = Resource::ModelManager::Instnace().GetHandle(_model.data.name);
+				bool _selected = (_comp.handle == _thisHandle);
+
+				// 選択欄
+				if (ImGui::Selectable(_model.data.name.c_str(), _selected))
 				{
-				// 現在の表示
-				ImGui::Text("EmissiveScale");
-				ImGui::ColorPicker4("Color",(float*)a_data);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(ModelComponent,colorScale),
-				[](void* a_data)
-				{
-					// 現在の表示
-					ImGui::Text("ColorScale");
-					
-
-					ImGui::ColorPicker4("Color",(float*)a_data);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(ModelComponent,handle),
-				[](void* a_data)
-				{
-					auto& _handle = *reinterpret_cast<Resource::Handle<Resource::Model>*>(a_data);
-					auto* _model = Resource::ModelManager::Instnace().RefModel(_handle);
-					// 現在の表示
-					ImGui::Text("Model : %s",_model->name.c_str());
-
-					auto& _models = Resource::ModelManager::Instnace().GetAllModel();
-
-					// 選択UI
-					if (ImGui::BeginCombo("Change Model", "Select..."))
-					{
-						for (auto& _model : _models)
-						{
-							// 選択中のモデルだったらフラグを立てる
-							auto _thisHandle = Resource::ModelManager::Instnace().GetHandle(_model.data.name);
-							bool _selected = (_handle == _thisHandle);
-
-							// 選択欄
-							if (ImGui::Selectable(_model.data.name.c_str(), _selected))
-							{
-								_handle = _thisHandle;
-							}
-						}
-						ImGui::EndCombo();
-					}
+					_comp.handle = _thisHandle;
 				}
 			}
-		};
+			ImGui::EndCombo();
+		}
 	}
 };

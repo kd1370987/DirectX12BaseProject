@@ -4,12 +4,7 @@ namespace Engine::ECS
 {
 	class World;
 
-	struct ComponentTypeInfo
-	{
-		std::string name = "None";
-		UUID guid = {};
-	};
-
+	// コンポーネントの名前やサイズの情報
 	struct ComponentMeta
 	{
 		std::string name = "none";
@@ -17,6 +12,17 @@ namespace Engine::ECS
 		size_t compSize = 0;		// サイズ
 		size_t compAlign = 0;		// アライメント
 		size_t compAlignSize = 0;	// アライメントサイズ
+	};
+
+	// コンポーネントに付随する特殊処理
+	struct ComponentFunc
+	{
+		std::function<void(const void*, nlohmann::json&)> serialize;
+		std::function<void(void*, const nlohmann::json&)> deserialize;
+		std::function<void(void*)> edit;
+
+		//SerializeFunc serialize = nullptr;
+		//DeserializeFunc deserialize = nullptr;
 	};
 
 	class ComponentMetaRegistry
@@ -35,6 +41,7 @@ namespace Engine::ECS
 		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllMetaData() const;
 		const std::optional<SerializeFunc>& GetSerializeFunc(const ComponentTypeID& a_id) const;
 		const std::optional<DeserializeFunc>& GetDeserializeFunc(const ComponentTypeID& a_id) const;
+		const ComponentFunc& GetFunc(const ComponentTypeID& a_id) const;
 
 		/// <summary>
 		/// コンポーネントを登録し、メタ情報を記憶する
@@ -46,12 +53,14 @@ namespace Engine::ECS
 		ComponentTypeID RegisterType(const std::string& a_name);
 
 		template<typename Comp>
+		void RegisterEditFunc();
+
+		template<typename Comp>
 		void RegisterSerializeFunc();
 
 	private:
 
 		// 安定したものからランタイム時に使う高速なIDに変換
-		//std::unordered_map<UUID, ComponentTypeID> m_guidMap;					// GUIDから
 		std::unordered_map<std::type_index, ComponentTypeID> m_typeIndexMap;	// C++型から
 
 		// ランタイム時に使用されるデータ
@@ -61,6 +70,8 @@ namespace Engine::ECS
 		// シリアライズ用関数
 		std::unordered_map<ComponentTypeID, std::optional<SerializeFunc>>	m_compSerializeFuncMap;
 		std::unordered_map<ComponentTypeID, std::optional<DeserializeFunc>>	m_compDeserializeFuncMap;
+
+		std::unordered_map<ComponentTypeID, ComponentFunc> m_compFuncMap;
 	};
 
 	template<typename Comp>
@@ -120,7 +131,20 @@ namespace Engine::ECS
 		m_typeIndexMap.emplace(_idx, _typeID);
 		m_compTypeMap.emplace(_typeID, _data);
 
+		RegisterSerializeFunc<Comp>();
+		RegisterEditFunc<Comp>();
+
 		return _typeID;
+	}
+
+	template<typename Comp>
+	inline void ComponentMetaRegistry::RegisterEditFunc()
+	{
+		std::type_index _idx = typeid(Comp);
+		ComponentTypeID _typeID = m_typeIndexMap[_idx];
+
+		auto _it = m_compFuncMap.find(_typeID);
+		_it->second.edit = &Comp::Edit;
 	}
 
 	template<typename Comp>
@@ -131,6 +155,9 @@ namespace Engine::ECS
 		ComponentTypeID _typeID = m_typeIndexMap[_idx];
 		m_compSerializeFuncMap[_typeID] = &Comp::Serialize;
 		m_compDeserializeFuncMap[_typeID] = &Comp::Deserialize;
+		ComponentFunc _func = {};
+		_func.serialize = &Comp::Serialize;
+		_func.deserialize = &Comp::Deserialize;
+		m_compFuncMap[_typeID] = _func;
 	}
-
 }

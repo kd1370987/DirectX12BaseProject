@@ -28,8 +28,6 @@ namespace Engine::Editor
 		// 描画
 		void Draw(ID3D12GraphicsCommandList* a_pCmdList,UINT a_widht,UINT a_height);
 
-		// コンポーネントエディットの取得
-		std::shared_ptr<ComponentEdit> GetCompEdit();
 
 		//=======================================================================
 		// ログ関連

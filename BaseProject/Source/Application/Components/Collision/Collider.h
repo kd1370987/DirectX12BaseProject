@@ -14,40 +14,35 @@ struct ColliderComponent
 	Layer collideLayer = Layer::None;		// 衝突したいレイヤー
 	Engine::ECS::Flg isPhysical = 1;		// 物理解決するかどうか(衝突時にイベントだけほしいとか)
 	
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<const ColliderComponent*>(a_ptr);
+		a_json["layer"] = static_cast<uint32_t>(_comp->layer);
+		a_json["collideLayer"] = static_cast<uint32_t>(_comp->collideLayer);
+		a_json["isPhysical"] = _comp->isPhysical;
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<ColliderComponent*>(a_ptr);
+		_comp->layer = static_cast<Layer>(a_json["layer"]);
+		_comp->collideLayer = static_cast<Layer>(a_json["collideLayer"]);
+		_comp->isPhysical = static_cast<Engine::ECS::Flg>(a_json["isPhysical"]);
+	}
+
+	static void Edit(void* a_data)
 	{
 		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(ColliderComponent,layer),
-				[](void* a_data)
-				{
-					Layer& _layer = Editor::GetValue<Layer>(a_data);
-					Editor::DrawEnumCombo("MyLayer",_layer);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(ColliderComponent,collideLayer),
-				[](void* a_data)
-				{
-					Layer& _layer = Editor::GetValue<Layer>(a_data);
-					Editor::DrawEnumFlagsCombo("HItLayer",_layer);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(ColliderComponent,isPhysical),
-				[](void* a_data)
-				{
-					ECS::Flg& _isPhysical = Editor::GetValue<ECS::Flg>(a_data);
-					bool _is = _isPhysical != 0;
-					if (ImGui::Checkbox("IsPhysical", &_is))
-					{
-						_isPhysical = _is ? 1u : 0u;
-					}
-				}
-			}
-		};
-	};
+		ColliderComponent& _comp = Engine::Editor::GetValue<ColliderComponent>(a_data);
+		Editor::DrawEnumCombo("MyLayer", _comp.layer);
+		Editor::DrawEnumFlagsCombo("HItLayer", _comp.collideLayer);
+		bool _is = _comp.isPhysical != 0;
+		if (ImGui::Checkbox("IsPhysical", &_is))
+		{
+			_comp.isPhysical = _is ? 1u : 0u;
+		}
+	}
+
 };
 
 inline Layer operator|(Layer a, Layer b)

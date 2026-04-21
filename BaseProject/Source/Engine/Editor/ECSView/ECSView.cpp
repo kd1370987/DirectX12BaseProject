@@ -10,8 +10,7 @@ namespace Engine::Editor
 {
 	void ECSView::Init()
 	{
-		m_spCompEdlit = std::make_shared<ComponentEdit>();
-		m_spCompEdlit->Init();
+	
 	}
 
 	void ECSView::Draw(UINT a_widht, UINT a_height)
@@ -25,11 +24,6 @@ namespace Engine::Editor
 
 		// インスペクター
 		InspectorWindow(_pWorld);
-	}
-
-	std::shared_ptr<ComponentEdit> ECSView::GetCompEdit()
-	{
-		return m_spCompEdlit;
 	}
 
 	void ECSView::HierarchyWindow(Engine::ECS::World* a_pWorld)
@@ -200,7 +194,13 @@ namespace Engine::Editor
 					if (ImGui::TreeNodeEx(_metaData.name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 					{
 
-						m_spCompEdlit->GetCompEditFunc(a_pWorld, _typeID)(m_currentEntity);
+						//m_spCompEdlit->GetCompEditFunc(a_pWorld, _typeID)(m_currentEntity);
+
+						auto _func = a_pWorld->GetCompFunc(_typeID).edit;
+						if (_func)
+						{
+							_func(a_pWorld->NRefData(m_currentEntity,_typeID));
+						}
 
 						ImGui::TreePop();
 					}

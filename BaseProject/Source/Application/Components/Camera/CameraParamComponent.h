@@ -7,44 +7,27 @@ struct CameraParamComponent
 	float nearZ			= 0.1f;			// ニアクリップ距離
 	float farZ			= 1000.0f;	    // ファークリップ距離
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
-		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(CameraParamComponent,fovY),
-				[](void* a_data)
-				{
-					float& _fovY = Editor::GetValue<float>(a_data);
-					ImGui::DragFloat("FovY",&_fovY);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(CameraParamComponent,aspectRatio),
-				[](void* a_data)
-				{
-					float& _asp = Editor::GetValue<float>(a_data);
-					ImGui::DragFloat("AspectRatio",&_asp);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(CameraParamComponent,nearZ),
-				[](void* a_data)
-				{
-					// スケール
-					float& _near = Editor::GetValue<float>(a_data);
-					ImGui::DragFloat("Near",&_near);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(CameraParamComponent,farZ),
-				[](void* a_data)
-				{
-				// スケール
-				float& _farZ = Editor::GetValue<float>(a_data);
-				ImGui::DragFloat("Far",&_farZ);
-			}
-		}
-		};
-	};
+		auto* _comp = static_cast<const CameraParamComponent*>(a_ptr);
+		a_json["fovY"] = { _comp->fovY };
+		a_json["aspectRatio"] = { _comp->aspectRatio };
+		a_json["nearZ"] = { _comp->nearZ };
+		a_json["farZ"] = { _comp->farZ };
+
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<CameraParamComponent*>(a_ptr);
+	}
+
+	static void Edit(void* a_data)
+	{
+		CameraParamComponent& _comp = Engine::Editor::GetValue<CameraParamComponent>(a_data);
+		ImGui::DragFloat("Fov", &_comp.fovY);
+		ImGui::DragFloat("Aspect", &_comp.aspectRatio);
+		ImGui::DragFloat("NearZ", &_comp.nearZ);
+		ImGui::DragFloat("FarZ", &_comp.farZ);
+	}
 };

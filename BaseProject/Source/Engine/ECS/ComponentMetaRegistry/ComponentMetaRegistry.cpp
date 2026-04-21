@@ -62,4 +62,13 @@ namespace Engine::ECS
 		}
 		return std::optional<DeserializeFunc>();
 	}
+	const ComponentFunc& ComponentMetaRegistry::GetFunc(const ComponentTypeID& a_id) const
+	{
+		auto _it = m_compFuncMap.find(a_id);
+		if (_it != m_compFuncMap.end())
+		{
+			return _it->second;
+		}
+		return {};
+	}
 }

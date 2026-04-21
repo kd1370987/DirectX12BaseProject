@@ -6,34 +6,29 @@ struct FocusParamComponent
 	float forcusRange		= 0.0f;   // 焦点範囲
 	float forcusBackRange	= 1000.0f; // 焦点後ろ範囲
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
-		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(FocusParamComponent,focusDistance),
-				[](void* a_data)
-				{
-					float& _distance = Editor::GetValue<float>(a_data);
-					ImGui::DragFloat("ForcusDistance",&_distance);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(FocusParamComponent,forcusRange),
-				[](void* a_data)
-				{
-					float& _range = Editor::GetValue<float>(a_data);
-					ImGui::DragFloat("ForcusRange",&_range);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(FocusParamComponent,forcusBackRange),
-				[](void* a_data)
-				{
-					float& _backRange = Editor::GetValue<float>(a_data);
-					ImGui::DragFloat("ForcusBackRange",&_backRange);
-				}
-			}
-		};
-	};
+		auto* _comp = static_cast<const FocusParamComponent*>(a_ptr);
+		a_json["forcusDistance"] = _comp->focusDistance;
+		a_json["forcusRange"] = _comp->forcusRange;
+		a_json["forcusBackRange"] = _comp->forcusBackRange;
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<FocusParamComponent*>(a_ptr);
+		_comp->focusDistance = a_json.at("forcusDistance");
+		_comp->forcusRange = a_json.at("forcusRange");
+		_comp->forcusBackRange = a_json.at("forcusBackRange");
+	}
+
+	static void Edit(void* a_data)
+	{
+		FocusParamComponent& _comp = Engine::Editor::GetValue<FocusParamComponent>(a_data);
+		ImGui::DragFloat("ForcusDistance", &_comp.focusDistance);
+		ImGui::DragFloat("ForcusRange", &_comp.forcusRange);
+		ImGui::DragFloat("ForcusBackRange", &_comp.forcusBackRange);
+
+	}
+
 };

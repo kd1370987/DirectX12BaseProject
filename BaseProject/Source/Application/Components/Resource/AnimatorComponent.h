@@ -8,45 +8,36 @@ struct AnimatorComponent
 
 	Engine::ECS::Flg isLoop = 0;
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<const AnimatorComponent*>(a_ptr);
+		a_json["clipID"] = _comp->clipID;
+		a_json["speed"] = _comp->speed;
+		a_json["isLoop"] = static_cast<uint32_t>(_comp->isLoop);
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<AnimatorComponent*>(a_ptr);
+		_comp->clipID = a_json["clipID"].get<uint32_t>();
+		_comp->speed = a_json["speed"].get<float>();
+		_comp->isLoop = a_json["isLoop"].get<Engine::ECS::Flg>();
+	}
+
+	static void Edit(void* a_data)
 	{
 		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(AnimatorComponent,clipID),
-				[](void* a_data)
-				{
-					ImGui::InputScalar("ClipID",ImGuiDataType_U32,a_data);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(AnimatorComponent,time),
-				[](void* a_data)
-				{
-					float& _time = *reinterpret_cast<float*>(a_data);
-					ImGui::DragFloat("Time",&_time);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(AnimatorComponent,speed),
-				[](void* a_data)
-				{
-					float& _speed = *reinterpret_cast<float*>(a_data);
-					ImGui::DragFloat("Speed",&_speed);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(AnimatorComponent,isLoop),
-				[](void* a_data)
-				{
-					ECS::Flg& _isLoop = *reinterpret_cast<ECS::Flg*>(a_data);
-					bool _value = _isLoop != 0;
-					if(ImGui::Checkbox("IsLoop",&_value))
-					{
-						_isLoop = _value ? 1u : 0u;
-					}
-				}
-			},
-		};
+		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_data);
+		ImGui::InputScalar("clipID", ImGuiDataType_U32, &_comp.clipID);
+		ImGui::Text("Time : %f", &_comp.time);
+
+		ImGui::DragFloat("Speed", &_comp.speed);
+
+		ECS::Flg& _isLoop = _comp.isLoop;
+		bool _value = _isLoop != 0;
+		if (ImGui::Checkbox("IsLoop", &_value))
+		{
+			_isLoop = _value ? 1u : 0u;
+		}
 	}
 };

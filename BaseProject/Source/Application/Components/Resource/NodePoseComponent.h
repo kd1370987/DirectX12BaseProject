@@ -8,39 +8,20 @@ struct NodePoseComponent
 	DirectX::XMFLOAT4X4 world[MAX_NODEINDEX];
 	uint16_t nodeCount;
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
-		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(NodePoseComponent,local),
-				[](void* a_data)
-				{
-					float* m = (float*)a_data;
-						for (int i = 0; i < 4; ++i)
-						{
-							ImGui::DragFloat4("##row", &m[i * 4]);
-						}
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(NodePoseComponent,world),
-				[](void* a_data)
-				{
-					float* m = (float*)a_data;
-						for (int i = 0; i < 4; ++i)
-						{
-							ImGui::DragFloat4("##row", &m[i * 4]);
-						}
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(NodePoseComponent,nodeCount),
-				[](void* a_data)
-				{
-					ImGui::InputScalar("NodeCount", ImGuiDataType_U16, a_data);
-				}
-			}
-		};
-	};
+		auto* _comp = static_cast<const NodePoseComponent*>(a_ptr);
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<NodePoseComponent*>(a_ptr);
+	}
+
+	static void Edit(void* a_data)
+	{
+		NodePoseComponent& _comp = Engine::Editor::GetValue<NodePoseComponent>(a_data);
+		ImGui::Text("NodeCount : %f",&_comp.nodeCount);
+
+	}
 };

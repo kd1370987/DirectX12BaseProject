@@ -49,13 +49,11 @@ namespace Engine::Persistence
 				if (!_sig.test(_typeID)) continue;
 
 				// シリアライズ関数があれば実行
-				auto _opFunc = _pWorld->ComponentSerializeFunc(_typeID);
-				if (_opFunc.has_value())
+				auto _func = _pWorld->GetCompFunc(_typeID).serialize;
+				if(_func)
 				{
-					ECS::SerializeFunc _func = _opFunc.value();
-					_func(_pWorld->NRefData(_entity,_typeID),_json);
+					_func(_pWorld->NRefData(_entity, _typeID), _json);
 				}
-				
 			}
 
 

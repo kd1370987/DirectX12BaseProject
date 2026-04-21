@@ -5,66 +5,62 @@
 struct UIComponent
 {
 	// テクスチャID
+	// ランタイム用
 	Engine::Resource::Handle<Engine::Resource::Texture> texHandle = {};
+	UUID texGUID = {};
 
 	// UVオフセットとタイル
 	DirectX::XMFLOAT4 uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
 	// 色
 	DirectX::XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f };
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<const UIComponent*>(a_ptr);
+		a_json["uvOffsetTiling"] = {_comp->uvOffsetTiling.x,_comp->uvOffsetTiling.y ,_comp->uvOffsetTiling.z ,_comp->uvOffsetTiling.w};
+		a_json["color"] = { _comp->color.x,_comp->color.y, _comp->color.z, _comp->color.w };
+		a_json["texGUID"] = Engine::GUID::ToString(_comp->texGUID);
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<UIComponent*>(a_ptr);
+		_comp->texGUID = Engine::GUID::FromString(a_json["texGUID"].get<std::string>());
+	}
+
+	static void Edit(void* a_data)
 	{
 		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(UIComponent,texHandle),
-				[](void* a_data)
+		UIComponent& _comp = Engine::Editor::GetValue<UIComponent>(a_data);
+
+		ImGui::DragFloat2("UVOffset", &_comp.uvOffsetTiling.x, 0.1f);
+		ImGui::DragFloat2("UVTile", &_comp.uvOffsetTiling.z, 0.1f);
+		
+		auto& _tex = Resource::TextureManager::Instance().RefTexture(_comp.texHandle);
+		// 現在の表示
+		ImGui::Text("Tex : %s", _tex.GetName().c_str());
+
+		auto& _textures = Resource::TextureManager::Instance().GetAllTex();
+
+		// 選択UI
+		if (ImGui::BeginCombo("Change Texture", "Select..."))
+		{
+			for (auto& _tex : _textures)
+			{
+				// 選択中のモデルだったらフラグを立てる
+				auto _thisHandle = Resource::TextureManager::Instance().GetHandle(_tex.GetName());
+				bool _selected = (_comp.texHandle == _thisHandle);
+
+				// 選択欄
+				if (ImGui::Selectable(_tex.GetName().c_str(), _selected))
 				{
-					auto& _handle = *reinterpret_cast<Resource::Handle<Resource::Texture>*>(a_data);
-					auto& _tex = Resource::TextureManager::Instance().RefTexture(_handle);
-					// 現在の表示
-					ImGui::Text("Tex : %s",_tex.GetName().c_str());
-
-					auto& _textures = Resource::TextureManager::Instance().GetAllTex();
-
-					// 選択UI
-					if (ImGui::BeginCombo("Change Texture", "Select..."))
-					{
-						for (auto& _tex : _textures)
-						{
-							// 選択中のモデルだったらフラグを立てる
-							auto _thisHandle = Resource::TextureManager::Instance().GetHandle(_tex.GetName());
-							bool _selected = (_handle == _thisHandle);
-
-							// 選択欄
-							if (ImGui::Selectable(_tex.GetName().c_str(), _selected))
-							{
-								_handle = _thisHandle;
-							}
-						}
-						ImGui::EndCombo();
-					}
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(UIComponent,uvOffsetTiling),
-				[](void* a_data)
-				{
-					DirectX::XMFLOAT4& _uvOffsetTie = Editor::GetValue<DirectX::XMFLOAT4>(a_data);
-
-					ImGui::DragFloat2("UVOffset",&_uvOffsetTie.x,0.1f);
-
-					ImGui::DragFloat2("UVTile",&_uvOffsetTie.z,0.1f);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(UIComponent,color),
-				[](void* a_data)
-				{
-					ImGui::Text("ColorScale");
-					ImGui::ColorPicker4("Color", (float*)a_data);
+					_comp.texHandle = _thisHandle;
 				}
 			}
-		};
+			ImGui::EndCombo();
+		}
+
+		ImGui::Text("ColorScale");
+		ImGui::ColorPicker4("Color", &_comp.color.x);
 	}
 };

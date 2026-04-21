@@ -9,9 +9,6 @@ namespace Engine::ECS
 }
 namespace Engine::Editor
 {
-	// 前方宣言
-	class ComponentEdit;
-
 	// ECSを管理するためのエディター
 	class ECSView
 	{
@@ -20,8 +17,6 @@ namespace Engine::Editor
 		void Init();
 
 		void Draw(UINT a_widht, UINT a_height);
-
-		std::shared_ptr<ComponentEdit> GetCompEdit();
 
 	private:
 
@@ -44,9 +39,6 @@ namespace Engine::Editor
 
 		// 現在選択中のエンティティ
 		Engine::ECS::Entity m_currentEntity = Engine::ECS::Limits::INVALID_ENTITY;
-
-		// コンポーネントごとのエディット設定
-		std::shared_ptr<ComponentEdit> m_spCompEdlit = nullptr;
 
 		// 検索時のフィルター
 		enum class EFilterType

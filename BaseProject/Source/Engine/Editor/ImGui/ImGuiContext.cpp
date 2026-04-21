@@ -36,6 +36,7 @@ namespace Engine::Editor
 		ImGuiStyle& _style = ImGui::GetStyle();
 		_style.ScaleAllSizes(_mainScale);		// 取得したモニターサイズと合わせる
 		_style.FontScaleDpi = _mainScale;		// 数値としても記録
+		_style.ScaleAllSizes(0.5f);				// 全体的に縮小
 
 
 		// 描画するバックエンド・プラットフォームを設定

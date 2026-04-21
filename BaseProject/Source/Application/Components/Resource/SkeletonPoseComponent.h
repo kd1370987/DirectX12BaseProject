@@ -4,17 +4,19 @@ struct SkeletonPoseComponent
 {
 	DirectX::XMFLOAT4X4 palette[300];
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<const SkeletonPoseComponent*>(a_ptr);
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<SkeletonPoseComponent*>(a_ptr);
+	}
+
+	static void Edit(void* a_data)
 	{
 		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(SkeletonPoseComponent,palette),
-				[](void* a_data)
-				{
-					
-				}
-			}
-		};
+		SkeletonPoseComponent& _comp = Engine::Editor::GetValue<SkeletonPoseComponent>(a_data);
 	}
 };

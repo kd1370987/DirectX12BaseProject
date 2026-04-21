@@ -88,10 +88,6 @@ namespace Engine::Editor
 		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);
 	}
-	std::shared_ptr<ComponentEdit> MainEditor::GetCompEdit()
-	{
-		return m_upECSView->GetCompEdit();
-	}
 	void MainEditor::AddLog(const char* a_fmt, ...)
 	{
 		if (!m_isInit) return;

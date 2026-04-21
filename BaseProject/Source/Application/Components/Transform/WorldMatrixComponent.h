@@ -4,21 +4,26 @@ struct WorldMatrixComponent
 {
 	DirectX::XMFLOAT4X4 worldMat= {};
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<const WorldMatrixComponent*>(a_ptr);
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<WorldMatrixComponent*>(a_ptr);
+		
+	}
+
+	static void Edit(void* a_data)
 	{
 		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(WorldMatrixComponent,worldMat),
-				[](void* a_data)
-				{
-					float* _m = (float*)a_data;
-					for (int _i = 0; _i < 4; ++_i)
-					{
-						ImGui::DragFloat4("##row",&_m[_i * 4]);
-					}
-				}
-			}
-		};
-	};
+		WorldMatrixComponent& _comp = Engine::Editor::GetValue<WorldMatrixComponent>(a_data);
+		ImGui::Text("WorldMatrix");
+		float* _m = (float*)_comp.worldMat.m;
+		for (int _i = 0; _i < 4; ++_i)
+		{
+			ImGui::DragFloat4("##row", &_m[_i * 4]);
+		}
+	}
 };

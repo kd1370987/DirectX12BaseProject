@@ -20,21 +20,24 @@ struct HierarchyComponent
 	// ソート時につかう
 	UINT depth = 0;
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
-		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(GUIDComponent,guid),
-				[](void* a_data)
-				{
-				// GUIDの表示のみ
-				UUID& _guid = *reinterpret_cast<UUID*>(a_data);
-				ImGui::Text("%s",Engine::GUID::ToString(_guid).c_str());
-				//char* _guidStr = Engine::GUID::ToString(_guid).c_str;
-				//ImGui::InputText("GUID",_guidStr, 64, ImGuiInputTextFlags_ReadOnly);
-			}
-		}
-		};
+		auto* _comp = static_cast<const HierarchyComponent*>(a_ptr);
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<HierarchyComponent*>(a_ptr);
+	}
+
+	static void Edit(void* a_data)
+	{
+		HierarchyComponent& _comp = Engine::Editor::GetValue<HierarchyComponent>(a_data);
+		ImGui::Text("ParentID : %d", _comp.parentID);
+		ImGui::Text("FirstChildID : %d", _comp.firstChildID);
+		ImGui::Text("PrevSiblingID : %d", _comp.prevSiblingID);
+		ImGui::Text("NextSiblingID : %d", _comp.nextSiblingID);
+
+		ImGui::Text("Depth",_comp.depth);
 	}
 };

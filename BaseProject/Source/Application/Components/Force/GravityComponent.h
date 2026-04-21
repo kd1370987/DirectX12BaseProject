@@ -4,18 +4,22 @@ struct GravityComponent
 {
 	float scale = -1.0f;
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
-		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(GravityComponent,scale),
-				[](void* a_data)
-				{
-					float& _value = Editor::GetValue<float>(a_data);
-					ImGui::DragFloat("GravityScale",&_value,0.1f);
-				}
-			}
-		};
-	};
+		auto* _comp = static_cast<const GravityComponent*>(a_ptr);
+		a_json["scale"] = _comp->scale;
+	}
+
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<GravityComponent*>(a_ptr);
+		_comp->scale = a_json.at("scale");
+	}
+
+	static void Edit(void* a_data)
+	{
+		GravityComponent& _comp = Engine::Editor::GetValue<GravityComponent>(a_data);
+		ImGui::DragFloat("GravityScale", &_comp.scale, 0.1f);
+
+	}
 };

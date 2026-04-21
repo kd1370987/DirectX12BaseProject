@@ -4,19 +4,22 @@ struct PlayerLookAngleComponent
 {
 	float Yaw = 0.0f;
 
-	static constexpr auto GetFuncMeta()
+	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
-		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(PlayerLookAngleComponent,Yaw),
-				[](void* a_data)
-				{
-					float& _value = Editor::GetValue<float>(a_data);
-					ImGui::DragFloat("Yaw",&_value,0.1f);
-				}
-			}
-		};
-	};
+		auto* _comp = static_cast<const PlayerLookAngleComponent*>(a_ptr);
+		a_json["Yaw"] = _comp->Yaw;
+	}
 
+	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
+	{
+		auto* _comp = static_cast<PlayerLookAngleComponent*>(a_ptr);
+		_comp->Yaw = a_json.at("Yaw");
+	}
+
+	static void Edit(void* a_data)
+	{
+		PlayerLookAngleComponent& _comp = Engine::Editor::GetValue<PlayerLookAngleComponent>(a_data);
+		ImGui::DragFloat("Yaw", &_comp.Yaw, 0.1f);
+
+	}
 };

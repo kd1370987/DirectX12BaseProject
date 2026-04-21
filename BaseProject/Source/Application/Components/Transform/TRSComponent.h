@@ -10,6 +10,9 @@ struct TRSComponent
 	{
 		auto* _comp = static_cast<const TRSComponent*>(a_ptr);
 		a_json["pos"] = { _comp->pos.x,_comp->pos.y,_comp->pos.z };
+		a_json["quat"] = { _comp->quat.x,_comp->quat.y,_comp->quat.z ,_comp->quat.w };
+		a_json["scale"] = { _comp->scale.x,_comp->scale.y,_comp->scale.z };
+
 	}
 
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
@@ -17,37 +20,11 @@ struct TRSComponent
 		auto* _comp = static_cast<TRSComponent*>(a_ptr);
 	}
 
-	static constexpr auto GetFuncMeta()
+	static void Edit(void* a_data)
 	{
-		using namespace Engine;
-		return std::vector{
-			Editor::CompEditFuncMeta{
-				offsetof(TRSComponent,pos),
-				[](void* a_data)
-				{
-					// ポジション
-					DirectX::XMFLOAT3& _pos = *reinterpret_cast<DirectX::XMFLOAT3*>(a_data);
-					ImGui::DragFloat3("Position",&_pos.x);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(TRSComponent,quat),
-				[](void* a_data)
-				{
-					// クォータニオンは変換して操作
-					DirectX::XMFLOAT4& _quat = *reinterpret_cast<DirectX::XMFLOAT4*>(a_data);
-					ImGui::DragFloat4("Quaternion",&_quat.x);
-				}
-			},
-			Editor::CompEditFuncMeta{
-				offsetof(TRSComponent,scale),
-				[](void* a_data)
-				{
-					// スケール
-					DirectX::XMFLOAT3& _scale = *reinterpret_cast<DirectX::XMFLOAT3*>(a_data);
-					ImGui::DragFloat3("Scale",&_scale.x);
-				}
-			}
-		};
-	};
+		TRSComponent& _comp = Engine::Editor::GetValue<TRSComponent>(a_data);
+		ImGui::DragFloat3("Position",&_comp.pos.x);
+		ImGui::DragFloat3("Quaternion",&_comp.quat.x);
+		ImGui::DragFloat3("Scale",&_comp.scale.x);
+	}
 };

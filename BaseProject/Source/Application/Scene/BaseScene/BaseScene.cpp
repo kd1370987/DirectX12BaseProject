@@ -147,7 +147,6 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<ColliderComponent>("Col");
 	m_upWorld->RegisterComponent<RayColliderComponent>("RayCol");
 	m_upWorld->RegisterComponent<TRSComponent>("Transform");
-	m_upWorld->RegisterComponentSerialize<TRSComponent>();
 	m_upWorld->RegisterComponent<WorldMatrixComponent>("WorldMatrix");
 	m_upWorld->RegisterComponent<ModelComponent>("Model");
 	m_upWorld->RegisterComponent<AnimatorComponent>("Anima");
@@ -156,8 +155,6 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<UIComponent>("UI");
 	m_upWorld->RegisterComponent<NameComponent>("Name");
 	m_upWorld->RegisterComponent<GUIDComponent>("GUID");
-	m_upWorld->RegisterComponentSerialize<GUIDComponent>();
-	
 	m_upWorld->RegisterComponent<HierarchyComponent>("Hierarchy");
 }
 
