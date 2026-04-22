@@ -15,8 +15,9 @@ struct TPSLookAngleComponent
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<TPSLookAngleComponent*>(a_ptr);
-		_comp->Pitch = a_json.at("Pitch");
-		_comp->ClampPitch = a_json.at("ClampPtich");
+		using namespace Engine;
+		_comp->Pitch = JSONHelper::GetValue<float>("Pitch", a_json, 0.0f);
+		_comp->ClampPitch = JSONHelper::GetValue<float>("ClampPitch", a_json, 80.0f);
 	}
 
 	static void Edit(void* a_data)

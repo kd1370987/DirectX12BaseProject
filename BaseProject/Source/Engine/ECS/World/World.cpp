@@ -226,6 +226,11 @@ namespace Engine::ECS
 		return m_componentMetaRegistry.GetTypeID(a_index);
 	}
 
+	ComponentTypeID World::GetCompTypeID(const std::string& a_name)
+	{
+		return m_componentMetaRegistry.GetTypeID(a_name);
+	}
+
 	uint8_t* World::NRefData(const ECS::Entity& a_entity, const std::type_index& a_index)
 	{
 		const EntityLocation& _loca = m_entityManager.GetLocation(a_entity);
@@ -248,16 +253,6 @@ namespace Engine::ECS
 	const std::unordered_map<ComponentTypeID, ComponentMeta>& World::GetAllComponentMetaData() const
 	{
 		return m_componentMetaRegistry.GetAllMetaData();
-	}
-
-	const std::optional<SerializeFunc>& World::ComponentSerializeFunc(const ComponentTypeID& a_typeID) const
-	{
-		return m_componentMetaRegistry.GetSerializeFunc(a_typeID);
-	}
-
-	const std::optional<DeserializeFunc>& World::ComponentDeserializeFunc(const ComponentTypeID& a_typeID) const
-	{
-		return m_componentMetaRegistry.GetDeserializeFunc(a_typeID);
 	}
 
 	const ComponentFunc& World::GetCompFunc(const ComponentTypeID& a_typeID) const

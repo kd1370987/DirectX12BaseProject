@@ -5,7 +5,7 @@
 #include "Application/Components/Collision/RayCollider.h"
 #include "Application/Components/Collision/SphreCollider.h"
 
-#include "Application/Components/Transform/TRSComponent.h"
+#include "Application/Components/Transform/TransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
 #include "Application/Components/Resource/ModelComponent.h"

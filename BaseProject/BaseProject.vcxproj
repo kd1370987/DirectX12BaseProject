@@ -394,7 +394,7 @@
     <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\PlayerControllTag.h" />
-    <ClInclude Include="Source\Application\Components\Transform\TRSComponent.h" />
+    <ClInclude Include="Source\Application\Components\Transform\TransformComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />
     <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h" />
@@ -554,6 +554,7 @@
     <ClInclude Include="Source\Engine\Storage\Storage.h" />
     <ClInclude Include="Source\Engine\TimeManager\TimeManager.h" />
     <ClInclude Include="Source\Engine\Utility\GUID\GUID.h" />
+    <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONHelper.h" />
     <ClInclude Include="Source\Engine\Window\NativeWindow.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>

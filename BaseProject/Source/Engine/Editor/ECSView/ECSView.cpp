@@ -5,7 +5,7 @@
 
 #include "ComponentEdit/ComponentEdit.h"
 
-#include "../../../Application/Components/Transform/TRSComponent.h"
+#include "../../../Application/Components/Transform/TransformComponent.h"
 namespace Engine::Editor
 {
 	void ECSView::Init()
@@ -161,7 +161,7 @@ namespace Engine::Editor
 		//if (ImGui::Selectable("AddGameObject"))
 		{
 			Engine::ECS::Signature _sig = {};
-			_sig.set(a_pWorld->GetCompTypeID(typeid(TRSComponent)));
+			_sig.set(a_pWorld->GetCompTypeID(typeid(TransformComponent)));
 
 			a_pWorld->AddEntity(_sig);
 		}

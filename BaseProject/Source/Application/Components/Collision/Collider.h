@@ -24,10 +24,12 @@ struct ColliderComponent
 
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
+		using namespace Engine;
 		auto* _comp = static_cast<ColliderComponent*>(a_ptr);
-		_comp->layer = static_cast<Layer>(a_json["layer"]);
-		_comp->collideLayer = static_cast<Layer>(a_json["collideLayer"]);
-		_comp->isPhysical = static_cast<Engine::ECS::Flg>(a_json["isPhysical"]);
+		_comp->layer = static_cast<Layer>(JSONHelper::GetValue<uint32_t>("layer", a_json, 0));
+		_comp->collideLayer = static_cast<Layer>(JSONHelper::GetValue<uint32_t>("collideLayer",a_json,0));
+		_comp->isPhysical = static_cast<Engine::ECS::Flg>(a_json["isPhysical"].get<uint32_t>());
+		_comp->isPhysical = static_cast<Engine::ECS::Flg>(JSONHelper::GetValue<uint32_t>("isPhysical", a_json, 1));
 	}
 
 	static void Edit(void* a_data)

@@ -17,9 +17,10 @@ struct FocusParamComponent
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<FocusParamComponent*>(a_ptr);
-		_comp->focusDistance = a_json.at("forcusDistance");
-		_comp->forcusRange = a_json.at("forcusRange");
-		_comp->forcusBackRange = a_json.at("forcusBackRange");
+		using namespace Engine;
+		_comp->focusDistance = JSONHelper::GetValue<float>("forcusDistance", a_json, 0.0f);
+		_comp->forcusRange = JSONHelper::GetValue<float>("forcusRange", a_json, 0.0f);
+		_comp->forcusBackRange = JSONHelper::GetValue<float>("forcusBackRange", a_json, 0.0f);
 	}
 
 	static void Edit(void* a_data)

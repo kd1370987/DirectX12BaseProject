@@ -2,7 +2,15 @@
 
 namespace Engine::ECS
 {
-
+	ComponentTypeID ComponentMetaRegistry::GetTypeID(const std::string& a_name)
+	{
+		auto _it = m_compNameMap.find(a_name);
+		if (_it != m_compNameMap.end())
+		{
+			return _it->second;
+		}
+		return Limits::INVALID_COMPONENTTYPEID;
+	}
 	ComponentTypeID ComponentMetaRegistry::GetTypeID(const std::type_index& a_index) const
 	{
 		auto _it = m_typeIndexMap.find(a_index);
@@ -44,24 +52,6 @@ namespace Engine::ECS
 		return m_compTypeMap;
 	}
 
-	const std::optional<SerializeFunc>& ComponentMetaRegistry::GetSerializeFunc(const ComponentTypeID& a_id) const
-	{
-		auto _it = m_compSerializeFuncMap.find(a_id);
-		if (_it != m_compSerializeFuncMap.end())
-		{
-			return _it->second;
-		}
-		return std::optional<SerializeFunc>();
-	}
-	const std::optional<DeserializeFunc>& ComponentMetaRegistry::GetDeserializeFunc(const ComponentTypeID& a_id) const
-	{
-		auto _it = m_compDeserializeFuncMap.find(a_id);
-		if (_it != m_compDeserializeFuncMap.end())
-		{
-			return _it->second;
-		}
-		return std::optional<DeserializeFunc>();
-	}
 	const ComponentFunc& ComponentMetaRegistry::GetFunc(const ComponentTypeID& a_id) const
 	{
 		auto _it = m_compFuncMap.find(a_id);

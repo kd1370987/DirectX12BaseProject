@@ -23,8 +23,13 @@ struct ModelComponent
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<ModelComponent*>(a_ptr);
-		//_comp->colorScale = a_json.at("colorScale");
-		_comp->modelGUID = Engine::GUID::FromString(a_json.at("modelGUID"));
+		auto _colorScale = a_json.at("colorScale");
+		_comp->colorScale.x = _colorScale[0].get<float>();
+		_comp->colorScale.y = _colorScale[1].get<float>();
+		_comp->colorScale.z = _colorScale[2].get<float>();
+		_comp->colorScale.w = _colorScale[3].get<float>();
+
+		_comp->modelGUID = Engine::GUID::FromString(a_json["modelGUID"].get<std::string>());
 	}
 
 	static void Edit(void* a_data)

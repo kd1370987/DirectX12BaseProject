@@ -7,7 +7,6 @@ struct VelocityComponent
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<const VelocityComponent*>(a_ptr);
-
 	}
 
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)

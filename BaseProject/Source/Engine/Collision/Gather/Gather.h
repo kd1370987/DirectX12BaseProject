@@ -4,7 +4,7 @@ namespace Engine::ECS
 	class World;
 }
 
-struct TRSComponent;
+struct TransformComponent;
 struct ColliderComponent;
 struct WorldMatrixComponent;
 struct RayColliderComponent;
@@ -14,7 +14,7 @@ struct ModelComponent;
 struct ColliderView
 {
 	Engine::ECS::Entity entity;
-	TRSComponent* pTRS;
+	TransformComponent* pTRS;
 	ColliderComponent* pCollider;
 	WorldMatrixComponent* pWorldMat;
 	ModelComponent* pModelComp;
@@ -24,7 +24,7 @@ struct ColliderView
 struct RayColliderView
 {
 	Engine::ECS::Entity entity;
-	TRSComponent* pTRS;
+	TransformComponent* pTRS;
 	RayColliderComponent* pRayCollider;
 	ColliderComponent* pCollider;
 	bool isHit = false;

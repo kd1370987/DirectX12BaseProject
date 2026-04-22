@@ -12,7 +12,7 @@ struct GUIDComponent
 	static void Deserialize(void* a_ptr,const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<GUIDComponent*>(a_ptr);
-		_comp->guid = Engine::GUID::FromString(a_json.at("guid"));
+		_comp->guid = Engine::GUID::FromString(a_json["guid"].get<std::string>());
 	}
 
 	static void Edit(void* a_data)

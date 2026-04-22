@@ -16,10 +16,21 @@ struct RayColliderComponent
 
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
+		using namespace Engine;
 		auto* _comp = static_cast<RayColliderComponent*>(a_ptr);
-		_comp->length = a_json.at("length");
-		//_comp->dir = a_json["dir"].get<>();
-		//_comp->pos = a_json.at("pos");
+		_comp->length = a_json["length"].get<float>();
+		
+		//auto _dir = a_json.at("dir");
+		_comp->dir = JSONHelper::GetVec3("dir", a_json, { 0,0,0 });
+		//_comp->dir.x = _dir[0].get<float>();
+		//_comp->dir.y = _dir[1].get<float>();
+		//_comp->dir.z = _dir[2].get<float>();
+
+		//auto _pos = a_json.at("pos");
+		_comp->pos = JSONHelper::GetVec3("pos", a_json, { 0,0,0 });
+		//_comp->pos.x = _pos[0].get<float>();
+		//_comp->pos.y = _pos[1].get<float>();
+		//_comp->pos.z = _pos[2].get<float>();
 	}
 
 	static void Edit(void* a_data)

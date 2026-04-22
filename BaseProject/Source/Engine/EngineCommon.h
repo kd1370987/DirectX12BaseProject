@@ -6,6 +6,7 @@
 //==========================================================================================
 #include "Engine/Common/Color.h"		// 色
 #include "Utility/GUID/GUID.h"
+#include "Utility/JSONHelper/JSONHelper.h"
 
 // バッファリング数
 enum

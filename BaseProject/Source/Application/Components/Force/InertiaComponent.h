@@ -15,7 +15,8 @@ struct InertiaComponent
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<InertiaComponent*>(a_ptr);
-		_comp->value = a_json.at("Inertia");
+		using namespace Engine;
+		_comp->value = JSONHelper::GetValue<float>("Inertia",a_json,0.0f);
 	}
 
 	static void Edit(void* a_data)

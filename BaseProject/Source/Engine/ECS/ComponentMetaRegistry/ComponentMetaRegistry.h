@@ -20,58 +20,42 @@ namespace Engine::ECS
 		std::function<void(const void*, nlohmann::json&)> serialize;
 		std::function<void(void*, const nlohmann::json&)> deserialize;
 		std::function<void(void*)> edit;
-
-		//SerializeFunc serialize = nullptr;
-		//DeserializeFunc deserialize = nullptr;
 	};
 
 	class ComponentMetaRegistry
 	{
 	public:
 
-		// 型情報からのIDの取得
-		template<typename Comp>
-		ComponentTypeID GetTypeID();
-		// タイプインデックスから取得
-		ComponentTypeID GetTypeID(const std::type_index& a_index) const;
-
-		// メタ情報取得
-		const ComponentMeta& GetMetaData(const ComponentTypeID& a_id) const;
-		const ComponentMeta& GetMetaData(const std::type_index& a_index) const;
-		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllMetaData() const;
-		const std::optional<SerializeFunc>& GetSerializeFunc(const ComponentTypeID& a_id) const;
-		const std::optional<DeserializeFunc>& GetDeserializeFunc(const ComponentTypeID& a_id) const;
-		const ComponentFunc& GetFunc(const ComponentTypeID& a_id) const;
-
-		/// <summary>
-		/// コンポーネントを登録し、メタ情報を記憶する
-		/// </summary>
-		/// <typeparam name="Comp">コンポーネント構造体</typeparam>
-		/// <param name="a_name">保存名</param>
-		/// <returns>登録ID</returns>
+		// コンポーネントの登録
+		// メタ情報と関数も同時に登録する
 		template<typename Comp>
 		ComponentTypeID RegisterType(const std::string& a_name);
 
+		// コンポーネントタイプIDの取得
 		template<typename Comp>
-		void RegisterEditFunc();
+		ComponentTypeID GetTypeID();										// 型情報から直接取得
+		ComponentTypeID GetTypeID(const std::string& a_name);				// コンポーネント名から取得
+		ComponentTypeID GetTypeID(const std::type_index& a_index) const;	// タイプインデックスから取得
 
-		template<typename Comp>
-		void RegisterSerializeFunc();
+		// メタ情報取得
+		const ComponentMeta& GetMetaData(const ComponentTypeID& a_id) const;	// タイプIDから
+		const ComponentMeta& GetMetaData(const std::type_index& a_index) const;	// タイプインデックスから
+
+		// 関数情報取得
+		const ComponentFunc& GetFunc(const ComponentTypeID& a_id) const;
+
+		// 全コンポーネントの情報を取得
+		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllMetaData() const;
 
 	private:
 
-		// 安定したものからランタイム時に使う高速なIDに変換
-		std::unordered_map<std::type_index, ComponentTypeID> m_typeIndexMap;	// C++型から
+		// ラインタイム用IDへの変換
+		std::unordered_map<std::type_index, ComponentTypeID>	m_typeIndexMap;		// C++型から
+		std::unordered_map<std::string, ComponentTypeID>		m_compNameMap;		// コンポーネント名から
 
-		// ランタイム時に使用されるデータ
-		// コンポーネントと、その構造体情報を結ぶ
-		std::unordered_map<ComponentTypeID, ComponentMeta> m_compTypeMap;
-
-		// シリアライズ用関数
-		std::unordered_map<ComponentTypeID, std::optional<SerializeFunc>>	m_compSerializeFuncMap;
-		std::unordered_map<ComponentTypeID, std::optional<DeserializeFunc>>	m_compDeserializeFuncMap;
-
-		std::unordered_map<ComponentTypeID, ComponentFunc> m_compFuncMap;
+		// コンポーネントに付随するデータ
+		std::unordered_map<ComponentTypeID, ComponentMeta> m_compTypeMap;		// 型の情報
+		std::unordered_map<ComponentTypeID, ComponentFunc> m_compFuncMap;		// 関数情報
 	};
 
 	template<typename Comp>
@@ -88,10 +72,12 @@ namespace Engine::ECS
 	template<typename Comp>
 	inline ComponentTypeID ComponentMetaRegistry::RegisterType(const std::string& a_name)
 	{
-		if (Limits::INVALID_COMPONENTTYPEID != GetTypeID(typeid(Comp)))
+		// 型情報を取得
+		std::type_index _typeIdx = typeid(Comp);
+		if (Limits::INVALID_COMPONENTTYPEID != GetTypeID(_typeIdx))
 		{
 			Engine::Editor::MainEditor::Instance().AddLog("すでに登録済みです : %s\n", a_name.c_str());
-			return GetTypeID(typeid(Comp));
+			return GetTypeID(_typeIdx);
 		}
 
 
@@ -107,11 +93,8 @@ namespace Engine::ECS
 			return Limits::INVALID_COMPONENTTYPEID;
 		}
 
-		// 型情報を取得
-		std::type_index _idx = typeid(Comp);
-
 		// 登録
-		auto _it = m_typeIndexMap.find(_idx);
+		auto _it = m_typeIndexMap.find(_typeIdx);
 		if (_it != m_typeIndexMap.end())
 		{
 			return _it->second;
@@ -127,37 +110,19 @@ namespace Engine::ECS
 		_data.compAlign = alignof(Comp);
 		_data.compAlignSize = Alignment::Up(_data.compSize, _data.compAlign);
 
-		// 登録
-		m_typeIndexMap.emplace(_idx, _typeID);
-		m_compTypeMap.emplace(_typeID, _data);
-
-		RegisterSerializeFunc<Comp>();
-		RegisterEditFunc<Comp>();
-
-		return _typeID;
-	}
-
-	template<typename Comp>
-	inline void ComponentMetaRegistry::RegisterEditFunc()
-	{
-		std::type_index _idx = typeid(Comp);
-		ComponentTypeID _typeID = m_typeIndexMap[_idx];
-
-		auto _it = m_compFuncMap.find(_typeID);
-		_it->second.edit = &Comp::Edit;
-	}
-
-	template<typename Comp>
-	inline void ComponentMetaRegistry::RegisterSerializeFunc()
-	{
-		// 型情報を取得
-		std::type_index _idx = typeid(Comp);
-		ComponentTypeID _typeID = m_typeIndexMap[_idx];
-		m_compSerializeFuncMap[_typeID] = &Comp::Serialize;
-		m_compDeserializeFuncMap[_typeID] = &Comp::Deserialize;
+		// 関数登録
 		ComponentFunc _func = {};
 		_func.serialize = &Comp::Serialize;
 		_func.deserialize = &Comp::Deserialize;
-		m_compFuncMap[_typeID] = _func;
+		_func.edit = &Comp::Edit;
+
+		// 登録
+		m_compNameMap.emplace(a_name,_typeID);		// 名前との対応表
+		m_typeIndexMap.emplace(_typeIdx, _typeID);	// タイプインデックスとの対応表
+
+		m_compTypeMap.emplace(_typeID, _data);	// メタデータの対応表
+		m_compFuncMap.emplace(_typeID, _func);	// 関数との対応表
+
+		return _typeID;
 	}
 }

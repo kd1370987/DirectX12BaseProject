@@ -13,7 +13,8 @@ struct GravityComponent
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<GravityComponent*>(a_ptr);
-		_comp->scale = a_json.at("scale");
+		using namespace Engine;
+		_comp->scale = JSONHelper::GetValue<float>("scale",a_json,-1.0f);
 	}
 
 	static void Edit(void* a_data)

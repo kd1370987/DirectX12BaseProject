@@ -682,6 +682,9 @@
     <Filter Include="Source\Application\Components\Persistence">
       <UniqueIdentifier>{7a5619ec-46d6-4578-8209-9d6ac4272ecf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Utility\JSONHelper">
+      <UniqueIdentifier>{fff340b1-9164-4e05-8b05-7be1dc6f4994}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1175,7 +1178,7 @@
     <ClInclude Include="Source\Engine\ECS\System\SystemBase\SystemBase.h">
       <Filter>Source\Engine\ECS\System\SystemBase</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Transform\TRSComponent.h">
+    <ClInclude Include="Source\Application\Components\Transform\TransformComponent.h">
       <Filter>Source\Application\Components\Transform</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h">
@@ -1693,6 +1696,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Persistence\EntitySerializeField.h">
       <Filter>Source\Engine\ECS\Persistence</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONHelper.h">
+      <Filter>Source\Engine\Utility\JSONHelper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

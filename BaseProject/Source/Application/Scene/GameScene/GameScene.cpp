@@ -32,7 +32,7 @@
 
 #include "../../Components/Charactor/Player/PlayerLookAngleComponent.h"
 
-#include "../../Components/Transform/TRSComponent.h"
+#include "../../Components/Transform/TransformComponent.h"
 #include "../../Components/Transform/WorldMatrixComponent.h"
 
 #include "../../Components/Collision/Collider.h"
@@ -71,7 +71,7 @@ void GameScene::Event()
 	if (Engine::Input::InputManager::Instance().IsPress("Save"))
 	{
 		Engine::Persistence::PersistenceManager _pers = {};
-		_pers.SeceneSerialize("Asset/Data/Scene/GameScene_01.json");
+		_pers.SeceneSerialize(m_upWorld.get(), "Asset/Data/Scene/GameScene_01.json");
 	}
 }
 
@@ -131,6 +131,10 @@ void GameScene::RegistryEntity()
 {
 	BaseScene::RegistryEntity();
 
+	Engine::Persistence::PersistenceManager _pers = {};
+	_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
+	return;
+
 	// エンティティ生成
 	Engine::ECS::Entity _player;
 	{
@@ -141,7 +145,7 @@ void GameScene::RegistryEntity()
 		_sig.set(m_upWorld->GetCompTypeID(typeid(VelocityComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(ColliderComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(RayColliderComponent)));
-		_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(m_upWorld->GetCompTypeID(typeid(TransformComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(ModelComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(SkeletonPoseComponent)));
@@ -167,7 +171,7 @@ void GameScene::RegistryEntity()
 		);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
-		TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_player);
+		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_player);
 		_ref->pos = { 0.0f, 3.0f, 5.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
@@ -220,7 +224,7 @@ void GameScene::RegistryEntity()
 	{
 		Engine::ECS::Signature _sig;
 		_sig.set(m_upWorld->GetCompTypeID(typeid(ColliderComponent)));
-		_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(m_upWorld->GetCompTypeID(typeid(TransformComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(ModelComponent)));
 		auto _entity = m_upWorld->CreateEntity(_sig);
@@ -231,7 +235,7 @@ void GameScene::RegistryEntity()
 		_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel("Asset/Model/Stage/StageMap.gltf");
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
-		TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);
+		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
 		_ref->pos = { 0.0f, 0.0f, 0.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
@@ -254,7 +258,7 @@ void GameScene::RegistryEntity()
 		_sig.set(m_upWorld->GetCompTypeID(typeid(TPSOffsetComponent)));
 
 		_sig.set(m_upWorld->GetCompTypeID(typeid(VelocityComponent)));
-		_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(m_upWorld->GetCompTypeID(typeid(TransformComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 		auto _entity = m_upWorld->CreateEntity(_sig);
 
@@ -282,7 +286,7 @@ void GameScene::RegistryEntity()
 		);
 		VelocityComponent* _velocity = m_upWorld->RefData<VelocityComponent>(_entity);
 		_velocity->value = { 0.0f,0.0f,0.0f };
-		TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);
+		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
 		_ref->pos = { 0.0f, 5.0f, -10.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
@@ -305,7 +309,7 @@ void GameScene::RegistryEntity()
 				for (int _z = 0; _z < _zMax; ++_z)
 				{
 					Engine::ECS::Signature _sig;
-					_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
+					_sig.set(m_upWorld->GetCompTypeID(typeid(TransformComponent)));
 					_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 					_sig.set(m_upWorld->GetCompTypeID(typeid(ModelComponent)));
 					auto _entity = m_upWorld->CreateEntity(_sig);
@@ -316,7 +320,7 @@ void GameScene::RegistryEntity()
 					);
 					_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 					_model->emissiveScale = { 0.0f,0.0f,0.0f };
-					TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);
+					TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
 					_ref->pos = { _x * _pad,  _y * _pad, -_z * _pad };
 					_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 					_ref->scale = { 1.0f,1.0f,1.0f };
@@ -327,7 +331,7 @@ void GameScene::RegistryEntity()
 
 	{
 		Engine::ECS::Signature _sig;
-		_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(m_upWorld->GetCompTypeID(typeid(TransformComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(ModelComponent)));
 		auto _entity = m_upWorld->CreateEntity(_sig);
@@ -339,7 +343,7 @@ void GameScene::RegistryEntity()
 		);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
-		TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);
+		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
 		_ref->pos = { 0,2,0 };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 1.0f,1.0f,1.0f };
@@ -350,7 +354,7 @@ void GameScene::RegistryEntity()
 
 	{
 		Engine::ECS::Signature _sig;
-		_sig.set(m_upWorld->GetCompTypeID(typeid(TRSComponent)));
+		_sig.set(m_upWorld->GetCompTypeID(typeid(TransformComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 		_sig.set(m_upWorld->GetCompTypeID(typeid(UIComponent)));
 		auto _entity = m_upWorld->CreateEntity(_sig);
@@ -358,7 +362,7 @@ void GameScene::RegistryEntity()
 		UIComponent* _ui = m_upWorld->RefData<UIComponent>(_entity);
 		_ui->color = { 1.0f,1.0f,1.0f,0.5f };
 		_ui->texHandle = Engine::Resource::TextureManager::Instance().LoadTexture("Asset/Texture/Test/uiTest.png");
-		TRSComponent* _ref = m_upWorld->RefData<TRSComponent>(_entity);
+		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
 		_ref->pos = { 0,0,0 };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 		_ref->scale = { 0.5f,0.5f,1.0f };

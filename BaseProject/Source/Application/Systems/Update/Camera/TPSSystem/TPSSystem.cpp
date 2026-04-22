@@ -5,7 +5,7 @@
 #include "Application/Components/Camera/FollowTargetComponent.h"
 #include "Application/Components/Camera/TPSOffsetComponent.h"
 
-#include "Application/Components/Transform/TRSComponent.h"
+#include "Application/Components/Transform/TransformComponent.h"
 
 
 #include "Application/Components/Camera/TPSLookAngleComponent.h"
@@ -15,7 +15,7 @@
 
 void TPSSystem::Run(Engine::ECS::World& a_world, float a_dt)
 {
-	a_world.ForEach<FollowTargetComponent,TPSOffsetComponent,TPSLookAngleComponent, TRSComponent>(
+	a_world.ForEach<FollowTargetComponent,TPSOffsetComponent,TPSLookAngleComponent, TransformComponent>(
 		[&a_world, a_dt]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
@@ -23,15 +23,15 @@ void TPSSystem::Run(Engine::ECS::World& a_world, float a_dt)
 			FollowTargetComponent* a_targetArray,
 			TPSOffsetComponent* a_offsetArray,
 			TPSLookAngleComponent* a_lookAngArray,
-			TRSComponent* a_trsArray
+			TransformComponent* a_trsArray
 			)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				Engine::ECS::Entity _target = a_targetArray[_i].target;
-				const TRSComponent* _targetTRS = a_world.RefData<TRSComponent>(_target);
+				const TransformComponent* _targetTRS = a_world.RefData<TransformComponent>(_target);
 				const PlayerLookAngleComponent* _targetLook = a_world.RefData<PlayerLookAngleComponent>(_target);
-				TRSComponent& _trsComp = a_trsArray[_i];
+				TransformComponent& _trsComp = a_trsArray[_i];
 
 				// 視点
 				TPSLookAngleComponent& _lookAng = a_lookAngArray[_i];

@@ -14,6 +14,7 @@ struct FollowTargetComponent
 
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
+		using namespace Engine;
 		auto* _comp = static_cast<FollowTargetComponent*>(a_ptr);
 	}
 

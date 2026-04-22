@@ -113,29 +113,13 @@ namespace Engine::ECS
 		// 
 		//==========================================================================================
 
-		/// <summary>
-		/// コンポーネントの型情報を登録
-		/// </summary>
-		/// <typeparam name="Comp">コンポーネントの型</typeparam>
-		/// <param name="a_name">保存時の名前</param>
+		// コンポーネントの型情報を登録
 		template<typename Comp>
-		ComponentTypeID RegisterComponentType(const std::string& a_name);
+		ComponentTypeID RegisterComponent(const std::string& a_name);			// 関数も同時に登録する
 
-		template<typename Comp>
-		ComponentTypeID RegisterComponent(const std::string& a_name);
-		template<typename Comp>
-		void RegisterComponentSerialize();
-		template<typename Comp>
-		void RegisterComponentEdit();
-		template<typename Comp>
-		ComponentTypeID RegisterComponentTag(const std::string& a_name);
-
-		/// <summary>
-		/// 型情報からIDを取得
-		/// </summary>
-		/// <param name="a_index"></param>
-		/// <returns></returns>
+		// コンポーネントIDの取得
 		ComponentTypeID GetCompTypeID(const std::type_index& a_index);
+		ComponentTypeID GetCompTypeID(const std::string& a_name);
 
 		/// <summary>
 		/// ネイティブなバイトデータへのポインタを取得
@@ -168,8 +152,6 @@ namespace Engine::ECS
 		/// </summary>
 		const ComponentMeta& GetComponentMetaData(const ComponentTypeID& a_typeID);
 		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllComponentMetaData() const;
-		const std::optional<SerializeFunc>& ComponentSerializeFunc(const ComponentTypeID& a_typeID) const;
-		const std::optional<DeserializeFunc>& ComponentDeserializeFunc(const ComponentTypeID& a_typeID) const;
 		const ComponentFunc& GetCompFunc(const ComponentTypeID& a_typeID)const;
 
 		//==========================================================================================
@@ -246,32 +228,7 @@ namespace Engine::ECS
 	};
 
 	template<typename Comp>
-	inline ComponentTypeID World::RegisterComponentType(const std::string& a_name)
-	{
-		return m_componentMetaRegistry.RegisterType<Comp>(a_name);
-	}
-
-	template<typename Comp>
 	inline ComponentTypeID World::RegisterComponent(const std::string& a_name)
-	{
-		auto _id = m_componentMetaRegistry.RegisterType<Comp>(a_name);
-		return _id;
-	}
-
-	template<typename Comp>
-	inline void World::RegisterComponentSerialize()
-	{
-		m_componentMetaRegistry.RegisterSerializeFunc<Comp>();
-	}
-
-	template<typename Comp>
-	inline void World::RegisterComponentEdit()
-	{
-		m_componentMetaRegistry.RegisterEditFunc<Comp>();
-	}
-
-	template<typename Comp>
-	inline ComponentTypeID World::RegisterComponentTag(const std::string& a_name)
 	{
 		auto _id = m_componentMetaRegistry.RegisterType<Comp>(a_name);
 		return _id;

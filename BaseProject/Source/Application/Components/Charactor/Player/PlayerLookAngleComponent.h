@@ -13,7 +13,9 @@ struct PlayerLookAngleComponent
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<PlayerLookAngleComponent*>(a_ptr);
-		_comp->Yaw = a_json.at("Yaw");
+		using namespace Engine;
+		_comp->Yaw = a_json["Yaw"].get<float>();
+		_comp->Yaw = JSONHelper::GetValue<float>("Yaw", a_json, 0);
 	}
 
 	static void Edit(void* a_data)

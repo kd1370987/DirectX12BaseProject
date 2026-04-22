@@ -23,7 +23,7 @@
 
 #include "../../Components/Charactor/Player/PlayerLookAngleComponent.h"
 
-#include "../../Components/Transform/TRSComponent.h"
+#include "../../Components/Transform/TransformComponent.h"
 #include "../../Components/Transform/WorldMatrixComponent.h"
 
 #include "../../Components/Collision/Collider.h"
@@ -129,33 +129,33 @@ void BaseScene::Draw()
 void BaseScene::RegistryComponent()
 {
 	// コンポーネント登録
-	m_upWorld->RegisterComponentTag<ActiveCameraTag>("ActiveCameraTag");
-	m_upWorld->RegisterComponentTag<CameraTag>("CameraTag");
-	m_upWorld->RegisterComponentTag<CameraControllTag>("CameraControllTag");
-	m_upWorld->RegisterComponentTag<PlayerControllTag>("PlayerControllTag");
+	m_upWorld->RegisterComponent<ActiveCameraTag>("ActiveCameraTag");
+	m_upWorld->RegisterComponent<CameraTag>("CameraTag");
+	m_upWorld->RegisterComponent<CameraControllTag>("CameraControllTag");
+	m_upWorld->RegisterComponent<PlayerControllTag>("PlayerControllTag");
 
-	m_upWorld->RegisterComponent<CameraParamComponent>("CameraParam");
-	m_upWorld->RegisterComponent<ProjMatComponent>("ProjMat");
-	m_upWorld->RegisterComponent<FocusParamComponent>("FocusParam");
-	m_upWorld->RegisterComponent<FollowTargetComponent>("FollowTarget");
-	m_upWorld->RegisterComponent<TPSOffsetComponent>("TPSOffset");
-	m_upWorld->RegisterComponent<TPSLookAngleComponent>("TPSLookAngle");
-	m_upWorld->RegisterComponent<VelocityComponent>("Velocity");
-	m_upWorld->RegisterComponent<GravityComponent>("Gravity");
-	m_upWorld->RegisterComponent<InertiaComponent>("Inertia");
-	m_upWorld->RegisterComponent<PlayerLookAngleComponent>("PlayerLookAngle");
-	m_upWorld->RegisterComponent<ColliderComponent>("Col");
-	m_upWorld->RegisterComponent<RayColliderComponent>("RayCol");
-	m_upWorld->RegisterComponent<TRSComponent>("Transform");
-	m_upWorld->RegisterComponent<WorldMatrixComponent>("WorldMatrix");
-	m_upWorld->RegisterComponent<ModelComponent>("Model");
-	m_upWorld->RegisterComponent<AnimatorComponent>("Anima");
-	m_upWorld->RegisterComponent<SkeletonPoseComponent>("SkePose");
-	m_upWorld->RegisterComponent<NodePoseComponent>("NodePose");
-	m_upWorld->RegisterComponent<UIComponent>("UI");
-	m_upWorld->RegisterComponent<NameComponent>("Name");
-	m_upWorld->RegisterComponent<GUIDComponent>("GUID");
-	m_upWorld->RegisterComponent<HierarchyComponent>("Hierarchy");
+	m_upWorld->RegisterComponent<CameraParamComponent>("CameraParamComponent");
+	m_upWorld->RegisterComponent<ProjMatComponent>("ProjMatComponent");
+	m_upWorld->RegisterComponent<FocusParamComponent>("FocusParamComponent");
+	m_upWorld->RegisterComponent<FollowTargetComponent>("FollowTargetComponent");
+	m_upWorld->RegisterComponent<TPSOffsetComponent>("TPSOffsetComponent");
+	m_upWorld->RegisterComponent<TPSLookAngleComponent>("TPSLookAngleComponent");
+	m_upWorld->RegisterComponent<VelocityComponent>("VelocityComponent");
+	m_upWorld->RegisterComponent<GravityComponent>("GravityComponent");
+	m_upWorld->RegisterComponent<InertiaComponent>("InertiaComponent");
+	m_upWorld->RegisterComponent<PlayerLookAngleComponent>("PlayerLookAngleComponent");
+	m_upWorld->RegisterComponent<ColliderComponent>("ColliderComponent");
+	m_upWorld->RegisterComponent<RayColliderComponent>("RayColliderComponent");
+	m_upWorld->RegisterComponent<TransformComponent>("TransformComponent");
+	m_upWorld->RegisterComponent<WorldMatrixComponent>("WorldMatrixComponent");
+	m_upWorld->RegisterComponent<ModelComponent>("ModelComponent");
+	m_upWorld->RegisterComponent<AnimatorComponent>("AnimatorComponent");
+	m_upWorld->RegisterComponent<SkeletonPoseComponent>("SkeletonPoseComponent");
+	m_upWorld->RegisterComponent<NodePoseComponent>("NodePoseComponent");
+	m_upWorld->RegisterComponent<UIComponent>("UIComponent");
+	m_upWorld->RegisterComponent<NameComponent>("NameComponent");
+	m_upWorld->RegisterComponent<GUIDComponent>("GUIDComponent");
+	m_upWorld->RegisterComponent<HierarchyComponent>("HierarchyComponent");
 }
 
 void BaseScene::RegistrySystem()
