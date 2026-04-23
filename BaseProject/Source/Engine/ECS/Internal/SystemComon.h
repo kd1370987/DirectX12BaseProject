@@ -7,6 +7,9 @@ namespace Engine::ECS
 	{
 		// 初期化
 		Init,
+		PostDeserialize,
+		Awake,
+		Start,
 
 		// 更新
 		Input,

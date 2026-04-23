@@ -685,6 +685,9 @@
     <Filter Include="Source\Engine\Utility\JSONHelper">
       <UniqueIdentifier>{fff340b1-9164-4e05-8b05-7be1dc6f4994}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\AssetManager">
+      <UniqueIdentifier>{73653469-6b6f-4235-a0f9-5d829f4297a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1103,6 +1106,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Persistence\EntitySerializeField.cpp">
       <Filter>Source\Engine\ECS\Persistence</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Manager\AssetManager\AssetManager.cpp">
+      <Filter>Source\Engine\Resource\Manager\AssetManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1699,6 +1705,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONHelper.h">
       <Filter>Source\Engine\Utility\JSONHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Manager\AssetManager\AssetManager.h">
+      <Filter>Source\Engine\Resource\Manager\AssetManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

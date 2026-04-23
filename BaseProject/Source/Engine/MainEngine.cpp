@@ -2,6 +2,8 @@
 
 #include "Engine/Window/NativeWindow.h"
 #include "Engine/TimeManager/TimeManager.h"
+#include "Resource/Manager/AssetManager/AssetManager.h"
+
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
@@ -51,6 +53,9 @@ namespace Engine
 		// タイムマネージャークラスの生成
 		m_upTimeManager = std::make_unique<Time::TimeManager>();
 		m_upTimeManager->Init(120.0f);
+
+		// アセットマネージャー作成
+		InitializeAssetManager();
 
 		// DirectX12関連オブジェクトの初期化
 		if (!D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), m_upWindow->GetClientWidth(), m_upWindow->GetClientHeight()))
@@ -204,5 +209,39 @@ namespace Engine
 	void MainEngine::ChangeMode(EngineConfig::Application::Mode a_mode)
 	{
 		m_config.app.mode = a_mode;
+	}
+	void MainEngine::InitializeAssetManager()
+	{
+		if (m_upAssetManager) return;
+
+		m_upAssetManager = std::make_unique<Resource::AssetManager>();
+
+		// 初期化
+		m_upAssetManager->Init(
+			"Asset/",			// クロールフォルダ指定
+			".assetmeta"		// 作成拡張子
+		);
+		
+		// 対応する拡張子を登録
+
+		// モデル
+		m_upAssetManager->AddSupporedExtensions("Model",".gltf");
+		m_upAssetManager->AddSupporedExtensions("Model",".fbx");
+		m_upAssetManager->AddSupporedExtensions("Model",".obj");
+		// テクスチャ
+		m_upAssetManager->AddSupporedExtensions("Texture",".png");
+		m_upAssetManager->AddSupporedExtensions("Texture",".jpg");
+		m_upAssetManager->AddSupporedExtensions("Texture",".tga");
+		m_upAssetManager->AddSupporedExtensions("Texture",".dds");
+		// シェーダー
+		m_upAssetManager->AddSupporedExtensions("Shader",".hlsl");
+		m_upAssetManager->AddSupporedExtensions("Shader",".cso");
+
+		// 全アセットに一括でメタファイル作成
+		// すでにあれば無視
+		m_upAssetManager->CreateMetaFileForAllAssets();
+
+		// ランタイムデータ作成
+		m_upAssetManager->CreateRuntimeData();
 	}
 }

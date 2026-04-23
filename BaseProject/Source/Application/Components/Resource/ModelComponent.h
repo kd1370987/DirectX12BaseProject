@@ -10,14 +10,16 @@ struct ModelComponent
 	// ランタイム用
 	Engine::Resource::Handle<Engine::Resource::Model> handle = {};
 	// 記録用
-	UUID modelGUID = {};
+	//UUID modelGUID = {};
+	Engine::GUID modelGUID = {};
 
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<const ModelComponent*>(a_ptr);
 		a_json["colorScale"] = { _comp->colorScale.x,_comp->colorScale.y ,_comp->colorScale.z ,_comp->colorScale.w };
 		a_json["emissiveScale"] = { _comp->emissiveScale.x,_comp->emissiveScale.y ,_comp->emissiveScale.z};
-		a_json["modelGUID"] = Engine::GUID::ToString(_comp->modelGUID);
+		//a_json["modelGUID"] = Engine::GUID::ToString(_comp->modelGUID);
+		a_json["modelGUID"] = _comp->modelGUID.String();
 	}
 
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
@@ -29,7 +31,8 @@ struct ModelComponent
 		_comp->colorScale.z = _colorScale[2].get<float>();
 		_comp->colorScale.w = _colorScale[3].get<float>();
 
-		_comp->modelGUID = Engine::GUID::FromString(a_json["modelGUID"].get<std::string>());
+		//_comp->modelGUID = Engine::GUID::FromString(a_json["modelGUID"].get<std::string>());
+		_comp->modelGUID.FromString(a_json["modelGUID"].get<std::string>());
 	}
 
 	static void Edit(void* a_data)

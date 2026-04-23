@@ -14,7 +14,10 @@ namespace Engine
 	namespace Time
 	{
 		class TimeManager;
-
+	}
+	namespace Resource
+	{
+		class AssetManager;
 	}
 
 	// エンジン設定
@@ -79,11 +82,19 @@ namespace Engine
 
 	private:
 
+		// アセットマネージャーの初期化
+		void InitializeAssetManager();
+
+	private:
+
 		// ウィンドウクラス
 		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;
 
 		// 時間管理クラス
 		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;
+
+		// アセットのメタ管理
+		std::unique_ptr<Resource::AssetManager> m_upAssetManager = nullptr;
 
 		// エンジン設定
 		EngineConfig m_config = {};

@@ -7,7 +7,7 @@ struct UIComponent
 	// テクスチャID
 	// ランタイム用
 	Engine::Resource::Handle<Engine::Resource::Texture> texHandle = {};
-	UUID texGUID = {};
+	Engine::GUID texGUID = {};
 
 	// UVオフセットとタイル
 	DirectX::XMFLOAT4 uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
@@ -19,13 +19,15 @@ struct UIComponent
 		auto* _comp = static_cast<const UIComponent*>(a_ptr);
 		a_json["uvOffsetTiling"] = {_comp->uvOffsetTiling.x,_comp->uvOffsetTiling.y ,_comp->uvOffsetTiling.z ,_comp->uvOffsetTiling.w};
 		a_json["color"] = { _comp->color.x,_comp->color.y, _comp->color.z, _comp->color.w };
-		a_json["texGUID"] = Engine::GUID::ToString(_comp->texGUID);
+		//a_json["texGUID"] = Engine::GUID::ToString(_comp->texGUID);
+		a_json["texGUID"] = _comp->texGUID.String();
 	}
 
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<UIComponent*>(a_ptr);
-		_comp->texGUID = Engine::GUID::FromString(a_json["texGUID"].get<std::string>());
+		//_comp->texGUID = Engine::GUID::FromString(a_json["texGUID"].get<std::string>());
+		_comp->texGUID.FromString(a_json["texGUID"].get<std::string>());
 	}
 
 	static void Edit(void* a_data)
