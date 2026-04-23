@@ -688,6 +688,18 @@
     <Filter Include="Source\Engine\Resource\Manager\AssetManager">
       <UniqueIdentifier>{73653469-6b6f-4235-a0f9-5d829f4297a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Init\Awake">
+      <UniqueIdentifier>{ac9891ca-8b43-444d-9e3d-e779d2558be5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\Start">
+      <UniqueIdentifier>{9c8cd101-660c-4930-a795-5c4c94efa140}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize">
+      <UniqueIdentifier>{ba1325b4-b2d8-41ca-a294-32a33e67d591}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem">
+      <UniqueIdentifier>{03cacf88-e424-4e9f-b13e-ec4c83499819}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1109,6 +1121,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Manager\AssetManager\AssetManager.cpp">
       <Filter>Source\Engine\Resource\Manager\AssetManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1708,6 +1723,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Manager\AssetManager\AssetManager.h">
       <Filter>Source\Engine\Resource\Manager\AssetManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.h">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

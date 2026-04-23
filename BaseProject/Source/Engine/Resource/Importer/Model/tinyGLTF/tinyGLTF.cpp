@@ -106,7 +106,7 @@ static void XMFLOAT4X4MirrorZ(DirectX::XMFLOAT4X4& a_mat)
 }
 
 
-Engine::Resource::Model Engine::Resource::GLTF::Import(const std::string& a_filePath)
+Engine::Resource::ModelData Engine::Resource::GLTF::Import(const std::string& a_filePath)
 {
 	// GLTFを読み込み
 	auto _spGLTFModel = Load(a_filePath);
@@ -897,7 +897,7 @@ std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(
 	return _destModel;
 }
 void CreateNodes(
-	Engine::Resource::Model& a_dst,
+	Engine::Resource::ModelData& a_dst,
 	const std::shared_ptr<Engine::Resource::GLTF::ModelData>& a_src
 )
 {
@@ -1029,7 +1029,7 @@ void CreateNodes(
 	}
 }
 void CreateMaterials(
-	Engine::Resource::Model& a_dst, 
+	Engine::Resource::ModelData& a_dst,
 	const std::shared_ptr<Engine::Resource::GLTF::ModelData>& a_src,
 	const std::string& a_fileDir
 )
@@ -1081,7 +1081,7 @@ void CreateMaterials(
 	}
 }
 void CreateAnimations(
-	Engine::Resource::Model& a_dst, 
+	Engine::Resource::ModelData& a_dst,
 	const std::shared_ptr<Engine::Resource::GLTF::ModelData>& a_src
 )
 {
@@ -1116,7 +1116,7 @@ void CreateAnimations(
 	}
 }
 
-Engine::Resource::Model Engine::Resource::GLTF::Serialize(
+Engine::Resource::ModelData Engine::Resource::GLTF::Serialize(
 	const std::string& a_filePath,
 	std::shared_ptr<Engine::Resource::GLTF::ModelData> a_spGLTFModel
 )
@@ -1125,7 +1125,7 @@ Engine::Resource::Model Engine::Resource::GLTF::Serialize(
 	std::string _fileDir = FileUtility::GetDirFromPath(a_filePath);
 
 	// モデル構造体を準備
-	Engine::Resource::Model _model = {};
+	Engine::Resource::ModelData _model = {};
 	_model.materials.clear();
 	_model.originalNodes.clear();
 	_model.rootNodeIndices.clear();

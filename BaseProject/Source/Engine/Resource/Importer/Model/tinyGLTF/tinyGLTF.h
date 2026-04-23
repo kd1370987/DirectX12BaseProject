@@ -117,7 +117,7 @@ namespace Engine::Resource
 
 
 		// GLTFデータをモデルとして読み込み
-		Engine::Resource::Model Import(const std::string& a_filePath);
+		Engine::Resource::ModelData Import(const std::string& a_filePath);
 
 		// GLTFモデルの読み込み
 		std::shared_ptr<Engine::Resource::GLTF::ModelData> Load(
@@ -125,7 +125,7 @@ namespace Engine::Resource
 		);
 
 		// モデルデータに変換
-		Engine::Resource::Model Serialize(
+		Engine::Resource::ModelData Serialize(
 			const std::string& a_filePath,
 			std::shared_ptr<Engine::Resource::GLTF::ModelData> a_spGLTFModel
 		);

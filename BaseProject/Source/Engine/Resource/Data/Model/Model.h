@@ -5,51 +5,77 @@
 #include "../Mesh/Mesh.h"
 #include "../Node/Node.h"
 
-namespace Engine
+namespace Engine::Resource
 {
-	namespace Resource
+	struct ModelData
 	{
-		struct Model
-		{
-			std::string name;
+		// モデル名
+		std::string name;
 
-			// マテリアル
-			std::vector<Material>						materials;
+		// マテリアル
+		std::vector<Material>						materials;
 
-			// メッシュの配列
-			std::vector<std::shared_ptr<Mesh>> 			spMeshVec;
+		// メッシュの配列
+		std::vector<std::shared_ptr<Mesh>> 			spMeshVec;
 
-			// アニメーション
-			std::vector<std::shared_ptr<AnimationData>> spAnimations;
+		// アニメーション
+		std::vector<std::shared_ptr<AnimationData>> spAnimations;
 
-			// ノード
-			std::vector<Node>							originalNodes;				// 全ノード配列
-			std::vector<int>							rootNodeIndices;			// Rootノード
-			std::vector<int>							boneNodeIndices;			// ボーンノード
-			std::vector<int>							meshNodeIndices;			// メッシュが存在するノード
-			std::vector<int>							collisionMeshNodeIndices;	// 子リジョンメッシュが存在するノード
-			std::vector<int>							drawMeshNodeIndices;		// 描画するノード
-		};
-	}
-}
+		// ノード
+		std::vector<Node>							originalNodes;			// 全ノード配列
+		std::vector<int>							rootNodeIndices;			// Rootノード
+		std::vector<int>							boneNodeIndices;			// ボーンノード
+		std::vector<int>							meshNodeIndices;			// メッシュが存在するノード
+		std::vector<int>							collisionMeshNodeIndices;	// 子リジョンメッシュが存在するノード
+		std::vector<int>							drawMeshNodeIndices;		// 描画するノード
+	};
 
-namespace ModelUtility
-{
-	constexpr uint32_t MAX_ANIMATIONCLIP = 16;
+	// モデルデータ
+	class Model
+	{
+	public:
 
-	/// <summary>
-	/// 文字列からアニメーションのクリップIDを取得
-	/// </summary>
-	/// <param name="a_model">モデル</param>
-	/// <param name="a_animeNmae">アニメーション文字列</param>
-	/// <returns>クリップID</returns>
-	uint32_t GetAnimationClipCount(const Engine::Resource::Model& a_model,const std::string& a_animeNmae);
+		Model() = default;
+		~Model() = default;
 
-	/// <summary>
-	/// アニメーション取得
-	/// </summary>
-	/// <param name="a_model">モデル</param>
-	/// <param name="a_clipID">クリップID</param>
-	/// <returns>シェアードポインターのアニメーションデータ</returns>
-	std::shared_ptr<Engine::Resource::AnimationData> GetSPAnimation(const Engine::Resource::Model& a_model,uint32_t a_clipID);
+		// モデル生成
+		void Import(const std::string& a_filePath);
+
+		// アクセサ
+		std::shared_ptr<AnimationData> GetSPAnimation(uint32_t a_clipID);	// アニメーション取得
+		uint32_t GetAnimationClipCount(const std::string& a_animeNmae);		// アニメーションクリップ取得
+		
+		const std::string& GetName() const { return m_name; }
+		const std::vector<Material>& GetMaterialVec() const { return m_materials; }
+		const std::vector<std::shared_ptr<Mesh>>& GetSPMeshVec() const { return m_spMeshVec; }
+		const std::vector<std::shared_ptr<AnimationData>>& GetSPAnimationVec()const { return m_spAnimations; }
+		const std::vector<Node>& GetOriginalNodeVec() const { return m_originalNodes; }
+		const std::vector<int>& GetRootNodeVec() const { return m_rootNodeIndices; }
+		const std::vector<int>& GetBoneNodeVec() const { return m_boneNodeIndices; }
+		const std::vector<int>& GetMeshNodeVec() const { return m_meshNodeIndices; }
+		const std::vector<int>& GetCollisionMeshNodeVec() const { return m_collisionMeshNodeIndices; }
+		const std::vector<int>& GetDrawNodeVec() const { return m_drawMeshNodeIndices; }
+
+	private:
+
+		// モデル名
+		std::string m_name;
+
+		// マテリアル
+		std::vector<Material>						m_materials;
+
+		// メッシュの配列
+		std::vector<std::shared_ptr<Mesh>> 			m_spMeshVec;
+
+		// アニメーション
+		std::vector<std::shared_ptr<AnimationData>> m_spAnimations;
+
+		// ノード
+		std::vector<Node>							m_originalNodes;			// 全ノード配列
+		std::vector<int>							m_rootNodeIndices;			// Rootノード
+		std::vector<int>							m_boneNodeIndices;			// ボーンノード
+		std::vector<int>							m_meshNodeIndices;			// メッシュが存在するノード
+		std::vector<int>							m_collisionMeshNodeIndices;	// 子リジョンメッシュが存在するノード
+		std::vector<int>							m_drawMeshNodeIndices;		// 描画するノード
+	};
 }

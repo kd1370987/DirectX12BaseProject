@@ -47,7 +47,8 @@ struct ModelComponent
 
 		auto* _model = Resource::ModelManager::Instnace().RefModel(_comp.handle);
 		// 現在の表示
-		ImGui::Text("Model : %s", _model->name.c_str());
+		//ImGui::Text("Model : %s", _model->name.c_str());
+		ImGui::Text("Model : %s", _model->GetName().c_str());
 
 		auto& _models = Resource::ModelManager::Instnace().GetAllModel();
 
@@ -57,6 +58,7 @@ struct ModelComponent
 			for (auto& _model : _models)
 			{
 				// 選択中のモデルだったらフラグを立てる
+				//auto _thisHandle = Resource::ModelManager::Instnace().GetHandle(_model.data.name);
 				auto _thisHandle = Resource::ModelManager::Instnace().GetHandle(_model.data.name);
 				bool _selected = (_comp.handle == _thisHandle);
 

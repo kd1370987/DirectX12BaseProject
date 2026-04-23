@@ -2,7 +2,7 @@
 
 #include "tinyGLTF/tinyGLTF.h"
 
-Engine::Resource::Model Engine::Resource::ImportModel(const std::string& a_filePath)
+Engine::Resource::ModelData Engine::Resource::ImportModel(const std::string& a_filePath)
 {
 	//-------------------------------------
 	// 拡張子を取得
@@ -35,5 +35,5 @@ Engine::Resource::Model Engine::Resource::ImportModel(const std::string& a_fileP
 		assert(0 && "Assimpは未対応");
 	}
 
-	return Engine::Resource::Model();
+	return Engine::Resource::ModelData();
 }
