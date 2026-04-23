@@ -3,6 +3,7 @@
 #include "Engine/Window/NativeWindow.h"
 #include "Engine/TimeManager/TimeManager.h"
 #include "Resource/Manager/AssetManager/AssetManager.h"
+#include "Resource/Manager/ModelManager/ModelManager.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
@@ -56,6 +57,7 @@ namespace Engine
 
 		// アセットマネージャー作成
 		InitializeAssetManager();
+
 
 		// DirectX12関連オブジェクトの初期化
 		if (!D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), m_upWindow->GetClientWidth(), m_upWindow->GetClientHeight()))
@@ -243,5 +245,7 @@ namespace Engine
 
 		// ランタイムデータ作成
 		m_upAssetManager->CreateRuntimeData();
+
+		Engine::Resource::ModelManager::Instnace().Init(m_upAssetManager.get());
 	}
 }

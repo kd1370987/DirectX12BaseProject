@@ -33,7 +33,7 @@ namespace Engine::Editor
 				if (ImGui::TreeNodeEx(_tagName.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 				{
 					// モデル情報描画
-					DrawModelView(_model.data);
+					DrawModelView(_model);
 
 					ImGui::TreePop();
 				}
@@ -43,17 +43,15 @@ namespace Engine::Editor
 		ImGui::End();
 	}
 
-	void ModelView::DrawModelView(Engine::Resource::Model& a_model)
+	void ModelView::DrawModelView(const Engine::Resource::Model& a_model)
 	{
 		// オリジナルノード
-		for (auto& _node : a_model.originalNodes)
+		for (auto& _node : a_model.GetOriginalNodeVec())
 		{
 			std::string _tagName = _node.name;
 			if (ImGui::TreeNodeEx(_tagName.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 			{
 				// ノード描画
-				NodeView(_node);
-
 				ImGui::TreePop();
 			}
 		}

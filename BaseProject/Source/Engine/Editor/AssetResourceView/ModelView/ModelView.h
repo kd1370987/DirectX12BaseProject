@@ -12,7 +12,7 @@ namespace Engine::Editor
 	private:
 
 		//void DrawModelView(Engine::Resource::Model* a_pModel);
-		void DrawModelView(Engine::Resource::Model& a_model);
+		void DrawModelView(const Engine::Resource::Model& a_model);
 
 		void NodeView(Engine::Resource::Node& a_node);
 

@@ -30,8 +30,8 @@ void AnimationSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
 
 				// アニメーション取得
-				
-				std::shared_ptr<Engine::Resource::AnimationData> _spAni = ModelUtility::GetSPAnimation(*_pModel, _aniComp.clipID);
+				//std::shared_ptr<Engine::Resource::AnimationData> _spAni = ModelUtility::GetSPAnimation(*_pModel, _aniComp.clipID);
+				std::shared_ptr<Engine::Resource::AnimationData> _spAni = _pModel->GetSPAnimation(_aniComp.clipID);
 				if (!_spAni) return;
 
 				// すべてのアニメーションノードの行列保管を実行する

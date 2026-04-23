@@ -45,7 +45,8 @@ void AnimationOptionalDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 
 				// 全ノード
 				auto& _workNodes = _nodePoseComp;
-				auto& _dataNodes = _model->originalNodes;
+				//auto& _dataNodes = _model->m_originalNodes;
+				auto& _dataNodes = _model->GetOriginalNodeVec();
 
 				// ボーンノード	
 				_item.pBoneMatrices = _skeComp.palette;
@@ -53,12 +54,14 @@ void AnimationOptionalDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				
 
 				// 描画ノード
-				for (auto& _nodeIdx : _model->drawMeshNodeIndices)
+				//for (auto& _nodeIdx : _model->drawMeshNodeIndices)
+				for (auto& _nodeIdx : _model->GetDrawNodeVec())
 				{
 					for (auto& _meshIdx : _dataNodes[_nodeIdx].meshIndices)
 					{
 						// 描画メッシュ取得
-						_item.pMesh = _model->spMeshVec[_meshIdx].get();
+						//_item.pMesh = _model->spMeshVec[_meshIdx].get();
+						_item.pMesh = _model->GetSPMeshVec()[_meshIdx].get();
 						if (!_item.pMesh) continue;
 
 						// ワールド行列
@@ -71,13 +74,15 @@ void AnimationOptionalDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 						{
 							// マテリアルセット
 							if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
-							_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
+							//_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
+							_item.pMaterial = &_model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
 							_item.subIdx = _subIdx;
 
 							// 描画アイテムキューに送信
 							
 							// アルファモードによって描画先を変える
-							Engine::Resource::Alpha _mode = _model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
+							//Engine::Resource::Alpha _mode = _model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
+							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
 							switch (_mode)
 							{
 							case Engine::Resource::Alpha::Opaque:

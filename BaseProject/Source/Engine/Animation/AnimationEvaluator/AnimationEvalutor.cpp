@@ -170,7 +170,8 @@ void Engine::Animation::CalcNodeMatrix(
 	DirectX::XMFLOAT4X4* a_pOutWorldMat
 )
 {
-	const auto& _node = a_model->originalNodes[a_nodeIdx];
+//	const auto& _node = a_model->originalNodes[a_nodeIdx];
+	const auto& _node = a_model->GetOriginalNodeVec()[a_nodeIdx];
 
 	if (a_parentNodeIdx >= 0)
 	{

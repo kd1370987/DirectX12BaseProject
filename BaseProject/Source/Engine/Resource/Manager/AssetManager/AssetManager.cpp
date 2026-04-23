@@ -97,14 +97,14 @@ namespace Engine::Resource
 		}
 	}
 
-	const std::string& AssetManager::GetFilePathFromGUID(const std::string& a_guid)
+	std::string AssetManager::GetFilePathFromGUID(const std::string& a_guid)
 	{
 		Engine::GUID _guid = {};
 		_guid.FromString(a_guid);
 		return GetFilePathFromGUID(_guid);
 	}
 
-	const std::string& AssetManager::GetFilePathFromGUID(const Engine::GUID& a_guid)
+	std::string AssetManager::GetFilePathFromGUID(const Engine::GUID& a_guid)
 	{
 		auto _it = m_assetMap.find(a_guid);
 		if (_it != m_assetMap.end())

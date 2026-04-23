@@ -30,7 +30,8 @@ void CalcNodeSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
 
 				// ルートから開始
-				for (int _rootIdx : _pModel->rootNodeIndices)
+				//for (int _rootIdx : _pModel->rootNodeIndices)
+				for (int _rootIdx : _pModel->GetRootNodeVec())
 				{
 					Engine::Animation::CalcNodeMatrix(
 						_rootIdx,

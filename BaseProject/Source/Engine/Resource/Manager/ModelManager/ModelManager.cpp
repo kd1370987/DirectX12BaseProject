@@ -40,6 +40,7 @@ namespace Engine::Resource
 		return _handle;
 	}
 
+	
 	const Model* ModelManager::GetModel(const Handle<Model>& a_handle)
 	{
 		return RefModel(a_handle);
@@ -63,6 +64,11 @@ namespace Engine::Resource
 			return m_guidToModelHandleMap[a_guid];
 		}
 		return {};
+	}
+
+	const std::unordered_map<Engine::GUID, Handle<Model>> ModelManager::GetAllModelHandleMap()
+	{
+		return m_guidToModelHandleMap;
 	}
 
 	const std::vector<Model>& ModelManager::GetAllModel() const

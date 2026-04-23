@@ -30,6 +30,7 @@ namespace Engine::Resource
 		const Handle<Model>& GetHandle(const Engine::GUID& a_guid);
 
 		// 全モデル取得
+		const std::unordered_map<Engine::GUID, Handle<Model>> GetAllModelHandleMap();
 		const std::vector<Model>& GetAllModel() const;
 
 		//------------------------------------------------------------------------------------------

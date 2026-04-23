@@ -19,7 +19,7 @@ namespace Engine::Resource
 		m_collisionMeshNodeIndices = _model.collisionMeshNodeIndices;
 		m_drawMeshNodeIndices = _model.collisionMeshNodeIndices;
 	}
-	std::shared_ptr<AnimationData> Engine::Resource::Model::GetSPAnimation(uint32_t a_clipID)
+	std::shared_ptr<AnimationData> Engine::Resource::Model::GetSPAnimation(uint32_t a_clipID) const
 	{
 		// アニメーション取得
 		std::shared_ptr<Engine::Resource::AnimationData> _spAni = nullptr;
@@ -32,7 +32,7 @@ namespace Engine::Resource
 		return _spAni;
 	}
 
-	uint32_t Engine::Resource::Model::GetAnimationClipCount(const std::string& a_animeNmae)
+	uint32_t Engine::Resource::Model::GetAnimationClipCount(const std::string& a_animeNmae) const
 	{
 		// アニメーション取得
 		for (size_t _i = 0; _i < m_spAnimations.size(); ++_i)

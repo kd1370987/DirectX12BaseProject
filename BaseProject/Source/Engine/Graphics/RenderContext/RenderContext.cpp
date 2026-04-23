@@ -599,7 +599,7 @@ namespace Engine::Graphics
 	}
 
 	void RenderContext::BindMaterial(
-		Resource::Material* a_pMaterial,
+		const Resource::Material* a_pMaterial,
 		const DirectX::XMFLOAT4& a_colorScale,
 		const DirectX::XMFLOAT3& a_emissiveScale
 	)

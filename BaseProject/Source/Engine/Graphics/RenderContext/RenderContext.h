@@ -43,7 +43,7 @@ namespace Engine::Graphics
 		RenderPassID passID = RenderPassID::ZPrePass;
 		LightingType lightingType = LightingType::PBR;
 
-		Resource::Material* pMaterial = nullptr;
+		const Resource::Material* pMaterial = nullptr;
 		UINT subIdx = 0;
 		Resource::Mesh* pMesh = nullptr;
 
@@ -220,7 +220,7 @@ namespace Engine::Graphics
 
 		// マテリアルをSRVとして送信、その際にマテリアルの定数も送信
 		void BindMaterial(
-			Resource::Material* a_pMaterial,
+			const Resource::Material* a_pMaterial,
 			const DirectX::XMFLOAT4& a_colorScale,
 			const DirectX::XMFLOAT3& a_emissiveScale
 		);
@@ -318,7 +318,7 @@ namespace Engine::Graphics
 		// 描画コマンド
 		Resource::ID m_currentRootSigID = Resource::Limits::INVALID_ID;
 		Resource::Handle<D3D12::PipelineState> m_currentPSOID;
-		Resource::Material* m_pCurrentMaterial = nullptr;
+		const Resource::Material* m_pCurrentMaterial = nullptr;
 		Resource::Mesh* m_pCurrentMesh = nullptr;
 		Resource::QuadPolygon* m_pCurrentPoly = nullptr;
 

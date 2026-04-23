@@ -63,8 +63,10 @@ void GameScene::Event()
 
 	if (Engine::Input::InputManager::Instance().IsPress("Add"))
 	{
-		auto _handle = Engine::Resource::ModelManager::Instnace().LoadModel(
-			"Asset/Model/TestModelWhite/testModelWhite.gltf");
+		//auto _handle = Engine::Resource::ModelManager::Instnace().LoadModel("Asset/Model/TestModelWhite/testModelWhite.gltf");
+		Engine::GUID _guid;
+		_guid.FromString("a9d483b5-5681-40ba-b45d-e1630f066516");
+		auto _handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
 		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
 	}
 
@@ -132,8 +134,8 @@ void GameScene::RegistryEntity()
 	BaseScene::RegistryEntity();
 
 	Engine::Persistence::PersistenceManager _pers = {};
-	_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
-	return;
+	//_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
+	//return;
 
 	// エンティティ生成
 	Engine::ECS::Entity _player;
@@ -166,9 +168,10 @@ void GameScene::RegistryEntity()
 		VelocityComponent* _velocity = m_upWorld->RefData<VelocityComponent>(_player);
 		_velocity->value = { 0.0f,0.0f,0.0f };
 		ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_player);
-		_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel(
-			"Asset/Model/SkinMeshMan/SkinMeshMan.gltf"
-		);
+		//_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel("Asset/Model/SkinMeshMan/SkinMeshMan.gltf");
+		Engine::GUID _guid;
+		_guid.FromString("d948f901-bbf9-48b8-8362-218606da518b");
+		_model->handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_player);
@@ -181,16 +184,18 @@ void GameScene::RegistryEntity()
 			_pose = DXSM::Matrix::Identity;
 		}
 		AnimatorComponent* _pAni = m_upWorld->RefData<AnimatorComponent>(_player);
-		_pAni->clipID = ModelUtility::GetAnimationClipCount(
-			*Engine::Resource::ModelManager::Instnace().GetModel(_model->handle),
-			"Walk"
-		);
+		//_pAni->clipID = ModelUtility::GetAnimationClipCount(
+		//	*Engine::Resource::ModelManager::Instnace().GetModel(_model->handle),
+		//	"Walk"
+		//);
+		auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_model->handle);
+		_pAni->clipID = _pModel->GetAnimationClipCount("Walk");
+
 		_pAni->time = 0.0f;
 		_pAni->speed = 30.0f;
 		_pAni->isLoop = true;
 		NodePoseComponent* _pNodePose = m_upWorld->RefData<NodePoseComponent>(_player);
-		auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_model->handle);
-		_pNodePose->nodeCount = static_cast<uint16_t>(_pModel->originalNodes.size());
+		_pNodePose->nodeCount = static_cast<uint16_t>(_pModel->GetOriginalNodeVec().size());
 		for (int _i = 0; _i < MAX_NODEINDEX; ++_i)
 		{
 			_pNodePose->local[_i] = DXSM::Matrix::Identity;
@@ -198,8 +203,10 @@ void GameScene::RegistryEntity()
 		}
 		for (int _i = 0; _i < static_cast<int>(_pNodePose->nodeCount); ++_i)
 		{
-			_pNodePose->local[_i] = _pModel->originalNodes[_i].localTransform;
-			_pNodePose->world[_i] = _pModel->originalNodes[_i].worldTransform;
+			//_pNodePose->local[_i] = _pModel->originalNodes[_i].localTransform;
+			_pNodePose->local[_i] = _pModel->GetOriginalNodeVec()[_i].localTransform;
+			//_pNodePose->world[_i] = _pModel->originalNodes[_i].worldTransform;
+			_pNodePose->world[_i] = _pModel->GetOriginalNodeVec()[_i].worldTransform;
 		}
 	}
 
@@ -232,7 +239,10 @@ void GameScene::RegistryEntity()
 		_collider->layer = Layer::StaticObject;
 		_collider->collideLayer = Layer::DiynamicObject;
 		ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_entity);
-		_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel("Asset/Model/Stage/StageMap.gltf");
+		//_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel("Asset/Model/Stage/StageMap.gltf");
+		Engine::GUID _guid;
+		_guid.FromString("dc73f9dd-325f-4a52-b2eb-aca396a4067a");
+		_model->handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
@@ -315,9 +325,12 @@ void GameScene::RegistryEntity()
 					auto _entity = m_upWorld->CreateEntity(_sig);
 
 					ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_entity);
-					_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel(
-						"Asset/Model/TestModelWhite/testModelWhite.gltf"
-					);
+					//_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel(
+					//	"Asset/Model/TestModelWhite/testModelWhite.gltf"
+					//);
+					Engine::GUID _guid;
+					_guid.FromString("a9d483b5-5681-40ba-b45d-e1630f066516");
+					_model->handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
 					_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 					_model->emissiveScale = { 0.0f,0.0f,0.0f };
 					TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
@@ -337,10 +350,13 @@ void GameScene::RegistryEntity()
 		auto _entity = m_upWorld->CreateEntity(_sig);
 
 		ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_entity);
-		_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel(
-			//"Asset/Model/TEST_metarogh/MRModel.gltf"
-			"Asset/Model/Test/BALL/ball.gltf"
-		);
+		//_model->handle = Engine::Resource::ModelManager::Instnace().LoadModel(
+		//	//"Asset/Model/TEST_metarogh/MRModel.gltf"
+		//	"Asset/Model/Test/BALL/ball.gltf"
+		//);
+		Engine::GUID _guid;
+		_guid.FromString("9d3c94dc-05bc-4886-a750-a9f174e5bb5d");
+		_model->handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
 		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);

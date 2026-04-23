@@ -35,8 +35,8 @@ namespace Engine::Resource
 		void CreateRuntimeData();
 
 		// GUIDから現在のファイルパスを取得
-		const std::string& GetFilePathFromGUID(const std::string& a_guid);
-		const std::string& GetFilePathFromGUID(const Engine::GUID& a_guid);
+		std::string GetFilePathFromGUID(const std::string& a_guid);
+		std::string GetFilePathFromGUID(const Engine::GUID& a_guid);
 
 	private:
 

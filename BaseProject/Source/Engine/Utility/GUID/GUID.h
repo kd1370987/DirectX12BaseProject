@@ -20,17 +20,9 @@ namespace Engine
 
 		// 宇宙船が定義されていなさそうだから
 		// 自分でオペレーター定義
-		std::strong_ordering operator<=>(const GUID& other) const
-		{
-			int cmp = std::memcmp(&value, &other.value, sizeof(UUID));
-			if (cmp < 0) return std::strong_ordering::less;
-			if (cmp > 0) return std::strong_ordering::greater;
-			return std::strong_ordering::equal;
-		}
-
 		bool operator==(const GUID& other) const
 		{
-			return std::memcmp(&value, &other.value, sizeof(UUID)) == 0;
+			return InlineIsEqualGUID(value,other.value);
 		}
 	};
 }

@@ -51,21 +51,21 @@ struct ModelComponent
 		ImGui::Text("Model : %s", _model->GetName().c_str());
 
 		auto& _models = Resource::ModelManager::Instnace().GetAllModel();
+		auto& _allModelHandle = Resource::ModelManager::Instnace().GetAllModelHandleMap();
 
 		// 選択UI
 		if (ImGui::BeginCombo("Change Model", "Select..."))
 		{
-			for (auto& _model : _models)
+			for (auto& [_guid,_handle] : _allModelHandle)
 			{
 				// 選択中のモデルだったらフラグを立てる
 				//auto _thisHandle = Resource::ModelManager::Instnace().GetHandle(_model.data.name);
-				auto _thisHandle = Resource::ModelManager::Instnace().GetHandle(_model.data.name);
-				bool _selected = (_comp.handle == _thisHandle);
+				bool _selected = (_comp.handle == _handle);
 
 				// 選択欄
-				if (ImGui::Selectable(_model.data.name.c_str(), _selected))
+				if (ImGui::Selectable(_model->GetName().c_str(), _selected))
 				{
-					_comp.handle = _thisHandle;
+					_comp.handle = _handle;
 				}
 			}
 			ImGui::EndCombo();
