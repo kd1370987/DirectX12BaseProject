@@ -34,12 +34,10 @@ void SimpleDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				_item.emissiveScale = _modelComp.emissiveScale;
 
 				// モデル取得
-				//Engine::Resource::Model* _model = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
 				auto* _model = Engine::Resource::ModelManager::Instnace().RefModel(_modelComp.handle);
 				if (!_model) return;
 
 				// ノード
-				//auto& _dataNodes = _model->originalNodes;
 				auto& _dataNodes = _model->GetOriginalNodeVec();
 
 				// 描画ノード
@@ -48,7 +46,6 @@ void SimpleDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 					for (auto& _meshIdx : _dataNodes[_nodeIdx].meshIndices)
 					{
 						// 描画メッシュ取得
-						//_item.pMesh = _model->spMeshVec[_meshIdx].get();
 						_item.pMesh = _model->GetSPMeshVec()[_meshIdx].get();
 						if (!_item.pMesh) continue;
 
@@ -62,12 +59,10 @@ void SimpleDrawSystem::Run(Engine::ECS::World& a_world, float a_dt)
 						{
 							// 面が一枚もない場合はスキップ
 							if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
-							//_item.pMaterial = &_model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
 							_item.pMaterial = &_model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
 							_item.subIdx = _subIdx;
 
 							// アルファモードによって描画先を変える
-							//Engine::Resource::Alpha _mode = _model->materials[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
 							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
 							switch (_mode)
 							{

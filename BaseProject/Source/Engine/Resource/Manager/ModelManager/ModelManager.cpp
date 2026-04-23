@@ -22,17 +22,15 @@ namespace Engine::Resource
 		// パスの取得
 		auto _path = m_pAssetManager->GetFilePathFromGUID(a_guid);
 
-		// モデルの作成
-		Model _model = {};
-		_model.Import(_path);
-
-		// モデルを追加とハンドルをアロケート
+		// ハンドルをアロケート
 		auto _handle = m_handleStorage.Allocate();
 		if (_handle.idx >= m_modelVec.size())
 		{
 			m_modelVec.resize(_handle.idx + 1);
 		}
-		m_modelVec[_handle.idx] = _model;
+		// モデルのロード
+		m_modelVec[_handle.idx] = Model();
+		m_modelVec[_handle.idx].Import(_path);
 
 		// 対応表を作成
 		m_guidToModelHandleMap[a_guid] = _handle;
@@ -41,9 +39,15 @@ namespace Engine::Resource
 	}
 
 	
-	const Model* ModelManager::GetModel(const Handle<Model>& a_handle)
+	const Model* ModelManager::GetModel(const Handle<Model>& a_handle) const
 	{
-		return RefModel(a_handle);
+		// 世代確認
+		if (m_handleStorage.IsValid(a_handle))
+		{
+			return &m_modelVec[a_handle.idx];
+		}
+
+		return nullptr;
 	}
 
 	Model* ModelManager::RefModel(const Handle<Model>& a_handle)

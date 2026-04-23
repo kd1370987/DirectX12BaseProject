@@ -26,11 +26,10 @@ void CalcNodeSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				NodePoseComponent& _nodeComp = a_nodePoseArray[_i];
 
 				// モデル取得
-				//auto* _pModel = GraphicResourceManager::Instance().NGetModel(_modelComp.modelID);
 				auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
+				if (!_pModel) continue;
 
 				// ルートから開始
-				//for (int _rootIdx : _pModel->rootNodeIndices)
 				for (int _rootIdx : _pModel->GetRootNodeVec())
 				{
 					Engine::Animation::CalcNodeMatrix(

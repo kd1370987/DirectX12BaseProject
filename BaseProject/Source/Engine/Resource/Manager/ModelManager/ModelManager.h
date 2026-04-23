@@ -23,7 +23,7 @@ namespace Engine::Resource
 		//------------------------------------------------------------------------------------------
 		// リソースの取得
 		//------------------------------------------------------------------------------------------
-		const Model* GetModel(const Handle<Model>& a_handle);
+		const Model* GetModel(const Handle<Model>& a_handle) const;
 		Model* RefModel(const Handle<Model>& a_handle);
 
 		// ハンドルの取得

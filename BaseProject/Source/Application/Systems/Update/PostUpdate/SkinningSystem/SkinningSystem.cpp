@@ -32,7 +32,6 @@ void SkinningSystem::Run(Engine::ECS::World& a_world, float a_dt)
 
 				// 全ノード
 				auto& _workNodes = _nodeComp;
-				//const auto& _dataNodes = _model->m_originalNodes;
 				const auto& _dataNodes = _model->GetOriginalNodeVec();
 
 				for (auto& _s : _skeComp.palette)
@@ -41,7 +40,6 @@ void SkinningSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				}
 
 				// ボーンノード
-				//for (auto&& _nodeIdx : _model->m_boneNodeIndices)
 				for (auto& _nodeIdx : _model->GetBoneNodeVec())
 				{
 					const auto& _dataNode = _dataNodes[_nodeIdx];

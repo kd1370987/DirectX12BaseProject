@@ -31,20 +31,20 @@ namespace Engine::Resource
 	};
 
 	// モデルデータ
-	struct Model
+	class Model
 	{
 	public:
 
-	//	Model() = default;
-	//	~Model() = default;
+		Model() = default;
+		//~Model() {};
 
-	//	// モデル生成
+		// モデル生成
 		void Import(const std::string& a_filePath);
 
-	//	// アクセサ
-		std::shared_ptr<AnimationData> GetSPAnimation(uint32_t a_clipID) const;	// アニメーション取得
+		// アクセサ
+		std::shared_ptr<AnimationData> GetSPAnimation(uint32_t a_clipID) const;		// アニメーション取得
 		uint32_t GetAnimationClipCount(const std::string& a_animeNmae) const;		// アニメーションクリップ取得
-	//	
+
 		const std::string& GetName() const { return m_name; }
 		const std::vector<Material>& GetMaterialVec() const { return m_materials; }
 		const std::vector<std::shared_ptr<Mesh>>& GetSPMeshVec() const { return m_spMeshVec; }

@@ -28,11 +28,11 @@ void AnimationSystem::Run(Engine::ECS::World& a_world, float a_dt)
 				NodePoseComponent& _nodeComp = a_NodePoseArray[_i];
 
 				auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
+				if (!_pModel) continue;
 
 				// アニメーション取得
-				//std::shared_ptr<Engine::Resource::AnimationData> _spAni = ModelUtility::GetSPAnimation(*_pModel, _aniComp.clipID);
 				std::shared_ptr<Engine::Resource::AnimationData> _spAni = _pModel->GetSPAnimation(_aniComp.clipID);
-				if (!_spAni) return;
+				if (!_spAni) continue;
 
 				// すべてのアニメーションノードの行列保管を実行する
 				for (auto& _rAnimNode : _spAni->nodes)

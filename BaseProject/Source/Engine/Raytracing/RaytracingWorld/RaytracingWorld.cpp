@@ -29,7 +29,8 @@ void Engine::Raytracing::RayWorld::Register(
 
 	// モデルのノードとメッシュを参照してインスタンスに変換
 	auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(a_modelHandle);
-	//auto& _nodes = _model->originalNodes;
+	if (!_model) return;
+
 	auto& _nodes = _model->GetOriginalNodeVec();
 	for (auto& _node : _nodes)		// ノードループ
 	{
@@ -48,7 +49,6 @@ void Engine::Raytracing::RayWorld::Register(
 			_rayInst.indexHandle = _spMesh->GetSIndexBuff().GetHandle();
 			for (auto& _subset : _spMesh->GetSubsets())
 			{
-				//_rayInst.pMaterial = &_model->materials[_subset.materialNumber];
 				_rayInst.pMaterial = &_model->GetMaterialVec()[_subset.materialNumber];
 				m_instanceVec.emplace_back(_rayInst);
 			}

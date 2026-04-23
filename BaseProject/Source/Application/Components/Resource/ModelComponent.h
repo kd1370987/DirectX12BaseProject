@@ -18,7 +18,6 @@ struct ModelComponent
 		auto* _comp = static_cast<const ModelComponent*>(a_ptr);
 		a_json["colorScale"] = { _comp->colorScale.x,_comp->colorScale.y ,_comp->colorScale.z ,_comp->colorScale.w };
 		a_json["emissiveScale"] = { _comp->emissiveScale.x,_comp->emissiveScale.y ,_comp->emissiveScale.z};
-		//a_json["modelGUID"] = Engine::GUID::ToString(_comp->modelGUID);
 		a_json["modelGUID"] = _comp->modelGUID.String();
 	}
 
@@ -31,7 +30,6 @@ struct ModelComponent
 		_comp->colorScale.z = _colorScale[2].get<float>();
 		_comp->colorScale.w = _colorScale[3].get<float>();
 
-		//_comp->modelGUID = Engine::GUID::FromString(a_json["modelGUID"].get<std::string>());
 		_comp->modelGUID.FromString(a_json["modelGUID"].get<std::string>());
 	}
 
@@ -39,36 +37,33 @@ struct ModelComponent
 	{
 		using namespace Engine;
 		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_data);
-		ImGui::Text("EmissiveScale");
-		ImGui::ColorPicker4("Color", (float*)&_comp.emissiveScale.x);
+		auto* _pModel = Resource::ModelManager::Instnace().RefModel(_comp.handle);
+		if (!_pModel) return;
 
-		ImGui::Text("ColorScale");
-		ImGui::ColorPicker4("Color", (float*)&_comp.colorScale.x);
-
-		auto* _model = Resource::ModelManager::Instnace().RefModel(_comp.handle);
 		// 現在の表示
-		//ImGui::Text("Model : %s", _model->name.c_str());
-		ImGui::Text("Model : %s", _model->GetName().c_str());
-
-		auto& _models = Resource::ModelManager::Instnace().GetAllModel();
-		auto& _allModelHandle = Resource::ModelManager::Instnace().GetAllModelHandleMap();
+		ImGui::Text("Model : %s", _pModel->GetName().c_str());
 
 		// 選択UI
 		if (ImGui::BeginCombo("Change Model", "Select..."))
 		{
-			for (auto& [_guid,_handle] : _allModelHandle)
+			for (auto& [_guid, _handle] : Resource::ModelManager::Instnace().GetAllModelHandleMap())
 			{
 				// 選択中のモデルだったらフラグを立てる
-				//auto _thisHandle = Resource::ModelManager::Instnace().GetHandle(_model.data.name);
 				bool _selected = (_comp.handle == _handle);
 
 				// 選択欄
-				if (ImGui::Selectable(_model->GetName().c_str(), _selected))
+				if (ImGui::Selectable(_pModel->GetName().c_str(), _selected))
 				{
 					_comp.handle = _handle;
 				}
 			}
 			ImGui::EndCombo();
 		}
+
+		ImGui::Text("EmissiveScale");
+		ImGui::ColorPicker4("Color", (float*)&_comp.emissiveScale.x);
+
+		ImGui::Text("ColorScale");
+		ImGui::ColorPicker4("Color", (float*)&_comp.colorScale.x);
 	}
 };
