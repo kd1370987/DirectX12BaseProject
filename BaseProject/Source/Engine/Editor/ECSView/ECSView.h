@@ -34,6 +34,8 @@ namespace Engine::Editor
 		// インスペクターウィンドウ
 		void InspectorWindow(Engine::ECS::World* a_pWorld);
 		void AddComponent(Engine::ECS::World* a_pWorld);
+		void SubmitCommponent(Engine::ECS::World* a_pWorld,ECS::ComponentTypeID a_typeID);
+		
 
 	private:
 

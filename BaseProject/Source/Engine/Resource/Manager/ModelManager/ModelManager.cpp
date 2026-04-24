@@ -13,6 +13,12 @@ namespace Engine::Resource
 	
 	Handle<Model> ModelManager::Load(const Engine::GUID& a_guid)
 	{
+		// 中身が入っているかのチェック
+		if (a_guid == Engine::GUID())
+		{
+			return Handle<Model>();
+		}
+
 		// 登録されているかのチェック
 		if (Has(a_guid))
 		{

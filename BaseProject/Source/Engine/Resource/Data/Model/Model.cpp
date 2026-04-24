@@ -18,6 +18,8 @@ namespace Engine::Resource
 		m_meshNodeIndices = _model.meshNodeIndices;
 		m_collisionMeshNodeIndices = _model.collisionMeshNodeIndices;
 		m_drawMeshNodeIndices = _model.collisionMeshNodeIndices;
+
+		m_name = FileUtility::GetFileName(a_filePath);
 	}
 	std::shared_ptr<AnimationData> Engine::Resource::Model::GetSPAnimation(uint32_t a_clipID) const
 	{

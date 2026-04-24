@@ -37,11 +37,11 @@ struct ModelComponent
 	{
 		using namespace Engine;
 		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_data);
-		auto* _pModel = Resource::ModelManager::Instnace().RefModel(_comp.handle);
-		if (!_pModel) return;
+		auto* _pCurrentModel = Resource::ModelManager::Instnace().RefModel(_comp.handle);
+		if (!_pCurrentModel) return;
 
 		// 現在の表示
-		ImGui::Text("Model : %s", _pModel->GetName().c_str());
+		ImGui::Text("Model : %s", _pCurrentModel->GetName().c_str());
 
 		// 選択UI
 		if (ImGui::BeginCombo("Change Model", "Select..."))
@@ -50,6 +50,9 @@ struct ModelComponent
 			{
 				// 選択中のモデルだったらフラグを立てる
 				bool _selected = (_comp.handle == _handle);
+
+				// 選択予定モデルの取得
+				auto _pModel = Resource::ModelManager::Instnace().GetModel(_handle);
 
 				// 選択欄
 				if (ImGui::Selectable(_pModel->GetName().c_str(), _selected))

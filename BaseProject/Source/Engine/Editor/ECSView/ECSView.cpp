@@ -193,14 +193,15 @@ namespace Engine::Editor
 
 					if (ImGui::TreeNodeEx(_metaData.name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 					{
-
-						//m_spCompEdlit->GetCompEditFunc(a_pWorld, _typeID)(m_currentEntity);
-
+						// コンポーネントごとの特殊エディター処理を入れる
 						auto _func = a_pWorld->GetCompFunc(_typeID).edit;
 						if (_func)
 						{
 							_func(a_pWorld->NRefData(m_currentEntity,_typeID));
 						}
+
+						// コンポーネントを削除するボタン
+						SubmitCommponent(a_pWorld,_typeID);
 
 						ImGui::TreePop();
 					}
@@ -233,6 +234,13 @@ namespace Engine::Editor
 			}
 
 			ImGui::EndCombo();
+		}
+	}
+	void ECSView::SubmitCommponent(Engine::ECS::World* a_pWorld, ECS::ComponentTypeID a_typeID)
+	{
+		if (ImGui::Button("RemoveComponnet"))
+		{
+			a_pWorld->SubmitComponent(a_typeID, m_currentEntity);
 		}
 	}
 }

@@ -396,6 +396,10 @@
     <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\PlayerControllTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ActiveTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\AwekeTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\PostDeserializeTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\StartTag.h" />
     <ClInclude Include="Source\Application\Components\Transform\TransformComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />

@@ -9,6 +9,11 @@
 
 #include "../Internal/SystemComon.h"
 
+class ActiveTag;
+class StartTag;
+class AwekeTag;
+class PostDeserializeTag;
+
 namespace Engine::ECS
 {
 
@@ -105,6 +110,8 @@ namespace Engine::ECS
 		//------------------------------------------------------------------------------------------
 		// エンティティに対してコンポーネントを追加
 		void AddComponent(ComponentTypeID a_typeID,Entity a_entity);
+		void SubmitComponent(ComponentTypeID a_typeID,Entity a_entity);
+		void AddChangeSigCommand(ChangeEntityCmd a_cmd);
 		void ChangeSigneture(ChangeEntityCmd a_cmd);
 
 		//==========================================================================================
@@ -190,6 +197,31 @@ namespace Engine::ECS
 		/// <typeparam name="...Excludes">除外するコンポーネント</typeparam>
 		template<typename... Components, typename... Excludes, typename Func>
 		void ForEachEx(Func a_func, Exclude<Excludes...>);
+
+		// システムフェーズごとのForEach処理
+		// モデルやテクスチャなどのシリアライズ後の依存関係解決する処理
+		template<typename... Components, typename... Excludes, typename Func>
+		void ForEachPostDeserialize(Func a_func, Exclude<Excludes...> a_ex = {});
+
+		// エンティティ以外での依存解決が終わった後に回す処理
+		template<typename... Components, typename... Excludes, typename Func>
+		void ForEachAweke(Func a_func, Exclude<Excludes...> a_ex = {});
+
+		// アップデートの直前に回す処理
+		template<typename... Components, typename... Excludes, typename Func>
+		void ForEachStart(Func a_func, Exclude<Excludes...> a_ex = {});
+
+		// 更新描画
+		template<typename... Components, typename... Excludes, typename Func>
+		void ForEachUpdate(Func a_func, Exclude<Excludes...> a_ex = {});
+
+		// システムのフェーズ遷移
+		void TransitionToAwake();		// ポストデシリアライズからアウェイク処理へ
+		void TransitionToStart();		// アウェイクからスタート処理へ
+		void TransitionToUpdate();		// スタートからからアップデートへ処理へ
+
+		template<typename Beffor,typename Affter>
+		void TransitionPhase(Beffor a_befforPhase,Affter a_affterPhase);
 
 	private:
 
@@ -307,5 +339,43 @@ namespace Engine::ECS
 				_arrays
 			);
 		}
+	}
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::ForEachPostDeserialize(Func a_func, Exclude<Excludes...> a_ex)
+	{
+		ForEachEx<PostDeserializeTag, Components...>(a_func, a_ex);
+	}
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::ForEachAweke(Func a_func, Exclude<Excludes...> a_ex)
+	{
+		ForEachEx<AwekeTag, Components...>(a_func, a_ex);
+	}
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::ForEachStart(Func a_func, Exclude<Excludes...> a_ex)
+	{
+		ForEachEx<StartTag, Components...>(a_func, a_ex);
+	}
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::ForEachUpdate(Func a_func, Exclude<Excludes...> a_ex)
+	{
+		ForEachEx<ActiveTag, Components...>(a_func, a_ex);
+	}
+	template<typename Beffor, typename Affter>
+	inline void World::TransitionPhase(Beffor a_befforPhase, Affter a_affterPhase)
+	{
+		ForEach<Beffor>(
+			[]
+			(
+				Engine::ECS::ArchetypeChunk* a_pChunk,
+				uint32_t a_count,
+				Beffor* a_compArray
+			)
+			{
+				for (size_t _i = 0; _i < a_count; ++_i)
+				{
+					Beffor& _comp = a_compArray[_i];
+				}
+			}
+		);
 	}
 }

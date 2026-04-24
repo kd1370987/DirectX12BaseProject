@@ -160,6 +160,26 @@ namespace Engine::ECS
 		m_changeEntityVec.push_back(_cmd);
 	}
 
+	void World::SubmitComponent(ComponentTypeID a_typeID, Entity a_entity)
+	{
+		// エンティティのシグネチャを変更
+		Signature _oldSig = m_entityManager.GetSignature(a_entity);
+
+		// 新たにシグネチャを作成
+		if (!_oldSig.test(a_typeID)) return;	// 持っていなければコマンドを発行しない
+		_oldSig.reset(a_typeID);
+
+		AddChangeSigCommand({
+			.entity = a_entity,
+			.toSig = _oldSig,
+		});
+	}
+
+	void World::AddChangeSigCommand(ChangeEntityCmd a_cmd)
+	{
+		m_changeEntityVec.push_back(a_cmd);
+	}
+
 	void World::ChangeSigneture(ChangeEntityCmd a_cmd)
 	{
 		// エンティティシグネチャの取得

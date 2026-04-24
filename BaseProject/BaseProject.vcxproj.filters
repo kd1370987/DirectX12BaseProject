@@ -700,6 +700,9 @@
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem">
       <UniqueIdentifier>{03cacf88-e424-4e9f-b13e-ec4c83499819}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Components\Tag\SystemPhaseTag">
+      <UniqueIdentifier>{c5902d69-d370-4672-b396-65beb03b9130}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1726,6 +1729,18 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\PostDeserializeTag.h">
+      <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\AwekeTag.h">
+      <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\StartTag.h">
+      <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ActiveTag.h">
+      <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
