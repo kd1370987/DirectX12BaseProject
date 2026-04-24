@@ -221,7 +221,7 @@ namespace Engine::ECS
 		void TransitionToUpdate();		// スタートからからアップデートへ処理へ
 
 		template<typename Beffor,typename Affter>
-		void TransitionPhase(Beffor a_befforPhase,Affter a_affterPhase);
+		void TransitionPhase();
 
 	private:
 
@@ -361,7 +361,7 @@ namespace Engine::ECS
 		ForEachEx<ActiveTag, Components...>(a_func, a_ex);
 	}
 	template<typename Beffor, typename Affter>
-	inline void World::TransitionPhase(Beffor a_befforPhase, Affter a_affterPhase)
+	inline void World::TransitionPhase()
 	{
 		ForEach<Beffor>(
 			[]

@@ -5,6 +5,13 @@
 #include "Engine/Editor/ECSView/ComponentEdit/ComponentEdit.h"		// エディター
 
 // コンポーネント関連
+// システムフェーズタグ
+#include "../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
+#include "../../Components/Tag/SystemPhaseTag/AwekeTag.h"
+#include "../../Components/Tag/SystemPhaseTag/StartTag.h"
+#include "../../Components/Tag/SystemPhaseTag/ActiveTag.h"
+
+
 #include "../../Components/Tag/ActiveCameraTag.h"
 #include "../../Components/Tag/CameraTag.h"
 #include "../../Components/Tag/PlayerControllTag.h"
@@ -100,6 +107,15 @@ void BaseScene::Update(float a_dt)
 	// シーンの初めに一括でエンティティを生成・削除
 	m_upWorld->BegineFrame();
 
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::PostDeserialize, a_dt);
+	m_upWorld->TransitionPhase<PostDeserializeTag, AwekeTag>();
+
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::Awake, a_dt);
+	m_upWorld->TransitionPhase<AwekeTag, StartTag>();
+
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::Start, a_dt);
+	m_upWorld->TransitionPhase<StartTag, ActiveTag>();
+
 	// シーン特有処理
 	Event();
 
@@ -129,6 +145,11 @@ void BaseScene::Draw()
 void BaseScene::RegistryComponent()
 {
 	// コンポーネント登録
+	m_upWorld->RegisterComponent<PostDeserializeTag>("PostDeserializeTag");
+	m_upWorld->RegisterComponent<AwekeTag>("AwekeTag");
+	m_upWorld->RegisterComponent<StartTag>("StartTag");
+	m_upWorld->RegisterComponent<ActiveTag>("ActiveTag");
+
 	m_upWorld->RegisterComponent<ActiveCameraTag>("ActiveCameraTag");
 	m_upWorld->RegisterComponent<CameraTag>("CameraTag");
 	m_upWorld->RegisterComponent<CameraControllTag>("CameraControllTag");
