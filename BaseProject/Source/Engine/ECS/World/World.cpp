@@ -36,6 +36,9 @@ namespace Engine::ECS
 
 	void World::BegineFrame()
 	{
+		// システムのソート
+		m_systemManager.Sort();
+
 		// エンティティの一括作成
 		CreateAllEntity();
 

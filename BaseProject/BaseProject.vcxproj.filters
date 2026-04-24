@@ -703,6 +703,12 @@
     <Filter Include="Source\Application\Components\Tag\SystemPhaseTag">
       <UniqueIdentifier>{c5902d69-d370-4672-b396-65beb03b9130}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\SeceneView">
+      <UniqueIdentifier>{a4ed6f70-80ce-4af4-8dc7-ce60732af4f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\SeceneView\EditorCamera">
+      <UniqueIdentifier>{edb892b0-b9f3-4d64-a6be-a02df34a7fb0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1127,6 +1133,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\SceneView\SceneView.cpp">
+      <Filter>Source\Engine\Editor\SeceneView</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\SceneView\EditorCamera\EditorCamera.cpp">
+      <Filter>Source\Engine\Editor\SeceneView\EditorCamera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1741,6 +1753,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ActiveTag.h">
       <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\SceneView\SceneView.h">
+      <Filter>Source\Engine\Editor\SeceneView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\SceneView\EditorCamera\EditorCamera.h">
+      <Filter>Source\Engine\Editor\SeceneView\EditorCamera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

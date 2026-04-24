@@ -31,6 +31,13 @@ namespace Engine::ECS
 	};
 
 
+
+	// カスタムタスク用依存情報
+	template<typename ...Comp> struct ReadList {};
+	template<typename ...Comp> struct WriteList {};
+
+
+
 	class World
 	{
 	public:
@@ -216,12 +223,16 @@ namespace Engine::ECS
 		void ForEachUpdate(Func a_func, Exclude<Excludes...> a_ex = {});
 
 		// システムのフェーズ遷移
-		void TransitionToAwake();		// ポストデシリアライズからアウェイク処理へ
-		void TransitionToStart();		// アウェイクからスタート処理へ
-		void TransitionToUpdate();		// スタートからからアップデートへ処理へ
-
 		template<typename Beffor,typename Affter>
 		void TransitionPhase();
+
+		// 静的に式を保存して呼び出す
+		template<typename ...Components, typename... Excludes, typename Func>
+		void RegisterTask(ESystemType a_phase,Func a_func, Exclude<Excludes...> a_ex = {});
+
+		// カスタムタスク登録
+		template<typename ...Read, typename... Write, typename Func>
+		void RegisterCustomTask(ESystemType a_phase, ReadList<Read...>,WriteList<Write...>,Func a_func);
 
 	private:
 
@@ -277,15 +288,17 @@ namespace Engine::ECS
 	template<typename Comp>
 	inline Comp* World::GetComponentArray(ArchetypeChunk* a_chunk)
 	{
-		return reinterpret_cast<Comp*>(
-			m_archetypeChunkManager.RefComponentArray(a_chunk, m_componentMetaRegistry.GetTypeID<Comp>())
-			);
+		// タイプIDの取得はconst を外した純粋な型で行う
+		using RawType = std::remove_const_t<Comp>;
+		auto _typeID = m_componentMetaRegistry.GetTypeID<RawType>();
+
+		return reinterpret_cast<Comp*>(m_archetypeChunkManager.RefComponentArray(a_chunk, _typeID));
 	}
 
 	template<typename System>
 	inline void World::RegisterSystem()
 	{
-		m_systemManager.Register<System>();
+		m_systemManager.Register<System>(this);
 	}
 
 	template<typename ...Components, typename Func>
@@ -377,5 +390,84 @@ namespace Engine::ECS
 				}
 			}
 		);
+	}
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::RegisterTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	{
+		SystemTask _task;
+
+		// テンプレート引数から、Read/Write のシグネチャを分離して生成
+		// 関数を作って、テンプレート数分回す
+		(
+			[&]()
+			{
+				// const がついていたら読み込み用
+				constexpr bool _isReadOnly = std::is_const_v<Components>;
+				// const を外した元の型でTypeIDを取得
+				auto _typeID = m_componentMetaRegistry.GetTypeID<std::remove_const_t<Components>>();
+
+				if constexpr (_isReadOnly)
+				{
+					_task.readSig.set(_typeID);
+				}
+				else
+				{
+					_task.writeSig.set(_typeID);
+				}
+			}(), ...
+		);
+
+		// 実行ロジックをラムダ式に包んでタスクとして保存
+		_task.executeFunc = [this, a_func](float a_dt)
+			{
+				// 実行用のシグネチャ
+				Signature _querySig;
+				(_querySig.set(m_componentMetaRegistry.GetTypeID<std::remove_const_t<Components>>()), ...);
+				Signature _excludeSig;
+				(_excludeSig.set(m_componentMetaRegistry.GetTypeID<Excludes>()), ...);
+
+				// チャンクの配列を取得
+				for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_querySig, _excludeSig))
+				{
+					if (!_chunk || _chunk->count == 0) continue;
+					// 操作しやすいように配列にして返す
+					auto _arrays = std::forward_as_tuple(
+						GetComponentArray<Components>(_chunk)...
+					);
+					std::apply(
+						[&](auto... a_data)
+						{
+							a_func(_chunk, _chunk->count, a_dt,a_data...);
+						},
+						_arrays
+					);
+				}
+			};
+
+		m_systemManager.AddSystemTask(a_phase, _task);
+	}
+	template<typename ...Read, typename ...Write, typename Func>
+	inline void World::RegisterCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	{
+		SystemTask _task;
+
+		// ReadList から読み込みシグネチャを生成
+		if constexpr (sizeof...(Read) > 0)
+		{
+			(_task.readSig.set(m_componentMetaRegistry.GetTypeID<Read>()), ...);
+		}
+
+		// WriteList から書き込みシグネチャを生成
+		if constexpr (sizeof...(Write) > 0)
+		{
+			(_task.writeSig.set(m_componentMetaRegistry.GetTypeID<Write>()), ...);
+		}
+		// 実行関数は自動ループせず、そのまま登録する
+		_task.executeFunc = [a_func](float a_dt)
+			{
+				a_func(a_dt);
+			};
+
+		m_systemManager.AddSystemTask(a_phase, _task);
 	}
 }

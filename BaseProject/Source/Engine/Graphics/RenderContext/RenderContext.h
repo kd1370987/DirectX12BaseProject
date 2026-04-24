@@ -43,11 +43,11 @@ namespace Engine::Graphics
 		RenderPassID passID = RenderPassID::ZPrePass;
 		LightingType lightingType = LightingType::PBR;
 
-		const Resource::Material* pMaterial = nullptr;
+		const Resource::Material* pMaterial;
 		UINT subIdx = 0;
 		Resource::Mesh* pMesh = nullptr;
 
-		DirectX::XMFLOAT4X4* pBoneMatrices = nullptr;
+		const DirectX::XMFLOAT4X4* pBoneMatrices = nullptr;
 		UINT boneCount = 0;
 
 		DirectX::XMFLOAT4X4 worldMat = {};

@@ -6,5 +6,8 @@ class RayCollisionSystem : public Engine::ECS::SystemBase<RayCollisionSystem>
 {
 public:
 	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Physics;
+
+	void Init(Engine::ECS::World& a_world) override;
+
 	void Run(Engine::ECS::World& a_world, float a_dt);
 };
