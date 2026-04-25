@@ -4,10 +4,8 @@
 
 class CamSetShaderSystem : public Engine::ECS::SystemBase<CamSetShaderSystem>
 {
-	public:
+public:
 	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::PreDraw;
 
 	void Init(Engine::ECS::World& a_world) override;
-
-	void Run(Engine::ECS::World& a_world, float a_dt);
 };

@@ -13,22 +13,11 @@ namespace Engine::ECS
 
 	void SystemManager::RunSystem(World& a_world, const ESystemType& a_type, float a_dt)
 	{
-		int _idx = static_cast<int>(a_type);
-
-		//auto _it = m_systemMap.find(a_type);
-		//if (_it != m_systemMap.end())
-		//{
-		//	for (auto& _system : _it->second)
-		//	{
-		//		_system->Update(a_world, a_dt);
-		//	}
-		//}
-
-//		return;
-
+		// フェーズ検索
 		auto _cit = m_compileTaskMap.find(a_type);
 		if (_cit != m_compileTaskMap.end())
 		{
+			// フェーズ内のソートされたシステムを順に回す
 			for (auto& _task : _cit->second)
 			{
 				_task->executeFunc(a_dt);

@@ -24,28 +24,20 @@ namespace Engine::ECS
 	{
 	public:
 
+		// 初期化
 		void Init();
 
-		/// <summary>
-		/// システムの登録
-		/// </summary>
-		/// <typeparam name="System">システム型</typeparam>
+		// システムの登録
 		template<typename System>
 		void Register(World* a_world);
 
-		/// <summary>
-		/// システムの更新
-		/// </summary>
-		/// <param name="a_world">ワールドの参照</param>
-		/// <param name="a_type">更新させたいシステムタイプ</param>
-		/// <param name="a_dt">デルタタイム</param>
+		// システムの更新
+		// システムのフェーズを指定、デルタタイムを入れる
 		void RunSystem(
 			World& a_world, const ESystemType& a_type, float a_dt
 		);
 
-		/// <summary>
-		/// トポロジカルソート、システムの依存関係を解決する
-		/// </summary>
+		// 登録されたタスクをフェーズごとにソートする
 		void Sort();
 
 		// タスクの登録
@@ -56,10 +48,13 @@ namespace Engine::ECS
 		// 登録されているシステム群
 		std::unordered_map<ESystemType, std::vector<std::shared_ptr<ISystem>>> m_systemMap;
 
-
+		// 登録されているタスク
 		std::unordered_map<ESystemType, std::vector<SystemTask>> m_systemTaskMap = {};
+
+		// ソート後のタスク
 		std::unordered_map<ESystemType, std::vector<SystemTask*>> m_compileTaskMap = {};
 
+		// 変更があるかどうか
 		bool m_isChange = false;
 	};
 
