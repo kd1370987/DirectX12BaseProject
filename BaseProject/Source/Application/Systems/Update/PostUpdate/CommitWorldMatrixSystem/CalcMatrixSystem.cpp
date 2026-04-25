@@ -7,12 +7,13 @@
 
 void CalcMatrixSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const TransformComponent, WorldMatrixComponent>(
+	a_world.ActiveTask<const TransformComponent, WorldMatrixComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_tags,
 			const TransformComponent* a_trsArray,
 			WorldMatrixComponent* a_worldMatArray
 		)

@@ -8,13 +8,14 @@
 
 void RotationSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const PlayerLookAngleComponent, TransformComponent>(
+	a_world.ActiveTask<const PlayerLookAngleComponent, TransformComponent>(
 		Engine::ECS::ESystemType::Update,
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_tags,
 			const PlayerLookAngleComponent* a_lookArray,
 			TransformComponent* a_trsArray
 		)

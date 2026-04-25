@@ -13,13 +13,14 @@
 
 void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const WorldMatrixComponent, const ModelComponent>(
+	a_world.ActiveTask<const WorldMatrixComponent, const ModelComponent>(
 		Engine::ECS::ESystemType::Draw,
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_tags,
 			const WorldMatrixComponent* a_worldMatArray,
 			const ModelComponent* a_modelArray
 		)

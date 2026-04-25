@@ -13,13 +13,15 @@
 
 void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const WorldMatrixComponent, const ModelComponent, const SkeletonPoseComponent, const AnimatorComponent, const NodePoseComponent>(
+	//a_world.RegisterTask<const WorldMatrixComponent, const ModelComponent, const SkeletonPoseComponent, const AnimatorComponent, const NodePoseComponent>(
+	a_world.ActiveTask<const WorldMatrixComponent, const ModelComponent, const SkeletonPoseComponent, const AnimatorComponent, const NodePoseComponent>(
 		Engine::ECS::ESystemType::Draw,
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_tags,
 			const WorldMatrixComponent* a_matArray,
 			const ModelComponent* a_modelArray,
 			const SkeletonPoseComponent* a_skeArray,

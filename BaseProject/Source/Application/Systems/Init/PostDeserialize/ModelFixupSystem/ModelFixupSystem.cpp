@@ -9,13 +9,14 @@
 
 void ModelFixupSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const PostDeserializeTag, ModelComponent>(
+	//a_world.RegisterTask<const PostDeserializeTag, ModelComponent>(
+	a_world.PostDeserializeTask<ModelComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
-			const PostDeserializeTag* a_tag,
+			PostDeserializeTag* a_tag,
 			ModelComponent* a_modelArray
 		)
 		{

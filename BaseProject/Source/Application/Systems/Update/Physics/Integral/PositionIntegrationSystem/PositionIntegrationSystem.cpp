@@ -9,12 +9,13 @@
 
 void PositionIntegrationSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const VelocityComponent, TransformComponent>(
+	a_world.ActiveTask<const VelocityComponent, TransformComponent>(
 		Engine::ECS::ESystemType::Update,
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_tags,
 			const VelocityComponent* a_velocityArray,
 			TransformComponent* a_trsArray
 		) 

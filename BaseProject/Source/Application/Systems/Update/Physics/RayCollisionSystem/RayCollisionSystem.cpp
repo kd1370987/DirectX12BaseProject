@@ -16,7 +16,7 @@
 
 void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterCustomTask(
+	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::Physics,
 		Engine::ECS::ReadList<RayColliderComponent>{},
 		Engine::ECS::WriteList<TransformComponent>{},

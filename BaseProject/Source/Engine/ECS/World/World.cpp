@@ -61,10 +61,12 @@ namespace Engine::ECS
 	ECS::Entity World::CreateEntity(const ECS::Signature& a_sig)
 	{
 		// エンティティIDの生成
-		ECS::Entity _entity = m_entityManager.CreateEntity(a_sig);
+		Signature _sig = a_sig;
+		_sig.set(GetCompTypeID<PostDeserializeTag>());
+		ECS::Entity _entity = m_entityManager.CreateEntity(_sig);
 
 		// エンティティをチャンクに割り当てる
-		EntityLocation _loca = m_archetypeChunkManager.AllocateEntity(_entity, a_sig);
+		EntityLocation _loca = m_archetypeChunkManager.AllocateEntity(_entity, _sig);
 
 		// エンティティのロケーションを記録
 		m_entityManager.SetEntityLocation(_entity, _loca);

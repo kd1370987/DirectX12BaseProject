@@ -11,12 +11,13 @@
 
 void ScreenUIDrawSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const WorldMatrixComponent, const UIComponent>(
+	a_world.ActiveTask<const WorldMatrixComponent, const UIComponent>(
 		Engine::ECS::ESystemType::Draw,
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_tags,
 			const WorldMatrixComponent* a_worldMatArray,
 			const UIComponent* a_uiArray
 		) 

@@ -6,12 +6,13 @@
 
 void GravitySystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const GravityComponent, VelocityComponent>(
+	a_world.ActiveTask<const GravityComponent, VelocityComponent>(
 		Engine::ECS::ESystemType::Update,
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt, 
+			ActiveTag* a_tags,
 			const GravityComponent* a_gravityArray,
 			VelocityComponent* a_velocityArray
 		)

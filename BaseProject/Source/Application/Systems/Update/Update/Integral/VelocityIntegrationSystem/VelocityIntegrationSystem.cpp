@@ -6,12 +6,13 @@
 
 void VelocityIntegrationSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<VelocityComponent>(
+	a_world.ActiveTask<VelocityComponent>(
 		Engine::ECS::ESystemType::Update,
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_tags,
 			VelocityComponent* a_velocityArray
 		)
 		{
@@ -23,18 +24,3 @@ void VelocityIntegrationSystem::Init(Engine::ECS::World& a_world)
 	);
 }
 
-void VelocityIntegrationSystem::Run(Engine::ECS::World& a_world, float a_dt)
-{
-	a_world.ForEach<VelocityComponent>
-		(
-			[&a_world, a_dt]
-			(
-				Engine::ECS::ArchetypeChunk* a_pChunk,
-				uint32_t a_count,
-				VelocityComponent* a_velocityArray
-				)
-			{
-				
-			}
-		);
-}

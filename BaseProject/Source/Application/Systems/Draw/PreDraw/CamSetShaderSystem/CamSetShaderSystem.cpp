@@ -15,12 +15,13 @@
 
 void CamSetShaderSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const ActiveCameraTag, const CameraTag, const ProjMatComponent, const WorldMatrixComponent>(
+	a_world.ActiveTask<const ActiveCameraTag, const CameraTag, const ProjMatComponent, const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::PreDraw,
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_tags,
 			const ActiveCameraTag* a_activeCamTagArray,
 			const CameraTag* a_camTagArray,
 			const ProjMatComponent* a_projMatArray,

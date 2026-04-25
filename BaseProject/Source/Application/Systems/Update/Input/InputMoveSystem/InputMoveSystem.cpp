@@ -11,13 +11,14 @@
 
 void InputMoveSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const PlayerControllTag, VelocityComponent, PlayerLookAngleComponent>(
+	a_world.ActiveTask<const PlayerControllTag, VelocityComponent, PlayerLookAngleComponent>(
 		Engine::ECS::ESystemType::Update,
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_ActiveTag,
 			const PlayerControllTag* a_tags,
 			VelocityComponent* a_velocityArray,
 			PlayerLookAngleComponent* a_playerLookArray

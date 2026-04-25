@@ -9,10 +9,15 @@
 
 #include "../Internal/SystemComon.h"
 
-class ActiveTag;
-class StartTag;
-class AwekeTag;
-class PostDeserializeTag;
+#include "../../../Application/Components/Tag/SystemPhaseTag/ActiveTag.h"
+#include "../../../Application/Components/Tag/SystemPhaseTag/AwekeTag.h"
+#include "../../../Application/Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
+#include "../../../Application/Components/Tag/SystemPhaseTag/StartTag.h"
+
+//class ActiveTag;
+//class StartTag;
+//class AwekeTag;
+//class PostDeserializeTag;
 
 namespace Engine::ECS
 {
@@ -30,13 +35,9 @@ namespace Engine::ECS
 		std::unordered_map<ComponentTypeID, uint8_t*> dataMap = {};
 	};
 
-
-
 	// カスタムタスク用依存情報
 	template<typename ...Comp> struct ReadList {};
 	template<typename ...Comp> struct WriteList {};
-
-
 
 	class World
 	{
@@ -115,11 +116,11 @@ namespace Engine::ECS
 		//------------------------------------------------------------------------------------------
 		// エンティティの操作
 		//------------------------------------------------------------------------------------------
-		// エンティティに対してコンポーネントを追加
-		void AddComponent(ComponentTypeID a_typeID,Entity a_entity);
-		void SubmitComponent(ComponentTypeID a_typeID,Entity a_entity);
-		void AddChangeSigCommand(ChangeEntityCmd a_cmd);
-		void ChangeSigneture(ChangeEntityCmd a_cmd);
+		// エンティティに対してコンポーネントを操作
+		void AddComponent(ComponentTypeID a_typeID,Entity a_entity);		// 追加
+		void SubmitComponent(ComponentTypeID a_typeID,Entity a_entity);		// 削除
+		void AddChangeSigCommand(ChangeEntityCmd a_cmd);					// 指定シグネチャに変更するコマンド
+		void ChangeSigneture(ChangeEntityCmd a_cmd);						// コマンドから実際にアーキタイプを移動させる
 
 		//==========================================================================================
 		// 
@@ -134,13 +135,10 @@ namespace Engine::ECS
 		// コンポーネントIDの取得
 		ComponentTypeID GetCompTypeID(const std::type_index& a_index);
 		ComponentTypeID GetCompTypeID(const std::string& a_name);
+		template<typename Comp>
+		ComponentTypeID GetCompTypeID();
 
-		/// <summary>
-		/// ネイティブなバイトデータへのポインタを取得
-		/// </summary>
-		/// <param name="a_entity">エンティティID</param>
-		/// <param name="a_index">コンポーネント型</param>
-		/// <returns></returns>
+		// ネイティブなバイトデータへのポインタを取得
 		uint8_t* NRefData(const Entity& a_entity, const std::type_index& a_index);
 		uint8_t* NRefData(const Entity& a_entity, const ComponentTypeID& a_typeID);
 
@@ -161,12 +159,12 @@ namespace Engine::ECS
 		template<typename Comp>
 		Comp* GetComponentArray(ArchetypeChunk* a_chunk);
 
-		/// <summary>
-		/// コンポーネントメタデータの取得
-		/// </summary>
-		const ComponentMeta& GetComponentMetaData(const ComponentTypeID& a_typeID);
+		// 指定コンポーネントの情報を取得
+		const ComponentMeta& GetComponentMetaData(const ComponentTypeID& a_typeID);	// メタデータ
+		const ComponentFunc& GetCompFunc(const ComponentTypeID& a_typeID)const;		// 関数
+
+		// 全コンポーネントの情報を取得
 		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllComponentMetaData() const;
-		const ComponentFunc& GetCompFunc(const ComponentTypeID& a_typeID)const;
 
 		//==========================================================================================
 		// 
@@ -174,65 +172,60 @@ namespace Engine::ECS
 		// 
 		//==========================================================================================
 
-		/// <summary>
-		/// システムの登録
-		/// </summary>
-		/// <typeparam name="System">登録したいクラス</typeparam>
+		// システムの登録
 		template<typename System>
 		void RegisterSystem();
 
-		/// <summary>
-		/// システムの実行
-		/// </summary>
-		/// <param name="a_type">実行してほしいシステムタイプ</param>
-		/// <param name="a_dt">デルタタイム</param>
+		// システムの実行
+		// システムフェーズを指定してデルタタイムを渡す
 		void RunSystem(ESystemType a_type, float a_dt);
 
-		/// <summary>
-		/// 指定したコンポーネント群を持つすべてのチャンクに対して、指定された関数を実行します
-		/// </summary>
-		/// <typeparam name="...Components">必要なコンポーネント</typeparam>
-		/// <typeparam name="Func">引数を入れる関数</typeparam>
-		/// <param name="a_func">引数を入れる関数</param>
+		// 収集関数
+		// 指定したコンポーネント群を持つすべてのチャンクに対して、指定された関数を実行します
 		template<typename... Components, typename Func>
 		void ForEach(Func a_func);
 
-		/// <summary>
-		/// 除外指定もできる検索
-		/// </summary>
-		/// <typeparam name="...Components">必要なコンポーネント</typeparam>
-		/// <typeparam name="...Excludes">除外するコンポーネント</typeparam>
+		// 除外指定付き取集関数
+		// 除外コンポーネントをテンプレートで第二引数で受け取る
 		template<typename... Components, typename... Excludes, typename Func>
 		void ForEachEx(Func a_func, Exclude<Excludes...>);
-
-		// システムフェーズごとのForEach処理
-		// モデルやテクスチャなどのシリアライズ後の依存関係解決する処理
-		template<typename... Components, typename... Excludes, typename Func>
-		void ForEachPostDeserialize(Func a_func, Exclude<Excludes...> a_ex = {});
-
-		// エンティティ以外での依存解決が終わった後に回す処理
-		template<typename... Components, typename... Excludes, typename Func>
-		void ForEachAweke(Func a_func, Exclude<Excludes...> a_ex = {});
-
-		// アップデートの直前に回す処理
-		template<typename... Components, typename... Excludes, typename Func>
-		void ForEachStart(Func a_func, Exclude<Excludes...> a_ex = {});
-
-		// 更新描画
-		template<typename... Components, typename... Excludes, typename Func>
-		void ForEachUpdate(Func a_func, Exclude<Excludes...> a_ex = {});
 
 		// システムのフェーズ遷移
 		template<typename Beffor,typename Affter>
 		void TransitionPhase();
 
+		//------------------------------------------------------------------------------------------
+		// システムタスクの登録
+		//------------------------------------------------------------------------------------------
 		// 静的に式を保存して呼び出す
 		template<typename ...Components, typename... Excludes, typename Func>
 		void RegisterTask(ESystemType a_phase,Func a_func, Exclude<Excludes...> a_ex = {});
 
+		// フェーズごとの専用登録関数
+		template<typename ...Components, typename... Excludes, typename Func>
+		void PostDeserializeTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
+		template<typename ...Components, typename... Excludes, typename Func>
+		void AwekeTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
+		template<typename ...Components, typename... Excludes, typename Func>
+		void StartTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
+		template<typename ...Components, typename... Excludes, typename Func>
+		void ActiveTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
+
 		// カスタムタスク登録
+		// システム内で何度もForEachなどを使うときに使用
 		template<typename ...Read, typename... Write, typename Func>
 		void RegisterCustomTask(ESystemType a_phase, ReadList<Read...>,WriteList<Write...>,Func a_func);
+
+		// フェーズごとの専用関数
+		template<typename ...Read, typename... Write, typename Func>
+		void PostDeserializeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		template<typename ...Read, typename... Write, typename Func>
+		void AwekeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		template<typename ...Read, typename... Write, typename Func>
+		void StartCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		template<typename ...Read, typename... Write, typename Func>
+		void ActiveCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+
 
 	private:
 
@@ -262,12 +255,12 @@ namespace Engine::ECS
 		~World();
 
 		// コピー禁止
-		World(const World&) = default;
-		World& operator=(const World&) = default;
+		World(const World&) = delete;
+		World& operator=(const World&) = delete;
 
 		// ムーブ禁止
-		World(World&&) = default;
-		World& operator = (World&&) = default;
+		World(World&&) = delete;
+		World& operator = (World&&) = delete;
 	};
 
 	template<typename Comp>
@@ -275,6 +268,12 @@ namespace Engine::ECS
 	{
 		auto _id = m_componentMetaRegistry.RegisterType<Comp>(a_name);
 		return _id;
+	}
+
+	template<typename Comp>
+	inline ComponentTypeID World::GetCompTypeID()
+	{
+		return GetCompTypeID(typeid(Comp));
 	}
 
 	template<typename Comp>
@@ -353,31 +352,16 @@ namespace Engine::ECS
 			);
 		}
 	}
-	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::ForEachPostDeserialize(Func a_func, Exclude<Excludes...> a_ex)
-	{
-		ForEachEx<PostDeserializeTag, Components...>(a_func, a_ex);
-	}
-	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::ForEachAweke(Func a_func, Exclude<Excludes...> a_ex)
-	{
-		ForEachEx<AwekeTag, Components...>(a_func, a_ex);
-	}
-	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::ForEachStart(Func a_func, Exclude<Excludes...> a_ex)
-	{
-		ForEachEx<StartTag, Components...>(a_func, a_ex);
-	}
-	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::ForEachUpdate(Func a_func, Exclude<Excludes...> a_ex)
-	{
-		ForEachEx<ActiveTag, Components...>(a_func, a_ex);
-	}
+
 	template<typename Beffor, typename Affter>
 	inline void World::TransitionPhase()
 	{
+		// コンポーネントのタイプIDを取得
+		ComponentTypeID _befforID = GetCompTypeID<Beffor>();
+		ComponentTypeID _affterID = GetCompTypeID<Affter>();
+
 		ForEach<Beffor>(
-			[]
+			[this,_befforID,_affterID]
 			(
 				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
@@ -386,7 +370,19 @@ namespace Engine::ECS
 			{
 				for (size_t _i = 0; _i < a_count; ++_i)
 				{
-					Beffor& _comp = a_compArray[_i];
+					// シグネチャの取得
+					Entity _entity = a_pChunk->entityData[_i];
+					Signature _sig = GetSignature(_entity);
+
+					// シグネチャに対してBefforIDを排除してAffterを入れる
+					_sig.reset(_befforID);
+					_sig.set(_affterID);
+
+					// 変更予定エンティティとしてリストに追加
+					ChangeEntityCmd _cmd = {};
+					_cmd.entity = _entity;
+					_cmd.toSig = _sig;
+					AddChangeSigCommand(_cmd);
 				}
 			}
 		);
@@ -446,6 +442,26 @@ namespace Engine::ECS
 
 		m_systemManager.AddSystemTask(a_phase, _task);
 	}
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::PostDeserializeTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	{
+		RegisterTask<PostDeserializeTag, Components...>(a_phase, a_func, a_ex);
+	}
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::AwekeTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	{
+		RegisterTask<AwekeTag, Components...>(a_phase, a_func, a_ex);
+	}
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::StartTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	{
+		RegisterTask<StartTag, Components...>(a_phase, a_func,a_ex);
+	}
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::ActiveTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	{
+		RegisterTask<ActiveTag, Components...>(a_phase,a_func, a_ex);
+	}
 	template<typename ...Read, typename ...Write, typename Func>
 	inline void World::RegisterCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
@@ -469,5 +485,45 @@ namespace Engine::ECS
 			};
 
 		m_systemManager.AddSystemTask(a_phase, _task);
+	}
+	template<typename ...Read, typename ...Write, typename Func>
+	inline void World::PostDeserializeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	{
+		RegisterCustomTask(
+			a_phase,
+			ReadList<PostDeserializeTag, Read...>{},
+			WriteList<Write...>{},
+			a_func
+		);
+	}
+	template<typename ...Read, typename ...Write, typename Func>
+	inline void World::AwekeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	{
+		RegisterCustomTask(
+			a_phase,
+			ReadList<AwekeTag, Read...>{},
+			WriteList<Write...>{},
+			a_func
+		);
+	}
+	template<typename ...Read, typename ...Write, typename Func>
+	inline void World::StartCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	{
+		RegisterCustomTask(
+			a_phase,
+			ReadList<StartTag, Read...>{},
+			WriteList<Write...>{},
+			a_func
+		);
+	}
+	template<typename ...Read, typename ...Write, typename Func>
+	inline void World::ActiveCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	{
+		RegisterCustomTask(
+			a_phase,
+			ReadList<ActiveTag, Read...>{},
+			WriteList<Write...>{},
+			a_func
+		);
 	}
 }

@@ -15,12 +15,13 @@
 
 void TPSSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, TransformComponent>(
+	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, TransformComponent>(
 		Engine::ECS::ESystemType::Camera,
 		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_tags,
 			FollowTargetComponent* a_targetArray,
 			TPSOffsetComponent* a_offsetArray,
 			TPSLookAngleComponent* a_lookAngArray,

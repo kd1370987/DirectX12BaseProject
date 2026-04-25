@@ -11,12 +11,13 @@
 
 void AnimationSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.RegisterTask<const ModelComponent, AnimatorComponent, NodePoseComponent>(
+	a_world.ActiveTask<const ModelComponent, AnimatorComponent, NodePoseComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
+			ActiveTag* a_tags,
 			const ModelComponent* a_modelArray,
 			AnimatorComponent* a_animatorArray,
 			NodePoseComponent* a_NodePoseArray
