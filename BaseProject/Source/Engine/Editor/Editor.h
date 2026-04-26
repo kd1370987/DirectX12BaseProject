@@ -9,6 +9,8 @@ namespace Engine::Editor
 	class ComponentEdit;
 	class AssetResourceView;
 	class ImGuiContext;
+	class SceneView;
+	class EditorCamera;
 
 	//=======================================================================
 	// 
@@ -28,6 +30,7 @@ namespace Engine::Editor
 		// 描画
 		void Draw(ID3D12GraphicsCommandList* a_pCmdList,UINT a_widht,UINT a_height);
 
+		const EditorCamera* GetEditorCamera();
 
 		//=======================================================================
 		// ログ関連
@@ -63,6 +66,9 @@ namespace Engine::Editor
 		std::unique_ptr<RenderGraphView> m_upRGView = nullptr;
 		// ECS
 		std::unique_ptr<ECSView> m_upECSView = nullptr;
+
+		// シーンビュー
+		std::unique_ptr<SceneView> m_upSceneView = nullptr;
 
 		// アセットビュー
 		std::unique_ptr<AssetResourceView> m_upAssetResourceView = nullptr;

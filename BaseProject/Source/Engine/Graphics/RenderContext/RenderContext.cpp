@@ -20,6 +20,8 @@
 #include "../RenderGraph/RenderGraph.h"
 
 #include "ShapeDraw/ShapeDraw.h"
+
+#include "../../Editor/SceneView/EditorCamera/EditorCamera.h"
 //============================================================================================
 //
 // 初期化
@@ -541,9 +543,15 @@ namespace Engine::Graphics
 		m_pCurrentMesh = nullptr;
 		m_pCurrentPoly = nullptr;
 
+		// エディターカメラでの実行
+		DXSM::Matrix _projMat = Engine::Editor::MainEditor::Instance().GetEditorCamera()->GetProjMat();
+		DXSM::Matrix _worldMat = Engine::Editor::MainEditor::Instance().GetEditorCamera()->GetWorldMat();
+		SetProjectionMatrix(_projMat);
+		SetToShader(_worldMat);
 
 		// レンダーパスの実行
 		m_upRenderGraph->Excute(this);
+
 
 		// 描画対象アイテムリストのクリア
 		m_drawItemMap.clear();

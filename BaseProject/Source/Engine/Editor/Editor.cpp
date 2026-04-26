@@ -13,6 +13,9 @@
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
+#include "SceneView/SceneView.h"
+#include "SceneView/EditorCamera/EditorCamera.h"
+
 namespace Engine::Editor
 {
 
@@ -58,6 +61,11 @@ namespace Engine::Editor
 			m_upAssetResourceView = std::make_unique<AssetResourceView>();
 			m_upAssetResourceView->Init();
 		}
+		if (!m_upSceneView)
+		{
+			m_upSceneView = std::make_unique<SceneView>();
+			m_upSceneView->Init();
+		}
 
 		return true;
 	}
@@ -87,6 +95,10 @@ namespace Engine::Editor
 
 		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);
+	}
+	const EditorCamera* MainEditor::GetEditorCamera()
+	{
+		return m_upSceneView->GetEditorCamera();
 	}
 	void MainEditor::AddLog(const char* a_fmt, ...)
 	{
