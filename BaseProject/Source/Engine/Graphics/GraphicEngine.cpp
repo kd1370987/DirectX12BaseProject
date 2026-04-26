@@ -11,8 +11,10 @@
 #include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 
 // グラフィックス関係
+#include "RenderContext/RenderContext.h"
 #include "RenderContext/ShapeDraw/ShapeDraw.h"
 #include "RenderGraph/RenderGraph.h"
+
 
 namespace Engine::Graphics
 {
@@ -29,6 +31,10 @@ namespace Engine::Graphics
 		// ルートシグネチャの定義
 		RootSigDefinition();
 
+		// レンダーコンテキストの作成
+		m_upRenderContext = std::make_unique<RenderContext>();
+		m_upRenderContext->Init();
+
 		// 形状描画クラス構築
 		m_upShapeRender = std::make_unique<ShapeRenderer>();
 
@@ -36,6 +42,15 @@ namespace Engine::Graphics
 		// エディター用
 		m_upRenderGraphMap["EditorRenderGraph"] = std::make_unique<RenderGraph>();
 		m_upRenderGraphMap["GameRenderGraph"] = std::make_unique<RenderGraph>();
+		for (auto& [_cam, _graph] : m_upRenderGraphMap)
+		{
+			_graph->Init(
+				m_upRenderContext.get(),
+				m_upShaderManager.get(),
+				m_upRootSignatureManager.get(),
+				m_upGrahicsPSOManager.get()
+			);
+		}
 	}
 
 	void GraphicsEngine::Release()
@@ -46,6 +61,14 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::Draw()
 	{}
+	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const
+	{
+		return m_upRenderContext.get();
+	}
+	Graphics::RenderContext* GraphicsEngine::RefRenderContext()
+	{
+		return m_upRenderContext.get();
+	}
 	void GraphicsEngine::CreateManager()
 	{
 		// デバイス取得

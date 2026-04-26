@@ -7,7 +7,9 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/Graphics/GraphicEngine.h"
 
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
@@ -80,15 +82,19 @@ namespace Engine
 			return;
 		}
 
+		// 描画周り初期化
+		m_upGraphicsEngine = std::make_unique<Graphics::GraphicsEngine>();
+		Graphics::GraphicsEngineDesc _geDesc = {};
+		_geDesc.width = _windowWidth;
+		_geDesc.height = _windowHeight;
+		m_upGraphicsEngine->Init(_geDesc);
+
 		// エディター初期化
 		if (!Engine::Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle()))
 		{
 			assert(0 && "エディターの初期化に失敗");
 			return;
 		}
-
-		// 描画初期化
-		RefRenderContext()->Init();
 
 		m_config = a_config;
 	}
@@ -100,10 +106,6 @@ namespace Engine
 		{
 			D3D12Wrapper::Instance().WaitRender(_i);
 		}
-
-
-		// レンダーコンテキスト解放
-		RefRenderContext()->Shutdown();
 
 		// ImGui解放
 		Engine::Editor::MainEditor::Instance().Release();
@@ -215,11 +217,11 @@ namespace Engine
 	}
 	const Graphics::RenderContext* MainEngine::GetRenderContext() const
 	{
-		return &Graphics::RenderContext::Instance();
+		return m_upGraphicsEngine->GetRenderContext();
 	}
 	Graphics::RenderContext* MainEngine::RefRenderContext()
 	{
-		return &Graphics::RenderContext::Instance();
+		return m_upGraphicsEngine->RefRenderContext();
 	}
 	void MainEngine::InitializeAssetManager()
 	{

@@ -29,7 +29,10 @@
 //============================================================================================
 namespace Engine::Graphics
 {
-	void RenderContext::Init()
+	void RenderContext::Init(
+		Resource::ShaderManager* a_pShaderMana,
+		RootSignatureManager* a_pRootSigMana,
+		Engine::D3D12::GraphicsPSOManager* a_pPSOMana)
 	{
 		// シェーダー用意
 		m_spShaderManger = std::make_shared<Resource::ShaderManager>();
@@ -243,6 +246,11 @@ namespace Engine::Graphics
 		DirectX::XMStoreFloat4x4(&m_cb0_camera.viewInvMat, _wMat);
 	}
 
+	float RenderContext::GetCameraAspectRate()
+	{
+		return m_aspectRate;
+	}
+
 	const DirectX::XMFLOAT4X4& RenderContext::GetCameraRotMat()
 	{
 		DXSM::Matrix _mat = m_cb0_camera.viewInvMat;
@@ -299,69 +307,6 @@ namespace Engine::Graphics
 		}
 	}
 
-	void RenderContext::BindCB(RootSigSemantic a_sema)
-	{
-		// レジスター番号取得
-		UINT _regiIdx =
-			m_spRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
-		auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
-
-		if (ERR_UINT != _regiIdx)
-		{
-			switch (a_sema)
-			{
-			case RootSigSemantic::CameraCB:
-				BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
-					_cmdList,
-					_regiIdx,
-					m_cb0_camera
-				);
-				break;
-			case RootSigSemantic::ObjectCB:
-				BindCB()->BindSemanticCBV<RootSigSemantic::ObjectCB>(
-					_cmdList,
-					_regiIdx,
-					m_cb1_object
-				);
-				break;
-			case RootSigSemantic::MeshTransCB:
-				BindCB()->BindSemanticCBV<RootSigSemantic::MeshTransCB>(
-					_cmdList,
-					_regiIdx,
-					m_cb2_MeshTrans
-				);
-				break;
-			case RootSigSemantic::MaterialCB:
-				BindCB()->BindSemanticCBV<RootSigSemantic::MaterialCB>(
-					_cmdList,
-					_regiIdx,
-					m_cb3_Material
-				);
-				break;
-			case RootSigSemantic::MaterialSRV:
-				break;
-			case RootSigSemantic::PostScreenSRV:
-				break;
-			default:
-				break;
-			}
-		}
-	}
-
-	void RenderContext::SetProjectionMatrix(
-		float a_fov, float a_aspect, float a_near, float a_far
-	)
-	{
-		DirectX::XMStoreFloat4x4(
-			&m_cb0_camera.projMat,
-			DirectX::XMMatrixPerspectiveFovLH(
-				a_fov,
-				a_aspect,
-				a_near,
-				a_far
-			)
-		);
-	}
 
 	void RenderContext::SetProjectionMatrix(DirectX::XMFLOAT4X4 a_projMat)
 	{
@@ -374,30 +319,13 @@ namespace Engine::Graphics
 		return m_frameResource[_currentIdx].spCamAndObjectCBAllocater.get();
 	}
 
-
-	void RenderContext::ChangeRenderTarget(
-		const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec,
-		D3D12_CPU_DESCRIPTOR_HANDLE* a_depthHandle
-	)
-	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
-		_pCmdList->OMSetRenderTargets(
-			static_cast<UINT>(std::size(a_cpuHnadleVec)),
-			a_cpuHnadleVec.data(),
-			false,
-			a_depthHandle
-		);
-
-		D3D12Wrapper::Instance().SetViewportAndRect();
-	}
-
 	void RenderContext::ChangeRenderTarget(const std::vector<Resource::Handle<RTV>>& a_rtvHandleVec, const Resource::Handle<DSV>& a_dsvHandle)
 	{
 		// 変数用意
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvCPUVec = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE _dsvCPU;
 		D3D12_CPU_DESCRIPTOR_HANDLE* _pDSVCPU = nullptr;
+		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 		// RTVをハンドルへ変換
 		for (auto& _rtv : a_rtvHandleVec)
@@ -412,7 +340,15 @@ namespace Engine::Graphics
 		}
 
 		// チェンジ
-		ChangeRenderTarget(_rtvCPUVec,_pDSVCPU);
+		_pCmdList->OMSetRenderTargets(
+			static_cast<UINT>(std::size(_rtvCPUVec)),
+			_rtvCPUVec.data(),
+			false,
+			_pDSVCPU
+		);
+
+		// ビューポートとシザー矩形をセット
+		D3D12Wrapper::Instance().SetViewportAndRect();
 	}
 
 
@@ -449,19 +385,11 @@ namespace Engine::Graphics
 		}
 	}
 
-	void RenderContext::ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle, const DirectX::XMFLOAT4& a_colorRGBA, const UINT& a_numRects, const D3D12_RECT* a_pRects)
-	{
-		D3D12Wrapper::Instance().ClearRenderTargetView(
-			a_cpuHandle,
-			a_colorRGBA,
-			a_numRects,
-			a_pRects
-		);
-	}
-
 	void RenderContext::ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle)
 	{
 		auto& _tex = Resource::TextureManager::Instance().RefTexture(a_texHandle);
+
+		// もしテクスチャのステートがレンダーターゲットでなければリターン
 		if (
 			_tex.GetState() != D3D12_RESOURCE_STATE_RENDER_TARGET && 
 			!Resource::HasFlag(_tex.GetUsage(),Resource::TextureUsage::RTV)
@@ -470,13 +398,11 @@ namespace Engine::Graphics
 			return;
 		}
 		auto _cpu = DescriptorHeapManager::Instance().GetRTVCPUHandle(_tex.GetRTV());
+
+		// CPUハンドルと、テクスチャ作成時のクリアバリューをセット
 		D3D12Wrapper::Instance().ClearRenderTargetView(_cpu,_tex.GetClearColor());
 	}
 
-	void RenderContext::ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle)
-	{
-		D3D12Wrapper::Instance().ClearDepthStencilView(a_depthHandle);
-	}
 
 	void RenderContext::ClearDSV(const Resource::Handle<DSV>& a_DSVHandle)
 	{
@@ -484,17 +410,6 @@ namespace Engine::Graphics
 		D3D12Wrapper::Instance().ClearDepthStencilView(_cpu);
 	}
 
-	void RenderContext::ClearDepth(const Resource::Handle<Resource::Texture>& a_texHandle)
-	{
-		auto& _tex = Resource::TextureManager::Instance().RefTexture(a_texHandle);
-		if (!Resource::HasFlag(_tex.GetUsage(), Resource::TextureUsage::DSV))
-		{
-			return;
-		}
-
-		auto _cpu = DescriptorHeapManager::Instance().GetDSVCPUHandle(_tex.GetDSV());
-		D3D12Wrapper::Instance().ClearDepthStencilView(_cpu);
-	}
 
 	ShapeRenderer* RenderContext::RefShapeDraw()
 	{
@@ -558,10 +473,6 @@ namespace Engine::Graphics
 		m_drawItem2DMap.clear();
 	}
 
-	void RenderContext::AddItem(const DrawItem& a_item)
-	{
-		m_drawItemVec.push_back(a_item);
-	}
 
 	void RenderContext::SetGraphicsRootSignature(const Resource::ID& a_rootSigID)
 	{

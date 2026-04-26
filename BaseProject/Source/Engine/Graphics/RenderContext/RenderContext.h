@@ -70,7 +70,7 @@ namespace Engine::Graphics
 
 	class ShapeRenderer;
 	
-
+	// 現在のフレームの描画管理クラス
 	class RenderContext
 	{
 	public:
@@ -86,130 +86,96 @@ namespace Engine::Graphics
 
 	public:
 
-		/// <summary>
-		/// 初期化・パイプラインステートやルートシグネチャの構築
-		/// </summary>
-		void Init();
+		//--------------------------------------------------------------------------------------------
+		// クラス基盤
+		//--------------------------------------------------------------------------------------------
+		
+		RenderContext();
+		~RenderContext();
 
-		/// <summary>
-		/// 終了処理
-		/// </summary>
+		// 初期化・解放
+		void Init(
+			Resource::ShaderManager* a_pShaderMana,
+			RootSignatureManager* a_pRootSigMana,
+			Engine::D3D12::GraphicsPSOManager* a_pPSOMana
+		);
 		void Shutdown();
 
+		// フレームの初めと終わりの処理
 		void BeginFrame();
 		void EndFrame();
 
-		/// <summary>
-		/// カメラの情報を定数バッファに乗せてシェーダーに転送
-		/// </summary>
-		void SetToShader(
-			const DirectX::XMFLOAT4X4& a_worldMat
-		);
+		//--------------------------------------------------------------------------------------------
+		// カメラ関係
+		//--------------------------------------------------------------------------------------------
+		// 描画時情報セット
+		void SetToShader(const DirectX::XMFLOAT4X4& a_worldMat);		// ワールド行列
+		void SetProjectionMatrix(DirectX::XMFLOAT4X4 a_projMat);		// プロジェクション行列
 
-		// カメラ情報取得
-		float GetCameraAspectRate()
-		{
-			return m_aspectRate;
-		}
-		const DirectX::XMFLOAT4X4& GetCameraRotMat();
+		// 現在の描画しているカメラの情報を取得
+		float GetCameraAspectRate();									// アスペクトレート
+		const DirectX::XMFLOAT4X4& GetCameraRotMat();					// 回転行列
+		const DXSM::Vector3& GetCameraPOS();							// 座標
 
-		const DXSM::Vector3& GetCameraPOS();
-
+		// 描画直前にカメラの情報をGPU側に送る
 		void BindCameraCB();
 
-		void BindCB(RootSigSemantic a_sema);
-
-		/// <summary>
-		/// プロジェクション行列の設定
-		/// </summary>
-		/// <param name="a_fov">視野角</param>
-		/// <param name="a_aspect">アスペクト比</param>
-		/// <param name="a_near">ニアクリップ</param>
-		/// <param name="a_far">ファークリップ</param>
-		void SetProjectionMatrix(
-			float a_fov,
-			float a_aspect,
-			float a_near,
-			float a_far
-		);
-
-		/// <summary>
-		/// プロジェクション行列の設定
-		/// </summary>
-		/// <param name="a_projMat">入れたい値</param>
-		void SetProjectionMatrix(
-			DirectX::XMFLOAT4X4 a_projMat
-		);
-
+		//--------------------------------------------------------------------------------------------
+		// バッファ関係
+		//--------------------------------------------------------------------------------------------
+		// 現在のフレームの定数バッファアロケーターにアクセス
 		CBAllocater* BindCB();
 
-		/// <summary>
-		/// レンダーターゲットの切り替え
-		/// </summary>
-		/// <param name="a_cpuHnadleVec">RTVハンドル配列</param>
-		/// <param name="a_depthHandle">深度値を使うのならDSVハンドル</param>
-		void ChangeRenderTarget(
-			const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHnadleVec,
-			D3D12_CPU_DESCRIPTOR_HANDLE* a_depthHandle = nullptr
-		);
+		// レンダーターゲットの切り替え
+		// 基本的にハンドルで管理しているため内部以外では直接触らない
 		void ChangeRenderTarget(
 			const std::vector<Resource::Handle<RTV>>& a_rtvHandleVec,
 			const Resource::Handle<DSV>& a_dsvHandle
 		);
 
+		// SRVのバインド
+		// 直接数字を指定してのバインド
 		void BindSRV(
 			int a_rootIndex,
 			const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
 		);
+		// 割り当てられているルート番号を探してのバインド
 		void BindSRV(
 			RootSigSemantic a_sema,
 			const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
 		);
 
-		void ClearRenderTarget(
-			const D3D12_CPU_DESCRIPTOR_HANDLE& a_renderTargetView,
-			const DirectX::XMFLOAT4& a_colorRGBA = { 0.0f,0.0f,0.0f,1.0f },
-			const UINT& a_numRects = 0,
-			const D3D12_RECT* a_pRects = nullptr
-		);
+		// レンダーターゲットのクリア
 		void ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle);
 
-		void ClearDepth(const D3D12_CPU_DESCRIPTOR_HANDLE& a_depthHandle);
+		// 深度値バッファのクリア
 		void ClearDSV(const Resource::Handle<DSV>& a_DSVHandle);
-		void ClearDepth(const Resource::Handle<Resource::Texture>& a_texHandle);
 
+		// 矩形描画のためのクラス取得
 		ShapeRenderer* RefShapeDraw();
 
-		//============================================================================================
-		// 
+
+		//--------------------------------------------------------------------------------------------
 		// 描画コマンド
-		// 
-		//============================================================================================
+		//--------------------------------------------------------------------------------------------
+		// 描画命令の追加
+		void AddItem(const RenderQueueType& a_type, const DrawItem& a_item);		// 3D
+		void AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec);		// 2D
 
-		void AddItem(const RenderQueueType& a_type, const DrawItem& a_item);
+		// 描画命令の取得
+		const std::vector<DrawItem>& GetItemVec(const RenderQueueType& a_type) const;		// 3D
+		const std::vector<DrawItem2D>& GetItemVec(const RenderQueueType2D& a_type) const;	// 2D
 
-		void AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec);
-
-		const std::vector<DrawItem>& GetItemVec(const RenderQueueType& a_type) const;
-
-		const std::vector<DrawItem2D>& GetItemVec(const RenderQueueType2D& a_type) const;
-
+		// 描画命令の実行
 		void Excute();
 
-		void AddItem(const DrawItem& a_item);
-
-		//============================================================================================
-		// 
+		//--------------------------------------------------------------------------------------------
 		// 描画パス構築
-		// 
-		//============================================================================================
+		//--------------------------------------------------------------------------------------------
 		// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
-		void SetGraphicsRootSignature(
-			const Resource::ID& a_rootSigID
-		);
+		void SetGraphicsRootSignature(const Resource::ID& a_rootSigID);
 
 		// パイプラインステートをセット、前回と変更がない場合はスキップ
-		void SetGraphicPSO(const Resource::ID& a_psoID);
 		void SetGraphicPSO(const Resource::Handle<D3D12::PipelineState>& a_handle);
 
 		// 1Draw当たりのオブジェクトに対する定数
@@ -300,6 +266,9 @@ namespace Engine::Graphics
 		std::shared_ptr<Resource::ShaderManager>			m_spShaderManger = nullptr;
 		std::shared_ptr<RootSignatureManager>	m_spRootSigManager = nullptr;
 		std::shared_ptr<D3D12::GraphicsPSOManager>		m_spGraphicsPSOManager = nullptr;
+		//Resource::ShaderManager*			m_pShaderManger			= nullptr;
+		//RootSignatureManager*				m_pRootSigManager		= nullptr;
+		//Engine::D3D12::GraphicsPSOManager*	m_pGraphicsPSOManager	= nullptr;
 
 		// 形状描画クラス
 		std::unique_ptr<ShapeRenderer> m_upShapeDraw = nullptr;
@@ -334,24 +303,5 @@ namespace Engine::Graphics
 
 
 		std::shared_ptr<Resource::QuadPolygon> m_spQuadPolygon = nullptr;
-
-		// シングルトン
-	private:
-
-		RenderContext();
-		~RenderContext();
-
-	public:
-
-		/// <summary>
-		/// シングルトン
-		/// </summary>
-		/// <returns>インスタンスを取得</returns>
-		static RenderContext& Instance()
-		{
-			static RenderContext _instance;
-			return _instance;
-		}
-
 	};
 }

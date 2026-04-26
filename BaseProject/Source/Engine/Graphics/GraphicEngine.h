@@ -20,6 +20,7 @@ namespace Engine::Graphics
 	// 前方宣言
 	class RenderGraph;
 	class ShapeRenderer;
+	class RenderContext;
 
 	// グラフィックスエンジンの初期化に必要な情報
 	struct GraphicsEngineDesc
@@ -46,6 +47,10 @@ namespace Engine::Graphics
 		// 描画
 		void Draw();
 
+		// アクセサ
+		const Graphics::RenderContext* GetRenderContext() const;
+		Graphics::RenderContext* RefRenderContext();
+
 	private:
 
 		// マネージャ構築
@@ -55,6 +60,10 @@ namespace Engine::Graphics
 		void RootSigDefinition();
 
 	private:
+		// レンダーコンテキスト
+		// 一フレーム内の描画情報を扱う
+		std::unique_ptr<RenderContext> m_upRenderContext = nullptr;
+
 		// マネージャー
 		std::unique_ptr<Resource::ShaderManager>	m_upShaderManager = nullptr;		// シェーダー管理
 		std::unique_ptr<D3D12::GraphicsPSOManager>	m_upGrahicsPSOManager = nullptr;	// PSO管理

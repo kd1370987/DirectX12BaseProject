@@ -102,7 +102,7 @@ namespace Engine
 		std::unique_ptr<Resource::AssetManager> m_upAssetManager = nullptr;
 
 		// 描画周りの管理クラス
-		//std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;
+		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;
 
 		// エンジン設定
 		EngineConfig m_config = {};
