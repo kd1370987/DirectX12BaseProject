@@ -31,16 +31,21 @@ namespace Engine::Graphics
 		// ルートシグネチャの定義
 		RootSigDefinition();
 
-		// レンダーコンテキストの作成
-		m_upRenderContext = std::make_unique<RenderContext>();
-		m_upRenderContext->Init();
-
 		// 形状描画クラス構築
 		m_upShapeRender = std::make_unique<ShapeRenderer>();
 
+		// レンダーコンテキストの作成
+		m_upRenderContext = std::make_unique<RenderContext>();
+		m_upRenderContext->Init(
+			m_upShaderManager.get(),
+			m_upRootSignatureManager.get(),
+			m_upGrahicsPSOManager.get(),
+			m_upShapeRender.get()
+		);
+
 		// レンダーグラフの構築
 		// エディター用
-		m_upRenderGraphMap["EditorRenderGraph"] = std::make_unique<RenderGraph>();
+		//m_upRenderGraphMap["EditorRenderGraph"] = std::make_unique<RenderGraph>();
 		m_upRenderGraphMap["GameRenderGraph"] = std::make_unique<RenderGraph>();
 		for (auto& [_cam, _graph] : m_upRenderGraphMap)
 		{
@@ -57,10 +62,19 @@ namespace Engine::Graphics
 	{}
 
 	void GraphicsEngine::Update()
-	{}
+	{
+		
+	}
 
 	void GraphicsEngine::Draw()
-	{}
+	{
+		for (auto& [_cam, _graph] : m_upRenderGraphMap)
+		{
+			m_upRenderContext->Excute(_graph.get());
+		}
+		m_upRenderContext->ClearCmd();
+	}
+
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const
 	{
 		return m_upRenderContext.get();

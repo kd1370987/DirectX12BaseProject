@@ -215,6 +215,10 @@ namespace Engine
 	{
 		m_config.app.mode = a_mode;
 	}
+	void MainEngine::ExcuteDrawCmd()
+	{
+		m_upGraphicsEngine->Draw();
+	}
 	const Graphics::RenderContext* MainEngine::GetRenderContext() const
 	{
 		return m_upGraphicsEngine->GetRenderContext();

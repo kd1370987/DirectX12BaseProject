@@ -82,6 +82,8 @@ namespace Engine
 		void ChangeMode(EngineConfig::Application::Mode a_mode);
 
 		// グラフィックス関係
+		void ExcuteDrawCmd();
+
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
 

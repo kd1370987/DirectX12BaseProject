@@ -32,86 +32,15 @@ namespace Engine::Graphics
 	void RenderContext::Init(
 		Resource::ShaderManager* a_pShaderMana,
 		RootSignatureManager* a_pRootSigMana,
-		Engine::D3D12::GraphicsPSOManager* a_pPSOMana)
+		Engine::D3D12::GraphicsPSOManager* a_pPSOMana,
+		ShapeRenderer* a_pShapeRender
+	)
 	{
-		// シェーダー用意
-		m_spShaderManger = std::make_shared<Resource::ShaderManager>();
-		
-		// ルートシグネチャ用意
-		m_spRootSigManager = std::make_shared<RootSignatureManager>();
-		m_spRootSigManager->Init(10);
-
-		m_spRootSigManager->CreateRootSig(
-			"BaseRootSig",
-			{
-				{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::ObjectCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::MaterialCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
-				{RootParameterType::DescriptorTable,
-				{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
-				RootSigSemantic::MaterialSRV,false}
-			}
-		);
-		m_spRootSigManager->CreateRootSig(
-			"ForwardLithingPass",
-			{
-				{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::ObjectCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::MaterialCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::AmbientCB,true},
-				{RootParameterType::DescriptorTable,
-				{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
-				RootSigSemantic::MaterialSRV,false}
-			}
-		);
-
-		m_spRootSigManager->CreateRootSig(
-			"QuadRendering",
-			{
-				{RootParameterType::DescriptorTable,{RangeType::SRV},
-				RootSigSemantic::PostScreenSRV,false},
-				{RootParameterType::DescriptorTable,{RangeType::SRV},
-				RootSigSemantic::PostScreenSRV,false}
-			}
-		);
-
-		m_spRootSigManager->CreateRootSig(
-			"DeferredLighting",
-			{
-				{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::AmbientCB,true},
-				{RootParameterType::DescriptorTable,
-				{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
-				RootSigSemantic::PostScreenSRV,false}
-			}
-		);
-
-		m_spRootSigManager->CreateRootSig(
-			"2DRootSig",
-			{
-				{RootParameterType::RootCBV,{},RootSigSemantic::UICB,true},
-				{RootParameterType::DescriptorTable,{RangeType::SRV},RootSigSemantic::MaterialSRV,false}
-			}
-		);
-
-		m_spRootSigManager->CreateRootSig(
-			"DebugLine",
-			{
-				{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
-				//{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
-			}
-			);
-
-		// パイプラインステート用意
-		m_spGraphicsPSOManager = std::make_shared<D3D12::GraphicsPSOManager>();
-		m_spGraphicsPSOManager->Init(D3D12Wrapper::Instance().GetDevice());
-
-
+		// ポインタのキャッシュ
+		m_pShaderManger = a_pShaderMana;
+		m_pRootSigManager = a_pRootSigMana;
+		m_pGraphicsPSOManager = a_pPSOMana;
+		m_pShapeDraw = a_pShapeRender;
 
 		// cb0
 		auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f);	// 視点の位置
@@ -126,8 +55,6 @@ namespace Engine::Graphics
 		DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
 		DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
 
-		m_upShapeDraw = std::make_unique<ShapeRenderer>();
-
 		// フレームリソース
 		for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
 		{
@@ -139,22 +66,11 @@ namespace Engine::Graphics
 
 			// 線描画用バッファー
 			m_frameResource[_i].shapeVertexBuffer.Create(
-				m_upShapeDraw->GetMaxCount(),
+				m_pShapeDraw->GetMaxCount(),
 				sizeof(Vertex),
 				nullptr
 			);
 		}
-
-	
-		m_upRenderGraph = std::make_unique<RenderGraph>();
-		m_upRenderGraph->Init(
-			this,
-			m_spShaderManger.get(),
-			m_spRootSigManager.get(),
-			m_spGraphicsPSOManager.get()
-
-		);
-
 
 		// cb1
 		m_cb1_object.uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
@@ -200,13 +116,6 @@ namespace Engine::Graphics
 		m_pCurrentMesh = nullptr;
 
 		m_drawItemMap.clear();
-
-		m_upRenderGraph->Release();
-		m_upRenderGraph.reset();
-
-		m_spShaderManger.reset();
-		m_spRootSigManager.reset();
-		m_spGraphicsPSOManager.reset();
 	}
 
 	void RenderContext::BeginFrame()
@@ -219,7 +128,7 @@ namespace Engine::Graphics
 
 	void RenderContext::EndFrame()
 	{
-		m_upShapeDraw->Reset();
+		m_pShapeDraw->Reset();
 	}
 
 	//============================================================================================
@@ -274,7 +183,7 @@ namespace Engine::Graphics
 		auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
 		// レジスター番号取得
 		UINT _regiIdx =
-			m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::CameraCB);
+			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::CameraCB);
 
 		// ディスクリプタヒープをセット
 		ID3D12DescriptorHeap* _heaps[] = {
@@ -296,7 +205,7 @@ namespace Engine::Graphics
 
 		// 環境
 		_regiIdx =
-			m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::AmbientCB);
+			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::AmbientCB);
 		if (ERR_UINT != _regiIdx)
 		{
 			BindCB()->BindSemanticCBV<RootSigSemantic::AmbientCB>(
@@ -369,7 +278,7 @@ namespace Engine::Graphics
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 		UINT _regiIdx =
-			m_spRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
+			m_pRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
 
 
 		// SRVセット
@@ -413,7 +322,7 @@ namespace Engine::Graphics
 
 	ShapeRenderer* RenderContext::RefShapeDraw()
 	{
-		return m_upShapeDraw.get();
+		return m_pShapeDraw;
 	}
 
 	void RenderContext::AddItem(const RenderQueueType& a_type, const DrawItem& a_item)
@@ -448,8 +357,7 @@ namespace Engine::Graphics
 		return _items;
 	}
 
-
-	void RenderContext::Excute()
+	void RenderContext::Excute(RenderGraph* a_pGraph)
 	{
 		// バインド対象のクリア
 		m_currentRootSigID = Resource::Limits::INVALID_ID;
@@ -458,16 +366,16 @@ namespace Engine::Graphics
 		m_pCurrentMesh = nullptr;
 		m_pCurrentPoly = nullptr;
 
-		// エディターカメラでの実行
-		DXSM::Matrix _projMat = Engine::Editor::MainEditor::Instance().GetEditorCamera()->GetProjMat();
-		DXSM::Matrix _worldMat = Engine::Editor::MainEditor::Instance().GetEditorCamera()->GetWorldMat();
-		//SetProjectionMatrix(_projMat);
-		//SetToShader(_worldMat);
-
 		// レンダーパスの実行
-		m_upRenderGraph->Excute(this);
+		a_pGraph->Excute(this);
 
+		// 描画対象アイテムリストのクリア
+		m_drawItemMap.clear();
+		m_drawItem2DMap.clear();
+	}
 
+	void RenderContext::ClearCmd()
+	{
 		// 描画対象アイテムリストのクリア
 		m_drawItemMap.clear();
 		m_drawItem2DMap.clear();
@@ -481,7 +389,7 @@ namespace Engine::Graphics
 		// ルートシグネチャセット
 		if (a_rootSigID != m_currentRootSigID)
 		{
-			_pCmdList->SetGraphicsRootSignature(m_spRootSigManager->NGet(a_rootSigID));
+			_pCmdList->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
 			m_currentRootSigID = a_rootSigID;
 		}
 	}
@@ -493,7 +401,7 @@ namespace Engine::Graphics
 		// パイプラインステートセット
 		if (a_handle != m_currentPSOID)
 		{
-			_pCmdList->SetPipelineState(m_spGraphicsPSOManager->Ref(a_handle));
+			_pCmdList->SetPipelineState(m_pGraphicsPSOManager->Ref(a_handle));
 			m_currentPSOID = a_handle;
 		}
 
@@ -548,7 +456,7 @@ namespace Engine::Graphics
 
 		// SRVの送信
 		UINT _regiIdx =
-			m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
+			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
 		if (a_pMaterial != m_pCurrentMaterial)
 		{
 			auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(a_pMaterial->startSRVHandle);
@@ -567,7 +475,7 @@ namespace Engine::Graphics
 		// メッシュ変換行列の転送
 		m_cb2_MeshTrans.worldMat = a_worldMat;
 		UINT _regiIdx =
-			m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MeshTransCB);
+			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MeshTransCB);
 		BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
 			_pCmdList,
 			_regiIdx,
@@ -592,7 +500,7 @@ namespace Engine::Graphics
 
 		// ルートパラムインデックス確保
 		UINT _regiIdx =
-			m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::BoneCB);
+			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::BoneCB);
 		auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
 
 		// バッファにコピー
@@ -698,7 +606,7 @@ namespace Engine::Graphics
 
 			// SRVの送信
 			UINT _regiIdx =
-				m_spRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
+				m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
 			auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(_item.srvHandleRange);
 			_pCmdList->SetGraphicsRootDescriptorTable(
 				_regiIdx,
@@ -728,11 +636,6 @@ namespace Engine::Graphics
 		return D3D12_GPU_DESCRIPTOR_HANDLE();
 	}
 
-	std::vector<std::string> RenderContext::GetRGResourceList()
-	{
-		return m_upRenderGraph->GetRGResourceList();
-	}
-
 	void RenderContext::SetPrimitive(D3D_PRIMITIVE_TOPOLOGY a_topology)
 	{
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
@@ -753,10 +656,10 @@ namespace Engine::Graphics
 		auto _currentIdx = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 
 		// フレーム頂点バッファ更新
-		UINT _vertexCount = static_cast<UINT>(m_upShapeDraw->GetVertexVec().size());
+		UINT _vertexCount = static_cast<UINT>(m_pShapeDraw->GetVertexVec().size());
 		m_frameResource[_currentIdx].shapeVertexBuffer.Update(
 			_vertexCount,
-			m_upShapeDraw->GetVertexVec().data()
+			m_pShapeDraw->GetVertexVec().data()
 		);
 
 		// 頂点バッファ送信

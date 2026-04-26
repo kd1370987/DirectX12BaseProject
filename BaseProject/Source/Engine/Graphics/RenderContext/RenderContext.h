@@ -97,7 +97,8 @@ namespace Engine::Graphics
 		void Init(
 			Resource::ShaderManager* a_pShaderMana,
 			RootSignatureManager* a_pRootSigMana,
-			Engine::D3D12::GraphicsPSOManager* a_pPSOMana
+			Engine::D3D12::GraphicsPSOManager* a_pPSOMana,
+			ShapeRenderer* a_pShapeRender
 		);
 		void Shutdown();
 
@@ -167,7 +168,10 @@ namespace Engine::Graphics
 		const std::vector<DrawItem2D>& GetItemVec(const RenderQueueType2D& a_type) const;	// 2D
 
 		// 描画命令の実行
-		void Excute();
+		void Excute(RenderGraph* a_pGraph);
+
+		// 描画命令のコマンドリスト削除
+		void ClearCmd();
 
 		//--------------------------------------------------------------------------------------------
 		// 描画パス構築
@@ -236,17 +240,10 @@ namespace Engine::Graphics
 		);
 
 		// UI描画
-		void DrawUIQueue(
-			RenderQueueType2D a_type
-		);
+		void DrawUIQueue(RenderQueueType2D a_type);
 
 		// レンダーグラフのテクスチャのハンドル取得
-		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle(
-			const std::string& a_name
-		);
-
-		// レンダーグラフが持っているリソースを返す
-		std::vector<std::string> GetRGResourceList();
+		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle(const std::string& a_name);
 
 		// プリミティブトポロジーの設定
 		void SetPrimitive(D3D_PRIMITIVE_TOPOLOGY a_topology);
@@ -263,15 +260,12 @@ namespace Engine::Graphics
 		FrameResource m_frameResource[CPU_FRAME_COUNT] = {};
 
 		// マネージャー
-		std::shared_ptr<Resource::ShaderManager>			m_spShaderManger = nullptr;
-		std::shared_ptr<RootSignatureManager>	m_spRootSigManager = nullptr;
-		std::shared_ptr<D3D12::GraphicsPSOManager>		m_spGraphicsPSOManager = nullptr;
-		//Resource::ShaderManager*			m_pShaderManger			= nullptr;
-		//RootSignatureManager*				m_pRootSigManager		= nullptr;
-		//Engine::D3D12::GraphicsPSOManager*	m_pGraphicsPSOManager	= nullptr;
+		Resource::ShaderManager*			m_pShaderManger			= nullptr;
+		RootSignatureManager*				m_pRootSigManager		= nullptr;
+		Engine::D3D12::GraphicsPSOManager*	m_pGraphicsPSOManager	= nullptr;
 
 		// 形状描画クラス
-		std::unique_ptr<ShapeRenderer> m_upShapeDraw = nullptr;
+		ShapeRenderer* m_pShapeDraw = nullptr;
 
 		// 定数バッファ
 		CBCamera m_cb0_camera = {};
@@ -295,8 +289,6 @@ namespace Engine::Graphics
 		std::unordered_map<RenderQueueType, std::vector<DrawItem>> m_drawItemMap = {};
 
 		std::unordered_map<RenderQueueType2D, std::vector<DrawItem2D>> m_drawItem2DMap = {};
-
-		std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;
 
 
 		std::vector<DrawItem> m_drawItemVec = {};

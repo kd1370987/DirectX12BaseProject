@@ -4,7 +4,7 @@
 #include "GameScene/GameScene.h"
 #include "TitleScene/TitleScene.h"
 
-#include "Engine/Graphics/RenderContext/RenderContext.h"			// 描画
+#include "Engine/MainEngine.h"
 
 bool SceneManager::Init()
 {
@@ -57,7 +57,7 @@ void SceneManager::Draw(Engine::Graphics::RenderContext* a_pRCT)
 		_scene->Draw();
 
 		// 命令の実行
-		a_pRCT->Excute();
+		Engine::MainEngine::Instance().ExcuteDrawCmd();
 	}
 }
 
