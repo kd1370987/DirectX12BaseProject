@@ -1,6 +1,7 @@
 ﻿#include "AnimationOptionalDraw.h"
 
 #include "Engine/ECS/World/World.h"
+#include "Engine/MainEngine.h"
 
 #include "Application/Components/Resource/SkeletonPoseComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
@@ -82,16 +83,19 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 
 							// アルファモードによって描画先を変える
 							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
+
+							auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
+
 							switch (_mode)
 							{
 							case Engine::Resource::Alpha::Opaque:
-								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
+								_pRCT->AddItem(RenderQueueType::AnimationOpaque, _item);
 								break;
 							case Engine::Resource::Alpha::Mask:
-								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::AnimationOpaque, _item);
+								_pRCT->AddItem(RenderQueueType::AnimationOpaque, _item);
 								break;
 							case Engine::Resource::Alpha::Blend:
-								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::AnimationTransparent, _item);
+								_pRCT->AddItem(RenderQueueType::AnimationTransparent, _item);
 								break;
 							default:
 								break;

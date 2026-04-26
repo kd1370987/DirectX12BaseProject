@@ -7,7 +7,6 @@
 #include "ImGui/Log/Log.h"
 #include "ImGui/Watch/Watch.h"
 
-#include "RenderGraphView/RenderGraphView.h"
 #include "ECSView/ECSView.h"
 #include "AssetResourceView/AssetResourceView.h"
 
@@ -43,12 +42,6 @@ namespace Engine::Editor
 			m_upLog = std::make_unique<Log>();
 			m_upLog->Init();
 		}
-		// レンダーグラフビュー
-		if (!m_upRGView)
-		{
-			m_upRGView = std::make_unique<RenderGraphView>();
-			m_upRGView->Init();
-		}
 		// ECSビュー
 		if (!m_upECSView)
 		{
@@ -78,8 +71,6 @@ namespace Engine::Editor
 		// ImGui描画開始
 		m_upImGuiContext->Begin(a_widht, a_height);
 
-		// レンダーグラフビュー
-		m_upRGView->Draw(a_widht, a_height);
 		// ECSビュー
 		m_upECSView->Draw(a_widht, a_height);
 		// アセットビュー

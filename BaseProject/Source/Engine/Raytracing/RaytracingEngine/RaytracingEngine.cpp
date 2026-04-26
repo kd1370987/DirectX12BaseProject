@@ -13,7 +13,7 @@
 #include "../RayPSO/RayPSO.h"
 #include "../ShaderTable/ShaderTable.h"
 
-void Engine::Raytracing::RayEngine::Dispatch()
+void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 {
 	// UAVバリア
 	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
@@ -51,10 +51,10 @@ void Engine::Raytracing::RayEngine::Dispatch()
 
 
 	// 定数バッファをバインド
-	m_camera.aspectRate = Graphics::RenderContext::Instance().GetCameraAspectRate();
-	m_camera.rotMat = Graphics::RenderContext::Instance().GetCameraRotMat();
-	m_camera.pos = Graphics::RenderContext::Instance().GetCameraPOS();
-	Graphics::RenderContext::Instance().BindCB()->BindAndAttachDataComputeRootCBV<Camera>(
+	m_camera.aspectRate = a_pRCT->GetCameraAspectRate();
+	m_camera.rotMat = a_pRCT->GetCameraRotMat();
+	m_camera.pos = a_pRCT->GetCameraPOS();
+	a_pRCT->BindCB()->BindAndAttachDataComputeRootCBV<Camera>(
 		_pCmdList4,
 		0,
 		m_camera

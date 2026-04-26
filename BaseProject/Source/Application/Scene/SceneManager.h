@@ -1,9 +1,16 @@
 ﻿#pragma once
 
 class BaseScene;
-namespace Engine::ECS
+namespace Engine
 {
-	class World;
+	namespace ECS
+	{
+		class World;
+	}
+	namespace Graphics
+	{
+		class RenderContext;
+	}
 }
 
 enum class SceneChangeType
@@ -30,7 +37,7 @@ public:
 	bool Init();				// 初期化
 	void Release();				// 解放
 	void Update(float a_dt);	// 更新
-	void Draw();				// 描画
+	void Draw(Engine::Graphics::RenderContext* a_pRCT);				// 描画
 
 	//------------------------------------------------------------------------------------------
 	// シーンの切り替え

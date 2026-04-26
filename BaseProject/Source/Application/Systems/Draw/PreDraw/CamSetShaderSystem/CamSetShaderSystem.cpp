@@ -1,6 +1,7 @@
 ﻿#include "CamSetShaderSystem.h"
 
 #include "Engine/ECS/World/World.h"
+#include "Engine/MainEngine.h"
 
 #include "Application/Components/Tag/CameraTag.h"
 #include "Application/Components/Tag/ActiveCameraTag.h"
@@ -28,13 +29,15 @@ void CamSetShaderSystem::Init(Engine::ECS::World& a_world)
 			const WorldMatrixComponent* a_worldMatArray
 		)
 		{
+			auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
+
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const ProjMatComponent& _projMatComp = a_projMatArray[_i];
 				const WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
-
-				Engine::Graphics::RenderContext::Instance().SetProjectionMatrix(_projMatComp.projMat);
-				Engine::Graphics::RenderContext::Instance().SetToShader(_worldMatComp.worldMat);
+				
+				_pRCT->SetProjectionMatrix(_projMatComp.projMat);
+				_pRCT->SetToShader(_worldMatComp.worldMat);
 			}
 		}
 	);

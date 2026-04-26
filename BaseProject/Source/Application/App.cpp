@@ -39,8 +39,7 @@ bool Application::Init()
 	_config.graphics.init.isGPUValidation = true;
 	_config.graphics.runtime.isVsync = false;
 	_config.app.mode = Engine::EngineConfig::Application::Mode::Debug;
-	m_upEngine = std::make_unique<Engine::MainEngine>();
-	m_upEngine->Init(_config);
+	Engine::MainEngine::Instance().Init(_config);
 
 
 	// シーンの初期化
@@ -60,7 +59,7 @@ void Application::Release()
 	SceneManager::Instance().Release();
 
 	// エンジン解放
-	m_upEngine->Release();
+	Engine::MainEngine::Instance().Release();
 }
 
 //==================================================================================
@@ -73,7 +72,7 @@ void Application::MainLoop()
 	while (true)
 	{
 		// フレーム開始
-		if (!m_upEngine->BegineFrame())
+		if (!Engine::MainEngine::Instance().BegineFrame())
 		{
 			break;
 		}
@@ -81,27 +80,27 @@ void Application::MainLoop()
 		// モード切替
 		if (GetAsyncKeyState('O'))
 		{
-			m_upEngine->ChangeMode(Engine::EngineConfig::Application::Mode::Debug);
+			Engine::MainEngine::Instance().ChangeMode(Engine::EngineConfig::Application::Mode::Debug);
 		}
 		if (GetAsyncKeyState('P'))
 		{
-			m_upEngine->ChangeMode(Engine::EngineConfig::Application::Mode::Game);
+			Engine::MainEngine::Instance().ChangeMode(Engine::EngineConfig::Application::Mode::Game);
 		}
 
 
 		// 更新
-		SceneManager::Instance().Update(m_upEngine->GetDeltaTime());
+		SceneManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
 		
 		// 描画
-		m_upEngine->BeginDraw();				// 描画開始
+		Engine::MainEngine::Instance().BeginDraw();				// 描画開始
 		{
 			// 通常描画
-			SceneManager::Instance().Draw();
+			SceneManager::Instance().Draw(Engine::MainEngine::Instance().RefRenderContext());
 		}
-		m_upEngine->EndDraw();					// 描画終了
+		Engine::MainEngine::Instance().EndDraw();					// 描画終了
 
 		// フレーム終了
-		m_upEngine->EndFrame();
+		Engine::MainEngine::Instance().EndFrame();
 	}
 }
 

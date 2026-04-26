@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+namespace Engine::Graphics
+{
+	class RenderContext;
+}
+
 namespace Engine::Raytracing
 {
 	class RayWorld;
@@ -11,7 +16,7 @@ namespace Engine::Raytracing
 	public:
 
 		// レイトレーシングをディスパッチ
-		void Dispatch();
+		void Dispatch(Graphics::RenderContext* a_pRCT);
 
 		// レイトレワールドに登録
 		void RegistModel(

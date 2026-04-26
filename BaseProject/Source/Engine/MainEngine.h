@@ -19,6 +19,11 @@ namespace Engine
 	{
 		class AssetManager;
 	}
+	namespace Graphics
+	{
+		class GraphicsEngine;
+		class RenderContext;
+	}
 
 	// エンジン設定
 	struct EngineConfig
@@ -58,10 +63,6 @@ namespace Engine
 	{
 	public:
 
-		// コンストラクタ・デストラクタ
-		MainEngine();
-		~MainEngine();
-
 		// 初期化・解放
 		void Init(EngineConfig a_config);
 		void Release();
@@ -80,6 +81,10 @@ namespace Engine
 		// モード切替
 		void ChangeMode(EngineConfig::Application::Mode a_mode);
 
+		// グラフィックス関係
+		const Graphics::RenderContext* GetRenderContext() const;
+		Graphics::RenderContext* RefRenderContext();
+
 	private:
 
 		// アセットマネージャーの初期化
@@ -96,7 +101,26 @@ namespace Engine
 		// アセットのメタ管理
 		std::unique_ptr<Resource::AssetManager> m_upAssetManager = nullptr;
 
+		// 描画周りの管理クラス
+		//std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;
+
 		// エンジン設定
 		EngineConfig m_config = {};
+
+	// シングルトン
+	private:
+
+		// コンストラクタ・デストラクタ
+		MainEngine();
+		~MainEngine();
+
+	public:
+
+		static MainEngine& Instance()
+		{
+			static MainEngine _instance = {};
+			return _instance;
+		}
+
 	};
 }

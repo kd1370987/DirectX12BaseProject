@@ -394,9 +394,6 @@
     <Filter Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw">
       <UniqueIdentifier>{d315c984-99cf-4bc8-aa90-3b388df863ad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\RenderGraphView">
-      <UniqueIdentifier>{b4e20a7d-3b5c-4ddf-a169-304782d641ad}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Editor\ECSView">
       <UniqueIdentifier>{944034ee-33b1-4118-8579-c38c19525c8f}</UniqueIdentifier>
     </Filter>
@@ -951,9 +948,6 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.cpp">
-      <Filter>Source\Engine\Editor\RenderGraphView</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\ECSView\ECSView.cpp">
       <Filter>Source\Engine\Editor\ECSView</Filter>
     </ClCompile>
@@ -1504,9 +1498,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\RenderGraphView\RenderGraphView.h">
-      <Filter>Source\Engine\Editor\RenderGraphView</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\ECSView\ECSView.h">
       <Filter>Source\Engine\Editor\ECSView</Filter>

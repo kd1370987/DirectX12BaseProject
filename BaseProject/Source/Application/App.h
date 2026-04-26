@@ -1,10 +1,5 @@
 ﻿#pragma once
 
-namespace Engine
-{
-	class MainEngine;
-}
-
 struct AppConfig
 {
 	// フルスクリーンかどうか
@@ -43,9 +38,6 @@ private:
 	void MainLoop();
 
 private:
-
-	// エンジン
-	std::unique_ptr<Engine::MainEngine> m_upEngine = nullptr;
 
 	// アプリケーション設定
 	AppConfig m_config = {};

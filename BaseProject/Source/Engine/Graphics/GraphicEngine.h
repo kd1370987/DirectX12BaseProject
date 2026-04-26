@@ -1,7 +1,26 @@
 ﻿#pragma once
 
+class RootSignatureManager;
+
+namespace Engine
+{
+	namespace Resource
+	{
+		class ShaderManager;
+	}
+
+	namespace D3D12
+	{
+		class GraphicsPSOManager;
+	}
+}
+
 namespace Engine::Graphics
 {
+	// 前方宣言
+	class RenderGraph;
+	class ShapeRenderer;
+
 	// グラフィックスエンジンの初期化に必要な情報
 	struct GraphicsEngineDesc
 	{
@@ -13,6 +32,9 @@ namespace Engine::Graphics
 	class GraphicsEngine
 	{
 	public:
+
+		GraphicsEngine();
+		~GraphicsEngine();
 
 		// 初期化・解放
 		void Init(const GraphicsEngineDesc& a_desc);
@@ -26,6 +48,23 @@ namespace Engine::Graphics
 
 	private:
 
+		// マネージャ構築
+		void CreateManager();
+
+		// ルートシグネチャ定義
+		void RootSigDefinition();
+
+	private:
+		// マネージャー
+		std::unique_ptr<Resource::ShaderManager>	m_upShaderManager = nullptr;		// シェーダー管理
+		std::unique_ptr<D3D12::GraphicsPSOManager>	m_upGrahicsPSOManager = nullptr;	// PSO管理
+		std::unique_ptr<RootSignatureManager>		m_upRootSignatureManager = nullptr;	// ルートシグネチャ管理
+
+		// 形状描画クラス
+		std::unique_ptr<ShapeRenderer> m_upShapeRender = nullptr;
+
+		// レンダーグラフ（カメラ１に対して一つ。後で変えるかも）
+		std::unordered_map<std::string, std::unique_ptr<RenderGraph>> m_upRenderGraphMap = {};
 
 	};
 }

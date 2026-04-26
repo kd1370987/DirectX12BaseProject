@@ -4,6 +4,8 @@
 #include "GameScene/GameScene.h"
 #include "TitleScene/TitleScene.h"
 
+#include "Engine/Graphics/RenderContext/RenderContext.h"			// 描画
+
 bool SceneManager::Init()
 {
 	// シーン登録
@@ -46,12 +48,16 @@ void SceneManager::Update(float a_dt)
 
 }
 
-void SceneManager::Draw()
+void SceneManager::Draw(Engine::Graphics::RenderContext* a_pRCT)
 {
 	// すべてのシーンを描画
 	for (auto& _scene : m_upBaseSceneVec)
 	{
+		// 命令のスタック
 		_scene->Draw();
+
+		// 命令の実行
+		a_pRCT->Excute();
 	}
 }
 

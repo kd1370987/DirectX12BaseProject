@@ -1,7 +1,6 @@
 ﻿#include "BaseScene.h"
 
 #include "Engine/ECS/World/World.h"									// ECS
-#include "Engine/Graphics/RenderContext/RenderContext.h"			// 描画
 #include "Engine/Editor/ECSView/ComponentEdit/ComponentEdit.h"		// エディター
 
 // コンポーネント関連
@@ -138,8 +137,6 @@ void BaseScene::Draw()
 	m_upWorld->RunSystem(Engine::ECS::ESystemType::PreDraw, 0.0f);
 
 	m_upWorld->RunSystem(Engine::ECS::ESystemType::Draw, 0.0f);
-
-	Engine::Graphics::RenderContext::Instance().Excute();
 }
 
 void BaseScene::RegistryComponent()

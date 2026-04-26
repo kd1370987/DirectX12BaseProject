@@ -1,6 +1,7 @@
 ﻿#include "SimpleDrawSystem.h"
 
 #include "Engine/ECS/World/World.h"
+#include "Engine/MainEngine.h"
 
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
@@ -25,6 +26,9 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 			const ModelComponent* a_modelArray
 		)
 		{
+
+			auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
+
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
@@ -65,21 +69,23 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 							_item.pMaterial = &_model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
 							_item.subIdx = _subIdx;
 
+
+
 							// アルファモードによって描画先を変える
 							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
 							switch (_mode)
 							{
 							case Engine::Resource::Alpha::Opaque:
-								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
-								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
+								_pRCT->AddItem(RenderQueueType::Opaque, _item);
+								_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Mask:
-								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Opaque, _item);
-								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
+								_pRCT->AddItem(RenderQueueType::Opaque, _item);
+								_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Blend:
-								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Transparent, _item);
-								Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType::Debug, _item);
+								_pRCT->AddItem(RenderQueueType::Transparent, _item);
+								_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							default:
 								break;
@@ -90,7 +96,7 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 						auto& _coll = _item.pMesh->GetCollision();
 						for (auto& _cell : _coll.grid.cellVec)
 						{
-							Engine::Graphics::RenderContext::Instance().RefShapeDraw()->AABB(_cell.box);
+							_pRCT->RefShapeDraw()->AABB(_cell.box);
 						}
 					}
 				}

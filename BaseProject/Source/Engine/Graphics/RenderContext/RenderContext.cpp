@@ -546,8 +546,8 @@ namespace Engine::Graphics
 		// エディターカメラでの実行
 		DXSM::Matrix _projMat = Engine::Editor::MainEditor::Instance().GetEditorCamera()->GetProjMat();
 		DXSM::Matrix _worldMat = Engine::Editor::MainEditor::Instance().GetEditorCamera()->GetWorldMat();
-		SetProjectionMatrix(_projMat);
-		SetToShader(_worldMat);
+		//SetProjectionMatrix(_projMat);
+		//SetToShader(_worldMat);
 
 		// レンダーパスの実行
 		m_upRenderGraph->Excute(this);

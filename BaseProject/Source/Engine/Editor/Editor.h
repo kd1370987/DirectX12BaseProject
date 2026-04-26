@@ -4,7 +4,6 @@ namespace Engine::Editor
 	// 前方宣言
 	class Log;
 	class Watch;
-	class RenderGraphView;
 	class ECSView;
 	class ComponentEdit;
 	class AssetResourceView;
@@ -62,8 +61,6 @@ namespace Engine::Editor
 		// 計測
 		std::unordered_map<std::string, std::unique_ptr<Watch>> m_upWatchMap = {};
 
-		// レンダーグラフビュー
-		std::unique_ptr<RenderGraphView> m_upRGView = nullptr;
 		// ECS
 		std::unique_ptr<ECSView> m_upECSView = nullptr;
 

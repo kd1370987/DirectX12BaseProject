@@ -1,6 +1,7 @@
 ﻿#include "ScreenUIDrawSystem.h"
 
 #include "Engine/ECS/World/World.h"
+#include "Engine/MainEngine.h"
 
 #include "Application/Components/Resource/UIComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
@@ -33,7 +34,9 @@ void ScreenUIDrawSystem::Init(Engine::ECS::World& a_world)
 				_item.srvHandleRange = Engine::Resource::TextureManager::Instance().GetTexture(_uiComp.texHandle).GetSRV();
 				_item.colorScale = _uiComp.color;
 
-				Engine::Graphics::RenderContext::Instance().AddItem(RenderQueueType2D::ScreenUI, _item);
+				// 描画キューに追加
+				auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
+				_pRCT->AddItem(RenderQueueType2D::ScreenUI, _item);
 			}
 		}
 	);

@@ -88,7 +88,7 @@ namespace Engine
 		}
 
 		// 描画初期化
-		Engine::Graphics::RenderContext::Instance().Init();
+		RefRenderContext()->Init();
 
 		m_config = a_config;
 	}
@@ -103,7 +103,7 @@ namespace Engine
 
 
 		// レンダーコンテキスト解放
-		Engine::Graphics::RenderContext::Instance().Shutdown();
+		RefRenderContext()->Shutdown();
 
 		// ImGui解放
 		Engine::Editor::MainEditor::Instance().Release();
@@ -168,7 +168,7 @@ namespace Engine
 		D3D12Wrapper::Instance().BeginFrame();
 
 		// 描画フレームリソース
-		Engine::Graphics::RenderContext::Instance().BeginFrame();
+		RefRenderContext()->BeginFrame();
 
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 		// ディスクリプタヒープをセット
@@ -182,7 +182,8 @@ namespace Engine
 	{
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
-		Engine::Raytracing::RayEngine::Instance().Dispatch();
+		// レイトレディスパッチ
+		Engine::Raytracing::RayEngine::Instance().Dispatch(RefRenderContext());
 
 		// ゲームモード以外の処理
 		if (m_config.app.mode != EngineConfig::Application::Mode::Game)
@@ -197,7 +198,7 @@ namespace Engine
 		}
 
 		// 描画フレームリソース
-		Engine::Graphics::RenderContext::Instance().EndFrame();
+		RefRenderContext()->EndFrame();
 
 		// 描画終了
 		D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.isVsync);
@@ -211,6 +212,14 @@ namespace Engine
 	void MainEngine::ChangeMode(EngineConfig::Application::Mode a_mode)
 	{
 		m_config.app.mode = a_mode;
+	}
+	const Graphics::RenderContext* MainEngine::GetRenderContext() const
+	{
+		return &Graphics::RenderContext::Instance();
+	}
+	Graphics::RenderContext* MainEngine::RefRenderContext()
+	{
+		return &Graphics::RenderContext::Instance();
 	}
 	void MainEngine::InitializeAssetManager()
 	{
