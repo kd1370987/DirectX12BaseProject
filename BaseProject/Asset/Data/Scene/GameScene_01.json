@@ -4,6 +4,84 @@
             "CompName": "ActiveTag"
         },
         {
+            "CompName": "ActiveCameraTag"
+        },
+        {
+            "CompName": "CameraTag"
+        },
+        {
+            "CompName": "CameraControllTag"
+        },
+        {
+            "CompName": "CameraParamComponent",
+            "aspectRatio": 1.7777777910232544,
+            "farZ": 1000.0,
+            "fovY": 60.0,
+            "nearZ": 0.10000000149011612
+        },
+        {
+            "CompName": "ProjMatComponent"
+        },
+        {
+            "CompName": "FocusParamComponent",
+            "forcusBackRange": 1000.0,
+            "forcusDistance": 0.0,
+            "forcusRange": 0.0
+        },
+        {
+            "CompName": "FollowTargetComponent",
+            "targetGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "TPSOffsetComponent",
+            "x": 0.0,
+            "y": 2.0,
+            "z": -5.0
+        },
+        {
+            "ClampPitch": 80.0,
+            "CompName": "TPSLookAngleComponent",
+            "Pitch": 0.0
+        },
+        {
+            "CompName": "VelocityComponent"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                5.2796735763549805,
+                1.9999992847442627,
+                15.80512809753418
+            ],
+            "quat": [
+                0.0,
+                -0.9914448857307434,
+                0.0,
+                0.13052619993686676
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": ""
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "c6da5fd1-7cc1-4ced-8480-0fe467d9912c"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
             "CompName": "TransformComponent",
             "pos": [
                 0.0,
@@ -304,6 +382,56 @@
             "CompName": "ActiveTag"
         },
         {
+            "CompName": "TransformComponent",
+            "pos": [
+                0.0,
+                2.0,
+                5.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                2.0,
+                2.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "emissiveScale": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": ""
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "a579c9f0-b24b-4d95-911f-4c03761de7df"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
             "CompName": "PlayerControllTag"
         },
         {
@@ -315,7 +443,7 @@
         },
         {
             "CompName": "PlayerLookAngleComponent",
-            "Yaw": 285.0
+            "Yaw": -885.0
         },
         {
             "CompName": "ColliderComponent",
@@ -340,15 +468,15 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                3.923677444458008,
-                0.34584975242614746,
-                2.627004623413086
+                3.9855782985687256,
+                -7.748603820800781e-07,
+                10.97549819946289
             ],
             "quat": [
-                0.0,
-                0.6087614893913269,
-                0.0,
-                -0.793353259563446
+                -0.0,
+                -0.9914448261260986,
+                -0.0,
+                0.13052618503570557
             ],
             "scale": [
                 1.0,
@@ -449,84 +577,6 @@
         {
             "CompName": "GUIDComponent",
             "guid": "e6f8bbaf-b0ac-4507-8e85-94de5046d6ac"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "ActiveCameraTag"
-        },
-        {
-            "CompName": "CameraTag"
-        },
-        {
-            "CompName": "CameraControllTag"
-        },
-        {
-            "CompName": "CameraParamComponent",
-            "aspectRatio": 1.7777777910232544,
-            "farZ": 1000.0,
-            "fovY": 60.0,
-            "nearZ": 0.10000000149011612
-        },
-        {
-            "CompName": "ProjMatComponent"
-        },
-        {
-            "CompName": "FocusParamComponent",
-            "forcusBackRange": 1000.0,
-            "forcusDistance": 0.0,
-            "forcusRange": 0.0
-        },
-        {
-            "CompName": "FollowTargetComponent",
-            "targetGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
-        },
-        {
-            "CompName": "TPSOffsetComponent",
-            "x": 0.0,
-            "y": 2.0,
-            "z": -5.0
-        },
-        {
-            "ClampPitch": 80.0,
-            "CompName": "TPSLookAngleComponent",
-            "Pitch": 0.0
-        },
-        {
-            "CompName": "VelocityComponent"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                8.753307342529297,
-                2.3458497524261475,
-                1.3329102993011475
-            ],
-            "quat": [
-                0.0,
-                0.6087615489959717,
-                -0.0,
-                -0.7933533191680908
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": ""
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "c6da5fd1-7cc1-4ced-8480-0fe467d9912c"
         }
     ]
 ]

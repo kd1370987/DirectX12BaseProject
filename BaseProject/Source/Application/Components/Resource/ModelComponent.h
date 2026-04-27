@@ -10,7 +10,6 @@ struct ModelComponent
 	// ランタイム用
 	Engine::Resource::Handle<Engine::Resource::Model> handle = {};
 	// 記録用
-	//UUID modelGUID = {};
 	Engine::GUID modelGUID = {};
 
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)

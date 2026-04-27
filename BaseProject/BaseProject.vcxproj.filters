@@ -715,6 +715,9 @@
     <Filter Include="Source\Application\Systems\Init\Start\CameraStartSystem">
       <UniqueIdentifier>{13ae931f-6870-49d9-b99c-8d5ce8a83697}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem">
+      <UniqueIdentifier>{e6a6f1b5-ddf3-4da5-9c0d-02dcd1e7a333}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1151,6 +1154,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\CameraStartSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.cpp">
+      <Filter>Source\Application\Systems\Init\Start\AnimationModelStartSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1777,6 +1783,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.h">
       <Filter>Source\Application\Systems\Init\Start\CameraStartSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h">
+      <Filter>Source\Application\Systems\Init\Start\AnimationModelStartSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
