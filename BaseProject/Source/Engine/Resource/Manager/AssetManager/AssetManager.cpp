@@ -115,6 +115,22 @@ namespace Engine::Resource
 		return "NoFilePath";
 	}
 
+	Engine::GUID AssetManager::GetGUIDFromFilePath(const std::string& a_path)
+	{
+		// 比較のために引数のパスを正規化
+		std::string _normPath = std::filesystem::path(a_path).lexically_normal().generic_string();
+
+		for (auto& [_guid,_assetProp] : m_assetMap)
+		{
+			if (_assetProp.filePath == _normPath)
+			{
+				return _guid;
+			}
+		}
+
+		return Engine::DefaultGUID;
+	}
+
 	nlohmann::json AssetManager::CreateMetaData(const std::filesystem::path& a_srcFile)
 	{
 		nlohmann::json _json;

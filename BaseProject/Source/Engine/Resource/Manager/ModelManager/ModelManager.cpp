@@ -44,6 +44,17 @@ namespace Engine::Resource
 		return _handle;
 	}
 
+	Handle<Model> ModelManager::Request(const std::string& a_path)
+	{
+		// アセットマネージャーになければ初期値を返す
+		auto _guid = m_pAssetManager->GetGUIDFromFilePath(a_path);
+		Handle<Model> _res = {};
+		if (_guid == Engine::DefaultGUID) return _res;
+
+		// ロード
+		return Load(_guid);
+	}
+
 	
 	const Model* ModelManager::GetModel(const Handle<Model>& a_handle) const
 	{
