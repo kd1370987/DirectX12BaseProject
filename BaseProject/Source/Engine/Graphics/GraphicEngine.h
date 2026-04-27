@@ -63,7 +63,6 @@ namespace Engine::Graphics
 	private:
 		// レンダーコンテキスト
 		// 一フレーム内の描画情報を扱う
-		//std::unique_ptr<RenderContext> m_upRenderContext = nullptr;
 		std::vector<std::unique_ptr<RenderContext>> m_upRenderContextVec = {};
 		UINT m_currentFrameIndex = 0;
 

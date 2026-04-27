@@ -35,13 +35,6 @@ namespace Engine::Graphics
 		m_upShapeRender = std::make_unique<ShapeRenderer>();
 
 		// レンダーコンテキストの作成
-		//m_upRenderContext = std::make_unique<RenderContext>();
-		//m_upRenderContext->Init(
-		//	m_upShaderManager.get(),
-		//	m_upRootSignatureManager.get(),
-		//	m_upGrahicsPSOManager.get(),
-		//	m_upShapeRender.get()
-		//);
 		for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
 		{
 			auto _upCtx = std::make_unique<RenderContext>();
@@ -74,9 +67,6 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::ExcuteDrawCmd()
 	{
-		//m_upRenderContext->Excute(m_upRenderGraph.get());
-		
-		//m_upRenderContext->ClearCmd();
 		m_upRenderContextVec[m_currentFrameIndex]->Excute(m_upRenderGraph.get());
 		m_upRenderContextVec[m_currentFrameIndex]->ClearCmd();
 	}
@@ -96,12 +86,10 @@ namespace Engine::Graphics
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const
 	{
 		return m_upRenderContextVec[m_currentFrameIndex].get();
-		//return m_upRenderContext.get();
 	}
 	Graphics::RenderContext* GraphicsEngine::RefRenderContext()
 	{
 		return m_upRenderContextVec[m_currentFrameIndex].get();
-		//return m_upRenderContext.get();
 		
 	}
 	void GraphicsEngine::CreateManager()
