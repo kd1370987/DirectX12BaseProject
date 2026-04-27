@@ -58,7 +58,7 @@ void GameScene::Event()
 {
 	if (GetAsyncKeyState('R'))
 	{
-		SceneManager::Instance().SetNextScene(SceneType::Title,SceneChangeType::Replace);
+		//SceneManager::Instance().SetNextScene(SceneType::Title,SceneChangeType::Replace);
 	}
 
 	if (Engine::Input::InputManager::Instance().IsPress("Add"))
@@ -134,8 +134,8 @@ void GameScene::RegistryEntity()
 	BaseScene::RegistryEntity();
 
 	Engine::Persistence::PersistenceManager _pers = {};
-	//_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
-	//return;
+	_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
+	return;
 
 	// エンティティ生成
 	Engine::ECS::Entity _player;
@@ -174,6 +174,7 @@ void GameScene::RegistryEntity()
 		_model->handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
+		_model->modelGUID = _guid;
 		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_player);
 		_ref->pos = { 0.0f, 3.0f, 5.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
@@ -245,6 +246,7 @@ void GameScene::RegistryEntity()
 		_model->handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
+		_model->modelGUID = _guid;
 		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
 		_ref->pos = { 0.0f, 0.0f, 0.0f };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
@@ -333,6 +335,7 @@ void GameScene::RegistryEntity()
 					_model->handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
 					_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 					_model->emissiveScale = { 0.0f,0.0f,0.0f };
+					_model->modelGUID = _guid;
 					TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
 					_ref->pos = { _x * _pad,  _y * _pad, -_z * _pad };
 					_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
@@ -359,6 +362,7 @@ void GameScene::RegistryEntity()
 		_model->handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
 		_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 		_model->emissiveScale = { 0.0f,0.0f,0.0f };
+		_model->modelGUID = _guid;
 		TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
 		_ref->pos = { 0,2,0 };
 		_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
@@ -367,6 +371,9 @@ void GameScene::RegistryEntity()
 		DXSM::Matrix _worldMat = DXSM::Matrix::CreateTranslation(0,3,0);
 		Engine::Raytracing::RayEngine::Instance().RegistModel(_worldMat,_model->handle);
 	}
+
+	Engine::Raytracing::RayEngine::Instance().CommitWorld();
+	return;
 
 	{
 		Engine::ECS::Signature _sig;
@@ -385,7 +392,6 @@ void GameScene::RegistryEntity()
 		m_upWorld->RefData<WorldMatrixComponent>(_entity)->worldMat = DXSM::Matrix::Identity;
 	}
 
-	Engine::Raytracing::RayEngine::Instance().CommitWorld();
 }
 
 

@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class ModelFixupSystem : public Engine::ECS::SystemBase<ModelFixupSystem>
+class GUIDFixupSystem : public Engine::ECS::SystemBase<GUIDFixupSystem>
 {
 public:
 

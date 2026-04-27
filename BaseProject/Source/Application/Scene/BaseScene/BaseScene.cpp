@@ -47,6 +47,14 @@
 #include "../../Components/Hierarchy/HierarchyComponent.h"
 
 // システム関連
+#include "../../Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
+#include "../../Systems/Init/PostDeserialize/GUIDFixupSystem/GUIDFixupSystem.h"
+
+#include "../../Systems/Init/Awake/FollowTargetLinkSystem/FollowTargetLinkSystem.h"
+
+#include "../../Systems/Init/Start/CameraStartSystem/CameraStartSystem.h"
+
+
 #include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
 
 #include "Application/Systems/Update/Update/Rotation/RotationSystem/RotationSystem.h"
@@ -179,6 +187,13 @@ void BaseScene::RegistryComponent()
 void BaseScene::RegistrySystem()
 {
 	// システム登録
+	m_upWorld->RegisterSystem<ModelFixupSystem>();
+	m_upWorld->RegisterSystem<GUIDFixupSystem>();
+
+	m_upWorld->RegisterSystem<FollowTargetLinkSystem>();
+
+	m_upWorld->RegisterSystem<CameraStartSystem>();
+
 	m_upWorld->RegisterSystem<CamSetShaderSystem>();
 	m_upWorld->RegisterSystem<InputMoveSystem>();
 

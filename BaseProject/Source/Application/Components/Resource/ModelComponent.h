@@ -42,6 +42,7 @@ struct ModelComponent
 
 		// 現在の表示
 		ImGui::Text("Model : %s", _pCurrentModel->GetName().c_str());
+		ImGui::Text("%s",_comp.modelGUID.String().c_str());
 
 		// 選択UI
 		if (ImGui::BeginCombo("Change Model", "Select..."))
@@ -58,6 +59,7 @@ struct ModelComponent
 				if (ImGui::Selectable(_pModel->GetName().c_str(), _selected))
 				{
 					_comp.handle = _handle;
+					_comp.modelGUID = _guid;
 				}
 			}
 			ImGui::EndCombo();

@@ -25,6 +25,8 @@ namespace Engine
 			return InlineIsEqualGUID(value,other.value);
 		}
 	};
+
+	inline GUID DefaultGUID = {};
 }
 
 namespace std

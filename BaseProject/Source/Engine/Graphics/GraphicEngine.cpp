@@ -44,34 +44,22 @@ namespace Engine::Graphics
 		);
 
 		// レンダーグラフの構築
-		// エディター用
-		//m_upRenderGraphMap["EditorRenderGraph"] = std::make_unique<RenderGraph>();
-		m_upRenderGraphMap["GameRenderGraph"] = std::make_unique<RenderGraph>();
-		for (auto& [_cam, _graph] : m_upRenderGraphMap)
-		{
-			_graph->Init(
-				m_upRenderContext.get(),
-				m_upShaderManager.get(),
-				m_upRootSignatureManager.get(),
-				m_upGrahicsPSOManager.get()
-			);
-		}
+		m_upRenderGraph = std::make_unique<RenderGraph>();
+		m_upRenderGraph->Init(
+			m_upRenderContext.get(),
+			m_upShaderManager.get(),
+			m_upRootSignatureManager.get(),
+			m_upGrahicsPSOManager.get()
+		);
 	}
 
 	void GraphicsEngine::Release()
 	{}
 
-	void GraphicsEngine::Update()
+	void GraphicsEngine::ExcuteDrawCmd()
 	{
+		m_upRenderContext->Excute(m_upRenderGraph.get());
 		
-	}
-
-	void GraphicsEngine::Draw()
-	{
-		for (auto& [_cam, _graph] : m_upRenderGraphMap)
-		{
-			m_upRenderContext->Excute(_graph.get());
-		}
 		m_upRenderContext->ClearCmd();
 	}
 

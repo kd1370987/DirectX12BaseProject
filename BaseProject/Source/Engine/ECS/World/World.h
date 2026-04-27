@@ -114,6 +114,11 @@ namespace Engine::ECS
 		void RemoveEntity(const Entity& a_entity);
 
 		//------------------------------------------------------------------------------------------
+		// エンティティの検索
+		//------------------------------------------------------------------------------------------
+		Entity GetEntity(const Engine::GUID& a_guid);		// GUIDからの検索
+
+		//------------------------------------------------------------------------------------------
 		// エンティティの操作
 		//------------------------------------------------------------------------------------------
 		// エンティティに対してコンポーネントを操作
@@ -162,6 +167,8 @@ namespace Engine::ECS
 		// 指定コンポーネントの情報を取得
 		const ComponentMeta& GetComponentMetaData(const ComponentTypeID& a_typeID);	// メタデータ
 		const ComponentFunc& GetCompFunc(const ComponentTypeID& a_typeID)const;		// 関数
+		template<typename Comp>
+		const ComponentFunc& GetCompFunc()const;		// 関数
 
 		// 全コンポーネントの情報を取得
 		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllComponentMetaData() const;
@@ -292,6 +299,13 @@ namespace Engine::ECS
 		auto _typeID = m_componentMetaRegistry.GetTypeID<RawType>();
 
 		return reinterpret_cast<Comp*>(m_archetypeChunkManager.RefComponentArray(a_chunk, _typeID));
+	}
+
+	template<typename Comp>
+	inline const ComponentFunc& World::GetCompFunc() const
+	{
+		auto _id = m_componentMetaRegistry.GetTypeID(typeid(Comp));
+		return GetCompFunc(_id);
 	}
 
 	template<typename System>

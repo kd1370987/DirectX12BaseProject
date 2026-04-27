@@ -14,7 +14,6 @@ struct CameraParamComponent
 		a_json["aspectRatio"] = _comp->aspectRatio;
 		a_json["nearZ"] = _comp->nearZ;
 		a_json["farZ"] = _comp->farZ;
-
 	}
 
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)

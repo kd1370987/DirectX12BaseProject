@@ -2,6 +2,10 @@
 
 #include "../Internal/EntityLocation.h"
 
+// エンティティに初めからつけるためこの二つはインクルード
+#include "../../../Application/Components/Persistence/GUIDComponent.h"
+#include "../../../Application/Components/Persistence/NameComponent.h"
+
 namespace Engine::ECS
 {
 
@@ -62,7 +66,9 @@ namespace Engine::ECS
 	{
 		// エンティティIDの生成
 		Signature _sig = a_sig;
-		_sig.set(GetCompTypeID<PostDeserializeTag>());
+		_sig.set(GetCompTypeID<PostDeserializeTag>());		// 初めて通るシステムフェーズ
+		_sig.set(GetCompTypeID<GUIDComponent>());			// オブジェクトとして追加するときは必ず付与
+		_sig.set(GetCompTypeID<NameComponent>());
 		ECS::Entity _entity = m_entityManager.CreateEntity(_sig);
 
 		// エンティティをチャンクに割り当てる
@@ -70,6 +76,15 @@ namespace Engine::ECS
 
 		// エンティティのロケーションを記録
 		m_entityManager.SetEntityLocation(_entity, _loca);
+
+		// シグネチャごとにコンストラクタを回す
+		for (ComponentTypeID _i = 0; _i < _sig.size(); ++_i)
+		{
+			if (!_sig.test(_i)) continue;
+
+			uint8_t* _data = NRefData(_entity, _i);
+			
+		}
 
 		return _entity;
 	}
@@ -148,6 +163,36 @@ namespace Engine::ECS
 		// 移動したエンティティのロケーションを変更
 		auto& _swapLoca = m_entityManager.RefEntityLocation(_entity);
 		_swapLoca.chunkIndex = _idx;
+	}
+
+	Entity World::GetEntity(const Engine::GUID& a_guid)
+	{
+		Entity _res = Limits::INVALID_ENTITY;
+
+		ForEach<GUIDComponent>(
+			[&a_guid,&_res](
+				ArchetypeChunk* a_chunk,
+				uint32_t a_count,
+				GUIDComponent* a_guidArray
+			)
+			{ 
+
+				if (_res != Limits::INVALID_ENTITY) return;
+
+				for(size_t _i= 0; _i < a_count; ++_i)
+				{
+					if (_res != Limits::INVALID_ENTITY) continue;
+
+					GUIDComponent& _comp = a_guidArray[_i];
+					if (_comp.guid == a_guid)
+					{
+						_res = a_chunk->entityData[_i];
+					}
+				}
+			}
+		);
+
+		return _res;
 	}
 
 	void World::AddComponent(ComponentTypeID a_typeID, Entity a_entity)

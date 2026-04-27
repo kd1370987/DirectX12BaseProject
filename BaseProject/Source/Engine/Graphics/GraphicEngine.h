@@ -41,11 +41,8 @@ namespace Engine::Graphics
 		void Init(const GraphicsEngineDesc& a_desc);
 		void Release();
 
-		// 更新
-		void Update();
-
-		// 描画
-		void Draw();
+		// 描画コマンドの実行
+		void ExcuteDrawCmd();
 
 		// アクセサ
 		const Graphics::RenderContext* GetRenderContext() const;
@@ -72,8 +69,8 @@ namespace Engine::Graphics
 		// 形状描画クラス
 		std::unique_ptr<ShapeRenderer> m_upShapeRender = nullptr;
 
-		// レンダーグラフ（カメラ１に対して一つ。後で変えるかも）
-		std::unordered_map<std::string, std::unique_ptr<RenderGraph>> m_upRenderGraphMap = {};
+		// レンダーグラフ
+		std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;
 
 	};
 }

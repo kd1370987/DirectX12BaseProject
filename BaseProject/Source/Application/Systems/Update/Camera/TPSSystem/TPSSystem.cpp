@@ -33,6 +33,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				Engine::ECS::Entity _target = a_targetArray[_i].target;
 				const TransformComponent* _targetTRS = a_world.RefData<TransformComponent>(_target);
 				const PlayerLookAngleComponent* _targetLook = a_world.RefData<PlayerLookAngleComponent>(_target);
+				if (!_targetLook) continue;
 				TransformComponent& _trsComp = a_trsArray[_i];
 
 				// 視点

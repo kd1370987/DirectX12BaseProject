@@ -42,7 +42,7 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 
 				// モデル取得
 				auto* _model = Engine::Resource::ModelManager::Instnace().RefModel(_modelComp.handle);
-				if (!_model) return;
+				if (!_model) continue;
 
 				// ノード
 				auto& _dataNodes = _model->GetOriginalNodeVec();

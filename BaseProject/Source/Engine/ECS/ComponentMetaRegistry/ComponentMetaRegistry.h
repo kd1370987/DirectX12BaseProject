@@ -17,6 +17,8 @@ namespace Engine::ECS
 	// コンポーネントに付随する特殊処理
 	struct ComponentFunc
 	{
+		std::function<void(void*)> construct;
+
 		std::function<void(const void*, nlohmann::json&)> serialize;
 		std::function<void(void*, const nlohmann::json&)> deserialize;
 		std::function<void(void*)> edit;
@@ -112,6 +114,7 @@ namespace Engine::ECS
 
 		// 関数登録
 		ComponentFunc _func = {};
+		_func.construct = [](void* a_ptr) {new (a_ptr) Comp(); };		// すでに作られたメモリ上を初期化
 		_func.serialize = &Comp::Serialize;
 		_func.deserialize = &Comp::Deserialize;
 		_func.edit = &Comp::Edit;
