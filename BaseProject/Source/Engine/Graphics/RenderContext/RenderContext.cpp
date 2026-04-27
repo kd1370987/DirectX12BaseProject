@@ -29,105 +29,52 @@
 //============================================================================================
 namespace Engine::Graphics
 {
-	void RenderContext::Init(
-		Resource::ShaderManager* a_pShaderMana,
-		RootSignatureManager* a_pRootSigMana,
-		Engine::D3D12::GraphicsPSOManager* a_pPSOMana,
-		ShapeRenderer* a_pShapeRender
-	)
+	void RenderContext::Init(const RenderContextDesc& a_desc)
 	{
+		// デバイスのキャッシュ
+		m_pDevice = a_desc.pDevice;
+
 		// ポインタのキャッシュ
-		m_pShaderManger = a_pShaderMana;
-		m_pRootSigManager = a_pRootSigMana;
-		m_pGraphicsPSOManager = a_pPSOMana;
-		m_pShapeDraw = a_pShapeRender;
+		m_pShaderManger = a_desc.pShaderMana;
+		m_pRootSigManager = a_desc.pRootSigMana;
+		m_pGraphicsPSOManager = a_desc.pPSOMana;
+		m_pShapeDraw = a_desc.pShapeRender;
 
-		// cb0
-		auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f);	// 視点の位置
-		auto _targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);	// 視点を向ける座標
-		auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向を表すベクトル
-		constexpr float _fovF = 60.0f;
-		constexpr auto _fov = DirectX::XMConvertToRadians(_fovF);						// 視野角
+		// 形状描画用バッファ作成
+		m_shapeVertexBuffer.Create(
+			m_pShapeDraw->GetMaxCount(),
+			sizeof(Vertex),
+			nullptr
+		);
 
-		auto _aspect = static_cast<float>(1280) / static_cast<float>(720);		// アスペクト比
-		m_aspectRate = _aspect;
-		DirectX::XMStoreFloat4(&m_cb0_camera.cameraPosXYZ, _eyePos);
-		DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
-		DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
+		// ルート定数バッファアロケーター
+		m_upCBAllocater = std::make_unique<CBAllocater>();
+		m_upCBAllocater->RootCBVCreate(
+			m_pDevice, a_desc.cbAllocatorMemSize
+		);
 
-		// フレームリソース
-		for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
-		{
-			// ルート定数バッファアロケーター
-			m_frameResource[_i].spCamAndObjectCBAllocater = std::make_shared<CBAllocater>();
-			m_frameResource[_i].spCamAndObjectCBAllocater->RootCBVCreate(
-				D3D12Wrapper::Instance().GetDevice(), 32 * 1024 * 1024
-			);
-
-			// 線描画用バッファー
-			m_frameResource[_i].shapeVertexBuffer.Create(
-				m_pShapeDraw->GetMaxCount(),
-				sizeof(Vertex),
-				nullptr
-			);
-		}
-
-		// cb1
-		m_cb1_object.uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
-		// cb2
-		m_cb2_MeshTrans.worldMat = {
-			1.0f,0.0f,0.0f,0.0f,
-			0.0f,1.0f,0.0f,0.0f,
-			0.0f,0.0f,1.0f,0.0f,
-			0.0f,0.0f,0.0f,1.0f
-		};
-		/// cb3
-		m_cb3_Material.baseColorXYZW = { 1.0f,1.0f,1.0f,1.0f };
-		m_cb3_Material.emissiveXYZ = { 1.0f,1.0f,1.0f,0.0f };
-		m_cb3_Material.metallicRoughnessXY = { 0.0f,1.0f,0.0f,0.0f };
-
-		// cb4
-		for (auto& _mat : m_cb4_Bone.boneMat)
-		{
-			_mat = DXSM::Matrix::Identity;
-		};
-
-		m_currentPSOID = Resource::Handle<D3D12::PipelineState>();
-		m_currentRootSigID = Resource::Limits::INVALID_ID;
-		m_pCurrentMaterial = nullptr;
-		m_pCurrentMesh = nullptr;
+		// クワッドポリゴン
+		m_spQuadPolygon = std::make_shared<Resource::QuadPolygon>();
+		m_spQuadPolygon->Init();
 
 		// cb5
 		m_cb5_Ambient.ambientLightColor = { 0.3f,0.3f,0.3f,1.0f };
 		m_cb5_Ambient.directionalLightColor = { 10.0f,10.0f,10.0f,1.0f };
 		m_cb5_Ambient.directionalLightDir = { -1.0f,-1.0f,-1.0f,0.0f };
+	}
+	
 
-		m_spQuadPolygon = std::make_shared<Resource::QuadPolygon>();
-		m_spQuadPolygon->Init();
+	void RenderContext::Begine(const FrameDesc& a_desc)
+	{
+		Clear();
+
+		m_pCmdList = a_desc.pCmdList;
 	}
 
-	void RenderContext::Shutdown()
+	void RenderContext::Clear()
 	{
-		for (auto& _spFR : m_frameResource)
-		{
-			_spFR.spCamAndObjectCBAllocater.reset();
-		}
-		m_pCurrentMaterial = nullptr;
-		m_pCurrentMesh = nullptr;
-
-		m_drawItemMap.clear();
-	}
-
-	void RenderContext::BeginFrame()
-	{
-		UINT _currentIdx = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
-
-		// 定数バッファの初期化
-		m_frameResource[_currentIdx].spCamAndObjectCBAllocater->ResetUse();
-	}
-
-	void RenderContext::EndFrame()
-	{
+		m_pCmdList = nullptr;
+		m_upCBAllocater->ResetUse();
 		m_pShapeDraw->Reset();
 	}
 
@@ -180,7 +127,6 @@ namespace Engine::Graphics
 
 	void RenderContext::BindCameraCB()
 	{
-		auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
 		// レジスター番号取得
 		UINT _regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::CameraCB);
@@ -189,7 +135,7 @@ namespace Engine::Graphics
 		ID3D12DescriptorHeap* _heaps[] = {
 				DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
 		};
-		_cmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 
 
 		// ルートシグネチャにカメラCBが含まれているのなら
@@ -197,7 +143,7 @@ namespace Engine::Graphics
 		{
 			// カメラ用定数バッファに転送
 			BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
-				_cmdList,
+				m_pCmdList,
 				_regiIdx,
 				m_cb0_camera
 			);
@@ -209,7 +155,7 @@ namespace Engine::Graphics
 		if (ERR_UINT != _regiIdx)
 		{
 			BindCB()->BindSemanticCBV<RootSigSemantic::AmbientCB>(
-				_cmdList,
+				m_pCmdList,
 				_regiIdx,
 				m_cb5_Ambient
 			);
@@ -224,8 +170,7 @@ namespace Engine::Graphics
 
 	CBAllocater* RenderContext::BindCB()
 	{
-		auto _currentIdx = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
-		return m_frameResource[_currentIdx].spCamAndObjectCBAllocater.get();
+		return m_upCBAllocater.get();
 	}
 
 	void RenderContext::ChangeRenderTarget(const std::vector<Resource::Handle<RTV>>& a_rtvHandleVec, const Resource::Handle<DSV>& a_dsvHandle)
@@ -234,8 +179,7 @@ namespace Engine::Graphics
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvCPUVec = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE _dsvCPU;
 		D3D12_CPU_DESCRIPTOR_HANDLE* _pDSVCPU = nullptr;
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
+		
 		// RTVをハンドルへ変換
 		for (auto& _rtv : a_rtvHandleVec)
 		{
@@ -249,7 +193,7 @@ namespace Engine::Graphics
 		}
 
 		// チェンジ
-		_pCmdList->OMSetRenderTargets(
+		m_pCmdList->OMSetRenderTargets(
 			static_cast<UINT>(std::size(_rtvCPUVec)),
 			_rtvCPUVec.data(),
 			false,
@@ -263,8 +207,7 @@ namespace Engine::Graphics
 
 	void RenderContext::BindSRV(int a_rootIndex, const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle)
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-		_pCmdList->SetGraphicsRootDescriptorTable(
+		m_pCmdList->SetGraphicsRootDescriptorTable(
 			a_rootIndex,
 			a_srvHandle[0]
 		);
@@ -275,8 +218,6 @@ namespace Engine::Graphics
 		const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
 	)
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
 		UINT _regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
 
@@ -286,7 +227,7 @@ namespace Engine::Graphics
 		{
 			for (UINT _i = 0; _i < a_srvHandle.size(); ++_i)
 			{
-				_pCmdList->SetGraphicsRootDescriptorTable(
+				m_pCmdList->SetGraphicsRootDescriptorTable(
 					_regiIdx,
 					a_srvHandle[0]
 				);
@@ -384,42 +325,36 @@ namespace Engine::Graphics
 
 	void RenderContext::SetGraphicsRootSignature(const Resource::ID& a_rootSigID)
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
 		// ルートシグネチャセット
 		if (a_rootSigID != m_currentRootSigID)
 		{
-			_pCmdList->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
+			m_pCmdList->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
 			m_currentRootSigID = a_rootSigID;
 		}
 	}
 
 	void RenderContext::SetGraphicPSO(const Resource::Handle<D3D12::PipelineState>& a_handle)
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
 		// パイプラインステートセット
 		if (a_handle != m_currentPSOID)
 		{
-			_pCmdList->SetPipelineState(m_pGraphicsPSOManager->Ref(a_handle));
+			m_pCmdList->SetPipelineState(m_pGraphicsPSOManager->Ref(a_handle));
 			m_currentPSOID = a_handle;
 		}
 
 		// プリミティブトポロジーセット
-		_pCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 
 	void RenderContext::BindObuje(const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
 		m_cb1_object.uvOffsetTiling.x = a_uv.x;
 		m_cb1_object.uvOffsetTiling.y = a_uv.y;
 		m_cb1_object.uvOffsetTiling.z = a_tile.x;
 		m_cb1_object.uvOffsetTiling.w = a_tile.y;
 
 		BindCB()->BindAndAttachDataRootCBV<CBObject>(
-			_pCmdList,
+			m_pCmdList,
 			1,
 			m_cb1_object
 		);
@@ -431,8 +366,6 @@ namespace Engine::Graphics
 		const DirectX::XMFLOAT3& a_emissiveScale
 	)
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
 		// ベースカラー
 		DXSM::Vector4 _colorScale(a_colorScale);
 		DXSM::Vector4 _materialScale(a_pMaterial->baseColor);
@@ -449,7 +382,7 @@ namespace Engine::Graphics
 
 		// マテリアルバッファバインド
 		BindCB()->BindAndAttachDataRootCBV<CBMaterial>(
-			_pCmdList,
+			m_pCmdList,
 			3,
 			m_cb3_Material
 		);
@@ -460,7 +393,7 @@ namespace Engine::Graphics
 		if (a_pMaterial != m_pCurrentMaterial)
 		{
 			auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(a_pMaterial->startSRVHandle);
-			_pCmdList->SetGraphicsRootDescriptorTable(
+			m_pCmdList->SetGraphicsRootDescriptorTable(
 				_regiIdx,
 				_handle
 			);
@@ -470,22 +403,20 @@ namespace Engine::Graphics
 
 	void RenderContext::BindMesh(Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
 		// メッシュ変換行列の転送
 		m_cb2_MeshTrans.worldMat = a_worldMat;
 		UINT _regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MeshTransCB);
 		BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
-			_pCmdList,
+			m_pCmdList,
 			_regiIdx,
 			m_cb2_MeshTrans
 		);
 
 		if (a_pMesh != m_pCurrentMesh)
 		{
-			_pCmdList->IASetVertexBuffers(0, 1, &a_pMesh->GetVertexBuffer().View());
-			_pCmdList->IASetIndexBuffer(&a_pMesh->GetIndexBuffer().View());
+			m_pCmdList->IASetVertexBuffers(0, 1, &a_pMesh->GetVertexBuffer().View());
+			m_pCmdList->IASetIndexBuffer(&a_pMesh->GetIndexBuffer().View());
 			m_pCurrentMesh = a_pMesh;
 		}
 	}
@@ -501,11 +432,10 @@ namespace Engine::Graphics
 		// ルートパラムインデックス確保
 		UINT _regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::BoneCB);
-		auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
-
+		
 		// バッファにコピー
 		BindCB()->BindAndAttachDataRootCBV<CBBone>(
-			_cmdList,
+			m_pCmdList,
 			_regiIdx,
 			m_cb4_Bone
 		);
@@ -513,12 +443,10 @@ namespace Engine::Graphics
 
 	void RenderContext::Draw(Resource::Mesh* a_pMesh, UINT a_subIdx)
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
 		// 描画
 		UINT _faceCount = static_cast<UINT>(a_pMesh->GetSubsets()[a_subIdx].faceCount);
 		UINT _faceStart = static_cast<UINT>(a_pMesh->GetSubsets()[a_subIdx].faceStart);
-		_pCmdList->DrawIndexedInstanced(
+		m_pCmdList->DrawIndexedInstanced(
 			_faceCount * 3, 1, _faceStart * 3, 0, 0
 		);
 	}
@@ -551,8 +479,7 @@ namespace Engine::Graphics
 	void RenderContext::DrawQuad()
 	{
 		// コマンドリストの取得
-		auto* _cmdList = D3D12Wrapper::Instance().GetCommandList();
-		_cmdList->DrawInstanced(
+		m_pCmdList->DrawInstanced(
 			3, 1, 0, 0
 		);
 	}
@@ -588,8 +515,6 @@ namespace Engine::Graphics
 
 	void RenderContext::DrawUIQueue(RenderQueueType2D a_type)
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
 		// 描画アイテム取得
 		auto& _draws = GetItemVec(a_type);
 		if (_draws.size() == 0) return;
@@ -599,7 +524,7 @@ namespace Engine::Graphics
 			m_cbUI.color = _item.colorScale;
 
 			BindCB()->BindAndAttachDataRootCBV<CBUI>(
-				_pCmdList,
+				m_pCmdList,
 				0,
 				m_cbUI
 			);
@@ -608,7 +533,7 @@ namespace Engine::Graphics
 			UINT _regiIdx =
 				m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
 			auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(_item.srvHandleRange);
-			_pCmdList->SetGraphicsRootDescriptorTable(
+			m_pCmdList->SetGraphicsRootDescriptorTable(
 				_regiIdx,
 				_handle
 			);
@@ -617,14 +542,14 @@ namespace Engine::Graphics
 			// メッシュ変換行列の転送
 			if (m_pCurrentPoly != m_spQuadPolygon.get())
 			{
-				_pCmdList->IASetVertexBuffers(0, 1, &m_spQuadPolygon->GetVBView());
-				_pCmdList->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
+				m_pCmdList->IASetVertexBuffers(0, 1, &m_spQuadPolygon->GetVBView());
+				m_pCmdList->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
 
 				m_pCurrentPoly = m_spQuadPolygon.get();
 			}
 
 			// 描画
-			_pCmdList->DrawIndexedInstanced(
+			m_pCmdList->DrawIndexedInstanced(
 				6, 1, 0, 0, 0
 			);
 		}
@@ -638,10 +563,8 @@ namespace Engine::Graphics
 
 	void RenderContext::SetPrimitive(D3D_PRIMITIVE_TOPOLOGY a_topology)
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
 		// プリミティブトポロジーセット
-		_pCmdList->IASetPrimitiveTopology(a_topology);
+		m_pCmdList->IASetPrimitiveTopology(a_topology);
 	}
 
 	void RenderContext::SetRasterizerFillMode(D3D12_FILL_MODE a_fillMode)
@@ -652,23 +575,17 @@ namespace Engine::Graphics
 	void RenderContext::ShapeDraw()
 	{
 		// フレーム情報
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 		auto _currentIdx = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 
 		// フレーム頂点バッファ更新
 		UINT _vertexCount = static_cast<UINT>(m_pShapeDraw->GetVertexVec().size());
-		m_frameResource[_currentIdx].shapeVertexBuffer.Update(
-			_vertexCount,
-			m_pShapeDraw->GetVertexVec().data()
-		);
+		m_shapeVertexBuffer.Update(_vertexCount,m_pShapeDraw->GetVertexVec().data());
 
 		// 頂点バッファ送信
-		_pCmdList->IASetVertexBuffers(0, 1, &m_frameResource[_currentIdx].shapeVertexBuffer.View());
+		m_pCmdList->IASetVertexBuffers(0, 1, &m_shapeVertexBuffer.View());
 
 		// 描画
-		_pCmdList->DrawInstanced(
-			_vertexCount, 1, 0, 0
-		);
+		m_pCmdList->DrawInstanced(_vertexCount, 1, 0, 0);
 	}
 
 	RenderContext::RenderContext()

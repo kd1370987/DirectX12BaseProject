@@ -44,6 +44,10 @@ namespace Engine::Graphics
 		// 描画コマンドの実行
 		void ExcuteDrawCmd();
 
+		// フレームの開始・終了処理
+		void BegineFrame();
+		void EndFrame();
+
 		// アクセサ
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
@@ -59,7 +63,9 @@ namespace Engine::Graphics
 	private:
 		// レンダーコンテキスト
 		// 一フレーム内の描画情報を扱う
-		std::unique_ptr<RenderContext> m_upRenderContext = nullptr;
+		//std::unique_ptr<RenderContext> m_upRenderContext = nullptr;
+		std::vector<std::unique_ptr<RenderContext>> m_upRenderContextVec = {};
+		UINT m_currentFrameIndex = 0;
 
 		// マネージャー
 		std::unique_ptr<Resource::ShaderManager>	m_upShaderManager = nullptr;		// シェーダー管理

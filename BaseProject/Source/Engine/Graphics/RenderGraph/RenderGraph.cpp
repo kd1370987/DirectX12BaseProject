@@ -25,7 +25,6 @@ namespace Engine::Graphics
 	{}
 
 	void RenderGraph::Init(
-		RenderContext* a_pCtx,
 		Resource::ShaderManager* a_pShaderMana,
 		RootSignatureManager* a_pRootSigMana,
 		Engine::D3D12::GraphicsPSOManager* a_pPSOMana
@@ -106,8 +105,6 @@ namespace Engine::Graphics
 		{
 			_sp->Init(this, a_pShaderMana, a_pRootSigMana, a_pPSOMana);
 		}
-
-		m_pCtx = a_pCtx;
 
 		// コンパイル
 		Compile();
@@ -228,20 +225,20 @@ namespace Engine::Graphics
 		for (auto& _cp : m_compiledPasses)
 		{
 			// リソースバリア
-			AutoBarrier(_cp);
+			AutoBarrier(a_pCtx,_cp);
 
 			// リソースクリア
 			// レンダーターゲット変更
-			m_pCtx->ChangeRenderTarget(_cp.rtvHadles, _cp.dsvHandle);
+			a_pCtx->ChangeRenderTarget(_cp.rtvHadles, _cp.dsvHandle);
 
 			// クリア処理
 			for (auto& _tex : _cp.clearRTVs)
 			{
-				m_pCtx->ClearRenderTarget(_tex);
+				a_pCtx->ClearRenderTarget(_tex);
 			}
 			if (_cp.isDepthClear)
 			{
-				m_pCtx->ClearDSV(_cp.dsvHandle);
+				a_pCtx->ClearDSV(_cp.dsvHandle);
 			}
 
 			// パスの実行
@@ -327,7 +324,7 @@ namespace Engine::Graphics
 		return m_upRGResourceManager->GetDXGIFormat(a_id);
 	}
 
-	void RenderGraph::AutoBarrier(CompiledPass& a_pass)
+	void RenderGraph::AutoBarrier(RenderContext* a_pCtx,CompiledPass& a_pass)
 	{
 		// 使用するリソースバリア
 		for (auto& _barrier : a_pass.barrierVec)
@@ -336,7 +333,7 @@ namespace Engine::Graphics
 			if (m_upRGResourceManager->RefCurrentState(_barrier.resID) != _barrier.after)
 			{
 				// ステート変更
-				m_pCtx->Transition(
+				a_pCtx->Transition(
 					Resource::TextureManager::Instance().RefTexture(_barrier.texHandle).GetResource(),
 					m_upRGResourceManager->RefCurrentState(_barrier.resID),
 					_barrier.after

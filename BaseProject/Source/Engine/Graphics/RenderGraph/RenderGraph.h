@@ -40,11 +40,10 @@ namespace Engine::Graphics
 		~RenderGraph();
 
 		void Init(
-			RenderContext* a_pCtx,
 			Resource::ShaderManager* a_pShaderMana,
 			RootSignatureManager* a_pRootSigMana,
 			Engine::D3D12::GraphicsPSOManager* a_pPSOMana
-		);							// 初回
+		);
 
 		void Release();
 
@@ -78,7 +77,7 @@ namespace Engine::Graphics
 	private:
 
 		// 実行中の関数
-		void AutoBarrier(CompiledPass& a_pass);		// バリア更新
+		void AutoBarrier(RenderContext* a_pCtx,CompiledPass& a_pass);		// バリア更新
 
 	private:
 
@@ -91,7 +90,5 @@ namespace Engine::Graphics
 
 		// リソース管理
 		std::unique_ptr<RGResourceManager> m_upRGResourceManager = nullptr;
-
-		RenderContext* m_pCtx = nullptr;
 	};
 }

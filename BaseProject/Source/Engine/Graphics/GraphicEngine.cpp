@@ -35,18 +35,34 @@ namespace Engine::Graphics
 		m_upShapeRender = std::make_unique<ShapeRenderer>();
 
 		// レンダーコンテキストの作成
-		m_upRenderContext = std::make_unique<RenderContext>();
-		m_upRenderContext->Init(
-			m_upShaderManager.get(),
-			m_upRootSignatureManager.get(),
-			m_upGrahicsPSOManager.get(),
-			m_upShapeRender.get()
-		);
+		//m_upRenderContext = std::make_unique<RenderContext>();
+		//m_upRenderContext->Init(
+		//	m_upShaderManager.get(),
+		//	m_upRootSignatureManager.get(),
+		//	m_upGrahicsPSOManager.get(),
+		//	m_upShapeRender.get()
+		//);
+		for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
+		{
+			auto _upCtx = std::make_unique<RenderContext>();
+
+			RenderContextDesc _desc = {};
+			_desc.pDevice = D3D12Wrapper::Instance().GetDevice();
+
+			_desc.pShaderMana = m_upShaderManager.get();
+			_desc.pRootSigMana = m_upRootSignatureManager.get();
+			_desc.pPSOMana = m_upGrahicsPSOManager.get();
+			_desc.pShapeRender = m_upShapeRender.get();
+
+			_desc.cbAllocatorMemSize = 32 * 1024 * 1024;
+
+			_upCtx->Init(_desc);
+			m_upRenderContextVec.push_back(std::move(_upCtx));
+		}
 
 		// レンダーグラフの構築
 		m_upRenderGraph = std::make_unique<RenderGraph>();
 		m_upRenderGraph->Init(
-			m_upRenderContext.get(),
 			m_upShaderManager.get(),
 			m_upRootSignatureManager.get(),
 			m_upGrahicsPSOManager.get()
@@ -58,18 +74,35 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::ExcuteDrawCmd()
 	{
-		m_upRenderContext->Excute(m_upRenderGraph.get());
+		//m_upRenderContext->Excute(m_upRenderGraph.get());
 		
-		m_upRenderContext->ClearCmd();
+		//m_upRenderContext->ClearCmd();
+		m_upRenderContextVec[m_currentFrameIndex]->Excute(m_upRenderGraph.get());
+		m_upRenderContextVec[m_currentFrameIndex]->ClearCmd();
+	}
+
+	void GraphicsEngine::BegineFrame()
+	{
+		m_currentFrameIndex = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+		FrameDesc _desc;
+		_desc.pCmdList = D3D12Wrapper::Instance().GetCommandList();
+		m_upRenderContextVec[m_currentFrameIndex]->Begine(_desc);
+	}
+	void GraphicsEngine::EndFrame()
+	{
+
 	}
 
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const
 	{
-		return m_upRenderContext.get();
+		return m_upRenderContextVec[m_currentFrameIndex].get();
+		//return m_upRenderContext.get();
 	}
 	Graphics::RenderContext* GraphicsEngine::RefRenderContext()
 	{
-		return m_upRenderContext.get();
+		return m_upRenderContextVec[m_currentFrameIndex].get();
+		//return m_upRenderContext.get();
+		
 	}
 	void GraphicsEngine::CreateManager()
 	{

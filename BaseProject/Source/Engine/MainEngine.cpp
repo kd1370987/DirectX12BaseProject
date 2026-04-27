@@ -170,7 +170,8 @@ namespace Engine
 		D3D12Wrapper::Instance().BeginFrame();
 
 		// 描画フレームリソース
-		RefRenderContext()->BeginFrame();
+		m_upGraphicsEngine->BegineFrame();
+		//RefRenderContext()->BeginFrame();
 
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 		// ディスクリプタヒープをセット
@@ -199,8 +200,6 @@ namespace Engine
 			Engine::Editor::MainEditor::Instance().Draw(D3D12Wrapper::Instance().GetCommandList(),m_upWindow->GetClientWidth(),m_upWindow->GetClientHeight());
 		}
 
-		// 描画フレームリソース
-		RefRenderContext()->EndFrame();
 
 		// 描画終了
 		D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.isVsync);

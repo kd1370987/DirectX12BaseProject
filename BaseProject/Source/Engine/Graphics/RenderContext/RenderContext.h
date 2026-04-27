@@ -69,43 +69,46 @@ namespace Engine::Graphics
 	};
 
 	class ShapeRenderer;
+
+	// レンダーコンテキスト作成時に必要な情報
+	struct RenderContextDesc
+	{
+		// D3Dオブジェクトのキャッシュ
+		ID3D12Device* pDevice = nullptr;
+
+		// クラスのキャッシュ
+		Resource::ShaderManager*			pShaderMana		= nullptr;
+		RootSignatureManager*				pRootSigMana	= nullptr;
+		Engine::D3D12::GraphicsPSOManager*	pPSOMana		= nullptr;
+		ShapeRenderer*						pShapeRender	= nullptr;
+
+		// アロケーターのメモリ容量
+		size_t cbAllocatorMemSize = 32 * 1024 * 1024;
+	};
+
+	// マイフレームリセットするときに外部からもらう情報
+	struct FrameDesc
+	{
+		ID3D12GraphicsCommandList* pCmdList = nullptr;
+	};
 	
 	// 現在のフレームの描画管理クラス
 	class RenderContext
 	{
 	public:
 
-		// フレームで消費するリソース
-		struct FrameResource
-		{
-			// カメラとオブジェクトの定数バッファアロケーター
-			std::shared_ptr<CBAllocater> spCamAndObjectCBAllocater = nullptr;
-			VertexBuffer shapeVertexBuffer;
-		};
-
-
-	public:
-
 		//--------------------------------------------------------------------------------------------
 		// クラス基盤
 		//--------------------------------------------------------------------------------------------
-		
 		RenderContext();
 		~RenderContext();
 
 		// 初期化・解放
-		void Init(
-			Resource::ShaderManager* a_pShaderMana,
-			RootSignatureManager* a_pRootSigMana,
-			Engine::D3D12::GraphicsPSOManager* a_pPSOMana,
-			ShapeRenderer* a_pShapeRender
-		);
-		void Shutdown();
+		void Init(const RenderContextDesc& a_desc);
 
-		// フレームの初めと終わりの処理
-		void BeginFrame();
-		void EndFrame();
-
+		// フレームの初めに呼ぶ
+		void Begine(const FrameDesc& a_desc);
+		void Clear();
 		//--------------------------------------------------------------------------------------------
 		// カメラ関係
 		//--------------------------------------------------------------------------------------------
@@ -255,9 +258,9 @@ namespace Engine::Graphics
 		void ShapeDraw();
 
 	private:
-
-		// 1フレームで消費するリソース
-		FrameResource m_frameResource[CPU_FRAME_COUNT] = {};
+		// D3DObject
+		ID3D12Device* m_pDevice = nullptr;
+		ID3D12GraphicsCommandList* m_pCmdList = nullptr;	// フレームごとにもらい受ける
 
 		// マネージャー
 		Resource::ShaderManager*			m_pShaderManger			= nullptr;
@@ -266,6 +269,11 @@ namespace Engine::Graphics
 
 		// 形状描画クラス
 		ShapeRenderer* m_pShapeDraw = nullptr;
+		VertexBuffer m_shapeVertexBuffer = {};
+
+		// 定数バッファアロケーター
+		std::unique_ptr<CBAllocater> m_upCBAllocater = nullptr;
+
 
 		// 定数バッファ
 		CBCamera m_cb0_camera = {};
