@@ -9,6 +9,15 @@
 
 namespace Engine::Graphics
 {
+	void RasterizePass::Init(const PassInitDesc& a_initDesc)
+	{
+		BaseRenderPass::Init(a_initDesc);
+
+		for(auto&[_type,_desc] : m_psoMap)
+		{
+			m_psoHandle.push_back({ m_pPSOMana->Request(_desc.psoDesc),_desc.type });
+		}
+	}
 	void RasterizePass::Begine(RenderContext* a_pCtx)
 	{
 		a_pCtx->SetGraphicsRootSignature(m_rootSigID);
@@ -17,15 +26,15 @@ namespace Engine::Graphics
 	void RasterizePass::End(RenderContext * a_pCtx)
 	{
 	}
-	void RasterizePass::DrawQueue(RenderContext * a_pCtx, RenderQueueType a_type)
+	void RasterizePass::DrawQueue(RenderContext * a_pCtx)
 	{
 		for (auto& _pso : m_psoHandle)
 		{
 			// PSOのセット
-			a_pCtx->SetGraphicPSO(_pso);
+			a_pCtx->SetGraphicPSO(_pso.first);
 
 			// 指定タイプの命令キューを取得
-			auto& _draws = a_pCtx->GetItemVec(a_type);
+			auto& _draws = a_pCtx->GetItemVec(_pso.second);
 			if (_draws.size() <= 0) continue;
 
 			for (auto& _item : _draws)
@@ -41,59 +50,72 @@ namespace Engine::Graphics
 				// メッシュのバインド
 				a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
 
+				// アニメーションタイプならボーンをバインド
+				if (_pso.second == RenderQueueType::AnimationOpaque || _pso.second == RenderQueueType::AnimationTransparent)
+				{
+					a_pCtx->BindBone(
+						_item.pBoneMatrices,
+						_item.boneCount
+					);
+				}
+
 				// 描画
 				a_pCtx->Draw(_item.pMesh,_item.subIdx);
 			}
 		}
 	}
-	void RasterizePass::DrawAnimeQueue(RenderContext* a_pCtx, RenderQueueType a_type)
+
+	void RasterizePass::DrawQueue(RenderContext* a_pCtx, RenderQueueType a_type, Resource::Handle<D3D12::PipelineState> a_handle)
 	{
-		for (auto& _pso : m_psoHandle)
+		// PSOのセット
+		a_pCtx->SetGraphicPSO(a_handle);
+
+		// 指定タイプの命令キューを取得
+		auto& _draws = a_pCtx->GetItemVec(a_type);
+		if (_draws.size() <= 0) return;
+
+		for (auto& _item : _draws)
 		{
-			// PSOのセット
-			a_pCtx->SetGraphicPSO(_pso);
+			// オブジェクト情報セット
+			DXSM::Vector2 _uv = { 0,0 };
+			DXSM::Vector2 _tile = { 1,1 };
+			a_pCtx->BindObuje(_uv, _tile);
 
-			// 指定タイプの命令キューを取得
-			auto& _draws = a_pCtx->GetItemVec(a_type);
-			if (_draws.size() <= 0) continue;
+			// マテリアルのバインド
+			a_pCtx->BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
 
-			for (auto& _item : _draws)
+			// メッシュのバインド
+			a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
+
+			// アニメーションタイプならボーンをバインド
+			if (a_type == RenderQueueType::AnimationOpaque || a_type == RenderQueueType::AnimationTransparent)
 			{
-				// オブジェクト情報セット
-				DXSM::Vector2 _uv = { 0,0 };
-				DXSM::Vector2 _tile = { 1,1 };
-				a_pCtx->BindObuje(_uv, _tile);
-
-				// マテリアルのバインド
-				a_pCtx->BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
-
-				// メッシュのバインド
-				a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
-
-				// ボーン情報のバインド
 				a_pCtx->BindBone(
 					_item.pBoneMatrices,
 					_item.boneCount
 				);
-
-				// 描画
-				a_pCtx->Draw(_item.pMesh, _item.subIdx);
 			}
+
+			// 描画
+			a_pCtx->Draw(_item.pMesh, _item.subIdx);
 		}
 	}
+	
 	//------------------------------------------------------------------------------------------------------------
 	// ヘルパー群
 	//------------------------------------------------------------------------------------------------------------
-	D3D12::GraphicsPipelineDesc& RasterizePass::AddPSODesc(const ERenderType& a_type)
+	D3D12::GraphicsPipelineDesc& RasterizePass::AddPSODesc(const ERenderType& a_type,const RenderQueueType& a_queueType)
 	{
-		return m_psoMap[a_type];
+		m_psoMap[a_type] = {};
+		m_psoMap[a_type].type = a_queueType;
+		return m_psoMap[a_type].psoDesc;
 	}
 	void RasterizePass::SetInputLayout(const ERenderType& a_type, const D3D12_INPUT_LAYOUT_DESC& a_desc)
 	{
 		auto _it = m_psoMap.find(a_type);
 		if (_it != m_psoMap.end())
 		{
-			_it->second.SetInputLayout(a_desc);
+			_it->second.psoDesc.SetInputLayout(a_desc);
 			return;
 		}
 		assert(0 && "追加されていないレイアウトタイプです");
@@ -105,7 +127,7 @@ namespace Engine::Graphics
 		{
 
 			Resource::Handle<Resource::Shader> _vsHandle = m_pShaderMana->Request(a_filePath);
-			_it->second.SetVS(m_pShaderMana->GetByteCode(_vsHandle));
+			_it->second.psoDesc.SetVS(m_pShaderMana->GetByteCode(_vsHandle));
 
 			return;
 		}
@@ -118,7 +140,7 @@ namespace Engine::Graphics
 		{
 
 			Resource::Handle<Resource::Shader> _psHandle = m_pShaderMana->Request(a_filePath);
-			_it->second.SetPS(m_pShaderMana->GetByteCode(_psHandle));
+			_it->second.psoDesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
 
 			return;
 		}
@@ -129,7 +151,7 @@ namespace Engine::Graphics
 		Resource::Handle<Resource::Shader> _psHandle = m_pShaderMana->Request(a_filePath);
 		for (auto& [_type, _psoDesc] : m_psoMap)
 		{
-			_psoDesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
+			_psoDesc.psoDesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
 		}
 	}
 	void RasterizePass::SetRootSig(const std::string & a_rootName)
@@ -138,7 +160,7 @@ namespace Engine::Graphics
 		m_rootSigID = m_pRootSigMana->GetID(a_rootName);
 		for (auto& [_type, _psoDesc] : m_psoMap)
 		{
-			_psoDesc.SetRootSignature(m_pRootSigMana->NGet(m_rootSigID));
+			_psoDesc.psoDesc.SetRootSignature(m_pRootSigMana->NGet(m_rootSigID));
 		}
 	}
 	Engine::Resource::ID RasterizePass::AddWrite(const std::string & a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
@@ -150,7 +172,7 @@ namespace Engine::Graphics
 		// PSOの出力レンダーターゲットとして指定
 		for (auto& [_type, _psoDesc] : m_psoMap)
 		{
-			_psoDesc.AddRenderTargetFormat(_format);
+			_psoDesc.psoDesc.AddRenderTargetFormat(_format);
 		}
 		return _id;
 	}

@@ -4,6 +4,12 @@
 
 namespace Engine::Graphics
 {
+	struct PassData
+	{
+		D3D12::GraphicsPipelineDesc psoDesc = {};
+		RenderQueueType type;
+	};
+
 	// 描画用パスクラス
 	class RasterizePass : public BaseRenderPass
 	{
@@ -12,17 +18,19 @@ namespace Engine::Graphics
 		RasterizePass() = default;
 		virtual ~RasterizePass() override = default;
 
+		void Init(const PassInitDesc& a_initDesc) override;
+
 	protected:
 		// パスの処理
 		void Begine(RenderContext* a_pCtx);
 		void End(RenderContext* a_pCtx);
 
 		// 特定キューの描画
-		void DrawQueue(RenderContext* a_pCtx, RenderQueueType a_type);
-		void DrawAnimeQueue(RenderContext* a_pCtx, RenderQueueType a_type);
-
+		void DrawQueue(RenderContext* a_pCtx);
+		void DrawQueue(RenderContext* a_pCtx, RenderQueueType a_type, Resource::Handle<D3D12::PipelineState> a_handle);
+	
 		// ヘルパー構造体
-		D3D12::GraphicsPipelineDesc& AddPSODesc(const ERenderType& a_type);
+		D3D12::GraphicsPipelineDesc& AddPSODesc(const ERenderType& a_type, const RenderQueueType& a_queueType);
 
 		// PSOを指定してインプットレイアウトの指定
 		void SetInputLayout(const ERenderType& a_type, const D3D12_INPUT_LAYOUT_DESC& a_desc);
@@ -43,10 +51,11 @@ namespace Engine::Graphics
 	protected:
 		// 生成時データ
 		// パスが使用するPSO
-		std::unordered_map<ERenderType, D3D12::GraphicsPipelineDesc> m_psoMap = {};
+		std::unordered_map<ERenderType, PassData> m_psoMap = {};
 
 		// ランタイム時データ
 		UINT m_rootSigID = 0;												// パスが使用するルートシグネチャ
-		std::vector<Resource::Handle<D3D12::PipelineState>> m_psoHandle;	// ソート済みPSOハンドル
+		//std::unordered_map<ERenderType, Resource::Handle<D3D12::PipelineState>> m_psoHandle = {};
+		std::vector<std::pair<Resource::Handle<D3D12::PipelineState>, RenderQueueType>> m_psoHandle = {};
 	};
 }

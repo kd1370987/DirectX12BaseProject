@@ -13,6 +13,7 @@ namespace Engine::Graphics
 		m_pRootSigMana = a_initDesc.pRootSigMana;
 		m_pPSOMana = a_initDesc.pPSOMana;
 		
+		CreatePass();
 	}
 
 	void BaseRenderPass::SetPassName(const std::string& a_name)

@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "../DrawPass.h"
+#include "../RasterizePass.h"
 namespace Engine::Graphics
 {
-	class ScreenUIPass final : public DrawPass
+	class ScreenUIPass final : public RasterizePass
 	{
 	public:
 

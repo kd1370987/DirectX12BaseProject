@@ -8,11 +8,15 @@ namespace Engine::Graphics
 {
 	void ForwardLightingPass::Excute(RenderContext* a_pCtx)
 	{
-		Begin(a_pCtx);
 
-		DrawQueue(a_pCtx, RenderQueueType::Transparent);
+		for (auto& [_psoHandle, _type] : m_psoHandle)
+		{
+			Begine(a_pCtx);
 
-		End(a_pCtx);
+			DrawQueue(a_pCtx, _type,_psoHandle);
+
+			End(a_pCtx);
+		}
 	}
 
 	void ForwardLightingPass::CreatePass()
@@ -33,15 +37,16 @@ namespace Engine::Graphics
 		_depth.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 深度値書き込みなし
 		_depth.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
-		SetName("ForwardLithingPSO");
+		auto& _sPso = AddPSODesc(ERenderType::Static, RenderQueueType::Transparent);
+		_sPso.SetName("ForwardLithingPSO");
 
-		SetInputLayout(D3D12::Input::StaticLayout);
-		SetVS("Asset/Shader/Source/ForwardLightingShader/ForwardLightingVS.cso");
+		SetInputLayout(ERenderType::Static,D3D12::Input::StaticLayout);
+		SetVS(ERenderType::Static,"Asset/Shader/Source/ForwardLightingShader/ForwardLightingVS.cso");
 		SetPS("Asset/Shader/Source/ForwardLightingShader/ForwardLightingPS.cso");
 		SetRootSig("ForwardLithingPass");
 
-		m_psoDesc.SetDepthStencilState(_depth);
-		m_psoDesc.SetBlendState(_blend);
+		_sPso.SetDepthStencilState(_depth);
+		_sPso.SetBlendState(_blend);
 
 		AddRead("Depth",AccessType::Depth_Read, LoadOp::Load, StoreOp::DontCare);
 		AddRead("QuadTexture");

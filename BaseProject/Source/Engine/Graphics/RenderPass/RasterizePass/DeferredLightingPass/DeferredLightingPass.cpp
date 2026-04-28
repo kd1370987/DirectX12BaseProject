@@ -11,16 +11,18 @@ namespace Engine::Graphics
 {
 	void DeferredLightingPass::Excute(RenderContext* a_pCtx)
 	{
-		Begin(a_pCtx);
+		Begine(a_pCtx);
+
+		a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
 
 		std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> _gpuVec = {};
 
 		_gpuVec = {
-			m_pRenderGraph->GetGPUHandle("GBufferAlbedo"),
-			m_pRenderGraph->GetGPUHandle("GBufferNormal"),
-			m_pRenderGraph->GetGPUHandle("GBufferMaterial"),
-			m_pRenderGraph->GetGPUHandle("GBufferEmissiv"),
-			m_pRenderGraph->GetGPUHandle("Depth")
+			m_pRG->GetGPUHandle("GBufferAlbedo"),
+			m_pRG->GetGPUHandle("GBufferNormal"),
+			m_pRG->GetGPUHandle("GBufferMaterial"),
+			m_pRG->GetGPUHandle("GBufferEmissiv"),
+			m_pRG->GetGPUHandle("Depth")
 		};
 
 		a_pCtx->BindSRV(
@@ -40,21 +42,21 @@ namespace Engine::Graphics
 
 	void DeferredLightingPass::CreatePass()
 	{
+		auto& _sPso = AddPSODesc(ERenderType::Static, RenderQueueType::Bloom);
+		_sPso.SetName("DeferredLighting");
 
-		SetName("DeferredLighting");
-
-		SetVS("Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
+		SetVS(ERenderType::Static,"Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
 		SetPS("Asset/Shader/Source/DeferredLightingShader/DeferredLightingPS.cso");
 		SetRootSig("DeferredLighting");
 
-		m_psoDesc.DepthEnable(false);
-		m_psoDesc.DepthWriteMask(false);
+		_sPso.DepthEnable(false);
+		_sPso.DepthWriteMask(false);
 
-		AddRead("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		AddRead("GBufferAlbedo", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		AddRead("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		AddRead("GBufferMaterial", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		AddRead("GBufferEmissiv", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		AddRead("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
 		AddWrite("QuadTexture", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 	}

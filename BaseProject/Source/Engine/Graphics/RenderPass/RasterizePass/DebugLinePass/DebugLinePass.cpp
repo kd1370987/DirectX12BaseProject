@@ -9,8 +9,8 @@ namespace Engine::Graphics
 {
 	void DebugLinePass::Excute(RenderContext* a_pCtx)
 	{
-		Begin(a_pCtx);
-
+		Begine(a_pCtx);
+		a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
 		a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 		auto& _draws = a_pCtx->GetItemVec(RenderQueueType::Debug);
@@ -29,19 +29,20 @@ namespace Engine::Graphics
 
 	void DebugLinePass::CreatePass()
 	{
-		SetName("DebugLinePass");
+		auto& _sPso = AddPSODesc(ERenderType::Static,RenderQueueType::Debug);
+		_sPso.SetName("DebugLinePass");
 
-		SetInputLayout(D3D12::Input::gPosOnryLayout);
-		SetVS("Asset/Shader/Source/DebugLineShader/DebugLineVS.cso");
+		SetInputLayout(ERenderType::Static,D3D12::Input::gPosOnryLayout);
+		SetVS(ERenderType::Static,"Asset/Shader/Source/DebugLineShader/DebugLineVS.cso");
 		SetPS("Asset/Shader/Source/DebugLineShader/DebugLinePS.cso");
 		SetRootSig("DebugLine");
 
-		m_psoDesc.FillMode(D3D12_FILL_MODE_WIREFRAME);
-		m_psoDesc.CullMode(D3D12_CULL_MODE_NONE);
+		_sPso.FillMode(D3D12_FILL_MODE_WIREFRAME);
+		_sPso.CullMode(D3D12_CULL_MODE_NONE);
 
-		m_psoDesc.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
+		_sPso.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
 
-		m_psoDesc.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		_sPso.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 
 		AddRead("MainColor");
 		AddRead("Depth", AccessType::Depth_Write, LoadOp::Load, StoreOp::Store);

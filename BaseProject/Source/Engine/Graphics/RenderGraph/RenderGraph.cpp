@@ -1,15 +1,14 @@
 ﻿#include "RenderGraph.h"
 #include "RGVarsionManager/RGResourceManager.h"
 
-#include "../RenderPass/DrawPass/ForwardLightingPass/ForwardLightingPass.h"
-#include "../RenderPass/OffScreenPass/FullScreenPass/FullScreenPass.h"
-#include "../RenderPass/DrawPass/ZPrePass/ZPrePass.h"
-#include "../RenderPass/DrawPass/ZPrePass/AnimationZPrePass.h"
-#include "../RenderPass/DrawPass/GBufferPass/GBufferPass.h"
-#include "../RenderPass/DrawPass/AnimationGBufferPass/AnimationGBufferPass.h"
-#include "../RenderPass/DrawPass/ScreenUIPass/ScreenUIPass.h"
-#include "../RenderPass/OffScreenPass/DeferredLightingPass/DeferredLightingPass.h"
-#include "../RenderPass/DrawPass/DebugLinePass/DebugLinePass.h"
+//#include "../RenderPass/DrawPass/ForwardLightingPass/ForwardLightingPass.h"
+#include "../RenderPass/RasterizePass/ForwardLightingPass/ForwardLightingPass.h"
+#include "../RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
+#include "../RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
+#include "../RenderPass/RasterizePass/GBufferPass/GBufferPass.h"
+#include "../RenderPass/RasterizePass/ScreenUIPass/ScreenUIPass.h"
+#include "../RenderPass/RasterizePass/DeferredLightingPass/DeferredLightingPass.h"
+#include "../RenderPass/RasterizePass/DebugLinePass/DebugLinePass.h"
 
 #include "../RenderContext/RenderContext.h"
 
@@ -93,19 +92,22 @@ namespace Engine::Graphics
 
 		// パス登録
 		RegisterPass<ZPrePass>();
-		RegisterPass<AnimationZPrePass>();
 		RegisterPass<GBufferPass>();
-		RegisterPass<AnimationGBufferPass>();
 		RegisterPass<DeferredLightingPass>();
 		RegisterPass<ForwardLightingPass>();
 		RegisterPass<FullScreenPass>();
-		RegisterPass<DebugLinePass>();
+		//RegisterPass<DebugLinePass>();
 		RegisterPass<ScreenUIPass>();
 
 		// パスの初期化
 		for (auto& _sp : m_spPassVec)
 		{
-			_sp->Init(this, a_pShaderMana, a_pRootSigMana, a_pPSOMana);
+			PassInitDesc _desc = {};
+			_desc.pRG = this;
+			_desc.pShaderMana = a_pShaderMana;
+			_desc.pRootSigMana = a_pRootSigMana;
+			_desc.pPSOMana = a_pPSOMana;
+			_sp->Init(_desc);
 		}
 
 		// コンパイル
@@ -129,9 +131,9 @@ namespace Engine::Graphics
 			[&](auto& a, auto& b)
 			{
 				// 依存があるかどうか
-				for (auto& _write : b.GetDesc().writeResource)
+				for (auto& _write : b.GetWrite())
 				{
-					for (auto& _read : a.GetDesc().readResource)
+					for (auto& _read : a.GetRead())
 					{
 						if (_write == _read)
 						{
@@ -153,7 +155,7 @@ namespace Engine::Graphics
 			_cp.pPass = _pass;
 
 			// リソース遷移作成
-			for (auto _access : _pass->GetDesc().resourceAccessVec)
+			for (auto _access : _pass->GetResourceAccessVec())
 			{
 				// クリア作成
 				if (_access.type == AccessType::RTV)

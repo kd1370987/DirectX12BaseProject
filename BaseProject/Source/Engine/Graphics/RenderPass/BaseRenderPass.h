@@ -40,10 +40,16 @@ namespace Engine::Graphics
 		virtual ~BaseRenderPass() = default;
 
 		// パスの初期化
-		void Init(const PassInitDesc& a_initDesc);
+		virtual void Init(const PassInitDesc& a_initDesc);
 
 		// 実行
 		virtual void Excute(RenderContext* a_ctx) = 0;
+
+		// アクセサ
+		const std::vector<Engine::Resource::ID>& GetRead() const { return m_read; }
+		const std::vector<Engine::Resource::ID>& GetWrite() const { return m_write; }
+		const std::vector<AccessResource>& GetResourceAccessVec() const { return m_resourceAccessVec; }
+
 
 	protected:
 		// 作成ヘルパー

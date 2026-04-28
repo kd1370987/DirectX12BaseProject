@@ -1,10 +1,9 @@
 ﻿#pragma once
 
-#include "../OffScreenPass.h"
-
+#include "../RasterizePass.h"
 namespace Engine::Graphics
 {
-	class FullScreenPass final : public OffScreenPass
+	class GBufferPass final : public RasterizePass
 	{
 	public:
 

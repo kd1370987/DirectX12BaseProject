@@ -9,10 +9,10 @@ namespace Engine::Graphics
 {
 	void FullScreenPass::Excute(RenderContext* a_pCtx)
 	{
-		Begin(a_pCtx);
-
-		auto _main = m_pRenderGraph->GetGPUHandle("QuadTexture");
-		auto _ui = m_pRenderGraph->GetGPUHandle("UITexture");
+		Begine(a_pCtx);
+		a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
+		auto _main = m_pRG->GetGPUHandle("QuadTexture");
+		auto _ui = m_pRG->GetGPUHandle("UITexture");
 
 		a_pCtx->ChangeBackBuffer();
 		a_pCtx->BindSRV(RootSigSemantic::PostScreenSRV, { _main });
@@ -24,19 +24,21 @@ namespace Engine::Graphics
 
 	void FullScreenPass::CreatePass()
 	{
-		SetName("FullScreenPass");
 
-		SetVS("Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso");
+		auto& _sPso = AddPSODesc(ERenderType::Static,RenderQueueType::Bloom);
+		_sPso.SetName("FullScreenPass");
+
+		SetVS(ERenderType::Static,"Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso");
 		SetPS("Asset/Shader/Source/QuadRenderingShader/QuadRenderingPS.cso");
 		SetRootSig("QuadRendering");
 
-		m_psoDesc.DepthEnable(false);
-		m_psoDesc.StencilEnable(false);
+		_sPso.DepthEnable(false);
+		_sPso.StencilEnable(false);
 
 		AddRead("QuadTexture", AccessType::SRV, LoadOp::Load, StoreOp::DontCare);
 		AddRead("UITexture", AccessType::SRV, LoadOp::Load, StoreOp::DontCare);
 
 		// バックバッファは登録されていないため手動で
-		m_psoDesc.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+		_sPso.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
 }

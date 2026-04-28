@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-#include "../DrawPass.h"
+#include "../RasterizePass.h"
+
 namespace Engine::Graphics
 {
-	class ForwardLightingPass final : public DrawPass
+	class DeferredLightingPass final : public RasterizePass
 	{
 	public:
 

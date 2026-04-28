@@ -9,8 +9,8 @@ namespace Engine::Graphics
 {
 	void ScreenUIPass::Excute(RenderContext* a_pCtx)
 	{
-		Begin(a_pCtx);
-
+		Begine(a_pCtx);
+		a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
 		a_pCtx->DrawUIQueue(RenderQueueType2D::ScreenUI);
 
 		End(a_pCtx);
@@ -33,15 +33,17 @@ namespace Engine::Graphics
 		_blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;// デストのアルファブレンド係数
 		_blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;	// アルファブレンドの演算方法
 
-		SetName("ScreenUIPass");
+		auto& _psoDesc = AddPSODesc(ERenderType::Static, RenderQueueType::Simple);
+		_psoDesc.SetName("ScreenUI");
+		
 
-		SetInputLayout(D3D12::Input::Static2DLayout);
-		SetVS("Asset/Shader/Source/Screen2DShader/Screen2DVS.cso");
+		SetInputLayout(ERenderType::Static,D3D12::Input::Static2DLayout);
+		SetVS(ERenderType::Static,"Asset/Shader/Source/Screen2DShader/Screen2DVS.cso");
 		SetPS("Asset/Shader/Source/Screen2DShader/Screen2DPS.cso");
 		SetRootSig("2DRootSig");
 
-		m_psoDesc.SetDepthStencilState(_depthDesc);
-		m_psoDesc.SetBlendState(_blendDesc);
+		_psoDesc.SetDepthStencilState(_depthDesc);
+		_psoDesc.SetBlendState(_blendDesc);
 
 		AddWrite("UITexture", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 	}

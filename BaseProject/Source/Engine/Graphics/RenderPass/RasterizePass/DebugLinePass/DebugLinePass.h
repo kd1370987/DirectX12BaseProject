@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "../DrawPass.h"
+#include "../RasterizePass.h"
 namespace Engine::Graphics
 {
-	class ZPrePass final : public DrawPass
+	class DebugLinePass final : public RasterizePass
 	{
 	public:
 

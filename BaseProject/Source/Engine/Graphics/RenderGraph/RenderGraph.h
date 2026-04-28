@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../RenderPass/RenderPass.h"
+#include "../RenderPass/BaseRenderPass.h"
 
 namespace Engine::Graphics
 {
@@ -16,7 +16,7 @@ namespace Engine::Graphics
 	struct CompiledPass
 	{
 		// パス
-		RenderPass* pPass = nullptr;
+		BaseRenderPass* pPass = nullptr;
 
 		// バリア
 		std::vector<RGBarrier> barrierVec = {};
@@ -67,7 +67,7 @@ namespace Engine::Graphics
 		template<typename Pass>
 		void RegisterPass()
 		{
-			std::shared_ptr<RenderPass> _pass = std::make_shared<Pass>();
+			std::shared_ptr<BaseRenderPass> _pass = std::make_shared<Pass>();
 			m_spPassVec.push_back(_pass);
 		}
 
@@ -82,8 +82,8 @@ namespace Engine::Graphics
 	private:
 
 		// パスの保管場所
-		std::vector<std::shared_ptr<RenderPass>> m_spPassVec = {};
-		std::vector<RenderPass*> m_sortedPassed = {};							// ソート後のパス
+		std::vector<std::shared_ptr<BaseRenderPass>> m_spPassVec = {};
+		std::vector<BaseRenderPass*> m_sortedPassed = {};							// ソート後のパス
 
 		// コンパイル後のパス
 		std::vector<CompiledPass> m_compiledPasses = {};
