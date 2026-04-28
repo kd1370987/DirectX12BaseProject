@@ -14,7 +14,8 @@ namespace Engine::Graphics
 	void RaytracingShadowPass::Excute(RenderContext* a_pCtx)
 	{
 		auto _texHandle = m_pRG->GetTexHandle("RayShadow");
-		Engine::Raytracing::RayEngine::Instance().Dispatch(_texHandle, a_pCtx, &m_rayPSO, &m_shaderTable);
+		//Engine::Raytracing::RayEngine::Instance().Dispatch(_texHandle, a_pCtx, &m_rayPSO, &m_shaderTable);
+		//Engine::Raytracing::RayEngine::Instance().Dispatch(a_pCtx);
 	}
 	void RaytracingShadowPass::CreatePass()
 	{
@@ -46,6 +47,6 @@ namespace Engine::Graphics
 		};
 		m_shaderTable.Init(_shaderTableInit);
 
-		AddWrite("RayShadow", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
+		//AddWrite("RayShadow", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
 	}
 }

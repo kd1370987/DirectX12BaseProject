@@ -186,7 +186,7 @@ namespace Engine
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 		// レイトレディスパッチ
-		//Engine::Raytracing::RayEngine::Instance().Dispatch(RefRenderContext());
+		Engine::Raytracing::RayEngine::Instance().Dispatch(RefRenderContext());
 
 		// ゲームモード以外の処理
 		if (m_config.app.mode != EngineConfig::Application::Mode::Game)

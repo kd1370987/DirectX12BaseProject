@@ -108,7 +108,7 @@ namespace Engine::Graphics
 		RegisterPass<DebugLinePass>();
 		RegisterPass<ScreenUIPass>();
 
-		//RegisterPass<RaytracingShadowPass>();
+		RegisterPass<RaytracingShadowPass>();
 
 		// パスの初期化
 		for (auto& _sp : m_spPassVec)
