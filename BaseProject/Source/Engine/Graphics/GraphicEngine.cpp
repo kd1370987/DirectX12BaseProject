@@ -174,5 +174,47 @@ namespace Engine::Graphics
 				//{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
 			}
 		);
+
+		// レイ用ルートシグネチャ
+		RootSigInit _rayGlobal = {};
+		_rayGlobal.isUseStaticSampler = true;
+		_rayGlobal.AddRoot(RootParameterType::RootCBV, 0);		// カメラ
+		_rayGlobal.AddRoot(RootParameterType::RootSRV, 0);		// TLAS
+		_rayGlobal.AddDescriptorHeap({ {RangeType::UAV,0} });	// 出力
+		_rayGlobal.AddDescriptorHeap({ {RangeType::SRV,1} });	// インスタンス配列
+		_rayGlobal.AddDescriptorHeap({ {RangeType::SRV,2} });	// マテリアル
+		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+		m_upRootSignatureManager->CreateRootSig(
+			"RayGlobal",
+			_rayGlobal
+		);
+
+		// レイジェネレーション
+		RootSigInit _rayGenSigInit = {};
+		_rayGenSigInit.isUseStaticSampler = false;
+		_rayGenSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+		m_upRootSignatureManager->CreateRootSig(
+			"RayGen",
+			_rayGenSigInit
+		);
+		// ヒットシェーダー用
+		RootSigInit _hitSigInit = {};
+		_hitSigInit.isUseStaticSampler = false;
+		_hitSigInit.AddDescriptorHeap({ {RangeType::SRV,3},{RangeType::SRV,4},{RangeType::SRV,5},{RangeType::SRV,6} });
+		_hitSigInit.AddDescriptorHeap({ {RangeType::SRV,7} });
+		_hitSigInit.AddDescriptorHeap({ { RangeType::SRV,8 } });
+		_hitSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+		m_upRootSignatureManager->CreateRootSig(
+			"Hit",
+			_hitSigInit
+		);
+		// missシェーダー用
+		RootSigInit _missSigInit = {};
+		_missSigInit.isUseStaticSampler = false;
+		_missSigInit.flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+		m_upRootSignatureManager->CreateRootSig(
+			"Miss",
+			_missSigInit
+		);
 	}
 }

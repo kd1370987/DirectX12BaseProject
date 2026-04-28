@@ -63,6 +63,9 @@ namespace Engine::Graphics
 		Resource::ID Read(const std::string& a_resourceName, const AccessType& a_type);
 		Resource::ID Write(const std::string& a_resourceName, const AccessType& a_type);
 
+		Resource::ID GetID(const std::string& a_resourceName);
+		Resource::Handle<Resource::Texture> GetTexHandle(const std::string& a_resourceName);
+
 		// パス登録
 		template<typename Pass>
 		void RegisterPass()

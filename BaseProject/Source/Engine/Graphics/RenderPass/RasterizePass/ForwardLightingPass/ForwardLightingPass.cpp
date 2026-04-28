@@ -9,14 +9,11 @@ namespace Engine::Graphics
 	void ForwardLightingPass::Excute(RenderContext* a_pCtx)
 	{
 
-		for (auto& [_psoHandle, _type] : m_psoHandle)
-		{
-			Begine(a_pCtx);
+		Begine(a_pCtx);
 
-			DrawQueue(a_pCtx, _type,_psoHandle);
+		DrawQueue(a_pCtx);
 
-			End(a_pCtx);
-		}
+		End(a_pCtx);
 	}
 
 	void ForwardLightingPass::CreatePass()

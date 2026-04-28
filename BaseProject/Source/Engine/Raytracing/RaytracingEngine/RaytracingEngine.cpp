@@ -103,6 +103,101 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 	_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
+void Engine::Raytracing::RayEngine::Dispatch(
+	Resource::Handle<Resource::Texture> a_outHandle,
+	Graphics::RenderContext* a_pRCT,
+	RayPSO* a_pPSO,
+	ShaderTable* a_pShaderTable
+)
+{
+	// UAVバリア
+	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
+	auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(a_outHandle);
+
+	// ステートチェンジ
+	_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+	auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(
+		_tex.GetResource()
+	);
+
+	_pCmdList4->ResourceBarrier(1, &barrier);
+
+	// ワールドを更新
+	if (!m_isCommit)
+	{
+		m_upRayWorld->Commit();
+		a_pShaderTable->Update(*m_upRayWorld.get());
+
+		m_isCommit = true;
+	}
+
+	// ディスクリプタヒープセット
+	ID3D12DescriptorHeap* _heaps[] = {
+		DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap(),
+		DescriptorHeapManager::Instance().RefSamplerHeap()
+	};
+	_pCmdList4->SetDescriptorHeaps(ARRAYSIZE(_heaps), _heaps);
+
+
+	// PSOとルートシグネチャセット
+	_pCmdList4->SetPipelineState1(a_pPSO->Get());
+	_pCmdList4->SetComputeRootSignature(a_pPSO->GetRootSig());
+
+
+	// 定数バッファをバインド
+	m_camera.aspectRate = a_pRCT->GetCameraAspectRate();
+	m_camera.rotMat = a_pRCT->GetCameraRotMat();
+	m_camera.pos = a_pRCT->GetCameraPOS();
+	a_pRCT->BindCB()->BindAndAttachDataComputeRootCBV<Camera>(
+		_pCmdList4,
+		0,
+		m_camera
+	);
+
+	// TLASをバインド
+	_pCmdList4->SetComputeRootShaderResourceView(
+		1,
+		m_upRayWorld->GetTLAS()
+	);
+
+	// 出力用UAVセット
+	_pCmdList4->SetComputeRootDescriptorTable(
+		2,
+		DescriptorHeapManager::Instance().GetUAVGPUHandle(_tex.GetUAV())
+	);
+
+	// 構造体バッファセット
+	_pCmdList4->SetComputeRootDescriptorTable(
+		3,
+		m_upRayWorld->GetInstanceDataSRV()
+	);
+
+	// マテリアル送信
+	_pCmdList4->SetComputeRootDescriptorTable(
+		4,
+		m_upRayWorld->GetMaterialSRV()
+	);
+
+	// シェーダーテーブル
+	const auto& _desc = a_pShaderTable->GetDispatchDesc();
+	_pCmdList4->DispatchRays(
+		&_desc
+	);
+
+	// UAVバリア
+	auto _barrier = CD3DX12_RESOURCE_BARRIER::UAV(
+		_tex.GetResource()
+	);
+	_pCmdList4->ResourceBarrier(
+		1,
+		&_barrier
+	);
+
+	// テクスチャのステート切り替え
+	_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+}
+
 
 void Engine::Raytracing::RayEngine::RegistModel(const DirectX::XMFLOAT4X4& a_worldMat, const Engine::Resource::Handle<Resource::Model>& a_modelHandle)
 {
@@ -116,6 +211,7 @@ void Engine::Raytracing::RayEngine::RegistModel(const DirectX::XMFLOAT4X4& a_wor
 
 	m_isCommit = false;
 }
+
 
 void Engine::Raytracing::RayEngine::CommitWorld()
 {

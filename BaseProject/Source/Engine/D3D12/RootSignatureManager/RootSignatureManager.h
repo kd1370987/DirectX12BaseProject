@@ -24,10 +24,13 @@ public:
 		const std::string& a_key,
 		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec
 	);
-
 	Engine::Resource::ID CreateRootSig(
 		const std::string& a_key,
 		const std::vector<RootSigLayout>& a_rootParamsVec
+	);
+	Engine::Resource::ID CreateRootSig(
+		const std::string& a_key,
+		const RootSigInit& a_rootInit
 	);
 
 	/// <summary>
@@ -35,7 +38,9 @@ public:
 	/// </summary>
 	/// <param name="a_id">管理ID</param>
 	ID3D12RootSignature* NGet(Engine::Resource::ID a_id);
+	ID3D12RootSignature* Ref(const std::string& a_key);
 	Engine::Resource::ID GetID(const std::string& a_key);
+
 
 	UINT GetRegiNum(Engine::Resource::ID a_id,RootSigSemantic a_sema);
 

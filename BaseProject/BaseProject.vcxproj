@@ -280,6 +280,7 @@
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator\UAVAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\PSOManager\ComputePSOManager\ComputePSOManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
@@ -311,6 +312,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\RasterizePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ScreenUIPass\ScreenUIPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.cpp" />
     <ClCompile Include="Source\Engine\Input\InputCollector\InputCollector.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.cpp" />
@@ -475,6 +478,7 @@
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator\UAVAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\PSOManager\ComputePSOManager\ComputePSOManager.h" />
     <ClInclude Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h" />
     <ClInclude Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.h" />
     <ClInclude Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.h" />
@@ -514,6 +518,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\RasterizePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ScreenUIPass\ScreenUIPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h" />
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.h" />

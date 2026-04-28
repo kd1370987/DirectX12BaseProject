@@ -32,6 +32,7 @@ namespace Engine::Graphics
 		void StateReset();
 
 		// アクセサ
+		Resource::ID GetID(const std::string& a_name);
 		Resource::Handle<Resource::Texture> GetTexHandle(Resource::ID a_id);
 
 		Resource::Handle<RTV> GetRTVHandle(Resource::ID a_id);		// RTVハンドル

@@ -4,6 +4,8 @@
 
 #include "../AssetManager/AssetManager.h"
 
+#include "../../../Raytracing/RaytracingEngine/RaytracingEngine.h"
+
 namespace Engine::Resource
 {
 	void ModelManager::Init(AssetManager* a_pAssetManager)
@@ -40,6 +42,10 @@ namespace Engine::Resource
 
 		// 対応表を作成
 		m_guidToModelHandleMap[a_guid] = _handle;
+
+
+		// レイトレワールドに登録
+		Raytracing::RayEngine::Instance().Instance().RegistModel(DXSM::Matrix::Identity, _handle);
 
 		return _handle;
 	}

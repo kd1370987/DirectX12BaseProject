@@ -17,6 +17,12 @@ namespace Engine::Raytracing
 
 		// レイトレーシングをディスパッチ
 		void Dispatch(Graphics::RenderContext* a_pRCT);
+		void Dispatch(
+			Resource::Handle<Resource::Texture> a_outHandle,
+			Graphics::RenderContext* a_pRCT,
+			RayPSO* a_pPSO,
+			ShaderTable* a_pShaderTable
+		);
 
 		// レイトレワールドに登録
 		void RegistModel(

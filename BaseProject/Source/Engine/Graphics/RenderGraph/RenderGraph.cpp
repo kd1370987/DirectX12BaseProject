@@ -1,7 +1,6 @@
 ﻿#include "RenderGraph.h"
 #include "RGVarsionManager/RGResourceManager.h"
 
-//#include "../RenderPass/DrawPass/ForwardLightingPass/ForwardLightingPass.h"
 #include "../RenderPass/RasterizePass/ForwardLightingPass/ForwardLightingPass.h"
 #include "../RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
 #include "../RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
@@ -9,6 +8,8 @@
 #include "../RenderPass/RasterizePass/ScreenUIPass/ScreenUIPass.h"
 #include "../RenderPass/RasterizePass/DeferredLightingPass/DeferredLightingPass.h"
 #include "../RenderPass/RasterizePass/DebugLinePass/DebugLinePass.h"
+
+#include "../RenderPass/RaytracingPass/RaytracingShadowPass/RaytracingShadowPass.h"
 
 #include "../RenderContext/RenderContext.h"
 
@@ -89,6 +90,14 @@ namespace Engine::Graphics
 			720,
 			Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
 		);
+		// レイの結果用
+		m_upRGResourceManager->Register(
+			"RayShadow",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		);
 
 		// パス登録
 		RegisterPass<ZPrePass>();
@@ -96,8 +105,10 @@ namespace Engine::Graphics
 		RegisterPass<DeferredLightingPass>();
 		RegisterPass<ForwardLightingPass>();
 		RegisterPass<FullScreenPass>();
-		//RegisterPass<DebugLinePass>();
+		RegisterPass<DebugLinePass>();
 		RegisterPass<ScreenUIPass>();
+
+		//RegisterPass<RaytracingShadowPass>();
 
 		// パスの初期化
 		for (auto& _sp : m_spPassVec)
@@ -315,6 +326,17 @@ namespace Engine::Graphics
 			break;
 		}
 		return Resource::ID();
+	}
+
+	Resource::ID RenderGraph::GetID(const std::string& a_resourceName)
+	{
+		return m_upRGResourceManager->GetID(a_resourceName);
+	}
+
+	Resource::Handle<Resource::Texture> RenderGraph::GetTexHandle(const std::string& a_resourceName)
+	{
+		auto _id = GetID(a_resourceName);
+		return m_upRGResourceManager->GetTexHandle(_id);
 	}
 
 	std::vector<std::string> RenderGraph::GetRGResourceList()

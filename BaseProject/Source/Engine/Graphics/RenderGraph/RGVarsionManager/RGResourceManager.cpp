@@ -86,6 +86,16 @@ namespace Engine::Graphics
 			_res.currentState = D3D12_RESOURCE_STATE_COMMON;
 		}
 	}
+	Resource::ID RGResourceManager::GetID(const std::string& a_name)
+	{
+		// 登録されているか検索
+		auto _it = m_stringMap.find(a_name);
+		if (_it != m_stringMap.end())
+		{
+			// リソースのバージョンを上げて返す
+			return _it->second;
+		}
+	}
 	Resource::Handle<Resource::Texture> RGResourceManager::GetTexHandle(Resource::ID a_id)
 	{
 		auto _idx = Resource::GetIndex(a_id);

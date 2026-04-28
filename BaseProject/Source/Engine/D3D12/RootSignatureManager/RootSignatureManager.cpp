@@ -49,9 +49,30 @@ Engine::Resource::ID RootSignatureManager::CreateRootSig(const std::string& a_ke
 	return _id;
 }
 
+Engine::Resource::ID RootSignatureManager::CreateRootSig(const std::string& a_key, const RootSigInit& a_rootInit)
+{
+	// ルートシグネチャ生成
+	auto _spRootSig = std::make_shared<RootSignature>();
+	if (!_spRootSig->Create(a_rootInit))
+	{
+		assert(0 && "ルートシグネチャの生成に失敗");
+		return Engine::Resource::Limits::INVALID_ID;
+	}
+
+	Engine::Resource::ID _id = m_rootStorage.Add(a_key, _spRootSig);
+
+	return _id;
+}
+
 ID3D12RootSignature* RootSignatureManager::NGet(Engine::Resource::ID a_id)
 {
 	return m_rootStorage.Ref(a_id)->Get();
+}
+
+ID3D12RootSignature* RootSignatureManager::Ref(const std::string& a_key)
+{
+	auto _id = m_rootStorage.GetID(a_key);
+	return m_rootStorage.Ref(_id)->Get();
 }
 
 Engine::Resource::ID RootSignatureManager::GetID(const std::string& a_key)
