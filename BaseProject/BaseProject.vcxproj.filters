@@ -718,6 +718,12 @@
     <Filter Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem">
       <UniqueIdentifier>{e6a6f1b5-ddf3-4da5-9c0d-02dcd1e7a333}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass">
+      <UniqueIdentifier>{d327b177-9a95-41f4-8898-f3cd8cdf628b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RaytracingPass">
+      <UniqueIdentifier>{1789814a-fdfa-4a33-9d8a-3c5aa55245b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1157,6 +1163,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\AnimationModelStartSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass\AnimationZPrePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\BaseRenderPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\RasterizePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1787,6 +1802,15 @@
     <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h">
       <Filter>Source\Application\Systems\Init\Start\AnimationModelStartSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass\AnimationZPrePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\BaseRenderPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\RasterizePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1890,6 +1914,9 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Ray\Raytracing.hlsl">
       <Filter>Asset\Shader\Ray</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\ZPreShader\AnimationZPreVS.hlsl">
+      <Filter>Asset\Shader\Source\ZPreShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

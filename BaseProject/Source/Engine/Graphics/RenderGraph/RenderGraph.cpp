@@ -4,6 +4,7 @@
 #include "../RenderPass/DrawPass/ForwardLightingPass/ForwardLightingPass.h"
 #include "../RenderPass/OffScreenPass/FullScreenPass/FullScreenPass.h"
 #include "../RenderPass/DrawPass/ZPrePass/ZPrePass.h"
+#include "../RenderPass/DrawPass/ZPrePass/AnimationZPrePass.h"
 #include "../RenderPass/DrawPass/GBufferPass/GBufferPass.h"
 #include "../RenderPass/DrawPass/AnimationGBufferPass/AnimationGBufferPass.h"
 #include "../RenderPass/DrawPass/ScreenUIPass/ScreenUIPass.h"
@@ -92,6 +93,7 @@ namespace Engine::Graphics
 
 		// パス登録
 		RegisterPass<ZPrePass>();
+		RegisterPass<AnimationZPrePass>();
 		RegisterPass<GBufferPass>();
 		RegisterPass<AnimationGBufferPass>();
 		RegisterPass<DeferredLightingPass>();

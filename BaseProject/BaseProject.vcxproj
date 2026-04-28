@@ -302,6 +302,9 @@
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\BaseRenderPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass\AnimationZPrePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\RasterizePass.cpp" />
     <ClCompile Include="Source\Engine\Input\InputCollector\InputCollector.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.cpp" />
@@ -507,6 +510,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\BaseRenderPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\DrawPass\ZPrePass\AnimationZPrePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\RasterizePass.h" />
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.h" />
@@ -769,6 +775,16 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\ZPreShader\AnimationZPreVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">vs</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">vs</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vs</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs</EntryPointName>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\ZPreVS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">vs</EntryPointName>

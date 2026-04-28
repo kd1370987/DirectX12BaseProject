@@ -14,6 +14,7 @@ namespace Engine
 			std::string				name;						//ノード名
 
 			std::vector<int>		meshIndices;				// メッシュのインデックスリスト
+			std::vector<int>		collisionIndices;			// 当たり判定用データ
 
 			DirectX::XMFLOAT4X4		localTransform = {};				// 直属の親ボーンからの行列
 			DirectX::XMFLOAT4X4		worldTransform = {};				// 原点からの行列

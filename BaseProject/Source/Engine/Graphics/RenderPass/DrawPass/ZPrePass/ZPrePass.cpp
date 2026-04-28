@@ -11,7 +11,7 @@ namespace Engine::Graphics
 		Begin(a_pCtx);
 
 		DrawQueue(a_pCtx, RenderQueueType::Opaque);
-		DrawQueue(a_pCtx, RenderQueueType::AnimationOpaque);
+		//DrawQueue(a_pCtx, RenderQueueType::AnimationOpaque);
 		//DrawQueue(a_pCtx, RenderQueueType::Transparent);
 
 		End(a_pCtx);
@@ -21,7 +21,7 @@ namespace Engine::Graphics
 	{
 		SetName("ZPrePass");
 
-		SetInputLayout(D3D12::Input::AnimationInputLayout);
+		SetInputLayout(D3D12::Input::StaticLayout);
 		SetVS("Asset/Shader/Source/ZPreShader/ZPreVS.cso");
 		SetRootSig("BaseRootSig");
 		m_psoDesc.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);

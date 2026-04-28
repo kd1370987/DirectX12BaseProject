@@ -24,7 +24,11 @@ namespace Engine::Graphics
 		SetPS("Asset/Shader/Source/GBufferShader/GBufferPS.cso");
 		SetRootSig("BaseRootSig");
 
-		AddRead("Depth", AccessType::Depth_Write, LoadOp::Load, StoreOp::Store);
+		m_psoDesc.DepthEnable(true);
+		m_psoDesc.DepthWriteMask(false);
+		m_psoDesc.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
+
+		AddRead("Depth", AccessType::Depth_Read, LoadOp::Load, StoreOp::Store);
 
 		AddWrite("GBufferAlbedo", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 		AddWrite("GBufferNormal", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
