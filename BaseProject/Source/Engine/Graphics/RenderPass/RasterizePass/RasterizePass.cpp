@@ -23,6 +23,62 @@ namespace Engine::Graphics
 		{
 			// PSOのセット
 			a_pCtx->SetGraphicPSO(_pso);
+
+			// 指定タイプの命令キューを取得
+			auto& _draws = a_pCtx->GetItemVec(a_type);
+			if (_draws.size() <= 0) continue;
+
+			for (auto& _item : _draws)
+			{
+				// オブジェクト情報セット
+				DXSM::Vector2 _uv = {0,0};
+				DXSM::Vector2 _tile = {1,1};
+				a_pCtx->BindObuje(_uv, _tile);
+
+				// マテリアルのバインド
+				a_pCtx->BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
+
+				// メッシュのバインド
+				a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
+
+				// 描画
+				a_pCtx->Draw(_item.pMesh,_item.subIdx);
+			}
+		}
+	}
+	void RasterizePass::DrawAnimeQueue(RenderContext* a_pCtx, RenderQueueType a_type)
+	{
+		for (auto& _pso : m_psoHandle)
+		{
+			// PSOのセット
+			a_pCtx->SetGraphicPSO(_pso);
+
+			// 指定タイプの命令キューを取得
+			auto& _draws = a_pCtx->GetItemVec(a_type);
+			if (_draws.size() <= 0) continue;
+
+			for (auto& _item : _draws)
+			{
+				// オブジェクト情報セット
+				DXSM::Vector2 _uv = { 0,0 };
+				DXSM::Vector2 _tile = { 1,1 };
+				a_pCtx->BindObuje(_uv, _tile);
+
+				// マテリアルのバインド
+				a_pCtx->BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
+
+				// メッシュのバインド
+				a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
+
+				// ボーン情報のバインド
+				a_pCtx->BindBone(
+					_item.pBoneMatrices,
+					_item.boneCount
+				);
+
+				// 描画
+				a_pCtx->Draw(_item.pMesh, _item.subIdx);
+			}
 		}
 	}
 	//------------------------------------------------------------------------------------------------------------

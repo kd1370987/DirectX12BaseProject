@@ -724,6 +724,21 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\RaytracingPass">
       <UniqueIdentifier>{1789814a-fdfa-4a33-9d8a-3c5aa55245b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass">
+      <UniqueIdentifier>{35aaacd8-923b-4d0b-88d4-e3d074481d2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass">
+      <UniqueIdentifier>{12fdf53f-dab9-4904-8492-a513f60ac571}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ForwardLightingPass">
+      <UniqueIdentifier>{a9fe630f-05d9-4ff3-8c3d-e015d4209706}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass">
+      <UniqueIdentifier>{9fb0c935-0660-4af3-bdff-f394d1ce7678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ScreenUIPass">
+      <UniqueIdentifier>{c53349a3-c10e-4477-be75-f5e0a6564c87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
