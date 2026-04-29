@@ -61,6 +61,19 @@ namespace Engine::Graphics
 		m_cb5_Ambient.ambientLightColor = { 0.3f,0.3f,0.3f,1.0f };
 		m_cb5_Ambient.directionalLightColor = { 10.0f,10.0f,10.0f,1.0f };
 		m_cb5_Ambient.directionalLightDir = { -1.0f,-1.0f,-1.0f,0.0f };
+
+		// カメラの初期化
+		auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f);	// 視点の位置
+		auto _targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);	// 視点を向ける座標
+		auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向を表すベクトル
+		constexpr float _fovF = 60.0f;
+		constexpr auto _fov = DirectX::XMConvertToRadians(_fovF);						// 視野角
+
+		auto _aspect = static_cast<float>(1280) / static_cast<float>(720);		// アスペクト比
+		m_aspectRate = _aspect;
+		DirectX::XMStoreFloat4(&m_cb0_camera.cameraPosXYZ, _eyePos);
+		DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
+		DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
 	}
 	
 
