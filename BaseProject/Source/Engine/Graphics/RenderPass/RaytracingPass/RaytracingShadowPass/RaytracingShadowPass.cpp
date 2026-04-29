@@ -15,7 +15,7 @@ namespace Engine::Graphics
 	{
 		auto _texHandle = m_pRG->GetTexHandle("RayShadow");
 		//Engine::Raytracing::RayEngine::Instance().Dispatch(_texHandle, a_pCtx, &m_rayPSO, &m_shaderTable);
-		//Engine::Raytracing::RayEngine::Instance().Dispatch(a_pCtx);
+		Engine::Raytracing::RayEngine::Instance().Dispatch(a_pCtx);
 	}
 	void RaytracingShadowPass::CreatePass()
 	{

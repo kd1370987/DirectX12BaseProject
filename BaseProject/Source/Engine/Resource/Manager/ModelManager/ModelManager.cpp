@@ -42,6 +42,7 @@ namespace Engine::Resource
 
 		// 対応表を作成
 		m_guidToModelHandleMap[a_guid] = _handle;
+		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
 
 		return _handle;
 	}

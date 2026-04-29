@@ -171,7 +171,6 @@ namespace Engine
 
 		// 描画フレームリソース
 		m_upGraphicsEngine->BegineFrame();
-		//RefRenderContext()->BeginFrame();
 
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 		// ディスクリプタヒープをセット
@@ -184,9 +183,6 @@ namespace Engine
 	void MainEngine::EndDraw()
 	{
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
-
-		// レイトレディスパッチ
-		Engine::Raytracing::RayEngine::Instance().Dispatch(RefRenderContext());
 
 		// ゲームモード以外の処理
 		if (m_config.app.mode != EngineConfig::Application::Mode::Game)

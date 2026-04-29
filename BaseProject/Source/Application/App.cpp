@@ -93,6 +93,13 @@ void Application::MainLoop()
 		// 更新
 		SceneManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
 
+		static bool _is = false;
+		if (!_is)
+		{
+			_is = true;
+			Engine::Raytracing::RayEngine::Instance().CommitWorld();
+		}
+
 		
 		// 描画
 		Engine::MainEngine::Instance().BeginDraw();				// 描画開始

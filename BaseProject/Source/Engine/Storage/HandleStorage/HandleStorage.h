@@ -36,10 +36,10 @@ namespace Engine::Storage
 		{
 			m_indexQueue.push(_idx);
 		}
-
 		m_maxCount = a_maxCount;
 
-		std::vector<Engine::Resource::Generation> _genVec = { 0 };
+		// ０で初期化
+		m_genVec.assign(a_maxCount,0);
 	}
 
 	template<typename T>
