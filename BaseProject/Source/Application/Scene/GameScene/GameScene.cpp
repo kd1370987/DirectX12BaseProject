@@ -135,11 +135,15 @@ void GameScene::RegistryEntity()
 
 	Engine::Persistence::PersistenceManager _pers = {};
 	_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
+
+	auto _modelHandle = Engine::Resource::ModelManager::Instnace().Request("Asset/Model/Stage/StageMap.gltf");
+	Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity,_modelHandle);
+	Engine::Raytracing::RayEngine::Instance().CommitWorld();
+
 	return;
 
 
-	//Engine::Raytracing::RayEngine::Instance().RegistModel(_worldMat, _model->handle);
-	//Engine::Raytracing::RayEngine::Instance().CommitWorld();
+
 }
 
 

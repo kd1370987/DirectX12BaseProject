@@ -43,12 +43,6 @@ namespace Engine::Resource
 		// 対応表を作成
 		m_guidToModelHandleMap[a_guid] = _handle;
 
-		// レイトレワールドに登録
-		if (a_guid.String() != "d948f901-bbf9-48b8-8362-218606da518b")
-		{
-			Raytracing::RayEngine::Instance().Instance().RegistModel(DXSM::Matrix::Identity, _handle);
-		}
-
 		return _handle;
 	}
 
