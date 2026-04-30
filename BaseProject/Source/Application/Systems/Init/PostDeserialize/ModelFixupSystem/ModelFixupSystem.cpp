@@ -7,7 +7,7 @@
 
 //#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 //#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Resource/Importer/Model/ModelImporter.h"
+#include "Engine/Resource/Loader/Model/ModelLoader.h"
 
 void ModelFixupSystem::Init(Engine::ECS::World& a_world)
 {

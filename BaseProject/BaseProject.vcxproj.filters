@@ -412,9 +412,6 @@
     <Filter Include="Source\Engine\Resource\Data">
       <UniqueIdentifier>{6062637c-08e6-4c7e-bf79-22e848b47b22}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Importer">
-      <UniqueIdentifier>{46c2bf06-9e71-4ecb-8588-6b77fe35044e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Data\Model">
       <UniqueIdentifier>{5ca1df84-3886-47f6-ab35-e5ef1b7cfea6}</UniqueIdentifier>
     </Filter>
@@ -439,15 +436,6 @@
     <Filter Include="Source\Engine\Resource\Common">
       <UniqueIdentifier>{666603a7-3a83-44d4-9175-ebe53e764a2d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Importer\Model">
-      <UniqueIdentifier>{0e325097-7b94-4e02-9f94-08737e595470}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Importer\Texture">
-      <UniqueIdentifier>{4ed9b1f0-fe89-4d83-a61c-3dbfe71ae2d3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Importer\Model\tinyGLTF">
-      <UniqueIdentifier>{7c8e6a9e-ea24-4b7e-9a7d-1d6bf2afa8ec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Manager">
       <UniqueIdentifier>{1cf18801-36cc-48e9-940a-0a68a93a4332}</UniqueIdentifier>
     </Filter>
@@ -456,12 +444,6 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Manager\ShaderManager">
       <UniqueIdentifier>{80a68e47-11c8-488f-be15-2f9b8c0401cc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Create">
-      <UniqueIdentifier>{d9a92ef6-12a6-4d22-ad7d-66c92a959948}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Create\Texture">
-      <UniqueIdentifier>{4a40c2cc-c81c-4508-83ba-5edb9cac1683}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource\Data\QuadPolygon">
       <UniqueIdentifier>{7683df0e-a1b6-4bf0-a1b3-b7f5f25af163}</UniqueIdentifier>
@@ -499,17 +481,8 @@
     <Filter Include="Source\Engine\Resource\Data\Shader">
       <UniqueIdentifier>{dd498193-cbd7-49ed-88ba-38d10840d1f3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Importer\Shader">
-      <UniqueIdentifier>{4bba8d0c-39eb-4e84-b3f5-f62b132a065e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Importer\Shader\Rasterizer">
-      <UniqueIdentifier>{e43f51e2-3834-47f2-a2a7-9eaf68e4a912}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Data\ShaderLibrary">
       <UniqueIdentifier>{611509b6-f06f-471f-a6b6-fc831d3111eb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Importer\Shader\DXIL">
-      <UniqueIdentifier>{4e0ed88d-5db2-44ab-a768-97da6ca2b624}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\GPUBuffer">
       <UniqueIdentifier>{e4b2626a-2e42-4204-8de7-faa00db40a23}</UniqueIdentifier>
@@ -724,8 +697,38 @@
     <Filter Include="Source\Engine\Resource\Manager\AssetDatabase">
       <UniqueIdentifier>{73653469-6b6f-4235-a0f9-5d829f4297a4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\ResourceLoader">
-      <UniqueIdentifier>{c3509b93-b23b-46ca-8a94-d242d1f18cf3}</UniqueIdentifier>
+    <Filter Include="Source\Engine\Resource\Loader">
+      <UniqueIdentifier>{119a11fc-3fe1-4252-aab5-af670debc2ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Model">
+      <UniqueIdentifier>{2ea02beb-d349-4f52-b67d-a6e430197d44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Texture">
+      <UniqueIdentifier>{465e64dd-9ee9-4038-b3c7-dd4a4054e6bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Shader">
+      <UniqueIdentifier>{f8bba13b-df78-421c-9a10-5134ee2cb6bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Model\Importer">
+      <UniqueIdentifier>{70090936-f966-418b-87b3-78c430085388}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Shader\Importer">
+      <UniqueIdentifier>{4437c6be-8af7-41f8-ba27-96682c0ebef6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Texture\Importer">
+      <UniqueIdentifier>{55ff2e4a-d3c2-4d2c-9bff-d3658eeb1a3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Texture\Creater">
+      <UniqueIdentifier>{a7f34fa6-3842-42f9-b1cd-af3461ec853b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL">
+      <UniqueIdentifier>{e95d829a-4914-40e3-9e36-417d8cb3dead}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer">
+      <UniqueIdentifier>{441750a5-54ab-41e2-9044-7403cb20566e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF">
+      <UniqueIdentifier>{b5a2ad94-1c89-4f8e-b945-948a773dedb8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -960,12 +963,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp">
       <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Importer\Model\ModelImporter.cpp">
-      <Filter>Source\Engine\Resource\Importer\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.cpp">
-      <Filter>Source\Engine\Resource\Importer\Model\tinyGLTF</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.cpp">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator</Filter>
     </ClCompile>
@@ -980,12 +977,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp">
       <Filter>Source\Engine\Resource\Data\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Importer\Texture\TextureImporter.cpp">
-      <Filter>Source\Engine\Resource\Importer\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Create\Texture\TextureCreater.cpp">
-      <Filter>Source\Engine\Resource\Create\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.cpp">
       <Filter>Source\Engine\Editor\AssetResourceView\TextureView</Filter>
@@ -1035,14 +1026,8 @@
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp">
       <Filter>Source\Engine\Resource\Data\Shader</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Importer\Shader\Rasterizer\RasterizerImport.cpp">
-      <Filter>Source\Engine\Resource\Importer\Shader\Rasterizer</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.cpp">
       <Filter>Source\Engine\Resource\Data\ShaderLibrary</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Importer\Shader\DXIL\DXIL.cpp">
-      <Filter>Source\Engine\Resource\Importer\Shader\DXIL</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer</Filter>
@@ -1170,8 +1155,32 @@
     <ClCompile Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.cpp">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Manager\ResourceLoader\ResourceLoader.cpp">
-      <Filter>Source\Engine\Resource\Manager\ResourceLoader</Filter>
+    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.cpp">
+      <Filter>Source\Engine\Resource\Loader\Model\Importer\tinyGLTF</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.cpp">
+      <Filter>Source\Engine\Resource\Loader\Model\Importer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Model\ModelLoader.cpp">
+      <Filter>Source\Engine\Resource\Loader\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Shader\ShaderLoader.cpp">
+      <Filter>Source\Engine\Resource\Loader\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL\DXIL.cpp">
+      <Filter>Source\Engine\Resource\Loader\Shader\Importer\DXIL</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer\RasterizerImport.cpp">
+      <Filter>Source\Engine\Resource\Loader\Shader\Importer\Rasterizer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Texture\Importer\TextureImporter.cpp">
+      <Filter>Source\Engine\Resource\Loader\Texture\Importer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Texture\Creater\TextureCreater.cpp">
+      <Filter>Source\Engine\Resource\Loader\Texture\Creater</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Texture\TextureLoader.cpp">
+      <Filter>Source\Engine\Resource\Loader\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1544,12 +1553,6 @@
     <ClInclude Include="Source\Engine\Resource\Common\Common.h">
       <Filter>Source\Engine\Resource\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Importer\Model\ModelImporter.h">
-      <Filter>Source\Engine\Resource\Importer\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Importer\Model\tinyGLTF\tinyGLTF.h">
-      <Filter>Source\Engine\Resource\Importer\Model\tinyGLTF</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.h">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator</Filter>
     </ClInclude>
@@ -1564,12 +1567,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h">
       <Filter>Source\Engine\Resource\Data\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Importer\Texture\TextureImporter.h">
-      <Filter>Source\Engine\Resource\Importer\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Create\Texture\TextureCreater.h">
-      <Filter>Source\Engine\Resource\Create\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.h">
       <Filter>Source\Engine\Editor\AssetResourceView\TextureView</Filter>
@@ -1628,14 +1625,8 @@
     <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h">
       <Filter>Source\Engine\Resource\Data\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Importer\Shader\Rasterizer\RasterizerImport.h">
-      <Filter>Source\Engine\Resource\Importer\Shader\Rasterizer</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.h">
       <Filter>Source\Engine\Resource\Data\ShaderLibrary</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Importer\Shader\DXIL\DXIL.h">
-      <Filter>Source\Engine\Resource\Importer\Shader\DXIL</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer</Filter>
@@ -1808,8 +1799,32 @@
     <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.h">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Manager\ResourceLoader\ResourceLoader.h">
-      <Filter>Source\Engine\Resource\Manager\ResourceLoader</Filter>
+    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.h">
+      <Filter>Source\Engine\Resource\Loader\Model\Importer\tinyGLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.h">
+      <Filter>Source\Engine\Resource\Loader\Model\Importer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Model\ModelLoader.h">
+      <Filter>Source\Engine\Resource\Loader\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Shader\ShaderLoader.h">
+      <Filter>Source\Engine\Resource\Loader\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL\DXIL.h">
+      <Filter>Source\Engine\Resource\Loader\Shader\Importer\DXIL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer\RasterizerImport.h">
+      <Filter>Source\Engine\Resource\Loader\Shader\Importer\Rasterizer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Texture\Importer\TextureImporter.h">
+      <Filter>Source\Engine\Resource\Loader\Texture\Importer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Texture\Creater\TextureCreater.h">
+      <Filter>Source\Engine\Resource\Loader\Texture\Creater</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Texture\TextureLoader.h">
+      <Filter>Source\Engine\Resource\Loader\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

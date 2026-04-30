@@ -2,7 +2,7 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
-#include "../../Data/Texture/Texture.h"
+#include "../../../Data/Texture/Texture.h"
 
 void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBuffer& a_uploadBuffer)
 {

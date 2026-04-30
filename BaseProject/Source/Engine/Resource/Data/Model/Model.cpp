@@ -1,6 +1,6 @@
 ﻿#include "Model.h"
 
-#include "Engine/Resource/Importer/Model/ModelImporter.h"
+#include "Engine/Resource/Loader/Model/Importer/ModelImporter.h"
 
 namespace Engine::Resource
 {
