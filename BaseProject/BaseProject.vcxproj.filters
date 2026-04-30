@@ -439,9 +439,6 @@
     <Filter Include="Source\Engine\Resource\Manager">
       <UniqueIdentifier>{1cf18801-36cc-48e9-940a-0a68a93a4332}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\TextureManager">
-      <UniqueIdentifier>{5f896168-aced-43a2-9c4b-a1fe910253cb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Manager\ShaderManager">
       <UniqueIdentifier>{80a68e47-11c8-488f-be15-2f9b8c0401cc}</UniqueIdentifier>
     </Filter>
@@ -730,6 +727,9 @@
     <Filter Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF">
       <UniqueIdentifier>{b5a2ad94-1c89-4f8e-b945-948a773dedb8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\Tex">
+      <UniqueIdentifier>{b0767a4d-3374-4366-ae19-7ec849e19224}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -972,9 +972,6 @@
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.cpp">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.cpp">
-      <Filter>Source\Engine\Resource\Manager\TextureManager</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp">
       <Filter>Source\Engine\Resource\Data\Texture</Filter>
     </ClCompile>
@@ -1181,6 +1178,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\Texture\TextureLoader.cpp">
       <Filter>Source\Engine\Resource\Loader\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.cpp">
+      <Filter>Source\Engine\Resource\Manager\Tex</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1562,9 +1562,6 @@
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.h">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.h">
-      <Filter>Source\Engine\Resource\Manager\TextureManager</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h">
       <Filter>Source\Engine\Resource\Data\Texture</Filter>
     </ClInclude>
@@ -1825,6 +1822,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\Texture\TextureLoader.h">
       <Filter>Source\Engine\Resource\Loader\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.h">
+      <Filter>Source\Engine\Resource\Manager\Tex</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

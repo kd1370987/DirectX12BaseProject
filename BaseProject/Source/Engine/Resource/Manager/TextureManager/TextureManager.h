@@ -64,7 +64,6 @@ namespace Engine::Resource
 		// ハンドルで実データ管理
 		Storage::HandleStorage<Texture> m_handleStorage;		// ハンドルストレージ
 		std::vector<Texture>			m_texData = {};			// テクスチャデータ
-		std::vector<UINT>				m_sharedCount = {};		// 共有カウント
 
 	private:
 		TextureManager();

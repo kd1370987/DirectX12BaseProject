@@ -145,11 +145,9 @@ namespace Engine::Resource
 		if (_handle.idx >= m_texData.size())
 		{
 			m_texData.resize(_handle.idx + 1);
-			m_sharedCount.resize(_handle.idx + 1);
 		}
 		m_texData[_handle.idx] = a_texture;
-		m_sharedCount[_handle.idx]++;
-
+		
 		return _handle;
 	}
 
@@ -158,13 +156,6 @@ namespace Engine::Resource
 		// ハンドルが有効かどうか
 		if (!m_handleStorage.IsValid(a_handle))
 		{
-			return;
-		}
-
-		// シェアード数を減らす
-		if (m_sharedCount[a_handle.idx] > 0)
-		{
-			m_sharedCount[a_handle.idx]--;
 			return;
 		}
 
