@@ -106,7 +106,7 @@ namespace Engine::Graphics
 
 		// ルートシグネチャマネージャー
 		m_upRootSignatureManager = std::make_unique<RootSignatureManager>();
-		m_upRootSignatureManager->Init(10);
+		m_upRootSignatureManager->Init(100);
 	}
 	void GraphicsEngine::RootSigDefinition()
 	{
@@ -120,11 +120,14 @@ namespace Engine::Graphics
 				{RootParameterType::RootCBV,{},RootSigSemantic::ObjectCB,true},
 				{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
 				{RootParameterType::RootCBV,{},RootSigSemantic::MaterialCB,true},
+				{RootParameterType::RootCBV,{},RootSigSemantic::MaterialIndexCB,true},
 				{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
 				{RootParameterType::DescriptorTable,
 				{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},
 				RootSigSemantic::MaterialSRV,false}
-			}
+			},
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED
 		);
 		m_upRootSignatureManager->CreateRootSig(
 			"ForwardLithingPass",
@@ -173,6 +176,20 @@ namespace Engine::Graphics
 				{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
 				//{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
 			}
+		);
+
+		// テスト用
+		m_upRootSignatureManager->CreateRootSig(
+			"TestSig",
+			{
+				{RootParameterType::RootCBV,{},RootSigSemantic::CameraCB,true},
+				{RootParameterType::RootCBV,{},RootSigSemantic::ObjectCB,true},
+				{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
+				{RootParameterType::RootCBV,{},RootSigSemantic::MaterialCB,true},
+				{RootParameterType::RootCBV,{},RootSigSemantic::MaterialIndexCB,true}
+			},
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED
 		);
 
 		// レイ用ルートシグネチャ

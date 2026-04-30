@@ -5,6 +5,7 @@
 #include "Scene/SceneManager.h"
 
 #include "../Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "../Engine/Resource/Loader/Model/ModelLoader.h"
 
 //==================================================================================
 // 
@@ -96,6 +97,11 @@ void Application::MainLoop()
 		static bool _is = false;
 		if (!_is)
 		{
+			//auto _modelHandle = Engine::Resource::ModelLoader::Request("Asset/Model/Test\BALL/ball.gltf");
+			//DXSM::Vector3 _tans = {0,3,0};
+			//DXSM::Matrix _mat = {};
+			//_mat = DXSM::Matrix::CreateTranslation(_tans);
+			//Engine::Raytracing::RayEngine::Instance().RegistModel(_mat, _modelHandle);
 			_is = true;
 			Engine::Raytracing::RayEngine::Instance().CommitWorld();
 		}

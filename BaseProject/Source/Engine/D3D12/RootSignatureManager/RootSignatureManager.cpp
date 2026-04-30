@@ -49,6 +49,32 @@ Engine::Resource::ID RootSignatureManager::CreateRootSig(const std::string& a_ke
 	return _id;
 }
 
+Engine::Resource::ID RootSignatureManager::CreateRootSig(const std::string& a_key, const std::vector<RootSigLayout>& a_rootParamsVec, const D3D12_ROOT_SIGNATURE_FLAGS& a_flags)
+{
+	std::vector< std::pair<RootParameterType, std::vector<RangeType>>> _inputLayout;
+	for (auto& _layout : a_rootParamsVec)
+	{
+		_inputLayout.push_back({ _layout.parameType ,_layout.rangeTypeVec });
+	}
+
+	// ルートシグネチャ生成
+	auto _spRootSig = std::make_shared<RootSignature>();
+	if (!_spRootSig->Create(_inputLayout,a_flags))
+	{
+		assert(0 && "ルートシグネチャの生成に失敗");
+		return Engine::Resource::Limits::INVALID_ID;
+	}
+
+	Engine::Resource::ID _id = m_rootStorage.Add(a_key, _spRootSig);
+
+	for (auto& _layout : a_rootParamsVec)
+	{
+		m_rootLayout[_id].push_back(_layout);
+	}
+
+	return _id;
+}
+
 Engine::Resource::ID RootSignatureManager::CreateRootSig(const std::string& a_key, const RootSigInit& a_rootInit)
 {
 	// ルートシグネチャ生成

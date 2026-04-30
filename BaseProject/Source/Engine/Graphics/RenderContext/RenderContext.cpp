@@ -144,11 +144,11 @@ namespace Engine::Graphics
 		UINT _regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::CameraCB);
 
-		// ディスクリプタヒープをセット
-		ID3D12DescriptorHeap* _heaps[] = {
-				DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
-		};
-		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+		//// ディスクリプタヒープをセット
+		//ID3D12DescriptorHeap* _heaps[] = {
+		//		DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
+		//};
+		//m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 
 
 		// ルートシグネチャにカメラCBが含まれているのなら
@@ -278,6 +278,16 @@ namespace Engine::Graphics
 	{
 		return m_pShapeDraw;
 	}
+
+	void RenderContext::BindHeap()
+	{
+		// ディスクリプタヒープをセット
+		ID3D12DescriptorHeap* _heaps[] = {
+				DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
+		};
+		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+	}
+
 
 	void RenderContext::AddItem(const RenderQueueType& a_type, const DrawItem& a_item)
 	{
@@ -433,6 +443,20 @@ namespace Engine::Graphics
 			m_pCurrentMesh = a_pMesh;
 		}
 	}
+
+	void RenderContext::BindIndex(const DXSM::Vector4& a_vec4)
+	{
+		CBMaterialIndex _s = {};
+		_s.indexXYZW = a_vec4;
+		UINT _regiIdx =
+			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialIndexCB);
+		BindCB()->BindAndAttachDataRootCBV<CBMaterialIndex>(
+			m_pCmdList,
+			_regiIdx,
+			_s
+		);
+	}
+
 
 	void RenderContext::BindBone(const DirectX::XMFLOAT4X4* a_pMatVec, UINT a_count)
 	{

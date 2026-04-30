@@ -158,6 +158,8 @@ namespace Engine::Graphics
 		// 矩形描画のためのクラス取得
 		ShapeRenderer* RefShapeDraw();
 
+		// ヒープのセット
+		void BindHeap();
 
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド
@@ -202,6 +204,10 @@ namespace Engine::Graphics
 		void BindMesh(
 			Resource::Mesh* a_pMesh,
 			const DirectX::XMFLOAT4X4& a_worldMat
+		);
+
+		void BindIndex(
+			const DXSM::Vector4& a_vec4
 		);
 
 		// ボーン行列を送信、配列と長さを入れる

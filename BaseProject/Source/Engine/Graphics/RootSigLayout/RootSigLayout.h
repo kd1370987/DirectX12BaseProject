@@ -23,6 +23,7 @@ enum class RootSigSemantic
 	ObjectCB,
 	MeshTransCB,
 	MaterialCB,
+	MaterialIndexCB,
 	BoneCB,
 	AmbientCB,
 	UICB,
@@ -114,6 +115,11 @@ struct alignas(256) CBMaterial
 	DirectX::XMFLOAT4 metallicRoughnessXY = { 0.0f,0.0f,0.0f,0.0f };
 };
 
+struct alignas(256) CBMaterialIndex
+{
+	DirectX::XMFLOAT4 indexXYZW = { 0.0f,0.0f,0.0f,0.0f };
+};
+
 
 // カメラ用定数バッファ
 struct alignas(256) CBCamera
@@ -177,6 +183,12 @@ template<>
 struct RootSemanticTraits<RootSigSemantic::MaterialCB>
 {
 	using Type = CBMaterial;
+};
+
+template<>
+struct RootSemanticTraits<RootSigSemantic::MaterialIndexCB>
+{
+	using Type = CBMaterialIndex;
 };
 
 template<>

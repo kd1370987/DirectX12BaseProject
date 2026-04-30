@@ -9,7 +9,10 @@ PSOutput ps(VSOutput a_input)
 	float2 _uv = a_input.uv;
 
 	// アルベド
-	float4 _baseTex = g_mainTex.Sample(smp, _uv);
+	//float4 _baseTex = g_mainTex.Sample(smp, _uv);
+	Texture2D albedoMap = ResourceDescriptorHeap[NonUniformResourceIndex(texIndex.x)];
+	//float4 _baseTex = albedoMap.Sample(smp, _uv);
+	float4 _baseTex = albedoMap.Load(int3(0,0,0));
 	if(_baseTex.w < 0.5f)
 	{
 		discard;

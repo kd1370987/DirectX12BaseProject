@@ -100,6 +100,8 @@
       <ObjectFileOutput>$(ProjectDir)%(RelativeDir)%(Filename).cso</ObjectFileOutput>
       <ShaderModel>6.0</ShaderModel>
       <EntryPointName />
+      <AllResourcesBound>
+      </AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -136,6 +138,8 @@
       <ObjectFileOutput>$(ProjectDir)%(RelativeDir)%(Filename).cso</ObjectFileOutput>
       <ShaderModel>6.0</ShaderModel>
       <EntryPointName />
+      <AllResourcesBound>
+      </AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -172,6 +176,8 @@
       <ObjectFileOutput>$(ProjectDir)%(RelativeDir)%(Filename).cso</ObjectFileOutput>
       <ShaderModel>6.0</ShaderModel>
       <EntryPointName />
+      <AllResourcesBound>
+      </AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -210,6 +216,8 @@
       <ObjectFileOutput>$(ProjectDir)%(RelativeDir)%(Filename).cso</ObjectFileOutput>
       <ShaderModel>6.0</ShaderModel>
       <EntryPointName />
+      <AllResourcesBound>
+      </AllResourcesBound>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -311,6 +319,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass\GBufferPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\RasterizePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ScreenUIPass\ScreenUIPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.cpp" />
@@ -520,6 +529,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass\GBufferPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\RasterizePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ScreenUIPass\ScreenUIPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h" />
@@ -600,6 +610,7 @@
     <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli" />
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli" />
     <None Include="Asset\Shader\Source\SimpleShader\SimpleShader.hlsli" />
+    <None Include="Asset\Shader\Source\TestShader\Test.hlsli" />
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -708,6 +719,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.6</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.6</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\GBufferShader\GBufferVS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">vs</EntryPointName>
@@ -718,6 +733,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.6</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.6</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ps</EntryPointName>
@@ -779,6 +798,34 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\TestShader\TestPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\TestShader\TestVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\AnimationZPreVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
@@ -788,6 +835,10 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">vs</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vs</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\ZPreVS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">vs</EntryPointName>

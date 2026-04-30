@@ -30,6 +30,11 @@ public:
 	);
 	Engine::Resource::ID CreateRootSig(
 		const std::string& a_key,
+		const std::vector<RootSigLayout>& a_rootParamsVec,
+		const D3D12_ROOT_SIGNATURE_FLAGS& a_flags
+	);
+	Engine::Resource::ID CreateRootSig(
+		const std::string& a_key,
 		const RootSigInit& a_rootInit
 	);
 

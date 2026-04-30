@@ -730,6 +730,12 @@
     <Filter Include="Source\Engine\Resource\Manager\Tex">
       <UniqueIdentifier>{b0767a4d-3374-4366-ae19-7ec849e19224}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass">
+      <UniqueIdentifier>{39e1e774-2c63-4cb8-a7e7-7b538e29ee17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\TestShader">
+      <UniqueIdentifier>{17ac1928-3403-401a-87fb-cf323887ddfc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1181,6 +1187,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.cpp">
       <Filter>Source\Engine\Resource\Manager\Tex</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\TestPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1826,6 +1835,9 @@
     <ClInclude Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.h">
       <Filter>Source\Engine\Resource\Manager\Tex</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\TestPass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1873,6 +1885,9 @@
     </None>
     <None Include="Asset\Shader\Ray\Raytracing.hlsli">
       <Filter>Asset\Shader\Ray</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\TestShader\Test.hlsli">
+      <Filter>Asset\Shader\Source\TestShader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -1932,6 +1947,12 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\AnimationZPreVS.hlsl">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\TestShader\TestVS.hlsl">
+      <Filter>Asset\Shader\Source\TestShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\TestShader\TestPS.hlsl">
+      <Filter>Asset\Shader\Source\TestShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

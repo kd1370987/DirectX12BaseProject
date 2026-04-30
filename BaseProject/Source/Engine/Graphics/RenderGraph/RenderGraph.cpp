@@ -8,6 +8,7 @@
 #include "../RenderPass/RasterizePass/ScreenUIPass/ScreenUIPass.h"
 #include "../RenderPass/RasterizePass/DeferredLightingPass/DeferredLightingPass.h"
 #include "../RenderPass/RasterizePass/DebugLinePass/DebugLinePass.h"
+#include "../RenderPass/RasterizePass/TestPass/TestPass.h"
 
 #include "../RenderPass/RaytracingPass/RaytracingShadowPass/RaytracingShadowPass.h"
 
@@ -98,6 +99,13 @@ namespace Engine::Graphics
 			720,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
+		m_upRGResourceManager->Register(
+			"Test",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		);
 
 		// パス登録
 		RegisterPass<ZPrePass>();
@@ -107,6 +115,8 @@ namespace Engine::Graphics
 		RegisterPass<FullScreenPass>();
 		RegisterPass<DebugLinePass>();
 		RegisterPass<ScreenUIPass>();
+
+		RegisterPass<TestPass>();
 
 		RegisterPass<RaytracingShadowPass>();
 
