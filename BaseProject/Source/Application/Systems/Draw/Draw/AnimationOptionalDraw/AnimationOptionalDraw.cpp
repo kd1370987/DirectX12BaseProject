@@ -9,7 +9,8 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
-#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
 void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
@@ -45,7 +46,8 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				_item.emissiveScale = _modelComp.emissiveScale;
 
 				// モデル取得
-				auto* _model = Engine::Resource::ModelManager::Instnace().RefModel(_modelComp.handle);
+				//auto* _model = Engine::Resource::ModelManager::Instnace().RefModel(_modelComp.handle);
+				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);;
 				if (!_model) return;
 
 				// 全ノード

@@ -2,7 +2,8 @@
 
 #include "../TLAS/TLAS.h"
 
-#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
@@ -28,7 +29,8 @@ void Engine::Raytracing::RayWorld::Register(
 	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 
 	// モデルのノードとメッシュを参照してインスタンスに変換
-	auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(a_modelHandle);
+	//auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(a_modelHandle);
+	auto* _model = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
 	if (!_model) return;
 
 	auto& _nodes = _model->GetOriginalNodeVec();

@@ -9,7 +9,8 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/RenderContext/ShapeDraw/ShapeDraw.h"
 
-#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
 
 void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
@@ -41,7 +42,8 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 				_item.emissiveScale = _modelComp.emissiveScale;
 
 				// モデル取得
-				auto* _model = Engine::Resource::ModelManager::Instnace().RefModel(_modelComp.handle);
+				//auto* _model = Engine::Resource::ModelManager::Instnace().RefModel(_modelComp.handle);
+				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_model) continue;
 
 				// ノード

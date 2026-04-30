@@ -6,7 +6,8 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Resource/SkeletonPoseComponent.h"
 
-#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 void SkinningSystem::Init(Engine::ECS::World& a_world)
 {
@@ -29,7 +30,8 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 				SkeletonPoseComponent& _skeComp = a_skePoseArray[_i];
 
 				// モデル取得
-				auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
+				//auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
+				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_model) return;
 
 				// 全ノード

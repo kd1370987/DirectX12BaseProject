@@ -6,7 +6,8 @@
 #include "Application/Components/Resource/AnimatorComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
 
-#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 
 void AnimationSystem::Init(Engine::ECS::World& a_world)
@@ -29,7 +30,8 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				AnimatorComponent& _aniComp = a_animatorArray[_i];
 				NodePoseComponent& _nodeComp = a_NodePoseArray[_i];
 
-				auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
+				//auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
+				auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_pModel) continue;
 
 				// アニメーション取得

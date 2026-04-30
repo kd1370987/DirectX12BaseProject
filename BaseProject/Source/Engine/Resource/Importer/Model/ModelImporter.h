@@ -9,12 +9,13 @@ namespace Engine::Resource
 	{
 	public:
 
-		Handle<Model> Load(const Engine::GUID& a_guid);
-		Handle<Model> Request(const std::string& a_path);
+		static Handle<Model> Load(const Engine::GUID& a_guid);
+		static Handle<Model> Request(const std::string& a_path);
+
+		static const std::unordered_map<Engine::GUID, Handle<Model>>& GetAllCache();
 
 	private:
 
-		std::unordered_map<Engine::GUID, Handle<Model>> m_cache;
-
+		static std::unordered_map<Engine::GUID, Handle<Model>> m_cache;
 	};
 }

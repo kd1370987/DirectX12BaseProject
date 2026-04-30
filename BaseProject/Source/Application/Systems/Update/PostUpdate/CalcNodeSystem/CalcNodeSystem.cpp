@@ -5,7 +5,8 @@
 #include "Application/Components/Resource/ModelComponent.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
-#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 {
@@ -28,7 +29,8 @@ void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 				NodePoseComponent& _nodeComp = a_nodePoseArray[_i];
 
 				// モデル取得
-				auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
+				//auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
+				auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_pModel) continue;
 
 				// ルートから開始

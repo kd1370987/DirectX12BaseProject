@@ -1,7 +1,7 @@
 ﻿#include "GameScene.h"
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 
 #include "../SceneManager.h"
@@ -64,10 +64,10 @@ void GameScene::Event()
 	if (Engine::Input::InputManager::Instance().IsPress("Add"))
 	{
 		//auto _handle = Engine::Resource::ModelManager::Instnace().LoadModel("Asset/Model/TestModelWhite/testModelWhite.gltf");
-		Engine::GUID _guid;
-		_guid.FromString("a9d483b5-5681-40ba-b45d-e1630f066516");
-		auto _handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
-		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
+		//Engine::GUID _guid;
+		//_guid.FromString("a9d483b5-5681-40ba-b45d-e1630f066516");
+		//auto _handle = Engine::Resource::ModelManager::Instnace().Load(_guid);
+		//Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
 	}
 
 	if (Engine::Input::InputManager::Instance().IsPress("Save"))

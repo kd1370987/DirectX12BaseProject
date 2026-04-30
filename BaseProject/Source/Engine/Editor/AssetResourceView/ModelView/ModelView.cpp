@@ -1,5 +1,7 @@
 ﻿#include "ModelView.h"
-#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Importer/Model/ModelImporter.h"
 namespace Engine::Editor
 {
 	void ModelView::Init()
@@ -27,13 +29,15 @@ namespace Engine::Editor
 			//	}
 			//}
 
-			for (auto& _model : Engine::Resource::ModelManager::Instnace().GetAllModel())
+			//for (auto& _model : Engine::Resource::ModelManager::Instnace().GetAllModel())
+			for (auto& _model : Engine::Resource::ModelLoader::GetAllCache())
 			{
 				std::string _tagName = "model";
 				if (ImGui::TreeNodeEx(_tagName.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 				{
+					auto* _pModel = Engine::Resource::ResourceManager::Instance().Ref(_model.second);
 					// モデル情報描画
-					DrawModelView(_model);
+					DrawModelView(*_pModel);
 
 					ImGui::TreePop();
 				}

@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-#include "../../../Engine/Resource/Manager/ModelManager/ModelManager.h"
+//#include "../../../Engine/Resource/Manager/ModelManager/ModelManager.h"
+#include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../Engine/Resource/Importer/Model/ModelImporter.h"
 
 struct ModelComponent
 {
@@ -36,7 +38,8 @@ struct ModelComponent
 	{
 		using namespace Engine;
 		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_data);
-		auto* _pCurrentModel = Resource::ModelManager::Instnace().RefModel(_comp.handle);
+		//auto* _pCurrentModel = Resource::ModelManager::Instnace().RefModel(_comp.handle);
+		auto* _pCurrentModel = Resource::ResourceManager::Instance().Ref(_comp.handle);;
 		if (!_pCurrentModel) return;
 
 		// 現在の表示
@@ -46,13 +49,15 @@ struct ModelComponent
 		// 選択UI
 		if (ImGui::BeginCombo("Change Model", "Select..."))
 		{
-			for (auto& [_guid, _handle] : Resource::ModelManager::Instnace().GetAllModelHandleMap())
+			//for (auto& [_guid, _handle] : Resource::ModelManager::Instnace().GetAllModelHandleMap())
+			for (auto& [_guid, _handle] : Resource::ModelLoader::GetAllCache())
 			{
 				// 選択中のモデルだったらフラグを立てる
 				bool _selected = (_comp.handle == _handle);
 
 				// 選択予定モデルの取得
-				auto _pModel = Resource::ModelManager::Instnace().GetModel(_handle);
+				//auto _pModel = Resource::ModelManager::Instnace().GetModel(_handle);
+				auto* _pModel = Resource::ResourceManager::Instance().Get(_handle);;
 
 				// 選択欄
 				if (ImGui::Selectable(_pModel->GetName().c_str(), _selected))

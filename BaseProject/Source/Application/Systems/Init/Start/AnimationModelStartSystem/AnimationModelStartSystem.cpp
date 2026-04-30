@@ -2,7 +2,8 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "../../../../../Engine/Resource/Manager/ModelManager/ModelManager.h"
+//#include "../../../../../Engine/Resource/Manager/ModelManager/ModelManager.h"
+#include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../../Components/Resource/ModelComponent.h"
 #include "../../../../Components/Resource/AnimatorComponent.h"
@@ -33,7 +34,8 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 				SkeletonPoseComponent& _poseComp = a_poseArray[_i];
 
 				// モデル取得
-				auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
+				//auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
+				auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_pModel) continue;
 
 				// アニメーター初期化

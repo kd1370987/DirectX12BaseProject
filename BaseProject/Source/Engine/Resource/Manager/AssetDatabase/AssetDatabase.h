@@ -58,5 +58,20 @@ namespace Engine::Resource
 
 		// 管理しているすべてのアセットメタデータ
 		std::unordered_map<Engine::GUID, AssetProperty> m_assetMap;
+
+	// シングルトン
+	private:
+
+		AssetDatabase() = default;
+		~AssetDatabase() = default;
+
+	public:
+
+		static AssetDatabase& Instance()
+		{
+			static AssetDatabase _instance;
+			return _instance;
+		}
+
 	};
 }

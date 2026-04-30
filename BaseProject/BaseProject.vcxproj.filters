@@ -454,9 +454,6 @@
     <Filter Include="Source\Engine\Resource\Manager\TextureManager">
       <UniqueIdentifier>{5f896168-aced-43a2-9c4b-a1fe910253cb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\ModelManager">
-      <UniqueIdentifier>{1eca8f5c-6047-47f0-bddb-ebded8d03df0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Manager\ShaderManager">
       <UniqueIdentifier>{80a68e47-11c8-488f-be15-2f9b8c0401cc}</UniqueIdentifier>
     </Filter>
@@ -727,6 +724,9 @@
     <Filter Include="Source\Engine\Resource\Manager\AssetDatabase">
       <UniqueIdentifier>{73653469-6b6f-4235-a0f9-5d829f4297a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\ResourceLoader">
+      <UniqueIdentifier>{c3509b93-b23b-46ca-8a94-d242d1f18cf3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -960,9 +960,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp">
       <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.cpp">
-      <Filter>Source\Engine\Resource\Manager\ModelManager</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Importer\Model\ModelImporter.cpp">
       <Filter>Source\Engine\Resource\Importer\Model</Filter>
     </ClCompile>
@@ -1172,6 +1169,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.cpp">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Manager\ResourceLoader\ResourceLoader.cpp">
+      <Filter>Source\Engine\Resource\Manager\ResourceLoader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1541,9 +1541,6 @@
     <ClInclude Include="Source\Core\Algorithm\Graph\GroupTopologicalSort.h">
       <Filter>Source\Core\Algorithm\Graph</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.h">
-      <Filter>Source\Engine\Resource\Manager\ModelManager</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Common\Common.h">
       <Filter>Source\Engine\Resource\Common</Filter>
     </ClInclude>
@@ -1810,6 +1807,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.h">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Manager\ResourceLoader\ResourceLoader.h">
+      <Filter>Source\Engine\Resource\Manager\ResourceLoader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
