@@ -2,7 +2,7 @@
 
 namespace Engine::Resource
 {
-	class AssetManager;
+	class AssetDatabase;
 
 	//==========================================================================================
 	// 
@@ -13,7 +13,7 @@ namespace Engine::Resource
 	{
 	public:
 
-		void Init(AssetManager* a_pAssetManager);
+		void Init(AssetDatabase* a_pAssetDatabase);
 
 		//------------------------------------------------------------------------------------------
 		// リソースの読み込み
@@ -42,7 +42,7 @@ namespace Engine::Resource
 	private:
 		
 		// アセットマネージャーに依存
-		AssetManager* m_pAssetManager = nullptr;
+		AssetDatabase* m_pAssetDatabase = nullptr;
 
 		// GUIDとハンドルを結ぶ
 		std::unordered_map<Engine::GUID, Handle<Model>> m_guidToModelHandleMap = {};

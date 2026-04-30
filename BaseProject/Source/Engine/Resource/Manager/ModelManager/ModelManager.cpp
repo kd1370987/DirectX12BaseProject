@@ -2,15 +2,15 @@
 
 #include "Engine/Resource/Importer/Model/ModelImporter.h"
 
-#include "../AssetManager/AssetManager.h"
+#include "../AssetDatabase/AssetDatabase.h"
 
 #include "../../../Raytracing/RaytracingEngine/RaytracingEngine.h"
 
 namespace Engine::Resource
 {
-	void ModelManager::Init(AssetManager* a_pAssetManager)
+	void ModelManager::Init(AssetDatabase* a_pAssetDatabase)
 	{
-		m_pAssetManager = a_pAssetManager;
+		m_pAssetDatabase = a_pAssetDatabase;
 	}
 	
 	Handle<Model> ModelManager::Load(const Engine::GUID& a_guid)
@@ -28,7 +28,7 @@ namespace Engine::Resource
 		}
 
 		// パスの取得
-		auto _path = m_pAssetManager->GetFilePathFromGUID(a_guid);
+		auto _path = m_pAssetDatabase->GetFilePathFromGUID(a_guid);
 
 		// ハンドルをアロケート
 		auto _handle = m_handleStorage.Allocate();
@@ -50,7 +50,7 @@ namespace Engine::Resource
 	Handle<Model> ModelManager::Request(const std::string& a_path)
 	{
 		// アセットマネージャーになければ初期値を返す
-		auto _guid = m_pAssetManager->GetGUIDFromFilePath(a_path);
+		auto _guid = m_pAssetDatabase->GetGUIDFromFilePath(a_path);
 		Handle<Model> _res = {};
 		if (_guid == Engine::DefaultGUID) return _res;
 

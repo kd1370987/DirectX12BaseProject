@@ -350,8 +350,9 @@
     <ClCompile Include="Source\Engine\Resource\Importer\Shader\DXIL\DXIL.cpp" />
     <ClCompile Include="Source\Engine\Resource\Importer\Shader\Rasterizer\RasterizerImport.cpp" />
     <ClCompile Include="Source\Engine\Resource\Importer\Texture\TextureImporter.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Manager\AssetManager\AssetManager.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.cpp" />
     <ClCompile Include="Source\Engine\Storage\Storage.cpp" />
@@ -565,8 +566,10 @@
     <ClInclude Include="Source\Engine\Resource\Importer\Shader\DXIL\DXIL.h" />
     <ClInclude Include="Source\Engine\Resource\Importer\Shader\Rasterizer\RasterizerImport.h" />
     <ClInclude Include="Source\Engine\Resource\Importer\Texture\TextureImporter.h" />
-    <ClInclude Include="Source\Engine\Resource\Manager\AssetManager\AssetManager.h" />
+    <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ModelManager\ModelManager.h" />
+    <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.h" />
+    <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourcePool\ResourcePool.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.h" />
     <ClInclude Include="Source\Engine\Storage\HandleStorage\HandleStorage.h" />

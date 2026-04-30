@@ -2,7 +2,7 @@
 
 #include "Engine/Window/NativeWindow.h"
 #include "Engine/TimeManager/TimeManager.h"
-#include "Resource/Manager/AssetManager/AssetManager.h"
+#include "Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Resource/Manager/ModelManager/ModelManager.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
@@ -58,7 +58,7 @@ namespace Engine
 		m_upTimeManager->Init(120.0f);
 
 		// アセットマネージャー作成
-		InitializeAssetManager();
+		InitializeAssetDatabase();
 
 
 		// DirectX12関連オブジェクトの初期化
@@ -222,14 +222,14 @@ namespace Engine
 	{
 		return m_upGraphicsEngine->RefRenderContext();
 	}
-	void MainEngine::InitializeAssetManager()
+	void MainEngine::InitializeAssetDatabase()
 	{
-		if (m_upAssetManager) return;
+		if (m_upAssetDatabase) return;
 
-		m_upAssetManager = std::make_unique<Resource::AssetManager>();
+		m_upAssetDatabase = std::make_unique<Resource::AssetDatabase>();
 
 		// 初期化
-		m_upAssetManager->Init(
+		m_upAssetDatabase->Init(
 			"Asset/",			// クロールフォルダ指定
 			".assetmeta"		// 作成拡張子
 		);
@@ -237,25 +237,25 @@ namespace Engine
 		// 対応する拡張子を登録
 
 		// モデル
-		m_upAssetManager->AddSupporedExtensions("Model",".gltf");
-		m_upAssetManager->AddSupporedExtensions("Model",".fbx");
-		m_upAssetManager->AddSupporedExtensions("Model",".obj");
+		m_upAssetDatabase->AddSupporedExtensions("Model",".gltf");
+		m_upAssetDatabase->AddSupporedExtensions("Model",".fbx");
+		m_upAssetDatabase->AddSupporedExtensions("Model",".obj");
 		// テクスチャ
-		m_upAssetManager->AddSupporedExtensions("Texture",".png");
-		m_upAssetManager->AddSupporedExtensions("Texture",".jpg");
-		m_upAssetManager->AddSupporedExtensions("Texture",".tga");
-		m_upAssetManager->AddSupporedExtensions("Texture",".dds");
+		m_upAssetDatabase->AddSupporedExtensions("Texture",".png");
+		m_upAssetDatabase->AddSupporedExtensions("Texture",".jpg");
+		m_upAssetDatabase->AddSupporedExtensions("Texture",".tga");
+		m_upAssetDatabase->AddSupporedExtensions("Texture",".dds");
 		// シェーダー
-		m_upAssetManager->AddSupporedExtensions("Shader",".hlsl");
-		m_upAssetManager->AddSupporedExtensions("Shader",".cso");
+		m_upAssetDatabase->AddSupporedExtensions("Shader",".hlsl");
+		m_upAssetDatabase->AddSupporedExtensions("Shader",".cso");
 
 		// 全アセットに一括でメタファイル作成
 		// すでにあれば無視
-		m_upAssetManager->CreateMetaFileForAllAssets();
+		m_upAssetDatabase->CreateMetaFileForAllAssets();
 
 		// ランタイムデータ作成
-		m_upAssetManager->CreateRuntimeData();
+		m_upAssetDatabase->CreateRuntimeData();
 
-		Engine::Resource::ModelManager::Instnace().Init(m_upAssetManager.get());
+		Engine::Resource::ModelManager::Instnace().Init(m_upAssetDatabase.get());
 	}
 }

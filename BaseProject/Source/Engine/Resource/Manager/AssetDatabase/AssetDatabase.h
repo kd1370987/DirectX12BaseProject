@@ -2,7 +2,7 @@
 namespace Engine::Resource
 {
 	// ゲームに使用する外部アセットを管理する
-	class AssetManager
+	class AssetDatabase
 	{
 	public:
 

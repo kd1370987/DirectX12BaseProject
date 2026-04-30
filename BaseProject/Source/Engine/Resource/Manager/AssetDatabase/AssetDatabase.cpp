@@ -1,8 +1,8 @@
-﻿#include "AssetManager.h"
+﻿#include "AssetDatabase.h"
 
 namespace Engine::Resource
 {
-	void AssetManager::Init(
+	void AssetDatabase::Init(
 		const std::string& a_assetFilePath,
 		const std::string& a_metafileExtension
 	)
@@ -11,7 +11,7 @@ namespace Engine::Resource
 		m_assetsFilePath = a_assetFilePath;
 		m_metafileExtension = a_metafileExtension;
 	}
-	void AssetManager::AddSupporedExtensions(const std::string& a_type, const std::string& a_extensions)
+	void AssetDatabase::AddSupporedExtensions(const std::string& a_type, const std::string& a_extensions)
 	{
 		// 検索
 		auto _it = m_supportedExtensionsMap.find(a_type);
@@ -26,7 +26,7 @@ namespace Engine::Resource
 		m_supportedExtensionsMap[a_type] = {};
 		m_supportedExtensionsMap[a_type].push_back(a_extensions);
 	}
-	void AssetManager::CreateMetaFileForAllAssets()
+	void AssetDatabase::CreateMetaFileForAllAssets()
 	{
 		// 指定フォルダ以下をクロール
 		for (const std::filesystem::directory_entry& _entry : std::filesystem::recursive_directory_iterator(m_assetsFilePath))
@@ -53,7 +53,7 @@ namespace Engine::Resource
 		}
 	}
 
-	void AssetManager::CreateRuntimeData()
+	void AssetDatabase::CreateRuntimeData()
 	{
 		m_assetMap.clear();
 		
@@ -97,14 +97,14 @@ namespace Engine::Resource
 		}
 	}
 
-	std::string AssetManager::GetFilePathFromGUID(const std::string& a_guid)
+	std::string AssetDatabase::GetFilePathFromGUID(const std::string& a_guid)
 	{
 		Engine::GUID _guid = {};
 		_guid.FromString(a_guid);
 		return GetFilePathFromGUID(_guid);
 	}
 
-	std::string AssetManager::GetFilePathFromGUID(const Engine::GUID& a_guid)
+	std::string AssetDatabase::GetFilePathFromGUID(const Engine::GUID& a_guid)
 	{
 		auto _it = m_assetMap.find(a_guid);
 		if (_it != m_assetMap.end())
@@ -115,7 +115,7 @@ namespace Engine::Resource
 		return "NoFilePath";
 	}
 
-	Engine::GUID AssetManager::GetGUIDFromFilePath(const std::string& a_path)
+	Engine::GUID AssetDatabase::GetGUIDFromFilePath(const std::string& a_path)
 	{
 		// 比較のために引数のパスを正規化
 		std::string _normPath = std::filesystem::path(a_path).lexically_normal().generic_string();
@@ -131,7 +131,7 @@ namespace Engine::Resource
 		return Engine::DefaultGUID;
 	}
 
-	nlohmann::json AssetManager::CreateMetaData(const std::filesystem::path& a_srcFile)
+	nlohmann::json AssetDatabase::CreateMetaData(const std::filesystem::path& a_srcFile)
 	{
 		nlohmann::json _json;
 
@@ -161,7 +161,7 @@ namespace Engine::Resource
 		
 		return _json;
 	}
-	bool AssetManager::IsSupported(const std::filesystem::path& a_filepath)
+	bool AssetDatabase::IsSupported(const std::filesystem::path& a_filepath)
 	{
 		// 拡張子のみを抜き出して文字列化
 		std::string _fileExt = a_filepath.extension().string();
