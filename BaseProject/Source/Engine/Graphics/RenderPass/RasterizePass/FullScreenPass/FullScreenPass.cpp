@@ -11,12 +11,12 @@ namespace Engine::Graphics
 	{
 		Begine(a_pCtx);
 		a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
-		auto _main = m_pRG->GetGPUHandle("QuadTexture");
-		auto _ui = m_pRG->GetGPUHandle("UITexture");
+		auto _main = m_pRG->GetCPUHandle("QuadTexture");
+		auto _ui = m_pRG->GetCPUHandle("UITexture");
 
 		a_pCtx->ChangeBackBuffer();
-		a_pCtx->BindSRV(RootSigSemantic::PostScreenSRV, { _main });
-		a_pCtx->BindSRV(1, { _ui });
+		a_pCtx->BindSRV(RootSigSemantic::PostScreenSRV, _main);
+		a_pCtx->BindSRV(1, _ui);
 		a_pCtx->DrawQuad();
 
 		End(a_pCtx);

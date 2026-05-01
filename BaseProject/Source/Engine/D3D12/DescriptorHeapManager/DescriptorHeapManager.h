@@ -34,6 +34,7 @@ public:
 	//------------------------------------------------------------------------------------------
 	// 一括でSRVを確保
 	std::vector<Engine::Resource::Handle<SRV>> AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec);
+	Engine::Resource::Handle<SRV> AllocateSRV(ID3D12Resource* a_pResource,D3D12_SHADER_RESOURCE_VIEW_DESC* a_pDesc = nullptr);
 
 	// SRVのCPUハンドルを取得
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUHandle(Engine::Resource::Handle<SRV> a_range);

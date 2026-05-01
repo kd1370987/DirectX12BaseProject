@@ -26,12 +26,7 @@ cbuffer CBMaterial : register(b3)
 	float4 emissiveColor; // エミッシブカラー
 	float4 metallicRoughness; // めたりっくラフネス	(x: metallic, y: roughness, z: unused, w: unused)
 }
-cbuffer CBMaterial : register(b4)
-{
-	float4 texIndex;
-}
-
-cbuffer cbBones : register(b5)
+cbuffer cbBones : register(b4)
 {
 	row_major float4x4 g_mBones[300];
 };

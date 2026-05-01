@@ -279,6 +279,12 @@ namespace Engine::Graphics
 
 	}
 
+	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetCPUHandle(const std::string& a_name)
+	{
+		auto _tex = Resource::TextureManager::Instance().GetTexture(a_name);
+		return DescriptorHeapManager::Instance().GetSRVCPUHandle(_tex.GetSRV());
+	}
+
 	Engine::Resource::Handle<Engine::Resource::Texture> RenderGraph::CreateTexture(
 		const std::string& a_name,
 		const DXGI_FORMAT& a_format,

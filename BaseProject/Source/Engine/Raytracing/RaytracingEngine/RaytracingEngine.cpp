@@ -39,7 +39,7 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 
 	// ディスクリプタヒープセット
 	ID3D12DescriptorHeap* _heaps[] = {
-		DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap(),
+		a_pRCT->GetCBV_SRV_UAVHeap(),
 		DescriptorHeapManager::Instance().RefSamplerHeap()
 	};
 	_pCmdList4->SetDescriptorHeaps(ARRAYSIZE(_heaps), _heaps);
@@ -134,7 +134,7 @@ void Engine::Raytracing::RayEngine::Dispatch(
 
 	// ディスクリプタヒープセット
 	ID3D12DescriptorHeap* _heaps[] = {
-		DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap(),
+		a_pRCT->GetCBV_SRV_UAVHeap(),
 		DescriptorHeapManager::Instance().RefSamplerHeap()
 	};
 	_pCmdList4->SetDescriptorHeaps(ARRAYSIZE(_heaps), _heaps);

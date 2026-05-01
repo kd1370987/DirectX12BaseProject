@@ -53,6 +53,15 @@ namespace Engine::Graphics
 			m_pDevice, a_desc.cbAllocatorMemSize
 		);
 
+		// コピー戦略用SRVヒープの作成
+		m_copySRVHeap.Create(
+			m_pDevice,
+			L"CopySRVHeap",
+			300,
+			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+			0
+		);
+
 		// クワッドポリゴン
 		m_spQuadPolygon = std::make_shared<Resource::QuadPolygon>();
 		m_spQuadPolygon->Init();
@@ -89,6 +98,14 @@ namespace Engine::Graphics
 		m_pCmdList = nullptr;
 		m_upCBAllocater->ResetUse();
 		m_pShapeDraw->Reset();
+
+		// コピーヒープのリセット
+		m_currentHeapOffset = 0;
+	}
+
+	ID3D12DescriptorHeap* RenderContext::GetCBV_SRV_UAVHeap() const
+	{
+		return m_copySRVHeap.GetHeap();
 	}
 
 	//============================================================================================
@@ -217,18 +234,26 @@ namespace Engine::Graphics
 		D3D12Wrapper::Instance().SetViewportAndRect();
 	}
 
-
-	void RenderContext::BindSRV(int a_rootIndex, const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle)
+	void RenderContext::BindSRV(
+		UINT a_rootIdx,
+		std::vector<Resource::Handle<Resource::Texture>>& a_texHandles
+	)
 	{
-		m_pCmdList->SetGraphicsRootDescriptorTable(
-			a_rootIndex,
-			a_srvHandle[0]
-		);
+		// テクスチャからCPUハンドルを獲得する
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuHandles = {};
+		for (auto& _texHandle : a_texHandles)
+		{
+			const auto& _tex = Resource::TextureManager::Instance().GetTexture(_texHandle);
+			_cpuHandles.push_back(DescriptorHeapManager::Instance().GetSRVCPUHandle(_tex.GetSRV()));
+		}
+
+		// バインド
+		BindSRV(a_rootIdx,_cpuHandles);
 	}
 
 	void RenderContext::BindSRV(
 		RootSigSemantic a_sema,
-		const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_srvHandle
 	)
 	{
 		UINT _regiIdx =
@@ -238,14 +263,79 @@ namespace Engine::Graphics
 		// SRVセット
 		if (ERR_UINT != _regiIdx)
 		{
-			for (UINT _i = 0; _i < a_srvHandle.size(); ++_i)
-			{
-				m_pCmdList->SetGraphicsRootDescriptorTable(
-					_regiIdx,
-					a_srvHandle[0]
-				);
-			}
+			BindSRV(_regiIdx,a_srvHandle);
 		}
+	}
+
+	void RenderContext::BindSRV(RootSigSemantic a_sema, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle)
+	{
+		UINT _regiIdx =
+			m_pRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
+
+		// SRVセット
+		if (ERR_UINT != _regiIdx)
+		{
+			BindSRV(_regiIdx, a_cpuHandle);
+		}
+	}
+
+	void RenderContext::BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles)
+	{
+		// コピー数取得
+		UINT _count = static_cast<UINT>(a_cpuHandles.size());
+
+		// 今の空きインデックスカウントを確保
+		UINT _startIdx = m_currentHeapOffset;
+		m_currentHeapOffset += _count;
+
+		// ヒープサイズが足りなければリターン
+		if (m_currentHeapOffset >= m_copySRVHeap.GetMaxSize())return;
+
+		// 確保した領域にコピーしていく
+		for (UINT _i = 0; _i < _count; ++_i)
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copySRVHeap.GetCPU(_startIdx);
+
+			// 一個ずつ連続した領域にコピー
+			m_pDevice->CopyDescriptorsSimple(
+				1,
+				_destHandle,
+				a_cpuHandles[_i],
+				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
+			);
+		}
+
+		// コマンドリストにバインド
+		m_pCmdList->SetGraphicsRootDescriptorTable(
+			a_rootIdx,
+			m_copySRVHeap.GetGPU(_startIdx)
+		);
+	}
+
+	void RenderContext::BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle)
+	{
+		// 今の空きインデックスカウントを確保
+		UINT _startIdx = m_currentHeapOffset;
+		m_currentHeapOffset++;
+
+		// ヒープサイズが足りなければリターン
+		if (m_currentHeapOffset >= m_copySRVHeap.GetMaxSize())return;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copySRVHeap.GetCPU(_startIdx);
+
+		// 一個ずつ連続した領域にコピー
+		m_pDevice->CopyDescriptorsSimple(
+			1,
+			_destHandle,
+			a_cpuHandle,
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
+		);
+
+		// コマンドリストにバインド
+		m_pCmdList->SetGraphicsRootDescriptorTable(
+			a_rootIdx,
+			m_copySRVHeap.GetGPU(_startIdx)
+		);
 	}
 
 	void RenderContext::ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle)
@@ -283,7 +373,8 @@ namespace Engine::Graphics
 	{
 		// ディスクリプタヒープをセット
 		ID3D12DescriptorHeap* _heaps[] = {
-				DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
+			//	DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
+			m_copySRVHeap.GetHeap()
 		};
 		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 	}
@@ -411,16 +502,15 @@ namespace Engine::Graphics
 		);
 
 		// SRVの送信
-		UINT _regiIdx =
-			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
+		UINT _regiIdx =m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
 		if (a_pMaterial != m_pCurrentMaterial)
 		{
-			auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(a_pMaterial->startSRVHandle);
-			m_pCmdList->SetGraphicsRootDescriptorTable(
-				_regiIdx,
-				_handle
-			);
-			m_pCurrentMaterial = a_pMaterial;
+			std::vector<Resource::Handle<Resource::Texture>> _texVec = {};
+			_texVec.push_back(a_pMaterial->baseColorTex);
+			_texVec.push_back(a_pMaterial->metaRoughTex);
+			_texVec.push_back(a_pMaterial->emissiveTex);
+			_texVec.push_back(a_pMaterial->normalTex);
+			BindSRV(_regiIdx, _texVec);
 		}
 	}
 
@@ -567,13 +657,9 @@ namespace Engine::Graphics
 			);
 
 			// SRVの送信
-			UINT _regiIdx =
-				m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
-			auto _handle = DescriptorHeapManager::Instance().GetSRVGPUHandle(_item.srvHandleRange);
-			m_pCmdList->SetGraphicsRootDescriptorTable(
-				_regiIdx,
-				_handle
-			);
+			UINT _regiIdx =m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
+			auto _handle = DescriptorHeapManager::Instance().GetSRVCPUHandle(_item.srvHandleRange);
+			BindSRV(_regiIdx, _handle);
 
 
 			// メッシュ変換行列の転送

@@ -17,7 +17,7 @@ bool DescriptorHeapManager::Init()
 		_device,
 		L"CBV_SRV_UAV",
 		300,
-		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+		D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
 		0
 	);
 	m_dsvHeap.Create(
@@ -106,6 +106,11 @@ void DescriptorHeapManager::Release()
 std::vector<Engine::Resource::Handle<SRV>> DescriptorHeapManager::AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec)
 {
 	return m_upSRVAllocator->Allocate(a_viewInitVec);
+}
+
+Engine::Resource::Handle<SRV> DescriptorHeapManager::AllocateSRV(ID3D12Resource* a_pResource, D3D12_SHADER_RESOURCE_VIEW_DESC* a_pDesc)
+{
+	return m_upSRVAllocator->Allocate();
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetSRVCPUHandle(Engine::Resource::Handle<SRV> a_range)

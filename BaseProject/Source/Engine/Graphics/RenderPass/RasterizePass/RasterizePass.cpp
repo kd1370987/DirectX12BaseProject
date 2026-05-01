@@ -51,13 +51,6 @@ namespace Engine::Graphics
 				// メッシュのバインド
 				a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
 
-
-				if (_pso.second == RenderQueueType::Opaque || _pso.second == RenderQueueType::AnimationOpaque)
-				{
-					float _idx = (float)_item.pMaterial->startSRVHandle.idx;
-					a_pCtx->BindIndex({ _idx ,_idx + 1 ,_idx + 2 ,_idx + 3 });
-				}
-
 				// アニメーションタイプならボーンをバインド
 				if (_pso.second == RenderQueueType::AnimationOpaque || _pso.second == RenderQueueType::AnimationTransparent)
 				{

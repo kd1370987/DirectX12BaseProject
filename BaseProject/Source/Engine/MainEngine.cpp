@@ -175,7 +175,7 @@ namespace Engine
 		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
 		// ディスクリプタヒープをセット
 		ID3D12DescriptorHeap* _heaps[] = {
-				DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
+			m_upGraphicsEngine->GetRenderContext()->GetCBV_SRV_UAVHeap(),
 		};
 		_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 	}

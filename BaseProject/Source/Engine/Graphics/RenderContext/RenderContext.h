@@ -109,6 +109,9 @@ namespace Engine::Graphics
 		// フレームの初めに呼ぶ
 		void Begine(const FrameDesc& a_desc);
 		void Clear();
+
+		ID3D12DescriptorHeap* GetCBV_SRV_UAVHeap() const;
+
 		//--------------------------------------------------------------------------------------------
 		// カメラ関係
 		//--------------------------------------------------------------------------------------------
@@ -137,17 +140,14 @@ namespace Engine::Graphics
 			const Resource::Handle<DSV>& a_dsvHandle
 		);
 
-		// SRVのバインド
-		// 直接数字を指定してのバインド
-		void BindSRV(
-			int a_rootIndex,
-			const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
-		);
-		// 割り当てられているルート番号を探してのバインド
-		void BindSRV(
-			RootSigSemantic a_sema,
-			const std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>& a_srvHandle
-		);
+		// テクスチャハンドルからSRVをバインドする
+		void BindSRV(UINT a_rootIdx, std::vector<Resource::Handle<Resource::Texture>>& a_texHandles);
+
+		// SRVハンドルをもらってコピーする
+		void BindSRV(RootSigSemantic a_sema, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
+		void BindSRV(RootSigSemantic a_sema, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
+		void BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
+		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
 
 		// レンダーターゲットのクリア
 		void ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle);
@@ -266,7 +266,6 @@ namespace Engine::Graphics
 	private:
 		// D3DObject
 		ID3D12Device* m_pDevice = nullptr;
-		ID3D12GraphicsCommandList* m_pCmdList = nullptr;	// フレームごとにもらい受ける
 
 		// マネージャー
 		Resource::ShaderManager*			m_pShaderManger			= nullptr;
@@ -277,8 +276,16 @@ namespace Engine::Graphics
 		ShapeRenderer* m_pShapeDraw = nullptr;
 		VertexBuffer m_shapeVertexBuffer = {};
 
-		// 定数バッファアロケーター
-		std::unique_ptr<CBAllocater> m_upCBAllocater = nullptr;
+
+		//--------------------------------------------------------------------------------------------
+		// フレーム限定リソース
+		//--------------------------------------------------------------------------------------------
+		ID3D12GraphicsCommandList* m_pCmdList = nullptr;		// フレームごとにもらい受ける
+		std::unique_ptr<CBAllocater> m_upCBAllocater = nullptr;	// 定数バッファアロケーター
+		// コピー用ヒープ
+		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV> m_copySRVHeap = {};
+		UINT m_currentHeapOffset = 0;
+
 
 
 		// 定数バッファ

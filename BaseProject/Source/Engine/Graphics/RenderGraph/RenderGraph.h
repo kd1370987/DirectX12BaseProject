@@ -51,6 +51,7 @@ namespace Engine::Graphics
 		void Excute(RenderContext* a_pCtx);		// パスを順次実行
 
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(const std::string& a_name);
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(const std::string& a_name);
 		// リソース作成
 		Engine::Resource::Handle<Engine::Resource::Texture> CreateTexture(
 			const std::string& a_name,

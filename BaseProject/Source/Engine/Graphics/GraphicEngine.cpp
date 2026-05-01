@@ -120,7 +120,6 @@ namespace Engine::Graphics
 				{RootParameterType::RootCBV,{},RootSigSemantic::ObjectCB,true},
 				{RootParameterType::RootCBV,{},RootSigSemantic::MeshTransCB,true},
 				{RootParameterType::RootCBV,{},RootSigSemantic::MaterialCB,true},
-				{RootParameterType::RootCBV,{},RootSigSemantic::MaterialIndexCB,true},
 				{RootParameterType::RootCBV,{},RootSigSemantic::BoneCB,true},
 				{RootParameterType::DescriptorTable,
 				{RangeType::SRV,RangeType::SRV,RangeType::SRV,RangeType::SRV},

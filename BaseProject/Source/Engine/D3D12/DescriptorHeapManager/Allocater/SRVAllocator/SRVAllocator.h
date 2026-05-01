@@ -16,7 +16,7 @@ namespace Engine::D3D12
 
 		// ビューを配置
 		std::vector<Engine::Resource::Handle<SRV>> Allocate(std::vector<SRVViewInit> a_resourceVec);
-
+		
 		// ビュー消去
 		void Remove(Engine::Resource::Handle<SRV> a_handle);
 

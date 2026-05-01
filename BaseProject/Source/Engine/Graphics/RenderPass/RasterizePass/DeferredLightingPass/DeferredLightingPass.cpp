@@ -15,14 +15,14 @@ namespace Engine::Graphics
 
 		a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
 
-		std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> _gpuVec = {};
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gpuVec = {};
 
 		_gpuVec = {
-			m_pRG->GetGPUHandle("GBufferAlbedo"),
-			m_pRG->GetGPUHandle("GBufferNormal"),
-			m_pRG->GetGPUHandle("GBufferMaterial"),
-			m_pRG->GetGPUHandle("GBufferEmissiv"),
-			m_pRG->GetGPUHandle("Depth")
+			m_pRG->GetCPUHandle("GBufferAlbedo"),
+			m_pRG->GetCPUHandle("GBufferNormal"),
+			m_pRG->GetCPUHandle("GBufferMaterial"),
+			m_pRG->GetCPUHandle("GBufferEmissiv"),
+			m_pRG->GetCPUHandle("Depth")
 		};
 
 		a_pCtx->BindSRV(
