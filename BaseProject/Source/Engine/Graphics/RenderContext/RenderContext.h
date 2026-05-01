@@ -149,6 +149,9 @@ namespace Engine::Graphics
 		void BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
 		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
 
+		// UAV
+		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
+
 		// レンダーターゲットのクリア
 		void ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle);
 
@@ -283,7 +286,7 @@ namespace Engine::Graphics
 		ID3D12GraphicsCommandList* m_pCmdList = nullptr;		// フレームごとにもらい受ける
 		std::unique_ptr<CBAllocater> m_upCBAllocater = nullptr;	// 定数バッファアロケーター
 		// コピー用ヒープ
-		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV> m_copySRVHeap = {};
+		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV> m_copyHeap = {};
 		UINT m_currentHeapOffset = 0;
 
 

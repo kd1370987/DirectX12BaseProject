@@ -54,9 +54,9 @@ namespace Engine::Graphics
 		);
 
 		// コピー戦略用SRVヒープの作成
-		m_copySRVHeap.Create(
+		m_copyHeap.Create(
 			m_pDevice,
-			L"CopySRVHeap",
+			L"CopyHeap",
 			300,
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			0
@@ -105,7 +105,7 @@ namespace Engine::Graphics
 
 	ID3D12DescriptorHeap* RenderContext::GetCBV_SRV_UAVHeap() const
 	{
-		return m_copySRVHeap.GetHeap();
+		return m_copyHeap.GetHeap();
 	}
 
 	//============================================================================================
@@ -289,12 +289,12 @@ namespace Engine::Graphics
 		m_currentHeapOffset += _count;
 
 		// ヒープサイズが足りなければリターン
-		if (m_currentHeapOffset >= m_copySRVHeap.GetMaxSize())return;
+		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
 
 		// 確保した領域にコピーしていく
 		for (UINT _i = 0; _i < _count; ++_i)
 		{
-			D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copySRVHeap.GetCPU(_startIdx);
+			D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx + _i);
 
 			// 一個ずつ連続した領域にコピー
 			m_pDevice->CopyDescriptorsSimple(
@@ -308,7 +308,7 @@ namespace Engine::Graphics
 		// コマンドリストにバインド
 		m_pCmdList->SetGraphicsRootDescriptorTable(
 			a_rootIdx,
-			m_copySRVHeap.GetGPU(_startIdx)
+			m_copyHeap.GetGPU(_startIdx)
 		);
 	}
 
@@ -319,9 +319,9 @@ namespace Engine::Graphics
 		m_currentHeapOffset++;
 
 		// ヒープサイズが足りなければリターン
-		if (m_currentHeapOffset >= m_copySRVHeap.GetMaxSize())return;
+		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
 
-		D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copySRVHeap.GetCPU(_startIdx);
+		D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx);
 
 		// 一個ずつ連続した領域にコピー
 		m_pDevice->CopyDescriptorsSimple(
@@ -334,7 +334,34 @@ namespace Engine::Graphics
 		// コマンドリストにバインド
 		m_pCmdList->SetGraphicsRootDescriptorTable(
 			a_rootIdx,
-			m_copySRVHeap.GetGPU(_startIdx)
+			m_copyHeap.GetGPU(_startIdx)
+		);
+	}
+
+	void RenderContext::BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
+	{
+		// 今の空きインデックスカウントを確保
+		UINT _startIdx = m_currentHeapOffset;
+		m_currentHeapOffset++;
+
+		// ヒープサイズが足りなければリターン
+		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx);
+
+		// 一個ずつ連続した領域にコピー
+		m_pDevice->CopyDescriptorsSimple(
+			1,
+			_destHandle,
+			a_cpuHandle,
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
+		);
+
+		// コマンドリストにバインド
+		auto _pCmd = D3D12Wrapper::Instance().GetCommandList4();
+		_pCmd->SetComputeRootDescriptorTable(
+			a_rootIdx,
+			m_copyHeap.GetGPU(_startIdx)
 		);
 	}
 
@@ -373,8 +400,7 @@ namespace Engine::Graphics
 	{
 		// ディスクリプタヒープをセット
 		ID3D12DescriptorHeap* _heaps[] = {
-			//	DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
-			m_copySRVHeap.GetHeap()
+			m_copyHeap.GetHeap()
 		};
 		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 	}

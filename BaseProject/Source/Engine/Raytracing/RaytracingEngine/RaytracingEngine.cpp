@@ -67,9 +67,13 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 	);
 
 	// 出力用UAVセット
-	_pCmdList4->SetComputeRootDescriptorTable(
+	//_pCmdList4->SetComputeRootDescriptorTable(
+	//	2,
+	//	D3D12::DescriptorHeapManager::Instance().GetGPU(_tex.GetUAV())
+	//);
+	a_pRCT->BindUAV(
 		2,
-		D3D12::DescriptorHeapManager::Instance().GetGPU(_tex.GetUAV())
+		D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetUAV())
 	);
 
 	// 構造体バッファセット
