@@ -77,13 +77,11 @@ void IndexBuffer::CreateSRV()
 	_desc.Buffer.StructureByteStride = m_stride;
 	_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
-	SRVViewInit _viewInit = {};
-	_viewInit.pResource = m_pBuffer.Get();
-	_viewInit.pDesc = &_desc;
-	m_srvHandle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewInit })[0];
+	auto _pDev = D3D12Wrapper::Instance().GetDevice();
+	m_srvHandle = Engine::D3D12::DescriptorHeapManager::Instance().Allocate<Engine::D3D12::SRV>(_pDev,m_pBuffer.Get(),&_desc);
 }
 
-Engine::Resource::Handle<SRV> IndexBuffer::GetHandle() const
+Engine::Resource::Handle<Engine::D3D12::SRV> IndexBuffer::GetHandle() const
 {
 	return m_srvHandle;
 }

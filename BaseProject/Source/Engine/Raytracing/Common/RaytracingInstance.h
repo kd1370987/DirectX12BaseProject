@@ -18,8 +18,8 @@ namespace Engine::Raytracing
 		BLAS* pBLAS = nullptr;
 
 		// 頂点情報
-		Engine::Resource::Handle<SRV> vertexHandle = {};
-		Engine::Resource::Handle<SRV> indexHandle = {};
+		Engine::Resource::Handle<D3D12::SRV> vertexHandle = {};
+		Engine::Resource::Handle<D3D12::SRV> indexHandle = {};
 
 		// マテリアル
 		const Engine::Resource::Material* pMaterial = nullptr;

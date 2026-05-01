@@ -258,7 +258,7 @@ bool D3D12Wrapper::CreateRenderTarget()
 	{
 		// スワップチェインから描画するテクスチャリソースを取得
 		m_backBuffer[_i].renderTarget.Create(m_upSwapChain->Get(),_i);
-		m_backBuffer[_i].rtvHandle = DescriptorHeapManager::Instance().AllocateRTV(m_backBuffer[_i].renderTarget.Ref(), nullptr);
+		m_backBuffer[_i].rtvHandle = Engine::D3D12::DescriptorHeapManager::Instance().Allocate<Engine::D3D12::RTV>(m_upDevice->GetDevice(),m_backBuffer[_i].renderTarget.Ref(), nullptr);
 	}
 	return true;
 }
@@ -368,7 +368,7 @@ void D3D12Wrapper::ClearDepthStencilView(
 void D3D12Wrapper::SetBackBuffer()
 {
 	// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
-	auto _cpuHandle = DescriptorHeapManager::Instance().GetRTVCPUHandle(
+	auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
 		m_backBuffer[m_upSwapChain->GetCurrentBackBufferIndex()].rtvHandle
 	);
 

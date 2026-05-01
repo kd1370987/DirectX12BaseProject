@@ -22,8 +22,8 @@ namespace Engine::Graphics
 		std::vector<RGBarrier> barrierVec = {};
 
 		// RTV・DSVチェンジ用
-		std::vector<Resource::Handle<RTV>> rtvHadles = {};
-		Resource::Handle<DSV> dsvHandle = {};
+		std::vector<Resource::Handle<D3D12::RTV>> rtvHadles = {};
+		Resource::Handle<D3D12::DSV> dsvHandle = {};
 
 		// RTV・DSVクリア用
 		std::vector<Resource::Handle<Resource::Texture>> clearRTVs = {};

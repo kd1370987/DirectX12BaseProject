@@ -2,6 +2,40 @@
 
 namespace Engine::D3D12
 {
+
+	// ヒープ型定義
+	struct Heap {};
+	struct CBV : Heap
+	{
+		static constexpr D3D12_DESCRIPTOR_HEAP_TYPE type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		using DescType = D3D12_CONSTANT_BUFFER_VIEW_DESC;
+	};
+	struct SRV : Heap
+	{
+		static constexpr D3D12_DESCRIPTOR_HEAP_TYPE type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		using DescType = D3D12_SHADER_RESOURCE_VIEW_DESC;
+	};
+	struct UAV : Heap
+	{
+		static constexpr D3D12_DESCRIPTOR_HEAP_TYPE type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		using DescType = D3D12_UNORDERED_ACCESS_VIEW_DESC;
+	};
+	struct RTV : Heap
+	{
+		static constexpr D3D12_DESCRIPTOR_HEAP_TYPE type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		using DescType = D3D12_RENDER_TARGET_VIEW_DESC;
+	};
+	struct DSV : Heap
+	{
+		static constexpr D3D12_DESCRIPTOR_HEAP_TYPE type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		using DescType = D3D12_DEPTH_STENCIL_VIEW_DESC;
+	};
+
+	// T が Heapを継承しているか判定する Concept を定義する
+	template<typename T>
+	concept IsHeapType = std::derived_from<T, Heap>;
+
+	// ヒープ
 	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
 	class DescriptorHeap
 	{

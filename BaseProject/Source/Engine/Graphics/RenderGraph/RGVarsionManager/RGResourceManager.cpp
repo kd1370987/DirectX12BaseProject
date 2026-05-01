@@ -101,7 +101,7 @@ namespace Engine::Graphics
 		auto _idx = Resource::GetIndex(a_id);
 		return m_resourceVec[_idx].texHandle;
 	}
-	Resource::Handle<RTV> RGResourceManager::GetRTVHandle(Resource::ID a_id)
+	Resource::Handle<D3D12::RTV> RGResourceManager::GetRTVHandle(Resource::ID a_id)
 	{
 		auto _idx = Resource::GetIndex(a_id);
 		auto& _res = m_resourceVec[_idx];
@@ -109,7 +109,7 @@ namespace Engine::Graphics
 		auto& _tex = Resource::TextureManager::Instance().GetTexture(_res.texHandle);
 		return _tex.GetRTV();
 	}
-	Resource::Handle<DSV> RGResourceManager::GetDSVHandle(Resource::ID a_id)
+	Resource::Handle<D3D12::DSV> RGResourceManager::GetDSVHandle(Resource::ID a_id)
 	{
 		auto _idx = Resource::GetIndex(a_id);
 		auto& _res = m_resourceVec[_idx];

@@ -1,6 +1,7 @@
 ﻿#include "TestPass.h"
 
 #include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
+#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -8,6 +9,7 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
+
 
 namespace Engine::Graphics
 {
@@ -35,8 +37,12 @@ namespace Engine::Graphics
 				// メッシュのバインド
 				a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
 
-				float _idx = (float)_item.pMaterial->startSRVHandle.idx;
-				a_pCtx->BindIndex({ _idx ,_idx + 1 ,_idx + 2 ,_idx + 3 });
+				a_pCtx->BindIndex({ 
+					(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->baseColorTex).GetSRV().idx,
+					(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->metaRoughTex).GetSRV().idx,
+					(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->emissiveTex).GetSRV().idx,
+					(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->normalTex).GetSRV().idx
+				});
 
 				// 描画
 				a_pCtx->Draw(_item.pMesh, _item.subIdx);

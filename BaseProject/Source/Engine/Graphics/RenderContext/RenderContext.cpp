@@ -203,7 +203,7 @@ namespace Engine::Graphics
 		return m_upCBAllocater.get();
 	}
 
-	void RenderContext::ChangeRenderTarget(const std::vector<Resource::Handle<RTV>>& a_rtvHandleVec, const Resource::Handle<DSV>& a_dsvHandle)
+	void RenderContext::ChangeRenderTarget(const std::vector<Resource::Handle<D3D12::RTV>>& a_rtvHandleVec, const Resource::Handle<D3D12::DSV>& a_dsvHandle)
 	{
 		// 変数用意
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvCPUVec = {};
@@ -213,12 +213,12 @@ namespace Engine::Graphics
 		// RTVをハンドルへ変換
 		for (auto& _rtv : a_rtvHandleVec)
 		{
-			_rtvCPUVec.push_back(DescriptorHeapManager::Instance().GetRTVCPUHandle(_rtv));
+			_rtvCPUVec.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_rtv));
 		}
 		// 初期値じゃなければ
-		if (a_dsvHandle != Resource::Handle<DSV>())
+		if (a_dsvHandle != Resource::Handle<D3D12::DSV>())
 		{
-			_dsvCPU = DescriptorHeapManager::Instance().GetDSVCPUHandle(a_dsvHandle);
+			_dsvCPU = D3D12::DescriptorHeapManager::Instance().GetCPU(a_dsvHandle);
 			_pDSVCPU = &_dsvCPU;
 		}
 
@@ -244,7 +244,7 @@ namespace Engine::Graphics
 		for (auto& _texHandle : a_texHandles)
 		{
 			const auto& _tex = Resource::TextureManager::Instance().GetTexture(_texHandle);
-			_cpuHandles.push_back(DescriptorHeapManager::Instance().GetSRVCPUHandle(_tex.GetSRV()));
+			_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetSRV()));
 		}
 
 		// バインド
@@ -350,16 +350,16 @@ namespace Engine::Graphics
 		{
 			return;
 		}
-		auto _cpu = DescriptorHeapManager::Instance().GetRTVCPUHandle(_tex.GetRTV());
+		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetRTV());
 
 		// CPUハンドルと、テクスチャ作成時のクリアバリューをセット
 		D3D12Wrapper::Instance().ClearRenderTargetView(_cpu,_tex.GetClearColor());
 	}
 
 
-	void RenderContext::ClearDSV(const Resource::Handle<DSV>& a_DSVHandle)
+	void RenderContext::ClearDSV(const Resource::Handle<D3D12::DSV>& a_DSVHandle)
 	{
-		auto _cpu = DescriptorHeapManager::Instance().GetDSVCPUHandle(a_DSVHandle);
+		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_DSVHandle);
 		D3D12Wrapper::Instance().ClearDepthStencilView(_cpu);
 	}
 
@@ -658,7 +658,7 @@ namespace Engine::Graphics
 
 			// SRVの送信
 			UINT _regiIdx =m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
-			auto _handle = DescriptorHeapManager::Instance().GetSRVCPUHandle(_item.srvHandleRange);
+			auto _handle = D3D12::DescriptorHeapManager::Instance().GetCPU(_item.srvHandleRange);
 			BindSRV(_regiIdx, _handle);
 
 

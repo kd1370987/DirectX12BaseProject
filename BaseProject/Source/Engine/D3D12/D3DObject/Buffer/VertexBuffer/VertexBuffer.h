@@ -26,7 +26,7 @@ public:
 	void CreateSRV();
 
 	// SRVハンドルを返す
-	Engine::Resource::Handle<SRV> GetHandle() const;
+	Engine::Resource::Handle<Engine::D3D12::SRV> GetHandle() const;
 
 	/// <summary>
 	/// 更新
@@ -56,7 +56,7 @@ private:
 
 	ComPtr<ID3D12Resource> m_pBuffer = nullptr;			// バッファ本体
 	D3D12_VERTEX_BUFFER_VIEW m_view = {};				// 頂点バッファビュー
-	Engine::Resource::Handle<SRV> m_srvHandle = {};
+	Engine::Resource::Handle<Engine::D3D12::SRV> m_srvHandle = {};
 
 	// 構成情報
 	size_t m_vertexCount = 0;

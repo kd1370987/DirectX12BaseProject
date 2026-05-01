@@ -9,6 +9,7 @@ namespace Engine::Storage
 	public:
 
 		// 生成
+		// 上限値を設定できる。設定しない場合は上限なく増えていく
 		void Create(UINT a_maxCount = 0);
 
 		// データの追加

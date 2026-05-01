@@ -275,14 +275,14 @@ namespace Engine::Graphics
 	{
 		
 		auto _tex = Resource::TextureManager::Instance().GetTexture(a_name);
-		return DescriptorHeapManager::Instance().GetSRVGPUHandle(_tex.GetSRV());
+		return D3D12::DescriptorHeapManager::Instance().GetGPU(_tex.GetSRV());
 
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetCPUHandle(const std::string& a_name)
 	{
 		auto _tex = Resource::TextureManager::Instance().GetTexture(a_name);
-		return DescriptorHeapManager::Instance().GetSRVCPUHandle(_tex.GetSRV());
+		return D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetSRV());
 	}
 
 	Engine::Resource::Handle<Engine::Resource::Texture> RenderGraph::CreateTexture(

@@ -54,7 +54,7 @@ namespace Engine::Raytracing
 		D3D12_RAYTRACING_INSTANCE_DESC* m_pInstanceDesc = nullptr;		// マップしておく
 
 		// SRVハンドル
-		Engine::Resource::Handle<SRV> m_srvHandle = {};
+		Engine::Resource::Handle<D3D12::SRV> m_srvHandle = {};
 
 		// ヒットグループ数
 		uint32_t m_hitGroupNum = 0;

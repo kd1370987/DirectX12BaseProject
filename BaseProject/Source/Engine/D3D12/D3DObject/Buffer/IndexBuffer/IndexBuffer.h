@@ -30,7 +30,7 @@ public:
 	void CreateSRV();
 
 	// SRVハンドルを返す
-	Engine::Resource::Handle<SRV> GetHandle() const;
+	Engine::Resource::Handle<Engine::D3D12::SRV> GetHandle() const;
 
 	/// <summary>
 	/// インデックスバッファビューを取得
@@ -51,7 +51,7 @@ private:
 
 	ComPtr<ID3D12Resource> m_pBuffer = nullptr;		// インデックスバッファ
 	D3D12_INDEX_BUFFER_VIEW m_view = {};			// インデックスバッファビュー
-	Engine::Resource::Handle<SRV> m_srvHandle = {};
+	Engine::Resource::Handle<Engine::D3D12::SRV> m_srvHandle = {};
 
 	DXGI_FORMAT m_format = DXGI_FORMAT_R32_UINT;	// インデックスフォーマット
 	UINT m_count = 0;								// インデックス数

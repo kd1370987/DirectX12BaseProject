@@ -493,24 +493,6 @@
     <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater">
       <UniqueIdentifier>{ade7b42e-8596-43f4-8159-e6f73163c1d9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\CBAllocator">
-      <UniqueIdentifier>{684a7f1f-fd41-4f5e-8327-89431fe10404}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator">
-      <UniqueIdentifier>{cf08894e-7549-498b-a262-a5bc12ec010c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator">
-      <UniqueIdentifier>{974c3405-80a5-4e0a-8de6-744e75852567}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator">
-      <UniqueIdentifier>{38bed350-8fb0-4aa6-9579-aa7a97f6cbd1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator">
-      <UniqueIdentifier>{ef416847-9e12-4a7d-8017-8861835838eb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator">
-      <UniqueIdentifier>{bedfc60f-5166-4ae4-a8fa-a080184979ed}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Storage">
       <UniqueIdentifier>{3458bb82-ea8f-479a-bfc1-5183ae3ec261}</UniqueIdentifier>
     </Filter>
@@ -735,6 +717,9 @@
     </Filter>
     <Filter Include="Asset\Shader\Source\TestShader">
       <UniqueIdentifier>{17ac1928-3403-401a-87fb-cf323887ddfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\Sampler">
+      <UniqueIdentifier>{d111ebaa-a845-4115-8d3b-2894a0bbf128}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -969,15 +954,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp">
       <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.cpp">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator\DSVAllocator.cpp">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.cpp">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp">
       <Filter>Source\Engine\Resource\Data\Texture</Filter>
     </ClCompile>
@@ -1017,9 +993,6 @@
     <ClCompile Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.cpp">
       <Filter>Source\Engine\Raytracing\RaytracingEngine</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator\UAVAllocator.cpp">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp">
       <Filter>Source\Engine\Raytracing\RayPSO</Filter>
     </ClCompile>
@@ -1034,9 +1007,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.cpp">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Storage\Storage.cpp">
       <Filter>Source\Engine\Storage</Filter>
@@ -1190,6 +1160,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\TestPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.cpp">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\Sampler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1562,15 +1535,6 @@
     <ClInclude Include="Source\Engine\Resource\Common\Common.h">
       <Filter>Source\Engine\Resource\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator\RTVAllocator.h">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\RTVAllocator</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator\DSVAllocator.h">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\DSVAllocator</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator\SRVAllocator.h">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\SRVAllocator</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h">
       <Filter>Source\Engine\Resource\Data\Texture</Filter>
     </ClInclude>
@@ -1616,9 +1580,6 @@
     <ClInclude Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.h">
       <Filter>Source\Engine\Raytracing\RaytracingEngine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator\UAVAllocator.h">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\UAVAllocator</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Raytracing\RayPSO\RayPSO.h">
       <Filter>Source\Engine\Raytracing\RayPSO</Filter>
     </ClInclude>
@@ -1636,9 +1597,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.h">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Storage\Storage.h">
       <Filter>Source\Engine\Storage</Filter>
@@ -1837,6 +1795,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\TestPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\HeapAllocater.h">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.h">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\Sampler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

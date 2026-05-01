@@ -40,6 +40,7 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <functional>
 #include <algorithm>
 #include <iterator>
+#include <concepts>
 
 #include <thread>
 #include <mutex>

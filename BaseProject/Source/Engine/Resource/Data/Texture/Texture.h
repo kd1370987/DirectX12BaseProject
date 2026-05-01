@@ -53,18 +53,18 @@ namespace Engine::Resource
 		const DXSM::Color& GetClearColor() { return m_clearValue; }
 
 		// ビュー情報取得
-		const Engine::Resource::Handle<RTV>& GetRTV() const;
-		const Engine::Resource::Handle<DSV>& GetDSV() const;
-		const Engine::Resource::Handle<SRV>& GetSRV() const;
-		const Engine::Resource::Handle<UAV>& GetUAV() const;
-		const Engine::Resource::Handle<SRV>& GetImGuiSRV() const;
+		const Engine::Resource::Handle<D3D12::RTV>& GetRTV() const;
+		const Engine::Resource::Handle<D3D12::DSV>& GetDSV() const;
+		const Engine::Resource::Handle<D3D12::SRV>& GetSRV() const;
+		const Engine::Resource::Handle<D3D12::UAV>& GetUAV() const;
+		const Engine::Resource::Handle<D3D12::SRV>& GetImGuiSRV() const;
 
 		// ビュー情報セット
-		void SetRTV(const Engine::Resource::Handle<RTV>& a_handle);
-		void SetDSV(const Engine::Resource::Handle<DSV>& a_handle);
-		void SetSRV(const Engine::Resource::Handle<SRV>& a_handle);
-		void SetUAV(const Engine::Resource::Handle<UAV>& a_handle);
-		void SetImGuiSRV(const Engine::Resource::Handle<SRV>& a_handle);
+		void SetRTV(const Engine::Resource::Handle<D3D12::RTV>& a_handle);
+		void SetDSV(const Engine::Resource::Handle<D3D12::DSV>& a_handle);
+		void SetSRV(const Engine::Resource::Handle<D3D12::SRV>& a_handle);
+		void SetUAV(const Engine::Resource::Handle<D3D12::UAV>& a_handle);
+		void SetImGuiSRV(const Engine::Resource::Handle<D3D12::SRV>& a_handle);
 
 	private:
 
@@ -79,13 +79,13 @@ namespace Engine::Resource
 
 
 		// 使用方法ごとのハンドル
-		Engine::Resource::Handle<RTV>	 m_rtvHandle{};
-		Engine::Resource::Handle<DSV>	 m_dsvHandle{};
-		Engine::Resource::Handle<SRV>	 m_srvHandle{};
-		Engine::Resource::Handle<UAV>	 m_uavHandle{};
+		Engine::Resource::Handle<D3D12::RTV>	 m_rtvHandle{};
+		Engine::Resource::Handle<D3D12::DSV>	 m_dsvHandle{};
+		Engine::Resource::Handle<D3D12::SRV>	 m_srvHandle{};
+		Engine::Resource::Handle<D3D12::UAV>	 m_uavHandle{};
 
 		// ImGui用ハンドル
-		Engine::Resource::Handle<SRV>	 m_imguiSRVHandle{};
+		Engine::Resource::Handle<D3D12::SRV>	 m_imguiSRVHandle{};
 
 		// 色
 		DXSM::Color m_clearValue = {0,0,0,1};

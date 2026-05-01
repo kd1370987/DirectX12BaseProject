@@ -113,19 +113,22 @@ bool Engine::Resource::Mesh::CreateFloat(
 		_rt = _vert;
 		_rtVertDataVec.push_back(_rt);
 	}
-	//m_sVertexBuffer.Create(_pDevice,_pCmdList,a_vertices.size(),a_vertices.data());
+	// 頂点バッファー側SRV作成
 	m_sVertexBuffer.Create(_pDevice,_pCmdList, _rtVertDataVec.size(),_rtVertDataVec.data());
-	SRVViewInit _viewInit = {};
-	_viewInit.pResource = m_sVertexBuffer.GetResource();
-	_viewInit.pDesc = m_sVertexBuffer.GetViewDesc();
-	auto _handle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewInit })[0];
+	auto _handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
+		D3D12Wrapper::Instance().GetDevice(),
+		m_sVertexBuffer.GetResource(),
+		m_sVertexBuffer.GetViewDesc()
+	);
 	m_sVertexBuffer.SetHandle(_handle);
 
+	// インデックスバッファー側SRV作成
 	m_sIndexBuffer.Create(_pDevice,_pCmdList,m_indexData.size(),m_indexData.data());
-	_viewInit = {};
-	_viewInit.pResource = m_sIndexBuffer.GetResource();
-	_viewInit.pDesc = m_sIndexBuffer.GetViewDesc();
-	_handle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewInit })[0];
+	_handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
+		D3D12Wrapper::Instance().GetDevice(),
+		m_sIndexBuffer.GetResource(),
+		m_sIndexBuffer.GetViewDesc()
+	);
 	m_sIndexBuffer.SetHandle(_handle);
 
 	// コマンドキューリセット

@@ -56,9 +56,6 @@ namespace Engine
 			// 法線マップ
 			uint32_t					normalTexID = 0;
 			Engine::Resource::Handle<Engine::Resource::Texture> normalTex = {};
-
-			// SRVハンドル
-			Engine::Resource::Handle<SRV> startSRVHandle;
 		};
 	}
 }

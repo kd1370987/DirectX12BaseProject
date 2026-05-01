@@ -40,7 +40,7 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 	// ディスクリプタヒープセット
 	ID3D12DescriptorHeap* _heaps[] = {
 		a_pRCT->GetCBV_SRV_UAVHeap(),
-		DescriptorHeapManager::Instance().RefSamplerHeap()
+		D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
 	};
 	_pCmdList4->SetDescriptorHeaps(ARRAYSIZE(_heaps), _heaps);
 
@@ -69,7 +69,7 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 	// 出力用UAVセット
 	_pCmdList4->SetComputeRootDescriptorTable(
 		2,
-		DescriptorHeapManager::Instance().GetUAVGPUHandle(_tex.GetUAV())
+		D3D12::DescriptorHeapManager::Instance().GetGPU(_tex.GetUAV())
 	);
 
 	// 構造体バッファセット
@@ -135,7 +135,7 @@ void Engine::Raytracing::RayEngine::Dispatch(
 	// ディスクリプタヒープセット
 	ID3D12DescriptorHeap* _heaps[] = {
 		a_pRCT->GetCBV_SRV_UAVHeap(),
-		DescriptorHeapManager::Instance().RefSamplerHeap()
+		D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
 	};
 	_pCmdList4->SetDescriptorHeaps(ARRAYSIZE(_heaps), _heaps);
 
@@ -164,7 +164,7 @@ void Engine::Raytracing::RayEngine::Dispatch(
 	// 出力用UAVセット
 	_pCmdList4->SetComputeRootDescriptorTable(
 		2,
-		DescriptorHeapManager::Instance().GetUAVGPUHandle(_tex.GetUAV())
+		D3D12::DescriptorHeapManager::Instance().GetGPU(_tex.GetUAV())
 	);
 
 	// 構造体バッファセット

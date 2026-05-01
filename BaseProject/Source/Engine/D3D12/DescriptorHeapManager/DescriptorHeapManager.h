@@ -1,163 +1,189 @@
 ﻿#pragma once
 
+#include "Allocater/HeapAllocater.h"
+
 namespace Engine::D3D12
 {
-	class RTVAllocator;
-	class DSVAllocator;
-	class SRVAllocator;
-	class UAVAllocator;
+	// 前方宣言
 	class SamplerAllocator;
-}
 
-class DescriptorHeapManager
-{
-public:
-	
-	// 初期化と解放
-	bool Init();
-	void Release();
-
-	//==========================================================================================
-	// 
-	// CBV_SRV_UAV
-	// 
-	//==========================================================================================
-	// ヒープの生ポインタ取得
-	ID3D12DescriptorHeap* GetCBV_SRV_UAVHeap() const;
-
-	//------------------------------------------------------------------------------------------
-	// CBV
-	//------------------------------------------------------------------------------------------
-
-	//------------------------------------------------------------------------------------------
-	// SRV
-	//------------------------------------------------------------------------------------------
-	// 一括でSRVを確保
-	std::vector<Engine::Resource::Handle<SRV>> AllocateSRVRange(std::vector<SRVViewInit> a_viewInitVec);
-	Engine::Resource::Handle<SRV> AllocateSRV(ID3D12Resource* a_pResource,D3D12_SHADER_RESOURCE_VIEW_DESC* a_pDesc = nullptr);
-
-	// SRVのCPUハンドルを取得
-	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUHandle(Engine::Resource::Handle<SRV> a_range);
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUHandle(Engine::Resource::Handle<SRV> a_range);
-
-	//------------------------------------------------------------------------------------------
-	// UAV
-	//------------------------------------------------------------------------------------------
-	std::vector<Engine::Resource::Handle<UAV>> AllocateUAVRange(std::vector<UAVViewInit> a_viewInitVec);
-
-	// UAVのCPUハンドルを取得
-	D3D12_CPU_DESCRIPTOR_HANDLE GetUAVCPUHandle(Engine::Resource::Handle<UAV> a_range);
-	D3D12_GPU_DESCRIPTOR_HANDLE GetUAVGPUHandle(Engine::Resource::Handle<UAV> a_range);
-
-
-	//==========================================================================================
-	// 
-	// ImGui
-	// 
-	//==========================================================================================
-
-	// ImGui初期設定用
-	ID3D12DescriptorHeap* GetImGuiHeap() const;
-	D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiCPUHandle();
-	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle();
-
-	/// 一括でSRVを確保
-	std::vector<Engine::Resource::Handle<SRV>> AllocateImGuiSRVRange(std::vector<SRVViewInit> a_viewInitVec);
-
-	// ImGuiのSRVハンドルを取得
-	D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Resource::Handle<SRV> a_range);
-	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Engine::Resource::Handle<SRV> a_range);
-
-	//==========================================================================================
-	// 
-	// DSV
-	// 
-	//==========================================================================================
-	// 深度ステンシルビューを作成しハンドルを取得
-	Engine::Resource::Handle<DSV> AllocateDSV(
-		ID3D12Resource* a_resource,
-		D3D12_DEPTH_STENCIL_VIEW_DESC* a_pDSVDesc
-	);
-
-	// 深度ステンシルビュー破棄
-	void RemoveDSV(Engine::Resource::Handle<DSV> a_handle);
-
-	// CPUハンドル取得
-	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVCPUHandle(Engine::Resource::Handle<DSV> a_handle);
-
-	//==========================================================================================
-	// 
-	// RTV
-	// 
-	//==========================================================================================
-	// レンダーターゲット生成しハンドル取得
-	Engine::Resource::Handle<RTV> AllocateRTV(
-		ID3D12Resource* a_resource,
-		D3D12_RENDER_TARGET_VIEW_DESC* a_pRtvDesc
-	);
-
-	// レンダーターゲット破棄
-	void RemoveRTV(Engine::Resource::Handle<RTV> a_handle);
-
-	// CPUハンドル取得
-	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVCPUHandle(Engine::Resource::Handle<RTV> a_handle);
-
-	//==========================================================================================
-	// 
-	// SAMPLER
-	// 
-	//==========================================================================================
-	// 作成
-	Engine::Resource::Handle<SAMPLER> CreateSampler(
-		ID3D12Device* a_pDevice,
-		const D3D12_SAMPLER_DESC& a_desc
-	);
-
-	// 取得
-	D3D12_GPU_DESCRIPTOR_HANDLE GetLinearWrap();
-	D3D12_GPU_DESCRIPTOR_HANDLE GetPointClamp();
-	D3D12_GPU_DESCRIPTOR_HANDLE GetShadow();
-
-	// ヒープ
-	ID3D12DescriptorHeap* RefSamplerHeap();
-
-
-private:
-
-	// ヒープ本体
-	Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavHeap;
-	Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_DSV>			m_dsvHeap;
-	Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_RTV>			m_rtvHeap;
-	Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>		m_samplerHeap;
-	Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_imguiHeap;
-
-	// ヒープアロケーター
-	std::unique_ptr<Engine::D3D12::RTVAllocator>		m_upRTVAllocator		= nullptr;
-	std::unique_ptr<Engine::D3D12::DSVAllocator>		m_upDSVAllocator		= nullptr;
-	std::unique_ptr<Engine::D3D12::SRVAllocator>		m_upSRVAllocator		= nullptr;
-	std::unique_ptr<Engine::D3D12::UAVAllocator>		m_upUAVAllocator		= nullptr;
-	std::unique_ptr<Engine::D3D12::SamplerAllocator>	m_upSamplerAllocator	= nullptr;
-	std::unique_ptr<Engine::D3D12::SRVAllocator>		m_upImGuiSRVAllocator	= nullptr;
-
-	// サンプラー
-	Engine::Resource::Handle<SAMPLER> m_linerWrap;
-	Engine::Resource::Handle<SAMPLER> m_pointClamp;
-	Engine::Resource::Handle<SAMPLER> m_shadow;
-
-// シングルトン
-private:
-	DescriptorHeapManager();
-	~DescriptorHeapManager();
-
-	// コピー禁止
-	DescriptorHeapManager(const DescriptorHeapManager&) = delete;
-	void operator=(const DescriptorHeapManager&) = delete;
-
-public:
-
-	static DescriptorHeapManager& Instance()
+	// ディスクリプタヒープを管理
+	class DescriptorHeapManager
 	{
-		static DescriptorHeapManager instance;
-		return instance;
+	public:
+
+		// 初期化と解放
+		bool Init();
+		void Release();
+
+		// リソースのビュー作成
+		template<IsHeapType T>
+		Resource::Handle<T> Allocate(ID3D12Device* a_pDevice,ID3D12Resource* a_pResource,const typename T::DescType* a_desc);
+
+		// ハンドルの取得
+		template<IsHeapType T>
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(Resource::Handle<T> a_handle);
+		template<IsHeapType T>
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(Resource::Handle<T> a_handle);
+
+		//==========================================================================================
+		// 
+		// ImGui
+		// 
+		//==========================================================================================
+
+		// ImGui初期設定用
+		ID3D12DescriptorHeap* GetImGuiHeap() const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiCPUHandle();
+		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle();
+
+		// 一括でSRVを確保
+		Resource::Handle<SRV> AllocateImGuiSRV(ID3D12Resource* a_pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC* a_desc);
+
+		// ImGuiのSRVハンドルを取得
+		D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Resource::Handle<SRV> a_range);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Engine::Resource::Handle<SRV> a_range);
+
+		//==========================================================================================
+		// 
+		// SAMPLER
+		// 
+		//==========================================================================================
+		// 作成
+		Engine::Resource::Handle<SAMPLER> CreateSampler(
+			ID3D12Device* a_pDevice,
+			const D3D12_SAMPLER_DESC& a_desc
+		);
+
+		// 取得
+		D3D12_GPU_DESCRIPTOR_HANDLE GetLinearWrap();
+		D3D12_GPU_DESCRIPTOR_HANDLE GetPointClamp();
+		D3D12_GPU_DESCRIPTOR_HANDLE GetShadow();
+
+		// ヒープ
+		ID3D12DescriptorHeap* RefSamplerHeap();
+
+
+	private:
+
+		// ヒープ本体
+		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavHeap;
+		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_DSV>			m_dsvHeap;
+		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_RTV>			m_rtvHeap;
+
+		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>		m_samplerHeap;
+		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_imguiHeap;
+
+		// ヒープアロケーター
+		HeapAllocator<CBV>		m_CBVAllocator;
+		HeapAllocator<SRV>		m_SRVAllocator;
+		HeapAllocator<UAV>		m_UAVAllocator;
+
+		HeapAllocator<RTV>		m_RTVAllocator;
+		HeapAllocator<DSV>		m_DSVAllocator;
+		
+		std::unique_ptr<SamplerAllocator>	m_upSamplerAllocator = nullptr;
+		HeapAllocator<SRV>					m_ImGuiSRVAllocator;
+
+		// サンプラー
+		Engine::Resource::Handle<SAMPLER> m_linerWrap;
+		Engine::Resource::Handle<SAMPLER> m_pointClamp;
+		Engine::Resource::Handle<SAMPLER> m_shadow;
+
+		// シングルトン
+	private:
+		DescriptorHeapManager();
+		~DescriptorHeapManager();
+
+		// コピー禁止
+		DescriptorHeapManager(const DescriptorHeapManager&) = delete;
+		void operator=(const DescriptorHeapManager&) = delete;
+
+	public:
+
+		static DescriptorHeapManager& Instance()
+		{
+			static DescriptorHeapManager instance;
+			return instance;
+		}
+	};
+	template<IsHeapType T>
+	inline Resource::Handle<T> DescriptorHeapManager::Allocate(ID3D12Device* a_pDevice, ID3D12Resource* a_pResource, const typename T::DescType* a_desc)
+	{
+		if constexpr (std::is_same_v<T, CBV>)
+		{
+			return m_CBVAllocator.Allocate(a_pDevice, a_pResource, a_desc);
+		}
+		else if constexpr (std::is_same_v<T, SRV>)
+		{
+			return m_SRVAllocator.Allocate(a_pDevice, a_pResource, a_desc);
+		}
+		else if constexpr (std::is_same_v<T, UAV>)
+		{
+			return m_UAVAllocator.Allocate(a_pDevice, a_pResource, a_desc);
+		}
+		else if constexpr (std::is_same_v<T, RTV>)
+		{
+			return m_RTVAllocator.Allocate(a_pDevice, a_pResource, a_desc);
+		}
+		else if constexpr (std::is_same_v<T, DSV>)
+		{
+			return m_DSVAllocator.Allocate(a_pDevice, a_pResource, a_desc);
+		}
+		//else
+		//{
+		//	static_assert(slways_false_v<T>,"Unsupported Heap Type");
+		//	return {};
+		//}
 	}
-};
+	template<IsHeapType T>
+	inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetCPU(Resource::Handle<T> a_handle)
+	{
+		if constexpr (std::is_same_v<T, CBV>)
+		{
+			return m_CBVAllocator.GetCPU(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, SRV>)
+		{
+			return m_SRVAllocator.GetCPU(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, UAV>)
+		{
+			return m_UAVAllocator.GetCPU(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, RTV>)
+		{
+			return m_RTVAllocator.GetCPU(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, DSV>)
+		{
+			return m_DSVAllocator.GetCPU(a_handle);
+		}
+		//else
+		//{
+		//	static_assert(slways_false_v<T>, "Unsupported Heap Type");
+		//	return {};
+		//}
+	}
+	template<IsHeapType T>
+	inline D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetGPU(Resource::Handle<T> a_handle)
+	{
+		if constexpr (std::is_same_v<T, CBV>)
+		{
+			return m_CBVAllocator.GetGPU(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, SRV>)
+		{
+			return m_SRVAllocator.GetGPU(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, UAV>)
+		{
+			return m_UAVAllocator.GetGPU(a_handle);
+		}
+		//else
+		//{
+		//	static_assert(slways_false_v<T>, "Unsupported Heap Type");
+		//	return {};
+		//}
+	}
+}

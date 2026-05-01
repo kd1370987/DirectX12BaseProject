@@ -35,8 +35,8 @@ namespace Engine::Graphics
 		Resource::ID GetID(const std::string& a_name);
 		Resource::Handle<Resource::Texture> GetTexHandle(Resource::ID a_id);
 
-		Resource::Handle<RTV> GetRTVHandle(Resource::ID a_id);		// RTVハンドル
-		Resource::Handle<DSV> GetDSVHandle(Resource::ID a_id);		// DSVハンドル
+		Resource::Handle<D3D12::RTV> GetRTVHandle(Resource::ID a_id);		// RTVハンドル
+		Resource::Handle<D3D12::DSV> GetDSVHandle(Resource::ID a_id);		// DSVハンドル
 
 		D3D12_RESOURCE_STATES& RefCurrentState(Resource::ID a_id);	// 現在のステート
 		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);				// リソースのフォーマット

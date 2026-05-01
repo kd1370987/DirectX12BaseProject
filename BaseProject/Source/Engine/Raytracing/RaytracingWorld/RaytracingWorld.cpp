@@ -86,10 +86,11 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 	// インスタンスデータ作成
 	m_instanceDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _instanceDataVec.data());
 
-	SRVViewInit _viewInit = {};
-	_viewInit.pResource = m_instanceDataBuffer.GetResource();
-	_viewInit.pDesc = m_instanceDataBuffer.GetViewDesc();
-	auto _handle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewInit })[0];
+	auto _handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
+		D3D12Wrapper::Instance().GetDevice(),
+		m_instanceDataBuffer.GetResource(),
+		m_instanceDataBuffer.GetViewDesc()
+	);
 	m_instanceDataBuffer.SetHandle(_handle);
 
 	// マテリアルデータ作成
@@ -109,11 +110,13 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 		_materialVec.push_back(_mate);
 	}
 	m_materialDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _materialVec.data());
-	SRVViewInit _viewmateInit = {};
-	_viewmateInit.pResource = m_materialDataBuffer.GetResource();
-	_viewmateInit.pDesc = m_materialDataBuffer.GetViewDesc();
-	auto _matehandle = DescriptorHeapManager::Instance().AllocateSRVRange({ _viewmateInit })[0];
-	m_materialDataBuffer.SetHandle(_matehandle);
+
+	_handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
+		D3D12Wrapper::Instance().GetDevice(),
+		m_materialDataBuffer.GetResource(),
+		m_materialDataBuffer.GetViewDesc()
+	);
+	m_materialDataBuffer.SetHandle(_handle);
 }
 
 
@@ -142,10 +145,10 @@ D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetSRVTLAS()
 
 D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRV()
 {
-	return DescriptorHeapManager::Instance().GetSRVGPUHandle(m_instanceDataBuffer.GetHandle());
+	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_instanceDataBuffer.GetHandle());
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRV()
 {
-	return DescriptorHeapManager::Instance().GetSRVGPUHandle(m_materialDataBuffer.GetHandle());
+	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_materialDataBuffer.GetHandle());
 }

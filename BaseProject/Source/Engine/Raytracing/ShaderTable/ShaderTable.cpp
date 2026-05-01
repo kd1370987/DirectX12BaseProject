@@ -79,8 +79,8 @@ void Engine::Raytracing::ShaderTable::Update(const RayWorld& a_rayWorld)
 			// ハンドル格納先ポインタアドレス
 			auto* _handles =reinterpret_cast<D3D12_GPU_DESCRIPTOR_HANDLE*>(_hitPtr + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 			_handles[0] = GetTextureGPUHandle(_instance.pMaterial->baseColorTex);
-			_handles[1] = DescriptorHeapManager::Instance().GetSRVGPUHandle(_instance.indexHandle);
-			_handles[2] = DescriptorHeapManager::Instance().GetSRVGPUHandle(_instance.vertexHandle);
+			_handles[1] = D3D12::DescriptorHeapManager::Instance().GetGPU(_instance.indexHandle);
+			_handles[2] = D3D12::DescriptorHeapManager::Instance().GetGPU(_instance.vertexHandle);
 		}
 	}
 
@@ -191,5 +191,5 @@ D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::ShaderTable::GetTextureGPUHandle
 )
 {
 	auto& _tex = Resource::TextureManager::Instance().GetTexture(a_texHandle);
-	return DescriptorHeapManager::Instance().GetSRVGPUHandle(_tex.GetSRV());
+	return D3D12::DescriptorHeapManager::Instance().GetGPU(_tex.GetSRV());
 }

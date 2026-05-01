@@ -69,7 +69,7 @@ namespace Engine
 		}
 
 		// ディスクリプタヒープテーブルマネージャーの初期化
-		if (!DescriptorHeapManager::Instance().Init())
+		if (!D3D12::DescriptorHeapManager::Instance().Init())
 		{
 			assert(0 && "ディスクリプタヒープマネージャーの初期化に失敗");
 			return;
@@ -111,7 +111,7 @@ namespace Engine
 		Engine::Editor::MainEditor::Instance().Release();
 
 		// ディスクリプタヒープマネージャー解放
-		DescriptorHeapManager::Instance().Release();
+		D3D12::DescriptorHeapManager::Instance().Release();
 
 		// 描画エンジン解放
 		D3D12Wrapper::Instance().Shutdown();
@@ -189,7 +189,7 @@ namespace Engine
 		{
 			// ディスクリプタヒープをセット
 			ID3D12DescriptorHeap* _heaps[] = {
-					DescriptorHeapManager::Instance().GetImGuiHeap()
+					D3D12::DescriptorHeapManager::Instance().GetImGuiHeap()
 			};
 			_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 			// エディター描画

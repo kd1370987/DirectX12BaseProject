@@ -19,26 +19,24 @@ namespace Engine::Resource
 		//------------------------------------------------------------------------------------------
 		// リソースの読み込み
 		//------------------------------------------------------------------------------------------
-		Engine::Resource::Handle<Engine::Resource::Texture> LoadTexture(const std::string& a_path);
-		std::vector<Engine::Resource::Handle<Engine::Resource::Texture>> LoadTextureRange(
-			const std::vector<TextureInit>& a_initVec
-		);
+		Handle<Texture> LoadTexture(const std::string& a_path, const DirectX::XMFLOAT4& a_data = { 255,255,255,255 });
+		
 
 		//------------------------------------------------------------------------------------------
 		// リソース作成
 		//------------------------------------------------------------------------------------------
-		Engine::Resource::Handle<Engine::Resource::Texture> CreateTexture(const TextureCreateDesc& a_init);
+		Handle<Texture> CreateTexture(const TextureCreateDesc& a_init);
 
 		//------------------------------------------------------------------------------------------
 		// リソース取得
 		//------------------------------------------------------------------------------------------
-		const Engine::Resource::Texture& GetTexture(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle);
+		const Texture& GetTexture(const Handle<Texture>& a_handle);
 		const Texture& GetTexture(const std::string& a_name);
-		Engine::Resource::Texture& RefTexture(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle);
+		Texture& RefTexture(const Handle<Texture>& a_handle);
 		Texture& RefTexture(const std::string& a_name);
 		
-		std::unordered_map<std::string, Engine::Resource::Handle<Engine::Resource::Texture>>& RefAllTex();
-		std::vector<Engine::Resource::Texture>& GetAllTex();
+		std::unordered_map<std::string, Handle<Texture>>& RefAllTex();
+		std::vector<Texture>& GetAllTex();
 
 		const Handle<Texture>& GetHandle(const std::string& a_name);
 
@@ -47,11 +45,11 @@ namespace Engine::Resource
 		//------------------------------------------------------------------------------------------
 		// リソースの管理
 		//------------------------------------------------------------------------------------------
-		Engine::Resource::Handle<Engine::Resource::Texture> Add(const Texture& a_Texture);		// 追加
-		void Subtract(const Engine::Resource::Handle<Engine::Resource::Texture>& a_handle);		// 削除
+		Handle<Texture> Add(const Texture& a_Texture);		// 追加
+		void Subtract(const Handle<Texture>& a_handle);		// 削除
 
 		// ビュー作成
-		void CreateView(const std::vector<Engine::Resource::Handle<Engine::Resource::Texture>>& a_outTex);
+		void CreateView(const Handle<Texture>& a_outTex);
 
 		// 登録されているかのチェック
 		bool Has(const std::string& a_name) const;

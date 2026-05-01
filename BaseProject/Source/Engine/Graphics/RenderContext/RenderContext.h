@@ -57,7 +57,7 @@ namespace Engine::Graphics
 
 	struct DrawItem2D
 	{
-		Resource::Handle<SRV> srvHandleRange = {};
+		Resource::Handle<D3D12::SRV> srvHandleRange = {};
 
 		DirectX::XMFLOAT4X4 worldMat = {};
 		DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
@@ -136,8 +136,8 @@ namespace Engine::Graphics
 		// レンダーターゲットの切り替え
 		// 基本的にハンドルで管理しているため内部以外では直接触らない
 		void ChangeRenderTarget(
-			const std::vector<Resource::Handle<RTV>>& a_rtvHandleVec,
-			const Resource::Handle<DSV>& a_dsvHandle
+			const std::vector<Resource::Handle<D3D12::RTV>>& a_rtvHandleVec,
+			const Resource::Handle<D3D12::DSV>& a_dsvHandle
 		);
 
 		// テクスチャハンドルからSRVをバインドする
@@ -153,7 +153,7 @@ namespace Engine::Graphics
 		void ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle);
 
 		// 深度値バッファのクリア
-		void ClearDSV(const Resource::Handle<DSV>& a_DSVHandle);
+		void ClearDSV(const Resource::Handle<D3D12::DSV>& a_DSVHandle);
 
 		// 矩形描画のためのクラス取得
 		ShapeRenderer* RefShapeDraw();

@@ -4,141 +4,143 @@
 #include "../../Loader/Texture/Creater/TextureCreater.h"
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-
-void Engine::Resource::Texture::Import(
-	const std::string& a_filePath,
-	const DirectX::XMFLOAT4& a_defoltData
-)
+namespace Engine::Resource
 {
-	// テクスチャの読み込み
-	ComPtr<ID3D12Resource> _cpRes = Engine::Resource::ImportTexture(a_filePath);
-	if(_cpRes)
+	void Engine::Resource::Texture::Import(
+		const std::string& a_filePath,
+		const DirectX::XMFLOAT4& a_defoltData
+	)
 	{
-		// 読み込み成功時
-		m_cpResource = _cpRes;
-		m_desc = _cpRes.Get()->GetDesc();
-		m_name = a_filePath;
+		// テクスチャの読み込み
+		ComPtr<ID3D12Resource> _cpRes = Engine::Resource::ImportTexture(a_filePath);
+		if (_cpRes)
+		{
+			// 読み込み成功時
+			m_cpResource = _cpRes;
+			m_desc = _cpRes.Get()->GetDesc();
+			m_name = a_filePath;
+		}
+		else
+		{
+			// 読み込み失敗時はデフォルトデータを指定してテクスチャを生成する
+			_cpRes = Engine::Resource::DefaultTexture(a_defoltData);
+			m_cpResource = _cpRes;
+			m_desc = _cpRes.Get()->GetDesc();
+			m_name = a_filePath + "Default";
+		}
+
+		// SRVとして使用
+		m_useFlg = TextureUsage::SRV;
 	}
-	else
+
+	void Engine::Resource::Texture::Create(const TextureCreateDesc& a_desc)
 	{
-		// 読み込み失敗時はデフォルトデータを指定してテクスチャを生成する
-		_cpRes = Engine::Resource::DefaultTexture(a_defoltData);
-		m_cpResource = _cpRes;
-		m_desc = _cpRes.Get()->GetDesc();
-		m_name = a_filePath + "Default";
+		// リソース作成
+		m_cpResource = Engine::Resource::CreateTexture(a_desc, &m_desc);
+		m_currentSutate = D3D12_RESOURCE_STATE_COMMON;
+
+		m_cpResource.Get()->SetName(StringUtility::ToWideString(a_desc.name).c_str());
+
+		// 変数保存
+		m_name = a_desc.name;
+		m_useFlg = a_desc.usage;
+		if (a_desc.opClerValue.has_value())
+		{
+			m_clearValue = a_desc.opClerValue.value();
+		}
 	}
 
-	// SRVとして使用
-	m_useFlg = TextureUsage::SRV;
-}
-
-void Engine::Resource::Texture::Create(const TextureCreateDesc& a_desc)
-{
-	// リソース作成
-	m_cpResource = Engine::Resource::CreateTexture(a_desc, &m_desc);
-	m_currentSutate = D3D12_RESOURCE_STATE_COMMON;
-
-	m_cpResource.Get()->SetName(StringUtility::ToWideString(a_desc.name).c_str());
-
-	// 変数保存
-	m_name = a_desc.name;
-	m_useFlg = a_desc.usage;
-	if (a_desc.opClerValue.has_value())
+	void Engine::Resource::Texture::SetName(const std::string& a_name)
 	{
-		m_clearValue = a_desc.opClerValue.value();
+		m_name = a_name;
+		m_cpResource.Get()->SetName(StringUtility::ToWideString(m_name).c_str());
 	}
-}
 
-void Engine::Resource::Texture::SetName(const std::string& a_name)
-{
-	m_name = a_name;
-	m_cpResource.Get()->SetName(StringUtility::ToWideString(m_name).c_str());
-}
-
-const std::string& Engine::Resource::Texture::GetName()
-{
-	return m_name;
-}
-
-ID3D12Resource* Engine::Resource::Texture::GetResource()
-{
-	return m_cpResource.Get();
-}
-
-const Engine::Resource::TextureUsage& Engine::Resource::Texture::GetUsage() const
-{
-	return m_useFlg;
-}
-
-const D3D12_RESOURCE_DESC& Engine::Resource::Texture::GetDesc() const
-{
-	return m_desc;
-}
-
-void Engine::Resource::Texture::ChangeState(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_state)
-{
-	if (m_currentSutate != a_state)
+	const std::string& Engine::Resource::Texture::GetName()
 	{
-		// UAVバリア
-		auto _barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-			m_cpResource.Get(),
-			m_currentSutate,
-			a_state
-		);
-		a_pCmdList->ResourceBarrier(
-			1,
-			&_barrier
-		);
-		m_currentSutate = a_state;
+		return m_name;
 	}
-}
 
-const Engine::Resource::Handle<RTV>& Engine::Resource::Texture::GetRTV() const
-{
-	return m_rtvHandle;
-}
+	ID3D12Resource* Engine::Resource::Texture::GetResource()
+	{
+		return m_cpResource.Get();
+	}
 
-const Engine::Resource::Handle<DSV>& Engine::Resource::Texture::GetDSV() const
-{
-	return m_dsvHandle;
-}
+	const Engine::Resource::TextureUsage& Engine::Resource::Texture::GetUsage() const
+	{
+		return m_useFlg;
+	}
 
-const Engine::Resource::Handle<SRV>& Engine::Resource::Texture::GetSRV() const
-{
-	return m_srvHandle;
-}
+	const D3D12_RESOURCE_DESC& Engine::Resource::Texture::GetDesc() const
+	{
+		return m_desc;
+	}
 
-const Engine::Resource::Handle<UAV>& Engine::Resource::Texture::GetUAV() const
-{
-	return m_uavHandle;
-}
+	void Engine::Resource::Texture::ChangeState(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_state)
+	{
+		if (m_currentSutate != a_state)
+		{
+			// UAVバリア
+			auto _barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+				m_cpResource.Get(),
+				m_currentSutate,
+				a_state
+			);
+			a_pCmdList->ResourceBarrier(
+				1,
+				&_barrier
+			);
+			m_currentSutate = a_state;
+		}
+	}
 
-const Engine::Resource::Handle<SRV>& Engine::Resource::Texture::GetImGuiSRV() const
-{
-	return m_imguiSRVHandle;
-}
+	const Engine::Resource::Handle<D3D12::RTV>& Engine::Resource::Texture::GetRTV() const
+	{
+		return m_rtvHandle;
+	}
 
-void Engine::Resource::Texture::SetRTV(const Engine::Resource::Handle<RTV>& a_handle)
-{
-	m_rtvHandle = a_handle;
-}
+	const Engine::Resource::Handle<D3D12::DSV>& Engine::Resource::Texture::GetDSV() const
+	{
+		return m_dsvHandle;
+	}
 
-void Engine::Resource::Texture::SetDSV(const Engine::Resource::Handle<DSV>& a_handle)
-{
-	m_dsvHandle = a_handle;
-}
+	const Engine::Resource::Handle<D3D12::SRV>& Engine::Resource::Texture::GetSRV() const
+	{
+		return m_srvHandle;
+	}
 
-void Engine::Resource::Texture::SetSRV(const Engine::Resource::Handle<SRV>& a_handle)
-{
-	m_srvHandle = a_handle;
-}
+	const Engine::Resource::Handle<D3D12::UAV>& Engine::Resource::Texture::GetUAV() const
+	{
+		return m_uavHandle;
+	}
 
-void Engine::Resource::Texture::SetUAV(const Engine::Resource::Handle<UAV>& a_handle)
-{
-	m_uavHandle = a_handle;
-}
+	const Engine::Resource::Handle<D3D12::SRV>& Engine::Resource::Texture::GetImGuiSRV() const
+	{
+		return m_imguiSRVHandle;
+	}
 
-void Engine::Resource::Texture::SetImGuiSRV(const Engine::Resource::Handle<SRV>& a_handle)
-{
-	m_imguiSRVHandle = a_handle;
+	void Engine::Resource::Texture::SetRTV(const Engine::Resource::Handle<D3D12::RTV>& a_handle)
+	{
+		m_rtvHandle = a_handle;
+	}
+
+	void Engine::Resource::Texture::SetDSV(const Engine::Resource::Handle<D3D12::DSV>& a_handle)
+	{
+		m_dsvHandle = a_handle;
+	}
+
+	void Engine::Resource::Texture::SetSRV(const Engine::Resource::Handle<D3D12::SRV>& a_handle)
+	{
+		m_srvHandle = a_handle;
+	}
+
+	void Engine::Resource::Texture::SetUAV(const Engine::Resource::Handle<D3D12::UAV>& a_handle)
+	{
+		m_uavHandle = a_handle;
+	}
+
+	void Engine::Resource::Texture::SetImGuiSRV(const Engine::Resource::Handle<D3D12::SRV>& a_handle)
+	{
+		m_imguiSRVHandle = a_handle;
+	}
 }

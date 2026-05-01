@@ -33,7 +33,7 @@ namespace Engine::Editor
 	{
 		if (ImGui::Begin("TextureView"))
 		{
-			auto _gpuHandle = DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(a_Texture.GetImGuiSRV());
+			auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(a_Texture.GetImGuiSRV());
 			ImTextureID _imTex = (ImTextureID)(_gpuHandle.ptr);
 			ImVec2 _winSize = ImGui::GetContentRegionAvail();
 
