@@ -19,14 +19,14 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
 	auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(m_outTex);
 
-	// ステートチェンジ
-	_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//// ステートチェンジ
+	//_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(
-		_tex.GetResource()
-	);
+	//auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(
+	//	_tex.GetResource()
+	//);
 
-	_pCmdList4->ResourceBarrier(1, &barrier);
+	//_pCmdList4->ResourceBarrier(1, &barrier);
 
 	// ワールドを更新
 	if(!m_isCommit)
@@ -94,17 +94,17 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 		&_desc
 	);
 	
-	// UAVバリア
-	auto _barrier = CD3DX12_RESOURCE_BARRIER::UAV(
-		_tex.GetResource()
-	);
-	_pCmdList4->ResourceBarrier(
-		1,
-		&_barrier
-	);
+	//// UAVバリア
+	//auto _barrier = CD3DX12_RESOURCE_BARRIER::UAV(
+	//	_tex.GetResource()
+	//);
+	//_pCmdList4->ResourceBarrier(
+	//	1,
+	//	&_barrier
+	//);
 
-	// テクスチャのステート切り替え
-	_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	//// テクスチャのステート切り替え
+	//_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void Engine::Raytracing::RayEngine::Dispatch(
