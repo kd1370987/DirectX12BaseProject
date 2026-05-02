@@ -165,6 +165,7 @@ namespace Engine::Graphics
 
 		// ヒープのセット
 		void BindHeap();
+		void BindHeaps(UINT a_numHeaps, ID3D12DescriptorHeap *const* a_pHeaps);
 
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド

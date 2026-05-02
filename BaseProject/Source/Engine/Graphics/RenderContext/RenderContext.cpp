@@ -221,7 +221,7 @@ namespace Engine::Graphics
 		}
 
 		// チェンジ
-		m_pCmdList->NGet()->OMSetRenderTargets(
+		m_pCmdList->OMSetRenderTargets(
 			static_cast<UINT>(std::size(_rtvCPUVec)),
 			_rtvCPUVec.data(),
 			false,
@@ -304,7 +304,11 @@ namespace Engine::Graphics
 		}
 
 		// コマンドリストにバインド
-		m_pCmdList->NGet()->SetGraphicsRootDescriptorTable(
+		//m_pCmdList->NGet()->SetGraphicsRootDescriptorTable(
+		//	a_rootIdx,
+		//	m_copyHeap.GetGPU(_startIdx)
+		//);
+		m_pCmdList->SetGraphicsRootDescriptorTable(
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
 		);
@@ -330,7 +334,11 @@ namespace Engine::Graphics
 		);
 
 		// コマンドリストにバインド
-		m_pCmdList->NGet()->SetGraphicsRootDescriptorTable(
+		//m_pCmdList->NGet()->SetGraphicsRootDescriptorTable(
+		//	a_rootIdx,
+		//	m_copyHeap.GetGPU(_startIdx)
+		//);
+		m_pCmdList->SetGraphicsRootDescriptorTable(
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
 		);
@@ -403,6 +411,11 @@ namespace Engine::Graphics
 		m_pCmdList->Get4()->SetDescriptorHeaps(std::size(_heaps), _heaps);
 	}
 
+	void RenderContext::BindHeaps(UINT a_numHeaps, ID3D12DescriptorHeap* const* a_pHeaps)
+	{
+		m_pCmdList->SetDescriptorHeaps(a_numHeaps,a_pHeaps);
+	}
+
 
 	void RenderContext::AddItem(const RenderQueueType& a_type, const DrawItem& a_item)
 	{
@@ -466,7 +479,8 @@ namespace Engine::Graphics
 		// ルートシグネチャセット
 		if (a_rootSigID != m_currentRootSigID)
 		{
-			m_pCmdList->NGet()->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
+			//m_pCmdList->NGet()->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
+			m_pCmdList->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
 			m_currentRootSigID = a_rootSigID;
 		}
 	}

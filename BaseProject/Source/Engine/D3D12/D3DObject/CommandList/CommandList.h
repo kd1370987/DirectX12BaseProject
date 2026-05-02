@@ -74,14 +74,31 @@ namespace Engine::D3D12
 			const D3D12_RECT* a_pScissorRect
 		);
 
+
+		// ディスクリプタヒープをバインド
+		void SetGraphicsRootDescriptorTable(
+			UINT a_rootIdx,
+			D3D12_GPU_DESCRIPTOR_HANDLE a_baseHandle
+		);
+
+		// ディスクリプタヒープのセット
+		void SetDescriptorHeaps(
+			UINT a_numHeaps,
+			ID3D12DescriptorHeap* const* a_pHeaps
+		);
+
+		// ルートシグネチャをセット
+		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);
+
+		
 		/// <summary>
 		/// レンダーターゲットをセット
-		/// </summary>
+		/// <summary>
 		/// <param name="a_numRenderTargetDescriptors">レンダーターゲット数</param>
 		/// <param name="a_pRenderTargetDescriptors">レンダーターゲットハンドル</param>
 		/// <param name="a_RTsSingleHandleToDescriptorRange"></param>
 		/// <param name="a_pDepthStencilDescriptor">深度ステンシルバッファハンドル</param>
-		void SetRenderTarget(
+		void OMSetRenderTargets(
 			UINT a_numRenderTargetDescriptors,
 			const D3D12_CPU_DESCRIPTOR_HANDLE* a_pRenderTargetDescriptors,
 			BOOL a_RTsSingleHandleToDescriptorRange,

@@ -63,12 +63,26 @@ namespace Engine::D3D12
 		m_cpCommandList->RSSetScissorRects(a_num, a_pScissorRect);
 	}
 
-	void CommandList::SetRenderTarget(
-		UINT a_numRenderTargetDescriptors,
-		const D3D12_CPU_DESCRIPTOR_HANDLE* a_pRenderTargetDescriptors,
-		BOOL a_RTsSingleHandleToDescriptorRange,
-		const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDepthStencilDescriptor
-	)
+	
+	void CommandList::SetGraphicsRootDescriptorTable(UINT a_rootIdx, D3D12_GPU_DESCRIPTOR_HANDLE a_baseHandle)
+	{
+		m_cpCommandList->SetGraphicsRootDescriptorTable(
+			a_rootIdx,
+			a_baseHandle
+		);
+	}
+
+	void CommandList::SetDescriptorHeaps(UINT a_numHeaps, ID3D12DescriptorHeap* const* a_pHeaps)
+	{
+		m_cpCommandList->SetDescriptorHeaps(a_numHeaps,a_pHeaps);
+	}
+
+	void CommandList::SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig)
+	{
+		m_cpCommandList->SetGraphicsRootSignature(a_pRootSig);
+	}
+
+	void CommandList::OMSetRenderTargets(UINT a_numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* a_pRenderTargetDescriptors, BOOL a_RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDepthStencilDescriptor)
 	{
 		m_cpCommandList->OMSetRenderTargets(
 			a_numRenderTargetDescriptors,

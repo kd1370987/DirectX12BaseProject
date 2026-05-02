@@ -42,7 +42,8 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 		a_pRCT->GetCBV_SRV_UAVHeap(),
 		D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
 	};
-	_pCmdList4->SetDescriptorHeaps(ARRAYSIZE(_heaps), _heaps);
+	//_pCmdList4->SetDescriptorHeaps(ARRAYSIZE(_heaps), _heaps);
+	a_pRCT->BindHeaps(ARRAYSIZE(_heaps), _heaps);
 
 
 	// PSOとルートシグネチャセット
