@@ -41,7 +41,7 @@ namespace Engine::Graphics
 
 		void Init(
 			Resource::ShaderManager* a_pShaderMana,
-			RootSignatureManager* a_pRootSigMana,
+			D3D12::RootSignatureManager* a_pRootSigMana,
 			Engine::D3D12::GraphicsPSOManager* a_pPSOMana
 		);
 

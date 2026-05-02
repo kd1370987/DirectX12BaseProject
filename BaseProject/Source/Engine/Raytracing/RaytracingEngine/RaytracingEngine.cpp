@@ -16,7 +16,7 @@
 void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 {
 	// UAVバリア
-	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
+	auto* _pCmdList4 = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList4();
 	auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(m_outTex);
 
 	//// ステートチェンジ
@@ -115,7 +115,7 @@ void Engine::Raytracing::RayEngine::Dispatch(
 )
 {
 	// UAVバリア
-	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
+	auto* _pCmdList4 = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList4();
 	auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(a_outHandle);
 
 	// ステートチェンジ

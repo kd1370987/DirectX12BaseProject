@@ -9,7 +9,7 @@ namespace Engine::Raytracing
 	bool RayPSO::Init(const RayPSOInit& a_init)
 	{
 		// エラー出力
-		auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
+		auto* _pDevice5 = Engine::D3D12::D3D12Wrapper::Instance().GetDevice5();
 		ComPtr<ID3D12InfoQueue> infoQueue;
 		_pDevice5->QueryInterface(IID_PPV_ARGS(&infoQueue));
 
@@ -153,7 +153,7 @@ namespace Engine::Raytracing
 	bool RayPSO::Init(const RayPSODesc& a_desc)
 	{
 		// エラー出力
-		auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
+		auto* _pDevice5 = Engine::D3D12::D3D12Wrapper::Instance().GetDevice5();
 		ComPtr<ID3D12InfoQueue> infoQueue;
 		_pDevice5->QueryInterface(IID_PPV_ARGS(&infoQueue));
 

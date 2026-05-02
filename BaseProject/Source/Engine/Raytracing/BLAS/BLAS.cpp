@@ -26,8 +26,8 @@ void Engine::Raytracing::BLAS::Create(const VertexBuffer& a_vertexBuffer, const 
 void Engine::Raytracing::BLAS::Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_desc)
 {
 	// BLAS生成
-	auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
-	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
+	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
+	auto* _pCmdList4 = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 	m_geometryDescVec.clear();
 	m_geometryDescVec.push_back(a_desc);
 	Build(
@@ -40,8 +40,8 @@ void Engine::Raytracing::BLAS::Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_de
 void Engine::Raytracing::BLAS::Create(const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc)
 {
 	// BLAS生成
-	auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
-	auto* _pCmdList4 = D3D12Wrapper::Instance().GetCommandList4();
+	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
+	auto* _pCmdList4 = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 	m_geometryDescVec.clear();
 	m_geometryDescVec = a_desc;
 	Build(
@@ -59,7 +59,7 @@ bool Engine::Raytracing::BLAS::Build(
 )
 {
 	// コマンドキューリセット
-	D3D12Wrapper::Instance().CommandQueueReset();
+	D3D12::D3D12Wrapper::Instance().CommandQueueReset();
 
 	// スクラッチリソース構築
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS _inputs = {};
@@ -140,12 +140,12 @@ bool Engine::Raytracing::BLAS::Build(
 
 	// コマンドキューに積む
 	ID3D12CommandList* _ppCommandLists[] = { a_cmdList };
-	auto* _cmdQueue = D3D12Wrapper::Instance().GetCommandQueue();
+	auto* _cmdQueue = D3D12::D3D12Wrapper::Instance().GetCommandQueue();
 	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	// 終了待ち
-	D3D12Wrapper::Instance().SignalRenderFence();
-	D3D12Wrapper::Instance().WaitRender();
+	D3D12::D3D12Wrapper::Instance().SignalRenderFence();
+	D3D12::D3D12Wrapper::Instance().WaitRender();
 
 
 	return true;

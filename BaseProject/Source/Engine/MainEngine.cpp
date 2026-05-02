@@ -62,7 +62,7 @@ namespace Engine
 
 
 		// DirectX12関連オブジェクトの初期化
-		if (!D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), m_upWindow->GetClientWidth(), m_upWindow->GetClientHeight()))
+		if (!D3D12::D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), m_upWindow->GetClientWidth(), m_upWindow->GetClientHeight()))
 		{
 			assert(0 && "D3D12Wrapperの初期化失敗");
 			return;
@@ -76,7 +76,7 @@ namespace Engine
 		}
 
 		// バックバッファの生成
-		if (!D3D12Wrapper::Instance().CreateRenderTarget())
+		if (!D3D12::D3D12Wrapper::Instance().CreateRenderTarget())
 		{
 			assert(0 && "バックバッファの生成に失敗");
 			return;
@@ -104,7 +104,7 @@ namespace Engine
 		// GPU同期待ち
 		for (UINT _i = 0; _i < static_cast<UINT>(CPU_FRAME_COUNT); ++_i)
 		{
-			D3D12Wrapper::Instance().WaitRender(_i);
+			D3D12::D3D12Wrapper::Instance().WaitRender(_i);
 		}
 
 		// ImGui解放
@@ -114,7 +114,7 @@ namespace Engine
 		D3D12::DescriptorHeapManager::Instance().Release();
 
 		// 描画エンジン解放
-		D3D12Wrapper::Instance().Shutdown();
+		D3D12::D3D12Wrapper::Instance().Shutdown();
 
 		// タイムマネージャー解放
 		m_upTimeManager->Release();
@@ -167,12 +167,12 @@ namespace Engine
 	void MainEngine::BeginDraw()
 	{
 		// 描画開始
-		D3D12Wrapper::Instance().BeginFrame();
+		D3D12::D3D12Wrapper::Instance().BeginFrame();
 
 		// 描画フレームリソース
 		m_upGraphicsEngine->BegineFrame();
 
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();
 		// ディスクリプタヒープをセット
 		ID3D12DescriptorHeap* _heaps[] = {
 			m_upGraphicsEngine->GetRenderContext()->GetCBV_SRV_UAVHeap(),
@@ -182,7 +182,7 @@ namespace Engine
 
 	void MainEngine::EndDraw()
 	{
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();
 
 		// ゲームモード以外の処理
 		if (m_config.app.mode != EngineConfig::Application::Mode::Game)
@@ -193,12 +193,12 @@ namespace Engine
 			};
 			_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 			// エディター描画
-			Engine::Editor::MainEditor::Instance().Draw(D3D12Wrapper::Instance().GetCommandList(),m_upWindow->GetClientWidth(),m_upWindow->GetClientHeight());
+			Engine::Editor::MainEditor::Instance().Draw(D3D12::D3D12Wrapper::Instance().GetCommandList(),m_upWindow->GetClientWidth(),m_upWindow->GetClientHeight());
 		}
 
 
 		// 描画終了
-		D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.isVsync);
+		D3D12::D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.isVsync);
 	}
 
 	float MainEngine::GetDeltaTime()

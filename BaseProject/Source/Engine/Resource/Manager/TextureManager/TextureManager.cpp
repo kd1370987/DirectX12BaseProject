@@ -135,7 +135,7 @@ namespace Engine::Resource
 
 	void TextureManager::CreateView(const Handle<Texture>& a_outTex)
 	{
-		auto* _pDev = D3D12Wrapper::Instance().GetDevice();
+		auto* _pDev = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 		auto& _tex = RefTexture(a_outTex);
 		auto _usage = _tex.GetUsage();
 		if (HasFlag(_usage, TextureUsage::RTV))

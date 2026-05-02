@@ -102,11 +102,11 @@ namespace Engine::Raytracing
 
 		ComPtr<ID3D12StateObject> m_cpPSO;
 
-		RootSignature m_rootSig;
+		D3D12::RootSignature m_rootSig;
 
-		RootSignature m_rayGenRootSig;
-		RootSignature m_hitRootSig;
-		RootSignature m_emptyRootSig;
+		D3D12::RootSignature m_rayGenRootSig;
+		D3D12::RootSignature m_hitRootSig;
+		D3D12::RootSignature m_emptyRootSig;
 
 		Resource::ShaderLibrary m_shader;
 	};

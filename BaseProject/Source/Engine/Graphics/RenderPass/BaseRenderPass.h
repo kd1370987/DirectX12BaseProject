@@ -4,10 +4,10 @@ namespace Engine::Resource
 	class ShaderManager;
 }
 
-class RootSignatureManager;
 namespace Engine::D3D12
 {
 	class GraphicsPSOManager;
+	class RootSignatureManager;
 }
 namespace Engine::Graphics
 {
@@ -20,7 +20,7 @@ namespace Engine::Graphics
 	{
 		RenderGraph* pRG = nullptr;
 		Resource::ShaderManager* pShaderMana = nullptr;
-		RootSignatureManager* pRootSigMana = nullptr;
+		D3D12::RootSignatureManager* pRootSigMana = nullptr;
 		Engine::D3D12::GraphicsPSOManager* pPSOMana = nullptr;
 	};
 
@@ -76,7 +76,7 @@ namespace Engine::Graphics
 		// マネージャーやオーナーのキャッシュ
 		RenderGraph* m_pRG = nullptr;
 		Resource::ShaderManager* m_pShaderMana = nullptr;
-		RootSignatureManager* m_pRootSigMana = nullptr;
-		Engine::D3D12::GraphicsPSOManager* m_pPSOMana = nullptr;
+		D3D12::RootSignatureManager* m_pRootSigMana = nullptr;
+		D3D12::GraphicsPSOManager* m_pPSOMana = nullptr;
 	};
 }

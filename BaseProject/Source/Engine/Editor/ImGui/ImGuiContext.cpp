@@ -14,7 +14,7 @@ namespace Engine::Editor
 {
 	bool ImGuiContext::Init(HWND a_hwnd)
 	{
-		auto& _pD3DWrapper = D3D12Wrapper::Instance();
+		auto& _pD3DWrapper = Engine::D3D12::D3D12Wrapper::Instance();
 		auto& _pDescriptorManager = D3D12::DescriptorHeapManager::Instance();
 
 		// メインモニターのスケールとDPI作成

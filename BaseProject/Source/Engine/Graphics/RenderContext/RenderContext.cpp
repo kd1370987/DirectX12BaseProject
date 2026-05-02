@@ -10,6 +10,8 @@
 #include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
 
+#include "Engine/D3D12//D3DObject/CommandList/CommandList.h"
+
 #include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
 #include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
@@ -90,7 +92,9 @@ namespace Engine::Graphics
 	{
 		Clear();
 
-		m_pCmdList = a_desc.pCmdList;
+		//m_pCmdList = a_desc.pCmdList;
+		m_pCmdList = a_desc.pCmdListClass;
+		
 	}
 
 	void RenderContext::Clear()
@@ -161,19 +165,13 @@ namespace Engine::Graphics
 		UINT _regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::CameraCB);
 
-		//// ディスクリプタヒープをセット
-		//ID3D12DescriptorHeap* _heaps[] = {
-		//		DescriptorHeapManager::Instance().GetCBV_SRV_UAVHeap()
-		//};
-		//m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
-
 
 		// ルートシグネチャにカメラCBが含まれているのなら
-		if (ERR_UINT != _regiIdx)
+		if (D3D12::ERR_UINT != _regiIdx)
 		{
 			// カメラ用定数バッファに転送
 			BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
-				m_pCmdList,
+				m_pCmdList->NGet(),
 				_regiIdx,
 				m_cb0_camera
 			);
@@ -182,10 +180,10 @@ namespace Engine::Graphics
 		// 環境
 		_regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::AmbientCB);
-		if (ERR_UINT != _regiIdx)
+		if (D3D12::ERR_UINT != _regiIdx)
 		{
 			BindCB()->BindSemanticCBV<RootSigSemantic::AmbientCB>(
-				m_pCmdList,
+				m_pCmdList->NGet(),
 				_regiIdx,
 				m_cb5_Ambient
 			);
@@ -223,7 +221,7 @@ namespace Engine::Graphics
 		}
 
 		// チェンジ
-		m_pCmdList->OMSetRenderTargets(
+		m_pCmdList->NGet()->OMSetRenderTargets(
 			static_cast<UINT>(std::size(_rtvCPUVec)),
 			_rtvCPUVec.data(),
 			false,
@@ -231,7 +229,7 @@ namespace Engine::Graphics
 		);
 
 		// ビューポートとシザー矩形をセット
-		D3D12Wrapper::Instance().SetViewportAndRect();
+		D3D12::D3D12Wrapper::Instance().SetViewportAndRect();
 	}
 
 	void RenderContext::BindSRV(
@@ -261,7 +259,7 @@ namespace Engine::Graphics
 
 
 		// SRVセット
-		if (ERR_UINT != _regiIdx)
+		if (D3D12::ERR_UINT != _regiIdx)
 		{
 			BindSRV(_regiIdx,a_srvHandle);
 		}
@@ -273,7 +271,7 @@ namespace Engine::Graphics
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
 
 		// SRVセット
-		if (ERR_UINT != _regiIdx)
+		if (D3D12::ERR_UINT != _regiIdx)
 		{
 			BindSRV(_regiIdx, a_cpuHandle);
 		}
@@ -306,7 +304,7 @@ namespace Engine::Graphics
 		}
 
 		// コマンドリストにバインド
-		m_pCmdList->SetGraphicsRootDescriptorTable(
+		m_pCmdList->NGet()->SetGraphicsRootDescriptorTable(
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
 		);
@@ -332,7 +330,7 @@ namespace Engine::Graphics
 		);
 
 		// コマンドリストにバインド
-		m_pCmdList->SetGraphicsRootDescriptorTable(
+		m_pCmdList->NGet()->SetGraphicsRootDescriptorTable(
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
 		);
@@ -358,7 +356,7 @@ namespace Engine::Graphics
 		);
 
 		// コマンドリストにバインド
-		auto _pCmd = D3D12Wrapper::Instance().GetCommandList4();
+		auto _pCmd = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 		_pCmd->SetComputeRootDescriptorTable(
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
@@ -380,14 +378,14 @@ namespace Engine::Graphics
 		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetRTV());
 
 		// CPUハンドルと、テクスチャ作成時のクリアバリューをセット
-		D3D12Wrapper::Instance().ClearRenderTargetView(_cpu,_tex.GetClearColor());
+		D3D12::D3D12Wrapper::Instance().ClearRenderTargetView(_cpu,_tex.GetClearColor());
 	}
 
 
 	void RenderContext::ClearDSV(const Resource::Handle<D3D12::DSV>& a_DSVHandle)
 	{
 		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_DSVHandle);
-		D3D12Wrapper::Instance().ClearDepthStencilView(_cpu);
+		D3D12::D3D12Wrapper::Instance().ClearDepthStencilView(_cpu);
 	}
 
 
@@ -402,7 +400,7 @@ namespace Engine::Graphics
 		ID3D12DescriptorHeap* _heaps[] = {
 			m_copyHeap.GetHeap()
 		};
-		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+		m_pCmdList->Get4()->SetDescriptorHeaps(std::size(_heaps), _heaps);
 	}
 
 
@@ -468,7 +466,7 @@ namespace Engine::Graphics
 		// ルートシグネチャセット
 		if (a_rootSigID != m_currentRootSigID)
 		{
-			m_pCmdList->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
+			m_pCmdList->NGet()->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
 			m_currentRootSigID = a_rootSigID;
 		}
 	}
@@ -478,12 +476,12 @@ namespace Engine::Graphics
 		// パイプラインステートセット
 		if (a_handle != m_currentPSOID)
 		{
-			m_pCmdList->SetPipelineState(m_pGraphicsPSOManager->Ref(a_handle));
+			m_pCmdList->NGet()->SetPipelineState(m_pGraphicsPSOManager->Ref(a_handle));
 			m_currentPSOID = a_handle;
 		}
 
 		// プリミティブトポロジーセット
-		m_pCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pCmdList->NGet()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 
 	void RenderContext::BindObuje(const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)
@@ -494,7 +492,7 @@ namespace Engine::Graphics
 		m_cb1_object.uvOffsetTiling.w = a_tile.y;
 
 		BindCB()->BindAndAttachDataRootCBV<CBObject>(
-			m_pCmdList,
+			m_pCmdList->NGet(),
 			1,
 			m_cb1_object
 		);
@@ -522,7 +520,7 @@ namespace Engine::Graphics
 
 		// マテリアルバッファバインド
 		BindCB()->BindAndAttachDataRootCBV<CBMaterial>(
-			m_pCmdList,
+			m_pCmdList->NGet(),
 			3,
 			m_cb3_Material
 		);
@@ -547,15 +545,15 @@ namespace Engine::Graphics
 		UINT _regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MeshTransCB);
 		BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
-			m_pCmdList,
+			m_pCmdList->NGet(),
 			_regiIdx,
 			m_cb2_MeshTrans
 		);
 
 		if (a_pMesh != m_pCurrentMesh)
 		{
-			m_pCmdList->IASetVertexBuffers(0, 1, &a_pMesh->GetVertexBuffer().View());
-			m_pCmdList->IASetIndexBuffer(&a_pMesh->GetIndexBuffer().View());
+			m_pCmdList->NGet()->IASetVertexBuffers(0, 1, &a_pMesh->GetVertexBuffer().View());
+			m_pCmdList->NGet()->IASetIndexBuffer(&a_pMesh->GetIndexBuffer().View());
 			m_pCurrentMesh = a_pMesh;
 		}
 	}
@@ -567,7 +565,7 @@ namespace Engine::Graphics
 		UINT _regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialIndexCB);
 		BindCB()->BindAndAttachDataRootCBV<CBMaterialIndex>(
-			m_pCmdList,
+			m_pCmdList->NGet(),
 			_regiIdx,
 			_s
 		);
@@ -588,7 +586,7 @@ namespace Engine::Graphics
 		
 		// バッファにコピー
 		BindCB()->BindAndAttachDataRootCBV<CBBone>(
-			m_pCmdList,
+			m_pCmdList->NGet(),
 			_regiIdx,
 			m_cb4_Bone
 		);
@@ -599,7 +597,7 @@ namespace Engine::Graphics
 		// 描画
 		UINT _faceCount = static_cast<UINT>(a_pMesh->GetSubsets()[a_subIdx].faceCount);
 		UINT _faceStart = static_cast<UINT>(a_pMesh->GetSubsets()[a_subIdx].faceStart);
-		m_pCmdList->DrawIndexedInstanced(
+		m_pCmdList->NGet()->DrawIndexedInstanced(
 			_faceCount * 3, 1, _faceStart * 3, 0, 0
 		);
 	}
@@ -616,7 +614,7 @@ namespace Engine::Graphics
 		D3D12_RESOURCE_STATES a_after
 	)
 	{
-		D3D12Wrapper::Instance().ResourceBarrier(
+		D3D12::D3D12Wrapper::Instance().ResourceBarrier(
 			a_pResource,
 			a_before,
 			a_after
@@ -626,13 +624,13 @@ namespace Engine::Graphics
 	void RenderContext::ChangeBackBuffer()
 	{
 		// レンダーターゲットをバックバッファへ切り替える
-		D3D12Wrapper::Instance().SetBackBuffer();
+		D3D12::D3D12Wrapper::Instance().SetBackBuffer();
 	}
 
 	void RenderContext::DrawQuad()
 	{
 		// コマンドリストの取得
-		m_pCmdList->DrawInstanced(
+		m_pCmdList->NGet()->DrawInstanced(
 			3, 1, 0, 0
 		);
 	}
@@ -677,7 +675,7 @@ namespace Engine::Graphics
 			m_cbUI.color = _item.colorScale;
 
 			BindCB()->BindAndAttachDataRootCBV<CBUI>(
-				m_pCmdList,
+				m_pCmdList->NGet(),
 				0,
 				m_cbUI
 			);
@@ -691,14 +689,14 @@ namespace Engine::Graphics
 			// メッシュ変換行列の転送
 			if (m_pCurrentPoly != m_spQuadPolygon.get())
 			{
-				m_pCmdList->IASetVertexBuffers(0, 1, &m_spQuadPolygon->GetVBView());
-				m_pCmdList->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
+				m_pCmdList->NGet()->IASetVertexBuffers(0, 1, &m_spQuadPolygon->GetVBView());
+				m_pCmdList->NGet()->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
 
 				m_pCurrentPoly = m_spQuadPolygon.get();
 			}
 
 			// 描画
-			m_pCmdList->DrawIndexedInstanced(
+			m_pCmdList->NGet()->DrawIndexedInstanced(
 				6, 1, 0, 0, 0
 			);
 		}
@@ -713,7 +711,7 @@ namespace Engine::Graphics
 	void RenderContext::SetPrimitive(D3D_PRIMITIVE_TOPOLOGY a_topology)
 	{
 		// プリミティブトポロジーセット
-		m_pCmdList->IASetPrimitiveTopology(a_topology);
+		m_pCmdList->NGet()->IASetPrimitiveTopology(a_topology);
 	}
 
 	void RenderContext::SetRasterizerFillMode(D3D12_FILL_MODE a_fillMode)
@@ -724,17 +722,17 @@ namespace Engine::Graphics
 	void RenderContext::ShapeDraw()
 	{
 		// フレーム情報
-		auto _currentIdx = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+		auto _currentIdx = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 
 		// フレーム頂点バッファ更新
 		UINT _vertexCount = static_cast<UINT>(m_pShapeDraw->GetVertexVec().size());
 		m_shapeVertexBuffer.Update(_vertexCount,m_pShapeDraw->GetVertexVec().data());
 
 		// 頂点バッファ送信
-		m_pCmdList->IASetVertexBuffers(0, 1, &m_shapeVertexBuffer.View());
+		m_pCmdList->NGet()->IASetVertexBuffers(0, 1, &m_shapeVertexBuffer.View());
 
 		// 描画
-		m_pCmdList->DrawInstanced(_vertexCount, 1, 0, 0);
+		m_pCmdList->NGet()->DrawInstanced(_vertexCount, 1, 0, 0);
 	}
 
 	RenderContext::RenderContext()

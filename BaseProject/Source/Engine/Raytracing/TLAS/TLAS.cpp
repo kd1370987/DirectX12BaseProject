@@ -7,9 +7,9 @@
 void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
 {
 	// コマンドキューリセット
-	D3D12Wrapper::Instance().CommandQueueReset();
-	auto* _pDevice5 = D3D12Wrapper::Instance().GetDevice5();
-	ID3D12GraphicsCommandList4* _pCmdList = D3D12Wrapper::Instance().GetCommandList4();
+	D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
+	ID3D12GraphicsCommandList4* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 
 	// 参照
 	uint64_t _tlasSize;
@@ -144,25 +144,25 @@ void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
 
 	// コマンドキューに積む
 	ID3D12CommandList* _ppCommandLists[] = { _pCmdList };
-	auto* _cmdQueue = D3D12Wrapper::Instance().GetCommandQueue();
+	auto* _cmdQueue = D3D12::D3D12Wrapper::Instance().GetCommandQueue();
 	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	// 終了待ち
-	D3D12Wrapper::Instance().SignalRenderFence();
-	D3D12Wrapper::Instance().WaitRender();
+	D3D12::D3D12Wrapper::Instance().SignalRenderFence();
+	D3D12::D3D12Wrapper::Instance().WaitRender();
 
 	// SRVとして登録
 	D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
 	_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
 	_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	_srvDesc.RaytracingAccelerationStructure.Location = GetGPUAddress();
-	m_srvHandle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(D3D12Wrapper::Instance().GetDevice(),nullptr,&_srvDesc);
+	m_srvHandle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(D3D12::D3D12Wrapper::Instance().GetDevice(),nullptr,&_srvDesc);
 
 }
 
 void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec)
 {
-	ID3D12GraphicsCommandList4* _pCmdList = D3D12Wrapper::Instance().GetCommandList4();
+	ID3D12GraphicsCommandList4* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 
 	// インスタンスバッファ構造体更新
 	for (int _i = 0; _i < a_instanceVec.size(); ++_i)

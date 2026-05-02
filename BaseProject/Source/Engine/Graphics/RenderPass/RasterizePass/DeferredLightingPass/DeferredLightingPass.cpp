@@ -30,7 +30,7 @@ namespace Engine::Graphics
 			_gpuVec
 		);
 
-		auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 
 		// 描画
 		_pCmdList->DrawInstanced(

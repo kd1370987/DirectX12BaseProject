@@ -104,8 +104,8 @@ bool Engine::Resource::Mesh::CreateFloat(
 	m_vertexData = a_vertices;
 
 	// 構造体バッファ作成
-	auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
-	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
+	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 	std::vector<RTVertex> _rtVertDataVec = {};
 	for (auto& _vert : a_vertices)
 	{
@@ -116,7 +116,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 	// 頂点バッファー側SRV作成
 	m_sVertexBuffer.Create(_pDevice,_pCmdList, _rtVertDataVec.size(),_rtVertDataVec.data());
 	auto _handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-		D3D12Wrapper::Instance().GetDevice(),
+		Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
 		m_sVertexBuffer.GetResource(),
 		m_sVertexBuffer.GetViewDesc()
 	);
@@ -125,14 +125,14 @@ bool Engine::Resource::Mesh::CreateFloat(
 	// インデックスバッファー側SRV作成
 	m_sIndexBuffer.Create(_pDevice,_pCmdList,m_indexData.size(),m_indexData.data());
 	_handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-		D3D12Wrapper::Instance().GetDevice(),
+		Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
 		m_sIndexBuffer.GetResource(),
 		m_sIndexBuffer.GetViewDesc()
 	);
 	m_sIndexBuffer.SetHandle(_handle);
 
 	// コマンドキューリセット
-	D3D12Wrapper::Instance().CommandQueueReset();
+	Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
 
 	m_sVertexBuffer.Update(_pDevice, _pCmdList);
 	m_sIndexBuffer.Update(_pDevice,_pCmdList);
@@ -142,12 +142,12 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 	// コマンドキューに積む
 	ID3D12CommandList* _ppCommandLists[] = { _pCmdList };
-	auto* _cmdQueue = D3D12Wrapper::Instance().GetCommandQueue();
+	auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCommandQueue();
 	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	// 終了待ち
-	D3D12Wrapper::Instance().SignalRenderFence();
-	D3D12Wrapper::Instance().WaitRender();
+	Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
+	Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
 
 	return true;
 }

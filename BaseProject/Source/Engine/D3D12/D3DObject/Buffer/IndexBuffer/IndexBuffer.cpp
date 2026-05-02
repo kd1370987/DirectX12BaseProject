@@ -19,7 +19,7 @@ bool IndexBuffer::Create(
 	D3D12_RESOURCE_DESC _desc = CD3DX12_RESOURCE_DESC::Buffer(_bufferSize);	// リソースの設定
 
 	// リソースを生成
-	auto _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
+	auto _hr = Engine::D3D12::D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_prop,										// ヒートプロパティ
 		D3D12_HEAP_FLAG_NONE,						// ヒープフラグ
 		&_desc,										// リソース記述子（サイズ、フォーマット）
@@ -77,7 +77,7 @@ void IndexBuffer::CreateSRV()
 	_desc.Buffer.StructureByteStride = m_stride;
 	_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
-	auto _pDev = D3D12Wrapper::Instance().GetDevice();
+	auto _pDev = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 	m_srvHandle = Engine::D3D12::DescriptorHeapManager::Instance().Allocate<Engine::D3D12::SRV>(_pDev,m_pBuffer.Get(),&_desc);
 }
 

@@ -14,7 +14,7 @@ bool Engine::D3D12Buffer::GPUBuffer::Create(
 	auto _desc = CD3DX12_RESOURCE_DESC::Buffer(a_bufferSize);
 
 	// リソースの生成
-	HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
+	HRESULT _hr = Engine::D3D12::D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_prop,
 		D3D12_HEAP_FLAG_NONE,
 		&_desc,

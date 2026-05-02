@@ -25,8 +25,8 @@ void Engine::Raytracing::RayWorld::Register(
 )
 {
 	// レイワールドにインスタンスを登録する処理
-	auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
-	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
+	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 
 	// モデルのノードとメッシュを参照してインスタンスに変換
 	//auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(a_modelHandle);
@@ -80,14 +80,14 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 		_instanceDataVec.push_back(_data);
 	}
 
-	auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
-	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
+	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 
 	// インスタンスデータ作成
 	m_instanceDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _instanceDataVec.data());
 
 	auto _handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-		D3D12Wrapper::Instance().GetDevice(),
+		Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
 		m_instanceDataBuffer.GetResource(),
 		m_instanceDataBuffer.GetViewDesc()
 	);
@@ -112,7 +112,7 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 	m_materialDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _materialVec.data());
 
 	_handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-		D3D12Wrapper::Instance().GetDevice(),
+		Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
 		m_materialDataBuffer.GetResource(),
 		m_materialDataBuffer.GetViewDesc()
 	);
@@ -122,8 +122,8 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 
 void Engine::Raytracing::RayWorld::Commit()
 {
-	auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
-	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
+	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 
 	// TLAS更新
 	m_upTLAS->Update(m_instanceVec);

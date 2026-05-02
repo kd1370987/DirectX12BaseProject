@@ -1,29 +1,24 @@
 ﻿#pragma once
 
-class Viewport
+namespace Engine::D3D12
 {
-public:
+	class Viewport
+	{
+	public:
 
-	/// <summary>
-	/// ビューポート作成
-	/// </summary>
-	/// <param name="a_frameBufferWidth">幅</param>
-	/// <param name="a_frameBufferHeight">高さ</param>
-	void Create(
-		UINT a_frameBufferWidth,
-		UINT a_frameBufferHeight
-	);
+		// ビューポート作成
+		// 画面サイズを入力
+		void Create(
+			float a_windowWidth,
+			float a_windowHeight
+		);
 
-	/// <summary>
-	/// ビューポート取得
-	/// </summary>
-	/// <returns>ビューポート</returns>
-	const D3D12_VIEWPORT& Get() const 
-	{ 
-		return m_viewport; 
-	}
+		// 取得
+		const D3D12_VIEWPORT& Get() const;
 
-private:
+	private:
 
-	D3D12_VIEWPORT m_viewport = {};
-};
+		// ビューポート
+		D3D12_VIEWPORT m_viewport = {};
+	};
+}

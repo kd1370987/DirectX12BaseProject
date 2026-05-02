@@ -60,7 +60,7 @@ ComPtr<ID3D12Resource> Engine::Resource::CreateTexture(
 	}
 
 	// リソース作成
-	HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
+	HRESULT _hr = Engine::D3D12::D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&_desc,

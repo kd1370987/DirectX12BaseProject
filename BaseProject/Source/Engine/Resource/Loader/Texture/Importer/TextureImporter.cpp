@@ -7,10 +7,10 @@
 void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBuffer& a_uploadBuffer)
 {
 	// コマンドリストを取得
-	auto* _pCmdList = D3D12Wrapper::Instance().GetCommandList();
+	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 
 	// コマンドキューリセット
-	D3D12Wrapper::Instance().CommandQueueReset();
+	Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
 
 	for (UINT _i = 0; _i < a_uploadBuffer.subresourceCount; ++_i)
 	{
@@ -53,12 +53,12 @@ void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBu
 
 	// コマンドキューに積む
 	ID3D12CommandList* _ppCommandLists[] = { _pCmdList };
-	auto* _cmdQueue = D3D12Wrapper::Instance().GetCommandQueue();
+	auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCommandQueue();
 	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	// 終了待ち
-	D3D12Wrapper::Instance().SignalRenderFence();
-	D3D12Wrapper::Instance().WaitRender();
+	Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
+	Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
 }
 
 Engine::Resource::UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)
@@ -74,7 +74,7 @@ Engine::Resource::UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_tex
 
 	// サイズ計算
 	UINT64 _uploadSize = 0;
-	D3D12Wrapper::Instance().GetDevice()->GetCopyableFootprints(
+	Engine::D3D12::D3D12Wrapper::Instance().GetDevice()->GetCopyableFootprints(
 		&a_texDesc,
 		0,
 		_uploadBuffer.subresourceCount,
@@ -110,7 +110,7 @@ Engine::Resource::UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_tex
 	_desc.SampleDesc.Quality = 0;
 
 	// リソース生成（中間バッファ）
-	HRESULT _hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
+	HRESULT _hr = Engine::D3D12::D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,					// 特に指定はなし
 		&_desc,
@@ -156,7 +156,7 @@ bool BuildFromScratchiImage(
 	_texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 	
 	// リソース生成（テクスチャ）
-	_hr = D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
+	_hr = Engine::D3D12::D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 		&_texHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&_texDesc,

@@ -1,29 +1,24 @@
 ﻿#pragma once
 
-class ScissorRectangle
+namespace Engine::D3D12
 {
-public:
-
-	/// <summary>
-	/// シザー矩形作成
-	/// </summary>
-	/// <param name="a_frameBufferWidth">横幅</param>
-	/// <param name="a_frameBufferHegiht">縦</param>
-	void Create(
-		UINT a_frameBufferWidth, 
-		UINT a_frameBufferHeight
-	);
-
-	/// <summary>
-	/// シザー矩形参照
-	/// </summary>
-	/// <returns>シザー矩形アドレス</returns>
-	const D3D12_RECT& Get() const 
+	// シザー矩形
+	class ScissorRectangle
 	{
-		return m_scissorRectangle; 
-	}
+	public:
 
-private:
+		// 作成
+		void Create(
+			UINT a_frameBufferWidth,
+			UINT a_frameBufferHeight
+		);
 
-	D3D12_RECT m_scissorRectangle = {};
-};
+		// 取得
+		const D3D12_RECT& Get() const;
+
+	private:
+
+		D3D12_RECT m_scissorRectangle = {};
+	};
+
+}

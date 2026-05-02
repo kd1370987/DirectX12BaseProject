@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-class RootSignature;
-class RootSignatureManager;
 
 class CBAllocater;
 
@@ -14,6 +12,9 @@ namespace Engine::Resource
 namespace Engine::D3D12
 {
 	class GraphicsPSOManager;
+	class CommandList;
+	class RootSignature;
+	class RootSignatureManager;
 }
 
 namespace Engine::Graphics
@@ -77,10 +78,10 @@ namespace Engine::Graphics
 		ID3D12Device* pDevice = nullptr;
 
 		// クラスのキャッシュ
-		Resource::ShaderManager*			pShaderMana		= nullptr;
-		RootSignatureManager*				pRootSigMana	= nullptr;
-		Engine::D3D12::GraphicsPSOManager*	pPSOMana		= nullptr;
-		ShapeRenderer*						pShapeRender	= nullptr;
+		Resource::ShaderManager*		pShaderMana		= nullptr;
+		D3D12::RootSignatureManager*	pRootSigMana	= nullptr;
+		D3D12::GraphicsPSOManager*		pPSOMana		= nullptr;
+		ShapeRenderer*					pShapeRender	= nullptr;
 
 		// アロケーターのメモリ容量
 		size_t cbAllocatorMemSize = 32 * 1024 * 1024;
@@ -90,6 +91,7 @@ namespace Engine::Graphics
 	struct FrameDesc
 	{
 		ID3D12GraphicsCommandList* pCmdList = nullptr;
+		D3D12::CommandList* pCmdListClass = nullptr;
 	};
 	
 	// 現在のフレームの描画管理クラス
@@ -272,7 +274,7 @@ namespace Engine::Graphics
 
 		// マネージャー
 		Resource::ShaderManager*			m_pShaderManger			= nullptr;
-		RootSignatureManager*				m_pRootSigManager		= nullptr;
+		D3D12::RootSignatureManager*				m_pRootSigManager		= nullptr;
 		Engine::D3D12::GraphicsPSOManager*	m_pGraphicsPSOManager	= nullptr;
 
 		// 形状描画クラス
@@ -283,8 +285,9 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// フレーム限定リソース
 		//--------------------------------------------------------------------------------------------
-		ID3D12GraphicsCommandList* m_pCmdList = nullptr;		// フレームごとにもらい受ける
+		//ID3D12GraphicsCommandList* m_pCmdList = nullptr;		// フレームごとにもらい受ける
 		std::unique_ptr<CBAllocater> m_upCBAllocater = nullptr;	// 定数バッファアロケーター
+		D3D12::CommandList* m_pCmdList = nullptr;
 		// コピー用ヒープ
 		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV> m_copyHeap = {};
 		UINT m_currentHeapOffset = 0;

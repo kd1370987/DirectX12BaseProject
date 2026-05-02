@@ -40,7 +40,7 @@ namespace Engine::Graphics
 			auto _upCtx = std::make_unique<RenderContext>();
 
 			RenderContextDesc _desc = {};
-			_desc.pDevice = D3D12Wrapper::Instance().GetDevice();
+			_desc.pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
 			_desc.pShaderMana = m_upShaderManager.get();
 			_desc.pRootSigMana = m_upRootSignatureManager.get();
@@ -73,9 +73,10 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::BegineFrame()
 	{
-		m_currentFrameIndex = D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+		m_currentFrameIndex = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 		FrameDesc _desc;
-		_desc.pCmdList = D3D12Wrapper::Instance().GetCommandList();
+		_desc.pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();
+		_desc.pCmdListClass = D3D12::D3D12Wrapper::Instance().GetCmdList();
 		m_upRenderContextVec[m_currentFrameIndex]->Begine(_desc);
 	}
 	void GraphicsEngine::EndFrame()
@@ -95,7 +96,7 @@ namespace Engine::Graphics
 	void GraphicsEngine::CreateManager()
 	{
 		// デバイス取得
-		auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
 		// シェーダーマネージャー
 		m_upShaderManager = std::make_unique<Resource::ShaderManager>();
@@ -105,7 +106,7 @@ namespace Engine::Graphics
 		m_upGrahicsPSOManager->Init(_pDevice);
 
 		// ルートシグネチャマネージャー
-		m_upRootSignatureManager = std::make_unique<RootSignatureManager>();
+		m_upRootSignatureManager = std::make_unique<D3D12::RootSignatureManager>();
 		m_upRootSignatureManager->Init(100);
 	}
 	void GraphicsEngine::RootSigDefinition()

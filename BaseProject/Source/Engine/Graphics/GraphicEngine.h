@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-class RootSignatureManager;
 
 namespace Engine
 {
@@ -12,6 +11,7 @@ namespace Engine
 	namespace D3D12
 	{
 		class GraphicsPSOManager;
+		class RootSignatureManager;
 	}
 }
 
@@ -69,7 +69,7 @@ namespace Engine::Graphics
 		// マネージャー
 		std::unique_ptr<Resource::ShaderManager>	m_upShaderManager = nullptr;		// シェーダー管理
 		std::unique_ptr<D3D12::GraphicsPSOManager>	m_upGrahicsPSOManager = nullptr;	// PSO管理
-		std::unique_ptr<RootSignatureManager>		m_upRootSignatureManager = nullptr;	// ルートシグネチャ管理
+		std::unique_ptr<D3D12::RootSignatureManager>		m_upRootSignatureManager = nullptr;	// ルートシグネチャ管理
 
 		// 形状描画クラス
 		std::unique_ptr<ShapeRenderer> m_upShapeRender = nullptr;

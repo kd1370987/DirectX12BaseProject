@@ -31,7 +31,7 @@ void Engine::Raytracing::ShaderTable::Init(const ShaderTableInit& a_shaderInit)
 	auto _heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
 	// シェーダーテーブル作成
-	auto* _pDevice = D3D12Wrapper::Instance().GetDevice5();
+	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice5();
 	auto _hr = _pDevice->CreateCommittedResource(
 		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,
