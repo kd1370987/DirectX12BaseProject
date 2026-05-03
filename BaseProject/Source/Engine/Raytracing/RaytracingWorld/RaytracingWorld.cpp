@@ -148,7 +148,17 @@ D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRV()
 	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_instanceDataBuffer.GetHandle());
 }
 
+D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRVCPU()
+{
+	return D3D12::DescriptorHeapManager::Instance().GetCPU(m_instanceDataBuffer.GetHandle());
+}
+
 D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRV()
 {
 	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_materialDataBuffer.GetHandle());
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRVCPU()
+{
+	return D3D12::DescriptorHeapManager::Instance().GetCPU(m_materialDataBuffer.GetHandle());
 }

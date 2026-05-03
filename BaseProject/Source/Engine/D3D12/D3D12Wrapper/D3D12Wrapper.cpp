@@ -378,7 +378,7 @@ namespace Engine::D3D12
 		);
 
 		// レンダーターゲットを設定
-		m_upCommandList->SetRenderTarget(
+		m_upCommandList->OMSetRenderTargets(
 			1,
 			&_cpuHandle,
 			FALSE,

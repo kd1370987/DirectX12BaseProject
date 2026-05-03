@@ -29,8 +29,10 @@ namespace Engine::Raytracing
 
 		// インスタンス配列取得
 		D3D12_GPU_DESCRIPTOR_HANDLE GetInstanceDataSRV();
+		D3D12_CPU_DESCRIPTOR_HANDLE GetInstanceDataSRVCPU();
 
 		D3D12_GPU_DESCRIPTOR_HANDLE GetMaterialSRV();
+		D3D12_CPU_DESCRIPTOR_HANDLE GetMaterialSRVCPU();
 
 		// インスタンス取得
 		const std::vector<Instance>& GetInstnace() const { return m_instanceVec; }

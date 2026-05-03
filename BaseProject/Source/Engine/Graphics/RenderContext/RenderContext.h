@@ -114,6 +114,9 @@ namespace Engine::Graphics
 
 		ID3D12DescriptorHeap* GetCBV_SRV_UAVHeap() const;
 
+		// 現在のコマンドリストを取得
+		D3D12::CommandList* GetCurrentCmdList();
+
 		//--------------------------------------------------------------------------------------------
 		// カメラ関係
 		//--------------------------------------------------------------------------------------------
@@ -153,6 +156,9 @@ namespace Engine::Graphics
 
 		// UAV
 		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
+
+		// 直接GPUアドレスを取得
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
 
 		// レンダーターゲットのクリア
 		void ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle);

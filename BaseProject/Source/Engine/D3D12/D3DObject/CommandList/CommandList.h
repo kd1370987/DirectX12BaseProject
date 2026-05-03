@@ -88,9 +88,22 @@ namespace Engine::D3D12
 		);
 
 		// ルートシグネチャをセット
-		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);
+		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);		// グラフィック
+		void SetComputeRootSignature(ID3D12RootSignature* a_pRootSignature);// コンピュート
 
+		// パイプラインステートをセット
+		void SetPipelineState1(ID3D12StateObject* a_pStateObject);
+
+		// コンピュートにSRVをセット
+		void SetComputeRootShaderResourceView(UINT a_rootParamIdx,D3D12_GPU_VIRTUAL_ADDRESS a_location);
+
+		// ディスクリプタテーブルのセット
+		void SetComputeRootDescriptorTable(UINT a_rootParamIdx,D3D12_GPU_DESCRIPTOR_HANDLE a_baseDescriptor);
+
+		// ディスパッチレイ
+		void DispatchRays(const D3D12_DISPATCH_RAYS_DESC* a_pDesc);
 		
+
 		/// <summary>
 		/// レンダーターゲットをセット
 		/// <summary>

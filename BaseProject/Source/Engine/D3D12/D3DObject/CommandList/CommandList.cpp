@@ -82,6 +82,31 @@ namespace Engine::D3D12
 		m_cpCommandList->SetGraphicsRootSignature(a_pRootSig);
 	}
 
+	void CommandList::SetComputeRootSignature(ID3D12RootSignature* a_pRootSignature)
+	{
+		m_cpCommandList->SetComputeRootSignature(a_pRootSignature);
+	}
+
+	void CommandList::SetPipelineState1(ID3D12StateObject* a_pStateObject)
+	{
+		m_cpCommandList->SetPipelineState1(a_pStateObject);
+	}
+
+	void CommandList::SetComputeRootShaderResourceView(UINT a_rootParamIdx, D3D12_GPU_VIRTUAL_ADDRESS a_location)
+	{
+		m_cpCommandList->SetComputeRootShaderResourceView(a_rootParamIdx,a_location);
+	}
+
+	void CommandList::SetComputeRootDescriptorTable(UINT a_rootParamIdx, D3D12_GPU_DESCRIPTOR_HANDLE a_baseDescriptor)
+	{
+		m_cpCommandList->SetComputeRootDescriptorTable(a_rootParamIdx,a_baseDescriptor);
+	}
+
+	void CommandList::DispatchRays(const D3D12_DISPATCH_RAYS_DESC* a_pDesc)
+	{
+		m_cpCommandList->DispatchRays(a_pDesc);
+	}
+
 	void CommandList::OMSetRenderTargets(UINT a_numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* a_pRenderTargetDescriptors, BOOL a_RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDepthStencilDescriptor)
 	{
 		m_cpCommandList->OMSetRenderTargets(

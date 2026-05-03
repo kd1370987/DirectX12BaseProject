@@ -112,6 +112,11 @@ namespace Engine::Graphics
 		return m_copyHeap.GetHeap();
 	}
 
+	D3D12::CommandList* RenderContext::GetCurrentCmdList()
+	{
+		return m_pCmdList;
+	}
+
 	//============================================================================================
 	//
 	// カメラ
@@ -369,6 +374,28 @@ namespace Engine::Graphics
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
 		);
+	}
+
+	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
+	{
+		// 今の空きインデックスカウントを確保
+		UINT _startIdx = m_currentHeapOffset;
+		m_currentHeapOffset++;
+
+		// ヒープサイズが足りなければリターン
+		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return D3D12_GPU_DESCRIPTOR_HANDLE();
+
+		D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx);
+
+		// 一個ずつ連続した領域にコピー
+		m_pDevice->CopyDescriptorsSimple(
+			1,
+			_destHandle,
+			a_cpuHandle,
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
+		);
+
+		return m_copyHeap.GetGPU(_startIdx);
 	}
 
 	void RenderContext::ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle)
