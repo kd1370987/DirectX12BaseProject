@@ -31,10 +31,11 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 	//_pCmdList4->ResourceBarrier(1, &barrier);
 
 	// ワールドを更新
-	if(!m_isCommit)
+	//if(!m_isCommit)
 	{
 		m_upRayWorld->Commit();
-		m_upShaderTable->Update(*m_upRayWorld.get());
+		//m_upShaderTable->Update(*m_upRayWorld.get());
+		m_upShaderTable->CommitInstance(m_upRayWorld->GetInstnace(),a_pRCT);
 
 		m_isCommit = true;
 	}

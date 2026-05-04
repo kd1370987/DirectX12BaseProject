@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+namespace Engine::Graphics
+{
+	class RenderContext;
+}
+
 namespace Engine::Raytracing
 {
 	class RayWorld;
@@ -31,6 +36,9 @@ namespace Engine::Raytracing
 		// シェーダーテーブル更新
 		void Update(const RayWorld& a_rayWorld);
 
+		// シェーダーテーブルの構築・更新
+		void CommitInstance(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT);
+
 		// ディスパッチレイ構造体取得
 		const D3D12_DISPATCH_RAYS_DESC& GetDispatchDesc();
 
@@ -52,6 +60,7 @@ namespace Engine::Raytracing
 
 		// テクスチャのハンドルを獲得
 		D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGPUHandle(const Resource::Handle<Resource::Texture>& a_texHandle);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGPUHandle(const Resource::Material* a_pMaterial, Graphics::RenderContext* a_pRCT);
 
 		
 	private:

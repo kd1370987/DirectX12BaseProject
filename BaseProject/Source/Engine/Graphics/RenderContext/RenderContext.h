@@ -159,6 +159,7 @@ namespace Engine::Graphics
 
 		// 直接GPUアドレスを取得
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
 
 		// レンダーターゲットのクリア
 		void ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle);
