@@ -52,43 +52,6 @@ void Engine::Raytracing::ShaderTable::Init(const ShaderTableInit& a_shaderInit)
 	m_cpShaderTable->Map(0, nullptr, (void**)&m_pShaderTableData);
 }
 
-void Engine::Raytracing::ShaderTable::Update(const RayWorld& a_rayWorld)
-{
-	// インスタンス配列
-	auto& _instanceVec = a_rayWorld.GetInstnace();
-
-	// レイジェネレーションシェーダーID
-	assert(m_rayGenID);
-	memcpy(m_pShaderTableData + m_rayGenOffset, m_rayGenID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-	
-	// ミスシェーダーID
-	for (UINT _i = 0; _i < m_missIDVec.size(); ++_i)
-	{
-		assert(m_missIDVec[_i]);
-		uint8_t* _missPtr = m_pShaderTableData + m_missOffset + _i * m_recordSize;	// アドレス
-		memcpy(_missPtr, m_missIDVec[_i], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-	}
-
-	// ヒットシェーダーのデータ
-	for (size_t _i = 0; _i < _instanceVec.size(); ++_i)
-	{
-		for (size_t _h = 0; _h < m_hitIDVec.size(); ++_h)
-		{
-			assert(m_hitIDVec[_h]);
-			auto& _instance = _instanceVec[_i];											// インスタンス取得
-			uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_i * m_hitIDVec.size() + _h) * m_recordSize;
-			memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-			// ハンドル格納先ポインタアドレス
-			auto* _handles =reinterpret_cast<D3D12_GPU_DESCRIPTOR_HANDLE*>(_hitPtr + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-			_handles[0] = GetTextureGPUHandle(_instance.pMaterial->baseColorTex);
-			_handles[1] = D3D12::DescriptorHeapManager::Instance().GetGPU(_instance.indexHandle);
-			_handles[2] = D3D12::DescriptorHeapManager::Instance().GetGPU(_instance.vertexHandle);
-		}
-	}
-
-	m_dispatchDesc = CreateDispatchDesc(_instanceVec.size());
-}
-
 void Engine::Raytracing::ShaderTable::CommitInstance(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT)
 {
 	// レイジェネレーションシェーダー
@@ -222,13 +185,6 @@ void Engine::Raytracing::ShaderTable::CalucShaderNum(
 	}
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::ShaderTable::GetTextureGPUHandle(
-	const Resource::Handle<Resource::Texture>& a_texHandle
-)
-{
-	auto& _tex = Resource::TextureManager::Instance().GetTexture(a_texHandle);
-	return D3D12::DescriptorHeapManager::Instance().GetGPU(_tex.GetSRV());
-}
 
 D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::ShaderTable::GetTextureGPUHandle(const Resource::Material* a_pMaterial, Graphics::RenderContext* a_pRCT)
 {

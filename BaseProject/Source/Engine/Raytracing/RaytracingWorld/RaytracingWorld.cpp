@@ -29,7 +29,6 @@ void Engine::Raytracing::RayWorld::Register(
 	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 
 	// モデルのノードとメッシュを参照してインスタンスに変換
-	//auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(a_modelHandle);
 	auto* _model = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
 	if (!_model) return;
 
