@@ -8,7 +8,8 @@
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
-#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
+//#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 void ScreenUIDrawSystem::Init(Engine::ECS::World& a_world)
 {
@@ -31,7 +32,8 @@ void ScreenUIDrawSystem::Init(Engine::ECS::World& a_world)
 				// 描画アイテム
 				Engine::Graphics::DrawItem2D _item = {};
 				_item.worldMat = _matComp.worldMat;
-				_item.srvHandleRange = Engine::Resource::TextureManager::Instance().GetTexture(_uiComp.texHandle).GetSRV();
+				//_item.srvHandleRange = Engine::Resource::TextureManager::Instance().GetTexture(_uiComp.texHandle).GetSRV();
+				_item.srvHandleRange = Engine::Resource::ResourceManager::Instance().Get(_uiComp.texHandle)->GetSRV();
 				_item.colorScale = _uiComp.color;
 
 				// 描画キューに追加

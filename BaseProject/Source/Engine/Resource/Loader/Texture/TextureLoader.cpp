@@ -14,7 +14,7 @@ namespace Engine::Resource
 	Engine::Resource::TextureLoader::m_nameCache;
 	
 
-	Handle<Texture> Engine::Resource::TextureLoader::Load(const Engine::GUID& a_guid, const DirectX::XMFLOAT4& a_data)
+	Handle<Texture> Engine::Resource::TextureLoader::Load(const Engine::GUID& a_guid, const DXSM::Color& a_data)
 	{
 		// すでに読み込み済みならそのハンドルを返す
 		auto _it = m_cache.find(a_guid);
@@ -43,7 +43,7 @@ namespace Engine::Resource
 
 		return _handle;
 	}
-	Handle<Texture> TextureLoader::Request(const std::string& a_path, const DirectX::XMFLOAT4& a_data)
+	Handle<Texture> TextureLoader::Request(const std::string& a_path, const DXSM::Color& a_data)
 	{
 		// アセットデータベースに問い合わせ
 		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_path);
@@ -51,6 +51,8 @@ namespace Engine::Resource
 		{
 			return Load(_guid,a_data);
 		}
+
+		return RequestDefaultTex("Default",a_data);
 
 		// GUIDがなければ
 		// フォルダ以下をもう一度探す処理を入れる予定だが、とりあえず、エラー値を返す

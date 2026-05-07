@@ -1,6 +1,8 @@
 ﻿#include "RGResourceManager.h"
 
-#include "../../../Resource/Manager/TextureManager/TextureManager.h"
+//#include "../../../Resource/Manager/TextureManager/TextureManager.h"
+#include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../Resource/Loader/Texture/TextureLoader.h"
 
 namespace Engine::Graphics
 {
@@ -76,7 +78,8 @@ namespace Engine::Graphics
 				.usage = _res.usage
 			};
 			_desc.opClerValue = _res.clerColor;
-			_res.texHandle = Resource::TextureManager::Instance().CreateTexture(_desc);
+			//_res.texHandle = Resource::TextureManager::Instance().CreateTexture(_desc);
+			_res.texHandle = Resource::TextureLoader::Create(_desc);
 		}
 	}
 	void RGResourceManager::StateReset()
@@ -106,16 +109,18 @@ namespace Engine::Graphics
 		auto _idx = Resource::GetIndex(a_id);
 		auto& _res = m_resourceVec[_idx];
 
-		auto& _tex = Resource::TextureManager::Instance().GetTexture(_res.texHandle);
-		return _tex.GetRTV();
+		//auto& _tex = Resource::TextureManager::Instance().GetTexture(_res.texHandle);
+		const auto* _tex = Resource::ResourceManager::Instance().Get(_res.texHandle);
+		return _tex->GetRTV();
 	}
 	Resource::Handle<D3D12::DSV> RGResourceManager::GetDSVHandle(Resource::ID a_id)
 	{
 		auto _idx = Resource::GetIndex(a_id);
 		auto& _res = m_resourceVec[_idx];
 
-		auto& _tex = Resource::TextureManager::Instance().GetTexture(_res.texHandle);
-		return _tex.GetDSV();
+		//auto& _tex = Resource::TextureManager::Instance().GetTexture(_res.texHandle);
+		const auto* _tex = Resource::ResourceManager::Instance().Get(_res.texHandle);
+		return _tex->GetDSV();
 	}
 	D3D12_RESOURCE_STATES& RGResourceManager::RefCurrentState(Resource::ID a_id)
 	{

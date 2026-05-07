@@ -7,8 +7,10 @@ namespace Engine::Resource
 	public:
 
 		// テクスチャの読み込み
-		static Handle<Texture> Load(const Engine::GUID& a_guid, const DirectX::XMFLOAT4& a_data = {255,255,255,255});
-		static Handle<Texture> Request(const std::string& a_path, const DirectX::XMFLOAT4& a_data);
+		static Handle<Texture> Load(const Engine::GUID& a_guid, const DXSM::Color& a_data = {255,255,255,255});
+
+		// ファイルパスからの読み込み。なければデフォルトテクスチャを返す
+		static Handle<Texture> Request(const std::string& a_path, const DXSM::Color& a_data);
 
 		// テクスチャの作成
 		static Handle<Texture> Create(const TextureCreateDesc& a_initData);

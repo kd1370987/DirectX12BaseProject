@@ -2,7 +2,9 @@
 
 #include "Engine/Raytracing/RaytracingWorld/RaytracingWorld.h"
 
-#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
+//#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Loader/Texture/TextureLoader.h"
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
@@ -18,7 +20,8 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 {
 	// UAVバリア
 	auto* _pCmdList4 = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList4();
-	auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(m_outTex);
+	//auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(m_outTex);
+	auto* _tex = Engine::Resource::ResourceManager::Instance().Ref(m_outTex);
 	auto* _pCmdList = a_pRCT->GetCurrentCmdList();
 
 	// ワールドを更新	
@@ -53,7 +56,7 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 	// 出力用UAVセット
 	a_pRCT->BindUAV(
 		2,
-		D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetUAV())
+		D3D12::DescriptorHeapManager::Instance().GetCPU(_tex->GetUAV())
 	);
 
 	// 構造体バッファセット
@@ -76,7 +79,8 @@ void Engine::Raytracing::RayEngine::Dispatch(
 	ShaderTable* a_pShaderTable
 )
 {
-	auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(a_outHandle);
+	//auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(a_outHandle);
+	auto* _tex = Engine::Resource::ResourceManager::Instance().Ref(a_outHandle);
 	auto* _pCmdList = a_pRCT->GetCurrentCmdList();
 
 	// ワールドを更新	
@@ -111,7 +115,7 @@ void Engine::Raytracing::RayEngine::Dispatch(
 	// 出力用UAVセット
 	a_pRCT->BindUAV(
 		2,
-		D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetUAV())
+		D3D12::DescriptorHeapManager::Instance().GetCPU(_tex->GetUAV())
 	);
 
 	// 構造体バッファセット
@@ -151,7 +155,8 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 	_desc.height = 720;
 	_desc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	_desc.usage = Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV;
-	m_outTex = Engine::Resource::TextureManager::Instance().CreateTexture(_desc);
+	//m_outTex = Engine::Resource::TextureManager::Instance().CreateTexture(_desc);
+	m_outTex = Engine::Resource::TextureLoader::Create(_desc);
 
 	// レイPSO作成
 	m_upPSO = std::make_unique<RayPSO>();

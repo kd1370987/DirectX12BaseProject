@@ -50,7 +50,6 @@ namespace Engine::Graphics
 		void Compile();							// Pass追加後
 		void Excute(RenderContext* a_pCtx);		// パスを順次実行
 
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(const std::string& a_name);
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(const std::string& a_name);
 		// リソース作成
 		Engine::Resource::Handle<Engine::Resource::Texture> CreateTexture(
@@ -94,5 +93,8 @@ namespace Engine::Graphics
 
 		// リソース管理
 		std::unique_ptr<RGResourceManager> m_upRGResourceManager = nullptr;
+
+		// ハンドルマップ
+		std::unordered_map<std::string, Resource::Handle<Resource::Texture>> m_handleMap;
 	};
 }

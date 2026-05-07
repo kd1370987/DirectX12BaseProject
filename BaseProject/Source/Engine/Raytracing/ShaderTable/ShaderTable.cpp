@@ -5,6 +5,7 @@
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../Resource/Manager/TextureManager/TextureManager.h"
+#include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "../../Graphics/RenderContext/RenderContext.h"
@@ -189,15 +190,20 @@ void Engine::Raytracing::ShaderTable::CalucShaderNum(
 D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::ShaderTable::GetTextureGPUHandle(const Resource::Material* a_pMaterial, Graphics::RenderContext* a_pRCT)
 {
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuHandles = {};
-	auto& _baseTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->baseColorTex);
-	auto& _metaTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->metaRoughTex);
-	auto& _emiTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->emissiveTex);
-	auto& _normalTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->normalTex);
+	//auto& _baseTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->baseColorTex);
+	const auto* _pBaseTex = Resource::ResourceManager::Instance().Get(a_pMaterial->baseColorTex);
+	//auto& _metaTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->metaRoughTex);
+	const auto* _pMetaTex = Resource::ResourceManager::Instance().Get(a_pMaterial->metaRoughTex);
+	//auto& _emiTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->emissiveTex);
+	const auto* _pEmiTex = Resource::ResourceManager::Instance().Get(a_pMaterial->emissiveTex);
+	//auto& _normalTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->normalTex);
+	const auto* _pNormalTex = Resource::ResourceManager::Instance().Get(a_pMaterial->normalTex);
 	
-	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_baseTex.GetSRV()));
-	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_metaTex.GetSRV()));
-	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_emiTex.GetSRV()));
-	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_normalTex.GetSRV()));
+	//_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_baseTex.GetSRV()));
+	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pBaseTex->GetSRV()));
+	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pMetaTex->GetSRV()));
+	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pEmiTex->GetSRV()));
+	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pNormalTex->GetSRV()));
 
 	return a_pRCT->GetGPUHandle(_cpuHandles);
 }

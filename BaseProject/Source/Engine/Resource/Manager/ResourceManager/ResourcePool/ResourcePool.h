@@ -17,6 +17,8 @@ namespace Engine::Resource
 		// リソースの取得
 		const T* Get(const Handle<T>& a_handle)const;
 		T* Ref(const Handle<T>& a_handle);
+		const std::vector<T>& GetAll() const;
+		std::vector<T>& RefAll();
 
 		// ハンドルが有効かどうか
 		bool IsValid(const Handle<T>& a_handle)const;
@@ -72,6 +74,16 @@ namespace Engine::Resource
 			return &m_data[a_handle.idx];
 		}
 		return nullptr;
+	}
+	template<typename T>
+	inline const std::vector<T>& ResourcePool<T>::GetAll() const
+	{
+		return m_data;
+	}
+	template<typename T>
+	inline std::vector<T>& ResourcePool<T>::RefAll()
+	{
+		return m_data;
 	}
 	template<typename T>
 	inline bool ResourcePool<T>::IsValid(const Handle<T>& a_handle) const

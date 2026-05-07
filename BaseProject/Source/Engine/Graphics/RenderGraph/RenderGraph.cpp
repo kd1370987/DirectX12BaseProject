@@ -17,7 +17,9 @@
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "../../Resource/Manager/TextureManager/TextureManager.h"
+//#include "../../Resource/Manager/TextureManager/TextureManager.h"
+#include "../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../Resource/Loader/Texture/TextureLoader.h"
 
 namespace Engine::Graphics
 {
@@ -271,18 +273,14 @@ namespace Engine::Graphics
 		}
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE RenderGraph::GetGPUHandle(const std::string& a_name)
-	{
-		
-		auto _tex = Resource::TextureManager::Instance().GetTexture(a_name);
-		return D3D12::DescriptorHeapManager::Instance().GetGPU(_tex.GetSRV());
-
-	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetCPUHandle(const std::string& a_name)
 	{
-		auto _tex = Resource::TextureManager::Instance().GetTexture(a_name);
-		return D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetSRV());
+		//auto _tex = Resource::TextureManager::Instance().GetTexture(a_name);
+		auto _id = m_upRGResourceManager->GetID(a_name);
+		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id);
+		const auto* _pTex = Resource::ResourceManager::Instance().Get(_texHandle);
+		return D3D12::DescriptorHeapManager::Instance().GetCPU(_pTex->GetSRV());
 	}
 
 	Engine::Resource::Handle<Engine::Resource::Texture> RenderGraph::CreateTexture(
@@ -300,7 +298,8 @@ namespace Engine::Graphics
 			.format = a_format,
 			.usage = a_texUsage
 		};
-		return Resource::TextureManager::Instance().CreateTexture(_desc);
+		//return Resource::TextureManager::Instance().CreateTexture(_desc);
+		return Resource::TextureLoader::Create(_desc);
 	}
 
 	Resource::ID RenderGraph::Read(const std::string& a_resourceName, const AccessType& a_type)
@@ -376,7 +375,8 @@ namespace Engine::Graphics
 			{
 				// ステート変更
 				a_pCtx->Transition(
-					Resource::TextureManager::Instance().RefTexture(_barrier.texHandle).GetResource(),
+					//Resource::TextureManager::Instance().RefTexture(_barrier.texHandle).GetResource(),
+					Resource::ResourceManager::Instance().Ref(_barrier.texHandle)->GetResource(),
 					m_upRGResourceManager->RefCurrentState(_barrier.resID),
 					_barrier.after
 				);

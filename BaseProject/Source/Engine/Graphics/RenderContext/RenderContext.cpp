@@ -13,7 +13,10 @@
 #include "Engine/D3D12//D3DObject/CommandList/CommandList.h"
 
 #include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
-#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
+//#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
+
+
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 
@@ -247,8 +250,9 @@ namespace Engine::Graphics
 		for (auto& _texHandle : a_texHandles)
 		{
 			if (_texHandle == Resource::Handle<Resource::Texture>()) continue;
-			const auto& _tex = Resource::TextureManager::Instance().GetTexture(_texHandle);
-			_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetSRV()));
+			//const auto& _tex = Resource::TextureManager::Instance().GetTexture(_texHandle);
+			const auto* _tex = Resource::ResourceManager::Instance().Get(_texHandle);
+			_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_tex->GetSRV()));
 		}
 
 		// バインド
@@ -433,20 +437,21 @@ namespace Engine::Graphics
 
 	void RenderContext::ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle)
 	{
-		auto& _tex = Resource::TextureManager::Instance().RefTexture(a_texHandle);
+		//auto& _tex = Resource::TextureManager::Instance().RefTexture(a_texHandle);
+		auto* _tex = Resource::ResourceManager::Instance().Ref(a_texHandle);
 
 		// もしテクスチャのステートがレンダーターゲットでなければリターン
 		if (
-			_tex.GetState() != D3D12_RESOURCE_STATE_RENDER_TARGET && 
-			!Resource::HasFlag(_tex.GetUsage(),Resource::TextureUsage::RTV)
+			_tex->GetState() != D3D12_RESOURCE_STATE_RENDER_TARGET && 
+			!Resource::HasFlag(_tex->GetUsage(),Resource::TextureUsage::RTV)
 		)
 		{
 			return;
 		}
-		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetRTV());
+		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(_tex->GetRTV());
 
 		// CPUハンドルと、テクスチャ作成時のクリアバリューをセット
-		D3D12::D3D12Wrapper::Instance().ClearRenderTargetView(_cpu,_tex.GetClearColor());
+		D3D12::D3D12Wrapper::Instance().ClearRenderTargetView(_cpu,_tex->GetClearColor());
 	}
 
 

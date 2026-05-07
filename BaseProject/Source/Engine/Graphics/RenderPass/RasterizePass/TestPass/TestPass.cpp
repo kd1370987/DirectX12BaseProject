@@ -18,36 +18,36 @@ namespace Engine::Graphics
 		Begine(a_pCtx);
 
 
-		for (auto& _pso : m_psoHandle)
-		{
-			// PSOのセット
-			a_pCtx->SetGraphicPSO(_pso.first);
+		//for (auto& _pso : m_psoHandle)
+		//{
+		//	// PSOのセット
+		//	a_pCtx->SetGraphicPSO(_pso.first);
 
-			// 指定タイプの命令キューを取得
-			auto& _draws = a_pCtx->GetItemVec(_pso.second);
-			if (_draws.size() <= 0) continue;
+		//	// 指定タイプの命令キューを取得
+		//	auto& _draws = a_pCtx->GetItemVec(_pso.second);
+		//	if (_draws.size() <= 0) continue;
 
-			for (auto& _item : _draws)
-			{
-				// オブジェクト情報セット
-				DXSM::Vector2 _uv = { 0,0 };
-				DXSM::Vector2 _tile = { 1,1 };
-				a_pCtx->BindObuje(_uv, _tile);
+		//	for (auto& _item : _draws)
+		//	{
+		//		// オブジェクト情報セット
+		//		DXSM::Vector2 _uv = { 0,0 };
+		//		DXSM::Vector2 _tile = { 1,1 };
+		//		a_pCtx->BindObuje(_uv, _tile);
 
-				// メッシュのバインド
-				a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
+		//		// メッシュのバインド
+		//		a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
 
-				a_pCtx->BindIndex({ 
-					(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->baseColorTex).GetSRV().idx,
-					(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->metaRoughTex).GetSRV().idx,
-					(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->emissiveTex).GetSRV().idx,
-					(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->normalTex).GetSRV().idx
-				});
+		//		a_pCtx->BindIndex({ 
+		//			(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->baseColorTex).GetSRV().idx,
+		//			(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->metaRoughTex).GetSRV().idx,
+		//			(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->emissiveTex).GetSRV().idx,
+		//			(float)Resource::TextureManager::Instance().GetTexture(_item.pMaterial->normalTex).GetSRV().idx
+		//		});
 
-				// 描画
-				a_pCtx->Draw(_item.pMesh, _item.subIdx);
-			}
-		}
+		//		// 描画
+		//		a_pCtx->Draw(_item.pMesh, _item.subIdx);
+		//	}
+		//}
 		End(a_pCtx);
 	}
 	void TestPass::CreatePass()

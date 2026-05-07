@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-#include "../../../Engine/Resource/Manager/TextureManager/TextureManager.h"
+//#include "../../../Engine/Resource/Manager/TextureManager/TextureManager.h"
+#include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../Engine/Resource/Loader/Texture/TextureLoader.h"
 
 struct UIComponent
 {
@@ -32,37 +34,38 @@ struct UIComponent
 
 	static void Edit(void* a_data)
 	{
-		using namespace Engine;
-		UIComponent& _comp = Engine::Editor::GetValue<UIComponent>(a_data);
+		//using namespace Engine;
+		//UIComponent& _comp = Engine::Editor::GetValue<UIComponent>(a_data);
 
-		ImGui::DragFloat2("UVOffset", &_comp.uvOffsetTiling.x, 0.1f);
-		ImGui::DragFloat2("UVTile", &_comp.uvOffsetTiling.z, 0.1f);
-		
-		auto& _tex = Resource::TextureManager::Instance().RefTexture(_comp.texHandle);
-		// 現在の表示
-		ImGui::Text("Tex : %s", _tex.GetName().c_str());
+		//ImGui::DragFloat2("UVOffset", &_comp.uvOffsetTiling.x, 0.1f);
+		//ImGui::DragFloat2("UVTile", &_comp.uvOffsetTiling.z, 0.1f);
+		//
+		////auto& _tex = Resource::TextureManager::Instance().RefTexture(_comp.texHandle);
+		//auto* _pTex = Resource::ResourceManager::Instance().Ref(_comp.texHandle);
+		//// 現在の表示
+		//ImGui::Text("Tex : %s", _pTex->GetName().c_str());
 
-		auto& _textures = Resource::TextureManager::Instance().GetAllTex();
+		//const auto& _textures = Resource::ResourceManager::Instance().GetPool<Resource::Texture>();
 
-		// 選択UI
-		if (ImGui::BeginCombo("Change Texture", "Select..."))
-		{
-			for (auto& _tex : _textures)
-			{
-				// 選択中のモデルだったらフラグを立てる
-				auto _thisHandle = Resource::TextureManager::Instance().GetHandle(_tex.GetName());
-				bool _selected = (_comp.texHandle == _thisHandle);
+		//// 選択UI
+		//if (ImGui::BeginCombo("Change Texture", "Select..."))
+		//{
+		//	for (const auto& _tex : _textures)
+		//	{
+		//		// 選択中のモデルだったらフラグを立てる
+		//		auto _thisHandle = Resource::TextureManager::Instance().GetHandle(_tex.GetName());
+		//		bool _selected = (_comp.texHandle == _thisHandle);
 
-				// 選択欄
-				if (ImGui::Selectable(_tex.GetName().c_str(), _selected))
-				{
-					_comp.texHandle = _thisHandle;
-				}
-			}
-			ImGui::EndCombo();
-		}
+		//		// 選択欄
+		//		if (ImGui::Selectable(_tex.GetName().c_str(), _selected))
+		//		{
+		//			_comp.texHandle = _thisHandle;
+		//		}
+		//	}
+		//	ImGui::EndCombo();
+		//}
 
-		ImGui::Text("ColorScale");
-		ImGui::ColorPicker4("Color", &_comp.color.x);
+		//ImGui::Text("ColorScale");
+		//ImGui::ColorPicker4("Color", &_comp.color.x);
 	}
 };
