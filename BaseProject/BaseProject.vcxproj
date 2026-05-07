@@ -234,6 +234,7 @@
     <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Application\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
@@ -410,6 +411,7 @@
     <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\PlayerControllTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\RenderTag\RayTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ActiveTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\AwekeTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\PostDeserializeTag.h" />
@@ -422,6 +424,7 @@
     <ClInclude Include="Source\Application\Scene\SceneType.h" />
     <ClInclude Include="Source\Application\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />
