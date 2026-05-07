@@ -1,8 +1,5 @@
 ﻿#pragma once
 namespace Engine::Resource
 {
-	namespace Assimp
-	{
-		ModelData Import(const std::string& a_path);
-	}
+	ModelData AssimpImport(const std::string& a_path);
 }

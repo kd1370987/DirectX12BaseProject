@@ -140,6 +140,21 @@ namespace DXSM = DirectX::SimpleMath;
 //===============================================
 #include <nlohmannJSON/json.hpp>
 
+//===============================================
+//
+// Assimp
+//
+//===============================================
+#ifdef _DEBUG
+#pragma comment(lib,"assimp-vc143-mtd.lib")
+#else
+#pragma comment(lib,"assimp-vc143-mt.lib")
+#endif // _DEBUG
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #pragma warning(pop)
 
 //===============================================

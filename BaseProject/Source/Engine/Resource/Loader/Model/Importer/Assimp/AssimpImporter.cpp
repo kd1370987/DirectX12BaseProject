@@ -1,11 +1,13 @@
 ﻿#include "AssimpImporter.h"
 namespace Engine::Resource
 {
-	namespace Assimp
+	
+	ModelData Engine::Resource::Import(const std::string& a_path)
 	{
-		ModelData Engine::Resource::Assimp::Import(const std::string& a_path)
-		{
-			return ModelData();
-		}
+		Assimp::Importer _importer;
+
+		int _flag = 0;
+		//_flag |= aiPro
+
 	}
 }

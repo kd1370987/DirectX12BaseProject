@@ -91,6 +91,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;..\Library\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>assimp-vc143-mtd.dll</DelayLoadDLLs>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -129,6 +130,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Release;packages\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>assimp-vc143-mt.dll</DelayLoadDLLs>
     </Link>
     <PreBuildEvent>
       <Command>
