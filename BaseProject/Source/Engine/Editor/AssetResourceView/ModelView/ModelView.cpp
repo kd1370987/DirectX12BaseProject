@@ -13,23 +13,6 @@ namespace Engine::Editor
 	{
 		if (ImGui::Begin("ModelStorageView"))
 		{
-			//UINT _modelSize = GraphicResourceManager::Instance().GetModelResourceStorageSize();
-
-			//for (UINT _i = 0; _i < _modelSize; ++_i)
-			//{
-			//	auto* _model = GraphicResourceManager::Instance().NGetModel(_i);
-			//	if (!_model) continue;
-			//	std::string _tagName = "model : " + std::to_string(_i);
-			//	if (ImGui::TreeNodeEx(_tagName.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
-			//	{
-			//		// モデル情報描画
-			//		DrawModelView(_model);
-
-			//		ImGui::TreePop();
-			//	}
-			//}
-
-			//for (auto& _model : Engine::Resource::ModelManager::Instnace().GetAllModel())
 			for (auto& _model : Engine::Resource::ModelLoader::GetAllCache())
 			{
 				std::string _tagName = "model";

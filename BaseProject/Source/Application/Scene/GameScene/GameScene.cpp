@@ -1,8 +1,6 @@
 ﻿#include "GameScene.h"
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
-#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 
 #include "../SceneManager.h"
 

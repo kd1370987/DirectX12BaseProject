@@ -38,7 +38,6 @@ struct ModelComponent
 	{
 		using namespace Engine;
 		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_data);
-		//auto* _pCurrentModel = Resource::ModelManager::Instnace().RefModel(_comp.handle);
 		auto* _pCurrentModel = Resource::ResourceManager::Instance().Ref(_comp.handle);;
 		if (!_pCurrentModel) return;
 
@@ -49,14 +48,12 @@ struct ModelComponent
 		// 選択UI
 		if (ImGui::BeginCombo("Change Model", "Select..."))
 		{
-			//for (auto& [_guid, _handle] : Resource::ModelManager::Instnace().GetAllModelHandleMap())
 			for (auto& [_guid, _handle] : Resource::ModelLoader::GetAllCache())
 			{
 				// 選択中のモデルだったらフラグを立てる
 				bool _selected = (_comp.handle == _handle);
 
 				// 選択予定モデルの取得
-				//auto _pModel = Resource::ModelManager::Instnace().GetModel(_handle);
 				auto* _pModel = Resource::ResourceManager::Instance().Get(_handle);;
 
 				// 選択欄
@@ -70,9 +67,9 @@ struct ModelComponent
 		}
 
 		ImGui::Text("EmissiveScale");
-		ImGui::ColorPicker4("Color", (float*)&_comp.emissiveScale.x);
+		ImGui::ColorPicker4("EmissiveScale", (float*)&_comp.emissiveScale.x);
 
 		ImGui::Text("ColorScale");
-		ImGui::ColorPicker4("Color", (float*)&_comp.colorScale.x);
+		ImGui::ColorPicker4("ColorScale", (float*)&_comp.colorScale.x);
 	}
 };

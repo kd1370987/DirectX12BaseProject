@@ -136,7 +136,7 @@ namespace Engine::Resource
 		m_cpResource.Get()->SetName(StringUtility::ToWideString(m_name).c_str());
 	}
 
-	const std::string& Engine::Resource::Texture::GetName()
+	const std::string& Engine::Resource::Texture::GetName() const
 	{
 		return m_name;
 	}

@@ -37,7 +37,7 @@ namespace Engine::Resource
 		
 		// 名前変更
 		void SetName(const std::string& a_name);
-		const std::string& GetName();
+		const std::string& GetName() const;
 
 		// リソース情報
 		ID3D12Resource* GetResource();				// 生データ

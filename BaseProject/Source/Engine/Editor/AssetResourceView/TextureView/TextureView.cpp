@@ -1,6 +1,5 @@
 ﻿#include "TextureView.h"
 
-//#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Loader/Texture/TextureLoader.h"
 #include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
@@ -14,23 +13,38 @@ namespace Engine::Editor
 
 	void TextureView::Draw(UINT a_widht, UINT a_height)
 	{
-		//if (ImGui::Begin("TextureView"))
-		//{
-		//	//for (auto& [_keyName, _handle] : Engine::Resource::TextureManager::Instance().RefAllTex())
-		//	for (auto& [_keyName, _handle] : Engine::Resource::TextureLoader::GetAllCache())//RefAllTex())
-		//	{
-		//		if (ImGui::TreeNodeEx(_keyName.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
-		//		{
-		//			ImGui::Text("Handle : IDX = %d GEN = %d", _handle.idx, _handle.gen);
+		if (ImGui::Begin("TextureView"))
+		{
+			for (auto& [_guid, _handle] : Engine::Resource::TextureLoader::GetAllCache())
+			{
+				// テクスチャ取得
+				auto _pTex = Engine::Resource::ResourceManager::Instance().Ref(_handle);
+				if (!_pTex) continue;
 
-		//			auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(_handle);
-		//			DrawTextureView(_tex, a_widht, a_height);
+				if (ImGui::TreeNodeEx(_pTex->GetName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+				{
+					ImGui::Text("Handle : IDX = %d GEN = %d", _handle.idx, _handle.gen);
+					DrawTextureView(*_pTex, a_widht, a_height);
 
-		//			ImGui::TreePop();
-		//		}
-		//	}
-		//}
-		//ImGui::End();
+					ImGui::TreePop();
+				}
+			}
+			for (auto& [_name, _handle] : Engine::Resource::TextureLoader::GetAllNameCache())
+			{
+				// テクスチャ取得
+				auto _pTex = Engine::Resource::ResourceManager::Instance().Ref(_handle);
+				if (!_pTex) continue;
+
+				if (ImGui::TreeNodeEx(_pTex->GetName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+				{
+					ImGui::Text("Handle : IDX = %d GEN = %d", _handle.idx, _handle.gen);
+					DrawTextureView(*_pTex, a_widht, a_height);
+
+					ImGui::TreePop();
+				}
+			}
+		}
+		ImGui::End();
 	}
 
 	void TextureView::DrawTextureView(Engine::Resource::Texture& a_Texture, UINT a_widht, UINT a_height)

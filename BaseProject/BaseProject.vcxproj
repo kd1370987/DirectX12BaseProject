@@ -362,7 +362,6 @@
     <ClCompile Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\ShaderManager\ShaderManager.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.cpp" />
     <ClCompile Include="Source\Engine\Storage\Storage.cpp" />
     <ClCompile Include="Source\Engine\TimeManager\TimeManager.cpp" />
     <ClCompile Include="Source\Engine\Utility\GUID\GUID.cpp" />
@@ -581,7 +580,6 @@
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourcePool\ResourcePool.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ShaderManager\ShaderManager.h" />
-    <ClInclude Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.h" />
     <ClInclude Include="Source\Engine\Storage\HandleStorage\HandleStorage.h" />
     <ClInclude Include="Source\Engine\Storage\SlotStorage\SlotStorage.h" />
     <ClInclude Include="Source\Engine\Storage\Storage.h" />

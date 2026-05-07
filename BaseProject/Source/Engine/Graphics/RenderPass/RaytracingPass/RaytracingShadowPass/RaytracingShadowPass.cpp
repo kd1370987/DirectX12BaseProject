@@ -7,7 +7,6 @@
 
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
-#include "../../../../Resource/Manager/TextureManager/TextureManager.h"
 
 namespace Engine::Graphics
 {

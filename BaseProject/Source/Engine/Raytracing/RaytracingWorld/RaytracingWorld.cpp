@@ -8,7 +8,6 @@
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "../../Resource/Manager/TextureManager/TextureManager.h"
 
 Engine::Raytracing::RayWorld::RayWorld()
 {
@@ -104,13 +103,11 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 		_mate.emissive = _instance.pMaterial->emissive;
 		
 		// マテリアルのインデックス取得
-		//auto& _tex = Engine::Resource::TextureManager::Instance().GetTexture(_instance.pMaterial->baseColorTex);
 		const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_instance.pMaterial->baseColorTex);
 		_mate.baseIndex = _tex->GetSRV().idx;
 
 		_materialVec.push_back(_mate);
 	}
-	//m_materialDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _materialVec.data());
 	m_materialDataBuffer.Create(_pDevice, _pCmdList, 1000, _materialVec.data());
 
 	_handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(

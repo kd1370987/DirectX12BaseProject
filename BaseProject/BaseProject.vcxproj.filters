@@ -709,9 +709,6 @@
     <Filter Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF">
       <UniqueIdentifier>{b5a2ad94-1c89-4f8e-b945-948a773dedb8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\Tex">
-      <UniqueIdentifier>{b0767a4d-3374-4366-ae19-7ec849e19224}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass">
       <UniqueIdentifier>{39e1e774-2c63-4cb8-a7e7-7b538e29ee17}</UniqueIdentifier>
     </Filter>
@@ -1160,9 +1157,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\Texture\TextureLoader.cpp">
       <Filter>Source\Engine\Resource\Loader\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.cpp">
-      <Filter>Source\Engine\Resource\Manager\Tex</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\TestPass</Filter>
@@ -1798,9 +1792,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\Texture\TextureLoader.h">
       <Filter>Source\Engine\Resource\Loader\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Manager\TextureManager\TextureManager.h">
-      <Filter>Source\Engine\Resource\Manager\Tex</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\TestPass</Filter>
