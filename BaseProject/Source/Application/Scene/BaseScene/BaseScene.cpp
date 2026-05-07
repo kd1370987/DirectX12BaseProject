@@ -10,6 +10,9 @@
 #include "../../Components/Tag/SystemPhaseTag/StartTag.h"
 #include "../../Components/Tag/SystemPhaseTag/ActiveTag.h"
 
+// レンダータグ
+#include "../../Components/Tag/RenderTag/RayTag.h"
+
 
 #include "../../Components/Tag/ActiveCameraTag.h"
 #include "../../Components/Tag/CameraTag.h"
@@ -76,6 +79,7 @@
 #include "Application/Systems/Draw/Draw/SimpleDraw/SimpleDrawSystem.h"
 #include "Application/Systems/Draw/Draw/AnimationOptionalDraw/AnimationOptionalDraw.h"
 #include "Application/Systems/Draw/Draw/ScreenUIDraw/ScreenUIDrawSystem.h"
+#include "../../Systems/Draw/Draw/RegisterRayWorldSystem/RegisterRayWorldSystem.h"
 
 
 BaseScene::BaseScene()
@@ -156,6 +160,8 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<StartTag>("StartTag");
 	m_upWorld->RegisterComponent<ActiveTag>("ActiveTag");
 
+	m_upWorld->RegisterComponent<RayTag>("RayTag");
+
 	m_upWorld->RegisterComponent<ActiveCameraTag>("ActiveCameraTag");
 	m_upWorld->RegisterComponent<CameraTag>("CameraTag");
 	m_upWorld->RegisterComponent<CameraControllTag>("CameraControllTag");
@@ -215,6 +221,7 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<SimpleDrawSystem>();
 	m_upWorld->RegisterSystem<AnimationOptionalDrawSystem>();
 	m_upWorld->RegisterSystem<ScreenUIDrawSystem>();
+	m_upWorld->RegisterSystem<RegisterRayWorldSystem>();
 }
 
 void BaseScene::RegistryEntity()

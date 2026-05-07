@@ -81,7 +81,6 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::EndFrame()
 	{
-
 	}
 
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const

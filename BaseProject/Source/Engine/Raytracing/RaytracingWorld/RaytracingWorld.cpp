@@ -83,7 +83,8 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 
 	// インスタンスデータ作成
-	m_instanceDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _instanceDataVec.data());
+	//m_instanceDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _instanceDataVec.data());
+	m_instanceDataBuffer.Create(_pDevice, _pCmdList, 1000, _instanceDataVec.data());
 
 	auto _handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
 		Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
@@ -108,7 +109,8 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 
 		_materialVec.push_back(_mate);
 	}
-	m_materialDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _materialVec.data());
+	//m_materialDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _materialVec.data());
+	m_materialDataBuffer.Create(_pDevice, _pCmdList, 1000, _materialVec.data());
 
 	_handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
 		Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
@@ -130,6 +132,11 @@ void Engine::Raytracing::RayWorld::Commit()
 	// 構造体バッファ更新
 	m_instanceDataBuffer.Update(_pDevice, _pCmdList);
 	m_materialDataBuffer.Update(_pDevice, _pCmdList);
+}
+
+void Engine::Raytracing::RayWorld::Clear()
+{
+	m_instanceVec.clear();
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS Engine::Raytracing::RayWorld::GetTLAS()

@@ -61,7 +61,7 @@ void Engine::Raytracing::RayEngine::Dispatch(Graphics::RenderContext* a_pRCT)
 	_pCmdList->SetComputeRootDescriptorTable(3,_gpuI);
 
 	// マテリアル送信
-	auto _gpuM = a_pRCT->GetGPUHandle(m_upRayWorld->GetInstanceDataSRVCPU());
+	auto _gpuM = a_pRCT->GetGPUHandle(m_upRayWorld->GetMaterialSRVCPU());
 	_pCmdList->SetComputeRootDescriptorTable(4, _gpuM);
 
 	// シェーダーテーブル
@@ -76,39 +76,23 @@ void Engine::Raytracing::RayEngine::Dispatch(
 	ShaderTable* a_pShaderTable
 )
 {
-	// UAVバリア
-	auto* _pCmdList4 = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList4();
 	auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(a_outHandle);
+	auto* _pCmdList = a_pRCT->GetCurrentCmdList();
 
-	// ステートチェンジ
-	_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
-	auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(
-		_tex.GetResource()
-	);
-
-	_pCmdList4->ResourceBarrier(1, &barrier);
-
-	// ワールドを更新
-	if (!m_isCommit)
-	{
-		m_upRayWorld->Commit();
-		m_upShaderTable->CommitInstance(m_upRayWorld->GetInstnace(), a_pRCT);
-
-		m_isCommit = true;
-	}
+	// ワールドを更新	
+	m_upRayWorld->Commit();
+	m_upShaderTable->CommitInstance(m_upRayWorld->GetInstnace(), a_pRCT);
 
 	// ディスクリプタヒープセット
 	ID3D12DescriptorHeap* _heaps[] = {
 		a_pRCT->GetCBV_SRV_UAVHeap(),
 		D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
 	};
-	_pCmdList4->SetDescriptorHeaps(ARRAYSIZE(_heaps), _heaps);
-
+	_pCmdList->SetDescriptorHeaps(ARRAYSIZE(_heaps), _heaps);
 
 	// PSOとルートシグネチャセット
-	_pCmdList4->SetPipelineState1(a_pPSO->Get());
-	_pCmdList4->SetComputeRootSignature(a_pPSO->GetRootSig());
+	_pCmdList->SetPipelineState1(a_pPSO->Get());
+	_pCmdList->SetComputeRootSignature(a_pPSO->GetRootSig());
 
 
 	// 定数バッファをバインド
@@ -116,52 +100,31 @@ void Engine::Raytracing::RayEngine::Dispatch(
 	m_camera.rotMat = a_pRCT->GetCameraRotMat();
 	m_camera.pos = a_pRCT->GetCameraPOS();
 	a_pRCT->BindCB()->BindAndAttachDataComputeRootCBV<Camera>(
-		_pCmdList4,
+		_pCmdList->NGet(),
 		0,
 		m_camera
 	);
 
 	// TLASをバインド
-	_pCmdList4->SetComputeRootShaderResourceView(
-		1,
-		m_upRayWorld->GetTLAS()
-	);
+	_pCmdList->SetComputeRootShaderResourceView(1, m_upRayWorld->GetTLAS());
 
 	// 出力用UAVセット
-	_pCmdList4->SetComputeRootDescriptorTable(
+	a_pRCT->BindUAV(
 		2,
-		D3D12::DescriptorHeapManager::Instance().GetGPU(_tex.GetUAV())
+		D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetUAV())
 	);
 
 	// 構造体バッファセット
-	_pCmdList4->SetComputeRootDescriptorTable(
-		3,
-		m_upRayWorld->GetInstanceDataSRV()
-	);
+	//auto _gpuI = a_pRCT->GetGPUHandle(m_upRayWorld->GetInstanceDataSRVCPU());
+	//_pCmdList->SetComputeRootDescriptorTable(3, _gpuI);
 
-	// マテリアル送信
-	_pCmdList4->SetComputeRootDescriptorTable(
-		4,
-		m_upRayWorld->GetMaterialSRV()
-	);
+	//// マテリアル送信
+	//auto _gpuM = a_pRCT->GetGPUHandle(m_upRayWorld->GetInstanceDataSRVCPU());
+	//_pCmdList->SetComputeRootDescriptorTable(4, _gpuM);
 
 	// シェーダーテーブル
 	const auto& _desc = a_pShaderTable->GetDispatchDesc();
-	_pCmdList4->DispatchRays(
-		&_desc
-	);
-
-	// UAVバリア
-	auto _barrier = CD3DX12_RESOURCE_BARRIER::UAV(
-		_tex.GetResource()
-	);
-	_pCmdList4->ResourceBarrier(
-		1,
-		&_barrier
-	);
-
-	// テクスチャのステート切り替え
-	_tex.ChangeState(_pCmdList4, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	_pCmdList->DispatchRays(&_desc);
 }
 
 
@@ -259,6 +222,15 @@ void Engine::Raytracing::RayEngine::CommitWorld()
 
 	m_upShaderTable = std::make_unique<ShaderTable>();
 	m_upShaderTable->Init(_shaderTableInit);
+}
+
+void Engine::Raytracing::RayEngine::BegineFrame()
+{
+}
+
+void Engine::Raytracing::RayEngine::EndFrame()
+{
+	m_upRayWorld->Clear();
 }
 
 Engine::Raytracing::RayEngine::RayEngine()

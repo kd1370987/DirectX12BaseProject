@@ -32,6 +32,10 @@ namespace Engine::Raytracing
 
 		// レイトレワールドの構築
 		void CommitWorld();
+
+		// フレーム開始処理
+		void BegineFrame();
+		void EndFrame();
 	private:
 
 		struct Camera

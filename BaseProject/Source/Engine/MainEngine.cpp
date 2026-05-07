@@ -178,6 +178,9 @@ namespace Engine
 			m_upGraphicsEngine->GetRenderContext()->GetCBV_SRV_UAVHeap(),
 		};
 		_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+
+		// レイワールドインスタンスのクリア
+		Raytracing::RayEngine::Instance().EndFrame();
 	}
 
 	void MainEngine::EndDraw()

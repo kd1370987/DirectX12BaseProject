@@ -23,6 +23,9 @@ namespace Engine::Raytracing
 		// レイトレワールド構築
 		void Commit();
 
+		// インスタンスのクリア
+		void Clear();
+
 		// TLASアドレス取得
 		D3D12_GPU_VIRTUAL_ADDRESS GetTLAS();
 		D3D12_GPU_DESCRIPTOR_HANDLE GetSRVTLAS();
