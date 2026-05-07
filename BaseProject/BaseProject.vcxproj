@@ -78,7 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;packages\assimp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -90,7 +90,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;..\Library\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -114,7 +114,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;packages\assimp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -128,7 +128,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Release;packages\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -148,7 +148,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;packages\assimp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -166,7 +166,7 @@
       <DelayLoadDLLs>assimp-vc143-mtd.dll</DelayLoadDLLs>
       <EntryPointSymbol>
       </EntryPointSymbol>
-      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;packages\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Debug;..\Library\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -188,7 +188,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;packages\assimp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -206,7 +206,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>assimp-vc143-mt.dll</DelayLoadDLLs>
-      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Release;packages\assimp\build\lib\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Library\DirectXTex\Bin\Desktop_2022\x64\Release;packages\assimp\build\lib\$(Configuration);..\Library\DXC</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -350,6 +350,7 @@
     <ClCompile Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Model\ModelLoader.cpp" />
@@ -567,6 +568,7 @@
     <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Vertex\Vertex.h" />
+    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\ModelLoader.h" />

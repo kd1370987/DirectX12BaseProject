@@ -724,6 +724,9 @@
     <Filter Include="Source\Application\Components\Tag\RenderTag">
       <UniqueIdentifier>{5cba0978-4eff-4e23-8ec5-b8bdf27aa766}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Model\Importer\Assimp">
+      <UniqueIdentifier>{d6b135ac-0234-4d7c-aeb6-d28aa6e5bf44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1166,6 +1169,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.cpp">
+      <Filter>Source\Engine\Resource\Loader\Model\Importer\Assimp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1807,6 +1813,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.h">
+      <Filter>Source\Engine\Resource\Loader\Model\Importer\Assimp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

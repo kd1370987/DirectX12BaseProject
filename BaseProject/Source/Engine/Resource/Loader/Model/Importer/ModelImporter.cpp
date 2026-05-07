@@ -27,7 +27,7 @@ namespace Engine::Resource
 		//-------------------------------------
 		// TinyGLTFを使用
 		//-------------------------------------
-		else if (_ext == "gltf" || _ext == "glb")
+		else if (_ext == "gltf")
 		{
 			return GLTF::Import(a_filePath);
 		}
