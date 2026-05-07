@@ -3,6 +3,7 @@
 #include "../../Loader/Texture/Importer/TextureImporter.h"
 #include "../../Loader/Texture/Creater/TextureCreater.h"
 
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 namespace Engine::Resource
 {
@@ -11,6 +12,8 @@ namespace Engine::Resource
 		const DirectX::XMFLOAT4& a_defoltData
 	)
 	{
+		// SRVとして使用
+		m_useFlg = TextureUsage::SRV;
 		// テクスチャの読み込み
 		ComPtr<ID3D12Resource> _cpRes = Engine::Resource::ImportTexture(a_filePath);
 		if (_cpRes)
@@ -29,8 +32,24 @@ namespace Engine::Resource
 			m_name = a_filePath + "Default";
 		}
 
+		// ビューの登録
+		CreateView();
+	}
+
+	void Texture::Create(const std::string& a_name, const DirectX::XMFLOAT4& a_defoltData)
+	{
+
+		ComPtr<ID3D12Resource> _cpRes = nullptr;
+		_cpRes = DefaultTexture(a_defoltData);
+		m_cpResource = _cpRes;
+		m_desc = _cpRes.Get()->GetDesc();
+		m_name = a_name;
+
 		// SRVとして使用
 		m_useFlg = TextureUsage::SRV;
+
+		// ビューの登録
+		CreateView();
 	}
 
 	void Engine::Resource::Texture::Create(const TextureCreateDesc& a_desc)
@@ -47,6 +66,67 @@ namespace Engine::Resource
 		if (a_desc.opClerValue.has_value())
 		{
 			m_clearValue = a_desc.opClerValue.value();
+		}
+		// ビューの登録
+		CreateView();
+	}
+
+	void Texture::CreateView()
+	{
+		// デバイスの取得
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
+
+		// テクスチャの使用方法にRTが含まれているのならRTVを登録
+		if (HasFlag(m_useFlg, TextureUsage::RTV))
+		{
+			// レンダーターゲットビュー情報の作成
+			D3D12_RENDER_TARGET_VIEW_DESC _rtvDesc = {};
+			_rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+			_rtvDesc.Format = m_desc.Format;
+
+			// ディスクリプタヒープに登録
+			m_rtvHandle =
+				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::RTV>(_pDevice, m_cpResource.Get(), &_rtvDesc);
+		}
+
+		// テクスチャの使用方法にDSが含まれているのなら
+		if (HasFlag(m_useFlg, TextureUsage::DSV))
+		{
+			// 深度ステンシルビュー作成
+			D3D12_DEPTH_STENCIL_VIEW_DESC _dsvDesc = {};
+			_dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+			_dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+
+			// ディスクリプタヒープに登録
+			m_dsvHandle =
+				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
+		}
+
+		// テクスチャの使用方法にUAが含まれているのなら
+		if (HasFlag(m_useFlg, TextureUsage::UAV))
+		{
+			m_uavHandle =
+				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::UAV>(_pDevice, m_cpResource.Get(), nullptr);
+		}
+
+		// テクスチャの仕様方法SRが含まれているのなら
+		if (HasFlag(m_useFlg, TextureUsage::SRV))
+		{
+			// シェーダーリソースビュー作成
+			D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
+			_srvDesc.Format = HasFlag(m_useFlg, TextureUsage::DSV) ? DXGI_FORMAT_R32_FLOAT : m_desc.Format;
+			_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			_srvDesc.Texture2D.MipLevels = m_desc.MipLevels;
+			_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+			// 登録
+			m_srvHandle = 
+				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(_pDevice, m_cpResource.Get(), &_srvDesc);
+
+			// 同時にImGuiも登録
+			m_imguiSRVHandle = 
+				D3D12::DescriptorHeapManager::Instance().AllocateImGuiSRV(m_cpResource.Get(), &_srvDesc);
 		}
 	}
 

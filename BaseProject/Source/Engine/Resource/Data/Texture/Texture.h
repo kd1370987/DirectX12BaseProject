@@ -28,13 +28,12 @@ namespace Engine::Resource
 		~Texture() = default;
 
 		// テクスチャ生成
-		void Import(
-			const std::string& a_filePath,
-			const DirectX::XMFLOAT4& a_defoltData = { 255,255,255,255 }
-		);
-		void Create(
-			const TextureCreateDesc& a_desc
-		);
+		void Import(const std::string& a_filePath,const DirectX::XMFLOAT4& a_defoltData = { 255,255,255,255 });
+		void Create(const std::string& a_name, const DirectX::XMFLOAT4& a_defoltData);
+		void Create(const TextureCreateDesc& a_desc);
+
+		// ビューの作成
+		void CreateView();
 		
 		// 名前変更
 		void SetName(const std::string& a_name);

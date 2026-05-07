@@ -25,7 +25,7 @@ namespace Engine::Resource
 		m_nameMap.emplace(a_path, _handle);
 
 		// ビュー作成
-		CreateView(_handle);
+		//CreateView(_handle);
 
 		return _handle;
 	}
@@ -47,7 +47,7 @@ namespace Engine::Resource
 		auto _handle = Add(_texture);
 
 		// 登録
-		CreateView(_handle);
+		//CreateView(_handle);
 
 		m_nameMap.emplace(a_init.name, _handle);
 

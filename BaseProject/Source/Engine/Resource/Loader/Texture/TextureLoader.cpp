@@ -14,7 +14,7 @@ namespace Engine::Resource
 	Engine::Resource::TextureLoader::m_nameCache;
 	
 
-	Handle<Texture> Engine::Resource::TextureLoader::Load(const Engine::GUID& a_guid)
+	Handle<Texture> Engine::Resource::TextureLoader::Load(const Engine::GUID& a_guid, const DirectX::XMFLOAT4& a_data)
 	{
 		// すでに読み込み済みならそのハンドルを返す
 		auto _it = m_cache.find(a_guid);
@@ -28,7 +28,7 @@ namespace Engine::Resource
 		if (_path == "NoFilePath")
 		{
 			// パスが見つからなければデフォルトテクスチャを返す
-			return RequestDefaultTex();
+			return RequestDefaultTex("Default",a_data);
 		}
 
 		// パスが見つかればテクスチャを読み込む
@@ -38,21 +38,18 @@ namespace Engine::Resource
 		//リソースマネージャーに登録
 		auto _handle = ResourceManager::Instance().Add(_Texture);
 
-		// ビュー作成
-		CreateView(_handle);
-
 		// キャッシュに登録
 		m_cache.emplace(a_guid, _handle);
 
 		return _handle;
 	}
-	Handle<Texture> TextureLoader::Request(const std::string& a_path)
+	Handle<Texture> TextureLoader::Request(const std::string& a_path, const DirectX::XMFLOAT4& a_data)
 	{
 		// アセットデータベースに問い合わせ
 		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_path);
 		if (_guid != Engine::DefaultGUID)
 		{
-			return Load(_guid);
+			return Load(_guid,a_data);
 		}
 
 		// GUIDがなければ
@@ -76,9 +73,6 @@ namespace Engine::Resource
 		// リソースマネージャーに登録
 		auto _handle = ResourceManager::Instance().Add(_tex);
 
-		// ビューの作成
-		CreateView(_handle);
-
 		// ハンドルキャッシュを追加
 		m_nameCache.emplace(a_initData.name,_handle);
 
@@ -92,82 +86,47 @@ namespace Engine::Resource
 	{
 		return m_nameCache;
 	}
-	Handle<Texture> TextureLoader::RequestDefaultTex()
+	Handle<Texture> TextureLoader::RequestDefaultTex(const std::string& a_name, const DXSM::Color &a_data)
 	{
-		TextureCreateDesc _desc = {};
-		_desc.name = "DefaultWhiteTex";
-		_desc.width = 4;
-		_desc.height = 4;
-		_desc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		_desc.usage = TextureUsage::SRV;
-		return Create(_desc);
-	}
-	void TextureLoader::CreateView(const Handle<Texture>& a_handle)
-	{
-		// デバイスの取得
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
-		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
-		// テクスチャの取得
-		auto* _pTex = ResourceManager::Instance().Ref(a_handle);
-		if (!_pTex) return;
-		auto _usage = _pTex->GetUsage();
-		
-		// テクスチャの使用方法にRTが含まれているのならRTVを登録
-		if (HasFlag(_usage, TextureUsage::RTV))
+		std::string _checkSTR = "";
+		// カラーチェック
+		if (a_data == TexColor::WHITE)
 		{
-			// レンダーターゲットビュー情報の作成
-			D3D12_RENDER_TARGET_VIEW_DESC _rtvDesc = {};
-			_rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-			_rtvDesc.Format = _pTex->GetDesc().Format;
+			_checkSTR = "WHITE";
+		}
+		if (a_data == TexColor::BLACK)
+		{
+			_checkSTR = "BLACK";
+		}
+		if (a_data == TexColor::NORMAL)
+		{
+			_checkSTR = "NORMAL";
+		}
+		if (a_data == TexColor::ORM)
+		{
+			_checkSTR = "ORM";
 
-			// ディスクリプタヒープに登録
-			_pTex->SetRTV(
-				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::RTV>(_pDevice, _pTex->GetResource(), &_rtvDesc)
-			);
 		}
 
-		// テクスチャの使用方法にDSが含まれているのなら
-		if (HasFlag(_usage, TextureUsage::DSV))
-		{
-			// 深度ステンシルビュー作成
-			D3D12_DEPTH_STENCIL_VIEW_DESC _dsvDesc = {};
-			_dsvDesc.Format = _pTex->GetDesc().Format;
-			_dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		std::string _name = a_name + _checkSTR;
 
-			// ディスクリプタヒープに登録
-			_pTex->SetDSV(
-				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::DSV>(_pDevice, _pTex->GetResource(), &_dsvDesc)
-			);
+		// 作成済みかのチェック
+		auto _it = m_nameCache.find(_name);
+		if (_it != m_nameCache.end())
+		{
+			return _it->second;
 		}
 
-		// テクスチャの使用方法にUAが含まれているのなら
-		if (HasFlag(_usage, TextureUsage::UAV))
-		{
-			_pTex->SetUAV(
-				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::UAV>(_pDevice, _pTex->GetResource(), nullptr)
-			);
-		}
+		// テクスチャ作成
+		Texture _tex;
+		_tex.Create(_name,a_data);
 
-		// テクスチャの仕様方法SRが含まれているのなら
-		if (HasFlag(_usage, TextureUsage::SRV))
-		{
-			// シェーダーリソースビュー作成
-			D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
-			_srvDesc.Format = HasFlag(_usage, TextureUsage::DSV) ? DXGI_FORMAT_R32_FLOAT : _pTex->GetDesc().Format;
-			_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-			_srvDesc.Texture2D.MipLevels = _pTex->GetDesc().MipLevels;
-			_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		// リソースマネージャーに登録
+		auto _handle = ResourceManager::Instance().Add(_tex);
 
-			// 登録
-			_pTex->SetSRV(
-				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(_pDevice, _pTex->GetResource(), &_srvDesc)
-			);
+		// ハンドルキャッシュを追加
+		m_nameCache.emplace(_name, _handle);
 
-			// 同時にImGuiも登録
-			_pTex->SetImGuiSRV(
-				D3D12::DescriptorHeapManager::Instance().AllocateImGuiSRV(_pTex->GetResource(), &_srvDesc)
-			);
-		}
-
+		return _handle;
 	}
 }
