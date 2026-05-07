@@ -246,6 +246,7 @@ namespace Engine::Graphics
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuHandles = {};
 		for (auto& _texHandle : a_texHandles)
 		{
+			if (_texHandle == Resource::Handle<Resource::Texture>()) continue;
 			const auto& _tex = Resource::TextureManager::Instance().GetTexture(_texHandle);
 			_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_tex.GetSRV()));
 		}
@@ -298,6 +299,8 @@ namespace Engine::Graphics
 		for (UINT _i = 0; _i < _count; ++_i)
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx + _i);
+
+			if (a_cpuHandles[_i].ptr == 0) continue;
 
 			// 一個ずつ連続した領域にコピー
 			m_pDevice->CopyDescriptorsSimple(
