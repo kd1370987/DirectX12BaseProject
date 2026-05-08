@@ -5,7 +5,6 @@ class CBAllocater;
 
 namespace Engine::Resource
 {
-	class ShaderManager;
 	class QuadPolygon;
 }
 
@@ -78,7 +77,6 @@ namespace Engine::Graphics
 		ID3D12Device* pDevice = nullptr;
 
 		// クラスのキャッシュ
-		Resource::ShaderManager*		pShaderMana		= nullptr;
 		D3D12::RootSignatureManager*	pRootSigMana	= nullptr;
 		D3D12::GraphicsPSOManager*		pPSOMana		= nullptr;
 		ShapeRenderer*					pShapeRender	= nullptr;
@@ -256,11 +254,6 @@ namespace Engine::Graphics
 		// クワッド描画
 		void DrawQuad();
 
-		void DrawQueue(
-			RenderPassID a_passID,
-			LightingType a_lightingType
-		);
-
 		// UI描画
 		void DrawUIQueue(RenderQueueType2D a_type);
 
@@ -281,7 +274,6 @@ namespace Engine::Graphics
 		ID3D12Device* m_pDevice = nullptr;
 
 		// マネージャー
-		Resource::ShaderManager*			m_pShaderManger			= nullptr;
 		D3D12::RootSignatureManager*				m_pRootSigManager		= nullptr;
 		Engine::D3D12::GraphicsPSOManager*	m_pGraphicsPSOManager	= nullptr;
 
@@ -320,15 +312,13 @@ namespace Engine::Graphics
 		Resource::Mesh* m_pCurrentMesh = nullptr;
 		Resource::QuadPolygon* m_pCurrentPoly = nullptr;
 
-		// ECSからの分離
+		// 3D用描画アイテムキュー
 		std::unordered_map<RenderQueueType, std::vector<DrawItem>> m_drawItemMap = {};
 
+		// 2D用描画アイテムキュー
 		std::unordered_map<RenderQueueType2D, std::vector<DrawItem2D>> m_drawItem2DMap = {};
 
-
-		std::vector<DrawItem> m_drawItemVec = {};
-
-
+		// 描画用ポリゴン
 		std::shared_ptr<Resource::QuadPolygon> m_spQuadPolygon = nullptr;
 	};
 }

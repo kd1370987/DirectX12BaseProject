@@ -12,8 +12,6 @@
 
 #include "Engine/D3D12//D3DObject/CommandList/CommandList.h"
 
-#include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
-
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
@@ -39,7 +37,6 @@ namespace Engine::Graphics
 		m_pDevice = a_desc.pDevice;
 
 		// ポインタのキャッシュ
-		m_pShaderManger = a_desc.pShaderMana;
 		m_pRootSigManager = a_desc.pRootSigMana;
 		m_pGraphicsPSOManager = a_desc.pPSOMana;
 		m_pShapeDraw = a_desc.pShapeRender;
@@ -717,33 +714,6 @@ namespace Engine::Graphics
 		);
 	}
 
-	void RenderContext::DrawQueue(RenderPassID a_passID, LightingType a_lightingType)
-	{
-		for (auto& _item : m_drawItemVec)
-		{
-			if (_item.passID != a_passID) continue;
-			if (_item.lightingType != a_lightingType) continue;
-
-			BindObuje(
-				{ 0.0f,0.0f },
-				{ 1.0f,1.0f }
-			);
-
-			BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
-			BindMesh(_item.pMesh, _item.worldMat);
-
-			// ボーン行列があるのなら転送
-			if (_item.pBoneMatrices)
-			{
-				BindBone(
-					_item.pBoneMatrices,
-					_item.boneCount
-				);
-			}
-
-			Draw(_item.pMesh, _item.subIdx);
-		}
-	}
 
 
 	void RenderContext::DrawUIQueue(RenderQueueType2D a_type)

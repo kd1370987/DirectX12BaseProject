@@ -2,7 +2,9 @@
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
-#include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
+#include "Engine/Resource/Loader/Shader/ShaderLoader.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -127,8 +129,10 @@ namespace Engine::Graphics
 		if (_it != m_psoMap.end())
 		{
 
-			Resource::Handle<Resource::Shader> _vsHandle = m_pShaderMana->Request(a_filePath);
-			_it->second.psoDesc.SetVS(m_pShaderMana->GetByteCode(_vsHandle));
+			//Resource::Handle<Resource::Shader> _vsHandle = m_pShaderMana->Request(a_filePath);
+			Resource::Handle<Resource::Shader> _vsHandle = Resource::ShaderLoader::Request(a_filePath);
+			//_it->second.psoDesc.SetVS(m_pShaderMana->GetByteCode(_vsHandle));
+			_it->second.psoDesc.SetVS(Resource::ResourceManager::Instance().Get(_vsHandle)->GetByteCode());
 
 			return;
 		}
@@ -140,8 +144,10 @@ namespace Engine::Graphics
 		if (_it != m_psoMap.end())
 		{
 
-			Resource::Handle<Resource::Shader> _psHandle = m_pShaderMana->Request(a_filePath);
-			_it->second.psoDesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
+			//Resource::Handle<Resource::Shader> _psHandle = m_pShaderMana->Request(a_filePath);
+			//_it->second.psoDesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
+			Resource::Handle<Resource::Shader> _psHandle = Resource::ShaderLoader::Request(a_filePath);
+			_it->second.psoDesc.SetPS(Resource::ResourceManager::Instance().Get(_psHandle)->GetByteCode());
 
 			return;
 		}
@@ -149,10 +155,12 @@ namespace Engine::Graphics
 	}
 	void RasterizePass::SetPS(const std::string & a_filePath)
 	{
-		Resource::Handle<Resource::Shader> _psHandle = m_pShaderMana->Request(a_filePath);
+		//Resource::Handle<Resource::Shader> _psHandle = m_pShaderMana->Request(a_filePath);
+		Resource::Handle<Resource::Shader> _psHandle = Resource::ShaderLoader::Request(a_filePath);
 		for (auto& [_type, _psoDesc] : m_psoMap)
 		{
-			_psoDesc.psoDesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
+			//_psoDesc.psoDesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
+			_psoDesc.psoDesc.SetPS(Resource::ResourceManager::Instance().Get(_psHandle)->GetByteCode());
 		}
 	}
 	void RasterizePass::SetRootSig(const std::string & a_rootName)

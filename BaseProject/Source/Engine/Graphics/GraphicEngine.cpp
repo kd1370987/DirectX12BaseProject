@@ -6,9 +6,6 @@
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 
-// リソース関係
-#include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
-
 // グラフィックス関係
 #include "RenderContext/RenderContext.h"
 #include "RenderContext/ShapeDraw/ShapeDraw.h"
@@ -41,7 +38,6 @@ namespace Engine::Graphics
 			RenderContextDesc _desc = {};
 			_desc.pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
-			_desc.pShaderMana = m_upShaderManager.get();
 			_desc.pRootSigMana = m_upRootSignatureManager.get();
 			_desc.pPSOMana = m_upGrahicsPSOManager.get();
 			_desc.pShapeRender = m_upShapeRender.get();
@@ -55,7 +51,6 @@ namespace Engine::Graphics
 		// レンダーグラフの構築
 		m_upRenderGraph = std::make_unique<RenderGraph>();
 		m_upRenderGraph->Init(
-			m_upShaderManager.get(),
 			m_upRootSignatureManager.get(),
 			m_upGrahicsPSOManager.get()
 		);
@@ -96,8 +91,6 @@ namespace Engine::Graphics
 		// デバイス取得
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
-		// シェーダーマネージャー
-		m_upShaderManager = std::make_unique<Resource::ShaderManager>();
 
 		// グラフィックスパイプラインステートマネージャー構築
 		m_upGrahicsPSOManager = std::make_unique<D3D12::GraphicsPSOManager>();

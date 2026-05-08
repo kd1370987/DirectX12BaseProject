@@ -1,5 +1,4 @@
 ﻿#include "BaseRenderPass.h"
-#include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -9,7 +8,6 @@ namespace Engine::Graphics
 	void BaseRenderPass::Init(const PassInitDesc& a_initDesc)
 	{
 		m_pRG = a_initDesc.pRG;
-		m_pShaderMana = a_initDesc.pShaderMana;
 		m_pRootSigMana = a_initDesc.pRootSigMana;
 		m_pPSOMana = a_initDesc.pPSOMana;
 		

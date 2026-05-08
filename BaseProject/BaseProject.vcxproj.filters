@@ -439,9 +439,6 @@
     <Filter Include="Source\Engine\Resource\Manager">
       <UniqueIdentifier>{1cf18801-36cc-48e9-940a-0a68a93a4332}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\ShaderManager">
-      <UniqueIdentifier>{80a68e47-11c8-488f-be15-2f9b8c0401cc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Data\QuadPolygon">
       <UniqueIdentifier>{7683df0e-a1b6-4bf0-a1b3-b7f5f25af163}</UniqueIdentifier>
     </Filter>
@@ -726,6 +723,9 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Loader\Model\Importer\Assimp">
       <UniqueIdentifier>{d6b135ac-0234-4d7c-aeb6-d28aa6e5bf44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\PipelineStateManager">
+      <UniqueIdentifier>{a735ca8c-bd9f-4f7c-9f30-41827be7b1e6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1019,9 +1019,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp">
       <Filter>Source\Engine\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Manager\ShaderManager\ShaderManager.cpp">
-      <Filter>Source\Engine\Resource\Manager\ShaderManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp">
       <Filter>Source\Engine\Graphics\RenderGraph\RGVarsionManager</Filter>
@@ -1618,9 +1615,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h">
       <Filter>Source\Engine\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Manager\ShaderManager\ShaderManager.h">
-      <Filter>Source\Engine\Resource\Manager\ShaderManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h">
       <Filter>Source\Engine\Graphics\RenderGraph\RGVarsionManager</Filter>

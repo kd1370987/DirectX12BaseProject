@@ -33,9 +33,10 @@ namespace Engine::Resource
 	private:
 
 		// 各リソースの実体プール
-		ResourcePool<Model>		m_modelPool;
-		ResourcePool<Texture>	m_texturePool;
-		ResourcePool<Shader>	m_shaderPool;
+		ResourcePool<Model>			m_modelPool;			// モデル
+		ResourcePool<Texture>		m_texturePool;			// テクスチャ
+		ResourcePool<Shader>		m_shaderPool;			// シェーダー
+		ResourcePool<ShaderLibrary>	m_shaderLibraryPool;	//シェーダーライブラリ
 
 	// シングルトン
 	private:
@@ -75,9 +76,11 @@ namespace Engine::Resource
 	template<> inline const ResourcePool<Model>& ResourceManager::GetPool<Model>() const { return m_modelPool; }
 	template<> inline const ResourcePool<Texture>& ResourceManager::GetPool<Texture>() const { return m_texturePool; }
 	template<> inline const ResourcePool<Shader>& ResourceManager::GetPool<Shader>() const { return m_shaderPool; }
+	template<> inline const ResourcePool<ShaderLibrary>& ResourceManager::GetPool<ShaderLibrary>() const { return m_shaderLibraryPool; }
 
 	// テンプレート明示特殊化
 	template<> inline ResourcePool<Model>& ResourceManager::RefPool<Model>() { return m_modelPool; }
 	template<> inline ResourcePool<Texture>& ResourceManager::RefPool<Texture>() { return m_texturePool; }
 	template<> inline ResourcePool<Shader>& ResourceManager::RefPool<Shader>() { return m_shaderPool; }
+	template<> inline ResourcePool<ShaderLibrary>& ResourceManager::RefPool<ShaderLibrary>() { return m_shaderLibraryPool; }
 }

@@ -40,7 +40,6 @@ namespace Engine::Graphics
 		~RenderGraph();
 
 		void Init(
-			Resource::ShaderManager* a_pShaderMana,
 			D3D12::RootSignatureManager* a_pRootSigMana,
 			Engine::D3D12::GraphicsPSOManager* a_pPSOMana
 		);

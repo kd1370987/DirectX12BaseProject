@@ -3,11 +3,6 @@
 
 namespace Engine
 {
-	namespace Resource
-	{
-		class ShaderManager;
-	}
-
 	namespace D3D12
 	{
 		class GraphicsPSOManager;
@@ -67,7 +62,6 @@ namespace Engine::Graphics
 		UINT m_currentFrameIndex = 0;
 
 		// マネージャー
-		std::unique_ptr<Resource::ShaderManager>	m_upShaderManager = nullptr;		// シェーダー管理
 		std::unique_ptr<D3D12::GraphicsPSOManager>	m_upGrahicsPSOManager = nullptr;	// PSO管理
 		std::unique_ptr<D3D12::RootSignatureManager>		m_upRootSignatureManager = nullptr;	// ルートシグネチャ管理
 

@@ -29,7 +29,6 @@ namespace Engine::Graphics
 	{}
 
 	void RenderGraph::Init(
-		Resource::ShaderManager* a_pShaderMana,
 		D3D12::RootSignatureManager* a_pRootSigMana,
 		Engine::D3D12::GraphicsPSOManager* a_pPSOMana
 	)
@@ -127,7 +126,6 @@ namespace Engine::Graphics
 		{
 			PassInitDesc _desc = {};
 			_desc.pRG = this;
-			_desc.pShaderMana = a_pShaderMana;
 			_desc.pRootSigMana = a_pRootSigMana;
 			_desc.pPSOMana = a_pPSOMana;
 			_sp->Init(_desc);
