@@ -8,7 +8,7 @@ namespace Engine::Resource
 	public:
 
 		// リソースの追加
-		Handle<T> Add(const T& a_resource);
+		Handle<T> Add(T&& a_resource);
 
 		// リソースの消去
 		void Clear();
@@ -32,7 +32,7 @@ namespace Engine::Resource
 	};
 
 	template<typename T>
-	inline Handle<T> ResourcePool<T>::Add(const T& a_resource)
+	inline Handle<T> ResourcePool<T>::Add(T&& a_resource)
 	{
 		// ハンドル発行
 		Handle<T> _handle = m_handleStorage.Allocate();
@@ -40,7 +40,7 @@ namespace Engine::Resource
 		{
 			m_data.resize(_handle.idx + 1);
 		}
-		m_data[_handle.idx] = a_resource;
+		m_data[_handle.idx] = std::move(a_resource);
 
 		return _handle;
 	}

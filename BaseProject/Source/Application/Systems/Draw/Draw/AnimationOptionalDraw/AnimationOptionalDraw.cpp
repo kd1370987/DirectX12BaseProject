@@ -78,13 +78,13 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 						{
 							// マテリアルセット
 							if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
-							_item.pMaterial = &_model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
+							_item.pMaterial = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].get();
 							_item.subIdx = _subIdx;
 
 							// 描画アイテムキューに送信
 
 							// アルファモードによって描画先を変える
-							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
+							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber]->alphaMode;
 
 							auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
 

@@ -36,20 +36,23 @@ void Engine::Raytracing::RayWorld::Register(
 	{
 		for (auto& _meshIdx : _node.meshIndices)	// メッシュループ
 		{
-			//auto& _spMesh = _model->spMeshVec[_meshIdx];
-			auto& _spMesh = _model->GetSPMeshVec()[_meshIdx];
+			auto _pMesh = _model->GetSPMeshVec()[_meshIdx].get();
+			if (!_pMesh) continue;
 
 			DXSM::Matrix _nodeMat = _node.worldTransform;
+			
 
 			// インスタンス作成
 			Engine::Raytracing::Instance _rayInst = {};
 			_rayInst.worldMat = _nodeMat * a_worldMat;
-			_rayInst.pBLAS = _spMesh->GetBLAS();
-			_rayInst.vertexHandle = _spMesh->GetSVertexBuff().GetHandle();
-			_rayInst.indexHandle = _spMesh->GetSIndexBuff().GetHandle();
-			for (auto& _subset : _spMesh->GetSubsets())
+			_rayInst.pBLAS = _pMesh->GetBLAS();
+			_rayInst.vertexHandle = _pMesh->GetSVertexBuff().GetHandle();
+			_rayInst.indexHandle = _pMesh->GetSIndexBuff().GetHandle();
+			for (auto& _subset : _pMesh->GetSubsets())
 			{
-				_rayInst.pMaterial = &_model->GetMaterialVec()[_subset.materialNumber];
+				auto* _pMate = _model->GetMaterialVec()[_subset.materialNumber].get();
+				if (!_pMate) continue;
+				_rayInst.pMaterial = _pMate;
 				m_instanceVec.emplace_back(_rayInst);
 			}
 		}

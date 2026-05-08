@@ -28,7 +28,7 @@ int BinarySearchNextAnimKey(const std::vector<T>& a_list, float a_currentTime)
 	return _low;
 }
 
-void Engine::Animation::Interpolate(Engine::Resource::AnimationNode& a_node, float a_currentTime, DirectX::XMFLOAT4X4& a_rDst)
+void Engine::Animation::Interpolate(const Engine::Resource::AnimationNode& a_node, float a_currentTime, DirectX::XMFLOAT4X4& a_rDst)
 {
 	bool _isChange = false;
 
@@ -48,7 +48,7 @@ void Engine::Animation::Interpolate(Engine::Resource::AnimationNode& a_node, flo
 	}
 }
 
-bool Engine::Animation::InterpolateTranslations(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
+bool Engine::Animation::InterpolateTranslations(const Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
 {
 	if (a_node.translations.size() == 0) return false;
 
@@ -86,7 +86,7 @@ bool Engine::Animation::InterpolateTranslations(Engine::Resource::AnimationNode&
 	return true;
 }
 
-bool Engine::Animation::InterpolateRotations(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Quaternion& a_resullt)
+bool Engine::Animation::InterpolateRotations(const Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Quaternion& a_resullt)
 {
 	if (a_node.rotations.size() == 0) return false;
 
@@ -124,7 +124,7 @@ bool Engine::Animation::InterpolateRotations(Engine::Resource::AnimationNode& a_
 	return true;
 }
 
-bool Engine::Animation::InterpolateScale(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
+bool Engine::Animation::InterpolateScale(const Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt)
 {
 	if (a_node.scales.size() == 0) return false;
 

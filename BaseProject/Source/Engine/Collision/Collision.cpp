@@ -127,21 +127,18 @@ bool Engine::Collision::Ray::VSModel(
 	float _dist = 0.0f;
 
 	// 判定ノードインデックスごとに処理
-	//for (int _idx : a_pModel->m_collisionMeshNodeIndices)
 	for (int _idx : a_pModel->GetCollisionMeshNodeVec())
 	{
 		// ノード取得
-		//const Engine::Resource::Node& _node = a_pModel->m_originalNodes[_idx];
 		const Engine::Resource::Node& _node = a_pModel->GetOriginalNodeVec()[_idx];
 		for (auto& _meshIdx : _node.meshIndices)
 		{
 			// ノードが持つメッシュを取得
-			//auto _spMesh = a_pModel->m_spMeshVec[_meshIdx];
-			auto _spMesh = a_pModel->GetSPMeshVec()[_meshIdx];
-			if (!_spMesh) continue;
+			auto _pMesh = a_pModel->GetSPMeshVec()[_meshIdx].get();
+			if (!_pMesh) continue;
 
 			// メッシュとの判定
-			if (VSMesh(a_rayInfo, _spMesh.get(),a_worldMat, a_outResult))
+			if (VSMesh(a_rayInfo, _pMesh,a_worldMat, a_outResult))
 			{
 				return true;
 			}

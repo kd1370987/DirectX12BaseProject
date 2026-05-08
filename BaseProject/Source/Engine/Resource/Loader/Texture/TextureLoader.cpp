@@ -36,7 +36,7 @@ namespace Engine::Resource
 		_Texture.Import(_path);
 
 		//リソースマネージャーに登録
-		auto _handle = ResourceManager::Instance().Add(_Texture);
+		auto _handle = ResourceManager::Instance().Add(std::move(_Texture));
 
 		// キャッシュに登録
 		m_cache.emplace(a_guid, _handle);
@@ -73,7 +73,7 @@ namespace Engine::Resource
 		_tex.Create(a_initData);
 
 		// リソースマネージャーに登録
-		auto _handle = ResourceManager::Instance().Add(_tex);
+		auto _handle = ResourceManager::Instance().Add(std::move(_tex));
 
 		// ハンドルキャッシュを追加
 		m_nameCache.emplace(a_initData.name,_handle);
@@ -124,7 +124,7 @@ namespace Engine::Resource
 		_tex.Create(_name,a_data);
 
 		// リソースマネージャーに登録
-		auto _handle = ResourceManager::Instance().Add(_tex);
+		auto _handle = ResourceManager::Instance().Add(std::move(_tex));
 
 		// ハンドルキャッシュを追加
 		m_nameCache.emplace(_name, _handle);

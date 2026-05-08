@@ -250,8 +250,8 @@ namespace Engine::Graphics
 		for (auto& _texHandle : a_texHandles)
 		{
 			if (_texHandle == Resource::Handle<Resource::Texture>()) continue;
-			//const auto& _tex = Resource::TextureManager::Instance().GetTexture(_texHandle);
 			const auto* _tex = Resource::ResourceManager::Instance().Get(_texHandle);
+			if (!_tex) continue;
 			_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_tex->GetSRV()));
 		}
 
@@ -623,6 +623,7 @@ namespace Engine::Graphics
 		m_cb2_MeshTrans.worldMat = a_worldMat;
 		UINT _regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MeshTransCB);
+		assert(_regiIdx != UINT_MAX);
 		BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
 			m_pCmdList->NGet(),
 			_regiIdx,
@@ -631,8 +632,9 @@ namespace Engine::Graphics
 
 		if (a_pMesh != m_pCurrentMesh)
 		{
-			m_pCmdList->NGet()->IASetVertexBuffers(0, 1, &a_pMesh->GetVertexBuffer().View());
-			m_pCmdList->NGet()->IASetIndexBuffer(&a_pMesh->GetIndexBuffer().View());
+			if (!a_pMesh) return;
+			m_pCmdList->IASetVertexBuffers(0,1,&a_pMesh->GetVertexBuffer().View());
+			m_pCmdList->IASetIndexBuffer(&a_pMesh->GetIndexBuffer().View());
 			m_pCurrentMesh = a_pMesh;
 		}
 	}

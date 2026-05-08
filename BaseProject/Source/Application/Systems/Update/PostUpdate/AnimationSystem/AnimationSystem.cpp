@@ -31,29 +31,29 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				NodePoseComponent& _nodeComp = a_NodePoseArray[_i];
 
 				//auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
-				auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+				const auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_pModel) continue;
 
 				// アニメーション取得
-				std::shared_ptr<Engine::Resource::AnimationData> _spAni = _pModel->GetSPAnimation(_aniComp.clipID);
-				if (!_spAni) continue;
+				const Engine::Resource::AnimationData* _pAni = _pModel->GetAnimation(_aniComp.clipID);
+				if (!_pAni) continue;
 
 				// すべてのアニメーションノードの行列保管を実行する
-				for (auto& _rAnimNode : _spAni->nodes)
+				for (auto& _rAnimNode : _pAni->nodes)
 				{
 					UINT _idx = _rAnimNode.nodeOffset;
 
-					auto prev = _spAni->nodes[_idx];
+					auto prev = _pAni->nodes[_idx];
 
-					Engine::Animation::Interpolate(_spAni->nodes[_idx], _aniComp.time, _nodeComp.local[_idx]);
+					Engine::Animation::Interpolate(_pAni->nodes[_idx], _aniComp.time, _nodeComp.local[_idx]);
 
-					prev = _spAni->nodes[_idx];
+					prev = _pAni->nodes[_idx];
 				}
 
 				// アニメーションタイム進行
 				_aniComp.time += a_dt * _aniComp.speed;
 
-				if (_aniComp.time >= _spAni->maxLength)
+				if (_aniComp.time >= _pAni->maxLength)
 				{
 					if (_aniComp.isLoop != 0)
 					{
@@ -61,7 +61,7 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 					}
 					else
 					{
-						_aniComp.time = _spAni->maxLength;
+						_aniComp.time = _pAni->maxLength;
 					}
 				}
 			}

@@ -103,6 +103,12 @@ namespace Engine::D3D12
 		// ディスパッチレイ
 		void DispatchRays(const D3D12_DISPATCH_RAYS_DESC* a_pDesc);
 		
+		// 頂点バッファセット
+		void IASetVertexBuffers(UINT a_startSlot,UINT a_numViews, const D3D12_VERTEX_BUFFER_VIEW* a_pViews);
+
+		// インデックスバッファセット
+		void IASetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW* a_pViews);
+
 
 		/// <summary>
 		/// レンダーターゲットをセット

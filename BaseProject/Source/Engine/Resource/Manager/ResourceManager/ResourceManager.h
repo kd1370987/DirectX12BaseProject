@@ -11,7 +11,7 @@ namespace Engine::Resource
 
 		// リソースの追加
 		template<typename T>
-		Handle<T> Add(const T& a_resource);
+		Handle<T> Add(T&& a_resource);
 
 		// リソースの削除
 		template<typename T>
@@ -51,9 +51,9 @@ namespace Engine::Resource
 		}
 	};
 	template<typename T>
-	inline Handle<T> ResourceManager::Add(const T& a_resource)
+	inline Handle<T> ResourceManager::Add(T&& a_resource)
 	{
-		return RefPool<T>().Add(a_resource);
+		return RefPool<T>().Add(std::move(a_resource));
 	}
 	template<typename T>
 	inline void ResourceManager::Remove(const Handle<T>& a_handle)

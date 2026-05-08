@@ -107,6 +107,16 @@ namespace Engine::D3D12
 		m_cpCommandList->DispatchRays(a_pDesc);
 	}
 
+	void CommandList::IASetVertexBuffers(UINT a_startSlot, UINT a_numViews, const D3D12_VERTEX_BUFFER_VIEW* a_pViews)
+	{
+		m_cpCommandList->IASetVertexBuffers(a_startSlot,a_numViews,a_pViews);
+	}
+
+	void CommandList::IASetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW* a_pViews)
+	{
+		m_cpCommandList->IASetIndexBuffer(a_pViews);
+	}
+
 	void CommandList::OMSetRenderTargets(UINT a_numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* a_pRenderTargetDescriptors, BOOL a_RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDepthStencilDescriptor)
 	{
 		m_cpCommandList->OMSetRenderTargets(

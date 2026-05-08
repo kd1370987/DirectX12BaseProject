@@ -42,7 +42,6 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 				_item.emissiveScale = _modelComp.emissiveScale;
 
 				// モデル取得
-				//auto* _model = Engine::Resource::ModelManager::Instnace().RefModel(_modelComp.handle);
 				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_model) continue;
 
@@ -68,13 +67,11 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 						{
 							// 面が一枚もない場合はスキップ
 							if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
-							_item.pMaterial = &_model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber];
+							_item.pMaterial = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].get();
 							_item.subIdx = _subIdx;
 
-
-
 							// アルファモードによって描画先を変える
-							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].alphaMode;
+							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber]->alphaMode;
 							switch (_mode)
 							{
 							case Engine::Resource::Alpha::Opaque:

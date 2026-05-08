@@ -2,11 +2,11 @@
 
 namespace Engine::Animation
 {
-	void Interpolate(Engine::Resource::AnimationNode& a_node, float a_currentTime, DirectX::XMFLOAT4X4& a_rDst);
+	void Interpolate(const Engine::Resource::AnimationNode& a_node, float a_currentTime, DirectX::XMFLOAT4X4& a_rDst);
 
-	bool InterpolateTranslations(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt);
-	bool InterpolateRotations(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Quaternion& a_resullt);
-	bool InterpolateScale(Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt);
+	bool InterpolateTranslations(const Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt);
+	bool InterpolateRotations(const Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Quaternion& a_resullt);
+	bool InterpolateScale(const Engine::Resource::AnimationNode& a_node, float a_currentTime, DXSM::Vector3& a_resullt);
 
 	void CalcNodeMatrix(
 		int a_nodeIdx,

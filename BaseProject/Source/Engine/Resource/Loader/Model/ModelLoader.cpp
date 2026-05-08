@@ -22,7 +22,7 @@ namespace Engine::Resource
 		_model.Import(_path);
 
 		//リソースマネージャーに登録
-		auto _handle = ResourceManager::Instance().Add(_model);
+		auto _handle = ResourceManager::Instance().Add(std::move(_model));
 
 		// キャッシュに登録
 		m_cache.emplace(a_guid, _handle);
