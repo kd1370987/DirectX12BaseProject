@@ -9,6 +9,15 @@
 
 namespace Engine::D3D12
 {
+	struct RootSignatureDesc
+	{
+
+
+		// データ
+		std::string name;
+		D3D12_ROOT_SIGNATURE_DESC desc;
+	};
+
 	class RootSignature
 	{
 	public:

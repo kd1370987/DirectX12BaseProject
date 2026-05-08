@@ -1170,6 +1170,9 @@
     <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.cpp">
       <Filter>Source\Engine\Resource\Loader\Model\Importer\Assimp</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.cpp">
+      <Filter>Source\Engine\D3D12\PipelineStateManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -1810,6 +1813,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.h">
       <Filter>Source\Engine\Resource\Loader\Model\Importer\Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.h">
+      <Filter>Source\Engine\D3D12\PipelineStateManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
