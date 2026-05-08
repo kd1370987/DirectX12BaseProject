@@ -5,6 +5,7 @@
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
+#include "../D3D12/PipelineStateManager/PipelineStateManager.h"
 
 // グラフィックス関係
 #include "RenderContext/RenderContext.h"
@@ -21,11 +22,14 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::Init(const GraphicsEngineDesc& a_desc)
 	{
+
+		m_pPipelineStateManager = a_desc.pPipelineStateManager;
 		// マネージャー構築
 		CreateManager();
 		
 		// ルートシグネチャの定義
 		RootSigDefinition();
+
 
 		// 形状描画クラス構築
 		m_upShapeRender = std::make_unique<ShapeRenderer>();
@@ -52,7 +56,8 @@ namespace Engine::Graphics
 		m_upRenderGraph = std::make_unique<RenderGraph>();
 		m_upRenderGraph->Init(
 			m_upRootSignatureManager.get(),
-			m_upGrahicsPSOManager.get()
+			m_upGrahicsPSOManager.get(),
+			m_pPipelineStateManager
 		);
 	}
 
@@ -120,6 +125,18 @@ namespace Engine::Graphics
 			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 			D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED
 		);
+		D3D12::RootSignatureDesc _desc;
+		_desc.AddRoot(RootParameterType::RootCBV,0);
+		_desc.AddRoot(RootParameterType::RootCBV,1);
+		_desc.AddRoot(RootParameterType::RootCBV,2);
+		_desc.AddRoot(RootParameterType::RootCBV,3);
+		_desc.AddRoot(RootParameterType::RootCBV,4);
+		_desc.AddDescriptorHeap(
+			{ {RangeType::SRV,0}, { RangeType::SRV,1 }, { RangeType::SRV,2 }, { RangeType::SRV,3 } }
+		);
+		_desc.flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+		m_pPipelineStateManager->Request(_desc);
+
 		m_upRootSignatureManager->CreateRootSig(
 			"ForwardLithingPass",
 			{

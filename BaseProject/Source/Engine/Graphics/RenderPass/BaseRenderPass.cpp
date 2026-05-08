@@ -11,6 +11,8 @@ namespace Engine::Graphics
 		m_pRootSigMana = a_initDesc.pRootSigMana;
 		m_pPSOMana = a_initDesc.pPSOMana;
 		
+		m_pPipelineStateManager = a_initDesc.pPipelineStateManager;
+
 		CreatePass();
 	}
 

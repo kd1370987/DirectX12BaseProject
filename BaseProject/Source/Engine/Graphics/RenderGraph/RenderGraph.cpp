@@ -30,7 +30,8 @@ namespace Engine::Graphics
 
 	void RenderGraph::Init(
 		D3D12::RootSignatureManager* a_pRootSigMana,
-		Engine::D3D12::GraphicsPSOManager* a_pPSOMana
+		Engine::D3D12::GraphicsPSOManager* a_pPSOMana,
+		D3D12::PipelineStateManager* a_pPipelineStateManager
 	)
 	{
 		// リソースマネージャー作成
@@ -128,6 +129,7 @@ namespace Engine::Graphics
 			_desc.pRG = this;
 			_desc.pRootSigMana = a_pRootSigMana;
 			_desc.pPSOMana = a_pPSOMana;
+			_desc.pPipelineStateManager = a_pPipelineStateManager;
 			_sp->Init(_desc);
 		}
 

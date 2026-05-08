@@ -7,6 +7,7 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "D3D12/PipelineStateManager/PipelineStateManager.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicEngine.h"
@@ -75,6 +76,10 @@ namespace Engine
 			return;
 		}
 
+		// パイプラインステート・ルートシグネチャ管理
+		m_upPipelineStateManager = std::make_unique<D3D12::PipelineStateManager>();
+		m_upPipelineStateManager->Init(D3D12::D3D12Wrapper::Instance().GetDevice());
+
 		// バックバッファの生成
 		if (!D3D12::D3D12Wrapper::Instance().CreateRenderTarget())
 		{
@@ -87,6 +92,7 @@ namespace Engine
 		Graphics::GraphicsEngineDesc _geDesc = {};
 		_geDesc.width = _windowWidth;
 		_geDesc.height = _windowHeight;
+		_geDesc.pPipelineStateManager = m_upPipelineStateManager.get();
 		m_upGraphicsEngine->Init(_geDesc);
 
 		// エディター初期化

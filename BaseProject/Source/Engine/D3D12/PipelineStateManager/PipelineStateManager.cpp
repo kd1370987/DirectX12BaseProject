@@ -4,10 +4,33 @@ namespace Engine::D3D12
 	void PipelineStateManager::Init(ID3D12Device* a_pDevice)
 	{
 		m_pDevice = a_pDevice;
+		m_rootSigMap = {};
+		m_psoMap = {};
 	}
-	ID3D12RootSignature* PipelineStateManager::Request(const D3D12_ROOT_SIGNATURE_DESC& a_desc)
+	ID3D12RootSignature* PipelineStateManager::Request(const D3D12::RootSignatureDesc& a_desc)
 	{
-		return nullptr;
+		// ハッシュを求める
+		uint64_t _hash = CalcHash(a_desc);
+
+		// キャッシュ検索
+		auto _it = m_rootSigMap.find(_hash);
+		if(_it != m_rootSigMap.end())
+		{
+			return _it->second.Get();
+		}
+
+		// キャッシュになければ作成
+		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(a_desc);
+
+		// 名前があれば
+		if (!a_desc.name.empty())
+		{
+			_rootSig->SetName(StringUtility::ToWideString(a_desc.name).c_str());
+		}
+
+		// マップに保存して返す
+		m_rootSigMap[_hash] = _rootSig;
+		return _rootSig.Get();
 	}
 	ID3D12PipelineState* PipelineStateManager::Request(const D3D12::GraphicsPipelineDesc& a_desc)
 	{
@@ -44,6 +67,37 @@ namespace Engine::D3D12
 			_hash ^= _ptr[_i];
 			_hash *= 1099511628211ull;
 		}
+		return _hash;
+	}
+	uint64_t PipelineStateManager::CalcHash(const D3D12::RootSignatureDesc& a_desc)
+	{
+		uint64_t _hash = 14695981039346656037ull; // FNV offset basis
+
+		// ヘルパー：既存の CalcHash のロジックを再利用してハッシュを更新する
+		auto UpdateHash = [&](const void* p, size_t size) {
+			const uint8_t* ptr = static_cast<const uint8_t*>(p);
+			for (size_t i = 0; i < size; ++i) {
+				_hash ^= ptr[i];
+				_hash *= 1099511628211ull; // FNV prime
+			}
+			};
+
+		// ① 基本メンバを混ぜる (flags, isUseStaticSampler)
+		UpdateHash(&a_desc.flags, sizeof(a_desc.flags));
+		UpdateHash(&a_desc.isUseStaticSampler, sizeof(a_desc.isUseStaticSampler));
+
+		// ② vector の中身をループして、実体データを混ぜる
+		for (const auto& param : a_desc.paramVec) {
+			// Paramそのものをハッシュ化
+			UpdateHash(&param.paramType, sizeof(param.paramType));
+			UpdateHash(&param.shaderRegisterIndex, sizeof(param.shaderRegisterIndex));
+
+			// rangeVec も vector なので、さらにループして中身を混ぜる
+			for (const auto& range : param.rangeVec) {
+				UpdateHash(&range, sizeof(range)); // rangeInitの中身が単純なら一気にいける
+			}
+		}
+
 		return _hash;
 	}
 }

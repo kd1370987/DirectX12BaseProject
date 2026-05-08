@@ -25,6 +25,11 @@ namespace Engine
 		class RenderContext;
 	}
 
+	namespace D3D12
+	{
+		class PipelineStateManager;
+	}
+
 	// エンジン設定
 	struct EngineConfig
 	{
@@ -94,17 +99,12 @@ namespace Engine
 
 	private:
 
-		// ウィンドウクラス
-		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;
-
-		// 時間管理クラス
-		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;
-
-		// アセットのメタ管理
-		//std::unique_ptr<Resource::AssetDatabase> m_upAssetDatabase = nullptr;
-
-		// 描画周りの管理クラス
-		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;
+		// クラス
+		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;						// ウィンドウクラス
+		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;					// 時間管理クラス
+		//std::unique_ptr<Resource::AssetDatabase> m_upAssetDatabase = nullptr;			// アセットのメタ管理
+		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス
+		std::unique_ptr<D3D12::PipelineStateManager> m_upPipelineStateManager = nullptr;// パイプラインステート管理
 
 		// エンジン設定
 		EngineConfig m_config = {};

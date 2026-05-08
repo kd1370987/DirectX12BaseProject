@@ -9,6 +9,8 @@
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 
+#include "../../../D3D12/PipelineStateManager/PipelineStateManager.h"
+
 namespace Engine::Graphics
 {
 	void RasterizePass::Init(const PassInitDesc& a_initDesc)
@@ -18,6 +20,7 @@ namespace Engine::Graphics
 		for(auto&[_type,_desc] : m_psoMap)
 		{
 			m_psoHandle.push_back({ m_pPSOMana->Request(_desc.psoDesc),_desc.type });
+			m_pPsoVec.push_back({m_pPipelineStateManager->Request(_desc.psoDesc),_desc.type});
 		}
 	}
 	void RasterizePass::Begine(RenderContext* a_pCtx)

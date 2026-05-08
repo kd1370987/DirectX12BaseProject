@@ -266,6 +266,7 @@
     <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp" />
     <ClCompile Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.cpp" />
     <ClCompile Include="Source\Engine\Collision\Query\CollisionMesh\CollisionMesh.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp" />
     <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
@@ -465,6 +466,7 @@
     <ClInclude Include="Source\Engine\Collision\Query\CollisionMesh\CollisionMesh.h" />
     <ClInclude Include="Source\Engine\Collision\Query\Raycast.h" />
     <ClInclude Include="Source\Engine\Common\Color.h" />
+    <ClInclude Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.h" />
     <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Common.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.h" />

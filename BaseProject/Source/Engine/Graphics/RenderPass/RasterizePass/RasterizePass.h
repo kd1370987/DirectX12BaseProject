@@ -55,7 +55,9 @@ namespace Engine::Graphics
 
 		// ランタイム時データ
 		UINT m_rootSigID = 0;												// パスが使用するルートシグネチャ
+		ID3D12RootSignature* m_pRootSig;
 		//std::unordered_map<ERenderType, Resource::Handle<D3D12::PipelineState>> m_psoHandle = {};
 		std::vector<std::pair<Resource::Handle<D3D12::PipelineState>, RenderQueueType>> m_psoHandle = {};
+		std::vector<std::pair<ID3D12PipelineState*, RenderQueueType>> m_pPsoVec = {};
 	};
 }

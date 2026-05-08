@@ -7,6 +7,8 @@ namespace Engine
 	{
 		class GraphicsPSOManager;
 		class RootSignatureManager;
+
+		class PipelineStateManager;
 	}
 }
 
@@ -22,6 +24,8 @@ namespace Engine::Graphics
 	{
 		UINT width = 0;						// ウィンドウの横幅
 		UINT height = 0;					// ウィンドウの縦幅
+
+		D3D12::PipelineStateManager* pPipelineStateManager = nullptr;
 	};
 
 	// グラフィックスエンジン
@@ -64,6 +68,8 @@ namespace Engine::Graphics
 		// マネージャー
 		std::unique_ptr<D3D12::GraphicsPSOManager>	m_upGrahicsPSOManager = nullptr;	// PSO管理
 		std::unique_ptr<D3D12::RootSignatureManager>		m_upRootSignatureManager = nullptr;	// ルートシグネチャ管理
+
+		D3D12::PipelineStateManager* m_pPipelineStateManager = nullptr;
 
 		// 形状描画クラス
 		std::unique_ptr<ShapeRenderer> m_upShapeRender = nullptr;
