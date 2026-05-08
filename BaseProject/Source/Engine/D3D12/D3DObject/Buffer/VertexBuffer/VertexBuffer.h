@@ -42,6 +42,7 @@ public:
 	/// 頂点バッファビューを取得
 	/// </summary>
 	const D3D12_VERTEX_BUFFER_VIEW& View()const;				// 頂点バッファビューを取得
+	const D3D12_VERTEX_BUFFER_VIEW* GetView()const;				// 頂点バッファビューを取得
 
 	// リソースのGPUアドレスを返す
 	const D3D12_GPU_VIRTUAL_ADDRESS& GetGPUVirtualAddress() const;
@@ -51,6 +52,9 @@ public:
 
 	// サイズ
 	UINT GetCount() const;
+
+	// 生存していたらTrue
+	bool Valid() const;
 
 private:
 

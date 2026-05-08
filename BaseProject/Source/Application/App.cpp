@@ -105,7 +105,6 @@ void Application::MainLoop()
 			_is = true;
 			Engine::Raytracing::RayEngine::Instance().CommitWorld();
 		}
-
 		
 		// 描画
 		Engine::MainEngine::Instance().BeginDraw();				// 描画開始

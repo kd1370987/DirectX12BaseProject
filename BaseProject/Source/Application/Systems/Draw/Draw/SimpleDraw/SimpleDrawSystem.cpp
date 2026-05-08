@@ -76,15 +76,15 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 							{
 							case Engine::Resource::Alpha::Opaque:
 								_pRCT->AddItem(RenderQueueType::Opaque, _item);
-								_pRCT->AddItem(RenderQueueType::Debug, _item);
+								//_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Mask:
 								_pRCT->AddItem(RenderQueueType::Opaque, _item);
-								_pRCT->AddItem(RenderQueueType::Debug, _item);
+								//_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Blend:
 								_pRCT->AddItem(RenderQueueType::Transparent, _item);
-								_pRCT->AddItem(RenderQueueType::Debug, _item);
+								//_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							default:
 								break;
@@ -95,7 +95,7 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 						auto& _coll = _item.pMesh->GetCollision();
 						for (auto& _cell : _coll.grid.cellVec)
 						{
-							_pRCT->RefShapeDraw()->AABB(_cell.box);
+							//_pRCT->RefShapeDraw()->AABB(_cell.box);
 						}
 					}
 				}

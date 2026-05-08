@@ -49,7 +49,7 @@ namespace Engine::Resource
 	public:
 
 		Model() = default;
-		//~Model() {};
+		~Model() {};
 
 		// モデル生成
 		void Import(const std::string& a_filePath);

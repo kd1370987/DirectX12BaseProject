@@ -13,7 +13,6 @@
 #include "Engine/D3D12//D3DObject/CommandList/CommandList.h"
 
 #include "Engine/Resource/Manager/ShaderManager/ShaderManager.h"
-//#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
@@ -316,10 +315,6 @@ namespace Engine::Graphics
 		}
 
 		// コマンドリストにバインド
-		//m_pCmdList->NGet()->SetGraphicsRootDescriptorTable(
-		//	a_rootIdx,
-		//	m_copyHeap.GetGPU(_startIdx)
-		//);
 		m_pCmdList->SetGraphicsRootDescriptorTable(
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
@@ -630,12 +625,18 @@ namespace Engine::Graphics
 			m_cb2_MeshTrans
 		);
 
-		if (a_pMesh != m_pCurrentMesh)
+		//if (a_pMesh != m_pCurrentMesh)
 		{
 			if (!a_pMesh) return;
-			m_pCmdList->IASetVertexBuffers(0,1,&a_pMesh->GetVertexBuffer().View());
-			m_pCmdList->IASetIndexBuffer(&a_pMesh->GetIndexBuffer().View());
-			m_pCurrentMesh = a_pMesh;
+			const auto* _pVertView = a_pMesh->GetVertexBuffer().GetView();
+			if (!_pVertView)return;
+			if (!a_pMesh->GetVertexBuffer().Valid()) return;
+			m_pCmdList->IASetVertexBuffers(0,1,_pVertView);
+			const auto* _pIndexView = a_pMesh->GetIndexBuffer().GetView();
+			if (!_pIndexView) return;
+			if (!a_pMesh->GetIndexBuffer().Valid()) return;
+			m_pCmdList->IASetIndexBuffer(_pIndexView);
+			//m_pCurrentMesh = a_pMesh;
 		}
 	}
 

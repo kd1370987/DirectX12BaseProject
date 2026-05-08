@@ -36,6 +36,7 @@ public:
 	/// インデックスバッファビューを取得
 	///	</summary>
 	const D3D12_INDEX_BUFFER_VIEW& View() const;
+	const D3D12_INDEX_BUFFER_VIEW* GetView() const;
 
 	/// <summary>
 	/// 登録されているインデックス数を取得
@@ -46,6 +47,8 @@ public:
 	const D3D12_GPU_VIRTUAL_ADDRESS& GetGPUVirtualAddress() const;
 
 	DXGI_FORMAT GetFormat() const;
+
+	bool Valid() const;
 
 private:
 
