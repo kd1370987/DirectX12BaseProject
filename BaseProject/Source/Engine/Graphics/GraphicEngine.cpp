@@ -136,6 +136,17 @@ namespace Engine::Graphics
 		);
 		_desc.flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		m_pPipelineStateManager->Request(_desc);
+		D3D12::RootSignatureDesc _sDesc;
+		_sDesc.AddRoot(RootParameterType::RootCBV, 0);
+		_sDesc.AddRoot(RootParameterType::RootCBV, 1);
+		_sDesc.AddRoot(RootParameterType::RootCBV, 2);
+		_sDesc.AddRoot(RootParameterType::RootCBV, 3);
+		_sDesc.AddRoot(RootParameterType::RootCBV, 4);
+		_sDesc.AddDescriptorHeap(
+			{ {RangeType::SRV,0}, { RangeType::SRV,1 }, { RangeType::SRV,2 }, { RangeType::SRV,3 } }
+		);
+		_sDesc.flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+		m_pPipelineStateManager->Request(_sDesc);
 
 		m_upRootSignatureManager->CreateRootSig(
 			"ForwardLithingPass",

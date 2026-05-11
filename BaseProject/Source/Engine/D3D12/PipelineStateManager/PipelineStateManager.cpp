@@ -32,6 +32,60 @@ namespace Engine::D3D12
 		m_rootSigMap[_hash] = _rootSig;
 		return _rootSig.Get();
 	}
+	ID3D12RootSignature* PipelineStateManager::Request(const std::string& a_shaderPath)
+	{
+		// バイナリデータ
+		ComPtr<ID3DBlob> _cpBlob = nullptr;
+		ComPtr<ID3DBlob> _cpRootSigBlob = nullptr;
+
+		// シェーダーバイトコードの読み込み
+		auto _hr = D3DReadFileToBlob(
+			StringUtility::ToWideString(a_shaderPath).c_str(),
+			_cpBlob.ReleaseAndGetAddressOf()
+		);
+		if (FAILED(_hr))
+		{
+			assert(0 && "ルートシグネチャ生成用のシェーダーファイル読み込みに失敗");
+			return nullptr;
+		}
+
+		// シェーダーバイトコードの読み込み
+		_hr = D3DGetBlobPart(
+			_cpBlob->GetBufferPointer(),
+			_cpBlob->GetBufferSize(),
+			D3D_BLOB_ROOT_SIGNATURE,
+			0,
+			&_cpRootSigBlob
+		);
+		if (SUCCEEDED(_hr))
+		{
+			// シェーダーからルートシグネチャの抽出に成功
+			// ルートシグネチャの部分からハッシュ値を求める
+			uint64_t _hash = CalcHash((void*)_cpRootSigBlob.Get(),_cpRootSigBlob->GetBufferSize());
+
+			// すでに構築されているルートシグネチャならポインタを返す
+			auto _it = m_rootSigMap.find(_hash);
+			if (_it != m_rootSigMap.end())
+			{
+				return _it->second.Get();
+			}
+
+			// なければ生成
+			ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(_cpRootSigBlob);
+			if (!_rootSig)
+			{
+				assert(0 && ".cso内にRootSignatureが見つかりませんでした");
+				return nullptr;
+			}
+
+			// 名前を付ける
+			_rootSig->SetName(StringUtility::ToWideString(a_shaderPath).c_str());
+
+			// マップに保存して返す
+			m_rootSigMap[_hash] = _rootSig;
+			return _rootSig.Get();
+		}
+	}
 	ID3D12PipelineState* PipelineStateManager::Request(const D3D12::GraphicsPipelineDesc& a_desc)
 	{
 		// ハッシュを求める

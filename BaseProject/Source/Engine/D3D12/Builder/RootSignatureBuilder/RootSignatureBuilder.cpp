@@ -259,4 +259,58 @@ namespace Engine::D3D12
 
 		return _pRootSignature;
 	}
+	ComPtr<ID3D12RootSignature> RootSignatureBuilder::Create(const std::string& a_path)
+	{
+		// バイナリデータを保持するための汎用バッファ
+		ComPtr<ID3DBlob> _pBlob = nullptr;		// シリアライズ済みルートシグネチャ(GPUに渡す最終バイナリ)
+		ComPtr<ID3DBlob> _pErrorBlob = nullptr;	// シリアライズに失敗したときのエラーメッセージが入るバッファ	
+
+		// シェーダーバイトコードの読み込み
+		auto _hr = D3DReadFileToBlob(
+			StringUtility::ToWideString(a_path).c_str(),
+			_pBlob.ReleaseAndGetAddressOf()
+		);
+		if (FAILED(_hr))
+		{
+			assert(0 && "ルートシグネチャ生成用のシェーダーファイル読み込みに失敗");
+			return nullptr;
+		}
+
+
+		// ルートシグネチャ生成
+		ComPtr<ID3D12RootSignature> _pRootSignature = nullptr;
+		_hr = D3D12Wrapper::Instance().GetDevice()->CreateRootSignature(
+			0,												// GPUが複数ある場合のノード（基本一個想定でいいから0）
+			_pBlob->GetBufferPointer(),						// シリアライズしたデータのポインタ
+			_pBlob->GetBufferSize(),						// シリアライズしたデータのサイズ
+			IID_PPV_ARGS(_pRootSignature.GetAddressOf())	// ルートシグネチャ格納先ポインタ
+		);
+		if (FAILED(_hr))
+		{
+			assert(0 && "ルートシグネチャの生成に失敗\n");
+			return nullptr;
+		}
+
+		return _pRootSignature;
+	}
+	ComPtr<ID3D12RootSignature> RootSignatureBuilder::Create(ComPtr<ID3DBlob> a_cpBlob)
+	{
+		ComPtr<ID3DBlob> _pErrorBlob = nullptr;	// シリアライズに失敗したときのエラーメッセージが入るバッファ	
+
+		// ルートシグネチャ生成
+		ComPtr<ID3D12RootSignature> _pRootSignature = nullptr;
+		auto _hr = D3D12Wrapper::Instance().GetDevice()->CreateRootSignature(
+			0,												// GPUが複数ある場合のノード（基本一個想定でいいから0）
+			a_cpBlob->GetBufferPointer(),						// シリアライズしたデータのポインタ
+			a_cpBlob->GetBufferSize(),						// シリアライズしたデータのサイズ
+			IID_PPV_ARGS(_pRootSignature.GetAddressOf())	// ルートシグネチャ格納先ポインタ
+		);
+		if (FAILED(_hr))
+		{
+			assert(0 && "ルートシグネチャの生成に失敗\n");
+			return nullptr;
+		}
+
+		return _pRootSignature;
+	}
 }

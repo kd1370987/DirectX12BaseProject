@@ -5,7 +5,7 @@ float2 SignNotZero(float2 v)
         v.x >= 0 ? 1.0 : -1.0,
         v.y >= 0 ? 1.0 : -1.0
     );
-}
+};
 
 float3 DecsodeNormal(float2 a_f)
 {
@@ -15,7 +15,7 @@ float3 DecsodeNormal(float2 a_f)
 		_n.xy = (1 - abs(_n.yx)) * SignNotZero(_n.xy);
 	}
 	return normalize(_n);
-}
+};
 
 float2 EncodeNormalOct(float3 a_n)
 {

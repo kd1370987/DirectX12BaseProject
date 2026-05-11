@@ -175,6 +175,13 @@ namespace Engine::Graphics
 			_psoDesc.psoDesc.SetRootSignature(m_pRootSigMana->NGet(m_rootSigID));
 		}
 	}
+	void RasterizePass::SetRootSig(ID3D12RootSignature* a_pRootSignature)
+	{
+		for (auto& [_type, _psoDesc] : m_psoMap)
+		{
+			_psoDesc.psoDesc.SetRootSignature(a_pRootSignature);
+		}
+	}
 	Engine::Resource::ID RasterizePass::AddWrite(const std::string & a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
 	{
 		// 依存関係の登録

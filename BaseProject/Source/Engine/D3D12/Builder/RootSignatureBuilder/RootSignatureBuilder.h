@@ -4,6 +4,8 @@ namespace Engine::D3D12
 	// ルートシグネチャ作成構造体
 	struct RootSignatureDesc
 	{
+		RootSignatureDesc() {};
+
 		void SetFlags(D3D12_ROOT_SIGNATURE_FLAGS a_flgas)
 		{
 			flags = a_flgas;
@@ -48,5 +50,7 @@ namespace Engine::D3D12
 		static D3D12_ROOT_SIGNATURE_DESC CreateDesc(const RootSignatureDesc& a_desc);
 		static ComPtr<ID3D12RootSignature> CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& a_desc);
 		static ComPtr<ID3D12RootSignature> Create(const RootSignatureDesc& a_desc);
+		static ComPtr<ID3D12RootSignature> Create(const std::string& a_path);
+		static ComPtr<ID3D12RootSignature> Create(ComPtr<ID3DBlob> a_cpBlob);
 	};
 }

@@ -4,6 +4,9 @@
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+
+#include "../../../../D3D12/Builder/RootSignatureBuilder/RootSignatureBuilder.h"
+#include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
 namespace Engine::Graphics
 {
 	void DebugLinePass::Excute(RenderContext* a_pCtx)
@@ -28,13 +31,21 @@ namespace Engine::Graphics
 
 	void DebugLinePass::CreatePass()
 	{
+		// ルートシグネチャの作成
+		D3D12::RootSignatureDesc _desc = {};
+		_desc.AddRoot(RootParameterType::RootCBV,0);
+		_desc.AddRoot(RootParameterType::RootCBV,1);
+		m_pRootSig = m_pPipelineStateManager->Request(_desc);
+
+		// PSOの作成
 		auto& _sPso = AddPSODesc(ERenderType::Static,RenderQueueType::Debug);
 		_sPso.SetName("DebugLinePass");
 
 		SetInputLayout(ERenderType::Static,D3D12::Input::gPosOnryLayout);
 		SetVS(ERenderType::Static,"Asset/Shader/Source/DebugLineShader/DebugLineVS.cso");
 		SetPS("Asset/Shader/Source/DebugLineShader/DebugLinePS.cso");
-		SetRootSig("DebugLine");
+		//SetRootSig("DebugLine");
+		SetRootSig(m_pRootSig);
 
 		_sPso.FillMode(D3D12_FILL_MODE_WIREFRAME);
 		_sPso.CullMode(D3D12_CULL_MODE_NONE);

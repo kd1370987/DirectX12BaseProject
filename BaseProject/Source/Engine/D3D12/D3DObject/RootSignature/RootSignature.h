@@ -9,15 +9,6 @@
 
 namespace Engine::D3D12
 {
-	struct RootSignatureDesc
-	{
-
-
-		// データ
-		std::string name;
-		D3D12_ROOT_SIGNATURE_DESC desc;
-	};
-
 	class RootSignature
 	{
 	public:
@@ -39,6 +30,7 @@ namespace Engine::D3D12
 		bool Create(
 			RootSigInit a_init
 		);
+
 
 		bool IsValid();					// ルートシグネチャの生成に成功しているか
 		ID3D12RootSignature* Get();		// ルートシグネチャを返す

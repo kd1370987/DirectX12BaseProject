@@ -216,6 +216,13 @@ namespace Engine::Graphics
 			Resource::Mesh* a_pMesh,
 			const DirectX::XMFLOAT4X4& a_worldMat
 		);
+		// ルートパラメタインデックスを指定してのメッシュバインド
+		void BindMesh(
+			UINT a_index,
+			Resource::Mesh* a_pMesh,
+			const DirectX::XMFLOAT4X4& a_worldMat
+
+		);
 
 		void BindIndex(
 			const DXSM::Vector4& a_vec4

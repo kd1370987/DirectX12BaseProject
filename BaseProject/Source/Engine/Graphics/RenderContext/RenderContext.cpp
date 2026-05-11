@@ -616,19 +616,28 @@ namespace Engine::Graphics
 		UINT _regiIdx =
 			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MeshTransCB);
 		assert(_regiIdx != UINT_MAX);
+
+		BindMesh(_regiIdx, a_pMesh, a_worldMat);
+	}
+
+	void RenderContext::BindMesh(UINT a_index, Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
+	{
+		// メッシュ変換行列の転送
+		m_cb2_MeshTrans.worldMat = a_worldMat;
 		BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
 			m_pCmdList->NGet(),
-			_regiIdx,
+			a_index,
 			m_cb2_MeshTrans
 		);
 
+		// 頂点バッファとインデックスバッファのセット
 		//if (a_pMesh != m_pCurrentMesh)
 		{
 			if (!a_pMesh) return;
 			const auto* _pVertView = a_pMesh->GetVertexBuffer().GetView();
 			if (!_pVertView)return;
 			if (!a_pMesh->GetVertexBuffer().Valid()) return;
-			m_pCmdList->IASetVertexBuffers(0,1,_pVertView);
+			m_pCmdList->IASetVertexBuffers(0, 1, _pVertView);
 			const auto* _pIndexView = a_pMesh->GetIndexBuffer().GetView();
 			if (!_pIndexView) return;
 			if (!a_pMesh->GetIndexBuffer().Valid()) return;

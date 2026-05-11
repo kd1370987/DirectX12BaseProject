@@ -2,6 +2,10 @@
 
 #include "../CalcNormal.hlsli"
 
+
+// HLSL側の記述例
+[RootSignature(GBUFFER_ROOT_SIG)]
+
 PSOutput ps(VSOutput a_input)
 {
 	PSOutput _out;

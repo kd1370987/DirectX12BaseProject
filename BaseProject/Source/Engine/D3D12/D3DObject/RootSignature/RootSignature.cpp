@@ -337,6 +337,7 @@ namespace Engine::D3D12
 		return true;
 	}
 
+	
 	bool RootSignature::IsValid()
 	{
 		return m_isValid;
