@@ -1,13 +1,12 @@
 
+#include "../RootSignatureLayout.hlsli"
+
 #define GBUFFER_ROOT_SIG \
 "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
-"CBV(b0), CBV(b1), CBV(b2), CBV(b3), CBV(b4), " \
+RS_CAMERA_CB ","\
+"CBV(b1), CBV(b2), CBV(b3), CBV(b4), " \
 "DescriptorTable(SRV(t0, numDescriptors=4)), " \
-"StaticSampler(s0, " \
-"    filter = FILTER_MIN_MAG_MIP_LINEAR, " \
-"    addressU = TEXTURE_ADDRESS_WRAP, " \
-"    addressV = TEXTURE_ADDRESS_WRAP, " \
-"    addressW = TEXTURE_ADDRESS_WRAP)"
+RS_STATIC_SAMPLER
 
 // カメラの定数バッファ
 cbuffer camera : register(b0)

@@ -2,6 +2,9 @@
 #include "../CalcLighting.hlsli"
 #include "../CalcNormal.hlsli"
 
+// ルートシグネチャ定義
+[RootSignature(DEFERRED_ROOT_SIG)]
+
 float3 ReconstructViewPos(float2 uv, float depth)
 {
 	float4 clip = float4(uv * 2 - 1, depth, 1);

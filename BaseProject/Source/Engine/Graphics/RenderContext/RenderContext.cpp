@@ -205,6 +205,11 @@ namespace Engine::Graphics
 		return m_upCBAllocater.get();
 	}
 
+	void RenderContext::BindRootCBV(UINT a_index, const void* a_pData, size_t a_size)
+	{
+		m_upCBAllocater->BindAndAttachDataRootCBV(m_pCmdList->NGet(), a_index, a_pData, a_size);
+	}
+
 	void RenderContext::ChangeRenderTarget(const std::vector<Resource::Handle<D3D12::RTV>>& a_rtvHandleVec, const Resource::Handle<D3D12::DSV>& a_dsvHandle)
 	{
 		// 変数用意
@@ -540,6 +545,11 @@ namespace Engine::Graphics
 			m_pCmdList->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
 			m_currentRootSigID = a_rootSigID;
 		}
+	}
+
+	void RenderContext::SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig)
+	{
+		m_pCmdList->SetGraphicsRootSignature(a_pRootSig);
 	}
 
 	void RenderContext::SetGraphicPSO(const Resource::Handle<D3D12::PipelineState>& a_handle)

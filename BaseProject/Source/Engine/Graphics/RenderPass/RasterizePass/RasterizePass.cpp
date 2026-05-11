@@ -26,7 +26,8 @@ namespace Engine::Graphics
 	void RasterizePass::Begine(RenderContext* a_pCtx)
 	{
 		a_pCtx->BindHeap();
-		a_pCtx->SetGraphicsRootSignature(m_rootSigID);
+		//a_pCtx->SetGraphicsRootSignature(m_rootSigID);
+		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
 		a_pCtx->BindCameraCB();
 	}
 	void RasterizePass::End(RenderContext * a_pCtx)
@@ -131,11 +132,16 @@ namespace Engine::Graphics
 		auto _it = m_psoMap.find(a_type);
 		if (_it != m_psoMap.end())
 		{
-
-			//Resource::Handle<Resource::Shader> _vsHandle = m_pShaderMana->Request(a_filePath);
 			Resource::Handle<Resource::Shader> _vsHandle = Resource::ShaderLoader::Request(a_filePath);
-			//_it->second.psoDesc.SetVS(m_pShaderMana->GetByteCode(_vsHandle));
 			_it->second.psoDesc.SetVS(Resource::ResourceManager::Instance().Get(_vsHandle)->GetByteCode());
+
+			m_pRootSig = m_pPipelineStateManager->Request(a_filePath);
+			if (!m_pRootSig)
+			{
+				assert(0 && "ルートシグネチャが設定されていません");
+				return;
+			}
+			_it->second.psoDesc.SetRootSignature(m_pRootSig);
 
 			return;
 		}

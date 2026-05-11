@@ -10,6 +10,9 @@ struct VSInput
 	float4 color : COLOR; // 頂点色
 };
 
+// ルートシグネチャ定義
+[RootSignature(GBUFFER_ROOT_SIG)]
+
 VSOutput vs(VSInput a_input)
 {
 	VSOutput _output = (VSOutput) 0; // アウトプット構造体を定義

@@ -1,5 +1,8 @@
 #include "SimpleShader.hlsli"
 
+// ルートシグネチャ定義
+[RootSignature(SIMPLE_ROOT_SIG)]
+
 VSOutput vs(VSInput a_input)
 {
     VSOutput _output = (VSOutput) 0;                    // アウトプット構造体を定義

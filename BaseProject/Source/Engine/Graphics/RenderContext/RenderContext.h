@@ -136,6 +136,11 @@ namespace Engine::Graphics
 		// 現在のフレームの定数バッファアロケーターにアクセス
 		CBAllocater* BindCB();
 
+		// 定数バッファをルートでバインド
+		void BindRootCBV(UINT a_index,const void* a_pData,size_t a_size);
+		template<typename T>
+		void BindRootCBV(UINT a_index,const T& a_data);
+
 		// レンダーターゲットの切り替え
 		// 基本的にハンドルで管理しているため内部以外では直接触らない
 		void ChangeRenderTarget(
@@ -194,6 +199,7 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
 		void SetGraphicsRootSignature(const Resource::ID& a_rootSigID);
+		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);
 
 		// パイプラインステートをセット、前回と変更がない場合はスキップ
 		void SetGraphicPSO(const Resource::Handle<D3D12::PipelineState>& a_handle);
@@ -203,9 +209,20 @@ namespace Engine::Graphics
 			const DirectX::XMFLOAT2& a_uv = { 0.0f,0.0f },
 			const DirectX::XMFLOAT2& a_tile = { 1.0f,1.0f }
 		);
+		void BindObuje(
+			UINT a_index,
+			const DirectX::XMFLOAT2& a_uv = { 0.0f,0.0f },
+			const DirectX::XMFLOAT2& a_tile = { 1.0f,1.0f }
+		);
 
 		// マテリアルをSRVとして送信、その際にマテリアルの定数も送信
 		void BindMaterial(
+			const Resource::Material* a_pMaterial,
+			const DirectX::XMFLOAT4& a_colorScale,
+			const DirectX::XMFLOAT3& a_emissiveScale
+		);
+		void BindMaterial(
+			UINT a_index,
 			const Resource::Material* a_pMaterial,
 			const DirectX::XMFLOAT4& a_colorScale,
 			const DirectX::XMFLOAT3& a_emissiveScale
@@ -328,4 +345,9 @@ namespace Engine::Graphics
 		// 描画用ポリゴン
 		std::shared_ptr<Resource::QuadPolygon> m_spQuadPolygon = nullptr;
 	};
+	template<typename T>
+	inline void RenderContext::BindRootCBV(UINT a_index, const T& a_data)
+	{
+		BindRootCBV(a_index, a_data, sizeof(T));
+	}
 }

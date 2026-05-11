@@ -1,3 +1,11 @@
+
+#include "../RootSignatureLayout.hlsli"
+
+#define DEBUGLINE_ROOT_SIG \
+"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
+RS_CAMERA_CB ","\
+"CBV(b1), " \
+
 // カメラの定数バッファ
 cbuffer cbCamera : register(b0)
 {

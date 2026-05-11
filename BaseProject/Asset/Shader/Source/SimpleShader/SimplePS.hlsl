@@ -1,5 +1,8 @@
 #include "SimpleShader.hlsli"
 
+// ルートシグネチャ定義
+[RootSignature(SIMPLE_ROOT_SIG)]
+
 float4 ps(VSOutput a_input) : SV_Target
 {
 	float4 base = g_mainTex.Sample(smp, a_input.uv) * baseColor;

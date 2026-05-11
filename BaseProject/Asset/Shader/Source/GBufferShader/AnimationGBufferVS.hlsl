@@ -1,7 +1,5 @@
 #include "GBufferShader.hlsli"
 
-
-
 // 頂点シェーダー入出力構造体
 struct VSInput
 {
@@ -13,6 +11,9 @@ struct VSInput
 	uint4 skinIndex : SKININDEX; // スキンメッシュのボーンインデックス（何番目のボーンに影響しているかのデータ（最大４））
 	float4 skinWeight : SKINWEIGHT; // ボーンの影響度（最大４）
 };
+
+// ルートシグネチャ定義
+[RootSignature(GBUFFER_ROOT_SIG)]
 
 VSOutput vs(VSInput a_input)
 {

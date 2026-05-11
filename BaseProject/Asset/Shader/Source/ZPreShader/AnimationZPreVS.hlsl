@@ -12,6 +12,9 @@ struct VSInput
 	float4 skinWeight : SKINWEIGHT; // ボーンの影響度（最大４）
 };
 
+// ルートシグネチャ定義
+[RootSignature(ZPRE_ROOT_SIG)]
+
 VSOutput vs(VSInput a_input)
 {
 	// スキニング

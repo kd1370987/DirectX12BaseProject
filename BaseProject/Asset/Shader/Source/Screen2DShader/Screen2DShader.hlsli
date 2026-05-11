@@ -1,3 +1,12 @@
+#include "../RootSignatureLayout.hlsli"
+
+#define SCREEN2D_ROOT_SIG \
+"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
+"CBV(b0), " \
+"DescriptorTable(SRV(t0, numDescriptors=1)), " \
+RS_STATIC_SAMPLER
+
+
 // 定数バッファ
 cbuffer cbUI : register(b0)
 {

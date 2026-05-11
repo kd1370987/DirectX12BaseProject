@@ -1,5 +1,8 @@
 #include "Test.hlsli"
 
+// ルートシグネチャ定義
+[RootSignature(TEST_ROOT_SIG)]
+
 #include "../CalcNormal.hlsli"
 
 float4 ps(VSOutput a_input) : SV_Target

@@ -1,3 +1,14 @@
+
+#include "../RootSignatureLayout.hlsli"
+
+
+#define TEST_ROOT_SIG \
+"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
+RS_CAMERA_CB ","\
+"CBV(b1), CBV(b2), CBV(b3), CBV(b4), " \
+"DescriptorTable(SRV(t0, numDescriptors=4)), " \
+RS_STATIC_SAMPLER
+
 // 頂点シェーダー入出力構造体
 struct VSInput
 {

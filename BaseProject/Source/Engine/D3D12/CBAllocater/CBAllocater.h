@@ -14,12 +14,15 @@ public:
 	}
 
 	// データをバインドして転送
+	void BindAndAttachDataRootCBV(ID3D12GraphicsCommandList* a_pCmdList, int a_descIndex, const void* a_data, size_t a_size);
 	template<typename T>
 	void BindAndAttachDataRootCBV(ID3D12GraphicsCommandList* a_pCmdList, int a_descIndex, const T& a_data);
 
 	// データをバインドして転送
 	template<typename T>
 	void BindAndAttachDataComputeRootCBV(ID3D12GraphicsCommandList* a_pCmdList, int a_descIndex, const T& a_data);
+
+
 
 	// 登録済みの構造体のみ
 	template<RootSigSemantic s>

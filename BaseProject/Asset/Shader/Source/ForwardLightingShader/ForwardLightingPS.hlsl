@@ -1,6 +1,8 @@
-#include "../../RootSignatureIncl/ForwardLightingRoot.hlsli"
+#include "ForwardLightingRoot.hlsli"
 
 #include "../CalcLighting.hlsli"
+// ルートシグネチャ定義
+[RootSignature(FOWARDLIGHTING_ROOT_SIG)]
 
 float4 ps(VSOutput a_input) : SV_Target
 {

@@ -1,5 +1,8 @@
 #include "DeferredLightingShader.hlsli"
 
+// ルートシグネチャ定義
+[RootSignature(DEFERRED_ROOT_SIG)]
+
 VSOutput vs(uint a_id : SV_VertexID)
 {
 	VSOutput _out;

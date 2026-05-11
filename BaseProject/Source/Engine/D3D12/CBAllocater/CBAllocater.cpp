@@ -35,6 +35,33 @@ void CBAllocater::RootCBVCreate(ID3D12Device* a_device, size_t a_memSize)
 	CreateCompute(a_memSize);
 }
 
+void CBAllocater::BindAndAttachDataRootCBV(ID3D12GraphicsCommandList* a_pCmdList, int a_descIndex, const void* a_data, size_t a_size)
+{
+	size_t _dataSize = (a_size + 0xff) & ~0xff; // 256バイトアライメント
+
+	int _useValue = static_cast<int>(_dataSize / 0x100);
+	if ((m_usedCount + _useValue) * 256 > m_capacity)
+	{
+		// ヒープに登録できる数を超えた
+		assert(0 && "アップロードヒープの上限を迎えました");
+		return;
+	}
+
+	// アドレス位置
+	int _top = m_usedCount;
+
+	// データ転送
+	std::memcpy(&m_pMappedData[_top].buff, &a_data, a_size);
+
+	// コマンドリストにセット
+	a_pCmdList->SetGraphicsRootConstantBufferView(
+		a_descIndex,
+		m_spResource->GetGPUVirtualAddress() + ((UINT64)_top * 0x100)
+	);
+
+	m_usedCount += _useValue;
+}
+
 void CBAllocater::CreateCompute(size_t a_memSize)
 {
 	UINT64 _sizeAligned = ((a_memSize + 0xff) & ~0xff);

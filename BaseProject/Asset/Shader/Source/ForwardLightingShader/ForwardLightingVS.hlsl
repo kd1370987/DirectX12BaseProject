@@ -1,4 +1,4 @@
-#include "../../RootSignatureIncl/ForwardLightingRoot.hlsli"
+#include "ForwardLightingRoot.hlsli"
 
 // 頂点シェーダー入出力構造体
 struct VSInput
@@ -9,6 +9,9 @@ struct VSInput
 	float3 tangent : TANGENT; // 接空間
 	float4 color : COLOR; // 頂点色
 };
+
+// ルートシグネチャ定義
+[RootSignature(FOWARDLIGHTING_ROOT_SIG)]
 
 VSOutput vs( VSInput a_input)
 {

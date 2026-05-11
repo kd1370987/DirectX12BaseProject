@@ -10,6 +10,9 @@ struct VSInput
 	float4 color : COLOR; // 頂点色
 };
 
+// ルートシグネチャ定義
+[RootSignature(ZPRE_ROOT_SIG)]
+
 VSOutput vs(VSInput a_input)
 {
 	// 座標と法線に適用

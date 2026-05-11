@@ -600,14 +600,14 @@
     <None Include="..\Library\imgui-docking\.gitattributes" />
     <None Include="..\Library\imgui-docking\.gitignore" />
     <None Include="Asset\Shader\Ray\Raytracing.hlsli" />
-    <None Include="Asset\Shader\RootSignatureIncl\DebugLineRoot.hlsli" />
-    <None Include="Asset\Shader\RootSignatureIncl\ForwardLightingRoot.hlsli" />
-    <None Include="Asset\Shader\RootSignatureIncl\GBufferRoot.hlsli" />
     <None Include="Asset\Shader\Source\CalcLighting.hlsli" />
     <None Include="Asset\Shader\Source\CalcNormal.hlsli" />
+    <None Include="Asset\Shader\Source\DebugLineShader\DebugLineRoot.hlsli" />
     <None Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingShader.hlsli" />
+    <None Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingRoot.hlsli" />
     <None Include="Asset\Shader\Source\GBufferShader\GBufferShader.hlsli" />
     <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli" />
+    <None Include="Asset\Shader\Source\RootSignatureLayout.hlsli" />
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli" />
     <None Include="Asset\Shader\Source\SimpleShader\SimpleShader.hlsli" />
     <None Include="Asset\Shader\Source\TestShader\Test.hlsli" />

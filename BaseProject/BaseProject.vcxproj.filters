@@ -376,9 +376,6 @@
     <Filter Include="Asset\Shader\Source\ForwardLightingShader">
       <UniqueIdentifier>{eb44b64b-2ec7-4517-8223-e7b0272a5244}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\RootSignetureIncl">
-      <UniqueIdentifier>{51273623-1d16-4fb6-b87b-33a752964d39}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Scene\TitleScene">
       <UniqueIdentifier>{bc9d74b2-f3b3-46ba-ba39-98cd9450c63d}</UniqueIdentifier>
     </Filter>
@@ -1865,20 +1862,20 @@
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli">
       <Filter>Asset\Shader\Source\Screen2DShader</Filter>
     </None>
-    <None Include="Asset\Shader\RootSignatureIncl\GBufferRoot.hlsli">
-      <Filter>Asset\Shader\RootSignetureIncl</Filter>
-    </None>
-    <None Include="Asset\Shader\RootSignatureIncl\ForwardLightingRoot.hlsli">
-      <Filter>Asset\Shader\RootSignetureIncl</Filter>
-    </None>
-    <None Include="Asset\Shader\RootSignatureIncl\DebugLineRoot.hlsli">
-      <Filter>Asset\Shader\RootSignetureIncl</Filter>
-    </None>
     <None Include="Asset\Shader\Ray\Raytracing.hlsli">
       <Filter>Asset\Shader\Ray</Filter>
     </None>
     <None Include="Asset\Shader\Source\TestShader\Test.hlsli">
       <Filter>Asset\Shader\Source\TestShader</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\RootSignatureLayout.hlsli">
+      <Filter>Asset\Shader\Source</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingRoot.hlsli">
+      <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\DebugLineShader\DebugLineRoot.hlsli">
+      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

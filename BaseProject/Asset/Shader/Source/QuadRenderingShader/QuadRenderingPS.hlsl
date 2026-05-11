@@ -1,5 +1,8 @@
 #include "QuadRenderingShader.hlsli"
 
+// ルートシグネチャ定義
+[RootSignature(QUADRENDERING_ROOT_SIG)]
+
 float3 ACESFilm(float3 x)
 {
 	float a = 2.51;

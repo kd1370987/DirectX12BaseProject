@@ -1,5 +1,9 @@
 #include "QuadRenderingShader.hlsli"
 
+
+// ルートシグネチャ定義
+[RootSignature(QUADRENDERING_ROOT_SIG)]
+
 Output vs(uint a_id : SV_VertexID)
 {
 	Output _output;

@@ -1,4 +1,6 @@
-#include "../../RootSignatureIncl/DebugLineRoot.hlsli"
+#include "DebugLineRoot.hlsli"
+// ルートシグネチャ定義
+[RootSignature(DEBUGLINE_ROOT_SIG)]
 
 VSOutput vs(VSInput a_input)
 {

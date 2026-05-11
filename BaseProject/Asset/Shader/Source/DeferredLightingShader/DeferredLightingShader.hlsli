@@ -1,3 +1,12 @@
+#include "../RootSignatureLayout.hlsli"
+
+#define DEFERRED_ROOT_SIG \
+"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
+RS_CAMERA_CB ","\
+"CBV(b1), " \
+"DescriptorTable(SRV(t0, numDescriptors=5)), " \
+RS_STATIC_SAMPLER
+
 // カメラの定数バッファ
 cbuffer camera : register(b0)
 {
