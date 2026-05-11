@@ -181,17 +181,18 @@ namespace Engine::Graphics
 			);
 		}
 
+		
+	}
+
+	void RenderContext::BindAmbientCB()
+	{
 		// 環境
-		_regiIdx =
-			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::AmbientCB);
-		if (D3D12::ERR_UINT != _regiIdx)
-		{
-			BindCB()->BindSemanticCBV<RootSigSemantic::AmbientCB>(
-				m_pCmdList->NGet(),
-				_regiIdx,
-				m_cb5_Ambient
-			);
-		}
+		BindCB()->BindSemanticCBV<RootSigSemantic::AmbientCB>(
+			m_pCmdList->NGet(),
+			1,
+			m_cb5_Ambient
+		);
+		
 	}
 
 
@@ -260,33 +261,33 @@ namespace Engine::Graphics
 		BindSRV(a_rootIdx,_cpuHandles);
 	}
 
-	void RenderContext::BindSRV(
-		RootSigSemantic a_sema,
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_srvHandle
-	)
-	{
-		UINT _regiIdx =
-			m_pRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
+	//void RenderContext::BindSRV(
+	//	RootSigSemantic a_sema,
+	//	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_srvHandle
+	//)
+	//{
+	//	UINT _regiIdx =
+	//		m_pRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
 
 
-		// SRVセット
-		if (D3D12::ERR_UINT != _regiIdx)
-		{
-			BindSRV(_regiIdx,a_srvHandle);
-		}
-	}
+	//	// SRVセット
+	//	if (D3D12::ERR_UINT != _regiIdx)
+	//	{
+	//		BindSRV(_regiIdx,a_srvHandle);
+	//	}
+	//}
 
-	void RenderContext::BindSRV(RootSigSemantic a_sema, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle)
-	{
-		UINT _regiIdx =
-			m_pRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
+	//void RenderContext::BindSRV(RootSigSemantic a_sema, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle)
+	//{
+	//	UINT _regiIdx =
+	//		m_pRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
 
-		// SRVセット
-		if (D3D12::ERR_UINT != _regiIdx)
-		{
-			BindSRV(_regiIdx, a_cpuHandle);
-		}
-	}
+	//	// SRVセット
+	//	if (D3D12::ERR_UINT != _regiIdx)
+	//	{
+	//		BindSRV(_regiIdx, a_cpuHandle);
+	//	}
+	//}
 
 	void RenderContext::BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles)
 	{
@@ -579,6 +580,20 @@ namespace Engine::Graphics
 		);
 	}
 
+	void RenderContext::BindObuje(UINT a_index, const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)
+	{
+		m_cb1_object.uvOffsetTiling.x = a_uv.x;
+		m_cb1_object.uvOffsetTiling.y = a_uv.y;
+		m_cb1_object.uvOffsetTiling.z = a_tile.x;
+		m_cb1_object.uvOffsetTiling.w = a_tile.y;
+
+		BindCB()->BindAndAttachDataRootCBV<CBObject>(
+			m_pCmdList->NGet(),
+			1,
+			m_cb1_object
+		);
+	}
+
 	void RenderContext::BindMaterial(
 		const Resource::Material* a_pMaterial,
 		const DirectX::XMFLOAT4& a_colorScale,
@@ -618,6 +633,45 @@ namespace Engine::Graphics
 			BindSRV(_regiIdx, _texVec);
 		}
 	}
+
+	void RenderContext::BindMaterial(UINT a_index, const Resource::Material* a_pMaterial, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
+	{
+		// ベースカラー
+		DXSM::Vector4 _colorScale(a_colorScale);
+		DXSM::Vector4 _materialScale(a_pMaterial->baseColor);
+		m_cb3_Material.baseColorXYZW = _materialScale * _colorScale;
+
+		// エミッシブ
+		DXSM::Vector3 _emissiveScale(a_emissiveScale);
+		DXSM::Vector3 _materialEmissiveScale(a_pMaterial->emissive);
+		DXSM::Vector3 _emiVec3 = _materialEmissiveScale * _emissiveScale;
+		m_cb3_Material.emissiveXYZ = { _emiVec3.x,_emiVec3.y,_emiVec3.z,1 };
+
+		// マテリアルラフネス
+		m_cb3_Material.metallicRoughnessXY = { a_pMaterial->metallic ,a_pMaterial->roughness,0,0 };
+
+		// マテリアルバッファバインド
+		BindCB()->BindAndAttachDataRootCBV<CBMaterial>(
+			m_pCmdList->NGet(),
+			a_index,
+			m_cb3_Material
+		);
+	}
+
+	void RenderContext::BindMaterialSRV(UINT a_index, const Resource::Material* a_pMaterial)
+	{
+		// SRVの送信
+		if (a_pMaterial != m_pCurrentMaterial)
+		{
+			std::vector<Resource::Handle<Resource::Texture>> _texVec = {};
+			_texVec.push_back(a_pMaterial->baseColorTex);
+			_texVec.push_back(a_pMaterial->metaRoughTex);
+			_texVec.push_back(a_pMaterial->emissiveTex);
+			_texVec.push_back(a_pMaterial->normalTex);
+			BindSRV(a_index, _texVec);
+		}
+	}
+
 
 	void RenderContext::BindMesh(Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
 	{
@@ -686,6 +740,25 @@ namespace Engine::Graphics
 		BindCB()->BindAndAttachDataRootCBV<CBBone>(
 			m_pCmdList->NGet(),
 			_regiIdx,
+			m_cb4_Bone
+		);
+	}
+
+	void RenderContext::BindIndex(UINT a_index, const DXSM::Vector4& a_vec4)
+	{}
+
+	void RenderContext::BindBone(UINT a_index, const DirectX::XMFLOAT4X4 * a_pMatVec, UINT a_count)
+	{
+		// 定数バッファにコピー
+		if (a_pMatVec)
+		{
+			std::memcpy(m_cb4_Bone.boneMat, a_pMatVec, sizeof(DirectX::XMFLOAT4X4) * a_count);
+		}
+
+		// バッファにコピー
+		BindCB()->BindAndAttachDataRootCBV<CBBone>(
+			m_pCmdList->NGet(),
+			a_index,
 			m_cb4_Bone
 		);
 	}

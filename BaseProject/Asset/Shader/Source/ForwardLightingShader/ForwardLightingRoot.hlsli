@@ -1,10 +1,14 @@
 #include "../RootSignatureLayout.hlsli"
 
-#define FOWARDLIGHTING_ROOT_SIG\
-"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT),"\
+#define FOWARDLIGHTING_ROOT_SIG \
+RS_FLAGS ","\
 RS_CAMERA_CB ","\
-"CBV(b1), CBV(b2), CBV(b3), CBV(b4), CBV(b5),"\
-"DescriptorTable(SRV(t0, numDescriptors=4)),"\
+"CBV(b1,visibility = SHADER_VISIBILITY_ALL),"\
+"CBV(b2,visibility = SHADER_VISIBILITY_ALL),"\
+"CBV(b3,visibility = SHADER_VISIBILITY_ALL),"\
+"CBV(b4,visibility = SHADER_VISIBILITY_ALL),"\
+"CBV(b5,visibility = SHADER_VISIBILITY_ALL),"\
+"DescriptorTable(SRV(t0, numDescriptors=4),visibility = SHADER_VISIBILITY_PIXEL),"\
 RS_STATIC_SAMPLER
 
 // カメラの定数バッファ

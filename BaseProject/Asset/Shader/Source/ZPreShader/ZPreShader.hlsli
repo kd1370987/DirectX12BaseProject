@@ -1,12 +1,14 @@
+#include "../RootSignatureLayout.hlsli"
+
 #define ZPRE_ROOT_SIG \
-"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
-"CBV(b0), CBV(b1), CBV(b2), CBV(b3), CBV(b4), " \
-"DescriptorTable(SRV(t0, numDescriptors=4)), " \
-"StaticSampler(s0, " \
-"    filter = FILTER_MIN_MAG_MIP_LINEAR, " \
-"    addressU = TEXTURE_ADDRESS_WRAP, " \
-"    addressV = TEXTURE_ADDRESS_WRAP, " \
-"    addressW = TEXTURE_ADDRESS_WRAP)"
+RS_FLAGS ","\
+RS_CAMERA_CB ","\
+"CBV(b1,visibility = SHADER_VISIBILITY_ALL),"\
+"CBV(b2,visibility = SHADER_VISIBILITY_ALL),"\
+"CBV(b3,visibility = SHADER_VISIBILITY_ALL),"\
+"CBV(b4,visibility = SHADER_VISIBILITY_ALL),"\
+"DescriptorTable(SRV(t0, numDescriptors=4),visibility = SHADER_VISIBILITY_PIXEL),"\
+RS_STATIC_SAMPLER
 
 // カメラの定数バッファ
 cbuffer camera : register(b0)

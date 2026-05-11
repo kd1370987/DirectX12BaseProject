@@ -4,15 +4,21 @@
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 namespace Engine::Graphics
 {
 	void DeferredLightingPass::Excute(RenderContext* a_pCtx)
 	{
-		Begine(a_pCtx);
+		//Begine(a_pCtx);
+		a_pCtx->BindHeap();
+		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
+		a_pCtx->BindCameraCB();
 
 		a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
+
+		a_pCtx->BindAmbientCB();
 
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gpuVec = {};
 
@@ -24,17 +30,12 @@ namespace Engine::Graphics
 			m_pRG->GetCPUHandle("Depth")
 		};
 
-		a_pCtx->BindSRV(
-			RootSigSemantic::PostScreenSRV,
-			_gpuVec
-		);
+		a_pCtx->BindSRV(2,_gpuVec);
 
 		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 
 		// 描画
-		_pCmdList->DrawInstanced(
-			3, 1, 0, 0
-		);
+		_pCmdList->DrawInstanced(3, 1, 0, 0);
 
 		End(a_pCtx);
 	}
@@ -46,7 +47,11 @@ namespace Engine::Graphics
 
 		SetVS(ERenderType::Static,"Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
 		SetPS("Asset/Shader/Source/DeferredLightingShader/DeferredLightingPS.cso");
-		SetRootSig("DeferredLighting");
+		//SetRootSig("DeferredLighting");
+
+		// ルートシグネチャ作成
+		//m_pRootSig = m_pPipelineStateManager->Request("Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
+		SetRootSig(m_pRootSig);
 
 		_sPso.DepthEnable(false);
 		_sPso.DepthWriteMask(false);

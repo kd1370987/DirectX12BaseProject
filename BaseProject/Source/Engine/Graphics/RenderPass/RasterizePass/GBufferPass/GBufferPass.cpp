@@ -6,11 +6,15 @@
 
 #include "../../../../D3D12/Builder/RootSignatureBuilder/RootSignatureBuilder.h"
 #include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Graphics
 {
 	void GBufferPass::Excute(RenderContext* a_pCtx)
 	{
-		Begine(a_pCtx);
+		//Begine(a_pCtx);
+		a_pCtx->BindHeap();
+		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
+		a_pCtx->BindCameraCB();
 
 		DrawQueue(a_pCtx);
 
@@ -33,21 +37,8 @@ namespace Engine::Graphics
 		SetPS("Asset/Shader/Source/GBufferShader/GBufferPS.cso");
 
 		// ルートシグネチャ作成
-		D3D12::RootSignatureDesc _desc;
-		_desc.AddRoot(RootParameterType::RootCBV, 0);
-		_desc.AddRoot(RootParameterType::RootCBV, 1);
-		_desc.AddRoot(RootParameterType::RootCBV, 2);
-		_desc.AddRoot(RootParameterType::RootCBV, 3);
-		_desc.AddRoot(RootParameterType::RootCBV, 4);
-		_desc.AddDescriptorHeap(
-			{ {RangeType::SRV,0}, { RangeType::SRV,1 }, { RangeType::SRV,2 }, { RangeType::SRV,3 } }
-		);
-		_desc.flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
-		//m_pRootSig = m_pPipelineStateManager->Request(_desc);
-		m_pRootSig = m_pPipelineStateManager->Request("Asset/Shader/Source/GBufferShader/GBufferVS.cso");
-
-		//SetRootSig("BaseRootSig");
-		SetRootSig(m_pRootSig);
+		//m_pRootSig = m_pPipelineStateManager->Request("Asset/Shader/Source/GBufferShader/GBufferVS.cso");
+		//SetRootSig(m_pRootSig);
 
 
 		_sPso.DepthEnable(true);

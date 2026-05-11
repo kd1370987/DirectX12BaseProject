@@ -8,13 +8,18 @@ namespace Engine::Graphics
 {
 	void FullScreenPass::Excute(RenderContext* a_pCtx)
 	{
-		Begine(a_pCtx);
+		//Begine(a_pCtx);
+
+		a_pCtx->BindHeap();
+		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
+		a_pCtx->BindCameraCB();
+
 		a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
 		auto _main = m_pRG->GetCPUHandle("QuadTexture");
 		auto _ui = m_pRG->GetCPUHandle("UITexture");
 
 		a_pCtx->ChangeBackBuffer();
-		a_pCtx->BindSRV(RootSigSemantic::PostScreenSRV, _main);
+		a_pCtx->BindSRV(0, _main);
 		a_pCtx->BindSRV(1, _ui);
 		a_pCtx->DrawQuad();
 
@@ -29,7 +34,7 @@ namespace Engine::Graphics
 
 		SetVS(ERenderType::Static,"Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso");
 		SetPS("Asset/Shader/Source/QuadRenderingShader/QuadRenderingPS.cso");
-		SetRootSig("QuadRendering");
+		//SetRootSig("QuadRendering");
 
 		_sPso.DepthEnable(false);
 		_sPso.StencilEnable(false);

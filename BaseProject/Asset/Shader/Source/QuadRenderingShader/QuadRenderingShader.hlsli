@@ -1,9 +1,9 @@
 #include "../RootSignatureLayout.hlsli"
 
 #define QUADRENDERING_ROOT_SIG \
-"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
-"DescriptorTable(SRV(t0, numDescriptors=1)), " \
-"DescriptorTable(SRV(t1, numDescriptors=1)), " \
+RS_FLAGS","\
+"DescriptorTable(SRV(t0, numDescriptors=1),visibility = SHADER_VISIBILITY_PIXEL), " \
+"DescriptorTable(SRV(t1, numDescriptors=1),visibility = SHADER_VISIBILITY_PIXEL), " \
 RS_STATIC_SAMPLER
 
 

@@ -2,9 +2,9 @@
 #include "../RootSignatureLayout.hlsli"
 
 #define DEBUGLINE_ROOT_SIG \
-"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
+RS_FLAGS","\
 RS_CAMERA_CB ","\
-"CBV(b1), " \
+"CBV(b1,visibility = SHADER_VISIBILITY_ALL), " \
 
 // カメラの定数バッファ
 cbuffer cbCamera : register(b0)

@@ -129,6 +129,7 @@ namespace Engine::Graphics
 
 		// 描画直前にカメラの情報をGPU側に送る
 		void BindCameraCB();
+		void BindAmbientCB();
 
 		//--------------------------------------------------------------------------------------------
 		// バッファ関係
@@ -152,8 +153,8 @@ namespace Engine::Graphics
 		void BindSRV(UINT a_rootIdx, std::vector<Resource::Handle<Resource::Texture>>& a_texHandles);
 
 		// SRVハンドルをもらってコピーする
-		void BindSRV(RootSigSemantic a_sema, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
-		void BindSRV(RootSigSemantic a_sema, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
+		//void BindSRV(RootSigSemantic a_sema, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
+		//void BindSRV(RootSigSemantic a_sema, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
 		void BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
 		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
 
@@ -227,6 +228,10 @@ namespace Engine::Graphics
 			const DirectX::XMFLOAT4& a_colorScale,
 			const DirectX::XMFLOAT3& a_emissiveScale
 		);
+		void BindMaterialSRV(
+			UINT a_index,
+			const Resource::Material* a_pMaterial
+		);
 
 		// mesh情報を送信、前回と変更がなければスキップ
 		void BindMesh(
@@ -247,6 +252,17 @@ namespace Engine::Graphics
 
 		// ボーン行列を送信、配列と長さを入れる
 		void BindBone(
+			const DirectX::XMFLOAT4X4* a_pMatVec,
+			UINT a_count
+		);
+		void BindIndex(
+			UINT a_index,
+			const DXSM::Vector4& a_vec4
+		);
+
+		// ボーン行列を送信、配列と長さを入れる
+		void BindBone(
+			UINT a_index,
 			const DirectX::XMFLOAT4X4* a_pMatVec,
 			UINT a_count
 		);

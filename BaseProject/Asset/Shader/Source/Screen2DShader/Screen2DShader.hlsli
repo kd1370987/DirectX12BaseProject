@@ -1,9 +1,9 @@
 #include "../RootSignatureLayout.hlsli"
 
 #define SCREEN2D_ROOT_SIG \
-"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
-"CBV(b0), " \
-"DescriptorTable(SRV(t0, numDescriptors=1)), " \
+RS_FLAGS","\
+"CBV(b0,visibility = SHADER_VISIBILITY_ALL), " \
+"DescriptorTable(SRV(t0, numDescriptors=1),visibility = SHADER_VISIBILITY_PIXEL), " \
 RS_STATIC_SAMPLER
 
 

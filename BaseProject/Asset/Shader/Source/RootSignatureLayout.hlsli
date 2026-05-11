@@ -9,4 +9,11 @@
 "    addressW = TEXTURE_ADDRESS_WRAP)"
 
 // 共通定数バッファ
-#define RS_CAMERA_CB "CBV(b0)"
+#define RS_CAMERA_CB "CBV(b0,visibility = SHADER_VISIBILITY_ALL)"
+
+// デフォルト用
+#define RS_FLAGS\
+"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | " \
+    "DENY_HULL_SHADER_ROOT_ACCESS | " \
+    "DENY_DOMAIN_SHADER_ROOT_ACCESS | " \
+    "DENY_GEOMETRY_SHADER_ROOT_ACCESS)"

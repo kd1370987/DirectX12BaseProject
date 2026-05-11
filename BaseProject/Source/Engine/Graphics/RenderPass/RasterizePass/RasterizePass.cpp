@@ -26,8 +26,8 @@ namespace Engine::Graphics
 	void RasterizePass::Begine(RenderContext* a_pCtx)
 	{
 		a_pCtx->BindHeap();
-		//a_pCtx->SetGraphicsRootSignature(m_rootSigID);
-		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
+		a_pCtx->SetGraphicsRootSignature(m_rootSigID);
+		//a_pCtx->SetGraphicsRootSignature(m_pRootSig);
 		a_pCtx->BindCameraCB();
 	}
 	void RasterizePass::End(RenderContext * a_pCtx)
@@ -49,18 +49,23 @@ namespace Engine::Graphics
 				// オブジェクト情報セット
 				DXSM::Vector2 _uv = {0,0};
 				DXSM::Vector2 _tile = {1,1};
-				a_pCtx->BindObuje(_uv, _tile);
+				//a_pCtx->BindObuje(_uv, _tile);
+				a_pCtx->BindObuje(1,_uv, _tile);
+				
 
 				// マテリアルのバインド
-				a_pCtx->BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
+				//a_pCtx->BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
+				a_pCtx->BindMaterial(3,_item.pMaterial, _item.colorScale, _item.emissiveScale);
+				a_pCtx->BindMaterialSRV(5,_item.pMaterial);
 
 				// メッシュのバインド
-				a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
+				a_pCtx->BindMesh(2,_item.pMesh, _item.worldMat);
 
 				// アニメーションタイプならボーンをバインド
 				if (_pso.second == RenderQueueType::AnimationOpaque || _pso.second == RenderQueueType::AnimationTransparent)
 				{
 					a_pCtx->BindBone(
+						4,
 						_item.pBoneMatrices,
 						_item.boneCount
 					);

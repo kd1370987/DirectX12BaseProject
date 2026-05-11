@@ -3,12 +3,18 @@
 #include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
 #include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
+
+#include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Graphics
 {
 	void ForwardLightingPass::Excute(RenderContext* a_pCtx)
 	{
 
-		Begine(a_pCtx);
+		//Begine(a_pCtx);
+
+		a_pCtx->BindHeap();
+		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
+		a_pCtx->BindCameraCB();
 
 		DrawQueue(a_pCtx);
 
@@ -39,7 +45,7 @@ namespace Engine::Graphics
 		SetInputLayout(ERenderType::Static,D3D12::Input::StaticLayout);
 		SetVS(ERenderType::Static,"Asset/Shader/Source/ForwardLightingShader/ForwardLightingVS.cso");
 		SetPS("Asset/Shader/Source/ForwardLightingShader/ForwardLightingPS.cso");
-		SetRootSig("ForwardLithingPass");
+		//SetRootSig("ForwardLithingPass");
 
 		_sPso.SetDepthStencilState(_depth);
 		_sPso.SetBlendState(_blend);
