@@ -1,6 +1,4 @@
 ﻿#include "BaseRenderPass.h"
-#include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
-#include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 
 namespace Engine::Graphics
@@ -8,9 +6,6 @@ namespace Engine::Graphics
 	void BaseRenderPass::Init(const PassInitDesc& a_initDesc)
 	{
 		m_pRG = a_initDesc.pRG;
-		m_pRootSigMana = a_initDesc.pRootSigMana;
-		m_pPSOMana = a_initDesc.pPSOMana;
-		
 		m_pPipelineStateManager = a_initDesc.pPipelineStateManager;
 
 		CreatePass();

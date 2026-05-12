@@ -14,8 +14,6 @@
 
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
-#include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
 
@@ -526,34 +524,14 @@ namespace Engine::Graphics
 	}
 
 
-	void RenderContext::SetGraphicsRootSignature(const Resource::ID& a_rootSigID)
-	{
-		// ルートシグネチャセット
-		if (a_rootSigID != m_currentRootSigID)
-		{
-			//m_pCmdList->NGet()->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
-			m_pCmdList->SetGraphicsRootSignature(m_pRootSigManager->NGet(a_rootSigID));
-			m_currentRootSigID = a_rootSigID;
-		}
-	}
+
 
 	void RenderContext::SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig)
 	{
 		m_pCmdList->SetGraphicsRootSignature(a_pRootSig);
 	}
 
-	void RenderContext::SetGraphicPSO(const Resource::Handle<D3D12::PipelineState>& a_handle)
-	{
-		// パイプラインステートセット
-		if (a_handle != m_currentPSOID)
-		{
-			m_pCmdList->NGet()->SetPipelineState(m_pGraphicsPSOManager->Ref(a_handle));
-			m_currentPSOID = a_handle;
-		}
 
-		// プリミティブトポロジーセット
-		m_pCmdList->NGet()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	}
 
 	void RenderContext::SetGraphicPSO(ID3D12PipelineState* a_pPSO)
 	{
@@ -727,9 +705,8 @@ namespace Engine::Graphics
 			);
 
 			// SRVの送信
-			UINT _regiIdx =m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
 			auto _handle = D3D12::DescriptorHeapManager::Instance().GetCPU(_item.srvHandleRange);
-			BindSRV(_regiIdx, _handle);
+			BindSRV(0, _handle);
 
 
 			// メッシュ変換行列の転送
@@ -746,17 +723,6 @@ namespace Engine::Graphics
 				6, 1, 0, 0, 0
 			);
 		}
-	}
-
-	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetImGuiGPUHandle(const std::string& a_name)
-	{
-		//return m_upRenderGraph->GetImGuiGPUHandle(a_name);
-		return D3D12_GPU_DESCRIPTOR_HANDLE();
-	}
-
-	void RenderContext::SetRasterizerFillMode(D3D12_FILL_MODE a_fillMode)
-	{
-
 	}
 
 	void RenderContext::ShapeDraw()

@@ -1,7 +1,5 @@
 ﻿#include "FullScreenPass.h"
 
-#include "Engine/D3D12/RootSignatureManager/RootSignatureManager.h"
-#include "Engine/D3D12/PSOManager/GraphicsPSOManager/GraphicsPSOManager.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Graphics

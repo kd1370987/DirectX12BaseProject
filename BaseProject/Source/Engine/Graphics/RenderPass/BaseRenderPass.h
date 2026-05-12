@@ -3,8 +3,6 @@
 
 namespace Engine::D3D12
 {
-	class GraphicsPSOManager;
-	class RootSignatureManager;
 	class PipelineStateManager;
 }
 namespace Engine::Graphics
@@ -17,8 +15,6 @@ namespace Engine::Graphics
 	struct PassInitDesc
 	{
 		RenderGraph* pRG = nullptr;
-		D3D12::RootSignatureManager* pRootSigMana = nullptr;
-		Engine::D3D12::GraphicsPSOManager* pPSOMana = nullptr;
 
 		D3D12::PipelineStateManager* pPipelineStateManager = nullptr;
 	};
@@ -74,9 +70,6 @@ namespace Engine::Graphics
 
 		// マネージャーやオーナーのキャッシュ
 		RenderGraph* m_pRG = nullptr;
-		D3D12::RootSignatureManager* m_pRootSigMana = nullptr;
-		D3D12::GraphicsPSOManager* m_pPSOMana = nullptr;
-
 		D3D12::PipelineStateManager* m_pPipelineStateManager = nullptr;
 	};
 }

@@ -52,23 +52,12 @@ namespace Engine::Graphics
 		Graphics::RenderContext* RefRenderContext();
 
 	private:
-
-		// マネージャ構築
-		void CreateManager();
-
-		// ルートシグネチャ定義
-		void RootSigDefinition();
-
-	private:
 		// レンダーコンテキスト
 		// 一フレーム内の描画情報を扱う
 		std::vector<std::unique_ptr<RenderContext>> m_upRenderContextVec = {};
 		UINT m_currentFrameIndex = 0;
 
-		// マネージャー
-		std::unique_ptr<D3D12::GraphicsPSOManager>	m_upGrahicsPSOManager = nullptr;	// PSO管理
-		std::unique_ptr<D3D12::RootSignatureManager>		m_upRootSignatureManager = nullptr;	// ルートシグネチャ管理
-
+		// PSOやルートシグネチャの管理
 		D3D12::PipelineStateManager* m_pPipelineStateManager = nullptr;
 
 		// 形状描画クラス

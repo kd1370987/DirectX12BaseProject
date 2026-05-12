@@ -39,11 +39,7 @@ namespace Engine::Graphics
 		RenderGraph();
 		~RenderGraph();
 
-		void Init(
-			D3D12::RootSignatureManager* a_pRootSigMana,
-			Engine::D3D12::GraphicsPSOManager* a_pPSOMana,
-			D3D12::PipelineStateManager* a_pPipelineStateManager
-		);
+		void Init(D3D12::PipelineStateManager* a_pPipelineStateManager);
 
 		void Release();
 

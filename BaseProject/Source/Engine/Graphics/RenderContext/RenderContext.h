@@ -153,8 +153,6 @@ namespace Engine::Graphics
 		void BindSRV(UINT a_rootIdx, std::vector<Resource::Handle<Resource::Texture>>& a_texHandles);
 
 		// SRVハンドルをもらってコピーする
-		//void BindSRV(RootSigSemantic a_sema, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
-		//void BindSRV(RootSigSemantic a_sema, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
 		void BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
 		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
 
@@ -199,11 +197,9 @@ namespace Engine::Graphics
 		// 描画パス構築
 		//--------------------------------------------------------------------------------------------
 		// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
-		void SetGraphicsRootSignature(const Resource::ID& a_rootSigID);
 		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);
 
 		// パイプラインステートをセット、前回と変更がない場合はスキップ
-		void SetGraphicPSO(const Resource::Handle<D3D12::PipelineState>& a_handle);
 		void SetGraphicPSO(ID3D12PipelineState* a_pPSO);
 
 		// プリミティブトポロジーセット
@@ -270,13 +266,6 @@ namespace Engine::Graphics
 
 		// UI描画
 		void DrawUIQueue(RenderQueueType2D a_type);
-
-		// レンダーグラフのテクスチャのハンドル取得
-		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle(const std::string& a_name);
-
-
-		// ラスタライザーモード設定
-		void SetRasterizerFillMode(D3D12_FILL_MODE a_fillMode);
 
 		// 形状描画
 		void ShapeDraw();

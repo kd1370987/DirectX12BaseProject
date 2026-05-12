@@ -28,11 +28,7 @@ namespace Engine::Graphics
 	RenderGraph::~RenderGraph()
 	{}
 
-	void RenderGraph::Init(
-		D3D12::RootSignatureManager* a_pRootSigMana,
-		Engine::D3D12::GraphicsPSOManager* a_pPSOMana,
-		D3D12::PipelineStateManager* a_pPipelineStateManager
-	)
+	void RenderGraph::Init(D3D12::PipelineStateManager* a_pPipelineStateManager)
 	{
 		// リソースマネージャー作成
 		m_upRGResourceManager = std::make_unique<RGResourceManager>();
@@ -127,8 +123,6 @@ namespace Engine::Graphics
 		{
 			PassInitDesc _desc = {};
 			_desc.pRG = this;
-			_desc.pRootSigMana = a_pRootSigMana;
-			_desc.pPSOMana = a_pPSOMana;
 			_desc.pPipelineStateManager = a_pPipelineStateManager;
 			_sp->Init(_desc);
 		}

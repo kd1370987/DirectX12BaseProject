@@ -277,15 +277,6 @@
     <Filter Include="Source\Engine\D3D12\CBAllocater">
       <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\PSOManager">
-      <UniqueIdentifier>{52b62cdd-c40c-46f5-846f-6f9627b15af5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\RootSignatureManager">
-      <UniqueIdentifier>{a4c76ca6-d0b7-4abd-a8a3-e1c3afa6d557}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager">
-      <UniqueIdentifier>{2e2ead88-4e2d-4c36-904f-f4e9cc99b4c4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass">
       <UniqueIdentifier>{b7ca8a92-62ab-4fcb-9e26-4f375a5877c6}</UniqueIdentifier>
     </Filter>
@@ -658,9 +649,6 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass">
       <UniqueIdentifier>{87c4bd3a-f6cf-4f20-a998-456a53488cde}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\PSOManager\ComputePSOManager">
-      <UniqueIdentifier>{83b8a546-47ca-4722-978b-99e0f0337f36}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Manager\ResourceManager">
       <UniqueIdentifier>{fec06c67-7f44-49cc-bdc4-192eda6f018f}</UniqueIdentifier>
     </Filter>
@@ -894,12 +882,6 @@
     <ClCompile Include="Source\Engine\D3D12\D3DObject\PipeLineState\PipelineState.cpp">
       <Filter>Source\Engine\D3D12\D3DObject\PipelineState</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.cpp">
-      <Filter>Source\Engine\D3D12\RootSignatureManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.cpp">
-      <Filter>Source\Engine\D3D12\PSOManager\GraphicsPSOManager</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager</Filter>
     </ClCompile>
@@ -1124,9 +1106,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\PSOManager\ComputePSOManager\ComputePSOManager.cpp">
-      <Filter>Source\Engine\D3D12\PSOManager\ComputePSOManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.cpp">
       <Filter>Source\Engine\Resource\Manager\ResourceManager</Filter>
@@ -1438,12 +1417,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\PipeLineState\PipelineState.h">
       <Filter>Source\Engine\D3D12\D3DObject\PipelineState</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\RootSignatureManager\RootSignatureManager.h">
-      <Filter>Source\Engine\D3D12\RootSignatureManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\PSOManager\GraphicsPSOManager\GraphicsPSOManager.h">
-      <Filter>Source\Engine\D3D12\PSOManager\GraphicsPSOManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager</Filter>
@@ -1762,9 +1735,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\PSOManager\ComputePSOManager\ComputePSOManager.h">
-      <Filter>Source\Engine\D3D12\PSOManager\ComputePSOManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourcePool\ResourcePool.h">
       <Filter>Source\Engine\Resource\Manager\ResourceManager\ResourcePool</Filter>
