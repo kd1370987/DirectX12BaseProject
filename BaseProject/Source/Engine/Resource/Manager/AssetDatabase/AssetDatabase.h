@@ -40,6 +40,12 @@ namespace Engine::Resource
 		// ファイルパスからGUIDを取得
 		Engine::GUID GetGUIDFromFilePath(const std::string& a_path);
 
+		// アクセサ
+		const std::unordered_map<std::string, std::vector<std::string>>& GetSupportedExtensionMap();
+		const std::unordered_map<Engine::GUID, AssetProperty>& GetAssetMap();
+		const std::unordered_map<std::string, std::vector<AssetProperty>>& GetTypeMetaMap();
+		const std::vector<AssetProperty>& GetTypeMetaVec(const std::string& a_type);
+
 	private:
 
 		// 新たにメタファイルの内容を作成して返す
@@ -58,6 +64,9 @@ namespace Engine::Resource
 
 		// 管理しているすべてのアセットメタデータ
 		std::unordered_map<Engine::GUID, AssetProperty> m_assetMap;
+
+		// 対応しているファイル拡張子ごとのメタデータ
+		std::unordered_map<std::string, std::vector<AssetProperty>> m_typeMetaMap = {};
 
 	// シングルトン
 	private:

@@ -49,4 +49,15 @@ namespace Engine::Resource
 	{
 		return m_cache;
 	}
+	const Handle<Model>& ModelLoader::GetHandle(const Engine::GUID& a_guid)
+	{
+		// すでに読み込み済みならそのハンドルを返す
+		auto _it = m_cache.find(a_guid);
+		if (_it != m_cache.end())
+		{
+			return _it->second;
+		}
+		// なければエラーハンドルを返す
+		return Handle<Model>();
+	}
 }

@@ -1,7 +1,6 @@
 ﻿#pragma once
 namespace Engine::Editor
 {
-	class ModelView;
 	class TextureView;
 
 	class AssetResourceView
@@ -17,7 +16,14 @@ namespace Engine::Editor
 
 	private:
 
-		std::unique_ptr<ModelView> m_upModelView = nullptr;
+		// リソースビューの作成
+		void ResourceView();
+
+		// 拡張子ごとの配列
+		void ExtensionVec();
+
+	private:
+
 		std::unique_ptr<TextureView> m_upTextureView = nullptr;
 
 	};

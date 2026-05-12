@@ -2,62 +2,89 @@
 //#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Loader/Model/ModelLoader.h"
+
+#include "../../ImGui/ImGuiHelper/ImGuiHelper.h"
+
 namespace Engine::Editor
 {
-	void ModelView::Init()
+	void ModelView::DrawModel(const Engine::GUID& a_guid)
 	{
+		// GUIDからハンドルを取得
+		auto _handle = Resource::ModelLoader::GetHandle(a_guid);
 
-	}
+		// ハンドルからモデルを取得
+		if (_handle == Resource::Handle<Resource::Model>()) return;
+		auto* _pModel = Resource::ResourceManager::Instance().Ref(_handle);
 
-	void ModelView::Draw()
-	{
-		if (ImGui::Begin("ModelStorageView"))
+		// アニメーション表示
+		if (ImGui::TreeNodeEx("Animation", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 		{
-			for (auto& _model : Engine::Resource::ModelLoader::GetAllCache())
-			{
-				std::string _tagName = "model";
-				if (ImGui::TreeNodeEx(_tagName.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
-				{
-					auto* _pModel = Engine::Resource::ResourceManager::Instance().Ref(_model.second);
-					// モデル情報描画
-					DrawModelView(*_pModel);
-
-					ImGui::TreePop();
-				}
-			}
-
+			AnimationView(*_pModel);
+			ImGui::TreePop();
 		}
-		ImGui::End();
+
+		// ノード配列表示
+		if (ImGui::TreeNodeEx("Node", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+		{
+			DrawModelView(*_pModel);
+			ImGui::TreePop();
+		}
 	}
+
 
 	void ModelView::DrawModelView(const Engine::Resource::Model& a_model)
 	{
 		// オリジナルノード
-		for (auto& _node : a_model.GetOriginalNodeVec())
+		for(size_t _i = 0; _i < a_model.GetOriginalNodeVec().size(); ++_i)
 		{
+			auto& _node = a_model.GetOriginalNodeVec()[_i];
+
+			ImGui::PushID(static_cast<int>(_i));
+
 			std::string _tagName = _node.name;
 			if (ImGui::TreeNodeEx(_tagName.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 			{
+				NodeView(_node);
+
 				// ノード描画
 				ImGui::TreePop();
 			}
+
+			ImGui::PopID();
 		}
 	}
 
-	void ModelView::NodeView(Engine::Resource::Node& a_node)
+	void ModelView::NodeView(const Engine::Resource::Node& a_node)
 	{
+		// ローカル座標表示
+		DXSM::Matrix _lMat = a_node.localTransform;
+		Editor::Helper::DrawMatrixForPOS_ROT_SCALE("LocalMat",_lMat);
+		// ワールド座標表示
+		DXSM::Matrix _wMat = a_node.worldTransform;
+		Editor::Helper::DrawMatrixForPOS_ROT_SCALE("WorldMat",_wMat);
 
 	}
 
-	void ModelView::MaterialView(Engine::Resource::Material& a_material)
-	{}
+	void ModelView::AnimationView(const Engine::Resource::Model& a_model)
+	{
+		auto& _aniVec = a_model.GetUPAnimationVec();
+		for(size_t _i = 0; _i < _aniVec.size(); ++_i)
+		{
+			auto& _upAni = _aniVec[_i];
 
-	void ModelView::MeshView(Engine::Resource::Mesh* a_pMesh)
-	{}
+			ImGui::PushID(static_cast<int>(_i));
 
-	void ModelView::AnimationView(Engine::Resource::AnimationData& a_animationData)
-	{}
+			if (ImGui::TreeNodeEx(_upAni->name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+			{
+				ImGui::Text("MaxTime");
+				ImGui::Text("%f", _upAni->maxLength);
 
-	void ModelView::CollisionView(Engine::Resource::Mesh& a_pMesh)
-	{}
+				ImGui::TreePop();
+			}
+
+			ImGui::PopID();
+
+		}
+
+	}
 }

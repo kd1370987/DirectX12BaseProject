@@ -134,6 +134,7 @@ namespace Engine::D3D12
 		std::unique_ptr<SwapChain>			m_upSwapChain = nullptr;		// スワップチェイン
 
 		std::unique_ptr<CommandQueue>		m_upCommandQueue = nullptr;		// コマンドキュー
+		std::unique_ptr<CommandQueue>		m_upCopyCommandQueue = nullptr;	// コピーコマンドキュー
 		std::unique_ptr<CommandList>		m_upCommandList = nullptr;		// コマンドリスト
 
 		HANDLE								m_fenceEvent = nullptr;		// フェンスで使うイベント

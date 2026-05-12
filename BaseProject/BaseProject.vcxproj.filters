@@ -718,6 +718,9 @@
     <Filter Include="Source\Engine\D3D12\Builder\RootSignatureBuilder">
       <UniqueIdentifier>{189bc6f8-8ed9-4bab-b9a7-4862b3cef861}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\ImGui\ImGuiHelper">
+      <UniqueIdentifier>{ff1415c5-7613-4b30-a537-30d7df8800ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1157,6 +1160,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp">
       <Filter>Source\Engine\D3D12\Builder\RootSignatureBuilder</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiHelper\ImGuiHelper.cpp">
+      <Filter>Source\Engine\Editor\ImGui\ImGuiHelper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1795,6 +1801,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.h">
       <Filter>Source\Engine\D3D12\Builder\RootSignatureBuilder</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiHelper\ImGuiHelper.h">
+      <Filter>Source\Engine\Editor\ImGui\ImGuiHelper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

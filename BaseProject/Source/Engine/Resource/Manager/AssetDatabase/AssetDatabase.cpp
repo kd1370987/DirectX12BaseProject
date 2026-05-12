@@ -94,6 +94,9 @@ namespace Engine::Resource
 
 			// GUIDをキーにして登録
 			m_assetMap[_property.guid] = _property;
+
+			// 拡張子ごとにメタ配列を作成
+			m_typeMetaMap[_property.type].push_back(_property);
 		}
 	}
 
@@ -129,6 +132,31 @@ namespace Engine::Resource
 		}
 
 		return Engine::DefaultGUID;
+	}
+
+	const std::unordered_map<std::string, std::vector<std::string>>& AssetDatabase::GetSupportedExtensionMap()
+	{
+		return m_supportedExtensionsMap;
+	}
+
+	const std::unordered_map<Engine::GUID, AssetDatabase::AssetProperty>& AssetDatabase::GetAssetMap()
+	{
+		return m_assetMap;
+	}
+
+	const std::unordered_map<std::string, std::vector<AssetDatabase::AssetProperty>>& AssetDatabase::GetTypeMetaMap()
+	{
+		return m_typeMetaMap;
+	}
+
+	const std::vector<AssetDatabase::AssetProperty>& AssetDatabase::GetTypeMetaVec(const std::string& a_type)
+	{
+		auto _it = m_typeMetaMap.find(a_type);
+		if (_it != m_typeMetaMap.end())
+		{
+			return _it->second;
+		}
+		return {};
 	}
 
 	nlohmann::json AssetDatabase::CreateMetaData(const std::filesystem::path& a_srcFile)

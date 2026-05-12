@@ -9,6 +9,7 @@ namespace Engine::Resource
 		static Handle<Model> Request(const std::string& a_path);
 
 		static const std::unordered_map<Engine::GUID, Handle<Model>>& GetAllCache();
+		static const Handle<Model>& GetHandle(const Engine::GUID& a_guid);
 
 	private:
 

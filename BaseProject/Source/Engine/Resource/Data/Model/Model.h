@@ -61,7 +61,7 @@ namespace Engine::Resource
 		const std::string& GetName() const { return m_name; }
 		const std::vector<std::unique_ptr<Material>>& GetMaterialVec() const { return m_upMaterialVec; }
 		const std::vector<std::unique_ptr<Mesh>>& GetSPMeshVec() const { return m_upMeshVec; }
-		const std::vector<std::unique_ptr<AnimationData>>& GetSPAnimationVec()const { return m_upAnimationVec; }
+		const std::vector<std::unique_ptr<AnimationData>>& GetUPAnimationVec()const { return m_upAnimationVec; }
 		const std::vector<Node>& GetOriginalNodeVec() const { return m_originalNodes; }
 		const std::vector<int>& GetRootNodeVec() const { return m_rootNodeIndices; }
 		const std::vector<int>& GetBoneNodeVec() const { return m_boneNodeIndices; }

@@ -5,20 +5,15 @@ namespace Engine::Editor
 	{
 	public:
 
-		void Init();
-
-		void Draw();
+		void DrawModel(const Engine::GUID& a_guid);
 
 	private:
 
-		//void DrawModelView(Engine::Resource::Model* a_pModel);
 		void DrawModelView(const Engine::Resource::Model& a_model);
 
-		void NodeView(Engine::Resource::Node& a_node);
+		void NodeView(const Engine::Resource::Node& a_node);
 
-		void MaterialView(Engine::Resource::Material& a_material);
-		void MeshView(Engine::Resource::Mesh* a_pMesh);
-		void AnimationView(Engine::Resource::AnimationData& a_animationData);
-		void CollisionView(Engine::Resource::Mesh& a_pMesh);
+	
+		void AnimationView(const Engine::Resource::Model& a_model);
 	};
 }

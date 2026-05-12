@@ -302,6 +302,7 @@
     <ClCompile Include="Source\Engine\Editor\ECSView\ECSView.cpp" />
     <ClCompile Include="Source\Engine\Editor\Editor.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp" />
+    <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiHelper\ImGuiHelper.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\Log\Log.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\Watch\Watch.cpp" />
     <ClCompile Include="Source\Engine\Editor\SceneView\EditorCamera\EditorCamera.cpp" />
@@ -507,6 +508,7 @@
     <ClInclude Include="Source\Engine\Editor\ECSView\ECSView.h" />
     <ClInclude Include="Source\Engine\Editor\Editor.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
+    <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiHelper\ImGuiHelper.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\Log\Log.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\OperationBox\OperationBox.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\Watch\Watch.h" />

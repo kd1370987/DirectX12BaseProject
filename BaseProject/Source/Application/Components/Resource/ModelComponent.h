@@ -2,6 +2,7 @@
 
 //#include "../../../Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../../Engine/Resource/Loader/Model/ModelLoader.h"
 
 struct ModelComponent
@@ -48,22 +49,38 @@ struct ModelComponent
 		// 選択UI
 		if (ImGui::BeginCombo("Change Model", "Select..."))
 		{
-			for (auto& [_guid, _handle] : Resource::ModelLoader::GetAllCache())
+			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("Model"))
 			{
-				// 選択中のモデルだったらフラグを立てる
-				bool _selected = (_comp.handle == _handle);
-
-				// 選択予定モデルの取得
-				auto* _pModel = Resource::ResourceManager::Instance().Get(_handle);;
+				// 現在のモデルと同じGUIDなら選択中フラグを立てる
+				bool _selected = (_comp.modelGUID == _prop.guid);
 
 				// 選択欄
-				if (ImGui::Selectable(_pModel->GetName().c_str(), _selected))
+				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
 				{
-					_comp.handle = _handle;
-					_comp.modelGUID = _guid;
+					// モデルのハンドル取得
+					// ロードされていなかったら止まる
+					_comp.handle = Resource::ModelLoader::Request(_prop.filePath);
+					_comp.modelGUID = _prop.guid;
 				}
 			}
 			ImGui::EndCombo();
+
+			//for (auto& [_guid, _handle] : Resource::ModelLoader::GetAllCache())
+			//{
+			//	// 選択中のモデルだったらフラグを立てる
+			//	bool _selected = (_comp.handle == _handle);
+
+			//	// 選択予定モデルの取得
+			//	auto* _pModel = Resource::ResourceManager::Instance().Get(_handle);;
+
+			//	// 選択欄
+			//	if (ImGui::Selectable(_pModel->GetName().c_str(), _selected))
+			//	{
+			//		_comp.handle = _handle;
+			//		_comp.modelGUID = _guid;
+			//	}
+			//}
+			//ImGui::EndCombo();
 		}
 
 		ImGui::Text("EmissiveScale");

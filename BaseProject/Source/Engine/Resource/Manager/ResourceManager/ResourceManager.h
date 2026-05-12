@@ -2,12 +2,26 @@
 
 #include "ResourcePool/ResourcePool.h"
 
+namespace Engine::D3D12
+{
+	class CommandAllocator;
+	class CommandList;
+	class Fence;
+}
+
 namespace Engine::Resource
 {
 	// リソースの管理のみ
 	class ResourceManager
 	{
 	public:
+
+		// 初期化
+		void Init(ID3D12Device* a_pDevice,ID3D12CommandQueue* a_copyQueue);
+
+		// 更新
+		void Update();
+
 
 		// リソースの追加
 		template<typename T>
@@ -37,6 +51,17 @@ namespace Engine::Resource
 		ResourcePool<Texture>		m_texturePool;			// テクスチャ
 		ResourcePool<Shader>		m_shaderPool;			// シェーダー
 		ResourcePool<ShaderLibrary>	m_shaderLibraryPool;	//シェーダーライブラリ
+
+		// リソース用D3D12オブジェクト群
+		ID3D12CommandQueue* m_pCopyCmdQueue = nullptr;
+		std::unique_ptr<D3D12::CommandAllocator> m_upCmdAllocator = nullptr;
+		std::unique_ptr<D3D12::CommandList> m_upCmdList = nullptr;
+		std::unique_ptr<D3D12::Fence> m_upFence = nullptr;
+		UINT64 m_fenceValue = 0;
+
+		// GPUに送信中かどうか
+		bool m_isUploading = false;
+
 
 	// シングルトン
 	private:

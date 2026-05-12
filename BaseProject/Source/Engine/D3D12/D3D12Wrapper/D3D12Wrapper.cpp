@@ -37,6 +37,17 @@ namespace Engine::D3D12
 			assert(0 && "コマンドキューの生成に失敗");
 			return false;
 		}
+		m_upCopyCommandQueue = std::make_unique<CommandQueue>();
+		if (!m_upCopyCommandQueue->Create(
+			m_upDevice->GetDevice(),
+			D3D12_COMMAND_LIST_TYPE_COPY,
+			D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+			D3D12_COMMAND_QUEUE_FLAG_NONE
+		))
+		{
+			assert(0 && "コピーコマンドキューの作成");
+			return false;
+		}
 		// スワップチェイン作成
 		m_upSwapChain = std::make_unique<SwapChain>();
 		if (!m_upSwapChain->Create(
