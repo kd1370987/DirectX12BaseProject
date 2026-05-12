@@ -11,9 +11,7 @@ namespace Engine::Graphics
 {
 	void GBufferPass::Excute(RenderContext* a_pCtx)
 	{
-		//Begine(a_pCtx);
-		a_pCtx->BindHeap();
-		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
+		Begine(a_pCtx);
 		a_pCtx->BindCameraCB();
 
 		DrawQueue(a_pCtx);
@@ -35,11 +33,6 @@ namespace Engine::Graphics
 		SetVS(ERenderType::Animation, "Asset/Shader/Source/GBufferShader/AnimationGBufferVS.cso");
 
 		SetPS("Asset/Shader/Source/GBufferShader/GBufferPS.cso");
-
-		// ルートシグネチャ作成
-		//m_pRootSig = m_pPipelineStateManager->Request("Asset/Shader/Source/GBufferShader/GBufferVS.cso");
-		//SetRootSig(m_pRootSig);
-
 
 		_sPso.DepthEnable(true);
 		_sPso.DepthWriteMask(false);

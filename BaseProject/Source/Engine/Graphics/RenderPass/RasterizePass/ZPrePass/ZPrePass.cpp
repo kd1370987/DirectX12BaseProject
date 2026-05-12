@@ -9,11 +9,9 @@ namespace Engine::Graphics
 {
 	void ZPrePass::Excute(RenderContext* a_pCtx)
 	{
-		//Begine(a_pCtx);
-		a_pCtx->BindHeap();
-		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
-		a_pCtx->BindCameraCB();
+		Begine(a_pCtx);
 
+		a_pCtx->BindCameraCB();
 		DrawQueue(a_pCtx);
 
 		End(a_pCtx);
@@ -26,8 +24,6 @@ namespace Engine::Graphics
 
 		_sPso.SetName("ZPreStatic");
 		_aPso.SetName("ZPreAnimation");
-
-		//SetRootSig("BaseRootSig");
 
 		SetInputLayout(ERenderType::Static,D3D12::Input::StaticLayout);
 		SetVS(ERenderType::Static,"Asset/Shader/Source/ZPreShader/ZPreVS.cso");

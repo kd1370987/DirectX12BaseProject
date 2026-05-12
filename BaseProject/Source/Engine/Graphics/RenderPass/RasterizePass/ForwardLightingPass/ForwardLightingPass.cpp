@@ -10,10 +10,7 @@ namespace Engine::Graphics
 	void ForwardLightingPass::Excute(RenderContext* a_pCtx)
 	{
 
-		//Begine(a_pCtx);
-
-		a_pCtx->BindHeap();
-		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
+		Begine(a_pCtx);
 		a_pCtx->BindCameraCB();
 
 		DrawQueue(a_pCtx);
@@ -45,8 +42,7 @@ namespace Engine::Graphics
 		SetInputLayout(ERenderType::Static,D3D12::Input::StaticLayout);
 		SetVS(ERenderType::Static,"Asset/Shader/Source/ForwardLightingShader/ForwardLightingVS.cso");
 		SetPS("Asset/Shader/Source/ForwardLightingShader/ForwardLightingPS.cso");
-		//SetRootSig("ForwardLithingPass");
-
+		
 		_sPso.SetDepthStencilState(_depth);
 		_sPso.SetBlendState(_blend);
 

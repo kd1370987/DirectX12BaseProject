@@ -11,12 +11,9 @@ namespace Engine::Graphics
 {
 	void DeferredLightingPass::Excute(RenderContext* a_pCtx)
 	{
-		//Begine(a_pCtx);
-		a_pCtx->BindHeap();
-		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
+		Begine(a_pCtx);
 		a_pCtx->BindCameraCB();
 
-		//a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
 		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
 
 		a_pCtx->BindAmbientCB();
@@ -48,11 +45,6 @@ namespace Engine::Graphics
 
 		SetVS(ERenderType::Static,"Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
 		SetPS("Asset/Shader/Source/DeferredLightingShader/DeferredLightingPS.cso");
-		//SetRootSig("DeferredLighting");
-
-		// ルートシグネチャ作成
-		//m_pRootSig = m_pPipelineStateManager->Request("Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
-		SetRootSig(m_pRootSig);
 
 		_sPso.DepthEnable(false);
 		_sPso.DepthWriteMask(false);

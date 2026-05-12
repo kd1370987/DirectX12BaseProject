@@ -8,13 +8,10 @@ namespace Engine::Graphics
 {
 	void ScreenUIPass::Excute(RenderContext* a_pCtx)
 	{
-		//Begine(a_pCtx);
-		a_pCtx->BindHeap();
-		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
-		//a_pCtx->BindCameraCB();
+		Begine(a_pCtx);
 
-		//a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
 		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
+
 		a_pCtx->DrawUIQueue(RenderQueueType2D::ScreenUI);
 
 		End(a_pCtx);
@@ -44,7 +41,6 @@ namespace Engine::Graphics
 		SetInputLayout(ERenderType::Static,D3D12::Input::Static2DLayout);
 		SetVS(ERenderType::Static,"Asset/Shader/Source/Screen2DShader/Screen2DVS.cso");
 		SetPS("Asset/Shader/Source/Screen2DShader/Screen2DPS.cso");
-		//SetRootSig("2DRootSig");
 
 		_psoDesc.SetDepthStencilState(_depthDesc);
 		_psoDesc.SetBlendState(_blendDesc);

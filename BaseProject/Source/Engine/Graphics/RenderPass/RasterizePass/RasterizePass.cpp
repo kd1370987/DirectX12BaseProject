@@ -19,24 +19,19 @@ namespace Engine::Graphics
 
 		for(auto&[_type,_desc] : m_psoMap)
 		{
-			//m_psoHandle.push_back({ m_pPSOMana->Request(_desc.psoDesc),_desc.type });
 			m_pPsoVec.push_back({m_pPipelineStateManager->Request(_desc.psoDesc),_desc.type});
 		}
 	}
 	void RasterizePass::Begine(RenderContext* a_pCtx)
 	{
 		a_pCtx->BindHeap();
-		a_pCtx->SetGraphicsRootSignature(m_rootSigID);
-		//a_pCtx->SetGraphicsRootSignature(m_pRootSig);
-		a_pCtx->BindCameraCB();
-		a_pCtx->SetPrimitive(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
 	}
 	void RasterizePass::End(RenderContext * a_pCtx)
 	{
 	}
 	void RasterizePass::DrawQueue(RenderContext * a_pCtx)
 	{
-		//for (auto& _pso : m_psoHandle)
 		for (auto& [_pPso,_type] : m_pPsoVec)
 		{
 			// PSOのセット
@@ -51,12 +46,10 @@ namespace Engine::Graphics
 				// オブジェクト情報セット
 				DXSM::Vector2 _uv = {0,0};
 				DXSM::Vector2 _tile = {1,1};
-				//a_pCtx->BindObuje(_uv, _tile);
 				a_pCtx->BindObuje(1,_uv, _tile);
 				
 
 				// マテリアルのバインド
-				//a_pCtx->BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
 				a_pCtx->BindMaterial(3,_item.pMaterial, _item.colorScale, _item.emissiveScale);
 				a_pCtx->BindMaterialSRV(5,_item.pMaterial);
 
@@ -120,44 +113,25 @@ namespace Engine::Graphics
 	}
 	void RasterizePass::SetPS(const ERenderType & a_type, const std::string & a_filePath)
 	{
+		// 指定タイプと同じタイプのPSOがあるか検索
 		auto _it = m_psoMap.find(a_type);
 		if (_it != m_psoMap.end())
 		{
-
-			//Resource::Handle<Resource::Shader> _psHandle = m_pShaderMana->Request(a_filePath);
-			//_it->second.psoDesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
+			// あればPSをリクエストしてセット
 			Resource::Handle<Resource::Shader> _psHandle = Resource::ShaderLoader::Request(a_filePath);
 			_it->second.psoDesc.SetPS(Resource::ResourceManager::Instance().Get(_psHandle)->GetByteCode());
-
 			return;
 		}
 		assert(0 && "追加されていないレイアウトタイプです");
 	}
 	void RasterizePass::SetPS(const std::string & a_filePath)
 	{
-		//Resource::Handle<Resource::Shader> _psHandle = m_pShaderMana->Request(a_filePath);
+		// 指定したPSを全PSOに適応
 		Resource::Handle<Resource::Shader> _psHandle = Resource::ShaderLoader::Request(a_filePath);
 		for (auto& [_type, _psoDesc] : m_psoMap)
 		{
-			//_psoDesc.psoDesc.SetPS(m_pShaderMana->GetByteCode(_psHandle));
 			_psoDesc.psoDesc.SetPS(Resource::ResourceManager::Instance().Get(_psHandle)->GetByteCode());
 		}
-	}
-	void RasterizePass::SetRootSig(const std::string & a_rootName)
-	{
-		// ルートシグネチャの取得
-		m_rootSigID = m_pRootSigMana->GetID(a_rootName);
-		for (auto& [_type, _psoDesc] : m_psoMap)
-		{
-			_psoDesc.psoDesc.SetRootSignature(m_pRootSigMana->NGet(m_rootSigID));
-		}
-	}
-	void RasterizePass::SetRootSig(ID3D12RootSignature* a_pRootSignature)
-	{
-		//for (auto& [_type, _psoDesc] : m_psoMap)
-		//{
-		//	_psoDesc.psoDesc.SetRootSignature(a_pRootSignature);
-		//}
 	}
 	Engine::Resource::ID RasterizePass::AddWrite(const std::string & a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
 	{

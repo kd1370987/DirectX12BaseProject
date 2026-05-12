@@ -40,11 +40,7 @@ namespace Engine::Graphics
 		// PSのセット
 		void SetPS(const ERenderType& a_type, const std::string& a_filePath);		// 片方ずつ
 		void SetPS(const std::string& a_filePath);									// 二つ同時に
-		
-		// ルートシグネチャセット
-		void SetRootSig(const std::string& a_rootName);
-		void SetRootSig(ID3D12RootSignature* a_pRootSignature);
-
+	
 		// 書き込み依存
 		Engine::Resource::ID AddWrite(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp) override;
 
@@ -53,12 +49,7 @@ namespace Engine::Graphics
 		// パスが使用するPSO
 		std::unordered_map<ERenderType, PassData> m_psoMap = {};
 
-		// ランタイム時データ
-		UINT m_rootSigID = 0;					// パスが使用するルートシグネチャ
-		//std::unordered_map<ERenderType, Resource::Handle<D3D12::PipelineState>> m_psoHandle = {};
-		//std::vector<std::pair<Resource::Handle<D3D12::PipelineState>, RenderQueueType>> m_psoHandle = {};
-
-		// ポインタに変更
+		// ランタイムデータ
 		ID3D12RootSignature* m_pRootSig;
 		std::vector<std::pair<ID3D12PipelineState*, RenderQueueType>> m_pPsoVec = {};
 	};

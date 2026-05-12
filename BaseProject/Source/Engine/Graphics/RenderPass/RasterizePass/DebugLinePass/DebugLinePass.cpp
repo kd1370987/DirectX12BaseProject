@@ -11,12 +11,9 @@ namespace Engine::Graphics
 {
 	void DebugLinePass::Excute(RenderContext* a_pCtx)
 	{
-		//Begine(a_pCtx);
-		a_pCtx->BindHeap();
-		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
+		Begine(a_pCtx);
 		a_pCtx->BindCameraCB();
 
-		//a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
 		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
 		a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
@@ -49,8 +46,6 @@ namespace Engine::Graphics
 		SetInputLayout(ERenderType::Static,D3D12::Input::gPosOnryLayout);
 		SetVS(ERenderType::Static,"Asset/Shader/Source/DebugLineShader/DebugLineVS.cso");
 		SetPS("Asset/Shader/Source/DebugLineShader/DebugLinePS.cso");
-		//SetRootSig("DebugLine");
-		//SetRootSig(m_pRootSig);
 
 		_sPso.FillMode(D3D12_FILL_MODE_WIREFRAME);
 		_sPso.CullMode(D3D12_CULL_MODE_NONE);
