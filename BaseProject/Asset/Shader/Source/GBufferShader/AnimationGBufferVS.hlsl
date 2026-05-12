@@ -13,7 +13,8 @@ struct VSInput
 };
 
 // ルートシグネチャ定義
-[RootSignature(GBUFFER_ROOT_SIG)]
+//[RootSignature(GBUFFER_ROOT_SIG)]
+[RootSignature(DEFAULT_ROOT_SIG)]
 
 VSOutput vs(VSInput a_input)
 {

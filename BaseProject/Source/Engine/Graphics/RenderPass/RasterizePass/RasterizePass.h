@@ -27,8 +27,7 @@ namespace Engine::Graphics
 
 		// 特定キューの描画
 		void DrawQueue(RenderContext* a_pCtx);
-		void DrawQueue(RenderContext* a_pCtx, RenderQueueType a_type, Resource::Handle<D3D12::PipelineState> a_handle);
-	
+		
 		// ヘルパー構造体
 		D3D12::GraphicsPipelineDesc& AddPSODesc(const ERenderType& a_type, const RenderQueueType& a_queueType);
 
@@ -57,7 +56,7 @@ namespace Engine::Graphics
 		// ランタイム時データ
 		UINT m_rootSigID = 0;					// パスが使用するルートシグネチャ
 		//std::unordered_map<ERenderType, Resource::Handle<D3D12::PipelineState>> m_psoHandle = {};
-		std::vector<std::pair<Resource::Handle<D3D12::PipelineState>, RenderQueueType>> m_psoHandle = {};
+		//std::vector<std::pair<Resource::Handle<D3D12::PipelineState>, RenderQueueType>> m_psoHandle = {};
 
 		// ポインタに変更
 		ID3D12RootSignature* m_pRootSig;

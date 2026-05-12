@@ -165,23 +165,12 @@ namespace Engine::Graphics
 
 	void RenderContext::BindCameraCB()
 	{
-		// レジスター番号取得
-		UINT _regiIdx =
-			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::CameraCB);
-
-
-		// ルートシグネチャにカメラCBが含まれているのなら
-		if (D3D12::ERR_UINT != _regiIdx)
-		{
-			// カメラ用定数バッファに転送
-			BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
-				m_pCmdList->NGet(),
-				_regiIdx,
-				m_cb0_camera
-			);
-		}
-
-		
+		// カメラ用定数バッファに転送
+		BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
+			m_pCmdList->NGet(),
+			0,
+			m_cb0_camera
+		);	
 	}
 
 	void RenderContext::BindAmbientCB()
@@ -566,19 +555,18 @@ namespace Engine::Graphics
 		m_pCmdList->NGet()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 
-	void RenderContext::BindObuje(const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)
+	void RenderContext::SetGraphicPSO(ID3D12PipelineState* a_pPSO)
 	{
-		m_cb1_object.uvOffsetTiling.x = a_uv.x;
-		m_cb1_object.uvOffsetTiling.y = a_uv.y;
-		m_cb1_object.uvOffsetTiling.z = a_tile.x;
-		m_cb1_object.uvOffsetTiling.w = a_tile.y;
-
-		BindCB()->BindAndAttachDataRootCBV<CBObject>(
-			m_pCmdList->NGet(),
-			1,
-			m_cb1_object
-		);
+		m_pCmdList->NGet()->SetPipelineState(a_pPSO);
+		// プリミティブトポロジーセット
+		m_pCmdList->NGet()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
+
+	void RenderContext::SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri)
+	{
+		m_pCmdList->NGet()->IASetPrimitiveTopology(a_pri);
+	}
+
 
 	void RenderContext::BindObuje(UINT a_index, const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)
 	{
@@ -594,45 +582,6 @@ namespace Engine::Graphics
 		);
 	}
 
-	void RenderContext::BindMaterial(
-		const Resource::Material* a_pMaterial,
-		const DirectX::XMFLOAT4& a_colorScale,
-		const DirectX::XMFLOAT3& a_emissiveScale
-	)
-	{
-		// ベースカラー
-		DXSM::Vector4 _colorScale(a_colorScale);
-		DXSM::Vector4 _materialScale(a_pMaterial->baseColor);
-		m_cb3_Material.baseColorXYZW = _materialScale * _colorScale;
-
-		// エミッシブ
-		DXSM::Vector3 _emissiveScale(a_emissiveScale);
-		DXSM::Vector3 _materialEmissiveScale(a_pMaterial->emissive);
-		DXSM::Vector3 _emiVec3 = _materialEmissiveScale * _emissiveScale;
-		m_cb3_Material.emissiveXYZ = { _emiVec3.x,_emiVec3.y,_emiVec3.z,1 };
-
-		// マテリアルラフネス
-		m_cb3_Material.metallicRoughnessXY = { a_pMaterial->metallic ,a_pMaterial->roughness,0,0 };
-
-		// マテリアルバッファバインド
-		BindCB()->BindAndAttachDataRootCBV<CBMaterial>(
-			m_pCmdList->NGet(),
-			3,
-			m_cb3_Material
-		);
-
-		// SRVの送信
-		UINT _regiIdx =m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialSRV);
-		if (a_pMaterial != m_pCurrentMaterial)
-		{
-			std::vector<Resource::Handle<Resource::Texture>> _texVec = {};
-			_texVec.push_back(a_pMaterial->baseColorTex);
-			_texVec.push_back(a_pMaterial->metaRoughTex);
-			_texVec.push_back(a_pMaterial->emissiveTex);
-			_texVec.push_back(a_pMaterial->normalTex);
-			BindSRV(_regiIdx, _texVec);
-		}
-	}
 
 	void RenderContext::BindMaterial(UINT a_index, const Resource::Material* a_pMaterial, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
 	{
@@ -673,17 +622,6 @@ namespace Engine::Graphics
 	}
 
 
-	void RenderContext::BindMesh(Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
-	{
-		// メッシュ変換行列の転送
-		m_cb2_MeshTrans.worldMat = a_worldMat;
-		UINT _regiIdx =
-			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MeshTransCB);
-		assert(_regiIdx != UINT_MAX);
-
-		BindMesh(_regiIdx, a_pMesh, a_worldMat);
-	}
-
 	void RenderContext::BindMesh(UINT a_index, Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
 	{
 		// メッシュ変換行列の転送
@@ -710,42 +648,6 @@ namespace Engine::Graphics
 		}
 	}
 
-	void RenderContext::BindIndex(const DXSM::Vector4& a_vec4)
-	{
-		CBMaterialIndex _s = {};
-		_s.indexXYZW = a_vec4;
-		UINT _regiIdx =
-			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::MaterialIndexCB);
-		BindCB()->BindAndAttachDataRootCBV<CBMaterialIndex>(
-			m_pCmdList->NGet(),
-			_regiIdx,
-			_s
-		);
-	}
-
-
-	void RenderContext::BindBone(const DirectX::XMFLOAT4X4* a_pMatVec, UINT a_count)
-	{
-		// 定数バッファにコピー
-		if (a_pMatVec)
-		{
-			std::memcpy(m_cb4_Bone.boneMat, a_pMatVec, sizeof(DirectX::XMFLOAT4X4) * a_count);
-		}
-
-		// ルートパラムインデックス確保
-		UINT _regiIdx =
-			m_pRootSigManager->GetRegiNum(m_currentRootSigID, RootSigSemantic::BoneCB);
-		
-		// バッファにコピー
-		BindCB()->BindAndAttachDataRootCBV<CBBone>(
-			m_pCmdList->NGet(),
-			_regiIdx,
-			m_cb4_Bone
-		);
-	}
-
-	void RenderContext::BindIndex(UINT a_index, const DXSM::Vector4& a_vec4)
-	{}
 
 	void RenderContext::BindBone(UINT a_index, const DirectX::XMFLOAT4X4 * a_pMatVec, UINT a_count)
 	{
@@ -850,12 +752,6 @@ namespace Engine::Graphics
 	{
 		//return m_upRenderGraph->GetImGuiGPUHandle(a_name);
 		return D3D12_GPU_DESCRIPTOR_HANDLE();
-	}
-
-	void RenderContext::SetPrimitive(D3D_PRIMITIVE_TOPOLOGY a_topology)
-	{
-		// プリミティブトポロジーセット
-		m_pCmdList->NGet()->IASetPrimitiveTopology(a_topology);
 	}
 
 	void RenderContext::SetRasterizerFillMode(D3D12_FILL_MODE a_fillMode)

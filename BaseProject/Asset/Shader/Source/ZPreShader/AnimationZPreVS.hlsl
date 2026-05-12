@@ -13,7 +13,8 @@ struct VSInput
 };
 
 // ルートシグネチャ定義
-[RootSignature(ZPRE_ROOT_SIG)]
+//[RootSignature(ZPRE_ROOT_SIG)]
+[RootSignature(DEFAULT_ROOT_SIG)]
 
 VSOutput vs(VSInput a_input)
 {

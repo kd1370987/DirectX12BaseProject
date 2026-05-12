@@ -3,7 +3,8 @@
 #include "../CalcNormal.hlsli"
 
 // ルートシグネチャ定義
-[RootSignature(GBUFFER_ROOT_SIG)]
+//[RootSignature(GBUFFER_ROOT_SIG)]
+[RootSignature(DEFAULT_ROOT_SIG)]
 
 PSOutput ps(VSOutput a_input)
 {

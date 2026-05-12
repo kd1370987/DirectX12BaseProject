@@ -204,12 +204,12 @@ namespace Engine::Graphics
 
 		// パイプラインステートをセット、前回と変更がない場合はスキップ
 		void SetGraphicPSO(const Resource::Handle<D3D12::PipelineState>& a_handle);
+		void SetGraphicPSO(ID3D12PipelineState* a_pPSO);
+
+		// プリミティブトポロジーセット
+		void SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri);
 
 		// 1Draw当たりのオブジェクトに対する定数
-		void BindObuje(
-			const DirectX::XMFLOAT2& a_uv = { 0.0f,0.0f },
-			const DirectX::XMFLOAT2& a_tile = { 1.0f,1.0f }
-		);
 		void BindObuje(
 			UINT a_index,
 			const DirectX::XMFLOAT2& a_uv = { 0.0f,0.0f },
@@ -217,11 +217,6 @@ namespace Engine::Graphics
 		);
 
 		// マテリアルをSRVとして送信、その際にマテリアルの定数も送信
-		void BindMaterial(
-			const Resource::Material* a_pMaterial,
-			const DirectX::XMFLOAT4& a_colorScale,
-			const DirectX::XMFLOAT3& a_emissiveScale
-		);
 		void BindMaterial(
 			UINT a_index,
 			const Resource::Material* a_pMaterial,
@@ -232,12 +227,6 @@ namespace Engine::Graphics
 			UINT a_index,
 			const Resource::Material* a_pMaterial
 		);
-
-		// mesh情報を送信、前回と変更がなければスキップ
-		void BindMesh(
-			Resource::Mesh* a_pMesh,
-			const DirectX::XMFLOAT4X4& a_worldMat
-		);
 		// ルートパラメタインデックスを指定してのメッシュバインド
 		void BindMesh(
 			UINT a_index,
@@ -245,21 +234,6 @@ namespace Engine::Graphics
 			const DirectX::XMFLOAT4X4& a_worldMat
 
 		);
-
-		void BindIndex(
-			const DXSM::Vector4& a_vec4
-		);
-
-		// ボーン行列を送信、配列と長さを入れる
-		void BindBone(
-			const DirectX::XMFLOAT4X4* a_pMatVec,
-			UINT a_count
-		);
-		void BindIndex(
-			UINT a_index,
-			const DXSM::Vector4& a_vec4
-		);
-
 		// ボーン行列を送信、配列と長さを入れる
 		void BindBone(
 			UINT a_index,
@@ -300,8 +274,6 @@ namespace Engine::Graphics
 		// レンダーグラフのテクスチャのハンドル取得
 		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle(const std::string& a_name);
 
-		// プリミティブトポロジーの設定
-		void SetPrimitive(D3D_PRIMITIVE_TOPOLOGY a_topology);
 
 		// ラスタライザーモード設定
 		void SetRasterizerFillMode(D3D12_FILL_MODE a_fillMode);

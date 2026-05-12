@@ -16,7 +16,8 @@ namespace Engine::Graphics
 		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
 		a_pCtx->BindCameraCB();
 
-		a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
+		//a_pCtx->SetGraphicPSO(m_psoHandle[0].first);
+		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
 
 		a_pCtx->BindAmbientCB();
 

@@ -61,7 +61,7 @@ namespace Engine::D3D12
 		{
 			// シェーダーからルートシグネチャの抽出に成功
 			// ルートシグネチャの部分からハッシュ値を求める
-			uint64_t _hash = CalcHash((void*)_cpRootSigBlob.Get(),_cpRootSigBlob->GetBufferSize());
+			uint64_t _hash = CalcHash((void*)_cpRootSigBlob->GetBufferPointer(), _cpRootSigBlob->GetBufferSize());
 
 			// すでに構築されているルートシグネチャならポインタを返す
 			auto _it = m_rootSigMap.find(_hash);

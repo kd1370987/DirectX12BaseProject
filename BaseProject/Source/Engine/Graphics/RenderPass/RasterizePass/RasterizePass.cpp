@@ -19,7 +19,7 @@ namespace Engine::Graphics
 
 		for(auto&[_type,_desc] : m_psoMap)
 		{
-			m_psoHandle.push_back({ m_pPSOMana->Request(_desc.psoDesc),_desc.type });
+			//m_psoHandle.push_back({ m_pPSOMana->Request(_desc.psoDesc),_desc.type });
 			m_pPsoVec.push_back({m_pPipelineStateManager->Request(_desc.psoDesc),_desc.type});
 		}
 	}
@@ -29,19 +29,21 @@ namespace Engine::Graphics
 		a_pCtx->SetGraphicsRootSignature(m_rootSigID);
 		//a_pCtx->SetGraphicsRootSignature(m_pRootSig);
 		a_pCtx->BindCameraCB();
+		a_pCtx->SetPrimitive(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 	void RasterizePass::End(RenderContext * a_pCtx)
 	{
 	}
 	void RasterizePass::DrawQueue(RenderContext * a_pCtx)
 	{
-		for (auto& _pso : m_psoHandle)
+		//for (auto& _pso : m_psoHandle)
+		for (auto& [_pPso,_type] : m_pPsoVec)
 		{
 			// PSOのセット
-			a_pCtx->SetGraphicPSO(_pso.first);
+			a_pCtx->SetGraphicPSO(_pPso);
 
 			// 指定タイプの命令キューを取得
-			auto& _draws = a_pCtx->GetItemVec(_pso.second);
+			auto& _draws = a_pCtx->GetItemVec(_type);
 			if (_draws.size() <= 0) continue;
 
 			for (auto& _item : _draws)
@@ -62,7 +64,7 @@ namespace Engine::Graphics
 				a_pCtx->BindMesh(2,_item.pMesh, _item.worldMat);
 
 				// アニメーションタイプならボーンをバインド
-				if (_pso.second == RenderQueueType::AnimationOpaque || _pso.second == RenderQueueType::AnimationTransparent)
+				if (_type == RenderQueueType::AnimationOpaque || _type == RenderQueueType::AnimationTransparent)
 				{
 					a_pCtx->BindBone(
 						4,
@@ -74,42 +76,6 @@ namespace Engine::Graphics
 				// 描画
 				a_pCtx->Draw(_item.pMesh,_item.subIdx);
 			}
-		}
-	}
-
-	void RasterizePass::DrawQueue(RenderContext* a_pCtx, RenderQueueType a_type, Resource::Handle<D3D12::PipelineState> a_handle)
-	{
-		// PSOのセット
-		a_pCtx->SetGraphicPSO(a_handle);
-
-		// 指定タイプの命令キューを取得
-		auto& _draws = a_pCtx->GetItemVec(a_type);
-		if (_draws.size() <= 0) return;
-
-		for (auto& _item : _draws)
-		{
-			// オブジェクト情報セット
-			DXSM::Vector2 _uv = { 0,0 };
-			DXSM::Vector2 _tile = { 1,1 };
-			a_pCtx->BindObuje(_uv, _tile);
-
-			// マテリアルのバインド
-			a_pCtx->BindMaterial(_item.pMaterial, _item.colorScale, _item.emissiveScale);
-
-			// メッシュのバインド
-			a_pCtx->BindMesh(_item.pMesh, _item.worldMat);
-
-			// アニメーションタイプならボーンをバインド
-			if (a_type == RenderQueueType::AnimationOpaque || a_type == RenderQueueType::AnimationTransparent)
-			{
-				a_pCtx->BindBone(
-					_item.pBoneMatrices,
-					_item.boneCount
-				);
-			}
-
-			// 描画
-			a_pCtx->Draw(_item.pMesh, _item.subIdx);
 		}
 	}
 	
@@ -188,10 +154,10 @@ namespace Engine::Graphics
 	}
 	void RasterizePass::SetRootSig(ID3D12RootSignature* a_pRootSignature)
 	{
-		for (auto& [_type, _psoDesc] : m_psoMap)
-		{
-			_psoDesc.psoDesc.SetRootSignature(a_pRootSignature);
-		}
+		//for (auto& [_type, _psoDesc] : m_psoMap)
+		//{
+		//	_psoDesc.psoDesc.SetRootSignature(a_pRootSignature);
+		//}
 	}
 	Engine::Resource::ID RasterizePass::AddWrite(const std::string & a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
 	{
