@@ -1,69 +1,60 @@
 ﻿#include "GPUBuffer.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../DescriptorHeapManager/DescriptorHeapManager.h"
 
-bool Engine::D3D12Buffer::GPUBuffer::Create(
-	D3D12_HEAP_TYPE a_heapType, 
-	size_t a_bufferSize, 
-	D3D12_RESOURCE_STATES a_initState,
-	const void* a_pInitData
-)
+namespace Engine::D3D12
 {
-	// 初期化情報
-	auto _prop = CD3DX12_HEAP_PROPERTIES(a_heapType);
-	auto _desc = CD3DX12_RESOURCE_DESC::Buffer(a_bufferSize);
-
-	// リソースの生成
-	HRESULT _hr = Engine::D3D12::D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
-		&_prop,
-		D3D12_HEAP_FLAG_NONE,
-		&_desc,
-		a_initState,
-		nullptr,
-		IID_PPV_ARGS(m_cpBuffer.GetAddressOf())
-	);
-	if (FAILED(_hr))
+	bool GPUBuffer::Create(ID3D12Device* a_pDevice, const GPUBufferDesc& a_desc)
 	{
-		return false;
+		// GPUリソースDesc作成
+		GPUResourceDesc _desc = {};
+		_desc.strideSize = a_desc.strideSize;
+		_desc.elementNum = a_desc.elementNum;
+		_desc.heapType = a_desc.heapType;
+
+		// バッファ用のリソースDesc作成
+		_desc.resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(a_desc.strideSize * a_desc.elementNum, a_desc.flags);
+
+		// バッファなのでクリアバリューはnullptr
+		_desc.pClearValue = nullptr;
+
+		// 初期化状態の決定
+		_desc.farstState = (a_desc.heapType == D3D12_HEAP_TYPE_UPLOAD)
+			? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COMMON;
+
+		return GPUResource::Create(a_pDevice,_desc);
 	}
 
-	// 初期化データがある場合はマッピングしてコピー
-	if (a_pInitData != nullptr)
+	void GPUBuffer::Map(void** a_ppData)
 	{
-		m_cpBuffer->Map(0, nullptr, (void**)m_mappedData);
-		memcpy(m_mappedData, a_pInitData, m_bufferSize);
-
-		// アップロードヒープ以外はマッピング解除(CPUとGPUの紐づけを解除)
-		if (a_heapType != D3D12_HEAP_TYPE_UPLOAD)
-		{
-			m_cpBuffer->Unmap(0, nullptr);
-		}
+		GetResource()->Map(0, nullptr, a_ppData);
 	}
 
-	// 記録
-	m_bufferSize = a_bufferSize;
-	m_currentState = a_initState;
+	void GPUBuffer::Unmap()
+	{
+		GetResource()->Unmap(0,nullptr);
+	}
 
-	return true;
-}
+	void GPUBuffer::Write(const void* a_pData, size_t a_size)
+	{
+		void* _pMappedData = nullptr;
+		Map(&_pMappedData);
+		memcpy(_pMappedData,a_pData,a_size);
+		Unmap();
+	}
+	void GPUBuffer::CreateSRVInternal(ID3D12Device* a_pDevice)
+	{
+		// 仕様書作成
+		D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
+		_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		_desc.Format = DXGI_FORMAT_UNKNOWN;
+		_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		_desc.Buffer.FirstElement = 0;
+		_desc.Buffer.NumElements = m_elementNum;
+		_desc.Buffer.StructureByteStride = m_strideSize;
+		_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
-
-void Engine::D3D12Buffer::GPUBuffer::Update(const void* a_pData)
-{
-	memcpy(m_mappedData, a_pData, m_bufferSize);
-}
-
-void Engine::D3D12Buffer::GPUBuffer::ChengeState(
-	ID3D12GraphicsCommandList* a_pCmdList, 
-	const D3D12_RESOURCE_STATES& a_nextState
-)
-{
-	// バリア
-	auto _barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-		m_cpBuffer.Get(),
-		m_currentState,
-		a_nextState
-	);
-	a_pCmdList->ResourceBarrier(1, &_barrier);
-
+		// ハンドルをもらう
+		m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, GetResource(), &_desc);
+	}
 }

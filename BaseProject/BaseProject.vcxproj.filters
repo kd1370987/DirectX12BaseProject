@@ -469,9 +469,6 @@
     <Filter Include="Source\Engine\D3D12\GPUBuffer">
       <UniqueIdentifier>{e4b2626a-2e42-4204-8de7-faa00db40a23}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer">
-      <UniqueIdentifier>{b5886805-75f3-4a66-984e-6b1969f6e1c1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\DescriptorHeapManager">
       <UniqueIdentifier>{669008e8-9307-48ec-90bd-30cfce7a8471}</UniqueIdentifier>
     </Filter>
@@ -720,6 +717,15 @@
     </Filter>
     <Filter Include="Source\Engine\Editor\ImGui\ImGuiHelper">
       <UniqueIdentifier>{ff1415c5-7613-4b30-a537-30d7df8800ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\D3DObject\GPUResource">
+      <UniqueIdentifier>{909d26b9-85a5-42c2-8264-b90c9be162a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer">
+      <UniqueIdentifier>{63da3fe7-5e49-47b4-abd8-55de9e6c16e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer">
+      <UniqueIdentifier>{50f09dc1-71f8-4a6b-8c01-3d9cae95dc77}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1163,6 +1169,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiHelper\ImGuiHelper.cpp">
       <Filter>Source\Engine\Editor\ImGui\ImGuiHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\D3DObject\GPUResource\GPUResource.cpp">
+      <Filter>Source\Engine\D3D12\D3DObject\GPUResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\VertexBuffer.cpp">
+      <Filter>Source\Engine\D3D12\GPUBuffer\VertexBuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1804,6 +1816,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiHelper\ImGuiHelper.h">
       <Filter>Source\Engine\Editor\ImGui\ImGuiHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3DObject\GPUResource\GPUResource.h">
+      <Filter>Source\Engine\D3D12\D3DObject\GPUResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\VertexBuffer.h">
+      <Filter>Source\Engine\D3D12\GPUBuffer\VertexBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

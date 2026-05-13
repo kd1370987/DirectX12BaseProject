@@ -107,8 +107,8 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 	// 構造体バッファ作成
 	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
-	//auto* _pCmdList = Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet();
+	//auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
+	auto* _pCmdList = Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet();
 	std::vector<RTVertex> _rtVertDataVec = {};
 	for (auto& _vert : a_vertices)
 	{

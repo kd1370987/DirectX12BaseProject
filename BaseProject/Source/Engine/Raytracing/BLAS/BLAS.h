@@ -7,7 +7,7 @@ namespace Engine::Raytracing
 	public:
 		// 頂点バッファとインデックスバッファから作成
 		void Create(
-			const VertexBuffer& a_vertexBuffer,
+			const D3D12::VertexBuffer<Resource::RTVertex>& a_vertexBuffer,
 			const IndexBuffer& a_indexBuffer
 		);
 		// ジオメトリ情報から作成

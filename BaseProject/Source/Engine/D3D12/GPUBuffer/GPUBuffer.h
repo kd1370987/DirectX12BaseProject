@@ -1,40 +1,40 @@
 ﻿#pragma once
 
-namespace Engine::D3D12Buffer
+#include "../D3DObject/GPUResource/GPUResource.h"
+
+namespace Engine::D3D12
 {
-	/// <summary>
+	struct GPUBufferDesc
+	{
+		size_t strideSize = 0;
+		size_t elementNum = 0;
+		D3D12_HEAP_TYPE heapType;
+		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
+	};
+
 	/// GPUバッファの基底クラス
-	/// </summary>
-	class GPUBuffer
+	class GPUBuffer : public GPUResource
 	{
 	public:
-		//=============================================================================
-		// 作成
-		//=============================================================================
-		bool Create(
-			D3D12_HEAP_TYPE a_heapType,
-			size_t a_bufferSize,
-			D3D12_RESOURCE_STATES a_initState = D3D12_RESOURCE_STATE_COMMON,
-			const void* a_pInitData = nullptr
-		);
+		virtual ~GPUBuffer() override = default;
 
-		
-		//=============================================================================
-		// 更新
-		//=============================================================================
-		// データ更新
-		void Update(const void* a_pData);
+		// バッファ専用の作成
+		bool Create(ID3D12Device* a_pDevice,const GPUBufferDesc& a_desc);
 
-		// ステート変更
-		void ChengeState(ID3D12GraphicsCommandList* a_pCmdList , const D3D12_RESOURCE_STATES& a_nextState);
-		
-	private:
+		// データの書き込み(アップロードヒープ用)
+		void Map(void** a_ppData);
+		void Unmap();
 
-		ComPtr<ID3D12Resource> m_cpBuffer = nullptr;			// バッファ本体
-		size_t m_bufferSize = 0;								// バッファのサイズ
-		uint8_t* m_mappedData = nullptr;						// マップされたデータのポインタ
+		// 一回限りの書きこみ
+		void Write(const void* a_pData,size_t a_size);
+	protected:
 
-		// 現在のリソースステート
-		D3D12_RESOURCE_STATES m_currentState = D3D12_RESOURCE_STATE_COMMON;
+		// SRV作成関数
+		void CreateSRVInternal(ID3D12Device* a_pDevice);
+
+	protected:
+
+		Resource::Handle<D3D12::SRV> m_srvHandle = {};
+
 	};
 }
