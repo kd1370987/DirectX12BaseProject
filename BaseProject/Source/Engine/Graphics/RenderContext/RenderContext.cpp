@@ -6,7 +6,6 @@
 #include "Engine/D3D12//D3DObject/RootSignature/RootSignature.h"
 #include "Engine/D3D12//D3DObject/PipeLineState/PipelineState.h"
 
-#include "Engine/D3D12//D3DObject/Buffer/VertexBuffer/VertexBuffer.h"
 #include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
 
