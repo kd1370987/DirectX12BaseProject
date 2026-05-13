@@ -27,14 +27,5 @@ namespace Engine::D3D12
 
 		// 一回限りの書きこみ
 		void Write(const void* a_pData,size_t a_size);
-	protected:
-
-		// SRV作成関数
-		void CreateSRVInternal(ID3D12Device* a_pDevice);
-
-	protected:
-
-		Resource::Handle<D3D12::SRV> m_srvHandle = {};
-
 	};
 }

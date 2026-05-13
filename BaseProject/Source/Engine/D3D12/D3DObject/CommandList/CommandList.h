@@ -157,6 +157,15 @@ namespace Engine::D3D12
 			const D3D12_RECT* a_pRects = nullptr
 		);
 
+		// 特定のリソースからリソースへコピーする
+		void CopyBufferRegion(
+			ID3D12Resource* a_pDstBuffer,
+			UINT64 a_dstOffset,
+			ID3D12Resource* a_pSrcBuffer,
+			UINT64 a_srcOffset,
+			UINT64 a_numBytes
+		);
+
 	private:
 
 		ComPtr<ID3D12GraphicsCommandList4> m_cpCommandList = nullptr;	// コマンドリスト

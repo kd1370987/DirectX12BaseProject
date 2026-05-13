@@ -262,12 +262,6 @@
     <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer">
       <UniqueIdentifier>{2f1e8228-3ce3-4ad3-89c4-3909c34b7e70}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\DepthStencilBuffer">
-      <UniqueIdentifier>{503d51f9-c56a-4a34-9cd7-11d638f58cbe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer">
-      <UniqueIdentifier>{72975e9a-9f87-44d6-9865-0b58e7458b7d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget">
       <UniqueIdentifier>{0dfe52dd-5346-49c7-8465-b8a174baffbf}</UniqueIdentifier>
     </Filter>
@@ -724,6 +718,15 @@
     <Filter Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer">
       <UniqueIdentifier>{50f09dc1-71f8-4a6b-8c01-3d9cae95dc77}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer">
+      <UniqueIdentifier>{1b8c016d-2357-4e6a-b3b2-3e71846683e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer">
+      <UniqueIdentifier>{0831f7f0-9114-4e25-9a18-123655a00ecb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer">
+      <UniqueIdentifier>{9ec7ad9f-bf3d-496a-82b5-60a90722f9e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -845,9 +848,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.cpp">
       <Filter>Source\Engine\D3D12\D3DObject\Buffer\RenderTarget</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer\IndexBuffer.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.cpp">
       <Filter>Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer</Filter>
@@ -1167,8 +1167,17 @@
     <ClCompile Include="Source\Engine\D3D12\D3DObject\GPUResource\GPUResource.cpp">
       <Filter>Source\Engine\D3D12\D3DObject\GPUResource</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\VertexBuffer.cpp">
-      <Filter>Source\Engine\D3D12\GPUBuffer\VertexBuffer</Filter>
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.cpp">
+      <Filter>Source\Engine\D3D12\GPUBuffer\IndexBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.cpp">
+      <Filter>Source\Engine\D3D12\GPUBuffer\DynamicBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp">
+      <Filter>Source\Engine\D3D12\GPUBuffer\StaticBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.cpp">
+      <Filter>Source\Engine\D3D12\GPUBuffer\StructuredBuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1387,9 +1396,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.h">
       <Filter>Source\Engine\D3D12\D3DObject\Buffer\RenderTarget</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer\IndexBuffer.h">
-      <Filter>Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.h">
       <Filter>Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer</Filter>
@@ -1811,8 +1817,20 @@
     <ClInclude Include="Source\Engine\D3D12\D3DObject\GPUResource\GPUResource.h">
       <Filter>Source\Engine\D3D12\D3DObject\GPUResource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\VertexBuffer.h">
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\DynamicVertexBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\VertexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.h">
+      <Filter>Source\Engine\D3D12\GPUBuffer\IndexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.h">
+      <Filter>Source\Engine\D3D12\GPUBuffer\DynamicBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.h">
+      <Filter>Source\Engine\D3D12\GPUBuffer\StaticBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h">
+      <Filter>Source\Engine\D3D12\GPUBuffer\StructuredBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

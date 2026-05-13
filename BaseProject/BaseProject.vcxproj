@@ -270,7 +270,6 @@
     <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer\IndexBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\StructuredBuffer\StructuredBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandAllocator\CommandAllocator.cpp" />
@@ -287,8 +286,11 @@
     <ClCompile Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\VertexBuffer.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.cpp" />
@@ -470,7 +472,6 @@
     <ClInclude Include="Source\Engine\D3D12\D3D12Common.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\ConstantBuffer\ConstantBuffer.h" />
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\IndexBuffer\IndexBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\StructuredBuffer\StructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandAllocator\CommandAllocator.h" />
@@ -488,8 +489,12 @@
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\HeapAllocater.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h" />
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\VertexBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\DynamicVertexBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.h" />
     <ClInclude Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.h" />
     <ClInclude Include="Source\Engine\ECS\ArchetypeChunk\ArchetypeChunk.h" />

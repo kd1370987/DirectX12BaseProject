@@ -9,18 +9,17 @@ namespace Engine::Resource
 
 		const D3D12_VERTEX_BUFFER_VIEW& GetVBView()
 		{
-			//return m_vertexBuffer.View();
 			return m_vertexBuffer.GetView();
 		}
 
 		const D3D12_INDEX_BUFFER_VIEW& GetIBView()
 		{
-			return m_indexBuffer.View();
+			return m_indexBuffer.GetView();
 		}
 
 	private:
 
-		D3D12::VertexBuffer<SimpleVertex> m_vertexBuffer;
-		IndexBuffer m_indexBuffer;
+		D3D12::DynamicVertexBuffer<SimpleVertex> m_vertexBuffer;
+		D3D12::DynamicIndexBuffer m_indexBuffer;
 	};
 }

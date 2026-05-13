@@ -1,6 +1,5 @@
 ﻿#include "GPUBuffer.h"
 
-#include "../DescriptorHeapManager/DescriptorHeapManager.h"
 
 namespace Engine::D3D12
 {
@@ -45,20 +44,5 @@ namespace Engine::D3D12
 		Map(&_pMappedData);
 		std::memcpy(_pMappedData,a_pData,a_size);
 		Unmap();
-	}
-	void GPUBuffer::CreateSRVInternal(ID3D12Device* a_pDevice)
-	{
-		// 仕様書作成
-		D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
-		_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-		_desc.Format = DXGI_FORMAT_UNKNOWN;
-		_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		_desc.Buffer.FirstElement = 0;
-		_desc.Buffer.NumElements = m_elementNum;
-		_desc.Buffer.StructureByteStride = m_strideSize;
-		_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-
-		// ハンドルをもらう
-		m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, GetResource(), &_desc);
 	}
 }

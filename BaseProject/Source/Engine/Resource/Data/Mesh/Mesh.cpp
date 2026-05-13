@@ -82,11 +82,11 @@ bool Engine::Resource::Mesh::CreateFloat(
 			_indices.push_back(_f.idx[2]);
 		}
 
-		if (!m_indexBuffer.Create(
-			(UINT)_indices.size(),
-			sizeof(UINT),
-			_indices.data()
-		))
+		D3D12::IndexBufferDesc _desc = {};
+		_desc.count = _indices.size();
+		_desc.pData = _indices.data();
+		_desc.format = DXGI_FORMAT_R32_UINT;
+		if (!m_indexBuffer.Create(_pDevice,_desc))
 		{
 			assert(0 && "インデックスバッファの生成に失敗");
 			return false;
@@ -104,7 +104,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 	//------------------------------
 	// BLAS作成
 	//------------------------------
-	m_indexBuffer.CreateSRV();
+	m_indexBuffer.CreateSRV(_pDevice);
 	m_vertexBuffer.CreateSRV(_pDevice);
 
 	CreateBLAS();
@@ -211,7 +211,7 @@ void Engine::Resource::Mesh::CreateBLAS()
 		// インデックスバッファ
 		_desc.Triangles.IndexBuffer = m_indexBuffer.GetGPUVirtualAddress() + sizeof(UINT) * _subset.faceStart * 3;
 		_desc.Triangles.IndexCount = _subset.faceCount * 3;
-		_desc.Triangles.IndexFormat = m_indexBuffer.GetFormat();
+		_desc.Triangles.IndexFormat = m_indexBuffer.GetView().Format;
 
 		_descVec.push_back(_desc);
 	}

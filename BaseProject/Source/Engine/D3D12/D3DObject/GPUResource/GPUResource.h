@@ -32,11 +32,11 @@ namespace Engine::D3D12
 		bool Create(ID3D12Device* pDevice ,const GPUResourceDesc& a_desc);
 
 		// ステート遷移
-		void Barrier(CommandList& a_cmdList,D3D12_RESOURCE_STATES a_nextState);
+		virtual void Barrier(CommandList& a_cmdList,D3D12_RESOURCE_STATES a_nextState);
 
 		// アクセサ
-		ID3D12Resource* GetResource() const;
-		D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const;
+		virtual ID3D12Resource* GetResource() const;
+		virtual D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const;
 		size_t GetBufferSize() const;
 		size_t GetStrideSize() const;
 		size_t GetElementNum() const;

@@ -162,5 +162,16 @@ namespace Engine::D3D12
 		);
 	}
 
+	void CommandList::CopyBufferRegion(ID3D12Resource* a_pDstBuffer, UINT64 a_dstOffset, ID3D12Resource* a_pSrcBuffer, UINT64 a_srcOffset, UINT64 a_numBytes)
+	{
+		m_cpCommandList->CopyBufferRegion(
+			a_pDstBuffer,
+			a_dstOffset,
+			a_pSrcBuffer,
+			a_srcOffset,
+			a_numBytes
+		);
+	}
+
 
 }

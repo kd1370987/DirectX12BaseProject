@@ -1,16 +1,16 @@
 ﻿#pragma once
 
-#include "../GPUBuffer.h"
+#include "../DynamicBuffer/DynamicBuffer.h"
 
 namespace Engine::D3D12
 {
 	template<typename T>
-	class VertexBuffer : public GPUBuffer
+	class DynamicVertexBuffer : public DynamicBuffer
 	{
 	public:
 
-		VertexBuffer() = default;
-		~VertexBuffer() override = default;
+		DynamicVertexBuffer() = default;
+		~DynamicVertexBuffer() override = default;
 
 		// 作成
 		bool Create(ID3D12Device* a_pDevice,size_t a_elementNum);
@@ -21,6 +21,7 @@ namespace Engine::D3D12
 
 		// アクセサ
 		const D3D12_VERTEX_BUFFER_VIEW& GetView() const;
+		const Resource::Handle<SRV>& GetSRVHandle() const;
 
 	private:
 
@@ -28,16 +29,15 @@ namespace Engine::D3D12
 
 	};
 	template<typename T>
-	inline bool VertexBuffer<T>::Create(ID3D12Device* a_pDevice, size_t a_elementNum)
+	inline bool DynamicVertexBuffer<T>::Create(ID3D12Device* a_pDevice, size_t a_elementNum)
 	{
 		// リソース作成
-		GPUBufferDesc _desc = {};
+		DynamicBufferDesc _desc = {};
 		_desc.elementNum = a_elementNum;
 		_desc.strideSize = sizeof(T);
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
-		_desc.heapType = D3D12_HEAP_TYPE_UPLOAD;
 
-		if (!GPUBuffer::Create(a_pDevice,_desc))
+		if (!DynamicBuffer::Create(a_pDevice,_desc))
 		{
 			assert(0 && "リソース作成失敗");
 			return false;
@@ -52,16 +52,15 @@ namespace Engine::D3D12
 		return true;
 	}
 	template<typename T>
-	inline bool VertexBuffer<T>::CreateAndUpload(ID3D12Device* a_pDevice, size_t a_elementNum, const void* a_pInitData)
+	inline bool DynamicVertexBuffer<T>::CreateAndUpload(ID3D12Device* a_pDevice, size_t a_elementNum, const void* a_pInitData)
 	{		
 		// リソース作成
-		GPUBufferDesc _desc = {};
+		DynamicBufferDesc _desc = {};
 		_desc.elementNum = a_elementNum;
 		_desc.strideSize = sizeof(T);
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
-		_desc.heapType = D3D12_HEAP_TYPE_UPLOAD;
 
-		if (!GPUBuffer::Create(a_pDevice, _desc))
+		if (!DynamicBuffer::Create(a_pDevice, _desc))
 		{
 			assert(0 && "リソース作成失敗");
 			return false;
@@ -76,18 +75,23 @@ namespace Engine::D3D12
 		// 初期化データがあればマップ
 		if (!a_pInitData) return true;
 
-		Write(a_pInitData,m_bufferSize);
+		DynamicBuffer::UpdateData(a_pInitData,GetBufferSize());
 
 		return true;
 	}
 	template<typename T>
-	inline void VertexBuffer<T>::CreateSRV(ID3D12Device* a_pDevice)
+	inline void DynamicVertexBuffer<T>::CreateSRV(ID3D12Device* a_pDevice)
 	{
-		GPUBuffer::CreateSRVInternal(a_pDevice);
+		DynamicBuffer::CreateSRVInternal(a_pDevice);
 	}
 	template<typename T>
-	inline const D3D12_VERTEX_BUFFER_VIEW& VertexBuffer<T>::GetView() const
+	inline const D3D12_VERTEX_BUFFER_VIEW& DynamicVertexBuffer<T>::GetView() const
 	{
 		return m_view;
+	}
+	template<typename T>
+	inline const Resource::Handle<SRV>& DynamicVertexBuffer<T>::GetSRVHandle() const
+	{
+		return m_srvHandle;
 	}
 }

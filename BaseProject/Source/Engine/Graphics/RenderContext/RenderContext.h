@@ -281,7 +281,7 @@ namespace Engine::Graphics
 		// 形状描画クラス
 		ShapeRenderer* m_pShapeDraw = nullptr;
 		//VertexBuffer m_shapeVertexBuffer = {};
-		D3D12::VertexBuffer<Resource::Vertex> m_shapeVertexBuffer = {};
+		D3D12::DynamicVertexBuffer<Resource::Vertex> m_shapeVertexBuffer = {};
 		
 
 		//--------------------------------------------------------------------------------------------

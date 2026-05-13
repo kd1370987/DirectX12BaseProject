@@ -6,7 +6,6 @@
 #include "Engine/D3D12//D3DObject/RootSignature/RootSignature.h"
 #include "Engine/D3D12//D3DObject/PipeLineState/PipelineState.h"
 
-#include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
 
 #include "Engine/D3D12//D3DObject/CommandList/CommandList.h"
@@ -616,11 +615,8 @@ namespace Engine::Graphics
 			if (!a_pMesh) return;
 			auto _vertView = a_pMesh->GetVertexBuffer().GetView();
 			m_pCmdList->IASetVertexBuffers(0, 1, &_vertView);
-			const auto* _pIndexView = a_pMesh->GetIndexBuffer().GetView();
-			if (!_pIndexView) return;
-			if (!a_pMesh->GetIndexBuffer().Valid()) return;
-			m_pCmdList->IASetIndexBuffer(_pIndexView);
-			//m_pCurrentMesh = a_pMesh;
+			const auto& _pIndexView = a_pMesh->GetIndexBuffer().GetView();
+			m_pCmdList->IASetIndexBuffer(&_pIndexView);
 		}
 	}
 

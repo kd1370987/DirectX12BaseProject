@@ -1,0 +1,62 @@
+﻿#pragma once
+
+#include "../StaticBuffer/StaticBuffer.h"
+
+namespace Engine::D3D12
+{
+	template<typename T>
+	class StaticStructuredBuffer : public StaticBuffer
+	{
+	public:
+
+		~StaticStructuredBuffer() override = default;
+
+		// 作成
+		void Create(ID3D12Device* a_pDevice, CommandList& a_cmdList,UINT a_elementNum,const T* a_pInitData);
+
+		// アクセサ
+		const D3D12_SHADER_RESOURCE_VIEW_DESC& GetView() const;
+		const Resource::Handle<D3D12::SRV>& GetSRVHandle() const;
+
+	private:
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC m_view = {};
+	};
+	template<typename T>
+	inline void StaticStructuredBuffer<T>::Create(ID3D12Device* a_pDevice, CommandList& a_cmdList, UINT a_elementNum, const T* a_pInitData)
+	{
+		StaticBufferDesc _desc = {};
+		_desc.elementNum = a_elementNum;
+		_desc.strideSize = sizeof(T);
+		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
+		if (!StaticBuffer::Create(a_pDevice, a_cmdList, _desc,a_pInitData))
+		{
+			assert(0 && "ストラクチャバッファの生成に失敗");
+			return;
+		}
+
+		// ビュー作成
+		m_view = {};
+		m_view.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		m_view.Format = DXGI_FORMAT_UNKNOWN;
+		m_view.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+		m_view.Buffer.FirstElement = 0;
+		m_view.Buffer.NumElements = m_elementNum;
+		m_view.Buffer.StructureByteStride = sizeof(T);
+		m_view.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+		// SRV作成
+		CreateSRVInternal(a_pDevice);
+	}
+	template<typename T>
+	inline const D3D12_SHADER_RESOURCE_VIEW_DESC& StaticStructuredBuffer<T>::GetView() const
+	{
+		return m_view;
+	}
+	template<typename T>
+	inline const Resource::Handle<D3D12::SRV>& StaticStructuredBuffer<T>::GetSRVHandle() const
+	{
+		return m_srvHandle;
+	}
+}

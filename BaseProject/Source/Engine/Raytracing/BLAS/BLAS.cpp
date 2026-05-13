@@ -4,7 +4,7 @@
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../D3D12/D3DObject/CommandList/CommandList.h"
 
-void Engine::Raytracing::BLAS::Create(const D3D12::VertexBuffer<Resource::RTVertex>& a_vertexBuffer, const IndexBuffer& a_indexBuffer)
+void Engine::Raytracing::BLAS::Create(const D3D12::DynamicVertexBuffer<Resource::RTVertex>& a_vertexBuffer, const D3D12::DynamicIndexBuffer& a_indexBuffer)
 {
 	// ジオメトリ情報生成
 	D3D12_RAYTRACING_GEOMETRY_DESC _desc = {};
@@ -16,8 +16,8 @@ void Engine::Raytracing::BLAS::Create(const D3D12::VertexBuffer<Resource::RTVert
 	_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 
 	_desc.Triangles.IndexBuffer = a_indexBuffer.GetGPUVirtualAddress();
-	_desc.Triangles.IndexCount = a_indexBuffer.GetCount();
-	_desc.Triangles.IndexFormat = a_indexBuffer.GetFormat();
+	_desc.Triangles.IndexCount = a_indexBuffer.GetElementNum();
+	_desc.Triangles.IndexFormat = a_indexBuffer.GetView().Format;
 
 	_desc.Triangles.Transform3x4 = 0;
 
