@@ -46,7 +46,6 @@ namespace Engine::Raytracing
 			float farClip = 1000.0f;		// 遠平面
 			float nearClip = 0.1f;			// 近平面
 		};
-
 		// GPUに送信するデータ
 		Camera m_camera;
 

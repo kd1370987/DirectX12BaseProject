@@ -99,7 +99,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 	m_indexBuffer.CreateSRV();
 	m_vertexBuffer.CreateSRV();
 
-	CreateBLAS();
+	//CreateBLAS();
 
 	m_vertexData = a_vertices;
 
@@ -132,22 +132,22 @@ bool Engine::Resource::Mesh::CreateFloat(
 	m_sIndexBuffer.SetHandle(_handle);
 
 	// コマンドキューリセット
-	Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+	//Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
 
-	m_sVertexBuffer.Update(_pDevice, _pCmdList);
-	m_sIndexBuffer.Update(_pDevice,_pCmdList);
+	//m_sVertexBuffer.Update(_pDevice, _pCmdList);
+	//m_sIndexBuffer.Update(_pDevice,_pCmdList);
 
-	// コマンドリストをクローズ
-	_pCmdList->Close();
+	//// コマンドリストをクローズ
+	//_pCmdList->Close();
 
-	// コマンドキューに積む
-	ID3D12CommandList* _ppCommandLists[] = { _pCmdList };
-	auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCommandQueue();
-	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
+	//// コマンドキューに積む
+	//ID3D12CommandList* _ppCommandLists[] = { _pCmdList };
+	//auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCommandQueue();
+	//_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
-	// 終了待ち
-	Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
-	Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
+	//// 終了待ち
+	//Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
+	//Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
 
 	return true;
 }

@@ -3,7 +3,7 @@
 #include "Engine/Window/NativeWindow.h"
 #include "Engine/TimeManager/TimeManager.h"
 #include "Resource/Manager/AssetDatabase/AssetDatabase.h"
-//#include "Resource/Manager/ModelManager/ModelManager.h"
+#include "Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
@@ -75,6 +75,12 @@ namespace Engine
 			assert(0 && "ディスクリプタヒープマネージャーの初期化に失敗");
 			return;
 		}
+
+		// リソースマネージャー
+		Resource::ResourceManager::Instance().Init(
+			D3D12::D3D12Wrapper::Instance().GetDevice(),
+			D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue()
+		);
 
 		// パイプラインステート・ルートシグネチャ管理
 		m_upPipelineStateManager = std::make_unique<D3D12::PipelineStateManager>();
@@ -161,6 +167,9 @@ namespace Engine
 		// 入力更新
 		Input::InputManager::Instance().Update();
 
+		// リソース
+		Resource::ResourceManager::Instance().Update();
+
 		return true;
 	}
 
@@ -233,15 +242,7 @@ namespace Engine
 	}
 	void MainEngine::InitializeAssetDatabase()
 	{
-		//if (m_upAssetDatabase) return;
 
-		//m_upAssetDatabase = std::make_unique<Resource::AssetDatabase>();
-
-		// 初期化
-		//Resource::AssetDatabase::Instance().Init(
-		//	"Asset/",			// クロールフォルダ指定
-		//	".assetmeta"		// 作成拡張子
-		//);
 		Resource::AssetDatabase::Instance().Init(
 			"Asset/",			// クロールフォルダ指定
 			".assetmeta"		// 作成拡張子
@@ -268,8 +269,5 @@ namespace Engine
 
 		// ランタイムデータ作成
 		Resource::AssetDatabase::Instance().CreateRuntimeData();
-
-		//Engine::Resource::ModelManager::Instnace().Init(m_upAssetDatabase.get());
-		//Engine::Resource::ModelManager::Instnace().Init();
 	}
 }

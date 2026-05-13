@@ -40,7 +40,7 @@ namespace Engine::D3D12
 		m_upCopyCommandQueue = std::make_unique<CommandQueue>();
 		if (!m_upCopyCommandQueue->Create(
 			m_upDevice->GetDevice(),
-			D3D12_COMMAND_LIST_TYPE_COPY,
+			D3D12_COMMAND_LIST_TYPE_DIRECT,
 			D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
 			D3D12_COMMAND_QUEUE_FLAG_NONE
 		))
@@ -258,6 +258,16 @@ namespace Engine::D3D12
 	ID3D12CommandQueue* D3D12Wrapper::GetCommandQueue()
 	{
 		return m_upCommandQueue->Get();
+	}
+
+	ID3D12CommandQueue* D3D12Wrapper::GetCopyCommandQueue()
+	{
+		return m_upCopyCommandQueue->Get();
+	}
+
+	ID3D12CommandQueue* D3D12Wrapper::GetComputeCommandQueue()
+	{
+		return m_upComputeBuildCommandQueue->Get();
 	}
 
 	//==================================================================================

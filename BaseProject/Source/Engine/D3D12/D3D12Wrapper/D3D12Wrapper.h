@@ -126,15 +126,21 @@ namespace Engine::D3D12
 		UINT CurrentCPUFrameIndex();
 		IDXGISwapChain* GetSwapChain();
 		ID3D12Resource* GetCurrentRenderTarget();
-		ID3D12CommandQueue* GetCommandQueue();
+		ID3D12CommandQueue* GetCommandQueue();		// 描画キュー
+		ID3D12CommandQueue* GetCopyCommandQueue();	// コピーキュー
+		ID3D12CommandQueue* GetComputeCommandQueue();	// コンピュートキュー
+
 
 	private:
 		// DirectX12のオブジェクト
 		std::unique_ptr<Device>				m_upDevice = nullptr;		// デバイス
 		std::unique_ptr<SwapChain>			m_upSwapChain = nullptr;		// スワップチェイン
 
-		std::unique_ptr<CommandQueue>		m_upCommandQueue = nullptr;		// コマンドキュー
-		std::unique_ptr<CommandQueue>		m_upCopyCommandQueue = nullptr;	// コピーコマンドキュー
+		// コマンドキュー
+		std::unique_ptr<CommandQueue>		m_upCommandQueue = nullptr;					// メイン描画用
+		std::unique_ptr<CommandQueue>		m_upCopyCommandQueue = nullptr;				// コピー用
+		std::unique_ptr<CommandQueue>		m_upComputeBuildCommandQueue = nullptr;		// コンピュートビルド用
+
 		std::unique_ptr<CommandList>		m_upCommandList = nullptr;		// コマンドリスト
 
 		HANDLE								m_fenceEvent = nullptr;		// フェンスで使うイベント

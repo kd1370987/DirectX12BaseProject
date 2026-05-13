@@ -1,16 +1,20 @@
 ﻿#include "TextureImporter.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../../../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "../../../Data/Texture/Texture.h"
 
 void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBuffer& a_uploadBuffer)
 {
 	// コマンドリストを取得
-	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
+	//auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
+	auto* _pCmdList = Engine::Resource::ResourceManager::Instance().GetCmdList();
 
 	// コマンドキューリセット
-	Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+	//Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+	Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 
 	for (UINT _i = 0; _i < a_uploadBuffer.subresourceCount; ++_i)
 	{
@@ -28,7 +32,7 @@ void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBu
 
 
 		// GPUへこぴー
-		_pCmdList->CopyTextureRegion(
+		_pCmdList->NGet()->CopyTextureRegion(
 			&_dst,			// コピー先
 			0,					// Xオフセット
 			0,					// Yオフセット
@@ -48,20 +52,22 @@ void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBu
 	_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
-	_pCmdList->ResourceBarrier(1, &_barrier);
+	_pCmdList->NGet()->ResourceBarrier(1, &_barrier);
 	_pCmdList->Close();
 
-	// コマンドキューに積む
-	ID3D12CommandList* _ppCommandLists[] = { _pCmdList };
-	auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCommandQueue();
+	// コピーコマンドキューに積む
+	ID3D12CommandList* _ppCommandLists[] = { _pCmdList->NGet()};
+	auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
 	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	// 終了待ち
-	Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
-	Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
+	Engine::Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
+	Engine::Resource::ResourceManager::Instance().WaitRender();
+	//Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
+	//Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
 }
 
-Engine::Resource::UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)
+Engine::Resource::UploadBuffer CreateUploadHeap(ID3D12Device* a_pDevice, const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)
 {
 	Engine::Resource::UploadBuffer _uploadBuffer = {};
 
@@ -74,7 +80,7 @@ Engine::Resource::UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_tex
 
 	// サイズ計算
 	UINT64 _uploadSize = 0;
-	Engine::D3D12::D3D12Wrapper::Instance().GetDevice()->GetCopyableFootprints(
+	a_pDevice->GetCopyableFootprints(
 		&a_texDesc,
 		0,
 		_uploadBuffer.subresourceCount,
@@ -110,7 +116,7 @@ Engine::Resource::UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_tex
 	_desc.SampleDesc.Quality = 0;
 
 	// リソース生成（中間バッファ）
-	HRESULT _hr = Engine::D3D12::D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
+	HRESULT _hr = a_pDevice->CreateCommittedResource(
 		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,					// 特に指定はなし
 		&_desc,
@@ -128,6 +134,7 @@ Engine::Resource::UploadBuffer CreateUploadHeap(const D3D12_RESOURCE_DESC& a_tex
 }
 
 bool BuildFromScratchiImage(
+	ID3D12Device* a_pDevice,
 	ComPtr<ID3D12Resource>& a_cpRes,
 	DirectX::TexMetadata& a_meta,
 	DirectX::ScratchImage& a_sImg
@@ -156,7 +163,7 @@ bool BuildFromScratchiImage(
 	_texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 	
 	// リソース生成（テクスチャ）
-	_hr = Engine::D3D12::D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
+	_hr = a_pDevice->CreateCommittedResource(
 		&_texHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&_texDesc,
@@ -172,7 +179,7 @@ bool BuildFromScratchiImage(
 	}
 
 	// アップロードヒープ作成
-	Engine::Resource::UploadBuffer _uploadBuffer = CreateUploadHeap(_texDesc, a_meta);
+	Engine::Resource::UploadBuffer _uploadBuffer = CreateUploadHeap(a_pDevice,_texDesc, a_meta);
 
 	// 中間バッファへデータコピー
 	void* _pData = nullptr;
@@ -202,6 +209,9 @@ bool BuildFromScratchiImage(
 
 	// GPUにコピー
 	CopyTexRegion(a_cpRes.Get(), _uploadBuffer);
+
+	// 解放はリソースマネージャーに任せる
+	Engine::Resource::ResourceManager::Instance().RegisterUploadBuffer(_uploadBuffer.pResource);
 
 	return true;
 }
@@ -249,6 +259,7 @@ ComPtr<ID3D12Resource> Engine::Resource::ImportTexture(
 	std::wstring _path = StringUtility::ToWideString(a_filePath);
 	DirectX::TexMetadata _meta = {};
 	DirectX::ScratchImage _sImg = {};
+	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 
 	// テクスチャ読み込み
 	if (!ImportFromPath(_meta, _sImg, _path))
@@ -284,7 +295,7 @@ ComPtr<ID3D12Resource> Engine::Resource::ImportTexture(
 	_meta = _sImg.GetMetadata();
 
 	// テクスチャを構築
-	BuildFromScratchiImage(_cpRes, _meta, _sImg);
+	BuildFromScratchiImage(_pDevice,_cpRes, _meta, _sImg);
 
 	return _cpRes;
 }
@@ -292,7 +303,7 @@ ComPtr<ID3D12Resource> Engine::Resource::ImportTexture(
 ComPtr<ID3D12Resource> Engine::Resource::DefaultTexture(DirectX::XMFLOAT4 a_color)
 {
 	ComPtr<ID3D12Resource> _cpRes = nullptr;
-
+	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 	DirectX::TexMetadata _meta = {};
 	DirectX::ScratchImage _sImg = {};
 	_sImg = {};
@@ -315,7 +326,7 @@ ComPtr<ID3D12Resource> Engine::Resource::DefaultTexture(DirectX::XMFLOAT4 a_colo
 	}
 	_meta = _sImg.GetMetadata();
 	// テクスチャを構築
-	BuildFromScratchiImage(_cpRes, _meta, _sImg);
+	BuildFromScratchiImage(_pDevice,_cpRes, _meta, _sImg);
 	return _cpRes;
 }
 

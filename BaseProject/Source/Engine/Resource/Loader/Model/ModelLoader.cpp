@@ -28,7 +28,7 @@ namespace Engine::Resource
 		m_cache.emplace(a_guid, _handle);
 
 		// レイトレにとりあえず保存
-		Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
+		//Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
 
 		return _handle;
 	}

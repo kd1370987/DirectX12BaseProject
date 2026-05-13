@@ -1,6 +1,8 @@
 ﻿#include "BLAS.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../D3D12/D3DObject/CommandList/CommandList.h"
 
 void Engine::Raytracing::BLAS::Create(const VertexBuffer& a_vertexBuffer, const IndexBuffer& a_indexBuffer)
 {
@@ -27,7 +29,8 @@ void Engine::Raytracing::BLAS::Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_de
 {
 	// BLAS生成
 	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
-	auto* _pCmdList4 = D3D12::D3D12Wrapper::Instance().GetCommandList4();
+	//auto* _pCmdList4 = D3D12::D3D12Wrapper::Instance().GetCommandList4();
+	auto* _pCmdList4 = Resource::ResourceManager::Instance().GetCmdList()->Get4();
 	m_geometryDescVec.clear();
 	m_geometryDescVec.push_back(a_desc);
 	Build(
@@ -41,7 +44,8 @@ void Engine::Raytracing::BLAS::Create(const std::vector<D3D12_RAYTRACING_GEOMETR
 {
 	// BLAS生成
 	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
-	auto* _pCmdList4 = D3D12::D3D12Wrapper::Instance().GetCommandList4();
+	//auto* _pCmdList4 = D3D12::D3D12Wrapper::Instance().GetCommandList4();
+	auto* _pCmdList4 = Resource::ResourceManager::Instance().GetCmdList()->Get4();
 	m_geometryDescVec.clear();
 	m_geometryDescVec = a_desc;
 	Build(
@@ -59,7 +63,8 @@ bool Engine::Raytracing::BLAS::Build(
 )
 {
 	// コマンドキューリセット
-	D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+	//D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+	Resource::ResourceManager::Instance().CmdQueueReset();
 
 	// スクラッチリソース構築
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS _inputs = {};
@@ -140,12 +145,15 @@ bool Engine::Raytracing::BLAS::Build(
 
 	// コマンドキューに積む
 	ID3D12CommandList* _ppCommandLists[] = { a_cmdList };
-	auto* _cmdQueue = D3D12::D3D12Wrapper::Instance().GetCommandQueue();
+	auto* _cmdQueue = D3D12::D3D12Wrapper::Instance().GetComputeCommandQueue();
 	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	// 終了待ち
-	D3D12::D3D12Wrapper::Instance().SignalRenderFence();
-	D3D12::D3D12Wrapper::Instance().WaitRender();
+	//D3D12::D3D12Wrapper::Instance().SignalRenderFence();
+	//D3D12::D3D12Wrapper::Instance().WaitRender();
+	Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
+	Resource::ResourceManager::Instance().WaitRender();
+
 
 
 	return true;
