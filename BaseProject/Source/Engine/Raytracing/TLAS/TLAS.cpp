@@ -7,7 +7,7 @@
 void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
 {
 	// コマンドキューリセット
-	D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+//	D3D12::D3D12Wrapper::Instance().CommandQueueReset();
 	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
 	ID3D12GraphicsCommandList4* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 

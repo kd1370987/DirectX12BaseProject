@@ -48,6 +48,7 @@ namespace Engine::D3D12
 			assert(0 && "コピーコマンドキューの作成");
 			return false;
 		}
+
 		// スワップチェイン作成
 		m_upSwapChain = std::make_unique<SwapChain>();
 		if (!m_upSwapChain->Create(

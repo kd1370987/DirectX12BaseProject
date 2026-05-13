@@ -1,8 +1,10 @@
 ﻿#include "Mesh.h"
 
 #include "../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../../../D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
 bool Engine::Resource::Mesh::CreateFloat(
 	const std::vector<MeshVertexFloat>& a_vertices,
 	const std::vector<MeshFace>& a_face,
@@ -99,13 +101,14 @@ bool Engine::Resource::Mesh::CreateFloat(
 	m_indexBuffer.CreateSRV();
 	m_vertexBuffer.CreateSRV();
 
-	//CreateBLAS();
+	CreateBLAS();
 
 	m_vertexData = a_vertices;
 
 	// 構造体バッファ作成
 	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
+	//auto* _pCmdList = Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet();
 	std::vector<RTVertex> _rtVertDataVec = {};
 	for (auto& _vert : a_vertices)
 	{
@@ -116,7 +119,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 	// 頂点バッファー側SRV作成
 	m_sVertexBuffer.Create(_pDevice,_pCmdList, _rtVertDataVec.size(),_rtVertDataVec.data());
 	auto _handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-		Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
+		_pDevice,
 		m_sVertexBuffer.GetResource(),
 		m_sVertexBuffer.GetViewDesc()
 	);
@@ -132,22 +135,28 @@ bool Engine::Resource::Mesh::CreateFloat(
 	m_sIndexBuffer.SetHandle(_handle);
 
 	// コマンドキューリセット
-	//Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+	Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+	//ResourceManager::Instance().CmdQueueReset();
 
-	//m_sVertexBuffer.Update(_pDevice, _pCmdList);
-	//m_sIndexBuffer.Update(_pDevice,_pCmdList);
+	m_sVertexBuffer.Update(_pDevice, _pCmdList);
+	m_sIndexBuffer.Update(_pDevice,_pCmdList);
 
-	//// コマンドリストをクローズ
+	// コマンドリストをクローズ
 	//_pCmdList->Close();
+	Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet()->Close();
 
-	//// コマンドキューに積む
+	// コマンドキューに積む
+	ID3D12CommandList* _ppCommandLists[] = { Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet() };
 	//ID3D12CommandList* _ppCommandLists[] = { _pCmdList };
+	auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
 	//auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCommandQueue();
-	//_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
+	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	//// 終了待ち
-	//Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
-	//Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
+	Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
+	Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
+	//ResourceManager::Instance().SignalFence(_cmdQueue);
+	//ResourceManager::Instance().WaitRender();
 
 	return true;
 }
