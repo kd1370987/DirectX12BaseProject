@@ -59,8 +59,10 @@ namespace Engine::Raytracing
 		};
 
 		// GPU送信用データ
-		Engine::D3D12::StructuredBuffer<InstanceData> m_instanceDataBuffer;
-		Engine::D3D12::StructuredBuffer<Material>     m_materialDataBuffer;
+		Engine::D3D12::StaticStructuredBuffer<InstanceData> m_instanceDataBuffer;
+		std::vector<InstanceData> m_instanceDataVec = {};
+		Engine::D3D12::StaticStructuredBuffer<Material>     m_materialDataBuffer;
+		std::vector<Material> m_materialVec = {};
 
 		std::vector<Instance> m_instanceVec = {};		// レイトレワールドインスタンス
 		std::unique_ptr<TLAS> m_upTLAS = nullptr;		// レイトレワールドTLAS

@@ -45,7 +45,7 @@ namespace Engine::D3D12
 		ID3D12Resource* GetResource() const override;
 		D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const override;
 
-	private:
+	protected:
 
 		// SRVの作成
 		void CreateSRVInternal(ID3D12Device* a_pDevice);

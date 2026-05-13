@@ -47,7 +47,7 @@ namespace Engine::D3D12
 		m_view.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 		// SRV作成
-		CreateSRVInternal(a_pDevice);
+		StaticBuffer::CreateSRVInternal(a_pDevice);
 	}
 	template<typename T>
 	inline const D3D12_SHADER_RESOURCE_VIEW_DESC& StaticStructuredBuffer<T>::GetView() const

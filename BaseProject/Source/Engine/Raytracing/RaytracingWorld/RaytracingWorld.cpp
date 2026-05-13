@@ -72,31 +72,34 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 	m_upTLAS->Create(m_instanceVec);
 
 	// 構造体バッファ作成
-	std::vector<InstanceData> _instanceDataVec = {};
+	//std::vector<InstanceData> _instanceDataVec = {};
+	m_instanceDataVec = {};
 	for (auto& _instance : m_instanceVec)
 	{
 		InstanceData _data = {};
 		_data.vertexSRVIndex = _instance.vertexHandle.idx;
 		_data.indexSRVIndex = _instance.indexHandle.idx;
-		_instanceDataVec.push_back(_data);
+		m_instanceDataVec.push_back(_data);
 	}
 
 	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
+	//auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
+	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
 
 	// インスタンスデータ作成
 	//m_instanceDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _instanceDataVec.data());
-	m_instanceDataBuffer.Create(_pDevice, _pCmdList, 1000, _instanceDataVec.data());
+	m_instanceDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_instanceDataVec.data());
 
-	auto _handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-		Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
-		m_instanceDataBuffer.GetResource(),
-		m_instanceDataBuffer.GetViewDesc()
-	);
-	m_instanceDataBuffer.SetHandle(_handle);
+	//auto _handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
+	//	Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
+	//	m_instanceDataBuffer.GetResource(),
+	//	m_instanceDataBuffer.GetViewDesc()
+	//);
+	//m_instanceDataBuffer.SetHandle(_handle);
 
 	// マテリアルデータ作成
-	std::vector<Material> _materialVec;
+	//std::vector<Material> _materialVec;
+	m_materialVec = {};
 	for (auto& _instance : m_instanceVec)
 	{
 		Material _mate = {};
@@ -109,30 +112,56 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 		const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_instance.pMaterial->baseColorTex);
 		_mate.baseIndex = _tex->GetSRV().idx;
 
-		_materialVec.push_back(_mate);
+		m_materialVec.push_back(_mate);
 	}
-	m_materialDataBuffer.Create(_pDevice, _pCmdList, 1000, _materialVec.data());
+	m_materialDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_materialVec.data());
 
-	_handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-		Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
-		m_materialDataBuffer.GetResource(),
-		m_materialDataBuffer.GetViewDesc()
-	);
-	m_materialDataBuffer.SetHandle(_handle);
+	//_handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
+	//	Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
+	//	m_materialDataBuffer.GetResource(),
+	//	m_materialDataBuffer.GetViewDesc()
+	//);
+	//m_materialDataBuffer.SetHandle(_handle);
 }
 
 
 void Engine::Raytracing::RayWorld::Commit()
 {
-	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
+	//auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
+	//auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
+	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
 
 	// TLAS更新
 	m_upTLAS->Update(m_instanceVec);
 	
 	// 構造体バッファ更新
-	m_instanceDataBuffer.Update(_pDevice, _pCmdList);
-	m_materialDataBuffer.Update(_pDevice, _pCmdList);
+	m_instanceDataVec = {};
+	for (auto& _instance : m_instanceVec)
+	{
+		InstanceData _data = {};
+		_data.vertexSRVIndex = _instance.vertexHandle.idx;
+		_data.indexSRVIndex = _instance.indexHandle.idx;
+		m_instanceDataVec.push_back(_data);
+	}
+	m_instanceDataBuffer.UpdateData((void*)m_instanceDataVec.data(),m_instanceDataBuffer.GetBufferSize());
+	m_materialVec = {};
+	for (auto& _instance : m_instanceVec)
+	{
+		Material _mate = {};
+		_mate.baseColor = _instance.pMaterial->baseColor;
+		_mate.metallic = _instance.pMaterial->metallic;
+		_mate.roughness = _instance.pMaterial->roughness;
+		_mate.emissive = _instance.pMaterial->emissive;
+
+		// マテリアルのインデックス取得
+		const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_instance.pMaterial->baseColorTex);
+		_mate.baseIndex = _tex->GetSRV().idx;
+
+		m_materialVec.push_back(_mate);
+	}
+	m_materialDataBuffer.UpdateData((void*)m_materialVec.data(),m_materialDataBuffer.GetBufferSize());
+	m_instanceDataBuffer.Update(*_pCmdList);
+	m_materialDataBuffer.Update(*_pCmdList);
 }
 
 void Engine::Raytracing::RayWorld::Clear()
@@ -152,20 +181,20 @@ D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetSRVTLAS()
 
 D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRV()
 {
-	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_instanceDataBuffer.GetHandle());
+	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_instanceDataBuffer.GetSRVHandle());
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRVCPU()
 {
-	return D3D12::DescriptorHeapManager::Instance().GetCPU(m_instanceDataBuffer.GetHandle());
+	return D3D12::DescriptorHeapManager::Instance().GetCPU(m_instanceDataBuffer.GetSRVHandle());
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRV()
 {
-	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_materialDataBuffer.GetHandle());
+	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_materialDataBuffer.GetSRVHandle());
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRVCPU()
 {
-	return D3D12::DescriptorHeapManager::Instance().GetCPU(m_materialDataBuffer.GetHandle());
+	return D3D12::DescriptorHeapManager::Instance().GetCPU(m_materialDataBuffer.GetSRVHandle());
 }

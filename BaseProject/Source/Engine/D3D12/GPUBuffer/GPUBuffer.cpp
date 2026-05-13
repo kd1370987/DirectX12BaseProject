@@ -26,7 +26,7 @@ namespace Engine::D3D12
 
 	void GPUBuffer::Map(void** a_ppData)
 	{
-		auto _hr = GetResource()->Map(0, nullptr, a_ppData);
+		auto _hr = m_cpResource->Map(0, nullptr, a_ppData);
 
 		assert(SUCCEEDED(_hr));
 		assert(*a_ppData);
