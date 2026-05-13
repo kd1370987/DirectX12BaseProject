@@ -1,12 +1,7 @@
 ﻿#pragma once
 namespace Engine::Graphics
 {
-	// 頂点
-	struct Vertex
-	{
-		DirectX::XMFLOAT3 pos = {};
-		DirectX::XMFLOAT4 color = Engine::Color::RED;
-	};
+
 
 	class ShapeRenderer
 	{
@@ -31,7 +26,7 @@ namespace Engine::Graphics
 		);
 		//void Capsule();
 
-		const std::vector<Vertex>& GetVertexVec()
+		const std::vector<Resource::Vertex>& GetVertexVec()
 		{
 			return m_vertexVec;
 		}
@@ -50,7 +45,7 @@ namespace Engine::Graphics
 	private:
 		const UINT m_maxVertexCount = 10000000;
 
-		std::vector<Vertex> m_vertexVec = {};
+		std::vector<Resource::Vertex> m_vertexVec = {};
 	};
 }
 

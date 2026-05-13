@@ -1,4 +1,7 @@
 ﻿#include "QuadPolygon.h"
+
+#include "../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+
 namespace Engine::Resource
 {
 	void QuadPolygon::Init()
@@ -22,9 +25,14 @@ namespace Engine::Resource
 			}
 		};
 
-		if (!m_vertexBuffer.Create(
+		//if (!m_vertexBuffer.Create(
+		//	4,
+		//	sizeof(Engine::Resource::SimpleVertex),
+		//	_vertices
+		//))
+		if (!m_vertexBuffer.CreateAndUpload(
+			D3D12::D3D12Wrapper::Instance().GetDevice(),
 			4,
-			sizeof(Engine::Resource::SimpleVertex),
 			_vertices
 		))
 		{

@@ -14,8 +14,6 @@ namespace Engine::D3D12
 	class CommandList;
 	class RootSignature;
 	class RootSignatureManager;
-
-	class VertexBuffer;
 }
 
 namespace Engine::Graphics
@@ -283,7 +281,7 @@ namespace Engine::Graphics
 		// 形状描画クラス
 		ShapeRenderer* m_pShapeDraw = nullptr;
 		//VertexBuffer m_shapeVertexBuffer = {};
-		std::unique_ptr<D3D12::VertexBuffer> m_upShapeVertexBuffer = {};
+		D3D12::VertexBuffer<Resource::Vertex> m_shapeVertexBuffer = {};
 		
 
 		//--------------------------------------------------------------------------------------------

@@ -40,11 +40,12 @@ namespace Engine::Graphics
 		m_pShapeDraw = a_desc.pShapeRender;
 
 		// 形状描画用バッファ作成
-		m_shapeVertexBuffer.Create(
-			m_pShapeDraw->GetMaxCount(),
-			sizeof(Vertex),
-			nullptr
-		);
+		m_shapeVertexBuffer.Create(m_pDevice,m_pShapeDraw->GetMaxCount());
+		//m_shapeVertexBuffer.Create(
+		//	m_pShapeDraw->GetMaxCount(),
+		//	sizeof(Vertex),
+		//	nullptr
+		//);
 
 		// ルート定数バッファアロケーター
 		m_upCBAllocater = std::make_unique<CBAllocater>();
@@ -614,10 +615,8 @@ namespace Engine::Graphics
 		//if (a_pMesh != m_pCurrentMesh)
 		{
 			if (!a_pMesh) return;
-			const auto* _pVertView = a_pMesh->GetVertexBuffer().GetView();
-			if (!_pVertView)return;
-			if (!a_pMesh->GetVertexBuffer().Valid()) return;
-			m_pCmdList->IASetVertexBuffers(0, 1, _pVertView);
+			auto _vertView = a_pMesh->GetVertexBuffer().GetView();
+			m_pCmdList->IASetVertexBuffers(0, 1, &_vertView);
 			const auto* _pIndexView = a_pMesh->GetIndexBuffer().GetView();
 			if (!_pIndexView) return;
 			if (!a_pMesh->GetIndexBuffer().Valid()) return;
@@ -732,10 +731,12 @@ namespace Engine::Graphics
 
 		// フレーム頂点バッファ更新
 		UINT _vertexCount = static_cast<UINT>(m_pShapeDraw->GetVertexVec().size());
-		m_shapeVertexBuffer.Update(_vertexCount,m_pShapeDraw->GetVertexVec().data());
+		//m_shapeVertexBuffer.Update(_vertexCount,m_pShapeDraw->GetVertexVec().data());
+		m_shapeVertexBuffer.Map((void**)m_pShapeDraw->GetVertexVec().data());
+
 
 		// 頂点バッファ送信
-		m_pCmdList->NGet()->IASetVertexBuffers(0, 1, &m_shapeVertexBuffer.View());
+		m_pCmdList->NGet()->IASetVertexBuffers(0, 1, &m_shapeVertexBuffer.GetView());
 
 		// 描画
 		m_pCmdList->NGet()->DrawInstanced(_vertexCount, 1, 0, 0);

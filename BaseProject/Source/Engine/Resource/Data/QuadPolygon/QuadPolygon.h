@@ -9,7 +9,8 @@ namespace Engine::Resource
 
 		const D3D12_VERTEX_BUFFER_VIEW& GetVBView()
 		{
-			return m_vertexBuffer.View();
+			//return m_vertexBuffer.View();
+			return m_vertexBuffer.GetView();
 		}
 
 		const D3D12_INDEX_BUFFER_VIEW& GetIBView()
@@ -19,7 +20,7 @@ namespace Engine::Resource
 
 	private:
 
-		VertexBuffer m_vertexBuffer;
+		D3D12::VertexBuffer<SimpleVertex> m_vertexBuffer;
 		IndexBuffer m_indexBuffer;
 	};
 }

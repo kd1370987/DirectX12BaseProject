@@ -27,7 +27,10 @@ namespace Engine::D3D12
 
 	void GPUBuffer::Map(void** a_ppData)
 	{
-		GetResource()->Map(0, nullptr, a_ppData);
+		auto _hr = GetResource()->Map(0, nullptr, a_ppData);
+
+		assert(SUCCEEDED(_hr));
+		assert(*a_ppData);
 	}
 
 	void GPUBuffer::Unmap()
@@ -37,9 +40,10 @@ namespace Engine::D3D12
 
 	void GPUBuffer::Write(const void* a_pData, size_t a_size)
 	{
+		assert(m_cpResource);
 		void* _pMappedData = nullptr;
 		Map(&_pMappedData);
-		memcpy(_pMappedData,a_pData,a_size);
+		std::memcpy(_pMappedData,a_pData,a_size);
 		Unmap();
 	}
 	void GPUBuffer::CreateSRVInternal(ID3D12Device* a_pDevice)

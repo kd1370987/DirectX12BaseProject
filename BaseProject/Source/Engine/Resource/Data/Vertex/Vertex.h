@@ -2,6 +2,14 @@
 
 namespace Engine::Resource
 {
+
+	// 頂点
+	struct Vertex
+	{
+		DirectX::XMFLOAT3 pos = {};
+		DirectX::XMFLOAT4 color = Engine::Color::RED;
+	};
+
 	struct SimpleVertex
 	{
 		DirectX::XMFLOAT4 pos = { 0.0f,0.0f,0.0f,0.0f };

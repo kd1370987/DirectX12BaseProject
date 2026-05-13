@@ -58,7 +58,7 @@ namespace Engine
 			//=================================================
 			// アクセサ
 			//=================================================
-			const VertexBuffer& GetVertexBuffer()		const { return m_vertexBuffer; }		// 頂点バッファ取得
+			const D3D12::VertexBuffer<MeshVertexFloat>& GetVertexBuffer()		const { return m_vertexBuffer; }		// 頂点バッファ取得
 			const IndexBuffer& GetIndexBuffer()			const { return m_indexBuffer; }			// インデックスバッファ取得
 
 			const std::vector<MeshSubset>& GetSubsets() const { return m_subsets; }				// サブセット情報取得
@@ -84,8 +84,8 @@ namespace Engine
 		private:
 
 			// バッファ
-			VertexBuffer					m_vertexBuffer;		// 頂点バッファ
-			IndexBuffer						m_indexBuffer;		// インデックスバッファ
+			D3D12::VertexBuffer<MeshVertexFloat> m_vertexBuffer;		// 頂点バッファ
+			IndexBuffer							 m_indexBuffer;		// インデックスバッファ
 
 			// サブセット情報
 			std::vector<MeshSubset>			m_subsets;

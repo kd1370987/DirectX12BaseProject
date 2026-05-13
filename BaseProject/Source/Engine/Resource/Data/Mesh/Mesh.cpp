@@ -15,7 +15,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 	m_subsets.clear();
 	m_positions.clear();
 	m_faces.clear();
-
+	auto _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 	//------------------------------
 	// サブセット情報
 	//------------------------------
@@ -29,9 +29,15 @@ bool Engine::Resource::Mesh::CreateFloat(
 		//------------------------------
 		// 頂点バッファ作成
 		//------------------------------
-		if (!m_vertexBuffer.Create(
+		//if (!m_vertexBuffer.Create(
+		//	(UINT)a_vertices.size(),
+		//	sizeof(MeshVertexFloat),
+		//	a_vertices.data()
+		//))
+		
+		if (!m_vertexBuffer.CreateAndUpload(
+			_pDevice,
 			(UINT)a_vertices.size(),
-			sizeof(MeshVertexFloat),
 			a_vertices.data()
 		))
 		{
@@ -99,14 +105,14 @@ bool Engine::Resource::Mesh::CreateFloat(
 	// BLAS作成
 	//------------------------------
 	m_indexBuffer.CreateSRV();
-	m_vertexBuffer.CreateSRV();
+	m_vertexBuffer.CreateSRV(_pDevice);
 
 	CreateBLAS();
 
 	m_vertexData = a_vertices;
 
 	// 構造体バッファ作成
-	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
+	//auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 	//auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 	auto* _pCmdList = Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet();
 	std::vector<RTVertex> _rtVertDataVec = {};
@@ -199,7 +205,7 @@ void Engine::Resource::Mesh::CreateBLAS()
 		// 頂点バッファ
 		_desc.Triangles.VertexBuffer.StartAddress = m_vertexBuffer.GetGPUVirtualAddress();
 		_desc.Triangles.VertexBuffer.StrideInBytes = m_vertexBuffer.GetStrideSize();
-		_desc.Triangles.VertexCount = m_vertexBuffer.GetCount();
+		_desc.Triangles.VertexCount = m_vertexBuffer.GetElementNum();
 		_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 
 		// インデックスバッファ

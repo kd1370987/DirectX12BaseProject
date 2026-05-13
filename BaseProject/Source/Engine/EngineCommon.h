@@ -70,12 +70,12 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 // バッファー
 //------------------------------------------------------------------------------------------
 #include "Engine/D3D12//D3DObject/Buffer/ConstantBuffer/ConstantBuffer.h"
-//#include "Engine/D3D12//D3DObject/Buffer/VertexBuffer/VertexBuffer.h"
 #include "Engine/D3D12/GPUBuffer/VertexBuffer/VertexBuffer.h"
 #include "Engine/D3D12//D3DObject/Buffer/IndexBuffer/IndexBuffer.h"
 #include "Engine/D3D12//D3DObject/Buffer/RenderTarget/RenderTarget.h"
 #include "Engine/D3D12/D3DObject/Buffer/StructuredBuffer/StructuredBuffer.h"
 
+#include "Engine/Resource/Data/Vertex/Vertex.h"				// 頂点データ
 //==========================================================================================
 // 
 // 入力
@@ -105,7 +105,6 @@ constexpr UINT INVALID_INDEX = UINT_MAX;
 // 
 //==========================================================================================
 #include "Engine/Resource/Data/Texture/Texture.h"			// テクスチャ
-#include "Engine/Resource/Data/Vertex/Vertex.h"				// 頂点データ
 #include "Engine/Resource/Data/Mesh/Mesh.h"					// メッシュ
 #include "Engine/Resource/Data/Animation/Animation.h"		// アニメーションデータ
 #include "Engine/Resource/Data/Material/Material.h"			// マテリアル
