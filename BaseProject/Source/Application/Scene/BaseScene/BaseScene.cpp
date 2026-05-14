@@ -33,6 +33,7 @@
 #include "../../Components/Charactor/Player/PlayerLookAngleComponent.h"
 
 #include "../../Components/Transform/TransformComponent.h"
+#include "../../Components/Transform/LocalTransformComponent.h"
 #include "../../Components/Transform/WorldMatrixComponent.h"
 
 #include "../../Components/Collision/Collider.h"
@@ -48,6 +49,7 @@
 #include "../../Components/Persistence/NameComponent.h"
 
 #include "../../Components/Hierarchy/HierarchyComponent.h"
+#include "../../Components/Hierarchy/ExoskeletonAttachementComponent.h"
 
 // システム関連
 #include "../../Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -73,6 +75,8 @@
 #include "Application/Systems/Update/PostUpdate/AnimationSystem/AnimationSystem.h"
 #include "Application/Systems/Update/PostUpdate/SkinningSystem/SkinningSystem.h"
 #include "Application/Systems/Update/PostUpdate/CalcNodeSystem/CalcNodeSystem.h"
+#include "../../Systems/Update/PostUpdate/CommitWorldMatrixFromLocalSystem/CommitWorldMatrixFromLocalSystem.h"
+#include "../../Systems/Update/PostUpdate/CalcTransformFromExoskeletonSystem/CalcTransformFromExoskeletonSystem.h"
 
 #include "Application/Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
 
@@ -180,6 +184,7 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<ColliderComponent>("ColliderComponent");
 	m_upWorld->RegisterComponent<RayColliderComponent>("RayColliderComponent");
 	m_upWorld->RegisterComponent<TransformComponent>("TransformComponent");
+	m_upWorld->RegisterComponent<LocalTransformComponent>("LocalTransformComponent");
 	m_upWorld->RegisterComponent<WorldMatrixComponent>("WorldMatrixComponent");
 	m_upWorld->RegisterComponent<ModelComponent>("ModelComponent");
 	m_upWorld->RegisterComponent<AnimatorComponent>("AnimatorComponent");
@@ -189,6 +194,7 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<NameComponent>("NameComponent");
 	m_upWorld->RegisterComponent<GUIDComponent>("GUIDComponent");
 	m_upWorld->RegisterComponent<HierarchyComponent>("HierarchyComponent");
+	m_upWorld->RegisterComponent<ExoskeletonAttachmentComponent>("ExoskeletonAttachmentComponent");
 }
 
 void BaseScene::RegistrySystem()
@@ -216,6 +222,8 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<TPSSystem>();
 
 	m_upWorld->RegisterSystem<CalcMatrixSystem>();
+	m_upWorld->RegisterSystem<CommitWorldMatrixFromLocalSystem>();
+	m_upWorld->RegisterSystem<CalccTransformFromExoskeletonSystem>();
 	m_upWorld->RegisterSystem<RayCollisionSystem>();
 
 	m_upWorld->RegisterSystem<SimpleDrawSystem>();

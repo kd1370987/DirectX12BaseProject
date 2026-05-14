@@ -39,7 +39,7 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 				if (!_pModel) continue;
 
 				// アニメーター初期化
-				_animationComp.clipID = _pModel->GetAnimationClipCount("Walk");
+				_animationComp.clipID = 0;
 				_animationComp.time = 0.0f;
 				_animationComp.speed = 30.0f;
 				_animationComp.isLoop = true;

@@ -715,6 +715,12 @@
     <Filter Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer">
       <UniqueIdentifier>{9ec7ad9f-bf3d-496a-82b5-60a90722f9e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixFromLocalSystem">
+      <UniqueIdentifier>{05b92cf3-cb34-478b-b011-e46b7bf693c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem">
+      <UniqueIdentifier>{f761e75d-2768-4759-9df6-aa52bb916d38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1157,6 +1163,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\StructuredBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixFromLocalSystem\CommitWorldMatrixFromLocalSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixFromLocalSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1801,6 +1813,18 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\StructuredBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Hierarchy\ExoskeletonAttachementComponent.h">
+      <Filter>Source\Application\Components\Hierarchy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Transform\LocalTransformComponent.h">
+      <Filter>Source\Application\Components\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixFromLocalSystem\CommitWorldMatrixFromLocalSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixFromLocalSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

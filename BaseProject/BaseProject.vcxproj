@@ -251,6 +251,8 @@
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixFromLocalSystem\CommitWorldMatrixFromLocalSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp" />
@@ -400,6 +402,7 @@
     <ClInclude Include="Source\Application\Components\Force\GravityComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\InertiaComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
+    <ClInclude Include="Source\Application\Components\Hierarchy\ExoskeletonAttachementComponent.h" />
     <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h" />
     <ClInclude Include="Source\Application\Components\Persistence\GUIDComponent.h" />
     <ClInclude Include="Source\Application\Components\Persistence\NameComponent.h" />
@@ -417,6 +420,7 @@
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\AwekeTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\PostDeserializeTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\StartTag.h" />
+    <ClInclude Include="Source\Application\Components\Transform\LocalTransformComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\TransformComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />
@@ -440,6 +444,8 @@
     <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixFromLocalSystem\CommitWorldMatrixFromLocalSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h" />

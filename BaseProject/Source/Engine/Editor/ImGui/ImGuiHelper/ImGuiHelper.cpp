@@ -41,3 +41,44 @@ void Engine::Editor::Helper::DrawMatrixForPOS_ROT_SCALE(const std::string& a_nam
 		ImGui::TreePop();
 	}
 }
+
+void Engine::Editor::Helper::DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a_quat)
+{
+	DXSM::Quaternion _quat = a_quat;
+	DXSM::Vector3 _rotRad = _quat.ToEuler();
+	// Degreeへ変換
+	DXSM::Vector3 _rotDeg = {
+		DirectX::XMConvertToDegrees(_rotRad.x),
+		DirectX::XMConvertToDegrees(_rotRad.y),
+		DirectX::XMConvertToDegrees(_rotRad.z)
+	};
+
+	ImGui::Text("Rotation");
+	// 値が変更されたか取得
+	if (ImGui::DragFloat3("##Rotation", &_rotDeg.x, 0.5f))
+	{
+		// Degree → Radian
+		_rotRad = {
+			DirectX::XMConvertToRadians(_rotDeg.x),
+			DirectX::XMConvertToRadians(_rotDeg.y),
+			DirectX::XMConvertToRadians(_rotDeg.z)
+		};
+
+		// Euler → Quaternion
+		DXSM::Quaternion _newQuat =
+			DXSM::Quaternion::CreateFromYawPitchRoll(
+				_rotRad.y, // Yaw
+				_rotRad.x, // Pitch
+				_rotRad.z  // Roll
+			);
+
+		// 引数へ反映
+		a_quat = {
+			_newQuat.x,
+			_newQuat.y,
+			_newQuat.z,
+			_newQuat.w
+		};
+	}
+	
+}
