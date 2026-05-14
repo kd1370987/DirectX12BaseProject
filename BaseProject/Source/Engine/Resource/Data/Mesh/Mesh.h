@@ -78,8 +78,8 @@ namespace Engine
 			const std::vector<MeshVertexFloat>& GetVertexData() const  { return m_vertexData; }
 			const std::vector<UINT>& GetIndexData()const { return m_indexData; }
 
-			const Engine::D3D12::StructuredBuffer<RTVertex>& GetSVertexBuff() { return m_sVertexBuffer; };
-			const Engine::D3D12::StructuredBuffer<UINT>& GetSIndexBuff() { return m_sIndexBuffer; }
+			const Engine::D3D12::StaticStructuredBuffer<RTVertex>& GetSVertexBuff() { return m_sVertexBuffer; };
+			const Engine::D3D12::StaticStructuredBuffer<UINT>& GetSIndexBuff() { return m_sIndexBuffer; }
 
 		private:
 
@@ -112,8 +112,8 @@ namespace Engine
 			std::vector<MeshVertexFloat> m_vertexData = {};
 			std::vector<UINT> m_indexData = {};
 
-			Engine::D3D12::StructuredBuffer<RTVertex> m_sVertexBuffer;
-			Engine::D3D12::StructuredBuffer<UINT> m_sIndexBuffer;
+			Engine::D3D12::StaticStructuredBuffer<RTVertex> m_sVertexBuffer;
+			Engine::D3D12::StaticStructuredBuffer<UINT> m_sIndexBuffer;
 		private:
 			// コピー禁止
 			Mesh(const Mesh& src) = delete;

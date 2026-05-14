@@ -46,8 +46,8 @@ void Engine::Raytracing::RayWorld::Register(
 			Engine::Raytracing::Instance _rayInst = {};
 			_rayInst.worldMat = _nodeMat * a_worldMat;
 			_rayInst.pBLAS = _pMesh->GetBLAS();
-			_rayInst.vertexHandle = _pMesh->GetSVertexBuff().GetHandle();
-			_rayInst.indexHandle = _pMesh->GetSIndexBuff().GetHandle();
+			_rayInst.vertexHandle = _pMesh->GetSVertexBuff().GetSRVHandle();
+			_rayInst.indexHandle = _pMesh->GetSIndexBuff().GetSRVHandle();
 			for (auto& _subset : _pMesh->GetSubsets())
 			{
 				auto* _pMate = _model->GetMaterialVec()[_subset.materialNumber].get();
