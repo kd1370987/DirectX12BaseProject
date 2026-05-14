@@ -27,10 +27,7 @@ void CalccTransformFromExoskeletonSystem::Init(Engine::ECS::World& a_world)
 				if (!_pParentTrans) continue;
 
 				// 親の回転にオフセットをかける
-				DXSM::Quaternion _pQuat = _pParentTrans->quat;
-				DXSM::Quaternion _offsetRot = _trsComp.quat;
-				//_trsComp.quat = _pQuat * _offsetRot;
-				_trsComp.quat = _pQuat;
+				_trsComp.quat = _pParentTrans->quat;
 
 				// オフセット位置を親の回転で回転させる
 				DXSM::Vector3 _rotatedOffset = DXSM::Vector3::Transform(_exoComp.offsetPosition,_pParentTrans->quat);
