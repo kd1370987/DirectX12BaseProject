@@ -102,8 +102,8 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 	
 	// コマンドキューリセット
-	Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
-	//ResourceManager::Instance().CmdQueueReset();
+	//Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+	Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 
 	//------------------------------
 	// BLAS作成
@@ -117,8 +117,6 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 
 	// 構造体バッファ作成
-	//auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-	//auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 	auto* _pCmd = Engine::Resource::ResourceManager::Instance().GetCmdList();
 	std::vector<RTVertex> _rtVertDataVec = {};
 	for (auto& _vert : a_vertices)
@@ -128,29 +126,10 @@ bool Engine::Resource::Mesh::CreateFloat(
 		_rtVertDataVec.push_back(_rt);
 	}
 	// 頂点バッファー側SRV作成
-	//m_sVertexBuffer.Create(_pDevice,_pCmdList, _rtVertDataVec.size(),_rtVertDataVec.data());
 	m_sVertexBuffer.Create(_pDevice,*_pCmd, _rtVertDataVec.size(),_rtVertDataVec.data());
-	//auto _handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-	//	_pDevice,
-	//	m_sVertexBuffer.GetResource(),
-	//	m_sVertexBuffer.GetViewDesc()
-	//);
-	//m_sVertexBuffer.SetHandle(_handle);
-
 	// インデックスバッファー側SRV作成
-	//m_sIndexBuffer.Create(_pDevice,_pCmdList,m_indexData.size(),m_indexData.data());
 	m_sIndexBuffer.Create(_pDevice,*_pCmd,m_indexData.size(),m_indexData.data());
-	//_handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-	//	Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
-	//	m_sIndexBuffer.GetResource(),
-	//	m_sIndexBuffer.GetViewDesc()
-	//);
-	//m_sIndexBuffer.SetHandle(_handle);
 
-	//m_sVertexBuffer.Update(_pDevice, _pCmdList);
-	m_sVertexBuffer.Update(*_pCmd);
-	//m_sIndexBuffer.Update(_pDevice,_pCmdList);
-	m_sIndexBuffer.Update(*_pCmd);
 
 	// コマンドリストをクローズ
 	//_pCmdList->Close();
@@ -164,10 +143,11 @@ bool Engine::Resource::Mesh::CreateFloat(
 	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
 	//// 終了待ち
-	Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
-	Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
-	//ResourceManager::Instance().SignalFence(_cmdQueue);
-	//ResourceManager::Instance().WaitRender();
+	//Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
+	//Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
+	//
+	ResourceManager::Instance().SignalFence(_cmdQueue);
+	ResourceManager::Instance().WaitRender();
 
 	return true;
 }

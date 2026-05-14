@@ -436,9 +436,6 @@
     <Filter Include="Source\Engine\Raytracing\Common">
       <UniqueIdentifier>{dfec8c58-9d0f-420a-9923-ef53b2e1ca43}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\Buffer\StructuredBuffer">
-      <UniqueIdentifier>{fa82daf8-dfdb-49ab-80b7-a648b6b6dcc4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Raytracing\BLAS">
       <UniqueIdentifier>{0037a7c8-2860-4c64-bec1-637b239cf301}</UniqueIdentifier>
     </Filter>
@@ -974,9 +971,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Raytracing\RaytracingWorld\RaytracingWorld.cpp">
       <Filter>Source\Engine\Raytracing\RaytracingWorld</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\StructuredBuffer\StructuredBuffer.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\Buffer\StructuredBuffer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Raytracing\BLAS\BLAS.cpp">
       <Filter>Source\Engine\Raytracing\BLAS</Filter>
@@ -1570,9 +1564,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Raytracing\Common\RaytracingInstance.h">
       <Filter>Source\Engine\Raytracing\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\StructuredBuffer\StructuredBuffer.h">
-      <Filter>Source\Engine\D3D12\D3DObject\Buffer\StructuredBuffer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Raytracing\BLAS\BLAS.h">
       <Filter>Source\Engine\Raytracing\BLAS</Filter>
