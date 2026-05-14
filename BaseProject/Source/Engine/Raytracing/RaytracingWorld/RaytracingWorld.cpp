@@ -72,7 +72,6 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 	m_upTLAS->Create(m_instanceVec);
 
 	// 構造体バッファ作成
-	//std::vector<InstanceData> _instanceDataVec = {};
 	m_instanceDataVec = {};
 	for (auto& _instance : m_instanceVec)
 	{
@@ -83,22 +82,12 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 	}
 
 	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-	//auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
 
 	// インスタンスデータ作成
-	//m_instanceDataBuffer.Create(_pDevice, _pCmdList, m_instanceVec.size(), _instanceDataVec.data());
 	m_instanceDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_instanceDataVec.data());
 
-	//auto _handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-	//	Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
-	//	m_instanceDataBuffer.GetResource(),
-	//	m_instanceDataBuffer.GetViewDesc()
-	//);
-	//m_instanceDataBuffer.SetHandle(_handle);
-
 	// マテリアルデータ作成
-	//std::vector<Material> _materialVec;
 	m_materialVec = {};
 	for (auto& _instance : m_instanceVec)
 	{
@@ -115,20 +104,11 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 		m_materialVec.push_back(_mate);
 	}
 	m_materialDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_materialVec.data());
-
-	//_handle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(
-	//	Engine::D3D12::D3D12Wrapper::Instance().GetDevice(),
-	//	m_materialDataBuffer.GetResource(),
-	//	m_materialDataBuffer.GetViewDesc()
-	//);
-	//m_materialDataBuffer.SetHandle(_handle);
 }
 
 
 void Engine::Raytracing::RayWorld::Commit()
 {
-	//auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-	//auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
 
 	// TLAS更新

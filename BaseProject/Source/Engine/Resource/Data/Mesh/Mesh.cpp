@@ -29,12 +29,6 @@ bool Engine::Resource::Mesh::CreateFloat(
 		//------------------------------
 		// 頂点バッファ作成
 		//------------------------------
-		//if (!m_vertexBuffer.Create(
-		//	(UINT)a_vertices.size(),
-		//	sizeof(MeshVertexFloat),
-		//	a_vertices.data()
-		//))
-		
 		if (!m_vertexBuffer.CreateAndUpload(
 			_pDevice,
 			(UINT)a_vertices.size(),
@@ -74,7 +68,6 @@ bool Engine::Resource::Mesh::CreateFloat(
 		// インデックスバッファ作成
 		//------------------------------
 		std::vector<UINT> _indices;		// インデックス配列作成
-		//_indices.resize(a_face.size() * 3);		// サイズ確保
 		for (auto& _f : a_face)
 		{
 			_indices.push_back(_f.idx[0]);
@@ -102,7 +95,6 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 	
 	// コマンドキューリセット
-	//Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
 	Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 
 	//------------------------------
@@ -132,20 +124,14 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 
 	// コマンドリストをクローズ
-	//_pCmdList->Close();
 	Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet()->Close();
 
 	// コマンドキューに積む
 	ID3D12CommandList* _ppCommandLists[] = { Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet() };
-	//ID3D12CommandList* _ppCommandLists[] = { _pCmdList };
 	auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
-	//auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCommandQueue();
 	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
-	//// 終了待ち
-	//Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
-	//Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
-	//
+	// 終了待ち
 	ResourceManager::Instance().SignalFence(_cmdQueue);
 	ResourceManager::Instance().WaitRender();
 

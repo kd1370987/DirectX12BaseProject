@@ -62,9 +62,6 @@ bool Engine::Raytracing::BLAS::Build(
 	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec
 )
 {
-	// コマンドキューリセット
-	//D3D12::D3D12Wrapper::Instance().CommandQueueReset();
-	//Resource::ResourceManager::Instance().CmdQueueReset();
 
 	// スクラッチリソース構築
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS _inputs = {};
@@ -141,20 +138,6 @@ bool Engine::Raytracing::BLAS::Build(
 	_barrier.UAV.pResource = m_cpResource.Get();
 
 	a_cmdList->ResourceBarrier(1,&_barrier);
-	//a_cmdList->Close();
-
-	// コマンドキューに積む
-	//ID3D12CommandList* _ppCommandLists[] = { a_cmdList };
-	//auto* _cmdQueue = D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
-	//_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
-
-	// 終了待ち
-	//D3D12::D3D12Wrapper::Instance().SignalRenderFence();
-	//D3D12::D3D12Wrapper::Instance().WaitRender();
-	//Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
-	//Resource::ResourceManager::Instance().WaitRender();
-
-
 
 	return true;
 }
