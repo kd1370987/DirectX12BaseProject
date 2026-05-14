@@ -5,12 +5,13 @@
 #include "../../D3D12/D3DObject/CommandAllocator/CommandAllocator.h"
 #include "../../D3D12/D3DObject/CommandList/CommandList.h"
 #include "../../D3D12/D3DObject/Fence/Fence.h"
-
-#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-
 #include "Engine/D3D12/D3DObject/SwapChain/SwapChain.h"
 #include "Engine/D3D12/D3DObject/Viewport/Viewport.h"
 #include "Engine/D3D12/D3DObject/ScissorRectangle/ScissorRectangle.h"
+
+#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../Resource/Loader/Texture/TextureLoader.h"
 namespace Engine::D3D12
 {
 	bool D3D12Wrapper::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
@@ -105,12 +106,6 @@ namespace Engine::D3D12
 		m_upScissorRect = std::make_unique<ScissorRectangle>();
 		m_upScissorRect->Create(a_windowWidth, a_windowHeight);
 
-		//if (!CreateRenderTarget())
-		//{
-		//	assert(0 && "レンダーターゲットの生成に失敗");
-		//	return false;
-		//}
-
 		// 初期化成功
 		return true;
 	}
@@ -119,11 +114,6 @@ namespace Engine::D3D12
 	{
 		SignalRenderFence();
 		WaitRender(m_cpuFrameIndex);
-
-		for (auto& _bb : m_backBuffer)
-		{
-			_bb.renderTarget.Reset();
-		}
 
 		m_currentRenderTarget = nullptr;
 
@@ -157,7 +147,7 @@ namespace Engine::D3D12
 		WaitRender(m_cpuFrameIndex);
 
 		// 現在のレンダーターゲットを更新
-		m_currentRenderTarget = m_backBuffer[m_upSwapChain->GetCurrentBackBufferIndex()].renderTarget.Ref();
+		m_currentRenderTarget = m_backBuffers[m_upSwapChain->GetCurrentBackBufferIndex()].GetResource();
 
 		CommandQueueReset();
 
@@ -253,7 +243,7 @@ namespace Engine::D3D12
 
 	ID3D12Resource* D3D12Wrapper::GetCurrentRenderTarget()
 	{
-		return m_backBuffer[m_upSwapChain->GetCurrentBackBufferIndex()].renderTarget.Ref();
+		return m_backBuffers[m_upSwapChain->GetCurrentBackBufferIndex()].GetResource();
 	}
 
 	ID3D12CommandQueue* D3D12Wrapper::GetCommandQueue()
@@ -284,8 +274,7 @@ namespace Engine::D3D12
 		for (UINT _i = 0; _i < BACKBUFFER_COUNT; ++_i)
 		{
 			// スワップチェインから描画するテクスチャリソースを取得
-			m_backBuffer[_i].renderTarget.Create(m_upSwapChain->Get(), _i);
-			m_backBuffer[_i].rtvHandle = Engine::D3D12::DescriptorHeapManager::Instance().Allocate<Engine::D3D12::RTV>(m_upDevice->GetDevice(), m_backBuffer[_i].renderTarget.Ref(), nullptr);
+			m_backBuffers[_i].Create(m_upSwapChain->Get(),_i);
 		}
 		return true;
 	}
@@ -396,7 +385,7 @@ namespace Engine::D3D12
 	{
 		// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
 		auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
-			m_backBuffer[m_upSwapChain->GetCurrentBackBufferIndex()].rtvHandle
+			m_backBuffers[m_upSwapChain->GetCurrentBackBufferIndex()].GetRTV()
 		);
 
 		// レンダーターゲットを設定

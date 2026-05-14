@@ -15,6 +15,8 @@ namespace Engine::Resource
 		// テクスチャの作成
 		static Handle<Texture> Create(const TextureCreateDesc& a_initData);
 
+		
+
 		// キャッシュの取得
 		static const std::unordered_map<Engine::GUID, Handle<Texture>>& GetAllCache();
 		static const std::unordered_map<std::string, Handle<Texture>>& GetAllNameCache();

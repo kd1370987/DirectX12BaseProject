@@ -12,13 +12,6 @@ namespace Engine::D3D12
 	class Viewport;
 	class ScissorRectangle;
 
-
-	struct BackBuffer
-	{
-		RenderTarget renderTarget;
-		Engine::Resource::Handle<Engine::D3D12::RTV> rtvHandle;
-	};
-
 	// フレーム数分必要なリソース
 	struct D3DFrameResource
 	{
@@ -154,7 +147,7 @@ namespace Engine::D3D12
 
 
 		// バックバッファー
-		BackBuffer m_backBuffer[BACKBUFFER_COUNT];
+		Resource::Texture m_backBuffers[BACKBUFFER_COUNT];
 
 		// フレームリソース
 		D3DFrameResource m_frameResource[CPU_FRAME_COUNT] = {};

@@ -269,7 +269,6 @@
     <ClCompile Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp" />
     <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandAllocator\CommandAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandQueue\CommandQueue.cpp" />
@@ -469,7 +468,6 @@
     <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Common.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.h" />
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\Buffer\RenderTarget\RenderTarget.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandAllocator\CommandAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandList\CommandList.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandQueue\CommandQueue.h" />

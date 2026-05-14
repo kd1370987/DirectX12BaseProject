@@ -31,6 +31,7 @@ namespace Engine::Resource
 		void Import(const std::string& a_filePath,const DirectX::XMFLOAT4& a_defoltData = { 255,255,255,255 });
 		void Create(const std::string& a_name, const DirectX::XMFLOAT4& a_defoltData);
 		void Create(const TextureCreateDesc& a_desc);
+		void Create(IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,TextureUsage a_texUsage = TextureUsage::RTV);
 
 		// ビューの作成
 		void CreateView();
@@ -57,13 +58,6 @@ namespace Engine::Resource
 		const Engine::Resource::Handle<D3D12::SRV>& GetSRV() const;
 		const Engine::Resource::Handle<D3D12::UAV>& GetUAV() const;
 		const Engine::Resource::Handle<D3D12::SRV>& GetImGuiSRV() const;
-
-		// ビュー情報セット
-		void SetRTV(const Engine::Resource::Handle<D3D12::RTV>& a_handle);
-		void SetDSV(const Engine::Resource::Handle<D3D12::DSV>& a_handle);
-		void SetSRV(const Engine::Resource::Handle<D3D12::SRV>& a_handle);
-		void SetUAV(const Engine::Resource::Handle<D3D12::UAV>& a_handle);
-		void SetImGuiSRV(const Engine::Resource::Handle<D3D12::SRV>& a_handle);
 
 	private:
 

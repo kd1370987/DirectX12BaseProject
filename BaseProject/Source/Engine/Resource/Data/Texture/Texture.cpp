@@ -71,6 +71,24 @@ namespace Engine::Resource
 		CreateView();
 	}
 
+	void Texture::Create(IDXGISwapChain* a_pSwapChain, UINT a_backBufferIndex, TextureUsage a_texUsage)
+	{
+		// スワップチェインからバックバッファを生成
+		a_pSwapChain->GetBuffer(
+			a_backBufferIndex,
+			IID_PPV_ARGS(m_cpResource.ReleaseAndGetAddressOf())
+		);
+		m_currentSutate = D3D12_RESOURCE_STATE_PRESENT;
+		// 名前設定
+		std::string _name = "BackBuffer_" + a_backBufferIndex;
+		m_cpResource->SetName(StringUtility::ToWideString(_name).c_str());
+
+		// メンバ作成
+		m_name = _name;
+		m_useFlg = a_texUsage;
+		CreateView();
+	}
+
 	void Texture::CreateView()
 	{
 		// デバイスの取得
@@ -199,28 +217,4 @@ namespace Engine::Resource
 		return m_imguiSRVHandle;
 	}
 
-	void Engine::Resource::Texture::SetRTV(const Engine::Resource::Handle<D3D12::RTV>& a_handle)
-	{
-		m_rtvHandle = a_handle;
-	}
-
-	void Engine::Resource::Texture::SetDSV(const Engine::Resource::Handle<D3D12::DSV>& a_handle)
-	{
-		m_dsvHandle = a_handle;
-	}
-
-	void Engine::Resource::Texture::SetSRV(const Engine::Resource::Handle<D3D12::SRV>& a_handle)
-	{
-		m_srvHandle = a_handle;
-	}
-
-	void Engine::Resource::Texture::SetUAV(const Engine::Resource::Handle<D3D12::UAV>& a_handle)
-	{
-		m_uavHandle = a_handle;
-	}
-
-	void Engine::Resource::Texture::SetImGuiSRV(const Engine::Resource::Handle<D3D12::SRV>& a_handle)
-	{
-		m_imguiSRVHandle = a_handle;
-	}
 }
