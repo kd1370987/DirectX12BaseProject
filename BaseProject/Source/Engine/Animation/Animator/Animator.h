@@ -1,16 +1,6 @@
 ﻿#pragma once
 namespace Engine::Animation
 {
-	struct ClipData
-	{
-		// 再生中の情報
-		UINT m_clipID = 0;
-		float m_time = 0.0f;
-		float m_speed = 1.0f;
-
-		// 繰り返しするか
-		bool m_isLoop = false;
-	};
 
 	class Animator
 	{
@@ -26,13 +16,21 @@ namespace Engine::Animation
 		// 停止
 		void Stop();
 
+		// 再生時間調整
+		void SetSpeed(float a_speed);
+
 		// 更新
 		void Update(float a_dt);
 
 	private:
 
-		// 現在再生中のアニメーションクリップ群
-		std::vector<ClipData> m_clipDataVec = {};
+		// 再生中の情報
+		UINT m_clipID = 0;
+		float m_time = 0.0f;
+		float m_speed = 1.0f;
+
+		// 繰り返しするか
+		bool m_isLoop = false;
 
 		// 現在管理しているアニメーションモデル
 		Resource::Handle<Resource::Model> m_modelHandle = {};
