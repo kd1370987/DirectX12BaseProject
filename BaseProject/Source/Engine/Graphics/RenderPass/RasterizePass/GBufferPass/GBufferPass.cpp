@@ -11,6 +11,7 @@ namespace Engine::Graphics
 	{
 		Begine(a_pCtx);
 		a_pCtx->BindCameraCB();
+		a_pCtx->BindSRVBone();
 
 		DrawQueue(a_pCtx);
 

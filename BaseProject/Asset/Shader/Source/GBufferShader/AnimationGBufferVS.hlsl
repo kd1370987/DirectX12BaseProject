@@ -23,7 +23,9 @@ VSOutput vs(VSInput a_input)
 	[unroll]
 	for (int _i = 0; _i < 4; ++_i)
 	{
-		_mBones += g_mBones[a_input.skinIndex[_i]] * a_input.skinWeight[_i];
+		//_mBones += g_mBones[a_input.skinIndex[_i]] * a_input.skinWeight[_i];
+		_mBones += g_bonePalletData[offsetData.x + a_input.skinIndex[_i]].mat * a_input.skinWeight[_i];
+
 	}
 
 	// 座標と法線に適用

@@ -27,4 +27,7 @@ RS_CAMERA_CB ","\
 "CBV(b3,visibility = SHADER_VISIBILITY_ALL),"\
 "CBV(b4,visibility = SHADER_VISIBILITY_ALL),"\
 "DescriptorTable(SRV(t0, numDescriptors=4),visibility = SHADER_VISIBILITY_PIXEL),"\
+"DescriptorTable(SRV(t4, numDescriptors=1),visibility = SHADER_VISIBILITY_VERTEX),"\
 RS_STATIC_SAMPLER
+
+

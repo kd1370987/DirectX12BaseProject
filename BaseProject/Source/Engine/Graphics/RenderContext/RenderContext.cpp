@@ -441,9 +441,23 @@ namespace Engine::Graphics
 		m_pCmdList->SetDescriptorHeaps(a_numHeaps,a_pHeaps);
 	}
 
-	void RenderContext::BindBone()
+	void RenderContext::BindSRVBone()
 	{
-		BindSRV(4,m_boneBuffer.GetSRVHandle());
+		BindSRV(6, m_boneBuffer.GetSRVHandle());
+	}
+
+	void RenderContext::BindCBBone(const Storage::Range & a_range)
+	{
+		// ボーンのバインド
+		m_cb4_Bone = {};
+		m_cb4_Bone.startIdx = a_range.startIndex;
+		m_cb4_Bone.count = a_range.rangeSize;
+
+		BindCB()->BindAndAttachDataRootCBV<CBBone>(
+			m_pCmdList->NGet(),
+			4,
+			m_cb4_Bone
+		);
 	}
 
 
@@ -605,23 +619,6 @@ namespace Engine::Graphics
 			const auto& _pIndexView = a_pMesh->GetIndexBuffer().GetView();
 			m_pCmdList->IASetIndexBuffer(&_pIndexView);
 		}
-	}
-
-
-	void RenderContext::BindBone(UINT a_index, const DirectX::XMFLOAT4X4 * a_pMatVec, UINT a_count)
-	{
-		// 定数バッファにコピー
-		if (a_pMatVec)
-		{
-			std::memcpy(m_cb4_Bone.boneMat, a_pMatVec, sizeof(DirectX::XMFLOAT4X4) * a_count);
-		}
-
-		// バッファにコピー
-		BindCB()->BindAndAttachDataRootCBV<CBBone>(
-			m_pCmdList->NGet(),
-			a_index,
-			m_cb4_Bone
-		);
 	}
 
 	void RenderContext::Draw(Resource::Mesh* a_pMesh, UINT a_subIdx)

@@ -9,6 +9,7 @@ RS_CAMERA_CB ","\
 "CBV(b4,visibility = SHADER_VISIBILITY_ALL),"\
 "CBV(b5,visibility = SHADER_VISIBILITY_ALL),"\
 "DescriptorTable(SRV(t0, numDescriptors=4),visibility = SHADER_VISIBILITY_PIXEL),"\
+"DescriptorTable(SRV(t4, numDescriptors=1),visibility = SHADER_VISIBILITY_VERTEX),"\
 RS_STATIC_SAMPLER
 
 // カメラの定数バッファ
@@ -42,7 +43,7 @@ cbuffer CBMaterial : register(b3)
 
 cbuffer cbBones : register(b4)
 {
-	row_major float4x4 g_mBones[300];
+	int4 offsetData;
 };
 
 cbuffer cbAmbient : register(b5)
@@ -62,6 +63,11 @@ Texture2D g_metRogTex : register(t1);
 Texture2D g_emiTex : register(t2);
 Texture2D g_normalTex : register(t3);
 
+struct BonePallet
+{
+	row_major float4x4 mat;
+};
+StructuredBuffer<BonePallet> g_bonePalletData : register(t4);
 
 // 頂点シェーダー出力構造体
 struct VSOutput

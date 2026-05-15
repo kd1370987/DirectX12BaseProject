@@ -41,7 +41,7 @@ cbuffer CBMaterial : register(b3)
 }
 cbuffer cbBones : register(b4)
 {
-	row_major float4x4 g_mBones[300];
+	int4 offsetData;
 };
 
 // サンプラー
@@ -52,6 +52,12 @@ Texture2D g_mainTex : register(t0);
 Texture2D g_metRogTex : register(t1);
 Texture2D g_emiTex : register(t2);
 Texture2D g_normalTex : register(t3);
+
+struct BonePallet
+{
+	row_major float4x4 mat;
+};
+StructuredBuffer<BonePallet> g_bonePalletData : register(t4);
 
 
 // 頂点シェーダー出力構造体

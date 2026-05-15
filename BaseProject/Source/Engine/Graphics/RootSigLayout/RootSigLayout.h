@@ -135,7 +135,10 @@ struct alignas(256) CBCamera
 // スキニング
 struct alignas(256) CBBone
 {
-	DirectX::XMFLOAT4X4 boneMat[300] = {};
+	int startIdx = 0;
+	int count = 0;
+	int pad1 = 0;
+	int pad2 = 0;
 };
 
 // 環境

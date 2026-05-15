@@ -59,7 +59,7 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 
 				// ボーンノード	
 				_item.pBoneMatrices = _boneMatVec;
-				_item.boneCount = _skeComp.boneRange.rangeSize;
+				_item.boneRange = _skeComp.boneRange;
 
 
 				// 描画ノード

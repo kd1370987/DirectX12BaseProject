@@ -48,7 +48,7 @@ namespace Engine::Graphics
 		Resource::Mesh* pMesh = nullptr;
 
 		const DirectX::XMFLOAT4X4* pBoneMatrices = nullptr;
-		UINT boneCount = 0;
+		Storage::Range boneRange = {};
 
 		DirectX::XMFLOAT4X4 worldMat = {};
 		DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
@@ -188,7 +188,8 @@ namespace Engine::Graphics
 		// バインドボーン
 		// すべてのアニメーション行列を配置しているから一括で送れる
 		// 定数バッファでスタートインデックスとカウントを送る必要あり
-		void BindBone();
+		void BindSRVBone();
+		void BindCBBone(const Storage::Range& a_range);
 
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド
@@ -244,13 +245,6 @@ namespace Engine::Graphics
 			const DirectX::XMFLOAT4X4& a_worldMat
 
 		);
-		// ボーン行列を送信、配列と長さを入れる
-		void BindBone(
-			UINT a_index,
-			const DirectX::XMFLOAT4X4* a_pMatVec,
-			UINT a_count
-		);
-
 		// ビューポート設定
 		void SetViewPort();
 

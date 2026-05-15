@@ -57,11 +57,7 @@ namespace Engine::Graphics
 				// アニメーションタイプならボーンをバインド
 				if (_type == RenderQueueType::AnimationOpaque || _type == RenderQueueType::AnimationTransparent)
 				{
-					a_pCtx->BindBone(
-						4,
-						_item.pBoneMatrices,
-						_item.boneCount
-					);
+					a_pCtx->BindCBBone(_item.boneRange);
 				}
 
 				// 描画
