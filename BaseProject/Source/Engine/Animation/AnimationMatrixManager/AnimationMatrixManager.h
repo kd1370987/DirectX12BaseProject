@@ -1,4 +1,9 @@
 ﻿#pragma once
+namespace Engine::D3D12
+{
+	class CommandList;
+}
+
 namespace Engine::Animation
 {
 	struct NodePose
@@ -7,9 +12,13 @@ namespace Engine::Animation
 		DirectX::XMFLOAT4X4 world = {};
 	};
 
+
 	class AnimationMatrixManager
 	{
 	public:
+
+		// 初期化
+		void Init(ID3D12Device* a_pDevice,D3D12::CommandList& a_cmdList,UINT a_maxElement);
 
 		// ノードポーズ配列確保
 		Storage::Range AllocateNodePoseVec(const Resource::Handle<Resource::Model>& a_modelHandle);
@@ -20,11 +29,11 @@ namespace Engine::Animation
 		Storage::Range AllocateBoneMatVec(const Resource::Handle<Resource::Model>& a_modelHandle);
 		DirectX::XMFLOAT4X4* AccessBoneMatVec(const Storage::Range& a_range);
 		void DeleteBoneRange(const Storage::Range& a_range);
+		const std::vector<DirectX::XMFLOAT4X4>& GetBoneMatStorage() const { return m_boneMatStorage; }
 
 	private:
 
 		FreeRange m_nodeFreeRangeStorage;								// レンジ管理
-	
 		std::vector<DirectX::XMFLOAT4X4> m_boneMatStorage;
 
 		FreeRange m_boneFreeRangeStorage;								// レンジ管理
@@ -32,15 +41,7 @@ namespace Engine::Animation
 
 	private:
 
-		AnimationMatrixManager()
-		{
-			// とりあえず
-			m_nodeFreeRangeStorage.Init(10000);
-			m_boneMatStorage.resize(10000);
-
-			m_boneFreeRangeStorage.Init(10000);
-			m_nodePoseMatStorage.resize(10000);
-		}
+		AnimationMatrixManager() = default;
 		~AnimationMatrixManager() = default;
 	public:
 		static AnimationMatrixManager& Instance()

@@ -5,6 +5,16 @@
 
 namespace Engine::Animation
 {
+	void AnimationMatrixManager::Init(ID3D12Device* a_pDevice, D3D12::CommandList& a_cmdList, UINT a_maxElement)
+	{
+		// とりあえず
+		m_nodeFreeRangeStorage.Init(a_maxElement);
+		m_boneMatStorage.resize(a_maxElement);
+
+		m_boneFreeRangeStorage.Init(a_maxElement);
+		m_nodePoseMatStorage.resize(a_maxElement);
+	}
+
 	Storage::Range Engine::Animation::AnimationMatrixManager::AllocateNodePoseVec(const Resource::Handle<Resource::Model>& a_modelHandle)
 	{
 		// モデルからアニメーションのノードを取得
@@ -18,7 +28,6 @@ namespace Engine::Animation
 			UINT _size = _upAnim->nodes.size();
 			_maxAnimNodeNum = std::max(_maxAnimNodeNum, _size);
 		}
-		//static_cast<uint16_t>();
 
 		// レンジ確保
 		return m_nodeFreeRangeStorage.Allocate(_pModel->GetOriginalNodeVec().size());

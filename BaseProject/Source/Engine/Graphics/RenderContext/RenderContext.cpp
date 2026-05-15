@@ -10,6 +10,7 @@
 
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
 
@@ -37,17 +38,16 @@ namespace Engine::Graphics
 
 		// 形状描画用バッファ作成
 		m_shapeVertexBuffer.Create(m_pDevice,m_pShapeDraw->GetMaxCount());
-		//m_shapeVertexBuffer.Create(
-		//	m_pShapeDraw->GetMaxCount(),
-		//	sizeof(Vertex),
-		//	nullptr
-		//);
 
 		// ルート定数バッファアロケーター
 		m_upCBAllocater = std::make_unique<CBAllocater>();
 		m_upCBAllocater->RootCBVCreate(
 			m_pDevice, a_desc.cbAllocatorMemSize
 		);
+
+		// ボーン用バッファ作成
+		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
+		m_boneBuffer.Create(a_desc.pDevice, *_pCmdList, a_desc.boneElementNum, nullptr);
 
 		// コピー戦略用SRVヒープの作成
 		m_copyHeap.Create(
@@ -245,34 +245,6 @@ namespace Engine::Graphics
 		BindSRV(a_rootIdx,_cpuHandles);
 	}
 
-	//void RenderContext::BindSRV(
-	//	RootSigSemantic a_sema,
-	//	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_srvHandle
-	//)
-	//{
-	//	UINT _regiIdx =
-	//		m_pRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
-
-
-	//	// SRVセット
-	//	if (D3D12::ERR_UINT != _regiIdx)
-	//	{
-	//		BindSRV(_regiIdx,a_srvHandle);
-	//	}
-	//}
-
-	//void RenderContext::BindSRV(RootSigSemantic a_sema, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle)
-	//{
-	//	UINT _regiIdx =
-	//		m_pRootSigManager->GetRegiNum(m_currentRootSigID, a_sema);
-
-	//	// SRVセット
-	//	if (D3D12::ERR_UINT != _regiIdx)
-	//	{
-	//		BindSRV(_regiIdx, a_cpuHandle);
-	//	}
-	//}
-
 	void RenderContext::BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles)
 	{
 		// コピー数取得
@@ -336,6 +308,12 @@ namespace Engine::Graphics
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
 		);
+	}
+
+	void RenderContext::BindSRV(UINT a_rootIdx, Resource::Handle<D3D12::SRV> a_srvHandle)
+	{
+		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_srvHandle);
+		BindSRV(a_rootIdx, _cpu);
 	}
 
 	void RenderContext::BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
@@ -463,6 +441,11 @@ namespace Engine::Graphics
 		m_pCmdList->SetDescriptorHeaps(a_numHeaps,a_pHeaps);
 	}
 
+	void RenderContext::BindBone()
+	{
+		BindSRV(4,m_boneBuffer.GetSRVHandle());
+	}
+
 
 	void RenderContext::AddItem(const RenderQueueType& a_type, const DrawItem& a_item)
 	{
@@ -498,6 +481,12 @@ namespace Engine::Graphics
 
 	void RenderContext::Excute(RenderGraph* a_pGraph)
 	{
+		// ボーン行列の更新
+		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
+		auto& _bonePalleteVec = Animation::AnimationMatrixManager::Instance().GetBoneMatStorage();
+		m_boneBuffer.UpdateData(_bonePalleteVec.data(),_bonePalleteVec.size());
+		m_boneBuffer.Update(*_pCmdList);
+
 		// バインド対象のクリア
 		m_currentRootSigID = Resource::Limits::INVALID_ID;
 		m_currentPSOID = Resource::Handle<D3D12::PipelineState>();

@@ -83,6 +83,9 @@ namespace Engine::Graphics
 
 		// アロケーターのメモリ容量
 		size_t cbAllocatorMemSize = 32 * 1024 * 1024;
+
+		// ボーン用行列数
+		UINT boneElementNum = 0;
 	};
 
 	// マイフレームリセットするときに外部からもらう情報
@@ -96,6 +99,11 @@ namespace Engine::Graphics
 	class RenderContext
 	{
 	public:
+
+		struct BonePallete
+		{
+			DirectX::XMFLOAT4X4 mat;
+		};
 
 		//--------------------------------------------------------------------------------------------
 		// クラス基盤
@@ -155,6 +163,7 @@ namespace Engine::Graphics
 		// SRVハンドルをもらってコピーする
 		void BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
 		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
+		void BindSRV(UINT a_rootIdx,Resource::Handle<D3D12::SRV> a_srvHandle);
 
 		// UAV
 		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
@@ -175,6 +184,11 @@ namespace Engine::Graphics
 		// ヒープのセット
 		void BindHeap();
 		void BindHeaps(UINT a_numHeaps, ID3D12DescriptorHeap *const* a_pHeaps);
+
+		// バインドボーン
+		// すべてのアニメーション行列を配置しているから一括で送れる
+		// 定数バッファでスタートインデックスとカウントを送る必要あり
+		void BindBone();
 
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド
@@ -287,8 +301,8 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// フレーム限定リソース
 		//--------------------------------------------------------------------------------------------
-		//ID3D12GraphicsCommandList* m_pCmdList = nullptr;		// フレームごとにもらい受ける
 		std::unique_ptr<CBAllocater> m_upCBAllocater = nullptr;	// 定数バッファアロケーター
+		D3D12::StaticStructuredBuffer<BonePallete> m_boneBuffer;
 		D3D12::CommandList* m_pCmdList = nullptr;
 		// コピー用ヒープ
 		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV> m_copyHeap = {};

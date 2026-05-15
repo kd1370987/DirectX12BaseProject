@@ -9,6 +9,8 @@
 #include "RenderContext/RenderContext.h"
 #include "RenderContext/ShapeDraw/ShapeDraw.h"
 #include "RenderGraph/RenderGraph.h"
+#include "../Animation/AnimationMatrixManager/AnimationMatrixManager.h"
+#include "../Resource/Manager/ResourceManager/ResourceManager.h"
 
 
 namespace Engine::Graphics
@@ -36,6 +38,7 @@ namespace Engine::Graphics
 			_desc.pShapeRender = m_upShapeRender.get();
 
 			_desc.cbAllocatorMemSize = 32 * 1024 * 1024;
+			_desc.boneElementNum = 10000;
 
 			_upCtx->Init(_desc);
 			m_upRenderContextVec.push_back(std::move(_upCtx));
@@ -44,6 +47,11 @@ namespace Engine::Graphics
 		// レンダーグラフの構築
 		m_upRenderGraph = std::make_unique<RenderGraph>();
 		m_upRenderGraph->Init(m_pPipelineStateManager);
+
+		// アニメーション用メモリ領域作成
+		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _CmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
+		Animation::AnimationMatrixManager::Instance().Init(_pDev, *_CmdList, 10000);
 	}
 
 	void GraphicsEngine::Release()
@@ -51,6 +59,7 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::ExcuteDrawCmd()
 	{
+		// レンダーパスの実行
 		m_upRenderContextVec[m_currentFrameIndex]->Excute(m_upRenderGraph.get());
 		m_upRenderContextVec[m_currentFrameIndex]->ClearCmd();
 	}
