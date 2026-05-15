@@ -58,7 +58,7 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				auto& _dataNodes = _model->GetOriginalNodeVec();
 
 				// ボーンノード	
-				_item.pBoneMatrices = _boneMatVec;
+				//_item.pBoneMatrices = _boneMatVec;
 				_item.boneRange = _skeComp.boneRange;
 
 

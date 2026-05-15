@@ -47,7 +47,6 @@ namespace Engine::Graphics
 		UINT subIdx = 0;
 		Resource::Mesh* pMesh = nullptr;
 
-		const DirectX::XMFLOAT4X4* pBoneMatrices = nullptr;
 		Storage::Range boneRange = {};
 
 		DirectX::XMFLOAT4X4 worldMat = {};
