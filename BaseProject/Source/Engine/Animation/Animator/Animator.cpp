@@ -25,10 +25,10 @@ namespace Engine::Animation
 
 		// ボーン行列初期化
 		UINT _boneNodeNum = _pModel->GetBoneNodeVec().size();
-		m_nodePoseVec.resize(_boneNodeNum);
+		m_boneVec.resize(_boneNodeNum);
 		for (size_t _i = 0; _i < _boneNodeNum; ++_i)
 		{
-			m_nodePoseVec[_i] = _pModel->GetOriginalNodeVec()[_i].worldTransform;
+			m_boneVec[_i] = _pModel->GetOriginalNodeVec()[_i].worldTransform;
 		}
 
 		

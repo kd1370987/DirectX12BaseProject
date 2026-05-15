@@ -8,6 +8,8 @@ struct NodePoseComponent
 	DirectX::XMFLOAT4X4 world[MAX_NODEINDEX];
 	uint16_t nodeCount;
 
+	Engine::Storage::Range nodeRange;
+
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<const NodePoseComponent*>(a_ptr);
@@ -23,5 +25,9 @@ struct NodePoseComponent
 		NodePoseComponent& _comp = Engine::Editor::GetValue<NodePoseComponent>(a_data);
 		ImGui::Text("NodeCount : %f",&_comp.nodeCount);
 
+		int _startIdx = (int)_comp.nodeRange.startIndex;
+		int _rangeNum = (int)_comp.nodeRange.rangeSize;
+		ImGui::Text("StartIndex : %d", _startIdx);
+		ImGui::Text("RangeNum : %d", _rangeNum);
 	}
 };

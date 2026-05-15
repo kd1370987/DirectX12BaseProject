@@ -263,6 +263,7 @@
     <ClCompile Include="Source\Core\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp" />
     <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.cpp" />
+    <ClCompile Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.cpp" />
     <ClCompile Include="Source\Engine\Animation\AnimatorManager\AnimatorManager.cpp" />
     <ClCompile Include="Source\Engine\Animation\Animator\Animator.cpp" />
     <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp" />
@@ -465,6 +466,7 @@
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
     <ClInclude Include="Source\Core\Utility\StringUtillity.h" />
     <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.h" />
+    <ClInclude Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.h" />
     <ClInclude Include="Source\Engine\Animation\AnimatorManager\AnimatorManager.h" />
     <ClInclude Include="Source\Engine\Animation\Animator\Animator.h" />
     <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h" />

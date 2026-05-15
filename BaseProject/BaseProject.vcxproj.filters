@@ -727,6 +727,9 @@
     <Filter Include="Source\Engine\Animation\AnimatorManager">
       <UniqueIdentifier>{d25a9f4e-34b3-4461-a97d-0ae064cd3e8b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Animation\AnimationMatirxManager">
+      <UniqueIdentifier>{f5baef63-6773-49bb-a0f5-3ba52f231c12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1181,6 +1184,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Animation\Animator\Animator.cpp">
       <Filter>Source\Engine\Animation\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.cpp">
+      <Filter>Source\Engine\Animation\AnimationMatirxManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1843,6 +1849,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Animation\Animator\Animator.h">
       <Filter>Source\Engine\Animation\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.h">
+      <Filter>Source\Engine\Animation\AnimationMatirxManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

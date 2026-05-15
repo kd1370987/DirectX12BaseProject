@@ -9,6 +9,7 @@
 //#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
+#include "../../../../../Engine/Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 void SkinningSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ModelComponent, NodePoseComponent, SkeletonPoseComponent>(
@@ -35,12 +36,27 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 				if (!_model) return;
 
 				// 全ノード
-				auto& _workNodes = _nodeComp;
 				const auto& _dataNodes = _model->GetOriginalNodeVec();
+
+				DirectX::XMFLOAT4X4* _boneMatVec = Engine::Animation::AnimationMatrixManager::Instance().AccessBoneMatVec(_skeComp.boneRange);
+				for (UINT _j = 0; _j < _skeComp.boneRange.rangeSize; ++_j)
+				{
+					_boneMatVec[_j] = DXSM::Matrix::Identity;
+				}
 
 				for (auto& _s : _skeComp.palette)
 				{
 					_s = DXSM::Matrix::Identity;
+				}
+
+				Engine::Animation::NodePose* _nodePoseVec = Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodeComp.nodeRange);
+
+				for (auto& _nodeIdx : _model->GetBoneNodeVec())
+				{
+					const auto& _dataNode = _dataNodes[_nodeIdx];
+					DXSM::Matrix _nodeWorldMat = _nodeComp.world[_nodeIdx];
+					DXSM::Matrix _invMat = _dataNodes[_nodeIdx].boneInverseWorldMatrix;
+					_boneMatVec[_dataNode.boneIndex] = _invMat * _nodeWorldMat;
 				}
 
 				// ボーンノード

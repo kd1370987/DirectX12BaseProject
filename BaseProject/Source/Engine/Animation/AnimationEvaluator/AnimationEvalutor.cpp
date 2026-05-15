@@ -1,5 +1,7 @@
 ﻿#include "AnimationEvalutor.h"
 
+#include "../AnimationMatrixManager/AnimationMatrixManager.h"
+
 /// <summary>
 /// 二分探索で、指定時間から次の配列要素のkeyIndexを求める
 /// </summary>
@@ -189,5 +191,28 @@ void Engine::Animation::CalcNodeMatrix(
 	for (auto& _childIdx : _node.children)
 	{
 		CalcNodeMatrix(_childIdx, a_nodeIdx, a_model, a_pOutLocalMat, a_pOutWorldMat);
+	}
+}
+
+void Engine::Animation::CalcNodeMatrix(int a_nodeIdx, int a_parentNodeIdx, const Engine::Resource::Model* a_model, NodePose* a_pNodePoseVec)
+{
+	const auto& _node = a_model->GetOriginalNodeVec()[a_nodeIdx];
+
+	if (a_parentNodeIdx >= 0)
+	{
+		DXSM::Matrix _localMat(a_pNodePoseVec[a_nodeIdx].local);
+		DXSM::Matrix _parentWorldMat(a_pNodePoseVec[a_nodeIdx].world);
+		DXSM::Matrix _worldMat = _localMat * _parentWorldMat;
+		a_pNodePoseVec[a_nodeIdx].world = _worldMat;
+	}
+	else
+	{
+		a_pNodePoseVec[a_nodeIdx].world = a_pNodePoseVec[a_nodeIdx].local;
+	}
+
+	// 子再帰
+	for (auto& _childIdx : _node.children)
+	{
+		CalcNodeMatrix(_childIdx, a_nodeIdx, a_model, a_pNodePoseVec);
 	}
 }

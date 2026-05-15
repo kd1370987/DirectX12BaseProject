@@ -9,6 +9,7 @@
 //#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
+#include "../../../../../Engine/Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 
 void AnimationSystem::Init(Engine::ECS::World& a_world)
 {
@@ -36,6 +37,16 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				// アニメーション取得
 				const Engine::Resource::AnimationData* _pAni = _pModel->GetAnimation(_aniComp.clipID);
 				if (!_pAni) continue;
+
+				// 行列取得
+				Engine::Animation::NodePose* _pNodePoseVec = 
+				Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodeComp.nodeRange);
+
+				for (size_t _i = 0; _i < _pAni->nodes.size(); ++_i)
+				{
+					UINT _idx = _pAni->nodes[_i].nodeOffset;
+					Engine::Animation::Interpolate(_pAni->nodes[_idx], _aniComp.time, _pNodePoseVec[_idx].local);
+				}
 
 				// すべてのアニメーションノードの行列保管を実行する
 				for (auto& _rAnimNode : _pAni->nodes)

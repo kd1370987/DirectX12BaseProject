@@ -8,7 +8,7 @@
 #include "Application/Components/Resource/AnimatorComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
-
+#include "../../../../../Engine/Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 //#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
@@ -50,13 +50,20 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);;
 				if (!_model) return;
 
+				// 行列取得
+				// ボーン ノード
+				auto* _boneMatVec = Engine::Animation::AnimationMatrixManager::Instance().AccessBoneMatVec(_skeComp.boneRange);
+				auto* _nodeMatVec = Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodePoseComp.nodeRange);
+
 				// 全ノード
-				auto& _workNodes = _nodePoseComp;
 				auto& _dataNodes = _model->GetOriginalNodeVec();
 
 				// ボーンノード	
-				_item.pBoneMatrices = _skeComp.palette;
-				_item.boneCount = 300;
+				//_item.pBoneMatrices = _skeComp.palette;
+				//_item.boneCount = 300;
+
+				_item.pBoneMatrices = _boneMatVec;
+				_item.boneCount = _skeComp.boneRange.rangeSize;
 
 
 				// 描画ノード
@@ -69,7 +76,8 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 						if (!_item.pMesh) continue;
 
 						// ワールド行列
-						DXSM::Matrix _nodeTransMat(_workNodes.world[_nodeIdx]);
+						//DXSM::Matrix _nodeTransMat(_nodePoseComp.world[_nodeIdx]);
+						DXSM::Matrix _nodeTransMat(_nodeMatVec[_nodeIdx].world);
 						DXSM::Matrix _worldMat(_matComp.worldMat);
 						DXSM::Matrix _mat = _nodeTransMat * _worldMat;
 						_item.worldMat = _mat;

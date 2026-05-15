@@ -4,6 +4,8 @@ struct SkeletonPoseComponent
 {
 	DirectX::XMFLOAT4X4 palette[300];
 
+	Engine::Storage::Range boneRange;
+
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<const SkeletonPoseComponent*>(a_ptr);
@@ -18,5 +20,10 @@ struct SkeletonPoseComponent
 	{
 		using namespace Engine;
 		SkeletonPoseComponent& _comp = Engine::Editor::GetValue<SkeletonPoseComponent>(a_data);
+
+		int _startIdx = (int)_comp.boneRange.startIndex;
+		int _rangeNum = (int)_comp.boneRange.rangeSize;
+		ImGui::Text("StartIndex : %d", _startIdx);
+		ImGui::Text("RangeNum : %d", _rangeNum);
 	}
 };

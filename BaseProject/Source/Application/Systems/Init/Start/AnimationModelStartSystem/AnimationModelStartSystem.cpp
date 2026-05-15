@@ -4,6 +4,7 @@
 
 //#include "../../../../../Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../../../Engine/Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 
 #include "../../../../Components/Resource/ModelComponent.h"
 #include "../../../../Components/Resource/AnimatorComponent.h"
@@ -56,11 +57,24 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 					_nodeComp.local[_i] = _pModel->GetOriginalNodeVec()[_i].localTransform;
 					_nodeComp.world[_i] = _pModel->GetOriginalNodeVec()[_i].worldTransform;
 				}
+				_nodeComp.nodeRange = Engine::Animation::AnimationMatrixManager::Instance().AllocateNodePoseVec(_modelComp.handle);
+				auto* _pNodeVec = Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodeComp.nodeRange);
+				for (int _i = 0; _i < _nodeComp.nodeRange.rangeSize; ++_i)
+				{
+					_pNodeVec[_i].local = DXSM::Matrix::Identity;
+					_pNodeVec[_i].world = DXSM::Matrix::Identity;
+				}
 
 				// スケルタルポーズ初期化
 				for (auto& _pose : _poseComp.palette)
 				{
 					_pose = DXSM::Matrix::Identity;
+				}
+				_poseComp.boneRange = Engine::Animation::AnimationMatrixManager::Instance().AllocateBoneMatVec(_modelComp.handle);
+				auto* _pBoneVec = Engine::Animation::AnimationMatrixManager::Instance().AccessBoneMatVec(_poseComp.boneRange);
+				for (int _i = 0; _i < _poseComp.boneRange.rangeSize; ++_i)
+				{
+					_pBoneVec[_i] = DXSM::Matrix::Identity;
 				}
 
 			}

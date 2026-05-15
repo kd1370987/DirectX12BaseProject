@@ -6,7 +6,7 @@ void FreeRange::Init(UINT a_maxRange)
 	m_freeLsit.push_back({0,a_maxRange});
 }
 
-Storage::Range FreeRange::Allocate(UINT a_rangeSize)
+Engine::Storage::Range FreeRange::Allocate(UINT a_rangeSize)
 {
 	for (auto _it = m_freeLsit.begin(); _it != m_freeLsit.end(); ++_it)
 	{
@@ -14,7 +14,7 @@ Storage::Range FreeRange::Allocate(UINT a_rangeSize)
 		if (_it->rangeSize >= a_rangeSize)
 		{
 			// 返す用のデータ
-			Storage::Range _range = { _it->startIndex,a_rangeSize };
+			Engine::Storage::Range _range = { _it->startIndex,a_rangeSize };
 
 			_it->startIndex += a_rangeSize;		// 残っている領域の開始位置をずらす
 			_it->rangeSize -= a_rangeSize;		// 残っている使用可能領域の長さを減らす
@@ -32,7 +32,7 @@ Storage::Range FreeRange::Allocate(UINT a_rangeSize)
 	return {};
 }
 
-void FreeRange::Free(const Storage::Range& a_range)
+void FreeRange::Free(const Engine::Storage::Range& a_range)
 {
 	m_freeLsit.push_back(a_range);
 	Marge();
@@ -41,7 +41,7 @@ void FreeRange::Free(const Storage::Range& a_range)
 void FreeRange::Marge()
 {
 	// 開始位置が小さい順に並べていく
-	m_freeLsit.sort([](Storage::Range& a_a, Storage::Range& a_b) {return a_a.startIndex < a_b.startIndex; });
+	m_freeLsit.sort([](Engine::Storage::Range& a_a, Engine::Storage::Range& a_b) {return a_a.startIndex < a_b.startIndex; });
 
 	for (auto _it = m_freeLsit.begin(); _it != m_freeLsit.end();)
 	{

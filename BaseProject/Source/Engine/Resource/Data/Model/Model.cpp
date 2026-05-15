@@ -45,6 +45,6 @@ namespace Engine::Resource
 		}
 
 		assert(false && "アニメーションが見つかりませんでした");
-		return 0;
+		return -1;
 	}
 }

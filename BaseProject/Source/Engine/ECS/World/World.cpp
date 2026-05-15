@@ -69,6 +69,12 @@ namespace Engine::ECS
 		_sig.set(GetCompTypeID<PostDeserializeTag>());		// 初めて通るシステムフェーズ
 		_sig.set(GetCompTypeID<GUIDComponent>());			// オブジェクトとして追加するときは必ず付与
 		_sig.set(GetCompTypeID<NameComponent>());
+
+		if (_sig.test(GetCompTypeID<ActiveTag>()))
+		{
+			_sig.reset(GetCompTypeID<ActiveTag>());
+		}
+
 		ECS::Entity _entity = m_entityManager.CreateEntity(_sig);
 
 		// エンティティをチャンクに割り当てる

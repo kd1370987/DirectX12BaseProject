@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Storage
+namespace Engine::Storage
 {
 	struct Range
 	{
@@ -25,13 +25,13 @@ public:
 	/// </summary>
 	/// <param name="a_rangeSize">確保したい領域の長さ</param>
 	/// <returns>確保したスタートインデックスと確保した領域の長さ</returns>
-	Storage::Range Allocate(UINT a_rangeSize);
+	Engine::Storage::Range Allocate(UINT a_rangeSize);
 
 	/// <summary>
 	/// 使用していた領域の解放
 	/// </summary>
 	/// <param name="a_range">使用していた領域</param>
-	void Free(const Storage::Range& a_range);
+	void Free(const Engine::Storage::Range& a_range);
 
 private:
 
@@ -42,5 +42,5 @@ private:
 
 private:
 
-	std::list<Storage::Range> m_freeLsit;
+	std::list<Engine::Storage::Range> m_freeLsit;
 };

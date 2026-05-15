@@ -7,6 +7,7 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 //#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../../../Engine/Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 
 void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 {
@@ -32,6 +33,19 @@ void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 				//auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
 				auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_pModel) continue;
+
+				// 配列確保
+				auto* _nodeVec = Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodeComp.nodeRange);
+
+				for (int _rootIdx : _pModel->GetRootNodeVec())
+				{
+					Engine::Animation::CalcNodeMatrix(
+						_rootIdx,
+						-1,
+						_pModel,
+						_nodeVec
+					);
+				}
 
 				// ルートから開始
 				for (int _rootIdx : _pModel->GetRootNodeVec())
