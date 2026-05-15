@@ -721,12 +721,6 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem">
       <UniqueIdentifier>{f761e75d-2768-4759-9df6-aa52bb916d38}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Animation\Animator">
-      <UniqueIdentifier>{3250c89c-a1d8-4381-911d-a26f47061f5b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Animation\AnimatorManager">
-      <UniqueIdentifier>{d25a9f4e-34b3-4461-a97d-0ae064cd3e8b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Animation\AnimationMatirxManager">
       <UniqueIdentifier>{f5baef63-6773-49bb-a0f5-3ba52f231c12}</UniqueIdentifier>
     </Filter>
@@ -1178,12 +1172,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Animation\AnimatorManager\AnimatorManager.cpp">
-      <Filter>Source\Engine\Animation\AnimatorManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Animation\Animator\Animator.cpp">
-      <Filter>Source\Engine\Animation\Animator</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.cpp">
       <Filter>Source\Engine\Animation\AnimationMatirxManager</Filter>
@@ -1843,12 +1831,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Animation\AnimatorManager\AnimatorManager.h">
-      <Filter>Source\Engine\Animation\AnimatorManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Animation\Animator\Animator.h">
-      <Filter>Source\Engine\Animation\Animator</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.h">
       <Filter>Source\Engine\Animation\AnimationMatirxManager</Filter>

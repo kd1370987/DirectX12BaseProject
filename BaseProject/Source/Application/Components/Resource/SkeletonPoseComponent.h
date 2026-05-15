@@ -2,8 +2,6 @@
 
 struct SkeletonPoseComponent
 {
-	DirectX::XMFLOAT4X4 palette[300];
-
 	Engine::Storage::Range boneRange;
 
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)

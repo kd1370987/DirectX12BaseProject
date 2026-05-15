@@ -37,6 +37,7 @@ void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 				// 配列確保
 				auto* _nodeVec = Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodeComp.nodeRange);
 
+				// ノードポーズのワールド行列を求める
 				for (int _rootIdx : _pModel->GetRootNodeVec())
 				{
 					Engine::Animation::CalcNodeMatrix(
@@ -46,19 +47,6 @@ void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 						_nodeVec
 					);
 				}
-
-				// ルートから開始
-				for (int _rootIdx : _pModel->GetRootNodeVec())
-				{
-					Engine::Animation::CalcNodeMatrix(
-						_rootIdx,
-						-1,
-						_pModel,
-						_nodeComp.local,
-						_nodeComp.world
-					);
-				}
-
 			}
 		}
 	);

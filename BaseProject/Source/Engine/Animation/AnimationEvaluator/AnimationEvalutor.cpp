@@ -172,7 +172,6 @@ void Engine::Animation::CalcNodeMatrix(
 	DirectX::XMFLOAT4X4* a_pOutWorldMat
 )
 {
-//	const auto& _node = a_model->originalNodes[a_nodeIdx];
 	const auto& _node = a_model->GetOriginalNodeVec()[a_nodeIdx];
 
 	if (a_parentNodeIdx >= 0)
@@ -201,7 +200,7 @@ void Engine::Animation::CalcNodeMatrix(int a_nodeIdx, int a_parentNodeIdx, const
 	if (a_parentNodeIdx >= 0)
 	{
 		DXSM::Matrix _localMat(a_pNodePoseVec[a_nodeIdx].local);
-		DXSM::Matrix _parentWorldMat(a_pNodePoseVec[a_nodeIdx].world);
+		DXSM::Matrix _parentWorldMat(a_pNodePoseVec[a_parentNodeIdx].world);
 		DXSM::Matrix _worldMat = _localMat * _parentWorldMat;
 		a_pNodePoseVec[a_nodeIdx].world = _worldMat;
 	}

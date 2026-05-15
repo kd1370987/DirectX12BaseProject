@@ -31,7 +31,6 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 				SkeletonPoseComponent& _skeComp = a_skePoseArray[_i];
 
 				// モデル取得
-				//auto* _model = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
 				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_model) return;
 
@@ -44,30 +43,18 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 					_boneMatVec[_j] = DXSM::Matrix::Identity;
 				}
 
-				for (auto& _s : _skeComp.palette)
-				{
-					_s = DXSM::Matrix::Identity;
-				}
-
 				Engine::Animation::NodePose* _nodePoseVec = Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodeComp.nodeRange);
-
-				for (auto& _nodeIdx : _model->GetBoneNodeVec())
-				{
-					const auto& _dataNode = _dataNodes[_nodeIdx];
-					DXSM::Matrix _nodeWorldMat = _nodeComp.world[_nodeIdx];
-					DXSM::Matrix _invMat = _dataNodes[_nodeIdx].boneInverseWorldMatrix;
-					_boneMatVec[_dataNode.boneIndex] = _invMat * _nodeWorldMat;
-				}
 
 				// ボーンノード
 				for (auto& _nodeIdx : _model->GetBoneNodeVec())
 				{
 					const auto& _dataNode = _dataNodes[_nodeIdx];
-
-					DXSM::Matrix _nodeWorldMat(_nodeComp.world[_nodeIdx]);
-					DXSM::Matrix _invMat(_dataNodes[_nodeIdx].boneInverseWorldMatrix);
-					_skeComp.palette[_dataNode.boneIndex] = _invMat * _nodeWorldMat;
+					//DXSM::Matrix _nodeWorldMat = _nodeComp.world[_nodeIdx];
+					DXSM::Matrix _nodeWorldMat = _nodePoseVec[_nodeIdx].world;
+					DXSM::Matrix _invMat = _dataNodes[_nodeIdx].boneInverseWorldMatrix;
+					_boneMatVec[_dataNode.boneIndex] = _invMat * _nodeWorldMat;
 				}
+
 			}
 		}
 	);

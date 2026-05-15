@@ -46,7 +46,6 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				_item.emissiveScale = _modelComp.emissiveScale;
 
 				// モデル取得
-				//auto* _model = Engine::Resource::ModelManager::Instnace().RefModel(_modelComp.handle);
 				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);;
 				if (!_model) return;
 
@@ -59,9 +58,6 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				auto& _dataNodes = _model->GetOriginalNodeVec();
 
 				// ボーンノード	
-				//_item.pBoneMatrices = _skeComp.palette;
-				//_item.boneCount = 300;
-
 				_item.pBoneMatrices = _boneMatVec;
 				_item.boneCount = _skeComp.boneRange.rangeSize;
 
@@ -76,7 +72,6 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 						if (!_item.pMesh) continue;
 
 						// ワールド行列
-						//DXSM::Matrix _nodeTransMat(_nodePoseComp.world[_nodeIdx]);
 						DXSM::Matrix _nodeTransMat(_nodeMatVec[_nodeIdx].world);
 						DXSM::Matrix _worldMat(_matComp.worldMat);
 						DXSM::Matrix _mat = _nodeTransMat * _worldMat;
