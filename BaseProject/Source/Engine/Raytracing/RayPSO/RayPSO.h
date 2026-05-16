@@ -85,7 +85,8 @@ namespace Engine::Raytracing
 
 		ID3D12RootSignature* GetRootSig()
 		{
-			return m_rootSig.Get();
+			return m_pRootSig;
+			//return m_rootSig.Get();
 		}
 
 	private:
@@ -103,6 +104,7 @@ namespace Engine::Raytracing
 		ComPtr<ID3D12StateObject> m_cpPSO;
 
 		D3D12::RootSignature m_rootSig;
+		ID3D12RootSignature* m_pRootSig;
 
 		D3D12::RootSignature m_rayGenRootSig;
 		D3D12::RootSignature m_hitRootSig;

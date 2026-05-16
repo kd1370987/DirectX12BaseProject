@@ -15,14 +15,14 @@ namespace Engine::Raytracing
 	{
 	public:
 
+		// コミット
+		void Commit();
+		void BindCamera(Graphics::RenderContext* a_pRCT);
+		void BindTLAS(Graphics::RenderContext* a_pRCT);
+		void Dispatch(Graphics::RenderContext* a_pRCT, ShaderTable& a_shadertable);
+
 		// レイトレーシングをディスパッチ
 		void Dispatch(Graphics::RenderContext* a_pRCT);
-		void Dispatch(
-			Resource::Handle<Resource::Texture> a_outHandle,
-			Graphics::RenderContext* a_pRCT,
-			RayPSO* a_pPSO,
-			ShaderTable* a_pShaderTable
-		);
 
 		// レイトレワールドに登録
 		void RegistModel(
@@ -36,6 +36,9 @@ namespace Engine::Raytracing
 		// フレーム開始処理
 		void BegineFrame();
 		void EndFrame();
+
+		// インスタンス配列取得
+		const std::vector<Instance>& GetInstanceVec();
 	private:
 
 		struct Camera

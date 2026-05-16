@@ -436,6 +436,16 @@ namespace Engine::Graphics
 		m_pCmdList->Get4()->SetDescriptorHeaps(std::size(_heaps), _heaps);
 	}
 
+	void RenderContext::BindCopyHeapAndSumpler()
+	{
+		// ディスクリプタヒープをセット
+		ID3D12DescriptorHeap* _heaps[] = {
+			m_copyHeap.GetHeap(),
+			D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
+		};
+		m_pCmdList->Get4()->SetDescriptorHeaps(std::size(_heaps), _heaps);
+	}
+
 	void RenderContext::BindHeaps(UINT a_numHeaps, ID3D12DescriptorHeap* const* a_pHeaps)
 	{
 		m_pCmdList->SetDescriptorHeaps(a_numHeaps,a_pHeaps);

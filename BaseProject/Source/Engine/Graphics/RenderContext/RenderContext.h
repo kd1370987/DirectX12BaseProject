@@ -182,6 +182,7 @@ namespace Engine::Graphics
 
 		// ヒープのセット
 		void BindHeap();
+		void BindCopyHeapAndSumpler();
 		void BindHeaps(UINT a_numHeaps, ID3D12DescriptorHeap *const* a_pHeaps);
 
 		// バインドボーン

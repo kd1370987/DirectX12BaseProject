@@ -27,7 +27,6 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 			const ModelComponent* a_modelArray
 		)
 		{
-
 			auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
 
 			for (size_t _i = 0; _i < a_count; ++_i)

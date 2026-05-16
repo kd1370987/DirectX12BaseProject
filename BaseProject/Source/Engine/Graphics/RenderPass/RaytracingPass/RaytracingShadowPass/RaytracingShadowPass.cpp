@@ -5,6 +5,8 @@
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
 
+#include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
+#include "../../../RenderContext/RenderContext.h"
 
 namespace Engine::Graphics
 {
@@ -12,7 +14,37 @@ namespace Engine::Graphics
 	{
 		auto _texHandle = m_pRG->GetTexHandle("RayShadow");
 		//Engine::Raytracing::RayEngine::Instance().Dispatch(_texHandle, a_pCtx, &m_rayPSO, &m_shaderTable);
-		Engine::Raytracing::RayEngine::Instance().Dispatch(a_pCtx);
+		auto* _pCmdList = a_pCtx->GetCurrentCmdList();
+
+		//Engine::Raytracing::RayEngine::Instance().Dispatch(a_pCtx);
+
+		// ---------------------------------------------------------
+		// レイワールド更新・シェーダーテーブル更新
+		Engine::Raytracing::RayEngine::Instance().Commit();
+		const auto& _instanceVec = Raytracing::RayEngine::Instance().GetInstanceVec();
+		m_shaderTable.CommitInstance(_instanceVec,a_pCtx);
+
+		// ディスクリプタヒープセット
+		a_pCtx->BindCopyHeapAndSumpler();	
+
+		// パイプラインとルートシグネチャセット
+		_pCmdList->SetPipelineState1(m_rayPSO.Get());
+		_pCmdList->SetComputeRootSignature(m_rayPSO.GetRootSig());
+
+		// カメラバインド
+		Raytracing::RayEngine::Instance().BindCamera(a_pCtx);
+
+		// レイワールドバインド
+		Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);
+
+		// UAVをバインド
+		//a_pCtx->BindUAV(
+		//	2,
+		//	m_pRG->GetCPUHandle("RayShadow")
+		//);
+
+		// ディスパッチ
+		Raytracing::RayEngine::Instance().Dispatch(a_pCtx,m_shaderTable);
 	}
 	void RaytracingShadowPass::CreatePass()
 	{
@@ -60,7 +92,10 @@ namespace Engine::Graphics
 		_psoInit.pRayGenRootSig =  m_pPipelineStateManager->Request(_rayGenSigInit);
 		_psoInit.pMissRootSig = m_pPipelineStateManager->Request(_missSigInit);
 
-		m_rayPSO.Init(_psoInit);
+		if (!m_rayPSO.Init(_psoInit))
+		{
+			assert(0 && "エラー！！");
+		}
 
 		// シェーダーテーブルの作成
 		Raytracing::ShaderTableInit _shaderTableInit = {
@@ -72,6 +107,6 @@ namespace Engine::Graphics
 		};
 		m_shaderTable.Init(_shaderTableInit);
 
-		//AddWrite("RayShadow", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
+		AddWrite("RayShadow", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
 	}
 }

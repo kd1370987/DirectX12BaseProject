@@ -109,10 +109,10 @@ namespace Engine::Graphics
 		RegisterPass<ZPrePass>();
 		RegisterPass<GBufferPass>();
 		RegisterPass<DeferredLightingPass>();
-		//RegisterPass<ForwardLightingPass>();
+		RegisterPass<ForwardLightingPass>();
 		RegisterPass<FullScreenPass>();
-		//RegisterPass<DebugLinePass>();
-		//RegisterPass<ScreenUIPass>();
+		RegisterPass<DebugLinePass>();
+		RegisterPass<ScreenUIPass>();
 
 		//RegisterPass<TestPass>();
 

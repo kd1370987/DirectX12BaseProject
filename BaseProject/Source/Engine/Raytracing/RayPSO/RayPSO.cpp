@@ -223,6 +223,7 @@ namespace Engine::Raytracing
 		// レイジェネレーションシェーダーにルートシグネチャがあれば関連付ける
 		if (a_desc.pRayGenRootSig)
 		{
+			m_pRootSig = a_desc.pRayGenRootSig;
 			BuildAndRegistRootSignatureAndAssSubObjectFunc(
 				_rayGenSigSO, _rayGenAssSO, LocalRootSignature::RayGen, _rayGenExportName);
 		}
