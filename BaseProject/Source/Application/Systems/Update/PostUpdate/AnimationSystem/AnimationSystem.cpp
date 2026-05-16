@@ -41,11 +41,12 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				// 行列取得
 				Engine::Animation::NodePose* _pNodePoseVec = 
 				Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodeComp.nodeRange);
+				if (!_pNodePoseVec) return;
 
 				// すべてのアニメーションノードの行列保管を実行する
-				for (size_t _i = 0; _i < _pAni->nodes.size(); ++_i)
+				for (size_t _j = 0; _j < _pAni->nodes.size(); ++_j)
 				{
-					UINT _idx = _pAni->nodes[_i].nodeOffset;
+					UINT _idx = _pAni->nodes[_j].nodeOffset;
 					Engine::Animation::Interpolate(_pAni->nodes[_idx], _aniComp.time, _pNodePoseVec[_idx].local);
 				}
 

@@ -212,6 +212,11 @@ namespace Engine::ECS
 		// 命令の発行
 		ChangeEntityCmd	_cmd = {};
 		_cmd.entity = a_entity;
+		if (_oldSig.test(GetCompTypeID<ActiveTag>()))
+		{
+			_oldSig.set(GetCompTypeID<PostDeserializeTag>());
+			_oldSig.reset(GetCompTypeID<ActiveTag>());
+		}
 		_cmd.toSig = _oldSig;
 		m_changeEntityVec.push_back(_cmd);
 	}

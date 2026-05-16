@@ -1835,6 +1835,9 @@
     <ClInclude Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.h">
       <Filter>Source\Engine\Animation\AnimationMatirxManager</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Charactor\StateComponent.h">
+      <Filter>Source\Application\Components\Charactor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
