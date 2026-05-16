@@ -471,7 +471,7 @@ namespace Engine::Graphics
 		m_drawItem2DMap[a_type].push_back(a_itemVec);
 	}
 
-	const std::vector<DrawItem>& RenderContext::GetItemVec(const RenderQueueType& a_type) const
+	std::span<const DrawItem> RenderContext::GetItemVec(const RenderQueueType& a_type) const
 	{
 		auto _it = m_drawItemMap.find(a_type);
 		if (_it != m_drawItemMap.end())
@@ -489,8 +489,7 @@ namespace Engine::Graphics
 		{
 			return _it->second;
 		}
-		std::vector<DrawItem2D> _items = {};
-		return _items;
+		return {};
 	}
 
 	void RenderContext::Excute(RenderGraph* a_pGraph)

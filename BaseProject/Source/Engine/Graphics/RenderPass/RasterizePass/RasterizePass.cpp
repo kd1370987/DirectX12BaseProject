@@ -36,7 +36,7 @@ namespace Engine::Graphics
 			a_pCtx->SetGraphicPSO(_pPso);
 
 			// 指定タイプの命令キューを取得
-			auto& _draws = a_pCtx->GetItemVec(_type);
+			auto _draws = a_pCtx->GetItemVec(_type);
 			if (_draws.size() <= 0) continue;
 
 			for (auto& _item : _draws)
@@ -48,10 +48,12 @@ namespace Engine::Graphics
 				
 
 				// マテリアルのバインド
+				if (!_item.pMaterial) continue;
 				a_pCtx->BindMaterial(3,_item.pMaterial, _item.colorScale, _item.emissiveScale);
 				a_pCtx->BindMaterialSRV(5,_item.pMaterial);
 
 				// メッシュのバインド
+				if (!_item.pMesh)continue;
 				a_pCtx->BindMesh(2,_item.pMesh, _item.worldMat);
 
 				// アニメーションタイプならボーンをバインド

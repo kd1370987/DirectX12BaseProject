@@ -14,7 +14,7 @@ namespace Engine::Graphics
 		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
 		a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-		auto& _draws = a_pCtx->GetItemVec(RenderQueueType::Debug);
+		auto _draws = a_pCtx->GetItemVec(RenderQueueType::Debug);
 		if (_draws.size() == 0) return;
 		for (auto& _item : _draws)
 		{

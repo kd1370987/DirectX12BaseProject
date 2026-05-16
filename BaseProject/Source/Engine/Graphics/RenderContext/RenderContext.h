@@ -198,7 +198,8 @@ namespace Engine::Graphics
 		void AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec);		// 2D
 
 		// 描画命令の取得
-		const std::vector<DrawItem>& GetItemVec(const RenderQueueType& a_type) const;		// 3D
+		//const std::vector<DrawItem>& GetItemVec(const RenderQueueType& a_type) const;		// 3D
+		std::span<const DrawItem> GetItemVec(const RenderQueueType& a_type) const;			// 3D : ビューを返す
 		const std::vector<DrawItem2D>& GetItemVec(const RenderQueueType2D& a_type) const;	// 2D
 
 		// 描画命令の実行
