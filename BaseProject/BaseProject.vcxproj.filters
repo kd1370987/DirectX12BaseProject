@@ -724,6 +724,21 @@
     <Filter Include="Source\Engine\Animation\AnimationMatirxManager">
       <UniqueIdentifier>{f5baef63-6773-49bb-a0f5-3ba52f231c12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Mesh\MeshMetaData">
+      <UniqueIdentifier>{d31723c8-1e5e-4316-998b-dccb2b81a6c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Mesh\RasterizationMesh">
+      <UniqueIdentifier>{e7614df1-fece-45c1-9d82-2c843264b183}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Mesh\MeshletMesh">
+      <UniqueIdentifier>{fa6008b9-5060-4976-ae78-1e12a65f0dee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh">
+      <UniqueIdentifier>{90fb0c64-8f80-493a-8e18-f5c849be5bef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Mesh\CollisionMesh">
+      <UniqueIdentifier>{b6ffb845-47ab-4c22-97b1-e1e737d62e16}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1175,6 +1190,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.cpp">
       <Filter>Source\Engine\Animation\AnimationMatirxManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.cpp">
+      <Filter>Source\Engine\Resource\Data\Mesh\MeshMetaData</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Mesh\RasterizationMesh\RasterizationMesh.cpp">
+      <Filter>Source\Engine\Resource\Data\Mesh\RasterizationMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.cpp">
+      <Filter>Source\Engine\Resource\Data\Mesh\RaytracingMesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1837,6 +1861,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Charactor\StateComponent.h">
       <Filter>Source\Application\Components\Charactor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.h">
+      <Filter>Source\Engine\Resource\Data\Mesh\MeshMetaData</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Mesh\RasterizationMesh\RasterizationMesh.h">
+      <Filter>Source\Engine\Resource\Data\Mesh\RasterizationMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.h">
+      <Filter>Source\Engine\Resource\Data\Mesh\RaytracingMesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

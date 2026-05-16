@@ -1,26 +1,14 @@
 ﻿#pragma once
 
+#include "MeshMetaData/MeshMetaData.h"
+#include "RasterizationMesh/RasterizationMesh.h"
+#include "RaytracingMesh/RaytracingMesh.h"
+
 namespace Engine
 {
 	namespace Resource
 	{
-		//==========================================================
-		// メッシュ用 面情報
-		//==========================================================
-		struct MeshFace
-		{
-			UINT idx[3];			// 三角形を構成する頂点のIndex
-		};
-
-		//==========================================================
-		// メッシュ用 サブセット情報
-		//==========================================================
-		struct MeshSubset
-		{
-			UINT materialNumber = 0;		// マテリアルナンバー
-			UINT faceStart = 0;				// 面Index : このマテリアルで使用されている最初の面のIndex
-			UINT faceCount = 0;				// 面数    : faceStartから、何枚の面が使用されているかの数
-		};
+		
 
 		//==========================================================
 		// 
@@ -44,76 +32,61 @@ namespace Engine
 				const std::vector<MeshSubset>& a_subsets,			// サブセット情報配列
 				bool								a_isSkinMesh	// スキンメッシュ持ちかどうか
 			);
+			// メッシュメタデータ作成
+			void CreateMeshMetaData(
+				const std::vector<MeshVertexFloat>& a_vertices,
+				const std::vector<MeshSubset>& a_subsets,
+				bool a_isSkinMesh
+			);
+			// ラスタライザ用データ作成
+			void CreateRasterData(
+				ID3D12Device* a_pDevice,
+				const std::vector<MeshVertexFloat>& a_vertices,
+				const std::vector<MeshFace>& a_face,
+				DXGI_FORMAT a_indexFormat
+			);
+			// レイトレーシングデータ作成
+			void CreateRtData(
+				ID3D12Device* a_pDevice,
+				D3D12::CommandList* a_pCmdList,
+				const std::vector<MeshSubset>& a_subset,							// サブセット配列
+				const D3D12::DynamicVertexBuffer<MeshVertexFloat>& a_vertexBuffer,	// 頂点バッファ
+				DXGI_FORMAT a_vertexFarstFormat,
+				const D3D12::DynamicIndexBuffer& a_indexBuffer,						// インデックスバッファ
+				const std::vector<MeshVertexFloat>& a_vertices,
+				const std::vector<MeshFace>& a_face
+			);
 
-			void CreateCollision();
-
-			/// <summary>
-			/// メッシュの解放と初期化
-			/// </summary>
-			void Release();
-
-			// BLAS作成
-			void CreateBLAS();
+			// 静的な当たり判定データ作成
+			void CreateCollision(
+				const std::vector<MeshVertexFloat>& a_vertices,
+				const std::vector<MeshFace>& a_face
+			);
 
 			//=================================================
 			// アクセサ
 			//=================================================
-			const D3D12::DynamicVertexBuffer<MeshVertexFloat>& GetVertexBuffer()		const { return m_vertexBuffer; }		// 頂点バッファ取得
-			const D3D12::DynamicIndexBuffer& GetIndexBuffer()			const { return m_indexBuffer; }			// インデックスバッファ取得
-
-			const std::vector<MeshSubset>& GetSubsets() const { return m_subsets; }				// サブセット情報取得
-			const std::vector<DirectX::XMFLOAT3>& GetPositions() const { return m_positions; }	// 座標配列取得
-			const std::vector<MeshFace>& GetFaces()		const { return m_faces; }				// 面情報配列取得
-
-			const DirectX::BoundingBox& GetAABB()		const { return m_aabb; }				// 軸平行境界ボックス取得
-			const DirectX::BoundingSphere& GetBSphere()	const { return m_bSphere; }				// 境界球取得
-
-			bool IsSkinMesh()							const { return m_isSkinMesh; }			// スキンメッシュ持ちかどうか
-
+			// メタデータ
+			const MeshMetaData& GetMetaData() const { return m_meshMetaData; }
+			// ラスタライザデータ
+			bool HasRasterData() const { return m_opRasterData.has_value(); }
+			const RasterizationMesh& GetRasterData()const { return m_opRasterData.value(); }
+			// レイトレデータ
+			bool HasRtData() const { return m_opRtData.has_value(); }
+			const RaytracingMesh& GetRtData() const { return m_opRtData.value(); }
+			// 当たり判定データ
 			bool HasCollision() const { return m_opCollisionMesh.has_value(); };				// 当たり判定を持っているかどうか
 			const Engine::Collision::Mesh& GetCollision()const { return *m_opCollisionMesh; }	// 当たり判定取得
 
-			Engine::Raytracing::BLAS* GetBLAS() { return &m_BLAS; }
-
-			const std::vector<MeshVertexFloat>& GetVertexData() const  { return m_vertexData; }
-			const std::vector<UINT>& GetIndexData()const { return m_indexData; }
-
-			const Engine::D3D12::StaticStructuredBuffer<RTVertex>& GetSVertexBuff() { return m_sVertexBuffer; };
-			const Engine::D3D12::StaticStructuredBuffer<UINT>& GetSIndexBuff() { return m_sIndexBuffer; }
-
 		private:
 
-			// バッファ
-			D3D12::DynamicVertexBuffer<MeshVertexFloat> m_vertexBuffer;		// 頂点バッファ
-			D3D12::DynamicIndexBuffer			 m_indexBuffer;		// インデックスバッファ
+			// メッシュメタデータ
+			MeshMetaData m_meshMetaData;
 
-			// サブセット情報
-			std::vector<MeshSubset>			m_subsets;
-
-			// 境界データ
-			DirectX::BoundingBox			m_aabb;				// 軸平行境界ボックス
-			DirectX::BoundingSphere			m_bSphere;			// 境界球
-
-			// 座標のみの配列情報
-			std::vector<DirectX::XMFLOAT3>	m_positions;
-
-			// 面情報のみの配列
-			std::vector<MeshFace>			m_faces;
-
-			// スキンメッシュかどうか
-			bool							m_isSkinMesh = false;
-
-			// 当たり判定
-			std::optional<Engine::Collision::Mesh> m_opCollisionMesh;
-
-			// レイトレ用データ
-			Engine::Raytracing::BLAS m_BLAS;
-
-			std::vector<MeshVertexFloat> m_vertexData = {};
-			std::vector<UINT> m_indexData = {};
-
-			Engine::D3D12::StaticStructuredBuffer<RTVertex> m_sVertexBuffer;
-			Engine::D3D12::StaticStructuredBuffer<UINT> m_sIndexBuffer;
+			// 各ドメインデータ : 必要なもののみ実体化
+			std::optional<RasterizationMesh>		m_opRasterData;		// ラスタライザデータ
+			std::optional<RaytracingMesh>			m_opRtData;			// レイトレデータ
+			std::optional<Engine::Collision::Mesh>	m_opCollisionMesh;	// 当たり判定
 		private:
 			// コピー禁止
 			Mesh(const Mesh& src) = delete;

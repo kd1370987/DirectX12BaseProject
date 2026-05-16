@@ -77,17 +77,20 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 						DXSM::Matrix _mat = _nodeTransMat * _worldMat;
 						_item.worldMat = _mat;
 
-						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
+						//for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
+						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetMetaData().subsets.size(); ++_subIdx)
 						{
 							// マテリアルセット
-							if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
-							_item.pMaterial = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].get();
+							//if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
+							if (_item.pMesh->GetMetaData().subsets[_subIdx].faceCount == 0) continue;
+							//_item.pMaterial = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].get();
+							_item.pMaterial = _model->GetMaterialVec()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber].get();
 							_item.subIdx = _subIdx;
 
 							// 描画アイテムキューに送信
 
 							// アルファモードによって描画先を変える
-							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber]->alphaMode;
+							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber]->alphaMode;
 
 							auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
 

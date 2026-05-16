@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-//#include "../../../Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../../Engine/Resource/Loader/Model/ModelLoader.h"
@@ -10,10 +9,9 @@ struct ModelComponent
 	DirectX::XMFLOAT4 colorScale = { 1.0f,1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT3 emissiveScale = { 1.0f,1.0f,1.0f };
 
-	// ランタイム用
-	Engine::Resource::Handle<Engine::Resource::Model> handle = {};
-	// 記録用
-	Engine::GUID modelGUID = {};
+	// モデル参照用
+	Engine::Resource::Handle<Engine::Resource::Model> handle = {};	// ランタイム用
+	Engine::GUID modelGUID = {};									// 記録用
 
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{

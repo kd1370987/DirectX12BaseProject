@@ -45,10 +45,14 @@ void Engine::Raytracing::RayWorld::Register(
 			// インスタンス作成
 			Engine::Raytracing::Instance _rayInst = {};
 			_rayInst.worldMat = _nodeMat * a_worldMat;
-			_rayInst.pBLAS = _pMesh->GetBLAS();
-			_rayInst.vertexHandle = _pMesh->GetSVertexBuff().GetSRVHandle();
-			_rayInst.indexHandle = _pMesh->GetSIndexBuff().GetSRVHandle();
-			for (auto& _subset : _pMesh->GetSubsets())
+			if (!_pMesh->HasRtData()) continue;
+			//_rayInst.pBLAS = _pMesh->GetBLAS();
+			_rayInst.pBLAS = &_pMesh->GetRtData().blas;
+			//_rayInst.vertexHandle = _pMesh->GetSVertexBuff().GetSRVHandle();
+			_rayInst.vertexHandle = _pMesh->GetRtData().structuredVertexBuffer.GetSRVHandle();
+			_rayInst.indexHandle = _pMesh->GetRtData().structuredIndexBuffer.GetSRVHandle();
+			//for (auto& _subset : _pMesh->GetSubsets())
+			for (auto& _subset : _pMesh->GetMetaData().subsets)
 			{
 				auto* _pMate = _model->GetMaterialVec()[_subset.materialNumber].get();
 				if (!_pMate) continue;

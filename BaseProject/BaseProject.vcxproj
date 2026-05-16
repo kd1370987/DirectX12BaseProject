@@ -349,6 +349,9 @@
     <ClCompile Include="Source\Engine\Resource\Data\Animation\Animation.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Material\Material.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\Mesh.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Mesh\RasterizationMesh\RasterizationMesh.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Node\Node.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.cpp" />
@@ -572,6 +575,9 @@
     <ClInclude Include="Source\Engine\Resource\Data\Animation\Animation.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Material\Material.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\Mesh.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Mesh\RasterizationMesh\RasterizationMesh.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\Model.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Node\Node.h" />
     <ClInclude Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.h" />

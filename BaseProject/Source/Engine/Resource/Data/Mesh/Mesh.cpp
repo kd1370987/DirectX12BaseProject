@@ -12,116 +12,33 @@ bool Engine::Resource::Mesh::CreateFloat(
 	bool a_isSkinMesh
 )
 {
-	m_subsets.clear();
-	m_positions.clear();
-	m_faces.clear();
+
 	auto _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
-	//------------------------------
-	// サブセット情報
-	//------------------------------
-	m_subsets = a_subsets;
 
-	//------------------------------
-	// 頂点情報があるのなら
-	//------------------------------
-	if (a_vertices.size() > 0)
-	{
-		//------------------------------
-		// 頂点バッファ作成
-		//------------------------------
-		if (!m_vertexBuffer.CreateAndUpload(
-			_pDevice,
-			(UINT)a_vertices.size(),
-			a_vertices.data()
-		))
-		{
-			assert(0 && "頂点バッファの生成に失敗");
-			return false;
-		}
+	// メタデータ作成
+	CreateMeshMetaData(a_vertices,a_subsets,a_isSkinMesh);
 
-		//------------------------------
-		// 座標のみの配列
-		//------------------------------
-		m_positions.resize(a_vertices.size());			// サイズ確保
-		for (size_t _i = 0; _i < a_vertices.size(); ++_i)
-		{
-			m_positions[_i] = a_vertices[_i].pos;
-		}
-
-		//------------------------------
-		// 境界データ作成
-		//------------------------------
-		DirectX::BoundingBox::CreateFromPoints(					// AA境界データ作成
-			m_aabb, m_positions.size(), &m_positions[0], sizeof(DirectX::XMFLOAT3));
-		DirectX::BoundingSphere::CreateFromPoints(				// 境界球データ作成
-			m_bSphere, m_positions.size(), &m_positions[0], sizeof(DirectX::XMFLOAT3));
-	}
-
-	//------------------------------
-	// インデックス情報があるのなら
-	//------------------------------
-	if (a_face.size() > 0)
-	{
-		m_faces = a_face;		// 面情報コピー
-
-		//------------------------------
-		// インデックスバッファ作成
-		//------------------------------
-		std::vector<UINT> _indices;		// インデックス配列作成
-		for (auto& _f : a_face)
-		{
-			_indices.push_back(_f.idx[0]);
-			_indices.push_back(_f.idx[1]);
-			_indices.push_back(_f.idx[2]);
-		}
-
-		D3D12::IndexBufferDesc _desc = {};
-		_desc.count = _indices.size();
-		_desc.pData = _indices.data();
-		_desc.format = DXGI_FORMAT_R32_UINT;
-		if (!m_indexBuffer.Create(_pDevice,_desc))
-		{
-			assert(0 && "インデックスバッファの生成に失敗");
-			return false;
-		}
-
-		m_indexData = _indices;
-	}
-
-	//------------------------------
-	// スキンメッシュ持ちかどうか
-	//------------------------------
-	m_isSkinMesh = a_isSkinMesh;
-
+	// ラスタライザーデータ作成
+	CreateRasterData(_pDevice,a_vertices,a_face, DXGI_FORMAT_R32_UINT);
 	
 	// コマンドキューリセット
+	auto* _pCmd = Engine::Resource::ResourceManager::Instance().GetCmdList();
 	Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 
-	//------------------------------
-	// BLAS作成
-	//------------------------------
-	m_indexBuffer.CreateSRV(_pDevice);
-	m_vertexBuffer.CreateSRV(_pDevice);
+	m_opRasterData->indexBuffer.CreateSRV(_pDevice);
+	m_opRasterData->vertexBuffer.CreateSRV(_pDevice);
 
-	CreateBLAS();
-
-	m_vertexData = a_vertices;
-
-
-	// 構造体バッファ作成
-	auto* _pCmd = Engine::Resource::ResourceManager::Instance().GetCmdList();
-	std::vector<RTVertex> _rtVertDataVec = {};
-	for (auto& _vert : a_vertices)
-	{
-		RTVertex _rt = {};
-		_rt = _vert;
-		_rtVertDataVec.push_back(_rt);
-	}
-	// 頂点バッファー側SRV作成
-	m_sVertexBuffer.Create(_pDevice,*_pCmd, _rtVertDataVec.size(),_rtVertDataVec.data());
-	// インデックスバッファー側SRV作成
-	m_sIndexBuffer.Create(_pDevice,*_pCmd,m_indexData.size(),m_indexData.data());
-
+	// レイ用データ作成
+	CreateRtData(
+		_pDevice,
+		_pCmd,
+		a_subsets,
+		m_opRasterData->vertexBuffer,
+		DXGI_FORMAT_R32G32B32_FLOAT,
+		m_opRasterData->indexBuffer,
+		a_vertices,
+		a_face
+	);
 
 	// コマンドリストをクローズ
 	Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet()->Close();
@@ -138,56 +55,56 @@ bool Engine::Resource::Mesh::CreateFloat(
 	return true;
 }
 
-void Engine::Resource::Mesh::CreateCollision()
+void Engine::Resource::Mesh::CreateMeshMetaData(
+	const std::vector<MeshVertexFloat>& a_vertices,
+	const std::vector<MeshSubset>& a_subsets, 
+	bool a_isSkinMesh
+)
 {
-	std::vector<DirectX::XMFLOAT3> _vec;
-	_vec.resize(m_faces.size());
-	for(int _i = 0; _i < m_faces.size(); ++_i)
+	m_meshMetaData.Create(a_vertices,a_subsets,a_isSkinMesh);
+}
+
+void Engine::Resource::Mesh::CreateRasterData(ID3D12Device* a_pDevice, const std::vector<MeshVertexFloat>& a_vertices, const std::vector<MeshFace>& a_face, DXGI_FORMAT a_indexFormat)
+{
+	auto& _raster = m_opRasterData.emplace();
+	_raster.Create(a_pDevice, a_vertices, a_face, a_indexFormat);
+}
+
+void Engine::Resource::Mesh::CreateRtData(ID3D12Device* a_pDevice, D3D12::CommandList* a_pCmdList, const std::vector<MeshSubset>& a_subset, const D3D12::DynamicVertexBuffer<MeshVertexFloat>& a_vertexBuffer, DXGI_FORMAT a_vertexFarstFormat, const D3D12::DynamicIndexBuffer& a_indexBuffer, const std::vector<MeshVertexFloat>& a_vertices, const std::vector<MeshFace>& a_face)
+{
+	auto& _rtData = m_opRtData.emplace();
+	_rtData.Create(a_pDevice,a_pCmdList,a_subset,a_vertexBuffer,a_vertexFarstFormat,a_indexBuffer,a_vertices,a_face);
+}
+
+void Engine::Resource::Mesh::CreateCollision(
+	const std::vector<MeshVertexFloat>& a_vertices,
+	const std::vector<MeshFace>& a_face
+)
+{
+	//------------------------------
+	// 座標のみの配列
+	//------------------------------
+	std::vector<DirectX::XMFLOAT3> _posVec = {};
+	_posVec.resize(a_vertices.size());			// サイズ確保
+	for (size_t _i = 0; _i < a_vertices.size(); ++_i)
 	{
-		_vec[_i].x = m_faces[_i].idx[0];
-		_vec[_i].y = m_faces[_i].idx[1];
-		_vec[_i].z = m_faces[_i].idx[2];
+		_posVec[_i] = a_vertices[_i].pos;
+	}
+
+	std::vector<DirectX::XMFLOAT3> _idxVec;
+	_idxVec.resize(a_face.size());
+	for(int _i = 0; _i < a_face.size(); ++_i)
+	{
+		_idxVec[_i].x = a_face[_i].idx[0];
+		_idxVec[_i].y = a_face[_i].idx[1];
+		_idxVec[_i].z = a_face[_i].idx[2];
 	}
 	
 	// 生成
 	m_opCollisionMesh = Engine::Collision::CreateMesh(
-		m_positions,
-		_vec
+		_posVec,
+		_idxVec
 	);
 }
 
-void Engine::Resource::Mesh::Release()
-{
-	m_subsets.clear();
-	m_positions.clear();
-	m_faces.clear();
-}
-
-void Engine::Resource::Mesh::CreateBLAS()
-{
-	std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> _descVec;
-	// レイトレーシング用データ作成
-	for (auto& _subset : m_subsets)
-	{
-		// ジオメトリ記述作成
-		D3D12_RAYTRACING_GEOMETRY_DESC _desc = {};
-		_desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-		_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
-		// 頂点バッファ
-		_desc.Triangles.VertexBuffer.StartAddress = m_vertexBuffer.GetGPUVirtualAddress();
-		_desc.Triangles.VertexBuffer.StrideInBytes = m_vertexBuffer.GetStrideSize();
-		_desc.Triangles.VertexCount = m_vertexBuffer.GetElementNum();
-		_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-
-		// インデックスバッファ
-		_desc.Triangles.IndexBuffer = m_indexBuffer.GetGPUVirtualAddress() + sizeof(UINT) * _subset.faceStart * 3;
-		_desc.Triangles.IndexCount = _subset.faceCount * 3;
-		_desc.Triangles.IndexFormat = m_indexBuffer.GetView().Format;
-
-		_descVec.push_back(_desc);
-	}
-
-	// BLAS作成
-	m_BLAS.Create(_descVec);
-}
 

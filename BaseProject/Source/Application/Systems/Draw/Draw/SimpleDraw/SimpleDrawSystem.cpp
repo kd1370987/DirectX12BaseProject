@@ -63,28 +63,25 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 						_item.worldMat = _nodeTransMat * _worldMat;
 
 						// サブセットごとに描画
-						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
+						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetMetaData().subsets.size(); ++_subIdx)
 						{
 							// 面が一枚もない場合はスキップ
-							if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
-							_item.pMaterial = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].get();
+							if (_item.pMesh->GetMetaData().subsets[_subIdx].faceCount == 0) continue;
+							_item.pMaterial = _model->GetMaterialVec()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber].get();
 							_item.subIdx = _subIdx;
 
 							// アルファモードによって描画先を変える
-							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber]->alphaMode;
+							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber]->alphaMode;
 							switch (_mode)
 							{
 							case Engine::Resource::Alpha::Opaque:
 								_pRCT->AddItem(RenderQueueType::Opaque, _item);
-								//_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Mask:
 								_pRCT->AddItem(RenderQueueType::Opaque, _item);
-								//_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Blend:
 								_pRCT->AddItem(RenderQueueType::Transparent, _item);
-								//_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							default:
 								break;

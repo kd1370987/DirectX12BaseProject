@@ -1024,7 +1024,36 @@ void CreateNodes(
 		{
 			for (auto& _meshIdx : a_dst.originalNodes[_idx].meshIndices)
 			{
-				a_dst.upMeshVec[_meshIdx]->CreateCollision();
+				const auto& _node = a_src->nodes[_idx];
+
+				// 頂点配列作成
+				std::vector<Engine::Resource::MeshVertexFloat> _vertices = {};
+				_vertices.resize(_node.nodeMesh.vertices.size());
+				for (size_t _j = 0; _j < _node.nodeMesh.vertices.size(); ++_j)
+				{
+					Engine::Resource::MeshVertexFloat _dstVertex = {};
+
+					unsigned int _srcColor = _node.nodeMesh.vertices[_j].color;
+					float r = ((float)((_srcColor >> 24) & 0xFF)) / 255.0f;
+					float g = ((float)((_srcColor >> 16) & 0xFF)) / 255.0f;
+					float b = ((float)((_srcColor >> 8) & 0xFF)) / 255.0f;
+					float a = ((float)((_srcColor >> 0) & 0xFF)) / 255.0f;
+					_dstVertex.color = DirectX::XMFLOAT4(r, g, b, a);
+
+					_dstVertex.normal = _node.nodeMesh.vertices[_j].normal;
+					_dstVertex.pos = _node.nodeMesh.vertices[_j].pos;
+					_dstVertex.tangent = _node.nodeMesh.vertices[_j].tangent;
+					_dstVertex.uv = _node.nodeMesh.vertices[_j].uv;
+
+					_dstVertex.skinIndexList = _node.nodeMesh.vertices[_j].skinIndexList;
+					_dstVertex.skinWeightList = _node.nodeMesh.vertices[_j].skinWeightList;
+
+					_vertices[_j] = _dstVertex;
+				}
+				a_dst.upMeshVec[_meshIdx]->CreateCollision(
+					_vertices,
+					_node.nodeMesh.faces
+				);
 			}
 		}
 	}

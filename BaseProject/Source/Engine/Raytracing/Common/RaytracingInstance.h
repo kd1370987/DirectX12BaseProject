@@ -15,7 +15,7 @@ namespace Engine::Raytracing
 	struct Instance
 	{
 		DirectX::XMFLOAT4X4 worldMat = DXSM::Matrix::Identity;
-		BLAS* pBLAS = nullptr;
+		const BLAS* pBLAS = nullptr;
 
 		// 頂点情報
 		Engine::Resource::Handle<D3D12::SRV> vertexHandle = {};

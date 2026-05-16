@@ -613,9 +613,11 @@ namespace Engine::Graphics
 		//if (a_pMesh != m_pCurrentMesh)
 		{
 			if (!a_pMesh) return;
-			auto _vertView = a_pMesh->GetVertexBuffer().GetView();
+			//auto _vertView = a_pMesh->GetVertexBuffer().GetView();
+			if (!a_pMesh->HasRasterData()) return;
+			auto _vertView = a_pMesh->GetRasterData().vertexBuffer.GetView();
 			m_pCmdList->IASetVertexBuffers(0, 1, &_vertView);
-			const auto& _pIndexView = a_pMesh->GetIndexBuffer().GetView();
+			const auto& _pIndexView = a_pMesh->GetRasterData().indexBuffer.GetView();
 			m_pCmdList->IASetIndexBuffer(&_pIndexView);
 		}
 	}
@@ -623,8 +625,8 @@ namespace Engine::Graphics
 	void RenderContext::Draw(Resource::Mesh* a_pMesh, UINT a_subIdx)
 	{
 		// 描画
-		UINT _faceCount = static_cast<UINT>(a_pMesh->GetSubsets()[a_subIdx].faceCount);
-		UINT _faceStart = static_cast<UINT>(a_pMesh->GetSubsets()[a_subIdx].faceStart);
+		UINT _faceCount = static_cast<UINT>(a_pMesh->GetMetaData().subsets[a_subIdx].faceCount);
+		UINT _faceStart = static_cast<UINT>(a_pMesh->GetMetaData().subsets[a_subIdx].faceStart);
 		m_pCmdList->NGet()->DrawIndexedInstanced(
 			_faceCount * 3, 1, _faceStart * 3, 0, 0
 		);
