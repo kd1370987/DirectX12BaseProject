@@ -12,39 +12,39 @@ namespace Engine::Graphics
 {
 	void RaytracingShadowPass::Excute(RenderContext* a_pCtx)
 	{
-		auto _texHandle = m_pRG->GetTexHandle("RayShadow");
+		//auto _texHandle = m_pRG->GetTexHandle("RayShadow");
 		//Engine::Raytracing::RayEngine::Instance().Dispatch(_texHandle, a_pCtx, &m_rayPSO, &m_shaderTable);
-		auto* _pCmdList = a_pCtx->GetCurrentCmdList();
+		//auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 
-		//Engine::Raytracing::RayEngine::Instance().Dispatch(a_pCtx);
+		Engine::Raytracing::RayEngine::Instance().Dispatch(a_pCtx);
 
 		// ---------------------------------------------------------
 		// レイワールド更新・シェーダーテーブル更新
-		Engine::Raytracing::RayEngine::Instance().Commit();
-		const auto& _instanceVec = Raytracing::RayEngine::Instance().GetInstanceVec();
-		m_shaderTable.CommitInstance(_instanceVec,a_pCtx);
+		//Engine::Raytracing::RayEngine::Instance().Commit();
+		//const auto& _instanceVec = Raytracing::RayEngine::Instance().GetInstanceVec();
+		//m_shaderTable.CommitInstance(_instanceVec,a_pCtx);
 
-		// ディスクリプタヒープセット
-		a_pCtx->BindCopyHeapAndSumpler();	
+		//// ディスクリプタヒープセット
+		//a_pCtx->BindCopyHeapAndSumpler();	
 
-		// パイプラインとルートシグネチャセット
-		_pCmdList->SetPipelineState1(m_rayPSO.Get());
-		_pCmdList->SetComputeRootSignature(m_rayPSO.GetRootSig());
+		//// パイプラインとルートシグネチャセット
+		//_pCmdList->SetPipelineState1(m_rayPSO.Get());
+		//_pCmdList->SetComputeRootSignature(m_rayPSO.GetRootSig());
 
-		// カメラバインド
-		Raytracing::RayEngine::Instance().BindCamera(a_pCtx);
+		//// カメラバインド
+		//Raytracing::RayEngine::Instance().BindCamera(a_pCtx);
 
-		// レイワールドバインド
-		Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);
+		//// レイワールドバインド
+		//Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);
 
-		// UAVをバインド
-		//a_pCtx->BindUAV(
-		//	2,
-		//	m_pRG->GetCPUHandle("RayShadow")
-		//);
+		//// UAVをバインド
+		////a_pCtx->BindUAV(
+		////	2,
+		////	m_pRG->GetCPUHandle("RayShadow")
+		////);
 
-		// ディスパッチ
-		Raytracing::RayEngine::Instance().Dispatch(a_pCtx,m_shaderTable);
+		//// ディスパッチ
+		//Raytracing::RayEngine::Instance().Dispatch(a_pCtx,m_shaderTable);
 	}
 	void RaytracingShadowPass::CreatePass()
 	{
@@ -107,6 +107,6 @@ namespace Engine::Graphics
 		};
 		m_shaderTable.Init(_shaderTableInit);
 
-		AddWrite("RayShadow", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
+		//AddWrite("RayShadow", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
 	}
 }

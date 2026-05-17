@@ -85,8 +85,8 @@ namespace Engine::Raytracing
 
 		ID3D12RootSignature* GetRootSig()
 		{
-			return m_pRootSig;
-			//return m_rootSig.Get();
+			//return m_pRootSig;
+			return m_rootSig.Get();
 		}
 
 	private:

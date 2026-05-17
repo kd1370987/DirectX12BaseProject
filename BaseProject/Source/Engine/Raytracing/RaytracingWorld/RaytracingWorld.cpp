@@ -23,6 +23,7 @@ void Engine::Raytracing::RayWorld::Register(
 	const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
 )
 {
+	m_isDrity = true;
 	// レイワールドにインスタンスを登録する処理
 	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
@@ -76,14 +77,16 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 	m_upTLAS->Create(m_instanceVec);
 
 	// 構造体バッファ作成
-	m_instanceDataVec = {};
-	for (auto& _instance : m_instanceVec)
-	{
-		InstanceData _data = {};
-		_data.vertexSRVIndex = _instance.vertexHandle.idx;
-		_data.indexSRVIndex = _instance.indexHandle.idx;
-		m_instanceDataVec.push_back(_data);
-	}
+	//m_instanceDataVec = {};
+	//for (auto& _instance : m_instanceVec)
+	//{
+	//	InstanceData _data = {};
+	//	_data.vertexSRVIndex = _instance.vertexHandle.idx;
+	//	_data.indexSRVIndex = _instance.indexHandle.idx;
+	//	m_instanceDataVec.push_back(_data);
+	//}
+	m_instanceDataVec.clear();
+	m_instanceDataVec.resize(1000);
 
 	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
@@ -92,21 +95,23 @@ void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 	m_instanceDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_instanceDataVec.data());
 
 	// マテリアルデータ作成
-	m_materialVec = {};
-	for (auto& _instance : m_instanceVec)
-	{
-		Material _mate = {};
-		_mate.baseColor = _instance.pMaterial->baseColor;
-		_mate.metallic = _instance.pMaterial->metallic;
-		_mate.roughness = _instance.pMaterial->roughness;
-		_mate.emissive = _instance.pMaterial->emissive;
-		
-		// マテリアルのインデックス取得
-		const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_instance.pMaterial->baseColorTex);
-		_mate.baseIndex = _tex->GetSRV().idx;
+	//m_materialVec = {};
+	//for (auto& _instance : m_instanceVec)
+	//{
+	//	Material _mate = {};
+	//	_mate.baseColor = _instance.pMaterial->baseColor;
+	//	_mate.metallic = _instance.pMaterial->metallic;
+	//	_mate.roughness = _instance.pMaterial->roughness;
+	//	_mate.emissive = _instance.pMaterial->emissive;
+	//	
+	//	// マテリアルのインデックス取得
+	//	const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_instance.pMaterial->baseColorTex);
+	//	_mate.baseIndex = _tex->GetSRV().idx;
 
-		m_materialVec.push_back(_mate);
-	}
+	//	m_materialVec.push_back(_mate);
+	//}
+	m_materialVec.clear();
+	m_materialVec.resize(1000);
 	m_materialDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_materialVec.data());
 }
 
@@ -127,7 +132,9 @@ void Engine::Raytracing::RayWorld::Commit()
 		_data.indexSRVIndex = _instance.indexHandle.idx;
 		m_instanceDataVec.push_back(_data);
 	}
-	m_instanceDataBuffer.UpdateData((void*)m_instanceDataVec.data(),m_instanceDataBuffer.GetBufferSize());
+	//m_instanceDataBuffer.UpdateData((void*)m_instanceDataVec.data(), m_instanceDataBuffer.GetBufferSize());
+	m_instanceDataBuffer.UpdateData((void*)m_instanceDataVec.data(), m_instanceDataVec.size() * sizeof(InstanceData));
+	
 	m_materialVec = {};
 	for (auto& _instance : m_instanceVec)
 	{
@@ -143,7 +150,9 @@ void Engine::Raytracing::RayWorld::Commit()
 
 		m_materialVec.push_back(_mate);
 	}
-	m_materialDataBuffer.UpdateData((void*)m_materialVec.data(),m_materialDataBuffer.GetBufferSize());
+	
+	//m_materialDataBuffer.UpdateData((void*)m_materialVec.data(), m_materialDataBuffer.GetBufferSize());
+	m_materialDataBuffer.UpdateData((void*)m_materialVec.data(), m_materialVec.size() * sizeof(Material));
 	m_instanceDataBuffer.Update(*_pCmdList);
 	m_materialDataBuffer.Update(*_pCmdList);
 }

@@ -21,6 +21,7 @@ namespace Engine::Raytracing
 		void Init(uint32_t a_hitGroupNum);
 
 		// レイトレワールド構築
+		// マイフレーム構築
 		void Commit();
 
 		// インスタンスのクリア
@@ -69,5 +70,6 @@ namespace Engine::Raytracing
 
 		// 更新
 		bool m_isCommit = false;		// コミットされたかどうか
+		bool m_isDrity = false;
 	};
 }

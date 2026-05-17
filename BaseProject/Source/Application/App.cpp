@@ -52,6 +52,7 @@ bool Application::Init()
 		return false;
 	}
 
+	Engine::Raytracing::RayEngine::Instance().CommitWorld();
 	return true;
 }
 
@@ -103,7 +104,7 @@ void Application::MainLoop()
 			//_mat = DXSM::Matrix::CreateTranslation(_tans);
 			//Engine::Raytracing::RayEngine::Instance().RegistModel(_mat, _modelHandle);
 			_is = true;
-			Engine::Raytracing::RayEngine::Instance().CommitWorld();
+			
 		}
 		
 		// 描画
