@@ -57,6 +57,13 @@ namespace Engine::Graphics
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			0
 		);
+		m_bindLessHeap.Create(
+			m_pDevice,
+			L"BindLess",
+			300,
+			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+			0
+		);
 
 		// クワッドポリゴン
 		m_spQuadPolygon = std::make_shared<Resource::QuadPolygon>();
@@ -441,6 +448,25 @@ namespace Engine::Graphics
 		// ディスクリプタヒープをセット
 		ID3D12DescriptorHeap* _heaps[] = {
 			m_copyHeap.GetHeap(),
+			D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
+		};
+		m_pCmdList->Get4()->SetDescriptorHeaps(std::size(_heaps), _heaps);
+	}
+	void RenderContext::BindCopyHeapAndSumplerBindLess()
+	{
+		ID3D12DescriptorHeap* _srcHeap = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeap();
+
+		// ヒープ丸ごとコピー
+		m_pDevice->CopyDescriptorsSimple(
+			300,
+			m_bindLessHeap.GetCPU(0),
+			_srcHeap->GetCPUDescriptorHandleForHeapStart(),
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
+		);
+
+		// ディスクリプタヒープをセット
+		ID3D12DescriptorHeap* _heaps[] = {
+			m_bindLessHeap.GetHeap(),
 			D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
 		};
 		m_pCmdList->Get4()->SetDescriptorHeaps(std::size(_heaps), _heaps);

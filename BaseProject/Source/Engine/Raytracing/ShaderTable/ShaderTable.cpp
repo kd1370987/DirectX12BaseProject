@@ -75,9 +75,39 @@ void Engine::Raytracing::ShaderTable::CommitInstance(const std::vector<Instance>
 			auto& _instance = a_instanceVec[_i];											// インスタンス取得
 			uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_i * m_hitIDVec.size() + _h) * m_recordSize;
 			memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+		}
+	}
+
+	m_dispatchDesc = CreateDispatchDesc(a_instanceVec.size());
+}
+
+void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT)
+{
+
+	// レイジェネレーションシェーダー
+	assert(m_rayGenID);
+	memcpy(m_pShaderTableData + m_rayGenOffset, m_rayGenID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+
+	// ミスシェーダーID
+	for (UINT _i = 0; _i < m_missIDVec.size(); ++_i)
+	{
+		assert(m_missIDVec[_i]);
+		uint8_t* _missPtr = m_pShaderTableData + m_missOffset + _i * m_recordSize;	// アドレス
+		memcpy(_missPtr, m_missIDVec[_i], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
+	}
+
+	// ヒットシェーダーのデータ
+	for (size_t _i = 0; _i < a_instanceVec.size(); ++_i)
+	{
+		for (size_t _h = 0; _h < m_hitIDVec.size(); ++_h)
+		{
+			assert(m_hitIDVec[_h]);
+			auto& _instance = a_instanceVec[_i];											// インスタンス取得
+			uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_i * m_hitIDVec.size() + _h) * m_recordSize;
+			memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 			// ハンドル格納先ポインタアドレス
 			auto* _handles = reinterpret_cast<D3D12_GPU_DESCRIPTOR_HANDLE*>(_hitPtr + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-			_handles[0] = GetTextureGPUHandle(_instance.pMaterial,a_pRCT);
+			_handles[0] = GetTextureGPUHandle(_instance.pMaterial, a_pRCT);
 			_handles[1] = a_pRCT->GetGPUHandle(D3D12::DescriptorHeapManager::Instance().GetCPU(_instance.indexHandle));
 			_handles[2] = a_pRCT->GetGPUHandle(D3D12::DescriptorHeapManager::Instance().GetCPU(_instance.vertexHandle));
 		}

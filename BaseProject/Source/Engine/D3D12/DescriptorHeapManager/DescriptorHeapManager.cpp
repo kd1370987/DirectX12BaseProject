@@ -90,6 +90,11 @@ namespace Engine::D3D12
 	{}
 
 	
+	ID3D12DescriptorHeap* DescriptorHeapManager::GetCBVSRVUAVHeap()
+	{
+		return m_cbv_srv_uavHeap.GetHeap();
+	}
+
 	ID3D12DescriptorHeap* DescriptorHeapManager::GetImGuiHeap() const
 	{
 		return m_imguiHeap.GetHeap();

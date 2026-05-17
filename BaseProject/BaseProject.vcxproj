@@ -323,6 +323,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ScreenUIPass\ScreenUIPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.cpp" />
     <ClCompile Include="Source\Engine\Input\InputCollector\InputCollector.cpp" />
@@ -541,6 +542,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ScreenUIPass\ScreenUIPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h" />
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
@@ -627,6 +629,16 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Asset\Shader\Ray\GIShader\RaytracingGI.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Library</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Library</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.6</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Library</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.6</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Library</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Ray\Raytracing.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <FileType>Document</FileType>

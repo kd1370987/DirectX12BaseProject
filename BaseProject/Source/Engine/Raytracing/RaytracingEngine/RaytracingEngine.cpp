@@ -51,13 +51,6 @@ namespace Engine::Raytracing
 	{
 		auto* _pCmdList = a_pRCT->GetCurrentCmdList();
 
-		auto* _tex = Engine::Resource::ResourceManager::Instance().Ref(m_outTex);
-		// 出力用UAVセット
-		a_pRCT->BindUAV(
-			2,
-			D3D12::DescriptorHeapManager::Instance().GetCPU(_tex->GetUAV())
-		);
-
 		// 構造体バッファセット
 		auto _gpuI = a_pRCT->GetGPUHandle(m_upRayWorld->GetInstanceDataSRVCPU());
 		_pCmdList->SetComputeRootDescriptorTable(3, _gpuI);
@@ -75,7 +68,6 @@ namespace Engine::Raytracing
 	{
 		// UAVバリア
 		auto* _pCmdList4 = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList4();
-		//auto& _tex = Engine::Resource::TextureManager::Instance().RefTexture(m_outTex);
 		auto* _tex = Engine::Resource::ResourceManager::Instance().Ref(m_outTex);
 		auto* _pCmdList = a_pRCT->GetCurrentCmdList();
 

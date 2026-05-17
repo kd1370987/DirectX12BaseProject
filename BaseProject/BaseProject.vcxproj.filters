@@ -739,6 +739,12 @@
     <Filter Include="Source\Engine\Resource\Data\Mesh\CollisionMesh">
       <UniqueIdentifier>{b6ffb845-47ab-4c22-97b1-e1e737d62e16}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass">
+      <UniqueIdentifier>{53a4d211-2237-4b3d-b365-e7e5697f55d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Ray\GIShader">
+      <UniqueIdentifier>{4f754aed-db16-43c6-8dd0-9b8b6e22b53e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1199,6 +1205,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.cpp">
       <Filter>Source\Engine\Resource\Data\Mesh\RaytracingMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1871,6 +1880,9 @@
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.h">
       <Filter>Source\Engine\Resource\Data\Mesh\RaytracingMesh</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1986,6 +1998,9 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\TestShader\TestPS.hlsl">
       <Filter>Asset\Shader\Source\TestShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Ray\GIShader\RaytracingGI.hlsl">
+      <Filter>Asset\Shader\Ray\GIShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

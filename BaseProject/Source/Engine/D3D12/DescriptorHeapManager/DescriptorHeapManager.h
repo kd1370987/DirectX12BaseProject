@@ -26,6 +26,9 @@ namespace Engine::D3D12
 		template<IsHeapType T>
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(Resource::Handle<T> a_handle);
 
+		// ヒープ取得
+		ID3D12DescriptorHeap* GetCBVSRVUAVHeap();
+
 		//==========================================================================================
 		// 
 		// ImGui

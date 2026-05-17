@@ -101,6 +101,9 @@ namespace Engine
 		_geDesc.pPipelineStateManager = m_upPipelineStateManager.get();
 		m_upGraphicsEngine->Init(_geDesc);
 
+		// レイトレワールド構築
+		Engine::Raytracing::RayEngine::Instance().CommitWorld();
+
 		// エディター初期化
 		if (!Engine::Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle()))
 		{

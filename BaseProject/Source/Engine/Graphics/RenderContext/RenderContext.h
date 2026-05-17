@@ -183,6 +183,7 @@ namespace Engine::Graphics
 		// ヒープのセット
 		void BindHeap();
 		void BindCopyHeapAndSumpler();
+		void BindCopyHeapAndSumplerBindLess();
 		void BindHeaps(UINT a_numHeaps, ID3D12DescriptorHeap *const* a_pHeaps);
 
 		// バインドボーン
@@ -300,7 +301,8 @@ namespace Engine::Graphics
 		D3D12::StaticStructuredBuffer<BonePallete> m_boneBuffer;
 		D3D12::CommandList* m_pCmdList = nullptr;
 		// コピー用ヒープ
-		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV> m_copyHeap = {};
+		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV> m_copyHeap = {};				// ラスタライザ用
+		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_bindLessHeap;	// バインドレス用
 		UINT m_currentHeapOffset = 0;
 
 

@@ -35,6 +35,7 @@ namespace Engine::Raytracing
 
 		// シェーダーテーブルの構築・更新
 		void CommitInstance(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT);
+		void CommitInstanceBindLess(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT);
 
 		// ディスパッチレイ構造体取得
 		const D3D12_DISPATCH_RAYS_DESC& GetDispatchDesc();
