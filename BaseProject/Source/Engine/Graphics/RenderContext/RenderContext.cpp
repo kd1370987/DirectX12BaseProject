@@ -350,6 +350,16 @@ namespace Engine::Graphics
 		);
 	}
 
+	void RenderContext::BindUAVBindLess(UINT a_rootIdx, Resource::Handle<D3D12::UAV> a_handle)
+	{
+		// コマンドリストにバインド
+		auto _pCmd = D3D12::D3D12Wrapper::Instance().GetCommandList4();
+		_pCmd->SetComputeRootDescriptorTable(
+			a_rootIdx,
+			m_bindLessHeap.GetGPU(a_handle.idx + 200)
+		);
+	}
+
 	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
 	{
 		// 今の空きインデックスカウントを確保
@@ -400,6 +410,11 @@ namespace Engine::Graphics
 
 		// ハンドルを返す
 		return m_copyHeap.GetGPU(_startIdx);
+	}
+
+	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandleBindLess(Resource::Handle<D3D12::SRV> a_handle)
+	{
+		return m_bindLessHeap.GetGPU(a_handle.idx + 100);
 	}
 
 	void RenderContext::ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle)

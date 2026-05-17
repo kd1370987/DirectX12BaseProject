@@ -166,10 +166,12 @@ namespace Engine::Graphics
 
 		// UAV
 		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
+		void BindUAVBindLess(UINT a_rootIdx, Resource::Handle<D3D12::UAV> a_handle);
 
 		// 直接GPUアドレスを取得
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandleBindLess(Resource::Handle<D3D12::SRV> a_handle);
 
 		// レンダーターゲットのクリア
 		void ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle);

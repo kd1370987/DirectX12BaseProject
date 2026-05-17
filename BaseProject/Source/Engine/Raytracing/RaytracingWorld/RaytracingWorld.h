@@ -31,6 +31,9 @@ namespace Engine::Raytracing
 		D3D12_GPU_VIRTUAL_ADDRESS GetTLAS();
 		D3D12_GPU_DESCRIPTOR_HANDLE GetSRVTLAS();
 
+		Resource::Handle<D3D12::SRV> GetInstanceBufferSRV();
+		Resource::Handle<D3D12::SRV> GetMaterialBufferSRV();
+
 		// インスタンス配列取得
 		D3D12_GPU_DESCRIPTOR_HANDLE GetInstanceDataSRV();
 		D3D12_CPU_DESCRIPTOR_HANDLE GetInstanceDataSRVCPU();

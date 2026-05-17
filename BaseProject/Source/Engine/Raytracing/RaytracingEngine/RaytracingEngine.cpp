@@ -52,11 +52,13 @@ namespace Engine::Raytracing
 		auto* _pCmdList = a_pRCT->GetCurrentCmdList();
 
 		// 構造体バッファセット
-		auto _gpuI = a_pRCT->GetGPUHandle(m_upRayWorld->GetInstanceDataSRVCPU());
+		//auto _gpuI = a_pRCT->GetGPUHandle(m_upRayWorld->GetInstanceDataSRVCPU());
+		auto _gpuI = a_pRCT->GetGPUHandleBindLess(m_upRayWorld->GetInstanceBufferSRV());
 		_pCmdList->SetComputeRootDescriptorTable(3, _gpuI);
 
 		// マテリアル送信
-		auto _gpuM = a_pRCT->GetGPUHandle(m_upRayWorld->GetMaterialSRVCPU());
+		//auto _gpuM = a_pRCT->GetGPUHandle(m_upRayWorld->GetMaterialSRVCPU());
+		auto _gpuM = a_pRCT->GetGPUHandleBindLess(m_upRayWorld->GetMaterialBufferSRV());
 		_pCmdList->SetComputeRootDescriptorTable(4, _gpuM);
 
 		// シェーダーテーブル

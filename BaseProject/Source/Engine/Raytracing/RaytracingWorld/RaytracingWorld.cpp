@@ -9,156 +9,171 @@
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-Engine::Raytracing::RayWorld::RayWorld()
+namespace Engine::Raytracing
 {
 
-}
 
-Engine::Raytracing::RayWorld::~RayWorld()
-{
-}
 
-void Engine::Raytracing::RayWorld::Register(
-	const DXSM::Matrix& a_worldMat,
-	const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
-)
-{
-	m_isDrity = true;
-	// レイワールドにインスタンスを登録する処理
-	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
-
-	// モデルのノードとメッシュを参照してインスタンスに変換
-	auto* _model = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
-	if (!_model) return;
-
-	auto& _nodes = _model->GetOriginalNodeVec();
-	for (auto& _node : _nodes)		// ノードループ
+	Engine::Raytracing::RayWorld::RayWorld()
 	{
-		for (auto& _meshIdx : _node.meshIndices)	// メッシュループ
+
+	}
+
+	Engine::Raytracing::RayWorld::~RayWorld()
+	{}
+
+	void Engine::Raytracing::RayWorld::Register(
+		const DXSM::Matrix& a_worldMat,
+		const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
+	)
+	{
+		m_isDrity = true;
+		// レイワールドにインスタンスを登録する処理
+		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
+
+		// モデルのノードとメッシュを参照してインスタンスに変換
+		auto* _model = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
+		if (!_model) return;
+
+		auto& _nodes = _model->GetOriginalNodeVec();
+		for (auto& _node : _nodes)		// ノードループ
 		{
-			auto _pMesh = _model->GetSPMeshVec()[_meshIdx].get();
-			if (!_pMesh) continue;
-
-			DXSM::Matrix _nodeMat = _node.worldTransform;
-			
-
-			// インスタンス作成
-			Engine::Raytracing::Instance _rayInst = {};
-			_rayInst.worldMat = _nodeMat * a_worldMat;
-			if (!_pMesh->HasRtData()) continue;
-			_rayInst.pBLAS = &_pMesh->GetRtData().blas;
-			_rayInst.vertexHandle = _pMesh->GetRtData().structuredVertexBuffer.GetSRVHandle();
-			_rayInst.indexHandle = _pMesh->GetRtData().structuredIndexBuffer.GetSRVHandle();
-			for (auto& _subset : _pMesh->GetMetaData().subsets)
+			for (auto& _meshIdx : _node.meshIndices)	// メッシュループ
 			{
-				auto* _pMate = _model->GetMaterialVec()[_subset.materialNumber].get();
-				if (!_pMate) continue;
-				_rayInst.pMaterial = _pMate;
-				m_instanceVec.emplace_back(_rayInst);
+				auto _pMesh = _model->GetSPMeshVec()[_meshIdx].get();
+				if (!_pMesh) continue;
+
+				DXSM::Matrix _nodeMat = _node.worldTransform;
+
+
+				// インスタンス作成
+				Engine::Raytracing::Instance _rayInst = {};
+				_rayInst.worldMat = _nodeMat * a_worldMat;
+				if (!_pMesh->HasRtData()) continue;
+				_rayInst.pBLAS = &_pMesh->GetRtData().blas;
+				_rayInst.vertexHandle = _pMesh->GetRtData().structuredVertexBuffer.GetSRVHandle();
+				_rayInst.indexHandle = _pMesh->GetRtData().structuredIndexBuffer.GetSRVHandle();
+				for (auto& _subset : _pMesh->GetMetaData().subsets)
+				{
+					auto* _pMate = _model->GetMaterialVec()[_subset.materialNumber].get();
+					if (!_pMate) continue;
+					_rayInst.pMaterial = _pMate;
+					m_instanceVec.emplace_back(_rayInst);
+				}
 			}
 		}
+
+		// コミットされていない状態に
+		m_isCommit = false;
 	}
 
-	// コミットされていない状態に
-	m_isCommit = false;
-}
-
-void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
-{
-	if (!m_upTLAS)
+	void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 	{
-		m_upTLAS = std::make_unique<TLAS>();
+		if (!m_upTLAS)
+		{
+			m_upTLAS = std::make_unique<TLAS>();
+		}
+		m_upTLAS->SetHitGroupNum(a_hitGroupNum);
+		m_upTLAS->Create(m_instanceVec);
+
+		// 構造体バッファ作成
+		m_instanceDataVec.clear();
+		m_instanceDataVec.resize(1000);
+
+		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
+
+		// インスタンスデータ作成
+		m_instanceDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_instanceDataVec.data());
+
+		// マテリアルデータ作成
+		m_materialVec.clear();
+		m_materialVec.resize(1000);
+		m_materialDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_materialVec.data());
 	}
-	m_upTLAS->SetHitGroupNum(a_hitGroupNum);
-	m_upTLAS->Create(m_instanceVec);
-
-	// 構造体バッファ作成
-	m_instanceDataVec.clear();
-	m_instanceDataVec.resize(1000);
-
-	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
-
-	// インスタンスデータ作成
-	m_instanceDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_instanceDataVec.data());
-
-	// マテリアルデータ作成
-	m_materialVec.clear();
-	m_materialVec.resize(1000);
-	m_materialDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_materialVec.data());
-}
 
 
-void Engine::Raytracing::RayWorld::Commit()
-{
-	auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
-
-	// TLAS更新
-	m_upTLAS->Update(m_instanceVec);
-	
-	// 構造体バッファ更新
-	m_instanceDataVec = {};
-	for (auto& _instance : m_instanceVec)
+	void Engine::Raytracing::RayWorld::Commit()
 	{
-		InstanceData _data = {};
-		_data.vertexSRVIndex = _instance.vertexHandle.idx + 100;
-		_data.indexSRVIndex = _instance.indexHandle.idx + 100;
-		m_instanceDataVec.push_back(_data);
+		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
+
+		// TLAS更新
+		m_upTLAS->Update(m_instanceVec);
+
+		// 構造体バッファ更新
+		m_instanceDataVec = {};
+		for (auto& _instance : m_instanceVec)
+		{
+			InstanceData _data = {};
+			_data.vertexSRVIndex = _instance.vertexHandle.idx + 100;
+			_data.indexSRVIndex = _instance.indexHandle.idx + 100;
+			m_instanceDataVec.push_back(_data);
+		}
+		m_instanceDataBuffer.UpdateData((void*)m_instanceDataVec.data(), m_instanceDataVec.size() * sizeof(InstanceData));
+
+		m_materialVec = {};
+		for (auto& _instance : m_instanceVec)
+		{
+			Material _mate = {};
+			_mate.baseColor = _instance.pMaterial->baseColor;
+			_mate.metallic = _instance.pMaterial->metallic;
+			_mate.roughness = _instance.pMaterial->roughness;
+			_mate.emissive = _instance.pMaterial->emissive;
+
+			// マテリアルのインデックス取得
+			const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_instance.pMaterial->baseColorTex);
+			_mate.baseIndex = _tex->GetSRV().idx + 100;
+
+			m_materialVec.push_back(_mate);
+		}
+		m_materialDataBuffer.UpdateData((void*)m_materialVec.data(), m_materialVec.size() * sizeof(Material));
+		m_instanceDataBuffer.Update(*_pCmdList);
+		m_materialDataBuffer.Update(*_pCmdList);
 	}
-	m_instanceDataBuffer.UpdateData((void*)m_instanceDataVec.data(), m_instanceDataVec.size() * sizeof(InstanceData));
-	
-	m_materialVec = {};
-	for (auto& _instance : m_instanceVec)
+
+	void Engine::Raytracing::RayWorld::Clear()
 	{
-		Material _mate = {};
-		_mate.baseColor = _instance.pMaterial->baseColor;
-		_mate.metallic = _instance.pMaterial->metallic;
-		_mate.roughness = _instance.pMaterial->roughness;
-		_mate.emissive = _instance.pMaterial->emissive;
-
-		// マテリアルのインデックス取得
-		const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_instance.pMaterial->baseColorTex);
-		_mate.baseIndex = _tex->GetSRV().idx + 100;
-
-		m_materialVec.push_back(_mate);
+		m_instanceVec.clear();
 	}
-	m_materialDataBuffer.UpdateData((void*)m_materialVec.data(), m_materialVec.size() * sizeof(Material));
-	m_instanceDataBuffer.Update(*_pCmdList);
-	m_materialDataBuffer.Update(*_pCmdList);
-}
 
-void Engine::Raytracing::RayWorld::Clear()
-{
-	m_instanceVec.clear();
-}
+	D3D12_GPU_VIRTUAL_ADDRESS Engine::Raytracing::RayWorld::GetTLAS()
+	{
+		return m_upTLAS->GetGPUAddress();
+	}
 
-D3D12_GPU_VIRTUAL_ADDRESS Engine::Raytracing::RayWorld::GetTLAS()
-{
-	return m_upTLAS->GetGPUAddress();
-}
+	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetSRVTLAS()
+	{
+		return m_upTLAS->GetGPUHandle();
+	}
 
-D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetSRVTLAS()
-{
-	return m_upTLAS->GetGPUHandle();
-}
+	Resource::Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetInstanceBufferSRV()
+	{
+		return m_instanceDataBuffer.GetSRVHandle();
+	}
 
-D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRV()
-{
-	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_instanceDataBuffer.GetSRVHandle());
-}
+	Resource::Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetMaterialBufferSRV()
+	{
+		return m_materialDataBuffer.GetSRVHandle();
+	}
 
-D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRVCPU()
-{
-	return D3D12::DescriptorHeapManager::Instance().GetCPU(m_instanceDataBuffer.GetSRVHandle());
-}
+	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRV()
+	{
+		return D3D12::DescriptorHeapManager::Instance().GetGPU(m_instanceDataBuffer.GetSRVHandle());
+	}
 
-D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRV()
-{
-	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_materialDataBuffer.GetSRVHandle());
-}
+	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRVCPU()
+	{
+		return D3D12::DescriptorHeapManager::Instance().GetCPU(m_instanceDataBuffer.GetSRVHandle());
+	}
 
-D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRVCPU()
-{
-	return D3D12::DescriptorHeapManager::Instance().GetCPU(m_materialDataBuffer.GetSRVHandle());
+	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRV()
+	{
+		return D3D12::DescriptorHeapManager::Instance().GetGPU(m_materialDataBuffer.GetSRVHandle());
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRVCPU()
+	{
+		return D3D12::DescriptorHeapManager::Instance().GetCPU(m_materialDataBuffer.GetSRVHandle());
+	}
 }

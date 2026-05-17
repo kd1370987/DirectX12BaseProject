@@ -124,7 +124,7 @@ namespace Engine::Graphics
 
 		//RegisterPass<TestPass>();
 
-		RegisterPass<RaytracingShadowPass>();
+		//RegisterPass<RaytracingShadowPass>();
 		RegisterPass<RaytracingGIPass>();
 
 		// パスの初期化
@@ -284,6 +284,22 @@ namespace Engine::Graphics
 		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id);
 		const auto* _pTex = Resource::ResourceManager::Instance().Get(_texHandle);
 		return D3D12::DescriptorHeapManager::Instance().GetCPU(_pTex->GetSRV());
+	}
+
+	Resource::Handle<D3D12::SRV> RenderGraph::GetSRVHandle(const std::string& a_name)
+	{
+		auto _id = m_upRGResourceManager->GetID(a_name);
+		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id);
+		const auto* _pTex = Resource::ResourceManager::Instance().Get(_texHandle);
+		return _pTex->GetSRV();
+	}
+
+	Resource::Handle<D3D12::UAV> RenderGraph::GetUAVHandle(const std::string& a_name)
+	{
+		auto _id = m_upRGResourceManager->GetID(a_name);
+		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id);
+		const auto* _pTex = Resource::ResourceManager::Instance().Get(_texHandle);
+		return _pTex->GetUAV();
 	}
 
 	Engine::Resource::Handle<Engine::Resource::Texture> RenderGraph::CreateTexture(

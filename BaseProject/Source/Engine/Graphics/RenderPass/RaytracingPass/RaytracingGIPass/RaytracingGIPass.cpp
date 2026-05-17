@@ -35,10 +35,7 @@ namespace Engine::Graphics
 		Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);
 
 		// UAVをバインド
-		a_pCtx->BindUAV(
-			2,
-			m_pRG->GetCPUHandle("RayGI")
-		);
+		a_pCtx->BindUAVBindLess(2, m_pRG->GetUAVHandle("RayGI"));
 
 		// ディスパッチ
 		Raytracing::RayEngine::Instance().Dispatch(a_pCtx, m_shaderTable);
