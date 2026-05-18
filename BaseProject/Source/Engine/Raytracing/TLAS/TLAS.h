@@ -8,7 +8,7 @@ namespace Engine::Raytracing
 	public:
 
 		// 作成
-		void Create(std::vector<Instance>& a_instanceVec);
+		void Create(UINT a_maxInstanceNum);
 
 		// 更新
 		void Update(const std::vector<Instance>& a_instanceVec);

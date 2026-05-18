@@ -28,6 +28,9 @@ namespace Engine::Graphics
 {
 	void RenderContext::Init(const RenderContextDesc& a_desc)
 	{
+		D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
+
 		// デバイスのキャッシュ
 		m_pDevice = a_desc.pDevice;
 
@@ -46,8 +49,10 @@ namespace Engine::Graphics
 		);
 
 		// ボーン用バッファ作成
-		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
 		m_boneBuffer.Create(a_desc.pDevice, *_pCmdList, a_desc.boneElementNum, nullptr);
+
+		// 構造体バッファ作成のためGPU操作を実行
+		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
 
 		// コピー戦略用SRVヒープの作成
 		m_copyHeap.Create(

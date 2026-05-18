@@ -107,9 +107,9 @@ void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(const std::vector<I
 			memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 			// ハンドル格納先ポインタアドレス
 			auto* _handles = reinterpret_cast<D3D12_GPU_DESCRIPTOR_HANDLE*>(_hitPtr + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-			_handles[0] = GetTextureGPUHandle(_instance.pMaterial, a_pRCT);
-			_handles[1] = a_pRCT->GetGPUHandle(D3D12::DescriptorHeapManager::Instance().GetCPU(_instance.indexHandle));
-			_handles[2] = a_pRCT->GetGPUHandle(D3D12::DescriptorHeapManager::Instance().GetCPU(_instance.vertexHandle));
+			//_handles[0] = GetTextureGPUHandle(_instance.pMaterial, a_pRCT);
+			//_handles[1] = a_pRCT->GetGPUHandle(D3D12::DescriptorHeapManager::Instance().GetCPU(_instance.indexHandle));
+			//_handles[2] = a_pRCT->GetGPUHandle(D3D12::DescriptorHeapManager::Instance().GetCPU(_instance.vertexHandle));
 		}
 	}
 

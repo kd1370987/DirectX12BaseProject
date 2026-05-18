@@ -333,6 +333,20 @@ namespace Engine::D3D12
 		m_frameResource[m_cpuFrameIndex].fenceValue = m_currentFenceValue;
 	}
 
+	void D3D12Wrapper::CloseAndExecuteComdLists(CommandList* a_pCmdList)
+	{
+		// コマンドリストを閉じる
+		a_pCmdList->Close();
+
+		// コマンドキューに積む
+		ID3D12CommandList* _ppCommandLists[] = { a_pCmdList->NGet() };
+		m_upCommandQueue->Get()->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
+
+		// 終了待ち
+		SignalRenderFence();
+		WaitRender();
+	}
+
 	void D3D12Wrapper::ResourceBarrier(
 		ID3D12Resource* a_pResource,
 		D3D12_RESOURCE_STATES a_before,

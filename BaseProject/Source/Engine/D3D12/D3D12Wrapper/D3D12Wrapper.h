@@ -68,6 +68,9 @@ namespace Engine::D3D12
 		void WaitRender();										// 描画完了を待つ処理
 		void SignalRenderFence();								// フェンスにシグナルを送る処理
 
+		// ランタイム以外の初期化時などにGPU操作が必要なさいに使う関数
+		void CloseAndExecuteComdLists(CommandList* a_pCmdList);
+
 		void ResourceBarrier(
 			ID3D12Resource* a_pResource,
 			D3D12_RESOURCE_STATES a_before,

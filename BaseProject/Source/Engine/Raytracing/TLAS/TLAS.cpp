@@ -4,22 +4,19 @@
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
+void Engine::Raytracing::TLAS::Create(UINT a_maxInstanceNum)
 {
-	// コマンドキューリセット
-//	D3D12::D3D12Wrapper::Instance().CommandQueueReset();
 	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
 	ID3D12GraphicsCommandList4* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 
 	// 参照
 	uint64_t _tlasSize;
-	int _numInstance = static_cast<int>(a_instanceVec.size());
 
 	// インプット情報
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS _inputs = {};
 	_inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
 	_inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
-	_inputs.NumDescs = _numInstance;
+	_inputs.NumDescs = a_maxInstanceNum;
 	_inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
 
 	// 出力構造体
@@ -85,36 +82,10 @@ void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
 	_tlasSize = _info.ResultDataMaxSizeInBytes;
 	
 
-	// インスタンスバッファ構造体
+	// インスタンスバッファ構造体初期化・マップポイント取得
 	m_pInstanceDesc = nullptr;
 	m_cpInstanceBuffer->Map(0,nullptr,(void**)&m_pInstanceDesc);
 	ZeroMemory(m_pInstanceDesc,sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_maxInstanceCount);
-
-	for (int _i = 0; _i < _numInstance; ++_i)
-	{
-		m_pInstanceDesc[_i].InstanceID = _i;
-		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = m_hitGroupNum * _i;
-		m_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
-		m_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
-		auto& m = a_instanceVec[_i].worldMat;
-
-		m_pInstanceDesc[_i].Transform[0][0] = m._11;
-		m_pInstanceDesc[_i].Transform[0][1] = m._12;
-		m_pInstanceDesc[_i].Transform[0][2] = m._13;
-		m_pInstanceDesc[_i].Transform[0][3] = m._41;
-
-		m_pInstanceDesc[_i].Transform[1][0] = m._21;
-		m_pInstanceDesc[_i].Transform[1][1] = m._22;
-		m_pInstanceDesc[_i].Transform[1][2] = m._23;
-		m_pInstanceDesc[_i].Transform[1][3] = m._42;
-
-		m_pInstanceDesc[_i].Transform[2][0] = m._31;
-		m_pInstanceDesc[_i].Transform[2][1] = m._32;
-		m_pInstanceDesc[_i].Transform[2][2] = m._33;
-		m_pInstanceDesc[_i].Transform[2][3] = m._43;
-
-		m_pInstanceDesc[_i].InstanceMask = 0xFF;
-	}
 
 	// TLASを作成
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _asDesc = {};
@@ -140,16 +111,6 @@ void Engine::Raytracing::TLAS::Create(std::vector<Instance>& a_instanceVec)
 	_uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 	_uavBarrier.UAV.pResource = m_cpResource.Get();
 	_pCmdList->ResourceBarrier(1,&_uavBarrier);
-	_pCmdList->Close();
-
-	// コマンドキューに積む
-	ID3D12CommandList* _ppCommandLists[] = { _pCmdList };
-	auto* _cmdQueue = D3D12::D3D12Wrapper::Instance().GetCommandQueue();
-	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
-
-	// 終了待ち
-	D3D12::D3D12Wrapper::Instance().SignalRenderFence();
-	D3D12::D3D12Wrapper::Instance().WaitRender();
 
 	// SRVとして登録
 	D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
@@ -164,11 +125,14 @@ void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec
 {
 	ID3D12GraphicsCommandList4* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 
+	// SBTの累積オフセットカウンター
+	UINT _sbtOffsetAccumulator = 0;
+
 	// インスタンスバッファ構造体更新
 	for (int _i = 0; _i < a_instanceVec.size(); ++_i)
 	{
 		m_pInstanceDesc[_i].InstanceID = _i;
-		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = _i * m_hitGroupNum;
+		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = _sbtOffsetAccumulator;
 		m_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 		m_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
 		auto& m = a_instanceVec[_i].worldMat;
@@ -189,6 +153,10 @@ void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec
 		m_pInstanceDesc[_i].Transform[2][3] = m._43;
 
 		m_pInstanceDesc[_i].InstanceMask = 0xFF;
+
+		// オフセット値の進行
+		UINT _submeshCount = a_instanceVec[_i].pBLAS->GetSubsetCount();
+		_sbtOffsetAccumulator += _submeshCount * m_hitGroupNum;
 	}
 
 	// インプット情報

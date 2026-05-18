@@ -2,25 +2,18 @@
 
 #include "../TLAS/TLAS.h"
 
-//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../../D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 namespace Engine::Raytracing
 {
+	Engine::Raytracing::RayWorld::RayWorld(){}
+	Engine::Raytracing::RayWorld::~RayWorld(){}
 
-
-
-	Engine::Raytracing::RayWorld::RayWorld()
-	{
-
-	}
-
-	Engine::Raytracing::RayWorld::~RayWorld()
-	{}
 
 	void Engine::Raytracing::RayWorld::Register(
 		const DXSM::Matrix& a_worldMat,
@@ -58,9 +51,21 @@ namespace Engine::Raytracing
 				{
 					auto* _pMate = _model->GetMaterialVec()[_subset.materialNumber].get();
 					if (!_pMate) continue;
-					_rayInst.pMaterial = _pMate;
-					m_instanceVec.emplace_back(_rayInst);
+					//_rayInst.pMaterial = _pMate;
+					//_rayInst.pMesh = _pMesh;
+					//m_instanceVec.emplace_back(_rayInst);
+					Material _mat = {};
+					_mat.baseColor = _pMate->baseColor;
+					_mat.metallic = _pMate->metallic;
+					_mat.roughness = _pMate->roughness;
+					_mat.emissive = _pMate->emissive;
+					const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_pMate->baseColorTex);
+					_mat.baseIndex = _tex->GetSRV().idx + 100;
+
+					_rayInst.submeshMaterial.push_back(_mat);
 				}
+				_rayInst.pMesh = _pMesh;
+				m_instanceVec.emplace_back(_rayInst);
 			}
 		}
 
@@ -69,28 +74,35 @@ namespace Engine::Raytracing
 	}
 
 	void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
-	{
+	{	
+		// GPU実行のためキューリセット
+		D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
+		
+		// 仮置き
+		UINT _maxInstanceNum = 1000;
+
+		// レイワールド構築
 		if (!m_upTLAS)
 		{
 			m_upTLAS = std::make_unique<TLAS>();
 		}
 		m_upTLAS->SetHitGroupNum(a_hitGroupNum);
-		m_upTLAS->Create(m_instanceVec);
-
-		// 構造体バッファ作成
-		m_instanceDataVec.clear();
-		m_instanceDataVec.resize(1000);
-
-		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
+		m_upTLAS->Create(_maxInstanceNum);
 
 		// インスタンスデータ作成
-		m_instanceDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_instanceDataVec.data());
+		m_instanceDataVec.clear();
+		m_instanceDataVec.resize(_maxInstanceNum);
+		m_instanceDataBuffer.Create(_pDevice, *_pCmdList, _maxInstanceNum, m_instanceDataVec.data());
 
 		// マテリアルデータ作成
 		m_materialVec.clear();
-		m_materialVec.resize(1000);
-		m_materialDataBuffer.Create(_pDevice, *_pCmdList, 1000, m_materialVec.data());
+		m_materialVec.resize(_maxInstanceNum);
+		m_materialDataBuffer.Create(_pDevice, *_pCmdList, _maxInstanceNum, m_materialVec.data());
+
+		// TLAS、構造体バッファはGPU操作が必要なため
+		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
 	}
 
 
@@ -115,17 +127,20 @@ namespace Engine::Raytracing
 		m_materialVec = {};
 		for (auto& _instance : m_instanceVec)
 		{
-			Material _mate = {};
-			_mate.baseColor = _instance.pMaterial->baseColor;
-			_mate.metallic = _instance.pMaterial->metallic;
-			_mate.roughness = _instance.pMaterial->roughness;
-			_mate.emissive = _instance.pMaterial->emissive;
+			//Material _mate = {};
+			//_mate.baseColor = _instance.pMaterial->baseColor;
+			//_mate.metallic = _instance.pMaterial->metallic;
+			//_mate.roughness = _instance.pMaterial->roughness;
+			//_mate.emissive = _instance.pMaterial->emissive;
 
-			// マテリアルのインデックス取得
-			const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_instance.pMaterial->baseColorTex);
-			_mate.baseIndex = _tex->GetSRV().idx + 100;
+			//// マテリアルのインデックス取得
+			//const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_instance.pMaterial->baseColorTex);
+			//_mate.baseIndex = _tex->GetSRV().idx + 100;
 
-			m_materialVec.push_back(_mate);
+			for (auto& _mate : _instance.submeshMaterial)
+			{
+				m_materialVec.push_back(_mate);
+			}
 		}
 		m_materialDataBuffer.UpdateData((void*)m_materialVec.data(), m_materialVec.size() * sizeof(Material));
 		m_instanceDataBuffer.Update(*_pCmdList);

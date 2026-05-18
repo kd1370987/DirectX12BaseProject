@@ -25,6 +25,11 @@ namespace Engine::Raytracing
 			return m_cpResource->GetGPUVirtualAddress();
 		}
 
+		UINT GetSubsetCount() const
+		{
+			return m_geometryDescVec.size();
+		}
+
 	private:
 
 		// BLAS本体

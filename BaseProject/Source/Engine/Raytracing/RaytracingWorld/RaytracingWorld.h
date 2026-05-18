@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../Common/RaytracingInstance.h"
+
 namespace Engine::Raytracing
 {
 	class TLAS;
@@ -45,22 +47,6 @@ namespace Engine::Raytracing
 		const std::vector<Instance>& GetInstnace() const { return m_instanceVec; }
 
 	private:
-
-		struct InstanceData
-		{
-			UINT vertexSRVIndex;
-			UINT indexSRVIndex;
-		};
-
-		struct Material
-		{
-			DXSM::Vector4 baseColor = { 1,1,1,1 };
-			float						metallic = 0.0f;						// B : 金属製
-			float						roughness = 1.0f;						// G : 粗さ
-			DirectX::XMFLOAT3			emissive = { 1.0f,1.0f,1.0f };
-
-			int baseIndex = 0;
-		};
 
 		// GPU送信用データ
 		Engine::D3D12::StaticStructuredBuffer<InstanceData> m_instanceDataBuffer;

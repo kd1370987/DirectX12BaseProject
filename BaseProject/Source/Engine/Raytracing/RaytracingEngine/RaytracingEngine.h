@@ -21,9 +21,6 @@ namespace Engine::Raytracing
 		void BindTLAS(Graphics::RenderContext* a_pRCT);
 		void Dispatch(Graphics::RenderContext* a_pRCT, ShaderTable& a_shadertable);
 
-		// レイトレーシングをディスパッチ
-		void Dispatch(Graphics::RenderContext* a_pRCT);
-
 		// レイトレワールドに登録
 		void RegistModel(
 			const DirectX::XMFLOAT4X4& a_worldMat,
@@ -54,9 +51,7 @@ namespace Engine::Raytracing
 
 		// レイトレ用クラス
 		std::unique_ptr<RayWorld> m_upRayWorld = nullptr;				// レイトレワールド
-		Engine::Resource::Handle<Engine::Resource::Texture> m_outTex;	// 出力用UAVテクスチャ
-		std::unique_ptr<RayPSO> m_upPSO = nullptr;						// レイトレ用PSO
-		std::unique_ptr<ShaderTable> m_upShaderTable = nullptr;			// シェーダーテーブル
+		
 
 		bool m_isCommit = false;		// コミットされたかどうか
 
