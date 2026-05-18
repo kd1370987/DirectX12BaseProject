@@ -3,6 +3,7 @@
 #include "MeshMetaData/MeshMetaData.h"
 #include "RasterizationMesh/RasterizationMesh.h"
 #include "RaytracingMesh/RaytracingMesh.h"
+#include "CollisionMesh/CollisionMesh.h"
 
 namespace Engine::Resource
 {
@@ -52,6 +53,11 @@ namespace Engine::Resource
 			const std::vector<MeshVertexFloat>& a_vertices,
 			const std::vector<MeshFace>& a_face
 		);
+		// BVHでの当たり判定構築
+		void CreateCollisionMesh(
+			const std::vector<DirectX::XMFLOAT3>& a_vertices, 
+			const std::vector<UINT>& a_indices
+		);
 
 		// 静的な当たり判定データ作成
 		void CreateCollision(
@@ -71,8 +77,11 @@ namespace Engine::Resource
 		bool HasRtData() const { return m_opRtData.has_value(); }
 		const RaytracingMesh& GetRtData() const { return m_opRtData.value(); }
 		// 当たり判定データ
-		bool HasCollision() const { return m_opCollisionMesh.has_value(); };				// 当たり判定を持っているかどうか
-		const Engine::Collision::Mesh& GetCollision()const { return *m_opCollisionMesh; }	// 当たり判定取得
+		bool HasCollisionMesh() const { return m_opCollMesh.has_value(); };				// 当たり判定を持っているかどうか
+		const CollisionMesh& GetCollisionMesh()const { return m_opCollMesh.value(); }	// 当たり判定取得
+
+		//bool HasCollision() const { return m_opCollisionMesh.has_value(); };				// 当たり判定を持っているかどうか
+		//const Engine::Collision::Mesh& GetCollision()const { return *m_opCollisionMesh; }	// 当たり判定取得
 
 	private:
 
@@ -82,6 +91,8 @@ namespace Engine::Resource
 		// 各ドメインデータ : 必要なもののみ実体化
 		std::optional<RasterizationMesh>		m_opRasterData;		// ラスタライザデータ
 		std::optional<RaytracingMesh>			m_opRtData;			// レイトレデータ
+		std::optional<CollisionMesh>			m_opCollMesh;		// 当たり判定
+
 		std::optional<Engine::Collision::Mesh>	m_opCollisionMesh;	// 当たり判定
 	private:
 		// コピー禁止

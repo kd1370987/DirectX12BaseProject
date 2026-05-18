@@ -156,22 +156,21 @@ bool Engine::Collision::Ray::VSMesh(
 )
 {
 	// 判定を持っているかどうか
-	if (!a_pMesh->HasCollision())return false;
+	//if (!a_pMesh->HasCollision())return false;
+	if (!a_pMesh->HasCollisionMesh())return false;
 
 	// 当たり判定メッシュ取得
-	const Engine::Collision::Mesh& _collisionMesh = a_pMesh->GetCollision();
+	//const Engine::Collision::Mesh& _collisionMesh = a_pMesh->GetCollision();
+	const auto& _collisionMesh = a_pMesh->GetCollisionMesh();
 
 	// レイをモデル空間にするためにワールド行列の逆行列を作る
 	DirectX::XMVECTOR _errVec;
 	DirectX::XMMATRIX _world = DirectX::XMLoadFloat4x4(&a_worldMat);
-	DirectX::XMMATRIX _invWorld = DirectX::XMMatrixInverse(&_errVec,_world);			// 逆ワールド行列
-	DirectX::XMMATRIX _invTrans = DirectX::XMMatrixTranspose(_invWorld);			// 逆行列座標
+	DirectX::XMMATRIX _invWorld = DirectX::XMMatrixInverse(&_errVec,_world);	// 逆ワールド行列
 	if (DirectX::XMVectorGetX(_errVec) == 0.0f)
 	{
 		return false;
 	}
-
-
 
 	// レイをモデル空間に変更
 	DirectX::XMVECTOR _rayOrigin = DirectX::XMLoadFloat3(&a_rayInfo.origin);
@@ -186,6 +185,13 @@ bool Engine::Collision::Ray::VSMesh(
 	DirectX::XMStoreFloat3(&_localRay.direction,_direction);
 	_localRay.maxDistance = a_rayInfo.maxDistance;
 
+	//----------------------------------------------------------------------------------------------------
+	// BVHトラバーサルの開始
+	//----------------------------------------------------------------------------------------------------
+
+	// 固定長配列による簡易スタック(再帰呼び出しのオーバーヘッドとメモリ確保を防ぐ)
+	int _nodeStack[64];
+	int _stackTop = 0;
 
 	// ローカル結果
 	Result _localRes = {};

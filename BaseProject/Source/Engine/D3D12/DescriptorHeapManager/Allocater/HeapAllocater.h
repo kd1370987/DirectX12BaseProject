@@ -58,7 +58,6 @@ namespace Engine::D3D12
 		_handle.idx += m_startIndex;					// ヒープ本体のインデックスとして記録
 
 		// CPUハンドルを取得する処理
-		//D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = m_pHeap->GetCPU(m_startIndex + static_cast<UINT>(_handle.idx));
 		D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = m_pHeap->GetCPU(static_cast<UINT>(_handle.idx));
 
 		// ビュー作成

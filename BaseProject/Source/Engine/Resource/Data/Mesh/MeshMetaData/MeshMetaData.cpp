@@ -1,4 +1,5 @@
 ﻿#include "MeshMetaData.h"
+
 namespace Engine::Resource
 {
 	void MeshMetaData::Create(

@@ -1029,6 +1029,10 @@ void CreateNodes(
 				// 頂点配列作成
 				std::vector<Engine::Resource::MeshVertexFloat> _vertices = {};
 				_vertices.resize(_node.nodeMesh.vertices.size());
+
+				std::vector<DirectX::XMFLOAT3> _collisionVertices;
+				_collisionVertices.resize(_node.nodeMesh.vertices.size());
+
 				for (size_t _j = 0; _j < _node.nodeMesh.vertices.size(); ++_j)
 				{
 					Engine::Resource::MeshVertexFloat _dstVertex = {};
@@ -1049,10 +1053,23 @@ void CreateNodes(
 					_dstVertex.skinWeightList = _node.nodeMesh.vertices[_j].skinWeightList;
 
 					_vertices[_j] = _dstVertex;
+
+					_collisionVertices[_j] = _node.nodeMesh.vertices[_j].pos;
 				}
 				a_dst.upMeshVec[_meshIdx]->CreateCollision(
 					_vertices,
 					_node.nodeMesh.faces
+				);
+				std::vector<UINT> _indices = {};
+				for (auto& _f : _node.nodeMesh.faces)
+				{
+					_indices.push_back(_f.idx[0]);
+					_indices.push_back(_f.idx[1]);
+					_indices.push_back(_f.idx[2]);
+				}
+				a_dst.upMeshVec[_meshIdx]->CreateCollisionMesh(
+					_collisionVertices,
+					_indices
 				);
 			}
 		}

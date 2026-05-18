@@ -1209,6 +1209,9 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.cpp">
+      <Filter>Source\Engine\Resource\Data\Mesh\CollisionMesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -1882,6 +1885,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.h">
+      <Filter>Source\Engine\Resource\Data\Mesh\CollisionMesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

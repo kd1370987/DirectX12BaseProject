@@ -426,7 +426,6 @@ namespace Engine::Graphics
 
 	void RenderContext::ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle)
 	{
-		//auto& _tex = Resource::TextureManager::Instance().RefTexture(a_texHandle);
 		auto* _tex = Resource::ResourceManager::Instance().Ref(a_texHandle);
 
 		// もしテクスチャのステートがレンダーターゲットでなければリターン

@@ -76,6 +76,12 @@ void Engine::Resource::Mesh::CreateRtData(ID3D12Device* a_pDevice, D3D12::Comman
 	_rtData.Create(a_pDevice,a_pCmdList,a_subset,a_vertexBuffer,a_vertexFarstFormat,a_indexBuffer,a_vertices,a_face);
 }
 
+void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<DirectX::XMFLOAT3>& a_vertices, const std::vector<UINT>& a_indices)
+{
+	auto& _collMesh = m_opCollMesh.emplace();
+	_collMesh.Create(a_vertices,a_indices);
+}
+
 void Engine::Resource::Mesh::CreateCollision(
 	const std::vector<MeshVertexFloat>& a_vertices,
 	const std::vector<MeshFace>& a_face
