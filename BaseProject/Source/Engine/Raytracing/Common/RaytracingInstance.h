@@ -45,7 +45,6 @@ namespace Engine::Raytracing
 
 		// マテリアル
 		//const Engine::Resource::Material* pMaterial = nullptr;
-		UINT startMaterialIndex = 0;
 		std::vector<Material> submeshMaterial = {};
 
 		// メッシュ

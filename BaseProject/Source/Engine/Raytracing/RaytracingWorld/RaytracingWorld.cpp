@@ -29,8 +29,6 @@ namespace Engine::Raytracing
 		auto* _model = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
 		if (!_model) return;
 
-		UINT _materialOffset = 0;
-
 		auto& _nodes = _model->GetOriginalNodeVec();
 		for (auto& _node : _nodes)		// ノードループ
 		{
@@ -49,7 +47,6 @@ namespace Engine::Raytracing
 				_rayInst.pBLAS = &_pMesh->GetRtData().blas;
 				_rayInst.vertexHandle = _pMesh->GetRtData().structuredVertexBuffer.GetSRVHandle();
 				_rayInst.indexHandle = _pMesh->GetRtData().structuredIndexBuffer.GetSRVHandle();
-				_rayInst.startMaterialIndex = _materialOffset;
 				for (auto& _subset : _pMesh->GetMetaData().subsets)
 				{
 					auto* _pMate = _model->GetMaterialVec()[_subset.materialNumber].get();
@@ -60,7 +57,7 @@ namespace Engine::Raytracing
 					_mat.metallic = _pMate->metallic;
 					_mat.roughness = _pMate->roughness;
 					_mat.emissive = _pMate->emissive;
-					_mat.startIndexLocation = _subset.faceStart;
+					_mat.startIndexLocation = _subset.faceStart * 3;
 					const auto* _Btex = Engine::Resource::ResourceManager::Instance().Get(_pMate->baseColorTex);
 					_mat.baseIndex = _Btex->GetSRV().idx + 100;
 					const auto* _Mtex = Engine::Resource::ResourceManager::Instance().Get(_pMate->metaRoughTex);
@@ -72,7 +69,6 @@ namespace Engine::Raytracing
 
 					_rayInst.submeshMaterial.push_back(_mat);
 				}
-				_materialOffset += _rayInst.submeshMaterial.size();
 				_rayInst.pMesh = _pMesh;
 				m_instanceVec.emplace_back(_rayInst);
 			}
@@ -122,36 +118,27 @@ namespace Engine::Raytracing
 		// TLAS更新
 		m_upTLAS->Update(m_instanceVec);
 
+		UINT _materialOffset = 0;
 		// 構造体バッファ更新
 		m_instanceDataVec = {};
+		m_materialVec = {};
 		for (auto& _instance : m_instanceVec)
 		{
 			InstanceData _data = {};
 			_data.vertexSRVIndex = _instance.vertexHandle.idx + 100;
 			_data.indexSRVIndex = _instance.indexHandle.idx + 100;
-			_data.materialOffset = _instance.startMaterialIndex;
+			_data.materialOffset = _materialOffset;
 			m_instanceDataVec.push_back(_data);
-		}
-		m_instanceDataBuffer.UpdateData((void*)m_instanceDataVec.data(), m_instanceDataVec.size() * sizeof(InstanceData));
 
-		m_materialVec = {};
-		for (auto& _instance : m_instanceVec)
-		{
-			//Material _mate = {};
-			//_mate.baseColor = _instance.pMaterial->baseColor;
-			//_mate.metallic = _instance.pMaterial->metallic;
-			//_mate.roughness = _instance.pMaterial->roughness;
-			//_mate.emissive = _instance.pMaterial->emissive;
-
-			//// マテリアルのインデックス取得
-			//const auto* _tex = Engine::Resource::ResourceManager::Instance().Get(_instance.pMaterial->baseColorTex);
-			//_mate.baseIndex = _tex->GetSRV().idx + 100;
-
+			// オフセット更新
 			for (auto& _mate : _instance.submeshMaterial)
 			{
 				m_materialVec.push_back(_mate);
+				_materialOffset++;
 			}
+			
 		}
+		m_instanceDataBuffer.UpdateData((void*)m_instanceDataVec.data(), m_instanceDataVec.size() * sizeof(InstanceData));
 		m_materialDataBuffer.UpdateData((void*)m_materialVec.data(), m_materialVec.size() * sizeof(Material));
 		m_instanceDataBuffer.Update(*_pCmdList);
 		m_materialDataBuffer.Update(*_pCmdList);

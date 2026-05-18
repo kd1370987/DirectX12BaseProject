@@ -269,8 +269,8 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	
 	// 💡 各種IDとデータの取得
 	uint instID = InstanceID();
+	uint geomID = GeometryIndex(); //当たったサブメッシュ番号
 	uint primID = PrimitiveIndex();
-	uint geomID = GeometryIndex();	//当たったサブメッシュ番号
 
 	// データを配列から取得
 	InstanceData instance = g_instanceData[instID];							// インスタンス情報
@@ -302,9 +302,9 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float dist = RayTCurrent();
 	float lod = clamp(log2(dist * 0.5), 0, 5);
 	
-	// 💡 【重要】テクスチャをメインヒープのインデックスから直接サンプリング
-	Texture2D albedoTex = ResourceDescriptorHeap[_material.baseIndex + 0];
-	Texture2D metaRogTex = ResourceDescriptorHeap[_material.baseIndex + 1];
+	// テクスチャをメインヒープのインデックスから直接サンプリング
+	Texture2D albedoTex = ResourceDescriptorHeap[_material.baseIndex];
+	Texture2D metaRogTex = ResourceDescriptorHeap[_material.metaRoughnessIndex];
 
 	float _reflectRate = metaRogTex.SampleLevel(gSamp, _uv, lod).b * _material.metallic;
 	float3 _color = albedoTex.SampleLevel(gSamp, _uv, lod).rgb;
