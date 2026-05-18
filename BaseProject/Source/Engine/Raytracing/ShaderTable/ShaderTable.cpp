@@ -67,16 +67,12 @@ void Engine::Raytracing::ShaderTable::CommitInstance(const std::vector<Instance>
 	}
 
 	// ヒットシェーダーのデータ
-	//for (size_t _i = 0; _i < a_instanceVec.size(); ++_i)
+	
+	for (size_t _h = 0; _h < m_hitIDVec.size(); ++_h)
 	{
-		for (size_t _h = 0; _h < m_hitIDVec.size(); ++_h)
-		{
-			assert(m_hitIDVec[_h]);
-			//auto& _instance = a_instanceVec[_i];											// インスタンス取得
-			//uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_i * m_hitIDVec.size() + _h) * m_recordSize;
-			uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_h * m_recordSize);
-			memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-		}
+		assert(m_hitIDVec[_h]);
+		uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_h * m_recordSize);
+		memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 	}
 
 	m_dispatchDesc = CreateDispatchDesc(a_instanceVec.size());
@@ -97,17 +93,12 @@ void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(const std::vector<I
 		memcpy(_missPtr, m_missIDVec[_i], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 	}
 
-	// ヒットシェーダーのデータ
-	//for (size_t _i = 0; _i < a_instanceVec.size(); ++_i)
+	// ヒットシェーダー
+	for (size_t _h = 0; _h < m_hitIDVec.size(); ++_h)
 	{
-		for (size_t _h = 0; _h < m_hitIDVec.size(); ++_h)
-		{
-			assert(m_hitIDVec[_h]);
-			//auto& _instance = a_instanceVec[_i];											// インスタンス取得
-			//uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_i * m_hitIDVec.size() + _h) * m_recordSize;
-			uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_h * m_recordSize);
-			memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-		}
+		assert(m_hitIDVec[_h]);
+		uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_h * m_recordSize);
+		memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 	}
 
 	m_dispatchDesc = CreateDispatchDesc(a_instanceVec.size());
