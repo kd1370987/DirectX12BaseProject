@@ -82,35 +82,4 @@ void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<DirectX::XMFL
 	_collMesh.Create(a_vertices,a_indices);
 }
 
-void Engine::Resource::Mesh::CreateCollision(
-	const std::vector<MeshVertexFloat>& a_vertices,
-	const std::vector<MeshFace>& a_face
-)
-{
-	//------------------------------
-	// 座標のみの配列
-	//------------------------------
-	std::vector<DirectX::XMFLOAT3> _posVec = {};
-	_posVec.resize(a_vertices.size());			// サイズ確保
-	for (size_t _i = 0; _i < a_vertices.size(); ++_i)
-	{
-		_posVec[_i] = a_vertices[_i].pos;
-	}
-
-	std::vector<DirectX::XMFLOAT3> _idxVec;
-	_idxVec.resize(a_face.size());
-	for(int _i = 0; _i < a_face.size(); ++_i)
-	{
-		_idxVec[_i].x = a_face[_i].idx[0];
-		_idxVec[_i].y = a_face[_i].idx[1];
-		_idxVec[_i].z = a_face[_i].idx[2];
-	}
-	
-	// 生成
-	m_opCollisionMesh = Engine::Collision::CreateMesh(
-		_posVec,
-		_idxVec
-	);
-}
-
 

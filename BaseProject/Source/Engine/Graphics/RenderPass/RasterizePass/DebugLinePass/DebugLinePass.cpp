@@ -8,6 +8,7 @@ namespace Engine::Graphics
 {
 	void DebugLinePass::Excute(RenderContext* a_pCtx)
 	{
+		Editor::MainEditor::Instance().StartWatch("DebugLineDraw");
 		Begine(a_pCtx);
 		a_pCtx->BindCameraCB();
 
@@ -26,6 +27,7 @@ namespace Engine::Graphics
 		a_pCtx->ShapeDraw();
 
 		End(a_pCtx);
+		Editor::MainEditor::Instance().EndWatch("DebugLineDraw");
 	}
 
 	void DebugLinePass::CreatePass()

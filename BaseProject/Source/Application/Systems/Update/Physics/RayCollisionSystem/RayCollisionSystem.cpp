@@ -22,6 +22,7 @@ void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 		Engine::ECS::WriteList<TransformComponent>{},
 		[&a_world](float a_dt)
 		{
+			Engine::Editor::MainEditor::Instance().StartWatch("RayCollTask");
 			// レイコライダー取得
 			std::vector<RayColliderView> _rayColliderViewVec;
 			Gather::GatherRayColliderViews(a_world, _rayColliderViewVec);
@@ -39,6 +40,7 @@ void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 					_ray.pTRS->pos = _result.hitPos;
 				}
 			};
+			Engine::Editor::MainEditor::Instance().EndWatch("RayCollTask");
 		}
 	);
 }

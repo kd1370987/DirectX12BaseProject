@@ -193,64 +193,144 @@ bool Engine::Collision::Ray::VSMesh(
 	int _nodeStack[64];
 	int _stackTop = 0;
 
-	// ローカル結果
-	Result _localRes = {};
+	// ルートノードをスタックに積む
+	_nodeStack[_stackTop++] = _collisionMesh.rootNodeIndex;
 
 	// メッシュ全体と当たっているかどうか
 	bool _isHit = false;
-	float _dist = 0.0f;
-	if (_collisionMesh.localAABB.Intersects(_rayOrigin, _direction, _dist))
+	float _closestDist = a_rayInfo.maxDistance;			// これまでに見つかったもっとも近い距離
+	Result _localRes = {};
+
+	while (_stackTop > 0)
 	{
-		// メッシュのグリッドと判定
-		for (auto& _cell : _collisionMesh.grid.cellVec)
+		// スタックから次のノードを取り出す
+		int _currentNodeIdx = _nodeStack[--_stackTop];
+		const auto& _node = _collisionMesh.nodeVec[_currentNodeIdx];
+
+		float _boxDist = 0.0f;
+
+		// レイがノードのAABBと交差しているかチェック
+		if (_node.box.Intersects(_rayOrigin, _direction, _boxDist))
 		{
-			// セルボックスと判定
-			if (_cell.box.Intersects(_rayOrigin, _direction, _dist))
+			// もしAABBとの接触距離が、すでに判明している最接近ポリゴンの距離
+			// よりも遠い場合は、このノードの子供を探す
+			if (_boxDist > _closestDist) continue;
+
+			// 葉ノードの場合 : 中にあるポリゴンと細密判定
+			if (_node.leftChild == -1 && _node.rightChild == -1)
 			{
-				// セル内のポリゴンとの判定
-				for (auto& _idx : _cell.triangleVec)
+				for (int _i = 0; _i < _node.triangleCount; ++_i)
 				{
-					auto& _triangle = _collisionMesh.triangleVec[_idx];
-					if (_cell.box.Intersects(_rayOrigin, _direction, _dist))
+					// 元のポリゴンインデックスを取得
+					int _triIdx = _collisionMesh.triangleIndiccesVec[_node.triangleStart + _i];
+					const auto& _triangle = _collisionMesh.triangleVec[_triIdx];
+
+					DXSM::Vector3 _vec0 = _triangle.v[0];
+					DXSM::Vector3 _vec1 = _triangle.v[1];
+					DXSM::Vector3 _vec2 = _triangle.v[2];
+
+					float _triDist = 0.0f;
+					if (Collider::RayVsMesh(_localRay, _vec0, _vec1, _vec2, _triDist))
 					{
-						// ポリゴンボックスとヒットしたら、ポリゴンと判定
-						DirectX::XMVECTOR _vec0 = DirectX::XMLoadFloat3(&_triangle.v[0]);
-						DirectX::XMVECTOR _vec1 = DirectX::XMLoadFloat3(&_triangle.v[1]);
-						DirectX::XMVECTOR _vec2 = DirectX::XMLoadFloat3(&_triangle.v[2]);
-						if (Collider::RayVsMesh(_localRay, _vec0, _vec1, _vec2, _dist))
+						// 今回当たったポリゴンが、今まで一番手前にあるかチェック
+						if (_triDist < _closestDist)
 						{
-							// ポリゴンとヒットしていたらデータを入れる
-							if (_dist > _localRes.hitDistance)
-							{
-								_localRes.isHit = true;
-								_localRes.hitDistance = _dist;
-								_localRes.hitPos.x = _localRay.origin.x + _localRay.direction.x * _dist;
-								_localRes.hitPos.y = _localRay.origin.y + _localRay.direction.y * _dist;
-								_localRes.hitPos.z = _localRay.origin.z + _localRay.direction.z * _dist;
-							}
+							_closestDist = _triDist;	// 最接近距離を更新
 							_isHit = true;
+
+							_localRes.isHit = true;
+							_localRes.hitDistance = _triDist;
+							_localRes.hitPos.x = _localRay.origin.x + _localRay.direction.x * _triDist;
+							_localRes.hitPos.y = _localRay.origin.y + _localRay.direction.y * _triDist;
+							_localRes.hitPos.z = _localRay.origin.z + _localRay.direction.z * _triDist;
 						}
 					}
 				}
 			}
-			if (_isHit)
+			else
 			{
-				// ローカル空間からワールド空間へ戻す
-				DirectX::XMVECTOR _hitLocal = DirectX::XMLoadFloat3(&_localRes.hitPos);
-				DirectX::XMVECTOR _hitWorld = DirectX::XMVector3TransformCoord(_hitLocal,_world);
-				DirectX::XMStoreFloat3(&a_outResult.hitPos, _hitWorld);
-
-				// ワールド距離を戻す
-				DirectX::XMVECTOR _rayOriginWorld = DirectX::XMLoadFloat3(&a_rayInfo.origin);
-				DirectX::XMVECTOR _diff = DirectX::XMVectorSubtract(_hitWorld,_rayOriginWorld);
-				float _worldDist = DirectX::XMVectorGetX(DirectX::XMVector3Length(_diff));
-
-				a_outResult.hitDistance = _worldDist;
-				a_outResult.isHit = true;
-				return true;
+				// 枝ノードの場合左右の子ノードをスタックに積んでさらに掘り下げる
+				// スタックオーバーフロー防止
+				if (_stackTop < 62)
+				{
+					_nodeStack[_stackTop++] = _node.leftChild;
+					_nodeStack[_stackTop++] = _node.rightChild;
+				}
 			}
 		}
 	}
-	
+
+	// 一つでもヒットしていたら、最終的な最接近点をワールド空間に変換して返す
+	if (_isHit)
+	{
+		// ローカル空間からワールド空間へ戻す
+		DirectX::XMVECTOR _hitLocal = DirectX::XMLoadFloat3(&_localRes.hitPos);
+		DirectX::XMVECTOR _hitWorld = DirectX::XMVector3TransformCoord(_hitLocal, _world);
+		DirectX::XMStoreFloat3(&a_outResult.hitPos, _hitWorld);
+
+		// ワールド距離を戻す
+		DirectX::XMVECTOR _rayOriginWorld = DirectX::XMLoadFloat3(&a_rayInfo.origin);
+		DirectX::XMVECTOR _diff = DirectX::XMVectorSubtract(_hitWorld, _rayOriginWorld);
+		float _worldDist = DirectX::XMVectorGetX(DirectX::XMVector3Length(_diff));
+
+		a_outResult.hitDistance = _worldDist;
+		a_outResult.isHit = true;
+		return true;
+	}
 	return false;
+
+	//if (_collisionMesh.localAABB.Intersects(_rayOrigin, _direction, _dist))
+	//{
+	//	// メッシュのグリッドと判定
+	//	for (auto& _cell : _collisionMesh.grid.cellVec)
+	//	{
+	//		// セルボックスと判定
+	//		if (_cell.box.Intersects(_rayOrigin, _direction, _dist))
+	//		{
+	//			// セル内のポリゴンとの判定
+	//			for (auto& _idx : _cell.triangleVec)
+	//			{
+	//				auto& _triangle = _collisionMesh.triangleVec[_idx];
+	//				if (_cell.box.Intersects(_rayOrigin, _direction, _dist))
+	//				{
+	//					// ポリゴンボックスとヒットしたら、ポリゴンと判定
+	//					DirectX::XMVECTOR _vec0 = DirectX::XMLoadFloat3(&_triangle.v[0]);
+	//					DirectX::XMVECTOR _vec1 = DirectX::XMLoadFloat3(&_triangle.v[1]);
+	//					DirectX::XMVECTOR _vec2 = DirectX::XMLoadFloat3(&_triangle.v[2]);
+	//					if (Collider::RayVsMesh(_localRay, _vec0, _vec1, _vec2, _dist))
+	//					{
+	//						// ポリゴンとヒットしていたらデータを入れる
+	//						if (_dist > _localRes.hitDistance)
+	//						{
+	//							_localRes.isHit = true;
+	//							_localRes.hitDistance = _dist;
+	//							_localRes.hitPos.x = _localRay.origin.x + _localRay.direction.x * _dist;
+	//							_localRes.hitPos.y = _localRay.origin.y + _localRay.direction.y * _dist;
+	//							_localRes.hitPos.z = _localRay.origin.z + _localRay.direction.z * _dist;
+	//						}
+	//						_isHit = true;
+	//					}
+	//				}
+	//			}
+	//		}
+	//		if (_isHit)
+	//		{
+	//			// ローカル空間からワールド空間へ戻す
+	//			DirectX::XMVECTOR _hitLocal = DirectX::XMLoadFloat3(&_localRes.hitPos);
+	//			DirectX::XMVECTOR _hitWorld = DirectX::XMVector3TransformCoord(_hitLocal,_world);
+	//			DirectX::XMStoreFloat3(&a_outResult.hitPos, _hitWorld);
+
+	//			// ワールド距離を戻す
+	//			DirectX::XMVECTOR _rayOriginWorld = DirectX::XMLoadFloat3(&a_rayInfo.origin);
+	//			DirectX::XMVECTOR _diff = DirectX::XMVectorSubtract(_hitWorld,_rayOriginWorld);
+	//			float _worldDist = DirectX::XMVectorGetX(DirectX::XMVector3Length(_diff));
+
+	//			a_outResult.hitDistance = _worldDist;
+	//			a_outResult.isHit = true;
+	//			return true;
+	//		}
+	//	}
+	//}
+	//
+	//return false;
 }

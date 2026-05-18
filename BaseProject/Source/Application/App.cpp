@@ -74,6 +74,8 @@ void Application::MainLoop()
 {
 	while (true)
 	{
+		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop");
+		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop_Updatea");
 		// フレーム開始
 		if (!Engine::MainEngine::Instance().BegineFrame())
 		{
@@ -93,7 +95,9 @@ void Application::MainLoop()
 
 		// 更新
 		SceneManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
+		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop_Updatea");
 
+		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop_Draw");
 		// 描画
 		Engine::MainEngine::Instance().BeginDraw();				// 描画開始
 		{
@@ -104,6 +108,8 @@ void Application::MainLoop()
 
 		// フレーム終了
 		Engine::MainEngine::Instance().EndFrame();
+		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop_Draw");
+		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop");
 	}
 }
 

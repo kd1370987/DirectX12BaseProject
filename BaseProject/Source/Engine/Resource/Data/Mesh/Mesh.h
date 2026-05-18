@@ -59,12 +59,6 @@ namespace Engine::Resource
 			const std::vector<UINT>& a_indices
 		);
 
-		// 静的な当たり判定データ作成
-		void CreateCollision(
-			const std::vector<MeshVertexFloat>& a_vertices,
-			const std::vector<MeshFace>& a_face
-		);
-
 		//=================================================
 		// アクセサ
 		//=================================================
@@ -80,9 +74,6 @@ namespace Engine::Resource
 		bool HasCollisionMesh() const { return m_opCollMesh.has_value(); };				// 当たり判定を持っているかどうか
 		const CollisionMesh& GetCollisionMesh()const { return m_opCollMesh.value(); }	// 当たり判定取得
 
-		//bool HasCollision() const { return m_opCollisionMesh.has_value(); };				// 当たり判定を持っているかどうか
-		//const Engine::Collision::Mesh& GetCollision()const { return *m_opCollisionMesh; }	// 当たり判定取得
-
 	private:
 
 		// メッシュメタデータ
@@ -93,7 +84,6 @@ namespace Engine::Resource
 		std::optional<RaytracingMesh>			m_opRtData;			// レイトレデータ
 		std::optional<CollisionMesh>			m_opCollMesh;		// 当たり判定
 
-		std::optional<Engine::Collision::Mesh>	m_opCollisionMesh;	// 当たり判定
 	private:
 		// コピー禁止
 		Mesh(const Mesh& src) = delete;

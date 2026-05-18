@@ -420,7 +420,6 @@ namespace Engine::Graphics
 
 	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandleBindLess(Resource::Handle<D3D12::SRV> a_handle)
 	{
-		//return m_bindLessHeap.GetGPU(a_handle.idx + 100);
 		return m_bindLessHeap.GetGPU(a_handle.idx);
 	}
 
@@ -768,8 +767,7 @@ namespace Engine::Graphics
 
 		// フレーム頂点バッファ更新
 		UINT _vertexCount = static_cast<UINT>(m_pShapeDraw->GetVertexVec().size());
-		//m_shapeVertexBuffer.Update(_vertexCount,m_pShapeDraw->GetVertexVec().data());
-		m_shapeVertexBuffer.Map((void**)m_pShapeDraw->GetVertexVec().data());
+		m_shapeVertexBuffer.UpdateData(m_pShapeDraw->GetVertexVec().data(),m_pShapeDraw->GetVertexVec().size() * m_shapeVertexBuffer.GetStrideSize());
 
 
 		// 頂点バッファ送信

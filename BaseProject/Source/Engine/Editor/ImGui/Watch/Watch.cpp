@@ -38,7 +38,15 @@ namespace Engine::Editor
 			ImGui::Text("Min : %.3f", m_minTime);
 			ImGui::Text("Max : %.3f", m_maxTime);
 
-
+			ImGui::Separator();
+			if (ImGui::Button("Clear"))
+			{
+				m_calcTime = 0;
+				m_matchTime = 0;
+				m_count = 0;
+				m_minTime = 0;
+				m_maxTime = 0;
+			}
 		}
 		ImGui::End();
 	}
