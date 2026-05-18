@@ -125,14 +125,11 @@ void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec
 {
 	ID3D12GraphicsCommandList4* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 
-	// SBTの累積オフセットカウンター
-	UINT _sbtOffsetAccumulator = 0;
-
 	// インスタンスバッファ構造体更新
 	for (int _i = 0; _i < a_instanceVec.size(); ++_i)
 	{
 		m_pInstanceDesc[_i].InstanceID = _i;
-		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = _sbtOffsetAccumulator;
+		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = 0;
 		m_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 		m_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
 		auto& m = a_instanceVec[_i].worldMat;
@@ -153,10 +150,6 @@ void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec
 		m_pInstanceDesc[_i].Transform[2][3] = m._43;
 
 		m_pInstanceDesc[_i].InstanceMask = 0xFF;
-
-		// オフセット値の進行
-		UINT _submeshCount = a_instanceVec[_i].pBLAS->GetSubsetCount();
-		_sbtOffsetAccumulator += _submeshCount * m_hitGroupNum;
 	}
 
 	// インプット情報

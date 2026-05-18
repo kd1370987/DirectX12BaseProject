@@ -67,13 +67,14 @@ void Engine::Raytracing::ShaderTable::CommitInstance(const std::vector<Instance>
 	}
 
 	// ヒットシェーダーのデータ
-	for (size_t _i = 0; _i < a_instanceVec.size(); ++_i)
+	//for (size_t _i = 0; _i < a_instanceVec.size(); ++_i)
 	{
 		for (size_t _h = 0; _h < m_hitIDVec.size(); ++_h)
 		{
 			assert(m_hitIDVec[_h]);
-			auto& _instance = a_instanceVec[_i];											// インスタンス取得
-			uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_i * m_hitIDVec.size() + _h) * m_recordSize;
+			//auto& _instance = a_instanceVec[_i];											// インスタンス取得
+			//uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_i * m_hitIDVec.size() + _h) * m_recordSize;
+			uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_h * m_recordSize);
 			memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 		}
 	}
@@ -97,19 +98,15 @@ void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(const std::vector<I
 	}
 
 	// ヒットシェーダーのデータ
-	for (size_t _i = 0; _i < a_instanceVec.size(); ++_i)
+	//for (size_t _i = 0; _i < a_instanceVec.size(); ++_i)
 	{
 		for (size_t _h = 0; _h < m_hitIDVec.size(); ++_h)
 		{
 			assert(m_hitIDVec[_h]);
-			auto& _instance = a_instanceVec[_i];											// インスタンス取得
-			uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_i * m_hitIDVec.size() + _h) * m_recordSize;
+			//auto& _instance = a_instanceVec[_i];											// インスタンス取得
+			//uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_i * m_hitIDVec.size() + _h) * m_recordSize;
+			uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_h * m_recordSize);
 			memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-			// ハンドル格納先ポインタアドレス
-			auto* _handles = reinterpret_cast<D3D12_GPU_DESCRIPTOR_HANDLE*>(_hitPtr + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-			//_handles[0] = GetTextureGPUHandle(_instance.pMaterial, a_pRCT);
-			//_handles[1] = a_pRCT->GetGPUHandle(D3D12::DescriptorHeapManager::Instance().GetCPU(_instance.indexHandle));
-			//_handles[2] = a_pRCT->GetGPUHandle(D3D12::DescriptorHeapManager::Instance().GetCPU(_instance.vertexHandle));
 		}
 	}
 
@@ -135,7 +132,7 @@ D3D12_DISPATCH_RAYS_DESC Engine::Raytracing::ShaderTable::CreateDispatchDesc(UIN
 	_dispatchDesc.MissShaderTable.StrideInBytes = m_recordSize;
 
 	_dispatchDesc.HitGroupTable.StartAddress = _base + m_hitOffset;
-	_dispatchDesc.HitGroupTable.SizeInBytes = m_recordSize * a_instnaceNum * (UINT)m_hitIDVec.size();
+	_dispatchDesc.HitGroupTable.SizeInBytes = m_recordSize * (UINT)m_hitIDVec.size();
 	_dispatchDesc.HitGroupTable.StrideInBytes = m_recordSize;
 
 	// ディスプレイ設定
@@ -175,7 +172,8 @@ void Engine::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_instanceNum)
 	
 	m_hitOffset = _offset;
 	_offset = Alignment::Up(
-		_offset + m_recordSize * a_instanceNum * m_hitIDVec.size(),
+		//_offset + m_recordSize * a_instanceNum * m_hitIDVec.size(),
+		_offset + m_recordSize * m_hitIDVec.size(),
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
 	);
 
@@ -219,16 +217,11 @@ void Engine::Raytracing::ShaderTable::CalucShaderNum(
 D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::ShaderTable::GetTextureGPUHandle(const Resource::Material* a_pMaterial, Graphics::RenderContext* a_pRCT)
 {
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuHandles = {};
-	//auto& _baseTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->baseColorTex);
 	const auto* _pBaseTex = Resource::ResourceManager::Instance().Get(a_pMaterial->baseColorTex);
-	//auto& _metaTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->metaRoughTex);
 	const auto* _pMetaTex = Resource::ResourceManager::Instance().Get(a_pMaterial->metaRoughTex);
-	//auto& _emiTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->emissiveTex);
 	const auto* _pEmiTex = Resource::ResourceManager::Instance().Get(a_pMaterial->emissiveTex);
-	//auto& _normalTex = Resource::TextureManager::Instance().GetTexture(a_pMaterial->normalTex);
 	const auto* _pNormalTex = Resource::ResourceManager::Instance().Get(a_pMaterial->normalTex);
-	
-	//_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_baseTex.GetSRV()));
+
 	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pBaseTex->GetSRV()));
 	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pMetaTex->GetSRV()));
 	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pEmiTex->GetSRV()));

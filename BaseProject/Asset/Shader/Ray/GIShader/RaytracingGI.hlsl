@@ -19,6 +19,7 @@ struct InstanceData
 
 	// このメッシュのマテリアル群がg_materialDataの何番目から始まるか
 	uint materialOffset;
+	uint pad;
 };
 
 // 頂点構造体
@@ -35,17 +36,17 @@ struct Vertex
 struct Material
 {
 	float4 baseColor;
-	float metallic;
-	float roughness;
 	float3 emissive;
-
+	float metallic;
+	
+	float roughness;
 	int baseIndex;
 	int metaRoughnessIndex;
 	int emissiveIndex;
+	
 	int normalIndex;
-
-	// このサブメッシュのインデックスバッファが何番目から始まるか
-	uint startIndexLocation;
+	uint startIndexLocation; // このサブメッシュのインデックスバッファが何番目から始まるか
+	float2 pad;
 };
 
 RaytracingAccelerationStructure g_raytracingWorld : register(t0);	// レイトレワールド
@@ -126,6 +127,7 @@ float3 GetNormal(BuiltInTriangleIntersectionAttributes a_attribs, float2 a_uv, I
 
 	// タンジェント空間からワールド空間に変換
 	_normal = _tangent * _binSpaceNormal.x + _binormal * _binSpaceNormal.y + _normal * _binSpaceNormal.z;
+	_normal = normalize(mul(_normal, (float3x3) WorldToObject3x4()));
 	return _normal;
 }
 
@@ -151,7 +153,7 @@ void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal)
 		0, // RayFlags
 		0xFF, // InstanceInclusionMask
 		1, // RayContributionToHitGroupIndex
-		2, // MultiplierForGeometryContributionToHitGroupIndex
+		0, // MultiplierForGeometryContributionToHitGroupIndex
 		1, // MissShaderIndex
 		_ray, // Ray
 		a_rayPayload // RayPayload
@@ -195,7 +197,7 @@ void TraceReflectionRay(inout RayPayload a_rayPayload, float3 a_normal)
 			0,
 			0xFF,
 			0,
-			2,
+			0,
 			0,
 			_ray,
 			_refPayload
@@ -237,7 +239,7 @@ void RayGen()
 		0,
 		0xFF,
 		0,
-		2,
+		0,
 		0,
 		_ray,
 		_payload
@@ -267,13 +269,13 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 {
 	a_payload.depth++;
 	
-	// 💡 各種IDとデータの取得
-	uint instID = InstanceID();
-	uint geomID = GeometryIndex(); //当たったサブメッシュ番号
-	uint primID = PrimitiveIndex();
+	// 各種IDとデータの取得
+	uint instID = InstanceID();		// インスタンス番号
+	uint geomID = GeometryIndex();	// 当たったサブメッシュ番号
+	uint primID = PrimitiveIndex();	// 当たったポリゴン番号
 
 	// データを配列から取得
-	InstanceData instance = g_instanceData[instID];							// インスタンス情報
+	InstanceData instance = g_instanceData[instID]; // インスタンス情報
 	Material _material = g_materialData[instance.materialOffset + geomID];	// サブメッシュマテリアル情報
 
 	// UV取得 (引数を追加)
