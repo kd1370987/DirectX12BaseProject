@@ -59,13 +59,13 @@ namespace Engine::Raytracing
 					_mat.emissive = _pMate->emissive;
 					_mat.startIndexLocation = _subset.faceStart * 3;
 					const auto* _Btex = Engine::Resource::ResourceManager::Instance().Get(_pMate->baseColorTex);
-					_mat.baseIndex = _Btex->GetSRV().idx + 100;
+					_mat.baseIndex = _Btex->GetSRV().idx;// +100;
 					const auto* _Mtex = Engine::Resource::ResourceManager::Instance().Get(_pMate->metaRoughTex);
-					_mat.metaRoughnessIndex = _Mtex->GetSRV().idx + 100;
+					_mat.metaRoughnessIndex = _Mtex->GetSRV().idx;// +100;
 					const auto* _Etex = Engine::Resource::ResourceManager::Instance().Get(_pMate->emissiveTex);
-					_mat.emissiveIndex = _Etex->GetSRV().idx + 100;
+					_mat.emissiveIndex = _Etex->GetSRV().idx;// +100;
 					const auto* _Ntex = Engine::Resource::ResourceManager::Instance().Get(_pMate->normalTex);
-					_mat.normalIndex = _Ntex->GetSRV().idx + 100;
+					_mat.normalIndex = _Ntex->GetSRV().idx;// +100;
 
 					_rayInst.submeshMaterial.push_back(_mat);
 				}
@@ -125,8 +125,8 @@ namespace Engine::Raytracing
 		for (auto& _instance : m_instanceVec)
 		{
 			InstanceData _data = {};
-			_data.vertexSRVIndex = _instance.vertexHandle.idx + 100;
-			_data.indexSRVIndex = _instance.indexHandle.idx + 100;
+			_data.vertexSRVIndex = _instance.vertexHandle.idx;// +100;
+			_data.indexSRVIndex = _instance.indexHandle.idx;// +100;
 			_data.materialOffset = _materialOffset;
 			m_instanceDataVec.push_back(_data);
 

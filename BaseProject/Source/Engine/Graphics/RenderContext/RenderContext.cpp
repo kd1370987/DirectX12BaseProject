@@ -361,7 +361,8 @@ namespace Engine::Graphics
 		auto _pCmd = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 		_pCmd->SetComputeRootDescriptorTable(
 			a_rootIdx,
-			m_bindLessHeap.GetGPU(a_handle.idx + 200)
+			//m_bindLessHeap.GetGPU(a_handle.idx + 200)
+			m_bindLessHeap.GetGPU(a_handle.idx)
 		);
 	}
 
@@ -419,7 +420,8 @@ namespace Engine::Graphics
 
 	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandleBindLess(Resource::Handle<D3D12::SRV> a_handle)
 	{
-		return m_bindLessHeap.GetGPU(a_handle.idx + 100);
+		//return m_bindLessHeap.GetGPU(a_handle.idx + 100);
+		return m_bindLessHeap.GetGPU(a_handle.idx);
 	}
 
 	void RenderContext::ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle)

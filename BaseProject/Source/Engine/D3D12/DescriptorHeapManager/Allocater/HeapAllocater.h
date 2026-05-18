@@ -55,9 +55,11 @@ namespace Engine::D3D12
 	{
 		// ハンドルをアロケート
 		auto _handle = m_handleStorage.Allocate();
+		_handle.idx += m_startIndex;					// ヒープ本体のインデックスとして記録
 
 		// CPUハンドルを取得する処理
-		D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = m_pHeap->GetCPU(m_startIndex + static_cast<UINT>(_handle.idx));
+		//D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = m_pHeap->GetCPU(m_startIndex + static_cast<UINT>(_handle.idx));
+		D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = m_pHeap->GetCPU(static_cast<UINT>(_handle.idx));
 
 		// ビュー作成
 		if constexpr (std::is_same_v<T, CBV>)
@@ -111,14 +113,19 @@ namespace Engine::D3D12
 	template<IsHeapType T>
 	inline void HeapAllocator<T>::Remove(Resource::Handle<T> a_handle)
 	{
-		m_handleStorage.Remove(a_handle);
+		// 戻してあげる
+		auto _handle = a_handle;
+		_handle.idx -= m_startIndex;
+		m_handleStorage.Remove(_handle);
 	}
 	template<IsHeapType T>
 	inline D3D12_CPU_DESCRIPTOR_HANDLE HeapAllocator<T>::GetCPU(const Resource::Handle<T>&a_handle) const
 	{
-		if (m_handleStorage.IsValid(a_handle))
+		auto _stHandle = a_handle;
+		_stHandle.idx -= m_startIndex;
+		if (m_handleStorage.IsValid(_stHandle))
 		{
-			UINT _idx = m_startIndex + a_handle.idx;
+			UINT _idx = a_handle.idx;
 			return m_pHeap->GetCPU(_idx);
 		}
 		return { 0 };
@@ -126,9 +133,11 @@ namespace Engine::D3D12
 	template<IsHeapType T>
 	inline D3D12_GPU_DESCRIPTOR_HANDLE HeapAllocator<T>::GetGPU(const Resource::Handle<T>& a_handle) const
 	{
-		if (m_handleStorage.IsValid(a_handle))
+		auto _stHandle = a_handle;
+		_stHandle.idx -= m_startIndex;
+		if (m_handleStorage.IsValid(_stHandle))
 		{
-			UINT _idx = m_startIndex + a_handle.idx;
+			UINT _idx = a_handle.idx;
 			return m_pHeap->GetGPU(_idx);
 		}
 		return { 0 };
