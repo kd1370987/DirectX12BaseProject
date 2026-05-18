@@ -8,16 +8,24 @@ namespace Engine::Raytracing
 	{
 		UINT vertexSRVIndex;
 		UINT indexSRVIndex;
+
+		UINT materialOffset;	// マテリアル配列での位置
 	};
 	// マテリアルSRVに対しての個別設定データ
+	// サブメッシュごとに設定
 	struct Material
 	{
-		DXSM::Vector4 baseColor = { 1,1,1,1 };
-		float						metallic = 0.0f;						// B : 金属製
-		float						roughness = 1.0f;						// G : 粗さ
-		DirectX::XMFLOAT3			emissive = { 1.0f,1.0f,1.0f };
+		DXSM::Vector4		baseColor = { 1,1,1,1 };
+		float				metallic = 0.0f;						// B : 金属製
+		float				roughness = 1.0f;						// G : 粗さ
+		DirectX::XMFLOAT3	emissive = { 1.0f,1.0f,1.0f };
 
 		int baseIndex = 0;
+		int metaRoughnessIndex = 0;
+		int emissiveIndex = 0;
+		int normalIndex = 0;
+
+		UINT startIndexLocation; // インデックスバッファの中の位置
 	};
 
 	struct Vertex
@@ -37,6 +45,7 @@ namespace Engine::Raytracing
 
 		// マテリアル
 		//const Engine::Resource::Material* pMaterial = nullptr;
+		UINT startMaterialIndex = 0;
 		std::vector<Material> submeshMaterial = {};
 
 		// メッシュ

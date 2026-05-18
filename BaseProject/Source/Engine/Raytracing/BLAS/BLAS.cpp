@@ -44,7 +44,6 @@ void Engine::Raytracing::BLAS::Create(const std::vector<D3D12_RAYTRACING_GEOMETR
 {
 	// BLAS生成
 	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
-	//auto* _pCmdList4 = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 	auto* _pCmdList4 = Resource::ResourceManager::Instance().GetCmdList()->Get4();
 	m_geometryDescVec.clear();
 	m_geometryDescVec = a_desc;

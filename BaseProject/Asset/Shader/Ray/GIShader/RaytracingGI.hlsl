@@ -16,6 +16,9 @@ struct InstanceData
 {
 	uint vertexIdx; // SRV
 	uint indexIdx; // SRV
+
+	// このメッシュのマテリアル群がg_materialDataの何番目から始まるか
+	uint materialOffset;
 };
 
 // 頂点構造体
@@ -37,6 +40,12 @@ struct Material
 	float3 emissive;
 
 	int baseIndex;
+	int metaRoughnessIndex;
+	int emissiveIndex;
+	int normalIndex;
+
+	// このサブメッシュのインデックスバッファが何番目から始まるか
+	uint startIndexLocation;
 };
 
 RaytracingAccelerationStructure g_raytracingWorld : register(t0);	// レイトレワールド
@@ -54,7 +63,7 @@ struct RayPayload
 };
 
 // UV座標を取得
-float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs, InstanceData instance, uint primID)
+float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs, InstanceData instance, uint primID,Material material)
 {
 	float3 _barycentrics = float3(1.0 - a_attribs.barycentrics.x - a_attribs.barycentrics.y, a_attribs.barycentrics.x, a_attribs.barycentrics.y);
 
@@ -62,10 +71,13 @@ float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs, InstanceData insta
 	StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
 	StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
 
+	// プリミティブIDではなくサブメッシュ番号を取得する
+	uint _baseIndexLocation = material.startIndexLocation + (primID * 3);
+
 	// プリミティブインデックスから頂点番号を取得
-	uint _v0 = indexBuff[primID * 3];
-	uint _v1 = indexBuff[primID * 3 + 1];
-	uint _v2 = indexBuff[primID * 3 + 2];
+	uint _v0 = indexBuff[_baseIndexLocation];
+	uint _v1 = indexBuff[_baseIndexLocation + 1];
+	uint _v2 = indexBuff[_baseIndexLocation + 2];
 
 	// UV取得
 	float2 _uv0 = vertexBuff[_v0].uv;
@@ -83,10 +95,13 @@ float3 GetNormal(BuiltInTriangleIntersectionAttributes a_attribs, float2 a_uv, I
 	// 同様にメインヒープから取得
 	StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
 	StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
-
-	uint _v0 = indexBuff[primID * 3];
-	uint _v1 = indexBuff[primID * 3 + 1];
-	uint _v2 = indexBuff[primID * 3 + 2];
+	
+	// プリミティブIDではなくサブメッシュ番号を取得する
+	uint _baseIndexLocation = material.startIndexLocation + (primID * 3);
+	
+	uint _v0 = indexBuff[_baseIndexLocation];
+	uint _v1 = indexBuff[_baseIndexLocation + 1];
+	uint _v2 = indexBuff[_baseIndexLocation + 2];
 	
 	// 法線取得
 	float3 _n0 = vertexBuff[_v0].normal;
@@ -105,7 +120,7 @@ float3 GetNormal(BuiltInTriangleIntersectionAttributes a_attribs, float2 a_uv, I
 
 	// 💡 【重要】法線マップもマテリアルに仕込んだベースインデックスから取得
 	// 例として、ベースインデックスから（Albedo=0, MetRog=1, Emi=2, Normal=3）の順でヒープに並んでいると仮定します
-	Texture2D normalTex = ResourceDescriptorHeap[material.baseIndex + 3];
+	Texture2D normalTex = ResourceDescriptorHeap[material.normalIndex];
 	float3 _binSpaceNormal = normalTex.SampleLevel(gSamp, a_uv, 0).rgb;
 	_binSpaceNormal = (_binSpaceNormal * 2.0f) - 1.0f;
 
@@ -255,11 +270,14 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	// 💡 各種IDとデータの取得
 	uint instID = InstanceID();
 	uint primID = PrimitiveIndex();
-	InstanceData instance = g_instanceData[instID];
-	Material _material = g_materialData[instID];
+	uint geomID = GeometryIndex();	//当たったサブメッシュ番号
+
+	// データを配列から取得
+	InstanceData instance = g_instanceData[instID];							// インスタンス情報
+	Material _material = g_materialData[instance.materialOffset + geomID];	// サブメッシュマテリアル情報
 
 	// UV取得 (引数を追加)
-	float2 _uv = GetUV(a_attr, instance, primID);
+	float2 _uv = GetUV(a_attr, instance, primID,_material);
 
 	// 法線取得 (引数を追加)
 	float3 _normal = GetNormal(a_attr, _uv, instance, primID, _material);
