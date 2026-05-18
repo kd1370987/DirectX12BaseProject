@@ -13,6 +13,7 @@ VSOutput vs(VSInput a_input)
 	float4 _projPos = mul(projMat,_viewPos);		// プロジェクション座標
 
 	_outPut.svPos = _projPos;
+	_outPut.color = a_input.color;
 	
 	return _outPut;
 }

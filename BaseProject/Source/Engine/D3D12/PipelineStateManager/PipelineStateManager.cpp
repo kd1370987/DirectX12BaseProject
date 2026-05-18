@@ -99,7 +99,12 @@ namespace Engine::D3D12
 
 		// キャッシュになければ、ComPtrを作成
 		ComPtr<ID3D12PipelineState> _pso;
-		m_pDevice->CreateGraphicsPipelineState(&a_desc.desc,IID_PPV_ARGS(&_pso));
+		auto _hr = m_pDevice->CreateGraphicsPipelineState(&a_desc.desc,IID_PPV_ARGS(&_pso));
+		if (FAILED(_hr))
+		{
+			assert(0 && "PSOの作成失敗");
+			return nullptr;
+		}
 
 		// 名前があれば
 		if (!a_desc.name.empty())

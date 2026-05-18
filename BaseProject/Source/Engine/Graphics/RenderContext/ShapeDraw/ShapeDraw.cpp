@@ -34,22 +34,22 @@ namespace Engine::Graphics
 
 		// LINELISTのため12本描画
 		// 下辺
-		Line(_verts[0], _verts[1]);
-		Line(_verts[1], _verts[3]);
-		Line(_verts[3], _verts[2]);
-		Line(_verts[2], _verts[0]);
+		Line(_verts[0], _verts[1], a_color);
+		Line(_verts[1], _verts[3], a_color);
+		Line(_verts[3], _verts[2], a_color);
+		Line(_verts[2], _verts[0], a_color);
 
 		// 上辺
-		Line(_verts[4], _verts[5]);
-		Line(_verts[5], _verts[7]);
-		Line(_verts[7], _verts[6]);
-		Line(_verts[6], _verts[4]);
+		Line(_verts[4], _verts[5], a_color);
+		Line(_verts[5], _verts[7], a_color);
+		Line(_verts[7], _verts[6], a_color);
+		Line(_verts[6], _verts[4], a_color);
 
 		// 縦辺
-		Line(_verts[0], _verts[4]);
-		Line(_verts[1], _verts[5]);
-		Line(_verts[2], _verts[6]);
-		Line(_verts[3], _verts[7]);
+		Line(_verts[0], _verts[4], a_color);
+		Line(_verts[1], _verts[5], a_color);
+		Line(_verts[2], _verts[6], a_color);
+		Line(_verts[3], _verts[7], a_color);
 	}
 
 	void ShapeRenderer::Sphere(

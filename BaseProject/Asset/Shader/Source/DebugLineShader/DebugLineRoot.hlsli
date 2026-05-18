@@ -33,6 +33,7 @@ cbuffer cbTransform : register(b1)
 struct VSInput
 {
 	float3 pos : POSITION;
+	float4 color : COLOR;
 };
 
 // アニメーション頂点シェーダー入力構造体
@@ -46,4 +47,5 @@ struct AnimationVSInput
 struct VSOutput
 {
 	float4 svPos : SV_Position;
+	float4 color : COLOR;
 };

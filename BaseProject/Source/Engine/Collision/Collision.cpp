@@ -2,6 +2,10 @@
 //#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
+#include "../MainEngine.h"
+#include "../Graphics/RenderContext/RenderContext.h"
+#include "../Graphics/RenderContext/ShapeDraw/ShapeDraw.h"
+
 #include "Application/Components/Collision/Collider.h"
 #include "Application/Components/Collision/RayCollider.h"
 #include "Application/Components/Collision/SphreCollider.h"
@@ -243,6 +247,18 @@ bool Engine::Collision::Ray::VSMesh(
 							_localRes.hitPos.x = _localRay.origin.x + _localRay.direction.x * _triDist;
 							_localRes.hitPos.y = _localRay.origin.y + _localRay.direction.y * _triDist;
 							_localRes.hitPos.z = _localRay.origin.z + _localRay.direction.z * _triDist;
+
+							auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
+							DirectX::XMVECTOR _hitLocal = DirectX::XMLoadFloat3(&_localRes.hitPos);
+							DirectX::XMVECTOR _hitWorld = DirectX::XMVector3TransformCoord(_hitLocal, _world);
+							auto _box = _node.box;
+							DirectX::XMStoreFloat3(&_box.Center, _hitWorld);
+							_pRCT->RefShapeDraw()->AABB(_box);
+							Editor::MainEditor::Instance().AddLog("Hit : %d\n",_node.triangleStart);
+							Editor::MainEditor::Instance().AddLog("pos :");
+							Editor::MainEditor::Instance().AddLog("%f,", _box.Center.x);
+							Editor::MainEditor::Instance().AddLog("%f,", _box.Center.y);
+							Editor::MainEditor::Instance().AddLog("%f\n", _box.Center.z);
 						}
 					}
 				}

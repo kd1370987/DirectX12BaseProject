@@ -75,15 +75,15 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 							{
 							case Engine::Resource::Alpha::Opaque:
 								_pRCT->AddItem(RenderQueueType::Opaque, _item);
-								_pRCT->AddItem(RenderQueueType::Debug, _item);
+								//_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Mask:
 								_pRCT->AddItem(RenderQueueType::Opaque, _item);
-								_pRCT->AddItem(RenderQueueType::Debug, _item);
+								//_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							case Engine::Resource::Alpha::Blend:
 								_pRCT->AddItem(RenderQueueType::Transparent, _item);
-								_pRCT->AddItem(RenderQueueType::Debug, _item);
+								//_pRCT->AddItem(RenderQueueType::Debug, _item);
 								break;
 							default:
 								break;
@@ -93,10 +93,10 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 						// 当たり判定描画
 						Engine::Editor::MainEditor::Instance().StartWatch("AABBDraw");
 						auto& _coll = _item.pMesh->GetCollisionMesh();
-						for (auto& _cell : _coll.nodeVec)
-						{
-							_pRCT->RefShapeDraw()->AABB(_cell.box);
-						}
+						//for (auto& _cell : _coll.nodeVec)
+						//{
+						//	_pRCT->RefShapeDraw()->AABB(_cell.box);
+						//}
 						Engine::Editor::MainEditor::Instance().EndWatch("AABBDraw");
 					}
 				}
