@@ -22,11 +22,13 @@ namespace Engine::Graphics
 	}
 	void RasterizePass::Begine(RenderContext* a_pCtx)
 	{
+		Editor::MainEditor::Instance().StartWatch(m_name.c_str());
 		a_pCtx->BindHeap();
 		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
 	}
 	void RasterizePass::End(RenderContext * a_pCtx)
 	{
+		Editor::MainEditor::Instance().EndWatch(m_name.c_str());
 	}
 	void RasterizePass::DrawQueue(RenderContext * a_pCtx)
 	{

@@ -22,7 +22,7 @@ namespace Engine::Graphics
 
 	void FullScreenPass::CreatePass()
 	{
-
+		SetPassName("FullScrene");
 		auto& _sPso = AddPSODesc(ERenderType::Static,RenderQueueType::Bloom);
 		_sPso.SetName("FullScreenPass");
 

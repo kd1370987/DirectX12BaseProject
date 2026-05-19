@@ -38,6 +38,8 @@ namespace Engine::Graphics
 
 	void DeferredLightingPass::CreatePass()
 	{
+		SetPassName("DeferredLighting");
+
 		auto& _sPso = AddPSODesc(ERenderType::Static, RenderQueueType::Bloom);
 		_sPso.SetName("DeferredLighting");
 

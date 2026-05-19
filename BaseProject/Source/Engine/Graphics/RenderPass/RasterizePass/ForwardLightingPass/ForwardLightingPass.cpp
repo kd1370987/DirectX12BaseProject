@@ -7,7 +7,7 @@ namespace Engine::Graphics
 {
 	void ForwardLightingPass::Excute(RenderContext* a_pCtx)
 	{
-
+		
 		Begine(a_pCtx);
 		a_pCtx->BindCameraCB();
 		a_pCtx->BindSRVBone();
@@ -19,6 +19,7 @@ namespace Engine::Graphics
 
 	void ForwardLightingPass::CreatePass()
 	{
+		SetPassName("ForwardLighting");
 		// ブレンドステート
 		D3D12_BLEND_DESC _blend = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		_blend.RenderTarget[0].BlendEnable = TRUE;

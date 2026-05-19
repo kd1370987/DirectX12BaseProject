@@ -19,6 +19,8 @@ namespace Engine::Graphics
 
 	void ZPrePass::CreatePass()
 	{
+		SetPassName("ZPre");
+
 		auto& _sPso = AddPSODesc(ERenderType::Static, RenderQueueType::Opaque);
 		auto& _aPso = AddPSODesc(ERenderType::Animation, RenderQueueType::AnimationOpaque);
 

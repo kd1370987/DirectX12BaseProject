@@ -72,7 +72,7 @@ namespace Engine
 		}
 
 		// ディスクリプタヒープテーブルマネージャーの初期化
-		if (!D3D12::DescriptorHeapManager::Instance().Init())
+		if (!D3D12::DescriptorHeapManager::Instance().Init(100, 16384,100,100,10))
 		{
 			assert(0 && "ディスクリプタヒープマネージャーの初期化に失敗");
 			return;
@@ -214,6 +214,8 @@ namespace Engine
 	{
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();
 
+		Editor::MainEditor::Instance().StartWatch("EditorPhase");
+
 		// ゲームモード以外の処理
 		if (m_config.app.mode != EngineConfig::Application::Mode::Game)
 		{
@@ -226,9 +228,13 @@ namespace Engine
 			Engine::Editor::MainEditor::Instance().Draw(D3D12::D3D12Wrapper::Instance().GetCommandList(),m_upWindow->GetClientWidth(),m_upWindow->GetClientHeight());
 		}
 
+		Editor::MainEditor::Instance().EndWatch("EditorPhase");
 
+		Editor::MainEditor::Instance().StartWatch("EndFramePhase");
 		// 描画終了
 		D3D12::D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.isVsync);
+
+		Editor::MainEditor::Instance().EndWatch("EndFramePhase");
 	}
 
 	float MainEngine::GetDeltaTime()

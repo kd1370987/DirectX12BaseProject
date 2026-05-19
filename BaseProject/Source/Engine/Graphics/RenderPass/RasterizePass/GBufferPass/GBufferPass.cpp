@@ -20,6 +20,7 @@ namespace Engine::Graphics
 
 	void GBufferPass::CreatePass()
 	{
+		SetPassName("GBuffer");
 		auto& _sPso = AddPSODesc(ERenderType::Static, RenderQueueType::Opaque);
 		auto& _aPso = AddPSODesc(ERenderType::Animation, RenderQueueType::AnimationOpaque);
 		_sPso.SetName("GBufferStatic");

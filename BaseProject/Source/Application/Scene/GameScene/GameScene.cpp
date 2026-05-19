@@ -134,7 +134,43 @@ void GameScene::RegistryEntity()
 	Engine::Persistence::PersistenceManager _pers = {};
 	_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
 
+	{
+		// テストモデル
+		float _xMax = 10;
+		float _yMax = 10;
+		float _zMax = 50;
 
+		float _pad = 5;
+
+		// 高さ
+		for (int _y = 0; _y < _yMax; ++_y)
+		{
+			// 一面
+			for (int _x = 0; _x < _xMax; ++_x)
+			{
+				for (int _z = 0; _z < _zMax; ++_z)
+				{
+					Engine::ECS::Signature _sig;
+					_sig.set(m_upWorld->GetCompTypeID(typeid(TransformComponent)));
+					_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
+					_sig.set(m_upWorld->GetCompTypeID(typeid(ModelComponent)));
+					auto _entity = m_upWorld->CreateEntity(_sig);
+
+					ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_entity);
+					Engine::GUID _guid;
+					_guid.FromString("a9d483b5-5681-40ba-b45d-e1630f066516");
+					_model->handle = Engine::Resource::ModelLoader::Load(_guid);
+					_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
+					_model->emissiveScale = { 0.0f,0.0f,0.0f };
+					_model->modelGUID = _guid;
+					TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
+					_ref->pos = { _x * _pad,  _y * _pad, -_z * _pad };
+					_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
+					_ref->scale = { 1.0f,1.0f,1.0f };
+				}
+			}
+		}
+	}
 	
 
 

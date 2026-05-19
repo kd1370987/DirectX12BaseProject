@@ -17,6 +17,7 @@ namespace Engine::Graphics
 	}
 	void TestPass::CreatePass()
 	{
+		SetPassName("Test");
 		auto& _sPso = AddPSODesc(ERenderType::Static, RenderQueueType::Opaque);
 		_sPso.SetName("Test");
 

@@ -17,6 +17,7 @@ namespace Engine::Graphics
 
 	void ScreenUIPass::CreatePass()
 	{
+		SetPassName("ScreneUI");
 		// 深度ステンシルステート
 		auto _depthDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);	// 深度ステンシルはデフォルトを使用
 		_depthDesc.DepthEnable = FALSE;									// 深度テストなし

@@ -32,6 +32,7 @@ namespace Engine::Graphics
 
 	void DebugLinePass::CreatePass()
 	{
+		SetPassName("DebugLine");
 		// ルートシグネチャの作成
 		D3D12::RootSignatureDesc _desc = {};
 		_desc.AddRoot(RootParameterType::RootCBV,0);

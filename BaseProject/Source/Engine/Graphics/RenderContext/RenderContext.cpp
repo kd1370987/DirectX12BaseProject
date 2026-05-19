@@ -58,14 +58,14 @@ namespace Engine::Graphics
 		m_copyHeap.Create(
 			m_pDevice,
 			L"CopyHeap",
-			300,
+			D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize(),
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			0
 		);
 		m_bindLessHeap.Create(
 			m_pDevice,
 			L"BindLess",
-			300,
+			D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize(),
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			0
 		);

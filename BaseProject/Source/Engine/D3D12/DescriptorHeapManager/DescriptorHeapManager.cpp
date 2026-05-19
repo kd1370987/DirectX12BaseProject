@@ -5,7 +5,7 @@
 
 namespace Engine::D3D12
 {
-	bool DescriptorHeapManager::Init()
+	bool DescriptorHeapManager::Init(UINT a_cbvCount, UINT a_srvCount, UINT a_uavCount, UINT a_rtvCount, UINT a_dsvCount)
 	{
 		ID3D12Device* _device = D3D12Wrapper::Instance().GetDevice();
 
@@ -13,28 +13,28 @@ namespace Engine::D3D12
 		m_cbv_srv_uavHeap.Create(
 			_device,
 			L"CBV_SRV_UAV",
-			300,
+			a_cbvCount + a_srvCount + a_uavCount,
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
 			0
 		);
 		m_dsvHeap.Create(
 			_device,
 			L"DSV",
-			10,
+			a_dsvCount,
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
 			0
 		);
 		m_rtvHeap.Create(
 			_device,
 			L"RTV",
-			100,
+			a_rtvCount,
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
 			0
 		);
 		m_imguiHeap.Create(
 			_device,
 			L"ImGui",
-			300,
+			a_cbvCount + a_srvCount + a_uavCount,
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			0
 		);
@@ -47,15 +47,15 @@ namespace Engine::D3D12
 		);
 
 		// アロケーター生成
-		m_CBVAllocator.Create(&m_cbv_srv_uavHeap, 0, 100);			// CBV : 0番目から100個の要領
-		m_SRVAllocator.Create(&m_cbv_srv_uavHeap, 100, 100);		// SRV : 100番目から100個の容量
-		m_UAVAllocator.Create(&m_cbv_srv_uavHeap, 200, 100);		// UAV : 200番目から100個の容量
+		m_CBVAllocator.Create(&m_cbv_srv_uavHeap, 0,						a_cbvCount);	// CBV
+		m_SRVAllocator.Create(&m_cbv_srv_uavHeap, a_cbvCount,				a_srvCount);	// SRV
+		m_UAVAllocator.Create(&m_cbv_srv_uavHeap, a_cbvCount + a_srvCount,	a_uavCount);	// UAV
 
 		m_RTVAllocator.Create(&m_rtvHeap);	// RTV
 		m_DSVAllocator.Create(&m_dsvHeap);	// DSV
 
 		// ImGUI用SRV
-		m_ImGuiSRVAllocator.Create(&m_imguiHeap, 0, 300);
+		m_ImGuiSRVAllocator.Create(&m_imguiHeap, 0, a_cbvCount + a_srvCount + a_uavCount);
 
 		// Sampler
 		m_upSamplerAllocator = std::make_unique<Engine::D3D12::SamplerAllocator>();
@@ -83,6 +83,7 @@ namespace Engine::D3D12
 		m_shadow = CreateSampler(_device, _shadowDesc);
 
 
+
 		return true;
 	}
 
@@ -90,6 +91,11 @@ namespace Engine::D3D12
 	{}
 
 	
+	UINT DescriptorHeapManager::GetCBVSRVUAVHeapSize()
+	{
+		return m_cbv_srv_uavHeap.GetMaxSize();
+	}
+
 	ID3D12DescriptorHeap* DescriptorHeapManager::GetCBVSRVUAVHeap()
 	{
 		return m_cbv_srv_uavHeap.GetHeap();

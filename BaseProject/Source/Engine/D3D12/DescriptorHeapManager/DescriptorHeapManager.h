@@ -13,7 +13,13 @@ namespace Engine::D3D12
 	public:
 
 		// 初期化と解放
-		bool Init();
+		bool Init(
+			UINT a_cbvCount,
+			UINT a_srvCount,
+			UINT a_uavCount,
+			UINT a_rtvCount,
+			UINT a_dsvCount
+		);
 		void Release();
 
 		// リソースのビュー作成
@@ -27,6 +33,7 @@ namespace Engine::D3D12
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(Resource::Handle<T> a_handle);
 
 		// ヒープ取得
+		UINT GetCBVSRVUAVHeapSize();
 		ID3D12DescriptorHeap* GetCBVSRVUAVHeap();
 
 		//==========================================================================================
