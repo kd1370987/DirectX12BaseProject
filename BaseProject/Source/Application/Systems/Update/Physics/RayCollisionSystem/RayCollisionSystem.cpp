@@ -9,6 +9,9 @@
 #include "Application/Components/Resource/ModelComponent.h"
 
 
+#include "Engine/MainEngine.h"
+#include "Engine/Collision/CollisionWorld.h"
+
 #include "Engine/Collision/Gather/Gather.h"
 #include "Engine/Collision/Collision.h"
 #include "Engine/Collision/Query/Raycast.h"
@@ -16,31 +19,43 @@
 
 void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveCustomTask(
+	a_world.ActiveTask<const ColliderComponent, const RayColliderComponent, TransformComponent>(
 		Engine::ECS::ESystemType::Physics,
-		Engine::ECS::ReadList<RayColliderComponent>{},
-		Engine::ECS::WriteList<TransformComponent>{},
-		[&a_world](float a_dt)
+		[]
+		(
+			Engine::ECS::ArchetypeChunk* a_pChunk,
+			uint32_t a_count,
+			float a_dt,
+			ActiveTag* a_startTag,
+			const ColliderComponent* a_collArray,
+			const RayColliderComponent* a_rayArray,
+			TransformComponent* a_transArray
+		)
 		{
-			Engine::Editor::MainEditor::Instance().StartWatch("RayCollTask");
-			// レイコライダー取得
-			std::vector<RayColliderView> _rayColliderViewVec;
-			Gather::GatherRayColliderViews(a_world, _rayColliderViewVec);
-
-			// コライダー取得
-			std::vector<ColliderView> _colliderViewVec;
-			Gather::GatherColliderViews(a_world, _colliderViewVec);
-
-			// レイとコライダーの当たり判定
-			for (auto& _ray : _rayColliderViewVec)
+			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				auto _result = Engine::Collision::Result{};
-				if (Engine::Collision::Raycast(_ray, _colliderViewVec, _result))
+				TransformComponent& _transComp = a_transArray[_i];
+				const RayColliderComponent& _rayComp = a_rayArray[_i];
+
+				// レイ情報作成
+				Engine::Collision::RayInfo _info = {};
+				_info.origin = _transComp.pos;
+				_info.origin.y += _rayComp.pos.y;
+				_info.maxDistance = _rayComp.length;
+				_info.direction = _rayComp.dir;
+
+				// ヒットリザルト
+				Engine::Collision::Result _res = {};
+
+				// コリジョンワールドの取得
+				auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld();
+
+				// レイ判定
+				if (_pCollWorld->Raycast(_info, _res,a_pChunk->entityData[_i]))
 				{
-					_ray.pTRS->pos = _result.hitPos;
+					_transComp.pos = _res.hitPos;
 				}
-			};
-			Engine::Editor::MainEditor::Instance().EndWatch("RayCollTask");
+			}
 		}
 	);
 }

@@ -4,6 +4,9 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/RenderContext/ShapeDraw/ShapeDraw.h"
 
+#include "MidPhase/BVHTraverser/BVHTraverser.h"
+#include "Collision.h"
+
 namespace Engine::Collision
 {
 
@@ -186,5 +189,79 @@ namespace Engine::Collision
 		m_staticInstanceIndexVec.clear();
 		m_staticInstanceVec.clear();
 		m_staticNodeVec.clear();
+	}
+	bool CollisionWorld::Raycast(const RayInfo& a_ray, Result& a_outResult, const ECS::Entity& a_myID)
+	{
+		bool _isHit = false;
+		float _closestDist = a_ray.maxDistance;			// これまでに見つかったもっとも近い距離
+		Result _bestResult = {};
+
+		// ---- 静的オブジェクトの走査 ----
+		if (!m_staticNodeVec.empty())
+		{
+			int _nodeStack[64];
+			int _stackTop = 0;
+			_nodeStack[_stackTop++] = m_staticRootNodeIndex;
+
+			while (_stackTop > 0)
+			{
+				int _currentNodeIdx = _nodeStack[--_stackTop];
+				const auto& _node = m_staticNodeVec[_currentNodeIdx];
+
+				float _boxDist = 0.0f;
+				// レイがTLASノード（ワールド空間のAABB）と交差しているか
+				if (_node.box.Intersects(
+					DirectX::XMLoadFloat3(&a_ray.origin),
+					DirectX::XMLoadFloat3(&a_ray.direction),
+					_boxDist))
+				{
+					if (_boxDist > _closestDist) continue; // すでに手前で当たっているものより遠ければスキップ
+
+					// 葉ノードに達した場合
+					if (_node.leftChild == -1 && _node.rightChild == -1)
+					{
+						// 葉ノードに含まれるインスタンスをループ
+						for (int _i = 0; _i < _node.dataCount; ++_i)
+						{
+							int _instIdx = m_staticInstanceIndexVec[_node.dataStart + _i];
+							const auto& _instance = m_staticInstanceVec[_instIdx];
+
+							// 同じエンティティなら無視
+							if (a_myID == _instance.entity) continue;
+
+							// モデルとの判定
+							Result _localResult = {};
+							if (Engine::Collision::Ray::VSModel(a_ray, _instance.pModelData, _instance.worldMat, _localResult))
+							{
+								// より手前で当たったら結果を更新
+								if (_localResult.hitDistance < _closestDist)
+								{
+									_closestDist = _localResult.hitDistance;
+									_bestResult = _localResult;
+									_bestResult.hitEntity = _instance.entity; // どのエンティティに当たったか記録
+									_isHit = true;
+								}
+							}
+						}
+					}
+					else
+					{
+						// 枝ノードなら子ノードをスタックに積む
+						if (_stackTop < 62)
+						{
+							_nodeStack[_stackTop++] = _node.leftChild;
+							_nodeStack[_stackTop++] = _node.rightChild;
+						}
+					}
+				}
+			}
+		}
+
+		if (_isHit)
+		{
+			a_outResult = _bestResult;
+		}
+
+		return _isHit;
 	}
 }
