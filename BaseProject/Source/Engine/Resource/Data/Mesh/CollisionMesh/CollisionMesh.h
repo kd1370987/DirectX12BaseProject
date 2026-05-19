@@ -11,6 +11,8 @@ namespace Engine::Resource
 	// 一つのボックス・依存関係
 	struct VBHNode
 	{
+		bool IsLeaf() const { return (leftChild == -1); }
+
 		DirectX::BoundingBox box = {};		// このノードを包むAABB
 		int leftChild = -1;			// 左のノード（-1なら葉ノード）
 		int rightChild = -1;		// 右のノード

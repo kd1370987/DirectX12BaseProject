@@ -34,7 +34,7 @@ void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 			// レイとコライダーの当たり判定
 			for (auto& _ray : _rayColliderViewVec)
 			{
-				auto _result = Result{};
+				auto _result = Engine::Collision::Result{};
 				if (Engine::Collision::Raycast(_ray, _colliderViewVec, _result))
 				{
 					_ray.pTRS->pos = _result.hitPos;

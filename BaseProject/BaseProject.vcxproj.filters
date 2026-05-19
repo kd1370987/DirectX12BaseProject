@@ -352,9 +352,6 @@
     <Filter Include="Source\Application\Scene\TitleScene">
       <UniqueIdentifier>{bc9d74b2-f3b3-46ba-ba39-98cd9450c63d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Collision\Query\CollisionMesh">
-      <UniqueIdentifier>{a75f7300-0d30-4717-ae5f-4342c6dd51bb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Source\DebugLineShader">
       <UniqueIdentifier>{4fb4a89d-b31e-4a0a-bca6-899dcc27166e}</UniqueIdentifier>
     </Filter>
@@ -745,6 +742,21 @@
     <Filter Include="Asset\Shader\Ray\GIShader">
       <UniqueIdentifier>{4f754aed-db16-43c6-8dd0-9b8b6e22b53e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Utility\Math">
+      <UniqueIdentifier>{7ce9559e-fdc6-4075-bc84-db1f4870b840}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\MidPhase">
+      <UniqueIdentifier>{1e574f83-a99d-44ec-a25f-69baa4e37b5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\NarrowPhase\TestAABB">
+      <UniqueIdentifier>{b2bde3b1-695f-4f9e-a45a-6b09caf90dec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\NarrowPhase\TestTriangle">
+      <UniqueIdentifier>{8aff15af-b71f-4eb5-8889-ca99a656d65b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\MidPhase\BVHTraverser">
+      <UniqueIdentifier>{9d1f3920-6a5d-40b4-845c-d715eda1d982}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -803,9 +815,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp">
       <Filter>Source\Engine\Collision\BroadPhase</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.cpp">
-      <Filter>Source\Engine\Collision\NarrowPhase</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp">
       <Filter>Source\Engine\Collision\Gather</Filter>
@@ -947,9 +956,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Scene\TitleScene\TitleScene.cpp">
       <Filter>Source\Application\Scene\TitleScene</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Collision\Query\CollisionMesh\CollisionMesh.cpp">
-      <Filter>Source\Engine\Collision\Query\CollisionMesh</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.cpp">
       <Filter>Source\Engine\Editor\AssetResourceView</Filter>
@@ -1212,6 +1218,15 @@
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.cpp">
       <Filter>Source\Engine\Resource\Data\Mesh\CollisionMesh</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Collision\NarrowPhase\TestAABB\TestAABB.cpp">
+      <Filter>Source\Engine\Collision\NarrowPhase\TestAABB</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Collision\NarrowPhase\TestTriangle\TestTriangle.cpp">
+      <Filter>Source\Engine\Collision\NarrowPhase\TestTriangle</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Collision\MidPhase\BVHTraverser\BVHTraverser.cpp">
+      <Filter>Source\Engine\Collision\MidPhase\BVHTraverser</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -1348,9 +1363,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h">
       <Filter>Source\Engine\Collision\BroadPhase</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\NarrowPhase\NarrowPhase.h">
-      <Filter>Source\Engine\Collision\NarrowPhase</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Collision\Gather\Gather.h">
       <Filter>Source\Engine\Collision\Gather</Filter>
@@ -1540,9 +1552,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Scene\TitleScene\TitleScene.h">
       <Filter>Source\Application\Scene\TitleScene</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\Query\CollisionMesh\CollisionMesh.h">
-      <Filter>Source\Engine\Collision\Query\CollisionMesh</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.h">
       <Filter>Source\Engine\Editor\AssetResourceView</Filter>
@@ -1888,6 +1897,18 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.h">
       <Filter>Source\Engine\Resource\Data\Mesh\CollisionMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\NarrowPhase\TestAABB\TestAABB.h">
+      <Filter>Source\Engine\Collision\NarrowPhase\TestAABB</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\NarrowPhase\TestTriangle\TestTriangle.h">
+      <Filter>Source\Engine\Collision\NarrowPhase\TestTriangle</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\CollisionCommon.h">
+      <Filter>Source\Engine\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\MidPhase\BVHTraverser\BVHTraverser.h">
+      <Filter>Source\Engine\Collision\MidPhase\BVHTraverser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
