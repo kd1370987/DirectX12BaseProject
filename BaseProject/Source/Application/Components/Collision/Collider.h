@@ -13,6 +13,8 @@ struct ColliderComponent
 	Layer layer = Layer::StaticObject;		// 自分が属するレイヤー
 	Layer collideLayer = Layer::None;		// 衝突したいレイヤー
 	Engine::ECS::Flg isPhysical = 1;		// 物理解決するかどうか(衝突時にイベントだけほしいとか)
+
+	// コリジョンワールドに登録されているハンドル
 	Engine::Resource::Handle<Engine::Collision::CollisionInstance> collWorldHandle = {};
 	
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)

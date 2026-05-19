@@ -8,11 +8,6 @@ namespace Engine
 {
 	namespace Collision
 	{
-		bool Raycast(
-			const RayColliderView& a_ray,
-			const std::vector<ColliderView>& a_colliderViewVec,
-			Result& a_outResult
-		);
 
 		// レイ判定
 		namespace Ray

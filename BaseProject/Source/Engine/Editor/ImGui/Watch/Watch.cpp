@@ -44,7 +44,7 @@ namespace Engine::Editor
 				m_calcTime = 0;
 				m_matchTime = 0;
 				m_count = 0;
-				m_minTime = 0;
+				m_minTime = 99999;
 				m_maxTime = 0;
 			}
 		}

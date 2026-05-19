@@ -145,12 +145,6 @@
     <Filter Include="Source\Engine\Collision\BroadPhase">
       <UniqueIdentifier>{d5a5abef-fb1f-43f8-bee4-1fe568fc196d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Collision\Gather">
-      <UniqueIdentifier>{eafdf882-fc61-43aa-9144-3c1a4c457e08}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Collision\Query">
-      <UniqueIdentifier>{0f15cf9c-3377-4017-b212-d1815ff6f5df}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate">
       <UniqueIdentifier>{92e1804e-1dd1-4801-b8ae-22c3f2e892a5}</UniqueIdentifier>
     </Filter>
@@ -760,6 +754,18 @@
     <Filter Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem">
       <UniqueIdentifier>{65b34580-d12c-440a-a3c7-b26a12e1ad60}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Collision\BroadPhase\RayCheck">
+      <UniqueIdentifier>{1918eadc-f9f9-4a30-8a1c-ee36f2c7960a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\BroadPhase\AABBCheck">
+      <UniqueIdentifier>{63fce64c-86be-4abd-9170-3e27b20e4669}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\BroadPhase\OBBCheck">
+      <UniqueIdentifier>{c3fd373d-ed09-4a85-bdc4-ac0b2ded3d1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Collision\BroadPhase\SphereCheck">
+      <UniqueIdentifier>{d7aae830-ab8d-47bb-9d51-e3014be3d653}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -818,9 +824,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp">
       <Filter>Source\Engine\Collision\BroadPhase</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp">
-      <Filter>Source\Engine\Collision\Gather</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Collision\Collision.cpp">
       <Filter>Source\Engine\Collision</Filter>
@@ -1233,6 +1236,9 @@
     <ClCompile Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.cpp">
+      <Filter>Source\Engine\Collision\BroadPhase\RayCheck</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -1361,14 +1367,8 @@
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h">
       <Filter>Source\Application\Components\Collision</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\Query\Raycast.h">
-      <Filter>Source\Engine\Collision\Query</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h">
       <Filter>Source\Engine\Collision\BroadPhase</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\Gather\Gather.h">
-      <Filter>Source\Engine\Collision\Gather</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Collision\Collision.h">
       <Filter>Source\Engine\Collision</Filter>
@@ -1918,6 +1918,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.h">
       <Filter>Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.h">
+      <Filter>Source\Engine\Collision\BroadPhase\RayCheck</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

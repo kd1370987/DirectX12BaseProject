@@ -1,6 +1,4 @@
 ﻿#include "Collision.h"
-#include "Gather/Gather.h"
-#include "Query/Raycast.h"
 #include "MidPhase/BVHTraverser/BVHTraverser.h"
 
 #include "../MainEngine.h"
@@ -16,58 +14,6 @@
 #include "Application/Components/Transform/TransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
-
-bool Engine::Collision::Raycast(
-	const RayColliderView& a_ray, 
-	const std::vector<ColliderView>& a_colliderViewVec,
-	Result& a_outResult
-)
-{
-	// レイ情報作成
-	RayInfo _rayInfo = {};
-	_rayInfo.origin = a_ray.pTRS->pos;
-	_rayInfo.origin.y += a_ray.pRayCollider->pos.y; // 少し上から出す
-	_rayInfo.direction = a_ray.pRayCollider->dir;
-	_rayInfo.maxDistance = a_ray.pRayCollider->length;
-	// 判定
-	bool _isHit = false;
-	float _dist = 100.0f;
-	for (auto& _colView : a_colliderViewVec)
-	{
-		// 自分は無視
-		if (a_ray.entity == _colView.entity)
-			continue;
-
-		// レイヤーが一致しているかどうか
-		if (!HasLayer(a_ray.pCollider->collideLayer, _colView.pCollider->layer))
-			continue;
-
-		if (_colView.pCollider->layer != Layer::StaticObject)
-			continue;
-
-		// モデル取得
-		auto* _model = Engine::Resource::ResourceManager::Instance().Get(_colView.pModelComp->handle);
-		if (!_model)
-		{
-			assert(0 && "モデルが取れていないためレイ判定失敗");
-			return false;
-		}
-
-		// モデルと判定
-		if (Engine::Collision::Ray::VSModel(_rayInfo,_model, _colView.pWorldMat->worldMat,a_outResult))
-		{
-			_isHit = true;
-			if (a_outResult.hitDistance < _dist)
-			{
-				a_outResult.hitEntity = _colView.entity;
-				a_outResult.hitNormal = _rayInfo.direction; // 仮
-				_dist = a_outResult.hitDistance;
-			}		
-		}
-	}
-
-	return _isHit;
-}
 
 bool Engine::Collision::Ray::VSModel(
 	const RayInfo& a_rayInfo,

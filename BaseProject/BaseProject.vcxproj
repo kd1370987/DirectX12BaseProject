@@ -265,9 +265,9 @@
     <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.cpp" />
     <ClCompile Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.cpp" />
     <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp" />
+    <ClCompile Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.cpp" />
     <ClCompile Include="Source\Engine\Collision\Collision.cpp" />
     <ClCompile Include="Source\Engine\Collision\CollisionWorld.cpp" />
-    <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp" />
     <ClCompile Include="Source\Engine\Collision\MidPhase\BVHTraverser\BVHTraverser.cpp" />
     <ClCompile Include="Source\Engine\Collision\NarrowPhase\TestAABB\TestAABB.cpp" />
     <ClCompile Include="Source\Engine\Collision\NarrowPhase\TestTriangle\TestTriangle.cpp" />
@@ -474,14 +474,13 @@
     <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.h" />
     <ClInclude Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.h" />
     <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h" />
+    <ClInclude Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.h" />
     <ClInclude Include="Source\Engine\Collision\Collision.h" />
     <ClInclude Include="Source\Engine\Collision\CollisionCommon.h" />
     <ClInclude Include="Source\Engine\Collision\CollisionWorld.h" />
-    <ClInclude Include="Source\Engine\Collision\Gather\Gather.h" />
     <ClInclude Include="Source\Engine\Collision\MidPhase\BVHTraverser\BVHTraverser.h" />
     <ClInclude Include="Source\Engine\Collision\NarrowPhase\TestAABB\TestAABB.h" />
     <ClInclude Include="Source\Engine\Collision\NarrowPhase\TestTriangle\TestTriangle.h" />
-    <ClInclude Include="Source\Engine\Collision\Query\Raycast.h" />
     <ClInclude Include="Source\Engine\Common\Color.h" />
     <ClInclude Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.h" />
     <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h" />

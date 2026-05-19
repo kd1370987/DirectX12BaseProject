@@ -31,4 +31,7 @@ namespace Engine::Collision
 		DirectX::XMFLOAT3 direction = { 0.0f,0.0f,1.0f };
 		float maxDistance = 1000.0f;
 	};
+
+	// 球判定時に渡す情報
+
 }

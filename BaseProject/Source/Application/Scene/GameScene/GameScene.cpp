@@ -135,11 +135,10 @@ void GameScene::RegistryEntity()
 	_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
 
 
+	
+
 
 	return;
-
-
-
 }
 
 

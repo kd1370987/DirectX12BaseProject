@@ -12,9 +12,7 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
 
-#include "Engine/Collision/Gather/Gather.h"
 #include "Engine/Collision/Collision.h"
-#include "Engine/Collision/Query/Raycast.h"
 
 
 void RayCollisionSystem::Init(Engine::ECS::World& a_world)
