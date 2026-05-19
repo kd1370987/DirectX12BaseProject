@@ -136,9 +136,9 @@ void GameScene::RegistryEntity()
 
 	{
 		// テストモデル
-		float _xMax = 10;
-		float _yMax = 10;
-		float _zMax = 50;
+		float _xMax = 1;
+		float _yMax = 1;
+		float _zMax = 5;
 
 		float _pad = 5;
 

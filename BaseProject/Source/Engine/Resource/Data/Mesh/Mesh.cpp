@@ -12,7 +12,6 @@ bool Engine::Resource::Mesh::CreateFloat(
 	bool a_isSkinMesh
 )
 {
-
 	auto _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
 	// メタデータ作成

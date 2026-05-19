@@ -23,9 +23,13 @@ namespace Engine::Animation
 
 		// モデルのアニメーションから最大ノードを持つものを取得
 		UINT _maxAnimNodeNum = 0;
-		for (auto& _upAnim : _pModel->GetUPAnimationVec())
+		for (auto& _aniHandle : _pModel->GetAnimationHandles())
 		{
-			UINT _size = _upAnim->nodes.size();
+			// アニメーション取得
+			const auto* _pAniData = Resource::ResourceManager::Instance().Get(_aniHandle);
+			if (!_pAniData) continue;
+
+			UINT _size = _pAniData->nodes.size();
 			_maxAnimNodeNum = std::max(_maxAnimNodeNum, _size);
 		}
 

@@ -17,6 +17,7 @@ namespace Engine::D3D12
 	public:
 
 		virtual ~DynamicBuffer() override = default;
+		NON_COPYABLE_MOVABLE(DynamicBuffer);
 
 		// 作成
 		bool Create(ID3D12Device* a_pDevice,const DynamicBufferDesc& a_desc);

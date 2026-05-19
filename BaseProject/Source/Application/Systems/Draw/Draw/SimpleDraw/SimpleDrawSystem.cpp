@@ -53,7 +53,8 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 					for (auto& _meshIdx : _dataNodes[_nodeIdx].meshIndices)
 					{
 						// 描画メッシュ取得
-						_item.pMesh = _model->GetSPMeshVec()[_meshIdx].get();
+						const auto& _meshHandle = _model->GetMeshHandles()[_meshIdx];
+						_item.pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandle);
 						if (!_item.pMesh) continue;
 
 						// ノードのワールド行列を計算
@@ -66,11 +67,12 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 						{
 							// 面が一枚もない場合はスキップ
 							if (_item.pMesh->GetMetaData().subsets[_subIdx].faceCount == 0) continue;
-							_item.pMaterial = _model->GetMaterialVec()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber].get();
+							const auto& _mateHandle = _model->GetMaterialHandles()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber];
+							_item.pMaterial = Engine::Resource::ResourceManager::Instance().Get(_mateHandle);
 							_item.subIdx = _subIdx;
 
 							// アルファモードによって描画先を変える
-							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber]->alphaMode;
+							Engine::Resource::Alpha _mode = _item.pMaterial->alphaMode;
 							switch (_mode)
 							{
 							case Engine::Resource::Alpha::Opaque:
@@ -91,13 +93,13 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 						}
 
 						// 当たり判定描画
-						Engine::Editor::MainEditor::Instance().StartWatch("AABBDraw");
-						auto& _coll = _item.pMesh->GetCollisionMesh();
+						//Engine::Editor::MainEditor::Instance().StartWatch("AABBDraw");
+						//auto& _coll = _item.pMesh->GetCollisionMesh();
 						//for (auto& _cell : _coll.nodeVec)
 						//{
 						//	_pRCT->RefShapeDraw()->AABB(_cell.box);
 						//}
-						Engine::Editor::MainEditor::Instance().EndWatch("AABBDraw");
+						//Engine::Editor::MainEditor::Instance().EndWatch("AABBDraw");
 					}
 				}
 

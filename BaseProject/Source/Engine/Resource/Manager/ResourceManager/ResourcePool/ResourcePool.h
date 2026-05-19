@@ -28,7 +28,7 @@ namespace Engine::Resource
 
 	private:
 		Storage::HandleStorage<T> m_handleStorage = {};		// ハンドル管理
-		std::vector<T> m_data;								// 実際のデータ
+		std::vector<std::optional<T>> m_data;				// 実際のデータ
 	};
 
 	template<typename T>
@@ -40,7 +40,7 @@ namespace Engine::Resource
 		{
 			m_data.resize(_handle.idx + 1);
 		}
-		m_data[_handle.idx] = std::move(a_resource);
+		m_data[_handle.idx].emplace(std::move(a_resource));
 
 		return _handle;
 	}
@@ -55,14 +55,14 @@ namespace Engine::Resource
 	{
 		m_handleStorage.Remove(a_handle);
 
-		m_data[a_handle.idx] = {};
+		m_data[a_handle.idx].reset();
 	}
 	template<typename T>
 	inline const T* ResourcePool<T>::Get(const Handle<T>&a_handle) const
 	{
 		if (m_handleStorage.IsValid(a_handle))
 		{
-			return &m_data[a_handle.idx];
+			return &m_data[a_handle.idx].value();
 		}
 		return nullptr;
 	}
@@ -71,7 +71,7 @@ namespace Engine::Resource
 	{
 		if (m_handleStorage.IsValid(a_handle))
 		{
-			return &m_data[a_handle.idx];
+			return &m_data[a_handle.idx].value();
 		}
 		return nullptr;
 	}

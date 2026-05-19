@@ -17,6 +17,7 @@ namespace Engine::D3D12
 	{
 	public:
 		virtual ~GPUBuffer() override = default;
+		NON_COPYABLE_MOVABLE(GPUBuffer);
 
 		// バッファ専用の作成
 		bool Create(ID3D12Device* a_pDevice,const GPUBufferDesc& a_desc);

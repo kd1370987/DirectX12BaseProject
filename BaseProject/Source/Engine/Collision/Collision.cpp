@@ -34,7 +34,8 @@ bool Engine::Collision::Ray::VSModel(
 		for (auto& _meshIdx : _node.meshIndices)
 		{
 			// ノードが持つメッシュを取得
-			auto _pMesh = a_pModel->GetSPMeshVec()[_meshIdx].get();
+			const auto& _meshHandle = a_pModel->GetMeshHandles()[_meshIdx];
+			const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
 			if (!_pMesh) continue;
 
 			// メッシュとの判定

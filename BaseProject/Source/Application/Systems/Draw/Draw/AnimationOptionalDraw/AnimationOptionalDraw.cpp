@@ -68,7 +68,8 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 					for (auto& _meshIdx : _dataNodes[_nodeIdx].meshIndices)
 					{
 						// 描画メッシュ取得
-						_item.pMesh = _model->GetSPMeshVec()[_meshIdx].get();
+						const auto& _meshHandle = _model->GetMeshHandles()[_meshIdx];
+						_item.pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandle);
 						if (!_item.pMesh) continue;
 
 						// ワールド行列
@@ -77,20 +78,18 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 						DXSM::Matrix _mat = _nodeTransMat * _worldMat;
 						_item.worldMat = _mat;
 
-						//for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetSubsets().size(); ++_subIdx)
 						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetMetaData().subsets.size(); ++_subIdx)
 						{
 							// マテリアルセット
-							//if (_item.pMesh->GetSubsets()[_subIdx].faceCount == 0) continue;
 							if (_item.pMesh->GetMetaData().subsets[_subIdx].faceCount == 0) continue;
-							//_item.pMaterial = _model->GetMaterialVec()[_item.pMesh->GetSubsets()[_subIdx].materialNumber].get();
-							_item.pMaterial = _model->GetMaterialVec()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber].get();
+							const auto& _mateHandle = _model->GetMaterialHandles()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber];
+							_item.pMaterial = Engine::Resource::ResourceManager::Instance().Get(_mateHandle);
 							_item.subIdx = _subIdx;
 
 							// 描画アイテムキューに送信
 
 							// アルファモードによって描画先を変える
-							Engine::Resource::Alpha _mode = _model->GetMaterialVec()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber]->alphaMode;
+							Engine::Resource::Alpha _mode = _item.pMaterial->alphaMode;
 
 							auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
 

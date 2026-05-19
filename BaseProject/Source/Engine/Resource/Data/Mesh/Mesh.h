@@ -19,8 +19,8 @@ namespace Engine::Resource
 		//=================================================
 		// 作成・解放
 		//=================================================
-		Mesh() = default;
 		~Mesh() = default;
+		NON_COPYABLE_MOVABLE(Mesh);
 
 		// メッシュ作成
 		bool CreateFloat(
@@ -84,9 +84,5 @@ namespace Engine::Resource
 		std::optional<RaytracingMesh>			m_opRtData;			// レイトレデータ
 		std::optional<CollisionMesh>			m_opCollMesh;		// 当たり判定
 
-	private:
-		// コピー禁止
-		Mesh(const Mesh& src) = delete;
-		void operator=(const Mesh& src) = delete;
 	};
 }

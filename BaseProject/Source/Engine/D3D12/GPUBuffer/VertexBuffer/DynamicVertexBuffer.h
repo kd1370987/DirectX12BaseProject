@@ -9,8 +9,9 @@ namespace Engine::D3D12
 	{
 	public:
 
-		DynamicVertexBuffer() = default;
 		~DynamicVertexBuffer() override = default;
+
+		NON_COPYABLE_MOVABLE(DynamicVertexBuffer);
 
 		// 作成
 		bool Create(ID3D12Device* a_pDevice,size_t a_elementNum);

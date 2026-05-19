@@ -13,9 +13,9 @@ namespace Engine::Resource
 		std::string name;
 
 		// マテリアル
-		std::vector<std::unique_ptr<Material>>		upMaterialVec;		// マテリアル
-		std::vector<std::unique_ptr<Mesh>> 			upMeshVec;			// メッシュ
-		std::vector<std::unique_ptr<AnimationData>> upAnimationVec;		// アニメーション
+		std::vector<Material>		MaterialVec;		// マテリアル
+		std::vector <Mesh> 			MeshVec;			// メッシュ
+		std::vector <AnimationData>	AnimationVec;		// アニメーション
 
 		// ノード
 		std::vector<Node>							originalNodes;			// 全ノード配列
@@ -54,15 +54,20 @@ namespace Engine::Resource
 		// モデル生成
 		void Import(const std::string& a_filePath);
 
-		// アクセサ
-		const AnimationData* GetAnimation(uint32_t a_clipID) const;		// アニメーション取得
-		uint32_t GetAnimationClipCount(const std::string& a_animeNmae) const;		// アニメーションクリップ取得
+		// ---- アクセサ ----
+		//const AnimationData* GetAnimation(uint32_t a_clipID) const;					// アニメーション取得
+		//uint32_t GetAnimationClipCount(const std::string& a_animeNmae) const;		// アニメーションクリップ取得
 
+		// データのハンドル
+		const std::vector<Handle<Material>>&		GetMaterialHandles()	const { return m_materialHandleVec; }
+		const std::vector<Handle<Mesh>>&			GetMeshHandles()		const { return m_meshHandleVec; }
+		const std::vector<Handle<AnimationData>>&	GetAnimationHandles()	const { return m_animationHandleVec; }
+
+		// モデルが管理する実データ
 		const std::string& GetName() const { return m_name; }
-		const std::vector<std::unique_ptr<Material>>& GetMaterialVec() const { return m_upMaterialVec; }
-		const std::vector<std::unique_ptr<Mesh>>& GetSPMeshVec() const { return m_upMeshVec; }
-		const std::vector<std::unique_ptr<AnimationData>>& GetUPAnimationVec()const { return m_upAnimationVec; }
 		const std::vector<Node>& GetOriginalNodeVec() const { return m_originalNodes; }
+
+		// 各種インデックス配列
 		const std::vector<int>& GetRootNodeVec() const { return m_rootNodeIndices; }
 		const std::vector<int>& GetBoneNodeVec() const { return m_boneNodeIndices; }
 		const std::vector<int>& GetMeshNodeVec() const { return m_meshNodeIndices; }
@@ -75,10 +80,12 @@ namespace Engine::Resource
 		std::string m_name;
 
 		// 構成物
-		std::vector<std::unique_ptr<Material>>		m_upMaterialVec;		// マテリアル
-		std::vector<std::unique_ptr<Mesh>> 			m_upMeshVec;			// メッシュ
-		std::vector<std::unique_ptr<AnimationData>> m_upAnimationVec;		// アニメーション
-		std::vector<Node>							m_originalNodes;		// 全ノード配列
+		std::vector<Handle<Material>>		m_materialHandleVec = {};
+		std::vector<Handle<Mesh>>			m_meshHandleVec = {};
+		std::vector<Handle<AnimationData>>	m_animationHandleVec = {};
+
+		// 全ノード情報
+		std::vector<Node>							m_originalNodes;
 
 		// ノード
 		std::vector<int>							m_rootNodeIndices;			// Rootノード

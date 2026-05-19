@@ -11,8 +11,12 @@
 
 namespace Engine::Raytracing
 {
-	Engine::Raytracing::RayWorld::RayWorld(){}
-	Engine::Raytracing::RayWorld::~RayWorld(){}
+	Engine::Raytracing::RayWorld::RayWorld()
+	{
+	}
+	Engine::Raytracing::RayWorld::~RayWorld()
+	{
+	}
 
 
 	void Engine::Raytracing::RayWorld::Register(
@@ -34,11 +38,11 @@ namespace Engine::Raytracing
 		{
 			for (auto& _meshIdx : _node.meshIndices)	// メッシュループ
 			{
-				auto _pMesh = _model->GetSPMeshVec()[_meshIdx].get();
+				const auto& _meshHandle = _model->GetMeshHandles()[_meshIdx];
+				const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
 				if (!_pMesh) continue;
 
 				DXSM::Matrix _nodeMat = _node.worldTransform;
-
 
 				// インスタンス作成
 				Engine::Raytracing::Instance _rayInst = {};
@@ -49,7 +53,9 @@ namespace Engine::Raytracing
 				_rayInst.indexHandle = _pMesh->GetRtData().structuredIndexBuffer.GetSRVHandle();
 				for (auto& _subset : _pMesh->GetMetaData().subsets)
 				{
-					auto* _pMate = _model->GetMaterialVec()[_subset.materialNumber].get();
+					// マテリアル取得
+					const auto& _mateHandle = _model->GetMaterialHandles()[_subset.materialNumber];
+					const auto* _pMate = Resource::ResourceManager::Instance().Get(_mateHandle);
 					if (!_pMate) continue;
 	
 					Material _mat = {};

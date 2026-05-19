@@ -8,6 +8,19 @@
 #include "Utility/GUID/GUID.h"
 #include "Utility/JSONHelper/JSONHelper.h"
 
+//==========================================================================================
+// 
+// コピー不可能、ムーブ可能マクロ
+// 
+//==========================================================================================
+#define NON_COPYABLE_MOVABLE(Type) \
+	Type() = default; \
+    Type(const Type&) = delete; \
+    Type& operator=(const Type&) = delete; \
+    Type(Type&&) noexcept = default; \
+    Type& operator=(Type&&) noexcept = default;
+
+
 // バッファリング数
 enum
 {

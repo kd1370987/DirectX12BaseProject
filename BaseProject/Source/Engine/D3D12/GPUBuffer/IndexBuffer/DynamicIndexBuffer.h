@@ -15,8 +15,9 @@ namespace Engine::D3D12
 	{
 	public:
 
-		DynamicIndexBuffer() = default;
 		~DynamicIndexBuffer() override = default;
+
+		NON_COPYABLE_MOVABLE(DynamicIndexBuffer);
 
 		// 作成
 		bool Create(ID3D12Device* a_pDevice,const IndexBufferDesc& a_desc);

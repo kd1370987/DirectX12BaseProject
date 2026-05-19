@@ -655,7 +655,7 @@ namespace Engine::Graphics
 	}
 
 
-	void RenderContext::BindMesh(UINT a_index, Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
+	void RenderContext::BindMesh(UINT a_index, const Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
 	{
 		// メッシュ変換行列の転送
 		m_cb2_MeshTrans.worldMat = a_worldMat;
@@ -678,7 +678,7 @@ namespace Engine::Graphics
 		}
 	}
 
-	void RenderContext::Draw(Resource::Mesh* a_pMesh, UINT a_subIdx)
+	void RenderContext::Draw(const Resource::Mesh* a_pMesh, UINT a_subIdx)
 	{
 		// 描画
 		UINT _faceCount = static_cast<UINT>(a_pMesh->GetMetaData().subsets[a_subIdx].faceCount);

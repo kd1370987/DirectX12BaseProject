@@ -35,7 +35,9 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				if (!_pModel) continue;
 
 				// アニメーション取得
-				const Engine::Resource::AnimationData* _pAni = _pModel->GetAnimation(_aniComp.clipID);
+				if (_pModel->GetAnimationHandles().size() <= _aniComp.clipID) continue;
+				const auto& _aniHandle = _pModel->GetAnimationHandles()[_aniComp.clipID];
+				const auto* _pAni = Engine::Resource::ResourceManager::Instance().Get(_aniHandle);
 				if (!_pAni) continue;
 
 				// 行列取得

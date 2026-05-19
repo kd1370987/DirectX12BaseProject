@@ -21,6 +21,8 @@ namespace Engine::D3D12
 	private:
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC m_view = {};
+	public:
+		NON_COPYABLE_MOVABLE(StaticStructuredBuffer);
 	};
 	template<typename T>
 	inline void StaticStructuredBuffer<T>::Create(ID3D12Device* a_pDevice, CommandList& a_cmdList, UINT a_elementNum, const T* a_pInitData)

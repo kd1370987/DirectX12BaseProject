@@ -5,6 +5,9 @@ namespace Engine::Raytracing
 	class BLAS
 	{
 	public:
+
+		NON_COPYABLE_MOVABLE(BLAS);
+
 		// 頂点バッファとインデックスバッファから作成
 		void Create(
 			const D3D12::DynamicVertexBuffer<Resource::RTVertex>& a_vertexBuffer,

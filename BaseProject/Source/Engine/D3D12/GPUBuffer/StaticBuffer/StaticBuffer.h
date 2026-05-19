@@ -23,6 +23,8 @@ namespace Engine::D3D12
 
 		virtual ~StaticBuffer() override = default;
 
+		NON_COPYABLE_MOVABLE(StaticBuffer);
+
 		// 作成
 		bool Create(
 			ID3D12Device* a_pDevice, 

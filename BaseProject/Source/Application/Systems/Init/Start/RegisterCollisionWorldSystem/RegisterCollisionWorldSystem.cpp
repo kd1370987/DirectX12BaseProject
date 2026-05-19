@@ -43,15 +43,22 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				
 				// モデル全体のローカルAABBを計算
 				DirectX::BoundingBox _localAABB = {};
-				const auto& _meshs = _pModel->GetSPMeshVec();
-				if (!_meshs.empty())
+				const auto& _meshHandles = _pModel->GetMeshHandles();
+				if (!_meshHandles.empty())
 				{
-					// 最初の一個目で初期化
-					_localAABB = _meshs[0]->GetMetaData().aabb;
+					// メッシュ取得
+					const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandles[0]);
 
-					for (size_t _m = 1; _m < _meshs.size(); ++_m)
+					// 最初の一個目で初期化
+					_localAABB = _pMesh->GetMetaData().aabb;
+
+					for (size_t _m = 1; _m < _meshHandles.size(); ++_m)
 					{
-						const auto& _meta = _meshs[_m]->GetMetaData();
+						// メッシュ取得
+						const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandles[0]);
+						if (!_pMesh) continue;
+
+						const auto& _meta = _pMesh->GetMetaData();
 						DirectX::BoundingBox::CreateMerged(_localAABB, _localAABB, _meta.aabb);
 					}
 				}

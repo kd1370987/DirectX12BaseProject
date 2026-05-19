@@ -25,7 +25,7 @@ namespace Engine::D3D12
 	class GPUResource
 	{
 	public:
-		GPUResource() = default;
+
 		virtual ~GPUResource() = default;
 
 		// 作成
@@ -51,9 +51,7 @@ namespace Engine::D3D12
 		size_t m_strideSize = 0;
 		size_t m_elementNum = 0;
 	public:
-		// コピー禁止
-		// ステート管理の複製によるバリアのバグを防ぐため
-		GPUResource(const GPUResource&) = delete;
-		GPUResource& operator=(const GPUResource&) = delete;
+
+		NON_COPYABLE_MOVABLE(GPUResource);
 	};
 }

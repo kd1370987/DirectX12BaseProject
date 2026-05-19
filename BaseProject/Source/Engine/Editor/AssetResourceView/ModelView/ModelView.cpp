@@ -67,17 +67,21 @@ namespace Engine::Editor
 
 	void ModelView::AnimationView(const Engine::Resource::Model& a_model)
 	{
-		auto& _aniVec = a_model.GetUPAnimationVec();
-		for(size_t _i = 0; _i < _aniVec.size(); ++_i)
+		auto& _aniHandleVec = a_model.GetAnimationHandles();
+		for(size_t _i = 0; _i < _aniHandleVec.size(); ++_i)
 		{
-			auto& _upAni = _aniVec[_i];
+			auto& _aniHandle = _aniHandleVec[_i];
+
+			// アニメーションデータ取得
+			const auto* _pAniData = Resource::ResourceManager::Instance().Get(_aniHandle);
+			if (!_pAniData) continue;
 
 			ImGui::PushID(static_cast<int>(_i));
 
-			if (ImGui::TreeNodeEx(_upAni->name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+			if (ImGui::TreeNodeEx(_pAniData->name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 			{
 				ImGui::Text("MaxTime");
-				ImGui::Text("%f", _upAni->maxLength);
+				ImGui::Text("%f", _pAniData->maxLength);
 
 				ImGui::TreePop();
 			}

@@ -45,7 +45,7 @@ namespace Engine::Graphics
 
 		const Resource::Material* pMaterial;
 		UINT subIdx = 0;
-		Resource::Mesh* pMesh = nullptr;
+		const Resource::Mesh* pMesh = nullptr;
 
 		Storage::Range boneRange = {};
 
@@ -245,7 +245,7 @@ namespace Engine::Graphics
 		// ルートパラメタインデックスを指定してのメッシュバインド
 		void BindMesh(
 			UINT a_index,
-			Resource::Mesh* a_pMesh,
+			const Resource::Mesh* a_pMesh,
 			const DirectX::XMFLOAT4X4& a_worldMat
 
 		);
@@ -257,7 +257,7 @@ namespace Engine::Graphics
 
 		// モデルの描画
 		void Draw(
-			Resource::Mesh* a_pMesh,
+			const Resource::Mesh* a_pMesh,
 			UINT a_subIdx
 		);
 
@@ -293,7 +293,7 @@ namespace Engine::Graphics
 		// 形状描画クラス
 		ShapeRenderer* m_pShapeDraw = nullptr;
 		//VertexBuffer m_shapeVertexBuffer = {};
-		D3D12::DynamicVertexBuffer<Resource::Vertex> m_shapeVertexBuffer = {};
+		D3D12::DynamicVertexBuffer<Resource::Vertex> m_shapeVertexBuffer;
 		
 
 		//--------------------------------------------------------------------------------------------
