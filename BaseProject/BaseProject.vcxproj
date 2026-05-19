@@ -258,7 +258,6 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.cpp" />
-    <ClCompile Include="Source\Core\Math\Collider.cpp" />
     <ClCompile Include="Source\Core\Storage\FreeRange\FreeRange.cpp" />
     <ClCompile Include="Source\Core\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Core\Time\FPSController\FPSController.cpp" />
@@ -463,7 +462,6 @@
     <ClInclude Include="Source\Core\Algorithm\Graph\TopologicalSort.h" />
     <ClInclude Include="Source\Core\Core.h" />
     <ClInclude Include="Source\Core\Math\Alignment.h" />
-    <ClInclude Include="Source\Core\Math\Collider.h" />
     <ClInclude Include="Source\Core\Shape\Capsule.h" />
     <ClInclude Include="Source\Core\Storage\FreeRange\FreeRange.h" />
     <ClInclude Include="Source\Core\Time\DeltaTime\DeltaTime.h" />

@@ -843,9 +843,6 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\SimpleDraw</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Math\Collider.cpp">
-      <Filter>Source\Core\Math</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp">
       <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
     </ClCompile>
@@ -1354,9 +1351,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h">
       <Filter>Source\Application\Components\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Math\Collider.h">
-      <Filter>Source\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Collision\Query\Raycast.h">
       <Filter>Source\Engine\Collision\Query</Filter>

@@ -17,7 +17,7 @@ namespace Engine::Resource
 	)
 	{
 		// 新しいノードを作成して配列に追加
-		VBHNode _node;
+		BVHNode _node;
 		int _nodeIndex = static_cast<int>(a_outMesh.nodeVec.size());
 		a_outMesh.nodeVec.push_back(_node);
 

@@ -9,7 +9,7 @@ namespace Engine::Resource
 	};
 
 	// 一つのボックス・依存関係
-	struct VBHNode
+	struct BVHNode
 	{
 		bool IsLeaf() const { return (leftChild == -1); }
 
