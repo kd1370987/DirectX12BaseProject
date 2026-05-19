@@ -757,6 +757,9 @@
     <Filter Include="Source\Engine\Collision\MidPhase\BVHTraverser">
       <UniqueIdentifier>{9d1f3920-6a5d-40b4-845c-d715eda1d982}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem">
+      <UniqueIdentifier>{65b34580-d12c-440a-a3c7-b26a12e1ad60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1223,6 +1226,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Collision\MidPhase\BVHTraverser\BVHTraverser.cpp">
       <Filter>Source\Engine\Collision\MidPhase\BVHTraverser</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Collision\CollisionWorld.cpp">
+      <Filter>Source\Engine\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.cpp">
+      <Filter>Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1903,6 +1912,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Collision\MidPhase\BVHTraverser\BVHTraverser.h">
       <Filter>Source\Engine\Collision\MidPhase\BVHTraverser</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Collision\CollisionWorld.h">
+      <Filter>Source\Engine\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.h">
+      <Filter>Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

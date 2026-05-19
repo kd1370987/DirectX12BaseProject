@@ -16,6 +16,8 @@
 
 #include "Application/App.h"
 
+#include "Collision/CollisionWorld.h"
+
 namespace Engine
 {
 	MainEngine::MainEngine()
@@ -112,6 +114,10 @@ namespace Engine
 		}
 
 		m_config = a_config;
+
+		// コリジョンワールド構築
+		m_upCollisionWorld = std::make_unique<Collision::CollisionWorld>();
+		m_upCollisionWorld->Clear();
 	}
 
 	void MainEngine::Release()
@@ -190,6 +196,9 @@ namespace Engine
 		// 描画フレームリソース
 		m_upGraphicsEngine->BegineFrame();
 
+		// 当たり判定構築
+		m_upCollisionWorld->BuildWorld();
+
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();
 		// ディスクリプタヒープをセット
 		ID3D12DescriptorHeap* _heaps[] = {
@@ -242,6 +251,10 @@ namespace Engine
 	Graphics::RenderContext* MainEngine::RefRenderContext()
 	{
 		return m_upGraphicsEngine->RefRenderContext();
+	}
+	Collision::CollisionWorld* MainEngine::RefCollisionWorld()
+	{
+		return m_upCollisionWorld.get();
 	}
 	void MainEngine::InitializeAssetDatabase()
 	{

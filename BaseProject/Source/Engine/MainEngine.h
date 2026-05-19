@@ -29,6 +29,10 @@ namespace Engine
 	{
 		class PipelineStateManager;
 	}
+	namespace Collision
+	{
+		class CollisionWorld;
+	}
 
 	// エンジン設定
 	struct EngineConfig
@@ -92,6 +96,9 @@ namespace Engine
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
 
+		// コリジョンワールド
+		Collision::CollisionWorld* RefCollisionWorld();
+
 	private:
 
 		// アセットマネージャーの初期化
@@ -105,6 +112,7 @@ namespace Engine
 		//std::unique_ptr<Resource::AssetDatabase> m_upAssetDatabase = nullptr;			// アセットのメタ管理
 		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス
 		std::unique_ptr<D3D12::PipelineStateManager> m_upPipelineStateManager = nullptr;// パイプラインステート管理
+		std::unique_ptr<Collision::CollisionWorld> m_upCollisionWorld = nullptr;		// 当たり判定用ワールド
 
 		// エンジン設定
 		EngineConfig m_config = {};

@@ -1,23 +1,13 @@
 ﻿#pragma once
 namespace Engine::Collision
 {
-	// コリジョンワールドに登録するインスタンス
-	struct CollisionInstance
-	{
-		ECS::Entity entity = ECS::Limits::INVALID_ENTITY;	// エンティティID
-
-		Resource::Model* pModelData = {};					// モデルポインタ
-		DirectX::XMFLOAT4X4 worldMat = {};					// ワールド行列
-
-		// モデル全体のAABBをワールド空間に変換したボックス
-		DirectX::BoundingBox worldAABB = {};
-		uint32_t layer = 0;
-	};
-
 	// 当たり判定を処理する専用の空間
 	class CollisionWorld
 	{
 	public:
+
+		CollisionWorld() = default;
+		~CollisionWorld() = default;
 
 		// インスタンスの登録
 		// 削除、移動、エディター時の変更用にハンドルを確保しておく
@@ -48,6 +38,6 @@ namespace Engine::Collision
 		std::vector<int> m_dynamicInstanceIndexVec = {};				// 全インスタンスインデックス
 
 		// ワールド全体のボックス
-		DirectX::BoundingBox m_worldAABB
+		DirectX::BoundingBox m_worldAABB = {};
 	};
-}
+};

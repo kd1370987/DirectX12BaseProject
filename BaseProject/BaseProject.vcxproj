@@ -245,6 +245,7 @@
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp" />
@@ -265,6 +266,7 @@
     <ClCompile Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.cpp" />
     <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp" />
     <ClCompile Include="Source\Engine\Collision\Collision.cpp" />
+    <ClCompile Include="Source\Engine\Collision\CollisionWorld.cpp" />
     <ClCompile Include="Source\Engine\Collision\Gather\Gather.cpp" />
     <ClCompile Include="Source\Engine\Collision\MidPhase\BVHTraverser\BVHTraverser.cpp" />
     <ClCompile Include="Source\Engine\Collision\NarrowPhase\TestAABB\TestAABB.cpp" />
@@ -445,6 +447,7 @@
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h" />
@@ -473,6 +476,7 @@
     <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h" />
     <ClInclude Include="Source\Engine\Collision\Collision.h" />
     <ClInclude Include="Source\Engine\Collision\CollisionCommon.h" />
+    <ClInclude Include="Source\Engine\Collision\CollisionWorld.h" />
     <ClInclude Include="Source\Engine\Collision\Gather\Gather.h" />
     <ClInclude Include="Source\Engine\Collision\MidPhase\BVHTraverser\BVHTraverser.h" />
     <ClInclude Include="Source\Engine\Collision\NarrowPhase\TestAABB\TestAABB.h" />

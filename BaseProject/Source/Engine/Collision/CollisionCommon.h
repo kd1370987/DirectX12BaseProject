@@ -1,6 +1,19 @@
 ﻿#pragma once
 namespace Engine::Collision
 {
+	// コリジョンワールドに登録するインスタンス
+	struct CollisionInstance
+	{
+		ECS::Entity entity = ECS::Limits::INVALID_ENTITY;	// エンティティID
+
+		const Resource::Model* pModelData = {};					// モデルポインタ
+		DirectX::XMFLOAT4X4 worldMat = {};					// ワールド行列
+
+		// モデル全体のAABBをワールド空間に変換したボックス
+		DirectX::BoundingBox worldAABB = {};
+		uint32_t layer = 0;
+	};
+
 	// ヒットした際に帰ってくる情報
 	struct Result
 	{

@@ -42,8 +42,8 @@ namespace Engine::Resource
 		{
 			a_outMesh.nodeVec[_nodeIndex].leftChild = -1;
 			a_outMesh.nodeVec[_nodeIndex].rightChild = -1;
-			a_outMesh.nodeVec[_nodeIndex].triangleStart = static_cast<int>(a_outMesh.triangleIndiccesVec.size());
-			a_outMesh.nodeVec[_nodeIndex].triangleCount = a_count;
+			a_outMesh.nodeVec[_nodeIndex].dataStart = static_cast<int>(a_outMesh.triangleIndiccesVec.size());
+			a_outMesh.nodeVec[_nodeIndex].dataCount = a_count;
 
 			// 葉ノードが参照するポリゴンインデックスを確定させる
 			for (int _i = 0; _i < a_count; ++_i)

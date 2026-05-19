@@ -52,10 +52,10 @@ namespace Engine::Collision
 				if (_node.IsLeaf())
 				{
 					// NarrowPhaseを呼び出し、三角形判定
-					for (int _i = 0; _i < _node.triangleCount; ++_i)
+					for (int _i = 0; _i < _node.dataCount; ++_i)
 					{
 						// 元のポリゴンインデックスを取得
-						int _triIdx = a_collisionMesh.triangleIndiccesVec[_node.triangleStart + _i];
+						int _triIdx = a_collisionMesh.triangleIndiccesVec[_node.dataStart + _i];
 						const auto& _triangle = a_collisionMesh.triangleVec[_triIdx];
 						// 三角形の頂点取得
 						DirectX::XMVECTOR _v0 = DirectX::XMLoadFloat3(&_triangle.v[0]);

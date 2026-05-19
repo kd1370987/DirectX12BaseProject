@@ -18,8 +18,8 @@ namespace Engine::Resource
 		int rightChild = -1;		// 右のノード
 
 		// 葉ノードの場合のみ、含まれるポリゴンのインデックス
-		int triangleStart = 0;		// スタート位置
-		int triangleCount = 0;		// ポリゴン数
+		int dataStart = 0;		// スタート位置
+		int dataCount = 0;		// ポリゴン数
 	};
 
 
@@ -32,7 +32,7 @@ namespace Engine::Resource
 		DirectX::BoundingBox _localAABB = {};		// メッシュ全体のローカルAABB
 
 		std::vector<CollisionTriangle> triangleVec = {};    // 判定用ポリゴン配列
-		std::vector<VBHNode> nodeVec = {};					// ノード配列
+		std::vector<BVHNode> nodeVec = {};					// ノード配列
 		std::vector<int> triangleIndiccesVec = {};			// 全ノードポリゴン
 
 		// ルートノードインデックス
