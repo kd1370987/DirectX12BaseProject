@@ -52,6 +52,7 @@ namespace Engine::Graphics
 			// ----------------------------------------------------
 			// PSOの切り替え
 			// ----------------------------------------------------
+			if (_psoID == 255) assert(0 && "PSOエラー");
 			if (_psoID != _lastPSO)
 			{
 				auto* _pPSO = m_pPipelineStateManager->GetPSO(_psoID);
@@ -64,7 +65,6 @@ namespace Engine::Graphics
 			// ----------------------------------------------------
 			if (_materialID != _lassMaterialID)
 			{
-				a_pCtx->BindMaterial(3, _materialID, _item.colorScale, _item.emissiveScale);
 				a_pCtx->BindMaterialSRV(5, _materialID);
 				_lassMaterialID = _materialID;
 			}
@@ -84,6 +84,9 @@ namespace Engine::Graphics
 
 			// メッシュの行列
 			a_pCtx->BindMeshMat(2,_item.worldMat);
+
+			// マテリアルの色指定
+			a_pCtx->BindMaterial(3, _materialID, _item.colorScale, _item.emissiveScale);
 
 			// アニメーションタイプならボーンをバインド
 			if (_item.isAnimation)

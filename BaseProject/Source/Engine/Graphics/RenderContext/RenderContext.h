@@ -244,8 +244,7 @@ namespace Engine::Graphics
 		const std::vector<DrawItem2D>& GetItemVec(const RenderQueueType2D& a_type) const;	// 2D
 
 		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex);
-		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex,uint8_t a_psoIndex);
-
+		
 		// 描画命令の実行
 		void Excute(RenderGraph* a_pGraph);
 

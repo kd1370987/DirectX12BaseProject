@@ -579,10 +579,6 @@ namespace Engine::Graphics
 		return std::span<const LightWeightDrawItem>(_itStart,_itEnd);
 	}
 
-	std::span<const LightWeightDrawItem> RenderContext::GetPassItems(uint8_t a_passIndex, uint8_t a_psoIndex)
-	{
-	}
-
 	void RenderContext::Excute(RenderGraph* a_pGraph)
 	{
 		// ソートする

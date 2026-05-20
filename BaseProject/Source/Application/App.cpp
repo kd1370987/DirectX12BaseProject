@@ -105,10 +105,9 @@ void Application::MainLoop()
 			SceneManager::Instance().Draw(Engine::MainEngine::Instance().RefRenderContext());
 		}
 		Engine::MainEngine::Instance().EndDraw();					// 描画終了
-
+		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop_Draw");
 		// フレーム終了
 		Engine::MainEngine::Instance().EndFrame();
-		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop_Draw");
 		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop");
 	}
 }

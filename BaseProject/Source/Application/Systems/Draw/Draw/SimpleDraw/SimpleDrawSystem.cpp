@@ -4,6 +4,7 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "../../../../../Engine/Graphics/GraphicEngine.h"
+#include "../../../../../Engine/Graphics/RenderPass/BaseRenderPass.h"
 
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
@@ -40,6 +41,16 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 			uint8_t _opeqIdx = _pRG->GetPassIndex("GBuffer");
 			uint8_t _fwIdx = _pRG->GetPassIndex("ForwardLighting");
 
+			const auto* _zprePass = _pRG->GetPass("ZPre");
+			const auto* _gbufferPass = _pRG->GetPass("GBuffer");
+			const auto* _fwPass = _pRG->GetPass("ForwardLighting");
+
+			const uint8_t _zpreStatic = _zprePass->GetPSOIndex("ZPreStatic");
+			const uint8_t _gbuffStatic = _gbufferPass->GetPSOIndex("GBufferStatic");
+			//const uint8_t _fwStatic = _fwPass->GetPSOIndex("ForwardLithingPSO");
+
+
+
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
@@ -67,8 +78,9 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 					
 					_item.sortKey.bits.meshID = _cmd.meshRawID;
 					_item.sortKey.bits.materialID = _cmd.materialRawID;
-					_item.sortKey.bits.psoID = 0;		// 仮でアニメーションナシは0ありは1
 					
+					_item.isAnimation = false;
+
 					_item.subIndex = _cmd.subIdx;
 					
 					// 変換
@@ -77,22 +89,28 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 					switch (_cmd.alphaMode)
 					{
 					case Engine::Resource::Alpha::Opaque:
+						_item.sortKey.bits.psoID = _zpreStatic;
 						_item.sortKey.bits.passIndex = _zpreIdx;
 						_pRCT->AddItem(_item);
+						_item.sortKey.bits.psoID = _gbuffStatic;
 						_item.sortKey.bits.passIndex = _opeqIdx;
 						_pRCT->AddItem(_item);
 						break;
 					case Engine::Resource::Alpha::Mask:
+						_item.sortKey.bits.psoID = _zpreStatic;
 						_item.sortKey.bits.passIndex = _zpreIdx;
 						_pRCT->AddItem(_item);
+						_item.sortKey.bits.psoID = _gbuffStatic;
 						_item.sortKey.bits.passIndex = _opeqIdx ;
 						_pRCT->AddItem(_item);
 						break;
 					case Engine::Resource::Alpha::Blend:
-						_item.sortKey.bits.passIndex = _zpreIdx;
-						_pRCT->AddItem(_item);
-						_item.sortKey.bits.passIndex = _fwIdx;
-						_pRCT->AddItem(_item);
+						//_item.sortKey.bits.psoID = _zpreStatic;
+						//_item.sortKey.bits.passIndex = _zpreIdx;
+						//_pRCT->AddItem(_item);
+						//_item.sortKey.bits.psoID = _fwStatic;
+						//_item.sortKey.bits.passIndex = _fwIdx;
+						//_pRCT->AddItem(_item);
 						break;
 					default:
 						break;

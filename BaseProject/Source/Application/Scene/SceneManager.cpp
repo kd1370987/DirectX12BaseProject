@@ -53,11 +53,15 @@ void SceneManager::Draw(Engine::Graphics::RenderContext* a_pRCT)
 	// すべてのシーンを描画
 	for (auto& _scene : m_upBaseSceneVec)
 	{
+		Engine::Editor::MainEditor::Instance().StartWatch("ECSDraw");
 		// 命令のスタック
 		_scene->Draw();
+		Engine::Editor::MainEditor::Instance().EndWatch("ECSDraw");
 
 		// 命令の実行
+		Engine::Editor::MainEditor::Instance().StartWatch("RGDraw");
 		Engine::MainEngine::Instance().ExcuteDrawCmd();
+		Engine::Editor::MainEditor::Instance().EndWatch("RGDraw");
 	}
 }
 
