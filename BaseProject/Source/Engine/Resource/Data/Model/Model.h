@@ -43,6 +43,16 @@ namespace Engine::Resource
 		ModelData& operator=(ModelData&&) noexcept = default;
 	};
 
+	// モデル描画時用キャッシュデータ
+	struct ModelDrawCommand
+	{
+		uint16_t nodeIndex;      // モデル内のローカルノード番号
+		uint16_t meshRawID;      // ResourceManager 内の配列インデックス(Raw ID)
+		uint16_t materialRawID;  // ResourceManager 内の配列インデックス(Raw ID)
+		uint8_t  subIdx;
+		Engine::Resource::Alpha alphaMode;
+	};
+
 	// モデルデータ
 	class Model
 	{
@@ -55,9 +65,6 @@ namespace Engine::Resource
 		void Import(const std::string& a_filePath);
 
 		// ---- アクセサ ----
-		//const AnimationData* GetAnimation(uint32_t a_clipID) const;					// アニメーション取得
-		//uint32_t GetAnimationClipCount(const std::string& a_animeNmae) const;		// アニメーションクリップ取得
-
 		// データのハンドル
 		const std::vector<Handle<Material>>&		GetMaterialHandles()	const { return m_materialHandleVec; }
 		const std::vector<Handle<Mesh>>&			GetMeshHandles()		const { return m_meshHandleVec; }
@@ -73,6 +80,9 @@ namespace Engine::Resource
 		const std::vector<int>& GetMeshNodeVec() const { return m_meshNodeIndices; }
 		const std::vector<int>& GetCollisionMeshNodeVec() const { return m_collisionMeshNodeIndices; }
 		const std::vector<int>& GetDrawNodeVec() const { return m_drawMeshNodeIndices; }
+
+		// 描画時用コマンド取得
+		const std::vector<ModelDrawCommand>& GetDrawCommandVec() const { return m_cachedDrawCommands; }
 
 	private:
 
@@ -93,6 +103,9 @@ namespace Engine::Resource
 		std::vector<int>							m_meshNodeIndices;			// メッシュが存在するノード
 		std::vector<int>							m_collisionMeshNodeIndices;	// 子リジョンメッシュが存在するノード
 		std::vector<int>							m_drawMeshNodeIndices;		// 描画するノード
+
+		// 描画コマンド用事前キャッシュ
+		std::vector<ModelDrawCommand> m_cachedDrawCommands;
 
 		
 	public:

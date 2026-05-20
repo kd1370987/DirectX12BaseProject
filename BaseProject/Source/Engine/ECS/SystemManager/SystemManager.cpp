@@ -13,6 +13,7 @@ namespace Engine::ECS
 
 	void SystemManager::RunSystem(World& a_world, const ESystemType& a_type, float a_dt)
 	{
+
 		// フェーズ検索
 		auto _cit = m_compileTaskMap.find(a_type);
 		if (_cit != m_compileTaskMap.end())

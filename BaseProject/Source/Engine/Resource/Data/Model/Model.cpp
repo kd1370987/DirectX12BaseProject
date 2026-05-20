@@ -36,6 +36,41 @@ namespace Engine::Resource
 		m_drawMeshNodeIndices = std::move(_model.drawMeshNodeIndices);
 
 		m_name = FileUtility::GetFileName(a_filePath);
+
+		// 描画時コマンド用に事前キャッシュを作っておく
+
+		// 描画用meshを持っているノード
+		for (auto& _nodeIdx : m_drawMeshNodeIndices)
+		{
+			for (auto& _meshIdx : m_originalNodes[_nodeIdx].meshIndices)
+			{
+				// 描画メッシュハンドル取得
+				const auto& _meshHandle = m_meshHandleVec[_meshIdx];
+				const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandle);
+				// サブセットごとに描画するアイテムを集める
+				for (UINT _subIdx = 0; _subIdx < _pMesh->GetMetaData().subsets.size(); ++_subIdx)
+				{
+					// 面が一枚もなければスキップ
+					if (_pMesh->GetMetaData().subsets[_subIdx].faceCount == 0) continue;
+
+					// マテリアルハンドル取得
+					const auto& _materialHandle =
+						m_materialHandleVec[_pMesh->GetMetaData().subsets[_subIdx].materialNumber];
+					const auto* _pMate = Engine::Resource::ResourceManager::Instance().Get(_materialHandle);
+
+					// コマンド作成
+					ModelDrawCommand _cmd = {};
+					_cmd.nodeIndex = static_cast<uint16_t>(_nodeIdx);
+					_cmd.meshRawID = static_cast<uint16_t>(_meshHandle.idx);
+					_cmd.materialRawID = static_cast<uint16_t>(_materialHandle.idx);
+					_cmd.subIdx = _subIdx;
+					_cmd.alphaMode = _pMate->alphaMode;
+					m_cachedDrawCommands.push_back(_cmd);
+				}
+
+			}
+		}
+
 	}
 	//const AnimationData* Engine::Resource::Model::GetAnimation(uint32_t a_clipID) const
 	//{
