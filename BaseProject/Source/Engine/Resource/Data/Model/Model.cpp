@@ -72,30 +72,4 @@ namespace Engine::Resource
 		}
 
 	}
-	//const AnimationData* Engine::Resource::Model::GetAnimation(uint32_t a_clipID) const
-	//{
-	//	// アニメーション取得
-	//	if (a_clipID < m_upAnimationVec.size())
-	//	{
-	//		return m_upAnimationVec[a_clipID].get();
-	//	}
-
-	//	// 取得失敗
-	//	return nullptr;
-	//}
-
-	//uint32_t Engine::Resource::Model::GetAnimationClipCount(const std::string& a_animeNmae) const
-	//{
-	//	// アニメーション取得
-	//	for (size_t _i = 0; _i < m_upAnimationVec.size(); ++_i)
-	//	{
-	//		if (m_upAnimationVec[_i]->name == a_animeNmae)
-	//		{
-	//			return static_cast<uint32_t>(_i);
-	//		}
-	//	}
-
-	//	assert(false && "アニメーションが見つかりませんでした");
-	//	return 0;
-	//}
 }

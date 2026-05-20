@@ -51,6 +51,8 @@ namespace Engine::Graphics
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
 
+		RenderGraph* RefRenderGraph();
+
 	private:
 		// レンダーコンテキスト
 		// 一フレーム内の描画情報を扱う

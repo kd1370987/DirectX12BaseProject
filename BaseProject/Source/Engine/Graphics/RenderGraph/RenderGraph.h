@@ -64,6 +64,9 @@ namespace Engine::Graphics
 		Resource::ID GetID(const std::string& a_resourceName);
 		Resource::Handle<Resource::Texture> GetTexHandle(const std::string& a_resourceName);
 
+		uint8_t GetPassIndex(const std::string& a_passName);
+		const BaseRenderPass* GetPass(const std::string& a_passName);
+
 		// パス登録
 		template<typename Pass>
 		void RegisterPass()

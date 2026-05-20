@@ -52,5 +52,6 @@ namespace Engine::Graphics
 		// ランタイムデータ
 		ID3D12RootSignature* m_pRootSig;
 		std::vector<std::pair<ID3D12PipelineState*, RenderQueueType>> m_pPsoVec = {};
+		std::vector<Resource::Handle<ID3D12PipelineState>> m_psoHandleVec = {};
 	};
 }

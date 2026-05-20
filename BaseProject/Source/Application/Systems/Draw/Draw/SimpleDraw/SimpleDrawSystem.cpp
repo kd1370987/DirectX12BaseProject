@@ -2,6 +2,8 @@
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/MainEngine.h"
+#include "Engine/Graphics/RenderGraph/RenderGraph.h"
+#include "../../../../../Engine/Graphics/GraphicEngine.h"
 
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
@@ -29,6 +31,15 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 		{
 			auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
 
+			auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
+			if (!_pGE) return;
+			auto* _pRG = _pGE->RefRenderGraph();
+			if (!_pRG) return;
+
+			uint8_t _zpreIdx = _pRG->GetPassIndex("ZPre");
+			uint8_t _opeqIdx = _pRG->GetPassIndex("GBuffer");
+			uint8_t _fwIdx = _pRG->GetPassIndex("ForwardLighting");
+
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
@@ -40,12 +51,56 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 				_item.colorScale = _modelComp.colorScale;
 				_item.emissiveScale = _modelComp.emissiveScale;
 
+
 				// モデル取得
 				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_model) continue;
-
+				const DXSM::Matrix _worldMat(_worldMatComp.worldMat);
 				// 描画コマンド取得
 				const auto& _drawCmdVec = _model->GetDrawCommandVec();
+				for (auto& _cmd : _drawCmdVec)
+				{
+					Engine::Graphics::LightWeightDrawItem _item = {};
+					_item.worldMat = _worldMatComp.worldMat;
+					_item.colorScale = _modelComp.colorScale;
+					_item.emissiveScale = _modelComp.emissiveScale;
+					
+					_item.sortKey.bits.meshID = _cmd.meshRawID;
+					_item.sortKey.bits.materialID = _cmd.materialRawID;
+					_item.sortKey.bits.psoID = 0;		// 仮でアニメーションナシは0ありは1
+					
+					_item.subIndex = _cmd.subIdx;
+					
+					// 変換
+					DXSM::Matrix _nodeTransMat(_model->GetOriginalNodeVec()[_cmd.nodeIndex].worldTransform); DirectX::XMStoreFloat4x4(&_item.worldMat, _nodeTransMat * _worldMat);
+
+					switch (_cmd.alphaMode)
+					{
+					case Engine::Resource::Alpha::Opaque:
+						_item.sortKey.bits.passIndex = _zpreIdx;
+						_pRCT->AddItem(_item);
+						_item.sortKey.bits.passIndex = _opeqIdx;
+						_pRCT->AddItem(_item);
+						break;
+					case Engine::Resource::Alpha::Mask:
+						_item.sortKey.bits.passIndex = _zpreIdx;
+						_pRCT->AddItem(_item);
+						_item.sortKey.bits.passIndex = _opeqIdx ;
+						_pRCT->AddItem(_item);
+						break;
+					case Engine::Resource::Alpha::Blend:
+						_item.sortKey.bits.passIndex = _zpreIdx;
+						_pRCT->AddItem(_item);
+						_item.sortKey.bits.passIndex = _fwIdx;
+						_pRCT->AddItem(_item);
+						break;
+					default:
+						break;
+					}
+
+
+
+				}
 
 				// ノード
 				auto& _dataNodes = _model->GetOriginalNodeVec();

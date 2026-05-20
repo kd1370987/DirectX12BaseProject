@@ -18,6 +18,10 @@ namespace Engine::Graphics
 		for(auto&[_type,_desc] : m_psoMap)
 		{
 			m_pPsoVec.push_back({m_pPipelineStateManager->Request(_desc.psoDesc),_desc.type});
+
+			auto _handle = m_pPipelineStateManager->RequestHandle(_desc.psoDesc);
+			m_psoHandleVec.push_back(_handle);
+			m_psoIndexMap[_desc.psoDesc.name] = static_cast<uint8_t>(_handle.idx);
 		}
 	}
 	void RasterizePass::Begine(RenderContext* a_pCtx)
@@ -32,12 +36,71 @@ namespace Engine::Graphics
 	}
 	void RasterizePass::DrawQueue(RenderContext * a_pCtx)
 	{
+		uint16_t _lassMaterialID = 0xFFFF;
+		uint16_t _lastMeshID = 0xFFFF;
+		uint8_t _lastPSO = 0xFF;
+
+		// 指定タイプの命令キューを取得
+		auto _itemVec = a_pCtx->GetPassItems(m_passIndex);
+		if (_itemVec.empty()) return;;
+
+		for (auto& _item : _itemVec)
+		{
+			uint8_t  _psoID = _item.GetPSOID();
+			uint16_t _materialID = _item.GetMaterialID();
+			uint16_t _meshID = _item.GetMeshID();
+			// ----------------------------------------------------
+			// PSOの切り替え
+			// ----------------------------------------------------
+			if (_psoID != _lastPSO)
+			{
+				auto* _pPSO = m_pPipelineStateManager->GetPSO(_psoID);
+				a_pCtx->SetGraphicPSO(_pPSO);
+
+				_lastPSO = _psoID;
+			}
+			// ----------------------------------------------------
+			// マテリアルのバインド
+			// ----------------------------------------------------
+			if (_materialID != _lassMaterialID)
+			{
+				a_pCtx->BindMaterial(3, _materialID, _item.colorScale, _item.emissiveScale);
+				a_pCtx->BindMaterialSRV(5, _materialID);
+				_lassMaterialID = _materialID;
+			}
+			// ----------------------------------------------------
+			// メッシュのバインド
+			// ----------------------------------------------------
+			if (_meshID != _lastMeshID)
+			{
+				a_pCtx->BindMesh(_meshID);
+				_lastMeshID = _meshID;
+			}
+
+			// オブジェクト情報セット
+			DXSM::Vector2 _uv = { 0,0 };
+			DXSM::Vector2 _tile = { 1,1 };
+			a_pCtx->BindObuje(1, _uv, _tile);
+
+			// メッシュの行列
+			a_pCtx->BindMeshMat(2,_item.worldMat);
+
+			// アニメーションタイプならボーンをバインド
+			if (_item.isAnimation)
+			{
+				a_pCtx->BindCBBone(_item.boneRange);
+			}
+
+			// 描画
+			a_pCtx->Draw(_item.GetMeshID(), _item.subIndex);
+		}
+		return;
+
 		for (auto& [_pPso,_type] : m_pPsoVec)
 		{
 			// PSOのセット
 			a_pCtx->SetGraphicPSO(_pPso);
 
-			// 指定タイプの命令キューを取得
 			auto _draws = a_pCtx->GetItemVec(_type);
 			if (_draws.size() <= 0) continue;
 

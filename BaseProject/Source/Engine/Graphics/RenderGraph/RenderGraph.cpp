@@ -242,6 +242,9 @@ namespace Engine::Graphics
 				}
 			}
 
+			// パスのインデックスを指定
+			_cp.pPass->SetPassIndex(m_compiledPasses.size());
+
 			// 実行データに入れていく
 			m_compiledPasses.push_back(_cp);
 		}
@@ -372,6 +375,37 @@ namespace Engine::Graphics
 		auto _id = GetID(a_resourceName);
 		return m_upRGResourceManager->GetTexHandle(_id);
 	}
+
+	uint8_t RenderGraph::GetPassIndex(const std::string& a_passName)
+	{
+		if (m_compiledPasses.empty()) return 255;
+
+		for (auto& _pass : m_compiledPasses)
+		{
+			if (_pass.pPass->GetName() == a_passName)
+			{
+				return _pass.pPass->GetPassIndex();
+			}
+		}
+
+		return 255;
+	}
+
+	const BaseRenderPass* RenderGraph::GetPass(const std::string& a_passName)
+	{
+		if (m_compiledPasses.empty()) return nullptr;
+
+		for (auto& _pass : m_compiledPasses)
+		{
+			if (_pass.pPass->GetName() == a_passName)
+			{
+				return _pass.pPass;
+			}
+		}
+
+		return nullptr;
+	}
+
 
 	std::vector<std::string> RenderGraph::GetRGResourceList()
 	{

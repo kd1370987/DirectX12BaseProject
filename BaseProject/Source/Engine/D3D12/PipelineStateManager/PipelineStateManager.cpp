@@ -117,6 +117,32 @@ namespace Engine::D3D12
 		return _pso.Get();
 	}
 
+	Resource::Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(const D3D12::GraphicsPipelineDesc& a_desc)
+	{
+		auto _handle = m_psoHandleStorage.Allocate();
+		if (m_pPsoVec.size() <= _handle.idx)
+		{
+			m_pPsoVec.resize(_handle.idx + 1);
+		}
+		m_pPsoVec[_handle.idx] = Request(a_desc);
+
+		return _handle;
+	}
+
+	ID3D12PipelineState* PipelineStateManager::GetPSO(Resource::Handle<ID3D12PipelineState> a_handle)
+	{
+		if (m_psoHandleStorage.IsValid(a_handle))
+		{
+			return m_pPsoVec[a_handle.idx];
+		}
+		return nullptr;
+	}
+
+	ID3D12PipelineState* PipelineStateManager::GetPSO(uint8_t a_rawIdx8bit)
+	{
+		return m_pPsoVec[a_rawIdx8bit];
+	}
+
 	uint64_t PipelineStateManager::CalcHash(const void* a_pData, size_t a_size)
 	{
 		const uint8_t* _ptr = static_cast<const uint8_t*>(a_pData);

@@ -11,6 +11,16 @@ namespace Engine::Graphics
 		CreatePass();
 	}
 
+	uint8_t BaseRenderPass::GetPSOIndex(const std::string& a_psoName) const
+	{
+		auto _it = m_psoIndexMap.find(a_psoName);
+		if (_it != m_psoIndexMap.end())
+		{
+			return _it->second;
+		}
+		return 255;
+	}
+
 	void BaseRenderPass::SetPassName(const std::string& a_name)
 	{
 		m_name = a_name;

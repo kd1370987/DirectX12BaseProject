@@ -548,8 +548,52 @@ namespace Engine::Graphics
 		return {};
 	}
 
+	std::span<const LightWeightDrawItem> RenderContext::GetPassItems(uint8_t a_passIndex)
+	{
+		// 探したいパスのキーの最小値と最大値を求める
+		uint64_t _minKey = static_cast<uint64_t>(a_passIndex) << 56;
+		uint64_t _maxKey = _minKey | 0x00FFFFFFFFFFFFFFull; // 下位56ビットをすべて1にする
+
+		// ソート済み配列から開始位置を見つける
+		auto _itStart = std::lower_bound(
+			m_lightWeightDrawItemVec.begin(),
+			m_lightWeightDrawItemVec.end(),
+			_minKey,
+			[](const LightWeightDrawItem& a_item, uint64_t a_value)
+			{
+				return a_item.sortKey.value < a_value;
+			}
+		);
+
+		// ソート済み配列から終了位置を見つける
+		auto _itEnd = std::upper_bound(
+			_itStart,		// 開始位置から探す
+			m_lightWeightDrawItemVec.end(),
+			_maxKey,
+			[](uint64_t a_value, const LightWeightDrawItem& a_item)
+			{
+				return a_value < a_item.sortKey.value;
+			}
+		);
+
+		return std::span<const LightWeightDrawItem>(_itStart,_itEnd);
+	}
+
+	std::span<const LightWeightDrawItem> RenderContext::GetPassItems(uint8_t a_passIndex, uint8_t a_psoIndex)
+	{
+	}
+
 	void RenderContext::Excute(RenderGraph* a_pGraph)
 	{
+		// ソートする
+		std::sort(
+			m_lightWeightDrawItemVec.begin(), m_lightWeightDrawItemVec.end(),
+			[](const LightWeightDrawItem& a, const LightWeightDrawItem& b)
+			{
+				return a.sortKey.value < b.sortKey.value;
+			}
+		);
+
 		// ボーン行列の更新
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
 		auto& _bonePalleteVec = Animation::AnimationMatrixManager::Instance().GetBoneMatStorage();
@@ -569,6 +613,9 @@ namespace Engine::Graphics
 		// 描画対象アイテムリストのクリア
 		m_drawItemMap.clear();
 		m_drawItem2DMap.clear();
+
+		m_lightWeightDrawItemVec.clear();
+		m_lightWeightDrawItemVec.reserve(10000);
 	}
 
 	void RenderContext::ClearCmd()
@@ -640,6 +687,34 @@ namespace Engine::Graphics
 		);
 	}
 
+	void RenderContext::BindMaterial(UINT a_index, const uint16_t& a_materialID, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
+	{
+		const auto* _pMaterial = Resource::ResourceManager::Instance().Accece<Resource::Material>(a_materialID);
+		if (!_pMaterial) return;
+
+		// ベースカラー
+		DXSM::Vector4 _colorScale(a_colorScale);
+		DXSM::Vector4 _materialScale(_pMaterial->baseColor);
+		m_cb3_Material.baseColorXYZW = _materialScale * _colorScale;
+
+		// エミッシブ
+		DXSM::Vector3 _emissiveScale(a_emissiveScale);
+		DXSM::Vector3 _materialEmissiveScale(_pMaterial->emissive);
+		DXSM::Vector3 _emiVec3 = _materialEmissiveScale * _emissiveScale;
+		m_cb3_Material.emissiveXYZ = { _emiVec3.x,_emiVec3.y,_emiVec3.z,1 };
+
+		// マテリアルラフネス
+		m_cb3_Material.metallicRoughnessXY = { _pMaterial->metallic ,_pMaterial->roughness,0,0 };
+
+
+		// マテリアルバッファバインド
+		BindCB()->BindAndAttachDataRootCBV<CBMaterial>(
+			m_pCmdList->NGet(),
+			a_index,
+			m_cb3_Material
+		);
+	}
+
 	void RenderContext::BindMaterialSRV(UINT a_index, const Resource::Material* a_pMaterial)
 	{
 		// SRVの送信
@@ -654,6 +729,20 @@ namespace Engine::Graphics
 		}
 	}
 
+	void RenderContext::BindMaterialSRV(UINT a_index, uint16_t a_materialID)
+	{
+		const auto* _pMaterial = Resource::ResourceManager::Instance().Accece<Resource::Material>(a_materialID);
+		if (!_pMaterial) return;
+
+		std::vector<Resource::Handle<Resource::Texture>> _texVec = {};
+		_texVec.push_back(_pMaterial->baseColorTex);
+		_texVec.push_back(_pMaterial->metaRoughTex);
+		_texVec.push_back(_pMaterial->emissiveTex);
+		_texVec.push_back(_pMaterial->normalTex);
+		BindSRV(a_index, _texVec);
+		
+	}
+
 
 	void RenderContext::BindMesh(UINT a_index, const Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
 	{
@@ -664,18 +753,38 @@ namespace Engine::Graphics
 			a_index,
 			m_cb2_MeshTrans
 		);
+		
+		if (!a_pMesh) return;
+		
+		if (!a_pMesh->HasRasterData()) return;
+		auto _vertView = a_pMesh->GetRasterData().vertexBuffer.GetView();
+		m_pCmdList->IASetVertexBuffers(0, 1, &_vertView);
+		const auto& _pIndexView = a_pMesh->GetRasterData().indexBuffer.GetView();
+		m_pCmdList->IASetIndexBuffer(&_pIndexView);
+	}
 
-		// 頂点バッファとインデックスバッファのセット
-		//if (a_pMesh != m_pCurrentMesh)
-		{
-			if (!a_pMesh) return;
-			//auto _vertView = a_pMesh->GetVertexBuffer().GetView();
-			if (!a_pMesh->HasRasterData()) return;
-			auto _vertView = a_pMesh->GetRasterData().vertexBuffer.GetView();
-			m_pCmdList->IASetVertexBuffers(0, 1, &_vertView);
-			const auto& _pIndexView = a_pMesh->GetRasterData().indexBuffer.GetView();
-			m_pCmdList->IASetIndexBuffer(&_pIndexView);
-		}
+	void RenderContext::BindMeshMat(UINT a_index, const DirectX::XMFLOAT4X4& a_worldMat)
+	{
+		// メッシュ変換行列の転送
+		m_cb2_MeshTrans.worldMat = a_worldMat;
+		BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
+			m_pCmdList->NGet(),
+			a_index,
+			m_cb2_MeshTrans
+		);
+	}
+
+	void RenderContext::BindMesh(uint16_t a_meshID)
+	{
+		const auto* _pMesh = Resource::ResourceManager::Instance().Accece<Resource::Mesh>(a_meshID);
+		if (!_pMesh) return;
+
+		if (!_pMesh->HasRasterData()) return;
+		const auto& _vertView = _pMesh->GetRasterData().vertexBuffer.GetView();
+		const auto& _pIndexView = _pMesh->GetRasterData().indexBuffer.GetView();
+
+		m_pCmdList->IASetVertexBuffers(0, 1, &_vertView);
+		m_pCmdList->IASetIndexBuffer(&_pIndexView);
 	}
 
 	void RenderContext::Draw(const Resource::Mesh* a_pMesh, UINT a_subIdx)
@@ -686,6 +795,14 @@ namespace Engine::Graphics
 		m_pCmdList->NGet()->DrawIndexedInstanced(
 			_faceCount * 3, 1, _faceStart * 3, 0, 0
 		);
+	}
+
+	void RenderContext::Draw(uint16_t a_meshID, UINT a_subIdx)
+	{
+		const auto* _pMesh = Resource::ResourceManager::Instance().Accece<Resource::Mesh>(a_meshID);
+		if (!_pMesh) return;
+
+		Draw(_pMesh, a_subIdx);
 	}
 
 	void RenderContext::SetViewPort()

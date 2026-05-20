@@ -85,4 +85,8 @@ namespace Engine::Graphics
 		return m_upRenderContextVec[m_currentFrameIndex].get();
 		
 	}
+	RenderGraph* GraphicsEngine::RefRenderGraph()
+	{
+		return m_upRenderGraph.get();
+	}
 }

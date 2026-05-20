@@ -37,6 +37,42 @@ namespace Engine::Graphics
 		PBR,
 	};
 
+	// 64ビットのソートキー
+	union RenderSortKey
+	{
+		uint64_t value;
+		struct {
+			// 下位ビットから順に判断優先度が低くなるように配置する
+			uint64_t depth : 16;			// 深度
+			uint64_t meshID : 16;			// メッシュ
+			uint64_t materialID : 16;		// マテリアル
+			uint64_t psoID: 8;				// PSOID
+			uint64_t passIndex : 8;			// パスインデックス
+		} bits;
+	};
+
+	struct LightWeightDrawItem
+	{
+		// 描画順序と各種IDの情報すべてを持つ
+		RenderSortKey sortKey;
+		UINT subIndex = 0;
+
+		// インスタンスデータ
+		bool isAnimation = false;
+		Storage::Range boneRange = {};
+
+		DirectX::XMFLOAT4X4 worldMat = {};
+		DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
+		DirectX::XMFLOAT3	emissiveScale = { 1,1,1 };
+
+		// ヘルパー関数
+		uint8_t GetPassIndex()		const { return static_cast<uint8_t>(sortKey.value >> 56); }
+		uint8_t GetPSOID()			const { return static_cast<uint8_t>((sortKey.value >> 48) & 0xFF); }
+		uint16_t GetMaterialID()	const { return static_cast<uint16_t>((sortKey.value >> 32) & 0xFFFF); }
+		uint16_t GetMeshID()		const { return static_cast<uint16_t>((sortKey.value >> 16) & 0xFFFF); }
+	};
+
+
 	// １DrawCall当たりアイテム
 	struct DrawItem
 	{
@@ -200,11 +236,15 @@ namespace Engine::Graphics
 		// 描画命令の追加
 		void AddItem(const RenderQueueType& a_type, const DrawItem& a_item);		// 3D
 		void AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec);		// 2D
+		void AddItem(const LightWeightDrawItem& a_item) { m_lightWeightDrawItemVec.push_back(a_item); }
 
 		// 描画命令の取得
 		//const std::vector<DrawItem>& GetItemVec(const RenderQueueType& a_type) const;		// 3D
 		std::span<const DrawItem> GetItemVec(const RenderQueueType& a_type) const;			// 3D : ビューを返す
 		const std::vector<DrawItem2D>& GetItemVec(const RenderQueueType2D& a_type) const;	// 2D
+
+		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex);
+		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex,uint8_t a_psoIndex);
 
 		// 描画命令の実行
 		void Excute(RenderGraph* a_pGraph);
@@ -238,17 +278,28 @@ namespace Engine::Graphics
 			const DirectX::XMFLOAT4& a_colorScale,
 			const DirectX::XMFLOAT3& a_emissiveScale
 		);
+		void BindMaterial(
+			UINT a_index,
+			const uint16_t& a_materialID,
+			const DirectX::XMFLOAT4& a_colorScale,
+			const DirectX::XMFLOAT3& a_emissiveScale
+		);
 		void BindMaterialSRV(
 			UINT a_index,
 			const Resource::Material* a_pMaterial
+		);
+		void BindMaterialSRV(
+			UINT a_index,
+			uint16_t a_materialID
 		);
 		// ルートパラメタインデックスを指定してのメッシュバインド
 		void BindMesh(
 			UINT a_index,
 			const Resource::Mesh* a_pMesh,
 			const DirectX::XMFLOAT4X4& a_worldMat
-
 		);
+		void BindMeshMat(UINT a_index,const DirectX::XMFLOAT4X4& a_worldMat);
+		void BindMesh(uint16_t a_meshID);
 		// ビューポート設定
 		void SetViewPort();
 
@@ -256,10 +307,8 @@ namespace Engine::Graphics
 		void SetScissorRect();
 
 		// モデルの描画
-		void Draw(
-			const Resource::Mesh* a_pMesh,
-			UINT a_subIdx
-		);
+		void Draw(const Resource::Mesh* a_pMesh,UINT a_subIdx);
+		void Draw(uint16_t a_meshID,UINT a_subIdx);
 
 
 		//リソースバリア設定
@@ -281,6 +330,7 @@ namespace Engine::Graphics
 
 		// 形状描画
 		void ShapeDraw();
+
 
 	private:
 		// D3DObject
@@ -335,6 +385,9 @@ namespace Engine::Graphics
 
 		// 描画用ポリゴン
 		std::shared_ptr<Resource::QuadPolygon> m_spQuadPolygon = nullptr;
+
+		// ソートキー持ち描画コマンドリスト
+		std::vector<LightWeightDrawItem> m_lightWeightDrawItemVec = {};
 	};
 	template<typename T>
 	inline void RenderContext::BindRootCBV(UINT a_index, const T& a_data)

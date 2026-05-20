@@ -250,6 +250,10 @@ namespace Engine
 	{
 		m_upGraphicsEngine->ExcuteDrawCmd();
 	}
+	Graphics::GraphicsEngine* MainEngine::RefGraphicsEngine()
+	{
+		return m_upGraphicsEngine.get();
+	}
 	const Graphics::RenderContext* MainEngine::GetRenderContext() const
 	{
 		return m_upGraphicsEngine->GetRenderContext();

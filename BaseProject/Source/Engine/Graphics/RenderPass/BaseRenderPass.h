@@ -45,6 +45,11 @@ namespace Engine::Graphics
 		const std::vector<Engine::Resource::ID>& GetWrite() const { return m_write; }
 		const std::vector<AccessResource>& GetResourceAccessVec() const { return m_resourceAccessVec; }
 
+		const std::string& GetName() const { return m_name; }
+		void SetPassIndex(uint8_t a_passIdx) { m_passIndex = a_passIdx; }
+		uint8_t GetPassIndex() const { return m_passIndex; }
+
+		uint8_t GetPSOIndex(const std::string& a_psoName) const;
 
 	protected:
 		// 作成ヘルパー
@@ -60,6 +65,8 @@ namespace Engine::Graphics
 
 		// パス名
 		std::string m_name;
+		uint8_t m_passIndex = 255;
+		std::unordered_map<std::string, uint8_t> m_psoIndexMap = {};
 
 		// 依存関係
 		std::vector<Engine::Resource::ID> m_read = {};		// 入力

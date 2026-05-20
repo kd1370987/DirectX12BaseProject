@@ -93,6 +93,10 @@ namespace Engine
 		// グラフィックス関係
 		void ExcuteDrawCmd();
 
+		// グラフィックスエンジンアクセス
+		Graphics::GraphicsEngine* RefGraphicsEngine();
+
+		// レンダーコンテキストアクセス
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
 
