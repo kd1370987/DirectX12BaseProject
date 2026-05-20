@@ -39,34 +39,28 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 
 			uint8_t _zpreIdx = _pRG->GetPassIndex("ZPre");
 			uint8_t _opeqIdx = _pRG->GetPassIndex("GBuffer");
-			uint8_t _fwIdx = _pRG->GetPassIndex("ForwardLighting");
+			//uint8_t _fwIdx = _pRG->GetPassIndex("ForwardLighting");
 
 			const auto* _zprePass = _pRG->GetPass("ZPre");
 			const auto* _gbufferPass = _pRG->GetPass("GBuffer");
-			const auto* _fwPass = _pRG->GetPass("ForwardLighting");
+			//const auto* _fwPass = _pRG->GetPass("ForwardLighting");
 
 			const uint8_t _zpreStatic = _zprePass->GetPSOIndex("ZPreStatic");
 			const uint8_t _gbuffStatic = _gbufferPass->GetPSOIndex("GBufferStatic");
 			//const uint8_t _fwStatic = _fwPass->GetPSOIndex("ForwardLithingPSO");
-
-
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
 				const ModelComponent& _modelComp = a_modelArray[_i];
 
-				// 描画アイテム
-				Engine::Graphics::DrawItem _item = {};
-				_item.worldMat = _worldMatComp.worldMat;
-				_item.colorScale = _modelComp.colorScale;
-				_item.emissiveScale = _modelComp.emissiveScale;
-
-
 				// モデル取得
 				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_model) continue;
+
+				// ワールド座標
 				const DXSM::Matrix _worldMat(_worldMatComp.worldMat);
+
 				// 描画コマンド取得
 				const auto& _drawCmdVec = _model->GetDrawCommandVec();
 				for (auto& _cmd : _drawCmdVec)
@@ -115,58 +109,7 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 					default:
 						break;
 					}
-
-
-
 				}
-
-				// ノード
-				auto& _dataNodes = _model->GetOriginalNodeVec();
-
-				// 描画ノード
-				for (auto& _nodeIdx : _model->GetDrawNodeVec())
-				{
-					for (auto& _meshIdx : _dataNodes[_nodeIdx].meshIndices)
-					{
-						// 描画メッシュ取得
-						const auto& _meshHandle = _model->GetMeshHandles()[_meshIdx];
-						_item.pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandle);
-						if (!_item.pMesh) continue;
-
-						// ノードのワールド行列を計算
-						DXSM::Matrix _nodeTransMat(_dataNodes[_nodeIdx].worldTransform);
-						DXSM::Matrix _worldMat(_worldMatComp.worldMat);
-						_item.worldMat = _nodeTransMat * _worldMat;
-
-						// サブセットごとに描画
-						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetMetaData().subsets.size(); ++_subIdx)
-						{
-							// 面が一枚もない場合はスキップ
-							if (_item.pMesh->GetMetaData().subsets[_subIdx].faceCount == 0) continue;
-							const auto& _mateHandle = _model->GetMaterialHandles()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber];
-							_item.pMaterial = Engine::Resource::ResourceManager::Instance().Get(_mateHandle);
-							_item.subIdx = _subIdx;
-
-							// アルファモードによって描画先を変える
-							Engine::Resource::Alpha _mode = _item.pMaterial->alphaMode;
-							switch (_mode)
-							{
-							case Engine::Resource::Alpha::Opaque:
-								_pRCT->AddItem(RenderQueueType::Opaque, _item);
-								break;
-							case Engine::Resource::Alpha::Mask:
-								_pRCT->AddItem(RenderQueueType::Opaque, _item);
-								break;
-							case Engine::Resource::Alpha::Blend:
-								_pRCT->AddItem(RenderQueueType::Transparent, _item);
-								break;
-							default:
-								break;
-							}
-						}
-					}
-				}
-
 			}
 		},
 		Engine::ECS::Exclude<AnimatorComponent>()

@@ -8,26 +8,26 @@ namespace Engine::Graphics
 {
 	void DebugLinePass::Excute(RenderContext* a_pCtx)
 	{
-		Editor::MainEditor::Instance().StartWatch("DebugLineDraw");
-		Begine(a_pCtx);
-		a_pCtx->BindCameraCB();
+		//Editor::MainEditor::Instance().StartWatch("DebugLineDraw");
+		//Begine(a_pCtx);
+		//a_pCtx->BindCameraCB();
 
-		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
-		a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+		//a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
+		//a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-		auto _draws = a_pCtx->GetItemVec(RenderQueueType::Debug);
-		if (_draws.size() == 0) return;
-		for (auto& _item : _draws)
-		{
-			a_pCtx->BindMesh(1,_item.pMesh, _item.worldMat);
+		//auto _draws = a_pCtx->GetItemVec(RenderQueueType::Debug);
+		//if (_draws.size() == 0) return;
+		//for (auto& _item : _draws)
+		//{
+		//	a_pCtx->BindMesh(1,_item.pMesh, _item.worldMat);
 
-			a_pCtx->Draw(_item.pMesh, _item.subIdx);
-		}
+		//	a_pCtx->Draw(_item.pMesh, _item.subIdx);
+		//}
 
-		a_pCtx->ShapeDraw();
+		//a_pCtx->ShapeDraw();
 
-		End(a_pCtx);
-		Editor::MainEditor::Instance().EndWatch("DebugLineDraw");
+		//End(a_pCtx);
+		//Editor::MainEditor::Instance().EndWatch("DebugLineDraw");
 	}
 
 	void DebugLinePass::CreatePass()

@@ -32,7 +32,7 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 			const SkeletonPoseComponent* a_skeArray,
 			const AnimatorComponent* a_aniArray,
 			const NodePoseComponent* a_nodePoseArray
-		)
+			)
 		{
 			auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
 
@@ -61,7 +61,7 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				const SkeletonPoseComponent& _skeComp = a_skeArray[_i];
 				const AnimatorComponent& _aniComp = a_aniArray[_i];
 				const NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
-	
+
 				// モデル取得
 				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);;
 				if (!_model) continue;
@@ -124,68 +124,6 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 
 
 				}
-				// 描画アイテム
-				Engine::Graphics::DrawItem _item = {};
-				_item.worldMat = _matComp.worldMat;
-				_item.colorScale = _modelComp.colorScale;
-				_item.emissiveScale = _modelComp.emissiveScale;
-
-				// 全ノード
-				auto& _dataNodes = _model->GetOriginalNodeVec();
-
-				// ボーンノード	
-				_item.boneRange = _skeComp.boneRange;
-
-
-				// 描画ノード
-				for (auto& _nodeIdx : _model->GetDrawNodeVec())
-				{
-					for (auto& _meshIdx : _dataNodes[_nodeIdx].meshIndices)
-					{
-						// 描画メッシュ取得
-						const auto& _meshHandle = _model->GetMeshHandles()[_meshIdx];
-						_item.pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandle);
-						if (!_item.pMesh) continue;
-
-						// ワールド行列
-						DXSM::Matrix _nodeTransMat(_nodeMatVec[_nodeIdx].world);
-						DXSM::Matrix _worldMat(_matComp.worldMat);
-						DXSM::Matrix _mat = _nodeTransMat * _worldMat;
-						_item.worldMat = _mat;
-
-						for (UINT _subIdx = 0; _subIdx < _item.pMesh->GetMetaData().subsets.size(); ++_subIdx)
-						{
-							// マテリアルセット
-							if (_item.pMesh->GetMetaData().subsets[_subIdx].faceCount == 0) continue;
-							const auto& _mateHandle = _model->GetMaterialHandles()[_item.pMesh->GetMetaData().subsets[_subIdx].materialNumber];
-							_item.pMaterial = Engine::Resource::ResourceManager::Instance().Get(_mateHandle);
-							_item.subIdx = _subIdx;
-
-							// 描画アイテムキューに送信
-
-							// アルファモードによって描画先を変える
-							Engine::Resource::Alpha _mode = _item.pMaterial->alphaMode;
-
-							auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
-
-							switch (_mode)
-							{
-							case Engine::Resource::Alpha::Opaque:
-								_pRCT->AddItem(RenderQueueType::AnimationOpaque, _item);
-								break;
-							case Engine::Resource::Alpha::Mask:
-								_pRCT->AddItem(RenderQueueType::AnimationOpaque, _item);
-								break;
-							case Engine::Resource::Alpha::Blend:
-								_pRCT->AddItem(RenderQueueType::AnimationTransparent, _item);
-								break;
-							default:
-								break;
-							}
-						}
-					}
-				}
 			}
-		}
-	);
+		}); 
 }

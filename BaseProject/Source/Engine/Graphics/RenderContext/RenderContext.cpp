@@ -35,8 +35,6 @@ namespace Engine::Graphics
 		m_pDevice = a_desc.pDevice;
 
 		// ポインタのキャッシュ
-		m_pRootSigManager = a_desc.pRootSigMana;
-		m_pGraphicsPSOManager = a_desc.pPSOMana;
 		m_pShapeDraw = a_desc.pShapeRender;
 
 		// 形状描画用バッファ作成
@@ -517,25 +515,9 @@ namespace Engine::Graphics
 	}
 
 
-	void RenderContext::AddItem(const RenderQueueType& a_type, const DrawItem& a_item)
-	{
-		m_drawItemMap[a_type].push_back(a_item);
-	}
-
 	void RenderContext::AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec)
 	{
 		m_drawItem2DMap[a_type].push_back(a_itemVec);
-	}
-
-	std::span<const DrawItem> RenderContext::GetItemVec(const RenderQueueType& a_type) const
-	{
-		auto _it = m_drawItemMap.find(a_type);
-		if (_it != m_drawItemMap.end())
-		{
-			return _it->second;
-		}
-		std::vector<DrawItem> _items = {};
-		return _items;
 	}
 
 	const std::vector<DrawItem2D>& RenderContext::GetItemVec(const RenderQueueType2D& a_type) const
@@ -596,18 +578,10 @@ namespace Engine::Graphics
 		m_boneBuffer.UpdateData(_bonePalleteVec.data(),_bonePalleteVec.size());
 		m_boneBuffer.Update(*_pCmdList);
 
-		// バインド対象のクリア
-		m_currentRootSigID = Resource::Limits::INVALID_ID;
-		m_currentPSOID = Resource::Handle<D3D12::PipelineState>();
-		m_pCurrentMaterial = nullptr;
-		m_pCurrentMesh = nullptr;
-		m_pCurrentPoly = nullptr;
-
 		// レンダーパスの実行
 		a_pGraph->Excute(this);
 
 		// 描画対象アイテムリストのクリア
-		m_drawItemMap.clear();
 		m_drawItem2DMap.clear();
 
 		m_lightWeightDrawItemVec.clear();
@@ -617,7 +591,6 @@ namespace Engine::Graphics
 	void RenderContext::ClearCmd()
 	{
 		// 描画対象アイテムリストのクリア
-		m_drawItemMap.clear();
 		m_drawItem2DMap.clear();
 	}
 
@@ -714,15 +687,12 @@ namespace Engine::Graphics
 	void RenderContext::BindMaterialSRV(UINT a_index, const Resource::Material* a_pMaterial)
 	{
 		// SRVの送信
-		if (a_pMaterial != m_pCurrentMaterial)
-		{
-			std::vector<Resource::Handle<Resource::Texture>> _texVec = {};
-			_texVec.push_back(a_pMaterial->baseColorTex);
-			_texVec.push_back(a_pMaterial->metaRoughTex);
-			_texVec.push_back(a_pMaterial->emissiveTex);
-			_texVec.push_back(a_pMaterial->normalTex);
-			BindSRV(a_index, _texVec);
-		}
+		std::vector<Resource::Handle<Resource::Texture>> _texVec = {};
+		_texVec.push_back(a_pMaterial->baseColorTex);
+		_texVec.push_back(a_pMaterial->metaRoughTex);
+		_texVec.push_back(a_pMaterial->emissiveTex);
+		_texVec.push_back(a_pMaterial->normalTex);
+		BindSRV(a_index, _texVec);
 	}
 
 	void RenderContext::BindMaterialSRV(UINT a_index, uint16_t a_materialID)
@@ -858,13 +828,8 @@ namespace Engine::Graphics
 
 
 			// メッシュ変換行列の転送
-			if (m_pCurrentPoly != m_spQuadPolygon.get())
-			{
-				m_pCmdList->NGet()->IASetVertexBuffers(0, 1, &m_spQuadPolygon->GetVBView());
-				m_pCmdList->NGet()->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
-
-				m_pCurrentPoly = m_spQuadPolygon.get();
-			}
+			m_pCmdList->NGet()->IASetVertexBuffers(0, 1, &m_spQuadPolygon->GetVBView());
+			m_pCmdList->NGet()->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
 
 			// 描画
 			m_pCmdList->NGet()->DrawIndexedInstanced(
@@ -891,10 +856,7 @@ namespace Engine::Graphics
 	}
 
 	RenderContext::RenderContext()
-	{
-		m_currentPSOID = Resource::Handle<D3D12::PipelineState>();
-		m_currentRootSigID = Resource::Limits::INVALID_ID;
-	}
+	{}
 
 	RenderContext::~RenderContext()
 	{}

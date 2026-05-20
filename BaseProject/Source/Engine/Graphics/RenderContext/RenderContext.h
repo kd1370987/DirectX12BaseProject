@@ -10,32 +10,15 @@ namespace Engine::Resource
 
 namespace Engine::D3D12
 {
-	class GraphicsPSOManager;
 	class CommandList;
 	class RootSignature;
-	class RootSignatureManager;
 }
 
 namespace Engine::Graphics
 {
+	// 前方宣言
 	class RenderGraph;
-
-	enum class RenderPassID
-	{
-		ZPrePass,
-		ShadowMapPass,
-		GBufferPass,
-		ForwardPass,
-		PostProcessPass,
-		ScreenUIPass,
-	};
-
-	enum class LightingType
-	{
-		None,
-		Tone,
-		PBR,
-	};
+	class ShapeRenderer;
 
 	// 64ビットのソートキー
 	union RenderSortKey
@@ -72,24 +55,6 @@ namespace Engine::Graphics
 		uint16_t GetMeshID()		const { return static_cast<uint16_t>((sortKey.value >> 16) & 0xFFFF); }
 	};
 
-
-	// １DrawCall当たりアイテム
-	struct DrawItem
-	{
-		RenderPassID passID = RenderPassID::ZPrePass;
-		LightingType lightingType = LightingType::PBR;
-
-		const Resource::Material* pMaterial;
-		UINT subIdx = 0;
-		const Resource::Mesh* pMesh = nullptr;
-
-		Storage::Range boneRange = {};
-
-		DirectX::XMFLOAT4X4 worldMat = {};
-		DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
-		DirectX::XMFLOAT3	emissiveScale = { 1,1,1 };
-	};
-
 	struct DrawItem2D
 	{
 		Resource::Handle<D3D12::SRV> srvHandleRange = {};
@@ -103,7 +68,7 @@ namespace Engine::Graphics
 		UINT startIndex;		// インデックスバッファの開始位置
 	};
 
-	class ShapeRenderer;
+
 
 	// レンダーコンテキスト作成時に必要な情報
 	struct RenderContextDesc
@@ -112,8 +77,6 @@ namespace Engine::Graphics
 		ID3D12Device* pDevice = nullptr;
 
 		// クラスのキャッシュ
-		D3D12::RootSignatureManager*	pRootSigMana	= nullptr;
-		D3D12::GraphicsPSOManager*		pPSOMana		= nullptr;
 		ShapeRenderer*					pShapeRender	= nullptr;
 
 		// アロケーターのメモリ容量
@@ -234,13 +197,10 @@ namespace Engine::Graphics
 		// 描画コマンド
 		//--------------------------------------------------------------------------------------------
 		// 描画命令の追加
-		void AddItem(const RenderQueueType& a_type, const DrawItem& a_item);		// 3D
 		void AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec);		// 2D
 		void AddItem(const LightWeightDrawItem& a_item) { m_lightWeightDrawItemVec.push_back(a_item); }
 
 		// 描画命令の取得
-		//const std::vector<DrawItem>& GetItemVec(const RenderQueueType& a_type) const;		// 3D
-		std::span<const DrawItem> GetItemVec(const RenderQueueType& a_type) const;			// 3D : ビューを返す
 		const std::vector<DrawItem2D>& GetItemVec(const RenderQueueType2D& a_type) const;	// 2D
 
 		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex);
@@ -335,13 +295,8 @@ namespace Engine::Graphics
 		// D3DObject
 		ID3D12Device* m_pDevice = nullptr;
 
-		// マネージャー
-		D3D12::RootSignatureManager*				m_pRootSigManager		= nullptr;
-		Engine::D3D12::GraphicsPSOManager*	m_pGraphicsPSOManager	= nullptr;
-
 		// 形状描画クラス
 		ShapeRenderer* m_pShapeDraw = nullptr;
-		//VertexBuffer m_shapeVertexBuffer = {};
 		D3D12::DynamicVertexBuffer<Resource::Vertex> m_shapeVertexBuffer;
 		
 
@@ -368,17 +323,7 @@ namespace Engine::Graphics
 		CBBone m_cb4_Bone = {};
 		CBAmbient m_cb5_Ambient = {};
 		CBUI m_cbUI = {};
-
-		// 描画コマンド
-		Resource::ID m_currentRootSigID = Resource::Limits::INVALID_ID;
-		Resource::Handle<D3D12::PipelineState> m_currentPSOID;
-		const Resource::Material* m_pCurrentMaterial = nullptr;
-		Resource::Mesh* m_pCurrentMesh = nullptr;
-		Resource::QuadPolygon* m_pCurrentPoly = nullptr;
-
-		// 3D用描画アイテムキュー
-		std::unordered_map<RenderQueueType, std::vector<DrawItem>> m_drawItemMap = {};
-
+		
 		// 2D用描画アイテムキュー
 		std::unordered_map<RenderQueueType2D, std::vector<DrawItem2D>> m_drawItem2DMap = {};
 

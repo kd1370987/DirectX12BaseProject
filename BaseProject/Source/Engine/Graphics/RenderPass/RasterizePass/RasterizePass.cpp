@@ -52,10 +52,10 @@ namespace Engine::Graphics
 			// ----------------------------------------------------
 			// PSOの切り替え
 			// ----------------------------------------------------
-			if (_psoID == 255) assert(0 && "PSOエラー");
 			if (_psoID != _lastPSO)
 			{
 				auto* _pPSO = m_pPipelineStateManager->GetPSO(_psoID);
+				if (!_pPSO) continue;
 				a_pCtx->SetGraphicPSO(_pPSO);
 
 				_lastPSO = _psoID;
@@ -96,43 +96,6 @@ namespace Engine::Graphics
 
 			// 描画
 			a_pCtx->Draw(_item.GetMeshID(), _item.subIndex);
-		}
-		return;
-
-		for (auto& [_pPso,_type] : m_pPsoVec)
-		{
-			// PSOのセット
-			a_pCtx->SetGraphicPSO(_pPso);
-
-			auto _draws = a_pCtx->GetItemVec(_type);
-			if (_draws.size() <= 0) continue;
-
-			for (auto& _item : _draws)
-			{
-				// オブジェクト情報セット
-				DXSM::Vector2 _uv = {0,0};
-				DXSM::Vector2 _tile = {1,1};
-				a_pCtx->BindObuje(1,_uv, _tile);
-				
-
-				// マテリアルのバインド
-				if (!_item.pMaterial) continue;
-				a_pCtx->BindMaterial(3,_item.pMaterial, _item.colorScale, _item.emissiveScale);
-				a_pCtx->BindMaterialSRV(5,_item.pMaterial);
-
-				// メッシュのバインド
-				if (!_item.pMesh)continue;
-				a_pCtx->BindMesh(2,_item.pMesh, _item.worldMat);
-
-				// アニメーションタイプならボーンをバインド
-				if (_type == RenderQueueType::AnimationOpaque || _type == RenderQueueType::AnimationTransparent)
-				{
-					a_pCtx->BindCBBone(_item.boneRange);
-				}
-
-				// 描画
-				a_pCtx->Draw(_item.pMesh,_item.subIdx);
-			}
 		}
 	}
 	
