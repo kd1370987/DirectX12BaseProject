@@ -12,6 +12,7 @@ namespace Engine
 		struct Node
 		{
 			std::string				name;						//ノード名
+			UINT					nodeNameHash = 0;			// ノード名ハッシュ
 
 			std::vector<int>		meshIndices;				// メッシュのインデックスリスト
 			std::vector<int>		collisionIndices;			// 当たり判定用データ

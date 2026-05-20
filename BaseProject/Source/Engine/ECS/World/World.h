@@ -92,6 +92,12 @@ namespace Engine::ECS
 		/// </summary>
 		Signature GetSignature(const Entity& a_entity);
 
+		// エンティティがコンポーネントを持っているかどうか
+		template<typename Comp>
+		bool HasComponent(const Entity& a_entity);
+		bool HasComponent(const Entity& a_entity,const std::type_index& a_typeid);
+		bool HasComponent(const Entity& a_entity,const ComponentTypeID& a_comptype);
+
 		//------------------------------------------------------------------------------------------
 		// エンティティの生成
 		//------------------------------------------------------------------------------------------
@@ -269,6 +275,12 @@ namespace Engine::ECS
 		World(World&&) = delete;
 		World& operator = (World&&) = delete;
 	};
+
+	template<typename Comp>
+	inline bool World::HasComponent(const Entity& a_entity)
+	{
+		return HasComponent(a_entity,typeid(Comp));
+	}
 
 	template<typename Comp>
 	inline ComponentTypeID World::RegisterComponent(const std::string& a_name)

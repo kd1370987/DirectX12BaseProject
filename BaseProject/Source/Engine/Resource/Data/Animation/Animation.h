@@ -40,7 +40,7 @@ namespace Engine
 		//==========================================================
 		struct AnimationData
 		{
-			std::string						name = "none";				// アニメーション名
+			std::string						name = "none";			// アニメーション名
 			float							maxLength = 0.0f;		// アニメーションの最大長さ(単位:フレーム)
 			std::vector<AnimationNode>		nodes = {};				// アニメーションノードリスト
 		};

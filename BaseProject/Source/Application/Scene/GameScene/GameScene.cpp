@@ -138,7 +138,7 @@ void GameScene::RegistryEntity()
 		// テストモデル
 		float _xMax = 10;
 		float _yMax = 10;
-		float _zMax = 100;
+		float _zMax = 1;
 
 		float _pad = 5;
 
@@ -154,7 +154,12 @@ void GameScene::RegistryEntity()
 					_sig.set(m_upWorld->GetCompTypeID(typeid(TransformComponent)));
 					_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 					_sig.set(m_upWorld->GetCompTypeID(typeid(ModelComponent)));
+					_sig.set(m_upWorld->GetCompTypeID(typeid(ColliderComponent)));
 					auto _entity = m_upWorld->CreateEntity(_sig);
+
+					ColliderComponent* _coll = m_upWorld->RefData<ColliderComponent>(_entity);
+					_coll->layer = Layer::StaticObject;
+					_coll->collideLayer = Layer::DiynamicObject;
 
 					ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_entity);
 					Engine::GUID _guid;

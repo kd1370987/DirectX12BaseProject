@@ -28,7 +28,13 @@ namespace Engine::Resource
 			m_animationHandleVec.push_back(_handle);
 		}
 
+		// ノードすべてに名前のハッシュ値をつける
 		m_originalNodes = std::move(_model.originalNodes);
+		for (auto& _node : m_originalNodes)
+		{
+			_node.nodeNameHash = StringUtility::ToHash(_node.name);
+		}
+
 		m_rootNodeIndices = std::move(_model.rootNodeIndices);
 		m_boneNodeIndices = std::move(_model.boneNodeIndices);
 		m_meshNodeIndices = std::move(_model.meshNodeIndices);

@@ -122,6 +122,18 @@ namespace Engine::ECS
 		return m_entityManager.GetSignature(a_entity);
 	}
 
+	bool World::HasComponent(const Entity& a_entity, const std::type_index& a_typeid)
+	{
+		auto _compType = m_componentMetaRegistry.GetTypeID(a_typeid);
+		return HasComponent(a_entity,_compType);
+	}
+
+	bool World::HasComponent(const Entity& a_entity, const ComponentTypeID& a_comptype)
+	{
+		auto _sig = m_entityManager.GetSignature(a_entity);
+		return _sig.test(a_comptype);
+	}
+
 	void World::CreateAllEntity()
 	{
 		for (auto& _sig : m_addEntityVec)

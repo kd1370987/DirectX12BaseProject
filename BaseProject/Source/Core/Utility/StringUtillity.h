@@ -35,4 +35,20 @@ namespace StringUtility
 
 		return _wstr;
 	}
+
+	// 文字列のハッシュ化
+	inline UINT ToHash(const std::string& a_data)
+	{
+		// FNV-1a 32-bit
+		const UINT _fnv_prime = 16777691u;
+		const UINT _fnv_offset_basis = 2166136261u;
+
+		UINT _hash = _fnv_offset_basis;
+		for (char _c : a_data)
+		{
+			_hash ^= static_cast<UINT>(_c);
+			_hash *= _fnv_prime;
+		}
+		return _hash;
+	}
 }
