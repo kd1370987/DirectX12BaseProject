@@ -19,12 +19,17 @@ struct ExoskeletonAttachmentComponent
 	// オフセット情報
 	DirectX::XMFLOAT3 offsetPosition = { 0,0,0 };
 	DirectX::XMFLOAT4 offsetRotation = { 0,0,0,1 };
+	DirectX::XMFLOAT3 offsetScale = { 0,0,0 };
 
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<const ExoskeletonAttachmentComponent*>(a_ptr);
 		a_json["parentGUID"] = _comp->parentGUID.String();
 		a_json["targetNodeHash"] = _comp->targetNodeHash;
+
+		a_json["offsetPosition"] = { _comp->offsetPosition.x,_comp->offsetPosition.y,_comp->offsetPosition.z };
+		a_json["offsetRotation"] = { _comp->offsetRotation.x,_comp->offsetRotation.y,_comp->offsetRotation.z ,_comp->offsetRotation.w };
+		a_json["offsetScale"] = { _comp->offsetScale.x,_comp->offsetScale.y,_comp->offsetScale.z };
 	}
 
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
@@ -32,15 +37,24 @@ struct ExoskeletonAttachmentComponent
 		auto* _comp = static_cast<ExoskeletonAttachmentComponent*>(a_ptr);
 		_comp->parentGUID.FromString(a_json["parentGUID"].get<std::string>());
 		_comp->targetNodeHash = a_json["targetNodeHash"].get<UINT>();
+
+		_comp->offsetPosition = Engine::JSONHelper::GetVec3("offsetPosition", a_json, {0,0,0});
+		_comp->offsetRotation = Engine::JSONHelper::GetVec4("offsetRotation", a_json, {0,0,0,0});
+		_comp->offsetScale = Engine::JSONHelper::GetVec3("offsetScale", a_json, {1,1,1});
 	}
 
 	static void Edit(void* a_data)
 	{
 		ExoskeletonAttachmentComponent& _comp = Engine::Editor::GetValue<ExoskeletonAttachmentComponent>(a_data);
 		auto _entity = _comp.parentID;
-		ImGui::Text("ParentGUID : %s",_comp.parentGUID.String());
+		ImGui::Text("ParentGUID : %s",_comp.parentGUID.String().c_str());
 		ImGui::InputScalar("ParentID", ImGuiDataType_U64, &_entity);
+
+		ImGui::Separator();
+
 		ImGui::Text("TargetBoneIdx : %d", _comp.targetNodeIdx);
+		ImGui::Text("TargetNodeHash : %d", _comp.targetNodeHash);
+
 
 		// エンティティの変更がされたらGUIDを変更
 		if (_entity != _comp.parentID)
@@ -53,8 +67,7 @@ struct ExoskeletonAttachmentComponent
 			_comp.parentID = _pWorld->GetEntity(_comp.parentGUID);
 		}
 		auto* _pWorld = SceneManager::Instance().RefWorld(); // 先にWorldのポインタを確保しておくと便利
-		ImGui::DragFloat3("OffsetPos",&_comp.offsetPosition.x,0.1f);
-		Engine::Editor::Helper::DragRotationDeg3FromQuaternion(_comp.offsetRotation);
+	
 		// --- 親モデルのノード配列から直接名前を抽出してコンボボックスを表示 ---
 		if (_pWorld && _comp.parentID != Engine::ECS::Limits::INVALID_ENTITY)
 		{
@@ -90,6 +103,7 @@ struct ExoskeletonAttachmentComponent
 							if (ImGui::Selectable(_nodeName.c_str(), _isSelected))
 							{
 								// 選択されたらインデックスを更新
+								_comp.targetNodeHash = _nodes[_i].nodeNameHash;
 								_comp.targetNodeIdx = static_cast<UINT>(_i);
 							}
 
@@ -117,6 +131,12 @@ struct ExoskeletonAttachmentComponent
 		{
 			ImGui::Text("TargetNodeIdx : %d (Parent ID is Invalid)", _comp.targetNodeIdx);
 		}
+
+		ImGui::Separator();
+
+		ImGui::DragFloat3("OffsetPos", &_comp.offsetPosition.x, 0.1f);
+		Engine::Editor::Helper::DragRotationDeg3FromQuaternion(_comp.offsetRotation);
+		ImGui::DragFloat3("OffsetScale", &_comp.offsetScale.x, 0.1f);
 
 	}
 };

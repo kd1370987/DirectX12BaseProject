@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "../../../Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
 struct TransformComponent
 {
 	DirectX::XMFLOAT3 pos = { 0.0f, 0.0f, 0.0f };
@@ -39,8 +40,8 @@ struct TransformComponent
 	static void Edit(void* a_data)
 	{
 		TransformComponent& _comp = Engine::Editor::GetValue<TransformComponent>(a_data);
-		ImGui::DragFloat3("Position",&_comp.pos.x);
-		ImGui::DragFloat3("Quaternion",&_comp.quat.x);
-		ImGui::DragFloat3("Scale",&_comp.scale.x);
+		ImGui::DragFloat3("Position",&_comp.pos.x,0.1f);
+		Engine::Editor::Helper::DragRotationDeg3FromQuaternion(_comp.quat);
+		ImGui::DragFloat3("Scale",&_comp.scale.x,0.1f);
 	}
 };

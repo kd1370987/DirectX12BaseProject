@@ -8,13 +8,13 @@
 
 void AttachmentNodeLinkSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.AwekeTask<ExoskeletonAttachmentComponent>(
+	a_world.StartTask<ExoskeletonAttachmentComponent>(
 		Engine::ECS::ESystemType::Start,
 		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
-			AwekeTag* a_tag,
+			StartTag* a_tag,
 			ExoskeletonAttachmentComponent* a_attacheArray
 			)
 		{

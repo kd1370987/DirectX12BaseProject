@@ -62,6 +62,7 @@
 #include "../../Systems/Init/Start/CameraStartSystem/CameraStartSystem.h"
 #include "../../Systems/Init/Start/AnimationModelStartSystem/AnimationModelStartSystem.h"
 #include "../../Systems/Init/Start/RegisterCollisionWorldSystem/RegisterCollisionWorldSystem.h"
+#include "../../Systems/Init/Start/AttachmentNodeLinkSystem/AttachmentNodeLinkSystem.h"
 
 #include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
 
@@ -212,6 +213,7 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<RegisterCollisionWorldSystem>();
 	m_upWorld->RegisterSystem<CameraStartSystem>();
 	m_upWorld->RegisterSystem<AnimationModelStartSystem>();
+	m_upWorld->RegisterSystem<AttachmentNodeLinkSystem>();
 
 	m_upWorld->RegisterSystem<CamSetShaderSystem>();
 	m_upWorld->RegisterSystem<InputMoveSystem>();

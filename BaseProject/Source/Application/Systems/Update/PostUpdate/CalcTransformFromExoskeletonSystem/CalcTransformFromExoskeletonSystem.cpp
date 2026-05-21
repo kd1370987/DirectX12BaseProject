@@ -47,16 +47,17 @@ void CalccTransformFromExoskeletonSystem::Init(Engine::ECS::World& a_world)
 				DirectX::XMMATRIX _parentWorldMat = 
 					DirectX::XMMatrixRotationQuaternion(DirectX::XMLoadFloat4(&_pParentTrans->quat))
 					* DirectX::XMMatrixTranslationFromVector(DirectX::XMLoadFloat3(&_pParentTrans->pos));
-
-				// （アニメーションマネージャーの行列が既にワールド空間なら、この乗算は不要で _nodeMat をそのまま使います）
 				DirectX::XMMATRIX _boneWorldMat = _nodeMat * _parentWorldMat;
-				// 4. 外骨格のオフセット行列を作成
-				DirectX::XMMATRIX _offsetMat = DirectX::XMMatrixRotationQuaternion(DirectX::XMLoadFloat4(&_exoComp.offsetRotation)) *
+
+				// 外骨格のオフセット行列を作成
+				DirectX::XMMATRIX _offsetMat = 
+					DirectX::XMMatrixScalingFromVector(DirectX::XMLoadFloat3(&_exoComp.offsetScale)) * 
+					DirectX::XMMatrixRotationQuaternion(DirectX::XMLoadFloat4(&_exoComp.offsetRotation)) *
 					DirectX::XMMatrixTranslationFromVector(DirectX::XMLoadFloat3(&_exoComp.offsetPosition));
-				// 5. 最終的な外骨格のワールド行列
+				// 最終的な外骨格のワールド行列
 				DirectX::XMMATRIX _finalWorldMat = _offsetMat * _boneWorldMat;
 
-				// 6. 行列から最終的な 位置(pos) と 回転(quat) を抽出して書き戻す
+				// 行列から最終的な 位置と回転を抽出して書き戻す
 				DirectX::XMVECTOR _outScale;
 				DirectX::XMVECTOR _outQuat;
 				DirectX::XMVECTOR _outPos;
@@ -64,18 +65,7 @@ void CalccTransformFromExoskeletonSystem::Init(Engine::ECS::World& a_world)
 
 				DirectX::XMStoreFloat3(&_trsComp.pos, _outPos);
 				DirectX::XMStoreFloat4(&_trsComp.quat, _outQuat);
-
-				
-				continue;
-
-				//// 親の回転にオフセットをかける
-				//_trsComp.quat = _pParentTrans->quat;
-
-				//// オフセット位置を親の回転で回転させる
-				//DXSM::Vector3 _rotatedOffset = DXSM::Vector3::Transform(_exoComp.offsetPosition,_pParentTrans->quat);
-
-				//// 回転させたオフセットを親の現在位置に足す
-				//_trsComp.pos = DXSM::Vector3(_pParentTrans->pos) + _rotatedOffset;
+				DirectX::XMStoreFloat3(&_trsComp.scale, _outScale);
 			}
 		}
 	);
