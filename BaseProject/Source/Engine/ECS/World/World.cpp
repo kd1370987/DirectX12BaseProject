@@ -213,7 +213,7 @@ namespace Engine::ECS
 		return _res;
 	}
 
-	void World::AddComponent(ComponentTypeID a_typeID, Entity a_entity)
+	void World::AddComponent(ComponentTypeID a_typeID, Entity a_entity,uint8_t* a_pData)
 	{
 		// エンティティのシグネチャを変更
 		Signature _oldSig = m_entityManager.GetSignature(a_entity);
@@ -230,6 +230,7 @@ namespace Engine::ECS
 			_oldSig.reset(GetCompTypeID<ActiveTag>());
 		}
 		_cmd.toSig = _oldSig;
+		_cmd.dataMap[a_typeID] = a_pData;
 		m_changeEntityVec.push_back(_cmd);
 	}
 

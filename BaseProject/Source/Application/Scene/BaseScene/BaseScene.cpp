@@ -57,6 +57,7 @@
 
 #include "../../Systems/Init/Awake/FollowTargetLinkSystem/FollowTargetLinkSystem.h"
 #include "../../Systems/Init/Awake/AttachmentLinkSystem/AttachmentLinkSystem.h"
+#include "../../Systems/Init/Awake/HierarchyLinkSystem/HierarchyLinkSystem.h"
 
 #include "../../Systems/Init/Start/CameraStartSystem/CameraStartSystem.h"
 #include "../../Systems/Init/Start/AnimationModelStartSystem/AnimationModelStartSystem.h"
@@ -206,6 +207,7 @@ void BaseScene::RegistrySystem()
 
 	m_upWorld->RegisterSystem<FollowTargetLinkSystem>();
 	m_upWorld->RegisterSystem<AttachmentLinkSystem>();
+	m_upWorld->RegisterSystem<HierarchyLinkSystem>();
 
 	m_upWorld->RegisterSystem<RegisterCollisionWorldSystem>();
 	m_upWorld->RegisterSystem<CameraStartSystem>();

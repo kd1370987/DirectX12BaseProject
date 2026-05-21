@@ -242,6 +242,7 @@
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentLinkSystem\AttachmentLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.cpp" />
@@ -446,6 +447,7 @@
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\AttachmentLinkSystem\AttachmentLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h" />

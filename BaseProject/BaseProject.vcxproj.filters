@@ -772,6 +772,9 @@
     <Filter Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem">
       <UniqueIdentifier>{0d8c3ba0-d37d-4b7f-8723-7eef2d9d7794}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem">
+      <UniqueIdentifier>{5a6abe91-0d4a-4fd5-9697-07a17896e94b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1250,6 +1253,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.cpp">
+      <Filter>Source\Application\Systems\Init\Awake\HierarchyLinkSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1939,6 +1945,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.h">
       <Filter>Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.h">
+      <Filter>Source\Application\Systems\Init\Awake\HierarchyLinkSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

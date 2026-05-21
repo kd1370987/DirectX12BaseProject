@@ -128,7 +128,7 @@ namespace Engine::ECS
 		// エンティティの操作
 		//------------------------------------------------------------------------------------------
 		// エンティティに対してコンポーネントを操作
-		void AddComponent(ComponentTypeID a_typeID,Entity a_entity);		// 追加
+		void AddComponent(ComponentTypeID a_typeID,Entity a_entity,uint8_t* a_pData = nullptr);		// 追加
 		void SubmitComponent(ComponentTypeID a_typeID,Entity a_entity);		// 削除
 		void AddChangeSigCommand(ChangeEntityCmd a_cmd);					// 指定シグネチャに変更するコマンド
 		void ChangeSigneture(ChangeEntityCmd a_cmd);						// コマンドから実際にアーキタイプを移動させる
