@@ -32,7 +32,7 @@ namespace Engine::ECS
 		Signature toSig;	// 変更予定シグネチャ
 
 		// 指定したデータに書き換え
-		std::unordered_map<ComponentTypeID, uint8_t*> dataMap = {};
+		std::unordered_map<ComponentTypeID, std::vector<uint8_t>> dataMap = {};
 	};
 
 	// カスタムタスク用依存情報

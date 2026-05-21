@@ -230,7 +230,14 @@ namespace Engine::ECS
 			_oldSig.reset(GetCompTypeID<ActiveTag>());
 		}
 		_cmd.toSig = _oldSig;
-		_cmd.dataMap[a_typeID] = a_pData;
+
+		// 初期化データはディープコピーして保持
+		if(a_pData)
+		{
+			// サイズ分コピー
+			size_t _size = m_componentMetaRegistry.GetMetaData(a_typeID).compSize;
+			_cmd.dataMap[a_typeID] = std::vector<uint8_t>(a_pData, a_pData + _size);
+		}
 		m_changeEntityVec.push_back(_cmd);
 	}
 
@@ -310,7 +317,7 @@ namespace Engine::ECS
 			if (_it != a_cmd.dataMap.end())
 			{
 				uint8_t* _pData = NRefData(a_cmd.entity, _compID);
-				memcpy(_pData, _it->second, GetComponentMetaData(_compID).compSize);
+				memcpy(_pData, _it->second.data(), GetComponentMetaData(_compID).compSize);
 			}
 		}
 	}

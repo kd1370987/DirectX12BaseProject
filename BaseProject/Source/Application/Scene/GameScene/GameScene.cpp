@@ -134,6 +134,7 @@ void GameScene::RegistryEntity()
 	Engine::Persistence::PersistenceManager _pers = {};
 	_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
 
+	if(false)
 	{
 		// テストモデル
 		float _xMax = 10;

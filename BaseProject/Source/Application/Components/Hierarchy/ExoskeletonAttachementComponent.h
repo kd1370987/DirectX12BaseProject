@@ -30,7 +30,7 @@ struct ExoskeletonAttachmentComponent
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<ExoskeletonAttachmentComponent*>(a_ptr);
-		_comp->parentGUID.FromString(a_json["targetGUID"].get<std::string>());
+		_comp->parentGUID.FromString(a_json["parentGUID"].get<std::string>());
 		_comp->targetNodeHash = a_json["targetNodeHash"].get<UINT>();
 	}
 
