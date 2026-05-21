@@ -364,6 +364,7 @@
     <ClCompile Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.cpp" />
@@ -597,6 +598,7 @@
     <ClInclude Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.h" />
     <ClInclude Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Vertex\Vertex.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.h" />
