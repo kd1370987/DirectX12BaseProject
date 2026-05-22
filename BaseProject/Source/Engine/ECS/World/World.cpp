@@ -380,6 +380,11 @@ namespace Engine::ECS
 		m_systemManager.RunSystem(*this, a_type, a_dt);
 	}
 
+	const std::unordered_map<ESystemType, std::vector<SystemTask*>>& World::GetCompileTaskMap() const
+	{
+		return m_systemManager.GetCompileTaskMap();
+	}
+
 	World::World()
 	{}
 

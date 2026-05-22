@@ -11,6 +11,7 @@ void CameraStartSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.StartTask<CameraParamComponent,ProjMatComponent>(
 		Engine::ECS::ESystemType::Start,
+		"CameraStartSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

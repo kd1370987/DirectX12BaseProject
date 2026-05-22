@@ -7,6 +7,7 @@ void GUIDFixupSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.PostDeserializeTask<GUIDComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
+		"GUIDFixupSystem",
 		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

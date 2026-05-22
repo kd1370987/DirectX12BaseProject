@@ -17,6 +17,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, TransformComponent>(
 		Engine::ECS::ESystemType::Camera,
+		"TPSSystem",
 		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

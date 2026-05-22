@@ -15,6 +15,7 @@ void ScreenUIDrawSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const WorldMatrixComponent, const UIComponent>(
 		Engine::ECS::ESystemType::Draw,
+		"ScreenUIDrawSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

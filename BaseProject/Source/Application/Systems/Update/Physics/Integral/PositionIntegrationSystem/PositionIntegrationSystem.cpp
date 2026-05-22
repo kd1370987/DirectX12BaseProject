@@ -11,6 +11,7 @@ void PositionIntegrationSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const VelocityComponent, TransformComponent>(
 		Engine::ECS::ESystemType::Update,
+		"PositionIntegrationSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

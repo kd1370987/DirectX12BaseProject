@@ -13,6 +13,7 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const PlayerControllTag, MoveIntentComponent, PlayerLookAngleComponent>(
 		Engine::ECS::ESystemType::Input,
+		"InputMoveSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

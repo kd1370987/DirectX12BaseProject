@@ -10,6 +10,7 @@ void CommitWorldMatrixFromLocalSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const LocalTransformComponent, WorldMatrixComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
+		"CommitWorldMatrixFromLocalSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

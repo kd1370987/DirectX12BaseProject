@@ -13,6 +13,7 @@ void CharactorMovementSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const PlayerLookAngleComponent, const MoveIntentComponent,VelocityComponent,StateMachineComponent>(
 		Engine::ECS::ESystemType::Update,
+		"CharactorMovementSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

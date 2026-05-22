@@ -20,6 +20,7 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const WorldMatrixComponent, const ModelComponent, const SkeletonPoseComponent, const AnimatorComponent, const NodePoseComponent>(
 		Engine::ECS::ESystemType::Draw,
+		"AnimationOptionalDrawSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

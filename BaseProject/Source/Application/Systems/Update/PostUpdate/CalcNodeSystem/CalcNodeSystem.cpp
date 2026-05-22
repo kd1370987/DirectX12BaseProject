@@ -13,6 +13,7 @@ void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ModelComponent,const AnimatorComponent, NodePoseComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
+		"CalcNodeSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

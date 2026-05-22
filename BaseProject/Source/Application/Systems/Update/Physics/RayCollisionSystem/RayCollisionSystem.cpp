@@ -19,6 +19,7 @@ void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ColliderComponent, const RayColliderComponent, TransformComponent>(
 		Engine::ECS::ESystemType::Physics,
+		"RayCollisionSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

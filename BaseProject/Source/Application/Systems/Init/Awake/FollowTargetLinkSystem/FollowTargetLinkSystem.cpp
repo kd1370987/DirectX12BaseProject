@@ -9,6 +9,7 @@ void FollowTargetLinkSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.AwekeTask<const GUIDComponent,FollowTargetComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
+		"FollowTargetLinkSystem",
 		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

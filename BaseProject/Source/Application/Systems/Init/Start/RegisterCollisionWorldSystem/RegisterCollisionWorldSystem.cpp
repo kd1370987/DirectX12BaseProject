@@ -14,6 +14,7 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.StartTask<ColliderComponent, const ModelComponent, const TransformComponent>(
 		Engine::ECS::ESystemType::Start,
+		"RegisterCollisionWorldSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

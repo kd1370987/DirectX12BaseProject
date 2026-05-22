@@ -18,6 +18,7 @@ void CamSetShaderSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ActiveCameraTag, const CameraTag, const ProjMatComponent, const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::PreDraw,
+		"CamSetShaderSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

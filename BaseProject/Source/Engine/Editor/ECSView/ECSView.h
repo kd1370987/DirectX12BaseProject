@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "SystemView/SystemView.h"
 
 namespace Engine::ECS
 {
@@ -61,5 +62,7 @@ namespace Engine::Editor
 			UI,
 		};
 		EFilterType m_filterType = EFilterType::None;
+
+		SystemView m_systemView;
 	};
 }

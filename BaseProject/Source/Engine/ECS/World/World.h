@@ -203,24 +203,32 @@ namespace Engine::ECS
 		template<typename Beffor,typename Affter>
 		void TransitionPhase();
 
+		// コンパイルされたパスの取得
+		const std::unordered_map<ESystemType, std::vector<SystemTask*>>& GetCompileTaskMap()const;
+
 		//------------------------------------------------------------------------------------------
 		// システムタスクの登録
 		//------------------------------------------------------------------------------------------
 		// 静的に式を保存して呼び出す
 		template<typename ...Components, typename... Excludes, typename Func>
-		void RegisterTask(ESystemType a_phase,Func a_func, Exclude<Excludes...> a_ex = {});
+		void RegisterTask(
+			ESystemType a_phase, 
+			const std::string& a_taskName, 
+			Func a_func, 
+			Exclude<Excludes...> a_ex = {}
+		);
 
 		// フェーズごとの専用登録関数
 		template<typename ...Components, typename... Excludes, typename Func>
-		void PostDeserializeTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
+		void PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void AwekeTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
+		void AwekeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void StartTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
+		void StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void ActiveTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
+		void ActiveTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void ReleaseTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
+		void ReleaseTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 
 		// カスタムタスク登録
 		// システム内で何度もForEachなどを使うときに使用
@@ -414,10 +422,15 @@ namespace Engine::ECS
 		);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::RegisterTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	inline void World::RegisterTask(
+		ESystemType a_phase,
+		const std::string& a_taskName,
+		Func a_func,
+		Exclude<Excludes...> a_ex
+	)
 	{
 		SystemTask _task;
-
+		_task.name = a_taskName;
 		// テンプレート引数から、Read/Write のシグネチャを分離して生成
 		// 関数を作って、テンプレート数分回す
 		(
@@ -466,32 +479,32 @@ namespace Engine::ECS
 				}
 			};
 
-		m_systemManager.AddSystemTask(a_phase, _task);
+		m_systemManager.AddSystemTask(a_phase, _task,a_taskName);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::PostDeserializeTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	inline void World::PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<PostDeserializeTag, Components...>(a_phase, a_func, a_ex);
+		RegisterTask<PostDeserializeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::AwekeTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	inline void World::AwekeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<AwekeTag, Components...>(a_phase, a_func, a_ex);
+		RegisterTask<AwekeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::StartTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	inline void World::StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<StartTag, Components...>(a_phase, a_func,a_ex);
+		RegisterTask<StartTag, Components...>(a_phase, a_taskName,  a_func,a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::ActiveTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	inline void World::ActiveTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<ActiveTag, Components...>(a_phase,a_func, a_ex);
+		RegisterTask<ActiveTag, Components...>(a_phase, a_taskName,a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::ReleaseTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	inline void World::ReleaseTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<ReleaseTag, Components...>(a_phase, a_func, a_ex);
+		RegisterTask<ReleaseTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
 	inline void World::RegisterCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)

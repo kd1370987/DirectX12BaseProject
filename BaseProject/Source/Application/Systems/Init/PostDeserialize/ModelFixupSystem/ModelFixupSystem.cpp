@@ -13,6 +13,7 @@ void ModelFixupSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.PostDeserializeTask<ModelComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
+		"ModelFixupSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

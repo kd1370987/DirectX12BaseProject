@@ -26,6 +26,8 @@ namespace Engine::Editor
 
 		// インスペクター
 		InspectorWindow(_pWorld);
+
+		m_systemView.Draw(a_widht,a_height);
 	}
 
 	void ECSView::HierarchyWindow(Engine::ECS::World* a_pWorld)

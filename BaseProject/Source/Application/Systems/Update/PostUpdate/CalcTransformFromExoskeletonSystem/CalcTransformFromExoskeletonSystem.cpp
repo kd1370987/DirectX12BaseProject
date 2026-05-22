@@ -15,6 +15,7 @@ void CalccTransformFromExoskeletonSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ExoskeletonAttachmentComponent, TransformComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
+		"CalccTransformFromExoskeletonSystem",
 		[&a_world]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

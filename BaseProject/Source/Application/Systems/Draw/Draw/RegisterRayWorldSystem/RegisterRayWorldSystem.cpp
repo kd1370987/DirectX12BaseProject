@@ -12,6 +12,7 @@ void RegisterRayWorldSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const RayTag,const ModelComponent,const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::Draw,
+		"RegisterRayWorldSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

@@ -15,6 +15,7 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.StartTask<const ModelComponent,AnimatorComponent,NodePoseComponent,SkeletonPoseComponent>(
 		Engine::ECS::ESystemType::Start,
+		"AnimationModelStartSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

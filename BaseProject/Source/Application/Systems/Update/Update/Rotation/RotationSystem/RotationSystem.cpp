@@ -10,6 +10,7 @@ void RotationSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const PlayerLookAngleComponent, TransformComponent>(
 		Engine::ECS::ESystemType::Update,
+		"RotationSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

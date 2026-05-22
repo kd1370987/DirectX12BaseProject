@@ -14,6 +14,7 @@ namespace Engine::ECS
 	// システムの実行情報（ジョブ）を保持する
 	struct SystemTask
 	{
+		std::string name = {};
 		Signature readSig;		// 読み込みのみを行うコンポーネント
 		Signature writeSig;		// 書き込みを行うコンポーネント軍
 		std::function<void(float)> executeFunc;	// チャンク処理
@@ -41,7 +42,12 @@ namespace Engine::ECS
 		void Sort();
 
 		// タスクの登録
-		void AddSystemTask(ESystemType a_systemType,const SystemTask& a_systemTask);
+		void AddSystemTask(
+			ESystemType a_systemType,const SystemTask& a_systemTask,const std::string& a_taskName
+		);
+
+		// ---- アクセサ ----
+		const std::unordered_map<ESystemType, std::vector<SystemTask*>>& GetCompileTaskMap() const;
 
 	private:
 

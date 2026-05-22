@@ -9,6 +9,7 @@ void CalcMatrixSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const TransformComponent, WorldMatrixComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
+		"CalcMatrixSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

@@ -14,6 +14,7 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ModelComponent, NodePoseComponent, SkeletonPoseComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
+		"SkinningSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

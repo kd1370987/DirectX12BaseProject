@@ -47,7 +47,7 @@ namespace Engine::ECS
 		}
 	}
 
-	void SystemManager::AddSystemTask(ESystemType a_systemType, const SystemTask & a_systemTask)
+	void SystemManager::AddSystemTask(ESystemType a_systemType, const SystemTask & a_systemTask, const std::string& a_taskName)
 	{
 		m_isChange = true;
 
@@ -61,5 +61,9 @@ namespace Engine::ECS
 			m_systemTaskMap[a_systemType] = {};
 			m_systemTaskMap[a_systemType].push_back(a_systemTask);
 		}
+	}
+	const std::unordered_map<ESystemType, std::vector<SystemTask*>>& SystemManager::GetCompileTaskMap() const
+	{
+		return m_compileTaskMap;
 	}
 }

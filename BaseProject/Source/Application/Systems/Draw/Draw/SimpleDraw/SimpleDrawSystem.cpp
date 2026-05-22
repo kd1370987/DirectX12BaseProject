@@ -20,6 +20,7 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const WorldMatrixComponent, const ModelComponent>(
 		Engine::ECS::ESystemType::Draw,
+		"SimpleDrawSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

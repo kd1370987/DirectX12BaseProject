@@ -10,6 +10,7 @@ void AttachmentNodeLinkSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.StartTask<ExoskeletonAttachmentComponent>(
 		Engine::ECS::ESystemType::Start,
+		"AttachmentNodeLinkSystem",
 		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

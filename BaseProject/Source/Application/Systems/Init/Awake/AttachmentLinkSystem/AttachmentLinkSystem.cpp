@@ -8,6 +8,7 @@ void AttachmentLinkSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.AwekeTask<const GUIDComponent, ExoskeletonAttachmentComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
+		"AttachmentLinkSystem",
 		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,

@@ -793,6 +793,9 @@
     <Filter Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem">
       <UniqueIdentifier>{94ee3a73-abc3-4bb1-a326-93c20a0ac8f2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\ECSView\SystemView">
+      <UniqueIdentifier>{f22c7951-bb75-4578-ba06-d15fe49d3e6e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1283,6 +1286,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.cpp">
       <Filter>Source\Application\Systems\Release\AnimationMatrixFreeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\ECSView\SystemView\SystemView.cpp">
+      <Filter>Source\Engine\Editor\ECSView\SystemView</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1993,6 +1999,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.h">
       <Filter>Source\Application\Systems\Release\AnimationMatrixFreeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\ECSView\SystemView\SystemView.h">
+      <Filter>Source\Engine\Editor\ECSView\SystemView</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

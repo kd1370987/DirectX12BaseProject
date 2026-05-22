@@ -8,6 +8,7 @@ void VelocityIntegrationSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<VelocityComponent>(
 		Engine::ECS::ESystemType::Update,
+		"VelocityIntegrationSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
