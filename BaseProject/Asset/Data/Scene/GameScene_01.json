@@ -4,481 +4,51 @@
             "CompName": "ActiveTag"
         },
         {
-            "CompName": "ActiveCameraTag"
-        },
-        {
-            "CompName": "CameraTag"
-        },
-        {
-            "CompName": "CameraControllTag"
-        },
-        {
-            "CompName": "CameraParamComponent",
-            "aspectRatio": 1.7777777910232544,
-            "farZ": 1000.0,
-            "fovY": 60.0,
-            "nearZ": 0.10000000149011612
-        },
-        {
-            "CompName": "ProjMatComponent"
-        },
-        {
-            "CompName": "FocusParamComponent",
-            "forcusBackRange": 1000.0,
-            "forcusDistance": 0.0,
-            "forcusRange": 0.0
-        },
-        {
-            "CompName": "FollowTargetComponent",
-            "targetGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
-        },
-        {
-            "CompName": "TPSOffsetComponent",
-            "x": 0.0,
-            "y": 2.0,
-            "z": -5.0
-        },
-        {
-            "ClampPitch": 80.0,
-            "CompName": "TPSLookAngleComponent",
-            "Pitch": 0.0
+            "CompName": "PlayerControllTag"
         },
         {
             "CompName": "VelocityComponent"
         },
         {
-            "CompName": "TransformComponent",
-            "pos": [
-                19.794912338256836,
-                2.0000014305114746,
-                -14.167562484741211
-            ],
-            "quat": [
-                0.0,
-                0.9335803985595703,
-                0.0,
-                0.3583680987358093
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
+            "CompName": "GravityComponent",
+            "scale": -1.0
         },
         {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": ""
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "c6da5fd1-7cc1-4ced-8480-0fe467d9912c"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                23.14832878112793,
-                1.7685954570770264,
-                -17.891908645629883
-            ],
-            "quat": [
-                -0.015180622227489948,
-                -0.35832077264785767,
-                -0.0058272844180464745,
-                0.9334569573402405
-            ],
-            "scale": [
-                0.20000000298023224,
-                0.19999992847442627,
-                0.19999998807907104
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                0.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": "Head"
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "078a074f-e6bf-4948-9612-2fe2ee7e74a3"
-        },
-        {
-            "CompName": "HierarchyComponent",
-            "Hierarchy_Depth": 0,
-            "Hierarchy_parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
-        },
-        {
-            "CompName": "ExoskeletonAttachmentComponent",
-            "offsetPosition": [
-                0.0,
-                0.20000000298023224,
-                0.0
-            ],
-            "offsetRotation": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "offsetScale": [
-                0.20000000298023224,
-                0.20000000298023224,
-                0.20000000298023224
-            ],
-            "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
-            "targetNodeHash": 0
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                23.72022819519043,
-                1.4408007860183716,
-                -17.27334976196289
-            ],
-            "quat": [
-                0.25340428948402405,
-                -0.25340449810028076,
-                -0.6601407527923584,
-                0.6601413488388062
-            ],
-            "scale": [
-                0.09999998658895493,
-                0.09999999403953552,
-                0.09999995678663254
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                0.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": "Hand_l"
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "078a074f-e6bf-4948-9612-2fe2ee7e74a3"
-        },
-        {
-            "CompName": "HierarchyComponent",
-            "Hierarchy_Depth": 0,
-            "Hierarchy_parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
-        },
-        {
-            "CompName": "ExoskeletonAttachmentComponent",
-            "offsetPosition": [
-                0.0,
-                0.10000000149011612,
-                0.0
-            ],
-            "offsetRotation": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "offsetScale": [
-                0.10000000149011612,
-                0.10000000149011612,
-                0.10000000149011612
-            ],
-            "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
-            "targetNodeHash": 164008523
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                22.47338104248047,
-                1.4408003091812134,
-                -18.396018981933594
-            ],
-            "quat": [
-                -0.2534044682979584,
-                -0.2534048855304718,
-                0.6601406335830688,
-                0.6601412296295166
-            ],
-            "scale": [
-                0.09999995678663254,
-                0.10000000894069672,
-                0.09999993443489075
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                0.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": "Hand_r"
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "078a074f-e6bf-4948-9612-2fe2ee7e74a3"
-        },
-        {
-            "CompName": "HierarchyComponent",
-            "Hierarchy_Depth": 0,
-            "Hierarchy_parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
-        },
-        {
-            "CompName": "ExoskeletonAttachmentComponent",
-            "offsetPosition": [
-                0.0,
-                0.10000000149011612,
-                0.0
-            ],
-            "offsetRotation": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "offsetScale": [
-                0.10000000149011612,
-                0.10000000149011612,
-                0.10000000149011612
-            ],
-            "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
-            "targetNodeHash": 130453141
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                23.182750701904297,
-                0.103701651096344,
-                -17.797128677368164
-            ],
-            "quat": [
-                0.8112139105796814,
-                0.17702233791351318,
-                0.3118782341480255,
-                -0.4618733823299408
-            ],
-            "scale": [
-                0.09999996423721313,
-                0.10000016540288925,
-                0.10000000894069672
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                0.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": "Foot_l"
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "078a074f-e6bf-4948-9612-2fe2ee7e74a3"
-        },
-        {
-            "CompName": "HierarchyComponent",
-            "Hierarchy_Depth": 0,
-            "Hierarchy_parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
-        },
-        {
-            "CompName": "ExoskeletonAttachmentComponent",
-            "offsetPosition": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "offsetRotation": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "offsetScale": [
-                0.10000000149011612,
-                0.10000000149011612,
-                0.10000000149011612
-            ],
-            "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
-            "targetNodeHash": 1891822018
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                23.05047035217285,
-                0.10370180010795593,
-                -17.91623306274414
-            ],
-            "quat": [
-                0.8112138509750366,
-                0.177022323012352,
-                0.3118782937526703,
-                -0.4618733525276184
-            ],
-            "scale": [
-                0.09999996423721313,
-                0.10000018030405045,
-                0.10000000894069672
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                0.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": "Foot_r"
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "078a074f-e6bf-4948-9612-2fe2ee7e74a3"
-        },
-        {
-            "CompName": "HierarchyComponent",
-            "Hierarchy_Depth": 0,
-            "Hierarchy_parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
-        },
-        {
-            "CompName": "ExoskeletonAttachmentComponent",
-            "offsetPosition": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "offsetRotation": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "offsetScale": [
-                0.10000000149011612,
-                0.10000000149011612,
-                0.10000000149011612
-            ],
-            "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
-            "targetNodeHash": 2193820456
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
+            "CompName": "PlayerLookAngleComponent",
+            "Yaw": 1166.0
         },
         {
             "CompName": "ColliderComponent",
-            "collideLayer": 2,
+            "collideLayer": 1,
             "isPhysical": 0,
-            "layer": 1
+            "layer": 2
+        },
+        {
+            "CompName": "RayColliderComponent",
+            "dir": [
+                0.0,
+                -1.0,
+                0.0
+            ],
+            "length": 1.0,
+            "pos": [
+                0.0,
+                1.0,
+                0.0
+            ]
         },
         {
             "CompName": "TransformComponent",
             "pos": [
-                0.0,
-                0.0,
-                0.0
+                18.931936264038086,
+                1.430511474609375e-06,
+                -17.763015747070313
             ],
             "quat": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
+                -0.0,
+                -0.6819978952407837,
+                -0.0,
+                -0.7313541173934937
             ],
             "scale": [
                 1.0,
@@ -502,15 +72,33 @@
                 0.0,
                 0.0
             ],
-            "modelGUID": "dc73f9dd-325f-4a52-b2eb-aca396a4067a"
+            "modelGUID": "816ccbf0-d612-4e6b-bc86-302f59523962"
+        },
+        {
+            "CompName": "AnimatorComponent",
+            "clipID": 0,
+            "isLoop": 1,
+            "speed": 30.0
+        },
+        {
+            "CompName": "SkeletonPoseComponent"
+        },
+        {
+            "CompName": "NodePoseComponent"
         },
         {
             "CompName": "NameComponent",
-            "name": ""
+            "name": "Player"
         },
         {
             "CompName": "GUIDComponent",
-            "guid": "e6f8bbaf-b0ac-4507-8e85-94de5046d6ac"
+            "guid": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "StateMachineComponent"
+        },
+        {
+            "CompName": "MoveIntentComponent"
         }
     ],
     [
@@ -868,51 +456,101 @@
             "CompName": "ActiveTag"
         },
         {
-            "CompName": "PlayerControllTag"
+            "CompName": "ActiveCameraTag"
+        },
+        {
+            "CompName": "CameraTag"
+        },
+        {
+            "CompName": "CameraControllTag"
+        },
+        {
+            "CompName": "CameraParamComponent",
+            "aspectRatio": 1.7777777910232544,
+            "farZ": 1000.0,
+            "fovY": 60.0,
+            "nearZ": 0.10000000149011612
+        },
+        {
+            "CompName": "ProjMatComponent"
+        },
+        {
+            "CompName": "FocusParamComponent",
+            "forcusBackRange": 1000.0,
+            "forcusDistance": 0.0,
+            "forcusRange": 0.0
+        },
+        {
+            "CompName": "FollowTargetComponent",
+            "targetGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "TPSOffsetComponent",
+            "x": 0.0,
+            "y": 2.0,
+            "z": -5.0
+        },
+        {
+            "ClampPitch": 80.0,
+            "CompName": "TPSLookAngleComponent",
+            "Pitch": 0.0
         },
         {
             "CompName": "VelocityComponent"
         },
         {
-            "CompName": "GravityComponent",
-            "scale": -1.0
+            "CompName": "TransformComponent",
+            "pos": [
+                13.944116592407227,
+                2.0000014305114746,
+                -18.111804962158203
+            ],
+            "quat": [
+                -0.0,
+                -0.6819978952407837,
+                0.0,
+                -0.7313541173934937
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
         },
         {
-            "CompName": "PlayerLookAngleComponent",
-            "Yaw": 1578.0
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": ""
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "c6da5fd1-7cc1-4ced-8480-0fe467d9912c"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
         },
         {
             "CompName": "ColliderComponent",
-            "collideLayer": 1,
+            "collideLayer": 2,
             "isPhysical": 0,
-            "layer": 2
-        },
-        {
-            "CompName": "RayColliderComponent",
-            "dir": [
-                0.0,
-                -1.0,
-                0.0
-            ],
-            "length": 1.0,
-            "pos": [
-                0.0,
-                1.0,
-                0.0
-            ]
+            "layer": 1
         },
         {
             "CompName": "TransformComponent",
             "pos": [
-                23.140565872192383,
-                1.3709068298339844e-06,
-                -17.883285522460938
+                0.0,
+                0.0,
+                0.0
             ],
             "quat": [
                 0.0,
-                0.9335803985595703,
                 0.0,
-                0.3583680987358093
+                0.0,
+                1.0
             ],
             "scale": [
                 1.0,
@@ -936,27 +574,395 @@
                 0.0,
                 0.0
             ],
-            "modelGUID": "816ccbf0-d612-4e6b-bc86-302f59523962"
-        },
-        {
-            "CompName": "AnimatorComponent",
-            "clipID": 0,
-            "isLoop": 1,
-            "speed": 30.0
-        },
-        {
-            "CompName": "SkeletonPoseComponent"
-        },
-        {
-            "CompName": "NodePoseComponent"
+            "modelGUID": "dc73f9dd-325f-4a52-b2eb-aca396a4067a"
         },
         {
             "CompName": "NameComponent",
-            "name": "Player"
+            "name": ""
         },
         {
             "CompName": "GUIDComponent",
-            "guid": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+            "guid": "e6f8bbaf-b0ac-4507-8e85-94de5046d6ac"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                18.943510055541992,
+                1.7685954570770264,
+                -17.762205123901367
+            ],
+            "quat": [
+                0.01108963880687952,
+                0.7312574982643127,
+                0.011892248876392841,
+                -0.6819076538085938
+            ],
+            "scale": [
+                0.19999997317790985,
+                0.19999989867210388,
+                0.19999995827674866
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "Head"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "078a074f-e6bf-4948-9612-2fe2ee7e74a3"
+        },
+        {
+            "CompName": "HierarchyComponent",
+            "Hierarchy_Depth": 0,
+            "Hierarchy_parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "ExoskeletonAttachmentComponent",
+            "offsetPosition": [
+                0.0,
+                0.20000000298023224,
+                0.0
+            ],
+            "offsetRotation": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "offsetScale": [
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
+            ],
+            "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
+            "targetNodeHash": 0
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                18.808176040649414,
+                1.4408007860183716,
+                -16.930721282958984
+            ],
+            "quat": [
+                -0.5171452760696411,
+                0.5171455144882202,
+                0.4822450578212738,
+                -0.48224571347236633
+            ],
+            "scale": [
+                0.09999996423721313,
+                0.09999998658895493,
+                0.09999994933605194
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "Hand_l"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "078a074f-e6bf-4948-9612-2fe2ee7e74a3"
+        },
+        {
+            "CompName": "HierarchyComponent",
+            "Hierarchy_Depth": 0,
+            "Hierarchy_parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "ExoskeletonAttachmentComponent",
+            "offsetPosition": [
+                0.0,
+                0.10000000149011612,
+                0.0
+            ],
+            "offsetRotation": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "offsetScale": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+            ],
+            "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
+            "targetNodeHash": 164008523
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                18.925214767456055,
+                1.4408003091812134,
+                -18.604433059692383
+            ],
+            "quat": [
+                0.5171451568603516,
+                0.5171459913253784,
+                -0.48224514722824097,
+                -0.4822452962398529
+            ],
+            "scale": [
+                0.09999992698431015,
+                0.09999998658895493,
+                0.09999991953372955
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "Hand_r"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "078a074f-e6bf-4948-9612-2fe2ee7e74a3"
+        },
+        {
+            "CompName": "HierarchyComponent",
+            "Hierarchy_Depth": 0,
+            "Hierarchy_parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "ExoskeletonAttachmentComponent",
+            "offsetPosition": [
+                0.0,
+                0.10000000149011612,
+                0.0
+            ],
+            "offsetRotation": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "offsetScale": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+            ],
+            "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
+            "targetNodeHash": 130453141
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                18.8900146484375,
+                0.10370180010795593,
+                -17.676729202270508
+            ],
+            "quat": [
+                0.5923957824707031,
+                0.3615786135196686,
+                0.6359270811080933,
+                -0.33752763271331787
+            ],
+            "scale": [
+                0.09999994933605194,
+                0.10000014305114746,
+                0.10000001639127731
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "Foot_l"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "078a074f-e6bf-4948-9612-2fe2ee7e74a3"
+        },
+        {
+            "CompName": "HierarchyComponent",
+            "Hierarchy_Depth": 0,
+            "Hierarchy_parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "ExoskeletonAttachmentComponent",
+            "offsetPosition": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "offsetRotation": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "offsetScale": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+            ],
+            "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
+            "targetNodeHash": 1891822018
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                18.90243148803711,
+                0.10370194911956787,
+                -17.85429573059082
+            ],
+            "quat": [
+                0.5923958420753479,
+                0.3615786135196686,
+                0.6359270215034485,
+                -0.33752766251564026
+            ],
+            "scale": [
+                0.09999996423721313,
+                0.10000015050172806,
+                0.10000000149011612
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "Foot_r"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "078a074f-e6bf-4948-9612-2fe2ee7e74a3"
+        },
+        {
+            "CompName": "HierarchyComponent",
+            "Hierarchy_Depth": 0,
+            "Hierarchy_parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "ExoskeletonAttachmentComponent",
+            "offsetPosition": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "offsetRotation": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "offsetScale": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+            ],
+            "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
+            "targetNodeHash": 2193820456
         }
     ]
 ]

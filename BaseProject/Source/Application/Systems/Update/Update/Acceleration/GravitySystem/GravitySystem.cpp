@@ -7,7 +7,7 @@
 void GravitySystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const GravityComponent, VelocityComponent>(
-		Engine::ECS::ESystemType::Update,
+		Engine::ECS::ESystemType::Physics,
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
