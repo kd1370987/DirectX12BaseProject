@@ -778,6 +778,9 @@
     <Filter Include="Source\Engine\Resource\Data\StateMachineAsset">
       <UniqueIdentifier>{b26cd422-2854-4874-b89e-a3b0983a789a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Components\Intent">
+      <UniqueIdentifier>{7b22f186-76d7-4035-91dc-e9f58ab4dd2c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1957,6 +1960,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.h">
       <Filter>Source\Engine\Resource\Data\StateMachineAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\StateMachineComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Intent\MoveIntentComponent.h">
+      <Filter>Source\Application\Components\Intent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

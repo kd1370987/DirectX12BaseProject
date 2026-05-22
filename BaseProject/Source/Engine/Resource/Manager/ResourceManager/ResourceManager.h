@@ -2,6 +2,9 @@
 
 #include "ResourcePool/ResourcePool.h"
 
+// 各リソース
+#include "../../Data/StateMachineAsset/StateMachineAsset.h"
+
 namespace Engine::D3D12
 {
 	class CommandAllocator;
@@ -63,7 +66,8 @@ namespace Engine::Resource
 		ResourcePool<AnimationData>	m_animationPool;		// アニメーション
 		ResourcePool<Texture>		m_texturePool;			// テクスチャ
 		ResourcePool<Shader>		m_shaderPool;			// シェーダー
-		ResourcePool<ShaderLibrary>	m_shaderLibraryPool;	//シェーダーライブラリ
+		ResourcePool<ShaderLibrary>	m_shaderLibraryPool;	// シェーダーライブラリ
+		ResourcePool<StateMachineAsset> m_stateMachinePool;	// ステートマシン
 
 		// リソース用D3D12オブジェクト群
 		ID3D12CommandQueue* m_pCopyCmdQueue = nullptr;
@@ -134,6 +138,7 @@ namespace Engine::Resource
 	template<> inline const ResourcePool<Texture>& ResourceManager::GetPool<Texture>() const				{ return m_texturePool; }
 	template<> inline const ResourcePool<Shader>& ResourceManager::GetPool<Shader>() const					{ return m_shaderPool; }
 	template<> inline const ResourcePool<ShaderLibrary>& ResourceManager::GetPool<ShaderLibrary>() const	{ return m_shaderLibraryPool; }
+	template<> inline const ResourcePool<StateMachineAsset>& ResourceManager::GetPool<StateMachineAsset>() const	{ return m_stateMachinePool; }
 	
 
 	// テンプレート明示特殊化
@@ -144,4 +149,5 @@ namespace Engine::Resource
 	template<> inline ResourcePool<Texture>& ResourceManager::RefPool<Texture>()				{ return m_texturePool; }
 	template<> inline ResourcePool<Shader>& ResourceManager::RefPool<Shader>()					{ return m_shaderPool; }
 	template<> inline ResourcePool<ShaderLibrary>& ResourceManager::RefPool<ShaderLibrary>()	{ return m_shaderLibraryPool; }
+	template<> inline ResourcePool<StateMachineAsset>& ResourceManager::RefPool<StateMachineAsset>()	{ return m_stateMachinePool; }
 }

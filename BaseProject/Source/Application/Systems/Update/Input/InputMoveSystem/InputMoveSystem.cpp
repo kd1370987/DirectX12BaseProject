@@ -3,6 +3,7 @@
 #include "Engine/ECS/World/World.h"
 
 #include "Application/Components/Force/VelocityComponent.h"
+#include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "Application/Components/Force/InertiaComponent.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
@@ -12,7 +13,7 @@
 void InputMoveSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const PlayerControllTag, VelocityComponent, PlayerLookAngleComponent>(
-		Engine::ECS::ESystemType::Update,
+		Engine::ECS::ESystemType::Input,
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

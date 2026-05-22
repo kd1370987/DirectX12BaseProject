@@ -13,7 +13,6 @@
 // レンダータグ
 #include "../../Components/Tag/RenderTag/RayTag.h"
 
-
 #include "../../Components/Tag/ActiveCameraTag.h"
 #include "../../Components/Tag/CameraTag.h"
 #include "../../Components/Tag/PlayerControllTag.h"
@@ -36,6 +35,8 @@
 #include "../../Components/Transform/LocalTransformComponent.h"
 #include "../../Components/Transform/WorldMatrixComponent.h"
 
+#include "../../Components/Intent/MoveIntentComponent.h"
+
 #include "../../Components/Collision/Collider.h"
 #include "../../Components/Collision/RayCollider.h"
 
@@ -44,6 +45,7 @@
 #include "../../Components/Resource/SkeletonPoseComponent.h"
 #include "../../Components/Resource/NodePoseComponent.h"
 #include "../../Components/Resource/UIComponent.h"
+#include "../../Components/Resource/StateMachineComponent.h"
 
 #include "../../Components/Persistence/GUIDComponent.h"
 #include "../../Components/Persistence/NameComponent.h"
@@ -198,6 +200,8 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<GUIDComponent>("GUIDComponent");
 	m_upWorld->RegisterComponent<HierarchyComponent>("HierarchyComponent");
 	m_upWorld->RegisterComponent<ExoskeletonAttachmentComponent>("ExoskeletonAttachmentComponent");
+	m_upWorld->RegisterComponent<StateMachineComponent>("StateMachineComponent");
+	m_upWorld->RegisterComponent<MoveIntentComponent>("MoveIntentComponent");
 }
 
 void BaseScene::RegistrySystem()

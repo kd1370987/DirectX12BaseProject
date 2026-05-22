@@ -417,12 +417,14 @@
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
     <ClInclude Include="Source\Application\Components\Hierarchy\ExoskeletonAttachementComponent.h" />
     <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h" />
+    <ClInclude Include="Source\Application\Components\Intent\MoveIntentComponent.h" />
     <ClInclude Include="Source\Application\Components\Persistence\GUIDComponent.h" />
     <ClInclude Include="Source\Application\Components\Persistence\NameComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\AnimatorComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\NodePoseComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\SkeletonPoseComponent.h" />
+    <ClInclude Include="Source\Application\Components\Resource\StateMachineComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\UIComponent.h" />
     <ClInclude Include="Source\Application\Components\Tag\ActiveCameraTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h" />
