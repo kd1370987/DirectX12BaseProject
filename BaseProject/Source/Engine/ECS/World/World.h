@@ -13,11 +13,7 @@
 #include "../../../Application/Components/Tag/SystemPhaseTag/AwekeTag.h"
 #include "../../../Application/Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../Application/Components/Tag/SystemPhaseTag/StartTag.h"
-
-//class ActiveTag;
-//class StartTag;
-//class AwekeTag;
-//class PostDeserializeTag;
+#include "../../../Application/Components/Tag/SystemPhaseTag/ReleaseTag.h"
 
 namespace Engine::ECS
 {
@@ -223,6 +219,8 @@ namespace Engine::ECS
 		void StartTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
 		void ActiveTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
+		template<typename ...Components, typename... Excludes, typename Func>
+		void ReleaseTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex = {});
 
 		// カスタムタスク登録
 		// システム内で何度もForEachなどを使うときに使用
@@ -238,6 +236,8 @@ namespace Engine::ECS
 		void StartCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
 		void ActiveCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		template<typename ...Read, typename... Write, typename Func>
+		void ReleaseCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
 
 
 	private:
@@ -488,6 +488,11 @@ namespace Engine::ECS
 	{
 		RegisterTask<ActiveTag, Components...>(a_phase,a_func, a_ex);
 	}
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::ReleaseTask(ESystemType a_phase, Func a_func, Exclude<Excludes...> a_ex)
+	{
+		RegisterTask<ReleaseTag, Components...>(a_phase, a_func, a_ex);
+	}
 	template<typename ...Read, typename ...Write, typename Func>
 	inline void World::RegisterCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
@@ -548,6 +553,16 @@ namespace Engine::ECS
 		RegisterCustomTask(
 			a_phase,
 			ReadList<ActiveTag, Read...>{},
+			WriteList<Write...>{},
+			a_func
+		);
+	}
+	template<typename ...Read, typename ...Write, typename Func>
+	inline void World::ReleaseCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	{
+		RegisterCustomTask(
+			a_phase,
+			ReadList<ReleaseTag, Read...>{},
 			WriteList<Write...>{},
 			a_func
 		);

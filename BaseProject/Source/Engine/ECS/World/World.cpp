@@ -55,6 +55,20 @@ namespace Engine::ECS
 
 		// エンティティの一括削除
 		RemoveEntityStorage();
+
+		// 削除されていないリリースタグが付いたエンティティは初期化扱い
+		TransitionPhase<ReleaseTag, PostDeserializeTag>();
+		RunSystem(Engine::ECS::ESystemType::PostDeserialize, 0.0f);
+		TransitionPhase<PostDeserializeTag, AwekeTag>();
+
+		RunSystem(Engine::ECS::ESystemType::Awake, 0.0f);
+		TransitionPhase<AwekeTag, StartTag>();
+
+		RunSystem(Engine::ECS::ESystemType::Start, 0.0f);
+		TransitionPhase<StartTag, ActiveTag>();
+
+		// 削除前にリリース処理を走らせる
+		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
 	}
 
 	void World::AddEntity(const Signature& a_sig)
@@ -226,7 +240,7 @@ namespace Engine::ECS
 		_cmd.entity = a_entity;
 		if (_oldSig.test(GetCompTypeID<ActiveTag>()))
 		{
-			_oldSig.set(GetCompTypeID<PostDeserializeTag>());
+			_oldSig.set(GetCompTypeID<ReleaseTag>());
 			_oldSig.reset(GetCompTypeID<ActiveTag>());
 		}
 		_cmd.toSig = _oldSig;

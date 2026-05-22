@@ -2,7 +2,6 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "Application/Components/Force/VelocityComponent.h"
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "Application/Components/Force/InertiaComponent.h"
 
@@ -12,7 +11,7 @@
 
 void InputMoveSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const PlayerControllTag, VelocityComponent, PlayerLookAngleComponent>(
+	a_world.ActiveTask<const PlayerControllTag, MoveIntentComponent, PlayerLookAngleComponent>(
 		Engine::ECS::ESystemType::Input,
 		[]
 		(
@@ -21,7 +20,7 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			float a_dt,
 			ActiveTag* a_ActiveTag,
 			const PlayerControllTag* a_tags,
-			VelocityComponent* a_velocityArray,
+			MoveIntentComponent* a_moveIntentArray,
 			PlayerLookAngleComponent* a_playerLookArray
 		)
 		{
@@ -39,17 +38,12 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				PlayerLookAngleComponent& _lookComp = a_playerLookArray[_i];
+				MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
+
 				_lookComp.Yaw += _look.x;
 
-				float _rad = DirectX::XMConvertToRadians(_lookComp.Yaw);
-				float _sinY = sinf(_rad);
-				float _cosY = cosf(_rad);
-
-				VelocityComponent& _velComp = a_velocityArray[_i];
-				_velComp.value = {};
-				_velComp.value.x += (_move.x * _cosY + _move.z * _sinY) * 5.0f;
-				_velComp.value.y += _move.y;
-				_velComp.value.z += (_move.z * _cosY - _move.x * _sinY) * 5.0f;
+				_intentComp.value = {};
+				_intentComp.value = _move;
 			}
 		}
 	);

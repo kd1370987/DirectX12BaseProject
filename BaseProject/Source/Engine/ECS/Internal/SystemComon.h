@@ -23,6 +23,9 @@ namespace Engine::ECS
 		PreDraw,
 		Draw,
 
+		// 解放
+		Release,
+
 		// システム分類総数
 		Num
 	};

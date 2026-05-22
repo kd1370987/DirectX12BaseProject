@@ -35,7 +35,7 @@ namespace Engine::Resource
 		StateMachineAsset() = default;
 		~StateMachineAsset() = default;
 
-		UINT GetStateHash(const std::string& a_stateName);
+		UINT GetStateHash(const std::string& a_stateName) const;
 
 	private:
 		// 初期ステート

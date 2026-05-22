@@ -1,6 +1,6 @@
 ﻿#include "StateMachineAsset.h"
 
-UINT Engine::Resource::StateMachineAsset::GetStateHash(const std::string& a_stateName)
+UINT Engine::Resource::StateMachineAsset::GetStateHash(const std::string& a_stateName) const
 {
 	UINT _hash = StringUtility::ToHash(a_stateName);
 

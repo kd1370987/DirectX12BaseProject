@@ -70,6 +70,7 @@
 
 #include "Application/Systems/Update/Update/Rotation/RotationSystem/RotationSystem.h"
 #include "Application/Systems/Update/Update/Acceleration/GravitySystem/GravitySystem.h"
+#include "../../Systems/Update/Update/Move/CharactorMovementSystem/CharactorMovementSystem.h"
 
 #include "Application/Systems/Update/Physics/RayCollisionSystem/RayCollisionSystem.h"
 #include "Application/Systems/Update/Physics/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
@@ -89,6 +90,8 @@
 #include "Application/Systems/Draw/Draw/AnimationOptionalDraw/AnimationOptionalDraw.h"
 #include "Application/Systems/Draw/Draw/ScreenUIDraw/ScreenUIDrawSystem.h"
 #include "../../Systems/Draw/Draw/RegisterRayWorldSystem/RegisterRayWorldSystem.h"
+
+#include "../../Systems/Release/AnimationMatrixFreeSystem/AnimationMatrixFreeSystem.h"
 
 
 BaseScene::BaseScene()
@@ -125,17 +128,10 @@ void BaseScene::Exit()
 
 void BaseScene::Update(float a_dt)
 {
+
 	// シーンの初めに一括でエンティティを生成・削除
+	// 解放処理と初期化処理も含まれているため、呼び出しはシングルスレッド限定
 	m_upWorld->BegineFrame();
-
-	m_upWorld->RunSystem(Engine::ECS::ESystemType::PostDeserialize, a_dt);
-	m_upWorld->TransitionPhase<PostDeserializeTag, AwekeTag>();
-
-	m_upWorld->RunSystem(Engine::ECS::ESystemType::Awake, a_dt);
-	m_upWorld->TransitionPhase<AwekeTag, StartTag>();
-
-	m_upWorld->RunSystem(Engine::ECS::ESystemType::Start, a_dt);
-	m_upWorld->TransitionPhase<StartTag, ActiveTag>();
 
 	// シーン特有処理
 	Event();
@@ -168,6 +164,7 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<AwekeTag>("AwekeTag");
 	m_upWorld->RegisterComponent<StartTag>("StartTag");
 	m_upWorld->RegisterComponent<ActiveTag>("ActiveTag");
+	m_upWorld->RegisterComponent<ReleaseTag>("ReleaseTag");
 
 	m_upWorld->RegisterComponent<RayTag>("RayTag");
 
@@ -229,6 +226,7 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<CalcNodeSystem>();
 	m_upWorld->RegisterSystem<SkinningSystem>();
 	m_upWorld->RegisterSystem<PositionIntegrationSystem>();
+	m_upWorld->RegisterSystem<CharactorMovementSystem>();
 
 	m_upWorld->RegisterSystem<TPSSystem>();
 
@@ -241,6 +239,8 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<AnimationOptionalDrawSystem>();
 	m_upWorld->RegisterSystem<ScreenUIDrawSystem>();
 	m_upWorld->RegisterSystem<RegisterRayWorldSystem>();
+
+	m_upWorld->RegisterSystem<AnimationMatrixFreeSystem>();
 }
 
 void BaseScene::RegistryEntity()

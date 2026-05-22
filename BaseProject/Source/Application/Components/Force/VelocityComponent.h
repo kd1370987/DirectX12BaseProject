@@ -17,6 +17,10 @@ struct VelocityComponent
 	static void Edit(void* a_data)
 	{
 		VelocityComponent& _comp = Engine::Editor::GetValue<VelocityComponent>(a_data);
-		ImGui::LabelText("Velocity", "( %.2f, %.2f , %.2f )", _comp.value.x, _comp.value.y, _comp.value.z);
+		ImGui::LabelText("","%.2f, %.2f , %.2f", _comp.value.x, _comp.value.y, _comp.value.z);
+		if (ImGui::Button("Clear"))
+		{
+			_comp.value = {};
+		}
 	}
 };

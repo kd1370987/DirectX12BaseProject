@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-constexpr UINT MAX_NODEINDEX = 100;
-
 struct NodePoseComponent
 {
 	Engine::Storage::Range nodeRange;
