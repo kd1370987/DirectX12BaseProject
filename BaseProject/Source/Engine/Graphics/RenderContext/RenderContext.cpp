@@ -476,8 +476,9 @@ namespace Engine::Graphics
 		ID3D12DescriptorHeap* _srcHeap = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeap();
 
 		// ヒープ丸ごとコピー
+		UINT _heapNum = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize();
 		m_pDevice->CopyDescriptorsSimple(
-			300,
+			_heapNum,
 			m_bindLessHeap.GetCPU(0),
 			_srcHeap->GetCPUDescriptorHandleForHeapStart(),
 			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV

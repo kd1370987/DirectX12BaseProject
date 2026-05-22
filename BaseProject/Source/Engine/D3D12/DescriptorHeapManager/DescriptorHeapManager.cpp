@@ -47,9 +47,12 @@ namespace Engine::D3D12
 		);
 
 		// アロケーター生成
-		m_CBVAllocator.Create(&m_cbv_srv_uavHeap, 0,						a_cbvCount);	// CBV
-		m_SRVAllocator.Create(&m_cbv_srv_uavHeap, a_cbvCount,				a_srvCount);	// SRV
-		m_UAVAllocator.Create(&m_cbv_srv_uavHeap, a_cbvCount + a_srvCount,	a_uavCount);	// UAV
+		UINT _startIdx = 0;
+		m_CBVAllocator.Create(&m_cbv_srv_uavHeap, _startIdx, a_cbvCount);	// CBV
+		_startIdx += a_cbvCount;
+		m_SRVAllocator.Create(&m_cbv_srv_uavHeap, _startIdx, a_srvCount);	// SRV
+		_startIdx += a_srvCount;
+		m_UAVAllocator.Create(&m_cbv_srv_uavHeap, _startIdx, a_uavCount);	// UAV
 
 		m_RTVAllocator.Create(&m_rtvHeap);	// RTV
 		m_DSVAllocator.Create(&m_dsvHeap);	// DSV
