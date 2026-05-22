@@ -52,18 +52,20 @@ namespace Engine::Graphics
 		// 構造体バッファ作成のためGPU操作を実行
 		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
 
+		UINT _heapSize = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize();
+
 		// コピー戦略用SRVヒープの作成
 		m_copyHeap.Create(
 			m_pDevice,
 			L"CopyHeap",
-			D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize(),
+			_heapSize,
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			0
 		);
 		m_bindLessHeap.Create(
 			m_pDevice,
 			L"BindLess",
-			D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize(),
+			_heapSize,
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			0
 		);
@@ -359,7 +361,6 @@ namespace Engine::Graphics
 		auto _pCmd = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 		_pCmd->SetComputeRootDescriptorTable(
 			a_rootIdx,
-			//m_bindLessHeap.GetGPU(a_handle.idx + 200)
 			m_bindLessHeap.GetGPU(a_handle.idx)
 		);
 	}

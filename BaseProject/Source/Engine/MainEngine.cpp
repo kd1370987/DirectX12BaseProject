@@ -72,7 +72,7 @@ namespace Engine
 		}
 
 		// ディスクリプタヒープテーブルマネージャーの初期化
-		if (!D3D12::DescriptorHeapManager::Instance().Init(100, 16384,100,100,10))
+		if (!D3D12::DescriptorHeapManager::Instance().Init(100, 4000,100,100,10))
 		{
 			assert(0 && "ディスクリプタヒープマネージャーの初期化に失敗");
 			return;
