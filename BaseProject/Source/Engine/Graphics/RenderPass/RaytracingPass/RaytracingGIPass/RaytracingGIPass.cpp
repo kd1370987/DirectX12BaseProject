@@ -19,6 +19,7 @@ namespace Engine::Graphics
 		// レイワールド更新・シェーダーテーブル更新
 		Engine::Raytracing::RayEngine::Instance().Commit();
 		const auto& _instanceVec = Raytracing::RayEngine::Instance().GetInstanceVec();
+		if (_instanceVec.empty()) return;
 		m_shaderTable.CommitInstanceBindLess(_instanceVec, a_pCtx);
 
 		// ディスクリプタヒープセット
