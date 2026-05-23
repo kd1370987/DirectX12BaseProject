@@ -7,7 +7,6 @@ namespace Engine::Resource
 	{
 		// 識別名
 		std::string	name;
-		UINT		nameHash;
 
 		// アニメーションとの連携
 		Handle<AnimationData> animationHandle;	// 再生するアニメーションのハンドル
@@ -37,14 +36,22 @@ namespace Engine::Resource
 
 		UINT GetStateHash(const std::string& a_stateName) const;
 
+		// 保存と読み込み
+		void Save(const std::string& a_savePath);
+		void Load(const std::string& a_filePath);
+
+		// エディターからの呼び出し用
+		// ここで設計図を作る
+		void EditImGui();
+
 	private:
 		// 初期ステート
 		UINT m_defaultStartHash = 0;
 
-		// ハッシュ値、データ
+		// 名前ハッシュ値、データ
 		std::unordered_map<UINT, StateNode> m_stateNodeMap = {};
 
-		// ハッシュ値、変更先
+		// 名前ハッシュ値、変更先
 		std::unordered_map<UINT, std::vector<TransitionArrow>> m_transitionArrowMap = {};
 
 	};

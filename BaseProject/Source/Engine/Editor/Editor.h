@@ -41,6 +41,9 @@ namespace Engine::Editor
 		// 行列をログに追加する関数
 		void AddLogMatrix(const std::string& a_name, const DirectX::XMFLOAT4X4& a_mat);
 
+		// 処理を落とす際に呼び出す
+		void ErrorLog(const char* a_fmt, ...);
+
 		//=======================================================================
 		// 計測関連
 		//=======================================================================

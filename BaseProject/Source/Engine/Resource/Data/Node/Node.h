@@ -1,32 +1,31 @@
 ﻿#pragma once
 
-namespace Engine
+namespace Engine::Resource
 {
-	namespace Resource
+	//==========================================================
+	// 
+	// ノード：モデルを形成するメッシュを扱うための最小単位
+	// 
+	//==========================================================
+	struct Node
 	{
-		//==========================================================
-		// 
-		// ノード：モデルを形成するメッシュを扱うための最小単位
-		// 
-		//==========================================================
-		struct Node
-		{
-			std::string				name;						//ノード名
-			UINT					nodeNameHash = 0;			// ノード名ハッシュ
+		// ノードのセーブ
+		void Save(std::ofstream& a_ofs);
 
-			std::vector<int>		meshIndices;				// メッシュのインデックスリスト
-			std::vector<int>		collisionIndices;			// 当たり判定用データ
+		std::string				name;						//ノード名
+		UINT					nodeNameHash = 0;			// ノード名ハッシュ
 
-			DirectX::XMFLOAT4X4		localTransform = {};				// 直属の親ボーンからの行列
-			DirectX::XMFLOAT4X4		worldTransform = {};				// 原点からの行列
-			DirectX::XMFLOAT4X4		boneInverseWorldMatrix = {};		// 原点からの逆行列
+		std::vector<int>		meshIndices;				// メッシュのインデックスリスト
 
-			int						parent = -1;				// 親インデックス
-			std::vector<int>		children;					// 子供へのインデックスリスト
+		DirectX::XMFLOAT4X4		localTransform = {};				// 直属の親ボーンからの行列
+		DirectX::XMFLOAT4X4		worldTransform = {};				// 原点からの行列
+		DirectX::XMFLOAT4X4		boneInverseWorldMatrix = {};		// 原点からの逆行列
 
-			int						boneIndex = -1;				// ボーンノードのとき、先頭から何番目のボーンか
+		int						parent = -1;				// 親インデックス
+		std::vector<int>		children;					// 子供へのインデックスリスト
 
-			bool					isSkinMesh = false;			// スキンメッシュ持ちかどうか
-		};
-	}
+		int						boneIndex = -1;				// ボーンノードのとき、先頭から何番目のボーンか
+
+		bool					isSkinMesh = false;			// スキンメッシュ持ちかどうか
+	};
 }

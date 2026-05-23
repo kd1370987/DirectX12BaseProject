@@ -31,6 +31,7 @@ namespace Engine
 			//---------------------------------------
 			// 材質データ
 			//---------------------------------------
+			// ---- シリアライズ用データ ----
 			// 名前
 			std::string					name;
 
@@ -38,23 +39,19 @@ namespace Engine
 			Alpha alphaMode = Alpha::Opaque;
 
 			// 基本色
-			uint32_t					baseTexID = 0;
 			DirectX::XMFLOAT4			baseColor = { 1,1,1,1 };
 			Engine::Resource::Handle<Engine::Resource::Texture> baseColorTex = {};
 
 			// メタリック・ラフネス
-			uint32_t					metallicRoughnessTexID = 0;
 			float						metallic = 0.0f;						// B : 金属製
 			float						roughness = 1.0f;						// G : 粗さ
 			Engine::Resource::Handle<Engine::Resource::Texture> metaRoughTex = {};
 
 			// エミッシブ
-			uint32_t					emissiveTexID = 0;
 			DirectX::XMFLOAT3			emissive = { 1.0f,1.0f,1.0f };
 			Engine::Resource::Handle<Engine::Resource::Texture> emissiveTex = {};
 
 			// 法線マップ
-			uint32_t					normalTexID = 0;
 			Engine::Resource::Handle<Engine::Resource::Texture> normalTex = {};
 		};
 	}

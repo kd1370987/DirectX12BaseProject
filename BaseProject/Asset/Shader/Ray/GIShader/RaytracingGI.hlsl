@@ -68,7 +68,7 @@ float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs, InstanceData insta
 {
 	float3 _barycentrics = float3(1.0 - a_attribs.barycentrics.x - a_attribs.barycentrics.y, a_attribs.barycentrics.x, a_attribs.barycentrics.y);
 
-	// 💡 【重要】メインヒープから、このインスタンスのインデックスバッファと頂点バッファを直接取得
+	// メインヒープから、このインスタンスのインデックスバッファと頂点バッファを直接取得
 	StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
 	StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
 

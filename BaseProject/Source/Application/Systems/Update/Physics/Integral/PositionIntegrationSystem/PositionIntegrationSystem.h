@@ -6,6 +6,6 @@ class PositionIntegrationSystem : public Engine::ECS::SystemBase<PositionIntegra
 {
 public:
 
-	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Update;
+	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Physics;
 	void Init(Engine::ECS::World& a_world) override;
 };

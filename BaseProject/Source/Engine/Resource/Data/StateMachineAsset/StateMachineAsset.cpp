@@ -11,3 +11,17 @@ UINT Engine::Resource::StateMachineAsset::GetStateHash(const std::string& a_stat
 	}
 	return -1;
 }
+
+void Engine::Resource::StateMachineAsset::Save(const std::string& a_savePath)
+{	
+}
+
+void Engine::Resource::StateMachineAsset::Load(const std::string & a_filePath)
+{
+
+}
+
+void Engine::Resource::StateMachineAsset::EditImGui()
+{
+
+}

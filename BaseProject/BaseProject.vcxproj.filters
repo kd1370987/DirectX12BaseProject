@@ -796,6 +796,21 @@
     <Filter Include="Source\Engine\Editor\ECSView\SystemView">
       <UniqueIdentifier>{f22c7951-bb75-4578-ba06-d15fe49d3e6e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Utility\BinaryHelper">
+      <UniqueIdentifier>{312e8f8a-1040-489c-afb0-fbeb1e1cc827}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Model\Importer\obmdl">
+      <UniqueIdentifier>{af775706-7aa3-4b05-8347-e8c5acae0446}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Material">
+      <UniqueIdentifier>{5b370f35-bc6d-4dc5-827c-768f0b8c1fc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Mesh">
+      <UniqueIdentifier>{42d50ddf-1868-4e97-b4e6-ad567896138f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Animation">
+      <UniqueIdentifier>{808bf0ef-b212-482e-90ff-882ac218eb04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1289,6 +1304,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\ECSView\SystemView\SystemView.cpp">
       <Filter>Source\Engine\Editor\ECSView\SystemView</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.cpp">
+      <Filter>Source\Engine\Utility\BinaryHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\obmdl\obmdlImporter.cpp">
+      <Filter>Source\Engine\Resource\Loader\Model\Importer\obmdl</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Material\MaterialLoader.cpp">
+      <Filter>Source\Engine\Resource\Loader\Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2002,6 +2026,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\ECSView\SystemView\SystemView.h">
       <Filter>Source\Engine\Editor\ECSView\SystemView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.h">
+      <Filter>Source\Engine\Utility\BinaryHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\obmdl\obmdlImporter.h">
+      <Filter>Source\Engine\Resource\Loader\Model\Importer\obmdl</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Material\MaterialLoader.h">
+      <Filter>Source\Engine\Resource\Loader\Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,8 @@
 
 #include "../../Manager/ResourceManager/ResourceManager.h"
 
+#include "../../../Utility/BinaryHelper/BinaryHelper.h"
+
 namespace Engine::Resource
 {
 	void Model::Import(const std::string& a_filePath)
@@ -77,5 +79,36 @@ namespace Engine::Resource
 			}
 		}
 
+	}
+	void Model::Save(const std::string& a_filePath)
+	{
+		// モデルをバイナリでセーブ
+		// 指定されたファイルがあれば開き、なければ作成
+		// 保存方法はバイナリ
+		std::ofstream _ofs(a_filePath,std::ios::binary);
+		if (!_ofs.is_open())
+		{
+			assert(0 && "モデルセーブ用ファイルを開けませんでした。 %s",a_filePath.c_str());
+			return;
+		}
+
+		// モデル名の保存
+		BinaryHelper::WriteString(_ofs, m_name);
+
+		// 参照データGUID
+		BinaryHelper::WriteVector(_ofs, m_materialGUIDVec);
+		BinaryHelper::WriteVector(_ofs, m_meshGUIDVec);
+		BinaryHelper::WriteVector(_ofs, m_animationGUIDVec);
+
+		// 全ノードデータ
+		for (auto& _node : m_originalNodes)
+		{
+			_node.Save(_ofs);
+		}
+		BinaryHelper::WriteVector(_ofs, m_rootNodeIndices);
+		BinaryHelper::WriteVector(_ofs, m_boneNodeIndices);
+		BinaryHelper::WriteVector(_ofs, m_meshNodeIndices);
+		BinaryHelper::WriteVector(_ofs, m_collisionMeshNodeIndices);
+		BinaryHelper::WriteVector(_ofs, m_drawMeshNodeIndices);
 	}
 }

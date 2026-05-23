@@ -117,6 +117,24 @@ namespace Engine::Editor
 			AddLog("\n");
 		}
 	}
+	void MainEditor::ErrorLog(const char* a_fmt, ...)
+	{
+		char buffer[2048];
+
+		va_list args;
+		va_start(args, a_fmt);
+
+		vsnprintf(buffer, sizeof(buffer), a_fmt, args);
+
+		va_end(args);
+
+#ifdef _DEBUG
+		assert(false && buffer);
+#endif
+
+		AddLog(buffer);
+		OutputDebugStringA(buffer);
+	}
 	void MainEditor::StartWatch(const std::string & a_name)
 	{
 		if (!m_isInit) return;

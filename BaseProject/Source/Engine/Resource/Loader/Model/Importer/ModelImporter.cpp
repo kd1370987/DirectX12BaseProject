@@ -18,7 +18,7 @@ namespace Engine::Resource
 		//-------------------------------------
 		auto _originExt = FileUtility::FindExtensionInDirectory(
 			FileUtility::GetDirFromPath(a_filePath),		// 親ディレクトリパス取得
-			".originalBin"
+			".obmdl"
 		);
 		if (_originExt.size() > 0)
 		{

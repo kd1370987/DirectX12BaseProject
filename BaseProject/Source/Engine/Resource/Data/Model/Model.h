@@ -63,6 +63,7 @@ namespace Engine::Resource
 
 		// モデル生成
 		void Import(const std::string& a_filePath);
+		void Save(const std::string& a_filePath);
 
 		// ---- アクセサ ----
 		// データのハンドル
@@ -86,13 +87,14 @@ namespace Engine::Resource
 
 	private:
 
+		// ---- シリアライズ用データ ----
 		// モデル名
 		std::string m_name;
 
-		// 構成物
-		std::vector<Handle<Material>>		m_materialHandleVec = {};
-		std::vector<Handle<Mesh>>			m_meshHandleVec = {};
-		std::vector<Handle<AnimationData>>	m_animationHandleVec = {};
+		// 保持データ
+		std::vector<Engine::GUID> m_materialGUIDVec = {};
+		std::vector<Engine::GUID> m_meshGUIDVec = {};
+		std::vector<Engine::GUID> m_animationGUIDVec = {};
 
 		// 全ノード情報
 		std::vector<Node>							m_originalNodes;
@@ -103,6 +105,11 @@ namespace Engine::Resource
 		std::vector<int>							m_meshNodeIndices;			// メッシュが存在するノード
 		std::vector<int>							m_collisionMeshNodeIndices;	// 子リジョンメッシュが存在するノード
 		std::vector<int>							m_drawMeshNodeIndices;		// 描画するノード
+
+		// ---- ランタイムデータ ----
+		std::vector<Handle<Material>>		m_materialHandleVec = {};
+		std::vector<Handle<Mesh>>			m_meshHandleVec = {};
+		std::vector<Handle<AnimationData>>	m_animationHandleVec = {};
 
 		// 描画コマンド用事前キャッシュ
 		std::vector<ModelDrawCommand> m_cachedDrawCommands;
