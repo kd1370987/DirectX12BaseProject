@@ -11,6 +11,7 @@ namespace Engine::Resource
 
 		// ファイルパスからの読み込み。なければデフォルトテクスチャを返す
 		static Handle<Texture> Request(const std::string& a_path, const DXSM::Color& a_data);
+		static Engine::GUID RequestGUID(const std::string& a_path, const DXSM::Color& a_data);		// なければデフォルト値を返す
 
 		// テクスチャの作成
 		static Handle<Texture> Create(const TextureCreateDesc& a_initData);

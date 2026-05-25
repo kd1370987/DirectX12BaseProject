@@ -346,9 +346,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp" />
-    <ClCompile Include="Source\Engine\Persistence\Deserializer\DeserializerBase.cpp" />
+    <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp" />
     <ClCompile Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.cpp" />
-    <ClCompile Include="Source\Engine\Persistence\Serializer\SerializerBase.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\BLAS\BLAS.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.cpp" />
@@ -585,9 +584,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Graphics\RootSigLayout\RootSigLayout.h" />
-    <ClInclude Include="Source\Engine\Persistence\Deserializer\DeserializerBase.h" />
+    <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h" />
     <ClInclude Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.h" />
-    <ClInclude Include="Source\Engine\Persistence\Serializer\SerializerBase.h" />
     <ClInclude Include="Source\Engine\Raytracing\BLAS\BLAS.h" />
     <ClInclude Include="Source\Engine\Raytracing\Common\Common.h" />
     <ClInclude Include="Source\Engine\Raytracing\Common\RaytracingInstance.h" />

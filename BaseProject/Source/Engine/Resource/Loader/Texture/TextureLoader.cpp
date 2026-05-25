@@ -59,6 +59,11 @@ namespace Engine::Resource
 		assert(0 && "検索したテクスチャがありません");
 		return Handle<Texture>();
 	}
+	Engine::GUID TextureLoader::RequestGUID(const std::string& a_path, const DXSM::Color& a_data)
+	{
+		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_path);
+		return _guid;
+	}
 	Handle<Texture> TextureLoader::Create(const TextureCreateDesc& a_initData)
 	{
 		// 作成済みかのチェック

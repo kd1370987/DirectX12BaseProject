@@ -514,24 +514,6 @@
     <Filter Include="Source\Engine\Persistence\Archive">
       <UniqueIdentifier>{3f6d0fca-dfce-423f-83bb-e30947f4c196}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Persistence\Deserializer">
-      <UniqueIdentifier>{13d5c045-66dd-4c13-9e86-8f224905a25e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Persistence\Serializer">
-      <UniqueIdentifier>{793fb5ee-a456-4aa8-b103-b22ada84a909}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Persistence\Serializer\SerializerJSON">
-      <UniqueIdentifier>{e4dc383f-7f8e-4b5d-9afb-5e1645f7c224}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Persistence\Serializer\SerializerBinary">
-      <UniqueIdentifier>{094eca50-9280-4e08-b2b6-90a2ea24e21b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Persistence\Deserializer\DeserializerBinary">
-      <UniqueIdentifier>{b6738503-8c41-4a7f-be0b-dccedd989381}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Persistence\Deserializer\DeserializerJSON">
-      <UniqueIdentifier>{02451741-0274-435b-b9cf-cc1a924fd170}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\ECS\Persistence">
       <UniqueIdentifier>{e35e9209-33c3-454b-85e5-6a6275d518a1}</UniqueIdentifier>
     </Filter>
@@ -1107,14 +1089,8 @@
     <ClCompile Include="Source\Engine\Utility\GUID\GUID.cpp">
       <Filter>Source\Engine\Utility\GUID</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Persistence\Deserializer\DeserializerBase.cpp">
-      <Filter>Source\Engine\Persistence\Deserializer</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.cpp">
       <Filter>Source\Engine\Persistence\PersistenceManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Persistence\Serializer\SerializerBase.cpp">
-      <Filter>Source\Engine\Persistence\Serializer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Persistence\EntitySerializeField.cpp">
       <Filter>Source\Engine\ECS\Persistence</Filter>
@@ -1313,6 +1289,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\Material\MaterialLoader.cpp">
       <Filter>Source\Engine\Resource\Loader\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp">
+      <Filter>Source\Engine\Persistence\Archive</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1769,14 +1748,8 @@
     <ClInclude Include="Source\Engine\Utility\GUID\GUID.h">
       <Filter>Source\Engine\Utility\GUID</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Persistence\Deserializer\DeserializerBase.h">
-      <Filter>Source\Engine\Persistence\Deserializer</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.h">
       <Filter>Source\Engine\Persistence\PersistenceManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Persistence\Serializer\SerializerBase.h">
-      <Filter>Source\Engine\Persistence\Serializer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h">
       <Filter>Source\Application\Scene\BaseScene</Filter>
@@ -2035,6 +2008,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\Material\MaterialLoader.h">
       <Filter>Source\Engine\Resource\Loader\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h">
+      <Filter>Source\Engine\Persistence\Archive</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

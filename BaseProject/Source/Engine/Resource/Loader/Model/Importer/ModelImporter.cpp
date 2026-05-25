@@ -8,18 +8,16 @@ namespace Engine::Resource
 {
 	Engine::Resource::ModelData Engine::Resource::ImportModel(const std::string& a_filePath)
 	{
-		//-------------------------------------
-		// 拡張子を取得
-		//-------------------------------------
+		// 拡張子とファイルディレクトリ取得
 		std::string _ext = FileUtility::GetFilePathExtension(a_filePath);
+		std::string _dir = FileUtility::GetDirFromPath(a_filePath);
+
+		// 独自形式があるのかチェック
+		auto _originExt = FileUtility::FindExtensionInDirectory(_dir, ".obmdl");
 
 		//-------------------------------------
-		// 独自形式があるのかチェック
+		// 独自形式読み込み
 		//-------------------------------------
-		auto _originExt = FileUtility::FindExtensionInDirectory(
-			FileUtility::GetDirFromPath(a_filePath),		// 親ディレクトリパス取得
-			".obmdl"
-		);
 		if (_originExt.size() > 0)
 		{
 			assert(0 && "独自形式の読み込み");
@@ -41,6 +39,4 @@ namespace Engine::Resource
 
 		return Engine::Resource::ModelData();
 	}
-
-	
 }

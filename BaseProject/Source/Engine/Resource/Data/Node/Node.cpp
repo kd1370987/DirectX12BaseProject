@@ -2,22 +2,18 @@
 
 #include "../../../Utility/BinaryHelper/BinaryHelper.h"
 
-void Engine::Resource::Node::Save(std::ofstream& a_ofs)
+
+void Engine::Resource::Node::Save(Persistence::Archive& a_ar)
 {
-	// ノード名
-	BinaryHelper::WriteString(a_ofs, name);
+	a_ar.StringField("NodeName", name);
+	a_ar.VectorField("MeshIndices", meshIndices);
 
-	// メッシュインデックス
-	BinaryHelper::WriteVector(a_ofs, meshIndices);
+	a_ar.Field("LocalTransform",localTransform);
+	a_ar.Field("WorldTransform",worldTransform);
+	a_ar.Field("BoneInverseWorldMatrix", boneInverseWorldMatrix);
 
-	// 各行列
-	BinaryHelper::Write(a_ofs,localTransform);
-	BinaryHelper::Write(a_ofs, worldTransform);
-	BinaryHelper::Write(a_ofs, boneInverseWorldMatrix);
-
-	// 依存関係
-	BinaryHelper::Write(a_ofs, parent);
-	BinaryHelper::Write(a_ofs, children);
-	BinaryHelper::Write(a_ofs, boneIndex);
-	BinaryHelper::Write(a_ofs, isSkinMesh);
+	a_ar.Field("Parent",parent);
+	a_ar.VectorField("Children", children);
+	a_ar.Field("BoneIndex", boneIndex);
+	a_ar.Field("IsSkinMesh", isSkinMesh);
 }

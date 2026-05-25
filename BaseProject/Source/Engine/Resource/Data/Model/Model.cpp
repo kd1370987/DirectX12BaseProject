@@ -79,36 +79,27 @@ namespace Engine::Resource
 			}
 		}
 
+		auto _dir = FileUtility::GetDirFromPath(a_filePath);
+		Save(_dir);
 	}
-	void Model::Save(const std::string& a_filePath)
+	void Model::Save(const std::string& a_fileDir)
 	{
-		// モデルをバイナリでセーブ
-		// 指定されたファイルがあれば開き、なければ作成
-		// 保存方法はバイナリ
-		std::ofstream _ofs(a_filePath,std::ios::binary);
-		if (!_ofs.is_open())
-		{
-			assert(0 && "モデルセーブ用ファイルを開けませんでした。 %s",a_filePath.c_str());
-			return;
-		}
+		Persistence::Archive _ar(Persistence::Archive::Mode::Save, a_fileDir, "mdl");
+		_ar.StringField("ModelName", m_name);
 
-		// モデル名の保存
-		BinaryHelper::WriteString(_ofs, m_name);
+		_ar.GUIDVectorField("MaterialGUID",m_materialGUIDVec);
+		_ar.GUIDVectorField("MeshGUID",m_meshGUIDVec);
+		_ar.GUIDVectorField("AnimationGUID",m_animationGUIDVec);
 
-		// 参照データGUID
-		BinaryHelper::WriteVector(_ofs, m_materialGUIDVec);
-		BinaryHelper::WriteVector(_ofs, m_meshGUIDVec);
-		BinaryHelper::WriteVector(_ofs, m_animationGUIDVec);
-
-		// 全ノードデータ
 		for (auto& _node : m_originalNodes)
 		{
-			_node.Save(_ofs);
+			_node.Save(_ar);
 		}
-		BinaryHelper::WriteVector(_ofs, m_rootNodeIndices);
-		BinaryHelper::WriteVector(_ofs, m_boneNodeIndices);
-		BinaryHelper::WriteVector(_ofs, m_meshNodeIndices);
-		BinaryHelper::WriteVector(_ofs, m_collisionMeshNodeIndices);
-		BinaryHelper::WriteVector(_ofs, m_drawMeshNodeIndices);
+
+		_ar.VectorField("RootNodeIndices", m_rootNodeIndices);
+		_ar.VectorField("BoneNodeIndices", m_boneNodeIndices);
+		_ar.VectorField("MeshNodeIndices", m_meshNodeIndices);
+		_ar.VectorField("CollisionMeshNodeIndices", m_collisionMeshNodeIndices);
+		_ar.VectorField("DrawMeshNodeIndices", m_drawMeshNodeIndices);
 	}
 }

@@ -13,7 +13,7 @@ namespace Engine::BinaryHelper
 	template<typename T>
 	inline void Read(std::ifstream& a_ifs,T& a_outData)
 	{
-		a_ifs.read(reinterpret_cast<char*>(a_outData),sizeof(T));
+		a_ifs.read(reinterpret_cast<char*>(&a_outData),sizeof(T));
 	}
 
 	// ---- 文字 ----

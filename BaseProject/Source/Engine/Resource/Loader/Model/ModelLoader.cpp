@@ -1,7 +1,6 @@
 ﻿#include "ModelLoader.h"
 #include "../../Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Manager/ResourceManager/ResourceManager.h"
-#include "../../../Raytracing/RaytracingEngine/RaytracingEngine.h"
 namespace Engine::Resource
 {
 	std::unordered_map<Engine::GUID, Engine::Resource::Handle<Engine::Resource::Model>>
