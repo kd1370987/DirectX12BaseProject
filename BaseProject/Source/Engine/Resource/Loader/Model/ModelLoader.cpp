@@ -26,9 +26,6 @@ namespace Engine::Resource
 		// キャッシュに登録
 		m_cache.emplace(a_guid, _handle);
 
-		// レイトレにとりあえず保存
-		//Engine::Raytracing::RayEngine::Instance().RegistModel(DXSM::Matrix::Identity, _handle);
-
 		return _handle;
 	}
 	Handle<Model> ModelLoader::Request(const std::string& a_path)
@@ -58,5 +55,23 @@ namespace Engine::Resource
 		}
 		// なければエラーハンドルを返す
 		return Handle<Model>();
+	}
+	std::string ModelLoader::GetFilePath(Handle<Model> a_handle)
+	{
+		auto _guid = GetGUID(a_handle);
+		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+		return _path;
+	}
+	const Engine::GUID& ModelLoader::GetGUID(const Handle<Model>& a_handle)
+	{
+		for (auto& [_guid,_handle] : m_cache)
+		{
+			if (_handle == a_handle)
+			{
+				return _guid;
+			}
+		}
+
+		return Engine::DefaultGUID;
 	}
 }

@@ -12,6 +12,11 @@ bool Engine::Resource::Mesh::CreateFloat(
 	bool a_isSkinMesh
 )
 {
+	m_vertices = a_vertices;
+	m_face = a_face;
+	m_subsets = a_subsets;
+	m_isSkinMesh = a_isSkinMesh;
+
 	auto _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
 	// メタデータ作成
@@ -50,7 +55,6 @@ bool Engine::Resource::Mesh::CreateFloat(
 	// 終了待ち
 	ResourceManager::Instance().SignalFence(_cmdQueue);
 	ResourceManager::Instance().WaitRender();
-
 	return true;
 }
 
@@ -79,6 +83,124 @@ void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<DirectX::XMFL
 {
 	auto& _collMesh = m_opCollMesh.emplace();
 	_collMesh.Create(a_vertices,a_indices);
+}
+
+void Engine::Resource::Mesh::Save(const std::string& a_fileDir, const std::string& a_name)
+{
+	Persistence::Archive _ar(Persistence::Archive::Mode::Save,a_fileDir, a_name, "mesh");
+
+	// 頂点データの保存
+	int _v = 0;
+	for (auto& _vert : m_vertices)
+	{
+		std::string _vStr = "Vert[" + std::to_string(_v) + "]."; // "Vert[0]." のような接頭辞を作る
+
+		_ar.Field(_vStr + "Pos", _vert.pos);
+		_ar.Field(_vStr + "Normal", _vert.normal);
+		_ar.Field(_vStr + "UV", _vert.uv);
+		_ar.Field(_vStr + "Tangent", _vert.tangent);
+		_ar.Field(_vStr + "Color", _vert.color);
+
+		int _i = 0;
+		for (auto& _skIdx : _vert.skinIndexList)
+		{
+			_ar.Field(_vStr + "SkList" + std::to_string(_i), _skIdx);
+			_i++;
+		}
+		_i = 0;
+		for (auto& _skWeit : _vert.skinWeightList)
+		{
+			_ar.Field(_vStr + "SkWeit" + std::to_string(_i), _skWeit);
+			_i++;
+		}
+		_v++;
+	}
+
+	// 面データの保存
+	int _i = 0;
+	for (auto& _face : m_face)
+	{
+		int _j = 0; // _j の初期化位置はここが安全です
+		for (auto& _idx : _face.idx)
+		{
+			_ar.Field("Face" + std::to_string(_i) + "_" + std::to_string(_j), _idx);
+			_j++;
+		}
+		_i++;
+	}
+
+	// サブセットの保存
+	_i = 0;
+	for (auto& _subset : m_subsets)
+	{
+		std::string _iStr = std::to_string(_i);
+		_ar.Field("Subset_MaterialNumber_" + _iStr, _subset.materialNumber);
+		_ar.Field("Subset_faceStart_" + _iStr, _subset.faceStart);
+		_ar.Field("Subset_faceCount_" + _iStr, _subset.faceCount);
+		_i++; // 0に戻すのではなく、インクリメントする
+	}
+
+	_ar.Field("IsSkinMesh", m_isSkinMesh);
+
+	if (HasCollisionMesh())
+	{
+		m_opCollMesh->Archive(_ar);
+	}
+	return;
+}
+
+void Engine::Resource::Mesh::Load(const std::string& a_fileDir, const std::string& a_name)
+{
+	Persistence::Archive _ar(Persistence::Archive::Mode::Load,a_fileDir, a_name, "mesh");
+	for (auto& _vert : m_vertices)
+	{
+		_ar.Field("VertPos", _vert.pos);
+		_ar.Field("VertNormal", _vert.normal);
+		_ar.Field("VertUV", _vert.uv);
+		_ar.Field("VertTangent", _vert.tangent);
+		_ar.Field("VertColor", _vert.color);
+
+		int _i = 0;
+		for (auto& _skIdx : _vert.skinIndexList)
+		{
+			_ar.Field("VertSkList" + _i, _skIdx);
+			_i++;
+		}
+		_i = 0;
+		for (auto& _skWeit : _vert.skinWeightList)
+		{
+			_ar.Field("VertSkWeit" + _i, _skWeit);
+			_i++;
+		}
+	}
+
+	int _i = 0;
+	int _j = 0;
+	for (auto& _face : m_face)
+	{
+		for (auto& _idx : _face.idx)
+		{
+			_ar.Field("Face" + std::to_string(_i) + "_" + std::to_string(_j), _idx);
+			_j++;
+		}
+		_i++;
+	}
+
+	_i = 0;
+	for (auto& _subset : m_subsets)
+	{
+		_ar.Field("Subset_MaterialNumber_" + _i, _subset.materialNumber);
+		_ar.Field("Subset_faceStart_" + _i, _subset.faceStart);
+		_ar.Field("Subset_faceCount_" + _i, _subset.faceCount);
+		_i = 0;
+	}
+
+	_ar.Field("IsSkinMesh", m_isSkinMesh);
+
+	if (HasCollisionMesh())
+	{
+		m_opCollMesh->Archive(_ar);
+	}
 }
 
 

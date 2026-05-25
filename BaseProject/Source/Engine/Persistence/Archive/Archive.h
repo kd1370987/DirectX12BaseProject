@@ -17,7 +17,7 @@ namespace Engine::Persistence
 		};
 
 		// モード、ファイルディレクトリを指定して開く
-		Archive(Mode a_mode,const std::string& a_fileDir,const std::string& a_ext);
+		Archive(Mode a_mode, const std::string& a_fileDir, const std::string& a_fileName, const std::string& a_ext);
 		// クローズ処理を実行
 		~Archive();
 
@@ -227,6 +227,43 @@ namespace Engine::Persistence
 				auto& j = m_json[a_name];
 
 				a_data = { j[0],j[1],j[2],j[3]};
+			}
+
+			if (m_ifs.is_open())
+			{
+				BinaryHelper::Read(
+					m_ifs,
+					a_data);
+			}
+		}
+	}
+
+	template<>
+	inline void Archive::Field(
+		const std::string& a_name,
+		DirectX::XMFLOAT2& a_data)
+	{
+		if (IsSaving())
+		{
+			m_json[a_name] =
+			{
+				a_data.x,a_data.y
+			};
+
+			if (m_ofs.is_open())
+			{
+				BinaryHelper::Write(
+					m_ofs,
+					a_data);
+			}
+		}
+		else
+		{
+			if (m_json.contains(a_name))
+			{
+				auto& j = m_json[a_name];
+
+				a_data = { j[0],j[1] };
 			}
 
 			if (m_ifs.is_open())

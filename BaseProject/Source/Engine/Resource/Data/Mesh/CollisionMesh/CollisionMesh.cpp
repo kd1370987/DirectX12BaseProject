@@ -86,6 +86,28 @@ namespace Engine::Resource
 		return _nodeIndex;
 	}
 
+	void CollisionMesh::Archive(Persistence::Archive& a_ar)
+	{
+		a_ar.Field("BoxCenter",_localAABB.Center);
+		a_ar.Field("BoxExtents",_localAABB.Extents);
+		int _i = 0;
+		for (auto& _triangle : triangleVec)
+		{
+			a_ar.Field("triangle_" + std::to_string(_i) + "x", _triangle.v[0]);
+			a_ar.Field("triangle_" + std::to_string(_i) + "y", _triangle.v[1]);
+			a_ar.Field("triangle_" + std::to_string(_i) + "z", _triangle.v[2]);
+			_i++;
+		}
+		_i = 0;
+		for (auto& _node : nodeVec)
+		{
+			_node.Archive(a_ar,_i);
+			_i++;
+		}
+		a_ar.VectorField("TrglIndicces",triangleIndiccesVec);
+		a_ar.Field("RootNodeIndex",rootNodeIndex);
+	}
+
 	void Engine::Resource::CollisionMesh::Create(
 		const std::vector<DirectX::XMFLOAT3>& a_vertices, 
 		const std::vector<UINT>& a_indices
@@ -130,6 +152,18 @@ namespace Engine::Resource
 		{
 			_localAABB = nodeVec[rootNodeIndex].box;
 		}
+	}
+
+	void BVHNode::Archive(Persistence::Archive& a_ar,int a_idx)
+	{
+		a_ar.Field("BVHNode_BoxCenter" + std::to_string(a_idx),box.Center);
+		a_ar.Field("BVHNode_BoxExtents" + std::to_string(a_idx),box.Extents);
+
+		a_ar.Field("BVHNode_LeftChild" + std::to_string(a_idx),leftChild);
+		a_ar.Field("BVHNode_RightChild" + std::to_string(a_idx),rightChild);
+
+		a_ar.Field("BVHNode_DataStart" + std::to_string(a_idx),dataStart);
+		a_ar.Field("BVHNode_DataCount" + std::to_string(a_idx),dataCount);
 	}
 
 }

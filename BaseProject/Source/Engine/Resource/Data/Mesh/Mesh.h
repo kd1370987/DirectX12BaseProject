@@ -60,6 +60,12 @@ namespace Engine::Resource
 		);
 
 		//=================================================
+		// 保存
+		//=================================================
+		void Save(const std::string& a_fileDir, const std::string& a_name);
+		void Load(const std::string& a_fileDir, const std::string& a_name);
+
+		//=================================================
 		// アクセサ
 		//=================================================
 		// メタデータ
@@ -83,6 +89,12 @@ namespace Engine::Resource
 		std::optional<RasterizationMesh>		m_opRasterData;		// ラスタライザデータ
 		std::optional<RaytracingMesh>			m_opRtData;			// レイトレデータ
 		std::optional<CollisionMesh>			m_opCollMesh;		// 当たり判定
+
+		// セーブ用データ
+		std::vector<MeshVertexFloat> m_vertices;	// 頂点配列
+		std::vector<MeshFace> m_face;				// 面インデックス情報配列
+		std::vector<MeshSubset> m_subsets;			// サブセット情報配列
+		bool m_isSkinMesh;							// スキンメッシュ持ちかどうか
 
 	};
 }

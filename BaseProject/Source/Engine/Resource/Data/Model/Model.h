@@ -63,6 +63,7 @@ namespace Engine::Resource
 
 		// モデル生成
 		void Import(const std::string& a_filePath);
+		void Load(const std::string& a_filePath);
 		void Save(const std::string& a_filePath);
 
 		// ---- アクセサ ----

@@ -280,6 +280,15 @@ namespace Engine
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".gltf");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".fbx");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".obj");
+		// メッシュ
+		Resource::AssetDatabase::Instance().AddSupporedExtensions("Mesh", ".obmesh");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions("Mesh", ".ojmesh");
+		// マテリアル
+		Resource::AssetDatabase::Instance().AddSupporedExtensions("Material", ".obmtrl");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions("Material", ".ojmtrl");
+		// アニメーション
+		Resource::AssetDatabase::Instance().AddSupporedExtensions("Animation", ".obanim");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions("Animation", ".ojanim");
 		// テクスチャ
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".png");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".jpg");

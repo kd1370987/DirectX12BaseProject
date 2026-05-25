@@ -29,6 +29,15 @@ namespace Engine::Editor
 			DrawModelView(*_pModel);
 			ImGui::TreePop();
 		}
+
+		ImGui::Separator();
+		// セーブボタン
+		if (ImGui::Button("Save"))
+		{
+			auto _path = Resource::ModelLoader::GetFilePath(_handle);
+			auto _dir = FileUtility::GetDirFromPath(_path);
+			_pModel->Save(_dir);
+		}
 	}
 
 

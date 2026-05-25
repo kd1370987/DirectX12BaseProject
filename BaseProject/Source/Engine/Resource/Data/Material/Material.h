@@ -26,8 +26,8 @@ namespace Engine::Resource
 		);
 
 		// セーブロード
-		void Save(const std::string& a_fileDir);
-		void Load(const std::string& a_fileDir);
+		void Save(const std::string& a_fileDir, const std::string& a_name);
+		void Load(const std::string& a_fileDir, const std::string& a_name);
 
 		// ハッシュ値を返す
 		UINT Hash();

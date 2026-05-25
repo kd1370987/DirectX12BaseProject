@@ -3,7 +3,7 @@
 #include "../../../Utility/BinaryHelper/BinaryHelper.h"
 
 
-void Engine::Resource::Node::Save(Persistence::Archive& a_ar)
+void Engine::Resource::Node::Archive(Persistence::Archive& a_ar)
 {
 	a_ar.StringField("NodeName", name);
 	a_ar.VectorField("MeshIndices", meshIndices);

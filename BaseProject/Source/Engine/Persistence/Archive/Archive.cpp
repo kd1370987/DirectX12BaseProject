@@ -1,13 +1,12 @@
 ﻿#include "Archive.h"
 namespace Engine::Persistence
 {
-	Archive::Archive(Mode a_mode, const std::string& a_fileDir, const std::string& a_ext)
+	Archive::Archive(Mode a_mode, const std::string& a_fileDir, const std::string& a_fileName, const std::string& a_ext)
 	{
 		m_fileDir = a_fileDir;
 		m_mode = a_mode;
-
-		m_binPath = a_fileDir + ".ob" + a_ext;
-		m_jsonPath = a_fileDir + ".oj" + a_ext;
+		m_binPath = a_fileDir + a_fileName + ".ob" + a_ext;
+		m_jsonPath = a_fileDir + a_fileName + ".oj" + a_ext;
 
 		switch (a_mode)
 		{

@@ -27,9 +27,9 @@ void Engine::Resource::Material::SetTexture2D(
 	normalTex = Engine::Resource::TextureLoader::Request(a_fileDir + a_normalTexFileName, { 128,128,255,255 });
 }
 
-void Engine::Resource::Material::Save(const std::string& a_fileDir)
+void Engine::Resource::Material::Save(const std::string& a_fileDir, const std::string& a_name)
 {
-	Persistence::Archive _ar(Persistence::Archive::Mode::Save,a_fileDir,"mtrl");
+	Persistence::Archive _ar(Persistence::Archive::Mode::Save,a_fileDir, a_name, "mtrl");
 	_ar.StringField("MaterialName", name);
 	_ar.Field("AlphaMode", alphaMode);
 
@@ -46,9 +46,9 @@ void Engine::Resource::Material::Save(const std::string& a_fileDir)
 	_ar.Field("Emissive", emissive);
 }
 
-void Engine::Resource::Material::Load(const std::string& a_fileDir)
+void Engine::Resource::Material::Load(const std::string& a_fileDir, const std::string& a_name)
 {
-	Persistence::Archive _ar(Persistence::Archive::Mode::Load, a_fileDir, "mtrl");
+	Persistence::Archive _ar(Persistence::Archive::Mode::Load,a_fileDir, a_name, "mtrl");
 	_ar.StringField("MaterialName", name);
 	_ar.Field("AlphaMode", alphaMode);
 

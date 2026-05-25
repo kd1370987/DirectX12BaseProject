@@ -119,8 +119,7 @@ float3 GetNormal(BuiltInTriangleIntersectionAttributes a_attribs, float2 a_uv, I
 	// ビノーマルを計算
 	float3 _binormal = normalize(cross(_tangent, _normal));
 
-	// 💡 【重要】法線マップもマテリアルに仕込んだベースインデックスから取得
-	// 例として、ベースインデックスから（Albedo=0, MetRog=1, Emi=2, Normal=3）の順でヒープに並んでいると仮定します
+	// 法線マップもマテリアルに仕込んだベースインデックスから取得
 	Texture2D normalTex = ResourceDescriptorHeap[material.normalIndex];
 	float3 _binSpaceNormal = normalTex.SampleLevel(gSamp, a_uv, 0).rgb;
 	_binSpaceNormal = (_binSpaceNormal * 2.0f) - 1.0f;

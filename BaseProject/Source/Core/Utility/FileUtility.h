@@ -51,29 +51,39 @@ namespace FileUtility
 
 	// 指定ディレクトリ内の指定拡張子のファイルを全て取得
 	inline std::vector<std::filesystem::path> FindExtensionInDirectory(
-		const std::filesystem::path& a_dirPath, 
+		const std::filesystem::path& a_dirPath,
 		const std::string& a_ext
 	)
 	{
-		// 出力用パス配列
-		std::vector<std::filesystem::path> _outPaths;
+		std::vector<std::filesystem::path> outPaths;
 
-		// ディレクトリが存在するかつディレクトリである場合
-		if (std::filesystem::exists(a_dirPath) && std::filesystem::is_directory(a_dirPath))
+		if (!std::filesystem::exists(a_dirPath) ||
+			!std::filesystem::is_directory(a_dirPath))
 		{
-			// ディレクトリ内を走査
-			for (const auto& entry : std::filesystem::directory_iterator(a_dirPath))
+			return outPaths;
+		}
+
+		std::string ext = a_ext;
+
+		// "." が無ければ付ける
+		if (!ext.empty() && ext[0] != '.')
+		{
+			ext = "." + ext;
+		}
+
+		for (const auto& entry : std::filesystem::directory_iterator(a_dirPath))
+		{
+			// ファイルだけ対象
+			if (!entry.is_regular_file())
+				continue;
+
+			if (entry.path().extension() == ext)
 			{
-				// 拡張子が一致したら出力用配列に追加
-				if (entry.path().extension() == a_ext)
-				{
-					_outPaths.push_back(entry.path());
-				}
+				outPaths.push_back(entry.path());
 			}
 		}
 
-		// パス配列を返す
-		return _outPaths;
+		return outPaths;
 	}
 
 	// ファイルの存在チェック

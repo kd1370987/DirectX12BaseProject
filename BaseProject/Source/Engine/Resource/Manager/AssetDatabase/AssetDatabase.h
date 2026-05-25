@@ -13,6 +13,7 @@ namespace Engine::Resource
 			std::string fileName = "";		// ファイル名
 			std::string filePath = "";		// ファイルパス
 			std::string type = "";			// アセットの種別
+			//bool HasArchive = false;
 		};
 
 	public:
@@ -26,6 +27,9 @@ namespace Engine::Resource
 
 		// 読み込みたい拡張子があれば追加
 		void AddSupporedExtensions(const std::string& a_type,const std::string& a_extensions);
+
+		// ランタイム中にファイルが追加された際に追加される
+		void AddMetaData(const std::filesystem::path& a_srcFile);
 
 		// アセットフォルダ以下を検索して、すべてのアセットにメタファイルを作る
 		// すでにメタファイルがあれば無視

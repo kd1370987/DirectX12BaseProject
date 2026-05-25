@@ -11,6 +11,8 @@ namespace Engine::Resource
 	// 一つのボックス・依存関係
 	struct BVHNode
 	{
+		void Archive(Persistence::Archive& a_ar,int a_idx);
+
 		bool IsLeaf() const { return (leftChild == -1); }
 
 		DirectX::BoundingBox box = {};		// このノードを包むAABB
@@ -26,6 +28,8 @@ namespace Engine::Resource
 	// コリジョンメッシュ
 	struct CollisionMesh
 	{
+
+		void Archive(Persistence::Archive& a_ar);
 
 		void Create(const std::vector<DirectX::XMFLOAT3>& a_vertices,const std::vector<UINT>& a_indices);
 
