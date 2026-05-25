@@ -10,7 +10,7 @@ namespace Engine::Resource
 	struct Node
 	{
 		// ノードのセーブ
-		void Archive(Persistence::Archive& a_ar);
+		void Archive(Persistence::Archive& a_ar,int a_idx);
 
 		std::string				name;						//ノード名
 		UINT					nodeNameHash = 0;			// ノード名ハッシュ

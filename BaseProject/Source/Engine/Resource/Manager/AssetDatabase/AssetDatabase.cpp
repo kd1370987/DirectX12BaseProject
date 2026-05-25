@@ -28,13 +28,14 @@ namespace Engine::Resource
 	}
 	Engine::GUID AssetDatabase::AddMetaData(const std::string& a_baseFilePath, const std::string& a_ext, const std::string& a_type)
 	{
-		std::string _binPath = a_baseFilePath + ".ob" + a_ext;
-		std::string _jsonPath = a_baseFilePath + ".oj" + a_ext;
-		std::string _metaPath = a_baseFilePath + m_metafileExtension;
-
-
 		// フォルダ作成（なければ）
 		std::filesystem::create_directories(a_baseFilePath);
+
+		auto _fileName = FileUtility::GetFileName(a_baseFilePath);
+
+		std::string _binPath = a_baseFilePath + "/" + _fileName + ".ob" + a_ext;
+		std::string _jsonPath = a_baseFilePath + "/" + _fileName + ".oj" + a_ext;
+		std::string _metaPath = _binPath + m_metafileExtension;
 
 		// 実体ファイルの作成
 		std::ofstream _binFile(_binPath, std::ios::binary);
@@ -55,8 +56,8 @@ namespace Engine::Resource
 
 		// マップへ追加
 		AssetProperty _prop;
-		_prop.filePath = std::filesystem::path(a_baseFilePath).lexically_normal().generic_string();
-		_prop.fileName = std::filesystem::path(a_baseFilePath).filename().string();
+		_prop.filePath = std::filesystem::path(a_baseFilePath).lexically_normal().generic_string() + "/" + _fileName;
+		_prop.fileName = _fileName;
 		_prop.type = a_type;
 		_prop.guid = _guid;
 
@@ -152,6 +153,17 @@ namespace Engine::Resource
 		if (_it != m_assetMap.end())
 		{
 			return _it->second.filePath;
+		}
+
+		return "NoFilePath";
+	}
+
+	std::string AssetDatabase::GetFileNameFromGUID(const Engine::GUID& a_guid)
+	{
+		auto _it = m_assetMap.find(a_guid);
+		if (_it != m_assetMap.end())
+		{
+			return _it->second.fileName;
 		}
 
 		return "NoFilePath";

@@ -5,8 +5,8 @@ namespace Engine::Persistence
 	{
 		m_fileDir = a_fileDir;
 		m_mode = a_mode;
-		m_binPath = a_fileDir + a_fileName + ".ob" + a_ext;
-		m_jsonPath = a_fileDir + a_fileName + ".oj" + a_ext;
+		m_binPath = a_fileDir + "/" + a_fileName + ".ob" + a_ext;
+		m_jsonPath = a_fileDir + "/" + a_fileName + ".oj" + a_ext;
 
 		switch (a_mode)
 		{
@@ -26,10 +26,13 @@ namespace Engine::Persistence
 			#ifdef _DEBUG
 			{
 				std::ifstream _ifs(m_jsonPath);
-
 				if (_ifs.is_open())
 				{
 					_ifs >> m_json;
+				}
+				else
+				{
+					Editor::MainEditor::Instance().ErrorLog(a_fileDir.c_str());
 				}
 			}
 			#else

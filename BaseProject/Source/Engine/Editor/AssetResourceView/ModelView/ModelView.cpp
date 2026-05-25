@@ -35,8 +35,7 @@ namespace Engine::Editor
 		if (ImGui::Button("Save"))
 		{
 			auto _path = Resource::ModelLoader::GetFilePath(_handle);
-			auto _dir = FileUtility::GetDirFromPath(_path);
-			_pModel->Save(_dir);
+			_pModel->Save(_path);
 		}
 	}
 

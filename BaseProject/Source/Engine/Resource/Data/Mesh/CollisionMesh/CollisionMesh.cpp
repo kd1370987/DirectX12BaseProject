@@ -88,24 +88,38 @@ namespace Engine::Resource
 
 	void CollisionMesh::Archive(Persistence::Archive& a_ar)
 	{
-		a_ar.Field("BoxCenter",_localAABB.Center);
-		a_ar.Field("BoxExtents",_localAABB.Extents);
+		a_ar.Field("BoxCenter", _localAABB.Center);
+		a_ar.Field("BoxExtents", _localAABB.Extents);
+
+		// 【修正】三角形配列のサイズを保存・復元してリサイズ
+		size_t _triSize = triangleVec.size();
+		a_ar.Field("TriangleCount", _triSize); // Load時はファイルから個数が _triSize に上書きされる
+		triangleVec.resize(_triSize);          // 適切なサイズにリサイズ！
+
 		int _i = 0;
 		for (auto& _triangle : triangleVec)
 		{
-			a_ar.Field("triangle_" + std::to_string(_i) + "x", _triangle.v[0]);
-			a_ar.Field("triangle_" + std::to_string(_i) + "y", _triangle.v[1]);
-			a_ar.Field("triangle_" + std::to_string(_i) + "z", _triangle.v[2]);
+			// キー名を "_v0" などに変更して誤解を防ぐ
+			a_ar.Field("triangle_" + std::to_string(_i) + "_v0", _triangle.v[0]);
+			a_ar.Field("triangle_" + std::to_string(_i) + "_v1", _triangle.v[1]);
+			a_ar.Field("triangle_" + std::to_string(_i) + "_v2", _triangle.v[2]);
 			_i++;
 		}
+
+		// 【修正】BVHノード配列のサイズを保存・復元してリサイズ
+		size_t _nodeSize = nodeVec.size();
+		a_ar.Field("NodeCount", _nodeSize);
+		nodeVec.resize(_nodeSize);             // 適切なサイズにリサイズ！
+
 		_i = 0;
 		for (auto& _node : nodeVec)
 		{
-			_node.Archive(a_ar,_i);
+			_node.Archive(a_ar, _i);
 			_i++;
 		}
-		a_ar.VectorField("TrglIndicces",triangleIndiccesVec);
-		a_ar.Field("RootNodeIndex",rootNodeIndex);
+
+		a_ar.VectorField("TrglIndicces", triangleIndiccesVec);
+		a_ar.Field("RootNodeIndex", rootNodeIndex);
 	}
 
 	void Engine::Resource::CollisionMesh::Create(

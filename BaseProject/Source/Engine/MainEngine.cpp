@@ -274,21 +274,19 @@ namespace Engine
 			".assetmeta"		// 作成拡張子
 		);
 		
-		// 対応する拡張子を登録
-
+		// ---- 対応する拡張子を登録 ----
+		// 独自形式はバイナリのほうを基準とする
 		// モデル
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".gltf");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".fbx");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".obj");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".obmdl");
 		// メッシュ
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Mesh", ".obmesh");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Mesh", ".ojmesh");
 		// マテリアル
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Material", ".obmtrl");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Material", ".ojmtrl");
 		// アニメーション
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Animation", ".obanim");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Animation", ".ojanim");
 		// テクスチャ
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".png");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".jpg");

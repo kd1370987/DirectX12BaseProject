@@ -13,7 +13,6 @@ namespace Engine::Resource
 			std::string fileName = "";		// ファイル名
 			std::string filePath = "";		// ファイルパス
 			std::string type = "";			// アセットの種別
-			//bool HasArchive = false;
 		};
 
 	public:
@@ -41,6 +40,7 @@ namespace Engine::Resource
 		// GUIDから現在のファイルパスを取得
 		std::string GetFilePathFromGUID(const std::string& a_guid);
 		std::string GetFilePathFromGUID(const Engine::GUID& a_guid);
+		std::string GetFileNameFromGUID(const Engine::GUID& a_guid);
 		// ファイルパスからGUIDを取得
 		Engine::GUID GetGUIDFromFilePath(const std::string& a_path);
 

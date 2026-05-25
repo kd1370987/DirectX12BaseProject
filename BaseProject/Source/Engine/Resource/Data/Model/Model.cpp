@@ -26,13 +26,13 @@ namespace Engine::Resource
 		//-------------------------------------
 		if (_originExt.size() > 0)
 		{
-			//Load(_dir);
+			Load(a_filePath);
 		}
 		//-------------------------------------
 		// TinyGLTFを使用
 		//-------------------------------------
-		//else if (_ext == "gltf")
-		if (_ext == "gltf")
+		else if (_ext == "gltf")
+		//if (_ext == "gltf")
 		{
 			_model = GLTF::Import(a_filePath);
 			m_name = std::move(_model.name);
@@ -112,7 +112,70 @@ namespace Engine::Resource
 	}
 	void Model::Load(const std::string& a_fileDir)
 	{
-		Persistence::Archive _ar(Persistence::Archive::Mode::Load,m_name, a_fileDir, "mdl");	
+		auto _dir = FileUtility::GetDirFromPath(a_fileDir);
+		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_fileDir);
+		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _dir, _fileName, "mdl");
+		_ar.StringField("ModelName", m_name);
+
+		_ar.GUIDVectorField("MaterialGUID", m_materialGUIDVec);
+		_ar.GUIDVectorField("MeshGUID", m_meshGUIDVec);
+		_ar.GUIDVectorField("AnimationGUID", m_animationGUIDVec);
+
+		UINT _nodeCount = 0;
+		_ar.Field("NodeCount", _nodeCount);
+		m_originalNodes.resize(_nodeCount);
+		for (UINT _i = 0; _i < _nodeCount; ++_i)
+		{
+			m_originalNodes[_i].Archive(_ar, _i);
+		}
+
+		_ar.VectorField("RootNodeIndices", m_rootNodeIndices);
+		_ar.VectorField("BoneNodeIndices", m_boneNodeIndices);
+		_ar.VectorField("MeshNodeIndices", m_meshNodeIndices);
+		_ar.VectorField("CollisionMeshNodeIndices", m_collisionMeshNodeIndices);
+		_ar.VectorField("DrawMeshNodeIndices", m_drawMeshNodeIndices);
+
+		// ---- 参照しているデータの復元 ----
+		for (UINT _i = 0; _i < m_materialGUIDVec.size(); ++_i)
+		{
+			auto _guid = m_materialGUIDVec[_i];
+			auto _basePath = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+			auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(_guid);
+			Material _mate = {};
+			auto _dir = FileUtility::GetDirFromPath(_basePath);
+			_dir = FileUtility::GetDirFromPath(_dir);
+			_fileName = FileUtility::GetFileNameWithoutExtension(_fileName);
+			_mate.Load(_dir,_fileName);
+			auto _handle = ResourceManager::Instance().Add(std::move(_mate));
+			m_materialHandleVec.push_back(_handle);
+		}
+		for (UINT _i = 0; _i < m_meshGUIDVec.size(); ++_i)
+		{
+			auto _guid = m_meshGUIDVec[_i];
+			auto _basePath = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+			auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(_guid);
+			Mesh _mesh = {};
+			auto _dir = FileUtility::GetDirFromPath(_basePath);
+			_dir = FileUtility::GetDirFromPath(_dir);
+			_fileName = FileUtility::GetFileNameWithoutExtension(_fileName);
+			_mesh.Load(_dir, _fileName);
+			auto _handle = ResourceManager::Instance().Add(std::move(_mesh));
+			m_meshHandleVec.push_back(_handle);
+		}
+		for (UINT _i = 0; _i < m_animationGUIDVec.size(); ++_i)
+		{
+			auto _guid = m_animationGUIDVec[_i];
+			auto _basePath = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+			auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(_guid);
+			AnimationData _animData = {};
+			auto _dir = FileUtility::GetDirFromPath(_basePath);
+			_dir = FileUtility::GetDirFromPath(_dir);
+			_fileName = FileUtility::GetFileNameWithoutExtension(_fileName);
+			_animData.Load(_dir,_fileName);
+			auto _handle = ResourceManager::Instance().Add(std::move(_animData));
+			m_animationHandleVec.push_back(_handle);
+		}
+
 	}
 
 	void Model::Save(const std::string& a_fileDir)
@@ -128,12 +191,13 @@ namespace Engine::Resource
 			auto* _matrial = Resource::ResourceManager::Instance().Ref(_mateHandle);
 
 			// 保存データ作成
-			std::string basePath ="Asset/Material/" + m_name + std::to_string(_i);
+			auto _fileName = FileUtility::GetFileNameWithoutExtension(m_name) + std::to_string(_i);
+			std::string basePath ="Asset/Material/" + _fileName;
 			auto _guid = AssetDatabase::Instance().AddMetaData(basePath,"mtrl","Material");
 			m_materialGUIDVec[_i] = _guid;
 
 			// 保存
-			_matrial->Save(basePath + _matrial->name, m_name);
+			_matrial->Save(basePath, _fileName);
 		}
 		// メッシュの保存
 		UINT _meshHandleSize = m_meshHandleVec.size();
@@ -145,12 +209,13 @@ namespace Engine::Resource
 			auto* _mesh = Resource::ResourceManager::Instance().Ref(_meshHandle);
 
 			// 保存データ作成
-			std::string basePath ="Asset/Mesh/" + m_name + std::to_string(_i);
+			auto _fileName = FileUtility::GetFileNameWithoutExtension(m_name) + std::to_string(_i);
+			std::string basePath ="Asset/Mesh/" + _fileName;
 			auto _guid = AssetDatabase::Instance().AddMetaData(basePath, "mesh", "Mesh");
 			m_meshGUIDVec[_i] = _guid;
 
 			// 保存
-			_mesh->Save(basePath + std::to_string(_i), m_name);
+			_mesh->Save(basePath, _fileName);
 		}
 		// アニメーションの保存
 		UINT _animHandleSize = m_animationHandleVec.size();
@@ -160,34 +225,39 @@ namespace Engine::Resource
 			// アニメーションの取得
 			auto _animHandle = m_animationHandleVec[_i];
 			auto* _anim = Resource::ResourceManager::Instance().Ref(_animHandle);
+
 			// 保存データ作成
-			std::string basePath = "Asset/Animation/" + m_name + std::to_string(_i);
+			auto _fileName = FileUtility::GetFileNameWithoutExtension(m_name) + std::to_string(_i);
+			std::string basePath = "Asset/Animation/" + _fileName;
 			auto _guid = AssetDatabase::Instance().AddMetaData(basePath, "anim", "Animation");
 			m_animationGUIDVec[_i] = _guid;
 
 			// 保存
-			_anim->Save(basePath + _anim->name, m_name);
+			_anim->Save(basePath,_fileName);
 		}
 
 		// モデルデータの保存
+		auto _dir = FileUtility::GetDirFromPath(a_fileDir);
+		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_fileDir);
+		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dir, _fileName, "mdl");
+		_ar.StringField("ModelName", m_name);
+
+		_ar.GUIDVectorField("MaterialGUID", m_materialGUIDVec);
+		_ar.GUIDVectorField("MeshGUID", m_meshGUIDVec);
+		_ar.GUIDVectorField("AnimationGUID", m_animationGUIDVec);
+
+		UINT _nodeCount = m_originalNodes.size();
+		_ar.Field("NodeCount",_nodeCount);
+		for (UINT _i = 0; _i < _nodeCount; ++_i)
 		{
-			Persistence::Archive _ar(Persistence::Archive::Mode::Save, a_fileDir, m_name, "mdl");
-			_ar.StringField("ModelName", m_name);
-
-			_ar.GUIDVectorField("MaterialGUID", m_materialGUIDVec);
-			_ar.GUIDVectorField("MeshGUID", m_meshGUIDVec);
-			_ar.GUIDVectorField("AnimationGUID", m_animationGUIDVec);
-
-			for (auto& _node : m_originalNodes)
-			{
-				_node.Archive(_ar);
-			}
-
-			_ar.VectorField("RootNodeIndices", m_rootNodeIndices);
-			_ar.VectorField("BoneNodeIndices", m_boneNodeIndices);
-			_ar.VectorField("MeshNodeIndices", m_meshNodeIndices);
-			_ar.VectorField("CollisionMeshNodeIndices", m_collisionMeshNodeIndices);
-			_ar.VectorField("DrawMeshNodeIndices", m_drawMeshNodeIndices);
+			m_originalNodes[_i].Archive(_ar, _i);
 		}
+
+		_ar.VectorField("RootNodeIndices", m_rootNodeIndices);
+		_ar.VectorField("BoneNodeIndices", m_boneNodeIndices);
+		_ar.VectorField("MeshNodeIndices", m_meshNodeIndices);
+		_ar.VectorField("CollisionMeshNodeIndices", m_collisionMeshNodeIndices);
+		_ar.VectorField("DrawMeshNodeIndices", m_drawMeshNodeIndices);
+		
 	}
 }
