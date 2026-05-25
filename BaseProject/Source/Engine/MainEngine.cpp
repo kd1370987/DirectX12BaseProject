@@ -280,13 +280,17 @@ namespace Engine
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".gltf");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".fbx");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".obj");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".obmdl");
+		Resource::AssetDatabase::Instance().AddTypeExtensions("Model",".obmdl");
+		Resource::AssetDatabase::Instance().AddTypeExtensions("Model",".ojmdl");
 		// メッシュ
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Mesh", ".obmesh");
+		Resource::AssetDatabase::Instance().AddTypeExtensions("Mesh", ".obmesh");
+		Resource::AssetDatabase::Instance().AddTypeExtensions("Mesh", ".ojmesh");
 		// マテリアル
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Material", ".obmtrl");
+		Resource::AssetDatabase::Instance().AddTypeExtensions("Material", ".obmtrl");
+		Resource::AssetDatabase::Instance().AddTypeExtensions("Material", ".ojmtrl");
 		// アニメーション
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Animation", ".obanim");
+		Resource::AssetDatabase::Instance().AddTypeExtensions("Animation", ".obanim");
+		Resource::AssetDatabase::Instance().AddTypeExtensions("Animation", ".ojanim");
 		// テクスチャ
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".png");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".jpg");

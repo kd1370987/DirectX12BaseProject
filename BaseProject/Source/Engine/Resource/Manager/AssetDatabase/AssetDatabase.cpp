@@ -26,6 +26,21 @@ namespace Engine::Resource
 		m_supportedExtensionsMap[a_type] = {};
 		m_supportedExtensionsMap[a_type].push_back(a_extensions);
 	}
+	void AssetDatabase::AddTypeExtensions(const std::string& a_type, const std::string& a_extensions)
+	{
+		// 検索
+		auto _it = m_typeExtensionsMap.find(a_type);
+		if (_it != m_typeExtensionsMap.end())
+		{
+			// 見つかればサポートするものとして追加
+			_it->second.push_back(a_extensions);
+			return;
+		}
+
+		// なければ新たに作成して追加
+		m_typeExtensionsMap[a_type] = {};
+		m_typeExtensionsMap[a_type].push_back(a_extensions);
+	}
 	Engine::GUID AssetDatabase::AddMetaData(const std::string& a_baseFilePath, const std::string& a_ext, const std::string& a_type)
 	{
 		// フォルダ作成（なければ）

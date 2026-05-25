@@ -26,6 +26,8 @@ namespace Engine::Resource
 
 		// 読み込みたい拡張子があれば追加
 		void AddSupporedExtensions(const std::string& a_type,const std::string& a_extensions);
+		// タイプに対応する独自拡張子追加
+		void AddTypeExtensions(const std::string& a_type,const std::string& a_extensions);
 
 		// ランタイム中にファイルが追加された際に追加される
 		Engine::GUID AddMetaData(const std::string& a_newFilePath,const std::string& a_ext,const std::string& a_type);
@@ -65,6 +67,9 @@ namespace Engine::Resource
 
 		// 対応しているファイル拡張子
 		std::unordered_map<std::string,std::vector<std::string>> m_supportedExtensionsMap = {};
+
+		// タイプごとに独自構造体に直した際の拡張子
+		std::unordered_map<std::string, std::vector<std::string>> m_typeExtensionsMap = {};
 
 		// 管理しているすべてのアセットメタデータ
 		std::unordered_map<Engine::GUID, AssetProperty> m_assetMap;
