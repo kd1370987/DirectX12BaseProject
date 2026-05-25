@@ -41,38 +41,40 @@ namespace Engine::Resource
 		m_typeExtensionsMap[a_type] = {};
 		m_typeExtensionsMap[a_type].push_back(a_extensions);
 	}
-	Engine::GUID AssetDatabase::AddMetaData(const std::string& a_baseFilePath, const std::string& a_ext, const std::string& a_type)
+	Engine::GUID AssetDatabase::AddMetaData(const std::string& a_baseFilePath, const std::string& a_type)
 	{
-		// フォルダ作成（なければ）
-		std::filesystem::create_directories(a_baseFilePath);
+		// 拡張子なしの論理パス
+		std::filesystem::path _basePath(a_baseFilePath);
+		std::filesystem::create_directories(_basePath.parent_path()); // 親フォルダを作成
 
-		auto _fileName = FileUtility::GetFileName(a_baseFilePath);
+		// メタファイル名
+		std::filesystem::path _metaPath = _basePath.string() + m_metafileExtension;
 
-		std::string _binPath = a_baseFilePath + "/" + _fileName + ".ob" + a_ext;
-		std::string _jsonPath = a_baseFilePath + "/" + _fileName + ".oj" + a_ext;
-		std::string _metaPath = _binPath + m_metafileExtension;
-
-		// 実体ファイルの作成
-		std::ofstream _binFile(_binPath, std::ios::binary);
-		_binFile.close();
-		std::ofstream _jsonFile(_jsonPath);
-		_jsonFile.close();
-
-		// メタファイルの作成
+		// メタファイルの作成（すでに存在していれば既存のGUIDを使う）
 		nlohmann::json _json;
 		Engine::GUID _guid;
-		_guid.Create();
-		_json["GUID"] = _guid.String();
-		_json["Type"] = a_type;
 
-		std::ofstream _metafile(_metaPath);
-		_metafile << _json.dump(4);
-		_metafile.close();
+		if (std::filesystem::exists(_metaPath))
+		{
+			std::ifstream _ifs(_metaPath.string());
+			_ifs >> _json;
+			_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DefaultGUID.String()));
+		}
+		else
+		{
+			_guid.Create();
+			_json["GUID"] = _guid.String();
+			_json["Type"] = a_type;
+
+			std::ofstream _metafile(_metaPath);
+			_metafile << _json.dump(4);
+			_metafile.close();
+		}
 
 		// マップへ追加
 		AssetProperty _prop;
-		_prop.filePath = std::filesystem::path(a_baseFilePath).lexically_normal().generic_string() + "/" + _fileName;
-		_prop.fileName = _fileName;
+		_prop.filePath = _basePath.lexically_normal().generic_string();
+		_prop.fileName = _basePath.filename().string();
 		_prop.type = a_type;
 		_prop.guid = _guid;
 
@@ -111,7 +113,8 @@ namespace Engine::Resource
 	void AssetDatabase::CreateRuntimeData()
 	{
 		m_assetMap.clear();
-		
+		m_typeMetaMap.clear();
+
 		// 指定フォルダ以下のメタファイルをすべて検索
 		for (auto& _entry : std::filesystem::recursive_directory_iterator(m_assetsFilePath))
 		{
@@ -122,26 +125,37 @@ namespace Engine::Resource
 			// メタファイルの読み込み
 			std::ifstream _ifs(_entry.path().string());
 			if (_ifs.fail()) continue;
+
 			nlohmann::json _json;
-			_ifs >> _json;
+			try
+			{
+				_ifs >> _json;
+			}
+			catch (const nlohmann::json::parse_error&)
+			{
+				// ★破損したメタファイルや、空のファイルがあっても例外で落ちないようにスキップ
+				continue;
+			}
+
+			// 現在のリソースパス（メタファイルの拡張子 .assetmeta を削除）
+			// 例1: Player.fbx.assetmeta    -> Player.fbx
+			// 例2: Player.obmesh.assetmeta -> Player.obmesh
+			auto _resPath = _entry.path();
+			_resPath.replace_extension("");
+
+			// ★これだけで通常アセットも自作アセットも100%実体チェックが完了します！
+			if (std::filesystem::exists(_resPath) == false) continue;
 
 			// アセットプロパティの作成
 			AssetProperty _property = {};
-
-			// 現在のリソースパス
-			auto _resPath = _entry.path();
-			_resPath.replace_extension(""); // メタファイルの拡張子を削除
-
-			// 元のファイル（実体）が削除されていたら無視する
-			if (std::filesystem::exists(_resPath) == false) continue;
 
 			// パスの正規化（ 区切り = / ）
 			_property.filePath = _resPath.lexically_normal().generic_string();
 			_property.fileName = _resPath.filename().string();
 
 			// タイプの取得
-			_property.type = JSONHelper::GetValue<std::string>("Type",_json,"Unknown");
-			
+			_property.type = JSONHelper::GetValue<std::string>("Type", _json, "Unknown");
+
 			// GUIDの取得
 			Engine::GUID _guid = {};
 			std::string _default = _guid.String();
@@ -168,6 +182,20 @@ namespace Engine::Resource
 		if (_it != m_assetMap.end())
 		{
 			return _it->second.filePath;
+		}
+
+		return "NoFilePath";
+	}
+
+	std::string AssetDatabase::GetBaseFilePathFromGUID(const Engine::GUID& a_guid)
+	{
+		auto _it = m_assetMap.find(a_guid);
+		if (_it != m_assetMap.end())
+		{
+			// 拡張子のない形にして返す
+			auto _dir = FileUtility::GetDirFromPath(_it->second.filePath);
+			auto _name = FileUtility::GetFileNameWithoutExtension(_it->second.fileName);
+			return _dir + _name;
 		}
 
 		return "NoFilePath";

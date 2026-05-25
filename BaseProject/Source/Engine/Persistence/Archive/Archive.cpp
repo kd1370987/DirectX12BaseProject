@@ -11,6 +11,8 @@ namespace Engine::Persistence
 		switch (a_mode)
 		{
 		case Engine::Persistence::Archive::Mode::Save:
+			// 親ディレクトリの作成
+			std::filesystem::create_directories(m_fileDir);
 			// 本番時データ
 			m_ofs.open(m_binPath, std::ios::binary);
 			if (!m_ofs.is_open())

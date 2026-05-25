@@ -139,39 +139,30 @@ namespace Engine::Resource
 		for (UINT _i = 0; _i < m_materialGUIDVec.size(); ++_i)
 		{
 			auto _guid = m_materialGUIDVec[_i];
-			auto _basePath = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
-			auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(_guid);
+			auto _basePath = AssetDatabase::Instance().GetBaseFilePathFromGUID(_guid);
+			auto _fileName = FileUtility::GetFileName(_basePath);
 			Material _mate = {};
-			auto _dir = FileUtility::GetDirFromPath(_basePath);
-			_dir = FileUtility::GetDirFromPath(_dir);
-			_fileName = FileUtility::GetFileNameWithoutExtension(_fileName);
-			_mate.Load(_dir,_fileName);
+			_mate.Load(_basePath,_fileName);
 			auto _handle = ResourceManager::Instance().Add(std::move(_mate));
 			m_materialHandleVec.push_back(_handle);
 		}
 		for (UINT _i = 0; _i < m_meshGUIDVec.size(); ++_i)
 		{
 			auto _guid = m_meshGUIDVec[_i];
-			auto _basePath = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
-			auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(_guid);
+			auto _basePath = AssetDatabase::Instance().GetBaseFilePathFromGUID(_guid);
+			auto _fileName = FileUtility::GetFileName(_basePath);
 			Mesh _mesh = {};
-			auto _dir = FileUtility::GetDirFromPath(_basePath);
-			_dir = FileUtility::GetDirFromPath(_dir);
-			_fileName = FileUtility::GetFileNameWithoutExtension(_fileName);
-			_mesh.Load(_dir, _fileName);
+			_mesh.Load(_basePath, _fileName);
 			auto _handle = ResourceManager::Instance().Add(std::move(_mesh));
 			m_meshHandleVec.push_back(_handle);
 		}
 		for (UINT _i = 0; _i < m_animationGUIDVec.size(); ++_i)
 		{
 			auto _guid = m_animationGUIDVec[_i];
-			auto _basePath = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
-			auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(_guid);
+			auto _basePath = AssetDatabase::Instance().GetBaseFilePathFromGUID(_guid);
+			auto _fileName = FileUtility::GetFileName(_basePath);
 			AnimationData _animData = {};
-			auto _dir = FileUtility::GetDirFromPath(_basePath);
-			_dir = FileUtility::GetDirFromPath(_dir);
-			_fileName = FileUtility::GetFileNameWithoutExtension(_fileName);
-			_animData.Load(_dir,_fileName);
+			_animData.Load(_basePath,_fileName);
 			auto _handle = ResourceManager::Instance().Add(std::move(_animData));
 			m_animationHandleVec.push_back(_handle);
 		}
@@ -193,11 +184,11 @@ namespace Engine::Resource
 			// 保存データ作成
 			auto _fileName = FileUtility::GetFileNameWithoutExtension(m_name) + std::to_string(_i);
 			std::string basePath ="Asset/Material/" + _fileName;
-			auto _guid = AssetDatabase::Instance().AddMetaData(basePath,"mtrl","Material");
-			m_materialGUIDVec[_i] = _guid;
 
 			// 保存
 			_matrial->Save(basePath, _fileName);
+
+			m_materialGUIDVec[_i] = AssetDatabase::Instance().AddMetaData(basePath, "Material");
 		}
 		// メッシュの保存
 		UINT _meshHandleSize = m_meshHandleVec.size();
@@ -211,11 +202,11 @@ namespace Engine::Resource
 			// 保存データ作成
 			auto _fileName = FileUtility::GetFileNameWithoutExtension(m_name) + std::to_string(_i);
 			std::string basePath ="Asset/Mesh/" + _fileName;
-			auto _guid = AssetDatabase::Instance().AddMetaData(basePath, "mesh", "Mesh");
-			m_meshGUIDVec[_i] = _guid;
 
 			// 保存
 			_mesh->Save(basePath, _fileName);
+
+			m_meshGUIDVec[_i] = AssetDatabase::Instance().AddMetaData(basePath, "Mesh");
 		}
 		// アニメーションの保存
 		UINT _animHandleSize = m_animationHandleVec.size();
@@ -229,11 +220,12 @@ namespace Engine::Resource
 			// 保存データ作成
 			auto _fileName = FileUtility::GetFileNameWithoutExtension(m_name) + std::to_string(_i);
 			std::string basePath = "Asset/Animation/" + _fileName;
-			auto _guid = AssetDatabase::Instance().AddMetaData(basePath, "anim", "Animation");
-			m_animationGUIDVec[_i] = _guid;
 
 			// 保存
-			_anim->Save(basePath,_fileName);
+			_anim->Save(basePath, _fileName);
+
+			// GUID保存
+			m_animationGUIDVec[_i] = AssetDatabase::Instance().AddMetaData(basePath, "Animation");
 		}
 
 		// モデルデータの保存

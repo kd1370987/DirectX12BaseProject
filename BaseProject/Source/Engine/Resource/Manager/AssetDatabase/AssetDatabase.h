@@ -30,7 +30,7 @@ namespace Engine::Resource
 		void AddTypeExtensions(const std::string& a_type,const std::string& a_extensions);
 
 		// ランタイム中にファイルが追加された際に追加される
-		Engine::GUID AddMetaData(const std::string& a_newFilePath,const std::string& a_ext,const std::string& a_type);
+		Engine::GUID AddMetaData(const std::string& a_newFilePath,const std::string& a_type);
 
 		// アセットフォルダ以下を検索して、すべてのアセットにメタファイルを作る
 		// すでにメタファイルがあれば無視
@@ -42,6 +42,9 @@ namespace Engine::Resource
 		// GUIDから現在のファイルパスを取得
 		std::string GetFilePathFromGUID(const std::string& a_guid);
 		std::string GetFilePathFromGUID(const Engine::GUID& a_guid);
+		// ベースファイルパスの取得
+		std::string GetBaseFilePathFromGUID(const Engine::GUID& a_guid);
+		// ファイルネームの取得
 		std::string GetFileNameFromGUID(const Engine::GUID& a_guid);
 		// ファイルパスからGUIDを取得
 		Engine::GUID GetGUIDFromFilePath(const std::string& a_path);
