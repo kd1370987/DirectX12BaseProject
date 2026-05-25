@@ -29,7 +29,7 @@ namespace Engine::Resource
 		void AddSupporedExtensions(const std::string& a_type,const std::string& a_extensions);
 
 		// ランタイム中にファイルが追加された際に追加される
-		void AddMetaData(const std::filesystem::path& a_srcFile);
+		Engine::GUID AddMetaData(const std::string& a_newFilePath,const std::string& a_ext,const std::string& a_type);
 
 		// アセットフォルダ以下を検索して、すべてのアセットにメタファイルを作る
 		// すでにメタファイルがあれば無視

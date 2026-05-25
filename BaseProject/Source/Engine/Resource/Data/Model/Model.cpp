@@ -5,6 +5,7 @@
 
 
 #include "../../Manager/ResourceManager/ResourceManager.h"
+#include "../../Manager/AssetDatabase/AssetDatabase.h"
 
 #include "../../../Utility/BinaryHelper/BinaryHelper.h"
 
@@ -25,13 +26,13 @@ namespace Engine::Resource
 		//-------------------------------------
 		if (_originExt.size() > 0)
 		{
-			Load(_dir);
+			//Load(_dir);
 		}
 		//-------------------------------------
 		// TinyGLTFを使用
 		//-------------------------------------
-		else if (_ext == "gltf")
-		//if (_ext == "gltf")
+		//else if (_ext == "gltf")
+		if (_ext == "gltf")
 		{
 			_model = GLTF::Import(a_filePath);
 			m_name = std::move(_model.name);
@@ -111,73 +112,66 @@ namespace Engine::Resource
 	}
 	void Model::Load(const std::string& a_fileDir)
 	{
-		Persistence::Archive _ar(Persistence::Archive::Mode::Load,m_name, a_fileDir, "mdl");
-		_ar.StringField("ModelName", m_name);
-
-		_ar.GUIDVectorField("MaterialGUID", m_materialGUIDVec);
-		_ar.GUIDVectorField("MeshGUID", m_meshGUIDVec);
-		_ar.GUIDVectorField("AnimationGUID", m_animationGUIDVec);
-
-		for (auto& _node : m_originalNodes)
-		{
-			_node.Archive(_ar);
-		}
-
-		_ar.VectorField("RootNodeIndices", m_rootNodeIndices);
-		_ar.VectorField("BoneNodeIndices", m_boneNodeIndices);
-		_ar.VectorField("MeshNodeIndices", m_meshNodeIndices);
-		_ar.VectorField("CollisionMeshNodeIndices", m_collisionMeshNodeIndices);
-		_ar.VectorField("DrawMeshNodeIndices", m_drawMeshNodeIndices);
-
-		// 参照しているデータもセーブ
-		int _i = 0;
-		for (auto& _mateHandle : m_materialHandleVec)
-		{
-			auto* _matrial = Resource::ResourceManager::Instance().Ref(_mateHandle);
-			// 保存データ作成
-			std::string basePath =
-				"Asset/Material/" + m_name + std::to_string(_i);
-
-			// フォルダ作成（なければ）
-			std::filesystem::create_directories(basePath);
-
-			// 保存
-			_matrial->Load(basePath + _matrial->name, m_name);
-			_i++;
-		}
-		_i = 0;
-		for (auto& _meshHandle : m_meshHandleVec)
-		{
-			auto* _mesh = Resource::ResourceManager::Instance().Ref(_meshHandle);
-			// 保存データ作成
-			std::string basePath =
-				"Asset/Mesh/" + m_name + std::to_string(_i);
-
-			// フォルダ作成（なければ）
-			std::filesystem::create_directories(basePath);
-			_mesh->Load(basePath + std::to_string(_i), m_name);
-			_i++;
-		}
-		_i = 0;
-		for (auto& _animHandle : m_animationHandleVec)
-		{
-			auto* _anim = Resource::ResourceManager::Instance().Ref(_animHandle);
-			// 保存データ作成
-			std::string basePath =
-				"Asset/Animation/" + m_name + std::to_string(_i);
-
-			// フォルダ作成（なければ）
-			std::filesystem::create_directories(basePath);
-			_anim->Load(basePath + _anim->name, m_name);
-			_i++;
-		}
-	
+		Persistence::Archive _ar(Persistence::Archive::Mode::Load,m_name, a_fileDir, "mdl");	
 	}
 
 	void Model::Save(const std::string& a_fileDir)
 	{
+		// ---- 参照しているデータもセーブ ----
+		// マテリアルの保存
+		UINT _mtrlHandleSize = m_materialHandleVec.size();
+		m_materialGUIDVec.resize(_mtrlHandleSize);
+		for(UINT _i = 0; _i < _mtrlHandleSize; ++_i)
 		{
-			Persistence::Archive _ar(Persistence::Archive::Mode::Save,a_fileDir, m_name, "mdl");
+			// マテリアル取得
+			auto _mateHandle = m_materialHandleVec[_i];
+			auto* _matrial = Resource::ResourceManager::Instance().Ref(_mateHandle);
+
+			// 保存データ作成
+			std::string basePath ="Asset/Material/" + m_name + std::to_string(_i);
+			auto _guid = AssetDatabase::Instance().AddMetaData(basePath,"mtrl","Material");
+			m_materialGUIDVec[_i] = _guid;
+
+			// 保存
+			_matrial->Save(basePath + _matrial->name, m_name);
+		}
+		// メッシュの保存
+		UINT _meshHandleSize = m_meshHandleVec.size();
+		m_meshGUIDVec.resize(_meshHandleSize);
+		for (UINT _i = 0; _i < _meshHandleSize; ++_i)
+		{
+			// メッシュ取得
+			auto _meshHandle = m_meshHandleVec[_i];
+			auto* _mesh = Resource::ResourceManager::Instance().Ref(_meshHandle);
+
+			// 保存データ作成
+			std::string basePath ="Asset/Mesh/" + m_name + std::to_string(_i);
+			auto _guid = AssetDatabase::Instance().AddMetaData(basePath, "mesh", "Mesh");
+			m_meshGUIDVec[_i] = _guid;
+
+			// 保存
+			_mesh->Save(basePath + std::to_string(_i), m_name);
+		}
+		// アニメーションの保存
+		UINT _animHandleSize = m_animationHandleVec.size();
+		m_animationGUIDVec.resize(_animHandleSize);
+		for (UINT _i = 0; _i < _animHandleSize; ++_i)
+		{
+			// アニメーションの取得
+			auto _animHandle = m_animationHandleVec[_i];
+			auto* _anim = Resource::ResourceManager::Instance().Ref(_animHandle);
+			// 保存データ作成
+			std::string basePath = "Asset/Animation/" + m_name + std::to_string(_i);
+			auto _guid = AssetDatabase::Instance().AddMetaData(basePath, "anim", "Animation");
+			m_animationGUIDVec[_i] = _guid;
+
+			// 保存
+			_anim->Save(basePath + _anim->name, m_name);
+		}
+
+		// モデルデータの保存
+		{
+			Persistence::Archive _ar(Persistence::Archive::Mode::Save, a_fileDir, m_name, "mdl");
 			_ar.StringField("ModelName", m_name);
 
 			_ar.GUIDVectorField("MaterialGUID", m_materialGUIDVec);
@@ -194,50 +188,6 @@ namespace Engine::Resource
 			_ar.VectorField("MeshNodeIndices", m_meshNodeIndices);
 			_ar.VectorField("CollisionMeshNodeIndices", m_collisionMeshNodeIndices);
 			_ar.VectorField("DrawMeshNodeIndices", m_drawMeshNodeIndices);
-		}
-
-		// 参照しているデータもセーブ
-		int _i = 0;
-		
-		for (auto& _mateHandle : m_materialHandleVec)
-		{
-			auto* _matrial = Resource::ResourceManager::Instance().Ref(_mateHandle);
-			// 保存データ作成
-			std::string basePath =
-				"Asset/Material/" + m_name + std::to_string(_i);
-
-			// フォルダ作成（なければ）
-			std::filesystem::create_directories(basePath);
-
-			// 保存
-			_matrial->Save(basePath + _matrial->name, m_name);
-			_i++;
-		}
-		_i = 0;
-		for (auto& _meshHandle : m_meshHandleVec)
-		{
-			auto* _mesh = Resource::ResourceManager::Instance().Ref(_meshHandle);
-			// 保存データ作成
-			std::string basePath =
-				"Asset/Mesh/" + m_name + std::to_string(_i);
-
-			// フォルダ作成（なければ）
-			std::filesystem::create_directories(basePath);
-			_mesh->Save(basePath + std::to_string(_i), m_name);
-			_i++;
-		}
-		_i = 0;
-		for (auto& _animHandle : m_animationHandleVec)
-		{
-			auto* _anim = Resource::ResourceManager::Instance().Ref(_animHandle);
-			// 保存データ作成
-			std::string basePath =
-				"Asset/Animation/" + m_name + std::to_string(_i);
-
-			// フォルダ作成（なければ）
-			std::filesystem::create_directories(basePath);
-			_anim->Save(basePath + _anim->name, m_name);
-			_i++;
 		}
 	}
 }

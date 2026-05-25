@@ -26,6 +26,45 @@ namespace Engine::Resource
 		m_supportedExtensionsMap[a_type] = {};
 		m_supportedExtensionsMap[a_type].push_back(a_extensions);
 	}
+	Engine::GUID AssetDatabase::AddMetaData(const std::string& a_baseFilePath, const std::string& a_ext, const std::string& a_type)
+	{
+		std::string _binPath = a_baseFilePath + ".ob" + a_ext;
+		std::string _jsonPath = a_baseFilePath + ".oj" + a_ext;
+		std::string _metaPath = a_baseFilePath + m_metafileExtension;
+
+
+		// フォルダ作成（なければ）
+		std::filesystem::create_directories(a_baseFilePath);
+
+		// 実体ファイルの作成
+		std::ofstream _binFile(_binPath, std::ios::binary);
+		_binFile.close();
+		std::ofstream _jsonFile(_jsonPath);
+		_jsonFile.close();
+
+		// メタファイルの作成
+		nlohmann::json _json;
+		Engine::GUID _guid;
+		_guid.Create();
+		_json["GUID"] = _guid.String();
+		_json["Type"] = a_type;
+
+		std::ofstream _metafile(_metaPath);
+		_metafile << _json.dump(4);
+		_metafile.close();
+
+		// マップへ追加
+		AssetProperty _prop;
+		_prop.filePath = std::filesystem::path(a_baseFilePath).lexically_normal().generic_string();
+		_prop.fileName = std::filesystem::path(a_baseFilePath).filename().string();
+		_prop.type = a_type;
+		_prop.guid = _guid;
+
+		m_assetMap[_prop.guid] = _prop;
+		m_typeMetaMap[_prop.type].push_back(_prop);
+
+		return _prop.guid;
+	}
 	void AssetDatabase::CreateMetaFileForAllAssets()
 	{
 		// 指定フォルダ以下をクロール
