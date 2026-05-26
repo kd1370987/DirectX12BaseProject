@@ -9,7 +9,7 @@ namespace Engine
 		//==========================================================
 		struct AnimationKeyQuaternion
 		{
-			void Archive(Persistence::Archive& a_ar ,int a_idx);
+			void Archive(Persistence::Archive& a_ar ,const std::string& a_prefix);
 
 			float				time = 0;		// 時間
 			DirectX::XMFLOAT4	quat = {};			// クォータニオンデータ
@@ -20,7 +20,7 @@ namespace Engine
 		//==========================================================
 		struct AnimationKeyXMFLOAT3
 		{
-			void Archive(Persistence::Archive& a_ar, int a_idx);
+			void Archive(Persistence::Archive& a_ar, const std::string& a_prefix);
 
 			float				time = 0;		// 時間
 			DirectX::XMFLOAT3	vec = {};			// 3Dベクトルデータ
@@ -31,7 +31,7 @@ namespace Engine
 		//==========================================================
 		struct AnimationNode
 		{
-			void Archive(Persistence::Archive& a_ar, int a_idx);
+			void Archive(Persistence::Archive& a_ar, const std::string& a_prefix);
 
 			int									nodeOffset = -1;	// 対象ノードのオフセット
 

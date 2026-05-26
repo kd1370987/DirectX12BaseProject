@@ -1,55 +1,53 @@
 ﻿#include "Animation.h"
 
-void Engine::Resource::AnimationKeyQuaternion::Archive(Persistence::Archive& a_ar, int a_idx)
+void Engine::Resource::AnimationKeyQuaternion::Archive(Persistence::Archive& a_ar, const std::string& a_prefix)
 {
-	std::string _idxStr = std::to_string(a_idx);
-	a_ar.Field("AnimationKeyQuaternion_Time" + _idxStr, time);
-	a_ar.Field("AnimationKeyQuaternion_Quat" + _idxStr, quat);
+	a_ar.Field(a_prefix + "_Time", time);
+	a_ar.Field(a_prefix + "_Quat", quat);
 }
 
-void Engine::Resource::AnimationKeyXMFLOAT3::Archive(Persistence::Archive& a_ar, int a_idx)
+void Engine::Resource::AnimationKeyXMFLOAT3::Archive(Persistence::Archive& a_ar, const std::string& a_prefix)
 {
-	std::string _idxStr = std::to_string(a_idx);
-	a_ar.Field("AnimationKeyXMFLOAT3_Time" + _idxStr, time);
-	a_ar.Field("AnimationKeyXMFLOAT3_Vec" + _idxStr, vec);
+	a_ar.Field(a_prefix + "_Time", time);
+	a_ar.Field(a_prefix + "_Vec", vec);
 }
 
-void Engine::Resource::AnimationNode::Archive(Persistence::Archive& a_ar, int a_idx)
+void Engine::Resource::AnimationNode::Archive(Persistence::Archive& a_ar, const std::string& a_prefix)
 {
-	std::string _idxStr = std::to_string(a_idx);
-	a_ar.Field("AnimationNode_NodeOffset" + _idxStr, nodeOffset);
+	a_ar.Field(a_prefix + "_NodeOffset", nodeOffset);
 
+
+	// ---- Translations ----
 	size_t _transSize = translations.size();
-	a_ar.Field("AnimationNode_TransCount" + _idxStr, _transSize);
+	a_ar.Field(a_prefix + "_TransCount", _transSize);
 	translations.resize(_transSize);
 
-	int _i = 0;
-	for (auto& _data : translations)
+	for (int _i = 0; _i < _transSize; ++_i)
 	{
-		_data.Archive(a_ar, _i);
-		_i++;
+		auto& _data = translations[_i];
+		_data.Archive(a_ar, a_prefix + "_Trans" + std::to_string(_i));
 	}
 
+	// ---- Rotations ----
 	size_t _rotSize = rotations.size();
-	a_ar.Field("AnimationNode_RotCount" + _idxStr, _rotSize);
+	a_ar.Field(a_prefix + "_RotCount", _rotSize);
 	rotations.resize(_rotSize);
 
-	_i = 0;
-	for (auto& _data : rotations)
+	for (int _i = 0; _i < _rotSize; ++_i)
 	{
-		_data.Archive(a_ar, _i);
-		_i++;
+		auto& _data = rotations[_i];
+		_data.Archive(a_ar, a_prefix + "_Rot" + std::to_string(_i));
 	}
 
+	// ---- Scales ----
 	size_t _scaleSize = scales.size();
-	a_ar.Field("AnimationNode_ScaleCount" + _idxStr, _scaleSize);
+	a_ar.Field(a_prefix + "_ScaleCount", _scaleSize);
 	scales.resize(_scaleSize);
 
-	_i = 0;
-	for (auto& _data : scales)
+	for (int _i = 0; _i < _scaleSize; ++_i)
 	{
-		_data.Archive(a_ar, _i);
-		_i++;
+		auto& _data = scales[_i];
+		_data.Archive(a_ar, a_prefix + "_Scale" + std::to_string(_i));
 	}
 }
 
@@ -62,11 +60,10 @@ void Engine::Resource::AnimationData::Save(const std::string& a_fileDir, const s
 	size_t _nodeSize = nodes.size();
 	_ar.Field("AnimationData_NodeCount", _nodeSize);
 
-	int _i = 0;
-	for (auto& _node : nodes)
+	for (int _i = 0; _i < _nodeSize; ++_i)
 	{
-		_node.Archive(_ar, _i);
-		_i++;
+		auto _node = nodes[_i];
+		_node.Archive(_ar, "Node" + std::to_string(_i));
 	}
 }
 
@@ -80,10 +77,9 @@ void Engine::Resource::AnimationData::Load(const std::string& a_fileDir, const s
 	_ar.Field("AnimationData_NodeCount", _nodeSize);
 	nodes.resize(_nodeSize);
 
-	int _i = 0;
-	for (auto& _node : nodes)
+	for (int _i = 0; _i < _nodeSize; ++_i)
 	{
-		_node.Archive(_ar, _i);
-		_i++;
+		auto& _node = nodes[_i];
+		_node.Archive(_ar, "Node" + std::to_string(_i));
 	}
 }

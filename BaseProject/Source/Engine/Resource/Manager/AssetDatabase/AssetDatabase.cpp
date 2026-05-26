@@ -133,7 +133,8 @@ namespace Engine::Resource
 			}
 			catch (const nlohmann::json::parse_error&)
 			{
-				// ★破損したメタファイルや、空のファイルがあっても例外で落ちないようにスキップ
+				Engine::Editor::MainEditor::Instance().AddLog(
+					"ファイルオープンエラー : %s",_entry.path().string().c_str());
 				continue;
 			}
 
@@ -143,7 +144,7 @@ namespace Engine::Resource
 			auto _resPath = _entry.path();
 			_resPath.replace_extension("");
 
-			// ★これだけで通常アセットも自作アセットも100%実体チェックが完了します！
+			// 実体チェック
 			if (std::filesystem::exists(_resPath) == false) continue;
 
 			// アセットプロパティの作成

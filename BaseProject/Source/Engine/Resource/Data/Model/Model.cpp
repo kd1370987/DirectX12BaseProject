@@ -55,10 +55,6 @@ namespace Engine::Resource
 
 			// ノードすべてに名前のハッシュ値をつける
 			m_originalNodes = std::move(_model.originalNodes);
-			for (auto& _node : m_originalNodes)
-			{
-				_node.nodeNameHash = StringUtility::ToHash(_node.name);
-			}
 
 			m_rootNodeIndices = std::move(_model.rootNodeIndices);
 			m_boneNodeIndices = std::move(_model.boneNodeIndices);
@@ -76,8 +72,14 @@ namespace Engine::Resource
 			assert(0 && "Assimpは未対応");
 		}
 
-		// 描画時コマンド用に事前キャッシュを作っておく
 
+		// ノードに名前のハッシュを作る
+		for (auto& _node : m_originalNodes)
+		{
+			_node.nodeNameHash = StringUtility::ToHash(_node.name);
+		}
+
+		// 描画時コマンド用に事前キャッシュを作っておく
 		// 描画用meshを持っているノード
 		for (auto& _nodeIdx : m_drawMeshNodeIndices)
 		{
