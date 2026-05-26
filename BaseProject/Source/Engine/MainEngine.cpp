@@ -236,6 +236,11 @@ namespace Engine
 		Editor::MainEditor::Instance().EndWatch("EndFramePhase");
 	}
 
+	UINT MainEngine::GetFPS()
+	{
+		return m_upTimeManager->GetNowFPS();
+	}
+
 	float MainEngine::GetDeltaTime()
 	{
 		return m_upTimeManager->GetDeltaTime();
@@ -248,6 +253,14 @@ namespace Engine
 	void MainEngine::ExcuteDrawCmd()
 	{
 		m_upGraphicsEngine->ExcuteDrawCmd();
+	}
+	const Window::NativeWindow* MainEngine::GetNativeWindow() const
+	{
+		return m_upWindow.get();
+	}
+	Window::NativeWindow* MainEngine::RefNativeWindow()
+	{
+		return m_upWindow.get();
 	}
 	Graphics::GraphicsEngine* MainEngine::RefGraphicsEngine()
 	{

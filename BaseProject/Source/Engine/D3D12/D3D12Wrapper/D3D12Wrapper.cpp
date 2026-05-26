@@ -198,6 +198,11 @@ namespace Engine::D3D12
 		m_upCommandList->SetScissorRects(1, &m_upScissorRect->Get());
 	}
 
+	IDXGIAdapter* D3D12Wrapper::GetDXGIAdapter()
+	{
+		return m_upDevice->GetAdapter();
+	}
+
 	//==================================================================================
 	// 
 	// ゲッター

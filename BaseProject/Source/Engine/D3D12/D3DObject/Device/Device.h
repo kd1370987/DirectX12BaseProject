@@ -15,6 +15,7 @@ namespace Engine::D3D12
 		// ゲッター
 		ID3D12Device5* GetDevice();			// デバイス取得
 		IDXGIFactory6* GetDxgiFactory();	// DXGIファクトリ取得
+		IDXGIAdapter* GetAdapter();		// アダプタ取得
 
 
 	private:
@@ -37,7 +38,7 @@ namespace Engine::D3D12
 
 		ComPtr<ID3D12Device5> m_cpDevice5 = nullptr;	// GPUデバイス
 		ComPtr<IDXGIFactory6> m_cpDxgFactory = nullptr;	// DXGIファクトリ
-
+		ComPtr<IDXGIAdapter> m_cpDXGIAdapter = nullptr;	// 選択したアダプタ
 
 		bool m_isDebug = false;
 

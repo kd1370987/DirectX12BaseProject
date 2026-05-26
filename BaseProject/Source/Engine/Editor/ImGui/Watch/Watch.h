@@ -44,6 +44,8 @@ namespace Engine::Editor
 		/// </summary>
 		void Reset();
 
+		double GetAvelage() const;
+
 	private:
 
 		using Clock = std::chrono::high_resolution_clock;

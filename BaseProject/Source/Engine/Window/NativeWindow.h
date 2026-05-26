@@ -39,6 +39,10 @@ namespace Engine::Window
 		const UINT& GetClientWidth() const { return m_clientWidth; }
 		const UINT& GetClientHeight() const { return m_clientHeight; }
 
+		// メモリ使用率取得
+		// バイト単位での取得
+		double GetMemoryUsage();
+
 	private:
 		// Windows用
 		HWND		m_hWnd;			// ウィンドウハンドル

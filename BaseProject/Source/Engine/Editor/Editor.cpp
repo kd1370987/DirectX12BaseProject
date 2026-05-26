@@ -15,6 +15,8 @@
 #include "SceneView/SceneView.h"
 #include "SceneView/EditorCamera/EditorCamera.h"
 
+#include "WatchView/WatchView.h"
+
 namespace Engine::Editor
 {
 
@@ -59,6 +61,11 @@ namespace Engine::Editor
 			m_upSceneView = std::make_unique<SceneView>();
 			m_upSceneView->Init();
 		}
+		if (!m_upWatchView)
+		{
+			m_upWatchView = std::make_unique<WatchView>();
+			m_upWatchView->Init();
+		}
 
 		return true;
 	}
@@ -79,10 +86,7 @@ namespace Engine::Editor
 		// ログ表示
 		m_upLog->Draw("Log");
 		// 計測表示
-		for (auto& [_name, _watch] : m_upWatchMap)
-		{
-			_watch->DrawResult(_name);
-		}
+		m_upWatchView->Draw();
 
 		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);
@@ -138,26 +142,11 @@ namespace Engine::Editor
 	void MainEditor::StartWatch(const std::string & a_name)
 	{
 		if (!m_isInit) return;
-		auto _it = m_upWatchMap.find(a_name);
-		if (_it != m_upWatchMap.end())
-		{
-			_it->second->Start();
-		}
-		else
-		{
-			m_upWatchMap[a_name] = std::make_unique<Watch>();
-			m_upWatchMap[a_name]->Start();
-		}
+		m_upWatchView->StartWatch(a_name);
 	}
 	void MainEditor::EndWatch(const std::string & a_name)
 	{
 		if (!m_isInit) return;
-		auto _it = m_upWatchMap.find(a_name);
-		if (_it != m_upWatchMap.end())
-		{
-			_it->second->End();
-			return;
-		}
-		assert(0 && "登録されていない計測です");
+		m_upWatchView->EndWatch(a_name);
 	}
 }

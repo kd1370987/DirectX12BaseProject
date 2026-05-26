@@ -10,6 +10,7 @@ namespace Engine::Editor
 	class ImGuiContext;
 	class SceneView;
 	class EditorCamera;
+	class WatchView;
 
 	//=======================================================================
 	// 
@@ -61,9 +62,6 @@ namespace Engine::Editor
 		// ログ
 		std::unique_ptr<Log> m_upLog = nullptr;
 
-		// 計測
-		std::unordered_map<std::string, std::unique_ptr<Watch>> m_upWatchMap = {};
-
 		// ECS
 		std::unique_ptr<ECSView> m_upECSView = nullptr;
 
@@ -72,6 +70,9 @@ namespace Engine::Editor
 
 		// アセットビュー
 		std::unique_ptr<AssetResourceView> m_upAssetResourceView = nullptr;
+
+		// 計測機
+		std::unique_ptr<WatchView> m_upWatchView = nullptr;
 
 		bool m_isInit = false;
 

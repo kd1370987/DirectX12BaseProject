@@ -793,6 +793,9 @@
     <Filter Include="Source\Engine\Resource\Loader\Animation">
       <UniqueIdentifier>{808bf0ef-b212-482e-90ff-882ac218eb04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\WatchView">
+      <UniqueIdentifier>{8f5ff60d-62b9-4849-9cd4-bf70a3e66213}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1292,6 +1295,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp">
       <Filter>Source\Engine\Persistence\Archive</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\WatchView\WatchView.cpp">
+      <Filter>Source\Engine\Editor\WatchView</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2014,6 +2020,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\EngineConfig.h">
       <Filter>Source\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\WatchView\WatchView.h">
+      <Filter>Source\Engine\Editor\WatchView</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

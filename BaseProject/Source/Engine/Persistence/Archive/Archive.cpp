@@ -1,4 +1,7 @@
 ﻿#include "Archive.h"
+
+#include "../../MainEngine.h"
+
 namespace Engine::Persistence
 {
 	Archive::Archive(Mode a_mode, const std::string& a_fileDir, const std::string& a_fileName, const std::string& a_ext)
@@ -24,10 +27,10 @@ namespace Engine::Persistence
 			m_json = nlohmann::json::object();
 			break;
 		case Engine::Persistence::Archive::Mode::Load:
-			// テスト時データの読み込み
-			#ifdef _DEBUG
+			if(MainEngine::Instance().GetEngineConfig().GetInitConfig().buildMode == Engine::EBuildConfiguration::Development)
 			{
 				std::ifstream _ifs(m_jsonPath);
+			
 				if (_ifs.is_open())
 				{
 					_ifs >> m_json;
@@ -37,12 +40,11 @@ namespace Engine::Persistence
 					Editor::MainEditor::Instance().ErrorLog(a_fileDir.c_str());
 				}
 			}
-			#else
+			if (MainEngine::Instance().GetEngineConfig().GetInitConfig().buildMode == Engine::EBuildConfiguration::Shipping)
 			{
 				// 本番時データ用
 				m_ifs.open(m_binPath, std::ios::binary);
 			}
-			#endif
 			
 			break;
 		default:

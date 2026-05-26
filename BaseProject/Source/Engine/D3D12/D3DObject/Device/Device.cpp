@@ -50,10 +50,15 @@ namespace Engine::D3D12
 		return m_cpDxgFactory.Get();
 	}
 
+	IDXGIAdapter* Device::GetAdapter()
+	{
+		return m_cpDXGIAdapter.Get();
+	}
+
 
 	bool Device::CreateDevice(bool a_isDynamic)
 	{
-		ComPtr<IDXGIAdapter> _pSelectAdapter = nullptr;		// 選択アダプタ
+		m_cpDXGIAdapter = nullptr;							// 選択アダプタ
 		std::vector<ComPtr<IDXGIAdapter>> _pAdapters;		// 発見したアダプタ群
 		std::vector<DXGI_ADAPTER_DESC> _adapterDescs;		// アダプタの説明群
 
@@ -79,7 +84,7 @@ namespace Engine::D3D12
 			if (std::wstring(_adapterDescs[_i].Description).find(L"NVIDIA") != std::wstring::npos)
 			{
 				// NVIDIAが見つかったら即決
-				_pSelectAdapter = _pAdapters[_i];
+				m_cpDXGIAdapter = _pAdapters[_i];
 				break;
 			}
 			else if (std::wstring(_adapterDescs[_i].Description).find(L"Amd") != std::wstring::npos)
@@ -87,7 +92,7 @@ namespace Engine::D3D12
 				// 選択中のGPUがAmdより低優先度なら入れ替え
 				if (_guiTier > GPUTier::Amd)
 				{
-					_pSelectAdapter = _pAdapters[_i];
+					m_cpDXGIAdapter = _pAdapters[_i];
 					_guiTier = GPUTier::Amd;
 				}
 			}
@@ -96,7 +101,7 @@ namespace Engine::D3D12
 				// 選択中のGPUがAmdより低優先度なら入れ替え
 				if (_guiTier > GPUTier::Intel)
 				{
-					_pSelectAdapter = _pAdapters[_i];
+					m_cpDXGIAdapter = _pAdapters[_i];
 					_guiTier = GPUTier::Intel;
 				}
 			}
@@ -105,7 +110,7 @@ namespace Engine::D3D12
 				// 選択中のGPUがAmdより低優先度なら入れ替え
 				if (_guiTier > GPUTier::Arm)
 				{
-					_pSelectAdapter = _pAdapters[_i];
+					m_cpDXGIAdapter = _pAdapters[_i];
 					_guiTier = GPUTier::Arm;
 				}
 			}
@@ -114,7 +119,7 @@ namespace Engine::D3D12
 				// 選択中のGPUがAmdより低優先度なら入れ替え
 				if (_guiTier > GPUTier::Qualcomm)
 				{
-					_pSelectAdapter = _pAdapters[_i];
+					m_cpDXGIAdapter = _pAdapters[_i];
 					_guiTier = GPUTier::Qualcomm;
 				}
 			}
@@ -134,7 +139,7 @@ namespace Engine::D3D12
 		{
 			// 生成可能なレベルで試す
 			_hr = D3D12CreateDevice(
-				_pSelectAdapter.Get(),
+				m_cpDXGIAdapter.Get(),
 				_level,
 				IID_PPV_ARGS(m_cpDevice5.ReleaseAndGetAddressOf())
 			);

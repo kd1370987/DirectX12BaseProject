@@ -8,6 +8,7 @@
 
 #define NOMINMAX
 #include <Windows.h>         // WinAPIの基本（必須）
+#include <psapi.h>
 #include <stdio.h>
 
 #pragma comment(lib, "Rpcrt4.lib")

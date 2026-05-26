@@ -54,6 +54,7 @@ namespace Engine
 		void EndDraw();
 
 		// デルタタイム取得
+		UINT GetFPS();
 		float GetDeltaTime();
 
 		// モード切替
@@ -61,6 +62,10 @@ namespace Engine
 
 		// グラフィックス関係
 		void ExcuteDrawCmd();
+
+		// ウィンドウ取得
+		const Window::NativeWindow* GetNativeWindow() const;
+		Window::NativeWindow* RefNativeWindow();
 
 		// グラフィックスエンジンアクセス
 		Graphics::GraphicsEngine* RefGraphicsEngine();
@@ -71,6 +76,10 @@ namespace Engine
 
 		// コリジョンワールド
 		Collision::CollisionWorld* RefCollisionWorld();
+
+		// コンフィグ取得
+		const EngineConfig& GetEngineConfig() const { return m_config; }
+		EngineConfig& RefEngineConfig() { return m_config; }
 
 	private:
 

@@ -166,4 +166,16 @@ namespace Engine::Window
 	{
 		SetWindowTextA(m_hWnd, a_title.c_str());
 	}
+	double NativeWindow::GetMemoryUsage()
+	{
+		PROCESS_MEMORY_COUNTERS_EX _pmc;
+		if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&_pmc, sizeof(_pmc)))
+		{
+			// WorkingSetSizeがタスクマネージャーのメモリに一番近い数値
+			// 物理メモリ使用量
+			SIZE_T _physMemUsed = _pmc.WorkingSetSize;
+
+			return static_cast<double>(_physMemUsed);
+		}
+	}
 }
