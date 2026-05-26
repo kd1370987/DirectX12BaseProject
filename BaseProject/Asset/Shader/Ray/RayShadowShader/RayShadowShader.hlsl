@@ -20,6 +20,7 @@ cbuffer cbLight : register(b2)
 {
 	DL g_dl;
 }
+//Texture2D g_depthTex : register(t1);
 
 
 struct RayPayload
@@ -32,7 +33,8 @@ float3 ReconstructViewPos(float2 uv, float depth)
 	float2 ndcXY = uv * 2.0f - 1.0f;
 	ndcXY.y = -ndcXY.y; // ★ここでY軸を反転させる！
 	
-	float4 clip = float4(uv * 2 - 1, depth, 1);
+	//float4 clip = float4(uv * 2 - 1, depth, 1);
+	float4 clip = float4(ndcXY, depth, 1);
 	float4 view = mul(g_camera.invProj, clip);
 	return view.xyz / view.w;
 }
@@ -48,11 +50,13 @@ void RayGen()
 	
 
 	// GBuffer取得
-	Texture2D _depthTex = ResourceDescriptorHeap[g_gbuffer.depth];
+	Texture2D<float> _depthTex = ResourceDescriptorHeap[g_gbuffer.depth];
 	Texture2D _normalTex = ResourceDescriptorHeap[g_gbuffer.normal];
 
 	// 深度値を取得
-	float _depth = _depthTex.Load(int3(_id, 0)).r;
+	//float _depth = _depthTex.Load(int3(_id, 0)).r;
+	float _depth = _depthTex.SampleLevel(gSamp,_uv,0).r;
+	//float _depth = g_depthTex.SampleLevel(gSamp,_uv,0).r;
 	if(_depth >= 1.0f)
 	{
 		gOutPut[_id] = float4(1,0,0,1);
@@ -70,9 +74,9 @@ void RayGen()
 	
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
-	_ray.Origin = _worldPos; //+_normal * 0.01f; // シャドウアクネ
-	//_ray.Direction = normalize(-g_dl.dir);
-	_ray.Direction = normalize(float3(0.5, 0.5, 0.2));
+	_ray.Origin = _worldPos +_normal * 0.01f; // シャドウアクネ
+	_ray.Direction = normalize(-g_dl.dir);
+	//_ray.Direction = normalize(float3(0.5, 0.5, 0.2));
 	_ray.TMin = 0.001;
 	_ray.TMax = 10000;
 
@@ -82,7 +86,7 @@ void RayGen()
 	
 	TraceRay(
 		g_raytracingWorld,
-		RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,// | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER,
+		RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER,
 		0xFF,
 		0,
 		0,
@@ -92,9 +96,10 @@ void RayGen()
 	);
 
 	
-	//gOutPut[_id] = _payload.hit ? float4(0, 0, 0, 1) : float4(1, 1, 0, 1);
+	gOutPut[_id] = _payload.hit ? float4(0, 0, 0, 1) : float4(1, 1, 0, 1);
 	//gOutPut[_id] = float4(_worldPos,1);
-	gOutPut[_id] = float4(_depth, _depth, _depth,1);
+	//gOutPut[_id] = float4(_depth, _depth, _depth,1);
+	//gOutPut[_id] = float4(g_gbuffer.depth, _depth, _depth,1);
 	//gOutPut[_id] = float4(g_dl.dir,1);
 }
 

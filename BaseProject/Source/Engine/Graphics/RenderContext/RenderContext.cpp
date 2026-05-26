@@ -333,6 +333,33 @@ namespace Engine::Graphics
 		BindSRV(a_rootIdx, _cpu);
 	}
 
+	void RenderContext::ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle)
+	{
+		// 今の空きインデックスカウントを確保
+		UINT _startIdx = m_currentHeapOffset;
+		m_currentHeapOffset++;
+
+		// ヒープサイズが足りなければリターン
+		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx);
+
+		// 一個ずつ連続した領域にコピー
+		m_pDevice->CopyDescriptorsSimple(
+			1,
+			_destHandle,
+			a_cpuHandle,
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
+		);
+
+		// コマンドリストにバインド
+		auto _pCmd = D3D12::D3D12Wrapper::Instance().GetCommandList4();
+		_pCmd->SetComputeRootDescriptorTable(
+			a_rootIdx,
+			m_copyHeap.GetGPU(_startIdx)
+		);
+	}
+
 	void RenderContext::BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
 	{
 		// 今の空きインデックスカウントを確保

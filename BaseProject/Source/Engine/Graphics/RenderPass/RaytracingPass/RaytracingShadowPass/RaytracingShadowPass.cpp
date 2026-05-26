@@ -24,7 +24,7 @@ namespace Engine::Graphics
 		m_shaderTable.CommitInstance(_instanceVec,a_pCtx);
 
 		// ディスクリプタヒープセット
-		a_pCtx->BindCopyHeapAndSumpler();	
+		a_pCtx->BindCopyHeapAndSumplerBindLess();
 
 		// パイプラインとルートシグネチャセット
 		_pCmdList->SetPipelineState1(m_rayPSO.Get());
@@ -34,7 +34,7 @@ namespace Engine::Graphics
 		Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);
 
 		// UAVをバインド
-		a_pCtx->BindUAV(2,m_pRG->GetCPUHandle("RayShadow"));
+		a_pCtx->BindUAVBindLess(2,m_pRG->GetUAVHandle("RayShadow"));
 
 		// カメラバインド
 		Raytracing::RayEngine::Instance().BindCamera(a_pCtx);
@@ -55,6 +55,10 @@ namespace Engine::Graphics
 			4,
 			_light
 		);
+		// 深度値
+		//auto _cpu = m_pRG->GetCPUHandle("Depth");
+		////a_pCtx->BindSRV(5,_cpu);
+		//a_pCtx->ComputeBindSRV(5,_cpu);
 
 		// ディスパッチ
 		const auto& _desc = m_shaderTable.GetDispatchDesc();
@@ -70,6 +74,7 @@ namespace Engine::Graphics
 		_rayGlobal.AddDescriptorHeap({ {RangeType::UAV,0} });	// 出力
 		_rayGlobal.AddRoot(RootParameterType::RootCBV, 1);		// GBufferIndex
 		_rayGlobal.AddRoot(RootParameterType::RootCBV, 2);		// ライト
+		//_rayGlobal.AddDescriptorHeap({ {RangeType::SRV,1} });	// 深度
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 		// レイジェネレーション
