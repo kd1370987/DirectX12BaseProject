@@ -7,7 +7,8 @@ namespace Engine::Raytracing
 	{
 		RayGenerator,		// レイを生成するシェーダー
 		Miss,				// レイが当たらなかったときに走るシェーダー
-		ClosestHit			// もっとっも近いポリゴンとレイが交差したときに呼ばれるシェーダー
+		ClosestHit,			// もっとっも近いポリゴンとレイが交差したときに呼ばれるシェーダー
+		AnyHit
 	};
 
 	//ローカルルートシグネチャ

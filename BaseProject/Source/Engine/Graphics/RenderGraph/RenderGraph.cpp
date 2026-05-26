@@ -119,12 +119,12 @@ namespace Engine::Graphics
 		RegisterPass<DeferredLightingPass>();
 		//RegisterPass<ForwardLightingPass>();
 		RegisterPass<FullScreenPass>();
-		RegisterPass<DebugLinePass>();
-		RegisterPass<ScreenUIPass>();
+		//RegisterPass<DebugLinePass>();
+		//RegisterPass<ScreenUIPass>();
 
 		//RegisterPass<TestPass>();
 
-		//RegisterPass<RaytracingShadowPass>();
+		RegisterPass<RaytracingShadowPass>();
 		RegisterPass<RaytracingGIPass>();
 
 		// パスの初期化

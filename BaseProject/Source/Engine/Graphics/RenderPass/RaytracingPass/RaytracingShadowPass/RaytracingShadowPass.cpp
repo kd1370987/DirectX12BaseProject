@@ -7,6 +7,7 @@
 
 #include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
 #include "../../../RenderContext/RenderContext.h"
+#include "../../../../D3D12/CBAllocater/CBAllocater.h"
 
 namespace Engine::Graphics
 {
@@ -29,17 +30,35 @@ namespace Engine::Graphics
 		_pCmdList->SetPipelineState1(m_rayPSO.Get());
 		_pCmdList->SetComputeRootSignature(m_rayPSO.GetRootSig());
 
-		// カメラバインド
-		Raytracing::RayEngine::Instance().BindCamera(a_pCtx);
-
 		// レイワールドバインド
 		Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);
 
 		// UAVをバインド
 		a_pCtx->BindUAV(2,m_pRG->GetCPUHandle("RayShadow"));
 
+		// カメラバインド
+		Raytracing::RayEngine::Instance().BindCamera(a_pCtx);
+		// GBufferIndex
+		GBufferIndex _gbIdx = {};
+		_gbIdx.depth = m_pRG->GetSRVHandle("Depth").idx;
+		_gbIdx.normal = m_pRG->GetSRVHandle("GBufferNormal").idx;
+		a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<GBufferIndex>(
+			_pCmdList->NGet(),
+			3,
+			_gbIdx
+		);
+		// ライト
+		CBLight _light = {};
+		_light.dir = { 0.5f,-1,0 };
+		a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CBLight>(
+			_pCmdList->NGet(),
+			4,
+			_light
+		);
+
 		// ディスパッチ
-		Raytracing::RayEngine::Instance().Dispatch(a_pCtx,m_shaderTable);
+		const auto& _desc = m_shaderTable.GetDispatchDesc();
+		_pCmdList->DispatchRays(&_desc);
 	}
 	void RaytracingShadowPass::CreatePass()
 	{
@@ -49,8 +68,8 @@ namespace Engine::Graphics
 		_rayGlobal.AddRoot(RootParameterType::RootCBV, 0);		// カメラ
 		_rayGlobal.AddRoot(RootParameterType::RootSRV, 0);		// TLAS
 		_rayGlobal.AddDescriptorHeap({ {RangeType::UAV,0} });	// 出力
-		_rayGlobal.AddDescriptorHeap({ {RangeType::SRV,1} });	// インスタンス配列
-		_rayGlobal.AddDescriptorHeap({ {RangeType::SRV,2} });	// マテリアル
+		_rayGlobal.AddRoot(RootParameterType::RootCBV, 1);		// GBufferIndex
+		_rayGlobal.AddRoot(RootParameterType::RootCBV, 2);		// ライト
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 		// レイジェネレーション
@@ -70,15 +89,12 @@ namespace Engine::Graphics
 		_missSigInit.name = "miss";
 		// PSOの作成
 		Raytracing::RayPSODesc _psoInit = {};
-		_psoInit.shaderPass = "Asset/Shader/Ray/GIShader/RaytracingGI.hlsl";
+		_psoInit.shaderPass = "Asset/Shader/Ray/RayShadowShader/RayShadowShader.hlsl";
 		_psoInit.AddShader(L"RayGen", Raytracing::LocalRootSignature::RayGen, Raytracing::ShaderCategory::RayGenerator);
-		_psoInit.AddShader(L"Miss", Raytracing::LocalRootSignature::Empty, Raytracing::ShaderCategory::Miss);
-		_psoInit.AddShader(L"ClosestHit", Raytracing::LocalRootSignature::PBRMaterialHit, Raytracing::ShaderCategory::ClosestHit);
-		_psoInit.AddShader(L"ShadowCHS", Raytracing::LocalRootSignature::PBRMaterialHit, Raytracing::ShaderCategory::ClosestHit);
+		_psoInit.AddShader(L"ShadowAnyHit", Raytracing::LocalRootSignature::PBRMaterialHit, Raytracing::ShaderCategory::AnyHit);
 		_psoInit.AddShader(L"ShadowMiss", Raytracing::LocalRootSignature::Empty, Raytracing::ShaderCategory::Miss);
-		_psoInit.AddHitGroup(L"HitGroup", L"ClosestHit");
-		_psoInit.AddHitGroup(L"ShadowHitGroup", L"ShadowCHS");
-		_psoInit.maxRecursionDepth = 4;
+		_psoInit.AddHitGroup(L"ShadowHitGroup", nullptr ,L"ShadowAnyHit");
+		_psoInit.maxRecursionDepth = 1;
 		_psoInit.pGlobalRootSig = m_pPipelineStateManager->Request(_rayGlobal);
 		_psoInit.pHitRootSig = m_pPipelineStateManager->Request(_hitSigInit);
 		_psoInit.pRayGenRootSig = m_pPipelineStateManager->Request(_rayGenSigInit);
@@ -98,6 +114,9 @@ namespace Engine::Graphics
 			.maxLocalRootSize = 0
 		};
 		m_shaderTable.Init(_shaderTableInit);
+
+		AddRead("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		AddRead("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
 		AddWrite("RayShadow", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
 	}

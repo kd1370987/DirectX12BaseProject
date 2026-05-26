@@ -7,6 +7,19 @@ namespace Engine::Graphics
 	{
 	public:
 
+		struct GBufferIndex
+		{
+			int depth;
+			int normal;
+			DirectX::XMFLOAT2 pad2;
+		};
+
+		struct CBLight
+		{
+			DirectX::XMFLOAT3 dir;
+			float pad;
+		};
+
 		void Excute(RenderContext* a_pCtx) override;
 
 	private:

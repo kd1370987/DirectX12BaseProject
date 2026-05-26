@@ -163,7 +163,6 @@ void Engine::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_instanceNum)
 	
 	m_hitOffset = _offset;
 	_offset = Alignment::Up(
-		//_offset + m_recordSize * a_instanceNum * m_hitIDVec.size(),
 		_offset + m_recordSize * m_hitIDVec.size(),
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
 	);
@@ -190,6 +189,8 @@ void Engine::Raytracing::ShaderTable::CalucShaderNum(
 			m_missIDVec.push_back(a_rayPSO->GetShaderID(_shader.entryName));
 			break;
 		case ShaderCategory::ClosestHit:
+			break;
+		case ShaderCategory::AnyHit:
 			break;
 		default:
 			assert(0 && "不正なシェーダーカテゴリー");
