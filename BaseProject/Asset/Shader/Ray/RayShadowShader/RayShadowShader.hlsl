@@ -25,7 +25,9 @@ cbuffer cbLight : register(b2)
 
 struct RayPayload
 {
+	float3 color;
 	int hit;
+	int depth;
 };
 
 float3 ReconstructViewPos(float2 uv, float depth)
@@ -54,12 +56,10 @@ void RayGen()
 	Texture2D _normalTex = ResourceDescriptorHeap[g_gbuffer.normal];
 
 	// 深度値を取得
-	//float _depth = _depthTex.Load(int3(_id, 0)).r;
-	float _depth = _depthTex.SampleLevel(gSamp,_uv,0).r;
-	//float _depth = g_depthTex.SampleLevel(gSamp,_uv,0).r;
+	float _depth = _depthTex.Load(int3(_id, 0)).r;
 	if(_depth >= 1.0f)
 	{
-		gOutPut[_id] = float4(1,0,0,1);
+		gOutPut[_id] = float4(1,1,1,1);
 		return;
 	}
 	
@@ -75,18 +75,21 @@ void RayGen()
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
 	_ray.Origin = _worldPos +_normal * 0.01f; // シャドウアクネ
-	_ray.Direction = normalize(-g_dl.dir);
-	//_ray.Direction = normalize(float3(0.5, 0.5, 0.2));
+	//_ray.Direction = normalize(-g_dl.dir);
+	_ray.Direction = normalize(float3(0.5, 0.5, 0.2));
 	_ray.TMin = 0.001;
 	_ray.TMax = 10000;
 
 
 	RayPayload _payload;
+	_payload.color = float3(0, 0, 0);
+	_payload.depth = _payload.depth;
 	_payload.hit = 0;
 	
 	TraceRay(
 		g_raytracingWorld,
-		RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER,
+		//RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,// | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER,
+		0,
 		0xFF,
 		0,
 		0,
@@ -96,22 +99,20 @@ void RayGen()
 	);
 
 	
-	gOutPut[_id] = _payload.hit ? float4(0, 0, 0, 1) : float4(1, 1, 0, 1);
-	//gOutPut[_id] = float4(_worldPos,1);
-	//gOutPut[_id] = float4(_depth, _depth, _depth,1);
-	//gOutPut[_id] = float4(g_gbuffer.depth, _depth, _depth,1);
-	//gOutPut[_id] = float4(g_dl.dir,1);
+	//gOutPut[_id] = _payload.hit ? float4(0, 0, 0, 1) : float4(1, 1, 1, 1);
+	gOutPut[_id] = float4(_payload.color,1);
 }
 
-[shader("anyhit")]
-void ShadowAnyHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)
+[shader("closesthit")]
+void ShadowCHS(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)
 {
+	a_payload.color = float3(0,0,0);
 	a_payload.hit = 1;
-	AcceptHitAndEndSearch();
 }
 
 [shader("miss")]
 void ShadowMiss(inout RayPayload a_payload)
 {
+	a_payload.color = float3(1,1,1);
 	a_payload.hit = 0;
 }
