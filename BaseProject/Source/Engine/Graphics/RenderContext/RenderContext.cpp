@@ -82,7 +82,7 @@ namespace Engine::Graphics
 		// カメラの初期化
 		auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f);	// 視点の位置
 		auto _targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);	// 視点を向ける座標
-		auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);		// 上方向を表すベクトル
+		auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);	// 上方向を表すベクトル
 		constexpr float _fovF = 60.0f;
 		constexpr auto _fov = DirectX::XMConvertToRadians(_fovF);						// 視野角
 
@@ -168,6 +168,11 @@ namespace Engine::Graphics
 	{
 		DXSM::Vector3 _pos = { m_cb0_camera.cameraPosXYZ.x,m_cb0_camera.cameraPosXYZ.y,m_cb0_camera.cameraPosXYZ.z };
 		return _pos;
+	}
+
+	const CBCamera& RenderContext::GetCamera()
+	{
+		return m_cb0_camera;
 	}
 
 	void RenderContext::BindCameraCB()

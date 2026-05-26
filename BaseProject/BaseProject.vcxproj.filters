@@ -796,6 +796,9 @@
     <Filter Include="Source\Engine\Editor\WatchView">
       <UniqueIdentifier>{8f5ff60d-62b9-4849-9cd4-bf70a3e66213}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Ray\RayShadowShader">
+      <UniqueIdentifier>{fa448bb5-8379-4ae5-95cc-671635fde6b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2142,6 +2145,9 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Ray\GIShader\RaytracingGI.hlsl">
       <Filter>Asset\Shader\Ray\GIShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Ray\RayShadowShader\RayShadowShader.hlsl">
+      <Filter>Asset\Shader\Ray\RayShadowShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

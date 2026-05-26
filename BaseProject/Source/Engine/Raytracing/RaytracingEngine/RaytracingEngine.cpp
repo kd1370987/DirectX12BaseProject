@@ -29,9 +29,17 @@ namespace Engine::Raytracing
 	{
 		auto* _pCmdList = a_pRCT->GetCurrentCmdList();
 		// 定数バッファをバインド
-		m_camera.aspectRate = a_pRCT->GetCameraAspectRate();
-		m_camera.rotMat = a_pRCT->GetCameraRotMat();
-		m_camera.pos = a_pRCT->GetCameraPOS();
+		auto& _cam = a_pRCT->GetCamera();
+		m_camera.pos = { _cam.cameraPosXYZ.x,_cam.cameraPosXYZ.y,_cam.cameraPosXYZ.z };
+		m_camera.view = _cam.viewMat;
+		m_camera.proj = _cam.projMat;
+		m_camera.invView = _cam.viewInvMat;
+		m_camera.invProj = _cam.projInvMat;
+
+		DXSM::Matrix _view = _cam.viewMat;
+		DXSM::Matrix _proj = _cam.projMat;
+		DXSM::Matrix _viewProj = _view * _proj;
+		m_camera.invViewProj = _viewProj.Invert();
 		a_pRCT->BindCB()->BindAndAttachDataComputeRootCBV<Camera>(
 			_pCmdList->NGet(),
 			0,

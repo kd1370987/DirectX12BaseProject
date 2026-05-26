@@ -132,6 +132,7 @@ namespace Engine::Graphics
 		float GetCameraAspectRate();									// アスペクトレート
 		const DirectX::XMFLOAT4X4& GetCameraRotMat();					// 回転行列
 		const DXSM::Vector3& GetCameraPOS();							// 座標
+		const CBCamera& GetCamera();
 
 		// 描画直前にカメラの情報をGPU側に送る
 		void BindCameraCB();

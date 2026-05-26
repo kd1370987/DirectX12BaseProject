@@ -40,11 +40,16 @@ namespace Engine::Raytracing
 
 		struct Camera
 		{
-			DXSM::Matrix rotMat = {};		// 回転行列
-			DXSM::Vector3 pos = {};			// 座標
-			float aspectRate = 0.0f;		// アスペクト比
-			float farClip = 1000.0f;		// 遠平面
-			float nearClip = 0.1f;			// 近平面
+
+			DirectX::XMFLOAT3 pos;						// カメラ座標
+			float pad;
+			DirectX::XMFLOAT4X4 view;					// ビュー行列
+			DirectX::XMFLOAT4X4 proj;					// プロジェクション行列
+
+			DirectX::XMFLOAT4X4 invView;				// 逆ビュー行列
+			DirectX::XMFLOAT4X4 invProj;				// 逆プロジェクション行列
+
+			DirectX::XMFLOAT4X4 invViewProj;			// 逆ビュープロジェクション行列
 		};
 		// GPUに送信するデータ
 		Camera m_camera;
