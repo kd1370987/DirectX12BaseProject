@@ -2012,6 +2012,9 @@
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h">
       <Filter>Source\Engine\Persistence\Archive</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\EngineConfig.h">
+      <Filter>Source\Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

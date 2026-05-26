@@ -28,12 +28,11 @@ namespace Engine
 
 	void MainEngine::Init(EngineConfig a_config)
 	{
-		// ウィンドウ設定取得
-		auto _windowWidth = Application::Instance().GetConfig().windowWidth;
-		auto _windowHeight = Application::Instance().GetConfig().windowHegiht;
+		// 設定を保存
+		m_config = a_config;
 
 		// DirectX12でGPUの詳細なエラーを確認するためのもの
-		if (a_config.graphics.init.isDebugLayer)
+		if (a_config.GetInitConfig().isDebugLayer)
 		{
 			ComPtr<ID3D12Debug> _debug;
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&_debug))))
@@ -45,8 +44,8 @@ namespace Engine
 		// ウィンドウクラスの生成
 		m_upWindow = std::make_unique<Window::NativeWindow>();
 		Window::WindowDesc _desc = {};
-		_desc.width = _windowWidth;
-		_desc.height = _windowHeight;
+		_desc.width = m_config.GetRuntimeConfig().windowWidth;
+		_desc.height = m_config.GetRuntimeConfig().windowHeight;
 		_desc.titleName = L"DirectX12";
 		_desc.className = L"AppWindow";
 		_desc.windowMode = Window::EWindowMode::Windowed;
@@ -58,7 +57,7 @@ namespace Engine
 
 		// タイムマネージャークラスの生成
 		m_upTimeManager = std::make_unique<Time::TimeManager>();
-		m_upTimeManager->Init(120.0f);
+		m_upTimeManager->Init(m_config.GetRuntimeConfig().targetFrameRate);
 
 		// アセットマネージャー作成
 		InitializeAssetDatabase();
@@ -98,8 +97,8 @@ namespace Engine
 		// 描画周り初期化
 		m_upGraphicsEngine = std::make_unique<Graphics::GraphicsEngine>();
 		Graphics::GraphicsEngineDesc _geDesc = {};
-		_geDesc.width = _windowWidth;
-		_geDesc.height = _windowHeight;
+		_geDesc.width = m_config.GetRuntimeConfig().windowWidth;
+		_geDesc.height = m_config.GetRuntimeConfig().windowHeight;
 		_geDesc.pPipelineStateManager = m_upPipelineStateManager.get();
 		m_upGraphicsEngine->Init(_geDesc);
 
@@ -144,7 +143,7 @@ namespace Engine
 		m_upWindow->Release();
 
 		// 解放時にエラー検出
-		if (m_config.graphics.init.isDebugLayer)
+		if (m_config.GetInitConfig().isDebugLayer)
 		{
 			ComPtr<IDXGIDebug1> debug;
 			if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
@@ -185,7 +184,7 @@ namespace Engine
 	void MainEngine::EndFrame()
 	{
 		// フレーム終了
-		m_upTimeManager->EndFrame(m_config.graphics.runtime.isVsync);
+		m_upTimeManager->EndFrame(m_config.GetRuntimeConfig().isVsync);
 	}
 
 	void MainEngine::BeginDraw()
@@ -217,7 +216,7 @@ namespace Engine
 		Editor::MainEditor::Instance().StartWatch("EditorPhase");
 
 		// ゲームモード以外の処理
-		if (m_config.app.mode != EngineConfig::Application::Mode::Game)
+		if (m_config.GetRuntimeConfig().appMode != EAppMode::Game)
 		{
 			// ディスクリプタヒープをセット
 			ID3D12DescriptorHeap* _heaps[] = {
@@ -232,7 +231,7 @@ namespace Engine
 
 		Editor::MainEditor::Instance().StartWatch("EndFramePhase");
 		// 描画終了
-		D3D12::D3D12Wrapper::Instance().EndFrame(m_config.graphics.runtime.isVsync);
+		D3D12::D3D12Wrapper::Instance().EndFrame(m_config.GetRuntimeConfig().isVsync);
 
 		Editor::MainEditor::Instance().EndWatch("EndFramePhase");
 	}
@@ -242,9 +241,9 @@ namespace Engine
 		return m_upTimeManager->GetDeltaTime();
 	}
 
-	void MainEngine::ChangeMode(EngineConfig::Application::Mode a_mode)
+	void MainEngine::ChangeMode(EAppMode a_mode)
 	{
-		m_config.app.mode = a_mode;
+		m_config.RefRuntimeConfig().appMode = a_mode;
 	}
 	void MainEngine::ExcuteDrawCmd()
 	{

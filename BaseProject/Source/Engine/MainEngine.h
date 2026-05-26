@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "EngineConfig.h"
+
 namespace Engine
 {
 	// 前方宣言
@@ -34,39 +36,6 @@ namespace Engine
 		class CollisionWorld;
 	}
 
-	// エンジン設定
-	struct EngineConfig
-	{
-		// Graphics関連
-		struct Graphics
-		{
-			// 初期設定
-			struct Init
-			{
-				bool isDebugLayer = false;			// GPUデバッグ
-				bool isGPUValidation = false;
-			} init = {};
-
-			// 実行中
-			struct Runtime
-			{
-				bool isVsync = false;				// 垂直同期
-			} runtime = {};
-		} graphics;
-
-		// Application関連の初期設定
-		struct Application
-		{
-			// アプリケーションのモード
-			enum class Mode
-			{
-				Game,					// リリースするときと同じモード
-				Debug,					// エディターを表示して操作するモード
-				Monitoring				// 軽量的で、数値の確認のみのモード
-			} mode = Mode::Game;
-		} app;
-	};
-
 	// エンジンクラス
 	class MainEngine
 	{
@@ -88,7 +57,7 @@ namespace Engine
 		float GetDeltaTime();
 
 		// モード切替
-		void ChangeMode(EngineConfig::Application::Mode a_mode);
+		void ChangeMode(EAppMode a_mode);
 
 		// グラフィックス関係
 		void ExcuteDrawCmd();

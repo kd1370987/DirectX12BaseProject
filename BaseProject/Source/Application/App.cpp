@@ -37,11 +37,22 @@ const AppConfig& Application::GetConfig()
 bool Application::Init()
 {
 	// エンジンの初期化
+	Engine::InitConfig  _initConfig = {};
+	_initConfig.buildMode = Engine::EBuildConfiguration::Development;
+	_initConfig.assetRootPath = "Asset/";
+	_initConfig.isDebugLayer = true;
+	_initConfig.isGPUValidation = true;
+	_initConfig.maxThreadCount = 4;
+	Engine::RuntimeConfig _runtimeConfig = {};
+	_runtimeConfig.windowWidth = 1280;
+	_runtimeConfig.windowHeight = 720;
+	_runtimeConfig.windowMode == Engine::EWindowMode::Window;
+	_runtimeConfig.isVsync = false;
+	_runtimeConfig.targetFrameRate = 120;
+	_runtimeConfig.appMode = Engine::EAppMode::Editor;
+	_runtimeConfig.mainSoundBolume = 50;
 	Engine::EngineConfig _config;
-	_config.graphics.init.isDebugLayer = true;
-	_config.graphics.init.isGPUValidation = true;
-	_config.graphics.runtime.isVsync = false;
-	_config.app.mode = Engine::EngineConfig::Application::Mode::Debug;
+	_config.Init(_initConfig,_runtimeConfig);
 	Engine::MainEngine::Instance().Init(_config);
 
 
@@ -85,11 +96,11 @@ void Application::MainLoop()
 		// モード切替
 		if (GetAsyncKeyState('O'))
 		{
-			Engine::MainEngine::Instance().ChangeMode(Engine::EngineConfig::Application::Mode::Debug);
+			Engine::MainEngine::Instance().ChangeMode(Engine::EAppMode::Editor);
 		}
 		if (GetAsyncKeyState('P'))
 		{
-			Engine::MainEngine::Instance().ChangeMode(Engine::EngineConfig::Application::Mode::Game);
+			Engine::MainEngine::Instance().ChangeMode(Engine::EAppMode::Game);
 		}
 
 
