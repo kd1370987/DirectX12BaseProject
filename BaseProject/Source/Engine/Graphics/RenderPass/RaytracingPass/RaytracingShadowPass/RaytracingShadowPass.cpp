@@ -50,7 +50,7 @@ namespace Engine::Graphics
 		);
 		// ライト
 		CBLight _light = {};
-		_light.dir = { 0.5f,-1,0 };
+		_light.dir = { -1.0f,-1.0f,-1.0f}; 
 		a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CBLight>(
 			_pCmdList->NGet(),
 			4,

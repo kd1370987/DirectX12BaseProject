@@ -23,6 +23,8 @@ float4 ps(VSOutput a_in) : SV_Target
 	float _depth = g_depthTex.Sample(g_samp, a_in.uv).r;		// 深度
 	float _metallic = g_materialTex.Sample(g_samp, a_in.uv).b;	// 金属度
 	float _roughness = g_materialTex.Sample(g_samp, a_in.uv).g; // 粗さ
+
+	float _shadow = g_shadowMask.Sample(g_samp,a_in.uv).r;	// 影
 	
 	// 3D空間での位置を復元
 	float3 _viewPos = ReconstructViewPos(a_in.uv, _depth);
@@ -51,7 +53,7 @@ float4 ps(VSOutput a_in) : SV_Target
 	);
 
 	// 正規化Lambert拡散反射を求める
-	float3 _lambertDiffuse = g_DL_Color * _NdotL / PI;
+	float3 _lambertDiffuse = g_DL_Color * _NdotL / PI * _shadow;
 
 	// 最終的な拡散反射光を計算
 	float3 _diffuse = _albedo * _diffuseFromFresnel * _lambertDiffuse;
@@ -65,6 +67,7 @@ float4 ps(VSOutput a_in) : SV_Target
 		_roughness
 	);
 	_spec *= g_DL_Color;
+	_spec *= _shadow;
 
 	// 金属度が高ければ、鏡面反射はスペキュラカラー、低ければ白
 	_spec *= lerp(float3(1.0f, 1.0f, 1.0f), _specular, _metallic);
@@ -74,6 +77,8 @@ float4 ps(VSOutput a_in) : SV_Target
 
 	// アンビエント
 	_outColor += g_ambientColor.rgb * _albedo;
+
+	
 	
 	return float4(_outColor, _arpha);
 }
