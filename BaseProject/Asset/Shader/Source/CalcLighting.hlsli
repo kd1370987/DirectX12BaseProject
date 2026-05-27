@@ -72,10 +72,8 @@ float SpcFresnel(float a_f0, float a_u)
 // @param a_V 視点に向かうベクトル
 // @param a_N 法線ベクトル
 // @param a_metallic 金属度
-float CookTorranceSpecular(float3 a_L, float3 a_V, float3 a_N, float a_metallic)
+float CookTorranceSpecular(float3 a_L, float3 a_V, float3 a_N, float a_metallic, float a_roughness)
 {
-	float _microfacet = 0.76f;
-
 	// 金属度を垂直入射の時のフレネル反射率として扱う
 	float _f0 = a_metallic;
 
@@ -89,7 +87,7 @@ float CookTorranceSpecular(float3 a_L, float3 a_V, float3 a_N, float a_metallic)
 	float _NdotV = saturate(dot(a_N, a_V));
 
 	// D項をベックマン分布を用いて計算する
-	float _D = Beckmann(_microfacet, _NdotH);
+	float _D = Beckmann(max(a_roughness,0.05f), _NdotH);
 
 	// F項をSchlick近似を用いて計算する
 	_f0 = lerp(0.04f, 1.0f, a_metallic);

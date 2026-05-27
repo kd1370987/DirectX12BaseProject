@@ -16,11 +16,7 @@ struct VSInput
 
 VSOutput vs(VSInput a_input)
 {
-	// 座標と法線に適用
 	VSOutput _out;
-	float4 _wPos = mul(mat, float4(a_input.pos,1));
-	_out.svpos = mul(cView,_wPos);
-	_out.svpos = mul(cProj,_out.svpos);
-	
+	_out.svpos = Transform_LocalToProj(a_input.pos, mat);	
 	return _out;
 }

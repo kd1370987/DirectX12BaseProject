@@ -202,7 +202,7 @@ void RayGen()
 	float4 _targetNDC = float4(_uv.x * 2.0f - 1.0f, 1.0f - _uv.y * 2.0f, 1.0f, 1.0f);
 
 	// 新しい逆ビュープロジェクション行列を使って、ワールド空間でのターゲット位置を計算
-	float4 _worldTarget = mul(g_camera.invViewProj, _targetNDC);
+	float4 _worldTarget = mul(_targetNDC, g_camera.invViewProj);
 	_worldTarget.xyz /= _worldTarget.w;		// 投資除算
 	
 	// ピクセル方向に打ち出すレイを作成する

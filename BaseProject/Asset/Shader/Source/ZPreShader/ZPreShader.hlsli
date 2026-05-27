@@ -1,5 +1,12 @@
-#include "../RootSignatureLayout.hlsli"
+// ルートパラメーター
+#include "../../Common/CB/CBCamera.hlsli"		// カメラ
 
+// 計算用
+#include "../../Common/Math/Transform.hlsli"
+#include "../../Common/Math/Normal.hlsli"
+
+// ルートシグネチャ作成
+#include "../RootSignatureLayout.hlsli"
 #define ZPRE_ROOT_SIG \
 RS_FLAGS ","\
 RS_CAMERA_CB ","\
@@ -10,16 +17,6 @@ RS_CAMERA_CB ","\
 "DescriptorTable(SRV(t0, numDescriptors=4),visibility = SHADER_VISIBILITY_PIXEL),"\
 RS_STATIC_SAMPLER
 
-// カメラの定数バッファ
-cbuffer camera : register(b0)
-{
-	float4x4 cView; // ビュー行列
-	float4x4 cViewInv; // ビュー行列
-	float4x4 cProj; // 投影行列
-	float4x4 cProjInv; // 投影行列の逆行列
-
-	float4 cCameraPos; // カメラ位置
-}
 
 // オブジェクトの定数バッファ
 cbuffer CBObject : register(b1)

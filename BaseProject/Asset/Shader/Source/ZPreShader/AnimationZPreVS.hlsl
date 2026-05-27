@@ -23,7 +23,6 @@ VSOutput vs(VSInput a_input)
 	[unroll]
 	for (int _i = 0; _i < 4; ++_i)
 	{
-		//_mBones += g_mBones[a_input.skinIndex[_i]] * a_input.skinWeight[_i];
 		_mBones += g_bonePalletData[offsetData.x + a_input.skinIndex[_i]].mat * a_input.skinWeight[_i];
 	}
 
@@ -32,9 +31,6 @@ VSOutput vs(VSInput a_input)
 	a_input.pos = skinnedPos.xyz;
 	
 	VSOutput _out;
-	float4 _wPos = mul(mat, float4(a_input.pos, 1));
-	_out.svpos = mul(cView, _wPos);
-	_out.svpos = mul(cProj, _out.svpos);
-	
+	_out.svpos = Transform_LocalToProj(a_input.pos, mat);
 	return _out;
 }

@@ -66,14 +66,12 @@ void RayGen()
 	// 3D空間での位置を復元
 	float3 _viewPos = ReconstructViewPos(_uv, _depth);
 	float4 _worldPos4 = mul(float4(_viewPos, 1), g_camera.invView);
-	//float4 _worldPos4 = mul(g_camera.invView,float4(_viewPos, 1));
-	//float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
-	float3 _worldPos = _worldPos4.xyz;
+	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
+	
 	
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
-	//_ray.Origin = _worldPos +_normal * 0.01f; // シャドウアクネ
-	_ray.Origin = _worldPos; // シャドウアクネ
+	_ray.Origin = _worldPos +_normal * 0.01f; // シャドウアクネ
 	_ray.Direction = normalize(-g_dl.dir);
 	//_ray.Direction = normalize(float3(0.5, 0.5, 0.2));
 	_ray.TMin = 0.01f;
@@ -87,7 +85,6 @@ void RayGen()
 	
 	TraceRay(
 		g_raytracingWorld,
-		//RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,// | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER,
 		0,
 		0xFF,
 		0,

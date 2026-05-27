@@ -57,7 +57,8 @@ float4 ps(VSOutput a_input) : SV_Target
 		_L,
 		_V,
 		_normal,
-		_metallic
+		_metallic,
+		_roughness
 	);
 	_spec *= DL_color;
 
