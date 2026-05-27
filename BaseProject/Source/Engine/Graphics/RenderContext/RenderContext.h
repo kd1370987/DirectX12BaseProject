@@ -125,6 +125,7 @@ namespace Engine::Graphics
 		// カメラ関係
 		//--------------------------------------------------------------------------------------------
 		// 描画時情報セット
+		CBCamera& RefCBCamera() { return m_cb0_camera; }
 		void SetToShader(const DirectX::XMFLOAT4X4& a_worldMat);		// ワールド行列
 		void SetProjectionMatrix(DirectX::XMFLOAT4X4 a_projMat);		// プロジェクション行列
 

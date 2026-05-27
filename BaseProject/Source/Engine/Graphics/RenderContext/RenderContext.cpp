@@ -76,7 +76,7 @@ namespace Engine::Graphics
 
 		// cb5
 		m_cb5_Ambient.ambientLightColor = { 0.3f,0.3f,0.3f,1.0f };
-		m_cb5_Ambient.directionalLightColor = { 10.0f,10.0f,10.0f,1.0f };
+		m_cb5_Ambient.directionalLightColor = { 1.0f,1.0f,1.0f,1.0f };
 		m_cb5_Ambient.directionalLightDir = { -1.0f,-1.0f,-1.0f,0.0f };
 
 		// カメラの初期化
@@ -90,7 +90,12 @@ namespace Engine::Graphics
 		m_aspectRate = _aspect;
 		DirectX::XMStoreFloat4(&m_cb0_camera.cameraPosXYZ, _eyePos);
 		DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
-		DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f));
+		auto _projMat = DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f);
+		DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, _projMat);
+		DXSM::Matrix _smProjMat = _projMat;
+		auto _projInvMat = _smProjMat.Invert(); 
+		DirectX::XMStoreFloat4x4(&m_cb0_camera.projInvMat, _projInvMat);
+
 	}
 	
 
@@ -122,12 +127,12 @@ namespace Engine::Graphics
 	{
 		return m_pCmdList;
 	}
-
 	//============================================================================================
 	//
 	// カメラ
 	//
 	//============================================================================================
+
 	void RenderContext::SetToShader(
 		const DirectX::XMFLOAT4X4& a_worldMat
 	)
@@ -177,11 +182,23 @@ namespace Engine::Graphics
 
 	void RenderContext::BindCameraCB()
 	{
+		CBCamera _cbCam = {};
+		DXSM::Matrix _viewMat = m_cb0_camera.viewMat;
+		DXSM::Matrix _projMat = m_cb0_camera.projMat;
+		DXSM::Matrix _invViewMat = m_cb0_camera.viewInvMat;
+		DXSM::Matrix _invProjMat = m_cb0_camera.projInvMat;
+
+		_cbCam.cameraPosXYZ = m_cb0_camera.cameraPosXYZ;
+		_cbCam.viewMat = _viewMat.Transpose();
+		_cbCam.projMat = _projMat.Transpose();
+		_cbCam.viewInvMat = _invViewMat.Transpose();
+		_cbCam.projInvMat = _invProjMat.Transpose();
+
 		// カメラ用定数バッファに転送
 		BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
 			m_pCmdList->NGet(),
 			0,
-			m_cb0_camera
+			_cbCam
 		);	
 	}
 
@@ -766,7 +783,8 @@ namespace Engine::Graphics
 	void RenderContext::BindMeshMat(UINT a_index, const DirectX::XMFLOAT4X4& a_worldMat)
 	{
 		// メッシュ変換行列の転送
-		m_cb2_MeshTrans.worldMat = a_worldMat;
+		DXSM::Matrix _worldMat = a_worldMat;
+		m_cb2_MeshTrans.worldMat = _worldMat.Transpose();
 		BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
 			m_pCmdList->NGet(),
 			a_index,

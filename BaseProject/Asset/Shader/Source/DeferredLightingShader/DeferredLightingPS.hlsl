@@ -8,7 +8,7 @@
 float3 ReconstructViewPos(float2 uv, float depth)
 {
 	float4 clip = float4(uv * 2 - 1, depth, 1);
-	float4 view = mul(cProjInv, clip);
+	float4 view = mul(cProjInv,clip);
 	return view.xyz / view.w;
 }
 
@@ -26,8 +26,9 @@ float4 ps(VSOutput a_in) : SV_Target
 	
 	// 3D空間での位置を復元
 	float3 _viewPos = ReconstructViewPos(a_in.uv, _depth);
-	float4 _worldPos4 = mul(float4(_viewPos, 1), cViewInv);
-	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
+	float4 _worldPos4 = mul(cViewInv, float4(_viewPos, 1));
+	//float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
+	float3 _worldPos = _worldPos4.xyz;
 
 	float3 _specular = _albedo; // スペキュラはアルベドと同じにしておく（今回はスペキュラを考慮しないため）
 	float _smoothness = 1.0f - _roughness; // 滑らかさ

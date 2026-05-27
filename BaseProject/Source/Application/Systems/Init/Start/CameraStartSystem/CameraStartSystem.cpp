@@ -7,6 +7,9 @@
 
 #include "../../../../Components/Tag/SystemPhaseTag/StartTag.h"
 
+#include "../../../../../Engine/MainEngine.h"
+#include "../../../../../Engine/Graphics/RenderContext/RenderContext.h"
+
 void CameraStartSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.StartTask<CameraParamComponent,ProjMatComponent>(
@@ -21,6 +24,8 @@ void CameraStartSystem::Init(Engine::ECS::World& a_world)
 			ProjMatComponent* a_projMatArray
 		)
 		{
+
+
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				CameraParamComponent& _camParamComp = a_camParamArray[_i];

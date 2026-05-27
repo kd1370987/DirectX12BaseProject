@@ -1,4 +1,7 @@
 
+#include "../../Common/Math/Transform.hlsli"
+#include "../../Common/Math/Normal.hlsli"
+#include "../../Common/CB/CBCamera.hlsli"
 #include "../RootSignatureLayout.hlsli"
 
 #define GBUFFER_ROOT_SIG \
@@ -12,15 +15,16 @@ RS_CAMERA_CB ","\
 RS_STATIC_SAMPLER
 
 // カメラの定数バッファ
-cbuffer camera : register(b0)
-{
-	float4x4 cView; // ビュー行列
-	float4x4 cViewInv; // ビュー行列
-	float4x4 cProj; // 投影行列
-	float4x4 cProjInv; // 投影行列の逆行列
+//cbuffer camera : register(b0)
+//{
+//	float4x4 cView; // ビュー行列
+//	float4x4 cViewInv; // ビュー行列
+//	float4x4 cProj; // 投影行列
+//	float4x4 cProjInv; // 投影行列の逆行列
 
-	float4 cCameraPos; // カメラ位置
-}
+//	float4 cCameraPos; // カメラ位置
+//}
+
 
 // オブジェクトの定数バッファ
 cbuffer CBObject : register(b1)

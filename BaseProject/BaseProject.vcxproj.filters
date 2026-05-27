@@ -799,6 +799,18 @@
     <Filter Include="Asset\Shader\Ray\RayShadowShader">
       <UniqueIdentifier>{fa448bb5-8379-4ae5-95cc-671635fde6b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Common">
+      <UniqueIdentifier>{22ab27e7-cf08-432f-a901-e4aeb85dc3f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\Math">
+      <UniqueIdentifier>{1901ede7-79d0-4a9d-83c7-d5009263e94a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\CB">
+      <UniqueIdentifier>{d125e5db-0211-483f-8513-45c7a213c9d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\RootSignature">
+      <UniqueIdentifier>{ec6afe83-5448-4aff-b9a7-89c850e9037e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2077,6 +2089,15 @@
     </None>
     <None Include="Asset\Shader\Source\DebugLineShader\DebugLineRoot.hlsli">
       <Filter>Asset\Shader\Source\DebugLineShader</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\CB\CBCamera.hlsli">
+      <Filter>Asset\Shader\Common\CB</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\Math\Normal.hlsli">
+      <Filter>Asset\Shader\Common\Math</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\Math\Transform.hlsli">
+      <Filter>Asset\Shader\Common\Math</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

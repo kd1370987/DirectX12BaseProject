@@ -643,6 +643,9 @@
     <None Include="..\Library\imgui-docking\.editorconfig" />
     <None Include="..\Library\imgui-docking\.gitattributes" />
     <None Include="..\Library\imgui-docking\.gitignore" />
+    <None Include="Asset\Shader\Common\CB\CBCamera.hlsli" />
+    <None Include="Asset\Shader\Common\Math\Normal.hlsli" />
+    <None Include="Asset\Shader\Common\Math\Transform.hlsli" />
     <None Include="Asset\Shader\Ray\Raytracing.hlsli" />
     <None Include="Asset\Shader\Source\CalcLighting.hlsli" />
     <None Include="Asset\Shader\Source\CalcNormal.hlsli" />
