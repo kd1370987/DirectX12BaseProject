@@ -64,15 +64,14 @@ void RayGen()
 	float3 _normal = DecsodeNormal(_enc);			// 法線を復元
 
 	// 3D空間での位置を復元
-	float4 _clip = float4(_uv.x * 2.0f - 1.0f, 1.0f - _uv.y + 2.0f, _depth, 1.0f);
+	float4 _clip = float4(_uv.x * 2.0f - 1.0f, 1.0f - _uv.y * 2.0f, _depth, 1.0f);
 	float4 _worldPos4 = mul(_clip,g_camera.invViewProj);
 	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
 	
 	
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
-	//_ray.Origin = _worldPos +_normal * 0.001f; // シャドウアクネ
-	_ray.Origin = _worldPos + float3(0, 1, 0) * 0.01f; // シャドウアクネ
+	_ray.Origin = _worldPos +_normal * 0.001f; // シャドウアクネ
 	//_ray.Direction = normalize(-g_dl.dir);
 	_ray.Direction = normalize(float3(0.5, 0.5, 0.2));
 	_ray.TMin = 0.01f;
@@ -96,7 +95,6 @@ void RayGen()
 	);
 
 	gOutPut[_id] = float4(_payload.color,1);
-	gOutPut[_id] = float4(_worldPos * 0.1f,1);
 }
 [shader("closesthit")]
 void ShadowCHS(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)

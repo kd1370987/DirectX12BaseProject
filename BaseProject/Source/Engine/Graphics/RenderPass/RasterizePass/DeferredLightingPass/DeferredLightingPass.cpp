@@ -23,7 +23,8 @@ namespace Engine::Graphics
 			m_pRG->GetCPUHandle("GBufferNormal"),
 			m_pRG->GetCPUHandle("GBufferMaterial"),
 			m_pRG->GetCPUHandle("GBufferEmissiv"),
-			m_pRG->GetCPUHandle("Depth")
+			m_pRG->GetCPUHandle("Depth"),
+			m_pRG->GetCPUHandle("RayShadow")
 		};
 
 		a_pCtx->BindSRV(2,_gpuVec);
@@ -54,6 +55,7 @@ namespace Engine::Graphics
 		AddRead("GBufferMaterial", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		AddRead("GBufferEmissiv", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		AddRead("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		AddRead("RayShadow", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
 		AddWrite("QuadTexture", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 	}
