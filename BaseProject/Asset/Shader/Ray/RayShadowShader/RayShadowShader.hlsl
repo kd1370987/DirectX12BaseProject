@@ -32,7 +32,7 @@ struct RayPayload
 
 float3 ReconstructViewPos(float2 uv, float depth)
 {
-	float4 clip = float4(uv.x * 2.0f - 1.0f, 1.0f - uv.y * 2.0f, depth, 1.0f);
+	float4 clip = float4(uv * 2 - 1, depth, 1);
 	float4 view = mul(clip,g_camera.invProj);
 	return view.xyz / view.w;
 }
@@ -48,7 +48,7 @@ void RayGen()
 	
 
 	// GBuffer取得
-	Texture2D<float> _depthTex = ResourceDescriptorHeap[g_gbuffer.depth];
+	Texture2D _depthTex = ResourceDescriptorHeap[g_gbuffer.depth];
 	Texture2D _normalTex = ResourceDescriptorHeap[g_gbuffer.normal];
 
 	// 深度値を取得
@@ -64,16 +64,17 @@ void RayGen()
 	float3 _normal = DecsodeNormal(_enc);			// 法線を復元
 
 	// 3D空間での位置を復元
-	float3 _viewPos = ReconstructViewPos(_uv, _depth);
-	float4 _worldPos4 = mul(float4(_viewPos, 1), g_camera.invView);
+	float4 _clip = float4(_uv.x * 2.0f - 1.0f, 1.0f - _uv.y + 2.0f, _depth, 1.0f);
+	float4 _worldPos4 = mul(_clip,g_camera.invViewProj);
 	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
 	
 	
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
-	_ray.Origin = _worldPos +_normal * 0.01f; // シャドウアクネ
-	_ray.Direction = normalize(-g_dl.dir);
-	//_ray.Direction = normalize(float3(0.5, 0.5, 0.2));
+	//_ray.Origin = _worldPos +_normal * 0.001f; // シャドウアクネ
+	_ray.Origin = _worldPos + float3(0, 1, 0) * 0.01f; // シャドウアクネ
+	//_ray.Direction = normalize(-g_dl.dir);
+	_ray.Direction = normalize(float3(0.5, 0.5, 0.2));
 	_ray.TMin = 0.01f;
 	_ray.TMax = 10000;
 
@@ -95,6 +96,7 @@ void RayGen()
 	);
 
 	gOutPut[_id] = float4(_payload.color,1);
+	gOutPut[_id] = float4(_worldPos * 0.1f,1);
 }
 [shader("closesthit")]
 void ShadowCHS(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)
