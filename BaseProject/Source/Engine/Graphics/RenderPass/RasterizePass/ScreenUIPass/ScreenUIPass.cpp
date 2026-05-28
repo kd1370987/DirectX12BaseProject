@@ -4,7 +4,7 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Graphics
 {
-	void ScreenUIPass::Excute(RenderContext* a_pCtx)
+	void ScreenUIPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		Begine(a_pCtx);
 

@@ -265,9 +265,6 @@
     <Filter Include="Asset\Shader\Source">
       <UniqueIdentifier>{cc9dc5a7-2f85-4209-bb7a-ac97ab6da640}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Source\SimpleShader">
-      <UniqueIdentifier>{59a0f0d6-e32e-46cd-b7dd-436c3311869b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Source\QuadRenderingShader">
       <UniqueIdentifier>{3374d3dd-87ac-4f6b-aa65-e30fdc0fde34}</UniqueIdentifier>
     </Filter>
@@ -643,9 +640,6 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass">
       <UniqueIdentifier>{39e1e774-2c63-4cb8-a7e7-7b538e29ee17}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Source\TestShader">
-      <UniqueIdentifier>{17ac1928-3403-401a-87fb-cf323887ddfc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\Sampler">
       <UniqueIdentifier>{d111ebaa-a845-4115-8d3b-2894a0bbf128}</UniqueIdentifier>
     </Filter>
@@ -808,11 +802,11 @@
     <Filter Include="Asset\Shader\Common\CB">
       <UniqueIdentifier>{d125e5db-0211-483f-8513-45c7a213c9d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Common\RootSignature">
-      <UniqueIdentifier>{ec6afe83-5448-4aff-b9a7-89c850e9037e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass">
       <UniqueIdentifier>{65aa7ef8-22f6-4a29-b33c-232eb749c140}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\RootParameters">
+      <UniqueIdentifier>{ec6afe83-5448-4aff-b9a7-89c850e9037e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -2048,6 +2042,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\CBData.h">
+      <Filter>Source\Engine\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2062,9 +2059,6 @@
     </None>
     <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli">
       <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
-    </None>
-    <None Include="Asset\Shader\Source\SimpleShader\SimpleShader.hlsli">
-      <Filter>Asset\Shader\Source\SimpleShader</Filter>
     </None>
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>
@@ -2087,9 +2081,6 @@
     <None Include="Asset\Shader\Ray\Raytracing.hlsli">
       <Filter>Asset\Shader\Ray</Filter>
     </None>
-    <None Include="Asset\Shader\Source\TestShader\Test.hlsli">
-      <Filter>Asset\Shader\Source\TestShader</Filter>
-    </None>
     <None Include="Asset\Shader\Source\RootSignatureLayout.hlsli">
       <Filter>Asset\Shader\Source</Filter>
     </None>
@@ -2108,6 +2099,21 @@
     <None Include="Asset\Shader\Common\Math\Transform.hlsli">
       <Filter>Asset\Shader\Common\Math</Filter>
     </None>
+    <None Include="Asset\Shader\Common\RootParameters\InstanceData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\SubsetData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\BonePalletData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\BufferIndex.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\Material.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
@@ -2115,12 +2121,6 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingVS.hlsl">
       <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\SimpleShader\SimplePS.hlsl">
-      <Filter>Asset\Shader\Source\SimpleShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\SimpleShader\SimpleVS.hlsl">
-      <Filter>Asset\Shader\Source\SimpleShader</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\ZPreVS.hlsl">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>
@@ -2166,12 +2166,6 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\AnimationZPreVS.hlsl">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\TestShader\TestVS.hlsl">
-      <Filter>Asset\Shader\Source\TestShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\TestShader\TestPS.hlsl">
-      <Filter>Asset\Shader\Source\TestShader</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Ray\GIShader\RaytracingGI.hlsl">
       <Filter>Asset\Shader\Ray\GIShader</Filter>

@@ -9,9 +9,10 @@
 #include "../../../RenderContext/RenderContext.h"
 #include "../../../../D3D12/CBAllocater/CBAllocater.h"
 
+#include "../../../GraphicEngine.h"
 namespace Engine::Graphics
 {
-	void RaytracingShadowPass::Excute(RenderContext* a_pCtx)
+	void RaytracingShadowPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		auto _texHandle = m_pRG->GetTexHandle("RayShadow");
 		auto* _pCmdList = a_pCtx->GetCurrentCmdList();
@@ -31,7 +32,7 @@ namespace Engine::Graphics
 		_pCmdList->SetComputeRootSignature(m_rayPSO.GetRootSig());
 
 		// カメラバインド
-		Raytracing::RayEngine::Instance().BindCamera(a_pCtx);
+		Raytracing::RayEngine::Instance().BindCamera(a_pCtx, a_pGE->GetCameraData());
 
 		// レイワールドバインド
 		Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);

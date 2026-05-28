@@ -8,6 +8,7 @@ namespace Engine::D3D12
 namespace Engine::Graphics
 {
 	// 前方宣言
+	class GraphicsEngine;
 	class RenderGraph;
 	class RenderContext;
 
@@ -38,7 +39,7 @@ namespace Engine::Graphics
 		virtual void Init(const PassInitDesc& a_initDesc);
 
 		// 実行
-		virtual void Excute(RenderContext* a_ctx) = 0;
+		virtual void Excute(GraphicsEngine* a_pGR,RenderContext* a_ctx) = 0;
 
 		// アクセサ
 		const std::vector<Engine::Resource::ID>& GetRead() const { return m_read; }

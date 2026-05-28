@@ -1,19 +1,23 @@
 ﻿#include "GBufferPass.h"
 
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
+#include "../../../GraphicEngine.h"
 
 #include "../../../../D3D12/Builder/RootSignatureBuilder/RootSignatureBuilder.h"
 #include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "../../../../D3D12/CBAllocater/CBAllocater.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Graphics
 {
-	void GBufferPass::Excute(RenderContext* a_pCtx)
+	void GBufferPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		Begine(a_pCtx);
-		a_pCtx->BindCameraCB();
-		a_pCtx->BindSRVBone();
+		a_pCtx->BindRootCBV<CameraData>(0,a_pGE->GetCameraData());
+		a_pCtx->BindInstanceBuffer(2);
+		a_pCtx->BindSubsetBuffer(3);
+		a_pCtx->BindBonePalletBuffer(4);
 
-		DrawQueue(a_pCtx);
+		DrawQueue(a_pGE,a_pCtx);
 
 		End(a_pCtx);
 	}
@@ -48,5 +52,6 @@ namespace Engine::Graphics
 		AddWrite("GBufferNormal", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 		AddWrite("GBufferMaterial", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 		AddWrite("GBufferEmissiv", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
+		AddWrite("GBufferVelocity", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 	}
 }

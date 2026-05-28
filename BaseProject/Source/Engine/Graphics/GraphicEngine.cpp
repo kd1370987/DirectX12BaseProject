@@ -57,23 +57,46 @@ namespace Engine::Graphics
 	void GraphicsEngine::Release()
 	{}
 
-	void GraphicsEngine::ExcuteDrawCmd()
-	{
-		// レンダーパスの実行
-		m_upRenderContextVec[m_currentFrameIndex]->Excute(m_upRenderGraph.get());
-		m_upRenderContextVec[m_currentFrameIndex]->ClearCmd();
-	}
-
 	void GraphicsEngine::BegineFrame()
 	{
 		m_currentFrameIndex = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+
 		FrameDesc _desc;
 		_desc.pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();
 		_desc.pCmdListClass = D3D12::D3D12Wrapper::Instance().GetCmdList();
 		m_upRenderContextVec[m_currentFrameIndex]->Begine(_desc);
+
+		// バッファの更新
+		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(m_instanceDataVec, m_subSetDataVec);
+	}
+	void GraphicsEngine::Excute()
+	{
+		// 描画アイテムをソート
+		std::sort(
+			m_lightWeightDrawItemVec.begin(), m_lightWeightDrawItemVec.end(),
+			[](const LightWeightDrawItem& a, const LightWeightDrawItem& b)
+			{
+				return a.sortKey.value < b.sortKey.value;
+			}
+		);
+
+		// レンダーパス実行
+		m_upRenderGraph->Excute(this,m_upRenderContextVec[m_currentFrameIndex].get());
+
 	}
 	void GraphicsEngine::EndFrame()
 	{
+		// 描画命令をクリアしてメモリ領域を確保しておく
+		m_lightWeightDrawItemVec.clear();
+		m_lightWeightDrawItemVec.reserve(10000);
+
+		// オブジェクトデータの消去
+		m_instanceDataVec.clear();
+		m_instanceDataVec.reserve(10000);
+
+		// サブセット情報の消去
+		m_subSetDataVec.clear();
+		m_subSetDataVec.reserve(10000);
 	}
 
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const
@@ -88,5 +111,70 @@ namespace Engine::Graphics
 	RenderGraph* GraphicsEngine::RefRenderGraph()
 	{
 		return m_upRenderGraph.get();
+	}
+	void GraphicsEngine::SetCameraMat(const DXSM::Matrix& a_worldMat)
+	{
+		// 座標を代入
+		m_cbCamera.pos = { a_worldMat._41,a_worldMat._42,a_worldMat._43 };
+
+		// ビュー行列・逆ビュー行列をセット
+		m_cbCamera.viewMat = a_worldMat.Invert();
+		m_cbCamera.viewInvMat = a_worldMat;
+	}
+	void GraphicsEngine::SetProjMat(const DXSM::Matrix & a_projMat)
+	{
+		m_cbCamera.projMat = a_projMat;
+		m_cbCamera.projInvMat = a_projMat.Invert();
+	}
+	const CameraData& GraphicsEngine::GetCameraData() const
+	{
+		return m_cbCamera;
+	}
+	UINT GraphicsEngine::SetInstanceData(const InstanceData& a_instanceData)
+	{
+		UINT _index = static_cast<UINT>(m_instanceDataVec.size());
+		m_instanceDataVec.push_back(a_instanceData);
+		return _index;
+	}
+	UINT GraphicsEngine::SetSubSetData(const SubSetData& a_subsetData)
+	{
+		UINT _index = static_cast<UINT>(m_subSetDataVec.size());
+		m_subSetDataVec.push_back(a_subsetData);
+		return _index;
+	}
+	void GraphicsEngine::AddItem(const LightWeightDrawItem& a_item)
+	{
+		// アイテム配列に追加
+		m_lightWeightDrawItemVec.push_back(a_item);
+	}
+	std::span<const LightWeightDrawItem> GraphicsEngine::GetPassItems(uint8_t a_passIndex)
+	{
+		// 探したいパスのキーの最小値と最大値を求める
+		uint64_t _minKey = static_cast<uint64_t>(a_passIndex) << 56;
+		uint64_t _maxKey = _minKey | 0x00FFFFFFFFFFFFFFull; // 下位56ビットをすべて1にする
+
+		// ソート済み配列から開始位置を見つける
+		auto _itStart = std::lower_bound(
+			m_lightWeightDrawItemVec.begin(),
+			m_lightWeightDrawItemVec.end(),
+			_minKey,
+			[](const LightWeightDrawItem& a_item, uint64_t a_value)
+			{
+				return a_item.sortKey.value < a_value;
+			}
+		);
+
+		// ソート済み配列から終了位置を見つける
+		auto _itEnd = std::upper_bound(
+			_itStart,		// 開始位置から探す
+			m_lightWeightDrawItemVec.end(),
+			_maxKey,
+			[](uint64_t a_value, const LightWeightDrawItem& a_item)
+			{
+				return a_value < a_item.sortKey.value;
+			}
+		);
+
+		return std::span<const LightWeightDrawItem>(_itStart, _itEnd);
 	}
 }

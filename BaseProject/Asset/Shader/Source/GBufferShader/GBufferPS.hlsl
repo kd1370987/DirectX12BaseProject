@@ -3,11 +3,12 @@
 #include "../CalcNormal.hlsli"
 
 // ルートシグネチャ定義
-//[RootSignature(GBUFFER_ROOT_SIG)]
-[RootSignature(DEFAULT_ROOT_SIG)]
+[RootSignature(GBUFFER_ROOT_SIG)]
 
 PSOutput ps(VSOutput a_input)
 {
+	int _instanceIdx = g_bufferIndex.instanceDataIndex;
+	int _subIdx = g_bufferIndex.subsetDataIndex;
 	PSOutput _out;
 
 	float2 _uv = a_input.uv;
@@ -18,7 +19,7 @@ PSOutput ps(VSOutput a_input)
 	{
 		discard;
 	}
-	_out.albedo = _baseTex * baseColor;
+	_out.albedo = _baseTex * g_subsetData[_subIdx].baseColorScale;
 
 	// 法線
 	float3 _nTex = g_normalTex.Sample(smp, _uv).xyz * 2 - 1;
@@ -37,14 +38,14 @@ PSOutput ps(VSOutput a_input)
 	float3 _mr = g_metRogTex.Sample(smp, _uv).rgb;
 	_out.material = float4(
 		_mr.r, // AO
-		_mr.g * metallicRoughness.y, // 滑らかさ
-		_mr.b * metallicRoughness.x, // 金属
+		_mr.g * g_subsetData[_subIdx].roughness, // 滑らかさ
+		_mr.b * g_subsetData[_subIdx].metallic, // 金属
 		1.0f // 予備
 	);
 
 	// エミッシブ
 	float4 _eTex = g_emiTex.Sample(smp, _uv);
-	_out.emissiv = _eTex * emissiveColor;
+	_out.emissiv = _eTex * float4(g_subsetData[_subIdx].emissiveColorScale,1);
 	_out.emissiv = _eTex;
 	
 	return _out;

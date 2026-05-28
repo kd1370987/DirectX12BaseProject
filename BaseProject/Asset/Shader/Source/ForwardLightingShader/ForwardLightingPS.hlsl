@@ -6,6 +6,8 @@
 
 float4 ps(VSOutput a_input) : SV_Target
 {
+	int _subIdx = g_bufferIndex.subsetDataIndex;
+	
 	// テクスチャから情報を取得
 	float4 _albedo = g_mainTex.Sample(g_samp,a_input.uv).rgba;		// ベースカラー
 	float3 _normalTex = g_normalTex.Sample(g_samp,a_input.uv).rgb * 2 -1;
@@ -23,7 +25,7 @@ float4 ps(VSOutput a_input) : SV_Target
 
 	float3 _specular = _albedo.rgb;									// スペキュラー
 
-	_albedo *= baseColor;
+	_albedo *= g_subsetData[_subIdx].baseColorScale;
 
 	// 出力カラー
 	//float4 _outColor = {1.0f,0.0f,1.0f,1.0f };

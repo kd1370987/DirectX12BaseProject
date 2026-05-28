@@ -9,6 +9,8 @@
 
 #include "../../../D3D12/PipelineStateManager/PipelineStateManager.h"
 
+#include "../../GraphicEngine.h"
+
 namespace Engine::Graphics
 {
 	void RasterizePass::Init(const PassInitDesc& a_initDesc)
@@ -34,14 +36,19 @@ namespace Engine::Graphics
 	{
 		Editor::MainEditor::Instance().EndWatch(m_name.c_str());
 	}
-	void RasterizePass::DrawQueue(RenderContext * a_pCtx)
+	void RasterizePass::DrawQueue(GraphicsEngine* a_pGE,RenderContext * a_pCtx)
 	{
+		// 構造体セット
+		a_pCtx->BindInstanceBuffer(0);
+		a_pCtx->BindSubsetBuffer(1);
+
+		// キャッシュ
 		uint16_t _lassMaterialID = 0xFFFF;
 		uint16_t _lastMeshID = 0xFFFF;
 		uint8_t _lastPSO = 0xFF;
 
 		// 指定タイプの命令キューを取得
-		auto _itemVec = a_pCtx->GetPassItems(m_passIndex);
+		auto _itemVec = a_pGE->GetPassItems(m_passIndex);
 		if (_itemVec.empty()) return;;
 
 		for (auto& _item : _itemVec)
@@ -77,24 +84,14 @@ namespace Engine::Graphics
 				_lastMeshID = _meshID;
 			}
 
-			// オブジェクト情報セット
-			DXSM::Vector2 _uv = { 0,0 };
-			DXSM::Vector2 _tile = { 1,1 };
-			a_pCtx->BindObuje(1, _uv, _tile);
+			// バッファインデックスセット
+			a_pCtx->BindIndex(
+				_item.instnaceIndex,
+				_item.subsetIndex,
+				1
+			);
 
-			// メッシュの行列
-			a_pCtx->BindMeshMat(2,_item.worldMat);
-
-			// マテリアルの色指定
-			a_pCtx->BindMaterial(3, _materialID, _item.colorScale, _item.emissiveScale);
-
-			// アニメーションタイプならボーンをバインド
-			if (_item.isAnimation)
-			{
-				a_pCtx->BindCBBone(_item.boneRange);
-			}
-
-			// 描画
+			// メッシュ描画
 			a_pCtx->Draw(_item.GetMeshID(), _item.subIndex);
 		}
 	}

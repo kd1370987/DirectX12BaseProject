@@ -49,7 +49,9 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 			const uint8_t _zpreStatic = _zprePass->GetPSOIndex("ZPreStatic");
 			const uint8_t _gbuffStatic = _gbufferPass->GetPSOIndex("GBufferStatic");
 			//const uint8_t _fwStatic = _fwPass->GetPSOIndex("ForwardLithingPSO");
-
+			Engine::Graphics::LightWeightDrawItem _item = {};
+			Engine::Graphics::InstanceData _instanceData = {};
+			Engine::Graphics::SubSetData _subSetData = {};
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
@@ -66,38 +68,36 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 				const auto& _drawCmdVec = _model->GetDrawCommandVec();
 				for (auto& _cmd : _drawCmdVec)
 				{
-					Engine::Graphics::LightWeightDrawItem _item = {};
-					_item.worldMat = _worldMatComp.worldMat;
-					_item.colorScale = _modelComp.colorScale;
-					_item.emissiveScale = _modelComp.emissiveScale;
-					
+					_instanceData.worldMat = _worldMat;
+					_instanceData.boneStartIndex = 0;
+					_instanceData.boneCount = 0;
+					_subSetData.baseColorScale = _modelComp.colorScale;
+					_subSetData.emissiveColorScale = _modelComp.emissiveScale;
+
 					_item.sortKey.bits.meshID = _cmd.meshRawID;
 					_item.sortKey.bits.materialID = _cmd.materialRawID;
-					
-					_item.isAnimation = false;
-
+					_item.isAnimation = true;
 					_item.subIndex = _cmd.subIdx;
-					
-					// 変換
-					DXSM::Matrix _nodeTransMat(_model->GetOriginalNodeVec()[_cmd.nodeIndex].worldTransform); DirectX::XMStoreFloat4x4(&_item.worldMat, _nodeTransMat * _worldMat);
+					_item.instnaceIndex = _pGE->SetInstanceData(_instanceData);
+					_item.subsetIndex = _pGE->SetSubSetData(_subSetData);
 
 					switch (_cmd.alphaMode)
 					{
 					case Engine::Resource::Alpha::Opaque:
 						_item.sortKey.bits.psoID = _zpreStatic;
 						_item.sortKey.bits.passIndex = _zpreIdx;
-						_pRCT->AddItem(_item);
+						_pGE->AddItem(_item);
 						_item.sortKey.bits.psoID = _gbuffStatic;
 						_item.sortKey.bits.passIndex = _opeqIdx;
-						_pRCT->AddItem(_item);
+						_pGE->AddItem(_item);
 						break;
 					case Engine::Resource::Alpha::Mask:
 						_item.sortKey.bits.psoID = _zpreStatic;
 						_item.sortKey.bits.passIndex = _zpreIdx;
-						_pRCT->AddItem(_item);
+						_pGE->AddItem(_item);
 						_item.sortKey.bits.psoID = _gbuffStatic;
 						_item.sortKey.bits.passIndex = _opeqIdx ;
-						_pRCT->AddItem(_item);
+						_pGE->AddItem(_item);
 						break;
 					case Engine::Resource::Alpha::Blend:
 						//_item.sortKey.bits.psoID = _zpreStatic;

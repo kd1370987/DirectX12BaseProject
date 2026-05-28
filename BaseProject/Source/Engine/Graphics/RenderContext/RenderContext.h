@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+#include "../CBData.h"
 
 class CBAllocater;
 
@@ -14,46 +14,12 @@ namespace Engine::D3D12
 	class RootSignature;
 }
 
+
 namespace Engine::Graphics
 {
 	// 前方宣言
 	class RenderGraph;
 	class ShapeRenderer;
-
-	// 64ビットのソートキー
-	union RenderSortKey
-	{
-		uint64_t value;
-		struct {
-			// 下位ビットから順に判断優先度が低くなるように配置する
-			uint64_t depth : 16;			// 深度
-			uint64_t meshID : 16;			// メッシュ
-			uint64_t materialID : 16;		// マテリアル
-			uint64_t psoID: 8;				// PSOID
-			uint64_t passIndex : 8;			// パスインデックス
-		} bits;
-	};
-
-	struct LightWeightDrawItem
-	{
-		// 描画順序と各種IDの情報すべてを持つ
-		RenderSortKey sortKey;
-		UINT subIndex = 0;
-
-		// インスタンスデータ
-		bool isAnimation = false;
-		Storage::Range boneRange = {};
-
-		DirectX::XMFLOAT4X4 worldMat = {};
-		DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
-		DirectX::XMFLOAT3	emissiveScale = { 1,1,1 };
-
-		// ヘルパー関数
-		uint8_t GetPassIndex()		const { return static_cast<uint8_t>(sortKey.value >> 56); }
-		uint8_t GetPSOID()			const { return static_cast<uint8_t>((sortKey.value >> 48) & 0xFF); }
-		uint16_t GetMaterialID()	const { return static_cast<uint16_t>((sortKey.value >> 32) & 0xFFFF); }
-		uint16_t GetMeshID()		const { return static_cast<uint16_t>((sortKey.value >> 16) & 0xFFFF); }
-	};
 
 	struct DrawItem2D
 	{
@@ -68,7 +34,7 @@ namespace Engine::Graphics
 		UINT startIndex;		// インデックスバッファの開始位置
 	};
 
-
+	
 
 	// レンダーコンテキスト作成時に必要な情報
 	struct RenderContextDesc
@@ -98,11 +64,6 @@ namespace Engine::Graphics
 	{
 	public:
 
-		struct BonePallete
-		{
-			DirectX::XMFLOAT4X4 mat;
-		};
-
 		//--------------------------------------------------------------------------------------------
 		// クラス基盤
 		//--------------------------------------------------------------------------------------------
@@ -122,24 +83,6 @@ namespace Engine::Graphics
 		D3D12::CommandList* GetCurrentCmdList();
 
 		//--------------------------------------------------------------------------------------------
-		// カメラ関係
-		//--------------------------------------------------------------------------------------------
-		// 描画時情報セット
-		CBCamera& RefCBCamera() { return m_cb0_camera; }
-		void SetToShader(const DirectX::XMFLOAT4X4& a_worldMat);		// ワールド行列
-		void SetProjectionMatrix(DirectX::XMFLOAT4X4 a_projMat);		// プロジェクション行列
-
-		// 現在の描画しているカメラの情報を取得
-		float GetCameraAspectRate();									// アスペクトレート
-		const DirectX::XMFLOAT4X4& GetCameraRotMat();					// 回転行列
-		const DXSM::Vector3& GetCameraPOS();							// 座標
-		const CBCamera& GetCamera();
-
-		// 描画直前にカメラの情報をGPU側に送る
-		void BindCameraCB();
-		void BindAmbientCB();
-
-		//--------------------------------------------------------------------------------------------
 		// バッファ関係
 		//--------------------------------------------------------------------------------------------
 		// 現在のフレームの定数バッファアロケーターにアクセス
@@ -148,7 +91,7 @@ namespace Engine::Graphics
 		// 定数バッファをルートでバインド
 		void BindRootCBV(UINT a_index,const void* a_pData,size_t a_size);
 		template<typename T>
-		void BindRootCBV(UINT a_index,const T& a_data);
+		void BindRootCBV(UINT a_index, const T& a_data);
 
 		// レンダーターゲットの切り替え
 		// 基本的にハンドルで管理しているため内部以外では直接触らない
@@ -202,15 +145,20 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// 描画命令の追加
 		void AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec);		// 2D
-		void AddItem(const LightWeightDrawItem& a_item) { m_lightWeightDrawItemVec.push_back(a_item); }
-
+		
 		// 描画命令の取得
 		const std::vector<DrawItem2D>& GetItemVec(const RenderQueueType2D& a_type) const;	// 2D
 
-		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex);
-		
 		// 描画命令の実行
-		void Excute(RenderGraph* a_pGraph);
+		void UpdateBuffer(const std::vector<InstanceData>& a_instanceVec,const std::vector<SubSetData>& a_subsetVec);
+
+		// インデックスバインド
+		void BindIndex(UINT a_instanceBufferIndex, UINT a_subsetBufferIndex, UINT a_rootIndex = 1);
+
+		// バッファバインド
+		void BindInstanceBuffer(UINT a_rootIndex);
+		void BindSubsetBuffer(UINT a_rootIndex);
+		void BindBonePalletBuffer(UINT a_rootIndex);
 
 		// 描画命令のコマンドリスト削除
 		void ClearCmd();
@@ -272,6 +220,8 @@ namespace Engine::Graphics
 		// モデルの描画
 		void Draw(const Resource::Mesh* a_pMesh,UINT a_subIdx);
 		void Draw(uint16_t a_meshID,UINT a_subIdx);
+		void DrawMesh(uint16_t a_meshID,UINT a_subIdx);
+
 
 
 		//リソースバリア設定
@@ -308,38 +258,27 @@ namespace Engine::Graphics
 		// フレーム限定リソース
 		//--------------------------------------------------------------------------------------------
 		std::unique_ptr<CBAllocater> m_upCBAllocater = nullptr;	// 定数バッファアロケーター
-		D3D12::StaticStructuredBuffer<BonePallete> m_boneBuffer;
-		D3D12::CommandList* m_pCmdList = nullptr;
+		D3D12::CommandList* m_pCmdList = nullptr;				// 現在フレームのグラフィックスコマンドリスト
+
 		// コピー用ヒープ
-		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV> m_copyHeap = {};				// ラスタライザ用
-		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_bindLessHeap;	// バインドレス用
+		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_copyHeap;		// ラスタライザ用
+		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_bindLessHeap;	// バインドレス用
 		UINT m_currentHeapOffset = 0;
 
-
-
-		// 定数バッファ
-		CBCamera m_cb0_camera = {};
-		float m_aspectRate = 0.0f;
-
-		CBObject m_cb1_object = {};
-		CBMeshTrans m_cb2_MeshTrans = {};
-		CBMaterial m_cb3_Material = {};
-		CBBone m_cb4_Bone = {};
-		CBAmbient m_cb5_Ambient = {};
-		CBUI m_cbUI = {};
-		
-		// 2D用描画アイテムキュー
-		std::unordered_map<RenderQueueType2D, std::vector<DrawItem2D>> m_drawItem2DMap = {};
+		// オブジェクト単位データ
+		D3D12::StaticStructuredBuffer<InstanceData> m_instanceBuffer;
+		// サブメッシュ単位データ
+		D3D12::StaticStructuredBuffer<SubSetData> m_subsetBuffer;
+		// ボーン用データ
+		D3D12::StaticStructuredBuffer<BonePallete> m_boneBuffer;
 
 		// 描画用ポリゴン
 		std::shared_ptr<Resource::QuadPolygon> m_spQuadPolygon = nullptr;
 
-		// ソートキー持ち描画コマンドリスト
-		std::vector<LightWeightDrawItem> m_lightWeightDrawItemVec = {};
 	};
 	template<typename T>
 	inline void RenderContext::BindRootCBV(UINT a_index, const T& a_data)
 	{
-		BindRootCBV(a_index, a_data, sizeof(T));
+		BindRootCBV(a_index, (void*)a_data, sizeof(T));
 	}
 }

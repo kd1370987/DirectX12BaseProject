@@ -4,7 +4,7 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Graphics
 {
-	void FullScreenPass::Excute(RenderContext* a_pCtx)
+	void FullScreenPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		Begine(a_pCtx);
 

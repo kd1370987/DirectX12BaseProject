@@ -7,7 +7,7 @@ namespace Engine::Graphics
 	{
 	public:
 
-		void Excute(RenderContext* a_pCtx) override;
+		void Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx) override;
 
 	private:
 

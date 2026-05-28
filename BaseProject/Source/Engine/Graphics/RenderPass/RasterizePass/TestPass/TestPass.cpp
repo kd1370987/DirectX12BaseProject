@@ -1,6 +1,7 @@
 ﻿#include "TestPass.h"
 
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
+#include "../../../GraphicEngine.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
@@ -9,10 +10,10 @@
 
 namespace Engine::Graphics
 {
-	void Engine::Graphics::TestPass::Excute(RenderContext* a_pCtx)
+	void Engine::Graphics::TestPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		Begine(a_pCtx);
-		a_pCtx->BindCameraCB();
+		a_pCtx->BindRootCBV<CameraData>(0, a_pGE->GetCameraData());
 		End(a_pCtx);
 	}
 	void TestPass::CreatePass()

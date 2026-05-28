@@ -11,6 +11,7 @@
 #include "../../D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "../../Graphics/RenderContext/RenderContext.h"
+#include "../../Graphics/GraphicEngine.h"
 #include "../../D3D12/CBAllocater/CBAllocater.h"
 
 #include "../RayPSO/RayPSO.h"
@@ -25,11 +26,11 @@ namespace Engine::Raytracing
 		m_upRayWorld->Commit();
 	}
 
-	void RayEngine::BindCamera(Graphics::RenderContext* a_pRCT)
+	void RayEngine::BindCamera(Graphics::RenderContext* a_pRCT, const Graphics::CameraData& a_cbCam)
 	{
 		auto* _pCmdList = a_pRCT->GetCurrentCmdList();
 		// 定数バッファをバインド
-		auto& _cam = a_pRCT->GetCamera();
+		auto& _cam = a_cbCam;
 
 		DXSM::Matrix _viewMat = _cam.viewMat;
 		DXSM::Matrix _projMat = _cam.projMat;
@@ -38,7 +39,7 @@ namespace Engine::Raytracing
 		DXSM::Matrix _viewProj = _viewMat * _projMat;
 		DXSM::Matrix _invViewProj = _viewProj.Invert();
 
-		m_camera.pos = { _cam.cameraPosXYZ.x,_cam.cameraPosXYZ.y,_cam.cameraPosXYZ.z };
+		m_camera.pos = _cam.pos;
 		m_camera.view = _viewMat.Transpose();
 		m_camera.proj = _projMat.Transpose();
 		m_camera.invView = _invViewMat.Transpose();

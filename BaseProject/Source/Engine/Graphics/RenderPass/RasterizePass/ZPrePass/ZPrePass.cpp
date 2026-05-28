@@ -5,14 +5,14 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Graphics
 {
-	void ZPrePass::Excute(RenderContext* a_pCtx)
+	void ZPrePass::Excute(GraphicsEngine* a_pGR, RenderContext* a_pCtx)
 	{
 		Begine(a_pCtx);
 
 		a_pCtx->BindSRVBone();
 
 		a_pCtx->BindCameraCB();
-		DrawQueue(a_pCtx);
+		DrawQueue(a_pGR,a_pCtx);
 
 		End(a_pCtx);
 	}

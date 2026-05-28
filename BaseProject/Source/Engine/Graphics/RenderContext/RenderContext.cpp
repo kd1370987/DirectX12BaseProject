@@ -73,29 +73,6 @@ namespace Engine::Graphics
 		// クワッドポリゴン
 		m_spQuadPolygon = std::make_shared<Resource::QuadPolygon>();
 		m_spQuadPolygon->Init();
-
-		// cb5
-		m_cb5_Ambient.ambientLightColor = { 0.3f,0.3f,0.3f,1.0f };
-		m_cb5_Ambient.directionalLightColor = { 1.0f,1.0f,1.0f,1.0f };
-		m_cb5_Ambient.directionalLightDir = { -1.0f,-1.0f,-1.0f,0.0f };
-
-		// カメラの初期化
-		auto _eyePos = DirectX::XMVectorSet(0.0f, 0.0f, 10.0f, 0.0f);	// 視点の位置
-		auto _targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);	// 視点を向ける座標
-		auto _upward = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);	// 上方向を表すベクトル
-		constexpr float _fovF = 60.0f;
-		constexpr auto _fov = DirectX::XMConvertToRadians(_fovF);						// 視野角
-
-		auto _aspect = static_cast<float>(1280) / static_cast<float>(720);		// アスペクト比
-		m_aspectRate = _aspect;
-		DirectX::XMStoreFloat4(&m_cb0_camera.cameraPosXYZ, _eyePos);
-		DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, DirectX::XMMatrixLookAtLH(_eyePos, _targetPos, _upward));
-		auto _projMat = DirectX::XMMatrixPerspectiveFovLH(_fov, _aspect, 0.3f, 1000.0f);
-		DirectX::XMStoreFloat4x4(&m_cb0_camera.projMat, _projMat);
-		DXSM::Matrix _smProjMat = _projMat;
-		auto _projInvMat = _smProjMat.Invert(); 
-		DirectX::XMStoreFloat4x4(&m_cb0_camera.projInvMat, _projInvMat);
-
 	}
 	
 
@@ -133,91 +110,6 @@ namespace Engine::Graphics
 	//
 	//============================================================================================
 
-	void RenderContext::SetToShader(
-		const DirectX::XMFLOAT4X4& a_worldMat
-	)
-	{
-		// カメラの位置を更新
-		m_cb0_camera.cameraPosXYZ = {
-			a_worldMat._41,
-			a_worldMat._42,
-			a_worldMat._43,
-			0.0f
-		};
-
-		// ビュー行列を計算して格納
-		DirectX::XMMATRIX _wMat = DirectX::XMLoadFloat4x4(&a_worldMat);
-		DirectX::XMMATRIX _vMat = DirectX::XMMatrixInverse(nullptr, _wMat);
-		DirectX::XMStoreFloat4x4(&m_cb0_camera.viewMat, _vMat);
-		DirectX::XMStoreFloat4x4(&m_cb0_camera.viewInvMat, _wMat);
-	}
-
-	float RenderContext::GetCameraAspectRate()
-	{
-		return m_aspectRate;
-	}
-
-	const DirectX::XMFLOAT4X4& RenderContext::GetCameraRotMat()
-	{
-		DXSM::Matrix _mat = m_cb0_camera.viewInvMat;
-		DXSM::Vector3 _pos;
-		DXSM::Quaternion _rot;
-		DXSM::Vector3 _scale;
-
-		_mat.Decompose(_scale, _rot, _pos);
-
-		return DXSM::Matrix::CreateFromQuaternion(_rot);
-	}
-
-	const DXSM::Vector3& RenderContext::GetCameraPOS()
-	{
-		DXSM::Vector3 _pos = { m_cb0_camera.cameraPosXYZ.x,m_cb0_camera.cameraPosXYZ.y,m_cb0_camera.cameraPosXYZ.z };
-		return _pos;
-	}
-
-	const CBCamera& RenderContext::GetCamera()
-	{
-		return m_cb0_camera;
-	}
-
-	void RenderContext::BindCameraCB()
-	{
-		CBCamera _cbCam = {};
-		DXSM::Matrix _viewMat = m_cb0_camera.viewMat;
-		DXSM::Matrix _projMat = m_cb0_camera.projMat;
-		DXSM::Matrix _invViewMat = m_cb0_camera.viewInvMat;
-		DXSM::Matrix _invProjMat = m_cb0_camera.projInvMat;
-
-		_cbCam.cameraPosXYZ = m_cb0_camera.cameraPosXYZ;
-		_cbCam.viewMat = _viewMat.Transpose();
-		_cbCam.projMat = _projMat.Transpose();
-		_cbCam.viewInvMat = _invViewMat.Transpose();
-		_cbCam.projInvMat = _invProjMat.Transpose();
-
-		// カメラ用定数バッファに転送
-		BindCB()->BindSemanticCBV<RootSigSemantic::CameraCB>(
-			m_pCmdList->NGet(),
-			0,
-			_cbCam
-		);	
-	}
-
-	void RenderContext::BindAmbientCB()
-	{
-		// 環境
-		BindCB()->BindSemanticCBV<RootSigSemantic::AmbientCB>(
-			m_pCmdList->NGet(),
-			1,
-			m_cb5_Ambient
-		);
-		
-	}
-
-
-	void RenderContext::SetProjectionMatrix(DirectX::XMFLOAT4X4 a_projMat)
-	{
-		m_cb0_camera.projMat = a_projMat;
-	}
 
 	CBAllocater* RenderContext::BindCB()
 	{
@@ -551,102 +443,56 @@ namespace Engine::Graphics
 		BindSRV(6, m_boneBuffer.GetSRVHandle());
 	}
 
-	void RenderContext::BindCBBone(const Storage::Range & a_range)
+
+
+	void RenderContext::UpdateBuffer(
+		const std::vector<InstanceData>& a_instanceVec, 
+		const std::vector<SubSetData>& a_subsetVec
+	)
 	{
-		// ボーンのバインド
-		m_cb4_Bone = {};
-		m_cb4_Bone.startIdx = a_range.startIndex;
-		m_cb4_Bone.count = a_range.rangeSize;
+		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
 
-		BindCB()->BindAndAttachDataRootCBV<CBBone>(
-			m_pCmdList->NGet(),
-			4,
-			m_cb4_Bone
-		);
-	}
+		// インスタンスデータバッファ
+		m_instanceBuffer.UpdateData(a_instanceVec.data(),a_instanceVec.size());
+		m_instanceBuffer.Update(*_pCmdList);
 
-
-	void RenderContext::AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec)
-	{
-		m_drawItem2DMap[a_type].push_back(a_itemVec);
-	}
-
-	const std::vector<DrawItem2D>& RenderContext::GetItemVec(const RenderQueueType2D& a_type) const
-	{
-		auto _it = m_drawItem2DMap.find(a_type);
-		if (_it != m_drawItem2DMap.end())
-		{
-			return _it->second;
-		}
-		return {};
-	}
-
-	std::span<const LightWeightDrawItem> RenderContext::GetPassItems(uint8_t a_passIndex)
-	{
-		// 探したいパスのキーの最小値と最大値を求める
-		uint64_t _minKey = static_cast<uint64_t>(a_passIndex) << 56;
-		uint64_t _maxKey = _minKey | 0x00FFFFFFFFFFFFFFull; // 下位56ビットをすべて1にする
-
-		// ソート済み配列から開始位置を見つける
-		auto _itStart = std::lower_bound(
-			m_lightWeightDrawItemVec.begin(),
-			m_lightWeightDrawItemVec.end(),
-			_minKey,
-			[](const LightWeightDrawItem& a_item, uint64_t a_value)
-			{
-				return a_item.sortKey.value < a_value;
-			}
-		);
-
-		// ソート済み配列から終了位置を見つける
-		auto _itEnd = std::upper_bound(
-			_itStart,		// 開始位置から探す
-			m_lightWeightDrawItemVec.end(),
-			_maxKey,
-			[](uint64_t a_value, const LightWeightDrawItem& a_item)
-			{
-				return a_value < a_item.sortKey.value;
-			}
-		);
-
-		return std::span<const LightWeightDrawItem>(_itStart,_itEnd);
-	}
-
-	void RenderContext::Excute(RenderGraph* a_pGraph)
-	{
-		// ソートする
-		std::sort(
-			m_lightWeightDrawItemVec.begin(), m_lightWeightDrawItemVec.end(),
-			[](const LightWeightDrawItem& a, const LightWeightDrawItem& b)
-			{
-				return a.sortKey.value < b.sortKey.value;
-			}
-		);
+		// サブセットデータバッファ
+		m_subsetBuffer.UpdateData(a_subsetVec.data(),a_subsetVec.size());
+		m_subsetBuffer.Update(*_pCmdList);
 
 		// ボーン行列の更新
-		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
 		auto& _bonePalleteVec = Animation::AnimationMatrixManager::Instance().GetBoneMatStorage();
-		m_boneBuffer.UpdateData(_bonePalleteVec.data(),_bonePalleteVec.size());
+		m_boneBuffer.UpdateData(_bonePalleteVec.data(), _bonePalleteVec.size());
 		m_boneBuffer.Update(*_pCmdList);
-
-		// レンダーパスの実行
-		a_pGraph->Excute(this);
-
-		// 描画対象アイテムリストのクリア
-		m_drawItem2DMap.clear();
-
-		m_lightWeightDrawItemVec.clear();
-		m_lightWeightDrawItemVec.reserve(10000);
 	}
 
-	void RenderContext::ClearCmd()
+	void RenderContext::BindIndex(UINT a_instanceBufferIndex, UINT a_subsetBufferIndex, UINT a_rootIndex)
 	{
-		// 描画対象アイテムリストのクリア
-		m_drawItem2DMap.clear();
+		BufferIndexData _indexData = {};
+		_indexData.instanceIndex = a_instanceBufferIndex;
+		_indexData.subsetIndex = a_subsetBufferIndex;
+		// インデックスバインド
+		BindCB()->BindAndAttachDataRootCBV<BufferIndexData>(
+			m_pCmdList->NGet(),
+			a_rootIndex,
+			_indexData
+		);
 	}
 
+	void RenderContext::BindInstanceBuffer(UINT a_rootIndex)
+	{
+		BindSRV(a_rootIndex,m_instanceBuffer.GetSRVHandle());
+	}
 
+	void RenderContext::BindSubsetBuffer(UINT a_rootIndex)
+	{
+		BindSRV(a_rootIndex,m_subsetBuffer.GetSRVHandle());
+	}
 
+	void RenderContext::BindBonePalletBuffer(UINT a_rootIndex)
+	{
+		BindSRV(a_rootIndex,m_boneBuffer.GetSRVHandle());
+	}
 
 	void RenderContext::SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig)
 	{
@@ -665,74 +511,6 @@ namespace Engine::Graphics
 	void RenderContext::SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri)
 	{
 		m_pCmdList->NGet()->IASetPrimitiveTopology(a_pri);
-	}
-
-
-	void RenderContext::BindObuje(UINT a_index, const DirectX::XMFLOAT2& a_uv, const DirectX::XMFLOAT2& a_tile)
-	{
-		m_cb1_object.uvOffsetTiling.x = a_uv.x;
-		m_cb1_object.uvOffsetTiling.y = a_uv.y;
-		m_cb1_object.uvOffsetTiling.z = a_tile.x;
-		m_cb1_object.uvOffsetTiling.w = a_tile.y;
-
-		BindCB()->BindAndAttachDataRootCBV<CBObject>(
-			m_pCmdList->NGet(),
-			1,
-			m_cb1_object
-		);
-	}
-
-
-	void RenderContext::BindMaterial(UINT a_index, const Resource::Material* a_pMaterial, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
-	{
-		// ベースカラー
-		DXSM::Vector4 _colorScale(a_colorScale);
-		DXSM::Vector4 _materialScale(a_pMaterial->baseColor);
-		m_cb3_Material.baseColorXYZW = _materialScale * _colorScale;
-
-		// エミッシブ
-		DXSM::Vector3 _emissiveScale(a_emissiveScale);
-		DXSM::Vector3 _materialEmissiveScale(a_pMaterial->emissive);
-		DXSM::Vector3 _emiVec3 = _materialEmissiveScale * _emissiveScale;
-		m_cb3_Material.emissiveXYZ = { _emiVec3.x,_emiVec3.y,_emiVec3.z,1 };
-
-		// マテリアルラフネス
-		m_cb3_Material.metallicRoughnessXY = { a_pMaterial->metallic ,a_pMaterial->roughness,0,0 };
-
-		// マテリアルバッファバインド
-		BindCB()->BindAndAttachDataRootCBV<CBMaterial>(
-			m_pCmdList->NGet(),
-			a_index,
-			m_cb3_Material
-		);
-	}
-
-	void RenderContext::BindMaterial(UINT a_index, const uint16_t& a_materialID, const DirectX::XMFLOAT4& a_colorScale, const DirectX::XMFLOAT3& a_emissiveScale)
-	{
-		const auto* _pMaterial = Resource::ResourceManager::Instance().Accece<Resource::Material>(a_materialID);
-		if (!_pMaterial) return;
-
-		// ベースカラー
-		DXSM::Vector4 _colorScale(a_colorScale);
-		DXSM::Vector4 _materialScale(_pMaterial->baseColor);
-		m_cb3_Material.baseColorXYZW = _materialScale * _colorScale;
-
-		// エミッシブ
-		DXSM::Vector3 _emissiveScale(a_emissiveScale);
-		DXSM::Vector3 _materialEmissiveScale(_pMaterial->emissive);
-		DXSM::Vector3 _emiVec3 = _materialEmissiveScale * _emissiveScale;
-		m_cb3_Material.emissiveXYZ = { _emiVec3.x,_emiVec3.y,_emiVec3.z,1 };
-
-		// マテリアルラフネス
-		m_cb3_Material.metallicRoughnessXY = { _pMaterial->metallic ,_pMaterial->roughness,0,0 };
-
-
-		// マテリアルバッファバインド
-		BindCB()->BindAndAttachDataRootCBV<CBMaterial>(
-			m_pCmdList->NGet(),
-			a_index,
-			m_cb3_Material
-		);
 	}
 
 	void RenderContext::BindMaterialSRV(UINT a_index, const Resource::Material* a_pMaterial)
@@ -758,38 +536,6 @@ namespace Engine::Graphics
 		_texVec.push_back(_pMaterial->normalTex);
 		BindSRV(a_index, _texVec);
 		
-	}
-
-
-	void RenderContext::BindMesh(UINT a_index, const Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat)
-	{
-		// メッシュ変換行列の転送
-		m_cb2_MeshTrans.worldMat = a_worldMat;
-		BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
-			m_pCmdList->NGet(),
-			a_index,
-			m_cb2_MeshTrans
-		);
-		
-		if (!a_pMesh) return;
-		
-		if (!a_pMesh->HasRasterData()) return;
-		auto _vertView = a_pMesh->GetRasterData().vertexBuffer.GetView();
-		m_pCmdList->IASetVertexBuffers(0, 1, &_vertView);
-		const auto& _pIndexView = a_pMesh->GetRasterData().indexBuffer.GetView();
-		m_pCmdList->IASetIndexBuffer(&_pIndexView);
-	}
-
-	void RenderContext::BindMeshMat(UINT a_index, const DirectX::XMFLOAT4X4& a_worldMat)
-	{
-		// メッシュ変換行列の転送
-		DXSM::Matrix _worldMat = a_worldMat;
-		m_cb2_MeshTrans.worldMat = _worldMat.Transpose();
-		BindCB()->BindAndAttachDataRootCBV<CBMeshTrans>(
-			m_pCmdList->NGet(),
-			a_index,
-			m_cb2_MeshTrans
-		);
 	}
 
 	void RenderContext::BindMesh(uint16_t a_meshID)
@@ -823,12 +569,6 @@ namespace Engine::Graphics
 		Draw(_pMesh, a_subIdx);
 	}
 
-	void RenderContext::SetViewPort()
-	{}
-
-	void RenderContext::SetScissorRect()
-	{}
-
 	void RenderContext::Transition(
 		ID3D12Resource* a_pResource,
 		D3D12_RESOURCE_STATES a_before,
@@ -854,40 +594,6 @@ namespace Engine::Graphics
 		m_pCmdList->NGet()->DrawInstanced(
 			3, 1, 0, 0
 		);
-	}
-
-
-
-	void RenderContext::DrawUIQueue(RenderQueueType2D a_type)
-	{
-		// 描画アイテム取得
-		auto& _draws = GetItemVec(a_type);
-		if (_draws.size() == 0) return;
-		for (auto& _item : _draws)
-		{
-			m_cbUI.uiMat = _item.worldMat;
-			m_cbUI.color = _item.colorScale;
-
-			BindCB()->BindAndAttachDataRootCBV<CBUI>(
-				m_pCmdList->NGet(),
-				0,
-				m_cbUI
-			);
-
-			// SRVの送信
-			auto _handle = D3D12::DescriptorHeapManager::Instance().GetCPU(_item.srvHandleRange);
-			BindSRV(0, _handle);
-
-
-			// メッシュ変換行列の転送
-			m_pCmdList->NGet()->IASetVertexBuffers(0, 1, &m_spQuadPolygon->GetVBView());
-			m_pCmdList->NGet()->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
-
-			// 描画
-			m_pCmdList->NGet()->DrawIndexedInstanced(
-				6, 1, 0, 0, 0
-			);
-		}
 	}
 
 	void RenderContext::ShapeDraw()

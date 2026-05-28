@@ -1,6 +1,8 @@
 ﻿#include "RenderGraph.h"
 #include "RGVarsionManager/RGResourceManager.h"
 
+#include "../GraphicEngine.h"
+
 #include "../RenderPass/RasterizePass/ForwardLightingPass/ForwardLightingPass.h"
 #include "../RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
 #include "../RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
@@ -90,6 +92,13 @@ namespace Engine::Graphics
 			1280,
 			720,
 			Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
+		);
+		m_upRGResourceManager->Register(
+			"GBufferVelocity",
+			DXGI_FORMAT_R16G16_FLOAT,
+			1280,
+			720,
+			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 		);
 		// レイの結果用
 		m_upRGResourceManager->Register(
@@ -261,7 +270,7 @@ namespace Engine::Graphics
 		m_upRGResourceManager->StateReset();
 	}
 
-	void RenderGraph::Excute(RenderContext* a_pCtx)
+	void RenderGraph::Excute(GraphicsEngine* a_pGE,RenderContext* a_pCtx)
 	{
 		// コンパイル済みパスを順次実行していく
 		for (auto& _cp : m_compiledPasses)
@@ -284,7 +293,7 @@ namespace Engine::Graphics
 			}
 
 			// パスの実行
-			_cp.pPass->Excute(a_pCtx);
+			_cp.pPass->Excute(a_pGE,a_pCtx);
 		}
 	}
 

@@ -8,8 +8,6 @@
 "    addressV = TEXTURE_ADDRESS_WRAP, " \
 "    addressW = TEXTURE_ADDRESS_WRAP)"
 
-// 共通定数バッファ
-#define RS_CAMERA_CB "CBV(b0,visibility = SHADER_VISIBILITY_ALL)"
 
 // デフォルト用
 #define RS_FLAGS\
@@ -17,17 +15,4 @@
     "DENY_HULL_SHADER_ROOT_ACCESS | " \
     "DENY_DOMAIN_SHADER_ROOT_ACCESS | " \
     "DENY_GEOMETRY_SHADER_ROOT_ACCESS)"
-
-// デフォルトルートシグネチャ
-#define DEFAULT_ROOT_SIG \
-RS_FLAGS ","\
-RS_CAMERA_CB ","\
-"CBV(b1,visibility = SHADER_VISIBILITY_ALL),"\
-"CBV(b2,visibility = SHADER_VISIBILITY_ALL),"\
-"CBV(b3,visibility = SHADER_VISIBILITY_ALL),"\
-"CBV(b4,visibility = SHADER_VISIBILITY_ALL),"\
-"DescriptorTable(SRV(t0, numDescriptors=4),visibility = SHADER_VISIBILITY_PIXEL),"\
-"DescriptorTable(SRV(t4, numDescriptors=1),visibility = SHADER_VISIBILITY_VERTEX),"\
-RS_STATIC_SAMPLER
-
 

@@ -6,7 +6,7 @@
 #include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
 namespace Engine::Graphics
 {
-	void DebugLinePass::Excute(RenderContext* a_pCtx)
+	void DebugLinePass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		//Editor::MainEditor::Instance().StartWatch("DebugLineDraw");
 		//Begine(a_pCtx);

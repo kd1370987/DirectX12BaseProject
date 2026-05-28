@@ -1,33 +1,19 @@
+// ルートパラメターズ
+#include "../../Common/CB/CBCamera.hlsli"
+#include "../../Common/RootParameters/BufferIndex.hlsli"
+#include "../../Common/RootParameters/InstanceData.hlsli"
+
+// ヘルパー関数
+#include "../../Common/Math/Transform.hlsli"
+#include "../../Common/Math/Normal.hlsli"
 
 #include "../RootSignatureLayout.hlsli"
 
 #define DEBUGLINE_ROOT_SIG \
 RS_FLAGS","\
 RS_CAMERA_CB ","\
-"CBV(b1,visibility = SHADER_VISIBILITY_ALL), " \
-
-// カメラの定数バッファ
-cbuffer cbCamera : register(b0)
-{
-	float4x4 viewMat;		// ビュー行列
-	float4x4 viewInvMat;	// ビュー行列
-	float4x4 projMat;		// 投影行列
-	float4x4 projInvMat;	// 投影行列の逆行列
-
-	float4 cameraPos;		// カメラ位置
-}
-
-// メッシュのワールド行列
-cbuffer cbTransform : register(b1)
-{
-	float4x4 mat;			// ワールド行列
-}
-
-// ボーン行列
-//cbuffer cbBones : register(b2)
-//{
-//	row_major float4x4 boneMats[300];
-//};
+RS_BUFFERINDEX_CB ","\
+RS_INSTANCE_DATA_TABLE
 
 // 頂点シェーダー入力構造体
 struct VSInput

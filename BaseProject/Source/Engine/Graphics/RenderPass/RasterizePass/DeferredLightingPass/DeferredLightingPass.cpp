@@ -1,21 +1,21 @@
 ﻿#include "DeferredLightingPass.h"
 
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
+#include "../../../GraphicEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 namespace Engine::Graphics
 {
-	void DeferredLightingPass::Excute(RenderContext* a_pCtx)
+	void DeferredLightingPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		Begine(a_pCtx);
-		a_pCtx->BindCameraCB();
-
+		a_pCtx->BindRootCBV<CameraData>(0, a_pGE->GetCameraData());
 		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
 
-		a_pCtx->BindAmbientCB();
-
+		CBAmbient _amib = {};
+		a_pCtx->BindRootCBV<CBAmbient>(5, _amib);
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gpuVec = {};
 
 		_gpuVec = {

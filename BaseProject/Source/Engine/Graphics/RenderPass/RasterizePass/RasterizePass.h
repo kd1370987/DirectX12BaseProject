@@ -26,7 +26,7 @@ namespace Engine::Graphics
 		void End(RenderContext* a_pCtx);
 
 		// 特定キューの描画
-		void DrawQueue(RenderContext* a_pCtx);
+		void DrawQueue(GraphicsEngine* a_pGE,RenderContext* a_pCtx);
 		
 		// ヘルパー構造体
 		D3D12::GraphicsPipelineDesc& AddPSODesc(const ERenderType& a_type, const RenderQueueType& a_queueType);

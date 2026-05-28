@@ -5,14 +5,14 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Graphics
 {
-	void ForwardLightingPass::Excute(RenderContext* a_pCtx)
+	void ForwardLightingPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		
 		Begine(a_pCtx);
 		a_pCtx->BindCameraCB();
 		a_pCtx->BindSRVBone();
 
-		DrawQueue(a_pCtx);
+		DrawQueue(a_pGE,a_pCtx);
 
 		End(a_pCtx);
 	}

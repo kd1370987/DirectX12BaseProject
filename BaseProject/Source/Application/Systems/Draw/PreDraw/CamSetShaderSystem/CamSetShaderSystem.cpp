@@ -13,6 +13,7 @@
 #include "Application/Components/Camera/ProjMatComponent.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "../../../../../Engine/Graphics/GraphicEngine.h"
 
 void CamSetShaderSystem::Init(Engine::ECS::World& a_world)
 {
@@ -31,14 +32,15 @@ void CamSetShaderSystem::Init(Engine::ECS::World& a_world)
 		)
 		{
 			auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
+			auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const ProjMatComponent& _projMatComp = a_projMatArray[_i];
 				const WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
 				
-				_pRCT->SetProjectionMatrix(_projMatComp.projMat);
-				_pRCT->SetToShader(_worldMatComp.worldMat);
+				_pGE->SetCameraMat(_worldMatComp.worldMat);
+				_pGE->SetProjMat(_projMatComp.projMat);
 			}
 		}
 	);

@@ -4,6 +4,7 @@
 
 namespace Engine::Graphics
 {
+	class GraphicsEngine;
 
 	struct RGBarrier
 	{
@@ -44,7 +45,7 @@ namespace Engine::Graphics
 		void Release();
 
 		void Compile();							// Pass追加後
-		void Excute(RenderContext* a_pCtx);		// パスを順次実行
+		void Excute(GraphicsEngine* a_pGE,RenderContext* a_pCtx);		// パスを順次実行
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(const std::string& a_name);
 		Resource::Handle<D3D12::SRV> GetSRVHandle(const std::string& a_name);

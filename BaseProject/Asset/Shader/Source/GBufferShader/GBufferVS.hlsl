@@ -11,14 +11,18 @@ struct VSInput
 };
 
 // ルートシグネチャ定義
-//[RootSignature(GBUFFER_ROOT_SIG)]
-[RootSignature(DEFAULT_ROOT_SIG)]
+[RootSignature(GBUFFER_ROOT_SIG)]
 
 VSOutput vs(VSInput a_input)
 {
+	int _index = g_bufferIndex.instanceDataIndex;
+	float4x4 _worldMat = g_instanceData[_index].worldMat;
+	
+	// 出力用構造体
 	VSOutput _output = (VSOutput) 0; // アウトプット構造体を定義
 	
-	float4 _projPos = Transform_LocalToProj(a_input.pos, mat);
+	// クリップ
+	float4 _projPos = Transform_LocalToProj(a_input.pos, _worldMat);
     
 	_output.svpos = _projPos;			// 投影変換された座標をピクセルシェーダーに渡す
 	_output.color = a_input.color;		// 頂点色をそのままピクセルシェーダーに渡す
@@ -27,9 +31,9 @@ VSOutput vs(VSInput a_input)
 
 	// ワールド法線、接線、副接線
 	float3 _binormal = cross(a_input.normal, a_input.tangent.xyz);
-	_output.wT = Normal_LocalToWorld(a_input.tangent.xyz, mat);
-	_output.wB = Normal_LocalToWorld(_binormal, mat);
-	_output.wN = Normal_LocalToWorld(a_input.normal, mat);
+	_output.wT = Normal_LocalToWorld(a_input.tangent.xyz, _worldMat);
+	_output.wB = Normal_LocalToWorld(_binormal, _worldMat);
+	_output.wN = Normal_LocalToWorld(a_input.normal, _worldMat);
 	
 	return _output;
 }

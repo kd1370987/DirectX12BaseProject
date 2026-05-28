@@ -8,7 +8,7 @@
 float3 ReconstructViewPos(float2 uv, float depth)
 {
 	float4 clip = float4(uv.x * 2.0f - 1.0f, 1.0f - uv.y * 2.0f, depth, 1.0f);
-	float4 view = mul(clip, cProjInv);
+	float4 view = mul(clip, g_camera.invProj);
 	return view.xyz / view.w;
 }
 
@@ -29,13 +29,13 @@ float4 ps(VSOutput a_in) : SV_Target
 	
 	// 3D空間での位置を復元
 	float3 _viewPos = ReconstructViewPos(a_in.uv, _depth);
-	float4 _worldPos4 = mul(float4(_viewPos, 1), cViewInv);
+	float4 _worldPos4 = mul(float4(_viewPos, 1), g_camera.invView);
 	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
 
 	float3 _specular = _albedo; // スペキュラはアルベドと同じにしておく（今回はスペキュラを考慮しないため）
 	float _smoothness = 1.0f - _roughness; // 滑らかさ
 	
-	float3 _V = normalize(cCameraPos.xyz - _worldPos); // カメラ位置からワールド位置へのベクトル
+	float3 _V = normalize(g_camera.cameraPos - _worldPos); // カメラ位置からワールド位置へのベクトル
 
 	// 出力色
 	float3 _outColor = float3(0, 0, 0);

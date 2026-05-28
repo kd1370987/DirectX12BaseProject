@@ -13,17 +13,18 @@ struct VSInput
 };
 
 // ルートシグネチャ定義
-//[RootSignature(ZPRE_ROOT_SIG)]
-[RootSignature(DEFAULT_ROOT_SIG)]
+[RootSignature(ZPRE_ROOT_SIG)]
 
 VSOutput vs(VSInput a_input)
 {
+	int _index = g_bufferIndex.instanceDataIndex;
+	float4x4 _worldMat = g_instanceData[_index].worldMat;
 	// スキニング
 	row_major float4x4 _mBones = 0;
 	[unroll]
 	for (int _i = 0; _i < 4; ++_i)
 	{
-		_mBones += g_bonePalletData[offsetData.x + a_input.skinIndex[_i]].mat * a_input.skinWeight[_i];
+		_mBones += g_bonePalletData[g_instanceData[_index].boneStartIndex + a_input.skinIndex[_i]].mat * a_input.skinWeight[_i];
 	}
 
 	// 座標と法線に適用
@@ -31,6 +32,6 @@ VSOutput vs(VSInput a_input)
 	a_input.pos = skinnedPos.xyz;
 	
 	VSOutput _out;
-	_out.svpos = Transform_LocalToProj(a_input.pos, mat);
+	_out.svpos = Transform_LocalToProj(a_input.pos, _worldMat);
 	return _out;
 }

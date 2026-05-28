@@ -252,7 +252,7 @@ namespace Engine
 	}
 	void MainEngine::ExcuteDrawCmd()
 	{
-		m_upGraphicsEngine->ExcuteDrawCmd();
+		m_upGraphicsEngine->Excute();
 	}
 	const Window::NativeWindow* MainEngine::GetNativeWindow() const
 	{

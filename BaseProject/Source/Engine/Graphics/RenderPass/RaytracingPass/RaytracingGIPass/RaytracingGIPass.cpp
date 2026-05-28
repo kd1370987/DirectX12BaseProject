@@ -11,10 +11,11 @@
 #include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
 #include "../../../RenderContext/RenderContext.h"
 #include "../../../../D3D12/CBAllocater/CBAllocater.h"
+#include "../../../GraphicEngine.h"
 
 namespace Engine::Graphics
 {
-	void Engine::Graphics::RaytracingGIPass::Excute(RenderContext* a_pCtx)
+	void Engine::Graphics::RaytracingGIPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 
@@ -33,7 +34,7 @@ namespace Engine::Graphics
 		_pCmdList->SetComputeRootSignature(m_rayPSO.GetRootSig());
 
 		// カメラバインド
-		Raytracing::RayEngine::Instance().BindCamera(a_pCtx);
+		Raytracing::RayEngine::Instance().BindCamera(a_pCtx, a_pGE->GetCameraData());
 
 		// レイワールドバインド
 		Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);

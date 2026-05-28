@@ -1,8 +1,10 @@
 ﻿#pragma once
+#include "../../Graphics/CBData.h"
 
 namespace Engine::Graphics
 {
 	class RenderContext;
+	class GraphicsEngine;
 }
 
 namespace Engine::Raytracing
@@ -17,7 +19,7 @@ namespace Engine::Raytracing
 
 		// コミット
 		void Commit();
-		void BindCamera(Graphics::RenderContext* a_pRCT);
+		void BindCamera(Graphics::RenderContext* a_pRCT,const Graphics::CameraData& a_cbCam);
 		void BindTLAS(Graphics::RenderContext* a_pRCT);
 		void Dispatch(Graphics::RenderContext* a_pRCT, ShaderTable& a_shadertable);
 

@@ -124,12 +124,18 @@ struct alignas(256) CBMaterialIndex
 // カメラ用定数バッファ
 struct alignas(256) CBCamera
 {
+	// 現在フレームのデータ
 	DirectX::XMFLOAT4X4 viewMat = {};			// ビュー行列
-	DirectX::XMFLOAT4X4 viewInvMat = {};			// ビュー行列
 	DirectX::XMFLOAT4X4 projMat = {};			// 射影行列
 	DirectX::XMFLOAT4X4 projInvMat = {};			// 射影逆行列
+	DirectX::XMFLOAT4X4 viewInvMat = {};			// ビュー行列
 
 	DirectX::XMFLOAT4 cameraPosXYZ = { 0.0f,0.0f,0.0f,0.0f };	// カメラのワールド座標
+
+	// 1フレーム前のデータ
+	DirectX::XMFLOAT4X4 prevView;
+	DirectX::XMFLOAT4X4 prevProj;
+	DirectX::XMFLOAT4X4 prevViewProj;
 };
 
 // スキニング
