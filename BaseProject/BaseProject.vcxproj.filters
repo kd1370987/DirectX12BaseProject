@@ -811,6 +811,9 @@
     <Filter Include="Asset\Shader\Common\RootSignature">
       <UniqueIdentifier>{ec6afe83-5448-4aff-b9a7-89c850e9037e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass">
+      <UniqueIdentifier>{65aa7ef8-22f6-4a29-b33c-232eb749c140}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1313,6 +1316,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\WatchView\WatchView.cpp">
       <Filter>Source\Engine\Editor\WatchView</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2038,6 +2044,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\WatchView\WatchView.h">
       <Filter>Source\Engine\Editor\WatchView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

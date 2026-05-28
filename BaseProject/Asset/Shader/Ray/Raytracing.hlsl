@@ -1,23 +1,29 @@
-// カメラの定数バッファ
-struct Camera
-{
-	float4x4 rotMat;	// カメラの回転行列
-	float3 pos;			// カメラの座標
-	float aspect;		// カメラのアスペクト比
-	float farClip;		// 遠平面
-	float nearClip;		// 近平面
-};
-cbuffer cbCamera : register(b0)
-{
-	Camera g_camera;
-}
-
+#include "Raytracing.hlsli"
 struct InstanceData
 {
-	uint vertexIdx;		// SRV
-	uint indexIdx;		// SRV
-};
+	uint vertexIdx; // SRV
+	uint indexIdx; // SRV
 
+	// このメッシュのマテリアル群がg_materialDataの何番目から始まるか
+	uint materialOffset;
+	uint pad;
+};
+// マテリアル構造体
+struct Material
+{
+	float4 baseColor;
+	float3 emissive;
+	float metallic;
+	
+	float roughness;
+	int baseIndex;
+	int metaRoughnessIndex;
+	int emissiveIndex;
+	
+	int normalIndex;
+	uint startIndexLocation; // このサブメッシュのインデックスバッファが何番目から始まるか
+	float2 pad;
+};
 // 頂点構造体
 struct Vertex
 {
@@ -27,33 +33,75 @@ struct Vertex
 	float3 tangent;
 	float4 color;
 };
+StructuredBuffer<InstanceData> g_instanceData : register(t1); // インスタンスごとのデータ
+StructuredBuffer<Material> g_materialData : register(t2); // インスタンスごとのデータ
 
-// マテリアル構造体
-struct Material
+// UV座標を取得
+float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs, InstanceData instance, uint primID, Material material)
 {
-	float4 baseColor;
-	float metallic;
-	float roughness;
-	float3 emissive;
+	float3 _barycentrics = float3(1.0 - a_attribs.barycentrics.x - a_attribs.barycentrics.y, a_attribs.barycentrics.x, a_attribs.barycentrics.y);
 
-	int baseIndex;
-};
+	// メインヒープから、このインスタンスのインデックスバッファと頂点バッファを直接取得
+	StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
+	StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
 
-RaytracingAccelerationStructure g_raytracingWorld : register(t0);		// レイトレワールド
-RWTexture2D<float4> gOutPut : register(u0);								// カラー出力先
-StructuredBuffer<InstanceData> g_instanceData : register(t1);							// インスタンスごとのデータ
-StructuredBuffer<Material> g_materialData : register(t2);							// インスタンスごとのデータ
+	// プリミティブIDではなくサブメッシュ番号を取得する
+	uint _baseIndexLocation = material.startIndexLocation + (primID * 3);
 
-sampler gSamp : register(s0);
+	// プリミティブインデックスから頂点番号を取得
+	uint _v0 = indexBuff[_baseIndexLocation];
+	uint _v1 = indexBuff[_baseIndexLocation + 1];
+	uint _v2 = indexBuff[_baseIndexLocation + 2];
 
-Texture2D g_albedoTex : register(t3);
-Texture2D g_metaRogTex : register(t4);
-Texture2D g_emiTex : register(t5);
-Texture2D g_normalTex : register(t6);
+	// UV取得
+	float2 _uv0 = vertexBuff[_v0].uv;
+	float2 _uv1 = vertexBuff[_v1].uv;
+	float2 _uv2 = vertexBuff[_v2].uv;
 
-StructuredBuffer<int> g_indexBuff : register(t7);
-StructuredBuffer<Vertex> g_vertexBuff : register(t8);
+	float2 _uv = _barycentrics.x * _uv0 + _barycentrics.y * _uv1 + _barycentrics.z * _uv2;
+	return _uv;
+}
+// 法線の取得
+float3 GetNormal(BuiltInTriangleIntersectionAttributes a_attribs, float2 a_uv, InstanceData instance, uint primID, Material material)
+{
+	float3 _barycentrics = float3(1.0 - a_attribs.barycentrics.x - a_attribs.barycentrics.y, a_attribs.barycentrics.x, a_attribs.barycentrics.y);
+	
+	// 同様にメインヒープから取得
+	StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
+	StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
+	
+	// プリミティブIDではなくサブメッシュ番号を取得する
+	uint _baseIndexLocation = material.startIndexLocation + (primID * 3);
+	
+	uint _v0 = indexBuff[_baseIndexLocation];
+	uint _v1 = indexBuff[_baseIndexLocation + 1];
+	uint _v2 = indexBuff[_baseIndexLocation + 2];
+	
+	// 法線取得
+	float3 _n0 = vertexBuff[_v0].normal;
+	float3 _n1 = vertexBuff[_v1].normal;
+	float3 _n2 = vertexBuff[_v2].normal;
+	float3 _normal = normalize(_barycentrics.x * _n0 + _barycentrics.y * _n1 + _barycentrics.z * _n2);
 
+	// タンジェント
+	float3 _t0 = vertexBuff[_v0].tangent;
+	float3 _t1 = vertexBuff[_v1].tangent;
+	float3 _t2 = vertexBuff[_v2].tangent;
+	float3 _tangent = normalize(_barycentrics.x * _t0 + _barycentrics.y * _t1 + _barycentrics.z * _t2);
+
+	// ビノーマルを計算
+	float3 _binormal = normalize(cross(_tangent, _normal));
+
+	// 法線マップもマテリアルに仕込んだベースインデックスから取得
+	Texture2D normalTex = ResourceDescriptorHeap[material.normalIndex];
+	float3 _binSpaceNormal = normalTex.SampleLevel(gSamp, a_uv, 0).rgb;
+	_binSpaceNormal = (_binSpaceNormal * 2.0f) - 1.0f;
+
+	// タンジェント空間からワールド空間に変換
+	_normal = _tangent * _binSpaceNormal.x + _binormal * _binSpaceNormal.y + _normal * _binSpaceNormal.z;
+	_normal = normalize(mul(_normal, (float3x3) WorldToObject3x4()));
+	return _normal;
+}
 
 // レイ
 struct RayPayload
@@ -63,79 +111,12 @@ struct RayPayload
 	int depth;
 };
 
-
-// UV座標を取得
-float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs)
-{
-	float3 _barycentrics =float3(1.0 - a_attribs.barycentrics.x - a_attribs.barycentrics.y, a_attribs.barycentrics.x, 
-	a_attribs.barycentrics.y);
-
-	// プリミティブIDを取得
-	uint _primID = PrimitiveIndex();
-
-	// プリミティブインデックスから頂点番号を取得
-	uint _v0 = g_indexBuff[_primID * 3];
-	uint _v1 = g_indexBuff[_primID * 3 + 1];
-	uint _v2 = g_indexBuff[_primID * 3 + 2];
-
-	// UV取得
-
-	float2 _uv0 = g_vertexBuff[_v0].uv;
-	float2 _uv1 = g_vertexBuff[_v1].uv;
-	float2 _uv2 = g_vertexBuff[_v2].uv;
-
-	// UVを計算して返す
-
-	float2 _uv = _barycentrics.x * _uv0 + _barycentrics.y * _uv1 + _barycentrics.z * _uv2;
-	return _uv;
-}
-
-// 法線の取得
-float3 GetNormal(BuiltInTriangleIntersectionAttributes a_attribs, float2 a_uv)
-{
-	float3 _barycentrics =float3(1.0 - a_attribs.barycentrics.x - a_attribs.barycentrics.y, a_attribs.barycentrics.x, 
-	a_attribs.barycentrics.y);
-	// プリミティブIDを取得
-	uint _primID = PrimitiveIndex();
-	// プリミティブインデックスから頂点番号を取得
-	uint _v0 = g_indexBuff[_primID * 3];
-	uint _v1 = g_indexBuff[_primID * 3 + 1];
-	uint _v2 = g_indexBuff[_primID * 3 + 2];
-	
-	// 法線取得
-	float3 _n0 = g_vertexBuff[_v0].normal;
-	float3 _n1 = g_vertexBuff[_v1].normal;
-	float3 _n2 = g_vertexBuff[_v2].normal;
-	// 法線を計算
-	float3 _normal = _barycentrics.x * _n0 + _barycentrics.y * _n1 + _barycentrics.z * _n2;
-	_normal = normalize(_normal);
-
-	// タンジェント
-	float3 _t0 = g_vertexBuff[_v0].tangent;
-	float3 _t1 = g_vertexBuff[_v1].tangent;
-	float3 _t2 = g_vertexBuff[_v2].tangent;
-	// タンジェントを計算
-	float3 _tangent = _barycentrics.x * _t0 + _barycentrics.y * _t1 + _barycentrics.z * _t2;
-	_tangent = normalize(_tangent);
-
-	// ビノーマルを計算
-	float3 _binormal = normalize(cross(_tangent, _normal));
-
-	// 法線マップから法線を取得
-	float3 _binSpaceNormal = g_normalTex.SampleLevel(gSamp, a_uv, 0).rgb;
-	_binSpaceNormal = (_binSpaceNormal * 2.0f) - 1.0f;
-
-	// タンジェント空間からワールド空間に変換
-	_normal = _tangent * _binSpaceNormal.x + _binormal * _binSpaceNormal.y + _normal * _binSpaceNormal.z;
-	return _normal;
-}
-
 // 光源に向かってレイを飛ばす
-void TraceLightRay(inout RayPayload a_rayPayload,float3 a_normal)
+void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal)
 {
-	float _hitT = RayTCurrent();			// レイが当たった距離
-	float3 _rayDirW = WorldRayDirection();	// レイのワールド空間での方向
-	float3 _rayOriginW = WorldRayOrigin();	// レイのワールド空間での開始位置
+	float _hitT = RayTCurrent(); // レイが当たった距離
+	float3 _rayDirW = WorldRayDirection(); // レイのワールド空間での方向
+	float3 _rayOriginW = WorldRayOrigin(); // レイのワールド空間での開始位置
 
 	// レイが当たった位置を計算
 	float3 _posW = _rayOriginW + _hitT * _rayDirW;
@@ -148,14 +129,14 @@ void TraceLightRay(inout RayPayload a_rayPayload,float3 a_normal)
 	_ray.TMax = 100;
 	
 	TraceRay(
-		g_raytracingWorld,	// TLAS
-		0,					// RayFlags
-		0xFF,				// InstanceInclusionMask
-		1,					// RayContributionToHitGroupIndex
-		2,					// MultiplierForGeometryContributionToHitGroupIndex
-		1,					// MissShaderIndex
-		_ray,				// Ray
-		a_rayPayload		// RayPayload
+		g_raytracingWorld, // TLAS
+		0, // RayFlags
+		0xFF, // InstanceInclusionMask
+		1, // RayContributionToHitGroupIndex
+		0, // MultiplierForGeometryContributionToHitGroupIndex
+		1, // MissShaderIndex
+		_ray, // Ray
+		a_rayPayload // RayPayload
 	);
 }
 
@@ -196,7 +177,7 @@ void TraceReflectionRay(inout RayPayload a_rayPayload, float3 a_normal)
 			0,
 			0xFF,
 			0,
-			2,
+			0,
 			0,
 			_ray,
 			_refPayload
@@ -212,24 +193,28 @@ void RayGen()
 {
 	uint2 _id = DispatchRaysIndex().xy;
 	uint2 _dim = DispatchRaysDimensions().xy;
-	
+
+	// UVを求める
 	float2 _uv = (_id + 0.5) / _dim;
-	_uv = _uv * 2.0 - 1.0;
+	
+	// NDC(正規化デバイス座標)空間(-1.0f～1.0)へ変換
+	// HLSLの座標系に合わせるため、Y軸を反転
+	float4 _targetNDC = float4(_uv.x * 2.0f - 1.0f, 1.0f - _uv.y * 2.0f, 1.0f, 1.0f);
 
-	_uv.x *= g_camera.aspect;
-
-	float3 _dir = normalize(float3(_uv.x,-_uv.y,1.0f));
-
+	// 新しい逆ビュープロジェクション行列を使って、ワールド空間でのターゲット位置を計算
+	float4 _worldTarget = mul(_targetNDC, g_camera.invViewProj);
+	_worldTarget.xyz /= _worldTarget.w; // 投資除算
+	
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
 	_ray.Origin = g_camera.pos;
-	_ray.Direction = mul((float3x3)g_camera.rotMat,_dir);
+	_ray.Direction = normalize(_worldTarget.xyz - _ray.Origin);
 	_ray.TMin = 0.001;
 	_ray.TMax = 10000;
 
 
 	RayPayload _payload;
-	_payload.color = float3(0,0,0);
+	_payload.color = float3(0, 0, 0);
 	_payload.depth = 0;
 	_payload.hit = 0;
 	
@@ -238,7 +223,7 @@ void RayGen()
 		0,
 		0xFF,
 		0,
-		2,
+		0,
 		0,
 		_ray,
 		_payload
@@ -246,14 +231,14 @@ void RayGen()
 
 	float3 _col = _payload.color;
 
-	gOutPut[_id] = float4(_col,1);
+	gOutPut[_id] = float4(_col, 1);
 }
 
 // レイがどのポリゴンとも接触しなかったときに呼び出されるシェーダー
 [shader("miss")]
 void Miss(inout RayPayload a_payload)
 {
-	a_payload.color = float3(0.2,0.2,1.0);
+	a_payload.color = float3(0.2, 0.2, 1.0);
 }
 
 [shader("miss")]
@@ -268,23 +253,30 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 {
 	a_payload.depth++;
 	
-	// UV取得
-	float2 _uv = GetUV(a_attr);
+	// 各種IDとデータの取得
+	uint instID = InstanceID(); // インスタンス番号
+	uint geomID = GeometryIndex(); // 当たったサブメッシュ番号
+	uint primID = PrimitiveIndex(); // 当たったポリゴン番号
 
-	// 法線取得
-	float3 _normal = GetNormal(a_attr, _uv);
+	// データを配列から取得
+	InstanceData instance = g_instanceData[instID]; // インスタンス情報
+	Material _material = g_materialData[instance.materialOffset + geomID]; // サブメッシュマテリアル情報
+
+	// UV取得 (引数を追加)
+	float2 _uv = GetUV(a_attr, instance, primID, _material);
+
+	// 法線取得 (引数を追加)
+	float3 _normal = GetNormal(a_attr, _uv, instance, primID, _material);
 
 	// 光源に向かってレイを飛ばす
-	TraceLightRay(a_payload,_normal);
+	TraceLightRay(a_payload, _normal);
 	float _lig = 0.0f;
 	if (a_payload.hit == 0)
 	{
 		float3 _ligDir = normalize(float3(0.5, 0.5, 0.2));
-		float _t = max(0, dot(_normal, _ligDir));
-		_lig = _t;
+		_lig = max(0, dot(_normal, _ligDir));
 	}
 
-	// 観光光
 	_lig += 0.5f;
 	RayPayload _refPayload;
 	_refPayload.depth = a_payload.depth;
@@ -292,24 +284,19 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 
 	// 反射レイを飛ばす
 	TraceReflectionRay(_refPayload, _normal);
-
 	
 	float dist = RayTCurrent();
-	float lod = log2(dist * 0.5); // 調整必要
-	lod = clamp(lod, 0, 5);
+	float lod = clamp(log2(dist * 0.5), 0, 5);
 	
-	// このプリミティブの反射率を取得
-	Material _material = g_materialData[InstanceID()];
-	float _reflectRate = g_metaRogTex.SampleLevel(gSamp, _uv, lod).b * _material.metallic;
-	float3 _color = g_albedoTex.SampleLevel(gSamp, _uv, lod).rgb;
+	// テクスチャをメインヒープのインデックスから直接サンプリング
+	Texture2D albedoTex = ResourceDescriptorHeap[_material.baseIndex];
+	Texture2D metaRogTex = ResourceDescriptorHeap[_material.metaRoughnessIndex];
 
-	//float3 _baseTex = ResourceDescriptorHeap[4].SampleLevel(gSamp, _uv, lod).rgb;
-	//Texture2D _baseTex = (Texture2D) ResourceDescriptorHeap[4];
-	//_color = _baseTex.SampleLevel(gSamp, _uv, lod).rgb;
-	//_color = _baseTex;
-	
+	float _reflectRate = metaRogTex.SampleLevel(gSamp, _uv, lod).b * _material.metallic;
+	float3 _color = albedoTex.SampleLevel(gSamp, _uv, lod).rgb;
+
 	_color *= _lig;
-	a_payload.color = lerp(_color,_refPayload.color,_reflectRate);
+	a_payload.color = lerp(_color, _refPayload.color, _reflectRate);
 	
 	a_payload.depth--;
 }

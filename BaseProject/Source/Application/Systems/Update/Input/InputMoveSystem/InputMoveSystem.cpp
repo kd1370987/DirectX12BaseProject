@@ -42,6 +42,8 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 				MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
 
 				_lookComp.Yaw += _look.x;
+				_lookComp.Pitch += _look.y;
+				_lookComp.Pitch = std::clamp(_lookComp.Pitch, -_lookComp.maxPitch, _lookComp.maxPitch);
 
 				_intentComp.value = {};
 				_intentComp.value = _move;

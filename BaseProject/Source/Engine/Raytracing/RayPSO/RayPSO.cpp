@@ -250,7 +250,16 @@ namespace Engine::Raytracing
 			int depth;
 			DXSM::Vector3 pad3_1;
 		};
-		_shaderConfig.Init(8, sizeof(RayPayload));
+		if(a_desc.payloadSize == 0)
+		{
+			// 指定がなければデフォルト指定
+			_shaderConfig.Init(8, sizeof(RayPayload));
+		}
+		else
+		{
+			// 指定サイズを入れる
+			_shaderConfig.Init(8, a_desc.payloadSize);
+		}
 		_subObjects.push_back(_shaderConfig.subObject);
 
 		// シェーダー設定とシェーダーの関連付け

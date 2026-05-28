@@ -12,6 +12,7 @@
 
 #include "../RenderPass/RaytracingPass/RaytracingShadowPass/RaytracingShadowPass.h"
 #include "../RenderPass/RaytracingPass/RaytracingGIPass/RaytracingGIPass.h"
+#include "../RenderPass/RaytracingPass/FullRaytracingPass/FullRaytracingPass.h"
 
 #include "../RenderContext/RenderContext.h"
 
@@ -106,6 +107,13 @@ namespace Engine::Graphics
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
+			"FullRay",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		);
+		m_upRGResourceManager->Register(
 			"Test",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
 			1280,
@@ -126,6 +134,7 @@ namespace Engine::Graphics
 
 		RegisterPass<RaytracingShadowPass>();
 		RegisterPass<RaytracingGIPass>();
+		//RegisterPass<FullRaytracingPass>();
 
 		// パスの初期化
 		for (auto& _sp : m_spPassVec)

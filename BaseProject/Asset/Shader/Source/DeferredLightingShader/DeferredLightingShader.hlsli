@@ -4,7 +4,7 @@
 RS_FLAGS","\
 RS_CAMERA_CB ","\
 "CBV(b1,visibility = SHADER_VISIBILITY_ALL), " \
-"DescriptorTable(SRV(t0, numDescriptors=6),visibility = SHADER_VISIBILITY_PIXEL), " \
+"DescriptorTable(SRV(t0, numDescriptors=7),visibility = SHADER_VISIBILITY_PIXEL), " \
 RS_STATIC_SAMPLER
 
 // カメラの定数バッファ
@@ -33,6 +33,7 @@ Texture2D g_materialTex : register(t2);
 Texture2D g_emiTex : register(t3);
 Texture2D g_depthTex : register(t4);
 Texture2D g_shadowMask : register(t5);
+Texture2D g_rayGI : register(t6);
 
 // サンプラー
 SamplerState g_samp : register(s0);

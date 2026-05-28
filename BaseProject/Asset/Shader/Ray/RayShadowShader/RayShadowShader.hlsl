@@ -71,7 +71,7 @@ void RayGen()
 	
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
-	_ray.Origin = _worldPos +_normal * 0.001f; // シャドウアクネ
+	_ray.Origin = _worldPos +_normal * 0.1; // シャドウアクネ
 	_ray.Direction = normalize(-g_dl.dir);
 	_ray.TMin = 0.01f;
 	_ray.TMax = 10000;

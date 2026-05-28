@@ -49,6 +49,12 @@ namespace Engine::Raytracing
 			hitGroupVec.push_back({ a_name,a_closestHit,a_anyHit });
 		}
 
+		template<typename T>
+		void SetPayload()
+		{
+			payloadSize = sizeof(T);
+		}
+
 		// シェーダー
 		std::string shaderPass = "Raytracing";		// パス
 		std::vector<RayShaderData> shaderDataVec;	// シェーダーデータ
@@ -64,6 +70,9 @@ namespace Engine::Raytracing
 		ID3D12RootSignature* pRayGenRootSig = nullptr;	// レイジェネレーション用
 		ID3D12RootSignature* pMissRootSig = nullptr;	// ミスシェーダー用
 		ID3D12RootSignature* pHitRootSig = nullptr;		// ヒットシェーダー用
+
+		// ペイロードサイズ
+		size_t payloadSize = 0;
 	};
 
 	class RayPSO

@@ -37,16 +37,8 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				if (!_targetLook) continue;
 				TransformComponent& _trsComp = a_trsArray[_i];
 
-				// 視点
-				TPSLookAngleComponent& _lookAng = a_lookAngArray[_i];
-				_lookAng.Pitch = std::clamp(
-					_lookAng.Pitch,
-					-_lookAng.ClampPitch,
-					_lookAng.ClampPitch
-				);
-
 				DirectX::XMVECTOR _quat = DirectX::XMQuaternionRotationRollPitchYaw(
-					DirectX::XMConvertToRadians(_lookAng.Pitch),
+					DirectX::XMConvertToRadians(-_targetLook->Pitch),
 					DirectX::XMConvertToRadians(_targetLook->Yaw),
 					0.0f
 				);
@@ -68,7 +60,10 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				float _distance = a_offsetArray[_i].z;
 
 				DirectX::XMVECTOR _camPos =
-					DirectX::XMVectorAdd(DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&_targetTRS->pos), DirectX::XMVectorScale(_forward, _distance)), DirectX::XMVectorScale(DirectX::XMVectorSet(0, 1, 0, 0), a_offsetArray[_i].y));
+					DirectX::XMVectorAdd(DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&_targetTRS->pos), 
+						DirectX::XMVectorScale(_forward, _distance)), 
+						DirectX::XMVectorScale(DirectX::XMVectorSet(0, 1, 0, 0), a_offsetArray[_i].y)
+					);
 
 
 				// 移動

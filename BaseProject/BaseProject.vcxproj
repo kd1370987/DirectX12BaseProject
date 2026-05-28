@@ -332,6 +332,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ScreenUIPass\ScreenUIPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.cpp" />
@@ -568,6 +569,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ScreenUIPass\ScreenUIPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\TestPass\TestPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h" />

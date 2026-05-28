@@ -4,356 +4,6 @@
             "CompName": "ActiveTag"
         },
         {
-            "CompName": "TransformComponent",
-            "pos": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "quat": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": ""
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "3bd600fb-39cc-4ff3-b740-d4bf5f2d3689"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                5.0,
-                0.0,
-                0.0
-            ],
-            "quat": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": ""
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "450392bd-1eda-4630-8b49-adb931112330"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                10.0,
-                0.0,
-                0.0
-            ],
-            "quat": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": ""
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "ca380160-6b08-4154-9041-567167749052"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                15.0,
-                0.0,
-                0.0
-            ],
-            "quat": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": ""
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "8349df32-40db-40cb-8b20-699c1b68b589"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                20.0,
-                0.0,
-                0.0
-            ],
-            "quat": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": ""
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "b8edb481-c13e-4a15-bd9b-e62225d82609"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                0.0,
-                2.0,
-                0.0
-            ],
-            "quat": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": ""
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "39af62a5-bb12-495a-859e-d47fb687e734"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                0.0,
-                2.0,
-                5.0
-            ],
-            "quat": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": [
-                2.0,
-                2.0,
-                1.0
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": "RedBall"
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "a579c9f0-b24b-4d95-911f-4c03761de7df"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
             "CompName": "ActiveCameraTag"
         },
         {
@@ -399,15 +49,15 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -3.0054807662963867,
-                1.9920002222061157,
-                2.5379819869995117
+                6.714634895324707,
+                3.943009376525879,
+                -3.998377799987793
             ],
             "quat": [
-                -0.0,
-                -0.9993908405303955,
-                0.0,
-                -0.034899890422821045
+                -0.1470002830028534,
+                0.3378099203109741,
+                -0.05350383743643761,
+                -0.9281232357025146
             ],
             "scale": [
                 1.0,
@@ -432,180 +82,22 @@
             "CompName": "ActiveTag"
         },
         {
-            "CompName": "PlayerControllTag"
-        },
-        {
-            "CompName": "VelocityComponent"
-        },
-        {
-            "CompName": "GravityComponent",
-            "scale": -1.0
-        },
-        {
-            "CompName": "PlayerLookAngleComponent",
-            "Yaw": 1976.0
-        },
-        {
-            "CompName": "ColliderComponent",
-            "collideLayer": 1,
-            "isPhysical": 0,
-            "layer": 2
-        },
-        {
-            "CompName": "RayColliderComponent",
-            "dir": [
-                0.0,
-                -1.0,
-                0.0
-            ],
-            "length": 1.0,
-            "pos": [
-                0.0,
-                1.0,
-                0.0
-            ]
-        },
-        {
             "CompName": "TransformComponent",
             "pos": [
-                -2.6566944122314453,
-                -0.007999821566045284,
-                -2.449838161468506
+                3.6505346298217773,
+                2.1665186882019043,
+                -0.34673523902893066
             ],
             "quat": [
-                -0.0,
-                -0.9993908405303955,
-                -0.0,
-                -0.034899890422821045
+                -0.005561483092606068,
+                0.9395681023597717,
+                0.015280061401426792,
+                0.341975599527359
             ],
             "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "816ccbf0-d612-4e6b-bc86-302f59523962"
-        },
-        {
-            "CompName": "AnimatorComponent",
-            "clipID": 0,
-            "isLoop": 1,
-            "speed": 30.0
-        },
-        {
-            "CompName": "SkeletonPoseComponent"
-        },
-        {
-            "CompName": "NodePoseComponent"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": "Player"
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "b381d39a-e16a-46e2-a367-57fd14f074e6"
-        },
-        {
-            "CompName": "StateMachineComponent"
-        },
-        {
-            "CompName": "MoveIntentComponent"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "ColliderComponent",
-            "collideLayer": 2,
-            "isPhysical": 0,
-            "layer": 1
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "quat": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "CompName": "WorldMatrixComponent"
-        },
-        {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "dc73f9dd-325f-4a52-b2eb-aca396a4067a"
-        },
-        {
-            "CompName": "NameComponent",
-            "name": "Stage"
-        },
-        {
-            "CompName": "GUIDComponent",
-            "guid": "e6f8bbaf-b0ac-4507-8e85-94de5046d6ac"
-        }
-    ],
-    [
-        {
-            "CompName": "ActiveTag"
-        },
-        {
-            "CompName": "TransformComponent",
-            "pos": [
-                -2.6558849811553955,
-                1.760594367980957,
-                -2.4614131450653076
-            ],
-            "quat": [
-                -0.01625073328614235,
-                -0.034895360469818115,
-                -0.0005674933199770749,
-                0.9992586970329285
-            ],
-            "scale": [
-                0.20000000298023224,
-                0.19999992847442627,
-                0.19999997317790985
+                0.19999995827674866,
+                0.19999995827674866,
+                0.20000000298023224
             ]
         },
         {
@@ -668,20 +160,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -1.8244003057479858,
-                1.4327996969223022,
-                -2.326078176498413
+                3.0573978424072266,
+                1.8387240171432495,
+                -0.9449583292007446
             ],
             "quat": [
-                0.024677876383066177,
-                -0.024677837267518044,
-                -0.7066757082939148,
-                0.7066763639450073
+                -0.6644625663757324,
+                0.6644632816314697,
+                -0.2418449968099594,
+                0.2418452352285385
             ],
             "scale": [
+                0.10000000149011612,
                 0.09999998658895493,
-                0.09999998658895493,
-                0.09999994933605194
+                0.09999997913837433
             ]
         },
         {
@@ -744,20 +236,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -3.498112678527832,
-                1.4327991008758545,
-                -2.443117141723633
+                4.342665195465088,
+                1.8387234210968018,
+                0.13351213932037354
             ],
             "quat": [
-                -0.024678010493516922,
-                -0.024678250774741173,
-                0.70667564868927,
-                0.7066763639450073
+                0.6644625067710876,
+                0.6644631028175354,
+                0.24184522032737732,
+                0.24184554815292358
             ],
             "scale": [
                 0.09999995678663254,
-                0.09999999403953552,
-                0.09999993443489075
+                0.09999998658895493,
+                0.09999994188547134
             ]
         },
         {
@@ -820,20 +312,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -2.570408344268799,
-                0.0957004576921463,
-                -2.407917022705078
+                3.6128273010253906,
+                0.5016247630119324,
+                -0.44025635719299316
             ],
             "quat": [
-                0.86855548620224,
-                0.01700671948492527,
-                0.030781377106904984,
-                -0.4943426847457886
+                -0.2976735532283783,
+                0.4648923873901367,
+                0.8165332674980164,
+                0.16893479228019714
             ],
             "scale": [
-                0.09999995678663254,
+                0.09999994933605194,
                 0.10000015795230865,
-                0.10000000894069672
+                0.10000001639127731
             ]
         },
         {
@@ -896,19 +388,19 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -2.7479748725891113,
-                0.09570060670375824,
-                -2.4203338623046875
+                3.749182939529419,
+                0.5016249418258667,
+                -0.32583993673324585
             ],
             "quat": [
-                0.8685554265975952,
-                0.01700671575963497,
-                0.030781375244259834,
-                -0.4943426251411438
+                -0.2976735830307007,
+                0.46489235758781433,
+                0.8165332674980164,
+                0.16893482208251953
             ],
             "scale": [
-                0.09999997913837433,
-                0.10000017285346985,
+                0.09999996423721313,
+                0.10000018030405045,
                 0.10000000894069672
             ]
         },
@@ -963,6 +455,542 @@
             ],
             "parentGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6",
             "targetNodeHash": 2193820456
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "ColliderComponent",
+            "collideLayer": 2,
+            "isPhysical": 0,
+            "layer": 1
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "dc73f9dd-325f-4a52-b2eb-aca396a4067a"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "Stage"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "e6f8bbaf-b0ac-4507-8e85-94de5046d6ac"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "PlayerControllTag"
+        },
+        {
+            "CompName": "VelocityComponent"
+        },
+        {
+            "CompName": "GravityComponent",
+            "scale": -1.0
+        },
+        {
+            "CompName": "PlayerLookAngleComponent",
+            "Yaw": 2480.0,
+            "maxPitch": 90.0
+        },
+        {
+            "CompName": "ColliderComponent",
+            "collideLayer": 1,
+            "isPhysical": 0,
+            "layer": 2
+        },
+        {
+            "CompName": "RayColliderComponent",
+            "dir": [
+                0.0,
+                -1.0,
+                0.0
+            ],
+            "length": 1.0,
+            "pos": [
+                0.0,
+                1.0,
+                0.0
+            ]
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                3.6579933166503906,
+                0.3979245722293854,
+                -0.3556238114833832
+            ],
+            "quat": [
+                0.0,
+                0.34202075004577637,
+                0.0,
+                -0.9396923780441284
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "816ccbf0-d612-4e6b-bc86-302f59523962"
+        },
+        {
+            "CompName": "AnimatorComponent",
+            "clipID": 0,
+            "isLoop": 1,
+            "speed": 30.0
+        },
+        {
+            "CompName": "SkeletonPoseComponent"
+        },
+        {
+            "CompName": "NodePoseComponent"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "Player"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "StateMachineComponent"
+        },
+        {
+            "CompName": "MoveIntentComponent"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                0.0,
+                2.0,
+                5.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                2.0,
+                2.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "RedBall"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "a579c9f0-b24b-4d95-911f-4c03761de7df"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                0.0,
+                2.0,
+                0.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": ""
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "39af62a5-bb12-495a-859e-d47fb687e734"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                20.0,
+                0.0,
+                0.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": ""
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "b8edb481-c13e-4a15-bd9b-e62225d82609"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                15.0,
+                0.0,
+                0.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": ""
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "8349df32-40db-40cb-8b20-699c1b68b589"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                10.0,
+                0.0,
+                0.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": ""
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "ca380160-6b08-4154-9041-567167749052"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                5.0,
+                0.0,
+                0.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": ""
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "450392bd-1eda-4630-8b49-adb931112330"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": ""
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "3bd600fb-39cc-4ff3-b740-d4bf5f2d3689"
         }
     ]
 ]

@@ -25,6 +25,7 @@ float4 ps(VSOutput a_in) : SV_Target
 	float _roughness = g_materialTex.Sample(g_samp, a_in.uv).g; // 粗さ
 
 	float _shadow = g_shadowMask.Sample(g_samp,a_in.uv).r;	// 影
+	float3 _rayGI = g_rayGI.Sample(g_samp,a_in.uv).rgb;		// GI
 	
 	// 3D空間での位置を復元
 	float3 _viewPos = ReconstructViewPos(a_in.uv, _depth);
@@ -76,7 +77,8 @@ float4 ps(VSOutput a_in) : SV_Target
 	_outColor += _diffuse * (1.0f) + _spec;
 
 	// アンビエント
-	_outColor += g_ambientColor.rgb * _albedo;
+	//_outColor += g_ambientColor.rgb * _albedo;
+	_outColor += _rayGI * _albedo;
 
 	
 	
