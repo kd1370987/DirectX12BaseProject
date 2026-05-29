@@ -23,7 +23,9 @@ namespace Engine::Raytracing
 
 	void Engine::Raytracing::RayEngine::Commit()
 	{
+		if (m_isCommit)  return;
 		m_upRayWorld->Commit();
+		m_isCommit = true;
 	}
 
 	void RayEngine::BindCamera(Graphics::RenderContext* a_pRCT, const Graphics::CameraData& a_cbCam)
@@ -102,6 +104,7 @@ namespace Engine::Raytracing
 	void Engine::Raytracing::RayEngine::EndFrame()
 	{
 		m_upRayWorld->Clear();
+		m_isCommit = false;
 	}
 
 	const std::vector<Instance>& Engine::Raytracing::RayEngine::GetInstanceVec()
