@@ -77,10 +77,7 @@ float4 ps(VSOutput a_in) : SV_Target
 	_outColor += _diffuse * (1.0f) + _spec;
 
 	// アンビエント
-	//_outColor += g_ambientColor.rgb * _albedo;
 	_outColor += _rayGI * _albedo;
-
-	
 	
 	return float4(_outColor, _arpha);
 }

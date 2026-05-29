@@ -94,6 +94,7 @@ namespace Engine::Graphics
 		void SetProjMat(const DXSM::Matrix& a_projMat);
 
 		const CameraData& GetCameraData() const;
+		const CameraData& GetGPUCameraData() const;
 		// 環境データ
 		void SetAmbientData(const AmbientData& a_data);
 		const AmbientData& GetAmbientData() const;
@@ -129,6 +130,7 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// カメラデータ
 		CameraData m_cbCamera = {};
+		CameraData m_cbGPUCamera = {};
 
 		// 環境データ
 		AmbientData m_cbAmbient = {};

@@ -124,7 +124,7 @@ void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal)
 	// 光源の方向にレイを飛ばす
 	RayDesc _ray;
 	_ray.Origin = _posW;
-	_ray.Direction = normalize(float3(0.5, 0.5, 0.2));
+	_ray.Direction = normalize(float3(0.5, 0.5, 1));
 	_ray.TMin = 0.01f;
 	_ray.TMax = 100;
 	
@@ -273,7 +273,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float _lig = 0.0f;
 	if (a_payload.hit == 0)
 	{
-		float3 _ligDir = normalize(float3(0.5, 0.5, 0.2));
+		float3 _ligDir = normalize(float3(0.5,0.5,1));
 		_lig = max(0, dot(_normal, _ligDir));
 	}
 

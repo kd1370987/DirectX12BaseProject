@@ -30,7 +30,7 @@ namespace Engine::Raytracing
 	{
 		auto* _pCmdList = a_pRCT->GetCurrentCmdList();
 		// 定数バッファをバインド
-		auto& _cam = a_cbCam;
+		const auto& _cam = a_cbCam;
 
 		m_camera.pos = { _cam.pos.x, _cam.pos.y, _cam.pos.z};
 		m_camera.view = _cam.viewMat;

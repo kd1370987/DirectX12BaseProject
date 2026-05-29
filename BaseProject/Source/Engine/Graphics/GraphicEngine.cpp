@@ -75,23 +75,26 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::Excute()
 	{
+		m_cbGPUCamera = {};
 		// カメラのトランスポーズ
 		DXSM::Matrix _viewMat = m_cbCamera.viewMat;
 		DXSM::Matrix _projMat = m_cbCamera.projMat;
 		DXSM::Matrix _invViewMat = m_cbCamera.viewInvMat;
 		DXSM::Matrix _invProjMat = m_cbCamera.projInvMat;
 		DXSM::Matrix _viewProj = _viewMat * _projMat;
-		_viewProj = _viewProj.Invert();
+		DXSM::Matrix _invViewProj = _viewProj.Invert();
 
-		m_cbCamera.viewMat = _viewMat.Transpose();
-		m_cbCamera.projMat = _projMat.Transpose();
-		m_cbCamera.viewInvMat = _invViewMat.Transpose();
-		m_cbCamera.projInvMat = _invProjMat.Transpose();
-		m_cbCamera.invViewProjMat = _viewProj.Transpose();
+		m_cbGPUCamera.pos = m_cbCamera.pos;
+		m_cbGPUCamera.viewMat = _viewMat.Transpose();
+		m_cbGPUCamera.projMat = _projMat.Transpose();
+		m_cbGPUCamera.viewInvMat = _invViewMat.Transpose();
+		m_cbGPUCamera.projInvMat = _invProjMat.Transpose();
+		m_cbGPUCamera.invViewProjMat = _invViewProj.Transpose();
 
-		m_cbCamera.prevView = DXSM::Matrix::Identity;
-		m_cbCamera.prevProj = DXSM::Matrix::Identity;
-		m_cbCamera.prevViewProj = DXSM::Matrix::Identity;
+		m_cbGPUCamera.prevView = DXSM::Matrix::Identity;
+		m_cbGPUCamera.prevProj = DXSM::Matrix::Identity;
+		m_cbGPUCamera.prevViewProj = DXSM::Matrix::Identity;
+
 
 		// バッファの更新
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(m_instanceDataVec, m_subSetDataVec);
@@ -155,7 +158,11 @@ namespace Engine::Graphics
 	}
 	const CameraData& GraphicsEngine::GetCameraData() const
 	{
-		return m_cbCamera;
+		return m_cbGPUCamera;
+	}
+	const CameraData& GraphicsEngine::GetGPUCameraData() const
+	{
+		return m_cbGPUCamera;
 	}
 	void GraphicsEngine::SetAmbientData(const AmbientData& a_data)
 	{

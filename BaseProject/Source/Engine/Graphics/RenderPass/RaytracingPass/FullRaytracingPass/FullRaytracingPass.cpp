@@ -9,6 +9,7 @@
 #include "../../../RenderContext/RenderContext.h"
 #include "../../../GraphicEngine.h"
 
+#include "../../../../D3D12/CBAllocater/CBAllocater.h"
 namespace Engine::Graphics
 {
 	void Engine::Graphics::FullRaytracingPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
