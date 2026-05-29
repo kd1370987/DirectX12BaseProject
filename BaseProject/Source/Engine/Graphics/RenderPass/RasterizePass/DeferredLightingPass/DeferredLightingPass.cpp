@@ -15,7 +15,7 @@ namespace Engine::Graphics
 		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
 
 		CBAmbient _amib = {};
-		a_pCtx->BindRootCBV<CBAmbient>(5, _amib);
+		a_pCtx->BindRootCBV<CBAmbient>(1, _amib);
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gpuVec = {};
 
 		_gpuVec = {

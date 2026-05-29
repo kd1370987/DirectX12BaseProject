@@ -16,8 +16,15 @@ struct VSInput
 VSOutput vs(VSInput a_input)
 {
 	int _index = g_bufferIndex.instanceDataIndex;
-	
+	float4x4 identity =
+	{
+		1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+	};
 	VSOutput _out;
-	_out.svpos = Transform_LocalToProj(a_input.pos, g_instanceData[_index].worldMat);
+	//_out.svpos = Transform_LocalToProj(a_input.pos, g_instanceData[_index].worldMat);
+	_out.svpos = Transform_LocalToProj(a_input.pos, identity);
 	return _out;
 }

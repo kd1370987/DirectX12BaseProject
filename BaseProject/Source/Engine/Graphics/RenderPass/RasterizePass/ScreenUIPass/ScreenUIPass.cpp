@@ -6,13 +6,12 @@ namespace Engine::Graphics
 {
 	void ScreenUIPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
-		Begine(a_pCtx);
+		/*Begine(a_pCtx);
 
 		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
 
-		a_pCtx->DrawUIQueue(RenderQueueType2D::ScreenUI);
 
-		End(a_pCtx);
+		End(a_pCtx);*/
 	}
 
 	void ScreenUIPass::CreatePass()

@@ -227,6 +227,8 @@ namespace Engine
 			Engine::Editor::MainEditor::Instance().Draw(D3D12::D3D12Wrapper::Instance().GetCommandList(),m_upWindow->GetClientWidth(),m_upWindow->GetClientHeight());
 		}
 
+		m_upGraphicsEngine->EndFrame();
+
 		Editor::MainEditor::Instance().EndWatch("EditorPhase");
 
 		Editor::MainEditor::Instance().StartWatch("EndFramePhase");

@@ -238,8 +238,6 @@ namespace Engine::Graphics
 		// クワッド描画
 		void DrawQuad();
 
-		// UI描画
-		void DrawUIQueue(RenderQueueType2D a_type);
 
 		// 形状描画
 		void ShapeDraw();
@@ -279,6 +277,6 @@ namespace Engine::Graphics
 	template<typename T>
 	inline void RenderContext::BindRootCBV(UINT a_index, const T& a_data)
 	{
-		BindRootCBV(a_index, (void*)a_data, sizeof(T));
+		BindRootCBV(a_index, (const void*)&a_data, sizeof(T));
 	}
 }

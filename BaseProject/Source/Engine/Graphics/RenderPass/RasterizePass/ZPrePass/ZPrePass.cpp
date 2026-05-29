@@ -1,18 +1,20 @@
 ﻿#include "ZPrePass.h"
 
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
+#include "../../../GraphicEngine.h"
+
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Graphics
 {
-	void ZPrePass::Excute(GraphicsEngine* a_pGR, RenderContext* a_pCtx)
+	void ZPrePass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		Begine(a_pCtx);
-
-		a_pCtx->BindSRVBone();
-
-		a_pCtx->BindCameraCB();
-		DrawQueue(a_pGR,a_pCtx);
+		a_pCtx->BindRootCBV<CameraData>(0, a_pGE->GetCameraData());
+		a_pCtx->BindInstanceBuffer(2);
+		a_pCtx->BindSubsetBuffer(3);
+		a_pCtx->BindBonePalletBuffer(4);
+		DrawQueue(a_pGE,a_pCtx);
 
 		End(a_pCtx);
 	}

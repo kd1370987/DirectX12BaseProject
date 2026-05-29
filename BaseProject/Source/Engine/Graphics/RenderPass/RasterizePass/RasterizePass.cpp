@@ -28,19 +28,16 @@ namespace Engine::Graphics
 	}
 	void RasterizePass::Begine(RenderContext* a_pCtx)
 	{
-		Editor::MainEditor::Instance().StartWatch(m_name.c_str());
+		Editor::MainEditor::Instance().StartWatch(m_name);
 		a_pCtx->BindHeap();
 		a_pCtx->SetGraphicsRootSignature(m_pRootSig);
 	}
 	void RasterizePass::End(RenderContext * a_pCtx)
 	{
-		Editor::MainEditor::Instance().EndWatch(m_name.c_str());
+		Editor::MainEditor::Instance().EndWatch(m_name);
 	}
 	void RasterizePass::DrawQueue(GraphicsEngine* a_pGE,RenderContext * a_pCtx)
 	{
-		// 構造体セット
-		a_pCtx->BindInstanceBuffer(0);
-		a_pCtx->BindSubsetBuffer(1);
 
 		// キャッシュ
 		uint16_t _lassMaterialID = 0xFFFF;
@@ -49,7 +46,7 @@ namespace Engine::Graphics
 
 		// 指定タイプの命令キューを取得
 		auto _itemVec = a_pGE->GetPassItems(m_passIndex);
-		if (_itemVec.empty()) return;;
+		if (_itemVec.empty()) return;
 
 		for (auto& _item : _itemVec)
 		{

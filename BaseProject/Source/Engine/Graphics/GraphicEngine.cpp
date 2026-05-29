@@ -86,6 +86,8 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::EndFrame()
 	{
+		Engine::Editor::MainEditor::Instance().AddLog("DrawItemSize : %d\n",static_cast<int>(m_lightWeightDrawItemVec.size()));
+
 		// 描画命令をクリアしてメモリ領域を確保しておく
 		m_lightWeightDrawItemVec.clear();
 		m_lightWeightDrawItemVec.reserve(10000);

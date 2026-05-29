@@ -46,8 +46,11 @@ namespace Engine::Graphics
 			m_pDevice, a_desc.cbAllocatorMemSize
 		);
 
-		// ボーン用バッファ作成
+		// バッファ作成
+		m_instanceBuffer.Create(a_desc.pDevice, *_pCmdList, 16000, nullptr);
+		m_subsetBuffer.Create(a_desc.pDevice, *_pCmdList, 16000, nullptr);
 		m_boneBuffer.Create(a_desc.pDevice, *_pCmdList, a_desc.boneElementNum, nullptr);
+
 
 		// 構造体バッファ作成のためGPU操作を実行
 		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);

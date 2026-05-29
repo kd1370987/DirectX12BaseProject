@@ -136,6 +136,9 @@ namespace Engine::Graphics
 		};
 		m_shaderTable.Init(_shaderTableInit);
 
+		AddRead("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		AddRead("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+
 		AddWrite("RayGI", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
 	}
 }

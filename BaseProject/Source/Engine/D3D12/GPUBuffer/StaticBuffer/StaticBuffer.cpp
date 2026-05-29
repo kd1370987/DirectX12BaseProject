@@ -106,7 +106,10 @@ namespace Engine::D3D12
 		);
 
 		// SRVに戻す
-		m_gpuBuffer.Barrier(a_cmdList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		m_gpuBuffer.Barrier(
+			a_cmdList, 
+			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+		);
 		m_isDrty = false;
 	}
 }
