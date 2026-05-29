@@ -6,10 +6,12 @@ struct AmbientData
 {
 	// 環境光
 	float3 ambientColor;
-	
+	float pad;
 	// ディレクショナルライト
 	float3 DL_Dir;			// ライトの方向（ワールド空間）
+	float pad1;
 	float3 DL_Color;		// ライトの色
+	float pad2;
 };
 
 // カメラの定数バッファ
