@@ -1,6 +1,6 @@
 #include "../Raytracing.hlsli"
 #include "../../Source/CalcNormal.hlsli"
-
+#include "../../Common/RootParameters/AmbientData.hlsli"
 struct GBufferIndex
 {
 	int depth;
@@ -11,16 +11,6 @@ cbuffer cbGBufferIndex : register(b1)
 {
 	GBufferIndex g_gbuffer;
 }
-struct DL
-{
-	float3 dir;
-	float pad;
-};
-cbuffer cbLight : register(b2)
-{
-	DL g_dl;
-}
-//Texture2D g_depthTex : register(t1);
 
 
 struct RayPayload
@@ -72,7 +62,7 @@ void RayGen()
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
 	_ray.Origin = _worldPos +_normal * 0.1; // シャドウアクネ
-	_ray.Direction = normalize(-g_dl.dir);
+	_ray.Direction = normalize(g_ambient.DL_Dir);
 	_ray.TMin = 0.01f;
 	_ray.TMax = 10000;
 
@@ -94,6 +84,9 @@ void RayGen()
 	);
 
 	gOutPut[_id] = float4(_payload.color,1);
+	//gOutPut[_id] = float4(_worldPos,1);
+	//gOutPut[_id] = float4(g_ambient.DL_Dir,1);
+
 }
 [shader("closesthit")]
 void ShadowCHS(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)

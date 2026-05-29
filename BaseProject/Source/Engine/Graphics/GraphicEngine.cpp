@@ -52,6 +52,12 @@ namespace Engine::Graphics
 		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
 		auto* _CmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
 		Animation::AnimationMatrixManager::Instance().Init(_pDev, *_CmdList, 10000);
+
+		// 定数バッファ初期化
+		m_cbAmbient = {};
+		m_cbAmbient.ammbientColorScale = { 0,0,0 };
+		m_cbAmbient.dlDir = { 0.5f,-1.0f,0.5f };
+		m_cbAmbient.dlColor = { 4.0f,4.0f,4.0f };
 	}
 
 	void GraphicsEngine::Release()
@@ -74,11 +80,15 @@ namespace Engine::Graphics
 		DXSM::Matrix _projMat = m_cbCamera.projMat;
 		DXSM::Matrix _invViewMat = m_cbCamera.viewInvMat;
 		DXSM::Matrix _invProjMat = m_cbCamera.projInvMat;
+		DXSM::Matrix _viewProj = _viewMat * _projMat;
+		_viewProj = _viewProj.Invert();
 
 		m_cbCamera.viewMat = _viewMat.Transpose();
 		m_cbCamera.projMat = _projMat.Transpose();
 		m_cbCamera.viewInvMat = _invViewMat.Transpose();
 		m_cbCamera.projInvMat = _invProjMat.Transpose();
+		m_cbCamera.invViewProjMat = _viewProj.Transpose();
+
 		m_cbCamera.prevView = DXSM::Matrix::Identity;
 		m_cbCamera.prevProj = DXSM::Matrix::Identity;
 		m_cbCamera.prevViewProj = DXSM::Matrix::Identity;
@@ -146,6 +156,14 @@ namespace Engine::Graphics
 	const CameraData& GraphicsEngine::GetCameraData() const
 	{
 		return m_cbCamera;
+	}
+	void GraphicsEngine::SetAmbientData(const AmbientData& a_data)
+	{
+		m_cbAmbient = a_data;
+	}
+	const AmbientData& GraphicsEngine::GetAmbientData() const
+	{
+		return m_cbAmbient;
 	}
 	UINT GraphicsEngine::SetInstanceData(const InstanceData& a_instanceData)
 	{

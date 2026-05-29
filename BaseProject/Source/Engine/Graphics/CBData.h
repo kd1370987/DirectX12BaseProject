@@ -9,6 +9,7 @@ namespace Engine::Graphics
 		DirectX::XMFLOAT4X4 projMat = {};			// 射影行列
 		DirectX::XMFLOAT4X4 viewInvMat = {};		// ビュー行列
 		DirectX::XMFLOAT4X4 projInvMat = {};		// 射影逆行列
+		DirectX::XMFLOAT4X4 invViewProjMat = {};
 
 		// 1フレーム前のデータ
 		DirectX::XMFLOAT4X4 prevView;
@@ -28,6 +29,19 @@ namespace Engine::Graphics
 
 		float pad0;
 		float pad1;
+	};
+
+	// 環境データ
+	struct alignas(256) AmbientData
+	{
+		// 環境光
+		DirectX::XMFLOAT3 ammbientColorScale = {0,0,0};
+		float pad0;
+		// ディレクショナルライト
+		DirectX::XMFLOAT3 dlDir = {0,0,0};
+		float pad1;
+		DirectX::XMFLOAT3 dlColor = {0,0,0};
+		float pad2;
 	};
 
 	// インスタンスデータ

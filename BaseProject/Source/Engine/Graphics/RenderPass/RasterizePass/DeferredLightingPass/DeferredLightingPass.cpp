@@ -19,8 +19,8 @@ namespace Engine::Graphics
 		a_pCtx->BindCB()->BindAndAttachDataRootCBV<CameraData>(_pCmd->NGet(), 0, _cbCam);
 		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
 
-		CBAmbient _amib = {};
-		a_pCtx->BindRootCBV<CBAmbient>(1, _amib);
+		const AmbientData& _amib = a_pGE->GetAmbientData();
+		a_pCtx->BindCB()->BindAndAttachDataRootCBV<AmbientData>(_pCmd->NGet(), 1, _amib);
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gpuVec = {};
 
 		_gpuVec = {

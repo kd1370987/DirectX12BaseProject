@@ -10,7 +10,8 @@ namespace Engine::Graphics
 		{
 			int depth;
 			int normal;
-			DirectX::XMFLOAT2 pad2;
+			int frameCount;
+			int pad;
 		};
 
 		struct CBLight

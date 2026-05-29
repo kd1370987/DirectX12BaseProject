@@ -143,7 +143,7 @@ namespace Engine::Graphics
 
 		RegisterPass<RaytracingShadowPass>();
 		RegisterPass<RaytracingGIPass>();
-		RegisterPass<FullRaytracingPass>();
+		//RegisterPass<FullRaytracingPass>();
 
 		// パスの初期化
 		for (auto& _sp : m_spPassVec)

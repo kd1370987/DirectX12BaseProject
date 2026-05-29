@@ -35,13 +35,13 @@ float4 ps(VSOutput a_in) : SV_Target
 	float3 _specular = _albedo; // スペキュラはアルベドと同じにしておく（今回はスペキュラを考慮しないため）
 	float _smoothness = 1.0f - _roughness; // 滑らかさ
 	
-	float3 _V = normalize(g_camera.cameraPos - _worldPos); // カメラ位置からワールド位置へのベクトル
+	float3 _V = normalize(g_camera.cameraPos.xyz - _worldPos); // カメラ位置からワールド位置へのベクトル
 
 	// 出力色
 	float3 _outColor = float3(0, 0, 0);
 	
     // 平行光
-	float3 _L = normalize(-g_DL_Dir.xyz);
+	float3 _L = normalize(-g_ambient.DL_Dir.xyz);
 	float _NdotL = saturate(dot(_normal, _L));
 
 	// シンプルなディズニーベースの拡散反射を実装する
@@ -54,7 +54,7 @@ float4 ps(VSOutput a_in) : SV_Target
 	);
 
 	// 正規化Lambert拡散反射を求める
-	float3 _lambertDiffuse = g_DL_Color * _NdotL / PI * _shadow;
+	float3 _lambertDiffuse = g_ambient.DL_Color * _NdotL / PI * _shadow;
 
 	// 最終的な拡散反射光を計算
 	float3 _diffuse = _albedo * _diffuseFromFresnel * _lambertDiffuse;
@@ -67,7 +67,7 @@ float4 ps(VSOutput a_in) : SV_Target
 		_metallic,
 		_roughness
 	);
-	_spec *= g_DL_Color;
+	_spec *= g_ambient.DL_Color;
 	_spec *= _shadow;
 
 	// 金属度が高ければ、鏡面反射はスペキュラカラー、低ければ白

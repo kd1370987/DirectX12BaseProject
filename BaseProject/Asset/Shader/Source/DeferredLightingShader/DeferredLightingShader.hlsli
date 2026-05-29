@@ -4,23 +4,16 @@
 
 // ルートパラメターズ
 #include "../../Common/CB/CBCamera.hlsli"
+#include "../../Common/RootParameters/AmbientData.hlsli"
 
 #include "../RootSignatureLayout.hlsli"
 
 #define DEFERRED_ROOT_SIG \
 RS_FLAGS","\
 RS_CAMERA_CB ","\
-"CBV(b1,visibility = SHADER_VISIBILITY_ALL), " \
+RS_AMBIENT_CB ","\
 "DescriptorTable(SRV(t0, numDescriptors=7),visibility = SHADER_VISIBILITY_PIXEL), " \
 RS_STATIC_SAMPLER
-
-cbuffer cbAmbient : register(b1)
-{
-	float4 g_ambientColor;
-
-	float4 g_DL_Dir; // ライトの方向（ワールド空間）
-	float4 g_DL_Color; // ライトの色
-};
 
 // ディファードレンダリングでは共通
 Texture2D g_albedoTex : register(t0);

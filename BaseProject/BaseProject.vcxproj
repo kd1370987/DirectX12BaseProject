@@ -649,6 +649,7 @@
     <None Include="Asset\Shader\Common\CB\CBCamera.hlsli" />
     <None Include="Asset\Shader\Common\Math\Normal.hlsli" />
     <None Include="Asset\Shader\Common\Math\Transform.hlsli" />
+    <None Include="Asset\Shader\Common\RootParameters\AmbientData.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\BonePalletData.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\BufferIndex.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\InstanceData.hlsli" />

@@ -2114,6 +2114,9 @@
     <None Include="Asset\Shader\Common\RootParameters\Material.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
+    <None Include="Asset\Shader\Common\RootParameters\AmbientData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">

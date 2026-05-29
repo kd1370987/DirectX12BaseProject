@@ -1,6 +1,6 @@
 #include "../Raytracing.hlsli"
 #include "../../Source/CalcNormal.hlsli"
-
+#include "../../Common/RootParameters/AmbientData.hlsli"
 struct InstanceData
 {
 	uint vertexIdx; // SRV
@@ -42,21 +42,14 @@ struct GBufferIndex
 {
 	int depth;
 	int normal;
+
+	int frameCount;
 };
 cbuffer cbGBufferIndex : register(b1)
 {
 	GBufferIndex g_gbuffer;
 }
-struct DL
-{
-	float3 dir;
-	float pad;
-};
-cbuffer cbLight : register(b2)
-{
-	DL g_dl;
-	int g_frameCount;		// 乱数生成用
-}
+
 
 // UV座標を取得
 float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs, InstanceData instance, uint primID, Material material)
@@ -141,14 +134,13 @@ void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal,float3 a_geoNo
 	float3 _rayDirW = WorldRayDirection();			// レイのワールド空間での方向
 	float3 _rayOriginW = WorldRayOrigin();			// レイのワールド空間での開始位置
 	float3 _posW = _rayOriginW + _hitT * _rayDirW;	// レイが当たった位置を計算
-	float3 _ligDir = normalize(-g_dl.dir);			// 光の方向
+	float3 _ligDir = normalize(-g_ambient.DL_Dir);			// 光の方向
 
 	// 光源の方向にレイを飛ばす
 	RayDesc _ray;
 	// 法線方向に少し浮かせたあとに、光方向にも少し引っ張り上げ
 	float _normalBias = 0.00001f;
 	float _lightBias = 0.0;
-	//_ray.Origin = _posW + (a_normal * _normalBias) + (_ligDir * _lightBias);
 	_ray.Origin = _posW + a_geoNormal * _normalBias;
 	_ray.Direction = _ligDir;
 	_ray.TMin = 0.0001f;
@@ -247,7 +239,7 @@ void RayGen()
 	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
 
 	// ピクセル座標からサーフェイス面上で阪急範囲にランダムにレイを飛ばす
-	uint _seed = Hash(_id.y * _dim.x + _id.x + g_frameCount);
+	uint _seed = Hash(_id.y * _dim.x + _id.x + g_gbuffer.frameCount);
 	RayDesc _ray;
 	_ray.Origin = g_camera.pos;
 	_ray.Direction = normalize(_worldPos - g_camera.pos);
@@ -346,7 +338,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	// 直接光が当たってる
 	if (a_payload.hit == 0)
 	{
-		float3 _ligDir = normalize(g_dl.dir);
+		float3 _ligDir = normalize(g_ambient.DL_Dir);
 		// ジオメトリ法線がライトに対して背を向けている場合強制的に影にする
 		float _GdotL = dot(_geoNormal,_ligDir);
 		if(_GdotL > 0.0f)
@@ -374,7 +366,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float3 _albedo = albedoTex.SampleLevel(gSamp,_uv,lod).rgb;
 
 	// 最終的な色の合成
-	float3 _directLight = _lig * float3(9, 9, 9); // ライトの色をかける
+	float3 _directLight = _lig * g_ambient.DL_Color; // ライトの色をかける
 	float3 _indirectLight = _refPayload.color;			// 飛んだ先から持ち帰ってきた色
 
 	// アルベド * (直接光 + 間接光) + エミッシブ(自己発光)

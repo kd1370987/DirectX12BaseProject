@@ -32,19 +32,12 @@ namespace Engine::Raytracing
 		// 定数バッファをバインド
 		auto& _cam = a_cbCam;
 
-		DXSM::Matrix _viewMat = _cam.viewMat;
-		DXSM::Matrix _projMat = _cam.projMat;
-		DXSM::Matrix _invViewMat = _cam.viewInvMat;
-		DXSM::Matrix _invProjMat = _cam.projInvMat;
-		DXSM::Matrix _viewProj = _viewMat * _projMat;
-		DXSM::Matrix _invViewProj = _viewProj.Invert();
-
 		m_camera.pos = { _cam.pos.x, _cam.pos.y, _cam.pos.z};
-		m_camera.view = _viewMat.Transpose();
-		m_camera.proj = _projMat.Transpose();
-		m_camera.invView = _invViewMat.Transpose();
-		m_camera.invProj = _invProjMat.Transpose();
-		m_camera.invViewProj = _invViewProj.Transpose();
+		m_camera.view = _cam.viewMat;
+		m_camera.proj = _cam.projMat;
+		m_camera.invView = _cam.viewInvMat;
+		m_camera.invProj = _cam.projInvMat;
+		m_camera.invViewProj = _cam.invViewProjMat;
 
 		a_pRCT->BindCB()->BindAndAttachDataComputeRootCBV<Camera>(
 			_pCmdList->NGet(),

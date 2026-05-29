@@ -50,12 +50,11 @@ namespace Engine::Graphics
 			_gbIdx
 		);
 		// ライト
-		CBLight _light = {};
-		_light.dir = { -1.0f,-1.0f,-1.0f}; 
-		a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CBLight>(
+		const AmbientData& _ambient = a_pGE->GetAmbientData();
+		a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(
 			_pCmdList->NGet(),
 			4,
-			_light
+			_ambient
 		);
 
 		// ディスパッチ
@@ -71,7 +70,7 @@ namespace Engine::Graphics
 		_rayGlobal.AddRoot(RootParameterType::RootSRV, 0);		// TLAS
 		_rayGlobal.AddDescriptorHeap({ {RangeType::UAV,0} });	// 出力
 		_rayGlobal.AddRoot(RootParameterType::RootCBV, 1);		// GBufferIndex
-		_rayGlobal.AddRoot(RootParameterType::RootCBV, 2);		// ライト
+		_rayGlobal.AddRoot(RootParameterType::RootCBV, 10);		// ライト
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 		// レイジェネレーション

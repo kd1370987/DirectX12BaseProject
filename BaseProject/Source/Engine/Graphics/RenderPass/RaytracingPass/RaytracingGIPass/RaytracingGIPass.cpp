@@ -8,8 +8,6 @@
 #include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
 #include "../../../RenderContext/RenderContext.h"
 
-#include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
-#include "../../../RenderContext/RenderContext.h"
 #include "../../../../D3D12/CBAllocater/CBAllocater.h"
 #include "../../../GraphicEngine.h"
 
@@ -46,19 +44,18 @@ namespace Engine::Graphics
 		GBufferIndex _gbIdx = {};
 		_gbIdx.depth = m_pRG->GetSRVHandle("Depth").idx;
 		_gbIdx.normal = m_pRG->GetSRVHandle("GBufferNormal").idx;
+		_gbIdx.frameCount = m_frameCount++;
 		a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<GBufferIndex>(
 			_pCmdList->NGet(),
 			5,
 			_gbIdx
 		);
 		// ライト
-		CBLight _light = {};
-		_light.dir = { -1.0f,-1.0f,-1.0f };
-		_light.frameCounts = m_frameCount++;
-		a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CBLight>(
+		const AmbientData& _ambient = a_pGE->GetAmbientData();
+		a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(
 			_pCmdList->NGet(),
 			6,
-			_light
+			_ambient
 		);
 
 		// ディスパッチ
@@ -75,7 +72,7 @@ namespace Engine::Graphics
 		_rayGlobal.AddDescriptorHeap({ {RangeType::SRV,1} });	// インスタンス配列
 		_rayGlobal.AddDescriptorHeap({ {RangeType::SRV,2} });	// マテリアル
 		_rayGlobal.AddRoot(RootParameterType::RootCBV, 1);		// GBufferインデックス
-		_rayGlobal.AddRoot(RootParameterType::RootCBV, 2);		// ライト
+		_rayGlobal.AddRoot(RootParameterType::RootCBV, 10);		// ライト
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 		// レイジェネレーション

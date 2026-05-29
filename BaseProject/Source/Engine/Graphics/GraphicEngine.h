@@ -87,14 +87,19 @@ namespace Engine::Graphics
 
 		RenderGraph* RefRenderGraph();
 		//--------------------------------------------------------------------------------------------
-		// 描画コマンド
+		// GPU送信用データ
 		//--------------------------------------------------------------------------------------------
 		// カメラ
 		void SetCameraMat(const DXSM::Matrix& a_worldMat);
 		void SetProjMat(const DXSM::Matrix& a_projMat);
 
 		const CameraData& GetCameraData() const;
-
+		// 環境データ
+		void SetAmbientData(const AmbientData& a_data);
+		const AmbientData& GetAmbientData() const;
+		//--------------------------------------------------------------------------------------------
+		// 描画コマンド
+		//--------------------------------------------------------------------------------------------
 		// 追加
 		UINT SetInstanceData(const InstanceData& a_instanceData);
 		UINT SetSubSetData(const SubSetData& a_subsetData);
@@ -120,10 +125,13 @@ namespace Engine::Graphics
 		std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;
 	
 		//--------------------------------------------------------------------------------------------
-		// 描画コマンド
+		// GPU送信用データ
 		//--------------------------------------------------------------------------------------------
 		// カメラデータ
 		CameraData m_cbCamera = {};
+
+		// 環境データ
+		AmbientData m_cbAmbient = {};
 		
 		// オブジェクト単位データ
 		std::vector<InstanceData> m_instanceDataVec = {};
