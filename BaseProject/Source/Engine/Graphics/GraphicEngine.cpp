@@ -66,11 +66,26 @@ namespace Engine::Graphics
 		_desc.pCmdListClass = D3D12::D3D12Wrapper::Instance().GetCmdList();
 		m_upRenderContextVec[m_currentFrameIndex]->Begine(_desc);
 
-		// バッファの更新
-		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(m_instanceDataVec, m_subSetDataVec);
 	}
 	void GraphicsEngine::Excute()
 	{
+		// カメラのトランスポーズ
+		DXSM::Matrix _viewMat = m_cbCamera.viewMat;
+		DXSM::Matrix _projMat = m_cbCamera.projMat;
+		DXSM::Matrix _invViewMat = m_cbCamera.viewInvMat;
+		DXSM::Matrix _invProjMat = m_cbCamera.projInvMat;
+
+		m_cbCamera.viewMat = _viewMat.Transpose();
+		m_cbCamera.projMat = _projMat.Transpose();
+		m_cbCamera.viewInvMat = _invViewMat.Transpose();
+		m_cbCamera.projInvMat = _invProjMat.Transpose();
+		m_cbCamera.prevView = DXSM::Matrix::Identity;
+		m_cbCamera.prevProj = DXSM::Matrix::Identity;
+		m_cbCamera.prevViewProj = DXSM::Matrix::Identity;
+
+		// バッファの更新
+		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(m_instanceDataVec, m_subSetDataVec);
+
 		// 描画アイテムをソート
 		std::sort(
 			m_lightWeightDrawItemVec.begin(), m_lightWeightDrawItemVec.end(),
@@ -117,7 +132,7 @@ namespace Engine::Graphics
 	void GraphicsEngine::SetCameraMat(const DXSM::Matrix& a_worldMat)
 	{
 		// 座標を代入
-		m_cbCamera.pos = { a_worldMat._41,a_worldMat._42,a_worldMat._43 };
+		m_cbCamera.pos = { a_worldMat._41,a_worldMat._42,a_worldMat._43 ,1};
 
 		// ビュー行列・逆ビュー行列をセット
 		m_cbCamera.viewMat = a_worldMat.Invert();

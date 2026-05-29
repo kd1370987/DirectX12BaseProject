@@ -4,6 +4,9 @@
 
 #include "../../../../D3D12/Builder/RootSignatureBuilder/RootSignatureBuilder.h"
 #include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
+
+#include "../../../../D3D12/CBAllocater/CBAllocater.h"
+#include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
 namespace Engine::Graphics
 {
 	void DebugLinePass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)

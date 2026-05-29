@@ -79,8 +79,8 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				{
 					// 変換
 					DXSM::Matrix _nodeTransMat(_nodeMatVec[_cmd.nodeIndex].world);
-
-					_instanceData.worldMat = _nodeTransMat * _worldMat;
+					DXSM::Matrix _mat = _nodeTransMat * _worldMat;
+					_instanceData.worldMat = _mat.Transpose();
 					_instanceData.boneStartIndex = _skeComp.boneRange.startIndex;
 					_instanceData.boneCount = _skeComp.boneRange.rangeSize;
 					_subSetData.baseColorScale = _modelComp.colorScale;

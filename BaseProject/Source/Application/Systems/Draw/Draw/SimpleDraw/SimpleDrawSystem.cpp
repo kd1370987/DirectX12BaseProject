@@ -68,7 +68,10 @@ void SimpleDrawSystem::Init(Engine::ECS::World& a_world)
 				const auto& _drawCmdVec = _model->GetDrawCommandVec();
 				for (auto& _cmd : _drawCmdVec)
 				{
-					_instanceData.worldMat = _worldMat;
+					DXSM::Matrix _nodeTransMat(_model->GetOriginalNodeVec()[_cmd.nodeIndex].worldTransform); 
+					DXSM::Matrix _mat = _nodeTransMat * _worldMat;
+
+					_instanceData.worldMat = _mat.Transpose();
 					_instanceData.boneStartIndex = 0;
 					_instanceData.boneCount = 0;
 					_subSetData.baseColorScale = _modelComp.colorScale;

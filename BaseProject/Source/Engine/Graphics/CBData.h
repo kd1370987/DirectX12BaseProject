@@ -2,25 +2,26 @@
 namespace Engine::Graphics
 {
 	// カメラ
-	struct CameraData
+	struct alignas(256) CameraData
 	{
-		DirectX::XMFLOAT3 pos = { 0.0f,0.0f,0.0f };	// カメラのワールド座標
-		float pad;
-
 		// 現在フレームのデータ
 		DirectX::XMFLOAT4X4 viewMat = {};			// ビュー行列
 		DirectX::XMFLOAT4X4 projMat = {};			// 射影行列
-		DirectX::XMFLOAT4X4 projInvMat = {};		// 射影逆行列
 		DirectX::XMFLOAT4X4 viewInvMat = {};		// ビュー行列
+		DirectX::XMFLOAT4X4 projInvMat = {};		// 射影逆行列
 
 		// 1フレーム前のデータ
 		DirectX::XMFLOAT4X4 prevView;
 		DirectX::XMFLOAT4X4 prevProj;
 		DirectX::XMFLOAT4X4 prevViewProj;
+
+
+		DirectX::XMFLOAT4 pos = { 0.0f,0.0f,0.0f,0.0f };	// カメラのワールド座標
+
 	};
 
 	// バッファインデックス
-	struct BufferIndexData
+	struct alignas(256) BufferIndexData
 	{
 		UINT instanceIndex = 0;
 		UINT subsetIndex = 0;
@@ -40,8 +41,7 @@ namespace Engine::Graphics
 		int boneStartIndex = 0;
 		int boneCount = 0;
 
-		float pad0;
-		float pad1;
+		DirectX::XMFLOAT2 pad;
 	};
 
 	// サブメッシュ単位データ
@@ -53,9 +53,7 @@ namespace Engine::Graphics
 		float metallic = 0.0f;
 		float roughness = 0.0f;
 
-		float pad0;
-		float pad1;
-		float pad2;
+		DirectX::XMFLOAT3 pad;
 	};
 
 	// ボーンデータ

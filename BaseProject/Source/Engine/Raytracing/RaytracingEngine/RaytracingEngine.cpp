@@ -39,7 +39,7 @@ namespace Engine::Raytracing
 		DXSM::Matrix _viewProj = _viewMat * _projMat;
 		DXSM::Matrix _invViewProj = _viewProj.Invert();
 
-		m_camera.pos = _cam.pos;
+		m_camera.pos = { _cam.pos.x, _cam.pos.y, _cam.pos.z};
 		m_camera.view = _viewMat.Transpose();
 		m_camera.proj = _projMat.Transpose();
 		m_camera.invView = _invViewMat.Transpose();

@@ -47,8 +47,8 @@ namespace Engine::Graphics
 		);
 
 		// バッファ作成
-		m_instanceBuffer.Create(a_desc.pDevice, *_pCmdList, 16000, nullptr);
-		m_subsetBuffer.Create(a_desc.pDevice, *_pCmdList, 16000, nullptr);
+		m_instanceBuffer.Create(a_desc.pDevice, *_pCmdList, 1600, nullptr);
+		m_subsetBuffer.Create(a_desc.pDevice, *_pCmdList, 1600, nullptr);
 		m_boneBuffer.Create(a_desc.pDevice, *_pCmdList, a_desc.boneElementNum, nullptr);
 
 
@@ -119,7 +119,7 @@ namespace Engine::Graphics
 		return m_upCBAllocater.get();
 	}
 
-	void RenderContext::BindRootCBV(UINT a_index, const void* a_pData, size_t a_size)
+	void RenderContext::BindVoidRootCBV(UINT a_index, const void* a_pData, size_t a_size)
 	{
 		m_upCBAllocater->BindAndAttachDataRootCBV(m_pCmdList->NGet(), a_index, a_pData, a_size);
 	}
@@ -456,12 +456,18 @@ namespace Engine::Graphics
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
 
 		// インスタンスデータバッファ
-		m_instanceBuffer.UpdateData(a_instanceVec.data(),a_instanceVec.size());
-		m_instanceBuffer.Update(*_pCmdList);
+		if(!a_instanceVec.empty())
+		{
+			m_instanceBuffer.UpdateData(a_instanceVec.data(), a_instanceVec.size() * sizeof(InstanceData));
+			m_instanceBuffer.Update(*_pCmdList);
+		}
 
 		// サブセットデータバッファ
-		m_subsetBuffer.UpdateData(a_subsetVec.data(),a_subsetVec.size());
-		m_subsetBuffer.Update(*_pCmdList);
+		if(!a_subsetVec.empty())
+		{
+			m_subsetBuffer.UpdateData(a_subsetVec.data(), a_subsetVec.size() * sizeof(SubSetData));
+			m_subsetBuffer.Update(*_pCmdList);
+		}
 
 		// ボーン行列の更新
 		auto& _bonePalleteVec = Animation::AnimationMatrixManager::Instance().GetBoneMatStorage();

@@ -89,7 +89,7 @@ namespace Engine::Graphics
 		CBAllocater* BindCB();
 
 		// 定数バッファをルートでバインド
-		void BindRootCBV(UINT a_index,const void* a_pData,size_t a_size);
+		void BindVoidRootCBV(UINT a_index,const void* a_pData,size_t a_size);
 		template<typename T>
 		void BindRootCBV(UINT a_index, const T& a_data);
 
@@ -138,16 +138,11 @@ namespace Engine::Graphics
 		// すべてのアニメーション行列を配置しているから一括で送れる
 		// 定数バッファでスタートインデックスとカウントを送る必要あり
 		void BindSRVBone();
-		void BindCBBone(const Storage::Range& a_range);
 
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド
 		//--------------------------------------------------------------------------------------------
-		// 描画命令の追加
-		void AddItem(RenderQueueType2D a_type, const DrawItem2D& a_itemVec);		// 2D
-		
-		// 描画命令の取得
-		const std::vector<DrawItem2D>& GetItemVec(const RenderQueueType2D& a_type) const;	// 2D
+
 
 		// 描画命令の実行
 		void UpdateBuffer(const std::vector<InstanceData>& a_instanceVec,const std::vector<SubSetData>& a_subsetVec);
@@ -160,8 +155,6 @@ namespace Engine::Graphics
 		void BindSubsetBuffer(UINT a_rootIndex);
 		void BindBonePalletBuffer(UINT a_rootIndex);
 
-		// 描画命令のコマンドリスト削除
-		void ClearCmd();
 
 		//--------------------------------------------------------------------------------------------
 		// 描画パス構築
@@ -175,26 +168,7 @@ namespace Engine::Graphics
 		// プリミティブトポロジーセット
 		void SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri);
 
-		// 1Draw当たりのオブジェクトに対する定数
-		void BindObuje(
-			UINT a_index,
-			const DirectX::XMFLOAT2& a_uv = { 0.0f,0.0f },
-			const DirectX::XMFLOAT2& a_tile = { 1.0f,1.0f }
-		);
-
-		// マテリアルをSRVとして送信、その際にマテリアルの定数も送信
-		void BindMaterial(
-			UINT a_index,
-			const Resource::Material* a_pMaterial,
-			const DirectX::XMFLOAT4& a_colorScale,
-			const DirectX::XMFLOAT3& a_emissiveScale
-		);
-		void BindMaterial(
-			UINT a_index,
-			const uint16_t& a_materialID,
-			const DirectX::XMFLOAT4& a_colorScale,
-			const DirectX::XMFLOAT3& a_emissiveScale
-		);
+	
 		void BindMaterialSRV(
 			UINT a_index,
 			const Resource::Material* a_pMaterial
@@ -203,24 +177,13 @@ namespace Engine::Graphics
 			UINT a_index,
 			uint16_t a_materialID
 		);
-		// ルートパラメタインデックスを指定してのメッシュバインド
-		void BindMesh(
-			UINT a_index,
-			const Resource::Mesh* a_pMesh,
-			const DirectX::XMFLOAT4X4& a_worldMat
-		);
-		void BindMeshMat(UINT a_index,const DirectX::XMFLOAT4X4& a_worldMat);
-		void BindMesh(uint16_t a_meshID);
-		// ビューポート設定
-		void SetViewPort();
 
-		// シザーレクト設定
-		void SetScissorRect();
+		void BindMesh(uint16_t a_meshID);
+	
 
 		// モデルの描画
 		void Draw(const Resource::Mesh* a_pMesh,UINT a_subIdx);
 		void Draw(uint16_t a_meshID,UINT a_subIdx);
-		void DrawMesh(uint16_t a_meshID,UINT a_subIdx);
 
 
 
@@ -277,6 +240,6 @@ namespace Engine::Graphics
 	template<typename T>
 	inline void RenderContext::BindRootCBV(UINT a_index, const T& a_data)
 	{
-		BindRootCBV(a_index, (const void*)&a_data, sizeof(T));
+		BindVoidRootCBV(a_index, &a_data, sizeof(T));
 	}
 }

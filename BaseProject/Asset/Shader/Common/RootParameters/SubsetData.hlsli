@@ -10,8 +10,7 @@ struct SubsetData
 	int metallic;
 	int roughness;
 
-	float pad1;
-	float pad2;
+	float3 pad;
 };
 
 // インスタンスデータ

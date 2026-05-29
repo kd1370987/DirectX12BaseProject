@@ -15,8 +15,7 @@ PSOutput ps(VSOutput a_input)
 
 	// アルベド
 	float4 _baseTex = g_mainTex.Sample(smp, _uv);
-	//_out.albedo = _baseTex * float4(g_subsetData[_subIdx].baseColorScale.xyz, 1);
-	_out.albedo = float4(1,1,1,1);
+	_out.albedo = _baseTex * float4(g_subsetData[_subIdx].baseColorScale.xyz, 1);
 
 	// 法線
 	float3 _nTex = g_normalTex.Sample(smp, _uv).xyz * 2 - 1;

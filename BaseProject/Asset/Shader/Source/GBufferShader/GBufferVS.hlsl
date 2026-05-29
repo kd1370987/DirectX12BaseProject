@@ -20,10 +20,9 @@ VSOutput vs(VSInput a_input)
 	
 	// 出力用構造体
 	VSOutput _output = (VSOutput) 0; // アウトプット構造体を定義
-	
 	// クリップ
 	float4 _projPos = Transform_LocalToProj(a_input.pos, _worldMat);
-    
+
 	_output.svpos = _projPos;			// 投影変換された座標をピクセルシェーダーに渡す
 	_output.color = a_input.color;		// 頂点色をそのままピクセルシェーダーに渡す
 	_output.uv = a_input.uv;			// uv座標をそのままピクセルシェーダーに渡す

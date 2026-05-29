@@ -3,6 +3,9 @@
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "../../../GraphicEngine.h"
 
+#include "../../../../D3D12/CBAllocater/CBAllocater.h"
+#include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
+
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Graphics
@@ -10,7 +13,10 @@ namespace Engine::Graphics
 	void ZPrePass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		Begine(a_pCtx);
-		a_pCtx->BindRootCBV<CameraData>(0, a_pGE->GetCameraData());
+		//a_pCtx->BindRootCBV<CameraData>(0, a_pGE->GetCameraData());
+		CameraData _cbCam = a_pGE->GetCameraData();
+		auto* _pCmd = a_pCtx->GetCurrentCmdList();
+		a_pCtx->BindCB()->BindAndAttachDataRootCBV<CameraData>(_pCmd->NGet(), 0, _cbCam);
 		a_pCtx->BindInstanceBuffer(2);
 		a_pCtx->BindSubsetBuffer(3);
 		a_pCtx->BindBonePalletBuffer(4);

@@ -10,8 +10,7 @@ struct InstanceData
 	int boneStartIndex;
 	int boneCount;
 
-	float pad1;
-	float pad2;
+	float2 pad;
 };
 
 // インスタンスデータ

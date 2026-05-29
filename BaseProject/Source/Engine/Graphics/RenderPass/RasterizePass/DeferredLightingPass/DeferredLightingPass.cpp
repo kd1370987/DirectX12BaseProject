@@ -6,12 +6,17 @@
 #include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
+
+#include "../../../../D3D12/CBAllocater/CBAllocater.h"
+#include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
 namespace Engine::Graphics
 {
 	void DeferredLightingPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		Begine(a_pCtx);
-		a_pCtx->BindRootCBV<CameraData>(0, a_pGE->GetCameraData());
+		CameraData _cbCam = a_pGE->GetCameraData();
+		auto* _pCmd = a_pCtx->GetCurrentCmdList();
+		a_pCtx->BindCB()->BindAndAttachDataRootCBV<CameraData>(_pCmd->NGet(), 0, _cbCam);
 		a_pCtx->SetGraphicPSO(m_pPsoVec[0].first);
 
 		CBAmbient _amib = {};

@@ -3,10 +3,7 @@
 #define CB_CAMERA_HLSLI
 
 struct CBCamera
-{
-	float3 cameraPos; // カメラ位置
-	float pad;
-	
+{	
 	// 現在フレームのデータ
 	float4x4 view;		// ビュー行列
 	float4x4 proj;		// 投影行列
@@ -17,6 +14,8 @@ struct CBCamera
 	float4x4 prevView;
 	float4x4 prevProj;
 	float4x4 prevViewProj;
+	
+	float4 cameraPos; // カメラ位置
 };
 
 // カメラの定数バッファ

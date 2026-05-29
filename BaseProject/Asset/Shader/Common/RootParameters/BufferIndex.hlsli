@@ -6,9 +6,6 @@ struct BufferIndex
 {
 	int instanceDataIndex;
 	int subsetDataIndex;
-
-	float pad1;
-	float pad2;
 };
 
 // カメラの定数バッファ
