@@ -124,17 +124,17 @@ struct RayPayload
 	float3 color;
 	int hit;
 	int depth;
-	uint seed;		// 乱数状態を引き継ぐ
+	uint seed; // 乱数状態を引き継ぐ
 };
 
 // 光源に向かってレイを飛ばす
-void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal,float3 a_geoNormal)
+void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal, float3 a_geoNormal)
 {
-	float _hitT = RayTCurrent();					// レイが当たった距離
-	float3 _rayDirW = WorldRayDirection();			// レイのワールド空間での方向
-	float3 _rayOriginW = WorldRayOrigin();			// レイのワールド空間での開始位置
-	float3 _posW = _rayOriginW + _hitT * _rayDirW;	// レイが当たった位置を計算
-	float3 _ligDir = normalize(-g_ambient.DL_Dir);			// 光の方向
+	float _hitT = RayTCurrent(); // レイが当たった距離
+	float3 _rayDirW = WorldRayDirection(); // レイのワールド空間での方向
+	float3 _rayOriginW = WorldRayOrigin(); // レイのワールド空間での開始位置
+	float3 _posW = _rayOriginW + _hitT * _rayDirW; // レイが当たった位置を計算
+	float3 _ligDir = normalize(-g_ambient.DL_Dir); // 光の方向
 
 	// 光源の方向にレイを飛ばす
 	RayDesc _ray;
@@ -166,29 +166,29 @@ void TraceIndirectRay(inout RayPayload a_rayPayload, float3 a_normal)
 		return;
 	}
 	
-	float _hitT = RayTCurrent();				// レイが当たった距離
-	float3 _rayDirW = WorldRayDirection();		// レイのワールド空間での方向
-	float3 _rayOriginW = WorldRayOrigin();		// レイのワールド空間での開始位置
+	float _hitT = RayTCurrent(); // レイが当たった距離
+	float3 _rayDirW = WorldRayDirection(); // レイのワールド空間での方向
+	float3 _rayOriginW = WorldRayOrigin(); // レイのワールド空間での開始位置
 	float3 _posW = _rayOriginW + _hitT * _rayDirW;
 
 	// ペイロードからシードを取り出し、乱数を２つ作って次のシードを更新する
 	float2 _rand = float2(Random01(a_rayPayload.seed), Random01(a_rayPayload.seed * 17 + 3));
-	a_rayPayload.seed = Hash(a_rayPayload.seed);		// シードを更新
+	a_rayPayload.seed = Hash(a_rayPayload.seed); // シードを更新
 
 	// 法線ベースの半球ランダム方向を取得
-	float3 _diffuseDir = SampleHemisphereCosine(a_normal,_rand);
+	float3 _diffuseDir = SampleHemisphereCosine(a_normal, _rand);
 
 	// ペイロードを作成
 	RayPayload _refPayload;
 	_refPayload.color = float3(0, 0, 0);
 	_refPayload.depth = a_rayPayload.depth;
 	_refPayload.hit = 0;
-	_refPayload.seed = a_rayPayload.seed;		// 更新したシードを渡す
+	_refPayload.seed = a_rayPayload.seed; // 更新したシードを渡す
 	
 	// 反射レイを飛ばす
 	RayDesc _ray;
 	_ray.Origin = _posW + a_normal * 0.0001f;
-	_ray.Direction = _diffuseDir;			// ランダムな方向に飛ばす
+	_ray.Direction = _diffuseDir; // ランダムな方向に飛ばす
 	_ray.TMin = 0.001f;
 	_ray.TMax = 1000;
 
@@ -239,12 +239,14 @@ void RayGen()
 	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
 
 	// ピクセル座標からサーフェイス面上で阪急範囲にランダムにレイを飛ばす
-	uint _seed = Hash(_id.y * _dim.x + _id.x + g_gbuffer.frameCount);
+	// ピクセル位置と時間をXORで混ぜてからハッシュ化する
+	uint pixelIndex = _id.y * _dim.x + _id.x;
+	uint _seed = Hash(pixelIndex ^ (g_gbuffer.frameCount * 2654435769u));
+
+	// レイ構造体を作成
 	RayDesc _ray;
-	_ray.Origin = g_camera.pos;
-	_ray.Direction = normalize(_worldPos - g_camera.pos);
-	//_ray.Origin = _worldPos + _normal * 0.0001f;
-	//_ray.Direction = SampleHemisphereCosine(_normal, float2(Random01(_seed), Random01(_seed * 17 + 3)));
+	_ray.Origin = _worldPos + _normal * 0.0001f;
+	_ray.Direction = SampleHemisphereCosine(_normal, float2(Random01(_seed), Random01(_seed * 17 + 3)));
 	_ray.TMin = 0.001;
 	_ray.TMax = 1000;
 
@@ -273,7 +275,6 @@ void RayGen()
 	
 	// 出力
 	gOutPut[_id] = float4(_finalLDRColor, 1);
-	//gOutPut[_id] = float4(_finalHDRColor, 1);
 }
 
 // レイがどのポリゴンとも接触しなかったときに呼び出されるシェーダー
@@ -296,13 +297,13 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	a_payload.depth++;
 	
 	// 各種IDとデータの取得
-	uint instID = InstanceID();		// インスタンス番号
-	uint geomID = GeometryIndex();	// 当たったサブメッシュ番号
-	uint primID = PrimitiveIndex();	// 当たったポリゴン番号
+	uint instID = InstanceID(); // インスタンス番号
+	uint geomID = GeometryIndex(); // 当たったサブメッシュ番号
+	uint primID = PrimitiveIndex(); // 当たったポリゴン番号
 
 	// データを配列から取得
 	InstanceData instance = g_instanceData[instID]; // インスタンス情報
-	Material _material = g_materialData[instance.materialOffset + geomID];	// サブメッシュマテリアル情報
+	Material _material = g_materialData[instance.materialOffset + geomID]; // サブメッシュマテリアル情報
 	
 	// 頂点バッファとインデックスバッファを取得
 	StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
@@ -317,33 +318,33 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float3 _vpos1 = vertexBuff[_v1].pos;
 	float3 _vpos2 = vertexBuff[_v2].pos;
 
-	// オブジェクト空間からワールド空間へ変換（WorldToObject3x4()を使用）
-	// WorldToObject3x4()がオブジェクトからワールドへの変換行列を返す
-	_vpos0 = mul(float4(_vpos0, 1.0).xyz, WorldToObject3x4());
-	_vpos1 = mul(float4(_vpos1, 1.0).xyz, WorldToObject3x4());
-	_vpos2 = mul(float4(_vpos2, 1.0).xyz, WorldToObject3x4());
+	// オブジェクト空間からワールド空間へ変換（ObjectToWorld4x3()を使用）
+	// ObjectToWorld4x3()がオブジェクトからワールドへの変換行列を返す
+	_vpos0 = mul(float4(_vpos0, 1.0), ObjectToWorld4x3());
+	_vpos1 = mul(float4(_vpos1, 1.0), ObjectToWorld4x3());
+	_vpos2 = mul(float4(_vpos2, 1.0), ObjectToWorld4x3());
 	
 
 	// 外積を使ってジオメトリ法線（ポリゴン平面の法線）を計算
 	float3 _geoNormal = normalize(cross(_vpos1 - _vpos0, _vpos2 - _vpos0));
 	// UV取得 (引数を追加)
-	float2 _uv = GetUV(a_attr, instance, primID,_material);
+	float2 _uv = GetUV(a_attr, instance, primID, _material);
 
 	// 法線取得 (引数を追加)
 	float3 _normal = GetNormal(a_attr, _uv, instance, primID, _material);
 
 	// 光源に向かってレイを飛ばす
-	TraceLightRay(a_payload, _normal,_geoNormal);
+	TraceLightRay(a_payload, _normal, _geoNormal);
 	float _lig = 0.0f;
 	// 直接光が当たってる
 	if (a_payload.hit == 0)
 	{
-		float3 _ligDir = normalize(g_ambient.DL_Dir);
+		float3 _ligDir = normalize(-g_ambient.DL_Dir);
 		// ジオメトリ法線がライトに対して背を向けている場合強制的に影にする
-		float _GdotL = dot(_geoNormal,_ligDir);
-		if(_GdotL > 0.0f)
+		float _GdotL = dot(_geoNormal, _ligDir);
+		if (_GdotL > 0.0f)
 		{
-			_lig = max(0, dot(_normal,_ligDir));
+			_lig = max(0, dot(_normal, _ligDir));
 		}
 		else
 		{
@@ -356,24 +357,24 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	RayPayload _refPayload;
 	_refPayload.depth = a_payload.depth;
 	_refPayload.seed = a_payload.seed;
-	TraceIndirectRay(_refPayload, _normal);		// 次のバウンスレイを飛ばす
+	TraceIndirectRay(_refPayload, _normal); // 次のバウンスレイを飛ばす
 
 	// テクスチャからのアルベド取得
 	float dist = RayTCurrent();
 	float lod = clamp(log2(dist * 0.5), 0, 5);
 	Texture2D albedoTex = ResourceDescriptorHeap[_material.baseIndex];
 	Texture2D metaRogTex = ResourceDescriptorHeap[_material.metaRoughnessIndex];
-	float3 _albedo = albedoTex.SampleLevel(gSamp,_uv,lod).rgb;
+	float3 _albedo = albedoTex.SampleLevel(gSamp, _uv, lod).rgb;
 
 	// 最終的な色の合成
 	float3 _directLight = _lig * g_ambient.DL_Color; // ライトの色をかける
-	float3 _indirectLight = _refPayload.color;			// 飛んだ先から持ち帰ってきた色
+	float3 _indirectLight = _refPayload.color; // 飛んだ先から持ち帰ってきた色
 
 	// アルベド * (直接光 + 間接光) + エミッシブ(自己発光)
 	float3 _finalColor = _albedo * (_directLight + _indirectLight) + _material.emissive;
 
 	// RGBの計算結果がマイナスや無限大（NaN）になるのを防ぐ
-	a_payload.color = clamp(_finalColor,0.0f,10.0f);
+	a_payload.color = clamp(_finalColor, 0.0f, 10.0f);
 	
 	// ペイロードの深度とシードを親に渡す
 	a_payload.seed = _refPayload.seed;
