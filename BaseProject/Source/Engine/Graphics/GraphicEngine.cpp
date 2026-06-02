@@ -217,6 +217,8 @@ namespace Engine::Graphics
 		// ジッターオフセット計算
 		float _jitterX = 0.0f;
 		float _jitterY = 0.0f;
+
+		// ジッターオンオフ
 		if (false)
 		{
 			// ハルトンシーケンスのテーブル（ピクセル中心地からのオフセット値 -0.5f ～ 0.5f）
@@ -235,8 +237,6 @@ namespace Engine::Graphics
 		DXSM::Matrix _projMat = m_cbCamera.projMat;
 		DXSM::Matrix _invViewMat = m_cbCamera.viewInvMat;
 		DXSM::Matrix _invProjMat = m_cbCamera.projInvMat;
-		DXSM::Matrix _viewProj = _viewMat * _projMat;
-		DXSM::Matrix _invViewProj = _viewProj.Invert();
 
 		// モーションベクター用のジッターなしViewProjを計算
 		DXSM::Matrix _nonJitteredViewProj = _viewMat * _projMat;
@@ -256,12 +256,10 @@ namespace Engine::Graphics
 
 		// 通常の描画（SV_Positionの計算）にはジッターありを使う
 		m_cbGPUCamera.viewMat			= _viewMat.Transpose();
-		//m_cbGPUCamera.projMat			= _projMat.Transpose();
 		m_cbGPUCamera.projMat			= _jitteredProjMat.Transpose();
 		m_cbGPUCamera.viewInvMat		= _invViewMat.Transpose();
-		//m_cbGPUCamera.projInvMat		= _invProjMat.Transpose();
 		m_cbGPUCamera.projInvMat		= _invJitteredProj.Transpose();
-		//m_cbGPUCamera.invViewProjMat	= _invViewProj.Transpose();
+		m_cbGPUCamera.viewProjMat		= _jitteredViewProj.Transpose();
 		m_cbGPUCamera.invViewProjMat	= _invJitteredViewProj.Transpose();
 
 		// モーションベクターの計算にはジッターなしを使う

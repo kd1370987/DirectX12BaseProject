@@ -43,6 +43,24 @@ PSOutput ps(VSOutput a_input)
 	float4 _eTex = g_emiTex.Sample(smp, _uv);
 	_out.emissiv = _eTex * float4(g_subsetData[_subIdx].emissiveColorScale,1);
 	_out.emissiv = _eTex;
+
+	// モーションベクター
+	float2 _curNDCPos = (a_input.curClipPos.xy / a_input.curClipPos.w);
+	float2 _prevNDCPos = (a_input.prevClipPos.xy / a_input.prevClipPos.w);
+	// Y軸反転
+	float2 _velocity = _curNDCPos - _prevNDCPos;
+	_velocity.y = -_velocity.y;
+
+	_out.velocity.xy = _velocity;
+	//_out.velocity.xy = _curNDCPos;
+	//if (abs(_out.velocity.x) > 0.0001f || abs(_out.velocity.y) > 0.0001f)
+	//{
+	//	_out.albedo = float4(1.0f, 0.0f, 0.0f, 1.0f); // 動いたら赤
+	//}
+	//else
+	//{
+	//	_out.albedo = float4(0.0f, 0.0f, 0.0f, 1.0f); // 止まっていたら黒
+	//}
 	
 	return _out;
 }

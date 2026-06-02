@@ -19,6 +19,7 @@ VSOutput vs(VSInput a_input)
 {
 	int _index = g_bufferIndex.instanceDataIndex;
 	float4x4 _worldMat = g_instanceData[_index].worldMat;
+	float4x4 _prevWorldMat = g_instanceData[_index].prevWorldMat;
 	
 	// スキニング
 	row_major float4x4 _mBones = 0;
@@ -49,6 +50,10 @@ VSOutput vs(VSInput a_input)
 	_output.wT = Normal_LocalToWorld(a_input.tangent.xyz, _worldMat);
 	_output.wB = Normal_LocalToWorld(_binormal, _worldMat);
 	_output.wN = Normal_LocalToWorld(a_input.normal, _worldMat);
-    
+
+	// モーションベクター用
+	_output.curClipPos = Transform_NonJitteredLocalToProj(a_input.pos, _worldMat);
+	_output.prevClipPos = Transform_PrevLocalToProj(a_input.pos, _prevWorldMat);
+	
 	return _output;
 }

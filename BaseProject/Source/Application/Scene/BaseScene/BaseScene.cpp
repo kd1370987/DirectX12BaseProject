@@ -68,7 +68,9 @@
 #include "../../Systems/Update/PostUpdate/CommitWorldMatrixFromLocalSystem/CommitWorldMatrixFromLocalSystem.h"
 #include "../../Systems/Update/PostUpdate/CalcTransformFromExoskeletonSystem/CalcTransformFromExoskeletonSystem.h"
 #include "Application/Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
-#include "Application/Systems/Draw/Draw/SimpleDraw/SimpleDrawSystem.h"
+//#include "Application/Systems/Draw/Draw/SimpleDraw/SimpleDrawSystem.h"
+#include "../../Systems/Draw/Draw/StaticObjectDrawSystem/StaticObjectDrawSystem.h"
+#include "../../Systems/Draw/Draw/DynamicObjectDrawSystem/DynamicObjectDrawSystem.h"
 #include "Application/Systems/Draw/Draw/AnimationOptionalDraw/AnimationOptionalDraw.h"
 #include "Application/Systems/Draw/Draw/ScreenUIDraw/ScreenUIDrawSystem.h"
 #include "../../Systems/Draw/Draw/RegisterRayWorldSystem/RegisterRayWorldSystem.h"
@@ -220,7 +222,9 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<CalccTransformFromExoskeletonSystem>();
 	m_upWorld->RegisterSystem<RayCollisionSystem>();
 
-	m_upWorld->RegisterSystem<SimpleDrawSystem>();
+	//m_upWorld->RegisterSystem<SimpleDrawSystem>();
+	m_upWorld->RegisterSystem<StaticObjectDrawSystem>();
+	m_upWorld->RegisterSystem<DynamicObjectDrawSystem>();
 	m_upWorld->RegisterSystem<AnimationOptionalDrawSystem>();
 	m_upWorld->RegisterSystem<ScreenUIDrawSystem>();
 	m_upWorld->RegisterSystem<RegisterRayWorldSystem>();

@@ -10,6 +10,7 @@ namespace Engine::Graphics
 		DirectX::XMFLOAT4X4 projMat = {};			// 射影行列
 		DirectX::XMFLOAT4X4 viewInvMat = {};		// ビュー行列
 		DirectX::XMFLOAT4X4 projInvMat = {};		// 射影逆行列
+		DirectX::XMFLOAT4X4 viewProjMat = {};
 		DirectX::XMFLOAT4X4 invViewProjMat = {};
 
 		// モーションベクター用

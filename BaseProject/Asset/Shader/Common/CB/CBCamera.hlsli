@@ -9,6 +9,7 @@ struct CBCamera
 	float4x4 proj;		// 投影行列			// ジッターあり
 	float4x4 invView;	// ビュー行列
 	float4x4 invProj;	// 投影行列の逆行列	// ジッターあり
+	float4x4 viewProj;						// ジッターあり
 	float4x4 invViewProj;					// ジッターあり
 
 	// モーションベクター用

@@ -44,7 +44,8 @@ struct VSOutput
 	float3 wB : TEXCOORD3; // ワールド副接線(従法線)
 
 	// モーションベクター計算用
-	
+	float4 curClipPos : TEXCOORD4;
+	float4 prevClipPos : TEXCOORD5;
 };
 
 // GBuffer用出力
