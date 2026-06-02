@@ -101,6 +101,8 @@ namespace Engine::Graphics
 			DXSM::Vector3 pad3_1;
 			UINT seed;
 			DXSM::Vector3 pad3_2;
+			float hitDistance;
+			DXSM::Vector3 pad3_3;
 		};
 		Raytracing::RayPSODesc _psoInit = {};
 		_psoInit.shaderPass = "Asset/Shader/Ray/GIShader/RaytracingGI.hlsl";

@@ -125,6 +125,7 @@ struct RayPayload
 	int hit;
 	int depth;
 	uint seed; // 乱数状態を引き継ぐ
+	float hitDistance;
 };
 
 // 光源に向かってレイを飛ばす
@@ -256,6 +257,7 @@ void RayGen()
 	_payload.depth = 0;
 	_payload.hit = 0;
 	_payload.seed = Hash(_seed);
+	_payload.hitDistance = -1.0f;
 
 	// レイ発射
 	TraceRay(
@@ -269,12 +271,8 @@ void RayGen()
 		_payload
 	);
 
-	// トーンマッピング
-	float3 _finalHDRColor = _payload.color;
-	float3 _finalLDRColor = _finalHDRColor / (1.0f + _finalHDRColor);
-	
 	// 出力
-	gOutPut[_id] = float4(_finalLDRColor, 1);
+	gOutPut[_id] = float4(_payload.color, _payload.hitDistance);
 }
 
 // レイがどのポリゴンとも接触しなかったときに呼び出されるシェーダー
@@ -282,6 +280,7 @@ void RayGen()
 void Miss(inout RayPayload a_payload)
 {
 	a_payload.color = float3(0.2, 0.2, 0.3);
+	a_payload.hitDistance = -1.0f;				// 当たらなかったらマイナス
 }
 
 [shader("miss")]
@@ -295,6 +294,9 @@ void ShadowMiss(inout RayPayload a_payload)
 void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)
 {
 	a_payload.depth++;
+
+	// 今のレイが飛んだ距離をペイロードに保存
+	a_payload.hitDistance = RayTCurrent();
 	
 	// 各種IDとデータの取得
 	uint instID = InstanceID(); // インスタンス番号

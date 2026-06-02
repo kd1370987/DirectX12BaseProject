@@ -110,7 +110,7 @@ namespace Engine::Graphics
 		);
 		m_upRGResourceManager->Register(
 			"RayGI",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
+			DXGI_FORMAT_R16G16B16A16_FLOAT,
 			1280,
 			720,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
