@@ -808,6 +808,18 @@
     <Filter Include="Asset\Shader\Common\RootParameters">
       <UniqueIdentifier>{ec6afe83-5448-4aff-b9a7-89c850e9037e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Draw\PostDraw">
+      <UniqueIdentifier>{a648d06a-296e-450b-ada4-3803fcf6e6ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem">
+      <UniqueIdentifier>{6be256d2-5724-4266-a330-be16a91208e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem">
+      <UniqueIdentifier>{11bb16fa-99ca-4298-9ce2-c64c576db6d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem">
+      <UniqueIdentifier>{71ba85ac-ccd3-4aa7-8bcf-9715e7cb75d6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1313,6 +1325,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2044,6 +2065,18 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\CBData.h">
       <Filter>Source\Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Transform\PreviousWorldMatrixComponent.h">
+      <Filter>Source\Application\Components\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.h">
+      <Filter>Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.h">
+      <Filter>Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h">
+      <Filter>Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

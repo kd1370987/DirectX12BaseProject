@@ -1,5 +1,7 @@
 ﻿#include "GraphicEngine.h"
 
+#include "../MainEngine.h"
+
 // D3D関係
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
@@ -75,26 +77,8 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::Excute()
 	{
-		m_cbGPUCamera = {};
-		// カメラのトランスポーズ
-		DXSM::Matrix _viewMat = m_cbCamera.viewMat;
-		DXSM::Matrix _projMat = m_cbCamera.projMat;
-		DXSM::Matrix _invViewMat = m_cbCamera.viewInvMat;
-		DXSM::Matrix _invProjMat = m_cbCamera.projInvMat;
-		DXSM::Matrix _viewProj = _viewMat * _projMat;
-		DXSM::Matrix _invViewProj = _viewProj.Invert();
-
-		m_cbGPUCamera.pos = m_cbCamera.pos;
-		m_cbGPUCamera.viewMat = _viewMat.Transpose();
-		m_cbGPUCamera.projMat = _projMat.Transpose();
-		m_cbGPUCamera.viewInvMat = _invViewMat.Transpose();
-		m_cbGPUCamera.projInvMat = _invProjMat.Transpose();
-		m_cbGPUCamera.invViewProjMat = _invViewProj.Transpose();
-
-		m_cbGPUCamera.prevView = DXSM::Matrix::Identity;
-		m_cbGPUCamera.prevProj = DXSM::Matrix::Identity;
-		m_cbGPUCamera.prevViewProj = DXSM::Matrix::Identity;
-
+		// GPU用カメラデータを作成
+		CreateGPUCameraData();
 
 		// バッファの更新
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(m_instanceDataVec, m_subSetDataVec);
@@ -127,6 +111,9 @@ namespace Engine::Graphics
 		// サブセット情報の消去
 		m_subSetDataVec.clear();
 		m_subSetDataVec.reserve(10000);
+
+		// カメラの前フレームの更新
+
 	}
 
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const
@@ -218,5 +205,80 @@ namespace Engine::Graphics
 		);
 
 		return std::span<const LightWeightDrawItem>(_itStart, _itEnd);
+	}
+	void GraphicsEngine::CreateGPUCameraData()
+	{
+		// リセット
+		m_cbGPUCamera = {};
+
+		// スクリーン座標を取得
+		const auto& _config = Engine::MainEngine::Instance().GetEngineConfig();
+
+		// ジッターオフセット計算
+		float _jitterX = 0.0f;
+		float _jitterY = 0.0f;
+		if (false)
+		{
+			// ハルトンシーケンスのテーブル（ピクセル中心地からのオフセット値 -0.5f ～ 0.5f）
+			static const float _sHaltonX[16] = { 0.0f, -0.25f, 0.25f, -0.375f, 0.125f, -0.125f, 0.375f, -0.4375f, 0.0625f, -0.1875f, 0.3125f, -0.3125f, 0.1875f, -0.0625f, 0.4375f, -0.46875f };
+			static const float _sHaltonY[16] = { 0.0f, 0.166667f, -0.166667f, 0.5f, -0.5f, 0.222222f, -0.222222f, 0.888889f, -0.888889f, 0.388889f, -0.388889f, 0.055556f, -0.055556f, 0.722222f, -0.722222f };
+
+			uint32_t _sampleIndex = m_totlaFrameCount % 16;
+
+			// プロジェクション空間（NDC）のサイズに変換 : NDCは幅が２(-1～1)だから2倍
+			_jitterX = (_sHaltonX[_sampleIndex] / (float)_config.GetRuntimeConfig().windowWidth) * 2.0f;
+			_jitterY = (_sHaltonY[_sampleIndex] / (float)_config.GetRuntimeConfig().windowHeight) * 2.0f;
+		}
+
+		// カメラの行列を一時的に取得
+		DXSM::Matrix _viewMat = m_cbCamera.viewMat;
+		DXSM::Matrix _projMat = m_cbCamera.projMat;
+		DXSM::Matrix _invViewMat = m_cbCamera.viewInvMat;
+		DXSM::Matrix _invProjMat = m_cbCamera.projInvMat;
+		DXSM::Matrix _viewProj = _viewMat * _projMat;
+		DXSM::Matrix _invViewProj = _viewProj.Invert();
+
+		// モーションベクター用のジッターなしViewProjを計算
+		DXSM::Matrix _nonJitteredViewProj = _viewMat * _projMat;
+
+		// 描画用のジッターあり投影行列を作成
+		DXSM::Matrix _jitteredProjMat = _projMat;
+		_jitteredProjMat._31 += _jitterX;
+		_jitteredProjMat._32 += _jitterY;
+
+		// 描画用のジッターありViewProjとその逆行列を計算
+		DXSM::Matrix _jitteredViewProj = _viewMat * _jitteredProjMat;
+		DXSM::Matrix _invJitteredProj = _jitteredProjMat.Invert();
+		DXSM::Matrix _invJitteredViewProj = _jitteredViewProj.Invert();
+
+		// GPU転送用バッファへの詰め込み
+		m_cbGPUCamera.pos = m_cbCamera.pos;
+
+		// 通常の描画（SV_Positionの計算）にはジッターありを使う
+		m_cbGPUCamera.viewMat			= _viewMat.Transpose();
+		//m_cbGPUCamera.projMat			= _projMat.Transpose();
+		m_cbGPUCamera.projMat			= _jitteredProjMat.Transpose();
+		m_cbGPUCamera.viewInvMat		= _invViewMat.Transpose();
+		//m_cbGPUCamera.projInvMat		= _invProjMat.Transpose();
+		m_cbGPUCamera.projInvMat		= _invJitteredProj.Transpose();
+		//m_cbGPUCamera.invViewProjMat	= _invViewProj.Transpose();
+		m_cbGPUCamera.invViewProjMat	= _invJitteredViewProj.Transpose();
+
+		// モーションベクターの計算にはジッターなしを使う
+		m_cbGPUCamera.nonJitteredProj = _projMat.Transpose();
+		m_cbGPUCamera.nonJitteredViewProj = _nonJitteredViewProj.Transpose();
+
+		// 過去フレームのジッターなし行列の処理
+		m_cbGPUCamera.prevView = m_prevViewMat.Transpose();
+		m_cbGPUCamera.prevProj = m_prevProjMat.Transpose();
+		m_cbGPUCamera.prevViewProj = m_prevNonJitteredViewProj.Transpose();
+
+		// 次のフレームのためにジッターなしデータを保存
+		m_prevViewMat = _viewMat;
+		m_prevProjMat = _projMat;
+		m_prevNonJitteredViewProj = _nonJitteredViewProj;
+
+		// フレームカウントを進める
+		m_totlaFrameCount++;
 	}
 }

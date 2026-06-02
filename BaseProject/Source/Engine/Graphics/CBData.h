@@ -5,11 +5,16 @@ namespace Engine::Graphics
 	struct alignas(256) CameraData
 	{
 		// 現在フレームのデータ
+		// ジッターありデータ
 		DirectX::XMFLOAT4X4 viewMat = {};			// ビュー行列
 		DirectX::XMFLOAT4X4 projMat = {};			// 射影行列
 		DirectX::XMFLOAT4X4 viewInvMat = {};		// ビュー行列
 		DirectX::XMFLOAT4X4 projInvMat = {};		// 射影逆行列
 		DirectX::XMFLOAT4X4 invViewProjMat = {};
+
+		// モーションベクター用
+		DirectX::XMFLOAT4X4 nonJitteredProj;		// ジッターなし投影行列
+		DirectX::XMFLOAT4X4 nonJitteredViewProj;	// ジッターなしビュープロジェクション行列
 
 		// 1フレーム前のデータ
 		DirectX::XMFLOAT4X4 prevView;
@@ -18,6 +23,8 @@ namespace Engine::Graphics
 
 
 		DirectX::XMFLOAT4 pos = { 0.0f,0.0f,0.0f,0.0f };	// カメラのワールド座標
+		DirectX::XMFLOAT2 jitterOffset = {};
+		DirectX::XMFLOAT2 prevJitterOffset = {};
 
 	};
 

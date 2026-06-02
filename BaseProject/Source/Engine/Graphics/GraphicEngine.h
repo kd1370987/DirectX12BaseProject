@@ -108,6 +108,13 @@ namespace Engine::Graphics
 
 		// 取得
 		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex);
+
+	private:
+
+		// カメラをGPU用データに変換
+		void CreateGPUCameraData();
+
+
 	private:
 		//--------------------------------------------------------------------------------------------
 		// 主要クラス
@@ -131,6 +138,10 @@ namespace Engine::Graphics
 		// カメラデータ
 		CameraData m_cbCamera = {};
 		CameraData m_cbGPUCamera = {};
+		DXSM::Matrix m_prevViewMat = {};
+		DXSM::Matrix m_prevProjMat = {};
+		DXSM::Matrix m_prevNonJitteredViewProj = {};
+		int m_totlaFrameCount = 0;
 
 		// 環境データ
 		AmbientData m_cbAmbient = {};

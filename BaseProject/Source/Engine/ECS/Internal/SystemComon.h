@@ -22,6 +22,7 @@ namespace Engine::ECS
 		// 描画
 		PreDraw,
 		Draw,
+		PostDraw,
 
 		// 解放
 		Release,

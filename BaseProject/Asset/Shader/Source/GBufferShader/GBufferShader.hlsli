@@ -42,6 +42,9 @@ struct VSOutput
 	float3 wN : TEXCOORD1; // ワールド法線
 	float3 wT : TEXCOORD2; // ワールド接線
 	float3 wB : TEXCOORD3; // ワールド副接線(従法線)
+
+	// モーションベクター計算用
+	
 };
 
 // GBuffer用出力

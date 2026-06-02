@@ -236,9 +236,12 @@
     <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Application\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentLinkSystem\AttachmentLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.cpp" />
@@ -444,6 +447,7 @@
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ReleaseTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\StartTag.h" />
     <ClInclude Include="Source\Application\Components\Transform\LocalTransformComponent.h" />
+    <ClInclude Include="Source\Application\Components\Transform\PreviousWorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\TransformComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />
@@ -452,9 +456,12 @@
     <ClInclude Include="Source\Application\Scene\SceneType.h" />
     <ClInclude Include="Source\Application\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\AttachmentLinkSystem\AttachmentLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.h" />

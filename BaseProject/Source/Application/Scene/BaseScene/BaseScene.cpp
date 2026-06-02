@@ -12,86 +12,68 @@
 
 // レンダータグ
 #include "../../Components/Tag/RenderTag/RayTag.h"
-
 #include "../../Components/Tag/ActiveCameraTag.h"
 #include "../../Components/Tag/CameraTag.h"
 #include "../../Components/Tag/PlayerControllTag.h"
 #include "../../Components/Tag/CameraControllTag.h"
-
 #include "../../Components/Camera/CameraParamComponent.h"
 #include "../../Components/Camera/FocusParamComponent.h"
 #include "../../Components/Camera/ProjMatComponent.h"
 #include "../../Components/Camera/FollowTargetComponent.h"
 #include "../../Components/Camera/TPSOffsetComponent.h"
 #include "../../Components/Camera/TPSLookAngleComponent.h"
-
 #include "../../Components/Force/GravityComponent.h"
 #include "../../Components/Force/VelocityComponent.h"
 #include "../../Components/Force/InertiaComponent.h"
-
 #include "../../Components/Charactor/Player/PlayerLookAngleComponent.h"
-
 #include "../../Components/Transform/TransformComponent.h"
 #include "../../Components/Transform/LocalTransformComponent.h"
 #include "../../Components/Transform/WorldMatrixComponent.h"
-
 #include "../../Components/Intent/MoveIntentComponent.h"
-
 #include "../../Components/Collision/Collider.h"
 #include "../../Components/Collision/RayCollider.h"
-
 #include "../../Components/Resource/ModelComponent.h"
 #include "../../Components/Resource/AnimatorComponent.h"
 #include "../../Components/Resource/SkeletonPoseComponent.h"
 #include "../../Components/Resource/NodePoseComponent.h"
 #include "../../Components/Resource/UIComponent.h"
 #include "../../Components/Resource/StateMachineComponent.h"
-
 #include "../../Components/Persistence/GUIDComponent.h"
 #include "../../Components/Persistence/NameComponent.h"
-
 #include "../../Components/Hierarchy/HierarchyComponent.h"
 #include "../../Components/Hierarchy/ExoskeletonAttachementComponent.h"
+#include "../../Components/Transform/PreviousWorldMatrixComponent.h"
 
 // システム関連
 #include "../../Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
 #include "../../Systems/Init/PostDeserialize/GUIDFixupSystem/GUIDFixupSystem.h"
-
 #include "../../Systems/Init/Awake/FollowTargetLinkSystem/FollowTargetLinkSystem.h"
 #include "../../Systems/Init/Awake/AttachmentLinkSystem/AttachmentLinkSystem.h"
 #include "../../Systems/Init/Awake/HierarchyLinkSystem/HierarchyLinkSystem.h"
-
 #include "../../Systems/Init/Start/CameraStartSystem/CameraStartSystem.h"
 #include "../../Systems/Init/Start/AnimationModelStartSystem/AnimationModelStartSystem.h"
 #include "../../Systems/Init/Start/RegisterCollisionWorldSystem/RegisterCollisionWorldSystem.h"
 #include "../../Systems/Init/Start/AttachmentNodeLinkSystem/AttachmentNodeLinkSystem.h"
-
 #include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
-
 #include "Application/Systems/Update/Update/Rotation/RotationSystem/RotationSystem.h"
 #include "Application/Systems/Update/Update/Acceleration/GravitySystem/GravitySystem.h"
 #include "../../Systems/Update/Update/Move/CharactorMovementSystem/CharactorMovementSystem.h"
-
 #include "Application/Systems/Update/Physics/RayCollisionSystem/RayCollisionSystem.h"
 #include "Application/Systems/Update/Physics/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
-
 #include "Application/Systems/Update/Camera/TPSSystem/TPSSystem.h"
-
 #include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
 #include "Application/Systems/Update/PostUpdate/AnimationSystem/AnimationSystem.h"
 #include "Application/Systems/Update/PostUpdate/SkinningSystem/SkinningSystem.h"
 #include "Application/Systems/Update/PostUpdate/CalcNodeSystem/CalcNodeSystem.h"
 #include "../../Systems/Update/PostUpdate/CommitWorldMatrixFromLocalSystem/CommitWorldMatrixFromLocalSystem.h"
 #include "../../Systems/Update/PostUpdate/CalcTransformFromExoskeletonSystem/CalcTransformFromExoskeletonSystem.h"
-
 #include "Application/Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
-
 #include "Application/Systems/Draw/Draw/SimpleDraw/SimpleDrawSystem.h"
 #include "Application/Systems/Draw/Draw/AnimationOptionalDraw/AnimationOptionalDraw.h"
 #include "Application/Systems/Draw/Draw/ScreenUIDraw/ScreenUIDrawSystem.h"
 #include "../../Systems/Draw/Draw/RegisterRayWorldSystem/RegisterRayWorldSystem.h"
-
 #include "../../Systems/Release/AnimationMatrixFreeSystem/AnimationMatrixFreeSystem.h"
+#include "../../Systems/Draw/PostDraw/RegisterPrevWorldMatSystem/RegisterPrevWorldMatSystem.h"
 
 
 BaseScene::BaseScene()
@@ -155,6 +137,8 @@ void BaseScene::Draw()
 	m_upWorld->RunSystem(Engine::ECS::ESystemType::PreDraw, 0.0f);
 
 	m_upWorld->RunSystem(Engine::ECS::ESystemType::Draw, 0.0f);
+
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::PostDraw, 0.0f);
 }
 
 void BaseScene::RegistryComponent()
@@ -199,6 +183,7 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<ExoskeletonAttachmentComponent>("ExoskeletonAttachmentComponent");
 	m_upWorld->RegisterComponent<StateMachineComponent>("StateMachineComponent");
 	m_upWorld->RegisterComponent<MoveIntentComponent>("MoveIntentComponent");
+	m_upWorld->RegisterComponent<PreviousWorldMatrixComponent>("PreviousWorldMatrixComponent");
 }
 
 void BaseScene::RegistrySystem()
@@ -241,6 +226,8 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<RegisterRayWorldSystem>();
 
 	m_upWorld->RegisterSystem<AnimationMatrixFreeSystem>();
+
+	m_upWorld->RegisterSystem<RegisterPrevWorldMatSystem>();
 }
 
 void BaseScene::RegistryEntity()
