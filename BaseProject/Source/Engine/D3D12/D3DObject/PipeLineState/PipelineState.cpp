@@ -254,4 +254,10 @@ namespace Engine::D3D12
 			m_isDepthStencilStateSet = true;
 		}
 	}
+	void ComputePipelineDesc::SetName(const std::string& a_name)
+	{}
+	void ComputePipelineDesc::SetRootSignature(ID3D12RootSignature * a_pRootSig)
+	{}
+	void ComputePipelineDesc::SetCS(const D3D12_SHADER_BYTECODE & a_byteCode)
+	{}
 }
