@@ -10,40 +10,34 @@ namespace Engine::D3D12
 	
 	bool PipelineState::Create(ID3D12Device* a_pDevice, const GraphicsPipelineDesc& a_desc)
 	{
-		auto _name = StringUtility::ToWideString(a_desc.name);
-		return Create(a_pDevice,a_desc.desc,_name.c_str());
-	}
-
-	bool PipelineState::Create(ID3D12Device* a_pDevice, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& a_desc, const wchar_t* a_name)
-	{
-		// パイプラインステート作成
 		auto _hr = a_pDevice->CreateGraphicsPipelineState(
-			&a_desc,
+			&a_desc.desc,
 			IID_PPV_ARGS(m_cpPipelineState.ReleaseAndGetAddressOf())
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "グラフィックス用パイプラインステートの生成に失敗\n");
+			Editor::MainEditor::Instance().ErrorLog("グラフィックス用パイプラインステートの生成に失敗");
 			return false;
 		}
 
-		m_cpPipelineState.Get()->SetName(a_name);
+		m_cpPipelineState->SetName(StringUtility::ToWideString(a_desc.name).c_str());
 
 		return true;
 	}
 
-	bool PipelineState::Create(ID3D12Device* a_pDevice, const D3D12_COMPUTE_PIPELINE_STATE_DESC& a_desc, const wchar_t* a_name)
+	bool PipelineState::Create(ID3D12Device* a_pDevice, const ComputePipelineDesc& a_desc)
 	{
-		// パイプラインステート作成
 		auto _hr = a_pDevice->CreateComputePipelineState(
-			&a_desc,
+			&a_desc.desc,
 			IID_PPV_ARGS(m_cpPipelineState.ReleaseAndGetAddressOf())
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "コンピュート用パイプラインステートの生成に失敗\n");
+			Editor::MainEditor::Instance().ErrorLog("コンピュート用シェーダーの作成に失敗");
 			return false;
 		}
+
+		m_cpPipelineState->SetName(StringUtility::ToWideString(a_desc.name).c_str());
 
 		return true;
 	}

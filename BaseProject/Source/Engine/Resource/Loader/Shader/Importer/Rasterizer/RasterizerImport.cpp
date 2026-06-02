@@ -2,7 +2,7 @@
 
 namespace Engine::Resource::Import
 {
-	ComPtr<ID3DBlob> Engine::Resource::Import::RasterizerShader(const std::string& a_path)
+	ComPtr<ID3DBlob> Engine::Resource::Import::CompileShader(const std::string& a_path)
 	{
 		ComPtr<ID3DBlob> _cpBlob = {};
 

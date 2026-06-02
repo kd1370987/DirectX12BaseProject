@@ -117,7 +117,54 @@ namespace Engine::D3D12
 		return _pso.Get();
 	}
 
-	Resource::Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(const D3D12::GraphicsPipelineDesc& a_desc)
+	ID3D12PipelineState* PipelineStateManager::Request(const D3D12::ComputePipelineDesc& a_desc)
+	{
+		// ハッシュを求める
+		uint64_t _hash = CalcHash(&a_desc.desc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+
+		// キャッシュ検索
+		if (m_psoMap.contains(_hash))
+		{
+			return m_psoMap[_hash].Get();
+		}
+
+		// キャッシュになければ、ComPtrを作成
+		ComPtr<ID3D12PipelineState> _pso;
+		auto _hr = m_pDevice->CreateComputePipelineState(&a_desc.desc, IID_PPV_ARGS(&_pso));
+		if (FAILED(_hr))
+		{
+			assert(0 && "PSOの作成失敗");
+			return nullptr;
+		}
+
+		// 名前があれば
+		if (!a_desc.name.empty())
+		{
+			_pso->SetName(StringUtility::ToWideString(a_desc.name).c_str());
+		}
+
+		// マップに保存して生ポインタを返す
+		m_psoMap[_hash] = _pso;
+		return _pso.Get();
+	}
+
+	Resource::Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
+		const D3D12::GraphicsPipelineDesc& a_desc
+	)
+	{
+		auto _handle = m_psoHandleStorage.Allocate();
+		if (m_pPsoVec.size() <= _handle.idx)
+		{
+			m_pPsoVec.resize(_handle.idx + 1);
+		}
+		m_pPsoVec[_handle.idx] = Request(a_desc);
+
+		return _handle;
+	}
+
+	Resource::Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
+		const D3D12::ComputePipelineDesc& a_desc
+	)
 	{
 		auto _handle = m_psoHandleStorage.Allocate();
 		if (m_pPsoVec.size() <= _handle.idx)

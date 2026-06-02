@@ -820,6 +820,18 @@
     <Filter Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem">
       <UniqueIdentifier>{71ba85ac-ccd3-4aa7-8bcf-9715e7cb75d6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Compute">
+      <UniqueIdentifier>{0f860c13-cd63-44bf-b321-a6ffa6d68e59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass">
+      <UniqueIdentifier>{325c38cd-8bd4-4bd3-908c-fdac5248ff93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise">
+      <UniqueIdentifier>{2f63ee40-22f9-409e-8618-96be88a994b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TemporalAccumulationPass">
+      <UniqueIdentifier>{a43a5fbd-ee25-4c22-8d7c-3e4ca4ea4c60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1334,6 +1346,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\ComputePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TemporalAccumulationPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2077,6 +2095,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\ComputePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TemporalAccumulationPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -41,7 +41,7 @@ namespace Engine::D3D12
 
 		// 本体
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
-		std::string name = "DefaultGraphics";
+		std::string name = "DefaultGraphicsPSO";
 	private:
 		// ステートがまだセットされていないときに、デフォルトのステートをセットする
 		void BlendStateDefault();
@@ -52,6 +52,23 @@ namespace Engine::D3D12
 		bool m_isBlendStateSet = false;	// ブレンドステートがセットされているか
 		bool m_isRasterizerStateSet = false;	// ラスタライザーステートがセットされているか
 		bool m_isDepthStencilStateSet = false;	// 深度ステンシルステートがセットされているか
+	};
+
+	// コンピュート用作成構造体
+	struct ComputePipelineDesc
+	{
+		// 名前セット
+		void SetName(const std::string& a_name);
+
+		// ルートシグネチャセット
+		void SetRootSignature(ID3D12RootSignature* a_pRootSig);
+
+		// シェーダーセット
+		void SetCS(const D3D12_SHADER_BYTECODE& a_byteCode);
+
+		// 変数
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
+		std::string name = "DefaultComputePSO";
 	};
 
 	// パイプラインステートオブジェクト
@@ -66,18 +83,7 @@ namespace Engine::D3D12
 		// 作成
 		// グラフィック
 		bool Create(ID3D12Device* a_pDevice, const GraphicsPipelineDesc& a_desc);
-		bool Create(
-			ID3D12Device* a_pDevice,
-			const D3D12_GRAPHICS_PIPELINE_STATE_DESC& a_desc, 
-			const wchar_t* a_name = nullptr
-		);
-
-		// コンピュート
-		bool Create(
-			ID3D12Device* a_pDevice,
-			const D3D12_COMPUTE_PIPELINE_STATE_DESC& a_desc,
-			const wchar_t* a_name = nullptr
-		);
+		bool Create(ID3D12Device* a_pDevice, const ComputePipelineDesc& a_desc);
 
 		// アクセサ
 		const ID3D12PipelineState* Get() const;

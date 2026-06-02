@@ -129,6 +129,14 @@ namespace Engine::Graphics
 			720,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
 		);
+		m_upRGResourceManager->Register(
+			"DenoiseGI",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		);
+		
 
 		// パス登録
 		RegisterPass<ZPrePass>();
