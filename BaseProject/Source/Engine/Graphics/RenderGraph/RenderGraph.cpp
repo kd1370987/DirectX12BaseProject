@@ -253,15 +253,17 @@ namespace Engine::Graphics
 					_next = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 				}
 
-				auto& _currentState = m_upRGResourceManager->RefCurrentState(_access.id);
+				bool _isRead = (_access.type == AccessType::SRV || _access.type == AccessType::Depth_Read);
+				auto& _currentState = m_upRGResourceManager->RefCurrentState(_access.id,_isRead);
 				if (_currentState != _next)
 				{
 					_cp.barrierVec.push_back(
 						{
-							m_upRGResourceManager->GetTexHandle(_access.id),
+							m_upRGResourceManager->GetTexHandle(_access.id,_isRead),
 							_currentState,
 							_next,
-							_access.id
+							_access.id,
+							_isRead
 						}
 					);
 					_currentState = _next;
@@ -450,17 +452,19 @@ namespace Engine::Graphics
 		for (auto& _barrier : a_pass.barrierVec)
 		{
 			// 現在のステートと変更予定ステートが違うのならば変更する
-			if (m_upRGResourceManager->RefCurrentState(_barrier.resID) != _barrier.after)
+			if (m_upRGResourceManager->RefCurrentState(_barrier.resID,_barrier.isRead) != _barrier.after)
 			{
+				auto _currentTexHandle = m_upRGResourceManager->GetTexHandle(_barrier.resID,_barrier.isRead);
+
 				// ステート変更
 				a_pCtx->Transition(
-					//Resource::TextureManager::Instance().RefTexture(_barrier.texHandle).GetResource(),
-					Resource::ResourceManager::Instance().Ref(_barrier.texHandle)->GetResource(),
-					m_upRGResourceManager->RefCurrentState(_barrier.resID),
+					//Resource::ResourceManager::Instance().Ref(_barrier.texHandle)->GetResource(),
+					Resource::ResourceManager::Instance().Ref(_currentTexHandle)->GetResource(),
+					m_upRGResourceManager->RefCurrentState(_barrier.resID, _barrier.isRead),
 					_barrier.after
 				);
 				// 現在のステートを更新
-				m_upRGResourceManager->RefCurrentState(_barrier.resID) = _barrier.after;
+				m_upRGResourceManager->RefCurrentState(_barrier.resID, _barrier.isRead) = _barrier.after;
 			}
 		}
 	}

@@ -16,6 +16,14 @@ namespace Engine::Graphics
 			const Resource::TextureUsage& a_texUsage,
 			const DXSM::Color& a_clerColor = {0,0,0,1}
 		);
+		void RegisterTemporal(
+			const std::string& a_name,
+			const DXGI_FORMAT& format,
+			const UINT64& a_widht,
+			const UINT& a_height,
+			const Resource::TextureUsage& a_texUsage,
+			const DXSM::Color& a_clerColor = { 0,0,0,1 }
+		);
 
 		// 既存の最新バージョンを取得する
 		// 読み込み用 : テクスチャ名、読み込み時の使用方法
@@ -31,14 +39,18 @@ namespace Engine::Graphics
 		// 実行に移るためステートをテクスチャに合わせる
 		void StateReset();
 
-		// アクセサ
+		// ---- テンポラル用 ----
+		void Swap();		// 入れ替え : コンパイル時にはforの最後に入れる : ランタイム時にはフレームに一度のみ入れる
+
+
+		// ---- アクセサ ----
 		Resource::ID GetID(const std::string& a_name);
-		Resource::Handle<Resource::Texture> GetTexHandle(Resource::ID a_id);
+		Resource::Handle<Resource::Texture> GetTexHandle(Resource::ID a_id, bool isRead = false);
 
 		Resource::Handle<D3D12::RTV> GetRTVHandle(Resource::ID a_id);		// RTVハンドル
 		Resource::Handle<D3D12::DSV> GetDSVHandle(Resource::ID a_id);		// DSVハンドル
 
-		D3D12_RESOURCE_STATES& RefCurrentState(Resource::ID a_id);	// 現在のステート
+		D3D12_RESOURCE_STATES& RefCurrentState(Resource::ID a_id, bool isRead = false);	// 現在のステート
 		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);				// リソースのフォーマット
 
 		std::vector<std::string> GetResourceNameVec();				// リソース名一覧
@@ -54,21 +66,35 @@ namespace Engine::Graphics
 			uint32_t widht = 0;
 			uint32_t height = 0;
 			Resource::TextureUsage usage = Resource::TextureUsage::None;
-			DXSM::Color clerColor = {0,0,0,1};
+			DXSM::Color clerColor = { 0,0,0,1 };
 
 			// 実行順を決定するためのバージョン
 			Resource::Generation currentVarsion = 0;
 
-			// コンパイル時にバリアを作るためのステート
-			D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
+			// テンポラルかどうか
+			bool isTemporal = false;
 
 			// コンパイル時に作成される
-			Resource::Handle<Resource::Texture> texHandle = {};
+			// コンパイル時にバリアを作るためのステート
+			D3D12_RESOURCE_STATES currentState[2] = { D3D12_RESOURCE_STATE_COMMON , D3D12_RESOURCE_STATE_COMMON };
+			Resource::Handle<Resource::Texture> texHandle[2] = {};
 		};
 
+		// リソース参照
+		const LogicalResource& GetRes(Resource::ID a_id) const;
+		LogicalResource& RefRes(Resource::ID a_id);
+
+		// テクスチャ参照
+		const Resource::Texture* GetTex(const Resource::Handle<Resource::Texture>& a_handle) const;
+		Resource::Texture* RefTex(const Resource::Handle<Resource::Texture>& a_handle);
+
+	private:
 
 		// リソース（テクスチャ）名、リソース情報
 		std::unordered_map<std::string, Resource::Index> m_stringMap = {};
 		std::vector<LogicalResource> m_resourceVec = {};
+
+		// テンポラル用フラグ
+		UINT m_temporalIndex = 0;
 	};
 };

@@ -12,6 +12,7 @@ namespace Engine::Graphics
 		D3D12_RESOURCE_STATES before = D3D12_RESOURCE_STATE_COMMON;
 		D3D12_RESOURCE_STATES after = D3D12_RESOURCE_STATE_COMMON;
 		Engine::Resource::ID resID = Engine::Resource::Limits::INVALID_ID;
+		bool isRead = false;
 	};
 
 	struct CompiledPass

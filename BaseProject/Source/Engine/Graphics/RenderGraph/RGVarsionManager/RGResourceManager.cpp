@@ -27,7 +27,38 @@ namespace Engine::Graphics
 		_data.currentVarsion = 0;
 
 		// コンパイル時に作成されて渡される
-		_data.texHandle = {};
+		_data.texHandle[0] = {};
+
+		// 登録
+		m_stringMap[a_name] = m_resourceVec.size();
+		m_resourceVec.push_back(_data);
+	}
+
+	void RGResourceManager::RegisterTemporal(const std::string& a_name, const DXGI_FORMAT& format, const UINT64& a_widht, const UINT& a_height, const Resource::TextureUsage& a_texUsage, const DXSM::Color& a_clerColor)
+	{
+		auto _it = m_stringMap.find(a_name);
+		if (_it != m_stringMap.end())
+		{
+			// 登録済み
+			return;
+		}
+
+		LogicalResource _data = {};
+		_data.name = a_name;
+		_data.format = format;
+		_data.widht = a_widht;
+		_data.height = a_height;
+		_data.usage = a_texUsage;
+		_data.clerColor = a_clerColor;
+
+		// テンポラルオン
+		_data.isTemporal = true;
+
+		// バージョンは0
+		_data.currentVarsion = 0;
+
+		// コンパイル時に作成されて渡される
+		_data.texHandle[0] = {};
 
 		// 登録
 		m_stringMap[a_name] = m_resourceVec.size();
@@ -78,17 +109,35 @@ namespace Engine::Graphics
 				.usage = _res.usage
 			};
 			_desc.opClerValue = _res.clerColor;
-			//_res.texHandle = Resource::TextureManager::Instance().CreateTexture(_desc);
-			_res.texHandle = Resource::TextureLoader::Create(_desc);
+			if(_res.isTemporal)
+			{
+				// テンポラル作成
+				auto _name = _desc.name;
+				_desc.name = _name + "_A";
+				_res.texHandle[0] = Resource::TextureLoader::Create(_desc);
+				_desc.name = _name + "_B";
+				_res.texHandle[1] = Resource::TextureLoader::Create(_desc);
+			}
+			else
+			{
+				// 通常リソース作成
+				_res.texHandle[0] = Resource::TextureLoader::Create(_desc);
+			}
 		}
 	}
 	void RGResourceManager::StateReset()
 	{
 		for (auto& _res : m_resourceVec)
 		{
-			_res.currentState = D3D12_RESOURCE_STATE_COMMON;
+			_res.currentState[0] = D3D12_RESOURCE_STATE_COMMON;
+			_res.currentState[1] = D3D12_RESOURCE_STATE_COMMON;
 		}
 	}
+	void RGResourceManager::Swap()
+	{
+		m_temporalIndex = 1 - m_temporalIndex;
+	}
+
 	Resource::ID RGResourceManager::GetID(const std::string& a_name)
 	{
 		// 登録されているか検索
@@ -99,39 +148,47 @@ namespace Engine::Graphics
 			return _it->second;
 		}
 	}
-	Resource::Handle<Resource::Texture> RGResourceManager::GetTexHandle(Resource::ID a_id)
+	Resource::Handle<Resource::Texture> RGResourceManager::GetTexHandle(Resource::ID a_id, bool isRead)
 	{
 		auto _idx = Resource::GetIndex(a_id);
-		return m_resourceVec[_idx].texHandle;
+		if (m_resourceVec[_idx].isTemporal)
+		{
+			// ★ Read(SRV等)なら過去、Write(UAV/RTV等)なら現在を返す
+			return m_resourceVec[_idx].texHandle[isRead ? (1 - m_temporalIndex) : m_temporalIndex];
+		}
+		else
+		{
+			return m_resourceVec[_idx].texHandle[0];
+		}
 	}
 	Resource::Handle<D3D12::RTV> RGResourceManager::GetRTVHandle(Resource::ID a_id)
 	{
-		auto _idx = Resource::GetIndex(a_id);
-		auto& _res = m_resourceVec[_idx];
-
-		//auto& _tex = Resource::TextureManager::Instance().GetTexture(_res.texHandle);
-		const auto* _tex = Resource::ResourceManager::Instance().Get(_res.texHandle);
+		const auto& _res = GetRes(a_id);
+		const auto* _tex = GetTex(_res.texHandle[m_temporalIndex]);
 		return _tex->GetRTV();
 	}
 	Resource::Handle<D3D12::DSV> RGResourceManager::GetDSVHandle(Resource::ID a_id)
 	{
-		auto _idx = Resource::GetIndex(a_id);
-		auto& _res = m_resourceVec[_idx];
-
-		//auto& _tex = Resource::TextureManager::Instance().GetTexture(_res.texHandle);
-		const auto* _tex = Resource::ResourceManager::Instance().Get(_res.texHandle);
+		const auto& _res = GetRes(a_id);
+		const auto* _tex = GetTex(_res.texHandle[m_temporalIndex]);
 		return _tex->GetDSV();
 	}
-	D3D12_RESOURCE_STATES& RGResourceManager::RefCurrentState(Resource::ID a_id)
+	D3D12_RESOURCE_STATES& RGResourceManager::RefCurrentState(Resource::ID a_id, bool isRead)
 	{
-		auto _idx = Resource::GetIndex(a_id);
-		auto& _res = m_resourceVec[_idx];
-		return _res.currentState;
+		auto& _res = RefRes(a_id);
+		if (_res.isTemporal)
+		{
+			// ★ ステートも過去用と現在用ですり替える
+			return _res.currentState[isRead ? (1 - m_temporalIndex) : m_temporalIndex];
+		}
+		else
+		{
+			return _res.currentState[0];
+		}
 	}
 	DXGI_FORMAT RGResourceManager::GetDXGIFormat(Resource::ID a_id)
 	{
-		auto _idx = Resource::GetIndex(a_id);
-		auto& _res = m_resourceVec[_idx];
+		const auto& _res = GetRes(a_id);
 		return _res.format;
 	}
 	std::vector<std::string> RGResourceManager::GetResourceNameVec()
@@ -142,5 +199,23 @@ namespace Engine::Graphics
 			_nameVec.push_back(_name);
 		}
 		return _nameVec;
+	}
+	const RGResourceManager::LogicalResource& RGResourceManager::GetRes(Resource::ID a_id) const
+	{
+		auto _idx = Resource::GetIndex(a_id);
+		return m_resourceVec[_idx];
+	}
+	RGResourceManager::LogicalResource& RGResourceManager::RefRes(Resource::ID a_id)
+	{
+		auto _idx = Resource::GetIndex(a_id);
+		return m_resourceVec[_idx];
+	}
+	const Resource::Texture* RGResourceManager::GetTex(const Resource::Handle<Resource::Texture>& a_handle) const
+	{
+		return Resource::ResourceManager::Instance().Get(a_handle);
+	}
+	Resource::Texture* RGResourceManager::RefTex(const Resource::Handle<Resource::Texture>& a_handle)
+	{
+		return Resource::ResourceManager::Instance().Ref(a_handle);
 	}
 }
