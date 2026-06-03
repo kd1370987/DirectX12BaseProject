@@ -255,9 +255,16 @@ namespace Engine::D3D12
 		}
 	}
 	void ComputePipelineDesc::SetName(const std::string& a_name)
-	{}
+	{
+		name = a_name;
+	}
 	void ComputePipelineDesc::SetRootSignature(ID3D12RootSignature * a_pRootSig)
-	{}
-	void ComputePipelineDesc::SetCS(const D3D12_SHADER_BYTECODE & a_byteCode)
-	{}
+	{
+		desc.pRootSignature = a_pRootSig;
+	}
+	void ComputePipelineDesc::SetCS(const D3D12_SHADER_BYTECODE & a_byteCode,const size_t& a_size)
+	{
+		desc.CS.pShaderBytecode = &a_byteCode;
+		desc.CS.BytecodeLength = a_size;
+	}
 }

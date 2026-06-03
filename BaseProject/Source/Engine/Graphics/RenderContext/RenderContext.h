@@ -109,6 +109,7 @@ namespace Engine::Graphics
 		void BindSRV(UINT a_rootIdx,Resource::Handle<D3D12::SRV> a_srvHandle);
 
 		void ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
+		void ComputeBindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
 
 		// UAV
 		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
@@ -138,6 +139,8 @@ namespace Engine::Graphics
 		// すべてのアニメーション行列を配置しているから一括で送れる
 		// 定数バッファでスタートインデックスとカウントを送る必要あり
 		void BindSRVBone();
+
+		void Dispatch(UINT a_x,UINT a_y,UINT a_z);
 
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド

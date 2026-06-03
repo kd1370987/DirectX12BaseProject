@@ -87,6 +87,11 @@ namespace Engine::D3D12
 		m_cpCommandList->SetComputeRootSignature(a_pRootSignature);
 	}
 
+	void CommandList::SetPipelineState(ID3D12PipelineState* a_pPSO)
+	{
+		m_cpCommandList->SetPipelineState(a_pPSO);
+	}
+
 	void CommandList::SetPipelineState1(ID3D12StateObject* a_pStateObject)
 	{
 		m_cpCommandList->SetPipelineState1(a_pStateObject);

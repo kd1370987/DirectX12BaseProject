@@ -64,7 +64,7 @@ namespace Engine::D3D12
 		void SetRootSignature(ID3D12RootSignature* a_pRootSig);
 
 		// シェーダーセット
-		void SetCS(const D3D12_SHADER_BYTECODE& a_byteCode);
+		void SetCS(const D3D12_SHADER_BYTECODE& a_byteCode, const size_t& a_size);
 
 		// 変数
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};

@@ -92,6 +92,7 @@ namespace Engine::D3D12
 		void SetComputeRootSignature(ID3D12RootSignature* a_pRootSignature);// コンピュート
 
 		// パイプラインステートをセット
+		void SetPipelineState(ID3D12PipelineState* a_pPSO);
 		void SetPipelineState1(ID3D12StateObject* a_pStateObject);
 
 		// コンピュートにSRVをセット

@@ -1,4 +1,12 @@
 #include "../../Source/CalcNormal.hlsli"
+#include "../../Source/RootSignatureLayout.hlsli"
+
+// ルートシグネチャデータ
+#define TEMPORALACCUMULATION_ROOT_SIG \
+"RootFlags(0), " \
+"DescriptorTable(SRV(t0, numDescriptors=7)),"\
+"DescriptorTable(UAV(u0, numDescriptors=1)),"\
+RS_STATIC_SAMPLER
 
 // 入力
 Texture2D<float4> g_currentGITex : register(t0);	// 現在のGI
@@ -14,6 +22,9 @@ RWTexture2D<float4> g_outputGI : register(u0);		// 結果書き込み用
 
 // サンプラー
 SamplerState g_smp : register(s0);
+
+// ルートシグネチャセット
+[RootSignature(TEMPORALACCUMULATION_ROOT_SIG)]
 
 // ---- DTid ----
 // ディスパッチ全体でこのスレッドは何番目かの変数

@@ -12,6 +12,8 @@ namespace Engine::Graphics
 		ComputePass() = default;
 		virtual ~ComputePass() override = default;
 
+		void Init(const PassInitDesc& a_initDesc) override;
+
 	protected:
 
 		// 名前設定
@@ -20,11 +22,16 @@ namespace Engine::Graphics
 		// セットシェーダー
 		void SetShader(const std::string& a_filePath);
 
+		// ルートシグネチャPSOをバインド
+		void SetPSO(RenderContext* a_pCtx);
+
 	protected:
 
 		// パスのコンピュートシェーダーPSO
 		D3D12::ComputePipelineDesc m_csPSODesc = {};			// 作成データ
-		Resource::Handle<ID3D12Resource> m_csPSOHandle = {};	// ハンドル
+		Resource::Handle<ID3D12PipelineState> m_csPSOHandle = {};	// ハンドル
 
+		// ルートシグネチャ
+		ID3D12RootSignature* m_pRootSig = nullptr;
 	};
 }

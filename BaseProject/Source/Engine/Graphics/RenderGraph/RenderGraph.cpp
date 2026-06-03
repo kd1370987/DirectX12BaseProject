@@ -16,6 +16,8 @@
 #include "../RenderPass/RaytracingPass/RaytracingGIPass/RaytracingGIPass.h"
 #include "../RenderPass/RaytracingPass/FullRaytracingPass/FullRaytracingPass.h"
 
+#include "../RenderPass/ComputePass/Denoise/TempralAccumulationPass/TemporalAccumulationPass.h"
+
 #include "../RenderContext/RenderContext.h"
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
@@ -94,6 +96,20 @@ namespace Engine::Graphics
 			Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
 		);
 		m_upRGResourceManager->Register(
+			"PrevDepth",
+			DXGI_FORMAT_R32_TYPELESS,
+			1280,
+			720,
+			Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
+		);
+		m_upRGResourceManager->Register(
+			"PrevNormal",
+			DXGI_FORMAT_R16G16_FLOAT,
+			1280,
+			720,
+			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
+		);
+		m_upRGResourceManager->Register(
 			"GBufferVelocity",
 			DXGI_FORMAT_R16G16_FLOAT,
 			1280,
@@ -129,7 +145,7 @@ namespace Engine::Graphics
 			720,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
 		);
-		m_upRGResourceManager->Register(
+		m_upRGResourceManager->RegisterTemporal(
 			"DenoiseGI",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
 			1280,
@@ -141,6 +157,10 @@ namespace Engine::Graphics
 		// パス登録
 		RegisterPass<ZPrePass>();
 		RegisterPass<GBufferPass>();
+
+
+		RegisterPass<TemporalAccumulationPass>();
+
 		RegisterPass<DeferredLightingPass>();
 		//RegisterPass<ForwardLightingPass>();
 		RegisterPass<FullScreenPass>();
@@ -234,7 +254,8 @@ namespace Engine::Graphics
 				D3D12_RESOURCE_STATES _next = D3D12_RESOURCE_STATE_COMMON;
 				if (_access.type == AccessType::SRV)
 				{
-					_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+					//_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+					_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 				}
 				if (_access.type == AccessType::RTV)
 				{
@@ -282,6 +303,9 @@ namespace Engine::Graphics
 
 	void RenderGraph::Excute(GraphicsEngine* a_pGE,RenderContext* a_pCtx)
 	{
+		// テンポラルスワップ処理
+		m_upRGResourceManager->Swap();
+
 		// コンパイル済みパスを順次実行していく
 		for (auto& _cp : m_compiledPasses)
 		{
@@ -320,17 +344,29 @@ namespace Engine::Graphics
 	Resource::Handle<D3D12::SRV> RenderGraph::GetSRVHandle(const std::string& a_name)
 	{
 		auto _id = m_upRGResourceManager->GetID(a_name);
-		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id);
+		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id,true);
 		const auto* _pTex = Resource::ResourceManager::Instance().Get(_texHandle);
 		return _pTex->GetSRV();
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetSRVCPU(const std::string& a_name)
+	{
+		auto _srvHandle = GetSRVHandle(a_name);
+		return D3D12::DescriptorHeapManager::Instance().GetCPU(_srvHandle);
 	}
 
 	Resource::Handle<D3D12::UAV> RenderGraph::GetUAVHandle(const std::string& a_name)
 	{
 		auto _id = m_upRGResourceManager->GetID(a_name);
-		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id);
+		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id,false);
 		const auto* _pTex = Resource::ResourceManager::Instance().Get(_texHandle);
 		return _pTex->GetUAV();
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetUAVCPU(const std::string& a_name)
+	{
+		auto _uavHandle = GetUAVHandle(a_name);
+		return D3D12::DescriptorHeapManager::Instance().GetCPU(_uavHandle);
 	}
 
 	Engine::Resource::Handle<Engine::Resource::Texture> RenderGraph::CreateTexture(

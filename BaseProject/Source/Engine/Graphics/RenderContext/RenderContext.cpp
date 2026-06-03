@@ -272,6 +272,41 @@ namespace Engine::Graphics
 		);
 	}
 
+	void RenderContext::ComputeBindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles)
+	{
+		// コピー数取得
+		UINT _count = static_cast<UINT>(a_cpuHandles.size());
+
+		// 今の空きインデックスカウントを確保
+		UINT _startIdx = m_currentHeapOffset;
+		m_currentHeapOffset += _count;
+
+		// ヒープサイズが足りなければリターン
+		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
+
+		// 確保した領域にコピーしていく
+		for (UINT _i = 0; _i < _count; ++_i)
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx + _i);
+
+			if (a_cpuHandles[_i].ptr == 0) continue;
+
+			// 一個ずつ連続した領域にコピー
+			m_pDevice->CopyDescriptorsSimple(
+				1,
+				_destHandle,
+				a_cpuHandles[_i],
+				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
+			);
+		}
+
+		// コマンドリストにバインド
+		m_pCmdList->SetComputeRootDescriptorTable(
+			a_rootIdx,
+			m_copyHeap.GetGPU(_startIdx)
+		);
+	}
+
 	void RenderContext::BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
 	{
 		// 今の空きインデックスカウントを確保
@@ -444,6 +479,11 @@ namespace Engine::Graphics
 	void RenderContext::BindSRVBone()
 	{
 		BindSRV(6, m_boneBuffer.GetSRVHandle());
+	}
+
+	void RenderContext::Dispatch(UINT a_x, UINT a_y, UINT a_z)
+	{
+		m_pCmdList->Get4()->Dispatch(a_x,a_y,a_z);
 	}
 
 

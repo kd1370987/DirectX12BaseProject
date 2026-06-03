@@ -1,6 +1,7 @@
 ﻿#include "BaseRenderPass.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 
+
 namespace Engine::Graphics
 {
 	void BaseRenderPass::Init(const PassInitDesc& a_initDesc)
