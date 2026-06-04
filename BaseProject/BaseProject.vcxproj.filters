@@ -844,6 +844,18 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass">
       <UniqueIdentifier>{a1961b96-2e2a-4a1b-b428-848322d0a680}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI">
+      <UniqueIdentifier>{1ceff381-8571-468b-b0f1-575e4cb4a3d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass">
+      <UniqueIdentifier>{d44ba562-3917-4a3b-8c6f-004c1bee9d98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Denoise">
+      <UniqueIdentifier>{f1df3f93-146f-403d-8ec5-ed4643506ebc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Denoise\GI">
+      <UniqueIdentifier>{f6a1238d-2bb0-4dfe-ab0a-7be12c6f9cf2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1370,6 +1382,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\CopyPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\CopyPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2126,6 +2141,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\CopyPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\CopyPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2259,6 +2277,9 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\TemporalAccumulationShader\TemporalAccumulationShader.hlsl">
       <Filter>Asset\Shader\Compute\TemporalAccumulationShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Denoise\GI\GISpatialDenoiseShader.hlsl">
+      <Filter>Asset\Shader\Compute\Denoise\GI</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
