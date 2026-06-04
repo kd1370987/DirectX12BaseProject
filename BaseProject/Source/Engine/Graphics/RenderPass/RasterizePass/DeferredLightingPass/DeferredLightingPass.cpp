@@ -44,7 +44,7 @@ namespace Engine::Graphics
 		_rpBuilder.Read("GBufferEmissiv", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		_rpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		_rpBuilder.Read("RayShadow", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Read("RayGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.Read("FinalGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
 		_rpBuilder.Write("QuadTexture", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 
@@ -85,7 +85,7 @@ namespace Engine::Graphics
 				_spPassData->pRG->GetCPUHandle("GBufferEmissiv"),
 				_spPassData->pRG->GetCPUHandle("Depth"),
 				_spPassData->pRG->GetCPUHandle("RayShadow"),
-				_spPassData->pRG->GetCPUHandle("RayGI")
+				_spPassData->pRG->GetCPUHandle("FinalGI")
 			};
 
 			a_pCtx->BindSRV(2,_gpuVec);

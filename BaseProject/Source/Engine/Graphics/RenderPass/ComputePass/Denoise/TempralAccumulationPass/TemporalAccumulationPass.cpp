@@ -67,7 +67,7 @@ namespace Engine::Graphics
 
 			a_pCtx->BindUAV(1, _spPassData->pRG->GetUAVCPU("DenoiseGI"));
 
-			a_pCtx->Dispatch(1280, 720, 1);
+			a_pCtx->Dispatch(1280 / 8, 720 / 8, 1);
 
 			Editor::MainEditor::Instance().EndWatch("TemporalAccumulationPass");
 		};

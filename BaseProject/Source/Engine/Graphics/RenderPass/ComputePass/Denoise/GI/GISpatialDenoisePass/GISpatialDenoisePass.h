@@ -1,22 +1,15 @@
 ﻿#pragma once
 
-#include "../../../ComputePass.h"
+#include "Engine/Graphics/RenderGraph/RGData/RenderPassNode.h"
+
+namespace Engine::D3D12
+{
+	class PipelineStateManager;
+}
 
 namespace Engine::Graphics
 {
+	class RenderGraph;
 
-	class GISpatialDenoisePass : public ComputePass
-	{
-	public:
-
-		GISpatialDenoisePass() = default;
-		~GISpatialDenoisePass() override = default;
-
-		void Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx) override;
-
-	private:
-
-		void CreatePass() override;
-
-	};
+	void AddGISpatialDenoisePass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase);
 }

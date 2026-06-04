@@ -1,4 +1,4 @@
-#include "RenderGraph.h"
+﻿#include "RenderGraph.h"
 
 #include "../RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
 #include "../RenderPass/RasterizePass/GBufferPass/GBufferPass.h"
@@ -14,6 +14,7 @@
 #include "../RenderPass/CopyPass/GBufferHistoryPass/GBufferHistoryPass.h"
 
 #include "../RenderPass/ComputePass/Denoise/TempralAccumulationPass/TemporalAccumulationPass.h"
+#include "../RenderPass/ComputePass/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
 
 #include "RGVarsionManager/RGResourceManager.h"
 #include "../GraphicEngine.h"
@@ -145,6 +146,20 @@ namespace Engine::Graphics
 			720,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
 		);
+		m_upRGResourceManager->Register(
+			"SpatialTemp_A",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		);
+		m_upRGResourceManager->Register(
+			"SpatialTemp_B",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		);
 		m_upRGResourceManager->RegisterTemporal(
 			"DenoiseGI",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -152,7 +167,7 @@ namespace Engine::Graphics
 			720,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
-		m_upRGResourceManager->RegisterTemporal(
+		m_upRGResourceManager->Register(
 			"FinalGI",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
 			1280,
@@ -164,10 +179,6 @@ namespace Engine::Graphics
 		AddZPrePass(a_pPipelineStateManager, *this, EDrawPhase::Setup);
 		
 		AddGBufferPass(a_pPipelineStateManager, *this, EDrawPhase::Geometry);
-
-		AddTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
-
-		AddDeferredLightingPass(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
 		//AddForwardLightingPass(a_pPipelineStateManager, *this, ...);
 		AddFullScreenPass(a_pPipelineStateManager, *this, EDrawPhase::Present);
 		//AddDebugLinePass(a_pPipelineStateManager, *this, ...);
@@ -175,9 +186,13 @@ namespace Engine::Graphics
 
 		//AddTestPass(a_pPipelineStateManager, *this, ...);
 
-		AddRaytracingGIPass(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
+		
 		AddFullRaytracingPass(a_pPipelineStateManager, *this, EDrawPhase::Geometry);
 		AddRaytracingShadowPass(a_pPipelineStateManager, *this, EDrawPhase::Shadow);
+		AddRaytracingGIPass(a_pPipelineStateManager, *this, EDrawPhase::Raytracing);
+		AddTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
+		AddGISpatialDenoisePass(a_pPipelineStateManager,*this,EDrawPhase::NotSort);
+		AddDeferredLightingPass(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
 
 		AddGBufferHistoryPass(a_pPipelineStateManager, *this, EDrawPhase::HistoryUpdate);
 
@@ -198,28 +213,37 @@ namespace Engine::Graphics
 		// ソート配列の作成
 		for (auto& [_phase, _passVec] : m_passNodeMap)
 		{
-
 			std::vector<RenderPassNode*> _sortedNodes = {};
-			// ソート配列の作成
-			Algorithm::Graph::TopologicalSort(
-				_passVec,
-				_sortedNodes,
-				[&](auto& a, auto& b)
+			if (_phase == EDrawPhase::NotSort)
+			{
+				for (auto& _pass : _passVec)
 				{
-					// 依存があるかどうか
-					for (auto& _write : b.write)
+					_sortedNodes.push_back(&_pass);
+				}
+			}
+			else
+			{
+				// ソート配列の作成
+				Algorithm::Graph::TopologicalSort(
+					_passVec,
+					_sortedNodes,
+					[&](auto& a, auto& b)
 					{
-						for (auto& _read : a.read)
+						// 依存があるかどうか
+						for (auto& _write : b.write)
 						{
-							if (_write == _read)
+							for (auto& _read : a.read)
 							{
-								return true;
+								if (_write == _read)
+								{
+									return true;
+								}
 							}
 						}
+						return false;
 					}
-					return false;
-				}
-			);
+				);
+			}
 
 			// 合成
 			m_sortedPassed.insert(m_sortedPassed.end(),_sortedNodes.begin(),_sortedNodes.end());

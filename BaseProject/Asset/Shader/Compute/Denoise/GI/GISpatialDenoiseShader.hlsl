@@ -65,7 +65,7 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	float3 _centerNormal = DecsodeNormal(g_normalTex.Load(int3(_centerCoord,0)).xy);
 
 	// 法線を[-1, 1]に展開
-	_centerNormal = _centerNormal * 2.0f - 1.0f;
+	//_centerNormal = _centerNormal * 2.0f - 1.0f;
 
 	float4 _sumColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float _sumWeight = 0.0f;
@@ -86,8 +86,48 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 			_sampleCoord = clamp(_sampleCoord, int2(0, 0), int2(_width - 1, _height - 1));
 
 			// サンプル画素の情報を取得
-		}
+			float4 _sampleColor	 = g_GITex.Load(int3(_sampleCoord,0));
+			float  _sampleDepth	 = g_depthTex.Load(int3(_sampleCoord,0)).r;
+			float3 _sampleNormal = DecsodeNormal(g_normalTex.Load(int3(_sampleCoord, 0)).xy);
+			//_sampleNormal = _sampleNormal * 2.0f - 1.0f;
+			
+			// ---- ベースとなるフィルターの重み : B3 Spline ----
+			float _filterWeight = g_kernel[_x + 2] * g_kernel[_y + 2];
 
+			// ---- 深度エッジウェイト計算 ----
+			// 深度の差が等精度の平面からどれだけ離れているかを評価
+			float _depthDiff = abs(_centerDepth - _sampleDepth);
+			float _wDepth = exp(-_depthDiff / max(g_denoiseSettings.phiDepth, 1e-5f));
+
+			// ---- 法線エッジウェイトの計算 ----
+			// 内積(cosΘ)をベースに、角度のずれが急かどうか評価
+			float _normalDot = max(0.0f, dot(_centerNormal, _sampleNormal));
+			float _wNormal = pow(_normalDot, g_denoiseSettings.phiNormal);
+
+			// ---- カラーウェイトの計算（輝度計算 : オプショナル） ----
+			// 将来的にはSVGFではここに分散を絡める。
+			// 現在は輝度差ベースで実装
+			float3 _colorDiff = _centerColor.rgb - _sampleColor.rgb;
+			float _distColorSq = dot(_colorDiff,_colorDiff);
+			float _wColor = exp(-_distColorSq / max(g_denoiseSettings.phiColor, 1e-5f));
+
+			// すべての重みを乗算
+			float _finalWeight = _filterWeight * _wDepth * _wNormal * _wColor;
+			//float _finalWeight = _filterWeight;
+
+			// ブレンド計算
+			_sumColor += _sampleColor * _finalWeight;
+			_sumWeight += _finalWeight;
+		}
 	}
-	
+
+	// 重みの合計で正規化して出力（ゼロ除算対策）
+	if (_sumWeight > 0.0f)
+	{
+		g_outputGI[ _centerCoord] = _sumColor / _sumWeight;
+	}
+	else
+	{
+		g_outputGI[_centerCoord] = _centerColor;
+	}
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 namespace Engine::Graphics
 {
 	// 前方宣言
@@ -11,6 +11,8 @@ namespace Engine::Graphics
 		Setup,				// リソース関連準備
 		Shadow,				// 影生成
 		Geometry,			// オブジェクト描画
+		Raytracing,
+		NotSort,			// ピンポンバッファなどの影響でソートできないフェーズを差し込む
 		Lighting,			// ライティング
 		PostProcess,		// ポストプロセス
 		HistoryUpdate,		// 過去データ更新

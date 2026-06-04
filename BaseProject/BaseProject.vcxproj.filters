@@ -1389,9 +1389,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\TestFuncPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -2152,9 +2149,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGData\RenderPassNode.h">
       <Filter>Source\Engine\Graphics\RenderGraph\RGData</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\TestFuncPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../RGData/RenderPassNode.h"
 
@@ -20,6 +20,7 @@ namespace Engine::Graphics
 		uint8_t* pOutIndex;
 	};
 
+	// ラスタライザ用パスビルダー
 	class RGRasterPassBuilder
 	{
 	public:
@@ -60,6 +61,8 @@ namespace Engine::Graphics
 		std::vector<DXGI_FORMAT> m_rtvFormatVec;
 		
 	};
+
+	// コンピュート用パスビルダー
 	class RGComputePassBuilder
 	{
 	public:
