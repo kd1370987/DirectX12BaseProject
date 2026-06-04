@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../RGData/RenderPassNode.h"
 
@@ -31,7 +31,7 @@ namespace Engine::Graphics
 		D3D12::GraphicsPipelineDesc& CreatePSODesc(const std::string& a_name,uint8_t& a_outIndex);
 
 		// 最後に呼ぶ
-		void ResolveAndCompile();
+		void ResolveAndCompile(D3D12::PipelineStateManager* a_pPSOManager);
 
 		// ---- パスを通しての共通設定 ----
 		// ルートシグネチャセット
@@ -59,5 +59,47 @@ namespace Engine::Graphics
 		// パスで共通の出力
 		std::vector<DXGI_FORMAT> m_rtvFormatVec;
 		
+	};
+	class RGComputePassBuilder
+	{
+	public:
+
+		RGComputePassBuilder(RenderPassNode* a_pNode, RenderGraph* a_pRG) : m_pNode(a_pNode),m_pRG(a_pRG) {}
+		~RGComputePassBuilder() = default;
+
+		void ResolveAndCompile(D3D12::PipelineStateManager* a_pPSOManager);
+
+		// ルートシグネチャセット
+		bool SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath);
+
+		// 依存関係構築
+		void Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
+		void Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
+
+		void SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex);
+
+	private:
+
+		RenderGraph* m_pRG = nullptr;
+		RenderPassNode* m_pNode = nullptr;
+
+		ID3D12RootSignature* m_pRootSig = nullptr;
+		D3D12::ComputePipelineDesc m_desc = {};
+		uint8_t* m_pOutIndex = nullptr;
+	};
+
+	class RGGlobalsPassBuilder
+	{
+	public:
+		RGGlobalsPassBuilder(RenderPassNode* a_pNode, RenderGraph* a_pRG) : m_pNode(a_pNode), m_pRG(a_pRG) {}
+		~RGGlobalsPassBuilder() = default;
+
+		// 依存関係構築
+		void Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
+		void Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
+
+	private:
+		RenderGraph* m_pRG = nullptr;
+		RenderPassNode* m_pNode = nullptr;
 	};
 }

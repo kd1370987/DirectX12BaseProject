@@ -1,54 +1,77 @@
 ﻿#include "TemporalAccumulationPass.h"
 
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
-#include "../../../../GraphicEngine.h"
-#include "../../../../RenderContext/RenderContext.h"
+#include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
+#include "Engine/Graphics/GraphicEngine.h"
+
+#include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 
 namespace Engine::Graphics
 {
-	void TemporalAccumulationPass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
+	void AddTemporalAccumulationPass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase)
 	{
-		// ルートシグネチャ、PSOをセット
-		SetPSO(a_pCtx);
-
-		// ヒープをセット
-		a_pCtx->BindHeap();
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuVec = {};
-		_cpuVec = {
-			m_pRG->GetSRVCPU("RayGI"),
-			m_pRG->GetSRVCPU("GBufferVelocity"),
-			m_pRG->GetSRVCPU("DenoiseGI"),
-			m_pRG->GetSRVCPU("Depth"),
-			m_pRG->GetSRVCPU("GBufferNormal"),
-			m_pRG->GetSRVCPU("PrevDepth"),
-			m_pRG->GetSRVCPU("PrevNormal")
+		struct RuntimeData
+		{
+			ID3D12RootSignature* pRootSig;
+			uint8_t csIndex;
+			D3D12::PipelineStateManager* pPSOManager;
+			RenderGraph* pRG;
 		};
-		a_pCtx->ComputeBindSRV(0, _cpuVec);
+		auto _spPassData = std::make_shared<RuntimeData>();
+		_spPassData->pPSOManager = a_pPSOManager;
+		_spPassData->pRG = &a_rg;
 
-		// UAVセット
-		a_pCtx->BindUAV(1, m_pRG->GetUAVCPU("DenoiseGI"));
+		RenderPassNode _node = {};
+		_node.name = "TemporalAccumulationPass";
+		RGComputePassBuilder _cpBuilder(&_node, &a_rg);
 
-		a_pCtx->Dispatch(1280,720,1);
+		_cpBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso");
+		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso");
 
-	}
+		_cpBuilder.SetShader("Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso", "TemporalAccumulationPass", _spPassData->csIndex);
 
-	void TemporalAccumulationPass::CreatePass()
-	{
-		// パス設定
-		SetName("TemporalAccumulationPass");
+		_cpBuilder.Read("RayGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Read("GBufferVelocity", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Read("DenoiseGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Read("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Read("PrevDepth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Read("PrevNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
-		SetShader("Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso");
+		_cpBuilder.Write("DenoiseGI", AccessType::UAV, LoadOp::Load, StoreOp::Store);
 
-		// 依存関係
-		AddRead("RayGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);			// 現在フレームのGI
-		AddRead("GBufferVelocity", AccessType::SRV, LoadOp::Load, StoreOp::Store);	// モーションベクター
-		AddRead("DenoiseGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);		// 前フレームのGI
-		AddRead("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);			// 現在深度
-		AddRead("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);	// 現在法線
-		AddRead("PrevDepth", AccessType::SRV, LoadOp::Load, StoreOp::Store);		// 過去の深度
-		AddRead("PrevNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);		// 過去の法線
+		_cpBuilder.ResolveAndCompile(a_pPSOManager);
 
-		// 出力結果
-		AddWrite("DenoiseGI", AccessType::UAV, LoadOp::Load, StoreOp::Store);
+		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+		{
+			Editor::MainEditor::Instance().StartWatch("TemporalAccumulationPass");
+
+			auto* _pCmd = a_pCtx->GetCurrentCmdList();
+			_pCmd->SetComputeRootSignature(_spPassData->pRootSig);
+			auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
+			_pCmd->SetPipelineState(_pPSO);
+
+			a_pCtx->BindHeap();
+			std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuVec = {
+				_spPassData->pRG->GetSRVCPU("RayGI"),
+				_spPassData->pRG->GetSRVCPU("GBufferVelocity"),
+				_spPassData->pRG->GetSRVCPU("DenoiseGI"),
+				_spPassData->pRG->GetSRVCPU("Depth"),
+				_spPassData->pRG->GetSRVCPU("GBufferNormal"),
+				_spPassData->pRG->GetSRVCPU("PrevDepth"),
+				_spPassData->pRG->GetSRVCPU("PrevNormal")
+			};
+			a_pCtx->ComputeBindSRV(0, _cpuVec);
+
+			a_pCtx->BindUAV(1, _spPassData->pRG->GetUAVCPU("DenoiseGI"));
+
+			a_pCtx->Dispatch(1280, 720, 1);
+
+			Editor::MainEditor::Instance().EndWatch("TemporalAccumulationPass");
+		};
+
+		a_rg.AddPassNode(a_phase, _node);
 	}
 }

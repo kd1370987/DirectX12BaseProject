@@ -1,4 +1,4 @@
-﻿#include "GraphicEngine.h"
+#include "GraphicEngine.h"
 
 #include "../MainEngine.h"
 
@@ -206,6 +206,63 @@ namespace Engine::Graphics
 
 		return std::span<const LightWeightDrawItem>(_itStart, _itEnd);
 	}
+
+	void GraphicsEngine::DrawQueue(Graphics::RenderContext* a_pCtx, uint8_t a_passIndex)
+	{
+		// キャッシュ
+		uint16_t _lassMaterialID = 0xFFFF;
+		uint16_t _lastMeshID = 0xFFFF;
+		uint8_t _lastPSO = 0xFF;
+
+		// 指定タイプの命令キューを取得
+		auto _itemVec = GetPassItems(a_passIndex);
+		if (_itemVec.empty()) return;
+
+		for (auto& _item : _itemVec)
+		{
+			uint8_t  _psoID = _item.GetPSOID();
+			uint16_t _materialID = _item.GetMaterialID();
+			uint16_t _meshID = _item.GetMeshID();
+			// ----------------------------------------------------
+			// PSOの切り替え
+			// ----------------------------------------------------
+			if (_psoID != _lastPSO)
+			{
+				auto* _pPSO = m_pPipelineStateManager->GetPSO(_psoID);
+				if (!_pPSO) continue;
+				a_pCtx->SetGraphicPSO(_pPSO);
+
+				_lastPSO = _psoID;
+			}
+			// ----------------------------------------------------
+			// マテリアルのバインド
+			// ----------------------------------------------------
+			if (_materialID != _lassMaterialID)
+			{
+				a_pCtx->BindMaterialSRV(5, _materialID);
+				_lassMaterialID = _materialID;
+			}
+			// ----------------------------------------------------
+			// メッシュのバインド
+			// ----------------------------------------------------
+			if (_meshID != _lastMeshID)
+			{
+				a_pCtx->BindMesh(_meshID);
+				_lastMeshID = _meshID;
+			}
+
+			// バッファインデックスセット
+			a_pCtx->BindIndex(
+				_item.instnaceIndex,
+				_item.subsetIndex,
+				1
+			);
+
+			// メッシュ描画
+			a_pCtx->Draw(_item.GetMeshID(), _item.subIndex);
+		}
+	}
+
 	void GraphicsEngine::CreateGPUCameraData()
 	{
 		// リセット

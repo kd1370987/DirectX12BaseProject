@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "CBData.h"
 
 namespace Engine
@@ -108,6 +108,9 @@ namespace Engine::Graphics
 
 		// 取得
 		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex);
+
+		// パスの描画実行
+		void DrawQueue(Graphics::RenderContext* a_pCtx, uint8_t a_passIndex);
 
 	private:
 

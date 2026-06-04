@@ -60,7 +60,7 @@ namespace Engine::Graphics
 		_aPso.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
 
 		// 全PSOを作成
-		_rpBuilder.ResolveAndCompile();
+		_rpBuilder.ResolveAndCompile(a_pPSOManager);
 
 
 		// パスとして登録

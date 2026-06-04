@@ -1,4 +1,4 @@
-﻿#include "Texture.h"
+#include "Texture.h"
 
 #include "../../Loader/Texture/Importer/TextureImporter.h"
 #include "../../Loader/Texture/Creater/TextureCreater.h"
@@ -119,6 +119,11 @@ namespace Engine::Resource
 			// ディスクリプタヒープに登録
 			m_dsvHandle =
 				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
+
+			// リードオンリーのDSV作成
+			_dsvDesc.Flags = D3D12_DSV_FLAG_READ_ONLY_DEPTH;
+			m_readOnlyDsvHandle =
+				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
 		}
 
 		// テクスチャの使用方法にUAが含まれているのなら
@@ -200,6 +205,11 @@ namespace Engine::Resource
 	const Engine::Resource::Handle<D3D12::DSV>& Engine::Resource::Texture::GetDSV() const
 	{
 		return m_dsvHandle;
+	}
+
+	const Engine::Resource::Handle<D3D12::DSV>& Engine::Resource::Texture::GetReadOnlyDSV() const
+	{
+		return m_readOnlyDsvHandle;
 	}
 
 	const Engine::Resource::Handle<D3D12::SRV>& Engine::Resource::Texture::GetSRV() const

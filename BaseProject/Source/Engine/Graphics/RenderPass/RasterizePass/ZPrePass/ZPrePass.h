@@ -1,16 +1,15 @@
 ﻿#pragma once
 
-#include "../RasterizePass.h"
+#include "Engine/Graphics/RenderGraph/RGData/RenderPassNode.h"
+
+namespace Engine::D3D12
+{
+	class PipelineStateManager;
+}
+
 namespace Engine::Graphics
 {
-	class ZPrePass final : public RasterizePass
-	{
-	public:
+	class RenderGraph;
 
-		void Excute(GraphicsEngine* a_pGR, RenderContext* a_pCtx) override;
-
-	private:
-
-		void CreatePass() override;
-	};
+	void AddZPrePass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase);
 }

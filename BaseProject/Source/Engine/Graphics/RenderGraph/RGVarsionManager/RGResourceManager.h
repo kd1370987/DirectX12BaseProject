@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 namespace Engine::Graphics
 {
@@ -49,6 +49,7 @@ namespace Engine::Graphics
 
 		Resource::Handle<D3D12::RTV> GetRTVHandle(Resource::ID a_id);		// RTVハンドル
 		Resource::Handle<D3D12::DSV> GetDSVHandle(Resource::ID a_id);		// DSVハンドル
+		Resource::Handle<D3D12::DSV> GetReadOnlyDSVHandle(Resource::ID a_id);	// リードオンリーDSVハンドル
 
 		D3D12_RESOURCE_STATES& RefCurrentState(Resource::ID a_id, bool isRead = false);	// 現在のステート
 		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);				// リソースのフォーマット

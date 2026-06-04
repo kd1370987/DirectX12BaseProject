@@ -1,15 +1,10 @@
-﻿#include "RenderGraph.h"
-#include "RGVarsionManager/RGResourceManager.h"
+#include "RenderGraph.h"
 
-#include "../GraphicEngine.h"
-
-#include "../RenderPass/RasterizePass/ForwardLightingPass/ForwardLightingPass.h"
-#include "../RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
 #include "../RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
 #include "../RenderPass/RasterizePass/GBufferPass/GBufferPass.h"
-#include "../RenderPass/RasterizePass/ScreenUIPass/ScreenUIPass.h"
 #include "../RenderPass/RasterizePass/DeferredLightingPass/DeferredLightingPass.h"
-#include "../RenderPass/RasterizePass/DebugLinePass/DebugLinePass.h"
+#include "../RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
+
 #include "../RenderPass/RasterizePass/TestPass/TestPass.h"
 
 #include "../RenderPass/RaytracingPass/RaytracingShadowPass/RaytracingShadowPass.h"
@@ -19,6 +14,9 @@
 #include "../RenderPass/CopyPass/GBufferHistoryPass/GBufferHistoryPass.h"
 
 #include "../RenderPass/ComputePass/Denoise/TempralAccumulationPass/TemporalAccumulationPass.h"
+
+#include "RGVarsionManager/RGResourceManager.h"
+#include "../GraphicEngine.h"
 
 #include "../RenderContext/RenderContext.h"
 
@@ -163,39 +161,25 @@ namespace Engine::Graphics
 		);
 
 		// パス登録
-		RegisterPass<ZPrePass>(EDrawPhase::Setup);
+		AddZPrePass(a_pPipelineStateManager, *this, EDrawPhase::Setup);
 		
-		RegisterPass<GBufferPass>(EDrawPhase::Geometry);
+		AddGBufferPass(a_pPipelineStateManager, *this, EDrawPhase::Geometry);
 
+		AddTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
 
-		RegisterPass<TemporalAccumulationPass>(EDrawPhase::Lighting);
+		AddDeferredLightingPass(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
+		//AddForwardLightingPass(a_pPipelineStateManager, *this, ...);
+		AddFullScreenPass(a_pPipelineStateManager, *this, EDrawPhase::Present);
+		//AddDebugLinePass(a_pPipelineStateManager, *this, ...);
+		//AddScreenUIPass(a_pPipelineStateManager, *this, ...);
 
-		RegisterPass<DeferredLightingPass>(EDrawPhase::Lighting);
-		//RegisterPass<ForwardLightingPass>();
-		RegisterPass<FullScreenPass>(EDrawPhase::Present);
-		//RegisterPass<DebugLinePass>();
-		//RegisterPass<ScreenUIPass>();
+		//AddTestPass(a_pPipelineStateManager, *this, ...);
 
-		//RegisterPass<TestPass>();
+		AddRaytracingGIPass(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
+		AddFullRaytracingPass(a_pPipelineStateManager, *this, EDrawPhase::Geometry);
+		AddRaytracingShadowPass(a_pPipelineStateManager, *this, EDrawPhase::Shadow);
 
-		RegisterPass<RaytracingGIPass>(EDrawPhase::Lighting);
-		RegisterPass<FullRaytracingPass>(EDrawPhase::Geometry);
-		RegisterPass<RaytracingShadowPass>(EDrawPhase::Shadow);
-
-		RegisterPass<GBufferHistoryPass>(EDrawPhase::HistoryUpdate);
-
-		// パスの初期化
-		//for (auto& _sp : m_spPassVec)
-		for(auto& [_phase,_spPassVec] : m_spPassMap)
-		{
-			for(auto _spPass : _spPassVec)
-			{
-				PassInitDesc _desc = {};
-				_desc.pRG = this;
-				_desc.pPipelineStateManager = a_pPipelineStateManager;
-				_spPass->Init(_desc);
-			}
-		}
+		AddGBufferHistoryPass(a_pPipelineStateManager, *this, EDrawPhase::HistoryUpdate);
 
 		// コンパイル
 		Compile();
@@ -204,8 +188,7 @@ namespace Engine::Graphics
 	void RenderGraph::Release()
 	{
 		m_compiledPasses.clear();
-		//m_spPassVec.clear();
-		m_spPassMap.clear();
+		m_passNodeMap.clear();
 	}
 
 	void RenderGraph::Compile()
@@ -213,20 +196,20 @@ namespace Engine::Graphics
 		m_compiledPasses.clear();
 
 		// ソート配列の作成
-		for (auto& [_phase, _spPass] : m_spPassMap)
+		for (auto& [_phase, _passVec] : m_passNodeMap)
 		{
 
-			std::vector<BaseRenderPass*> _passVec = {};
+			std::vector<RenderPassNode*> _sortedNodes = {};
 			// ソート配列の作成
 			Algorithm::Graph::TopologicalSort(
-				_spPass,
 				_passVec,
+				_sortedNodes,
 				[&](auto& a, auto& b)
 				{
 					// 依存があるかどうか
-					for (auto& _write : b.GetWrite())
+					for (auto& _write : b.write)
 					{
-						for (auto& _read : a.GetRead())
+						for (auto& _read : a.read)
 						{
 							if (_write == _read)
 							{
@@ -239,7 +222,7 @@ namespace Engine::Graphics
 			);
 
 			// 合成
-			m_sortedPassed.insert(m_sortedPassed.end(),_passVec.begin(),_passVec.end());
+			m_sortedPassed.insert(m_sortedPassed.end(),_sortedNodes.begin(),_sortedNodes.end());
 		}
 
 		// テクスチャの作成
@@ -249,10 +232,10 @@ namespace Engine::Graphics
 		for(auto* _pass : m_sortedPassed)
 		{
 			CompiledPass _cp;
-			_cp.pPass = _pass;
+			_cp.pNode = _pass;
 
 			// リソース遷移作成
-			for (auto _access : _pass->GetResourceAccessVec())
+			for (auto _access : _pass->resourceAccessVec)
 			{
 				// クリア作成
 				if (_access.type == AccessType::RTV)
@@ -268,7 +251,15 @@ namespace Engine::Graphics
 						_access.type == AccessType::Depth_Read
 					)
 				{
-					_cp.dsvHandle = m_upRGResourceManager->GetDSVHandle(_access.id);
+					if (_access.type == AccessType::Depth_Read)
+					{
+						_cp.dsvHandle = m_upRGResourceManager->GetReadOnlyDSVHandle(_access.id);
+					}
+					else
+					{
+						_cp.dsvHandle = m_upRGResourceManager->GetDSVHandle(_access.id);
+					}
+					
 					if (_access.load == LoadOp::Clear)
 					{
 						_cp.isDepthClear = true;
@@ -325,7 +316,7 @@ namespace Engine::Graphics
 			}
 
 			// パスのインデックスを指定
-			_cp.pPass->SetPassIndex(m_compiledPasses.size());
+			_cp.pNode->passIndex = static_cast<uint8_t>(m_compiledPasses.size());
 
 			// 実行データに入れていく
 			m_compiledPasses.push_back(_cp);
@@ -360,7 +351,10 @@ namespace Engine::Graphics
 			}
 
 			// パスの実行
-			_cp.pPass->Excute(a_pGE,a_pCtx);
+			if (_cp.pNode && _cp.pNode->executeFunc)
+			{
+				_cp.pNode->executeFunc(a_pGE, a_pCtx, _cp.pNode->passIndex);
+			}
 		}
 	}
 
@@ -440,6 +434,10 @@ namespace Engine::Graphics
 			return m_upRGResourceManager->Read(a_resourceName, Resource::TextureUsage::DSV);
 		case AccessType::Depth_Write:
 			return m_upRGResourceManager->Read(a_resourceName, Resource::TextureUsage::DSV);
+		case AccessType::CopySrc:
+			return m_upRGResourceManager->Read(a_resourceName, Resource::TextureUsage::None);
+		case AccessType::CopyDst:
+			return m_upRGResourceManager->Read(a_resourceName, Resource::TextureUsage::None);
 		default:
 			break;
 		}
@@ -488,24 +486,24 @@ namespace Engine::Graphics
 
 		for (auto& _pass : m_compiledPasses)
 		{
-			if (_pass.pPass->GetName() == a_passName)
+			if (_pass.pNode->name == a_passName)
 			{
-				return _pass.pPass->GetPassIndex();
+				return _pass.pNode->passIndex;
 			}
 		}
 
 		return 255;
 	}
 
-	const BaseRenderPass* RenderGraph::GetPass(const std::string& a_passName)
+	const RenderPassNode* RenderGraph::GetPass(const std::string& a_passName)
 	{
 		if (m_compiledPasses.empty()) return nullptr;
 
 		for (auto& _pass : m_compiledPasses)
 		{
-			if (_pass.pPass->GetName() == a_passName)
+			if (_pass.pNode->name == a_passName)
 			{
-				return _pass.pPass;
+				return _pass.pNode;
 			}
 		}
 

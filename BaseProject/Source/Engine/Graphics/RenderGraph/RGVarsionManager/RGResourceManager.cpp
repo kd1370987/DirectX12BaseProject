@@ -1,4 +1,4 @@
-﻿#include "RGResourceManager.h"
+#include "RGResourceManager.h"
 
 //#include "../../../Resource/Manager/TextureManager/TextureManager.h"
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
@@ -172,6 +172,12 @@ namespace Engine::Graphics
 		const auto& _res = GetRes(a_id);
 		const auto* _tex = GetTex(_res.texHandle[m_temporalIndex]);
 		return _tex->GetDSV();
+	}
+	Resource::Handle<D3D12::DSV> RGResourceManager::GetReadOnlyDSVHandle(Resource::ID a_id)
+	{
+		const auto& _res = GetRes(a_id);
+		const auto* _tex = GetTex(_res.texHandle[m_temporalIndex]);
+		return _tex->GetReadOnlyDSV();
 	}
 	D3D12_RESOURCE_STATES& RGResourceManager::RefCurrentState(Resource::ID a_id, bool isRead)
 	{

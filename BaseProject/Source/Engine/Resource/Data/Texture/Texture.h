@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 namespace Engine::Resource
 {
@@ -55,6 +55,7 @@ namespace Engine::Resource
 		// ビュー情報取得
 		const Engine::Resource::Handle<D3D12::RTV>& GetRTV() const;
 		const Engine::Resource::Handle<D3D12::DSV>& GetDSV() const;
+		const Engine::Resource::Handle<D3D12::DSV>& GetReadOnlyDSV() const;
 		const Engine::Resource::Handle<D3D12::SRV>& GetSRV() const;
 		const Engine::Resource::Handle<D3D12::UAV>& GetUAV() const;
 		const Engine::Resource::Handle<D3D12::SRV>& GetImGuiSRV() const;
@@ -74,6 +75,7 @@ namespace Engine::Resource
 		// 使用方法ごとのハンドル
 		Engine::Resource::Handle<D3D12::RTV>	 m_rtvHandle{};
 		Engine::Resource::Handle<D3D12::DSV>	 m_dsvHandle{};
+		Engine::Resource::Handle<D3D12::DSV>	 m_readOnlyDsvHandle{};
 		Engine::Resource::Handle<D3D12::SRV>	 m_srvHandle{};
 		Engine::Resource::Handle<D3D12::UAV>	 m_uavHandle{};
 

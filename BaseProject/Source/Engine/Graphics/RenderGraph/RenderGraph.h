@@ -1,7 +1,11 @@
 ﻿#pragma once
 
 #include "RGData/RenderPassNode.h"
-#include "../RenderPass/BaseRenderPass.h"
+
+namespace Engine::D3D12
+{
+	class PipelineStateManager;
+}
 
 namespace Engine::Graphics
 {
@@ -21,7 +25,7 @@ namespace Engine::Graphics
 	struct CompiledPass
 	{
 		// パス
-		BaseRenderPass* pPass = nullptr;
+		RenderPassNode* pNode = nullptr;
 
 		// バリア
 		std::vector<RGBarrier> barrierVec = {};
@@ -74,21 +78,8 @@ namespace Engine::Graphics
 		Resource::Handle<Resource::Texture> GetTexHandle(const std::string& a_resourceName);
 
 		uint8_t GetPassIndex(const std::string& a_passName);
-		const BaseRenderPass* GetPass(const std::string& a_passName);
+		const RenderPassNode* GetPass(const std::string& a_passName);
 
-		// パス登録
-		//template<typename Pass>
-		//void RegisterPass()
-		//{
-		//	std::shared_ptr<BaseRenderPass> _pass = std::make_shared<Pass>();
-		//	m_spPassVec.push_back(_pass);
-		//}
-		template<typename Pass>
-		void RegisterPass(const EDrawPhase& a_pahse)
-		{
-			std::shared_ptr<BaseRenderPass> _pass = std::make_shared<Pass>();
-			m_spPassMap[a_pahse].push_back(_pass);
-		}
 		// アクセサ
 		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);	// フォーマット取得
 		std::vector<std::string> GetRGResourceList();	// リソース名一覧
@@ -101,10 +92,7 @@ namespace Engine::Graphics
 
 		// パスデータ格納
 		std::map<EDrawPhase, std::vector<RenderPassNode>> m_passNodeMap;
-
-		// パスの保管場所
-		std::map<EDrawPhase, std::vector<std::shared_ptr<BaseRenderPass>>> m_spPassMap = {};
-		std::vector<BaseRenderPass*> m_sortedPassed = {};							// ソート後のパス
+		std::vector<RenderPassNode*> m_sortedPassed = {};							// ソート後のパス
 
 		// コンパイル後のパス
 		std::vector<CompiledPass> m_compiledPasses = {};

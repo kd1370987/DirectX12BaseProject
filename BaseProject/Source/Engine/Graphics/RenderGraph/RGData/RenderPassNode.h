@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 namespace Engine::Graphics
 {
 	// 前方宣言
@@ -30,8 +30,16 @@ namespace Engine::Graphics
 
 		// コンパイル後データ
 		uint8_t passIndex = 255;		// ソートキー用インデックス
+		std::map<std::string, uint8_t> psoIndexMap; // PSOのインデックスマップ
+
+		uint8_t GetPSOIndex(const std::string& a_name) const
+		{
+			auto _it = psoIndexMap.find(a_name);
+			if (_it != psoIndexMap.end()) return _it->second;
+			return 255;
+		}
 
 		// 実行関数
-		std::function<void(GraphicsEngine*, RenderContext*)> executeFunc;
+		std::function<void(GraphicsEngine*, RenderContext*, uint8_t)> executeFunc;
 	};
 }

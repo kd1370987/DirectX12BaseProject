@@ -1,49 +1,73 @@
 ﻿#include "ZPrePass.h"
 
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
-#include "../../../GraphicEngine.h"
+#include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
+#include "Engine/Graphics/GraphicEngine.h"
 
-#include "../../../../D3D12/CBAllocater/CBAllocater.h"
-#include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
-
+#include "Engine/D3D12/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
+
 namespace Engine::Graphics
 {
-	void ZPrePass::Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
+	void AddZPrePass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase)
 	{
-		Begine(a_pCtx);
-		//a_pCtx->BindRootCBV<CameraData>(0, a_pGE->GetCameraData());
-		CameraData _cbCam = a_pGE->GetCameraData();
-		auto* _pCmd = a_pCtx->GetCurrentCmdList();
-		a_pCtx->BindCB()->BindAndAttachDataRootCBV<CameraData>(_pCmd->NGet(), 0, _cbCam);
-		a_pCtx->BindInstanceBuffer(2);
-		a_pCtx->BindSubsetBuffer(3);
-		a_pCtx->BindBonePalletBuffer(4);
-		DrawQueue(a_pGE,a_pCtx);
+		// ランタイム用データ
+		struct RuntimeData
+		{
+			ID3D12RootSignature* pRootSig;
+			uint8_t staticIndex;
+			uint8_t animationIndex;
+		};
+		auto _spPassData = std::make_shared<RuntimeData>();
 
-		End(a_pCtx);
-	}
+		// ノード・ビルダー作成
+		RenderPassNode _node = {};
+		_node.name = "ZPre";
+		RGRasterPassBuilder _rpBuilder(&_node, &a_rg);
 
-	void ZPrePass::CreatePass()
-	{
-		SetPassName("ZPre");
+		// パス共通設定
+		_rpBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Source/ZPreShader/ZPreVS.cso");
+		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/ZPreShader/ZPreVS.cso");
 
-		auto& _sPso = AddPSODesc(ERenderType::Static, RenderQueueType::Opaque);
-		auto& _aPso = AddPSODesc(ERenderType::Animation, RenderQueueType::AnimationOpaque);
+		// 依存関係構築
+		_rpBuilder.Write("Depth", AccessType::Depth_Write, LoadOp::Clear, StoreOp::Store);
 
-		_sPso.SetName("ZPreStatic");
-		_aPso.SetName("ZPreAnimation");
-
-		SetInputLayout(ERenderType::Static,D3D12::Input::StaticLayout);
-		SetVS(ERenderType::Static,"Asset/Shader/Source/ZPreShader/ZPreVS.cso");
-
-		SetInputLayout(ERenderType::Animation, D3D12::Input::AnimationInputLayout);
-		SetVS(ERenderType::Animation, "Asset/Shader/Source/ZPreShader/AnimationZPreVS.cso");
-		
+		// PSO構築
+		auto& _sPso = _rpBuilder.CreatePSODesc("ZPreStatic", _spPassData->staticIndex);
+		_rpBuilder.SetVS(_sPso, "Asset/Shader/Source/ZPreShader/ZPreVS.cso", D3D12::Input::StaticLayout);
 		_sPso.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
+
+		auto& _aPso = _rpBuilder.CreatePSODesc("ZPreAnimation", _spPassData->animationIndex);
+		_rpBuilder.SetVS(_aPso, "Asset/Shader/Source/ZPreShader/AnimationZPreVS.cso", D3D12::Input::AnimationInputLayout);
 		_aPso.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
 
-		AddWrite("Depth", AccessType::Depth_Write, LoadOp::Clear, StoreOp::Store);
+		// コンパイル
+		_rpBuilder.ResolveAndCompile(a_pPSOManager);
+
+		// 実行関数
+		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+		{
+			Editor::MainEditor::Instance().StartWatch("ZPre");
+			a_pCtx->BindHeap();
+			a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
+
+			CameraData _cbCam = a_pGE->GetCameraData();
+			auto* _pCmd = a_pCtx->GetCurrentCmdList();
+			a_pCtx->BindCB()->BindAndAttachDataRootCBV<CameraData>(_pCmd->NGet(), 0, _cbCam);
+			a_pCtx->BindInstanceBuffer(2);
+			a_pCtx->BindSubsetBuffer(3);
+			a_pCtx->BindBonePalletBuffer(4);
+			
+			// 描画
+			a_pGE->DrawQueue(a_pCtx, a_passIndex);
+
+			Editor::MainEditor::Instance().EndWatch("ZPre");
+		};
+
+		// パス登録
+		a_rg.AddPassNode(a_phase, _node);
 	}
 }

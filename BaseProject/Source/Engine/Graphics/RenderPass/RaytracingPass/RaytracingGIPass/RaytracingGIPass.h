@@ -1,29 +1,15 @@
-﻿#pragma once
+#pragma once
 
-#include "../RaytracingPass.h"
+#include "Engine/Graphics/RenderGraph/RGData/RenderPassNode.h"
+
+namespace Engine::D3D12
+{
+	class PipelineStateManager;
+}
+
 namespace Engine::Graphics
 {
-	class RaytracingGIPass final : public RaytracingPass
-	{
-	public:
-		struct GBufferIndex
-		{
-			int depth;
-			int normal;
-			int frameCount;
-			int pad;
-		};
+	class RenderGraph;
 
-		struct CBLight
-		{
-			DirectX::XMFLOAT3 dir;
-			int frameCounts;
-		};
-		void Excute(GraphicsEngine* a_pGE, RenderContext* a_pCtx) override;
-
-	private:
-
-		void CreatePass() override;
-		int m_frameCount = 0;
-	};
+	void AddRaytracingGIPass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase);
 }
