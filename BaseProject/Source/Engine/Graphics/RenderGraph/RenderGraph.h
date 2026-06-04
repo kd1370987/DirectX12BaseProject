@@ -6,6 +6,20 @@ namespace Engine::Graphics
 {
 	class GraphicsEngine;
 
+	// 描画フェーズ
+	enum class EDrawPhase : UINT
+	{
+		Setup,				// リソース関連準備
+		Shadow,				// 影生成
+		Geometry,			// オブジェクト描画
+		Lighting,			// ライティング
+		PostProcess,		// ポストプロセス
+		HistoryUpdate,		// 過去データ更新
+		UI,					// UI描画
+		Present,			// バックバッファに描画
+		Count
+	};
+
 	struct RGBarrier
 	{
 		Resource::Handle<Resource::Texture> texHandle = {};
@@ -72,13 +86,18 @@ namespace Engine::Graphics
 		const BaseRenderPass* GetPass(const std::string& a_passName);
 
 		// パス登録
+		//template<typename Pass>
+		//void RegisterPass()
+		//{
+		//	std::shared_ptr<BaseRenderPass> _pass = std::make_shared<Pass>();
+		//	m_spPassVec.push_back(_pass);
+		//}
 		template<typename Pass>
-		void RegisterPass()
+		void RegisterPass(const EDrawPhase& a_pahse)
 		{
 			std::shared_ptr<BaseRenderPass> _pass = std::make_shared<Pass>();
-			m_spPassVec.push_back(_pass);
+			m_spPassMap[a_pahse].push_back(_pass);
 		}
-
 		// アクセサ
 		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);	// フォーマット取得
 		std::vector<std::string> GetRGResourceList();	// リソース名一覧
@@ -89,8 +108,10 @@ namespace Engine::Graphics
 
 	private:
 
+		std::map<EDrawPhase, std::vector<std::shared_ptr<BaseRenderPass>>> m_spPassMap = {};
+
 		// パスの保管場所
-		std::vector<std::shared_ptr<BaseRenderPass>> m_spPassVec = {};
+		//std::vector<std::shared_ptr<BaseRenderPass>> m_spPassVec = {};
 		std::vector<BaseRenderPass*> m_sortedPassed = {};							// ソート後のパス
 
 		// コンパイル後のパス

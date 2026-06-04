@@ -152,34 +152,37 @@ namespace Engine::Graphics
 			720,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
-		
 
 		// パス登録
-		RegisterPass<ZPrePass>();
-		RegisterPass<GBufferPass>();
+		RegisterPass<ZPrePass>(EDrawPhase::Setup);
+		
+		RegisterPass<GBufferPass>(EDrawPhase::Geometry);
 
 
-		RegisterPass<TemporalAccumulationPass>();
+		RegisterPass<TemporalAccumulationPass>(EDrawPhase::Lighting);
 
-		RegisterPass<DeferredLightingPass>();
+		RegisterPass<DeferredLightingPass>(EDrawPhase::Lighting);
 		//RegisterPass<ForwardLightingPass>();
-		RegisterPass<FullScreenPass>();
+		RegisterPass<FullScreenPass>(EDrawPhase::Present);
 		//RegisterPass<DebugLinePass>();
 		//RegisterPass<ScreenUIPass>();
 
 		//RegisterPass<TestPass>();
 
-		RegisterPass<RaytracingShadowPass>();
-		RegisterPass<RaytracingGIPass>();
-		RegisterPass<FullRaytracingPass>();
-
+		RegisterPass<RaytracingGIPass>(EDrawPhase::Lighting);
+		RegisterPass<FullRaytracingPass>(EDrawPhase::Geometry);
+		RegisterPass<RaytracingShadowPass>(EDrawPhase::Shadow);
 		// パスの初期化
-		for (auto& _sp : m_spPassVec)
+		//for (auto& _sp : m_spPassVec)
+		for(auto& [_phase,_spPassVec] : m_spPassMap)
 		{
-			PassInitDesc _desc = {};
-			_desc.pRG = this;
-			_desc.pPipelineStateManager = a_pPipelineStateManager;
-			_sp->Init(_desc);
+			for(auto _spPass : _spPassVec)
+			{
+				PassInitDesc _desc = {};
+				_desc.pRG = this;
+				_desc.pPipelineStateManager = a_pPipelineStateManager;
+				_spPass->Init(_desc);
+			}
 		}
 
 		// コンパイル
@@ -189,7 +192,8 @@ namespace Engine::Graphics
 	void RenderGraph::Release()
 	{
 		m_compiledPasses.clear();
-		m_spPassVec.clear();
+		//m_spPassVec.clear();
+		m_spPassMap.clear();
 	}
 
 	void RenderGraph::Compile()
@@ -197,25 +201,34 @@ namespace Engine::Graphics
 		m_compiledPasses.clear();
 
 		// ソート配列の作成
-		Algorithm::Graph::TopologicalSort(
-			m_spPassVec,
-			m_sortedPassed,
-			[&](auto& a, auto& b)
-			{
-				// 依存があるかどうか
-				for (auto& _write : b.GetWrite())
+		for (auto& [_phase, _spPass] : m_spPassMap)
+		{
+
+			std::vector<BaseRenderPass*> _passVec = {};
+			// ソート配列の作成
+			Algorithm::Graph::TopologicalSort(
+				_spPass,
+				_passVec,
+				[&](auto& a, auto& b)
 				{
-					for (auto& _read : a.GetRead())
+					// 依存があるかどうか
+					for (auto& _write : b.GetWrite())
 					{
-						if (_write == _read)
+						for (auto& _read : a.GetRead())
 						{
-							return true;
+							if (_write == _read)
+							{
+								return true;
+							}
 						}
 					}
+					return false;
 				}
-				return false;
-			}
-		);
+			);
+
+			// 合成
+			m_sortedPassed.insert(m_sortedPassed.end(),_passVec.begin(),_passVec.end());
+		}
 
 		// テクスチャの作成
 		m_upRGResourceManager->CreateAllTexture();

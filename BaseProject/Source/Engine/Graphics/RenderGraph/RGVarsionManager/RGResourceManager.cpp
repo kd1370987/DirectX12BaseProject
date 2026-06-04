@@ -91,7 +91,7 @@ namespace Engine::Graphics
 		{
 			// リソースのバージョンを上げて返す
 			auto& _data = m_resourceVec[_it->second];
-			_data.currentVarsion++;		// バージョンを上げる
+			//_data.currentVarsion++;		// バージョンを上げる
 			_data.usage |= a_texUsage;	// 使用方法を追加
 			return Resource::GetID(_it->second, _data.currentVarsion);
 		}
