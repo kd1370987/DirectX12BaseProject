@@ -1,24 +1,13 @@
 ﻿#pragma once
 
+#include "RGData/RenderPassNode.h"
 #include "../RenderPass/BaseRenderPass.h"
 
 namespace Engine::Graphics
 {
 	class GraphicsEngine;
 
-	// 描画フェーズ
-	enum class EDrawPhase : UINT
-	{
-		Setup,				// リソース関連準備
-		Shadow,				// 影生成
-		Geometry,			// オブジェクト描画
-		Lighting,			// ライティング
-		PostProcess,		// ポストプロセス
-		HistoryUpdate,		// 過去データ更新
-		UI,					// UI描画
-		Present,			// バックバッファに描画
-		Count
-	};
+
 
 	struct RGBarrier
 	{
@@ -61,6 +50,8 @@ namespace Engine::Graphics
 
 		void Compile();							// Pass追加後
 		void Excute(GraphicsEngine* a_pGE,RenderContext* a_pCtx);		// パスを順次実行
+
+		void AddPassNode(const EDrawPhase& a_pahse,const RenderPassNode& a_node);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(const std::string& a_name);
 		Resource::Handle<D3D12::SRV> GetSRVHandle(const std::string& a_name);
@@ -108,10 +99,11 @@ namespace Engine::Graphics
 
 	private:
 
-		std::map<EDrawPhase, std::vector<std::shared_ptr<BaseRenderPass>>> m_spPassMap = {};
+		// パスデータ格納
+		std::map<EDrawPhase, std::vector<RenderPassNode>> m_passNodeMap;
 
 		// パスの保管場所
-		//std::vector<std::shared_ptr<BaseRenderPass>> m_spPassVec = {};
+		std::map<EDrawPhase, std::vector<std::shared_ptr<BaseRenderPass>>> m_spPassMap = {};
 		std::vector<BaseRenderPass*> m_sortedPassed = {};							// ソート後のパス
 
 		// コンパイル後のパス

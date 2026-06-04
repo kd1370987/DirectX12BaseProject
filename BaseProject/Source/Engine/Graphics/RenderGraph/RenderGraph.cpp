@@ -364,6 +364,11 @@ namespace Engine::Graphics
 		}
 	}
 
+	void RenderGraph::AddPassNode(const EDrawPhase& a_pahse, const RenderPassNode& a_node)
+	{
+		m_passNodeMap[a_pahse].push_back(a_node);
+	}
+
 
 	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetCPUHandle(const std::string& a_name)
 	{

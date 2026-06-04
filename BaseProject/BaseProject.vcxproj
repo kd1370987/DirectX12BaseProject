@@ -344,6 +344,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\TestFuncPass.cpp" />
     <ClCompile Include="Source\Engine\Input\InputCollector\InputCollector.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.cpp" />
@@ -570,6 +571,7 @@
     <ClInclude Include="Source\Engine\Graphics\CBData.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGCommon.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGData\RenderPassNode.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\BaseRenderPass.h" />
@@ -591,6 +593,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\TestFuncPass.h" />
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.h" />

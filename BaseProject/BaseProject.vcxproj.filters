@@ -856,6 +856,9 @@
     <Filter Include="Asset\Shader\Compute\Denoise\GI">
       <UniqueIdentifier>{f6a1238d-2bb0-4dfe-ab0a-7be12c6f9cf2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderGraph\RGData">
+      <UniqueIdentifier>{694b6e9f-b2bf-438c-87a2-a1ccedb47cf9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1385,6 +1388,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\TestFuncPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2143,6 +2149,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGData\RenderPassNode.h">
+      <Filter>Source\Engine\Graphics\RenderGraph\RGData</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\TestFuncPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
