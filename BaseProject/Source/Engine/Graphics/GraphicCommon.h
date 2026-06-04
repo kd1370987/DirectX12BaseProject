@@ -39,7 +39,9 @@ enum class AccessType
 	RTV,
 	Depth_Read,
 	Depth_Write,
-	UAV
+	UAV,
+	CopySrc,
+	CopyDst
 };
 
 struct AccessResource

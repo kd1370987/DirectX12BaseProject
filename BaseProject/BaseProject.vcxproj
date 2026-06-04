@@ -328,6 +328,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\BaseRenderPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\ComputePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\CopyPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\DeferredLightingPass\DeferredLightingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ForwardLightingPass\ForwardLightingPass.cpp" />
@@ -572,6 +574,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\BaseRenderPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\ComputePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\CopyPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\DeferredLightingPass\DeferredLightingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ForwardLightingPass\ForwardLightingPass.h" />

@@ -543,6 +543,15 @@ namespace Engine::Graphics
 		BindSRV(a_rootIndex,m_boneBuffer.GetSRVHandle());
 	}
 
+	void RenderContext::TexCopy(
+		const Resource::Handle<Resource::Texture>& a_src, const Resource::Handle<Resource::Texture>& a_dst
+	)
+	{
+		auto* _srcTex = Resource::ResourceManager::Instance().Ref(a_src);
+		auto* _dstTex = Resource::ResourceManager::Instance().Ref(a_dst);
+		m_pCmdList->NGet()->CopyResource(_dstTex->GetResource(), _srcTex->GetResource());
+	}
+
 	void RenderContext::SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig)
 	{
 		m_pCmdList->SetGraphicsRootSignature(a_pRootSig);

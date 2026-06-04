@@ -162,6 +162,10 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// 描画パス構築
 		//--------------------------------------------------------------------------------------------
+		
+		// テクスチャのコピー
+		void TexCopy(const Resource::Handle<Resource::Texture>& a_src,const Resource::Handle<Resource::Texture>& a_dst);
+
 		// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
 		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);
 

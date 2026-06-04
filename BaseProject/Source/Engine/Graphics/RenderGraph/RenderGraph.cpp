@@ -16,6 +16,8 @@
 #include "../RenderPass/RaytracingPass/RaytracingGIPass/RaytracingGIPass.h"
 #include "../RenderPass/RaytracingPass/FullRaytracingPass/FullRaytracingPass.h"
 
+#include "../RenderPass/CopyPass/GBufferHistoryPass/GBufferHistoryPass.h"
+
 #include "../RenderPass/ComputePass/Denoise/TempralAccumulationPass/TemporalAccumulationPass.h"
 
 #include "../RenderContext/RenderContext.h"
@@ -172,6 +174,9 @@ namespace Engine::Graphics
 		RegisterPass<RaytracingGIPass>(EDrawPhase::Lighting);
 		RegisterPass<FullRaytracingPass>(EDrawPhase::Geometry);
 		RegisterPass<RaytracingShadowPass>(EDrawPhase::Shadow);
+
+		RegisterPass<GBufferHistoryPass>(EDrawPhase::HistoryUpdate);
+
 		// パスの初期化
 		//for (auto& _sp : m_spPassVec)
 		for(auto& [_phase,_spPassVec] : m_spPassMap)
@@ -285,6 +290,14 @@ namespace Engine::Graphics
 				if (_access.type == AccessType::Depth_Write)
 				{
 					_next = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+				}
+				if (_access.type == AccessType::CopySrc)
+				{
+					_next = D3D12_RESOURCE_STATE_COPY_SOURCE;
+				}
+				if (_access.type == AccessType::CopyDst)
+				{
+					_next = D3D12_RESOURCE_STATE_COPY_DEST;
 				}
 
 				bool _isRead = (_access.type == AccessType::SRV || _access.type == AccessType::Depth_Read);
@@ -436,6 +449,10 @@ namespace Engine::Graphics
 			return m_upRGResourceManager->Write(a_resourceName, Resource::TextureUsage::DSV);
 		case AccessType::Depth_Write:
 			return m_upRGResourceManager->Write(a_resourceName, Resource::TextureUsage::DSV);
+		case AccessType::CopySrc:
+			return m_upRGResourceManager->Write(a_resourceName, Resource::TextureUsage::None);
+		case AccessType::CopyDst:
+			return m_upRGResourceManager->Write(a_resourceName, Resource::TextureUsage::None);
 		default:
 			break;
 		}

@@ -841,6 +841,9 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\CopyPass">
       <UniqueIdentifier>{d11f6c11-d594-479d-92bf-b7eba5e29866}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass">
+      <UniqueIdentifier>{a1961b96-2e2a-4a1b-b428-848322d0a680}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1361,6 +1364,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TemporalAccumulationPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\CopyPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\CopyPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2110,6 +2119,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TemporalAccumulationPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\CopyPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\CopyPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
