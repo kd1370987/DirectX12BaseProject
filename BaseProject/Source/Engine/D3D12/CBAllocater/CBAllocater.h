@@ -11,6 +11,7 @@ public:
 	void ResetUse()
 	{
 		m_usedCount = 0;
+		m_useComputeCount = 0;
 	}
 
 	// データをバインドして転送

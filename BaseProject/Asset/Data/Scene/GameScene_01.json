@@ -18,7 +18,7 @@
         },
         {
             "CompName": "PlayerLookAngleComponent",
-            "Yaw": 3001.0,
+            "Yaw": 3415.0,
             "maxPitch": 90.0
         },
         {
@@ -44,15 +44,15 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                7.963181495666504,
-                -0.019000716507434845,
-                9.049060821533203
+                -1.1005840301513672,
+                -0.008000954054296017,
+                12.443943977355957
             ],
             "quat": [
-                0.0,
-                0.8703553676605225,
-                0.0,
-                0.4924241900444031
+                -0.0,
+                -0.999048113822937,
+                -0.0,
+                -0.04362112283706665
             ],
             "scale": [
                 1.0,
@@ -165,6 +165,84 @@
         {
             "CompName": "GUIDComponent",
             "guid": "e6f8bbaf-b0ac-4507-8e85-94de5046d6ac"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "ActiveCameraTag"
+        },
+        {
+            "CompName": "CameraTag"
+        },
+        {
+            "CompName": "CameraControllTag"
+        },
+        {
+            "CompName": "CameraParamComponent",
+            "aspectRatio": 1.7777777910232544,
+            "farZ": 1000.0,
+            "fovY": 60.0,
+            "nearZ": 0.10000000149011612
+        },
+        {
+            "CompName": "ProjMatComponent"
+        },
+        {
+            "CompName": "FocusParamComponent",
+            "forcusBackRange": 1000.0,
+            "forcusDistance": 0.0,
+            "forcusRange": 0.0
+        },
+        {
+            "CompName": "FollowTargetComponent",
+            "targetGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "TPSOffsetComponent",
+            "x": 0.0,
+            "y": 2.0,
+            "z": -5.0
+        },
+        {
+            "ClampPitch": 80.0,
+            "CompName": "TPSLookAngleComponent",
+            "Pitch": 0.0
+        },
+        {
+            "CompName": "VelocityComponent"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                -1.356738567352295,
+                6.037084579467773,
+                15.371686935424805
+            ],
+            "quat": [
+                -0.019803576171398163,
+                -0.890158474445343,
+                0.4535583555698395,
+                -0.03886670991778374
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": ""
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "c6da5fd1-7cc1-4ced-8480-0fe467d9912c"
         }
     ],
     [
@@ -543,60 +621,20 @@
             "CompName": "ActiveTag"
         },
         {
-            "CompName": "ActiveCameraTag"
-        },
-        {
-            "CompName": "CameraTag"
-        },
-        {
-            "CompName": "CameraControllTag"
-        },
-        {
-            "CompName": "CameraParamComponent",
-            "aspectRatio": 1.7777777910232544,
-            "farZ": 1000.0,
-            "fovY": 60.0,
-            "nearZ": 0.10000000149011612
-        },
-        {
-            "CompName": "ProjMatComponent"
-        },
-        {
-            "CompName": "FocusParamComponent",
-            "forcusBackRange": 1000.0,
-            "forcusDistance": 0.0,
-            "forcusRange": 0.0
-        },
-        {
-            "CompName": "FollowTargetComponent",
-            "targetGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
-        },
-        {
-            "CompName": "TPSOffsetComponent",
-            "x": 0.0,
-            "y": 2.0,
-            "z": -5.0
-        },
-        {
-            "ClampPitch": 80.0,
-            "CompName": "TPSLookAngleComponent",
-            "Pitch": 0.0
-        },
-        {
-            "CompName": "VelocityComponent"
+            "CompName": "RayTag"
         },
         {
             "CompName": "TransformComponent",
             "pos": [
-                7.813608169555664,
-                6.9779534339904785,
-                9.138933181762695
+                -0.699999988079071,
+                3.200000047683716,
+                13.100000381469727
             ],
             "quat": [
-                0.34206658601760864,
-                0.6260812282562256,
-                -0.60459965467453,
-                0.35422030091285706
+                0.0,
+                0.0,
+                0.0,
+                0.0
             ],
             "scale": [
                 1.0,
@@ -608,12 +646,292 @@
             "CompName": "WorldMatrixComponent"
         },
         {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "9d3c94dc-05bc-4886-a750-a9f174e5bb5d"
+        },
+        {
             "CompName": "NameComponent",
-            "name": ""
+            "name": "ball"
         },
         {
             "CompName": "GUIDComponent",
-            "guid": "c6da5fd1-7cc1-4ced-8480-0fe467d9912c"
+            "guid": "2f36db9c-88a1-4294-8e4a-3f73b3bf1bf7"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                -3.700000047683716,
+                0.0,
+                11.699999809265137
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                5.0,
+                5.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "WHWall"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "2f36db9c-88a1-4294-8e4a-3f73b3bf1bf7"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                8.800000190734863,
+                6.099999904632568,
+                11.600000381469727
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                8.699999809265137,
+                1.0,
+                5.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "UP"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "2f36db9c-88a1-4294-8e4a-3f73b3bf1bf7"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                0.0,
+                0.0,
+                11.800000190734863
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                21.600000381469727,
+                1.0,
+                5.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "Floar"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "2f36db9c-88a1-4294-8e4a-3f73b3bf1bf7"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                0.0,
+                0.0,
+                15.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                18.0,
+                5.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "RedWall"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "2f36db9c-88a1-4294-8e4a-3f73b3bf1bf7"
+        }
+    ],
+    [
+        {
+            "CompName": "ActiveTag"
+        },
+        {
+            "CompName": "RayTag"
+        },
+        {
+            "CompName": "TransformComponent",
+            "pos": [
+                0.0,
+                0.0,
+                9.0
+            ],
+            "quat": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                18.0,
+                5.0,
+                1.0
+            ]
+        },
+        {
+            "CompName": "WorldMatrixComponent"
+        },
+        {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                0.1140427216887474,
+                0.5539215803146362,
+                0.0,
+                0.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "a9d483b5-5681-40ba-b45d-e1630f066516"
+        },
+        {
+            "CompName": "NameComponent",
+            "name": "GreenWall"
+        },
+        {
+            "CompName": "GUIDComponent",
+            "guid": "2f36db9c-88a1-4294-8e4a-3f73b3bf1bf7"
         }
     ],
     [
@@ -623,20 +941,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                7.973127841949463,
-                1.7495933771133423,
-                9.043085098266602
+                -1.0995726585388184,
+                1.7605929374694824,
+                12.432385444641113
             ],
             "quat": [
-                -0.014152544550597668,
-                -0.49235907196998596,
-                -0.008007117547094822,
-                0.8702402114868164
+                -0.016245167702436447,
+                -0.04361544921994209,
+                -0.00070930365473032,
+                0.9989160299301147
             ],
             "scale": [
-                0.20000000298023224,
-                0.19999992847442627,
-                0.19999997317790985
+                0.19999989867210388,
+                0.19999989867210388,
+                0.19999992847442627
             ]
         },
         {
@@ -699,20 +1017,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                8.339187622070313,
-                1.4217987060546875,
-                9.801822662353516
+                -0.27057725191116333,
+                1.4327983856201172,
+                12.582212448120117
             ],
             "quat": [
-                0.34819620847702026,
-                -0.34819653630256653,
-                -0.6154338717460632,
-                0.615434467792511
+                0.030844667926430702,
+                -0.03084465116262436,
+                -0.7064334154129028,
+                0.7064340710639954
             ],
             "scale": [
-                0.09999998658895493,
-                0.09999998658895493,
-                0.09999994933605194
+                0.09999996423721313,
+                0.09999994188547134,
+                0.09999993443489075
             ]
         },
         {
@@ -775,20 +1093,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                7.475058555603027,
-                1.4217981100082397,
-                8.363665580749512
+                -1.941990852355957,
+                1.4327977895736694,
+                12.435977935791016
             ],
             "quat": [
-                -0.3481963574886322,
-                -0.3481968641281128,
-                0.6154338717460632,
-                0.6154342889785767
+                -0.030844910070300102,
+                -0.030845152214169502,
+                0.7064333558082581,
+                0.7064340114593506
             ],
             "scale": [
-                0.09999995678663254,
-                0.09999999403953552,
-                0.09999993443489075
+                0.09999993443489075,
+                0.09999994933605194,
+                0.09999991208314896
             ]
         },
         {
@@ -851,20 +1169,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                7.978333473205566,
-                0.08469956368207932,
-                9.143787384033203
+                -1.015043020248413,
+                0.0956992357969284,
+                12.487364768981934
             ],
             "quat": [
-                0.7562046051025391,
-                0.2433473914861679,
-                0.4283580780029297,
-                -0.4306343197822571
+                0.8682537078857422,
+                0.021320637315511703,
+                0.03836085647344589,
+                -0.49417540431022644
             ],
             "scale": [
-                0.09999996423721313,
-                0.10000015050172806,
-                0.10000000894069672
+                0.09999990463256836,
+                0.10000013560056686,
+                0.09999998658895493
             ]
         },
         {
@@ -927,20 +1245,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                7.886656761169434,
-                0.08469971269369125,
-                8.9912109375
+                -1.1923655271530151,
+                0.09569944441318512,
+                12.471850395202637
             ],
             "quat": [
-                0.7562046051025391,
-                0.2433474063873291,
-                0.4283581078052521,
-                -0.4306342899799347
+                0.8682537078857422,
+                0.021320639178156853,
+                0.03836085647344589,
+                -0.49417540431022644
             ],
             "scale": [
-                0.09999997168779373,
-                0.10000017285346985,
-                0.10000000894069672
+                0.09999991953372955,
+                0.10000015050172806,
+                0.09999998658895493
             ]
         },
         {

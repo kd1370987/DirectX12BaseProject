@@ -17,6 +17,8 @@
 
 #include "WatchView/WatchView.h"
 
+#include "../Option/OptionManager.h"
+
 namespace Engine::Editor
 {
 
@@ -87,6 +89,13 @@ namespace Engine::Editor
 		m_upLog->Draw("Log");
 		// 計測表示
 		m_upWatchView->Draw();
+
+		if (ImGui::Begin("Options"))
+		{
+			auto& _opManager = Option::OptionManager::GetInstance();
+			_opManager.DrawEdit();
+		}
+		ImGui::End();
 
 		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);

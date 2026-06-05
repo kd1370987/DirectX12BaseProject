@@ -18,6 +18,7 @@
 
 #include "Collision/CollisionWorld.h"
 
+#include "Option/OptionManager.h"
 namespace Engine
 {
 	MainEngine::MainEngine()
@@ -30,6 +31,9 @@ namespace Engine
 	{
 		// 設定を保存
 		m_config = a_config;
+
+		// 設定を取得
+		Option::OptionManager::GetInstance().Deserialize();
 
 		// DirectX12でGPUの詳細なエラーを確認するためのもの
 		if (a_config.GetInitConfig().isDebugLayer)
@@ -121,6 +125,10 @@ namespace Engine
 
 	void MainEngine::Release()
 	{
+
+		// 設定を保存
+		Option::OptionManager::GetInstance().Serialize();
+
 		// GPU同期待ち
 		for (UINT _i = 0; _i < static_cast<UINT>(CPU_FRAME_COUNT); ++_i)
 		{

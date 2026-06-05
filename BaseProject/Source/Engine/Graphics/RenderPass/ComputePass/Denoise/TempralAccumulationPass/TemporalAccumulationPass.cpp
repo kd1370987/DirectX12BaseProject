@@ -8,6 +8,8 @@
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
 #include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 
+#include "../../../../../Option/OptionManager.h"
+
 namespace Engine::Graphics
 {
 	void AddTemporalAccumulationPass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase)
@@ -53,6 +55,24 @@ namespace Engine::Graphics
 			auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
 			_pCmd->SetPipelineState(_pPSO);
 
+			// 定数バッファ
+			struct GITAOp
+			{
+				float phiDepth;
+				float phiNormal;
+				float blendRate;
+			};
+			GITAOp _op = {};
+			const auto& _giOp = Option::OptionManager::GetInstance().GetGIOption();
+			_op.phiDepth = _giOp.TAphiDepth;
+			_op.phiNormal = _giOp.TAphiNormal;
+			_op.blendRate = _giOp.TAblendRate;
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(
+				_pCmd->NGet(),
+				0,
+				_op
+			);
+
 			a_pCtx->BindHeap();
 			std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuVec = {
 				_spPassData->pRG->GetSRVCPU("RayGI"),
@@ -63,9 +83,9 @@ namespace Engine::Graphics
 				_spPassData->pRG->GetSRVCPU("PrevDepth"),
 				_spPassData->pRG->GetSRVCPU("PrevNormal")
 			};
-			a_pCtx->ComputeBindSRV(0, _cpuVec);
+			a_pCtx->ComputeBindSRV(1, _cpuVec);
 
-			a_pCtx->BindUAV(1, _spPassData->pRG->GetUAVCPU("DenoiseGI"));
+			a_pCtx->BindUAV(2, _spPassData->pRG->GetUAVCPU("DenoiseGI"));
 
 			a_pCtx->Dispatch(1280 / 8, 720 / 8, 1);
 

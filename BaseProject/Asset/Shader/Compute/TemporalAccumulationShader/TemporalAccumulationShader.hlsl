@@ -4,9 +4,21 @@
 // ルートシグネチャデータ
 #define TEMPORALACCUMULATION_ROOT_SIG \
 "RootFlags(0), " \
+"CBV(b0),"\
 "DescriptorTable(SRV(t0, numDescriptors=7)),"\
 "DescriptorTable(UAV(u0, numDescriptors=1)),"\
 RS_STATIC_SAMPLER
+
+struct GITAOption
+{
+	float phiDepth;
+	float phiNormal;
+	float blendRate;
+};
+cbuffer CBGITAOption : register(b0)
+{
+	GITAOption g_option;
+}
 
 // 入力
 Texture2D<float4> g_currentGITex : register(t0);	// 現在のGI
@@ -69,14 +81,14 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	bool _isValidHistory = true;
 
 	// 法線の向きが違いすぎる場合は履歴を捨てる
-	if (dot(_currentNormal,_prevNormal) < 0.8f)
+	if (dot(_currentNormal,_prevNormal) < g_option.phiNormal)
 	{
 		_isValidHistory = false;
 	}
 
 	// 深度が違いすぎる場合は履歴を捨てる
 	// いったん深度値で比較。ワールド座標での比較に変更予定
-	if (abs(_currentDepth - _prevDepth) > 0.01f)
+	if (abs(_currentDepth - _prevDepth) > g_option.phiDepth)
 	{
 		_isValidHistory = false;
 	}
@@ -89,7 +101,7 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	{
 		// 履歴が有効ならブレンド（現在 10% : 過去 90%）
 		// アルファが小さいほどノイズは消えるが、動いた時の残像が出やすくなる
-		float _alpha = 0.1f;
+		float _alpha = g_option.blendRate;
 		_finalGI = lerp(_historyGI, _currentGI, _alpha);
 	}
 

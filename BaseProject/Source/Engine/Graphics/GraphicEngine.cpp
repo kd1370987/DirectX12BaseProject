@@ -1,4 +1,4 @@
-#include "GraphicEngine.h"
+﻿#include "GraphicEngine.h"
 
 #include "../MainEngine.h"
 
@@ -68,6 +68,10 @@ namespace Engine::Graphics
 	void GraphicsEngine::BegineFrame()
 	{
 		m_currentFrameIndex = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+
+		if (m_currentFrameIndex == 1) { m_upRenderContextVec[1]->Clear(); }
+		else if (m_currentFrameIndex == 2) { m_upRenderContextVec[2]->Clear(); }
+		else if (m_currentFrameIndex == 3) { m_upRenderContextVec[0]->Clear(); }
 
 		FrameDesc _desc;
 		_desc.pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();

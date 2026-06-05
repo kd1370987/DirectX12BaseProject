@@ -9,6 +9,8 @@
 #include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
 
+#include "../../../../../../Option/OptionManager.h"
+
 namespace Engine::Graphics
 {
 
@@ -102,11 +104,14 @@ namespace Engine::Graphics
 					float	phiNormal;	// 法線の感度（大きいほど法線のずれに敏感）
 					float	phiColor;	// 輝度の感度（ノイズとディティールの境界制御）
 				};
+				const auto& _giOp = Option::OptionManager::GetInstance().GetGIOption();
 				CBData _data = {};
 				_data.stepSize = _stepSize;
-				_data.phiDepth = 0.01f;
-				_data.phiNormal = 64.0f;
-				_data.phiColor = 10.0f;
+				_data.phiDepth = _giOp.phiDepth;
+				_data.phiNormal = _giOp.phiNormal;
+				_data.phiColor = _giOp.phiColor;
+				
+				
 
 				// 定数バッファバインド
 				a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(

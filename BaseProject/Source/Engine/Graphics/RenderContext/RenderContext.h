@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../CBData.h"
+#include "Engine/D3D12/CBAllocater/CBAllocater.h"
 
 class CBAllocater;
 

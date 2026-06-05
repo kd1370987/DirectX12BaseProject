@@ -12,7 +12,6 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 
-#include "Engine/D3D12/CBAllocater/CBAllocater.h"
 
 #include "../RenderGraph/RenderGraph.h"
 
@@ -92,7 +91,7 @@ namespace Engine::Graphics
 	{
 		m_pCmdList = nullptr;
 		m_upCBAllocater->ResetUse();
-		m_pShapeDraw->Reset();
+		//m_pShapeDraw->Reset();
 
 		// コピーヒープのリセット
 		m_currentHeapOffset = 0;

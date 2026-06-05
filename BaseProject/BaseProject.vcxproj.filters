@@ -859,6 +859,12 @@
     <Filter Include="Source\Engine\Graphics\RenderGraph\RGData">
       <UniqueIdentifier>{694b6e9f-b2bf-438c-87a2-a1ccedb47cf9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Option">
+      <UniqueIdentifier>{881cff70-bcd4-4e3e-b84b-26111ec77600}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Option\GraphicsOptions">
+      <UniqueIdentifier>{0d25129d-d165-4472-aff5-df486ed58360}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1388,6 +1394,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Option\OptionManager.cpp">
+      <Filter>Source\Engine\Option</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2149,6 +2158,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGData\RenderPassNode.h">
       <Filter>Source\Engine\Graphics\RenderGraph\RGData</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Option\OptionManager.h">
+      <Filter>Source\Engine\Option</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\GIOptions.h">
+      <Filter>Source\Engine\Option\GraphicsOptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Option\IOption.h">
+      <Filter>Source\Engine\Option</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
