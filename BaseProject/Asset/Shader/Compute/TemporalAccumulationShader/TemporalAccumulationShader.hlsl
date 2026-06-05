@@ -47,6 +47,7 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	// 画像の解像度を取得
 	uint _width, _height;
 	g_outputGI.GetDimensions(_width, _height);
+	int2 _centerCoord = int2(DTid.xy);
 
 	if (DTid.x >= _width || DTid.y >= _height) return;
 
@@ -78,18 +79,33 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	// -------------------------------------------------------------------------------
 	// 3x3の近傍ピクセルをループ
 	// min , max を取得してクランプする
+
+	float3 _minColor = float3(1e10f, 1e10f, 1e10f);
+	float3 _maxColor = float3(-1e10f, -1e10f, -1e10f);
+	
 	[unroll]
 	for (int _y = -1; _y <= 1; ++_y)
 	{
 		[unroll]
-		for (_x = -1; _x <= 1; ++_x)
+		for (int _x = -1; _x <= 1; ++_x)
 		{
+			// サンプリング座標を取得
+			int2 _sampleCoord = _centerCoord + int2(_x, _y);
+			_sampleCoord = clamp(_sampleCoord, int2(0, 0), int2(_width - 1, _height - 1)); // 画面クランプ
 			
-		}
+			// サンプル画素を取得
+			float3 color = g_currentGITex.Load(int3(_sampleCoord, 0)).rgb;
 
+			_minColor = min(_minColor, color);
+			_maxColor = max(_maxColor, color);
+		}
 	}
-	
-	
+
+	_historyGI.rgb =
+    clamp(
+        _historyGI.rgb,
+        _minColor,
+        _maxColor);
 
 	// -------------------------------------------------------------------------------
 	// ゴースト対策（ディスオクルージョン判定）

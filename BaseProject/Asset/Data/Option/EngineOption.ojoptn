@@ -1,8 +1,8 @@
 {
-    "TAblendRate": 0.05999999865889549,
+    "TAblendRate": 0.05000000074505806,
     "TAphiDepth": 0.009999999776482582,
     "TAphiNormal": 0.800000011920929,
     "phiColor": 10.0,
     "phiDepth": 0.009999999776482582,
-    "phiNormal": 128.0
+    "phiNormal": 32.0
 }

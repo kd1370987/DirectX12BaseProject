@@ -62,6 +62,10 @@ namespace Engine::Graphics
 		// コンパイル
 		_rpBuilder.ResolveAndCompile(a_pPSOManager);
 
+		// ピンポンリソース用
+		std::string _tempA = "DeferedLighting_A";
+		std::string _tempB = "DeferedLighting_B";
+
 		// 実行関数
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 		{

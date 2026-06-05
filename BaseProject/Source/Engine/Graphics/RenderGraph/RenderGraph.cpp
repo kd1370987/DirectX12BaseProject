@@ -174,6 +174,27 @@ namespace Engine::Graphics
 			720,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
+		m_upRGResourceManager->Register(
+			"FinalGI",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		);
+		m_upRGResourceManager->Register(
+			"DeferedLighting_A",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		);
+		m_upRGResourceManager->Register(
+			"DeferedLighting_B",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		);
 
 		// パス登録
 		AddZPrePass(a_pPipelineStateManager, *this, EDrawPhase::Setup);
@@ -353,6 +374,7 @@ namespace Engine::Graphics
 	{
 		// テンポラルスワップ処理
 		m_upRGResourceManager->Swap();
+		Swap();
 
 		// コンパイル済みパスを順次実行していく
 		for (auto& _cp : m_compiledPasses)
@@ -411,17 +433,17 @@ namespace Engine::Graphics
 		return D3D12::DescriptorHeapManager::Instance().GetCPU(_srvHandle);
 	}
 
-	Resource::Handle<D3D12::UAV> RenderGraph::GetUAVHandle(const std::string& a_name)
+	Resource::Handle<D3D12::UAV> RenderGraph::GetUAVHandle(const std::string& a_name, bool a_read)
 	{
 		auto _id = m_upRGResourceManager->GetID(a_name);
-		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id,false);
+		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id,a_read);
 		const auto* _pTex = Resource::ResourceManager::Instance().Get(_texHandle);
 		return _pTex->GetUAV();
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetUAVCPU(const std::string& a_name)
+	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetUAVCPU(const std::string& a_name, bool a_read)
 	{
-		auto _uavHandle = GetUAVHandle(a_name);
+		auto _uavHandle = GetUAVHandle(a_name,a_read);
 		return D3D12::DescriptorHeapManager::Instance().GetCPU(_uavHandle);
 	}
 
@@ -540,6 +562,11 @@ namespace Engine::Graphics
 		return m_upRGResourceManager->GetResourceNameVec();
 	}
 
+	UINT RenderGraph::GetTemporalIndex() const
+	{
+		return m_temporalIndex;
+	}
+
 
 	DXGI_FORMAT RenderGraph::GetDXGIFormat(Resource::ID a_id)
 	{
@@ -567,6 +594,11 @@ namespace Engine::Graphics
 				m_upRGResourceManager->RefCurrentState(_barrier.resID, _barrier.isRead) = _barrier.after;
 			}
 		}
+	}
+
+	void RenderGraph::Swap()
+	{
+		m_temporalIndex = 1 - m_temporalIndex;
 	}
 
 }

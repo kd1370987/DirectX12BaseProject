@@ -60,8 +60,8 @@ namespace Engine::Graphics
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(const std::string& a_name);
 		Resource::Handle<D3D12::SRV> GetSRVHandle(const std::string& a_name);
 		D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPU(const std::string& a_name);
-		Resource::Handle<D3D12::UAV> GetUAVHandle(const std::string& a_name);
-		D3D12_CPU_DESCRIPTOR_HANDLE GetUAVCPU(const std::string& a_name);
+		Resource::Handle<D3D12::UAV> GetUAVHandle(const std::string& a_name,bool a_read = false);
+		D3D12_CPU_DESCRIPTOR_HANDLE GetUAVCPU(const std::string& a_name, bool a_read = false);
 		// リソース作成
 		Engine::Resource::Handle<Engine::Resource::Texture> CreateTexture(
 			const std::string& a_name,
@@ -83,12 +83,20 @@ namespace Engine::Graphics
 		// アクセサ
 		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);	// フォーマット取得
 		std::vector<std::string> GetRGResourceList();	// リソース名一覧
+
+		UINT GetTemporalIndex() const; // テンポラルインデックス取得
 	private:
 
 		// 実行中の関数
 		void AutoBarrier(RenderContext* a_pCtx,CompiledPass& a_pass);		// バリア更新
 
+		// テンポラルインデックス更新 : フレーム用テンポラル
+		void Swap();
+
 	private:
+
+		// テンポラル用インデックス
+		UINT m_temporalIndex = 0;
 
 		// パスデータ格納
 		std::map<EDrawPhase, std::vector<RenderPassNode>> m_passNodeMap;

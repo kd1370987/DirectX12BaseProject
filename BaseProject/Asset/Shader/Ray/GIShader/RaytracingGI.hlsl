@@ -357,6 +357,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	
 	// 間接光の取得
 	RayPayload _refPayload;
+	_refPayload.color = float3(0,0,0);
 	_refPayload.depth = a_payload.depth;
 	_refPayload.seed = a_payload.seed;
 	TraceIndirectRay(_refPayload, _normal); // 次のバウンスレイを飛ばす
@@ -369,7 +370,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float3 _albedo = albedoTex.SampleLevel(gSamp, _uv, lod).rgb * _material.baseColor.xyz;
 
 	// 最終的な色の合成
-	float3 _directLight = _lig * g_ambient.DL_Color; // ライトの色をかける
+	float3 _directLight = (_lig / 3.141592f) * g_ambient.DL_Color; // ライトの色をかける
 	float3 _indirectLight = _refPayload.color; // 飛んだ先から持ち帰ってきた色
 
 	// アルベド * (直接光 + 間接光) + エミッシブ(自己発光)

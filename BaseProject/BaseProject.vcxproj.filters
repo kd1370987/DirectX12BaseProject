@@ -865,6 +865,18 @@
     <Filter Include="Source\Engine\Option\GraphicsOptions">
       <UniqueIdentifier>{0d25129d-d165-4472-aff5-df486ed58360}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Compute\Anti-aliasing">
+      <UniqueIdentifier>{a41220f6-f1b7-4069-a1d9-269a2a50eeee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Anti-aliasing\TAA">
+      <UniqueIdentifier>{9336f68d-956c-40c2-a141-54f3962bdfd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing">
+      <UniqueIdentifier>{30170fba-775a-4e2a-9476-1ff0093ed4b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA">
+      <UniqueIdentifier>{87b47e97-c5a4-48f6-96e7-dd858dc6dbe2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1397,6 +1409,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Option\OptionManager.cpp">
       <Filter>Source\Engine\Option</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2168,6 +2183,9 @@
     <ClInclude Include="Source\Engine\Option\IOption.h">
       <Filter>Source\Engine\Option</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2304,6 +2322,9 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Denoise\GI\GISpatialDenoiseShader.hlsl">
       <Filter>Asset\Shader\Compute\Denoise\GI</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\AntiAliasing\TAA\TAA.hlsl">
+      <Filter>Asset\Shader\Compute\Anti-aliasing\TAA</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
