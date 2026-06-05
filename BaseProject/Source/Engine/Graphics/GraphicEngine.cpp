@@ -280,7 +280,7 @@ namespace Engine::Graphics
 		float _jitterY = 0.0f;
 
 		// ジッターオンオフ
-		if (true)
+		if (false)
 		{
 			// ハルトンシーケンスのテーブル（ピクセル中心地からのオフセット値 -0.5f ～ 0.5f）
 			static const float _sHaltonX[16] = { 0.0f, -0.25f, 0.25f, -0.375f, 0.125f, -0.125f, 0.375f, -0.4375f, 0.0625f, -0.1875f, 0.3125f, -0.3125f, 0.1875f, -0.0625f, 0.4375f, -0.46875f };

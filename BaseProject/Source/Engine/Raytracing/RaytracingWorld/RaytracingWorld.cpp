@@ -21,7 +21,9 @@ namespace Engine::Raytracing
 
 	void Engine::Raytracing::RayWorld::Register(
 		const DXSM::Matrix& a_worldMat,
-		const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
+		const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle,
+		const DXSM::Vector4& a_colorScale,
+		const DXSM::Vector3& a_emissiveScale
 	)
 	{
 		m_isDrity = true;
@@ -59,19 +61,21 @@ namespace Engine::Raytracing
 					if (!_pMate) continue;
 	
 					Material _mat = {};
-					_mat.baseColor = _pMate->baseColor;
+					DXSM::Vector4 _baseColor = _pMate->baseColor;
+					DXSM::Vector3 _emiColor = _pMate->emissive;
+					_mat.baseColor = _baseColor * a_colorScale;
 					_mat.metallic = _pMate->metallic;
 					_mat.roughness = _pMate->roughness;
-					_mat.emissive = _pMate->emissive;
+					_mat.emissive = _emiColor * a_emissiveScale;
 					_mat.startIndexLocation = _subset.faceStart * 3;
 					const auto* _Btex = Engine::Resource::ResourceManager::Instance().Get(_pMate->baseColorTex);
-					_mat.baseIndex = _Btex->GetSRV().idx;// +100;
+					_mat.baseIndex = _Btex->GetSRV().idx;
 					const auto* _Mtex = Engine::Resource::ResourceManager::Instance().Get(_pMate->metaRoughTex);
-					_mat.metaRoughnessIndex = _Mtex->GetSRV().idx;// +100;
+					_mat.metaRoughnessIndex = _Mtex->GetSRV().idx;
 					const auto* _Etex = Engine::Resource::ResourceManager::Instance().Get(_pMate->emissiveTex);
-					_mat.emissiveIndex = _Etex->GetSRV().idx;// +100;
+					_mat.emissiveIndex = _Etex->GetSRV().idx;
 					const auto* _Ntex = Engine::Resource::ResourceManager::Instance().Get(_pMate->normalTex);
-					_mat.normalIndex = _Ntex->GetSRV().idx;// +100;
+					_mat.normalIndex = _Ntex->GetSRV().idx;
 
 					_rayInst.submeshMaterial.push_back(_mat);
 				}

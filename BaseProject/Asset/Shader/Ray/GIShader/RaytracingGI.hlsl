@@ -366,7 +366,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float lod = clamp(log2(dist * 0.5), 0, 5);
 	Texture2D albedoTex = ResourceDescriptorHeap[_material.baseIndex];
 	Texture2D metaRogTex = ResourceDescriptorHeap[_material.metaRoughnessIndex];
-	float3 _albedo = albedoTex.SampleLevel(gSamp, _uv, lod).rgb;
+	float3 _albedo = albedoTex.SampleLevel(gSamp, _uv, lod).rgb * _material.baseColor.xyz;
 
 	// 最終的な色の合成
 	float3 _directLight = _lig * g_ambient.DL_Color; // ライトの色をかける

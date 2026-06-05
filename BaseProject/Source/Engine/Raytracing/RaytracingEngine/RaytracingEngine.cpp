@@ -73,7 +73,12 @@ namespace Engine::Raytracing
 		_pCmdList->DispatchRays(&_desc);
 	}
 
-	void Engine::Raytracing::RayEngine::RegistModel(const DirectX::XMFLOAT4X4& a_worldMat, const Engine::Resource::Handle<Resource::Model>& a_modelHandle)
+	void Engine::Raytracing::RayEngine::RegistModel(
+		const DirectX::XMFLOAT4X4& a_worldMat,
+		const Engine::Resource::Handle<Resource::Model>& a_modelHandle,
+		const DXSM::Vector4& a_colorScale,
+		const DXSM::Vector3& a_emissiveScale
+	)
 	{
 		if (!m_upRayWorld)
 		{
@@ -81,7 +86,7 @@ namespace Engine::Raytracing
 		}
 
 		// モデル登録
-		m_upRayWorld->Register(a_worldMat, a_modelHandle);
+		m_upRayWorld->Register(a_worldMat, a_modelHandle,a_colorScale,a_emissiveScale);
 
 		m_isCommit = false;
 	}

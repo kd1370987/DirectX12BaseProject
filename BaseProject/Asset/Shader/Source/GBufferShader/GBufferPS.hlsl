@@ -52,15 +52,6 @@ PSOutput ps(VSOutput a_input)
 	_velocity.y = -_velocity.y;
 
 	_out.velocity.xy = _velocity;
-	//_out.velocity.xy = _curNDCPos;
-	//if (abs(_out.velocity.x) > 0.0001f || abs(_out.velocity.y) > 0.0001f)
-	//{
-	//	_out.albedo = float4(1.0f, 0.0f, 0.0f, 1.0f); // 動いたら赤
-	//}
-	//else
-	//{
-	//	_out.albedo = float4(0.0f, 0.0f, 0.0f, 1.0f); // 止まっていたら黒
-	//}
 	
 	return _out;
 }

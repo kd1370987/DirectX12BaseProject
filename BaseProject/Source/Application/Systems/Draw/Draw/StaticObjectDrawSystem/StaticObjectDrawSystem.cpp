@@ -68,6 +68,9 @@ void StaticObjectDrawSystem::Init(Engine::ECS::World& a_world)
 				const auto& _drawCmdVec = _model->GetDrawCommandVec();
 				for (auto& _cmd : _drawCmdVec)
 				{
+					auto* _pMaterial = 
+						Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Material>(_cmd.materialRawID);
+
 					DXSM::Matrix _nodeTransMat(_model->GetOriginalNodeVec()[_cmd.nodeIndex].worldTransform);
 					DXSM::Matrix _mat = _nodeTransMat * _worldMat;
 
@@ -77,6 +80,9 @@ void StaticObjectDrawSystem::Init(Engine::ECS::World& a_world)
 					_instanceData.boneCount = 0;
 					_subSetData.baseColorScale = _modelComp.colorScale;
 					_subSetData.emissiveColorScale = _modelComp.emissiveScale;
+					_subSetData.metallic = _pMaterial->metallic;
+					_subSetData.roughness = _pMaterial->roughness;
+						
 
 					_item.sortKey.bits.meshID = _cmd.meshRawID;
 					_item.sortKey.bits.materialID = _cmd.materialRawID;

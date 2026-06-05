@@ -16,7 +16,9 @@ namespace Engine::Raytracing
 		// モデルとワールド行列を登録して内部でインスタンスに返還
 		void Register(
 			const DXSM::Matrix& a_worldMat,
-			const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle
+			const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle,
+			const DXSM::Vector4& a_colorScale,
+			const DXSM::Vector3& a_emissiveScale
 		);
 
 		// 初期化

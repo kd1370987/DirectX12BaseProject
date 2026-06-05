@@ -30,7 +30,12 @@ void RegisterRayWorldSystem::Init(Engine::ECS::World& a_world)
 				const ModelComponent& _modelComp = a_pModelArray[_i];
 
 				// レイトレワールドに記録
-				Engine::Raytracing::RayEngine::Instance().RegistModel(_wMatComp.worldMat, _modelComp.handle);
+				Engine::Raytracing::RayEngine::Instance().RegistModel(
+					_wMatComp.worldMat,
+					_modelComp.handle,
+					_modelComp.colorScale,
+					_modelComp.emissiveScale
+				);
 			}
 		}
 	);

@@ -74,11 +74,27 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	float4 _historyGI = g_historyGITex.SampleLevel(g_smp, _prevUV, 0);
 	float3 _prevNormal = DecsodeNormal(g_prevNormalTex.SampleLevel(g_smp,_prevUV,0).rg);
 	float _prevDepth = g_prevDepthTex.SampleLevel(g_smp, _prevUV, 0).r;
+	
+	// -------------------------------------------------------------------------------
+	// 3x3の近傍ピクセルをループ
+	// min , max を取得してクランプする
+	[unroll]
+	for (int _y = -1; _y <= 1; ++_y)
+	{
+		[unroll]
+		for (_x = -1; _x <= 1; ++_x)
+		{
+			
+		}
+
+	}
+	
+	
 
 	// -------------------------------------------------------------------------------
 	// ゴースト対策（ディスオクルージョン判定）
 	// これまで隠れていた背景や物体が新たに露出する現象を検出する
-	bool _isValidHistory = true;
+		bool _isValidHistory = true;
 
 	// 法線の向きが違いすぎる場合は履歴を捨てる
 	if (dot(_currentNormal,_prevNormal) < g_option.phiNormal)

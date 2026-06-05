@@ -293,7 +293,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	Texture2D metaRogTex = ResourceDescriptorHeap[_material.metaRoughnessIndex];
 
 	float _reflectRate = metaRogTex.SampleLevel(gSamp, _uv, lod).b * _material.metallic;
-	float3 _color = albedoTex.SampleLevel(gSamp, _uv, lod).rgb;
+	float3 _color = albedoTex.SampleLevel(gSamp, _uv, lod).rgb * float3(_material.baseColor.xyz);
 
 	_color *= _lig;
 	a_payload.color = lerp(_color, _refPayload.color, _reflectRate);
