@@ -10,6 +10,14 @@ namespace Engine::Persistence
 	{
 	public:
 
+		// フォーマット指定用の列挙型
+		enum class ArchiveFormat
+		{
+			Auto,	// 基本設定（ビルドモードに依存）
+			Binary,	// 強制的にバイナリ(.ob)を使用
+			Json	// 強制的にJSON(.oj)を使用
+		};
+
 		enum class Mode
 		{
 			Save,		// 書き込み
@@ -17,7 +25,13 @@ namespace Engine::Persistence
 		};
 
 		// モード、ファイルディレクトリを指定して開く
-		Archive(Mode a_mode, const std::string& a_fileDir, const std::string& a_fileName, const std::string& a_ext);
+		Archive(
+			Mode a_mode, 
+			const std::string& a_fileDir,
+			const std::string& a_fileName,
+			const std::string& a_ext,
+			ArchiveFormat a_format = ArchiveFormat::Auto
+		);
 		// クローズ処理を実行
 		~Archive();
 

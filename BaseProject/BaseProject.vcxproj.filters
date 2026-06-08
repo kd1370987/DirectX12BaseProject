@@ -2141,6 +2141,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\WindowOption.h">
+      <Filter>Source\Engine\Option\GraphicsOptions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

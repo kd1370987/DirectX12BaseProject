@@ -27,7 +27,7 @@ namespace Engine::Option::GraphicsOptions
 		void DrawEdit() override
 		{
 			// テンポラルデノイズ
-			if (ImGui::TreeNodeEx("GITemporalAccumulationOption"))
+			if (ImGui::TreeNodeEx("GITemporalAccumulationOption", ImGuiTreeNodeFlags_SpanFullWidth))
 			{
 				ImGui::DragFloat("TADepth", &TAphiDepth, 0.01f, 0, 1);
 				ImGui::DragFloat("TANormal", &TAphiNormal, 0.1f, 0);
@@ -37,7 +37,7 @@ namespace Engine::Option::GraphicsOptions
 			}
 
 			// スペースデノイズセッティング
-			if (ImGui::TreeNodeEx("GISpatialDenoiseOption"))
+			if (ImGui::TreeNodeEx("GISpatialDenoiseOption", ImGuiTreeNodeFlags_SpanFullWidth))
 			{
 				ImGui::DragFloat("Depth", &phiDepth, 0.1f, 0);
 				ImGui::DragFloat("Normal", &phiNormal, 0.1f, 0);

@@ -595,6 +595,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\GIOptions.h" />
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\WindowOption.h" />
     <ClInclude Include="Source\Engine\Option\IOption.h" />
     <ClInclude Include="Source\Engine\Option\OptionManager.h" />
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h" />

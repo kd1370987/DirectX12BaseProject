@@ -14,6 +14,8 @@
 #include "../Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
 
+// オプション
+#include "../Option/OptionManager.h"
 
 namespace Engine::Graphics
 {
@@ -286,6 +288,7 @@ namespace Engine::Graphics
 
 		// スクリーン座標を取得
 		const auto& _config = Engine::MainEngine::Instance().GetEngineConfig();
+		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 
 		// ジッターオフセット計算
 		float _jitterX = 0.0f;
@@ -310,8 +313,8 @@ namespace Engine::Graphics
 			uint32_t _sampleIndex = m_totlaFrameCount % 16;
 
 			// プロジェクション空間（NDC）のサイズに変換 : NDCは幅が２(-1～1)だから2倍
-			_jitterX = (_sHaltonX[_sampleIndex] / (float)_config.GetRuntimeConfig().windowWidth) * 2.0f;
-			_jitterY = (_sHaltonY[_sampleIndex] / (float)_config.GetRuntimeConfig().windowHeight) * 2.0f;
+			_jitterX = (_sHaltonX[_sampleIndex] / (float)_winOp.windowWidth) * 2.0f;
+			_jitterY = (_sHaltonY[_sampleIndex] / (float)_winOp.windowHegiht) * 2.0f;
 		}
 
 		// カメラの行列を一時的に取得

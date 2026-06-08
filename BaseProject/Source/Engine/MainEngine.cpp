@@ -34,6 +34,7 @@ namespace Engine
 
 		// 設定を取得
 		Option::OptionManager::GetInstance().Deserialize();
+		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 
 		// DirectX12でGPUの詳細なエラーを確認するためのもの
 		if (a_config.GetInitConfig().isDebugLayer)
@@ -45,11 +46,13 @@ namespace Engine
 			}
 		}
 
+		
+
 		// ウィンドウクラスの生成
 		m_upWindow = std::make_unique<Window::NativeWindow>();
 		Window::WindowDesc _desc = {};
-		_desc.width = m_config.GetRuntimeConfig().windowWidth;
-		_desc.height = m_config.GetRuntimeConfig().windowHeight;
+		_desc.width = static_cast<UINT>(_winOp.windowWidth);
+		_desc.height = static_cast<UINT>(_winOp.windowHegiht);
 		_desc.titleName = L"DirectX12";
 		_desc.className = L"AppWindow";
 		_desc.windowMode = Window::EWindowMode::Windowed;
@@ -61,7 +64,7 @@ namespace Engine
 
 		// タイムマネージャークラスの生成
 		m_upTimeManager = std::make_unique<Time::TimeManager>();
-		m_upTimeManager->Init(m_config.GetRuntimeConfig().targetFrameRate);
+		m_upTimeManager->Init(static_cast<int>(_winOp.targetFrameRate));
 
 		// アセットマネージャー作成
 		InitializeAssetDatabase();
@@ -101,8 +104,8 @@ namespace Engine
 		// 描画周り初期化
 		m_upGraphicsEngine = std::make_unique<Graphics::GraphicsEngine>();
 		Graphics::GraphicsEngineDesc _geDesc = {};
-		_geDesc.width = m_config.GetRuntimeConfig().windowWidth;
-		_geDesc.height = m_config.GetRuntimeConfig().windowHeight;
+		_geDesc.width = static_cast<UINT>(_winOp.windowWidth);
+		_geDesc.height = static_cast<UINT>(_winOp.windowHegiht);
 		_geDesc.pPipelineStateManager = m_upPipelineStateManager.get();
 		m_upGraphicsEngine->Init(_geDesc);
 
@@ -205,7 +208,8 @@ namespace Engine
 	void MainEngine::EndFrame()
 	{
 		// フレーム終了
-		m_upTimeManager->EndFrame(m_config.GetRuntimeConfig().isVsync);
+		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		m_upTimeManager->EndFrame(_winOp.isVsync);
 	}
 
 	void MainEngine::BeginDraw()
@@ -253,8 +257,10 @@ namespace Engine
 		Editor::MainEditor::Instance().EndWatch("EditorPhase");
 
 		Editor::MainEditor::Instance().StartWatch("EndFramePhase");
+
 		// 描画終了
-		D3D12::D3D12Wrapper::Instance().EndFrame(m_config.GetRuntimeConfig().isVsync);
+		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		D3D12::D3D12Wrapper::Instance().EndFrame(_winOp.isVsync);
 
 		Editor::MainEditor::Instance().EndWatch("EndFramePhase");
 	}

@@ -34,25 +34,10 @@ namespace Engine
 		// マルチやモニターモードが追加されればここに
 	};
 
-	// ウィンドウモード
-	enum class EWindowMode
-	{
-		Window,		// ウィンドウモード
-		FullScreen,	// 排他的フルスクリーン
-		Borderless	// ボーダーレスウィンドウ
-	};
 
 	// ランタイム時に変更可能な設定
 	struct RuntimeConfig
 	{
-		// ディスプレイ設定
-		UINT windowWidth = 1920;
-		UINT windowHeight = 1080;
-		EWindowMode windowMode = EWindowMode::Window;
-		bool isVsync = false;							// 垂直同期
-
-		// パフォーマンス設定
-		UINT targetFrameRate = 120;		// 最大フレームレート
 
 		// アプリケーションモード
 		EAppMode appMode = EAppMode::Game;

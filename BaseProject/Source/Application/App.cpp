@@ -44,11 +44,6 @@ bool Application::Init()
 	_initConfig.isGPUValidation = true;
 	_initConfig.maxThreadCount = 4;
 	Engine::RuntimeConfig _runtimeConfig = {};
-	_runtimeConfig.windowWidth = 1280;
-	_runtimeConfig.windowHeight = 720;
-	_runtimeConfig.windowMode == Engine::EWindowMode::Window;
-	_runtimeConfig.isVsync = false;
-	_runtimeConfig.targetFrameRate = 120;
 	_runtimeConfig.appMode = Engine::EAppMode::Editor;
 	_runtimeConfig.mainSoundBolume = 50;
 	Engine::EngineConfig _config;
