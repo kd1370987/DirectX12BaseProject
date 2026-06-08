@@ -169,9 +169,11 @@ namespace Engine::Graphics
 
 		// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
 		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);
+		void SetComputeRootSignature(ID3D12RootSignature* a_pRootSig);
 
 		// パイプラインステートをセット、前回と変更がない場合はスキップ
 		void SetGraphicPSO(ID3D12PipelineState* a_pPSO);
+		void SetComputePSO(ID3D12PipelineState* a_pPSO);
 
 		// プリミティブトポロジーセット
 		void SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri);

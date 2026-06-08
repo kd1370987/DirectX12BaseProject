@@ -73,7 +73,7 @@ namespace Engine::Graphics
 		void ResolveAndCompile(D3D12::PipelineStateManager* a_pPSOManager);
 
 		// ルートシグネチャセット
-		bool SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath);
+		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath);
 
 		// 依存関係構築
 		void Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);

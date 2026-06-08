@@ -1,4 +1,4 @@
-#include "RGPassBuilder.h"
+﻿#include "RGPassBuilder.h"
 #include "../../../D3D12/PipelineStateManager/PipelineStateManager.h"
 #include "Engine/Resource/Loader/Shader/ShaderLoader.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
@@ -103,15 +103,15 @@ namespace Engine::Graphics
 		}
 	}
 
-	bool RGComputePassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath)
+	ID3D12RootSignature* RGComputePassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath)
 	{
 		m_pRootSig = a_pPSOManager->Request(a_shaderPath);
 		if (!m_pRootSig)
 		{
 			Engine::Editor::MainEditor::Instance().ErrorLog("ルートシグネチャが生成されませんでした");
-			return false;
+			return nullptr;
 		}
-		return true;
+		return a_pPSOManager->Request(a_shaderPath);
 	}
 
 	void RGComputePassBuilder::Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)

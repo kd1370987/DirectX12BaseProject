@@ -330,6 +330,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\ComputePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\CopyPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.cpp" />
@@ -580,6 +581,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\ComputePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\CopyPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.h" />
@@ -704,6 +706,20 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Denoise\GI\GISpatialDenoiseShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Lighting\DeferredLighting\DeferredLightingShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

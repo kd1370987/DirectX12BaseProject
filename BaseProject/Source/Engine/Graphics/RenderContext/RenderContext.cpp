@@ -556,6 +556,11 @@ namespace Engine::Graphics
 		m_pCmdList->SetGraphicsRootSignature(a_pRootSig);
 	}
 
+	void RenderContext::SetComputeRootSignature(ID3D12RootSignature* a_pRootSig)
+	{
+		m_pCmdList->SetComputeRootSignature(a_pRootSig);
+	}
+
 
 
 	void RenderContext::SetGraphicPSO(ID3D12PipelineState* a_pPSO)
@@ -563,6 +568,11 @@ namespace Engine::Graphics
 		m_pCmdList->NGet()->SetPipelineState(a_pPSO);
 		// プリミティブトポロジーセット
 		m_pCmdList->NGet()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	}
+
+	void RenderContext::SetComputePSO(ID3D12PipelineState* a_pPSO)
+	{
+		m_pCmdList->SetPipelineState(a_pPSO);
 	}
 
 	void RenderContext::SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri)

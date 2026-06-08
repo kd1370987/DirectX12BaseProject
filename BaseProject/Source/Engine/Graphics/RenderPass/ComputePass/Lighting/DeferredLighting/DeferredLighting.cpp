@@ -1,4 +1,4 @@
-﻿#include "DeferredLightingPass.h"
+﻿#include "DeferredLighting.h"
 
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
@@ -14,13 +14,13 @@
 
 namespace Engine::Graphics
 {
-	void AddDeferredLightingPass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase)
+	void AddDeferredLighting(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase)
 	{
 		// ランタイム用データ
 		struct RuntimeData
 		{
 			ID3D12RootSignature* pRootSig;
-			uint8_t staticIndex;
+			uint8_t csIndex;
 			D3D12::PipelineStateManager* pPSOManager;
 			RenderGraph* pRG;
 		};
@@ -31,11 +31,19 @@ namespace Engine::Graphics
 		// ノード・ビルダー作成
 		RenderPassNode _node = {};
 		_node.name = "DeferredLighting";
-		RGRasterPassBuilder _rpBuilder(&_node, &a_rg);
+		RGComputePassBuilder _rpBuilder(&_node, &a_rg);
 
-		// パス共通設定
-		_rpBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
-		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
+		// ルートシグネチャ
+		_spPassData->pRootSig = _rpBuilder.SetRootSignature(
+				a_pPSOManager, 
+			"Asset/Shader/Compute/Lighting/DeferredLighting/DeferredLightingShader.cso"
+			);
+		// シェーダー
+		_rpBuilder.SetShader(
+			"Asset/Shader/Compute/Lighting/DeferredLighting/DeferredLightingShader.cso",
+			"DeferredLightingShader", 
+			_spPassData->csIndex
+		);
 
 		// 依存関係構築
 		_rpBuilder.Read("GBufferAlbedo", AccessType::SRV, LoadOp::Load, StoreOp::Store);
@@ -46,18 +54,7 @@ namespace Engine::Graphics
 		_rpBuilder.Read("RayShadow", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		_rpBuilder.Read("FinalGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
-		_rpBuilder.Write("QuadTexture", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
-
-		// PSO構築
-		auto& _sPso = _rpBuilder.CreatePSODesc("DeferredLighting", _spPassData->staticIndex);
-		
-		// SetVS には InputLayout の指定が必要ですが、元コードに無かったため空を渡すか StaticLayout にします
-		// 元コード: SetVS(ERenderType::Static,"Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso");
-		_rpBuilder.SetVS(_sPso, "Asset/Shader/Source/DeferredLightingShader/DeferredLightingVS.cso", D3D12::Input::StaticLayout);
-		_rpBuilder.SetPS(_sPso, "Asset/Shader/Source/DeferredLightingShader/DeferredLightingPS.cso");
-		
-		_sPso.DepthEnable(false);
-		_sPso.DepthWriteMask(false);
+		_rpBuilder.Write("QuadTexture", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
 
 		// コンパイル
 		_rpBuilder.ResolveAndCompile(a_pPSOManager);
@@ -66,18 +63,31 @@ namespace Engine::Graphics
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 		{
 			Editor::MainEditor::Instance().StartWatch("DeferredLighting");
+				
+			// ヒープとルートシグネチャ、PSOをセット
+			auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
 			a_pCtx->BindHeap();
-			a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
+			a_pCtx->SetComputeRootSignature(_spPassData->pRootSig);
+			a_pCtx->SetComputePSO(_pPSO);
 
+			// カメラセット
 			CameraData _cbCam = a_pGE->GetCameraData();
 			auto* _pCmd = a_pCtx->GetCurrentCmdList();
-			a_pCtx->BindCB()->BindAndAttachDataRootCBV<CameraData>(_pCmd->NGet(), 0, _cbCam);
-			
-			auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->staticIndex);
-			a_pCtx->SetGraphicPSO(_pPSO);
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(
+				_pCmd->NGet(),
+				0, 
+				_cbCam
+			);
 
+			// アンビエントカラー
 			const AmbientData& _amib = a_pGE->GetAmbientData();
-			a_pCtx->BindCB()->BindAndAttachDataRootCBV<AmbientData>(_pCmd->NGet(), 1, _amib);
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(
+				_pCmd->NGet(), 
+				1,
+				_amib
+			);
+
+			// 参照SRV
 			std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gpuVec = {
 				_spPassData->pRG->GetCPUHandle("GBufferAlbedo"),
 				_spPassData->pRG->GetCPUHandle("GBufferNormal"),
@@ -87,11 +97,13 @@ namespace Engine::Graphics
 				_spPassData->pRG->GetCPUHandle("RayShadow"),
 				_spPassData->pRG->GetCPUHandle("FinalGI")
 			};
+			a_pCtx->ComputeBindSRV(2, _gpuVec);
 
-			a_pCtx->BindSRV(2,_gpuVec);
+			// 出力テクスチャ設定
+			a_pCtx->BindUAV(3, _spPassData->pRG->GetUAVCPU("QuadTexture"));
 
-			auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
-			_pCmdList->DrawInstanced(3, 1, 0, 0);
+			// 実行
+			a_pCtx->Dispatch(1280 / 8, 720 / 8, 1);
 
 			Editor::MainEditor::Instance().EndWatch("DeferredLighting");
 		};

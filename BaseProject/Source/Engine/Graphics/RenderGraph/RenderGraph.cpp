@@ -3,6 +3,7 @@
 #include "../RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
 #include "../RenderPass/RasterizePass/GBufferPass/GBufferPass.h"
 #include "../RenderPass/RasterizePass/DeferredLightingPass/DeferredLightingPass.h"
+#include "../RenderPass/ComputePass/Lighting/DeferredLighting/DeferredLighting.h"
 #include "../RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
 
 #include "../RenderPass/RasterizePass/TestPass/TestPass.h"
@@ -51,7 +52,7 @@ namespace Engine::Graphics
 			DXGI_FORMAT_R16G16B16A16_FLOAT,
 			1280,
 			720,
-			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
+			Resource::TextureUsage::SRV | Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
 			"UITexture",
@@ -213,7 +214,8 @@ namespace Engine::Graphics
 		AddRaytracingGIPass(a_pPipelineStateManager, *this, EDrawPhase::Raytracing);
 		AddTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
 		AddGISpatialDenoisePass(a_pPipelineStateManager,*this,EDrawPhase::NotSort);
-		AddDeferredLightingPass(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
+		//AddDeferredLightingPass(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
+		AddDeferredLighting(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
 
 		AddGBufferHistoryPass(a_pPipelineStateManager, *this, EDrawPhase::HistoryUpdate);
 

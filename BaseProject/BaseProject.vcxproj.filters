@@ -877,6 +877,18 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA">
       <UniqueIdentifier>{87b47e97-c5a4-48f6-96e7-dd858dc6dbe2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Compute\Ligthting">
+      <UniqueIdentifier>{c13e6ebd-e8f6-4d7f-83a9-42d41203a500}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Ligthting\DeferredLighting">
+      <UniqueIdentifier>{c67241c8-24bb-4dea-8283-eeb3a9887e28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting">
+      <UniqueIdentifier>{dd13b8bf-861e-4667-abca-c7b34691294d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting">
+      <UniqueIdentifier>{b18180fb-4626-419f-9555-f35eff26100c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1412,6 +1424,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2186,6 +2201,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2325,6 +2343,9 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\AntiAliasing\TAA\TAA.hlsl">
       <Filter>Asset\Shader\Compute\Anti-aliasing\TAA</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Lighting\DeferredLighting\DeferredLightingShader.hlsl">
+      <Filter>Asset\Shader\Compute\Ligthting\DeferredLighting</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
