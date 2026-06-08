@@ -1,32 +1,25 @@
 ﻿#include "RenderGraph.h"
 
+// パス関連
 #include "../RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
 #include "../RenderPass/RasterizePass/GBufferPass/GBufferPass.h"
 #include "../RenderPass/ComputePass/Lighting/DeferredLighting/DeferredLighting.h"
 #include "../RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
-
-#include "../RenderPass/RasterizePass/TestPass/TestPass.h"
-
 #include "../RenderPass/RaytracingPass/RaytracingShadowPass/RaytracingShadowPass.h"
 #include "../RenderPass/RaytracingPass/RaytracingGIPass/RaytracingGIPass.h"
 #include "../RenderPass/RaytracingPass/FullRaytracingPass/FullRaytracingPass.h"
-
 #include "../RenderPass/CopyPass/GBufferHistoryPass/GBufferHistoryPass.h"
 #include "../RenderPass/CopyPass/PostHistoryPass/PostHistoryPass.h"
-
 #include "../RenderPass/ComputePass/Denoise/TempralAccumulationPass/TemporalAccumulationPass.h"
 #include "../RenderPass/ComputePass/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
 #include "../RenderPass/ComputePass/AntiAliasing/TAA/TAAPass.h"
 
+// マネージャー関連
 #include "RGVarsionManager/RGResourceManager.h"
 #include "../GraphicEngine.h"
-
 #include "../RenderContext/RenderContext.h"
-
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-
-//#include "../../Resource/Manager/TextureManager/TextureManager.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Resource/Loader/Texture/TextureLoader.h"
 
@@ -223,12 +216,7 @@ namespace Engine::Graphics
 		AddZPrePass(a_pPipelineStateManager, *this, EDrawPhase::Setup);
 		
 		AddGBufferPass(a_pPipelineStateManager, *this, EDrawPhase::Geometry);
-		//AddForwardLightingPass(a_pPipelineStateManager, *this, ...);
 		AddFullScreenPass(a_pPipelineStateManager, *this, EDrawPhase::Present);
-		//AddDebugLinePass(a_pPipelineStateManager, *this, ...);
-		//AddScreenUIPass(a_pPipelineStateManager, *this, ...);
-
-		//AddTestPass(a_pPipelineStateManager, *this, ...);
 		AddFullRaytracingPass(a_pPipelineStateManager, *this, EDrawPhase::Geometry);
 		AddRaytracingShadowPass(a_pPipelineStateManager, *this, EDrawPhase::Shadow);
 		AddRaytracingGIPass(a_pPipelineStateManager, *this, EDrawPhase::Raytracing);
