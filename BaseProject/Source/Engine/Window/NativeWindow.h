@@ -2,12 +2,7 @@
 
 namespace Engine::Window
 {
-	enum class EWindowMode
-	{
-		Windowed,		// ウィンドウモード
-		FullScreen,		// フルスクリーンモード
-		Borederless,	// ボーダレスモード
-	};
+
 
 	struct WindowDesc
 	{

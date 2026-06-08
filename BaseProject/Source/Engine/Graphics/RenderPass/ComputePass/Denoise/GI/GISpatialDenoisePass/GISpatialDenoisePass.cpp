@@ -92,6 +92,9 @@ namespace Engine::Graphics
 			{
 				Editor::MainEditor::Instance().StartWatch(_passName);
 
+				// オプション取得
+				const auto& _winOp = Option::OptionManager::GetInstance().GetInstance().GetWindowOption();
+
 				auto* _pCmd = a_pCtx->GetCurrentCmdList();
 				_pCmd->SetComputeRootSignature(_spPassData->pRootSignature);
 				auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
@@ -133,7 +136,9 @@ namespace Engine::Graphics
 				a_pCtx->BindUAV(2, _spPassData->pRG->GetUAVCPU(_writeGI));
 
 				// 実行
-				a_pCtx->Dispatch(1280 / 8, 720 / 8, 1);
+				UINT _countX = _winOp.windowWidth / 8;
+				UINT _countY = _winOp.windowHegiht / 8;
+				a_pCtx->Dispatch(_countX, _countY, 1);
 
 				Editor::MainEditor::Instance().EndWatch(_passName);
 			};

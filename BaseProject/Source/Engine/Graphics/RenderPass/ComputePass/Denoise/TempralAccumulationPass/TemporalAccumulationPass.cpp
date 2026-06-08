@@ -50,6 +50,9 @@ namespace Engine::Graphics
 		{
 			Editor::MainEditor::Instance().StartWatch("TemporalAccumulationPass");
 
+			// オプション取得
+			const auto& _winOp = Option::OptionManager::GetInstance().GetInstance().GetWindowOption();
+
 			auto* _pCmd = a_pCtx->GetCurrentCmdList();
 			_pCmd->SetComputeRootSignature(_spPassData->pRootSig);
 			auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
@@ -86,8 +89,11 @@ namespace Engine::Graphics
 			a_pCtx->ComputeBindSRV(1, _cpuVec);
 
 			a_pCtx->BindUAV(2, _spPassData->pRG->GetUAVCPU("DenoiseGI"));
+			// 実行
+			UINT _countX = _winOp.windowWidth / 8;
+			UINT _countY = _winOp.windowHegiht / 8;
+			a_pCtx->Dispatch(_countX, _countY, 1);
 
-			a_pCtx->Dispatch(1280 / 8, 720 / 8, 1);
 
 			Editor::MainEditor::Instance().EndWatch("TemporalAccumulationPass");
 		};

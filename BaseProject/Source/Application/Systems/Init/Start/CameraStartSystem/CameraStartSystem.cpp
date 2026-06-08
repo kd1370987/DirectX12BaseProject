@@ -10,6 +10,8 @@
 #include "../../../../../Engine/MainEngine.h"
 #include "../../../../../Engine/Graphics/RenderContext/RenderContext.h"
 
+#include "../../../../../Engine/Option/OptionManager.h"
+
 void CameraStartSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.StartTask<CameraParamComponent,ProjMatComponent>(
@@ -24,18 +26,14 @@ void CameraStartSystem::Init(Engine::ECS::World& a_world)
 			ProjMatComponent* a_projMatArray
 		)
 		{
-
-
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				CameraParamComponent& _camParamComp = a_camParamArray[_i];
 				ProjMatComponent& _projMatComp = a_projMatArray[_i];
 
 				// カメラパラメーターの初期化
-				_camParamComp.aspectRatio = (float)1280 / (float)720;
-				_camParamComp.fovY = 60.0f;
-				_camParamComp.nearZ = 0.1f;
-				_camParamComp.farZ = 1000.0f;
+				const auto& _winOp = Engine::Option::OptionManager::GetInstance().GetWindowOption();
+				_camParamComp.aspectRatio = (float)_winOp.windowWidth / (float)_winOp.windowHegiht;
 
 				// プロジェクション行列の作成
 				DirectX::XMMATRIX _lhMat = DirectX::XMMatrixPerspectiveFovLH(

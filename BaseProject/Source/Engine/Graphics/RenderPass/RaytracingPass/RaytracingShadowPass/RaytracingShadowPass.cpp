@@ -14,6 +14,8 @@
 #include "Engine/Raytracing/RayPSO/RayPSO.h"
 #include "Engine/Raytracing/ShaderTable/ShaderTable.h"
 
+#include "../../../../Option/OptionManager.h"
+
 namespace Engine::Graphics
 {
 	void AddRaytracingShadowPass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase)
@@ -106,6 +108,9 @@ namespace Engine::Graphics
 
 			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 
+			// オプション取得
+			const auto& _winOp = Engine::Option::OptionManager::GetInstance().GetWindowOption();
+
 			// レイワールド更新・シェーダーテーブル更新
 			Engine::Raytracing::RayEngine::Instance().Commit();
 			const auto& _instanceVec = Raytracing::RayEngine::Instance().GetInstanceVec();
@@ -114,7 +119,12 @@ namespace Engine::Graphics
 				Editor::MainEditor::Instance().EndWatch("RaytracingShadowPass");
 				return;
 			}
-			_spPassData->shaderTable.CommitInstanceBindLess(_instanceVec, a_pCtx);
+			_spPassData->shaderTable.CommitInstanceBindLess(
+				_instanceVec, 
+				a_pCtx,
+				_winOp.windowWidth,
+				_winOp.windowHegiht
+			);
 
 			// ディスクリプタヒープセット
 			a_pCtx->BindCopyHeapAndSumplerBindLess();

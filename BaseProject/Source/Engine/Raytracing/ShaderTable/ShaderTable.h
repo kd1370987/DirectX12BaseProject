@@ -40,8 +40,12 @@ namespace Engine::Raytracing
 		void Release();
 
 		// シェーダーテーブルの構築・更新
-		void CommitInstance(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT);
-		void CommitInstanceBindLess(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT);
+		void CommitInstanceBindLess(
+			const std::vector<Instance>& a_instanceVec, 
+			Graphics::RenderContext* a_pRCT,
+			UINT a_width,
+			UINT a_height
+		);
 
 		// ディスパッチレイ構造体取得
 		const D3D12_DISPATCH_RAYS_DESC& GetDispatchDesc();
@@ -49,7 +53,11 @@ namespace Engine::Raytracing
 	private:
 
 		// ディスパッチ設定作成
-		D3D12_DISPATCH_RAYS_DESC CreateDispatchDesc(UINT a_instnaceNum);
+		D3D12_DISPATCH_RAYS_DESC CreateDispatchDesc(
+			UINT a_instnaceNum,
+			UINT a_width,
+			UINT a_height
+		);
 
 		// シェーダーテーブルの構成サイズ計算
 		void CalucShaderTableSize(

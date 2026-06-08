@@ -24,11 +24,6 @@ void Application::Excute()
 	Release();
 }
 
-const AppConfig& Application::GetConfig()
-{
-	return m_config;
-}
-
 //==================================================================================
 // 
 // アプリケーション初期化

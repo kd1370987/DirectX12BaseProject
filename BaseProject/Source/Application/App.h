@@ -1,30 +1,11 @@
 ﻿#pragma once
 
-struct AppConfig
-{
-	// フルスクリーンかどうか
-	bool isFullScreen = false;
-
-	// ウィンドウサイズ
-	float windowWidth = 1280;
-	float windowHegiht = 720;
-};
-
 class Application
 {
 public:
 
-
-	/// <summary>
-	/// アプリケーション実行
-	/// </summary>
-	/// <returns>初期化に成功したらtrue</returns>
+	// アプリケーション実行
 	void Excute();
-
-	/// <summary>
-	/// アプリケーション設定を取得
-	/// </summary>
-	const AppConfig& GetConfig();
 
 private:
 
@@ -39,8 +20,6 @@ private:
 
 private:
 
-	// アプリケーション設定
-	AppConfig m_config = {};
 
 // シングルトン
 private:

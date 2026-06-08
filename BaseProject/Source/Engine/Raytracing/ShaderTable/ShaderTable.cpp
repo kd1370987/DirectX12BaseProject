@@ -88,33 +88,12 @@ void Engine::Raytracing::ShaderTable::Release()
 	m_recordSize = 0;
 }
 
-void Engine::Raytracing::ShaderTable::CommitInstance(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT)
-{
-	// レイジェネレーションシェーダー
-	assert(m_rayGenID);
-	memcpy(m_pShaderTableData + m_rayGenOffset, m_rayGenID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-
-	// ミスシェーダーID
-	for (UINT _i = 0; _i < m_missIDVec.size(); ++_i)
-	{
-		assert(m_missIDVec[_i]);
-		uint8_t* _missPtr = m_pShaderTableData + m_missOffset + _i * m_recordSize;	// アドレス
-		memcpy(_missPtr, m_missIDVec[_i], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-	}
-
-	// ヒットシェーダーのデータ
-	
-	for (size_t _h = 0; _h < m_hitIDVec.size(); ++_h)
-	{
-		assert(m_hitIDVec[_h]);
-		uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_h * m_recordSize);
-		memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
-	}
-
-	m_dispatchDesc = CreateDispatchDesc(a_instanceVec.size());
-}
-
-void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT)
+void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(
+	const std::vector<Instance>& a_instanceVec, 
+	Graphics::RenderContext* a_pRCT,
+	UINT a_width,
+	UINT a_height
+)
 {
 
 	// レイジェネレーションシェーダー
@@ -137,7 +116,7 @@ void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(const std::vector<I
 		memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 	}
 
-	m_dispatchDesc = CreateDispatchDesc(a_instanceVec.size());
+	m_dispatchDesc = CreateDispatchDesc(a_instanceVec.size(),a_width,a_height);
 }
 
 const D3D12_DISPATCH_RAYS_DESC& Engine::Raytracing::ShaderTable::GetDispatchDesc()
@@ -145,7 +124,11 @@ const D3D12_DISPATCH_RAYS_DESC& Engine::Raytracing::ShaderTable::GetDispatchDesc
 	return m_dispatchDesc;
 }
 
-D3D12_DISPATCH_RAYS_DESC Engine::Raytracing::ShaderTable::CreateDispatchDesc(UINT a_instnaceNum)
+D3D12_DISPATCH_RAYS_DESC Engine::Raytracing::ShaderTable::CreateDispatchDesc(
+	UINT a_instnaceNum,
+	UINT a_width,
+	UINT a_height
+)
 {
 	// シェーダーテーブル設定決定(ディスパッチレイ構造体作成)
 	D3D12_DISPATCH_RAYS_DESC _dispatchDesc = {};
@@ -163,8 +146,8 @@ D3D12_DISPATCH_RAYS_DESC Engine::Raytracing::ShaderTable::CreateDispatchDesc(UIN
 	_dispatchDesc.HitGroupTable.StrideInBytes = m_recordSize;
 
 	// ディスプレイ設定
-	_dispatchDesc.Width = 1280;
-	_dispatchDesc.Height = 720;
+	_dispatchDesc.Width = a_width;
+	_dispatchDesc.Height = a_height;
 	_dispatchDesc.Depth = 1;
 
 	return _dispatchDesc;

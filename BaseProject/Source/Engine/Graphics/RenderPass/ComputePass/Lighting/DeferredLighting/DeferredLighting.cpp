@@ -12,6 +12,8 @@
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
 #include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 
+#include "../../../../../Option/OptionManager.h"
+
 namespace Engine::Graphics
 {
 	void AddDeferredLighting(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase)
@@ -63,7 +65,9 @@ namespace Engine::Graphics
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 		{
 			Editor::MainEditor::Instance().StartWatch("DeferredLighting");
-				
+
+			// オプション取得
+			const auto& _winOp = Option::OptionManager::GetInstance().GetInstance().GetWindowOption();
 			// ヒープとルートシグネチャ、PSOをセット
 			auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
 			a_pCtx->BindHeap();
@@ -103,7 +107,10 @@ namespace Engine::Graphics
 			a_pCtx->BindUAV(3, _spPassData->pRG->GetUAVCPU("AffterLighting"));
 
 			// 実行
-			a_pCtx->Dispatch(1280 / 8, 720 / 8, 1);
+			UINT _countX = _winOp.windowWidth / 8;
+			UINT _countY = _winOp.windowHegiht / 8;
+			a_pCtx->Dispatch(_countX, _countY, 1);
+
 
 			Editor::MainEditor::Instance().EndWatch("DeferredLighting");
 		};

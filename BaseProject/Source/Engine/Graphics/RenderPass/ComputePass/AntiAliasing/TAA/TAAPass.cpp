@@ -64,6 +64,9 @@ namespace Engine::Graphics
 			{
 				Editor::MainEditor::Instance().StartWatch("TAAPass");
 
+				// オプション取得
+				const auto& _winOp = Option::OptionManager::GetInstance().GetInstance().GetWindowOption();
+
 				// ヒープとルートシグネチャ、PSOをセット
 				auto* _pPso = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
 				a_pCtx->BindHeap();
@@ -84,7 +87,9 @@ namespace Engine::Graphics
 				a_pCtx->BindUAV(1, _spPassData->pRG->GetUAVCPU("AffterTAAColor"));
 
 				// 実行
-				a_pCtx->Dispatch(1280 / 8, 720 / 8, 1);
+				UINT _countX = _winOp.windowWidth / 8;
+				UINT _countY = _winOp.windowHegiht / 8;
+				a_pCtx->Dispatch(_countX, _countY, 1);
 
 				Editor::MainEditor::Instance().EndWatch("TAAPass");
 			};

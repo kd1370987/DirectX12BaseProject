@@ -7,7 +7,15 @@
 #include "Engine/Common/Color.h"		// 色
 #include "Utility/GUID/GUID.h"
 #include "Utility/JSONHelper/JSONHelper.h"
-
+namespace Engine
+{
+	enum class EWindowMode : UINT
+	{
+		Windowed,		// ウィンドウモード
+		FullScreen,		// フルスクリーンモード
+		Borederless,	// ボーダレスモード
+	};
+}
 //==========================================================================================
 // 
 // コピー不可能、ムーブ可能マクロ

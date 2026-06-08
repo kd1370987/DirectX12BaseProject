@@ -6,15 +6,6 @@
 
 namespace Engine::Option::GraphicsOptions
 {
-
-	// ウィンドウモード
-	enum class EWindowMode : UINT
-	{
-		Window,		// ウィンドウモード
-		FullScreen,	// 排他的フルスクリーン
-		Borderless	// ボーダーレスウィンドウ
-	};
-
 	// GIのスペースデノイズの設定
 	struct WindowOption : IOption
 	{
@@ -23,7 +14,7 @@ namespace Engine::Option::GraphicsOptions
 		int windowHegiht = 0;
 
 		// ウィンドウモード
-		EWindowMode windowMode = EWindowMode::Window;
+		EWindowMode windowMode = EWindowMode::Windowed;
 		
 		// 垂直同期
 		bool isVsync = false;

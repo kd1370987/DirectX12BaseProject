@@ -55,7 +55,7 @@ namespace Engine
 		_desc.height = static_cast<UINT>(_winOp.windowHegiht);
 		_desc.titleName = L"DirectX12";
 		_desc.className = L"AppWindow";
-		_desc.windowMode = Window::EWindowMode::Windowed;
+		_desc.windowMode = _winOp.windowMode;
 		if (!m_upWindow->Create(_desc))
 		{
 			assert(0 && "ウィンドウ作成失敗");
@@ -249,7 +249,11 @@ namespace Engine
 			};
 			_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 			// エディター描画
-			Engine::Editor::MainEditor::Instance().Draw(D3D12::D3D12Wrapper::Instance().GetCommandList(),m_upWindow->GetClientWidth(),m_upWindow->GetClientHeight());
+			Engine::Editor::MainEditor::Instance().Draw(
+				D3D12::D3D12Wrapper::Instance().GetCommandList(),
+				m_upWindow->GetClientWidth(),
+				m_upWindow->GetClientHeight()
+			);
 		}
 
 		m_upGraphicsEngine->EndFrame();

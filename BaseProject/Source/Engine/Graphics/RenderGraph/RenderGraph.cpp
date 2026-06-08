@@ -23,6 +23,9 @@
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Resource/Loader/Texture/TextureLoader.h"
 
+// オプション
+#include "../../Option/OptionManager.h"
+
 namespace Engine::Graphics
 {
 	RenderGraph::RenderGraph()
@@ -32,183 +35,189 @@ namespace Engine::Graphics
 
 	void RenderGraph::Init(D3D12::PipelineStateManager* a_pPipelineStateManager)
 	{
+		// オプション取得
+		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		UINT64 _winWidth = _winOp.windowWidth;
+		UINT _winHeight = _winOp.windowHegiht;
+
+
 		// リソースマネージャー作成
 		m_upRGResourceManager = std::make_unique<RGResourceManager>();
 		m_upRGResourceManager->Register(
 			"MainColor",
 			DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
 			"QuadTexture",
 			DXGI_FORMAT_R16G16B16A16_FLOAT,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::SRV | Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
 			"UITexture",
 			DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV,
 			{0,0,0,0}
 		);
 		m_upRGResourceManager->Register(
 			"GBufferAlbedo",
 			DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
 			"GBufferNormal",
 			DXGI_FORMAT_R16G16_FLOAT,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
 			"GBufferMaterial",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
 			"GBufferEmissiv",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
 			"Depth",
 			DXGI_FORMAT_R32_TYPELESS,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
 		);
 		m_upRGResourceManager->Register(
 			"PrevDepth",
 			DXGI_FORMAT_R32_TYPELESS,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
 		);
 		m_upRGResourceManager->Register(
 			"PrevNormal",
 			DXGI_FORMAT_R16G16_FLOAT,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
 			"GBufferVelocity",
 			DXGI_FORMAT_R16G16_FLOAT,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
 		);
 		// レイの結果用
 		m_upRGResourceManager->Register(
 			"RayShadow",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
 			"RayGI",
 			DXGI_FORMAT_R16G16B16A16_FLOAT,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
 			"FullRay",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
 			"Test",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
 			"SpatialTemp_A",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
 			"SpatialTemp_B",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->RegisterTemporal(
 			"DenoiseGI",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
 			"FinalGI",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
 			"FinalGI",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
 			"DeferedLighting_A",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
 			"DeferedLighting_B",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
 		m_upRGResourceManager->Register(
 			"AffterLighting",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
 			"AffterTAAColor",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
 		);
 		m_upRGResourceManager->Register(
 			"HistoryTAAColor",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
-			1280,
-			720,
+			_winWidth,
+			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
 		);
 
