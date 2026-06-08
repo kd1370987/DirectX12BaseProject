@@ -45,27 +45,19 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	float2 _velocity = g_motionVectorTex.Load(_location).rg;
 	float _depth = g_depthTex.Load(_location).r;
 	float3 _normal = DecsodeNormal(g_normalTex.Load(_location).rg);
-
-	// 過去UVを逆算
-	float2 _prevUV = _uv - _velocity;
-
-	// 過去UVの画面外チェック
-	if (_prevUV.x < 0.0f || _prevUV.x > 1.0f || _prevUV.y < 0.0f || _prevUV.y > 1.0f)
-	{
-		// 画面外から入ってきた新しいピクセルは過去の履歴がないのでそのまま出力
-		g_outputTAA[_centerCoord] = _currentColor;
-		return;
-	}
-
-	// 過去の履歴をバイリニアサンプリング
-	float4 _historyColor = g_historyColorTex.SampleLevel(g_smp, _prevUV, 0);
-
+	
 	// -------------------------------------------------------------------------------
 	// 3x3の近傍ピクセルをループ
 	// min , max を取得してクランプする
+	// Velocity Dilation と Variance Clipping
+	
+	// 統計用変数
+	float3 _m1 = float3(0, 0, 0);		// 色の合計
+	float3 _m2 = float3(0, 0, 0);
 
-	float3 _minColor = float3(1e10f, 1e10f, 1e10f);
-	float3 _maxColor = float3(-1e10f, -1e10f, -1e10f);
+	// Velocity Dilation用変数
+	float _closestDepth = 1.0f;
+	int2 _closestCoord = _centerCoord;
 
 	[unroll]
 	for (int _y = -1; _y <= 1; ++_y)
@@ -79,24 +71,47 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 
 			// サンプル画素を取得
 			float3 _sampleColor = g_currentColorTex.Load(int3(_sampleCoord,0)).rgb;
+			_m1 += _sampleColor;
+			_m2 += _sampleColor * _sampleColor;
 
-			// 比較
-			_minColor = min(_minColor, _sampleColor);
-			_maxColor = max(_maxColor, _sampleColor);
+			// もっと手前のピクセルを探す(Velocity Dilation)
+			float _d = g_depthTex.Load(int3(_sampleCoord, 0)).r;
+			if(_d > _closestDepth)
+			{
+				_closestDepth = _d;
+				_closestCoord = _sampleCoord;
+			}
 		}
 	}
 
-	// 過去の色が箱に収まっていないのならクランプ（ゴースト対策）
-	float3 _historyColor3 = _historyColor.rgb;
-	_historyColor3 = clamp(
-		_historyColor3,
-		_minColor,
-		_maxColor
-	);
+	// 平均(mu)と分散から標準偏差(sigma)を求める
+	float3 _mu = _m1 / 9.0f;
+	float3 _sigma = sqrt(abs(_m2 / 9.0f - _mu * _mu));
 
-	// 過去の色と現在の色をブレンド（現在の割合が 10%）
+	// 係数ガンマ
+	float _gamma = 0.5f;	// 1.0 ～ 1.25 あたりがゴーストとボケのバランスがいい
+	float3 _minColor = _mu - _gamma * _sigma;
+	float3 _maxColor = _mu + _gamma * _sigma;
+
+	// 中心ではなく一番手前にあるピクセルのVelocityを使って過去UVを計算
+	float2 _closestVelocity = g_motionVectorTex.Load(int3(_closestCoord,0)).rg;
+	float2 _prevUV = _uv - _closestVelocity;
+
+	if (_prevUV.x < 0.0f || _prevUV.x > 1.0f || _prevUV.y < 0.0f || _prevUV.y > 1.0f)
+	{
+		g_outputTAA[_centerCoord] = _currentColor;
+		return;
+	}
+	
+	// 過去カラーを取得
+	float4 _historyColor = g_historyColorTex.SampleLevel(g_smp, _prevUV, 0);
+
+	// クランプ
+	float3 _historyColor3 = clamp(_historyColor.rgb, _minColor, _maxColor);
+
+	// ブレンド
 	float3 _outColor = lerp(_historyColor3, float3(_currentColor.rgb), 0.1f);
 
 	// 出力
-	g_outputTAA[_centerCoord] = float4(_outColor,1);
+	g_outputTAA[_centerCoord] = float4(_outColor, 1);
 }
