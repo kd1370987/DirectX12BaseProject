@@ -29,7 +29,7 @@ namespace Engine::Graphics
 		_rpBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso");
 		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso");
 
-		_rpBuilder.Read("QuadTexture", AccessType::SRV, LoadOp::Load, StoreOp::DontCare);
+		_rpBuilder.Read("AffterTAAColor", AccessType::SRV, LoadOp::Load, StoreOp::DontCare);
 		_rpBuilder.Read("UITexture", AccessType::SRV, LoadOp::Load, StoreOp::DontCare);
 
 		auto& _sPso = _rpBuilder.CreatePSODesc("FullScreenPass", _spPassData->staticIndex);
@@ -55,7 +55,7 @@ namespace Engine::Graphics
 			auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->staticIndex);
 			a_pCtx->SetGraphicPSO(_pPSO);
 
-			auto _main = _spPassData->pRG->GetSRVCPU("QuadTexture");
+			auto _main = _spPassData->pRG->GetSRVCPU("AffterTAAColor");
 			auto _ui = _spPassData->pRG->GetSRVCPU("UITexture");
 
 			a_pCtx->ChangeBackBuffer();

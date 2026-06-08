@@ -35,7 +35,7 @@ namespace Engine::Graphics
 
 		// ルートシグネチャ
 		_spPassData->pRootSig = _rpBuilder.SetRootSignature(
-				a_pPSOManager, 
+			a_pPSOManager, 
 			"Asset/Shader/Compute/Lighting/DeferredLighting/DeferredLightingShader.cso"
 			);
 		// シェーダー
@@ -54,7 +54,7 @@ namespace Engine::Graphics
 		_rpBuilder.Read("RayShadow", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		_rpBuilder.Read("FinalGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
-		_rpBuilder.Write("QuadTexture", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
+		_rpBuilder.Write("AffterLighting", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
 
 		// コンパイル
 		_rpBuilder.ResolveAndCompile(a_pPSOManager);
@@ -100,7 +100,7 @@ namespace Engine::Graphics
 			a_pCtx->ComputeBindSRV(2, _gpuVec);
 
 			// 出力テクスチャ設定
-			a_pCtx->BindUAV(3, _spPassData->pRG->GetUAVCPU("QuadTexture"));
+			a_pCtx->BindUAV(3, _spPassData->pRG->GetUAVCPU("AffterLighting"));
 
 			// 実行
 			a_pCtx->Dispatch(1280 / 8, 720 / 8, 1);

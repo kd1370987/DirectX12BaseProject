@@ -586,9 +586,6 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ScreenUIPass">
       <UniqueIdentifier>{c53349a3-c10e-4477-be75-f5e0a6564c87}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\DeferredLightingPass">
-      <UniqueIdentifier>{8b63da6b-5b7a-4ab6-b7fd-379b76b94ca4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass">
       <UniqueIdentifier>{80681360-4ff3-4c41-bcf9-6ad50c036a19}</UniqueIdentifier>
     </Filter>
@@ -888,6 +885,9 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting">
       <UniqueIdentifier>{b18180fb-4626-419f-9555-f35eff26100c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass">
+      <UniqueIdentifier>{45b07584-42eb-4c4d-8b65-1ad019e58fa6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1227,9 +1227,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\DeferredLightingPass\DeferredLightingPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\DeferredLightingPass</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass</Filter>
     </ClCompile>
@@ -1427,6 +1424,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1952,9 +1952,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\DeferredLightingPass\DeferredLightingPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\DeferredLightingPass</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass</Filter>
     </ClInclude>
@@ -2203,6 +2200,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.h">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

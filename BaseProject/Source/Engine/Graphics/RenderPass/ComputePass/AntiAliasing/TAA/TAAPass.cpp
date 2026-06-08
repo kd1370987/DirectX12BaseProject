@@ -32,17 +32,63 @@ namespace Engine::Graphics
 
 		// ノードパスビルダー作成
 		RenderPassNode _node = {};
-		_node.name = "TemporalAccumulationPass";
+		_node.name = "TAAPass";
 		RGComputePassBuilder _cpBuilder(&_node, &a_rg);
 
 		// ルートシグネチャセット
-		_cpBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso");
-		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso");
-
+		_spPassData->pRootSig = _cpBuilder.SetRootSignature(
+			a_pPSOManager, 
+			"Asset/Shader/Compute/AntiAliasing/TAA/TAA.cso"
+		);
 		// シェーダーセット
-		_cpBuilder.SetShader("Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso", "TemporalAccumulationPass", _spPassData->csIndex);
+		_cpBuilder.SetShader(
+			"Asset/Shader/Compute/AntiAliasing/TAA/TAA.cso",
+			"TAAShader",
+			_spPassData->csIndex
+		);
 
 		// 依存関係構築
+		_cpBuilder.Read("AffterLighting", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Read("HistoryTAAColor", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Read("GBufferVelocity", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Read("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
+		_cpBuilder.Write("AffterTAAColor", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
+
+		// PSO作成
+		_cpBuilder.ResolveAndCompile(a_pPSOManager);
+
+		// 実行関数
+		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+			{
+				Editor::MainEditor::Instance().StartWatch("TAAPass");
+
+				// ヒープとルートシグネチャ、PSOをセット
+				auto* _pPso = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
+				a_pCtx->BindHeap();
+				a_pCtx->SetComputeRootSignature(_spPassData->pRootSig);
+				a_pCtx->SetComputePSO(_pPso);
+
+				// 参照SRV
+				std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gpuVec = {
+					_spPassData->pRG->GetCPUHandle("AffterLighting"),
+					_spPassData->pRG->GetCPUHandle("HistoryTAAColor"),
+					_spPassData->pRG->GetCPUHandle("GBufferVelocity"),
+					_spPassData->pRG->GetCPUHandle("Depth"),
+					_spPassData->pRG->GetCPUHandle("GBufferNormal")
+				};
+				a_pCtx->ComputeBindSRV(0, _gpuVec);
+
+				// 出力テクスチャ設定
+				a_pCtx->BindUAV(1, _spPassData->pRG->GetUAVCPU("AffterTAAColor"));
+
+				// 実行
+				a_pCtx->Dispatch(1280 / 8, 720 / 8, 1);
+
+				Editor::MainEditor::Instance().EndWatch("TAAPass");
+			};
+
+		a_rg.AddPassNode(a_phase, _node);
 	}
 }

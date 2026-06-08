@@ -1,0 +1,39 @@
+﻿#include "PostHistoryPass.h"
+
+#include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/Graphics/RenderGraph/RenderGraph.h"
+#include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
+
+namespace Engine::Graphics
+{
+	void AddPostHistoryPass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase)
+	{
+		RenderPassNode _node = {};
+		_node.name = "PostHistoryPass";
+		RGGlobalsPassBuilder _rpBuilder(&_node, &a_rg);
+
+		_rpBuilder.Read("AffterTAAColor", AccessType::CopySrc, LoadOp::Load, StoreOp::Store);
+
+		_rpBuilder.Write("HistoryTAAColor", AccessType::CopyDst, LoadOp::Clear, StoreOp::Store);
+
+		struct RuntimeData
+		{
+			RenderGraph* pRG;
+		};
+		auto _spPassData = std::make_shared<RuntimeData>();
+		_spPassData->pRG = &a_rg;
+
+		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+			{
+				Editor::MainEditor::Instance().StartWatch("PostHistoryPass");
+				// TAAテクスチャ
+				const auto& _srcTAATexHandle = _spPassData->pRG->GetTexHandle("AffterTAAColor");
+				const auto& _dstTAATexHandle = _spPassData->pRG->GetTexHandle("HistoryTAAColor");
+				a_pCtx->TexCopy(_srcTAATexHandle, _dstTAATexHandle);
+
+				Editor::MainEditor::Instance().EndWatch("PostHistoryPass");
+			};
+
+		a_rg.AddPassNode(a_phase, _node);
+	}
+}

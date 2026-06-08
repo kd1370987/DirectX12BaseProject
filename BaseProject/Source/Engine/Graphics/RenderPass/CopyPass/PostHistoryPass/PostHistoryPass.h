@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/Graphics/RenderGraph/RGData/RenderPassNode.h"
 
@@ -11,5 +11,5 @@ namespace Engine::Graphics
 {
 	class RenderGraph;
 
-	void AddDeferredLightingPass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase);
+	void AddPostHistoryPass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase);
 }

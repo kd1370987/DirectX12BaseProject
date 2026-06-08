@@ -2,7 +2,6 @@
 
 #include "../RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
 #include "../RenderPass/RasterizePass/GBufferPass/GBufferPass.h"
-#include "../RenderPass/RasterizePass/DeferredLightingPass/DeferredLightingPass.h"
 #include "../RenderPass/ComputePass/Lighting/DeferredLighting/DeferredLighting.h"
 #include "../RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
 
@@ -13,9 +12,11 @@
 #include "../RenderPass/RaytracingPass/FullRaytracingPass/FullRaytracingPass.h"
 
 #include "../RenderPass/CopyPass/GBufferHistoryPass/GBufferHistoryPass.h"
+#include "../RenderPass/CopyPass/PostHistoryPass/PostHistoryPass.h"
 
 #include "../RenderPass/ComputePass/Denoise/TempralAccumulationPass/TemporalAccumulationPass.h"
 #include "../RenderPass/ComputePass/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
+#include "../RenderPass/ComputePass/AntiAliasing/TAA/TAAPass.h"
 
 #include "RGVarsionManager/RGResourceManager.h"
 #include "../GraphicEngine.h"
@@ -196,6 +197,27 @@ namespace Engine::Graphics
 			720,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
+		m_upRGResourceManager->Register(
+			"AffterLighting",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		);
+		m_upRGResourceManager->Register(
+			"AffterTAAColor",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		);
+		m_upRGResourceManager->Register(
+			"HistoryTAAColor",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			1280,
+			720,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		);
 
 		// パス登録
 		AddZPrePass(a_pPipelineStateManager, *this, EDrawPhase::Setup);
@@ -207,17 +229,18 @@ namespace Engine::Graphics
 		//AddScreenUIPass(a_pPipelineStateManager, *this, ...);
 
 		//AddTestPass(a_pPipelineStateManager, *this, ...);
-
-		
 		AddFullRaytracingPass(a_pPipelineStateManager, *this, EDrawPhase::Geometry);
 		AddRaytracingShadowPass(a_pPipelineStateManager, *this, EDrawPhase::Shadow);
 		AddRaytracingGIPass(a_pPipelineStateManager, *this, EDrawPhase::Raytracing);
-		AddTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
-		AddGISpatialDenoisePass(a_pPipelineStateManager,*this,EDrawPhase::NotSort);
-		//AddDeferredLightingPass(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
 		AddDeferredLighting(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
-
 		AddGBufferHistoryPass(a_pPipelineStateManager, *this, EDrawPhase::HistoryUpdate);
+		AddPostHistoryPass(a_pPipelineStateManager, *this, EDrawPhase::HistoryUpdate);
+
+		AddTAAPass(a_pPipelineStateManager, *this, EDrawPhase::PostProcess);
+
+		// 自分で順序を決定するパス(登録準に配列に追加される)
+		AddTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
+		AddGISpatialDenoisePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
 
 		// コンパイル
 		Compile();
