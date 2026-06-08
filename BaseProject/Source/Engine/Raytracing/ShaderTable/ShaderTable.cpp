@@ -52,6 +52,42 @@ void Engine::Raytracing::ShaderTable::Init(const ShaderTableInit& a_shaderInit)
 	m_cpShaderTable->Map(0, nullptr, (void**)&m_pShaderTableData);
 }
 
+void Engine::Raytracing::ShaderTable::Release()
+{
+	// リソースがマップされていればアンマップする
+	if (m_cpShaderTable && m_pShaderTableData)
+	{
+		m_cpShaderTable->Unmap(0, nullptr);
+	}
+
+	// マップ用ポインタを初期化
+	m_pShaderTableData = nullptr;
+
+	// リソース本体の解放
+	if (m_cpShaderTable)
+	{
+		m_cpShaderTable.Reset();
+	}
+
+	// ID群（ベクター）のクリア
+	m_missIDVec.clear();
+	m_hitIDVec.clear();
+	m_rayGenID = nullptr;
+
+	// ディスパッチレイ構造体のクリア
+	m_dispatchDesc = {};
+
+	// 各種サイズ・オフセット変数の初期化（再利用時のバグ防止）
+	m_maxLocalRootSigSize = 0;
+
+	m_rayGenOffset = 0;
+	m_missOffset = 0;
+	m_hitOffset = 0;
+
+	m_tableSize = 0;
+	m_recordSize = 0;
+}
+
 void Engine::Raytracing::ShaderTable::CommitInstance(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT)
 {
 	// レイジェネレーションシェーダー

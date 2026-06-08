@@ -91,7 +91,24 @@ namespace Engine::D3D12
 	}
 
 	void DescriptorHeapManager::Release()
-	{}
+	{
+		// アロケーターのリンク解除
+		m_CBVAllocator.Release();
+		m_SRVAllocator.Release();
+		m_UAVAllocator.Release();
+		m_RTVAllocator.Release();
+		m_DSVAllocator.Release();
+
+		m_upSamplerAllocator->Release();
+		m_upSamplerAllocator.reset();
+
+		// ヒープの解放
+		m_cbv_srv_uavHeap.Release();
+		m_dsvHeap.Release();
+		m_rtvHeap.Release();
+		m_samplerHeap.Release();
+		m_imguiHeap.Release();
+	}
 
 	
 	UINT DescriptorHeapManager::GetCBVSRVUAVHeapSize()
@@ -124,6 +141,11 @@ namespace Engine::D3D12
 		auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
 
 		return m_ImGuiSRVAllocator.Allocate(_pDevice, a_pResource, a_desc);
+	}
+
+	void DescriptorHeapManager::FreeImGuiSRV(const Resource::Handle<SRV>& a_handle)
+	{
+		m_ImGuiSRVAllocator.Remove(a_handle);
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVCPUHandle(Engine::Resource::Handle<SRV> a_range)

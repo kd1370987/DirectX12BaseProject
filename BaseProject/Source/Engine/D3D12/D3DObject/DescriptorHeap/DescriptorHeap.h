@@ -30,6 +30,11 @@ namespace Engine::D3D12
 		static constexpr D3D12_DESCRIPTOR_HEAP_TYPE type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 		using DescType = D3D12_DEPTH_STENCIL_VIEW_DESC;
 	};
+	struct ImGuiSRV : Heap
+	{
+		static constexpr D3D12_DESCRIPTOR_HEAP_TYPE type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		using DescType = D3D12_SHADER_RESOURCE_VIEW_DESC;
+	};
 
 	// T が Heapを継承しているか判定する Concept を定義する
 	template<typename T>
@@ -49,6 +54,9 @@ namespace Engine::D3D12
 			D3D12_DESCRIPTOR_HEAP_FLAGS a_flags,
 			UINT a_mask
 		);
+
+		// 解放
+		void Release();
 
 		// ハンドル確保
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(UINT a_index);
@@ -112,6 +120,12 @@ namespace Engine::D3D12
 
 		m_cpHeap.Get()->SetName(a_name.c_str());
 		return true;
+	}
+	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
+	inline void DescriptorHeap<HeapType>::Release()
+	{
+		m_pDevice = nullptr;
+		m_cpHeap.Reset();
 	}
 	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
 	inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap<HeapType>::GetCPU(

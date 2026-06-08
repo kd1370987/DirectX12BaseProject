@@ -121,6 +121,18 @@ void Engine::Raytracing::TLAS::Create(UINT a_maxInstanceNum)
 
 }
 
+void Engine::Raytracing::TLAS::Release()
+{
+
+	m_pInstanceDesc = nullptr;
+
+	m_cpInstanceBuffer.Reset();
+	m_cpResource.Reset();
+	m_cpScratch.Reset();
+
+	D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
+}
+
 void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec)
 {
 	ID3D12GraphicsCommandList4* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList4();

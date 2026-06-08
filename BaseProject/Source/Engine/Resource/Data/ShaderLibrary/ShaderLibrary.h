@@ -9,6 +9,9 @@ namespace Engine::Resource
 		// 読み込み
 		void Load(const std::string& a_path);
 
+		// 解放
+		void Release();
+
 		// バイトデーター取得
 		IDxcBlob* GetIDxcBlob();
 

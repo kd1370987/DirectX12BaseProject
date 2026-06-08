@@ -21,6 +21,12 @@ bool Engine::D3D12::DynamicBuffer::Create(ID3D12Device* a_pDevice, const Dynamic
 	return true;
 }
 
+void Engine::D3D12::DynamicBuffer::Release()
+{
+	GPUResource::Release();
+	D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
+}
+
 void Engine::D3D12::DynamicBuffer::UpdateData(const void* a_data, size_t a_size)
 {
 	std::memcpy(m_pMapData,a_data,a_size);

@@ -8,6 +8,8 @@ namespace Engine::D3D12
 	{
 		GPUResource::Release();
 		m_gpuBuffer.Release();
+
+		D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
 	}
 	bool StaticBuffer::Create(
 		ID3D12Device* a_pDevice, 

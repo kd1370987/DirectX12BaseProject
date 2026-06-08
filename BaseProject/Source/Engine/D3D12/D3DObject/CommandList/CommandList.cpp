@@ -27,6 +27,11 @@ namespace Engine::D3D12
 		return true;
 	}
 
+	void CommandList::Release()
+	{
+		m_cpCommandList.Reset();
+	}
+
 	void CommandList::Reset(ID3D12CommandAllocator* a_pCommandAllocator)
 	{
 		HRESULT _hr = m_cpCommandList->Reset(a_pCommandAllocator, nullptr);

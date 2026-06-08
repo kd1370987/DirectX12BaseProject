@@ -11,6 +11,9 @@ namespace Engine::D3D12
 			Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>* a_pHeap
 		);
 
+		// 解放
+		void Release();
+
 		// ビュー作成割り当て
 		Engine::Resource::Handle<SAMPLER> Allocate(
 			ID3D12Device* a_pDevice,

@@ -54,6 +54,11 @@ namespace Engine::D3D12
 		return true;
 	}
 
+	void SwapChain::Release()
+	{
+		m_cpSwapChain.Reset();
+	}
+
 	void SwapChain::Present(bool a_isVsync)
 	{
 		UINT _sync = a_isVsync ? 1 : 0;

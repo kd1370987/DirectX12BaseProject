@@ -91,7 +91,15 @@ namespace Engine::Resource
 
 	void Texture::Release()
 	{
+		m_cpResource.Reset();
 
+		D3D12::DescriptorHeapManager::Instance().Free(m_rtvHandle);
+		D3D12::DescriptorHeapManager::Instance().Free(m_dsvHandle);
+		D3D12::DescriptorHeapManager::Instance().Free(m_readOnlyDsvHandle);
+		D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
+		D3D12::DescriptorHeapManager::Instance().Free(m_uavHandle);
+
+		D3D12::DescriptorHeapManager::Instance().FreeImGuiSRV(m_imguiSRVHandle);
 	}
 
 	void Texture::CreateView()

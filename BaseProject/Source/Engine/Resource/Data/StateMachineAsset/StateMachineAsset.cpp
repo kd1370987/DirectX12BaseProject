@@ -21,6 +21,12 @@ void Engine::Resource::StateMachineAsset::Load(const std::string & a_filePath)
 
 }
 
+void Engine::Resource::StateMachineAsset::Release()
+{
+	m_stateNodeMap.clear();
+	m_transitionArrowMap.clear();
+}
+
 void Engine::Resource::StateMachineAsset::EditImGui()
 {
 

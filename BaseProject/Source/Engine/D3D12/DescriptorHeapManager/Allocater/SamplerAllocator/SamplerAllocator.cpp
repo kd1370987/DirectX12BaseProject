@@ -16,6 +16,11 @@ bool Engine::D3D12::SamplerAllocator::Create(Engine::D3D12::DescriptorHeap<D3D12
 	return true;
 }
 
+void Engine::D3D12::SamplerAllocator::Release()
+{
+	m_pHeap = nullptr;
+}
+
 Engine::Resource::Handle<SAMPLER> Engine::D3D12::SamplerAllocator::Allocate(ID3D12Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
 {
 	// RTVの位置を取得

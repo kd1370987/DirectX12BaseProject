@@ -2,6 +2,28 @@
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
+void CBAllocater::Release()
+{
+	ResetUse();
+	m_pDevice = nullptr;
+
+	// グラフィックス用解放
+	if (m_spResource && m_pMappedData)
+	{
+		m_spResource->Unmap(0,nullptr);
+	}
+	m_pMappedData = nullptr;
+	m_spResource.Reset();
+
+	// コンピュート用解放
+	if (m_spComputeResource && m_pComputeMappedData)
+	{
+		m_spComputeResource->Unmap(0, nullptr);
+	}
+	m_pComputeMappedData = nullptr;
+	m_spComputeResource.Reset();
+}
+
 void CBAllocater::RootCBVCreate(ID3D12Device* a_device, size_t a_memSize)
 {
 	m_pDevice = a_device;

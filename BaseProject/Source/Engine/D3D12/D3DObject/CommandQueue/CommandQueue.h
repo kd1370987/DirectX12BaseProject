@@ -6,7 +6,7 @@ namespace Engine::D3D12
 	public:
 
 		CommandQueue() = default;
-		~CommandQueue() = default;
+		~CommandQueue() { Release(); }
 
 		/// <summary>
 		/// コマンドキュー作成
@@ -22,6 +22,9 @@ namespace Engine::D3D12
 			INT a_priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
 			D3D12_COMMAND_QUEUE_FLAGS a_flags = D3D12_COMMAND_QUEUE_FLAG_NONE
 		);
+
+		// 解放
+		void Release();
 
 		/// <summary>
 		/// コマンドキュー取得

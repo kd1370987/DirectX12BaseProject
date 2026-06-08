@@ -22,6 +22,9 @@ namespace Engine::D3D12
 		// 作成
 		bool Create(ID3D12Device* a_pDevice,const DynamicBufferDesc& a_desc);
 
+		// 解放
+		void Release() override;
+
 		// 操作
 		virtual void UpdateData(const void* a_data,size_t a_size);
 

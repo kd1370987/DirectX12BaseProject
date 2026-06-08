@@ -21,6 +21,12 @@ namespace Engine::Raytracing
 
 
 
+	void RayEngine::Release()
+	{
+		m_upRayWorld->Release();
+		m_upRayWorld.reset();
+	}
+
 	void Engine::Raytracing::RayEngine::Commit()
 	{
 		if (m_isCommit)  return;

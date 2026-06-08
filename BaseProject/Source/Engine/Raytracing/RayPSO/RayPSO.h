@@ -50,6 +50,11 @@ namespace Engine::Raytracing
 	{
 	public:
 
+		~RayPSO() { Release(); }
+
+		// 解放
+		void Release();
+
 		// パイプラインステート作成
 		bool Init(const RayPSODesc& a_desc);
 
@@ -80,7 +85,6 @@ namespace Engine::Raytracing
 
 		ComPtr<ID3D12StateObject> m_cpPSO;
 
-		D3D12::RootSignature m_rootSig;
 		ID3D12RootSignature* m_pRootSig;
 
 		Resource::ShaderLibrary m_shader;

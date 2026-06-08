@@ -76,6 +76,30 @@ namespace Engine::Graphics
 		m_spQuadPolygon = std::make_shared<Resource::QuadPolygon>();
 		m_spQuadPolygon->Init();
 	}
+
+	void RenderContext::Release()
+	{
+		// リンク解除
+		m_pDevice = nullptr;		// デバイス
+		m_pCmdList = nullptr;		// コマンドリスト
+
+		// 形状描画用データ解放
+		m_pShapeDraw = nullptr;
+		m_shapeVertexBuffer.Release();
+		m_spQuadPolygon.reset();
+
+		// ルート定数バッファ用アロケーター解放
+		m_upCBAllocater->Release();
+		
+		// ヒープ解放
+		m_copyHeap.Release();
+		m_bindLessHeap.Release();
+
+		// 各構造体バッファ解放
+		m_instanceBuffer.Release();
+		m_subsetBuffer.Release();
+		m_boneBuffer.Release();	
+	}
 	
 
 	void RenderContext::Begine(const FrameDesc& a_desc)

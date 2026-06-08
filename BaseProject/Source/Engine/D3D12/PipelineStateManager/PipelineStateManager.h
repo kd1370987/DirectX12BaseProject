@@ -13,6 +13,9 @@ namespace Engine::D3D12
 		// 初期化
 		void Init(ID3D12Device* a_pDevice);
 
+		// 解放
+		void Release();
+
 		// 初期値からリクエスト
 		ID3D12RootSignature* Request(const D3D12::RootSignatureDesc& a_desc);
 		ID3D12RootSignature* Request(const std::string& a_shaderPath);

@@ -129,38 +129,41 @@ namespace Engine
 		// 設定を保存
 		Option::OptionManager::GetInstance().Serialize();
 
-		// 1. 【最重要】GPU同期待ち（すべての処理を確実に終わらせる）
+		// GPU同期待ち（すべての処理を確実に終わらせる）
 		for (UINT _i = 0; _i < static_cast<UINT>(CPU_FRAME_COUNT); ++_i)
 		{
+			D3D12::D3D12Wrapper::Instance().SignalRenderFence();
 			D3D12::D3D12Wrapper::Instance().WaitRender(_i);
 		}
 
-		// 2. アプリケーション・上位層の解放
+		// アプリケーション・上位層の解放
 		m_upCollisionWorld.reset(); // コリジョン解放
 
-		// 3. リソースの解放 (ResourceManager内でテクスチャやバッファをResetしていると仮定)
-		//Resource::ResourceManager::Instance().Release(); // ★追加（名前は実装に合わせてください）
+		// リソースの解放
+		Resource::ResourceManager::Instance().Release();
 
-		// 4. エディター（ImGui）解放
+		// エディター（ImGui）解放
 		Engine::Editor::MainEditor::Instance().Release();
 
-		// 5. グラフィックスエンジンの解放（RenderContextなどが持つリソースを解放）
-		m_upGraphicsEngine.reset(); // ★追加
+		// グラフィックスエンジンの解放（RenderContextなどが持つリソースを解放）
+		m_upGraphicsEngine->Release();
+		m_upGraphicsEngine.reset();
 
-		// 6. パイプラインステート・ルートシグネチャの解放 (ここで警告の572, 577が消えるはず)
-		m_upPipelineStateManager.reset(); // ★追加
+		// パイプラインステート・ルートシグネチャの解放
+		m_upPipelineStateManager->Release();
+		m_upPipelineStateManager.reset();
 
-		// 7. ディスクリプタヒープマネージャー解放
+		// ディスクリプタヒープマネージャー解放
 		D3D12::DescriptorHeapManager::Instance().Release();
 
-		// 8. 描画エンジン (D3D12Wrapper) の解放（デバイスは最後に死ぬ）
+		// 描画エンジンの解放
 		D3D12::D3D12Wrapper::Instance().Shutdown();
 
-		// 9. その他の解放
+		// その他の解放
 		m_upTimeManager->Release();
 		m_upWindow->Release();
 
-		// 10. 解放時にエラー検出（一番最後に呼ぶ）
+		// 解放時にエラー検出（一番最後に呼ぶ）
 		if (m_config.GetInitConfig().isDebugLayer)
 		{
 			ComPtr<IDXGIDebug1> debug;

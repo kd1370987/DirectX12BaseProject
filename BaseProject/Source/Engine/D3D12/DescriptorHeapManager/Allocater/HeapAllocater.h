@@ -9,6 +9,9 @@ namespace Engine::D3D12
 		// アロケーター作成
 		bool Create(DescriptorHeap<T::type>* a_pHeap, UINT a_startIdx = 0, UINT a_maxCount = 0);
 
+		// 解放
+		void Release();
+
 		// ビュー操作
 		Resource::Handle<T> Allocate(ID3D12Device* a_pDevice,ID3D12Resource* a_pRes,const typename T::DescType* a_desc);
 
@@ -49,6 +52,11 @@ namespace Engine::D3D12
 		}
 		
 		return true;
+	}
+	template<IsHeapType T>
+	inline void HeapAllocator<T>::Release()
+	{
+		m_pHeap = nullptr;
 	}
 	template<IsHeapType T>
 	inline Resource::Handle<T> HeapAllocator<T>::Allocate(ID3D12Device* a_pDevice, ID3D12Resource* a_pRes, const typename T::DescType* a_desc)
@@ -112,6 +120,9 @@ namespace Engine::D3D12
 	template<IsHeapType T>
 	inline void HeapAllocator<T>::Remove(Resource::Handle<T> a_handle)
 	{
+		// ハンドルが有効じゃなければ返す
+		if (Resource::Handle<T>() == a_handle) return;
+
 		// 戻してあげる
 		auto _handle = a_handle;
 		_handle.idx -= m_startIndex;

@@ -30,8 +30,14 @@ namespace Engine::Raytracing
 	{
 	public:
 
+		ShaderTable() = default;
+		~ShaderTable() { Release(); }
+
 		// シェーダーテーブル初期化
 		void Init(const ShaderTableInit& a_shaderInit);
+
+		// 解放
+		void Release();
 
 		// シェーダーテーブルの構築・更新
 		void CommitInstance(const std::vector<Instance>& a_instanceVec, Graphics::RenderContext* a_pRCT);

@@ -6,7 +6,7 @@ namespace Engine::D3D12
 	public:
 
 		Fence() = default;
-		~Fence() = default;
+		~Fence() { Release(); }
 
 		/// <summary>
 		/// フェンスの生成
@@ -16,6 +16,9 @@ namespace Engine::D3D12
 		bool Create(
 			ID3D12Device* a_pDevice
 		);
+
+		// 解放
+		void Release();
 
 		ID3D12Fence* GetFence() { return m_pFence.Get(); }
 		UINT64 GetCompletedValue() { return m_pFence->GetCompletedValue(); }

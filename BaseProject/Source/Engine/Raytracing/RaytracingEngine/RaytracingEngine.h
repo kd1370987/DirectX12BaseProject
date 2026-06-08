@@ -17,6 +17,9 @@ namespace Engine::Raytracing
 	{
 	public:
 
+		// 解放
+		void Release();
+
 		// コミット
 		void Commit();
 		void BindCamera(Graphics::RenderContext* a_pRCT,const Graphics::CameraData& a_cbCam);

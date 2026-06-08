@@ -73,6 +73,7 @@ namespace Engine::Graphics
 
 		// 初期化・解放
 		void Init(const RenderContextDesc& a_desc);
+		void Release();
 
 		// フレームの初めに呼ぶ
 		void Begine(const FrameDesc& a_desc);

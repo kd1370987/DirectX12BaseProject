@@ -38,6 +38,19 @@ namespace Engine::D3D12
 			m_cpDevice5->QueryInterface(IID_PPV_ARGS(&_dd));
 			_dd->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
 		}
+
+		if (m_cpDXGIAdapter)
+		{
+			m_cpDXGIAdapter.Reset();
+		}
+		if (m_cpDxgFactory)
+		{
+			m_cpDxgFactory.Reset();
+		}
+		if (m_cpDevice5)
+		{
+			m_cpDevice5.Reset();
+		}
 	}
 
 

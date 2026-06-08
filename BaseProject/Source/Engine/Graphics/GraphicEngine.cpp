@@ -63,7 +63,19 @@ namespace Engine::Graphics
 	}
 
 	void GraphicsEngine::Release()
-	{}
+	{
+		// レンダーコンテキスト解放
+		for (auto& _ctx : m_upRenderContextVec)
+		{
+			_ctx->Release();
+			_ctx.reset();
+		}
+
+		// 各リンク解除
+		m_pPipelineStateManager = nullptr;
+
+
+	}
 
 	void GraphicsEngine::BegineFrame()
 	{

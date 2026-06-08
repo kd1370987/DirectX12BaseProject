@@ -7,6 +7,30 @@ namespace Engine::D3D12
 		m_rootSigMap = {};
 		m_psoMap = {};
 	}
+	void PipelineStateManager::Release()
+	{
+		m_pDevice = nullptr;
+
+		// ルートシグネチャ解放
+		for (auto& [_hash, _cpRootSig] : m_rootSigMap)
+		{
+			if (_cpRootSig)
+			{
+				_cpRootSig.Reset();
+			}
+		}
+
+		// PSO解放
+		m_pPsoVec.clear();
+		for (auto& [_hash, _cpPSO] : m_psoMap)
+		{
+			if (_cpPSO)
+			{
+				_cpPSO.Reset();
+			}
+		}
+
+	}
 	ID3D12RootSignature* PipelineStateManager::Request(const D3D12::RootSignatureDesc& a_desc)
 	{
 		// ハッシュを求める

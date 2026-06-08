@@ -120,6 +120,23 @@ namespace Engine::Raytracing
 		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
 	}
 
+	void RayWorld::Release()
+	{
+		// インスタンスデータ解放
+		m_instanceDataBuffer.Release();
+		m_instanceDataVec.clear();
+
+		// マテリアルデータ解放
+		m_materialDataBuffer.Release();
+		m_materialVec.clear();
+
+		// TLAS解放
+		m_upTLAS->Release();
+		m_upTLAS.reset();
+		m_instanceVec.clear();
+
+	}
+
 
 	void Engine::Raytracing::RayWorld::Commit()
 	{

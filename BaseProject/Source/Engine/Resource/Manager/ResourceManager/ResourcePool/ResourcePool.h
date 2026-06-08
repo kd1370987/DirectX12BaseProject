@@ -61,7 +61,7 @@ namespace Engine::Resource
 		}
 
 		m_handleStorage = {};
-		m_data = {};
+		m_data.clear();
 	}
 	template<typename T>
 	inline void ResourcePool<T>::Remove(const Handle<T>& a_handle)

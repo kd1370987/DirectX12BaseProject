@@ -21,6 +21,9 @@ namespace Engine::D3D12
 			ID3D12CommandQueue* a_pCmdQueue
 		);
 
+		// 解放
+		void Release();
+
 		/// <summary>
 		/// プレゼント
 		/// </summary>

@@ -26,6 +26,10 @@ namespace Engine::D3D12
 		template<IsHeapType T>
 		Resource::Handle<T> Allocate(ID3D12Device* a_pDevice,ID3D12Resource* a_pResource,const typename T::DescType* a_desc);
 
+		// ビューの解放
+		template<IsHeapType T>
+		void Free(const Resource::Handle<T>& a_handle);
+
 		// ハンドルの取得
 		template<IsHeapType T>
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(Resource::Handle<T> a_handle);
@@ -49,6 +53,10 @@ namespace Engine::D3D12
 
 		// 一括でSRVを確保
 		Resource::Handle<SRV> AllocateImGuiSRV(ID3D12Resource* a_pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC* a_desc);
+
+
+		// 解放
+		void FreeImGuiSRV(const Resource::Handle<SRV>& a_handle);
 
 		// ImGuiのSRVハンドルを取得
 		D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Resource::Handle<SRV> a_range);
@@ -145,6 +153,30 @@ namespace Engine::D3D12
 		//	static_assert(slways_false_v<T>,"Unsupported Heap Type");
 		//	return {};
 		//}
+	}
+	template<IsHeapType T>
+	inline void DescriptorHeapManager::Free(const Resource::Handle<T>& a_handle)
+	{
+		if constexpr (std::is_same_v<T, CBV>)
+		{
+			return m_CBVAllocator.Remove(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, SRV>)
+		{
+			return m_SRVAllocator.Remove(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, UAV>)
+		{
+			return m_UAVAllocator.Remove(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, RTV>)
+		{
+			return m_RTVAllocator.Remove(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, DSV>)
+		{
+			return m_DSVAllocator.Remove(a_handle);
+		}
 	}
 	template<IsHeapType T>
 	inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetCPU(Resource::Handle<T> a_handle)

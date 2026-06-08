@@ -102,9 +102,6 @@ void Engine::Resource::Mesh::Release()
 		m_opRtData->Release();
 	}
 
-	m_vertices.clear();
-	m_face.clear();
-	m_subsets.clear();
 }
 
 void Engine::Resource::Mesh::Save(const std::string& a_fileDir, const std::string& a_name)

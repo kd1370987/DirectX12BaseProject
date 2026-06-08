@@ -40,6 +40,9 @@ namespace Engine::Resource
 		void Save(const std::string& a_savePath);
 		void Load(const std::string& a_filePath);
 
+		// 解放
+		void Release();
+
 		// エディターからの呼び出し用
 		// ここで設計図を作る
 		void EditImGui();

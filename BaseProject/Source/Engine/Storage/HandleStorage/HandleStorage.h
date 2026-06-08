@@ -76,6 +76,8 @@ namespace Engine::Storage
 	template<typename T>
 	inline void HandleStorage<T>::Remove(const Engine::Resource::Handle<T>& a_handle)
 	{
+		if (Resource::Handle<T>() == a_handle) return;
+
 		// 世代が一致しているかどうか
 		if (IsValid(a_handle))
 		{

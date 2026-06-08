@@ -127,7 +127,6 @@ namespace Engine::D3D12
 		ID3D12CommandQueue* GetCopyCommandQueue();	// コピーキュー
 		ID3D12CommandQueue* GetComputeCommandQueue();	// コンピュートキュー
 
-
 	private:
 		// DirectX12のオブジェクト
 		std::unique_ptr<Device>				m_upDevice = nullptr;		// デバイス

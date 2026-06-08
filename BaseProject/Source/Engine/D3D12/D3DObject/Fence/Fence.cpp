@@ -17,6 +17,11 @@ namespace Engine::D3D12
 		return true;
 	}
 
+	void Fence::Release()
+	{
+		m_pFence.Reset();
+	}
+
 	bool Fence::SetEventOnCompletion(UINT64 a_fenceValue, HANDLE a_fenceEvent)
 	{
 		HRESULT _hr = m_pFence->SetEventOnCompletion(a_fenceValue, a_fenceEvent);

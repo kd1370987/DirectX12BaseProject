@@ -6,7 +6,7 @@ namespace Engine::D3D12
 	public:
 
 		Device() {}
-		~Device() {}
+		~Device() { Release(); }
 
 		// デバイスの初期化
 		bool Init(bool a_isDebug, bool a_isDynamic = true);

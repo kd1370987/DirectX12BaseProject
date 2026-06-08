@@ -6,7 +6,7 @@ namespace Engine::D3D12
 	public:
 		// コンストラクタ・デストラクタ
 		CommandList() {}
-		~CommandList() {}
+		~CommandList() { Release(); }
 
 		/// <summary>
 		/// コマンドリスト生成
@@ -21,6 +21,9 @@ namespace Engine::D3D12
 			ID3D12CommandAllocator* a_pCommandAllocator,
 			D3D12_COMMAND_LIST_TYPE a_commandListType = D3D12_COMMAND_LIST_TYPE_DIRECT
 		);
+
+		// 解放
+		void Release();
 
 		/// <summary>
 		/// コマンドリストリセット

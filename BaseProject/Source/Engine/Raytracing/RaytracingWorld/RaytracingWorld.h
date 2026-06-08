@@ -24,6 +24,9 @@ namespace Engine::Raytracing
 		// 初期化
 		void Init(uint32_t a_hitGroupNum);
 
+		// 解放
+		void Release();
+
 		// レイトレワールド構築
 		// マイフレーム構築
 		void Commit();

@@ -10,6 +10,9 @@ namespace Engine::Raytracing
 		// 作成
 		void Create(UINT a_maxInstanceNum);
 
+		// 解放
+		void Release();
+
 		// 更新
 		void Update(const std::vector<Instance>& a_instanceVec);
 

@@ -28,4 +28,8 @@ namespace Engine::D3D12
 
 		return true;
 	}
+	void CommandQueue::Release()
+	{
+		m_cpCommandQueue.Reset();
+	}
 }

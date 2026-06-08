@@ -5,6 +5,9 @@ class CBAllocater
 {
 public:
 	
+	// 解放
+	void Release();
+
 	void RootCBVCreate(ID3D12Device* a_device, size_t a_memSize);
 	
 	// 使用リセット

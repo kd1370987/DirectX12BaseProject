@@ -6,6 +6,12 @@
 
 namespace Engine::Raytracing
 {
+	void RayPSO::Release()
+	{
+		m_pRootSig = nullptr;
+		m_shader.Release();
+		m_cpPSO.Reset();
+	}
 	bool RayPSO::Init(const RayPSODesc& a_desc)
 	{
 		// エラー出力

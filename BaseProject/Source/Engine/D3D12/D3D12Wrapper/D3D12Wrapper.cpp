@@ -112,21 +112,38 @@ namespace Engine::D3D12
 
 	void D3D12Wrapper::Shutdown()
 	{
+		// フレーム終了待機処理
 		SignalRenderFence();
 		WaitRender(m_cpuFrameIndex);
 
+		// DX12オブジェクト解放
+		m_upSwapChain->Release();
+		m_upCommandQueue->Release();
+		m_upCopyCommandQueue->Release();
+		if(m_upComputeBuildCommandQueue)
+		{
+			m_upComputeBuildCommandQueue->Release();
+		}
+		m_upCommandList->Release();
+		m_upFence->Release();
+
+		// バックバッファ解放
+		for (auto& _tex : m_backBuffers)
+		{
+			_tex.Release();
+		}
+
+		// フレームリソース開放
+		for (auto& _fres : m_frameResource)
+		{
+			_fres.upCommandAllocator->Release();
+			_fres.upCommandAllocator.reset();
+		}
+
 		m_currentRenderTarget = nullptr;
 
-		m_upCommandList.reset();
-		for (auto& _res : m_frameResource)
-		{
-			_res.upCommandAllocator.reset();
-		}
-		m_upFence.reset();
-
-		m_upSwapChain.reset();
-		m_upCommandQueue.reset();
-
+		// 最後にデバイスを解放
+		m_upDevice->Release();
 		m_upDevice.reset();
 	}
 
