@@ -22,6 +22,9 @@ namespace Engine::Resource
 		// 初期化
 		void Init(ID3D12Device* a_pDevice,ID3D12CommandQueue* a_copyQueue);
 
+		// 解放
+		void Release();
+
 		// 更新
 		void Update();
 

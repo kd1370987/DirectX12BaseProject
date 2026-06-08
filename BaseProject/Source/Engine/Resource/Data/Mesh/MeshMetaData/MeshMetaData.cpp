@@ -29,4 +29,8 @@ namespace Engine::Resource
 			bSphere,_posVec.size(),_posVec.data(),sizeof(DirectX::XMFLOAT3)
 		);
 	}
+	void MeshMetaData::Release()
+	{
+		subsets.clear();
+	}
 }

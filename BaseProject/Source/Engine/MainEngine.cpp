@@ -129,28 +129,38 @@ namespace Engine
 		// 設定を保存
 		Option::OptionManager::GetInstance().Serialize();
 
-		// GPU同期待ち
+		// 1. 【最重要】GPU同期待ち（すべての処理を確実に終わらせる）
 		for (UINT _i = 0; _i < static_cast<UINT>(CPU_FRAME_COUNT); ++_i)
 		{
 			D3D12::D3D12Wrapper::Instance().WaitRender(_i);
 		}
 
-		// ImGui解放
+		// 2. アプリケーション・上位層の解放
+		m_upCollisionWorld.reset(); // コリジョン解放
+
+		// 3. リソースの解放 (ResourceManager内でテクスチャやバッファをResetしていると仮定)
+		//Resource::ResourceManager::Instance().Release(); // ★追加（名前は実装に合わせてください）
+
+		// 4. エディター（ImGui）解放
 		Engine::Editor::MainEditor::Instance().Release();
 
-		// ディスクリプタヒープマネージャー解放
+		// 5. グラフィックスエンジンの解放（RenderContextなどが持つリソースを解放）
+		m_upGraphicsEngine.reset(); // ★追加
+
+		// 6. パイプラインステート・ルートシグネチャの解放 (ここで警告の572, 577が消えるはず)
+		m_upPipelineStateManager.reset(); // ★追加
+
+		// 7. ディスクリプタヒープマネージャー解放
 		D3D12::DescriptorHeapManager::Instance().Release();
 
-		// 描画エンジン解放
+		// 8. 描画エンジン (D3D12Wrapper) の解放（デバイスは最後に死ぬ）
 		D3D12::D3D12Wrapper::Instance().Shutdown();
 
-		// タイムマネージャー解放
+		// 9. その他の解放
 		m_upTimeManager->Release();
-
-		// ウィンドウの解放
 		m_upWindow->Release();
 
-		// 解放時にエラー検出
+		// 10. 解放時にエラー検出（一番最後に呼ぶ）
 		if (m_config.GetInitConfig().isDebugLayer)
 		{
 			ComPtr<IDXGIDebug1> debug;

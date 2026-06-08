@@ -9,6 +9,9 @@ namespace Engine::Resource
 		// 読み込み
 		void Load(const std::string& a_path);
 
+		// 解放
+		void Release();
+
 		// バイトコード取得
 		const D3D12_SHADER_BYTECODE& GetByteCode() const;
 		

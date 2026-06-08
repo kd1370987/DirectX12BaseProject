@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace Engine::Resource
 {
@@ -32,6 +32,9 @@ namespace Engine::Resource
 		void Create(const std::string& a_name, const DirectX::XMFLOAT4& a_defoltData);
 		void Create(const TextureCreateDesc& a_desc);
 		void Create(IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,TextureUsage a_texUsage = TextureUsage::RTV);
+
+		// 解放
+		void Release();
 
 		// ビューの作成
 		void CreateView();

@@ -62,4 +62,10 @@ namespace Engine::Resource
 		// インデックスバッファー側SRV作成
 		structuredIndexBuffer.Create(a_pDevice, *a_pCmdList, _indices.size(), _indices.data());
 	}
+	void RaytracingMesh::Release()
+	{
+		blas.Release();
+		structuredIndexBuffer.Release();
+		structuredVertexBuffer.Release();
+	}
 }

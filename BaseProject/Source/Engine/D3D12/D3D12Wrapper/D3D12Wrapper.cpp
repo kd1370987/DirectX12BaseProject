@@ -126,7 +126,7 @@ namespace Engine::D3D12
 
 		m_upSwapChain.reset();
 		m_upCommandQueue.reset();
-		m_upDevice->Release();
+
 		m_upDevice.reset();
 	}
 

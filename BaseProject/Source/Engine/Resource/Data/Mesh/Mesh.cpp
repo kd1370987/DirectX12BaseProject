@@ -85,11 +85,33 @@ void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<DirectX::XMFL
 	_collMesh.Create(a_vertices,a_indices);
 }
 
+void Engine::Resource::Mesh::Release()
+{
+	// 各meshデータ解放
+	m_meshMetaData.Release();
+	if (m_opRasterData.has_value())
+	{
+		m_opRasterData->Release();
+	}
+	if (m_opCollMesh.has_value())
+	{
+		m_opCollMesh->Release();
+	}
+	if (m_opRtData.has_value())
+	{
+		m_opRtData->Release();
+	}
+
+	m_vertices.clear();
+	m_face.clear();
+	m_subsets.clear();
+}
+
 void Engine::Resource::Mesh::Save(const std::string& a_fileDir, const std::string& a_name)
 {
 	Persistence::Archive _ar(Persistence::Archive::Mode::Save, a_fileDir, a_name, "mesh");
 
-	// 【重要】頂点数の保存
+	// 頂点数の保存
 	size_t _vertexCount = m_vertices.size();
 	_ar.Field("VertexCount", _vertexCount);
 
@@ -120,7 +142,7 @@ void Engine::Resource::Mesh::Save(const std::string& a_fileDir, const std::strin
 		_v++;
 	}
 
-	// 【重要】面数の保存
+	// 面数の保存
 	size_t _faceCount = m_face.size();
 	_ar.Field("FaceCount", _faceCount);
 
@@ -137,7 +159,7 @@ void Engine::Resource::Mesh::Save(const std::string& a_fileDir, const std::strin
 		_i++;
 	}
 
-	// 【重要】サブセット数の保存
+	// サブセット数の保存
 	size_t _subsetCount = m_subsets.size();
 	_ar.Field("SubsetCount", _subsetCount);
 
@@ -164,7 +186,7 @@ void Engine::Resource::Mesh::Load(const std::string& a_fileDir, const std::strin
 {
 	Persistence::Archive _ar(Persistence::Archive::Mode::Load, a_fileDir, a_name, "mesh");
 
-	// 【重要】頂点数を読み込んでリサイズ
+	// 頂点数を読み込んでリサイズ
 	size_t _vertexCount = 0;
 	_ar.Field("VertexCount", _vertexCount);
 	m_vertices.resize(_vertexCount);
@@ -196,7 +218,7 @@ void Engine::Resource::Mesh::Load(const std::string& a_fileDir, const std::strin
 		_v++;
 	}
 
-	// 【重要】面数を読み込んでリサイズ
+	// 面数を読み込んでリサイズ
 	size_t _faceCount = 0;
 	_ar.Field("FaceCount", _faceCount);
 	m_face.resize(_faceCount);
@@ -214,7 +236,7 @@ void Engine::Resource::Mesh::Load(const std::string& a_fileDir, const std::strin
 		_i++;
 	}
 
-	// 【重要】サブセット数を読み込んでリサイズ
+	// サブセット数を読み込んでリサイズ
 	size_t _subsetCount = 0;
 	_ar.Field("SubsetCount", _subsetCount);
 	m_subsets.resize(_subsetCount);
@@ -224,10 +246,10 @@ void Engine::Resource::Mesh::Load(const std::string& a_fileDir, const std::strin
 	for (auto& _subset : m_subsets)
 	{
 		std::string _iStr = std::to_string(_i);
-		_ar.Field("Subset_MaterialNumber_" + _iStr, _subset.materialNumber); // ポインタ加算バグを修正
+		_ar.Field("Subset_MaterialNumber_" + _iStr, _subset.materialNumber);
 		_ar.Field("Subset_faceStart_" + _iStr, _subset.faceStart);
 		_ar.Field("Subset_faceCount_" + _iStr, _subset.faceCount);
-		_i++; // インクリメントに修正
+		_i++;
 	}
 
 	_ar.Field("IsSkinMesh", m_isSkinMesh);

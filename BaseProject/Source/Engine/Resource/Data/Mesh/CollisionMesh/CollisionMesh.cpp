@@ -168,6 +168,13 @@ namespace Engine::Resource
 		}
 	}
 
+	void CollisionMesh::Release()
+	{
+		triangleVec.clear();
+		triangleIndiccesVec.clear();
+		nodeVec.clear();
+	}
+
 	void BVHNode::Archive(Persistence::Archive& a_ar,int a_idx)
 	{
 		a_ar.Field("BVHNode_BoxCenter" + std::to_string(a_idx),box.Center);

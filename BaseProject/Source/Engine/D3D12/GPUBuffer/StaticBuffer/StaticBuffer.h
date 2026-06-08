@@ -25,6 +25,8 @@ namespace Engine::D3D12
 
 		NON_COPYABLE_MOVABLE(StaticBuffer);
 
+		void Release() override;
+
 		// 作成
 		bool Create(
 			ID3D12Device* a_pDevice, 

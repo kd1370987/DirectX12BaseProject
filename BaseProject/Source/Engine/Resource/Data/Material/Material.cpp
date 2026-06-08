@@ -8,6 +8,11 @@
 
 #include "../../../Utility/BinaryHelper/BinaryHelper.h"
 
+void Engine::Resource::Material::Release()
+{
+
+}
+
 void Engine::Resource::Material::SetTexture2D(
 	const std::string& a_fileDir,
 	const std::string& a_baseColorTexFileName,

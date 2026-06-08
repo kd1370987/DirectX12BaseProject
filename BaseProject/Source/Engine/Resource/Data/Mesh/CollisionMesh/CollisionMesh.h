@@ -28,10 +28,14 @@ namespace Engine::Resource
 	// コリジョンメッシュ
 	struct CollisionMesh
 	{
-
+		// 保存
 		void Archive(Persistence::Archive& a_ar);
 
+		// 作成
 		void Create(const std::vector<DirectX::XMFLOAT3>& a_vertices,const std::vector<UINT>& a_indices);
+
+		// 解放
+		void Release();
 
 		DirectX::BoundingBox _localAABB = {};		// メッシュ全体のローカルAABB
 

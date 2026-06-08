@@ -89,6 +89,11 @@ namespace Engine::Resource
 		CreateView();
 	}
 
+	void Texture::Release()
+	{
+
+	}
+
 	void Texture::CreateView()
 	{
 		// デバイスの取得

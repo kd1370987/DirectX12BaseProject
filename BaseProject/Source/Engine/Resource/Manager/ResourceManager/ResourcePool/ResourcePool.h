@@ -11,7 +11,7 @@ namespace Engine::Resource
 		Handle<T> Add(T&& a_resource);
 
 		// リソースの消去
-		void Clear();
+		void Release();
 		void Remove(const Handle<T>& a_handle);
 
 		// リソースの取得
@@ -49,8 +49,17 @@ namespace Engine::Resource
 		return _handle;
 	}
 	template<typename T>
-	inline void ResourcePool<T>::Clear()
+	inline void ResourcePool<T>::Release()
 	{
+		for (auto& _data : m_data)
+		{
+			// 値が入っている（有効なリソースである）場合のみ
+			if (_data.has_value())
+			{
+				_data->Release();
+			}
+		}
+
 		m_handleStorage = {};
 		m_data = {};
 	}
@@ -59,7 +68,11 @@ namespace Engine::Resource
 	{
 		m_handleStorage.Remove(a_handle);
 
-		m_data[a_handle.idx].reset();
+		// データがあれば解放
+		if (m_data[a_handle.idx].has_value())
+		{
+			m_data[a_handle.idx]->Release();
+		}
 	}
 	template<typename T>
 	inline const T* ResourcePool<T>::Get(const Handle<T>&a_handle) const

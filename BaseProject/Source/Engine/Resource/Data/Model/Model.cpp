@@ -254,4 +254,28 @@ namespace Engine::Resource
 		_ar.VectorField("DrawMeshNodeIndices", m_drawMeshNodeIndices);
 		
 	}
+	void Model::Release()
+	{
+		m_name.clear();
+		m_materialGUIDVec.clear();
+		m_meshGUIDVec.clear();
+		m_animationGUIDVec.clear();
+
+		m_originalNodes.clear();
+
+		// ノード
+		m_rootNodeIndices.clear();			// Rootノード
+		m_boneNodeIndices.clear();			// ボーンノード
+		m_meshNodeIndices.clear();			// メッシュが存在するノード
+		m_collisionMeshNodeIndices.clear();	// 子リジョンメッシュが存在するノード
+		m_drawMeshNodeIndices.clear();		// 描画するノード
+
+		// ---- ランタイムデータ ----
+		m_materialHandleVec.clear();
+		m_meshHandleVec.clear();
+		m_animationHandleVec.clear();
+
+		// 描画コマンド用事前キャッシュ
+		m_cachedDrawCommands.clear();
+	}
 }

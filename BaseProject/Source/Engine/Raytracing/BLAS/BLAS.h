@@ -13,6 +13,10 @@ namespace Engine::Raytracing
 			const D3D12::DynamicVertexBuffer<Resource::RTVertex>& a_vertexBuffer,
 			const D3D12::DynamicIndexBuffer& a_indexBuffer
 		);
+
+		// 解放
+		void Release();
+
 		// ジオメトリ情報から作成
 		void Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_desc);
 		void Create(const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc);

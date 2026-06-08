@@ -25,6 +25,14 @@ void Engine::Raytracing::BLAS::Create(const D3D12::DynamicVertexBuffer<Resource:
 	Create(_desc);
 }
 
+void Engine::Raytracing::BLAS::Release()
+{
+	m_cpResource.Reset();
+	m_cpScratch.Reset();
+
+	m_geometryDescVec.clear();
+}
+
 void Engine::Raytracing::BLAS::Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_desc)
 {
 	// BLAS生成

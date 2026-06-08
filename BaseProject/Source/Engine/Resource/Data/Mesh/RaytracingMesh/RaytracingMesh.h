@@ -17,6 +17,9 @@ namespace Engine::Resource
 			const std::vector<MeshFace>& a_face
 		);
 
+		// 解放
+		void Release();
+
 		Engine::Raytracing::BLAS blas;
 		Engine::D3D12::StaticStructuredBuffer<RTVertex> structuredVertexBuffer;
 		Engine::D3D12::StaticStructuredBuffer<UINT>		structuredIndexBuffer;

@@ -10,6 +10,13 @@ void Engine::Resource::Shader::Load(const std::string& a_path)
 	m_path = a_path;
 }
 
+void Engine::Resource::Shader::Release()
+{
+	m_cpBlob.Reset();
+	m_byteCode = {};
+	m_path.clear();
+}
+
 const D3D12_SHADER_BYTECODE& Engine::Resource::Shader::GetByteCode() const
 {
 	return m_byteCode;

@@ -26,10 +26,13 @@ namespace Engine::D3D12
 	{
 	public:
 
-		virtual ~GPUResource() = default;
+		virtual ~GPUResource() { Release(); }
 
 		// 作成
 		bool Create(ID3D12Device* pDevice ,const GPUResourceDesc& a_desc);
+
+		// 解放
+		virtual void Release();
 
 		// ステート遷移
 		virtual void Barrier(CommandList& a_cmdList,D3D12_RESOURCE_STATES a_nextState);

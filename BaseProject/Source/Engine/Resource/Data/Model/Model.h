@@ -66,6 +66,9 @@ namespace Engine::Resource
 		void Load(const std::string& a_filePath);
 		void Save(const std::string& a_filePath);
 
+		// 解放
+		void Release();
+
 		// ---- アクセサ ----
 		// データのハンドル
 		const std::vector<Handle<Material>>&		GetMaterialHandles()	const { return m_materialHandleVec; }

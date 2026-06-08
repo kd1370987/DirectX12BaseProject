@@ -32,6 +32,9 @@ namespace Engine::Resource
 			bool a_isSkinMesh
 		);
 
+		// 解放
+		void Release();
+
 		std::vector<MeshSubset> subsets;
 		DirectX::BoundingBox aabb;
 		DirectX::BoundingSphere bSphere;

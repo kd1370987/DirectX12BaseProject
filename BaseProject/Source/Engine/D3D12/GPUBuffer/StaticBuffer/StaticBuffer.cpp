@@ -4,6 +4,11 @@
 #include "../../DescriptorHeapManager/DescriptorHeapManager.h"
 namespace Engine::D3D12
 {
+	void StaticBuffer::Release()
+	{
+		GPUResource::Release();
+		m_gpuBuffer.Release();
+	}
 	bool StaticBuffer::Create(
 		ID3D12Device* a_pDevice, 
 		CommandList& a_cmdList,

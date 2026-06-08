@@ -51,6 +51,11 @@ void Engine::Resource::AnimationNode::Archive(Persistence::Archive& a_ar, const 
 	}
 }
 
+void Engine::Resource::AnimationData::Release()
+{
+	nodes.clear();
+}
+
 void Engine::Resource::AnimationData::Save(const std::string& a_fileDir, const std::string& a_name)
 {
 	Persistence::Archive _ar(Persistence::Archive::Mode::Save, a_fileDir, a_name, "anim");

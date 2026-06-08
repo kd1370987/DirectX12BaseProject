@@ -39,4 +39,9 @@ namespace Engine::Resource
 			return;
 		}
 	}
+	void RasterizationMesh::Release()
+	{
+		vertexBuffer.Release();
+		indexBuffer.Release();
+	}
 }

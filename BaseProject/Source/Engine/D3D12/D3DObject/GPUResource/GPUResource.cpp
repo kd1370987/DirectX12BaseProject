@@ -35,6 +35,10 @@ namespace Engine::D3D12
 		// 成功
 		return true;
 	}
+	void GPUResource::Release()
+	{
+		m_cpResource.Reset();
+	}
 	void GPUResource::Barrier(CommandList& a_cmdList, D3D12_RESOURCE_STATES a_nextState)
 	{
 		if (m_currentState == a_nextState) return;

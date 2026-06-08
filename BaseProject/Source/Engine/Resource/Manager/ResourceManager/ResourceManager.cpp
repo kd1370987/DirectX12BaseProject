@@ -30,6 +30,10 @@ namespace Engine::Resource
 		// フェンスイベント作成
 		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	}
+	void ResourceManager::Release()
+	{
+
+	}
 	void ResourceManager::Update()
 	{
 		WaitRender();
