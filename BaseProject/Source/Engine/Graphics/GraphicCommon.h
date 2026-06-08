@@ -74,5 +74,3 @@ struct PassDesc
 	// レンダーパス開始・終了時のAPI設定
 	std::vector<AccessResource> resourceAccessVec = {};
 };
-
-#include "RootSigLayout/RootSigLayout.h"

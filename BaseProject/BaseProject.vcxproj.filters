@@ -277,9 +277,6 @@
     <Filter Include="Asset\Shader\Source\ZPreShader">
       <UniqueIdentifier>{0b143661-65ff-4b30-bb80-d87eef28d888}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RootSigLayout">
-      <UniqueIdentifier>{861b4f3f-c139-4ae6-b886-74368188214e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Source\GBufferShader">
       <UniqueIdentifier>{f087fe0a-b487-41d2-96c4-ccd507e0996d}</UniqueIdentifier>
     </Filter>
@@ -1660,9 +1657,6 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Algorithm\Graph\TopologicalSort.h">
       <Filter>Source\Core\Algorithm\Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RootSigLayout\RootSigLayout.h">
-      <Filter>Source\Engine\Graphics\RootSigLayout</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\ImGui\Log\Log.h">
       <Filter>Source\Engine\Editor\ImGui\Log</Filter>

@@ -41,11 +41,11 @@ namespace Engine::Graphics
 		// レイ用ルートシグネチャ
 		D3D12::RootSignatureDesc _rayGlobal = {};
 		_rayGlobal.isUseStaticSampler = true;
-		_rayGlobal.AddRoot(RootParameterType::RootCBV, 0);		// カメラ
-		_rayGlobal.AddRoot(RootParameterType::RootSRV, 0);		// TLAS
-		_rayGlobal.AddDescriptorHeap({ {RangeType::UAV,0} });	// 出力
-		_rayGlobal.AddRoot(RootParameterType::RootCBV, 1);		// GBufferIndex
-		_rayGlobal.AddRoot(RootParameterType::RootCBV, 10);		// ライト
+		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 0);		// カメラ
+		_rayGlobal.AddRoot(D3D12::RootParameterType::RootSRV, 0);		// TLAS
+		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::UAV,0} });	// 出力
+		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 1);		// GBufferIndex
+		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 10);		// ライト
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 

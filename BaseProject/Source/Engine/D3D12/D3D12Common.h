@@ -8,7 +8,6 @@ struct SAMPLER {};
 #include "Engine/D3D12/D3DObject/DescriptorHeap/DescriptorHeap.h"
 
 // インプットレイアウト
-
 namespace Engine::D3D12::Input
 {
 	// 静的用
@@ -62,5 +61,42 @@ namespace Engine::D3D12::Input
 	constexpr D3D12_INPUT_LAYOUT_DESC gPosOnryLayout = {
 		.pInputElementDescs = gPosOnryElement,
 		.NumElements = 2
+	};
+}
+
+// ルートシグネチャ
+namespace Engine::D3D12
+{
+	// ルートレンジ指定
+	enum class RangeType
+	{
+		CBV,
+		SRV,
+		UAV,
+		Sampler,
+	};
+
+	// ルートパラメーター指定
+	enum class RootParameterType
+	{
+		DescriptorTable,
+		RootCBV,
+		RootSRV,
+		Bindless
+	};
+
+	// ルートレンジ用中間構造体
+	struct RootRangeInit
+	{
+		RangeType type;				// レンジタイプ
+		UINT shaderRegisterIndex;	// ルート定数などを使用する際のシェーダーインデックス
+	};
+
+	// ルートパラメター用中間構造体
+	struct RootParamInit
+	{
+		RootParameterType paramType;				// パラメーター
+		std::vector<RootRangeInit> rangeVec = {};	// レンジタイプ・インデックス
+		UINT shaderRegisterIndex;					// ルート定数などを使用する際のシェーダーインデックス
 	};
 }

@@ -27,10 +27,6 @@ namespace Engine::D3D12
 			D3D12_ROOT_SIGNATURE_FLAGS a_flags,
 			bool a_isUseStaticSampler = true
 		);
-		bool Create(
-			RootSigInit a_init
-		);
-
 
 		bool IsValid();					// ルートシグネチャの生成に成功しているか
 		ID3D12RootSignature* Get();		// ルートシグネチャを返す
