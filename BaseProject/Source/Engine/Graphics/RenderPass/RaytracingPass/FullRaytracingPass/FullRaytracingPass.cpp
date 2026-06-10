@@ -121,7 +121,8 @@ namespace Engine::Graphics
 			_pCmdList->SetComputeRootSignature(_spPassData->rayPSO.GetRootSig());
 
 			// カメラバインド
-			Raytracing::RayEngine::Instance().BindCamera(a_pCtx,a_pGE->GetCameraData());
+			//Raytracing::RayEngine::Instance().BindCamera(a_pCtx,a_pGE->GetCameraData());
+			a_pCtx->ComputeBindRootCBV(_pCmdList, 0, a_pGE->GetCameraData());
 
 			// レイワールドバインド
 			Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);

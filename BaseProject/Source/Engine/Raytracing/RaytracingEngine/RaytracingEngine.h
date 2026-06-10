@@ -45,22 +45,6 @@ namespace Engine::Raytracing
 		const std::vector<Instance>& GetInstanceVec();
 	private:
 
-		struct Camera
-		{
-
-			DirectX::XMFLOAT3 pos;						// カメラ座標
-			float pad;
-			DirectX::XMFLOAT4X4 view;					// ビュー行列
-			DirectX::XMFLOAT4X4 proj;					// プロジェクション行列
-
-			DirectX::XMFLOAT4X4 invView;				// 逆ビュー行列
-			DirectX::XMFLOAT4X4 invProj;				// 逆プロジェクション行列
-
-			DirectX::XMFLOAT4X4 invViewProj;			// 逆ビュープロジェクション行列
-		};
-		// GPUに送信するデータ
-		Camera m_camera;
-
 		// レイトレ用クラス
 		std::unique_ptr<RayWorld> m_upRayWorld = nullptr;				// レイトレワールド
 		

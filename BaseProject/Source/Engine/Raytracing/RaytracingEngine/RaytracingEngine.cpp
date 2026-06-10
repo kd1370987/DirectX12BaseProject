@@ -34,26 +34,6 @@ namespace Engine::Raytracing
 		m_isCommit = true;
 	}
 
-	void RayEngine::BindCamera(Graphics::RenderContext* a_pRCT, const Graphics::CameraData& a_cbCam)
-	{
-		auto* _pCmdList = a_pRCT->GetCurrentCmdList();
-		// 定数バッファをバインド
-		const auto& _cam = a_cbCam;
-
-		m_camera.pos = { _cam.pos.x, _cam.pos.y, _cam.pos.z};
-		m_camera.view = _cam.viewMat;
-		m_camera.proj = _cam.projMat;
-		m_camera.invView = _cam.viewInvMat;
-		m_camera.invProj = _cam.projInvMat;
-		m_camera.invViewProj = _cam.invViewProjMat;
-
-		a_pRCT->BindCB()->BindAndAttachDataComputeRootCBV<Camera>(
-			_pCmdList->NGet(),
-			0,
-			m_camera
-		);
-	}
-
 	void RayEngine::BindTLAS(Graphics::RenderContext* a_pRCT)
 	{
 		auto* _pCmdList = a_pRCT->GetCurrentCmdList();

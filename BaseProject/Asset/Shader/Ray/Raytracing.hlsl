@@ -207,7 +207,7 @@ void RayGen()
 	
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
-	_ray.Origin = g_camera.pos;
+	_ray.Origin = g_camera.cameraPos.xyz;
 	_ray.Direction = normalize(_worldTarget.xyz - _ray.Origin);
 	_ray.TMin = 0.001;
 	_ray.TMax = 10000;

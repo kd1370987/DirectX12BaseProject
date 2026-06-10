@@ -142,11 +142,6 @@ namespace Engine::Graphics
 		return m_upCBAllocater.get();
 	}
 
-	void RenderContext::BindVoidRootCBV(UINT a_index, const void* a_pData, size_t a_size)
-	{
-		m_upCBAllocater->BindAndAttachDataRootCBV(m_pCmdList->NGet(), a_index, a_pData, a_size);
-	}
-
 	void RenderContext::ChangeRenderTarget(const std::vector<Resource::Handle<D3D12::RTV>>& a_rtvHandleVec, const Resource::Handle<D3D12::DSV>& a_dsvHandle)
 	{
 		// 変数用意

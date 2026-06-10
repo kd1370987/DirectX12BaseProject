@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "../CBData.h"
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 
 class CBAllocater;
 
@@ -90,10 +91,21 @@ namespace Engine::Graphics
 		// 現在のフレームの定数バッファアロケーターにアクセス
 		CBAllocater* BindCB();
 
-		// 定数バッファをルートでバインド
-		void BindVoidRootCBV(UINT a_index,const void* a_pData,size_t a_size);
+		// ---- 定数バッファをルートでバインド ----
+		// グラフィック版
 		template<typename T>
-		void BindRootCBV(UINT a_index, const T& a_data);
+		void GraphicsBindRootCBV(
+			D3D12::CommandList* a_pCmdList,
+			int a_descIndex,
+			const T& a_data
+		);
+		// コンピュート版
+		template<typename T>
+		void ComputeBindRootCBV(
+			D3D12::CommandList* a_pCmdList,
+			int a_descIndex,
+			const T& a_data
+		);
 
 		// レンダーターゲットの切り替え
 		// 基本的にハンドルで管理しているため内部以外では直接触らない
@@ -249,8 +261,13 @@ namespace Engine::Graphics
 
 	};
 	template<typename T>
-	inline void RenderContext::BindRootCBV(UINT a_index, const T& a_data)
+	inline void RenderContext::GraphicsBindRootCBV(D3D12::CommandList* a_pCmdList, int a_descIndex, const T& a_data)
 	{
-		BindVoidRootCBV(a_index, &a_data, sizeof(T));
+		m_upCBAllocater->BindAndAttachDataRootCBV(a_pCmdList->NGet(), a_descIndex, a_data);
+	}
+	template<typename T>
+	inline void RenderContext::ComputeBindRootCBV(D3D12::CommandList * a_pCmdList, int a_descIndex, const T & a_data)
+	{
+		m_upCBAllocater->BindAndAttachDataComputeRootCBV(a_pCmdList->NGet(), a_descIndex, a_data);
 	}
 }
