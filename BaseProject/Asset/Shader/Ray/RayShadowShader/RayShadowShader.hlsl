@@ -63,7 +63,7 @@ void RayGen()
 	RayDesc _ray;
 	_ray.Origin = _worldPos +_normal * 0.1; // シャドウアクネ
 	_ray.Direction = normalize(-g_ambient.DL_Dir);
-	_ray.TMin = 0.01f;
+	_ray.TMin = 0.1f;
 	_ray.TMax = 10000;
 
 

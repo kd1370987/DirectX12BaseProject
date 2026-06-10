@@ -1,7 +1,7 @@
 {
     "isVsync": false,
     "targetFrameRate": 120,
-    "windowHegiht": 1280,
-    "windowMode": 1,
+    "windowHegiht": 1080,
+    "windowMode": 0,
     "windowWidth": 1920
 }

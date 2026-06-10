@@ -53,7 +53,7 @@ namespace Engine::Graphics
 		_rpBuilder.Read("GBufferMaterial", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		_rpBuilder.Read("GBufferEmissiv", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		_rpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Read("RayShadow", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.Read("AffterDLShadowTempAccumu", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		_rpBuilder.Read("FinalGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
 		_rpBuilder.Write("AffterLighting", AccessType::UAV, LoadOp::Clear, StoreOp::Store);

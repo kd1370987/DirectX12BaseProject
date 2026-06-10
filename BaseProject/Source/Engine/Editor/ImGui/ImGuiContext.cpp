@@ -35,7 +35,7 @@ namespace Engine::Editor
 		ImGuiStyle& _style = ImGui::GetStyle();
 		_style.ScaleAllSizes(_mainScale);		// 取得したモニターサイズと合わせる
 		_style.FontScaleDpi = _mainScale;		// 数値としても記録
-		_style.ScaleAllSizes(0.5f);				// 全体的に縮小
+		_style.ScaleAllSizes(1.0f);				// 全体的に縮小
 
 
 		// 描画するバックエンド・プラットフォームを設定
@@ -66,8 +66,8 @@ namespace Engine::Editor
 
 
 		// ウィンドウサイズをゲーム画面に合わせる
-		ImGui::SetWindowPos(ImVec2(0, 0));
-		ImGui::SetWindowSize(ImVec2(a_width, a_height));
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImVec2(a_width, a_height));
 
 		// ビューポート切り替え
 		ImGui::Begin(
@@ -93,7 +93,6 @@ namespace Engine::Editor
 	{
 		// ImGui描画
 		ImGui::Render();
-
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), a_pCmdList);
 	}
 

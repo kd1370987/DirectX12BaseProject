@@ -39,7 +39,7 @@ namespace Engine::Option::GraphicsOptions
 				ImGui::Text("Width : %f",windowWidth);
 				ImGui::Text("Height : %f",windowHegiht);
 				ImGui::DragInt("Width", &windowWidth, 1, 0, 1980);
-				ImGui::DragInt("Height", &windowHegiht, 1, 0, 1280);
+				ImGui::DragInt("Height", &windowHegiht, 1, 0, 1080);
 
 				ImGui::Separator();
 

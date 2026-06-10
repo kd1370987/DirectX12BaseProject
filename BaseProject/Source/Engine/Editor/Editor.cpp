@@ -97,6 +97,10 @@ namespace Engine::Editor
 		}
 		ImGui::End();
 
+		auto _vp = ImGui::GetMainViewport();
+		AddLog("Window : %d,%d",(int)a_widht,(int)a_height);
+		AddLog("Viewport : %f,%f",_vp->Size.x,_vp->Size.y);
+
 		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);
 	}

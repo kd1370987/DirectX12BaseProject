@@ -883,6 +883,9 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass">
       <UniqueIdentifier>{f23ccc47-8856-4fb4-b0b7-f66003e7e139}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Compute\Denoise\Shadow">
+      <UniqueIdentifier>{7669dd34-e9ef-43f2-a062-87fd31c8227e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1394,6 +1397,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2144,6 +2153,12 @@
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\WindowOption.h">
       <Filter>Source\Engine\Option\GraphicsOptions</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2286,6 +2301,12 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Lighting\DeferredLighting\DeferredLightingShader.hlsl">
       <Filter>Asset\Shader\Compute\Ligthting\DeferredLighting</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Denoise\Shadow\ShadowTemporalAccumullationShader.hlsl">
+      <Filter>Asset\Shader\Compute\Denoise\Shadow</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Denoise\Shadow\ShadowSpatialDenoiseShader.hlsl">
+      <Filter>Asset\Shader\Compute\Denoise\Shadow</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

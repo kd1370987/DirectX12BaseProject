@@ -237,6 +237,7 @@ namespace Engine
 	void MainEngine::EndDraw()
 	{
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();
+		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 
 		Editor::MainEditor::Instance().StartWatch("EditorPhase");
 
@@ -251,8 +252,8 @@ namespace Engine
 			// エディター描画
 			Engine::Editor::MainEditor::Instance().Draw(
 				D3D12::D3D12Wrapper::Instance().GetCommandList(),
-				m_upWindow->GetClientWidth(),
-				m_upWindow->GetClientHeight()
+				_winOp.windowWidth,
+				_winOp.windowHegiht
 			);
 		}
 
@@ -263,7 +264,6 @@ namespace Engine
 		Editor::MainEditor::Instance().StartWatch("EndFramePhase");
 
 		// 描画終了
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 		D3D12::D3D12Wrapper::Instance().EndFrame(_winOp.isVsync);
 
 		Editor::MainEditor::Instance().EndWatch("EndFramePhase");

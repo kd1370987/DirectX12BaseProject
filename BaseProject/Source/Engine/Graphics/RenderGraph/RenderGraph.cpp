@@ -13,6 +13,7 @@
 #include "../RenderPass/ComputePass/Denoise/TempralAccumulationPass/TemporalAccumulationPass.h"
 #include "../RenderPass/ComputePass/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
 #include "../RenderPass/ComputePass/AntiAliasing/TAA/TAAPass.h"
+#include "../RenderPass/ComputePass/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
 
 // マネージャー関連
 #include "RGVarsionManager/RGResourceManager.h"
@@ -171,6 +172,13 @@ namespace Engine::Graphics
 			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
+		m_upRGResourceManager->RegisterTemporal(
+			"AffterDLShadowTempAccumu",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			_winWidth,
+			_winHeight,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		);
 		m_upRGResourceManager->Register(
 			"FinalGI",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -236,6 +244,10 @@ namespace Engine::Graphics
 		AddTAAPass(a_pPipelineStateManager, *this, EDrawPhase::PostProcess);
 
 		// 自分で順序を決定するパス(登録準に配列に追加される)
+		// シャドウデノイズ系
+		AddShadowTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
+
+		// GIデノイズ系
 		AddTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
 		AddGISpatialDenoisePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
 
