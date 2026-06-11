@@ -82,3 +82,10 @@ void Engine::Editor::Helper::DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a
 	}
 	
 }
+
+void Engine::Editor::Node::TitleBar(const std::string& a_name)
+{
+	ImNodes::BeginNodeTitleBar();
+	ImGui::Text("%s", a_name.c_str());
+	ImNodes::EndNodeTitleBar();
+}

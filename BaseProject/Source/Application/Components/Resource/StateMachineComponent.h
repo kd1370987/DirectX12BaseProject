@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../../../Engine/Resource/Loader/StateMachineAsset/StateMachineAssetLoader.h"
+
 namespace Engine::Resource
 {
 	class StateMachineAsset;
@@ -8,6 +10,7 @@ namespace Engine::Resource
 struct StateMachineComponent
 {
 	// 参照する設計図
+	Engine::GUID stateMachineGUID = {};
 	Engine::Resource::Handle<Engine::Resource::StateMachineAsset> stateMachineHandle = {};
 
 	UINT prevStateHash = 0;			// 前回のステート
@@ -32,10 +35,9 @@ struct StateMachineComponent
 	{
 		using namespace Engine;
 		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_data);
-		if (_comp.isGround)
-		{
-			ImGui::Text("OnGround");
-		}
-
+		
+		static char _guid[256] = "";
+		ImGui::InputText("GUID",_guid,sizeof(_guid));
+		_comp.stateMachineGUID.FromString(std::string(_guid));
 	}
 };

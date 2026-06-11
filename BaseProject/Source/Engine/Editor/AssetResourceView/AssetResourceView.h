@@ -26,5 +26,9 @@ namespace Engine::Editor
 
 		std::unique_ptr<TextureView> m_upTextureView = nullptr;
 
+
+		// 文字列キャッシュ
+		char m_nameCach[256] = "";
+		char m_pathCach[256] = "";
 	};
 }

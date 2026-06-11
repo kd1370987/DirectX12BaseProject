@@ -9,6 +9,7 @@
 #include "Utility/JSONHelper/JSONHelper.h"
 namespace Engine
 {
+	static constexpr UINT INVALID_STATE_HASH = 0xFFFFFFFF;
 	enum class EWindowMode : UINT
 	{
 		Windowed,		// ウィンドウモード

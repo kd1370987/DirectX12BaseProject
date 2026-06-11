@@ -129,6 +129,8 @@ void BaseScene::Update(float a_dt)
 
 	m_upWorld->RunSystem(Engine::ECS::ESystemType::Physics, a_dt);
 
+	m_upWorld->RunSystem(Engine::ECS::ESystemType::Animation, a_dt);
+
 	m_upWorld->RunSystem(Engine::ECS::ESystemType::Camera, a_dt);
 
 	m_upWorld->RunSystem(Engine::ECS::ESystemType::PostUpdate, a_dt);

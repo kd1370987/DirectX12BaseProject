@@ -12,7 +12,7 @@
 void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ModelComponent,const AnimatorComponent, NodePoseComponent>(
-		Engine::ECS::ESystemType::PostUpdate,
+		Engine::ECS::ESystemType::Animation,
 		"CalcNodeSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,

@@ -16,6 +16,7 @@ namespace Engine::ECS
 		PreUpdate,
 		Update,
 		Physics,
+		Animation,
 		Camera,
 		PostUpdate,
 

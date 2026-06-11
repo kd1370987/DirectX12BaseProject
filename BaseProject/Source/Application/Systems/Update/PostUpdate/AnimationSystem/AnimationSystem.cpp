@@ -14,7 +14,7 @@
 void AnimationSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ModelComponent, AnimatorComponent, NodePoseComponent>(
-		Engine::ECS::ESystemType::PostUpdate,
+		Engine::ECS::ESystemType::Animation,
 		"AnimationSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,

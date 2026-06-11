@@ -32,6 +32,12 @@ namespace Engine::Persistence
 			const std::string& a_ext,
 			ArchiveFormat a_format = ArchiveFormat::Auto
 		);
+		Archive(
+			Mode a_mode,
+			const std::string& a_filePath,
+			const std::string& a_ext,
+			ArchiveFormat a_format = ArchiveFormat::Auto
+		);
 		// クローズ処理を実行
 		~Archive();
 

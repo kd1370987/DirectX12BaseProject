@@ -53,6 +53,8 @@ namespace Engine::Editor
 		_initInfo.LegacySingleSrvGpuDescriptor = _pDescriptorManager.GetImGuiGPUHandle();
 		ImGui_ImplDX12_Init(&_initInfo);
 
+		// ノードエディター
+		ImNodes::CreateContext();
 		return true;
 	}
 
@@ -98,6 +100,9 @@ namespace Engine::Editor
 
 	void ImGuiContext::Release()
 	{
+		// ノード
+		ImNodes::DestroyContext();
+
 		// メモリの解放
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();

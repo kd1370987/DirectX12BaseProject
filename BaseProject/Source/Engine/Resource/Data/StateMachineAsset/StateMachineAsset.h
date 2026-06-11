@@ -6,22 +6,24 @@ namespace Engine::Resource
 	struct StateNode
 	{
 		// 識別名
+		UINT hash;
 		std::string	name;
 
-		// アニメーションとの連携
-		Handle<AnimationData> animationHandle;	// 再生するアニメーションのハンドル
-		bool isLoopAnm = false;					// ループするかどうか
-		float animSpeed = 1.0f;					// モーション速度
+		// エディター用情報
+		ImVec2 editorPos = {};
 
-		// ロボットアクション用のパラメーター
-		float moveSpeedMultiplier = 1.0f;		// 移動速度倍率
-		bool hasArmor = false;					// スーパーアーマーがあるかどうか
+		void Archive(Persistence::Archive& a_arch,const std::string& a_filedName);
+		void EditNode();
 	};
 
 	// 遷移データ
 	struct TransitionArrow
 	{
+		int linkID;
 		UINT dstStartHash;		// 遷移先のステートハッシュ
+
+		void Archive(Persistence::Archive& a_arch, const std::string& a_filedName);
+		void EditArrow(UINT a_srcHash);
 	};
 
 
@@ -47,7 +49,19 @@ namespace Engine::Resource
 		// ここで設計図を作る
 		void EditImGui();
 
+		// 名前
+		void SetName(const std::string& a_name) { m_name = a_name; }
+		const std::string& GetName()const { return m_name; }
+
+		// GUID
+		void SetGUID(const Engine::GUID& a_guid) { m_guid = a_guid; }
+		const Engine::GUID& GetGUID() const { return m_guid; }
+
 	private:
+		// 識別子
+		std::string m_name;
+		Engine::GUID m_guid;
+
 		// 初期ステート
 		UINT m_defaultStartHash = 0;
 

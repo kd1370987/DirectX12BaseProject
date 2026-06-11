@@ -13,7 +13,7 @@
 void SkinningSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ModelComponent, NodePoseComponent, SkeletonPoseComponent>(
-		Engine::ECS::ESystemType::PostUpdate,
+		Engine::ECS::ESystemType::Animation,
 		"SkinningSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,

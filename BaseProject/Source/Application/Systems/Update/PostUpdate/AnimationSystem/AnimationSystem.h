@@ -6,6 +6,6 @@ class AnimationSystem : public Engine::ECS::SystemBase<AnimationSystem>
 {
 public:
 
-	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::PostUpdate;
+	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Animation;
 	void Init(Engine::ECS::World& a_world) override;
 };

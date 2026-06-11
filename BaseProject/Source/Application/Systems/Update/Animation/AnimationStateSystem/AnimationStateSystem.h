@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class CalcNodeSystem : public Engine::ECS::SystemBase<CalcNodeSystem>
+class AnimationStateSystem : public Engine::ECS::SystemBase<AnimationStateSystem>
 {
 public:
 

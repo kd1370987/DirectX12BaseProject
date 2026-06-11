@@ -336,6 +336,9 @@ namespace Engine
 		// アニメーション
 		Resource::AssetDatabase::Instance().AddTypeExtensions("Animation", ".obanim");
 		Resource::AssetDatabase::Instance().AddTypeExtensions("Animation", ".ojanim");
+		// ステートマシン
+		Resource::AssetDatabase::Instance().AddTypeExtensions("StateMachinAsset", ".obstat");
+		Resource::AssetDatabase::Instance().AddTypeExtensions("StateMachinAsset", ".ojstat");
 		// テクスチャ
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".png");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".jpg");
@@ -344,6 +347,7 @@ namespace Engine
 		// シェーダー
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Shader",".hlsl");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Shader",".cso");
+		
 
 		// 全アセットに一括でメタファイル作成
 		// すでにあれば無視

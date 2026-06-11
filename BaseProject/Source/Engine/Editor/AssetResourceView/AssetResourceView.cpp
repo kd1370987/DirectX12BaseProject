@@ -6,6 +6,8 @@
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 
+#include "../../Resource/Loader/StateMachineAsset/StateMachineAssetLoader.h"
+
 namespace Engine::Editor
 {
 	AssetResourceView::AssetResourceView()
@@ -61,6 +63,36 @@ namespace Engine::Editor
 				}
 				ImGui::TreePop();
 			}
+		}
+
+		// ステートマシン
+		auto& _statePool = Resource::ResourceManager::Instance().RefPool<Resource::StateMachineAsset>();
+		if (ImGui::TreeNodeEx("StateMachinAsset", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+		{
+			auto& _pool = _statePool.RefAll();
+			for (auto& _stateMachin : _pool)
+			{
+				if (!_stateMachin.has_value()) continue;
+				if (ImGui::TreeNodeEx(_stateMachin->GetName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+				{
+					_stateMachin->EditImGui();
+					ImGui::TreePop();
+				}
+			}
+
+			ImGui::Separator();
+
+			// ステートマシン追加
+			ImGui::InputText("Name",m_nameCach,sizeof(m_nameCach));
+			ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
+			if (ImGui::Button("Create"))
+			{
+				Resource::StateMachineAssetLoader::Create(std::string(m_pathCach), std::string(m_nameCach));
+				std::memset(m_nameCach,0,sizeof(m_nameCach));
+				std::memset(m_pathCach,0,sizeof(m_pathCach));
+			}
+
+			ImGui::TreePop();
 		}
 	}
 }

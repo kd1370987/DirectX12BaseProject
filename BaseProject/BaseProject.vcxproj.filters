@@ -886,6 +886,21 @@
     <Filter Include="Asset\Shader\Compute\Denoise\Shadow">
       <UniqueIdentifier>{7669dd34-e9ef-43f2-a062-87fd31c8227e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Components\Charactor\Robot">
+      <UniqueIdentifier>{6291cffc-5cbb-46ce-abbc-4aa653a1dff1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Animation">
+      <UniqueIdentifier>{32547461-1fdc-4ada-b712-b1f06edb8909}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Animation\AnimationStateSystem">
+      <UniqueIdentifier>{59fcf3de-de21-4684-978e-a99ae6546615}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\StateMachineAsset">
+      <UniqueIdentifier>{f761a23a-b7bc-4c16-a725-62b1b2f6a5d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\imnodes-master">
+      <UniqueIdentifier>{f6d3c56e-2372-475c-a03e-3bb02b78d943}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1403,6 +1418,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Animation\AnimationStateSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\StateMachineAsset\StateMachineAssetLoader.cpp">
+      <Filter>Source\Engine\Resource\Loader\StateMachineAsset</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\imnodes-master\imnodes.cpp">
+      <Filter>Library\imnodes-master</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2155,6 +2179,18 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Charactor\Robot\BoostComponent.h">
+      <Filter>Source\Application\Components\Charactor\Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.h">
+      <Filter>Source\Application\Systems\Update\Animation\AnimationStateSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\StateMachineAsset\StateMachineAssetLoader.h">
+      <Filter>Source\Engine\Resource\Loader\StateMachineAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\imnodes-master\imnodes.h">
+      <Filter>Library\imnodes-master</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,20 @@
 ﻿#pragma once
 
+enum class EAnimationState
+{
+	Idle,
+	Walk,
+	Jump,
+	Fall,
+	Boost,
+	Landing,
+	Damage,
+	Dead,
+};
+
 struct AnimatorComponent
 {
+	EAnimationState animeState;
 	uint32_t clipID = 0;
 	float time = 0.0f;
 	float speed = 1.0f;

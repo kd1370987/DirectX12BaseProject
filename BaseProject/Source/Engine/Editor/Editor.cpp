@@ -97,8 +97,6 @@ namespace Engine::Editor
 		}
 		ImGui::End();
 
-		auto _vp = ImGui::GetMainViewport();
-
 		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);
 	}

@@ -90,6 +90,14 @@ namespace Engine::Persistence
 		}
 	}
 
+	Archive::Archive(Mode a_mode, const std::string& a_filePath, const std::string& a_ext, ArchiveFormat a_format)
+	{
+		auto _dir = FileUtility::GetDirFromPath(a_filePath);
+		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
+		auto _ext = FileUtility::GetFilePathExtension(a_filePath);
+		Archive(a_mode, _dir, _fileName, a_ext, a_format);
+	}
+
 	Archive::~Archive()
 	{
 		// ファイルを閉じる
