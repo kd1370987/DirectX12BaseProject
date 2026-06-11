@@ -16,6 +16,7 @@ namespace Engine::Graphics
 		// モーションベクター用
 		DirectX::XMFLOAT4X4 nonJitteredProj;		// ジッターなし投影行列
 		DirectX::XMFLOAT4X4 nonJitteredViewProj;	// ジッターなしビュープロジェクション行列
+		DirectX::XMFLOAT4X4 nonJitteredInvViewProj;	// ジッターなしビュープロジェクション行列
 
 		// 1フレーム前のデータ
 		DirectX::XMFLOAT4X4 prevView;

@@ -14,6 +14,8 @@ struct StateMachineComponent
 	UINT currentStateHash = 0;		// 現在のステート
 	float currentTime = 0.0f;		// 現在のステートからの経過時間
 
+	bool isGround = false;
+
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<const StateMachineComponent*>(a_ptr);
@@ -29,6 +31,11 @@ struct StateMachineComponent
 	static void Edit(void* a_data)
 	{
 		using namespace Engine;
+		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_data);
+		if (_comp.isGround)
+		{
+			ImGui::Text("OnGround");
+		}
 
 	}
 };

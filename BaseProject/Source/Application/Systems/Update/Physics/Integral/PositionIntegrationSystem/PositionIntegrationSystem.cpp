@@ -28,8 +28,6 @@ void PositionIntegrationSystem::Init(Engine::ECS::World& a_world)
 				_trsComp.pos.x += _velComp.value.x * a_dt;
 				_trsComp.pos.y += _velComp.value.y * a_dt;
 				_trsComp.pos.z += _velComp.value.z * a_dt;
-
-				//_velComp.value = {}; いったんインプットムーブ側に移している
 			}
 		},
 		Engine::ECS::Exclude<InertiaComponent>()

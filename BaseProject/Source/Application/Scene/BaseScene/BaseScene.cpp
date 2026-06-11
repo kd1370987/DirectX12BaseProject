@@ -10,7 +10,7 @@
 #include "../../Components/Tag/SystemPhaseTag/StartTag.h"
 #include "../../Components/Tag/SystemPhaseTag/ActiveTag.h"
 
-// レンダータグ
+// コンポーネント
 #include "../../Components/Tag/RenderTag/RayTag.h"
 #include "../../Components/Tag/ActiveCameraTag.h"
 #include "../../Components/Tag/CameraTag.h"

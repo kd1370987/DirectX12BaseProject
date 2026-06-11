@@ -15,6 +15,7 @@ struct CBCamera
 	// モーションベクター用
 	float4x4 nonJitteredProj;		// ジッターなし 投影行列
 	float4x4 nonJitteredViewProj;	// ジッターなし ViewProj
+	float4x4 nonJitteredInvViewProj;	// ジッターなし ViewProj
 
 	// １フレーム前のデータ
 	float4x4 prevView;

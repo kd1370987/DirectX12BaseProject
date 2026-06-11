@@ -58,12 +58,23 @@ void RayGen()
 	float4 _worldPos4 = mul(_clip, g_camera.invViewProj);
 	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
 	
+	// カメラ（視点）への方向ベクトルを求める
+	float3 _viewVec = g_camera.cameraPos.xyz - _worldPos;
+	float _dist = length(_viewVec);
+	float3 _viewDir = _viewVec / _dist;
+
+	// 球体用に輪郭に近いときには０除算を防ぐために最小値を設定
+	float _Nov = max(abs(dot(_normal, _viewDir)), 0.05f);
+
+	// 距離依存バイアスを作成
+	float _biasNormal = max(0.005f,_dist * 0.0002f);
+	float _biasView = max(0.01f, _dist * 0.001f) / _Nov;
 	
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
-	_ray.Origin = _worldPos +_normal * 0.1; // シャドウアクネ
+	_ray.Origin = _worldPos + _normal * _biasNormal + _viewDir * _biasView;
 	_ray.Direction = normalize(-g_ambient.DL_Dir);
-	_ray.TMin = 0.1f;
+	_ray.TMin = 0.001f;
 	_ray.TMax = 10000;
 
 
@@ -84,8 +95,6 @@ void RayGen()
 	);
 
 	gOutPut[_id] = float4(_payload.color,1);
-	//gOutPut[_id] = float4(_worldPos,1);
-	//gOutPut[_id] = float4(g_ambient.DL_Dir,1);
 
 }
 [shader("closesthit")]

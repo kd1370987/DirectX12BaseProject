@@ -116,8 +116,6 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::EndFrame()
 	{
-		Engine::Editor::MainEditor::Instance().AddLog("DrawItemSize : %d\n",static_cast<int>(m_lightWeightDrawItemVec.size()));
-
 		// 描画命令をクリアしてメモリ領域を確保しておく
 		m_lightWeightDrawItemVec.clear();
 		m_lightWeightDrawItemVec.reserve(10000);
@@ -325,6 +323,7 @@ namespace Engine::Graphics
 
 		// モーションベクター用のジッターなしViewProjを計算
 		DXSM::Matrix _nonJitteredViewProj = _viewMat * _projMat;
+		DXSM::Matrix _nonJitteredInvViewProj = _nonJitteredViewProj.Invert();
 
 		// 描画用のジッターあり投影行列を作成
 		DXSM::Matrix _jitteredProjMat = _projMat;
@@ -350,6 +349,7 @@ namespace Engine::Graphics
 		// モーションベクターの計算にはジッターなしを使う
 		m_cbGPUCamera.nonJitteredProj = _projMat.Transpose();
 		m_cbGPUCamera.nonJitteredViewProj = _nonJitteredViewProj.Transpose();
+		m_cbGPUCamera.nonJitteredInvViewProj = _nonJitteredInvViewProj.Transpose();
 
 		// 過去フレームのジッターなし行列の処理
 		m_cbGPUCamera.prevView = m_prevViewMat.Transpose();

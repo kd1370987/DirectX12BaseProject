@@ -88,6 +88,9 @@ void GameScene::Init()
 		// 移動
 		Engine::Input::InputAxisForWindows _move('W', 'D', 'S', 'A');
 		_keyboard.AddAxis("Move",std::make_shared<Engine::Input::InputAxisForWindows>(_move));
+		// ジャンプ
+		Engine::Input::InputButtonForWindows _jump(VK_SPACE);
+		_keyboard.AddButton("Jump", std::make_shared<Engine::Input::InputButtonForWindows>(_jump));
 
 		// 視点
 		Engine::Input::InputAxisForWindows _look(VK_UP, VK_RIGHT, VK_DOWN, VK_LEFT);

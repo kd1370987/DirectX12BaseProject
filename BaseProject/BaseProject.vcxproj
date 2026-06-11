@@ -419,7 +419,6 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSLookAngleComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h" />
     <ClInclude Include="Source\Application\Components\Charactor\Player\PlayerLookAngleComponent.h" />
-    <ClInclude Include="Source\Application\Components\Charactor\StateComponent.h" />
     <ClInclude Include="Source\Application\Components\Collision\Collider.h" />
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\SphreCollider.h" />

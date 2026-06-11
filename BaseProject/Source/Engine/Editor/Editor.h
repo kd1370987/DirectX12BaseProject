@@ -39,6 +39,7 @@ namespace Engine::Editor
 		// ログの追加
 		// 文字列と可変引数でログを追加する関数
 		void AddLog(const char* a_fmt, ...);
+		void AddLogVector(const float* a_data,const size_t& a_size);
 		// 行列をログに追加する関数
 		void AddLogMatrix(const std::string& a_name, const DirectX::XMFLOAT4X4& a_mat);
 

@@ -50,7 +50,7 @@ namespace Engine::Graphics
 		_cpBuilder.Read("PrevDepth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		_cpBuilder.Read("PrevNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 
-		_cpBuilder.Write("AffterDLShadowTempAccumu", AccessType::UAV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.Write("AffterDLShadowTempAccumu", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
 
 		// PSO作成
 		_cpBuilder.ResolveAndCompile(a_pPSOManager);

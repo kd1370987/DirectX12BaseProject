@@ -22,7 +22,7 @@ void GravitySystem::Init(Engine::ECS::World& a_world)
 			{
 				const GravityComponent& _gravComp = a_gravityArray[_i];
 				VelocityComponent& _velComp = a_velocityArray[_i];
-				_velComp.value.y += _gravComp.scale;
+				_velComp.value.y -= _gravComp.scale;
 			}
 		}
 	);

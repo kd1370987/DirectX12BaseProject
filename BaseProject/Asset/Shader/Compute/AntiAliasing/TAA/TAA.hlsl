@@ -76,7 +76,7 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 
 			// もっと手前のピクセルを探す(Velocity Dilation)
 			float _d = g_depthTex.Load(int3(_sampleCoord, 0)).r;
-			if(_d > _closestDepth)
+			if(_d < _closestDepth)
 			{
 				_closestDepth = _d;
 				_closestCoord = _sampleCoord;

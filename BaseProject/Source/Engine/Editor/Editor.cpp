@@ -98,8 +98,6 @@ namespace Engine::Editor
 		ImGui::End();
 
 		auto _vp = ImGui::GetMainViewport();
-		AddLog("Window : %d,%d",(int)a_widht,(int)a_height);
-		AddLog("Viewport : %f,%f",_vp->Size.x,_vp->Size.y);
 
 		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);
@@ -117,6 +115,17 @@ namespace Engine::Editor
 		va_start(_args, a_fmt);
 		m_upLog->AddLog(a_fmt);
 		va_end(_args);
+	}
+	void MainEditor::AddLogVector(const float* a_data, const size_t& a_size)
+	{
+		if (!m_isInit) return;
+		if (!m_upLog) return;
+
+		for (size_t _i = 0; _i < a_size; ++_i)
+		{
+			AddLog("%f ,",a_data[_i]);
+		}
+		AddLog("\n");
 	}
 	void MainEditor::AddLogMatrix(const std::string & a_name, const DirectX::XMFLOAT4X4 & a_mat)
 	{

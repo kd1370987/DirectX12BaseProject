@@ -98,7 +98,7 @@ namespace Engine::Graphics
 				_spPassData->pRG->GetCPUHandle("GBufferMaterial"),
 				_spPassData->pRG->GetCPUHandle("GBufferEmissiv"),
 				_spPassData->pRG->GetCPUHandle("Depth"),
-				_spPassData->pRG->GetCPUHandle("RayShadow"),
+				_spPassData->pRG->GetCPUHandle("AffterDLShadowTempAccumu"),
 				_spPassData->pRG->GetCPUHandle("FinalGI")
 			};
 			a_pCtx->ComputeBindSRV(2, _gpuVec);

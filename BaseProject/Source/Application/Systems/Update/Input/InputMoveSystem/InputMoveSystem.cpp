@@ -31,7 +31,10 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 
 			// 移動
 			_inputMove = Engine::Input::InputManager::Instance().GetAxisState("Move");
-			_move = { _inputMove.x,0,_inputMove.y };
+			float _jumpInput = Engine::Input::InputManager::Instance().GetButtonState("Jump");
+			_move = { _inputMove.x,_jumpInput,_inputMove.y };
+
+			
 
 			// 視点
 			_look = Engine::Input::InputManager::Instance().GetAxisState("Look");

@@ -37,10 +37,9 @@ void CharactorMovementSystem::Init(Engine::ECS::World& a_world)
 				float _sinY = sinf(_rad);
 				float _cosY = cosf(_rad);
 
-				_velComp.value = {};
-				_velComp.value.x += (_moveIntent.value.x * _cosY + _moveIntent.value.z * _sinY) * 5.0f;
-				_velComp.value.y += _moveIntent.value.y;
-				_velComp.value.z += (_moveIntent.value.z * _cosY - _moveIntent.value.x * _sinY) * 5.0f;
+				_velComp.value.x = (_moveIntent.value.x * _cosY + _moveIntent.value.z * _sinY) * 5.0f;
+				_velComp.value.y = _moveIntent.value.y * _moveIntent.jumpPow;
+				_velComp.value.z = (_moveIntent.value.z * _cosY - _moveIntent.value.x * _sinY) * 5.0f;
 
 				// 移動状態のためステート移動を入れる
 				//if (_velComp.value.x != 0.0f || _velComp.value.y != 0.0f || _velComp.value.z != 0.0f)
