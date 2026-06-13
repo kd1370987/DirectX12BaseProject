@@ -7,14 +7,9 @@ namespace Engine::Resource
 		// 追加
 		void AddExtensions(const std::string& a_ext) { extensions.push_back(a_ext); }
 
-		// タイプ
-		std::string type;
-
-		// ベースとなる拡張子(.gltf,.fbxなど)
-		std::vector<std::string> extensions;
-
-		// 独自規格(.ob,.oj)
-		std::string typeExt;
+		std::string type;						// タイプ
+		std::vector<std::string> extensions;	// ベースとなる拡張子(.gltf,.fbxなど)
+		std::vector<std::string> typeExt;		// 独自規格(.ob,.oj)
 	};
 
 	// アセット一つ当たりの情報 : メタ情報データ
@@ -24,13 +19,9 @@ namespace Engine::Resource
 		std::string type = "";								// アセットの種別
 		Engine::GUID guid = {};								// GUID
 		std::string fileName = "";							// ファイル名
+		std::string filePath = "";							// 拡張子なしのベースパス
+
 		std::vector<std::string> extensionsVec = {};		// アセットが持っている拡張子
-
-		// デバッグビルド用アセットデータ
-		std::string filePath = "";
-
-		// コンパイルビルド用アセットデータ
-		std::string cmpFilePath = "";
 	};
 
 	// アセットの階層構造用ノード
@@ -55,8 +46,7 @@ namespace Engine::Resource
 		// アセットの上位フォルダと作成拡張子指定
 		void Init(
 			const std::string& a_assetFilePath,
-			const std::string& a_metafileExtension,
-			const std::string& a_compiledDir
+			const std::string& a_metafileExtension
 		);
 
 		// 読み込みたい拡張子があれば追加
@@ -65,11 +55,11 @@ namespace Engine::Resource
 		// アセットフォルダ以下を検索して、すべてのアセットにメタファイルを作る
 		void CreateMetaFileForAllAssets();
 
+		// すべてのメタファイルを削除して再構築する
+		void RebuildAllMetaData();
+
 		// ランタイム用情報へと変換
 		void CreateRuntimeData();
-
-		// 本番環境用データの構築
-		void CompiledAssetData();
 
 		// ランタイム中にファイルが追加された際に追加される
 		Engine::GUID AddMetaData(const std::string& a_newFilePath,const std::string& a_type);
@@ -80,9 +70,7 @@ namespace Engine::Resource
 		std::string GetBaseFilePathFromGUID(const Engine::GUID& a_guid);	// ベースファイルパスの取得
 		std::string GetFileNameFromGUID(const Engine::GUID& a_guid);		// ファイルネームの取得
 		Engine::GUID GetGUIDFromFilePath(const std::string& a_path);		// ファイルパスからGUIDを取得
-
 		const AssetNode& GetAssetRootNode() const { return m_assetRootNode; }		// アセット構造取得
-
 		const std::unordered_map<std::string, TypeExtension>& GetAssetTypeExtensionsMap() const;
 		std::span<const AssetProperty> GetTypeMetaVec(const std::string& a_type);					// 指定したタイプのメタ配列取得
 
@@ -102,7 +90,6 @@ namespace Engine::Resource
 		// ファイルパス
 		std::string m_assetsFilePath = {};		// アセットが入っているフォルダ
 		std::string m_metafileExtension = {};	// 作成するメタファイルの拡張子
-		std::string m_compiledDir = {};			// コンパイルデータの入っているディレクトリ
 
 		// 管理しているタイプと拡張子
 		std::unordered_map<std::string, TypeExtension> m_assetTypeExtensionsMap;

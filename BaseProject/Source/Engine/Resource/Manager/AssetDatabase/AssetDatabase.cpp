@@ -4,14 +4,12 @@ namespace Engine::Resource
 {
 	void AssetDatabase::Init(
 		const std::string& a_assetFilePath,
-		const std::string& a_metafileExtension,
-		const std::string& a_compiledDir
+		const std::string& a_metafileExtension
 	)
 	{
 		// 初期化
 		m_assetsFilePath = a_assetFilePath;
 		m_metafileExtension = a_metafileExtension;
-		m_compiledDir = a_compiledDir;
 	}
 	void AssetDatabase::AddSupporedExtensions(const TypeExtension& a_data)
 	{
@@ -20,10 +18,10 @@ namespace Engine::Resource
 	Engine::GUID AssetDatabase::AddMetaData(const std::string& a_baseFilePath, const std::string& a_type)
 	{
 		// 拡張子なしの論理パス
-		std::filesystem::path _basePath(a_baseFilePath);
-		std::filesystem::create_directories(_basePath.parent_path()); // 親フォルダを作成
+		std::filesystem::path _basePath(a_baseFilePath);				// ファイルパス
+		std::filesystem::create_directories(_basePath.parent_path());	// 親フォルダを作成
 
-		// メタファイル名
+		// メタファイルパス作成
 		std::filesystem::path _metaPath = _basePath.string() + m_metafileExtension;
 
 		// メタファイルの作成（すでに存在していれば既存のGUIDを使う）
@@ -32,15 +30,18 @@ namespace Engine::Resource
 
 		if (std::filesystem::exists(_metaPath))
 		{
+			// 既存のメタファイルがあればそこから取得
 			std::ifstream _ifs(_metaPath.string());
 			_ifs >> _json;
 			_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DefaultGUID.String()));
 		}
 		else
 		{
+			// なければデータを作成して保存
 			_guid.Create();
 			_json["GUID"] = _guid.String();
 			_json["Type"] = a_type;
+			_json["Files"] = nlohmann::json::array();		// 手動追加時には空配列
 
 			std::ofstream _metafile(_metaPath);
 			_metafile << _json.dump(4);
@@ -54,6 +55,7 @@ namespace Engine::Resource
 		_prop.type = a_type;
 		_prop.guid = _guid;
 
+
 		m_assetMap[_prop.guid] = _prop;
 		m_typeMetaMap[_prop.type].push_back(_prop);
 
@@ -61,29 +63,106 @@ namespace Engine::Resource
 	}
 	void AssetDatabase::CreateMetaFileForAllAssets()
 	{
-		// 指定フォルダ以下をクロール
+		// 拡張子なしのベースパスに付随する拡張子リスト
+		std::map<std::string, std::vector<std::string>> _assetGroups;
+
+		// スキャンしてベース名ごとに拡張子をグループ化
 		for (const std::filesystem::directory_entry& _entry : std::filesystem::recursive_directory_iterator(m_assetsFilePath))
 		{
-			// 通常ファイルかどうか、管理対象の拡張子かどうか
+			// エントリーがファイルかつサポートされた拡張子なら
 			if (_entry.is_regular_file() && IsSupported(_entry.path()))
 			{
-				std::string _filePath = _entry.path().string();
+				std::filesystem::path _basePath = _entry.path().parent_path() / _entry.path().stem();
+				std::string _basePathStr = _basePath.lexically_normal().generic_string();				// 拡張子なしのベースパス
 
-				// メタファイル名
-				std::filesystem::path _metafilePath = _entry.path();
-				_metafilePath.replace_filename(
-					_entry.path().filename().string() + m_metafileExtension
-				);
+				// ベースパスのグループに追加
+				_assetGroups[_basePathStr].push_back(_entry.path().extension().string());
+			}
+		}
 
-				// メタファイルがなければ作成
-				if (!std::filesystem::exists(_metafilePath))
+		// 全ファイルがグループに登録されたため、グループごとのメタファイルを作成
+		for (const auto& [_basePathStr, _extensions] : _assetGroups)
+		{
+			// 作成するメタファイルのフルパスを作成
+			std::filesystem::path _metafilePath = _basePathStr + m_metafileExtension;
+
+			// すでにメタファイルが存在する場合は、持っている拡張子リストのみ更新して保存
+			nlohmann::json _json;
+			if (std::filesystem::exists(_metafilePath))
+			{
+				std::ifstream _ifs(_metafilePath.string());
+				if (_ifs.is_open())
 				{
-					std::ofstream _metafile(_metafilePath);
-					// メタデータの出力
-					_metafile << CreateMetaData(_entry.path());
+					_ifs >> _json;
+					_ifs.close();
+				}
+			}
+			else
+			{
+				Engine::GUID _guid;
+				_guid.Create();
+				_json["GUID"] = _guid.String();
+
+				// 拡張子からタイプを推測
+				std::string _typeStr = "Unknown";
+				for (const auto& _ext : _extensions)
+				{
+					for (const auto& [_typeName, _typeExtData] : m_assetTypeExtensionsMap)
+					{
+						for (const auto& _tExt : _typeExtData.typeExt) {
+							if (_ext.find(_tExt) == 0) { _typeStr = _typeName; break; }
+						}
+						for (const auto& _baseExt : _typeExtData.extensions) {
+							if (_ext == _baseExt) { _typeStr = _typeName; break; }
+						}
+					}
+					if (_typeStr != "Unknown") break;
+				}
+				_json["Type"] = _typeStr;
+			}
+
+			// 拡張子リストを常に最新の状態に更新
+			auto _array = nlohmann::json::array();
+			for (const auto& _ext : _extensions) { _array.push_back(_ext); }
+			_json["Files"] = _array;
+
+			std::ofstream _metafile(_metafilePath);
+			_metafile << _json.dump(4);
+			_metafile.close();
+		}
+	}
+
+	void AssetDatabase::RebuildAllMetaData()
+	{
+		// ディレクトリが存在しない場合は処理をしない
+		if (!std::filesystem::exists(m_assetsFilePath)) return;
+
+		// 既存のメタファイルのみをすべて削除
+		for (const auto& _entry : std::filesystem::recursive_directory_iterator(m_assetsFilePath))
+		{
+			// ファイルかつ拡張子がメタファイルのものだけを狙う
+			if (_entry.is_regular_file() && _entry.path().extension().string() == m_metafileExtension)
+			{
+				std::error_code _ec;
+				std::filesystem::remove(_entry.path(), _ec);
+
+				// 万が一ファイルロック等で消せなかった場合のログ出力
+				if (_ec)
+				{
+					Engine::Editor::MainEditor::Instance().AddLog(
+						"DeleteMetaFile False : %s", _entry.path().string().c_str()
+					);
 				}
 			}
 		}
+
+		// メタファイルを完全にクリーンな状態から作り直す
+		CreateMetaFileForAllAssets();
+
+		// ランタイムデータを最新のものに更新
+		CreateRuntimeData();
+
+		Engine::Editor::MainEditor::Instance().AddLog("All Asset Rebuild MetaData");
 	}
 
 	void AssetDatabase::CreateRuntimeData()
@@ -109,8 +188,7 @@ namespace Engine::Resource
 			}
 			catch (const nlohmann::json::parse_error&)
 			{
-				Engine::Editor::MainEditor::Instance().AddLog(
-					"ファイルオープンエラー : %s",_entry.path().string().c_str());
+				Engine::Editor::MainEditor::Instance().AddLog("ファイルオープンエラー : %s",_entry.path().string().c_str());
 				continue;
 			}
 
@@ -125,16 +203,23 @@ namespace Engine::Resource
 			AssetProperty _property = {};
 
 			// パスの正規化（ 区切り = / ）
-			_property.filePath = _resPath.lexically_normal().generic_string();
-			_property.fileName = _resPath.filename().string();
-
-			// タイプの取得
-			_property.type = JSONHelper::GetValue<std::string>("Type", _json, "Unknown");
+			_property.filePath = _resPath.lexically_normal().generic_string();				// ファイルパス
+			_property.fileName = _resPath.filename().string();								// ファイル名
+			_property.type = JSONHelper::GetValue<std::string>("Type", _json, "Unknown");	// タイプの取得
 
 			// GUIDの取得
 			Engine::GUID _guid = {};
 			std::string _default = _guid.String();
 			_property.guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, _default));
+
+			// アセットが持っている拡張子リストの復元
+			if (_json.contains("Files"))
+			{
+				for (const auto& _ext : _json["Files"])
+				{
+					_property.extensionsVec.push_back(_ext.get<std::string>());
+				}
+			}
 
 			// GUIDをキーにして登録
 			m_assetMap[_property.guid] = _property;
@@ -221,113 +306,7 @@ namespace Engine::Resource
 		return std::span<const AssetProperty>();
 	}
 
-	void AssetDatabase::CompiledAssetData()
-	{
-		// ※事前に m_importedFilePath (例: "Imported") がInit等で設定されている想定
-		std::filesystem::path _srcBase(m_assetsFilePath);
-		std::filesystem::path _destBase(m_compiledDir);
-
-		std::error_code _ec; // エラーキャッチ用
-
-		// インポート先の大元フォルダがなければ作成
-		if (!std::filesystem::exists(_destBase))
-		{
-			std::filesystem::create_directories(_destBase, _ec);
-		}
-
-		// Assetsフォルダ以下を再帰的にクロール
-		for (const auto& _entry : std::filesystem::recursive_directory_iterator(_srcBase))
-		{
-			// Assetsルートからの相対パスを取得 (例: "Player/PlayerAI.obstate")
-			std::filesystem::path _relPath = std::filesystem::relative(_entry.path(), _srcBase);
-
-			// コピー先のフルパスを構築 (例: "Imported/Player/PlayerAI.obstate")
-			std::filesystem::path _destPath = _destBase / _relPath;
-
-			// フォルダの場合：階層をミラーリングして作成
-			if (_entry.is_directory())
-			{
-				std::filesystem::create_directories(_destPath, _ec);
-				continue;
-			}
-
-			// ファイルの場合：独自のバイナリ規格 (.ob系) かどうかを判定してコピー
-			if (_entry.is_regular_file())
-			{
-				std::string _ext = _entry.path().extension().string();
-
-				// 拡張子が ".ob" で始まる場合
-				if (_ext.find(".ob") == 0)
-				{
-					// コピー先の親フォルダを念のため作成
-					std::filesystem::create_directories(_destPath.parent_path(), _ec);
-
-					// --- 手動でタイムスタンプを比較してコピーを制御 ---
-					bool _shouldCopy = true;
-					if (std::filesystem::exists(_destPath))
-					{
-						auto _srcTime = std::filesystem::last_write_time(_entry.path(), _ec);
-						auto _destTime = std::filesystem::last_write_time(_destPath, _ec);
-
-						// コピー先の方が新しい、または同じ時間ならスキップ
-						if (_srcTime <= _destTime)
-						{
-							_shouldCopy = false;
-						}
-					}
-
-					// コピー実行
-					if (_shouldCopy)
-					{
-						// overwrite_existing を使って強制上書き
-						bool _success = std::filesystem::copy_file(
-							_entry.path(),
-							_destPath,
-							std::filesystem::copy_options::overwrite_existing,
-							_ec // 例外ではなくエラーコードで受け取る
-						);
-
-						// ログ出力（デバッグ用）
-						if (!_success || _ec)
-						{
-							Engine::Editor::MainEditor::Instance().AddLog(
-								"Copy False: %s (sorce: %s)\n",
-								_destPath.string().c_str(),
-								_ec.message().c_str()
-							);
-						}
-						else
-						{
-							Engine::Editor::MainEditor::Instance().AddLog(
-								"Copy True: %s\n",
-								_destPath.string().c_str()
-							);
-						}
-					}
-				}
-			}
-		}
-		nlohmann::json _registryJson;
-
-		// 現在 m_assetMap に登録されている全アセットの情報を1つのJSONにまとめる
-		for (const auto& [_guid, _prop] : m_assetMap)
-		{
-			nlohmann::json _assetObj;
-			_assetObj["GUID"] = _guid.String();
-			_assetObj["Type"] = _prop.type;
-			_assetObj["FileName"] = _prop.fileName;
-			_assetObj["FilePath"] = _prop.filePath; // 拡張子なしのベースパス
-
-			_registryJson.push_back(_assetObj);
-		}
-
-		// Importedフォルダの直下に「AssetRegistry.json」として出力
-		std::filesystem::path _registryPath = std::filesystem::path(m_compiledDir) / "AssetRegistry.json";
-		std::ofstream _ofs(_registryPath);
-		_ofs << _registryJson.dump(4);
-
-		Engine::Editor::MainEditor::Instance().AddLog("アセットカタログの生成が完了しました: %s", _registryPath.string().c_str());
-	}
+	
 
 	nlohmann::json AssetDatabase::CreateMetaData(const std::filesystem::path& a_srcFile)
 	{
@@ -364,18 +343,22 @@ namespace Engine::Resource
 		// 拡張子のみを抜き出して文字列化
 		std::string _fileExt = a_filepath.extension().string();
 
-		// サポートされた拡張しと一致するならTrue
+		// サポートされた拡張子と一致するならTrue
 		for (auto& [_type, _typeExt] : m_assetTypeExtensionsMap)
 		{
+			// ベース拡張子のチェック (.gltf など)
 			for (auto& _ext : _typeExt.extensions)
 			{
-				if (_fileExt == _ext)
-				{
-					return true;
-				}
+				if (_fileExt == _ext) return true;
+			}
+
+			// 独自規格のチェック (.ob, .oj)
+			for (auto& _tExt : _typeExt.typeExt)
+			{
+				if (_fileExt.find(_tExt) == 0) return true;
 			}
 		}
-		
+
 		// 対象がサポートされていない
 		return false;
 	}

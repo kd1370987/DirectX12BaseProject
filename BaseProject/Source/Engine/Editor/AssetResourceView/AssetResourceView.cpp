@@ -28,10 +28,6 @@ namespace Engine::Editor
 		// リソースビューの作成
 		if (ImGui::Begin("ResourceDataBase"))
 		{
-			if (ImGui::Button("CompiledImported"))
-			{
-				Resource::AssetDatabase::Instance().CompiledAssetData();
-			}
 
 			// リソースビューの作成
 			ExtensionVec();
