@@ -1,27 +1,40 @@
 ﻿#pragma once
 namespace Engine::Resource
 {
+	// アセット一つ当たりの情報
+	struct AssetProperty
+	{
+		Engine::GUID guid = {};			// GUID
+		std::string fileName = "";		// ファイル名
+		std::string filePath = "";		// ファイルパス
+		std::string type = "";			// アセットの種別
+	};
+
+	// アセットの階層構造用ノード
+	struct AssetNode
+	{
+		std::map<std::string, AssetNode> children;
+		std::vector<AssetProperty*> assets;
+
+		// リセット
+		void Clear()
+		{
+			children.clear();
+			assets.clear();
+		}
+	};
+
 	// ゲームに使用する外部アセットを管理する
 	class AssetDatabase
 	{
-	public:
-
-		// アセット一つ当たりの情報
-		struct AssetProperty
-		{
-			Engine::GUID guid = {};			// GUID
-			std::string fileName = "";		// ファイル名
-			std::string filePath = "";		// ファイルパス
-			std::string type = "";			// アセットの種別
-		};
-
 	public:
 
 		// 初期化
 		// アセットの上位フォルダと作成拡張子指定
 		void Init(
 			const std::string& a_assetFilePath,
-			const std::string& a_metafileExtension
+			const std::string& a_metafileExtension,
+			const std::string& a_compiledDir
 		);
 
 		// 読み込みたい拡張子があれば追加
@@ -49,11 +62,18 @@ namespace Engine::Resource
 		// ファイルパスからGUIDを取得
 		Engine::GUID GetGUIDFromFilePath(const std::string& a_path);
 
-		// アクセサ
+		// ---- アクセサ ----
 		const std::unordered_map<std::string, std::vector<std::string>>& GetSupportedExtensionMap();
 		const std::unordered_map<Engine::GUID, AssetProperty>& GetAssetMap();
 		const std::unordered_map<std::string, std::vector<AssetProperty>>& GetTypeMetaMap();
-		const std::vector<AssetProperty>& GetTypeMetaVec(const std::string& a_type);
+		std::span<const AssetProperty> GetTypeMetaVec(const std::string& a_type);
+
+		// アセット構造取得
+		const AssetNode& GetAssetRootNode() const { return m_assetRootNode; }
+
+		// 本番環境用データの構築
+		// アセットから階層をコピーしてバイナリのみでデータを保存する
+		void CompiledAssetData();
 
 	private:
 
@@ -63,10 +83,15 @@ namespace Engine::Resource
 		// 管理対象拡張子かどうか調べる
 		bool IsSupported(const std::filesystem::path& a_filepath);
 
+		// アセットツリーの更新
+		void RefreshAssetTree();
+
 	private:
 
 		std::string m_assetsFilePath = {};		// アセットが入っているフォルダ
 		std::string m_metafileExtension = {};	// 作成するメタファイルの拡張子
+
+		std::string m_compiledDir = {};			// コンパイルデータの入っているディレクトリ
 
 		// 対応しているファイル拡張子
 		std::unordered_map<std::string,std::vector<std::string>> m_supportedExtensionsMap = {};
@@ -79,6 +104,9 @@ namespace Engine::Resource
 
 		// 対応しているファイル拡張子ごとのメタデータ
 		std::unordered_map<std::string, std::vector<AssetProperty>> m_typeMetaMap = {};
+
+		// 階層構造
+		AssetNode m_assetRootNode = {};
 
 	// シングルトン
 	private:

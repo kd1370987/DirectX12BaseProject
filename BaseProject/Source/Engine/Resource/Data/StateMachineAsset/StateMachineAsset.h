@@ -40,7 +40,7 @@ namespace Engine::Resource
 
 		// 保存と読み込み
 		void Save(const std::string& a_savePath);
-		void Load(const std::string& a_filePath);
+		void Load(const std::string& a_fileDir,const std::string& a_fileName);
 
 		// 解放
 		void Release();

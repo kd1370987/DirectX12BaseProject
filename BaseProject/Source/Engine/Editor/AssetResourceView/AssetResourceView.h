@@ -1,4 +1,9 @@
 ﻿#pragma once
+namespace Engine::Resource
+{
+	struct AssetProperty;
+}
+
 namespace Engine::Editor
 {
 	class TextureView;
@@ -16,11 +21,11 @@ namespace Engine::Editor
 
 	private:
 
-		// リソースビューの作成
-		void ResourceView();
-
 		// 拡張子ごとの配列
 		void ExtensionVec();
+
+		// アセットデータベース描画
+		void AssetDataBaseDraw();
 
 	private:
 
@@ -30,5 +35,8 @@ namespace Engine::Editor
 		// 文字列キャッシュ
 		char m_nameCach[256] = "";
 		char m_pathCach[256] = "";
+
+		// 現在選択中のアセットポインタ
+		Resource::AssetProperty* m_pAssetPropCach = nullptr;
 	};
 }

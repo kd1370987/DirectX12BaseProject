@@ -17,11 +17,13 @@ namespace Engine::Resource
 		}
 
 		// なければロード
-		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
-		if (_path == "NoFilePath") return Handle<StateMachineAsset>();
+		auto _dir = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
+		auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(a_guid);
+
+		if (_dir == "NoFilePath") return Handle<StateMachineAsset>();
 
 		StateMachineAsset _sma = {};
-		_sma.Load(_path);
+		_sma.Load(_dir,_fileName);
 
 		// リソースマネージャーに登録
 		auto _handle = ResourceManager::Instance().Add(std::move(_sma));

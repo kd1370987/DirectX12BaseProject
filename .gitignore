@@ -32,6 +32,7 @@ imgui.ini
 #========================================
 #Asset以下は基本的に無視
 BaseProject/Asset/*
+BaseProject/Imported/*
 
 #管理対象指定
 #Shader（コード扱い）

@@ -18,7 +18,15 @@ UINT Engine::Resource::StateMachineAsset::GetStateHash(const std::string& a_stat
 
 void Engine::Resource::StateMachineAsset::Save(const std::string& a_savePath)
 {	
-	Persistence::Archive _arch(Persistence::Archive::Mode::Save,a_savePath,"stet");
+	auto _dir = FileUtility::GetDirFromPath(a_savePath);
+	auto _fileName = FileUtility::GetFileNameWithoutExtension(a_savePath);
+	Persistence::Archive _arch(
+		Persistence::Archive::Mode::Save,
+		_dir,
+		_fileName,
+		"stet"
+	);
+	_arch.StringField("m_name",m_name);
 	_arch.Field("m_defaultStartHash",m_defaultStartHash);
 
 	// ノード保存
@@ -60,11 +68,18 @@ void Engine::Resource::StateMachineAsset::Save(const std::string& a_savePath)
 
 }
 
-void Engine::Resource::StateMachineAsset::Load(const std::string & a_filePath)
+void Engine::Resource::StateMachineAsset::Load(const std::string& a_fileDir, const std::string& a_fileName)
 {
 	Release();
 
-	Persistence::Archive _arch(Persistence::Archive::Mode::Load, a_filePath, "stet", Persistence::Archive::ArchiveFormat::Json);
+	Persistence::Archive _arch(
+		Persistence::Archive::Mode::Load, 
+		a_fileDir,
+		a_fileName,
+		"stet",
+		Persistence::Archive::ArchiveFormat::Json
+	);
+	_arch.StringField("m_name", m_name);
 	_arch.Field("m_defaultStartHash", m_defaultStartHash);
 
 	// ノード保存

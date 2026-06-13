@@ -316,7 +316,8 @@ namespace Engine
 
 		Resource::AssetDatabase::Instance().Init(
 			"Asset/",			// クロールフォルダ指定
-			".assetmeta"		// 作成拡張子
+			".assetmeta",		// 作成拡張子
+			"Imported/"			// 本番環境用ディレクトリ名
 		);
 		
 		// ---- 対応する拡張子を登録 ----
@@ -355,5 +356,7 @@ namespace Engine
 
 		// ランタイムデータ作成
 		Resource::AssetDatabase::Instance().CreateRuntimeData();
+
+		
 	}
 }

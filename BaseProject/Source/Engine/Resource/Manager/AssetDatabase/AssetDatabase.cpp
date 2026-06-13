@@ -4,12 +4,14 @@ namespace Engine::Resource
 {
 	void AssetDatabase::Init(
 		const std::string& a_assetFilePath,
-		const std::string& a_metafileExtension
+		const std::string& a_metafileExtension,
+		const std::string& a_compiledDir
 	)
 	{
 		// 初期化
 		m_assetsFilePath = a_assetFilePath;
 		m_metafileExtension = a_metafileExtension;
+		m_compiledDir = a_compiledDir;
 	}
 	void AssetDatabase::AddSupporedExtensions(const std::string& a_type, const std::string& a_extensions)
 	{
@@ -168,6 +170,9 @@ namespace Engine::Resource
 			// 拡張子ごとにメタ配列を作成
 			m_typeMetaMap[_property.type].push_back(_property);
 		}
+
+		// 階層構造の作成
+		RefreshAssetTree();
 	}
 
 	std::string AssetDatabase::GetFilePathFromGUID(const std::string& a_guid)
@@ -234,24 +239,112 @@ namespace Engine::Resource
 		return m_supportedExtensionsMap;
 	}
 
-	const std::unordered_map<Engine::GUID, AssetDatabase::AssetProperty>& AssetDatabase::GetAssetMap()
+	const std::unordered_map<Engine::GUID, AssetProperty>& AssetDatabase::GetAssetMap()
 	{
 		return m_assetMap;
 	}
 
-	const std::unordered_map<std::string, std::vector<AssetDatabase::AssetProperty>>& AssetDatabase::GetTypeMetaMap()
+	const std::unordered_map<std::string, std::vector<AssetProperty>>& AssetDatabase::GetTypeMetaMap()
 	{
 		return m_typeMetaMap;
 	}
 
-	const std::vector<AssetDatabase::AssetProperty>& AssetDatabase::GetTypeMetaVec(const std::string& a_type)
+	std::span<const AssetProperty> AssetDatabase::GetTypeMetaVec(const std::string& a_type)
 	{
 		auto _it = m_typeMetaMap.find(a_type);
 		if (_it != m_typeMetaMap.end())
 		{
 			return _it->second;
 		}
-		return {};
+		return std::span<const AssetProperty>();
+	}
+
+	void AssetDatabase::CompiledAssetData()
+	{
+		// ※事前に m_importedFilePath (例: "Imported") がInit等で設定されている想定
+		std::filesystem::path _srcBase(m_assetsFilePath);
+		std::filesystem::path _destBase(m_compiledDir);
+
+		std::error_code _ec; // エラーキャッチ用
+
+		// インポート先の大元フォルダがなければ作成
+		if (!std::filesystem::exists(_destBase))
+		{
+			std::filesystem::create_directories(_destBase, _ec);
+		}
+
+		// Assetsフォルダ以下を再帰的にクロール
+		for (const auto& _entry : std::filesystem::recursive_directory_iterator(_srcBase))
+		{
+			// Assetsルートからの相対パスを取得 (例: "Player/PlayerAI.obstate")
+			std::filesystem::path _relPath = std::filesystem::relative(_entry.path(), _srcBase);
+
+			// コピー先のフルパスを構築 (例: "Imported/Player/PlayerAI.obstate")
+			std::filesystem::path _destPath = _destBase / _relPath;
+
+			// フォルダの場合：階層をミラーリングして作成
+			if (_entry.is_directory())
+			{
+				std::filesystem::create_directories(_destPath, _ec);
+				continue;
+			}
+
+			// ファイルの場合：独自のバイナリ規格 (.ob系) かどうかを判定してコピー
+			if (_entry.is_regular_file())
+			{
+				std::string _ext = _entry.path().extension().string();
+
+				// 拡張子が ".ob" で始まる場合
+				if (_ext.find(".ob") == 0)
+				{
+					// コピー先の親フォルダを念のため作成
+					std::filesystem::create_directories(_destPath.parent_path(), _ec);
+
+					// --- 手動でタイムスタンプを比較してコピーを制御 ---
+					bool _shouldCopy = true;
+					if (std::filesystem::exists(_destPath))
+					{
+						auto _srcTime = std::filesystem::last_write_time(_entry.path(), _ec);
+						auto _destTime = std::filesystem::last_write_time(_destPath, _ec);
+
+						// コピー先の方が新しい、または同じ時間ならスキップ
+						if (_srcTime <= _destTime)
+						{
+							_shouldCopy = false;
+						}
+					}
+
+					// コピー実行
+					if (_shouldCopy)
+					{
+						// overwrite_existing を使って強制上書き
+						bool _success = std::filesystem::copy_file(
+							_entry.path(),
+							_destPath,
+							std::filesystem::copy_options::overwrite_existing,
+							_ec // 例外ではなくエラーコードで受け取る
+						);
+
+						// ログ出力（デバッグ用）
+						if (!_success || _ec)
+						{
+							Engine::Editor::MainEditor::Instance().AddLog(
+								"Copy False: %s (sorce: %s)\n",
+								_destPath.string().c_str(),
+								_ec.message().c_str()
+							);
+						}
+						else
+						{
+							Engine::Editor::MainEditor::Instance().AddLog(
+								"Copy True: %s\n",
+								_destPath.string().c_str()
+							);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	nlohmann::json AssetDatabase::CreateMetaData(const std::filesystem::path& a_srcFile)
@@ -303,5 +396,32 @@ namespace Engine::Resource
 		
 		// 対象がサポートされていない
 		return false;
+	}
+	void AssetDatabase::RefreshAssetTree()
+	{
+		// 階層構造リセット
+		m_assetRootNode.Clear();
+
+		for (auto& [_type, _prop] : m_assetMap)
+		{
+			AssetNode* _pCurrent = &m_assetRootNode;
+			std::filesystem::path _path(_prop.filePath);
+
+			// ベースパスからの相対パスへの変換
+			auto _relPath = std::filesystem::relative(_path, m_assetsFilePath);
+
+			// フォルダ階層を辿る
+			for (auto& _part : _relPath.parent_path())
+			{
+				std::string _folderName = _part.string();
+				if (_folderName == "." || _folderName == "..") continue;
+				_pCurrent = &_pCurrent->children[_folderName];
+			}
+
+			// アセットを追加
+			_pCurrent->assets.push_back(&_prop);
+		}
+
+		return;
 	}
 }

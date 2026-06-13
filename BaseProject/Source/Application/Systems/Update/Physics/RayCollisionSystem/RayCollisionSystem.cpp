@@ -71,10 +71,6 @@ void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 				_transComp.pos.y -= _groundDistance;
 				_velComp.value.y = 0;
 				_stateComp.isGround = true;
-
-				Engine::Editor::MainEditor::Instance().AddLog("_res.hitPos\n");
-				Engine::Editor::MainEditor::Instance().AddLogVector(&_res.hitPos.x,3);
-
 			}
 		}
 	);
