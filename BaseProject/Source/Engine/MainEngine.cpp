@@ -349,6 +349,54 @@ namespace Engine
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Shader",".hlsl");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions("Shader",".cso");
 		
+		// モデル
+		Resource::TypeExtension _modelExt = {};
+		_modelExt.type = "Model";
+		_modelExt.typeExt = "mdl";
+		_modelExt.AddExtensions(".gltf");
+		_modelExt.AddExtensions(".fbx");
+		_modelExt.AddExtensions(".obj");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_modelExt);
+		// メッシュ
+		Resource::TypeExtension _meshExt = {};
+		_meshExt.type = "Mesh";
+		_meshExt.typeExt = "mesh";
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_meshExt);
+		// マテリアル
+		Resource::TypeExtension _materialExt = {};
+		_materialExt.type = "Material";
+		_materialExt.typeExt = "mtrl";
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_materialExt);
+		// アニメーション
+		Resource::TypeExtension _animationExt = {};
+		_animationExt.type = "Animation";
+		_animationExt.typeExt = "anim";
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_animationExt);
+		// ステートマシン
+		Resource::TypeExtension _stateExt = {};
+		_stateExt.type = "StateMachinAsset";
+		_stateExt.typeExt = "stat";
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_stateExt);
+		// テクスチャ
+		Resource::TypeExtension _texExt = {};
+		_texExt.type = "Texture";
+		_texExt.typeExt = "tex";
+		_texExt.AddExtensions(".png");
+		_texExt.AddExtensions(".jpg");
+		_texExt.AddExtensions(".tag");
+		_texExt.AddExtensions(".dds");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_texExt);
+		// シェーダー
+		Resource::TypeExtension _shaderExt = {};
+		_shaderExt.type = "Shader";
+		_shaderExt.typeExt = "shdr";
+		_shaderExt.AddExtensions(".hlsl");
+		_shaderExt.AddExtensions(".cso");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_shaderExt);
+
+
+
+		
 
 		// 全アセットに一括でメタファイル作成
 		// すでにあれば無視

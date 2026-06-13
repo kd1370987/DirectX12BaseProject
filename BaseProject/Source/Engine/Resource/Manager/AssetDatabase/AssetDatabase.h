@@ -1,7 +1,23 @@
 ﻿#pragma once
 namespace Engine::Resource
 {
-	// アセット一つ当たりの情報
+	// タイプに対応する拡張子
+	struct TypeExtension
+	{
+		// 追加
+		void AddExtensions(const std::string& a_ext) { extensions.push_back(a_ext); }
+
+		// タイプ
+		std::string type;
+
+		// ベースとなる拡張子(.gltf,.fbxなど)
+		std::vector<std::string> extensions;
+
+		// 独自規格(.ob,.oj)
+		std::string typeExt;
+	};
+
+	// アセット一つ当たりの情報 : メタ情報データ
 	struct AssetProperty
 	{
 		Engine::GUID guid = {};			// GUID
@@ -37,8 +53,11 @@ namespace Engine::Resource
 			const std::string& a_compiledDir
 		);
 
+		
+
 		// 読み込みたい拡張子があれば追加
 		void AddSupporedExtensions(const std::string& a_type,const std::string& a_extensions);
+		void AddSupporedExtensions(const TypeExtension& a_data);
 		// タイプに対応する独自拡張子追加
 		void AddTypeExtensions(const std::string& a_type,const std::string& a_extensions);
 
@@ -93,6 +112,8 @@ namespace Engine::Resource
 
 		std::string m_compiledDir = {};			// コンパイルデータの入っているディレクトリ
 
+		
+
 		// 対応しているファイル拡張子
 		std::unordered_map<std::string,std::vector<std::string>> m_supportedExtensionsMap = {};
 
@@ -107,6 +128,9 @@ namespace Engine::Resource
 
 		// 階層構造
 		AssetNode m_assetRootNode = {};
+
+		// 管理しているタイプと拡張子
+		std::unordered_map<std::string, TypeExtension> m_assetTypeExtensionsMap;
 
 	// シングルトン
 	private:

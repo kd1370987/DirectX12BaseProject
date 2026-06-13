@@ -28,6 +28,10 @@ namespace Engine::Resource
 		m_supportedExtensionsMap[a_type] = {};
 		m_supportedExtensionsMap[a_type].push_back(a_extensions);
 	}
+	void AssetDatabase::AddSupporedExtensions(const TypeExtension& a_data)
+	{
+		m_assetTypeExtensionsMap[a_data.type] = a_data;
+	}
 	void AssetDatabase::AddTypeExtensions(const std::string& a_type, const std::string& a_extensions)
 	{
 		// 検索
@@ -345,6 +349,26 @@ namespace Engine::Resource
 				}
 			}
 		}
+		nlohmann::json _registryJson;
+
+		// 現在 m_assetMap に登録されている全アセットの情報を1つのJSONにまとめる
+		for (const auto& [_guid, _prop] : m_assetMap)
+		{
+			nlohmann::json _assetObj;
+			_assetObj["GUID"] = _guid.String();
+			_assetObj["Type"] = _prop.type;
+			_assetObj["FileName"] = _prop.fileName;
+			_assetObj["FilePath"] = _prop.filePath; // 拡張子なしのベースパス
+
+			_registryJson.push_back(_assetObj);
+		}
+
+		// Importedフォルダの直下に「AssetRegistry.json」として出力
+		std::filesystem::path _registryPath = std::filesystem::path(m_compiledDir) / "AssetRegistry.json";
+		std::ofstream _ofs(_registryPath);
+		_ofs << _registryJson.dump(4);
+
+		Engine::Editor::MainEditor::Instance().AddLog("アセットカタログの生成が完了しました: %s", _registryPath.string().c_str());
 	}
 
 	nlohmann::json AssetDatabase::CreateMetaData(const std::filesystem::path& a_srcFile)
