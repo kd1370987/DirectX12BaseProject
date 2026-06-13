@@ -20,7 +20,7 @@ namespace Engine::Resource
 		auto _dir = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
 		auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(a_guid);
 
-		if (_dir == "NoFilePath") return Handle<StateMachineAsset>();
+		if (_dir.empty()) return Handle<StateMachineAsset>();
 
 		StateMachineAsset _sma = {};
 		_sma.Load(_dir,_fileName);

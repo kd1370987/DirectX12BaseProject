@@ -25,7 +25,7 @@ namespace Engine::Resource
 
 		// なければパスを検索してロードする
 		auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
-		if (_path == "NoFilePath")
+		if (_path.empty())
 		{
 			// パスが見つからなければデフォルトテクスチャを返す
 			return RequestDefaultTex("Default",a_data);

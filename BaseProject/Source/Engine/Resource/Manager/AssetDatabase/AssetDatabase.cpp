@@ -197,7 +197,7 @@ namespace Engine::Resource
 			_resPath.replace_extension("");
 
 			// 実体チェック
-			if (std::filesystem::exists(_resPath) == false) continue;
+			//if (std::filesystem::exists(_resPath) == false) continue;
 
 			// アセットプロパティの作成
 			AssetProperty _property = {};
@@ -242,12 +242,42 @@ namespace Engine::Resource
 	std::string AssetDatabase::GetFilePathFromGUID(const Engine::GUID& a_guid)
 	{
 		auto _it = m_assetMap.find(a_guid);
-		if (_it != m_assetMap.end())
+		if (_it == m_assetMap.end()) return "";
+
+		const AssetProperty& _prop = _it->second;
+
+		// 最適な拡張子を探して結合する (.ob > .oj > 元データの順)
+		auto _typeIt = m_assetTypeExtensionsMap.find(_prop.type);
+		if (_typeIt != m_assetTypeExtensionsMap.end())
 		{
-			return _it->second.filePath;
+			const auto& _typeData = _typeIt->second;
+
+			// 1. 独自規格 (.ob系, .oj系) があれば優先して返す
+			for (const auto& _tExt : _typeData.typeExt)
+			{
+				for (const auto& _ext : _prop.extensionsVec)
+				{
+					if (_ext.find(_tExt) == 0) return _prop.filePath + _ext;
+				}
+			}
+
+			// 2. なければベース拡張子 (.gltf等) を返す
+			for (const auto& _ext : _prop.extensionsVec)
+			{
+				for (const auto& _baseExt : _typeData.extensions)
+				{
+					if (_ext == _baseExt) return _prop.filePath + _ext;
+				}
+			}
 		}
 
-		return "NoFilePath";
+		// 万が一解決できなかった場合は、持っている最初の拡張子をとりあえず付ける
+		if (!_prop.extensionsVec.empty())
+		{
+			return _prop.filePath + _prop.extensionsVec[0];
+		}
+
+		return _prop.filePath; // 最終手段
 	}
 
 	std::string AssetDatabase::GetBaseFilePathFromGUID(const Engine::GUID& a_guid)
@@ -255,13 +285,10 @@ namespace Engine::Resource
 		auto _it = m_assetMap.find(a_guid);
 		if (_it != m_assetMap.end())
 		{
-			// 拡張子のない形にして返す
-			auto _dir = FileUtility::GetDirFromPath(_it->second.filePath);
-			auto _name = FileUtility::GetFileNameWithoutExtension(_it->second.fileName);
-			return _dir + _name;
+			return _it->second.filePath;
 		}
 
-		return "NoFilePath";
+		return "";
 	}
 
 	std::string AssetDatabase::GetFileNameFromGUID(const Engine::GUID& a_guid)
@@ -272,17 +299,20 @@ namespace Engine::Resource
 			return _it->second.fileName;
 		}
 
-		return "NoFilePath";
+		return "";
 	}
 
 	Engine::GUID AssetDatabase::GetGUIDFromFilePath(const std::string& a_path)
 	{
-		// 比較のために引数のパスを正規化
-		std::string _normPath = std::filesystem::path(a_path).lexically_normal().generic_string();
+		// 入力されたパスから拡張子を取り除き、ベースパスとして正規化する
+		std::filesystem::path _inputPath(a_path);
+		std::filesystem::path _basePath = _inputPath.parent_path() / _inputPath.stem();
+		std::string _normBasePath = _basePath.lexically_normal().generic_string();
 
-		for (auto& [_guid,_assetProp] : m_assetMap)
+		for (auto& [_guid, _assetProp] : m_assetMap)
 		{
-			if (_assetProp.filePath == _normPath)
+			// 登録されているベースパスと比較
+			if (_assetProp.filePath == _normBasePath)
 			{
 				return _guid;
 			}

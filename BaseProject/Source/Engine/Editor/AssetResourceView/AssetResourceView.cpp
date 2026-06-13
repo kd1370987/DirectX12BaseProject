@@ -29,6 +29,11 @@ namespace Engine::Editor
 		if (ImGui::Begin("ResourceDataBase"))
 		{
 
+			if (ImGui::Button("Reset"))
+			{
+				Resource::AssetDatabase::Instance().RebuildAllMetaData();
+			}
+
 			// リソースビューの作成
 			ExtensionVec();
 

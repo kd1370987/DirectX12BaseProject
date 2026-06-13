@@ -17,6 +17,8 @@ namespace Engine::Resource
 
 		// なければロード
 		auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
+		if (_path.empty()) return Handle<Model>();
+
 		Model _model = {};
 		_model.Import(_path);
 

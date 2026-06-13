@@ -32,7 +32,6 @@ namespace Engine::Resource
 		// TinyGLTFを使用
 		//-------------------------------------
 		else if (_ext == "gltf")
-		//if (_ext == "gltf")
 		{
 			_model = GLTF::Import(a_filePath);
 			m_name = std::move(_model.name);
@@ -69,7 +68,8 @@ namespace Engine::Resource
 		//-------------------------------------
 		else
 		{
-			assert(0 && "Assimpは未対応");
+			Engine::Editor::MainEditor::Instance().AddLog("Model Import Err : %s\n",a_filePath);
+			return;
 		}
 
 
