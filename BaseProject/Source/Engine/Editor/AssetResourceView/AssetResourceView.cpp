@@ -43,31 +43,6 @@ namespace Engine::Editor
 	}
 	void AssetResourceView::ExtensionVec()
 	{
-
-		ModelView _modelView;
-		// 拡張子ごとに分ける
-		for (auto& [_type, _propVec] : Resource::AssetDatabase::Instance().GetTypeMetaMap())
-		{
-			if (ImGui::TreeNodeEx(_type.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
-			{
-				// 拡張子ごとのメタデータ配列を作成
-				for (auto& _prop : _propVec)
-				{
-					// ファイル名の表示
-					if (ImGui::TreeNodeEx(_prop.fileName.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
-					{
-						if (ImGui::Begin("ModelViewer"))
-						{
-							_modelView.DrawModel(_prop.guid);
-						}
-						ImGui::End();
-						ImGui::TreePop();
-					}
-				}
-				ImGui::TreePop();
-			}
-		}
-
 		// ステートマシン
 		auto& _statePool = Resource::ResourceManager::Instance().RefPool<Resource::StateMachineAsset>();
 		if (ImGui::TreeNodeEx("StateMachinAsset", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
@@ -169,8 +144,8 @@ namespace Engine::Editor
 			{
 				// アセットの構造階層を取得
 				const auto& _rootNode = Resource::AssetDatabase::Instance().GetAssetRootNode();
-				const auto& _types = Resource::AssetDatabase::Instance().GetTypeMetaMap();
-				for (auto& [_type, _propVec] : _types)
+				const auto& _types = Resource::AssetDatabase::Instance().GetAssetTypeExtensionsMap();
+				for (auto& [_type, _typeExt] : _types)
 				{
 					if (ImGui::BeginTabItem(_type.c_str()))
 					{

@@ -13,39 +13,9 @@ namespace Engine::Resource
 		m_metafileExtension = a_metafileExtension;
 		m_compiledDir = a_compiledDir;
 	}
-	void AssetDatabase::AddSupporedExtensions(const std::string& a_type, const std::string& a_extensions)
-	{
-		// 検索
-		auto _it = m_supportedExtensionsMap.find(a_type);
-		if (_it != m_supportedExtensionsMap.end())
-		{
-			// 見つかればサポートするものとして追加
-			_it->second.push_back(a_extensions);
-			return;
-		}
-
-		// なければ新たに作成して追加
-		m_supportedExtensionsMap[a_type] = {};
-		m_supportedExtensionsMap[a_type].push_back(a_extensions);
-	}
 	void AssetDatabase::AddSupporedExtensions(const TypeExtension& a_data)
 	{
 		m_assetTypeExtensionsMap[a_data.type] = a_data;
-	}
-	void AssetDatabase::AddTypeExtensions(const std::string& a_type, const std::string& a_extensions)
-	{
-		// 検索
-		auto _it = m_typeExtensionsMap.find(a_type);
-		if (_it != m_typeExtensionsMap.end())
-		{
-			// 見つかればサポートするものとして追加
-			_it->second.push_back(a_extensions);
-			return;
-		}
-
-		// なければ新たに作成して追加
-		m_typeExtensionsMap[a_type] = {};
-		m_typeExtensionsMap[a_type].push_back(a_extensions);
 	}
 	Engine::GUID AssetDatabase::AddMetaData(const std::string& a_baseFilePath, const std::string& a_type)
 	{
@@ -145,8 +115,6 @@ namespace Engine::Resource
 			}
 
 			// 現在のリソースパス（メタファイルの拡張子 .assetmeta を削除）
-			// 例1: Player.fbx.assetmeta    -> Player.fbx
-			// 例2: Player.obmesh.assetmeta -> Player.obmesh
 			auto _resPath = _entry.path();
 			_resPath.replace_extension("");
 
@@ -238,19 +206,9 @@ namespace Engine::Resource
 		return Engine::DefaultGUID;
 	}
 
-	const std::unordered_map<std::string, std::vector<std::string>>& AssetDatabase::GetSupportedExtensionMap()
+	const std::unordered_map<std::string, TypeExtension>& AssetDatabase::GetAssetTypeExtensionsMap() const
 	{
-		return m_supportedExtensionsMap;
-	}
-
-	const std::unordered_map<Engine::GUID, AssetProperty>& AssetDatabase::GetAssetMap()
-	{
-		return m_assetMap;
-	}
-
-	const std::unordered_map<std::string, std::vector<AssetProperty>>& AssetDatabase::GetTypeMetaMap()
-	{
-		return m_typeMetaMap;
+		return m_assetTypeExtensionsMap;
 	}
 
 	std::span<const AssetProperty> AssetDatabase::GetTypeMetaVec(const std::string& a_type)
@@ -385,9 +343,9 @@ namespace Engine::Resource
 		std::string _typeStr = "Unknown";
 
 		// サポートされているか調べる
-		for (auto& [_type, _extVec] : m_supportedExtensionsMap)
+		for (auto& [_type, _typeExt] : m_assetTypeExtensionsMap)
 		{
-			for (auto& _ext : _extVec)
+			for (auto& _ext : _typeExt.extensions)
 			{
 				if (_srcExt != _ext) continue;
 				
@@ -407,9 +365,9 @@ namespace Engine::Resource
 		std::string _fileExt = a_filepath.extension().string();
 
 		// サポートされた拡張しと一致するならTrue
-		for (auto& [_type,_extVec] : m_supportedExtensionsMap)
+		for (auto& [_type, _typeExt] : m_assetTypeExtensionsMap)
 		{
-			for(auto& _ext : _extVec)
+			for (auto& _ext : _typeExt.extensions)
 			{
 				if (_fileExt == _ext)
 				{

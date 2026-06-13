@@ -320,35 +320,7 @@ namespace Engine
 			"Imported/"			// 本番環境用ディレクトリ名
 		);
 		
-		// ---- 対応する拡張子を登録 ----
-		// 独自形式はバイナリのほうを基準とする
-		// モデル
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".gltf");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".fbx");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Model",".obj");
-		Resource::AssetDatabase::Instance().AddTypeExtensions("Model",".obmdl");
-		Resource::AssetDatabase::Instance().AddTypeExtensions("Model",".ojmdl");
-		// メッシュ
-		Resource::AssetDatabase::Instance().AddTypeExtensions("Mesh", ".obmesh");
-		Resource::AssetDatabase::Instance().AddTypeExtensions("Mesh", ".ojmesh");
-		// マテリアル
-		Resource::AssetDatabase::Instance().AddTypeExtensions("Material", ".obmtrl");
-		Resource::AssetDatabase::Instance().AddTypeExtensions("Material", ".ojmtrl");
-		// アニメーション
-		Resource::AssetDatabase::Instance().AddTypeExtensions("Animation", ".obanim");
-		Resource::AssetDatabase::Instance().AddTypeExtensions("Animation", ".ojanim");
-		// ステートマシン
-		Resource::AssetDatabase::Instance().AddTypeExtensions("StateMachinAsset", ".obstat");
-		Resource::AssetDatabase::Instance().AddTypeExtensions("StateMachinAsset", ".ojstat");
-		// テクスチャ
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".png");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".jpg");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".tga");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Texture",".dds");
-		// シェーダー
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Shader",".hlsl");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions("Shader",".cso");
-		
+		// ---- 対応する拡張子を登録 ----		
 		// モデル
 		Resource::TypeExtension _modelExt = {};
 		_modelExt.type = "Model";
