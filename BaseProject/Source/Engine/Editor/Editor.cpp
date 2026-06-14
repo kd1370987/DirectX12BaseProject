@@ -153,7 +153,7 @@ namespace Engine::Editor
 		va_end(args);
 
 #ifdef _DEBUG
-		assert(false && buffer);
+		//assert(false && buffer);
 #endif
 
 		AddLog(buffer);

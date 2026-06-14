@@ -18,6 +18,14 @@ UINT Engine::Resource::StateMachineAsset::GetStateHash(const std::string& a_stat
 
 void Engine::Resource::StateMachineAsset::Save(const std::string& a_savePath)
 {	
+	// 保存直前に最新のノード座標を取得して構造体にセット
+	for (auto& [_hash, _node] : m_stateNodeMap)
+	{
+		ImVec2 _pos = ImNodes::GetNodeEditorSpacePos(_hash);
+		_node.editorPos.x = _pos.x;
+		_node.editorPos.y = _pos.y;
+	}
+
 	auto _dir = FileUtility::GetDirFromPath(a_savePath);
 	auto _fileName = FileUtility::GetFileNameWithoutExtension(a_savePath);
 	Persistence::Archive _arch(
@@ -82,18 +90,21 @@ void Engine::Resource::StateMachineAsset::Load(const std::string& a_fileDir, con
 	_arch.StringField("m_name", m_name);
 	_arch.Field("m_defaultStartHash", m_defaultStartHash);
 
-	// ノード保存
+	// ノード保存（読み込み処理）
 	UINT _size = 0;
 	_arch.Field("StateNodeMapSize", _size);
 	for (size_t _i = 0; _i < _size; ++_i)
 	{
 		StateNode _node;
 		std::string _filedName = std::to_string(_i);
-		_node.Archive(_arch,_filedName);
+		_node.Archive(_arch, _filedName);
 
 		UINT _key = StringUtility::ToHash(_node.name);
 		_node.hash = _key;
 		m_stateNodeMap.emplace(_key, _node);
+
+		// 読み込んだ座標をImNodesエディタ上に反映する
+		ImNodes::SetNodeEditorSpacePos(_key, ImVec2(_node.editorPos.x, _node.editorPos.y));
 	}
 
 	// データごとの遷移先
@@ -140,8 +151,8 @@ void Engine::Resource::StateMachineAsset::EditImGui()
 	{
 		// ファイルパス取得
 		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(m_guid);
-		Save(_path +"/"+ m_name);
-		Editor::MainEditor::Instance().AddLog("%s",_path);
+		Save(_path);
+		Editor::MainEditor::Instance().AddLog("%s",_path.c_str());
 		Editor::MainEditor::Instance().AddLog(" : Save StateMachinAsset\n");
 	}
 
@@ -179,11 +190,49 @@ void Engine::Resource::StateMachineAsset::EditImGui()
 
 	// ノードエディター終了
 	ImNodes::EndNodeEditor();
+
+	// ---------------------------------------------------
+	// リンクの新規作成
+	// ---------------------------------------------------
+	int _startAttr, _endAttr;
+	if (ImNodes::IsLinkCreated(&_startAttr, &_endAttr))
+	{
+		UINT _srcHash = 0;
+		UINT _dstHash = 0;
+
+		// startAttr と endAttr のピンIDから、対象のノードを探す
+		for (const auto& [_hash, _node] : m_stateNodeMap)
+		{
+			int inPinId = static_cast<int>(_hash);
+			int outPinId = static_cast<int>(_hash ^ 0xFFFFFFFF);
+
+			// 引かれた線が「出力ピン(Out)」なら送信元、「入力ピン(In)」なら送信先とする
+			if (_startAttr == outPinId || _endAttr == outPinId) _srcHash = _hash;
+			if (_startAttr == inPinId || _endAttr == inPinId)  _dstHash = _hash;
+		}
+
+		// 両方のノードが正しく見つかった場合のみ登録（Out同士などの不正な接続もここで弾けます）
+		if (_srcHash != 0 && _dstHash != 0)
+		{
+			TransitionArrow _newArrow;
+
+			static int s_linkIdCounter = 10000;
+			_newArrow.linkID = s_linkIdCounter++;
+			_newArrow.dstStartHash = _dstHash;
+
+			m_transitionArrowMap[_srcHash].push_back(_newArrow);
+		}
+	}
 }
 
 void Engine::Resource::StateNode::Archive(Persistence::Archive& a_arch, const std::string& a_filedName)
 {
+	// ノード名
 	a_arch.StringField(a_filedName + "nodeName",name);
+
+	// ノード位置
+	a_arch.Field(a_filedName + "nodePos",editorPos);
+	
 }
 
 void Engine::Resource::StateNode::EditNode()
@@ -193,14 +242,18 @@ void Engine::Resource::StateNode::EditNode()
 
 	Editor::Node::TitleBar(name);
 
+	// ピンのIDを安全に生成
+	int inPinId = static_cast<int>(hash);
+	int outPinId = static_cast<int>(hash ^ 0xFFFFFFFF); // ビット反転で全く別のIDにする
+
 	// 入力ピン
-	ImNodes::BeginInputAttribute(hash * 10 + 1);
+	ImNodes::BeginInputAttribute(inPinId);
 	ImGui::Text("In");
 	ImNodes::EndInputAttribute();
 
 	// 出力ピン
-	ImNodes::BeginInputAttribute(hash * 10 + 2);
-	ImGui::Text("out");
+	ImNodes::BeginOutputAttribute(outPinId);
+	ImGui::Text("Out");
 	ImNodes::EndOutputAttribute();
 
 	// ノード終了
@@ -209,14 +262,18 @@ void Engine::Resource::StateNode::EditNode()
 
 void Engine::Resource::TransitionArrow::Archive(Persistence::Archive& a_arch, const std::string& a_filedName)
 {
+	a_arch.Field(a_filedName + "linkID", linkID);
 	a_arch.Field(a_filedName + "dstStartHash", dstStartHash);
 }
 
 void Engine::Resource::TransitionArrow::EditArrow(UINT a_srcHash)
 {
+	int outPinId = static_cast<int>(a_srcHash ^ 0xFFFFFFFF);
+	int inPinId = static_cast<int>(dstStartHash);
+
 	ImNodes::Link(
 		linkID,
-		a_srcHash * 10 + 2,
-		dstStartHash
+		outPinId,   // 出力元のピンID
+		inPinId     // 入力先のピンID
 	);
 }

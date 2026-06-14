@@ -17,17 +17,19 @@ namespace Engine::Resource
 		}
 
 		// なければロード
-		auto _dir = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
+		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
 		auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(a_guid);
 
-		if (_dir.empty()) return Handle<StateMachineAsset>();
+		if (_path.empty()) return Handle<StateMachineAsset>();
 
 		StateMachineAsset _sma = {};
+		auto _dir = FileUtility::GetDirFromPath(_path);
 		_sma.Load(_dir,_fileName);
+		_sma.SetGUID(a_guid);
 
 		// リソースマネージャーに登録
 		auto _handle = ResourceManager::Instance().Add(std::move(_sma));
-
+		m_cache[a_guid] = _handle;
 		return _handle;
 	}
 	std::pair<Engine::GUID, Handle<StateMachineAsset>> StateMachineAssetLoader::Create(const std::string& a_path, const std::string& a_name)
@@ -58,6 +60,7 @@ namespace Engine::Resource
 		_sma.SetName(a_name);
 		_sma.Save(_basePath);
 		auto _handle = ResourceManager::Instance().Add(std::move(_sma));
+		m_cache[_guid] = _handle;
 
 		// 返す
 		std::pair<Engine::GUID, Handle<StateMachineAsset>> _res;

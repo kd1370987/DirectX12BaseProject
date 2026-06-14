@@ -10,7 +10,7 @@ namespace Engine::Resource
 		std::string	name;
 
 		// エディター用情報
-		ImVec2 editorPos = {};
+		DXSM::Vector2 editorPos = {};
 
 		void Archive(Persistence::Archive& a_arch,const std::string& a_filedName);
 		void EditNode();

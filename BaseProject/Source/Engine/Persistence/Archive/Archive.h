@@ -288,4 +288,35 @@ namespace Engine::Persistence
 			}
 		}
 	}
+	template<>
+	inline void Archive::Field(
+		const std::string& a_name,
+		DXSM::Vector2& a_data)
+	{
+		if (IsSaving())
+		{
+			m_json[a_name] =
+			{
+				a_data.x,a_data.y
+			};
+
+			if (m_ofs.is_open())
+			{
+				BinaryHelper::Write(m_ofs,a_data);
+			}
+		}
+		else
+		{
+			if (m_json.contains(a_name))
+			{
+				auto& j = m_json[a_name];
+				a_data = { j[0],j[1] };
+			}
+
+			if (m_ifs.is_open())
+			{
+				BinaryHelper::Read(m_ifs,a_data);
+			}
+		}
+	}
 }

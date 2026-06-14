@@ -253,5 +253,13 @@ namespace Engine::Editor
 			}
 			_pMachin->EditImGui();
 		}
+		else
+		{
+			ImGui::Text("No loaded file");
+			if (ImGui::Button("Load"))
+			{
+				Resource::StateMachineAssetLoader::Load(_guid);
+			}
+		}
 	}
 }
