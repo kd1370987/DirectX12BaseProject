@@ -13,6 +13,8 @@ namespace Engine::Resource
 		static std::string GetFilePath(Handle<Model> a_handle);
 		static const Engine::GUID& GetGUID(const Handle<Model>& a_handle);
 
+		static bool Has(const Engine::GUID& a_guid);
+
 	private:
 
 		static std::unordered_map<Engine::GUID, Handle<Model>> m_cache;

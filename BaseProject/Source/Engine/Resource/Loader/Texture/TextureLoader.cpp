@@ -93,6 +93,15 @@ namespace Engine::Resource
 	{
 		return m_nameCache;
 	}
+	bool TextureLoader::Has(const Engine::GUID& a_guid)
+	{
+		auto _it = m_cache.find(a_guid);
+		if (_it != m_cache.end())
+		{
+			return true;
+		}
+		return false;
+	}
 	Handle<Texture> TextureLoader::RequestDefaultTex(const std::string& a_name, const DXSM::Color &a_data)
 	{
 		std::string _checkSTR = "";

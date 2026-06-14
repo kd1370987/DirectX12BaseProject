@@ -27,6 +27,13 @@ namespace Engine::Editor
 		// アセットデータベース描画
 		void AssetDataBaseDraw();
 
+		// 単体リソースビュー
+		void ResourceView();
+
+		// 各リソース描画
+		void DrawModel();
+		void DrawStateMachin();
+
 	private:
 
 		std::unique_ptr<TextureView> m_upTextureView = nullptr;

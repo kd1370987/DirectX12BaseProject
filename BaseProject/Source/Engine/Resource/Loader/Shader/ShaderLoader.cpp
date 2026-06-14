@@ -86,4 +86,22 @@ namespace Engine::Resource
 	{
 		return m_shaderLibraryCache;
 	}
+	bool ShaderLoader::HasShader(const Engine::GUID& a_guid)
+	{
+		auto _it = m_shaderCache.find(a_guid);
+		if (_it != m_shaderCache.end())
+		{
+			return true;
+		}
+		return false;
+	}
+	bool ShaderLoader::HasShaderLibrary(const Engine::GUID& a_guid)
+	{
+		auto _it = m_shaderLibraryCache.find(a_guid);
+		if (_it != m_shaderLibraryCache.end())
+		{
+			return true;
+		}
+		return false;
+	}
 }

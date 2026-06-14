@@ -76,4 +76,13 @@ namespace Engine::Resource
 
 		return Engine::DefaultGUID;
 	}
+	bool ModelLoader::Has(const Engine::GUID& a_guid)
+	{
+		auto _it = m_cache.find(a_guid);
+		if (_it != m_cache.end())
+		{
+			return true;
+		}
+		return false;
+	}
 }

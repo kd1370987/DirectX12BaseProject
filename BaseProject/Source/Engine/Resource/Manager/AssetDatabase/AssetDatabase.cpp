@@ -33,6 +33,7 @@ namespace Engine::Resource
 			// 既存のメタファイルがあればそこから取得
 			std::ifstream _ifs(_metaPath.string());
 			_ifs >> _json;
+			_ifs.close(); // ★念のためcloseを追加
 			_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DefaultGUID.String()));
 		}
 		else
@@ -48,16 +49,44 @@ namespace Engine::Resource
 			_metafile.close();
 		}
 
-		// マップへ追加
+		// -----------------------------------------------------
+		// ランタイムデータの作成と更新
+		// -----------------------------------------------------
 		AssetProperty _prop;
 		_prop.filePath = _basePath.lexically_normal().generic_string();
 		_prop.fileName = _basePath.filename().string();
-		_prop.type = a_type;
+		// JSONからTypeを取得（なければ引数のa_type）
+		_prop.type = JSONHelper::GetValue<std::string>("Type", _json, a_type);
 		_prop.guid = _guid;
 
+		// アセットが持っている拡張子リストの復元（CreateRuntimeDataと同じ動き）
+		if (_json.contains("Files"))
+		{
+			for (const auto& _ext : _json["Files"])
+			{
+				_prop.extensionsVec.push_back(_ext.get<std::string>());
+			}
+		}
 
+		// GUIDをキーにして登録（上書き更新）
 		m_assetMap[_prop.guid] = _prop;
-		m_typeMetaMap[_prop.type].push_back(_prop);
+
+		// m_typeMetaMap の重複登録を防ぎつつ更新
+		auto& _metaVec = m_typeMetaMap[_prop.type];
+		auto _it = std::find_if(_metaVec.begin(), _metaVec.end(), [&_guid](const AssetProperty& p) { return p.guid == _guid; });
+		if (_it != _metaVec.end())
+		{
+			*_it = _prop; // 既存なら上書き
+		}
+		else
+		{
+			_metaVec.push_back(_prop); // 新規なら追加
+		}
+
+		// -----------------------------------------------------
+		// ツリー階層構造の再構築
+		// -----------------------------------------------------
+		RefreshAssetTree();
 
 		return _prop.guid;
 	}

@@ -15,6 +15,8 @@ namespace Engine::Resource
 		
 		// アクセサ
 		static const std::unordered_map<Engine::GUID, Handle<StateMachineAsset>>& GetAllCache();
+
+		static bool Has(const Engine::GUID& a_guid);
 		
 	private:
 

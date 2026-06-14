@@ -32,8 +32,12 @@ namespace Engine::Resource
 	}
 	std::pair<Engine::GUID, Handle<StateMachineAsset>> StateMachineAssetLoader::Create(const std::string& a_path, const std::string& a_name)
 	{
+		// ディレクトリ
+		static std::string _dir = "Asset/StateMachin/";
+		auto _basePath = _dir + a_path + a_name;
+
 		// すでにないかチェック
-		Engine::GUID _checkGUID = AssetDatabase::Instance().GetGUIDFromFilePath(a_path);
+		Engine::GUID _checkGUID = AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);
 		if (_checkGUID != Engine::DefaultGUID)
 		{
 			// すでに作成されていた場合
@@ -46,12 +50,13 @@ namespace Engine::Resource
 
 
 		// アセットデータベースに場所を作る
-		auto _guid = AssetDatabase::Instance().AddMetaData(a_path,"stet");
+		auto _guid = AssetDatabase::Instance().AddMetaData(_basePath,"StateMachinAsset");
 
 		// リソースマネージャーに登録
 		StateMachineAsset _sma = {};
 		_sma.SetGUID(_guid);
 		_sma.SetName(a_name);
+		_sma.Save(_basePath);
 		auto _handle = ResourceManager::Instance().Add(std::move(_sma));
 
 		// 返す
@@ -63,5 +68,14 @@ namespace Engine::Resource
 	const std::unordered_map<Engine::GUID, Handle<StateMachineAsset>>& StateMachineAssetLoader::GetAllCache()
 	{
 		return m_cache;
+	}
+	bool StateMachineAssetLoader::Has(const Engine::GUID& a_guid)
+	{
+		auto _it = m_cache.find(a_guid);
+		if (_it != m_cache.end())
+		{
+			return true;
+		}
+		return false;
 	}
 }

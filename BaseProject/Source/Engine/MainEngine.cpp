@@ -350,8 +350,8 @@ namespace Engine
 		// ステートマシン
 		Resource::TypeExtension _stateExt = {};
 		_stateExt.type = "StateMachinAsset";
-		_stateExt.typeExt.push_back(".obstat");
-		_stateExt.typeExt.push_back(".ojstat");
+		_stateExt.typeExt.push_back(".obstet");
+		_stateExt.typeExt.push_back(".ojstet");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_stateExt);
 		// テクスチャ
 		Resource::TypeExtension _texExt = {};

@@ -7,6 +7,9 @@
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../Resource/Loader/StateMachineAsset/StateMachineAssetLoader.h"
+#include "../../Resource/Loader/Model/ModelLoader.h"
+#include "../../Resource/Loader/Texture/TextureLoader.h"
+#include "../../Resource/Loader/Shader/ShaderLoader.h"
 
 namespace Engine::Editor
 {
@@ -29,18 +32,23 @@ namespace Engine::Editor
 		if (ImGui::Begin("ResourceDataBase"))
 		{
 
-			if (ImGui::Button("Reset"))
+			// ステートマシン追加
+			ImGui::InputText("Name", m_nameCach, sizeof(m_nameCach));
+			ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
+			if (ImGui::Button("Create"))
 			{
-				Resource::AssetDatabase::Instance().RebuildAllMetaData();
+				Resource::StateMachineAssetLoader::Create(std::string(m_pathCach), std::string(m_nameCach));
+				std::memset(m_nameCach, 0, sizeof(m_nameCach));
+				std::memset(m_pathCach, 0, sizeof(m_pathCach));
 			}
-
-			// リソースビューの作成
-			ExtensionVec();
 
 			// アセットデータベース描画
 			AssetDataBaseDraw();
 		}
 		ImGui::End();
+
+		// 各個別に詳細描画
+		ResourceView();
 	}
 	void AssetResourceView::ExtensionVec()
 	{
@@ -61,17 +69,7 @@ namespace Engine::Editor
 
 			ImGui::Separator();
 
-			// ステートマシン追加
-			ImGui::InputText("Name",m_nameCach,sizeof(m_nameCach));
-			ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
-			if (ImGui::Button("Create"))
-			{
-				Resource::StateMachineAssetLoader::Create(std::string(m_pathCach), std::string(m_nameCach));
-				std::memset(m_nameCach,0,sizeof(m_nameCach));
-				std::memset(m_pathCach,0,sizeof(m_pathCach));
-			}
-
-			ImGui::TreePop();
+			
 		}
 	}
 	void AssetResourceView::AssetDataBaseDraw()
@@ -158,6 +156,102 @@ namespace Engine::Editor
 				ImGui::EndTabBar();
 			}
 			ImGui::TreePop();
+		}
+	}
+	void AssetResourceView::ResourceView()
+	{
+		if (ImGui::Begin("ResourceView"))
+		{
+			if (!m_pAssetPropCach)
+			{
+				ImGui::Text("Not select resource");
+			}
+			else
+			{
+				ImGui::Text("GUID");
+				ImGui::Spacing();
+				ImGui::Text("%s", m_pAssetPropCach->guid.String().c_str());
+				ImGui::Separator();
+
+				ImGui::Text("FilePath");
+				ImGui::Spacing();
+				for (auto& _ext : m_pAssetPropCach->extensionsVec)
+				{
+					auto _filePath = m_pAssetPropCach->filePath + m_pAssetPropCach->fileName + _ext;
+					ImGui::Text("%s", _filePath.c_str());
+				}
+				ImGui::Separator();
+				auto& _guid = m_pAssetPropCach->guid;
+				auto& _type = m_pAssetPropCach->type;
+				if (_type == "Model")
+				{
+					DrawModel();
+				}
+				else if (_type == "Mesh")
+				{
+
+				}
+				else if (_type == "Material")
+				{
+
+				}
+				else if (_type == "Animation")
+				{
+
+				}
+				else if (_type == "StateMachinAsset")
+				{
+					DrawStateMachin();
+				}
+				else if (_type == "Texture")
+				{
+
+				}
+				else if (_type == "Shader")
+				{
+
+				}
+			}
+		}
+		ImGui::End();
+	}
+	void AssetResourceView::DrawModel()
+	{
+		auto& _guid = m_pAssetPropCach->guid;
+		auto& _type = m_pAssetPropCach->type;
+		if (Resource::ModelLoader::Has(_guid))
+		{
+			auto _handle = Resource::ModelLoader::GetHandle(_guid);
+			auto* _pModel = Resource::ResourceManager::Instance().Get(_handle);
+			if (!_pModel)
+			{
+				ImGui::Text("Not faund model");
+				return;
+			}
+		}
+		else
+		{
+			ImGui::Text("No loaded file");
+			if (ImGui::Button("Load"))
+			{
+				Resource::ModelLoader::Load(_guid);
+			}
+		}
+	}
+	void AssetResourceView::DrawStateMachin()
+	{
+		auto& _guid = m_pAssetPropCach->guid;
+		auto& _type = m_pAssetPropCach->type;
+		if (Resource::StateMachineAssetLoader::Has(_guid))
+		{
+			auto _handle = Resource::StateMachineAssetLoader::Load(_guid);
+			auto* _pMachin = Resource::ResourceManager::Instance().Ref(_handle);
+			if (!_pMachin)
+			{
+				ImGui::Text("Not faund state machin");
+				return;
+			}
+			_pMachin->EditImGui();
 		}
 	}
 }

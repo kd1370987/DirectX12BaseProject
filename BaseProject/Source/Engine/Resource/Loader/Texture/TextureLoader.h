@@ -22,6 +22,8 @@ namespace Engine::Resource
 		static const std::unordered_map<Engine::GUID, Handle<Texture>>& GetAllCache();
 		static const std::unordered_map<std::string, Handle<Texture>>& GetAllNameCache();
 
+		static bool Has(const Engine::GUID& a_guid);
+
 	private:
 
 		// デフォルトテクスチャの要求
