@@ -81,6 +81,9 @@ namespace Engine::Resource
 		void Save(const std::string& a_savePath);
 		void Load(const std::string& a_fileDir,const std::string& a_fileName);
 
+		// ノード名取得
+		std::string_view GetNodeName(const UINT& a_hash) const;
+
 		// 解放
 		void Release();
 

@@ -170,6 +170,19 @@ void Engine::Resource::StateMachineAsset::Load(const std::string& a_fileDir, con
 	}
 }
 
+std::string_view Engine::Resource::StateMachineAsset::GetNodeName(const UINT& a_hash) const
+{
+	for (auto& [_hash,_node] : m_stateNodeMap)
+	{
+		if (_hash == a_hash)
+		{
+			return _node.name;
+		}
+	}
+
+	return std::string_view();
+}
+
 void Engine::Resource::StateMachineAsset::Release()
 {
 	m_stateNodeMap.clear();

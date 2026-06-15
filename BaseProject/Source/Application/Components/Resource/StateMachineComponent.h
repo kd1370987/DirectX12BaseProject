@@ -59,5 +59,12 @@ struct StateMachineComponent
 			}
 			ImGui::EndCombo();
 		}
+
+		// 現在のステートを表示
+		const auto* _sm = Resource::ResourceManager::Instance().Get(_comp.stateMachineHandle);
+		std::string_view _nodeName = _sm->GetNodeName(_comp.currentStateHash);
+		std::string _nodeNameStr(_sm->GetNodeName(_comp.currentStateHash));
+
+		ImGui::Text("Current Node : %s", _nodeNameStr.c_str());
 	}
 };

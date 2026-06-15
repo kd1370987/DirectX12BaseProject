@@ -29,7 +29,7 @@ void StateMachinComitSystem::Init(Engine::ECS::World& a_world)
 				auto* _pInstanceData = Engine::Resource::InstancePoolManager::Instance().Ref(_smComp.instanceHandle);
 
 				// 読み込みチェック
-				if (!_pStateMacihne || _pInstanceData) continue;
+				if (!_pStateMacihne || !_pInstanceData) continue;
 
 				// 初回起動時のセットアップ
 				if (_smComp.currentStateHash == 0)

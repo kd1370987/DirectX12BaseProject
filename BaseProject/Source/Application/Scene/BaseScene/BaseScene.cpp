@@ -77,6 +77,7 @@
 #include "../../Systems/Draw/PostDraw/RegisterPrevWorldMatSystem/RegisterPrevWorldMatSystem.h"
 #include "../../Systems/Init/PostDeserialize/StateMachinFixupSystem/StateMachinFixupSystem.h"
 #include "../../Systems/Update/Update/StateMachinComitSystem/StateMachinComitSystem.h"
+#include "../../Systems/Update/PreUpdate/PlayerIntentSystem/PlayerIntentSystem.h"
 
 
 BaseScene::BaseScene()
@@ -202,11 +203,13 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<AttachmentLinkSystem>();
 	m_upWorld->RegisterSystem<HierarchyLinkSystem>();
 
+	m_upWorld->RegisterSystem<PlayerIntentSystem>();
+
+	m_upWorld->RegisterSystem<StateMachinComitSystem>();
 	m_upWorld->RegisterSystem<RegisterCollisionWorldSystem>();
 	m_upWorld->RegisterSystem<CameraStartSystem>();
 	m_upWorld->RegisterSystem<AnimationModelStartSystem>();
 	m_upWorld->RegisterSystem<AttachmentNodeLinkSystem>();
-	m_upWorld->RegisterSystem<StateMachinComitSystem>();
 
 	m_upWorld->RegisterSystem<CamSetShaderSystem>();
 	m_upWorld->RegisterSystem<InputMoveSystem>();

@@ -910,6 +910,12 @@
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem">
       <UniqueIdentifier>{d4094ff4-6543-49dd-b814-2e5229463f2e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\StateMachinComitSystem">
+      <UniqueIdentifier>{92bdc9dc-6de6-4b4c-888e-3f25d1edcafd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem">
+      <UniqueIdentifier>{83675496-7da3-472b-b73b-af8dacfaa60e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1445,6 +1451,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\StateMachinComitSystem\StateMachinComitSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\StateMachinComitSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2218,6 +2230,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\StateMachinComitSystem\StateMachinComitSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\StateMachinComitSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
