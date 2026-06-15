@@ -68,7 +68,6 @@
 #include "../../Systems/Update/PostUpdate/CommitWorldMatrixFromLocalSystem/CommitWorldMatrixFromLocalSystem.h"
 #include "../../Systems/Update/PostUpdate/CalcTransformFromExoskeletonSystem/CalcTransformFromExoskeletonSystem.h"
 #include "Application/Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
-//#include "Application/Systems/Draw/Draw/SimpleDraw/SimpleDrawSystem.h"
 #include "../../Systems/Draw/Draw/StaticObjectDrawSystem/StaticObjectDrawSystem.h"
 #include "../../Systems/Draw/Draw/DynamicObjectDrawSystem/DynamicObjectDrawSystem.h"
 #include "Application/Systems/Draw/Draw/AnimationOptionalDraw/AnimationOptionalDraw.h"
@@ -76,6 +75,8 @@
 #include "../../Systems/Draw/Draw/RegisterRayWorldSystem/RegisterRayWorldSystem.h"
 #include "../../Systems/Release/AnimationMatrixFreeSystem/AnimationMatrixFreeSystem.h"
 #include "../../Systems/Draw/PostDraw/RegisterPrevWorldMatSystem/RegisterPrevWorldMatSystem.h"
+#include "../../Systems/Init/PostDeserialize/StateMachinFixupSystem/StateMachinFixupSystem.h"
+#include "../../Systems/Update/Update/StateMachinComitSystem/StateMachinComitSystem.h"
 
 
 BaseScene::BaseScene()
@@ -195,6 +196,7 @@ void BaseScene::RegistrySystem()
 	// システム登録
 	m_upWorld->RegisterSystem<ModelFixupSystem>();
 	m_upWorld->RegisterSystem<GUIDFixupSystem>();
+	m_upWorld->RegisterSystem<StateMachinFixupSystem>();
 
 	m_upWorld->RegisterSystem<FollowTargetLinkSystem>();
 	m_upWorld->RegisterSystem<AttachmentLinkSystem>();
@@ -204,6 +206,7 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<CameraStartSystem>();
 	m_upWorld->RegisterSystem<AnimationModelStartSystem>();
 	m_upWorld->RegisterSystem<AttachmentNodeLinkSystem>();
+	m_upWorld->RegisterSystem<StateMachinComitSystem>();
 
 	m_upWorld->RegisterSystem<CamSetShaderSystem>();
 	m_upWorld->RegisterSystem<InputMoveSystem>();
@@ -224,7 +227,6 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<CalccTransformFromExoskeletonSystem>();
 	m_upWorld->RegisterSystem<RayCollisionSystem>();
 
-	//m_upWorld->RegisterSystem<SimpleDrawSystem>();
 	m_upWorld->RegisterSystem<StaticObjectDrawSystem>();
 	m_upWorld->RegisterSystem<DynamicObjectDrawSystem>();
 	m_upWorld->RegisterSystem<AnimationOptionalDrawSystem>();

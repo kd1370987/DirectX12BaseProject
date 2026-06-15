@@ -249,6 +249,7 @@
     <ClCompile Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.cpp" />
@@ -390,6 +391,8 @@
     <ClCompile Include="Source\Engine\Resource\Loader\Texture\Importer\TextureImporter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Texture\TextureLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePoolManager.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePool\InstancePool.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Storage\Storage.cpp" />
     <ClCompile Include="Source\Engine\TimeManager\TimeManager.cpp" />
@@ -473,6 +476,7 @@
     <ClInclude Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.h" />
@@ -648,6 +652,8 @@
     <ClInclude Include="Source\Engine\Resource\Loader\Texture\Importer\TextureImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Texture\TextureLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.h" />
+    <ClInclude Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePoolManager.h" />
+    <ClInclude Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePool\InstancePool.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourcePool\ResourcePool.h" />
     <ClInclude Include="Source\Engine\Storage\HandleStorage\HandleStorage.h" />

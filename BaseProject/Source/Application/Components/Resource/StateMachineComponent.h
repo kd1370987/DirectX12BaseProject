@@ -21,6 +21,10 @@ struct StateMachineComponent
 
 	bool isGround = false;
 
+	// ステートマシンインスタンス
+	Engine::Resource::Handle<Engine::Resource::StateMachinInstance> instanceHandle = {};
+
+
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<const StateMachineComponent*>(a_ptr);
@@ -30,7 +34,7 @@ struct StateMachineComponent
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<StateMachineComponent*>(a_ptr);
-		//_comp->stateMachineGUID.FromString(a_json["stateMachineGUID"].get<std::string>());
+		_comp->stateMachineGUID.FromString(a_json["stateMachineGUID"].get<std::string>());
 	}
 
 	static void Edit(void* a_data)
@@ -41,7 +45,7 @@ struct StateMachineComponent
 		// ステートマシンの選択
 		if (ImGui::BeginCombo("Change StateMachin", "Select..."))
 		{
-			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("stet"))
+			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("StateMachinAsset"))
 			{
 				// 現在のステートマシンと同じGUIDなら選択中フラグを立てる
 				bool _selected = (_comp.stateMachineGUID == _prop.guid);

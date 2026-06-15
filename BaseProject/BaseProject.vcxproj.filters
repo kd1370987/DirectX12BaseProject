@@ -901,6 +901,15 @@
     <Filter Include="Library\imnodes-master">
       <UniqueIdentifier>{f6d3c56e-2372-475c-a03e-3bb02b78d943}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\InstancePoolManager">
+      <UniqueIdentifier>{27757521-b36c-4c81-9767-4d3f2f86d82d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePool">
+      <UniqueIdentifier>{b4c54346-1bb0-44de-b180-579f5a8269a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem">
+      <UniqueIdentifier>{d4094ff4-6543-49dd-b814-2e5229463f2e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1427,6 +1436,15 @@
     </ClCompile>
     <ClCompile Include="..\Library\imnodes-master\imnodes.cpp">
       <Filter>Library\imnodes-master</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePoolManager.cpp">
+      <Filter>Source\Engine\Resource\Manager\InstancePoolManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePool\InstancePool.cpp">
+      <Filter>Source\Engine\Resource\Manager\InstancePoolManager\InstancePool</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2191,6 +2209,15 @@
     </ClInclude>
     <ClInclude Include="..\Library\imnodes-master\imnodes.h">
       <Filter>Library\imnodes-master</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePoolManager.h">
+      <Filter>Source\Engine\Resource\Manager\InstancePoolManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePool\InstancePool.h">
+      <Filter>Source\Engine\Resource\Manager\InstancePoolManager\InstancePool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.h">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
