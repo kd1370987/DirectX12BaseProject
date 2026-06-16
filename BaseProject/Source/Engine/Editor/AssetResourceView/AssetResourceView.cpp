@@ -222,11 +222,19 @@ namespace Engine::Editor
 		if (Resource::ModelLoader::Has(_guid))
 		{
 			auto _handle = Resource::ModelLoader::GetHandle(_guid);
-			auto* _pModel = Resource::ResourceManager::Instance().Get(_handle);
+			auto* _pModel = Resource::ResourceManager::Instance().Ref(_handle);
 			if (!_pModel)
 			{
 				ImGui::Text("Not faund model");
 				return;
+			}
+			else
+			{
+				if (ImGui::Button("Convert"))
+				{
+					auto _path = Resource::ModelLoader::GetFilePath(_handle);
+					_pModel->Save(_path);
+				}
 			}
 		}
 		else

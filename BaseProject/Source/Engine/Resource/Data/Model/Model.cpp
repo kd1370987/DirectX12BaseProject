@@ -142,9 +142,11 @@ namespace Engine::Resource
 		{
 			auto _guid = m_materialGUIDVec[_i];
 			auto _basePath = AssetDatabase::Instance().GetBaseFilePathFromGUID(_guid);
+			auto _fileDir = FileUtility::GetDirFromPath(_basePath);
 			auto _fileName = FileUtility::GetFileName(_basePath);
 			Material _mate = {};
-			_mate.Load(_basePath,_fileName);
+
+			_mate.Load(_fileDir,_fileName);
 			auto _handle = ResourceManager::Instance().Add(std::move(_mate));
 			m_materialHandleVec.push_back(_handle);
 		}
@@ -152,9 +154,10 @@ namespace Engine::Resource
 		{
 			auto _guid = m_meshGUIDVec[_i];
 			auto _basePath = AssetDatabase::Instance().GetBaseFilePathFromGUID(_guid);
+			auto _fileDir = FileUtility::GetDirFromPath(_basePath);
 			auto _fileName = FileUtility::GetFileName(_basePath);
 			Mesh _mesh = {};
-			_mesh.Load(_basePath, _fileName);
+			_mesh.Load(_fileDir, _fileName);
 			auto _handle = ResourceManager::Instance().Add(std::move(_mesh));
 			m_meshHandleVec.push_back(_handle);
 		}
@@ -162,9 +165,10 @@ namespace Engine::Resource
 		{
 			auto _guid = m_animationGUIDVec[_i];
 			auto _basePath = AssetDatabase::Instance().GetBaseFilePathFromGUID(_guid);
+			auto _fileDir = FileUtility::GetDirFromPath(_basePath);
 			auto _fileName = FileUtility::GetFileName(_basePath);
 			AnimationData _animData = {};
-			_animData.Load(_basePath,_fileName);
+			_animData.Load(_fileDir,_fileName);
 			auto _handle = ResourceManager::Instance().Add(std::move(_animData));
 			m_animationHandleVec.push_back(_handle);
 		}
@@ -188,9 +192,10 @@ namespace Engine::Resource
 			std::string basePath ="Asset/Material/" + _fileName;
 
 			// 保存
-			_matrial->Save(basePath, _fileName);
+			auto _fullBasePath = basePath + "/" + _fileName;													// 拡張子なしのパス
+			m_materialGUIDVec[_i] = AssetDatabase::Instance().AddMetaData(_fullBasePath, "Material");	// メタファイルを作成
+			_matrial->Save(basePath, _fileName);														// メタファイルの隣にデータ作成
 
-			m_materialGUIDVec[_i] = AssetDatabase::Instance().AddMetaData(basePath, "Material");
 		}
 		// メッシュの保存
 		UINT _meshHandleSize = m_meshHandleVec.size();
@@ -206,9 +211,10 @@ namespace Engine::Resource
 			std::string basePath ="Asset/Mesh/" + _fileName;
 
 			// 保存
+			auto _fullBasePath = basePath + "/" + _fileName;
+			m_meshGUIDVec[_i] = AssetDatabase::Instance().AddMetaData(_fullBasePath, "Mesh");
 			_mesh->Save(basePath, _fileName);
 
-			m_meshGUIDVec[_i] = AssetDatabase::Instance().AddMetaData(basePath, "Mesh");
 		}
 		// アニメーションの保存
 		UINT _animHandleSize = m_animationHandleVec.size();
@@ -224,10 +230,9 @@ namespace Engine::Resource
 			std::string basePath = "Asset/Animation/" + _fileName;
 
 			// 保存
+			auto _fullBasePath = basePath + "/" + _fileName;
+			m_animationGUIDVec[_i] = AssetDatabase::Instance().AddMetaData(_fullBasePath, "Animation");
 			_anim->Save(basePath, _fileName);
-
-			// GUID保存
-			m_animationGUIDVec[_i] = AssetDatabase::Instance().AddMetaData(basePath, "Animation");
 		}
 
 		// モデルデータの保存

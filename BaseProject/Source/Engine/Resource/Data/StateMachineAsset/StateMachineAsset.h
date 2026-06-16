@@ -15,7 +15,7 @@ namespace Engine::Resource
 		int defaultInt = 0;
 		bool defaultBool = false;
 
-		void Archive(Persistence::Archive& a_arch, const std::string& a_filedName);
+		void Archive(Persistence::Archive& a_arch);
 	};
 
 	// 各ステートノード
@@ -37,7 +37,7 @@ namespace Engine::Resource
 		int inPinID = 0;		// 自身の入り口
 		int outPinID = 0;		// 自身の出口
 
-		void Archive(Persistence::Archive& a_arch,const std::string& a_filedName);
+		void Archive(Persistence::Archive& a_arch);
 	};
 
 	enum class ECompareOp {Greater,Less,Equal,NotEqual,True,False};
@@ -65,7 +65,7 @@ namespace Engine::Resource
 		// アニメーション用データ
 		float blendDuration = 0.0f;			// 移行するときのアニメーションブレンドタイム
 
-		void Archive(Persistence::Archive& a_arch, const std::string& a_filedName);
+		void Archive(Persistence::Archive& a_arch);
 		void EditArrow(int a_srcOutPinID,int a_dstInPinID);
 	};
 
@@ -95,6 +95,9 @@ namespace Engine::Resource
 
 		// ノード名取得
 		std::string_view GetNodeName(const UINT& a_hash) const;
+
+		// ノード参照
+		const StateNode* GetStateNode(UINT a_stateHash) const;
 
 		// 解放
 		void Release();

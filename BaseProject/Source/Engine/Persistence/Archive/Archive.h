@@ -114,7 +114,7 @@ namespace Engine::Persistence
 		}
 		else
 		{
-			if (CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				a_data = CurrentNode()[a_name].get<T>();
 			}
@@ -149,7 +149,7 @@ namespace Engine::Persistence
 		else
 		{
 			// json処理
-			if (CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				auto& j = CurrentNode()[a_name];
 				a_data =
@@ -182,7 +182,7 @@ namespace Engine::Persistence
 		}
 		else
 		{
-			if (CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				auto& j = CurrentNode()[a_name];
 				a_data =
@@ -213,7 +213,7 @@ namespace Engine::Persistence
 		else
 		{
 			// json処理
-			if (CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				auto& j = CurrentNode()[a_name];
 				a_data = { j[0], j[1], j[2] };
@@ -237,7 +237,7 @@ namespace Engine::Persistence
 		else
 		{
 			// json処理
-			if (CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				auto& j = CurrentNode()[a_name];
 				a_data = { j[0], j[1], j[2] };
@@ -262,7 +262,7 @@ namespace Engine::Persistence
 		else
 		{
 			// json処理
-			if (CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				auto& j = CurrentNode()[a_name];
 				a_data = { j[0], j[1], j[2], j[3] };
@@ -286,7 +286,7 @@ namespace Engine::Persistence
 		else
 		{
 			// json処理
-			if (CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				auto& j = CurrentNode()[a_name];
 				a_data = { j[0], j[1], j[2], j[3] };
@@ -310,7 +310,7 @@ namespace Engine::Persistence
 		else
 		{
 			// json処理
-			if (CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				auto& j = CurrentNode()[a_name];
 				a_data = { j[0], j[1], j[2], j[3] };
@@ -335,7 +335,7 @@ namespace Engine::Persistence
 		else
 		{
 			// json処理
-			if (CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				auto& j = CurrentNode()[a_name];
 				a_data = { j[0], j[1] };
@@ -359,7 +359,7 @@ namespace Engine::Persistence
 		else
 		{
 			// json処理
-			if (CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				auto& j = CurrentNode()[a_name];
 				a_data = { j[0], j[1] };
@@ -384,7 +384,7 @@ namespace Engine::Persistence
 		else
 		{
 			// Json処理
-			if (!m_json.is_null() && CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				a_data = CurrentNode()[a_name].get<std::string>();
 			}
@@ -408,7 +408,7 @@ namespace Engine::Persistence
 		else
 		{
 			// Json処理
-			if (!m_json.is_null() && CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				a_data.FromString(CurrentNode()[a_name].get<std::string>());
 			}

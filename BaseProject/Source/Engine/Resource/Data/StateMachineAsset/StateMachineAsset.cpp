@@ -29,74 +29,86 @@ void Engine::Resource::StateMachineAsset::Save(const std::string& a_savePath)
 		_node.editorPos.y = _pos.y;
 	}
 
+	// アーカイブ作成
 	auto _dir = FileUtility::GetDirFromPath(a_savePath);
 	auto _fileName = FileUtility::GetFileNameWithoutExtension(a_savePath);
-	Persistence::Archive _arch(
-		Persistence::Archive::Mode::Save,
-		_dir,
-		_fileName,
-		"stet"
-	);
-	_arch.StringField("m_name",m_name);
-	_arch.Field("m_defaultStartHash",m_defaultStartHash);
+	Persistence::Archive _arch(Persistence::Archive::Mode::Save,_dir,_fileName,"stet");
 
-	// モデル保存
-	std::string _guidStr = m_modelGUID.String();
-	_arch.StringField("m_modelGUID",_guidStr);
-	m_modelGUID.FromString(_guidStr);
+	// 保存
+	_arch.Field("m_name",m_name);							// ノード名
+	_arch.Field("m_defaultStartHash",m_defaultStartHash);	// ノード名ハッシュ値
+	_arch.Field("m_modelGUID",m_modelGUID);					// モデルGUID
 
 	// ノード保存
-	UINT _size = (UINT)m_stateNodeMap.size();
-	_arch.Field("StateNodeMapSize",_size);
-	int _i = 0;
-	for (auto& [_hash, _node] : m_stateNodeMap)
+	size_t _nodeSize = m_stateNodeMap.size();
+	if (_arch.BeginArray("StateNodes", _nodeSize))
 	{
-		std::string _filedName = std::to_string(_i);
-		// ノードデータ保存
-		_node.Archive(_arch,_filedName);
-		_i++;		// フィールド名被り対策
+		size_t _idx = 0;
+		for (auto& [_hash, _node] : m_stateNodeMap)
+		{
+			if (_arch.BeginObject(_idx))
+			{
+				_node.Archive(_arch);
+				_arch.EndObject();
+			}
+			_idx++;
+		}
+		_arch.EndArray();
 	}
 
 	// 遷移先保存
-	_size = (UINT)m_transitionArrowMap.size();
-	_arch.Field("TransitionArrowMapSize", _size);
-	_i = 0;
-	for (auto& [_hash, _arrowVec] : m_transitionArrowMap)
+	size_t _arrowMapSize = m_transitionArrowMap.size();
+	if (_arch.BeginArray("TransitionArrows", _arrowMapSize))
 	{
-		std::string _filedName = std::to_string(_i);
-		// ハッシュ保存
-		UINT _h = _hash;
-		_arch.Field(_filedName + "Hash",_h);
-
-
-		// 遷移データ保存
-		UINT _arrowSize = (UINT)_arrowVec.size();
-		_arch.Field(_filedName + "ArrowVecSize", _arrowSize);
-		int _j = 0;
-		for (auto& _arrow : _arrowVec)
+		// 各遷移情報をノードごとにまとめて保存
+		size_t _idx = 0;
+		for (auto& [_hash, _arrowVec] : m_transitionArrowMap)
 		{
-			auto _arrowFieldName = _filedName + "_" + std::to_string(_j);
-			_arrow.Archive(_arch,_arrowFieldName);
-			_j++;
+			if (_arch.BeginObject(_idx))
+			{
+				// どのノードから矢印かを記録
+				UINT _h = _hash;
+				_arch.Field("SrcHash", _h);
+
+				// 実際の矢印配列を記録
+				size_t _arrowSize = _arrowVec.size();
+				if (_arch.BeginArray("Arrows", _arrowSize))
+				{
+					for (size_t _j = 0; _j < _arrowSize; ++_j)
+					{
+						if (_arch.BeginObject(_j))
+						{
+							_arrowVec[_j].Archive(_arch);
+							_arch.EndObject();
+						}
+					}
+					_arch.EndArray();
+				}
+				_arch.EndObject();
+			}
+			_idx++;
 		}
-		_i++;		// フィールド名被り対策
+		_arch.EndArray();
 	}
-
+	
 	// 遷移パラメータ
-	_size = (UINT)m_parameters.size();
-	_arch.Field("m_parametersSize", _size);
-	int _k = 0; // 名前被り対策用のインデックス
-	for (auto& [_hash, _param] : m_parameters)
+	size_t _paramSize = m_parameters.size();
+	if (_arch.BeginArray("Parameters", _paramSize))
 	{
-		std::string _filedName = std::to_string(_k);
-
-		// マップのキー（ハッシュ値）も保存しておく
-		UINT _h = _hash;
-		_arch.Field(_filedName + "Hash", _h);
-
-		// パラメータ本体の保存
-		_param.Archive(_arch, _filedName);
-		_k++;
+		// パラメータを配列で保存
+		size_t _idx = 0;
+		for (auto& [_hash, _param] : m_parameters)
+		{
+			if (_arch.BeginObject(_idx))
+			{
+				UINT _h = _hash;
+				_arch.Field("Hash", _h);
+				_param.Archive(_arch);
+				_arch.EndObject();
+			}
+			_idx++;
+		}
+		_arch.EndArray();
 	}
 
 }
@@ -105,98 +117,101 @@ void Engine::Resource::StateMachineAsset::Load(const std::string& a_fileDir, con
 {
 	Release();
 
-	Persistence::Archive _arch(
-		Persistence::Archive::Mode::Load, 
-		a_fileDir,
-		a_fileName,
-		"stet",
-		Persistence::Archive::ArchiveFormat::Json
-	);
-	_arch.StringField("m_name", m_name);
+	Persistence::Archive _arch(Persistence::Archive::Mode::Load, a_fileDir, a_fileName, "stet", Persistence::Archive::ArchiveFormat::Json);
+
+	_arch.Field("m_name", m_name);
 	_arch.Field("m_defaultStartHash", m_defaultStartHash);
 
-	std::string _guidStr = "";
-	_arch.StringField("m_modelGUID", _guidStr);
-	m_modelGUID.FromString(_guidStr);
-
+	_arch.Field("m_modelGUID", m_modelGUID);
 	m_modelHandle = ModelLoader::Load(m_modelGUID);
 
-	// ノード保存（読み込み処理）
-	UINT _size = 0;
-	_arch.Field("StateNodeMapSize", _size);
-	int _maxId = 0; // ID復旧・更新用
-	for (size_t _i = 0; _i < _size; ++_i)
+	int _maxId = 0;
+
+	// ノード復元
+	size_t _nodeSize = 0;
+	if (_arch.BeginArray("StateNodes", _nodeSize))
 	{
-		StateNode _node;
-		std::string _filedName = std::to_string(_i);
-		_node.Archive(_arch, _filedName);
-
-		UINT _key = StringUtility::ToHash(_node.name);
-		_node.hash = _key;
-
-		// 過去のセーブデータ対策（IDが設定されていなければ新規発行し、設定済みなら最大値を記録）
-		if (_node.nodeID == 0) _node.nodeID = ++_maxId; 
-		else _maxId = std::max(_maxId, _node.nodeID);
-
-		if (_node.inPinID == 0) _node.inPinID = ++_maxId; 
-		else _maxId = std::max(_maxId, _node.inPinID);
-
-		if (_node.outPinID == 0) _node.outPinID = ++_maxId; 
-		else _maxId = std::max(_maxId, _node.outPinID);
-
-		m_stateNodeMap.emplace(_key, _node);
-
-		// 読み込んだ座標をノードIDを使ってImNodesに反映
-		ImNodes::SetNodeEditorSpacePos(_node.nodeID, ImVec2(_node.editorPos.x, _node.editorPos.y));
-	}
-
-	// データごとの遷移先
-	_size = 0;
-	_arch.Field("TransitionArrowMapSize", _size);
-	for (size_t _i = 0; _i < _size; ++_i)
-	{
-		UINT _hash = 0;
-		std::string _filedName = std::to_string(_i);
-		// ハッシュ保存
-		_arch.Field(_filedName + "Hash", _hash);
-
-		UINT _arrowSize = 0;
-		_arch.Field(_filedName + "ArrowVecSize", _arrowSize);
-
-		// 遷移データ配列復元
-		std::vector<TransitionArrow> _arrowVec = {};
-		_arrowVec.resize(_arrowSize);
-		for (size_t _j = 0; _j < _arrowSize; ++_j)
+		for (size_t _i = 0; _i < _nodeSize; ++_i)
 		{
-			// 遷移データ復元
-			auto _arrowFieldName = _filedName + "_" + std::to_string(_j);
-			TransitionArrow _arrow = {};
-			_arrow.Archive(_arch, _arrowFieldName);
+			if (_arch.BeginObject(_i))
+			{
+				StateNode _node;
+				_node.Archive(_arch);
 
-			// アローIDの復旧
-			if (_arrow.linkID == 0) _arrow.linkID = ++_maxId;
-			else _maxId = std::max(_maxId, _arrow.linkID);
+				UINT _key = StringUtility::ToHash(_node.name);
+				_node.hash = _key;
 
-			// 配列に追加
-			_arrowVec[_j] = _arrow;
+				// ノードID,入力ID,出力ID
+				if (_node.nodeID == 0) _node.nodeID = ++_maxId; else _maxId = std::max(_maxId, _node.nodeID);
+				if (_node.inPinID == 0) _node.inPinID = ++_maxId; else _maxId = std::max(_maxId, _node.inPinID);
+				if (_node.outPinID == 0) _node.outPinID = ++_maxId; else _maxId = std::max(_maxId, _node.outPinID);
+
+				m_stateNodeMap.emplace(_key, _node);
+				ImNodes::SetNodeEditorSpacePos(_node.nodeID, ImVec2(_node.editorPos.x, _node.editorPos.y));
+
+				_arch.EndObject();
+			}
 		}
-		m_transitionArrowMap.emplace(_hash,_arrowVec);
+		_arch.EndArray();
 	}
 
-	// 遷移パラメータの復元
-	UINT _paramSize = 0;
-	_arch.Field("m_parametersSize", _paramSize);
-	for (size_t _i = 0; _i < _paramSize; ++_i)
+	// 矢印復元
+	size_t _arrowMapSize = 0;
+	if (_arch.BeginArray("TransitionArrows", _arrowMapSize))
 	{
-		std::string _filedName = std::to_string(_i);
+		for (size_t _i = 0; _i < _arrowMapSize; ++_i)
+		{
+			if (_arch.BeginObject(_i))
+			{
+				UINT _hash = 0;
+				_arch.Field("SrcHash", _hash);
 
-		UINT _hash = 0;
-		_arch.Field(_filedName + "Hash", _hash);
+				size_t _arrowSize = 0;
+				std::vector<TransitionArrow> _arrowVec;
 
-		StateParameter _param;
-		_param.Archive(_arch, _filedName);
+				if (_arch.BeginArray("Arrows", _arrowSize))
+				{
+					_arrowVec.resize(_arrowSize);
+					for (size_t _j = 0; _j < _arrowSize; ++_j)
+					{
+						if (_arch.BeginObject(_j))
+						{
+							_arrowVec[_j].Archive(_arch);
 
-		m_parameters.emplace(_hash, _param);
+							if (_arrowVec[_j].linkID == 0) _arrowVec[_j].linkID = ++_maxId;
+							else _maxId = std::max(_maxId, _arrowVec[_j].linkID);
+
+							_arch.EndObject();
+						}
+					}
+					_arch.EndArray();
+				}
+				m_transitionArrowMap.emplace(_hash, _arrowVec);
+				_arch.EndObject();
+			}
+		}
+		_arch.EndArray();
+	}
+
+	// パラメータ復元
+	size_t _paramSize = 0;
+	if (_arch.BeginArray("Parameters", _paramSize))
+	{
+		for (size_t _i = 0; _i < _paramSize; ++_i)
+		{
+			if (_arch.BeginObject(_i))
+			{
+				UINT _hash = 0;
+				_arch.Field("Hash", _hash);
+
+				StateParameter _param;
+				_param.Archive(_arch);
+				m_parameters.emplace(_hash, _param);
+
+				_arch.EndObject();
+			}
+		}
+		_arch.EndArray();
 	}
 
 	m_idCounter = _maxId;
@@ -213,6 +228,16 @@ std::string_view Engine::Resource::StateMachineAsset::GetNodeName(const UINT& a_
 	}
 
 	return std::string_view();
+}
+
+const Engine::Resource::StateNode* Engine::Resource::StateMachineAsset::GetStateNode(UINT a_stateHash) const 
+{
+	auto _it = m_stateNodeMap.find(a_stateHash);
+	if (_it != m_stateNodeMap.end())
+	{
+		return &_it->second;
+	}
+	return nullptr;
 }
 
 void Engine::Resource::StateMachineAsset::Release()
@@ -856,51 +881,54 @@ void Engine::Resource::StateMachineAsset::EditNode(StateNode& a_node)
 	ImNodes::EndNode();
 }
 
-void Engine::Resource::StateNode::Archive(Persistence::Archive& a_arch, const std::string& a_filedName)
+void Engine::Resource::StateNode::Archive(Persistence::Archive& a_arch)
 {
 	// ノード名
-	a_arch.StringField(a_filedName + "nodeName",name);
+	a_arch.StringField("nodeName",name);
 
 	// ノード位置
-	a_arch.Field(a_filedName + "nodePos",editorPos);
-
+	a_arch.Field("nodePos",editorPos);
 
 	// アニメーションデータ保存
-	auto _guidStr = animGUID.String();
-	a_arch.StringField(a_filedName + "animGUID", _guidStr);
-	animGUID.FromString(_guidStr);
-	a_arch.Field(a_filedName + "speed", speed);
-	a_arch.Field(a_filedName + "isLoop", isLoop);
+	a_arch.Field("animGUID", animGUID);
+	a_arch.Field("speed", speed);
+	a_arch.Field("isLoop", isLoop);
 
 	// ノード管理ID
-	a_arch.Field(a_filedName + "nodeID", nodeID);
-	a_arch.Field(a_filedName + "inPinID", inPinID);
-	a_arch.Field(a_filedName + "outPinID", outPinID);
+	a_arch.Field("nodeID", nodeID);
+	a_arch.Field("inPinID", inPinID);
+	a_arch.Field("outPinID", outPinID);
 }
 
 
-void Engine::Resource::TransitionArrow::Archive(Persistence::Archive& a_arch, const std::string& a_filedName)
+void Engine::Resource::TransitionArrow::Archive(Persistence::Archive& a_arch)
 {
-	a_arch.Field(a_filedName + "linkID", linkID);
-	a_arch.Field(a_filedName + "dstStartHash", dstStartHash);
+	a_arch.Field("linkID", linkID);
+	a_arch.Field("dstStartHash", dstStartHash);
+	a_arch.Field("blendDuration", blendDuration);
 
-	// 配列のサイズを保存する処理を追加
-	UINT _condSize = (UINT)conditions.size();
-	a_arch.Field(a_filedName + "ConditionSize", _condSize);
+	// 配列開始
+	size_t _condSize = conditions.size();
+	a_arch.Field("ConditionSize", _condSize);
 	conditions.resize(_condSize);
-
-	for (int _i = 0; _i < (int)conditions.size(); ++_i)
+	if (a_arch.BeginArray("Conditions", _condSize))
 	{
-		auto& _cond = conditions[_i];
-		auto _fildName = a_filedName + std::to_string(_i);
-		a_arch.Field(_fildName + "paramHash", _cond.paramHash);
-		a_arch.Field(_fildName + "op", _cond.op);
-		a_arch.Field(_fildName + "thresholdFloat", _cond.thresholdFloat);
-		a_arch.Field(_fildName + "thresholdInt", _cond.thresholdInt);
+		conditions.resize(_condSize);
+		for (size_t _i = 0; _i < _condSize; ++_i)
+		{
+			// オブジェクト開始
+			if (a_arch.BeginObject(_i))
+			{
+				auto& _cond = conditions[_i];
+				a_arch.Field("paramHash", _cond.paramHash);
+				a_arch.Field("op", _cond.op);
+				a_arch.Field("thresholdFloat", _cond.thresholdFloat);
+				a_arch.Field("thresholdInt", _cond.thresholdInt);
+				a_arch.EndObject();
+			}
+		}
+		a_arch.EndArray();
 	}
-
-	// ブレンドタイム
-	a_arch.Field(a_filedName + "blendDuration", blendDuration);
 }
 
 void Engine::Resource::TransitionArrow::EditArrow(int a_srcOutPinID, int a_dstInPinID)
@@ -913,11 +941,11 @@ void Engine::Resource::TransitionArrow::EditArrow(int a_srcOutPinID, int a_dstIn
 	);
 }
 
-void Engine::Resource::StateParameter::Archive(Persistence::Archive& a_arch, const std::string& a_filedName)
+void Engine::Resource::StateParameter::Archive(Persistence::Archive& a_arch)
 {
-	a_arch.StringField(a_filedName + "name", name);
-	a_arch.Field(a_filedName + "type", type);
-	a_arch.Field(a_filedName + "defaultFloat", defaultFloat);
-	a_arch.Field(a_filedName + "defaultInt", defaultInt);
-	a_arch.Field(a_filedName + "defaultBool", defaultBool);
+	a_arch.StringField("name", name);
+	a_arch.Field("type", type);
+	a_arch.Field("defaultFloat", defaultFloat);
+	a_arch.Field("defaultInt", defaultInt);
+	a_arch.Field("defaultBool", defaultBool);
 }

@@ -78,6 +78,7 @@
 #include "../../Systems/Init/PostDeserialize/StateMachinFixupSystem/StateMachinFixupSystem.h"
 #include "../../Systems/Update/Update/StateMachinComitSystem/StateMachinComitSystem.h"
 #include "../../Systems/Update/PreUpdate/PlayerIntentSystem/PlayerIntentSystem.h"
+#include "../../Systems/Update/Animation/AnimationStateSystem/AnimationStateSystem.h"
 
 
 BaseScene::BaseScene()
@@ -216,6 +217,8 @@ void BaseScene::RegistrySystem()
 
 	m_upWorld->RegisterSystem<GravitySystem>();
 	m_upWorld->RegisterSystem<RotationSystem>();
+
+	m_upWorld->RegisterSystem<AnimationStateSystem>();
 
 	m_upWorld->RegisterSystem<AnimationSystem>();
 	m_upWorld->RegisterSystem<CalcNodeSystem>();

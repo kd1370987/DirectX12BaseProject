@@ -150,7 +150,7 @@ namespace Engine::Persistence
 		// 階層を1つ上がる
 		if (!m_jsonNodeStack.empty()) m_jsonNodeStack.pop();
 	}
-	bool Archive::BeginArray(const std::string & a_name, size_t & a_size)
+	bool Archive::BeginArray(const std::string& a_name, size_t& a_size)
 	{
 		bool _success = false;
 		// セーブ時
@@ -159,9 +159,12 @@ namespace Engine::Persistence
 			// json処理
 			if (!m_json.is_null())
 			{
-				CurrentNode()[a_name] = nlohmann::json::array(); // [] を作成
-				m_jsonNodeStack.push(&CurrentNode()[a_name]);
-				_success = true;
+				if (CurrentNode().is_object()) // 安全対策
+				{
+					CurrentNode()[a_name] = nlohmann::json::array(); // [] を作成
+					m_jsonNodeStack.push(&CurrentNode()[a_name]);
+					_success = true;
+				}
 			}
 			// binary処理
 			if (m_ofs.is_open())
@@ -176,10 +179,12 @@ namespace Engine::Persistence
 			// json処理
 			if (!m_json.is_null())
 			{
-				if (CurrentNode().contains(a_name) && CurrentNode()[a_name].is_array())
+				// 安全対策: 現在のノードがObject({})であることを確認してからアクセス
+				if (CurrentNode().is_object() && CurrentNode().contains(a_name) && CurrentNode()[a_name].is_array())
 				{
-					m_jsonNodeStack.push(&CurrentNode()[a_name]);
-					a_size = CurrentNode()[a_name].size(); // ロードした要素数を返す
+					// ★順番が命！★
+					a_size = CurrentNode()[a_name].size(); // 先にサイズを取得する！
+					m_jsonNodeStack.push(&CurrentNode()[a_name]); // その後でスタックに潜る！
 					_success = true;
 				}
 			}
@@ -243,7 +248,7 @@ namespace Engine::Persistence
 		else
 		{
 			// Json処理
-			if (!m_json.is_null() && CurrentNode().contains(a_name))
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
 			{
 				a_guid.FromString(CurrentNode()[a_name].get<std::string>());
 			}
