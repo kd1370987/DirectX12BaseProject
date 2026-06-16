@@ -17,51 +17,35 @@ namespace Engine::Persistence
 			// 親ディレクトリの作成
 			std::filesystem::create_directories(m_fileDir);
 
-			// Save時は、Autoなら両方（今まで通り）、指定があればそのフォーマットだけ準備する
 			if (a_format == ArchiveFormat::Auto || a_format == ArchiveFormat::Binary)
 			{
 				m_ofs.open(m_binPath, std::ios::binary);
 				if (!m_ofs.is_open())
 				{
-					Editor::MainEditor::Instance().ErrorLog(
-						"アーカイブが開けませんでした : %s", m_binPath.c_str());
+					Editor::MainEditor::Instance().ErrorLog("Not open archive : %s", m_binPath.c_str());
 				}
 			}
 
 			if (a_format == ArchiveFormat::Auto || a_format == ArchiveFormat::Json)
 			{
-				m_json = nlohmann::json::object();
+				m_json = nlohmann::json::object(); // JSONモードを初期化
 			}
 			break;
 
 		case Engine::Persistence::Archive::Mode::Load:
 		{
-			// ロードするフォーマットを決定
 			bool _loadJson = false;
 			bool _loadBin = false;
 
-			if (a_format == ArchiveFormat::Json)
-			{
-				_loadJson = true; // 手動でJSON指定
-			}
-			else if (a_format == ArchiveFormat::Binary)
-			{
-				_loadBin = true; // 手動でバイナリ指定
-			}
-			else // Autoの場合（今まで通りのビルドモード判定）
+			if (a_format == ArchiveFormat::Json) _loadJson = true;
+			else if (a_format == ArchiveFormat::Binary) _loadBin = true;
+			else
 			{
 				auto _buildMode = MainEngine::Instance().GetEngineConfig().GetInitConfig().buildMode;
-				if (_buildMode == Engine::EBuildConfiguration::Development)
-				{
-					_loadJson = true;
-				}
-				else if (_buildMode == Engine::EBuildConfiguration::Shipping)
-				{
-					_loadBin = true;
-				}
+				if (_buildMode == Engine::EBuildConfiguration::Development) _loadJson = true;
+				else if (_buildMode == Engine::EBuildConfiguration::Shipping) _loadBin = true;
 			}
 
-			// 決定したフォーマットに基づいて読み込み処理
 			if (_loadJson)
 			{
 				std::ifstream _ifs(m_jsonPath);
@@ -71,8 +55,7 @@ namespace Engine::Persistence
 				}
 				else
 				{
-					// ※ついでにエラーログの内容を少し親切（m_jsonPathを出力）に直しています
-					Editor::MainEditor::Instance().ErrorLog("JSONが見つかりませんでした : %s", m_jsonPath.c_str());
+					Editor::MainEditor::Instance().ErrorLog("Not Faund Json : %s", m_jsonPath.c_str());
 				}
 			}
 			else if (_loadBin)
@@ -80,7 +63,7 @@ namespace Engine::Persistence
 				m_ifs.open(m_binPath, std::ios::binary);
 				if (!m_ifs.is_open())
 				{
-					Editor::MainEditor::Instance().ErrorLog("バイナリが開けませんでした : %s", m_binPath.c_str());
+					Editor::MainEditor::Instance().ErrorLog("Not Found Binary : %s", m_binPath.c_str());
 				}
 			}
 			break;
@@ -92,80 +75,180 @@ namespace Engine::Persistence
 
 	Archive::~Archive()
 	{
-		// ファイルを閉じる
-		if (m_ofs.is_open())
-		{
-			m_ofs.close();
-		}
-		if (m_ifs.is_open())
-		{
-			m_ifs.close();
-		}
+		if (m_ofs.is_open()) m_ofs.close();
+		if (m_ifs.is_open()) m_ifs.close();
 
 		// JSONの書き出し
 #ifdef _DEBUG
-		if (IsSaving())
+		if (IsSaving() && !m_json.is_null())
 		{
 			std::ofstream _ofs(m_jsonPath);
-			_ofs << m_json.dump(4);
+			_ofs << m_json.dump(4); // インデント付きで綺麗に出力
 		}
 #endif
 	}
 	void Archive::StringField(const std::string& a_name, std::string& a_data)
 	{
-		// 保存処理
+		// セーブ時
 		if (IsSaving())
 		{
-			// テスト時データ
-			m_json[a_name] = a_data;
-			// 本番時(バイナリ)
-			if (m_ofs.is_open())
-			{
-				BinaryHelper::WriteString(m_ofs, a_data);
-			}
+			// Json処理
+			if (!m_json.is_null()) CurrentNode()[a_name] = a_data;
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::WriteString(m_ofs, a_data);
 		}
-		// 読み込み処理
+		// ロード時
 		else
 		{
-			// テスト時
-			if (m_json.contains(a_name))
+			// Json処理
+			if (!m_json.is_null() && CurrentNode().contains(a_name))
 			{
-				a_data = m_json[a_name].get<std::string>();
+				a_data = CurrentNode()[a_name].get<std::string>();
 			}
-			// 本番時
-			if (m_ifs.is_open())
+			// binary処理
+			if (m_ifs.is_open()) a_data = BinaryHelper::ReadString(m_ifs);
+		}
+	}
+	// =========================================================================
+	// 階層・スコープ管理の実装
+	// =========================================================================
+	bool Archive::BeginGroup(const std::string& a_name)
+	{
+		bool _success = false;
+		// セーブ時
+		if (IsSaving())
+		{
+			// json処理
+			if (!m_json.is_null())
 			{
-				a_data = BinaryHelper::ReadString(m_ifs);
+				CurrentNode()[a_name] = nlohmann::json::object(); // {} を作成
+				m_jsonNodeStack.push(&CurrentNode()[a_name]);     // 潜る
+				_success = true;
+			}
+			// binary処理
+			if (m_ofs.is_open()) _success = true; // バイナリはそのまま進む
+		}
+		// ロード時
+		else
+		{
+			// json処理
+			if (!m_json.is_null())
+			{
+				if (CurrentNode().contains(a_name) && CurrentNode()[a_name].is_object())
+				{
+					m_jsonNodeStack.push(&CurrentNode()[a_name]);
+					_success = true;
+				}
+			}
+			// binary処理
+			else if (m_ifs.is_open()) _success = true;
+		}
+		return _success;
+	}
+	void Archive::EndGroup()
+	{
+		// 階層を1つ上がる
+		if (!m_jsonNodeStack.empty()) m_jsonNodeStack.pop();
+	}
+	bool Archive::BeginArray(const std::string & a_name, size_t & a_size)
+	{
+		bool _success = false;
+		// セーブ時
+		if (IsSaving())
+		{
+			// json処理
+			if (!m_json.is_null())
+			{
+				CurrentNode()[a_name] = nlohmann::json::array(); // [] を作成
+				m_jsonNodeStack.push(&CurrentNode()[a_name]);
+				_success = true;
+			}
+			// binary処理
+			if (m_ofs.is_open())
+			{
+				BinaryHelper::Write(m_ofs, a_size); // バイナリは要素数を書き込む
+				_success = true;
 			}
 		}
+		// ロード時
+		else
+		{
+			// json処理
+			if (!m_json.is_null())
+			{
+				if (CurrentNode().contains(a_name) && CurrentNode()[a_name].is_array())
+				{
+					m_jsonNodeStack.push(&CurrentNode()[a_name]);
+					a_size = CurrentNode()[a_name].size(); // ロードした要素数を返す
+					_success = true;
+				}
+			}
+			// binary処理
+			else if (m_ifs.is_open())
+			{
+				BinaryHelper::Read(m_ifs, a_size); // バイナリから要素数を読み込む
+				_success = true;
+			}
+		}
+		return _success;
+	}
+	void Archive::EndArray()
+	{
+		if (!m_jsonNodeStack.empty()) m_jsonNodeStack.pop();
+	}
+	bool Archive::BeginObject(size_t a_index)
+	{
+		bool _success = false;
+		if (IsSaving())
+		{
+			if (!m_json.is_null())
+			{
+				// 配列の中にオブジェクト {} を追加し、そこに潜る
+				CurrentNode().push_back(nlohmann::json::object());
+				m_jsonNodeStack.push(&CurrentNode().back());
+				_success = true;
+			}
+			if (m_ofs.is_open()) _success = true;
+		}
+		else
+		{
+			if (!m_json.is_null())
+			{
+				// 現在のノードが配列であり、インデックスが範囲内なら潜る
+				if (CurrentNode().is_array() && a_index < CurrentNode().size())
+				{
+					m_jsonNodeStack.push(&CurrentNode()[a_index]);
+					_success = true;
+				}
+			}
+			else if (m_ifs.is_open()) _success = true;
+		}
+		return _success;
+	}
+	void Archive::EndObject()
+	{
+		if (!m_jsonNodeStack.empty()) m_jsonNodeStack.pop();
 	}
 	void Archive::GUIDField(const std::string & a_name, Engine::GUID & a_guid)
 	{
-		// 保存処理
+		// セーブ時
 		if (IsSaving())
 		{
-			// テスト時データ
-			m_json[a_name] = a_guid.String();
-			// 本番時(バイナリ)
-			if (m_ofs.is_open())
-			{
-				// value == UUID
-				BinaryHelper::Write(m_ofs, a_guid.value);
-			}
+			// Json処理
+			if (!m_json.is_null()) CurrentNode()[a_name] = a_guid.String();
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_guid.value);
 		}
-		// 読み込み処理
+		// ロード時
 		else
 		{
-			// テスト時
-			if (m_json.contains(a_name))
+			// Json処理
+			if (!m_json.is_null() && CurrentNode().contains(a_name))
 			{
-				a_guid.FromString(m_json[a_name].get<std::string>());
+				a_guid.FromString(CurrentNode()[a_name].get<std::string>());
 			}
-			// 本番時
-			if (m_ifs.is_open())
-			{
-				BinaryHelper::Read(m_ifs,a_guid.value);
-			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_guid.value);
 		}
 	}
 	void Archive::GUIDVectorField(const std::string & a_name, std::vector<Engine::GUID>&a_guids)

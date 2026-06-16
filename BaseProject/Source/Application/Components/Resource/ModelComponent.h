@@ -62,23 +62,6 @@ struct ModelComponent
 				}
 			}
 			ImGui::EndCombo();
-
-			//for (auto& [_guid, _handle] : Resource::ModelLoader::GetAllCache())
-			//{
-			//	// 選択中のモデルだったらフラグを立てる
-			//	bool _selected = (_comp.handle == _handle);
-
-			//	// 選択予定モデルの取得
-			//	auto* _pModel = Resource::ResourceManager::Instance().Get(_handle);;
-
-			//	// 選択欄
-			//	if (ImGui::Selectable(_pModel->GetName().c_str(), _selected))
-			//	{
-			//		_comp.handle = _handle;
-			//		_comp.modelGUID = _guid;
-			//	}
-			//}
-			//ImGui::EndCombo();
 		}
 
 		ImGui::Text("EmissiveScale");

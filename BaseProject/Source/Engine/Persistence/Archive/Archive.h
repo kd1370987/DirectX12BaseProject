@@ -44,11 +44,23 @@ namespace Engine::Persistence
 		void Field(const std::string& a_name,T& a_data);
 
 		// 文字列型のシリアライズ
-		void StringField(const std::string& a_name,std::string& a_data);
+		void StringField(const std::string& a_name, std::string& a_data);
 
 		// ベクターのシリアライズ
 		template<typename T>
 		void VectorField(const std::string& a_name,std::vector<T>& a_data);
+
+		// 構造体のグループ化（JSON の {} ）
+		bool BeginGroup(const std::string& a_name);
+		void EndGroup();
+
+		// 配列の管理（JSON の [] ）
+		bool BeginArray(const std::string& a_name, size_t& a_size);
+		void EndArray();
+
+		// 配列の中の1要素としてのオブジェクト（名前なしの {} ）
+		bool BeginObject(size_t a_index = 0);
+		void EndObject();
 
 		// GUID用
 		void GUIDField(const std::string& a_name,Engine::GUID& a_guid);
@@ -57,6 +69,8 @@ namespace Engine::Persistence
 	private:
 		// 実行モード
 		Mode m_mode;
+
+		ArchiveFormat m_format = ArchiveFormat::Auto;
 
 		// 本番用ストリーム
 		std::ofstream m_ofs;
@@ -70,78 +84,57 @@ namespace Engine::Persistence
 		std::string m_binPath;
 		std::string m_jsonPath;
 
+		// 現在注目しているJSONノードのポインタ（参照）をスタックで管理する
+		std::stack<nlohmann::json*> m_jsonNodeStack;
+
+		nlohmann::json& CurrentNode()
+		{
+			return m_jsonNodeStack.empty() ? m_json : *m_jsonNodeStack.top();
+		}
+
 	};
+
+	// =========================================================================
+	// フィールド処理
+	// =========================================================================
 	template<typename T>
 	inline void Archive::Field(const std::string& a_name, T& a_data)
 	{
 		static_assert(std::is_arithmetic_v<T> || std::is_enum_v<T>,
 			"Only arithmetic or enum types are allowed");
 
-		// 保存処理
 		if (IsSaving())
 		{
-			// テスト時データ
-			m_json[a_name] = a_data;
-			// 本番時(バイナリ)
+			CurrentNode()[a_name] = a_data; // m_json から CurrentNode() に変更
+
 			if (m_ofs.is_open())
 			{
-				BinaryHelper::Write(m_ofs,a_data);
+				BinaryHelper::Write(m_ofs, a_data);
 			}
 		}
-		// 読み込み処理
 		else
 		{
-			// テスト時
-			if (m_json.contains(a_name))
+			if (CurrentNode().contains(a_name))
 			{
-				a_data = m_json[a_name].get<T>();
+				a_data = CurrentNode()[a_name].get<T>();
 			}
-			// 本番時
+
 			if (m_ifs.is_open())
 			{
-				BinaryHelper::Read(m_ifs,a_data);
+				BinaryHelper::Read(m_ifs, a_data);
 			}
 		}
 	}
-	template<typename T>
-	inline void Archive::VectorField(const std::string& a_name, std::vector<T>& a_data)
-	{
-		// 保存処理
-		if (IsSaving())
-		{
-			// 要素数の書き込み
-			size_t _size = a_data.size();
-			Field(a_name + "_size",_size);
-
-			// 各要素のシリアライズ
-			for (size_t _i = 0; _i < _size; ++_i)
-			{
-				Field(a_name + "[" + std::to_string(_i) + "]", a_data[_i]);
-			}
-		}
-		// 読み込み
-		else
-		{
-			// 要素数でリサイズ
-			size_t _size = 0;
-			Field(a_name + "_size",_size);
-			a_data.resize(_size);
-
-			for (size_t _i = 0; _i < _size; ++_i)
-			{
-				Field(a_name + "[" + std::to_string(_i) + "]", a_data[_i]);
-			}
-		}
-	}
-
+	// 特殊化
+	// 行列
 	template<>
-	inline void Archive::Field(
-		const std::string& a_name,
-		DirectX::XMFLOAT4X4& a_data)
+	inline void Archive::Field(const std::string& a_name, DirectX::XMFLOAT4X4& a_data)
 	{
+		// セーブ時
 		if (IsSaving())
 		{
-			m_json[a_name] =
+			// json処理
+			CurrentNode()[a_name] =
 			{
 				a_data._11,a_data._12,a_data._13,a_data._14,
 				a_data._21,a_data._22,a_data._23,a_data._24,
@@ -149,19 +142,16 @@ namespace Engine::Persistence
 				a_data._41,a_data._42,a_data._43,a_data._44
 			};
 
-			if (m_ofs.is_open())
-			{
-				BinaryHelper::Write(
-					m_ofs,
-					a_data);
-			}
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
+		// ロード時
 		else
 		{
-			if (m_json.contains(a_name))
+			// json処理
+			if (CurrentNode().contains(a_name))
 			{
-				auto& j = m_json[a_name];
-
+				auto& j = CurrentNode()[a_name];
 				a_data =
 				{
 					j[0],j[1],j[2],j[3],
@@ -171,152 +161,282 @@ namespace Engine::Persistence
 				};
 			}
 
-			if (m_ifs.is_open())
-			{
-				BinaryHelper::Read(
-					m_ifs,
-					a_data);
-			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
 	template<>
-	inline void Archive::Field(
-		const std::string& a_name,
-		DirectX::XMFLOAT3& a_data)
+	inline void Archive::Field(const std::string& a_name, DXSM::Matrix& a_data)
 	{
 		if (IsSaving())
 		{
-			m_json[a_name] =
+			CurrentNode()[a_name] =
 			{
-				a_data.x,a_data.y,a_data.z
+				a_data._11,a_data._12,a_data._13,a_data._14,
+				a_data._21,a_data._22,a_data._23,a_data._24,
+				a_data._31,a_data._32,a_data._33,a_data._34,
+				a_data._41,a_data._42,a_data._43,a_data._44
 			};
 
-			if (m_ofs.is_open())
-			{
-				BinaryHelper::Write(
-					m_ofs,
-					a_data);
-			}
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
 		else
 		{
-			if (m_json.contains(a_name))
+			if (CurrentNode().contains(a_name))
 			{
-				auto& j = m_json[a_name];
-
-				a_data = { j[0],j[1],j[2] };
+				auto& j = CurrentNode()[a_name];
+				a_data =
+				{
+					j[0],j[1],j[2],j[3],
+					j[4],j[5],j[6],j[7],
+					j[8],j[9],j[10],j[11],
+					j[12],j[13],j[14],j[15]
+				};
 			}
 
-			if (m_ifs.is_open())
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+	// float3
+	template<>
+	inline void Archive::Field(const std::string& a_name, DirectX::XMFLOAT3& a_data)
+	{
+		// セーブ時
+		if (IsSaving())
+		{
+			// json処理
+			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z };
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		// ロード時
+		else
+		{
+			// json処理
+			if (CurrentNode().contains(a_name))
 			{
-				BinaryHelper::Read(
-					m_ifs,
-					a_data);
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1], j[2] };
 			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
 	template<>
-	inline void Archive::Field(
-		const std::string& a_name,
-		DirectX::XMFLOAT4& a_data)
+	inline void Archive::Field(const std::string& a_name, DXSM::Vector3& a_data)
 	{
+		// セーブ時
 		if (IsSaving())
 		{
-			m_json[a_name] =
-			{
-				a_data.x,a_data.y,a_data.z,a_data.w
-			};
-
-			if (m_ofs.is_open())
-			{
-				BinaryHelper::Write(
-					m_ofs,
-					a_data);
-			}
+			// json処理
+			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z };
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
+		// ロード時
 		else
 		{
-			if (m_json.contains(a_name))
+			// json処理
+			if (CurrentNode().contains(a_name))
 			{
-				auto& j = m_json[a_name];
-
-				a_data = { j[0],j[1],j[2],j[3]};
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1], j[2] };
 			}
-
-			if (m_ifs.is_open())
-			{
-				BinaryHelper::Read(
-					m_ifs,
-					a_data);
-			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
-
+	// float4
 	template<>
-	inline void Archive::Field(
-		const std::string& a_name,
-		DirectX::XMFLOAT2& a_data)
-	{
+	inline void Archive::Field(const std::string& a_name, DirectX::XMFLOAT4& a_data)
+	{	
+		// セーブ時
 		if (IsSaving())
 		{
-			m_json[a_name] =
-			{
-				a_data.x,a_data.y
-			};
-
-			if (m_ofs.is_open())
-			{
-				BinaryHelper::Write(
-					m_ofs,
-					a_data);
-			}
+			// json処理
+			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
+		// ロード時
 		else
 		{
-			if (m_json.contains(a_name))
+			// json処理
+			if (CurrentNode().contains(a_name))
 			{
-				auto& j = m_json[a_name];
-
-				a_data = { j[0],j[1] };
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1], j[2], j[3] };
 			}
-
-			if (m_ifs.is_open())
-			{
-				BinaryHelper::Read(
-					m_ifs,
-					a_data);
-			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
 	template<>
-	inline void Archive::Field(
-		const std::string& a_name,
-		DXSM::Vector2& a_data)
+	inline void Archive::Field(const std::string& a_name, DXSM::Vector4& a_data)
 	{
+		// セーブ時
 		if (IsSaving())
 		{
-			m_json[a_name] =
-			{
-				a_data.x,a_data.y
-			};
-
-			if (m_ofs.is_open())
-			{
-				BinaryHelper::Write(m_ofs,a_data);
-			}
+			// json処理
+			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
+		// ロード時
 		else
 		{
-			if (m_json.contains(a_name))
+			// json処理
+			if (CurrentNode().contains(a_name))
 			{
-				auto& j = m_json[a_name];
-				a_data = { j[0],j[1] };
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1], j[2], j[3] };
 			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+	template<>
+	inline void Archive::Field(const std::string& a_name, DXSM::Quaternion& a_data)
+	{
+		// セーブ時
+		if (IsSaving())
+		{
+			// json処理
+			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		// ロード時
+		else
+		{
+			// json処理
+			if (CurrentNode().contains(a_name))
+			{
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1], j[2], j[3] };
+			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+	// float2
+	template<>
+	inline void Archive::Field(const std::string& a_name, DirectX::XMFLOAT2& a_data)
+	{
+		// セーブ時
+		if (IsSaving())
+		{
+			// json処理
+			CurrentNode()[a_name] = { a_data.x, a_data.y };
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		// ロード時
+		else
+		{
+			// json処理
+			if (CurrentNode().contains(a_name))
+			{
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1] };
+			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+	template<>
+	inline void Archive::Field(const std::string& a_name, DXSM::Vector2& a_data)
+	{
+		// セーブ時
+		if (IsSaving())
+		{
+			// json処理
+			CurrentNode()[a_name] = { a_data.x, a_data.y };
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		// ロード時
+		else
+		{
+			// json処理
+			if (CurrentNode().contains(a_name))
+			{
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1] };
+			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+	// 文字列
+	template<>
+	inline void Archive::Field(const std::string& a_name, std::string& a_data)
+	{
+		// セーブ時
+		if (IsSaving())
+		{
+			// Json処理
+			if (!m_json.is_null()) CurrentNode()[a_name] = a_data;
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::WriteString(m_ofs, a_data);
+		}
+		// ロード時
+		else
+		{
+			// Json処理
+			if (!m_json.is_null() && CurrentNode().contains(a_name))
+			{
+				a_data = CurrentNode()[a_name].get<std::string>();
+			}
+			// binary処理
+			if (m_ifs.is_open()) a_data = BinaryHelper::ReadString(m_ifs);
+		}
+	}
+	// GUID
+	template<>
+	inline void Archive::Field(const std::string& a_name, Engine::GUID& a_data)
+	{
+		// セーブ時
+		if (IsSaving())
+		{
+			// Json処理
+			if (!m_json.is_null()) CurrentNode()[a_name] = a_data.String();
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data.value);
+		}
+		// ロード時
+		else
+		{
+			// Json処理
+			if (!m_json.is_null() && CurrentNode().contains(a_name))
+			{
+				a_data.FromString(CurrentNode()[a_name].get<std::string>());
+			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data.value);
+		}
+	}
 
-			if (m_ifs.is_open())
+	template<typename T>
+	inline void Archive::VectorField(const std::string& a_name, std::vector<T>& a_data)
+	{
+		size_t _size = a_data.size();
+
+		// 新しい BeginArray と BeginObject を使ったスマートな配列シリアライズ
+		if (BeginArray(a_name, _size))
+		{
+			a_data.resize(_size);
+			for (size_t _i = 0; _i < _size; ++_i)
 			{
-				BinaryHelper::Read(m_ifs,a_data);
+				if (BeginObject(_i))
+				{
+					// JSONでは [ {"v": 10}, {"v": 20} ] のように綺麗に格納される
+					// バイナリモードでは BeginObject は何もしないので、単純に連続したデータとして書き込まれる
+					Field("v", a_data[_i]);
+					EndObject();
+				}
 			}
+			EndArray();
 		}
 	}
 }

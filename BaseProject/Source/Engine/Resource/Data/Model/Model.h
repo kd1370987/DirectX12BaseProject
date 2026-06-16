@@ -75,6 +75,9 @@ namespace Engine::Resource
 		const std::vector<Handle<Mesh>>&			GetMeshHandles()		const { return m_meshHandleVec; }
 		const std::vector<Handle<AnimationData>>&	GetAnimationHandles()	const { return m_animationHandleVec; }
 
+		// アニメーションのハンドルからGUIDを逆引き
+		Engine::GUID GetAnimationGUIDFromHandle(const Handle<AnimationData>& a_handle) const;
+
 		// モデルが管理する実データ
 		const std::string& GetName() const { return m_name; }
 		const std::vector<Node>& GetOriginalNodeVec() const { return m_originalNodes; }

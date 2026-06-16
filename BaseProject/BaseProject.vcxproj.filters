@@ -916,6 +916,9 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem">
       <UniqueIdentifier>{83675496-7da3-472b-b73b-af8dacfaa60e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Data\AnimationStateTable">
+      <UniqueIdentifier>{2c25fe09-6c1b-46b3-9fe7-549bb552518d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1457,6 +1460,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\AnimationStateTable\AnimationStateTable.cpp">
+      <Filter>Source\Engine\Resource\Data\AnimationStateTable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2236,6 +2242,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\AnimationStateTable\AnimationStateTable.h">
+      <Filter>Source\Engine\Resource\Data\AnimationStateTable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

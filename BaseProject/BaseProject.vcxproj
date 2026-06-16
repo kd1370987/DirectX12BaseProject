@@ -365,6 +365,7 @@
     <ClCompile Include="Source\Engine\Raytracing\RaytracingWorld\RaytracingWorld.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\TLAS\TLAS.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\AnimationStateTable\AnimationStateTable.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Animation\Animation.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Material\Material.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.cpp" />
@@ -627,6 +628,7 @@
     <ClInclude Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.h" />
     <ClInclude Include="Source\Engine\Raytracing\TLAS\TLAS.h" />
     <ClInclude Include="Source\Engine\Resource\Common\Common.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\AnimationStateTable\AnimationStateTable.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Animation\Animation.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Material\Material.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.h" />

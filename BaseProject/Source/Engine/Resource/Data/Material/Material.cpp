@@ -39,10 +39,10 @@ void Engine::Resource::Material::Save(const std::string& a_fileDir, const std::s
 	_ar.Field("AlphaMode", alphaMode);
 
 	// 参照テクスチャGUID
-	_ar.GUIDField("BaseColorTexGUID",baseColorTexGUID);
-	_ar.GUIDField("MetaRoughTexGUID", metaRoughTexGUID);
-	_ar.GUIDField("EmissiveTexGUID", emissiveTexGUID);
-	_ar.GUIDField("NormalTexGUID", normalTexGUID);
+	_ar.Field("BaseColorTexGUID",baseColorTexGUID);
+	_ar.Field("MetaRoughTexGUID", metaRoughTexGUID);
+	_ar.Field("EmissiveTexGUID", emissiveTexGUID);
+	_ar.Field("NormalTexGUID", normalTexGUID);
 
 	// スケール値
 	_ar.Field("BaseColor",baseColor);
@@ -58,10 +58,10 @@ void Engine::Resource::Material::Load(const std::string& a_fileDir, const std::s
 	_ar.Field("AlphaMode", alphaMode);
 
 	// 参照テクスチャGUID
-	_ar.GUIDField("BaseColorTexGUID", baseColorTexGUID);
-	_ar.GUIDField("MetaRoughTexGUID", metaRoughTexGUID);
-	_ar.GUIDField("EmissiveTexGUID", emissiveTexGUID);
-	_ar.GUIDField("NormalTexGUID", normalTexGUID);
+	_ar.Field("BaseColorTexGUID", baseColorTexGUID);
+	_ar.Field("MetaRoughTexGUID", metaRoughTexGUID);
+	_ar.Field("EmissiveTexGUID", emissiveTexGUID);
+	_ar.Field("NormalTexGUID", normalTexGUID);
 
 	// スケール値
 	_ar.Field("BaseColor", baseColor);

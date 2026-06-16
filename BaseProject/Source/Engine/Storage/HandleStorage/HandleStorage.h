@@ -92,6 +92,10 @@ namespace Engine::Storage
 	inline bool HandleStorage<T>::IsValid(const Engine::Resource::Handle<T>& a_handle) const
 	{
 		// 世代が一致しているかどうか
+		if (m_genVec.size() <= a_handle.idx)
+		{
+			return false;
+		}
 		if(m_genVec[a_handle.idx] != a_handle.gen)
 		{
 			// 世代が一致していない = 無効

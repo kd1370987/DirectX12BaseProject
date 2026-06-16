@@ -45,7 +45,7 @@ void StateMachinComitSystem::Init(Engine::ECS::World& a_world)
 				// 遷移の評価
 				UINT _nextStateHash = _pStateMacihne->EvaluateNextState(_smComp.currentStateHash, *_pInstanceData);
 
-				// 遷移が発生したときの処理
+				// 遷移が発生したときの処理 
 				if (_nextStateHash != _smComp.currentStateHash)
 				{
 					_smComp.prevStateHash = _smComp.currentStateHash;

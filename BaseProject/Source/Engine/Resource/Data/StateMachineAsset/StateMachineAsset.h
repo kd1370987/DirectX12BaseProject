@@ -25,11 +25,19 @@ namespace Engine::Resource
 		UINT hash;
 		std::string	name;
 
+		// アニメーション再生用データ
+		Engine::GUID animGUID;					//セーブ用
+		Handle<AnimationData> playAnimData;
+		float speed = 0.0f;
+		bool isLoop;
+
 		// エディター用情報
-		DXSM::Vector2 editorPos = {};
+		DXSM::Vector2 editorPos = {};		// エディター上の位置情報
+		int nodeID = 0;			// 自身のID
+		int inPinID = 0;		// 自身の入り口
+		int outPinID = 0;		// 自身の出口
 
 		void Archive(Persistence::Archive& a_arch,const std::string& a_filedName);
-		void EditNode();
 	};
 
 	enum class ECompareOp {Greater,Less,Equal,NotEqual,True,False};
@@ -54,13 +62,17 @@ namespace Engine::Resource
 		// 遷移条件
 		std::vector<TransitionCondition> conditions;
 
+		// アニメーション用データ
+		float blendDuration = 0.0f;			// 移行するときのアニメーションブレンドタイム
+
 		void Archive(Persistence::Archive& a_arch, const std::string& a_filedName);
-		void EditArrow(UINT a_srcHash);
+		void EditArrow(int a_srcOutPinID,int a_dstInPinID);
 	};
 
 	// インスタンス時データ
 	struct StateMachinInstance
 	{
+		// ステート遷移用判断パラメータ
 		std::unordered_map<UINT, float> floatParams;
 		std::unordered_map<UINT, int> intParams;
 		std::unordered_map<UINT, bool> boolParams;
@@ -106,11 +118,15 @@ namespace Engine::Resource
 		// ステート遷移判定を行い、次ステートのハッシュを返す
 		UINT EvaluateNextState(UINT a_currentStateHash,StateMachinInstance& a_instance) const;
 		
-
+		// ArrowID生成
+		int GenerateID() { return ++m_idCounter; }
 	private:
 
 		// ノードの新規作成
 		void AddNode();
+
+		// ステートマシンのリセット
+		void RessetButton();
 
 		// 遷移データ作成
 		void CreateArrow();
@@ -124,7 +140,18 @@ namespace Engine::Resource
 		// パラメータ編集
 		void EditParameters();
 
+		// モデルをバインド
+		void BindModelComb();
+
+		// ノード編集
+		void EditNode(StateNode& a_node);
+
 	private:
+
+		// 参照モデル
+		Engine::GUID m_modelGUID = Engine::DefaultGUID;
+		Handle<Model> m_modelHandle = {};
+
 		// 識別子
 		std::string m_name;
 		Engine::GUID m_guid;
@@ -144,5 +171,6 @@ namespace Engine::Resource
 		// 編集用データ
 		int m_editingLinkID = 0;
 
+		int m_idCounter = 0;
 	};
 }

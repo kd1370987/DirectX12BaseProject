@@ -278,4 +278,19 @@ namespace Engine::Resource
 		// 描画コマンド用事前キャッシュ
 		m_cachedDrawCommands.clear();
 	}
+	Engine::GUID Model::GetAnimationGUIDFromHandle(const Handle<AnimationData>& a_handle) const
+	{
+		// セーブ時の1回だけ線形探索
+		for (size_t _i = 0; _i < m_animationHandleVec.size(); ++_i)
+		{
+			if (m_animationHandleVec[_i] == a_handle)
+			{
+				// 同じインデックスのGUIDを返す
+				return m_animationGUIDVec[_i];
+			}
+		}
+
+		// 見つからなかった場合
+		return Engine::GUID();
+	}
 }

@@ -22,6 +22,7 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 			// 毎フレーム計算するのは無駄なので、パラメータ名のハッシュ値はstaticで保持しておく
 			static const UINT s_speedHash = StringUtility::ToHash("Speed");
 			static const UINT s_jumpHash = StringUtility::ToHash("Jump");
+			static const UINT s_isGroundHash = StringUtility::ToHash("IsGround");
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -32,7 +33,7 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 				auto* _pInstanceData = Engine::Resource::InstancePoolManager::Instance().Ref(_smComp.instanceHandle);
 				if (!_pInstanceData) continue;
 
-				// 1. 移動量から「Speed」パラメータを計算して登録
+				// 移動量から「Speed」パラメータを計算して登録
 				// XとZの入力値からベクトルの長さ（速さ）を求める
 				float _speed = std::sqrt((_intentComp.value.x * _intentComp.value.x) +
 					(_intentComp.value.z * _intentComp.value.z));
@@ -43,6 +44,13 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 				{
 					_pInstanceData->boolParams[s_jumpHash] = true;
 				}
+				else
+				{
+					_pInstanceData->boolParams[s_jumpHash] = false;
+				}
+
+				// 地面に接しているかの判定
+				_pInstanceData->boolParams[s_isGroundHash] = _smComp.isGround;
 			}
 		}
 	);
