@@ -77,6 +77,7 @@ namespace Engine::Resource
 
 		// アニメーションのハンドルからGUIDを逆引き
 		Engine::GUID GetAnimationGUIDFromHandle(const Handle<AnimationData>& a_handle) const;
+		Handle<AnimationData> GetAnimationHandleFromGUID(const Engine::GUID& a_guid) const;
 
 		// モデルが管理する実データ
 		const std::string& GetName() const { return m_name; }

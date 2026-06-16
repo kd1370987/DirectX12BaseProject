@@ -29,6 +29,16 @@ void Engine::Resource::StateMachineAsset::Save(const std::string& a_savePath)
 		_node.editorPos.y = _pos.y;
 	}
 
+	// ノードのハンドルからGUIDをとってくる
+	auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
+	if (_pModel)
+	{
+		for (auto& [_hash, _node] : m_stateNodeMap)
+		{
+			_node.animGUID = _pModel->GetAnimationGUIDFromHandle(_node.playAnimData);
+		}
+	}
+
 	// アーカイブ作成
 	auto _dir = FileUtility::GetDirFromPath(a_savePath);
 	auto _fileName = FileUtility::GetFileNameWithoutExtension(a_savePath);
@@ -215,6 +225,17 @@ void Engine::Resource::StateMachineAsset::Load(const std::string& a_fileDir, con
 	}
 
 	m_idCounter = _maxId;
+
+	// モデルからノードのアニメーションを復元
+	m_modelHandle = ModelLoader::Load(m_modelGUID);
+	auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
+	if (_pModel)
+	{
+		for (auto& [_hash, _node] : m_stateNodeMap)
+		{
+			_node.playAnimData = _pModel->GetAnimationHandleFromGUID(_node.animGUID);
+		}
+	}
 }
 
 std::string_view Engine::Resource::StateMachineAsset::GetNodeName(const UINT& a_hash) const
@@ -321,7 +342,7 @@ UINT Engine::Resource::StateMachineAsset::EvaluateNextState(UINT a_currentStateH
 			{
 			case EParamType::Float:
 			{
-				// ▼ 修正: インスタンスにステータスが入っていなければデフォルト値をセット
+				// インスタンスにステータスが入っていなければデフォルト値をセット
 				if (a_instance.floatParams.find(_cond.paramHash) == a_instance.floatParams.end())
 				{
 					a_instance.floatParams[_cond.paramHash] = _paramDef.defaultFloat;
@@ -336,7 +357,7 @@ UINT Engine::Resource::StateMachineAsset::EvaluateNextState(UINT a_currentStateH
 			}
 			case EParamType::Int:
 			{
-				// ▼ 修正: インスタンスにステータスが入っていなければデフォルト値をセット
+				// インスタンスにステータスが入っていなければデフォルト値をセット
 				if (a_instance.intParams.find(_cond.paramHash) == a_instance.intParams.end())
 				{
 					a_instance.intParams[_cond.paramHash] = _paramDef.defaultInt;
@@ -352,7 +373,7 @@ UINT Engine::Resource::StateMachineAsset::EvaluateNextState(UINT a_currentStateH
 			case EParamType::Bool:
 			case EParamType::Trigger: // Triggerの評価自体はBoolと同じ
 			{
-				// ▼ 修正: インスタンスにステータスが入っていなければデフォルト値をセット
+				// インスタンスにステータスが入っていなければデフォルト値をセット
 				if (a_instance.boolParams.find(_cond.paramHash) == a_instance.boolParams.end())
 				{
 					a_instance.boolParams[_cond.paramHash] = _paramDef.defaultBool;

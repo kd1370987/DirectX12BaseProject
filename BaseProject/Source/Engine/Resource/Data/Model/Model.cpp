@@ -298,4 +298,19 @@ namespace Engine::Resource
 		// 見つからなかった場合
 		return Engine::GUID();
 	}
+	Handle<AnimationData> Model::GetAnimationHandleFromGUID(const Engine::GUID& a_guid) const
+	{
+		// セーブ時の1回だけ線形探索
+		for (size_t _i = 0; _i < m_animationGUIDVec.size(); ++_i)
+		{
+			if (m_animationGUIDVec[_i] == a_guid)
+			{
+				// 同じインデックスのGUIDを返す
+				return m_animationHandleVec[_i];
+			}
+		}
+
+		// 見つからなかった場合
+		return Handle<AnimationData>();
+	}
 }
