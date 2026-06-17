@@ -9,6 +9,8 @@ namespace Engine::Pool
 		ItemPool() = default;
 		~ItemPool() = default;
 
+		void Release();
+
 		/// <summary>
 		/// 領域確保
 		/// </summary>
@@ -43,6 +45,15 @@ namespace Engine::Pool
 		const T* Get(const Handle<T>& a_handle) const;
 
 		/// <summary>
+		/// 読み取り専用すべてのデータを配列ごと参照
+		/// </summary>
+		const std::vector<std::optional<T>>& GetAll() const;
+		/// <summary>
+		/// すべてのデータを配列ごと参照
+		/// </summary>
+		std::vector<std::optional<T>>& RefAll();
+
+		/// <summary>
 		/// インデックスアクセス : チェックができないので危険
 		/// </summary>
 		/// <param name="a_index">ハンドルインデックス</param>
@@ -65,6 +76,14 @@ namespace Engine::Pool
 
 	};
 
+
+	template<typename T>
+	inline void ItemPool<T>::Release()
+	{
+		m_data.clear();
+		m_generations.clear();
+		m_freeIndices.clear();
+	}
 
 	template<typename T>
 	inline void ItemPool<T>::Reserve(size_t a_capacity)
@@ -136,6 +155,16 @@ namespace Engine::Pool
 
 		// なければnullptr
 		return nullptr;
+	}
+	template<typename T>
+	inline const std::vector<std::optional<T>>& ItemPool<T>::GetAll() const
+	{
+		return m_data;
+	}
+	template<typename T>
+	inline std::vector<std::optional<T>>& ItemPool<T>::RefAll()
+	{
+		return m_data;
 	}
 	template<typename T>
 	inline const T* ItemPool<T>::Access(uint16_t a_index) const

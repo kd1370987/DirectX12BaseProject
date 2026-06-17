@@ -56,21 +56,21 @@ namespace Engine::Resource
 
 		// プールの取得
 		template<typename T>
-		const ResourcePool<T>& GetPool() const;
+		const Pool::ItemPool<T>& GetPool() const;
 		template<typename T>
-		ResourcePool<T>& RefPool();
+		Pool::ItemPool<T>& RefPool();
 
 	private:
 
 		// 各リソースの実体プール
-		ResourcePool<Model>			m_modelPool;			// モデル
-		ResourcePool<Material>		m_materialPool;			// マテリアル
-		ResourcePool<Mesh>			m_meshPool;				// メッシュ
-		ResourcePool<AnimationData>	m_animationPool;		// アニメーション
-		ResourcePool<Texture>		m_texturePool;			// テクスチャ
-		ResourcePool<Shader>		m_shaderPool;			// シェーダー
-		ResourcePool<ShaderLibrary>	m_shaderLibraryPool;	// シェーダーライブラリ
-		ResourcePool<StateMachineAsset> m_stateMachinePool;	// ステートマシン
+		Pool::ItemPool<Model>			m_modelPool;			// モデル
+		Pool::ItemPool<Material>		m_materialPool;			// マテリアル
+		Pool::ItemPool<Mesh>			m_meshPool;				// メッシュ
+		Pool::ItemPool<AnimationData>	m_animationPool;		// アニメーション
+		Pool::ItemPool<Texture>		m_texturePool;			// テクスチャ
+		Pool::ItemPool<Shader>		m_shaderPool;			// シェーダー
+		Pool::ItemPool<ShaderLibrary>	m_shaderLibraryPool;	// シェーダーライブラリ
+		Pool::ItemPool<StateMachineAsset> m_stateMachinePool;	// ステートマシン
 
 		// リソース用D3D12オブジェクト群
 		ID3D12CommandQueue* m_pCopyCmdQueue = nullptr;
@@ -124,7 +124,7 @@ namespace Engine::Resource
 	template<typename T>
 	inline const T* ResourceManager::Accece(const Handle<T>& a_handle)
 	{
-		return GetPool<T>().Access(a_handle);
+		return GetPool<T>().Access(a_handle.GetIndex());
 	}
 
 	template<typename T>
@@ -134,23 +134,23 @@ namespace Engine::Resource
 	}
 
 	// プールの取得
-	template<> inline const ResourcePool<Model>& ResourceManager::GetPool<Model>() const					{ return m_modelPool; }
-	template<> inline const ResourcePool<Material>& ResourceManager::GetPool<Material>() const				{ return m_materialPool; }
-	template<> inline const ResourcePool<Mesh>& ResourceManager::GetPool<Mesh>() const						{ return m_meshPool; }
-	template<> inline const ResourcePool<AnimationData>& ResourceManager::GetPool<AnimationData>() const	{ return m_animationPool; }
-	template<> inline const ResourcePool<Texture>& ResourceManager::GetPool<Texture>() const				{ return m_texturePool; }
-	template<> inline const ResourcePool<Shader>& ResourceManager::GetPool<Shader>() const					{ return m_shaderPool; }
-	template<> inline const ResourcePool<ShaderLibrary>& ResourceManager::GetPool<ShaderLibrary>() const	{ return m_shaderLibraryPool; }
-	template<> inline const ResourcePool<StateMachineAsset>& ResourceManager::GetPool<StateMachineAsset>() const	{ return m_stateMachinePool; }
+	template<> inline const Pool::ItemPool<Model>& ResourceManager::GetPool<Model>() const					{ return m_modelPool; }
+	template<> inline const Pool::ItemPool<Material>& ResourceManager::GetPool<Material>() const				{ return m_materialPool; }
+	template<> inline const Pool::ItemPool<Mesh>& ResourceManager::GetPool<Mesh>() const						{ return m_meshPool; }
+	template<> inline const Pool::ItemPool<AnimationData>& ResourceManager::GetPool<AnimationData>() const	{ return m_animationPool; }
+	template<> inline const Pool::ItemPool<Texture>& ResourceManager::GetPool<Texture>() const				{ return m_texturePool; }
+	template<> inline const Pool::ItemPool<Shader>& ResourceManager::GetPool<Shader>() const					{ return m_shaderPool; }
+	template<> inline const Pool::ItemPool<ShaderLibrary>& ResourceManager::GetPool<ShaderLibrary>() const	{ return m_shaderLibraryPool; }
+	template<> inline const Pool::ItemPool<StateMachineAsset>& ResourceManager::GetPool<StateMachineAsset>() const	{ return m_stateMachinePool; }
 	
 
 	// テンプレート明示特殊化
-	template<> inline ResourcePool<Model>& ResourceManager::RefPool<Model>()					{ return m_modelPool; }
-	template<> inline ResourcePool<Material>& ResourceManager::RefPool<Material>()				{ return m_materialPool; }
-	template<> inline ResourcePool<Mesh>& ResourceManager::RefPool<Mesh>()						{ return m_meshPool; }
-	template<> inline ResourcePool<AnimationData>& ResourceManager::RefPool<AnimationData>()	{ return m_animationPool; }
-	template<> inline ResourcePool<Texture>& ResourceManager::RefPool<Texture>()				{ return m_texturePool; }
-	template<> inline ResourcePool<Shader>& ResourceManager::RefPool<Shader>()					{ return m_shaderPool; }
-	template<> inline ResourcePool<ShaderLibrary>& ResourceManager::RefPool<ShaderLibrary>()	{ return m_shaderLibraryPool; }
-	template<> inline ResourcePool<StateMachineAsset>& ResourceManager::RefPool<StateMachineAsset>()	{ return m_stateMachinePool; }
+	template<> inline Pool::ItemPool<Model>& ResourceManager::RefPool<Model>()					{ return m_modelPool; }
+	template<> inline Pool::ItemPool<Material>& ResourceManager::RefPool<Material>()				{ return m_materialPool; }
+	template<> inline Pool::ItemPool<Mesh>& ResourceManager::RefPool<Mesh>()						{ return m_meshPool; }
+	template<> inline Pool::ItemPool<AnimationData>& ResourceManager::RefPool<AnimationData>()	{ return m_animationPool; }
+	template<> inline Pool::ItemPool<Texture>& ResourceManager::RefPool<Texture>()				{ return m_texturePool; }
+	template<> inline Pool::ItemPool<Shader>& ResourceManager::RefPool<Shader>()					{ return m_shaderPool; }
+	template<> inline Pool::ItemPool<ShaderLibrary>& ResourceManager::RefPool<ShaderLibrary>()	{ return m_shaderLibraryPool; }
+	template<> inline Pool::ItemPool<StateMachineAsset>& ResourceManager::RefPool<StateMachineAsset>()	{ return m_stateMachinePool; }
 }

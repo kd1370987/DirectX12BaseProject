@@ -18,6 +18,8 @@
 //==========================================================================================
 #include "Utility/GUID/GUID.h"					// GUID
 #include "Utility/JSONHelper/JSONHelper.h"		// Jsonヘルパー
+#include "Utility/Pool/ItemPool/ItemPool.h"		// ハンドル管理ストレージ
+#include "Utility/Pool/RangePool/RangePool.h"	// レンジ管理ストレージ
 
 //==========================================================================================
 // 

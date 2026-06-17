@@ -2279,6 +2279,9 @@
     <ClInclude Include="Source\Engine\Common\Macros\ClassMacros.h">
       <Filter>Source\Engine\Common\Macros</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Pool\RangePool\RangePool.h">
+      <Filter>Source\Engine\Utility\Pool\RangePool</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
