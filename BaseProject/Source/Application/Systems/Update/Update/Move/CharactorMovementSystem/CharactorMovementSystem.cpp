@@ -40,29 +40,6 @@ void CharactorMovementSystem::Init(Engine::ECS::World& a_world)
 				_velComp.value.x = (_moveIntent.value.x * _cosY + _moveIntent.value.z * _sinY) * 5.0f;
 				_velComp.value.y = _moveIntent.value.y * _moveIntent.jumpPow;
 				_velComp.value.z = (_moveIntent.value.z * _cosY - _moveIntent.value.x * _sinY) * 5.0f;
-
-				// 移動状態のためステート移動を入れる
-				//if (_velComp.value.x != 0.0f || _velComp.value.y != 0.0f || _velComp.value.z != 0.0f)
-				//{
-				//	auto* _pStateMachine = Engine::Resource::ResourceManager::Instance().Get(_stateMachineComp.stateMachineHandle);
-				//	if (!_pStateMachine) continue;
-
-				//	UINT _stateHash = _pStateMachine->GetStateHash("Move");
-				//	if (_stateHash == -1) continue;
-
-				//	if (_stateMachineComp.currentStateHash == _stateHash)
-				//	{
-				//		// 進行
-				//		_stateMachineComp.currentTime += a_dt;
-				//	}
-				//	else
-				//	{
-				//		// 状態の遷移
-				//		_stateMachineComp.prevStateHash = _stateMachineComp.currentStateHash;
-				//		_stateMachineComp.currentStateHash = _stateHash;
-				//		_stateMachineComp.currentTime = 0.0f;
-				//	}
-				//}
 			}
 		}
 	);

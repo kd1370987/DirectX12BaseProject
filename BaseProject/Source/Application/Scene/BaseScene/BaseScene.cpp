@@ -43,6 +43,7 @@
 #include "../../Components/Hierarchy/HierarchyComponent.h"
 #include "../../Components/Hierarchy/ExoskeletonAttachementComponent.h"
 #include "../../Components/Transform/PreviousWorldMatrixComponent.h"
+#include "../../Components/Charactor/Robot/BoostComponent.h"
 
 // システム関連
 #include "../../Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -79,6 +80,7 @@
 #include "../../Systems/Update/Update/StateMachinComitSystem/StateMachinComitSystem.h"
 #include "../../Systems/Update/PreUpdate/PlayerIntentSystem/PlayerIntentSystem.h"
 #include "../../Systems/Update/Animation/AnimationStateSystem/AnimationStateSystem.h"
+#include "../../Systems/Update/Update/Move/RobotBoostSystem/RobotBoostSystem.h"
 
 
 BaseScene::BaseScene()
@@ -191,6 +193,7 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<StateMachineComponent>("StateMachineComponent");
 	m_upWorld->RegisterComponent<MoveIntentComponent>("MoveIntentComponent");
 	m_upWorld->RegisterComponent<PreviousWorldMatrixComponent>("PreviousWorldMatrixComponent");
+	m_upWorld->RegisterComponent<BoostComponent>("BoostComponent");
 }
 
 void BaseScene::RegistrySystem()
@@ -229,6 +232,7 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<TPSSystem>();
 
 	m_upWorld->RegisterSystem<CalcMatrixSystem>();
+	m_upWorld->RegisterSystem<RobotBoostSystem>();
 	m_upWorld->RegisterSystem<CommitWorldMatrixFromLocalSystem>();
 	m_upWorld->RegisterSystem<CalccTransformFromExoskeletonSystem>();
 	m_upWorld->RegisterSystem<RayCollisionSystem>();

@@ -270,6 +270,7 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\StateMachinComitSystem\StateMachinComitSystem.cpp" />
     <ClCompile Include="Source\Core\Storage\FreeRange\FreeRange.cpp" />
@@ -500,6 +501,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\StateMachinComitSystem\StateMachinComitSystem.h" />
     <ClInclude Include="Source\Core\Algorithm\Graph\GroupTopologicalSort.h" />

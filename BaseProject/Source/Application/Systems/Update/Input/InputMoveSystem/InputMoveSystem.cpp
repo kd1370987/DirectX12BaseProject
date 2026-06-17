@@ -3,6 +3,7 @@
 #include "Engine/ECS/World/World.h"
 
 #include "../../../../Components/Intent/MoveIntentComponent.h"
+#include "../../../../Components/Charactor/Robot/BoostComponent.h"
 #include "Application/Components/Force/InertiaComponent.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
@@ -11,7 +12,7 @@
 
 void InputMoveSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const PlayerControllTag, MoveIntentComponent, PlayerLookAngleComponent>(
+	a_world.ActiveTask<const PlayerControllTag, MoveIntentComponent, PlayerLookAngleComponent,BoostComponent>(
 		Engine::ECS::ESystemType::Input,
 		"InputMoveSystem",
 		[]
@@ -22,7 +23,8 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			ActiveTag* a_ActiveTag,
 			const PlayerControllTag* a_tags,
 			MoveIntentComponent* a_moveIntentArray,
-			PlayerLookAngleComponent* a_playerLookArray
+			PlayerLookAngleComponent* a_playerLookArray,
+			BoostComponent* a_boostArray
 		)
 		{
 			DXSM::Vector3 _move = {};
@@ -34,7 +36,9 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			float _jumpInput = Engine::Input::InputManager::Instance().GetButtonState("Jump");
 			_move = { _inputMove.x,_jumpInput,_inputMove.y };
 
-			
+			// ブースト
+			bool _isHold = Engine::Input::InputManager::Instance().IsHold("Boost");			// 押されっぱなし
+			bool _isPress = Engine::Input::InputManager::Instance().IsPress("Boost");		// 押した瞬間
 
 			// 視点
 			_look = Engine::Input::InputManager::Instance().GetAxisState("Look");
@@ -43,6 +47,7 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			{
 				PlayerLookAngleComponent& _lookComp = a_playerLookArray[_i];
 				MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
+				BoostComponent& _boostComp = a_boostArray[_i];
 
 				_lookComp.Yaw += _look.x;
 				_lookComp.Pitch += _look.y;
@@ -50,6 +55,9 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 
 				_intentComp.value = {};
 				_intentComp.value = _move;
+
+				_boostComp.isBoostTriger = _isPress;
+				_boostComp.isBoostIntent = _isHold;
 			}
 		}
 	);

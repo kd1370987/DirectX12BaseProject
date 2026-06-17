@@ -91,7 +91,9 @@ void GameScene::Init()
 		// ジャンプ
 		Engine::Input::InputButtonForWindows _jump(VK_SPACE);
 		_keyboard.AddButton("Jump", std::make_shared<Engine::Input::InputButtonForWindows>(_jump));
-
+		// ブースト
+		Engine::Input::InputButtonForWindows _boost(VK_LSHIFT);
+		_keyboard.AddButton("Boost", std::make_shared<Engine::Input::InputButtonForWindows>(_boost));
 		// 視点
 		Engine::Input::InputAxisForWindows _look(VK_UP, VK_RIGHT, VK_DOWN, VK_LEFT);
 		_keyboard.AddAxis("Look",std::make_shared<Engine::Input::InputAxisForWindows>(_look));
