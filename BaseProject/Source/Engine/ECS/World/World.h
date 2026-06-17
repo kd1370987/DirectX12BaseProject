@@ -1,9 +1,12 @@
 ﻿#pragma once
 
+// マネージャー関係
 #include "../EntityManager/EntityManager.h"
 #include "../SystemManager/SystemManager.h"
 #include "../ArchetypeChunkManager/ArchetypeChunkManager.h"
 #include "../ArchetypeChunk/ArchetypeChunk.h"
+#include "../ResourceTypeManager/ResourceTypeManager.h"
+#include "../ResourceWrapper/ResourceWrapper.h"
 
 #include "../ComponentMetaRegistry/ComponentMetaRegistry.h"
 
@@ -247,6 +250,23 @@ namespace Engine::ECS
 		template<typename ...Read, typename... Write, typename Func>
 		void ReleaseCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
 
+		//==========================================================================================
+		// 
+		// リソース関連
+		// 
+		//==========================================================================================
+
+		// リソースの登録
+		template<typename ResourceType,typename... Args>
+		void AddResource(Args&&... a_args);
+
+		// リソースの参照
+		template<typename ResourceType>
+		ResourceType& GetResource();
+
+		// リソース生存チェック
+		template<typename ResourceType>
+		bool HasResource() const;
 
 	private:
 
@@ -269,6 +289,9 @@ namespace Engine::ECS
 
 		// 移動予定エンティティ
 		std::vector<ChangeEntityCmd> m_changeEntityVec = {};
+
+		// インターフェースポインタでリソースを保存
+		std::unordered_map<ResourceTypeID, std::unique_ptr<IResourceWrapper>> m_resourceMap;
 
 	public:
 		// コンストラクタデストラクタ
@@ -579,5 +602,42 @@ namespace Engine::ECS
 			WriteList<Write...>{},
 			a_func
 		);
+	}
+	template<typename ResourceType, typename ...Args>
+	inline void World::AddResource(Args && ...a_args)
+	{
+		// ID取得
+		ResourceTypeID _id = ResourceTypeManager::GetID<ResourceType>();
+
+		if (m_resourceMap.find(_id) == m_resourceMap.end())
+		{
+			// unique_ptrを使って安全にアップキャストして保持
+			// ランタイム中では行わずに初期登録時のみ走る
+			m_resourceMap.emplace(_id, std::make_unique<ResourceWrapper<ResourceType>>(std::forward<Args>(a_args)...));
+		}
+	}
+	template<typename ResourceType>
+	inline ResourceType& World::GetResource()
+	{
+		// IDを検索
+		ResourceTypeID _id = ResourceTypeManager::GetID<ResourceType>();
+		auto _it = m_resourceMap.find(_id);
+
+		// 見つからなければエラー
+		if(_it == m_resourceMap.end())
+		{
+			Editor::MainEditor::Instance().ErrorLog("ECS::World : Resource not found");
+		}
+
+		// RTTIによる型チェックを行わずに型が一致している前提でキャスト
+		auto* _wrapper = static_cast<ResourceWrapper<ResourceType>*>(_it->second.get());
+		return _wrapper->data;
+	}
+	template<typename ResourceType>
+	inline bool World::HasResource() const
+	{
+		// IDを検索してマップ内に存在するかどうかを返す
+		ResourceTypeID _id = ResourceTypeManager::GetID<ResourceType>();
+		return m_resourceMap.find(_id) != m_resourceMap.end();
 	}
 }

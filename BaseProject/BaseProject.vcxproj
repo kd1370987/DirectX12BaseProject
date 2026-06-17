@@ -561,6 +561,8 @@
     <ClInclude Include="Source\Engine\ECS\Internal\EntityLocation.h" />
     <ClInclude Include="Source\Engine\ECS\Internal\SystemComon.h" />
     <ClInclude Include="Source\Engine\ECS\Persistence\EntitySerializeField.h" />
+    <ClInclude Include="Source\Engine\ECS\ResourceTypeManager\ResourceTypeManager.h" />
+    <ClInclude Include="Source\Engine\ECS\ResourceWrapper\ResourceWrapper.h" />
     <ClInclude Include="Source\Engine\ECS\SystemManager\SystemManager.h" />
     <ClInclude Include="Source\Engine\ECS\System\ISystem\ISystem.h" />
     <ClInclude Include="Source\Engine\ECS\System\SystemBase\SystemBase.h" />

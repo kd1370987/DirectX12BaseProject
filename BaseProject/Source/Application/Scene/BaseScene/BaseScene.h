@@ -53,6 +53,7 @@ protected:
 	virtual void RegistryComponent();
 	virtual void RegistrySystem();
 	virtual void RegistryEntity();
+	virtual void RegistryResource();
 
 	// シーン特有のイベント処理
 	virtual void Event() {};

@@ -21,16 +21,19 @@ namespace Engine::Resource
 		template<typename T>
 		T* Ref(const Handle<T>& a_handle);
 
+
 		// プールの取得
 		template<typename T>
 		const Pool::ItemPool<T>& GetPool() const;
 		template<typename T>
 		Pool::ItemPool<T>& RefPool();
 
+
 	private:
 
 		// ステートマシンインスタンス用
 		Pool::ItemPool<StateMachinInstance> m_stateMachinInstanceData;
+
 	private:
 		InstancePoolManager() {};
 		~InstancePoolManager() {};

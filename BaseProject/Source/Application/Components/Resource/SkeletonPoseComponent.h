@@ -2,7 +2,7 @@
 
 struct SkeletonPoseComponent
 {
-	Engine::Storage::Range boneRange;
+	Engine::RangeHandle<Engine::Resource::BoneMatrix> skeletonPoseHandle;
 
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
@@ -19,9 +19,5 @@ struct SkeletonPoseComponent
 		using namespace Engine;
 		SkeletonPoseComponent& _comp = Engine::Editor::GetValue<SkeletonPoseComponent>(a_data);
 
-		int _startIdx = (int)_comp.boneRange.startIndex;
-		int _rangeNum = (int)_comp.boneRange.rangeSize;
-		ImGui::Text("StartIndex : %d", _startIdx);
-		ImGui::Text("RangeNum : %d", _rangeNum);
 	}
 };

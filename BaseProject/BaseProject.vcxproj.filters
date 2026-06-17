@@ -928,6 +928,12 @@
     <Filter Include="Source\Engine\Common\Macros">
       <UniqueIdentifier>{451c00c6-5fba-4b28-884e-d69d6b7cfb21}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\ECS\ResourceTypeManager">
+      <UniqueIdentifier>{b4f75028-8aa0-4fdc-ac16-d8fdc46f2c1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\ResourceWrapper">
+      <UniqueIdentifier>{8a0de162-fe08-40f5-95cd-b644ac043495}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2266,6 +2272,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Pool\RangePool\RangePool.h">
       <Filter>Source\Engine\Utility\Pool\RangePool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\ResourceTypeManager\ResourceTypeManager.h">
+      <Filter>Source\Engine\ECS\ResourceTypeManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\ResourceWrapper\ResourceWrapper.h">
+      <Filter>Source\Engine\ECS\ResourceWrapper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

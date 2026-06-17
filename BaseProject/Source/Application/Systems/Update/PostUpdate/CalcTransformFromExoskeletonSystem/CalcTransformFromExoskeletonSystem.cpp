@@ -38,11 +38,14 @@ void CalccTransformFromExoskeletonSystem::Init(Engine::ECS::World& a_world)
 				// 親のノード配列を取得
 				auto* _pNodePoseComp = a_world.RefData<NodePoseComponent>(_exoComp.parentID);
 				if (!_pNodePoseComp) continue;
-				auto* _pMatVec = Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_pNodePoseComp->nodeRange);
-				if (!_pMatVec) continue;
+
+				// ノード行列配列取得
+				auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto _nodePoseVec = _nodePosePool.RefRange(_pNodePoseComp->nodePoseHandle);
+				if (_nodePoseVec.empty()) continue;
 
 				// 対象の行列を取得
-				const DirectX::XMMATRIX& _nodeMat = DirectX::XMLoadFloat4x4(&_pMatVec[_exoComp.targetNodeIdx].world);
+				const DirectX::XMMATRIX& _nodeMat = DirectX::XMLoadFloat4x4(&_nodePoseVec[_exoComp.targetNodeIdx].world);
 
 				// 親Entity自体のワールド行列を作成
 				DirectX::XMMATRIX _parentWorldMat = 

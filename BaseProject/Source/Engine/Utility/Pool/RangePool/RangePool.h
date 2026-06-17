@@ -49,6 +49,12 @@ namespace Engine::Pool
 		/// <returns>あれば true </returns>
 		bool IsValid(const RangeHandle<T>& a_handle) const;
 
+		/// <summary>
+		/// 全データを参照 : 読み取り専用
+		/// </summary>
+		/// <returns></returns>
+		const std::vector<T>& GetAllData() const;
+
 	private:
 
 		/// <summary>
@@ -165,6 +171,11 @@ namespace Engine::Pool
 		}
 		// 先頭の世代が一致しているか確認
 		return m_generations[a_handle.startIndex] == a_handle.generation;
+	}
+	template<typename T>
+	inline const std::vector<T>& RangePool<T>::GetAllData() const
+	{
+		return m_data;
 	}
 	template<typename T>
 	inline void RangePool<T>::Merge()

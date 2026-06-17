@@ -20,7 +20,7 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const WorldMatrixComponent, const ModelComponent, const SkeletonPoseComponent, const AnimatorComponent, const NodePoseComponent>(
 		Engine::ECS::ESystemType::Draw,
 		"AnimationOptionalDrawSystem",
-		[]
+		[& a_world]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
@@ -68,7 +68,8 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				if (!_model) continue;
 
 				// ボーン ノード
-				auto* _nodeMatVec = Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodePoseComp.nodeRange);
+				auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				const auto& _nodePoseMatVec = _nodePosePool.GetRange(_nodePoseComp.nodePoseHandle);
 
 				// 行列取得
 				const DXSM::Matrix _worldMat(_matComp.worldMat);
@@ -77,11 +78,11 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				for (auto& _cmd : _drawCmdVec)
 				{
 					// 変換
-					DXSM::Matrix _nodeTransMat(_nodeMatVec[_cmd.nodeIndex].world);
+					DXSM::Matrix _nodeTransMat(_nodePoseMatVec[_cmd.nodeIndex].world);
 					DXSM::Matrix _mat = _nodeTransMat * _worldMat;
 					_instanceData.worldMat = _mat.Transpose();
-					_instanceData.boneStartIndex = _skeComp.boneRange.startIndex;
-					_instanceData.boneCount = _skeComp.boneRange.rangeSize;
+					_instanceData.boneStartIndex = _skeComp.skeletonPoseHandle.startIndex;
+					_instanceData.boneCount = _skeComp.skeletonPoseHandle.count;
 					_subSetData.baseColorScale = _modelComp.colorScale;
 					_subSetData.emissiveColorScale = _modelComp.emissiveScale;
 

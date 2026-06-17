@@ -18,6 +18,11 @@
 #include "ShapeDraw/ShapeDraw.h"
 
 #include "../../Editor/SceneView/EditorCamera/EditorCamera.h"
+
+#include "../../../Application/Scene/SceneManager.h"
+
+#include "../../ECS/World/World.h"
+
 //============================================================================================
 //
 // 初期化
@@ -528,9 +533,14 @@ namespace Engine::Graphics
 		}
 
 		// ボーン行列の更新
-		auto& _bonePalleteVec = Animation::AnimationMatrixManager::Instance().GetBoneMatStorage();
-		m_boneBuffer.UpdateData(_bonePalleteVec.data(), _bonePalleteVec.size());
-		m_boneBuffer.Update(*_pCmdList);
+		auto* _pCurrentWorld = SceneManager::Instance().RefWorld();
+		if (_pCurrentWorld->HasResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>())
+		{
+			auto& _boneMatPool = _pCurrentWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
+			const auto& _data = _boneMatPool.GetAllData();
+			m_boneBuffer.UpdateData(_data.data(), _data.size());
+			m_boneBuffer.Update(*_pCmdList);
+		}
 	}
 
 	void RenderContext::BindIndex(UINT a_instanceBufferIndex, UINT a_subsetBufferIndex, UINT a_rootIndex)

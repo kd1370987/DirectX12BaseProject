@@ -16,7 +16,7 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const ModelComponent, AnimatorComponent, NodePoseComponent>(
 		Engine::ECS::ESystemType::Animation,
 		"AnimationSystem",
-		[](
+		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
@@ -32,27 +32,32 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				AnimatorComponent& _aniComp = a_animatorArray[_i];
 				NodePoseComponent& _nodeComp = a_NodePoseArray[_i];
 
+				// モデル取得
 				const auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_pModel) continue;
 
 				// アニメーション取得
-				if (_pModel->GetAnimationHandles().size() <= _aniComp.clipID) continue;
-				const auto& _aniHandle = _pModel->GetAnimationHandles()[_aniComp.clipID];
-
-				//const auto* _pAni = Engine::Resource::ResourceManager::Instance().Get(_aniHandle);
 				const auto* _pAni = Engine::Resource::ResourceManager::Instance().Get(_aniComp.animHandle);
 				if (!_pAni) continue;
 
-				// 行列取得
-				Engine::Animation::NodePose* _pNodePoseVec = 
-				Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodeComp.nodeRange);
-				if (!_pNodePoseVec) return;
+				// ノードポーズ行列配列取得
+				auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto _nodePoseVec = _nodePosePool.RefRange(_nodeComp.nodePoseHandle);
+				if (_nodePoseVec.empty()) continue;
 
 				// すべてのアニメーションノードの行列保管を実行する
 				for (size_t _j = 0; _j < _pAni->nodes.size(); ++_j)
 				{
 					UINT _idx = _pAni->nodes[_j].nodeOffset;
-					Engine::Animation::Interpolate(_pAni->nodes[_idx], _aniComp.time, _pNodePoseVec[_idx].local);
+
+					// 【デバッグ用】_idx がスパンの範囲内か、そしてアニメーションのノード配列の範囲内かチェック
+					assert(_idx < _nodePoseVec.size() && "AnimationSystem: _idx out of range for NodePose!");
+					assert(_idx < _pAni->nodes.size() && "AnimationSystem: _idx out of range for AnimNodes!");
+
+					// ★修正: 第一引数に渡すのは _j ではなく _idx で合っていますか？
+					// もし _pAni->nodes がアニメーションの全ノードを指す配列なら、通常は _j を渡すはずです。
+					// Engine::Animation::Interpolate(_pAni->nodes[_j], _aniComp.time, _nodePoseVec[_idx].local); // ←こっちが正しい可能性も
+					Engine::Animation::Interpolate(_pAni->nodes[_idx], _aniComp.time, _nodePoseVec[_idx].local);
 				}
 
 				// アニメーションタイム進行

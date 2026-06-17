@@ -215,3 +215,38 @@ void Engine::Animation::CalcNodeMatrix(int a_nodeIdx, int a_parentNodeIdx, const
 		CalcNodeMatrix(_childIdx, a_nodeIdx, a_model, a_pNodePoseVec);
 	}
 }
+
+void Engine::Animation::CalcNodeMatrix(
+	int a_nodeIdx,
+	int a_parentNodeIdx,
+	const Engine::Resource::Model* a_model,
+	std::span<Resource::NodePoseMatrix> a_nodePoseVec
+)
+{
+	// 【追加】デバッグ用：インデックスが配列の範囲をはみ出していないかチェック
+	assert(a_nodeIdx >= 0 && a_nodeIdx < a_nodePoseVec.size() && "CalcNodeMatrix: a_nodeIdx is OUT OF RANGE!");
+	if (a_parentNodeIdx >= 0)
+	{
+		assert(a_parentNodeIdx < a_nodePoseVec.size() && "CalcNodeMatrix: a_parentNodeIdx is OUT OF RANGE!");
+	}
+
+	const auto& _node = a_model->GetOriginalNodeVec()[a_nodeIdx];
+
+	if (a_parentNodeIdx >= 0)
+	{
+		DXSM::Matrix _localMat(a_nodePoseVec[a_nodeIdx].local);
+		DXSM::Matrix _parentWorldMat(a_nodePoseVec[a_parentNodeIdx].world);
+		DXSM::Matrix _worldMat = _localMat * _parentWorldMat;
+		a_nodePoseVec[a_nodeIdx].world = _worldMat;
+	}
+	else
+	{
+		a_nodePoseVec[a_nodeIdx].world = a_nodePoseVec[a_nodeIdx].local;
+	}
+
+	// 子再帰
+	for (auto& _childIdx : _node.children)
+	{
+		CalcNodeMatrix(_childIdx, a_nodeIdx, a_model, a_nodePoseVec);
+	}
+}

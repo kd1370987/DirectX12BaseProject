@@ -23,4 +23,11 @@ namespace Engine::Animation
 		const Engine::Resource::Model* a_model,
 		NodePose* a_pNodePoseVec
 	);
+
+	void CalcNodeMatrix(
+		int a_nodeIdx,
+		int a_parentNodeIdx,
+		const Engine::Resource::Model* a_model,
+		std::span <Resource::NodePoseMatrix> a_nodePoseVec
+	);
 }

@@ -2,24 +2,15 @@
 
 namespace Engine::Resource
 {
-	//// ハンドル
-	//template<typename T>
-	//struct Handle
-	//{
-	//	// 管理場所と世代
-	//	Engine::Resource::Index idx = Engine::Resource::Limits::INVALID_INDEX;
-	//	Engine::Resource::Generation gen = Engine::Resource::Limits::INVALID_GENERATION;
-
-	//	auto operator<=>(const Handle&)const = default;
-	//};
-
-	//// レンジハンドル
-	//template<typename Asset>
-	//struct HandleRange
-	//{
-	//	Engine::Resource::Index idx = Engine::Resource::Limits::INVALID_INDEX;
-	//	Engine::Resource::Generation gen = Engine::Resource::Limits::INVALID_GENERATION;
-	//};
+	// ボーン行列ラップ
+	struct BoneMatrix {
+		DirectX::XMFLOAT4X4 mat;
+	};
+	// ノードポーズ行列ラップ
+	struct NodePoseMatrix {
+		DirectX::XMFLOAT4X4 local;
+		DirectX::XMFLOAT4X4 world;
+	};
 
 	// スロット管理
 	template<typename Data>

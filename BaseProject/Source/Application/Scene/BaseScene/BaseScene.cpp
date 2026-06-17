@@ -100,6 +100,7 @@ void BaseScene::Enter()
 	m_upWorld->Init();
 
 	// ワールド設定
+	RegistryResource();
 	RegistryComponent();
 	RegistrySystem();
 	RegistryEntity();
@@ -250,4 +251,16 @@ void BaseScene::RegistrySystem()
 
 void BaseScene::RegistryEntity()
 {
+}
+
+void BaseScene::RegistryResource()
+{
+	// インスタンスデータの登録
+	m_upWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+	m_upWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
+	m_upWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+	
+	// 初期化
+	m_upWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);
+	m_upWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>().Init(10000);
 }

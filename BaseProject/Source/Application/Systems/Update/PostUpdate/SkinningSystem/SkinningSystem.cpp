@@ -15,7 +15,7 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const ModelComponent, NodePoseComponent, SkeletonPoseComponent>(
 		Engine::ECS::ESystemType::Animation,
 		"SkinningSystem",
-		[](
+		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt,
@@ -32,28 +32,38 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 				SkeletonPoseComponent& _skeComp = a_skePoseArray[_i];
 
 				// モデル取得
-				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
-				if (!_model) return;
+				auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+				if (!_pModel) return;
 
 				// 全ノード
-				const auto& _dataNodes = _model->GetOriginalNodeVec();
+				const auto& _dataNodes = _pModel->GetOriginalNodeVec();
 
-				DirectX::XMFLOAT4X4* _boneMatVec = Engine::Animation::AnimationMatrixManager::Instance().AccessBoneMatVec(_skeComp.boneRange);
-				for (UINT _j = 0; _j < _skeComp.boneRange.rangeSize; ++_j)
+				// 全スケルタルポーズを初期化
+				auto& _boneMatPool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
+				auto _boneMatVec = _boneMatPool.RefRange(_skeComp.skeletonPoseHandle);
+				for (auto& _mat : _boneMatVec)
 				{
-					_boneMatVec[_j] = DXSM::Matrix::Identity;
+					_mat.mat = DXSM::Matrix::Identity;
 				}
 
-				Engine::Animation::NodePose* _nodePoseVec = Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodeComp.nodeRange);
+				// 全ノードポーズを再帰計算
+				auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto _nodePoseMatVec = _nodePosePool.RefRange(_nodeComp.nodePoseHandle);
 
 				// ボーンノード
-				for (auto& _nodeIdx : _model->GetBoneNodeVec())
+				for (auto& _nodeIdx : _pModel->GetBoneNodeVec())
 				{
+					// 【デバッグ用】ノードインデックスがスパンの範囲内かチェック
+					assert(_nodeIdx < _nodePoseMatVec.size() && "SkinningSystem: _nodeIdx out of range for NodePose!");
+
 					const auto& _dataNode = _dataNodes[_nodeIdx];
-					//DXSM::Matrix _nodeWorldMat = _nodeComp.world[_nodeIdx];
-					DXSM::Matrix _nodeWorldMat = _nodePoseVec[_nodeIdx].world;
+
+					// 【デバッグ用】ボーンインデックスがスパンの範囲内かチェック
+					assert(_dataNode.boneIndex < _boneMatVec.size() && "SkinningSystem: boneIndex out of range for BoneMat!");
+
+					DXSM::Matrix _nodeWorldMat = _nodePoseMatVec[_nodeIdx].world;
 					DXSM::Matrix _invMat = _dataNodes[_nodeIdx].boneInverseWorldMatrix;
-					_boneMatVec[_dataNode.boneIndex] = _invMat * _nodeWorldMat;
+					_boneMatVec[_dataNode.boneIndex].mat = _invMat * _nodeWorldMat;
 				}
 
 			}

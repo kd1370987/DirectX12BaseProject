@@ -14,7 +14,7 @@ void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const ModelComponent,const AnimatorComponent, NodePoseComponent>(
 		Engine::ECS::ESystemType::Animation,
 		"CalcNodeSystem",
-		[](
+		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			float a_dt, 
@@ -31,12 +31,13 @@ void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 				NodePoseComponent& _nodeComp = a_nodePoseArray[_i];
 
 				// モデル取得
-				//auto* _pModel = Engine::Resource::ModelManager::Instnace().GetModel(_modelComp.handle);
 				auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_pModel) continue;
 
-				// 配列確保
-				auto* _nodeVec = Engine::Animation::AnimationMatrixManager::Instance().AccessNodePoseVec(_nodeComp.nodeRange);
+				// ノードポーズ行列配列取得
+				auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto _nodePoseVec = _nodePosePool.RefRange(_nodeComp.nodePoseHandle);
+				if (_nodePoseVec.empty()) continue;
 
 				// ノードポーズのワールド行列を求める
 				for (int _rootIdx : _pModel->GetRootNodeVec())
@@ -45,7 +46,7 @@ void CalcNodeSystem::Init(Engine::ECS::World& a_world)
 						_rootIdx,
 						-1,
 						_pModel,
-						_nodeVec
+						_nodePoseVec
 					);
 				}
 			}
