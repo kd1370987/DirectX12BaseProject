@@ -396,7 +396,6 @@
     <ClCompile Include="Source\Engine\Resource\Loader\Texture\TextureLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePoolManager.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePool\InstancePool.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Storage\Storage.cpp" />
     <ClCompile Include="Source\Engine\TimeManager\TimeManager.cpp" />
@@ -664,9 +663,7 @@
     <ClInclude Include="Source\Engine\Resource\Loader\Texture\TextureLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePoolManager.h" />
-    <ClInclude Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePool\InstancePool.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.h" />
-    <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourcePool\ResourcePool.h" />
     <ClInclude Include="Source\Engine\Storage\HandleStorage\HandleStorage.h" />
     <ClInclude Include="Source\Engine\Storage\SlotStorage\SlotStorage.h" />
     <ClInclude Include="Source\Engine\Storage\Storage.h" />

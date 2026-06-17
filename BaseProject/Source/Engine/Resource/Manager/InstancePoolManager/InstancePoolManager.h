@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 // インスタンスプール
-#include "../ResourceManager/ResourcePool/ResourcePool.h"
 #include "../../Data/StateMachineAsset/StateMachineAsset.h"
 
 namespace Engine::Resource
@@ -24,14 +23,14 @@ namespace Engine::Resource
 
 		// プールの取得
 		template<typename T>
-		const ResourcePool<T>& GetPool() const;
+		const Pool::ItemPool<T>& GetPool() const;
 		template<typename T>
-		ResourcePool<T>& RefPool();
+		Pool::ItemPool<T>& RefPool();
 
 	private:
 
 		// ステートマシンインスタンス用
-		ResourcePool<StateMachinInstance> m_stateMachinInstanceData;
+		Pool::ItemPool<StateMachinInstance> m_stateMachinInstanceData;
 	private:
 		InstancePoolManager() {};
 		~InstancePoolManager() {};
@@ -63,8 +62,8 @@ namespace Engine::Resource
 
 	// ---- プール取得は特殊化 ----
 	// 取得
-	template<> inline const ResourcePool<StateMachinInstance>& InstancePoolManager::GetPool<StateMachinInstance>() const {return m_stateMachinInstanceData;}
+	template<> inline const Pool::ItemPool<StateMachinInstance>& InstancePoolManager::GetPool<StateMachinInstance>() const {return m_stateMachinInstanceData;}
 
 	// 参照
-	template<> inline ResourcePool<StateMachinInstance>& InstancePoolManager::RefPool<StateMachinInstance>() { return m_stateMachinInstanceData; }
+	template<> inline Pool::ItemPool<StateMachinInstance>& InstancePoolManager::RefPool<StateMachinInstance>() { return m_stateMachinInstanceData; }
 }

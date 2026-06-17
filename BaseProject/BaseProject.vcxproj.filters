@@ -583,9 +583,6 @@
     <Filter Include="Source\Engine\Resource\Manager\ResourceManager">
       <UniqueIdentifier>{fec06c67-7f44-49cc-bdc4-192eda6f018f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\ResourceManager\ResourcePool">
-      <UniqueIdentifier>{de86c7a6-1628-45e7-82f8-a249586ee8bd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Manager\AssetDatabase">
       <UniqueIdentifier>{73653469-6b6f-4235-a0f9-5d829f4297a4}</UniqueIdentifier>
     </Filter>
@@ -903,9 +900,6 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Manager\InstancePoolManager">
       <UniqueIdentifier>{27757521-b36c-4c81-9767-4d3f2f86d82d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePool">
-      <UniqueIdentifier>{b4c54346-1bb0-44de-b180-579f5a8269a1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem">
       <UniqueIdentifier>{d4094ff4-6543-49dd-b814-2e5229463f2e}</UniqueIdentifier>
@@ -1464,9 +1458,6 @@
     <ClCompile Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePoolManager.cpp">
       <Filter>Source\Engine\Resource\Manager\InstancePoolManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePool\InstancePool.cpp">
-      <Filter>Source\Engine\Resource\Manager\InstancePoolManager\InstancePool</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
     </ClCompile>
@@ -2000,9 +1991,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourcePool\ResourcePool.h">
-      <Filter>Source\Engine\Resource\Manager\ResourceManager\ResourcePool</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.h">
       <Filter>Source\Engine\Resource\Manager\ResourceManager</Filter>
     </ClInclude>
@@ -2248,9 +2236,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePoolManager.h">
       <Filter>Source\Engine\Resource\Manager\InstancePoolManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePool\InstancePool.h">
-      <Filter>Source\Engine\Resource\Manager\InstancePoolManager\InstancePool</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
