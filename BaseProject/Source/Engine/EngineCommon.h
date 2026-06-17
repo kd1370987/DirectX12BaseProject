@@ -5,6 +5,7 @@
 // 
 //==========================================================================================
 #include "Engine/Common/Color.h"		// 色
+#include "Engine/Common/Handle.h"
 #include "Utility/GUID/GUID.h"
 #include "Utility/JSONHelper/JSONHelper.h"
 namespace Engine
@@ -75,6 +76,8 @@ namespace Engine::Resource
 		return ID(a_gen) << 16 | a_idx;
 	}
 }
+
+
 
 #include "Engine/Storage/SlotStorage/SlotStorage.h"				// ストレージ
 

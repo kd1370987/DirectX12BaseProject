@@ -11,8 +11,8 @@ namespace Engine::Collision
 
 		// インスタンスの登録
 		// 削除、移動、エディター時の変更用にハンドルを確保しておく
-		Resource::Handle<CollisionInstance> AllcateStaticEntity(const CollisionInstance& a_instance);
-		Resource::Handle<CollisionInstance> AllcateDynamicEntity(const CollisionInstance& a_instance);
+		Handle<CollisionInstance> AllcateStaticEntity(const CollisionInstance& a_instance);
+		Handle<CollisionInstance> AllcateDynamicEntity(const CollisionInstance& a_instance);
 
 		// フレームに一度だけ呼び出す
 		// 生成時にメモリ確保用にインスタンス数を指定できる。超えてもいい。

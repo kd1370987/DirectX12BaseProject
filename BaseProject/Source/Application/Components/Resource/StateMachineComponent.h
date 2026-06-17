@@ -13,7 +13,7 @@ struct StateMachineComponent
 {
 	// 参照する設計図
 	Engine::GUID stateMachineGUID = {};
-	Engine::Resource::Handle<Engine::Resource::StateMachineAsset> stateMachineHandle = {};
+	Engine::Handle<Engine::Resource::StateMachineAsset> stateMachineHandle = {};
 
 	UINT prevStateHash = 0;			// 前回のステート
 	UINT currentStateHash = 0;		// 現在のステート
@@ -22,7 +22,7 @@ struct StateMachineComponent
 	bool isGround = false;
 
 	// ステートマシンインスタンス
-	Engine::Resource::Handle<Engine::Resource::StateMachinInstance> instanceHandle = {};
+	Engine::Handle<Engine::Resource::StateMachinInstance> instanceHandle = {};
 
 
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)

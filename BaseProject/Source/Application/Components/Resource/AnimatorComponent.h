@@ -16,7 +16,7 @@ struct AnimatorComponent
 {
 	EAnimationState animeState;
 	uint32_t clipID = 0;
-	Engine::Resource::Handle<Engine::Resource::AnimationData> animHandle;
+	Engine::Handle<Engine::Resource::AnimationData> animHandle;
 	float time = 0.0f;
 	float speed = 1.0f;
 
@@ -40,7 +40,7 @@ struct AnimatorComponent
 	{
 		using namespace Engine;
 		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_data);
-		ImGui::Text("Handle : idx = %d,  gen = %d",(int)_comp.animHandle.idx,(int)_comp.animHandle.gen);
+		ImGui::Text("Handle : idx = %d,  gen = %d",(int)_comp.animHandle.GetIndex(), (int)_comp.animHandle.GetGeneration());
 		ImGui::InputScalar("clipID", ImGuiDataType_U32, &_comp.clipID);
 		ImGui::Text("Time : %f", &_comp.time);
 

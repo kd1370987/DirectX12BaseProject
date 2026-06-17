@@ -15,17 +15,17 @@ namespace Engine::D3D12
 		void Release();
 
 		// ビュー作成割り当て
-		Engine::Resource::Handle<SAMPLER> Allocate(
+		Engine::Handle<SAMPLER> Allocate(
 			ID3D12Device* a_pDevice,
 			const D3D12_SAMPLER_DESC& a_desc
 		);
 
 		// ビュー消去
-		void Remove(Engine::Resource::Handle<SAMPLER> a_handle);
+		void Remove(Engine::Handle<SAMPLER> a_handle);
 
 		// ハンドル取得
-		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(const Engine::Resource::Handle<SAMPLER>& a_handle) const;
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(const Engine::Resource::Handle<SAMPLER>& a_handle) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(const Engine::Handle<SAMPLER>& a_handle) const;
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(const Engine::Handle<SAMPLER>& a_handle) const;
 
 	private:
 

@@ -144,8 +144,8 @@ namespace Engine::Graphics
 
 			// GBufferIndex
 			GBufferIndex _gbIdx = {};
-			_gbIdx.depth = _spPassData->pRG->GetSRVHandle("Depth").idx;
-			_gbIdx.normal = _spPassData->pRG->GetSRVHandle("GBufferNormal").idx;
+			_gbIdx.depth = _spPassData->pRG->GetSRVHandle("Depth").GetIndex();
+			_gbIdx.normal = _spPassData->pRG->GetSRVHandle("GBufferNormal").GetIndex();
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<GBufferIndex>(
 				_pCmdList->NGet(),
 				3,

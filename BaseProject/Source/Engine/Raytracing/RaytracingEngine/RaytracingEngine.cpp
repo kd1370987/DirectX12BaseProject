@@ -61,7 +61,7 @@ namespace Engine::Raytracing
 
 	void Engine::Raytracing::RayEngine::RegistModel(
 		const DirectX::XMFLOAT4X4& a_worldMat,
-		const Engine::Resource::Handle<Resource::Model>& a_modelHandle,
+		const Engine::Handle<Resource::Model>& a_modelHandle,
 		const DXSM::Vector4& a_colorScale,
 		const DXSM::Vector3& a_emissiveScale
 	)

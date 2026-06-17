@@ -25,7 +25,7 @@ namespace Engine::Graphics
 
 	struct DrawItem2D
 	{
-		Resource::Handle<D3D12::SRV> srvHandleRange = {};
+		Handle<D3D12::SRV> srvHandleRange = {};
 
 		DirectX::XMFLOAT4X4 worldMat = {};
 		DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
@@ -110,35 +110,35 @@ namespace Engine::Graphics
 		// レンダーターゲットの切り替え
 		// 基本的にハンドルで管理しているため内部以外では直接触らない
 		void ChangeRenderTarget(
-			const std::vector<Resource::Handle<D3D12::RTV>>& a_rtvHandleVec,
-			const Resource::Handle<D3D12::DSV>& a_dsvHandle
+			const std::vector<Handle<D3D12::RTV>>& a_rtvHandleVec,
+			const Handle<D3D12::DSV>& a_dsvHandle
 		);
 
 		// テクスチャハンドルからSRVをバインドする
-		void BindSRV(UINT a_rootIdx, std::vector<Resource::Handle<Resource::Texture>>& a_texHandles);
+		void BindSRV(UINT a_rootIdx, std::vector<Handle<Resource::Texture>>& a_texHandles);
 
 		// SRVハンドルをもらってコピーする
 		void BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
 		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
-		void BindSRV(UINT a_rootIdx,Resource::Handle<D3D12::SRV> a_srvHandle);
+		void BindSRV(UINT a_rootIdx,Handle<D3D12::SRV> a_srvHandle);
 
 		void ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
 		void ComputeBindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
 
 		// UAV
 		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
-		void BindUAVBindLess(UINT a_rootIdx, Resource::Handle<D3D12::UAV> a_handle);
+		void BindUAVBindLess(UINT a_rootIdx, Handle<D3D12::UAV> a_handle);
 
 		// 直接GPUアドレスを取得
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandleBindLess(Resource::Handle<D3D12::SRV> a_handle);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandleBindLess(Handle<D3D12::SRV> a_handle);
 
 		// レンダーターゲットのクリア
-		void ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle);
+		void ClearRenderTarget(const Handle<Resource::Texture>& a_texHandle);
 
 		// 深度値バッファのクリア
-		void ClearDSV(const Resource::Handle<D3D12::DSV>& a_DSVHandle);
+		void ClearDSV(const Handle<D3D12::DSV>& a_DSVHandle);
 
 		// 矩形描画のためのクラス取得
 		ShapeRenderer* RefShapeDraw();
@@ -178,7 +178,7 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		
 		// テクスチャのコピー
-		void TexCopy(const Resource::Handle<Resource::Texture>& a_src,const Resource::Handle<Resource::Texture>& a_dst);
+		void TexCopy(const Handle<Resource::Texture>& a_src,const Handle<Resource::Texture>& a_dst);
 
 		// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
 		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);

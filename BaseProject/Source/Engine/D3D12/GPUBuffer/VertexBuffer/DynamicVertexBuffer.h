@@ -22,7 +22,7 @@ namespace Engine::D3D12
 
 		// アクセサ
 		const D3D12_VERTEX_BUFFER_VIEW& GetView() const;
-		const Resource::Handle<SRV>& GetSRVHandle() const;
+		const Handle<SRV>& GetSRVHandle() const;
 
 	private:
 
@@ -91,7 +91,7 @@ namespace Engine::D3D12
 		return m_view;
 	}
 	template<typename T>
-	inline const Resource::Handle<SRV>& DynamicVertexBuffer<T>::GetSRVHandle() const
+	inline const Handle<SRV>& DynamicVertexBuffer<T>::GetSRVHandle() const
 	{
 		return m_srvHandle;
 	}

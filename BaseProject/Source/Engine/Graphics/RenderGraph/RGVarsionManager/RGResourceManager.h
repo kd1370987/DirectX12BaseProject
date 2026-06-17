@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace Engine::Graphics
 {
@@ -45,11 +45,11 @@ namespace Engine::Graphics
 
 		// ---- アクセサ ----
 		Resource::ID GetID(const std::string& a_name);
-		Resource::Handle<Resource::Texture> GetTexHandle(Resource::ID a_id, bool isRead = false);
+		Handle<Resource::Texture> GetTexHandle(Resource::ID a_id, bool isRead = false);
 
-		Resource::Handle<D3D12::RTV> GetRTVHandle(Resource::ID a_id);		// RTVハンドル
-		Resource::Handle<D3D12::DSV> GetDSVHandle(Resource::ID a_id);		// DSVハンドル
-		Resource::Handle<D3D12::DSV> GetReadOnlyDSVHandle(Resource::ID a_id);	// リードオンリーDSVハンドル
+		Handle<D3D12::RTV> GetRTVHandle(Resource::ID a_id);		// RTVハンドル
+		Handle<D3D12::DSV> GetDSVHandle(Resource::ID a_id);		// DSVハンドル
+		Handle<D3D12::DSV> GetReadOnlyDSVHandle(Resource::ID a_id);	// リードオンリーDSVハンドル
 
 		D3D12_RESOURCE_STATES& RefCurrentState(Resource::ID a_id, bool isRead = false);	// 現在のステート
 		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);				// リソースのフォーマット
@@ -78,7 +78,7 @@ namespace Engine::Graphics
 			// コンパイル時に作成される
 			// コンパイル時にバリアを作るためのステート
 			D3D12_RESOURCE_STATES currentState[2] = { D3D12_RESOURCE_STATE_COMMON , D3D12_RESOURCE_STATE_COMMON };
-			Resource::Handle<Resource::Texture> texHandle[2] = {};
+			Handle<Resource::Texture> texHandle[2] = {};
 		};
 
 		// リソース参照
@@ -86,8 +86,8 @@ namespace Engine::Graphics
 		LogicalResource& RefRes(Resource::ID a_id);
 
 		// テクスチャ参照
-		const Resource::Texture* GetTex(const Resource::Handle<Resource::Texture>& a_handle) const;
-		Resource::Texture* RefTex(const Resource::Handle<Resource::Texture>& a_handle);
+		const Resource::Texture* GetTex(const Handle<Resource::Texture>& a_handle) const;
+		Resource::Texture* RefTex(const Handle<Resource::Texture>& a_handle);
 
 	private:
 

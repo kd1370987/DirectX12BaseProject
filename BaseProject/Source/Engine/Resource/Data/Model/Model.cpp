@@ -102,8 +102,8 @@ namespace Engine::Resource
 					// コマンド作成
 					ModelDrawCommand _cmd = {};
 					_cmd.nodeIndex = static_cast<uint16_t>(_nodeIdx);
-					_cmd.meshRawID = static_cast<uint16_t>(_meshHandle.idx);
-					_cmd.materialRawID = static_cast<uint16_t>(_materialHandle.idx);
+					_cmd.meshRawID = static_cast<uint16_t>(_meshHandle.GetIndex());
+					_cmd.materialRawID = static_cast<uint16_t>(_materialHandle.GetIndex());
 					_cmd.subIdx = _subIdx;
 					_cmd.alphaMode = _pMate->alphaMode;
 					m_cachedDrawCommands.push_back(_cmd);

@@ -136,29 +136,29 @@ namespace Engine::D3D12
 		return m_imguiHeap.GetGPU(100);
 	}
 
-	Resource::Handle<SRV> DescriptorHeapManager::AllocateImGuiSRV(ID3D12Resource* a_pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC* a_desc)
+	Handle<SRV> DescriptorHeapManager::AllocateImGuiSRV(ID3D12Resource* a_pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC* a_desc)
 	{
 		auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
 
 		return m_ImGuiSRVAllocator.Allocate(_pDevice, a_pResource, a_desc);
 	}
 
-	void DescriptorHeapManager::FreeImGuiSRV(const Resource::Handle<SRV>& a_handle)
+	void DescriptorHeapManager::FreeImGuiSRV(const Handle<SRV>& a_handle)
 	{
 		m_ImGuiSRVAllocator.Remove(a_handle);
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVCPUHandle(Engine::Resource::Handle<SRV> a_range)
+	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVCPUHandle(Engine::Handle<SRV> a_range)
 	{
 		return m_ImGuiSRVAllocator.GetCPU(a_range);
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVGPUHandle(Engine::Resource::Handle<SRV> a_range)
+	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVGPUHandle(Engine::Handle<SRV> a_range)
 	{
 		return m_ImGuiSRVAllocator.GetGPU(a_range);;
 	}
 
-	Engine::Resource::Handle<SAMPLER> DescriptorHeapManager::CreateSampler(ID3D12Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
+	Engine::Handle<SAMPLER> DescriptorHeapManager::CreateSampler(ID3D12Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
 	{
 		return m_upSamplerAllocator->Allocate(a_pDevice, a_desc);
 	}

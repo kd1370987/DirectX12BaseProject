@@ -65,7 +65,7 @@ struct PassDesc
 	std::string name = "none";
 
 	UINT rootSigID = UINT_MAX;		// パスが使用するルートシグネチャID
-	Engine::Resource::Handle<Engine::D3D12::PipelineState> psoID;			// パスが使用するパイプラインステートID
+	Engine::Handle<Engine::D3D12::PipelineState> psoID;			// パスが使用するパイプラインステートID
 
 	// 依存関係・トポロジカルソート用
 	std::vector<Engine::Resource::ID> readResource = {};		// 入力(SRV)

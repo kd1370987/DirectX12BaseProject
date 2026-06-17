@@ -4,8 +4,8 @@
 #include "../../Manager/ResourceManager/ResourceManager.h"
 namespace Engine::Resource
 {
-	std::unordered_map<Engine::GUID, Engine::Resource::Handle<Engine::Resource::Shader>>			Engine::Resource::ShaderLoader::m_shaderCache;
-	std::unordered_map<Engine::GUID, Engine::Resource::Handle<Engine::Resource::ShaderLibrary>>		Engine::Resource::ShaderLoader::m_shaderLibraryCache;
+	std::unordered_map<Engine::GUID, Engine::Handle<Engine::Resource::Shader>>			Engine::Resource::ShaderLoader::m_shaderCache;
+	std::unordered_map<Engine::GUID, Engine::Handle<Engine::Resource::ShaderLibrary>>		Engine::Resource::ShaderLoader::m_shaderLibraryCache;
 
 	Handle<Shader> Engine::Resource::ShaderLoader::Load(const Engine::GUID& a_guid)
 	{

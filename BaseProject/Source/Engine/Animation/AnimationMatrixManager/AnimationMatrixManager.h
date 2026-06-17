@@ -21,12 +21,12 @@ namespace Engine::Animation
 		void Init(ID3D12Device* a_pDevice,D3D12::CommandList& a_cmdList,UINT a_maxElement);
 
 		// ノードポーズ配列確保
-		Storage::Range AllocateNodePoseVec(const Resource::Handle<Resource::Model>& a_modelHandle);
+		Storage::Range AllocateNodePoseVec(const Handle<Resource::Model>& a_modelHandle);
 		NodePose* AccessNodePoseVec(const Storage::Range& a_range);
 		void DeleteNodeRange(const Storage::Range& a_range);
 
 		// ボーン行列配列確保
-		Storage::Range AllocateBoneMatVec(const Resource::Handle<Resource::Model>& a_modelHandle);
+		Storage::Range AllocateBoneMatVec(const Handle<Resource::Model>& a_modelHandle);
 		DirectX::XMFLOAT4X4* AccessBoneMatVec(const Storage::Range& a_range);
 		void DeleteBoneRange(const Storage::Range& a_range);
 		const std::vector<DirectX::XMFLOAT4X4>& GetBoneMatStorage() const { return m_boneMatStorage; }

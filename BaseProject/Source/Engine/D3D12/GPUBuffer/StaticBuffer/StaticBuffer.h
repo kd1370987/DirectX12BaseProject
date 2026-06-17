@@ -62,6 +62,6 @@ namespace Engine::D3D12
 		GPUBuffer m_gpuBuffer;
 		bool m_isDrty = false;
 
-		Resource::Handle<D3D12::SRV> m_srvHandle = {};
+		Handle<D3D12::SRV> m_srvHandle = {};
 	};
 }

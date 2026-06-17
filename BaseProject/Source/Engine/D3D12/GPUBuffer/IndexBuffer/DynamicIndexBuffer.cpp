@@ -40,7 +40,7 @@ namespace Engine::D3D12
 	{
 		return m_view;
 	}
-	const Resource::Handle<SRV>& DynamicIndexBuffer::GetSRVHandle() const
+	const Handle<SRV>& DynamicIndexBuffer::GetSRVHandle() const
 	{
 		return m_srvHandle;
 	}

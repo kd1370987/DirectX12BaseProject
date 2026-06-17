@@ -56,12 +56,12 @@ namespace Engine::Resource
 		const DXSM::Color& GetClearColor() { return m_clearValue; }
 
 		// ビュー情報取得
-		const Engine::Resource::Handle<D3D12::RTV>& GetRTV() const;
-		const Engine::Resource::Handle<D3D12::DSV>& GetDSV() const;
-		const Engine::Resource::Handle<D3D12::DSV>& GetReadOnlyDSV() const;
-		const Engine::Resource::Handle<D3D12::SRV>& GetSRV() const;
-		const Engine::Resource::Handle<D3D12::UAV>& GetUAV() const;
-		const Engine::Resource::Handle<D3D12::SRV>& GetImGuiSRV() const;
+		const Handle<D3D12::RTV>& GetRTV() const;
+		const Handle<D3D12::DSV>& GetDSV() const;
+		const Handle<D3D12::DSV>& GetReadOnlyDSV() const;
+		const Handle<D3D12::SRV>& GetSRV() const;
+		const Handle<D3D12::UAV>& GetUAV() const;
+		const Handle<D3D12::SRV>& GetImGuiSRV() const;
 
 	private:
 
@@ -76,14 +76,14 @@ namespace Engine::Resource
 
 
 		// 使用方法ごとのハンドル
-		Engine::Resource::Handle<D3D12::RTV>	 m_rtvHandle{};
-		Engine::Resource::Handle<D3D12::DSV>	 m_dsvHandle{};
-		Engine::Resource::Handle<D3D12::DSV>	 m_readOnlyDsvHandle{};
-		Engine::Resource::Handle<D3D12::SRV>	 m_srvHandle{};
-		Engine::Resource::Handle<D3D12::UAV>	 m_uavHandle{};
+		Handle<D3D12::RTV>	 m_rtvHandle{};
+		Handle<D3D12::DSV>	 m_dsvHandle{};
+		Handle<D3D12::DSV>	 m_readOnlyDsvHandle{};
+		Handle<D3D12::SRV>	 m_srvHandle{};
+		Handle<D3D12::UAV>	 m_uavHandle{};
 
 		// ImGui用ハンドル
-		Engine::Resource::Handle<D3D12::SRV>	 m_imguiSRVHandle{};
+		Handle<D3D12::SRV>	 m_imguiSRVHandle{};
 
 		// 色
 		DXSM::Color m_clearValue = {0,0,0,1};

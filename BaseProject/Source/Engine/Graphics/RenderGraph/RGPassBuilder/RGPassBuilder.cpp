@@ -33,7 +33,7 @@ namespace Engine::Graphics
 			if (a_pPSOManager)
 			{
 				auto _handle = a_pPSOManager->RequestHandle(_tempPSO.desc);
-				*_tempPSO.pOutIndex = static_cast<uint8_t>(_handle.idx);
+				*_tempPSO.pOutIndex = static_cast<uint8_t>(_handle.GetIndex());
 				m_pNode->psoIndexMap[_tempPSO.desc.name] = *_tempPSO.pOutIndex;
 			}
 		}
@@ -98,7 +98,7 @@ namespace Engine::Graphics
 		if (a_pPSOManager && m_pOutIndex)
 		{
 			auto _handle = a_pPSOManager->RequestHandle(m_desc);
-			*m_pOutIndex = static_cast<uint8_t>(_handle.idx);
+			*m_pOutIndex = static_cast<uint8_t>(_handle.GetIndex());
 			m_pNode->psoIndexMap[m_desc.name] = *m_pOutIndex;
 		}
 	}

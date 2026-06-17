@@ -1,0 +1,71 @@
+﻿#pragma once
+namespace Engine
+{
+	// ハンドル
+	template<typename T>
+	struct Handle
+	{
+		uint32_t id = std::numeric_limits<uint32_t>::max();
+
+		/// <summary>
+		/// 空生成
+		/// </summary>
+		Handle() = default;
+		/// <summary>
+		/// 初期化生成
+		/// </summary>
+		/// <param name="a_index">インデックス</param>
+		/// <param name="a_generation">世代</param>
+		Handle(uint16_t a_index, uint16_t a_generation)
+		{
+			// 前半が世代、後半がインデックスで作成
+			id = (static_cast<uint32_t>(a_generation) << 16) | a_index;
+		}
+
+		/// <summary>
+		/// スタートインデックスの都合上変えたい場合に使う
+		/// 非推奨なのでできるだけ使わない設計で組み立てること
+		/// 使うことがなくなれば削除予定
+		/// </summary>
+		/// <param name="a_index">新規インデックス</param>
+		void SetIndex(uint16_t a_index)
+		{
+			auto _gen = GetGeneration();
+			id = (static_cast<uint32_t>(_gen) << 16) | a_index;
+		}
+
+		/// <summary>
+		/// Index取得
+		/// </summary>
+		/// <returns>uint16_tのインデックス</returns>
+		uint16_t GetIndex() const { return static_cast<uint16_t>(id & 0xFFFF); }
+
+		/// <summary>
+		/// Generation取得
+		/// </summary>
+		/// <returns>uint16_tの世代</returns>
+		uint16_t GetGeneration() const { return static_cast<uint16_t>(id >> 16); }
+
+		/// <summary>
+		/// 有効判定
+		/// </summary>
+		bool IsValid() const { return id != std::numeric_limits<uint32_t>::max(); }
+
+		// 比較演算子
+		bool operator == (const Handle & a_other) const { return id == a_other.id; }
+	};
+
+	// レンジハンドル
+	template<typename T>
+	struct RangeHandle
+	{
+		uint32_t startIndex = std::numeric_limits<uint32_t>::max();
+		uint32_t count = 0;
+		uint32_t generation = 0;
+
+		/// <summary>
+		/// 有効判定
+		/// </summary>
+		bool IsValid() const { return startIndex != std::numeric_limits<uint32_t>::max() && count > 0; }
+	};
+}

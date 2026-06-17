@@ -453,7 +453,7 @@ namespace Engine::Graphics
 		return D3D12::DescriptorHeapManager::Instance().GetCPU(_pTex->GetSRV());
 	}
 
-	Resource::Handle<D3D12::SRV> RenderGraph::GetSRVHandle(const std::string& a_name)
+	Handle<D3D12::SRV> RenderGraph::GetSRVHandle(const std::string& a_name)
 	{
 		auto _id = m_upRGResourceManager->GetID(a_name);
 		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id,true);
@@ -467,7 +467,7 @@ namespace Engine::Graphics
 		return D3D12::DescriptorHeapManager::Instance().GetCPU(_srvHandle);
 	}
 
-	Resource::Handle<D3D12::UAV> RenderGraph::GetUAVHandle(const std::string& a_name, bool a_read)
+	Handle<D3D12::UAV> RenderGraph::GetUAVHandle(const std::string& a_name, bool a_read)
 	{
 		auto _id = m_upRGResourceManager->GetID(a_name);
 		auto _texHandle = m_upRGResourceManager->GetTexHandle(_id,a_read);
@@ -481,7 +481,7 @@ namespace Engine::Graphics
 		return D3D12::DescriptorHeapManager::Instance().GetCPU(_uavHandle);
 	}
 
-	Engine::Resource::Handle<Engine::Resource::Texture> RenderGraph::CreateTexture(
+	Engine::Handle<Engine::Resource::Texture> RenderGraph::CreateTexture(
 		const std::string& a_name,
 		const DXGI_FORMAT& a_format,
 		const UINT64& a_widht,
@@ -554,7 +554,7 @@ namespace Engine::Graphics
 		return m_upRGResourceManager->GetID(a_resourceName);
 	}
 
-	Resource::Handle<Resource::Texture> RenderGraph::GetTexHandle(const std::string& a_resourceName)
+	Handle<Resource::Texture> RenderGraph::GetTexHandle(const std::string& a_resourceName)
 	{
 		auto _id = GetID(a_resourceName);
 		return m_upRGResourceManager->GetTexHandle(_id);

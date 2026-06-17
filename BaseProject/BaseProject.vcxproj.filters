@@ -922,6 +922,15 @@
     <Filter Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem">
       <UniqueIdentifier>{ca73c634-5fce-4e9d-ada6-0901ab471f24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Utility\Pool">
+      <UniqueIdentifier>{9bc13487-f5a9-4b72-81af-5fe0029cccee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Utility\Pool\ItemPool">
+      <UniqueIdentifier>{0b3bba8c-f3f8-4454-b7a8-9f3358a22e45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Utility\Pool\RangePool">
+      <UniqueIdentifier>{7628df47-cca6-4a67-b773-bf97b752bb8e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2254,6 +2263,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Pool\PoolCommon.h">
+      <Filter>Source\Engine\Utility\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h">
+      <Filter>Source\Engine\Utility\Pool\ItemPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Common\Handle.h">
+      <Filter>Source\Engine\Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -13,14 +13,14 @@ namespace Engine::D3D12
 		void Release();
 
 		// ビュー操作
-		Resource::Handle<T> Allocate(ID3D12Device* a_pDevice,ID3D12Resource* a_pRes,const typename T::DescType* a_desc);
+		Handle<T> Allocate(ID3D12Device* a_pDevice,ID3D12Resource* a_pRes,const typename T::DescType* a_desc);
 
 		// ビュー消去
-		void Remove(Resource::Handle<T> a_handle);
+		void Remove(Handle<T> a_handle);
 
 		// ハンドル取得
-		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(const Resource::Handle<T>& a_handle) const;
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(const Resource::Handle<T>& a_handle) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(const Handle<T>& a_handle) const;
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(const Handle<T>& a_handle) const;
 
 	private:
 		// 参照元ヒープ
@@ -59,14 +59,15 @@ namespace Engine::D3D12
 		m_pHeap = nullptr;
 	}
 	template<IsHeapType T>
-	inline Resource::Handle<T> HeapAllocator<T>::Allocate(ID3D12Device* a_pDevice, ID3D12Resource* a_pRes, const typename T::DescType* a_desc)
+	inline Handle<T> HeapAllocator<T>::Allocate(ID3D12Device* a_pDevice, ID3D12Resource* a_pRes, const typename T::DescType* a_desc)
 	{
 		// ハンドルをアロケート
 		auto _handle = m_handleStorage.Allocate();
-		_handle.idx += m_startIndex;					// ヒープ本体のインデックスとして記録
+		auto _idx = _handle.GetIndex();
+		_handle.SetIndex(_idx + (uint16_t)m_startIndex);
 
 		// CPUハンドルを取得する処理
-		D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = m_pHeap->GetCPU(static_cast<UINT>(_handle.idx));
+		D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = m_pHeap->GetCPU(static_cast<UINT>(_handle.GetIndex()));
 
 		// ビュー作成
 		if constexpr (std::is_same_v<T, CBV>)
@@ -118,36 +119,39 @@ namespace Engine::D3D12
 		return _handle;
 	}
 	template<IsHeapType T>
-	inline void HeapAllocator<T>::Remove(Resource::Handle<T> a_handle)
+	inline void HeapAllocator<T>::Remove(Handle<T> a_handle)
 	{
 		// ハンドルが有効じゃなければ返す
-		if (Resource::Handle<T>() == a_handle) return;
+		if (Handle<T>() == a_handle) return;
 
 		// 戻してあげる
 		auto _handle = a_handle;
-		_handle.idx -= m_startIndex;
+		auto _idx = _handle.GetIndex();
+		_handle.SetIndex(_idx - m_startIndex);
 		m_handleStorage.Remove(_handle);
 	}
 	template<IsHeapType T>
-	inline D3D12_CPU_DESCRIPTOR_HANDLE HeapAllocator<T>::GetCPU(const Resource::Handle<T>&a_handle) const
+	inline D3D12_CPU_DESCRIPTOR_HANDLE HeapAllocator<T>::GetCPU(const Handle<T>&a_handle) const
 	{
 		auto _stHandle = a_handle;
-		_stHandle.idx -= m_startIndex;
+		auto _idx = _stHandle.GetIndex();
+		_stHandle.SetIndex(_idx - m_startIndex);
 		if (m_handleStorage.IsValid(_stHandle))
 		{
-			UINT _idx = a_handle.idx;
+			UINT _idx = a_handle.GetIndex();
 			return m_pHeap->GetCPU(_idx);
 		}
 		return { 0 };
 	}
 	template<IsHeapType T>
-	inline D3D12_GPU_DESCRIPTOR_HANDLE HeapAllocator<T>::GetGPU(const Resource::Handle<T>& a_handle) const
+	inline D3D12_GPU_DESCRIPTOR_HANDLE HeapAllocator<T>::GetGPU(const Handle<T>& a_handle) const
 	{
 		auto _stHandle = a_handle;
-		_stHandle.idx -= m_startIndex;
+		auto _idx = _stHandle.GetIndex();
+		_stHandle.SetIndex(_idx - m_startIndex);
 		if (m_handleStorage.IsValid(_stHandle))
 		{
-			UINT _idx = a_handle.idx;
+			UINT _idx = a_handle.GetIndex();
 			return m_pHeap->GetGPU(_idx);
 		}
 		return { 0 };

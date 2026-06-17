@@ -27,7 +27,7 @@ namespace Engine::D3D12
 
 		// アクセサ
 		const D3D12_INDEX_BUFFER_VIEW& GetView() const;
-		const Resource::Handle<SRV>& GetSRVHandle() const;
+		const Handle<SRV>& GetSRVHandle() const;
 
 	private:
 		D3D12_INDEX_BUFFER_VIEW m_view = {};

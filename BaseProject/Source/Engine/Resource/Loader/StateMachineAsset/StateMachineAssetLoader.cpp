@@ -5,7 +5,7 @@
 #include "../../Manager/ResourceManager/ResourceManager.h"
 namespace Engine::Resource
 {
-	std::unordered_map<Engine::GUID, Engine::Resource::Handle<Engine::Resource::StateMachineAsset>> Engine::Resource::StateMachineAssetLoader::m_cache;
+	std::unordered_map<Engine::GUID, Engine::Handle<Engine::Resource::StateMachineAsset>> Engine::Resource::StateMachineAssetLoader::m_cache;
 
 	Handle<StateMachineAsset> StateMachineAssetLoader::Load(const Engine::GUID& a_guid)
 	{

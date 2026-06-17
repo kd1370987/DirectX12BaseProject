@@ -13,7 +13,7 @@ namespace Engine::Editor
 		auto _handle = Resource::ModelLoader::GetHandle(a_guid);
 
 		// ハンドルからモデルを取得
-		if (_handle == Resource::Handle<Resource::Model>()) return;
+		if (_handle == Handle<Resource::Model>()) return;
 		auto* _pModel = Resource::ResourceManager::Instance().Ref(_handle);
 
 		// アニメーション表示

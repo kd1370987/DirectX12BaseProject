@@ -21,19 +21,19 @@ void Engine::D3D12::SamplerAllocator::Release()
 	m_pHeap = nullptr;
 }
 
-Engine::Resource::Handle<SAMPLER> Engine::D3D12::SamplerAllocator::Allocate(ID3D12Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
+Engine::Handle<SAMPLER> Engine::D3D12::SamplerAllocator::Allocate(ID3D12Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
 {
 	// RTVの位置を取得
 	if (m_indexQueue.empty())
 	{
 		assert(0 && "SAMPLERの使用上限に達しました");
 	}
-	Engine::Resource::Handle<SAMPLER> _handle = {};
-	_handle.idx = m_indexQueue.front(); m_indexQueue.pop();
-	_handle.gen = m_genVec[_handle.idx];
+	uint16_t _idx = m_indexQueue.front(); m_indexQueue.pop();
+	uint16_t _gen = m_genVec[_idx];
+	Engine::Handle<SAMPLER> _handle(_idx,_gen);
 
 	// ハンドル作成
-	auto _handleCPU = m_pHeap->GetCPU(static_cast<UINT>(_handle.idx));
+	auto _handleCPU = m_pHeap->GetCPU(static_cast<UINT>(_handle.GetIndex()));
 
 	// ビュー作成
 	a_pDevice->CreateSampler(
@@ -45,28 +45,28 @@ Engine::Resource::Handle<SAMPLER> Engine::D3D12::SamplerAllocator::Allocate(ID3D
 }
 
 
-void Engine::D3D12::SamplerAllocator::Remove(Engine::Resource::Handle<SAMPLER> a_handle)
+void Engine::D3D12::SamplerAllocator::Remove(Engine::Handle<SAMPLER> a_handle)
 {
 	// 世代を上げてキューに格納
-	m_genVec[a_handle.idx]++;
-	m_indexQueue.push(a_handle.idx);
+	m_genVec[a_handle.GetIndex()]++;
+	m_indexQueue.push(a_handle.GetIndex());
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE Engine::D3D12::SamplerAllocator::GetCPU(const Engine::Resource::Handle<SAMPLER>&a_handle) const
+D3D12_CPU_DESCRIPTOR_HANDLE Engine::D3D12::SamplerAllocator::GetCPU(const Engine::Handle<SAMPLER>&a_handle) const
 {
-	if (m_genVec[a_handle.idx] == a_handle.gen)
+	if (m_genVec[a_handle.GetIndex()] == a_handle.GetGeneration())
 	{
-		return m_pHeap->GetCPU(a_handle.idx);
+		return m_pHeap->GetCPU(a_handle.GetIndex());
 	}
 	assert(0 && "SAMPLERの世代が違います");
 	return D3D12_CPU_DESCRIPTOR_HANDLE();
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Engine::D3D12::SamplerAllocator::GetGPU(const Engine::Resource::Handle<SAMPLER>& a_handle) const
+D3D12_GPU_DESCRIPTOR_HANDLE Engine::D3D12::SamplerAllocator::GetGPU(const Engine::Handle<SAMPLER>& a_handle) const
 {
-	if (m_genVec[a_handle.idx] == a_handle.gen)
+	if (m_genVec[a_handle.GetIndex()] == a_handle.GetGeneration())
 	{
-		return m_pHeap->GetGPU(a_handle.idx);
+		return m_pHeap->GetGPU(a_handle.GetIndex());
 	}
 	assert(0 && "SAMPLERの世代が違います");
 	return D3D12_GPU_DESCRIPTOR_HANDLE();

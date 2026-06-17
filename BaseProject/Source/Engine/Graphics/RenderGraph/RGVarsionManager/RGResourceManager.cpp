@@ -1,4 +1,4 @@
-#include "RGResourceManager.h"
+﻿#include "RGResourceManager.h"
 
 //#include "../../../Resource/Manager/TextureManager/TextureManager.h"
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
@@ -148,7 +148,7 @@ namespace Engine::Graphics
 			return _it->second;
 		}
 	}
-	Resource::Handle<Resource::Texture> RGResourceManager::GetTexHandle(Resource::ID a_id, bool isRead)
+	Handle<Resource::Texture> RGResourceManager::GetTexHandle(Resource::ID a_id, bool isRead)
 	{
 		auto _idx = Resource::GetIndex(a_id);
 		if (m_resourceVec[_idx].isTemporal)
@@ -161,19 +161,19 @@ namespace Engine::Graphics
 			return m_resourceVec[_idx].texHandle[0];
 		}
 	}
-	Resource::Handle<D3D12::RTV> RGResourceManager::GetRTVHandle(Resource::ID a_id)
+	Handle<D3D12::RTV> RGResourceManager::GetRTVHandle(Resource::ID a_id)
 	{
 		const auto& _res = GetRes(a_id);
 		const auto* _tex = GetTex(_res.texHandle[m_temporalIndex]);
 		return _tex->GetRTV();
 	}
-	Resource::Handle<D3D12::DSV> RGResourceManager::GetDSVHandle(Resource::ID a_id)
+	Handle<D3D12::DSV> RGResourceManager::GetDSVHandle(Resource::ID a_id)
 	{
 		const auto& _res = GetRes(a_id);
 		const auto* _tex = GetTex(_res.texHandle[m_temporalIndex]);
 		return _tex->GetDSV();
 	}
-	Resource::Handle<D3D12::DSV> RGResourceManager::GetReadOnlyDSVHandle(Resource::ID a_id)
+	Handle<D3D12::DSV> RGResourceManager::GetReadOnlyDSVHandle(Resource::ID a_id)
 	{
 		const auto& _res = GetRes(a_id);
 		const auto* _tex = GetTex(_res.texHandle[m_temporalIndex]);
@@ -216,11 +216,11 @@ namespace Engine::Graphics
 		auto _idx = Resource::GetIndex(a_id);
 		return m_resourceVec[_idx];
 	}
-	const Resource::Texture* RGResourceManager::GetTex(const Resource::Handle<Resource::Texture>& a_handle) const
+	const Resource::Texture* RGResourceManager::GetTex(const Handle<Resource::Texture>& a_handle) const
 	{
 		return Resource::ResourceManager::Instance().Get(a_handle);
 	}
-	Resource::Texture* RGResourceManager::RefTex(const Resource::Handle<Resource::Texture>& a_handle)
+	Resource::Texture* RGResourceManager::RefTex(const Handle<Resource::Texture>& a_handle)
 	{
 		return Resource::ResourceManager::Instance().Ref(a_handle);
 	}

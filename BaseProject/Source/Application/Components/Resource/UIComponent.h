@@ -7,7 +7,7 @@ struct UIComponent
 {
 	// テクスチャID
 	// ランタイム用
-	Engine::Resource::Handle<Engine::Resource::Texture> texHandle = {};
+	Engine::Handle<Engine::Resource::Texture> texHandle = {};
 	Engine::GUID texGUID = {};
 
 	// UVオフセットとタイル

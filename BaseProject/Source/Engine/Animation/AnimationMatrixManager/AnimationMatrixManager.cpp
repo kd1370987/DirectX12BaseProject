@@ -15,7 +15,7 @@ namespace Engine::Animation
 		m_nodePoseMatStorage.resize(a_maxElement);
 	}
 
-	Storage::Range Engine::Animation::AnimationMatrixManager::AllocateNodePoseVec(const Resource::Handle<Resource::Model>& a_modelHandle)
+	Storage::Range Engine::Animation::AnimationMatrixManager::AllocateNodePoseVec(const Handle<Resource::Model>& a_modelHandle)
 	{
 		// モデルからアニメーションのノードを取得
 		const auto* _pModel = Resource::ResourceManager::Instance().Get(a_modelHandle);
@@ -46,7 +46,7 @@ namespace Engine::Animation
 	}
 
 
-	Storage::Range AnimationMatrixManager::AllocateBoneMatVec(const Resource::Handle<Resource::Model>& a_modelHandle)
+	Storage::Range AnimationMatrixManager::AllocateBoneMatVec(const Handle<Resource::Model>& a_modelHandle)
 	{
 		// モデルからアニメーションのノードを取得
 		const auto* _pModel = Resource::ResourceManager::Instance().Get(a_modelHandle);

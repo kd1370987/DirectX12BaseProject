@@ -92,19 +92,19 @@ namespace Engine::Collision
 		return _nodeIdx;
 	}
 
-	Resource::Handle<CollisionInstance> Engine::Collision::CollisionWorld::AllcateStaticEntity(
+	Handle<CollisionInstance> Engine::Collision::CollisionWorld::AllcateStaticEntity(
 		const CollisionInstance& a_instance
 	)
 	{
 		// 割り当てられたハンドルのインデックスを見て配列のサイズを変更する
 		auto _handle = m_staticHandleStorage.Allocate();
-		if (_handle.idx >= m_staticInstanceVec.size())
+		if (_handle.GetIndex() >= m_staticInstanceVec.size())
 		{
-			m_staticInstanceVec.resize(_handle.idx + 1);
+			m_staticInstanceVec.resize(_handle.GetIndex() + 1);
 		}
 
 		// インスタンス配列に追加
-		m_staticInstanceVec[_handle.idx] = a_instance;
+		m_staticInstanceVec[_handle.GetIndex()] = a_instance;
 
 		// ビルド実行予定
 		m_isStaticDirty = true;
@@ -112,16 +112,16 @@ namespace Engine::Collision
 		return _handle;
 	}
 
-	Resource::Handle<CollisionInstance> CollisionWorld::AllcateDynamicEntity(const CollisionInstance& a_instance)
+	Handle<CollisionInstance> CollisionWorld::AllcateDynamicEntity(const CollisionInstance& a_instance)
 	{
 		auto _handle = m_dynamicHandleStorage.Allocate();
-		if (_handle.idx >= m_dynamicInstanceVec.size())
+		if (_handle.GetIndex() >= m_dynamicInstanceVec.size())
 		{
-			m_dynamicInstanceVec.resize(_handle.idx + 1);
+			m_dynamicInstanceVec.resize(_handle.GetIndex() + 1);
 		}
 
 		// インスタンス配列に追加
-		m_dynamicInstanceVec[_handle.idx] = a_instance;
+		m_dynamicInstanceVec[_handle.GetIndex()] = a_instance;
 
 		return _handle;
 	}

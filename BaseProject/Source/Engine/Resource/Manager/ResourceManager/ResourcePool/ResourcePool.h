@@ -40,11 +40,11 @@ namespace Engine::Resource
 	{
 		// ハンドル発行
 		Handle<T> _handle = m_handleStorage.Allocate();
-		if (_handle.idx >= m_data.size())
+		if (_handle.GetIndex() >= m_data.size())
 		{
-			m_data.resize(_handle.idx + 1);
+			m_data.resize(_handle.GetIndex() + 1);
 		}
-		m_data[_handle.idx].emplace(std::move(a_resource));
+		m_data[_handle.GetIndex()].emplace(std::move(a_resource));
 
 		return _handle;
 	}
@@ -69,9 +69,9 @@ namespace Engine::Resource
 		m_handleStorage.Remove(a_handle);
 
 		// データがあれば解放
-		if (m_data[a_handle.idx].has_value())
+		if (m_data[a_handle.GetIndex].has_value())
 		{
-			m_data[a_handle.idx]->Release();
+			m_data[a_handle.GetIndex]->Release();
 		}
 	}
 	template<typename T>
@@ -79,7 +79,7 @@ namespace Engine::Resource
 	{
 		if (m_handleStorage.IsValid(a_handle))
 		{
-			return &m_data[a_handle.idx].value();
+			return &m_data[a_handle.GetIndex()].value();
 		}
 		return nullptr;
 	}
@@ -88,7 +88,7 @@ namespace Engine::Resource
 	{
 		if (m_handleStorage.IsValid(a_handle))
 		{
-			return &m_data[a_handle.idx].value();
+			return &m_data[a_handle.GetIndex()].value();
 		}
 		return nullptr;
 	}
@@ -105,7 +105,7 @@ namespace Engine::Resource
 	template<typename T>
 	inline const T* ResourcePool<T>::Access(const Handle<T>& a_handle) const
 	{
-		return &m_data[a_handle.idx].value();
+		return &m_data[a_handle.GetIndex].value();
 	}
 	template<typename T>
 	inline const T* ResourcePool<T>::Access(const uint16_t& a_index) const

@@ -23,7 +23,7 @@ namespace Engine::Editor
 
 				if (ImGui::TreeNodeEx(_pTex->GetName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 				{
-					ImGui::Text("Handle : IDX = %d GEN = %d", _handle.idx, _handle.gen);
+					ImGui::Text("Handle : IDX = %d GEN = %d", _handle.GetIndex(), _handle.GetGeneration());
 					DrawTextureView(*_pTex, a_widht, a_height);
 
 					ImGui::TreePop();
@@ -37,7 +37,7 @@ namespace Engine::Editor
 
 				if (ImGui::TreeNodeEx(_pTex->GetName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 				{
-					ImGui::Text("Handle : IDX = %d GEN = %d", _handle.idx, _handle.gen);
+					ImGui::Text("Handle : IDX = %d GEN = %d", _handle.GetIndex(), _handle.GetGeneration());
 					DrawTextureView(*_pTex, a_widht, a_height);
 
 					ImGui::TreePop();

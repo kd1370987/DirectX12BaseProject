@@ -10,7 +10,7 @@ struct ModelComponent
 	DirectX::XMFLOAT3 emissiveScale = { 1.0f,1.0f,1.0f };
 
 	// モデル参照用
-	Engine::Resource::Handle<Engine::Resource::Model> handle = {};	// ランタイム用
+	Engine::Handle<Engine::Resource::Model> handle = {};	// ランタイム用
 	Engine::GUID modelGUID = {};									// 記録用
 
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)

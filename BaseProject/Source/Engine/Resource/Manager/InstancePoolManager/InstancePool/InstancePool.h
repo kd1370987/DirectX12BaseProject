@@ -6,8 +6,14 @@ namespace Engine::Resource
 	{
 	public:
 
+		InstancePool() = default;
+		~InstancePool() = default;
+
+
+		void Init(UINT a_maxCount);
+
 	private:
 		std::vector<T> m_data;
-		Storage::HandleStorage m_handleStorage;
+		FreeRange m_freeRange;
 	};
 }

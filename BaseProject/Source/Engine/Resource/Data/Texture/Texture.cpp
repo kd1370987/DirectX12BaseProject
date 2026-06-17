@@ -210,32 +210,32 @@ namespace Engine::Resource
 		}
 	}
 
-	const Engine::Resource::Handle<D3D12::RTV>& Engine::Resource::Texture::GetRTV() const
+	const Engine::Handle<D3D12::RTV>& Engine::Resource::Texture::GetRTV() const
 	{
 		return m_rtvHandle;
 	}
 
-	const Engine::Resource::Handle<D3D12::DSV>& Engine::Resource::Texture::GetDSV() const
+	const Engine::Handle<D3D12::DSV>& Engine::Resource::Texture::GetDSV() const
 	{
 		return m_dsvHandle;
 	}
 
-	const Engine::Resource::Handle<D3D12::DSV>& Engine::Resource::Texture::GetReadOnlyDSV() const
+	const Engine::Handle<D3D12::DSV>& Engine::Resource::Texture::GetReadOnlyDSV() const
 	{
 		return m_readOnlyDsvHandle;
 	}
 
-	const Engine::Resource::Handle<D3D12::SRV>& Engine::Resource::Texture::GetSRV() const
+	const Engine::Handle<D3D12::SRV>& Engine::Resource::Texture::GetSRV() const
 	{
 		return m_srvHandle;
 	}
 
-	const Engine::Resource::Handle<D3D12::UAV>& Engine::Resource::Texture::GetUAV() const
+	const Engine::Handle<D3D12::UAV>& Engine::Resource::Texture::GetUAV() const
 	{
 		return m_uavHandle;
 	}
 
-	const Engine::Resource::Handle<D3D12::SRV>& Engine::Resource::Texture::GetImGuiSRV() const
+	const Engine::Handle<D3D12::SRV>& Engine::Resource::Texture::GetImGuiSRV() const
 	{
 		return m_imguiSRVHandle;
 	}

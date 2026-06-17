@@ -21,7 +21,7 @@ namespace Engine::Raytracing
 
 	void Engine::Raytracing::RayWorld::Register(
 		const DXSM::Matrix& a_worldMat,
-		const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle,
+		const Engine::Handle<Engine::Resource::Model>& a_modelHandle,
 		const DXSM::Vector4& a_colorScale,
 		const DXSM::Vector3& a_emissiveScale
 	)
@@ -69,13 +69,13 @@ namespace Engine::Raytracing
 					_mat.emissive = _emiColor * a_emissiveScale;
 					_mat.startIndexLocation = _subset.faceStart * 3;
 					const auto* _Btex = Engine::Resource::ResourceManager::Instance().Get(_pMate->baseColorTex);
-					_mat.baseIndex = _Btex->GetSRV().idx;
+					_mat.baseIndex = _Btex->GetSRV().GetIndex();
 					const auto* _Mtex = Engine::Resource::ResourceManager::Instance().Get(_pMate->metaRoughTex);
-					_mat.metaRoughnessIndex = _Mtex->GetSRV().idx;
+					_mat.metaRoughnessIndex = _Mtex->GetSRV().GetIndex();
 					const auto* _Etex = Engine::Resource::ResourceManager::Instance().Get(_pMate->emissiveTex);
-					_mat.emissiveIndex = _Etex->GetSRV().idx;
+					_mat.emissiveIndex = _Etex->GetSRV().GetIndex();
 					const auto* _Ntex = Engine::Resource::ResourceManager::Instance().Get(_pMate->normalTex);
-					_mat.normalIndex = _Ntex->GetSRV().idx;
+					_mat.normalIndex = _Ntex->GetSRV().GetIndex();
 
 					_rayInst.submeshMaterial.push_back(_mat);
 				}
@@ -152,8 +152,8 @@ namespace Engine::Raytracing
 		for (auto& _instance : m_instanceVec)
 		{
 			InstanceData _data = {};
-			_data.vertexSRVIndex = _instance.vertexHandle.idx;// +100;
-			_data.indexSRVIndex = _instance.indexHandle.idx;// +100;
+			_data.vertexSRVIndex = _instance.vertexHandle.GetIndex();// +100;
+			_data.indexSRVIndex = _instance.indexHandle.GetIndex();// +100;
 			_data.materialOffset = _materialOffset;
 			m_instanceDataVec.push_back(_data);
 
@@ -186,12 +186,12 @@ namespace Engine::Raytracing
 		return m_upTLAS->GetGPUHandle();
 	}
 
-	Resource::Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetInstanceBufferSRV()
+	Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetInstanceBufferSRV()
 	{
 		return m_instanceDataBuffer.GetSRVHandle();
 	}
 
-	Resource::Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetMaterialBufferSRV()
+	Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetMaterialBufferSRV()
 	{
 		return m_materialDataBuffer.GetSRVHandle();
 	}

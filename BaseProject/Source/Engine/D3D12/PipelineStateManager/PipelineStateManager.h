@@ -23,9 +23,9 @@ namespace Engine::D3D12
 		ID3D12PipelineState* Request(const D3D12::ComputePipelineDesc& a_desc);
 
 		// パイプラインステートのハンドル管理
-		Resource::Handle<ID3D12PipelineState> RequestHandle(const D3D12::GraphicsPipelineDesc& a_desc);
-		Resource::Handle<ID3D12PipelineState> RequestHandle(const D3D12::ComputePipelineDesc& a_desc);
-		ID3D12PipelineState* GetPSO(Resource::Handle<ID3D12PipelineState> a_handle);
+		Handle<ID3D12PipelineState> RequestHandle(const D3D12::GraphicsPipelineDesc& a_desc);
+		Handle<ID3D12PipelineState> RequestHandle(const D3D12::ComputePipelineDesc& a_desc);
+		ID3D12PipelineState* GetPSO(Handle<ID3D12PipelineState> a_handle);
 		ID3D12PipelineState* GetPSO(uint8_t a_rawIdx8bit);
 
 	private:

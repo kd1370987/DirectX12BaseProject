@@ -34,6 +34,6 @@ namespace Engine::D3D12
 
 	protected:
 		void* m_pMapData = nullptr;
-		Resource::Handle<D3D12::SRV> m_srvHandle = {};
+		Handle<D3D12::SRV> m_srvHandle = {};
 	};
 }

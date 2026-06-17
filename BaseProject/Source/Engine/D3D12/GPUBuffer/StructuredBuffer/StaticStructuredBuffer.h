@@ -16,7 +16,7 @@ namespace Engine::D3D12
 
 		// アクセサ
 		const D3D12_SHADER_RESOURCE_VIEW_DESC& GetView() const;
-		const Resource::Handle<D3D12::SRV>& GetSRVHandle() const;
+		const Handle<D3D12::SRV>& GetSRVHandle() const;
 
 	private:
 
@@ -57,7 +57,7 @@ namespace Engine::D3D12
 		return m_view;
 	}
 	template<typename T>
-	inline const Resource::Handle<D3D12::SRV>& StaticStructuredBuffer<T>::GetSRVHandle() const
+	inline const Handle<D3D12::SRV>& StaticStructuredBuffer<T>::GetSRVHandle() const
 	{
 		return m_srvHandle;
 	}

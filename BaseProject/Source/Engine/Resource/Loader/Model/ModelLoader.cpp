@@ -3,7 +3,7 @@
 #include "../../Manager/ResourceManager/ResourceManager.h"
 namespace Engine::Resource
 {
-	std::unordered_map<Engine::GUID, Engine::Resource::Handle<Engine::Resource::Model>>
+	std::unordered_map<Engine::GUID, Engine::Handle<Engine::Resource::Model>>
 		Engine::Resource::ModelLoader::m_cache;
 
 	Handle<Model> ModelLoader::Load(const Engine::GUID& a_guid)

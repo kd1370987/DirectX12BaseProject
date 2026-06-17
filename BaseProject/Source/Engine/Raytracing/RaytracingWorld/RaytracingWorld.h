@@ -16,7 +16,7 @@ namespace Engine::Raytracing
 		// モデルとワールド行列を登録して内部でインスタンスに返還
 		void Register(
 			const DXSM::Matrix& a_worldMat,
-			const Engine::Resource::Handle<Engine::Resource::Model>& a_modelHandle,
+			const Engine::Handle<Engine::Resource::Model>& a_modelHandle,
 			const DXSM::Vector4& a_colorScale,
 			const DXSM::Vector3& a_emissiveScale
 		);
@@ -38,8 +38,8 @@ namespace Engine::Raytracing
 		D3D12_GPU_VIRTUAL_ADDRESS GetTLAS();
 		D3D12_GPU_DESCRIPTOR_HANDLE GetSRVTLAS();
 
-		Resource::Handle<D3D12::SRV> GetInstanceBufferSRV();
-		Resource::Handle<D3D12::SRV> GetMaterialBufferSRV();
+		Handle<D3D12::SRV> GetInstanceBufferSRV();
+		Handle<D3D12::SRV> GetMaterialBufferSRV();
 
 		// インスタンス配列取得
 		D3D12_GPU_DESCRIPTOR_HANDLE GetInstanceDataSRV();

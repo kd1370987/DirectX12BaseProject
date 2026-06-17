@@ -8,9 +8,9 @@
 
 namespace Engine::Resource
 {
-	std::unordered_map<Engine::GUID, Engine::Resource::Handle<Engine::Resource::Texture>>
+	std::unordered_map<Engine::GUID, Engine::Handle<Engine::Resource::Texture>>
 	Engine::Resource::TextureLoader::m_cache;
-	std::unordered_map<std::string, Engine::Resource::Handle<Engine::Resource::Texture>>
+	std::unordered_map<std::string, Engine::Handle<Engine::Resource::Texture>>
 	Engine::Resource::TextureLoader::m_nameCache;
 	
 

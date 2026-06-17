@@ -53,18 +53,18 @@ namespace Engine::Resource
 
 		// 基本色
 		DirectX::XMFLOAT4			baseColor = { 1,1,1,1 };
-		Engine::Resource::Handle<Engine::Resource::Texture> baseColorTex = {};
+		Handle<Engine::Resource::Texture> baseColorTex = {};
 
 		// メタリック・ラフネス
 		float						metallic = 0.0f;						// B : 金属製
 		float						roughness = 1.0f;						// G : 粗さ
-		Engine::Resource::Handle<Engine::Resource::Texture> metaRoughTex = {};
+		Handle<Engine::Resource::Texture> metaRoughTex = {};
 
 		// エミッシブ
 		DirectX::XMFLOAT3			emissive = { 1.0f,1.0f,1.0f };
-		Engine::Resource::Handle<Engine::Resource::Texture> emissiveTex = {};
+		Handle<Engine::Resource::Texture> emissiveTex = {};
 
 		// 法線マップ
-		Engine::Resource::Handle<Engine::Resource::Texture> normalTex = {};
+		Handle<Engine::Resource::Texture> normalTex = {};
 	};
 }

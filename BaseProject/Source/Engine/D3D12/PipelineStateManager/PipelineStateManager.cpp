@@ -172,39 +172,39 @@ namespace Engine::D3D12
 		return _pso.Get();
 	}
 
-	Resource::Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
+	Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
 		const D3D12::GraphicsPipelineDesc& a_desc
 	)
 	{
 		auto _handle = m_psoHandleStorage.Allocate();
-		if (m_pPsoVec.size() <= _handle.idx)
+		if (m_pPsoVec.size() <= _handle.GetIndex())
 		{
-			m_pPsoVec.resize(_handle.idx + 1);
+			m_pPsoVec.resize(_handle.GetIndex() + 1);
 		}
-		m_pPsoVec[_handle.idx] = Request(a_desc);
+		m_pPsoVec[_handle.GetIndex()] = Request(a_desc);
 
 		return _handle;
 	}
 
-	Resource::Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
+	Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
 		const D3D12::ComputePipelineDesc& a_desc
 	)
 	{
 		auto _handle = m_psoHandleStorage.Allocate();
-		if (m_pPsoVec.size() <= _handle.idx)
+		if (m_pPsoVec.size() <= _handle.GetIndex())
 		{
-			m_pPsoVec.resize(_handle.idx + 1);
+			m_pPsoVec.resize(_handle.GetIndex() + 1);
 		}
-		m_pPsoVec[_handle.idx] = Request(a_desc);
+		m_pPsoVec[_handle.GetIndex()] = Request(a_desc);
 
 		return _handle;
 	}
 
-	ID3D12PipelineState* PipelineStateManager::GetPSO(Resource::Handle<ID3D12PipelineState> a_handle)
+	ID3D12PipelineState* PipelineStateManager::GetPSO(Handle<ID3D12PipelineState> a_handle)
 	{
 		if (m_psoHandleStorage.IsValid(a_handle))
 		{
-			return m_pPsoVec[a_handle.idx];
+			return m_pPsoVec[a_handle.GetIndex()];
 		}
 		return nullptr;
 	}

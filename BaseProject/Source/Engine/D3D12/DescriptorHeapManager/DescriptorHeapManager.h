@@ -24,17 +24,17 @@ namespace Engine::D3D12
 
 		// リソースのビュー作成
 		template<IsHeapType T>
-		Resource::Handle<T> Allocate(ID3D12Device* a_pDevice,ID3D12Resource* a_pResource,const typename T::DescType* a_desc);
+		Handle<T> Allocate(ID3D12Device* a_pDevice,ID3D12Resource* a_pResource,const typename T::DescType* a_desc);
 
 		// ビューの解放
 		template<IsHeapType T>
-		void Free(const Resource::Handle<T>& a_handle);
+		void Free(const Handle<T>& a_handle);
 
 		// ハンドルの取得
 		template<IsHeapType T>
-		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(Resource::Handle<T> a_handle);
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(Handle<T> a_handle);
 		template<IsHeapType T>
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(Resource::Handle<T> a_handle);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(Handle<T> a_handle);
 
 		// ヒープ取得
 		UINT GetCBVSRVUAVHeapSize();
@@ -52,15 +52,15 @@ namespace Engine::D3D12
 		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle();
 
 		// 一括でSRVを確保
-		Resource::Handle<SRV> AllocateImGuiSRV(ID3D12Resource* a_pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC* a_desc);
+		Handle<SRV> AllocateImGuiSRV(ID3D12Resource* a_pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC* a_desc);
 
 
 		// 解放
-		void FreeImGuiSRV(const Resource::Handle<SRV>& a_handle);
+		void FreeImGuiSRV(const Handle<SRV>& a_handle);
 
 		// ImGuiのSRVハンドルを取得
-		D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Resource::Handle<SRV> a_range);
-		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Engine::Resource::Handle<SRV> a_range);
+		D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Handle<SRV> a_range);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Engine::Handle<SRV> a_range);
 
 		//==========================================================================================
 		// 
@@ -68,7 +68,7 @@ namespace Engine::D3D12
 		// 
 		//==========================================================================================
 		// 作成
-		Engine::Resource::Handle<SAMPLER> CreateSampler(
+		Engine::Handle<SAMPLER> CreateSampler(
 			ID3D12Device* a_pDevice,
 			const D3D12_SAMPLER_DESC& a_desc
 		);
@@ -104,9 +104,9 @@ namespace Engine::D3D12
 		HeapAllocator<SRV>					m_ImGuiSRVAllocator;
 
 		// サンプラー
-		Engine::Resource::Handle<SAMPLER> m_linerWrap;
-		Engine::Resource::Handle<SAMPLER> m_pointClamp;
-		Engine::Resource::Handle<SAMPLER> m_shadow;
+		Engine::Handle<SAMPLER> m_linerWrap;
+		Engine::Handle<SAMPLER> m_pointClamp;
+		Engine::Handle<SAMPLER> m_shadow;
 
 		// シングルトン
 	private:
@@ -126,7 +126,7 @@ namespace Engine::D3D12
 		}
 	};
 	template<IsHeapType T>
-	inline Resource::Handle<T> DescriptorHeapManager::Allocate(ID3D12Device* a_pDevice, ID3D12Resource* a_pResource, const typename T::DescType* a_desc)
+	inline Handle<T> DescriptorHeapManager::Allocate(ID3D12Device* a_pDevice, ID3D12Resource* a_pResource, const typename T::DescType* a_desc)
 	{
 		if constexpr (std::is_same_v<T, CBV>)
 		{
@@ -155,7 +155,7 @@ namespace Engine::D3D12
 		//}
 	}
 	template<IsHeapType T>
-	inline void DescriptorHeapManager::Free(const Resource::Handle<T>& a_handle)
+	inline void DescriptorHeapManager::Free(const Handle<T>& a_handle)
 	{
 		if constexpr (std::is_same_v<T, CBV>)
 		{
@@ -179,7 +179,7 @@ namespace Engine::D3D12
 		}
 	}
 	template<IsHeapType T>
-	inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetCPU(Resource::Handle<T> a_handle)
+	inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetCPU(Handle<T> a_handle)
 	{
 		if constexpr (std::is_same_v<T, CBV>)
 		{
@@ -208,7 +208,7 @@ namespace Engine::D3D12
 		//}
 	}
 	template<IsHeapType T>
-	inline D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetGPU(Resource::Handle<T> a_handle)
+	inline D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetGPU(Handle<T> a_handle)
 	{
 		if constexpr (std::is_same_v<T, CBV>)
 		{

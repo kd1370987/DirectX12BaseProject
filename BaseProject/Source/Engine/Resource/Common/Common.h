@@ -2,24 +2,24 @@
 
 namespace Engine::Resource
 {
-	// ハンドル
-	template<typename T>
-	struct Handle
-	{
-		// 管理場所と世代
-		Engine::Resource::Index idx = Engine::Resource::Limits::INVALID_INDEX;
-		Engine::Resource::Generation gen = Engine::Resource::Limits::INVALID_GENERATION;
+	//// ハンドル
+	//template<typename T>
+	//struct Handle
+	//{
+	//	// 管理場所と世代
+	//	Engine::Resource::Index idx = Engine::Resource::Limits::INVALID_INDEX;
+	//	Engine::Resource::Generation gen = Engine::Resource::Limits::INVALID_GENERATION;
 
-		auto operator<=>(const Handle&)const = default;
-	};
+	//	auto operator<=>(const Handle&)const = default;
+	//};
 
-	// レンジハンドル
-	template<typename Asset>
-	struct HandleRange
-	{
-		Engine::Resource::Index idx = Engine::Resource::Limits::INVALID_INDEX;
-		Engine::Resource::Generation gen = Engine::Resource::Limits::INVALID_GENERATION;
-	};
+	//// レンジハンドル
+	//template<typename Asset>
+	//struct HandleRange
+	//{
+	//	Engine::Resource::Index idx = Engine::Resource::Limits::INVALID_INDEX;
+	//	Engine::Resource::Generation gen = Engine::Resource::Limits::INVALID_GENERATION;
+	//};
 
 	// スロット管理
 	template<typename Data>

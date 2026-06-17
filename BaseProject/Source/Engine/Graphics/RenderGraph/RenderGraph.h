@@ -15,7 +15,7 @@ namespace Engine::Graphics
 
 	struct RGBarrier
 	{
-		Resource::Handle<Resource::Texture> texHandle = {};
+		Handle<Resource::Texture> texHandle = {};
 		D3D12_RESOURCE_STATES before = D3D12_RESOURCE_STATE_COMMON;
 		D3D12_RESOURCE_STATES after = D3D12_RESOURCE_STATE_COMMON;
 		Engine::Resource::ID resID = Engine::Resource::Limits::INVALID_ID;
@@ -31,11 +31,11 @@ namespace Engine::Graphics
 		std::vector<RGBarrier> barrierVec = {};
 
 		// RTV・DSVチェンジ用
-		std::vector<Resource::Handle<D3D12::RTV>> rtvHadles = {};
-		Resource::Handle<D3D12::DSV> dsvHandle = {};
+		std::vector<Handle<D3D12::RTV>> rtvHadles = {};
+		Handle<D3D12::DSV> dsvHandle = {};
 
 		// RTV・DSVクリア用
-		std::vector<Resource::Handle<Resource::Texture>> clearRTVs = {};
+		std::vector<Handle<Resource::Texture>> clearRTVs = {};
 		bool isDepthClear = false;
 	};
 
@@ -58,12 +58,12 @@ namespace Engine::Graphics
 		void AddPassNode(const EDrawPhase& a_pahse,const RenderPassNode& a_node);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(const std::string& a_name);
-		Resource::Handle<D3D12::SRV> GetSRVHandle(const std::string& a_name);
+		Handle<D3D12::SRV> GetSRVHandle(const std::string& a_name);
 		D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPU(const std::string& a_name);
-		Resource::Handle<D3D12::UAV> GetUAVHandle(const std::string& a_name,bool a_read = false);
+		Handle<D3D12::UAV> GetUAVHandle(const std::string& a_name,bool a_read = false);
 		D3D12_CPU_DESCRIPTOR_HANDLE GetUAVCPU(const std::string& a_name, bool a_read = false);
 		// リソース作成
-		Engine::Resource::Handle<Engine::Resource::Texture> CreateTexture(
+		Engine::Handle<Engine::Resource::Texture> CreateTexture(
 			const std::string& a_name,
 			const DXGI_FORMAT& format,
 			const UINT64& a_widht,
@@ -75,7 +75,7 @@ namespace Engine::Graphics
 		Resource::ID Write(const std::string& a_resourceName, const AccessType& a_type);
 
 		Resource::ID GetID(const std::string& a_resourceName);
-		Resource::Handle<Resource::Texture> GetTexHandle(const std::string& a_resourceName);
+		Handle<Resource::Texture> GetTexHandle(const std::string& a_resourceName);
 
 		uint8_t GetPassIndex(const std::string& a_passName);
 		const RenderPassNode* GetPass(const std::string& a_passName);
@@ -109,6 +109,6 @@ namespace Engine::Graphics
 		std::unique_ptr<RGResourceManager> m_upRGResourceManager = nullptr;
 
 		// ハンドルマップ
-		std::unordered_map<std::string, Resource::Handle<Resource::Texture>> m_handleMap;
+		std::unordered_map<std::string, Handle<Resource::Texture>> m_handleMap;
 	};
 }

@@ -142,7 +142,7 @@ namespace Engine::Graphics
 		return m_upCBAllocater.get();
 	}
 
-	void RenderContext::ChangeRenderTarget(const std::vector<Resource::Handle<D3D12::RTV>>& a_rtvHandleVec, const Resource::Handle<D3D12::DSV>& a_dsvHandle)
+	void RenderContext::ChangeRenderTarget(const std::vector<Handle<D3D12::RTV>>& a_rtvHandleVec, const Handle<D3D12::DSV>& a_dsvHandle)
 	{
 		// 変数用意
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvCPUVec = {};
@@ -155,7 +155,7 @@ namespace Engine::Graphics
 			_rtvCPUVec.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_rtv));
 		}
 		// 初期値じゃなければ
-		if (a_dsvHandle != Resource::Handle<D3D12::DSV>())
+		if (a_dsvHandle != Handle<D3D12::DSV>())
 		{
 			_dsvCPU = D3D12::DescriptorHeapManager::Instance().GetCPU(a_dsvHandle);
 			_pDSVCPU = &_dsvCPU;
@@ -175,14 +175,14 @@ namespace Engine::Graphics
 
 	void RenderContext::BindSRV(
 		UINT a_rootIdx,
-		std::vector<Resource::Handle<Resource::Texture>>& a_texHandles
+		std::vector<Handle<Resource::Texture>>& a_texHandles
 	)
 	{
 		// テクスチャからCPUハンドルを獲得する
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuHandles = {};
 		for (auto& _texHandle : a_texHandles)
 		{
-			if (_texHandle == Resource::Handle<Resource::Texture>()) continue;
+			if (_texHandle == Handle<Resource::Texture>()) continue;
 			const auto* _tex = Resource::ResourceManager::Instance().Get(_texHandle);
 			if (!_tex) continue;
 			_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_tex->GetSRV()));
@@ -257,7 +257,7 @@ namespace Engine::Graphics
 		);
 	}
 
-	void RenderContext::BindSRV(UINT a_rootIdx, Resource::Handle<D3D12::SRV> a_srvHandle)
+	void RenderContext::BindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
 	{
 		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_srvHandle);
 		BindSRV(a_rootIdx, _cpu);
@@ -352,13 +352,13 @@ namespace Engine::Graphics
 		);
 	}
 
-	void RenderContext::BindUAVBindLess(UINT a_rootIdx, Resource::Handle<D3D12::UAV> a_handle)
+	void RenderContext::BindUAVBindLess(UINT a_rootIdx, Handle<D3D12::UAV> a_handle)
 	{
 		// コマンドリストにバインド
 		auto _pCmd = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 		_pCmd->SetComputeRootDescriptorTable(
 			a_rootIdx,
-			m_bindLessHeap.GetGPU(a_handle.idx)
+			m_bindLessHeap.GetGPU(a_handle.GetIndex())
 		);
 	}
 
@@ -414,12 +414,12 @@ namespace Engine::Graphics
 		return m_copyHeap.GetGPU(_startIdx);
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandleBindLess(Resource::Handle<D3D12::SRV> a_handle)
+	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandleBindLess(Handle<D3D12::SRV> a_handle)
 	{
-		return m_bindLessHeap.GetGPU(a_handle.idx);
+		return m_bindLessHeap.GetGPU(a_handle.GetIndex());
 	}
 
-	void RenderContext::ClearRenderTarget(const Resource::Handle<Resource::Texture>& a_texHandle)
+	void RenderContext::ClearRenderTarget(const Handle<Resource::Texture>& a_texHandle)
 	{
 		auto* _tex = Resource::ResourceManager::Instance().Ref(a_texHandle);
 
@@ -438,7 +438,7 @@ namespace Engine::Graphics
 	}
 
 
-	void RenderContext::ClearDSV(const Resource::Handle<D3D12::DSV>& a_DSVHandle)
+	void RenderContext::ClearDSV(const Handle<D3D12::DSV>& a_DSVHandle)
 	{
 		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_DSVHandle);
 		D3D12::D3D12Wrapper::Instance().ClearDepthStencilView(_cpu);
@@ -562,7 +562,7 @@ namespace Engine::Graphics
 	}
 
 	void RenderContext::TexCopy(
-		const Resource::Handle<Resource::Texture>& a_src, const Resource::Handle<Resource::Texture>& a_dst
+		const Handle<Resource::Texture>& a_src, const Handle<Resource::Texture>& a_dst
 	)
 	{
 		auto* _srcTex = Resource::ResourceManager::Instance().Ref(a_src);
@@ -602,7 +602,7 @@ namespace Engine::Graphics
 	void RenderContext::BindMaterialSRV(UINT a_index, const Resource::Material* a_pMaterial)
 	{
 		// SRVの送信
-		std::vector<Resource::Handle<Resource::Texture>> _texVec = {};
+		std::vector<Handle<Resource::Texture>> _texVec = {};
 		_texVec.push_back(a_pMaterial->baseColorTex);
 		_texVec.push_back(a_pMaterial->metaRoughTex);
 		_texVec.push_back(a_pMaterial->emissiveTex);
@@ -615,7 +615,7 @@ namespace Engine::Graphics
 		const auto* _pMaterial = Resource::ResourceManager::Instance().Accece<Resource::Material>(a_materialID);
 		if (!_pMaterial) return;
 
-		std::vector<Resource::Handle<Resource::Texture>> _texVec = {};
+		std::vector<Handle<Resource::Texture>> _texVec = {};
 		_texVec.push_back(_pMaterial->baseColorTex);
 		_texVec.push_back(_pMaterial->metaRoughTex);
 		_texVec.push_back(_pMaterial->emissiveTex);
