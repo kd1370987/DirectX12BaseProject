@@ -675,7 +675,6 @@
     <ClInclude Include="Source\Engine\Utility\GUID\GUID.h" />
     <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONHelper.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h" />
-    <ClInclude Include="Source\Engine\Utility\Pool\PoolCommon.h" />
     <ClInclude Include="Source\Engine\Window\NativeWindow.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>

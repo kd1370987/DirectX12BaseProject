@@ -2267,9 +2267,6 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Pool\PoolCommon.h">
-      <Filter>Source\Engine\Utility\Pool</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h">
       <Filter>Source\Engine\Utility\Pool\ItemPool</Filter>
     </ClInclude>
