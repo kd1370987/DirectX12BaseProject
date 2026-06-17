@@ -16,7 +16,7 @@ UINT Engine::Resource::StateMachineAsset::GetStateHash(const std::string& a_stat
 	{
 		return _it->first;
 	}
-	return INVALID_STATE_HASH;
+	return UINT_MAX;
 }
 
 void Engine::Resource::StateMachineAsset::Save(const std::string& a_savePath)

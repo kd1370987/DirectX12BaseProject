@@ -931,6 +931,9 @@
     <Filter Include="Source\Engine\Utility\Pool\RangePool">
       <UniqueIdentifier>{7628df47-cca6-4a67-b773-bf97b752bb8e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Common\Macros">
+      <UniqueIdentifier>{451c00c6-5fba-4b28-884e-d69d6b7cfb21}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2272,6 +2275,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Common\Handle.h">
       <Filter>Source\Engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Common\EngineConfigTypes.h">
+      <Filter>Source\Engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Common\Macros\ClassMacros.h">
+      <Filter>Source\Engine\Common\Macros</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

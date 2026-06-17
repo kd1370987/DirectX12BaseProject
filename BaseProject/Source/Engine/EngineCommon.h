@@ -4,39 +4,20 @@
 // 共通仕様
 // 
 //==========================================================================================
-#include "Engine/Common/Color.h"		// 色
-#include "Engine/Common/Handle.h"
-#include "Utility/GUID/GUID.h"
-#include "Utility/JSONHelper/JSONHelper.h"
-namespace Engine
-{
-	static constexpr UINT INVALID_STATE_HASH = 0xFFFFFFFF;
-	enum class EWindowMode : UINT
-	{
-		Windowed,		// ウィンドウモード
-		FullScreen,		// フルスクリーンモード
-		Borederless,	// ボーダレスモード
-	};
-}
+#include "Engine/Common/Color.h"				// 色
+#include "Engine/Common/Handle.h"				// ハンドル
+#include "Engine/Common/EngineConfigTypes.h"	// エンジン基盤設定
+
+// マクロ
+#include "Engine/Common/Macros/ClassMacros.h"	// クラス用マクロ
+
 //==========================================================================================
 // 
-// コピー不可能、ムーブ可能マクロ
+// 補助クラス・関数
 // 
 //==========================================================================================
-#define NON_COPYABLE_MOVABLE(Type) \
-	Type() = default; \
-    Type(const Type&) = delete; \
-    Type& operator=(const Type&) = delete; \
-    Type(Type&&) noexcept = default; \
-    Type& operator=(Type&&) noexcept = default;
-
-
-// バッファリング数
-enum
-{
-	BACKBUFFER_COUNT = 3,		// 今回はダブルバッファリング
-	CPU_FRAME_COUNT = 3				// フレームリソース管理用
-}; 
+#include "Utility/GUID/GUID.h"					// GUID
+#include "Utility/JSONHelper/JSONHelper.h"		// Jsonヘルパー
 
 //==========================================================================================
 // 

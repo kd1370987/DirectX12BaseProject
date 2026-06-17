@@ -1,7 +1,10 @@
 ﻿#pragma once
 namespace Engine
 {
-	// ハンドル
+	/// <summary>
+	/// ハンドル : 型安全でインデックスを管理するための構造体
+	/// </summary>
+	/// <typeparam name="T">任意の型</typeparam>
 	template<typename T>
 	struct Handle
 	{
@@ -55,7 +58,10 @@ namespace Engine
 		bool operator == (const Handle & a_other) const { return id == a_other.id; }
 	};
 
-	// レンジハンドル
+	/// <summary>
+	/// レンジハンドル : 連続した領域を確保して型安全にアクセスするための構造体
+	/// </summary>
+	/// <typeparam name="T">任意の型</typeparam>
 	template<typename T>
 	struct RangeHandle
 	{
