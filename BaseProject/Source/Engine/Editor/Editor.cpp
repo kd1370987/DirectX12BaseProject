@@ -106,13 +106,17 @@ namespace Engine::Editor
 	}
 	void MainEditor::AddLog(const char* a_fmt, ...)
 	{
-		if (!m_isInit) return;
-		if (!m_upLog) return;
+		// 初期化チェック
+		if (!m_isInit || !m_upLog) return;
 
-		va_list _args;
-		va_start(_args, a_fmt);
-		m_upLog->AddLog(a_fmt);
-		va_end(_args);
+		char buffer[2048];
+		// フォーマットと引数の結合
+		va_list args;
+		va_start(args, a_fmt);
+		vsnprintf(buffer, sizeof(buffer), a_fmt, args);
+		va_end(args);
+
+		m_upLog->AddLog(buffer);
 	}
 	void MainEditor::AddLogVector(const float* a_data, const size_t& a_size)
 	{
@@ -140,6 +144,27 @@ namespace Engine::Editor
 			}
 			AddLog("\n");
 		}
+	}
+	void MainEditor::WarningLog(const char* a_fmt, ...)
+	{
+		// 初期化済みチェック
+		if (!m_isInit || !m_upLog) return;
+
+		char _buffer[2048];
+
+		va_list _args;
+		va_start(_args, a_fmt);
+
+		// 受け取ったフォーマットと引数を結合
+		vsnprintf(_buffer,sizeof(_buffer),a_fmt,_args);
+		va_end(_args);
+
+		std::string _warnStr = std::string("[WARNING] ") + _buffer;
+
+		// ログ
+		AddLog(_warnStr.c_str());
+		// visualスタジオ側にも一応出力
+		OutputDebugStringA((_warnStr + "\n").c_str());
 	}
 	void MainEditor::ErrorLog(const char* a_fmt, ...)
 	{

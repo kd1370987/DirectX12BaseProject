@@ -13,7 +13,6 @@ struct TransformComponent
 		a_json["pos"] = { _comp->pos.x,_comp->pos.y,_comp->pos.z };
 		a_json["quat"] = { _comp->quat.x,_comp->quat.y,_comp->quat.z ,_comp->quat.w };
 		a_json["scale"] = { _comp->scale.x,_comp->scale.y,_comp->scale.z };
-
 	}
 
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
