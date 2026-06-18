@@ -358,6 +358,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Source\Engine\Option\OptionManager.cpp" />
+    <ClCompile Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp" />
     <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp" />
     <ClCompile Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\BLAS\BLAS.cpp" />
@@ -551,6 +552,7 @@
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer\RWStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\DynamicVertexBuffer.h" />
@@ -624,6 +626,9 @@
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\WindowOption.h" />
     <ClInclude Include="Source\Engine\Option\IOption.h" />
     <ClInclude Include="Source\Engine\Option\OptionManager.h" />
+    <ClInclude Include="Source\Engine\Particle\Core\EmitterData.h" />
+    <ClInclude Include="Source\Engine\Particle\Core\ParticleData.h" />
+    <ClInclude Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.h" />
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h" />
     <ClInclude Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.h" />
     <ClInclude Include="Source\Engine\Raytracing\BLAS\BLAS.h" />

@@ -10,6 +10,7 @@
 #include "../../Resource/Loader/Model/ModelLoader.h"
 #include "../../Resource/Loader/Texture/TextureLoader.h"
 #include "../../Resource/Loader/Shader/ShaderLoader.h"
+#include "../../Resource/Loader/Particles/ParticlesLoader.h"
 
 namespace Engine::Editor
 {
@@ -31,16 +32,10 @@ namespace Engine::Editor
 		// リソースビューの作成
 		if (ImGui::Begin("ResourceDataBase"))
 		{
+			// 作成ボタン
+			CreateAssetButton();
 
-			// ステートマシン追加
-			ImGui::InputText("Name", m_nameCach, sizeof(m_nameCach));
-			ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
-			if (ImGui::Button("Create"))
-			{
-				Resource::StateMachineAssetLoader::Create(std::string(m_pathCach), std::string(m_nameCach));
-				std::memset(m_nameCach, 0, sizeof(m_nameCach));
-				std::memset(m_pathCach, 0, sizeof(m_pathCach));
-			}
+			ImGui::Separator();
 
 			// アセットデータベース描画
 			AssetDataBaseDraw();
@@ -139,8 +134,6 @@ namespace Engine::Editor
 		// タブバーを作成
 		if (ImGui::BeginTabBar("AssetTabs"))
 		{
-			ImGui::Text("TEST");
-
 			// アセットの構造階層を取得
 			const auto& _rootNode = Resource::AssetDatabase::Instance().GetAssetRootNode();
 			const auto& _types = Resource::AssetDatabase::Instance().GetAssetTypeExtensionsMap();
@@ -209,6 +202,10 @@ namespace Engine::Editor
 				{
 
 				}
+				else if (_type == "ParticlesAsset")
+				{
+					DrawParticlesAsset();
+				}
 			}
 		}
 		ImGui::End();
@@ -267,5 +264,62 @@ namespace Engine::Editor
 				Resource::StateMachineAssetLoader::Load(_guid);
 			}
 		}
+	}
+	void AssetResourceView::DrawParticlesAsset()
+	{
+		auto& _guid = m_pAssetPropCach->guid;
+		auto& _type = m_pAssetPropCach->type;
+		if (Resource::ParticlesAssetLoader::Has(_guid))
+		{
+			auto _handle = Resource::ParticlesAssetLoader::Load(_guid);
+			auto* _pData = Resource::ResourceManager::Instance().Ref(_handle);
+			if (!_pData)
+			{
+				ImGui::Text("Not faund particle");
+				return;
+			}
+			_pData->EditImGui();
+		}
+		else
+		{
+			ImGui::Text("No loaded file");
+			if (ImGui::Button("Load"))
+			{
+				Resource::ParticlesAssetLoader::Load(_guid);
+			}
+		}
+	}
+	void AssetResourceView::CreateAssetButton()
+	{
+		ImGui::Text("CreateButton");
+
+		// ツリー
+		if(ImGui::TreeNodeEx("StateMachin"))
+		{
+			// ステートマシン追加
+			ImGui::InputText("Name", m_nameCach, sizeof(m_nameCach));
+			ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
+			if (ImGui::Button("Create"))
+			{
+				Resource::StateMachineAssetLoader::Create(std::string(m_pathCach), std::string(m_nameCach));
+				std::memset(m_nameCach, 0, sizeof(m_nameCach));
+				std::memset(m_pathCach, 0, sizeof(m_pathCach));
+			}
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNodeEx("ParticlesAsset"))
+		{
+			// ステートマシン追加
+			ImGui::InputText("Name", m_nameCach, sizeof(m_nameCach));
+			ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
+			if (ImGui::Button("Create"))
+			{
+				Resource::ParticlesAssetLoader::Create(std::string(m_pathCach), std::string(m_nameCach));
+				std::memset(m_nameCach, 0, sizeof(m_nameCach));
+				std::memset(m_pathCach, 0, sizeof(m_pathCach));
+			}
+			ImGui::TreePop();
+		}
+
 	}
 }

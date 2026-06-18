@@ -33,6 +33,10 @@ namespace Engine::Editor
 		// 各リソース描画
 		void DrawModel();
 		void DrawStateMachin();
+		void DrawParticlesAsset();
+
+		// 各リソース作成ボタン
+		void CreateAssetButton();
 
 	private:
 

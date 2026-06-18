@@ -49,10 +49,12 @@ namespace Engine::Resource
 
 
 		// アセットデータベースに場所を作る
-		auto _guid = AssetDatabase::Instance().AddMetaData(_basePath, "StateMachinAsset");
+		auto _guid = AssetDatabase::Instance().AddMetaData(_basePath, "ParticlesAsset");
 
 		// リソースマネージャーに登録
 		ParticlesAsset _sma = {};
+		_sma.Create(a_name, _guid);
+		_sma.Save(_basePath);
 		auto _handle = ResourceManager::Instance().Add(std::move(_sma));
 		m_cache[_guid] = _handle;
 

@@ -85,8 +85,8 @@ namespace Engine::Resource
 //------------------------------------------------------------------------------------------
 #include "Engine/D3D12/GPUBuffer/VertexBuffer/DynamicVertexBuffer.h"			// 頂点バッファ
 #include "Engine/D3D12/GPUBuffer/IndexBuffer/DynamicIndexBuffer.h"				// ダイナミックインデックスバッファ
-#include "D3D12/GPUBuffer/StructuredBuffer/StaticStructuredBuffer.h"			// スタティックストラクチャバッファ
-
+#include "Engine/D3D12/GPUBuffer/StructuredBuffer/StaticStructuredBuffer.h"		// スタティックストラクチャバッファ
+//#include "Engine/D3D12/GPUBuffer/RWStructuredBuffer/RWStructuredBuffer.h"		// GPU用UAV構造体バッファ
 #include "Engine/Resource/Data/Vertex/Vertex.h"									// 頂点データ
 //==========================================================================================
 // 

@@ -811,9 +811,6 @@
     <Filter Include="Asset\Shader\Compute\TemporalAccumulationShader">
       <UniqueIdentifier>{02c2faa4-cd28-4187-bc61-583fe69efc8c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\PingPongBuffer">
-      <UniqueIdentifier>{7a7470f3-e1bd-4ffe-81f2-a4d9ea8b1bc8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\CopyPass">
       <UniqueIdentifier>{d11f6c11-d594-479d-92bf-b7eba5e29866}</UniqueIdentifier>
     </Filter>
@@ -933,6 +930,24 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Loader\Particles">
       <UniqueIdentifier>{534d0d76-bbfd-4e90-80f8-9078e4279434}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer">
+      <UniqueIdentifier>{bdf4f8d9-ca30-4f93-85cb-c11a1540048c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Particle">
+      <UniqueIdentifier>{a713eca4-b2af-417a-8ff3-856d78d05d2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Particle\Core">
+      <UniqueIdentifier>{305b2594-4ff5-475e-9bd6-13918a2fc275}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Particle\GPU">
+      <UniqueIdentifier>{27047641-4735-42ca-9c95-d82d476b2e60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Particle\CPU">
+      <UniqueIdentifier>{bfe05ebe-12e3-4660-b50a-fe06265c844b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Particle\GPU\GPUParticlePool">
+      <UniqueIdentifier>{229201f6-2891-4b39-9ee9-fcd39d23ca33}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1481,6 +1496,9 @@
     </ClCompile>
     <ClCompile Include="..\Library\imgui-docking\imgui_stdlib.cpp">
       <Filter>Library\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp">
+      <Filter>Source\Engine\Particle\GPU\GPUParticlePool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2290,6 +2308,18 @@
     </ClInclude>
     <ClInclude Include="..\Library\imgui-docking\imgui_stdlib.h">
       <Filter>Library\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer\RWStructuredBuffer.h">
+      <Filter>Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.h">
+      <Filter>Source\Engine\Particle\GPU\GPUParticlePool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Particle\Core\EmitterData.h">
+      <Filter>Source\Engine\Particle\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Particle\Core\ParticleData.h">
+      <Filter>Source\Engine\Particle\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

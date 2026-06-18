@@ -63,15 +63,26 @@ namespace Engine::Resource
 	}
 	void ParticlesAsset::EditImGui()
 	{
+		if (ImGui::Button("Save"))
+		{
+			// ファイルパス取得
+			auto _path = AssetDatabase::Instance().GetFilePathFromGUID(m_guid);
+			Save(_path);
+			Editor::MainEditor::Instance().AddLog("%s", _path.c_str());
+			Editor::MainEditor::Instance().AddLog(" : Save Particles\n");
+		}
+
 		// パラメーター変更
 		ImGui::InputText("Name", &m_name);
 		ImGui::Text("%s",m_guid.String().c_str());
 
 		ImGui::Separator();
 
+		ImGui::PushID(1);
 		ImGui::Text("InitialSpeed");
 		ImGui::DragFloat("Min", &m_initialSpeedMin, 0.1f, 0.0);
 		ImGui::DragFloat("Max", &m_initialSpeedMax, 0.1f, 0.0);
+		ImGui::PopID();
 
 		ImGui::Separator();
 
@@ -79,9 +90,11 @@ namespace Engine::Resource
 
 		ImGui::Separator();
 
+		ImGui::PushID(2);
 		ImGui::Text("LifeTime");
 		ImGui::DragFloat("Min", &m_lifeTimeMin, 0.1f, 0.0);
 		ImGui::DragFloat("Max", &m_lifeTimeMax, 0.1f, 0.0);
+		ImGui::PopID();
 
 		ImGui::Separator();
 
@@ -115,7 +128,7 @@ namespace Engine::Resource
 
 				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
 				{
-					// モデルのハンドル取得
+					// テクスチャのハンドル取得
 					// ロードされていなかったら止まる
 					m_texHandle = TextureLoader::Request(_prop.filePath, TexColor::WHITE);
 					m_texGUID = _prop.guid;
@@ -125,7 +138,10 @@ namespace Engine::Resource
 		}
 
 		// テクスチャの画像を表示
-		auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
-		Editor::Helper::DrawSRVView(_gpuHandle, _pTex->GetDesc().Width, _pTex->GetDesc().Height);
+		if(_pTex)
+		{
+			auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
+			Editor::Helper::DrawSRVView(_gpuHandle, _pTex->GetDesc().Width, _pTex->GetDesc().Height);
+		}
 	}
 }

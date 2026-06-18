@@ -99,6 +99,9 @@ namespace Engine
 		// エンジン設定
 		EngineConfig m_config = {};
 
+		// フレーム分のごみ箱を用意する
+		std::vector<std::function<void()>> m_releaseQueue
+
 	// シングルトン
 	private:
 

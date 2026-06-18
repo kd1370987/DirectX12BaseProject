@@ -52,6 +52,23 @@ namespace Engine::D3D12
 		// ステートの更新
 		m_currentState = a_nextState;
 	}
+	void GPUResource::Barrier(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
+	{
+		if (m_currentState == a_nextState) return;
+
+		D3D12_RESOURCE_BARRIER _barrier = {};
+		_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		_barrier.Transition.pResource = m_cpResource.Get();
+		_barrier.Transition.StateAfter = m_currentState;
+		_barrier.Transition.StateBefore = a_nextState;
+		_barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+		a_pCmdList->ResourceBarrier(1, &_barrier);
+
+		// ステートの更新
+		m_currentState = a_nextState;
+	}
 	ID3D12Resource* GPUResource::GetResource() const
 	{
 		return m_cpResource.Get();
