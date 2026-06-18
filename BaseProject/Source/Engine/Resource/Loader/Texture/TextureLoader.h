@@ -24,6 +24,8 @@ namespace Engine::Resource
 
 		static bool Has(const Engine::GUID& a_guid);
 
+		static Engine::GUID GetGUIDFromHandle(const Handle<Texture>& a_handle);
+
 	private:
 
 		// デフォルトテクスチャの要求

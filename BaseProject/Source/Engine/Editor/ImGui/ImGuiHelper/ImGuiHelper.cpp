@@ -83,6 +83,27 @@ void Engine::Editor::Helper::DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a
 	
 }
 
+void Engine::Editor::Helper::DrawSRVView(D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHandle, float a_width, float a_height, float a_minSize, float a_maxSize)
+{
+	ImTextureID _imTex = (ImTextureID)(a_gpuHandle.ptr);
+	ImVec2 _winSize = ImGui::GetContentRegionAvail();
+
+	float _aspectRatio = (float)a_width / (float)a_height;
+	if (_winSize.x / _winSize.y > _aspectRatio)
+	{
+		_winSize.x = _winSize.y * _aspectRatio;
+	}
+	else
+	{
+		_winSize.y = _winSize.x / _aspectRatio;
+	}
+	// 最小サイズの設定
+	_winSize.x = std::max(_winSize.x, a_minSize);
+	_winSize.y = std::max(_winSize.y, a_maxSize);
+
+	ImGui::Image(_imTex, _winSize, ImVec2(0, 0), ImVec2(1, 1));
+}
+
 void Engine::Editor::Node::TitleBar(const std::string& a_name)
 {
 	ImNodes::BeginNodeTitleBar();

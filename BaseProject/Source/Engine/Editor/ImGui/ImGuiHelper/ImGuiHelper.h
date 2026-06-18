@@ -6,6 +6,19 @@ namespace Engine::Editor::Helper
 
 	// クォータニオンンを引き込んでディグリーの
 	void DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a_quat);	
+
+
+	/// <summary>
+	/// SRVを画像としてImGui上に描画させる
+	/// </summary>
+	/// <param name="a_gpuHandle">GPUハンドル</param>
+	/// <param name="a_width">横幅</param>
+	/// <param name="a_height">縦</param>
+	void DrawSRVView(
+		D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHandle,
+		float a_width, float a_height,
+		float a_minSize = 100,float a_maxSize = 500
+	);
 }
 
 namespace Engine::Editor::Node

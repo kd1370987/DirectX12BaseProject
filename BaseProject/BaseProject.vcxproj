@@ -228,6 +228,7 @@
     <ClCompile Include="..\Library\imgui-docking\imgui_draw.cpp" />
     <ClCompile Include="..\Library\imgui-docking\imgui_impl_dx12.cpp" />
     <ClCompile Include="..\Library\imgui-docking\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\Library\imgui-docking\imgui_stdlib.cpp" />
     <ClCompile Include="..\Library\imgui-docking\imgui_tables.cpp" />
     <ClCompile Include="..\Library\imgui-docking\imgui_widgets.cpp" />
     <ClCompile Include="..\Library\imnodes-master\imnodes.cpp" />
@@ -375,6 +376,7 @@
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Node\Node.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp" />
@@ -386,6 +388,7 @@
     <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\obmdl\obmdlImporter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Model\ModelLoader.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL\DXIL.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer\RasterizerImport.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\ShaderLoader.cpp" />
@@ -414,6 +417,7 @@
     <ClInclude Include="..\Library\imgui-docking\imgui_impl_dx12.h" />
     <ClInclude Include="..\Library\imgui-docking\imgui_impl_win32.h" />
     <ClInclude Include="..\Library\imgui-docking\imgui_internal.h" />
+    <ClInclude Include="..\Library\imgui-docking\imgui_stdlib.h" />
     <ClInclude Include="..\Library\imgui-docking\imstb_rectpack.h" />
     <ClInclude Include="..\Library\imgui-docking\imstb_textedit.h" />
     <ClInclude Include="..\Library\imgui-docking\imstb_truetype.h" />
@@ -442,6 +446,7 @@
     <ClInclude Include="Source\Application\Components\Resource\AnimatorComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\NodePoseComponent.h" />
+    <ClInclude Include="Source\Application\Components\Resource\ParticlesComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\SkeletonPoseComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\StateMachineComponent.h" />
     <ClInclude Include="Source\Application\Components\Resource\UIComponent.h" />
@@ -641,18 +646,21 @@
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\Model.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Node\Node.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.h" />
     <ClInclude Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.h" />
     <ClInclude Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h" />
     <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Vertex\Vertex.h" />
+    <ClInclude Include="Source\Engine\Resource\Loader\BaseLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Material\MaterialLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\obmdl\obmdlImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\ModelLoader.h" />
+    <ClInclude Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL\DXIL.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer\RasterizerImport.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\ShaderLoader.h" />

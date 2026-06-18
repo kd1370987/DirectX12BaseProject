@@ -928,6 +928,12 @@
     <Filter Include="Source\Engine\ECS\ResourceWrapper">
       <UniqueIdentifier>{8a0de162-fe08-40f5-95cd-b644ac043495}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Particles">
+      <UniqueIdentifier>{f8864611-a013-44f6-9b25-a58898b3c640}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Particles">
+      <UniqueIdentifier>{534d0d76-bbfd-4e90-80f8-9078e4279434}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1466,6 +1472,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.cpp">
+      <Filter>Source\Engine\Resource\Loader\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp">
+      <Filter>Source\Engine\Resource\Data\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\imgui-docking\imgui_stdlib.cpp">
+      <Filter>Library\imgui-docking</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2260,6 +2275,21 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\ResourceWrapper\ResourceWrapper.h">
       <Filter>Source\Engine\ECS\ResourceWrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.h">
+      <Filter>Source\Engine\Resource\Data\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\ParticlesComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\BaseLoader.h">
+      <Filter>Source\Engine\Resource\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.h">
+      <Filter>Source\Engine\Resource\Loader\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\imgui-docking\imgui_stdlib.h">
+      <Filter>Library\imgui-docking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

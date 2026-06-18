@@ -2,6 +2,7 @@
 
 // 各リソース
 #include "../../Data/StateMachineAsset/StateMachineAsset.h"
+#include "../../Data/Particles/ParticlesAsset.h"
 
 namespace Engine::D3D12
 {
@@ -69,6 +70,7 @@ namespace Engine::Resource
 		Pool::ItemPool<Shader>		m_shaderPool;			// シェーダー
 		Pool::ItemPool<ShaderLibrary>	m_shaderLibraryPool;	// シェーダーライブラリ
 		Pool::ItemPool<StateMachineAsset> m_stateMachinePool;	// ステートマシン
+		Pool::ItemPool<ParticlesAsset> m_particlesAssetPool;	// ステートマシン
 
 		// リソース用D3D12オブジェクト群
 		ID3D12CommandQueue* m_pCopyCmdQueue = nullptr;
@@ -140,6 +142,7 @@ namespace Engine::Resource
 	template<> inline const Pool::ItemPool<Shader>& ResourceManager::GetPool<Shader>() const					{ return m_shaderPool; }
 	template<> inline const Pool::ItemPool<ShaderLibrary>& ResourceManager::GetPool<ShaderLibrary>() const	{ return m_shaderLibraryPool; }
 	template<> inline const Pool::ItemPool<StateMachineAsset>& ResourceManager::GetPool<StateMachineAsset>() const	{ return m_stateMachinePool; }
+	template<> inline const Pool::ItemPool<ParticlesAsset>& ResourceManager::GetPool<ParticlesAsset>() const { return m_particlesAssetPool; }
 	
 
 	// テンプレート明示特殊化
@@ -151,4 +154,5 @@ namespace Engine::Resource
 	template<> inline Pool::ItemPool<Shader>& ResourceManager::RefPool<Shader>()					{ return m_shaderPool; }
 	template<> inline Pool::ItemPool<ShaderLibrary>& ResourceManager::RefPool<ShaderLibrary>()	{ return m_shaderLibraryPool; }
 	template<> inline Pool::ItemPool<StateMachineAsset>& ResourceManager::RefPool<StateMachineAsset>()	{ return m_stateMachinePool; }
+	template<> inline Pool::ItemPool<ParticlesAsset>& ResourceManager::RefPool<ParticlesAsset>() { return m_particlesAssetPool; }
 }

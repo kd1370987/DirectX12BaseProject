@@ -102,6 +102,17 @@ namespace Engine::Resource
 		}
 		return false;
 	}
+	Engine::GUID TextureLoader::GetGUIDFromHandle(const Handle<Texture>& a_handle)
+	{
+		for (auto& [_guid, _handle] : m_cache)
+		{
+			if (_handle == a_handle)
+			{
+				return _guid;
+			}
+		}
+		return Engine::DefaultGUID;
+	}
 	Handle<Texture> TextureLoader::RequestDefaultTex(const std::string& a_name, const DXSM::Color &a_data)
 	{
 		std::string _checkSTR = "";

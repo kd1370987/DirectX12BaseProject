@@ -1,9 +1,12 @@
 ﻿#pragma once
+
+#include "../BaseLoader.h";
+
 namespace Engine::Resource
 {
 	class StateMachineAsset;
 
-	class StateMachineAssetLoader
+	class StateMachineAssetLoader : public BaseLoader<StateMachineAsset,StateMachineAssetLoader>
 	{
 	public:
 
@@ -12,14 +15,6 @@ namespace Engine::Resource
 		
 		// リクエスト
 		static std::pair<Engine::GUID,Handle<StateMachineAsset>> Create(const std::string& a_path,const std::string& a_name);
-		
-		// アクセサ
-		static const std::unordered_map<Engine::GUID, Handle<StateMachineAsset>>& GetAllCache();
 
-		static bool Has(const Engine::GUID& a_guid);
-		
-	private:
-
-		static std::unordered_map<Engine::GUID, Handle<StateMachineAsset>>			m_cache;
 	};
 }
