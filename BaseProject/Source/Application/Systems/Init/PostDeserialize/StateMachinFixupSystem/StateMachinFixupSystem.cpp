@@ -6,7 +6,6 @@
 #include "../../../../Components/Resource/StateMachineComponent.h"
 
 #include "../../../../../Engine/Resource/Loader/StateMachineAsset/StateMachineAssetLoader.h"
-#include "../../../../../Engine/Resource/Manager/InstancePoolManager/InstancePoolManager.h"
 
 #include "../../../../../Engine/Resource/Data/StateMachineAsset/StateMachineAsset.h"
 
@@ -15,7 +14,7 @@ void StateMachinFixupSystem::Init(Engine::ECS::World& a_world)
 	a_world.PostDeserializeTask<StateMachineComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"StateMachinFixupSystem",
-		[]
+		[&a_world]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
@@ -31,8 +30,14 @@ void StateMachinFixupSystem::Init(Engine::ECS::World& a_world)
 				// モデルをGUIDから取得してロードした結果のハンドルを取得
 				if (_smComp.stateMachineGUID != Engine::DefaultGUID)
 				{
+					// ステートマシンロード
 					_smComp.stateMachineHandle = Engine::Resource::StateMachineAssetLoader::Load(_smComp.stateMachineGUID);
-					_smComp.instanceHandle = Engine::Resource::InstancePoolManager::Instance().Allocate<Engine::Resource::StateMachinInstance>();
+
+					// インスタンス確保
+					 auto& _stateInstancePool = 
+						 a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+					 Engine::Resource::StateMachinInstance _instance = {};
+					 _smComp.instanceHandle = _stateInstancePool.Add(std::move(_instance));
 				}
 			}
 		}

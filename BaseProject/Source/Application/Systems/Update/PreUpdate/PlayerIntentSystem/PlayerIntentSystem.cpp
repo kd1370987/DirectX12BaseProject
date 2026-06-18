@@ -2,14 +2,13 @@
 #include "Engine/ECS/World/World.h"
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
-#include "../../../../../Engine/Resource/Manager/InstancePoolManager/InstancePoolManager.h"
 
 void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<MoveIntentComponent, StateMachineComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"PlayerIntentSystem",
-		[]
+		[&a_world]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
@@ -30,27 +29,28 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 				StateMachineComponent& _smComp = a_smArray[_i];
 
 				// インスタンスの実体を取得
-				auto* _pInstanceData = Engine::Resource::InstancePoolManager::Instance().Ref(_smComp.instanceHandle);
-				if (!_pInstanceData) continue;
+				auto& _stateInstancePool = a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+				auto* _pInstance = _stateInstancePool.Ref(_smComp.instanceHandle);
+				if (!_pInstance) continue;
 
 				// 移動量から「Speed」パラメータを計算して登録
 				// XとZの入力値からベクトルの長さ（速さ）を求める
 				float _speed = std::sqrt((_intentComp.value.x * _intentComp.value.x) +
 					(_intentComp.value.z * _intentComp.value.z));
-				_pInstanceData->floatParams[s_speedHash] = _speed;
+				_pInstance->floatParams[s_speedHash] = _speed;
 
 				// ジャンプ入力を「Jump」パラメータ(TriggerやBool想定)に登録
 				if (_intentComp.value.y > 0.0f) // Y軸にジャンプ入力が入っている場合
 				{
-					_pInstanceData->boolParams[s_jumpHash] = true;
+					_pInstance->boolParams[s_jumpHash] = true;
 				}
 				else
 				{
-					_pInstanceData->boolParams[s_jumpHash] = false;
+					_pInstance->boolParams[s_jumpHash] = false;
 				}
 
 				// 地面に接しているかの判定
-				_pInstanceData->boolParams[s_isGroundHash] = _smComp.isGround;
+				_pInstance->boolParams[s_isGroundHash] = _smComp.isGround;
 			}
 		}
 	);

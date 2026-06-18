@@ -8,9 +8,6 @@
 
 #include "Application/Components/Transform/TransformComponent.h"
 
-#include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../../../../Engine/Animation/AnimationMatrixManager/AnimationMatrixManager.h"
-
 void CalccTransformFromExoskeletonSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ExoskeletonAttachmentComponent, TransformComponent>(

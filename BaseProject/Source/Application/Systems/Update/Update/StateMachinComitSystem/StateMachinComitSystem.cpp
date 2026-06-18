@@ -4,14 +4,13 @@
 #include "../../../../Components/Resource/StateMachineComponent.h"
 
 #include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../../../../Engine/Resource/Manager/InstancePoolManager/InstancePoolManager.h"
 
 void StateMachinComitSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<StateMachineComponent>(
 		Engine::ECS::ESystemType::Update,
 		"StateMachinComitSystem",
-		[]
+		[&a_world]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
@@ -24,9 +23,15 @@ void StateMachinComitSystem::Init(Engine::ECS::World& a_world)
 			{
 				StateMachineComponent& _smComp = a_smArray[_i];
 
-				// 入力されたステートマシンの値を使って、現在のステートを更新
+				// ステートマシン取得
 				const auto* _pStateMacihne = Engine::Resource::ResourceManager::Instance().Get(_smComp.stateMachineHandle);
-				auto* _pInstanceData = Engine::Resource::InstancePoolManager::Instance().Ref(_smComp.instanceHandle);
+
+				// 入力されたステートマシンの値を使って、現在のステートを更新
+				// インスタンスの実体を取得
+				auto& _stateInstancePool = a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+				auto* _pInstanceData = _stateInstancePool.Ref(_smComp.instanceHandle);
+				if (!_pInstanceData) continue;
+				
 
 				// 読み込みチェック
 				if (!_pStateMacihne || !_pInstanceData) continue;

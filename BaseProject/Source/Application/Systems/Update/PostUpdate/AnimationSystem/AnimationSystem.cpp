@@ -6,10 +6,7 @@
 #include "Application/Components/Resource/AnimatorComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
 
-//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-
-#include "../../../../../Engine/Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 
 void AnimationSystem::Init(Engine::ECS::World& a_world)
 {

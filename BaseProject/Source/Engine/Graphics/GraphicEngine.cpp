@@ -11,7 +11,6 @@
 #include "RenderContext/RenderContext.h"
 #include "RenderContext/ShapeDraw/ShapeDraw.h"
 #include "RenderGraph/RenderGraph.h"
-#include "../Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
 
 // オプション
@@ -55,7 +54,6 @@ namespace Engine::Graphics
 		// アニメーション用メモリ領域作成
 		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
 		auto* _CmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
-		Animation::AnimationMatrixManager::Instance().Init(_pDev, *_CmdList, 10000);
 
 		// 定数バッファ初期化
 		m_cbAmbient = {};

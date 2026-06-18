@@ -6,10 +6,7 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Resource/SkeletonPoseComponent.h"
 
-//#include "Engine/Resource/Manager/ModelManager/ModelManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-
-#include "../../../../../Engine/Animation/AnimationMatrixManager/AnimationMatrixManager.h"
 void SkinningSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ModelComponent, NodePoseComponent, SkeletonPoseComponent>(

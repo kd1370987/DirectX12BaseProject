@@ -667,9 +667,6 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem">
       <UniqueIdentifier>{f761e75d-2768-4759-9df6-aa52bb916d38}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Animation\AnimationMatirxManager">
-      <UniqueIdentifier>{f5baef63-6773-49bb-a0f5-3ba52f231c12}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Data\Mesh\MeshMetaData">
       <UniqueIdentifier>{d31723c8-1e5e-4316-998b-dccb2b81a6c1}</UniqueIdentifier>
     </Filter>
@@ -897,9 +894,6 @@
     </Filter>
     <Filter Include="Library\imnodes-master">
       <UniqueIdentifier>{f6d3c56e-2372-475c-a03e-3bb02b78d943}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Manager\InstancePoolManager">
-      <UniqueIdentifier>{27757521-b36c-4c81-9767-4d3f2f86d82d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem">
       <UniqueIdentifier>{d4094ff4-6543-49dd-b814-2e5229463f2e}</UniqueIdentifier>
@@ -1341,9 +1335,6 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.cpp">
-      <Filter>Source\Engine\Animation\AnimationMatirxManager</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.cpp">
       <Filter>Source\Engine\Resource\Data\Mesh\MeshMetaData</Filter>
     </ClCompile>
@@ -1460,9 +1451,6 @@
     </ClCompile>
     <ClCompile Include="..\Library\imnodes-master\imnodes.cpp">
       <Filter>Library\imnodes-master</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePoolManager.cpp">
-      <Filter>Source\Engine\Resource\Manager\InstancePoolManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
@@ -2084,9 +2072,6 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Animation\AnimationMatrixManager\AnimationMatrixManager.h">
-      <Filter>Source\Engine\Animation\AnimationMatirxManager</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.h">
       <Filter>Source\Engine\Resource\Data\Mesh\MeshMetaData</Filter>
     </ClInclude>
@@ -2239,9 +2224,6 @@
     </ClInclude>
     <ClInclude Include="..\Library\imnodes-master\imnodes.h">
       <Filter>Library\imnodes-master</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Manager\InstancePoolManager\InstancePoolManager.h">
-      <Filter>Source\Engine\Resource\Manager\InstancePoolManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
