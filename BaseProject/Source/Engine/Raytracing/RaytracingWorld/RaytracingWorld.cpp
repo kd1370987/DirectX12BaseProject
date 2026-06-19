@@ -115,9 +115,6 @@ namespace Engine::Raytracing
 		m_materialVec.clear();
 		m_materialVec.resize(_maxInstanceNum);
 		m_materialDataBuffer.Create(_pDevice, *_pCmdList, _maxInstanceNum, m_materialVec.data());
-
-		// TLAS、構造体バッファはGPU操作が必要なため
-		//D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
 	}
 
 	void RayWorld::Release()

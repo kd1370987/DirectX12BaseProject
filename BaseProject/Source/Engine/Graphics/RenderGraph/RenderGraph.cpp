@@ -172,7 +172,28 @@ namespace Engine::Graphics
 			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		);
-		m_upRGResourceManager->RegisterTemporal(
+		//m_upRGResourceManager->RegisterTemporal(
+		//	"AffterDLShadowTempAccumu",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		 m_upRGResourceManager->Register(
+			"ShadowHistory_A",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			_winWidth,
+			_winHeight,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		);
+		 m_upRGResourceManager->Register(
+			"ShadowHistory_B",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			_winWidth,
+			_winHeight,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		);
+		 m_upRGResourceManager->Register(
 			"AffterDLShadowTempAccumu",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
 			_winWidth,

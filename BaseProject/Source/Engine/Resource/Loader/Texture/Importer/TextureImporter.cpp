@@ -9,12 +9,7 @@
 void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBuffer& a_uploadBuffer)
 {
 	// コマンドリストを取得
-	//auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 	auto* _pCmdList = Engine::Resource::ResourceManager::Instance().GetCmdList();
-
-	// コマンドキューリセット
-	//Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
-	//Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 
 	for (UINT _i = 0; _i < a_uploadBuffer.subresourceCount; ++_i)
 	{
@@ -42,8 +37,7 @@ void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBu
 		);
 	}
 
-	// コピー操作はGPUに対する命令なので、実行するにはコマンドリストをクローズして
-	// コマンドキューに積む必要がある
+	// 処理待ち用バリア
 	D3D12_RESOURCE_BARRIER _barrier = {};
 	_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -51,20 +45,7 @@ void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBu
 	_barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-
 	_pCmdList->NGet()->ResourceBarrier(1, &_barrier);
-	//_pCmdList->Close();
-
-	//// コピーコマンドキューに積む
-	//ID3D12CommandList* _ppCommandLists[] = { _pCmdList->NGet()};
-	//auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
-	//_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
-
-	//// 終了待ち
-	//Engine::Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
-	//Engine::Resource::ResourceManager::Instance().WaitRender();
-	//Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
-	//Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
 }
 
 Engine::Resource::UploadBuffer CreateUploadHeap(ID3D12Device* a_pDevice, const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)

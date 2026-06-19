@@ -153,7 +153,7 @@ namespace Engine::Graphics
 		auto _idx = Resource::GetIndex(a_id);
 		if (m_resourceVec[_idx].isTemporal)
 		{
-			// ★ Read(SRV等)なら過去、Write(UAV/RTV等)なら現在を返す
+			// Read(SRV等)なら過去、Write(UAV/RTV等)なら現在を返す
 			return m_resourceVec[_idx].texHandle[isRead ? (1 - m_temporalIndex) : m_temporalIndex];
 		}
 		else
@@ -184,7 +184,7 @@ namespace Engine::Graphics
 		auto& _res = RefRes(a_id);
 		if (_res.isTemporal)
 		{
-			// ★ ステートも過去用と現在用ですり替える
+			// ステートも過去用と現在用ですり替える
 			return _res.currentState[isRead ? (1 - m_temporalIndex) : m_temporalIndex];
 		}
 		else
