@@ -63,7 +63,7 @@ namespace Engine::Resource
 		float m_lifeTimeMax = 2.0f;
 
 		// 最大パーティクル発生数
-		int m_capacity = 0;
+		int m_capacity = 10000;
 
 		// 発生レート / s
 		int m_emissionRate = 0;

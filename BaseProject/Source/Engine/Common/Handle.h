@@ -75,3 +75,19 @@ namespace Engine
 		bool IsValid() const { return startIndex != std::numeric_limits<uint32_t>::max() && count > 0; }
 	};
 }
+// ========================================================================================================
+// std::map系のキーにするためハッシュ関数を登録
+// ========================================================================================================
+namespace std
+{
+	// ハンドルのハッシュ登録
+	template<typename T>
+	struct hash<Engine::Handle<T>>
+	{
+		std::size_t operator()(const Engine::Handle<T>& a_handle) const
+		{
+			// 内部のidをハッシュ関数に投げる
+			return std::hash<uint32_t>()(a_handle.id);
+		}
+	};
+}

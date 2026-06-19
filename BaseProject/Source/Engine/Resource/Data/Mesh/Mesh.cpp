@@ -27,7 +27,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 	
 	// コマンドキューリセット
 	auto* _pCmd = Engine::Resource::ResourceManager::Instance().GetCmdList();
-	Engine::Resource::ResourceManager::Instance().CmdQueueReset();
+//	Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 
 	m_opRasterData->indexBuffer.CreateSRV(_pDevice);
 	m_opRasterData->vertexBuffer.CreateSRV(_pDevice);
@@ -44,17 +44,17 @@ bool Engine::Resource::Mesh::CreateFloat(
 		a_face
 	);
 
-	// コマンドリストをクローズ
-	Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet()->Close();
+	//// コマンドリストをクローズ
+	//Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet()->Close();
 
-	// コマンドキューに積む
-	ID3D12CommandList* _ppCommandLists[] = { Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet() };
-	auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
-	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
+	//// コマンドキューに積む
+	//ID3D12CommandList* _ppCommandLists[] = { Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet() };
+	//auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
+	//_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
-	// 終了待ち
-	ResourceManager::Instance().SignalFence(_cmdQueue);
-	ResourceManager::Instance().WaitRender();
+	//// 終了待ち
+	//ResourceManager::Instance().SignalFence(_cmdQueue);
+	//ResourceManager::Instance().WaitRender();
 	return true;
 }
 

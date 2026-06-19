@@ -48,6 +48,6 @@ namespace Engine::Particle
 		D3D12::RWStructuredBuffer<uint32_t> m_counterBuffer;
 
 		// 最大容量 (アセットから取得したキャパシティ) 
-		UINT m_maxCapacity = 0;
+		UINT m_maxCapacity = 10000;
 	};
 }

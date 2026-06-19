@@ -13,13 +13,13 @@ namespace Engine
 	{
 		class RayEngine;
 	}
+	namespace Particle
+	{
+		class ParticleBufferManager;
+	}
 	namespace Time
 	{
 		class TimeManager;
-	}
-	namespace Resource
-	{
-		//class AssetDatabase;
 	}
 	namespace Graphics
 	{
@@ -97,11 +97,10 @@ namespace Engine
 		// クラス
 		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;						// ウィンドウクラス
 		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;					// 時間管理クラス
-		//std::unique_ptr<Resource::AssetDatabase> m_upAssetDatabase = nullptr;			// アセットのメタ管理
 		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス
 		std::unique_ptr<D3D12::PipelineStateManager> m_upPipelineStateManager = nullptr;// パイプラインステート管理
 		std::unique_ptr<Collision::CollisionWorld> m_upCollisionWorld = nullptr;		// 当たり判定用ワールド
-
+		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;	// パーティクルマネージャー
 		// エンジン設定
 		EngineConfig m_config = {};
 

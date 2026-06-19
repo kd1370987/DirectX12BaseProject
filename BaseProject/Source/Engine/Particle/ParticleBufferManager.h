@@ -16,7 +16,10 @@ namespace Engine::Particle
 		/// <summary>
 		/// 初期化
 		/// </summary>
-		void Init();
+		void Init(
+			ID3D12Device* a_pDevice,
+			ID3D12GraphicsCommandList* a_pCmdList
+		);
 
 		/// <summary>
 		/// フレームの開始に呼ぶ
@@ -31,16 +34,24 @@ namespace Engine::Particle
 		/// <param name="a_emitterData">個数やデータ</param>
 		void RequestEmit(const Handle<Resource::ParticlesAsset>& a_handle,const EmitterData& a_emitterData);
 
+		/// <summary>
+		/// パーティクルのバッファを取得
+		/// </summary>
+		/// <returns></returns>
 		const std::unordered_map<Handle<Resource::ParticlesAsset>, std::unique_ptr<GPUParticlePool>>& GetPoolMap() const;
 
-		const std::vector<EmitterData>& GetRequests(const Engine::GUID& a_assetGuid) const;
+		/// <summary>
+		/// 現在たまっている生成命令をパーティクルを指定して取得
+		/// </summary>
+		/// <param name="a_assetHandle"></param>
+		std::span <const EmitterData> GetRequests(const Handle<Resource::ParticlesAsset>& a_assetHandle) const;
 
 	private:
-		// アセット(GUID) と 1対1 で紐づくバッファ群のマップ
-		std::unordered_map<Engine::GUID, std::unique_ptr<GPUParticlePool>> m_pools;
+		// アセットと 1対1 で紐づくバッファ群のマップ
+		std::unordered_map<Handle<Resource::ParticlesAsset>, std::unique_ptr<GPUParticlePool>> m_pools;
 
-		// 種類(GUID) ごとの、今フレームの発生リクエスト（毎フレームクリアされる）
-		std::unordered_map<Engine::GUID, std::vector<EmitterData>> m_emitRequests;
+		// 種類ごとの、今フレームの発生リクエスト（毎フレームクリアされる）
+		std::unordered_map<Handle<Resource::ParticlesAsset>, std::vector<EmitterData>> m_emitRequests;
 
 	};
 }

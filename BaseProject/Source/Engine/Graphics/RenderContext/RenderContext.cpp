@@ -31,7 +31,7 @@ namespace Engine::Graphics
 {
 	void RenderContext::Init(const RenderContextDesc& a_desc)
 	{
-		D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+		// D3D12::D3D12Wrapper::Instance().CommandQueueReset();
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
 
 		// デバイスのキャッシュ
@@ -56,7 +56,7 @@ namespace Engine::Graphics
 
 
 		// 構造体バッファ作成のためGPU操作を実行
-		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
+		//D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
 
 		UINT _heapSize = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize();
 

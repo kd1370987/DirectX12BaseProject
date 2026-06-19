@@ -58,6 +58,12 @@ namespace Engine::Resource
 		_archi.Field("m_capacity", m_capacity);
 		_archi.Field("m_emissionRate", m_emissionRate);
 
+		// キャパシティが0だとリソース生成ができないので最低値を入れておく
+		if (m_capacity == 0)
+		{
+			m_capacity = 1000;
+		}
+
 		// テクスチャのハンドル取得
 		m_texHandle = TextureLoader::Load(m_texGUID);
 	}

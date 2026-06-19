@@ -14,7 +14,7 @@ void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBu
 
 	// コマンドキューリセット
 	//Engine::D3D12::D3D12Wrapper::Instance().CommandQueueReset();
-	Engine::Resource::ResourceManager::Instance().CmdQueueReset();
+	//Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 
 	for (UINT _i = 0; _i < a_uploadBuffer.subresourceCount; ++_i)
 	{
@@ -53,16 +53,16 @@ void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBu
 	_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
 	_pCmdList->NGet()->ResourceBarrier(1, &_barrier);
-	_pCmdList->Close();
+	//_pCmdList->Close();
 
-	// コピーコマンドキューに積む
-	ID3D12CommandList* _ppCommandLists[] = { _pCmdList->NGet()};
-	auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
-	_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
+	//// コピーコマンドキューに積む
+	//ID3D12CommandList* _ppCommandLists[] = { _pCmdList->NGet()};
+	//auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
+	//_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
-	// 終了待ち
-	Engine::Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
-	Engine::Resource::ResourceManager::Instance().WaitRender();
+	//// 終了待ち
+	//Engine::Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
+	//Engine::Resource::ResourceManager::Instance().WaitRender();
 	//Engine::D3D12::D3D12Wrapper::Instance().SignalRenderFence();
 	//Engine::D3D12::D3D12Wrapper::Instance().WaitRender();
 }

@@ -14,6 +14,8 @@
 
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
+#include "Engine/Particle/ParticleBufferManager.h"
+
 #include "Application/App.h"
 
 #include "Collision/CollisionWorld.h"
@@ -77,6 +79,9 @@ namespace Engine
 			return;
 		}
 
+		// コマンドリセット
+		D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+
 		// ディスクリプタヒープテーブルマネージャーの初期化
 		if (!D3D12::DescriptorHeapManager::Instance().Init(100, 4000,100,100,10))
 		{
@@ -89,6 +94,10 @@ namespace Engine
 			D3D12::D3D12Wrapper::Instance().GetDevice(),
 			D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue()
 		);
+
+		// GPU実行
+		// コマンドキューリセット
+		Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 
 		// パイプラインステート・ルートシグネチャ管理
 		m_upPipelineStateManager = std::make_unique<D3D12::PipelineStateManager>();
@@ -109,6 +118,14 @@ namespace Engine
 		_geDesc.pPipelineStateManager = m_upPipelineStateManager.get();
 		m_upGraphicsEngine->Init(_geDesc);
 
+		// パーティクルブッファの生成
+		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
+		m_upParticleManager = std::make_unique<Particle::ParticleBufferManager>();
+		m_upParticleManager->Init(_pDev,_pCmdList->NGet());
+
+
+
 		// レイトレワールド構築
 		Engine::Raytracing::RayEngine::Instance().CommitWorld();
 
@@ -124,6 +141,21 @@ namespace Engine
 		// コリジョンワールド構築
 		m_upCollisionWorld = std::make_unique<Collision::CollisionWorld>();
 		m_upCollisionWorld->Clear();
+
+		// コマンドリストをクローズ
+		Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet()->Close();
+
+		// コマンドキューに積む
+		ID3D12CommandList* _ppCommandLists[] = { Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet() };
+		auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
+		_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
+
+		// 
+		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
+
+		// 終了待ち
+		Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
+		Resource::ResourceManager::Instance().WaitRender();
 	}
 
 	void MainEngine::Release()
@@ -198,9 +230,12 @@ namespace Engine
 
 		// 入力更新
 		Input::InputManager::Instance().Update();
-
+		// GPU実行
+		// コマンドキューリセット
+		Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 		// リソース
-		Resource::ResourceManager::Instance().Update();
+		Resource::ResourceManager::Instance().Update();		// コピーバッファの更新
+		m_upParticleManager->BeginFrame();					// パーティクルデータの更新
 
 		return true;
 	}
@@ -270,6 +305,18 @@ namespace Engine
 		Editor::MainEditor::Instance().EndWatch("EditorPhase");
 
 		Editor::MainEditor::Instance().StartWatch("EndFramePhase");
+
+		// コマンドリストをクローズ
+		Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet()->Close();
+
+		// コマンドキューに積む
+		ID3D12CommandList* _ppCommandLists[] = { Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet() };
+		auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
+		_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
+
+		// 終了待ち
+		Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
+		Resource::ResourceManager::Instance().WaitRender();
 
 		// 描画終了
 		D3D12::D3D12Wrapper::Instance().EndFrame(_winOp.isVsync);

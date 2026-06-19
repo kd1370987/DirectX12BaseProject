@@ -91,7 +91,7 @@ namespace Engine::Raytracing
 	void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
 	{	
 		// GPU実行のためキューリセット
-		D3D12::D3D12Wrapper::Instance().CommandQueueReset();
+		//D3D12::D3D12Wrapper::Instance().CommandQueueReset();
 		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
 		
@@ -117,7 +117,7 @@ namespace Engine::Raytracing
 		m_materialDataBuffer.Create(_pDevice, *_pCmdList, _maxInstanceNum, m_materialVec.data());
 
 		// TLAS、構造体バッファはGPU操作が必要なため
-		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
+		//D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
 	}
 
 	void RayWorld::Release()

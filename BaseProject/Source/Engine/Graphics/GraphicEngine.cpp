@@ -51,10 +51,6 @@ namespace Engine::Graphics
 		m_upRenderGraph = std::make_unique<RenderGraph>();
 		m_upRenderGraph->Init(m_pPipelineStateManager);
 
-		// アニメーション用メモリ領域作成
-		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
-		auto* _CmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
-
 		// 定数バッファ初期化
 		m_cbAmbient = {};
 		m_cbAmbient.ammbientColorScale = { 0,0,0 };
