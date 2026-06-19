@@ -36,7 +36,8 @@ struct ParticlesComponent
 	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<ParticlesComponent*>(a_ptr);
-		_comp->particleGUID = Engine::JSONHelper::GetValue("particlleGUID", a_json, Engine::DefaultGUID);
+		Engine::GUID _defaultGUID;
+		_comp->particleGUID = Engine::JSONHelper::GetValue("particlleGUID", a_json, _defaultGUID);
 		_comp->posOffset = Engine::JSONHelper::GetValue("posOffset", a_json, DirectX::XMFLOAT3({ 0,0,0 }));
 		_comp->rotation = Engine::JSONHelper::GetValue("rotation", a_json, DirectX::XMFLOAT3({ 0,0 ,0 }));
 		_comp->scale = Engine::JSONHelper::GetValue("scale", a_json, DirectX::XMFLOAT2({ 0,0 }));
@@ -47,6 +48,6 @@ struct ParticlesComponent
 	{
 		using namespace Engine;
 		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_data);
-
+		Editor::Helper::DrawHandle(_comp.particlesAssetHandle);
 	}
 };

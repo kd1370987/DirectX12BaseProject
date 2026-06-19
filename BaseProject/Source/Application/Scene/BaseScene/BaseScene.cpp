@@ -44,6 +44,7 @@
 #include "../../Components/Hierarchy/ExoskeletonAttachementComponent.h"
 #include "../../Components/Transform/PreviousWorldMatrixComponent.h"
 #include "../../Components/Charactor/Robot/BoostComponent.h"
+#include "../../Components/Resource/ParticlesComponent.h"
 
 // システム関連
 #include "../../Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -81,6 +82,7 @@
 #include "../../Systems/Update/PreUpdate/PlayerIntentSystem/PlayerIntentSystem.h"
 #include "../../Systems/Update/Animation/AnimationStateSystem/AnimationStateSystem.h"
 #include "../../Systems/Update/Update/Move/RobotBoostSystem/RobotBoostSystem.h"
+#include "../../Systems/Draw/Draw/EmittParticlesSystem/EmittParticlesSystem.h"
 
 
 BaseScene::BaseScene()
@@ -195,6 +197,7 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<MoveIntentComponent>("MoveIntentComponent");
 	m_upWorld->RegisterComponent<PreviousWorldMatrixComponent>("PreviousWorldMatrixComponent");
 	m_upWorld->RegisterComponent<BoostComponent>("BoostComponent");
+	m_upWorld->RegisterComponent<ParticlesComponent>("ParticlesComponent");
 }
 
 void BaseScene::RegistrySystem()
@@ -243,6 +246,7 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<AnimationOptionalDrawSystem>();
 	m_upWorld->RegisterSystem<ScreenUIDrawSystem>();
 	m_upWorld->RegisterSystem<RegisterRayWorldSystem>();
+	m_upWorld->RegisterSystem<EmittParticleSystem>();
 
 	m_upWorld->RegisterSystem<AnimationMatrixFreeSystem>();
 

@@ -191,7 +191,8 @@ namespace Engine::JSONHelper
 			{
 				_guidStr = val.get<std::string>();
 				Engine::GUID _guid;
-				return _guid.FromString(_guidStr);
+				_guid.FromString(_guidStr);
+				return _guid;
 			}
 			// 条件に合うデータでなければデフォルト値を返す
 			return a_default;

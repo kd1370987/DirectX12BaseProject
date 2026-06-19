@@ -366,6 +366,14 @@ namespace Engine
 	{
 		return m_upCollisionWorld.get();
 	}
+	const Particle::ParticleBufferManager* MainEngine::GetParticleManager() const
+	{
+		return m_upParticleManager.get();
+	}
+	Particle::ParticleBufferManager* MainEngine::RefParticleManager()
+	{
+		return m_upParticleManager.get();
+	}
 	void MainEngine::RegisterDeferredResource(std::function<void()> a_releaseFunc)
 	{
 		m_releaseQueues[D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex()].push_back(std::move(a_releaseFunc));

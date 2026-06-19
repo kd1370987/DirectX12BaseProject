@@ -949,6 +949,9 @@
     <Filter Include="Source\Engine\Particle\GPU\GPUParticlePool">
       <UniqueIdentifier>{229201f6-2891-4b39-9ee9-fcd39d23ca33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem">
+      <UniqueIdentifier>{3bc7d0d3-feee-45e2-84f7-774902bbd308}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1502,6 +1505,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Particle\ParticleBufferManager.cpp">
       <Filter>Source\Engine\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\Draw\EmittParticlesSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2326,6 +2332,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Particle\ParticleBufferManager.h">
       <Filter>Source\Engine\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.h">
+      <Filter>Source\Application\Systems\Draw\Draw\EmittParticlesSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -81,6 +81,10 @@ namespace Engine
 		const EngineConfig& GetEngineConfig() const { return m_config; }
 		EngineConfig& RefEngineConfig() { return m_config; }
 
+		// パーティクル
+		const Particle::ParticleBufferManager* GetParticleManager() const ;
+		Particle::ParticleBufferManager* RefParticleManager();
+
 		// ============================================================================
 		// 遅延開放処理
 		// ============================================================================

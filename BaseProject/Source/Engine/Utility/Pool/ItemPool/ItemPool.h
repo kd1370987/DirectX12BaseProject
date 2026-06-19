@@ -117,7 +117,8 @@ namespace Engine::Pool
 		}
 
 		// ハンドルを返す
-		return { _index,m_generations[_index] };
+		Handle<T> _res(_index, m_generations[_index]);
+		return _res;
 	}
 	template<typename T>
 	inline void ItemPool<T>::Remove(const Handle<T>& a_handle)

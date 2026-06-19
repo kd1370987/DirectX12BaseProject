@@ -19,6 +19,14 @@ namespace Engine::Editor::Helper
 		float a_width, float a_height,
 		float a_minSize = 100,float a_maxSize = 500
 	);
+
+	template<typename T>
+	void DrawHandle(const Handle<T>& a_handle)
+	{
+		ImGui::Text("Handle : id = %d", static_cast<int>(a_handle.id));
+		ImGui::Text("index = %d", static_cast<int>(a_handle.GetIndex()));
+		ImGui::Text("generation = %d",static_cast<int>(a_handle.GetGeneration()));
+	}
 }
 
 namespace Engine::Editor::Node
