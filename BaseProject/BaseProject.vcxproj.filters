@@ -1500,6 +1500,9 @@
     <ClCompile Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp">
       <Filter>Source\Engine\Particle\GPU\GPUParticlePool</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Particle\ParticleBufferManager.cpp">
+      <Filter>Source\Engine\Particle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -2320,6 +2323,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Particle\Core\ParticleData.h">
       <Filter>Source\Engine\Particle\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Particle\ParticleBufferManager.h">
+      <Filter>Source\Engine\Particle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

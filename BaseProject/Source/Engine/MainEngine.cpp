@@ -214,7 +214,15 @@ namespace Engine
 
 	void MainEngine::BeginDraw()
 	{
-		// 描画開始
+		// 今から使うフレームの登録されているファンクションを実行して空にする
+		UINT _currentFrameIdx = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+		for (auto& _func : m_releaseQueues[_currentFrameIdx])
+		{
+			_func();
+		}
+		m_releaseQueues[_currentFrameIdx].clear();
+
+		// 描画開始 : ここでフレームインデックスが更新される
 		D3D12::D3D12Wrapper::Instance().BeginFrame();
 
 		// 描画フレームリソース
@@ -310,6 +318,10 @@ namespace Engine
 	Collision::CollisionWorld* MainEngine::RefCollisionWorld()
 	{
 		return m_upCollisionWorld.get();
+	}
+	void MainEngine::RegisterDeferredResource(std::function<void()> a_releaseFunc)
+	{
+		m_releaseQueues[D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex()].push_back(std::move(a_releaseFunc));
 	}
 	void MainEngine::InitializeAssetDatabase()
 	{

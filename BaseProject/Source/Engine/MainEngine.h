@@ -81,6 +81,12 @@ namespace Engine
 		const EngineConfig& GetEngineConfig() const { return m_config; }
 		EngineConfig& RefEngineConfig() { return m_config; }
 
+		// ============================================================================
+		// 遅延開放処理
+		// ============================================================================
+		// 遅延開放したい処理を登録
+		void RegisterDeferredResource(std::function<void()> a_releaseFunc);
+
 	private:
 
 		// アセットマネージャーの初期化
@@ -100,7 +106,7 @@ namespace Engine
 		EngineConfig m_config = {};
 
 		// フレーム分のごみ箱を用意する
-		std::vector<std::function<void()>> m_releaseQueue
+		std::vector<std::function<void()>> m_releaseQueues[CPU_FRAME_COUNT];
 
 	// シングルトン
 	private:

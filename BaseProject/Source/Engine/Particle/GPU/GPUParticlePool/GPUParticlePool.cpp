@@ -1,5 +1,7 @@
 ﻿#include "GPUParticlePool.h"
 
+#include "../../../MainEngine.h"
+
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Particle
@@ -24,18 +26,18 @@ namespace Engine::Particle
 		uint32_t _initCounter = m_maxCapacity;
 
 		// アップロードバッファを作成してコピーする
-		D3D12::DynamicBuffer _deadListUpload = {};
-		D3D12::DynamicBuffer _counterUpload = {};
+		std::shared_ptr<D3D12::DynamicBuffer> _spDeadListUpload = std::make_shared<D3D12::DynamicBuffer>();
+		std::shared_ptr<D3D12::DynamicBuffer> _spCounterUpload = std::make_shared<D3D12::DynamicBuffer>();
 
 		D3D12::DynamicBufferDesc _deadDesc = { m_maxCapacity, sizeof(uint32_t), D3D12_RESOURCE_FLAG_NONE };
 		D3D12::DynamicBufferDesc _countDesc = { 1, sizeof(uint32_t), D3D12_RESOURCE_FLAG_NONE };
 
-		_deadListUpload.Create(a_pDevice, _deadDesc);
-		_counterUpload.Create(a_pDevice, _countDesc);
+		_spDeadListUpload->Create(a_pDevice, _deadDesc);
+		_spCounterUpload->Create(a_pDevice, _countDesc);
 
 		// データを書き込む
-		_deadListUpload.UpdateData(_initDeadList.data(), m_maxCapacity * sizeof(uint32_t));
-		_counterUpload.UpdateData(&_initCounter, sizeof(uint32_t));
+		_spDeadListUpload->UpdateData(_initDeadList.data(), m_maxCapacity * sizeof(uint32_t));
+		_spCounterUpload->UpdateData(&_initCounter, sizeof(uint32_t));
 
 		// コピー前のリソースバリア (DEFAULTヒープを COPY_DEST にする)
 		m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
@@ -44,12 +46,12 @@ namespace Engine::Particle
 		// コピーコマンドの発行
 		a_pCmdList->CopyBufferRegion(
 			m_deadList.GetResource(), 0,
-			_deadListUpload.GetResource(), 0,
+			_spDeadListUpload->GetResource(), 0,
 			m_maxCapacity * sizeof(uint32_t)
 		);
 		a_pCmdList->CopyBufferRegion(
 			m_counterBuffer.GetResource(), 0,
-			_counterUpload.GetResource(), 0,
+			_spCounterUpload->GetResource(), 0,
 			sizeof(uint32_t)
 		);
 
@@ -57,10 +59,7 @@ namespace Engine::Particle
 		m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		m_counterBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-		// 遅延開放のためアップロードヒープをリソースマネージャーに預ける
-		Resource::ResourceManager::Instance().RegisterUploadBuffer(_deadListUpload.GetResource());
-		Resource::ResourceManager::Instance().RegisterUploadBuffer(_counterUpload.GetResource());
-
-
+		// 解放処理を登録
+		MainEngine::Instance().RegisterDeferredResource([_spDeadListUpload,_spCounterUpload](){});
 	}
 }
