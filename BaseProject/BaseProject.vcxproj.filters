@@ -952,6 +952,21 @@
     <Filter Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem">
       <UniqueIdentifier>{3bc7d0d3-feee-45e2-84f7-774902bbd308}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect">
+      <UniqueIdentifier>{7ce6ea58-2966-4581-b8c0-7e0080c68ad7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle">
+      <UniqueIdentifier>{c87305af-88d5-47a0-9d4b-10f81693ba94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Particle">
+      <UniqueIdentifier>{514e1cff-c9d7-4616-9afe-8a151d24a3cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Particle\UpdateParticleShader">
+      <UniqueIdentifier>{9d237a33-d1bc-4f4f-8264-ce5cb58dce05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Particle\EmitParticleShader">
+      <UniqueIdentifier>{739a94c6-a921-4e67-92f1-46a5f4a3405f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1508,6 +1523,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\EmittParticlesSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2336,6 +2354,9 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\EmittParticlesSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2484,6 +2505,12 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Denoise\Shadow\ShadowSpatialDenoiseShader.hlsl">
       <Filter>Asset\Shader\Compute\Denoise\Shadow</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Particle\EmitParticle\EmitParticleShaeder.hlsl">
+      <Filter>Asset\Shader\Compute\Particle\EmitParticleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Particle\UpdateParticle\UpdateParticleShader.hlsl">
+      <Filter>Asset\Shader\Compute\Particle\UpdateParticleShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
