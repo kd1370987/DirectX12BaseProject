@@ -3,24 +3,8 @@
 namespace Engine::D3D12
 {
 	// 前方宣言
-	class Device;
-	class CommandQueue;
-	class CommandAllocator;
-	class CommandList;
-	class Fence;
-	class SwapChain;
-	class Viewport;
-	class ScissorRectangle;
-
-	// フレーム数分必要なリソース
-	struct D3DFrameResource
-	{
-		// コマンドアロケーター
-		std::unique_ptr<CommandAllocator>	upCommandAllocator = nullptr;
-
-		// フレーム中にフェンスが見た最後の値記録
-		UINT64								fenceValue = 0;
-	};
+	class CommandContext;
+	class FrameManager;
 
 	class D3D12Wrapper
 	{
@@ -32,20 +16,12 @@ namespace Engine::D3D12
 		/// <param name="a_hWnd">ウィンドウハンドル</param>
 		/// <param name="a_windowWidth">ウィンドウ横</param>
 		/// <param name="a_windowHeight">ウィンドウ縦</param>
-		/// <returns>初期化成功 = true</returns>
-		bool Init(
-			const HWND& a_hWnd,
-			UINT a_windowWidth,
-			UINT a_windowHeight
-		);
-
-		// 描画に使うオブジェクトとその生成関数群
-		bool CreateRenderTarget();			// レンダーターゲットを生成
+		void Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight);
 
 		/// <summary>
 		/// 終了処理
 		/// </summary>
-		void Shutdown();
+		void Release();
 
 		/// <summary>
 		/// フレーム開始処理
@@ -56,136 +32,98 @@ namespace Engine::D3D12
 		/// フレーム終了処理
 		/// </summary>
 		/// <param name="a_isVsync">垂直同期有効化フラグ</param>
-		void EndFrame(
-			bool a_isVsync = true
-		);
-
-		void CommandQueueReset();
-
-		void SetViewportAndRect();
-
-		void WaitRender(UINT a_frameIndex);										// 描画完了を待つ処理
-		void WaitRender();										// 描画完了を待つ処理
-		void SignalRenderFence();								// フェンスにシグナルを送る処理
-
-		// ランタイム以外の初期化時などにGPU操作が必要なさいに使う関数
-		void CloseAndExecuteComdLists(CommandList* a_pCmdList);
-
-		void ResourceBarrier(
-			ID3D12Resource* a_pResource,
-			D3D12_RESOURCE_STATES a_before,
-			D3D12_RESOURCE_STATES a_after
-		);
+		void EndFrame(bool a_isVsync = true);
 
 		/// <summary>
-		/// レンダーターゲットをクリア
+		/// ランタイム以外の初期化時などにGPU操作が必要なさいに使う関数 
 		/// </summary>
-		/// <param name="a_renderTargetView">指定レンダーターゲット</param>
-		/// <param name="a_colorRGBA">レンダーターゲットのクリアカラー</param>
-		/// <param name="a_numRects">矩形数</param>
-		/// <param name="a_pRects">矩形ポインタ</param>
-		void ClearRenderTargetView(
-			D3D12_CPU_DESCRIPTOR_HANDLE a_renderTargetView,
-			DirectX::XMFLOAT4 a_colorRGBA = { 0.0f,0.0f,0.0f,1.0f },
-			UINT a_numRects = 0,
-			const D3D12_RECT* a_pRects = nullptr
-		);
+		/// <param name="a_pCmdList">コマンドを積んだリスト</param>
+		void CloseAndExecuteComdLists(GraphicsCommandList* a_pCmdList);
 
-
-		/// <summary>
-		/// 深度ステンシルビューをクリア
-		/// </summary>
-		/// <param name="a_depthStencilView">指定対象のハンドル</param>
-		/// <param name="a_clearFlags">クリアフラグ</param>
-		/// <param name="a_depth">奥(1.0)</param>
-		/// <param name="a_stencil">手前(0.0)</param>
-		/// <param name="a_numRects">矩形数</param>
-		/// <param name="a_pRects">矩形ポインタ</param>
-		void ClearDepthStencilView(
-			D3D12_CPU_DESCRIPTOR_HANDLE a_depthStencilView,
-			D3D12_CLEAR_FLAGS a_clearFlags = D3D12_CLEAR_FLAG_DEPTH,
-			float a_depth = 1.0f,
-			float a_stencil = 0.0f,
-			UINT a_numRects = 0,
-			const D3D12_RECT* a_pRects = nullptr
-		);
 
 		void SetBackBuffer();
+
+		/// <summary>
+		/// 命令の入ったコマンドリストを実行待ちに入れる
+		/// </summary>
+		void SubmitDirectCommandList(GraphicsCommandList* a_pCmdList);
+		void SubmitCopyCommandList(GraphicsCommandList* a_pCmdList);
+		void SubmitComputeCommandList(GraphicsCommandList* a_pCmdList);
+
+		/// <summary>
+		/// 一括で実行
+		/// </summary>
+		void ExecuteDirectCommandList();
+		void ExecuteCopyCommandList();
+		void ExecuteComputeCommandList();
+
+
 	public:
 		// ゲッター
-		IDXGIAdapter* GetDXGIAdapter();
-		ID3D12Device* GetDevice();									// デバイス
-		ID3D12Device5* GetDevice5();
-		ID3D12GraphicsCommandList* GetCommandList();	// コマンドリスト
-		ID3D12GraphicsCommandList4* GetCommandList4();	// コマンドリスト
-		CommandList* GetCmdList();
-		UINT CurrentBackBufferIndex();									// 現在のフレーム番号
-		UINT CurrentCPUFrameIndex();
-		IDXGISwapChain* GetSwapChain();
-		ID3D12Resource* GetCurrentRenderTarget();
-		ID3D12CommandQueue* GetCommandQueue();		// 描画キュー
-		ID3D12CommandQueue* GetCopyCommandQueue();	// コピーキュー
-		ID3D12CommandQueue* GetComputeCommandQueue();	// コンピュートキュー
+		Adapter* GetDXGIAdapter();						// GPU取得
+		Device* GetDevice();							// デバイス取得
+		UINT CurrentBackBufferIndex();					// 現在のバックバッファ番号
+		UINT CurrentCPUFrameIndex();					// 現在のフレーム番号
+		ID3D12Resource* GetCurrentBackBuffar();			// 現在のバックバッファを取得
+
+		CommandQueue* GetCommandQueue();			// 描画キュー
+		CommandQueue* GetCopyCommandQueue();		// コピーキュー
+		CommandQueue* GetComputeCommandQueue();		// コンピュートキュー
+
+		GraphicsCommandList* GetDirectCommandList();	// コマンドリスト取得
+		GraphicsCommandList* GetCopyCommandList();		// コマンドリスト取得
+		GraphicsCommandList* GetComputeCommandList();	// コマンドリスト取得
 
 	private:
-		// D3Dオブジェクト作成
+		// ---- D3Dオブジェクト作成 ----
+		// デバイス関係
 		void CreateDxgiFactory();	// DXGIファクトリ作成
 		void FindAdapter();			// GPU検索
 		void CreateDevice();		// デバイス作成
+
+		// バッファリング関係
+		void CreateSwapChain(HWND a_hWnd, UINT a_windowWidth, UINT a_windowHeight);	// スワップチェイン作成
+		void CreateViewPort(UINT a_windowWidth, UINT a_windowHeight);				// 描画用領域設定
+		void CreateScissorRect(UINT a_windowWidth, UINT a_windowHeight);			// 描画範囲作成
+
+		// バックバッファ作成
+		void CreateBackBuffer();
+
+		// コマンドコンテキスト
+		void CreateCommandContext();
+
+		// フレームマネージャー
+		void CreateFrameManager();
 
 	private:
 
 		// デバッグ用
 		bool m_isDebag = false;
 
-		// DirectX12のオブジェクト
-		ComPtr<Device>			m_cpDevice = nullptr;			// ドライバインスタンス
-		ComPtr<DXGIFactory>		m_cpFactory = nullptr;			// ファクトリー
-		ComPtr<DXGISwapChain>   m_cpSwapChain = nullptr;		// スワップチェイン
-		ComPtr<DXGIAdapter>     m_cpAdapter = nullptr;			// GPU実体
+		// デバイス関係
+		ComPtr<Device>						m_cpDevice = nullptr;				// ドライバインスタンス
+		ComPtr<Factory>					m_cpFactory = nullptr;				// ファクトリー
+		ComPtr<Adapter>					m_cpAdapter = nullptr;				// GPU実体
 
-		std::unique_ptr<Device>				m_upDevice = nullptr;		// デバイス
-		std::unique_ptr<SwapChain>			m_upSwapChain = nullptr;		// スワップチェイン
+		bool m_isDynamicResourceSupported = false;								// ダイナミックリソースが使えるかどうか
 
-		// コマンドキュー
-		std::unique_ptr<CommandQueue>		m_upCommandQueue = nullptr;					// メイン描画用
-		std::unique_ptr<CommandQueue>		m_upCopyCommandQueue = nullptr;				// コピー用
-		std::unique_ptr<CommandQueue>		m_upComputeBuildCommandQueue = nullptr;		// コンピュートビルド用
+		// バックバッファー関係
+		Resource::Texture					m_backBuffers[BACKBUFFER_COUNT];	// バックバッファ
+		ID3D12Resource* m_pCurrentRenderTarget = nullptr;						// 現在のバックバッファ
 
-		std::unique_ptr<CommandList>		m_upCommandList = nullptr;		// コマンドリスト
+		ComPtr<SwapChain>				m_cpSwapChain = nullptr;			// スワップチェイン
+		BOOL								m_isAllowTearing = FALSE;
+		UINT								m_currentBackBufferIndex = 0;		// 現在のバックバッファのインデックス
 
-		HANDLE								m_fenceEvent = nullptr;		// フェンスで使うイベント
-		std::unique_ptr<Fence>				m_upFence = nullptr;		// フェンス
-		UINT								m_currentFenceValue = 0;
+		Viewport							m_viewport;							// ビューポート
+		ScissorRect							m_scissorRect;						// シザー矩形
 
-		std::unique_ptr<Viewport>			m_upViewport = nullptr;			// ビューポート
-		std::unique_ptr<ScissorRectangle>	m_upScissorRect = nullptr;		// シザー矩形
-
-
-		// 現在の構成で対応しているかどうか
-		bool m_isDynamicResourceSupported = false;
-
-		// バックバッファー
-		Resource::Texture m_backBuffers[BACKBUFFER_COUNT];
-
-		// フレームリソース
-		D3DFrameResource m_frameResource[CPU_FRAME_COUNT] = {};
-
-		UINT             m_cpuFrameIndex = 0;
-		ID3D12Resource* m_currentRenderTarget = nullptr;
-
-	private:
-
-
-		// バックバッファー
-		Resource::Texture m_backBuffers[BACKBUFFER_COUNT];
-
-		// フレームリソース
-		D3DFrameResource m_frameResource[CPU_FRAME_COUNT] = {};
-
-		// 描画ループで使用するもの
-		UINT m_cpuFrameIndex = 0;								// 現在のフレームインデックス
-		ID3D12Resource* m_currentRenderTarget = nullptr;		// 現在のフレームのレンダーターゲット
+		// コマンド管理
+		std::unique_ptr<CommandContext> m_upCommandContext = nullptr;
+		GraphicsCommandList* m_pCmdList = nullptr;						// Beginで取得,Endで返却
+		
+		// フレーム管理
+		std::unique_ptr<FrameManager> m_upFrameManager = nullptr;
 
 	private:
 		// シングルトン

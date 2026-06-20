@@ -1,154 +1,63 @@
 ﻿#include "D3D12Wrapper.h"
 
-#include "../../D3D12/D3DObject/Device/Device.h"
-#include "../../D3D12/D3DObject/CommandQueue/CommandQueue.h"
-#include "../../D3D12/D3DObject/CommandAllocator/CommandAllocator.h"
-#include "../../D3D12/D3DObject/CommandList/CommandList.h"
-#include "../../D3D12/D3DObject/Fence/Fence.h"
-#include "Engine/D3D12/D3DObject/SwapChain/SwapChain.h"
-#include "Engine/D3D12/D3DObject/Viewport/Viewport.h"
-#include "Engine/D3D12/D3DObject/ScissorRectangle/ScissorRectangle.h"
+#include "../Command/CommandContext/CommandContext.h"
+#include "../Command/CommandPool/CommandPool.h"
+
+#include "../FrameManager/FrameManager.h"
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Resource/Loader/Texture/TextureLoader.h"
+
 namespace Engine::D3D12
 {
-	bool D3D12Wrapper::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
+	void D3D12Wrapper::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
 	{
 		// GPUリソース初期化
 		CreateDxgiFactory();	// ファクトリ作成
 		FindAdapter();			// アダプター検索	
 		CreateDevice();			// デバイス作成
 
+		// バッファリング関係
+		CreateSwapChain(a_hWnd,a_windowWidth,a_windowHeight);		// スワップチェイン作成
+		CreateViewPort(a_windowWidth, a_windowHeight);				// 描画用領域設定
+		CreateScissorRect(a_windowWidth, a_windowHeight);			// 描画範囲作成
 
-		// デバイス作成
-		m_upDevice = std::make_unique<Device>();
-		if (!m_upDevice->Init(false))
-		{
-			assert(0 && "デバイス&ファクトリの生成に失敗");
-			return false;
-		}
-		// コマンドキュー作成
-		m_upCommandQueue = std::make_unique<CommandQueue>();
-		if (!m_upCommandQueue->Create(
-			m_upDevice->GetDevice(),
-			D3D12_COMMAND_LIST_TYPE_DIRECT,
-			D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-			D3D12_COMMAND_QUEUE_FLAG_NONE
-		)
-			)
-		{
-			assert(0 && "コマンドキューの生成に失敗");
-			return false;
-		}
-		m_upCopyCommandQueue = std::make_unique<CommandQueue>();
-		if (!m_upCopyCommandQueue->Create(
-			m_upDevice->GetDevice(),
-			D3D12_COMMAND_LIST_TYPE_DIRECT,
-			D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-			D3D12_COMMAND_QUEUE_FLAG_NONE
-		))
-		{
-			assert(0 && "コピーコマンドキューの作成");
-			return false;
-		}
+		CreateBackBuffer();											// バックバッファ作成
 
-		// スワップチェイン作成
-		m_upSwapChain = std::make_unique<SwapChain>();
-		if (!m_upSwapChain->Create(
-			m_upDevice->GetDxgiFactory(),
-			a_hWnd,
-			a_windowWidth,
-			a_windowHeight,
-			m_upCommandQueue->Get()
-		)
-			)
-		{
-			assert(0 && "スワップチェインの生成に失敗");
-			return false;
-		}
+		// コマンドコンテキスト作成
+		CreateCommandContext();
 
-		// フレームリソース生成
-		for (size_t _i = 0; _i < static_cast<size_t>(CPU_FRAME_COUNT); ++_i)
-		{
-			// コマンドアロケーター作成
-			m_frameResource[_i].upCommandAllocator = std::make_unique<CommandAllocator>();
-			m_frameResource[_i].upCommandAllocator->Create(m_upDevice->GetDevice(), D3D12_COMMAND_LIST_TYPE_DIRECT);
+		// フレームマネージャー作成
+		CreateFrameManager();
 
-			// フェンスバリュー設定
-			m_frameResource[_i].fenceValue = 0;
-		}
-
-		// コマンドリスト作成
-		m_upCommandList = std::make_unique<CommandList>();
-		if (!m_upCommandList->Create(
-			m_upDevice->GetDevice(),
-			m_frameResource[m_cpuFrameIndex].upCommandAllocator->Get())
-			)
-		{
-			assert(0 && "コマンドリスト作成失敗");
-			return false;
-		}
-
-		// フェンス作成
-		m_upFence = std::make_unique<Fence>();
-		if (!m_upFence->Create(m_upDevice->GetDevice()))
-		{
-			assert(0 && "フェンス作成失敗");
-			return false;
-		}
-		m_frameResource[m_cpuFrameIndex].fenceValue++;
-
-		// 同期を行うときのイベントハンドラを作成する
-		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-
-
-		// ビューポートとシザー矩形を生成
-		m_upViewport = std::make_unique<Viewport>();
-		m_upViewport->Create(a_windowWidth, a_windowHeight);
-		m_upScissorRect = std::make_unique<ScissorRectangle>();
-		m_upScissorRect->Create(a_windowWidth, a_windowHeight);
-
-		// 初期化成功
-		return true;
+		Debug::Log("D3D12Wrapper作成");
 	}
 
-	void D3D12Wrapper::Shutdown()
+	void D3D12Wrapper::Release()
 	{
-		// フレーム終了待機処理
-		SignalRenderFence();
-		WaitRender(m_cpuFrameIndex);
+		// GPU待機処理
+		m_upFrameManager->Release();
 
-		// DX12オブジェクト解放
-		m_upSwapChain->Release();
-		m_upCommandQueue->Release();
-		m_upCopyCommandQueue->Release();
-		if(m_upComputeBuildCommandQueue)
-		{
-			m_upComputeBuildCommandQueue->Release();
-		}
-		m_upCommandList->Release();
-		m_upFence->Release();
+		// コマンドリスト解放
+		m_upCommandContext->RefDirectPool()->Release();
+		m_upCommandContext->RefCopyPool()->Release();
+		m_upCommandContext->RefComputePool()->Release();
 
 		// バックバッファ解放
+		m_pCurrentRenderTarget = nullptr;
 		for (auto& _tex : m_backBuffers)
 		{
 			_tex.Release();
 		}
 
-		// フレームリソース開放
-		for (auto& _fres : m_frameResource)
-		{
-			_fres.upCommandAllocator->Release();
-			_fres.upCommandAllocator.reset();
-		}
-
-		m_currentRenderTarget = nullptr;
-
+		// DX12オブジェクト解放
+		m_cpSwapChain.Reset();
+		m_cpAdapter.Reset();
+		m_cpFactory.Reset();
+		
 		// 最後にデバイスを解放
-		m_upDevice->Release();
-		m_upDevice.reset();
+		m_cpDevice.Reset();
 	}
 
 	//==================================================================================
@@ -159,26 +68,22 @@ namespace Engine::D3D12
 	void D3D12Wrapper::BeginFrame()
 	{
 		// バックバッファ番号更新
-		m_upSwapChain->Update();
+		m_currentBackBufferIndex = m_cpSwapChain->GetCurrentBackBufferIndex();
 
-		// フレームインデックス更新
-		m_cpuFrameIndex = (m_cpuFrameIndex + 1) % static_cast<UINT>(CPU_FRAME_COUNT);
+		// フレームインデックス更新 : GPU待機
+		m_upFrameManager->BeginFrame();
 
-		// 次のフレームの描画準備がまだであれば待機する
-		WaitRender(m_cpuFrameIndex);
-
-		// 現在のレンダーターゲットを更新
-		m_currentRenderTarget = m_backBuffers[m_upSwapChain->GetCurrentBackBufferIndex()].GetResource();
-
-		CommandQueueReset();
+		// コマンドリスト取得
+		m_pCmdList = GetDirectCommandList();
 
 		// ビューポートとシザー矩形を設定
-		m_upCommandList->SetViewports(1, &m_upViewport->Get());
-		m_upCommandList->SetScissorRects(1, &m_upScissorRect->Get());
+		m_pCmdList->RSSetViewports(1, &m_viewport);
+		m_pCmdList->RSSetScissorRects(1, &m_scissorRect);
 
 		// レンダーターゲットが使用可能になるまで待つ
-		m_upCommandList->ResourceBarrier(
-			m_currentRenderTarget,
+		ResourceBarrier(
+			m_pCmdList,
+			m_backBuffers[m_currentBackBufferIndex].GetResource(),
 			D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATE_RENDER_TARGET
 		);
@@ -186,42 +91,27 @@ namespace Engine::D3D12
 	void D3D12Wrapper::EndFrame(bool a_isVsync)
 	{
 		// レンダーターゲットに書き込みが終わるまで待つ
-		m_upCommandList->ResourceBarrier(
-			m_currentRenderTarget,
+		ResourceBarrier(
+			m_pCmdList,
+			m_backBuffers[m_currentBackBufferIndex].GetResource(),
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATE_PRESENT
 		);
 
-		// コマンドの記録を終了
-		m_upCommandList->Close();
+		// コマンドリストを実行待ちに追加
+		SubmitDirectCommandList(m_pCmdList);
 
-		// コマンドを実行
-		ID3D12CommandList* _ppCmdLists[] = { m_upCommandList->NGet() };
-		m_upCommandQueue->Get()->ExecuteCommandLists(1, _ppCmdLists);
+		// コマンドリストの実行
+		m_upCommandContext->RefDirectPool()->ExecutePendingLists();
+		//m_upCommandContext->RefCopyPool()->ExecutePendingLists();			// フレームを止めたくないからまた別で管理するかも
+		//m_upCommandContext->RefComputePool()->ExecutePendingLists();
+		m_pCmdList = nullptr;
 
-		SignalRenderFence();
+		// フレーム終了シグナル
+		m_upFrameManager->EndFrame(m_upCommandContext->RefDirectPool()->GetCommandQueue());
 
-		// スワップチェーンを切替
-		m_upSwapChain->Present(a_isVsync);
-	}
-
-	void D3D12Wrapper::CommandQueueReset()
-	{
-		// コマンドキューを初期化して命令をためる準備をする
-		m_frameResource[m_cpuFrameIndex].upCommandAllocator->Reset();
-		m_upCommandList->Reset(m_frameResource[m_cpuFrameIndex].upCommandAllocator->Get());
-	}
-
-	void D3D12Wrapper::SetViewportAndRect()
-	{
-		// ビューポートとシザー矩形を設定
-		m_upCommandList->SetViewports(1, &m_upViewport->Get());
-		m_upCommandList->SetScissorRects(1, &m_upScissorRect->Get());
-	}
-
-	IDXGIAdapter* D3D12Wrapper::GetDXGIAdapter()
-	{
-		return m_upDevice->GetAdapter();
+		// スワップチェイン切替
+		m_cpSwapChain->Present(a_isVsync ? 1 : 0, 0);
 	}
 
 	//==================================================================================
@@ -229,64 +119,66 @@ namespace Engine::D3D12
 	// ゲッター
 	// 
 	//==================================================================================
-	ID3D12Device* D3D12Wrapper::GetDevice()
+	// GPU取得
+	Adapter* D3D12Wrapper::GetDXGIAdapter()
 	{
-		// デバイスの取得
-		return m_upDevice->GetDevice();
+		return m_cpAdapter.Get();
 	}
-	ID3D12Device5* D3D12Wrapper::GetDevice5()
+
+	// デバイス取得
+	Device* D3D12Wrapper::GetDevice()
 	{
-		return m_upDevice->GetDevice();
+		return m_cpDevice.Get();
 	}
-	ID3D12GraphicsCommandList* D3D12Wrapper::GetCommandList()
-	{
-		// コマンドリストの取得
-		return m_upCommandList->NGet();
-	}
-	ID3D12GraphicsCommandList4* D3D12Wrapper::GetCommandList4()
-	{
-		return m_upCommandList->Get4();
-	}
-	CommandList* D3D12Wrapper::GetCmdList()
-	{
-		return m_upCommandList.get();
-	}
+		
+	// 現在のバックバッファ番号取得
 	UINT D3D12Wrapper::CurrentBackBufferIndex()
 	{
-		// 現在のフレーム番号取得
-		return m_upSwapChain->GetCurrentBackBufferIndex();
+		return m_currentBackBufferIndex;
 	}
 
+	// 現在のCPUフレーム番号取得
 	UINT D3D12Wrapper::CurrentCPUFrameIndex()
 	{
-		return m_cpuFrameIndex;
+		return m_upFrameManager->GetCPUFrameIndex();
 	}
 
-	IDXGISwapChain* D3D12Wrapper::GetSwapChain()
+	// バックバッファ取得
+	ID3D12Resource* D3D12Wrapper::GetCurrentBackBuffar()
 	{
-		return m_upSwapChain->Get();
+		return m_backBuffers[m_currentBackBufferIndex].GetResource();
 	}
 
-	ID3D12Resource* D3D12Wrapper::GetCurrentRenderTarget()
-	{
-		return m_backBuffers[m_upSwapChain->GetCurrentBackBufferIndex()].GetResource();
-	}
-
+	// コマンドキュー取得
 	ID3D12CommandQueue* D3D12Wrapper::GetCommandQueue()
 	{
-		return m_upCommandQueue->Get();
+		return m_upCommandContext->RefDirectPool()->GetCommandQueue();
 	}
-
 	ID3D12CommandQueue* D3D12Wrapper::GetCopyCommandQueue()
 	{
-		return m_upCopyCommandQueue->Get();
+		return m_upCommandContext->RefCopyPool()->GetCommandQueue();
 	}
-
 	ID3D12CommandQueue* D3D12Wrapper::GetComputeCommandQueue()
 	{
-		return m_upComputeBuildCommandQueue->Get();
+		return m_upCommandContext->RefComputePool()->GetCommandQueue();
 	}
 
+	// コマンドリスト取得
+	GraphicsCommandList* D3D12Wrapper::GetDirectCommandList()
+	{
+		return m_upCommandContext->RefDirectPool()->AcquireList(
+			m_cpDevice.Get(),
+			m_upFrameManager->GetCurrentAllocator()
+		);
+	}
+	GraphicsCommandList* D3D12Wrapper::GetCopyCommandList()
+	{
+		return nullptr;
+	}
+	GraphicsCommandList* D3D12Wrapper::GetComputeCommandList()
+	{
+		return nullptr;
+	}
 	//==================================================================================
 	// 
 	// D3D12オブジェクト作成
@@ -299,6 +191,7 @@ namespace Engine::D3D12
 		{
 			// デバッグレイヤーを有効化
 			_flgsDXGI |= DXGI_CREATE_FACTORY_DEBUG;
+			Debug::Log("DXGIFactoryのデバッグレイヤーON");
 		}
 		// DXGIファクトリの生成
 		HRESULT _hr = CreateDXGIFactory2(
@@ -307,7 +200,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "DXGIファクトリの生成に失敗");
+			Debug::ErrLog(FAILED(_hr), "DXGIファクトリの生成に失敗");
 			return;
 		}
 	}
@@ -409,9 +302,10 @@ namespace Engine::D3D12
 		}
 		if (FAILED(_hr))
 		{
-			assert(0 && "デバイスの生成に失敗");
+			Debug::ErrLog(FAILED(_hr), "デバイス生成に失敗");
 			return;
 		}
+		
 
 		// DynamicResourceBindが対応されているかのチェック
 		m_isDynamicResourceSupported = false;
@@ -425,11 +319,7 @@ namespace Engine::D3D12
 			bool _isTier3 = _featureOptions.ResourceBindingTier == D3D12_RESOURCE_BINDING_TIER_3;
 			m_isDynamicResourceSupported = _isTier3;
 		}
-
-		if (!m_isDynamicResourceSupported)
-		{
-			assert(0 && "動的リソースがサポートされていないGPUが選択されました。");
-		}
+		Debug::ErrLog(!m_isDynamicResourceSupported,"動的リソースがサポートされていないGPUが選択されました");
 
 		// デバッグ設定
 		if (m_isDebag)
@@ -439,154 +329,122 @@ namespace Engine::D3D12
 			{
 				_debDev->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
 			}
+			Debug::Log("Dviceのデバッグ設定ON");
 		}
 
 		return;
 	}
 
-	//==================================================================================
-	// 
-	// 描画に使う関数
-	// 
-	//==================================================================================
-	bool D3D12Wrapper::CreateRenderTarget()
+	void D3D12Wrapper::CreateSwapChain(HWND a_hWnd,UINT a_windowWidth, UINT a_windowHeight)
 	{
-		// レンダーターゲット
-		// キャンバスのようなもの。
-		// 描画先のバックバッファやテクスチャなどのリソースを指す
+		// テレイングチェック
+		m_cpFactory->CheckFeatureSupport(
+			DXGI_FEATURE_PRESENT_ALLOW_TEARING,
+			&m_isAllowTearing,
+			sizeof(m_isAllowTearing)
+		);
+
+		// 仕様書作成
+		DXGI_SWAP_CHAIN_DESC1 _desc = {};
+		_desc.Width = a_windowWidth;							// 横幅
+		_desc.Height = a_windowHeight;							// 高さ
+		_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;				// ピクセルのフォーマット
+		_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;	// バッファの用途（出力）
+		_desc.BufferCount = BACKBUFFER_COUNT;					// バッファ数(ダブルバッファリング、トリプルバッファリング)
+		_desc.SampleDesc.Count = 1;								// マルチサンプリング（なし）
+		_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;		// 切替の方式
+		_desc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+		_desc.Scaling = DXGI_SCALING_STRETCH;
+		_desc.Flags = m_isAllowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;	// 可変フレームレート
+
+		// キュー取得
+		auto* _pCmdQueue = m_upCommandContext->RefDirectPool()->GetCommandQueue();
+		Debug::ErrLog((!_pCmdQueue), "コマンドキューの取得に失敗");
+
+		// スワップチェインの作成
+		ComPtr<IDXGISwapChain1> _swapChain1;
+		HRESULT _hr = m_cpFactory->CreateSwapChainForHwnd(
+			_pCmdQueue,
+			a_hWnd,
+			&_desc,
+			nullptr,
+			nullptr,
+			&_swapChain1
+		);
+		Debug::ErrLog(FAILED(_hr), "スワップチェインの作成失敗");
+
+		// コピー
+		_swapChain1.As(&m_cpSwapChain);
+		_swapChain1.Reset();
+
+		// バックバッファ番号を取得
+		m_currentBackBufferIndex = m_cpSwapChain->GetCurrentBackBufferIndex();
+	}
+
+	void D3D12Wrapper::CreateViewPort(UINT a_windowWidth, UINT a_windowHeight)
+	{
+		// ビューポート
+		// ウィンドウに対してレンダリング結果をどう表示するかの設定
+		// 左上座標
+		m_viewport.TopLeftX = 0;
+		m_viewport.TopLeftY = 0;
+
+		// 幅・高さ
+		m_viewport.Width = a_windowWidth;
+		m_viewport.Height = a_windowHeight;
+
+		// 深度のマッピング範囲（奥行情報・Zバッファの値）
+		m_viewport.MinDepth = 0.0f;
+		m_viewport.MaxDepth = 1.0f;
+	}
+
+	void D3D12Wrapper::CreateScissorRect(UINT a_windowWidth, UINT a_windowHeight)
+	{
+		// シザー矩形
+		// ビューポートに表示された画像のどこからどこまでを画面に映し出すのかの設定
+		m_scissorRect.left = 0;
+		m_scissorRect.right = a_windowWidth;
+		m_scissorRect.top = 0;
+		m_scissorRect.bottom = a_windowHeight;
+	}
+
+	void D3D12Wrapper::CreateBackBuffer()
+	{
+		// バックバッファをスワップチェインから取得
 		for (UINT _i = 0; _i < BACKBUFFER_COUNT; ++_i)
 		{
-			// スワップチェインから描画するテクスチャリソースを取得
-			m_backBuffers[_i].Create(m_upSwapChain->Get(),_i);
-		}
-		return true;
-	}
-	void D3D12Wrapper::WaitRender(UINT a_frameIndex)
-	{
-		// 次のフレームの描画準備がまだであれば待機する
-		if (m_upFence->GetCompletedValue() < m_frameResource[a_frameIndex].fenceValue)
-		{
-			// 完了時にイベントを設定
-			if (!m_upFence->SetEventOnCompletion(m_frameResource[a_frameIndex].fenceValue, m_fenceEvent))
-			{
-				assert(0 && "フェンスイベントエラー");
-				return;
-			}
-
-			// 待機処理
-			if (WAIT_OBJECT_0 != WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE))
-			{
-				assert(0 && "待機処理エラー");
-				return;
-			}
+			m_backBuffers[_i].Create(m_cpSwapChain.Get(), _i);
 		}
 	}
 
-	void D3D12Wrapper::WaitRender()
-	{
-		// 次のフレームの描画準備がまだであれば待機する
-		if (m_upFence->GetCompletedValue() < m_frameResource[m_cpuFrameIndex].fenceValue)
-		{
-			// 完了時にイベントを設定
-			if (!m_upFence->SetEventOnCompletion(m_frameResource[m_cpuFrameIndex].fenceValue, m_fenceEvent))
-			{
-				assert(0 && "フェンスイベントエラー");
-				return;
-			}
 
-			// 待機処理
-			if (WAIT_OBJECT_0 != WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE))
-			{
-				assert(0 && "待機処理エラー");
-				return;
-			}
-		}
+	void D3D12Wrapper::CreateCommandContext()
+	{
+		m_upCommandContext = std::make_unique<CommandContext>();
+		m_upCommandContext->Init(m_cpDevice.Get());
 	}
 
-	void D3D12Wrapper::SignalRenderFence()
+	void D3D12Wrapper::CreateFrameManager()
 	{
-
-		m_currentFenceValue++;
-
-		m_upCommandQueue->Get()->Signal(
-			m_upFence->GetFence(),
-			m_currentFenceValue
-		);
-
-		m_frameResource[m_cpuFrameIndex].fenceValue = m_currentFenceValue;
+		m_upFrameManager = std::make_unique<FrameManager>();
+		m_upFrameManager->Init(m_cpDevice.Get());
 	}
 
-	void D3D12Wrapper::CloseAndExecuteComdLists(CommandList* a_pCmdList)
+	void D3D12Wrapper::CloseAndExecuteComdLists(GraphicsCommandList* a_pCmdList)
 	{
-		// コマンドリストを閉じる
-		a_pCmdList->Close();
-
-		// コマンドキューに積む
-		ID3D12CommandList* _ppCommandLists[] = { a_pCmdList->NGet() };
-		m_upCommandQueue->Get()->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
-
-		// 終了待ち
-		SignalRenderFence();
-		WaitRender();
-	}
-
-	void D3D12Wrapper::ResourceBarrier(
-		ID3D12Resource* a_pResource,
-		D3D12_RESOURCE_STATES a_before,
-		D3D12_RESOURCE_STATES a_after
-	)
-	{
-		// レンダーターゲットに書き込みが終わるまで待つ
-		m_upCommandList->ResourceBarrier(
-			a_pResource,
-			a_before,
-			a_after
-		);
-	}
-
-	void D3D12Wrapper::ClearRenderTargetView(
-		D3D12_CPU_DESCRIPTOR_HANDLE a_renderTargetView,
-		DirectX::XMFLOAT4 a_colorRGBA,
-		UINT a_numRects,
-		const D3D12_RECT* a_pRects
-	)
-	{
-		m_upCommandList->ClearRenderTargetView(
-			a_renderTargetView,
-			a_colorRGBA,
-			a_numRects,
-			a_pRects
-		);
-	}
-
-	void D3D12Wrapper::ClearDepthStencilView(
-		D3D12_CPU_DESCRIPTOR_HANDLE a_depthStencilView,
-		D3D12_CLEAR_FLAGS a_clearFlags,
-		float a_depth,
-		float a_stencil,
-		UINT a_numRects,
-		const D3D12_RECT* a_pRects
-	)
-	{
-		m_upCommandList->ClearDepthStencilView(
-			a_depthStencilView,
-			a_clearFlags,
-			a_depth,
-			a_stencil,
-			a_numRects,
-			a_pRects
-		);
+		// コマンドリストを実行
+		m_upCommandContext->RefDirectPool()->ExecuteImmediate(a_pCmdList);
 	}
 
 	void D3D12Wrapper::SetBackBuffer()
 	{
 		// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
 		auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
-			m_backBuffers[m_upSwapChain->GetCurrentBackBufferIndex()].GetRTV()
+			m_backBuffers[m_currentBackBufferIndex].GetRTV()
 		);
 
 		// レンダーターゲットを設定
-		m_upCommandList->OMSetRenderTargets(
+		m_pCmdList->OMSetRenderTargets(
 			1,
 			&_cpuHandle,
 			FALSE,
@@ -594,8 +452,42 @@ namespace Engine::D3D12
 		);
 
 		// バッファクリア
-		m_upCommandList->ClearRenderTargetView(_cpuHandle);		// レンダーターゲット
+		const float _clearColor[] = { 0.0f,0.0f,0.0f,1.0f };
+		m_pCmdList->ClearRenderTargetView(_cpuHandle, _clearColor, 0, nullptr);		// レンダーターゲット
 	}
+
+	void D3D12Wrapper::SubmitDirectCommandList(GraphicsCommandList* a_pCmdList)
+	{
+		m_upCommandContext->RefDirectPool()->SubmitList(a_pCmdList);
+	}
+
+	void D3D12Wrapper::SubmitCopyCommandList(GraphicsCommandList * a_pCmdList)
+	{
+		m_upCommandContext->RefCopyPool()->SubmitList(a_pCmdList);
+	}
+
+	void D3D12Wrapper::SubmitComputeCommandList(GraphicsCommandList * a_pCmdList)
+	{
+		m_upCommandContext->RefComputePool()->SubmitList(a_pCmdList);
+	}
+
+	void D3D12Wrapper::ExecuteDirectCommandList()
+	{
+		// 実行待ちリストを処理
+		m_upCommandContext->RefDirectPool()->ExecutePendingLists();
+
+		// 終了待機
+		m_upFrameManager->WaitForFrame();
+	}
+
+	void D3D12Wrapper::ExecuteCopyCommandList()
+	{}
+
+	void D3D12Wrapper::ExecuteComputeCommandList()
+	{
+		
+	}
+
 
 	D3D12Wrapper::D3D12Wrapper()
 	{}

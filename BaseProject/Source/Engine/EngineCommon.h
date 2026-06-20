@@ -18,10 +18,13 @@
 // 補助クラス・関数
 // 
 //==========================================================================================
+#include "Utility/Debug/DebugLog.h"				// デバッグ用ログ
 #include "Utility/GUID/GUID.h"					// GUID
 #include "Utility/JSONHelper/JSONHelper.h"		// Jsonヘルパー
 #include "Utility/Pool/ItemPool/ItemPool.h"		// ハンドル管理ストレージ
 #include "Utility/Pool/RangePool/RangePool.h"	// レンジ管理ストレージ
+
+#include "D3D12/D3D12Helper.h"					// D3D12関連のヘルパー関数
 
 //==========================================================================================
 // 

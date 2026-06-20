@@ -217,38 +217,14 @@
     <Filter Include="Source\Engine\D3D12\D3DObject">
       <UniqueIdentifier>{fa7a398f-5a7b-4b2d-ae43-74742227591e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\CommandAllocator">
-      <UniqueIdentifier>{7a1ce13f-7ccd-4df3-af00-a5f29a164284}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\CommandList">
-      <UniqueIdentifier>{70b6474b-c5dc-4ea6-a84d-2932414fd0b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\CommandQueue">
-      <UniqueIdentifier>{f1561df8-1440-4841-82a6-a08182036ecd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\D3DObject\DescriptorHeap">
       <UniqueIdentifier>{bfec92b1-ad29-4086-8a85-1d26e0f68ac4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\Device">
-      <UniqueIdentifier>{c33719ba-2dff-46f3-a5e1-3d91dd993313}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\Fence">
-      <UniqueIdentifier>{b392acb2-1e2d-4d17-9876-71f088c40548}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\D3DObject\PipelineState">
       <UniqueIdentifier>{6be1140f-7390-4a6c-b0ee-439d8f2d0827}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\D3DObject\RootSignature">
       <UniqueIdentifier>{9a56534d-2180-4194-9056-0be0ac6d694b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\ScissorRectangle">
-      <UniqueIdentifier>{9a4672f9-5c39-4ad9-93ae-78a67cb3a1bf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\SwapChain">
-      <UniqueIdentifier>{e5059084-1dd2-4b1f-b32d-5cdee2eb6852}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\Viewport">
-      <UniqueIdentifier>{c9a1fdd0-75e1-48a0-9499-6afd0bb3ce33}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\CBAllocater">
       <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
@@ -973,6 +949,24 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass">
       <UniqueIdentifier>{9270e85b-3cc4-4b43-a5c0-1c121bcc4034}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Utility\Debug">
+      <UniqueIdentifier>{61e8de91-a24f-4c93-aefe-608f4296c768}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\Command">
+      <UniqueIdentifier>{27ceb879-db46-4831-9769-4580a32db4d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\Command\CommandContext">
+      <UniqueIdentifier>{56d6c690-7ea7-4811-b750-edf605c8ad34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\Command\CommandPool">
+      <UniqueIdentifier>{8d597e44-51a5-4c99-a46d-16c3c141c721}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\FrameManager">
+      <UniqueIdentifier>{14fec62a-18d7-4f45-a317-96674e69a789}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\AsyncGPUManager">
+      <UniqueIdentifier>{09aabb1d-951a-4fde-a6a1-3397408e265a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1083,32 +1077,8 @@
     <ClCompile Include="..\Library\imgui-docking\imgui_widgets.cpp">
       <Filter>Library\imgui-docking</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandAllocator\CommandAllocator.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\CommandAllocator</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandList\CommandList.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\CommandList</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\CommandQueue\CommandQueue.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\CommandQueue</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp">
       <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\Device\Device.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\Device</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\Fence\Fence.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\Fence</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\Viewport</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\SwapChain\SwapChain.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\SwapChain</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\ScissorRectangle\ScissorRectangle.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\ScissorRectangle</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\RootSignature\RootSignature.cpp">
       <Filter>Source\Engine\D3D12\D3DObject\RootSignature</Filter>
@@ -1533,6 +1503,18 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\Command\CommandPool\CommandPool.cpp">
+      <Filter>Source\Engine\D3D12\Command\CommandPool</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\Command\CommandContext\CommandContext.cpp">
+      <Filter>Source\Engine\D3D12\Command\CommandContext</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\FrameManager\FrameManager.cpp">
+      <Filter>Source\Engine\D3D12\FrameManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\AsyncGPUManager\AsyncGPUManager.cpp">
+      <Filter>Source\Engine\D3D12\AsyncGPUManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -1736,32 +1718,8 @@
     <ClInclude Include="..\Library\imgui-docking\imstb_truetype.h">
       <Filter>Library\imgui-docking</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandAllocator\CommandAllocator.h">
-      <Filter>Source\Engine\D3D12\D3DObject\CommandAllocator</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandList\CommandList.h">
-      <Filter>Source\Engine\D3D12\D3DObject\CommandList</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\CommandQueue\CommandQueue.h">
-      <Filter>Source\Engine\D3D12\D3DObject\CommandQueue</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h">
       <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\Device\Device.h">
-      <Filter>Source\Engine\D3D12\D3DObject\Device</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\Fence\Fence.h">
-      <Filter>Source\Engine\D3D12\D3DObject\Fence</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.h">
-      <Filter>Source\Engine\D3D12\D3DObject\Viewport</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\SwapChain\SwapChain.h">
-      <Filter>Source\Engine\D3D12\D3DObject\SwapChain</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\ScissorRectangle\ScissorRectangle.h">
-      <Filter>Source\Engine\D3D12\D3DObject\ScissorRectangle</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\RootSignature\RootSignature.h">
       <Filter>Source\Engine\D3D12\D3DObject\RootSignature</Filter>
@@ -2365,6 +2323,24 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3D12Types.h">
       <Filter>Source\Engine\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Debug\DebugLog.h">
+      <Filter>Source\Engine\Utility\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\Command\CommandPool\CommandPool.h">
+      <Filter>Source\Engine\D3D12\Command\CommandPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\Command\CommandContext\CommandContext.h">
+      <Filter>Source\Engine\D3D12\Command\CommandContext</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\FrameManager\FrameManager.h">
+      <Filter>Source\Engine\D3D12\FrameManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3D12Helper.h">
+      <Filter>Source\Engine\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\AsyncGPUManager\AsyncGPUManager.h">
+      <Filter>Source\Engine\D3D12\AsyncGPUManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

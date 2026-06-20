@@ -4,13 +4,6 @@
 #include "../../Data/StateMachineAsset/StateMachineAsset.h"
 #include "../../Data/Particles/ParticlesAsset.h"
 
-namespace Engine::D3D12
-{
-	class CommandAllocator;
-	class CommandList;
-	class Fence;
-}
-
 namespace Engine::Resource
 {
 	// リソースの管理のみ

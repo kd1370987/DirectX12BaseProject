@@ -1,8 +1,5 @@
 ﻿#pragma once
 
-#include "D3DObject/Viewport/Viewport.h"
-#include "D3DObject/ScissorRectangle/ScissorRectangle.h"
-
 struct SAMPLER {};
 
 #include "Engine/D3D12/D3DObject/DescriptorHeap/DescriptorHeap.h"

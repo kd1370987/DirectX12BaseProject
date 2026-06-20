@@ -104,11 +104,7 @@ namespace Engine
 		m_upPipelineStateManager->Init(D3D12::D3D12Wrapper::Instance().GetDevice());
 
 		// バックバッファの生成
-		if (!D3D12::D3D12Wrapper::Instance().CreateRenderTarget())
-		{
-			assert(0 && "バックバッファの生成に失敗");
-			return;
-		}
+		D3D12::D3D12Wrapper::Instance().CreateBackBuffer();
 
 		// 描画周り初期化
 		m_upGraphicsEngine = std::make_unique<Graphics::GraphicsEngine>();
@@ -120,11 +116,9 @@ namespace Engine
 
 		// パーティクルブッファの生成
 		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
-		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
+		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
 		m_upParticleManager = std::make_unique<Particle::ParticleBufferManager>();
-		m_upParticleManager->Init(_pDev,_pCmdList->NGet());
-
-
+		m_upParticleManager->Init(_pDev,_pCmdList);
 
 		// レイトレワールド構築
 		Engine::Raytracing::RayEngine::Instance().CommitWorld();
@@ -150,12 +144,13 @@ namespace Engine
 		auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
 		_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
 
-		// 
-		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
-
 		// 終了待ち
 		Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
 		Resource::ResourceManager::Instance().WaitRender();
+
+		// ダイレクトキューの実行
+		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
+
 	}
 
 	void MainEngine::Release()
