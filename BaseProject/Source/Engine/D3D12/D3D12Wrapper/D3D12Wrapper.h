@@ -5,6 +5,7 @@ namespace Engine::D3D12
 	// 前方宣言
 	class CommandContext;
 	class FrameManager;
+	class AsyncGPUManager;
 
 	class D3D12Wrapper
 	{
@@ -56,7 +57,27 @@ namespace Engine::D3D12
 		void ExecuteDirectCommandList();
 		void ExecuteCopyCommandList();
 		void ExecuteComputeCommandList();
+		// ==========================================================
+		// 非同期処理用インターフェース
+		// ==========================================================
 
+		/// <summary>
+		/// 非同期コピー（バックグラウンドロードなど）を実行します
+		/// </summary>
+		/// <param name="a_recordCmds">コマンドリストに積む処理（Upload->Defaultへの転送など）</param>
+		/// <param name="a_onComplete">GPU転送完了時に裏で呼ばれるコールバック（Uploadヒープの解放など）</param>
+		void ExecuteAsyncCopy(
+			std::function<void(GraphicsCommandList*)> a_recordCmds,
+			std::function<void()> a_onComplete
+		);
+
+		/// <summary>
+		/// 非同期コンピュートを実行します
+		/// </summary>
+		void ExecuteAsyncCompute(
+			std::function<void(GraphicsCommandList*)> a_recordCmds,
+			std::function<void()> a_onComplete
+		);
 
 	public:
 		// ゲッター
@@ -95,6 +116,8 @@ namespace Engine::D3D12
 		// フレームマネージャー
 		void CreateFrameManager();
 
+		// 非同期マネージャー
+		void CreateAsyncGPUManager();
 	private:
 
 		// デバッグ用
@@ -125,6 +148,8 @@ namespace Engine::D3D12
 		// フレーム管理
 		std::unique_ptr<FrameManager> m_upFrameManager = nullptr;
 
+		// 非同期マネージャー
+		std::unique_ptr<AsyncGPUManager> m_upAsyncGPUManager = nullptr;
 	private:
 		// シングルトン
 		// ユニークポインタ使用のため処理はないがcpp側に書いている

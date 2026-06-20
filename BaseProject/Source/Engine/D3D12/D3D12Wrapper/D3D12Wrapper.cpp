@@ -5,6 +5,8 @@
 
 #include "../FrameManager/FrameManager.h"
 
+#include "../AsyncGPUManager/AsyncGPUManager.h"
+
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Resource/Loader/Texture/TextureLoader.h"
@@ -31,6 +33,9 @@ namespace Engine::D3D12
 		// フレームマネージャー作成
 		CreateFrameManager();
 
+		// 非同期マネージャー作成
+		CreateAsyncGPUManager();
+
 		Debug::Log("D3D12Wrapper作成");
 	}
 
@@ -38,6 +43,9 @@ namespace Engine::D3D12
 	{
 		// GPU待機処理
 		m_upFrameManager->Release();
+
+		// 非同期マネージャー解放
+		m_upAsyncGPUManager->Release();
 
 		// コマンドリスト解放
 		m_upCommandContext->RefDirectPool()->Release();
@@ -112,6 +120,28 @@ namespace Engine::D3D12
 
 		// スワップチェイン切替
 		m_cpSwapChain->Present(a_isVsync ? 1 : 0, 0);
+	}
+
+	void D3D12Wrapper::ExecuteAsyncCompute(std::function<void(GraphicsCommandList*)> a_recordCmds, std::function<void()> a_onComplete)
+	{
+		// 処理の流れはCopyと全く同じで、Compute用のプールとタイプを指定します
+		auto* _allocator = m_upAsyncGPUManager->AcquireAllocator(m_cpDevice.Get(), AsyncCommandType::Compute);
+		GraphicsCommandList* _cmdList = m_upCommandContext->RefComputePool()->AcquireList(m_cpDevice.Get(), _allocator);
+
+		if (a_recordCmds) {
+			a_recordCmds(_cmdList);
+		}
+
+		m_upCommandContext->RefComputePool()->SubmitList(_cmdList);
+		UINT64 _fenceValue = m_upCommandContext->RefComputePool()->ExecutePendingLists();
+
+		m_upAsyncGPUManager->RegisterTask(
+			AsyncCommandType::Compute,
+			_allocator,
+			m_upCommandContext->RefComputePool()->GetFence(),
+			_fenceValue,
+			a_onComplete
+		);
 	}
 
 	//==================================================================================
@@ -430,6 +460,12 @@ namespace Engine::D3D12
 		m_upFrameManager->Init(m_cpDevice.Get());
 	}
 
+	void D3D12Wrapper::CreateAsyncGPUManager()
+	{
+		m_upAsyncGPUManager = std::make_unique<AsyncGPUManager>();
+		m_upAsyncGPUManager->Init();
+	}
+
 	void D3D12Wrapper::CloseAndExecuteComdLists(GraphicsCommandList* a_pCmdList)
 	{
 		// コマンドリストを実行
@@ -481,11 +517,43 @@ namespace Engine::D3D12
 	}
 
 	void D3D12Wrapper::ExecuteCopyCommandList()
-	{}
+	{
+
+	}
 
 	void D3D12Wrapper::ExecuteComputeCommandList()
 	{
 		
+	}
+
+	void D3D12Wrapper::ExecuteAsyncCopy(std::function<void(GraphicsCommandList*)> a_recordCmds, std::function<void()> a_onComplete)
+	{
+		// 1. 非同期マネージャーからアロケーターをもらう
+		auto* _allocator = m_upAsyncGPUManager->AcquireAllocator(m_cpDevice.Get(), AsyncCommandType::Copy);
+
+		// 2. コピー用のコマンドプールからリストをもらう (内部で_allocatorを使ってResetされる)
+		GraphicsCommandList* _cmdList = m_upCommandContext->RefCopyPool()->AcquireList(m_cpDevice.Get(), _allocator);
+
+		// 3. 外部から渡された「コマンドを積む処理」を実行！
+		if (a_recordCmds) {
+			a_recordCmds(_cmdList);
+		}
+
+		// 4. コンテキストにリストを返し、一括実行 (戻り値のフェンス値を受け取る)
+		m_upCommandContext->RefCopyPool()->SubmitList(_cmdList);
+
+		// ※注意: もし他にも同時に積みたいパスがあれば、ExecutePendingListsの呼び出しは遅らせてもOKです。
+		// 今回は即座に裏スレッドへ投げる想定でここでExecuteします。
+		UINT64 _fenceValue = m_upCommandContext->RefCopyPool()->ExecutePendingLists();
+
+		// 5. 非同期マネージャーに監視を依頼する（キュー管理と寿命監視の連携）
+		m_upAsyncGPUManager->RegisterTask(
+			AsyncCommandType::Copy,
+			_allocator,
+			m_upCommandContext->RefCopyPool()->GetFence(),
+			_fenceValue,
+			a_onComplete
+		);
 	}
 
 
