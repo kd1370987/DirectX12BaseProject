@@ -37,13 +37,14 @@ namespace Engine::D3D12
 
 		// 更新
 		void Update(CommandList& a_cmdList);
+		void Update(ID3D12CommandList* a_pCmdList);
 
 		// データ更新
 		void UpdateData(const void* a_data, size_t a_size) override;
 
 		// 派生関数
 		// ステート遷移
-		void Barrier(CommandList& a_cmdList, D3D12_RESOURCE_STATES a_nextState) override;
+		void Barrier(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState) override;
 
 		// アクセサ
 		ID3D12Resource* GetResource() const override;
@@ -55,7 +56,7 @@ namespace Engine::D3D12
 		void CreateSRVInternal(ID3D12Device* a_pDevice);
 
 		// GPUバッファへデータをコピー
-		void CopyToGPU(CommandList& a_cmdList);
+		void CopyToGPU(ID3D12GraphicsCommandList* a_pCmdList);
 
 	protected:
 		// 更新する用のバッファ

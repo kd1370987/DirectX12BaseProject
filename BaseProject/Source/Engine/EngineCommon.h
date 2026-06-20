@@ -8,6 +8,8 @@
 #include "Engine/Common/Handle.h"				// ハンドル
 #include "Engine/Common/EngineConfigTypes.h"	// エンジン基盤設定
 
+#include "Engine/D3D12/D3D12Types.h"			// D3D12の共通設定
+
 // マクロ
 #include "Engine/Common/Macros/ClassMacros.h"	// クラス用マクロ
 

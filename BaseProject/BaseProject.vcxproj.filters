@@ -967,6 +967,12 @@
     <Filter Include="Asset\Shader\Compute\Particle\EmitParticleShader">
       <UniqueIdentifier>{739a94c6-a921-4e67-92f1-46a5f4a3405f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Source\ParticleShader">
+      <UniqueIdentifier>{127b0df1-240b-4724-8b27-77f1fff08525}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass">
+      <UniqueIdentifier>{9270e85b-3cc4-4b43-a5c0-1c121bcc4034}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2357,6 +2363,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\D3D12Types.h">
+      <Filter>Source\Engine\D3D12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2428,6 +2437,12 @@
     </None>
     <None Include="Asset\Shader\Common\RootParameters\AmbientData.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\Particle.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\ParticleShader\ParticleShader.hlsli">
+      <Filter>Asset\Shader\Source\ParticleShader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -2511,6 +2526,12 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Particle\UpdateParticle\UpdateParticleShader.hlsl">
       <Filter>Asset\Shader\Compute\Particle\UpdateParticleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\ParticleShader\ParticleVS.hlsl">
+      <Filter>Asset\Shader\Source\ParticleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\ParticleShader\ParticlePS.hlsl">
+      <Filter>Asset\Shader\Source\ParticleShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -146,6 +146,7 @@ namespace Engine::Graphics
 		return m_upCBAllocater.get();
 	}
 
+
 	void RenderContext::ChangeRenderTarget(const std::vector<Handle<D3D12::RTV>>& a_rtvHandleVec, const Handle<D3D12::DSV>& a_dsvHandle)
 	{
 		// 変数用意
@@ -351,6 +352,48 @@ namespace Engine::Graphics
 		// コマンドリストにバインド
 		auto _pCmd = D3D12::D3D12Wrapper::Instance().GetCommandList4();
 		_pCmd->SetComputeRootDescriptorTable(
+			a_rootIdx,
+			m_copyHeap.GetGPU(_startIdx)
+		);
+	}
+
+	void RenderContext::BindUAV(UINT a_rootIdx, Handle<D3D12::UAV> a_uavHandle)
+	{
+		auto _cpuHandle = D3D12::DescriptorHeapManager::Instance().GetCPU(a_uavHandle);
+		BindUAV(a_rootIdx,_cpuHandle);
+	}
+
+	void RenderContext::BindUAV(UINT a_rootIdx, std::vector<Handle<D3D12::UAV>> a_uavHandles)
+	{
+		// コピー数取得
+		UINT _count = static_cast<UINT>(a_uavHandles.size());
+
+		// 今の空きインデックスカウントを確保
+		UINT _startIdx = m_currentHeapOffset;
+		m_currentHeapOffset += _count;
+
+		// ヒープサイズが足りなければリターン
+		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
+
+		// 確保した領域にコピーしていく
+		for (UINT _i = 0; _i < _count; ++_i)
+		{
+			auto _cpuHandle = D3D12::DescriptorHeapManager::Instance().GetCPU(a_uavHandles[_i]);
+			D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx + _i);
+
+			if (_cpuHandle.ptr == 0) continue;
+
+			// 一個ずつ連続した領域にコピー
+			m_pDevice->CopyDescriptorsSimple(
+				1,
+				_destHandle,
+				_cpuHandle,
+				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
+			);
+		}
+
+		// コマンドリストにバインド
+		m_pCmdList->SetComputeRootDescriptorTable(
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
 		);

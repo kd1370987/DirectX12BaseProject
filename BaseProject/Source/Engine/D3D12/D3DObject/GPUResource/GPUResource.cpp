@@ -39,19 +39,6 @@ namespace Engine::D3D12
 	{
 		m_cpResource.Reset();
 	}
-	void GPUResource::Barrier(CommandList& a_cmdList, D3D12_RESOURCE_STATES a_nextState)
-	{
-		if (m_currentState == a_nextState) return;
-
-		a_cmdList.ResourceBarrier(
-			m_cpResource.Get(),
-			m_currentState,
-			a_nextState
-		);
-
-		// ステートの更新
-		m_currentState = a_nextState;
-	}
 	void GPUResource::Barrier(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
 	{
 		if (m_currentState == a_nextState) return;

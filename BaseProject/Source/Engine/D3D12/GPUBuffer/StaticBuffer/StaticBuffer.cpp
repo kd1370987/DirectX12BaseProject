@@ -48,7 +48,7 @@ namespace Engine::D3D12
 		}
 
 		// GPUにコピーする
-		CopyToGPU(a_cmdList);
+		CopyToGPU(a_cmdList.NGet());
 
 
 		return true;
@@ -59,7 +59,11 @@ namespace Engine::D3D12
 		if (!m_isDrty) return;
 
 		// GPUにコピー
-		CopyToGPU(a_cmdList);
+		CopyToGPU(a_cmdList.NGet());
+	}
+	void StaticBuffer::Update(ID3D12CommandList* a_pCmdList)
+	{
+
 	}
 	void StaticBuffer::UpdateData(const void* a_data, size_t a_size)
 	{
@@ -67,9 +71,9 @@ namespace Engine::D3D12
 		m_isDrty = true;
 	}
 
-	void StaticBuffer::Barrier(CommandList& a_cmdList, D3D12_RESOURCE_STATES a_nextState)
+	void StaticBuffer::Barrier(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
 	{
-		m_gpuBuffer.Barrier(a_cmdList,a_nextState);
+		m_gpuBuffer.Barrier(a_pCmdList, a_nextState);
 	}
 
 	ID3D12Resource* StaticBuffer::GetResource() const
@@ -98,13 +102,13 @@ namespace Engine::D3D12
 		m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, m_gpuBuffer.GetResource(), &_desc);
 	}
 
-	void StaticBuffer::CopyToGPU(CommandList& a_cmdList)
+	void StaticBuffer::CopyToGPU(ID3D12GraphicsCommandList* a_pCmdList)
 	{
 		// コピー用にGPUバッファを変更
-		m_gpuBuffer.Barrier(a_cmdList, D3D12_RESOURCE_STATE_COPY_DEST);
+		m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
 
 		// GPUバッファにコピー
-		a_cmdList.CopyBufferRegion(
+		a_pCmdList->CopyBufferRegion(
 			m_gpuBuffer.GetResource(),
 			0,
 			m_cpResource.Get(),
@@ -114,7 +118,7 @@ namespace Engine::D3D12
 
 		// SRVに戻す
 		m_gpuBuffer.Barrier(
-			a_cmdList, 
+			a_pCmdList,
 			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 		);
 		m_isDrty = false;

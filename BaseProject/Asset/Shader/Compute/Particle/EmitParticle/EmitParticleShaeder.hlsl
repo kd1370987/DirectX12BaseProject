@@ -3,8 +3,18 @@
 
 // ルートシグネチャ
 #define EMITPARTICLE_ROOT_SIG \
-"RootFlags(0),"\
-RS_PARTICLE_TABLE
+	"RootFlags(0),"\
+	"DescriptorTable(SRV(t0,numDescriptors=1)),"\
+	"DescriptorTable(UAV(u0,numDescriptors=3))"
+
+// 入力（UPLOADヒープから）
+StructuredBuffer<EmitData> g_emitData : register(t0);
+
+// 入出力（DEFAULTヒープ UAV）
+RWStructuredBuffer<ParticleData> g_particleBuffer : register(u0);
+RWStructuredBuffer<uint> g_deadList : register(u1);
+RWStructuredBuffer<uint> g_counterBuffer : register(u2);
+
 
 // ルートシグネチャセット
 [RootSignature(EMITPARTICLE_ROOT_SIG)]
@@ -34,7 +44,7 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 			// 新しいパーティクルデータを初期化してプールに書き込む
 			ParticleData _p;
 			_p.pos = _emitInfo.pos;
-			_p.life = _emitInfo.lifeTime;
+			_p.life = 1.0f;
 			_p.velocity = _emitInfo.emitDirection;	// 初速
 			_p.size = _emitInfo.baseScale;
 

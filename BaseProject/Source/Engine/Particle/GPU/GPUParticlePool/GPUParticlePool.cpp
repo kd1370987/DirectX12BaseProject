@@ -62,4 +62,9 @@ namespace Engine::Particle
 		// 解放処理を登録
 		MainEngine::Instance().RegisterDeferredResource([_spDeadListUpload,_spCounterUpload](){});
 	}
+	void GPUParticlePool::UploadEmitRequests(ID3D12GraphicsCommandList* a_pCmdList, std::span<const EmitterData> a_requests)
+	{
+		m_emitterBuffer.UpdateData(a_requests.data(),a_requests.size() * sizeof(EmitterData));
+		m_emitterBuffer.Update(a_pCmdList);
+	}
 }

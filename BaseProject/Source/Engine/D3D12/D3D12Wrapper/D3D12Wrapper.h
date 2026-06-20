@@ -128,7 +128,22 @@ namespace Engine::D3D12
 		ID3D12CommandQueue* GetComputeCommandQueue();	// コンピュートキュー
 
 	private:
+		// D3Dオブジェクト作成
+		void CreateDxgiFactory();	// DXGIファクトリ作成
+		void FindAdapter();			// GPU検索
+		void CreateDevice();		// デバイス作成
+
+	private:
+
+		// デバッグ用
+		bool m_isDebag = false;
+
 		// DirectX12のオブジェクト
+		ComPtr<Device>			m_cpDevice = nullptr;			// ドライバインスタンス
+		ComPtr<DXGIFactory>		m_cpFactory = nullptr;			// ファクトリー
+		ComPtr<DXGISwapChain>   m_cpSwapChain = nullptr;		// スワップチェイン
+		ComPtr<DXGIAdapter>     m_cpAdapter = nullptr;			// GPU実体
+
 		std::unique_ptr<Device>				m_upDevice = nullptr;		// デバイス
 		std::unique_ptr<SwapChain>			m_upSwapChain = nullptr;		// スワップチェイン
 
@@ -145,6 +160,19 @@ namespace Engine::D3D12
 
 		std::unique_ptr<Viewport>			m_upViewport = nullptr;			// ビューポート
 		std::unique_ptr<ScissorRectangle>	m_upScissorRect = nullptr;		// シザー矩形
+
+
+		// 現在の構成で対応しているかどうか
+		bool m_isDynamicResourceSupported = false;
+
+		// バックバッファー
+		Resource::Texture m_backBuffers[BACKBUFFER_COUNT];
+
+		// フレームリソース
+		D3DFrameResource m_frameResource[CPU_FRAME_COUNT] = {};
+
+		UINT             m_cpuFrameIndex = 0;
+		ID3D12Resource* m_currentRenderTarget = nullptr;
 
 	private:
 

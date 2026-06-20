@@ -35,7 +35,6 @@ namespace Engine::D3D12
 		virtual void Release();
 
 		// ステート遷移
-		virtual void Barrier(CommandList& a_cmdList,D3D12_RESOURCE_STATES a_nextState);
 		virtual void Barrier(ID3D12GraphicsCommandList* a_pCmdList,D3D12_RESOURCE_STATES a_nextState);
 
 		// アクセサ

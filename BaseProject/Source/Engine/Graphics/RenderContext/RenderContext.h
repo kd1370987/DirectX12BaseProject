@@ -127,6 +127,8 @@ namespace Engine::Graphics
 
 		// UAV
 		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
+		void BindUAV(UINT a_rootIdx, Handle<D3D12::UAV> a_uavHandle);
+		void BindUAV(UINT a_rootIdx, std::vector<Handle<D3D12::UAV>> a_uavHandles);
 		void BindUAVBindLess(UINT a_rootIdx, Handle<D3D12::UAV> a_handle);
 
 		// 直接GPUアドレスを取得

@@ -550,6 +550,7 @@
     <ClInclude Include="Source\Engine\D3D12\D3DObject\ScissorRectangle\ScissorRectangle.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\SwapChain\SwapChain.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\Viewport\Viewport.h" />
+    <ClInclude Include="Source\Engine\D3D12\D3D12Types.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\HeapAllocater.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />
@@ -705,6 +706,7 @@
     <None Include="Asset\Shader\Common\RootParameters\BufferIndex.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\InstanceData.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\Material.hlsli" />
+    <None Include="Asset\Shader\Common\RootParameters\Particle.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\SubsetData.hlsli" />
     <None Include="Asset\Shader\Ray\Raytracing.hlsli" />
     <None Include="Asset\Shader\Source\CalcLighting.hlsli" />
@@ -713,6 +715,7 @@
     <None Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingShader.hlsli" />
     <None Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingRoot.hlsli" />
     <None Include="Asset\Shader\Source\GBufferShader\GBufferShader.hlsli" />
+    <None Include="Asset\Shader\Source\ParticleShader\ParticleShader.hlsli" />
     <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli" />
     <None Include="Asset\Shader\Source\RootSignatureLayout.hlsli" />
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli" />
@@ -974,6 +977,26 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.6</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\ParticleShader\ParticlePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\ParticleShader\ParticleVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ps</EntryPointName>

@@ -25,16 +25,7 @@ namespace Engine::D3D12
 
 	private:
 
-		// 優先度順デバイスメーカー
-		enum class GPUTier
-		{
-			NVIDIA,
-			Amd,
-			Intel,
-			Arm,
-			Qualcomm,
-			Kind,
-		};
+		
 
 		ComPtr<ID3D12Device5> m_cpDevice5 = nullptr;	// GPUデバイス
 		ComPtr<IDXGIFactory6> m_cpDxgFactory = nullptr;	// DXGIファクトリ

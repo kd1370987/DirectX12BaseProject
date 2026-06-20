@@ -24,6 +24,16 @@ namespace Engine::Particle
 			ID3D12GraphicsCommandList* a_pCmdList,
 			Engine::Handle<Resource::ParticlesAsset> a_particleHandle
 		);
+
+		/// <summary>
+		/// エミッターデータを更新
+		/// </summary>
+		/// <param name="a_pCmdList">コマンドリスト</param>
+		/// <param name="a_requests">リクエストデータ</param>
+		void UploadEmitRequests(
+			ID3D12GraphicsCommandList* a_pCmdList,
+			std::span<const EmitterData> a_requests
+		);
 		
 		// ---- アクセサ ----
 		const Handle<D3D12::UAV>& GetParticlePoolUAV() const { return m_particlePool.GetUAVHandle(); }
@@ -31,6 +41,8 @@ namespace Engine::Particle
 		const Handle<D3D12::UAV>& GetDeadListUAV() const { return m_deadList.GetUAVHandle(); }
 		const Handle<D3D12::UAV>& GetCounterUAV() const { return m_counterBuffer.GetUAVHandle(); }
 		UINT GetMaxCapacity() const { return m_maxCapacity; }
+		const Handle<D3D12::SRV>& GetEmitterBufferSRV() const { return m_emitterBuffer.GetSRVHandle(); }
+		UINT GetEmitterCount() const { return m_emitterCount; }
 
 	private:
 
@@ -49,5 +61,9 @@ namespace Engine::Particle
 
 		// 最大容量 (アセットから取得したキャパシティ) 
 		UINT m_maxCapacity = 10000;
+
+		// いまフレームのエミットリクエストバッファ
+		D3D12::StaticStructuredBuffer<EmitterData> m_emitterBuffer;
+		UINT m_emitterCount = 0;
 	};
 }

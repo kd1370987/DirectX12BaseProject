@@ -19,21 +19,5 @@ struct EmitData
 	float3 emitDirection; // 発生させたい方向
 	float baseScale; // スケール値
 };
-
-// -------------------------------------------------
-// 共通バッファの定義
-// -------------------------------------------------
-// 入力（UPLOADヒープから）
-StructuredBuffer<EmitData> g_emitData : register(t0);
-
-// 入出力（DEFAULTヒープ UAV）
-RWStructuredBuffer<ParticleData> g_particleBuffer : register(u0);
-RWStructuredBuffer<uint> g_deadList : register(u1);
-RWStructuredBuffer<uint> g_counterBuffer : register(u2);
-
 #endif // PARTICLE_CORE_HLSLI
 
-// ルートシグネチャ設定
-#define RS_PARTICLE_TABLE \
-"DescriptorTable(SRV(t0,numDescriptors=1)),"\
-"DescriptorTable(UAV(u0,numDescriptors=3))"
