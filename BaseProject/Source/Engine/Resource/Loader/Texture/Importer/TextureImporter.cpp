@@ -156,7 +156,7 @@ bool BuildFromScratchiImage(
 	if (FAILED(_hr))
 	{
 		// テクスチャリソースの生成失敗
-		Engine::Debug::ErrLog(false, "テクスチャリソースの生成に失敗");
+		ENGINE_ERRLOG(false, "テクスチャリソースの生成に失敗");
 		return false;
 	}
 

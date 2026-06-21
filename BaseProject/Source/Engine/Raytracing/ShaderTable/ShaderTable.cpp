@@ -159,7 +159,7 @@ void Engine::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_instanceNum)
 	uint32_t _localRootSize = m_maxLocalRootSigSize;
 
 	// シェーダー一つ分のサイズ
-	m_recordSize = Alignment::Up(
+	m_recordSize = Math::Alignment::Up(
 		_shaderIDSize + _localRootSize,
 		D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT
 	);
@@ -167,19 +167,19 @@ void Engine::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_instanceNum)
 	// 各シェーダーごとのオフセット値を求める
 	uint32_t _offset = 0;
 	m_rayGenOffset = _offset;
-	_offset = Alignment::Up(
+	_offset = Math::Alignment::Up(
 		_offset + m_recordSize,
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
 	);
 	
 	m_missOffset = _offset;
-	_offset = Alignment::Up(
+	_offset = Math::Alignment::Up(
 		_offset + m_recordSize * m_missIDVec.size(),
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
 	);
 	
 	m_hitOffset = _offset;
-	_offset = Alignment::Up(
+	_offset = Math::Alignment::Up(
 		_offset + m_recordSize * m_hitIDVec.size(),
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
 	);

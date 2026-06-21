@@ -84,7 +84,7 @@ namespace Engine::Graphics
 
 		if (!_spPassData->rayPSO.Init(_pDevice,_psoInit))
 		{
-			Debug::ErrLog(false,"フルレイトレパスの作成に失敗");
+			ENGINE_ERRLOG(false,"フルレイトレパスの作成に失敗");
 		}
 
 		// シェーダーテーブルの作成

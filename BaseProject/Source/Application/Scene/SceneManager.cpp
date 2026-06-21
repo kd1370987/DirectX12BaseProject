@@ -70,7 +70,7 @@ void SceneManager::PushScene(const SceneType& a_sceneType)
 	auto _it = m_sceneCreateFuncMap.find(a_sceneType);
 	if (_it == m_sceneCreateFuncMap.end())
 	{
-		assert(0 && "シーンは未登録です");
+		ENGINE_ERRLOG(false, "シーンは未登録です");
 		return;
 	}
 

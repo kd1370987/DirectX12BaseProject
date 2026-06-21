@@ -1,7 +1,7 @@
 ﻿#include "MainEngine.h"
 
 #include "Engine/Window/NativeWindow.h"
-#include "Engine/TimeManager/TimeManager.h"
+#include "Engine/Time/TimeManager.h"
 #include "Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Resource/Manager/ResourceManager/ResourceManager.h"
 

@@ -12,7 +12,7 @@ namespace Engine::D3D12
 				D3D12_COMMAND_LIST_TYPE_DIRECT,
 				IID_PPV_ARGS(_res.cpAllocator.ReleaseAndGetAddressOf())
 			);
-			Debug::ErrLog(SUCCEEDED(_hr),"CommandAllocater の生成に失敗 HRESULT:%08X", _hr);
+			ENGINE_ERRLOG(SUCCEEDED(_hr),"CommandAllocater の生成に失敗 HRESULT:%08X", _hr);
 
 			// フェンスバリュー初期化
 			_res.fenceValue = 0;
@@ -24,7 +24,7 @@ namespace Engine::D3D12
 			D3D12_FENCE_FLAG_NONE,
 			IID_PPV_ARGS(m_cpFence.ReleaseAndGetAddressOf())
 		);
-		Debug::ErrLog(SUCCEEDED(_hr), "Fence の生成に失敗 HRESULT:%08X", _hr);
+		ENGINE_ERRLOG(SUCCEEDED(_hr), "Fence の生成に失敗 HRESULT:%08X", _hr);
 
 		// 初回のため進めておく
 		m_frameResources[m_cpuFrameIndex].fenceValue++;
@@ -85,14 +85,14 @@ namespace Engine::D3D12
 			HRESULT _hr = m_cpFence->SetEventOnCompletion(m_frameResources[m_cpuFrameIndex].fenceValue, m_fenceEvent);
 			if (FAILED(_hr))
 			{
-				Debug::ErrLog(SUCCEEDED(_hr), "フェンスイベントエラー HRESULT:%08X", _hr);
+				ENGINE_ERRLOG(SUCCEEDED(_hr), "フェンスイベントエラー HRESULT:%08X", _hr);
 				return;
 			}
 
 			// 待機処理
 			if (WAIT_OBJECT_0 != WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE))
 			{
-				Debug::ErrLog(false, "待機処理エラー");
+				ENGINE_ERRLOG(false, "待機処理エラー");
 				return;
 			}
 		}

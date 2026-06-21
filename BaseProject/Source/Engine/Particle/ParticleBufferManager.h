@@ -17,8 +17,8 @@ namespace Engine::Particle
 		/// 初期化
 		/// </summary>
 		void Init(
-			ID3D12Device* a_pDevice,
-			ID3D12GraphicsCommandList* a_pCmdList
+			D3D12::Device* a_pDevice,
+			D3D12::GraphicsCommandList* a_pCmdList
 		);
 
 		/// <summary>
@@ -52,6 +52,11 @@ namespace Engine::Particle
 
 		// 種類ごとの、今フレームの発生リクエスト（毎フレームクリアされる）
 		std::unordered_map<Handle<Resource::ParticlesAsset>, std::vector<EmitterData>> m_emitRequests;
+
+
+		std::unordered_map<Handle<Resource::ParticlesAsset>, D3D12::StaticStructuredBuffer<EmitterData>> m_emitBuffer;
+
+
 
 	};
 }

@@ -110,7 +110,7 @@ namespace Engine::ECS
 		_data.name = a_name;
 		_data.compSize = sizeof(Comp);
 		_data.compAlign = alignof(Comp);
-		_data.compAlignSize = Alignment::Up(_data.compSize, _data.compAlign);
+		_data.compAlignSize = Math::Alignment::Up(_data.compSize, _data.compAlign);
 
 		// 関数登録
 		ComponentFunc _func = {};

@@ -9,6 +9,9 @@ namespace Engine::Pool
 		ItemPool() = default;
 		~ItemPool() = default;
 
+		/// <summary>
+		/// 解放処理
+		/// </summary>
 		void Release();
 
 		/// <summary>

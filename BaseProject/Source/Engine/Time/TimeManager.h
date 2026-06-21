@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-class FPSController;
-class DeltaTime;
-
 namespace Engine::Time
 {
+	class FPSController;
+	class DeltaTime;
+
 	class TimeManager
 	{
 	public:

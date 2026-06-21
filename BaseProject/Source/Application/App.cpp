@@ -49,7 +49,7 @@ bool Application::Init()
 	// シーンの初期化
 	if (!SceneManager::Instance().Init())
 	{
-		assert(0 && "シーンマネージャの初期化に失敗");
+		ENGINE_ERRLOG(false, "シーンマネージャの初期化に失敗");
 		return false;
 	}
 

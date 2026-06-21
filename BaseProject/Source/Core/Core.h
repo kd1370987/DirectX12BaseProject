@@ -7,14 +7,6 @@
 // 文字列ユーティリティ
 #include "Utility/StringUtillity.h"
 
-// アライメント
-#include "Math/Alignment.h"
-
-// 汎用ストレージクラス
-//#include "Storage/Storage.h";					 
-// 連続性が保証されているスロット
-#include "Storage/FreeRange/FreeRange.h"
-
 // アルゴリズム
 
 // グラフ

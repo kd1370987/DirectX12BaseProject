@@ -145,7 +145,7 @@ namespace Engine::Raytracing
 		auto _hr = a_pDevice->CreateStateObject(&_desc, IID_PPV_ARGS(&m_cpPSO));
 		if (FAILED(_hr))
 		{
-			Debug::ErrLog(false, "レイトレ用パイプラインステートの作成に失敗");
+			ENGINE_ERRLOG(false, "レイトレ用パイプラインステートの作成に失敗");
 			return false;
 		}
 

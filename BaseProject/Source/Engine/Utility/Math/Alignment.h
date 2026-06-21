@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-namespace Alignment
+namespace Math::Alignment
 {
 	/// <summary>
 	/// 任意のアライメントンに切り上げ

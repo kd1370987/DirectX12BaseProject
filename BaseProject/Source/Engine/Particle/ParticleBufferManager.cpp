@@ -6,8 +6,8 @@
 namespace Engine::Particle
 {
 	void Engine::Particle::ParticleBufferManager::Init(
-		ID3D12Device* a_pDevice,
-		ID3D12GraphicsCommandList* a_pCmdList
+		D3D12::Device* a_pDevice,
+		D3D12::GraphicsCommandList* a_pCmdList
 	)
 	{
 		// パーティクルのデータとバッファ自体は軽いのでいったん初期化時に全生成
@@ -22,6 +22,9 @@ namespace Engine::Particle
 
 			// エミットデータの空生成
 			m_emitRequests[_handle] = std::vector<EmitterData>();
+
+			// 構造体バッファの作成
+			m_emitBuffer[_handle].Create(a_pDevice, a_pCmdList, 100, nullptr);
 		}
 	}
 	void ParticleBufferManager::BeginFrame()

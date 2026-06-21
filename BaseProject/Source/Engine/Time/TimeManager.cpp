@@ -1,7 +1,7 @@
 ﻿#include "TimeManager.h"
 
-#include "Core/Time/FPSController/FPSController.h"
-#include "Core/Time/DeltaTime/DeltaTime.h"
+#include "FPSController/FPSController.h"
+#include "DeltaTime/DeltaTime.h"
 namespace Engine::Time
 {
 	TimeManager::TimeManager()

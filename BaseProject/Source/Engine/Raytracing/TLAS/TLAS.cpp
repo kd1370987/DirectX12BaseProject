@@ -21,11 +21,11 @@ void Engine::Raytracing::TLAS::Create(
 	// 出力構造体
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO _info;
 	a_pDevice->GetRaytracingAccelerationStructurePrebuildInfo(&_inputs,&_info);
-	uint64_t _scratchSize = static_cast<uint64_t>(Alignment::Up(
+	uint64_t _scratchSize = static_cast<uint64_t>(Math::Alignment::Up(
 		static_cast<size_t>(_info.ScratchDataSizeInBytes),
 		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT
 	));
-	uint64_t _resultSize = static_cast<uint64_t>(Alignment::Up(
+	uint64_t _resultSize = static_cast<uint64_t>(Math::Alignment::Up(
 		static_cast<size_t>(_info.ResultDataMaxSizeInBytes),
 		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT
 	));

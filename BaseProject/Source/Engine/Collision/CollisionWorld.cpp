@@ -97,7 +97,7 @@ namespace Engine::Collision
 	)
 	{
 		// 割り当てられたハンドルのインデックスを見て配列のサイズを変更する
-		auto _handle = m_staticHandleStorage.Allocate();
+		auto _handle = m_staticHandlePool.Allocate();
 		if (_handle.GetIndex() >= m_staticInstanceVec.size())
 		{
 			m_staticInstanceVec.resize(_handle.GetIndex() + 1);
@@ -114,7 +114,7 @@ namespace Engine::Collision
 
 	Handle<CollisionInstance> CollisionWorld::AllcateDynamicEntity(const CollisionInstance& a_instance)
 	{
-		auto _handle = m_dynamicHandleStorage.Allocate();
+		auto _handle = m_dynamicHandlePool.Allocate();
 		if (_handle.GetIndex() >= m_dynamicInstanceVec.size())
 		{
 			m_dynamicInstanceVec.resize(_handle.GetIndex() + 1);
@@ -185,7 +185,7 @@ namespace Engine::Collision
 	}
 	void CollisionWorld::Clear()
 	{
-		m_staticHandleStorage = {};
+		m_staticHandlePool = {};
 		m_staticInstanceIndexVec.clear();
 		m_staticInstanceVec.clear();
 		m_staticNodeVec.clear();

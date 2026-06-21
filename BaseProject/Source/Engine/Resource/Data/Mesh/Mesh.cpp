@@ -49,7 +49,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 			// ※ もし CreateRtData や CreateRasterData の内部で
 			// 一時的な Uploadヒープ を作成している場合は、テクスチャの時と同じように
 			// std::shared_ptr でキャプチャしてここで寿命を尽きさせる設計にしてください。
-			Engine::Debug::Log("メッシュの非同期セットアップ完了！");
+			ENGINE_LOG("メッシュの非同期セットアップ完了");
 		}
 	);
 	return true;

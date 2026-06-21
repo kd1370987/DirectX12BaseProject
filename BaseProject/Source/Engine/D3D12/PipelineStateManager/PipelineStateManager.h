@@ -40,7 +40,7 @@ namespace Engine::D3D12
 		std::unordered_map<uint64_t, ComPtr<ID3D12RootSignature>> m_rootSigMap;
 
 		std::unordered_map<uint64_t, ComPtr<ID3D12PipelineState>> m_psoMap;
-		Storage::HandleStorage<ID3D12PipelineState> m_psoHandleStorage = {};
+		Storage::HandlePool<ID3D12PipelineState> m_psoHandlePool = {};
 		std::vector<ID3D12PipelineState*> m_pPsoVec = {};
 
 	};

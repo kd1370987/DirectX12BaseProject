@@ -101,7 +101,8 @@ template<typename Scene>
 inline void SceneManager::RegisterScene(const SceneType& a_sceneType)
 {
 	// ベースシーンへ変換
-	static_assert(std::is_base_of<BaseScene, Scene>::value, "ベースシーンへの変換に失敗しました");
+	// シーンがベースシーンを継承しているかのチェック
+	ENGINE_ERRLOG(std::is_base_of<BaseScene, Scene>::value, "ベースシーンへの変換に失敗しました");
 	// 登録
 	m_sceneCreateFuncMap[a_sceneType] = []() {return std::make_unique<Scene>(); };
 }

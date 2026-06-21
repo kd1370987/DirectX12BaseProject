@@ -176,7 +176,7 @@ namespace Engine::D3D12
 		const D3D12::GraphicsPipelineDesc& a_desc
 	)
 	{
-		auto _handle = m_psoHandleStorage.Allocate();
+		auto _handle = m_psoHandlePool.Allocate();
 		if (m_pPsoVec.size() <= _handle.GetIndex())
 		{
 			m_pPsoVec.resize(_handle.GetIndex() + 1);
@@ -190,7 +190,7 @@ namespace Engine::D3D12
 		const D3D12::ComputePipelineDesc& a_desc
 	)
 	{
-		auto _handle = m_psoHandleStorage.Allocate();
+		auto _handle = m_psoHandlePool.Allocate();
 		if (m_pPsoVec.size() <= _handle.GetIndex())
 		{
 			m_pPsoVec.resize(_handle.GetIndex() + 1);
@@ -202,7 +202,7 @@ namespace Engine::D3D12
 
 	ID3D12PipelineState* PipelineStateManager::GetPSO(Handle<ID3D12PipelineState> a_handle)
 	{
-		if (m_psoHandleStorage.IsValid(a_handle))
+		if (m_psoHandlePool.IsValid(a_handle))
 		{
 			return m_pPsoVec[a_handle.GetIndex()];
 		}
@@ -238,11 +238,11 @@ namespace Engine::D3D12
 			}
 			};
 
-		// ① 基本メンバを混ぜる (flags, isUseStaticSampler)
+		// 基本メンバを混ぜる
 		UpdateHash(&a_desc.flags, sizeof(a_desc.flags));
 		UpdateHash(&a_desc.isUseStaticSampler, sizeof(a_desc.isUseStaticSampler));
 
-		// ② vector の中身をループして、実体データを混ぜる
+		// vector の中身をループして、実体データを混ぜる
 		for (const auto& param : a_desc.paramVec) {
 			// Paramそのものをハッシュ化
 			UpdateHash(&param.paramType, sizeof(param.paramType));

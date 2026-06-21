@@ -27,7 +27,7 @@ namespace Engine::D3D12
 		DescriptorHeap<T::type>* m_pHeap = nullptr;
 		
 		// ハンドル管理
-		Storage::HandleStorage<T> m_handleStorage = {};
+		Storage::HandlePool<T> m_HandlePool = {};
 
 		UINT m_startIndex = 0;
 		UINT m_maxCount = 0;
@@ -43,12 +43,12 @@ namespace Engine::D3D12
 		if (a_maxCount == 0)
 		{
 			m_maxCount = a_pHeap->GetMaxSize();
-			m_handleStorage.Create(a_pHeap->GetMaxSize());		// ハンドル管理
+			m_HandlePool.Create(a_pHeap->GetMaxSize());		// ハンドル管理
 		}
 		else
 		{
 			m_maxCount = a_maxCount;
-			m_handleStorage.Create(a_maxCount);					// ハンドル管理
+			m_HandlePool.Create(a_maxCount);					// ハンドル管理
 		}
 		
 		return true;
@@ -62,7 +62,7 @@ namespace Engine::D3D12
 	inline Handle<T> HeapAllocator<T>::Allocate(ID3D12Device* a_pDevice, ID3D12Resource* a_pRes, const typename T::DescType* a_desc)
 	{
 		// ハンドルをアロケート
-		auto _handle = m_handleStorage.Allocate();
+		auto _handle = m_HandlePool.Allocate();
 		auto _idx = _handle.GetIndex();
 		_handle.SetIndex(_idx + (uint16_t)m_startIndex);
 
@@ -128,7 +128,7 @@ namespace Engine::D3D12
 		auto _handle = a_handle;
 		auto _idx = _handle.GetIndex();
 		_handle.SetIndex(_idx - m_startIndex);
-		m_handleStorage.Remove(_handle);
+		m_HandlePool.Remove(_handle);
 	}
 	template<IsHeapType T>
 	inline D3D12_CPU_DESCRIPTOR_HANDLE HeapAllocator<T>::GetCPU(const Handle<T>&a_handle) const
@@ -136,7 +136,7 @@ namespace Engine::D3D12
 		auto _stHandle = a_handle;
 		auto _idx = _stHandle.GetIndex();
 		_stHandle.SetIndex(_idx - m_startIndex);
-		if (m_handleStorage.IsValid(_stHandle))
+		if (m_HandlePool.IsValid(_stHandle))
 		{
 			UINT _idx = a_handle.GetIndex();
 			return m_pHeap->GetCPU(_idx);
@@ -149,7 +149,7 @@ namespace Engine::D3D12
 		auto _stHandle = a_handle;
 		auto _idx = _stHandle.GetIndex();
 		_stHandle.SetIndex(_idx - m_startIndex);
-		if (m_handleStorage.IsValid(_stHandle))
+		if (m_HandlePool.IsValid(_stHandle))
 		{
 			UINT _idx = a_handle.GetIndex();
 			return m_pHeap->GetGPU(_idx);

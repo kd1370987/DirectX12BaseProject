@@ -10,6 +10,9 @@
 
 #include "Engine/D3D12/D3D12Types.h"			// D3D12の共通設定
 
+// 共通数学
+#include "Utility/Math/Alignment.h"
+
 // マクロ
 #include "Engine/Common/Macros/ClassMacros.h"	// クラス用マクロ
 
@@ -21,7 +24,8 @@
 #include "Utility/Debug/DebugLog.h"				// デバッグ用ログ
 #include "Utility/GUID/GUID.h"					// GUID
 #include "Utility/JSONHelper/JSONHelper.h"		// Jsonヘルパー
-#include "Utility/Pool/ItemPool/ItemPool.h"		// ハンドル管理ストレージ
+#include "Utility/Pool/HandlePool/HandlePool.h"	// ハンドル管理ストレージ
+#include "Utility/Pool/ItemPool/ItemPool.h"		// 実体管理ストレージ
 #include "Utility/Pool/RangePool/RangePool.h"	// レンジ管理ストレージ
 
 #include "D3D12/D3D12Helper.h"					// D3D12関連のヘルパー関数
@@ -66,12 +70,8 @@ namespace Engine::Resource
 }
 
 
-
-#include "Engine/Storage/SlotStorage/SlotStorage.h"				// ストレージ
-
 #include "Engine/Resource/Common/Common.h"
 
-#include "Engine/Storage/HandleStorage/HandleStorage.h"			// ハンドルストレージ
 
 //==========================================================================================
 // 

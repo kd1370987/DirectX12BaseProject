@@ -62,6 +62,8 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 #pragma comment(lib,"Xinput.lib")
 #include <Xinput.h>
 
+// FPS関係
+#pragma comment(lib,"winmm.lib")
 
 //===============================================
 //

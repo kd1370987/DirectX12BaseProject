@@ -18,7 +18,7 @@ namespace Engine::D3D12
 			&_queueDesc,
 			IID_PPV_ARGS(m_cpCmdQueue.ReleaseAndGetAddressOf())
 		);
-		Engine::Debug::ErrLog(SUCCEEDED(_hr), "CommandQueue の生成に失敗 HRESULT:%08X", _hr);
+		ENGINE_ERRLOG(SUCCEEDED(_hr), "CommandQueue の生成に失敗 HRESULT:%08X", _hr);
 
 		// フェンス作成
 		_hr = a_pDevice->CreateFence(
@@ -26,7 +26,7 @@ namespace Engine::D3D12
 			D3D12_FENCE_FLAG_NONE,
 			IID_PPV_ARGS(m_cpFence.ReleaseAndGetAddressOf())
 		);
-		Engine::Debug::ErrLog(SUCCEEDED(_hr), "Fence の生成に失敗 HRESULT:%08X", _hr);
+		ENGINE_ERRLOG(SUCCEEDED(_hr), "Fence の生成に失敗 HRESULT:%08X", _hr);
 
 		m_fenceValue = 0;
 	}
@@ -90,7 +90,7 @@ namespace Engine::D3D12
 
 			// フリーリストの再利用時は、渡されたアロケーターでリセットする
 			auto _hr = _pRaw->Reset(a_pAllocator, nullptr);
-			Debug::ErrLog(SUCCEEDED(_hr),"ComandListのリセットに失敗");
+			ENGINE_ERRLOG(SUCCEEDED(_hr),"ComandListのリセットに失敗");
 
 			// 生ポインタと ComPtrを紐づける
 			m_trackingMap[_pRaw] = std::move(_cpList);
@@ -107,7 +107,7 @@ namespace Engine::D3D12
 			nullptr,
 			IID_PPV_ARGS(_cpNewList.ReleaseAndGetAddressOf())
 		);
-		Engine::Debug::ErrLog(SUCCEEDED(_hr), "CommandList の生成に失敗 HRESULT:%08X", _hr);
+		ENGINE_ERRLOG(SUCCEEDED(_hr), "CommandList の生成に失敗 HRESULT:%08X", _hr);
 
 		// 作成後にマップに登録して返す
 		GraphicsCommandList* _pRaw = _cpNewList.Get();
@@ -183,7 +183,7 @@ namespace Engine::D3D12
 		// プールに返却
 		std::lock_guard<std::mutex> _lock(m_mutex);
 		auto _it = m_trackingMap.find(a_pList);
-		Debug::ErrLog(_it != m_trackingMap.end(), "ExecuteAndRelease : 未知のコマンドリストが渡されました");
+		ENGINE_ERRLOG(_it != m_trackingMap.end(), "ExecuteAndRelease : 未知のコマンドリストが渡されました");
 
 		m_freeLists.push_back(std::move(_it->second));
 		m_trackingMap.erase(_it);

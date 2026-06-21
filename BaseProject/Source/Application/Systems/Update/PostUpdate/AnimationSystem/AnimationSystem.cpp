@@ -47,13 +47,10 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				{
 					UINT _idx = _pAni->nodes[_j].nodeOffset;
 
-					// 【デバッグ用】_idx がスパンの範囲内か、そしてアニメーションのノード配列の範囲内かチェック
-					assert(_idx < _nodePoseVec.size() && "AnimationSystem: _idx out of range for NodePose!");
-					assert(_idx < _pAni->nodes.size() && "AnimationSystem: _idx out of range for AnimNodes!");
+					// 範囲外チェック
+					ENGINE_ERRLOG(_idx < _nodePoseVec.size(), "アニメーションがスパンの範囲外です");
+					ENGINE_ERRLOG(_idx < _pAni->nodes.size(), "アニメーションのノードの配列外です");
 
-					// ★修正: 第一引数に渡すのは _j ではなく _idx で合っていますか？
-					// もし _pAni->nodes がアニメーションの全ノードを指す配列なら、通常は _j を渡すはずです。
-					// Engine::Animation::Interpolate(_pAni->nodes[_j], _aniComp.time, _nodePoseVec[_idx].local); // ←こっちが正しい可能性も
 					Engine::Animation::Interpolate(_pAni->nodes[_idx], _aniComp.time, _nodePoseVec[_idx].local);
 				}
 

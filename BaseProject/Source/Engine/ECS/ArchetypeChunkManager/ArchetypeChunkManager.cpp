@@ -227,7 +227,7 @@ namespace Engine::ECS
 		}
 
 		// 1エンティティが消費するメモリサイズ
-		_entityStride = Alignment::Up(_entityStride, _maxAligne);
+		_entityStride = Math::Alignment::Up(_entityStride, _maxAligne);
 
 		// １チャンクのキャパシティ決定
 		a_pChunk->capacity = static_cast<uint32_t>(a_memorySize / _entityStride);
@@ -241,7 +241,7 @@ namespace Engine::ECS
 			if (!a_sig.test(_comTypeID)) continue;
 
 			const ComponentMeta& _meta = m_pMetaRegister->GetMetaData(_comTypeID);
-			_offset = Alignment::Up(_offset, _meta.compAlign);
+			_offset = Math::Alignment::Up(_offset, _meta.compAlign);
 
 			Layout _lay = {};
 			_lay.offset = _offset;

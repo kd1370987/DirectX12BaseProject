@@ -34,7 +34,7 @@ namespace Engine::D3D12
 		CreateViewPort(a_windowWidth, a_windowHeight);				// 描画用領域設定
 		CreateScissorRect(a_windowWidth, a_windowHeight);			// 描画範囲作成
 
-		Debug::Log("D3D12Wrapper作成");
+		ENGINE_LOG("D3D12Wrapper作成");
 	}
 
 	void D3D12Wrapper::Release()
@@ -222,7 +222,7 @@ namespace Engine::D3D12
 		{
 			// デバッグレイヤーを有効化
 			_flgsDXGI |= DXGI_CREATE_FACTORY_DEBUG;
-			Debug::Log("DXGIFactoryのデバッグレイヤーON");
+			ENGINE_LOG("DXGIFactoryのデバッグレイヤーON");
 		}
 		// DXGIファクトリの生成
 		HRESULT _hr = CreateDXGIFactory2(
@@ -231,7 +231,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			Debug::ErrLog(FAILED(_hr), "DXGIファクトリの生成に失敗");
+			ENGINE_ERRLOG(FAILED(_hr), "DXGIファクトリの生成に失敗");
 			return;
 		}
 	}
@@ -333,7 +333,7 @@ namespace Engine::D3D12
 		}
 		if (FAILED(_hr))
 		{
-			Debug::ErrLog(FAILED(_hr), "デバイス生成に失敗");
+			ENGINE_ERRLOG(FAILED(_hr), "デバイス生成に失敗");
 			return;
 		}
 		
@@ -350,7 +350,7 @@ namespace Engine::D3D12
 			bool _isTier3 = _featureOptions.ResourceBindingTier == D3D12_RESOURCE_BINDING_TIER_3;
 			m_isDynamicResourceSupported = _isTier3;
 		}
-		Debug::ErrLog(m_isDynamicResourceSupported,"動的リソースがサポートされていないGPUが選択されました");
+		ENGINE_ERRLOG(m_isDynamicResourceSupported,"動的リソースがサポートされていないGPUが選択されました");
 
 		// デバッグ設定
 		if (m_isDebag)
@@ -360,7 +360,7 @@ namespace Engine::D3D12
 			{
 				_debDev->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
 			}
-			Debug::Log("Dviceのデバッグ設定ON");
+			ENGINE_LOG("Dviceのデバッグ設定ON");
 		}
 
 		return;
@@ -390,7 +390,7 @@ namespace Engine::D3D12
 
 		// キュー取得
 		auto* _pCmdQueue = m_upCommandContext->RefDirectPool()->GetCommandQueue();
-		Debug::ErrLog(_pCmdQueue, "コマンドキューの取得に失敗");
+		ENGINE_ERRLOG(_pCmdQueue, "コマンドキューの取得に失敗");
 
 		// スワップチェインの作成
 		ComPtr<IDXGISwapChain1> _swapChain1;
@@ -402,7 +402,7 @@ namespace Engine::D3D12
 			nullptr,
 			&_swapChain1
 		);
-		Debug::ErrLog(SUCCEEDED(_hr), "スワップチェインの作成失敗");
+		ENGINE_ERRLOG(SUCCEEDED(_hr), "スワップチェインの作成失敗");
 
 		// コピー
 		_swapChain1.As(&m_cpSwapChain);

@@ -26,7 +26,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			Debug::ErrLog(false,"リソース生成に失敗");
+			ENGINE_ERRLOG(false,"リソース生成に失敗");
 			return false;
 		}
 

@@ -91,7 +91,7 @@ namespace Algorithm
 			}
 			if (a_nodeVec.size() != _nodeSize)
 			{
-				assert(0 && "トポロジカルソート失敗");
+				assert(false && "トポロジカルソート失敗");
 				return false;
 			}
 

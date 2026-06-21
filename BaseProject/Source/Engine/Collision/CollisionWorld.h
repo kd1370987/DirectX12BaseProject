@@ -27,7 +27,7 @@ namespace Engine::Collision
 	private:
 
 		// 静的データ管理
-		Storage::HandleStorage<CollisionInstance> m_staticHandleStorage = {};		// 静的ハンドルの管理
+		Storage::HandlePool<CollisionInstance> m_staticHandlePool = {};		// 静的ハンドルの管理
 		std::vector<CollisionInstance> m_staticInstanceVec;					// 静的判定オブジェクト配列
 		std::vector<Resource::BVHNode> m_staticNodeVec = {};				// ノード配列
 		std::vector<int> m_staticInstanceIndexVec = {};				// 全インスタンスインデックス
@@ -35,7 +35,7 @@ namespace Engine::Collision
 		int m_staticRootNodeIndex = 0;
 
 		// 動的データ管理
-		Storage::HandleStorage<CollisionInstance> m_dynamicHandleStorage = {};	// 動的ハンドルの管理
+		Storage::HandlePool<CollisionInstance> m_dynamicHandlePool = {};	// 動的ハンドルの管理
 		std::vector<CollisionInstance> m_dynamicInstanceVec;				// 動的判定オブジェクト配列
 		std::vector<Resource::BVHNode> m_dynamicNodeVec = {};				// ノード配列
 		std::vector<int> m_dynamicInstanceIndexVec = {};				// 全インスタンスインデックス

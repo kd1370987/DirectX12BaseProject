@@ -4,21 +4,31 @@ namespace Engine::Storage
 {
 	// ハンドルを管理するクラス
 	template<typename T>
-	class HandleStorage
+	class HandlePool
 	{
 	public:
+		/// <summary>
+		/// ハンドルの初期化 : 最大サイズを指定した場合のみ上限チェックを設ける
+		/// </summary>
+		/// <param name="a_maxCount">最大サイズ</param>
+		void Create(uint32_t a_maxCount = 0);
 
-		// 生成
-		// 上限値を設定できる。設定しない場合は上限なく増えていく
-		void Create(UINT a_maxCount = 0);
-
-		// データの追加
+		/// <summary>
+		/// ハンドルの割り当て
+		/// </summary>
+		/// <returns>割り当て済みのハンドル</returns>
 		Handle<T> Allocate();
 
-		// データの削除
+		/// <summary>
+		/// ハンドルの削除
+		/// </summary>
+		/// <param name="a_handle">削除したいハンドル</param>
 		void Remove(const Handle<T>& a_handle);
 
-		// 有効かどうか : true = 使える値、有効
+		/// <summary>
+		/// データの有効チェック
+		/// </summary>
+		/// <param name="a_handle">確認したいハンドル</param>
 		bool IsValid(const Handle<T>& a_handle) const;
 
 	private:
@@ -30,7 +40,7 @@ namespace Engine::Storage
 	};
 
 	template<typename T>
-	inline void HandleStorage<T>::Create(uint32_t a_maxCount)
+	inline void HandlePool<T>::Create(uint32_t a_maxCount)
 	{
 		m_indexQueue = {};
 		for (uint32_t _idx = 0; _idx < a_maxCount; ++_idx)
@@ -40,11 +50,11 @@ namespace Engine::Storage
 		m_maxCount = a_maxCount;
 
 		// ０で初期化
-		m_genVec.assign(a_maxCount,0);
+		m_genVec.assign(a_maxCount, 0);
 	}
 
 	template<typename T>
-	inline Handle<T> HandleStorage<T>::Allocate()
+	inline Handle<T> HandlePool<T>::Allocate()
 	{
 		if (m_indexQueue.empty())
 		{
@@ -58,13 +68,13 @@ namespace Engine::Storage
 			else
 			{
 				// インデックス上限が設定されていれば、上限に達したことをアサート
-				assert(0 && "ストレージの設定上限に達しました");
+				ENGINE_ERRLOG(false, "ストレージの設定上限に達しました");
 				return Handle<T>();
 			}
 		}
 
 		// インデックス取得
-		Engine::Resource::Index _idx = m_indexQueue.front();
+		uint16_t _idx = m_indexQueue.front();
 		m_indexQueue.pop();
 
 		// ハンドル作成
@@ -72,7 +82,7 @@ namespace Engine::Storage
 		return _handle;
 	}
 	template<typename T>
-	inline void HandleStorage<T>::Remove(const Handle<T>& a_handle)
+	inline void HandlePool<T>::Remove(const Handle<T>& a_handle)
 	{
 		if (!a_handle.IsValid()) return;
 
@@ -87,14 +97,14 @@ namespace Engine::Storage
 		}
 	}
 	template<typename T>
-	inline bool HandleStorage<T>::IsValid(const Handle<T>& a_handle) const
+	inline bool HandlePool<T>::IsValid(const Handle<T>& a_handle) const
 	{
 		// 世代が一致しているかどうか
 		if (m_genVec.size() <= a_handle.GetIndex())
 		{
 			return false;
 		}
-		if(m_genVec[a_handle.GetIndex()] != a_handle.GetGeneration())
+		if (m_genVec[a_handle.GetIndex()] != a_handle.GetGeneration())
 		{
 			// 世代が一致していない = 無効
 			return false;
