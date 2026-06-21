@@ -1,7 +1,5 @@
 ﻿#include "RayPSO.h"
 
-#include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
-
 #include "BuildSubObjectHelper.h"
 
 namespace Engine::Raytracing
@@ -12,12 +10,11 @@ namespace Engine::Raytracing
 		m_shader.Release();
 		m_cpPSO.Reset();
 	}
-	bool RayPSO::Init(const RayPSODesc& a_desc)
+	bool RayPSO::Init(D3D12::Device* a_pDevice, RayPSODesc& a_desc)
 	{
 		// エラー出力
-		auto* _pDevice5 = Engine::D3D12::D3D12Wrapper::Instance().GetDevice5();
 		ComPtr<ID3D12InfoQueue> infoQueue;
-		_pDevice5->QueryInterface(IID_PPV_ARGS(&infoQueue));
+		a_pDevice->QueryInterface(IID_PPV_ARGS(&infoQueue));
 
 		// 変数用意
 		std::vector<D3D12_STATE_SUBOBJECT> _subObjects;
@@ -145,10 +142,10 @@ namespace Engine::Raytracing
 		_desc.NumSubobjects = static_cast<UINT>(_subObjects.size());
 		_desc.pSubobjects = _subObjects.data();
 		_desc.Type = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
-		auto _hr = _pDevice5->CreateStateObject(&_desc, IID_PPV_ARGS(&m_cpPSO));
+		auto _hr = a_pDevice->CreateStateObject(&_desc, IID_PPV_ARGS(&m_cpPSO));
 		if (FAILED(_hr))
 		{
-			assert(0 && "レイトレ用パイプラインステートの作成に失敗");
+			Debug::ErrLog(false, "レイトレ用パイプラインステートの作成に失敗");
 			return false;
 		}
 

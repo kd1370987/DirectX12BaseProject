@@ -72,7 +72,8 @@ namespace Engine::Graphics
 		~GraphicsEngine();
 
 		// 初期化・解放
-		void Init(const GraphicsEngineDesc& a_desc);
+		void Init(
+			D3D12::GraphicsCommandList* a_pCmdList, const GraphicsEngineDesc& a_desc);
 		void Release();
 
 		

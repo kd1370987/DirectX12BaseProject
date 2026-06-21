@@ -12,7 +12,7 @@ namespace Engine::D3D12
 		~StaticStructuredBuffer() override = default;
 
 		// 作成
-		void Create(ID3D12Device* a_pDevice, CommandList& a_cmdList,UINT a_elementNum,const T* a_pInitData);
+		void Create(ID3D12Device* a_pDevice, GraphicsCommandList* a_pCmdList,UINT a_elementNum,const T* a_pInitData);
 
 		// アクセサ
 		const D3D12_SHADER_RESOURCE_VIEW_DESC& GetView() const;
@@ -25,13 +25,13 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(StaticStructuredBuffer);
 	};
 	template<typename T>
-	inline void StaticStructuredBuffer<T>::Create(ID3D12Device* a_pDevice, CommandList& a_cmdList, UINT a_elementNum, const T* a_pInitData)
+	inline void StaticStructuredBuffer<T>::Create(ID3D12Device* a_pDevice, GraphicsCommandList* a_pCmdList, UINT a_elementNum, const T* a_pInitData)
 	{
 		StaticBufferDesc _desc = {};
 		_desc.elementNum = a_elementNum;
 		_desc.strideSize = sizeof(T);
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
-		if (!StaticBuffer::Create(a_pDevice, a_cmdList, _desc, (void*)a_pInitData))
+		if (!StaticBuffer::Create(a_pDevice, a_pCmdList, _desc, (void*)a_pInitData))
 		{
 			assert(0 && "ストラクチャバッファの生成に失敗");
 			return;

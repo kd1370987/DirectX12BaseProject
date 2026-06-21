@@ -6,9 +6,6 @@
 #include "Engine/D3D12//D3DObject/RootSignature/RootSignature.h"
 #include "Engine/D3D12//D3DObject/PipeLineState/PipelineState.h"
 
-#include "Engine/D3D12//D3DObject/CommandList/CommandList.h"
-
-
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 
@@ -29,11 +26,11 @@
 //============================================================================================
 namespace Engine::Graphics
 {
-	void RenderContext::Init(const RenderContextDesc& a_desc)
+	void RenderContext::Init(
+		D3D12::GraphicsCommandList* a_pCmdList,
+		const RenderContextDesc& a_desc
+	)
 	{
-		// D3D12::D3D12Wrapper::Instance().CommandQueueReset();
-		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
-
 		// デバイスのキャッシュ
 		m_pDevice = a_desc.pDevice;
 
@@ -50,17 +47,12 @@ namespace Engine::Graphics
 		);
 
 		// バッファ作成
-		m_instanceBuffer.Create(a_desc.pDevice, *_pCmdList, 1600, nullptr);
-		m_subsetBuffer.Create(a_desc.pDevice, *_pCmdList, 1600, nullptr);
-		m_boneBuffer.Create(a_desc.pDevice, *_pCmdList, a_desc.boneElementNum, nullptr);
-
-
-		// 構造体バッファ作成のためGPU操作を実行
-		//D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
-
-		UINT _heapSize = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize();
+		m_instanceBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);
+		m_subsetBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);
+		m_boneBuffer.Create(a_desc.pDevice, a_pCmdList, a_desc.boneElementNum, nullptr);
 
 		// コピー戦略用SRVヒープの作成
+		UINT _heapSize = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize();
 		m_copyHeap.Create(
 			m_pDevice,
 			L"CopyHeap",
@@ -104,16 +96,6 @@ namespace Engine::Graphics
 		m_subsetBuffer.Release();
 		m_boneBuffer.Release();	
 	}
-	
-
-	void RenderContext::Begine(const FrameDesc& a_desc)
-	{
-		Clear();
-
-		//m_pCmdList = a_desc.pCmdList;
-		m_pCmdList = a_desc.pCmdListClass;
-		
-	}
 
 	void RenderContext::Clear()
 	{
@@ -130,9 +112,13 @@ namespace Engine::Graphics
 		return m_copyHeap.GetHeap();
 	}
 
-	D3D12::CommandList* RenderContext::GetCurrentCmdList()
+	D3D12::GraphicsCommandList* RenderContext::GetCurrentCmdList()
 	{
 		return m_pCmdList;
+	}
+	void RenderContext::SetDirectCommandList(D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		m_pCmdList = a_pCmdList;
 	}
 	//============================================================================================
 	//
@@ -174,8 +160,9 @@ namespace Engine::Graphics
 			_pDSVCPU
 		);
 
-		// ビューポートとシザー矩形をセット
-		D3D12::D3D12Wrapper::Instance().SetViewportAndRect();
+		// ビューポートとシザー矩形を設定
+		m_pCmdList->RSSetViewports(1, &D3D12::D3D12Wrapper::Instance().GetViewport());
+		m_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
 	}
 
 	void RenderContext::BindSRV(
@@ -252,10 +239,6 @@ namespace Engine::Graphics
 		);
 
 		// コマンドリストにバインド
-		//m_pCmdList->NGet()->SetGraphicsRootDescriptorTable(
-		//	a_rootIdx,
-		//	m_copyHeap.GetGPU(_startIdx)
-		//);
 		m_pCmdList->SetGraphicsRootDescriptorTable(
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
@@ -288,8 +271,7 @@ namespace Engine::Graphics
 		);
 
 		// コマンドリストにバインド
-		auto _pCmd = D3D12::D3D12Wrapper::Instance().GetCommandList4();
-		_pCmd->SetComputeRootDescriptorTable(
+		m_pCmdList->SetComputeRootDescriptorTable(
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
 		);
@@ -350,8 +332,7 @@ namespace Engine::Graphics
 		);
 
 		// コマンドリストにバインド
-		auto _pCmd = D3D12::D3D12Wrapper::Instance().GetCommandList4();
-		_pCmd->SetComputeRootDescriptorTable(
+		m_pCmdList->SetComputeRootDescriptorTable(
 			a_rootIdx,
 			m_copyHeap.GetGPU(_startIdx)
 		);
@@ -402,8 +383,7 @@ namespace Engine::Graphics
 	void RenderContext::BindUAVBindLess(UINT a_rootIdx, Handle<D3D12::UAV> a_handle)
 	{
 		// コマンドリストにバインド
-		auto _pCmd = D3D12::D3D12Wrapper::Instance().GetCommandList4();
-		_pCmd->SetComputeRootDescriptorTable(
+		m_pCmdList->SetComputeRootDescriptorTable(
 			a_rootIdx,
 			m_bindLessHeap.GetGPU(a_handle.GetIndex())
 		);
@@ -481,14 +461,14 @@ namespace Engine::Graphics
 		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(_tex->GetRTV());
 
 		// CPUハンドルと、テクスチャ作成時のクリアバリューをセット
-		D3D12::D3D12Wrapper::Instance().ClearRenderTargetView(_cpu,_tex->GetClearColor());
+		D3D12::ClearRenderTargetView(m_pCmdList, _cpu, _tex->GetClearColor());
 	}
 
 
 	void RenderContext::ClearDSV(const Handle<D3D12::DSV>& a_DSVHandle)
 	{
 		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_DSVHandle);
-		D3D12::D3D12Wrapper::Instance().ClearDepthStencilView(_cpu);
+		D3D12::ClearDepthStencilView(m_pCmdList,_cpu);
 	}
 
 
@@ -503,7 +483,7 @@ namespace Engine::Graphics
 		ID3D12DescriptorHeap* _heaps[] = {
 			m_copyHeap.GetHeap()
 		};
-		m_pCmdList->Get4()->SetDescriptorHeaps(std::size(_heaps), _heaps);
+		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 	}
 
 	void RenderContext::BindCopyHeapAndSumpler()
@@ -513,7 +493,7 @@ namespace Engine::Graphics
 			m_copyHeap.GetHeap(),
 			D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
 		};
-		m_pCmdList->Get4()->SetDescriptorHeaps(std::size(_heaps), _heaps);
+		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 	}
 	void RenderContext::BindCopyHeapAndSumplerBindLess()
 	{
@@ -533,7 +513,7 @@ namespace Engine::Graphics
 			m_bindLessHeap.GetHeap(),
 			D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
 		};
-		m_pCmdList->Get4()->SetDescriptorHeaps(std::size(_heaps), _heaps);
+		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 	}
 
 	void RenderContext::BindHeaps(UINT a_numHeaps, ID3D12DescriptorHeap* const* a_pHeaps)
@@ -548,7 +528,7 @@ namespace Engine::Graphics
 
 	void RenderContext::Dispatch(UINT a_x, UINT a_y, UINT a_z)
 	{
-		m_pCmdList->Get4()->Dispatch(a_x,a_y,a_z);
+		m_pCmdList->Dispatch(a_x,a_y,a_z);
 	}
 
 
@@ -558,20 +538,18 @@ namespace Engine::Graphics
 		const std::vector<SubSetData>& a_subsetVec
 	)
 	{
-		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCmdList();
-
 		// インスタンスデータバッファ
 		if(!a_instanceVec.empty())
 		{
 			m_instanceBuffer.UpdateData(a_instanceVec.data(), a_instanceVec.size() * sizeof(InstanceData));
-			m_instanceBuffer.Update(*_pCmdList);
+			m_instanceBuffer.Update(m_pCmdList);
 		}
 
 		// サブセットデータバッファ
 		if(!a_subsetVec.empty())
 		{
 			m_subsetBuffer.UpdateData(a_subsetVec.data(), a_subsetVec.size() * sizeof(SubSetData));
-			m_subsetBuffer.Update(*_pCmdList);
+			m_subsetBuffer.Update(m_pCmdList);
 		}
 
 		// ボーン行列の更新
@@ -581,7 +559,7 @@ namespace Engine::Graphics
 			auto& _boneMatPool = _pCurrentWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 			const auto& _data = _boneMatPool.GetAllData();
 			m_boneBuffer.UpdateData(_data.data(), _data.size());
-			m_boneBuffer.Update(*_pCmdList);
+			m_boneBuffer.Update(m_pCmdList);
 		}
 	}
 
@@ -592,7 +570,7 @@ namespace Engine::Graphics
 		_indexData.subsetIndex = a_subsetBufferIndex;
 		// インデックスバインド
 		BindCB()->BindAndAttachDataRootCBV<BufferIndexData>(
-			m_pCmdList->NGet(),
+			m_pCmdList,
 			a_rootIndex,
 			_indexData
 		);
@@ -619,7 +597,7 @@ namespace Engine::Graphics
 	{
 		auto* _srcTex = Resource::ResourceManager::Instance().Ref(a_src);
 		auto* _dstTex = Resource::ResourceManager::Instance().Ref(a_dst);
-		m_pCmdList->NGet()->CopyResource(_dstTex->GetResource(), _srcTex->GetResource());
+		m_pCmdList->CopyResource(_dstTex->GetResource(), _srcTex->GetResource());
 	}
 
 	void RenderContext::SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig)
@@ -636,9 +614,9 @@ namespace Engine::Graphics
 
 	void RenderContext::SetGraphicPSO(ID3D12PipelineState* a_pPSO)
 	{
-		m_pCmdList->NGet()->SetPipelineState(a_pPSO);
+		m_pCmdList->SetPipelineState(a_pPSO);
 		// プリミティブトポロジーセット
-		m_pCmdList->NGet()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 
 	void RenderContext::SetComputePSO(ID3D12PipelineState* a_pPSO)
@@ -648,7 +626,7 @@ namespace Engine::Graphics
 
 	void RenderContext::SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri)
 	{
-		m_pCmdList->NGet()->IASetPrimitiveTopology(a_pri);
+		m_pCmdList->IASetPrimitiveTopology(a_pri);
 	}
 
 	void RenderContext::BindMaterialSRV(UINT a_index, const Resource::Material* a_pMaterial)
@@ -694,7 +672,7 @@ namespace Engine::Graphics
 		// 描画
 		UINT _faceCount = static_cast<UINT>(a_pMesh->GetMetaData().subsets[a_subIdx].faceCount);
 		UINT _faceStart = static_cast<UINT>(a_pMesh->GetMetaData().subsets[a_subIdx].faceStart);
-		m_pCmdList->NGet()->DrawIndexedInstanced(
+		m_pCmdList->DrawIndexedInstanced(
 			_faceCount * 3, 1, _faceStart * 3, 0, 0
 		);
 	}
@@ -713,7 +691,8 @@ namespace Engine::Graphics
 		D3D12_RESOURCE_STATES a_after
 	)
 	{
-		D3D12::D3D12Wrapper::Instance().ResourceBarrier(
+		D3D12::ResourceBarrier(
+			m_pCmdList,
 			a_pResource,
 			a_before,
 			a_after
@@ -722,14 +701,28 @@ namespace Engine::Graphics
 
 	void RenderContext::ChangeBackBuffer()
 	{
-		// レンダーターゲットをバックバッファへ切り替える
-		D3D12::D3D12Wrapper::Instance().SetBackBuffer();
+		// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
+		auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
+			D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffarTex().GetRTV()
+		);
+
+		// レンダーターゲットを設定
+		m_pCmdList->OMSetRenderTargets(
+			1,
+			&_cpuHandle,
+			FALSE,
+			nullptr
+		);
+
+		// バッファクリア
+		const float _clearColor[] = { 0.0f,0.0f,0.0f,1.0f };
+		m_pCmdList->ClearRenderTargetView(_cpuHandle, _clearColor, 0, nullptr);		// レンダーターゲット
 	}
 
 	void RenderContext::DrawQuad()
 	{
 		// コマンドリストの取得
-		m_pCmdList->NGet()->DrawInstanced(
+		m_pCmdList->DrawInstanced(
 			3, 1, 0, 0
 		);
 	}
@@ -745,10 +738,10 @@ namespace Engine::Graphics
 
 
 		// 頂点バッファ送信
-		m_pCmdList->NGet()->IASetVertexBuffers(0, 1, &m_shapeVertexBuffer.GetView());
+		m_pCmdList->IASetVertexBuffers(0, 1, &m_shapeVertexBuffer.GetView());
 
 		// 描画
-		m_pCmdList->NGet()->DrawInstanced(_vertexCount, 1, 0, 0);
+		m_pCmdList->DrawInstanced(_vertexCount, 1, 0, 0);
 	}
 
 	RenderContext::RenderContext()

@@ -6,7 +6,6 @@
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
-#include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "../../../../../Option/OptionManager.h"
 
@@ -71,7 +70,7 @@ namespace Engine::Graphics
 			_op.phiNormal = _giOp.TAphiNormal;
 			_op.blendRate = _giOp.TAblendRate;
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(
-				_pCmd->NGet(),
+				_pCmd,
 				0,
 				_op
 			);

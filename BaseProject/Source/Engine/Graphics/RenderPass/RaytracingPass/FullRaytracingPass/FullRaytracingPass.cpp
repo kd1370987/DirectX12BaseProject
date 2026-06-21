@@ -1,12 +1,13 @@
 ﻿#include "FullRaytracingPass.h"
 
+#include "../../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
 
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
 
-#include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicEngine.h"
 
@@ -21,6 +22,8 @@ namespace Engine::Graphics
 {
 	void AddFullRaytracingPass(D3D12::PipelineStateManager* a_pPSOManager, RenderGraph& a_rg, const EDrawPhase& a_phase)
 	{
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+
 		struct RuntimeData
 		{
 			Raytracing::RayPSO rayPSO;
@@ -79,9 +82,9 @@ namespace Engine::Graphics
 		_psoInit.pRayGenRootSig = a_pPSOManager->Request(_rayGenSigInit);
 		_psoInit.pMissRootSig = a_pPSOManager->Request(_missSigInit);
 
-		if (!_spPassData->rayPSO.Init(_psoInit))
+		if (!_spPassData->rayPSO.Init(_pDevice,_psoInit))
 		{
-			assert(0 && "エラー！！");
+			Debug::ErrLog(false,"フルレイトレパスの作成に失敗");
 		}
 
 		// シェーダーテーブルの作成
@@ -92,7 +95,7 @@ namespace Engine::Graphics
 			.maxInstance = 1000,
 			.maxLocalRootSize = 0
 		};
-		_spPassData->shaderTable.Init(_shaderTableInit);
+		_spPassData->shaderTable.Init(_pDevice, _shaderTableInit);
 
 		_rpBuilder.Write("FullRay", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
 
@@ -104,7 +107,7 @@ namespace Engine::Graphics
 			// オプション取得
 			const auto& _winOp = Engine::Option::OptionManager::GetInstance().GetWindowOption();
 			// レイワールド更新・シェーダーテーブル更新
-			Engine::Raytracing::RayEngine::Instance().Commit();
+			Engine::Raytracing::RayEngine::Instance().Commit(_pCmdList);
 			const auto& _instanceVec = Raytracing::RayEngine::Instance().GetInstanceVec();
 			if (_instanceVec.empty()) 
 			{
@@ -121,8 +124,7 @@ namespace Engine::Graphics
 			_pCmdList->SetComputeRootSignature(_spPassData->rayPSO.GetRootSig());
 
 			// カメラバインド
-			//Raytracing::RayEngine::Instance().BindCamera(a_pCtx,a_pGE->GetCameraData());
-			a_pCtx->ComputeBindRootCBV(_pCmdList, 0, a_pGE->GetCameraData());
+			a_pCtx->ComputeBindRootCBV(0, a_pGE->GetCameraData());
 
 			// レイワールドバインド
 			Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);

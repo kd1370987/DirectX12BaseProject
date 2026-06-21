@@ -1,9 +1,7 @@
 ﻿#include "GPUResource.h"
 
-#include "../CommandList/CommandList.h"
 namespace Engine::D3D12
 {
-
 	bool GPUResource::Create(ID3D12Device* a_pDevice, const GPUResourceDesc& a_desc)
 	{
 		// リソースサイズ計算
@@ -28,7 +26,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "リソース生成に失敗");
+			Debug::ErrLog(false,"リソース生成に失敗");
 			return false;
 		}
 

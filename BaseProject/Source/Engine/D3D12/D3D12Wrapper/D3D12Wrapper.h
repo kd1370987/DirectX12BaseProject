@@ -57,6 +57,11 @@ namespace Engine::D3D12
 		void ExecuteDirectCommandList();
 		void ExecuteCopyCommandList();
 		void ExecuteComputeCommandList();
+
+
+		// バックバッファ作成
+		void CreateBackBuffer();
+
 		// ==========================================================
 		// 非同期処理用インターフェース
 		// ==========================================================
@@ -79,6 +84,11 @@ namespace Engine::D3D12
 			std::function<void()> a_onComplete
 		);
 
+		/// <summary>
+		/// すべての非同期タスクが完了するまでCPUを待機させる
+		/// </summary>
+		void WaitForAsyncTasks();
+
 	public:
 		// ゲッター
 		Adapter* GetDXGIAdapter();						// GPU取得
@@ -86,14 +96,16 @@ namespace Engine::D3D12
 		UINT CurrentBackBufferIndex();					// 現在のバックバッファ番号
 		UINT CurrentCPUFrameIndex();					// 現在のフレーム番号
 		ID3D12Resource* GetCurrentBackBuffar();			// 現在のバックバッファを取得
+		const Resource::Texture& GetCurrentBackBuffarTex() const;			// 現在のバックバッファを取得
+
+		const Viewport& GetViewport() const { return m_viewport; }
+		const ScissorRect& GetScissorRect() const { return m_scissorRect; }
 
 		CommandQueue* GetCommandQueue();			// 描画キュー
 		CommandQueue* GetCopyCommandQueue();		// コピーキュー
 		CommandQueue* GetComputeCommandQueue();		// コンピュートキュー
 
 		GraphicsCommandList* GetDirectCommandList();	// コマンドリスト取得
-		GraphicsCommandList* GetCopyCommandList();		// コマンドリスト取得
-		GraphicsCommandList* GetComputeCommandList();	// コマンドリスト取得
 
 	private:
 		// ---- D3Dオブジェクト作成 ----
@@ -107,8 +119,6 @@ namespace Engine::D3D12
 		void CreateViewPort(UINT a_windowWidth, UINT a_windowHeight);				// 描画用領域設定
 		void CreateScissorRect(UINT a_windowWidth, UINT a_windowHeight);			// 描画範囲作成
 
-		// バックバッファ作成
-		void CreateBackBuffer();
 
 		// コマンドコンテキスト
 		void CreateCommandContext();

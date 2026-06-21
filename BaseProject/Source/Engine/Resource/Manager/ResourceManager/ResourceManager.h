@@ -11,21 +11,9 @@ namespace Engine::Resource
 	{
 	public:
 
-		// 初期化
-		void Init(ID3D12Device* a_pDevice,ID3D12CommandQueue* a_copyQueue);
-
 		// 解放
 		void Release();
 
-		// 更新
-		void Update();
-
-		// D3D
-		D3D12::CommandList* GetCmdList();	// コマンドリスト取得
-		void CmdQueueReset();				// キューのリセット
-		void SignalFence(ID3D12CommandQueue* a_pCmdQueue);			// フェンスにシグナルを送る
-		void WaitRender();
-		void RegisterUploadBuffer(ID3D12Resource* a_pUploadBuffer);	// アップロードバッファのキャッシュ
 
 		// リソースの追加
 		template<typename T>
@@ -64,20 +52,6 @@ namespace Engine::Resource
 		Pool::ItemPool<ShaderLibrary>	m_shaderLibraryPool;	// シェーダーライブラリ
 		Pool::ItemPool<StateMachineAsset> m_stateMachinePool;	// ステートマシン
 		Pool::ItemPool<ParticlesAsset> m_particlesAssetPool;	// ステートマシン
-
-		// リソース用D3D12オブジェクト群
-		ID3D12CommandQueue* m_pCopyCmdQueue = nullptr;
-		std::unique_ptr<D3D12::CommandAllocator> m_upCmdAllocator = nullptr;
-		std::unique_ptr<D3D12::CommandList> m_upCmdList = nullptr;
-		std::unique_ptr<D3D12::Fence> m_upFence = nullptr;
-		UINT64 m_fenceValue = 0;
-		HANDLE m_fenceEvent;
-
-		// GPUに送信中かどうか
-		bool m_isUploading = false;
-
-		// アップロードバッファの解放待ちキュー
-		std::vector<ID3D12Resource*> m_uploadBufferVec = {};
 
 
 	// シングルトン

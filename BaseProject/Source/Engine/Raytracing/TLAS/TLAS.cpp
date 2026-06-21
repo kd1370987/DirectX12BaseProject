@@ -1,14 +1,13 @@
 ﻿#include "TLAS.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
-
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-void Engine::Raytracing::TLAS::Create(UINT a_maxInstanceNum)
+void Engine::Raytracing::TLAS::Create(
+	D3D12::Device* a_pDevice,
+	D3D12::GraphicsCommandList* a_pCmdList,
+	UINT a_maxInstanceNum
+)
 {
-	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
-	ID3D12GraphicsCommandList4* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList4();
-
 	// 参照
 	uint64_t _tlasSize;
 
@@ -21,7 +20,7 @@ void Engine::Raytracing::TLAS::Create(UINT a_maxInstanceNum)
 
 	// 出力構造体
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO _info;
-	_pDevice5->GetRaytracingAccelerationStructurePrebuildInfo(&_inputs,&_info);
+	a_pDevice->GetRaytracingAccelerationStructurePrebuildInfo(&_inputs,&_info);
 	uint64_t _scratchSize = static_cast<uint64_t>(Alignment::Up(
 		static_cast<size_t>(_info.ScratchDataSizeInBytes),
 		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT
@@ -41,8 +40,8 @@ void Engine::Raytracing::TLAS::Create(UINT a_maxInstanceNum)
 
 	// スクラッチバッファ作成
 	CreateBuffer(
-		_pDevice5,
-		_pCmdList,
+		a_pDevice,
+		a_pCmdList,
 		m_cpScratch,
 		_scratchSize,
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
@@ -51,8 +50,8 @@ void Engine::Raytracing::TLAS::Create(UINT a_maxInstanceNum)
 	);
 	// リザルトバッファ作成
 	CreateBuffer(
-		_pDevice5,
-		_pCmdList,
+		a_pDevice,
+		a_pCmdList,
 		m_cpResource,
 		_resultSize,
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
@@ -69,8 +68,8 @@ void Engine::Raytracing::TLAS::Create(UINT a_maxInstanceNum)
 		0
 	};
 	CreateBuffer(
-		_pDevice5,
-		_pCmdList,
+		a_pDevice,
+		a_pCmdList,
 		m_cpInstanceBuffer,
 		sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_maxInstanceCount,
 		D3D12_RESOURCE_FLAG_NONE,
@@ -100,24 +99,24 @@ void Engine::Raytracing::TLAS::Create(UINT a_maxInstanceNum)
 		D3D12_RESOURCE_STATE_COMMON,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
-	_pCmdList->ResourceBarrier(1, &barrierScratch);
+	a_pCmdList->ResourceBarrier(1, &barrierScratch);
 
 
-	_pCmdList->BuildRaytracingAccelerationStructure(&_asDesc, 0, nullptr);
+	a_pCmdList->BuildRaytracingAccelerationStructure(&_asDesc, 0, nullptr);
 
 
 	// レイトレーシングアクセラレーション構造のビルド官僚待ちのバリア
 	D3D12_RESOURCE_BARRIER _uavBarrier = {};
 	_uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 	_uavBarrier.UAV.pResource = m_cpResource.Get();
-	_pCmdList->ResourceBarrier(1,&_uavBarrier);
+	a_pCmdList->ResourceBarrier(1,&_uavBarrier);
 
 	// SRVとして登録
 	D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
 	_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
 	_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	_srvDesc.RaytracingAccelerationStructure.Location = GetGPUAddress();
-	m_srvHandle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(D3D12::D3D12Wrapper::Instance().GetDevice(),nullptr,&_srvDesc);
+	m_srvHandle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(a_pDevice,nullptr,&_srvDesc);
 
 }
 
@@ -133,10 +132,8 @@ void Engine::Raytracing::TLAS::Release()
 	D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
 }
 
-void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec)
+void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList,const std::vector<Instance>& a_instanceVec)
 {
-	ID3D12GraphicsCommandList4* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList4();
-
 	// インスタンスバッファ構造体更新
 	for (int _i = 0; _i < a_instanceVec.size(); ++_i)
 	{
@@ -178,13 +175,13 @@ void Engine::Raytracing::TLAS::Update(const std::vector<Instance>& a_instanceVec
 	_asDesc.DestAccelerationStructureData = m_cpResource->GetGPUVirtualAddress();
 	_asDesc.ScratchAccelerationStructureData = m_cpScratch->GetGPUVirtualAddress();
 
-	_pCmdList->BuildRaytracingAccelerationStructure(&_asDesc, 0, nullptr);
+	a_pCmdList->BuildRaytracingAccelerationStructure(&_asDesc, 0, nullptr);
 
 	// レイトレーシングアクセラレーション構造のビルド官僚待ちのバリア
 	D3D12_RESOURCE_BARRIER _uavBarrier = {};
 	_uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 	_uavBarrier.UAV.pResource = m_cpResource.Get();
-	_pCmdList->ResourceBarrier(1, &_uavBarrier);
+	a_pCmdList->ResourceBarrier(1, &_uavBarrier);
 }
 
 

@@ -8,7 +8,6 @@
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "../../D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "../../Graphics/RenderContext/RenderContext.h"
 #include "../../Graphics/GraphicEngine.h"
@@ -27,10 +26,10 @@ namespace Engine::Raytracing
 		m_upRayWorld.reset();
 	}
 
-	void Engine::Raytracing::RayEngine::Commit()
+	void Engine::Raytracing::RayEngine::Commit(D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		if (m_isCommit)  return;
-		m_upRayWorld->Commit();
+		m_upRayWorld->Commit(a_pCmdList);
 		m_isCommit = true;
 	}
 
@@ -78,7 +77,10 @@ namespace Engine::Raytracing
 	}
 
 
-	void Engine::Raytracing::RayEngine::CommitWorld()
+	void Engine::Raytracing::RayEngine::CommitWorld(
+		D3D12::Device* a_pDevice,
+		D3D12::GraphicsCommandList* a_pCmdList
+	)
 	{
 		// レイワールドの作成
 		if (!m_upRayWorld)
@@ -86,7 +88,7 @@ namespace Engine::Raytracing
 			m_upRayWorld = std::make_unique<RayWorld>();
 		}
 		// ヒットグループ数がいるが仮置き
-		m_upRayWorld->Init(2);
+		m_upRayWorld->Init(a_pDevice,a_pCmdList,2);
 	}
 
 	void Engine::Raytracing::RayEngine::BegineFrame()

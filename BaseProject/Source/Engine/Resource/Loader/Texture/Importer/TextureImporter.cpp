@@ -2,15 +2,15 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../../../Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../../../D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "../../../Data/Texture/Texture.h"
 
-void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBuffer& a_uploadBuffer)
+void CopyTexRegion(
+	Engine::D3D12::GraphicsCommandList* a_pCmdList,
+	ID3D12Resource* a_pResource,
+	const Engine::Resource::UploadBuffer& a_uploadBuffer
+)
 {
-	// コマンドリストを取得
-	auto* _pCmdList = Engine::Resource::ResourceManager::Instance().GetCmdList();
-
 	for (UINT _i = 0; _i < a_uploadBuffer.subresourceCount; ++_i)
 	{
 		// 参照元
@@ -27,7 +27,7 @@ void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBu
 
 
 		// GPUへこぴー
-		_pCmdList->NGet()->CopyTextureRegion(
+		a_pCmdList->CopyTextureRegion(
 			&_dst,			// コピー先
 			0,					// Xオフセット
 			0,					// Yオフセット
@@ -38,14 +38,14 @@ void CopyTexRegion(ID3D12Resource* a_pResource, const Engine::Resource::UploadBu
 	}
 
 	// 処理待ち用バリア
-	D3D12_RESOURCE_BARRIER _barrier = {};
-	_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	_barrier.Transition.pResource = a_pResource;
-	_barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	_pCmdList->NGet()->ResourceBarrier(1, &_barrier);
+	//D3D12_RESOURCE_BARRIER _barrier = {};
+	//_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	//_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	//_barrier.Transition.pResource = a_pResource;
+	//_barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	//_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+	//_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	//a_pCmdList->ResourceBarrier(1, &_barrier);
 }
 
 Engine::Resource::UploadBuffer CreateUploadHeap(ID3D12Device* a_pDevice, const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)
@@ -148,14 +148,15 @@ bool BuildFromScratchiImage(
 		&_texHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&_texDesc,
-		D3D12_RESOURCE_STATE_COPY_DEST,
+		///D3D12_RESOURCE_STATE_COPY_DEST,
+		D3D12_RESOURCE_STATE_COMMON,
 		nullptr,
 		IID_PPV_ARGS(a_cpRes.ReleaseAndGetAddressOf())
 	);
 	if (FAILED(_hr))
 	{
 		// テクスチャリソースの生成失敗
-		assert(0 && "テクスチャリソースの生成に失敗");
+		Engine::Debug::ErrLog(false, "テクスチャリソースの生成に失敗");
 		return false;
 	}
 
@@ -188,11 +189,27 @@ bool BuildFromScratchiImage(
 	// 操作の終了
 	_uploadBuffer.pResource->Unmap(0, nullptr);
 
-	// GPUにコピー
-	CopyTexRegion(a_cpRes.Get(), _uploadBuffer);
+	// Uploadヒープのポインタを std::shared_ptr に包んで寿命管理用にする
+	auto _spUploadRes = std::make_shared<ComPtr<ID3D12Resource>>(_uploadBuffer.pResource);
 
-	// 解放はリソースマネージャーに任せる
-	Engine::Resource::ResourceManager::Instance().RegisterUploadBuffer(_uploadBuffer.pResource);
+	// UploadBuffer構造体もキャプチャ用に値コピーしておく
+	Engine::Resource::UploadBuffer _capturedUploadBuf = _uploadBuffer;
+
+	// D3D12Wrapperに非同期タスクとして登録
+	Engine::D3D12::D3D12Wrapper::Instance().ExecuteAsyncCopy(
+		// コマンドを積む
+		[a_cpRes, _capturedUploadBuf](Engine::D3D12::GraphicsCommandList* a_pCmdList)
+		{
+			// 引数でもらったコマンドリストを使ってコピー命令を積む
+			CopyTexRegion(a_pCmdList, a_cpRes.Get(), _capturedUploadBuf);
+		},
+		// 完了時のコールバック
+		[_spUploadRes]()
+		{
+			// ここに到達した時点でGPUのコピーは完全に終わっているので
+			// このラムダ式がスコープを抜ける瞬間に_spUploadResが解放される
+		}
+	);
 
 	return true;
 }

@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "../CBData.h"
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
-#include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 
 class CBAllocater;
 
@@ -12,7 +11,6 @@ namespace Engine::Resource
 
 namespace Engine::D3D12
 {
-	class CommandList;
 	class RootSignature;
 }
 
@@ -53,13 +51,6 @@ namespace Engine::Graphics
 		// ボーン用行列数
 		UINT boneElementNum = 0;
 	};
-
-	// マイフレームリセットするときに外部からもらう情報
-	struct FrameDesc
-	{
-		ID3D12GraphicsCommandList* pCmdList = nullptr;
-		D3D12::CommandList* pCmdListClass = nullptr;
-	};
 	
 	// 現在のフレームの描画管理クラス
 	class RenderContext
@@ -73,17 +64,21 @@ namespace Engine::Graphics
 		~RenderContext();
 
 		// 初期化・解放
-		void Init(const RenderContextDesc& a_desc);
+		void Init(
+			D3D12::GraphicsCommandList* a_pCmdList,
+			const RenderContextDesc& a_desc
+		);
 		void Release();
 
 		// フレームの初めに呼ぶ
-		void Begine(const FrameDesc& a_desc);
 		void Clear();
 
 		ID3D12DescriptorHeap* GetCBV_SRV_UAVHeap() const;
 
 		// 現在のコマンドリストを取得
-		D3D12::CommandList* GetCurrentCmdList();
+		D3D12::GraphicsCommandList* GetCurrentCmdList();
+
+		void SetDirectCommandList(D3D12::GraphicsCommandList* a_pCmdList);
 
 		//--------------------------------------------------------------------------------------------
 		// バッファ関係
@@ -95,14 +90,12 @@ namespace Engine::Graphics
 		// グラフィック版
 		template<typename T>
 		void GraphicsBindRootCBV(
-			D3D12::CommandList* a_pCmdList,
 			int a_descIndex,
 			const T& a_data
 		);
 		// コンピュート版
 		template<typename T>
 		void ComputeBindRootCBV(
-			D3D12::CommandList* a_pCmdList,
 			int a_descIndex,
 			const T& a_data
 		);
@@ -140,7 +133,7 @@ namespace Engine::Graphics
 		void ClearRenderTarget(const Handle<Resource::Texture>& a_texHandle);
 
 		// 深度値バッファのクリア
-		void ClearDSV(const Handle<D3D12::DSV>& a_DSVHandle);
+		void ClearDSV( const Handle<D3D12::DSV>& a_DSVHandle);
 
 		// 矩形描画のためのクラス取得
 		ShapeRenderer* RefShapeDraw();
@@ -244,7 +237,7 @@ namespace Engine::Graphics
 		// フレーム限定リソース
 		//--------------------------------------------------------------------------------------------
 		std::unique_ptr<CBAllocater> m_upCBAllocater = nullptr;	// 定数バッファアロケーター
-		D3D12::CommandList* m_pCmdList = nullptr;				// 現在フレームのグラフィックスコマンドリスト
+		D3D12::GraphicsCommandList* m_pCmdList = nullptr;				// 現在フレームのグラフィックスコマンドリスト
 
 		// コピー用ヒープ
 		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_copyHeap;		// ラスタライザ用
@@ -263,13 +256,13 @@ namespace Engine::Graphics
 
 	};
 	template<typename T>
-	inline void RenderContext::GraphicsBindRootCBV(D3D12::CommandList* a_pCmdList, int a_descIndex, const T& a_data)
+	inline void RenderContext::GraphicsBindRootCBV(int a_descIndex, const T& a_data)
 	{
-		m_upCBAllocater->BindAndAttachDataRootCBV(a_pCmdList->NGet(), a_descIndex, a_data);
+		m_upCBAllocater->BindAndAttachDataRootCBV(m_pCmdList, a_descIndex, a_data);
 	}
 	template<typename T>
-	inline void RenderContext::ComputeBindRootCBV(D3D12::CommandList * a_pCmdList, int a_descIndex, const T & a_data)
+	inline void RenderContext::ComputeBindRootCBV(int a_descIndex, const T & a_data)
 	{
-		m_upCBAllocater->BindAndAttachDataComputeRootCBV(a_pCmdList->NGet(), a_descIndex, a_data);
+		m_upCBAllocater->BindAndAttachDataComputeRootCBV(m_pCmdList, a_descIndex, a_data);
 	}
 }

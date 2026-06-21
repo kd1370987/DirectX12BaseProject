@@ -52,8 +52,7 @@ namespace Engine::Graphics
 			a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
 
 			CameraData _cbCam = a_pGE->GetCameraData();
-			auto* _pCmd = a_pCtx->GetCurrentCmdList();
-			a_pCtx->GraphicsBindRootCBV(_pCmd, 0, _cbCam);
+			a_pCtx->GraphicsBindRootCBV(0, _cbCam);
 			a_pCtx->BindInstanceBuffer(2);
 			a_pCtx->BindSubsetBuffer(3);
 			a_pCtx->BindBonePalletBuffer(4);

@@ -23,7 +23,10 @@ namespace Engine::Graphics
 	GraphicsEngine::~GraphicsEngine()
 	{}
 
-	void GraphicsEngine::Init(const GraphicsEngineDesc& a_desc)
+	void GraphicsEngine::Init(
+		D3D12::GraphicsCommandList* a_pCmdList,
+		const GraphicsEngineDesc& a_desc
+	)
 	{
 
 		m_pPipelineStateManager = a_desc.pPipelineStateManager;
@@ -43,7 +46,7 @@ namespace Engine::Graphics
 			_desc.cbAllocatorMemSize = 32 * 1024 * 1024;
 			_desc.boneElementNum = 10000;
 
-			_upCtx->Init(_desc);
+			_upCtx->Init(a_pCmdList,_desc);
 			m_upRenderContextVec.push_back(std::move(_upCtx));
 		}
 
@@ -81,14 +84,22 @@ namespace Engine::Graphics
 		else if (m_currentFrameIndex == 2) { m_upRenderContextVec[2]->Clear(); }
 		else if (m_currentFrameIndex == 3) { m_upRenderContextVec[0]->Clear(); }
 
-		FrameDesc _desc;
-		_desc.pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();
-		_desc.pCmdListClass = D3D12::D3D12Wrapper::Instance().GetCmdList();
-		m_upRenderContextVec[m_currentFrameIndex]->Begine(_desc);
 
 	}
 	void GraphicsEngine::Excute()
 	{
+		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
+
+		D3D12::ResourceBarrier(
+			_pCmdList, // D3D12Wrapper側のバリア関数も引数でリストをもらうように修正してください
+			D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffar(),
+			D3D12_RESOURCE_STATE_PRESENT,
+			D3D12_RESOURCE_STATE_RENDER_TARGET
+		);
+
+		// レンダーコンテキストにコマンドリストをセット
+		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(_pCmdList);
+
 		// GPU用カメラデータを作成
 		CreateGPUCameraData();
 
@@ -106,6 +117,9 @@ namespace Engine::Graphics
 
 		// レンダーパス実行
 		m_upRenderGraph->Excute(this,m_upRenderContextVec[m_currentFrameIndex].get());
+
+		D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
+		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(nullptr);
 
 	}
 	void GraphicsEngine::EndFrame()

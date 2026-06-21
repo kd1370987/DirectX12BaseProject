@@ -1,7 +1,7 @@
 ﻿#include "StaticBuffer.h"
 
-#include "../../D3DObject/CommandList/CommandList.h"
 #include "../../DescriptorHeapManager/DescriptorHeapManager.h"
+
 namespace Engine::D3D12
 {
 	void StaticBuffer::Release()
@@ -13,7 +13,7 @@ namespace Engine::D3D12
 	}
 	bool StaticBuffer::Create(
 		ID3D12Device* a_pDevice, 
-		CommandList& a_cmdList,
+		GraphicsCommandList* a_pCmdList,
 		const StaticBufferDesc& a_desc,
 		const void* a_pInitData
 	)
@@ -48,22 +48,18 @@ namespace Engine::D3D12
 		}
 
 		// GPUにコピーする
-		CopyToGPU(a_cmdList.NGet());
+		CopyToGPU(a_pCmdList);
 
 
 		return true;
 	}
-	void StaticBuffer::Update(CommandList& a_cmdList)
+	void StaticBuffer::Update(GraphicsCommandList* a_pCmdList)
 	{
 		// 更新がなければリターン
 		if (!m_isDrty) return;
 
 		// GPUにコピー
-		CopyToGPU(a_cmdList.NGet());
-	}
-	void StaticBuffer::Update(ID3D12CommandList* a_pCmdList)
-	{
-
+		CopyToGPU(a_pCmdList);
 	}
 	void StaticBuffer::UpdateData(const void* a_data, size_t a_size)
 	{
@@ -102,7 +98,7 @@ namespace Engine::D3D12
 		m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, m_gpuBuffer.GetResource(), &_desc);
 	}
 
-	void StaticBuffer::CopyToGPU(ID3D12GraphicsCommandList* a_pCmdList)
+	void StaticBuffer::CopyToGPU(GraphicsCommandList* a_pCmdList)
 	{
 		// コピー用にGPUバッファを変更
 		m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);

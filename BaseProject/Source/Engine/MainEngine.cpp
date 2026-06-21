@@ -68,19 +68,13 @@ namespace Engine
 		m_upTimeManager = std::make_unique<Time::TimeManager>();
 		m_upTimeManager->Init(static_cast<int>(_winOp.targetFrameRate));
 
+		// DirectX12関連オブジェクトの初期化
+		D3D12::D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), m_upWindow->GetClientWidth(), m_upWindow->GetClientHeight());
+		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
+
 		// アセットマネージャー作成
 		InitializeAssetDatabase();
-
-
-		// DirectX12関連オブジェクトの初期化
-		if (!D3D12::D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), m_upWindow->GetClientWidth(), m_upWindow->GetClientHeight()))
-		{
-			assert(0 && "D3D12Wrapperの初期化失敗");
-			return;
-		}
-
-		// コマンドリセット
-		D3D12::D3D12Wrapper::Instance().CommandQueueReset();
 
 		// ディスクリプタヒープテーブルマネージャーの初期化
 		if (!D3D12::DescriptorHeapManager::Instance().Init(100, 4000,100,100,10))
@@ -88,16 +82,6 @@ namespace Engine
 			assert(0 && "ディスクリプタヒープマネージャーの初期化に失敗");
 			return;
 		}
-
-		// リソースマネージャー
-		Resource::ResourceManager::Instance().Init(
-			D3D12::D3D12Wrapper::Instance().GetDevice(),
-			D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue()
-		);
-
-		// GPU実行
-		// コマンドキューリセット
-		Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 
 		// パイプラインステート・ルートシグネチャ管理
 		m_upPipelineStateManager = std::make_unique<D3D12::PipelineStateManager>();
@@ -112,16 +96,14 @@ namespace Engine
 		_geDesc.width = static_cast<UINT>(_winOp.windowWidth);
 		_geDesc.height = static_cast<UINT>(_winOp.windowHegiht);
 		_geDesc.pPipelineStateManager = m_upPipelineStateManager.get();
-		m_upGraphicsEngine->Init(_geDesc);
+		m_upGraphicsEngine->Init(_pCmdList,_geDesc);
 
 		// パーティクルブッファの生成
-		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
-		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
 		m_upParticleManager = std::make_unique<Particle::ParticleBufferManager>();
 		m_upParticleManager->Init(_pDev,_pCmdList);
 
 		// レイトレワールド構築
-		Engine::Raytracing::RayEngine::Instance().CommitWorld();
+		Engine::Raytracing::RayEngine::Instance().CommitWorld(_pDev,_pCmdList);
 
 		// エディター初期化
 		if (!Engine::Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle()))
@@ -136,18 +118,6 @@ namespace Engine
 		m_upCollisionWorld = std::make_unique<Collision::CollisionWorld>();
 		m_upCollisionWorld->Clear();
 
-		// コマンドリストをクローズ
-		Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet()->Close();
-
-		// コマンドキューに積む
-		ID3D12CommandList* _ppCommandLists[] = { Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet() };
-		auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
-		_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
-
-		// 終了待ち
-		Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
-		Resource::ResourceManager::Instance().WaitRender();
-
 		// ダイレクトキューの実行
 		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
 
@@ -155,16 +125,8 @@ namespace Engine
 
 	void MainEngine::Release()
 	{
-
 		// 設定を保存
 		Option::OptionManager::GetInstance().Serialize();
-
-		// GPU同期待ち（すべての処理を確実に終わらせる）
-		for (UINT _i = 0; _i < static_cast<UINT>(CPU_FRAME_COUNT); ++_i)
-		{
-			D3D12::D3D12Wrapper::Instance().SignalRenderFence();
-			D3D12::D3D12Wrapper::Instance().WaitRender(_i);
-		}
 
 		// アプリケーション・上位層の解放
 		m_upCollisionWorld.reset(); // コリジョン解放
@@ -187,7 +149,7 @@ namespace Engine
 		D3D12::DescriptorHeapManager::Instance().Release();
 
 		// 描画エンジンの解放
-		D3D12::D3D12Wrapper::Instance().Shutdown();
+		D3D12::D3D12Wrapper::Instance().Release();
 
 		// その他の解放
 		m_upTimeManager->Release();
@@ -225,11 +187,9 @@ namespace Engine
 
 		// 入力更新
 		Input::InputManager::Instance().Update();
-		// GPU実行
-		// コマンドキューリセット
-		Engine::Resource::ResourceManager::Instance().CmdQueueReset();
-		// リソース
-		Resource::ResourceManager::Instance().Update();		// コピーバッファの更新
+
+		
+
 		m_upParticleManager->BeginFrame();					// パーティクルデータの更新
 
 		return true;
@@ -261,20 +221,12 @@ namespace Engine
 		// 当たり判定構築
 		m_upCollisionWorld->BuildWorld();
 
-		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();
-		// ディスクリプタヒープをセット
-		ID3D12DescriptorHeap* _heaps[] = {
-			m_upGraphicsEngine->GetRenderContext()->GetCBV_SRV_UAVHeap(),
-		};
-		_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
-
 		// レイワールドインスタンスのクリア
 		Raytracing::RayEngine::Instance().EndFrame();
 	}
 
 	void MainEngine::EndDraw()
 	{
-		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetCommandList();
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 
 		Editor::MainEditor::Instance().StartWatch("EditorPhase");
@@ -282,6 +234,7 @@ namespace Engine
 		// ゲームモード以外の処理
 		if (m_config.GetRuntimeConfig().appMode != EAppMode::Game)
 		{
+			auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
 			// ディスクリプタヒープをセット
 			ID3D12DescriptorHeap* _heaps[] = {
 					D3D12::DescriptorHeapManager::Instance().GetImGuiHeap()
@@ -289,10 +242,11 @@ namespace Engine
 			_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 			// エディター描画
 			Engine::Editor::MainEditor::Instance().Draw(
-				D3D12::D3D12Wrapper::Instance().GetCommandList(),
+				_pCmdList,
 				_winOp.windowWidth,
 				_winOp.windowHegiht
 			);
+			D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
 		}
 
 		m_upGraphicsEngine->EndFrame();
@@ -300,18 +254,6 @@ namespace Engine
 		Editor::MainEditor::Instance().EndWatch("EditorPhase");
 
 		Editor::MainEditor::Instance().StartWatch("EndFramePhase");
-
-		// コマンドリストをクローズ
-		Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet()->Close();
-
-		// コマンドキューに積む
-		ID3D12CommandList* _ppCommandLists[] = { Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet() };
-		auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
-		_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
-
-		// 終了待ち
-		Resource::ResourceManager::Instance().SignalFence(_cmdQueue);
-		Resource::ResourceManager::Instance().WaitRender();
 
 		// 描画終了
 		D3D12::D3D12Wrapper::Instance().EndFrame(_winOp.isVsync);

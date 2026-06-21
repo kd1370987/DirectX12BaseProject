@@ -31,7 +31,7 @@ namespace Engine::Particle
 		/// <param name="a_pCmdList">コマンドリスト</param>
 		/// <param name="a_requests">リクエストデータ</param>
 		void UploadEmitRequests(
-			ID3D12GraphicsCommandList* a_pCmdList,
+			D3D12::GraphicsCommandList* a_pCmdList,
 			std::span<const EmitterData> a_requests
 		);
 		

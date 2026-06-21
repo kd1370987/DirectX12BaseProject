@@ -22,14 +22,18 @@ namespace Engine::Raytracing
 		);
 
 		// 初期化
-		void Init(uint32_t a_hitGroupNum);
+		void Init(
+			D3D12::Device* a_pDevice,
+			D3D12::GraphicsCommandList* a_pCmdList, 
+			uint32_t a_hitGroupNum
+		);
 
 		// 解放
 		void Release();
 
 		// レイトレワールド構築
 		// マイフレーム構築
-		void Commit();
+		void Commit(D3D12::GraphicsCommandList* a_pCmdList);
 
 		// インスタンスのクリア
 		void Clear();

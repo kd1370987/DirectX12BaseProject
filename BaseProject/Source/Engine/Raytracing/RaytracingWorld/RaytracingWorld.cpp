@@ -5,7 +5,6 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
-#include "../../D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
@@ -27,9 +26,6 @@ namespace Engine::Raytracing
 	)
 	{
 		m_isDrity = true;
-		// レイワールドにインスタンスを登録する処理
-		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCommandList();
 
 		// モデルのノードとメッシュを参照してインスタンスに変換
 		auto* _model = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
@@ -88,13 +84,13 @@ namespace Engine::Raytracing
 		m_isCommit = false;
 	}
 
-	void Engine::Raytracing::RayWorld::Init(uint32_t a_hitGroupNum)
+	void Engine::Raytracing::RayWorld::Init(
+		D3D12::Device* a_pDevice,
+		D3D12::GraphicsCommandList* a_pCmdList, 
+		uint32_t a_hitGroupNum
+	)
 	{	
 		// GPU実行のためキューリセット
-		//D3D12::D3D12Wrapper::Instance().CommandQueueReset();
-		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
-		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
-		
 		// 仮置き
 		UINT _maxInstanceNum = 1000;
 
@@ -104,17 +100,17 @@ namespace Engine::Raytracing
 			m_upTLAS = std::make_unique<TLAS>();
 		}
 		m_upTLAS->SetHitGroupNum(a_hitGroupNum);
-		m_upTLAS->Create(_maxInstanceNum);
+		m_upTLAS->Create(a_pDevice, a_pCmdList, _maxInstanceNum);
 
 		// インスタンスデータ作成
 		m_instanceDataVec.clear();
 		m_instanceDataVec.resize(_maxInstanceNum);
-		m_instanceDataBuffer.Create(_pDevice, *_pCmdList, _maxInstanceNum, m_instanceDataVec.data());
+		m_instanceDataBuffer.Create(a_pDevice, a_pCmdList, _maxInstanceNum, m_instanceDataVec.data());
 
 		// マテリアルデータ作成
 		m_materialVec.clear();
 		m_materialVec.resize(_maxInstanceNum);
-		m_materialDataBuffer.Create(_pDevice, *_pCmdList, _maxInstanceNum, m_materialVec.data());
+		m_materialDataBuffer.Create(a_pDevice, a_pCmdList, _maxInstanceNum, m_materialVec.data());
 	}
 
 	void RayWorld::Release()
@@ -135,12 +131,10 @@ namespace Engine::Raytracing
 	}
 
 
-	void Engine::Raytracing::RayWorld::Commit()
+	void Engine::Raytracing::RayWorld::Commit(D3D12::GraphicsCommandList* a_pCmdList)
 	{
-		auto* _pCmdList = Engine::D3D12::D3D12Wrapper::Instance().GetCmdList();
-
 		// TLAS更新
-		m_upTLAS->Update(m_instanceVec);
+		m_upTLAS->Update(a_pCmdList,m_instanceVec);
 
 		UINT _materialOffset = 0;
 		// 構造体バッファ更新
@@ -164,8 +158,8 @@ namespace Engine::Raytracing
 		}
 		m_instanceDataBuffer.UpdateData((void*)m_instanceDataVec.data(), m_instanceDataVec.size() * sizeof(InstanceData));
 		m_materialDataBuffer.UpdateData((void*)m_materialVec.data(), m_materialVec.size() * sizeof(Material));
-		m_instanceDataBuffer.Update(*_pCmdList);
-		m_materialDataBuffer.Update(*_pCmdList);
+		m_instanceDataBuffer.Update(a_pCmdList);
+		m_materialDataBuffer.Update(a_pCmdList);
 	}
 
 	void Engine::Raytracing::RayWorld::Clear()

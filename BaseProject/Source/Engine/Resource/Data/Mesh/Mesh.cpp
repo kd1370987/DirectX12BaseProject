@@ -1,7 +1,6 @@
 ﻿#include "Mesh.h"
 
 #include "../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
-#include "../../../D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
@@ -24,37 +23,35 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 	// ラスタライザーデータ作成
 	CreateRasterData(_pDevice,a_vertices,a_face, DXGI_FORMAT_R32_UINT);
-	
-	// コマンドキューリセット
-	auto* _pCmd = Engine::Resource::ResourceManager::Instance().GetCmdList();
-//	Engine::Resource::ResourceManager::Instance().CmdQueueReset();
 
 	m_opRasterData->indexBuffer.CreateSRV(_pDevice);
 	m_opRasterData->vertexBuffer.CreateSRV(_pDevice);
 
-	// レイ用データ作成
-	CreateRtData(
-		_pDevice,
-		_pCmd,
-		a_subsets,
-		m_opRasterData->vertexBuffer,
-		DXGI_FORMAT_R32G32B32_FLOAT,
-		m_opRasterData->indexBuffer,
-		a_vertices,
-		a_face
+	D3D12::D3D12Wrapper::Instance().ExecuteAsyncCompute(
+		// コマンドを積む処理
+		[this, _pDevice, a_subsets, a_vertices, a_face](D3D12::GraphicsCommandList* a_pCmdList)
+		{
+			// レイ用データ（BLAS等）の作成とコピー命令を積む
+			CreateRtData(
+				_pDevice,
+				a_pCmdList,
+				a_subsets,
+				m_opRasterData->vertexBuffer,
+				DXGI_FORMAT_R32G32B32_FLOAT,
+				m_opRasterData->indexBuffer,
+				a_vertices,
+				a_face
+			);
+		},
+		// 完了時のコールバック
+		[]()
+		{
+			// ※ もし CreateRtData や CreateRasterData の内部で
+			// 一時的な Uploadヒープ を作成している場合は、テクスチャの時と同じように
+			// std::shared_ptr でキャプチャしてここで寿命を尽きさせる設計にしてください。
+			Engine::Debug::Log("メッシュの非同期セットアップ完了！");
+		}
 	);
-
-	//// コマンドリストをクローズ
-	//Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet()->Close();
-
-	//// コマンドキューに積む
-	//ID3D12CommandList* _ppCommandLists[] = { Engine::Resource::ResourceManager::Instance().GetCmdList()->NGet() };
-	//auto* _cmdQueue = Engine::D3D12::D3D12Wrapper::Instance().GetCopyCommandQueue();
-	//_cmdQueue->ExecuteCommandLists(std::size(_ppCommandLists), _ppCommandLists);
-
-	//// 終了待ち
-	//ResourceManager::Instance().SignalFence(_cmdQueue);
-	//ResourceManager::Instance().WaitRender();
 	return true;
 }
 
@@ -73,7 +70,16 @@ void Engine::Resource::Mesh::CreateRasterData(ID3D12Device* a_pDevice, const std
 	_raster.Create(a_pDevice, a_vertices, a_face, a_indexFormat);
 }
 
-void Engine::Resource::Mesh::CreateRtData(ID3D12Device* a_pDevice, D3D12::CommandList* a_pCmdList, const std::vector<MeshSubset>& a_subset, const D3D12::DynamicVertexBuffer<MeshVertexFloat>& a_vertexBuffer, DXGI_FORMAT a_vertexFarstFormat, const D3D12::DynamicIndexBuffer& a_indexBuffer, const std::vector<MeshVertexFloat>& a_vertices, const std::vector<MeshFace>& a_face)
+void Engine::Resource::Mesh::CreateRtData(
+	D3D12::Device* a_pDevice,
+	D3D12::GraphicsCommandList* a_pCmdList, 
+	const std::vector<MeshSubset>& a_subset,
+	const D3D12::DynamicVertexBuffer<MeshVertexFloat>& a_vertexBuffer,
+	DXGI_FORMAT a_vertexFarstFormat, 
+	const D3D12::DynamicIndexBuffer& a_indexBuffer,
+	const std::vector<MeshVertexFloat>& a_vertices, 
+	const std::vector<MeshFace>& a_face
+)
 {
 	auto& _rtData = m_opRtData.emplace();
 	_rtData.Create(a_pDevice,a_pCmdList,a_subset,a_vertexBuffer,a_vertexFarstFormat,a_indexBuffer,a_vertices,a_face);

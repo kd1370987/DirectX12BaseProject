@@ -8,13 +8,17 @@ namespace Engine::Raytracing
 	public:
 
 		// 作成
-		void Create(UINT a_maxInstanceNum);
+		void Create(
+			D3D12::Device* a_pDevice,
+			D3D12::GraphicsCommandList* a_pCmdList,
+			UINT a_maxInstanceNum
+		);
 
 		// 解放
 		void Release();
 
 		// 更新
-		void Update(const std::vector<Instance>& a_instanceVec);
+		void Update(D3D12::GraphicsCommandList* a_pCmdList,const std::vector<Instance>& a_instanceVec);
 
 		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const
 		{

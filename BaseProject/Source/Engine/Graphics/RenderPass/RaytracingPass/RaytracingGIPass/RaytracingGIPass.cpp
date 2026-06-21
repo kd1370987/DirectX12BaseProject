@@ -1,5 +1,6 @@
 ﻿#include "RaytracingGIPass.h"
 
+#include "../../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
 #include "Engine/Graphics/GraphicEngine.h"
@@ -7,7 +8,6 @@
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
 
-#include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
 
@@ -41,6 +41,8 @@ namespace Engine::Graphics
 		RenderPassNode _node = {};
 		_node.name = "RaytracingGIPass";
 		RGGlobalsPassBuilder _rpBuilder(&_node, &a_rg);
+
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
 		// レイ用ルートシグネチャ
 		D3D12::RootSignatureDesc _rayGlobal = {};
@@ -104,7 +106,7 @@ namespace Engine::Graphics
 		_psoInit.pMissRootSig = a_pPSOManager->Request(_missSigInit);
 		_psoInit.SetPayload<Payload>();
 
-		if (!_spPassData->rayPSO.Init(_psoInit))
+		if (!_spPassData->rayPSO.Init(_pDevice,_psoInit))
 		{
 			assert(0 && "エラー！！");
 		}
@@ -117,7 +119,7 @@ namespace Engine::Graphics
 			.maxInstance = 1000,
 			.maxLocalRootSize = 0
 		};
-		_spPassData->shaderTable.Init(_shaderTableInit);
+		_spPassData->shaderTable.Init(_pDevice, _shaderTableInit);
 
 		_rpBuilder.Read("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 		_rpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
@@ -133,7 +135,7 @@ namespace Engine::Graphics
 			// オプション取得
 			const auto& _winOp = Engine::Option::OptionManager::GetInstance().GetWindowOption();
 			// レイワールド更新・シェーダーテーブル更新
-			Engine::Raytracing::RayEngine::Instance().Commit();
+			Engine::Raytracing::RayEngine::Instance().Commit(_pCmdList);
 			const auto& _instanceVec = Raytracing::RayEngine::Instance().GetInstanceVec();
 			if (_instanceVec.empty()) 
 			{
@@ -150,8 +152,7 @@ namespace Engine::Graphics
 			_pCmdList->SetComputeRootSignature(_spPassData->rayPSO.GetRootSig());
 
 			// カメラバインド
-			//Raytracing::RayEngine::Instance().BindCamera(a_pCtx, a_pGE->GetCameraData());
-			a_pCtx->ComputeBindRootCBV(_pCmdList, 0, a_pGE->GetCameraData());
+			a_pCtx->ComputeBindRootCBV(0, a_pGE->GetCameraData());
 
 			// レイワールドバインド
 			Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);
@@ -165,7 +166,7 @@ namespace Engine::Graphics
 			_gbIdx.normal = _spPassData->pRG->GetSRVHandle("GBufferNormal").GetIndex();
 			_gbIdx.frameCount = _spPassData->frameCount++;
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<GBufferIndex>(
-				_pCmdList->NGet(),
+				_pCmdList,
 				5,
 				_gbIdx
 			);
@@ -173,7 +174,7 @@ namespace Engine::Graphics
 			// ライト
 			const AmbientData& _ambient = a_pGE->GetAmbientData();
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(
-				_pCmdList->NGet(),
+				_pCmdList,
 				6,
 				_ambient
 			);

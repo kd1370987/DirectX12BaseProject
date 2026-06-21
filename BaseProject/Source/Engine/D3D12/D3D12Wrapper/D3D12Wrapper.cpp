@@ -20,21 +20,19 @@ namespace Engine::D3D12
 		FindAdapter();			// アダプター検索	
 		CreateDevice();			// デバイス作成
 
-		// バッファリング関係
-		CreateSwapChain(a_hWnd,a_windowWidth,a_windowHeight);		// スワップチェイン作成
-		CreateViewPort(a_windowWidth, a_windowHeight);				// 描画用領域設定
-		CreateScissorRect(a_windowWidth, a_windowHeight);			// 描画範囲作成
-
-		CreateBackBuffer();											// バックバッファ作成
-
 		// コマンドコンテキスト作成
 		CreateCommandContext();
+
+		// 非同期マネージャー作成
+		CreateAsyncGPUManager();
 
 		// フレームマネージャー作成
 		CreateFrameManager();
 
-		// 非同期マネージャー作成
-		CreateAsyncGPUManager();
+		// バッファリング関係
+		CreateSwapChain(a_hWnd,a_windowWidth,a_windowHeight);		// スワップチェイン作成
+		CreateViewPort(a_windowWidth, a_windowHeight);				// 描画用領域設定
+		CreateScissorRect(a_windowWidth, a_windowHeight);			// 描画範囲作成
 
 		Debug::Log("D3D12Wrapper作成");
 	}
@@ -82,38 +80,40 @@ namespace Engine::D3D12
 		m_upFrameManager->BeginFrame();
 
 		// コマンドリスト取得
-		m_pCmdList = GetDirectCommandList();
+		//m_pCmdList = GetDirectCommandList();
 
-		// ビューポートとシザー矩形を設定
-		m_pCmdList->RSSetViewports(1, &m_viewport);
-		m_pCmdList->RSSetScissorRects(1, &m_scissorRect);
+		//// ビューポートとシザー矩形を設定
+		//m_pCmdList->RSSetViewports(1, &m_viewport);
+		//m_pCmdList->RSSetScissorRects(1, &m_scissorRect);
 
-		// レンダーターゲットが使用可能になるまで待つ
-		ResourceBarrier(
-			m_pCmdList,
-			m_backBuffers[m_currentBackBufferIndex].GetResource(),
-			D3D12_RESOURCE_STATE_PRESENT,
-			D3D12_RESOURCE_STATE_RENDER_TARGET
-		);
+		//// レンダーターゲットが使用可能になるまで待つ
+		//ResourceBarrier(
+		//	m_pCmdList,
+		//	m_backBuffers[m_currentBackBufferIndex].GetResource(),
+		//	D3D12_RESOURCE_STATE_PRESENT,
+		//	D3D12_RESOURCE_STATE_RENDER_TARGET
+		//);
 	}
 	void D3D12Wrapper::EndFrame(bool a_isVsync)
 	{
+
+		auto* _pBarrierCmdList = GetDirectCommandList();
 		// レンダーターゲットに書き込みが終わるまで待つ
 		ResourceBarrier(
-			m_pCmdList,
+			_pBarrierCmdList,
 			m_backBuffers[m_currentBackBufferIndex].GetResource(),
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATE_PRESENT
 		);
 
 		// コマンドリストを実行待ちに追加
-		SubmitDirectCommandList(m_pCmdList);
+		SubmitDirectCommandList(_pBarrierCmdList);
 
 		// コマンドリストの実行
 		m_upCommandContext->RefDirectPool()->ExecutePendingLists();
 		//m_upCommandContext->RefCopyPool()->ExecutePendingLists();			// フレームを止めたくないからまた別で管理するかも
 		//m_upCommandContext->RefComputePool()->ExecutePendingLists();
-		m_pCmdList = nullptr;
+		//m_pCmdList = nullptr;
 
 		// フレーム終了シグナル
 		m_upFrameManager->EndFrame(m_upCommandContext->RefDirectPool()->GetCommandQueue());
@@ -142,6 +142,10 @@ namespace Engine::D3D12
 			_fenceValue,
 			a_onComplete
 		);
+	}
+
+	void D3D12Wrapper::WaitForAsyncTasks()
+	{
 	}
 
 	//==================================================================================
@@ -179,6 +183,11 @@ namespace Engine::D3D12
 		return m_backBuffers[m_currentBackBufferIndex].GetResource();
 	}
 
+	const Resource::Texture& D3D12Wrapper::GetCurrentBackBuffarTex() const
+	{
+		return m_backBuffers[m_currentBackBufferIndex];
+	}
+
 	// コマンドキュー取得
 	ID3D12CommandQueue* D3D12Wrapper::GetCommandQueue()
 	{
@@ -200,14 +209,6 @@ namespace Engine::D3D12
 			m_cpDevice.Get(),
 			m_upFrameManager->GetCurrentAllocator()
 		);
-	}
-	GraphicsCommandList* D3D12Wrapper::GetCopyCommandList()
-	{
-		return nullptr;
-	}
-	GraphicsCommandList* D3D12Wrapper::GetComputeCommandList()
-	{
-		return nullptr;
 	}
 	//==================================================================================
 	// 
@@ -349,7 +350,7 @@ namespace Engine::D3D12
 			bool _isTier3 = _featureOptions.ResourceBindingTier == D3D12_RESOURCE_BINDING_TIER_3;
 			m_isDynamicResourceSupported = _isTier3;
 		}
-		Debug::ErrLog(!m_isDynamicResourceSupported,"動的リソースがサポートされていないGPUが選択されました");
+		Debug::ErrLog(m_isDynamicResourceSupported,"動的リソースがサポートされていないGPUが選択されました");
 
 		// デバッグ設定
 		if (m_isDebag)
@@ -389,7 +390,7 @@ namespace Engine::D3D12
 
 		// キュー取得
 		auto* _pCmdQueue = m_upCommandContext->RefDirectPool()->GetCommandQueue();
-		Debug::ErrLog((!_pCmdQueue), "コマンドキューの取得に失敗");
+		Debug::ErrLog(_pCmdQueue, "コマンドキューの取得に失敗");
 
 		// スワップチェインの作成
 		ComPtr<IDXGISwapChain1> _swapChain1;
@@ -401,7 +402,7 @@ namespace Engine::D3D12
 			nullptr,
 			&_swapChain1
 		);
-		Debug::ErrLog(FAILED(_hr), "スワップチェインの作成失敗");
+		Debug::ErrLog(SUCCEEDED(_hr), "スワップチェインの作成失敗");
 
 		// コピー
 		_swapChain1.As(&m_cpSwapChain);

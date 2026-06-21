@@ -56,7 +56,7 @@ namespace Engine::Raytracing
 		void Release();
 
 		// パイプラインステート作成
-		bool Init(const RayPSODesc& a_desc);
+		bool Init(D3D12::Device* a_pDevice, RayPSODesc& a_desc);
 
 		const void* GetShaderID(const std::string& a_shaderEntry) const;
 		const void* GetShaderID(const wchar_t* a_shaderEntry) const;

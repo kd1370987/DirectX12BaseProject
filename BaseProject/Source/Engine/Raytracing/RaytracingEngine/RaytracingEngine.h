@@ -21,7 +21,7 @@ namespace Engine::Raytracing
 		void Release();
 
 		// コミット
-		void Commit();
+		void Commit(D3D12::GraphicsCommandList* a_pCmdList);
 		void BindCamera(Graphics::RenderContext* a_pRCT,const Graphics::CameraData& a_cbCam);
 		void BindTLAS(Graphics::RenderContext* a_pRCT);
 		void Dispatch(Graphics::RenderContext* a_pRCT, ShaderTable& a_shadertable);
@@ -35,7 +35,8 @@ namespace Engine::Raytracing
 		);
 
 		// レイトレワールドの構築
-		void CommitWorld();
+		void CommitWorld(D3D12::Device* a_pDevice,
+			D3D12::GraphicsCommandList* a_pCmdList);
 
 		// フレーム開始処理
 		void BegineFrame();

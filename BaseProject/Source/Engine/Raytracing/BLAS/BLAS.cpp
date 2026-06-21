@@ -1,10 +1,13 @@
 ﻿#include "BLAS.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../D3D12/D3DObject/CommandList/CommandList.h"
 
-void Engine::Raytracing::BLAS::Create(const D3D12::DynamicVertexBuffer<Resource::RTVertex>& a_vertexBuffer, const D3D12::DynamicIndexBuffer& a_indexBuffer)
+void Engine::Raytracing::BLAS::Create(
+	D3D12::Device* a_pDevice,
+	D3D12::GraphicsCommandList* a_pCmdList,
+	const D3D12::DynamicVertexBuffer<Resource::RTVertex>& a_vertexBuffer, 
+	const D3D12::DynamicIndexBuffer& a_indexBuffer
+)
 {
 	// ジオメトリ情報生成
 	D3D12_RAYTRACING_GEOMETRY_DESC _desc = {};
@@ -22,7 +25,7 @@ void Engine::Raytracing::BLAS::Create(const D3D12::DynamicVertexBuffer<Resource:
 	_desc.Triangles.Transform3x4 = 0;
 
 	// BLAS生成
-	Create(_desc);
+	Create(a_pDevice,a_pCmdList,_desc);
 }
 
 void Engine::Raytracing::BLAS::Release()
@@ -33,39 +36,42 @@ void Engine::Raytracing::BLAS::Release()
 	m_geometryDescVec.clear();
 }
 
-void Engine::Raytracing::BLAS::Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_desc)
+void Engine::Raytracing::BLAS::Create(
+	D3D12::Device* a_pDevice,
+	D3D12::GraphicsCommandList* a_pCmdList,
+	const D3D12_RAYTRACING_GEOMETRY_DESC& a_desc
+)
 {
 	// BLAS生成
-	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
-	//auto* _pCmdList4 = D3D12::D3D12Wrapper::Instance().GetCommandList4();
-	auto* _pCmdList4 = Resource::ResourceManager::Instance().GetCmdList()->Get4();
 	m_geometryDescVec.clear();
 	m_geometryDescVec.push_back(a_desc);
 	Build(
-		_pDevice5,
-		_pCmdList4,
+		a_pDevice,
+		a_pCmdList,
 		m_geometryDescVec
 	);
 }
 
-void Engine::Raytracing::BLAS::Create(const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc)
+void Engine::Raytracing::BLAS::Create(
+	D3D12::Device* a_pDevice,
+	D3D12::GraphicsCommandList* a_pCmdList,
+	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc
+)
 {
 	// BLAS生成
-	auto* _pDevice5 = D3D12::D3D12Wrapper::Instance().GetDevice5();
-	auto* _pCmdList4 = Resource::ResourceManager::Instance().GetCmdList()->Get4();
 	m_geometryDescVec.clear();
 	m_geometryDescVec = a_desc;
 	Build(
-		_pDevice5,
-		_pCmdList4,
+		a_pDevice,
+		a_pCmdList,
 		m_geometryDescVec
 	);
 }
 
 
 bool Engine::Raytracing::BLAS::Build(
-	ID3D12Device5* a_pDevice, 
-	ID3D12GraphicsCommandList4* a_cmdList, 
+	D3D12::Device* a_pDevice,
+	D3D12::GraphicsCommandList* a_pCmdList,
 	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec
 )
 {
@@ -115,7 +121,7 @@ bool Engine::Raytracing::BLAS::Build(
 		D3D12_RESOURCE_STATE_COMMON,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
-	a_cmdList->ResourceBarrier(1, &barrierAS2);
+	a_pCmdList->ResourceBarrier(1, &barrierAS2);
 
 	// BLASバッファ作成
 	auto _blasDesc = CD3DX12_RESOURCE_DESC::Buffer(
@@ -137,14 +143,14 @@ bool Engine::Raytracing::BLAS::Build(
 	_buildDesc.Inputs = _inputs;
 	_buildDesc.ScratchAccelerationStructureData = m_cpScratch->GetGPUVirtualAddress();
 	_buildDesc.DestAccelerationStructureData = m_cpResource->GetGPUVirtualAddress();
-	a_cmdList->BuildRaytracingAccelerationStructure(&_buildDesc, 0, nullptr);
+	a_pCmdList->BuildRaytracingAccelerationStructure(&_buildDesc, 0, nullptr);
 
 	// UAVバリア
 	D3D12_RESOURCE_BARRIER _barrier = {};
 	_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 	_barrier.UAV.pResource = m_cpResource.Get();
 
-	a_cmdList->ResourceBarrier(1,&_barrier);
+	a_pCmdList->ResourceBarrier(1,&_barrier);
 
 	return true;
 }

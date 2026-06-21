@@ -34,7 +34,7 @@ namespace Engine::Raytracing
 		~ShaderTable() { Release(); }
 
 		// シェーダーテーブル初期化
-		void Init(const ShaderTableInit& a_shaderInit);
+		void Init(D3D12::Device* a_pDevice, const ShaderTableInit& a_shaderInit);
 
 		// 解放
 		void Release();

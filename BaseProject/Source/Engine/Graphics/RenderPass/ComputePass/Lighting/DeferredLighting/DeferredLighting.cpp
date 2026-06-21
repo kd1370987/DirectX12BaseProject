@@ -10,7 +10,6 @@
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
-#include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 
 #include "../../../../../Option/OptionManager.h"
 
@@ -78,7 +77,7 @@ namespace Engine::Graphics
 			CameraData _cbCam = a_pGE->GetCameraData();
 			auto* _pCmd = a_pCtx->GetCurrentCmdList();
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(
-				_pCmd->NGet(),
+				_pCmd,
 				0, 
 				_cbCam
 			);
@@ -86,7 +85,7 @@ namespace Engine::Graphics
 			// アンビエントカラー
 			const AmbientData& _amib = a_pGE->GetAmbientData();
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(
-				_pCmd->NGet(), 
+				_pCmd, 
 				1,
 				_amib
 			);

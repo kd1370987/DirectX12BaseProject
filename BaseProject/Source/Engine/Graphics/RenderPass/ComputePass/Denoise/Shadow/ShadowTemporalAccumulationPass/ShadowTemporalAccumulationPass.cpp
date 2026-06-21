@@ -4,7 +4,6 @@
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
-#include "Engine/D3D12/D3DObject/CommandList/CommandList.h"
 #include "Engine/Option/OptionManager.h"
 
 namespace Engine::Graphics
@@ -89,7 +88,7 @@ namespace Engine::Graphics
 					_op.phiDepth = _giOp.TAphiDepth;
 					_op.phiNormal = _giOp.TAphiNormal;
 					_op.blendRate = _giOp.TAblendRate;
-					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd->NGet(), 0, _op);
+					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, _op);
 
 					// バインド
 					a_pCtx->BindHeap();

@@ -3,13 +3,12 @@
 #include "../RaytracingWorld/RaytracingWorld.h"
 #include "../RayPSO/RayPSO.h"
 
-#include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "../../Graphics/RenderContext/RenderContext.h"
 
-void Engine::Raytracing::ShaderTable::Init(const ShaderTableInit& a_shaderInit)
+void Engine::Raytracing::ShaderTable::Init(D3D12::Device* a_pDevice, const ShaderTableInit& a_shaderInit)
 {
 	m_maxLocalRootSigSize = a_shaderInit.maxLocalRootSize;
 
@@ -33,8 +32,7 @@ void Engine::Raytracing::ShaderTable::Init(const ShaderTableInit& a_shaderInit)
 	auto _heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
 	// シェーダーテーブル作成
-	auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice5();
-	auto _hr = _pDevice->CreateCommittedResource(
+	auto _hr = a_pDevice->CreateCommittedResource(
 		&_heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&_desc,

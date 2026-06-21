@@ -7,8 +7,8 @@ namespace Engine::Resource
 	struct RaytracingMesh
 	{
 		void Create(
-			ID3D12Device* a_pDevice,
-			D3D12::CommandList* a_pCmdList,
+			D3D12::Device* a_pDevice,
+			D3D12::GraphicsCommandList* a_pCmdList,
 			const std::vector<MeshSubset>& a_subset,							// サブセット配列
 			const D3D12::DynamicVertexBuffer<MeshVertexFloat>& a_vertexBuffer,	// 頂点バッファ
 			DXGI_FORMAT a_vertexFarstFormat,

@@ -30,14 +30,13 @@ namespace Engine::D3D12
 		// 作成
 		bool Create(
 			ID3D12Device* a_pDevice, 
-			CommandList& a_cmdList,
+			GraphicsCommandList* a_pCmdList,
 			const StaticBufferDesc& a_desc,
 			const void* a_pInitData
 		);
 
 		// 更新
-		void Update(CommandList& a_cmdList);
-		void Update(ID3D12CommandList* a_pCmdList);
+		void Update(GraphicsCommandList* a_pCmdList);
 
 		// データ更新
 		void UpdateData(const void* a_data, size_t a_size) override;
@@ -56,7 +55,7 @@ namespace Engine::D3D12
 		void CreateSRVInternal(ID3D12Device* a_pDevice);
 
 		// GPUバッファへデータをコピー
-		void CopyToGPU(ID3D12GraphicsCommandList* a_pCmdList);
+		void CopyToGPU(GraphicsCommandList* a_pCmdList);
 
 	protected:
 		// 更新する用のバッファ

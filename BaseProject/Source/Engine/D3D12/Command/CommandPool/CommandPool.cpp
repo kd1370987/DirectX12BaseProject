@@ -4,6 +4,8 @@ namespace Engine::D3D12
 {
 	void Engine::D3D12::CommandPool::Init(Device* a_pDevice, D3D12_COMMAND_LIST_TYPE a_type)
 	{
+
+		m_type = a_type;
 		// コマンドキュー作成
 		D3D12_COMMAND_QUEUE_DESC _queueDesc = {};
 		_queueDesc.Type = a_type;

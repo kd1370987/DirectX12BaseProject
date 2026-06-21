@@ -10,6 +10,8 @@ namespace Engine::Raytracing
 
 		// 頂点バッファとインデックスバッファから作成
 		void Create(
+			D3D12::Device* a_pDevice,
+			D3D12::GraphicsCommandList* a_pCmdList,
 			const D3D12::DynamicVertexBuffer<Resource::RTVertex>& a_vertexBuffer,
 			const D3D12::DynamicIndexBuffer& a_indexBuffer
 		);
@@ -18,8 +20,16 @@ namespace Engine::Raytracing
 		void Release();
 
 		// ジオメトリ情報から作成
-		void Create(const D3D12_RAYTRACING_GEOMETRY_DESC& a_desc);
-		void Create(const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc);
+		void Create(
+			D3D12::Device* a_pDevice,
+			D3D12::GraphicsCommandList* a_pCmdList,
+			const D3D12_RAYTRACING_GEOMETRY_DESC& a_desc
+		);
+		void Create(
+			D3D12::Device* a_pDevice,
+			D3D12::GraphicsCommandList* a_pCmdList, 
+			const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc
+		);
 
 		bool Build(
 			ID3D12Device5* a_pDevice,
