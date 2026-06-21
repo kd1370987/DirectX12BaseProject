@@ -78,13 +78,9 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::BegineFrame()
 	{
+		// 今から使うレンダーコンテキスをクリア
 		m_currentFrameIndex = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
-
-		if (m_currentFrameIndex == 1) { m_upRenderContextVec[1]->Clear(); }
-		else if (m_currentFrameIndex == 2) { m_upRenderContextVec[2]->Clear(); }
-		else if (m_currentFrameIndex == 3) { m_upRenderContextVec[0]->Clear(); }
-
-
+		m_upRenderContextVec[m_currentFrameIndex]->Clear();
 	}
 	void GraphicsEngine::Excute()
 	{
@@ -96,6 +92,11 @@ namespace Engine::Graphics
 			D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATE_RENDER_TARGET
 		);
+		auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
+			D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffarTex().GetRTV()
+		);
+		float _clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f }; // 背景色
+		_pCmdList->ClearRenderTargetView(_cpuHandle, _clearColor, 0, nullptr);
 
 		// レンダーコンテキストにコマンドリストをセット
 		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(_pCmdList);

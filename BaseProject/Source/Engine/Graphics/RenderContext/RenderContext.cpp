@@ -714,6 +714,10 @@ namespace Engine::Graphics
 			nullptr
 		);
 
+		// ビューポートとシザー矩形を設定
+		m_pCmdList->RSSetViewports(1, &D3D12::D3D12Wrapper::Instance().GetViewport());
+		m_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
+
 		// バッファクリア
 		const float _clearColor[] = { 0.0f,0.0f,0.0f,1.0f };
 		m_pCmdList->ClearRenderTargetView(_cpuHandle, _clearColor, 0, nullptr);		// レンダーターゲット

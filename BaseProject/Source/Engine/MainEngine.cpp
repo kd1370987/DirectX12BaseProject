@@ -240,6 +240,25 @@ namespace Engine
 					D3D12::DescriptorHeapManager::Instance().GetImGuiHeap()
 			};
 			_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+
+			// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
+			auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
+				D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffarTex().GetRTV()
+			);
+
+			// レンダーターゲットを設定
+			_pCmdList->OMSetRenderTargets(
+				1,
+				&_cpuHandle,
+				FALSE,
+				nullptr
+			);
+
+			// 新しいリストにビューポートとシザー矩形もセットする
+			// ビューポートとシザー矩形を設定
+			_pCmdList->RSSetViewports(1, &D3D12::D3D12Wrapper::Instance().GetViewport());
+			_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
+
 			// エディター描画
 			Engine::Editor::MainEditor::Instance().Draw(
 				_pCmdList,
