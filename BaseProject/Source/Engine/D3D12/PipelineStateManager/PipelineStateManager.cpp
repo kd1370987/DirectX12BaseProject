@@ -236,7 +236,7 @@ namespace Engine::D3D12
 				_hash ^= ptr[i];
 				_hash *= 1099511628211ull; // FNV prime
 			}
-			};
+		};
 
 		// 基本メンバを混ぜる
 		UpdateHash(&a_desc.flags, sizeof(a_desc.flags));

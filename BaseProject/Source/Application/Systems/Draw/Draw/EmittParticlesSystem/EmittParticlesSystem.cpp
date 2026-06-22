@@ -31,14 +31,17 @@ void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 				const auto& _particleComp = a_particleArray[_i];
 				const auto& _transComp = a_transArray[_i];
 
+				if (!_particleComp.isPlay) continue;
+
 				auto* _pParticleManager = Engine::MainEngine::Instance().RefParticleManager();
 				if (!_pParticleManager) continue;
 
 				// エミットデータ : とりあえず上方向に100個
 				Engine::Particle::EmitterData _emitData = {};
 				_emitData.emitPos = _transComp.pos;
-				_emitData.emitCount = 100;
+				_emitData.emitCount = 1000;
 				_emitData.emitDirection = { 0,1,0 };
+				_emitData.baseScale = 1;
 
 				// 登録
 				_pParticleManager->RequestEmit(_particleComp.particlesAssetHandle,_emitData);

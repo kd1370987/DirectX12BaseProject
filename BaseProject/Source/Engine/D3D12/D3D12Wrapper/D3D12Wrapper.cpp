@@ -78,21 +78,6 @@ namespace Engine::D3D12
 
 		// フレームインデックス更新 : GPU待機
 		m_upFrameManager->BeginFrame();
-
-		// コマンドリスト取得
-		//m_pCmdList = GetDirectCommandList();
-
-		//// ビューポートとシザー矩形を設定
-		//m_pCmdList->RSSetViewports(1, &m_viewport);
-		//m_pCmdList->RSSetScissorRects(1, &m_scissorRect);
-
-		//// レンダーターゲットが使用可能になるまで待つ
-		//ResourceBarrier(
-		//	m_pCmdList,
-		//	m_backBuffers[m_currentBackBufferIndex].GetResource(),
-		//	D3D12_RESOURCE_STATE_PRESENT,
-		//	D3D12_RESOURCE_STATE_RENDER_TARGET
-		//);
 	}
 	void D3D12Wrapper::EndFrame(bool a_isVsync)
 	{
@@ -111,9 +96,6 @@ namespace Engine::D3D12
 
 		// コマンドリストの実行
 		m_upCommandContext->RefDirectPool()->ExecutePendingLists();
-		//m_upCommandContext->RefCopyPool()->ExecutePendingLists();			// フレームを止めたくないからまた別で管理するかも
-		//m_upCommandContext->RefComputePool()->ExecutePendingLists();
-		//m_pCmdList = nullptr;
 
 		// フレーム終了シグナル
 		m_upFrameManager->EndFrame(m_upCommandContext->RefDirectPool()->GetCommandQueue());

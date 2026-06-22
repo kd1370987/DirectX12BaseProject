@@ -288,6 +288,13 @@ namespace Engine::Graphics
 		}
 	}
 
+	void GraphicsEngine::BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex)
+	{
+		auto* _pPSO = m_pPipelineStateManager->GetPSO(a_psoIndex);
+		if (!_pPSO) return;
+		a_pCtx->SetGraphicPSO(_pPSO);
+	}
+
 	void GraphicsEngine::CreateGPUCameraData()
 	{
 		// リセット

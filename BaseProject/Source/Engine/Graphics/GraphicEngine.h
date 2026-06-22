@@ -112,6 +112,7 @@ namespace Engine::Graphics
 
 		// パスの描画実行
 		void DrawQueue(Graphics::RenderContext* a_pCtx, uint8_t a_passIndex);
+		void BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex);
 
 	private:
 

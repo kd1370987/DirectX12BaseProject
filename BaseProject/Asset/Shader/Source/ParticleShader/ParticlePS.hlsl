@@ -2,7 +2,7 @@
 
 float4 PSMain(VSOutput a_input) : SV_TARGET
 {
-	float4 _outColor = float4(0,0,0,1);
+	float4 _outColor = float4(1,1,1,1);
 
 	float4 _texColor = g_mainTex.Sample(g_samp, a_input.uv);
 	
@@ -17,6 +17,8 @@ float4 PSMain(VSOutput a_input) : SV_TARGET
 	// 定数バッファで発光強度を持たせておく
 	//float intensity = 5.0f;
 	//_outColor.rgb *= intensity;
-	
+
+	return float4(1,1,1,1);
 	return _outColor;
+	
 }

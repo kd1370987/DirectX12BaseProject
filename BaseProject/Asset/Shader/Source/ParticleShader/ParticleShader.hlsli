@@ -13,7 +13,7 @@
 RS_FLAGS","\
 RS_CAMERA_CB","\
 "DescriptorTable(SRV(t0, numDescriptors=1),visibility = SHADER_VISIBILITY_VERTEX), " \
-"DescriptorTable(SRV(t1, numDescriptors=1),visibility = SHADER_VISIBILITY_PIXSEL), " \
+"DescriptorTable(SRV(t1, numDescriptors=1),visibility = SHADER_VISIBILITY_PIXEL), " \
 RS_STATIC_SAMPLER
 
 // パーティクルデータ
@@ -26,7 +26,7 @@ SamplerState g_samp : register(s0);
 // 頂点入力
 struct VSInput
 {
-	float4 pos	: POSITIONT;		// 頂点座標
+	float4 pos	: POSITION;			// 頂点座標
 	float2 uv	: TEXCOORD0;		// UV座標
 	uint instID : SV_InstanceID;	// インスタンス番号
 };

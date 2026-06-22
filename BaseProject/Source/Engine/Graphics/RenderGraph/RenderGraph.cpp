@@ -14,6 +14,9 @@
 #include "../RenderPass/ComputePass/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
 #include "../RenderPass/ComputePass/AntiAliasing/TAA/TAAPass.h"
 #include "../RenderPass/ComputePass/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
+#include "../RenderPass/RasterizePass/ParticlePass/ParticlePass.h"
+#include "../RenderPass/ComputePass/Effect/Particle/EmitParticlePass/EmitParticlePass.h"
+#include "../RenderPass/ComputePass/Effect/Particle/UpdateParticlePass.h"
 
 // マネージャー関連
 #include "RGVarsionManager/RGResourceManager.h"
@@ -249,6 +252,13 @@ namespace Engine::Graphics
 			_winHeight,
 			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
 		);
+		m_upRGResourceManager->Register(
+			"AffterParticle",
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			_winWidth,
+			_winHeight,
+			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		);
 
 		// パス登録
 		AddZPrePass(a_pPipelineStateManager, *this, EDrawPhase::Setup);
@@ -271,6 +281,11 @@ namespace Engine::Graphics
 		// GIデノイズ系
 		AddTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
 		AddGISpatialDenoisePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
+
+		// パーティクル
+		AddEmitParticlePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
+		AddUpdateParticlePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
+		AddParticlePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
 
 		// コンパイル
 		Compile();

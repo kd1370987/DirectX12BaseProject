@@ -83,6 +83,8 @@
 #include "../../Systems/Update/Animation/AnimationStateSystem/AnimationStateSystem.h"
 #include "../../Systems/Update/Update/Move/RobotBoostSystem/RobotBoostSystem.h"
 #include "../../Systems/Draw/Draw/EmittParticlesSystem/EmittParticlesSystem.h"
+#include "../../Systems/Update/Update/Particle/ParticleEmitSystem/ParticleEmitSystem.h"
+#include "../../Systems/Init/PostDeserialize/ParticleFixupSystem/ParticleFixupSystem.h"
 
 
 BaseScene::BaseScene()
@@ -206,6 +208,7 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<ModelFixupSystem>();
 	m_upWorld->RegisterSystem<GUIDFixupSystem>();
 	m_upWorld->RegisterSystem<StateMachinFixupSystem>();
+	m_upWorld->RegisterSystem<ParticleFixupSystem>();
 
 	m_upWorld->RegisterSystem<FollowTargetLinkSystem>();
 	m_upWorld->RegisterSystem<AttachmentLinkSystem>();
@@ -247,6 +250,8 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<ScreenUIDrawSystem>();
 	m_upWorld->RegisterSystem<RegisterRayWorldSystem>();
 	m_upWorld->RegisterSystem<EmittParticleSystem>();
+	m_upWorld->RegisterSystem<ParticleEmitSystem>();
+	
 
 	m_upWorld->RegisterSystem<AnimationMatrixFreeSystem>();
 

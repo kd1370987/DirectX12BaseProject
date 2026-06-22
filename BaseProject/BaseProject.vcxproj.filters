@@ -907,17 +907,8 @@
     <Filter Include="Asset\Shader\Compute\Particle">
       <UniqueIdentifier>{514e1cff-c9d7-4616-9afe-8a151d24a3cf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compute\Particle\UpdateParticleShader">
-      <UniqueIdentifier>{9d237a33-d1bc-4f4f-8264-ce5cb58dce05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Particle\EmitParticleShader">
-      <UniqueIdentifier>{739a94c6-a921-4e67-92f1-46a5f4a3405f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Source\ParticleShader">
       <UniqueIdentifier>{127b0df1-240b-4724-8b27-77f1fff08525}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass">
-      <UniqueIdentifier>{9270e85b-3cc4-4b43-a5c0-1c121bcc4034}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Utility\Debug">
       <UniqueIdentifier>{61e8de91-a24f-4c93-aefe-608f4296c768}</UniqueIdentifier>
@@ -948,6 +939,27 @@
     </Filter>
     <Filter Include="Source\Engine\Time\FPSController">
       <UniqueIdentifier>{eb7609a8-47f1-429c-95c3-9178a5e4f9bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass">
+      <UniqueIdentifier>{469e5d88-112e-4412-9470-adef100656cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Particle\UpdateParticle">
+      <UniqueIdentifier>{9d237a33-d1bc-4f4f-8264-ce5cb58dce05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Particle\EmitParticle">
+      <UniqueIdentifier>{739a94c6-a921-4e67-92f1-46a5f4a3405f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\Particle">
+      <UniqueIdentifier>{93b33bf0-5bc8-4c76-8963-a17878e78eeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem">
+      <UniqueIdentifier>{d61d668c-62ab-41bd-83f5-0560398d94ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass">
+      <UniqueIdentifier>{9270e85b-3cc4-4b43-a5c0-1c121bcc4034}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem">
+      <UniqueIdentifier>{56a92f0c-190f-4f54-a10d-b4bc41efcb15}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1490,6 +1502,18 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Time\DeltaTime\DeltaTime.cpp">
       <Filter>Source\Engine\Time\DeltaTime</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass\EmitParticlePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass\ParticlePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2309,6 +2333,18 @@
     <ClInclude Include="Source\Engine\Utility\Math\Alignment.h">
       <Filter>Source\Engine\Utility\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass\EmitParticlePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass\ParticlePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.h">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2465,10 +2501,10 @@
       <Filter>Asset\Shader\Compute\Denoise\Shadow</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Particle\EmitParticle\EmitParticleShaeder.hlsl">
-      <Filter>Asset\Shader\Compute\Particle\EmitParticleShader</Filter>
+      <Filter>Asset\Shader\Compute\Particle\EmitParticle</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Particle\UpdateParticle\UpdateParticleShader.hlsl">
-      <Filter>Asset\Shader\Compute\Particle\UpdateParticleShader</Filter>
+      <Filter>Asset\Shader\Compute\Particle\UpdateParticle</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ParticleShader\ParticleVS.hlsl">
       <Filter>Asset\Shader\Source\ParticleShader</Filter>

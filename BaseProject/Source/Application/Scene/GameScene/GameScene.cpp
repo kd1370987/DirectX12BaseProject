@@ -98,6 +98,10 @@ void GameScene::Init()
 		Engine::Input::InputAxisForWindows _look(VK_UP, VK_RIGHT, VK_DOWN, VK_LEFT);
 		_keyboard.AddAxis("Look",std::make_shared<Engine::Input::InputAxisForWindows>(_look));
 
+		// テスト用ボタン
+		Engine::Input::InputButtonForWindows _test('T');
+		_keyboard.AddButton("Test", std::make_shared<Engine::Input::InputButtonForWindows>(_test));
+
 		Engine::Input::InputManager::Instance().AddDevice("Keyboard", std::make_unique<Engine::Input::InputCollector>(_keyboard));
 	}
 	// マウス

@@ -9,7 +9,10 @@ namespace Engine::Particle
 	void Engine::Particle::GPUParticlePool::Init(ID3D12Device* a_pDevice, ID3D12GraphicsCommandList* a_pCmdList,Engine::Handle<Resource::ParticlesAsset> a_particleHandle)
 	{
 		auto* _pParticleAsset = Resource::ResourceManager::Instance().Get(a_particleHandle);
-		if (!_pParticleAsset) return;
+		if (!_pParticleAsset)
+		{
+			ENGINE_WARNING("パーティクルプールの作成に失敗 : パーティクルアセットが読み込めませんでした");
+		}
 
 		// パーティクルデータの確保
 		m_maxCapacity = _pParticleAsset->GetCapacity();
@@ -40,10 +43,10 @@ namespace Engine::Particle
 		_spCounterUpload->UpdateData(&_initCounter, sizeof(uint32_t));
 
 		// コピー前のリソースバリア (DEFAULTヒープを COPY_DEST にする)
-		m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
-		m_counterBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
+		//m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
+		//m_counterBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
 
-		// コピーコマンドの発行
+		// コピーコマンドの発行 : コピーコマンドでの発行なのでバリアは自動でやってもらう
 		a_pCmdList->CopyBufferRegion(
 			m_deadList.GetResource(), 0,
 			_spDeadListUpload->GetResource(), 0,
@@ -56,8 +59,8 @@ namespace Engine::Particle
 		);
 
 		// コピー後のリソースバリア (DEFAULTヒープを UAV 状態にする)
-		m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		m_counterBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		//m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		//m_counterBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		// 解放処理を登録
 		MainEngine::Instance().RegisterDeferredResource([_spDeadListUpload,_spCounterUpload](){});

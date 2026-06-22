@@ -54,6 +54,9 @@ namespace Engine::D3D12
 
 	GraphicsPipelineDesc::GraphicsPipelineDesc()
 	{
+		// ゼロクリア
+		ZeroMemory(&desc, sizeof(desc));
+
 		desc.RasterizerState	= CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		desc.BlendState			= CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		desc.DepthStencilState	= CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

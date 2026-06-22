@@ -46,6 +46,26 @@ namespace Engine::Particle
 		/// <param name="a_assetHandle"></param>
 		std::span <const EmitterData> GetRequests(const Handle<Resource::ParticlesAsset>& a_assetHandle) const;
 
+		/// <summary>
+		/// エミットバッファー取得
+		/// </summary>
+		const D3D12::StaticStructuredBuffer<EmitterData>* GetEmitBuffer(const Handle<Resource::ParticlesAsset>& a_handle) const;
+
+		/// <summary>
+		/// ランタイム時に非同期で読み込む関数
+		/// </summary>
+		void CreateParticleDataAsync(const Handle<Resource::ParticlesAsset>& a_handle);
+
+		/// <summary>
+		/// 指定したアセットが現在ロード中かどうか
+		/// </summary>
+		bool IsLoading(const Handle<Resource::ParticlesAsset>& a_handle);
+
+		/// <summary>
+		/// 指定したパーティクルのロード処理が終わっているかどうか
+		/// </summary>
+		bool IsLoaded(const Handle<Resource::ParticlesAsset>& a_handle);
+
 	private:
 		// アセットと 1対1 で紐づくバッファ群のマップ
 		std::unordered_map<Handle<Resource::ParticlesAsset>, std::unique_ptr<GPUParticlePool>> m_pools;
@@ -57,6 +77,7 @@ namespace Engine::Particle
 		std::unordered_map<Handle<Resource::ParticlesAsset>, D3D12::StaticStructuredBuffer<EmitterData>> m_emitBuffer;
 
 
-
+		std::mutex m_mutex;
+		std::unordered_set<Handle<Resource::ParticlesAsset>> m_loadingHandles;
 	};
 }

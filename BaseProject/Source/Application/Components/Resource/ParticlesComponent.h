@@ -2,6 +2,7 @@
 
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Engine/Resource/Data/Particles/ParticlesAsset.h"
+#include "../../../Engine/Resource/Loader/Particles/ParticlesLoader.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../../Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
 
@@ -49,5 +50,23 @@ struct ParticlesComponent
 		using namespace Engine;
 		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_data);
 		Editor::Helper::DrawHandle(_comp.particlesAssetHandle);
+
+		// パーティクル選択
+		if (ImGui::BeginCombo("Change Particle", "Select..."))
+		{
+			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("ParticlesAsset"))
+			{
+				// 現在のステートマシンと同じGUIDなら選択中フラグを立てる
+				bool _selected = (_comp.particleGUID == _prop.guid);
+
+				// 選択欄
+				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
+				{
+					_comp.particlesAssetHandle = Resource::ParticlesAssetLoader::Load(_prop.guid);
+					_comp.particleGUID = _prop.guid;
+				}
+			}
+			ImGui::EndCombo();
+		}
 	}
 };

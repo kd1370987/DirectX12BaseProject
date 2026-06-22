@@ -117,6 +117,7 @@ namespace Engine::Graphics
 
 		void ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
 		void ComputeBindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
+		void ComputeBindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle);
 
 		// UAV
 		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
@@ -202,6 +203,9 @@ namespace Engine::Graphics
 		// モデルの描画
 		void Draw(const Resource::Mesh* a_pMesh,UINT a_subIdx);
 		void Draw(uint16_t a_meshID,UINT a_subIdx);
+
+		// パーティクルやUIなどの描画用
+		void DrawPolygonInstancing(UINT a_count);
 
 
 

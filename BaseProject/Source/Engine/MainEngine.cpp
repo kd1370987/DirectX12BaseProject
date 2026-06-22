@@ -376,6 +376,7 @@ namespace Engine
 		_stateExt.typeExt.push_back(".obstet");
 		_stateExt.typeExt.push_back(".ojstet");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_stateExt);
+		// パーティクル
 		Resource::TypeExtension _particExt = {};
 		_particExt.type = "ParticlesAsset";
 		_particExt.typeExt.push_back(".obptic");

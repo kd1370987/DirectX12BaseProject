@@ -312,6 +312,12 @@ namespace Engine::Graphics
 		);
 	}
 
+	void RenderContext::ComputeBindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
+	{
+		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_srvHandle);
+		ComputeBindSRV(a_rootIdx, _cpu);
+	}
+
 	void RenderContext::BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
 	{
 		// 今の空きインデックスカウントを確保
@@ -683,6 +689,21 @@ namespace Engine::Graphics
 		if (!_pMesh) return;
 
 		Draw(_pMesh, a_subIdx);
+	}
+
+	void RenderContext::DrawPolygonInstancing(UINT a_count)
+	{
+		// ポリゴンの頂点、インデックスバッファをバインド
+		m_pCmdList->IASetVertexBuffers(0,1,&m_spQuadPolygon->GetVBView());
+		m_pCmdList->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
+
+		// GPUインスタンシング
+		m_pCmdList->DrawInstanced(
+			4,				// 頂点数
+			a_count,		// 描画するオブジェクト数
+			0,
+			0
+		);
 	}
 
 	void RenderContext::Transition(
