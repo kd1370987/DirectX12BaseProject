@@ -44,7 +44,7 @@ namespace Engine::Graphics
 		_rpBuilder.SetPS(_sPso, "Asset/Shader/Source/ParticleShader/ParticlePS.cso");
 
 		// PSOブレンド設定
-		// カラーブレンド
+		 //カラーブレンド
 		_sPso.BlendEnable(true);
 		_sPso.SrcBlend(D3D12_BLEND_SRC_ALPHA, 0);
 		_sPso.DestBlend(D3D12_BLEND_ONE, 0);
@@ -89,18 +89,17 @@ namespace Engine::Graphics
 
 					// パーティクル画像バインド
 					auto* _pParticle = Resource::ResourceManager::Instance().Get(_handle);
-					if (_pParticle)
-					{
-						auto* _pTex = Resource::ResourceManager::Instance().Get(_pParticle->GetTexHandle());
-						if (_pTex)
-						{
-							a_pCtx->BindSRV(2,_pTex->GetSRV());
-						}
-					}
+					if (!_pParticle) continue;
+					auto* _pTex = Resource::ResourceManager::Instance().Get(_pParticle->GetTexHandle());
+					if (!_pTex) continue;
+					a_pCtx->BindSRV(2,_pTex->GetSRV());
+
+					// トライアングルリストに設定
+					//a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 					// 描画
 					a_pCtx->DrawPolygonInstancing(_pool->GetMaxCapacity());
-					ENGINE_LOG("Particleが発射されました : %s",_pParticle->GetName().c_str());
+					ENGINE_LOG("Particle描画中 : %s",_pParticle->GetName().c_str());
 				}
 
 				Editor::MainEditor::Instance().EndWatch("ParticleDraw");

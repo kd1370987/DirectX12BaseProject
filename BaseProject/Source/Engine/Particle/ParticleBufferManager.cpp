@@ -68,6 +68,26 @@ namespace Engine::Particle
 	{
 		return m_pools;
 	}
+	void ParticleBufferManager::UploadEmitData(D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		for (auto& [_handle, _emitDataVec] : m_emitRequests)
+		{
+			// リクエストがない、またはまだGPUバッファが生成中ならスキップ
+			if (_emitDataVec.empty() || IsLoading(_handle))
+			{
+				continue;
+			}
+
+			auto _it = m_emitBuffer.find(_handle);
+			if (_it != m_emitBuffer.end())
+			{
+				// バッファにデータを流し込む
+				_it->second.UpdateData(_emitDataVec.data(), sizeof(EmitterData) * _emitDataVec.size());
+				// GPUへの転送コマンドを積む
+				_it->second.Update(a_pCmdList);
+			}
+		}
+	}
 	std::span <const EmitterData> ParticleBufferManager::GetRequests(const Handle<Resource::ParticlesAsset>& a_assetHandle) const
 	{
 		auto _it = m_emitRequests.find(a_assetHandle);

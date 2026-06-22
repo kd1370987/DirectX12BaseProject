@@ -38,7 +38,7 @@ struct ParticlesComponent
 	{
 		auto* _comp = static_cast<ParticlesComponent*>(a_ptr);
 		Engine::GUID _defaultGUID;
-		_comp->particleGUID = Engine::JSONHelper::GetValue("particlleGUID", a_json, _defaultGUID);
+		_comp->particleGUID = Engine::JSONHelper::GetValue("particleGUID", a_json, _defaultGUID);
 		_comp->posOffset = Engine::JSONHelper::GetValue("posOffset", a_json, DirectX::XMFLOAT3({ 0,0,0 }));
 		_comp->rotation = Engine::JSONHelper::GetValue("rotation", a_json, DirectX::XMFLOAT3({ 0,0 ,0 }));
 		_comp->scale = Engine::JSONHelper::GetValue("scale", a_json, DirectX::XMFLOAT2({ 0,0 }));

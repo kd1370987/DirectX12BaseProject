@@ -12,6 +12,7 @@
 #include "RenderContext/ShapeDraw/ShapeDraw.h"
 #include "RenderGraph/RenderGraph.h"
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../Particle/ParticleBufferManager.h"
 
 // オプション
 #include "../Option/OptionManager.h"
@@ -86,6 +87,10 @@ namespace Engine::Graphics
 	{
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
 
+		// パーティクルのバッファ更新
+		MainEngine::Instance().RefParticleManager()->UploadEmitData(_pCmdList);
+
+		// バックバッファのresourceバリア
 		D3D12::ResourceBarrier(
 			_pCmdList, // D3D12Wrapper側のバリア関数も引数でリストをもらうように修正してください
 			D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffar(),

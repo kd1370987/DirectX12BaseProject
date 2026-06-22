@@ -41,6 +41,12 @@ namespace Engine::Particle
 		const std::unordered_map<Handle<Resource::ParticlesAsset>, std::unique_ptr<GPUParticlePool>>& GetPoolMap() const;
 
 		/// <summary>
+		/// ため込んだエミットデータを構造体バッファにマップする
+		/// エミットデータ送信後、パス実行前の間に入れる必要あり
+		/// </summary>
+		void UploadEmitData(D3D12::GraphicsCommandList* a_pCmdList);
+
+		/// <summary>
 		/// 現在たまっている生成命令をパーティクルを指定して取得
 		/// </summary>
 		/// <param name="a_assetHandle"></param>

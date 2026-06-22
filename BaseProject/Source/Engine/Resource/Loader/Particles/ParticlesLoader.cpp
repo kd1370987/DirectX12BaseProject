@@ -23,6 +23,7 @@ namespace Engine::Resource
 
 		ParticlesAsset _sma = {};
 		auto _dir = FileUtility::GetDirFromPath(_path);
+		_sma.Load(_dir,_fileName);
 
 		// リソースマネージャーに登録
 		auto _handle = ResourceManager::Instance().Add(std::move(_sma));

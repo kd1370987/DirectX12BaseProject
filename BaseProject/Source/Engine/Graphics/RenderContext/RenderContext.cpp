@@ -698,9 +698,10 @@ namespace Engine::Graphics
 		m_pCmdList->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
 
 		// GPUインスタンシング
-		m_pCmdList->DrawInstanced(
-			4,				// 頂点数
+		m_pCmdList->DrawIndexedInstanced(
+			6,				// 頂点数
 			a_count,		// 描画するオブジェクト数
+			0,
 			0,
 			0
 		);

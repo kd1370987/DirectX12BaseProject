@@ -32,7 +32,14 @@ void ParticleEmitSystem::Init(Engine::ECS::World& a_world)
 				ParticlesComponent& _particleComp = a_particleArray[_i];
 				const TransformComponent& _trsComp = a_trsArray[_i];
 
-				_particleComp.isPlay = _isTest;				
+				if (_isTest)
+				{
+					_particleComp.isPlay = true;
+				}
+				else
+				{
+					_particleComp.isPlay = false;
+				}
 			}
 		}
 	);

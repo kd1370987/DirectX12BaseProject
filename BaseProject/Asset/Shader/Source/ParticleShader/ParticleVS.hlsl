@@ -9,13 +9,17 @@ VSOutput VSMain(VSInput a_input)
 	ParticleData _particleData = g_particleBuffer[a_input.instID];
 
 	// パーティクルの寿命判定
-	if(_particleData.life <= 0.0f)
+	if (_particleData.life <= 0.0f)
 	{
 		// 寿命が切れている場合は処理をスキップ
-		_out.pos = float4(0,0,0,0);
-		_out.color = float4(0,0,0,0);
+
+		_out.pos = float4(0, 0, 0, 0);
+		_out.color = float4(1, 0, 0, 1);
 		return _out;
 	}
+
+	float _debugSize = (_particleData.size <= 0.0f) ? 1.0f : _particleData.size;
+	float3 _debugPos = g_camera.invView[3].xyz + (g_camera.invView[2].xyz * 5.0f);
 	
 	// カメラの右、上ベクトルを取得
 	float3 _camRight = g_camera.invView[0].xyz;
@@ -23,10 +27,12 @@ VSOutput VSMain(VSInput a_input)
 
 	// ビルボード計算
 	float3 _localPos = a_input.pos.xyz * _particleData.size;
+	//float3 _localPos = a_input.pos.xyz * _debugSize;
 
 	// ワールド座標の算出
 	float3 _worldPos = _particleData.pos + (_camRight * _localPos.x) + (_camUp * _localPos.y);
-
+	//float3 _worldPos = _debugPos + (_camRight * _localPos.x) + (_camUp * _localPos.y);
+	
 	// ワールド座標から射影空間へ変換
 	_out.pos = mul(float4(_worldPos, 1.0f), g_camera.viewProj);
 

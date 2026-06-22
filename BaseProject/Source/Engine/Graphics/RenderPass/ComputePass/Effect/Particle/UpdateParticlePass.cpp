@@ -57,6 +57,8 @@ namespace Engine::Graphics
 				for (auto& [_handle, _pool] : MainEngine::Instance().GetParticleManager()->GetPoolMap())
 				{
 					if (!_pool) continue;
+					// プールが読み込み済みかチェック
+					if (!MainEngine::Instance().RefParticleManager()->IsLoaded(_handle)) continue;
 
 					// ヒープとルートシグネチャ、PSOをセット
 					auto* _pPso = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
@@ -71,7 +73,7 @@ namespace Engine::Graphics
 						DirectX::XMFLOAT3 gravity;
 					};
 					UpdateCB _cbData = {};
-					_cbData.deltaTime = 0.8f;
+					_cbData.deltaTime = 0.008f;
 					
 					auto* _pCmd = a_pCtx->GetCurrentCmdList();
 					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<UpdateCB>(
@@ -96,6 +98,7 @@ namespace Engine::Graphics
 					// 実行
 					UINT _dispatchNum = static_cast<UINT>(_pool->GetMaxCapacity() / 32u);
 					a_pCtx->Dispatch(_dispatchNum, 1, 1);
+					ENGINE_LOG("ParticleUpdatePass : 実行");
 				}
 
 				Editor::MainEditor::Instance().EndWatch("UpdateParticlePass");
