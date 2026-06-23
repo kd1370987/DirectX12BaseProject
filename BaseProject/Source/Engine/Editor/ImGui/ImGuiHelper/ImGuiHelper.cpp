@@ -86,20 +86,18 @@ void Engine::Editor::Helper::DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a
 void Engine::Editor::Helper::DrawSRVView(D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHandle, float a_width, float a_height, float a_minSize, float a_maxSize)
 {
 	ImTextureID _imTex = (ImTextureID)(a_gpuHandle.ptr);
-	ImVec2 size = ImGui::GetContentRegionAvail();
 
+	// 横幅だけを取得（縦の残り領域は無視する）
+	float drawWidth = ImGui::GetContentRegionAvail().x;
+
+	// アスペクト比を計算
 	float aspect = a_width / a_height;
 
-	if (size.x / size.y > aspect)
-	{
-		size.x = size.y * aspect;
-	}
-	else
-	{
-		size.y = size.x / aspect;
-	}
+	// 横幅に合わせて高さを逆算する
+	float drawHeight = drawWidth / aspect;
 
-	ImGui::Image(_imTex, size);
+	// 計算したサイズで描画
+	ImGui::Image(_imTex, ImVec2(drawWidth, drawHeight));
 }
 
 void Engine::Editor::Node::TitleBar(const std::string& a_name)

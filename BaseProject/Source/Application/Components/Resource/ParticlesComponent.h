@@ -13,6 +13,8 @@ struct ParticlesComponent
 	Engine::Handle<Engine::Resource::ParticlesAsset> particlesAssetHandle;
 
 	// パラメータ
+	int particleCount = 0;
+
 	DirectX::XMFLOAT3 posOffset;		// 噴出座標オフセット
 	DirectX::XMFLOAT3 rotation;			// 噴出方向 : クォータニオンで持たせる必要はない
 	DirectX::XMFLOAT2 scale;			// スケール
@@ -26,6 +28,7 @@ struct ParticlesComponent
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<const ParticlesComponent*>(a_ptr);
+		Engine::JSONHelper::SetValue("particleCount",a_json,_comp->particleCount);
 		Engine::JSONHelper::SetValue("particleGUID",a_json,_comp->particleGUID);
 		Engine::JSONHelper::SetValue("posOffset",a_json,_comp->posOffset);
 		Engine::JSONHelper::SetValue("rotation",a_json,_comp->rotation);
@@ -38,6 +41,7 @@ struct ParticlesComponent
 	{
 		auto* _comp = static_cast<ParticlesComponent*>(a_ptr);
 		Engine::GUID _defaultGUID;
+		_comp->particleCount = Engine::JSONHelper::GetValue("particleCount", a_json, 0);
 		_comp->particleGUID = Engine::JSONHelper::GetValue("particleGUID", a_json, _defaultGUID);
 		_comp->posOffset = Engine::JSONHelper::GetValue("posOffset", a_json, DirectX::XMFLOAT3({ 0,0,0 }));
 		_comp->rotation = Engine::JSONHelper::GetValue("rotation", a_json, DirectX::XMFLOAT3({ 0,0 ,0 }));
@@ -49,7 +53,17 @@ struct ParticlesComponent
 	{
 		using namespace Engine;
 		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_data);
+
+		ImGui::Text("Parameter");
+		ImGui::DragInt("ParticleNum",&_comp.particleCount,1,0);
+		ImGui::DragFloat3("Dir", &_comp.rotation.x, 0.1f, 0.0f);
+
+
+		ImGui::Separator();
+
 		Editor::Helper::DrawHandle(_comp.particlesAssetHandle);
+
+		ImGui::Separator();
 
 		// パーティクル選択
 		if (ImGui::BeginCombo("Change Particle", "Select..."))

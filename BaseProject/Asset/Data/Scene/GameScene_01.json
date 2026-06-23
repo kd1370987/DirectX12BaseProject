@@ -18,7 +18,7 @@
         },
         {
             "CompName": "PlayerLookAngleComponent",
-            "Yaw": 5852.0,
+            "Yaw": 7012.0,
             "maxPitch": 90.0
         },
         {
@@ -44,15 +44,15 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -3.2633297443389893,
-                0.2765437364578247,
-                -8.809124946594238
+                -9.602967262268066,
+                1.3113021850585938e-06,
+                -16.49367904663086
             ],
             "quat": [
-                0.0,
-                0.7193379402160645,
-                0.0,
-                0.6946602463722229
+                -0.0,
+                -0.9975637793540955,
+                -0.0,
+                -0.06976044178009033
             ],
             "scale": [
                 1.0,
@@ -119,6 +119,7 @@
         {
             "CompName": "ParticlesComponent",
             "isBillboard": true,
+            "particleCount": 700,
             "particleGUID": "ce16d391-ef79-4f0d-8097-72e48952b3e9",
             "posOffset": [
                 0.0,
@@ -126,8 +127,8 @@
                 0.0
             ],
             "rotation": [
-                0.0,
-                0.0,
+                0.6000000238418579,
+                0.20000000298023224,
                 0.0
             ],
             "scale": [
@@ -141,26 +142,60 @@
             "CompName": "ActiveTag"
         },
         {
-            "CompName": "RayTag"
+            "CompName": "ActiveCameraTag"
         },
         {
-            "CompName": "ColliderComponent",
-            "collideLayer": 2,
-            "isPhysical": 0,
-            "layer": 1
+            "CompName": "CameraTag"
+        },
+        {
+            "CompName": "CameraControllTag"
+        },
+        {
+            "CompName": "CameraParamComponent",
+            "aspectRatio": 1.7777777910232544,
+            "farZ": 1000.0,
+            "fovY": 60.0,
+            "nearZ": 0.10000000149011612
+        },
+        {
+            "CompName": "ProjMatComponent"
+        },
+        {
+            "CompName": "FocusParamComponent",
+            "forcusBackRange": 1000.0,
+            "forcusDistance": 0.0,
+            "forcusRange": 0.0
+        },
+        {
+            "CompName": "FollowTargetComponent",
+            "targetGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
+        },
+        {
+            "CompName": "TPSOffsetComponent",
+            "x": 0.0,
+            "y": 2.0,
+            "z": -5.0
+        },
+        {
+            "ClampPitch": 80.0,
+            "CompName": "TPSLookAngleComponent",
+            "Pitch": 0.0
+        },
+        {
+            "CompName": "VelocityComponent"
         },
         {
             "CompName": "TransformComponent",
             "pos": [
-                0.0,
-                0.0,
-                0.0
+                -10.184040069580078,
+                4.751708030700684,
+                -12.360143661499023
             ],
             "quat": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
+                0.0226694755256176,
+                0.9434439539909363,
+                -0.3241066038608551,
+                0.06598871946334839
             ],
             "scale": [
                 1.0,
@@ -172,27 +207,20 @@
             "CompName": "WorldMatrixComponent"
         },
         {
-            "CompName": "ModelComponent",
-            "colorScale": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "emissiveScale": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "modelGUID": "dc73f9dd-325f-4a52-b2eb-aca396a4067a"
-        },
-        {
             "CompName": "NameComponent",
-            "name": "Stage"
+            "name": "Camera"
         },
         {
             "CompName": "GUIDComponent",
-            "guid": "e6f8bbaf-b0ac-4507-8e85-94de5046d6ac"
+            "guid": "c6da5fd1-7cc1-4ced-8480-0fe467d9912c"
+        },
+        {
+            "CompName": "TPSCameraStateComponent",
+            "currentLookAt": [
+                -9.602962493896484,
+                1.5000007152557373,
+                -16.493669509887695
+            ]
         }
     ],
     [
@@ -889,60 +917,26 @@
             "CompName": "ActiveTag"
         },
         {
-            "CompName": "ActiveCameraTag"
+            "CompName": "RayTag"
         },
         {
-            "CompName": "CameraTag"
-        },
-        {
-            "CompName": "CameraControllTag"
-        },
-        {
-            "CompName": "CameraParamComponent",
-            "aspectRatio": 1.7777777910232544,
-            "farZ": 1000.0,
-            "fovY": 60.0,
-            "nearZ": 0.10000000149011612
-        },
-        {
-            "CompName": "ProjMatComponent"
-        },
-        {
-            "CompName": "FocusParamComponent",
-            "forcusBackRange": 1000.0,
-            "forcusDistance": 0.0,
-            "forcusRange": 0.0
-        },
-        {
-            "CompName": "FollowTargetComponent",
-            "targetGUID": "b381d39a-e16a-46e2-a367-57fd14f074e6"
-        },
-        {
-            "CompName": "TPSOffsetComponent",
-            "x": 0.0,
-            "y": 2.0,
-            "z": -5.0
-        },
-        {
-            "ClampPitch": 80.0,
-            "CompName": "TPSLookAngleComponent",
-            "Pitch": 0.0
-        },
-        {
-            "CompName": "VelocityComponent"
+            "CompName": "ColliderComponent",
+            "collideLayer": 2,
+            "isPhysical": 0,
+            "layer": 1
         },
         {
             "CompName": "TransformComponent",
             "pos": [
-                -8.132213592529297,
-                3.401298999786377,
-                -8.63912582397461
+                0.0,
+                0.0,
+                0.0
             ],
             "quat": [
-                0.07863777875900269,
-                0.714713990688324,
-                -0.08143137395381927,
-                0.6901949644088745
+                0.0,
+                0.0,
+                0.0,
+                1.0
             ],
             "scale": [
                 1.0,
@@ -954,12 +948,27 @@
             "CompName": "WorldMatrixComponent"
         },
         {
+            "CompName": "ModelComponent",
+            "colorScale": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveScale": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "modelGUID": "dc73f9dd-325f-4a52-b2eb-aca396a4067a"
+        },
+        {
             "CompName": "NameComponent",
-            "name": ""
+            "name": "Stage"
         },
         {
             "CompName": "GUIDComponent",
-            "guid": "c6da5fd1-7cc1-4ced-8480-0fe467d9912c"
+            "guid": "e6f8bbaf-b0ac-4507-8e85-94de5046d6ac"
         }
     ],
     [
@@ -969,20 +978,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -3.1993861198425293,
-                1.9864481687545776,
-                -8.847421646118164
+                -9.6318998336792,
+                1.7116849422454834,
+                -16.57976722717285
             ],
             "quat": [
-                -0.10107237100601196,
-                -0.6752241253852844,
-                -0.05768774077296257,
-                0.728374183177948
+                -0.14687801897525787,
+                -0.049836765974760056,
+                0.018183045089244843,
+                0.9877310395240784
             ],
             "scale": [
                 0.1999998837709427,
-                0.19999976456165314,
-                0.19999977946281433
+                0.1999996453523636,
+                0.19999969005584717
             ]
         },
         {
@@ -1040,6 +1049,7 @@
         {
             "CompName": "ParticlesComponent",
             "isBillboard": true,
+            "particleCount": 0,
             "particleGUID": "cccccccc-cccc-cccc-cccc-cccccccccccc",
             "posOffset": [
                 0.0,
@@ -1064,20 +1074,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -3.5360946655273438,
-                0.3802369236946106,
-                -8.96151351928711
+                -9.800407409667969,
+                0.10368652641773224,
+                -16.25151824951172
             ],
             "quat": [
-                0.8046847581863403,
-                0.18640512228012085,
-                0.3283577263355255,
-                -0.45816683769226074
+                0.8274888396263123,
+                -0.15170931816101074,
+                -0.2657047510147095,
+                -0.4707944989204407
             ],
             "scale": [
-                0.09999994188547134,
-                0.09999991208314896,
-                0.09999983757734299
+                0.09999997168779373,
+                0.09999988973140717,
+                0.09999977797269821
             ]
         },
         {
@@ -1140,20 +1150,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -3.163731098175049,
-                1.0616828203201294,
-                -8.47890567779541
+                -9.258718490600586,
+                0.8041493892669678,
+                -16.505033493041992
             ],
             "quat": [
-                -0.49670660495758057,
-                -0.12058228254318237,
-                0.8319156765937805,
-                -0.21600623428821564
+                0.17138780653476715,
+                -0.21667572855949402,
+                0.9573514461517334,
+                -0.08459396660327911
             ],
             "scale": [
-                0.09999994188547134,
-                0.09999988228082657,
-                0.09999991953372955
+                0.0999993085861206,
+                0.09999903291463852,
+                0.09999965131282806
             ]
         },
         {
@@ -1216,20 +1226,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -3.372563362121582,
-                1.0914121866226196,
-                -9.099271774291992
+                -9.92609977722168,
+                0.8305433392524719,
+                -16.4058837890625
             ],
             "quat": [
-                0.6697700619697571,
-                0.251840204000473,
-                -0.683538019657135,
-                0.14408442378044128
+                -0.08253739774227142,
+                -0.2553582191467285,
+                0.9614850282669067,
+                0.0593830943107605
             ],
             "scale": [
-                0.0999997928738594,
-                0.09999972581863403,
-                0.09999987483024597
+                0.09999944269657135,
+                0.09999920427799225,
+                0.09999968856573105
             ]
         },
         {
@@ -1292,20 +1302,20 @@
         {
             "CompName": "TransformComponent",
             "pos": [
-                -3.1295862197875977,
-                0.3796849846839905,
-                -8.618481636047363
+                -9.391996383666992,
+                0.10314908623695374,
+                -16.592287063598633
             ],
             "quat": [
-                0.6540194749832153,
-                0.32536327838897705,
-                0.5723587870597839,
-                -0.3725622892379761
+                0.8689128756523132,
+                0.009765329770743847,
+                0.018057938665151596,
+                -0.4945390224456787
             ],
             "scale": [
-                0.09999994188547134,
-                0.09999991208314896,
-                0.09999994188547134
+                0.09999990463256836,
+                0.09999924153089523,
+                0.09999923408031464
             ]
         },
         {

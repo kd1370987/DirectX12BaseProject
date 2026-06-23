@@ -45,6 +45,7 @@
 #include "../../Components/Transform/PreviousWorldMatrixComponent.h"
 #include "../../Components/Charactor/Robot/BoostComponent.h"
 #include "../../Components/Resource/ParticlesComponent.h"
+#include "../../Components/Camera/TPSCameraStateComponent.h"
 
 // システム関連
 #include "../../Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -200,6 +201,7 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<PreviousWorldMatrixComponent>("PreviousWorldMatrixComponent");
 	m_upWorld->RegisterComponent<BoostComponent>("BoostComponent");
 	m_upWorld->RegisterComponent<ParticlesComponent>("ParticlesComponent");
+	m_upWorld->RegisterComponent<TPSCameraStateComponent>("TPSCameraStateComponent");
 }
 
 void BaseScene::RegistrySystem()

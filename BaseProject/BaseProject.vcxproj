@@ -431,6 +431,7 @@
     <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\ProjMatComponent.h" />
+    <ClInclude Include="Source\Application\Components\Camera\TPSCameraStateComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\TPSLookAngleComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h" />
     <ClInclude Include="Source\Application\Components\Charactor\Player\PlayerLookAngleComponent.h" />
@@ -691,6 +692,7 @@
     <ClInclude Include="Source\Engine\Utility\Pool\HandlePool\HandlePool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\RangePool\RangePool.h" />
+    <ClInclude Include="Source\Engine\Utility\String\String.h" />
     <ClInclude Include="Source\Engine\Window\NativeWindow.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>

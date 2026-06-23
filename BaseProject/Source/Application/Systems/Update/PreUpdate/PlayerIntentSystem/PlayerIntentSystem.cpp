@@ -2,10 +2,11 @@
 #include "Engine/ECS/World/World.h"
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
+#include "../../../../Components/Charactor/Robot/BoostComponent.h"
 
 void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<MoveIntentComponent, StateMachineComponent>(
+	a_world.ActiveTask<const MoveIntentComponent, const BoostComponent,StateMachineComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"PlayerIntentSystem",
 		[&a_world]
@@ -14,7 +15,8 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 			uint32_t a_count,
 			float a_dt,
 			ActiveTag* a_tags,
-			MoveIntentComponent* a_moveIntentArray,
+			const MoveIntentComponent* a_moveIntentArray,
+			const BoostComponent* a_boostComp,
 			StateMachineComponent* a_smArray
 			)
 		{
@@ -26,6 +28,7 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
+				const BoostComponent& _boostComp = a_boostComp[_i];
 				StateMachineComponent& _smComp = a_smArray[_i];
 
 				// インスタンスの実体を取得

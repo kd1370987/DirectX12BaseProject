@@ -45,8 +45,8 @@ void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 				// エミットデータ
 				Engine::Particle::EmitterData _emitData = {};
 				_emitData.emitPos = _transComp.pos;
-				_emitData.emitCount = Math::Random::Int(800, 1000);
-				_emitData.emitDirection = DXSM::Vector3(0,1,0);
+				_emitData.emitCount = _particleComp.particleCount;
+				_emitData.emitDirection = _particleComp.rotation;
 				_emitData.baseScale = 1;
 
 				_emitData.positionRadius = 0.5f;

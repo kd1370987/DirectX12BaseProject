@@ -964,6 +964,9 @@
     <Filter Include="Source\Engine\Editor\RenderGraphResourceView">
       <UniqueIdentifier>{150fc13a-9c2d-4e40-9ea2-60c2f2db3246}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Utility\String">
+      <UniqueIdentifier>{a89720f8-c303-4c35-961b-802545baf70a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2356,6 +2359,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\RenderGraphResourceView\RenderGraphResourceView.h">
       <Filter>Source\Engine\Editor\RenderGraphResourceView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\TPSCameraStateComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\String\String.h">
+      <Filter>Source\Engine\Utility\String</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

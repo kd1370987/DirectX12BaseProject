@@ -17,36 +17,56 @@ void Engine::Editor::RenderGraphResourceView::Draw(UINT a_widht, UINT a_height)
 	{
 		// レンダーグラフ取得
 		auto* _pGraphicsEngine = MainEngine::Instance().RefGraphicsEngine();
-		if (!_pGraphicsEngine) return;
+		if (!_pGraphicsEngine) { ImGui::End(); return; }
+
 		auto* _pRenderGraph = _pGraphicsEngine->RefRenderGraph();
-		if (!_pRenderGraph) return;
+		if (!_pRenderGraph) { ImGui::End(); return; }
 
 		// レンダーグラフに登録されているテクスチャの取得
 		const auto* _pRGResourceManager = _pRenderGraph->GetRGResourceManager();
-		if (!_pRGResourceManager) return;
+		if (!_pRGResourceManager) { ImGui::End(); return; }
 
-		// リソースを回す
-		for (auto& [_name, _index] : _pRGResourceManager->GetNameMap())
+		// スクロールバー付きの子ウィンドウ領域を作成
+		// ImGui::GetContentRegionAvail() を使うことで、メインウィンドウ内の残り領域をすべて埋めます
+		if (ImGui::BeginChild("ResourceViewScrollRegion", ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_AlwaysVerticalScrollbar))
 		{
-			// ノード
-			if (ImGui::TreeNodeEx(_name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+			// リソースを回す
+			for (auto& [_name, _index] : _pRGResourceManager->GetNameMap())
 			{
-				// テクスチャ取得
-				auto* _pTex = _pRGResourceManager->GetTex(_index);
-				if (!_pTex) continue;
+				// ノード
+				if (ImGui::TreeNodeEx(_name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+				{
+					// テクスチャ取得
+					auto* _pTex = _pRGResourceManager->GetTex(_index);
+					if (!_pTex)
+					{
+						ImGui::TreePop();
+						continue;
+					}
 
-				ImGui::Text("name : %s", _name);
+					ImGui::Text("name : %s", _name.c_str());
 
-				ImGui::Separator();
+					ImGui::Separator();
 
-				// テクスチャ描画
-				auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
-				Helper::DrawSRVView(_gpuHandle, a_widht, a_height);
+					// アスペクト比の計算
+					float _aspectRatio = static_cast<float>(a_widht) / static_cast<float>(a_height);
 
-				ImGui::TreePop();
+					// 現在のノード内（インデント込み）の利用可能な横幅を取得
+					float _availableWidth = ImGui::GetContentRegionAvail().x;
+
+					// 横幅をウィンドウいっぱいにし、アスペクト比から高さを逆算
+					float _drawWidth = _availableWidth;
+					float _drawHeight = _drawWidth / _aspectRatio;
+
+					// テクスチャ描画
+					auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
+					Helper::DrawSRVView(_gpuHandle, static_cast<UINT>(_drawWidth), static_cast<UINT>(_drawHeight));
+
+					ImGui::TreePop();
+				}
 			}
 		}
+		ImGui::EndChild();
 	}
 	ImGui::End();
-
 }
