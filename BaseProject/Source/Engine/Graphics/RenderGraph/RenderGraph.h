@@ -85,6 +85,10 @@ namespace Engine::Graphics
 		std::vector<std::string> GetRGResourceList();	// リソース名一覧
 
 		UINT GetTemporalIndex() const; // テンポラルインデックス取得
+
+		// リソースマネージャーにアクセス
+		const RGResourceManager* GetRGResourceManager() const;
+		RGResourceManager* RefRGResourceManager();
 	private:
 
 		// 実行中の関数
@@ -107,8 +111,5 @@ namespace Engine::Graphics
 
 		// リソース管理
 		std::unique_ptr<RGResourceManager> m_upRGResourceManager = nullptr;
-
-		// ハンドルマップ
-		std::unordered_map<std::string, Handle<Resource::Texture>> m_handleMap;
 	};
 }

@@ -9,6 +9,7 @@
 
 #include "ECSView/ECSView.h"
 #include "AssetResourceView/AssetResourceView.h"
+#include "RenderGraphResourceView/RenderGraphResourceView.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
@@ -58,6 +59,10 @@ namespace Engine::Editor
 			m_upAssetResourceView = std::make_unique<AssetResourceView>();
 			m_upAssetResourceView->Init();
 		}
+		if (!m_upRenderGraphResourceView)
+		{
+			m_upRenderGraphResourceView = std::make_unique<RenderGraphResourceView>();
+		}
 		if (!m_upSceneView)
 		{
 			m_upSceneView = std::make_unique<SceneView>();
@@ -84,7 +89,7 @@ namespace Engine::Editor
 		m_upECSView->Draw(a_widht, a_height);
 		// アセットビュー
 		m_upAssetResourceView->Draw(a_widht, a_height);
-
+		m_upRenderGraphResourceView->Draw(a_widht,a_height);
 		// ログ表示
 		m_upLog->Draw("Log");
 		// 計測表示

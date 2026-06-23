@@ -26,6 +26,11 @@ namespace Engine::Resource
 
 		static Engine::GUID GetGUIDFromHandle(const Handle<Texture>& a_handle);
 
+		/// <summary>
+		/// GUIDからハンドルを取得
+		/// </summary>
+		static Handle<Texture> GetHandle(const Engine::GUID&  a_guid);
+
 	private:
 
 		// デフォルトテクスチャの要求

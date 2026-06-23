@@ -206,6 +206,15 @@ namespace Engine::Graphics
 		}
 		return _nameVec;
 	}
+	const std::unordered_map<std::string, Resource::Index>& RGResourceManager::GetNameMap() const
+	{
+		return m_stringMap;
+	}
+	const Resource::Texture* RGResourceManager::GetTex(Resource::ID a_id) const
+	{
+		auto _idx = Resource::GetIndex(a_id);
+		return GetTex(m_resourceVec[_idx].texHandle[0]);
+	}
 	const RGResourceManager::LogicalResource& RGResourceManager::GetRes(Resource::ID a_id) const
 	{
 		auto _idx = Resource::GetIndex(a_id);

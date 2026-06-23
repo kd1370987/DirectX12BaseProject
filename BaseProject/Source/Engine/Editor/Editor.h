@@ -11,6 +11,7 @@ namespace Engine::Editor
 	class SceneView;
 	class EditorCamera;
 	class WatchView;
+	class RenderGraphResourceView;
 
 	//=======================================================================
 	// 
@@ -74,6 +75,7 @@ namespace Engine::Editor
 
 		// アセットビュー
 		std::unique_ptr<AssetResourceView> m_upAssetResourceView = nullptr;
+		std::unique_ptr<RenderGraphResourceView> m_upRenderGraphResourceView = nullptr;
 
 		// 計測機
 		std::unique_ptr<WatchView> m_upWatchView = nullptr;

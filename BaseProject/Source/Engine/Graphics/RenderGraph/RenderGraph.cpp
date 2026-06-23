@@ -646,6 +646,16 @@ namespace Engine::Graphics
 		return m_temporalIndex;
 	}
 
+	const RGResourceManager* RenderGraph::GetRGResourceManager() const
+	{
+		return m_upRGResourceManager.get();
+	}
+
+	RGResourceManager* RenderGraph::RefRGResourceManager()
+	{
+		return m_upRGResourceManager.get();
+	}
+
 
 	DXGI_FORMAT RenderGraph::GetDXGIFormat(Resource::ID a_id)
 	{

@@ -6,8 +6,6 @@ namespace Engine::Resource
 
 namespace Engine::Editor
 {
-	class TextureView;
-
 	class AssetResourceView
 	{
 	public:
@@ -39,10 +37,6 @@ namespace Engine::Editor
 		void CreateAssetButton();
 
 	private:
-
-		std::unique_ptr<TextureView> m_upTextureView = nullptr;
-
-
 		// 文字列キャッシュ
 		char m_nameCach[256] = "";
 		char m_pathCach[256] = "";

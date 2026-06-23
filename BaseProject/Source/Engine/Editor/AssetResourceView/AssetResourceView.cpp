@@ -22,13 +22,10 @@ namespace Engine::Editor
 
 	void AssetResourceView::Init()
 	{
-		m_upTextureView = std::make_unique<TextureView>();
-		m_upTextureView->Init();
 	}
 
 	void AssetResourceView::Draw(UINT a_widht, UINT a_height)
 	{
-		m_upTextureView->Draw(a_widht, a_height);
 		// リソースビューの作成
 		if (ImGui::Begin("ResourceDataBase"))
 		{
@@ -196,7 +193,7 @@ namespace Engine::Editor
 				}
 				else if (_type == "Texture")
 				{
-
+					TextureInspecter(m_pAssetPropCach->guid);
 				}
 				else if (_type == "Shader")
 				{

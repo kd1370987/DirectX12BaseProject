@@ -56,6 +56,9 @@ namespace Engine::Graphics
 
 		std::vector<std::string> GetResourceNameVec();				// リソース名一覧
 
+		const std::unordered_map<std::string, Resource::Index>& GetNameMap() const;
+		const Resource::Texture* GetTex(Resource::ID a_id) const;
+
 	private:
 
 		// 論理リソース

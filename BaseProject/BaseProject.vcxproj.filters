@@ -961,6 +961,9 @@
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem">
       <UniqueIdentifier>{56a92f0c-190f-4f54-a10d-b4bc41efcb15}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\RenderGraphResourceView">
+      <UniqueIdentifier>{150fc13a-9c2d-4e40-9ea2-60c2f2db3246}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1514,6 +1517,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\RenderGraphResourceView\RenderGraphResourceView.cpp">
+      <Filter>Source\Engine\Editor\RenderGraphResourceView</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2347,6 +2353,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Math\Random.h">
       <Filter>Source\Engine\Utility\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\RenderGraphResourceView\RenderGraphResourceView.h">
+      <Filter>Source\Engine\Editor\RenderGraphResourceView</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
