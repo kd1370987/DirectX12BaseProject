@@ -588,6 +588,9 @@ void Engine::Resource::StateMachineAsset::DrawNodeEditor()
 		}
 	}
 
+	// ノードの描画ループなどが終わった後、エディタを閉じる直前に呼ぶ
+	ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_BottomRight);
+
 	// ノード描画終了
 	ImNodes::EndNodeEditor();
 }
@@ -844,60 +847,67 @@ void Engine::Resource::StateMachineAsset::EditNode(StateNode& a_node)
 
 	Editor::Node::TitleBar(a_node.name);
 
-	// 入力ピン
+	// ----------------------------------------------------
+	// ピンの描画
+	// ----------------------------------------------------
 	ImNodes::BeginInputAttribute(a_node.inPinID);
 	ImGui::Text("In");
 	ImNodes::EndInputAttribute();
 
-	// 出力ピン
 	ImNodes::BeginOutputAttribute(a_node.outPinID);
 	ImGui::Text("Out");
 	ImNodes::EndOutputAttribute();
 
+	// ----------------------------------------------------
+	// ノード内のUIパーツ
+	// ----------------------------------------------------
+
 	// アニメーション変更
-	if (m_modelHandle == Handle<Model>())
+	if (m_modelHandle != Handle<Model>())
 	{
-		ImNodes::EndNode();
-		return;
-	}
-	// モデル取得
-	auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
-	if (!_pModel)
-	{
-		ImNodes::EndNode();
-		return;
-	}
-
-	// アニメーション名取得
-	std::string _viewName = "Select...";
-	if (a_node.playAnimData != Handle<AnimationData>())
-	{
-		auto* _pAnimData = ResourceManager::Instance().Get(a_node.playAnimData);
-		if (_pAnimData) _viewName = _pAnimData->name;
-	}
-
-	// モデルからあにめーしょんを取得
-	if (ImGui::BeginCombo("Change Animation", _viewName.c_str()))
-	{
-		for (auto& _handle : _pModel->GetAnimationHandles())
+		auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
+		if (_pModel)
 		{
-			auto* _pAnimData = ResourceManager::Instance().Get(_handle);
-			
-			bool _selected = (a_node.playAnimData == _handle);
-
-			// 選択ラン
-			if (ImGui::Selectable(_pAnimData->name.c_str(), _selected))
+			// アニメーション名取得
+			std::string _viewName = "Select...";
+			if (a_node.playAnimData != Handle<AnimationData>())
 			{
-				a_node.playAnimData = _handle;
-
+				auto* _pAnimData = ResourceManager::Instance().Get(a_node.playAnimData);
+				if (_pAnimData) _viewName = _pAnimData->name;
 			}
+
+			// UIの横幅を固定
+			ImGui::PushItemWidth(130.0f);
+
+			// コンボボックス
+			ImGui::Text("Animation");
+			if (ImGui::BeginCombo("##ChangeAnimation", _viewName.c_str()))
+			{
+				for (auto& _handle : _pModel->GetAnimationHandles())
+				{
+					auto* _pAnimData = ResourceManager::Instance().Get(_handle);
+					bool _selected = (a_node.playAnimData == _handle);
+
+					if (ImGui::Selectable(_pAnimData->name.c_str(), _selected))
+					{
+						a_node.playAnimData = _handle;
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			// 再生スピード
+			ImGui::Text("Speed");
+			ImGui::DragFloat("##AnimationSpeed", &a_node.speed, 0.01f, 0.0f);
+
+			// ループフラグ
+			ImGui::Checkbox("Loop", &a_node.isLoop);
+
+			// ItemWidthを元に戻す
+			ImGui::PopItemWidth();
 		}
-		ImGui::EndCombo();
 	}
-
-	ImGui::DragFloat("AnimationSpeed", &a_node.speed, 0.01f,0.0f);
-	ImGui::Checkbox("IsLoop", &a_node.isLoop);
-
+	
 	// ノード終了
 	ImNodes::EndNode();
 }
