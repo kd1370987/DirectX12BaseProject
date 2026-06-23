@@ -283,9 +283,9 @@ namespace Engine::Graphics
 		AddGISpatialDenoisePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
 
 		// パーティクル
-		AddEmitParticlePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
-		AddUpdateParticlePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
-		AddParticlePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
+		AddEmitParticlePass(a_pPipelineStateManager, *this, EDrawPhase::Particle);
+		AddUpdateParticlePass(a_pPipelineStateManager, *this, EDrawPhase::Particle);
+		AddParticlePass(a_pPipelineStateManager, *this, EDrawPhase::Particle);
 
 		// コンパイル
 		Compile();
@@ -307,6 +307,15 @@ namespace Engine::Graphics
 			std::vector<RenderPassNode*> _sortedNodes = {};
 			if (_phase == EDrawPhase::NotSort)
 			{
+				for (auto& _pass : _passVec)
+				{
+					_sortedNodes.push_back(&_pass);
+				}
+			}
+			else if (_phase == EDrawPhase::Particle)
+			{
+				// 外部のバッファなどはまだバリア未対応なので
+				// ソートしない
 				for (auto& _pass : _passVec)
 				{
 					_sortedNodes.push_back(&_pass);

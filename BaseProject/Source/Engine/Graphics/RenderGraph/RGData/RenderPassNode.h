@@ -14,6 +14,7 @@ namespace Engine::Graphics
 		Raytracing,
 		NotSort,			// ピンポンバッファなどの影響でソートできないフェーズを差し込む
 		Lighting,			// ライティング
+		Particle,			// パーティクル
 		PostProcess,		// ポストプロセス
 		HistoryUpdate,		// 過去データ更新
 		UI,					// UI描画

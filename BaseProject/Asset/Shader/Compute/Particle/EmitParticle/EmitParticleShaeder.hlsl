@@ -1,5 +1,6 @@
 
 #include "../../../Common/RootParameters/Particle.hlsli"
+#include "../../../Common/Math/Hash.hlsli"
 
 // ルートシグネチャ
 #define EMITPARTICLE_ROOT_SIG \
@@ -21,7 +22,6 @@ RWStructuredBuffer<ParticleData> g_particleBuffer : register(u0);
 RWStructuredBuffer<uint> g_deadList : register(u1);
 RWStructuredBuffer<uint> g_counterBuffer : register(u2);
 
-
 // ルートシグネチャセット
 [RootSignature(EMITPARTICLE_ROOT_SIG)]
 
@@ -29,38 +29,6 @@ RWStructuredBuffer<uint> g_counterBuffer : register(u2);
 [numthreads(32, 1, 1)]
 void CSMain( uint3 DTid : SV_DispatchThreadID )
 {
-
-	//// デバッグ用：最初の10スレッド（10個のパーティクル）だけ処理する
-	//if (DTid.x >= 10)
-	//	return;
-	
-	//// エミットバッファ（g_emitData）からの読み込みやforループは全部無視！
-
-	//uint _origCount;
-
-	//// カウンターから１引いて、引く前の数を origCount に取得する
-	//InterlockedAdd(g_counterBuffer[0], -1, _origCount);
-
-	//// 空きがあった場合
-	//if (_origCount > 0)
-	//{
-	//	uint _newIndex = g_deadList[_origCount - 1];
-
-	//	// 新しいパーティクルデータを適当な値で初期化
-	//	ParticleData _p;
-	//	_p.pos = float3(0.0f, 0.0f, 0.0f); // 画面の中心（原点）
-	//	_p.life = 5.0f; // すぐ死なないように長めの5秒
-	//	_p.velocity = float3(0.0f, 2.0f, 0.0f); // 上に向かって飛ぶ
-	//	_p.size = 1.0f; // 見えやすいようにデカく
-
-	//	// 書き込み！
-	//	g_particleBuffer[_newIndex] = _p;
-	//}
-	//else
-	//{
-	//	// カウンターのマイナスを戻す
-	//	InterlockedAdd(g_counterBuffer[0], 1, _origCount);
-	//}
 	// リクエスト以上のスレッドは落とす
 	if (DTid.x >= requestCount)
 		return;
@@ -85,10 +53,25 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 
 			// 新しいパーティクルデータを初期化してプールに書き込む
 			ParticleData _p;
-			_p.pos = _emitInfo.pos;
-			_p.life = 1.0f;
-			_p.velocity = _emitInfo.emitDirection; // 初速
-			_p.size = _emitInfo.baseScale;
+
+			// シード値取得
+			float _seed = DTid.x + _i;
+
+			// 発射位置計算
+			float _radius = Random(_seed) * _emitInfo.positionRadius;
+			float3 _offset = RandomDirection(_seed) * _radius;
+			_p.pos = _emitInfo.pos + _offset;
+
+			// 生存時間
+			_p.life = ValueFloat(_emitInfo.minLifeTime, _emitInfo.maxLifeTime, _seed);
+
+			// 発射方向計算
+			float3 _forward = normalize(_emitInfo.emitDirection);
+			_p.velocity =
+			RandomConeDirection(_forward, _emitInfo.directionAngle, _seed) * ValueFloat(_emitInfo.minSpeed,_emitInfo.maxSpeed,_seed);
+
+			// スケール
+			_p.size = _emitInfo.baseScale * ValueFloat(_emitInfo.minScale, _emitInfo.maxScale,_seed);
 
 			g_particleBuffer[_newIndex] = _p;
 		}

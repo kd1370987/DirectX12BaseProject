@@ -12,5 +12,21 @@ namespace Engine::Particle
 
 		DirectX::XMFLOAT3 emitDirection;	// 発生させたい方向
 		float baseScale;					// エミッター専用のスケール
+
+		// ---- ランダム要素 ----
+		float positionRadius;		// 発生位置の半径
+		float directionAngle;		// 方向のばらつき角度 (度)
+
+		// 拡縮区間
+		float minScale;
+		float maxScale;
+
+		// スピード区間
+		float minSpeed;
+		float maxSpeed;
+
+		// 生存時間区間
+		float minLifeTime;
+		float maxLifeTime;
 	};
 }

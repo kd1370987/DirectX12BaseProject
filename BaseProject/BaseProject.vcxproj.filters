@@ -2345,6 +2345,9 @@
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\Random.h">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2422,6 +2425,9 @@
     </None>
     <None Include="Asset\Shader\Source\ParticleShader\ParticleShader.hlsli">
       <Filter>Asset\Shader\Source\ParticleShader</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\Math\Hash.hlsli">
+      <Filter>Asset\Shader\Common\Math</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

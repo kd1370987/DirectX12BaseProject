@@ -36,7 +36,7 @@ namespace Engine::Graphics
 
 		// 依存関係構築
 		_rpBuilder.Read("Depth", AccessType::Depth_Read, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Write("AffterParticle", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
+		_rpBuilder.Write("AffterLighting", AccessType::RTV, LoadOp::Load, StoreOp::Store);
 
 		// PSO構築
 		auto& _sPso = _rpBuilder.CreatePSODesc("ParticleDraw", _spPassData->staticIndex);
@@ -93,9 +93,6 @@ namespace Engine::Graphics
 					auto* _pTex = Resource::ResourceManager::Instance().Get(_pParticle->GetTexHandle());
 					if (!_pTex) continue;
 					a_pCtx->BindSRV(2,_pTex->GetSRV());
-
-					// トライアングルリストに設定
-					//a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 					// 描画
 					a_pCtx->DrawPolygonInstancing(_pool->GetMaxCapacity());

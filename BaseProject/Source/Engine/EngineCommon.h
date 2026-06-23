@@ -11,7 +11,8 @@
 #include "Engine/D3D12/D3D12Types.h"			// D3D12の共通設定
 
 // 共通数学
-#include "Utility/Math/Alignment.h"
+#include "Utility/Math/Alignment.h"				// アライメント
+#include "Utility/Math/Random.h"				// ランダム
 
 // マクロ
 #include "Engine/Common/Macros/ClassMacros.h"	// クラス用マクロ

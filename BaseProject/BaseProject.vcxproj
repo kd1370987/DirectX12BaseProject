@@ -685,6 +685,7 @@
     <ClInclude Include="Source\Engine\Utility\GUID\GUID.h" />
     <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONHelper.h" />
     <ClInclude Include="Source\Engine\Utility\Math\Alignment.h" />
+    <ClInclude Include="Source\Engine\Utility\Math\Random.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\HandlePool\HandlePool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\RangePool\RangePool.h" />
@@ -696,6 +697,7 @@
     <None Include="..\Library\imgui-docking\.gitattributes" />
     <None Include="..\Library\imgui-docking\.gitignore" />
     <None Include="Asset\Shader\Common\CB\CBCamera.hlsli" />
+    <None Include="Asset\Shader\Common\Math\Hash.hlsli" />
     <None Include="Asset\Shader\Common\Math\Normal.hlsli" />
     <None Include="Asset\Shader\Common\Math\Transform.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\AmbientData.hlsli" />
