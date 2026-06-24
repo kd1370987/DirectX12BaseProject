@@ -15,6 +15,8 @@ namespace Engine::Resource
 
 		static bool Has(const Engine::GUID& a_guid);
 
+		static Model Load(const std::string& a_path);
+
 	private:
 
 		static std::unordered_map<Engine::GUID, Handle<Model>> m_cache;

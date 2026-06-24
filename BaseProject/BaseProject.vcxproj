@@ -664,6 +664,7 @@
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Vertex\Vertex.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\BaseLoader.h" />
+    <ClInclude Include="Source\Engine\Resource\Loader\DefaultLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Material\MaterialLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.h" />

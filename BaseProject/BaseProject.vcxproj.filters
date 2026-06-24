@@ -2366,6 +2366,9 @@
     <ClInclude Include="Source\Engine\Utility\String\String.h">
       <Filter>Source\Engine\Utility\String</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\DefaultLoader.h">
+      <Filter>Source\Engine\Resource\Loader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

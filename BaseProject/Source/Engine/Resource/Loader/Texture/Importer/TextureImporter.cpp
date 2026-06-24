@@ -28,24 +28,14 @@ void CopyTexRegion(
 
 		// GPUへこぴー
 		a_pCmdList->CopyTextureRegion(
-			&_dst,			// コピー先
+			&_dst,				// コピー先
 			0,					// Xオフセット
 			0,					// Yオフセット
 			0,					// Zオフセット
-			&_src,			// コピー元
+			&_src,				// コピー元
 			nullptr				// コピー元ボックス（全領域）
 		);
 	}
-
-	// 処理待ち用バリア
-	//D3D12_RESOURCE_BARRIER _barrier = {};
-	//_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	//_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	//_barrier.Transition.pResource = a_pResource;
-	//_barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	//_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	//_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	//a_pCmdList->ResourceBarrier(1, &_barrier);
 }
 
 Engine::Resource::UploadBuffer CreateUploadHeap(ID3D12Device* a_pDevice, const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)

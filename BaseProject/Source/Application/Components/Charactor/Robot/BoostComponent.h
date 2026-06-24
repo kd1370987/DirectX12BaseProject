@@ -4,6 +4,7 @@ struct BoostComponent
 {
 	// --- 入力・状態 ---
 	bool isBoostTriger = false;		// ブーストボタンが押された瞬間
+	bool isJustBoosted = false;		// ブーストボタンが押された瞬間
 	bool isBoostIntent = false;		// ブーストボタンが押されているか
 	bool isBoosting = false;		// 実際に現在ブースト中か（燃料切れなどで押してても飛べない場合があるため）
 
@@ -62,7 +63,7 @@ struct BoostComponent
 		ImGui::Separator();
 
 		ImGui::Text("Runtime State");
-		ImGui::Checkbox("Boost Triger (Input)", &_comp.isBoostTriger);
+		ImGui::Checkbox("Boost Triger (Input)", &_comp.isJustBoosted);
 		ImGui::Checkbox("Boost Intent (Input)", &_comp.isBoostIntent);
 		ImGui::Checkbox("Is Boosting (Active)", &_comp.isBoosting);
 
