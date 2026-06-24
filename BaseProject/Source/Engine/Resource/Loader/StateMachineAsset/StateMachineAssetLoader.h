@@ -1,20 +1,23 @@
 ﻿#pragma once
-
-#include "../BaseLoader.h";
-
 namespace Engine::Resource
 {
-	class StateMachineAsset;
-
-	class StateMachineAssetLoader : public BaseLoader<StateMachineAsset,StateMachineAssetLoader>
+	class StateMachineAssetLoader
 	{
 	public:
 
-		// 読み込み
-		static Handle<StateMachineAsset> Load(const Engine::GUID& a_guid);
+		/// <summary>
+		/// ファイルパスからの読み込み
+		/// </summary>
+		/// <param name="a_path">ファイルパス</param>
+		/// <returns>実体を返す</returns>
+		static StateMachineAsset LoadFromFile(const std::string& a_path);
 		
-		// リクエスト
-		static std::pair<Engine::GUID,Handle<StateMachineAsset>> Create(const std::string& a_path,const std::string& a_name);
+		/// <summary>
+		/// 作成 : メタファイルと空のファイルを作成
+		/// </summary>
+		/// <param name="a_path">ディレクトリ名</param>
+		/// <param name="a_name">ファイルとステートマシンの名前</param>
+		static void Create(const std::string& a_path,const std::string& a_name);
 
 	};
 }

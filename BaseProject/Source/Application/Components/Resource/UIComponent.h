@@ -50,19 +50,17 @@ struct UIComponent
 		// 選択UI
 		if (ImGui::BeginCombo("Change Texture", "Select..."))
 		{
-			for (const auto& [_guid,_handle] : Resource::TextureLoader::GetAllCache())
+			//for (const auto& [_guid,_handle] : Resource::TextureLoader::GetAllCache())
+			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("Texture"))
 			{
 				// 選択中のモデルだったらフラグを立てる
-				bool _selected = (_comp.texHandle == _handle);
-
-				// 選択予定のテクスチャ取得
-				auto* _pTex = Resource::ResourceManager::Instance().Get(_handle);
+				bool _selected = (_comp.texGUID == _prop.guid);
 
 				// 選択欄
-				if (ImGui::Selectable(_pTex->GetName().c_str(), _selected))
+				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
 				{
-					_comp.texHandle = _handle;
-					_comp.texGUID = _guid;
+					_comp.texHandle = Resource::ResourceManager::Instance().Load<Resource::Texture>(_prop.guid);
+					_comp.texGUID = _prop.guid;
 				}
 			}
 			ImGui::EndCombo();

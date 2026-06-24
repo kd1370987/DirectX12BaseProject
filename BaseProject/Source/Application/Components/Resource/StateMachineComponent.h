@@ -53,7 +53,7 @@ struct StateMachineComponent
 				// 選択欄
 				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
 				{
-					_comp.stateMachineHandle = Resource::StateMachineAssetLoader::Load(_prop.guid);
+					_comp.stateMachineHandle = Resource::ResourceManager::Instance().Load<Resource::StateMachineAsset>(_prop.guid);
 					_comp.stateMachineGUID = _prop.guid;
 				}
 			}

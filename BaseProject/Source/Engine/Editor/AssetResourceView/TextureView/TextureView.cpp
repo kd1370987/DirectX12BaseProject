@@ -19,7 +19,7 @@ namespace Engine::Editor
 		float _winHeight = _winOp.windowHegiht;
 
 		// テクスチャハンドル取得
-		auto _handle = Resource::TextureLoader::GetHandle(a_guid);
+		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::Texture>(a_guid);
 		auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(a_guid);
 
 		// 名前と、GUID表示

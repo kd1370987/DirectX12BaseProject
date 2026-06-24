@@ -125,6 +125,10 @@ namespace Engine::Resource
 
 #include "Resource/Data/Shader/Shader.h"
 #include "Engine/Resource/Data/ShaderLibrary/ShaderLibrary.h"	// シェーダーライブラリ
+
+#include "Resource/Data/StateMachineAsset/StateMachineAsset.h"
+#include "Resource/Data/Particles/ParticlesAsset.h"
+
 //==========================================================================================
 // 
 // レイトレ用構造体

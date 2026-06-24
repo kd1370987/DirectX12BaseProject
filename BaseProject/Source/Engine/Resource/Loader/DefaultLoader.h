@@ -2,6 +2,7 @@
 
 #include "Model/ModelLoader.h"
 #include "Texture/TextureLoader.h"
+#include "StateMachineAsset/StateMachineAssetLoader.h"
 
 namespace Engine::Resource
 {
@@ -11,14 +12,15 @@ namespace Engine::Resource
 	{
 		static T LoadFromFile(const std::string& a_path)
 		{
-			// 特殊化されていない型で Load<T> が呼ばれたらコンパイルを止める！
+			// 特殊化されていない型で Load<T> が呼ばれたらコンパイルを止める
 			static_assert(sizeof(T) == 0, "特殊化されていない型のLoaderが呼ばれました。DefaultLoaderを特殊化してください。");
 			return T();
 		}
 	};
 
+	// -----------------------------------------------------
 	// テンプレート特殊化
-
+	// -----------------------------------------------------
 	// モデル
 	template<>
 	struct DefaultLoader<Model>
@@ -36,6 +38,15 @@ namespace Engine::Resource
 		static Texture LoadFromFile(const std::string& a_path)
 		{
 			return TextureLoader::LoadFromFile(a_path);
+		}
+	};
+	// ステートマシン
+	template<>
+	struct DefaultLoader<StateMachineAsset>
+	{
+		static StateMachineAsset LoadFromFile(const std::string& a_path)
+		{
+			return StateMachineAssetLoader::LoadFromFile(a_path);
 		}
 	};
 

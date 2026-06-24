@@ -42,28 +42,6 @@ namespace Engine::Editor
 		// 各個別に詳細描画
 		ResourceView();
 	}
-	void AssetResourceView::ExtensionVec()
-	{
-		// ステートマシン
-		auto& _statePool = Resource::ResourceManager::Instance().RefPool<Resource::StateMachineAsset>();
-		if (ImGui::TreeNodeEx("StateMachinAsset", ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
-		{
-			auto& _pool = _statePool.RefAll();
-			for (auto& _stateMachin : _pool)
-			{
-				if (!_stateMachin.has_value()) continue;
-				if (ImGui::TreeNodeEx(_stateMachin->GetName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
-				{
-					_stateMachin->EditImGui();
-					ImGui::TreePop();
-				}
-			}
-
-			ImGui::Separator();
-
-			
-		}
-	}
 	void AssetResourceView::AssetDataBaseDraw()
 	{
 		// リソース関連一覧
@@ -242,23 +220,23 @@ namespace Engine::Editor
 	{
 		auto& _guid = m_pAssetPropCach->guid;
 		auto& _type = m_pAssetPropCach->type;
-		if (Resource::StateMachineAssetLoader::Has(_guid))
+		if (Resource::ResourceManager::Instance().Has<Resource::StateMachineAsset>(_guid))
 		{
-			auto _handle = Resource::StateMachineAssetLoader::Load(_guid);
+			auto _handle = Resource::ResourceManager::Instance().Load<Resource::StateMachineAsset>(_guid);
 			auto* _pMachin = Resource::ResourceManager::Instance().Ref(_handle);
 			if (!_pMachin)
 			{
 				ImGui::Text("Not faund state machin");
 				return;
 			}
-			_pMachin->EditImGui();
+			_pMachin->EditImGui(_handle);
 		}
 		else
 		{
 			ImGui::Text("No loaded file");
 			if (ImGui::Button("Load"))
 			{
-				Resource::StateMachineAssetLoader::Load(_guid);
+				Resource::ResourceManager::Instance().Load<Resource::StateMachineAsset>(_guid);
 			}
 		}
 	}

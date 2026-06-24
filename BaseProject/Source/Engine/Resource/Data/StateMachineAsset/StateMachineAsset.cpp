@@ -238,6 +238,124 @@ void Engine::Resource::StateMachineAsset::Load(const std::string& a_fileDir, con
 	}
 }
 
+void Engine::Resource::StateMachineAsset::Load(const std::string& a_filePath)
+{
+	auto _dir = FileUtility::GetDirFromPath(a_filePath);
+	auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
+
+	Release();
+
+	Persistence::Archive _arch(Persistence::Archive::Mode::Load, _dir, _fileName, "stet", Persistence::Archive::ArchiveFormat::Json);
+
+	_arch.Field("m_name", m_name);
+	_arch.Field("m_defaultStartHash", m_defaultStartHash);
+
+	_arch.Field("m_modelGUID", m_modelGUID);
+	m_modelHandle = Resource::ResourceManager::Instance().Load<Resource::Model>(m_modelGUID);
+
+	int _maxId = 0;
+
+	// ノード復元
+	size_t _nodeSize = 0;
+	if (_arch.BeginArray("StateNodes", _nodeSize))
+	{
+		for (size_t _i = 0; _i < _nodeSize; ++_i)
+		{
+			if (_arch.BeginObject(_i))
+			{
+				StateNode _node;
+				_node.Archive(_arch);
+
+				UINT _key = StringUtility::ToHash(_node.name);
+				_node.hash = _key;
+
+				// ノードID,入力ID,出力ID
+				if (_node.nodeID == 0) _node.nodeID = ++_maxId; else _maxId = std::max(_maxId, _node.nodeID);
+				if (_node.inPinID == 0) _node.inPinID = ++_maxId; else _maxId = std::max(_maxId, _node.inPinID);
+				if (_node.outPinID == 0) _node.outPinID = ++_maxId; else _maxId = std::max(_maxId, _node.outPinID);
+
+				m_stateNodeMap.emplace(_key, _node);
+				ImNodes::SetNodeEditorSpacePos(_node.nodeID, ImVec2(_node.editorPos.x, _node.editorPos.y));
+
+				_arch.EndObject();
+			}
+		}
+		_arch.EndArray();
+	}
+
+	// 矢印復元
+	size_t _arrowMapSize = 0;
+	if (_arch.BeginArray("TransitionArrows", _arrowMapSize))
+	{
+		for (size_t _i = 0; _i < _arrowMapSize; ++_i)
+		{
+			if (_arch.BeginObject(_i))
+			{
+				UINT _hash = 0;
+				_arch.Field("SrcHash", _hash);
+
+				size_t _arrowSize = 0;
+				std::vector<TransitionArrow> _arrowVec;
+
+				if (_arch.BeginArray("Arrows", _arrowSize))
+				{
+					_arrowVec.resize(_arrowSize);
+					for (size_t _j = 0; _j < _arrowSize; ++_j)
+					{
+						if (_arch.BeginObject(_j))
+						{
+							_arrowVec[_j].Archive(_arch);
+
+							if (_arrowVec[_j].linkID == 0) _arrowVec[_j].linkID = ++_maxId;
+							else _maxId = std::max(_maxId, _arrowVec[_j].linkID);
+
+							_arch.EndObject();
+						}
+					}
+					_arch.EndArray();
+				}
+				m_transitionArrowMap.emplace(_hash, _arrowVec);
+				_arch.EndObject();
+			}
+		}
+		_arch.EndArray();
+	}
+
+	// パラメータ復元
+	size_t _paramSize = 0;
+	if (_arch.BeginArray("Parameters", _paramSize))
+	{
+		for (size_t _i = 0; _i < _paramSize; ++_i)
+		{
+			if (_arch.BeginObject(_i))
+			{
+				UINT _hash = 0;
+				_arch.Field("Hash", _hash);
+
+				StateParameter _param;
+				_param.Archive(_arch);
+				m_parameters.emplace(_hash, _param);
+
+				_arch.EndObject();
+			}
+		}
+		_arch.EndArray();
+	}
+
+	m_idCounter = _maxId;
+
+	// モデルからノードのアニメーションを復元
+	m_modelHandle = Resource::ResourceManager::Instance().Load<Resource::Model>(m_modelGUID);
+	auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
+	if (_pModel)
+	{
+		for (auto& [_hash, _node] : m_stateNodeMap)
+		{
+			_node.playAnimData = _pModel->GetAnimationHandleFromGUID(_node.animGUID);
+		}
+	}
+}
+
 std::string_view Engine::Resource::StateMachineAsset::GetNodeName(const UINT& a_hash) const
 {
 	for (auto& [_hash,_node] : m_stateNodeMap)
@@ -273,13 +391,14 @@ void Engine::Resource::StateMachineAsset::Release()
 	m_idCounter = 0;
 }
 
-void Engine::Resource::StateMachineAsset::EditImGui()
+void Engine::Resource::StateMachineAsset::EditImGui(const Handle<StateMachineAsset>& a_handle)
 {
 	// ステートセーブ
 	if (ImGui::Button("Save"))
 	{
 		// ファイルパス取得
-		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(m_guid);
+		auto _guid = ResourceManager::Instance().GetCache<StateMachineAsset>(a_handle);
+		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
 		Save(_path);
 		Editor::MainEditor::Instance().AddLog("%s", _path.c_str());
 		Editor::MainEditor::Instance().AddLog(" : Save StateMachinAsset\n");

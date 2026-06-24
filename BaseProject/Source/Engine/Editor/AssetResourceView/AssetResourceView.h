@@ -19,9 +19,6 @@ namespace Engine::Editor
 
 	private:
 
-		// 拡張子ごとの配列
-		void ExtensionVec();
-
 		// アセットデータベース描画
 		void AssetDataBaseDraw();
 

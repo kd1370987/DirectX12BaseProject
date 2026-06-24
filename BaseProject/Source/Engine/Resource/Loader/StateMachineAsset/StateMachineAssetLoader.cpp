@@ -5,31 +5,16 @@
 #include "../../Manager/ResourceManager/ResourceManager.h"
 namespace Engine::Resource
 {
-	Handle<StateMachineAsset> StateMachineAssetLoader::Load(const Engine::GUID& a_guid)
+	StateMachineAsset StateMachineAssetLoader::LoadFromFile(const std::string& a_path)
 	{
-		// 読み込みチェック
-		if (Has(a_guid))
-		{
-			return m_cache[a_guid];
-		}
-
-		// なければロード
-		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
-		auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(a_guid);
-
-		if (_path.empty()) return Handle<StateMachineAsset>();
-
 		StateMachineAsset _sma = {};
-		auto _dir = FileUtility::GetDirFromPath(_path);
-		_sma.Load(_dir,_fileName);
-		_sma.SetGUID(a_guid);
-
-		// リソースマネージャーに登録
-		auto _handle = ResourceManager::Instance().Add(std::move(_sma));
-		m_cache[a_guid] = _handle;
-		return _handle;
+		_sma.Load(a_path);
+		return _sma;
 	}
-	std::pair<Engine::GUID, Handle<StateMachineAsset>> StateMachineAssetLoader::Create(const std::string& a_path, const std::string& a_name)
+	void StateMachineAssetLoader::Create(
+		const std::string& a_path,
+		const std::string& a_name
+	)
 	{
 		// ディレクトリ
 		static std::string _dir = "Asset/StateMachin/";
@@ -39,30 +24,21 @@ namespace Engine::Resource
 		Engine::GUID _checkGUID = AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);
 		if (_checkGUID != Engine::DefaultGUID)
 		{
-			// すでに作成されていた場合
-			auto _handle = Load(_checkGUID);
-			std::pair<Engine::GUID, Handle<StateMachineAsset>> _res;
-			_res.first = _checkGUID;
-			_res.second = _handle;
-			return _res;
+			ENGINE_LOG("すでに作成されたステートマシンです : %s",_basePath.c_str());
+			return;
 		}
-
 
 		// アセットデータベースに場所を作る
 		auto _guid = AssetDatabase::Instance().AddMetaData(_basePath,"StateMachinAsset");
 
 		// リソースマネージャーに登録
 		StateMachineAsset _sma = {};
-		_sma.SetGUID(_guid);
 		_sma.SetName(a_name);
 		_sma.Save(_basePath);
-		auto _handle = ResourceManager::Instance().Add(std::move(_sma));
-		m_cache[_guid] = _handle;
 
-		// 返す
-		std::pair<Engine::GUID, Handle<StateMachineAsset>> _res;
-		_res.first = _guid;
-		_res.second = _handle;
-		return _res;
+		// 新規登録
+		ResourceManager::Instance().AddResourceAndGUID(std::move(_sma), _guid);
+
+		return;
 	}
 }

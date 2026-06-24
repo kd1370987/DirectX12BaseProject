@@ -62,14 +62,6 @@ namespace Engine::Graphics
 		D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPU(const std::string& a_name);
 		Handle<D3D12::UAV> GetUAVHandle(const std::string& a_name,bool a_read = false);
 		D3D12_CPU_DESCRIPTOR_HANDLE GetUAVCPU(const std::string& a_name, bool a_read = false);
-		// リソース作成
-		Engine::Handle<Engine::Resource::Texture> CreateTexture(
-			const std::string& a_name,
-			const DXGI_FORMAT& format,
-			const UINT64& a_widht,
-			const UINT& a_height,
-			const Resource::TextureUsage& a_texUsage
-		);
 
 		Resource::ID Read(const std::string& a_resourceName, const AccessType& a_type);
 		Resource::ID Write(const std::string& a_resourceName, const AccessType& a_type);

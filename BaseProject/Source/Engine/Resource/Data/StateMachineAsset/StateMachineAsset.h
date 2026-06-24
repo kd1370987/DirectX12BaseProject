@@ -92,6 +92,7 @@ namespace Engine::Resource
 		// 保存と読み込み
 		void Save(const std::string& a_savePath);
 		void Load(const std::string& a_fileDir,const std::string& a_fileName);
+		void Load(const std::string& a_filePath);
 
 		// ノード名取得
 		std::string_view GetNodeName(const UINT& a_hash) const;
@@ -104,15 +105,11 @@ namespace Engine::Resource
 
 		// エディターからの呼び出し用
 		// ここで設計図を作る
-		void EditImGui();
+		void EditImGui(const Handle<StateMachineAsset>& a_handle);
 
 		// 名前
 		void SetName(const std::string& a_name) { m_name = a_name; }
 		const std::string& GetName()const { return m_name; }
-
-		// GUID
-		void SetGUID(const Engine::GUID& a_guid) { m_guid = a_guid; }
-		const Engine::GUID& GetGUID() const { return m_guid; }
 
 		// ---- 判定ロジック ----
 		// デフォルト値を返す
@@ -157,7 +154,6 @@ namespace Engine::Resource
 
 		// 識別子
 		std::string m_name;
-		Engine::GUID m_guid;
 
 		// 初期ステート
 		UINT m_defaultStartHash = 0;

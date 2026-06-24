@@ -526,25 +526,6 @@ namespace Engine::Graphics
 		return D3D12::DescriptorHeapManager::Instance().GetCPU(_uavHandle);
 	}
 
-	Engine::Handle<Engine::Resource::Texture> RenderGraph::CreateTexture(
-		const std::string& a_name,
-		const DXGI_FORMAT& a_format,
-		const UINT64& a_widht,
-		const UINT& a_height,
-		const Resource::TextureUsage& a_texUsage
-	)
-	{
-		Resource::TextureCreateDesc _desc = {
-			.name = a_name,
-			.width = a_widht,
-			.height = a_height,
-			.format = a_format,
-			.usage = a_texUsage
-		};
-		//return Resource::TextureManager::Instance().CreateTexture(_desc);
-		return Resource::TextureLoader::Create(_desc);
-	}
-
 	Resource::ID RenderGraph::Read(const std::string& a_resourceName, const AccessType& a_type)
 	{
 		switch (a_type)

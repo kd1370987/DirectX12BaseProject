@@ -31,7 +31,7 @@ void StateMachinFixupSystem::Init(Engine::ECS::World& a_world)
 				if (_smComp.stateMachineGUID != Engine::DefaultGUID)
 				{
 					// ステートマシンロード
-					_smComp.stateMachineHandle = Engine::Resource::StateMachineAssetLoader::Load(_smComp.stateMachineGUID);
+					_smComp.stateMachineHandle = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::StateMachineAsset>(_smComp.stateMachineGUID);
 
 					// インスタンス確保
 					 auto& _stateInstancePool = 
