@@ -174,7 +174,7 @@ void GameScene::RegistryEntity()
 					ModelComponent* _model = m_upWorld->RefData<ModelComponent>(_entity);
 					Engine::GUID _guid;
 					_guid.FromString("a9d483b5-5681-40ba-b45d-e1630f066516");
-					_model->handle = Engine::Resource::ModelLoader::Load(_guid);
+					_model->handle = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::Model>(_guid);
 					_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 					_model->emissiveScale = { 0.0f,0.0f,0.0f };
 					_model->modelGUID = _guid;

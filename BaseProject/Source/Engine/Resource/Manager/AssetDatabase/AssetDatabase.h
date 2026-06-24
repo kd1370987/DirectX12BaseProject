@@ -64,6 +64,9 @@ namespace Engine::Resource
 		// ランタイム中にファイルが追加された際に追加される
 		Engine::GUID AddMetaData(const std::string& a_newFilePath,const std::string& a_type);
 
+		// データベース内にGUIDが存在するかチェック
+		bool IsValid(const Engine::GUID& a_guid) const;
+
 		// ---- アクセサ ----
 		std::string GetFilePathFromGUID(const std::string& a_guid);			// GUIDから現在のファイルパスを取得
 		std::string GetFilePathFromGUID(const Engine::GUID& a_guid);		// GUIDから現在のファイルパスを取得
@@ -72,7 +75,7 @@ namespace Engine::Resource
 		Engine::GUID GetGUIDFromFilePath(const std::string& a_path);		// ファイルパスからGUIDを取得
 		const AssetNode& GetAssetRootNode() const { return m_assetRootNode; }		// アセット構造取得
 		const std::unordered_map<std::string, TypeExtension>& GetAssetTypeExtensionsMap() const;
-		std::span<const AssetProperty> GetTypeMetaVec(const std::string& a_type);					// 指定したタイプのメタ配列取得
+		std::span<const AssetProperty> GetTypeMetaVec(const std::string& a_type);		// 指定したタイプのメタ配列取得
 
 	private:
 

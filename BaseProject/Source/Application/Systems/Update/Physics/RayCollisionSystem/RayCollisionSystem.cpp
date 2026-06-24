@@ -61,6 +61,7 @@ void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 				if (!_pCollWorld->Raycast(_info, _res, a_pChunk->entityData[_i]))
 				{
 					_stateComp.isGround = false;
+					ENGINE_LOG("HitGround");
 					continue;
 				}
 				

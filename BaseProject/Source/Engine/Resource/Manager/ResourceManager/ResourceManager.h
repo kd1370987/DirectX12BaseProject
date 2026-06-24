@@ -71,6 +71,14 @@ namespace Engine::Resource
 		template<typename T>
 		void RemoveCache(const Engine::GUID& a_guid);
 
+		// すでに読み込まれているかのチェック
+		template<typename T>
+		bool Has(const Engine::GUID& a_guid);
+
+		// ハンドルの有効チェック
+		template<typename T>
+		bool IsValiad(const Handle<T>& a_handle);
+
 	private:
 
 		// キャッシュ追加
@@ -131,7 +139,7 @@ namespace Engine::Resource
 	{
 		// 読み込み済みかチェック
 		const auto& _handle = GetCache<T>(a_guid);
-		if (_handle == Handle<T>()) return _handle;
+		if (_handle != Handle<T>()) return _handle;
 
 		// パス取得
 		std::string _filePath = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
@@ -256,6 +264,33 @@ namespace Engine::Resource
 	inline void ResourceManager::RemoveCache(const Engine::GUID& a_guid)
 	{
 		RefMap<T>().erase(a_guid); // GUIDから一発で削除
+	}
+
+	template<typename T>
+	inline bool ResourceManager::Has(const Engine::GUID& a_guid)
+	{
+		auto& _map = RefMap<T>();
+
+		auto _it = _map.find(a_guid);
+		if (_it != _map.end())
+		{
+			return true;
+		}
+		return false;
+	}
+
+	template<typename T>
+	inline bool ResourceManager::IsValiad(const Handle<T>& a_handle)
+	{
+		auto& _map = RefMap<T>();
+		for (auto& [_guid,_handle] : _map)
+		{
+			if (_handle == a_handle)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	// 型ごとにキャッシュに登録

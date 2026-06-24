@@ -10,7 +10,7 @@ namespace Engine::Editor
 	void ModelView::DrawModel(const Engine::GUID& a_guid)
 	{
 		// GUIDからハンドルを取得
-		auto _handle = Resource::ModelLoader::GetHandle(a_guid);
+		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::Model>(a_guid);
 
 		// ハンドルからモデルを取得
 		if (_handle == Handle<Resource::Model>()) return;
@@ -34,7 +34,7 @@ namespace Engine::Editor
 		// セーブボタン
 		if (ImGui::Button("Save"))
 		{
-			auto _path = Resource::ModelLoader::GetFilePath(_handle);
+			auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
 			_pModel->Save(_path);
 		}
 	}

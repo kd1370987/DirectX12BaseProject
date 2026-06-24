@@ -5,6 +5,7 @@
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Resource/ModelComponent.h"
 #include "Engine/Resource/Loader/Model/ModelLoader.h"
+#include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 void ModelFixupSystem::Init(Engine::ECS::World& a_world)
 {
@@ -26,7 +27,7 @@ void ModelFixupSystem::Init(Engine::ECS::World& a_world)
 				// モデルをGUIDから取得してロードした結果のハンドルを取得
 				if(_modelComp.modelGUID != Engine::DefaultGUID)
 				{
-					_modelComp.handle = Engine::Resource::ModelLoader::Load(_modelComp.modelGUID);
+					_modelComp.handle = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::Model>(_modelComp.modelGUID);
 				}
 			}
 		}

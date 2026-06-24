@@ -65,7 +65,7 @@ namespace Engine::Resource
 		}
 
 		// テクスチャのハンドル取得
-		m_texHandle = TextureLoader::Load(m_texGUID);
+		m_texHandle = ResourceManager::Instance().Load<Texture>(m_texGUID);
 	}
 	void ParticlesAsset::EditImGui()
 	{
@@ -136,7 +136,7 @@ namespace Engine::Resource
 				{
 					// テクスチャのハンドル取得
 					// ロードされていなかったら止まる
-					m_texHandle = TextureLoader::Request(_prop.filePath, TexColor::WHITE);
+					m_texHandle = TextureLoader::LoadTexture(_prop.guid, TexColor::WHITE);
 					m_texGUID = _prop.guid;
 				}
 			}

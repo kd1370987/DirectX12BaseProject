@@ -133,7 +133,7 @@ void Engine::Resource::StateMachineAsset::Load(const std::string& a_fileDir, con
 	_arch.Field("m_defaultStartHash", m_defaultStartHash);
 
 	_arch.Field("m_modelGUID", m_modelGUID);
-	m_modelHandle = ModelLoader::Load(m_modelGUID);
+	m_modelHandle = Resource::ResourceManager::Instance().Load<Resource::Model>(m_modelGUID);
 
 	int _maxId = 0;
 
@@ -227,7 +227,7 @@ void Engine::Resource::StateMachineAsset::Load(const std::string& a_fileDir, con
 	m_idCounter = _maxId;
 
 	// モデルからノードのアニメーションを復元
-	m_modelHandle = ModelLoader::Load(m_modelGUID);
+	m_modelHandle = Resource::ResourceManager::Instance().Load<Resource::Model>(m_modelGUID);
 	auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
 	if (_pModel)
 	{
@@ -832,7 +832,7 @@ void Engine::Resource::StateMachineAsset::BindModelComb()
 			{
 				// モデルのハンドル取得
 				// ロードされていなかったら止まる
-				m_modelHandle = Resource::ModelLoader::Request(_prop.filePath);
+				m_modelHandle = Resource::ResourceManager::Instance().Load<Resource::Model>(_prop.guid);
 				m_modelGUID = _prop.guid;
 			}
 		}

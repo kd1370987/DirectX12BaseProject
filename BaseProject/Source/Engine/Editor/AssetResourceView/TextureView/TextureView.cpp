@@ -44,7 +44,8 @@ namespace Engine::Editor
 			// ロード
 			if (ImGui::Button("Load"))
 			{
-				Resource::TextureLoader::Load(a_guid);
+				//Resource::TextureLoader::Load(a_guid);
+				Resource::ResourceManager::Instance().Load<Resource::Texture>(a_guid);
 			}
 		}
 	}

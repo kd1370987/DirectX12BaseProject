@@ -5,6 +5,7 @@
 
 //#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 #include "Engine/Resource/Loader/Texture/TextureLoader.h"
+#include "../../Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../Utility/BinaryHelper/BinaryHelper.h"
 
@@ -21,15 +22,15 @@ void Engine::Resource::Material::SetTexture2D(
 	const std::string& a_normalTexFileName
 )
 {
-	baseColorTexGUID = Engine::Resource::TextureLoader::RequestGUID(a_fileDir + a_baseColorTexFileName, TexColor::WHITE);
-	metaRoughTexGUID = Engine::Resource::TextureLoader::RequestGUID(a_fileDir + a_metallicRoughnessTexFileName, { 0,255,255,255 });
-	emissiveTexGUID = Engine::Resource::TextureLoader::RequestGUID(a_fileDir + a_emissiveTexFileName, { 0,0,0,255 });
-	normalTexGUID = Engine::Resource::TextureLoader::RequestGUID(a_fileDir + a_normalTexFileName, { 128,128,255,255 });
+	baseColorTexGUID	= AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_baseColorTexFileName);
+	metaRoughTexGUID	= AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_metallicRoughnessTexFileName);
+	emissiveTexGUID		= AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_emissiveTexFileName);
+	normalTexGUID		= AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_normalTexFileName);
 
-	baseColorTex = Engine::Resource::TextureLoader::Request(a_fileDir + a_baseColorTexFileName,TexColor::WHITE);
-	metaRoughTex = Engine::Resource::TextureLoader::Request(a_fileDir + a_metallicRoughnessTexFileName, { 0,255,255,255 });
-	emissiveTex = Engine::Resource::TextureLoader::Request(a_fileDir + a_emissiveTexFileName, { 0,0,0,255 });
-	normalTex = Engine::Resource::TextureLoader::Request(a_fileDir + a_normalTexFileName, { 128,128,255,255 });
+	baseColorTex	= TextureLoader::LoadTexture(baseColorTexGUID, TexColor::WHITE);
+	metaRoughTex	= TextureLoader::LoadTexture(metaRoughTexGUID, TexColor::ORM);
+	emissiveTex		= TextureLoader::LoadTexture(emissiveTexGUID, TexColor::BLACK);
+	normalTex		= TextureLoader::LoadTexture(normalTexGUID, TexColor::NORMAL);
 }
 
 void Engine::Resource::Material::Save(const std::string& a_fileDir, const std::string& a_name)
@@ -70,8 +71,8 @@ void Engine::Resource::Material::Load(const std::string& a_fileDir, const std::s
 	_ar.Field("Emissive", emissive);
 
 	// 読み込み
-	baseColorTex	= Engine::Resource::TextureLoader::Load(baseColorTexGUID, TexColor::WHITE);
-	metaRoughTex	= Engine::Resource::TextureLoader::Load(metaRoughTexGUID, TexColor::ORM);
-	emissiveTex		= Engine::Resource::TextureLoader::Load(emissiveTexGUID, TexColor::BLACK);
-	normalTex		= Engine::Resource::TextureLoader::Load(normalTexGUID, TexColor::NORMAL);
+	baseColorTex	= TextureLoader::LoadTexture(baseColorTexGUID, TexColor::WHITE);
+	metaRoughTex	= TextureLoader::LoadTexture(metaRoughTexGUID, TexColor::ORM);
+	emissiveTex		= TextureLoader::LoadTexture(emissiveTexGUID, TexColor::BLACK);
+	normalTex		= TextureLoader::LoadTexture(normalTexGUID, TexColor::NORMAL);
 }

@@ -2,6 +2,11 @@
 
 namespace Engine::Resource
 {
+	const std::string WHITE_TEXTURE_GUIDSTR		=	"00000000-0000-0000-0000-000000000001";
+	const std::string BLACK_TEXTURE_GUIDSTR		=	"00000000-0000-0000-0000-000000000002";
+	const std::string NORMAL_TEXTURE_GUIDSTR	=	"00000000-0000-0000-0000-000000000003";
+	const std::string ORM_TEXTURE_GUIDSTR		=	"00000000-0000-0000-0000-000000000004";
+
 	// テクスチャ生成設定
 	struct TextureCreateDesc
 	{

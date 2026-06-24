@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Model/ModelLoader.h"
+#include "Texture/TextureLoader.h"
 
 namespace Engine::Resource
 {
@@ -28,4 +29,15 @@ namespace Engine::Resource
 			return ModelLoader::Load(a_path);
 		}
 	};
+	// テクスチャ
+	template<>
+	struct DefaultLoader<Texture>
+	{
+		static Texture LoadFromFile(const std::string& a_path)
+		{
+			return TextureLoader::LoadFromFile(a_path);
+		}
+	};
+
+	
 }

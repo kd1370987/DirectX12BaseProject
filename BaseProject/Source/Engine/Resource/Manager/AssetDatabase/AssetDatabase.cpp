@@ -90,6 +90,14 @@ namespace Engine::Resource
 
 		return _prop.guid;
 	}
+	bool AssetDatabase::IsValid(const Engine::GUID& a_guid) const
+	{
+		if (m_assetMap.find(a_guid) != m_assetMap.end())
+		{
+			return true;
+		}
+		return false;
+	}
 	void AssetDatabase::CreateMetaFileForAllAssets()
 	{
 		// 拡張子なしのベースパスに付随する拡張子リスト

@@ -211,9 +211,9 @@ namespace Engine::Editor
 	{
 		auto& _guid = m_pAssetPropCach->guid;
 		auto& _type = m_pAssetPropCach->type;
-		if (Resource::ModelLoader::Has(_guid))
+		if(Resource::ResourceManager::Instance().Has<Resource::Model>(_guid))
 		{
-			auto _handle = Resource::ModelLoader::GetHandle(_guid);
+			auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::Model>(_guid);
 			auto* _pModel = Resource::ResourceManager::Instance().Ref(_handle);
 			if (!_pModel)
 			{
@@ -224,7 +224,7 @@ namespace Engine::Editor
 			{
 				if (ImGui::Button("Convert"))
 				{
-					auto _path = Resource::ModelLoader::GetFilePath(_handle);
+					auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
 					_pModel->Save(_path);
 				}
 			}
@@ -234,7 +234,7 @@ namespace Engine::Editor
 			ImGui::Text("No loaded file");
 			if (ImGui::Button("Load"))
 			{
-				Resource::ModelLoader::Load(_guid);
+				Resource::ResourceManager::Instance().Load<Resource::Model>(_guid);
 			}
 		}
 	}

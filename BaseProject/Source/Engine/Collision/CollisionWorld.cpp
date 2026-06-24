@@ -231,6 +231,11 @@ namespace Engine::Collision
 
 							// モデルとの判定
 							Result _localResult = {};
+							if (!_instance.pModelData)
+							{
+								ENGINE_LOG("モデルデータが存在していません");
+								continue;
+							}
 							if (Engine::Collision::Ray::VSModel(a_ray, _instance.pModelData, _instance.worldMat, _localResult))
 							{
 								// より手前で当たったら結果を更新

@@ -57,7 +57,7 @@ struct ModelComponent
 				{
 					// モデルのハンドル取得
 					// ロードされていなかったら止まる
-					_comp.handle = Resource::ModelLoader::Request(_prop.filePath);
+					_comp.handle = Resource::ResourceManager::Instance().Load<Resource::Model>(_prop.guid);
 					_comp.modelGUID = _prop.guid;
 				}
 			}
