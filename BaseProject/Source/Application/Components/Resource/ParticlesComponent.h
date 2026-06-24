@@ -76,7 +76,7 @@ struct ParticlesComponent
 				// 選択欄
 				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
 				{
-					_comp.particlesAssetHandle = Resource::ParticlesAssetLoader::Load(_prop.guid);
+					_comp.particlesAssetHandle = Resource::ResourceManager::Instance().GetCache<Resource::ParticlesAsset>(_prop.guid);
 					_comp.particleGUID = _prop.guid;
 				}
 			}

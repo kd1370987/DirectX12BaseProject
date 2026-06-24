@@ -30,7 +30,8 @@ void ParticleFixupSystem::Init(Engine::ECS::World& a_world)
 				if (_particleComp.particleGUID != Engine::DefaultGUID)
 				{
 					// パーティクルロード
-					_particleComp.particlesAssetHandle = Engine::Resource::ParticlesAssetLoader::Load(_particleComp.particleGUID);
+					_particleComp.particlesAssetHandle = 
+						Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::ParticlesAsset>(_particleComp.particleGUID);
 				}
 			}
 		}

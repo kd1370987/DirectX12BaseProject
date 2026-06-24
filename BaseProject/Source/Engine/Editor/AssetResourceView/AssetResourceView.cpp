@@ -244,9 +244,9 @@ namespace Engine::Editor
 	{
 		auto& _guid = m_pAssetPropCach->guid;
 		auto& _type = m_pAssetPropCach->type;
-		if (Resource::ParticlesAssetLoader::Has(_guid))
+		if (Resource::ResourceManager::Instance().Has<Resource::ParticlesAsset>(_guid))
 		{
-			auto _handle = Resource::ParticlesAssetLoader::Load(_guid);
+			auto _handle = Resource::ResourceManager::Instance().Load<Resource::ParticlesAsset>(_guid);
 			auto* _pData = Resource::ResourceManager::Instance().Ref(_handle);
 			if (!_pData)
 			{
@@ -260,7 +260,7 @@ namespace Engine::Editor
 			ImGui::Text("No loaded file");
 			if (ImGui::Button("Load"))
 			{
-				Resource::ParticlesAssetLoader::Load(_guid);
+				Resource::ResourceManager::Instance().Load<Resource::ParticlesAsset>(_guid);
 			}
 		}
 	}

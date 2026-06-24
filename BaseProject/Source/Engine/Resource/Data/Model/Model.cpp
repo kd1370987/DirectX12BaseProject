@@ -138,16 +138,9 @@ namespace Engine::Resource
 		_ar.VectorField("DrawMeshNodeIndices", m_drawMeshNodeIndices);
 
 		// ---- 参照しているデータの復元 ----
-		for (UINT _i = 0; _i < m_materialGUIDVec.size(); ++_i)
+		for (auto& _guid : m_materialGUIDVec)
 		{
-			auto _guid = m_materialGUIDVec[_i];
-			auto _basePath = AssetDatabase::Instance().GetBaseFilePathFromGUID(_guid);
-			auto _fileDir = FileUtility::GetDirFromPath(_basePath);
-			auto _fileName = FileUtility::GetFileName(_basePath);
-			Material _mate = {};
-
-			_mate.Load(_fileDir,_fileName);
-			auto _handle = ResourceManager::Instance().Add(std::move(_mate));
+			auto _handle = ResourceManager::Instance().Load<Material>(_guid);
 			m_materialHandleVec.push_back(_handle);
 		}
 		for (UINT _i = 0; _i < m_meshGUIDVec.size(); ++_i)

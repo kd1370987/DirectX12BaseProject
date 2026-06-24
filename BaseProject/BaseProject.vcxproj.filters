@@ -1524,6 +1524,12 @@
     <ClCompile Include="Source\Engine\Editor\RenderGraphResourceView\RenderGraphResourceView.cpp">
       <Filter>Source\Engine\Editor\RenderGraphResourceView</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.cpp">
+      <Filter>Source\Engine\Resource\Loader\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Mesh\MeshLoader.cpp">
+      <Filter>Source\Engine\Resource\Loader\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -2276,9 +2282,6 @@
     <ClInclude Include="Source\Application\Components\Resource\ParticlesComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\BaseLoader.h">
-      <Filter>Source\Engine\Resource\Loader</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.h">
       <Filter>Source\Engine\Resource\Loader\Particles</Filter>
     </ClInclude>
@@ -2368,6 +2371,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\DefaultLoader.h">
       <Filter>Source\Engine\Resource\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.h">
+      <Filter>Source\Engine\Resource\Loader\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Mesh\MeshLoader.h">
+      <Filter>Source\Engine\Resource\Loader\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

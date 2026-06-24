@@ -24,6 +24,7 @@ namespace Engine::Resource
 		// シリアライズ
 		void Save(const std::string& a_filePath);
 		void Load(const std::string& a_fileDir, const std::string& a_fileName);
+		void Load(const std::string& a_filePath);
 
 		// エディターでの編集
 		void EditImGui();

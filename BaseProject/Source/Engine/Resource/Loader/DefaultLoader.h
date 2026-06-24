@@ -3,6 +3,9 @@
 #include "Model/ModelLoader.h"
 #include "Texture/TextureLoader.h"
 #include "StateMachineAsset/StateMachineAssetLoader.h"
+#include "Shader/ShaderLoader.h"
+#include "Particles/ParticlesLoader.h"
+#include "Material/MaterialLoader.h"
 
 namespace Engine::Resource
 {
@@ -49,6 +52,41 @@ namespace Engine::Resource
 			return StateMachineAssetLoader::LoadFromFile(a_path);
 		}
 	};
-
+	// シェーダー
+	template<>
+	struct DefaultLoader<Shader>
+	{
+		static Shader LoadFromFile(const std::string& a_path)
+		{
+			return ShaderLoader::LoadShaderFromFile(a_path);
+		}
+	};
+	// ライブラリシェーダー
+	template<>
+	struct DefaultLoader<ShaderLibrary>
+	{
+		static ShaderLibrary LoadFromFile(const std::string& a_path)
+		{
+			return ShaderLoader::LoadShaderLibraryFromFile(a_path);
+		}
+	};
+	// パーティクル
+	template<>
+	struct DefaultLoader<ParticlesAsset>
+	{
+		static ParticlesAsset LoadFromFile(const std::string& a_path)
+		{
+			return ParticlesAssetLoader::LoadFromFile(a_path);
+		}
+	};
+	// マテリアル
+	template<>
+	struct DefaultLoader<Material>
+	{
+		static Material LoadFromFile(const std::string& a_path)
+		{
+			return MaterialLoader::LoadFromFile(a_path);
+		}
+	};
 	
 }

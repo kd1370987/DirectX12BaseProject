@@ -4,53 +4,20 @@
 #include "../../Manager/ResourceManager/ResourceManager.h"
 namespace Engine::Resource
 {
-	std::unordered_map<Engine::GUID, Engine::Handle<Engine::Resource::Shader>>			Engine::Resource::ShaderLoader::m_shaderCache;
-	std::unordered_map<Engine::GUID, Engine::Handle<Engine::Resource::ShaderLibrary>>		Engine::Resource::ShaderLoader::m_shaderLibraryCache;
-
-	Handle<Shader> Engine::Resource::ShaderLoader::Load(const Engine::GUID& a_guid)
+	Shader ShaderLoader::LoadShaderFromFile(const std::string& a_path)
 	{
-		// 読み込みチェック
-		auto _it = m_shaderCache.find(a_guid);
-		if (_it != m_shaderCache.end())
-		{
-			return _it->second;
-		}
-
 		// なければロード
-		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
 		Shader _shader = {};
-		_shader.Load(_path);
-
-		// リソースマネージャーに登録
-		auto _handle = ResourceManager::Instance().Add(std::move(_shader));
-
-		// キャッシュに登録
-		m_shaderCache.emplace(a_guid,_handle);
-
-		return _handle;
+		_shader.Load(a_path);
+		return _shader;
 	}
 
-	Handle<ShaderLibrary> Engine::Resource::ShaderLoader::LoadShaderLibrary(const Engine::GUID& a_guid)
+	ShaderLibrary ShaderLoader::LoadShaderLibraryFromFile(const std::string& a_path)
 	{
 		// 読み込みチェック
-		auto _it = m_shaderLibraryCache.find(a_guid);
-		if (_it != m_shaderLibraryCache.end())
-		{
-			return _it->second;
-		}
-
-		// なければロード
-		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
 		ShaderLibrary _shader = {};
-		_shader.Load(_path);
-
-		// リソースマネージャーに登録
-		auto _handle = ResourceManager::Instance().Add(std::move(_shader));
-
-		// キャッシュに登録
-		m_shaderLibraryCache.emplace(a_guid, _handle);
-
-		return _handle;
+		_shader.Load(a_path);
+		return _shader;
 	}
 
 	Handle<Shader> Engine::Resource::ShaderLoader::Request(const std::string& a_path)
@@ -59,7 +26,9 @@ namespace Engine::Resource
 		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_path);
 		if (_guid != Engine::DefaultGUID)
 		{
-			return Load(_guid);
+			// 見つかれば
+			auto _shader = LoadShaderFromFile(a_path);
+			return ResourceManager::Instance().AddResourceAndGUID(std::move(_shader), _guid);
 		}
 
 		return Handle<Shader>();
@@ -71,37 +40,11 @@ namespace Engine::Resource
 		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_path);
 		if (_guid != Engine::DefaultGUID)
 		{
-			return LoadShaderLibrary(_guid);
+			// 見つかれば
+			auto _shader = LoadShaderLibraryFromFile(a_path);
+			return ResourceManager::Instance().AddResourceAndGUID(std::move(_shader), _guid);
 		}
 
 		return Handle<ShaderLibrary>();
-	}
-
-	const std::unordered_map<Engine::GUID, Handle<Shader>>& Engine::Resource::ShaderLoader::GetAllShaderCache()
-	{
-		return m_shaderCache;
-	}
-
-	const std::unordered_map<Engine::GUID, Handle<ShaderLibrary>>& Engine::Resource::ShaderLoader::GetAllShaderLibraryCache()
-	{
-		return m_shaderLibraryCache;
-	}
-	bool ShaderLoader::HasShader(const Engine::GUID& a_guid)
-	{
-		auto _it = m_shaderCache.find(a_guid);
-		if (_it != m_shaderCache.end())
-		{
-			return true;
-		}
-		return false;
-	}
-	bool ShaderLoader::HasShaderLibrary(const Engine::GUID& a_guid)
-	{
-		auto _it = m_shaderLibraryCache.find(a_guid);
-		if (_it != m_shaderLibraryCache.end())
-		{
-			return true;
-		}
-		return false;
 	}
 }
