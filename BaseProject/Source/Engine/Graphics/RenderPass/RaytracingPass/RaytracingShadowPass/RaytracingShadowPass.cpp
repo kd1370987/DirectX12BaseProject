@@ -105,8 +105,6 @@ namespace Engine::Graphics
 
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 		{
-			Editor::MainEditor::Instance().StartWatch("RaytracingShadowPass");
-
 			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 
 			// オプション取得
@@ -117,7 +115,6 @@ namespace Engine::Graphics
 			const auto& _instanceVec = Raytracing::RayEngine::Instance().GetInstanceVec();
 			if (_instanceVec.empty()) 
 			{
-				Editor::MainEditor::Instance().EndWatch("RaytracingShadowPass");
 				return;
 			}
 			_spPassData->shaderTable.CommitInstanceBindLess(
@@ -164,8 +161,6 @@ namespace Engine::Graphics
 			// ディスパッチ
 			const auto& _desc = _spPassData->shaderTable.GetDispatchDesc();
 			_pCmdList->DispatchRays(&_desc);
-
-			Editor::MainEditor::Instance().EndWatch("RaytracingShadowPass");
 		};
 
 		a_rg.AddPassNode(a_phase, _node);

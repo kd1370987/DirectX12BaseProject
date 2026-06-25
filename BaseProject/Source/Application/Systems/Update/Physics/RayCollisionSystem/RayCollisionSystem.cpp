@@ -68,6 +68,15 @@ void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 				if (_velComp.value.y > 0) continue;
 
 				float _groundDistance = _transComp.pos.y - _res.hitPos.y;
+
+				// レイのデバッグ表示
+				Engine::Editor::MainEditor::Instance().DrawRay(
+					_info.origin,
+					_info.direction,
+					_groundDistance,
+					true
+				);
+
 				if (_groundDistance > 0.05f) continue;
 				_transComp.pos.y -= _groundDistance;
 				_velComp.value.y = 0;

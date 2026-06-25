@@ -967,6 +967,12 @@
     <Filter Include="Source\Engine\Utility\String">
       <UniqueIdentifier>{a89720f8-c303-4c35-961b-802545baf70a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass">
+      <UniqueIdentifier>{35a5b3c6-de0a-4124-ab62-135eead8d09d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\Shape">
+      <UniqueIdentifier>{b4042d9b-eb54-458a-afcf-5320ce553bfb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1529,6 +1535,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\Mesh\MeshLoader.cpp">
       <Filter>Source\Engine\Resource\Loader\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2378,6 +2387,9 @@
     <ClInclude Include="Source\Engine\Resource\Loader\Mesh\MeshLoader.h">
       <Filter>Source\Engine\Resource\Loader\Mesh</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2458,6 +2470,15 @@
     </None>
     <None Include="Asset\Shader\Common\Math\Hash.hlsli">
       <Filter>Asset\Shader\Common\Math</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\Shape\Box.hlsli">
+      <Filter>Asset\Shader\Common\Shape</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\Shape\Capsule.hlsli">
+      <Filter>Asset\Shader\Common\Shape</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\Shape\Sphere.hlsli">
+      <Filter>Asset\Shader\Common\Shape</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

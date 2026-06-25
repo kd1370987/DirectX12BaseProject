@@ -20,6 +20,7 @@ namespace Engine::Graphics
 	// 前方宣言
 	class RenderGraph;
 	class ShapeRenderer;
+	class GraphicsEngine;
 
 	struct DrawItem2D
 	{
@@ -65,6 +66,7 @@ namespace Engine::Graphics
 
 		// 初期化・解放
 		void Init(
+			GraphicsEngine* a_pOwner,
 			D3D12::GraphicsCommandList* a_pCmdList,
 			const RenderContextDesc& a_desc
 		);
@@ -152,6 +154,9 @@ namespace Engine::Graphics
 
 		void Dispatch(UINT a_x,UINT a_y,UINT a_z);
 
+		// カメラのバインド
+		void BindGraphicsCamera();
+
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド
 		//--------------------------------------------------------------------------------------------
@@ -167,6 +172,7 @@ namespace Engine::Graphics
 		void BindInstanceBuffer(UINT a_rootIndex);
 		void BindSubsetBuffer(UINT a_rootIndex);
 		void BindBonePalletBuffer(UINT a_rootIndex);
+		void BindGraphicsDebugLineBuffer(UINT a_rootIndex);
 
 
 		//--------------------------------------------------------------------------------------------
@@ -182,6 +188,7 @@ namespace Engine::Graphics
 
 		// パイプラインステートをセット、前回と変更がない場合はスキップ
 		void SetGraphicPSO(ID3D12PipelineState* a_pPSO);
+		void SetGraphicPSO(uint8_t a_pPsoIndex);
 		void SetComputePSO(ID3D12PipelineState* a_pPSO);
 
 		// プリミティブトポロジーセット
@@ -206,7 +213,11 @@ namespace Engine::Graphics
 
 		// パーティクルやUIなどの描画用
 		void DrawPolygonInstancing(UINT a_count);
+		// クワッド描画
+		void DrawQuad();
 
+		// 形状描画用
+		void DrawShape();
 
 
 		//リソースバリア設定
@@ -220,22 +231,16 @@ namespace Engine::Graphics
 		void ChangeBackBuffer();
 
 
-		// クワッド描画
-		void DrawQuad();
-
-
-		// 形状描画
-		void ShapeDraw();
+	
 
 
 	private:
-		// D3DObject
-		ID3D12Device* m_pDevice = nullptr;
-
-		// 形状描画クラス
-		ShapeRenderer* m_pShapeDraw = nullptr;
-		D3D12::DynamicVertexBuffer<Resource::Vertex> m_shapeVertexBuffer;
-		
+		//--------------------------------------------------------------------------------------------
+		// 参照
+		//--------------------------------------------------------------------------------------------
+		ID3D12Device* m_pDevice = nullptr;						// デバイス
+		GraphicsEngine* m_pGraphicsEngine = nullptr;			// オーナー
+		ShapeRenderer* m_pShapeDraw = nullptr;					// 形状描画クラス
 
 		//--------------------------------------------------------------------------------------------
 		// フレーム限定リソース
@@ -254,6 +259,9 @@ namespace Engine::Graphics
 		D3D12::StaticStructuredBuffer<SubSetData> m_subsetBuffer;
 		// ボーン用データ
 		D3D12::StaticStructuredBuffer<BonePallete> m_boneBuffer;
+
+		// デバッグライン用頂点
+		D3D12::StaticStructuredBuffer<DebugLineData> m_debugLineBuffer;
 
 		// 描画用ポリゴン
 		std::shared_ptr<Resource::QuadPolygon> m_spQuadPolygon = nullptr;

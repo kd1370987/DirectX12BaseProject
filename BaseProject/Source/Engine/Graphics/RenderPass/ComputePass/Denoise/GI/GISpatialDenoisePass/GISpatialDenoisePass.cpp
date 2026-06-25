@@ -89,8 +89,6 @@ namespace Engine::Graphics
 			_node.executeFunc = [_spPassData, _stepSize, _readGI, _writeGI, _passName = _node.name]
 			(GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 			{
-				Editor::MainEditor::Instance().StartWatch(_passName);
-
 				// オプション取得
 				const auto& _winOp = Option::OptionManager::GetInstance().GetInstance().GetWindowOption();
 
@@ -138,8 +136,6 @@ namespace Engine::Graphics
 				UINT _countX = _winOp.windowWidth / 8;
 				UINT _countY = _winOp.windowHegiht / 8;
 				a_pCtx->Dispatch(_countX, _countY, 1);
-
-				Editor::MainEditor::Instance().EndWatch(_passName);
 			};
 
 			a_rg.AddPassNode(a_phase, _node);

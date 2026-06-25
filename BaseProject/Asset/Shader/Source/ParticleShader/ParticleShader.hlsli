@@ -5,7 +5,6 @@
 // ルートパラメター
 #include "../../Common/CB/CBCamera.hlsli"
 #include "../../Common/RootParameters/Particle.hlsli"
-
 #include "../RootSignatureLayout.hlsli"
 
 // ルートシグネチャ

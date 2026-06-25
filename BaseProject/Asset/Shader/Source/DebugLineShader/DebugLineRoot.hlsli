@@ -1,7 +1,5 @@
 // ルートパラメターズ
 #include "../../Common/CB/CBCamera.hlsli"
-#include "../../Common/RootParameters/BufferIndex.hlsli"
-#include "../../Common/RootParameters/InstanceData.hlsli"
 
 // ヘルパー関数
 #include "../../Common/Math/Transform.hlsli"
@@ -9,26 +7,29 @@
 
 #include "../RootSignatureLayout.hlsli"
 
+// デバッグライン用構造体
+struct DebugLine
+{
+	float4 color;
+	float4x4 worldMat;
+	uint shapeType;
+};
+StructuredBuffer<DebugLine> g_debuglineBuffer : register(t0);
+
+// ルートシグネチャ
 #define DEBUGLINE_ROOT_SIG \
 RS_FLAGS","\
 RS_CAMERA_CB ","\
-RS_BUFFERINDEX_CB ","\
-RS_INSTANCE_DATA_TABLE
+"DescriptorTable(SRV(t0, numDescriptors=1),visibility = SHADER_VISIBILITY_VERTEX)"
 
 // 頂点シェーダー入力構造体
 struct VSInput
 {
-	float3 pos : POSITION;
-	float4 color : COLOR;
+	
+	uint vertexID : SV_VertexID;
+	uint instID : SV_InstanceID;
 };
 
-// アニメーション頂点シェーダー入力構造体
-struct AnimationVSInput
-{
-	float3 pos : POSITION;			// 頂点座標
-	uint4 skinIndex : SKININDEX;	// スキンメッシュのボーンインデックス（何番目のボーンに影響しているかのデータ（最大４））
-	float4 skinWeight : SKINWEIGHT; // ボーンの影響度（最大４）
-};
 
 struct VSOutput
 {

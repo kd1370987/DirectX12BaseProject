@@ -338,6 +338,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass\GBufferPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass\ParticlePass.cpp" />
@@ -606,6 +607,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass\GBufferPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass\ParticlePass.h" />
@@ -715,6 +717,9 @@
     <None Include="Asset\Shader\Common\RootParameters\Material.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\Particle.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\SubsetData.hlsli" />
+    <None Include="Asset\Shader\Common\Shape\Box.hlsli" />
+    <None Include="Asset\Shader\Common\Shape\Capsule.hlsli" />
+    <None Include="Asset\Shader\Common\Shape\Sphere.hlsli" />
     <None Include="Asset\Shader\Ray\Raytracing.hlsli" />
     <None Include="Asset\Shader\Source\CalcLighting.hlsli" />
     <None Include="Asset\Shader\Source\CalcNormal.hlsli" />

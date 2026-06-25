@@ -190,6 +190,13 @@ namespace Engine::Collision
 		m_staticInstanceVec.clear();
 		m_staticNodeVec.clear();
 	}
+	void CollisionWorld::DrawDebug()
+	{
+		for (auto& _instance : m_staticInstanceVec)
+		{
+			Editor::MainEditor::Instance().DrawBox(_instance.worldAABB);
+		}
+	}
 	bool CollisionWorld::Raycast(const RayInfo& a_ray, Result& a_outResult, const ECS::Entity& a_myID)
 	{
 		bool _isHit = false;

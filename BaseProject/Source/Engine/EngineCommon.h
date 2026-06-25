@@ -129,6 +129,8 @@ namespace Engine::Resource
 #include "Resource/Data/StateMachineAsset/StateMachineAsset.h"
 #include "Resource/Data/Particles/ParticlesAsset.h"
 
+#include "Graphics/CBData.h"
+
 //==========================================================================================
 // 
 // レイトレ用構造体

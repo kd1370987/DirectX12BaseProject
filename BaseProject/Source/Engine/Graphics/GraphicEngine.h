@@ -72,8 +72,7 @@ namespace Engine::Graphics
 		~GraphicsEngine();
 
 		// 初期化・解放
-		void Init(
-			D3D12::GraphicsCommandList* a_pCmdList, const GraphicsEngineDesc& a_desc);
+		void Init(D3D12::GraphicsCommandList* a_pCmdList, const GraphicsEngineDesc& a_desc);
 		void Release();
 
 		
@@ -87,6 +86,9 @@ namespace Engine::Graphics
 		Graphics::RenderContext* RefRenderContext();
 
 		RenderGraph* RefRenderGraph();
+
+
+
 		//--------------------------------------------------------------------------------------------
 		// GPU送信用データ
 		//--------------------------------------------------------------------------------------------

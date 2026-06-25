@@ -27,7 +27,6 @@ namespace Engine::Graphics
 
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 		{
-			Editor::MainEditor::Instance().StartWatch("GBufferHistoryPass");
 			const auto& _srcNTexHandle = _spPassData->pRG->GetTexHandle("GBufferNormal");
 			const auto& _dstNTexHandle = _spPassData->pRG->GetTexHandle("PrevNormal");
 
@@ -36,7 +35,6 @@ namespace Engine::Graphics
 
 			a_pCtx->TexCopy(_srcDTexHandle, _dstDTexHandle);
 			a_pCtx->TexCopy(_srcNTexHandle, _dstNTexHandle);
-			Editor::MainEditor::Instance().EndWatch("GBufferHistoryPass");
 		};
 
 		a_rg.AddPassNode(a_phase, _node);

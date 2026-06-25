@@ -25,13 +25,10 @@ namespace Engine::Graphics
 
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 			{
-				Editor::MainEditor::Instance().StartWatch("PostHistoryPass");
 				// TAAテクスチャ
 				const auto& _srcTAATexHandle = _spPassData->pRG->GetTexHandle("AffterTAAColor");
 				const auto& _dstTAATexHandle = _spPassData->pRG->GetTexHandle("HistoryTAAColor");
 				a_pCtx->TexCopy(_srcTAATexHandle, _dstTAATexHandle);
-
-				Editor::MainEditor::Instance().EndWatch("PostHistoryPass");
 			};
 
 		a_rg.AddPassNode(a_phase, _node);

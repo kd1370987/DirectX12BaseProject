@@ -84,4 +84,19 @@ namespace Engine::Graphics
 	{
 		DirectX::XMFLOAT4X4 mat;
 	};
+
+	// デバッグライン用データ
+	enum class EShapeType : UINT
+	{
+		Line,
+		Box,
+		Capsule,
+		Sphere
+	};
+	struct DebugLineData
+	{
+		DirectX::XMFLOAT4	color;
+		DirectX::XMFLOAT4X4 worldMat;
+		UINT shapeType;
+	};
 }

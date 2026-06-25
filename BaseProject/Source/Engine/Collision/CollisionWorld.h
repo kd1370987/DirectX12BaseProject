@@ -21,6 +21,9 @@ namespace Engine::Collision
 		// シーンの更新時などに呼び出す。ワールドのリセット
 		void Clear();
 
+		// デバッグ用でワールドを見るための関数
+		void DrawDebug();
+
 		// レイ判定
 		bool Raycast(const RayInfo& a_ray,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
 

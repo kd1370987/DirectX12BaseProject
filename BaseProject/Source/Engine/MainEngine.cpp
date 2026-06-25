@@ -220,6 +220,7 @@ namespace Engine
 
 		// 当たり判定構築
 		m_upCollisionWorld->BuildWorld();
+		m_upCollisionWorld->DrawDebug();
 
 		// レイワールドインスタンスのクリア
 		Raytracing::RayEngine::Instance().EndFrame();
@@ -329,6 +330,14 @@ namespace Engine
 	Particle::ParticleBufferManager* MainEngine::RefParticleManager()
 	{
 		return m_upParticleManager.get();
+	}
+	const D3D12::PipelineStateManager* MainEngine::GetPipelineManager() const
+	{
+		return m_upPipelineStateManager.get();
+	}
+	D3D12::PipelineStateManager* MainEngine::RefPipelineManager()
+	{
+		return m_upPipelineStateManager.get();
 	}
 	void MainEngine::RegisterDeferredResource(std::function<void()> a_releaseFunc)
 	{

@@ -26,7 +26,7 @@ namespace Engine::Graphics
 		std::string _finalDst = "AffterDLShadowTempAccumu";
 
 		// ----------------------------------------------------------------------
-		// 解決策2: 偶数フレーム用(Even)と奇数フレーム用(Odd)の2つのパスを登録する
+		// 偶数フレーム用と奇数フレーム用の2つのパスを登録する
 		// ----------------------------------------------------------------------
 		for (int i = 0; i < 2; ++i)
 		{
@@ -39,7 +39,7 @@ namespace Engine::Graphics
 			std::string _copyPassName = isEven ? "ShadowHistoryCopyPass_Even" : "ShadowHistoryCopyPass_Odd";
 
 			// ==========================================
-			// 1. Temporal Accumulation パスの構築
+			// TemporalAccumulation パスの構築
 			// ==========================================
 			RenderPassNode _node = {};
 			_node.name = _passName;
@@ -48,7 +48,7 @@ namespace Engine::Graphics
 			_spPassData->pRootSig = _cpBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Compute/Denoise/Shadow/ShadowTemporalAccumullationShader.cso");
 			_cpBuilder.SetShader("Asset/Shader/Compute/Denoise/Shadow/ShadowTemporalAccumullationShader.cso", "ShadowTemporalAccumullationShader", _spPassData->csIndex);
 
-			// 依存関係構築 (固定された文字列を使う)
+			// 依存関係構築 
 			_cpBuilder.Read("RayShadow", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 			_cpBuilder.Read("GBufferVelocity", AccessType::SRV, LoadOp::Load, StoreOp::Store);
 			_cpBuilder.Read(_readHistory, AccessType::SRV, LoadOp::Load, StoreOp::Store);
@@ -64,12 +64,10 @@ namespace Engine::Graphics
 			// 実行関数
 			_node.executeFunc = [_spPassData, _readHistory, _writeHistory, isEven, _passName](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 				{
-					// ★ここがミソ：実行時に自分の担当フレームかチェックし、違えば何もしない
+					// 実行時に自分の担当フレームかチェックし、違えば何もしない
 					UINT64 _currentFrame = _spPassData->pRG->GetTemporalIndex();
 					bool _isCurrentEven = (_currentFrame % 2 == 0);
 					if (isEven != _isCurrentEven) return;
-
-					Editor::MainEditor::Instance().StartWatch(_passName);
 
 					const auto& _winOp = Option::OptionManager::GetInstance().GetInstance().GetWindowOption();
 					auto* _pCmd = a_pCtx->GetCurrentCmdList();
@@ -108,13 +106,11 @@ namespace Engine::Graphics
 					UINT _countX = _winOp.windowWidth / 8;
 					UINT _countY = _winOp.windowHegiht / 8;
 					a_pCtx->Dispatch(_countX, _countY, 1);
-
-					Editor::MainEditor::Instance().EndWatch(_passName);
 				};
 			a_rg.AddPassNode(a_phase, _node);
 
 			// ==========================================
-			// 2. コピーパスの構築 (最新結果を固定名へ)
+			// コピーパスの構築 
 			// ==========================================
 			RenderPassNode _copyNode = {};
 			_copyNode.name = _copyPassName;
@@ -124,18 +120,14 @@ namespace Engine::Graphics
 
 			_copyNode.executeFunc = [_spPassData, _writeHistory, _finalDst, isEven, _copyPassName](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 				{
-					// ★同様に担当フレーム以外はスキップ
+					// 同様に担当フレーム以外はスキップ
 					UINT64 _currentFrame = _spPassData->pRG->GetTemporalIndex();
 					bool _isCurrentEven = (_currentFrame % 2 == 0);
 					if (isEven != _isCurrentEven) return;
 
-					Editor::MainEditor::Instance().StartWatch(_copyPassName);
-
 					const auto& _srcTAATexHandle = _spPassData->pRG->GetTexHandle(_writeHistory);
 					const auto& _dstTAATexHandle = _spPassData->pRG->GetTexHandle(_finalDst);
 					a_pCtx->TexCopy(_srcTAATexHandle, _dstTAATexHandle);
-
-					Editor::MainEditor::Instance().EndWatch(_copyPassName);
 				};
 			a_rg.AddPassNode(a_phase, _copyNode);
 		}

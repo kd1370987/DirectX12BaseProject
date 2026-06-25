@@ -85,6 +85,10 @@ namespace Engine
 		const Particle::ParticleBufferManager* GetParticleManager() const ;
 		Particle::ParticleBufferManager* RefParticleManager();
 
+		// パイプラインステートマネージャー
+		const D3D12::PipelineStateManager* GetPipelineManager() const;
+		D3D12::PipelineStateManager* RefPipelineManager();
+
 		// ============================================================================
 		// 遅延開放処理
 		// ============================================================================

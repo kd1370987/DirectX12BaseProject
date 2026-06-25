@@ -47,7 +47,7 @@ namespace Engine::Graphics
 			_desc.cbAllocatorMemSize = 32 * 1024 * 1024;
 			_desc.boneElementNum = 10000;
 
-			_upCtx->Init(a_pCmdList,_desc);
+			_upCtx->Init(this, a_pCmdList, _desc);
 			m_upRenderContextVec.push_back(std::move(_upCtx));
 		}
 
@@ -142,8 +142,9 @@ namespace Engine::Graphics
 		m_subSetDataVec.clear();
 		m_subSetDataVec.reserve(10000);
 
-		// カメラの前フレームの更新
-
+		
+		// デバッグ用配列のクリア
+		Editor::MainEditor::Instance().ClearBuffer();
 	}
 
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const

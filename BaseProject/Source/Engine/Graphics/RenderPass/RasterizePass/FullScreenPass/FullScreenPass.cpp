@@ -48,7 +48,6 @@ namespace Engine::Graphics
 
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 		{
-			Editor::MainEditor::Instance().StartWatch("FullScreenPass");
 			a_pCtx->BindHeap();
 			a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
 
@@ -62,8 +61,6 @@ namespace Engine::Graphics
 			a_pCtx->BindSRV(0, _main);
 			a_pCtx->BindSRV(1, _ui);
 			a_pCtx->DrawQuad();
-
-			Editor::MainEditor::Instance().EndWatch("FullScreenPass");
 		};
 
 		a_rg.AddPassNode(a_phase, _node);

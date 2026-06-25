@@ -53,11 +53,39 @@ namespace Engine::Editor
 		//=======================================================================
 		// 計測関連
 		//=======================================================================
-	public:
 		// 計測開始
 		void StartWatch(const std::string& a_name);
 		// 計測終了
 		void EndWatch(const std::string& a_name);
+
+		//=======================================================================
+		// デバッグ描画用
+		//=======================================================================
+		// ライン描画
+		void DrawLine(
+			const DirectX::SimpleMath::Vector3& a_startPos,
+			const DirectX::SimpleMath::Vector3& a_endPos,
+			const DirectX::SimpleMath::Color& a_color = Color::WHITE
+		);
+
+		void DrawBox(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
+		void DrawBox(const DirectX::BoundingBox& a_aabb, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
+		void DrawBox(const DirectX::BoundingOrientedBox& a_obb, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
+		void DrawCapsule(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
+		void DrawSphere(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
+		void DrawSphere(const DirectX::BoundingSphere& a_sphere, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
+
+		// レイとヒット時に球体を出す
+		void DrawRay(
+			const DirectX::SimpleMath::Vector3& a_startPos,
+			const DirectX::SimpleMath::Vector3& a_dir,
+			float a_length,
+			bool a_isHit,
+			const DirectX::SimpleMath::Color& a_color = Color::WHITE
+		);
+
+		void ClearBuffer();
+		const std::vector<Graphics::DebugLineData>& GetDebugLineDataVec() const;
 
 	private:
 
@@ -79,6 +107,10 @@ namespace Engine::Editor
 
 		// 計測機
 		std::unique_ptr<WatchView> m_upWatchView = nullptr;
+
+		// デバッグ描画用データ
+		std::vector<Graphics::DebugLineData> m_debugLineDataVec = {};
+		UINT m_debugLineDataCapacity = 10000;
 
 		bool m_isInit = false;
 

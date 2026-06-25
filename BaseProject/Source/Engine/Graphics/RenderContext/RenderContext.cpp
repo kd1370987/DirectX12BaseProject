@@ -7,10 +7,11 @@
 #include "Engine/D3D12//D3DObject/PipeLineState/PipelineState.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-
+#include "../../MainEngine.h"
 
 #include "../RenderGraph/RenderGraph.h"
-
+#include "../../D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "../GraphicEngine.h"
 #include "ShapeDraw/ShapeDraw.h"
 
 #include "../../Editor/SceneView/EditorCamera/EditorCamera.h"
@@ -27,18 +28,18 @@
 namespace Engine::Graphics
 {
 	void RenderContext::Init(
+		GraphicsEngine* a_pOwner,
 		D3D12::GraphicsCommandList* a_pCmdList,
 		const RenderContextDesc& a_desc
 	)
 	{
+		m_pGraphicsEngine = a_pOwner;
+
 		// デバイスのキャッシュ
 		m_pDevice = a_desc.pDevice;
 
 		// ポインタのキャッシュ
 		m_pShapeDraw = a_desc.pShapeRender;
-
-		// 形状描画用バッファ作成
-		m_shapeVertexBuffer.Create(m_pDevice,m_pShapeDraw->GetMaxCount());
 
 		// ルート定数バッファアロケーター
 		m_upCBAllocater = std::make_unique<CBAllocater>();
@@ -47,9 +48,10 @@ namespace Engine::Graphics
 		);
 
 		// バッファ作成
-		m_instanceBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);
-		m_subsetBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);
-		m_boneBuffer.Create(a_desc.pDevice, a_pCmdList, a_desc.boneElementNum, nullptr);
+		m_instanceBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);						// インスタンスデータ
+		m_subsetBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);						// サブセット情報用バッファ
+		m_boneBuffer.Create(a_desc.pDevice, a_pCmdList, a_desc.boneElementNum, nullptr);		// ボーン行列用
+		m_debugLineBuffer.Create(a_desc.pDevice, a_pCmdList, 10000, nullptr);					// 形状描画用バッファ
 
 		// コピー戦略用SRVヒープの作成
 		UINT _heapSize = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize();
@@ -68,6 +70,7 @@ namespace Engine::Graphics
 			0
 		);
 
+
 		// クワッドポリゴン
 		m_spQuadPolygon = std::make_shared<Resource::QuadPolygon>();
 		m_spQuadPolygon->Init();
@@ -81,7 +84,6 @@ namespace Engine::Graphics
 
 		// 形状描画用データ解放
 		m_pShapeDraw = nullptr;
-		m_shapeVertexBuffer.Release();
 		m_spQuadPolygon.reset();
 
 		// ルート定数バッファ用アロケーター解放
@@ -94,7 +96,8 @@ namespace Engine::Graphics
 		// 各構造体バッファ解放
 		m_instanceBuffer.Release();
 		m_subsetBuffer.Release();
-		m_boneBuffer.Release();	
+		m_boneBuffer.Release();
+		m_debugLineBuffer.Release();
 	}
 
 	void RenderContext::Clear()
@@ -537,6 +540,16 @@ namespace Engine::Graphics
 		m_pCmdList->Dispatch(a_x,a_y,a_z);
 	}
 
+	void RenderContext::BindGraphicsCamera()
+	{
+		if (!m_pGraphicsEngine) return;
+		auto _cam = m_pGraphicsEngine->GetCameraData();
+		GraphicsBindRootCBV<CameraData>(
+			0,
+			_cam
+		);
+	}
+
 
 
 	void RenderContext::UpdateBuffer(
@@ -566,6 +579,14 @@ namespace Engine::Graphics
 			const auto& _data = _boneMatPool.GetAllData();
 			m_boneBuffer.UpdateData(_data.data(), _data.size());
 			m_boneBuffer.Update(m_pCmdList);
+		}
+
+		// デバッグライン用バッファ更新
+		const auto& _debugVec = Editor::MainEditor::Instance().GetDebugLineDataVec();
+		if (!_debugVec.empty())
+		{
+			m_debugLineBuffer.UpdateData(_debugVec.data(), _debugVec.size() * sizeof(DebugLineData));
+			m_debugLineBuffer.Update(m_pCmdList);
 		}
 	}
 
@@ -597,6 +618,11 @@ namespace Engine::Graphics
 		BindSRV(a_rootIndex,m_boneBuffer.GetSRVHandle());
 	}
 
+	void RenderContext::BindGraphicsDebugLineBuffer(UINT a_rootIndex)
+	{
+		BindSRV(a_rootIndex,m_debugLineBuffer.GetSRVHandle());
+	}
+
 	void RenderContext::TexCopy(
 		const Handle<Resource::Texture>& a_src, const Handle<Resource::Texture>& a_dst
 	)
@@ -623,6 +649,15 @@ namespace Engine::Graphics
 		m_pCmdList->SetPipelineState(a_pPSO);
 		// プリミティブトポロジーセット
 		m_pCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	}
+
+	void RenderContext::SetGraphicPSO(uint8_t a_pPsoIndex)
+	{
+		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
+		if (!_pPsoManager) return;
+		auto* _pPSO = _pPsoManager->GetPSO(a_pPsoIndex);
+		if (!_pPSO) return;
+		SetGraphicPSO(_pPSO);
 	}
 
 	void RenderContext::SetComputePSO(ID3D12PipelineState* a_pPSO)
@@ -753,21 +788,16 @@ namespace Engine::Graphics
 		);
 	}
 
-	void RenderContext::ShapeDraw()
+	void RenderContext::DrawShape()
 	{
-		// フレーム情報
-		auto _currentIdx = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
-
-		// フレーム頂点バッファ更新
-		UINT _vertexCount = static_cast<UINT>(m_pShapeDraw->GetVertexVec().size());
-		m_shapeVertexBuffer.UpdateData(m_pShapeDraw->GetVertexVec().data(),m_pShapeDraw->GetVertexVec().size() * m_shapeVertexBuffer.GetStrideSize());
-
-
-		// 頂点バッファ送信
-		m_pCmdList->IASetVertexBuffers(0, 1, &m_shapeVertexBuffer.GetView());
-
-		// 描画
-		m_pCmdList->DrawInstanced(_vertexCount, 1, 0, 0);
+		const auto& _debugVec = Editor::MainEditor::Instance().GetDebugLineDataVec();
+		if (_debugVec.empty()) return;
+		m_pCmdList->DrawInstanced(
+			136,
+			static_cast<UINT>(_debugVec.size()),
+			0,
+			0
+		);
 	}
 
 	RenderContext::RenderContext()

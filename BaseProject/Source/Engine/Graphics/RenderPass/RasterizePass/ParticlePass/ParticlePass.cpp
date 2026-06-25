@@ -67,7 +67,6 @@ namespace Engine::Graphics
 		// 実行関数
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 			{
-				Editor::MainEditor::Instance().StartWatch("ParticleDraw");
 				auto* _particleManager = MainEngine::Instance().RefParticleManager();
 				// 全プール分回す
 				for (auto& [_handle, _pool] : _particleManager->GetPoolMap())
@@ -98,8 +97,6 @@ namespace Engine::Graphics
 					a_pCtx->DrawPolygonInstancing(_pool->GetMaxCapacity());
 					ENGINE_LOG("Particle描画中 : %s",_pParticle->GetName().c_str());
 				}
-
-				Editor::MainEditor::Instance().EndWatch("ParticleDraw");
 			};
 
 		// パス登録

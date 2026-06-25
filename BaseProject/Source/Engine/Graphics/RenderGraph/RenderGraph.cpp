@@ -17,6 +17,7 @@
 #include "../RenderPass/RasterizePass/ParticlePass/ParticlePass.h"
 #include "../RenderPass/ComputePass/Effect/Particle/EmitParticlePass/EmitParticlePass.h"
 #include "../RenderPass/ComputePass/Effect/Particle/UpdateParticlePass.h"
+#include "../RenderPass/RasterizePass/DebugLinePass/DebugLinePass.h"
 
 // マネージャー関連
 #include "RGVarsionManager/RGResourceManager.h"
@@ -271,8 +272,10 @@ namespace Engine::Graphics
 		AddDeferredLighting(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
 		AddGBufferHistoryPass(a_pPipelineStateManager, *this, EDrawPhase::HistoryUpdate);
 		AddPostHistoryPass(a_pPipelineStateManager, *this, EDrawPhase::HistoryUpdate);
+		AddDebugLinePass(a_pPipelineStateManager, *this, EDrawPhase::UI);
 
 		AddTAAPass(a_pPipelineStateManager, *this, EDrawPhase::PostProcess);
+		
 
 		// 自分で順序を決定するパス(登録準に配列に追加される)
 		// シャドウデノイズ系
@@ -458,6 +461,7 @@ namespace Engine::Graphics
 		// コンパイル済みパスを順次実行していく
 		for (auto& _cp : m_compiledPasses)
 		{
+			Editor::MainEditor::Instance().StartWatch(_cp.pNode->name);
 			// リソースバリア
 			AutoBarrier(a_pCtx,_cp);
 
@@ -480,6 +484,7 @@ namespace Engine::Graphics
 			{
 				_cp.pNode->executeFunc(a_pGE, a_pCtx, _cp.pNode->passIndex);
 			}
+			Editor::MainEditor::Instance().EndWatch(_cp.pNode->name);
 		}
 	}
 

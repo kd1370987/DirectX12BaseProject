@@ -51,8 +51,6 @@ namespace Engine::Graphics
 		// 実行関数
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 			{
-				Editor::MainEditor::Instance().StartWatch("EmitParticlePass");
-
 				// 全プール分回す
 				for (auto& [_handle, _pool] : MainEngine::Instance().GetParticleManager()->GetPoolMap())
 				{
@@ -96,8 +94,6 @@ namespace Engine::Graphics
 					a_pCtx->Dispatch(_dispatchNum, 1, 1);
 					ENGINE_LOG("ParticleEmitPass : 実行");
 				}
-
-				Editor::MainEditor::Instance().EndWatch("EmitParticlePass");
 			};
 
 		a_rg.AddPassNode(a_phase, _node);

@@ -47,7 +47,6 @@ namespace Engine::Graphics
 		// 実行関数
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 		{
-			Editor::MainEditor::Instance().StartWatch("ZPre");
 			a_pCtx->BindHeap();
 			a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
 
@@ -59,8 +58,6 @@ namespace Engine::Graphics
 			
 			// 描画
 			a_pGE->DrawQueue(a_pCtx, a_passIndex);
-
-			Editor::MainEditor::Instance().EndWatch("ZPre");
 		};
 
 		// パス登録
