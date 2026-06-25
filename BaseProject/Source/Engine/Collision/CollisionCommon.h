@@ -1,6 +1,31 @@
 ﻿#pragma once
 namespace Engine::Collision
 {
+	// 形状
+	enum class EShapeType
+	{
+		Sphere,
+		Box,
+		Capsule,
+		Mesh			// BVHトラバースが入るため少し重い
+	};
+
+	// 形状のデータをまとめる
+	struct ColliderShape
+	{
+		EShapeType type;
+
+		union
+		{
+			struct { float radius; } sphere;					// 球体
+			struct { DirectX::XMFLOAT3 extents; } box;			// ボックス
+			struct { float radius; float height; } capsule;		// カプセル
+			Handle<Resource::Model> modelHandle;				// メッシュの場合はモデルのハンドルを持つ
+		};
+
+		ColliderShape() : type(EShapeType::Sphere), sphere({ 1.0f }) {} // デフォルト
+	};
+
 	// コリジョンワールドに登録するインスタンス
 	struct CollisionInstance
 	{

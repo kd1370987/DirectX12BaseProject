@@ -26,11 +26,21 @@ bool Engine::Collision::Ray::VSModel(
 
 	float _dist = 0.0f;
 
+	// インスタンスのワールド行列をロード
+	DirectX::XMMATRIX _instWorld = DirectX::XMLoadFloat4x4(&a_worldMat);
+
 	// 判定ノードインデックスごとに処理
 	for (int _idx : a_pModel->GetCollisionMeshNodeVec())
 	{
 		// ノード取得
 		const Engine::Resource::Node& _node = a_pModel->GetOriginalNodeVec()[_idx];
+
+		DirectX::XMMATRIX _nodeGlobal = DirectX::XMLoadFloat4x4(&_node.worldTransform);
+		DirectX::XMMATRIX _combinedWorld = DirectX::XMMatrixMultiply(_nodeGlobal, _instWorld);
+
+		DirectX::XMFLOAT4X4 _meshWorldMat;
+		DirectX::XMStoreFloat4x4(&_meshWorldMat, _combinedWorld);
+
 		for (auto& _meshIdx : _node.meshIndices)
 		{
 			// ノードが持つメッシュを取得
@@ -39,7 +49,7 @@ bool Engine::Collision::Ray::VSModel(
 			if (!_pMesh) continue;
 
 			// メッシュとの判定
-			if (VSMesh(a_rayInfo, _pMesh,a_worldMat, a_outResult))
+			if (VSMesh(a_rayInfo, _pMesh, _meshWorldMat, a_outResult))
 			{
 				return true;
 			}
