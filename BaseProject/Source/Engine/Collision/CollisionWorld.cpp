@@ -7,6 +7,8 @@
 #include "MidPhase/BVHTraverser/BVHTraverser.h"
 #include "Collision.h"
 
+#include "../Resource/Manager/ResourceManager/ResourceManager.h"
+
 namespace Engine::Collision
 {
 
@@ -238,12 +240,15 @@ namespace Engine::Collision
 
 							// モデルとの判定
 							Result _localResult = {};
-							if (!_instance.pModelData)
+
+							// モデル取得
+							auto* _pModel = Resource::ResourceManager::Instance().Get(_instance.modelHandle);
+							if (!_pModel)
 							{
 								ENGINE_LOG("モデルデータが存在していません");
 								continue;
 							}
-							if (Engine::Collision::Ray::VSModel(a_ray, _instance.pModelData, _instance.worldMat, _localResult))
+							if (Engine::Collision::Ray::VSModel(a_ray, _pModel, _instance.worldMat, _localResult))
 							{
 								// より手前で当たったら結果を更新
 								if (_localResult.hitDistance < _closestDist)

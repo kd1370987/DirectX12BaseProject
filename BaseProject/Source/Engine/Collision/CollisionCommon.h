@@ -5,8 +5,7 @@ namespace Engine::Collision
 	struct CollisionInstance
 	{
 		ECS::Entity entity = ECS::Limits::INVALID_ENTITY;	// エンティティID
-
-		const Resource::Model* pModelData = {};					// モデルポインタ
+		Handle<Resource::Model> modelHandle = {};			// モデルのハンドル
 		DirectX::XMFLOAT4X4 worldMat = {};					// ワールド行列
 
 		// モデル全体のAABBをワールド空間に変換したボックス

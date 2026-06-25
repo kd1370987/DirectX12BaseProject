@@ -43,6 +43,8 @@ namespace Engine::Collision
 			const auto& _node = a_collisionMesh.nodeVec[_currentNodeIdx];
 			float _boxDist = 0.0f;
 
+			Editor::MainEditor::Instance().DrawBox(_node.box);
+
 			// NarrowPhaseを呼び出し、AABB判定をする
 			if (NarrowPhase::TestAABB(a_localPrimitive, _node.box, _boxDist))
 			{

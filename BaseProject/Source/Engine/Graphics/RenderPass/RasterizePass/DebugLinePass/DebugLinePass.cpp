@@ -42,6 +42,8 @@ namespace Engine::Graphics
 		_sPso.DepthWriteMask(false);
 		_sPso.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
 
+		_sPso.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+
 		// コンパイル
 		_rpBuilder.ResolveAndCompile(a_pPSOManager);
 
