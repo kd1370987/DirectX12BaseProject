@@ -1,53 +1,67 @@
 ﻿#include "Animation.h"
 
-void Engine::Resource::AnimationKeyQuaternion::Archive(Persistence::Archive& a_ar, const std::string& a_prefix)
+void Engine::Resource::AnimationKeyQuaternion::Archive(Persistence::Archive& a_ar)
 {
-	a_ar.Field(a_prefix + "_Time", time);
-	a_ar.Field(a_prefix + "_Quat", quat);
+	a_ar.Field("Time", time);
+	a_ar.Field("Quat", quat);
 }
 
-void Engine::Resource::AnimationKeyXMFLOAT3::Archive(Persistence::Archive& a_ar, const std::string& a_prefix)
+void Engine::Resource::AnimationKeyXMFLOAT3::Archive(Persistence::Archive& a_ar)
 {
-	a_ar.Field(a_prefix + "_Time", time);
-	a_ar.Field(a_prefix + "_Vec", vec);
+	a_ar.Field("Time", time);
+	a_ar.Field("Vec", vec);
 }
 
-void Engine::Resource::AnimationNode::Archive(Persistence::Archive& a_ar, const std::string& a_prefix)
+void Engine::Resource::AnimationNode::Archive(Persistence::Archive& a_ar)
 {
-	a_ar.Field(a_prefix + "_NodeOffset", nodeOffset);
-
+	a_ar.Field("_NodeOffset", nodeOffset);
 
 	// ---- Translations ----
 	size_t _transSize = translations.size();
-	a_ar.Field(a_prefix + "_TransCount", _transSize);
-	translations.resize(_transSize);
-
-	for (int _i = 0; _i < _transSize; ++_i)
+	if (a_ar.BeginArray("Translations", _transSize))
 	{
-		auto& _data = translations[_i];
-		_data.Archive(a_ar, a_prefix + "_Trans" + std::to_string(_i));
+		translations.resize(_transSize); // ロード時のためにリサイズ
+		for (size_t _i = 0; _i < _transSize; ++_i)
+		{
+			if (a_ar.BeginObject(_i))
+			{
+				translations[_i].Archive(a_ar);
+				a_ar.EndObject();
+			}
+		}
+		a_ar.EndArray();
 	}
 
 	// ---- Rotations ----
 	size_t _rotSize = rotations.size();
-	a_ar.Field(a_prefix + "_RotCount", _rotSize);
-	rotations.resize(_rotSize);
-
-	for (int _i = 0; _i < _rotSize; ++_i)
+	if (a_ar.BeginArray("Rotations", _rotSize))
 	{
-		auto& _data = rotations[_i];
-		_data.Archive(a_ar, a_prefix + "_Rot" + std::to_string(_i));
+		rotations.resize(_rotSize);
+		for (size_t _i = 0; _i < _rotSize; ++_i)
+		{
+			if (a_ar.BeginObject(_i))
+			{
+				rotations[_i].Archive(a_ar);
+				a_ar.EndObject();
+			}
+		}
+		a_ar.EndArray();
 	}
 
 	// ---- Scales ----
 	size_t _scaleSize = scales.size();
-	a_ar.Field(a_prefix + "_ScaleCount", _scaleSize);
-	scales.resize(_scaleSize);
-
-	for (int _i = 0; _i < _scaleSize; ++_i)
+	if (a_ar.BeginArray("Scales", _scaleSize))
 	{
-		auto& _data = scales[_i];
-		_data.Archive(a_ar, a_prefix + "_Scale" + std::to_string(_i));
+		scales.resize(_scaleSize);
+		for (size_t _i = 0; _i < _scaleSize; ++_i)
+		{
+			if (a_ar.BeginObject(_i))
+			{
+				scales[_i].Archive(a_ar);
+				a_ar.EndObject();
+			}
+		}
+		a_ar.EndArray();
 	}
 }
 
@@ -59,32 +73,40 @@ void Engine::Resource::AnimationData::Release()
 void Engine::Resource::AnimationData::Save(const std::string& a_fileDir, const std::string& a_name)
 {
 	Persistence::Archive _ar(Persistence::Archive::Mode::Save, a_fileDir, a_name, "anim");
-	_ar.StringField("AnimationData_Name", name);
-	_ar.Field("AnimationData_MaxLength", maxLength);
-
-	size_t _nodeSize = nodes.size();
-	_ar.Field("AnimationData_NodeCount", _nodeSize);
-
-	for (int _i = 0; _i < _nodeSize; ++_i)
-	{
-		auto _node = nodes[_i];
-		_node.Archive(_ar, "Node" + std::to_string(_i));
-	}
+	Archive(_ar);
 }
 
 void Engine::Resource::AnimationData::Load(const std::string& a_fileDir, const std::string& a_name)
 {
 	Persistence::Archive _ar(Persistence::Archive::Mode::Load, a_fileDir, a_name, "anim");
-	_ar.StringField("AnimationData_Name", name);
-	_ar.Field("AnimationData_MaxLength", maxLength);
+	Archive(_ar);
+}
 
-	size_t _nodeSize = 0;
-	_ar.Field("AnimationData_NodeCount", _nodeSize);
-	nodes.resize(_nodeSize);
+void Engine::Resource::AnimationData::Load(const std::string& a_filePath)
+{
+	auto _fileDir = FileUtility::GetDirFromPath(a_filePath);
+	auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
+	Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "anim");
+	Archive(_ar);
+}
 
-	for (int _i = 0; _i < _nodeSize; ++_i)
+void Engine::Resource::AnimationData::Archive(Persistence::Archive& a_ar)
+{
+	a_ar.StringField("AnimationData_Name", name);
+	a_ar.Field("AnimationData_MaxLength", maxLength);
+
+	size_t _nodeSize = nodes.size(); // Save時は現在のサイズ、Load時は0が渡されて内部で上書きされる
+	if (a_ar.BeginArray("Nodes", _nodeSize))
 	{
-		auto& _node = nodes[_i];
-		_node.Archive(_ar, "Node" + std::to_string(_i));
+		nodes.resize(_nodeSize); // Load時は読み込んだサイズでリサイズされる（Save時はそのまま）
+		for (size_t _i = 0; _i < _nodeSize; ++_i)
+		{
+			if (a_ar.BeginObject(_i))
+			{
+				nodes[_i].Archive(a_ar);
+				a_ar.EndObject();
+			}
+		}
+		a_ar.EndArray();
 	}
 }

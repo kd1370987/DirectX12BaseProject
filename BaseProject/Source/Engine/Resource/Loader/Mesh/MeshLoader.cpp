@@ -5,8 +5,8 @@ namespace Engine::Resource
 	Mesh MeshLoader::LoadFromFile(const std::string& a_path)
 	{
 		Mesh _mesh = {};
-		_mesh.Load();
+		_mesh.Load(a_path);
 
-		return Mesh();
+		return _mesh;
 	}
 }

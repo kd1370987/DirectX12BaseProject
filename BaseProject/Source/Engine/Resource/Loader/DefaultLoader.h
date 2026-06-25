@@ -6,6 +6,8 @@
 #include "Shader/ShaderLoader.h"
 #include "Particles/ParticlesLoader.h"
 #include "Material/MaterialLoader.h"
+#include "Mesh/MeshLoader.h"
+#include "Animation/AnimationLoader.h"
 
 namespace Engine::Resource
 {
@@ -88,5 +90,22 @@ namespace Engine::Resource
 			return MaterialLoader::LoadFromFile(a_path);
 		}
 	};
-	
+	// メッシュ
+	template<>
+	struct DefaultLoader<Mesh>
+	{
+		static Mesh LoadFromFile(const std::string& a_path)
+		{
+			return MeshLoader::LoadFromFile(a_path);
+		}
+	};
+	// アニメーション
+	template<>
+	struct DefaultLoader<AnimationData>
+	{
+		static AnimationData LoadFromFile(const std::string& a_path)
+		{
+			return AnimationLoader::LoadFromFile(a_path);
+		}
+	};
 }

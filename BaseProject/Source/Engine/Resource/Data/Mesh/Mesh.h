@@ -67,6 +67,7 @@ namespace Engine::Resource
 		//=================================================
 		void Save(const std::string& a_fileDir, const std::string& a_name);
 		void Load(const std::string& a_fileDir, const std::string& a_name);
+		void Load(const std::string& a_filePath);
 
 		//=================================================
 		// アクセサ

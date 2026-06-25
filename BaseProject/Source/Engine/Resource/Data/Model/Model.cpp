@@ -138,34 +138,21 @@ namespace Engine::Resource
 		_ar.VectorField("DrawMeshNodeIndices", m_drawMeshNodeIndices);
 
 		// ---- 参照しているデータの復元 ----
-		for (auto& _guid : m_materialGUIDVec)
+		for (const auto& _guid : m_materialGUIDVec)
 		{
 			auto _handle = ResourceManager::Instance().Load<Material>(_guid);
 			m_materialHandleVec.push_back(_handle);
 		}
-		for (UINT _i = 0; _i < m_meshGUIDVec.size(); ++_i)
+		for (const auto& _guid : m_meshGUIDVec)
 		{
-			auto _guid = m_meshGUIDVec[_i];
-			auto _basePath = AssetDatabase::Instance().GetBaseFilePathFromGUID(_guid);
-			auto _fileDir = FileUtility::GetDirFromPath(_basePath);
-			auto _fileName = FileUtility::GetFileName(_basePath);
-			Mesh _mesh = {};
-			_mesh.Load(_fileDir, _fileName);
-			auto _handle = ResourceManager::Instance().Add(std::move(_mesh));
+			auto _handle = ResourceManager::Instance().Load<Mesh>(_guid);
 			m_meshHandleVec.push_back(_handle);
 		}
-		for (UINT _i = 0; _i < m_animationGUIDVec.size(); ++_i)
+		for (const auto& _guid : m_animationGUIDVec)
 		{
-			auto _guid = m_animationGUIDVec[_i];
-			auto _basePath = AssetDatabase::Instance().GetBaseFilePathFromGUID(_guid);
-			auto _fileDir = FileUtility::GetDirFromPath(_basePath);
-			auto _fileName = FileUtility::GetFileName(_basePath);
-			AnimationData _animData = {};
-			_animData.Load(_fileDir,_fileName);
-			auto _handle = ResourceManager::Instance().Add(std::move(_animData));
+			auto _handle = ResourceManager::Instance().Load<AnimationData>(_guid);
 			m_animationHandleVec.push_back(_handle);
 		}
-
 	}
 
 	void Model::Save(const std::string& a_fileDir)
