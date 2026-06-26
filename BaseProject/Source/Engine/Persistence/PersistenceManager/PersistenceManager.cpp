@@ -16,13 +16,12 @@ namespace Engine::Persistence
 		std::vector<ECS::Entity> _entityVec = {};
 
 		// GUIDを保有しているオブジェクトのみ収集
-		//_pWorld->ForEach<GUIDComponent>(
-		a_pWorld->ForEach<LocalTransformComponent>(
+		a_pWorld->ForEach<GUIDComponent>(
 			[&a_pWorld,&_entityVec]
 			(
 				ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
-				LocalTransformComponent* a_guidArray
+				GUIDComponent* a_guidArray
 			) 
 			{
 				for (size_t _i = 0; _i < a_count; ++_i)

@@ -323,6 +323,7 @@
     <ClCompile Include="Source\Engine\Editor\ImGui\Log\Log.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\Watch\Watch.cpp" />
     <ClCompile Include="Source\Engine\Editor\RenderGraphResourceView\RenderGraphResourceView.cpp" />
+    <ClCompile Include="Source\Engine\Editor\SceneManagerEditor\SceneManagerEditor.cpp" />
     <ClCompile Include="Source\Engine\Editor\SceneView\EditorCamera\EditorCamera.cpp" />
     <ClCompile Include="Source\Engine\Editor\SceneView\SceneView.cpp" />
     <ClCompile Include="Source\Engine\Editor\WatchView\WatchView.cpp" />
@@ -589,6 +590,7 @@
     <ClInclude Include="Source\Engine\Editor\ImGui\OperationBox\OperationBox.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\Watch\Watch.h" />
     <ClInclude Include="Source\Engine\Editor\RenderGraphResourceView\RenderGraphResourceView.h" />
+    <ClInclude Include="Source\Engine\Editor\SceneManagerEditor\SceneManagerEditor.h" />
     <ClInclude Include="Source\Engine\Editor\SceneView\EditorCamera\EditorCamera.h" />
     <ClInclude Include="Source\Engine\Editor\SceneView\SceneView.h" />
     <ClInclude Include="Source\Engine\Editor\WatchView\WatchView.h" />

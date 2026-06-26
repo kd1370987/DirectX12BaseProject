@@ -59,6 +59,12 @@ public:
 	/// </summary>
 	Engine::ECS::World* RefWorld();
 
+	/// <summary>
+	/// 現在の一番上のシーンを取得
+	/// </summary>
+	/// <returns>ベースシーンポインタ</returns>
+	BaseScene* GetCurrentTopScene();
+
 private:
 
 	//------------------------------------------------------------------------------------------

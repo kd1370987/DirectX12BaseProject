@@ -99,6 +99,11 @@ Engine::ECS::World* SceneManager::RefWorld()
 	return m_upBaseSceneVec.back()->RefWorld();
 }
 
+BaseScene* SceneManager::GetCurrentTopScene()
+{
+	return m_upBaseSceneVec.back().get();
+}
+
 void SceneManager::SetNextScene(const SceneType& a_nextScene, const SceneChangeType& a_changeType)
 {
 	m_sceneChangeCmd.push({a_nextScene,a_changeType});

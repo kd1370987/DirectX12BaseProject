@@ -118,6 +118,10 @@ namespace Engine::ECS
 		_func.serialize = &Comp::Serialize;
 		_func.deserialize = &Comp::Deserialize;
 		_func.edit = &Comp::Edit;
+		
+		//_func.construct = [](void* a_ptr) {new (a_ptr) Comp(); };
+		//_func.serialize = &ECS::ComponentTraits<Comp>::Archive;
+		//_func.edit = &ECS::ComponentTraits<Comp>::Edit;
 
 		// 登録
 		m_compNameMap.emplace(a_name,_typeID);		// 名前との対応表

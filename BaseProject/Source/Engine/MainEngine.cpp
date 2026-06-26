@@ -405,6 +405,12 @@ namespace Engine
 		_shaderExt.AddExtensions(".hlsl");
 		_shaderExt.AddExtensions(".cso");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_shaderExt);
+		// シーン
+		Resource::TypeExtension _sceneExt = {};
+		_sceneExt.type = "Scene";
+		_sceneExt.AddExtensions(".ojscene");
+		_sceneExt.AddExtensions(".obscene");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_sceneExt);
 
 		// 全アセットに一括でメタファイル作成
 		// すでにあれば無視

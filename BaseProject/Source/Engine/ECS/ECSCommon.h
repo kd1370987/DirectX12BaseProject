@@ -33,5 +33,13 @@ namespace Engine::ECS
 	// シリアライズ、デシリアライズ用関数
 	using SerializeFunc = void(*)(const void*, nlohmann::json&);
 	using DeserializeFunc = void(*)(void*, const nlohmann::json&);
+
+	// コンポーネントのシリアライズ登録構造体
+	template<typename T>
+	struct ComponentTraits {
+		// コンポーネント側で特殊化されることを期待する
+		static void Archive(Engine::Persistence::Archive& a_ar, T& a_comp) = delete;
+		static void Edit(T& a_comp) = delete;
+	};
 };
 

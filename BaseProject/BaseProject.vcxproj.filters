@@ -979,6 +979,9 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem">
       <UniqueIdentifier>{ed98f94f-ea01-4cf6-a162-f1b82099f619}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\SceneManagerEditor">
+      <UniqueIdentifier>{742f777d-c126-4c74-8743-d5775192bc0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1547,6 +1550,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem\CommitHierarchyWorldMatrixSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\SceneManagerEditor\SceneManagerEditor.cpp">
+      <Filter>Source\Engine\Editor\SceneManagerEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2401,6 +2407,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem\CommitHierarchyWorldMatrixSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\SceneManagerEditor\SceneManagerEditor.h">
+      <Filter>Source\Engine\Editor\SceneManagerEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
