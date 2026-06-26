@@ -85,6 +85,7 @@
 #include "../../Systems/Update/Update/Particle/ParticleEmitSystem/ParticleEmitSystem.h"
 #include "../../Systems/Init/PostDeserialize/ParticleFixupSystem/ParticleFixupSystem.h"
 #include "../../Systems/Update/PreUpdate/UpdateHierarchyDepthSystem/UpdateHierarchyDepthSystem.h"
+#include "../../Systems/Update/PostUpdate/CommitHierarchyWorldMatrixSystem/CommitHierarchyWorldMatrixSystem.h"
 
 // リソース関係
 #include "../../InstanceResource/HierarchyResource.h"
@@ -245,6 +246,7 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<AnimationMatrixFreeSystem>();
 	m_upWorld->RegisterSystem<RegisterPrevWorldMatSystem>();
 	m_upWorld->RegisterSystem<UpdateHierarchyDepthSystem>();
+	m_upWorld->RegisterSystem<CommitHierarchyWorldMatrixSystem>();
 }
 
 void BaseScene::RegistryEntity()
@@ -264,4 +266,6 @@ void BaseScene::RegistryResource()
 	// 初期化
 	m_upWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);
 	m_upWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>().Init(10000);
+
+	m_upWorld->GetResource<HierarchyResource>().isDirty = true;
 }

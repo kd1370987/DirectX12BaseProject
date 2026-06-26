@@ -12,10 +12,28 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 	// ヒエラルキーがついていない単体オブジェクトに対して最終行列を作成する
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,
-		Engine::ECS::ReadList<LocalTransformComponent,HierarchyComponent>(),
-		Engine::ECS::WriteList<WorldMatrixComponent>(),
-		[&a_world]()
+		Engine::ECS::ReadList<LocalTransformComponent, HierarchyComponent>{},
+		Engine::ECS::WriteList<WorldMatrixComponent>{},
+		[&a_world](float a_dt)
 		{
+			// 更新前にワールド行列のフラグを消しておく
+			a_world.ForEach<WorldMatrixComponent>(
+				[]
+				(
+					Engine::ECS::ArchetypeChunk* a_pChunk,
+					uint32_t a_count,
+					WorldMatrixComponent* a_worldMatArray
+					)
+				{
+					for (size_t _i = 0; _i < a_count; ++_i)
+					{
+						auto& _comp = a_worldMatArray[_i];
+						_comp.wasUpdatedThisFrame = false;
+					}
+				}
+			);
+
+			// 深度ごとに親子階層の更新をする
 			auto& _hRes = a_world.GetResource<HierarchyResource>();
 			for (int _depth = 0; _depth <= _hRes.maxDepth; ++_depth)
 			{
@@ -24,7 +42,6 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 					(
 						Engine::ECS::ArchetypeChunk* a_pChunk,
 						uint32_t a_count,
-						float a_dt,
 						LocalTransformComponent* a_trsArray,
 						WorldMatrixComponent* a_worldMatArray,
 						HierarchyComponent* a_hArray
@@ -36,11 +53,21 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 							const HierarchyComponent& _hComp = a_hArray[_i];
 							if (_hComp.depth != _depth) continue;	// 深度値チェック
 
-							const LocalTransformComponent& _trsComp = a_trsArray[_i];
-							if (!_trsComp.isDirty) continue;	// 変更がなければ更新しない
+							bool _isParentUpdated = false;
+							if (_hComp.parentID != Engine::ECS::Limits::INVALID_ENTITY) {
+								auto* _parentMatComp = a_world.RefData<WorldMatrixComponent>(_hComp.parentID);
+								if (_parentMatComp) {
+									_isParentUpdated = _parentMatComp->wasUpdatedThisFrame;
+								}
+							}
 
+							const LocalTransformComponent& _trsComp = a_trsArray[_i];
 							WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
-							
+							if (!_trsComp.isDirty && !_isParentUpdated) {
+								_worldMatComp.wasUpdatedThisFrame = false; // 自分も更新なし
+								continue;
+							}
+
 							// 変換行列計算
 							DirectX::XMMATRIX _transMat = DirectX::XMMatrixTranslationFromVector(
 								DirectX::XMLoadFloat3(&_trsComp.pos)
@@ -57,7 +84,7 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 
 							DirectX::XMMATRIX _myLocalMat = _scaleMat * _rotMat * _transMat;
 
-							// 2親の行列を掛け合わせる
+							// 親の行列を掛け合わせる
 							if (_hComp.parentID != Engine::ECS::Limits::INVALID_ENTITY) {
 								// 親のワールド行列を取得
 								auto* _parentMatComp = a_world.RefData<WorldMatrixComponent>(_hComp.parentID);
@@ -71,6 +98,8 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 								// 親がいない場合はそのまま（ルート）
 								DirectX::XMStoreFloat4x4(&_worldMatComp.worldMat, _myLocalMat);
 							}
+
+							_worldMatComp.wasUpdatedThisFrame = true;
 
 							_trsComp.isDirty = false;
 						}

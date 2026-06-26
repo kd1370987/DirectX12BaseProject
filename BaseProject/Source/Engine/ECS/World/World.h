@@ -551,7 +551,7 @@ namespace Engine::ECS
 				a_func(a_dt);
 			};
 
-		m_systemManager.AddSystemTask(a_phase, _task);
+		m_systemManager.AddSystemTask(a_phase, _task,"CatamTask");
 	}
 	template<typename ...Read, typename ...Write, typename Func>
 	inline void World::PostDeserializeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)

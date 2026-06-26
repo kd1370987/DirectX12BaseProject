@@ -4,6 +4,8 @@ struct WorldMatrixComponent
 {
 	DirectX::XMFLOAT4X4 worldMat= {};
 
+	bool wasUpdatedThisFrame = true;
+
 	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
 	{
 		auto* _comp = static_cast<const WorldMatrixComponent*>(a_ptr);

@@ -60,7 +60,6 @@ namespace Engine::ECS
 			ChangeSigneture(_chanCmd);
 
 			// エンティティの変更があったため階層の変更を通知する
-			auto& _res = GetResource<HierarchyResource>();
 			_res.isDirty = true;
 		}
 		m_changeEntityVec.clear();

@@ -96,9 +96,17 @@ namespace Engine::Editor
 			for (auto& _location : _entityLocationList)
 			{
 				Engine::ECS::Entity _entity = a_pWorld->GetEntity(_location);
-				// 親を持っていない（HierarchyComponentがない）ものをルートとして抽出
-				if (_entity != ECS::Limits::INVALID_ENTITY && !a_pWorld->HasComponent<HierarchyComponent>(_entity))
+				// 親を持っていないものをルートとして抽出
+				if (_entity != ECS::Limits::INVALID_ENTITY)
 				{
+					// ヒエラルキーコンポーネントを持っているものは親がいるかチェック
+					if(a_pWorld->HasComponent<HierarchyComponent>(_entity))
+					{
+						if (ECS::Limits::INVALID_ENTITY != a_pWorld->RefData<HierarchyComponent>(_entity)->parentID)
+						{
+							continue;
+						}
+					}
 					_rootEntities.push_back(_entity);
 				}
 			}
@@ -215,13 +223,25 @@ namespace Engine::Editor
 		// 新たな親子関係の構築
 		Engine::GUID _parentGUID = _pParentGUID->guid;
 
-		UINT _depth = 0;
+		UINT _depth = 1;
 		// 親がヒエラルキーを持っていたら情報を引き継ぐ
 		if (a_pWorld->HasComponent<HierarchyComponent>(a_parent))
 		{
 			auto* _pHieComp = a_pWorld->RefData<HierarchyComponent>(a_parent);
 			// 深度の更新
 			_depth = _pHieComp->depth + 1;
+		}
+		// 持っていなければ親に付与して先に引っ越しさせる
+		else
+		{
+			// コンポーネントの追加
+			auto _compTypeID = a_pWorld->GetCompTypeID<HierarchyComponent>();
+			HierarchyComponent _initData = {};
+			_initData.parentGUID = Engine::DefaultGUID;
+			_initData.parentID = ECS::Limits::INVALID_ENTITY;
+			_initData.depth = 0;
+			// 内部でディープコピーしてるのでローカルでいい
+			a_pWorld->AddComponent(_compTypeID, a_parent,(uint8_t*)&_initData);
 		}
 		// ヒエラルキーコンポーネントを持っていなかった場合
 		// 付与してデータを入れる
