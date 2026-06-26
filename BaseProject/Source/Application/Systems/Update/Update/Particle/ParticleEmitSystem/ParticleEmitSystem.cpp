@@ -5,12 +5,12 @@
 #include "../../../../../../Engine/Particle/ParticleBufferManager.h"
 
 #include "../../../../../Components/Resource/ParticlesComponent.h"
-#include "Application/Components/Transform/TransformComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
 
 
 void ParticleEmitSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const TransformComponent, ParticlesComponent>(
+	a_world.ActiveTask<const LocalTransformComponent, ParticlesComponent>(
 		Engine::ECS::ESystemType::Update,
 		"ParticleEmitSystem",
 		[]
@@ -19,7 +19,7 @@ void ParticleEmitSystem::Init(Engine::ECS::World& a_world)
 			uint32_t a_count,
 			float a_dt,
 			ActiveTag* a_tags,
-			const TransformComponent* a_trsArray,
+			const LocalTransformComponent* a_trsArray,
 			ParticlesComponent* a_particleArray
 			)
 		{
@@ -30,7 +30,7 @@ void ParticleEmitSystem::Init(Engine::ECS::World& a_world)
 			{
 				// 本来はパーティクルコンポーネントから引っ張ってくるがいったんテストで固定値
 				ParticlesComponent& _particleComp = a_particleArray[_i];
-				const TransformComponent& _trsComp = a_trsArray[_i];
+				const LocalTransformComponent& _trsComp = a_trsArray[_i];
 
 				if (_isTest)
 				{

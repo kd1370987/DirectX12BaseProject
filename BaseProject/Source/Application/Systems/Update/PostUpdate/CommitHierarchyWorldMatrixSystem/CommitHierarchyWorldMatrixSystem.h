@@ -1,7 +1,9 @@
 ﻿#pragma once
+
+
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class CommitWorldMatrixFromLocalSystem : public Engine::ECS::SystemBase<CommitWorldMatrixFromLocalSystem>
+class CommitHierarchyWorldMatrixSystem : public Engine::ECS::SystemBase<CommitHierarchyWorldMatrixSystem>
 {
 public:
 

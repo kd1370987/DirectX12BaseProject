@@ -2,12 +2,14 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "Application/Components/Transform/TransformComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
+#include "../../../../Components/Hierarchy/HierarchyComponent.h"
 
 void CalcMatrixSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const TransformComponent, WorldMatrixComponent>(
+	// ヒエラルキーがついていない単体オブジェクトに対して最終行列を作成する
+	a_world.ActiveTask<const LocalTransformComponent, WorldMatrixComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
 		"CalcMatrixSystem",
 		[](
@@ -15,13 +17,17 @@ void CalcMatrixSystem::Init(Engine::ECS::World& a_world)
 			uint32_t a_count,
 			float a_dt,
 			ActiveTag* a_tags,
-			const TransformComponent* a_trsArray,
+			const LocalTransformComponent* a_trsArray,
 			WorldMatrixComponent* a_worldMatArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const TransformComponent& _trsComp = a_trsArray[_i];
+				const LocalTransformComponent& _trsComp = a_trsArray[_i];
+
+				// 変更がなければ更新しない
+				if (!_trsComp.isDirty) continue;
+
 				WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
 
 				// 変換行列計算
@@ -41,7 +47,11 @@ void CalcMatrixSystem::Init(Engine::ECS::World& a_world)
 				DirectX::XMMATRIX _worldMat = _scaleMat * _rotMat * _transMat;
 
 				DirectX::XMStoreFloat4x4(&_worldMatComp.worldMat, _worldMat);
+
+				// mutubleでconstを無視している
+				_trsComp.isDirty = false;
 			}
-		}
+		},
+		Engine::ECS::Exclude<HierarchyComponent>()
 	);
 }

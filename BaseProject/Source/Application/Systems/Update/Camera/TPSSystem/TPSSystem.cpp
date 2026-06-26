@@ -5,7 +5,7 @@
 #include "Application/Components/Camera/FollowTargetComponent.h"
 #include "Application/Components/Camera/TPSOffsetComponent.h"
 #include "../../../../Components/Camera/TPSCameraStateComponent.h"
-#include "Application/Components/Transform/TransformComponent.h""
+#include "Application/Components/Transform/LocalTransformComponent.h"
 
 
 #include "Application/Components/Camera/TPSLookAngleComponent.h"
@@ -15,7 +15,7 @@
 
 void TPSSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, TransformComponent,TPSCameraStateComponent>(
+	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, LocalTransformComponent,TPSCameraStateComponent>(
 		Engine::ECS::ESystemType::Camera,
 		"TPSSystem",
 		[&a_world](
@@ -26,7 +26,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 			FollowTargetComponent* a_targetArray,
 			TPSOffsetComponent* a_offsetArray,
 			TPSLookAngleComponent* a_lookAngArray,
-			TransformComponent* a_trsArray,
+			LocalTransformComponent* a_trsArray,
 			TPSCameraStateComponent* a_tpsStatArray
 		) 
 		{
@@ -35,13 +35,13 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// カメラのコンポーネントを取得
 				FollowTargetComponent&	_followComp = a_targetArray[_i];
 				TPSOffsetComponent&		_offsetComp = a_offsetArray[_i];
-				TransformComponent&		_trsComp	= a_trsArray[_i];
+				LocalTransformComponent&		_trsComp	= a_trsArray[_i];
 				TPSLookAngleComponent&	_lookComp	= a_lookAngArray[_i];
 				TPSCameraStateComponent& _statComp	= a_tpsStatArray[_i];
 
 				// ターゲットのコンポーネントを取得
 				Engine::ECS::Entity _target = _followComp.target;
-				const TransformComponent* _targetTRS = a_world.RefData<TransformComponent>(_target);
+				const LocalTransformComponent* _targetTRS = a_world.RefData<LocalTransformComponent>(_target);
 				const PlayerLookAngleComponent* _targetLook = a_world.RefData<PlayerLookAngleComponent>(_target);
 				if (!_targetLook || !_targetTRS) continue;
 				
@@ -105,6 +105,8 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// 状態の保存と移動の適用
 				DirectX::XMStoreFloat3(&_statComp.currentLookAt, _currentLookAt);
 				DirectX::XMStoreFloat3(&_trsComp.pos, _currentPos);
+
+				_trsComp.isDirty = true;
 			}
 		}
 	);

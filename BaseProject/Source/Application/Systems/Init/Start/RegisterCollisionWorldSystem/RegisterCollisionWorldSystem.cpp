@@ -4,7 +4,7 @@
 
 #include "../../../../Components/Collision/Collider.h"
 #include "../../../../Components/Resource/ModelComponent.h"
-#include "../../../../Components/Transform/TransformComponent.h"
+#include "../../../../Components/Transform/LocalTransformComponent.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
@@ -12,7 +12,7 @@
 
 void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.StartTask<ColliderComponent, const ModelComponent, const TransformComponent>(
+	a_world.StartTask<ColliderComponent, const ModelComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::Start,
 		"RegisterCollisionWorldSystem",
 		[](
@@ -22,14 +22,14 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 			StartTag* a_startTag,
 			ColliderComponent* a_collArray,
 			const ModelComponent* a_modelArray,
-			const TransformComponent* a_transArray
+			const LocalTransformComponent* a_transArray
 			)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				ColliderComponent& _collComp = a_collArray[_i];
 				const ModelComponent& _modelComp = a_modelArray[_i];
-				const TransformComponent& _transComp = a_transArray[_i];
+				const LocalTransformComponent& _transComp = a_transArray[_i];
 
 				// ワールド行列計算
 				DXSM::Matrix _mat = {};
@@ -74,7 +74,7 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				// コリジョンワールドに登録
 				Engine::Collision::CollisionInstance _inst = {};
 				_inst.entity = a_pChunk->entityData[_i];
-				_inst.modelHandle = _modelComp.handle;
+				//_inst.modelHandle = _modelComp.handle;
 				_inst.collShape.type = Engine::Collision::EShapeType::Mesh;
 				_inst.collShape.modelHandle = _modelComp.handle;
 

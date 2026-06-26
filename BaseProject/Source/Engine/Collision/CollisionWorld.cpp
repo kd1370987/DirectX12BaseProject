@@ -242,7 +242,8 @@ namespace Engine::Collision
 							Result _localResult = {};
 
 							// モデル取得
-							auto* _pModel = Resource::ResourceManager::Instance().Get(_instance.modelHandle);
+							if (_instance.collShape.type != EShapeType::Mesh) continue;
+							auto* _pModel = Resource::ResourceManager::Instance().Get(_instance.collShape.modelHandle);
 							if (!_pModel)
 							{
 								ENGINE_LOG("モデルデータが存在していません");

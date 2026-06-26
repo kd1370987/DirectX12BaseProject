@@ -30,7 +30,7 @@
 
 #include "../../Components/Charactor/Player/PlayerLookAngleComponent.h"
 
-#include "../../Components/Transform/TransformComponent.h"
+#include "../../Components/Transform/LocalTransformComponent.h"
 #include "../../Components/Transform/WorldMatrixComponent.h"
 
 #include "../../Components/Collision/Collider.h"
@@ -161,7 +161,7 @@ void GameScene::RegistryEntity()
 				for (int _z = 0; _z < _zMax; ++_z)
 				{
 					Engine::ECS::Signature _sig;
-					_sig.set(m_upWorld->GetCompTypeID(typeid(TransformComponent)));
+					_sig.set(m_upWorld->GetCompTypeID(typeid(LocalTransformComponent)));
 					_sig.set(m_upWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 					_sig.set(m_upWorld->GetCompTypeID(typeid(ModelComponent)));
 					_sig.set(m_upWorld->GetCompTypeID(typeid(ColliderComponent)));
@@ -178,7 +178,7 @@ void GameScene::RegistryEntity()
 					_model->colorScale = { 1.0f,1.0f,1.0f,1.0f };
 					_model->emissiveScale = { 0.0f,0.0f,0.0f };
 					_model->modelGUID = _guid;
-					TransformComponent* _ref = m_upWorld->RefData<TransformComponent>(_entity);
+					LocalTransformComponent* _ref = m_upWorld->RefData<LocalTransformComponent>(_entity);
 					_ref->pos = { _x * _pad,  _y * _pad, -_z * _pad };
 					_ref->quat = { 0.0f,0.0f,0.0f,1.0f };
 					_ref->scale = { 1.0f,1.0f,1.0f };

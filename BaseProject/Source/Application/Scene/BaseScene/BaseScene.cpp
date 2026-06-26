@@ -26,7 +26,6 @@
 #include "../../Components/Force/VelocityComponent.h"
 #include "../../Components/Force/InertiaComponent.h"
 #include "../../Components/Charactor/Player/PlayerLookAngleComponent.h"
-#include "../../Components/Transform/TransformComponent.h"
 #include "../../Components/Transform/LocalTransformComponent.h"
 #include "../../Components/Transform/WorldMatrixComponent.h"
 #include "../../Components/Intent/MoveIntentComponent.h"
@@ -68,7 +67,6 @@
 #include "Application/Systems/Update/PostUpdate/AnimationSystem/AnimationSystem.h"
 #include "Application/Systems/Update/PostUpdate/SkinningSystem/SkinningSystem.h"
 #include "Application/Systems/Update/PostUpdate/CalcNodeSystem/CalcNodeSystem.h"
-#include "../../Systems/Update/PostUpdate/CommitWorldMatrixFromLocalSystem/CommitWorldMatrixFromLocalSystem.h"
 #include "../../Systems/Update/PostUpdate/CalcTransformFromExoskeletonSystem/CalcTransformFromExoskeletonSystem.h"
 #include "Application/Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
 #include "../../Systems/Draw/Draw/StaticObjectDrawSystem/StaticObjectDrawSystem.h"
@@ -86,6 +84,7 @@
 #include "../../Systems/Draw/Draw/EmittParticlesSystem/EmittParticlesSystem.h"
 #include "../../Systems/Update/Update/Particle/ParticleEmitSystem/ParticleEmitSystem.h"
 #include "../../Systems/Init/PostDeserialize/ParticleFixupSystem/ParticleFixupSystem.h"
+#include "../../Systems/Update/PreUpdate/UpdateHierarchyDepthSystem/UpdateHierarchyDepthSystem.h"
 
 // リソース関係
 #include "../../InstanceResource/HierarchyResource.h"
@@ -186,7 +185,6 @@ void BaseScene::RegistryComponent()
 	m_upWorld->RegisterComponent<PlayerLookAngleComponent>("PlayerLookAngleComponent");
 	m_upWorld->RegisterComponent<ColliderComponent>("ColliderComponent");
 	m_upWorld->RegisterComponent<RayColliderComponent>("RayColliderComponent");
-	m_upWorld->RegisterComponent<TransformComponent>("TransformComponent");
 	m_upWorld->RegisterComponent<LocalTransformComponent>("LocalTransformComponent");
 	m_upWorld->RegisterComponent<WorldMatrixComponent>("WorldMatrixComponent");
 	m_upWorld->RegisterComponent<ModelComponent>("ModelComponent");
@@ -213,41 +211,30 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<GUIDFixupSystem>();
 	m_upWorld->RegisterSystem<StateMachinFixupSystem>();
 	m_upWorld->RegisterSystem<ParticleFixupSystem>();
-
 	m_upWorld->RegisterSystem<FollowTargetLinkSystem>();
 	m_upWorld->RegisterSystem<AttachmentLinkSystem>();
 	m_upWorld->RegisterSystem<HierarchyLinkSystem>();
-
 	m_upWorld->RegisterSystem<PlayerIntentSystem>();
-
 	m_upWorld->RegisterSystem<StateMachinComitSystem>();
 	m_upWorld->RegisterSystem<RegisterCollisionWorldSystem>();
 	m_upWorld->RegisterSystem<CameraStartSystem>();
 	m_upWorld->RegisterSystem<AnimationModelStartSystem>();
 	m_upWorld->RegisterSystem<AttachmentNodeLinkSystem>();
-
 	m_upWorld->RegisterSystem<CamSetShaderSystem>();
 	m_upWorld->RegisterSystem<InputMoveSystem>();
-
 	m_upWorld->RegisterSystem<GravitySystem>();
 	m_upWorld->RegisterSystem<RotationSystem>();
-
 	m_upWorld->RegisterSystem<AnimationStateSystem>();
-
 	m_upWorld->RegisterSystem<AnimationSystem>();
 	m_upWorld->RegisterSystem<CalcNodeSystem>();
 	m_upWorld->RegisterSystem<SkinningSystem>();
 	m_upWorld->RegisterSystem<PositionIntegrationSystem>();
 	m_upWorld->RegisterSystem<CharactorMovementSystem>();
-
 	m_upWorld->RegisterSystem<TPSSystem>();
-
 	m_upWorld->RegisterSystem<CalcMatrixSystem>();
 	m_upWorld->RegisterSystem<RobotBoostSystem>();
-	m_upWorld->RegisterSystem<CommitWorldMatrixFromLocalSystem>();
 	m_upWorld->RegisterSystem<CalccTransformFromExoskeletonSystem>();
 	m_upWorld->RegisterSystem<RayCollisionSystem>();
-
 	m_upWorld->RegisterSystem<StaticObjectDrawSystem>();
 	m_upWorld->RegisterSystem<DynamicObjectDrawSystem>();
 	m_upWorld->RegisterSystem<AnimationOptionalDrawSystem>();
@@ -255,11 +242,9 @@ void BaseScene::RegistrySystem()
 	m_upWorld->RegisterSystem<RegisterRayWorldSystem>();
 	m_upWorld->RegisterSystem<EmittParticleSystem>();
 	m_upWorld->RegisterSystem<ParticleEmitSystem>();
-	
-
 	m_upWorld->RegisterSystem<AnimationMatrixFreeSystem>();
-
 	m_upWorld->RegisterSystem<RegisterPrevWorldMatSystem>();
+	m_upWorld->RegisterSystem<UpdateHierarchyDepthSystem>();
 }
 
 void BaseScene::RegistryEntity()

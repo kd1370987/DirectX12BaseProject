@@ -3,12 +3,12 @@
 #include "Engine/ECS/World/World.h"
 
 #include "Application/Components/Charactor/Player/PlayerLookAngleComponent.h"
-#include "Application/Components/Transform/TransformComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../../Components/Force/VelocityComponent.h"
 
 void RotationSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const PlayerLookAngleComponent, TransformComponent,const VelocityComponent>(
+	a_world.ActiveTask<const PlayerLookAngleComponent, LocalTransformComponent,const VelocityComponent>(
 		Engine::ECS::ESystemType::Update,
 		"RotationSystem",
 		[]
@@ -18,14 +18,14 @@ void RotationSystem::Init(Engine::ECS::World& a_world)
 			float a_dt,
 			ActiveTag* a_tags,
 			const PlayerLookAngleComponent* a_lookArray,
-			TransformComponent* a_trsArray,
+			LocalTransformComponent* a_trsArray,
 			const VelocityComponent* a_velocityArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const PlayerLookAngleComponent& _lookAng = a_lookArray[_i];
-				TransformComponent& _trs = a_trsArray[_i];
+				LocalTransformComponent& _trs = a_trsArray[_i];
 				const VelocityComponent& _velComp = a_velocityArray[_i];
 
 				// Y軸の移動を無視した平面での移動ベクトル取得

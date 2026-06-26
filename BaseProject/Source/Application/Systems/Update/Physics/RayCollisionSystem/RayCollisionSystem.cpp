@@ -4,7 +4,7 @@
 
 #include "Application/Components/Collision/Collider.h"
 #include "Application/Components/Collision/RayCollider.h"
-#include "Application/Components/Transform/TransformComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
@@ -19,7 +19,7 @@
 
 void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const ColliderComponent, const RayColliderComponent, TransformComponent,VelocityComponent, StateMachineComponent>(
+	a_world.ActiveTask<const ColliderComponent, const RayColliderComponent, LocalTransformComponent,VelocityComponent, StateMachineComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"RayCollisionSystem",
 		[]
@@ -30,14 +30,14 @@ void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 			ActiveTag* a_startTag,
 			const ColliderComponent* a_collArray,
 			const RayColliderComponent* a_rayArray,
-			TransformComponent* a_transArray,
+			LocalTransformComponent* a_transArray,
 			VelocityComponent* a_velArray,
 			StateMachineComponent* a_stateArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				TransformComponent& _transComp = a_transArray[_i];
+				LocalTransformComponent& _transComp = a_transArray[_i];
 				VelocityComponent& _velComp = a_velArray[_i];
 				StateMachineComponent& _stateComp = a_stateArray[_i];
 				const RayColliderComponent& _rayComp = a_rayArray[_i];

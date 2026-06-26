@@ -3,8 +3,12 @@
 #include "../Internal/EntityLocation.h"
 
 // エンティティに初めからつけるためこの二つはインクルード
-#include "../../../Application/Components/Persistence/GUIDComponent.h"
-#include "../../../Application/Components/Persistence/NameComponent.h"
+#include "../../../Application/Components/Persistence/GUIDComponent.h"		// GUID
+#include "../../../Application/Components/Persistence/NameComponent.h"		// 名前
+
+// シングルトンリソース
+#include "../../../Application/InstanceResource/HierarchyResource.h"		// 階層保持
+
 
 namespace Engine::ECS
 {
@@ -40,6 +44,10 @@ namespace Engine::ECS
 
 	void World::BegineFrame()
 	{
+		// 階層の変更通知をリセット
+		auto& _res = GetResource<HierarchyResource>();
+		_res.isDirty = false;
+
 		// システムのソート
 		m_systemManager.Sort();
 
@@ -47,9 +55,13 @@ namespace Engine::ECS
 		CreateAllEntity();
 
 		// エンティティの引っ越し
-		for (auto _chanCmd : m_changeEntityVec)
+		for (auto& _chanCmd : m_changeEntityVec)
 		{
 			ChangeSigneture(_chanCmd);
+
+			// エンティティの変更があったため階層の変更を通知する
+			auto& _res = GetResource<HierarchyResource>();
+			_res.isDirty = true;
 		}
 		m_changeEntityVec.clear();
 
@@ -153,6 +165,10 @@ namespace Engine::ECS
 		for (auto& _sig : m_addEntityVec)
 		{
 			CreateEntity(_sig);
+
+			// エンティティの追加があったため階層の変更を通知する
+			auto& _res = GetResource<HierarchyResource>();
+			_res.isDirty = true;
 		}
 		m_addEntityVec.clear();
 	}
@@ -166,6 +182,10 @@ namespace Engine::ECS
 		for (auto& _entity : m_removeEntityVec)
 		{
 			RemoveEntity(_entity);
+
+			// エンティティの追加があったため階層の変更を通知する
+			auto& _res = GetResource<HierarchyResource>();
+			_res.isDirty = true;
 		}
 
 		// 空にする

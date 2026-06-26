@@ -9,11 +9,11 @@
 #include "../../../../../Engine/Particle/ParticleBufferManager.h"
 
 #include "../../../../Components/Resource/ParticlesComponent.h"
-#include "../../../../Components/Transform/TransformComponent.h"
+#include "../../../../Components/Transform/LocalTransformComponent.h"
 
 void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const ParticlesComponent, const TransformComponent>(
+	a_world.ActiveTask<const ParticlesComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::Draw,
 		"EmittParticleSystem",
 		[]
@@ -23,7 +23,7 @@ void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 			float a_dt,
 			ActiveTag* a_tags,
 			const ParticlesComponent* a_particleArray,
-			const TransformComponent* a_transArray
+			const LocalTransformComponent* a_transArray
 			)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)

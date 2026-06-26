@@ -6,11 +6,11 @@
 #include "../../../../Components/Resource/NodePoseComponent.h"
 #include "../../../../Components/Resource/ModelComponent.h"
 
-#include "Application/Components/Transform/TransformComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
 
 void CalccTransformFromExoskeletonSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const ExoskeletonAttachmentComponent, TransformComponent>(
+	a_world.ActiveTask<const ExoskeletonAttachmentComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
 		"CalccTransformFromExoskeletonSystem",
 		[&a_world]
@@ -20,16 +20,16 @@ void CalccTransformFromExoskeletonSystem::Init(Engine::ECS::World& a_world)
 			float a_dt,
 			ActiveTag* a_tags,
 			const ExoskeletonAttachmentComponent* a_exoArray,
-			TransformComponent* a_transArray
+			LocalTransformComponent* a_transArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const ExoskeletonAttachmentComponent& _exoComp = a_exoArray[_i];
-				TransformComponent& _trsComp = a_transArray[_i];
+				LocalTransformComponent& _trsComp = a_transArray[_i];
 
 				// 親のトランスフォームを取得
-				auto* _pParentTrans = a_world.RefData<TransformComponent>(_exoComp.parentID);
+				auto* _pParentTrans = a_world.RefData<LocalTransformComponent>(_exoComp.parentID);
 				if (!_pParentTrans) continue;
 
 				// 親のノード配列を取得

@@ -11,7 +11,7 @@
 #include "Application/Components/Collision/Collider.h"
 #include "Application/Components/Collision/RayCollider.h"
 #include "Application/Components/Collision/SphreCollider.h"
-#include "Application/Components/Transform/TransformComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
 

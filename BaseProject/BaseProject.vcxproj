@@ -266,10 +266,10 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixFromLocalSystem\CommitWorldMatrixFromLocalSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.cpp" />
@@ -469,8 +469,8 @@
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\StartTag.h" />
     <ClInclude Include="Source\Application\Components\Transform\LocalTransformComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\PreviousWorldMatrixComponent.h" />
-    <ClInclude Include="Source\Application\Components\Transform\TransformComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
+    <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
     <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />
     <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Source\Application\Scene\SceneManager.h" />
@@ -505,10 +505,10 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixFromLocalSystem\CommitWorldMatrixFromLocalSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.h" />

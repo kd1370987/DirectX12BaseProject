@@ -5,7 +5,7 @@
 
 #include "ComponentEdit/ComponentEdit.h"
 
-#include "../../../Application/Components/Transform/TransformComponent.h"
+#include "../../../Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../Application/Components/Persistence/NameComponent.h"
 #include "../../../Application/Components/Hierarchy/HierarchyComponent.h"
 #include "../../../Application/Components/Persistence/GUIDComponent.h"
@@ -309,7 +309,7 @@ namespace Engine::Editor
 	{
 		
 		Engine::ECS::Signature _sig = {};
-		_sig.set(a_pWorld->GetCompTypeID(typeid(TransformComponent)));
+		_sig.set(a_pWorld->GetCompTypeID(typeid(LocalTransformComponent)));
 		a_pWorld->AddEntity(_sig);
 	}
 

@@ -4,7 +4,7 @@
 
 #include "../../ECS/World/World.h"
 #include "../../../Application/Components/Persistence/GUIDComponent.h"
-#include "../../../Application/Components/Transform/TransformComponent.h"
+#include "../../../Application/Components/Transform/LocalTransformComponent.h"
 
 namespace Engine::Persistence
 {
@@ -17,12 +17,12 @@ namespace Engine::Persistence
 
 		// GUIDを保有しているオブジェクトのみ収集
 		//_pWorld->ForEach<GUIDComponent>(
-		a_pWorld->ForEach<TransformComponent>(
+		a_pWorld->ForEach<LocalTransformComponent>(
 			[&a_pWorld,&_entityVec]
 			(
 				ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
-				TransformComponent* a_guidArray
+				LocalTransformComponent* a_guidArray
 			) 
 			{
 				for (size_t _i = 0; _i < a_count; ++_i)
