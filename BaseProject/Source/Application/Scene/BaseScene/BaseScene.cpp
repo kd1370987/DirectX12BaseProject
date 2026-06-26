@@ -87,6 +87,8 @@
 #include "../../Systems/Update/Update/Particle/ParticleEmitSystem/ParticleEmitSystem.h"
 #include "../../Systems/Init/PostDeserialize/ParticleFixupSystem/ParticleFixupSystem.h"
 
+// リソース関係
+#include "../../InstanceResource/HierarchyResource.h"
 
 BaseScene::BaseScene()
 {
@@ -270,6 +272,9 @@ void BaseScene::RegistryResource()
 	m_upWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
 	m_upWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 	m_upWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+
+	// シングルトンインスタンスの登録
+	m_upWorld->AddResource<HierarchyResource>();
 	
 	// 初期化
 	m_upWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);

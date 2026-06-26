@@ -30,8 +30,10 @@ namespace Engine::Collision
 	struct CollisionInstance
 	{
 		ECS::Entity entity = ECS::Limits::INVALID_ENTITY;	// エンティティID
-		Handle<Resource::Model> modelHandle = {};			// モデルのハンドル
 		DirectX::XMFLOAT4X4 worldMat = {};					// ワールド行列
+
+		//Handle<Resource::Model> modelHandle = {};			// モデルのハンドル
+		ColliderShape collShape = {};						// 形状登録
 
 		// モデル全体のAABBをワールド空間に変換したボックス
 		DirectX::BoundingBox worldAABB = {};
