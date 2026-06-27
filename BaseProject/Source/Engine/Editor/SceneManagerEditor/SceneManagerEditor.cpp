@@ -105,6 +105,20 @@ namespace Engine::Editor
 			{
 				if (ImGui::Selectable(_sceneMeta.fileName.c_str(), m_currentSceneGUID == _sceneMeta.guid))
 				{
+
+					// 現在のシーンを取得
+					auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
+					if (!_pScene)
+					{
+						ENGINE_LOG("シーンのセーブに失敗しました");
+						return;
+					}
+					// 現在のシーンをセーブ
+					SaveScene(m_currentSceneGUID);
+					// 初期化
+					_pScene->Enter();
+
+					// シーンの読み込み
 					LoadScene(_sceneMeta.guid);
 					ENGINE_LOG("シーンを読み込みました : %s",_sceneMeta.fileName.c_str());
 
