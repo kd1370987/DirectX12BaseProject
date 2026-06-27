@@ -12,6 +12,7 @@ namespace Engine::Editor
 	class EditorCamera;
 	class WatchView;
 	class RenderGraphResourceView;
+	class SceneManagerEditor;
 
 	//=======================================================================
 	// 
@@ -107,6 +108,11 @@ namespace Engine::Editor
 
 		// 計測機
 		std::unique_ptr<WatchView> m_upWatchView = nullptr;
+
+		// シーンマネージャー
+		std::unique_ptr<SceneManagerEditor> m_upSceneManagerEditor = nullptr;
+
+
 
 		// デバッグ描画用データ
 		std::vector<Graphics::DebugLineData> m_debugLineDataVec = {};

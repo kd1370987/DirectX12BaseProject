@@ -24,8 +24,10 @@ struct Engine::ECS::ComponentTraits<LocalTransformComponent>
 	static void Edit(void* a_pData) 
 	{
 		LocalTransformComponent& _comp = Engine::Editor::GetValue<LocalTransformComponent>(a_pData);
-		ImGui::DragFloat3("Position", &_comp.pos.x);
-		ImGui::DragFloat3("Quaternion", &_comp.quat.x);
-		ImGui::DragFloat3("Scale", &_comp.scale.x);
+		bool _isEdit = false;
+		_isEdit |= ImGui::DragFloat3("Position", &_comp.pos.x);
+		_isEdit |= ImGui::DragFloat4("Quaternion", &_comp.quat.x);
+		_isEdit |= ImGui::DragFloat3("Scale", &_comp.scale.x);
+		_comp.isDirty |= _isEdit;
 	}
 };

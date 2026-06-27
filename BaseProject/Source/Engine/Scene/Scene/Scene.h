@@ -33,10 +33,6 @@ namespace Engine::Scene
 		/// </summary>
 		void Draw();
 
-		// 保存・復元
-		void  Archive(Persistence::Archive& a_ar);
-
-
 		Engine::ECS::World* RefWorld() { return m_upWorld.get(); }
 
 	protected:

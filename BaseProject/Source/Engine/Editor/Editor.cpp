@@ -19,6 +19,7 @@
 
 #include "../Graphics/GraphicEngine.h"
 #include "../Graphics/RenderContext/RenderContext.h"
+#include "SceneManagerEditor/SceneManagerEditor.h"
 
 namespace Engine::Editor
 {
@@ -73,6 +74,11 @@ namespace Engine::Editor
 			m_upWatchView = std::make_unique<WatchView>();
 			m_upWatchView->Init();
 		}
+		if (!m_upSceneManagerEditor)
+		{
+			m_upSceneManagerEditor = std::make_unique<SceneManagerEditor>();
+			m_upSceneManagerEditor->Init();
+		}
 
 		return true;
 	}
@@ -101,6 +107,8 @@ namespace Engine::Editor
 			_opManager.DrawEdit();
 		}
 		ImGui::End();
+
+		m_upSceneManagerEditor->Draw();
 
 		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);

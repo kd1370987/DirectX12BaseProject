@@ -988,6 +988,9 @@
     <Filter Include="Source\Engine\Scene\BaseScene">
       <UniqueIdentifier>{0009b5d3-74c5-415c-a54e-d2c2c06d0d4c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Scene\Scene">
+      <UniqueIdentifier>{aeca6bba-4160-4825-ac2a-fee974034c68}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1559,6 +1562,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Scene\BaseScene\BaseScene.cpp">
       <Filter>Source\Engine\Scene\BaseScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Scene\Scene\Scene.cpp">
+      <Filter>Source\Engine\Scene\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2413,6 +2419,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h">
       <Filter>Source\Engine\Scene\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Scene\Scene\Scene.h">
+      <Filter>Source\Engine\Scene\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Scene\BaseScene\BaseScene.h">
       <Filter>Source\Engine\Scene\BaseScene</Filter>

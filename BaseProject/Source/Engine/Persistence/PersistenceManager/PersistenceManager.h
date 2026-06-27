@@ -15,5 +15,6 @@ namespace Engine::Persistence
 		void SceneSave(ECS::World* a_pWorld, std::string a_path);
 		void SceneLoad(ECS::World* a_pWorld, std::string a_path);
 
+		void SceneArchive(ECS::World* a_pWorld, Archive& a_ar);
 	};
 }

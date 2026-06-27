@@ -405,6 +405,7 @@
     <ClCompile Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Scene\BaseScene\BaseScene.cpp" />
     <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp" />
+    <ClCompile Include="Source\Engine\Scene\Scene\Scene.cpp" />
     <ClCompile Include="Source\Engine\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Engine\Time\FPSController\FPSController.cpp" />
     <ClCompile Include="Source\Engine\Time\TimeManager.cpp" />
@@ -690,6 +691,7 @@
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.h" />
     <ClInclude Include="Source\Engine\Scene\BaseScene\BaseScene.h" />
     <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h" />
+    <ClInclude Include="Source\Engine\Scene\Scene\Scene.h" />
     <ClInclude Include="Source\Engine\Time\DeltaTime\DeltaTime.h" />
     <ClInclude Include="Source\Engine\Time\FPSController\FPSController.h" />
     <ClInclude Include="Source\Engine\Time\TimeManager.h" />

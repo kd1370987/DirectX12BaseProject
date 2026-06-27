@@ -72,6 +72,9 @@ namespace Engine::Persistence
 		void GUIDField(const std::string& a_name,Engine::GUID& a_guid);
 		void GUIDVectorField(const std::string& a_name, std::vector<Engine::GUID>& a_guid);
 
+		// モード取得
+		Mode GetMode() const { return m_mode; }
+
 	private:
 		// 実行モード
 		Mode m_mode;
