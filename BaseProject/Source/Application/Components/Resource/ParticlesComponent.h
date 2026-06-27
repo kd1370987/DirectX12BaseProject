@@ -23,66 +23,6 @@ struct ParticlesComponent
 	float time = 0.0f;					// 経過時間
 	
 	bool isBillboard = true;			// ビルボードするかどうか
-
-
-	static void Serialize(const void* a_ptr, nlohmann::json& a_json)
-	{
-		auto* _comp = static_cast<const ParticlesComponent*>(a_ptr);
-		Engine::JSONHelper::SetValue("particleCount",a_json,_comp->particleCount);
-		Engine::JSONHelper::SetValue("particleGUID",a_json,_comp->particleGUID);
-		Engine::JSONHelper::SetValue("posOffset",a_json,_comp->posOffset);
-		Engine::JSONHelper::SetValue("rotation",a_json,_comp->rotation);
-		Engine::JSONHelper::SetValue("scale",a_json,_comp->scale);
-		Engine::JSONHelper::SetValue("isBillboard",a_json,_comp->isBillboard);
-
-	}
-
-	static void Deserialize(void* a_ptr, const nlohmann::json& a_json)
-	{
-		auto* _comp = static_cast<ParticlesComponent*>(a_ptr);
-		Engine::GUID _defaultGUID;
-		_comp->particleCount = Engine::JSONHelper::GetValue("particleCount", a_json, 0);
-		_comp->particleGUID = Engine::JSONHelper::GetValue("particleGUID", a_json, _defaultGUID);
-		_comp->posOffset = Engine::JSONHelper::GetValue("posOffset", a_json, DirectX::XMFLOAT3({ 0,0,0 }));
-		_comp->rotation = Engine::JSONHelper::GetValue("rotation", a_json, DirectX::XMFLOAT3({ 0,0 ,0 }));
-		_comp->scale = Engine::JSONHelper::GetValue("scale", a_json, DirectX::XMFLOAT2({ 0,0 }));
-		_comp->isBillboard = Engine::JSONHelper::GetValue("isBillboard", a_json, true);
-	}
-
-	static void Edit(void* a_data)
-	{
-		using namespace Engine;
-		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_data);
-
-		ImGui::Text("Parameter");
-		ImGui::DragInt("ParticleNum",&_comp.particleCount,1,0);
-		ImGui::DragFloat3("Dir", &_comp.rotation.x, 0.1f, 0.0f);
-
-
-		ImGui::Separator();
-
-		Editor::Helper::DrawHandle(_comp.particlesAssetHandle);
-
-		ImGui::Separator();
-
-		// パーティクル選択
-		if (ImGui::BeginCombo("Change Particle", "Select..."))
-		{
-			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("ParticlesAsset"))
-			{
-				// 現在のステートマシンと同じGUIDなら選択中フラグを立てる
-				bool _selected = (_comp.particleGUID == _prop.guid);
-
-				// 選択欄
-				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
-				{
-					_comp.particlesAssetHandle = Resource::ResourceManager::Instance().GetCache<Resource::ParticlesAsset>(_prop.guid);
-					_comp.particleGUID = _prop.guid;
-				}
-			}
-			ImGui::EndCombo();
-		}
-	}
 };
 
 
