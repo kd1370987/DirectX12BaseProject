@@ -1,7 +1,7 @@
 ﻿#include "SceneManagerEditor.h"
 
 #include "../../../Application/App.h"
-#include "../../../Application/Scene/SceneManager.h"
+#include "Engine/Scene/SceneManager/SceneManager.h"
 
 #include "../../MainEngine.h"
 
@@ -79,7 +79,7 @@ namespace Engine::Editor
 			}
 
 			// 現在のシーンを取得
-			auto* _pScene = SceneManager::Instance().GetCurrentTopScene();
+			auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
 			if (!_pScene)
 			{
 				// シーンが見つからなかったとき

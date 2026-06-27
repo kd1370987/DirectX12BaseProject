@@ -1,7 +1,7 @@
 ﻿#pragma once
 namespace Engine::Editor::Helper
 {
-	void DrawMatrix(const DXSM::Matrix& a_mat);
+	void DrawMatrix(DirectX::XMFLOAT4X4& a_mat);
 	void DrawMatrixForPOS_ROT_SCALE(const std::string& a_name,DXSM::Matrix& a_mat);
 
 	// クォータニオンンを引き込んでディグリーの
@@ -26,6 +26,14 @@ namespace Engine::Editor::Helper
 		ImGui::Text("Handle : id = %d", static_cast<int>(a_handle.id));
 		ImGui::Text("index = %d", static_cast<int>(a_handle.GetIndex()));
 		ImGui::Text("generation = %d",static_cast<int>(a_handle.GetGeneration()));
+	}
+
+	template<typename T>
+	void DrawHandle(const RangeHandle<T>& a_handle)
+	{
+		ImGui::Text("Handle : generation = %d", static_cast<int>(a_handle.generation));
+		ImGui::Text("startIndex = %d", static_cast<int>(a_handle.startIndex));
+		ImGui::Text("count = %d", static_cast<int>(a_handle.count));
 	}
 }
 

@@ -39,3 +39,22 @@ struct HierarchyComponent
 		ImGui::Text("Depth : %d",_comp.depth);
 	}
 };
+
+template<>
+struct Engine::ECS::ComponentTraits<HierarchyComponent>
+{
+	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
+	{
+		HierarchyComponent& _comp = Engine::Editor::GetValue<HierarchyComponent>(a_pData);
+		a_ar.Field("parentGUID", _comp.parentGUID);
+		a_ar.Field("depth", _comp.depth);
+	}
+
+	static void Edit(void* a_pData)
+	{
+		HierarchyComponent& _comp = Engine::Editor::GetValue<HierarchyComponent>(a_pData);
+		ImGui::Text("ParentGUID : %s", _comp.parentGUID.String().c_str());
+		ImGui::Text("ParentID : %d", _comp.parentID);
+		ImGui::Text("Depth : %d", _comp.depth);
+	}
+};

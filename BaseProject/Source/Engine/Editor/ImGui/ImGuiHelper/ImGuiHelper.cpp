@@ -1,5 +1,26 @@
 ﻿#include "ImGuiHelper.h"
 
+void Engine::Editor::Helper::DrawMatrix(DirectX::XMFLOAT4X4& a_mat)
+{
+	float* m = reinterpret_cast<float*>(a_mat.m);
+
+	for (int row = 0; row < 4; ++row)
+	{
+		ImGui::Text("M%d", row);
+		ImGui::SameLine();
+
+		ImGui::PushID(row);
+		ImGui::DragFloat4(
+			"##Value",
+			&m[row * 4],
+			0.01f,
+			-FLT_MAX,
+			FLT_MAX,
+			"%.3f");
+		ImGui::PopID();
+	}
+}
+
 void Engine::Editor::Helper::DrawMatrixForPOS_ROT_SCALE(const std::string& a_name, DXSM::Matrix& a_mat)
 {
 	// 行列の分解

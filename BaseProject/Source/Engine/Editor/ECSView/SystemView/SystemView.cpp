@@ -1,6 +1,6 @@
 ﻿#include "SystemView.h"
 
-#include "Application/Scene/SceneManager.h"
+#include "Engine/Scene/SceneManager/SceneManager.h"
 #include "Engine/ECS/World/World.h"
 
 namespace Engine::Editor
@@ -10,7 +10,7 @@ namespace Engine::Editor
 
 	void SystemView::Draw(UINT a_width, UINT a_height)
 	{
-		Engine::ECS::World* _pWorld = SceneManager::Instance().RefWorld();
+		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld || !_pWorld->IsInit())
 			return;
 

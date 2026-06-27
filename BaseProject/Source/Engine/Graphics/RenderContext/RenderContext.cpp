@@ -16,7 +16,7 @@
 
 #include "../../Editor/SceneView/EditorCamera/EditorCamera.h"
 
-#include "../../../Application/Scene/SceneManager.h"
+#include "Engine/Scene/SceneManager/SceneManager.h"
 
 #include "../../ECS/World/World.h"
 
@@ -572,7 +572,7 @@ namespace Engine::Graphics
 		}
 
 		// ボーン行列の更新
-		auto* _pCurrentWorld = SceneManager::Instance().RefWorld();
+		auto* _pCurrentWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (_pCurrentWorld->HasResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>())
 		{
 			auto& _boneMatPool = _pCurrentWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();

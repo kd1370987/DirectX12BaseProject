@@ -12,10 +12,8 @@ namespace Engine::Persistence
 	public:
 		
 		// シーン単位での保存・読み込み
-		void SeceneSerialize(ECS::World* a_pWorld,std::string a_path);
-		void SeceneDeserialize(ECS::World* a_pWorld,std::string a_path);
-
-	private:
+		void SceneSave(ECS::World* a_pWorld, std::string a_path);
+		void SceneLoad(ECS::World* a_pWorld, std::string a_path);
 
 	};
 }

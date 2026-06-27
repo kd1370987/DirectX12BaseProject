@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "../BaseScene/BaseScene.h"
+#include "Engine/Scene/BaseScene/BaseScene.h"
 
-class TitleScene : public BaseScene
+class TitleScene : public Engine::Scene::BaseScene
 {
 public:
 

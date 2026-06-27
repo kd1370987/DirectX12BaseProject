@@ -2,7 +2,7 @@
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "../SceneManager.h"
+#include "Engine/Scene/SceneManager/SceneManager.h"
 
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
@@ -71,7 +71,8 @@ void GameScene::Event()
 	if (Engine::Input::InputManager::Instance().IsPress("Save"))
 	{
 		Engine::Persistence::PersistenceManager _pers = {};
-		_pers.SeceneSerialize(m_upWorld.get(), "Asset/Data/Scene/GameScene_01.json");
+		//_pers.SeceneSerialize(m_upWorld.get(), "Asset/Data/Scene/GameScene_01.json");
+		_pers.SceneSave(m_upWorld.get(), "Asset/Data/Scene/GameScene.scene");
 	}
 }
 
@@ -141,7 +142,8 @@ void GameScene::RegistryEntity()
 	BaseScene::RegistryEntity();
 
 	Engine::Persistence::PersistenceManager _pers = {};
-	_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
+	//_pers.SeceneDeserialize(m_upWorld.get(),"Asset/Data/Scene/GameScene_01.json");
+	_pers.SceneLoad(m_upWorld.get(),"Asset/Data/Scene/GameScene.scene");
 
 	if(false)
 	{

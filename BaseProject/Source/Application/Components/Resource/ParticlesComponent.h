@@ -84,3 +84,54 @@ struct ParticlesComponent
 		}
 	}
 };
+
+
+template<>
+struct Engine::ECS::ComponentTraits<ParticlesComponent>
+{
+	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
+	{
+		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_pData);
+		a_ar.Field("particleCount",_comp.particleCount);
+		a_ar.Field("particleGUID",_comp.particleGUID);
+		a_ar.Field("posOffset",_comp.posOffset);
+		a_ar.Field("rotation",_comp.rotation);
+		a_ar.Field("scale",_comp.scale);
+		a_ar.Field("isBillboard",_comp.isBillboard);
+	}
+
+	static void Edit(void* a_pData)
+	{
+		using namespace Engine;
+		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_pData);
+
+		ImGui::Text("Parameter");
+		ImGui::DragInt("ParticleNum", &_comp.particleCount, 1, 0);
+		ImGui::DragFloat3("Dir", &_comp.rotation.x, 0.1f, 0.0f);
+
+
+		ImGui::Separator();
+
+		Editor::Helper::DrawHandle(_comp.particlesAssetHandle);
+
+		ImGui::Separator();
+
+		// パーティクル選択
+		if (ImGui::BeginCombo("Change Particle", "Select..."))
+		{
+			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("ParticlesAsset"))
+			{
+				// 現在のステートマシンと同じGUIDなら選択中フラグを立てる
+				bool _selected = (_comp.particleGUID == _prop.guid);
+
+				// 選択欄
+				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
+				{
+					_comp.particlesAssetHandle = Resource::ResourceManager::Instance().GetCache<Resource::ParticlesAsset>(_prop.guid);
+					_comp.particleGUID = _prop.guid;
+				}
+			}
+			ImGui::EndCombo();
+		}
+	}
+};

@@ -70,3 +70,47 @@ struct StateMachineComponent
 		}
 	}
 };
+
+template<>
+struct Engine::ECS::ComponentTraits<StateMachineComponent>
+{
+	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
+	{
+		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_pData);
+		a_ar.Field("stateMachineGUID",_comp.stateMachineGUID);
+
+	}
+
+	static void Edit(void* a_pData)
+	{
+		using namespace Engine;
+		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_pData);
+
+		// ステートマシンの選択
+		if (ImGui::BeginCombo("Change StateMachin", "Select..."))
+		{
+			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("StateMachinAsset"))
+			{
+				// 現在のステートマシンと同じGUIDなら選択中フラグを立てる
+				bool _selected = (_comp.stateMachineGUID == _prop.guid);
+
+				// 選択欄
+				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
+				{
+					_comp.stateMachineHandle = Resource::ResourceManager::Instance().Load<Resource::StateMachineAsset>(_prop.guid);
+					_comp.stateMachineGUID = _prop.guid;
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		// 現在のステートを表示
+		const auto* _sm = Resource::ResourceManager::Instance().Get(_comp.stateMachineHandle);
+		if (_sm)
+		{
+			std::string_view _nodeName = _sm->GetNodeName(_comp.currentStateHash);
+			std::string _nodeNameStr(_sm->GetNodeName(_comp.currentStateHash));
+			ImGui::Text("Current Node : %s", _nodeNameStr.c_str());
+		}
+	}
+};

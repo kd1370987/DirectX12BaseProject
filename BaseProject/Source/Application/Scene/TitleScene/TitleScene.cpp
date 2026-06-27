@@ -1,12 +1,12 @@
 ﻿#include "TitleScene.h"
 
-#include "../SceneManager.h"
+#include "Engine/Scene/SceneManager/SceneManager.h"
 
 void TitleScene::Event()
 {
 	if (GetAsyncKeyState('E'))
 	{
-		SceneManager::Instance().SetNextScene(SceneType::Game,SceneChangeType::Replace);
+		Engine::Scene::SceneManager::Instance().SetNextScene(SceneType::Game, Engine::Scene::SceneChangeType::Replace);
 	}
 }
 

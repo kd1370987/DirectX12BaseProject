@@ -76,3 +76,27 @@ inline bool HasLayer(Layer value, Layer test)
 }
 
 // 形状情報、質量。動く、動かない。衝突時の挙動などは持たせない。
+template<>
+struct Engine::ECS::ComponentTraits<ColliderComponent>
+{
+	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
+	{
+		ColliderComponent& _comp = Engine::Editor::GetValue<ColliderComponent>(a_pData);
+		a_ar.Field("layer", _comp.layer);
+		a_ar.Field("collideLayer", _comp.collideLayer);
+		a_ar.Field("isPhysical", _comp.isPhysical);
+	}
+
+	static void Edit(void* a_pData)
+	{
+		using namespace Engine;
+		ColliderComponent& _comp = Engine::Editor::GetValue<ColliderComponent>(a_pData);
+		Editor::DrawEnumCombo("MyLayer", _comp.layer);
+		Editor::DrawEnumFlagsCombo("HItLayer", _comp.collideLayer);
+		bool _is = _comp.isPhysical != 0;
+		if (ImGui::Checkbox("IsPhysical", &_is))
+		{
+			_comp.isPhysical = _is ? 1u : 0u;
+		}
+	}
+};

@@ -38,8 +38,8 @@ namespace Engine::ECS
 	template<typename T>
 	struct ComponentTraits {
 		// コンポーネント側で特殊化されることを期待する
-		static void Archive(Engine::Persistence::Archive& a_ar, T& a_comp) = delete;
-		static void Edit(T& a_comp) = delete;
+		static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData) = delete;
+		static void Edit(void* a_pData) = delete;
 	};
 };
 

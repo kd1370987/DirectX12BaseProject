@@ -233,9 +233,7 @@
     <ClCompile Include="..\Library\imgui-docking\imgui_widgets.cpp" />
     <ClCompile Include="..\Library\imnodes-master\imnodes.cpp" />
     <ClCompile Include="Source\Application\App.cpp" />
-    <ClCompile Include="Source\Application\Scene\BaseScene\BaseScene.cpp" />
     <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp" />
-    <ClCompile Include="Source\Application\Scene\SceneManager.cpp" />
     <ClCompile Include="Source\Application\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp" />
@@ -405,6 +403,8 @@
     <ClCompile Include="Source\Engine\Resource\Loader\Texture\TextureLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.cpp" />
     <ClCompile Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.cpp" />
+    <ClCompile Include="Source\Engine\Scene\BaseScene\BaseScene.cpp" />
+    <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp" />
     <ClCompile Include="Source\Engine\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Engine\Time\FPSController\FPSController.cpp" />
     <ClCompile Include="Source\Engine\Time\TimeManager.cpp" />
@@ -473,9 +473,7 @@
     <ClInclude Include="Source\Application\Components\Transform\PreviousWorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
-    <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h" />
     <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h" />
-    <ClInclude Include="Source\Application\Scene\SceneManager.h" />
     <ClInclude Include="Source\Application\Scene\SceneType.h" />
     <ClInclude Include="Source\Application\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
@@ -690,6 +688,8 @@
     <ClInclude Include="Source\Engine\Resource\Loader\Texture\TextureLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.h" />
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.h" />
+    <ClInclude Include="Source\Engine\Scene\BaseScene\BaseScene.h" />
+    <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h" />
     <ClInclude Include="Source\Engine\Time\DeltaTime\DeltaTime.h" />
     <ClInclude Include="Source\Engine\Time\FPSController\FPSController.h" />
     <ClInclude Include="Source\Engine\Time\TimeManager.h" />

@@ -43,6 +43,12 @@ namespace Engine::Persistence
 		template<typename T>
 		void Field(const std::string& a_name,T& a_data);
 
+		/// <summary>
+		/// char型のシリアライズ関数
+		/// </summary>
+		template<size_t N>
+		void Field(const std::string& a_name, char(&a_value)[N]);
+
 		// 文字列型のシリアライズ
 		void StringField(const std::string& a_name, std::string& a_data);
 
@@ -123,6 +129,28 @@ namespace Engine::Persistence
 			{
 				BinaryHelper::Read(m_ifs, a_data);
 			}
+		}
+	}
+	template<size_t N>
+	inline void Archive::Field(const std::string& a_name, char(&a_value)[N])
+	{
+		// セーブ時
+		if (IsSaving())
+		{
+			// char配列から std::string に変換して既存の保存処理に流す
+			std::string _tempStr(a_value);
+			Field(a_name, _tempStr);
+		}
+		// ロード時
+		else
+		{
+			// 一旦 std::string として読み込む
+			std::string tempStr;
+			Field(a_name, tempStr);
+
+			// 安全にコピーし、終端文字を必ず入れる
+			size_t copied = tempStr.copy(a_value, N - 1);
+			a_value[copied] = '\0';
 		}
 	}
 	// 特殊化

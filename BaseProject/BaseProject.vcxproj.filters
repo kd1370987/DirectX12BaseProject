@@ -34,9 +34,6 @@
     <Filter Include="Source\Engine\Graphics\RenderContext">
       <UniqueIdentifier>{ac53ba98-b34c-40d7-aee4-ecaa9ee05c09}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Scene\BaseScene">
-      <UniqueIdentifier>{5554be73-f5da-4fc4-be59-54da30fffdcf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Scene\GameScene">
       <UniqueIdentifier>{d6e1e312-6f87-4c3f-93e0-b4e49cd079e9}</UniqueIdentifier>
     </Filter>
@@ -982,6 +979,15 @@
     <Filter Include="Source\Engine\Editor\SceneManagerEditor">
       <UniqueIdentifier>{742f777d-c126-4c74-8743-d5775192bc0d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Scene">
+      <UniqueIdentifier>{755dabe4-a9c8-4a68-b4d2-e97215ee814d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Scene\SceneManager">
+      <UniqueIdentifier>{0ecbb309-4990-4945-a4dc-ad988a186a3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Scene\BaseScene">
+      <UniqueIdentifier>{0009b5d3-74c5-415c-a54e-d2c2c06d0d4c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -995,12 +1001,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Scene\SceneManager.cpp">
-      <Filter>Source\Application\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Scene\BaseScene\BaseScene.cpp">
-      <Filter>Source\Application\Scene\BaseScene</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp">
       <Filter>Source\Application\Scene\GameScene</Filter>
@@ -1554,6 +1554,12 @@
     <ClCompile Include="Source\Engine\Editor\SceneManagerEditor\SceneManagerEditor.cpp">
       <Filter>Source\Engine\Editor\SceneManagerEditor</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp">
+      <Filter>Source\Engine\Scene\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Scene\BaseScene\BaseScene.cpp">
+      <Filter>Source\Engine\Scene\BaseScene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -1576,9 +1582,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Scene\SceneManager.h">
-      <Filter>Source\Application\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h">
       <Filter>Source\Application\Scene\GameScene</Filter>
@@ -1957,9 +1960,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.h">
       <Filter>Source\Engine\Persistence\PersistenceManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Scene\BaseScene\BaseScene.h">
-      <Filter>Source\Application\Scene\BaseScene</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h">
       <Filter>Source\Application\Components\Hierarchy</Filter>
@@ -2410,6 +2410,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\SceneManagerEditor\SceneManagerEditor.h">
       <Filter>Source\Engine\Editor\SceneManagerEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h">
+      <Filter>Source\Engine\Scene\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Scene\BaseScene\BaseScene.h">
+      <Filter>Source\Engine\Scene\BaseScene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

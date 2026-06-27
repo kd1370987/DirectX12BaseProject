@@ -1,6 +1,6 @@
 ﻿#include "ECSView.h"
 
-#include "Application/Scene/SceneManager.h"
+#include "Engine/Scene/SceneManager/SceneManager.h"
 #include "Engine/ECS/World/World.h"
 
 #include "ComponentEdit/ComponentEdit.h"
@@ -18,7 +18,7 @@ namespace Engine::Editor
 
 	void ECSView::Draw(UINT a_widht, UINT a_height)
 	{
-		Engine::ECS::World* _pWorld = SceneManager::Instance().RefWorld();
+		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld || !_pWorld->IsInit()) return;
 
 		// ヒエラルキー

@@ -2,7 +2,7 @@
 
 #include "Engine/MainEngine.h"
 
-#include "Scene/SceneManager.h"
+#include "Engine/Scene/SceneManager/SceneManager.h"
 
 #include "../Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "../Engine/Resource/Loader/Model/ModelLoader.h"
@@ -47,7 +47,7 @@ bool Application::Init()
 
 
 	// シーンの初期化
-	if (!SceneManager::Instance().Init())
+	if (!Engine::Scene::SceneManager::Instance().Init())
 	{
 		ENGINE_ERRLOG(false, "シーンマネージャの初期化に失敗");
 		return false;
@@ -60,7 +60,7 @@ void Application::Release()
 {
 	
 	// シーン解放
-	SceneManager::Instance().Release();
+	Engine::Scene::SceneManager::Instance().Release();
 
 	// エンジン解放
 	Engine::MainEngine::Instance().Release();
@@ -95,7 +95,7 @@ void Application::MainLoop()
 
 
 		// 更新
-		SceneManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
+		Engine::Scene::SceneManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
 		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop_Updatea");
 
 		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop_Draw");
@@ -103,7 +103,7 @@ void Application::MainLoop()
 		Engine::MainEngine::Instance().BeginDraw();				// 描画開始
 		{
 			// 通常描画
-			SceneManager::Instance().Draw(Engine::MainEngine::Instance().RefRenderContext());
+			Engine::Scene::SceneManager::Instance().Draw(Engine::MainEngine::Instance().RefRenderContext());
 		}
 		Engine::MainEngine::Instance().EndDraw();					// 描画終了
 		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop_Draw");

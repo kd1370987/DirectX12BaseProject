@@ -35,17 +35,19 @@ struct FocusParamComponent
 };
 
 template<>
-struct Engine::ECS::ComponentTraits<CameraParamComponent>
+struct Engine::ECS::ComponentTraits<FocusParamComponent>
 {
-	static void Serialize(Engine::Persistence::Archive& a_ar, FocusParamComponent& a_comp) {
-		a_ar.Field("focusDistance", a_comp.focusDistance);
-		a_ar.Field("focusRange", a_comp.focusRange);
-		a_ar.Field("focusBackRange", a_comp.focusBackRange);
+	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData) {
+		auto* _comp = static_cast<FocusParamComponent*>(a_pData);
+		a_ar.Field("focusDistance", _comp->focusDistance);
+		a_ar.Field("focusRange", _comp->focusRange);
+		a_ar.Field("focusBackRange", _comp->focusBackRange);
 	}
 
-	static void Edit(FocusParamComponent& a_comp) {
-		ImGui::DragFloat("ForcusDistance", &a_comp.focusDistance);
-		ImGui::DragFloat("ForcusRange", &a_comp.focusRange);
-		ImGui::DragFloat("ForcusBackRange", &a_comp.focusBackRange);
+	static void Edit(void* a_pData) {
+		auto* _comp = static_cast<FocusParamComponent*>(a_pData);
+		ImGui::DragFloat("ForcusDistance", &_comp->focusDistance);
+		ImGui::DragFloat("ForcusRange", &_comp->focusRange);
+		ImGui::DragFloat("ForcusBackRange", &_comp->focusBackRange);
 	}
 };
