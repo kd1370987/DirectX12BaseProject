@@ -102,7 +102,8 @@ namespace Engine::Editor
 					// ヒエラルキーコンポーネントを持っているものは親がいるかチェック
 					if(a_pWorld->HasComponent<HierarchyComponent>(_entity))
 					{
-						if (ECS::Limits::INVALID_ENTITY != a_pWorld->RefData<HierarchyComponent>(_entity)->parentID)
+						auto* _pHieComp = a_pWorld->RefData<HierarchyComponent>(_entity);
+						if (_pHieComp->parentGUID != Engine::DefaultGUID)
 						{
 							continue;
 						}
@@ -247,6 +248,7 @@ namespace Engine::Editor
 		// 付与してデータを入れる
 		HierarchyComponent _newComp = {};
 		_newComp.parentGUID = _parentGUID;
+		_newComp.parentID = a_parent;
 		_newComp.depth = _depth;
 
 		if (a_pWorld->HasComponent<HierarchyComponent>(a_child))

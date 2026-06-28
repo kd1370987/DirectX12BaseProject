@@ -90,6 +90,15 @@
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
 
+// インプット
+#include "Engine/Input/InputCollector/InputCollector.h"
+#include "../../../Engine/Input/InputDevice/Axis/InputAxisForWindowsMouse/InputAxisForWindowsMouse.h"
+#include "../../../Engine/Input/InputDevice/Axis/InputAxisForWindows/InputAxisForWindows.h"
+#include "../../../Engine/Input/InputDevice/Axis/InputAxisForXInput/InputAxisForXInput.h"
+
+#include "../../../Engine/Input/InputDevice/Button/InputButtonForWindows/InputButtonForWindows.h"
+#include "../../../Engine/Input/InputDevice/Button/InputButtonForXInput/InputButtonForXInput.h"
+
 namespace Engine::Scene
 {
 	BaseScene::BaseScene()
@@ -100,8 +109,6 @@ namespace Engine::Scene
 
 	void BaseScene::Enter()
 	{
-		SetSceneType();
-
 		// ワールド作成
 		m_upWorld = std::make_unique<Engine::ECS::World>();
 		m_upWorld->Init();
@@ -112,15 +119,53 @@ namespace Engine::Scene
 		RegistrySystem();
 		RegistryEntity();
 
-		// シーン初期化
-		Init();
+		// キーボード
+		{
+			Engine::Input::InputCollector _keyboard;
+			Engine::Input::InputButtonForWindows _add('T');
+			_keyboard.AddButton("Add", std::make_shared<Engine::Input::InputButtonForWindows>(_add));
+			Engine::Input::InputButtonForWindows _save('K');
+			_keyboard.AddButton("Save", std::make_shared<Engine::Input::InputButtonForWindows>(_save));
 
-		m_upWorld->RunSystem(Engine::ECS::ESystemType::Init, 0.0f);
+			// 移動
+			Engine::Input::InputAxisForWindows _move('W', 'D', 'S', 'A');
+			_keyboard.AddAxis("Move", std::make_shared<Engine::Input::InputAxisForWindows>(_move));
+			// ジャンプ
+			Engine::Input::InputButtonForWindows _jump(VK_SPACE);
+			_keyboard.AddButton("Jump", std::make_shared<Engine::Input::InputButtonForWindows>(_jump));
+			// ブースト
+			Engine::Input::InputButtonForWindows _boost(VK_LSHIFT);
+			_keyboard.AddButton("Boost", std::make_shared<Engine::Input::InputButtonForWindows>(_boost));
+			// 視点
+			Engine::Input::InputAxisForWindows _look(VK_UP, VK_RIGHT, VK_DOWN, VK_LEFT);
+			_keyboard.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForWindows>(_look));
+
+			// テスト用ボタン
+			Engine::Input::InputButtonForWindows _test('T');
+			_keyboard.AddButton("Test", std::make_shared<Engine::Input::InputButtonForWindows>(_test));
+
+			Engine::Input::InputManager::Instance().AddDevice("Keyboard", std::make_unique<Engine::Input::InputCollector>(_keyboard));
+		}
+		// マウス
+		{
+			// 視点
+			Engine::Input::InputCollector _mouse;
+			_mouse.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForWindowsMouse>());
+
+			Engine::Input::InputManager::Instance().AddDevice("Mouse", std::make_unique<Engine::Input::InputCollector>(_mouse));
+		}
+		// コントローラー
+		{
+			//Engine::Input::InputCollector _cont;
+			//_cont.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForXInput>(0,false));
+			//_cont.AddAxis("Move", std::make_shared<Engine::Input::InputAxisForXInput>(0,true));
+
+			//Engine::Input::InputManager::Instance().AddDevice("Controller", std::make_unique<Engine::Input::InputCollector>(_cont));
+		}
 	}
 
 	void BaseScene::Exit()
 	{
-		Release();
 	}
 
 	void BaseScene::Update(float a_dt)
@@ -130,9 +175,7 @@ namespace Engine::Scene
 		// 解放処理と初期化処理も含まれているため、呼び出しはシングルスレッド限定
 		m_upWorld->BegineFrame();
 
-		// シーン特有処理
-		Event();
-
+		
 		// シーンのシステム処理
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Input, a_dt);
 

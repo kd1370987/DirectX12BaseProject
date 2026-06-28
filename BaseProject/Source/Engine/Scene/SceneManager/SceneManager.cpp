@@ -1,27 +1,21 @@
 ﻿#include "SceneManager.h"
 
 #include "../BaseScene/BaseScene.h"
-#include "Application/Scene/GameScene/GameScene.h"
-#include "Application/Scene/TitleScene/TitleScene.h"
 
 #include "Engine/MainEngine.h"
+
+#include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
+
 namespace Engine::Scene
 {
 	bool SceneManager::Init()
 	{
-		// シーン登録
-		RegisterScene<GameScene>(SceneType::Game);
-		RegisterScene<TitleScene>(SceneType::Title);
-
-		// 初回シーン
-		PushScene(SceneType::Game);
-
+		PushScene(Engine::GUID("b467bb54-09cf-4b59-93e9-87c7ba196050"));
 		return true;
 	}
 
 	void SceneManager::Release()
 	{
-		m_sceneCreateFuncMap.clear();
 		m_upBaseSceneVec.clear();
 	}
 
@@ -66,18 +60,27 @@ namespace Engine::Scene
 		}
 	}
 
-	void SceneManager::PushScene(const SceneType& a_sceneType)
+	void SceneManager::PushScene(const Engine::GUID& a_guid)
 	{
-		auto _it = m_sceneCreateFuncMap.find(a_sceneType);
-		if (_it == m_sceneCreateFuncMap.end())
+		// シーンの新規作成 : GUIDからロードする
+		auto _upScene = std::make_unique<BaseScene>();
+		std::string _sceneFilePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
+		if (_sceneFilePath.empty())
 		{
-			ENGINE_ERRLOG(false, "シーンは未登録です");
+			ENGINE_ERRLOG(false, "指定されたGUIDのシーンファイルが見つかりません");
 			return;
 		}
 
-		auto _upScene = _it->second();
+		// シーンの初期化
 		_upScene->Enter();
 
+		// シーンの再構築
+		auto _fileDir = FileUtility::GetDirFromPath(_sceneFilePath);
+		auto _fileName = FileUtility::GetFileNameWithoutExtension(_sceneFilePath);
+		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "scene");
+		_upScene->Archive(_ar);
+
+		// スタックに積む
 		m_upBaseSceneVec.push_back(std::move(_upScene));
 	}
 	void SceneManager::PopScene()
@@ -87,12 +90,13 @@ namespace Engine::Scene
 		m_upBaseSceneVec.back()->Exit();
 		m_upBaseSceneVec.pop_back();
 	}
-	void SceneManager::ReplaceScene(const SceneType& a_sceneType)
+	
+	void SceneManager::ReplaceScene(const Engine::GUID& a_guid)
 	{
 		if (m_upBaseSceneVec.empty()) return;
 
 		PopScene();
-		PushScene(a_sceneType);
+		PushScene(a_guid);
 	}
 
 	Engine::ECS::World* SceneManager::RefWorld()
@@ -105,9 +109,9 @@ namespace Engine::Scene
 		return m_upBaseSceneVec.back().get();
 	}
 
-	void SceneManager::SetNextScene(const SceneType& a_nextScene, const SceneChangeType& a_changeType)
+	void SceneManager::SetNextScene(const Engine::GUID& a_guid, const SceneChangeType& a_changeType)
 	{
-		m_sceneChangeCmd.push({ a_nextScene,a_changeType });
+		m_sceneChangeCmd.push({ a_guid,a_changeType });
 	}
 
 	void SceneManager::ChangeScenen()
@@ -119,13 +123,13 @@ namespace Engine::Scene
 			switch (_cmd.changeType)
 			{
 			case SceneChangeType::Puch:
-				PushScene(_cmd.type);
+				PushScene(_cmd.sceneGUID);
 				break;
 			case SceneChangeType::Pop:
 				PopScene();
 				break;
 			case SceneChangeType::Replace:
-				ReplaceScene(_cmd.type);
+				ReplaceScene(_cmd.sceneGUID);
 				break;
 			case SceneChangeType::Clear:
 				while (!m_upBaseSceneVec.empty())

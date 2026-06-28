@@ -169,6 +169,5 @@ namespace DXSM = DirectX::SimpleMath;
 //
 //===============================================
 
-#include "Application/AppInc.h"
 #include "Core/Core.h"
 #include "Engine/EngineCommon.h"

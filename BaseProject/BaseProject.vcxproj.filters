@@ -7,9 +7,6 @@
     <Filter Include="Source\Application">
       <UniqueIdentifier>{e7d1d0d0-6e19-4087-b425-de822a493622}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Scene">
-      <UniqueIdentifier>{71900a38-6984-4cc0-b114-42ddf8b9ce38}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine">
       <UniqueIdentifier>{b3bdf23e-a214-415a-bcfe-5e96e6dba00a}</UniqueIdentifier>
     </Filter>
@@ -33,9 +30,6 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderContext">
       <UniqueIdentifier>{ac53ba98-b34c-40d7-aee4-ecaa9ee05c09}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Scene\GameScene">
-      <UniqueIdentifier>{d6e1e312-6f87-4c3f-93e0-b4e49cd079e9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\ECS">
       <UniqueIdentifier>{12c35b8e-1beb-4790-a19a-e2272c7f4387}</UniqueIdentifier>
@@ -288,9 +282,6 @@
     </Filter>
     <Filter Include="Asset\Shader\Source\ForwardLightingShader">
       <UniqueIdentifier>{eb44b64b-2ec7-4517-8223-e7b0272a5244}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Scene\TitleScene">
-      <UniqueIdentifier>{bc9d74b2-f3b3-46ba-ba39-98cd9450c63d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Source\DebugLineShader">
       <UniqueIdentifier>{4fb4a89d-b31e-4a0a-bca6-899dcc27166e}</UniqueIdentifier>
@@ -1005,9 +996,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp">
-      <Filter>Source\Application\Scene\GameScene</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\App.cpp">
       <Filter>Source\Application</Filter>
     </ClCompile>
@@ -1139,9 +1127,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.cpp">
       <Filter>Source\Engine\Editor\ECSView\ComponentEdit</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Scene\TitleScene\TitleScene.cpp">
-      <Filter>Source\Application\Scene\TitleScene</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.cpp">
       <Filter>Source\Engine\Editor\AssetResourceView</Filter>
@@ -1589,15 +1574,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h">
-      <Filter>Source\Application\Scene\GameScene</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Scene\SceneType.h">
-      <Filter>Source\Application\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\AppInc.h">
-      <Filter>Source\Application</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\ECS\World\World.h">
       <Filter>Source\Engine\ECS\World</Filter>
     </ClInclude>
@@ -1831,9 +1807,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\UIComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Scene\TitleScene\TitleScene.h">
-      <Filter>Source\Application\Scene\TitleScene</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.h">
       <Filter>Source\Engine\Editor\AssetResourceView</Filter>

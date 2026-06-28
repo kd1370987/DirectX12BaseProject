@@ -233,8 +233,6 @@
     <ClCompile Include="..\Library\imgui-docking\imgui_widgets.cpp" />
     <ClCompile Include="..\Library\imnodes-master\imnodes.cpp" />
     <ClCompile Include="Source\Application\App.cpp" />
-    <ClCompile Include="Source\Application\Scene\GameScene\GameScene.cpp" />
-    <ClCompile Include="Source\Application\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.cpp" />
@@ -432,7 +430,6 @@
     <ClInclude Include="..\Library\imgui-docking\imstb_truetype.h" />
     <ClInclude Include="..\Library\imnodes-master\imnodes.h" />
     <ClInclude Include="Source\Application\App.h" />
-    <ClInclude Include="Source\Application\AppInc.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h" />
@@ -474,9 +471,6 @@
     <ClInclude Include="Source\Application\Components\Transform\PreviousWorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
-    <ClInclude Include="Source\Application\Scene\GameScene\GameScene.h" />
-    <ClInclude Include="Source\Application\Scene\SceneType.h" />
-    <ClInclude Include="Source\Application\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.h" />

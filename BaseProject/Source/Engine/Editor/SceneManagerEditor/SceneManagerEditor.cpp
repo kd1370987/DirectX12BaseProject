@@ -119,11 +119,9 @@ namespace Engine::Editor
 					_pScene->Enter();
 
 					// シーンの読み込み
-					LoadScene(_sceneMeta.guid);
+					Engine::Scene::SceneManager::Instance().SetNextScene(_sceneMeta.guid,Scene::SceneChangeType::Replace);
 					ENGINE_LOG("シーンを読み込みました : %s",_sceneMeta.fileName.c_str());
 
-					// 前回のシーンを記憶する処理を追加予定
-					
 					ImGui::CloseCurrentPopup();
 				}
 			}
@@ -148,7 +146,7 @@ namespace Engine::Editor
 				std::string _name = m_sceneNameInput;
 				if (!_name.empty())
 				{
-					std::string _filepath = "Asset/Scenes/" + _name + _name;
+					std::string _filepath = "Asset/Scenes/" + _name + "/" + _name;
 					// フォルダがなければ作成
 					std::filesystem::create_directories("Asset/Scenes/");
 

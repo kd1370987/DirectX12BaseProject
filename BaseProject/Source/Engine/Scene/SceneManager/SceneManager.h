@@ -24,11 +24,7 @@ namespace Engine::Scene
 		Clear		// 全消去
 	};
 
-	struct SceneChangeCmd
-	{
-		SceneType type = SceneType::None;
-		SceneChangeType changeType = SceneChangeType::Replace;
-	};
+
 
 	class SceneManager
 	{
@@ -37,10 +33,10 @@ namespace Engine::Scene
 		//------------------------------------------------------------------------------------------
 		// メイン処理
 		//------------------------------------------------------------------------------------------
-		bool Init();				// 初期化
-		void Release();				// 解放
-		void Update(float a_dt);	// 更新
-		void Draw(Engine::Graphics::RenderContext* a_pRCT);				// 描画
+		bool Init();										// 初期化
+		void Release();										// 解放
+		void Update(float a_dt);							// 更新
+		void Draw(Engine::Graphics::RenderContext* a_pRCT);	// 描画
 
 		//------------------------------------------------------------------------------------------
 		// シーンの切り替え
@@ -51,7 +47,7 @@ namespace Engine::Scene
 		/// </summary>
 		/// <param name="a_nextScene">切り替え先のシーンタイプ</param>
 		/// <param name="a_changeType">切り替え方法</param>
-		void SetNextScene(const SceneType& a_nextScene, const SceneChangeType& a_changeType);
+		void SetNextScene(const Engine::GUID& a_guid, const SceneChangeType& a_changeType);
 
 		//------------------------------------------------------------------------------------------
 		// 取得
@@ -74,18 +70,20 @@ namespace Engine::Scene
 		// シーン
 		//------------------------------------------------------------------------------------------
 		void ChangeScenen();								// フレームの初めにシーンの切り替えを実行する
-		void ReplaceScene(const SceneType& a_sceneType);	// シーンの切り替え
-		void PushScene(const SceneType& a_sceneType);		// シーンを重ねる
+		void ReplaceScene(const Engine::GUID& a_guid);		// シーンの切り替え
+		void PushScene(const Engine::GUID& a_guid);			// シーンを重ねる
 		void PopScene();									// 最前面のシーンを消去
-
-		template<typename Scene>
-		void RegisterScene(const SceneType& a_sceneType);	// シーンの登録
 
 	private:
 
+		struct SceneChangeCmd
+		{
+			Engine::GUID sceneGUID = Engine::DefaultGUID;
+			SceneChangeType changeType = SceneChangeType::Replace;
+		};
+
 		// シーンスタック
 		std::vector<std::unique_ptr<BaseScene>> m_upBaseSceneVec;
-		std::unordered_map<SceneType, std::function<std::unique_ptr<BaseScene>()>> m_sceneCreateFuncMap;
 		bool m_isOneUpdate = false;
 
 		// シーン切り替え命令スタック
@@ -105,14 +103,4 @@ namespace Engine::Scene
 			return _instance;
 		}
 	};
-
-	template<typename Scene>
-	inline void SceneManager::RegisterScene(const SceneType& a_sceneType)
-	{
-		// ベースシーンへ変換
-		// シーンがベースシーンを継承しているかのチェック
-		ENGINE_ERRLOG(std::is_base_of<BaseScene, Scene>::value, "ベースシーンへの変換に失敗しました");
-		// 登録
-		m_sceneCreateFuncMap[a_sceneType] = []() {return std::make_unique<Scene>(); };
-	}
 }

@@ -39,27 +39,15 @@ namespace Engine::Scene
 
 		Engine::ECS::World* RefWorld() { return m_upWorld.get(); }
 
-	protected:
-
-		// シーンタイプの設定
-		virtual void SetSceneType() = 0;
-
-		// シーンでの初期化・解放処理
-		virtual void Init() {};
-		virtual void Release() {};
+	private:
 
 		// シーンごとのECS設定
-		virtual void RegistryComponent();
-		virtual void RegistrySystem();
-		virtual void RegistryEntity();
-		virtual void RegistryResource();
+		void RegistryComponent();
+		void RegistrySystem();
+		void RegistryEntity();
+		void RegistryResource();
 
-		// シーン特有のイベント処理
-		virtual void Event() {};
-
-	protected:
-
-		SceneType m_sceneType;
+	private:
 
 		std::unique_ptr<Engine::ECS::World> m_upWorld = nullptr;
 	};
