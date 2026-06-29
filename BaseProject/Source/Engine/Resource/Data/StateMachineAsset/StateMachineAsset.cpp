@@ -6,7 +6,8 @@
 #include "../../Manager/ResourceManager/ResourceManager.h"
 
 #include "../../Loader/Model/ModelLoader.h"
-
+namespace Engine::Resource
+{
 UINT Engine::Resource::StateMachineAsset::GetStateHash(const std::string& a_stateName) const
 {
 	UINT _hash = StringUtility::ToHash(a_stateName);
@@ -1098,4 +1099,5 @@ void Engine::Resource::StateParameter::Archive(Persistence::Archive& a_arch)
 	a_arch.Field("defaultFloat", defaultFloat);
 	a_arch.Field("defaultInt", defaultInt);
 	a_arch.Field("defaultBool", defaultBool);
+}
 }

@@ -3,9 +3,11 @@
 #include "Engine/MainEngine.h"
 
 #include "Engine/Scene/SceneManager/SceneManager.h"
+#include "Game/GameManager/GameManager.h"
 
 #include "../Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "../Engine/Resource/Loader/Model/ModelLoader.h"
+
 
 //==================================================================================
 // 
@@ -45,13 +47,8 @@ bool Application::Init()
 	_config.Init(_initConfig,_runtimeConfig);
 	Engine::MainEngine::Instance().Init(_config);
 
-
-	// シーンの初期化
-	if (!Engine::Scene::SceneManager::Instance().Init())
-	{
-		ENGINE_ERRLOG(false, "シーンマネージャの初期化に失敗");
-		return false;
-	}
+	// ゲームの初期化
+	App::Game::GameManager::Instance().Init();
 
 	return true;
 }
@@ -77,6 +74,7 @@ void Application::MainLoop()
 	{
 		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop");
 		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop_Updatea");
+
 		// フレーム開始
 		if (!Engine::MainEngine::Instance().BegineFrame())
 		{
@@ -93,17 +91,22 @@ void Application::MainLoop()
 			Engine::MainEngine::Instance().ChangeMode(Engine::EAppMode::Game);
 		}
 
+		// ゲームの更新
+		App::Game::GameManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
 
-		// 更新
-		Engine::Scene::SceneManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
 		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop_Updatea");
 
 		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop_Draw");
+
 		// 描画
 		Engine::MainEngine::Instance().BeginDraw();				// 描画開始
 		{
-			// 通常描画
-			Engine::Scene::SceneManager::Instance().Draw(Engine::MainEngine::Instance().RefRenderContext());
+			// ゲームの描画
+			App::Game::GameManager::Instance().Draw();
+			// 命令の実行
+			Engine::Editor::MainEditor::Instance().StartWatch("RGDraw");
+			Engine::MainEngine::Instance().ExcuteDrawCmd();
+			Engine::Editor::MainEditor::Instance().EndWatch("RGDraw");
 		}
 		Engine::MainEngine::Instance().EndDraw();					// 描画終了
 		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop_Draw");

@@ -30,7 +30,7 @@ namespace Engine::Editor
 		void Release();
 
 		// 描画
-		void Draw(ID3D12GraphicsCommandList* a_pCmdList,UINT a_widht,UINT a_height);
+		void Draw(ID3D12GraphicsCommandList* a_pCmdList, UINT a_widht, UINT a_height);
 
 		const EditorCamera* GetEditorCamera();
 
@@ -41,12 +41,12 @@ namespace Engine::Editor
 		// ログの追加
 		// 文字列と可変引数でログを追加する関数
 		void AddLog(const char* a_fmt, ...);
-		void AddLogVector(const float* a_data,const size_t& a_size);
+		void AddLogVector(const float* a_data, const size_t& a_size);
 		// 行列をログに追加する関数
 		void AddLogMatrix(const std::string& a_name, const DirectX::XMFLOAT4X4& a_mat);
 
 		// 処理はおとさないが、不都合な処理が走った警告を出す用のログ
-		void WarningLog(const char* a_fmt,...);
+		void WarningLog(const char* a_fmt, ...);
 
 		// 処理を落とす際に呼び出す
 		void ErrorLog(const char* a_fmt, ...);
@@ -88,6 +88,11 @@ namespace Engine::Editor
 		void ClearBuffer();
 		const std::vector<Graphics::DebugLineData>& GetDebugLineDataVec() const;
 
+		//=======================================================================
+		// デバッグ描画関数登録
+		//=======================================================================
+		void RegisterEditFunc(std::function<void()> a_func);
+
 	private:
 
 		// ImGuiコンテキスト
@@ -112,7 +117,8 @@ namespace Engine::Editor
 		// シーンマネージャー
 		std::unique_ptr<SceneManagerEditor> m_upSceneManagerEditor = nullptr;
 
-
+		// エディター用関数登録
+		std::vector<std::function<void()>> m_editFuncVec = {};
 
 		// デバッグ描画用データ
 		std::vector<Graphics::DebugLineData> m_debugLineDataVec = {};

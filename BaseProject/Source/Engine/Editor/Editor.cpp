@@ -80,6 +80,8 @@ namespace Engine::Editor
 			m_upSceneManagerEditor->Init();
 		}
 
+		m_editFuncVec.clear();
+
 		return true;
 	}
 	void MainEditor::Release()
@@ -109,6 +111,13 @@ namespace Engine::Editor
 		ImGui::End();
 
 		m_upSceneManagerEditor->Draw();
+
+		// 各登録された関数を実行
+		for (auto _func : m_editFuncVec)
+		{
+			if (!_func) continue;
+			_func();
+		}
 
 		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);
@@ -359,5 +368,9 @@ namespace Engine::Editor
 	const std::vector<Graphics::DebugLineData>& MainEditor::GetDebugLineDataVec() const
 	{
 		return m_debugLineDataVec;
+	}
+	void MainEditor::RegisterEditFunc(std::function<void()> a_func)
+	{
+		m_editFuncVec.push_back(a_func);
 	}
 }

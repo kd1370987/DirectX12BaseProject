@@ -36,27 +36,35 @@ namespace Engine::Scene
 		else
 		{
 			// 最前面のみ更新
-			auto& _scene = m_upBaseSceneVec.back();
-			_scene->Update(a_dt);
+			if (!m_upBaseSceneVec.empty())
+			{
+				m_upBaseSceneVec.back()->Update(a_dt);
+			}
 		}
 
 
 	}
 
-	void SceneManager::Draw(Engine::Graphics::RenderContext* a_pRCT)
+	void SceneManager::Draw()
 	{
 		// すべてのシーンを描画
 		for (auto& _scene : m_upBaseSceneVec)
 		{
-			Engine::Editor::MainEditor::Instance().StartWatch("ECSDraw");
 			// 命令のスタック
 			_scene->Draw();
-			Engine::Editor::MainEditor::Instance().EndWatch("ECSDraw");
+		}
+	}
 
-			// 命令の実行
-			Engine::Editor::MainEditor::Instance().StartWatch("RGDraw");
-			Engine::MainEngine::Instance().ExcuteDrawCmd();
-			Engine::Editor::MainEditor::Instance().EndWatch("RGDraw");
+	void SceneManager::SetWorldInitCallback(std::function<void(Engine::ECS::World* a_pWorld)> a_callback)
+	{
+		m_worldInitCallback = a_callback;
+	}
+
+	void SceneManager::InvokeWorldInitCallback(Engine::ECS::World * a_pWorld)
+	{
+		if (m_worldInitCallback)
+		{
+			m_worldInitCallback(a_pWorld);
 		}
 	}
 

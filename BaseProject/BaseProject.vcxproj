@@ -233,6 +233,9 @@
     <ClCompile Include="..\Library\imgui-docking\imgui_widgets.cpp" />
     <ClCompile Include="..\Library\imnodes-master\imnodes.cpp" />
     <ClCompile Include="Source\Application\App.cpp" />
+    <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateMachine.cpp" />
+    <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.cpp" />
+    <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.cpp" />
@@ -470,6 +473,9 @@
     <ClInclude Include="Source\Application\Components\Transform\LocalTransformComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\PreviousWorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
+    <ClInclude Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateMachine.h" />
+    <ClInclude Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.h" />
+    <ClInclude Include="Source\Application\Game\GameManager\GameManager.h" />
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h" />

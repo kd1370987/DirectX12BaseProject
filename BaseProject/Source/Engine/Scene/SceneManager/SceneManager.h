@@ -36,7 +36,11 @@ namespace Engine::Scene
 		bool Init();										// 初期化
 		void Release();										// 解放
 		void Update(float a_dt);							// 更新
-		void Draw(Engine::Graphics::RenderContext* a_pRCT);	// 描画
+		void Draw();										// 描画
+
+		// コールバック処理
+		void SetWorldInitCallback(std::function<void(Engine::ECS::World* a_pWorld)> a_callback);	// セット
+		void InvokeWorldInitCallback(Engine::ECS::World* a_pWorld);									// 呼び出し
 
 		//------------------------------------------------------------------------------------------
 		// シーンの切り替え
@@ -89,6 +93,8 @@ namespace Engine::Scene
 		// シーン切り替え命令スタック
 		std::queue<SceneChangeCmd> m_sceneChangeCmd = {};
 
+		// ワールドを設定するためのコールバック関数
+		std::function<void(Engine::ECS::World* a_pWorld)> m_worldInitCallback = nullptr;
 
 	private:
 		// シングルトン化

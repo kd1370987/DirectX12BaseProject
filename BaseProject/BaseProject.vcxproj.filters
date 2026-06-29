@@ -982,6 +982,18 @@
     <Filter Include="Source\Engine\Scene\Scene">
       <UniqueIdentifier>{aeca6bba-4160-4825-ac2a-fee974034c68}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Game">
+      <UniqueIdentifier>{d122faeb-7505-4a06-b1dd-b8706c471fd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Game\GameManager">
+      <UniqueIdentifier>{832ec651-f260-4ec2-ab6f-650cea1844ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Game\GameFlowStateMachine">
+      <UniqueIdentifier>{07262730-dfea-426e-a951-80f2a6db29de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct">
+      <UniqueIdentifier>{1cca95e2-0a1a-4c04-afe5-247f4c0536ff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1550,6 +1562,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Scene\Scene\Scene.cpp">
       <Filter>Source\Engine\Scene\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp">
+      <Filter>Source\Application\Game\GameManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateMachine.cpp">
+      <Filter>Source\Application\Game\GameFlowStateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.cpp">
+      <Filter>Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2398,6 +2419,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Scene\BaseScene\BaseScene.h">
       <Filter>Source\Engine\Scene\BaseScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Game\GameManager\GameManager.h">
+      <Filter>Source\Application\Game\GameManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateMachine.h">
+      <Filter>Source\Application\Game\GameFlowStateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.h">
+      <Filter>Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
