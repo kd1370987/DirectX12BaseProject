@@ -2,6 +2,8 @@
 
 #include "Engine/Scene/SceneManager/SceneManager.h"
 #include "Engine/ECS/World/World.h"
+#include "../../MainEngine.h"
+#include "../../Graphics/GraphicEngine.h"
 
 #include "ComponentEdit/ComponentEdit.h"
 

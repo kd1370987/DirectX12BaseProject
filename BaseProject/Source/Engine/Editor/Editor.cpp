@@ -21,6 +21,9 @@
 #include "../Graphics/RenderContext/RenderContext.h"
 #include "SceneManagerEditor/SceneManagerEditor.h"
 
+#include "../Scene/SceneManager/SceneManager.h"
+#include "../ECS/World/World.h"
+
 namespace Engine::Editor
 {
 
@@ -97,11 +100,16 @@ namespace Engine::Editor
 		m_upAssetResourceView->Draw(a_widht, a_height);
 		m_upRenderGraphResourceView->Draw(a_widht,a_height);
 
-		// シーンビュー
-		SceneView::Draw();
-
 		// ECSビュー
 		m_upECSView->Draw(a_widht, a_height);
+
+
+		// シーンビュー
+		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
+		if (_pWorld && _pWorld->IsInit())
+		{
+			SceneView::Draw(m_upECSView->GetSelectEntity(), _pWorld);
+		}
 
 		// ログ表示
 		m_upLog->Draw("Log");

@@ -66,6 +66,7 @@ namespace Engine::Editor
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
+		ImGuizmo::BeginFrame();
 
 		// ウィンドウサイズをゲーム画面に合わせる
 		ImGui::SetNextWindowPos(ImVec2(0, 0));

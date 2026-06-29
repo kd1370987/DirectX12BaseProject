@@ -19,6 +19,8 @@ namespace Engine::Editor
 
 		void Draw(UINT a_widht, UINT a_height);
 
+		ECS::Entity GetSelectEntity() { return  m_currentEntity; }
+
 	private:
 
 		// ---- ヒエラルキー ----

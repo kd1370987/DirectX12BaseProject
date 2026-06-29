@@ -1,8 +1,17 @@
 ﻿#pragma once
 
+namespace Engine
+{
+	namespace ECS
+	{
+		class World;
+	}
+}
+
 namespace Engine::Editor
 {
 	class EditorCamera;
+	
 
 	class SceneView
 	{
@@ -14,7 +23,11 @@ namespace Engine::Editor
 
 		const EditorCamera* GetEditorCamera();
 
-		static void Draw();
+		static void Draw(const ECS::Entity& a_currentSelectEntity, Engine::ECS::World* a_pWorld);
+
+	private:
+
+		static void GuizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect,const ECS::Entity& a_currentSelectEntity, Engine::ECS::World* a_pWorld);
 
 	private:
 

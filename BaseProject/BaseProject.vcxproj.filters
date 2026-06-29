@@ -979,9 +979,6 @@
     <Filter Include="Source\Engine\Scene\BaseScene">
       <UniqueIdentifier>{0009b5d3-74c5-415c-a54e-d2c2c06d0d4c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Scene\Scene">
-      <UniqueIdentifier>{aeca6bba-4160-4825-ac2a-fee974034c68}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Game">
       <UniqueIdentifier>{d122faeb-7505-4a06-b1dd-b8706c471fd7}</UniqueIdentifier>
     </Filter>
@@ -1562,9 +1559,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Scene\BaseScene\BaseScene.cpp">
       <Filter>Source\Engine\Scene\BaseScene</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Scene\Scene\Scene.cpp">
-      <Filter>Source\Engine\Scene\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp">
       <Filter>Source\Application\Game\GameManager</Filter>
@@ -2419,9 +2413,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h">
       <Filter>Source\Engine\Scene\SceneManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Scene\Scene\Scene.h">
-      <Filter>Source\Engine\Scene\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Scene\BaseScene\BaseScene.h">
       <Filter>Source\Engine\Scene\BaseScene</Filter>
