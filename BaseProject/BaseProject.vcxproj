@@ -385,7 +385,9 @@
     <ClCompile Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\ShadingModelAsset\ShadingModelAsset.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\TechniqueAsset\TechniqueAsset.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Material\MaterialLoader.cpp" />
@@ -619,6 +621,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h" />
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.h" />
@@ -668,7 +671,9 @@
     <ClInclude Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.h" />
     <ClInclude Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\ShadingModelAsset\ShadingModelAsset.h" />
     <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\TechniqueAsset\TechniqueAsset.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Vertex\Vertex.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.h" />

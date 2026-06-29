@@ -994,6 +994,12 @@
     <Filter Include="Library\Guizmo">
       <UniqueIdentifier>{2ae94b70-2da0-48ef-ae24-0764a30415d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Data\TechniqueAsset">
+      <UniqueIdentifier>{470d11f0-a1cf-4671-9eb7-6f573cf33f49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\ShadingModelAsset">
+      <UniqueIdentifier>{50d35247-e22d-47ef-a14e-a4a7325b4c82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1571,6 +1577,12 @@
     </ClCompile>
     <ClCompile Include="..\Library\Guizmo\ImGuizmo.cpp">
       <Filter>Library\Guizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\TechniqueAsset\TechniqueAsset.cpp">
+      <Filter>Source\Engine\Resource\Data\TechniqueAsset</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\ShadingModelAsset\ShadingModelAsset.cpp">
+      <Filter>Source\Engine\Resource\Data\ShadingModelAsset</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2428,6 +2440,15 @@
     </ClInclude>
     <ClInclude Include="..\Library\Guizmo\ImGuizmo.h">
       <Filter>Library\Guizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\TechniqueAsset\TechniqueAsset.h">
+      <Filter>Source\Engine\Resource\Data\TechniqueAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h">
+      <Filter>Source\Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\ShadingModelAsset\ShadingModelAsset.h">
+      <Filter>Source\Engine\Resource\Data\ShadingModelAsset</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
