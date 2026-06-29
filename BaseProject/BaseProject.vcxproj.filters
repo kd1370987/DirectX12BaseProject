@@ -994,6 +994,9 @@
     <Filter Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct">
       <UniqueIdentifier>{1cca95e2-0a1a-4c04-afe5-247f4c0536ff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Library\Guizmo">
+      <UniqueIdentifier>{2ae94b70-2da0-48ef-ae24-0764a30415d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1571,6 +1574,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.cpp">
       <Filter>Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Guizmo\ImGuizmo.cpp">
+      <Filter>Library\Guizmo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2428,6 +2434,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.h">
       <Filter>Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Guizmo\ImGuizmo.h">
+      <Filter>Library\Guizmo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -182,6 +182,10 @@ namespace Engine::Graphics
 	{
 		return m_cbGPUCamera;
 	}
+	const CameraData& GraphicsEngine::GetCPUCameraData() const
+	{
+		return m_cbCamera;
+	}
 	void GraphicsEngine::SetAmbientData(const AmbientData& a_data)
 	{
 		m_cbAmbient = a_data;

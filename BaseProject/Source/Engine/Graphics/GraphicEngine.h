@@ -98,6 +98,7 @@ namespace Engine::Graphics
 
 		const CameraData& GetCameraData() const;
 		const CameraData& GetGPUCameraData() const;
+		const CameraData& GetCPUCameraData() const;
 		// 環境データ
 		void SetAmbientData(const AmbientData& a_data);
 		const AmbientData& GetAmbientData() const;

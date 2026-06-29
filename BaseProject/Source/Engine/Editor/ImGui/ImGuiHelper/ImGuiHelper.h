@@ -14,7 +14,8 @@ namespace Engine::Editor::Helper
 	/// <param name="a_gpuHandle">GPUハンドル</param>
 	/// <param name="a_width">横幅</param>
 	/// <param name="a_height">縦</param>
-	void DrawSRVView(
+	/// <return>実際に描画した範囲を返す</return>
+	ImVec2 DrawSRVView(
 		D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHandle,
 		float a_width, float a_height,
 		float a_minSize = 100,float a_maxSize = 500

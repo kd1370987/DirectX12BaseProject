@@ -104,7 +104,7 @@ void Engine::Editor::Helper::DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a
 	
 }
 
-void Engine::Editor::Helper::DrawSRVView(D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHandle, float a_width, float a_height, float a_minSize, float a_maxSize)
+ImVec2 Engine::Editor::Helper::DrawSRVView(D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHandle, float a_width, float a_height, float a_minSize, float a_maxSize)
 {
 	ImTextureID _imTex = (ImTextureID)(a_gpuHandle.ptr);
 
@@ -119,6 +119,9 @@ void Engine::Editor::Helper::DrawSRVView(D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHandle
 
 	// 計算したサイズで描画
 	ImGui::Image(_imTex, ImVec2(drawWidth, drawHeight));
+
+	// 実際に描画したサイズを返す
+	return ImVec2(drawWidth, drawHeight);
 }
 
 void Engine::Editor::Node::TitleBar(const std::string& a_name)

@@ -78,7 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -115,7 +115,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -150,7 +150,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -190,7 +190,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -223,6 +223,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Library\Guizmo\ImGuizmo.cpp" />
     <ClCompile Include="..\Library\imgui-docking\imgui.cpp" />
     <ClCompile Include="..\Library\imgui-docking\imgui_demo.cpp" />
     <ClCompile Include="..\Library\imgui-docking\imgui_draw.cpp" />
@@ -422,6 +423,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Library\Guizmo\ImGuizmo.h" />
     <ClInclude Include="..\Library\imgui-docking\imconfig.h" />
     <ClInclude Include="..\Library\imgui-docking\imgui.h" />
     <ClInclude Include="..\Library\imgui-docking\imgui_impl_dx12.h" />

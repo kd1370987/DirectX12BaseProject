@@ -130,7 +130,11 @@ namespace DXSM = DirectX::SimpleMath;
 #include <imgui_impl_win32.h>
 #include <imgui_stdlib.h>
 
+// ノード
 #include <imnodes.h>
+
+// ギズモ
+#include <imGuizmo.h>
 
 //===============================================
 //

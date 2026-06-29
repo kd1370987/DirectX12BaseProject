@@ -426,7 +426,7 @@ namespace Engine::D3D12
 		// バックバッファをスワップチェインから取得
 		for (UINT _i = 0; _i < BACKBUFFER_COUNT; ++_i)
 		{
-			m_backBuffers[_i].Create(m_cpSwapChain.Get(), _i);
+			m_backBuffers[_i].Create(m_cpSwapChain.Get(), _i, Resource::TextureUsage::RTV);
 		}
 	}
 

@@ -14,6 +14,8 @@ namespace Engine::Editor
 
 		const EditorCamera* GetEditorCamera();
 
+		static void Draw();
+
 	private:
 
 		std::unique_ptr<EditorCamera> m_upEditorCamera = nullptr;

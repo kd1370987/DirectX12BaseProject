@@ -93,11 +93,16 @@ namespace Engine::Editor
 		// ImGui描画開始
 		m_upImGuiContext->Begin(a_widht, a_height);
 
-		// ECSビュー
-		m_upECSView->Draw(a_widht, a_height);
 		// アセットビュー
 		m_upAssetResourceView->Draw(a_widht, a_height);
 		m_upRenderGraphResourceView->Draw(a_widht,a_height);
+
+		// シーンビュー
+		SceneView::Draw();
+
+		// ECSビュー
+		m_upECSView->Draw(a_widht, a_height);
+
 		// ログ表示
 		m_upLog->Draw("Log");
 		// 計測表示

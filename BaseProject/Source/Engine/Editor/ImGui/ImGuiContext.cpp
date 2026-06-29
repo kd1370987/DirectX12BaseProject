@@ -88,6 +88,7 @@ namespace Engine::Editor
 			ImGuiID _dockSpaceID = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(_dockSpaceID, ImGui::GetContentRegionAvail(), ImGuiDockNodeFlags_PassthruCentralNode);
 		}
+
 		ImGui::End();
 	}
 
