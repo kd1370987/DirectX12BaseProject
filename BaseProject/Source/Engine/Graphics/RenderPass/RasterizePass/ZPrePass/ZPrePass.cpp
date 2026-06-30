@@ -23,7 +23,7 @@ namespace Engine::Graphics
 		// ノード・ビルダー作成
 		RenderPassNode _node = {};
 		_node.name = "ZPre";
-		RGRasterPassBuilder _rpBuilder(&_node, &a_rg);
+		RGRasterPassBuilder _rpBuilder(&_node);
 
 		// パス共通設定
 		_rpBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Source/ZPreShader/ZPreVS.cso");

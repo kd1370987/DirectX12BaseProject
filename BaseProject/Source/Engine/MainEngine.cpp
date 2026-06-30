@@ -405,13 +405,21 @@ namespace Engine
 		_shaderExt.AddExtensions(".hlsl");
 		_shaderExt.AddExtensions(".cso");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_shaderExt);
+		Resource::TypeExtension _shaderLibraryExt = {};
+		_shaderLibraryExt.type = "ShaderLibrary";
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_shaderLibraryExt);
 		// シーン
 		Resource::TypeExtension _sceneExt = {};
 		_sceneExt.type = "Scene";
 		_sceneExt.AddExtensions(".ojscene");
 		_sceneExt.AddExtensions(".obscene");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_sceneExt);
-
+		// シーン
+		Resource::TypeExtension _shadingModelTable = {};
+		_shadingModelTable.type = "ShadingModelTable";
+		_shadingModelTable.AddExtensions(".ojsmtble");
+		_shadingModelTable.AddExtensions(".obsmtble");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_shadingModelTable);
 		// 全アセットに一括でメタファイル作成
 		// すでにあれば無視
 		Resource::AssetDatabase::Instance().CreateMetaFileForAllAssets();

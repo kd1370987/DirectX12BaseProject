@@ -18,6 +18,7 @@ namespace Engine::Graphics
 	class RenderGraph;
 	class ShapeRenderer;
 	class RenderContext;
+	class RenderPassRegistry;
 
 	// グラフィックスエンジンの初期化に必要な情報
 	struct GraphicsEngineDesc
@@ -136,6 +137,9 @@ namespace Engine::Graphics
 
 		// 形状描画クラス
 		std::unique_ptr<ShapeRenderer> m_upShapeRender = nullptr;
+
+		// レンダーパスの登録場所
+		std::unique_ptr<RenderPassRegistry> m_upRenderPassRegistry = nullptr;
 
 		// レンダーグラフ
 		std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;

@@ -13,6 +13,7 @@
 #include "RenderGraph/RenderGraph.h"
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../Particle/ParticleBufferManager.h"
+#include "RenderPassRegistry/RenderPassRegistry.h"
 
 // オプション
 #include "../Option/OptionManager.h"
@@ -50,6 +51,9 @@ namespace Engine::Graphics
 			_upCtx->Init(this, a_pCmdList, _desc);
 			m_upRenderContextVec.push_back(std::move(_upCtx));
 		}
+
+		// レンダーパスの登録
+		m_upRenderPassRegistry = std::make_unique<RenderPassRegistry>();
 
 		// レンダーグラフの構築
 		m_upRenderGraph = std::make_unique<RenderGraph>();

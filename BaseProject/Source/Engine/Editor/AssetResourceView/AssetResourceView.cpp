@@ -3,14 +3,7 @@
 #include "ModelView/ModelView.h"
 #include "TextureView/TextureView.h"
 
-#include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
-
-#include "../../Resource/Loader/StateMachineAsset/StateMachineAssetLoader.h"
-#include "../../Resource/Loader/Model/ModelLoader.h"
-#include "../../Resource/Loader/Texture/TextureLoader.h"
-#include "../../Resource/Loader/Shader/ShaderLoader.h"
-#include "../../Resource/Loader/Particles/ParticlesLoader.h"
 
 namespace Engine::Editor
 {
@@ -22,6 +15,17 @@ namespace Engine::Editor
 
 	void AssetResourceView::Init()
 	{
+		m_assetCreateFuncs["StateMachinAsset"] = [](const std::string& path, const std::string& name) {
+			Resource::StateMachineAssetLoader::Create(path, name);
+		};
+
+		m_assetCreateFuncs["ParticlesAsset"] = [](const std::string& path, const std::string& name) {
+			Resource::ParticlesAssetLoader::Create(path, name);
+		};
+
+		m_assetCreateFuncs["ShadingModelTable"] = [](const std::string& path, const std::string& name) {
+			Resource::ShadingModelTableLoader::Create(path, name);
+		};
 	}
 
 	void AssetResourceView::Draw(UINT a_widht, UINT a_height)
@@ -181,6 +185,30 @@ namespace Engine::Editor
 				{
 					DrawParticlesAsset();
 				}
+				else if (_type == "ShadingModelTable")
+				{
+					auto& _guid = m_pAssetPropCach->guid;
+					auto& _type = m_pAssetPropCach->type;
+					if (Resource::ResourceManager::Instance().Has<Resource::ShadingModelTable>(_guid))
+					{
+						auto _handle = Resource::ResourceManager::Instance().Load<Resource::ShadingModelTable>(_guid);
+						auto* _pData = Resource::ResourceManager::Instance().Ref(_handle);
+						if (!_pData)
+						{
+							ImGui::Text("Not faund particle");
+							return;
+						}
+						_pData->Edit();
+					}
+					else
+					{
+						ImGui::Text("No loaded file");
+						if (ImGui::Button("Load"))
+						{
+							Resource::ResourceManager::Instance().Load<Resource::ParticlesAsset>(_guid);
+						}
+					}
+				}
 			}
 		}
 		ImGui::End();
@@ -266,35 +294,48 @@ namespace Engine::Editor
 	}
 	void AssetResourceView::CreateAssetButton()
 	{
-		ImGui::Text("CreateButton");
-
-		// ツリー
-		if(ImGui::TreeNodeEx("StateMachin"))
+		if (ImGui::Button("Create New Asset..."))
 		{
-			// ステートマシン追加
-			ImGui::InputText("Name", m_nameCach, sizeof(m_nameCach));
-			ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
-			if (ImGui::Button("Create"))
-			{
-				Resource::StateMachineAssetLoader::Create(std::string(m_pathCach), std::string(m_nameCach));
-				std::memset(m_nameCach, 0, sizeof(m_nameCach));
-				std::memset(m_pathCach, 0, sizeof(m_pathCach));
-			}
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNodeEx("ParticlesAsset"))
-		{
-			// ステートマシン追加
-			ImGui::InputText("Name", m_nameCach, sizeof(m_nameCach));
-			ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
-			if (ImGui::Button("Create"))
-			{
-				Resource::ParticlesAssetLoader::Create(std::string(m_pathCach), std::string(m_nameCach));
-				std::memset(m_nameCach, 0, sizeof(m_nameCach));
-				std::memset(m_pathCach, 0, sizeof(m_pathCach));
-			}
-			ImGui::TreePop();
+			ImGui::OpenPopup("CreateResourcePopup");
 		}
 
+		// ポップアップの中身
+		if (ImGui::BeginPopup("CreateResourcePopup"))
+		{
+			ImGui::Text("Select Asset Type:");
+			ImGui::Separator();
+
+			// データベースから現在登録されている全てのアセットタイプを取得
+			auto _typeMap = Resource::AssetDatabase::Instance().GetAssetTypeExtensionsMap();
+
+			// ループで動的にUIを生成する！
+			for (const auto& [_typeName, _extensions] : _typeMap)
+			{
+				// ファクトリに登録されていないタイプ（Createできないもの）はスキップする安全策
+				if (!m_assetCreateFuncs.contains(_typeName)) continue;
+
+				// ツリーノードの生成
+				if (ImGui::TreeNodeEx(_typeName.c_str()))
+				{
+					ImGui::InputText("Name", m_nameCach, sizeof(m_nameCach));
+					ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
+
+					if (ImGui::Button("Create"))
+					{
+						// 辞書から該当する関数を引っ張ってきて実行！
+						m_assetCreateFuncs[_typeName](std::string(m_pathCach), std::string(m_nameCach));
+
+						// キャッシュのクリア
+						std::memset(m_nameCach, 0, sizeof(m_nameCach));
+						std::memset(m_pathCach, 0, sizeof(m_pathCach));
+
+						// 作成したらポップアップを閉じる
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::TreePop();
+				}
+			}
+			ImGui::EndPopup();
+		}
 	}
 }

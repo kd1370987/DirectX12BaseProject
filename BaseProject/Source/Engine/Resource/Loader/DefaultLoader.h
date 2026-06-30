@@ -8,7 +8,7 @@
 #include "Material/MaterialLoader.h"
 #include "Mesh/MeshLoader.h"
 #include "Animation/AnimationLoader.h"
-
+#include "ShadingModelTable/ShadingModelTableLoader.h"
 namespace Engine::Resource
 {
 	// ロード処理の中間用クラス
@@ -106,6 +106,15 @@ namespace Engine::Resource
 		static AnimationData LoadFromFile(const std::string& a_path)
 		{
 			return AnimationLoader::LoadFromFile(a_path);
+		}
+	};
+	// シェーディングモデル
+	template<>
+	struct DefaultLoader<ShadingModelTable>
+	{
+		static ShadingModelTable LoadFromFile(const std::string& a_path)
+		{
+			return ShadingModelTableLoader::LoadFromFile(a_path);
 		}
 	};
 }

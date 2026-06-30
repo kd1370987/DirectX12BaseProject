@@ -31,7 +31,7 @@ namespace Engine::Graphics
 		// ノードパスビルダー作成
 		RenderPassNode _node = {};
 		_node.name = "EmitParticlePass";
-		RGComputePassBuilder _cpBuilder(&_node, &a_rg);
+		RGComputePassBuilder _cpBuilder(&_node);
 
 		// ルートシグネチャセット
 		_spPassData->pRootSig = _cpBuilder.SetRootSignature(

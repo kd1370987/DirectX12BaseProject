@@ -40,5 +40,9 @@ namespace Engine::Editor
 
 		// 現在選択中のアセットポインタ
 		Resource::AssetProperty* m_pAssetPropCach = nullptr;
+
+		// "アセット名" -> "生成処理" の辞書
+		using AssetCreateFunc = std::function<void(const std::string&, const std::string&)>;
+		std::unordered_map<std::string, AssetCreateFunc> m_assetCreateFuncs;
 	};
 }

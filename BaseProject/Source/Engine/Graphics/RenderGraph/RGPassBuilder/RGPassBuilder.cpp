@@ -2,7 +2,7 @@
 #include "../../../D3D12/PipelineStateManager/PipelineStateManager.h"
 #include "Engine/Resource/Loader/Shader/ShaderLoader.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../RenderGraph.h"
+
 namespace Engine::Graphics
 {
 	void RGRasterPassBuilder::ReadSRV(const std::string& a_texName)
@@ -83,27 +83,6 @@ namespace Engine::Graphics
 		}
 		return true;
 	}
-	//void RGRasterPassBuilder::Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
-	//{
-	//	auto _resID = m_pRG->Read(a_texName, a_type);
-	//	m_pNode->read.push_back(_resID);
-
-	//	m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
-	//}
-	//void RGRasterPassBuilder::Write(const std::string & a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
-	//{
-	//	auto _resID = m_pRG->Write(a_texName, a_type);
-	//	m_pNode->write.push_back(_resID);
-
-	//	m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
-
-	//	// 出力用フォーマットとして記憶(RTVの時のみ)
-	//	if (a_type == AccessType::RTV)
-	//	{
-	//		auto _format = m_pRG->GetDXGIFormat(_resID);
-	//		m_rtvFormatVec.push_back(_format);
-	//	}
-	//}
 
 	void RGRasterPassBuilder::SetVS(
 		D3D12::GraphicsPipelineDesc& a_pso, const std::string& a_vsPath, const D3D12_INPUT_LAYOUT_DESC& a_desc
@@ -174,20 +153,6 @@ namespace Engine::Graphics
 	{
 		m_pNode->writeRequests.push_back({ a_texName, AccessType::UAV, a_format, a_texScale, a_loadOp, a_storeOp, true });
 	}
-
-	//void RGComputePassBuilder::Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
-	//{
-	//	auto _resID = m_pRG->Read(a_texName, AccessType::SRV);
-	//	m_pNode->read.push_back(_resID);
-	//	m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
-	//}
-
-	//void RGComputePassBuilder::Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
-	//{
-	//	auto _resID = m_pRG->Write(a_texName, a_type);
-	//	m_pNode->write.push_back(_resID);
-	//	m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
-	//}
 
 	void RGComputePassBuilder::SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex)
 	{

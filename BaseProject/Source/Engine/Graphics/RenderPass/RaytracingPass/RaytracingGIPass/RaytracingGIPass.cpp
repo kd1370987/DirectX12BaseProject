@@ -40,7 +40,7 @@ namespace Engine::Graphics
 
 		RenderPassNode _node = {};
 		_node.name = "RaytracingGIPass";
-		RGGlobalsPassBuilder _rpBuilder(&_node, &a_rg);
+		RGGlobalsPassBuilder _rpBuilder(&_node);
 
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 

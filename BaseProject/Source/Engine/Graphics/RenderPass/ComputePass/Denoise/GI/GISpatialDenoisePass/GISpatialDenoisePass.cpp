@@ -31,7 +31,7 @@ namespace Engine::Graphics
 
 		// ダミービルダーを使ってPSOを一度のみ作成
 		RenderPassNode _dummyNode = {};
-		RGComputePassBuilder _psoBuilder(&_dummyNode, &a_rg);
+		RGComputePassBuilder _psoBuilder(&_dummyNode);
 		_psoBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Compute/Denoise/GI/GISpatialDenoiseShader.cso");
 		_psoBuilder.SetShader("Asset/Shader/Compute/Denoise/GI/GISpatialDenoiseShader.cso", "GISpatialDenoiseShader", _spPassData->csIndex);
 		_psoBuilder.ResolveAndCompile(a_pPSOManager);
@@ -68,7 +68,7 @@ namespace Engine::Graphics
 			}
 			else
 			{
-				// 中間パス
+				// 中間パスm_pRG
 				_readGI = (_i % 2 != 0) ? _tempA : _tempB;
 				_writeGI = (_i % 2 != 0) ? _tempB : _tempA;
 			}
@@ -76,7 +76,7 @@ namespace Engine::Graphics
 			// ノード作成
 			RenderPassNode _node = {};
 			_node.name = "GISpatialDenoisePass_Step" + std::to_string(_stepSize);
-			RGComputePassBuilder _cpBuilder(&_node, &a_rg);
+			RGComputePassBuilder _cpBuilder(&_node);
 
 			// 依存関係の構築
 			_cpBuilder.ReadSRV(_readGI);

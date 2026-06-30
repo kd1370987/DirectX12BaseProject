@@ -17,7 +17,7 @@ namespace Engine::Resource
 	{
 		// ディレクトリ
 		static std::string _dir = "Asset/ParticlesAsset/";
-		auto _basePath = _dir + a_path + a_name;
+		auto _basePath = _dir + a_path +"/" + a_name;
 
 		// すでにないかチェック
 		Engine::GUID _checkGUID = AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);

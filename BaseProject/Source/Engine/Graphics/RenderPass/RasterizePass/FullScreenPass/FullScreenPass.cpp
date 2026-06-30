@@ -24,7 +24,7 @@ namespace Engine::Graphics
 
 		RenderPassNode _node = {};
 		_node.name = "FullScreenPass";
-		RGRasterPassBuilder _rpBuilder(&_node, &a_rg);
+		RGRasterPassBuilder _rpBuilder(&_node);
 
 		_rpBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso");
 		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso");

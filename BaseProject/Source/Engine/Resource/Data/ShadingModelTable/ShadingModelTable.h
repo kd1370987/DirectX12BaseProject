@@ -1,9 +1,12 @@
 ﻿#pragma once
 namespace Engine::Resource
 {
-	class ShadingModelAsset
+	class ShadingModelTable
 	{
 	public:
+
+		ShadingModelTable() {}
+		ShadingModelTable(const std::string& a_name) : m_typeName(a_name) {}
 
 		// ---- アクセサ ----
 		std::span<const Handle<Shader>> GetShaderHandles(UINT a_passHash) const;
@@ -16,16 +19,9 @@ namespace Engine::Resource
 		void Archive(Persistence::Archive& a_ar);
 
 		/// <summary>
-		/// 対応するパスを追加
+		/// 編集
 		/// </summary>
-		void AddPath(const std::string& a_pathName);
-
-		/// <summary>
-		/// パスを指定して、対応するシェーダーを追加する
-		/// </summary>
-		/// <param name="a_pathName">パスネーム</param>
-		/// <param name="a_guid">シェーダーGUID</param>
-		void AddShader(const std::string& a_pathName,const Engine::GUID& a_guid);
+		void Edit();
 
 	private:
 		// シェーディングモデルタイプネーム

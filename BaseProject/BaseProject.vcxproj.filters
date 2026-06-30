@@ -991,11 +991,14 @@
     <Filter Include="Library\Guizmo">
       <UniqueIdentifier>{2ae94b70-2da0-48ef-ae24-0764a30415d2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Data\ShadingModelAsset">
-      <UniqueIdentifier>{50d35247-e22d-47ef-a14e-a4a7325b4c82}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPassRegistry">
       <UniqueIdentifier>{11c31ac3-8de7-4e21-bf83-421d7c43d109}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\ShadingModelTable">
+      <UniqueIdentifier>{50d35247-e22d-47ef-a14e-a4a7325b4c82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\ShadingModelTable">
+      <UniqueIdentifier>{4c436660-c624-4bc2-8314-6102bbb7c2b7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1572,11 +1575,14 @@
     <ClCompile Include="..\Library\Guizmo\ImGuizmo.cpp">
       <Filter>Library\Guizmo</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\ShadingModelAsset\ShadingModelAsset.cpp">
-      <Filter>Source\Engine\Resource\Data\ShadingModelAsset</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.cpp">
       <Filter>Source\Engine\Graphics\RenderPassRegistry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.cpp">
+      <Filter>Source\Engine\Resource\Data\ShadingModelTable</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\ShadingModelTable\ShadingModelTableLoader.cpp">
+      <Filter>Source\Engine\Resource\Loader\ShadingModelTable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2435,11 +2441,17 @@
     <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h">
       <Filter>Source\Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\ShadingModelAsset\ShadingModelAsset.h">
-      <Filter>Source\Engine\Resource\Data\ShadingModelAsset</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.h">
       <Filter>Source\Engine\Graphics\RenderPassRegistry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\PSOKey.h">
+      <Filter>Source\Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.h">
+      <Filter>Source\Engine\Resource\Data\ShadingModelTable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\ShadingModelTable\ShadingModelTableLoader.h">
+      <Filter>Source\Engine\Resource\Loader\ShadingModelTable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

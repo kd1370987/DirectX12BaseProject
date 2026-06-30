@@ -32,7 +32,7 @@ namespace Engine::Graphics
 		// ノード・ビルダー作成
 		RenderPassNode _node = {};
 		_node.name = "DeferredLighting";
-		RGComputePassBuilder _rpBuilder(&_node, &a_rg);
+		RGComputePassBuilder _rpBuilder(&_node);
 
 		// ルートシグネチャ
 		_spPassData->pRootSig = _rpBuilder.SetRootSignature(

@@ -43,7 +43,7 @@ namespace Engine::Graphics
 			// ==========================================
 			RenderPassNode _node = {};
 			_node.name = _passName;
-			RGComputePassBuilder _cpBuilder(&_node, &a_rg);
+			RGComputePassBuilder _cpBuilder(&_node);
 
 			_spPassData->pRootSig = _cpBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Compute/Denoise/Shadow/ShadowTemporalAccumullationShader.cso");
 			_cpBuilder.SetShader("Asset/Shader/Compute/Denoise/Shadow/ShadowTemporalAccumullationShader.cso", "ShadowTemporalAccumullationShader", _spPassData->csIndex);
@@ -114,7 +114,7 @@ namespace Engine::Graphics
 			// ==========================================
 			RenderPassNode _copyNode = {};
 			_copyNode.name = _copyPassName;
-			RGGlobalsPassBuilder _copyBuilder(&_copyNode, &a_rg);
+			RGGlobalsPassBuilder _copyBuilder(&_copyNode);
 			_copyBuilder.CopySrc(_writeHistory);
 			_copyBuilder.CopyDst(_finalDst, DXGI_FORMAT_R8G8B8A8_UNORM);
 

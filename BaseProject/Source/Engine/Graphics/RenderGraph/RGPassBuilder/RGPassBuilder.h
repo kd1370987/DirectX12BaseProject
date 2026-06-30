@@ -10,7 +10,6 @@ namespace Engine::D3D12
 namespace Engine::Graphics
 {
 	class GraphicsEngine;
-	class RenderGraph;
 	class RenderContext;
 
 	// 中間データ
@@ -25,7 +24,7 @@ namespace Engine::Graphics
 	{
 	public:
 
-		RGRasterPassBuilder(RenderPassNode* a_pNode, RenderGraph* a_pRG) : m_pNode(a_pNode),m_pRG(a_pRG) {}
+		RGRasterPassBuilder(RenderPassNode* a_pNode) : m_pNode(a_pNode) {}
 		~RGRasterPassBuilder() = default;
 
 		// =========================================================
@@ -80,7 +79,6 @@ namespace Engine::Graphics
 
 	private:
 
-		RenderGraph* m_pRG = nullptr;
 		RenderPassNode* m_pNode = nullptr;
 
 		// ルートシグネチャはパスで一つ
@@ -99,7 +97,7 @@ namespace Engine::Graphics
 	{
 	public:
 
-		RGComputePassBuilder(RenderPassNode* a_pNode, RenderGraph* a_pRG) : m_pNode(a_pNode),m_pRG(a_pRG) {}
+		RGComputePassBuilder(RenderPassNode* a_pNode) : m_pNode(a_pNode){}
 		~RGComputePassBuilder() = default;
 
 		void ResolveAndCompile(D3D12::PipelineStateManager* a_pPSOManager);
@@ -139,7 +137,6 @@ namespace Engine::Graphics
 
 	private:
 
-		RenderGraph* m_pRG = nullptr;
 		RenderPassNode* m_pNode = nullptr;
 
 		ID3D12RootSignature* m_pRootSig = nullptr;
@@ -150,7 +147,7 @@ namespace Engine::Graphics
 	class RGGlobalsPassBuilder
 	{
 	public:
-		RGGlobalsPassBuilder(RenderPassNode* a_pNode, RenderGraph* a_pRG) : m_pNode(a_pNode), m_pRG(a_pRG) {}
+		RGGlobalsPassBuilder(RenderPassNode* a_pNode) : m_pNode(a_pNode){}
 		~RGGlobalsPassBuilder() = default;
 
 		// 依存関係構築
@@ -177,7 +174,6 @@ namespace Engine::Graphics
 		);
 
 	private:
-		RenderGraph* m_pRG = nullptr;
 		RenderPassNode* m_pNode = nullptr;
 	};
 }

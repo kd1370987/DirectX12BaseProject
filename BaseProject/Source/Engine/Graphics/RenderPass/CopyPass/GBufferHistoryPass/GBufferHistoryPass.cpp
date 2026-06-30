@@ -10,7 +10,7 @@ namespace Engine::Graphics
 	{
 		RenderPassNode _node = {};
 		_node.name = "GBufferHistoryPass";
-		RGGlobalsPassBuilder _rpBuilder(&_node, &a_rg);
+		RGGlobalsPassBuilder _rpBuilder(&_node);
 
 		_rpBuilder.CopySrc("GBufferNormal");
 		_rpBuilder.CopySrc("Depth");

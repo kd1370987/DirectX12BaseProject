@@ -10,7 +10,7 @@ namespace Engine::Graphics
 	{
 		RenderPassNode _node = {};
 		_node.name = "PostHistoryPass";
-		RGGlobalsPassBuilder _rpBuilder(&_node, &a_rg);
+		RGGlobalsPassBuilder _rpBuilder(&_node);
 
 		_rpBuilder.CopySrc("AffterTAAColor");
 

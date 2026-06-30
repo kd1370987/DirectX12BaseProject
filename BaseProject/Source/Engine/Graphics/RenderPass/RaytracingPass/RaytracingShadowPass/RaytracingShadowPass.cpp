@@ -39,7 +39,7 @@ namespace Engine::Graphics
 
 		RenderPassNode _node = {};
 		_node.name = "RaytracingShadowPass";
-		RGGlobalsPassBuilder _rpBuilder(&_node, &a_rg);
+		RGGlobalsPassBuilder _rpBuilder(&_node);
 
 		// レイ用ルートシグネチャ
 		D3D12::RootSignatureDesc _rayGlobal = {};

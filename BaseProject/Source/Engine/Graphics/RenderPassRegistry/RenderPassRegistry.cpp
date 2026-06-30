@@ -23,7 +23,7 @@ namespace Engine::Graphics
 		// パスの実体をディープコピーしてポインタ管理に変換
 		auto _uniqueNode = std::make_unique<RenderPassNode>(a_node);
 
-		// 動的にビットフラグを生成 (1, 2, 4, 8, 16...)
+		// 動的にビットフラグを生成
 		uint64_t _bitFlag = (1ULL << m_nextBitIndex);
 
 		// パス自体にも自動割り当てされたインデックスを覚えさせる

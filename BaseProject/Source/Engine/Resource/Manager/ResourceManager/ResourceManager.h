@@ -116,9 +116,11 @@ namespace Engine::Resource
 		Pool::ItemPool<StateMachineAsset> m_stateMachinePool;	// ステートマシン
 		std::unordered_map<Engine::GUID, Handle<StateMachineAsset>> m_stateMachineAssetCache = {};
 
-		Pool::ItemPool<ParticlesAsset> m_particlesAssetPool;	// ステートマシン
+		Pool::ItemPool<ParticlesAsset> m_particlesAssetPool;	// パーティクル
 		std::unordered_map<Engine::GUID, Handle<ParticlesAsset>> m_particleCache = {};
 
+		Pool::ItemPool<ShadingModelTable> m_shadingModelTablePool;	// シェーディングモデルテーブル
+		std::unordered_map<Engine::GUID, Handle<ShadingModelTable>> m_shadingModelTableCache = {};
 
 	// シングルトン
 	private:
@@ -203,6 +205,7 @@ namespace Engine::Resource
 	template<> inline const Pool::ItemPool<ShaderLibrary>& ResourceManager::GetPool<ShaderLibrary>() const			{ return m_shaderLibraryPool; }
 	template<> inline const Pool::ItemPool<StateMachineAsset>& ResourceManager::GetPool<StateMachineAsset>() const	{ return m_stateMachinePool; }
 	template<> inline const Pool::ItemPool<ParticlesAsset>& ResourceManager::GetPool<ParticlesAsset>() const		{ return m_particlesAssetPool; }
+	template<> inline const Pool::ItemPool<ShadingModelTable>& ResourceManager::GetPool<ShadingModelTable>() const		{ return m_shadingModelTablePool; }
 	
 	// テンプレート明示特殊化
 	// プールの参照
@@ -215,6 +218,7 @@ namespace Engine::Resource
 	template<> inline Pool::ItemPool<ShaderLibrary>& ResourceManager::RefPool<ShaderLibrary>()			{ return m_shaderLibraryPool; }
 	template<> inline Pool::ItemPool<StateMachineAsset>& ResourceManager::RefPool<StateMachineAsset>()	{ return m_stateMachinePool; }
 	template<> inline Pool::ItemPool<ParticlesAsset>& ResourceManager::RefPool<ParticlesAsset>()		{ return m_particlesAssetPool; }
+	template<> inline Pool::ItemPool<ShadingModelTable>& ResourceManager::RefPool<ShadingModelTable>()		{ return m_shadingModelTablePool; }
 
 	// キャッシュアクセス
 	template<typename T>
@@ -310,4 +314,5 @@ namespace Engine::Resource
 	template<> inline std::unordered_map<Engine::GUID, Handle<ShaderLibrary>>& ResourceManager::RefMap<ShaderLibrary>() { return m_shaderLibraryCache; }
 	template<> inline std::unordered_map<Engine::GUID, Handle<StateMachineAsset>>& ResourceManager::RefMap<StateMachineAsset>() { return m_stateMachineAssetCache; }
 	template<> inline std::unordered_map<Engine::GUID, Handle<ParticlesAsset>>& ResourceManager::RefMap<ParticlesAsset>() { return m_particleCache; }
+	template<> inline std::unordered_map<Engine::GUID, Handle<ShadingModelTable>>& ResourceManager::RefMap<ShadingModelTable>() { return m_shadingModelTableCache; }
 }

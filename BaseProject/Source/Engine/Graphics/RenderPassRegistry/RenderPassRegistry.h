@@ -23,7 +23,7 @@ namespace Engine::Graphics
 		/// <param name="a_node">レンダーパスノード</param>
 		void RegisterPass(const RenderPassNode& a_node);
 
-		// 安全に参照を返すためのアクセサ
+		// ---- アクセサ ----
 		RenderPassNode* RefNode(const std::string& a_name);
 		RenderPassNode* RefNode(UINT a_nameHash);
 		RenderPassNode* RefNode(uint64_t a_bit);

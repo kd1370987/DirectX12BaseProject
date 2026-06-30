@@ -26,7 +26,7 @@ namespace Engine::Graphics
 
 		RenderPassNode _node = {};
 		_node.name = "TemporalAccumulationPass";
-		RGComputePassBuilder _cpBuilder(&_node, &a_rg);
+		RGComputePassBuilder _cpBuilder(&_node);
 
 		_cpBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso");
 		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso");
