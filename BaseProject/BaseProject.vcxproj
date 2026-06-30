@@ -330,6 +330,7 @@
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.cpp" />
@@ -371,7 +372,6 @@
     <ClCompile Include="Source\Engine\Raytracing\RaytracingWorld\RaytracingWorld.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\TLAS\TLAS.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Data\AnimationStateTable\AnimationStateTable.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Animation\Animation.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Material\Material.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.cpp" />
@@ -387,7 +387,6 @@
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\ShadingModelAsset\ShadingModelAsset.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Data\TechniqueAsset\TechniqueAsset.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Material\MaterialLoader.cpp" />
@@ -603,6 +602,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGData\RenderPassNode.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h" />
@@ -657,7 +657,6 @@
     <ClInclude Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.h" />
     <ClInclude Include="Source\Engine\Raytracing\TLAS\TLAS.h" />
     <ClInclude Include="Source\Engine\Resource\Common\Common.h" />
-    <ClInclude Include="Source\Engine\Resource\Data\AnimationStateTable\AnimationStateTable.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Animation\Animation.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Material\Material.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.h" />
@@ -673,7 +672,6 @@
     <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h" />
     <ClInclude Include="Source\Engine\Resource\Data\ShadingModelAsset\ShadingModelAsset.h" />
     <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.h" />
-    <ClInclude Include="Source\Engine\Resource\Data\TechniqueAsset\TechniqueAsset.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Vertex\Vertex.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.h" />

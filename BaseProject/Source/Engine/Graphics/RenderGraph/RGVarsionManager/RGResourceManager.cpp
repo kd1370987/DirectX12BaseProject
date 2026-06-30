@@ -34,6 +34,37 @@ namespace Engine::Graphics
 		m_resourceVec.push_back(_data);
 	}
 
+	void RGResourceManager::Register(const std::string& a_name, const DXGI_FORMAT& a_format, const UINT64& a_widht, const UINT& a_height, const Resource::TextureUsage& a_texUsage, bool a_isTemporal, const DXSM::Color& a_clerColor)
+	{
+		auto _it = m_stringMap.find(a_name);
+		if (_it != m_stringMap.end())
+		{
+			// 登録済み
+			return;
+		}
+
+		LogicalResource _data = {};
+		_data.name = a_name;
+		_data.format = a_format;
+		_data.widht = a_widht;
+		_data.height = a_height;
+		_data.usage = a_texUsage;
+		_data.clerColor = a_clerColor;
+
+		// テンポラル
+		_data.isTemporal = a_isTemporal;
+
+		// バージョンは0
+		_data.currentVarsion = 0;
+
+		// コンパイル時に作成されて渡される
+		_data.texHandle[0] = {};
+
+		// 登録
+		m_stringMap[a_name] = m_resourceVec.size();
+		m_resourceVec.push_back(_data);
+	}
+
 	void RGResourceManager::RegisterTemporal(const std::string& a_name, const DXGI_FORMAT& format, const UINT64& a_widht, const UINT& a_height, const Resource::TextureUsage& a_texUsage, const DXSM::Color& a_clerColor)
 	{
 		auto _it = m_stringMap.find(a_name);
@@ -144,9 +175,16 @@ namespace Engine::Graphics
 		auto _it = m_stringMap.find(a_name);
 		if (_it != m_stringMap.end())
 		{
-			// リソースのバージョンを上げて返す
-			return _it->second;
+		//	// リソースのバージョンを上げて返す
+		//	return _it->second;
+		//}
+			// ちゃんと既存のRead/Writeと同じく、バージョンと合算したIDを返す
+			const auto& _data = m_resourceVec[_it->second];
+			return Resource::GetID(_it->second, _data.currentVarsion);
 		}
+
+		// 見つからなかったら安全な無効値を返す
+		return Resource::Limits::INVALID_ID;
 	}
 	Handle<Resource::Texture> RGResourceManager::GetTexHandle(Resource::ID a_id, bool isRead)
 	{

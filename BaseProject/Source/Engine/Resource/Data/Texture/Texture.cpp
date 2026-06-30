@@ -156,6 +156,10 @@ namespace Engine::Resource
 			_srvDesc.Texture2D.MipLevels = m_desc.MipLevels;
 			_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
+			ENGINE_LOG("Format=%d Use=%x\n",
+				(int)_srvDesc.Format,
+				(uint32_t)m_useFlg);
+
 			// 登録
 			m_srvHandle = 
 				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(_pDevice, m_cpResource.Get(), &_srvDesc);

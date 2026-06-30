@@ -47,13 +47,13 @@ namespace Engine::Graphics
 		);
 
 		// 依存関係構築
-		_cpBuilder.Read("AffterLighting", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_cpBuilder.Read("HistoryTAAColor", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_cpBuilder.Read("GBufferVelocity", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_cpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_cpBuilder.Read("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.ReadSRV("AffterLighting");
+		_cpBuilder.ReadSRV("HistoryTAAColor");
+		_cpBuilder.ReadSRV("GBufferVelocity");
+		_cpBuilder.ReadSRV("Depth");
+		_cpBuilder.ReadSRV("GBufferNormal");
 
-		_cpBuilder.Write("AffterTAAColor", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
+		_cpBuilder.WriteUAV("AffterTAAColor", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
 		// PSO作成
 		_cpBuilder.ResolveAndCompile(a_pPSOManager);

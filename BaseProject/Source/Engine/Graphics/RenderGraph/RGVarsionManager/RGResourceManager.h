@@ -16,6 +16,16 @@ namespace Engine::Graphics
 			const Resource::TextureUsage& a_texUsage,
 			const DXSM::Color& a_clerColor = {0,0,0,1}
 		);
+		void Register(
+			const std::string& a_name,
+			const DXGI_FORMAT& format,
+			const UINT64& a_widht,
+			const UINT& a_height,
+			const Resource::TextureUsage& a_texUsage,
+			bool a_isTemporal,
+			const DXSM::Color& a_clerColor = { 0,0,0,1 }
+
+		);
 		void RegisterTemporal(
 			const std::string& a_name,
 			const DXGI_FORMAT& format,

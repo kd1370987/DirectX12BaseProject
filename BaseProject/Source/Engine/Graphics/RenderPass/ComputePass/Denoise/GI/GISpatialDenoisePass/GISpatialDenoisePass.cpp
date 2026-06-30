@@ -79,11 +79,11 @@ namespace Engine::Graphics
 			RGComputePassBuilder _cpBuilder(&_node, &a_rg);
 
 			// 依存関係の構築
-			_cpBuilder.Read(_readGI, AccessType::SRV, LoadOp::Load, StoreOp::Store);
-			_cpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-			_cpBuilder.Read("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+			_cpBuilder.ReadSRV(_readGI);
+			_cpBuilder.ReadSRV("Depth");
+			_cpBuilder.ReadSRV("GBufferNormal");
 
-			_cpBuilder.Write(_writeGI, AccessType::UAV, LoadOp::Load, StoreOp::Store);
+			_cpBuilder.WriteUAV(_writeGI, DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Load, StoreOp::Store);
 
 			// 実行関数の登録
 			_node.executeFunc = [_spPassData, _stepSize, _readGI, _writeGI, _passName = _node.name]

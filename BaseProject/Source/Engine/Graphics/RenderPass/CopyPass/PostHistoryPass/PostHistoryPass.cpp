@@ -12,9 +12,9 @@ namespace Engine::Graphics
 		_node.name = "PostHistoryPass";
 		RGGlobalsPassBuilder _rpBuilder(&_node, &a_rg);
 
-		_rpBuilder.Read("AffterTAAColor", AccessType::CopySrc, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.CopySrc("AffterTAAColor");
 
-		_rpBuilder.Write("HistoryTAAColor", AccessType::CopyDst, LoadOp::Clear, StoreOp::Store);
+		_rpBuilder.CopyDst("HistoryTAAColor", DXGI_FORMAT_R8G8B8A8_UNORM);
 
 		struct RuntimeData
 		{

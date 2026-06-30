@@ -5,6 +5,41 @@
 #include "../RenderGraph.h"
 namespace Engine::Graphics
 {
+	void RGRasterPassBuilder::ReadSRV(const std::string& a_texName)
+	{
+		m_pNode->readRequests.push_back(
+			{ a_texName, AccessType::SRV, DXGI_FORMAT_UNKNOWN, 1.0f, LoadOp::Load, StoreOp::Store ,false}
+		);
+	}
+	void RGRasterPassBuilder::ReadDepth(const std::string& a_texName)
+	{
+		m_pNode->readRequests.push_back(
+			{ a_texName, AccessType::Depth_Read, DXGI_FORMAT_UNKNOWN, 1.0f, LoadOp::Load, StoreOp::DontCare,false }
+		);
+	}
+	void RGRasterPassBuilder::ReadHistorySRV(const std::string& a_texName)
+	{
+		// テンポラルフラグを立てておく
+		m_pNode->readRequests.push_back({ a_texName, AccessType::SRV, DXGI_FORMAT_UNKNOWN, 1.0f, LoadOp::Load, StoreOp::DontCare, true });
+	}
+	void RGRasterPassBuilder::WriteRTV(const std::string& a_texName, DXGI_FORMAT a_format, LoadOp a_loadOp, StoreOp a_storeOp, float a_texScale)
+	{
+		m_pNode->writeRequests.push_back(
+			{ a_texName, AccessType::RTV, a_format, a_texScale, a_loadOp, a_storeOp }
+		);
+		m_rtvFormatVec.push_back(a_format);
+	}
+	void RGRasterPassBuilder::WriteDepth(const std::string& a_texName, DXGI_FORMAT a_format, LoadOp a_loadOp, StoreOp a_storeOp, float a_texScale)
+	{
+		m_pNode->writeRequests.push_back(
+			{ a_texName, AccessType::Depth_Write, a_format, a_texScale, a_loadOp, a_storeOp }
+		);
+	}
+	void RGRasterPassBuilder::WriteTemporalRTV(const std::string& a_texName, DXGI_FORMAT a_format, LoadOp a_loadOp, StoreOp a_storeOp, float a_texScale)
+	{
+		m_pNode->writeRequests.push_back({ a_texName, AccessType::RTV, a_format, a_texScale, a_loadOp, a_storeOp, true });
+		m_rtvFormatVec.push_back(a_format);
+	}
 	D3D12::GraphicsPipelineDesc& RGRasterPassBuilder::CreatePSODesc(const std::string& a_name, uint8_t& a_outIndex)
 	{
 		// 構造体を作成して名前をセット
@@ -48,27 +83,27 @@ namespace Engine::Graphics
 		}
 		return true;
 	}
-	void RGRasterPassBuilder::Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
-	{
-		auto _resID = m_pRG->Read(a_texName, a_type);
-		m_pNode->read.push_back(_resID);
+	//void RGRasterPassBuilder::Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
+	//{
+	//	auto _resID = m_pRG->Read(a_texName, a_type);
+	//	m_pNode->read.push_back(_resID);
 
-		m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
-	}
-	void RGRasterPassBuilder::Write(const std::string & a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
-	{
-		auto _resID = m_pRG->Write(a_texName, a_type);
-		m_pNode->write.push_back(_resID);
+	//	m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
+	//}
+	//void RGRasterPassBuilder::Write(const std::string & a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
+	//{
+	//	auto _resID = m_pRG->Write(a_texName, a_type);
+	//	m_pNode->write.push_back(_resID);
 
-		m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
+	//	m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
 
-		// 出力用フォーマットとして記憶(RTVの時のみ)
-		if (a_type == AccessType::RTV)
-		{
-			auto _format = m_pRG->GetDXGIFormat(_resID);
-			m_rtvFormatVec.push_back(_format);
-		}
-	}
+	//	// 出力用フォーマットとして記憶(RTVの時のみ)
+	//	if (a_type == AccessType::RTV)
+	//	{
+	//		auto _format = m_pRG->GetDXGIFormat(_resID);
+	//		m_rtvFormatVec.push_back(_format);
+	//	}
+	//}
 
 	void RGRasterPassBuilder::SetVS(
 		D3D12::GraphicsPipelineDesc& a_pso, const std::string& a_vsPath, const D3D12_INPUT_LAYOUT_DESC& a_desc
@@ -114,19 +149,45 @@ namespace Engine::Graphics
 		return a_pPSOManager->Request(a_shaderPath);
 	}
 
-	void RGComputePassBuilder::Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
+	void RGComputePassBuilder::ReadSRV(const std::string& a_texName)
 	{
-		auto _resID = m_pRG->Read(a_texName, AccessType::SRV);
-		m_pNode->read.push_back(_resID);
-		m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
+		m_pNode->readRequests.push_back(
+			{ a_texName, AccessType::SRV, DXGI_FORMAT_UNKNOWN, 1.0f, LoadOp::Load, StoreOp::DontCare }
+		);
 	}
 
-	void RGComputePassBuilder::Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
+	void RGComputePassBuilder::ReadHistorySRV(const std::string& a_texName)
 	{
-		auto _resID = m_pRG->Write(a_texName, a_type);
-		m_pNode->write.push_back(_resID);
-		m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
+		m_pNode->readRequests.push_back(
+			{ a_texName, AccessType::SRV, DXGI_FORMAT_UNKNOWN, 1.0f, LoadOp::Load, StoreOp::DontCare,true }
+		);
 	}
+
+	void RGComputePassBuilder::WriteUAV(const std::string& a_texName, DXGI_FORMAT a_format, LoadOp a_loadOp, StoreOp a_storeOp, float a_texScale)
+	{
+		m_pNode->writeRequests.push_back(
+			{ a_texName, AccessType::UAV, a_format, a_texScale, a_loadOp, a_storeOp }
+		);
+	}
+
+	void RGComputePassBuilder::WriteTemporalUAV(const std::string& a_texName, DXGI_FORMAT a_format, LoadOp a_loadOp, StoreOp a_storeOp, float a_texScale)
+	{
+		m_pNode->writeRequests.push_back({ a_texName, AccessType::UAV, a_format, a_texScale, a_loadOp, a_storeOp, true });
+	}
+
+	//void RGComputePassBuilder::Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
+	//{
+	//	auto _resID = m_pRG->Read(a_texName, AccessType::SRV);
+	//	m_pNode->read.push_back(_resID);
+	//	m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
+	//}
+
+	//void RGComputePassBuilder::Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
+	//{
+	//	auto _resID = m_pRG->Write(a_texName, a_type);
+	//	m_pNode->write.push_back(_resID);
+	//	m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
+	//}
 
 	void RGComputePassBuilder::SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex)
 	{
@@ -138,20 +199,30 @@ namespace Engine::Graphics
 		m_pOutIndex = &a_outIndex;
 	}
 
-	// ---------------------------------------------------------
-	// RGGlobalsPassBuilder
-	// ---------------------------------------------------------
-	void RGGlobalsPassBuilder::Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
+	void RGGlobalsPassBuilder::CopySrc(const std::string& a_texName)
 	{
-		auto _resID = m_pRG->Read(a_texName, a_type);
-		m_pNode->read.push_back(_resID);
-		m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
+		m_pNode->readRequests.push_back(
+			{ a_texName, AccessType::CopySrc, DXGI_FORMAT_UNKNOWN, 1.0f, LoadOp::Load, StoreOp::DontCare }
+		);
 	}
 
-	void RGGlobalsPassBuilder::Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp)
+	void RGGlobalsPassBuilder::CopyDst(const std::string& a_texName, DXGI_FORMAT a_format, LoadOp a_loadOp, StoreOp a_storeOp, float a_texScale)
 	{
-		auto _resID = m_pRG->Write(a_texName, a_type);
-		m_pNode->write.push_back(_resID);
-		m_pNode->resourceAccessVec.push_back({ _resID,a_type,a_loadOp,a_storeOp });
+		m_pNode->writeRequests.push_back(
+			{ a_texName, AccessType::CopyDst, a_format, a_texScale,a_loadOp, a_storeOp }
+		);
+	}
+	void RGGlobalsPassBuilder::ReadSRV(const std::string& a_texName)
+	{
+		m_pNode->readRequests.push_back(
+			{ a_texName, AccessType::SRV, DXGI_FORMAT_UNKNOWN, 1.0f, LoadOp::Load, StoreOp::DontCare }
+		);
+	}
+
+	void RGGlobalsPassBuilder::WriteUAV(const std::string & a_texName, DXGI_FORMAT a_format, LoadOp a_loadOp, StoreOp a_storeOp, float a_texScale)
+	{
+		m_pNode->writeRequests.push_back(
+			{ a_texName, AccessType::UAV, a_format,a_texScale,a_loadOp, a_storeOp }
+		);
 	}
 }

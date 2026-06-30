@@ -20,10 +20,8 @@ float4 ps(Output a_input) : SV_TARGET
 	float4 _texColor = g_tex.Sample(g_smp,a_input.uv);
 	// ACESフィルムライクトーンマッピングを適用
 	_texColor.rgb = ACESFilm(_texColor.rgb);
-	
-	float4 _ui = g_ui.Sample(g_smp,a_input.uv);
 
-	_result.rgb = _ui.rgb + _texColor.rgb * (1.0 - _ui.a);
+	_result.rgb = _texColor.rgb;
 	_result.a = 1.0;
 	
 	return _result;

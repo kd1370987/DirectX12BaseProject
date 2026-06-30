@@ -12,14 +12,14 @@ namespace Engine::Graphics
 	class GraphicsEngine;
 
 
-
+	// リソースバリア
 	struct RGBarrier
 	{
 		Handle<Resource::Texture> texHandle = {};
-		D3D12_RESOURCE_STATES before = D3D12_RESOURCE_STATE_COMMON;
-		D3D12_RESOURCE_STATES after = D3D12_RESOURCE_STATE_COMMON;
-		Engine::Resource::ID resID = Engine::Resource::Limits::INVALID_ID;
-		bool isRead = false;
+		D3D12_RESOURCE_STATES before		= D3D12_RESOURCE_STATE_COMMON;
+		D3D12_RESOURCE_STATES after			= D3D12_RESOURCE_STATE_COMMON;
+		Engine::Resource::ID resID			= Engine::Resource::Limits::INVALID_ID;
+		bool isRead							= false;
 	};
 
 	struct CompiledPass
@@ -52,7 +52,7 @@ namespace Engine::Graphics
 
 		void Release();
 
-		void Compile();							// Pass追加後
+		void Compile();													// Pass追加後
 		void Excute(GraphicsEngine* a_pGE,RenderContext* a_pCtx);		// パスを順次実行
 
 		void AddPassNode(const EDrawPhase& a_pahse,const RenderPassNode& a_node);
@@ -88,6 +88,10 @@ namespace Engine::Graphics
 
 		// テンポラルインデックス更新 : フレーム用テンポラル
 		void Swap();
+
+		// =========================================================
+		// コンパイル時関数
+		void CreateResource();
 
 	private:
 

@@ -33,15 +33,15 @@ namespace Engine::Graphics
 
 		_cpBuilder.SetShader("Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso", "TemporalAccumulationPass", _spPassData->csIndex);
 
-		_cpBuilder.Read("RayGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_cpBuilder.Read("GBufferVelocity", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_cpBuilder.Read("DenoiseGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_cpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_cpBuilder.Read("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_cpBuilder.Read("PrevDepth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_cpBuilder.Read("PrevNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.ReadSRV("RayGI");
+		_cpBuilder.ReadSRV("GBufferVelocity");
+		_cpBuilder.ReadHistorySRV("DenoiseGI");
+		_cpBuilder.ReadSRV("Depth");
+		_cpBuilder.ReadSRV("GBufferNormal");
+		_cpBuilder.ReadSRV("PrevDepth");
+		_cpBuilder.ReadSRV("PrevNormal");
 
-		_cpBuilder.Write("DenoiseGI", AccessType::UAV, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.WriteTemporalUAV("DenoiseGI", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Load, StoreOp::Store);
 
 		_cpBuilder.ResolveAndCompile(a_pPSOManager);
 

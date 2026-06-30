@@ -73,7 +73,7 @@ namespace Engine::Resource
 		{
 			_flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		}
-		if (!HasFlag(a_value, TextureUsage::SRV))
+		if (!HasFlag(a_value, TextureUsage::SRV) && HasFlag(a_value,TextureUsage::DSV))
 		{
 			_flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 		}

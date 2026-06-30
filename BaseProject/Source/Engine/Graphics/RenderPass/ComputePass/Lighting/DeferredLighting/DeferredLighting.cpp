@@ -47,15 +47,15 @@ namespace Engine::Graphics
 		);
 
 		// 依存関係構築
-		_rpBuilder.Read("GBufferAlbedo", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Read("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Read("GBufferMaterial", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Read("GBufferEmissiv", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Read("AffterDLShadowTempAccumu", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Read("FinalGI", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.ReadSRV("GBufferAlbedo");
+		_rpBuilder.ReadSRV("GBufferNormal");
+		_rpBuilder.ReadSRV("GBufferMaterial");
+		_rpBuilder.ReadSRV("GBufferEmissiv");
+		_rpBuilder.ReadSRV("Depth");
+		_rpBuilder.ReadSRV("AffterDLShadowTempAccumu");
+		_rpBuilder.ReadSRV("FinalGI");
 
-		_rpBuilder.Write("AffterLighting", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
+		_rpBuilder.WriteUAV("AffterLighting", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
 		// コンパイル
 		_rpBuilder.ResolveAndCompile(a_pPSOManager);

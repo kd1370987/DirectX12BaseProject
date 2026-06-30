@@ -30,9 +30,9 @@ namespace Engine::Graphics
 		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/DebugLineShader/DebugLineVS.cso");
 
 		// 依存関係構築
-		_rpBuilder.Read("Depth", AccessType::Depth_Read, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.ReadDepth("Depth");
 
-		_rpBuilder.Write("AffterTAAColor", AccessType::RTV, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.WriteRTV("AffterTAAColor", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Load, StoreOp::Store);
 
 		// PSO構築
 		auto& _sPso = _rpBuilder.CreatePSODesc("DebugLinePSO", _spPassData->staticPsoIndex);

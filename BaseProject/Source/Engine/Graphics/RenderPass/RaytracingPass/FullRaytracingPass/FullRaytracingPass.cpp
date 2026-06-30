@@ -97,7 +97,7 @@ namespace Engine::Graphics
 		};
 		_spPassData->shaderTable.Init(_pDevice, _shaderTableInit);
 
-		_rpBuilder.Write("FullRay", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
+		_rpBuilder.WriteUAV("FullRay", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 		{

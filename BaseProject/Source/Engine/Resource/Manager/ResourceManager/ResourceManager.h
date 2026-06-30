@@ -226,7 +226,6 @@ namespace Engine::Resource
 		{
 			return _it->second;
 		}
-		ENGINE_LOG("登録されていないGUIDです");
 		static Handle<T> s_defaultHandle = {};
 		return s_defaultHandle;
 	}

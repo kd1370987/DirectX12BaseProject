@@ -32,13 +32,15 @@ namespace Engine::Graphics
 		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/GBufferShader/GBufferVS.cso");
 
 		// 依存関係構築
-		_rpBuilder.Read("Depth", AccessType::Depth_Read, LoadOp::Load, StoreOp::Store);
+		//_rpBuilder.Readde("Depth", AccessType::Depth_Read, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.ReadDepth("Depth");
 
-		_rpBuilder.Write("GBufferAlbedo", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
-		_rpBuilder.Write("GBufferNormal", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
-		_rpBuilder.Write("GBufferMaterial", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
-		_rpBuilder.Write("GBufferEmissiv", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
-		_rpBuilder.Write("GBufferVelocity", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
+		//_rpBuilder.Write("GBufferAlbedo", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
+		_rpBuilder.WriteRTV("GBufferAlbedo", DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
+		_rpBuilder.WriteRTV("GBufferNormal", DXGI_FORMAT_R16G16_FLOAT);
+		_rpBuilder.WriteRTV("GBufferMaterial", DXGI_FORMAT_R8G8B8A8_UNORM);
+		_rpBuilder.WriteRTV("GBufferEmissiv", DXGI_FORMAT_R8G8B8A8_UNORM);
+		_rpBuilder.WriteRTV("GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT);
 
 		// PSO構築
 		auto& _sPso = _rpBuilder.CreatePSODesc("GBufferStatic", _spPassData->staticIndex);

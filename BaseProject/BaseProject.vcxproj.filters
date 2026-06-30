@@ -832,9 +832,6 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem">
       <UniqueIdentifier>{83675496-7da3-472b-b73b-af8dacfaa60e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Data\AnimationStateTable">
-      <UniqueIdentifier>{2c25fe09-6c1b-46b3-9fe7-549bb552518d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem">
       <UniqueIdentifier>{ca73c634-5fce-4e9d-ada6-0901ab471f24}</UniqueIdentifier>
     </Filter>
@@ -994,11 +991,11 @@
     <Filter Include="Library\Guizmo">
       <UniqueIdentifier>{2ae94b70-2da0-48ef-ae24-0764a30415d2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Data\TechniqueAsset">
-      <UniqueIdentifier>{470d11f0-a1cf-4671-9eb7-6f573cf33f49}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Data\ShadingModelAsset">
       <UniqueIdentifier>{50d35247-e22d-47ef-a14e-a4a7325b4c82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPassRegistry">
+      <UniqueIdentifier>{11c31ac3-8de7-4e21-bf83-421d7c43d109}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1479,9 +1476,6 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\AnimationStateTable\AnimationStateTable.cpp">
-      <Filter>Source\Engine\Resource\Data\AnimationStateTable</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
     </ClCompile>
@@ -1578,11 +1572,11 @@
     <ClCompile Include="..\Library\Guizmo\ImGuizmo.cpp">
       <Filter>Library\Guizmo</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\TechniqueAsset\TechniqueAsset.cpp">
-      <Filter>Source\Engine\Resource\Data\TechniqueAsset</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\ShadingModelAsset\ShadingModelAsset.cpp">
       <Filter>Source\Engine\Resource\Data\ShadingModelAsset</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.cpp">
+      <Filter>Source\Engine\Graphics\RenderPassRegistry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2279,9 +2273,6 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\AnimationStateTable\AnimationStateTable.h">
-      <Filter>Source\Engine\Resource\Data\AnimationStateTable</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
     </ClInclude>
@@ -2441,14 +2432,14 @@
     <ClInclude Include="..\Library\Guizmo\ImGuizmo.h">
       <Filter>Library\Guizmo</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\TechniqueAsset\TechniqueAsset.h">
-      <Filter>Source\Engine\Resource\Data\TechniqueAsset</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h">
       <Filter>Source\Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\ShadingModelAsset\ShadingModelAsset.h">
       <Filter>Source\Engine\Resource\Data\ShadingModelAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.h">
+      <Filter>Source\Engine\Graphics\RenderPassRegistry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

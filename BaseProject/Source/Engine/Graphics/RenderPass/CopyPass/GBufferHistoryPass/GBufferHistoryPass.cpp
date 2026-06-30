@@ -12,11 +12,11 @@ namespace Engine::Graphics
 		_node.name = "GBufferHistoryPass";
 		RGGlobalsPassBuilder _rpBuilder(&_node, &a_rg);
 
-		_rpBuilder.Read("GBufferNormal", AccessType::CopySrc, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Read("Depth", AccessType::CopySrc, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.CopySrc("GBufferNormal");
+		_rpBuilder.CopySrc("Depth");
 
-		_rpBuilder.Write("PrevDepth", AccessType::CopyDst, LoadOp::Clear, StoreOp::Store);
-		_rpBuilder.Write("PrevNormal", AccessType::CopyDst, LoadOp::Clear, StoreOp::Store);
+		_rpBuilder.CopyDst("PrevDepth", DXGI_FORMAT_R32_FLOAT);
+		_rpBuilder.CopyDst("PrevNormal", DXGI_FORMAT_R16G16_FLOAT);
 
 		struct RuntimeData
 		{

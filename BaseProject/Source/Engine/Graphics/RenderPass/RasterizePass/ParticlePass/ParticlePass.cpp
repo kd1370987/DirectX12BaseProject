@@ -35,8 +35,8 @@ namespace Engine::Graphics
 		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/ParticleShader/ParticleVS.cso");
 
 		// 依存関係構築
-		_rpBuilder.Read("Depth", AccessType::Depth_Read, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Write("AffterLighting", AccessType::RTV, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.ReadDepth("Depth");
+		_rpBuilder.WriteRTV("AffterLighting", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Load, StoreOp::Store);
 
 		// PSO構築
 		auto& _sPso = _rpBuilder.CreatePSODesc("ParticleDraw", _spPassData->staticIndex);

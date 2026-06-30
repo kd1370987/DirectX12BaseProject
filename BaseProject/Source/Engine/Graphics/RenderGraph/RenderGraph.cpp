@@ -46,136 +46,136 @@ namespace Engine::Graphics
 		UINT _winHeight = _winOp.windowHegiht;
 
 
-		// リソースマネージャー作成
+		//// リソースマネージャー作成
 		m_upRGResourceManager = std::make_unique<RGResourceManager>();
-		m_upRGResourceManager->Register(
-			"MainColor",
-			DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"QuadTexture",
-			DXGI_FORMAT_R16G16B16A16_FLOAT,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::SRV | Resource::TextureUsage::UAV
-		);
-		m_upRGResourceManager->Register(
-			"UITexture",
-			DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV,
-			{0,0,0,0}
-		);
-		m_upRGResourceManager->Register(
-			"GBufferAlbedo",
-			DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"GBufferNormal",
-			DXGI_FORMAT_R16G16_FLOAT,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"GBufferMaterial",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"GBufferEmissiv",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"Depth",
-			DXGI_FORMAT_R32_TYPELESS,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
-		);
-		m_upRGResourceManager->Register(
-			"PrevDepth",
-			DXGI_FORMAT_R32_TYPELESS,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
-		);
-		m_upRGResourceManager->Register(
-			"PrevNormal",
-			DXGI_FORMAT_R16G16_FLOAT,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"GBufferVelocity",
-			DXGI_FORMAT_R16G16_FLOAT,
-			_winWidth,
-			_winHeight,
-			Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
-		);
-		// レイの結果用
-		m_upRGResourceManager->Register(
-			"RayShadow",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
-		m_upRGResourceManager->Register(
-			"RayGI",
-			DXGI_FORMAT_R16G16B16A16_FLOAT,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
-		m_upRGResourceManager->Register(
-			"FullRay",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
-		m_upRGResourceManager->Register(
-			"Test",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"SpatialTemp_A",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"SpatialTemp_B",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->RegisterTemporal(
-			"DenoiseGI",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
+		//m_upRGResourceManager->Register(
+		//	"MainColor",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"QuadTexture",
+		//	DXGI_FORMAT_R16G16B16A16_FLOAT,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::SRV | Resource::TextureUsage::UAV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"UITexture",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::SRV | Resource::TextureUsage::RTV,
+		//	{0,0,0,0}
+		//);
+		//m_upRGResourceManager->Register(
+		//	"GBufferAlbedo",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"GBufferNormal",
+		//	DXGI_FORMAT_R16G16_FLOAT,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"GBufferMaterial",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"GBufferEmissiv",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"Depth",
+		//	DXGI_FORMAT_R32_TYPELESS,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"PrevDepth",
+		//	DXGI_FORMAT_R32_TYPELESS,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::DSV | Resource::TextureUsage::SRV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"PrevNormal",
+		//	DXGI_FORMAT_R16G16_FLOAT,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"GBufferVelocity",
+		//	DXGI_FORMAT_R16G16_FLOAT,
+		//	_winWidth,
+		//	_winHeight,
+		//	Resource::TextureUsage::SRV | Resource::TextureUsage::RTV
+		//);
+		//// レイの結果用
+		//m_upRGResourceManager->Register(
+		//	"RayShadow",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"RayGI",
+		//	DXGI_FORMAT_R16G16B16A16_FLOAT,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"FullRay",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"Test",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"SpatialTemp_A",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"SpatialTemp_B",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->RegisterTemporal(
+		//	"DenoiseGI",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
 		//m_upRGResourceManager->RegisterTemporal(
 		//	"AffterDLShadowTempAccumu",
 		//	DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -183,83 +183,83 @@ namespace Engine::Graphics
 		//	_winHeight,
 		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
 		//);
-		 m_upRGResourceManager->Register(
-			"ShadowHistory_A",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
-		 m_upRGResourceManager->Register(
-			"ShadowHistory_B",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
-		 m_upRGResourceManager->Register(
-			"AffterDLShadowTempAccumu",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
-		m_upRGResourceManager->Register(
-			"FinalGI",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
-		m_upRGResourceManager->Register(
-			"FinalGI",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
-		m_upRGResourceManager->Register(
-			"DeferedLighting_A",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
-		m_upRGResourceManager->Register(
-			"DeferedLighting_B",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
-		);
-		m_upRGResourceManager->Register(
-			"AffterLighting",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"AffterTAAColor",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"HistoryTAAColor",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
-		);
-		m_upRGResourceManager->Register(
-			"AffterParticle",
-			DXGI_FORMAT_R8G8B8A8_UNORM,
-			_winWidth,
-			_winHeight,
-			Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
-		);
+		// m_upRGResourceManager->Register(
+		//	"ShadowHistory_A",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		// m_upRGResourceManager->Register(
+		//	"ShadowHistory_B",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		// m_upRGResourceManager->Register(
+		//	"AffterDLShadowTempAccumu",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"FinalGI",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"FinalGI",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"DeferedLighting_A",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"DeferedLighting_B",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::UAV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"AffterLighting",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"AffterTAAColor",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"HistoryTAAColor",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		//);
+		//m_upRGResourceManager->Register(
+		//	"AffterParticle",
+		//	DXGI_FORMAT_R8G8B8A8_UNORM,
+		//	_winWidth,
+		//	_winHeight,
+		//	Engine::Resource::TextureUsage::SRV | Engine::Resource::TextureUsage::RTV
+		//);
 
 		// パス登録
 		AddZPrePass(a_pPipelineStateManager, *this, EDrawPhase::Setup);
@@ -303,6 +303,43 @@ namespace Engine::Graphics
 	void RenderGraph::Compile()
 	{
 		m_compiledPasses.clear();
+
+		// リソースの作成
+		CreateResource();
+
+		// =========================================================
+		// 文字列から Resource::ID を取得し、配列に流し込む
+		for (auto& [_phase, _passNodeVec] : m_passNodeMap)
+		{
+			for (auto& _passNode : _passNodeVec)
+			{
+				_passNode.read.clear();
+				_passNode.write.clear();
+				_passNode.resourceAccessVec.clear();
+
+				for (auto& _req : _passNode.readRequests)
+				{
+					Resource::ID _id = m_upRGResourceManager->GetID(_req.resName);
+					if (_id == Resource::Limits::INVALID_ID)
+					{
+						assert(_id != Resource::Limits::INVALID_ID && "要求されたリソース名がレンダーグラフに登録されていません！タイポをチェックしてください。");
+					}
+					_passNode.read.push_back(_id);
+					_passNode.resourceAccessVec.push_back({ _id, _req.type, _req.load, _req.store });
+				}
+				for (auto& _req : _passNode.writeRequests)
+				{
+					Resource::ID _id = m_upRGResourceManager->GetID(_req.resName);
+					if (_id == Resource::Limits::INVALID_ID)
+					{
+						assert(_id != Resource::Limits::INVALID_ID && "要求されたリソース名がレンダーグラフに登録されていません！タイポをチェックしてください。");
+					}
+					_passNode.write.push_back(_id);
+					_passNode.resourceAccessVec.push_back({ _id, _req.type, _req.load, _req.store });
+				}
+			}
+		}
+		
 
 		// ソート配列の作成
 		for (auto& [_phase, _passVec] : m_passNodeMap)
@@ -397,7 +434,6 @@ namespace Engine::Graphics
 				D3D12_RESOURCE_STATES _next = D3D12_RESOURCE_STATE_COMMON;
 				if (_access.type == AccessType::SRV)
 				{
-					//_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 					_next = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 				}
 				if (_access.type == AccessType::RTV)
@@ -674,6 +710,69 @@ namespace Engine::Graphics
 	void RenderGraph::Swap()
 	{
 		m_temporalIndex = 1 - m_temporalIndex;
+	}
+
+	void RenderGraph::CreateResource()
+	{
+		auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		// =========================================================
+		// 全パスからリソース要求を収集し、Usageをグローバルに合成する
+		struct GlobalResourceInfo {
+			DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
+			Resource::TextureUsage usage = Resource::TextureUsage::None;
+			float texScale = 1.0f;
+			bool isTemporal = false;
+		};
+		std::unordered_map<std::string, GlobalResourceInfo> _globalResourceMap = {};
+
+		for (auto& [_phase, _passNodeVec] : m_passNodeMap)
+		{
+			for (auto& _passNode : _passNodeVec)
+			{
+				// Read要求の収集
+				for (auto& _req : _passNode.readRequests)
+				{
+					auto& _info = _globalResourceMap[_req.resName];
+					if (_req.type == AccessType::Depth_Read) _info.usage |= Resource::TextureUsage::DSV;
+					if (_req.type == AccessType::SRV)        _info.usage |= Resource::TextureUsage::SRV;
+					if (_req.type == AccessType::UAV)        _info.usage |= Resource::TextureUsage::UAV;
+
+					if (_req.isTemporal) _info.isTemporal = true;
+				}
+
+				// Write要求の収集（フォーマットとスケールはWrite側が主導権を持つ）
+				for (auto& _req : _passNode.writeRequests)
+				{
+					auto& _info = _globalResourceMap[_req.resName];
+					if (_req.isTemporal) _info.isTemporal = true;
+
+					if (_req.format != DXGI_FORMAT_UNKNOWN) _info.format = _req.format;
+					_info.texScale = _req.texScale; // 念のためスケールも更新
+					
+					if (_req.type == AccessType::Depth_Write) _info.usage |= Resource::TextureUsage::DSV;
+					if (_req.type == AccessType::RTV)         _info.usage |= Resource::TextureUsage::RTV;
+					if (_req.type == AccessType::UAV)         _info.usage |= Resource::TextureUsage::UAV;
+
+				}
+			}
+		}
+		// =========================================================
+		// 合成された情報をもとに、実際にリソースを Register する
+		for (const auto& [_resName, _info] : _globalResourceMap)
+		{
+			// 外部から渡されるバッファ（スワップチェーン等）はフォーマット指定がないのでスキップ
+			if (_info.format != DXGI_FORMAT_UNKNOWN)
+			{
+				m_upRGResourceManager->Register(
+					_resName,
+					_info.format,
+					_winOp.windowWidth * _info.texScale,
+					_winOp.windowHegiht * _info.texScale,
+					_info.usage, 
+					_info.isTemporal
+				);
+			}
+		}
 	}
 
 }

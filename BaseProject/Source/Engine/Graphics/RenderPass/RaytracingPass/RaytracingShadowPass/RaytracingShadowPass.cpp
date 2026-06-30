@@ -98,10 +98,10 @@ namespace Engine::Graphics
 		};
 		_spPassData->shaderTable.Init(_pDevice, _shaderTableInit);
 
-		_rpBuilder.Read("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-		_rpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.ReadSRV("GBufferNormal");
+		_rpBuilder.ReadSRV("Depth");
 
-		_rpBuilder.Write("RayShadow", AccessType::UAV, LoadOp::Clear, StoreOp::Store);
+		_rpBuilder.WriteUAV("RayShadow", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 		{

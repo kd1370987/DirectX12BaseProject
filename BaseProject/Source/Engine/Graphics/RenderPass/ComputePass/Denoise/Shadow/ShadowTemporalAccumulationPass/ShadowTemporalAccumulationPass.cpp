@@ -49,15 +49,15 @@ namespace Engine::Graphics
 			_cpBuilder.SetShader("Asset/Shader/Compute/Denoise/Shadow/ShadowTemporalAccumullationShader.cso", "ShadowTemporalAccumullationShader", _spPassData->csIndex);
 
 			// 依存関係構築 
-			_cpBuilder.Read("RayShadow", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-			_cpBuilder.Read("GBufferVelocity", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-			_cpBuilder.Read(_readHistory, AccessType::SRV, LoadOp::Load, StoreOp::Store);
-			_cpBuilder.Read("Depth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-			_cpBuilder.Read("GBufferNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-			_cpBuilder.Read("PrevDepth", AccessType::SRV, LoadOp::Load, StoreOp::Store);
-			_cpBuilder.Read("PrevNormal", AccessType::SRV, LoadOp::Load, StoreOp::Store);
+			_cpBuilder.ReadSRV("RayShadow");
+			_cpBuilder.ReadSRV("GBufferVelocity");
+			_cpBuilder.ReadSRV(_readHistory);
+			_cpBuilder.ReadSRV("Depth");
+			_cpBuilder.ReadSRV("GBufferNormal");
+			_cpBuilder.ReadSRV("PrevDepth");
+			_cpBuilder.ReadSRV("PrevNormal");
 
-			_cpBuilder.Write(_writeHistory, AccessType::UAV, LoadOp::Clear, StoreOp::Store);
+			_cpBuilder.WriteUAV(_writeHistory, DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
 			_cpBuilder.ResolveAndCompile(a_pPSOManager);
 
@@ -114,9 +114,9 @@ namespace Engine::Graphics
 			// ==========================================
 			RenderPassNode _copyNode = {};
 			_copyNode.name = _copyPassName;
-			RGComputePassBuilder _copyBuilder(&_copyNode, &a_rg);
-			_copyBuilder.Read(_writeHistory, AccessType::CopySrc, LoadOp::Load, StoreOp::Store);
-			_copyBuilder.Write(_finalDst, AccessType::CopyDst, LoadOp::Clear, StoreOp::Store);
+			RGGlobalsPassBuilder _copyBuilder(&_copyNode, &a_rg);
+			_copyBuilder.CopySrc(_writeHistory);
+			_copyBuilder.CopyDst(_finalDst, DXGI_FORMAT_R8G8B8A8_UNORM);
 
 			_copyNode.executeFunc = [_spPassData, _writeHistory, _finalDst, isEven, _copyPassName](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 				{

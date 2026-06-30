@@ -28,6 +28,38 @@ namespace Engine::Graphics
 		RGRasterPassBuilder(RenderPassNode* a_pNode, RenderGraph* a_pRG) : m_pNode(a_pNode),m_pRG(a_pRG) {}
 		~RGRasterPassBuilder() = default;
 
+		// =========================================================
+		// 読み込み系
+		// =========================================================
+		void ReadSRV(const std::string& a_texName);
+		void ReadDepth(const std::string& a_texName);
+		void ReadHistorySRV(const std::string& a_texName);
+		// =========================================================
+		// 書き込み系
+		// =========================================================
+		// 基本はクリア
+		void WriteRTV(
+			const std::string& a_texName,
+			DXGI_FORMAT a_format,
+			LoadOp a_loadOp = LoadOp::Clear, // 基本はクリアして
+			StoreOp a_storeOp = StoreOp::Store, // 基本は保存する
+			float a_texScale = 1.0f
+		);
+		void WriteDepth(
+			const std::string& a_texName,
+			DXGI_FORMAT a_format = DXGI_FORMAT_D32_FLOAT,
+			LoadOp a_loadOp = LoadOp::Clear,
+			StoreOp a_storeOp = StoreOp::Store,
+			float a_texScale = 1.0f
+		);
+		void WriteTemporalRTV(
+			const std::string& a_texName,
+			DXGI_FORMAT a_format,
+			LoadOp a_loadOp = LoadOp::Clear,
+			StoreOp a_storeOp = StoreOp::Store,
+			float a_texScale = 1.0f
+		);
+
 		// PSOの作成
 		D3D12::GraphicsPipelineDesc& CreatePSODesc(const std::string& a_name,uint8_t& a_outIndex);
 
@@ -39,8 +71,8 @@ namespace Engine::Graphics
 		bool SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath);
 
 		// 依存関係構築
-		void Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
-		void Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
+		//void Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
+		//void Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
 
 		// ---- ヘルパー ----
 		void SetVS(D3D12::GraphicsPipelineDesc& a_pso, const std::string& a_vsPath, const D3D12_INPUT_LAYOUT_DESC& a_desc);
@@ -76,8 +108,32 @@ namespace Engine::Graphics
 		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath);
 
 		// 依存関係構築
-		void Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
-		void Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
+		// =========================================================
+		// 読み込み系
+		// =========================================================
+		void ReadSRV(const std::string& a_texName);
+		void ReadHistorySRV(const std::string& a_texName);
+
+		// =========================================================
+		// 書き込み系
+		// =========================================================
+		void WriteUAV(
+			const std::string& a_texName,
+			DXGI_FORMAT a_format,
+			LoadOp a_loadOp = LoadOp::Clear,	// 基本はクリアして
+			StoreOp a_storeOp = StoreOp::Store, // 基本は保存する
+			float a_texScale = 1.0f
+		);
+		void WriteTemporalUAV(
+			const std::string& a_texName,
+			DXGI_FORMAT a_format,
+			LoadOp a_loadOp = LoadOp::Clear,
+			StoreOp a_storeOp = StoreOp::Store,
+			float a_texScale = 1.0f
+		);
+
+		//void Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
+		//void Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
 
 		void SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex);
 
@@ -98,8 +154,27 @@ namespace Engine::Graphics
 		~RGGlobalsPassBuilder() = default;
 
 		// 依存関係構築
-		void Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
-		void Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
+		// =========================================================
+		// 読み込み系
+		// =========================================================
+		void CopySrc(const std::string& a_texName);
+
+		// =========================================================
+		// 書き込み系
+		// =========================================================
+		void CopyDst(const std::string& a_texName,
+			DXGI_FORMAT a_format,
+			LoadOp a_loadOp = LoadOp::Clear,	// 基本はクリアして
+			StoreOp a_storeOp = StoreOp::Store, // 基本は保存する
+			float a_texScale = 1.0f);
+		void ReadSRV(const std::string& a_texName);
+		void WriteUAV(
+			const std::string& a_texName,
+			DXGI_FORMAT a_format,
+			LoadOp a_loadOp = LoadOp::Clear,	// 基本はクリアして
+			StoreOp a_storeOp = StoreOp::Store, // 基本は保存する
+			float a_texScale = 1.0f
+		);
 
 	private:
 		RenderGraph* m_pRG = nullptr;
