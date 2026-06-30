@@ -27,6 +27,7 @@
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Resource/Loader/Texture/TextureLoader.h"
+#include "../RenderPassRegistry/RenderPassRegistry.h"
 
 // オプション
 #include "../../Option/OptionManager.h"
@@ -38,39 +39,16 @@ namespace Engine::Graphics
 	RenderGraph::~RenderGraph()
 	{}
 
-	void RenderGraph::Init(D3D12::PipelineStateManager* a_pPipelineStateManager)
+	void RenderGraph::Init(RenderPassRegistry* a_pRenderPassRegister)
 	{
 		// リソースマネージャー作成
 		m_upRGResourceManager = std::make_unique<RGResourceManager>();
 
 		// パス登録
-		AddZPrePass(a_pPipelineStateManager, *this, EDrawPhase::Setup);
-		
-		AddGBufferPass(a_pPipelineStateManager, *this, EDrawPhase::Geometry);
-		AddFullScreenPass(a_pPipelineStateManager, *this, EDrawPhase::Present);
-		AddFullRaytracingPass(a_pPipelineStateManager, *this, EDrawPhase::Geometry);
-		AddRaytracingShadowPass(a_pPipelineStateManager, *this, EDrawPhase::Shadow);
-		AddRaytracingGIPass(a_pPipelineStateManager, *this, EDrawPhase::Raytracing);
-		AddDeferredLighting(a_pPipelineStateManager, *this, EDrawPhase::Lighting);
-		AddGBufferHistoryPass(a_pPipelineStateManager, *this, EDrawPhase::HistoryUpdate);
-		AddPostHistoryPass(a_pPipelineStateManager, *this, EDrawPhase::HistoryUpdate);
-		AddDebugLinePass(a_pPipelineStateManager, *this, EDrawPhase::UI);
-
-		AddTAAPass(a_pPipelineStateManager, *this, EDrawPhase::PostProcess);
-		
-
-		// 自分で順序を決定するパス(登録準に配列に追加される)
-		// シャドウデノイズ系
-		AddShadowTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
-
-		// GIデノイズ系
-		AddTemporalAccumulationPass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
-		AddGISpatialDenoisePass(a_pPipelineStateManager, *this, EDrawPhase::NotSort);
-
-		// パーティクル
-		AddEmitParticlePass(a_pPipelineStateManager, *this, EDrawPhase::Particle);
-		AddUpdateParticlePass(a_pPipelineStateManager, *this, EDrawPhase::Particle);
-		AddParticlePass(a_pPipelineStateManager, *this, EDrawPhase::Particle);
+		for (auto& _pPassNode : a_pRenderPassRegister->RefPassNodes())
+		{
+			m_pPassNodeMap[_pPassNode->phase].push_back(_pPassNode.get());
+		}
 
 		// コンパイル
 		Compile();
@@ -79,7 +57,7 @@ namespace Engine::Graphics
 	void RenderGraph::Release()
 	{
 		m_compiledPasses.clear();
-		m_passNodeMap.clear();
+		m_pPassNodeMap.clear();
 	}
 
 	void RenderGraph::Compile()
@@ -91,70 +69,69 @@ namespace Engine::Graphics
 
 		// =========================================================
 		// 文字列から Resource::ID を取得し、配列に流し込む
-		for (auto& [_phase, _passNodeVec] : m_passNodeMap)
+		for (auto& [_phase, _passNodeVec] : m_pPassNodeMap)
 		{
-			for (auto& _passNode : _passNodeVec)
+			for (auto* _passNode : _passNodeVec)
 			{
-				_passNode.read.clear();
-				_passNode.write.clear();
-				_passNode.resourceAccessVec.clear();
+				_passNode->read.clear();
+				_passNode->write.clear();
+				_passNode->resourceAccessVec.clear();
 
-				for (auto& _req : _passNode.readRequests)
+				for (auto& _req : _passNode->readRequests)
 				{
 					Resource::ID _id = m_upRGResourceManager->GetID(_req.resName);
 					if (_id == Resource::Limits::INVALID_ID)
 					{
 						assert(_id != Resource::Limits::INVALID_ID && "要求されたリソース名がレンダーグラフに登録されていません！タイポをチェックしてください。");
 					}
-					_passNode.read.push_back(_id);
-					_passNode.resourceAccessVec.push_back({ _id, _req.type, _req.load, _req.store });
+					_passNode->read.push_back(_id);
+					_passNode->resourceAccessVec.push_back({ _id, _req.type, _req.load, _req.store });
 				}
-				for (auto& _req : _passNode.writeRequests)
+				for (auto& _req : _passNode->writeRequests)
 				{
 					Resource::ID _id = m_upRGResourceManager->GetID(_req.resName);
 					if (_id == Resource::Limits::INVALID_ID)
 					{
 						assert(_id != Resource::Limits::INVALID_ID && "要求されたリソース名がレンダーグラフに登録されていません！タイポをチェックしてください。");
 					}
-					_passNode.write.push_back(_id);
-					_passNode.resourceAccessVec.push_back({ _id, _req.type, _req.load, _req.store });
+					_passNode->write.push_back(_id);
+					_passNode->resourceAccessVec.push_back({ _id, _req.type, _req.load, _req.store });
 				}
 			}
 		}
-		
 
 		// ソート配列の作成
-		for (auto& [_phase, _passVec] : m_passNodeMap)
+		for (auto& [_phase, _pPassVec] : m_pPassNodeMap)
 		{
 			std::vector<RenderPassNode*> _sortedNodes = {};
 			if (_phase == EDrawPhase::NotSort)
 			{
-				for (auto& _pass : _passVec)
+				for (auto* _pPass : _pPassVec)
 				{
-					_sortedNodes.push_back(&_pass);
+					_sortedNodes.push_back(_pPass);
 				}
 			}
 			else if (_phase == EDrawPhase::Particle)
 			{
 				// 外部のバッファなどはまだバリア未対応なので
 				// ソートしない
-				for (auto& _pass : _passVec)
+				for (auto* _pPass : _pPassVec)
 				{
-					_sortedNodes.push_back(&_pass);
+					_sortedNodes.push_back(_pPass);
 				}
 			}
 			else
 			{
 				// ソート配列の作成
 				Algorithm::Graph::TopologicalSort(
-					_passVec,
+					_pPassVec,
 					_sortedNodes,
-					[&](auto& a, auto& b)
+					[&](auto* a, auto* b)
 					{
 						// 依存があるかどうか
-						for (auto& _write : b.write)
+						for (auto& _write : b->write)
 						{
-							for (auto& _read : a.read)
+							for (auto& _read : a->read)
 							{
 								if (_write == _read)
 								{
@@ -168,7 +145,7 @@ namespace Engine::Graphics
 			}
 
 			// 合成
-			m_sortedPassed.insert(m_sortedPassed.end(),_sortedNodes.begin(),_sortedNodes.end());
+			m_sortedPassed.insert(m_sortedPassed.end(), _sortedNodes.begin(), _sortedNodes.end());
 		}
 
 		// テクスチャの作成
@@ -308,7 +285,12 @@ namespace Engine::Graphics
 
 	void RenderGraph::AddPassNode(const EDrawPhase& a_pahse, const RenderPassNode& a_node)
 	{
-		m_passNodeMap[a_pahse].push_back(a_node);
+		//m_passNodeMap[a_pahse].push_back(a_node);
+	}
+
+	void RenderGraph::AddPassNode(const EDrawPhase& a_pahse, RenderPassNode* a_pNode)
+	{
+		m_pPassNodeMap[a_pahse].push_back(a_pNode);
 	}
 
 
@@ -507,12 +489,12 @@ namespace Engine::Graphics
 		};
 		std::unordered_map<std::string, GlobalResourceInfo> _globalResourceMap = {};
 
-		for (auto& [_phase, _passNodeVec] : m_passNodeMap)
+		for (auto& [_phase, _passNodeVec] : m_pPassNodeMap)
 		{
-			for (auto& _passNode : _passNodeVec)
+			for (auto* _passNode : _passNodeVec)
 			{
 				// Read要求の収集
-				for (auto& _req : _passNode.readRequests)
+				for (auto& _req : _passNode->readRequests)
 				{
 					auto& _info = _globalResourceMap[_req.resName];
 					if (_req.type == AccessType::Depth_Read) _info.usage |= Resource::TextureUsage::DSV;
@@ -523,7 +505,7 @@ namespace Engine::Graphics
 				}
 
 				// Write要求の収集（フォーマットとスケールはWrite側が主導権を持つ）
-				for (auto& _req : _passNode.writeRequests)
+				for (auto& _req : _passNode->writeRequests)
 				{
 					auto& _info = _globalResourceMap[_req.resName];
 					if (_req.isTemporal) _info.isTemporal = true;

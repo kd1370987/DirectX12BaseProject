@@ -21,12 +21,14 @@ namespace Engine::Graphics
 		/// パスを登録して、ハッシュ値とビット番号のステートを作成する
 		/// </summary>
 		/// <param name="a_node">レンダーパスノード</param>
-		void RegisterPass(const RenderPassNode& a_node);
+		NodeState RegisterPass(const RenderPassNode& a_node);
 
 		// ---- アクセサ ----
 		RenderPassNode* RefNode(const std::string& a_name);
 		RenderPassNode* RefNode(UINT a_nameHash);
 		RenderPassNode* RefNode(uint64_t a_bit);
+
+		std::vector<std::unique_ptr<RenderPassNode>>& RefPassNodes() { return m_renderPassNodes; }
 
 	private:
 

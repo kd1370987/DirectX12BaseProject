@@ -2,7 +2,7 @@
 
 namespace Engine::Graphics
 {
-	void RenderPassRegistry::RegisterPass(const RenderPassNode& a_node)
+	RenderPassRegistry::NodeState RenderPassRegistry::RegisterPass(const RenderPassNode& a_node)
 	{
 		UINT _hash = StringUtility::ToHash(a_node.name);
 
@@ -10,14 +10,14 @@ namespace Engine::Graphics
 		if (m_hashNodeMap.contains(_hash))
 		{
 			ENGINE_ERRLOG(false, "すでに同じ名前のレンダーパスが登録されています。");
-			return;
+			return {};
 		}
 
 		// パス登録数の上限チェック
 		if (m_nextBitIndex >= 64)
 		{
 			ENGINE_ERRLOG(false, "登録可能なレンダーパスの上限（64個）を超過しました。");
-			return;
+			return {};
 		}
 
 		// パスの実体をディープコピーしてポインタ管理に変換
@@ -45,6 +45,8 @@ namespace Engine::Graphics
 
 		// 次のパス用のビットへ進める
 		m_nextBitIndex++;
+
+		return _state;
 	}
 
 	RenderPassNode* RenderPassRegistry::RefNode(const std::string& a_name)

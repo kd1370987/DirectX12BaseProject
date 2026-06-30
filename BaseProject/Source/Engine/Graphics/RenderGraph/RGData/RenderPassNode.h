@@ -113,9 +113,11 @@ namespace Engine::Graphics
 	{
 		// 初期情報
 		std::string name;										// パス名
+		EDrawPhase phase;										// パスが所属するフェーズ
+
 		std::vector<Engine::Resource::ID> read = {};			// 入力データ
 		std::vector<Engine::Resource::ID> write = {};			// 出力データ
-		std::vector<AccessResource> resourceAccessVec = {};	// 開始・終了時のリソース設定
+		std::vector<AccessResource> resourceAccessVec = {};		// 開始・終了時のリソース設定
 
 		std::vector<ResourceRequest> readRequests;
 		std::vector<ResourceRequest> writeRequests;

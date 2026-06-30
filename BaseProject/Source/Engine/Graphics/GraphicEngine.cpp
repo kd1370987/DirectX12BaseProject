@@ -18,6 +18,27 @@
 // オプション
 #include "../Option/OptionManager.h"
 
+// レンダーパス
+#include "RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
+#include "RenderPass/RasterizePass/ParticlePass/ParticlePass.h"
+#include "RenderPass/RasterizePass/GBufferPass/GBufferPass.h"
+#include "RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
+#include "RenderPass/RasterizePass/DebugLinePass/DebugLinePass.h"
+
+#include "RenderPass/RaytracingPass/FullRaytracingPass/FullRaytracingPass.h"
+#include "RenderPass/RaytracingPass/RaytracingGIPass/RaytracingGIPass.h"
+#include "RenderPass/RaytracingPass/RaytracingShadowPass/RaytracingShadowPass.h"
+
+#include "RenderPass/ComputePass/Lighting/DeferredLighting/DeferredLighting.h"
+#include "RenderPass/CopyPass/GBufferHistoryPass/GBufferHistoryPass.h"
+#include "RenderPass/CopyPass/PostHistoryPass/PostHistoryPass.h"
+#include "RenderPass/ComputePass/Denoise/TempralAccumulationPass/TemporalAccumulationPass.h"
+#include "RenderPass/ComputePass/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
+#include "RenderPass/ComputePass/AntiAliasing/TAA/TAAPass.h"
+#include "RenderPass/ComputePass/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
+#include "RenderPass/ComputePass/Effect/Particle/EmitParticlePass/EmitParticlePass.h"
+#include "RenderPass/ComputePass/Effect/Particle/UpdateParticlePass.h"
+
 namespace Engine::Graphics
 {
 	GraphicsEngine::GraphicsEngine()
@@ -54,10 +75,34 @@ namespace Engine::Graphics
 
 		// レンダーパスの登録
 		m_upRenderPassRegistry = std::make_unique<RenderPassRegistry>();
+		// ラスター関係
+		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
+		AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
+		AddDebugLinePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
+		AddFullScreenPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
+
+		AddFullRaytracingPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
+		AddRaytracingShadowPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Shadow);
+		AddRaytracingGIPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Raytracing);
+		AddDeferredLighting(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Lighting);
+		AddGBufferHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
+		AddPostHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
+
+		AddTAAPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
+
+		AddShadowTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
+
+		AddTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
+		AddGISpatialDenoisePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
+
+		// パーティクル
+		AddEmitParticlePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Particle);
+		AddUpdateParticlePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Particle);
+		AddParticlePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Particle);
 
 		// レンダーグラフの構築
 		m_upRenderGraph = std::make_unique<RenderGraph>();
-		m_upRenderGraph->Init(m_pPipelineStateManager);
+		m_upRenderGraph->Init(m_upRenderPassRegistry.get());
 
 		// 定数バッファ初期化
 		m_cbAmbient = {};

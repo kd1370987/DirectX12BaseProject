@@ -10,6 +10,7 @@ namespace Engine::D3D12
 namespace Engine::Graphics
 {
 	class GraphicsEngine;
+	class RenderPassRegistry;
 
 
 	// リソースバリア
@@ -48,7 +49,7 @@ namespace Engine::Graphics
 		RenderGraph();
 		~RenderGraph();
 
-		void Init(D3D12::PipelineStateManager* a_pPipelineStateManager);
+		void Init(RenderPassRegistry* a_pRenderPassRegister);
 
 		void Release();
 
@@ -56,6 +57,7 @@ namespace Engine::Graphics
 		void Excute(GraphicsEngine* a_pGE,RenderContext* a_pCtx);		// パスを順次実行
 
 		void AddPassNode(const EDrawPhase& a_pahse,const RenderPassNode& a_node);
+		void AddPassNode(const EDrawPhase& a_pahse,RenderPassNode* a_pNode);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(const std::string& a_name);
 		Handle<D3D12::SRV> GetSRVHandle(const std::string& a_name);
@@ -99,7 +101,7 @@ namespace Engine::Graphics
 		UINT m_temporalIndex = 0;
 
 		// パスデータ格納
-		std::map<EDrawPhase, std::vector<RenderPassNode>> m_passNodeMap;
+		std::map<EDrawPhase, std::vector<RenderPassNode*>> m_pPassNodeMap;
 		std::vector<RenderPassNode*> m_sortedPassed = {};							// ソート後のパス
 
 		// コンパイル後のパス
