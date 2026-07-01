@@ -178,9 +178,6 @@
     <Filter Include="Library">
       <UniqueIdentifier>{41eaf468-6553-450f-8192-b28bb87e004e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Library\imgui-docking">
-      <UniqueIdentifier>{397ba751-7665-4e60-8c12-b3c36761772b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12">
       <UniqueIdentifier>{1d727b94-84b5-4847-a0f9-b3e57b2c5b80}</UniqueIdentifier>
     </Filter>
@@ -820,9 +817,6 @@
     <Filter Include="Source\Engine\Resource\Loader\StateMachineAsset">
       <UniqueIdentifier>{f761a23a-b7bc-4c16-a725-62b1b2f6a5d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Library\imnodes-master">
-      <UniqueIdentifier>{f6d3c56e-2372-475c-a03e-3bb02b78d943}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem">
       <UniqueIdentifier>{d4094ff4-6543-49dd-b814-2e5229463f2e}</UniqueIdentifier>
     </Filter>
@@ -988,9 +982,6 @@
     <Filter Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct">
       <UniqueIdentifier>{1cca95e2-0a1a-4c04-afe5-247f4c0536ff}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Library\Guizmo">
-      <UniqueIdentifier>{2ae94b70-2da0-48ef-ae24-0764a30415d2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPassRegistry">
       <UniqueIdentifier>{11c31ac3-8de7-4e21-bf83-421d7c43d109}</UniqueIdentifier>
     </Filter>
@@ -1002,6 +993,18 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\ShadingPipelineBuilder">
       <UniqueIdentifier>{f2601013-cd86-4e8d-aa96-27ba28a268dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Include">
+      <UniqueIdentifier>{dcc56788-7fdf-4083-b910-6fe270b9b148}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Include\imgui-docking">
+      <UniqueIdentifier>{76cea54d-bc8f-4459-91d0-cf6eb9078450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Include\ImGuizmo-master">
+      <UniqueIdentifier>{88c7c0b8-89ad-49e1-9f74-aab311ab30ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library\Include\imnodes-master">
+      <UniqueIdentifier>{0bcf22f6-130d-4baf-a913-27c9a623199a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1073,27 +1076,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp">
       <Filter>Source\Engine\Editor\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\imgui-docking\imgui.cpp">
-      <Filter>Library\imgui-docking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\imgui-docking\imgui_demo.cpp">
-      <Filter>Library\imgui-docking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\imgui-docking\imgui_draw.cpp">
-      <Filter>Library\imgui-docking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\imgui-docking\imgui_impl_dx12.cpp">
-      <Filter>Library\imgui-docking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\imgui-docking\imgui_impl_win32.cpp">
-      <Filter>Library\imgui-docking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\imgui-docking\imgui_tables.cpp">
-      <Filter>Library\imgui-docking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\imgui-docking\imgui_widgets.cpp">
-      <Filter>Library\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp">
       <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
@@ -1470,9 +1452,6 @@
     <ClCompile Include="Source\Engine\Resource\Loader\StateMachineAsset\StateMachineAssetLoader.cpp">
       <Filter>Source\Engine\Resource\Loader\StateMachineAsset</Filter>
     </ClCompile>
-    <ClCompile Include="..\Library\imnodes-master\imnodes.cpp">
-      <Filter>Library\imnodes-master</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
     </ClCompile>
@@ -1490,9 +1469,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp">
       <Filter>Source\Engine\Resource\Data\Particles</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Library\imgui-docking\imgui_stdlib.cpp">
-      <Filter>Library\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp">
       <Filter>Source\Engine\Particle\GPU\GPUParticlePool</Filter>
@@ -1575,9 +1551,6 @@
     <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.cpp">
       <Filter>Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct</Filter>
     </ClCompile>
-    <ClCompile Include="..\Library\Guizmo\ImGuizmo.cpp">
-      <Filter>Library\Guizmo</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.cpp">
       <Filter>Source\Engine\Graphics\RenderPassRegistry</Filter>
     </ClCompile>
@@ -1589,6 +1562,36 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp">
       <Filter>Source\Engine\Graphics\ShadingPipelineBuilder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imnodes-master\imnodes.cpp">
+      <Filter>Library\Include\imnodes-master</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
+      <Filter>Library\Include\ImGuizmo-master</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui.cpp">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_demo.cpp">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_draw.cpp">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_dx12.cpp">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_win32.cpp">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_stdlib.cpp">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_tables.cpp">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp">
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1741,30 +1744,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h">
       <Filter>Source\Engine\Editor\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\imgui-docking\imconfig.h">
-      <Filter>Library\imgui-docking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\imgui-docking\imgui.h">
-      <Filter>Library\imgui-docking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\imgui-docking\imgui_impl_dx12.h">
-      <Filter>Library\imgui-docking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\imgui-docking\imgui_impl_win32.h">
-      <Filter>Library\imgui-docking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\imgui-docking\imgui_internal.h">
-      <Filter>Library\imgui-docking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\imgui-docking\imstb_rectpack.h">
-      <Filter>Library\imgui-docking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\imgui-docking\imstb_textedit.h">
-      <Filter>Library\imgui-docking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\imgui-docking\imstb_truetype.h">
-      <Filter>Library\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h">
       <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
@@ -2273,9 +2252,6 @@
     <ClInclude Include="Source\Engine\Resource\Loader\StateMachineAsset\StateMachineAssetLoader.h">
       <Filter>Source\Engine\Resource\Loader\StateMachineAsset</Filter>
     </ClInclude>
-    <ClInclude Include="..\Library\imnodes-master\imnodes.h">
-      <Filter>Library\imnodes-master</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
     </ClInclude>
@@ -2317,9 +2293,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.h">
       <Filter>Source\Engine\Resource\Loader\Particles</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Library\imgui-docking\imgui_stdlib.h">
-      <Filter>Library\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer\RWStructuredBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer</Filter>
@@ -2441,9 +2414,6 @@
     <ClInclude Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.h">
       <Filter>Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct</Filter>
     </ClInclude>
-    <ClInclude Include="..\Library\Guizmo\ImGuizmo.h">
-      <Filter>Library\Guizmo</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h">
       <Filter>Source\Engine\Graphics</Filter>
     </ClInclude>
@@ -2462,18 +2432,42 @@
     <ClInclude Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.h">
       <Filter>Source\Engine\Graphics\ShadingPipelineBuilder</Filter>
     </ClInclude>
+    <ClInclude Include="..\Library\Include\imnodes-master\imnodes.h">
+      <Filter>Library\Include\imnodes-master</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\ImGuizmo-master\ImGuizmo.h">
+      <Filter>Library\Include\ImGuizmo-master</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\imgui-docking\imconfig.h">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\imgui-docking\imgui.h">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\imgui-docking\imgui_impl_dx12.h">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\imgui-docking\imgui_impl_win32.h">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\imgui-docking\imgui_internal.h">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\imgui-docking\imgui_stdlib.h">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\imgui-docking\imstb_rectpack.h">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\imgui-docking\imstb_textedit.h">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\imgui-docking\imstb_truetype.h">
+      <Filter>Library\Include\imgui-docking</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="..\Library\imgui-docking\.editorconfig">
-      <Filter>Library\imgui-docking</Filter>
-    </None>
-    <None Include="..\Library\imgui-docking\.gitattributes">
-      <Filter>Library\imgui-docking</Filter>
-    </None>
-    <None Include="..\Library\imgui-docking\.gitignore">
-      <Filter>Library\imgui-docking</Filter>
-    </None>
     <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli">
       <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
     </None>
