@@ -4,6 +4,7 @@
 #include "RasterizationMesh/RasterizationMesh.h"
 #include "RaytracingMesh/RaytracingMesh.h"
 #include "CollisionMesh/CollisionMesh.h"
+#include "MeshShaderData/MeshShaderData.h"
 
 namespace Engine::Resource
 {
@@ -58,6 +59,11 @@ namespace Engine::Resource
 			const std::vector<DirectX::XMFLOAT3>& a_vertices, 
 			const std::vector<UINT>& a_indices
 		);
+		// メッシュシェーダー用データの作成
+		void CreateMeshShaderData(
+			const std::vector<MeshVertexFloat>& a_vertices,
+			const std::vector<uint32_t>& a_indices
+		);
 
 		// 解放
 		void Release();
@@ -80,6 +86,9 @@ namespace Engine::Resource
 		// レイトレデータ
 		bool HasRtData() const { return m_opRtData.has_value(); }
 		const RaytracingMesh& GetRtData() const { return m_opRtData.value(); }
+		// メッシュレットデータ
+		bool HasMeshShaderData() const { return m_opMeshShaderData.has_value(); }
+		const MeshShaderData& GetMeshShaderData() const { return m_opMeshShaderData.value(); }
 		// 当たり判定データ
 		bool HasCollisionMesh() const { return m_opCollMesh.has_value(); };				// 当たり判定を持っているかどうか
 		const CollisionMesh& GetCollisionMesh()const { return m_opCollMesh.value(); }	// 当たり判定取得
@@ -93,6 +102,7 @@ namespace Engine::Resource
 		std::optional<RasterizationMesh>		m_opRasterData;		// ラスタライザデータ
 		std::optional<RaytracingMesh>			m_opRtData;			// レイトレデータ
 		std::optional<CollisionMesh>			m_opCollMesh;		// 当たり判定
+		std::optional<MeshShaderData>			m_opMeshShaderData;	// メッシュシェーダーデータ
 
 		// セーブ用データ
 		std::vector<MeshVertexFloat> m_vertices;	// 頂点配列

@@ -601,9 +601,6 @@
     <Filter Include="Source\Engine\Resource\Data\Mesh\RasterizationMesh">
       <UniqueIdentifier>{e7614df1-fece-45c1-9d82-2c843264b183}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Data\Mesh\MeshletMesh">
-      <UniqueIdentifier>{fa6008b9-5060-4976-ae78-1e12a65f0dee}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh">
       <UniqueIdentifier>{90fb0c64-8f80-493a-8e18-f5c849be5bef}</UniqueIdentifier>
     </Filter>
@@ -1005,6 +1002,9 @@
     </Filter>
     <Filter Include="Library\Include\imnodes-master">
       <UniqueIdentifier>{0bcf22f6-130d-4baf-a913-27c9a623199a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Mesh\MeshShaderData">
+      <UniqueIdentifier>{9bb02f1b-b986-4e06-9ce2-5dbbd6d07032}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1592,6 +1592,9 @@
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp">
       <Filter>Library\Include\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshShaderData\MeshShaderData.cpp">
+      <Filter>Source\Engine\Resource\Data\Mesh\MeshShaderData</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2464,6 +2467,9 @@
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imstb_truetype.h">
       <Filter>Library\Include\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Mesh\MeshShaderData\MeshShaderData.h">
+      <Filter>Source\Engine\Resource\Data\Mesh\MeshShaderData</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

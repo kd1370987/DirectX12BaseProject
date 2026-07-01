@@ -21,9 +21,18 @@ bool Engine::Resource::Mesh::CreateFloat(
 	// メタデータ作成
 	CreateMeshMetaData(a_vertices,a_subsets,a_isSkinMesh);
 
-	// ラスタライザーデータ作成
-	CreateRasterData(_pDevice,a_vertices,a_face, DXGI_FORMAT_R32_UINT);
+	// メッシュシェーダー用データ作成
+	std::vector<uint32_t> _indices = {};
+	for (auto& _f : a_face)
+	{
+		_indices.push_back(_f.idx[0]);
+		_indices.push_back(_f.idx[1]);
+		_indices.push_back(_f.idx[2]);
+	}
+	CreateMeshShaderData(a_vertices, _indices);
 
+	// ラスタライザーデータ作成
+	CreateRasterData(_pDevice, a_vertices, a_face, DXGI_FORMAT_R32_UINT);
 	m_opRasterData->indexBuffer.CreateSRV(_pDevice);
 	m_opRasterData->vertexBuffer.CreateSRV(_pDevice);
 
@@ -89,6 +98,67 @@ void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<DirectX::XMFL
 {
 	auto& _collMesh = m_opCollMesh.emplace();
 	_collMesh.Create(a_vertices,a_indices);
+}
+
+void Engine::Resource::Mesh::CreateMeshShaderData(
+	const std::vector<MeshVertexFloat>& a_vertices, 
+	const std::vector<uint32_t>& a_indices
+)
+{
+	// 空で生成
+	m_opMeshShaderData.emplace();
+
+	// メッシュレット生成用パラメーター
+	const size_t MAX_VERTS = 64;			// 最大頂点数
+	const size_t MAX_PRIMS = 126;			// 最大プリミティブ数
+
+	// 生成結果を受け取るための一時バッファ
+	std::vector<DirectX::Meshlet> _dxMeshlets;
+	std::vector<uint8_t> _uniqueVertexIB;
+	std::vector<DirectX::MeshletTriangle> _primitiveIndices;
+
+	// 位置情報だけの配列を作る
+	std::vector<DirectX::XMFLOAT3> _positions;
+	_positions.reserve(a_vertices.size());
+	for (const auto& v : a_vertices)
+	{
+		_positions.push_back(v.pos);
+	}
+
+	// メッシュレット作成
+	HRESULT _hr = DirectX::ComputeMeshlets(
+		a_indices.data(),
+		a_indices.size() / 3,
+		_positions.data(),
+		_positions.size(),
+		nullptr,
+		_dxMeshlets,
+		_uniqueVertexIB,
+		_primitiveIndices,
+		MAX_VERTS,
+		MAX_PRIMS
+	);
+
+	if (FAILED(_hr))
+	{
+		ENGINE_ERRLOG(false, "Meshletの生成に失敗");
+		return;
+	}
+
+	// DirectX::Meshletを自前の構造体に詰め替える
+	m_opMeshShaderData.value().meshlets.reserve(_dxMeshlets.size());
+	for (const auto& _dxm : _dxMeshlets)
+	{
+		Engine::Resource::Meshlet _m = {};
+		_m.vertexCount = _dxm.VertCount;
+		_m.vertexOffset = _dxm.VertOffset;
+		_m.primitiveCount = _dxm.PrimCount;
+		_m.primitiveOffset = _dxm.PrimOffset;
+		m_opMeshShaderData.value().meshlets.push_back(_m);
+	}
+
+	m_opMeshShaderData.value().uniqueVertexIndices = std::move(_uniqueVertexIB);
+	m_opMeshShaderData.value().primitiveIndices = std::move(_primitiveIndices);
 }
 
 void Engine::Resource::Mesh::Release()

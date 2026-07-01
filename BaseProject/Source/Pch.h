@@ -84,8 +84,8 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include "d3dx12.h"          // D3DX12ユーティリティ（構造体のラッパー）
 
 // メッシュ
-//#pragma comment(lib,"DirectXMesh.lib")
-//#include <DirectXMesh.h>
+#pragma comment(lib,"DirectXMesh.lib")
+#include <DirectXMesh.h>
 
 #include <comdef.h>
 //===============================================
