@@ -2,6 +2,17 @@
 
 namespace Engine::Resource
 {
+	enum class EShaderStage
+	{
+		Unknown,
+		VS,
+		PS,
+		GS,
+		HS,
+		DS,
+		CS,
+	};
+
 	class Shader
 	{
 	public:
@@ -16,7 +27,7 @@ namespace Engine::Resource
 		const D3D12_SHADER_BYTECODE& GetByteCode() const;
 		
 		ID3DBlob* Get();
-
+		EShaderStage GetStage() const { return m_stage; }
 	private:
 
 		// パス
@@ -25,5 +36,7 @@ namespace Engine::Resource
 		// シェーダーデータ
 		ComPtr<ID3DBlob> m_cpBlob;
 		D3D12_SHADER_BYTECODE m_byteCode;
+
+		EShaderStage m_stage = EShaderStage::Unknown;
 	};
 }

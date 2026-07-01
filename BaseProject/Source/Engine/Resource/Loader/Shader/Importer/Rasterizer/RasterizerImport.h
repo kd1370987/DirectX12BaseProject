@@ -10,5 +10,8 @@ namespace Engine::Resource
 		// バイトコード作成
 		D3D12_SHADER_BYTECODE CreateShaderByteCode(ID3DBlob* a_pBlob);
 
+		// シェーダーステージの取得
+		EShaderStage ReflectShaderStage(const std::string& a_path);
+
 	}
 }

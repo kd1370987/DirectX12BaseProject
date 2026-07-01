@@ -427,6 +427,48 @@ namespace Engine::Graphics
 		return m_upRGResourceManager->GetResourceNameVec();
 	}
 
+	std::vector<DXGI_FORMAT> RenderGraph::GetPassRTVFormats(uint8_t a_passIndex)
+	{
+		std::vector<DXGI_FORMAT> _result = {};
+
+		for (auto* _node : m_sortedPassed)
+		{
+			if (_node->passIndex == a_passIndex)
+			{
+				for (auto& _wRes : _node->writeRequests)
+				{
+					if (_wRes.type == AccessType::RTV)
+					{
+						_result.push_back(_wRes.format);
+					}
+				}
+			}
+		}
+		return _result;
+	}
+
+	DXGI_FORMAT RenderGraph::GetPassDSVFormat(uint8_t a_passIndex)
+	{
+		DXGI_FORMAT _result = DXGI_FORMAT_UNKNOWN;
+
+		for (auto* _node : m_sortedPassed)
+		{
+			if (_node->passIndex == a_passIndex)
+			{
+				for(auto& _wRes : _node->writeRequests)
+				{
+					if(_wRes.type == AccessType::Depth_Write)
+					{
+						_result = _wRes.format;
+					}
+					if (_result != DXGI_FORMAT_UNKNOWN) break;
+				}
+			}
+			if (_result != DXGI_FORMAT_UNKNOWN) break;
+		}
+		return _result;
+	}
+
 	UINT RenderGraph::GetTemporalIndex() const
 	{
 		return m_temporalIndex;

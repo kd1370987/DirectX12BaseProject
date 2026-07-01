@@ -6,7 +6,7 @@ void Engine::Resource::Shader::Load(const std::string& a_path)
 {
 	m_cpBlob = Import::CompileShader(a_path);
 	m_byteCode = Import::CreateShaderByteCode(m_cpBlob.Get());
-
+	//m_stage = Import::ReflectShaderStage(a_path);
 	m_path = a_path;
 }
 

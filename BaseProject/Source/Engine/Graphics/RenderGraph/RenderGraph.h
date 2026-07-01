@@ -78,6 +78,11 @@ namespace Engine::Graphics
 		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);	// フォーマット取得
 		std::vector<std::string> GetRGResourceList();	// リソース名一覧
 
+		// パスの使用するフォーマットを取得
+		// コピーされるのでランタイム中索引には使わない
+		std::vector<DXGI_FORMAT> GetPassRTVFormats(uint8_t a_passIndex);
+		DXGI_FORMAT GetPassDSVFormat(uint8_t a_passIndex);
+
 		UINT GetTemporalIndex() const; // テンポラルインデックス取得
 
 		// リソースマネージャーにアクセス

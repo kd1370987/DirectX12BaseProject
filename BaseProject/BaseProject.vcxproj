@@ -78,7 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo;..\Library\DirectXMesh-main</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -115,7 +115,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo;..\Library\DirectXMesh-main</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -150,7 +150,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo;..\Library\DirectXMesh-main</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -190,7 +190,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;Source;..\Library;..\Library\DirectX12;..\Library\DirectXTex;..\Library\assimp\include;..\Library\imgui-docking;..\Library\imnodes-master;..\Library\Guizmo;..\Library\DirectXMesh-main</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -349,6 +349,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\Input\InputCollector\InputCollector.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.cpp" />
@@ -624,6 +625,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h" />
     <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h" />
+    <ClInclude Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.h" />
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.h" />

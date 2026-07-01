@@ -83,13 +83,13 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <d3d12.h>			 // D3D12のメインヘッダー
 #include "d3dx12.h"          // D3DX12ユーティリティ（構造体のラッパー）
 
+// メッシュ
+//#pragma comment(lib,"DirectXMesh.lib")
+//#include <DirectXMesh.h>
+
 #include <comdef.h>
 //===============================================
-//
 // ShaderCompiler
-//
-//===============================================
-
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "dxcompiler.lib")
 
@@ -98,11 +98,7 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 #include <d3d12shader.h>
 
 //===============================================
-//
 // DirectX Math / Utility
-//
-//===============================================
-
 #include <DirectXMath.h>				// 数学ライブラリ（ベクトル・行列）
 #include <DirectXColors.h>				// 色定義（Colors::Whiteなど）
 #include <DirectXCollision.h>			// 当たり判定
@@ -111,10 +107,7 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 namespace DXSM = DirectX::SimpleMath;
 
 //===============================================
-//
 // Texture
-//
-//===============================================
 #pragma comment(lib, "DirectXTex.lib")	// DirectXTexライブラリをリンクする
 #include <DirectXTex.h>			// テクスチャ読み込み（外部ライブラリ）
 

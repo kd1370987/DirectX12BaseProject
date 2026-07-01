@@ -1000,6 +1000,9 @@
     <Filter Include="Source\Engine\Resource\Loader\ShadingModelTable">
       <UniqueIdentifier>{4c436660-c624-4bc2-8314-6102bbb7c2b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\ShadingPipelineBuilder">
+      <UniqueIdentifier>{f2601013-cd86-4e8d-aa96-27ba28a268dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1583,6 +1586,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\ShadingModelTable\ShadingModelTableLoader.cpp">
       <Filter>Source\Engine\Resource\Loader\ShadingModelTable</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp">
+      <Filter>Source\Engine\Graphics\ShadingPipelineBuilder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2452,6 +2458,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\ShadingModelTable\ShadingModelTableLoader.h">
       <Filter>Source\Engine\Resource\Loader\ShadingModelTable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.h">
+      <Filter>Source\Engine\Graphics\ShadingPipelineBuilder</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
