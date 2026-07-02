@@ -301,11 +301,11 @@
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\FrameManager\FrameManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.cpp" />
@@ -330,6 +330,8 @@
     <ClCompile Include="Source\Engine\Editor\SceneView\SceneView.cpp" />
     <ClCompile Include="Source\Engine\Editor\WatchView\WatchView.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator\IndexRangeAllocator.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.cpp" />
@@ -565,6 +567,7 @@
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />
     <ClInclude Include="Source\Engine\D3D12\FrameManager\FrameManager.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.h" />
@@ -607,6 +610,9 @@
     <ClInclude Include="Source\Engine\EngineConfig.h" />
     <ClInclude Include="Source\Engine\Graphics\CBData.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h" />
+    <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator\IndexRangeAllocator.h" />
+    <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshAllocationHandle.h" />
+    <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.h" />
     <ClInclude Include="Source\Engine\Graphics\PSOKey.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGData\RenderPassNode.h" />
@@ -904,7 +910,7 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
     </FxCompile>
-    <None Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
+    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PSMain</EntryPointName>
@@ -918,8 +924,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <FileType>Document</FileType>
-    </None>
-    <None Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
@@ -929,7 +935,7 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <FileType>Document</FileType>
-    </None>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingPS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

@@ -11,6 +11,7 @@ void Engine::Resource::Shader::Load(const std::string& a_path, std::vector<LPCWS
 			L"-I",
 			L"Asset\\Shader\\Ray",
 			L"Asset\\Shader\\Source\\Mesh",
+			L"Asset\\Shader\\Source\\DebugLineShader",
 			L"Asset\\Shader\\Common",
 			L"-Zi",
 			L"-Qembed_debug"

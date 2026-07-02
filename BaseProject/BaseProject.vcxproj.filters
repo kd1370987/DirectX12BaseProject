@@ -1027,6 +1027,12 @@
     <Filter Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer">
       <UniqueIdentifier>{2605fc2c-b224-47ad-8e73-ba20a9718a62}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\MeshBufferAllocator">
+      <UniqueIdentifier>{4cdb53e6-823d-442f-af6a-eba9acee921b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator">
+      <UniqueIdentifier>{ae1b5062-0a52-4341-abb0-2fcda8d0592a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1350,9 +1356,6 @@
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\StaticBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.cpp">
-      <Filter>Source\Engine\D3D12\GPUBuffer\StructuredBuffer</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem</Filter>
     </ClCompile>
@@ -1627,6 +1630,15 @@
       <Filter>Source\Engine\Graphics\RenderPass\GBufferPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.cpp">
+      <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp">
+      <Filter>Source\Engine\Graphics\MeshBufferAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator\IndexRangeAllocator.cpp">
+      <Filter>Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
     </ClCompile>
   </ItemGroup>
@@ -2516,6 +2528,18 @@
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.h">
+      <Filter>Source\Engine\Graphics\MeshBufferAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshAllocationHandle.h">
+      <Filter>Source\Engine\Graphics\MeshBufferAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator\IndexRangeAllocator.h">
+      <Filter>Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.h">
+      <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2599,12 +2623,6 @@
     </None>
     <None Include="Asset\Shader\Source\Mesh\MeshCommon.hlsli">
       <Filter>Asset\Shader\Source\Mesh</Filter>
-    </None>
-    <None Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
-      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
-    </None>
-    <None Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
-      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -2700,6 +2718,12 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\Mesh\ProceduralMS.hlsl">
       <Filter>Asset\Shader\Source\Mesh</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
+      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
+      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

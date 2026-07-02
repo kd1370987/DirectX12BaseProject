@@ -10,7 +10,7 @@ namespace Engine::D3D12
 		if (!StaticBuffer::Create(a_pDevice, a_pCmdList, _desc, a_pData))
 		{
 			assert(0 && "ストラクチャバッファの生成に失敗");
-			return;
+			return false;
 		}
 
 		// ビュー作成
