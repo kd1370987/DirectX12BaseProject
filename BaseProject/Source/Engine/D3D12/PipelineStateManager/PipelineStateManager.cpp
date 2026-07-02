@@ -1,7 +1,7 @@
 ﻿#include "PipelineStateManager.h"
 namespace Engine::D3D12
 {
-	void PipelineStateManager::Init(ID3D12Device* a_pDevice)
+	void PipelineStateManager::Init(D3D12::Device* a_pDevice)
 	{
 		m_pDevice = a_pDevice;
 		m_rootSigMap = {};
@@ -172,6 +172,53 @@ namespace Engine::D3D12
 		return _pso.Get();
 	}
 
+	ID3D12PipelineState* PipelineStateManager::Request(const D3D12::MeshPipelineBuilder& a_builder)
+	{
+		// ハッシュ計算 (builder.desc の中身でハッシュを作る)
+		uint64_t _hash = CalcHash(&a_builder.desc, sizeof(a_builder.desc));
+
+		// キャッシュにあれば返す
+		if (m_psoMap.contains(_hash)) {
+			return m_psoMap[_hash].Get();
+		}
+
+		// ストリーム構造体の組み立て
+		MeshShaderPipelineStateStream _streamDesc = {};
+		_streamDesc.RootSignature = a_builder.desc.pRootSignature;
+		_streamDesc.PrimitiveTopologyType = a_builder.desc.PrimitiveTopologyType;
+		_streamDesc.MS = a_builder.desc.MS;
+		_streamDesc.PS = a_builder.desc.PS;
+		_streamDesc.Blend = CD3DX12_BLEND_DESC(a_builder.desc.BlendState);
+		_streamDesc.Rasterizer = CD3DX12_RASTERIZER_DESC(a_builder.desc.RasterizerState);
+		_streamDesc.DepthStencil = CD3DX12_DEPTH_STENCIL_DESC(a_builder.desc.DepthStencilState);
+		// RTVフォーマットはコピーして渡す
+		D3D12_RT_FORMAT_ARRAY _rtvFormatArray = {};
+		_rtvFormatArray.NumRenderTargets = a_builder.desc.NumRenderTargets;
+		for (UINT i = 0; i < a_builder.desc.NumRenderTargets; ++i)
+		{
+			_rtvFormatArray.RTFormats[i] = a_builder.desc.RTVFormats[i];
+		}
+		_streamDesc.RTVFormats = _rtvFormatArray;
+		_streamDesc.DSVFormat = a_builder.desc.DSVFormat;
+
+		// ストリーム構造体をDirectX側に登録
+		D3D12_PIPELINE_STATE_STREAM_DESC _streamInfo = {};
+		_streamInfo.SizeInBytes = sizeof(_streamDesc);
+		_streamInfo.pPipelineStateSubobjectStream = &_streamDesc;
+
+		ComPtr<ID3D12PipelineState> _pPso;
+		HRESULT hr = m_pDevice->CreatePipelineState(&_streamInfo, IID_PPV_ARGS(&_pPso));
+
+		if (FAILED(hr)) {
+			ENGINE_ERRLOG(false,"メッシュシェーダー用パイプラインステートの生成に失敗");
+			return nullptr;
+		}
+
+		// マップに登録して返す
+		m_psoMap[_hash] = _pPso;
+		return _pPso.Get();
+	}
+
 	Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
 		const D3D12::GraphicsPipelineDesc& a_desc
 	)
@@ -189,6 +236,18 @@ namespace Engine::D3D12
 	Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
 		const D3D12::ComputePipelineDesc& a_desc
 	)
+	{
+		auto _handle = m_psoHandlePool.Allocate();
+		if (m_pPsoVec.size() <= _handle.GetIndex())
+		{
+			m_pPsoVec.resize(_handle.GetIndex() + 1);
+		}
+		m_pPsoVec[_handle.GetIndex()] = Request(a_desc);
+
+		return _handle;
+	}
+
+	Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(const D3D12::MeshPipelineBuilder& a_desc)
 	{
 		auto _handle = m_psoHandlePool.Allocate();
 		if (m_pPsoVec.size() <= _handle.GetIndex())

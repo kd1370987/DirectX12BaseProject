@@ -107,4 +107,18 @@ namespace Engine::D3D12
 		std::vector<RootRangeInit> rangeVec = {};	// レンジタイプ・インデックス
 		UINT shaderRegisterIndex;					// ルート定数などを使用する際のシェーダーインデックス
 	};
+
+	// メッシュシェーダー用パイプラインステート作成用構造体
+	struct MeshShaderPipelineStateStream
+	{
+		CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE RootSignature;
+		CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
+		CD3DX12_PIPELINE_STATE_STREAM_MS MS;
+		CD3DX12_PIPELINE_STATE_STREAM_PS PS;
+		CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC Blend;
+		CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER Rasterizer;
+		CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL DepthStencil;
+		CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RTVFormats;
+		CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT DSVFormat;
+	};
 }

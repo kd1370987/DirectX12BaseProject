@@ -287,6 +287,7 @@
     <ClCompile Include="Source\Engine\Collision\NarrowPhase\TestAABB\TestAABB.cpp" />
     <ClCompile Include="Source\Engine\Collision\NarrowPhase\TestTriangle\TestTriangle.cpp" />
     <ClCompile Include="Source\Engine\D3D12\AsyncGPUManager\AsyncGPUManager.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder\MeshPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp" />
     <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp" />
     <ClCompile Include="Source\Engine\D3D12\Command\CommandContext\CommandContext.cpp" />
@@ -341,9 +342,10 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\GBufferPass\GBufferPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\MeshShaderPass\TestMeshPass\TestMeshPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass\GBufferPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass\ParticlePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.cpp" />
@@ -399,6 +401,7 @@
     <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Model\ModelLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL\DXIL.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer\RasterizerImport.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\ShaderLoader.cpp" />
@@ -543,6 +546,7 @@
     <ClInclude Include="Source\Engine\Common\Handle.h" />
     <ClInclude Include="Source\Engine\Common\Macros\ClassMacros.h" />
     <ClInclude Include="Source\Engine\D3D12\AsyncGPUManager\AsyncGPUManager.h" />
+    <ClInclude Include="Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder\MeshPipelineBuilder.h" />
     <ClInclude Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.h" />
     <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h" />
     <ClInclude Include="Source\Engine\D3D12\Command\CommandContext\CommandContext.h" />
@@ -617,9 +621,10 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\GBufferPass\GBufferPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\MeshShaderPass\TestMeshPass\TestMeshPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass\GBufferPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass\ParticlePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.h" />
@@ -690,6 +695,7 @@
     <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Model\ModelLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.h" />
+    <ClInclude Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL\DXIL.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer\RasterizerImport.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\ShaderLoader.h" />
@@ -740,6 +746,7 @@
     <None Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingShader.hlsli" />
     <None Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingRoot.hlsli" />
     <None Include="Asset\Shader\Source\GBufferShader\GBufferShader.hlsli" />
+    <None Include="Asset\Shader\Source\Mesh\MeshCommon.hlsli" />
     <None Include="Asset\Shader\Source\ParticleShader\ParticleShader.hlsli" />
     <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli" />
     <None Include="Asset\Shader\Source\RootSignatureLayout.hlsli" />
@@ -1003,6 +1010,34 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
     </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Mesh\ProceduralMS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Mesh</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Mesh</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Mesh</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Mesh</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Mesh\UberMS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Mesh</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Mesh</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Mesh</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Mesh</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ParticleShader\ParticlePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -1062,6 +1097,44 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Test\TestMS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Mesh</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Mesh</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Mesh</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Mesh</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.5</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.5</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MSMain</EntryPointName>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">dxc.exe -T ms_6_5 -E MSMain -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">dxc.exe -T ms_6_5 -E MSMain -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.5</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.5</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Test\testPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.5</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.5</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ps</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.5</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.5</ShaderModel>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\AnimationZPreVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>

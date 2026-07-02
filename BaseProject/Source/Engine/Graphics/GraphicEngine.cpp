@@ -21,7 +21,7 @@
 // レンダーパス
 #include "RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
 #include "RenderPass/RasterizePass/ParticlePass/ParticlePass.h"
-#include "RenderPass/RasterizePass/GBufferPass/GBufferPass.h"
+#include "RenderPass/GBufferPass/GBufferPass.h"
 #include "RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
 #include "RenderPass/RasterizePass/DebugLinePass/DebugLinePass.h"
 
@@ -38,6 +38,9 @@
 #include "RenderPass/ComputePass/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
 #include "RenderPass/ComputePass/Effect/Particle/EmitParticlePass/EmitParticlePass.h"
 #include "RenderPass/ComputePass/Effect/Particle/UpdateParticlePass.h"
+
+
+#include "RenderPass/MeshShaderPass/TestMeshPass/TestMeshPass.h"
 
 namespace Engine::Graphics
 {
@@ -89,6 +92,8 @@ namespace Engine::Graphics
 		AddPostHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
 
 		AddTAAPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
+
+		AddMSTestPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
 
 		AddShadowTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 

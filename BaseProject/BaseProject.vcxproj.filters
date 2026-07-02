@@ -502,9 +502,6 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass">
       <UniqueIdentifier>{35aaacd8-923b-4d0b-88d4-e3d074481d2e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass">
-      <UniqueIdentifier>{12fdf53f-dab9-4904-8492-a513f60ac571}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass">
       <UniqueIdentifier>{80681360-4ff3-4c41-bcf9-6ad50c036a19}</UniqueIdentifier>
     </Filter>
@@ -1006,6 +1003,27 @@
     <Filter Include="Source\Engine\Resource\Data\Mesh\MeshShaderData">
       <UniqueIdentifier>{9bb02f1b-b986-4e06-9ce2-5dbbd6d07032}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\MeshShaderPass">
+      <UniqueIdentifier>{c0a3f1a7-dd96-4a25-aebc-639bb020d817}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\Builder\PipelineBuilder">
+      <UniqueIdentifier>{21970f9f-fd61-43a9-bcfb-31491b71e03c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder">
+      <UniqueIdentifier>{d7c8313b-c21f-4b7a-af0f-90cbc860c1c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Test">
+      <UniqueIdentifier>{35846641-bf2e-481d-9881-205d130ab91f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Loader\Shader\DXCCompiler">
+      <UniqueIdentifier>{6d6af7e2-b167-4115-ad8f-2d79d4db5fa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\GBufferPass">
+      <UniqueIdentifier>{9d5c0150-63e1-4f14-bad3-26139c79e5a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Mesh">
+      <UniqueIdentifier>{781f418c-bae8-4b0f-b530-26bf0583461e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1256,9 +1274,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\AnimationModelStartSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass\GBufferPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass</Filter>
@@ -1595,6 +1610,18 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshShaderData\MeshShaderData.cpp">
       <Filter>Source\Engine\Resource\Data\Mesh\MeshShaderData</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\MeshShaderPass\TestMeshPass\TestMeshPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\MeshShaderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder\MeshPipelineBuilder.cpp">
+      <Filter>Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.cpp">
+      <Filter>Source\Engine\Resource\Loader\Shader\DXCCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\GBufferPass\GBufferPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\GBufferPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2008,9 +2035,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h">
       <Filter>Source\Application\Systems\Init\Start\AnimationModelStartSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass\GBufferPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\GBufferPass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass</Filter>
@@ -2471,6 +2495,18 @@
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\MeshShaderData\MeshShaderData.h">
       <Filter>Source\Engine\Resource\Data\Mesh\MeshShaderData</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\MeshShaderPass\TestMeshPass\TestMeshPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\MeshShaderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder\MeshPipelineBuilder.h">
+      <Filter>Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.h">
+      <Filter>Source\Engine\Resource\Loader\Shader\DXCCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\GBufferPass\GBufferPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\GBufferPass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2551,6 +2587,9 @@
     </None>
     <None Include="Asset\Shader\Common\Shape\Sphere.hlsli">
       <Filter>Asset\Shader\Common\Shape</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\Mesh\MeshCommon.hlsli">
+      <Filter>Asset\Shader\Source\Mesh</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -2640,6 +2679,18 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ParticleShader\ParticlePS.hlsl">
       <Filter>Asset\Shader\Source\ParticleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Test\testPS.hlsl">
+      <Filter>Asset\Shader\Source\Test</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Test\TestMS.hlsl">
+      <Filter>Asset\Shader\Source\Test</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Mesh\UberMS.hlsl">
+      <Filter>Asset\Shader\Source\Mesh</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Mesh\ProceduralMS.hlsl">
+      <Filter>Asset\Shader\Source\Mesh</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

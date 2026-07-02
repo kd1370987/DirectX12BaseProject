@@ -540,6 +540,11 @@ namespace Engine::Graphics
 		m_pCmdList->Dispatch(a_x,a_y,a_z);
 	}
 
+	void RenderContext::DispatchMesh(UINT a_x, UINT a_y, UINT a_z)
+	{
+		m_pCmdList->DispatchMesh(a_x,a_y,a_z);
+	}
+
 	void RenderContext::BindGraphicsCamera()
 	{
 		if (!m_pGraphicsEngine) return;

@@ -32,8 +32,8 @@ namespace Engine::Raytracing
 		);
 
 		bool Build(
-			ID3D12Device5* a_pDevice,
-			ID3D12GraphicsCommandList4* a_cmdList,
+			D3D12::Device* a_pDevice,
+			D3D12::GraphicsCommandList* a_cmdList,
 			const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec
 		);
 

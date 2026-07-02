@@ -20,7 +20,7 @@ namespace Engine::D3D12
 
 	// コマンド関係
 	using CommandQueue			= ID3D12CommandQueue;				// コマンドキュー
-	using GraphicsCommandList	= ID3D12GraphicsCommandList4;		// コマンドリスト
+	using GraphicsCommandList	= ID3D12GraphicsCommandList6;		// コマンドリスト
 
 	// フェンス
 	using Fence					= ID3D12Fence;						// フェンス

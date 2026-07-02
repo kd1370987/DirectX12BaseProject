@@ -2,7 +2,7 @@
 
 // パス関連
 #include "../RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
-#include "../RenderPass/RasterizePass/GBufferPass/GBufferPass.h"
+#include "../RenderPass/GBufferPass/GBufferPass.h"
 #include "../RenderPass/ComputePass/Lighting/DeferredLighting/DeferredLighting.h"
 #include "../RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
 #include "../RenderPass/RaytracingPass/RaytracingShadowPass/RaytracingShadowPass.h"
@@ -556,7 +556,7 @@ namespace Engine::Graphics
 					_info.texScale = _req.texScale; // 念のためスケールも更新
 					
 					if (_req.type == AccessType::Depth_Write) _info.usage |= Resource::TextureUsage::DSV;
-					if (_req.type == AccessType::RTV)         _info.usage |= Resource::TextureUsage::RTV;
+					if (_req.type == AccessType::RTV)         _info.usage |= Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;			// ImGuiデモ見たいからいったんSRVもつけとく
 					if (_req.type == AccessType::UAV)         _info.usage |= Resource::TextureUsage::UAV;
 
 				}

@@ -153,6 +153,7 @@ namespace Engine::Graphics
 		void BindSRVBone();
 
 		void Dispatch(UINT a_x,UINT a_y,UINT a_z);
+		void DispatchMesh(UINT a_x,UINT a_y,UINT a_z);
 
 		// カメラのバインド
 		void BindGraphicsCamera();
