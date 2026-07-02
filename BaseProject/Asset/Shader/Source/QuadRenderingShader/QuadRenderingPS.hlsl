@@ -13,7 +13,7 @@ float3 ACESFilm(float3 x)
 	return saturate((x * (a * x + b)) / (x * (c * x + d) + e));
 }
 
-float4 ps(Output a_input) : SV_TARGET
+float4 PSMain(Output a_input) : SV_TARGET
 {
 	float4 _result = float4(0, 0, 0, 1);
 	

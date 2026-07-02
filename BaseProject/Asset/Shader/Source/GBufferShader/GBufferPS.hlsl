@@ -5,7 +5,7 @@
 // ルートシグネチャ定義
 [RootSignature(GBUFFER_ROOT_SIG)]
 
-PSOutput ps(VSOutput a_input)
+PSOutput PSMain(VSOutput a_input)
 {
 	int _instanceIdx = g_bufferIndex.instanceDataIndex;
 	int _subIdx = g_bufferIndex.subsetDataIndex;

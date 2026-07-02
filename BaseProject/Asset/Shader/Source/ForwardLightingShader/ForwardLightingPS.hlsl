@@ -4,7 +4,7 @@
 // ルートシグネチャ定義
 [RootSignature(FOWARDLIGHTING_ROOT_SIG)]
 
-float4 ps(VSOutput a_input) : SV_Target
+float4 PSMain(VSOutput a_input) : SV_Target
 {
 	int _subIdx = g_bufferIndex.subsetDataIndex;
 	

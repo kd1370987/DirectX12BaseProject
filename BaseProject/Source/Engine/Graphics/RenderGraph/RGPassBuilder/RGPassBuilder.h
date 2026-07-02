@@ -74,14 +74,11 @@ namespace Engine::Graphics
 
 		// ---- パスを通しての共通設定 ----
 		// ルートシグネチャセット
-		bool SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath);
-
-		// 依存関係構築
-		//void Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
-		//void Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
+		//bool SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath);
+		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob);
 
 		// ---- ヘルパー ----
-		void SetVS(D3D12::GraphicsPipelineDesc& a_pso, const std::string& a_vsPath, const D3D12_INPUT_LAYOUT_DESC& a_desc);
+		ID3DBlob* SetVS(D3D12::GraphicsPipelineDesc& a_pso, const std::string& a_vsPath, const D3D12_INPUT_LAYOUT_DESC& a_desc);
 		void SetPS(D3D12::GraphicsPipelineDesc& a_pso, const std::string& a_psPath);
 
 	private:
@@ -179,7 +176,7 @@ namespace Engine::Graphics
 		void ResolveAndCompile(D3D12::PipelineStateManager* a_pPSOManager);
 
 		// ルートシグネチャセット
-		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath);
+		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob);
 
 		// 依存関係構築
 		// =========================================================
@@ -206,10 +203,7 @@ namespace Engine::Graphics
 			float a_texScale = 1.0f
 		);
 
-		//void Read(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
-		//void Write(const std::string& a_texName, AccessType a_type, LoadOp a_loadOp, StoreOp a_storeOp);
-
-		void SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex);
+		ID3DBlob* SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex);
 
 	private:
 

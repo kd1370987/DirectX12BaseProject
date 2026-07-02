@@ -13,7 +13,7 @@ float3 ReconstructViewPos(float2 uv, float depth)
 }
 
 
-float4 ps(VSOutput a_in) : SV_Target
+float4 PSMain(VSOutput a_in) : SV_Target
 {	
 	// GBufferから情報を取得
 	float3 _albedo = g_albedoTex.Sample(g_samp, a_in.uv).rgb;	// アルベド

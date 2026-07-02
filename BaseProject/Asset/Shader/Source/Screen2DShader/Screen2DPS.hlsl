@@ -4,7 +4,7 @@
 // ルートシグネチャ定義
 [RootSignature(SCREEN2D_ROOT_SIG)]
 
-float4 ps(VSOutput a_input) : SV_Target
+float4 PSMain(VSOutput a_input) : SV_Target
 {
 	float4 _outColor = float4(0, 0, 0, 1); // 出力色の初期化
 	

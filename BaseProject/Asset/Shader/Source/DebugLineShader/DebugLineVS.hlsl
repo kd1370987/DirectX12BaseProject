@@ -7,7 +7,7 @@
 // ルートシグネチャ定義
 [RootSignature(DEBUGLINE_ROOT_SIG)]
 
-VSOutput vs(VSInput a_input)
+VSOutput VSMain(VSInput a_input)
 {
 	int _index = a_input.instID;
 	DebugLine _instance = g_debuglineBuffer[_index];

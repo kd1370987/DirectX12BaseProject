@@ -13,7 +13,7 @@ struct VSInput
 // ルートシグネチャ定義
 [RootSignature(ZPRE_ROOT_SIG)]
 
-VSOutput vs(VSInput a_input)
+VSOutput VSMain(VSInput a_input)
 {
 	int _index = g_bufferIndex.instanceDataIndex;
 	

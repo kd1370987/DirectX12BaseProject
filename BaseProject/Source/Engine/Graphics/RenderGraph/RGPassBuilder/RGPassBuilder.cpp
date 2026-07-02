@@ -73,18 +73,29 @@ namespace Engine::Graphics
 			}
 		}
 	}
-	bool RGRasterPassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath)
+	//bool RGRasterPassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath)
+	//{
+	//	m_pRootSig = a_pPSOManager->Request(a_shaderPath);
+	//	if (!m_pRootSig)
+	//	{
+	//		Engine::Editor::MainEditor::Instance().ErrorLog("ルートシグネチャが生成されませんでした");
+	//		return false;
+	//	}
+	//	return true;
+	//}
+
+	ID3D12RootSignature* RGRasterPassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob)
 	{
-		m_pRootSig = a_pPSOManager->Request(a_shaderPath);
+		m_pRootSig = a_pPSOManager->Request(a_pBlob);
 		if (!m_pRootSig)
 		{
 			Engine::Editor::MainEditor::Instance().ErrorLog("ルートシグネチャが生成されませんでした");
-			return false;
+			return nullptr;
 		}
-		return true;
+		return m_pRootSig;
 	}
 
-	void RGRasterPassBuilder::SetVS(
+	ID3DBlob* RGRasterPassBuilder::SetVS(
 		D3D12::GraphicsPipelineDesc& a_pso, const std::string& a_vsPath, const D3D12_INPUT_LAYOUT_DESC& a_desc
 	)
 	{
@@ -93,8 +104,10 @@ namespace Engine::Graphics
 
 		// 頂点シェーダーセット
 		auto _vsHandle = Resource::ShaderLoader::Request(a_vsPath);
-		auto _byteCode = Resource::ResourceManager::Instance().Get(_vsHandle)->GetByteCode();
-		a_pso.SetVS(_byteCode);
+		auto* _pShader = Resource::ResourceManager::Instance().Ref(_vsHandle);
+		a_pso.SetVS(_pShader->GetByteCode());
+
+		return _pShader->Get();
 	}
 	void RGRasterPassBuilder::SetPS(D3D12::GraphicsPipelineDesc & a_pso, const std::string & a_psPath)
 	{
@@ -117,15 +130,15 @@ namespace Engine::Graphics
 		}
 	}
 
-	ID3D12RootSignature* RGComputePassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath)
+	ID3D12RootSignature* RGComputePassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob)
 	{
-		m_pRootSig = a_pPSOManager->Request(a_shaderPath);
+		m_pRootSig = a_pPSOManager->Request(a_pBlob);
 		if (!m_pRootSig)
 		{
 			Engine::Editor::MainEditor::Instance().ErrorLog("ルートシグネチャが生成されませんでした");
 			return nullptr;
 		}
-		return a_pPSOManager->Request(a_shaderPath);
+		return m_pRootSig;
 	}
 
 	void RGComputePassBuilder::ReadSRV(const std::string& a_texName)
@@ -154,7 +167,7 @@ namespace Engine::Graphics
 		m_pNode->writeRequests.push_back({ a_texName, AccessType::UAV, a_format, a_texScale, a_loadOp, a_storeOp, true });
 	}
 
-	void RGComputePassBuilder::SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex)
+	ID3DBlob* RGComputePassBuilder::SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex)
 	{
 		m_desc.SetName(a_name);
 		auto _csHandle = Resource::ShaderLoader::Request(a_csPath);
@@ -162,6 +175,8 @@ namespace Engine::Graphics
 		m_desc.desc.CS.pShaderBytecode = _cs->Get()->GetBufferPointer();
 		m_desc.desc.CS.BytecodeLength = _cs->Get()->GetBufferSize();
 		m_pOutIndex = &a_outIndex;
+
+		return _cs->Get();
 	}
 
 	void RGGlobalsPassBuilder::CopySrc(const std::string& a_texName)
