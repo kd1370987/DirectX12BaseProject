@@ -18,7 +18,11 @@ namespace Engine::Resource
 	public:
 
 		// 読み込み
-		void Load(const std::string& a_path);
+		void Load(
+			const std::string& a_path,
+			std::vector<LPCWSTR> a_setting = {},
+			const wchar_t* a_version = L"6_6"
+		);
 
 		// 解放
 		void Release();

@@ -300,6 +300,7 @@
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\FrameManager\FrameManager.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.cpp" />
@@ -563,6 +564,7 @@
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />
     <ClInclude Include="Source\Engine\D3D12\FrameManager\FrameManager.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.h" />
@@ -902,7 +904,7 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
+    <None Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PSMain</EntryPointName>
@@ -916,8 +918,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <FileType>Document</FileType>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
+    </None>
+    <None Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
@@ -927,7 +929,7 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <FileType>Document</FileType>
-    </FxCompile>
+    </None>
     <FxCompile Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingPS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

@@ -53,6 +53,38 @@ namespace Engine::Graphics
 		UINT boneElementNum = 0;
 	};
 	
+	// ---- メッシュシェーダー用構造体 ----
+	struct MeshInstanceData
+	{
+		DXSM::Matrix worldMat;			// 現在フレームのワールド行列
+		DXSM::Matrix prevWorldMat;		// １フレーム前のワールド行列
+
+		// メッシュが参照するマテリアル
+		UINT materialOffset;
+
+		// アニメーションがあればデータが入っている
+		UINT boneStartIndex;			// 開始位置
+		UINT boneCount;					// 配列サイズ
+	};
+	struct MeshMaterial
+	{
+		// マテリアルのテクスチャスケール値
+		DXSM::Vector4 baseColor;
+
+		DXSM::Vector3 emissive;
+		float metallic;
+
+		float roughness;
+
+		DXSM::Vector3 pad;
+
+		// テクスチャのSRVインデックス
+		int albedIndex;					// アルベド
+		int metaRoughnessIndex;			// メタリックラフネステクスチャ
+		int emissiveIndex;
+		int normalIndex;
+	};
+
 	// 現在のフレームの描画管理クラス
 	class RenderContext
 	{
@@ -231,10 +263,6 @@ namespace Engine::Graphics
 		// バックバッファに切り替え
 		void ChangeBackBuffer();
 
-
-	
-
-
 	private:
 		//--------------------------------------------------------------------------------------------
 		// 参照
@@ -258,6 +286,7 @@ namespace Engine::Graphics
 		D3D12::StaticStructuredBuffer<InstanceData> m_instanceBuffer;
 		// サブメッシュ単位データ
 		D3D12::StaticStructuredBuffer<SubSetData> m_subsetBuffer;
+
 		// ボーン用データ
 		D3D12::StaticStructuredBuffer<BonePallete> m_boneBuffer;
 
@@ -267,6 +296,14 @@ namespace Engine::Graphics
 		// 描画用ポリゴン
 		std::shared_ptr<Resource::QuadPolygon> m_spQuadPolygon = nullptr;
 
+		// メッシュシェーダー用データ
+		D3D12::StaticStructuredBuffer<MeshInstanceData>		m_meshInstanceBuffer;
+		D3D12::StaticStructuredBuffer<MeshMaterial>			m_meshMaterialBuffer;
+		D3D12::StaticStructuredBuffer<Resource::Meshlet>	m_meshletBuffer;
+		D3D12::ByteAddressBuffer							m_uniqueVertexIndices;
+		D3D12::ByteAddressBuffer							m_primitiveIndices;
+
+		D3D12::ByteAddressBuffer							m_vertexBuffer;
 	};
 	template<typename T>
 	inline void RenderContext::GraphicsBindRootCBV(int a_descIndex, const T& a_data)

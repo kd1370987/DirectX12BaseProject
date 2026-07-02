@@ -2,10 +2,25 @@
 
 #include "../../Loader/Shader/Importer/Rasterizer/RasterizerImport.h"
 
-void Engine::Resource::Shader::Load(const std::string& a_path)
+void Engine::Resource::Shader::Load(const std::string& a_path, std::vector<LPCWSTR> a_setting, const wchar_t* a_version)
 {
-	m_cpBlob = RequestShader(a_path);
-	//m_cpBlob = Import::CompileShader(a_path);
+	std::vector<LPCWSTR> _setting = {};
+	if(a_setting.empty())
+	{
+		_setting = {
+			L"-I",
+			L"Asset\\Shader\\Ray",
+			L"Asset\\Shader\\Source\\Mesh",
+			L"Asset\\Shader\\Common",
+			L"-Zi",
+			L"-Qembed_debug"
+		};
+	}
+	else
+	{
+		_setting = a_setting;
+	}
+	m_cpBlob = RequestShader(a_path, a_version, _setting);
 	m_byteCode = Import::CreateShaderByteCode(m_cpBlob.Get());
 	//m_stage = Import::ReflectShaderStage(a_path);
 	m_path = a_path;

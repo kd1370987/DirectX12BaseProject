@@ -78,6 +78,7 @@ ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 		else if (_suffix == "VS") { _profile = std::wstring(L"vs_") + a_plofileVersion; _entryPoint = L"VSMain"; }
 		else if (_suffix == "PS") { _profile = std::wstring(L"ps_") + a_plofileVersion; _entryPoint = L"PSMain"; }
 		else if (_suffix == "CS") { _profile = std::wstring(L"cs_") + a_plofileVersion; _entryPoint = L"CSMain"; }
+		else if (_suffix == "LB") { _profile = std::wstring(L"lib_") + a_plofileVersion; _entryPoint = L""; }
 	}
 
 	// コンパイル引数の設定

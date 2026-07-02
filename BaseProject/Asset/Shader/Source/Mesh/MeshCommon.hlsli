@@ -9,6 +9,11 @@ struct InstanceData
 
 	// メッシュが参照するマテリアル
 	uint materialOffset;
+
+	// メガバッファから自分のメッシュデータを見つけるためのオフセット
+	uint meshletOffset;			// m_meshletBuffer の開始インデックス
+	uint vertexOffset;			// m_vertexBuffer 内のベース頂点インデックス（またはバイトオフセット）
+	uint primitiveOffset;		// m_primitiveIndices 内のベースインデックス
 	
 	// アニメーションがあればデータが入っている
 	uint boneStartIndex;			// 開始位置
@@ -70,7 +75,7 @@ StructuredBuffer<BonePallet> g_bonePalletData : register(t6);
 // 頂点配列
 // アニメーション用ボーン配列
 #define MESHGLOBAL_ROOT_SIG \
-"RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
+"RootFlags(D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
     "CBV(b0)," \
     "SRV(t0)," \
     "SRV(t1)," \

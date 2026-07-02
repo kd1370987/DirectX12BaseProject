@@ -53,6 +53,10 @@ namespace Engine::Graphics
 		m_boneBuffer.Create(a_desc.pDevice, a_pCmdList, a_desc.boneElementNum, nullptr);		// ボーン行列用
 		m_debugLineBuffer.Create(a_desc.pDevice, a_pCmdList, 10000, nullptr);					// 形状描画用バッファ
 
+		// メッシュ用データの作成
+		m_meshInstanceBuffer.Create(a_desc.pDevice, a_pCmdList, 100000, nullptr);
+		m_meshMaterialBuffer.Create(a_desc.pDevice, a_pCmdList, 100000, nullptr);
+
 		// コピー戦略用SRVヒープの作成
 		UINT _heapSize = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize();
 		m_copyHeap.Create(

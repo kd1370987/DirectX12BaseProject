@@ -23,6 +23,7 @@ bool Engine::D3D12::DynamicBuffer::Create(ID3D12Device* a_pDevice, const Dynamic
 
 void Engine::D3D12::DynamicBuffer::Release()
 {
+	m_cpResource->Unmap(0, nullptr);
 	GPUResource::Release();
 	D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
 }
@@ -30,6 +31,13 @@ void Engine::D3D12::DynamicBuffer::Release()
 void Engine::D3D12::DynamicBuffer::UpdateData(const void* a_data, size_t a_size)
 {
 	std::memcpy(m_pMapData,a_data,a_size);
+}
+
+void Engine::D3D12::DynamicBuffer::UpdateDataOffset(const void* a_pData, size_t a_sizeBytes, size_t a_offsetBytes)
+{
+	// 先頭ポインタからオフセット分ずらしてコピー
+	uint8_t* _pDest = static_cast<uint8_t*>(m_pMapData) + a_offsetBytes;
+	std::memcpy(_pDest, a_pData, a_sizeBytes);
 }
 
 void Engine::D3D12::DynamicBuffer::CreateSRVInternal(ID3D12Device* a_pDevice)
@@ -46,4 +54,10 @@ void Engine::D3D12::DynamicBuffer::CreateSRVInternal(ID3D12Device* a_pDevice)
 
 	// ハンドルをもらう
 	m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, GetResource(), &_desc);
+}
+
+void Engine::D3D12::DynamicBuffer::CreateSRVInternal(ID3D12Device* a_pDevice, const D3D12_SHADER_RESOURCE_VIEW_DESC& a_viewDesc)
+{
+	// ハンドルをもらう
+	m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, GetResource(), &a_viewDesc);
 }

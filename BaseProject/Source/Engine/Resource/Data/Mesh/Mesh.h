@@ -93,6 +93,10 @@ namespace Engine::Resource
 		bool HasCollisionMesh() const { return m_opCollMesh.has_value(); };				// 当たり判定を持っているかどうか
 		const CollisionMesh& GetCollisionMesh()const { return m_opCollMesh.value(); }	// 当たり判定取得
 
+		// データ取得
+		const std::vector<MeshVertexFloat>& GetVertexVec() const { return m_vertices; }
+		std::vector<MeshVertexFloat>& RefVertexVec(){ return m_vertices; }
+
 	private:
 
 		// メッシュメタデータ

@@ -31,6 +31,8 @@
 
 #include "D3D12/D3D12Helper.h"					// D3D12関連のヘルパー関数
 
+#include "Graphics/MeshBufferAllocator/MeshAllocationHandle.h"
+
 //==========================================================================================
 // 
 // 保存
@@ -92,6 +94,8 @@ namespace Engine::Resource
 #include "Engine/D3D12/GPUBuffer/VertexBuffer/DynamicVertexBuffer.h"			// 頂点バッファ
 #include "Engine/D3D12/GPUBuffer/IndexBuffer/DynamicIndexBuffer.h"				// ダイナミックインデックスバッファ
 #include "Engine/D3D12/GPUBuffer/StructuredBuffer/StaticStructuredBuffer.h"		// スタティックストラクチャバッファ
+#include "D3D12/GPUBuffer/ByteAddressBuffer/ByteAddressBuffer.h"				// バイトアドレスバッファ
+#include "D3D12/GPUBuffer/ByteAddressBuffer/StaticByteAddressBuffer.h"			// スタティックバイトアドレスバッファ
 //#include "Engine/D3D12/GPUBuffer/RWStructuredBuffer/RWStructuredBuffer.h"		// GPU用UAV構造体バッファ
 #include "Engine/Resource/Data/Vertex/Vertex.h"									// 頂点データ
 //==========================================================================================
