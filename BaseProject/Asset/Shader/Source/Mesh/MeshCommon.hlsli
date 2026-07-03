@@ -13,6 +13,7 @@ struct InstanceData
 	// メガバッファから自分のメッシュデータを見つけるためのオフセット
 	uint meshletOffset;			// m_meshletBuffer の開始インデックス
 	uint vertexOffset;			// m_vertexBuffer 内のベース頂点インデックス（またはバイトオフセット）
+	uint uviOffset;
 	uint primitiveOffset;		// m_primitiveIndices 内のベースインデックス
 	
 	// アニメーションがあればデータが入っている
@@ -64,6 +65,13 @@ struct BonePallet
 };
 StructuredBuffer<BonePallet> g_bonePalletData : register(t6);
 
+cbuffer RootConstants : register(b1)
+{
+	uint g_baseInstanceIndex; // C++から渡されるインスタンス配列のオフセット
+};
+
+// サンプラー
+SamplerState smp : register(s0);
 
 // ---- ルートシグネチャ設定 : 全メッシュシェーダーで共通して使う ----
 // カメラ定数バッファ
@@ -75,7 +83,7 @@ StructuredBuffer<BonePallet> g_bonePalletData : register(t6);
 // 頂点配列
 // アニメーション用ボーン配列
 #define MESHGLOBAL_ROOT_SIG \
-"RootFlags(D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
+    "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
     "CBV(b0)," \
     "SRV(t0)," \
     "SRV(t1)," \
@@ -84,4 +92,28 @@ StructuredBuffer<BonePallet> g_bonePalletData : register(t6);
     "SRV(t4)," \
     "SRV(t5)," \
     "SRV(t6)," \
-    "StaticSampler(s0, filter=FILTER_ANISOTROPIC)"
+    "RootConstants(num32BitConstants=1, b1)," \
+    "StaticSampler(s0, " \
+    "    filter = FILTER_MIN_MAG_MIP_LINEAR, " \
+    "    addressU = TEXTURE_ADDRESS_WRAP, " \
+    "    addressV = TEXTURE_ADDRESS_WRAP, " \
+    "    addressW = TEXTURE_ADDRESS_WRAP)"
+
+
+// ==========================================================
+// G-Bufferパスのピクセルシェーダーへ渡す出力構造体
+// ==========================================================
+struct VertexOutput
+{
+	float4 pos : SV_Position;
+	float3 worldPos : POSITION;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float2 uv : TEXCOORD;
+    
+    // モーションベクター（Velocity）用
+	float4 curClipPos : POSITION1;
+	float4 prevClipPos : POSITION2;
+
+	uint instanceID : INSTANCE_ID;
+};

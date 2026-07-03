@@ -61,6 +61,7 @@ namespace Engine::Resource
 		);
 		// メッシュシェーダー用データの作成
 		void CreateMeshShaderData(
+			D3D12::GraphicsCommandList* a_pCmdList,
 			const std::vector<MeshVertexFloat>& a_vertices,
 			const std::vector<uint32_t>& a_indices
 		);

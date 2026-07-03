@@ -140,11 +140,11 @@ namespace Engine::Graphics
 		D3D12::MeshPipelineBuilder& CreatePSODesc(const std::string& a_name, uint8_t& a_outIndex);
 
 		// ---- パスを通しての共通設定 ----
-		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath);
+		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob);
 		void SetRootSignature(ID3D12RootSignature* a_pRootSig);
 
 		// シェーダーセット
-		void SetMS(D3D12::MeshPipelineBuilder& a_pso, const std::string& a_msPath);
+		ID3DBlob* SetMS(D3D12::MeshPipelineBuilder& a_pso, const std::string& a_msPath);
 		void SetPS(D3D12::MeshPipelineBuilder& a_pso, const std::string& a_psPath);
 
 		// PSOの作成

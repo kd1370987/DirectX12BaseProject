@@ -21,5 +21,7 @@ namespace Engine::Resource
 		std::vector<Meshlet> meshlets;								// メッシュレットのカタログ
 		std::vector<uint8_t> uniqueVertexIndices;						// 各メッシュレットが使う頂点番号リスト
 		std::vector<DirectX::MeshletTriangle> primitiveIndices;		// ローカルなインデックス（0 から 63の範囲）
+
+		Graphics::MeshAllocationHandle meshHandle = {};
 	};
 }

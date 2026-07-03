@@ -2624,6 +2624,12 @@
     <None Include="Asset\Shader\Source\Mesh\MeshCommon.hlsli">
       <Filter>Asset\Shader\Source\Mesh</Filter>
     </None>
+    <None Include="Asset\Shader\Source\Mesh\ProceduralMS.hlsl">
+      <Filter>Asset\Shader\Source\Mesh</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\Mesh\UberMS.hlsl">
+      <Filter>Asset\Shader\Source\Mesh</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
@@ -2713,17 +2719,14 @@
     <FxCompile Include="Asset\Shader\Source\Test\TestMS.hlsl">
       <Filter>Asset\Shader\Source\Test</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\Mesh\UberMS.hlsl">
-      <Filter>Asset\Shader\Source\Mesh</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\Mesh\ProceduralMS.hlsl">
-      <Filter>Asset\Shader\Source\Mesh</Filter>
-    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
       <Filter>Asset\Shader\Source\DebugLineShader</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
       <Filter>Asset\Shader\Source\DebugLineShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\GBufferShader\MeshGBufferPS.hlsl">
+      <Filter>Asset\Shader\Source\GBufferShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

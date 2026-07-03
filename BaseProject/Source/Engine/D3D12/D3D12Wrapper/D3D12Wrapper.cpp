@@ -192,6 +192,10 @@ namespace Engine::D3D12
 			m_upFrameManager->GetCurrentAllocator()
 		);
 	}
+	UINT64 D3D12Wrapper::GetCurrentFenceValue()
+	{
+		return m_upFrameManager->GetCurrentFenceValue();
+	}
 	//==================================================================================
 	// 
 	// D3D12オブジェクト作成

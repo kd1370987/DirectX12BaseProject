@@ -87,7 +87,7 @@ namespace Engine::Resource
 			{
 				// 描画メッシュハンドル取得
 				const auto& _meshHandle = m_meshHandleVec[_meshIdx];
-				const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandle);
+				auto* _pMesh = Engine::Resource::ResourceManager::Instance().Ref(_meshHandle);
 				// サブセットごとに描画するアイテムを集める
 				for (UINT _subIdx = 0; _subIdx < _pMesh->GetMetaData().subsets.size(); ++_subIdx)
 				{
@@ -97,10 +97,12 @@ namespace Engine::Resource
 					// マテリアルハンドル取得
 					const auto& _materialHandle =
 						m_materialHandleVec[_pMesh->GetMetaData().subsets[_subIdx].materialNumber];
-					const auto* _pMate = Engine::Resource::ResourceManager::Instance().Get(_materialHandle);
+					auto* _pMate = Engine::Resource::ResourceManager::Instance().Ref(_materialHandle);
 
 					// コマンド作成
 					ModelDrawCommand _cmd = {};
+					_cmd.pMaterial = _pMate;
+					_cmd.pMesh = _pMesh;
 					_cmd.nodeIndex = static_cast<uint16_t>(_nodeIdx);
 					_cmd.meshRawID = static_cast<uint16_t>(_meshHandle.GetIndex());
 					_cmd.materialRawID = static_cast<uint16_t>(_materialHandle.GetIndex());

@@ -14,6 +14,7 @@
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../Particle/ParticleBufferManager.h"
 #include "RenderPassRegistry/RenderPassRegistry.h"
+#include "MeshBufferAllocator/MeshBufferAllocator.h"
 
 // オプション
 #include "../Option/OptionManager.h"
@@ -55,10 +56,23 @@ namespace Engine::Graphics
 	)
 	{
 
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+
 		m_pPipelineStateManager = a_desc.pPipelineStateManager;
 
 		// 形状描画クラス構築
 		m_upShapeRender = std::make_unique<ShapeRenderer>();
+
+		// メッシュバッファ管理クラス
+		m_upMeshBufferAllocator = std::make_unique<MeshBufferAllocator>();
+		m_upMeshBufferAllocator->Init(
+			_pDevice,
+			a_pCmdList,
+			5000000,
+			200000,
+			5000000,
+			10000000
+		);
 
 		// レンダーコンテキストの作成
 		for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
@@ -66,7 +80,7 @@ namespace Engine::Graphics
 			auto _upCtx = std::make_unique<RenderContext>();
 
 			RenderContextDesc _desc = {};
-			_desc.pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+			_desc.pDevice = _pDevice;
 			_desc.pShapeRender = m_upShapeRender.get();
 
 			_desc.cbAllocatorMemSize = 32 * 1024 * 1024;
@@ -80,7 +94,8 @@ namespace Engine::Graphics
 		m_upRenderPassRegistry = std::make_unique<RenderPassRegistry>();
 		// ラスター関係
 		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
-		AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
+		//AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
+		AddMeshGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 		AddDebugLinePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
 		AddFullScreenPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
 
@@ -129,6 +144,8 @@ namespace Engine::Graphics
 		m_pPipelineStateManager = nullptr;
 
 
+		m_upMeshBufferAllocator->Release();
+
 	}
 
 	void GraphicsEngine::BegineFrame()
@@ -140,6 +157,10 @@ namespace Engine::Graphics
 	void GraphicsEngine::Excute()
 	{
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
+		auto _currentFence = D3D12::D3D12Wrapper::Instance().GetCurrentFenceValue();
+
+		// メッシュバッファの更新
+		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _currentFence);
 
 		// パーティクルのバッファ更新
 		MainEngine::Instance().RefParticleManager()->UploadEmitData(_pCmdList);
@@ -164,7 +185,7 @@ namespace Engine::Graphics
 		CreateGPUCameraData();
 
 		// バッファの更新
-		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(m_instanceDataVec, m_subSetDataVec);
+		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(m_instanceDataVec, m_subSetDataVec,m_meshInstanceDataVec,m_meshMaterialDataVec);
 
 		// 描画アイテムをソート
 		std::sort(
@@ -191,10 +212,14 @@ namespace Engine::Graphics
 		// オブジェクトデータの消去
 		m_instanceDataVec.clear();
 		m_instanceDataVec.reserve(10000);
+		m_meshInstanceDataVec.clear();
+		m_meshInstanceDataVec.reserve(10000);
 
 		// サブセット情報の消去
 		m_subSetDataVec.clear();
 		m_subSetDataVec.reserve(10000);
+		m_meshMaterialDataVec.clear();
+		m_meshMaterialDataVec.reserve(10000);
 
 		
 		// デバッグ用配列のクリア
@@ -210,9 +235,21 @@ namespace Engine::Graphics
 		return m_upRenderContextVec[m_currentFrameIndex].get();
 		
 	}
+	D3D12::PipelineStateManager* GraphicsEngine::RefPipelineStateManager()
+	{
+		return m_pPipelineStateManager;
+	}
 	RenderGraph* GraphicsEngine::RefRenderGraph()
 	{
 		return m_upRenderGraph.get();
+	}
+	MeshAllocationHandle GraphicsEngine::AllocateAndUpload(D3D12::GraphicsCommandList* a_pCmdList, const Resource::Mesh& a_newMeshData)
+	{
+		return m_upMeshBufferAllocator->AllocateAndUpload(a_pCmdList,a_newMeshData);
+	}
+	void GraphicsEngine::Free(const MeshAllocationHandle& a_handle)
+	{
+		m_upMeshBufferAllocator->Free(a_handle, D3D12::D3D12Wrapper::Instance().GetCurrentFenceValue());
 	}
 	void GraphicsEngine::SetCameraMat(const DXSM::Matrix& a_worldMat)
 	{
@@ -227,6 +264,10 @@ namespace Engine::Graphics
 	{
 		m_cbCamera.projMat = a_projMat;
 		m_cbCamera.projInvMat = a_projMat.Invert();
+	}
+	void GraphicsEngine::BindMeshBuffer(D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		m_upMeshBufferAllocator->BindBuffers(a_pCmdList);
 	}
 	const CameraData& GraphicsEngine::GetCameraData() const
 	{
@@ -254,10 +295,22 @@ namespace Engine::Graphics
 		m_instanceDataVec.push_back(a_instanceData);
 		return _index;
 	}
+	UINT GraphicsEngine::SetInstanceData(const MeshInstanceData& a_instanceData)
+	{
+		UINT _index = static_cast<UINT>(m_meshInstanceDataVec.size());
+		m_meshInstanceDataVec.push_back(a_instanceData);
+		return _index;
+	}
 	UINT GraphicsEngine::SetSubSetData(const SubSetData& a_subsetData)
 	{
 		UINT _index = static_cast<UINT>(m_subSetDataVec.size());
 		m_subSetDataVec.push_back(a_subsetData);
+		return _index;
+	}
+	UINT GraphicsEngine::SetMeshMaterialData(const MeshMaterial& a_subsetData)
+	{
+		UINT _index = static_cast<UINT>(m_meshMaterialDataVec.size());
+		m_meshMaterialDataVec.size();
 		return _index;
 	}
 	void GraphicsEngine::AddItem(const LightWeightDrawItem& a_item)

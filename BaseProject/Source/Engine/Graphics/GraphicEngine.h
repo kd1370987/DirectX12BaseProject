@@ -19,6 +19,7 @@ namespace Engine::Graphics
 	class ShapeRenderer;
 	class RenderContext;
 	class RenderPassRegistry;
+	class MeshBufferAllocator;
 
 	// グラフィックスエンジンの初期化に必要な情報
 	struct GraphicsEngineDesc
@@ -56,6 +57,11 @@ namespace Engine::Graphics
 		UINT instnaceIndex = 0;
 		UINT subsetIndex = 0;
 
+		// メッシュシェーダー用インデックス
+		UINT meshInstanceIndex = 0;
+		UINT meshMaterialIndex = 0;
+		MeshAllocationHandle meshHandle = {};
+
 		// ヘルパー関数
 		uint8_t GetPassIndex()		const { return static_cast<uint8_t>(sortKey.value >> 56); }
 		uint8_t GetPSOID()			const { return static_cast<uint8_t>((sortKey.value >> 48) & 0xFF); }
@@ -86,16 +92,39 @@ namespace Engine::Graphics
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
 
+		D3D12::PipelineStateManager* RefPipelineStateManager();
+
 		RenderGraph* RefRenderGraph();
 
-
-
+		//--------------------------------------------------------------------------------------------
+		// GPUデータ作成
+		//--------------------------------------------------------------------------------------------
+		/// <summary>
+		/// 新しいモデルをロードした時に呼ばれる。空き領域を探してオフセットを返す
+		/// ついでにUploadHeapからDefaultHeapへのデータ転送コマンドも積む 
+		/// </summary>
+		/// <param name="pCmdList">GPU実行のためのコピー用コマンドリスト</param>
+		/// <param name="newMeshData">新たに生成されたメッシュ</param>
+		/// <returns>割り当てられたハンドルが返る</returns>
+		MeshAllocationHandle AllocateAndUpload(
+			D3D12::GraphicsCommandList* a_pCmdList,
+			const Resource::Mesh& a_newMeshData
+		);
+		/// <summary>
+		/// モデルをアンロードする際に呼ぶ
+		/// 上書きするためメモリの解放処理は走らない
+		/// </summary>
+		/// <param name="a_handle">削除される領域</param>
+		void Free(const MeshAllocationHandle& a_handle);
 		//--------------------------------------------------------------------------------------------
 		// GPU送信用データ
 		//--------------------------------------------------------------------------------------------
 		// カメラ
 		void SetCameraMat(const DXSM::Matrix& a_worldMat);
 		void SetProjMat(const DXSM::Matrix& a_projMat);
+
+		// メッシュシェーダーバッファバインド
+		void BindMeshBuffer(D3D12::GraphicsCommandList* a_pCmdList);
 
 		const CameraData& GetCameraData() const;
 		const CameraData& GetGPUCameraData() const;
@@ -108,7 +137,9 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// 追加
 		UINT SetInstanceData(const InstanceData& a_instanceData);
+		UINT SetInstanceData(const MeshInstanceData& a_instanceData);
 		UINT SetSubSetData(const SubSetData& a_subsetData);
+		UINT SetMeshMaterialData(const MeshMaterial& a_subsetData);
 		void AddItem(const LightWeightDrawItem& a_item);
 
 		// 取得
@@ -143,6 +174,9 @@ namespace Engine::Graphics
 
 		// レンダーグラフ
 		std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;
+
+		//メッシュバッファ管理
+		std::unique_ptr<MeshBufferAllocator> m_upMeshBufferAllocator = nullptr;
 	
 		//--------------------------------------------------------------------------------------------
 		// GPU送信用データ
@@ -160,9 +194,11 @@ namespace Engine::Graphics
 		
 		// オブジェクト単位データ
 		std::vector<InstanceData> m_instanceDataVec = {};
+		std::vector<MeshInstanceData> m_meshInstanceDataVec = {};
 
 		// サブセット単位データ
 		std::vector<SubSetData> m_subSetDataVec = {};
+		std::vector<MeshMaterial> m_meshMaterialDataVec = {};
 
 		//--------------------------------------------------------------------------------------------
 		// 描画命令

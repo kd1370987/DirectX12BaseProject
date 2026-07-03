@@ -39,18 +39,17 @@ void StaticObjectDrawSystem::Init(Engine::ECS::World& a_world)
 
 			uint8_t _zpreIdx = _pRG->GetPassIndex("ZPre");
 			uint8_t _opeqIdx = _pRG->GetPassIndex("GBuffer");
-			//uint8_t _fwIdx = _pRG->GetPassIndex("ForwardLighting");
 
 			const auto* _zprePass = _pRG->GetPass("ZPre");
 			const auto* _gbufferPass = _pRG->GetPass("GBuffer");
-			//const auto* _fwPass = _pRG->GetPass("ForwardLighting");
 
 			const uint8_t _zpreStatic = _zprePass->GetPSOIndex("ZPreStatic");
 			const uint8_t _gbuffStatic = _gbufferPass->GetPSOIndex("GBufferStatic");
-			//const uint8_t _fwStatic = _fwPass->GetPSOIndex("ForwardLithingPSO");
 			Engine::Graphics::LightWeightDrawItem _item = {};
 			Engine::Graphics::InstanceData _instanceData = {};
 			Engine::Graphics::SubSetData _subSetData = {};
+			Engine::Graphics::MeshInstanceData _meshInstance = {};
+			Engine::Graphics::MeshMaterial _meshMaterial = {};
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
@@ -82,6 +81,30 @@ void StaticObjectDrawSystem::Init(Engine::ECS::World& a_world)
 					_subSetData.metallic = _pMaterial->metallic;
 					_subSetData.roughness = _pMaterial->roughness;
 						
+					// メッシュマテリアル
+					if(_cmd.pMesh->HasMeshShaderData())
+					{
+						_meshMaterial.baseColor = _modelComp.colorScale; // マテリアルの色も入れろ
+						_meshMaterial.emissive = _modelComp.emissiveScale;
+						_meshMaterial.metallic = 0.1f;
+						_meshMaterial.roughness = 0.5f;
+						_meshMaterial.albedIndex = _cmd.pMaterial->baseColorTex.GetIndex();
+						_meshMaterial.metaRoughnessIndex = _cmd.pMaterial->metaRoughTex.GetIndex();
+						_meshMaterial.emissiveIndex = _cmd.pMaterial->emissiveTex.GetIndex();
+						_meshMaterial.normalIndex = _cmd.pMaterial->normalTex.GetIndex();
+
+						// メッシュデータ作成
+						_meshInstance.worldMat = _mat.Transpose();
+						_meshInstance.prevWorldMat = _mat.Transpose();
+						_meshInstance.boneStartIndex = 0;
+						_meshInstance.boneCount = 0;
+						_meshInstance.materialOffset = _pGE->SetMeshMaterialData(_meshMaterial);
+						_meshInstance.meshletOffset = _cmd.pMesh->GetMeshShaderData().meshHandle.meshletHandle.startIndex;
+						_meshInstance.vertexOffset = _cmd.pMesh->GetMeshShaderData().meshHandle.vertexHandle.startIndex;
+						_meshInstance.uviOffset = _cmd.pMesh->GetMeshShaderData().meshHandle.uniqueVertexHandle.startIndex;
+						_meshInstance.primitiveOffset = _cmd.pMesh->GetMeshShaderData().meshHandle.primitiveHandle.startIndex;
+						_item.meshHandle = _cmd.pMesh->GetMeshShaderData().meshHandle;
+					}
 
 					_item.sortKey.bits.meshID = _cmd.meshRawID;
 					_item.sortKey.bits.materialID = _cmd.materialRawID;
@@ -89,6 +112,9 @@ void StaticObjectDrawSystem::Init(Engine::ECS::World& a_world)
 					_item.subIndex = _cmd.subIdx;
 					_item.instnaceIndex = _pGE->SetInstanceData(_instanceData);
 					_item.subsetIndex = _pGE->SetSubSetData(_subSetData);
+
+					_item.meshInstanceIndex = _pGE->SetInstanceData(_meshInstance);
+					
 
 					switch (_cmd.alphaMode)
 					{

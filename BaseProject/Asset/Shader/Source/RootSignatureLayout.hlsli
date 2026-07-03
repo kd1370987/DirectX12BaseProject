@@ -10,7 +10,7 @@
 
 
 // デフォルト用
-#define RS_FLAGS\
+#define RS_FLAGS \
 "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | " \
     "DENY_HULL_SHADER_ROOT_ACCESS | " \
     "DENY_DOMAIN_SHADER_ROOT_ACCESS | " \

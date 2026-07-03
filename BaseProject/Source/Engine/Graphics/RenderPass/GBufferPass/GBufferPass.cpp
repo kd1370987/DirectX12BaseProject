@@ -29,14 +29,9 @@ namespace Engine::Graphics
 		_node.phase = a_phase;
 		RGRasterPassBuilder _rpBuilder(&_node);
 
-		// パス共通設定
-
-
 		// 依存関係構築
-		//_rpBuilder.Readde("Depth", AccessType::Depth_Read, LoadOp::Load, StoreOp::Store);
 		_rpBuilder.ReadDepth("Depth");
 
-		//_rpBuilder.Write("GBufferAlbedo", AccessType::RTV, LoadOp::Clear, StoreOp::Store);
 		_rpBuilder.WriteRTV("GBufferAlbedo", DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 		_rpBuilder.WriteRTV("GBufferNormal", DXGI_FORMAT_R16G16_FLOAT);
 		_rpBuilder.WriteRTV("GBufferMaterial", DXGI_FORMAT_R8G8B8A8_UNORM);
@@ -95,7 +90,7 @@ namespace Engine::Graphics
 
 		// ノード
 		RenderPassNode _node = {};
-		_node.name = "MSTestPass";
+		_node.name = "GBuffer";
 		_node.phase = a_phase;
 
 		// 空のルートシグネチャ作成
@@ -106,15 +101,27 @@ namespace Engine::Graphics
 		// PSO作成
 		RGMeshShaderPassBuilder _msBuilder(&_node);
 		auto& _msTmp = _msBuilder.CreatePSODesc("MSTestPSO", _spPassData->index);
-		//_spPassData->pRootSig = _msBuilder.SetRootSignature(a_pPSOManager, "Asset/Shader/Source/Test/TestMS.cso");
-		_msBuilder.SetRootSignature(_spPassData->pRootSig);
-		_msBuilder.SetMS(_msTmp, "Asset/Shader/Source/Test/TestMS.cso");
-		_msBuilder.SetPS(_msTmp, "Asset/Shader/Source/Test/testPS.cso");
 
 		// 依存関係構築
 		_msBuilder.ReadDepth("Depth");
 
-		_msBuilder.WriteRTV("TestMS", DXGI_FORMAT_R8G8B8A8_UNORM);
+		_msBuilder.WriteRTV("GBufferAlbedo", DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
+		_msBuilder.WriteRTV("GBufferNormal", DXGI_FORMAT_R16G16_FLOAT);
+		_msBuilder.WriteRTV("GBufferMaterial", DXGI_FORMAT_R8G8B8A8_UNORM);
+		_msBuilder.WriteRTV("GBufferEmissiv", DXGI_FORMAT_R8G8B8A8_UNORM);
+		_msBuilder.WriteRTV("GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT);
+
+		// シェーダー関係セット
+		auto* _pBlob = _msBuilder.SetMS(_msTmp, "Asset/Shader/Source/Mesh/UberMS.cso");
+		_msBuilder.SetPS(_msTmp, "Asset/Shader/Source/GBufferShader/MeshGBufferPS.cso");
+		_spPassData->pRootSig = _msBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+
+		// 深度テスト設定
+		_msTmp.DepthEnable(true);
+		_msTmp.DepthWriteMask(false);
+		_msTmp.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
+
+		
 
 		// コンパイル
 		_msBuilder.ResolveAndCompile(a_pPSOManager);
@@ -125,10 +132,13 @@ namespace Engine::Graphics
 				a_pCtx->BindHeap();
 				a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
 				a_pGE->BindPSO(a_pCtx, _spPassData->index);
+				
+				a_pCtx->BindCamera();
+				a_pCtx->BindMeshInstance();
+				a_pCtx->BindMeshlet();
+				//a_pCtx->BindBonePalletBuffer(7);
 
-				// スレッドグループ(X, Y, Z)を指定してメッシュシェーダーを起動！
-				// 今回のテストシェーダーは 1グループで1枚のポリゴンを作るので (1, 1, 1) でOK
-				a_pCtx->DispatchMesh(1, 1, 1);
+				a_pCtx->DrawQueueDispathMesh(a_passIndex);
 			};
 
 		// パス登録

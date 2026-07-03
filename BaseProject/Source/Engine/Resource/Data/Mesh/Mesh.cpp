@@ -4,6 +4,10 @@
 
 #include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
+
+#include "../../../MainEngine.h"
+#include "../../../Graphics/GraphicEngine.h"
+
 bool Engine::Resource::Mesh::CreateFloat(
 	const std::vector<MeshVertexFloat>& a_vertices,
 	const std::vector<MeshFace>& a_face,
@@ -20,16 +24,6 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 	// メタデータ作成
 	CreateMeshMetaData(a_vertices,a_subsets,a_isSkinMesh);
-
-	// メッシュシェーダー用データ作成
-	std::vector<uint32_t> _indices = {};
-	for (auto& _f : a_face)
-	{
-		_indices.push_back(_f.idx[0]);
-		_indices.push_back(_f.idx[1]);
-		_indices.push_back(_f.idx[2]);
-	}
-	CreateMeshShaderData(a_vertices, _indices);
 
 	// ラスタライザーデータ作成
 	CreateRasterData(_pDevice, a_vertices, a_face, DXGI_FORMAT_R32_UINT);
@@ -51,13 +45,21 @@ bool Engine::Resource::Mesh::CreateFloat(
 				a_vertices,
 				a_face
 			);
+
+			// メッシュシェーダー用データ作成
+			std::vector<uint32_t> _indices = {};
+			for (auto& _f : a_face)
+			{
+				_indices.push_back(_f.idx[0]);
+				_indices.push_back(_f.idx[1]);
+				_indices.push_back(_f.idx[2]);
+			}
+			CreateMeshShaderData(a_pCmdList, a_vertices, _indices);
 		},
 		// 完了時のコールバック
 		[]()
 		{
-			// ※ もし CreateRtData や CreateRasterData の内部で
-			// 一時的な Uploadヒープ を作成している場合は、テクスチャの時と同じように
-			// std::shared_ptr でキャプチャしてここで寿命を尽きさせる設計にしてください。
+			// 一時的な Uploadヒープ を作成している場合 std::shared_ptr でキャプチャ
 			ENGINE_LOG("メッシュの非同期セットアップ完了");
 		}
 	);
@@ -101,6 +103,7 @@ void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<DirectX::XMFL
 }
 
 void Engine::Resource::Mesh::CreateMeshShaderData(
+	D3D12::GraphicsCommandList* a_pCmdList,
 	const std::vector<MeshVertexFloat>& a_vertices, 
 	const std::vector<uint32_t>& a_indices
 )
@@ -159,6 +162,12 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 
 	m_opMeshShaderData.value().uniqueVertexIndices = std::move(_uniqueVertexIB);
 	m_opMeshShaderData.value().primitiveIndices = std::move(_primitiveIndices);
+
+	// メッシュシェーダーへの登録
+	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+	ENGINE_ERRLOG(_pGE, "メッシュ読み込み時にグラフィックスエンジンがありません");
+	auto _handle = _pGE->AllocateAndUpload(a_pCmdList,*this);
+	m_opMeshShaderData.value().meshHandle = _handle;
 }
 
 void Engine::Resource::Mesh::Release()

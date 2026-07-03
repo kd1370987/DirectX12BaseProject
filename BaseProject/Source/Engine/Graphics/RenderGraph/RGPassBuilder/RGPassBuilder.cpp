@@ -250,9 +250,9 @@ namespace Engine::Graphics
 		// PSO作成用構造体のみ参照で返す
 		return m_tempMSPSODescVec.back().desc;
 	}
-	ID3D12RootSignature* RGMeshShaderPassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, const std::string& a_shaderPath)
+	ID3D12RootSignature* RGMeshShaderPassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob)
 	{
-		m_pRootSig = a_pPSOManager->Request(a_shaderPath);
+		m_pRootSig = a_pPSOManager->Request(a_pBlob);
 		if (!m_pRootSig)
 		{
 			Engine::Editor::MainEditor::Instance().ErrorLog("ルートシグネチャが生成されませんでした");
@@ -264,12 +264,14 @@ namespace Engine::Graphics
 	{
 		m_pRootSig = a_pRootSig;
 	}
-	void RGMeshShaderPassBuilder::SetMS(D3D12::MeshPipelineBuilder& a_pso, const std::string& a_msPath)
+	ID3DBlob* RGMeshShaderPassBuilder::SetMS(D3D12::MeshPipelineBuilder& a_pso, const std::string& a_msPath)
 	{
 		// 頂点シェーダーセット
 		auto _msHandle = Resource::ShaderLoader::Request(a_msPath);
 		auto* _pBlob = Resource::ResourceManager::Instance().Ref(_msHandle)->Get();
 		a_pso.SetMS(_pBlob);
+
+		return _pBlob;
 	}
 	void RGMeshShaderPassBuilder::SetPS(D3D12::MeshPipelineBuilder & a_pso, const std::string & a_psPath)
 	{

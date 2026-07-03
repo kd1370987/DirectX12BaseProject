@@ -74,20 +74,20 @@ namespace Engine::D3D12
 		// CPU側のアップロードバッファの特定領域のみを更新する
 		this->UpdateDataOffset(a_pData, a_sizeBytes, a_destOffsetBytes);
 
-		// GPUバッファをコピー先に遷移
-		m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
+		//// GPUバッファをコピー先に遷移
+		//m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
 
-		// 部分コピーコマンドを積む
-		a_pCmdList->CopyBufferRegion(
-			m_gpuBuffer.GetResource(),
-			a_destOffsetBytes,       // コピー先のオフセット
-			m_cpResource.Get(),      // コピー元（Uploadバッファ）
-			a_destOffsetBytes,       // コピー元のオフセット（通常はコピー先と同じ場所を使います）
-			a_sizeBytes              // コピーするサイズ
-		);
+		//// 部分コピーコマンドを積む
+		//a_pCmdList->CopyBufferRegion(
+		//	m_gpuBuffer.GetResource(),
+		//	a_destOffsetBytes,       // コピー先のオフセット
+		//	m_cpResource.Get(),      // コピー元（Uploadバッファ）
+		//	a_destOffsetBytes,       // コピー元のオフセット（通常はコピー先と同じ場所を使います）
+		//	a_sizeBytes              // コピーするサイズ
+		//);
 
-		// SRVとして読める状態に戻す
-		m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
+		//// SRVとして読める状態に戻す
+		//m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
 	}
 
 	void StaticBuffer::UploadDataRange(D3D12::GraphicsCommandList* a_pCmdList, UINT a_startIndex, UINT a_count, const void* a_pData)

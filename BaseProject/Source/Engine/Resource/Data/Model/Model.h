@@ -46,6 +46,8 @@ namespace Engine::Resource
 	// モデル描画時用キャッシュデータ
 	struct ModelDrawCommand
 	{
+		Mesh* pMesh = nullptr;
+		Material* pMaterial = nullptr;
 		uint16_t nodeIndex;      // モデル内のローカルノード番号
 		uint16_t meshRawID;      // ResourceManager 内の配列インデックス(Raw ID)
 		uint16_t materialRawID;  // ResourceManager 内の配列インデックス(Raw ID)

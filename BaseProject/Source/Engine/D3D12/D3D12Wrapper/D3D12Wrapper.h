@@ -107,6 +107,8 @@ namespace Engine::D3D12
 
 		GraphicsCommandList* GetDirectCommandList();	// コマンドリスト取得
 
+		UINT64 GetCurrentFenceValue();
+
 	private:
 		// ---- D3Dオブジェクト作成 ----
 		// デバイス関係

@@ -561,10 +561,7 @@ namespace Engine::Graphics
 
 
 
-	void RenderContext::UpdateBuffer(
-		const std::vector<InstanceData>& a_instanceVec, 
-		const std::vector<SubSetData>& a_subsetVec
-	)
+	void RenderContext::UpdateBuffer(const std::vector<InstanceData>& a_instanceVec, const std::vector<SubSetData>& a_subsetVec, const std::vector<MeshInstanceData>& a_mesInstance, const std::vector<MeshMaterial>& a_mesMaterial)
 	{
 		// インスタンスデータバッファ
 		if(!a_instanceVec.empty())
@@ -572,12 +569,21 @@ namespace Engine::Graphics
 			m_instanceBuffer.UpdateData(a_instanceVec.data(), a_instanceVec.size() * sizeof(InstanceData));
 			m_instanceBuffer.Update(m_pCmdList);
 		}
-
+		if (!a_mesInstance.empty())
+		{
+			m_meshInstanceBuffer.UpdateData(a_mesInstance.data(),a_mesInstance.size() * sizeof(MeshInstanceData));
+			m_meshInstanceBuffer.Update(m_pCmdList);
+		}
 		// サブセットデータバッファ
 		if(!a_subsetVec.empty())
 		{
 			m_subsetBuffer.UpdateData(a_subsetVec.data(), a_subsetVec.size() * sizeof(SubSetData));
 			m_subsetBuffer.Update(m_pCmdList);
+		}
+		if (!a_mesMaterial.empty())
+		{
+			m_meshMaterialBuffer.UpdateData(a_mesMaterial.data(),a_mesMaterial.size() * sizeof(MeshMaterial));
+			m_meshMaterialBuffer.Update(m_pCmdList);
 		}
 
 		// ボーン行列の更新
@@ -630,6 +636,57 @@ namespace Engine::Graphics
 	void RenderContext::BindGraphicsDebugLineBuffer(UINT a_rootIndex)
 	{
 		BindSRV(a_rootIndex,m_debugLineBuffer.GetSRVHandle());
+	}
+
+	void RenderContext::BindCamera()
+	{
+		const auto& _cam = m_pGraphicsEngine->GetCameraData();
+		GraphicsBindRootCBV(0, _cam);
+	}
+
+	void RenderContext::BindMeshInstance()
+	{
+		m_pCmdList->SetGraphicsRootShaderResourceView(1,m_meshInstanceBuffer.GetGPUVirtualAddress());
+		m_pCmdList->SetGraphicsRootShaderResourceView(2,m_meshMaterialBuffer.GetGPUVirtualAddress());
+	}
+
+	void RenderContext::BindMeshlet()
+	{
+		m_pGraphicsEngine->BindMeshBuffer(m_pCmdList);
+	}
+
+	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)
+	{
+		// キャッシュ
+		uint16_t _lassMaterialID = 0xFFFF;
+		uint16_t _lastMeshID = 0xFFFF;
+		uint8_t _lastPSO = 0xFF;
+
+		// 指定タイプの命令キューを取得
+		auto _itemVec = m_pGraphicsEngine->GetPassItems(a_passIndex);
+		if (_itemVec.empty()) return;
+
+		for (auto& _item : _itemVec)
+		{
+			uint8_t  _psoID = _item.GetPSOID();
+			uint16_t _materialID = _item.GetMaterialID();
+			uint16_t _meshID = _item.GetMeshID();
+			// ----------------------------------------------------
+			// PSOの切り替え
+			// ----------------------------------------------------
+			if (_psoID != _lastPSO)
+			{
+				auto* _pPSO = MainEngine::Instance().RefPipelineManager()->GetPSO(_psoID);
+				if (!_pPSO) continue;
+				SetGraphicPSO(_pPSO);
+
+				_lastPSO = _psoID;
+			}
+			m_pCmdList->SetGraphicsRoot32BitConstant(8,_item.meshInstanceIndex,0);
+
+			if (_item.meshHandle.meshletHandle.count == 0 || _item.meshHandle.meshletHandle.count >= 100000) continue;
+			m_pCmdList->DispatchMesh(_item.meshHandle.meshletHandle.count, 1, 1);
+		}
 	}
 
 	void RenderContext::TexCopy(

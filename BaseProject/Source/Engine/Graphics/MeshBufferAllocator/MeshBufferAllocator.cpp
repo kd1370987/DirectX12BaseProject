@@ -125,10 +125,10 @@ namespace Engine::Graphics
 	void MeshBufferAllocator::BindBuffers(D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		// 巨大バッファを一括でバインド
-		 a_pCmdList->SetGraphicsRootShaderResourceView(2, m_meshletBuffer.GetGPUVirtualAddress());
-		 a_pCmdList->SetGraphicsRootShaderResourceView(3, m_uniqueVertexIndices.GetGPUVirtualAddress());
-		 a_pCmdList->SetGraphicsRootShaderResourceView(4, m_primitiveIndices.GetGPUVirtualAddress());
-		 a_pCmdList->SetGraphicsRootShaderResourceView(5, m_vertexBuffer.GetGPUVirtualAddress());
+		 a_pCmdList->SetGraphicsRootShaderResourceView(3, m_meshletBuffer.GetGPUVirtualAddress());
+		 a_pCmdList->SetGraphicsRootShaderResourceView(4, m_uniqueVertexIndices.GetGPUVirtualAddress());
+		 a_pCmdList->SetGraphicsRootShaderResourceView(5, m_primitiveIndices.GetGPUVirtualAddress());
+		 a_pCmdList->SetGraphicsRootShaderResourceView(6, m_vertexBuffer.GetGPUVirtualAddress());
 	}
 
 	void MeshBufferAllocator::UpdateFrame(D3D12::GraphicsCommandList* a_pCmdList,uint64_t a_completedFenceValue)

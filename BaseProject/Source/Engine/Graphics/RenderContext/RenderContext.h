@@ -53,37 +53,7 @@ namespace Engine::Graphics
 		UINT boneElementNum = 0;
 	};
 	
-	// ---- メッシュシェーダー用構造体 ----
-	struct MeshInstanceData
-	{
-		DXSM::Matrix worldMat;			// 現在フレームのワールド行列
-		DXSM::Matrix prevWorldMat;		// １フレーム前のワールド行列
 
-		// メッシュが参照するマテリアル
-		UINT materialOffset;
-
-		// アニメーションがあればデータが入っている
-		UINT boneStartIndex;			// 開始位置
-		UINT boneCount;					// 配列サイズ
-	};
-	struct MeshMaterial
-	{
-		// マテリアルのテクスチャスケール値
-		DXSM::Vector4 baseColor;
-
-		DXSM::Vector3 emissive;
-		float metallic;
-
-		float roughness;
-
-		DXSM::Vector3 pad;
-
-		// テクスチャのSRVインデックス
-		int albedIndex;					// アルベド
-		int metaRoughnessIndex;			// メタリックラフネステクスチャ
-		int emissiveIndex;
-		int normalIndex;
-	};
 
 	// 現在のフレームの描画管理クラス
 	class RenderContext
@@ -196,7 +166,12 @@ namespace Engine::Graphics
 
 
 		// 描画命令の実行
-		void UpdateBuffer(const std::vector<InstanceData>& a_instanceVec,const std::vector<SubSetData>& a_subsetVec);
+		void UpdateBuffer(
+			const std::vector<InstanceData>& a_instanceVec,
+			const std::vector<SubSetData>& a_subsetVec,
+			const std::vector<MeshInstanceData>& a_mesInstance,
+			const std::vector<MeshMaterial>& a_mesMaterial
+		);
 
 		// インデックスバインド
 		void BindIndex(UINT a_instanceBufferIndex, UINT a_subsetBufferIndex, UINT a_rootIndex = 1);
@@ -207,6 +182,12 @@ namespace Engine::Graphics
 		void BindBonePalletBuffer(UINT a_rootIndex);
 		void BindGraphicsDebugLineBuffer(UINT a_rootIndex);
 
+		// メッシュシェーダー関連
+		void BindCamera();
+		void BindMeshInstance();
+		void BindMeshlet();
+
+		void DrawQueueDispathMesh(uint8_t a_passIndex);
 
 		//--------------------------------------------------------------------------------------------
 		// 描画パス構築
@@ -299,11 +280,6 @@ namespace Engine::Graphics
 		// メッシュシェーダー用データ
 		D3D12::StaticStructuredBuffer<MeshInstanceData>		m_meshInstanceBuffer;
 		D3D12::StaticStructuredBuffer<MeshMaterial>			m_meshMaterialBuffer;
-		D3D12::StaticStructuredBuffer<Resource::Meshlet>	m_meshletBuffer;
-		D3D12::ByteAddressBuffer							m_uniqueVertexIndices;
-		D3D12::ByteAddressBuffer							m_primitiveIndices;
-
-		D3D12::ByteAddressBuffer							m_vertexBuffer;
 	};
 	template<typename T>
 	inline void RenderContext::GraphicsBindRootCBV(int a_descIndex, const T& a_data)

@@ -99,4 +99,42 @@ namespace Engine::Graphics
 		DirectX::XMFLOAT4X4 worldMat;
 		UINT shapeType;
 	};
+
+	// ---- メッシュシェーダー用構造体 ----
+	struct MeshInstanceData
+	{
+		DXSM::Matrix worldMat;			// 現在フレームのワールド行列
+		DXSM::Matrix prevWorldMat;		// １フレーム前のワールド行列
+
+		// メッシュが参照するマテリアル
+		UINT materialOffset;
+
+		// バッファアクセス用オフセット
+		UINT meshletOffset;
+		UINT vertexOffset;
+		UINT uviOffset;
+		UINT primitiveOffset;
+
+		// アニメーションがあればデータが入っている
+		UINT boneStartIndex;			// 開始位置
+		UINT boneCount;					// 配列サイズ
+	};
+	struct MeshMaterial
+	{
+		// マテリアルのテクスチャスケール値
+		DXSM::Vector4 baseColor;
+
+		DXSM::Vector3 emissive;
+		float metallic;
+
+		float roughness;
+
+		DXSM::Vector3 pad;
+
+		// テクスチャのSRVインデックス
+		int albedIndex;					// アルベド
+		int metaRoughnessIndex;			// メタリックラフネステクスチャ
+		int emissiveIndex;
+		int normalIndex;
+	};
 }
