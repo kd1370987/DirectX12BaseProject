@@ -72,6 +72,7 @@ namespace Engine
 		/// <summary>
 		/// 有効判定
 		/// </summary>
+		/// <returns>有効なら true </returns>
 		bool IsValid() const { return startIndex != std::numeric_limits<uint32_t>::max() && count > 0; }
 	};
 }

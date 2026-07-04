@@ -13,7 +13,7 @@ namespace Engine::Graphics
 	)
 	{
 		// 頂点用クラス準備
-		m_vertexBuffer.Create(a_pDevice,a_pCmdList,a_maxVert,sizeof(Resource::MeshVertexFloat));
+		m_vertexBuffer.Create(a_pDevice,a_pCmdList,a_maxVert,nullptr);
 		m_vertexAllocator.Init(a_maxVert);
 
 		// メッシュレット用クラス準備
@@ -21,11 +21,11 @@ namespace Engine::Graphics
 		m_meshletAllocator.Init(a_maxMeshlets);
 
 		// ユニーク頂点インデックスバッファ
-		m_uniqueVertexIndices.Create(a_pDevice, a_pCmdList, a_maxUniqueVertexIndices, sizeof(uint32_t));
+		m_uniqueVertexIndices.Create(a_pDevice, a_pCmdList, a_maxUniqueVertexIndices, nullptr);
 		m_uniqueVertexIndexAllocator.Init(a_maxUniqueVertexIndices);
 
 		// プリミティブインデックスバッファ
-		m_primitiveIndices.Create(a_pDevice, a_pCmdList, a_maxPrimitiveIndices, sizeof(uint32_t));
+		m_primitiveIndices.Create(a_pDevice, a_pCmdList, a_maxPrimitiveIndices, nullptr);
 		m_primitiveIndexAllocator.Init(a_maxPrimitiveIndices);
 	}
 
@@ -74,8 +74,11 @@ namespace Engine::Graphics
 			!_handle.uniqueVertexHandle.isValid() || !_handle.primitiveHandle.isValid())
 		{
 			// 失敗した場合は、フェンス待ちなし（0）で即時解放して無効なハンドルを返す
-			Free(_handle, 0);
-			return MeshAllocationHandle(); // 無効なハンドル
+			if (_handle.vertexHandle.isValid()) m_vertexAllocator.FreeRange(_handle.vertexHandle, 0);
+			if (_handle.meshletHandle.isValid()) m_meshletAllocator.FreeRange(_handle.meshletHandle, 0);
+			if (_handle.uniqueVertexHandle.isValid()) m_uniqueVertexIndexAllocator.FreeRange(_handle.uniqueVertexHandle, 0);
+			if (_handle.primitiveHandle.isValid()) m_primitiveIndexAllocator.FreeRange(_handle.primitiveHandle, 0);
+			return MeshAllocationHandle();
 		}
 
 		// UploadHeapからDefaultHeapへデータをコピーするコマンドを積む

@@ -154,9 +154,6 @@
     <Filter Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem">
       <UniqueIdentifier>{d61ed4a8-8f6b-4583-b004-1bf59a92ef2c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\SimpleDraw">
-      <UniqueIdentifier>{b5fd83f2-e2be-4994-936c-77004366b3a1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Components\Input">
       <UniqueIdentifier>{95bc3de0-79f5-48ea-a766-31f025ad20a6}</UniqueIdentifier>
     </Filter>
@@ -1095,9 +1092,6 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\SimpleDraw</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp">
       <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
     </ClCompile>
@@ -1762,9 +1756,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\SimpleDraw\SimpleDrawSystem.h">
-      <Filter>Source\Application\Systems\Draw\Draw\SimpleDraw</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>

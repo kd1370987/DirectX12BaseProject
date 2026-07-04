@@ -198,14 +198,14 @@ namespace Engine::Editor
 							ImGui::Text("Not faund particle");
 							return;
 						}
-						_pData->Edit();
+						_pData->Edit(_guid);
 					}
 					else
 					{
 						ImGui::Text("No loaded file");
 						if (ImGui::Button("Load"))
 						{
-							Resource::ResourceManager::Instance().Load<Resource::ParticlesAsset>(_guid);
+							Resource::ResourceManager::Instance().Load<Resource::ShadingModelTable>(_guid);
 						}
 					}
 				}

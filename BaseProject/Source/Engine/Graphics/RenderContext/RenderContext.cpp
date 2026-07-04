@@ -685,7 +685,8 @@ namespace Engine::Graphics
 			m_pCmdList->SetGraphicsRoot32BitConstant(8,_item.meshInstanceIndex,0);
 
 			if (_item.meshHandle.meshletHandle.count == 0 || _item.meshHandle.meshletHandle.count >= 100000) continue;
-			m_pCmdList->DispatchMesh(_item.meshHandle.meshletHandle.count, 1, 1);
+			//m_pCmdList->DispatchMesh(_item.meshHandle.meshletHandle.count, 1, 1);
+			m_pCmdList->DispatchMesh(_item.subsetMeshletCount, 1, 1);
 		}
 	}
 

@@ -10,6 +10,11 @@ namespace Engine
 
 		class PipelineStateManager;
 	}
+
+	namespace ECS
+	{
+		class World;
+	}
 }
 
 namespace Engine::Graphics
@@ -62,6 +67,9 @@ namespace Engine::Graphics
 		UINT meshMaterialIndex = 0;
 		MeshAllocationHandle meshHandle = {};
 
+		// このサブセットを描画するためのメッシュレット数
+		UINT subsetMeshletCount = 0;
+
 		// ヘルパー関数
 		uint8_t GetPassIndex()		const { return static_cast<uint8_t>(sortKey.value >> 56); }
 		uint8_t GetPSOID()			const { return static_cast<uint8_t>((sortKey.value >> 48) & 0xFF); }
@@ -91,8 +99,8 @@ namespace Engine::Graphics
 		// アクセサ
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
-
 		D3D12::PipelineStateManager* RefPipelineStateManager();
+		Graphics::RenderPassRegistry* RefRenderPassRegistry();
 
 		RenderGraph* RefRenderGraph();
 
@@ -135,6 +143,61 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド
 		//--------------------------------------------------------------------------------------------
+		
+		/// <summary>
+		/// 指定したモデルを指定の座標に描画する命令 : 即時実行ではなく、コマンドとしてためたのちに一括で実行される
+		/// </summary>
+		/// <param name="a_world">ワールド</param>
+		/// <param name="a_pModel">モデルのポインタ</param>
+		/// <param name="a_worldMatrix">ワールド行列</param>
+		/// <param name="a_albedScale">カラースケール</param>
+		/// <param name="a_emissiveScale">エミッシブスケール</param>
+		void SubmitModel(
+			ECS::World& a_world,
+			const Resource::Model* a_pModel,
+			const DXSM::Matrix& a_worldMatrix,
+			const DXSM::Color& a_albedScale = Color::WHITE,
+			const DXSM::Vector3& a_emissiveScale = {1,1,1}
+		);
+		/// <summary>
+		/// 指定したモデルを指定の座標に描画する命令 : 即時実行ではなく、コマンドとしてためたのちに一括で実行される
+		/// </summary>
+		/// <param name="a_world">ワールド</param>
+		/// <param name="a_pModel">モデルのポインタ</param>
+		/// <param name="a_worldMatrix">ワールド行列</param>
+		/// <param name="a_prevMatrix">過去ワールド行列</param>
+		/// <param name="a_albedScale">カラースケール</param>
+		/// <param name="a_emissiveScale">エミッシブスケール</param>
+		void SubmitModel(
+			ECS::World& a_world,
+			const Resource::Model* a_pModel,
+			const DXSM::Matrix& a_worldMatrix,
+			const DXSM::Matrix& a_prevMatrix,
+			const DXSM::Color& a_albedScale = Color::WHITE,
+			const DXSM::Vector3& a_emissiveScale = { 1,1,1 }
+		);
+		/// <summary>
+		/// 指定したモデルを指定の座標に描画する命令 : 即時実行ではなく、コマンドとしてためたのちに一括で実行される
+		/// </summary>
+		/// <param name="a_world">ワールド</param>
+		/// <param name="a_pModel">モデルのポインタ</param>
+		/// <param name="a_worldMatrix">ワールド行列</param>
+		/// <param name="a_prevMatrix">過去ワールド行列</param>
+		/// <param name="a_boneHandle">ボーン行列配列ハンドル</param>
+		/// <param name="a_nodePoseHandle">スケルトンポーズ行列配列ハンドル</param>
+		/// <param name="a_albedScale">カラースケール</param>
+		/// <param name="a_emissiveScale">エミッシブスケール</param>
+		void SubmitModel(
+			ECS::World& a_world,
+			const Resource::Model* a_pModel,
+			const DXSM::Matrix& a_worldMatrix,
+			const DXSM::Matrix& a_prevMatrix,
+			const RangeHandle<Resource::BoneMatrix>& a_boneHandle,
+			const RangeHandle<Resource::NodePoseMatrix>& a_nodePoseHandle,
+			const DXSM::Color& a_albedScale = Color::WHITE,
+			const DXSM::Vector3& a_emissiveScale = { 1,1,1 }
+		);
+
 		// 追加
 		UINT SetInstanceData(const InstanceData& a_instanceData);
 		UINT SetInstanceData(const MeshInstanceData& a_instanceData);

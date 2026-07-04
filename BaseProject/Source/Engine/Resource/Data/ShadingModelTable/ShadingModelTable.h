@@ -10,7 +10,6 @@ namespace Engine::Resource
 
 		// ---- アクセサ ----
 		std::span<const Handle<Shader>> GetShaderHandles(UINT a_passHash) const;
-		std::span<const Handle<ShaderLibrary>> GetShaderLibraryHandles(UINT a_passHash) const;
 
 		/// <summary>
 		/// シリアライズ処理
@@ -21,19 +20,17 @@ namespace Engine::Resource
 		/// <summary>
 		/// 編集
 		/// </summary>
-		void Edit();
+		void Edit(const Engine::GUID& a_guid);
 
 	private:
 		// シェーディングモデルタイプネーム
 		std::string m_typeName;
 
 		// 保存用データ
-		std::unordered_map<UINT, std::vector<Engine::GUID>> m_shaderGUIDMap = {};
-		std::unordered_map<UINT, std::vector<Engine::GUID>> m_shaderLibraryGUIDMap = {};
+		std::unordered_map<std::string, std::vector<Engine::GUID>> m_shaderGUIDMap = {};
 
 		// ランタイムデータ
 		// パス名ハッシュ、シェーダーハンドル
 		std::unordered_map<UINT, std::vector<Handle<Shader>>> m_shaderHandleMap = {};
-		std::unordered_map<UINT, std::vector<Handle<ShaderLibrary>>> m_shaderLibaryHandleMap = {};
 	};
 }

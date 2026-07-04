@@ -63,7 +63,8 @@ namespace Engine::Resource
 		void CreateMeshShaderData(
 			D3D12::GraphicsCommandList* a_pCmdList,
 			const std::vector<MeshVertexFloat>& a_vertices,
-			const std::vector<uint32_t>& a_indices
+			const std::vector<uint32_t>& a_indices,
+			const std::vector<MeshFace>& a_face
 		);
 
 		// 解放

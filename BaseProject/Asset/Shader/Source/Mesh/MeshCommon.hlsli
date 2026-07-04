@@ -52,11 +52,24 @@ struct Meshlet
 	uint primitiveOffset;	// プリミティブ配列におけるスタート位置
 };
 StructuredBuffer<Meshlet> g_meshletData : register(t2);
-ByteAddressBuffer g_uniqueVertexIndices : register(t3); // 各meshレットが使う頂点番号リスト
-ByteAddressBuffer g_primitiveIndices : register(t4);
+//ByteAddressBuffer g_uniqueVertexIndices : register(t3); // 各meshレットが使う頂点番号リスト
+StructuredBuffer<uint> g_uniqueVertexIndices : register(t3); // 各meshレットが使う頂点番号リスト
+//ByteAddressBuffer g_primitiveIndices : register(t4);
+StructuredBuffer<uint> g_primitiveIndices : register(t4);
 
 // 頂点情報
-ByteAddressBuffer g_vertices : register(t5);
+//ByteAddressBuffer g_vertices : register(t5);
+struct Vertex
+{
+	float3 pos : POSITION; // 頂点座標
+	float3 normal : NORMAL; // 法線
+	float2 uv : TEXCOORD; // uv座標
+	float3 tangent : TANGENT; // 接空間
+	float4 color : COLOR; // 頂点色
+	uint4 skinIndex : SKININDEX; // スキンメッシュのボーンインデックス（何番目のボーンに影響しているかのデータ（最大４））
+	float4 skinWeight : SKINWEIGHT; // ボーンの影響度（最大４）
+};
+StructuredBuffer<Vertex> g_vertices : register(t5);
 
 // アニメーション用バッファ
 struct BonePallet

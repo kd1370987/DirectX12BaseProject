@@ -45,7 +45,17 @@ bool Engine::Resource::Mesh::CreateFloat(
 				a_vertices,
 				a_face
 			);
-
+		},
+		// 完了時のコールバック
+		[]()
+		{
+			ENGINE_LOG("メッシュの非同期セットアップが完了");
+		}
+	);
+	D3D12::D3D12Wrapper::Instance().ExecuteAsyncCopy(
+		// コマンドを積む処理
+		[this, _pDevice, a_subsets, a_vertices, a_face](D3D12::GraphicsCommandList* a_pCmdList)
+		{
 			// メッシュシェーダー用データ作成
 			std::vector<uint32_t> _indices = {};
 			for (auto& _f : a_face)
@@ -54,7 +64,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 				_indices.push_back(_f.idx[1]);
 				_indices.push_back(_f.idx[2]);
 			}
-			CreateMeshShaderData(a_pCmdList, a_vertices, _indices);
+			CreateMeshShaderData(a_pCmdList, a_vertices, _indices, a_face);
 		},
 		// 完了時のコールバック
 		[]()
@@ -104,22 +114,27 @@ void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<DirectX::XMFL
 void Engine::Resource::Mesh::CreateMeshShaderData(
 	D3D12::GraphicsCommandList* a_pCmdList,
 	const std::vector<MeshVertexFloat>& a_vertices, 
-	const std::vector<uint32_t>& a_indices
+	const std::vector<uint32_t>& a_indices,
+	const std::vector<MeshFace>& a_face
 )
 {
-	// 空で生成
-	m_opMeshShaderData.emplace();
-
 	// メッシュレット生成用パラメーター
 	const size_t MAX_VERTS = 64;			// 最大頂点数
 	const size_t MAX_PRIMS = 126;			// 最大プリミティブ数
+	uint32_t _currentMeshletOffset = 0;
+	uint32_t _currentVertexOffset = 0;
+	uint32_t _currentPrimitiveOffset = 0;
 
-	// 生成結果を受け取るための一時バッファ
-	std::vector<DirectX::Meshlet> _dxMeshlets;
-	std::vector<uint8_t> _uniqueVertexIB;
-	std::vector<DirectX::MeshletTriangle> _primitiveIndices;
+	// 空で生成
+	m_opMeshShaderData.emplace();
 
-	// 位置情報だけの配列を作る
+	// 全サブセットのデータをまとめるマスター配列
+	std::vector<Engine::Resource::Meshlet> _masterMeshlets;
+	std::vector<uint32_t> _masterUVI;
+	std::vector<DirectX::MeshletTriangle> _masterPrimitives;
+	std::vector<SubsetMeshletData> _subsetMeshletData;
+
+	// 位置情報だけの配列を作成
 	std::vector<DirectX::XMFLOAT3> _positions;
 	_positions.reserve(a_vertices.size());
 	for (const auto& v : a_vertices)
@@ -127,74 +142,101 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 		_positions.push_back(v.pos);
 	}
 
-	// メッシュレット作成
-	HRESULT _hr = DirectX::ComputeMeshlets(
-		a_indices.data(),
-		a_indices.size() / 3,
-		_positions.data(),
-		_positions.size(),
-		nullptr,
-		_dxMeshlets,
-		_uniqueVertexIB,
-		_primitiveIndices,
-		MAX_VERTS,
-		MAX_PRIMS
-	);
-
-	if (FAILED(_hr))
+	for (const auto& _subset : m_meshMetaData.subsets)
 	{
-		ENGINE_ERRLOG(false, "Meshletの生成に失敗");
-		return;
-	}
-
-	// DirectX::Meshletを自前の構造体に詰め替える
-	m_opMeshShaderData.value().meshlets.reserve(_dxMeshlets.size());
-	for (const auto& _dxm : _dxMeshlets)
-	{
-		Engine::Resource::Meshlet _m = {};
-		_m.vertexCount = _dxm.VertCount;
-		_m.vertexOffset = _dxm.VertOffset;
-		_m.primitiveCount = _dxm.PrimCount;
-		_m.primitiveOffset = _dxm.PrimOffset;
-		m_opMeshShaderData.value().meshlets.push_back(_m);
-	}
-
-	// ---------------------------------------------------------
-	// uniqueVertexIndices を uint32_t に統一して変換
-	// ---------------------------------------------------------
-	std::vector<uint32_t> _convertedUVI;
-
-	// DirectXMeshは頂点数が65535以下なら16bit、それより大きければ32bitでUVIを出力する
-	if (a_vertices.size() <= 65535)
-	{
-		// 16bitとして出力されているので32bitに変換
-		const uint16_t* _p16 = reinterpret_cast<const uint16_t*>(_uniqueVertexIB.data());
-		size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint16_t);
-
-		_convertedUVI.resize(_indexCount);
-		for (size_t i = 0; i < _indexCount; ++i)
+		std::vector<uint32_t> _subsetIndices;
+		// このサブセットが持つ面だけを抽出
+		for (uint32_t i = 0; i < _subset.faceCount; ++i)
 		{
-			_convertedUVI[i] = static_cast<uint32_t>(_p16[i]);
+			auto& _f = a_face[_subset.faceStart + i];
+			_subsetIndices.push_back(_f.idx[0]);
+			_subsetIndices.push_back(_f.idx[1]);
+			_subsetIndices.push_back(_f.idx[2]);
 		}
+
+		// サブセット単体で ComputeMeshlets を実行
+		std::vector<DirectX::Meshlet> _dxMeshlets;
+		std::vector<uint8_t> _uniqueVertexIB;
+		std::vector<DirectX::MeshletTriangle> _primitiveIndices;
+
+		// メッシュレット生成
+		auto _hr = DirectX::ComputeMeshlets(
+			_subsetIndices.data(), _subsetIndices.size() / 3,
+			_positions.data(), _positions.size(),
+			nullptr, _dxMeshlets, _uniqueVertexIB, _primitiveIndices,
+			MAX_VERTS, MAX_PRIMS
+		);
+		if (FAILED(_hr))
+		{
+			ENGINE_ERRLOG(false, "Meshletの生成に失敗");
+			return;
+		}
+
+		// 前回のサブセットまでのオフセットを足してマスター配列に追加
+		for (const auto& _dxm : _dxMeshlets)
+		{
+			Engine::Resource::Meshlet _m = {};
+			_m.vertexCount = _dxm.VertCount;
+			_m.vertexOffset = _dxm.VertOffset + _currentVertexOffset;
+			_m.primitiveCount = _dxm.PrimCount;
+			_m.primitiveOffset = _dxm.PrimOffset + _currentPrimitiveOffset;
+			_masterMeshlets.push_back(_m);
+		}
+
+		// ---------------------------------------------------------
+		// uniqueVertexIndices を uint32_t に統一して変換
+		// ---------------------------------------------------------
+		std::vector<uint32_t> _convertedUVI;
+
+		// DirectXMeshは頂点数が65535以下なら16bit、それより大きければ32bitでUVIを出力する
+		if (a_vertices.size() <= 65535)
+		{
+			// 16bitとして出力されているので32bitに変換
+			const uint16_t* _p16 = reinterpret_cast<const uint16_t*>(_uniqueVertexIB.data());
+			size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint16_t);
+
+			_convertedUVI.resize(_indexCount);
+			for (size_t i = 0; i < _indexCount; ++i)
+			{
+				_convertedUVI[i] = static_cast<uint32_t>(_p16[i]);
+			}
+		}
+		else
+		{
+			// 最初から32bitで出力されているのでそのままコピー
+			const uint32_t* _p32 = reinterpret_cast<const uint32_t*>(_uniqueVertexIB.data());
+			size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint32_t);
+
+			_convertedUVI.assign(_p32, _p32 + _indexCount);
+		}
+
+		// 変換した配列をマスター配列の後ろに結合 (Append)
+		_masterUVI.insert(_masterUVI.end(), _convertedUVI.begin(), _convertedUVI.end());
+		_masterPrimitives.insert(_masterPrimitives.end(), _primitiveIndices.begin(), _primitiveIndices.end());
+
+		// 描画システムに渡すためのサブセットごとのカタログ情報を記録
+		SubsetMeshletData _smd = {};
+		_smd.meshletOffset = _currentMeshletOffset;
+		_smd.meshletCount = static_cast<uint32_t>(_dxMeshlets.size());
+		_subsetMeshletData.push_back(_smd);
+
+		// 次のサブセットのためにオフセットを進める
+		_currentMeshletOffset += static_cast<uint32_t>(_dxMeshlets.size());
+		_currentVertexOffset += static_cast<uint32_t>(_convertedUVI.size());
+		_currentPrimitiveOffset += static_cast<uint32_t>(_primitiveIndices.size());
 	}
-	else
-	{
-		// 最初から32bitで出力されているのでそのままコピー
-		const uint32_t* _p32 = reinterpret_cast<const uint32_t*>(_uniqueVertexIB.data());
-		size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint32_t);
 
-		_convertedUVI.assign(_p32, _p32 + _indexCount);
-	}
+	// すべてのループが終わったら、構造体にマスター配列をムーブ
+	m_opMeshShaderData.value().meshlets = std::move(_masterMeshlets);
+	m_opMeshShaderData.value().uniqueVertexIndices = std::move(_masterUVI);
+	m_opMeshShaderData.value().primitiveIndices = std::move(_masterPrimitives);
+	m_opMeshShaderData.value().subsetMeshlets = std::move(_subsetMeshletData);
 
-	// 変換したUVIを格納 (ヘッダー側が std::vector<uint32_t> である前提)
-	m_opMeshShaderData.value().uniqueVertexIndices = std::move(_convertedUVI);
-	m_opMeshShaderData.value().primitiveIndices = std::move(_primitiveIndices);
-
-	// 一時的な Uploadヒープ を作成している場合 std::shared_ptr でキャプチャ
+	// メガバッファに登録
 	ENGINE_LOG("メッシュの非同期セットアップ完了");
-	// メッシュシェーダーへの登録
 	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 	ENGINE_ERRLOG(_pGE, "メッシュ読み込み時にグラフィックスエンジンがありません");
+
 	auto _handle = _pGE->AllocateAndUpload(a_pCmdList, *this);
 	m_opMeshShaderData.value().meshHandle = _handle;
 }
