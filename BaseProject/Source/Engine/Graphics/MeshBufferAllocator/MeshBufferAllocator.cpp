@@ -21,7 +21,7 @@ namespace Engine::Graphics
 		m_meshletAllocator.Init(a_maxMeshlets);
 
 		// ユニーク頂点インデックスバッファ
-		m_uniqueVertexIndices.Create(a_pDevice, a_pCmdList, a_maxUniqueVertexIndices, sizeof(uint8_t));
+		m_uniqueVertexIndices.Create(a_pDevice, a_pCmdList, a_maxUniqueVertexIndices, sizeof(uint32_t));
 		m_uniqueVertexIndexAllocator.Init(a_maxUniqueVertexIndices);
 
 		// プリミティブインデックスバッファ
@@ -61,9 +61,10 @@ namespace Engine::Graphics
 		auto& _meshData = a_newMeshData.GetMeshShaderData();
 		auto& _meshMetaData = a_newMeshData.GetMetaData();
 		auto& _meshRasterData = a_newMeshData.GetRasterData();
+		auto& _vertexVec = a_newMeshData.GetVertexVec();
 
 		// 各バッファから必要なサイズを確保
-		_handle.vertexHandle = m_vertexAllocator.AllocateRange(static_cast<uint32_t>(_meshData.meshlets.size()));
+		_handle.vertexHandle = m_vertexAllocator.AllocateRange(static_cast<uint32_t>(_vertexVec.size()));
 		_handle.meshletHandle = m_meshletAllocator.AllocateRange(_meshData.meshlets.size());
 		_handle.uniqueVertexHandle = m_uniqueVertexIndexAllocator.AllocateRange(_meshData.uniqueVertexIndices.size());
 		_handle.primitiveHandle = m_primitiveIndexAllocator.AllocateRange(_meshData.primitiveIndices.size());

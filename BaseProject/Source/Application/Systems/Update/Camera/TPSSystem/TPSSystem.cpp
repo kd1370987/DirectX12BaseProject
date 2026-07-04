@@ -41,6 +41,9 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 
 				// ターゲットのコンポーネントを取得
 				Engine::ECS::Entity _target = _followComp.target;
+				if (!a_world.HasComponent<LocalTransformComponent>(_target)) continue;
+				if (!a_world.HasComponent<PlayerLookAngleComponent>(_target)) continue;
+
 				const LocalTransformComponent* _targetTRS = a_world.RefData<LocalTransformComponent>(_target);
 				const PlayerLookAngleComponent* _targetLook = a_world.RefData<PlayerLookAngleComponent>(_target);
 				if (!_targetLook || !_targetTRS) continue;

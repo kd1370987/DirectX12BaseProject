@@ -341,6 +341,12 @@ namespace Engine::Editor
 	{
 		if (ImGui::Begin("Inspector"))
 		{
+			if (ImGui::Button("RemoveEntity"))
+			{
+				a_pWorld->RemoveEntity(m_currentEntity);
+				m_currentEntity = Engine::ECS::Limits::INVALID_ENTITY;
+			}
+
 			if (m_currentEntity == Engine::ECS::Limits::INVALID_ENTITY)
 			{
 				ImGui::End();

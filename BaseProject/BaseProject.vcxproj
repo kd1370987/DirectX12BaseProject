@@ -383,7 +383,6 @@
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshShaderData\MeshShaderData.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\RasterizationMesh\RasterizationMesh.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp" />

@@ -59,8 +59,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 		// 完了時のコールバック
 		[]()
 		{
-			// 一時的な Uploadヒープ を作成している場合 std::shared_ptr でキャプチャ
-			ENGINE_LOG("メッシュの非同期セットアップ完了");
+			ENGINE_LOG("メッシュの非同期セットアップが完了");
 		}
 	);
 	return true;
@@ -160,13 +159,43 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 		m_opMeshShaderData.value().meshlets.push_back(_m);
 	}
 
-	m_opMeshShaderData.value().uniqueVertexIndices = std::move(_uniqueVertexIB);
+	// ---------------------------------------------------------
+	// uniqueVertexIndices を uint32_t に統一して変換
+	// ---------------------------------------------------------
+	std::vector<uint32_t> _convertedUVI;
+
+	// DirectXMeshは頂点数が65535以下なら16bit、それより大きければ32bitでUVIを出力する
+	if (a_vertices.size() <= 65535)
+	{
+		// 16bitとして出力されているので32bitに変換
+		const uint16_t* _p16 = reinterpret_cast<const uint16_t*>(_uniqueVertexIB.data());
+		size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint16_t);
+
+		_convertedUVI.resize(_indexCount);
+		for (size_t i = 0; i < _indexCount; ++i)
+		{
+			_convertedUVI[i] = static_cast<uint32_t>(_p16[i]);
+		}
+	}
+	else
+	{
+		// 最初から32bitで出力されているのでそのままコピー
+		const uint32_t* _p32 = reinterpret_cast<const uint32_t*>(_uniqueVertexIB.data());
+		size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint32_t);
+
+		_convertedUVI.assign(_p32, _p32 + _indexCount);
+	}
+
+	// 変換したUVIを格納 (ヘッダー側が std::vector<uint32_t> である前提)
+	m_opMeshShaderData.value().uniqueVertexIndices = std::move(_convertedUVI);
 	m_opMeshShaderData.value().primitiveIndices = std::move(_primitiveIndices);
 
+	// 一時的な Uploadヒープ を作成している場合 std::shared_ptr でキャプチャ
+	ENGINE_LOG("メッシュの非同期セットアップ完了");
 	// メッシュシェーダーへの登録
 	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 	ENGINE_ERRLOG(_pGE, "メッシュ読み込み時にグラフィックスエンジンがありません");
-	auto _handle = _pGE->AllocateAndUpload(a_pCmdList,*this);
+	auto _handle = _pGE->AllocateAndUpload(a_pCmdList, *this);
 	m_opMeshShaderData.value().meshHandle = _handle;
 }
 

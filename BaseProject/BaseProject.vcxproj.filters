@@ -1614,9 +1614,6 @@
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp">
       <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshShaderData\MeshShaderData.cpp">
-      <Filter>Source\Engine\Resource\Data\Mesh\MeshShaderData</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\MeshShaderPass\TestMeshPass\TestMeshPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\MeshShaderPass</Filter>
     </ClCompile>

@@ -55,6 +55,7 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 
 							bool _isParentUpdated = false;
 							if (_hComp.parentID != Engine::ECS::Limits::INVALID_ENTITY) {
+								if (!a_world.HasComponent<WorldMatrixComponent>(_hComp.parentID)) continue;
 								auto* _parentMatComp = a_world.RefData<WorldMatrixComponent>(_hComp.parentID);
 								if (_parentMatComp) {
 									_isParentUpdated = _parentMatComp->wasUpdatedThisFrame;
