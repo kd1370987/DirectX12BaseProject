@@ -94,7 +94,7 @@ namespace Engine::Graphics
 		// レンダーパスの登録
 		m_upRenderPassRegistry = std::make_unique<RenderPassRegistry>();
 		// ラスター関係
-		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
+		AddNonZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
 		//AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 		AddNotPSOGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 		//AddMeshGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
@@ -312,112 +312,6 @@ namespace Engine::Graphics
 			a_emissiveScale
 		);
 	}
-	//void GraphicsEngine::SubmitModel(
-	//	ECS::World& a_world,
-	//	const Resource::Model* a_pModel, 
-	//	const DXSM::Matrix& a_worldMatrix, 
-	//	const DXSM::Matrix& a_prevMatrix,
-	//	const DXSM::Color& a_albedScale,
-	//	const DXSM::Vector3& a_emissiveScale
-	//)
-	//{
-	//	uint8_t _zpreIdx = m_upRenderGraph->GetPassIndex("ZPre");
-	//	uint8_t _opeqIdx = m_upRenderGraph->GetPassIndex("GBuffer");
-	//	const uint8_t _zpreStatic = m_upRenderGraph->GetPass("ZPre")->GetPSOIndex("ZPreStatic");
-	//	const uint8_t _gbuffStatic = m_upRenderGraph->GetPass("GBuffer")->GetPSOIndex("GBufferStatic");
-
-	//	// モデルが持っている描画コマンド（サブセット）を展開
-	//	const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
-	//	for (const auto& _cmd : _drawCmdVec)
-	//	{
-	//		auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Material>(_cmd.materialRawID);
-	//		if (!_pMaterial) continue;
-
-	//		// ノードの行列確定
-	//		DXSM::Matrix _nodeTransMat(a_pModel->GetOriginalNodeVec()[_cmd.nodeIndex].worldTransform);
-	//		DXSM::Matrix _mat = _nodeTransMat * a_worldMatrix;
-	//		DXSM::Matrix _prevMat = _nodeTransMat * a_prevMatrix;
-
-	//		// -----------------------------------------------------
-	//		// GPU用データの構築
-	//		// -----------------------------------------------------
-	//		Engine::Graphics::InstanceData _instanceData = {};
-	//		_instanceData.worldMat = _mat.Transpose();
-	//		_instanceData.prevWorldMat = _prevMat.Transpose();
-
-	//		Engine::Graphics::SubSetData _subSetData = {};
-	//		_subSetData.baseColorScale = a_albedScale;
-	//		_subSetData.emissiveColorScale = a_emissiveScale;
-	//		_subSetData.metallic = _pMaterial->metallic;
-	//		_subSetData.roughness = _pMaterial->roughness;
-
-	//		// -----------------------------------------------------
-	//		// メッシュシェーダー用パス
-	//		// -----------------------------------------------------
-	//		//Engine::Graphics::MeshInstanceData _meshInstance = {};
-	//		//Engine::Graphics::MeshMaterial _meshMaterial = {};
-	//		//// メッシュマテリアル
-	//		//if (_cmd.pMesh->HasMeshShaderData())
-	//		//{
-	//		//	_meshMaterial.baseColor = _modelComp.colorScale; // マテリアルの色も入れろ
-	//		//	_meshMaterial.emissive = _modelComp.emissiveScale;
-	//		//	_meshMaterial.metallic = 0.1f;
-	//		//	_meshMaterial.roughness = 0.5f;
-	//		//	_meshMaterial.albedIndex = _cmd.pMaterial->baseColorTex.GetIndex();
-	//		//	_meshMaterial.metaRoughnessIndex = _cmd.pMaterial->metaRoughTex.GetIndex();
-	//		//	_meshMaterial.emissiveIndex = _cmd.pMaterial->emissiveTex.GetIndex();
-	//		//	_meshMaterial.normalIndex = _cmd.pMaterial->normalTex.GetIndex();
-
-	//		//	// メッシュデータ作成
-	//		//	_meshInstance.worldMat = _mat.Transpose();
-	//		//	_meshInstance.prevWorldMat = _mat.Transpose();
-	//		//	_meshInstance.boneStartIndex = 0;
-	//		//	_meshInstance.boneCount = 0;
-	//		//	_meshInstance.materialOffset = _pGE->SetMeshMaterialData(_meshMaterial);
-	//		//	_meshInstance.meshletOffset = _cmd.pMesh->GetMeshShaderData().meshHandle.meshletHandle.startIndex;
-	//		//	_meshInstance.vertexOffset = _cmd.pMesh->GetMeshShaderData().meshHandle.vertexHandle.startIndex;
-	//		//	_meshInstance.uviOffset = _cmd.pMesh->GetMeshShaderData().meshHandle.uniqueVertexHandle.startIndex;
-	//		//	_meshInstance.primitiveOffset = _cmd.pMesh->GetMeshShaderData().meshHandle.primitiveHandle.startIndex;
-	//		//	//_item.subsetMeshletCount = _msData.meshHandle.meshletHandle.startIndex + _subsetMeshletInfo.meshletOffset;
-	//		//	_item.meshHandle = _cmd.pMesh->GetMeshShaderData().meshHandle;
-	//		//}
-
-	//		// -----------------------------------------------------
-	//		// 描画アイテムの登録
-	//		// -----------------------------------------------------
-	//		Engine::Graphics::LightWeightDrawItem _item = {};
-	//		_item.sortKey.bits.meshID = _cmd.meshRawID;
-	//		_item.sortKey.bits.materialID = _cmd.materialRawID;
-	//		_item.subIndex = _cmd.subIdx;
-
-	//		_item.instnaceIndex = SetInstanceData(_instanceData);
-	//		_item.subsetIndex = SetSubSetData(_subSetData);
-
-	//		switch (_cmd.alphaMode)
-	//		{
-	//		case Engine::Resource::Alpha::Opaque:
-	//			_item.sortKey.bits.psoID = _zpreStatic;
-	//			_item.sortKey.bits.passIndex = _zpreIdx;
-	//			AddItem(_item);
-	//			_item.sortKey.bits.psoID = _gbuffStatic;
-	//			_item.sortKey.bits.passIndex = _opeqIdx;
-	//			AddItem(_item);
-	//			break;
-	//		case Engine::Resource::Alpha::Mask:
-	//			_item.sortKey.bits.psoID = _zpreStatic;
-	//			_item.sortKey.bits.passIndex = _zpreIdx;
-	//			AddItem(_item);
-	//			_item.sortKey.bits.psoID = _gbuffStatic;
-	//			_item.sortKey.bits.passIndex = _opeqIdx;
-	//			AddItem(_item);
-	//			break;
-	//		case Engine::Resource::Alpha::Blend:
-	//			break;
-	//		default:
-	//			break;
-	//		}
-	//	}
-	//}
 
 	void GraphicsEngine::SubmitModel(
 		ECS::World& a_world,
@@ -462,7 +356,7 @@ namespace Engine::Graphics
 			uint32_t _subsetIdx = SetSubSetData(_subSetData);
 
 			// =========================================================
-			// 1. メッシュやマテリアルの状態から PermutationFlags を構築
+			// メッシュやマテリアルの状態から PermutationFlags を構築
 			// =========================================================
 			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
 
@@ -518,134 +412,7 @@ namespace Engine::Graphics
 			}
 		}
 	}
-	//void GraphicsEngine::SubmitModel(
-	//	ECS::World& a_world,
-	//	const Resource::Model* a_pModel,
-	//	const DXSM::Matrix& a_worldMatrix, 
-	//	const DXSM::Matrix& a_prevMatrix, 
-	//	const RangeHandle<Resource::BoneMatrix>& a_boneHandle, 
-	//	const RangeHandle<Resource::NodePoseMatrix>& a_nodePoseHandle,
-	//	const DXSM::Color& a_albedScale, 
-	//	const DXSM::Vector3& a_emissiveScale
-	//)
-	//{
-	//	// パス取得 : これは絶対にやめるマテリアルに持たせるべき
-	//	uint8_t _zpreIdx = m_upRenderGraph->GetPassIndex("ZPre");
-	//	uint8_t _opeqIdx = m_upRenderGraph->GetPassIndex("GBuffer");
-	//	const uint8_t _zpreStatic = m_upRenderGraph->GetPass("ZPre")->GetPSOIndex("ZPreAnimation");
-	//	const uint8_t _gbuffStatic = m_upRenderGraph->GetPass("GBuffer")->GetPSOIndex("GBufferAnimation");
 
-	//	// ノード行列取得
-	//	auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
-	//	const auto& _nodePoseMatVec = _nodePosePool.GetRange(a_nodePoseHandle);
-
-	//	// モデルが持っている描画コマンド（サブセット）を展開
-	//	const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
-	//	for (const auto& _cmd : _drawCmdVec)
-	//	{
-	//		auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Material>(_cmd.materialRawID);
-	//		if (!_pMaterial) continue;
-
-	//		// マテリアルからシェーディングモデルを取得
-	//		auto* _pShadingModel = Resource::ResourceManager::Instance().Ref(_pMaterial->shadingModelHandle);
-	//		if (!_pShadingModel) continue;
-
-	//		// ノードのワールド行列を確定
-	//		DXSM::Matrix _nodeTransMat(_nodePoseMatVec[_cmd.nodeIndex].world);
-	//		DXSM::Matrix _mat = _nodeTransMat * a_worldMatrix;
-
-	//		// -----------------------------------------------------
-	//		// GPU用データの構築
-	//		// -----------------------------------------------------
-	//		InstanceData _instanceData = {};
-	//		_instanceData.worldMat = _mat.Transpose();
-	//		_instanceData.prevWorldMat = _mat.Transpose();
-	//		_instanceData.boneStartIndex = a_boneHandle.startIndex;
-	//		_instanceData.boneCount = a_boneHandle.count;
-
-	//		SubSetData _subSetData = {};
-	//		_subSetData.baseColorScale = a_albedScale;
-	//		_subSetData.emissiveColorScale = a_emissiveScale;
-	//		_subSetData.metallic = _pMaterial->metallic;
-	//		_subSetData.roughness = _pMaterial->roughness;
-
-	//		uint32_t _instanceIdx = SetInstanceData(_instanceData);
-	//		uint32_t _subsetIdx = SetSubSetData(_subSetData);
-
-	//		// =========================================================
-	//		// データドリブンな描画アイテムの登録
-	//		// =========================================================
-
-	//		// マテリアルが持っているパスをイテレートする
-	//		for (UINT passHash : _pShadingModel->GetPassHashes())
-	//		{
-	//			// パスハッシュからRenderGraph側のインデックスを取得
-	//			uint8_t passIndex = m_upRenderGraph->GetPassIndexFromHash(passHash);
-	//			if (passIndex == 255) continue; // 無効なパスならスキップ
-
-	//			// このパスで使用するシェーダーを取得
-	//			auto shaders = _pShadingModel->GetShaderHandles(passHash);
-
-	//			// シェーダー、アルファモード、アニメーションの有無から PSO ID を解決する
-	//			bool isAnimation = true; // SubmitModelに渡されているモデル情報から判定
-	//			uint8_t psoID = m_upRenderGraph->GetPass(passIndex)->ResolvePSO(
-	//				shaders,
-	//				_cmd.alphaMode,
-	//				isAnimation
-	//			);
-
-	//			// DrawItemの構築と登録
-	//			Engine::Graphics::LightWeightDrawItem _item = {};
-	//			_item.sortKey.bits.meshID = _cmd.meshRawID;
-	//			_item.sortKey.bits.materialID = _cmd.materialRawID;
-	//			_item.isAnimation = isAnimation;
-	//			_item.subIndex = _cmd.subIdx;
-	//			_item.instnaceIndex = _instanceIdx;
-	//			_item.subsetIndex = _subsetIdx;
-
-	//			// 解決したパスとPSOをセット
-	//			_item.sortKey.bits.psoID = psoID;
-	//			_item.sortKey.bits.passIndex = passIndex;
-
-	//			AddItem(_item);
-	//		}
-
-	//		// -----------------------------------------------------
-	//		// 描画アイテムの登録
-	//		// -----------------------------------------------------
-	//		Engine::Graphics::LightWeightDrawItem _item = {};
-	//		_item.sortKey.bits.meshID = _cmd.meshRawID;
-	//		_item.sortKey.bits.materialID = _cmd.materialRawID;
-	//		_item.isAnimation = true;
-	//		_item.subIndex = _cmd.subIdx;
-	//		_item.instnaceIndex = SetInstanceData(_instanceData);
-	//		_item.subsetIndex = SetSubSetData(_subSetData);
-
-	//		switch (_cmd.alphaMode)
-	//		{
-	//		case Engine::Resource::Alpha::Opaque:
-	//			_item.sortKey.bits.psoID = _zpreStatic;
-	//			_item.sortKey.bits.passIndex = _zpreIdx;
-	//			AddItem(_item);
-	//			_item.sortKey.bits.psoID = _gbuffStatic;
-	//			_item.sortKey.bits.passIndex = _opeqIdx;
-	//			AddItem(_item);
-	//			break;
-	//		case Engine::Resource::Alpha::Mask:
-	//			_item.sortKey.bits.psoID = _zpreStatic;
-	//			_item.sortKey.bits.passIndex = _zpreIdx;
-	//			AddItem(_item);
-	//			_item.sortKey.bits.psoID = _gbuffStatic;
-	//			_item.sortKey.bits.passIndex = _opeqIdx;
-	//			AddItem(_item);
-	//			break;
-	//		case Engine::Resource::Alpha::Blend:
-	//			break;
-	//		default:
-	//			break;
-	//		}
-	//	}
-	//}
 	void GraphicsEngine::SubmitModel(
 		ECS::World& a_world,
 		const Resource::Model* a_pModel,
@@ -695,7 +462,7 @@ namespace Engine::Graphics
 			uint32_t _subsetIdx = SetSubSetData(_subSetData);
 
 			// =========================================================
-			// 1. メッシュやマテリアルの状態から PermutationFlags を構築
+			// メッシュやマテリアルの状態から PermutationFlags を構築
 			// =========================================================
 			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
 
@@ -714,15 +481,27 @@ namespace Engine::Graphics
 			}
 
 			// =========================================================
-			// 2. PSOKey の作成
+			// PSOKey の作成
 			// =========================================================
 			Engine::Graphics::PSOKey _psoKey = {};
 			_psoKey.shadingModelTableHandle = _pMaterial->shadingModelHandle;
 			_psoKey.permutationFlags = _flags;
 
 			// =========================================================
-			// 3. マテリアルが登録されている各パスへ描画アイテムを投げる
+			// マテリアルが登録されている各パスへ描画アイテムを投げる
 			// =========================================================
+			// マテリアルが持っているパスを取得
+			//std::vector<UINT> _targetPasses = _pShadingModel->GetPassHashes();
+
+			//// システムパスを自動注入
+			//// 不透明(Opaque) または アルファテスト(Mask) なら、強制的にZPreパスにも積む
+			//if (_cmd.alphaMode == Engine::Resource::Alpha::Opaque ||
+			//	_cmd.alphaMode == Engine::Resource::Alpha::Mask)
+			//{
+			//	_targetPasses.push_back(StringUtility::ToHash("ZPre"));
+			//	// 影を描画するパスがあるなら、同様に "Shadow" もここで push_back する
+			//}
+
 			for (UINT _passHash : _pShadingModel->GetPassHashes())
 			{
 				// レンダーグラフから対応するパスノードを取得

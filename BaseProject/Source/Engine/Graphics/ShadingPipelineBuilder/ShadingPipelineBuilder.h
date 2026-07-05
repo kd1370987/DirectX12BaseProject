@@ -43,6 +43,14 @@ namespace Engine::Graphics
 		/// <param name="a_vsHandle">VSハンドル</param>
 		void RegisterVertexShader(EShaderPermutationFlags a_flag, Handle<Resource::Shader> a_vsHandle);
 
+		/// <summary>
+		/// パスの標準深度設定を受け取る
+		/// </summary>
+		/// <param name="a_enable">深度テストするかどうか</param>
+		/// <param name="a_write">深度書き込みをするかどうか</param>
+		/// <param name="a_func">深度値テストの際のコンフィグ</param>
+		void SetDepthConfig(bool a_enable, bool a_write, D3D12_COMPARISON_FUNC a_func);
+
 	private:
 
 		// PSOの作成用キーハッシュとハンドル
@@ -60,5 +68,10 @@ namespace Engine::Graphics
 
 		// フラグに対応するVSのマップ
 		std::unordered_map<EShaderPermutationFlags, Handle<Resource::Shader>> m_vsMap;
+
+		// 深度テスト設定
+		bool m_depthEnable = true;				// 深度テストするかどうか
+		bool m_depthWrite = true;				// 深度テストした結果を書き込むかどうか
+		D3D12_COMPARISON_FUNC m_depthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;	// 深度テストする際のコンフィグ
 	};
 }

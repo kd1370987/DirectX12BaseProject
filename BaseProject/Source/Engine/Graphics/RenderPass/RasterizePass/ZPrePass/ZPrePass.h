@@ -13,4 +13,5 @@ namespace Engine::Graphics
 	class RenderPassRegistry;
 
 	void AddZPrePass(D3D12::PipelineStateManager* a_pPSOManager,RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase);
+	void AddNonZPrePass(D3D12::PipelineStateManager* a_pPSOManager,RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase);
 }

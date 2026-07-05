@@ -24,6 +24,7 @@ namespace Engine::Resource
 
 		std::string GetName() const { return m_typeName; }
 
+		// シェーダーの有無に関わらず、有効なパスのハッシュを返す
 		std::vector<UINT> GetPassHashes() const;
 
 	private:
@@ -36,5 +37,9 @@ namespace Engine::Resource
 		// ランタイムデータ
 		// パス名ハッシュ、シェーダーハンドル
 		std::unordered_map<UINT, std::vector<Handle<Shader>>> m_shaderHandleMap = {};
+
+		// このマテリアルが描画されるパスのリスト
+		std::vector<std::string> m_activePasses; // シリアライズ用
+		std::vector<UINT> m_activePassHashes;    // ランタイム用
 	};
 }

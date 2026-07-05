@@ -12,6 +12,8 @@
 
 #include "../../../Resource/Loader/Shader/ShaderLoader.h"
 
+#include "../../../Option/OptionManager.h"
+
 namespace Engine::Graphics
 {
 	void AddGBufferPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
@@ -89,6 +91,9 @@ namespace Engine::Graphics
 		};
 		auto _spPassData = std::make_shared<RuntimeData>();
 
+		// オプション取得
+		const auto& _renderingOption = Option::OptionManager::GetInstance().GetRenderingOption();
+
 		// ノード・ビルダー作成
 		RenderPassNode _node = {};
 		_node.name = "GBuffer";
@@ -112,6 +117,25 @@ namespace Engine::Graphics
 
 		// ルートシグネチャセット : VSからもらう
 		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/GBufferShader/GBufferVS.cso");
+
+		// 深度値テスト
+		if (_renderingOption.isZPre)
+		{
+			// Zpreが有効ならば、GBufferは深度テストのみ行い深度書き込みはしない
+			_node.pipelineBuilder.SetDepthConfig(
+				true,							// 深度テスト有効
+				false,							// 書き込み無効
+				D3D12_COMPARISON_FUNC_LESS_EQUAL		// ZPreと完全に一致するピクセルだけ描画
+			);
+		}
+		else
+		{
+			_node.pipelineBuilder.SetDepthConfig(
+				true,
+				true,
+				D3D12_COMPARISON_FUNC_LESS_EQUAL
+			);
+		}
 
 		// 実行関数
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)

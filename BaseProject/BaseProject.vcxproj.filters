@@ -2534,6 +2534,9 @@
     <ClInclude Include="Source\Engine\Editor\EditorUI\EditorUI.h">
       <Filter>Source\Engine\Editor\EditorUI</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\RenderingOption.h">
+      <Filter>Source\Engine\Option\GraphicsOptions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

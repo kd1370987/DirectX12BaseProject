@@ -105,10 +105,20 @@ namespace Engine::Resource
 			}
 
 			// シェーダーロード
+			m_shaderHandleMap.clear();  // ランタイムデータの初期化
+			m_activePassHashes.clear(); // パスハッシュリストの初期化
+
 			for (auto& [_pathName, _shaderGUIDVec] : m_shaderGUIDMap)
 			{
 				UINT _hash = StringUtility::ToHash(_pathName);
-				for(auto& _shaderGUID : _shaderGUIDVec)
+
+				// 有効なパスとしてハッシュを登録
+				m_activePassHashes.push_back(_hash);
+
+				// PSが0個でもパス自体は「有効」として扱うため、必ず空配列で初期化する
+				m_shaderHandleMap[_hash] = std::vector<Handle<Shader>>();
+
+				for (auto& _shaderGUID : _shaderGUIDVec)
 				{
 					m_shaderHandleMap[_hash].push_back(ResourceManager::Instance().Load<Shader>(_shaderGUID));
 				}
@@ -126,7 +136,7 @@ namespace Engine::Resource
 			auto _filePath = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
 			auto _dir = FileUtility::GetDirFromPath(_filePath);
 			auto _fileName = FileUtility::GetFileNameWithoutExtension(_filePath);
-			Persistence::Archive _ar(Persistence::Archive::Mode::Save,_dir,_fileName,"smtble");
+			Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dir, _fileName, "smtble");
 			Archive(_ar);
 		}
 
@@ -139,83 +149,120 @@ namespace Engine::Resource
 
 		// レンダーパス一覧を取得
 		auto& _passNodeVec = _pRGPassRegistry->RefPassNodes();
-
 		// リソースマネージャーから配列を取得
 		auto _shaderMetaVec = AssetDatabase::Instance().GetTypeMetaVec("Shader");
 
 		for (const auto& _passNode : _passNodeVec)
 		{
 			const auto& _passName = _passNode->name;
+
+			// このパスがマテリアルに登録されているか判定
+			bool _isActive = m_shaderGUIDMap.contains(_passName);
+
+			// =======================================================
+			// UI: チェックボックスでパス自体の有効/無効を切り替え
+			// =======================================================
+			if (ImGui::Checkbox(("##Toggle" + _passName).c_str(), &_isActive))
+			{
+				UINT _hash = StringUtility::ToHash(_passName);
+				if (_isActive)
+				{
+					m_shaderGUIDMap[_passName] = {}; // 新規追加
+					m_shaderHandleMap[_hash] = {};
+					m_activePassHashes.push_back(_hash);
+				}
+				else
+				{
+					m_shaderGUIDMap.erase(_passName); // 登録解除
+					// ランタイム用データからも即時削除
+					m_shaderHandleMap.erase(_hash);
+					auto _it = std::find(m_activePassHashes.begin(), m_activePassHashes.end(), _hash);
+					if (_it != m_activePassHashes.end()) {
+						m_activePassHashes.erase(_it);
+					}
+				}
+			}
+
+			ImGui::SameLine();
+
 			if (ImGui::CollapsingHeader(_passName.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::Indent();
 
-				// 現在このパスに登録されているGUID配列の参照を取得
-				auto& _registeredGUIDs = m_shaderGUIDMap[_passName];
-
-				// 登録済みシェーダーの表示と削除
-				for (size_t _i = 0; _i < _registeredGUIDs.size(); ++_i)
+				if (!_isActive)
 				{
-					// シェーダーアセット名取得
-					auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(_registeredGUIDs[_i]);
-					std::string _shaderName = _fileName;
+					// 有効になっていない場合は設定させない
+					ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "  (Pass is disabled. Check the box to enable.)");
+				}
+				else
+				{
+					// 現在このパスに登録されているGUID配列の参照を取得
+					auto& _registeredGUIDs = m_shaderGUIDMap[_passName];
 
-					ImGui::Text(" %s", _shaderName.c_str());
-					ImGui::SameLine(ImGui::GetWindowWidth() - 80.0f);
-
-					// 削除ボタン（IDの重複を防ぐためパス名とインデックスを付与）
-					if (ImGui::Button(("Remove##" + _passName + std::to_string(_i)).c_str()))
+					// 登録済みシェーダーの表示と削除
+					for (size_t _i = 0; _i < _registeredGUIDs.size(); ++_i)
 					{
-						_registeredGUIDs.erase(_registeredGUIDs.begin() + _i);
-						_i--;
+						// シェーダーアセット名取得
+						auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(_registeredGUIDs[_i]);
+						std::string _shaderName = _fileName;
+
+						ImGui::Text(" %s", _shaderName.c_str());
+						ImGui::SameLine(ImGui::GetWindowWidth() - 80.0f);
+
+						// 削除ボタン
+						if (ImGui::Button(("Remove##" + _passName + std::to_string(_i)).c_str()))
+						{
+							_registeredGUIDs.erase(_registeredGUIDs.begin() + _i);
+							_i--;
+						}
 					}
-				}
 
-				// パス内に登録されているシェーダーがなかった場合
-				if (_registeredGUIDs.empty())
-				{
-					ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "  (No shaders assigned - Pass skipped)");
-				}
-
-				ImGui::Spacing();
-
-				// 新しいシェーダーを追加するボタンとポップアップ
-				if (ImGui::Button(("Add Shader##" + _passName).c_str()))
-				{
-					ImGui::OpenPopup(("SelectShaderPopup##" + _passName).c_str());
-				}
-
-				if (ImGui::BeginPopup(("SelectShaderPopup##" + _passName).c_str()))
-				{
-					ImGui::Text("Select Pixel Shader for %s", _passName.c_str());
-					ImGui::Separator();
-
-					for (const auto& _meta : _shaderMetaVec)
+					// パスは有効だがPSが登録されていない場合（ZPreやShadowで正しい状態）
+					if (_registeredGUIDs.empty())
 					{
-						// .csoとPS以外は除去
-						if (_meta.fileName.find(".cso") == std::string::npos ||
-							_meta.fileName.find("PS") == std::string::npos)
-						{
-							continue;
-						}
+						ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.3f, 1.0f), "  (No PS assigned. Valid for ZPre/Shadow)");
+					}
 
-						// 既に登録されているかチェック
-						bool _isAlreadyAdded = false;
-						for (const auto& _guid : _registeredGUIDs)
-						{
-							if (_guid == _meta.guid) { _isAlreadyAdded = true; break; }
-						}
+					ImGui::Spacing();
 
-						// 未登録のものだけを選択可能リストに表示
-						if (!_isAlreadyAdded)
+					// 新しいシェーダーを追加するボタンとポップアップ
+					if (ImGui::Button(("Add PS Shader##" + _passName).c_str()))
+					{
+						ImGui::OpenPopup(("SelectShaderPopup##" + _passName).c_str());
+					}
+
+					if (ImGui::BeginPopup(("SelectShaderPopup##" + _passName).c_str()))
+					{
+						ImGui::Text("Select Pixel Shader for %s", _passName.c_str());
+						ImGui::Separator();
+
+						for (const auto& _meta : _shaderMetaVec)
 						{
-							if (ImGui::Selectable(_meta.fileName.c_str()))
+							// .csoとPS以外は除去
+							if (_meta.fileName.find(".cso") == std::string::npos ||
+								_meta.fileName.find("PS") == std::string::npos)
 							{
-								_registeredGUIDs.push_back(_meta.guid);
+								continue;
+							}
+
+							// 既に登録されているかチェック
+							bool _isAlreadyAdded = false;
+							for (const auto& _guid : _registeredGUIDs)
+							{
+								if (_guid == _meta.guid) { _isAlreadyAdded = true; break; }
+							}
+
+							// 未登録のものだけを選択可能リストに表示
+							if (!_isAlreadyAdded)
+							{
+								if (ImGui::Selectable(_meta.fileName.c_str()))
+								{
+									_registeredGUIDs.push_back(_meta.guid);
+								}
 							}
 						}
+						ImGui::EndPopup();
 					}
-					ImGui::EndPopup();
 				}
 
 				ImGui::Unindent();
@@ -224,12 +271,15 @@ namespace Engine::Resource
 	}
 	std::vector<UINT> ShadingModelTable::GetPassHashes() const
 	{
-		std::vector<UINT> hashes;
-		hashes.reserve(m_shaderHandleMap.size());
-		for (const auto& [passHash, shaders] : m_shaderHandleMap)
-		{
-			hashes.push_back(passHash);
-		}
-		return hashes;
+		//std::vector<UINT> hashes;
+		//hashes.reserve(m_shaderHandleMap.size());
+		//for (const auto& [passHash, shaders] : m_shaderHandleMap)
+		//{
+		//	hashes.push_back(passHash);
+		//}
+		//return hashes;
+		
+		return m_activePassHashes; 
+		
 	}
 }

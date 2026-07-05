@@ -1,0 +1,20 @@
+{
+    "GIOption": {
+        "TAblendRate": 0.05000000074505806,
+        "TAphiDepth": 0.009999999776482582,
+        "TAphiNormal": 0.800000011920929,
+        "phiColor": 10.0,
+        "phiDepth": 0.009999999776482582,
+        "phiNormal": 32.0
+    },
+    "RenderingOption": {
+        "isZPre": true
+    },
+    "WindowOption": {
+        "isVsync": false,
+        "targetFrameRate": 120,
+        "windowHegiht": 1080,
+        "windowMode": 0,
+        "windowWidth": 1920
+    }
+}

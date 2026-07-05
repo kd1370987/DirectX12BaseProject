@@ -29,6 +29,10 @@ namespace Engine::Graphics
 			m_compilingPasses.insert(a_key);
 			D3D12::GraphicsPipelineDesc _desc = {};
 
+			_desc.DepthEnable(m_depthEnable);
+			_desc.DepthWriteMask(m_depthWrite);
+			_desc.DepthFunc(m_depthFunc);
+
 			for (auto& _rtvFormat : m_rtvFormats) {
 				_desc.AddRenderTargetFormat(_rtvFormat);
 			}
@@ -62,7 +66,7 @@ namespace Engine::Graphics
 				_desc.SetVS(_pVS->GetByteCode());
 			}
 			else {
-				ENGINE_ERRLOG(_pVS, "Vertex Shaderが見つかりません");
+				ENGINE_LOG("Vertex Shaderが見つかりません");
 			}
 
 			// =========================================================
@@ -71,14 +75,25 @@ namespace Engine::Graphics
 			auto* _pShadingModel = Resource::ResourceManager::Instance().Get(a_key.shadingModelTableHandle);
 			if (_pShadingModel)
 			{
-				auto _spanShaderHandles = _pShadingModel->GetShaderHandles(m_passNameHash);
-				for (auto& _shaderHandle : _spanShaderHandles)
-				{
-					auto* _pShader = Resource::ResourceManager::Instance().Get(_shaderHandle);
-					if (!_pShader) continue;
+				// ZPreかつ不透明(Opaque)なら、PSのセットをスキップ
+				bool _isZPrePass = (m_passNameHash == StringUtility::ToHash("ZPre"));
+				bool _isOpaque = !(a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::AlphaMasked);
 
-					// シェーディングモデルにはPSしかセットできないのでそのままセット
-					_desc.SetPS(_pShader->GetByteCode());
+				if (_isZPrePass && _isOpaque)
+				{
+					// PSはセットしない（Nullのまま）
+				}
+				else
+				{
+					auto _spanShaderHandles = _pShadingModel->GetShaderHandles(m_passNameHash);
+					for (auto& _shaderHandle : _spanShaderHandles)
+					{
+						auto* _pShader = Resource::ResourceManager::Instance().Get(_shaderHandle);
+						if (!_pShader) continue;
+
+						// シェーディングモデルにはPSしかセットできないのでそのままセット
+						_desc.SetPS(_pShader->GetByteCode());
+					}
 				}
 			}
 
@@ -94,5 +109,11 @@ namespace Engine::Graphics
 	void ShadingPipelineBuilder::RegisterVertexShader(EShaderPermutationFlags a_flag, Handle<Resource::Shader> a_vsHandle)
 	{
 		m_vsMap[a_flag] = a_vsHandle;
+	}
+	void ShadingPipelineBuilder::SetDepthConfig(bool a_enable, bool a_write, D3D12_COMPARISON_FUNC a_func)
+	{
+		m_depthEnable = a_enable;
+		m_depthWrite = a_write;
+		m_depthFunc = a_func;
 	}
 }
