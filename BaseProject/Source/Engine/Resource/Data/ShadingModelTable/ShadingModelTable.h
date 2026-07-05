@@ -24,6 +24,8 @@ namespace Engine::Resource
 
 		std::string GetName() const { return m_typeName; }
 
+		std::vector<UINT> GetPassHashes() const;
+
 	private:
 		// シェーディングモデルタイプネーム
 		std::string m_typeName;

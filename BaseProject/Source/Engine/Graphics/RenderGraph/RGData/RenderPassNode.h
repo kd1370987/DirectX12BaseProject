@@ -1,4 +1,7 @@
 ﻿#pragma once
+
+#include "../../ShadingPipelineBuilder/ShadingPipelineBuilder.h"
+
 namespace Engine::Graphics
 {
 	// 前方宣言
@@ -113,6 +116,7 @@ namespace Engine::Graphics
 	{
 		// 初期情報
 		std::string name;										// パス名
+		UINT nameHash;
 		EDrawPhase phase;										// パスが所属するフェーズ
 
 		std::vector<Engine::Resource::ID> read = {};			// 入力データ
@@ -121,6 +125,9 @@ namespace Engine::Graphics
 
 		std::vector<ResourceRequest> readRequests;
 		std::vector<ResourceRequest> writeRequests;
+
+		// シェーディングパイプライン
+		ShadingPipelineBuilder pipelineBuilder;
 
 		// コンパイル後データ
 		uint8_t passIndex = 255;		// ソートキー用インデックス

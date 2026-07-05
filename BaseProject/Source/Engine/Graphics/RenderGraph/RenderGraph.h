@@ -72,7 +72,10 @@ namespace Engine::Graphics
 		Handle<Resource::Texture> GetTexHandle(const std::string& a_resourceName);
 
 		uint8_t GetPassIndex(const std::string& a_passName);
+		uint8_t GetPassIndexFromHash(const UINT& a_passNameHash);
 		const RenderPassNode* GetPass(const std::string& a_passName);
+		const RenderPassNode* GetPass(const UINT& a_passHash);
+		RenderPassNode* RefPass(const UINT& a_passHash);
 
 		// アクセサ
 		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);	// フォーマット取得

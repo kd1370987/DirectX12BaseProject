@@ -10,6 +10,8 @@
 #include "../../../D3D12/PipelineStateManager/PipelineStateManager.h"
 #include "../../RenderPassRegistry/RenderPassRegistry.h"
 
+#include "../../../Resource/Loader/Shader/ShaderLoader.h"
+
 namespace Engine::Graphics
 {
 	void AddGBufferPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
@@ -57,6 +59,59 @@ namespace Engine::Graphics
 
 		// コンパイル
 		_rpBuilder.ResolveAndCompile(a_pPSOManager);
+
+		// 実行関数
+		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+			{
+				a_pCtx->BindHeap();
+				a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
+
+				CameraData _cbCam = a_pGE->GetCameraData();
+				auto* _pCmd = a_pCtx->GetCurrentCmdList();
+				a_pCtx->BindCB()->BindAndAttachDataRootCBV<CameraData>(_pCmd, 0, _cbCam);
+				a_pCtx->BindInstanceBuffer(2);
+				a_pCtx->BindSubsetBuffer(3);
+				a_pCtx->BindBonePalletBuffer(4);
+
+				// 描画
+				a_pGE->DrawQueue(a_pCtx, a_passIndex);
+			};
+
+		// パス登録
+		a_pRegistry->RegisterPass(_node);
+	}
+	void AddNotPSOGBufferPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
+	{
+		// ランタイム用データ
+		struct RuntimeData
+		{
+			ID3D12RootSignature* pRootSig;
+		};
+		auto _spPassData = std::make_shared<RuntimeData>();
+
+		// ノード・ビルダー作成
+		RenderPassNode _node = {};
+		_node.name = "GBuffer";
+		_node.phase = a_phase;
+		RGRasterPassBuilder _rpBuilder(&_node);
+
+		// 依存関係構築
+		_rpBuilder.ReadDepth("Depth");
+
+		_rpBuilder.WriteRTV("GBufferAlbedo", DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
+		_rpBuilder.WriteRTV("GBufferNormal", DXGI_FORMAT_R16G16_FLOAT);
+		_rpBuilder.WriteRTV("GBufferMaterial", DXGI_FORMAT_R8G8B8A8_UNORM);
+		_rpBuilder.WriteRTV("GBufferEmissiv", DXGI_FORMAT_R8G8B8A8_UNORM);
+		_rpBuilder.WriteRTV("GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT);
+
+		// VSセット
+		auto _staticVSHandle = Resource::ShaderLoader::Request("Asset/Shader/Source/GBufferShader/GBufferVS.cso");
+		auto _animationVSHandle = Resource::ShaderLoader::Request("Asset/Shader/Source/GBufferShader/AnimationGBufferVS.cso");
+		_node.pipelineBuilder.RegisterVertexShader(EShaderPermutationFlags::Static, _staticVSHandle);
+		_node.pipelineBuilder.RegisterVertexShader(EShaderPermutationFlags::Skinned, _animationVSHandle);
+
+		// ルートシグネチャセット : VSからもらう
+		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/GBufferShader/GBufferVS.cso");
 
 		// 実行関数
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)

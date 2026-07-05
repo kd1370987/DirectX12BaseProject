@@ -157,6 +157,9 @@ namespace Engine::Graphics
 			CompiledPass _cp;
 			_cp.pNode = _pass;
 
+			std::vector<DXGI_FORMAT> _rtvFormats;
+			DXGI_FORMAT _dsvFormat = DXGI_FORMAT_UNKNOWN;
+
 			// リソース遷移作成
 			for (auto _access : _pass->resourceAccessVec)
 			{
@@ -165,6 +168,9 @@ namespace Engine::Graphics
 				{
 					auto _rtv = m_upRGResourceManager->GetRTVHandle(_access.id);
 					_cp.rtvHadles.push_back(_rtv);
+
+					_rtvFormats.push_back(m_upRGResourceManager->GetDXGIFormat(_access.id));
+
 					if (_access.load == LoadOp::Clear)
 					{
 						_cp.clearRTVs.push_back(m_upRGResourceManager->GetTexHandle(_access.id));
@@ -183,6 +189,8 @@ namespace Engine::Graphics
 						_cp.dsvHandle = m_upRGResourceManager->GetDSVHandle(_access.id);
 					}
 					
+					_dsvFormat = m_upRGResourceManager->GetDXGIFormat(_access.id);
+
 					if (_access.load == LoadOp::Clear)
 					{
 						_cp.isDepthClear = true;
@@ -239,6 +247,10 @@ namespace Engine::Graphics
 
 			// パスのインデックスを指定
 			_cp.pNode->passIndex = static_cast<uint8_t>(m_compiledPasses.size());
+			_cp.pNode->nameHash = StringUtility::ToHash(_cp.pNode->name);
+
+			// パイプラインステート作成用クラス作成
+			_cp.pNode->pipelineBuilder.Init(_rtvFormats, _dsvFormat, _cp.pNode->nameHash);
 
 			// 実行データに入れていく
 			m_compiledPasses.push_back(_cp);
@@ -406,6 +418,21 @@ namespace Engine::Graphics
 		return 255;
 	}
 
+	uint8_t RenderGraph::GetPassIndexFromHash(const UINT& a_passNameHash)
+	{
+		if (m_compiledPasses.empty()) return 255;
+
+		for (auto& _pass : m_compiledPasses)
+		{
+			if (_pass.pNode->nameHash == a_passNameHash)
+			{
+				return _pass.pNode->passIndex;
+			}
+		}
+
+		return 255;
+	}
+
 	const RenderPassNode* RenderGraph::GetPass(const std::string& a_passName)
 	{
 		if (m_compiledPasses.empty()) return nullptr;
@@ -413,6 +440,36 @@ namespace Engine::Graphics
 		for (auto& _pass : m_compiledPasses)
 		{
 			if (_pass.pNode->name == a_passName)
+			{
+				return _pass.pNode;
+			}
+		}
+
+		return nullptr;
+	}
+
+	const RenderPassNode* RenderGraph::GetPass(const UINT& a_passHash)
+	{
+		if (m_compiledPasses.empty()) return nullptr;
+
+		for (auto& _pass : m_compiledPasses)
+		{
+			if (_pass.pNode->nameHash == a_passHash)
+			{
+				return _pass.pNode;
+			}
+		}
+
+		return nullptr;
+	}
+
+	RenderPassNode* RenderGraph::RefPass(const UINT& a_passHash)
+	{
+		if (m_compiledPasses.empty()) return nullptr;
+
+		for (auto& _pass : m_compiledPasses)
+		{
+			if (_pass.pNode->nameHash == a_passHash)
 			{
 				return _pass.pNode;
 			}

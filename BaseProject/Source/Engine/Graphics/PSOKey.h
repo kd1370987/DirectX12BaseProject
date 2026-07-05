@@ -16,15 +16,13 @@ namespace Engine::Graphics
 
 	struct PSOKey
 	{
-		uint8_t passIndex;													// どのパスか（RenderPassRegistryから取得）
 		Handle<Resource::ShadingModelTable> shadingModelTableHandle = {};	// どのシェーディングモデルか（PBR, Water等）
 		uint32_t permutationFlags;											// マテリアルやモデル、エンティティの状態
 
 		// ハッシュ計算用
 		bool operator==(const PSOKey& other) const {
-			return passIndex == other.passIndex &&
-				shadingModelTableHandle == other.shadingModelTableHandle &&
-				permutationFlags == other.permutationFlags;
+			return	shadingModelTableHandle == other.shadingModelTableHandle &&
+					permutationFlags == other.permutationFlags;
 		}
 	};
 }
@@ -45,7 +43,6 @@ namespace std
 				}
 				};
 
-			UpdateHash(&key.passIndex, sizeof(key.passIndex));
 			UpdateHash(&key.shadingModelTableHandle.id, sizeof(key.shadingModelTableHandle.id));
 			UpdateHash(&key.permutationFlags, sizeof(key.permutationFlags));
 

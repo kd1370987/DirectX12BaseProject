@@ -103,6 +103,16 @@ namespace Engine::Resource
 				}
 				a_ar.EndArray();
 			}
+
+			// シェーダーロード
+			for (auto& [_pathName, _shaderGUIDVec] : m_shaderGUIDMap)
+			{
+				UINT _hash = StringUtility::ToHash(_pathName);
+				for(auto& _shaderGUID : _shaderGUIDVec)
+				{
+					m_shaderHandleMap[_hash].push_back(ResourceManager::Instance().Load<Shader>(_shaderGUID));
+				}
+			}
 		}
 	}
 	void ShadingModelTable::Edit(const Engine::GUID& a_guid)
