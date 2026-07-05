@@ -10,6 +10,10 @@ namespace Engine::Graphics
 	{
 		m_rtvFormats = a_rtvFormat;
 		m_dsvFormat = a_dsvFormat;
+		if (DXGI_FORMAT_R32_TYPELESS == a_dsvFormat)
+		{
+			m_dsvFormat = DXGI_FORMAT_D32_FLOAT;
+		}
 		m_passNameHash = a_passNameHash;
 	}
 

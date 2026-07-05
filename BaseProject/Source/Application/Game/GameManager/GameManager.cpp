@@ -306,7 +306,7 @@ namespace App::Game
 		{
 			m_upGameFlowMachine->SetTrigger("ToTitle");
 		}
-
+			
 		// 遷移チェック
 		Engine::GUID _nextScene;
 		if (m_upGameFlowMachine->Evaluate(_nextScene))

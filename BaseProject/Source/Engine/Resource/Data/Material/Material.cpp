@@ -35,56 +35,44 @@ void Engine::Resource::Material::SetTexture2D(
 	normalTex		= TextureLoader::LoadTexture(normalTexGUID, TexColor::NORMAL);
 }
 
-void Engine::Resource::Material::Save(const std::string& a_fileDir, const std::string& a_name)
+void Engine::Resource::Material::Archive(Persistence::Archive& a_ar)
 {
-	Persistence::Archive _ar(Persistence::Archive::Mode::Save,a_fileDir, a_name, "mtrl");
-	_ar.StringField("MaterialName", name);
-	_ar.Field("AlphaMode", alphaMode);
+	a_ar.StringField("MaterialName", name);
+	a_ar.Field("AlphaMode", alphaMode);
 
 	// 参照テクスチャGUID
-	_ar.Field("BaseColorTexGUID",baseColorTexGUID);
-	_ar.Field("MetaRoughTexGUID", metaRoughTexGUID);
-	_ar.Field("EmissiveTexGUID", emissiveTexGUID);
-	_ar.Field("NormalTexGUID", normalTexGUID);
+	a_ar.Field("BaseColorTexGUID", baseColorTexGUID);
+	a_ar.Field("MetaRoughTexGUID", metaRoughTexGUID);
+	a_ar.Field("EmissiveTexGUID", emissiveTexGUID);
+	a_ar.Field("NormalTexGUID", normalTexGUID);
 
 	// スケール値
-	_ar.Field("BaseColor",baseColor);
-	_ar.Field("Metallic", metallic);
-	_ar.Field("Roughness", roughness);
-	_ar.Field("Emissive", emissive);
-}
+	a_ar.Field("BaseColor", baseColor);
+	a_ar.Field("Metallic", metallic);
+	a_ar.Field("Roughness", roughness);
+	a_ar.Field("Emissive", emissive);
 
-void Engine::Resource::Material::Load(const std::string& a_fileDir, const std::string& a_name)
-{
-	Persistence::Archive _ar(Persistence::Archive::Mode::Load,a_fileDir, a_name, "mtrl");
-	_ar.StringField("MaterialName", name);
-	_ar.Field("AlphaMode", alphaMode);
-
-	// 参照テクスチャGUID
-	_ar.Field("BaseColorTexGUID", baseColorTexGUID);
-	_ar.Field("MetaRoughTexGUID", metaRoughTexGUID);
-	_ar.Field("EmissiveTexGUID", emissiveTexGUID);
-	_ar.Field("NormalTexGUID", normalTexGUID);
-
-	// スケール値
-	_ar.Field("BaseColor", baseColor);
-	_ar.Field("Metallic", metallic);
-	_ar.Field("Roughness", roughness);
-	_ar.Field("Emissive", emissive);
-
-	// 読み込み
-	baseColorTex	= TextureLoader::LoadTexture(baseColorTexGUID, TexColor::WHITE);
-	metaRoughTex	= TextureLoader::LoadTexture(metaRoughTexGUID, TexColor::ORM);
-	emissiveTex		= TextureLoader::LoadTexture(emissiveTexGUID, TexColor::BLACK);
-	normalTex		= TextureLoader::LoadTexture(normalTexGUID, TexColor::NORMAL);
+	// シェーディングモデル
+	a_ar.Field("shedingModelGUID", shedingModelGUID);
 }
 
 void Engine::Resource::Material::Edit(const Engine::GUID& a_guid)
 {
+	if (ImGui::Button("Save"))
+	{
+		auto _filePath = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
+		auto _fileDir = FileUtility::GetDirFromPath(_filePath);
+		auto _fileName = FileUtility::GetFileNameWithoutExtension(_filePath);
+		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _fileDir, _fileName, "mtrl");
+		Archive(_ar);
+	}
+
 	ImGui::InputText("name", &name);
 	ImGui::Separator();
 
-	Editor::DrawEnumFlagsCombo("AlphaMode", alphaMode);
+	// Flagsではなく通常のEnumComboにする（関数の実装に合わせて変更してください）
+	// Editor::DrawEnumCombo("AlphaMode", alphaMode); 
+	Editor::DrawEnumFlagsCombo("AlphaMode", alphaMode); // ※取り急ぎそのままにしていますが、要確認
 
 	// シェーディングモデル
 	Editor::UI::DrawAssetSelectCombo<ShadingModelTable>(
@@ -95,49 +83,51 @@ void Engine::Resource::Material::Edit(const Engine::GUID& a_guid)
 	);
 
 	ImGui::Separator();
-	if (ImGui::Selectable("Albed"))
+
+	// Selectable ではなく CollapsingHeader を使う！
+	if (ImGui::CollapsingHeader("Albedo"))
 	{
 		Editor::UI::DrawAssetSelectCombo<Texture>(
 			"Change AlbedTex",
-			"Textures",
+			"Texture",
 			baseColorTexGUID,
 			baseColorTex
 		);
 		ImGui::DragFloat4("AlbedScale", &baseColor.x, 0.01f, 0.0f);
-		Editor::UI::DrawTexture(baseColorTex, 1920, 1080);
+		// 1920x1080 は大きすぎるので適度なサイズに制限
+		Editor::UI::DrawTexture(baseColorTex, 256, 256);
 	}
-	if (ImGui::Selectable("MetaricRoughness"))
+	if (ImGui::CollapsingHeader("Metallic / Roughness"))
 	{
 		Editor::UI::DrawAssetSelectCombo<Texture>(
 			"Change MetaricRoughnessTex",
-			"Textures",
+			"Texture",
 			metaRoughTexGUID,
 			metaRoughTex
 		);
 		ImGui::DragFloat("MetallicScale", &metallic, 0.01f, 0.0f);
 		ImGui::DragFloat("RoughnessScale", &roughness, 0.01f, 0.0f);
-		Editor::UI::DrawTexture(metaRoughTex, 1920, 1080);
+		Editor::UI::DrawTexture(metaRoughTex, 256, 256);
 	}
-	if (ImGui::Selectable("Emissive"))
+	if (ImGui::CollapsingHeader("Emissive"))
 	{
 		Editor::UI::DrawAssetSelectCombo<Texture>(
 			"Change EmissiveTex",
-			"Textures",
+			"Texture",
 			emissiveTexGUID,
 			emissiveTex
 		);
 		ImGui::DragFloat3("EmissiveScale", &emissive.x, 0.01f, 0.0f);
-		Editor::UI::DrawTexture(emissiveTex, 1920, 1080);
+		Editor::UI::DrawTexture(emissiveTex, 256, 256);
 	}
-	if (ImGui::Selectable("Normal"))
+	if (ImGui::CollapsingHeader("Normal"))
 	{
 		Editor::UI::DrawAssetSelectCombo<Texture>(
 			"Change NormalTex",
-			"Textures",
+			"Texture",
 			normalTexGUID,
 			normalTex
 		);
-		Editor::UI::DrawTexture(normalTex, 1920, 1080);
+		Editor::UI::DrawTexture(normalTex, 256, 256);
 	}
-
 }

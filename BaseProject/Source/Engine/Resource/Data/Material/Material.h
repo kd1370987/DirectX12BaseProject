@@ -28,9 +28,8 @@ namespace Engine::Resource
 			const std::string& a_normalTexFileName
 		);
 
-		// セーブロード
-		void Save(const std::string& a_fileDir, const std::string& a_name);
-		void Load(const std::string& a_fileDir, const std::string& a_name);
+		// アーカイブ処理
+		void Archive(Persistence::Archive& a_ar);
 
 		// ハッシュ値を返す
 		UINT Hash();

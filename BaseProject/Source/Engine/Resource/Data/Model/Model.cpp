@@ -176,7 +176,9 @@ namespace Engine::Resource
 			// 保存
 			auto _fullBasePath = basePath + "/" + _fileName;													// 拡張子なしのパス
 			m_materialGUIDVec[_i] = AssetDatabase::Instance().AddMetaData(_fullBasePath, "Material");	// メタファイルを作成
-			_matrial->Save(basePath, _fileName);														// メタファイルの隣にデータ作成
+			Persistence::Archive _ar(Persistence::Archive::Mode::Save, basePath, _fileName, "mtrl");
+			_matrial->Archive(_ar);
+			//_matrial->Save(basePath, _fileName);														// メタファイルの隣にデータ作成
 
 		}
 		// メッシュの保存
