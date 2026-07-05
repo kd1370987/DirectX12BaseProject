@@ -22,6 +22,8 @@ namespace Engine::Resource
 		/// </summary>
 		void Edit(const Engine::GUID& a_guid);
 
+		std::string GetName() const { return m_typeName; }
+
 	private:
 		// シェーディングモデルタイプネーム
 		std::string m_typeName;

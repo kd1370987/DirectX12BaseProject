@@ -445,6 +445,10 @@ namespace Engine::Graphics
 			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Material>(_cmd.materialRawID);
 			if (!_pMaterial) continue;
 
+			// マテリアルからシェーディングモデルを取得
+			auto* _pShadingModel = Resource::ResourceManager::Instance().Ref(_pMaterial->shadingModelHandle);
+			if (!_pShadingModel) continue;
+
 			// ノードのワールド行列を確定
 			DXSM::Matrix _nodeTransMat(_nodePoseMatVec[_cmd.nodeIndex].world);
 			DXSM::Matrix _mat = _nodeTransMat * a_worldMatrix;
@@ -500,6 +504,8 @@ namespace Engine::Graphics
 			}
 		}
 	}
+
+
 	UINT GraphicsEngine::SetInstanceData(const InstanceData& a_instanceData)
 	{
 		UINT _index = static_cast<UINT>(m_instanceDataVec.size());

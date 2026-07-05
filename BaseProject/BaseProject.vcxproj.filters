@@ -1030,6 +1030,9 @@
     <Filter Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator">
       <UniqueIdentifier>{ae1b5062-0a52-4341-abb0-2fcda8d0592a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\EditorUI">
+      <UniqueIdentifier>{9fd9e7c2-f082-4386-817e-41fb22eb2dfe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2527,6 +2530,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\EditorUI\EditorUI.h">
+      <Filter>Source\Engine\Editor\EditorUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

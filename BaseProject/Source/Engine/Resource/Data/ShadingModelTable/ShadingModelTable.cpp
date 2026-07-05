@@ -212,4 +212,14 @@ namespace Engine::Resource
 			}
 		}
 	}
+	std::vector<UINT> ShadingModelTable::GetPassHashes() const
+	{
+		std::vector<UINT> hashes;
+		hashes.reserve(m_shaderHandleMap.size());
+		for (const auto& [passHash, shaders] : m_shaderHandleMap)
+		{
+			hashes.push_back(passHash);
+		}
+		return hashes;
+	}
 }
