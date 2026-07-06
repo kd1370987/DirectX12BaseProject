@@ -93,7 +93,7 @@ namespace Engine::Editor
 		ImGui::End();
 	}
 
-	void ImGuiContext::End(ID3D12GraphicsCommandList * a_pCmdList)
+	void ImGuiContext::End(D3D12::GraphicsCommandList * a_pCmdList)
 	{
 		// ImGui描画
 		ImGui::Render();

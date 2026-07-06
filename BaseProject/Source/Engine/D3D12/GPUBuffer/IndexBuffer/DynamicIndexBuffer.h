@@ -20,10 +20,10 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(DynamicIndexBuffer);
 
 		// 作成
-		bool Create(ID3D12Device* a_pDevice,const IndexBufferDesc& a_desc);
+		bool Create(D3D12::Device* a_pDevice,const IndexBufferDesc& a_desc);
 
 		// SRV作成
-		void CreateSRV(ID3D12Device* a_pDevice);
+		void CreateSRV(D3D12::Device* a_pDevice);
 
 		// アクセサ
 		const D3D12_INDEX_BUFFER_VIEW& GetView() const;

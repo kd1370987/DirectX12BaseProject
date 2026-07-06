@@ -13,7 +13,7 @@ namespace Engine::D3D12
 		void Release();
 
 		// ビュー操作
-		Handle<T> Allocate(ID3D12Device* a_pDevice,ID3D12Resource* a_pRes,const typename T::DescType* a_desc);
+		Handle<T> Allocate(D3D12::Device* a_pDevice,ID3D12Resource* a_pRes,const typename T::DescType* a_desc);
 
 		// ビュー消去
 		void Remove(Handle<T> a_handle);
@@ -59,7 +59,7 @@ namespace Engine::D3D12
 		m_pHeap = nullptr;
 	}
 	template<IsHeapType T>
-	inline Handle<T> HeapAllocator<T>::Allocate(ID3D12Device* a_pDevice, ID3D12Resource* a_pRes, const typename T::DescType* a_desc)
+	inline Handle<T> HeapAllocator<T>::Allocate(D3D12::Device* a_pDevice, ID3D12Resource* a_pRes, const typename T::DescType* a_desc)
 	{
 		// ハンドルをアロケート
 		auto _handle = m_HandlePool.Allocate();

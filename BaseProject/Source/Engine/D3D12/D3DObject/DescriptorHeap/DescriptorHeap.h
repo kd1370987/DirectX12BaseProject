@@ -48,7 +48,7 @@ namespace Engine::D3D12
 
 		// 生成
 		bool Create(
-			ID3D12Device* a_pDevice,
+			D3D12::Device* a_pDevice,
 			const std::wstring& a_name,
 			UINT a_maxCount,
 			D3D12_DESCRIPTOR_HEAP_FLAGS a_flags,
@@ -70,7 +70,7 @@ namespace Engine::D3D12
 
 	private:
 
-		ID3D12Device* m_pDevice = nullptr;					// デバイスポインタ
+		D3D12::Device* m_pDevice = nullptr;					// デバイスポインタ
 
 		ComPtr<ID3D12DescriptorHeap> m_cpHeap = nullptr;	// ヒープ
 		UINT m_incrementSize = 0;							// ヒープのインクリメントサイズ
@@ -81,7 +81,7 @@ namespace Engine::D3D12
 
 	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
 	inline bool DescriptorHeap<HeapType>::Create(
-		ID3D12Device* a_pDevice,
+		D3D12::Device* a_pDevice,
 		const std::wstring& a_name,
 		UINT a_maxCount,
 		D3D12_DESCRIPTOR_HEAP_FLAGS a_flags,

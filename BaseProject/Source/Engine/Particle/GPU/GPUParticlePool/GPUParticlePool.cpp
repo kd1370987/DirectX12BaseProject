@@ -6,7 +6,7 @@
 
 namespace Engine::Particle
 {
-	void Engine::Particle::GPUParticlePool::Init(ID3D12Device* a_pDevice, ID3D12GraphicsCommandList* a_pCmdList,Engine::Handle<Resource::ParticlesAsset> a_particleHandle)
+	void Engine::Particle::GPUParticlePool::Init(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList,Engine::Handle<Resource::ParticlesAsset> a_particleHandle)
 	{
 		auto* _pParticleAsset = Resource::ResourceManager::Instance().Get(a_particleHandle);
 		if (!_pParticleAsset)

@@ -3,7 +3,7 @@
 
 namespace Engine::D3D12
 {
-	bool GPUBuffer::Create(ID3D12Device* a_pDevice, const GPUBufferDesc& a_desc)
+	bool GPUBuffer::Create(D3D12::Device* a_pDevice, const GPUBufferDesc& a_desc)
 	{
 		// GPUリソースDesc作成
 		GPUResourceDesc _desc = {};

@@ -19,7 +19,7 @@ namespace Engine::Editor
 
 		// ImGui描画
 		void Begin(UINT a_width,UINT a_height);
-		void End(ID3D12GraphicsCommandList* a_pCmdList);
+		void End(D3D12::GraphicsCommandList* a_pCmdList);
 
 	private:
 

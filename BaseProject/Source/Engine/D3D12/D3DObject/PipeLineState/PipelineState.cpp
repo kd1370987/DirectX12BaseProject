@@ -8,7 +8,7 @@ namespace Engine::D3D12
 	{}
 
 	
-	bool PipelineState::Create(ID3D12Device* a_pDevice, const GraphicsPipelineDesc& a_desc)
+	bool PipelineState::Create(D3D12::Device* a_pDevice, const GraphicsPipelineDesc& a_desc)
 	{
 		auto _hr = a_pDevice->CreateGraphicsPipelineState(
 			&a_desc.desc,
@@ -25,7 +25,7 @@ namespace Engine::D3D12
 		return true;
 	}
 
-	bool PipelineState::Create(ID3D12Device* a_pDevice, const ComputePipelineDesc& a_desc)
+	bool PipelineState::Create(D3D12::Device* a_pDevice, const ComputePipelineDesc& a_desc)
 	{
 		auto _hr = a_pDevice->CreateComputePipelineState(
 			&a_desc.desc,

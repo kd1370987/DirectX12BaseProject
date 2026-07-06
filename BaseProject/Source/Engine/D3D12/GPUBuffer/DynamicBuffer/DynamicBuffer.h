@@ -20,7 +20,7 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(DynamicBuffer);
 
 		// 作成
-		bool Create(ID3D12Device* a_pDevice,const DynamicBufferDesc& a_desc);
+		bool Create(D3D12::Device* a_pDevice,const DynamicBufferDesc& a_desc);
 
 		// 解放
 		void Release() override;
@@ -32,8 +32,8 @@ namespace Engine::D3D12
 
 	protected:
 		// SRV作成関数
-		void CreateSRVInternal(ID3D12Device* a_pDevice);
-		void CreateSRVInternal(ID3D12Device* a_pDevice, const D3D12_SHADER_RESOURCE_VIEW_DESC& a_viewDesc);
+		void CreateSRVInternal(D3D12::Device* a_pDevice);
+		void CreateSRVInternal(D3D12::Device* a_pDevice, const D3D12_SHADER_RESOURCE_VIEW_DESC& a_viewDesc);
 
 	protected:
 		void* m_pMapData = nullptr;

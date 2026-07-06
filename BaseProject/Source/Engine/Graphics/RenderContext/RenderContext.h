@@ -248,7 +248,7 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// 参照
 		//--------------------------------------------------------------------------------------------
-		ID3D12Device* m_pDevice = nullptr;						// デバイス
+		D3D12::Device* m_pDevice = nullptr;						// デバイス
 		GraphicsEngine* m_pGraphicsEngine = nullptr;			// オーナー
 		ShapeRenderer* m_pShapeDraw = nullptr;					// 形状描画クラス
 

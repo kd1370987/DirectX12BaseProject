@@ -24,7 +24,7 @@ namespace Engine::D3D12
 		/// <param name="a_pDevice">デバイスポインタ</param>
 		/// <param name="a_elementNum">要素数</param>
 		/// <param name="a_strideSize">要素サイズ</param>
-		void Create(ID3D12Device* a_pDevice, UINT a_elementNum);
+		void Create(D3D12::Device* a_pDevice, UINT a_elementNum);
 
 		/// <summary>
 		/// 解放処理
@@ -42,7 +42,7 @@ namespace Engine::D3D12
 	};
 
 	template<typename T>
-	inline void RWStructuredBuffer<T>::Create(ID3D12Device* a_pDevice, UINT a_elementNum)
+	inline void RWStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, UINT a_elementNum)
 	{
 		// バッファ作成
 		GPUBufferDesc _desc = {};

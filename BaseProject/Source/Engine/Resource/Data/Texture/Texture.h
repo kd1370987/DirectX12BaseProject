@@ -26,7 +26,7 @@ namespace Engine::Resource
 		std::optional<DXSM::Color> opClerValue;
 	};
 
-	class Texture : D3D12::GPUResource
+	class Texture : public D3D12::GPUResource
 	{
 	public:
 		Texture() = default;
@@ -40,9 +40,6 @@ namespace Engine::Resource
 
 		// 解放
 		void Release();
-
-		// ビューの作成
-		void CreateView();
 		
 		// 名前変更
 		void SetName(const std::string& a_name);
@@ -63,6 +60,10 @@ namespace Engine::Resource
 		const Handle<D3D12::UAV>& GetUAV() const;
 		const Handle<D3D12::SRV>& GetImGuiSRV() const;
 
+	private:
+
+		// ビューの作成
+		void CreateView();
 	private:
 
 		// リソース

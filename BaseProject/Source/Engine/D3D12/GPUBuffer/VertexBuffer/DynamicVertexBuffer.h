@@ -14,11 +14,11 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(DynamicVertexBuffer);
 
 		// 作成
-		bool Create(ID3D12Device* a_pDevice,size_t a_elementNum);
-		bool CreateAndUpload(ID3D12Device* a_pDevice,size_t a_elementNum, const void* a_pInitData);
+		bool Create(D3D12::Device* a_pDevice,size_t a_elementNum);
+		bool CreateAndUpload(D3D12::Device* a_pDevice,size_t a_elementNum, const void* a_pInitData);
 
 		// SRV作成
-		void CreateSRV(ID3D12Device* a_pDevice);
+		void CreateSRV(D3D12::Device* a_pDevice);
 
 		// アクセサ
 		const D3D12_VERTEX_BUFFER_VIEW& GetView() const;
@@ -30,7 +30,7 @@ namespace Engine::D3D12
 
 	};
 	template<typename T>
-	inline bool DynamicVertexBuffer<T>::Create(ID3D12Device* a_pDevice, size_t a_elementNum)
+	inline bool DynamicVertexBuffer<T>::Create(D3D12::Device* a_pDevice, size_t a_elementNum)
 	{
 		// リソース作成
 		DynamicBufferDesc _desc = {};
@@ -53,7 +53,7 @@ namespace Engine::D3D12
 		return true;
 	}
 	template<typename T>
-	inline bool DynamicVertexBuffer<T>::CreateAndUpload(ID3D12Device* a_pDevice, size_t a_elementNum, const void* a_pInitData)
+	inline bool DynamicVertexBuffer<T>::CreateAndUpload(D3D12::Device* a_pDevice, size_t a_elementNum, const void* a_pInitData)
 	{		
 		// リソース作成
 		DynamicBufferDesc _desc = {};
@@ -81,7 +81,7 @@ namespace Engine::D3D12
 		return true;
 	}
 	template<typename T>
-	inline void DynamicVertexBuffer<T>::CreateSRV(ID3D12Device* a_pDevice)
+	inline void DynamicVertexBuffer<T>::CreateSRV(D3D12::Device* a_pDevice)
 	{
 		DynamicBuffer::CreateSRVInternal(a_pDevice);
 	}

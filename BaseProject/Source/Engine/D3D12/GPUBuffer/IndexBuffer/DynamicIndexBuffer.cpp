@@ -2,7 +2,7 @@
 
 namespace Engine::D3D12
 {
-	bool DynamicIndexBuffer::Create(ID3D12Device* a_pDebice, const IndexBufferDesc& a_desc)
+	bool DynamicIndexBuffer::Create(D3D12::Device* a_pDebice, const IndexBufferDesc& a_desc)
 	{
 		// リソース作成
 		DynamicBufferDesc _desc = {};
@@ -31,7 +31,7 @@ namespace Engine::D3D12
 
 		return true;
 	}
-	void DynamicIndexBuffer::CreateSRV(ID3D12Device* a_pDevice)
+	void DynamicIndexBuffer::CreateSRV(D3D12::Device* a_pDevice)
 	{
 		DynamicBuffer::CreateSRVInternal(a_pDevice);
 	}

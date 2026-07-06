@@ -54,8 +54,6 @@ namespace Engine::D3D12
 		size_t m_bufferSize = 0;
 		size_t m_strideSize = 0;
 		size_t m_elementNum = 0;
-	public:
 
-		NON_COPYABLE_MOVABLE(GPUResource);
 	};
 }

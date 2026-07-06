@@ -62,7 +62,7 @@ namespace Engine::D3D12
 	protected:
 
 		// SRVの作成
-		void CreateSRVInternal(ID3D12Device* a_pDevice);
+		void CreateSRVInternal(D3D12::Device* a_pDevice);
 
 	protected:
 		bool m_isDrty = false;

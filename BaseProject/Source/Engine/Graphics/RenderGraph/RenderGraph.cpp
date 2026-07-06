@@ -556,11 +556,11 @@ namespace Engine::Graphics
 			if (m_upRGResourceManager->RefCurrentState(_barrier.resID,_barrier.isRead) != _barrier.after)
 			{
 				auto _currentTexHandle = m_upRGResourceManager->GetTexHandle(_barrier.resID,_barrier.isRead);
-
+				auto* _pTex = Resource::ResourceManager::Instance().Ref(_currentTexHandle);
 				// ステート変更
 				a_pCtx->Transition(
 					//Resource::ResourceManager::Instance().Ref(_barrier.texHandle)->GetResource(),
-					Resource::ResourceManager::Instance().Ref(_currentTexHandle)->GetResource(),
+					_pTex->GetResource(),
 					m_upRGResourceManager->RefCurrentState(_barrier.resID, _barrier.isRead),
 					_barrier.after
 				);

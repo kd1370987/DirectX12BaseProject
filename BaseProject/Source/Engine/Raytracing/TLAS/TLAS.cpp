@@ -206,8 +206,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::TLAS::GetGPUHandle()
 }
 
 void Engine::Raytracing::TLAS::CreateBuffer(
-	ID3D12Device5 * a_pDevice, 
-	ID3D12GraphicsCommandList* a_pCmdList,
+	D3D12::Device * a_pDevice, 
+	D3D12::GraphicsCommandList* a_pCmdList,
 	ComPtr<ID3D12Resource>& a_cpRes,
 	uint64_t a_size,
 	D3D12_RESOURCE_FLAGS a_flags,

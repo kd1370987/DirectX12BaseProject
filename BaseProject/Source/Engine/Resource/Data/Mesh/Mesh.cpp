@@ -84,7 +84,7 @@ void Engine::Resource::Mesh::CreateMeshMetaData(
 	m_meshMetaData.Create(a_vertices,a_subsets,a_isSkinMesh);
 }
 
-void Engine::Resource::Mesh::CreateRasterData(ID3D12Device* a_pDevice, const std::vector<MeshVertexFloat>& a_vertices, const std::vector<MeshFace>& a_face, DXGI_FORMAT a_indexFormat)
+void Engine::Resource::Mesh::CreateRasterData(D3D12::Device* a_pDevice, const std::vector<MeshVertexFloat>& a_vertices, const std::vector<MeshFace>& a_face, DXGI_FORMAT a_indexFormat)
 {
 	auto& _raster = m_opRasterData.emplace();
 	_raster.Create(a_pDevice, a_vertices, a_face, a_indexFormat);

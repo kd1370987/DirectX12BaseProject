@@ -21,7 +21,7 @@ void Engine::D3D12::SamplerAllocator::Release()
 	m_pHeap = nullptr;
 }
 
-Engine::Handle<SAMPLER> Engine::D3D12::SamplerAllocator::Allocate(ID3D12Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
+Engine::Handle<SAMPLER> Engine::D3D12::SamplerAllocator::Allocate(D3D12::Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
 {
 	// RTVの位置を取得
 	if (m_indexQueue.empty())

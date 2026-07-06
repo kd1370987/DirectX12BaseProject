@@ -20,8 +20,8 @@ namespace Engine::Particle
 		/// <param name="a_pCmdList">コマンドリストポインタ</param>
 		/// <param name="a_particleHandle">パーティクルアセットのハンドル</param>
 		void Init(
-			ID3D12Device* a_pDevice,
-			ID3D12GraphicsCommandList* a_pCmdList,
+			D3D12::Device* a_pDevice,
+			D3D12::GraphicsCommandList* a_pCmdList,
 			Engine::Handle<Resource::ParticlesAsset> a_particleHandle
 		);
 

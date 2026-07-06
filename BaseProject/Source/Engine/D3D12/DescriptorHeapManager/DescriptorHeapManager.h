@@ -24,7 +24,7 @@ namespace Engine::D3D12
 
 		// リソースのビュー作成
 		template<IsHeapType T>
-		Handle<T> Allocate(ID3D12Device* a_pDevice,ID3D12Resource* a_pResource,const typename T::DescType* a_desc);
+		Handle<T> Allocate(D3D12::Device* a_pDevice,ID3D12Resource* a_pResource,const typename T::DescType* a_desc);
 
 		// ビューの解放
 		template<IsHeapType T>
@@ -69,7 +69,7 @@ namespace Engine::D3D12
 		//==========================================================================================
 		// 作成
 		Engine::Handle<SAMPLER> CreateSampler(
-			ID3D12Device* a_pDevice,
+			D3D12::Device* a_pDevice,
 			const D3D12_SAMPLER_DESC& a_desc
 		);
 
@@ -126,7 +126,7 @@ namespace Engine::D3D12
 		}
 	};
 	template<IsHeapType T>
-	inline Handle<T> DescriptorHeapManager::Allocate(ID3D12Device* a_pDevice, ID3D12Resource* a_pResource, const typename T::DescType* a_desc)
+	inline Handle<T> DescriptorHeapManager::Allocate(D3D12::Device* a_pDevice, ID3D12Resource* a_pResource, const typename T::DescType* a_desc)
 	{
 		if constexpr (std::is_same_v<T, CBV>)
 		{

@@ -29,7 +29,7 @@ namespace Engine::D3D12
 
 		// 作成
 		bool Create(
-			ID3D12Device* a_pDevice, 
+			D3D12::Device* a_pDevice, 
 			GraphicsCommandList* a_pCmdList,
 			const StaticBufferDesc& a_desc,
 			const void* a_pInitData
@@ -72,7 +72,7 @@ namespace Engine::D3D12
 
 		// 派生関数
 		// ステート遷移
-		void Barrier(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState) override;
+		void Barrier(D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState) override;
 
 		// アクセサ
 		ID3D12Resource* GetResource() const override;
@@ -81,7 +81,7 @@ namespace Engine::D3D12
 	protected:
 
 		// SRVの作成
-		void CreateSRVInternal(ID3D12Device* a_pDevice);
+		void CreateSRVInternal(D3D12::Device* a_pDevice);
 
 		// GPUバッファへデータをコピー
 		void CopyToGPU(GraphicsCommandList* a_pCmdList);

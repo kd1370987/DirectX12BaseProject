@@ -7,7 +7,7 @@ namespace Engine::D3D12
 {
 	bool DescriptorHeapManager::Init(UINT a_cbvCount, UINT a_srvCount, UINT a_uavCount, UINT a_rtvCount, UINT a_dsvCount)
 	{
-		ID3D12Device* _device = D3D12Wrapper::Instance().GetDevice();
+		D3D12::Device* _device = D3D12Wrapper::Instance().GetDevice();
 
 		// ヒープ作成
 		m_cbv_srv_uavHeap.Create(
@@ -158,7 +158,7 @@ namespace Engine::D3D12
 		return m_ImGuiSRVAllocator.GetGPU(a_range);;
 	}
 
-	Engine::Handle<SAMPLER> DescriptorHeapManager::CreateSampler(ID3D12Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
+	Engine::Handle<SAMPLER> DescriptorHeapManager::CreateSampler(D3D12::Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
 	{
 		return m_upSamplerAllocator->Allocate(a_pDevice, a_desc);
 	}

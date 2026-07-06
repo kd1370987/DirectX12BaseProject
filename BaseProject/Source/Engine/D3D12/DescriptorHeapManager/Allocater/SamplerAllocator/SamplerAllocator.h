@@ -16,7 +16,7 @@ namespace Engine::D3D12
 
 		// ビュー作成割り当て
 		Engine::Handle<SAMPLER> Allocate(
-			ID3D12Device* a_pDevice,
+			D3D12::Device* a_pDevice,
 			const D3D12_SAMPLER_DESC& a_desc
 		);
 

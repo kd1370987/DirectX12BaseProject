@@ -113,7 +113,7 @@ namespace Engine::D3D12
 		m_rangeAllocator.UpdateFrees(_completedFence);
 	}
 
-	void Engine::D3D12::MegaBuffer::CreateSRVInternal(ID3D12Device* a_pDevice)
+	void Engine::D3D12::MegaBuffer::CreateSRVInternal(D3D12::Device* a_pDevice)
 	{
 		// 仕様書作成
 		D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};

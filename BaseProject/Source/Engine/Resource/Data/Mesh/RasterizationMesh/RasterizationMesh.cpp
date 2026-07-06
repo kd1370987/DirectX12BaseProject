@@ -2,7 +2,7 @@
 namespace Engine::Resource
 {
 	void Engine::Resource::RasterizationMesh::Create(
-		ID3D12Device* a_pDevice,
+		D3D12::Device* a_pDevice,
 		const std::vector<MeshVertexFloat>& a_vertices,
 		const std::vector<MeshFace>& a_face, 
 		DXGI_FORMAT a_indexFormat

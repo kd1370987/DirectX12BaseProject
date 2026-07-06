@@ -54,9 +54,9 @@ namespace Engine::Resource
 
 	void Engine::Resource::Texture::Create(const TextureCreateDesc& a_desc)
 	{
-		// リソース作成
+		// リソース作成 : GPUリソースの作成は使っていない
 		m_cpResource = Engine::Resource::CreateTexture(a_desc, &m_desc);
-		m_currentSutate = D3D12_RESOURCE_STATE_COMMON;
+		m_currentState = D3D12_RESOURCE_STATE_COMMON;
 
 		m_cpResource.Get()->SetName(StringUtility::ToWideString(a_desc.name).c_str());
 
@@ -78,7 +78,7 @@ namespace Engine::Resource
 			a_backBufferIndex,
 			IID_PPV_ARGS(m_cpResource.ReleaseAndGetAddressOf())
 		);
-		m_currentSutate = D3D12_RESOURCE_STATE_PRESENT;
+		m_currentState = D3D12_RESOURCE_STATE_PRESENT;
 		// 名前設定
 		std::string _name = "BackBuffer_" + a_backBufferIndex;
 		m_cpResource->SetName(StringUtility::ToWideString(_name).c_str());
@@ -177,10 +177,6 @@ namespace Engine::Resource
 		return m_name;
 	}
 
-	ID3D12Resource* Engine::Resource::Texture::GetResource()
-	{
-		return m_cpResource.Get();
-	}
 
 	const Engine::Resource::TextureUsage& Engine::Resource::Texture::GetUsage() const
 	{
@@ -190,24 +186,6 @@ namespace Engine::Resource
 	const D3D12_RESOURCE_DESC& Engine::Resource::Texture::GetDesc() const
 	{
 		return m_desc;
-	}
-
-	void Engine::Resource::Texture::ChangeState(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_state)
-	{
-		if (m_currentSutate != a_state)
-		{
-			// UAVバリア
-			auto _barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-				m_cpResource.Get(),
-				m_currentSutate,
-				a_state
-			);
-			a_pCmdList->ResourceBarrier(
-				1,
-				&_barrier
-			);
-			m_currentSutate = a_state;
-		}
 	}
 
 	const Engine::Handle<D3D12::RTV>& Engine::Resource::Texture::GetRTV() const

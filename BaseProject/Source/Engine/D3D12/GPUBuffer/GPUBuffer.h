@@ -20,7 +20,7 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(GPUBuffer);
 
 		// バッファ専用の作成
-		bool Create(ID3D12Device* a_pDevice,const GPUBufferDesc& a_desc);
+		bool Create(D3D12::Device* a_pDevice,const GPUBufferDesc& a_desc);
 
 		// データの書き込み(アップロードヒープ用)
 		void Map(void** a_ppData);

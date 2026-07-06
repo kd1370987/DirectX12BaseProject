@@ -33,7 +33,7 @@ namespace Engine::Editor
 		void Update(float a_dt);
 
 		// 描画
-		void Draw(ID3D12GraphicsCommandList* a_pCmdList, UINT a_widht, UINT a_height);
+		void Draw(D3D12::GraphicsCommandList* a_pCmdList, UINT a_widht, UINT a_height);
 
 		// デバッグ用カメラセット
 		const EditorCamera* GetEditorCamera();

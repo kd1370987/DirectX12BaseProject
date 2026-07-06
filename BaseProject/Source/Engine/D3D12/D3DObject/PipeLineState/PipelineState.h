@@ -82,8 +82,8 @@ namespace Engine::D3D12
 
 		// 作成
 		// グラフィック
-		bool Create(ID3D12Device* a_pDevice, const GraphicsPipelineDesc& a_desc);
-		bool Create(ID3D12Device* a_pDevice, const ComputePipelineDesc& a_desc);
+		bool Create(D3D12::Device* a_pDevice, const GraphicsPipelineDesc& a_desc);
+		bool Create(D3D12::Device* a_pDevice, const ComputePipelineDesc& a_desc);
 
 		// アクセサ
 		const ID3D12PipelineState* Get() const;

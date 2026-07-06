@@ -12,7 +12,7 @@ namespace Engine::D3D12
 		D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
 	}
 	bool StaticBuffer::Create(
-		ID3D12Device* a_pDevice, 
+		D3D12::Device* a_pDevice, 
 		GraphicsCommandList* a_pCmdList,
 		const StaticBufferDesc& a_desc,
 		const void* a_pInitData
@@ -102,7 +102,7 @@ namespace Engine::D3D12
 		);
 	}
 
-	void StaticBuffer::Barrier(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
+	void StaticBuffer::Barrier(D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
 	{
 		m_gpuBuffer.Barrier(a_pCmdList, a_nextState);
 	}
@@ -117,7 +117,7 @@ namespace Engine::D3D12
 		return m_gpuBuffer.GetGPUVirtualAddress();
 	}
 
-	void StaticBuffer::CreateSRVInternal(ID3D12Device* a_pDevice)
+	void StaticBuffer::CreateSRVInternal(D3D12::Device* a_pDevice)
 	{
 		// 仕様書作成
 		D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};

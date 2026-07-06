@@ -8,7 +8,7 @@ public:
 	// 解放
 	void Release();
 
-	void RootCBVCreate(ID3D12Device* a_device, size_t a_memSize);
+	void RootCBVCreate(Engine::D3D12::Device* a_device, size_t a_memSize);
 	
 	// 使用リセット
 	void ResetUse()
@@ -18,13 +18,13 @@ public:
 	}
 
 	// データをバインドして転送
-	void BindAndAttachDataRootCBV(ID3D12GraphicsCommandList* a_pCmdList, int a_descIndex, const void* a_data, size_t a_size);
+	void BindAndAttachDataRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const void* a_data, size_t a_size);
 	template<typename T>
-	void BindAndAttachDataRootCBV(ID3D12GraphicsCommandList* a_pCmdList, int a_descIndex, const T& a_data);
+	void BindAndAttachDataRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const T& a_data);
 
 	// データをバインドして転送
 	template<typename T>
-	void BindAndAttachDataComputeRootCBV(ID3D12GraphicsCommandList* a_pCmdList, int a_descIndex, const T& a_data);
+	void BindAndAttachDataComputeRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const T& a_data);
 
 private:
 
@@ -33,7 +33,7 @@ private:
 
 private:
 	// デバイス
-	ID3D12Device* m_pDevice = nullptr;
+	Engine::D3D12::Device* m_pDevice = nullptr;
 
 	// グラフィック用
 	UINT m_usedCount = 0;
@@ -50,7 +50,7 @@ private:
 
 template<typename T>
 inline void CBAllocater::BindAndAttachDataRootCBV(
-	ID3D12GraphicsCommandList* a_pCmdList,
+	Engine::D3D12::GraphicsCommandList* a_pCmdList,
 	int a_descIndex,
 	const T& a_data
 )
@@ -81,7 +81,7 @@ inline void CBAllocater::BindAndAttachDataRootCBV(
 }
 
 template<typename T>
-inline void CBAllocater::BindAndAttachDataComputeRootCBV(ID3D12GraphicsCommandList* a_pCmdList, int a_regiIdx, const T& a_data)
+inline void CBAllocater::BindAndAttachDataComputeRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_regiIdx, const T& a_data)
 {
 	size_t _dataSize = (sizeof(T) + 0xff) & ~0xff; // 256バイトアライメント
 

@@ -1,7 +1,7 @@
 ﻿#include "DynamicBuffer.h"
 #include "../../DescriptorHeapManager/DescriptorHeapManager.h"
 
-bool Engine::D3D12::DynamicBuffer::Create(ID3D12Device* a_pDevice, const DynamicBufferDesc& a_desc)
+bool Engine::D3D12::DynamicBuffer::Create(D3D12::Device* a_pDevice, const DynamicBufferDesc& a_desc)
 {
 	// リソース作成
 	GPUBufferDesc _desc = {};
@@ -40,7 +40,7 @@ void Engine::D3D12::DynamicBuffer::UpdateDataOffset(const void* a_pData, size_t 
 	std::memcpy(_pDest, a_pData, a_sizeBytes);
 }
 
-void Engine::D3D12::DynamicBuffer::CreateSRVInternal(ID3D12Device* a_pDevice)
+void Engine::D3D12::DynamicBuffer::CreateSRVInternal(D3D12::Device* a_pDevice)
 {
 	// 仕様書作成
 	D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
@@ -56,7 +56,7 @@ void Engine::D3D12::DynamicBuffer::CreateSRVInternal(ID3D12Device* a_pDevice)
 	m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, GetResource(), &_desc);
 }
 
-void Engine::D3D12::DynamicBuffer::CreateSRVInternal(ID3D12Device* a_pDevice, const D3D12_SHADER_RESOURCE_VIEW_DESC& a_viewDesc)
+void Engine::D3D12::DynamicBuffer::CreateSRVInternal(D3D12::Device* a_pDevice, const D3D12_SHADER_RESOURCE_VIEW_DESC& a_viewDesc)
 {
 	// ハンドルをもらう
 	m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, GetResource(), &a_viewDesc);
