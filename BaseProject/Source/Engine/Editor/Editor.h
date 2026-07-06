@@ -29,11 +29,14 @@ namespace Engine::Editor
 		// 解放
 		void Release();
 
+		// 更新
+		void Update(float a_dt);
+
 		// 描画
 		void Draw(ID3D12GraphicsCommandList* a_pCmdList, UINT a_widht, UINT a_height);
 
+		// デバッグ用カメラセット
 		const EditorCamera* GetEditorCamera();
-
 		//=======================================================================
 		// ログ関連
 		//=======================================================================
@@ -87,6 +90,8 @@ namespace Engine::Editor
 
 		void ClearBuffer();
 		const std::vector<Graphics::DebugLineData>& GetDebugLineDataVec() const;
+
+
 
 		//=======================================================================
 		// デバッグ描画関数登録

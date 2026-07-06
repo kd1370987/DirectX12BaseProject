@@ -59,6 +59,7 @@ namespace Engine
 
 		// モード切替
 		void ChangeMode(EAppMode a_mode);
+		EAppMode GetMode() { return m_config.GetRuntimeConfig().appMode; }
 
 		// グラフィックス関係
 		void ExcuteDrawCmd();

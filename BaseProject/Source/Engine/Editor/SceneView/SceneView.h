@@ -19,7 +19,7 @@ namespace Engine::Editor
 
 		void Init();
 
-		void Update();
+		void Update(float a_dt);
 
 		const EditorCamera* GetEditorCamera();
 

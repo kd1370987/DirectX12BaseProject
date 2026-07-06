@@ -108,6 +108,8 @@
 // ゲームフロウ
 #include "../GameFlowStateMachine/GameFlowStateMachine.h"
 
+#include "../../../Engine/MainEngine.h"
+
 namespace App::Game
 {
 	void App::Game::GameManager::Init()
@@ -243,6 +245,15 @@ namespace App::Game
 			_keyboard.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForWindows>(_look));
 
 			// テスト用ボタン
+			Engine::Input::InputButtonForWindows _debugCamRBUTTON(VK_RBUTTON);
+			_keyboard.AddButton("FreeCamMode", std::make_shared<Engine::Input::InputButtonForWindows>(_debugCamRBUTTON));
+
+			Engine::Input::InputButtonForWindows _debugCamUp('E');
+			_keyboard.AddButton("FreeCamUp", std::make_shared<Engine::Input::InputButtonForWindows>(_debugCamUp));
+			Engine::Input::InputButtonForWindows _debugCamDown('Q');
+			_keyboard.AddButton("FreeCamDown", std::make_shared<Engine::Input::InputButtonForWindows>(_debugCamDown));
+
+			// テスト用ボタン
 			Engine::Input::InputButtonForWindows _test('T');
 			_keyboard.AddButton("Test", std::make_shared<Engine::Input::InputButtonForWindows>(_test));
 
@@ -299,7 +310,7 @@ namespace App::Game
 		);
 	}
 	void GameManager::Update(float a_dt)
-	{
+	{	
 		m_upGameFlowMachine->SetTrigger("ON_START");
 
 		if (Engine::Input::InputManager::Instance().IsPress("Scene"))

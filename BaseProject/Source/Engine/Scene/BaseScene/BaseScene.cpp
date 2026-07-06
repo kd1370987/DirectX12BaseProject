@@ -7,6 +7,8 @@
 // コンポーネント
 #include "Application/Components/Persistence/GUIDComponent.h"
 
+#include "../../MainEngine.h"
+
 namespace Engine::Scene
 {
 	BaseScene::BaseScene()
@@ -36,6 +38,9 @@ namespace Engine::Scene
 		// 解放処理と初期化処理も含まれているため、呼び出しはシングルスレッド限定
 		m_upWorld->BegineFrame();
 
+		// エディター状態なら更新をしない
+		auto _mode = Engine::MainEngine::Instance().GetMode();
+		if (_mode == EAppMode::Editor) return;
 		
 		// シーンのシステム処理
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Input, a_dt);

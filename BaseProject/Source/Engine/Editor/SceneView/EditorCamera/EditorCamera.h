@@ -7,7 +7,7 @@ namespace Engine::Editor
 
 		void Init(UINT a_windowWidth,UINT a_windowHeight);
 
-		void Update();
+		void Update(float a_dt);
 
 		// アクセサ
 		DXSM::Matrix GetWorldMat() const { return m_worldMat; }	// ワールド行列

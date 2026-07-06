@@ -21,6 +21,8 @@
 #include "Collision/CollisionWorld.h"
 
 #include "Option/OptionManager.h"
+
+#include "Editor/SceneView/EditorCamera/EditorCamera.h"
 namespace Engine
 {
 	MainEngine::MainEngine()
@@ -204,6 +206,9 @@ namespace Engine
 
 	void MainEngine::BeginDraw()
 	{
+		// エディターの更新を入れる
+		Editor::MainEditor::Instance().Update(GetDeltaTime());
+
 		// 今から使うフレームの登録されているファンクションを実行して空にする
 		UINT _currentFrameIdx = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 		for (auto& _func : m_releaseQueues[_currentFrameIdx])
@@ -297,6 +302,14 @@ namespace Engine
 	}
 	void MainEngine::ExcuteDrawCmd()
 	{
+		// エディターモードならフリーカメラを割り込ませる
+		if (m_config.GetRuntimeConfig().appMode == EAppMode::Editor)
+		{
+			const auto* _editCam = Editor::MainEditor::Instance().GetEditorCamera();
+			//m_upGraphicsEngine->SetCameraMat(_editCam->GetWorldMat());
+			//m_upGraphicsEngine->SetProjMat(_editCam->GetProjMat());
+		}
+
 		m_upGraphicsEngine->Excute();
 	}
 	const Window::NativeWindow* MainEngine::GetNativeWindow() const

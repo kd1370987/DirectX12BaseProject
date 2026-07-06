@@ -12,6 +12,7 @@
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../Application/Components/Transform/LocalTransformComponent.h"
+#include "../../../Application/Components/Transform/WorldMatrixComponent.h"
 
 #include "../../ECS/World/World.h"
 
@@ -20,11 +21,11 @@ namespace Engine::Editor
 	void Engine::Editor::SceneView::Init()
 	{
 		m_upEditorCamera = std::make_unique<EditorCamera>();
-		m_upEditorCamera->Init(1280,720);
+		m_upEditorCamera->Init(1920,1080);
 	}
-	void SceneView::Update()
+	void SceneView::Update(float a_dt)
 	{
-		m_upEditorCamera->Update();
+		m_upEditorCamera->Update(a_dt);
 	}
 	const EditorCamera* SceneView::GetEditorCamera()
 	{
@@ -87,6 +88,9 @@ namespace Engine::Editor
 		auto* _pTrsComp = a_pWorld->RefData<LocalTransformComponent>(a_currentSelectEntity);
 		if (!_pTrsComp) return;
 
+		auto* _pWorldComp = a_pWorld->RefData<WorldMatrixComponent>(a_currentSelectEntity);
+		if (!_pWorldComp) return;
+
 		// 現在のカメラ行列を取得
 		auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGE) return;
@@ -129,6 +133,8 @@ namespace Engine::Editor
 			DirectX::XMStoreFloat3(&_pTrsComp->scale, outScale);
 
 			_pTrsComp->isDirty = true;
+
+			DirectX::XMStoreFloat4x4(&_pWorldComp->worldMat, updatedWorld);
 		}
 	}
 }

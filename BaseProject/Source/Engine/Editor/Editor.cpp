@@ -91,6 +91,10 @@ namespace Engine::Editor
 	{
 		m_upImGuiContext->Release();
 	}
+	void MainEditor::Update(float a_dt)
+	{
+		m_upSceneView->Update(a_dt);
+	}
 	void MainEditor::Draw(ID3D12GraphicsCommandList * a_pCmdList, UINT a_widht, UINT a_height)
 	{
 		// ImGui描画開始
