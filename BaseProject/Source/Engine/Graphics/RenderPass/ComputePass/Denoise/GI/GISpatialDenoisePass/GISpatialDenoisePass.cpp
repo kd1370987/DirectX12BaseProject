@@ -15,21 +15,22 @@ namespace Engine::Graphics
 {
 	void AddGISpatialDenoisePass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 	{
+		// ======================================================================
 		// ランタイムデータ作成
-		struct RuntimeDate
+		// ======================================================================
+		struct RuntimeData
 		{
 			ID3D12RootSignature* pRootSignature;
 			uint8_t csIndex;
 			D3D12::PipelineStateManager* pPSOManager;
-			
 		};
-		auto _spPassData = std::make_shared<RuntimeDate>();
+		auto _spPassData = std::make_shared<RuntimeData>();
 		_spPassData->pPSOManager = a_pPSOManager;
-		
-		// PSO共通化のため先にルートしぐねちゃ設定
+
+		// PSO共通化のため先にルートシグネチャ設定
 		a_pPSOManager->Request("Asset/Shader/Compute/Denoise/GI/GISpatialDenoiseShader.cso");
 
-		// ダミービルダーを使ってPSOを一度のみ作成
+		// ダミービルダーを使ってPSOを一度のみ作成（全ステップで使い回すため）
 		RenderPassNode _dummyNode = {};
 		RGComputePassBuilder _psoBuilder(&_dummyNode);
 		auto* _pBlob = _psoBuilder.SetShader("Asset/Shader/Compute/Denoise/GI/GISpatialDenoiseShader.cso", "GISpatialDenoiseShader", _spPassData->csIndex);
@@ -44,10 +45,12 @@ namespace Engine::Graphics
 
 		int _passCount = 5;
 
-		// ループでパスを複数回登録
+		// ======================================================================
+		// ループでパスを複数回登録（AとBをピンポンさせる）
+		// ======================================================================
 		for (int _i = 0; _i < _passCount; ++_i)
 		{
-			// ステップサイズの計算
+			// ステップサイズの計算 (1, 2, 4, 8, 16)
 			int _stepSize = 1 << _i;
 
 			// 入出力をピンポンさせるルーティング
@@ -68,7 +71,7 @@ namespace Engine::Graphics
 			}
 			else
 			{
-				// 中間パスm_pRG
+				// 中間パス
 				_readGI = (_i % 2 != 0) ? _tempA : _tempB;
 				_writeGI = (_i % 2 != 0) ? _tempB : _tempA;
 			}
@@ -79,65 +82,69 @@ namespace Engine::Graphics
 			_node.phase = a_phase;
 			RGComputePassBuilder _cpBuilder(&_node);
 
-			// 依存関係の構築
+			// 依存関係の構築（Setupフェーズ）
+			// ※レンダーグラフはここで宣言した順序とバージョンを完璧に追跡します
 			_cpBuilder.ReadSRV(_readGI);
 			_cpBuilder.ReadSRV("Depth");
 			_cpBuilder.ReadSRV("GBufferNormal");
 
+			// 中間バッファは毎パス上書きするので LoadOp::DontCare または LoadOp::Clear が推奨ですが、Loadのままでも動きます
 			_cpBuilder.WriteUAV(_writeGI, DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Load, StoreOp::Store);
 
+			// ==================================================================
 			// 実行関数の登録
-			_node.executeFunc = [_spPassData, _stepSize, _readGI, _writeGI, _passName = _node.name]
+			// ==================================================================
+			// ※使用しない _passName キャプチャは削除しました
+			_node.executeFunc = [_spPassData, _stepSize, _readGI, _writeGI]
 			(GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
-			{
-				// オプション取得
-				const auto& _winOp = Option::OptionManager::GetInstance().GetInstance().GetWindowOption();
-
-				auto* _pCmd = a_pCtx->GetCurrentCmdList();
-				_pCmd->SetComputeRootSignature(_spPassData->pRootSignature);
-				auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
-				_pCmd->SetPipelineState(_pPSO);
-
-				struct CBData
 				{
-					int		stepSize;		// パスごとのステップサイズ
-					float	phiDepth;	// 深度の感度（小さいほどエッジを厳密に保護）
-					float	phiNormal;	// 法線の感度（大きいほど法線のずれに敏感）
-					float	phiColor;	// 輝度の感度（ノイズとディティールの境界制御）
+					// オプション取得 (GetInstance()の重複タイポを修正)
+					const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+					const auto& _giOp = Option::OptionManager::GetInstance().GetGIOption();
+
+					auto* _pRG = a_pGE->RefRenderGraph();
+					auto* _pCmd = a_pCtx->GetCurrentCmdList();
+
+					// パイプラインステートの設定
+					_pCmd->SetComputeRootSignature(_spPassData->pRootSignature);
+					auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
+					_pCmd->SetPipelineState(_pPSO);
+
+					// 定数バッファデータの設定
+					struct CBData
+					{
+						int		stepSize;	// パスごとのステップサイズ
+						float	phiDepth;	// 深度の感度（小さいほどエッジを厳密に保護）
+						float	phiNormal;	// 法線の感度（大きいほど法線のずれに敏感）
+						float	phiColor;	// 輝度の感度（ノイズとディティールの境界制御）
+					};
+
+					CBData _data = {};
+					_data.stepSize = _stepSize;
+					_data.phiDepth = _giOp.phiDepth;
+					_data.phiNormal = _giOp.phiNormal;
+					_data.phiColor = _giOp.phiColor;
+
+					// 定数バッファバインド
+					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, _data);
+
+					// SRVのバインド（パスインデックスを使って、このステップ専用の正しい世代のハンドルを取得）
+					a_pCtx->BindHeap();
+					std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuVec = {
+						_pRG->GetPassSRV(a_passIndex, _readGI),
+						_pRG->GetPassSRV(a_passIndex, "Depth"),
+						_pRG->GetPassSRV(a_passIndex, "GBufferNormal")
+					};
+					a_pCtx->ComputeBindSRV(1, _cpuVec);
+
+					// 出力先バインド
+					a_pCtx->BindUAV(2, _pRG->GetPassUAV(a_passIndex, _writeGI));
+
+					// 実行
+					UINT _countX = _winOp.windowWidth / 8;
+					UINT _countY = _winOp.windowHegiht / 8; // ※windowHeightのスペルミス（Hegiht）は元のままにしています
+					a_pCtx->Dispatch(_countX, _countY, 1);
 				};
-				const auto& _giOp = Option::OptionManager::GetInstance().GetGIOption();
-				CBData _data = {};
-				_data.stepSize = _stepSize;
-				_data.phiDepth = _giOp.phiDepth;
-				_data.phiNormal = _giOp.phiNormal;
-				_data.phiColor = _giOp.phiColor;
-				
-				
-
-				// 定数バッファバインド
-				a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(
-					_pCmd,
-					0,
-					_data
-				);
-
-				// SRVバインド
-				a_pCtx->BindHeap();
-				std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuVec = {
-					a_pGE->RefRenderGraph()->GetSRVCPU(_readGI),
-					a_pGE->RefRenderGraph()->GetSRVCPU("Depth"),
-					a_pGE->RefRenderGraph()->GetSRVCPU("GBufferNormal")
-				};
-				a_pCtx->ComputeBindSRV(1, _cpuVec);
-
-				// 出力先バインド
-				a_pCtx->BindUAV(2, a_pGE->RefRenderGraph()->GetUAVCPU(_writeGI));
-
-				// 実行
-				UINT _countX = _winOp.windowWidth / 8;
-				UINT _countY = _winOp.windowHegiht / 8;
-				a_pCtx->Dispatch(_countX, _countY, 1);
-			};
 
 			a_pRegistry->RegisterPass(_node);
 		}

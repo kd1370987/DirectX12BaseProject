@@ -12,43 +12,44 @@ namespace Engine::Graphics
 
 	void AddShadowTemporalAccumulationPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 	{
-		// ランタイムデータ
+		// ======================================================================
+		// ランタイムデータ（コンピュートパスで共通使用するもの）
+		// ======================================================================
 		struct RuntimeData
 		{
 			ID3D12RootSignature* pRootSig;
 			uint8_t csIndex;
 			D3D12::PipelineStateManager* pPSOManager;
-			
 		};
 		auto _spPassData = std::make_shared<RuntimeData>();
 		_spPassData->pPSOManager = a_pPSOManager;
-		
 
-		// 後続のパス（ライティング等）が常に同じ固定名で最新の影を参照できるようにする宛先
+		// 後続のパス（ライティング等）が常に同じ固定名で最新の影を参照できるようにする最終出力先
 		std::string _finalDst = "AffterDLShadowTempAccumu";
 
-		// ----------------------------------------------------------------------
-		// 偶数フレーム用と奇数フレーム用の2つのパスを登録する
-		// ----------------------------------------------------------------------
+		// ======================================================================
+		// 偶数フレーム用(A->B)と奇数フレーム用(B->A)の2つのパスセットを登録する
+		// ======================================================================
 		for (int i = 0; i < 2; ++i)
 		{
-			bool isEven = (i == 0); // true: 偶数フレーム用パス, false: 奇数フレーム用パス
+			bool _isEven = (i == 0); // true: 偶数フレーム用, false: 奇数フレーム用
 
-			// 構築時に名前を完全に固定化する
-			std::string _readHistory = isEven ? "ShadowHistory_A" : "ShadowHistory_B";
-			std::string _writeHistory = isEven ? "ShadowHistory_B" : "ShadowHistory_A";
-			std::string _passName = isEven ? "ShadowTADenoisePass_Even" : "ShadowTADenoisePass_Odd";
-			std::string _copyPassName = isEven ? "ShadowHistoryCopyPass_Even" : "ShadowHistoryCopyPass_Odd";
+			// フレームの偶奇に合わせて読み書きするヒストリーバッファの名前を固定化
+			std::string _readHistory = _isEven ? "ShadowHistory_A" : "ShadowHistory_B";
+			std::string _writeHistory = _isEven ? "ShadowHistory_B" : "ShadowHistory_A";
 
-			// ==========================================
-			// TemporalAccumulation パスの構築
-			// ==========================================
+			std::string _passName = _isEven ? "ShadowTADenoisePass_Even" : "ShadowTADenoisePass_Odd";
+			std::string _copyPassName = _isEven ? "ShadowHistoryCopyPass_Even" : "ShadowHistoryCopyPass_Odd";
+
+			// ------------------------------------------------------------------
+			// 1. TemporalAccumulation パス（コンピュートによるノイズ除去と履歴合成）
+			// ------------------------------------------------------------------
 			RenderPassNode _node = {};
 			_node.name = _passName;
 			_node.phase = a_phase;
 			RGComputePassBuilder _cpBuilder(&_node);
 
-			// 依存関係構築 
+			// 依存関係の構築（Setupフェーズ）
 			_cpBuilder.ReadSRV("RayShadow");
 			_cpBuilder.ReadSRV("GBufferVelocity");
 			_cpBuilder.ReadSRV(_readHistory);
@@ -59,31 +60,30 @@ namespace Engine::Graphics
 
 			_cpBuilder.WriteUAV(_writeHistory, DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
+			// シェーダーのコンパイルとルートシグネチャの取得
 			auto* _pBlob = _cpBuilder.SetShader("Asset/Shader/Compute/Denoise/Shadow/ShadowTemporalAccumullationShader.cso", "ShadowTemporalAccumullationShader", _spPassData->csIndex);
 			_spPassData->pRootSig = _cpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
 
 			_cpBuilder.ResolveAndCompile(a_pPSOManager);
 
 			// 実行関数
-			_node.executeFunc = [_spPassData, _readHistory, _writeHistory, isEven, _passName](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+			_node.executeFunc = [_spPassData, _readHistory, _writeHistory, _isEven](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 				{
-					// 実行時に自分の担当フレームかチェックし、違えば何もしない
+					// 自分の担当フレーム（偶数/奇数）でなければスキップ
 					UINT64 _currentFrame = a_pGE->RefRenderGraph()->GetTemporalIndex();
 					bool _isCurrentEven = (_currentFrame % 2 == 0);
-					if (isEven != _isCurrentEven) return;
+					if (_isEven != _isCurrentEven) return;
 
-					const auto& _winOp = Option::OptionManager::GetInstance().GetInstance().GetWindowOption();
+					auto* _pRG = a_pGE->RefRenderGraph();
 					auto* _pCmd = a_pCtx->GetCurrentCmdList();
+					const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+
+					// パイプラインステートの設定
 					_pCmd->SetComputeRootSignature(_spPassData->pRootSig);
 					_pCmd->SetPipelineState(_spPassData->pPSOManager->GetPSO(_spPassData->csIndex));
 
-					// 定数バッファ
-					struct GITAOp
-					{
-						float phiDepth;
-						float phiNormal;
-						float blendRate;
-					};
+					// 定数バッファのバインド
+					struct GITAOp { float phiDepth; float phiNormal; float blendRate; };
 					GITAOp _op = {};
 					const auto& _giOp = Option::OptionManager::GetInstance().GetGIOption();
 					_op.phiDepth = _giOp.TAphiDepth;
@@ -91,48 +91,58 @@ namespace Engine::Graphics
 					_op.blendRate = _giOp.TAblendRate;
 					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, _op);
 
-					// バインド
+					// SRVのバインド（レンダーグラフから安全にハンドルを取得）
 					a_pCtx->BindHeap();
 					std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuVec = {
-						a_pGE->RefRenderGraph()->GetSRVCPU("RayShadow"),
-						a_pGE->RefRenderGraph()->GetSRVCPU("GBufferVelocity"),
-						a_pGE->RefRenderGraph()->GetSRVCPU(_readHistory),
-						a_pGE->RefRenderGraph()->GetSRVCPU("Depth"),
-						a_pGE->RefRenderGraph()->GetSRVCPU("GBufferNormal"),
-						a_pGE->RefRenderGraph()->GetSRVCPU("PrevDepth"),
-						a_pGE->RefRenderGraph()->GetSRVCPU("PrevNormal")
+						_pRG->GetPassSRV(a_passIndex, "RayShadow"),
+						_pRG->GetPassSRV(a_passIndex, "GBufferVelocity"),
+						_pRG->GetPassSRV(a_passIndex, _readHistory),
+						_pRG->GetPassSRV(a_passIndex, "Depth"),
+						_pRG->GetPassSRV(a_passIndex, "GBufferNormal"),
+						_pRG->GetPassSRV(a_passIndex, "PrevDepth"),
+						_pRG->GetPassSRV(a_passIndex, "PrevNormal")
 					};
 					a_pCtx->ComputeBindSRV(1, _cpuVec);
-					a_pCtx->BindUAV(2, a_pGE->RefRenderGraph()->GetUAVCPU(_writeHistory));
 
-					// 実行
+					// UAVのバインド
+					a_pCtx->BindUAV(2, _pRG->GetPassUAV(a_passIndex, _writeHistory));
+
+					// コンピュートシェーダーのディスパッチ
 					UINT _countX = _winOp.windowWidth / 8;
 					UINT _countY = _winOp.windowHegiht / 8;
 					a_pCtx->Dispatch(_countX, _countY, 1);
 				};
-			_node.phase = a_phase;
 			a_pRegistry->RegisterPass(_node);
 
-			// ==========================================
-			// コピーパスの構築 
-			// ==========================================
+			// ------------------------------------------------------------------
+			// 2. コピーパス（書き込んだ最新の履歴を、後続パス用の共通名リソースへコピー）
+			// ------------------------------------------------------------------
 			RenderPassNode _copyNode = {};
 			_copyNode.name = _copyPassName;
 			_copyNode.phase = a_phase;
 			RGGlobalsPassBuilder _copyBuilder(&_copyNode);
+
+			// 依存関係の構築
 			_copyBuilder.CopySrc(_writeHistory);
 			_copyBuilder.CopyDst(_finalDst, DXGI_FORMAT_R8G8B8A8_UNORM);
 
-			_copyNode.executeFunc = [_spPassData, _writeHistory, _finalDst, isEven, _copyPassName](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+			// 実行関数
+			// ※ コピー処理には _spPassData は不要なのでキャプチャから外しています
+			_copyNode.executeFunc = [_writeHistory, _finalDst, _isEven](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 				{
 					// 同様に担当フレーム以外はスキップ
 					UINT64 _currentFrame = a_pGE->RefRenderGraph()->GetTemporalIndex();
 					bool _isCurrentEven = (_currentFrame % 2 == 0);
-					if (isEven != _isCurrentEven) return;
+					if (_isEven != _isCurrentEven) return;
 
-					const auto& _srcTAATexHandle = a_pGE->RefRenderGraph()->GetTexHandle(_writeHistory);
-					const auto& _dstTAATexHandle = a_pGE->RefRenderGraph()->GetTexHandle(_finalDst);
-					a_pCtx->TexCopy(_srcTAATexHandle, _dstTAATexHandle);
+					auto* _pRG = a_pGE->RefRenderGraph();
+
+					// レンダーグラフから物理リソース（D3D12::GPUResource*）を直接取得
+					auto* _pSrcResource = _pRG->GetPassResource(a_passIndex, _writeHistory);
+					auto* _pDstResource = _pRG->GetPassResource(a_passIndex, _finalDst);
+
+					// リソース間コピーを実行（RenderContext側をGPUResource*対応にする必要があります）
+					a_pCtx->ResourceCopy(_pSrcResource->GetResource(), _pDstResource->GetResource());
 				};
 			a_pRegistry->RegisterPass(_copyNode);
 		}

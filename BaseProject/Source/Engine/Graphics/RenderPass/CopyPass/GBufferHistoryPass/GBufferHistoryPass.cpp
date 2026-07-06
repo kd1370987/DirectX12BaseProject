@@ -1,4 +1,4 @@
-﻿#include "GBufferHistoryPass.h"
+#include "GBufferHistoryPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
@@ -23,14 +23,14 @@ namespace Engine::Graphics
 
 		_node.executeFunc = [](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 		{
-			const auto& _srcNTexHandle = a_pGE->RefRenderGraph()->GetTexHandle("GBufferNormal");
-			const auto& _dstNTexHandle = a_pGE->RefRenderGraph()->GetTexHandle("PrevNormal");
+			auto* _pSrcN = a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "GBufferNormal");
+			auto* _pDstN = a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "PrevNormal");
 
-			const auto& _srcDTexHandle = a_pGE->RefRenderGraph()->GetTexHandle("Depth");
-			const auto& _dstDTexHandle = a_pGE->RefRenderGraph()->GetTexHandle("PrevDepth");
+			auto* _pSrcD = a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "Depth");
+			auto* _pDstD = a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "PrevDepth");
 
-			a_pCtx->TexCopy(_srcDTexHandle, _dstDTexHandle);
-			a_pCtx->TexCopy(_srcNTexHandle, _dstNTexHandle);
+			a_pCtx->ResourceCopy(_pSrcD->GetResource(), _pDstD->GetResource());
+			a_pCtx->ResourceCopy(_pSrcN->GetResource(), _pDstN->GetResource());
 		};
 
 		_node.phase = a_phase;

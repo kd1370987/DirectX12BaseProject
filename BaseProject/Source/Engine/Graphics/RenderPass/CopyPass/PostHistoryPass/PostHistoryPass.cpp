@@ -1,4 +1,4 @@
-﻿#include "PostHistoryPass.h"
+#include "PostHistoryPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
@@ -28,9 +28,9 @@ namespace Engine::Graphics
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 			{
 				// TAAテクスチャ
-				const auto& _srcTAATexHandle = a_pGE->RefRenderGraph()->GetTexHandle("AffterTAAColor");
-				const auto& _dstTAATexHandle = a_pGE->RefRenderGraph()->GetTexHandle("HistoryTAAColor");
-				a_pCtx->TexCopy(_srcTAATexHandle, _dstTAATexHandle);
+				auto* _pSrc = a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "AffterTAAColor");
+				auto* _pDst = a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "HistoryTAAColor");
+				a_pCtx->ResourceCopy(_pSrc->GetResource(), _pDst->GetResource());
 			};
 
 		_node.phase = a_phase;

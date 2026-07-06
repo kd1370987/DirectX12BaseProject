@@ -110,6 +110,10 @@ namespace Engine::Graphics
 			const std::vector<Handle<D3D12::RTV>>& a_rtvHandleVec,
 			const Handle<D3D12::DSV>& a_dsvHandle
 		);
+		void SetRenderTargets(
+			const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_rtvHandleVec,
+			const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDsvHandle
+		);
 
 		// テクスチャハンドルからSRVをバインドする
 		void BindSRV(UINT a_rootIdx, std::vector<Handle<Resource::Texture>>& a_texHandles);
@@ -136,9 +140,11 @@ namespace Engine::Graphics
 
 		// レンダーターゲットのクリア
 		void ClearRenderTarget(const Handle<Resource::Texture>& a_texHandle);
+		void ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_rtvHandle);
 
 		// 深度値バッファのクリア
 		void ClearDSV( const Handle<D3D12::DSV>& a_DSVHandle);
+		void ClearDSV( const D3D12_CPU_DESCRIPTOR_HANDLE& a_DSVHandle);
 
 		// 矩形描画のためのクラス取得
 		ShapeRenderer* RefShapeDraw();
@@ -195,6 +201,7 @@ namespace Engine::Graphics
 		
 		// テクスチャのコピー
 		void TexCopy(const Handle<Resource::Texture>& a_src,const Handle<Resource::Texture>& a_dst);
+		void ResourceCopy(ID3D12Resource* a_pSrc,ID3D12Resource* a_pDst);
 
 		// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
 		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);
@@ -240,6 +247,7 @@ namespace Engine::Graphics
 			D3D12_RESOURCE_STATES a_before,
 			D3D12_RESOURCE_STATES a_after
 		);
+		void UAVBarrier(ID3D12Resource* a_pResource);
 
 		// バックバッファに切り替え
 		void ChangeBackBuffer();

@@ -63,7 +63,7 @@ namespace Engine::D3D12
 		_uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 
 		// ハンドルをもらう
-		m_srvHandle = AllocateSRV(_srvDesc);
-		m_uavHandle = AllocateUAV(_uavDesc);
+		m_srvHandle = AllocateSRV(a_pDevice,GetResource(), _srvDesc);
+		m_uavHandle = AllocateUAV(a_pDevice, GetResource(),_uavDesc);
 	}
 }

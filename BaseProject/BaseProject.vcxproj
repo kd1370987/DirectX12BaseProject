@@ -305,7 +305,6 @@
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
@@ -338,9 +337,9 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass\TemporalAccumulationPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass\EmitParticlePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.cpp" />
@@ -624,9 +623,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass\TemporalAccumulationPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass\EmitParticlePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.h" />

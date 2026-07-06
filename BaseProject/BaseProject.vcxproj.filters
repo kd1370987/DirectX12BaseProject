@@ -724,9 +724,6 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise">
       <UniqueIdentifier>{2f63ee40-22f9-409e-8618-96be88a994b8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TemporalAccumulationPass">
-      <UniqueIdentifier>{a43a5fbd-ee25-4c22-8d7c-3e4ca4ea4c60}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Compute\TemporalAccumulationShader">
       <UniqueIdentifier>{02c2faa4-cd28-4187-bc61-583fe69efc8c}</UniqueIdentifier>
     </Filter>
@@ -1044,6 +1041,9 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\BLASUpdate">
       <UniqueIdentifier>{f3ecbaf0-bec7-4139-80b5-18c8e29baa84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass">
+      <UniqueIdentifier>{52c63488-85ee-45f6-bfdb-ccfef678c8ea}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1449,9 +1449,6 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TemporalAccumulationPass</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass</Filter>
     </ClCompile>
@@ -1647,14 +1644,14 @@
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.cpp">
-      <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining\SkiningPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Skining</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass\TemporalAccumulationPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1906,9 +1903,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Common\Common.h">
       <Filter>Source\Engine\Resource\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h">
-      <Filter>Source\Engine\Resource\Data\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.h">
       <Filter>Source\Engine\Editor\AssetResourceView\TextureView</Filter>
@@ -2261,9 +2255,6 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TempralAccumulationPass\TemporalAccumulationPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\TemporalAccumulationPass</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass</Filter>
     </ClInclude>
@@ -2566,6 +2557,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining\SkiningPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Skining</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h">
+      <Filter>Source\Engine\Resource\Data\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass\TemporalAccumulationPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

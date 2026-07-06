@@ -13,30 +13,34 @@ namespace Engine::Graphics
 	class RenderPassRegistry;
 
 
-	// リソースバリア
+	// =========================================================
+	// リソースバリア（コンパイル時に計算済みのもの）
+	// =========================================================
 	struct RGBarrier
 	{
-		Handle<Resource::Texture> texHandle = {};
+		D3D12::GPUResource* pResource		= nullptr;
 		D3D12_RESOURCE_STATES before		= D3D12_RESOURCE_STATE_COMMON;
 		D3D12_RESOURCE_STATES after			= D3D12_RESOURCE_STATE_COMMON;
-		Engine::Resource::ID resID			= Engine::Resource::Limits::INVALID_ID;
-		bool isRead							= false;
-	};
 
+		bool isUAVBarrier					= false;
+	};
+	
+	// =========================================================
+	// コンパイル済みパス : 実行時に必要なデータを全てキャッシュ
+	// =========================================================
 	struct CompiledPass
 	{
-		// パス
 		RenderPassNode* pNode = nullptr;
 
-		// バリア
-		std::vector<RGBarrier> barrierVec = {};
+		// このパスの「実行直前」に張るバリアのリスト
+		std::vector<RGBarrier> preBarriers = {};
 
-		// RTV・DSVチェンジ用
-		std::vector<Handle<D3D12::RTV>> rtvHadles = {};
-		Handle<D3D12::DSV> dsvHandle = {};
+		// RTV・DSVチェンジ用（D3D12のCPUハンドルを直接持つ）
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rtvHandles = {};
+		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = { 0 };
 
-		// RTV・DSVクリア用
-		std::vector<Handle<Resource::Texture>> clearRTVs = {};
+		// RTV・DSVクリア用（クリアカラー等を保持）
+		std::vector<size_t> clearRtvIndices = {};
 		bool isDepthClear = false;
 	};
 
@@ -50,69 +54,50 @@ namespace Engine::Graphics
 		~RenderGraph();
 
 		void Init(RenderPassRegistry* a_pRenderPassRegister);
-
 		void Release();
 
-		void Compile();													// Pass追加後
-		void Excute(GraphicsEngine* a_pGE,RenderContext* a_pCtx);		// パスを順次実行
+		// パス追加後、依存関係を整理してバリアを計算する
+		void Compile();
 
-		void AddPassNode(const EDrawPhase& a_pahse,const RenderPassNode& a_node);
-		void AddPassNode(const EDrawPhase& a_pahse,RenderPassNode* a_pNode);
-
-		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(const std::string& a_name);
-		Handle<D3D12::SRV> GetSRVHandle(const std::string& a_name);
-		D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPU(const std::string& a_name);
-		Handle<D3D12::UAV> GetUAVHandle(const std::string& a_name,bool a_read = false);
-		D3D12_CPU_DESCRIPTOR_HANDLE GetUAVCPU(const std::string& a_name, bool a_read = false);
-
-		Resource::ID Read(const std::string& a_resourceName, const AccessType& a_type);
-		Resource::ID Write(const std::string& a_resourceName, const AccessType& a_type);
-
-		Resource::ID GetID(const std::string& a_resourceName);
-		Handle<Resource::Texture> GetTexHandle(const std::string& a_resourceName);
-
-		uint8_t GetPassIndex(const std::string& a_passName);
-		uint8_t GetPassIndexFromHash(const UINT& a_passNameHash);
-		const RenderPassNode* GetPass(const std::string& a_passName);
-		const RenderPassNode* GetPass(const UINT& a_passHash);
-		RenderPassNode* RefPass(const UINT& a_passHash);
-
-		// アクセサ
-		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);	// フォーマット取得
-		std::vector<std::string> GetRGResourceList();	// リソース名一覧
+		// 毎フレーム呼ばれる実行関数
+		void Execute(GraphicsEngine* a_pGE, RenderContext* a_pCtx);
 
 		// パスの使用するフォーマットを取得
-		// コピーされるのでランタイム中索引には使わない
 		std::vector<DXGI_FORMAT> GetPassRTVFormats(uint8_t a_passIndex);
 		DXGI_FORMAT GetPassDSVFormat(uint8_t a_passIndex);
-
-		UINT GetTemporalIndex() const; // テンポラルインデックス取得
 
 		// リソースマネージャーにアクセス
 		const RGResourceManager* GetRGResourceManager() const;
 		RGResourceManager* RefRGResourceManager();
+
+		// リソースアクセス
+		D3D12::GPUResource* GetPassResource(uint8_t a_passIndex, const std::string& a_name) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetPassSRV(uint8_t a_passIndex, const std::string& a_name) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetPassUAV(uint8_t a_passIndex, const std::string& a_name) const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetPassDSV(uint8_t a_passIndex, const std::string& a_name) const;
+
+		UINT GetTemporalIndex() const { return m_tempralIndex; } // テンポラルインデックス取得
+
+		RenderPassNode* GetPass(UINT a_passHash);
 	private:
-
-		// 実行中の関数
-		void AutoBarrier(RenderContext* a_pCtx,CompiledPass& a_pass);		// バリア更新
-
 		// テンポラルインデックス更新 : フレーム用テンポラル
 		void Swap();
 
-		// =========================================================
-		// コンパイル時関数
-		void CreateResource();
+		// コンパイル時の内部処理
+		void CreateResource();					// パスからリソースを生成
+		void TopologicalSort();					// パスの依存関係を解決
+		void ResolveResourceHandles();			// 文字列からRGResourceHandleへ変換
+		void ComputeBarriersAndVersions();		// バリア計算とバージョンUP
 
 	private:
 
-		// テンポラル用インデックス
-		UINT m_temporalIndex = 0;
+		UINT m_tempralIndex = 0;
 
 		// パスデータ格納
 		std::map<EDrawPhase, std::vector<RenderPassNode*>> m_pPassNodeMap;
-		std::vector<RenderPassNode*> m_sortedPassed = {};							// ソート後のパス
+		std::vector<RenderPassNode*> m_sortedPasses = {};
 
-		// コンパイル後のパス
+		// コンパイル後の実行用データ
 		std::vector<CompiledPass> m_compiledPasses = {};
 
 		// リソース管理

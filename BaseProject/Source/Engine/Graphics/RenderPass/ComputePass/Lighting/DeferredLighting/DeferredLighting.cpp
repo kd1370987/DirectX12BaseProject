@@ -1,4 +1,4 @@
-﻿#include "DeferredLighting.h"
+#include "DeferredLighting.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -89,18 +89,18 @@ namespace Engine::Graphics
 
 			// 参照SRV
 			std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gpuVec = {
-				a_pGE->RefRenderGraph()->GetCPUHandle("GBufferAlbedo"),
-				a_pGE->RefRenderGraph()->GetCPUHandle("GBufferNormal"),
-				a_pGE->RefRenderGraph()->GetCPUHandle("GBufferMaterial"),
-				a_pGE->RefRenderGraph()->GetCPUHandle("GBufferEmissiv"),
-				a_pGE->RefRenderGraph()->GetCPUHandle("Depth"),
-				a_pGE->RefRenderGraph()->GetCPUHandle("AffterDLShadowTempAccumu"),
-				a_pGE->RefRenderGraph()->GetCPUHandle("FinalGI")
+				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "GBufferAlbedo"),
+				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "GBufferNormal"),
+				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "GBufferMaterial"),
+				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "GBufferEmissiv"),
+				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "Depth"),
+				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "AffterDLShadowTempAccumu"),
+				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "FinalGI")
 			};
 			a_pCtx->ComputeBindSRV(2, _gpuVec);
 
 			// 出力テクスチャ設定
-			a_pCtx->BindUAV(3, a_pGE->RefRenderGraph()->GetUAVCPU("AffterLighting"));
+			a_pCtx->BindUAV(3, a_pGE->RefRenderGraph()->GetPassUAV(a_passIndex, "AffterLighting"));
 
 			// 実行
 			UINT _countX = _winOp.windowWidth / 8;

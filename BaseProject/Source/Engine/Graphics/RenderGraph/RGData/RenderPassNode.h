@@ -8,19 +8,6 @@ namespace Engine::Graphics
 	class GraphicsEngine;
 	class RenderContext;
 
-	enum class RenderQueueType
-	{
-		Shadow,
-		Simple,
-		Opaque,
-		AnimationOpaque,
-		Transparent,
-		AnimationTransparent,
-		Bloom,
-		Lighting,
-		Debug
-	};
-
 	enum class RenderQueueType2D
 	{
 		ScreenUI,
@@ -54,7 +41,7 @@ namespace Engine::Graphics
 
 	struct AccessResource
 	{
-		Engine::Resource::ID id = Engine::Resource::Limits::INVALID_ID;
+		RGResourceHandle handle;
 
 		AccessType type = AccessType::None;
 		LoadOp load = LoadOp::Clear;
@@ -119,8 +106,8 @@ namespace Engine::Graphics
 		UINT nameHash;
 		EDrawPhase phase;										// パスが所属するフェーズ
 
-		std::vector<Engine::Resource::ID> read = {};			// 入力データ
-		std::vector<Engine::Resource::ID> write = {};			// 出力データ
+		std::vector<RGResourceHandle> read = {};			// 入力データ
+		std::vector<RGResourceHandle> write = {};			// 出力データ
 		std::vector<AccessResource> resourceAccessVec = {};		// 開始・終了時のリソース設定
 
 		std::vector<ResourceRequest> readRequests;

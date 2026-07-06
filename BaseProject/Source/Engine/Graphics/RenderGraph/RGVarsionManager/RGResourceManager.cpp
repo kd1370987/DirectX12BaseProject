@@ -6,269 +6,200 @@
 
 namespace Engine::Graphics
 {
-	void RGResourceManager::Register(const std::string& a_name, const DXGI_FORMAT& a_format, const UINT64& a_widht, const UINT& a_height, const Resource::TextureUsage& a_texUsage, const DXSM::Color& a_clerColor)
+	// ==========================================================
+	// 一時リソース : グラフ内で実体を作成・管理するもの
+	// ==========================================================
+	void RGResourceManager::DeclareTexture(const std::string& a_name, const DXGI_FORMAT& a_format, const UINT64& a_width, const UINT& a_height, const Resource::TextureUsage& a_usage, const DXSM::Color& a_clearColor)
 	{
-		auto _it = m_stringMap.find(a_name);
-		if (_it != m_stringMap.end())
-		{
-			// 登録済み
-			return;
-		}
+		if (m_nameMap.find(a_name) != m_nameMap.end()) return;
 
-		LogicalResource _data = {};
-		_data.name = a_name;
-		_data.format = a_format;
-		_data.widht = a_widht;
-		_data.height = a_height;
-		_data.usage = a_texUsage;
-		_data.clerColor = a_clerColor;
+		LogicalResource _res;
+		_res.name = a_name;
+		_res.type = ERGResourceType::Texture;
+		_res.format = a_format;
+		_res.width = a_width;
+		_res.height = a_height;
+		_res.usage = a_usage;
+		_res.clearColor = a_clearColor;
 
-		// バージョンは0
-		_data.currentVarsion = 0;
+		_res.isImported = false;
+		_res.currentVersion = 0;
+		_res.currentState = D3D12_RESOURCE_STATE_COMMON;
+		_res.pPhysicalResource = nullptr;
 
-		// コンパイル時に作成されて渡される
-		_data.texHandle[0] = {};
-
-		// 登録
-		m_stringMap[a_name] = m_resourceVec.size();
-		m_resourceVec.push_back(_data);
+		m_logicalResourceVec.push_back(_res);
+		m_nameMap[a_name] = static_cast<Resource::Index>(m_logicalResourceVec.size() - 1);
 	}
-
-	void RGResourceManager::Register(const std::string& a_name, const DXGI_FORMAT& a_format, const UINT64& a_widht, const UINT& a_height, const Resource::TextureUsage& a_texUsage, bool a_isTemporal, const DXSM::Color& a_clerColor)
+	void RGResourceManager::DeclareBuffer(const std::string & a_name, const UINT64 & a_sizeBytes)
 	{
-		auto _it = m_stringMap.find(a_name);
-		if (_it != m_stringMap.end())
-		{
-			// 登録済み
-			return;
-		}
+		if (m_nameMap.find(a_name) != m_nameMap.end()) return;
 
-		LogicalResource _data = {};
-		_data.name = a_name;
-		_data.format = a_format;
-		_data.widht = a_widht;
-		_data.height = a_height;
-		_data.usage = a_texUsage;
-		_data.clerColor = a_clerColor;
+		LogicalResource _res;
+		_res.name = a_name;
+		_res.type = ERGResourceType::Buffer;
+		_res.width = a_sizeBytes; // バッファの場合はwidthをサイズとして扱う
 
-		// テンポラル
-		_data.isTemporal = a_isTemporal;
+		_res.isImported = false;
+		_res.currentVersion = 0;
+		_res.currentState = D3D12_RESOURCE_STATE_COMMON;
+		_res.pPhysicalResource = nullptr;
 
-		// バージョンは0
-		_data.currentVarsion = 0;
-
-		// コンパイル時に作成されて渡される
-		_data.texHandle[0] = {};
-
-		// 登録
-		m_stringMap[a_name] = m_resourceVec.size();
-		m_resourceVec.push_back(_data);
+		m_logicalResourceVec.push_back(_res);
+		m_nameMap[a_name] = static_cast<Resource::Index>(m_logicalResourceVec.size() - 1);
 	}
-
-	void RGResourceManager::RegisterTemporal(const std::string& a_name, const DXGI_FORMAT& format, const UINT64& a_widht, const UINT& a_height, const Resource::TextureUsage& a_texUsage, const DXSM::Color& a_clerColor)
+	// ==========================================================
+	// 外部リソース : グラフ外で作成され、状態遷移のみ管理するもの
+	// ==========================================================
+	void RGResourceManager::ImportResource(ERGResourceType a_type, const std::string & a_name, D3D12::GPUResource * a_pExternalResource, D3D12_RESOURCE_STATES a_initialState)
 	{
-		auto _it = m_stringMap.find(a_name);
-		if (_it != m_stringMap.end())
-		{
-			// 登録済み
-			return;
-		}
+		if (m_nameMap.find(a_name) != m_nameMap.end()) return;
 
-		LogicalResource _data = {};
-		_data.name = a_name;
-		_data.format = format;
-		_data.widht = a_widht;
-		_data.height = a_height;
-		_data.usage = a_texUsage;
-		_data.clerColor = a_clerColor;
+		LogicalResource _res;
+		_res.name = a_name;
+		_res.type = a_type;
+		_res.isImported = true;
+		_res.pPhysicalResource = a_pExternalResource;
 
-		// テンポラルオン
-		_data.isTemporal = true;
+		_res.currentVersion = 0;
+		_res.currentState = a_initialState;
 
-		// バージョンは0
-		_data.currentVarsion = 0;
-
-		// コンパイル時に作成されて渡される
-		_data.texHandle[0] = {};
-
-		// 登録
-		m_stringMap[a_name] = m_resourceVec.size();
-		m_resourceVec.push_back(_data);
+		m_logicalResourceVec.push_back(_res);
+		m_nameMap[a_name] = static_cast<Resource::Index>(m_logicalResourceVec.size() - 1);
 	}
-
-
-	Resource::ID RGResourceManager::Read(
-		const std::string& a_resourceName,
-		const Resource::TextureUsage& a_texUsage
-	)
+	// ==========================================================
+	// 依存関係の構築 (バージョン進行)
+	// ==========================================================
+	RGResourceHandle RGResourceManager::Read(const std::string & a_name)
 	{
-		// 登録されているか検索
-		auto _it = m_stringMap.find(a_resourceName);
-		if (_it != m_stringMap.end())
-		{
-			// 最新のリソースを返す
-			auto& _data = m_resourceVec[_it->second];
-			_data.usage |= a_texUsage;	// 使用方法を追加
-			return Resource::GetID(_it->second,_data.currentVarsion);
-		}
-		return Resource::Limits::INVALID_ID;
+		auto _it = m_nameMap.find(a_name);
+		assert(_it != m_nameMap.end() && "リソースが宣言またはインポートされていません");
+
+		uint32_t _index = _it->second;
+		// Read は状態を変えないので、現在のバージョンをそのまま返す
+		return { _index, m_logicalResourceVec[_index].currentVersion };
 	}
+	RGResourceHandle RGResourceManager::Write(const std::string& a_name)
+	{
+		auto _it = m_nameMap.find(a_name);
+		assert(_it != m_nameMap.end() && "リソースが宣言またはインポートされていません");
 
-	Resource::ID RGResourceManager::Write(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage)
-	{
-		// 登録されているか検索
-		auto _it = m_stringMap.find(a_resourceName);
-		if (_it != m_stringMap.end())
-		{
-			// リソースのバージョンを上げて返す
-			auto& _data = m_resourceVec[_it->second];
-			//_data.currentVarsion++;		// バージョンを上げる
-			_data.usage |= a_texUsage;	// 使用方法を追加
-			return Resource::GetID(_it->second, _data.currentVarsion);
-		}
-		return Resource::Limits::INVALID_ID;
+		uint32_t _index = _it->second;
+		// Write はリソースの中身を書き換えるため、バージョンを進める（++）
+		m_logicalResourceVec[_index].currentVersion++;
+
+		return { _index, m_logicalResourceVec[_index].currentVersion };
 	}
-	void RGResourceManager::CreateAllTexture()
+	// ==========================================================
+	// グラフのコンパイルと実行管理
+	// ==========================================================
+	void RGResourceManager::AllocateResources(D3D12::Device* a_pDevice)
 	{
-		for (auto& _res : m_resourceVec)
+		size_t _texPoolIndex = 0;
+		size_t _bufPoolIndex = 0;
+
+		for (auto& _res : m_logicalResourceVec)
 		{
-			Resource::TextureCreateDesc _desc = {
-				.name = _res.name,
-				.width = _res.widht,
-				.height = _res.height,
-				.format = _res.format,
-				.usage = _res.usage
-			};
-			_desc.opClerValue = _res.clerColor;
-			if(_res.isTemporal)
+			// 外部リソースは既に実体があるのでスキップ
+			if (_res.isImported) continue;
+
+			if (_res.type == ERGResourceType::Texture)
 			{
-				// テンポラル作成
-				auto _name = _desc.name;
-				_desc.name = _name + "_A";
-				_res.texHandle[0] = Resource::TextureLoader::Create(_desc);
-				_desc.name = _name + "_B";
-				_res.texHandle[1] = Resource::TextureLoader::Create(_desc);
+				// プールに空きがない場合は新規作成
+				if (_texPoolIndex >= m_tempTextures.size())
+				{
+					// ※あなたのエンジンのTexture生成クラスに合わせて修正してください
+					auto _newTex = std::make_unique<Resource::Texture>();
+					Resource::TextureCreateDesc _texDesc = {};
+					_texDesc.width = _res.width;
+					_texDesc.height = _res.height;
+					_texDesc.format = _res.format;
+					_texDesc.usage = _res.usage;
+					_newTex->Create(_texDesc);
+					m_tempTextures.push_back(std::move(_newTex));
+				}
+				else
+				{
+					// ※本来はプールのテクスチャサイズと要求サイズ(_res.width等)を比較し、
+					// 違っていればRecreateする処理をここに入れます
+				}
+
+				_res.pPhysicalResource = m_tempTextures[_texPoolIndex].get();
+				_texPoolIndex++;
 			}
-			else
+			else if (_res.type == ERGResourceType::Buffer)
 			{
-				// 通常リソース作成
-				_res.texHandle[0] = Resource::TextureLoader::Create(_desc);
+				// プールに空きがない場合は新規作成
+				if (_bufPoolIndex >= m_tempBuffers.size())
+				{
+					auto _newBuf = std::make_unique<D3D12::GPUBuffer>();
+
+					D3D12::GPUBufferDesc _bufDesc = {};
+					_bufDesc.elementNum = 1;
+					_bufDesc.strideSize = static_cast<UINT>(_res.width); // widthに入れたsizeBytesを使う
+					_bufDesc.flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS; // UAVとして使うなら必須
+					_bufDesc.heapType = D3D12_HEAP_TYPE_DEFAULT;
+
+					_newBuf->Create(a_pDevice, _bufDesc);
+					m_tempBuffers.push_back(std::move(_newBuf));
+				}
+				else
+				{
+					// ※ ここも要求サイズが変わった場合はRecreateする処理を入れます
+				}
+
+				_res.pPhysicalResource = m_tempBuffers[_bufPoolIndex].get();
+				_bufPoolIndex++;
 			}
 		}
 	}
-	void RGResourceManager::StateReset()
+	void RGResourceManager::ResetForNextFrame()
 	{
-		for (auto& _res : m_resourceVec)
+		// コンパイルを通した時のみにリセットを入れて構築
+		m_nameMap.clear();
+		m_logicalResourceVec.clear();
+	}
+	RGResourceHandle RGResourceManager::GetHandle(const std::string& a_name) const
+	{
+		auto _it = m_nameMap.find(a_name);
+		if (_it != m_nameMap.end())
 		{
-			_res.currentState[0] = D3D12_RESOURCE_STATE_COMMON;
-			_res.currentState[1] = D3D12_RESOURCE_STATE_COMMON;
+			uint32_t _idx = _it->second;
+			return { _idx, m_logicalResourceVec[_idx].currentVersion };
 		}
+		// 無効なハンドルを返す
+		return { static_cast<uint32_t>(-1), 0 };
 	}
-	void RGResourceManager::Swap()
+	D3D12::GPUResource* RGResourceManager::GetPhysicalResource(RGResourceHandle a_handle) const
 	{
-		m_temporalIndex = 1 - m_temporalIndex;
-	}
-
-	Resource::ID RGResourceManager::GetID(const std::string& a_name)
-	{
-		// 登録されているか検索
-		auto _it = m_stringMap.find(a_name);
-		if (_it != m_stringMap.end())
+		if(!a_handle.IsValid() || a_handle.index > m_logicalResourceVec.size())
 		{
-		//	// リソースのバージョンを上げて返す
-		//	return _it->second;
-		//}
-			// ちゃんと既存のRead/Writeと同じく、バージョンと合算したIDを返す
-			const auto& _data = m_resourceVec[_it->second];
-			return Resource::GetID(_it->second, _data.currentVarsion);
+			assert(a_handle.IsValid() && a_handle.index < m_logicalResourceVec.size() && "無効なリソースハンドルです");
 		}
-
-		// 見つからなかったら安全な無効値を返す
-		return Resource::Limits::INVALID_ID;
+		return m_logicalResourceVec[a_handle.index].pPhysicalResource;
 	}
-	Handle<Resource::Texture> RGResourceManager::GetTexHandle(Resource::ID a_id, bool isRead)
+	D3D12_RESOURCE_STATES RGResourceManager::GetCurrentState(RGResourceHandle a_handle) const
 	{
-		auto _idx = Resource::GetIndex(a_id);
-		if (m_resourceVec[_idx].isTemporal)
-		{
-			// Read(SRV等)なら過去、Write(UAV/RTV等)なら現在を返す
-			return m_resourceVec[_idx].texHandle[isRead ? (1 - m_temporalIndex) : m_temporalIndex];
-		}
-		else
-		{
-			return m_resourceVec[_idx].texHandle[0];
-		}
+		assert(a_handle.IsValid() && a_handle.index < m_logicalResourceVec.size() && "無効なリソースハンドルです");
+		return m_logicalResourceVec[a_handle.index].currentState;
 	}
-	Handle<D3D12::RTV> RGResourceManager::GetRTVHandle(Resource::ID a_id)
+	void RGResourceManager::SetCurrentState(RGResourceHandle a_handle, D3D12_RESOURCE_STATES a_newState)
 	{
-		const auto& _res = GetRes(a_id);
-		const auto* _tex = GetTex(_res.texHandle[m_temporalIndex]);
-		return _tex->GetRTV();
+		assert(a_handle.IsValid() && a_handle.index < m_logicalResourceVec.size() && "無効なリソースハンドルです");
+		m_logicalResourceVec[a_handle.index].currentState = a_newState;
 	}
-	Handle<D3D12::DSV> RGResourceManager::GetDSVHandle(Resource::ID a_id)
+	DXGI_FORMAT RGResourceManager::GetDXGIFormat(RGResourceHandle a_handle) const
 	{
-		const auto& _res = GetRes(a_id);
-		const auto* _tex = GetTex(_res.texHandle[m_temporalIndex]);
-		return _tex->GetDSV();
+		assert(a_handle.IsValid() && a_handle.index < m_logicalResourceVec.size() && "無効なリソースハンドルです");
+		return m_logicalResourceVec[a_handle.index].format;
 	}
-	Handle<D3D12::DSV> RGResourceManager::GetReadOnlyDSVHandle(Resource::ID a_id)
+	const RGResourceManager::LogicalResource& RGResourceManager::GetRes(RGResourceHandle a_handle) const
 	{
-		const auto& _res = GetRes(a_id);
-		const auto* _tex = GetTex(_res.texHandle[m_temporalIndex]);
-		return _tex->GetReadOnlyDSV();
+		assert(a_handle.IsValid() && a_handle.index < m_logicalResourceVec.size());
+		return m_logicalResourceVec[a_handle.index];
 	}
-	D3D12_RESOURCE_STATES& RGResourceManager::RefCurrentState(Resource::ID a_id, bool isRead)
+	RGResourceManager::LogicalResource& RGResourceManager::RefRes(RGResourceHandle a_handle)
 	{
-		auto& _res = RefRes(a_id);
-		if (_res.isTemporal)
-		{
-			// ステートも過去用と現在用ですり替える
-			return _res.currentState[isRead ? (1 - m_temporalIndex) : m_temporalIndex];
-		}
-		else
-		{
-			return _res.currentState[0];
-		}
-	}
-	DXGI_FORMAT RGResourceManager::GetDXGIFormat(Resource::ID a_id)
-	{
-		const auto& _res = GetRes(a_id);
-		return _res.format;
-	}
-	std::vector<std::string> RGResourceManager::GetResourceNameVec()
-	{
-		std::vector<std::string> _nameVec = {};
-		for (auto& [_name, _idx] : m_stringMap)
-		{
-			_nameVec.push_back(_name);
-		}
-		return _nameVec;
-	}
-	const std::unordered_map<std::string, Resource::Index>& RGResourceManager::GetNameMap() const
-	{
-		return m_stringMap;
-	}
-	const Resource::Texture* RGResourceManager::GetTex(Resource::ID a_id) const
-	{
-		auto _idx = Resource::GetIndex(a_id);
-		return GetTex(m_resourceVec[_idx].texHandle[0]);
-	}
-	const RGResourceManager::LogicalResource& RGResourceManager::GetRes(Resource::ID a_id) const
-	{
-		auto _idx = Resource::GetIndex(a_id);
-		return m_resourceVec[_idx];
-	}
-	RGResourceManager::LogicalResource& RGResourceManager::RefRes(Resource::ID a_id)
-	{
-		auto _idx = Resource::GetIndex(a_id);
-		return m_resourceVec[_idx];
-	}
-	const Resource::Texture* RGResourceManager::GetTex(const Handle<Resource::Texture>& a_handle) const
-	{
-		return Resource::ResourceManager::Instance().Get(a_handle);
-	}
-	Resource::Texture* RGResourceManager::RefTex(const Handle<Resource::Texture>& a_handle)
-	{
-		return Resource::ResourceManager::Instance().Ref(a_handle);
+		assert(a_handle.IsValid() && a_handle.index < m_logicalResourceVec.size());
+		return m_logicalResourceVec[a_handle.index];
 	}
 }

@@ -139,14 +139,13 @@ namespace Engine::Graphics
 		return m_upCBAllocater.get();
 	}
 
-
 	void RenderContext::ChangeRenderTarget(const std::vector<Handle<D3D12::RTV>>& a_rtvHandleVec, const Handle<D3D12::DSV>& a_dsvHandle)
 	{
 		// 変数用意
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvCPUVec = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE _dsvCPU;
 		D3D12_CPU_DESCRIPTOR_HANDLE* _pDSVCPU = nullptr;
-		
+
 		// RTVをハンドルへ変換
 		for (auto& _rtv : a_rtvHandleVec)
 		{
@@ -170,6 +169,16 @@ namespace Engine::Graphics
 		// ビューポートとシザー矩形を設定
 		m_pCmdList->RSSetViewports(1, &D3D12::D3D12Wrapper::Instance().GetViewport());
 		m_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
+	}
+	void RenderContext::SetRenderTargets(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_rtvHandleVec, const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDsvHandle)
+	{
+		if (a_rtvHandleVec.empty()) return;
+		m_pCmdList->OMSetRenderTargets(
+			static_cast<UINT>(a_rtvHandleVec.size()),
+			a_rtvHandleVec.data(),
+			false,
+			a_pDsvHandle
+		);
 	}
 
 	void RenderContext::BindSRV(
@@ -477,11 +486,21 @@ namespace Engine::Graphics
 		D3D12::ClearRenderTargetView(m_pCmdList, _cpu, _tex->GetClearColor());
 	}
 
+	void RenderContext::ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_rtvHandle)
+	{
+		D3D12::ClearRenderTargetView(m_pCmdList,a_rtvHandle);
+	}
+
 
 	void RenderContext::ClearDSV(const Handle<D3D12::DSV>& a_DSVHandle)
 	{
 		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_DSVHandle);
 		D3D12::ClearDepthStencilView(m_pCmdList,_cpu);
+	}
+
+	void RenderContext::ClearDSV(const D3D12_CPU_DESCRIPTOR_HANDLE& a_DSVHandle)
+	{
+		D3D12::ClearDepthStencilView(m_pCmdList,a_DSVHandle);
 	}
 
 
@@ -699,6 +718,11 @@ namespace Engine::Graphics
 		m_pCmdList->CopyResource(_dstTex->GetResource(), _srcTex->GetResource());
 	}
 
+	void RenderContext::ResourceCopy(ID3D12Resource* a_pSrc, ID3D12Resource* a_pDst)
+	{
+		m_pCmdList->CopyResource(a_pDst, a_pSrc);
+	}
+
 	void RenderContext::SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig)
 	{
 		m_pCmdList->SetGraphicsRootSignature(a_pRootSig);
@@ -821,6 +845,11 @@ namespace Engine::Graphics
 			a_before,
 			a_after
 		);
+	}
+
+	void RenderContext::UAVBarrier(ID3D12Resource* a_pResource)
+	{
+		
 	}
 
 	void RenderContext::ChangeBackBuffer()

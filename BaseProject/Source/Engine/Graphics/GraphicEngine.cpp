@@ -40,7 +40,7 @@
 #include "RenderPass/ComputePass/Lighting/DeferredLighting/DeferredLighting.h"
 #include "RenderPass/CopyPass/GBufferHistoryPass/GBufferHistoryPass.h"
 #include "RenderPass/CopyPass/PostHistoryPass/PostHistoryPass.h"
-#include "RenderPass/ComputePass/Denoise/TempralAccumulationPass/TemporalAccumulationPass.h"
+#include "RenderPass/ComputePass/Denoise/GI/GITempralAccumulationPass/TemporalAccumulationPass.h"
 #include "RenderPass/ComputePass/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
 #include "RenderPass/ComputePass/AntiAliasing/TAA/TAAPass.h"
 #include "RenderPass/ComputePass/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
@@ -215,7 +215,7 @@ namespace Engine::Graphics
 		);
 
 		// レンダーパス実行
-		m_upRenderGraph->Excute(this,m_upRenderContextVec[m_currentFrameIndex].get());
+		m_upRenderGraph->Execute(this,m_upRenderContextVec[m_currentFrameIndex].get());
 
 		D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
 		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(nullptr);
@@ -407,7 +407,7 @@ namespace Engine::Graphics
 			{
 				// レンダーグラフから対応するパスノードを取得
 				// (※関数名はRenderGraphの実装に合わせてください)
-				auto* _pPassNode = m_upRenderGraph->RefPass(_passHash);
+				auto* _pPassNode = m_upRenderGraph->GetPass(_passHash);
 				if (!_pPassNode) continue;
 
 				// パスが持っている Builder に PSO をリクエスト
@@ -525,7 +525,7 @@ namespace Engine::Graphics
 			{
 				// レンダーグラフから対応するパスノードを取得
 				// (※関数名はRenderGraphの実装に合わせてください)
-				auto* _pPassNode = m_upRenderGraph->RefPass(_passHash);
+				auto* _pPassNode = m_upRenderGraph->GetPass(_passHash);
 				if (!_pPassNode) continue;
 
 				// パスが持っている Builder に PSO をリクエスト

@@ -2,118 +2,117 @@
 
 namespace Engine::Graphics
 {
+	// リソースタイプ
+	enum class ERGResourceType {
+		Texture,
+		Buffer
+	};
+
+	
+
 	// レンダーグラフで使うリソースの抽象化IDを管理する
 	class RGResourceManager
 	{
 	public:
 
-		// 実態を登録
-		void Register(
-			const std::string& a_name,
-			const DXGI_FORMAT& format,
-			const UINT64& a_widht,
-			const UINT& a_height,
-			const Resource::TextureUsage& a_texUsage,
-			const DXSM::Color& a_clerColor = {0,0,0,1}
-		);
-		void Register(
-			const std::string& a_name,
-			const DXGI_FORMAT& format,
-			const UINT64& a_widht,
-			const UINT& a_height,
-			const Resource::TextureUsage& a_texUsage,
-			bool a_isTemporal,
-			const DXSM::Color& a_clerColor = { 0,0,0,1 }
+		RGResourceManager() = default;
+		~RGResourceManager() = default;
 
-		);
-		void RegisterTemporal(
+		// ==========================================================
+		// 一時リソース : グラフ内で実体を作成・管理するもの
+		// ==========================================================
+		void DeclareTexture(
 			const std::string& a_name,
-			const DXGI_FORMAT& format,
-			const UINT64& a_widht,
+			const DXGI_FORMAT& a_format,
+			const UINT64& a_width,
 			const UINT& a_height,
-			const Resource::TextureUsage& a_texUsage,
-			const DXSM::Color& a_clerColor = { 0,0,0,1 }
+			const Resource::TextureUsage& a_usage,
+			const DXSM::Color& a_clearColor = { 0, 0, 0, 1 }
 		);
 
-		// 既存の最新バージョンを取得する
-		// 読み込み用 : テクスチャ名、読み込み時の使用方法
-		Resource::ID Read(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage);
+		void DeclareBuffer(
+			const std::string& a_name,
+			const UINT64& a_sizeBytes
+		);
 
-		// バージョンをインクリメントして新しいハンドルとして返す
-		// 書き込み用 : テクスチャ名、書き込み時の使用方法
-		Resource::ID Write(const std::string& a_resourceName, const Resource::TextureUsage& a_texUsage);
+		// ==========================================================
+		// 外部リソース : グラフ外で作成され、状態遷移のみ管理するもの
+		// ==========================================================
+		void ImportResource(
+			ERGResourceType a_type,
+			const std::string& a_name,
+			D3D12::GPUResource* a_pExternalResource,
+			D3D12_RESOURCE_STATES a_initialState
+		);
 
-		// 今まで登録された情報でテクスチャを作成
-		void CreateAllTexture();
+		// ==========================================================
+		// 依存関係の構築 (バージョン進行) : ソート用ではないので、パスからは呼ばずに
+		// コンパイル時のリソース依存のみを扱う
+		// ==========================================================
+		RGResourceHandle Read(const std::string& a_name);
+		RGResourceHandle Write(const std::string& a_name);
 
-		// 実行に移るためステートをテクスチャに合わせる
-		void StateReset();
+		// ==========================================================
+		// グラフのコンパイルと実行管理
+		// ==========================================================
+		// 宣言された一時リソースの実体（D3D12Resource）を生成、またはプールから割り当てる
+		void AllocateResources(D3D12::Device* a_pDevice);
 
-		// ---- テンポラル用 ----
-		void Swap();		// 入れ替え : コンパイル時にはforの最後に入れる : ランタイム時にはフレームに一度のみ入れる
+		// フレーム終了時に論理リソースの設定をリセットする
+		// （物理リソースの配列は維持して次フレームで使い回す）
+		void ResetForNextFrame();
 
+		// ==========================================================
+		// アクセサ (バリア構築やパス実行時に使用)
+		// ==========================================================
+		RGResourceHandle GetHandle(const std::string& a_name) const;
 
-		// ---- アクセサ ----
-		Resource::ID GetID(const std::string& a_name);
-		Handle<Resource::Texture> GetTexHandle(Resource::ID a_id, bool isRead = false);
+		// RTV/DSV/SRV/UAVなどの生成は、実体である D3D12Resource から直接取得する形にする
+		D3D12::GPUResource* GetPhysicalResource(RGResourceHandle a_handle) const;
 
-		Handle<D3D12::RTV> GetRTVHandle(Resource::ID a_id);		// RTVハンドル
-		Handle<D3D12::DSV> GetDSVHandle(Resource::ID a_id);		// DSVハンドル
-		Handle<D3D12::DSV> GetReadOnlyDSVHandle(Resource::ID a_id);	// リードオンリーDSVハンドル
+		D3D12_RESOURCE_STATES GetCurrentState(RGResourceHandle a_handle) const;
+		void SetCurrentState(RGResourceHandle a_handle, D3D12_RESOURCE_STATES a_newState);
 
-		D3D12_RESOURCE_STATES& RefCurrentState(Resource::ID a_id, bool isRead = false);	// 現在のステート
-		DXGI_FORMAT GetDXGIFormat(Resource::ID a_id);				// リソースのフォーマット
-
-		std::vector<std::string> GetResourceNameVec();				// リソース名一覧
-
-		const std::unordered_map<std::string, Resource::Index>& GetNameMap() const;
-		const Resource::Texture* GetTex(Resource::ID a_id) const;
+		DXGI_FORMAT GetDXGIFormat(RGResourceHandle a_handle) const;
 
 	private:
 
-		enum class ERGResourceType{
-			Texture,
-			Buffer
-		};
 
 		// 論理リソース
 		struct LogicalResource
 		{
 			// リソーステクスチャの作成情報
 			std::string name = "none";
+			ERGResourceType type = ERGResourceType::Texture;
+
+			// --- 要件 (Declareされた場合のみ有効) ---
 			DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
-			uint32_t widht = 0;
-			uint32_t height = 0;
+			UINT64 width = 0;
+			UINT height = 0;
 			Resource::TextureUsage usage = Resource::TextureUsage::None;
-			DXSM::Color clerColor = { 0,0,0,1 };
+			DXSM::Color clearColor = { 0, 0, 0, 1 };
 
-			// 実行順を決定するためのバージョン
-			Resource::Generation currentVarsion = 0;
+			// --- 状態管理 ---
+			Resource::Generation currentVersion = 0;
+			D3D12_RESOURCE_STATES currentState = D3D12_RESOURCE_STATE_COMMON;
 
-			// テンポラルかどうか
-			bool isTemporal = false;
-
-			// コンパイル時に作成される
-			// コンパイル時にバリアを作るためのステート
-			D3D12_RESOURCE_STATES currentState[2] = { D3D12_RESOURCE_STATE_COMMON , D3D12_RESOURCE_STATE_COMMON };
-			Handle<Resource::Texture> texHandle[2] = {};
+			// --- 物理リソースとの紐付け ---
+			bool isImported = false;
+			D3D12::GPUResource* pPhysicalResource = nullptr;
 		};
 
 		// リソース参照
-		const LogicalResource& GetRes(Resource::ID a_id) const;
-		LogicalResource& RefRes(Resource::ID a_id);
-
-		// テクスチャ参照
-		const Resource::Texture* GetTex(const Handle<Resource::Texture>& a_handle) const;
-		Resource::Texture* RefTex(const Handle<Resource::Texture>& a_handle);
+		const LogicalResource& GetRes(RGResourceHandle a_handle) const;
+		LogicalResource& RefRes(RGResourceHandle a_handle);
 
 	private:
 
-		// リソース（テクスチャ）名、リソース情報
-		std::unordered_map<std::string, Resource::Index> m_stringMap = {};
-		std::vector<LogicalResource> m_resourceVec = {};
+		// 倫理リソースの管理
+		std::unordered_map<std::string, uint32_t> m_nameMap = {};
+		std::vector<LogicalResource> m_logicalResourceVec = {};
 
-		// テンポラル用フラグ
-		UINT m_temporalIndex = 0;
+		// 一時リソースの実態管理
+		std::vector<std::unique_ptr<Resource::Texture>> m_tempTextures;
+		std::vector< std::unique_ptr<D3D12::GPUBuffer>> m_tempBuffers;
 	};
 };
