@@ -2,7 +2,7 @@
 
 namespace Engine::D3D12
 {
-	bool GPUResource::Create(ID3D12Device* a_pDevice, const GPUResourceDesc& a_desc)
+	bool GPUResource::Create(D3D12::Device* a_pDevice, const GPUResourceDesc& a_desc)
 	{
 		// リソースサイズ計算
 		m_strideSize = a_desc.strideSize;
@@ -37,7 +37,7 @@ namespace Engine::D3D12
 	{
 		m_cpResource.Reset();
 	}
-	void GPUResource::Barrier(ID3D12GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
+	void GPUResource::Barrier(D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
 	{
 		if (m_currentState == a_nextState) return;
 

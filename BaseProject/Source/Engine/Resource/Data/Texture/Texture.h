@@ -26,7 +26,7 @@ namespace Engine::Resource
 		std::optional<DXSM::Color> opClerValue;
 	};
 
-	class Texture
+	class Texture : D3D12::GPUResource
 	{
 	public:
 		Texture() = default;
@@ -49,13 +49,8 @@ namespace Engine::Resource
 		const std::string& GetName() const;
 
 		// リソース情報
-		ID3D12Resource* GetResource();				// 生データ
 		const TextureUsage& GetUsage() const;		// 使用フラグ
 		const D3D12_RESOURCE_DESC& GetDesc() const;	// テクスチャ設定
-
-		// ステート
-		D3D12_RESOURCE_STATES GetState() { return m_currentSutate; }
-		void ChangeState(ID3D12GraphicsCommandList* a_pCmdList,D3D12_RESOURCE_STATES a_state);
 
 		// クリアバリュー
 		const DXSM::Color& GetClearColor() { return m_clearValue; }
@@ -71,26 +66,19 @@ namespace Engine::Resource
 	private:
 
 		// リソース
-		std::string m_name = "none";						// テクスチャの名前
-		ComPtr<ID3D12Resource> m_cpResource = nullptr;		// テクスチャ本体			
+		std::string m_name = "none";						// テクスチャの名前	
 		D3D12_RESOURCE_DESC m_desc;							// テクスチャの仕様書
 		TextureUsage m_useFlg = TextureUsage::None;			// テクスチャの使用方法
-
-		// 実行中のステート
-		D3D12_RESOURCE_STATES m_currentSutate = D3D12_RESOURCE_STATE_GENERIC_READ;
-
 
 		// 使用方法ごとのハンドル
 		Handle<D3D12::RTV>	 m_rtvHandle{};
 		Handle<D3D12::DSV>	 m_dsvHandle{};
-		Handle<D3D12::DSV>	 m_readOnlyDsvHandle{};
+		Handle<D3D12::DSV>	 m_readOnlyDsvHandle{};			// 読込専用深度値ハンドル
 		Handle<D3D12::SRV>	 m_srvHandle{};
 		Handle<D3D12::UAV>	 m_uavHandle{};
+		Handle<D3D12::SRV>	 m_imguiSRVHandle{};			// ImGui用ハンドル
 
-		// ImGui用ハンドル
-		Handle<D3D12::SRV>	 m_imguiSRVHandle{};
-
-		// 色
+		// クリアカラー
 		DXSM::Color m_clearValue = {0,0,0,1};
 	};
 }

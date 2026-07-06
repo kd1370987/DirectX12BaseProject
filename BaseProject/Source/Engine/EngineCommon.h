@@ -91,6 +91,7 @@ namespace Engine::Resource
 //------------------------------------------------------------------------------------------
 // バッファー
 //------------------------------------------------------------------------------------------
+#include "D3D12/D3DObject/GPUResource/GPUResource.h"
 #include "Engine/D3D12/GPUBuffer/VertexBuffer/DynamicVertexBuffer.h"			// 頂点バッファ
 #include "Engine/D3D12/GPUBuffer/IndexBuffer/DynamicIndexBuffer.h"				// ダイナミックインデックスバッファ
 #include "Engine/D3D12/GPUBuffer/StructuredBuffer/StaticStructuredBuffer.h"		// スタティックストラクチャバッファ

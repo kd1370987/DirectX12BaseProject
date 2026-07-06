@@ -29,13 +29,13 @@ namespace Engine::D3D12
 		virtual ~GPUResource() { Release(); }
 
 		// 作成
-		bool Create(ID3D12Device* pDevice ,const GPUResourceDesc& a_desc);
+		bool Create(D3D12::Device* pDevice ,const GPUResourceDesc& a_desc);
 
 		// 解放
 		virtual void Release();
 
 		// ステート遷移
-		virtual void Barrier(ID3D12GraphicsCommandList* a_pCmdList,D3D12_RESOURCE_STATES a_nextState);
+		virtual void Barrier(D3D12::GraphicsCommandList* a_pCmdList,D3D12_RESOURCE_STATES a_nextState);
 
 		// アクセサ
 		virtual ID3D12Resource* GetResource() const;
@@ -43,8 +43,9 @@ namespace Engine::D3D12
 		size_t GetBufferSize() const;
 		size_t GetStrideSize() const;
 		size_t GetElementNum() const;
+		D3D12_RESOURCE_STATES GetState() const { return m_currentState; }
 
-	protected :
+	protected:
 
 		// データ
 		ComPtr<ID3D12Resource> m_cpResource = nullptr;

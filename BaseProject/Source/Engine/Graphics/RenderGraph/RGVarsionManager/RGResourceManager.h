@@ -71,6 +71,11 @@ namespace Engine::Graphics
 
 	private:
 
+		enum class ERGResourceType{
+			Texture,
+			Buffer
+		};
+
 		// 論理リソース
 		struct LogicalResource
 		{
