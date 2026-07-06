@@ -217,6 +217,9 @@ namespace Engine::Graphics
 		// カメラをGPU用データに変換
 		void CreateGPUCameraData();
 
+		// レイトレ用BLAS更新
+		void ProcessInitQueue(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList);
+
 
 	private:
 		//--------------------------------------------------------------------------------------------

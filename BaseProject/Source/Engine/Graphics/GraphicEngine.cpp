@@ -16,6 +16,13 @@
 #include "RenderPassRegistry/RenderPassRegistry.h"
 #include "MeshBufferAllocator/MeshBufferAllocator.h"
 
+// シーン
+#include "../Scene/BaseScene/BaseScene.h"
+#include "../Scene/SceneManager/SceneManager.h"
+
+// ECS
+#include "../ECS/World/World.h"
+
 // オプション
 #include "../Option/OptionManager.h"
 
@@ -39,8 +46,6 @@
 #include "RenderPass/ComputePass/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
 #include "RenderPass/ComputePass/Effect/Particle/EmitParticlePass/EmitParticlePass.h"
 #include "RenderPass/ComputePass/Effect/Particle/UpdateParticlePass.h"
-
-#include "../ECS/World/World.h"
 
 #include "RenderPass/MeshShaderPass/TestMeshPass/TestMeshPass.h"
 
@@ -101,7 +106,6 @@ namespace Engine::Graphics
 		AddDebugLinePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
 		AddFullScreenPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
 
-		AddFullRaytracingPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 		AddRaytracingShadowPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Shadow);
 		AddRaytracingGIPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Raytracing);
 		AddDeferredLighting(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Lighting);
@@ -158,6 +162,7 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::Excute()
 	{
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
 		auto _currentFence = D3D12::D3D12Wrapper::Instance().GetCurrentFenceValue();
 
@@ -187,7 +192,12 @@ namespace Engine::Graphics
 		CreateGPUCameraData();
 
 		// バッファの更新
-		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(m_instanceDataVec, m_subSetDataVec,m_meshInstanceDataVec,m_meshMaterialDataVec);
+		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(
+			m_instanceDataVec, m_subSetDataVec,m_meshInstanceDataVec,m_meshMaterialDataVec
+		);
+
+		// レイトレ用BLAS更新
+		ProcessInitQueue(_pDevice,_pCmdList);
 
 		// 描画アイテムをソート
 		std::sort(
@@ -738,5 +748,61 @@ namespace Engine::Graphics
 
 		// フレームカウントを進める
 		m_totlaFrameCount++;
+	}
+	void GraphicsEngine::ProcessInitQueue(D3D12::Device* a_pDevice,D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		// ワールドチェック
+		auto* _pCurrentWorld = Engine::Scene::SceneManager::Instance().RefWorld();
+		if (!_pCurrentWorld) return;
+
+		// リソースチェック
+		if (!_pCurrentWorld->HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) return;
+		if (!_pCurrentWorld->HasResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>()) return;
+
+		auto& _initRequestVec = _pCurrentWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+		if (_initRequestVec.empty()) return;
+		auto& _dynamicPool = _pCurrentWorld->GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+
+		// モデルのリソースからBLASと頂点バッファをコピー
+		for (auto& _initReq : _initRequestVec)
+		{
+			// プールから作成予定の実態を取得
+			auto* _pData = _dynamicPool.Ref(_initReq.dynamicInstanceHandle);
+			if (!_pData) continue;
+			auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_initReq.modelHandle);
+			if (!_pModel) continue;
+
+			// 各メッシュごとにBLASを構築
+			for (auto& _meshHandle : _pModel->GetMeshHandles())
+			{
+				auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
+				if (!_pMesh) continue;
+				if (!_pMesh->HasRtData()) continue;
+
+				_pData->deformedVertexBufferVec.emplace_back();
+				_pData->deformedVertexBufferVec.back().Create(
+					a_pDevice,
+					a_pCmdList,
+					static_cast<UINT>(_pMesh->GetRtData().structuredVertexBuffer.GetElementNum()),
+					nullptr
+				);
+
+				// 配列をコピー
+				auto _geometryDescVec = _pMesh->GetRtData().blas.GetGeometryDesc();
+				for (auto& _desc : _geometryDescVec)
+				{
+					// 静的バッファのアドレスから、今作った動的バッファのGPUアドレスに書き換える
+					_desc.Triangles.VertexBuffer.StartAddress = _pData->deformedVertexBufferVec.back().GetGPUVirtualAddress();
+				}
+
+				_pData->instanceBLASVec.emplace_back();
+				_pData->instanceBLASVec.back().Create(
+					a_pDevice,
+					a_pCmdList,
+					_geometryDescVec,
+					D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE
+				);
+			}
+		}
 	}
 }

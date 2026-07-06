@@ -8,6 +8,9 @@ struct AnimatorComponent
 	float speed = 1.0f;
 
 	Engine::ECS::Flg isLoop = 0;
+
+	// レイトレをする際にインスタンスを確保する
+	Engine::Handle<Engine::Raytracing::DynamicRaytracingData> dynamicInstanceHandle = {};
 };
 
 template<>

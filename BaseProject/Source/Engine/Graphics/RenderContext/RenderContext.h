@@ -41,7 +41,7 @@ namespace Engine::Graphics
 	struct RenderContextDesc
 	{
 		// D3Dオブジェクトのキャッシュ
-		ID3D12Device* pDevice = nullptr;
+		D3D12::Device* pDevice = nullptr;
 
 		// クラスのキャッシュ
 		ShapeRenderer*					pShapeRender	= nullptr;

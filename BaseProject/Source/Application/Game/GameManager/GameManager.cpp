@@ -211,6 +211,8 @@ namespace App::Game
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
 				a_pWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 				a_pWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
+				a_pWorld->AddResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 
 				// シングルトンインスタンスの登録
 				a_pWorld->AddResource<HierarchyResource>();
@@ -218,6 +220,9 @@ namespace App::Game
 				// 初期化
 				a_pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);
 				a_pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>().Init(10000);
+
+				a_pWorld->GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>().Reserve(100);
+				a_pWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 
 				a_pWorld->GetResource<HierarchyResource>().isDirty = true;
 			}

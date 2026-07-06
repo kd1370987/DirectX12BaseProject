@@ -109,6 +109,8 @@ namespace Engine::Scene
 
 	Engine::ECS::World* SceneManager::RefWorld()
 	{
+		if (m_upBaseSceneVec.empty()) return nullptr;
+
 		return m_upBaseSceneVec.back()->RefWorld();
 	}
 

@@ -12,7 +12,7 @@ namespace Engine::D3D12
 		~StaticStructuredBuffer() override = default;
 
 		// 作成
-		void Create(ID3D12Device* a_pDevice, GraphicsCommandList* a_pCmdList,UINT a_elementNum,const T* a_pInitData);
+		void Create(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList,UINT a_elementNum,const T* a_pInitData);
 
 		// アクセサ
 		const D3D12_SHADER_RESOURCE_VIEW_DESC& GetView() const;
@@ -25,7 +25,7 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(StaticStructuredBuffer);
 	};
 	template<typename T>
-	inline void StaticStructuredBuffer<T>::Create(ID3D12Device* a_pDevice, GraphicsCommandList* a_pCmdList, UINT a_elementNum, const T* a_pInitData)
+	inline void StaticStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList, UINT a_elementNum, const T* a_pInitData)
 	{
 		StaticBufferDesc _desc = {};
 		_desc.elementNum = a_elementNum;

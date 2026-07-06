@@ -28,13 +28,15 @@ namespace Engine::Raytracing
 		void Create(
 			D3D12::Device* a_pDevice,
 			D3D12::GraphicsCommandList* a_pCmdList, 
-			const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc
+			const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc,
+			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS a_accBuldFlg = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE
 		);
 
 		bool Build(
 			D3D12::Device* a_pDevice,
 			D3D12::GraphicsCommandList* a_cmdList,
-			const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec
+			const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec,
+			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS a_accBuldFlg = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE
 		);
 
 		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const
@@ -46,6 +48,8 @@ namespace Engine::Raytracing
 		{
 			return m_geometryDescVec.size();
 		}
+
+		const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& GetGeometryDesc() const { return m_geometryDescVec; }
 
 	private:
 

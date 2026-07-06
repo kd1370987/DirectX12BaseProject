@@ -84,6 +84,9 @@ namespace Engine::Raytracing
 		m_isCommit = false;
 	}
 
+	void RayWorld::Register(const DXSM::Matrix& a_worldMat, const DynamicRaytracingData& a_dynamicData, std::span<const Resource::NodePoseMatrix> a_nodeposeMatVec, const DXSM::Vector4& a_colorScale, const DXSM::Vector3& a_emissiveScale)
+	{}
+
 	void Engine::Raytracing::RayWorld::Init(
 		D3D12::Device* a_pDevice,
 		D3D12::GraphicsCommandList* a_pCmdList, 
@@ -143,8 +146,8 @@ namespace Engine::Raytracing
 		for (auto& _instance : m_instanceVec)
 		{
 			InstanceData _data = {};
-			_data.vertexSRVIndex = _instance.vertexHandle.GetIndex();// +100;
-			_data.indexSRVIndex = _instance.indexHandle.GetIndex();// +100;
+			_data.vertexSRVIndex = _instance.vertexHandle.GetIndex();
+			_data.indexSRVIndex = _instance.indexHandle.GetIndex();
 			_data.materialOffset = _materialOffset;
 			m_instanceDataVec.push_back(_data);
 

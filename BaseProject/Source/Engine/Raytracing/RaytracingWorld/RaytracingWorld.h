@@ -20,6 +20,13 @@ namespace Engine::Raytracing
 			const DXSM::Vector4& a_colorScale,
 			const DXSM::Vector3& a_emissiveScale
 		);
+		void Register(
+			const DXSM::Matrix& a_worldMat,
+			const DynamicRaytracingData& a_dynamicData,
+			std::span<const Resource::NodePoseMatrix> a_nodeposeMatVec,
+			const DXSM::Vector4& a_colorScale,
+			const DXSM::Vector3& a_emissiveScale
+		);
 
 		// 初期化
 		void Init(

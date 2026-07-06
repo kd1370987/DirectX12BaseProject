@@ -55,7 +55,8 @@ void Engine::Raytracing::BLAS::Create(
 void Engine::Raytracing::BLAS::Create(
 	D3D12::Device* a_pDevice,
 	D3D12::GraphicsCommandList* a_pCmdList,
-	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc
+	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_desc,
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS a_accBuldFlg
 )
 {
 	// BLAS生成
@@ -64,7 +65,8 @@ void Engine::Raytracing::BLAS::Create(
 	Build(
 		a_pDevice,
 		a_pCmdList,
-		m_geometryDescVec
+		m_geometryDescVec,
+		a_accBuldFlg
 	);
 }
 
@@ -72,7 +74,8 @@ void Engine::Raytracing::BLAS::Create(
 bool Engine::Raytracing::BLAS::Build(
 	D3D12::Device* a_pDevice,
 	D3D12::GraphicsCommandList* a_pCmdList,
-	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec
+	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec,
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS a_accBuldFlg
 )
 {
 

@@ -52,4 +52,25 @@ namespace Engine::Raytracing
 		// メッシュ
 		const Resource::Mesh* pMesh = nullptr;
 	};
+
+	/// <summary>
+	/// レイアニメーション用構造体
+	/// </summary>
+	struct DynamicRaytracingData
+	{
+		// コンピュートシェーダーで書き込む変形後のバッファ
+		std::vector<D3D12::StaticStructuredBuffer<Resource::MeshVertexFloat>> deformedVertexBufferVec;
+
+		// インスタンス専用のBLAS
+		std::vector<Raytracing::BLAS> instanceBLASVec;
+	};
+
+	// どこかのヘッダーに定義
+	struct DynamicRaytracingInitRequest
+	{
+		// 初期化先のハンドル
+		Handle<DynamicRaytracingData> dynamicInstanceHandle;
+		// 初期化に必要な元モデルのハンドル
+		Engine::Handle<Engine::Resource::Model> modelHandle;
+	};
 }

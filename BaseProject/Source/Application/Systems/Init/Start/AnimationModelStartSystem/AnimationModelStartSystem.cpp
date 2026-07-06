@@ -68,6 +68,20 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 					_mat.mat = DXSM::Matrix::Identity;
 				}
 
+				// BLASインスタンス確保
+				auto& _dynamicInstancePool = 
+					a_world.GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
+
+				// 空で生成
+				Engine::Raytracing::DynamicRaytracingData _resource = {};
+				_animationComp.dynamicInstanceHandle = _dynamicInstancePool.Add(std::move(_resource));
+
+				// GPU処理のため遅延生成用命令
+				auto& _initRequestVec = a_world.GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+				Engine::Raytracing::DynamicRaytracingInitRequest _req = {};
+				_req.dynamicInstanceHandle = _animationComp.dynamicInstanceHandle;
+				_req.modelHandle = _modelComp.handle;
+				_initRequestVec.push_back(_req);
 			}
 		}
 	);
