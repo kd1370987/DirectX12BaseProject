@@ -36,10 +36,10 @@ namespace Engine::Particle
 		);
 		
 		// ---- アクセサ ----
-		const Handle<D3D12::UAV>& GetParticlePoolUAV() const { return m_particlePool.GetUAVHandle(); }
-		const Handle<D3D12::SRV>& GetParticlePoolSRV() const { return m_particlePool.GetSRVHandle(); }
-		const Handle<D3D12::UAV>& GetDeadListUAV() const { return m_deadList.GetUAVHandle(); }
-		const Handle<D3D12::UAV>& GetCounterUAV() const { return m_counterBuffer.GetUAVHandle(); }
+		const Handle<D3D12::UAV>& GetParticlePoolUAV() const { return m_particlePool.GetUAV(); }
+		const Handle<D3D12::SRV>& GetParticlePoolSRV() const { return m_particlePool.GetSRV(); }
+		const Handle<D3D12::UAV>& GetDeadListUAV() const { return m_deadList.GetUAV(); }
+		const Handle<D3D12::UAV>& GetCounterUAV() const { return m_counterBuffer.GetUAV(); }
 		UINT GetMaxCapacity() const { return m_maxCapacity; }
 		const Handle<D3D12::SRV>& GetEmitterBufferSRV() const { return m_emitterBuffer.GetSRVHandle(); }
 		UINT GetEmitterCount() const { return m_emitterCount; }

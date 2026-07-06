@@ -27,8 +27,6 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 	// ラスタライザーデータ作成
 	CreateRasterData(_pDevice, a_vertices, a_face, DXGI_FORMAT_R32_UINT);
-	m_opRasterData->indexBuffer.CreateSRV(_pDevice);
-	m_opRasterData->vertexBuffer.CreateSRV(_pDevice);
 
 	D3D12::D3D12Wrapper::Instance().ExecuteAsyncCompute(
 		// コマンドを積む処理
