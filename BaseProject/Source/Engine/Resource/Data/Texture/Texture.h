@@ -52,14 +52,6 @@ namespace Engine::Resource
 		// クリアバリュー
 		const DXSM::Color& GetClearColor() { return m_clearValue; }
 
-		// ビュー情報取得
-		const Handle<D3D12::RTV>& GetRTV() const;
-		const Handle<D3D12::DSV>& GetDSV() const;
-		const Handle<D3D12::DSV>& GetReadOnlyDSV() const;
-		const Handle<D3D12::SRV>& GetSRV() const;
-		const Handle<D3D12::UAV>& GetUAV() const;
-		const Handle<D3D12::SRV>& GetImGuiSRV() const;
-
 	private:
 
 		// ビューの作成
@@ -70,14 +62,6 @@ namespace Engine::Resource
 		std::string m_name = "none";						// テクスチャの名前	
 		D3D12_RESOURCE_DESC m_desc;							// テクスチャの仕様書
 		TextureUsage m_useFlg = TextureUsage::None;			// テクスチャの使用方法
-
-		// 使用方法ごとのハンドル
-		Handle<D3D12::RTV>	 m_rtvHandle{};
-		Handle<D3D12::DSV>	 m_dsvHandle{};
-		Handle<D3D12::DSV>	 m_readOnlyDsvHandle{};			// 読込専用深度値ハンドル
-		Handle<D3D12::SRV>	 m_srvHandle{};
-		Handle<D3D12::UAV>	 m_uavHandle{};
-		Handle<D3D12::SRV>	 m_imguiSRVHandle{};			// ImGui用ハンドル
 
 		// クリアカラー
 		DXSM::Color m_clearValue = {0,0,0,1};

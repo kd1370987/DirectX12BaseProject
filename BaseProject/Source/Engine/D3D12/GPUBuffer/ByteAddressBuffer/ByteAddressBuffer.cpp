@@ -24,13 +24,7 @@ namespace Engine::D3D12
 		_srv.Buffer.StructureByteStride = 0;
 		_srv.Format = DXGI_FORMAT_R32_TYPELESS;
 		_srv.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
-		DynamicBuffer::CreateSRVInternal(a_pDevice,_srv);
-
+		m_srvHandle = AllocateSRV(a_pDevice,GetResource(),_srv);
 		return true;
-	}
-
-	const Handle<SRV>& Engine::D3D12::ByteAddressBuffer::GetSRVHandle() const
-	{
-		return m_srvHandle;
 	}
 }

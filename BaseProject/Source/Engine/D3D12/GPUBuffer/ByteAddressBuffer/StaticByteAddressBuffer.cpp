@@ -25,7 +25,7 @@ namespace Engine::D3D12
 		m_view.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 		// SRV作成
-		StaticBuffer::CreateSRVInternal(a_pDevice);
+		m_srvHandle = AllocateSRV(a_pDevice,GetResource(),m_view);
 	}
 	void StaticByteAddressBuffer::UploadDataRange(D3D12::GraphicsCommandList* a_pCmdList, UINT a_startIndex, UINT a_count, const void* a_pData)
 	{
@@ -35,9 +35,5 @@ namespace Engine::D3D12
 			a_pData,
 			a_count * m_strideSize
 		);
-	}
-	const Handle<SRV>& StaticByteAddressBuffer::GetSRVHandle() const
-	{
-		return m_srvHandle;
 	}
 }

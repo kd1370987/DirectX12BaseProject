@@ -22,12 +22,8 @@ namespace Engine::D3D12
 		// 作成
 		bool Create(D3D12::Device* a_pDevice,const IndexBufferDesc& a_desc);
 
-		// SRV作成
-		void CreateSRV(D3D12::Device* a_pDevice);
-
 		// アクセサ
 		const D3D12_INDEX_BUFFER_VIEW& GetView() const;
-		const Handle<SRV>& GetSRVHandle() const;
 
 	private:
 		D3D12_INDEX_BUFFER_VIEW m_view = {};

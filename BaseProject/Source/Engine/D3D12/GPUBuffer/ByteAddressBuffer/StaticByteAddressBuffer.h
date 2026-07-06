@@ -45,11 +45,6 @@ namespace Engine::D3D12
 			UINT a_count,
 			const void* a_pData
 		);
-		
-		/// <summary>
-		/// 作成時に登録されたハンドルを返します
-		/// </summary>
-		const Handle<SRV>& GetSRVHandle() const;
 
 	private:
 

@@ -31,17 +31,9 @@ namespace Engine::D3D12
 
 		return true;
 	}
-	void DynamicIndexBuffer::CreateSRV(D3D12::Device* a_pDevice)
-	{
-		DynamicBuffer::CreateSRVInternal(a_pDevice);
-	}
 
 	const D3D12_INDEX_BUFFER_VIEW& DynamicIndexBuffer::GetView() const
 	{
 		return m_view;
-	}
-	const Handle<SRV>& DynamicIndexBuffer::GetSRVHandle() const
-	{
-		return m_srvHandle;
 	}
 }

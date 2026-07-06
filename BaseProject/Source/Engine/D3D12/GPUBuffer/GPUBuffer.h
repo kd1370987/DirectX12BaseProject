@@ -28,5 +28,9 @@ namespace Engine::D3D12
 
 		// 一回限りの書きこみ
 		void Write(const void* a_pData,size_t a_size);
+
+	protected:
+		Handle<SRV> AllocateSRV(D3D12::Device* a_pDevice,ID3D12Resource* a_pRes,const D3D12_SHADER_RESOURCE_VIEW_DESC& a_desc);
+		Handle<UAV> AllocateUAV(D3D12::Device* a_pDevice,ID3D12Resource* a_pRes,const D3D12_UNORDERED_ACCESS_VIEW_DESC& a_desc);
 	};
 }

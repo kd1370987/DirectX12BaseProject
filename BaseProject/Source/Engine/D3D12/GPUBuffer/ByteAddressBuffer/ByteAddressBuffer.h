@@ -23,10 +23,6 @@ namespace Engine::D3D12
 
 		// 作成
 		bool Create(D3D12::Device* a_pDevice, const ByteAddressBufferDesc& a_desc);
-
-		// アクセサ
-		const Handle<SRV>& GetSRVHandle() const;
-
 	};
 }
 

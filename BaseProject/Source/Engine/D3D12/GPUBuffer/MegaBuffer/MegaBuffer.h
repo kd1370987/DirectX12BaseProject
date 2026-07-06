@@ -16,11 +16,6 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(MegaBuffer);
 
 		/// <summary>
-		/// 解放処理
-		/// </summary>
-		void Release() override;
-
-		/// <summary>
 		/// バッファの作成
 		/// </summary>
 		/// <param name="a_pDevice">デバイス</param>
@@ -55,19 +50,8 @@ namespace Engine::D3D12
 		/// 毎フレーム呼ばれる : 領域の結合
 		/// </summary>
 		void UpdateFrees();
-
-		// ---- アクセサ ----
-		const Handle<SRV>& GetSRVHandle() const { return m_srvHandle; }
-
-	protected:
-
-		// SRVの作成
-		void CreateSRVInternal(D3D12::Device* a_pDevice);
-
 	protected:
 		bool m_isDrty = false;
-		Handle<D3D12::SRV> m_srvHandle = {};
-
 		Graphics::IndexRangeAllocator m_rangeAllocator = {};
 	};
 }

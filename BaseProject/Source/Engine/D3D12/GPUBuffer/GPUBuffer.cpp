@@ -1,5 +1,6 @@
 ﻿#include "GPUBuffer.h"
 
+#include "../DescriptorHeapManager/DescriptorHeapManager.h"
 
 namespace Engine::D3D12
 {
@@ -44,5 +45,13 @@ namespace Engine::D3D12
 		Map(&_pMappedData);
 		std::memcpy(_pMappedData,a_pData,a_size);
 		Unmap();
+	}
+	Handle<SRV> GPUBuffer::AllocateSRV(D3D12::Device* a_pDevice, ID3D12Resource* a_pRes, const D3D12_SHADER_RESOURCE_VIEW_DESC& a_desc)
+	{
+		return DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, GetResource(), &a_desc);;
+	}
+	Handle<UAV> GPUBuffer::AllocateUAV(D3D12::Device* a_pDevice, ID3D12Resource* a_pRes, const D3D12_UNORDERED_ACCESS_VIEW_DESC& a_desc)
+	{
+		return DescriptorHeapManager::Instance().Allocate<UAV>(a_pDevice, GetResource(), &a_desc);
 	}
 }

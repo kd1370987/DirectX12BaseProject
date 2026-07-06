@@ -45,6 +45,16 @@ namespace Engine::D3D12
 		size_t GetElementNum() const;
 		D3D12_RESOURCE_STATES GetState() const { return m_currentState; }
 
+		// =========================================================
+		// ハンドルのアクセサ
+		// =========================================================
+		const Handle<D3D12::SRV>& GetSRV() const { return m_srvHandle; }
+		const Handle<D3D12::UAV>& GetUAV() const { return m_uavHandle; }
+		const Handle<D3D12::RTV>& GetRTV() const { return m_rtvHandle; }
+		const Handle<D3D12::DSV>& GetDSV() const { return m_dsvHandle; }
+		const Handle<D3D12::DSV>& GetReadOnlyDSV() const { return m_readOnlyDsvHandle; }
+		const Handle<D3D12::SRV>& GetImGuiSRV() const { return m_imguiSRVHandle; }
+
 	protected:
 
 		// データ
@@ -55,5 +65,12 @@ namespace Engine::D3D12
 		size_t m_strideSize = 0;
 		size_t m_elementNum = 0;
 
+		// ビューハンドル
+		Handle<D3D12::SRV> m_srvHandle = {};
+		Handle<D3D12::UAV> m_uavHandle = {};
+		Handle<D3D12::RTV> m_rtvHandle = {};
+		Handle<D3D12::DSV> m_dsvHandle = {};
+		Handle<D3D12::DSV> m_readOnlyDsvHandle = {};
+		Handle<D3D12::SRV> m_imguiSRVHandle = {};
 	};
 }

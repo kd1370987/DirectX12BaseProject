@@ -1,5 +1,7 @@
 ﻿#include "GPUResource.h"
 
+#include "../../DescriptorHeapManager/DescriptorHeapManager.h"
+
 namespace Engine::D3D12
 {
 	bool GPUResource::Create(D3D12::Device* a_pDevice, const GPUResourceDesc& a_desc)
@@ -36,6 +38,14 @@ namespace Engine::D3D12
 	void GPUResource::Release()
 	{
 		m_cpResource.Reset();
+
+		DescriptorHeapManager::Instance().Free(m_srvHandle);
+		DescriptorHeapManager::Instance().Free(m_uavHandle);
+		DescriptorHeapManager::Instance().Free(m_rtvHandle);
+		DescriptorHeapManager::Instance().Free(m_dsvHandle);
+		DescriptorHeapManager::Instance().Free(m_readOnlyDsvHandle);
+		DescriptorHeapManager::Instance().Free(m_imguiSRVHandle);
+
 	}
 	void GPUResource::Barrier(D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
 	{

@@ -17,12 +17,8 @@ namespace Engine::D3D12
 		bool Create(D3D12::Device* a_pDevice,size_t a_elementNum);
 		bool CreateAndUpload(D3D12::Device* a_pDevice,size_t a_elementNum, const void* a_pInitData);
 
-		// SRV作成
-		void CreateSRV(D3D12::Device* a_pDevice);
-
 		// アクセサ
 		const D3D12_VERTEX_BUFFER_VIEW& GetView() const;
-		const Handle<SRV>& GetSRVHandle() const;
 
 	private:
 
@@ -81,18 +77,8 @@ namespace Engine::D3D12
 		return true;
 	}
 	template<typename T>
-	inline void DynamicVertexBuffer<T>::CreateSRV(D3D12::Device* a_pDevice)
-	{
-		DynamicBuffer::CreateSRVInternal(a_pDevice);
-	}
-	template<typename T>
 	inline const D3D12_VERTEX_BUFFER_VIEW& DynamicVertexBuffer<T>::GetView() const
 	{
 		return m_view;
-	}
-	template<typename T>
-	inline const Handle<SRV>& DynamicVertexBuffer<T>::GetSRVHandle() const
-	{
-		return m_srvHandle;
 	}
 }

@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "../GPUBuffer.h"
-#include "../../DescriptorHeapManager/DescriptorHeapManager.h"
 
 namespace Engine::D3D12
 {
@@ -25,20 +24,6 @@ namespace Engine::D3D12
 		/// <param name="a_elementNum">要素数</param>
 		/// <param name="a_strideSize">要素サイズ</param>
 		void Create(D3D12::Device* a_pDevice, UINT a_elementNum);
-
-		/// <summary>
-		/// 解放処理
-		/// </summary>
-		void Release() override;
-
-		// ---- アクセサ ----
-		const Handle<D3D12::SRV>& GetSRVHandle() const { return m_srvHandle; }
-		const Handle<D3D12::UAV>& GetUAVHandle() const { return m_uavHandle; }
-
-	protected:
-
-		Handle<D3D12::SRV> m_srvHandle = {};
-		Handle<D3D12::UAV> m_uavHandle = {};
 	};
 
 	template<typename T>
@@ -78,14 +63,7 @@ namespace Engine::D3D12
 		_uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 
 		// ハンドルをもらう
-		m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, GetResource(), &_srvDesc);
-		m_uavHandle = DescriptorHeapManager::Instance().Allocate<UAV>(a_pDevice, GetResource(), &_uavDesc);
-	}
-	template<typename T>
-	inline void RWStructuredBuffer<T>::Release()
-	{
-		GPUResource::Release();
-		D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
-		D3D12::DescriptorHeapManager::Instance().Free(m_uavHandle);
+		m_srvHandle = AllocateSRV(_srvDesc);
+		m_uavHandle = AllocateUAV(_uavDesc);
 	}
 }

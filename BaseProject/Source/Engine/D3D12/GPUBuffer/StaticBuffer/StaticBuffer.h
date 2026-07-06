@@ -90,7 +90,5 @@ namespace Engine::D3D12
 		// 更新する用のバッファ
 		GPUBuffer m_gpuBuffer;
 		bool m_isDrty = false;
-
-		Handle<D3D12::SRV> m_srvHandle = {};
 	};
 }

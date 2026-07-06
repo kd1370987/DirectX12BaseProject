@@ -1,18 +1,9 @@
 ﻿#include "MegaBuffer.h"
-#include "../../DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "../../D3D12Wrapper/D3D12Wrapper.h"
 
 namespace Engine::D3D12
 {
-
-	void Engine::D3D12::MegaBuffer::Release()
-	{
-		GPUResource::Release();
-		D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
-	}
-
-
 	bool Engine::D3D12::MegaBuffer::Create(
 		D3D12::Device* a_pDevice,
 		D3D12::GraphicsCommandList* a_pCmdList,
@@ -35,8 +26,18 @@ namespace Engine::D3D12
 		// アロケーターの作成
 		m_rangeAllocator.Init(a_elemetNum);
 
-		// SRVを作成
-		CreateSRVInternal(a_pDevice);
+		// 仕様書作成
+		D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
+		_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		_desc.Format = DXGI_FORMAT_UNKNOWN;
+		_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		_desc.Buffer.FirstElement = 0;
+		_desc.Buffer.NumElements = static_cast<UINT>(m_elementNum);
+		_desc.Buffer.StructureByteStride = static_cast<UINT>(m_strideSize);
+		_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+		// ハンドルをもらう
+		m_srvHandle = AllocateSRV(a_pDevice, GetResource(), _desc);
 	}
 
 	Graphics::IndexRangeHandle Engine::D3D12::MegaBuffer::AllocateAndUpdload(const void* a_pData, UINT a_count)
@@ -111,22 +112,6 @@ namespace Engine::D3D12
 
 		// アロケーターを更新して、使い終わった領域をマージする
 		m_rangeAllocator.UpdateFrees(_completedFence);
-	}
-
-	void Engine::D3D12::MegaBuffer::CreateSRVInternal(D3D12::Device* a_pDevice)
-	{
-		// 仕様書作成
-		D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
-		_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-		_desc.Format = DXGI_FORMAT_UNKNOWN;
-		_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		_desc.Buffer.FirstElement = 0;
-		_desc.Buffer.NumElements = static_cast<UINT>(m_elementNum);
-		_desc.Buffer.StructureByteStride = static_cast<UINT>(m_strideSize);
-		_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-
-		// ハンドルをもらう
-		m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, GetResource(), &_desc);
 	}
 
 }

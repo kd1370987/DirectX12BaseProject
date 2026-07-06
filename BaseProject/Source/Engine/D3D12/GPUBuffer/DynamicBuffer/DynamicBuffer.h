@@ -31,12 +31,6 @@ namespace Engine::D3D12
 		void UpdateDataOffset(const void* a_pData, size_t a_sizeBytes, size_t a_offsetBytes);
 
 	protected:
-		// SRV作成関数
-		void CreateSRVInternal(D3D12::Device* a_pDevice);
-		void CreateSRVInternal(D3D12::Device* a_pDevice, const D3D12_SHADER_RESOURCE_VIEW_DESC& a_viewDesc);
-
-	protected:
 		void* m_pMapData = nullptr;
-		Handle<D3D12::SRV> m_srvHandle = {};
 	};
 }

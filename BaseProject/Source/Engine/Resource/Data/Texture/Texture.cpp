@@ -91,15 +91,7 @@ namespace Engine::Resource
 
 	void Texture::Release()
 	{
-		m_cpResource.Reset();
-
-		D3D12::DescriptorHeapManager::Instance().Free(m_rtvHandle);
-		D3D12::DescriptorHeapManager::Instance().Free(m_dsvHandle);
-		D3D12::DescriptorHeapManager::Instance().Free(m_readOnlyDsvHandle);
-		D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
-		D3D12::DescriptorHeapManager::Instance().Free(m_uavHandle);
-
-		D3D12::DescriptorHeapManager::Instance().FreeImGuiSRV(m_imguiSRVHandle);
+		GPUResource::Release();
 	}
 
 	void Texture::CreateView()
@@ -187,35 +179,4 @@ namespace Engine::Resource
 	{
 		return m_desc;
 	}
-
-	const Engine::Handle<D3D12::RTV>& Engine::Resource::Texture::GetRTV() const
-	{
-		return m_rtvHandle;
-	}
-
-	const Engine::Handle<D3D12::DSV>& Engine::Resource::Texture::GetDSV() const
-	{
-		return m_dsvHandle;
-	}
-
-	const Engine::Handle<D3D12::DSV>& Engine::Resource::Texture::GetReadOnlyDSV() const
-	{
-		return m_readOnlyDsvHandle;
-	}
-
-	const Engine::Handle<D3D12::SRV>& Engine::Resource::Texture::GetSRV() const
-	{
-		return m_srvHandle;
-	}
-
-	const Engine::Handle<D3D12::UAV>& Engine::Resource::Texture::GetUAV() const
-	{
-		return m_uavHandle;
-	}
-
-	const Engine::Handle<D3D12::SRV>& Engine::Resource::Texture::GetImGuiSRV() const
-	{
-		return m_imguiSRVHandle;
-	}
-
 }
