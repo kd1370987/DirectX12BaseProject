@@ -98,6 +98,7 @@ namespace Engine::Resource
 #include "D3D12/GPUBuffer/ByteAddressBuffer/StaticByteAddressBuffer.h"			// スタティックバイトアドレスバッファ
 //#include "Engine/D3D12/GPUBuffer/RWStructuredBuffer/RWStructuredBuffer.h"		// GPU用UAV構造体バッファ
 #include "Engine/Resource/Data/Vertex/Vertex.h"									// 頂点データ
+#include "D3D12/GPUBuffer/MegaBuffer/MegaStructuredBuffer/MegaStructuredBuffer.h"
 //==========================================================================================
 // 
 // 入力

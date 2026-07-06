@@ -515,25 +515,25 @@ namespace Engine::D3D12
 
 	void D3D12Wrapper::ExecuteAsyncCopy(std::function<void(GraphicsCommandList*)> a_recordCmds, std::function<void()> a_onComplete)
 	{
-		// 1. 非同期マネージャーからアロケーターをもらう
+		// 非同期マネージャーからアロケーターをもらう
 		auto* _allocator = m_upAsyncGPUManager->AcquireAllocator(m_cpDevice.Get(), AsyncCommandType::Copy);
 
-		// 2. コピー用のコマンドプールからリストをもらう (内部で_allocatorを使ってResetされる)
+		// コピー用のコマンドプールからリストをもらう (内部で_allocatorを使ってResetされる)
 		GraphicsCommandList* _cmdList = m_upCommandContext->RefCopyPool()->AcquireList(m_cpDevice.Get(), _allocator);
 
-		// 3. 外部から渡された「コマンドを積む処理」を実行！
+		// 外部から渡された「コマンドを積む処理」を実行
 		if (a_recordCmds) {
 			a_recordCmds(_cmdList);
 		}
 
-		// 4. コンテキストにリストを返し、一括実行 (戻り値のフェンス値を受け取る)
+		// コンテキストにリストを返し、一括実行 (戻り値のフェンス値を受け取る)
 		m_upCommandContext->RefCopyPool()->SubmitList(_cmdList);
 
 		// ※注意: もし他にも同時に積みたいパスがあれば、ExecutePendingListsの呼び出しは遅らせてもOKです。
 		// 今回は即座に裏スレッドへ投げる想定でここでExecuteします。
 		UINT64 _fenceValue = m_upCommandContext->RefCopyPool()->ExecutePendingLists();
 
-		// 5. 非同期マネージャーに監視を依頼する（キュー管理と寿命監視の連携）
+		// 非同期マネージャーに監視を依頼する（キュー管理と寿命監視の連携）
 		m_upAsyncGPUManager->RegisterTask(
 			AsyncCommandType::Copy,
 			_allocator,

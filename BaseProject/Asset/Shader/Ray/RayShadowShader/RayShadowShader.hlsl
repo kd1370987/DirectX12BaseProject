@@ -1,6 +1,4 @@
-#include "../Raytracing.hlsli"
-#include "../../Source/CalcNormal.hlsli"
-#include "../../Common/RootParameters/AmbientData.hlsli"
+#include "../RayShadow.hlsli"
 struct GBufferIndex
 {
 	int depth;

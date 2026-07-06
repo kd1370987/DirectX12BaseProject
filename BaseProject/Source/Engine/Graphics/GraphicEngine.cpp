@@ -135,6 +135,9 @@ namespace Engine::Graphics
 		m_cbAmbient.ammbientColorScale = { 0,0,0 };
 		m_cbAmbient.dlDir = { 0.5f,-1.0f,0.5f };
 		m_cbAmbient.dlColor = { 4.0f,4.0f,4.0f };
+
+		// メガバッファ作成
+		m_megaVertexBuffer.Create(_pDevice, a_pCmdList, 1000000);
 	}
 
 	void GraphicsEngine::Release()

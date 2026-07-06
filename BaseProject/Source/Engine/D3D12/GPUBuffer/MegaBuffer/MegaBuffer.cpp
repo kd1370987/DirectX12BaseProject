@@ -1,0 +1,132 @@
+﻿#include "MegaBuffer.h"
+#include "../../DescriptorHeapManager/DescriptorHeapManager.h"
+
+#include "../../D3D12Wrapper/D3D12Wrapper.h"
+
+namespace Engine::D3D12
+{
+
+	void Engine::D3D12::MegaBuffer::Release()
+	{
+		GPUResource::Release();
+		D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
+	}
+
+
+	bool Engine::D3D12::MegaBuffer::Create(
+		D3D12::Device* a_pDevice,
+		D3D12::GraphicsCommandList* a_pCmdList,
+		size_t a_elemetNum,
+		size_t a_strideSize
+	)
+	{
+		// リソースの作成
+		GPUBufferDesc _gpuDesc = {};
+		_gpuDesc.elementNum = a_elemetNum;
+		_gpuDesc.strideSize = a_strideSize;
+		_gpuDesc.flags = D3D12_RESOURCE_FLAG_NONE;
+		_gpuDesc.heapType = D3D12_HEAP_TYPE_DEFAULT;
+		if (!GPUBuffer::Create(a_pDevice, _gpuDesc))
+		{
+			ENGINE_ERRLOG(false, "メガバッファの作成に失敗");
+			return false;
+		}
+
+		// アロケーターの作成
+		m_rangeAllocator.Init(a_elemetNum);
+
+		// SRVを作成
+		CreateSRVInternal(a_pDevice);
+	}
+
+	Graphics::IndexRangeHandle Engine::D3D12::MegaBuffer::AllocateAndUpdload(const void* a_pData, UINT a_count)
+	{
+		// アロケーターから領域を確保
+		auto _handle = m_rangeAllocator.AllocateRange(a_count);
+		if (!_handle.isValid()) return _handle;		// 容量不足
+
+		UINT _destOffsetBytess = _handle.startIndex * m_strideSize;
+		UINT _sizeBytes = a_count * m_strideSize;
+
+		// 一時的なUploadバッファを作ってCPUデータを書き込む
+		ComPtr<ID3D12Resource> _cpLoadBuffer;
+		D3D12_HEAP_PROPERTIES _heapProps = {};
+		_heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+		D3D12_RESOURCE_DESC _resDesc = {};
+		_resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		_resDesc.Width = _sizeBytes;
+		_resDesc.Height = 1;
+		_resDesc.DepthOrArraySize = 1;
+		_resDesc.MipLevels = 1;
+		_resDesc.Format = DXGI_FORMAT_UNKNOWN;
+		_resDesc.SampleDesc.Count = 1;
+		_resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		_resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
+			&_heapProps,
+			D3D12_HEAP_FLAG_NONE,
+			&_resDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&_cpLoadBuffer)
+		);
+
+		// データの書き込み
+		void* _pMapped = nullptr;
+		_cpLoadBuffer->Map(0,nullptr,&_pMapped);
+		std::memcpy(_pMapped, a_pData, _sizeBytes);
+		_cpLoadBuffer->Unmap(0,nullptr);
+
+		// 非同期処理に投げる
+		D3D12Wrapper::Instance().ExecuteAsyncCopy(
+			[&](D3D12::GraphicsCommandList* a_pCmdList)
+			{
+				a_pCmdList->CopyBufferRegion(
+					m_cpResource.Get(),_destOffsetBytess,
+					_cpLoadBuffer.Get(),0,_sizeBytes
+				);
+			},
+			[_cpLoadBuffer]()
+			{
+				ENGINE_LOG("メガバッファの非同期アップロード完了 : メモリ解放");
+			}
+		);
+
+		return _handle;
+	}
+
+	void MegaBuffer::Free(const Graphics::IndexRangeHandle& a_handle)
+	{
+		if (!a_handle.isValid()) return;
+
+		uint64_t _currentFence = D3D12Wrapper::Instance().GetCurrentFenceValue();
+		m_rangeAllocator.FreeRange(a_handle, _currentFence);
+	}
+
+	void MegaBuffer::UpdateFrees()
+	{
+		// GPUがどこまで処理を完了したかを取得
+		uint64_t _completedFence = D3D12Wrapper::Instance().GetCurrentFenceValue();
+
+		// アロケーターを更新して、使い終わった領域をマージする
+		m_rangeAllocator.UpdateFrees(_completedFence);
+	}
+
+	void Engine::D3D12::MegaBuffer::CreateSRVInternal(ID3D12Device* a_pDevice)
+	{
+		// 仕様書作成
+		D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
+		_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		_desc.Format = DXGI_FORMAT_UNKNOWN;
+		_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		_desc.Buffer.FirstElement = 0;
+		_desc.Buffer.NumElements = static_cast<UINT>(m_elementNum);
+		_desc.Buffer.StructureByteStride = static_cast<UINT>(m_strideSize);
+		_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+		// ハンドルをもらう
+		m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, GetResource(), &_desc);
+	}
+
+}
