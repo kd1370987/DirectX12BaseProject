@@ -205,6 +205,22 @@ namespace Engine::Graphics
 			const DXSM::Vector3& a_emissiveScale = { 1,1,1 }
 		);
 
+		/// <summary>
+		/// レイトレワールドに登録するアニメーションモデル
+		/// </summary>
+		/// <param name="a_worldMat">ワールド行列</param>
+		/// <param name="a_colorScale">色スケール</param>
+		/// <param name="a_emissiveScale">エミッシブスケール</param>
+		/// <param name="dynamicHandle">ダイナミックリソースハンドル</param>
+		/// <param name="nodePoseHnandle">ノードポーズハンドル</param>
+		void SubmitModel(
+			const DXSM::Matrix& a_worldMat,				// ワールド行列
+			const DXSM::Vector4& a_colorScale,			// 色スケール
+			const DXSM::Vector3& a_emissiveScale,		// エミッシブスケール
+			const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
+			const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle
+		);
+
 		// 追加
 		UINT SetInstanceData(const InstanceData& a_instanceData);
 		UINT SetInstanceData(const MeshInstanceData& a_instanceData);
@@ -224,8 +240,9 @@ namespace Engine::Graphics
 		// カメラをGPU用データに変換
 		void CreateGPUCameraData();
 
-		// レイトレ用BLAS更新
+		// レイトレ用BLAS初期化
 		void ProcessInitQueue(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList);
+		void UpdateDynamicRayBLAS(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList);
 
 
 	private:
@@ -278,6 +295,8 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// ソートキー持ち描画コマンドリスト
 		std::vector<LightWeightDrawItem> m_lightWeightDrawItemVec = {};
+
+		std::vector<Raytracing::DynamicRaytracingRequest> m_dynamicRayRequestVec = {};
 
 		//--------------------------------------------------------------------------------------------
 		// メガバッファ

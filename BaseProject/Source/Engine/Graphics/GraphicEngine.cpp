@@ -199,8 +199,11 @@ namespace Engine::Graphics
 			m_instanceDataVec, m_subSetDataVec,m_meshInstanceDataVec,m_meshMaterialDataVec
 		);
 
-		// レイトレ用BLAS更新
+		// レイトレ用BLAS初期化 : 初期化命令があれば走る
 		ProcessInitQueue(_pDevice,_pCmdList);
+
+		// レイトレ用BLAS更新
+
 
 		// 描画アイテムをソート
 		std::sort(
@@ -223,6 +226,9 @@ namespace Engine::Graphics
 		// 描画命令をクリアしてメモリ領域を確保しておく
 		m_lightWeightDrawItemVec.clear();
 		m_lightWeightDrawItemVec.reserve(10000);
+
+		m_dynamicRayRequestVec.clear();
+		m_dynamicRayRequestVec.reserve(1000);
 
 		// オブジェクトデータの消去
 		m_instanceDataVec.clear();
@@ -544,6 +550,14 @@ namespace Engine::Graphics
 		}
 	}
 
+	void GraphicsEngine::SubmitModel(const DXSM::Matrix& a_worldMat, const DXSM::Vector4& a_colorScale, const DXSM::Vector3& a_emissiveScale, const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle)
+	{
+
+		m_dynamicRayRequestVec.push_back(
+			{a_worldMat,a_colorScale,a_emissiveScale,dynamicHandle,nodePoseHnandle}
+		);
+	}
+
 	UINT GraphicsEngine::SetInstanceData(const InstanceData& a_instanceData)
 	{
 		UINT _index = static_cast<UINT>(m_instanceDataVec.size());
@@ -807,5 +821,75 @@ namespace Engine::Graphics
 				);
 			}
 		}
+	}
+	void GraphicsEngine::UpdateDynamicRayBLAS(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList)
+	{
+	//	if (m_dynamicRayRequestVec.empty()) return;
+
+	//	// ==============================================================
+	//	// スキニングフェーズ (Compute Shader)
+	//	// ==============================================================
+	//	a_pCmdList->SetPipelineState(m_skinningPSO.Get());
+	//	a_pCmdList->SetComputeRootSignature(m_skinningRootSig.Get());
+
+	//	for (auto& _req : m_dynamicRayRequestVec)
+	//	{
+	//		// ルートパラメータのセット
+	//		// a_pCmdList->SetComputeRootShaderResourceView(0, 静的頂点バッファ(メガバッファ)の先頭 + オフセット);
+	//		// a_pCmdList->SetComputeRootShaderResourceView(1, ボーン行列バッファ(_req.nodePoseMatVec)のアドレス);
+	//		// a_pCmdList->SetComputeRootDescriptorTable(2, 出力先の動的頂点バッファのUAV);
+
+	//		// スレッドのディスパッチ (頂点数 / スレッドグループサイズ)
+	//		UINT _threadGroups = (_req.vertexCount + 63) / 64;
+	//		a_pCmdList->Dispatch(_threadGroups, 1, 1);
+	//	}
+
+	//	// ==============================================================
+	//	// 2. UAVバリア (ComputeShader -> BLAS Update)
+	//	// ==============================================================
+	//	// 全てのスキニング出力が完了するのを待つ (これがないと未完成の頂点でBLASを作ってしまいバグる)
+	//	D3D12_RESOURCE_BARRIER _uavBarriers[1] = {};
+	//	_uavBarriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	//	_uavBarriers[0].UAV.pResource = m_dynamicVertexBuffer.GetResource(); // UAVの本体
+	//	a_pCmdList->ResourceBarrier(1, _uavBarriers);
+
+	//	// ==============================================================
+	//	// 3. BLAS更新フェーズ
+	//	// ==============================================================
+	//	for (auto& _req : m_dynamicRayRequestVec)
+	//	{
+	//		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _buildDesc = {};
+	//		_buildDesc.Inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
+	//		_buildDesc.Inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+	//		_buildDesc.Inputs.pGeometryDescs = &_req.geometryDesc; // ※動的頂点バッファのアドレスを指すように更新しておく
+	//		_buildDesc.Inputs.NumDescs = 1;
+
+	//		// ★ここが超重要：Updateフラグを立てる
+	//		_buildDesc.Inputs.Flags =
+	//			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE |
+	//			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+
+	//		// Source と Destination に同じBLASのバッファを指定して上書き更新
+	//		_buildDesc.SourceAccelerationStructureData = _req.blasBuffer->GetGPUVirtualAddress();
+	//		_buildDesc.DestAccelerationStructureData = _req.blasBuffer->GetGPUVirtualAddress();
+
+	//		// Scratchバッファ（Update用のスクラッチバッファサイズは初期構築時より小さいことが多い）
+	//		_buildDesc.ScratchAccelerationStructureData = m_scratchBufferForUpdate->GetGPUVirtualAddress();
+
+	//		// BLAS更新コマンドを積む
+	//		a_pCmdList->BuildRaytracingAccelerationStructure(&_buildDesc, 0, nullptr);
+
+	//		// 4. TLAS構築用のキュー（RayWorldのインスタンスリスト等）に登録
+	//		// RayWorld::Instance().AddTLASInstance(_req.blasBuffer, _req.worldMat, ...);
+	//	}
+
+	//	// ==============================================================
+	//	// 5. UAVバリア (BLAS Update -> TLAS Build)
+	//	// ==============================================================
+	//	// 全てのBLAS更新が完了するのを待つ (この後TLASビルドが走るため)
+	//	D3D12_RESOURCE_BARRIER _blasUavBarriers[1] = {};
+	//	_blasUavBarriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	//	_blasUavBarriers[0].UAV.pResource = nullptr; // nullptrを指定すると「全てのUAV操作の完了」を待つ（安全策）
+	//	a_pCmdList->ResourceBarrier(1, _blasUavBarriers);
 	}
 }

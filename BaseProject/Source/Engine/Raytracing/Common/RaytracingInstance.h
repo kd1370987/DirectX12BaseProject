@@ -73,4 +73,14 @@ namespace Engine::Raytracing
 		// 初期化に必要な元モデルのハンドル
 		Engine::Handle<Engine::Resource::Model> modelHandle;
 	};
+
+	struct DynamicRaytracingRequest
+	{
+		DXSM::Matrix worldMat;				// ワールド行列
+		DXSM::Vector4 colorScale;			// 色スケール
+		DXSM::Vector3 emissiveScale;		// エミッシブスケール
+
+		Engine::Handle<DynamicRaytracingData> dynamicHandle = {};
+		Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle = {};
+	};
 }

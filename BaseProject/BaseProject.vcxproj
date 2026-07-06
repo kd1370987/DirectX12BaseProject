@@ -304,6 +304,8 @@
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
@@ -342,6 +344,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass\EmitParticlePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining\SkiningPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\GBufferPass\GBufferPass.cpp" />
@@ -568,6 +571,8 @@
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer\RWStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h" />
@@ -625,6 +630,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass\EmitParticlePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining\SkiningPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\GBufferPass\GBufferPass.h" />

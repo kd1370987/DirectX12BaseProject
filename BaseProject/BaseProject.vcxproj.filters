@@ -1033,6 +1033,18 @@
     <Filter Include="Source\Engine\Editor\EditorUI">
       <UniqueIdentifier>{9fd9e7c2-f082-4386-817e-41fb22eb2dfe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer">
+      <UniqueIdentifier>{4a29b314-e5f3-433f-8443-be3b583d1cd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer">
+      <UniqueIdentifier>{dba565ec-8ba6-4bbc-aac7-4b9efc655b1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining">
+      <UniqueIdentifier>{673a4d6d-2991-464b-9514-0fa1025dbbb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\BLASUpdate">
+      <UniqueIdentifier>{f3ecbaf0-bec7-4139-80b5-18c8e29baa84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1634,6 +1646,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.cpp">
+      <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.cpp">
+      <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining\SkiningPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Skining</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2537,6 +2558,15 @@
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\RenderingOption.h">
       <Filter>Source\Engine\Option\GraphicsOptions</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.h">
+      <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.h">
+      <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining\SkiningPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Skining</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2627,6 +2657,12 @@
     <None Include="Asset\Shader\Source\Mesh\UberMS.hlsl">
       <Filter>Asset\Shader\Source\Mesh</Filter>
     </None>
+    <None Include="Asset\Shader\Ray\RayShadow.hlsli">
+      <Filter>Asset\Shader\Ray</Filter>
+    </None>
+    <None Include="Asset\Shader\Ray\RayGI.hlsli">
+      <Filter>Asset\Shader\Ray</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
@@ -2667,9 +2703,6 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ForwardLightingShader\AnimationForwardLightingVS.hlsl">
       <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Ray\Raytracing.hlsl">
-      <Filter>Asset\Shader\Ray</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\AnimationZPreVS.hlsl">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>
