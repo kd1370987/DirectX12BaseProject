@@ -79,6 +79,9 @@ namespace Engine::Graphics
 
 		UINT GetTemporalIndex() const { return m_tempralIndex; } // テンポラルインデックス取得
 
+		// エディター用変数
+		Resource::Texture* GetTmepTexture(const std::string& a_texNmae);
+
 		RenderPassNode* GetPass(UINT a_passHash);
 	private:
 		// テンポラルインデックス更新 : フレーム用テンポラル
@@ -90,7 +93,6 @@ namespace Engine::Graphics
 		void ResolveResourceHandles();			// 文字列からRGResourceHandleへ変換
 		void ComputeBarriersAndVersions();		// バリア計算とバージョンUP
 
-	
 	private:
 
 		UINT m_tempralIndex = 0;

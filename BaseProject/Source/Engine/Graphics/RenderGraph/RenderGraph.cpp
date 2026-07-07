@@ -389,6 +389,19 @@ namespace Engine::Graphics
 		}
 	}
 
+	Resource::Texture* RenderGraph::GetTmepTexture(const std::string& a_texNmae)
+	{
+		for (auto& _tex : m_upRGResourceManager->GetTempTextures())
+		{
+			if (_tex->GetName() == a_texNmae)
+			{
+				return _tex.get();
+			}
+		}
+
+		return nullptr;
+	}
+
 	RenderPassNode* RenderGraph::GetPass(UINT a_passHash)
 	{
 		for (auto* _pass : m_sortedPasses)

@@ -53,20 +53,19 @@ namespace Engine::Editor
 				ImGui::End();
 				return;
 			}
-			//auto _texHandle = _pRG->GetTexHandle("AffterTAAColor");
-			//const auto* _pTex = Resource::ResourceManager::Instance().Get(_texHandle);
-			//if(!_pTex)
-			//{
-			//	ImGui::End();
-			//	return;
-			//}
+			const auto* _pTex = _pRG->GetTmepTexture("AffterTAAColor");
+			if(!_pTex)
+			{
+				ImGui::End();
+				return;
+			}
 
-			//// テクスチャの描画 : 実際に描画した範囲も取得
-			//auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
-			//ImVec2 _actualRenderSize = Helper::DrawSRVView(_gpuHandle, static_cast<UINT>(1980), static_cast<UINT>(1080));
+			// テクスチャの描画 : 実際に描画した範囲も取得
+			auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
+			ImVec2 _actualRenderSize = Helper::DrawSRVView(_gpuHandle, static_cast<UINT>(1980), static_cast<UINT>(1080));
 
-			//// ギズモ描画
-			//GuizmoDraw(_windowPos,_actualRenderSize,a_currentSelectEntity,a_pWorld);
+			// ギズモ描画
+			GuizmoDraw(_windowPos,_actualRenderSize,a_currentSelectEntity,a_pWorld);
 		}
 		ImGui::End();
 	}
