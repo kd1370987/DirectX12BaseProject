@@ -196,9 +196,6 @@
     <Filter Include="Source\Engine\D3D12\CBAllocater">
       <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass">
-      <UniqueIdentifier>{b7ca8a92-62ab-4fcb-9e26-4f375a5877c6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderGraph">
       <UniqueIdentifier>{faeedf32-9637-470c-bae5-f88b29fa74e0}</UniqueIdentifier>
     </Filter>
@@ -490,21 +487,6 @@
     <Filter Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem">
       <UniqueIdentifier>{e6a6f1b5-ddf3-4da5-9c0d-02dcd1e7a333}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass">
-      <UniqueIdentifier>{d327b177-9a95-41f4-8898-f3cd8cdf628b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RaytracingPass">
-      <UniqueIdentifier>{1789814a-fdfa-4a33-9d8a-3c5aa55245b5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass">
-      <UniqueIdentifier>{35aaacd8-923b-4d0b-88d4-e3d074481d2e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass">
-      <UniqueIdentifier>{80681360-4ff3-4c41-bcf9-6ad50c036a19}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass">
-      <UniqueIdentifier>{87c4bd3a-f6cf-4f20-a998-456a53488cde}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Manager\ResourceManager">
       <UniqueIdentifier>{fec06c67-7f44-49cc-bdc4-192eda6f018f}</UniqueIdentifier>
     </Filter>
@@ -601,9 +583,6 @@
     <Filter Include="Source\Engine\Resource\Data\Mesh\CollisionMesh">
       <UniqueIdentifier>{b6ffb845-47ab-4c22-97b1-e1e737d62e16}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass">
-      <UniqueIdentifier>{53a4d211-2237-4b3d-b365-e7e5697f55d2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Ray\GIShader">
       <UniqueIdentifier>{4f754aed-db16-43c6-8dd0-9b8b6e22b53e}</UniqueIdentifier>
     </Filter>
@@ -697,9 +676,6 @@
     <Filter Include="Asset\Shader\Common\CB">
       <UniqueIdentifier>{d125e5db-0211-483f-8513-45c7a213c9d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass">
-      <UniqueIdentifier>{65aa7ef8-22f6-4a29-b33c-232eb749c140}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Common\RootParameters">
       <UniqueIdentifier>{ec6afe83-5448-4aff-b9a7-89c850e9037e}</UniqueIdentifier>
     </Filter>
@@ -718,26 +694,8 @@
     <Filter Include="Asset\Shader\Compute">
       <UniqueIdentifier>{0f860c13-cd63-44bf-b321-a6ffa6d68e59}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass">
-      <UniqueIdentifier>{325c38cd-8bd4-4bd3-908c-fdac5248ff93}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise">
-      <UniqueIdentifier>{2f63ee40-22f9-409e-8618-96be88a994b8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Compute\TemporalAccumulationShader">
       <UniqueIdentifier>{02c2faa4-cd28-4187-bc61-583fe69efc8c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\CopyPass">
-      <UniqueIdentifier>{d11f6c11-d594-479d-92bf-b7eba5e29866}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass">
-      <UniqueIdentifier>{a1961b96-2e2a-4a1b-b428-848322d0a680}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI">
-      <UniqueIdentifier>{1ceff381-8571-468b-b0f1-575e4cb4a3d3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass">
-      <UniqueIdentifier>{d44ba562-3917-4a3b-8c6f-004c1bee9d98}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Compute\Denoise">
       <UniqueIdentifier>{f1df3f93-146f-403d-8ec5-ed4643506ebc}</UniqueIdentifier>
@@ -760,35 +718,11 @@
     <Filter Include="Asset\Shader\Compute\Anti-aliasing\TAA">
       <UniqueIdentifier>{9336f68d-956c-40c2-a141-54f3962bdfd8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing">
-      <UniqueIdentifier>{30170fba-775a-4e2a-9476-1ff0093ed4b8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA">
-      <UniqueIdentifier>{87b47e97-c5a4-48f6-96e7-dd858dc6dbe2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Compute\Ligthting">
       <UniqueIdentifier>{c13e6ebd-e8f6-4d7f-83a9-42d41203a500}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Compute\Ligthting\DeferredLighting">
       <UniqueIdentifier>{c67241c8-24bb-4dea-8283-eeb3a9887e28}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting">
-      <UniqueIdentifier>{dd13b8bf-861e-4667-abca-c7b34691294d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting">
-      <UniqueIdentifier>{b18180fb-4626-419f-9555-f35eff26100c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass">
-      <UniqueIdentifier>{45b07584-42eb-4c4d-8b65-1ad019e58fa6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow">
-      <UniqueIdentifier>{644ac805-dc18-4d6d-8a93-0d39b5fddda3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass">
-      <UniqueIdentifier>{53c437ab-e7cb-439a-82a8-445a63cfb186}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass">
-      <UniqueIdentifier>{f23ccc47-8856-4fb4-b0b7-f66003e7e139}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Compute\Denoise\Shadow">
       <UniqueIdentifier>{7669dd34-e9ef-43f2-a062-87fd31c8227e}</UniqueIdentifier>
@@ -862,12 +796,6 @@
     <Filter Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem">
       <UniqueIdentifier>{3bc7d0d3-feee-45e2-84f7-774902bbd308}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect">
-      <UniqueIdentifier>{7ce6ea58-2966-4581-b8c0-7e0080c68ad7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle">
-      <UniqueIdentifier>{c87305af-88d5-47a0-9d4b-10f81693ba94}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Compute\Particle">
       <UniqueIdentifier>{514e1cff-c9d7-4616-9afe-8a151d24a3cf}</UniqueIdentifier>
     </Filter>
@@ -904,9 +832,6 @@
     <Filter Include="Source\Engine\Time\FPSController">
       <UniqueIdentifier>{eb7609a8-47f1-429c-95c3-9178a5e4f9bd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass">
-      <UniqueIdentifier>{469e5d88-112e-4412-9470-adef100656cf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Compute\Particle\UpdateParticle">
       <UniqueIdentifier>{9d237a33-d1bc-4f4f-8264-ce5cb58dce05}</UniqueIdentifier>
     </Filter>
@@ -919,9 +844,6 @@
     <Filter Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem">
       <UniqueIdentifier>{d61d668c-62ab-41bd-83f5-0560398d94ae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass">
-      <UniqueIdentifier>{9270e85b-3cc4-4b43-a5c0-1c121bcc4034}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem">
       <UniqueIdentifier>{56a92f0c-190f-4f54-a10d-b4bc41efcb15}</UniqueIdentifier>
     </Filter>
@@ -930,9 +852,6 @@
     </Filter>
     <Filter Include="Source\Engine\Utility\String">
       <UniqueIdentifier>{a89720f8-c303-4c35-961b-802545baf70a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass">
-      <UniqueIdentifier>{35a5b3c6-de0a-4124-ab62-135eead8d09d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Common\Shape">
       <UniqueIdentifier>{b4042d9b-eb54-458a-afcf-5320ce553bfb}</UniqueIdentifier>
@@ -997,9 +916,6 @@
     <Filter Include="Source\Engine\Resource\Data\Mesh\MeshShaderData">
       <UniqueIdentifier>{9bb02f1b-b986-4e06-9ce2-5dbbd6d07032}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\MeshShaderPass">
-      <UniqueIdentifier>{c0a3f1a7-dd96-4a25-aebc-639bb020d817}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\Builder\PipelineBuilder">
       <UniqueIdentifier>{21970f9f-fd61-43a9-bcfb-31491b71e03c}</UniqueIdentifier>
     </Filter>
@@ -1011,9 +927,6 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Loader\Shader\DXCCompiler">
       <UniqueIdentifier>{6d6af7e2-b167-4115-ad8f-2d79d4db5fa5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\GBufferPass">
-      <UniqueIdentifier>{9d5c0150-63e1-4f14-bad3-26139c79e5a4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Source\Mesh">
       <UniqueIdentifier>{781f418c-bae8-4b0f-b530-26bf0583461e}</UniqueIdentifier>
@@ -1036,14 +949,98 @@
     <Filter Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer">
       <UniqueIdentifier>{dba565ec-8ba6-4bbc-aac7-4b9efc655b1e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining">
-      <UniqueIdentifier>{673a4d6d-2991-464b-9514-0fa1025dbbb3}</UniqueIdentifier>
+    <Filter Include="Source\Engine\Graphics\RenderPass">
+      <UniqueIdentifier>{506152dd-4278-48f2-9614-14d57182f0e8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\BLASUpdate">
-      <UniqueIdentifier>{f3ecbaf0-bec7-4139-80b5-18c8e29baa84}</UniqueIdentifier>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Geometry">
+      <UniqueIdentifier>{0036fff5-3c3e-4bdd-86e9-c3b2ff2bb38d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass">
-      <UniqueIdentifier>{52c63488-85ee-45f6-bfdb-ccfef678c8ea}</UniqueIdentifier>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass">
+      <UniqueIdentifier>{8503a254-a38e-4fec-a446-377d83698536}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Geometry\FullRaytracingPass">
+      <UniqueIdentifier>{8bb2b616-ed38-4146-9e6b-0801ad6d56cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Geometry\GBufferPass">
+      <UniqueIdentifier>{7079faa6-ecb9-43b9-87da-d3e3e60bd450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Geometry\ParticlePass">
+      <UniqueIdentifier>{7abd4539-df5e-4901-9daa-867fda72819f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass">
+      <UniqueIdentifier>{1f378398-6506-42ec-9017-fb7ab886b433}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Geometry\ZPrePass">
+      <UniqueIdentifier>{278610b4-16aa-4181-ab52-297ec8c98a74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Lighting">
+      <UniqueIdentifier>{6860c3db-544f-4da9-9462-5b5d27d0b780}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Lighting\DeferredLighting">
+      <UniqueIdentifier>{b1515b73-b0b5-4d78-8c5c-bc96276c742f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Lighting\RaytracingGIPass">
+      <UniqueIdentifier>{e0abbeb3-29a9-429e-b4f0-e1fe70729899}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Lighting\Shadow">
+      <UniqueIdentifier>{2a32e380-b294-4109-bd7a-778f20bb0b6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Lighting\Shadow\RaytracingShadowPass">
+      <UniqueIdentifier>{81c15a6a-9161-4baf-9b04-8805d54510b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Particle">
+      <UniqueIdentifier>{d2c6c916-b80c-472e-97fc-c5eb9060a6e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass">
+      <UniqueIdentifier>{d1311ed8-c0bf-47e2-b67b-c1742ddd34fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass">
+      <UniqueIdentifier>{18982789-6c54-4c0b-a143-87597e555c0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect">
+      <UniqueIdentifier>{6c583b4d-6986-4a99-a0b7-955eb7714e59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing">
+      <UniqueIdentifier>{47f586cc-e6b6-450d-b7a7-cdc5dce55506}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise">
+      <UniqueIdentifier>{c19b419f-679a-45a5-88eb-01176422c4fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass">
+      <UniqueIdentifier>{51093ea7-cc11-4f1d-aa56-c9382e01d1a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI">
+      <UniqueIdentifier>{9d1f388f-0fa3-49f0-a833-1678c8f5e843}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow">
+      <UniqueIdentifier>{72d61741-6efd-440d-8694-8ecaae9b5ecc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass">
+      <UniqueIdentifier>{2cdc1661-1e63-42c4-8622-f7365c6d2703}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass">
+      <UniqueIdentifier>{c1e6125e-7640-4d64-b91a-49360a080eac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass">
+      <UniqueIdentifier>{fae9e72f-aa79-44b5-812c-f115d93ebe25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass">
+      <UniqueIdentifier>{ed302ea3-874f-4d06-83d1-980b12b4ee7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA">
+      <UniqueIdentifier>{660b0b6d-6143-4fa5-afc4-94991529e8b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Skining">
+      <UniqueIdentifier>{fff8ef66-d42d-4687-b96b-a7792394f519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Utility">
+      <UniqueIdentifier>{4ef623a4-6bd6-4315-b6d5-16c538d68365}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass">
+      <UniqueIdentifier>{1780be6a-a7db-4948-850d-d0a9ed6c7c28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass">
+      <UniqueIdentifier>{6cf8b0fa-118e-4e11-840d-e915298e350a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1293,15 +1290,6 @@
     <ClCompile Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\AnimationModelStartSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.cpp">
       <Filter>Source\Engine\Resource\Manager\ResourceManager</Filter>
     </ClCompile>
@@ -1377,9 +1365,6 @@
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.cpp">
       <Filter>Source\Engine\Resource\Data\Mesh\RaytracingMesh</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.cpp">
       <Filter>Source\Engine\Resource\Data\Mesh\CollisionMesh</Filter>
     </ClCompile>
@@ -1437,9 +1422,6 @@
     <ClCompile Include="Source\Engine\Editor\WatchView\WatchView.cpp">
       <Filter>Source\Engine\Editor\WatchView</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.cpp">
       <Filter>Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem</Filter>
     </ClCompile>
@@ -1449,29 +1431,8 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Option\OptionManager.cpp">
       <Filter>Source\Engine\Option</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.cpp">
       <Filter>Source\Application\Systems\Update\Animation\AnimationStateSystem</Filter>
@@ -1506,9 +1467,6 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\EmittParticlesSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\Command\CommandPool\CommandPool.cpp">
       <Filter>Source\Engine\D3D12\Command\CommandPool</Filter>
     </ClCompile>
@@ -1530,14 +1488,8 @@
     <ClCompile Include="Source\Engine\Time\DeltaTime\DeltaTime.cpp">
       <Filter>Source\Engine\Time\DeltaTime</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass\EmitParticlePass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass\ParticlePass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
@@ -1550,9 +1502,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\Mesh\MeshLoader.cpp">
       <Filter>Source\Engine\Resource\Loader\Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem</Filter>
@@ -1620,17 +1569,11 @@
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp">
       <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\MeshShaderPass\TestMeshPass\TestMeshPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\MeshShaderPass</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder\MeshPipelineBuilder.cpp">
       <Filter>Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.cpp">
       <Filter>Source\Engine\Resource\Loader\Shader\DXCCompiler</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\GBufferPass\GBufferPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\GBufferPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
@@ -1638,20 +1581,71 @@
     <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp">
       <Filter>Source\Engine\Graphics\MeshBufferAllocator</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator\IndexRangeAllocator.cpp">
-      <Filter>Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining\SkiningPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Skining</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass\DebugLinePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass\TemporalAccumulationPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\FullRaytracingPass\FullRaytracingPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\FullRaytracingPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\GBufferPass\GBufferPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\GBufferPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\ParticlePass\ParticlePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\ParticlePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass\TestMeshPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\ZPrePass\ZPrePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\ZPrePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Lighting\DeferredLighting\DeferredLighting.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Lighting\DeferredLighting</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Lighting\RaytracingGIPass\RaytracingGIPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Lighting\RaytracingGIPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Lighting\Shadow\RaytracingShadowPass\RaytracingShadowPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Lighting\Shadow\RaytracingShadowPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass\UpdateParticlePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass\EmitParticlePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skining\SkiningPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Skining</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2060,15 +2054,6 @@
     <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h">
       <Filter>Source\Application\Systems\Init\Start\AnimationModelStartSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.h">
       <Filter>Source\Engine\Resource\Manager\ResourceManager</Filter>
     </ClInclude>
@@ -2162,9 +2147,6 @@
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.h">
       <Filter>Source\Engine\Resource\Data\Mesh\RaytracingMesh</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.h">
       <Filter>Source\Engine\Resource\Data\Mesh\CollisionMesh</Filter>
     </ClInclude>
@@ -2237,9 +2219,6 @@
     <ClInclude Include="Source\Engine\Editor\WatchView\WatchView.h">
       <Filter>Source\Engine\Editor\WatchView</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\CBData.h">
       <Filter>Source\Engine\Graphics</Filter>
     </ClInclude>
@@ -2255,12 +2234,6 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGData\RenderPassNode.h">
       <Filter>Source\Engine\Graphics\RenderGraph\RGData</Filter>
     </ClInclude>
@@ -2273,23 +2246,8 @@
     <ClInclude Include="Source\Engine\Option\IOption.h">
       <Filter>Source\Engine\Option</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.h">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\WindowOption.h">
       <Filter>Source\Engine\Option\GraphicsOptions</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Charactor\Robot\BoostComponent.h">
       <Filter>Source\Application\Components\Charactor\Robot</Filter>
@@ -2360,9 +2318,6 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\EmittParticlesSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3D12Types.h">
       <Filter>Source\Engine\D3D12</Filter>
     </ClInclude>
@@ -2399,14 +2354,8 @@
     <ClInclude Include="Source\Engine\Utility\Math\Alignment.h">
       <Filter>Source\Engine\Utility\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass\EmitParticlePass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass\ParticlePass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
@@ -2431,9 +2380,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\Mesh\MeshLoader.h">
       <Filter>Source\Engine\Resource\Loader\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
@@ -2522,12 +2468,6 @@
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.h">
       <Filter>Source\Engine\Resource\Loader\Shader\DXCCompiler</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\GBufferPass\GBufferPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\GBufferPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\MeshShaderPass\TestMeshPass\TestMeshPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\MeshShaderPass</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
     </ClInclude>
@@ -2536,9 +2476,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshAllocationHandle.h">
       <Filter>Source\Engine\Graphics\MeshBufferAllocator</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator\IndexRangeAllocator.h">
-      <Filter>Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
@@ -2555,14 +2492,68 @@
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining\SkiningPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Skining</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h">
       <Filter>Source\Engine\Resource\Data\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass\TemporalAccumulationPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass</Filter>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass\DebugLinePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\FullRaytracingPass\FullRaytracingPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\FullRaytracingPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\GBufferPass\GBufferPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\GBufferPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\ParticlePass\ParticlePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\ParticlePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass\TestMeshPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\ZPrePass\ZPrePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Geometry\ZPrePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Lighting\DeferredLighting\DeferredLighting.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Lighting\DeferredLighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Lighting\RaytracingGIPass\RaytracingGIPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Lighting\RaytracingGIPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Lighting\Shadow\RaytracingShadowPass\RaytracingShadowPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Lighting\Shadow\RaytracingShadowPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass\UpdateParticlePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass\EmitParticlePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skining\SkiningPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Skining</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

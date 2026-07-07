@@ -344,7 +344,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Lighting\RaytracingGIPass\RaytracingGIPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Lighting\Shadow\RaytracingShadowPass\RaytracingShadowPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass\EmitParticlePass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass\UpdateParticlePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.cpp" />
@@ -573,7 +573,6 @@
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer\RWStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.h" />
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\DynamicStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\DynamicVertexBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.h" />
@@ -630,7 +629,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Lighting\RaytracingGIPass\RaytracingGIPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Lighting\Shadow\RaytracingShadowPass\RaytracingShadowPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass\EmitParticlePass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass\UpdateParticlePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.h" />
@@ -730,7 +729,6 @@
     <ClInclude Include="Source\Engine\Utility\Math\Random.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\HandlePool\HandlePool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h" />
-    <ClInclude Include="Source\Engine\Utility\Pool\RangeAllocator\RangeAllocator.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\RangePool\RangePool.h" />
     <ClInclude Include="Source\Engine\Utility\String\String.h" />
     <ClInclude Include="Source\Engine\Window\NativeWindow.h" />
@@ -766,7 +764,6 @@
     <None Include="Asset\Shader\Source\RootSignatureLayout.hlsli" />
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli" />
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli" />
-    <None Include="Asset\Skining\Skining.hlsli" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -1029,20 +1026,6 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="Asset\Skining\SkiningCS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
     </FxCompile>
     <None Include="Asset\Shader\Source\Mesh\ProceduralMS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Mesh</ShaderType>

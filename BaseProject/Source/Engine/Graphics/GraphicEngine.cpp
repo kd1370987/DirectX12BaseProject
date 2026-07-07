@@ -46,7 +46,7 @@
 #include "RenderPass/PostEffect/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
 #include "RenderPass/PostEffect/FullScreenPass/FullScreenPass.h"
 
-#include "RenderPass/Particle/UpdateParticlePass.h"
+#include "RenderPass/Particle/UpdateParticlePass/UpdateParticlePass.h"
 #include "RenderPass/Particle/EmitParticlePass/EmitParticlePass.h"
 
 #include "RenderPass/Skining/SkiningPass.h"
