@@ -71,7 +71,7 @@ namespace Engine::Graphics
 		{
 			Editor::MainEditor::Instance().StartWatch(_compilePass.pNode->name);
 
-			// 1. リソースバリア（UAVバリアも対応）
+			// リソースバリア（UAVバリアも対応）
 			for (auto& _barrier : _compilePass.preBarriers)
 			{
 				if (_barrier.isUAVBarrier)
@@ -82,15 +82,18 @@ namespace Engine::Graphics
 				else
 				{
 					// 通常のステート遷移バリア (※RenderContextのTransition関数がGPUResource*を受け取る想定)
-					a_pCtx->Transition(_barrier.pResource->GetResource(), _barrier.before, _barrier.after);
+					//a_pCtx->Transition(_barrier.pResource->GetResource(), _barrier.before, _barrier.after);
+					_barrier.pResource->Barrier(_pCmdList,_barrier.after);
 				}
 			}
 
-			// 2. レンダーターゲット切り替え
-			// 引数に D3D12_CPU_DESCRIPTOR_HANDLE を直接渡す形になります
-			a_pCtx->SetRenderTargets(_compilePass.rtvHandles, &_compilePass.dsvHandle);
+			// レンダーターゲット切り替え
+			a_pCtx->SetRenderTargets(
+				_compilePass.rtvHandles,
+				_compilePass.hasDSV ? &_compilePass.dsvHandle : nullptr
+			);
 
-			// 3. クリア
+			// クリア
 			for (auto& _index : _compilePass.clearRtvIndices)
 			{
 				a_pCtx->ClearRenderTarget(_compilePass.rtvHandles[_index]);
@@ -100,7 +103,7 @@ namespace Engine::Graphics
 				a_pCtx->ClearDSV(_compilePass.dsvHandle);
 			}
 
-			// 4. パスの実行
+			// パスの実行
 			if (_compilePass.pNode && _compilePass.pNode->executeFunc)
 			{
 				_compilePass.pNode->executeFunc(a_pGE, a_pCtx, _compilePass.pNode->passIndex);
@@ -109,8 +112,7 @@ namespace Engine::Graphics
 			Editor::MainEditor::Instance().EndWatch(_compilePass.pNode->name);
 		}
 
-		// 最後に論理リソースを破棄し、次のフレームのコンパイルに備える
-		m_upRGResourceManager->ResetForNextFrame();
+		//m_upRGResourceManager->ResetForNextFrame(_pCmdList);
 	}
 
 	std::vector<DXGI_FORMAT> RenderGraph::GetPassRTVFormats(uint8_t a_passIndex)
@@ -331,6 +333,8 @@ namespace Engine::Graphics
 						_cp.dsvHandle = D3D12::DescriptorHeapManager::Instance().GetCPU(_dsvHandle); // DSV
 					}
 
+					_cp.hasDSV = true;
+
 					_dsvFormat = m_upRGResourceManager->GetDXGIFormat(_handle);
 
 					if (_access.load == LoadOp::Clear)
@@ -441,9 +445,9 @@ namespace Engine::Graphics
 					if (_req.format != DXGI_FORMAT_UNKNOWN) _info.format = _req.format;
 					_info.texScale = _req.texScale; // 念のためスケールも更新
 					
-					if (_req.type == AccessType::Depth_Write) _info.usage |= Resource::TextureUsage::DSV;
-					if (_req.type == AccessType::RTV)         _info.usage |= Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;			// ImGuiデモ見たいからいったんSRVもつけとく
-					if (_req.type == AccessType::UAV)         _info.usage |= Resource::TextureUsage::UAV;
+					if (_req.type == AccessType::Depth_Write) _info.usage |= Resource::TextureUsage::DSV | Resource::TextureUsage::SRV;
+					if (_req.type == AccessType::RTV)         _info.usage |= Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;
+					if (_req.type == AccessType::UAV)         _info.usage |= Resource::TextureUsage::UAV | Resource::TextureUsage::SRV;
 
 				}
 			}

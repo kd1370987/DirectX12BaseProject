@@ -38,6 +38,7 @@ namespace Engine::Graphics
 		// RTV・DSVチェンジ用（D3D12のCPUハンドルを直接持つ）
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rtvHandles = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = { 0 };
+		bool hasDSV = false;
 
 		// RTV・DSVクリア用（クリアカラー等を保持）
 		std::vector<size_t> clearRtvIndices = {};
@@ -89,6 +90,7 @@ namespace Engine::Graphics
 		void ResolveResourceHandles();			// 文字列からRGResourceHandleへ変換
 		void ComputeBarriersAndVersions();		// バリア計算とバージョンUP
 
+	
 	private:
 
 		UINT m_tempralIndex = 0;

@@ -172,7 +172,6 @@ namespace Engine::Graphics
 	}
 	void RenderContext::SetRenderTargets(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_rtvHandleVec, const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDsvHandle)
 	{
-		if (a_rtvHandleVec.empty()) return;
 		m_pCmdList->OMSetRenderTargets(
 			static_cast<UINT>(a_rtvHandleVec.size()),
 			a_rtvHandleVec.data(),

@@ -24,7 +24,7 @@ namespace Engine::Graphics
 
 		_res.isImported = false;
 		_res.currentVersion = 0;
-		_res.currentState = D3D12_RESOURCE_STATE_COMMON;
+		_res.currentState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 		_res.pPhysicalResource = nullptr;
 
 		m_logicalResourceVec.push_back(_res);
@@ -201,5 +201,23 @@ namespace Engine::Graphics
 	{
 		assert(a_handle.IsValid() && a_handle.index < m_logicalResourceVec.size());
 		return m_logicalResourceVec[a_handle.index];
+	}
+
+	void RGResourceManager::ResetForNextFrame(D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		for (auto& _res : m_logicalResourceVec)
+		{
+			// グラフ内の一時リソースならステートをCOMMONに戻す
+			if (!_res.isImported && _res.pPhysicalResource)
+			{
+				if (_res.currentState != D3D12_RESOURCE_STATE_COMMON)
+				{
+					_res.pPhysicalResource->Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
+					_res.currentState = D3D12_RESOURCE_STATE_COMMON;
+				}
+			}
+			// バージョンをリセット（次のフレームのRead/Writeを正しく動かすため）
+			_res.currentVersion = 0;
+		}
 	}
 }
