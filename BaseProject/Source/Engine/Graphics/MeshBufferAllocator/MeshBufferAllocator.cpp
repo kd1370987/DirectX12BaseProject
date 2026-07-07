@@ -69,17 +69,17 @@ namespace Engine::Graphics
 		_handle.uniqueVertexHandle = m_uniqueVertexIndexAllocator.AllocateRange(_meshData.uniqueVertexIndices.size());
 		_handle.primitiveHandle = m_primitiveIndexAllocator.AllocateRange(_meshData.primitiveIndices.size());
 
-		// 確保失敗チェック（どれか一つでも失敗したら全ロールバック）
-		if (!_handle.vertexHandle.isValid() || !_handle.meshletHandle.isValid() ||
-			!_handle.uniqueVertexHandle.isValid() || !_handle.primitiveHandle.isValid())
-		{
-			// 失敗した場合は、フェンス待ちなし（0）で即時解放して無効なハンドルを返す
-			if (_handle.vertexHandle.isValid()) m_vertexAllocator.FreeRange(_handle.vertexHandle, 0);
-			if (_handle.meshletHandle.isValid()) m_meshletAllocator.FreeRange(_handle.meshletHandle, 0);
-			if (_handle.uniqueVertexHandle.isValid()) m_uniqueVertexIndexAllocator.FreeRange(_handle.uniqueVertexHandle, 0);
-			if (_handle.primitiveHandle.isValid()) m_primitiveIndexAllocator.FreeRange(_handle.primitiveHandle, 0);
-			return MeshAllocationHandle();
-		}
+		//// 確保失敗チェック（どれか一つでも失敗したら全ロールバック）
+		//if (!_handle.vertexHandle.isValid() || !_handle.meshletHandle.isValid() ||
+		//	!_handle.uniqueVertexHandle.isValid() || !_handle.primitiveHandle.isValid())
+		//{
+		//	// 失敗した場合は、フェンス待ちなし（0）で即時解放して無効なハンドルを返す
+		//	if (_handle.vertexHandle.isValid()) m_vertexAllocator.FreeRange(_handle.vertexHandle, 0);
+		//	if (_handle.meshletHandle.isValid()) m_meshletAllocator.FreeRange(_handle.meshletHandle, 0);
+		//	if (_handle.uniqueVertexHandle.isValid()) m_uniqueVertexIndexAllocator.FreeRange(_handle.uniqueVertexHandle, 0);
+		//	if (_handle.primitiveHandle.isValid()) m_primitiveIndexAllocator.FreeRange(_handle.primitiveHandle, 0);
+		//	return MeshAllocationHandle();
+		//}
 
 		// UploadHeapからDefaultHeapへデータをコピーするコマンドを積む
 		 m_vertexBuffer.UploadDataRange(
@@ -113,17 +113,17 @@ namespace Engine::Graphics
 	void MeshBufferAllocator::Free(const MeshAllocationHandle& a_handle, uint64_t a_currentFenceValue)
 	{
 		// 各アロケータに遅延解放を依頼する
-		if (a_handle.vertexHandle.isValid())
-			m_vertexAllocator.FreeRange(a_handle.vertexHandle, a_currentFenceValue);
+		//if (a_handle.vertexHandle.isValid())
+		//	m_vertexAllocator.FreeRange(a_handle.vertexHandle, a_currentFenceValue);
 
-		if (a_handle.meshletHandle.isValid())
-			m_meshletAllocator.FreeRange(a_handle.meshletHandle, a_currentFenceValue);
+		//if (a_handle.meshletHandle.isValid())
+		//	m_meshletAllocator.FreeRange(a_handle.meshletHandle, a_currentFenceValue);
 
-		if (a_handle.uniqueVertexHandle.isValid())
-			m_uniqueVertexIndexAllocator.FreeRange(a_handle.uniqueVertexHandle, a_currentFenceValue);
+		//if (a_handle.uniqueVertexHandle.isValid())
+		//	m_uniqueVertexIndexAllocator.FreeRange(a_handle.uniqueVertexHandle, a_currentFenceValue);
 
-		if (a_handle.primitiveHandle.isValid())
-			m_primitiveIndexAllocator.FreeRange(a_handle.primitiveHandle, a_currentFenceValue);
+		//if (a_handle.primitiveHandle.isValid())
+		//	m_primitiveIndexAllocator.FreeRange(a_handle.primitiveHandle, a_currentFenceValue);
 	}
 
 	void MeshBufferAllocator::BindBuffers(D3D12::GraphicsCommandList* a_pCmdList)

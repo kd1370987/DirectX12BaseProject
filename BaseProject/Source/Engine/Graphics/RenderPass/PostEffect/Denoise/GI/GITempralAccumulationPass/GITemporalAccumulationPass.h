@@ -11,5 +11,5 @@ namespace Engine::Graphics
 {
 	class RenderPassRegistry;
 
-	void AddTemporalAccumulationPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase);
+	void AddGITemporalAccumulationPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase);
 }

@@ -34,6 +34,6 @@ namespace Engine::Resource
 		// サブセットごとのメッシュレット情報
 		std::vector<SubsetMeshletData> subsetMeshlets;
 
-		Graphics::MeshAllocationHandle meshHandle = {};
+		// ハンドルを持たせる!!!!!!!!!!!!!!!!!!!!!!!
 	};
 }

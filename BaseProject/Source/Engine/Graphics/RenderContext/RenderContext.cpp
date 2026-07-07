@@ -50,7 +50,8 @@ namespace Engine::Graphics
 		// バッファ作成
 		m_instanceBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);						// インスタンスデータ
 		m_subsetBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);						// サブセット情報用バッファ
-		m_boneBuffer.Create(a_desc.pDevice, a_pCmdList, a_desc.boneElementNum, nullptr);		// ボーン行列用
+		//m_boneBuffer.Create(a_desc.pDevice, a_pCmdList, a_desc.boneElementNum, nullptr);		// ボーン行列用
+		m_boneBuffer.Create(a_desc.pDevice, a_desc.boneElementNum);		// ボーン行列用
 		m_debugLineBuffer.Create(a_desc.pDevice, a_pCmdList, 10000, nullptr);					// 形状描画用バッファ
 
 		// メッシュ用データの作成
@@ -558,7 +559,7 @@ namespace Engine::Graphics
 
 	void RenderContext::BindSRVBone()
 	{
-		BindSRV(6, m_boneBuffer.GetSRVHandle());
+		BindSRV(6, m_boneBuffer.GetSRV());
 	}
 
 	void RenderContext::Dispatch(UINT a_x, UINT a_y, UINT a_z)
@@ -609,13 +610,15 @@ namespace Engine::Graphics
 		}
 
 		// ボーン行列の更新
+		m_boneBuffer.ResetForNewFrame();
 		auto* _pCurrentWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (_pCurrentWorld->HasResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>())
 		{
 			auto& _boneMatPool = _pCurrentWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 			const auto& _data = _boneMatPool.GetAllData();
-			m_boneBuffer.UpdateData(_data.data(), _data.size());
-			m_boneBuffer.Update(m_pCmdList);
+			//m_boneBuffer.UpdateData(_data.data(), _data.size());
+			//m_boneBuffer.Update(m_pCmdList);
+			m_boneBuffer.AllocateAndWrite(_data.data(),_data.size());
 		}
 
 		// デバッグライン用バッファ更新
@@ -652,7 +655,7 @@ namespace Engine::Graphics
 
 	void RenderContext::BindBonePalletBuffer(UINT a_rootIndex)
 	{
-		BindSRV(a_rootIndex,m_boneBuffer.GetSRVHandle());
+		BindSRV(a_rootIndex,m_boneBuffer.GetSRV());
 	}
 
 	void RenderContext::BindGraphicsDebugLineBuffer(UINT a_rootIndex)

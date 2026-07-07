@@ -105,13 +105,6 @@ namespace Engine::Graphics
 		RenderGraph* RefRenderGraph();
 
 		//--------------------------------------------------------------------------------------------
-		// メガバッファ
-		//--------------------------------------------------------------------------------------------
-		
-		template<typename T>
-		IndexRangeHandle AllocateMegaBuffer(const T* a_pData,size_t a_count);
-
-		//--------------------------------------------------------------------------------------------
 		// GPUデータ作成
 		//--------------------------------------------------------------------------------------------
 		/// <summary>
@@ -235,6 +228,10 @@ namespace Engine::Graphics
 		void DrawQueue(Graphics::RenderContext* a_pCtx, uint8_t a_passIndex);
 		void BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex);
 
+		// メッシュ登録
+		RangeHandle<Resource::MeshVertexFloat> AllocateMeshVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex);
+		RangeHandle<uint32_t> AllocateMeshIndex(const std::vector<uint32_t>& a_indices);
+
 	private:
 
 		// カメラをGPU用データに変換
@@ -301,15 +298,7 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// メガバッファ
 		//--------------------------------------------------------------------------------------------
-		D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat> m_megaVertexBuffer;
+		D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat> m_meshVerticesBuffer;
+		D3D12::MegaStructuredBuffer<uint32_t> m_meshIndexBuffer;
 	};
-
-	//--------------------------------------------------------------------------------------------
-	// メガバッファ特殊化
-	//--------------------------------------------------------------------------------------------
-	template<>
-	inline IndexRangeHandle GraphicsEngine::AllocateMegaBuffer(const Resource::MeshVertexFloat* a_pData, size_t a_count)
-	{
-		m_megaVertexBuffer.AllocateAndUpload(a_pData, static_cast<UINT>(a_count));
-	}
 }

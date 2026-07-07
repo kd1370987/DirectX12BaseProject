@@ -1,7 +1,7 @@
 ﻿#include "RaytracingShadowPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
-#include "../../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
 #include "Engine/Graphics/GraphicEngine.h"
@@ -15,7 +15,7 @@
 #include "Engine/Raytracing/RayPSO/RayPSO.h"
 #include "Engine/Raytracing/ShaderTable/ShaderTable.h"
 
-#include "../../../../Option/OptionManager.h"
+#include "Engine/Option/OptionManager.h"
 
 namespace Engine::Graphics
 {

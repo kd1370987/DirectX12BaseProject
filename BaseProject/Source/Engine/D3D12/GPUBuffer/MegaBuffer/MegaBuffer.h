@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "../GPUBuffer.h"
 
-#include "../../../Graphics/MeshBufferAllocator/IndexRangeAllocator/IndexRangeAllocator.h"
-
 namespace Engine::D3D12
 {
 	/// <summary>
@@ -31,27 +29,15 @@ namespace Engine::D3D12
 		);
 
 		/// <summary>
-		/// データの追加時
-		/// </summary>
-		/// <param name="a_pData">データ</param>
-		/// <param name="a_count">確保数</param>
-		Graphics::IndexRangeHandle AllocateAndUpdload(
-			const void* a_pData,
-			UINT a_count
-		);
-
-		/// <summary>
-		/// 領域の解放
-		/// </summary>
-		/// <param name="a_handle">ハンドル</param>
-		void Free(const Graphics::IndexRangeHandle& a_handle);
-
-		/// <summary>
 		/// 毎フレーム呼ばれる : 領域の結合
 		/// </summary>
 		void UpdateFrees();
+
+	protected:
+		// テンプレート派生クラスから呼ぶための生データ操作関数
+		void UploadDataAsync(UINT a_destOffsetBytes, const void* a_pData, UINT a_sizeBytes);
+		uint64_t GetCurrentFenceValue() const;
 	protected:
 		bool m_isDrty = false;
-		Graphics::IndexRangeAllocator m_rangeAllocator = {};
 	};
 }

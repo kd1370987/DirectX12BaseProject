@@ -36,6 +36,20 @@ struct Vertex
 StructuredBuffer<InstanceData> g_instanceData : register(t1); // インスタンスごとのデータ
 StructuredBuffer<Material> g_materialData : register(t2); // インスタンスごとのデータ
 
+struct VertexFloat
+{
+	float3 pos;
+	float3 normal;
+	float2 uv;
+	float3 tangent;
+	float4 color;
+	uint4 skinIndex;
+	float4 skinWeight;
+};
+
+StructuredBuffer<VertexFloat> g_vertexfloatData : register(t3);
+StructuredBuffer<uint> g_indexData : register(t4);
+
 struct GBufferIndex
 {
 	int depth;

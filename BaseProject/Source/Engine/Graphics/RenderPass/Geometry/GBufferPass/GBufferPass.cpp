@@ -7,12 +7,12 @@
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "../../../D3D12/PipelineStateManager/PipelineStateManager.h"
-#include "../../RenderPassRegistry/RenderPassRegistry.h"
+#include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 
-#include "../../../Resource/Loader/Shader/ShaderLoader.h"
+#include "Engine/Resource/Loader/Shader/ShaderLoader.h"
 
-#include "../../../Option/OptionManager.h"
+#include "Engine/Option/OptionManager.h"
 
 namespace Engine::Graphics
 {

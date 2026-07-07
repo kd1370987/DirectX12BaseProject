@@ -1,5 +1,8 @@
 ﻿#include "RaytracingMesh.h"
 
+#include "../../../../MainEngine.h"
+#include "../../../../Graphics/GraphicEngine.h"
+
 namespace Engine::Resource
 {
 	void RaytracingMesh::Create(
@@ -50,7 +53,7 @@ namespace Engine::Resource
 		// 頂点バッファー側SRV作成
 		structuredVertexBuffer.Create(a_pDevice, a_pCmdList, _rtVertDataVec.size(), _rtVertDataVec.data());
 
-		std::vector<UINT> _indices;		// インデックス配列作成
+		std::vector<uint32_t> _indices;		// インデックス配列作成
 		for (auto& _f : a_face)
 		{
 			_indices.push_back(_f.idx[0]);
@@ -59,6 +62,8 @@ namespace Engine::Resource
 		}
 		// インデックスバッファー側SRV作成
 		structuredIndexBuffer.Create(a_pDevice, a_pCmdList, _indices.size(), _indices.data());
+
+		return;
 	}
 	void RaytracingMesh::Release()
 	{

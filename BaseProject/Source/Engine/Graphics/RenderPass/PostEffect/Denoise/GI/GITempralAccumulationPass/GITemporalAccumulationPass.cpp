@@ -1,4 +1,4 @@
-﻿#include "TemporalAccumulationPass.h"
+﻿#include "GITemporalAccumulationPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -12,7 +12,7 @@
 
 namespace Engine::Graphics
 {
-	void AddTemporalAccumulationPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
+	void AddGITemporalAccumulationPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 	{
 		// ======================================================================
 		// ランタイムデータ作成

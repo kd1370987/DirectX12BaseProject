@@ -2,8 +2,6 @@
 #include "../CBData.h"
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
 
-class CBAllocater;
-
 namespace Engine::Resource
 {
 	class QuadPolygon;
@@ -277,7 +275,10 @@ namespace Engine::Graphics
 		D3D12::StaticStructuredBuffer<SubSetData> m_subsetBuffer;
 
 		// ボーン用データ
-		D3D12::StaticStructuredBuffer<BonePallete> m_boneBuffer;
+		D3D12::DynamicStructuredBuffer<Resource::BoneMatrix> m_boneBuffer;
+
+		// アニメーション用頂点データ
+		D3D12::RWStructuredBuffer<Resource::MeshVertexFloat> m_skininedVerticesBuffer;
 
 		// デバッグライン用頂点
 		D3D12::StaticStructuredBuffer<DebugLineData> m_debugLineBuffer;

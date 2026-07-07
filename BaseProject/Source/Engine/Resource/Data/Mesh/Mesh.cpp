@@ -20,6 +20,14 @@ bool Engine::Resource::Mesh::CreateFloat(
 	m_subsets = a_subsets;
 	m_isSkinMesh = a_isSkinMesh;
 
+	std::vector<uint32_t> _indices;		// インデックス配列作成
+	for (auto& _f : a_face)
+	{
+		_indices.push_back(_f.idx[0]);
+		_indices.push_back(_f.idx[1]);
+		_indices.push_back(_f.idx[2]);
+	}
+
 	auto _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
 	// メタデータ作成
@@ -27,6 +35,9 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 	// ラスタライザーデータ作成
 	CreateRasterData(_pDevice, a_vertices, a_face, DXGI_FORMAT_R32_UINT);
+
+
+	m_opRtData.emplace();
 
 	D3D12::D3D12Wrapper::Instance().ExecuteAsyncCompute(
 		// コマンドを積む処理
@@ -65,11 +76,19 @@ bool Engine::Resource::Mesh::CreateFloat(
 			CreateMeshShaderData(a_pCmdList, a_vertices, _indices, a_face);
 		},
 		// 完了時のコールバック
-		[]()
+		[this, _indices]()
 		{
 			ENGINE_LOG("メッシュの非同期セットアップが完了");
 		}
 	);
+
+	// ハンドルの登録
+	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+	if (!_pGE) return false;
+
+	m_opRtData->vertexHandle = _pGE->AllocateMeshVertex(m_vertices);
+	m_opRtData->indexHandle = _pGE->AllocateMeshIndex(_indices);
+
 	return true;
 }
 
@@ -99,8 +118,7 @@ void Engine::Resource::Mesh::CreateRtData(
 	const std::vector<MeshFace>& a_face
 )
 {
-	auto& _rtData = m_opRtData.emplace();
-	_rtData.Create(a_pDevice,a_pCmdList,a_subset,a_vertexBuffer,a_vertexFarstFormat,a_indexBuffer,a_vertices,a_face);
+	m_opRtData->Create(a_pDevice,a_pCmdList,a_subset,a_vertexBuffer,a_vertexFarstFormat,a_indexBuffer,a_vertices,a_face);
 }
 
 void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<DirectX::XMFLOAT3>& a_vertices, const std::vector<UINT>& a_indices)
@@ -235,8 +253,8 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 	ENGINE_ERRLOG(_pGE, "メッシュ読み込み時にグラフィックスエンジンがありません");
 
-	auto _handle = _pGE->AllocateAndUpload(a_pCmdList, *this);
-	m_opMeshShaderData.value().meshHandle = _handle;
+	//auto _handle = _pGE->AllocateAndUpload(a_pCmdList, *this);
+	//m_opMeshShaderData.value().meshHandle = _handle;
 }
 
 void Engine::Resource::Mesh::Release()

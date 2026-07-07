@@ -27,27 +27,32 @@
 #include "../Option/OptionManager.h"
 
 // レンダーパス
-#include "RenderPass/RasterizePass/ZPrePass/ZPrePass.h"
-#include "RenderPass/RasterizePass/ParticlePass/ParticlePass.h"
-#include "RenderPass/GBufferPass/GBufferPass.h"
-#include "RenderPass/RasterizePass/FullScreenPass/FullScreenPass.h"
-#include "RenderPass/RasterizePass/DebugLinePass/DebugLinePass.h"
+#include "RenderPass/Geometry/ZPrePass/ZPrePass.h"
+#include "RenderPass/Geometry/GBufferPass/GBufferPass.h"
+#include "RenderPass/Geometry/DebugLinePass/DebugLinePass.h"
+#include "RenderPass/Geometry/ParticlePass/ParticlePass.h"
+#include "RenderPass/Geometry/FullRaytracingPass/FullRaytracingPass.h"
+#include "RenderPass/Geometry/TestMeshPass/TestMeshPass.h"
 
-#include "RenderPass/RaytracingPass/FullRaytracingPass/FullRaytracingPass.h"
-#include "RenderPass/RaytracingPass/RaytracingGIPass/RaytracingGIPass.h"
-#include "RenderPass/RaytracingPass/RaytracingShadowPass/RaytracingShadowPass.h"
+#include "RenderPass/Lighting/DeferredLighting/DeferredLighting.h"
+#include "RenderPass/Lighting/RaytracingGIPass/RaytracingGIPass.h"
 
-#include "RenderPass/ComputePass/Lighting/DeferredLighting/DeferredLighting.h"
-#include "RenderPass/CopyPass/GBufferHistoryPass/GBufferHistoryPass.h"
-#include "RenderPass/CopyPass/PostHistoryPass/PostHistoryPass.h"
-#include "RenderPass/ComputePass/Denoise/GI/GITempralAccumulationPass/TemporalAccumulationPass.h"
-#include "RenderPass/ComputePass/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
-#include "RenderPass/ComputePass/AntiAliasing/TAA/TAAPass.h"
-#include "RenderPass/ComputePass/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
-#include "RenderPass/ComputePass/Effect/Particle/EmitParticlePass/EmitParticlePass.h"
-#include "RenderPass/ComputePass/Effect/Particle/UpdateParticlePass.h"
+#include "RenderPass/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
 
-#include "RenderPass/MeshShaderPass/TestMeshPass/TestMeshPass.h"
+#include "RenderPass/PostEffect/AntiAliasing/TAA/TAAPass.h"
+#include "RenderPass/PostEffect/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
+#include "RenderPass/PostEffect/Denoise/GI/GITempralAccumulationPass/GITemporalAccumulationPass.h"
+#include "RenderPass/PostEffect/Denoise/Shadow/ShadowSpatialDenoisePass/ShadowSpatialDenoisePass.h"
+#include "RenderPass/PostEffect/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
+#include "RenderPass/PostEffect/FullScreenPass/FullScreenPass.h"
+
+#include "RenderPass/Particle/UpdateParticlePass.h"
+#include "RenderPass/Particle/EmitParticlePass/EmitParticlePass.h"
+
+#include "RenderPass/Skining/SkiningPass.h"
+
+#include "RenderPass/Utility/GBufferHistoryPass/GBufferHistoryPass.h"
+#include "RenderPass/Utility/PostHistoryPass/PostHistoryPass.h"
 
 namespace Engine::Graphics
 {
@@ -118,7 +123,7 @@ namespace Engine::Graphics
 
 		AddShadowTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 
-		AddTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
+		AddGITemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		AddGISpatialDenoisePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 
 		// パーティクル
@@ -136,8 +141,9 @@ namespace Engine::Graphics
 		m_cbAmbient.dlDir = { 0.5f,-1.0f,0.5f };
 		m_cbAmbient.dlColor = { 4.0f,4.0f,4.0f };
 
-		// メガバッファ作成
-		m_megaVertexBuffer.Create(_pDevice, a_pCmdList, 1000000);
+		// メガバッファ
+		m_meshVerticesBuffer.Create(_pDevice,a_pCmdList,10000000);
+		m_meshIndexBuffer.Create(_pDevice,a_pCmdList,10000000);
 	}
 
 	void GraphicsEngine::Release()
@@ -681,6 +687,16 @@ namespace Engine::Graphics
 		a_pCtx->SetGraphicPSO(_pPSO);
 	}
 
+	RangeHandle<Resource::MeshVertexFloat> GraphicsEngine::AllocateMeshVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex)
+	{
+		return m_meshVerticesBuffer.AllocateAndUpload(a_vertex.data(), static_cast<UINT>(a_vertex.size()));
+	}
+
+	RangeHandle<uint32_t> GraphicsEngine::AllocateMeshIndex(const std::vector<uint32_t>& a_indices)
+	{
+		return m_meshIndexBuffer.AllocateAndUpload(a_indices.data(), static_cast<UINT>(a_indices.size()));
+	}
+
 	void GraphicsEngine::CreateGPUCameraData()
 	{
 		// リセット
@@ -768,62 +784,62 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::ProcessInitQueue(D3D12::Device* a_pDevice,D3D12::GraphicsCommandList* a_pCmdList)
 	{
-		// ワールドチェック
-		auto* _pCurrentWorld = Engine::Scene::SceneManager::Instance().RefWorld();
-		if (!_pCurrentWorld) return;
+		//// ワールドチェック
+		//auto* _pCurrentWorld = Engine::Scene::SceneManager::Instance().RefWorld();
+		//if (!_pCurrentWorld) return;
 
-		// リソースチェック
-		if (!_pCurrentWorld->HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) return;
-		if (!_pCurrentWorld->HasResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>()) return;
+		//// リソースチェック
+		//if (!_pCurrentWorld->HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) return;
+		//if (!_pCurrentWorld->HasResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>()) return;
 
-		auto& _initRequestVec = _pCurrentWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
-		if (_initRequestVec.empty()) return;
-		auto& _dynamicPool = _pCurrentWorld->GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+		//auto& _initRequestVec = _pCurrentWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+		//if (_initRequestVec.empty()) return;
+		//auto& _dynamicPool = _pCurrentWorld->GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
 
-		// モデルのリソースからBLASと頂点バッファをコピー
-		for (auto& _initReq : _initRequestVec)
-		{
-			// プールから作成予定の実態を取得
-			auto* _pData = _dynamicPool.Ref(_initReq.dynamicInstanceHandle);
-			if (!_pData) continue;
-			auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_initReq.modelHandle);
-			if (!_pModel) continue;
+		//// モデルのリソースからBLASと頂点バッファをコピー
+		//for (auto& _initReq : _initRequestVec)
+		//{
+		//	// プールから作成予定の実態を取得
+		//	auto* _pData = _dynamicPool.Ref(_initReq.dynamicInstanceHandle);
+		//	if (!_pData) continue;
+		//	auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_initReq.modelHandle);
+		//	if (!_pModel) continue;
 
-			// 各メッシュごとにBLASを構築
-			for (auto& _meshHandle : _pModel->GetMeshHandles())
-			{
-				auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
-				if (!_pMesh) continue;
-				if (!_pMesh->HasRtData()) continue;
+		//	// 各メッシュごとにBLASを構築
+		//	for (auto& _meshHandle : _pModel->GetMeshHandles())
+		//	{
+		//		auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
+		//		if (!_pMesh) continue;
+		//		if (!_pMesh->HasRtData()) continue;
 
-				_pData->deformedVertexBufferVec.emplace_back();
-				_pData->deformedVertexBufferVec.back().Create(
-					a_pDevice,
-					a_pCmdList,
-					static_cast<UINT>(_pMesh->GetRtData().structuredVertexBuffer.GetElementNum()),
-					nullptr
-				);
+		//		_pData->deformedVertexBufferVec.emplace_back();
+		//		_pData->deformedVertexBufferVec.back().Create(
+		//			a_pDevice,
+		//			a_pCmdList,
+		//			static_cast<UINT>(_pMesh->GetRtData().structuredVertexBuffer.GetElementNum()),
+		//			nullptr
+		//		);
 
-				// 配列をコピー
-				auto _geometryDescVec = _pMesh->GetRtData().blas.GetGeometryDesc();
-				for (auto& _desc : _geometryDescVec)
-				{
-					// 静的バッファのアドレスから、今作った動的バッファのGPUアドレスに書き換える
-					_desc.Triangles.VertexBuffer.StartAddress = _pData->deformedVertexBufferVec.back().GetGPUVirtualAddress();
-				}
+		//		// 配列をコピー
+		//		auto _geometryDescVec = _pMesh->GetRtData().blas.GetGeometryDesc();
+		//		for (auto& _desc : _geometryDescVec)
+		//		{
+		//			// 静的バッファのアドレスから、今作った動的バッファのGPUアドレスに書き換える
+		//			_desc.Triangles.VertexBuffer.StartAddress = _pData->deformedVertexBufferVec.back().GetGPUVirtualAddress();
+		//		}
 
-				_pData->instanceBLASVec.emplace_back();
-				_pData->instanceBLASVec.back().Create(
-					a_pDevice,
-					a_pCmdList,
-					_geometryDescVec,
-					D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE
-				);
-			}
-		}
+		//		_pData->instanceBLASVec.emplace_back();
+		//		_pData->instanceBLASVec.back().Create(
+		//			a_pDevice,
+		//			a_pCmdList,
+		//			_geometryDescVec,
+		//			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE
+		//		);
+		//	}
+		//}
 
-		// 処理が終われば命令を解放
-		_initRequestVec.clear();
+		//// 処理が終われば命令を解放
+		//_initRequestVec.clear();
 	}
 	void GraphicsEngine::UpdateDynamicRayBLAS(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList)
 	{

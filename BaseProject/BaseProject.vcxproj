@@ -330,31 +330,30 @@
     <ClCompile Include="Source\Engine\Editor\SceneView\SceneView.cpp" />
     <ClCompile Include="Source\Engine\Editor\WatchView\WatchView.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator\IndexRangeAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass\TemporalAccumulationPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass\EmitParticlePass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining\SkiningPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\GBufferPass\GBufferPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\MeshShaderPass\TestMeshPass\TestMeshPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass\ParticlePass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass\DebugLinePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\FullRaytracingPass\FullRaytracingPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\GBufferPass\GBufferPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\ParticlePass\ParticlePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass\TestMeshPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\ZPrePass\ZPrePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Lighting\DeferredLighting\DeferredLighting.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Lighting\RaytracingGIPass\RaytracingGIPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Lighting\Shadow\RaytracingShadowPass\RaytracingShadowPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass\EmitParticlePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skining\SkiningPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\Input\InputCollector\InputCollector.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.cpp" />
@@ -574,6 +573,7 @@
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer\RWStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\DynamicStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\DynamicVertexBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.h" />
@@ -612,7 +612,6 @@
     <ClInclude Include="Source\Engine\EngineConfig.h" />
     <ClInclude Include="Source\Engine\Graphics\CBData.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h" />
-    <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator\IndexRangeAllocator.h" />
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshAllocationHandle.h" />
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.h" />
     <ClInclude Include="Source\Engine\Graphics\PSOKey.h" />
@@ -621,26 +620,26 @@
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\AntiAliasing\TAA\TAAPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\GI\GITempralAccumulationPass\TemporalAccumulationPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\EmitParticlePass\EmitParticlePass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Effect\Particle\UpdateParticlePass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Lighting\DeferredLighting\DeferredLighting.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\ComputePass\Skining\SkiningPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\GBufferHistoryPass\GBufferHistoryPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\CopyPass\PostHistoryPass\PostHistoryPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\GBufferPass\GBufferPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\MeshShaderPass\TestMeshPass\TestMeshPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\DebugLinePass\DebugLinePass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\FullScreenPass\FullScreenPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ParticlePass\ParticlePass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RasterizePass\ZPrePass\ZPrePass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\FullRaytracingPass\FullRaytracingPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingGIPass\RaytracingGIPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\RaytracingPass\RaytracingShadowPass\RaytracingShadowPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass\DebugLinePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\FullRaytracingPass\FullRaytracingPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\GBufferPass\GBufferPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\ParticlePass\ParticlePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass\TestMeshPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\ZPrePass\ZPrePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Lighting\DeferredLighting\DeferredLighting.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Lighting\RaytracingGIPass\RaytracingGIPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Lighting\Shadow\RaytracingShadowPass\RaytracingShadowPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass\EmitParticlePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skining\SkiningPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h" />
     <ClInclude Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.h" />
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
@@ -731,6 +730,7 @@
     <ClInclude Include="Source\Engine\Utility\Math\Random.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\HandlePool\HandlePool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h" />
+    <ClInclude Include="Source\Engine\Utility\Pool\RangeAllocator\RangeAllocator.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\RangePool\RangePool.h" />
     <ClInclude Include="Source\Engine\Utility\String\String.h" />
     <ClInclude Include="Source\Engine\Window\NativeWindow.h" />
@@ -766,6 +766,7 @@
     <None Include="Asset\Shader\Source\RootSignatureLayout.hlsli" />
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli" />
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli" />
+    <None Include="Asset\Skining\Skining.hlsli" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -1028,6 +1029,20 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Asset\Skining\SkiningCS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
     </FxCompile>
     <None Include="Asset\Shader\Source\Mesh\ProceduralMS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Mesh</ShaderType>

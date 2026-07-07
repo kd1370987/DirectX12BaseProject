@@ -1,4 +1,4 @@
-#include "DeferredLighting.h"
+﻿#include "DeferredLighting.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -12,7 +12,7 @@
 
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
 
-#include "../../../../../Option/OptionManager.h"
+#include "Engine/Option/OptionManager.h"
 
 namespace Engine::Graphics
 {

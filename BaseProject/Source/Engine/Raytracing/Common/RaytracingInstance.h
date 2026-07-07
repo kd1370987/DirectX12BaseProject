@@ -59,7 +59,7 @@ namespace Engine::Raytracing
 	struct DynamicRaytracingData
 	{
 		// コンピュートシェーダーで書き込む変形後のバッファ
-		std::vector<D3D12::StaticStructuredBuffer<Resource::MeshVertexFloat>> deformedVertexBufferVec;
+		std::vector<D3D12::RWStructuredBuffer<Resource::MeshVertexFloat>> deformedVertexBufferVec;
 
 		// インスタンス専用のBLAS
 		std::vector<Raytracing::BLAS> instanceBLASVec;

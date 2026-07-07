@@ -49,6 +49,7 @@ namespace Engine::Raytracing
 				_rayInst.pBLAS = &_pMesh->GetRtData().blas;
 				_rayInst.vertexHandle = _pMesh->GetRtData().structuredVertexBuffer.GetSRVHandle();
 				_rayInst.indexHandle = _pMesh->GetRtData().structuredIndexBuffer.GetSRVHandle();
+
 				for (auto& _subset : _pMesh->GetMetaData().subsets)
 				{
 					// マテリアル取得

@@ -22,16 +22,15 @@
 // 補助クラス・関数
 // 
 //==========================================================================================
-#include "Utility/Debug/DebugLog.h"				// デバッグ用ログ
-#include "Utility/GUID/GUID.h"					// GUID
-#include "Utility/JSONHelper/JSONHelper.h"		// Jsonヘルパー
-#include "Utility/Pool/HandlePool/HandlePool.h"	// ハンドル管理ストレージ
-#include "Utility/Pool/ItemPool/ItemPool.h"		// 実体管理ストレージ
-#include "Utility/Pool/RangePool/RangePool.h"	// レンジ管理ストレージ
+#include "Utility/Debug/DebugLog.h"						// デバッグ用ログ
+#include "Utility/GUID/GUID.h"							// GUID
+#include "Utility/JSONHelper/JSONHelper.h"				// Jsonヘルパー
+#include "Utility/Pool/HandlePool/HandlePool.h"			// ハンドル管理ストレージ
+#include "Utility/Pool/ItemPool/ItemPool.h"				// 実体管理ストレージ
+#include "Utility/Pool/RangePool/RangePool.h"			// レンジ管理ストレージ
+#include "Utility/Pool/RangeAllocator/RangeAllocator.h"	// レンジ管理
 
 #include "D3D12/D3D12Helper.h"					// D3D12関連のヘルパー関数
-
-#include "Graphics/MeshBufferAllocator/MeshAllocationHandle.h"
 
 //==========================================================================================
 // 
@@ -95,9 +94,10 @@ namespace Engine::Resource
 #include "Engine/D3D12/GPUBuffer/VertexBuffer/DynamicVertexBuffer.h"			// 頂点バッファ
 #include "Engine/D3D12/GPUBuffer/IndexBuffer/DynamicIndexBuffer.h"				// ダイナミックインデックスバッファ
 #include "Engine/D3D12/GPUBuffer/StructuredBuffer/StaticStructuredBuffer.h"		// スタティックストラクチャバッファ
+#include "Engine/D3D12/GPUBuffer/StructuredBuffer/DynamicStructuredBuffer.h"	// ダイナミックストラクチャバッファ
 #include "D3D12/GPUBuffer/ByteAddressBuffer/ByteAddressBuffer.h"				// バイトアドレスバッファ
 #include "D3D12/GPUBuffer/ByteAddressBuffer/StaticByteAddressBuffer.h"			// スタティックバイトアドレスバッファ
-//#include "Engine/D3D12/GPUBuffer/RWStructuredBuffer/RWStructuredBuffer.h"		// GPU用UAV構造体バッファ
+#include "Engine/D3D12/GPUBuffer/RWStructuredBuffer/RWStructuredBuffer.h"		// GPU用UAV構造体バッファ
 #include "Engine/Resource/Data/Vertex/Vertex.h"									// 頂点データ
 #include "D3D12/GPUBuffer/MegaBuffer/MegaStructuredBuffer/MegaStructuredBuffer.h"
 //==========================================================================================
@@ -147,6 +147,7 @@ namespace Engine::Resource
 #include "Engine/Raytracing/Common/RaytracingInstance.h"
 #include "Engine/Raytracing/Common/Common.h"
 
+//#include "Graphics/MeshBufferAllocator/MeshAllocationHandle.h"
 
 //==========================================================================================
 // 

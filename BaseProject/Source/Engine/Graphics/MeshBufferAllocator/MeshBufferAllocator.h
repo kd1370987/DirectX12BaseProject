@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "MeshAllocationHandle.h"
-#include "IndexRangeAllocator/IndexRangeAllocator.h"
 
 namespace Engine::Graphics
 {
@@ -83,19 +82,19 @@ namespace Engine::Graphics
 	private:
 		// 頂点用バッファと管理クラス
 		D3D12::StaticStructuredBuffer<Resource::MeshVertexFloat>	m_vertexBuffer;
-		IndexRangeAllocator											m_vertexAllocator;
+		RangeAllocator<Resource::MeshVertexFloat>					m_vertexAllocator;
 
 		// メッシュレットバッファと管理クラス
 		D3D12::StaticStructuredBuffer<Resource::Meshlet>			m_meshletBuffer;
-		IndexRangeAllocator											m_meshletAllocator;
+		RangeAllocator<Resource::Meshlet>							m_meshletAllocator;
 
 		// ユニーク頂点インデックスバッファと管理クラス
 		D3D12::StaticStructuredBuffer<uint32_t>						m_uniqueVertexIndices;
-		IndexRangeAllocator											m_uniqueVertexIndexAllocator;
+		RangeAllocator<uint32_t>									m_uniqueVertexIndexAllocator;
 
 		// プリミティブインデックスバッファと管理クラス
 		D3D12::StaticStructuredBuffer<uint32_t>						m_primitiveIndices;
-		IndexRangeAllocator											m_primitiveIndexAllocator;
+		RangeAllocator<uint32_t>									m_primitiveIndexAllocator;
 
 		std::mutex m_mutex;
 	};

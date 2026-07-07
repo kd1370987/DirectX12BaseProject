@@ -23,9 +23,6 @@ namespace Engine::D3D12
 			return false;
 		}
 
-		// アロケーターの作成
-		m_rangeAllocator.Init(a_elemetNum);
-
 		// 仕様書作成
 		D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
 		_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
@@ -40,23 +37,17 @@ namespace Engine::D3D12
 		m_srvHandle = AllocateSRV(a_pDevice, GetResource(), _desc);
 	}
 
-	Graphics::IndexRangeHandle Engine::D3D12::MegaBuffer::AllocateAndUpdload(const void* a_pData, UINT a_count)
+
+	void MegaBuffer::UploadDataAsync(UINT a_destOffsetBytes, const void* a_pData, UINT a_sizeBytes)
 	{
-		// アロケーターから領域を確保
-		auto _handle = m_rangeAllocator.AllocateRange(a_count);
-		if (!_handle.isValid()) return _handle;		// 容量不足
-
-		UINT _destOffsetBytess = _handle.startIndex * m_strideSize;
-		UINT _sizeBytes = a_count * m_strideSize;
-
 		// 一時的なUploadバッファを作ってCPUデータを書き込む
-		ComPtr<ID3D12Resource> _cpLoadBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource> _cpLoadBuffer;
 		D3D12_HEAP_PROPERTIES _heapProps = {};
 		_heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
 
 		D3D12_RESOURCE_DESC _resDesc = {};
 		_resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		_resDesc.Width = _sizeBytes;
+		_resDesc.Width = a_sizeBytes;
 		_resDesc.Height = 1;
 		_resDesc.DepthOrArraySize = 1;
 		_resDesc.MipLevels = 1;
@@ -64,6 +55,7 @@ namespace Engine::D3D12
 		_resDesc.SampleDesc.Count = 1;
 		_resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		_resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
 		D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
 			&_heapProps,
 			D3D12_HEAP_FLAG_NONE,
@@ -75,17 +67,17 @@ namespace Engine::D3D12
 
 		// データの書き込み
 		void* _pMapped = nullptr;
-		_cpLoadBuffer->Map(0,nullptr,&_pMapped);
-		std::memcpy(_pMapped, a_pData, _sizeBytes);
-		_cpLoadBuffer->Unmap(0,nullptr);
+		_cpLoadBuffer->Map(0, nullptr, &_pMapped);
+		std::memcpy(_pMapped, a_pData, a_sizeBytes);
+		_cpLoadBuffer->Unmap(0, nullptr);
 
 		// 非同期処理に投げる
 		D3D12Wrapper::Instance().ExecuteAsyncCopy(
-			[&](D3D12::GraphicsCommandList* a_pCmdList)
+			[this, a_destOffsetBytes, _cpLoadBuffer, a_sizeBytes](D3D12::GraphicsCommandList* a_pCmdList)
 			{
 				a_pCmdList->CopyBufferRegion(
-					m_cpResource.Get(),_destOffsetBytess,
-					_cpLoadBuffer.Get(),0,_sizeBytes
+					m_cpResource.Get(), a_destOffsetBytes,
+					_cpLoadBuffer.Get(), 0, a_sizeBytes
 				);
 			},
 			[_cpLoadBuffer]()
@@ -93,25 +85,11 @@ namespace Engine::D3D12
 				ENGINE_LOG("メガバッファの非同期アップロード完了 : メモリ解放");
 			}
 		);
-
-		return _handle;
 	}
 
-	void MegaBuffer::Free(const Graphics::IndexRangeHandle& a_handle)
+	uint64_t MegaBuffer::GetCurrentFenceValue() const
 	{
-		if (!a_handle.isValid()) return;
-
-		uint64_t _currentFence = D3D12Wrapper::Instance().GetCurrentFenceValue();
-		m_rangeAllocator.FreeRange(a_handle, _currentFence);
-	}
-
-	void MegaBuffer::UpdateFrees()
-	{
-		// GPUがどこまで処理を完了したかを取得
-		uint64_t _completedFence = D3D12Wrapper::Instance().GetCurrentFenceValue();
-
-		// アロケーターを更新して、使い終わった領域をマージする
-		m_rangeAllocator.UpdateFrees(_completedFence);
+		return D3D12Wrapper::Instance().GetCurrentFenceValue();
 	}
 
 }
