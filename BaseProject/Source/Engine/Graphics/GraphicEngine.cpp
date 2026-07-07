@@ -821,6 +821,9 @@ namespace Engine::Graphics
 				);
 			}
 		}
+
+		// 処理が終われば命令を解放
+		_initRequestVec.clear();
 	}
 	void GraphicsEngine::UpdateDynamicRayBLAS(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList)
 	{
