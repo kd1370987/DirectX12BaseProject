@@ -178,6 +178,10 @@ namespace Engine::Graphics
 			false,
 			a_pDsvHandle
 		);
+
+		// ビューポートとシザー矩形を設定
+		m_pCmdList->RSSetViewports(1, &D3D12::D3D12Wrapper::Instance().GetViewport());
+		m_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
 	}
 
 	void RenderContext::BindSRV(

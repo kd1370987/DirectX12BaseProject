@@ -29,8 +29,8 @@ namespace Engine::Resource
 	class Texture : public D3D12::GPUResource
 	{
 	public:
-		Texture() = default;
 		~Texture() = default;
+		NON_COPYABLE_MOVABLE(Texture);
 
 		// テクスチャ生成
 		void Import(const std::string& a_filePath,const DirectX::XMFLOAT4& a_defoltData = { 255,255,255,255 });

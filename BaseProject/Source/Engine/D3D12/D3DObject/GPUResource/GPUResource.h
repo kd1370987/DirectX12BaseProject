@@ -26,7 +26,8 @@ namespace Engine::D3D12
 	{
 	public:
 
-		virtual ~GPUResource() { Release(); }
+		virtual ~GPUResource() = default;
+		NON_COPYABLE_MOVABLE(GPUResource);
 
 		// 作成
 		bool Create(D3D12::Device* pDevice ,const GPUResourceDesc& a_desc);

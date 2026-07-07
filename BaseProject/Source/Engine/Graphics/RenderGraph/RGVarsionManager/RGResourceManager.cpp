@@ -114,6 +114,7 @@ namespace Engine::Graphics
 					_texDesc.height = _res.height;
 					_texDesc.format = _res.format;
 					_texDesc.usage = _res.usage;
+					_texDesc.name = _res.name;
 					_newTex->Create(_texDesc);
 					m_tempTextures.push_back(std::move(_newTex));
 				}

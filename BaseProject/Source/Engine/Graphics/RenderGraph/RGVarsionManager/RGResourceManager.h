@@ -79,6 +79,8 @@ namespace Engine::Graphics
 
 		DXGI_FORMAT GetDXGIFormat(RGResourceHandle a_handle) const;
 
+		const std::vector<std::unique_ptr<Resource::Texture>>& GetTempTextures() const { return m_tempTextures; }
+
 	private:
 
 
