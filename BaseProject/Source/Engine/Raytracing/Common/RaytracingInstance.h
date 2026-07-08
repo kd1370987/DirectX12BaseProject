@@ -78,16 +78,23 @@ namespace Engine::Raytracing
 		std::vector<Material> submeshMaterials;         // サブメッシュごとのマテリアル情報
 	};
 
-	/// <summary>
-	/// レイアニメーション用構造体
-	/// </summary>
-	struct DynamicRaytracingData
+	// １メッシュにつき一つ
+	struct SkinningMeshData
 	{
 		// コンピュートシェーダーで書き込む変形後のバッファ
 		RangeHandle<Resource::MeshVertexFloat> animatedVertexHandle = {};
 
 		// インスタンス専用のBLAS
-		std::vector<Raytracing::BLAS> instanceBLASVec;
+		Raytracing::BLAS instanceBLAS;
+	};
+
+	/// <summary>
+	/// レイアニメーション用構造体
+	/// </summary>
+	struct DynamicRaytracingData
+	{
+		// モデルのスキニングするメッシュすべて
+		std::vector<SkinningMeshData> meshDataVec;
 	};
 
 	struct DynamicRaytracingInitRequest

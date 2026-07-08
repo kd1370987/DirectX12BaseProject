@@ -52,6 +52,7 @@ StructuredBuffer<InstanceData> g_instanceData : register(t1); // インスタン
 StructuredBuffer<Material> g_materialData : register(t2); // インスタンスごとのデータ
 StructuredBuffer<Vertex> g_vertexfloatData : register(t3);
 StructuredBuffer<uint> g_indexData : register(t4);
+StructuredBuffer<Vertex> g_animatedVertexData : register(t5);
 
 // UV座標を取得
 float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs, InstanceData instance, uint primID, Material material)

@@ -69,14 +69,10 @@ namespace Engine::Raytracing
 					_mat.roughness = _pMate->roughness;
 					_mat.emissive = _emiColor * a_emissiveScale;
 					_mat.startIndexLocation = _subset.faceStart * 3;
-					const auto* _Btex = Engine::Resource::ResourceManager::Instance().Get(_pMate->baseColorTex);
-					_mat.baseIndex = _Btex->GetSRV().GetIndex();
-					const auto* _Mtex = Engine::Resource::ResourceManager::Instance().Get(_pMate->metaRoughTex);
-					_mat.metaRoughnessIndex = _Mtex->GetSRV().GetIndex();
-					const auto* _Etex = Engine::Resource::ResourceManager::Instance().Get(_pMate->emissiveTex);
-					_mat.emissiveIndex = _Etex->GetSRV().GetIndex();
-					const auto* _Ntex = Engine::Resource::ResourceManager::Instance().Get(_pMate->normalTex);
-					_mat.normalIndex = _Ntex->GetSRV().GetIndex();
+					_mat.baseIndex = GetTexHepaIndex(_pMate->baseColorTex);
+					_mat.metaRoughnessIndex = GetTexHepaIndex(_pMate->metaRoughTex);
+					_mat.emissiveIndex = GetTexHepaIndex(_pMate->emissiveTex);
+					_mat.normalIndex = GetTexHepaIndex(_pMate->normalTex);
 
 					_rayInst.submeshMaterials.push_back(_mat);
 				}
@@ -106,9 +102,14 @@ namespace Engine::Raytracing
 		auto* _model = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
 		if (!_model) return;
 
+		// アニメーション用BLASを取得
+		auto& _pool = a_world.GetResource<Pool::ItemPool<DynamicRaytracingData>>();
+
+
 		auto& _nodes = _model->GetOriginalNodeVec();
 		for (auto& _node : _nodes)		// ノードループ
 		{
+			UINT _meshDataIdx = 0;
 			for (auto& _meshIdx : _node.meshIndices)	// メッシュループ
 			{
 				const auto& _meshHandle = _model->GetMeshHandles()[_meshIdx];
@@ -120,9 +121,13 @@ namespace Engine::Raytracing
 				Engine::Raytracing::Instance _rayInst = {};
 				_rayInst.worldMat = _nodeMat * a_worldMat;
 				if (!_pMesh->HasRtData()) continue;
-				_rayInst.pBLAS = &_pMesh->GetRtData().blas;
+				auto* _item = _pool.Ref(a_dynamicDataHandle);
+				if (!_item) continue;
 
-				// メガバッファ割り当て
+				//_rayInst.pBLAS = &_pMesh->GetRtData().blas;
+				_rayInst.pBLAS = &_item->meshDataVec[_meshDataIdx].instanceBLAS;
+
+				// メガバッファの割り当て
 				_rayInst.megaVertexHandle = _pMesh->GetRtData().vertexHandle;
 				_rayInst.megaIndexHandle = _pMesh->GetRtData().indexHandle;
 
@@ -149,6 +154,8 @@ namespace Engine::Raytracing
 					_rayInst.submeshMaterials.push_back(_mat);
 				}
 				m_instanceVec.emplace_back(_rayInst);
+
+				_meshDataIdx++;
 			}
 		}
 	}

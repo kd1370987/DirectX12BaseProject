@@ -40,7 +40,7 @@ namespace Engine::Resource
 		}
 
 		// BLAS作成
-		blas.Create(a_pDevice, a_pCmdList, _descVec);
+		blas.CreateStatic(a_pDevice, a_pCmdList, _descVec);
 
 		return;
 	}

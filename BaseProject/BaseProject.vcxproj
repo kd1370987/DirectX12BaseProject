@@ -354,6 +354,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Skining\SkiningPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass\UpdateBLASPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp" />
@@ -573,6 +574,7 @@
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer\MegaRWStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer\RWStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.h" />
@@ -641,6 +643,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Skining\SkiningPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass\UpdateBLASPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h" />

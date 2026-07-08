@@ -55,7 +55,15 @@ void SkinningRegisterSystem::Init(Engine::ECS::World& a_world)
 				);
 
 				// レイトレワールドに登録
-				
+				Engine::Raytracing::RayEngine::Instance().RegisterSkinningModel(
+					a_world,
+					_wMatComp.worldMat,
+					_modelComp.handle,
+					_animComp.dynamicInstanceHandle,
+					_nodePoseComp.nodePoseHandle,
+					_modelComp.colorScale,
+					_modelComp.emissiveScale
+				);
 			}
 		}
 	);

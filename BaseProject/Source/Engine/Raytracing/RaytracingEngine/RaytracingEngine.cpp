@@ -76,6 +76,20 @@ namespace Engine::Raytracing
 		m_isCommit = false;
 	}
 
+	void RayEngine::RegisterSkinningModel(ECS::World& a_world, const DXSM::Matrix& a_worldMat, const Engine::Handle<Engine::Resource::Model>& a_modelHandle, const Handle<DynamicRaytracingData>& a_dynamicData, const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatVec, const DXSM::Vector4& a_colorScale, const DXSM::Vector3& a_emissiveScale)
+	{
+		if (!m_upRayWorld)
+		{
+			m_upRayWorld = std::make_unique<RayWorld>();
+		}
+
+		// モデル登録
+		m_upRayWorld->Register(a_world,a_worldMat,a_modelHandle,a_dynamicData,a_nodeposeMatVec,a_colorScale,a_emissiveScale);
+
+
+		m_isCommit = false;
+	}
+
 
 	void Engine::Raytracing::RayEngine::CommitWorld(
 		D3D12::Device* a_pDevice,

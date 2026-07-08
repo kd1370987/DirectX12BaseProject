@@ -1,10 +1,18 @@
 ﻿#pragma once
 #include "../../Graphics/CBData.h"
 
-namespace Engine::Graphics
+namespace Engine
 {
-	class RenderContext;
-	class GraphicsEngine;
+	namespace Graphics
+	{
+		class RenderContext;
+		class GraphicsEngine;
+	}
+
+	namespace ECS
+	{
+		class World;
+	}
 }
 
 namespace Engine::Raytracing
@@ -33,7 +41,15 @@ namespace Engine::Raytracing
 			const DXSM::Vector4& a_colorScale,
 			const DXSM::Vector3& a_emissiveScale
 		);
-
+		void RegisterSkinningModel(
+			ECS::World& a_world,
+			const DXSM::Matrix& a_worldMat,
+			const Engine::Handle<Engine::Resource::Model>& a_modelHandle,
+			const Handle<DynamicRaytracingData>& a_dynamicData,
+			const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatVec,
+			const DXSM::Vector4& a_colorScale,
+			const DXSM::Vector3& a_emissiveScale
+		);
 		// レイトレワールドの構築
 		void CommitWorld(D3D12::Device* a_pDevice,
 			D3D12::GraphicsCommandList* a_pCmdList);

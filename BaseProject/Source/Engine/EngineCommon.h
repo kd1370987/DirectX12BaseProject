@@ -95,6 +95,7 @@ namespace Engine::Resource
 #include "Engine/D3D12/GPUBuffer/IndexBuffer/DynamicIndexBuffer.h"				// ダイナミックインデックスバッファ
 #include "Engine/D3D12/GPUBuffer/StructuredBuffer/StaticStructuredBuffer.h"		// スタティックストラクチャバッファ
 #include "Engine/D3D12/GPUBuffer/StructuredBuffer/DynamicStructuredBuffer.h"	// ダイナミックストラクチャバッファ
+#include "D3D12/GPUBuffer/MegaBuffer/MegaRWStructuredBuffer/MegaRWStructuredBuffer.h"	// RWストラクチャバッファ
 #include "D3D12/GPUBuffer/ByteAddressBuffer/ByteAddressBuffer.h"				// バイトアドレスバッファ
 #include "D3D12/GPUBuffer/ByteAddressBuffer/StaticByteAddressBuffer.h"			// スタティックバイトアドレスバッファ
 #include "Engine/D3D12/GPUBuffer/RWStructuredBuffer/RWStructuredBuffer.h"		// GPU用UAV構造体バッファ

@@ -260,9 +260,10 @@ namespace Engine::Graphics
 		const Handle<D3D12::SRV>& GetVertexCPUHandle() const;
 		const Handle<D3D12::SRV>& GetIndexCPUHandle() const;
 		const Handle<D3D12::UAV>& GetAnimatedBufferUAVHandle() const;
+		const Handle<D3D12::SRV>& GetAnimatedBufferSRVHandle() const;
 
 		void AnimatedBufferBarrierUAV(D3D12::GraphicsCommandList* a_pCmdList);
-		D3D12::RWStructuredBuffer<Resource::MeshVertexFloat>& RefRWAnimatedBuffer();
+		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& RefRWAnimatedBuffer();
 		// 配列取得
 		const std::vector<SkinningDispatchItem>& GetSkinningImtes() const { return m_skinningDispathItemVec; }
 
@@ -341,6 +342,6 @@ namespace Engine::Graphics
 		D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat> m_meshVerticesBuffer;
 		D3D12::MegaStructuredBuffer<uint32_t> m_meshIndexBuffer;
 
-		D3D12::RWStructuredBuffer<Resource::MeshVertexFloat> m_animatedVertexBuffer;
+		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat> m_animatedVertexBuffer;
 	};
 }

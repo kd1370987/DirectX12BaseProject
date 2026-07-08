@@ -50,6 +50,7 @@
 #include "RenderPass/Particle/EmitParticlePass/EmitParticlePass.h"
 
 #include "RenderPass/Skining/SkiningPass.h"
+#include "RenderPass/Skining/UpdateBLASPass/UpdateBLASPass.h"
 
 #include "RenderPass/Utility/GBufferHistoryPass/GBufferHistoryPass.h"
 #include "RenderPass/Utility/PostHistoryPass/PostHistoryPass.h"
@@ -117,6 +118,7 @@ namespace Engine::Graphics
 		AddPostHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
 
 		AddSkiningPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
+		AddUpdateBLASPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
 
 		AddTAAPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 
@@ -752,12 +754,17 @@ namespace Engine::Graphics
 		return m_animatedVertexBuffer.GetUAV();
 	}
 
+	const Handle<D3D12::SRV>& GraphicsEngine::GetAnimatedBufferSRVHandle() const
+	{
+		return m_animatedVertexBuffer.GetSRV();
+	}
+
 	void GraphicsEngine::AnimatedBufferBarrierUAV(D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		m_animatedVertexBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	}
 
-	D3D12::RWStructuredBuffer<Resource::MeshVertexFloat>& GraphicsEngine::RefRWAnimatedBuffer()
+	D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& GraphicsEngine::RefRWAnimatedBuffer()
 	{
 		return m_animatedVertexBuffer;
 	}
@@ -849,64 +856,79 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::ProcessInitQueue(D3D12::Device* a_pDevice,D3D12::GraphicsCommandList* a_pCmdList)
 	{
-		//// ワールドチェック
-		//auto* _pCurrentWorld = Engine::Scene::SceneManager::Instance().RefWorld();
-		//if (!_pCurrentWorld) return;
+		// ワールドと必須リソースの存在チェック
+		auto* _pCurrentWorld = Engine::Scene::SceneManager::Instance().RefWorld();
+		if (!_pCurrentWorld) return;
 
-		//// リソースチェック
-		//if (!_pCurrentWorld->HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) return;
-		//if (!_pCurrentWorld->HasResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>()) return;
+		if (!_pCurrentWorld->HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) return;
+		if (!_pCurrentWorld->HasResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>()) return;
 
-		//auto& _initRequestVec = _pCurrentWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
-		//if (_initRequestVec.empty()) return;
-		//auto& _dynamicPool = _pCurrentWorld->GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+		auto& _initRequestVec = _pCurrentWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+		if (_initRequestVec.empty()) return;
 
-		//// モデルのリソースからBLASと頂点バッファをコピー
-		//for (auto& _initReq : _initRequestVec)
-		//{
-		//	// プールから作成予定の実態を取得
-		//	auto* _pData = _dynamicPool.Ref(_initReq.dynamicInstanceHandle);
-		//	if (!_pData) continue;
-		//	auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_initReq.modelHandle);
-		//	if (!_pModel) continue;
+		auto& _dynamicPool = _pCurrentWorld->GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
 
-		//	// 各メッシュごとにBLASを構築
-		//	for (auto& _meshHandle : _pModel->GetMeshHandles())
-		//	{
-		//		auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
-		//		if (!_pMesh) continue;
-		//		if (!_pMesh->HasRtData()) continue;
+		// モデルのリソースからBLASと頂点バッファをコピー
+		for (auto& _initReq : _initRequestVec)
+		{
+			// ターゲットとなるインスタンスデータと、ソースとなるモデルデータの取得
+			auto* _pData = _dynamicPool.Ref(_initReq.dynamicInstanceHandle);
+			auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_initReq.modelHandle);
+			if (!_pData || !_pModel) continue;
 
-		//		_pData->deformedVertexBufferVec.emplace_back();
-		//		_pData->deformedVertexBufferVec.back().Create(
-		//			a_pDevice,
-		//			a_pCmdList,
-		//			static_cast<UINT>(_pMesh->GetRtData().structuredVertexBuffer.GetElementNum()),
-		//			nullptr
-		//		);
+			// モデル内の各メッシュごとに動的BLASを構築
+			for (auto& _meshHandle : _pModel->GetMeshHandles())
+			{
+				// メッシュの有効性チェック
+				auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
+				if (!_pMesh || !_pMesh->HasRtData()) continue;
 
-		//		m_animatedVertexBuffer.
+				// メッシュデータの追加と参照の取得
+				_pData->meshDataVec.emplace_back();
+				auto& _targetMeshData = _pData->meshDataVec.back();
 
-		//		// 配列をコピー
-		//		auto _geometryDescVec = _pMesh->GetRtData().blas.GetGeometryDesc();
-		//		for (auto& _desc : _geometryDescVec)
-		//		{
-		//			// 静的バッファのアドレスから、今作った動的バッファのGPUアドレスに書き換える
-		//			_desc.Triangles.VertexBuffer.StartAddress = _pData->deformedVertexBufferVec.back().GetGPUVirtualAddress();
-		//		}
+				// インスタンス専用のアニメーション用頂点バッファ領域をメガバッファから割り当て
+				UINT _vertexCount = _pMesh->GetRtData().vertexHandle.count;
+				_targetMeshData.animatedVertexHandle = m_animatedVertexBuffer.Allocate(_vertexCount);
 
-		//		_pData->instanceBLASVec.emplace_back();
-		//		_pData->instanceBLASVec.back().Create(
-		//			a_pDevice,
-		//			a_pCmdList,
-		//			_geometryDescVec,
-		//			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE
-		//		);
-		//	}
-		//}
+				// サブメッシュ（マテリアル単位）ごとのジオメトリ情報を構築
+				std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> _descVec = {};
+				_descVec.reserve(_pMesh->GetMetaData().subsets.size());
 
-		//// 処理が終われば命令を解放
-		//_initRequestVec.clear();
+				// レイトレーシング用データ作成
+				for (auto& _subset : _pMesh->GetMetaData().subsets)
+				{
+					// ジオメトリ記述作成
+					D3D12_RAYTRACING_GEOMETRY_DESC _desc = {};
+					_desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+					_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+					// 頂点バッファ
+					_desc.Triangles.VertexBuffer.StartAddress =
+						m_animatedVertexBuffer.GetGPUVirtualAddress() +
+						(_targetMeshData.animatedVertexHandle.startIndex * sizeof(Resource::MeshVertexFloat));
+					_desc.Triangles.VertexBuffer.StrideInBytes = sizeof(Resource::MeshVertexFloat);
+					_desc.Triangles.VertexCount = _vertexCount;
+					_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+
+					// インデックスバッファ
+					_desc.Triangles.IndexBuffer =
+						m_meshIndexBuffer.GetGPUVirtualAddress() +
+						sizeof(uint32_t) * (_subset.faceStart * 3 + _pMesh->GetRtData().indexHandle.startIndex);
+					_desc.Triangles.IndexCount = _subset.faceCount * 3;
+					_desc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
+
+					_descVec.push_back(_desc);
+				}
+				_pData->meshDataVec.back().instanceBLAS.CreateDynamic(
+					a_pDevice,
+					a_pCmdList,
+					_descVec
+				);
+			}
+		}
+
+		// 処理が終われば命令を解放
+		_initRequestVec.clear();
 	}
 	void GraphicsEngine::UpdateDynamicRayBLAS(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList)
 	{
