@@ -143,33 +143,18 @@ void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList,con
 		m_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
 		auto& m = a_instanceVec[_i].worldMat;
 
-		//m_pInstanceDesc[_i].Transform[0][0] = m._11;
-		//m_pInstanceDesc[_i].Transform[0][1] = m._12;
-		//m_pInstanceDesc[_i].Transform[0][2] = m._13;
-		//m_pInstanceDesc[_i].Transform[0][3] = m._41;
-
-		//m_pInstanceDesc[_i].Transform[1][0] = m._21;
-		//m_pInstanceDesc[_i].Transform[1][1] = m._22;
-		//m_pInstanceDesc[_i].Transform[1][2] = m._23;
-		//m_pInstanceDesc[_i].Transform[1][3] = m._42;
-
-		//m_pInstanceDesc[_i].Transform[2][0] = m._31;
-		//m_pInstanceDesc[_i].Transform[2][1] = m._32;
-		//m_pInstanceDesc[_i].Transform[2][2] = m._33;
-		//m_pInstanceDesc[_i].Transform[2][3] = m._43;
-
 		m_pInstanceDesc[_i].Transform[0][0] = m._11;
-		m_pInstanceDesc[_i].Transform[0][1] = m._21; // 変更
-		m_pInstanceDesc[_i].Transform[0][2] = m._31; // 変更
+		m_pInstanceDesc[_i].Transform[0][1] = m._21;
+		m_pInstanceDesc[_i].Transform[0][2] = m._31;
 		m_pInstanceDesc[_i].Transform[0][3] = m._41;
 
-		m_pInstanceDesc[_i].Transform[1][0] = m._12; // 変更
+		m_pInstanceDesc[_i].Transform[1][0] = m._12;
 		m_pInstanceDesc[_i].Transform[1][1] = m._22;
-		m_pInstanceDesc[_i].Transform[1][2] = m._32; // 変更
+		m_pInstanceDesc[_i].Transform[1][2] = m._32;
 		m_pInstanceDesc[_i].Transform[1][3] = m._42;
 
-		m_pInstanceDesc[_i].Transform[2][0] = m._13; // 変更
-		m_pInstanceDesc[_i].Transform[2][1] = m._23; // 変更
+		m_pInstanceDesc[_i].Transform[2][0] = m._13;
+		m_pInstanceDesc[_i].Transform[2][1] = m._23;
 		m_pInstanceDesc[_i].Transform[2][2] = m._33;
 		m_pInstanceDesc[_i].Transform[2][3] = m._43;
 

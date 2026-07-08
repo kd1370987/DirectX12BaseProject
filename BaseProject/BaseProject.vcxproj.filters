@@ -1042,6 +1042,12 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass">
       <UniqueIdentifier>{6cf8b0fa-118e-4e11-840d-e915298e350a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Compute\Skining">
+      <UniqueIdentifier>{f52814e5-2fc5-4329-b600-af980ebb83ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\FrameResource">
+      <UniqueIdentifier>{bde7cce5-ae5f-4a73-be26-1d7a44ed84f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1646,6 +1652,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.cpp">
+      <Filter>Source\Engine\Graphics\FrameResource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2555,6 +2564,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.h">
+      <Filter>Source\Engine\Graphics\FrameResource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2745,6 +2757,9 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\GBufferShader\MeshGBufferPS.hlsl">
       <Filter>Asset\Shader\Source\GBufferShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Skining\Skining.hlsl">
+      <Filter>Asset\Shader\Compute\Skining</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

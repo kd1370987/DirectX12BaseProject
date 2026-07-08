@@ -329,6 +329,7 @@
     <ClCompile Include="Source\Engine\Editor\SceneView\EditorCamera\EditorCamera.cpp" />
     <ClCompile Include="Source\Engine\Editor\SceneView\SceneView.cpp" />
     <ClCompile Include="Source\Engine\Editor\WatchView\WatchView.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
@@ -610,6 +611,7 @@
     <ClInclude Include="Source\Engine\Editor\WatchView\WatchView.h" />
     <ClInclude Include="Source\Engine\EngineConfig.h" />
     <ClInclude Include="Source\Engine\Graphics\CBData.h" />
+    <ClInclude Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h" />
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshAllocationHandle.h" />
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.h" />
@@ -852,6 +854,20 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Particle\UpdateParticle\UpdateParticleShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Skining\Skining.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

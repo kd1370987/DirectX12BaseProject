@@ -33,13 +33,13 @@ namespace Engine::D3D12
 		{
 			auto _alloc = m_freeCopyAllocators.back();
 			m_freeCopyAllocators.pop_back();
-			return _alloc.Detach(); // ★修正：参照カウントを保ったままポインタを渡す
+			return _alloc.Detach(); 
 		}
 		else if (a_type == AsyncCommandType::Compute && !m_freeComputeAllocators.empty())
 		{
 			auto _alloc = m_freeComputeAllocators.back();
 			m_freeComputeAllocators.pop_back();
-			return _alloc.Detach(); // ★修正
+			return _alloc.Detach();
 		}
 
 		// フリーリストがなければ新規作成

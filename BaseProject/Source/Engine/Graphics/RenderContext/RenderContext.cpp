@@ -338,6 +338,15 @@ namespace Engine::Graphics
 		ComputeBindSRV(a_rootIdx, _cpu);
 	}
 
+	void RenderContext::ComputeBindSRVBindLess(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
+	{
+		// コマンドリストにバインド
+		m_pCmdList->SetComputeRootDescriptorTable(
+			a_rootIdx,
+			m_bindLessHeap.GetGPU(a_srvHandle.GetIndex())
+		);
+	}
+
 	void RenderContext::BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
 	{
 		// 今の空きインデックスカウントを確保

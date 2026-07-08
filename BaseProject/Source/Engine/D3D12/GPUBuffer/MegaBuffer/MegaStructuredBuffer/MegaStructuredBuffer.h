@@ -8,7 +8,7 @@ namespace Engine::D3D12
 	/// 静的なデータで毎フレーム変わるようなデータには向かない
 	/// </summary>
 	template<typename T>
-	class MegaStructuredBuffer : MegaBuffer
+	class MegaStructuredBuffer : public MegaBuffer
 	{
 	public:
 
@@ -40,6 +40,12 @@ namespace Engine::D3D12
 		/// </summary>
 		/// <param name="a_handle"></param>
 		void Free(const RangeHandle<T>& a_handle);
+
+		/// <summary>
+		/// バッファの更新
+		/// </summary>
+		/// <param name="a_currentFrameFence"></param>
+		void Update(uint64_t a_currentFrameFence);
 
 	private:
 		bool m_isDrty = false;
@@ -78,5 +84,10 @@ namespace Engine::D3D12
 		// 基底クラスからフェンス値を取得し、遅延解放を予約
 		uint64_t _currentFence = GetCurrentFenceValue();
 		m_rangeAllocator.FreeRange(a_handle, _currentFence);
+	}
+	template<typename T>
+	inline void MegaStructuredBuffer<T>::Update(uint64_t a_currentFrameFence)
+	{
+		m_rangeAllocator.UpdateFrees(a_currentFrameFence);
 	}
 }

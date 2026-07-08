@@ -125,6 +125,9 @@ namespace Engine::Graphics
 		void ComputeBindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
 		void ComputeBindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle);
 
+		void ComputeBindSRVBindLess(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle);
+		
+
 		// UAV
 		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
 		void BindUAV(UINT a_rootIdx, Handle<D3D12::UAV> a_uavHandle);

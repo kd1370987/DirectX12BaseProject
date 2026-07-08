@@ -50,6 +50,10 @@ namespace Engine::Raytracing
 				_rayInst.vertexHandle = _pMesh->GetRtData().structuredVertexBuffer.GetSRVHandle();
 				_rayInst.indexHandle = _pMesh->GetRtData().structuredIndexBuffer.GetSRVHandle();
 
+				// メガバッファ割り当て
+				_rayInst.megaVertexHandle = _pMesh->GetRtData().vertexHandle;
+				_rayInst.megaIndexHandle = _pMesh->GetRtData().indexHandle;
+
 				for (auto& _subset : _pMesh->GetMetaData().subsets)
 				{
 					// マテリアル取得
@@ -149,6 +153,12 @@ namespace Engine::Raytracing
 			InstanceData _data = {};
 			_data.vertexSRVIndex = _instance.vertexHandle.GetIndex();
 			_data.indexSRVIndex = _instance.indexHandle.GetIndex();
+
+			_data.vertexStart = _instance.megaVertexHandle.startIndex;
+			_data.vertexCount = _instance.megaVertexHandle.count;
+			_data.indexStart = _instance.megaIndexHandle.startIndex;
+			_data.indexCount = _instance.megaIndexHandle.count;
+
 			_data.materialOffset = _materialOffset;
 			m_instanceDataVec.push_back(_data);
 

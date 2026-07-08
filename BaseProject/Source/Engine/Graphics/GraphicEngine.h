@@ -228,9 +228,12 @@ namespace Engine::Graphics
 		void DrawQueue(Graphics::RenderContext* a_pCtx, uint8_t a_passIndex);
 		void BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex);
 
-		// メッシュ登録
-		RangeHandle<Resource::MeshVertexFloat> AllocateMeshVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex);
+		// メガバッファ
+		RangeHandle<Resource::RTVertex> AllocateMeshVertex(const std::vector<Resource::RTVertex>& a_vertex);
 		RangeHandle<uint32_t> AllocateMeshIndex(const std::vector<uint32_t>& a_indices);
+
+		const Handle<D3D12::SRV>& GetVertexCPUHandle() const;
+		const Handle<D3D12::SRV>& GetIndexCPUHandle() const;
 
 	private:
 
@@ -298,7 +301,8 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// メガバッファ
 		//--------------------------------------------------------------------------------------------
-		D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat> m_meshVerticesBuffer;
+		//D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat> m_meshVerticesBuffer;
+		D3D12::MegaStructuredBuffer<Resource::RTVertex> m_meshVerticesBuffer;
 		D3D12::MegaStructuredBuffer<uint32_t> m_meshIndexBuffer;
 	};
 }

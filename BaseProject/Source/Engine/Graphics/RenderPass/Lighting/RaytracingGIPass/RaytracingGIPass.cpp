@@ -56,6 +56,8 @@ namespace Engine::Graphics
 		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,2} });	// マテリアル
 		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 1);		// GBufferインデックス
 		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 10);		// ライト
+		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,3} });	// 頂点
+		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,4} });	// インデックス
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 
@@ -178,7 +180,9 @@ namespace Engine::Graphics
 				6,
 				_ambient
 			);
-
+			// メッシュ情報バインド
+			a_pCtx->ComputeBindSRVBindLess(7, a_pGE->GetVertexCPUHandle());
+			a_pCtx->ComputeBindSRVBindLess(8, a_pGE->GetIndexCPUHandle());
 			// ディスパッチ
 			Raytracing::RayEngine::Instance().Dispatch(a_pCtx, _spPassData->shaderTable);
 		};

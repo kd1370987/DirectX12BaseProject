@@ -6,7 +6,7 @@ namespace Engine::D3D12
 	/// <summary>
 	/// シーンに一つ持つような巨大なバッファ
 	/// </summary>
-	class MegaBuffer : GPUBuffer
+	class MegaBuffer : public GPUBuffer
 	{
 	public:
 
@@ -27,11 +27,6 @@ namespace Engine::D3D12
 			size_t a_elemetNum,
 			size_t a_strideSize
 		);
-
-		/// <summary>
-		/// 毎フレーム呼ばれる : 領域の結合
-		/// </summary>
-		void UpdateFrees();
 
 	protected:
 		// テンプレート派生クラスから呼ぶための生データ操作関数

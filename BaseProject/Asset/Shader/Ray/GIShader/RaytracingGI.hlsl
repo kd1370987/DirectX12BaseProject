@@ -3,9 +3,13 @@ struct InstanceData
 {
 	uint vertexIdx; // SRV
 	uint indexIdx; // SRV
-
-	// このメッシュのマテリアル群がg_materialDataの何番目から始まるか
-	uint materialOffset;
+	uint materialOffset; // このメッシュのマテリアル群がg_materialDataの何番目から始まるか
+	uint vertexStart;
+	
+	uint vertexCount;
+	uint indexStart;
+	uint indexCount;
+	
 	uint pad;
 };
 // マテリアル構造体
@@ -66,24 +70,42 @@ cbuffer cbGBufferIndex : register(b1)
 // UV座標を取得
 float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs, InstanceData instance, uint primID, Material material)
 {
+	//float3 _barycentrics = float3(1.0 - a_attribs.barycentrics.x - a_attribs.barycentrics.y, a_attribs.barycentrics.x, a_attribs.barycentrics.y);
+
+	//// メインヒープから、このインスタンスのインデックスバッファと頂点バッファを直接取得
+	//StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
+	//StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
+
+	//// プリミティブIDではなくサブメッシュ番号を取得する
+	//uint _baseIndexLocation = material.startIndexLocation + (primID * 3);
+
+	//// プリミティブインデックスから頂点番号を取得
+	//uint _v0 = indexBuff[_baseIndexLocation];
+	//uint _v1 = indexBuff[_baseIndexLocation + 1];
+	//uint _v2 = indexBuff[_baseIndexLocation + 2];
+
+	//// UV取得
+	//float2 _uv0 = vertexBuff[_v0].uv;
+	//float2 _uv1 = vertexBuff[_v1].uv;
+	//float2 _uv2 = vertexBuff[_v2].uv;
+
+	//float2 _uv = _barycentrics.x * _uv0 + _barycentrics.y * _uv1 + _barycentrics.z * _uv2;
+	//return _uv;
+
 	float3 _barycentrics = float3(1.0 - a_attribs.barycentrics.x - a_attribs.barycentrics.y, a_attribs.barycentrics.x, a_attribs.barycentrics.y);
 
-	// メインヒープから、このインスタンスのインデックスバッファと頂点バッファを直接取得
-	StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
-	StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
+	// サブメッシュ番号とインスタンスのオフセットを加算
+	uint _baseIndexLocation = instance.indexStart + material.startIndexLocation + (primID * 3);
 
-	// プリミティブIDではなくサブメッシュ番号を取得する
-	uint _baseIndexLocation = material.startIndexLocation + (primID * 3);
+	// メガバッファからローカルのインデックス番号を取得
+	uint _v0 = g_indexData[_baseIndexLocation];
+	uint _v1 = g_indexData[_baseIndexLocation + 1];
+	uint _v2 = g_indexData[_baseIndexLocation + 2];
 
-	// プリミティブインデックスから頂点番号を取得
-	uint _v0 = indexBuff[_baseIndexLocation];
-	uint _v1 = indexBuff[_baseIndexLocation + 1];
-	uint _v2 = indexBuff[_baseIndexLocation + 2];
-
-	// UV取得
-	float2 _uv0 = vertexBuff[_v0].uv;
-	float2 _uv1 = vertexBuff[_v1].uv;
-	float2 _uv2 = vertexBuff[_v2].uv;
+	// オフセットを足してメガバッファからUV取得
+	float2 _uv0 = g_vertexfloatData[instance.vertexStart + _v0].uv;
+	float2 _uv1 = g_vertexfloatData[instance.vertexStart + _v1].uv;
+	float2 _uv2 = g_vertexfloatData[instance.vertexStart + _v2].uv;
 
 	float2 _uv = _barycentrics.x * _uv0 + _barycentrics.y * _uv1 + _barycentrics.z * _uv2;
 	return _uv;
@@ -91,30 +113,52 @@ float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs, InstanceData insta
 // 法線の取得
 float3 GetNormal(BuiltInTriangleIntersectionAttributes a_attribs, float2 a_uv, InstanceData instance, uint primID, Material material)
 {
+
 	float3 _barycentrics = float3(1.0 - a_attribs.barycentrics.x - a_attribs.barycentrics.y, a_attribs.barycentrics.x, a_attribs.barycentrics.y);
 	
-	// 同様にメインヒープから取得
-	StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
-	StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
+	// サブメッシュ番号とインスタンスのオフセットを加算
+	uint _baseIndexLocation = instance.indexStart + material.startIndexLocation + (primID * 3);
 	
-	// プリミティブIDではなくサブメッシュ番号を取得する
-	uint _baseIndexLocation = material.startIndexLocation + (primID * 3);
+	uint _v0 = g_indexData[_baseIndexLocation];
+	uint _v1 = g_indexData[_baseIndexLocation + 1];
+	uint _v2 = g_indexData[_baseIndexLocation + 2];
 	
-	uint _v0 = indexBuff[_baseIndexLocation];
-	uint _v1 = indexBuff[_baseIndexLocation + 1];
-	uint _v2 = indexBuff[_baseIndexLocation + 2];
-	
-	// 法線取得
-	float3 _n0 = vertexBuff[_v0].normal;
-	float3 _n1 = vertexBuff[_v1].normal;
-	float3 _n2 = vertexBuff[_v2].normal;
+	// 法線取得 (vertexStartを足す)
+	float3 _n0 = g_vertexfloatData[instance.vertexStart + _v0].normal;
+	float3 _n1 = g_vertexfloatData[instance.vertexStart + _v1].normal;
+	float3 _n2 = g_vertexfloatData[instance.vertexStart + _v2].normal;
 	float3 _normal = normalize(_barycentrics.x * _n0 + _barycentrics.y * _n1 + _barycentrics.z * _n2);
 
 	// タンジェント
-	float3 _t0 = vertexBuff[_v0].tangent;
-	float3 _t1 = vertexBuff[_v1].tangent;
-	float3 _t2 = vertexBuff[_v2].tangent;
+	float3 _t0 = g_vertexfloatData[instance.vertexStart + _v0].tangent;
+	float3 _t1 = g_vertexfloatData[instance.vertexStart + _v1].tangent;
+	float3 _t2 = g_vertexfloatData[instance.vertexStart + _v2].tangent;
 	float3 _tangent = normalize(_barycentrics.x * _t0 + _barycentrics.y * _t1 + _barycentrics.z * _t2);
+	
+	//float3 _barycentrics = float3(1.0 - a_attribs.barycentrics.x - a_attribs.barycentrics.y, a_attribs.barycentrics.x, a_attribs.barycentrics.y);
+	
+	//// 同様にメインヒープから取得
+	//StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
+	//StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
+	
+	//// プリミティブIDではなくサブメッシュ番号を取得する
+	//uint _baseIndexLocation = material.startIndexLocation + (primID * 3);
+	
+	//uint _v0 = indexBuff[_baseIndexLocation];
+	//uint _v1 = indexBuff[_baseIndexLocation + 1];
+	//uint _v2 = indexBuff[_baseIndexLocation + 2];
+	
+	//// 法線取得
+	//float3 _n0 = vertexBuff[_v0].normal;
+	//float3 _n1 = vertexBuff[_v1].normal;
+	//float3 _n2 = vertexBuff[_v2].normal;
+	//float3 _normal = normalize(_barycentrics.x * _n0 + _barycentrics.y * _n1 + _barycentrics.z * _n2);
+
+	//// タンジェント
+	//float3 _t0 = vertexBuff[_v0].tangent;
+	//float3 _t1 = vertexBuff[_v1].tangent;
+	//float3 _t2 = vertexBuff[_v2].tangent;
+	//float3 _tangent = normalize(_barycentrics.x * _t0 + _barycentrics.y * _t1 + _barycentrics.z * _t2);
 
 	// ビノーマルを計算
 	float3 _binormal = normalize(cross(_tangent, _normal));
@@ -319,19 +363,45 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	InstanceData instance = g_instanceData[instID]; // インスタンス情報
 	Material _material = g_materialData[instance.materialOffset + geomID]; // サブメッシュマテリアル情報
 	
-	// 頂点バッファとインデックスバッファを取得
-	StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
-	StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
-	uint _baseIndexLocation = _material.startIndexLocation + (primID * 3);
-	uint _v0 = indexBuff[_baseIndexLocation];
-	uint _v1 = indexBuff[_baseIndexLocation + 1];
-	uint _v2 = indexBuff[_baseIndexLocation + 2];
+	//// 頂点バッファとインデックスバッファを取得
+	//StructuredBuffer<int> indexBuff = ResourceDescriptorHeap[instance.indexIdx];
+	//StructuredBuffer<Vertex> vertexBuff = ResourceDescriptorHeap[instance.vertexIdx];
+	//uint _baseIndexLocation = _material.startIndexLocation + (primID * 3);
+	//uint _v0 = indexBuff[_baseIndexLocation];
+	//uint _v1 = indexBuff[_baseIndexLocation + 1];
+	//uint _v2 = indexBuff[_baseIndexLocation + 2];
+
+	//// 頂点の位置（オブジェクト空間）を取得
+	//float3 _vpos0 = vertexBuff[_v0].pos;
+	//float3 _vpos1 = vertexBuff[_v1].pos;
+	//float3 _vpos2 = vertexBuff[_v2].pos;
+
+	// ---------------------------------------------------------
+	// メガバッファからのデータ取得（ClosestHit内）
+	// ---------------------------------------------------------
+	
+	// サブメッシュの開始位置 ＋ このポリゴンのオフセット ＋ インスタンスの全体インデックスオフセット
+	uint _baseIndexLocation = instance.indexStart + _material.startIndexLocation + (primID * 3);
+	
+	// メガバッファからインデックスを取得
+	uint _v0 = g_indexData[_baseIndexLocation];
+	uint _v1 = g_indexData[_baseIndexLocation + 1];
+	uint _v2 = g_indexData[_baseIndexLocation + 2];
+
+	// 取得したローカルインデックスに、インスタンスの頂点オフセットを足して頂点を取得
+	// ※構造体が VertexFloat に変わっている点に注意
+	VertexFloat _vert0 = g_vertexfloatData[instance.vertexStart + _v0];
+	VertexFloat _vert1 = g_vertexfloatData[instance.vertexStart + _v1];
+	VertexFloat _vert2 = g_vertexfloatData[instance.vertexStart + _v2];
 
 	// 頂点の位置（オブジェクト空間）を取得
-	float3 _vpos0 = vertexBuff[_v0].pos;
-	float3 _vpos1 = vertexBuff[_v1].pos;
-	float3 _vpos2 = vertexBuff[_v2].pos;
+	float3 _vpos0 = _vert0.pos;
+	float3 _vpos1 = _vert1.pos;
+	float3 _vpos2 = _vert2.pos;
 
+	// メガバッファ
+	//----------------------------------------------------------
+	
 	// オブジェクト空間からワールド空間へ変換（ObjectToWorld4x3()を使用）
 	// ObjectToWorld4x3()がオブジェクトからワールドへの変換行列を返す
 	_vpos0 = mul(float4(_vpos0, 1.0), ObjectToWorld4x3());

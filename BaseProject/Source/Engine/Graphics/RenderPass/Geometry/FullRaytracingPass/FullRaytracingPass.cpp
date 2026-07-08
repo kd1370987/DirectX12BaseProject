@@ -47,6 +47,8 @@ namespace Engine::Graphics
 		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::UAV,0} });	// 出力
 		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,1} });	// インスタンス配列
 		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,2} });	// マテリアル
+		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,3} });	// 頂点
+		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,4} });	// インデックス
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 
@@ -131,6 +133,10 @@ namespace Engine::Graphics
 
 			// UAVをバインド
 			a_pCtx->BindUAVBindLess(2, a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "FullRay")->GetUAV());
+
+			// メッシュ情報バインド
+			a_pCtx->ComputeBindSRVBindLess(5, a_pGE->GetVertexCPUHandle());
+			a_pCtx->ComputeBindSRVBindLess(6, a_pGE->GetIndexCPUHandle());
 
 			// ディスパッチ
 			Raytracing::RayEngine::Instance().Dispatch(a_pCtx, _spPassData->shaderTable);

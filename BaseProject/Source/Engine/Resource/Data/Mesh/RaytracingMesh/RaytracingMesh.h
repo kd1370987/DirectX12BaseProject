@@ -24,7 +24,7 @@ namespace Engine::Resource
 		Engine::D3D12::StaticStructuredBuffer<RTVertex> structuredVertexBuffer;
 		Engine::D3D12::StaticStructuredBuffer<uint32_t>		structuredIndexBuffer;
 
-		RangeHandle<MeshVertexFloat> vertexHandle = {};
+		RangeHandle<RTVertex> vertexHandle = {};
 		RangeHandle<uint32_t> indexHandle = {};
 	};
 }

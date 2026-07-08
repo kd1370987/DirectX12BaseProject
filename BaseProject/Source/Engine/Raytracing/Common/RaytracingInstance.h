@@ -8,8 +8,13 @@ namespace Engine::Raytracing
 	{
 		UINT vertexSRVIndex;
 		UINT indexSRVIndex;
-
 		UINT materialOffset;	// マテリアル配列での位置
+		UINT vertexStart;
+
+		UINT vertexCount;
+		UINT indexStart;
+		UINT indexCount;
+
 		uint32_t pad;
 	};
 	// マテリアルSRVに対しての個別設定データ
@@ -44,6 +49,9 @@ namespace Engine::Raytracing
 		// 頂点情報
 		Handle<D3D12::SRV> vertexHandle = {};
 		Handle<D3D12::SRV> indexHandle = {};
+
+		RangeHandle<Resource::RTVertex> megaVertexHandle = {};
+		RangeHandle<uint32_t> megaIndexHandle = {};
 
 		// マテリアル
 		//const Engine::Resource::Material* pMaterial = nullptr;

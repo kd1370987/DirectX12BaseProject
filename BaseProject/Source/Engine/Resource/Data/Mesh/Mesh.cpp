@@ -20,6 +20,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 	m_subsets = a_subsets;
 	m_isSkinMesh = a_isSkinMesh;
 
+
 	std::vector<uint32_t> _indices;		// インデックス配列作成
 	for (auto& _f : a_face)
 	{
@@ -27,7 +28,6 @@ bool Engine::Resource::Mesh::CreateFloat(
 		_indices.push_back(_f.idx[1]);
 		_indices.push_back(_f.idx[2]);
 	}
-
 	auto _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
 	// メタデータ作成
@@ -86,7 +86,16 @@ bool Engine::Resource::Mesh::CreateFloat(
 	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 	if (!_pGE) return false;
 
-	m_opRtData->vertexHandle = _pGE->AllocateMeshVertex(m_vertices);
+	// 構造体バッファ作成
+	std::vector<RTVertex> _rtVertDataVec = {};
+	for (auto& _vert : a_vertices)
+	{
+		RTVertex _rt = {};
+		_rt = _vert;
+		_rtVertDataVec.push_back(_rt);
+	}
+
+	m_opRtData->vertexHandle = _pGE->AllocateMeshVertex(_rtVertDataVec);
 	m_opRtData->indexHandle = _pGE->AllocateMeshIndex(_indices);
 
 	return true;

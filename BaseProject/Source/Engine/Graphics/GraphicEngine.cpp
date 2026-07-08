@@ -104,12 +104,11 @@ namespace Engine::Graphics
 		// レンダーパスの登録
 		m_upRenderPassRegistry = std::make_unique<RenderPassRegistry>();
 		// ラスター関係
-		AddNonZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
-		//AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
-		AddNotPSOGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
-		//AddMeshGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
+		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
+		AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 		AddDebugLinePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
 		AddFullScreenPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
+		AddFullRaytracingPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 
 		AddRaytracingShadowPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Shadow);
 		AddRaytracingGIPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Raytracing);
@@ -177,6 +176,11 @@ namespace Engine::Graphics
 
 		// メッシュバッファの更新
 		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _currentFence);
+
+		m_meshVerticesBuffer.Update(_currentFence);
+		m_meshVerticesBuffer.Barrier(_pCmdList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		m_meshIndexBuffer.Update(_currentFence);
+		m_meshIndexBuffer.Barrier(_pCmdList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 		// パーティクルのバッファ更新
 		MainEngine::Instance().RefParticleManager()->UploadEmitData(_pCmdList);
@@ -687,7 +691,7 @@ namespace Engine::Graphics
 		a_pCtx->SetGraphicPSO(_pPSO);
 	}
 
-	RangeHandle<Resource::MeshVertexFloat> GraphicsEngine::AllocateMeshVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex)
+	RangeHandle<Resource::RTVertex> GraphicsEngine::AllocateMeshVertex(const std::vector<Resource::RTVertex>& a_vertex)
 	{
 		return m_meshVerticesBuffer.AllocateAndUpload(a_vertex.data(), static_cast<UINT>(a_vertex.size()));
 	}
@@ -695,6 +699,16 @@ namespace Engine::Graphics
 	RangeHandle<uint32_t> GraphicsEngine::AllocateMeshIndex(const std::vector<uint32_t>& a_indices)
 	{
 		return m_meshIndexBuffer.AllocateAndUpload(a_indices.data(), static_cast<UINT>(a_indices.size()));
+	}
+
+	const Handle<D3D12::SRV>& GraphicsEngine::GetVertexCPUHandle() const
+	{
+		return m_meshVerticesBuffer.GetSRV();
+	}
+
+	const Handle<D3D12::SRV>& GraphicsEngine::GetIndexCPUHandle() const
+	{
+		return m_meshIndexBuffer.GetSRV();
 	}
 
 	void GraphicsEngine::CreateGPUCameraData()
