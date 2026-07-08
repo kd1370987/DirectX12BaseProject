@@ -667,6 +667,11 @@ namespace Engine::Graphics
 		BindSRV(a_rootIndex,m_boneBuffer.GetSRV());
 	}
 
+	void RenderContext::ComputeBindBonePalletBuffer(UINT a_rootIndex)
+	{
+		ComputeBindSRV(a_rootIndex, m_boneBuffer.GetSRV());
+	}
+
 	void RenderContext::BindGraphicsDebugLineBuffer(UINT a_rootIndex)
 	{
 		BindSRV(a_rootIndex,m_debugLineBuffer.GetSRVHandle());

@@ -21,10 +21,7 @@ namespace Engine::Resource
 		void Release();
 
 		Engine::Raytracing::BLAS blas;
-		Engine::D3D12::StaticStructuredBuffer<RTVertex> structuredVertexBuffer;
-		Engine::D3D12::StaticStructuredBuffer<uint32_t>		structuredIndexBuffer;
-
-		RangeHandle<RTVertex> vertexHandle = {};
+		RangeHandle<MeshVertexFloat> vertexHandle = {};
 		RangeHandle<uint32_t> indexHandle = {};
 	};
 }

@@ -94,8 +94,8 @@ bool Engine::Resource::Mesh::CreateFloat(
 		_rt = _vert;
 		_rtVertDataVec.push_back(_rt);
 	}
-
-	m_opRtData->vertexHandle = _pGE->AllocateMeshVertex(_rtVertDataVec);
+	auto iii = sizeof(MeshVertexFloat);
+	m_opRtData->vertexHandle = _pGE->AllocateMeshVertex(a_vertices);
 	m_opRtData->indexHandle = _pGE->AllocateMeshIndex(_indices);
 
 	return true;
@@ -268,6 +268,7 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 
 void Engine::Resource::Mesh::Release()
 {
+	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 	// 各meshデータ解放
 	m_meshMetaData.Release();
 	if (m_opRasterData.has_value())

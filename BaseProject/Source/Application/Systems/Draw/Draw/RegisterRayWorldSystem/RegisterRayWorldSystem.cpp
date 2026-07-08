@@ -7,6 +7,7 @@
 #include "../../../../Components/Tag/RenderTag/RayTag.h"
 #include "../../../../Components/Resource/ModelComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
+#include "Application/Components/Resource/AnimatorComponent.h"
 
 void RegisterRayWorldSystem::Init(Engine::ECS::World& a_world)
 {
@@ -37,6 +38,7 @@ void RegisterRayWorldSystem::Init(Engine::ECS::World& a_world)
 					_modelComp.emissiveScale
 				);
 			}
-		}
+		},
+		Engine::ECS::Exclude<AnimatorComponent>()
 	);
 }

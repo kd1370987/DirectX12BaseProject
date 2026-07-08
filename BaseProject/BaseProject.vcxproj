@@ -751,6 +751,8 @@
     <None Include="Asset\Shader\Common\Shape\Box.hlsli" />
     <None Include="Asset\Shader\Common\Shape\Capsule.hlsli" />
     <None Include="Asset\Shader\Common\Shape\Sphere.hlsli" />
+    <None Include="Asset\Shader\Common\Struct\Vertex.hlsli" />
+    <None Include="Asset\Shader\Compute\Skining\Skinning.hlsli" />
     <None Include="Asset\Shader\Ray\RayGI.hlsli" />
     <None Include="Asset\Shader\Ray\RayShadow.hlsli" />
     <None Include="Asset\Shader\Ray\Raytracing.hlsli" />
@@ -915,6 +917,9 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Library</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
     </FxCompile>
+    <None Include="Asset\Shader\Ray\Raytracing.hlsl">
+      <FileType>Document</FileType>
+    </None>
     <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

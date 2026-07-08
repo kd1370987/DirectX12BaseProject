@@ -937,9 +937,6 @@
     <Filter Include="Source\Engine\Graphics\MeshBufferAllocator">
       <UniqueIdentifier>{4cdb53e6-823d-442f-af6a-eba9acee921b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\MeshBufferAllocator\IndexRangeAllocator">
-      <UniqueIdentifier>{ae1b5062-0a52-4341-abb0-2fcda8d0592a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Editor\EditorUI">
       <UniqueIdentifier>{9fd9e7c2-f082-4386-817e-41fb22eb2dfe}</UniqueIdentifier>
     </Filter>
@@ -1047,6 +1044,9 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\FrameResource">
       <UniqueIdentifier>{bde7cce5-ae5f-4a73-be26-1d7a44ed84f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\Struct">
+      <UniqueIdentifier>{0c473a89-0e73-4582-9782-963770d192a7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -2662,6 +2662,15 @@
     </None>
     <None Include="Asset\Shader\Ray\RayGI.hlsli">
       <Filter>Asset\Shader\Ray</Filter>
+    </None>
+    <None Include="Asset\Shader\Ray\Raytracing.hlsl">
+      <Filter>Asset\Shader\Ray</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\Struct\Vertex.hlsli">
+      <Filter>Asset\Shader\Common\Struct</Filter>
+    </None>
+    <None Include="Asset\Shader\Compute\Skining\Skinning.hlsli">
+      <Filter>Asset\Shader\Compute\Skining</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

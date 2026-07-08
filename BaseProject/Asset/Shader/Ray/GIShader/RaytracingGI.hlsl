@@ -36,6 +36,9 @@ struct Vertex
 	float2 uv;
 	float3 tangent;
 	float4 color;
+		
+	uint2 skinIndex;
+	float4 skinWeight;
 };
 StructuredBuffer<InstanceData>	g_instanceData		: register(t1);		// インスタンスごとのデータ
 StructuredBuffer<Material>		g_materialData		: register(t2);		// インスタンスごとのデータ

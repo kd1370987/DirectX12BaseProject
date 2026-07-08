@@ -77,6 +77,18 @@ namespace Engine::Graphics
 		uint16_t GetMeshID()		const { return static_cast<uint16_t>((sortKey.value >> 16) & 0xFFFF); }
 	};
 
+	/// <summary>
+	/// GPUスキニングするエンティティの命令
+	/// </summary>
+	struct SkinningDispatchItem
+	{
+		RangeHandle<Resource::MeshVertexFloat> staticVertexHandle;		// アセット側の頂点データ
+		RangeHandle<uint32_t> staticIndexHandle;						// アセット側のインデックスデータ
+		RangeHandle<Resource::NodePoseMatrix> nodePoseMat;					// CPUで更新されたボーンノード行列
+
+		// 自身のBLASと変形後頂点を入れるメガバッファのハンドルを保持しているインスタンスのハンドル
+		Handle<Raytracing::DynamicRaytracingData> animHandle;
+	};
 
 	// グラフィックスエンジン
 	class GraphicsEngine
@@ -144,6 +156,20 @@ namespace Engine::Graphics
 		// 描画コマンド
 		//--------------------------------------------------------------------------------------------
 		
+		/// <summary>
+		/// GPUスキニングさせる命令
+		/// </summary>
+		/// <param name="a_world">ECSワールドポインタ</param>
+		/// <param name="a_pModel">モデルポインタ</param>
+		/// <param name="dynamicHandle">変形後のデータを入れるインスタンス</param>
+		/// <param name="nodePoseHnandle">ノード行列</param>
+		void SubmitSkinning(
+			ECS::World& a_world,
+			const Resource::Model* a_pModel,
+			const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
+			const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle
+		);
+
 		/// <summary>
 		/// 指定したモデルを指定の座標に描画する命令 : 即時実行ではなく、コマンドとしてためたのちに一括で実行される
 		/// </summary>
@@ -229,11 +255,18 @@ namespace Engine::Graphics
 		void BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex);
 
 		// メガバッファ
-		RangeHandle<Resource::RTVertex> AllocateMeshVertex(const std::vector<Resource::RTVertex>& a_vertex);
+		RangeHandle<Resource::MeshVertexFloat> AllocateMeshVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex);
 		RangeHandle<uint32_t> AllocateMeshIndex(const std::vector<uint32_t>& a_indices);
 
 		const Handle<D3D12::SRV>& GetVertexCPUHandle() const;
 		const Handle<D3D12::SRV>& GetIndexCPUHandle() const;
+		const Handle<D3D12::UAV>& GetAnimatedBufferUAVHandle() const;
+
+		// 配列取得
+		const std::vector<SkinningDispatchItem>& GetSkinningImtes() const { return m_skinningDispathItemVec; }
+
+		// バッファ取得
+
 
 	private:
 
@@ -298,11 +331,15 @@ namespace Engine::Graphics
 
 		std::vector<Raytracing::DynamicRaytracingRequest> m_dynamicRayRequestVec = {};
 
+		// GPUスキニング配列
+		std::vector<SkinningDispatchItem> m_skinningDispathItemVec = {};
+
 		//--------------------------------------------------------------------------------------------
 		// メガバッファ
 		//--------------------------------------------------------------------------------------------
-		//D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat> m_meshVerticesBuffer;
-		D3D12::MegaStructuredBuffer<Resource::RTVertex> m_meshVerticesBuffer;
+		D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat> m_meshVerticesBuffer;
 		D3D12::MegaStructuredBuffer<uint32_t> m_meshIndexBuffer;
+
+		D3D12::RWStructuredBuffer<Resource::MeshVertexFloat> m_animatedVertexBuffer;
 	};
 }

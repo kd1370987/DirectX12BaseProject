@@ -104,7 +104,7 @@ namespace Engine::Graphics
 		// レンダーパスの登録
 		m_upRenderPassRegistry = std::make_unique<RenderPassRegistry>();
 		// ラスター関係
-		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
+		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 		AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 		AddDebugLinePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
 		AddFullScreenPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
@@ -115,6 +115,8 @@ namespace Engine::Graphics
 		AddDeferredLighting(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Lighting);
 		AddGBufferHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
 		AddPostHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
+
+		AddSkiningPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
 
 		AddTAAPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 
@@ -143,6 +145,8 @@ namespace Engine::Graphics
 		// メガバッファ
 		m_meshVerticesBuffer.Create(_pDevice,a_pCmdList,10000000);
 		m_meshIndexBuffer.Create(_pDevice,a_pCmdList,10000000);
+
+		m_animatedVertexBuffer.Create(_pDevice,10000000);
 	}
 
 	void GraphicsEngine::Release()
@@ -240,6 +244,9 @@ namespace Engine::Graphics
 		m_dynamicRayRequestVec.clear();
 		m_dynamicRayRequestVec.reserve(1000);
 
+		m_skinningDispathItemVec.clear();
+		m_skinningDispathItemVec.reserve(1000);
+
 		// オブジェクトデータの消去
 		m_instanceDataVec.clear();
 		m_instanceDataVec.reserve(10000);
@@ -323,6 +330,31 @@ namespace Engine::Graphics
 	const AmbientData& GraphicsEngine::GetAmbientData() const
 	{
 		return m_cbAmbient;
+	}
+	void GraphicsEngine::SubmitSkinning(ECS::World& a_world, const Resource::Model* a_pModel, const Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle)
+	{
+		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
+		for (const auto& _cmd : _drawCmdVec)
+		{
+			// マテリアル取得
+			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Material>(_cmd.materialRawID);
+			if (!_pMaterial) continue;
+
+			// メッシュ取得
+			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Mesh>(_cmd.meshRawID);
+			if (!_pMesh) continue;
+
+			// マテリアルからシェーディングモデルを取得
+			auto* _pShadingModel = Engine::Resource::ResourceManager::Instance().Get(_pMaterial->shadingModelHandle);
+			if (!_pShadingModel) continue;
+
+			SkinningDispatchItem _item = {};
+			_item.staticVertexHandle = _pMesh->GetRtData().vertexHandle;
+			_item.staticIndexHandle = _pMesh->GetRtData().indexHandle;
+			_item.nodePoseMat = nodePoseHnandle;
+			_item.animHandle = dynamicHandle;
+			m_skinningDispathItemVec.push_back(_item);
+		}
 	}
 	void GraphicsEngine::SubmitModel(
 		ECS::World& a_world,
@@ -691,7 +723,7 @@ namespace Engine::Graphics
 		a_pCtx->SetGraphicPSO(_pPSO);
 	}
 
-	RangeHandle<Resource::RTVertex> GraphicsEngine::AllocateMeshVertex(const std::vector<Resource::RTVertex>& a_vertex)
+	RangeHandle<Resource::MeshVertexFloat> GraphicsEngine::AllocateMeshVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex)
 	{
 		return m_meshVerticesBuffer.AllocateAndUpload(a_vertex.data(), static_cast<UINT>(a_vertex.size()));
 	}
@@ -709,6 +741,11 @@ namespace Engine::Graphics
 	const Handle<D3D12::SRV>& GraphicsEngine::GetIndexCPUHandle() const
 	{
 		return m_meshIndexBuffer.GetSRV();
+	}
+
+	const Handle<D3D12::UAV>& GraphicsEngine::GetAnimatedBufferUAVHandle() const
+	{
+		return m_animatedVertexBuffer.GetUAV();
 	}
 
 	void GraphicsEngine::CreateGPUCameraData()
@@ -833,6 +870,8 @@ namespace Engine::Graphics
 		//			static_cast<UINT>(_pMesh->GetRtData().structuredVertexBuffer.GetElementNum()),
 		//			nullptr
 		//		);
+
+		//		m_animatedVertexBuffer.
 
 		//		// 配列をコピー
 		//		auto _geometryDescVec = _pMesh->GetRtData().blas.GetGeometryDesc();

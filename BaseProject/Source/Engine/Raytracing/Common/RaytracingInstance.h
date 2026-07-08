@@ -50,7 +50,7 @@ namespace Engine::Raytracing
 		Handle<D3D12::SRV> vertexHandle = {};
 		Handle<D3D12::SRV> indexHandle = {};
 
-		RangeHandle<Resource::RTVertex> megaVertexHandle = {};
+		RangeHandle<Resource::MeshVertexFloat> megaVertexHandle = {};
 		RangeHandle<uint32_t> megaIndexHandle = {};
 
 		// マテリアル
@@ -67,13 +67,12 @@ namespace Engine::Raytracing
 	struct DynamicRaytracingData
 	{
 		// コンピュートシェーダーで書き込む変形後のバッファ
-		std::vector<D3D12::RWStructuredBuffer<Resource::MeshVertexFloat>> deformedVertexBufferVec;
+		RangeHandle<Resource::MeshVertexFloat> animatedVertexHandle = {};
 
 		// インスタンス専用のBLAS
 		std::vector<Raytracing::BLAS> instanceBLASVec;
 	};
 
-	// どこかのヘッダーに定義
 	struct DynamicRaytracingInitRequest
 	{
 		// 初期化先のハンドル

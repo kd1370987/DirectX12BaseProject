@@ -187,6 +187,7 @@ namespace Engine::Graphics
 		void BindInstanceBuffer(UINT a_rootIndex);
 		void BindSubsetBuffer(UINT a_rootIndex);
 		void BindBonePalletBuffer(UINT a_rootIndex);
+		void ComputeBindBonePalletBuffer(UINT a_rootIndex);
 		void BindGraphicsDebugLineBuffer(UINT a_rootIndex);
 
 		// メッシュシェーダー関連

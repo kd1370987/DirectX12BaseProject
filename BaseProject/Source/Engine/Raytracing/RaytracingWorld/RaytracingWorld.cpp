@@ -47,8 +47,6 @@ namespace Engine::Raytracing
 				_rayInst.worldMat = _nodeMat * a_worldMat;
 				if (!_pMesh->HasRtData()) continue;
 				_rayInst.pBLAS = &_pMesh->GetRtData().blas;
-				_rayInst.vertexHandle = _pMesh->GetRtData().structuredVertexBuffer.GetSRVHandle();
-				_rayInst.indexHandle = _pMesh->GetRtData().structuredIndexBuffer.GetSRVHandle();
 
 				// メガバッファ割り当て
 				_rayInst.megaVertexHandle = _pMesh->GetRtData().vertexHandle;

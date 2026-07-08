@@ -42,33 +42,10 @@ namespace Engine::Resource
 		// BLAS作成
 		blas.Create(a_pDevice, a_pCmdList, _descVec);
 
-		// 構造体バッファ作成
-		std::vector<RTVertex> _rtVertDataVec = {};
-		for (auto& _vert : a_vertices)
-		{
-			RTVertex _rt = {};
-			_rt = _vert;
-			_rtVertDataVec.push_back(_rt);
-		}
-		// 頂点バッファー側SRV作成
-		structuredVertexBuffer.Create(a_pDevice, a_pCmdList, _rtVertDataVec.size(), _rtVertDataVec.data());
-
-		std::vector<uint32_t> _indices;		// インデックス配列作成
-		for (auto& _f : a_face)
-		{
-			_indices.push_back(_f.idx[0]);
-			_indices.push_back(_f.idx[1]);
-			_indices.push_back(_f.idx[2]);
-		}
-		// インデックスバッファー側SRV作成
-		structuredIndexBuffer.Create(a_pDevice, a_pCmdList, _indices.size(), _indices.data());
-
 		return;
 	}
 	void RaytracingMesh::Release()
 	{
 		blas.Release();
-		structuredIndexBuffer.Release();
-		structuredVertexBuffer.Release();
 	}
 }
