@@ -8,6 +8,8 @@
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
+#include "../../ECS/World/World.h"
+
 namespace Engine::Raytracing
 {
 	Engine::Raytracing::RayWorld::RayWorld()
@@ -76,9 +78,8 @@ namespace Engine::Raytracing
 					const auto* _Ntex = Engine::Resource::ResourceManager::Instance().Get(_pMate->normalTex);
 					_mat.normalIndex = _Ntex->GetSRV().GetIndex();
 
-					_rayInst.submeshMaterial.push_back(_mat);
+					_rayInst.submeshMaterials.push_back(_mat);
 				}
-				_rayInst.pMesh = _pMesh;
 				m_instanceVec.emplace_back(_rayInst);
 			}
 		}
@@ -87,8 +88,70 @@ namespace Engine::Raytracing
 		m_isCommit = false;
 	}
 
-	void RayWorld::Register(const DXSM::Matrix& a_worldMat, const DynamicRaytracingData& a_dynamicData, std::span<const Resource::NodePoseMatrix> a_nodeposeMatVec, const DXSM::Vector4& a_colorScale, const DXSM::Vector3& a_emissiveScale)
-	{}
+	void RayWorld::Register(
+		ECS::World& a_world,
+		const DXSM::Matrix& a_worldMat,
+		const Engine::Handle<Engine::Resource::Model>& a_modelHandle,
+		const Handle<DynamicRaytracingData>& a_dynamicDataHandle,
+		const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatHandle,
+		const DXSM::Vector4& a_colorScale, 
+		const DXSM::Vector3& a_emissiveScale
+	)
+	{
+		// ノード行列取得
+		auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+		const auto& _nodePoseMatVec = _nodePosePool.GetRange(a_nodeposeMatHandle);
+
+		// モデルのノードとメッシュを参照してインスタンスに変換
+		auto* _model = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
+		if (!_model) return;
+
+		auto& _nodes = _model->GetOriginalNodeVec();
+		for (auto& _node : _nodes)		// ノードループ
+		{
+			for (auto& _meshIdx : _node.meshIndices)	// メッシュループ
+			{
+				const auto& _meshHandle = _model->GetMeshHandles()[_meshIdx];
+				const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
+				if (!_pMesh) continue;
+				DXSM::Matrix _nodeMat = _nodePoseMatVec[_meshIdx].world;
+
+				// インスタンス作成
+				Engine::Raytracing::Instance _rayInst = {};
+				_rayInst.worldMat = _nodeMat * a_worldMat;
+				if (!_pMesh->HasRtData()) continue;
+				_rayInst.pBLAS = &_pMesh->GetRtData().blas;
+
+				// メガバッファ割り当て
+				_rayInst.megaVertexHandle = _pMesh->GetRtData().vertexHandle;
+				_rayInst.megaIndexHandle = _pMesh->GetRtData().indexHandle;
+
+				for (auto& _subset : _pMesh->GetMetaData().subsets)
+				{
+					// マテリアル取得
+					const auto& _mateHandle = _model->GetMaterialHandles()[_subset.materialNumber];
+					const auto* _pMate = Resource::ResourceManager::Instance().Get(_mateHandle);
+					if (!_pMate) continue;
+
+					Material _mat = {};
+					DXSM::Vector4 _baseColor = _pMate->baseColor;
+					DXSM::Vector3 _emiColor = _pMate->emissive;
+					_mat.baseColor			= _baseColor * a_colorScale;
+					_mat.metallic			= _pMate->metallic;
+					_mat.roughness			= _pMate->roughness;
+					_mat.emissive			= _emiColor * a_emissiveScale;
+					_mat.startIndexLocation = _subset.faceStart * 3;
+					_mat.baseIndex			= GetTexHepaIndex(_pMate->baseColorTex);
+					_mat.metaRoughnessIndex = GetTexHepaIndex(_pMate->metaRoughTex);
+					_mat.emissiveIndex		= GetTexHepaIndex(_pMate->emissiveTex);
+					_mat.normalIndex		= GetTexHepaIndex(_pMate->normalTex);
+
+					_rayInst.submeshMaterials.push_back(_mat);
+				}
+				m_instanceVec.emplace_back(_rayInst);
+			}
+		}
+	}
 
 	void Engine::Raytracing::RayWorld::Init(
 		D3D12::Device* a_pDevice,
@@ -149,11 +212,7 @@ namespace Engine::Raytracing
 		for (auto& _instance : m_instanceVec)
 		{
 			InstanceData _data = {};
-			_data.vertexSRVIndex = _instance.vertexHandle.GetIndex();
-			_data.indexSRVIndex = _instance.indexHandle.GetIndex();
-
 			_data.vertexStart = _instance.megaVertexHandle.startIndex;
-			_data.vertexCount = _instance.megaVertexHandle.count;
 			_data.indexStart = _instance.megaIndexHandle.startIndex;
 			_data.indexCount = _instance.megaIndexHandle.count;
 
@@ -161,7 +220,7 @@ namespace Engine::Raytracing
 			m_instanceDataVec.push_back(_data);
 
 			// オフセット更新
-			for (auto& _mate : _instance.submeshMaterial)
+			for (auto& _mate : _instance.submeshMaterials)
 			{
 				m_materialVec.push_back(_mate);
 				_materialOffset++;
@@ -217,5 +276,10 @@ namespace Engine::Raytracing
 	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRVCPU()
 	{
 		return D3D12::DescriptorHeapManager::Instance().GetCPU(m_materialDataBuffer.GetSRVHandle());
+	}
+	int RayWorld::GetTexHepaIndex(const Handle<Resource::Texture>& a_handle) const
+	{
+		const auto* _Ntex = Engine::Resource::ResourceManager::Instance().Get(a_handle);
+		return static_cast<int>(_Ntex->GetSRV().GetIndex());
 	}
 }

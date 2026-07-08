@@ -242,6 +242,7 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
@@ -493,6 +494,7 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />

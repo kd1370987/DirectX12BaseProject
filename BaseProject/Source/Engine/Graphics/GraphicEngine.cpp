@@ -104,7 +104,7 @@ namespace Engine::Graphics
 		// レンダーパスの登録
 		m_upRenderPassRegistry = std::make_unique<RenderPassRegistry>();
 		// ラスター関係
-		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
+		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
 		AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 		AddDebugLinePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
 		AddFullScreenPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
@@ -331,7 +331,11 @@ namespace Engine::Graphics
 	{
 		return m_cbAmbient;
 	}
-	void GraphicsEngine::SubmitSkinning(ECS::World& a_world, const Resource::Model* a_pModel, const Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle)
+	void GraphicsEngine::SubmitSkinning(
+		const Resource::Model* a_pModel, 
+		const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
+		const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle
+)
 	{
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
 		for (const auto& _cmd : _drawCmdVec)
@@ -746,6 +750,16 @@ namespace Engine::Graphics
 	const Handle<D3D12::UAV>& GraphicsEngine::GetAnimatedBufferUAVHandle() const
 	{
 		return m_animatedVertexBuffer.GetUAV();
+	}
+
+	void GraphicsEngine::AnimatedBufferBarrierUAV(D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		m_animatedVertexBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	}
+
+	D3D12::RWStructuredBuffer<Resource::MeshVertexFloat>& GraphicsEngine::RefRWAnimatedBuffer()
+	{
+		return m_animatedVertexBuffer;
 	}
 
 	void GraphicsEngine::CreateGPUCameraData()

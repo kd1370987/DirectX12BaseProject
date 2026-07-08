@@ -1,16 +1,13 @@
 #include "../RayGI.hlsli"
 struct InstanceData
 {
-	uint vertexIdx; // SRV
-	uint indexIdx; // SRV
 	uint materialOffset; // このメッシュのマテリアル群がg_materialDataの何番目から始まるか
-	uint vertexStart;
-	
-	uint vertexCount;
+	uint vertexStart;	
 	uint indexStart;
 	uint indexCount;
 	
-	uint pad;
+	uint isAnimated;
+	uint3 pad;
 };
 // マテリアル構造体
 struct Material

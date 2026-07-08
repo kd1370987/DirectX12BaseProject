@@ -164,7 +164,6 @@ namespace Engine::Graphics
 		/// <param name="dynamicHandle">変形後のデータを入れるインスタンス</param>
 		/// <param name="nodePoseHnandle">ノード行列</param>
 		void SubmitSkinning(
-			ECS::World& a_world,
 			const Resource::Model* a_pModel,
 			const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
 			const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle
@@ -262,6 +261,8 @@ namespace Engine::Graphics
 		const Handle<D3D12::SRV>& GetIndexCPUHandle() const;
 		const Handle<D3D12::UAV>& GetAnimatedBufferUAVHandle() const;
 
+		void AnimatedBufferBarrierUAV(D3D12::GraphicsCommandList* a_pCmdList);
+		D3D12::RWStructuredBuffer<Resource::MeshVertexFloat>& RefRWAnimatedBuffer();
 		// 配列取得
 		const std::vector<SkinningDispatchItem>& GetSkinningImtes() const { return m_skinningDispathItemVec; }
 

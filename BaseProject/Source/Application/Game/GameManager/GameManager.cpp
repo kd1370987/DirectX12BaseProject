@@ -92,6 +92,7 @@
 #include "Application/Systems/Init/PostDeserialize/ParticleFixupSystem/ParticleFixupSystem.h"
 #include "Application/Systems/Update/PreUpdate/UpdateHierarchyDepthSystem/UpdateHierarchyDepthSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitHierarchyWorldMatrixSystem/CommitHierarchyWorldMatrixSystem.h"
+#include "../../Systems/Draw/Draw/SkinningRegisterSystem/SkinningRegisterSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -107,8 +108,6 @@
 
 // ゲームフロウ
 #include "../GameFlowStateMachine/GameFlowStateMachine.h"
-
-#include "../../../Engine/MainEngine.h"
 
 namespace App::Game
 {
@@ -206,6 +205,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<RegisterPrevWorldMatSystem>();
 				a_pWorld->RegisterSystem<UpdateHierarchyDepthSystem>();
 				a_pWorld->RegisterSystem<CommitHierarchyWorldMatrixSystem>();
+				a_pWorld->RegisterSystem<SkinningRegisterSystem>();
 
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();

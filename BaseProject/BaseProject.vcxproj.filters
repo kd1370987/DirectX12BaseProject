@@ -1048,6 +1048,9 @@
     <Filter Include="Asset\Shader\Common\Struct">
       <UniqueIdentifier>{0c473a89-0e73-4582-9782-963770d192a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem">
+      <UniqueIdentifier>{42b34ae5-8f12-4b9e-a20b-14528524dcf1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1655,6 +1658,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.cpp">
       <Filter>Source\Engine\Graphics\FrameResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\Draw\SkinningRegisterSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2566,6 +2572,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.h">
       <Filter>Source\Engine\Graphics\FrameResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.h">
+      <Filter>Source\Application\Systems\Draw\Draw\SkinningRegisterSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

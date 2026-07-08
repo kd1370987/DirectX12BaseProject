@@ -2,6 +2,14 @@
 
 #include "../Common/RaytracingInstance.h"
 
+namespace Engine
+{
+	namespace ECS
+	{
+		class World;
+	}
+}
+
 namespace Engine::Raytracing
 {
 	class TLAS;
@@ -21,9 +29,11 @@ namespace Engine::Raytracing
 			const DXSM::Vector3& a_emissiveScale
 		);
 		void Register(
+			ECS::World& a_world,
 			const DXSM::Matrix& a_worldMat,
-			const DynamicRaytracingData& a_dynamicData,
-			std::span<const Resource::NodePoseMatrix> a_nodeposeMatVec,
+			const Engine::Handle<Engine::Resource::Model>& a_modelHandle,
+			const Handle<DynamicRaytracingData>& a_dynamicData,
+			const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatVec,
 			const DXSM::Vector4& a_colorScale,
 			const DXSM::Vector3& a_emissiveScale
 		);
@@ -61,6 +71,9 @@ namespace Engine::Raytracing
 
 		// インスタンス取得
 		const std::vector<Instance>& GetInstnace() const { return m_instanceVec; }
+	private:
+
+		int GetTexHepaIndex(const Handle<Resource::Texture>& a_handle) const;
 
 	private:
 

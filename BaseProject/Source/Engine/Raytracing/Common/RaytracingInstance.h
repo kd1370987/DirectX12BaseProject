@@ -2,63 +2,80 @@
 
 namespace Engine::Raytracing
 {
-	// ---- 構造体バッファ用データ ----
-	// インスタンスごとのデータ
+	// ===================================================================================
+	// GPU(HLSL) 転送用データ構造
+	// ※ StructuredBuffer として HLSL に送るため、16バイト(float4)アライメントを厳密に管理
+	// ===================================================================================
+
+	/// <summary>
+	/// レイトレーシング空間上の1メッシュの描画パラメータ
+	/// </summary>
 	struct InstanceData
 	{
-		UINT vertexSRVIndex;
-		UINT indexSRVIndex;
-		UINT materialOffset;	// マテリアル配列での位置
-		UINT vertexStart;
+		// --- 16 Bytes (Offset: 0) ---
+		UINT materialOffset;    // Globalマテリアル配列における、このインスタンスの開始位置
+		UINT vertexStart;       // 頂点バッファ内の参照開始オフセット (MegaBuffer または AnimatedBuffer 内)
+		UINT indexStart;        // インデックスバッファ内の参照開始オフセット
+		UINT indexCount;        // このインスタンスが持つインデックス数
 
-		UINT vertexCount;
-		UINT indexStart;
-		UINT indexCount;
+		// --- 16 Bytes (Offset: 16) ---
+		UINT isAnimated;        // アニメーション対象かどうかのフラグ (0: Static, 1: Animated)
+		DXSM::Vector3 pad0;     // 16バイトアライメント用のパディング
+	}; // Total: 32 Bytes
 
-		uint32_t pad;
-	};
-	// マテリアルSRVに対しての個別設定データ
-	// サブメッシュごとに設定
+	/// <summary>
+	/// PBRマテリアルデータ (サブメッシュごとに設定)
+	/// </summary>
 	struct Material
 	{
-		DXSM::Vector4		baseColor = { 1,1,1,1 };
-		DirectX::XMFLOAT3	emissive = { 1.0f,1.0f,1.0f };
-		float				metallic = 0.0f;						// B : 金属製
+		// --- 16 Bytes (Offset: 0) ---
+		DXSM::Vector4       baseColor;              // xyz: BaseColor, w: Alpha
 
-		float				roughness = 1.0f;						// G : 粗さ
-		int baseIndex = 0;
-		int metaRoughnessIndex = 0;
-		int emissiveIndex = 0;
+		// --- 16 Bytes (Offset: 16) ---
+		DirectX::XMFLOAT3   emissive;               // 発光カラー
+		float               metallic;               // 金属度
 
-		int normalIndex = 0;
-		UINT startIndexLocation; // インデックスバッファの中の位置
-		DirectX::XMFLOAT2 pad;
-	};
+		// --- 16 Bytes (Offset: 32) ---
+		float               roughness;              // 粗さ
+		UINT                baseIndex;              // BaseColorテクスチャのSRVインデックス (Bindless)
+		UINT                metaRoughnessIndex;     // Metallic/RoughnessテクスチャのSRVインデックス
+		UINT                emissiveIndex;          // EmissiveテクスチャのSRVインデックス
 
-	struct Vertex
-	{
-		DirectX::XMFLOAT2 uv;
-	};
+		// --- 16 Bytes (Offset: 48) ---
+		UINT                normalIndex;            // NormalマップテクスチャのSRVインデックス
+		UINT                startIndexLocation;     // インデックスバッファ内のサブメッシュ開始位置
+		DirectX::XMFLOAT2   pad0;                   // 16バイトアライメント用のパディング
+	}; // Total: 64 Bytes
 
-	// ---- レイワールドに登録するデータ ----
+	// ===================================================================================
+	// CPU側 レイワールド構築用データ構造
+	// ===================================================================================
+
+	/// <summary>
+	/// レイワールド（TLAS）に登録するインスタンスの管理単位
+	/// 静的・動的どちらのモデルもこの形式に正規化されてコミットされる
+	/// </summary>
 	struct Instance
 	{
-		DirectX::XMFLOAT4X4 worldMat = DXSM::Matrix::Identity;
-		const BLAS* pBLAS = nullptr;
+		// 空間情報
+		DXSM::Matrix worldMat = DXSM::Matrix::Identity; // TLASに登録する際のトランスフォーム
+		const BLAS* pBLAS = nullptr;                    // 参照するBLAS（動的モデルの場合は毎フレーム更新されたBLASを指す）
 
-		// 頂点情報
-		Handle<D3D12::SRV> vertexHandle = {};
-		Handle<D3D12::SRV> indexHandle = {};
+		// --- ジオメトリ参照情報 ---
+		// HLSLのBindless配列に渡すためのハンドル
+		RangeHandle<Resource::MeshVertexFloat> megaVertexHandle = {};	// 静的: StaticMegaBuffer, 動的: AnimatedBuffer
+		RangeHandle<uint32_t> megaIndexHandle = {};						 // IndexBuffer (基本的に静的と共通)
 
-		RangeHandle<Resource::MeshVertexFloat> megaVertexHandle = {};
-		RangeHandle<uint32_t> megaIndexHandle = {};
+		// バッファ内の論理的なオフセット
+		UINT vertexOffset = 0;                          // vertexStart に相当
+		UINT indexOffset = 0;                           // indexStart に相当
+		UINT indexCount = 0;                            // indexCount に相当
 
-		// マテリアル
-		//const Engine::Resource::Material* pMaterial = nullptr;
-		std::vector<Material> submeshMaterial = {};
+		// 状態フラグ
+		bool isAnimated = false;                        // 動的モデル判定用
 
-		// メッシュ
-		const Resource::Mesh* pMesh = nullptr;
+		// --- 描画メタデータ ---
+		std::vector<Material> submeshMaterials;         // サブメッシュごとのマテリアル情報
 	};
 
 	/// <summary>
