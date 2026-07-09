@@ -61,7 +61,7 @@ namespace Engine::Resource
 	public:
 
 		Model() = default;
-		~Model() {};
+		~Model() { ENGINE_LOG("モデルが解放されました"); }
 
 		// モデル生成
 		void Import(const std::string& a_filePath);
@@ -73,9 +73,9 @@ namespace Engine::Resource
 
 		// ---- アクセサ ----
 		// データのハンドル
-		const std::vector<Handle<Material>>&		GetMaterialHandles()	const { return m_materialHandleVec; }
-		const std::vector<Handle<Mesh>>&			GetMeshHandles()		const { return m_meshHandleVec; }
-		const std::vector<Handle<AnimationData>>&	GetAnimationHandles()	const { return m_animationHandleVec; }
+		const std::vector<ResourceRef<Material>>&		GetMaterialHandles()	const { return m_materialHandleVec; }
+		const std::vector<ResourceRef<Mesh>>&			GetMeshHandles()		const { return m_meshHandleVec; }
+		const std::vector<ResourceRef<AnimationData>>&	GetAnimationHandles()	const { return m_animationHandleVec; }
 
 		// アニメーションのハンドルからGUIDを逆引き
 		Engine::GUID GetAnimationGUIDFromHandle(const Handle<AnimationData>& a_handle) const;
@@ -117,9 +117,9 @@ namespace Engine::Resource
 		std::vector<int>							m_drawMeshNodeIndices;		// 描画するノード
 
 		// ---- ランタイムデータ ----
-		std::vector<Handle<Material>>		m_materialHandleVec = {};
-		std::vector<Handle<Mesh>>			m_meshHandleVec = {};
-		std::vector<Handle<AnimationData>>	m_animationHandleVec = {};
+		std::vector<ResourceRef<Material>>		m_materialHandleVec = {};
+		std::vector<ResourceRef<Mesh>>			m_meshHandleVec = {};
+		std::vector<ResourceRef<AnimationData>>	m_animationHandleVec = {};
 
 		// 描画コマンド用事前キャッシュ
 		std::vector<ModelDrawCommand> m_cachedDrawCommands;

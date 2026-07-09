@@ -20,7 +20,6 @@ namespace Engine::Resource
 		m_name = "";
 		m_guid = {};
 		m_texGUID = {};
-		m_texHandle = {};
 	}
 	void ParticlesAsset::Save(const std::string & a_filePath)
 	{

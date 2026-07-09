@@ -27,7 +27,7 @@ namespace Engine::Resource
 
 		// アニメーション再生用データ
 		Engine::GUID animGUID;					//セーブ用
-		Handle<AnimationData> playAnimData;
+		ResourceRef<AnimationData> playAnimData;
 		float speed = 0.0f;
 		bool isLoop;
 

@@ -70,6 +70,6 @@ namespace Engine::Resource
 		int m_emissionRate = 0;
  
 		// ---- ランタイム用データ ----
-		Handle<Texture> m_texHandle;
+		ResourceRef<Texture> m_texHandle;
 	};
 }

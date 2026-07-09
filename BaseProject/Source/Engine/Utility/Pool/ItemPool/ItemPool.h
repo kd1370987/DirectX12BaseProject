@@ -65,45 +65,18 @@ namespace Engine::Pool
 		const T* Access(uint16_t a_index) const;
 
 		/// <summary>
+		/// インデックスから世代を取得
+		/// </summary>
+		/// <param name="a_index"></param>
+		/// <returns></returns>
+		uint16_t GetGeneration(uint16_t a_index) const;
+
+		/// <summary>
 		/// プール内に存在するかのチェック : 実体の内部は考慮しない
 		/// </summary>
 		/// <param name="a_handle">確認したいハンドル</param>
 		/// <returns>存在するのならば true </returns>
 		bool IsValid(const Handle<T>& a_handle) const;
-
-		/// <summary>
-		/// 参照を追加
-		/// </summary>
-		/// <param name="a_handle"></param>
-		void AddRef(const Handle<T>& a_handle);
-
-		/// <summary>
-		/// 参照の解放 : データを消すわけではない
-		/// </summary>
-		/// <param name="a_handle"></param>
-		void FreeRef(const Handle<T>& a_handle);
-
-		/// <summary>
-		/// カウントの配列を外部から一括上書きする
-		/// </summary>
-		/// <param name="a_baseCounts">カウント配列</param>
-		void ResetRefCounts(std::vector<uint16_t>& a_baseCounts);
-
-		/// <summary>
-		/// カウントが０になっても解放しないマークをつける
-		/// </summary>
-		/// <param name="a_handle">指定のデータ</param>
-		void MarkUsed(const Handle<T>& a_handle);
-
-		/// <summary>
-		/// GC処理などのフェーズの初めにすべてのマークをリセットする
-		/// </summary>
-		void ResetMarks();
-
-		/// <summary>
-		/// 参照カウントが０のものを一括で削除
-		/// </summary>
-		void SewwpUnsed();
 
 	private:
 
@@ -111,8 +84,6 @@ namespace Engine::Pool
 		std::vector<std::optional<T>> m_data;		// 実体データ
 		std::vector<uint16_t> m_generations;		// 領域の世代
 		std::vector<uint16_t> m_freeIndices;		// 使っていない領域
-		std::vector<uint16_t> m_refCounts;			// 参照カウント数
-		std::vector<bool> m_masks;					// カウントがない場合でも解放しない : trueなら
 	};
 
 
@@ -212,6 +183,11 @@ namespace Engine::Pool
 		return &m_data[a_index].value();
 	}
 	template<typename T>
+	inline uint16_t ItemPool<T>::GetGeneration(uint16_t a_index) const
+	{
+		return (a_index < m_generations.size()) ? m_generations[a_index] : 0;
+	}
+	template<typename T>
 	inline bool ItemPool<T>::IsValid(const Handle<T>& a_handle) const
 	{
 		// インデックスが配列サイズ以上かどうか
@@ -233,54 +209,5 @@ namespace Engine::Pool
 
 		// 存在する
 		return true;
-	}
-	template<typename T>
-	inline void ItemPool<T>::AddRef(const Handle<T>& a_handle)
-	{
-		if (!IsValid(a_handle))
-		{
-			ENGINE_WARNING("存在しないデータです : 参照カウントは無視されます");
-			return;
-		}
-		m_refCounts[a_handle.GetIndex()]++;
-	}
-	template<typename T>
-	inline void ItemPool<T>::FreeRef(const Handle<T>&a_handle)
-	{
-		if (!IsValid(a_handle))
-		{
-			ENGINE_WARNING("存在しないデータです : 参照カウントは無視されます");
-			return;
-		}
-		m_refCounts[a_handle.GetIndex()]--;
-	}
-	template<typename T>
-	inline void ItemPool<T>::ResetRefCounts(std::vector<uint16_t>&a_baseCounts)
-	{
-		// 内部のサイズに合わせる
-		a_baseCounts.resize(m_refCounts.size());
-		m_refCounts = a_baseCounts;
-	}
-	template<typename T>
-	inline void ItemPool<T>::MarkUsed(const Handle<T>& a_handle)
-	{
-		m_masks[a_handle.GetIndex()] = true;
-	}
-	template<typename T>
-	inline void ItemPool<T>::ResetMarks()
-	{
-		std::fill(m_masks.begin(), m_masks.end(), false);
-	}
-	template<typename T>
-	inline void ItemPool<T>::SewwpUnsed()
-	{
-		// データがあって参照カウントがなければ解放
-		for (size_t _i = 0; _i < m_data.size(); ++_i) {
-			if (m_data[_i].has_value() && m_refCounts[_i] == 0 && !m_masks[_i]) {
-				m_data[_i].reset();
-				m_generations[_i]++;
-				m_freeIndices.push_back(static_cast<uint16_t>(_i));
-			}
-		}
 	}
 }

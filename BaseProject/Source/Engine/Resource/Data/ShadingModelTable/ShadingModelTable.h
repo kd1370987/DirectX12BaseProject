@@ -9,7 +9,7 @@ namespace Engine::Resource
 		ShadingModelTable(const std::string& a_name) : m_typeName(a_name) {}
 
 		// ---- アクセサ ----
-		std::span<const Handle<Shader>> GetShaderHandles(UINT a_passHash) const;
+		std::span<const ResourceRef<Shader>> GetShaderHandles(UINT a_passHash) const;
 
 		/// <summary>
 		/// シリアライズ処理
@@ -36,7 +36,7 @@ namespace Engine::Resource
 
 		// ランタイムデータ
 		// パス名ハッシュ、シェーダーハンドル
-		std::unordered_map<UINT, std::vector<Handle<Shader>>> m_shaderHandleMap = {};
+		std::unordered_map<UINT, std::vector<ResourceRef<Shader>>> m_shaderHandleMap = {};
 
 		// このマテリアルが描画されるパスのリスト
 		std::vector<std::string> m_activePasses; // シリアライズ用

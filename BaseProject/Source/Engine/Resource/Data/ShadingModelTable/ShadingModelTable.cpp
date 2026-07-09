@@ -8,7 +8,7 @@
 
 namespace Engine::Resource
 {
-	std::span<const Handle<Shader>> Engine::Resource::ShadingModelTable::GetShaderHandles(UINT a_passHash) const
+	std::span<const ResourceRef<Shader>> Engine::Resource::ShadingModelTable::GetShaderHandles(UINT a_passHash) const
 	{
 		auto _it = m_shaderHandleMap.find(a_passHash);
 		if (_it != m_shaderHandleMap.end())
@@ -116,7 +116,7 @@ namespace Engine::Resource
 				m_activePassHashes.push_back(_hash);
 
 				// PSが0個でもパス自体は「有効」として扱うため、必ず空配列で初期化する
-				m_shaderHandleMap[_hash] = std::vector<Handle<Shader>>();
+				m_shaderHandleMap[_hash] = std::vector<ResourceRef<Shader>>();
 
 				for (auto& _shaderGUID : _shaderGUIDVec)
 				{

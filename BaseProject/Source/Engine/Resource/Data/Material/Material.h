@@ -14,6 +14,10 @@ namespace Engine::Resource
 	//==========================================================
 	struct Material
 	{
+		Material() = default;
+		~Material() { ENGINE_LOG("テクスチャが解放されました"); }
+
+
 		// 解放
 		void Release();
 
@@ -49,7 +53,7 @@ namespace Engine::Resource
 
 		// 参照シェーディングモデル
 		Engine::GUID shedingModelGUID = {};
-		Handle<ShadingModelTable> shadingModelHandle = {};
+		ResourceRef<ShadingModelTable> shadingModelHandle = {};
 
 		// 参照テクスチャGUID
 		Engine::GUID baseColorTexGUID = {};
@@ -59,18 +63,18 @@ namespace Engine::Resource
 
 		// 基本色
 		DirectX::XMFLOAT4			baseColor = { 1,1,1,1 };
-		Handle<Engine::Resource::Texture> baseColorTex = {};
+		ResourceRef<Engine::Resource::Texture> baseColorTex = {};
 
 		// メタリック・ラフネス
 		float						metallic = 0.0f;						// B : 金属製
 		float						roughness = 1.0f;						// G : 粗さ
-		Handle<Engine::Resource::Texture> metaRoughTex = {};
+		ResourceRef<Engine::Resource::Texture> metaRoughTex = {};
 
 		// エミッシブ
 		DirectX::XMFLOAT3			emissive = { 1.0f,1.0f,1.0f };
-		Handle<Engine::Resource::Texture> emissiveTex = {};
+		ResourceRef<Engine::Resource::Texture> emissiveTex = {};
 
 		// 法線マップ
-		Handle<Engine::Resource::Texture> normalTex = {};
+		ResourceRef<Engine::Resource::Texture> normalTex = {};
 	};
 }

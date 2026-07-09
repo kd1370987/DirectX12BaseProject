@@ -18,6 +18,7 @@ namespace Engine::Resource
 		Pool::ItemPool<T>							pool;					// モデル
 		std::unordered_map<Engine::GUID, Handle<T>> cache = {};				// GUID to Handle
 		std::vector<uint16_t>						manualRefCounts = {};	// ECS外の処理カウント
+		std::vector<uint16_t>						ecsRefCounts = {};		// ECS走査時のカウント
 	};
 
 	// リソースの管理のみ
@@ -30,12 +31,10 @@ namespace Engine::Resource
 
 		// リソースの読み込み
 		template<typename T>
-		//inline Handle<T> Load(const Engine::GUID& a_guid);
 		inline ResourceRef<T> Load(const Engine::GUID& a_guid);
 
 		// リソースの追加
 		template<typename T>
-		//Handle<T> Add(T&& a_resource);
 		ResourceRef<T> Add(T&& a_resource);
 
 		template<typename T>
@@ -62,11 +61,25 @@ namespace Engine::Resource
 		template<typename T>
 		const T* Get(const Handle<T>& a_handle)const;
 		template<typename T>
+		const T* Get(const ResourceRef<T>& a_handle)const;
+		template<typename T>
 		T* Ref(const Handle<T>& a_handle);
+		template<typename T>
+		T* Ref(const ResourceRef<T>& a_handle);
 		template<typename T>
 		const T* Accece(const Handle<T>& a_handle);
 		template<typename T>
+		const T* Accece(const ResourceRef<T>& a_handle);
+		template<typename T>
 		const T* Accece(const uint16_t& a_index);
+
+		// リソースの解放
+		template<typename T>
+		void SweepUnused();
+
+		// 疑似ガベージコレクション : 全プールのスイープ処理を実行
+		// 参照カウントがないプールのリソースは解放される
+		void RunGarbageCollectionSweep();
 
 		// プールの取得
 		template<typename T>
@@ -149,7 +162,6 @@ namespace Engine::Resource
 	};
 	// リソースのロード
 	template<typename T>
-	//inline Handle<T> ResourceManager::Load(const Engine::GUID& a_guid)
 	inline ResourceRef<T> ResourceManager::Load(const Engine::GUID& a_guid)
 	{
 		// 読み込み済みかチェック
@@ -207,9 +219,20 @@ namespace Engine::Resource
 		return GetPool<T>().Get(a_handle);
 	}
 	template<typename T>
+	inline const T* ResourceManager::Get(const ResourceRef<T>& a_handle) const
+	{
+		return Get(a_handle.GetRaw());
+	}
+	template<typename T>
 	inline T* ResourceManager::Ref(const Handle<T>& a_handle)
 	{
 		return RefPool<T>().Ref(a_handle);
+	}
+
+	template<typename T>
+	inline T* ResourceManager::Ref(const ResourceRef<T>& a_handle)
+	{
+		return Ref(a_handle.GetRaw());
 	}
 
 	template<typename T>
@@ -218,11 +241,57 @@ namespace Engine::Resource
 		return GetPool<T>().Access(a_handle.GetIndex());
 	}
 
+	template<typename T>
+	inline const T* ResourceManager::Accece(const ResourceRef<T>& a_handle)
+	{
+		return Accece(a_handle.GetRaw());
+	}
+
 
 	template<typename T>
 	inline const T* ResourceManager::Accece(const uint16_t& a_index)
 	{
 		return GetPool<T>().Access(a_index);
+	}
+
+	template<typename T>
+	inline void ResourceManager::SweepUnused()
+	{
+		auto& _data = RefData<T>();
+
+		// manual と ecs の配列で大きい方のサイズまで走査
+		size_t _maxSize = std::max(_data.manualRefCounts.size(), _data.ecsRefCounts.size());
+
+		for (uint16_t i = 0; i < _maxSize; ++i)
+		{
+			uint16_t _manual = (i < _data.manualRefCounts.size()) ? _data.manualRefCounts[i] : 0;
+			uint16_t _ecs = (i < _data.ecsRefCounts.size()) ? _data.ecsRefCounts[i] : 0;
+
+			// アプリ側からも、ECS側からも参照されていない場合
+			if (_manual == 0 && _ecs == 0)
+			{
+				// ItemPool内に実体が存在しているかチェック
+				if (_data.pool.Access(i) != nullptr)
+				{
+					// インデックスと世代から正しいハンドルを復元する
+					uint16_t _generation = _data.pool.GetGeneration(i);
+					Handle<T> _targetHandle(i, _generation);
+
+					// キャッシュ (GUIDマップ) から削除
+					for (auto it = _data.cache.begin(); it != _data.cache.end(); ) {
+						if (it->second == _targetHandle) {
+							it = _data.cache.erase(it);
+						}
+						else {
+							++it;
+						}
+					}
+
+					// プールの Remove を呼んで実体とキューを安全に解放
+					_data.pool.Remove(_targetHandle);
+				}
+			}
+		}
 	}
 
 	// プールの取得
