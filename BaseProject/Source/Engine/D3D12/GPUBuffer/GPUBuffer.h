@@ -16,6 +16,7 @@ namespace Engine::D3D12
 	class GPUBuffer : public GPUResource
 	{
 	public:
+		GPUBuffer() = default;
 		virtual ~GPUBuffer() override = default;
 		NON_COPYABLE_MOVABLE(GPUBuffer);
 

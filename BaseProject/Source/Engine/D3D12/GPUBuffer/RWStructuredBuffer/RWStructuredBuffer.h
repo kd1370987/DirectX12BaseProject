@@ -13,7 +13,7 @@ namespace Engine::D3D12
 	class RWStructuredBuffer : public GPUBuffer
 	{
 	public:
-
+		RWStructuredBuffer() = default;
 		virtual ~RWStructuredBuffer() override = default;
 		NON_COPYABLE_MOVABLE(RWStructuredBuffer);
 

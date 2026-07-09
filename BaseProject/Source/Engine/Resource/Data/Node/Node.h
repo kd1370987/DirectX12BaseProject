@@ -9,6 +9,10 @@ namespace Engine::Resource
 	//==========================================================
 	struct Node
 	{
+		Node() = default;
+		~Node() = default;
+		NON_COPYABLE_MOVABLE(Node);
+
 		// ノードのセーブ
 		void Archive(Persistence::Archive& a_ar,int a_idx);
 

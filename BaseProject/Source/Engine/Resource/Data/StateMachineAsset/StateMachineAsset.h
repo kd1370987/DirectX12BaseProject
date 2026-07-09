@@ -83,9 +83,9 @@ namespace Engine::Resource
 	class StateMachineAsset
 	{
 	public:
-
 		StateMachineAsset() = default;
 		~StateMachineAsset() = default;
+		NON_COPYABLE_MOVABLE(StateMachineAsset);
 
 		UINT GetStateHash(const std::string& a_stateName) const;
 

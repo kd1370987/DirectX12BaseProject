@@ -9,7 +9,7 @@ namespace Engine::D3D12
 	class MegaBuffer : public GPUBuffer
 	{
 	public:
-
+		MegaBuffer() = default;
 		~MegaBuffer() override = default;
 		NON_COPYABLE_MOVABLE(MegaBuffer);
 

@@ -9,7 +9,7 @@ namespace Engine::Raytracing
 	class BLAS
 	{
 	public:
-
+		BLAS() = default;
 		~BLAS() = default;
 		NON_COPYABLE_MOVABLE(BLAS);
 

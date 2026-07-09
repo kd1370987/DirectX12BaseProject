@@ -16,6 +16,7 @@ namespace Engine::D3D12
 	{
 	public:
 
+		DynamicBuffer() = default;
 		virtual ~DynamicBuffer() override = default;
 		NON_COPYABLE_MOVABLE(DynamicBuffer);
 

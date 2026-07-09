@@ -5,6 +5,9 @@ namespace Engine::Resource
 	class ShaderLibrary
 	{
 	public:
+		ShaderLibrary() = default;
+		~ShaderLibrary() = default;
+		NON_COPYABLE_MOVABLE(ShaderLibrary);
 
 		// 読み込み
 		void Load(const std::string& a_path);

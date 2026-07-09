@@ -5,6 +5,9 @@ namespace Engine::Resource
 	{
 	public:
 
+		QuadPolygon() = default;
+		~QuadPolygon() = default;
+		NON_COPYABLE_MOVABLE(QuadPolygon);
 		void Init();
 
 		const D3D12_VERTEX_BUFFER_VIEW& GetVBView()

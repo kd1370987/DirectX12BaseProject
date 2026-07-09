@@ -20,6 +20,7 @@ namespace Engine::Resource
 		//=================================================
 		// 作成・解放
 		//=================================================
+		Mesh() = default;
 		~Mesh() = default;
 		NON_COPYABLE_MOVABLE(Mesh);
 

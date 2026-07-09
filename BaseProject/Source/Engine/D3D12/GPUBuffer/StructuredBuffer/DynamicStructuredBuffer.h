@@ -8,6 +8,7 @@ namespace Engine::D3D12
 	class DynamicStructuredBuffer : public DynamicBuffer
 	{
 	public:
+		DynamicStructuredBuffer() = default;
 		~DynamicStructuredBuffer() override = default;
 		NON_COPYABLE_MOVABLE(DynamicStructuredBuffer);
 

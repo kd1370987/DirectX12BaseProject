@@ -11,9 +11,9 @@ namespace Engine::Resource
 	class ParticlesAsset
 	{
 	public:
-
 		ParticlesAsset() = default;
 		~ParticlesAsset() = default;
+		NON_COPYABLE_MOVABLE(ParticlesAsset);
 
 		// 作成処理
 		void Create(const std::string& a_name, const Engine::GUID& a_guid);

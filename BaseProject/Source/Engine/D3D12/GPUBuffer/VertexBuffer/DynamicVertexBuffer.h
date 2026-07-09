@@ -9,8 +9,8 @@ namespace Engine::D3D12
 	{
 	public:
 
+		DynamicVertexBuffer() = default;
 		~DynamicVertexBuffer() override = default;
-
 		NON_COPYABLE_MOVABLE(DynamicVertexBuffer);
 
 		// 作成

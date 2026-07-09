@@ -16,7 +16,9 @@ namespace Engine::Resource
 	class Shader
 	{
 	public:
-
+		Shader() = default;
+		~Shader() = default;
+		NON_COPYABLE_MOVABLE(Shader);
 		// 読み込み
 		void Load(
 			const std::string& a_path,

@@ -29,6 +29,7 @@ namespace Engine::Resource
 	class Texture : public D3D12::GPUResource
 	{
 	public:
+		Texture() = default;
 		~Texture() { ENGINE_LOG("テクスチャが解放されました"); }
 		NON_COPYABLE_MOVABLE(Texture);
 

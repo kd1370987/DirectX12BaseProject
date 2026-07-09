@@ -4,9 +4,10 @@ namespace Engine::Resource
 	class ShadingModelTable
 	{
 	public:
-
-		ShadingModelTable() {}
+		ShadingModelTable() = default;
 		ShadingModelTable(const std::string& a_name) : m_typeName(a_name) {}
+		~ShadingModelTable() = default;
+		NON_COPYABLE_MOVABLE(ShadingModelTable);
 
 		// ---- アクセサ ----
 		std::span<const ResourceRef<Shader>> GetShaderHandles(UINT a_passHash) const;

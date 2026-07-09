@@ -14,9 +14,8 @@ namespace Engine::D3D12
 	class DynamicIndexBuffer : public DynamicBuffer
 	{
 	public:
-
+		DynamicIndexBuffer() = default;
 		~DynamicIndexBuffer() override = default;
-
 		NON_COPYABLE_MOVABLE(DynamicIndexBuffer);
 
 		// 作成

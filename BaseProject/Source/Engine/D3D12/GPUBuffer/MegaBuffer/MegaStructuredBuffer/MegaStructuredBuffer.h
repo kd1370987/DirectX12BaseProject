@@ -11,7 +11,7 @@ namespace Engine::D3D12
 	class MegaStructuredBuffer : public MegaBuffer
 	{
 	public:
-
+		MegaStructuredBuffer() = default;
 		~MegaStructuredBuffer() override = default;
 		NON_COPYABLE_MOVABLE(MegaStructuredBuffer);
 

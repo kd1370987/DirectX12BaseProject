@@ -10,7 +10,7 @@ namespace Engine::D3D12
 	class StaticByteAddressBuffer : public StaticBuffer
 	{
 	public:
-
+		StaticByteAddressBuffer() = default;
 		~StaticByteAddressBuffer() override = default;
 		NON_COPYABLE_MOVABLE(StaticByteAddressBuffer);
 

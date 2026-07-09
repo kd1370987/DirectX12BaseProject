@@ -16,6 +16,8 @@ namespace Engine::Resource
 	{
 		Material() = default;
 		~Material() { ENGINE_LOG("マテリアルが解放されました"); }
+		NON_COPYABLE_MOVABLE(Material);
+
 
 
 		// 解放

@@ -61,7 +61,10 @@ namespace Engine::Resource
 	public:
 
 		Model() = default;
-		~Model() { ENGINE_LOG("モデルが解放されました"); }
+		~Model() {
+			ENGINE_LOG("モデルが解放されました"); }
+		NON_COPYABLE_MOVABLE(Model);
+
 
 		// モデル生成
 		void Import(const std::string& a_filePath);
@@ -123,14 +126,5 @@ namespace Engine::Resource
 
 		// 描画コマンド用事前キャッシュ
 		std::vector<ModelDrawCommand> m_cachedDrawCommands;
-
-		
-	public:
-		
-		Model(const Model&) = delete;
-		Model& operator=(const Model&) = delete;
-
-		Model(Model&&) noexcept = default;
-		Model& operator=(Model&&) noexcept = default;
 	};
 }

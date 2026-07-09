@@ -20,9 +20,8 @@ namespace Engine::D3D12
 	class StaticBuffer : public DynamicBuffer
 	{
 	public:
-
+		StaticBuffer() = default;
 		virtual ~StaticBuffer() override = default;
-
 		NON_COPYABLE_MOVABLE(StaticBuffer);
 
 		void Release() override;

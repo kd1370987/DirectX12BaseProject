@@ -46,6 +46,11 @@ namespace Engine
 		//==========================================================
 		struct AnimationData
 		{
+
+			AnimationData() = default;
+			~AnimationData() = default;
+			NON_COPYABLE_MOVABLE(AnimationData);
+
 			// 解放
 			void Release();
 

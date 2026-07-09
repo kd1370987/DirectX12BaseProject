@@ -17,7 +17,7 @@ namespace Engine::D3D12
 	class ByteAddressBuffer : public DynamicBuffer
 	{
 	public:
-
+		ByteAddressBuffer() = default;
 		~ByteAddressBuffer() override = default;
 		NON_COPYABLE_MOVABLE(ByteAddressBuffer);
 

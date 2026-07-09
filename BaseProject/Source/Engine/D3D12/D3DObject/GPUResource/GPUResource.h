@@ -26,6 +26,7 @@ namespace Engine::D3D12
 	{
 	public:
 
+		GPUResource() = default;
 		virtual ~GPUResource() = default;
 		NON_COPYABLE_MOVABLE(GPUResource);
 
