@@ -15,7 +15,7 @@ namespace Engine::Resource
 	struct Material
 	{
 		Material() = default;
-		~Material() { ENGINE_LOG("マテリアルが解放されました"); }
+		~Material() = default;
 		NON_COPYABLE_MOVABLE(Material);
 
 

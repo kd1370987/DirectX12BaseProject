@@ -196,6 +196,7 @@ namespace Engine::Resource
 		if (_data.manualRefCounts.size() <= _idx)
 		{
 			_data.manualRefCounts.resize(_idx + 1, 0);
+			_data.ecsRefCounts.resize(_idx + 1, 0);
 		}
 		_data.manualRefCounts[_idx]++;
 	}
@@ -267,23 +268,23 @@ namespace Engine::Resource
 	{
 		auto& _data = RefData<T>();
 		size_t _poolSize = _data.pool.GetAll().size();
-		for (uint16_t i = 0; i < _poolSize; ++i)
+		for (uint16_t _i = 0; _i < _poolSize; ++_i)
 		{
 			// 存在チェック
-			if (_data.pool.Access(i) == nullptr) continue;
+			if (_data.pool.Access(_i) == nullptr) continue;
 
-			size_t _refCount = _data.manualRefCounts.size();
-			size_t _ecsRefCount = _data.ecsRefCounts.size();
+			uint16_t _refCount = _data.manualRefCounts[_i];
+			uint16_t _ecsRefCount = _data.ecsRefCounts[_i];
 
 			// アプリ側からも、ECS側からも参照されていない場合
 			if (_refCount == 0 && _ecsRefCount == 0)
 			{
 				// ItemPool内に実体が存在しているかチェック
-				if (_data.pool.Access(i) != nullptr)
+				if (_data.pool.Access(_i) != nullptr)
 				{
 					// インデックスと世代から正しいハンドルを復元する
-					uint16_t _generation = _data.pool.GetGeneration(i);
-					Handle<T> _targetHandle(i, _generation);
+					uint16_t _generation = _data.pool.GetGeneration(_i);
+					Handle<T> _targetHandle(_i, _generation);
 
 					// キャッシュ (GUIDマップ) から削除
 					for (auto it = _data.cache.begin(); it != _data.cache.end(); ) {
@@ -296,6 +297,7 @@ namespace Engine::Resource
 					}
 
 					// プールの Remove を呼んで実体とキューを安全に解放
+					_data.pool.Ref(_targetHandle)->Release();
 					_data.pool.Remove(_targetHandle);
 				}
 			}

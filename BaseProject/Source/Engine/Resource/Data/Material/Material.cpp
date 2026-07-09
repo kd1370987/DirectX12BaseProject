@@ -13,7 +13,7 @@
 
 void Engine::Resource::Material::Release()
 {
-
+	ENGINE_LOG("マテリアルの解放 : Release");
 }
 
 void Engine::Resource::Material::SetTexture2D(
@@ -69,10 +69,7 @@ void Engine::Resource::Material::Edit(const Engine::GUID& a_guid)
 
 	ImGui::InputText("name", &name);
 	ImGui::Separator();
-
-	// Flagsではなく通常のEnumComboにする（関数の実装に合わせて変更してください）
-	// Editor::DrawEnumCombo("AlphaMode", alphaMode); 
-	Editor::DrawEnumFlagsCombo("AlphaMode", alphaMode); // ※取り急ぎそのままにしていますが、要確認
+	Editor::DrawEnumFlagsCombo("AlphaMode", alphaMode);
 
 	// シェーディングモデル
 	Editor::UI::DrawAssetSelectCombo<ShadingModelTable>(
@@ -84,7 +81,7 @@ void Engine::Resource::Material::Edit(const Engine::GUID& a_guid)
 
 	ImGui::Separator();
 
-	// Selectable ではなく CollapsingHeader を使う！
+	// 各テクスチャの描画
 	if (ImGui::CollapsingHeader("Albedo"))
 	{
 		Editor::UI::DrawAssetSelectCombo<Texture>(
@@ -94,7 +91,6 @@ void Engine::Resource::Material::Edit(const Engine::GUID& a_guid)
 			baseColorTex
 		);
 		ImGui::DragFloat4("AlbedScale", &baseColor.x, 0.01f, 0.0f);
-		// 1920x1080 は大きすぎるので適度なサイズに制限
 		Editor::UI::DrawTexture(baseColorTex, 256, 256);
 	}
 	if (ImGui::CollapsingHeader("Metallic / Roughness"))

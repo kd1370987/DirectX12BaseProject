@@ -91,6 +91,7 @@ namespace Engine::Resource
 
 	void Texture::Release()
 	{
+		ENGINE_LOG("テクスチャの解放 : Release");
 		GPUResource::Release();
 	}
 

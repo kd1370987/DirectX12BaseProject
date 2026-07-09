@@ -35,11 +35,12 @@ namespace Engine::Resource
 		SweepUnused<Model>();
 		SweepUnused<Material>();
 		SweepUnused<Texture>();
-		SweepUnused<AnimationData>();
 		SweepUnused<Mesh>();
 		SweepUnused<Shader>();
 		SweepUnused<ShaderLibrary>();
-		SweepUnused<StateMachineAsset>();
+		//SweepUnused<StateMachineAsset>();
+
+		//SweepUnused<AnimationData>();
 	}
 
 	ResourceManager::ResourceManager()

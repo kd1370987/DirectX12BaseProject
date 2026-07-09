@@ -269,6 +269,8 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 void Engine::Resource::Mesh::Release()
 {
 	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+
+
 	// 各meshデータ解放
 	m_meshMetaData.Release();
 	if (m_opRasterData.has_value())
@@ -283,7 +285,7 @@ void Engine::Resource::Mesh::Release()
 	{
 		m_opRtData->Release();
 	}
-
+	ENGINE_LOG("メッシュの解放 : Release");
 }
 
 void Engine::Resource::Mesh::Save(const std::string& a_fileDir, const std::string& a_name)

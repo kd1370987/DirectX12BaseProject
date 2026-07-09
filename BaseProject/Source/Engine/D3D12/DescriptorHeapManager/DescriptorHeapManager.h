@@ -159,22 +159,27 @@ namespace Engine::D3D12
 	{
 		if constexpr (std::is_same_v<T, CBV>)
 		{
+			ENGINE_LOG("CBVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
 			return m_CBVAllocator.Remove(a_handle);
 		}
 		else if constexpr (std::is_same_v<T, SRV>)
 		{
+			ENGINE_LOG("SRVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
 			return m_SRVAllocator.Remove(a_handle);
 		}
 		else if constexpr (std::is_same_v<T, UAV>)
 		{
+			ENGINE_LOG("UAVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
 			return m_UAVAllocator.Remove(a_handle);
 		}
 		else if constexpr (std::is_same_v<T, RTV>)
 		{
+			ENGINE_LOG("RTVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
 			return m_RTVAllocator.Remove(a_handle);
 		}
 		else if constexpr (std::is_same_v<T, DSV>)
 		{
+			ENGINE_LOG("DSVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
 			return m_DSVAllocator.Remove(a_handle);
 		}
 	}
