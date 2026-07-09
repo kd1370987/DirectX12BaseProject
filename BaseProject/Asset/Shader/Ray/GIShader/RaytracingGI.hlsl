@@ -243,7 +243,9 @@ void RayGen()
 
 	// レイ構造体を作成
 	RayDesc _ray;
-	_ray.Origin = _worldPos + _normal * 0.0001f;
+	float _dist = length(g_camera.cameraPos.xyz - _worldPos);
+	float _bias = max(0.001f, _dist * 0.0002f);
+	_ray.Origin = _worldPos + _normal * _bias;
 	_ray.Direction = SampleHemisphereCosine(_normal, float2(Random01(_seed), Random01(_seed * 17 + 3)));
 	_ray.TMin = 0.001;
 	_ray.TMax = 1000;
@@ -276,7 +278,7 @@ void RayGen()
 [shader("miss")]
 void Miss(inout RayPayload a_payload)
 {
-	a_payload.color = float3(0.2, 0.2, 0.3);
+	a_payload.color = float3(0.7, 0.7, 0.8);
 	a_payload.hitDistance = -1.0f;				// 当たらなかったらマイナス
 }
 
@@ -343,6 +345,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float3 _normal = GetNormal(a_attr, _uv, instance, primID, _material);
 
 	// 光源に向かってレイを飛ばす
+	a_payload.hit = 0;
 	TraceLightRay(a_payload, _normal, _geoNormal);
 	float _lig = 0.0f;
 	// 直接光が当たってる
@@ -350,15 +353,15 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	{
 		float3 _ligDir = normalize(-g_ambient.DL_Dir);
 		// ジオメトリ法線がライトに対して背を向けている場合強制的に影にする
-		float _GdotL = dot(_geoNormal, _ligDir);
-		if (_GdotL > 0.0f)
-		{
+		//float _GdotL = dot(_geoNormal, _ligDir);
+		//if (_GdotL > 0.0f)
+		//{
 			_lig = max(0, dot(_normal, _ligDir));
-		}
-		else
-		{
-			_lig = 0.0f;
-		}
+		//}
+		//else
+		//{
+		//	_lig = 0.0f;
+		//}
 
 	}
 	
