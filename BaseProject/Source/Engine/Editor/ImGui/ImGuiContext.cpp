@@ -23,10 +23,22 @@ namespace Engine::Editor
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGuiIO& _io = ImGui::GetIO(); (void)_io;
+		ImGuiIO& _io = ImGui::GetIO();
+		(void)_io;
 		_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;		// キーボードを使用可能に
 		_io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;		// ゲームパッドを使用可能に
 		_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;			// ImGuiDockingの有効化
+
+		// 日本語対応
+		ImFontConfig _config;
+		_config.MergeMode = true;
+		_io.Fonts->AddFontDefault();
+		_io.Fonts->AddFontFromFileTTF(
+			"c:\\Windows\\Fonts\\msgothic.ttc",
+			13.0f, 
+			&_config,
+			_io.Fonts->GetGlyphRangesJapanese()
+		);
 
 		// ImGuiのセットアップ
 		ImGui::StyleColorsDark();

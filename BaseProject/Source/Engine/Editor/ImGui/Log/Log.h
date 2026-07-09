@@ -13,8 +13,13 @@ namespace Engine::Editor
 		void Clear();
 
 		void AddLog(const char* a_fmt, ...);
+		void AddLogRow(const char* a_text);
 
 		void Draw(const char* a_title, bool* a_pOpen = NULL);
+
+	private:
+
+		void UpdateOffsetsAndScroll(int a_oldSize);
 
 	private:
 

@@ -143,17 +143,17 @@ namespace Engine::Resource
 		for (const auto& _guid : m_materialGUIDVec)
 		{
 			auto _handle = ResourceManager::Instance().Load<Material>(_guid);
-			m_materialHandleVec.push_back(_handle);
+			m_materialHandleVec.push_back(std::move(_handle));
 		}
 		for (const auto& _guid : m_meshGUIDVec)
 		{
 			auto _handle = ResourceManager::Instance().Load<Mesh>(_guid);
-			m_meshHandleVec.push_back(_handle);
+			m_meshHandleVec.push_back(std::move(_handle));
 		}
 		for (const auto& _guid : m_animationGUIDVec)
 		{
 			auto _handle = ResourceManager::Instance().Load<AnimationData>(_guid);
-			m_animationHandleVec.push_back(_handle);
+			m_animationHandleVec.push_back(std::move(_handle));
 		}
 	}
 

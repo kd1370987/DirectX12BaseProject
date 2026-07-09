@@ -27,20 +27,17 @@ namespace Engine::Editor
 		m_textBuffer.appendfv(a_fmt, _args);
 		va_end(_args);
 
-		// 前回のサイズから増えた分の間に改行があれば改行する
-		for (int _newSize = m_textBuffer.size(); _oldSize < _newSize; ++_oldSize)
-		{
-			if (m_textBuffer[_oldSize] == '\n')
-			{
-				m_lineOffsets.push_back(_oldSize + 1);
-			}
-		}
+		UpdateOffsetsAndScroll(_oldSize);
+	}
 
-		// 自動スクロールがONならば、自動でスクロールする
-		if (m_isAutoScroll)
-		{
-			m_isScrollToBottom = true;
-		}
+	void Log::AddLogRow(const char* a_text)
+	{
+		int _oldSize = m_textBuffer.size();
+
+		// appendfv ではなく append を使う！（% を解釈しない）
+		m_textBuffer.append(a_text);
+
+		UpdateOffsetsAndScroll(_oldSize);
 	}
 
 	void Log::Draw(const char* a_title, bool* a_pOpen)
@@ -139,5 +136,22 @@ namespace Engine::Editor
 		m_isScrollToBottom = false;
 		ImGui::EndChild();
 		ImGui::End();
+	}
+	void Log::UpdateOffsetsAndScroll(int a_oldSize)
+	{
+		// 前回のサイズから増えた分の間に改行があれば改行する
+		for (int _newSize = m_textBuffer.size(); a_oldSize < _newSize; ++a_oldSize)
+		{
+			if (m_textBuffer[a_oldSize] == '\n')
+			{
+				m_lineOffsets.push_back(a_oldSize + 1);
+			}
+		}
+
+		// 自動スクロールがONならば、自動でスクロールする
+		if (m_isAutoScroll)
+		{
+			m_isScrollToBottom = true;
+		}
 	}
 }

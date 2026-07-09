@@ -85,10 +85,18 @@ namespace Engine::Editor
 
 		m_editFuncVec.clear();
 
+		Debug::SetLogCallback(
+			[this](const char* a_msg)
+			{
+				if (!m_upLog) return;
+				m_upLog->AddLogRow(a_msg);
+			}
+		);
 		return true;
 	}
 	void MainEditor::Release()
 	{
+		Debug::SetLogCallback(nullptr);
 		m_upImGuiContext->Release();
 	}
 	void MainEditor::Update(float a_dt)

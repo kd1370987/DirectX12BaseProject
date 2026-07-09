@@ -480,7 +480,7 @@ namespace Engine
 		}
 	}
 
-	// コピー代入演算子 (超重要！)
+	// コピー代入演算子
 	template<typename T>
 	inline ResourceRef<T>& ResourceRef<T>::operator=(const ResourceRef& a_other)
 	{

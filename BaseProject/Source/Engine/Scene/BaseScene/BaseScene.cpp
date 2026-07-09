@@ -40,15 +40,14 @@ namespace Engine::Scene
 		// 解放処理と初期化処理も含まれているため、呼び出しはシングルスレッド限定
 		m_upWorld->BegineFrame();
 
-		//// すべてのECS参照カウントをリセット
-		//Engine::Resource::ResourceManager::Instance().AllResetECSRefs();
+		// すべてのECS参照カウントをリセット
+		Engine::Resource::ResourceManager::Instance().AllResetECSRefs();
 
-		//// ECSカウントの収集
-		//m_upWorld->RunSystem(Engine::ECS::ESystemType::GC, a_dt);
+		// ECSカウントの収集
+		m_upWorld->RunSystem(Engine::ECS::ESystemType::GC, a_dt);
 
-		//// 参照カウントがなくなった場合リソースの解放をする
-		////Engine::Resource::ResourceManager::Instance().RunGarbageCollectionSweep();
-		//Engine::Resource::ResourceManager::Instance().SweepUnused<Resource::Model>();
+		// 参照カウントがなくなった場合リソースの解放をする
+		Engine::Resource::ResourceManager::Instance().SweepUnused<Resource::Model>();
 
 		// エディター状態なら更新をしない
 		auto _mode = Engine::MainEngine::Instance().GetMode();
