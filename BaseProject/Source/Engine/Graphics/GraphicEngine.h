@@ -84,7 +84,8 @@ namespace Engine::Graphics
 	{
 		RangeHandle<Resource::MeshVertexFloat> staticVertexHandle;		// アセット側の頂点データ
 		RangeHandle<uint32_t> staticIndexHandle;						// アセット側のインデックスデータ
-		RangeHandle<Resource::NodePoseMatrix> nodePoseMat;					// CPUで更新されたボーンノード行列
+		RangeHandle<Resource::NodePoseMatrix> nodePoseMat;				// CPUで更新されたボーンノード行列
+		RangeHandle<Resource::MeshVertexFloat> animatedHandle;
 
 		// 自身のBLASと変形後頂点を入れるメガバッファのハンドルを保持しているインスタンスのハンドル
 		Handle<Raytracing::DynamicRaytracingData> animHandle;
@@ -164,6 +165,7 @@ namespace Engine::Graphics
 		/// <param name="dynamicHandle">変形後のデータを入れるインスタンス</param>
 		/// <param name="nodePoseHnandle">ノード行列</param>
 		void SubmitSkinning(
+			ECS::World& a_world,
 			const Resource::Model* a_pModel,
 			const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
 			const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle

@@ -334,6 +334,7 @@ namespace Engine::Graphics
 		return m_cbAmbient;
 	}
 	void GraphicsEngine::SubmitSkinning(
+		ECS::World& a_world,
 		const Resource::Model* a_pModel, 
 		const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
 		const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle
@@ -359,6 +360,19 @@ namespace Engine::Graphics
 			_item.staticIndexHandle = _pMesh->GetRtData().indexHandle;
 			_item.nodePoseMat = nodePoseHnandle;
 			_item.animHandle = dynamicHandle;
+
+			auto& _pool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+			auto* _data = _pool.Get(dynamicHandle);
+			if (!_data) continue;
+			
+			for (auto& _meshData : _data->meshDataVec)
+			{
+				if (_cmd.meshRawID == _meshData.meshHandle.GetIndex())
+				{
+					_item.animatedHandle = _meshData.animatedVertexHandle;
+				}
+			}
+
 			m_skinningDispathItemVec.push_back(_item);
 		}
 	}
@@ -924,6 +938,7 @@ namespace Engine::Graphics
 					a_pCmdList,
 					_descVec
 				);
+				_pData->meshDataVec.back().meshHandle = _meshHandle;
 			}
 		}
 

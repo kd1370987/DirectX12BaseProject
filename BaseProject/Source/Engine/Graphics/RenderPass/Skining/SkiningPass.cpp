@@ -69,13 +69,16 @@ void Engine::Graphics::AddSkiningPass(D3D12::PipelineStateManager* a_pPSOManager
 
 			for (auto& _item : a_pGE->GetSkinningImtes())
 			{
+				
 				struct Info
 				{
 					UINT vertexStart;			// 頂点のスタートインデックス
+					UINT animatedVertStart;
 					UINT vertexCount;			// キャラの頂点数
 					UINT boneOffset;			// このキャラのボーンの開始場所
 				} _info;
 				_info.vertexStart = _item.staticVertexHandle.startIndex;
+				_info.animatedVertStart = _item.animatedHandle.startIndex;
 				_info.vertexCount = _item.staticVertexHandle.count;
 				_info.boneOffset = _item.nodePoseMat.startIndex;
 				a_pCtx->ComputeBindRootCBV(0, _info);

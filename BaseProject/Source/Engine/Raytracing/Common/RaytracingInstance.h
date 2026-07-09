@@ -86,6 +86,9 @@ namespace Engine::Raytracing
 
 		// インスタンス専用のBLAS
 		Raytracing::BLAS instanceBLAS;
+
+		// どのメッシュの参照先か
+		Handle<Resource::Mesh> meshHandle;
 	};
 
 	/// <summary>

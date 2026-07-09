@@ -8,6 +8,7 @@ struct BonePallet
 struct SkinningInfo
 {
 	uint vertexStart;			// 頂点のスタートインデックス
+	uint animatedVertStart;
 	uint vertexCount;			// キャラの頂点数
 	uint boneOffset;			// このキャラのボーンの開始場所
 };

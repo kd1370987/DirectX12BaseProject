@@ -52,10 +52,6 @@ namespace Engine::Graphics
 						_animMesh.instanceBLAS.UAVBarrier(_pCmdList);
 					}
 				}
-
-				// 3. すべての動的BLAS更新完了を待つバリア（この後のTLAS構築のため）
-				// ※ D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES などで適切にバリアを張るか、
-				// _animMesh.instanceBLAS.UAVBarrier(_pCmdList); をループ内で呼ぶ
 			};
 
 		// パス登録

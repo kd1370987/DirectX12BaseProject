@@ -49,6 +49,7 @@ void SkinningRegisterSystem::Init(Engine::ECS::World& a_world)
 
 				// GPUスキニング登録
 				_pGE->SubmitSkinning(
+					a_world,
 					_model,
 					_animComp.dynamicInstanceHandle,
 					_nodePoseComp.nodePoseHandle

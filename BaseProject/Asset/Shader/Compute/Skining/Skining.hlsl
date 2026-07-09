@@ -6,7 +6,7 @@
 void CSMain( uint3 DTid : SV_DispatchThreadID )
 {
 	// 範囲外アクセスチェック : 頂点数を超えたスレッドは終了
-	if (DTid.x >= g_info.vertexCount) return;
+	//if (DTid.x >= g_info.vertexCount) return;
 	
 	// メガバッファ上の絶対インデックス
 	uint _globalVertIdx = g_info.vertexStart + DTid.x;
@@ -39,5 +39,5 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	_outVert.normal = _skinnedNormal;
 	_outVert.tangent = normalize(_skinnedTangent);
 	
-	g_outputVertex[_globalVertIdx] = _outVert;
+	g_outputVertex[g_info.animatedVertStart + DTid.x] = _outVert;
 }
