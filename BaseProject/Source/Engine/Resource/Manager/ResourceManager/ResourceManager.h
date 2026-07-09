@@ -77,6 +77,8 @@ namespace Engine::Resource
 		template<typename T>
 		void SweepUnused();
 
+		void AllResetECSRefs();
+
 		// 疑似ガベージコレクション : 全プールのスイープ処理を実行
 		// 参照カウントがないプールのリソースは解放される
 		void RunGarbageCollectionSweep();
@@ -106,6 +108,12 @@ namespace Engine::Resource
 		// ハンドルの有効チェック
 		template<typename T>
 		bool IsValid(const Handle<T>& a_handle);
+
+		template<typename T>
+		void ResetECSRefs();
+
+		template<typename T>
+		void AddEcsRef(const Handle<T>& a_handle);
 
 	private:
 
@@ -258,17 +266,17 @@ namespace Engine::Resource
 	inline void ResourceManager::SweepUnused()
 	{
 		auto& _data = RefData<T>();
-
-		// manual と ecs の配列で大きい方のサイズまで走査
-		size_t _maxSize = std::max(_data.manualRefCounts.size(), _data.ecsRefCounts.size());
-
-		for (uint16_t i = 0; i < _maxSize; ++i)
+		size_t _poolSize = _data.pool.GetAll().size();
+		for (uint16_t i = 0; i < _poolSize; ++i)
 		{
-			uint16_t _manual = (i < _data.manualRefCounts.size()) ? _data.manualRefCounts[i] : 0;
-			uint16_t _ecs = (i < _data.ecsRefCounts.size()) ? _data.ecsRefCounts[i] : 0;
+			// 存在チェック
+			if (_data.pool.Access(i) == nullptr) continue;
+
+			size_t _refCount = _data.manualRefCounts.size();
+			size_t _ecsRefCount = _data.ecsRefCounts.size();
 
 			// アプリ側からも、ECS側からも参照されていない場合
-			if (_manual == 0 && _ecs == 0)
+			if (_refCount == 0 && _ecsRefCount == 0)
 			{
 				// ItemPool内に実体が存在しているかチェック
 				if (_data.pool.Access(i) != nullptr)
@@ -375,6 +383,26 @@ namespace Engine::Resource
 	inline bool ResourceManager::IsValid(const Handle<T>& a_handle)
 	{
 		return GetPool<T>().IsValid(a_handle);
+	}
+
+	template<typename T>
+	inline void ResourceManager::ResetECSRefs()
+	{
+		auto& _ecsCounts = RefData<T>().ecsRefCounts;
+		// 連続メモリを一気にゼロクリア（爆速）
+		std::fill(_ecsCounts.begin(), _ecsCounts.end(), 0);
+	}
+
+	template<typename T>
+	inline void ResourceManager::AddEcsRef(const Handle<T>& a_handle)
+	{
+		if (!IsValid(a_handle)) return;
+		auto& _ecsCounts = RefData<T>().ecsRefCounts;
+		uint16_t _idx = a_handle.GetIndex();
+		if (_ecsCounts.size() <= _idx) {
+			_ecsCounts.resize(_idx + 1, 0);
+		}
+		_ecsCounts[_idx]++;
 	}
 
 	// 型ごとにキャッシュに登録

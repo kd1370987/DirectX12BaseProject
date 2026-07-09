@@ -180,6 +180,10 @@ namespace Engine::Pool
 	template<typename T>
 	inline const T* ItemPool<T>::Access(uint16_t a_index) const
 	{
+		if (m_data[a_index].has_value())
+		{
+			return nullptr;
+		}
 		return &m_data[a_index].value();
 	}
 	template<typename T>

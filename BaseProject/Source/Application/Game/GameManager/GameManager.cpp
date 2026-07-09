@@ -93,6 +93,7 @@
 #include "Application/Systems/Update/PreUpdate/UpdateHierarchyDepthSystem/UpdateHierarchyDepthSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitHierarchyWorldMatrixSystem/CommitHierarchyWorldMatrixSystem.h"
 #include "../../Systems/Draw/Draw/SkinningRegisterSystem/SkinningRegisterSystem.h"
+#include "../../Systems/Release/ResourceFreeSystem/ResourceFreeSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -206,6 +207,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<UpdateHierarchyDepthSystem>();
 				a_pWorld->RegisterSystem<CommitHierarchyWorldMatrixSystem>();
 				a_pWorld->RegisterSystem<SkinningRegisterSystem>();
+				a_pWorld->RegisterSystem<ResourceFreeSystem>();
 
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();

@@ -18,6 +18,18 @@ namespace Engine::Resource
 		m_stateMachineAssetData.pool.Release();
 	}
 
+	void ResourceManager::AllResetECSRefs()
+	{
+		ResetECSRefs<Model>();
+		ResetECSRefs<Material>();
+		ResetECSRefs<Texture>();
+		ResetECSRefs<AnimationData>();
+		ResetECSRefs<Mesh>();
+		ResetECSRefs<Shader>();
+		ResetECSRefs<ShaderLibrary>();
+		ResetECSRefs<StateMachineAsset>();
+	}
+
 	void ResourceManager::RunGarbageCollectionSweep()
 	{
 		SweepUnused<Model>();

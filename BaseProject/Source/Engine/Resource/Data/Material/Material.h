@@ -15,7 +15,7 @@ namespace Engine::Resource
 	struct Material
 	{
 		Material() = default;
-		~Material() { ENGINE_LOG("テクスチャが解放されました"); }
+		~Material() { ENGINE_LOG("マテリアルが解放されました"); }
 
 
 		// 解放

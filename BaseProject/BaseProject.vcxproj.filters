@@ -1057,6 +1057,9 @@
     <Filter Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer">
       <UniqueIdentifier>{66fb64bc-5b02-459b-8bda-2dcecb664d44}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Release\ResourceFreeSystem">
+      <UniqueIdentifier>{275a4e97-fa93-4e37-9a57-27f7b5781ba7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1670,6 +1673,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass\UpdateBLASPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.cpp">
+      <Filter>Source\Application\Systems\Release\ResourceFreeSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2593,6 +2599,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Common\ResourceRef.h">
       <Filter>Source\Engine\Resource\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.h">
+      <Filter>Source\Application\Systems\Release\ResourceFreeSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
