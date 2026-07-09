@@ -115,11 +115,10 @@ namespace Engine::Raytracing
 				const auto& _meshHandle = _model->GetMeshHandles()[_meshIdx];
 				const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
 				if (!_pMesh) continue;
-				DXSM::Matrix _nodeMat = _nodePoseMatVec[_meshIdx].world;
 
 				// インスタンス作成
 				Engine::Raytracing::Instance _rayInst = {};
-				_rayInst.worldMat = _nodeMat * a_worldMat;
+				_rayInst.worldMat = a_worldMat;
 				if (!_pMesh->HasRtData()) continue;
 				auto* _item = _pool.Ref(a_dynamicDataHandle);
 				if (!_item) continue;
