@@ -122,21 +122,27 @@ namespace Engine::Resource
 // 
 //==========================================================================================
 
+#include "Resource/Common/ResourceRef.h"
+
+//-----------------------------------------------------------------------------------------
+// データ
 #include "Resource/Data/Shader/Shader.h"
 #include "Engine/Resource/Data/ShaderLibrary/ShaderLibrary.h"	// シェーダーライブラリ
-#include "Engine/Resource/Data/Texture/Texture.h"			// テクスチャ
-#include "Engine/Resource/Data/Mesh/Mesh.h"					// メッシュ
-#include "Engine/Resource/Data/Animation/Animation.h"		// アニメーションデータ
+#include "Engine/Resource/Data/Texture/Texture.h"				// テクスチャ
+#include "Engine/Resource/Data/Mesh/Mesh.h"						// メッシュ
+#include "Engine/Resource/Data/Animation/Animation.h"			// アニメーションデータ
 #include "Resource/Data/ShadingModelTable/ShadingModelTable.h"
-#include "Engine/Resource/Data/Material/Material.h"			// マテリアル
-#include "Engine/Resource/Data/Node/Node.h"					// ノード
+#include "Engine/Resource/Data/Material/Material.h"				// マテリアル
+#include "Engine/Resource/Data/Node/Node.h"						// ノード
 
-#include "Engine/Resource/Data/Model/Model.h"				// モデル
-#include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"	// クアッドポリゴン
-
+#include "Engine/Resource/Data/Model/Model.h"					// モデル
+#include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"		// クアッドポリゴン
 
 #include "Resource/Data/StateMachineAsset/StateMachineAsset.h"
 #include "Resource/Data/Particles/ParticlesAsset.h"
+// 
+//-----------------------------------------------------------------------------------------
+#include "Resource/Manager/ResourceManager/ResourceManager.h"	// マネージャー
 
 #include "Graphics/CBData.h"
 

@@ -82,6 +82,11 @@ namespace Engine::ECS
 		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
 	}
 
+	void World::ResourceGC()
+	{
+
+	}
+
 	void World::AddEntity(const Signature& a_sig)
 	{
 		m_addEntityVec.push_back(a_sig);

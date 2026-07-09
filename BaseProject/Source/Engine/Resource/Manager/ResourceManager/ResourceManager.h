@@ -12,6 +12,14 @@
 
 namespace Engine::Resource
 {
+	template<typename T>
+	struct ResourceData
+	{
+		Pool::ItemPool<T>							pool;					// モデル
+		std::unordered_map<Engine::GUID, Handle<T>> cache = {};				// GUID to Handle
+		std::vector<uint16_t>						manualRefCounts = {};	// ECS外の処理カウント
+	};
+
 	// リソースの管理のみ
 	class ResourceManager
 	{
@@ -22,11 +30,16 @@ namespace Engine::Resource
 
 		// リソースの読み込み
 		template<typename T>
-		inline Handle<T> Load(const Engine::GUID& a_guid);
+		//inline Handle<T> Load(const Engine::GUID& a_guid);
+		inline ResourceRef<T> Load(const Engine::GUID& a_guid);
 
 		// リソースの追加
 		template<typename T>
-		Handle<T> Add(T&& a_resource);
+		//Handle<T> Add(T&& a_resource);
+		ResourceRef<T> Add(T&& a_resource);
+
+		template<typename T>
+		void AddRef(const Handle<T>& a_handle);
 
 		/// <summary>
 		/// キャッシュにも追加されるアセットのデータ追加用関数
@@ -42,6 +55,8 @@ namespace Engine::Resource
 		template<typename T>
 		void Remove(const Handle<T>& a_handle);
 
+		template<typename T>
+		void ReleaseRef(const Handle<T>& a_handle);
 
 		// リソースの取得
 		template<typename T>
@@ -77,7 +92,7 @@ namespace Engine::Resource
 
 		// ハンドルの有効チェック
 		template<typename T>
-		bool IsValiad(const Handle<T>& a_handle);
+		bool IsValid(const Handle<T>& a_handle);
 
 	private:
 
@@ -89,38 +104,35 @@ namespace Engine::Resource
 		template<typename T>
 		std::unordered_map<Engine::GUID, Handle<T>>& RefMap();
 
+		/// <summary>
+		/// テンプレート特殊化された内部データを参照するための関数
+		/// </summary>
+		/// <typeparam name="T">型情報</typeparam>
+		/// <returns>型に紐づく情報</returns>
+		template<typename T>
+		const ResourceData<T>& GetData() const;
+
+		/// <summary>
+		/// テンプレート特殊化された内部データを参照するための関数
+		/// </summary>
+		/// <typeparam name="T">型情報</typeparam>
+		/// <returns>型に紐づく情報</returns>
+		template<typename T>
+		ResourceData<T>& RefData();
+
 	private:
 
 		// 各リソースの実体プール
-		Pool::ItemPool<Model>			m_modelPool;			// モデル
-		std::unordered_map<Engine::GUID, Handle<Model>> m_modelCache = {};
-
-		Pool::ItemPool<Material>		m_materialPool;			// マテリアル
-		std::unordered_map<Engine::GUID, Handle<Material>> m_materialCache = {};
-
-		Pool::ItemPool<Mesh>			m_meshPool;				// メッシュ
-		std::unordered_map<Engine::GUID, Handle<Mesh>> m_meshCache = {};
-
-		Pool::ItemPool<AnimationData>	m_animationPool;		// アニメーション
-		std::unordered_map<Engine::GUID, Handle<AnimationData>> m_animationCache = {};
-
-		Pool::ItemPool<Texture>			m_texturePool;			// テクスチャ
-		std::unordered_map<Engine::GUID, Handle<Texture>> m_texCache = {};
-
-		Pool::ItemPool<Shader>			m_shaderPool;			// シェーダー
-		std::unordered_map<Engine::GUID, Handle<Shader>> m_shaderCache = {};
-
-		Pool::ItemPool<ShaderLibrary>	m_shaderLibraryPool;	// シェーダーライブラリ
-		std::unordered_map<Engine::GUID, Handle<ShaderLibrary>> m_shaderLibraryCache = {};
-
-		Pool::ItemPool<StateMachineAsset> m_stateMachinePool;	// ステートマシン
-		std::unordered_map<Engine::GUID, Handle<StateMachineAsset>> m_stateMachineAssetCache = {};
-
-		Pool::ItemPool<ParticlesAsset> m_particlesAssetPool;	// パーティクル
-		std::unordered_map<Engine::GUID, Handle<ParticlesAsset>> m_particleCache = {};
-
-		Pool::ItemPool<ShadingModelTable> m_shadingModelTablePool;	// シェーディングモデルテーブル
-		std::unordered_map<Engine::GUID, Handle<ShadingModelTable>> m_shadingModelTableCache = {};
+		ResourceData<Model> m_modelData;						// モデル
+		ResourceData<Material> m_materialData;					// マテリアル
+		ResourceData<Mesh> m_meshData;							// メッシュ
+		ResourceData<AnimationData> m_animationData;			// アニメーション
+		ResourceData<Texture> m_textureData;					// テクスチャ
+		ResourceData<Shader> m_shaderData;						// シェーダー
+		ResourceData<ShaderLibrary> m_shaderLibraryData;		// シェーダーライブラリ
+		ResourceData<StateMachineAsset> m_stateMachineAssetData;// ステートマシンアセット
+		ResourceData<ParticlesAsset> m_particleAssetData;		// パーティクル
+		ResourceData<ShadingModelTable> m_shadingModelTableData;// シェーディングモデルテーブル
 
 	// シングルトン
 	private:
@@ -137,26 +149,35 @@ namespace Engine::Resource
 	};
 	// リソースのロード
 	template<typename T>
-	inline Handle<T> ResourceManager::Load(const Engine::GUID& a_guid)
+	//inline Handle<T> ResourceManager::Load(const Engine::GUID& a_guid)
+	inline ResourceRef<T> ResourceManager::Load(const Engine::GUID& a_guid)
 	{
 		// 読み込み済みかチェック
 		const auto& _handle = GetCache<T>(a_guid);
-		if (_handle != Handle<T>()) return _handle;
+		if (IsValid(_handle)) return ResourceRef<T>(_handle);
 
-		// パス取得
-		std::string _filePath = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
-
-		// リソースのビルド
-		T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath);
+		std::string _filePath = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);	// パス取得
+		T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath);					// リソースのビルド
 
 		// プールに登録してハンドルを発行
-		return AddResourceAndGUID(std::move(_resourceData),a_guid);
+		return ResourceRef<T>(AddResourceAndGUID(std::move(_resourceData), a_guid));
 	}
 	// リソースの追加
 	template<typename T>
-	inline Handle<T> ResourceManager::Add(T&& a_resource)
+	inline ResourceRef<T> ResourceManager::Add(T&& a_resource)
 	{
-		return RefPool<T>().Add(std::move(a_resource));
+		return ResourceRef<T>(RefPool<T>().Add(std::move(a_resource)));
+	}
+	template<typename T>
+	inline void ResourceManager::AddRef(const Handle<T>& a_handle)
+	{
+		auto& _data = RefData<T>();
+		uint16_t _idx = a_handle.GetIndex();
+		if (_data.manualRefCounts.size() <= _idx)
+		{
+			_data.manualRefCounts.resize(_idx + 1, 0);
+		}
+		_data.manualRefCounts[_idx]++;
 	}
 	template<typename T>
 	inline Handle<T> ResourceManager::AddResourceAndGUID(T&& a_resource, const Engine::GUID& a_guid)
@@ -169,6 +190,16 @@ namespace Engine::Resource
 	inline void ResourceManager::Remove(const Handle<T>& a_handle)
 	{
 		return RefPool<T>().Remove(a_handle);
+	}
+	template<typename T>
+	inline void ResourceManager::ReleaseRef(const Handle<T>& a_handle)
+	{
+		auto& _data = RefData<T>();
+		uint16_t _idx = a_handle.GetIndex();
+		if (_idx < _data.manualRefCounts.size() && _data.manualRefCounts[_idx] > 0)
+		{
+			_data.manualRefCounts[_idx]--;
+		}
 	}
 	template<typename T>
 	inline const T* ResourceManager::Get(const Handle<T>&a_handle) const
@@ -194,31 +225,19 @@ namespace Engine::Resource
 		return GetPool<T>().Access(a_index);
 	}
 
-	// テンプレート明示特殊化
 	// プールの取得
-	template<> inline const Pool::ItemPool<Model>& ResourceManager::GetPool<Model>() const							{ return m_modelPool; }
-	template<> inline const Pool::ItemPool<Material>& ResourceManager::GetPool<Material>() const					{ return m_materialPool; }
-	template<> inline const Pool::ItemPool<Mesh>& ResourceManager::GetPool<Mesh>() const							{ return m_meshPool; }
-	template<> inline const Pool::ItemPool<AnimationData>& ResourceManager::GetPool<AnimationData>() const			{ return m_animationPool; }
-	template<> inline const Pool::ItemPool<Texture>& ResourceManager::GetPool<Texture>() const						{ return m_texturePool; }
-	template<> inline const Pool::ItemPool<Shader>& ResourceManager::GetPool<Shader>() const						{ return m_shaderPool; }
-	template<> inline const Pool::ItemPool<ShaderLibrary>& ResourceManager::GetPool<ShaderLibrary>() const			{ return m_shaderLibraryPool; }
-	template<> inline const Pool::ItemPool<StateMachineAsset>& ResourceManager::GetPool<StateMachineAsset>() const	{ return m_stateMachinePool; }
-	template<> inline const Pool::ItemPool<ParticlesAsset>& ResourceManager::GetPool<ParticlesAsset>() const		{ return m_particlesAssetPool; }
-	template<> inline const Pool::ItemPool<ShadingModelTable>& ResourceManager::GetPool<ShadingModelTable>() const		{ return m_shadingModelTablePool; }
-	
-	// テンプレート明示特殊化
+	template<typename T>
+	inline const Pool::ItemPool<T>& ResourceManager::GetPool() const
+	{
+		return GetData<T>().pool;
+	}
+
 	// プールの参照
-	template<> inline Pool::ItemPool<Model>& ResourceManager::RefPool<Model>()							{ return m_modelPool; }
-	template<> inline Pool::ItemPool<Material>& ResourceManager::RefPool<Material>()					{ return m_materialPool; }
-	template<> inline Pool::ItemPool<Mesh>& ResourceManager::RefPool<Mesh>()							{ return m_meshPool; }
-	template<> inline Pool::ItemPool<AnimationData>& ResourceManager::RefPool<AnimationData>()			{ return m_animationPool; }
-	template<> inline Pool::ItemPool<Texture>& ResourceManager::RefPool<Texture>()						{ return m_texturePool; }
-	template<> inline Pool::ItemPool<Shader>& ResourceManager::RefPool<Shader>()						{ return m_shaderPool; }
-	template<> inline Pool::ItemPool<ShaderLibrary>& ResourceManager::RefPool<ShaderLibrary>()			{ return m_shaderLibraryPool; }
-	template<> inline Pool::ItemPool<StateMachineAsset>& ResourceManager::RefPool<StateMachineAsset>()	{ return m_stateMachinePool; }
-	template<> inline Pool::ItemPool<ParticlesAsset>& ResourceManager::RefPool<ParticlesAsset>()		{ return m_particlesAssetPool; }
-	template<> inline Pool::ItemPool<ShadingModelTable>& ResourceManager::RefPool<ShadingModelTable>()		{ return m_shadingModelTablePool; }
+	template<typename T>
+	inline Pool::ItemPool<T>& ResourceManager::RefPool()
+	{
+		return RefData<T>().pool;
+	}
 
 	// キャッシュアクセス
 	template<typename T>
@@ -282,18 +301,11 @@ namespace Engine::Resource
 		return false;
 	}
 
+	// ハンドルが使用可能かどうか
 	template<typename T>
-	inline bool ResourceManager::IsValiad(const Handle<T>& a_handle)
+	inline bool ResourceManager::IsValid(const Handle<T>& a_handle)
 	{
-		auto& _map = RefMap<T>();
-		for (auto& [_guid,_handle] : _map)
-		{
-			if (_handle == a_handle)
-			{
-				return true;
-			}
-		}
-		return false;
+		return GetPool<T>().IsValid(a_handle);
 	}
 
 	// 型ごとにキャッシュに登録
@@ -303,16 +315,112 @@ namespace Engine::Resource
 		RefMap<T>()[a_guid] = a_handle;
 	}
 
-	// テンプレート明示特殊化
 	// マップの参照
-	template<> inline std::unordered_map<Engine::GUID, Handle<Model>>& ResourceManager::RefMap<Model>() { return m_modelCache; }
-	template<> inline std::unordered_map<Engine::GUID, Handle<Material>>& ResourceManager::RefMap<Material>() { return m_materialCache; }
-	template<> inline std::unordered_map<Engine::GUID, Handle<Mesh>>& ResourceManager::RefMap<Mesh>() { return m_meshCache; }
-	template<> inline std::unordered_map<Engine::GUID, Handle<AnimationData>>& ResourceManager::RefMap<AnimationData>() { return m_animationCache; }
-	template<> inline std::unordered_map<Engine::GUID, Handle<Texture>>& ResourceManager::RefMap<Texture>() { return m_texCache; }
-	template<> inline std::unordered_map<Engine::GUID, Handle<Shader>>& ResourceManager::RefMap<Shader>() { return m_shaderCache; }
-	template<> inline std::unordered_map<Engine::GUID, Handle<ShaderLibrary>>& ResourceManager::RefMap<ShaderLibrary>() { return m_shaderLibraryCache; }
-	template<> inline std::unordered_map<Engine::GUID, Handle<StateMachineAsset>>& ResourceManager::RefMap<StateMachineAsset>() { return m_stateMachineAssetCache; }
-	template<> inline std::unordered_map<Engine::GUID, Handle<ParticlesAsset>>& ResourceManager::RefMap<ParticlesAsset>() { return m_particleCache; }
-	template<> inline std::unordered_map<Engine::GUID, Handle<ShadingModelTable>>& ResourceManager::RefMap<ShadingModelTable>() { return m_shadingModelTableCache; }
+	template<typename T>
+	inline std::unordered_map<Engine::GUID, Handle<T>>& ResourceManager::RefMap()
+	{
+		return RefData<T>().cache;
+	}
+
+	// プールの参照
+	template<> inline ResourceData<Model>& ResourceManager::RefData<Model>() { return  m_modelData; }
+	template<> inline ResourceData<Material>& ResourceManager::RefData<Material>() { return m_materialData; }
+	template<> inline ResourceData<Mesh>& ResourceManager::RefData<Mesh>() { return m_meshData; }
+	template<> inline ResourceData<AnimationData>& ResourceManager::RefData<AnimationData>() { return m_animationData; }
+	template<> inline ResourceData<Texture>& ResourceManager::RefData<Texture>() { return m_textureData; }
+	template<> inline ResourceData<Shader>& ResourceManager::RefData<Shader>() { return m_shaderData; }
+	template<> inline ResourceData<ShaderLibrary>& ResourceManager::RefData<ShaderLibrary>() { return m_shaderLibraryData; }
+	template<> inline ResourceData<StateMachineAsset>& ResourceManager::RefData<StateMachineAsset>() { return m_stateMachineAssetData; }
+	template<> inline ResourceData<ParticlesAsset>& ResourceManager::RefData<ParticlesAsset>() { return m_particleAssetData; }
+	template<> inline ResourceData<ShadingModelTable>& ResourceManager::RefData<ShadingModelTable>() { return m_shadingModelTableData; }
+
+	// プールの取得
+	template<> inline const ResourceData<Model>& ResourceManager::GetData<Model>() const { return  m_modelData; }
+	template<> inline const ResourceData<Material>& ResourceManager::GetData<Material>() const { return m_materialData; }
+	template<> inline const ResourceData<Mesh>& ResourceManager::GetData<Mesh>() const { return m_meshData; }
+	template<> inline const ResourceData<AnimationData>& ResourceManager::GetData<AnimationData>() const { return m_animationData; }
+	template<> inline const ResourceData<Texture>& ResourceManager::GetData<Texture>() const { return m_textureData; }
+	template<> inline const ResourceData<Shader>& ResourceManager::GetData<Shader>() const { return m_shaderData; }
+	template<> inline const ResourceData<ShaderLibrary>& ResourceManager::GetData<ShaderLibrary>() const { return m_shaderLibraryData; }
+	template<> inline const ResourceData<StateMachineAsset>& ResourceManager::GetData<StateMachineAsset>() const { return m_stateMachineAssetData; }
+	template<> inline const ResourceData<ParticlesAsset>& ResourceManager::GetData<ParticlesAsset>() const { return m_particleAssetData; }
+	template<> inline const ResourceData<ShadingModelTable>& ResourceManager::GetData<ShadingModelTable>() const { return m_shadingModelTableData; }
+}
+
+namespace Engine
+{
+	// =========================================================
+	// ResourceRef の中身を実装
+	// リソースマネージャーの実装が見えている必要があるため
+	// =========================================================
+
+	// コンストラクタ
+	template<typename T>
+	inline ResourceRef<T>::ResourceRef(Handle<T> a_h) : m_handle(a_h) 
+	{
+		if (Resource::ResourceManager::Instance().IsValid(m_handle))
+		{
+			Resource::ResourceManager::Instance().AddRef(m_handle);
+		}
+	}
+
+	// デストラクタ
+	template<typename T>
+	inline ResourceRef<T>::~ResourceRef() {
+		if (Resource::ResourceManager::Instance().IsValid(m_handle)) 
+		{
+			Resource::ResourceManager::Instance().ReleaseRef(m_handle);
+		}
+	}
+
+	// コピーコンストラクタ
+	template<typename T>
+	inline ResourceRef<T>::ResourceRef(const ResourceRef& a_other) : m_handle(a_other.m_handle)
+	{
+		if (Resource::ResourceManager::Instance().IsValid(m_handle)) 
+		{
+			Resource::ResourceManager::Instance().AddRef(m_handle);
+		}
+	}
+
+	// コピー代入演算子 (超重要！)
+	template<typename T>
+	inline ResourceRef<T>& ResourceRef<T>::operator=(const ResourceRef& a_other)
+	{
+		if (this != &a_other) {
+			// 古いもののカウントを減らし、新しいものを増やす
+			if (Resource::ResourceManager::Instance().IsValid(m_handle))
+			{
+				Resource::ResourceManager::Instance().ReleaseRef(m_handle);
+			}
+			m_handle = a_other.m_handle;
+			if (Resource::ResourceManager::Instance().IsValid(m_handle)) 
+			{
+				Resource::ResourceManager::Instance().AddRef(m_handle);
+			}
+		}
+		return *this;
+	}
+
+	// ムーブコンストラクタ
+	template<typename T>
+	inline ResourceRef<T>::ResourceRef(ResourceRef&& a_other) noexcept : m_handle(a_other.m_handle)
+	{
+		a_other.m_handle = {}; // 元のハンドルを空にする
+	}
+
+	// ムーブ代入演算子
+	template<typename T>
+	inline ResourceRef<T>& ResourceRef<T>::operator=(ResourceRef&& a_other) noexcept
+	{
+		if (this != &a_other) {
+			if (Resource::ResourceManager::Instance().IsValid(m_handle)) 
+			{
+				Resource::ResourceManager::Instance().ReleaseRef(m_handle);
+			}
+			m_handle = a_other.m_handle;
+			a_other.m_handle = {};
+		}
+		return *this;
+	}
 }

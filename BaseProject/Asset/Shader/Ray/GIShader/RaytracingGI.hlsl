@@ -223,7 +223,7 @@ void RayGen()
 	float _depth = _depthTex.Load(int3(_id, 0)).r;
 	if (_depth >= 1.0f)
 	{
-		gOutPut[_id] = float4(1, 1, 1, 1);
+		gOutPut[_id] = float4(1, 1, 1, -1.0f);
 		return;
 	}
 	
