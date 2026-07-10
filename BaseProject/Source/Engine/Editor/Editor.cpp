@@ -4,10 +4,6 @@
 #include "ImGui/Log/Log.h"
 #include "ImGui/Watch/Watch.h"
 
-#include "ECSView/ECSView.h"
-#include "AssetResourceView/AssetResourceView.h"
-#include "SceneView/SceneView.h"
-#include "SceneView/EditorCamera/EditorCamera.h"
 #include "WatchView/WatchView.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
@@ -52,23 +48,6 @@ namespace Engine::Editor
 			m_upLog = std::make_unique<Log>();
 			m_upLog->Init();
 		}
-		// ECSビュー
-		if (!m_upECSView)
-		{
-			m_upECSView = std::make_unique<ECSView>();
-			m_upECSView->Init();
-		}
-		// アセットビュー
-		if (!m_upAssetResourceView)
-		{
-			m_upAssetResourceView = std::make_unique<AssetResourceView>();
-			m_upAssetResourceView->Init();
-		}
-		if (!m_upSceneView)
-		{
-			m_upSceneView = std::make_unique<SceneView>();
-			m_upSceneView->Init();
-		}
 		if (!m_upWatchView)
 		{
 			m_upWatchView = std::make_unique<WatchView>();
@@ -105,28 +84,14 @@ namespace Engine::Editor
 	}
 	void MainEditor::Update(float a_dt)
 	{
-		m_upSceneView->Update(a_dt);
 	}
 	void MainEditor::Draw(D3D12::GraphicsCommandList * a_pCmdList, UINT a_widht, UINT a_height)
 	{
 		// ImGui描画開始
 		m_upImGuiContext->Begin(a_widht, a_height);
 
-		// アセットビュー
-		m_upAssetResourceView->Draw(a_widht, a_height);
-		//m_upRenderGraphResourceView->Draw(a_widht,a_height);
-
-		// ECSビュー
-		m_upECSView->Draw(a_widht, a_height);
-
+		// パネルマネージャー
 		m_upPanelManager->OnDrawPanels();
-
-		// シーンビュー
-		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
-		if (_pWorld && _pWorld->IsInit())
-		{
-			SceneView::Draw(m_upECSView->GetSelectEntity(), _pWorld);
-		}
 
 		// ログ表示
 		m_upLog->Draw("Log");
@@ -151,10 +116,6 @@ namespace Engine::Editor
 
 		// ImGui描画実行
 		m_upImGuiContext->End(a_pCmdList);
-	}
-	const EditorCamera* MainEditor::GetEditorCamera()
-	{
-		return m_upSceneView->GetEditorCamera();
 	}
 	void MainEditor::AddLog(const char* a_fmt, ...)
 	{

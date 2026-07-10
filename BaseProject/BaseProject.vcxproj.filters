@@ -265,26 +265,11 @@
     <Filter Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw">
       <UniqueIdentifier>{d315c984-99cf-4bc8-aa90-3b388df863ad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\ECSView">
-      <UniqueIdentifier>{944034ee-33b1-4118-8579-c38c19525c8f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\ECSView\ComponentEdit">
-      <UniqueIdentifier>{c874b40e-fee3-458b-bd40-acb4179522ae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Source\ForwardLightingShader">
       <UniqueIdentifier>{eb44b64b-2ec7-4517-8223-e7b0272a5244}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Source\DebugLineShader">
       <UniqueIdentifier>{4fb4a89d-b31e-4a0a-bca6-899dcc27166e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\AssetResourceView">
-      <UniqueIdentifier>{75f1beeb-2678-4a0c-a894-4adfa08327b8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\AssetResourceView\ModelView">
-      <UniqueIdentifier>{048a82c5-b7f9-4428-b1d5-0ed76222bcb5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\AssetResourceView\TextureView">
-      <UniqueIdentifier>{5fec39aa-d923-49be-b078-c0f5dd907f0f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderContext\ShapeDraw">
       <UniqueIdentifier>{f84af803-ebe6-4293-805e-b49bb0870354}</UniqueIdentifier>
@@ -469,12 +454,6 @@
     <Filter Include="Source\Application\Components\Tag\SystemPhaseTag">
       <UniqueIdentifier>{c5902d69-d370-4672-b396-65beb03b9130}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\SeceneView">
-      <UniqueIdentifier>{a4ed6f70-80ce-4af4-8dc7-ce60732af4f4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\SeceneView\EditorCamera">
-      <UniqueIdentifier>{edb892b0-b9f3-4d64-a6be-a02df34a7fb0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem">
       <UniqueIdentifier>{4ff5ce68-77de-401c-8ca7-ef7d33bd893c}</UniqueIdentifier>
     </Filter>
@@ -642,9 +621,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem">
       <UniqueIdentifier>{94ee3a73-abc3-4bb1-a326-93c20a0ac8f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\ECSView\SystemView">
-      <UniqueIdentifier>{f22c7951-bb75-4578-ba06-d15fe49d3e6e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Utility\BinaryHelper">
       <UniqueIdentifier>{312e8f8a-1040-489c-afb0-fbeb1e1cc827}</UniqueIdentifier>
@@ -1090,6 +1066,12 @@
     <Filter Include="Source\Engine\Editor\Panel\SceneViewPanel">
       <UniqueIdentifier>{0972806a-69b5-45cb-9bd5-0880e661203a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\Drawers">
+      <UniqueIdentifier>{9255b7ad-63a7-4e6c-9231-895cfd677ad0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Drawers\ComponentEdit">
+      <UniqueIdentifier>{67872133-7310-4238-9c2c-8c0e1cd706e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1206,26 +1188,11 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\ECSView\ECSView.cpp">
-      <Filter>Source\Engine\Editor\ECSView</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.cpp">
-      <Filter>Source\Engine\Editor\ECSView\ComponentEdit</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.cpp">
-      <Filter>Source\Engine\Editor\AssetResourceView</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\AssetResourceView\ModelView\ModelView.cpp">
-      <Filter>Source\Engine\Editor\AssetResourceView\ModelView</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp">
       <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp">
       <Filter>Source\Engine\Resource\Data\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.cpp">
-      <Filter>Source\Engine\Editor\AssetResourceView\TextureView</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Animation\Animation.cpp">
       <Filter>Source\Engine\Resource\Data\Animation</Filter>
@@ -1319,12 +1286,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\SceneView\SceneView.cpp">
-      <Filter>Source\Engine\Editor\SeceneView</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\SceneView\EditorCamera\EditorCamera.cpp">
-      <Filter>Source\Engine\Editor\SeceneView\EditorCamera</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem</Filter>
@@ -1451,9 +1412,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.cpp">
       <Filter>Source\Application\Systems\Release\AnimationMatrixFreeSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\ECSView\SystemView\SystemView.cpp">
-      <Filter>Source\Engine\Editor\ECSView\SystemView</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.cpp">
       <Filter>Source\Engine\Utility\BinaryHelper</Filter>
@@ -1952,20 +1910,8 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\ECSView\ECSView.h">
-      <Filter>Source\Engine\Editor\ECSView</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\ECSView\ComponentEdit\ComponentEdit.h">
-      <Filter>Source\Engine\Editor\ECSView\ComponentEdit</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\UIComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\AssetResourceView\AssetResourceView.h">
-      <Filter>Source\Engine\Editor\AssetResourceView</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\AssetResourceView\ModelView\ModelView.h">
-      <Filter>Source\Engine\Editor\AssetResourceView\ModelView</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.h">
       <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
@@ -1981,9 +1927,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Common\Common.h">
       <Filter>Source\Engine\Resource\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\AssetResourceView\TextureView\TextureView.h">
-      <Filter>Source\Engine\Editor\AssetResourceView\TextureView</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Animation\Animation.h">
       <Filter>Source\Engine\Resource\Data\Animation</Filter>
@@ -2119,12 +2062,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ActiveTag.h">
       <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\SceneView\SceneView.h">
-      <Filter>Source\Engine\Editor\SeceneView</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\SceneView\EditorCamera\EditorCamera.h">
-      <Filter>Source\Engine\Editor\SeceneView\EditorCamera</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem</Filter>
@@ -2281,9 +2218,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.h">
       <Filter>Source\Application\Systems\Release\AnimationMatrixFreeSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\ECSView\SystemView\SystemView.h">
-      <Filter>Source\Engine\Editor\ECSView\SystemView</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.h">
       <Filter>Source\Engine\Utility\BinaryHelper</Filter>
@@ -2686,6 +2620,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.h">
       <Filter>Source\Engine\Editor\Panel\SceneViewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Drawers\ComponentEdit\ComponentEdit.h">
+      <Filter>Source\Engine\Editor\Drawers\ComponentEdit</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

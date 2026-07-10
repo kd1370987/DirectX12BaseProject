@@ -183,7 +183,7 @@ namespace Engine::Resource
 // 
 //==========================================================================================
 #include "Editor/Editor.h"
-#include "Editor/ECSView/ComponentEdit/ComponentEdit.h"
+#include "Editor/Drawers/ComponentEdit/ComponentEdit.h"
 #include "Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
 
 //==========================================================================================

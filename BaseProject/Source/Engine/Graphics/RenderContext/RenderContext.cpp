@@ -14,8 +14,6 @@
 #include "../GraphicEngine.h"
 #include "ShapeDraw/ShapeDraw.h"
 
-#include "../../Editor/SceneView/EditorCamera/EditorCamera.h"
-
 #include "Engine/Scene/SceneManager/SceneManager.h"
 
 #include "../../ECS/World/World.h"

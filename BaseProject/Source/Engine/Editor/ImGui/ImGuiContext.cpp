@@ -6,9 +6,6 @@
 #include "Log/Log.h"
 #include "Watch/Watch.h"
 
-#include "../ECSView/ECSView.h"
-#include "../AssetResourceView/AssetResourceView.h"
-
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Editor
 {

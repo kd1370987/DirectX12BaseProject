@@ -4,15 +4,13 @@ namespace Engine::Editor
 	// 前方宣言
 	class Log;
 	class Watch;
-	class ECSView;
 	class ComponentEdit;
-	class AssetResourceView;
 	class ImGuiContext;
-	class SceneView;
 	class EditorCamera;
 	class WatchView;
 	class SceneManagerEditor;
 	class PanelManager;
+
 	//=======================================================================
 	// 
 	// メインエディタクラス
@@ -34,8 +32,6 @@ namespace Engine::Editor
 		// 描画
 		void Draw(D3D12::GraphicsCommandList* a_pCmdList, UINT a_widht, UINT a_height);
 
-		// デバッグ用カメラセット
-		const EditorCamera* GetEditorCamera();
 		//=======================================================================
 		// ログ関連
 		//=======================================================================
@@ -107,15 +103,6 @@ namespace Engine::Editor
 
 		// パネルマネージャー
 		std::unique_ptr<PanelManager> m_upPanelManager = nullptr;
-
-		// ECS
-		std::unique_ptr<ECSView> m_upECSView = nullptr;
-
-		// シーンビュー
-		std::unique_ptr<SceneView> m_upSceneView = nullptr;
-
-		// アセットビュー
-		std::unique_ptr<AssetResourceView> m_upAssetResourceView = nullptr;
 
 		// 計測機
 		std::unique_ptr<WatchView> m_upWatchView = nullptr;

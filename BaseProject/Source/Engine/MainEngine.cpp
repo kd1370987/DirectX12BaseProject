@@ -22,7 +22,6 @@
 
 #include "Option/OptionManager.h"
 
-#include "Editor/SceneView/EditorCamera/EditorCamera.h"
 namespace Engine
 {
 	MainEngine::MainEngine()
@@ -305,9 +304,6 @@ namespace Engine
 		// エディターモードならフリーカメラを割り込ませる
 		if (m_config.GetRuntimeConfig().appMode == EAppMode::Editor)
 		{
-			const auto* _editCam = Editor::MainEditor::Instance().GetEditorCamera();
-			//m_upGraphicsEngine->SetCameraMat(_editCam->GetWorldMat());
-			//m_upGraphicsEngine->SetProjMat(_editCam->GetProjMat());
 		}
 
 		m_upGraphicsEngine->Excute();
