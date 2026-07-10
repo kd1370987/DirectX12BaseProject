@@ -11,9 +11,8 @@ namespace Engine::Editor
 	class SceneView;
 	class EditorCamera;
 	class WatchView;
-	class RenderGraphResourceView;
 	class SceneManagerEditor;
-
+	class PanelManager;
 	//=======================================================================
 	// 
 	// メインエディタクラス
@@ -106,6 +105,9 @@ namespace Engine::Editor
 		// ログ
 		std::unique_ptr<Log> m_upLog = nullptr;
 
+		// パネルマネージャー
+		std::unique_ptr<PanelManager> m_upPanelManager = nullptr;
+
 		// ECS
 		std::unique_ptr<ECSView> m_upECSView = nullptr;
 
@@ -114,7 +116,6 @@ namespace Engine::Editor
 
 		// アセットビュー
 		std::unique_ptr<AssetResourceView> m_upAssetResourceView = nullptr;
-		std::unique_ptr<RenderGraphResourceView> m_upRenderGraphResourceView = nullptr;
 
 		// 計測機
 		std::unique_ptr<WatchView> m_upWatchView = nullptr;

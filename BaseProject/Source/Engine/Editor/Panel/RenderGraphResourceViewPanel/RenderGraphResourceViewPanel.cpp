@@ -1,19 +1,18 @@
-﻿#include "RenderGraphResourceView.h"
+﻿#include "RenderGraphResourceViewPanel.h"
 
-#include "../../MainEngine.h"
-#include "../../Graphics/GraphicEngine.h"
-#include "../../Graphics/RenderGraph/RenderGraph.h"
-#include "../../Graphics/RenderGraph/RGVarsionManager/RGResourceManager.h"
+#include "../../../MainEngine.h"
 
-#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "../ImGui/ImGuiHelper/ImGuiHelper.h"
+// グラフィックス系
+#include "../../../Graphics/GraphicEngine.h"
+#include "../../../Graphics/RenderGraph/RenderGraph.h"
+#include "../../../Graphics/RenderGraph/RGVarsionManager/RGResourceManager.h"
 
-void Engine::Editor::RenderGraphResourceView::Init()
-{}
+// D3D系
+#include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-void Engine::Editor::RenderGraphResourceView::Draw(UINT a_widht, UINT a_height)
+namespace Engine::Editor
 {
-	if (ImGui::Begin("RenderGraphResourceView"))
+	void RenderGraphResourceViewPanel::OnDrawImGui(EditorContext& a_editContext)
 	{
 		// レンダーグラフ取得
 		auto* _pGraphicsEngine = MainEngine::Instance().RefGraphicsEngine();
@@ -27,10 +26,9 @@ void Engine::Editor::RenderGraphResourceView::Draw(UINT a_widht, UINT a_height)
 		if (!_pRGResourceManager) { ImGui::End(); return; }
 
 		// スクロールバー付きの子ウィンドウ領域を作成
-		// ImGui::GetContentRegionAvail() を使うことで、メインウィンドウ内の残り領域をすべて埋めます
 		if (ImGui::BeginChild("ResourceViewScrollRegion", ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_AlwaysVerticalScrollbar))
 		{
-			
+
 			// リソースを回す
 			for (auto& _upTempTex : _pRGResourceManager->GetTempTextures())
 			{
@@ -43,7 +41,7 @@ void Engine::Editor::RenderGraphResourceView::Draw(UINT a_widht, UINT a_height)
 					ImGui::Separator();
 
 					// アスペクト比の計算
-					float _aspectRatio = static_cast<float>(a_widht) / static_cast<float>(a_height);
+					float _aspectRatio = m_windowWidth / m_windowHeight;
 
 					// 現在のノード内（インデント込み）の利用可能な横幅を取得
 					float _availableWidth = ImGui::GetContentRegionAvail().x;
@@ -62,5 +60,4 @@ void Engine::Editor::RenderGraphResourceView::Draw(UINT a_widht, UINT a_height)
 		}
 		ImGui::EndChild();
 	}
-	ImGui::End();
 }

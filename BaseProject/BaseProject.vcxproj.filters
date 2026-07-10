@@ -847,9 +847,6 @@
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem">
       <UniqueIdentifier>{56a92f0c-190f-4f54-a10d-b4bc41efcb15}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\RenderGraphResourceView">
-      <UniqueIdentifier>{150fc13a-9c2d-4e40-9ea2-60c2f2db3246}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Utility\String">
       <UniqueIdentifier>{a89720f8-c303-4c35-961b-802545baf70a}</UniqueIdentifier>
     </Filter>
@@ -1062,6 +1059,36 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Release\StateMachinFreeSystem">
       <UniqueIdentifier>{5dabb07a-6692-47c0-8f27-2a4db030ff10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel">
+      <UniqueIdentifier>{6fc96173-b325-4988-9827-b37056a3a016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\PanelManager">
+      <UniqueIdentifier>{a7251d68-4f8d-40bc-8615-a11d2e40e7c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel">
+      <UniqueIdentifier>{889d1e3f-bbfa-4110-a6b5-930e7c58f753}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\AssetDataBasePanel">
+      <UniqueIdentifier>{90030208-20e1-484e-899e-1f31e16762fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel">
+      <UniqueIdentifier>{eb28d7d8-afde-4e25-ad20-43baf66604ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector">
+      <UniqueIdentifier>{d0a8d3a9-aaa1-4c54-9f60-5cd6e0060aaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw">
+      <UniqueIdentifier>{81b2b532-3f42-4981-8cd4-687ee5365994}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\HierarchyPanel">
+      <UniqueIdentifier>{7caba347-d8ed-4d56-8c72-eb7bb089a11e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector">
+      <UniqueIdentifier>{af62945a-6181-4141-9e13-2cb16ae96d85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\SceneViewPanel">
+      <UniqueIdentifier>{0972806a-69b5-45cb-9bd5-0880e661203a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1515,9 +1542,6 @@
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\RenderGraphResourceView\RenderGraphResourceView.cpp">
-      <Filter>Source\Engine\Editor\RenderGraphResourceView</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.cpp">
       <Filter>Source\Engine\Resource\Loader\Animation</Filter>
     </ClCompile>
@@ -1679,6 +1703,33 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.cpp">
       <Filter>Source\Application\Systems\Release\ResourceFreeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\PanelManager\PanelManager.cpp">
+      <Filter>Source\Engine\Editor\PanelManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\RenderGraphResourceViewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\AssetDataBasePanel</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\InspectorPanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\HierarchyPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\EntityInspector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\SceneViewPanel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2396,9 +2447,6 @@
     <ClInclude Include="Source\Engine\Utility\Math\Random.h">
       <Filter>Source\Engine\Utility\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\RenderGraphResourceView\RenderGraphResourceView.h">
-      <Filter>Source\Engine\Editor\RenderGraphResourceView</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\TPSCameraStateComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
@@ -2605,6 +2653,39 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.h">
       <Filter>Source\Application\Systems\Release\ResourceFreeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\IPanel.h">
+      <Filter>Source\Engine\Editor\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\PanelManager\PanelManager.h">
+      <Filter>Source\Engine\Editor\PanelManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\PanelManager\EditorContext.h">
+      <Filter>Source\Engine\Editor\PanelManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.h">
+      <Filter>Source\Engine\Editor\Panel\RenderGraphResourceViewPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.h">
+      <Filter>Source\Engine\Editor\Panel\AssetDataBasePanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\InspectorPanel.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.h">
+      <Filter>Source\Engine\Editor\Panel\HierarchyPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\EntityInspector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.h">
+      <Filter>Source\Engine\Editor\Panel\SceneViewPanel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

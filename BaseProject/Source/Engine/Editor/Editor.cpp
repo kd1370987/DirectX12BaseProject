@@ -6,7 +6,6 @@
 
 #include "ECSView/ECSView.h"
 #include "AssetResourceView/AssetResourceView.h"
-#include "RenderGraphResourceView/RenderGraphResourceView.h"
 #include "SceneView/SceneView.h"
 #include "SceneView/EditorCamera/EditorCamera.h"
 #include "WatchView/WatchView.h"
@@ -23,6 +22,8 @@
 
 #include "../Scene/SceneManager/SceneManager.h"
 #include "../ECS/World/World.h"
+
+#include "PanelManager/PanelManager.h"
 
 namespace Engine::Editor
 {
@@ -63,10 +64,6 @@ namespace Engine::Editor
 			m_upAssetResourceView = std::make_unique<AssetResourceView>();
 			m_upAssetResourceView->Init();
 		}
-		if (!m_upRenderGraphResourceView)
-		{
-			m_upRenderGraphResourceView = std::make_unique<RenderGraphResourceView>();
-		}
 		if (!m_upSceneView)
 		{
 			m_upSceneView = std::make_unique<SceneView>();
@@ -81,6 +78,13 @@ namespace Engine::Editor
 		{
 			m_upSceneManagerEditor = std::make_unique<SceneManagerEditor>();
 			m_upSceneManagerEditor->Init();
+		}
+
+		// パネルの登録
+		if (!m_upPanelManager)
+		{
+			m_upPanelManager = std::make_unique<PanelManager>();
+			m_upPanelManager->Init();
 		}
 
 		m_editFuncVec.clear();
@@ -110,11 +114,12 @@ namespace Engine::Editor
 
 		// アセットビュー
 		m_upAssetResourceView->Draw(a_widht, a_height);
-		m_upRenderGraphResourceView->Draw(a_widht,a_height);
+		//m_upRenderGraphResourceView->Draw(a_widht,a_height);
 
 		// ECSビュー
 		m_upECSView->Draw(a_widht, a_height);
 
+		m_upPanelManager->OnDrawPanels();
 
 		// シーンビュー
 		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
