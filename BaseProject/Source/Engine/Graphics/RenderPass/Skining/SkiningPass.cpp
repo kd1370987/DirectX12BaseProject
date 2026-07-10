@@ -13,6 +13,7 @@
 #include "Engine/D3D12/CBAllocater/CBAllocater.h"
 
 #include "Engine/Option/OptionManager.h"
+#include "../../../Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
 
 void Engine::Graphics::AddSkiningPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 {
@@ -54,18 +55,25 @@ void Engine::Graphics::AddSkiningPass(D3D12::PipelineStateManager* a_pPSOManager
 		{
 			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 			auto* _pPso = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
+
+			auto* _pMA = a_pGE->RefMeshBufferAllocator();
+			if (!_pMA) return;
+
 			a_pCtx->BindHeap();
 			a_pCtx->SetComputeRootSignature(_spPassData->pRootSig);
 			a_pCtx->SetComputePSO(_pPso);
 
 			// バッファバリア
-			a_pGE->RefRWAnimatedBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			
+			//a_pGE->RefRWAnimatedBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+			_pMA->RefAnimatedVertexBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			// メッシュ情報バインド
 			a_pCtx->ComputeBindBonePalletBuffer(1);
-			a_pCtx->ComputeBindSRV(2, a_pGE->GetVertexCPUHandle());
-			a_pCtx->ComputeBindSRV(3, a_pGE->GetIndexCPUHandle());
-			a_pCtx->BindUAV(4,a_pGE->GetAnimatedBufferUAVHandle());
+			//a_pCtx->ComputeBindSRV(2, a_pGE->GetVertexCPUHandle());
+			//a_pCtx->ComputeBindSRV(3, a_pGE->GetIndexCPUHandle());
+			//a_pCtx->BindUAV(4,a_pGE->GetAnimatedBufferUAVHandle());
+			a_pCtx->ComputeBindSRV(2, _pMA->GetStaticVertexBuffer().GetSRV());
+			a_pCtx->ComputeBindSRV(3, _pMA->GetIndexBuffer().GetSRV());
+			a_pCtx->BindUAV(4, _pMA->GetAnimatedVertexBuffer().GetUAV());
 
 			for (auto& _item : a_pGE->GetSkinningImtes())
 			{

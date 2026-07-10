@@ -9,11 +9,11 @@
 #include "../../../../../Engine/Particle/ParticleBufferManager.h"
 
 #include "../../../../Components/Resource/ParticlesComponent.h"
-#include "../../../../Components/Transform/LocalTransformComponent.h"
+#include "../../../../Components/Transform/WorldMatrixComponent.h"
 
 void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const ParticlesComponent, const LocalTransformComponent>(
+	a_world.ActiveTask<const ParticlesComponent, const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::Draw,
 		"EmittParticleSystem",
 		[]
@@ -23,7 +23,7 @@ void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 			float a_dt,
 			ActiveTag* a_tags,
 			const ParticlesComponent* a_particleArray,
-			const LocalTransformComponent* a_transArray
+			const WorldMatrixComponent* a_transArray
 			)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
@@ -44,9 +44,38 @@ void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 
 				// エミットデータ
 				Engine::Particle::EmitterData _emitData = {};
-				_emitData.emitPos = _transComp.pos;
+
+				// ---------------------------------------------------------
+				// ワールド行列から位置と向きを抽出
+				// ---------------------------------------------------------
+
+				// 行列の4行目(41, 42, 43)からワールド位置を抽出
+				_emitData.emitPos.x = _transComp.worldMat._41;
+				_emitData.emitPos.y = _transComp.worldMat._42;
+				_emitData.emitPos.z = _transComp.worldMat._43;
+
+				// 行列の3行目(31, 32, 33)から前方の向き（Z方向）を抽出
+				float _dirX = _transComp.worldMat._31;
+				float _dirY = _transComp.worldMat._32;
+				float _dirZ = _transComp.worldMat._33;
+
+				// スケール成分が含まれている可能性を考慮して正規化（Normalize）する
+				float _length = std::sqrt(_dirX * _dirX + _dirY * _dirY + _dirZ * _dirZ);
+				if (_length > 0.0001f)
+				{
+					_emitData.emitDirection.x = _dirX / _length;
+					_emitData.emitDirection.y = _dirY / _length;
+					_emitData.emitDirection.z = _dirZ / _length;
+				}
+				else
+				{
+					// 万が一スケールが0などで長さが取れなかった場合の安全策
+					_emitData.emitDirection = { 0.0f, 0.0f, 1.0f };
+				}
+
+				// ---------------------------------------------------------
+
 				_emitData.emitCount = _particleComp.particleCount;
-				_emitData.emitDirection = _particleComp.rotation;
 				_emitData.baseScale = 1;
 
 				_emitData.positionRadius = 0.5f;
@@ -63,7 +92,7 @@ void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 
 
 				// 登録
-				_pParticleManager->RequestEmit(_particleComp.particlesAssetHandle,_emitData);
+				_pParticleManager->RequestEmit(_particleComp.particlesAssetHandle, _emitData);
 			}
 		}
 	);

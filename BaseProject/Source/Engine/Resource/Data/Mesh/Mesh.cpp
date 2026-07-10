@@ -7,6 +7,7 @@
 
 #include "../../../MainEngine.h"
 #include "../../../Graphics/GraphicEngine.h"
+#include "../../../Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
 
 bool Engine::Resource::Mesh::CreateFloat(
 	const std::vector<MeshVertexFloat>& a_vertices,
@@ -86,6 +87,10 @@ bool Engine::Resource::Mesh::CreateFloat(
 	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 	if (!_pGE) return false;
 
+	// メガバッファにアロケート
+	auto* _pMeshBufferAllocater = _pGE->RefMeshBufferAllocator();
+	if (!_pMeshBufferAllocater) return false;
+
 	// 構造体バッファ作成
 	std::vector<RTVertex> _rtVertDataVec = {};
 	for (auto& _vert : a_vertices)
@@ -95,8 +100,11 @@ bool Engine::Resource::Mesh::CreateFloat(
 		_rtVertDataVec.push_back(_rt);
 	}
 	auto iii = sizeof(MeshVertexFloat);
-	m_opRtData->vertexHandle = _pGE->AllocateMeshVertex(a_vertices);
-	m_opRtData->indexHandle = _pGE->AllocateMeshIndex(_indices);
+	//m_opRtData->vertexHandle = _pGE->AllocateMeshVertex(a_vertices);
+	//m_opRtData->indexHandle = _pGE->AllocateMeshIndex(_indices);
+
+	m_opRtData->vertexHandle = _pMeshBufferAllocater->AllocateVertex(a_vertices);
+	m_opRtData->indexHandle = _pMeshBufferAllocater->AllocateIndex(_indices);
 
 	return true;
 }
@@ -268,8 +276,17 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 
 void Engine::Resource::Mesh::Release()
 {
+	// ハンドルの登録
 	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+	ENGINE_ERRLOG(_pGE,"メッシュ解放時にGraphicsEngineが存在しません");
 
+	// メガバッファにアロケート
+	auto* _pMeshBufferAllocater = _pGE->RefMeshBufferAllocator();
+	ENGINE_ERRLOG(_pMeshBufferAllocater, "メッシュ解放時にメッシュバッファアロケーターが存在しません");
+
+	// 登録されているハンドルの解放
+	_pMeshBufferAllocater->StaticVertexFree(m_opRtData->vertexHandle);
+	_pMeshBufferAllocater->IndexFree(m_opRtData->indexHandle);
 
 	// 各meshデータ解放
 	m_meshMetaData.Release();

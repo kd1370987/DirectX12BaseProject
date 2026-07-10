@@ -17,6 +17,7 @@
 
 
 #include "../../../../Option/OptionManager.h"
+#include "../../../../Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
 namespace Engine::Graphics
 {
 	void AddRaytracingGIPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
@@ -134,7 +135,8 @@ namespace Engine::Graphics
 		{
 
 			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
-
+			auto* _pMA = a_pGE->RefMeshBufferAllocator();
+			if (!_pMA) return;
 			// オプション取得
 			const auto& _winOp = Engine::Option::OptionManager::GetInstance().GetWindowOption();
 			// レイワールド更新・シェーダーテーブル更新
@@ -181,8 +183,10 @@ namespace Engine::Graphics
 				_ambient
 			);
 			// メッシュ情報バインド
-			a_pCtx->ComputeBindSRVBindLess(7, a_pGE->GetVertexCPUHandle());
-			a_pCtx->ComputeBindSRVBindLess(8, a_pGE->GetIndexCPUHandle());
+			//a_pCtx->ComputeBindSRVBindLess(7, a_pGE->GetVertexCPUHandle());
+			//a_pCtx->ComputeBindSRVBindLess(8, a_pGE->GetIndexCPUHandle());
+			a_pCtx->ComputeBindSRVBindLess(7, _pMA->GetStaticVertexBuffer().GetSRV());
+			a_pCtx->ComputeBindSRVBindLess(8, _pMA->GetIndexBuffer().GetSRV());
 			// ディスパッチ
 			Raytracing::RayEngine::Instance().Dispatch(a_pCtx, _spPassData->shaderTable);
 		};

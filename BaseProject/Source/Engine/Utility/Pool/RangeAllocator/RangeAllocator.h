@@ -121,6 +121,10 @@ namespace Engine
 		{
 			if (m_pendingFrees.front().releaseFenceValue <= a_completedFenceValue)
 			{
+				ENGINE_LOG(
+					"FreeListの解放 : start %d, count %d",
+					m_pendingFrees.front().block.startIndex, m_pendingFrees.front().block.count
+				);
 				m_freeBlocks.push_back(m_pendingFrees.front().block);
 				m_pendingFrees.pop();
 				_needsMerge = true;

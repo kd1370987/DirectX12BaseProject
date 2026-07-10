@@ -101,11 +101,11 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 		}
 	}
 
-	_historyGI.rgb =
-    clamp(
-        _historyGI.rgb,
-        _minColor,
-        _maxColor);
+	//_historyGI.rgb =
+ //   clamp(
+ //       _historyGI.rgb,
+ //       _minColor,
+ //       _maxColor);
 
 	// -------------------------------------------------------------------------------
 	// ゴースト対策（ディスオクルージョン判定）

@@ -1,8 +1,8 @@
 {
     "GIOption": {
-        "TAblendRate": 0.05000000074505806,
-        "TAphiDepth": 0.009999999776482582,
-        "TAphiNormal": 0.800000011920929,
+        "TAblendRate": 0.5,
+        "TAphiDepth": 0.029999999329447746,
+        "TAphiNormal": 31.600000381469727,
         "phiColor": 10.0,
         "phiDepth": 0.009999999776482582,
         "phiNormal": 32.0

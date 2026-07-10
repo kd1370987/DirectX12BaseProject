@@ -625,8 +625,6 @@ namespace Engine::Graphics
 		{
 			auto& _boneMatPool = _pCurrentWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 			const auto& _data = _boneMatPool.GetAllData();
-			//m_boneBuffer.UpdateData(_data.data(), _data.size());
-			//m_boneBuffer.Update(m_pCmdList);
 			m_boneBuffer.AllocateAndWrite(_data.data(),_data.size());
 		}
 
@@ -691,7 +689,7 @@ namespace Engine::Graphics
 
 	void RenderContext::BindMeshlet()
 	{
-		m_pGraphicsEngine->BindMeshBuffer(m_pCmdList);
+		//m_pGraphicsEngine->BindMeshBuffer(m_pCmdList);
 	}
 
 	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)

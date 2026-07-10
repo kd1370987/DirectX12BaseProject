@@ -1060,6 +1060,9 @@
     <Filter Include="Source\Application\Systems\Release\ResourceFreeSystem">
       <UniqueIdentifier>{275a4e97-fa93-4e37-9a57-27f7b5781ba7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Release\StateMachinFreeSystem">
+      <UniqueIdentifier>{5dabb07a-6692-47c0-8f27-2a4db030ff10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">

@@ -75,16 +75,6 @@ namespace Engine::Graphics
 		// 形状描画クラス構築
 		m_upShapeRender = std::make_unique<ShapeRenderer>();
 
-		// メッシュバッファ管理クラス
-		m_upMeshBufferAllocator = std::make_unique<MeshBufferAllocator>();
-		m_upMeshBufferAllocator->Init(
-			_pDevice,
-			a_pCmdList,
-			5000000,
-			200000,
-			5000000,
-			10000000
-		);
 
 		// レンダーコンテキストの作成
 		for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
@@ -144,11 +134,18 @@ namespace Engine::Graphics
 		m_cbAmbient.dlDir = { 0.5f,-1.0f,0.5f };
 		m_cbAmbient.dlColor = { 4.0f,4.0f,4.0f };
 
-		// メガバッファ
-		m_meshVerticesBuffer.Create(_pDevice,a_pCmdList,10000000);
-		m_meshIndexBuffer.Create(_pDevice,a_pCmdList,10000000);
+		// バッファ管理クラス
+		BufferSizeDesc _bufferSizeDesc = {};
+		_bufferSizeDesc.staticVertexBufferSize = 10000000;
+		_bufferSizeDesc.indexBufferSize = 10000000;
+		_bufferSizeDesc.animatedVertexBufferSize = 20000000;
+		m_upMeshBufferAllocator = std::make_unique<MeshBufferAllocator>();
+		m_upMeshBufferAllocator->Init(
+			_pDevice,
+			a_pCmdList,
+			_bufferSizeDesc
+		);
 
-		m_animatedVertexBuffer.Create(_pDevice,10000000);
 	}
 
 	void GraphicsEngine::Release()
@@ -183,10 +180,10 @@ namespace Engine::Graphics
 		// メッシュバッファの更新
 		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _currentFence);
 
-		m_meshVerticesBuffer.Update(_currentFence);
-		m_meshVerticesBuffer.Barrier(_pCmdList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-		m_meshIndexBuffer.Update(_currentFence);
-		m_meshIndexBuffer.Barrier(_pCmdList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		//m_meshVerticesBuffer.Update(_currentFence);
+		//m_meshVerticesBuffer.Barrier(_pCmdList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		//m_meshIndexBuffer.Update(_currentFence);
+		//m_meshIndexBuffer.Barrier(_pCmdList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 		// パーティクルのバッファ更新
 		MainEngine::Instance().RefParticleManager()->UploadEmitData(_pCmdList);
@@ -287,14 +284,6 @@ namespace Engine::Graphics
 	{
 		return m_upRenderGraph.get();
 	}
-	MeshAllocationHandle GraphicsEngine::AllocateAndUpload(D3D12::GraphicsCommandList* a_pCmdList, const Resource::Mesh& a_newMeshData)
-	{
-		return m_upMeshBufferAllocator->AllocateAndUpload(a_pCmdList,a_newMeshData);
-	}
-	void GraphicsEngine::Free(const MeshAllocationHandle& a_handle)
-	{
-		m_upMeshBufferAllocator->Free(a_handle, D3D12::D3D12Wrapper::Instance().GetCurrentFenceValue());
-	}
 	void GraphicsEngine::SetCameraMat(const DXSM::Matrix& a_worldMat)
 	{
 		// 座標を代入
@@ -308,10 +297,6 @@ namespace Engine::Graphics
 	{
 		m_cbCamera.projMat = a_projMat;
 		m_cbCamera.projInvMat = a_projMat.Invert();
-	}
-	void GraphicsEngine::BindMeshBuffer(D3D12::GraphicsCommandList* a_pCmdList)
-	{
-		m_upMeshBufferAllocator->BindBuffers(a_pCmdList);
 	}
 	const CameraData& GraphicsEngine::GetCameraData() const
 	{
@@ -743,45 +728,45 @@ namespace Engine::Graphics
 		a_pCtx->SetGraphicPSO(_pPSO);
 	}
 
-	RangeHandle<Resource::MeshVertexFloat> GraphicsEngine::AllocateMeshVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex)
-	{
-		return m_meshVerticesBuffer.AllocateAndUpload(a_vertex.data(), static_cast<UINT>(a_vertex.size()));
-	}
+	//RangeHandle<Resource::MeshVertexFloat> GraphicsEngine::AllocateMeshVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex)
+	//{
+	//	return m_meshVerticesBuffer.AllocateAndUpload(a_vertex.data(), static_cast<UINT>(a_vertex.size()));
+	//}
 
-	RangeHandle<uint32_t> GraphicsEngine::AllocateMeshIndex(const std::vector<uint32_t>& a_indices)
-	{
-		return m_meshIndexBuffer.AllocateAndUpload(a_indices.data(), static_cast<UINT>(a_indices.size()));
-	}
+	//RangeHandle<uint32_t> GraphicsEngine::AllocateMeshIndex(const std::vector<uint32_t>& a_indices)
+	//{
+	//	return m_meshIndexBuffer.AllocateAndUpload(a_indices.data(), static_cast<UINT>(a_indices.size()));
+	//}
 
-	const Handle<D3D12::SRV>& GraphicsEngine::GetVertexCPUHandle() const
-	{
-		return m_meshVerticesBuffer.GetSRV();
-	}
+	//const Handle<D3D12::SRV>& GraphicsEngine::GetVertexCPUHandle() const
+	//{
+	//	return m_meshVerticesBuffer.GetSRV();
+	//}
 
-	const Handle<D3D12::SRV>& GraphicsEngine::GetIndexCPUHandle() const
-	{
-		return m_meshIndexBuffer.GetSRV();
-	}
+	//const Handle<D3D12::SRV>& GraphicsEngine::GetIndexCPUHandle() const
+	//{
+	//	return m_meshIndexBuffer.GetSRV();
+	//}
 
-	const Handle<D3D12::UAV>& GraphicsEngine::GetAnimatedBufferUAVHandle() const
-	{
-		return m_animatedVertexBuffer.GetUAV();
-	}
+	//const Handle<D3D12::UAV>& GraphicsEngine::GetAnimatedBufferUAVHandle() const
+	//{
+	//	return m_animatedVertexBuffer.GetUAV();
+	//}
 
-	const Handle<D3D12::SRV>& GraphicsEngine::GetAnimatedBufferSRVHandle() const
-	{
-		return m_animatedVertexBuffer.GetSRV();
-	}
+	//const Handle<D3D12::SRV>& GraphicsEngine::GetAnimatedBufferSRVHandle() const
+	//{
+	//	return m_animatedVertexBuffer.GetSRV();
+	//}
 
-	void GraphicsEngine::AnimatedBufferBarrierUAV(D3D12::GraphicsCommandList* a_pCmdList)
-	{
-		m_animatedVertexBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	}
+	//void GraphicsEngine::AnimatedBufferBarrierUAV(D3D12::GraphicsCommandList* a_pCmdList)
+	//{
+	//	m_animatedVertexBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//}
 
-	D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& GraphicsEngine::RefRWAnimatedBuffer()
-	{
-		return m_animatedVertexBuffer;
-	}
+	//D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& GraphicsEngine::RefRWAnimatedBuffer()
+	//{
+	//	return m_animatedVertexBuffer;
+	//}
 
 	void GraphicsEngine::CreateGPUCameraData()
 	{
@@ -903,7 +888,8 @@ namespace Engine::Graphics
 
 				// インスタンス専用のアニメーション用頂点バッファ領域をメガバッファから割り当て
 				UINT _vertexCount = _pMesh->GetRtData().vertexHandle.count;
-				_targetMeshData.animatedVertexHandle = m_animatedVertexBuffer.Allocate(_vertexCount);
+				//_targetMeshData.animatedVertexHandle = m_animatedVertexBuffer.Allocate(_vertexCount);
+				_targetMeshData.animatedVertexHandle = m_upMeshBufferAllocator->AllocateAnimatedVertex(_vertexCount);
 
 				// サブメッシュ（マテリアル単位）ごとのジオメトリ情報を構築
 				std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> _descVec = {};
@@ -918,7 +904,8 @@ namespace Engine::Graphics
 					_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
 					// 頂点バッファ
 					_desc.Triangles.VertexBuffer.StartAddress =
-						m_animatedVertexBuffer.GetGPUVirtualAddress() +
+						//m_animatedVertexBuffer.GetGPUVirtualAddress() +
+						m_upMeshBufferAllocator->GetAnimatedVertexBuffer().GetGPUVirtualAddress() +
 						(_targetMeshData.animatedVertexHandle.startIndex * sizeof(Resource::MeshVertexFloat));
 					_desc.Triangles.VertexBuffer.StrideInBytes = sizeof(Resource::MeshVertexFloat);
 					_desc.Triangles.VertexCount = _vertexCount;
@@ -926,7 +913,8 @@ namespace Engine::Graphics
 
 					// インデックスバッファ
 					_desc.Triangles.IndexBuffer =
-						m_meshIndexBuffer.GetGPUVirtualAddress() +
+						//m_meshIndexBuffer.GetGPUVirtualAddress() +
+						m_upMeshBufferAllocator->GetIndexBuffer().GetGPUVirtualAddress() +
 						sizeof(uint32_t) * (_subset.faceStart * 3 + _pMesh->GetRtData().indexHandle.startIndex);
 					_desc.Triangles.IndexCount = _subset.faceCount * 3;
 					_desc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
@@ -940,79 +928,12 @@ namespace Engine::Graphics
 				);
 				_pData->meshDataVec.back().meshHandle = _meshHandle;
 			}
+
+
+
 		}
 
 		// 処理が終われば命令を解放
 		_initRequestVec.clear();
-	}
-	void GraphicsEngine::UpdateDynamicRayBLAS(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList)
-	{
-	//	if (m_dynamicRayRequestVec.empty()) return;
-
-	//	// ==============================================================
-	//	// スキニングフェーズ (Compute Shader)
-	//	// ==============================================================
-	//	a_pCmdList->SetPipelineState(m_skinningPSO.Get());
-	//	a_pCmdList->SetComputeRootSignature(m_skinningRootSig.Get());
-
-	//	for (auto& _req : m_dynamicRayRequestVec)
-	//	{
-	//		// ルートパラメータのセット
-	//		// a_pCmdList->SetComputeRootShaderResourceView(0, 静的頂点バッファ(メガバッファ)の先頭 + オフセット);
-	//		// a_pCmdList->SetComputeRootShaderResourceView(1, ボーン行列バッファ(_req.nodePoseMatVec)のアドレス);
-	//		// a_pCmdList->SetComputeRootDescriptorTable(2, 出力先の動的頂点バッファのUAV);
-
-	//		// スレッドのディスパッチ (頂点数 / スレッドグループサイズ)
-	//		UINT _threadGroups = (_req.vertexCount + 63) / 64;
-	//		a_pCmdList->Dispatch(_threadGroups, 1, 1);
-	//	}
-
-	//	// ==============================================================
-	//	// 2. UAVバリア (ComputeShader -> BLAS Update)
-	//	// ==============================================================
-	//	// 全てのスキニング出力が完了するのを待つ (これがないと未完成の頂点でBLASを作ってしまいバグる)
-	//	D3D12_RESOURCE_BARRIER _uavBarriers[1] = {};
-	//	_uavBarriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
-	//	_uavBarriers[0].UAV.pResource = m_dynamicVertexBuffer.GetResource(); // UAVの本体
-	//	a_pCmdList->ResourceBarrier(1, _uavBarriers);
-
-	//	// ==============================================================
-	//	// 3. BLAS更新フェーズ
-	//	// ==============================================================
-	//	for (auto& _req : m_dynamicRayRequestVec)
-	//	{
-	//		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _buildDesc = {};
-	//		_buildDesc.Inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
-	//		_buildDesc.Inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-	//		_buildDesc.Inputs.pGeometryDescs = &_req.geometryDesc; // ※動的頂点バッファのアドレスを指すように更新しておく
-	//		_buildDesc.Inputs.NumDescs = 1;
-
-	//		// ★ここが超重要：Updateフラグを立てる
-	//		_buildDesc.Inputs.Flags =
-	//			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE |
-	//			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
-
-	//		// Source と Destination に同じBLASのバッファを指定して上書き更新
-	//		_buildDesc.SourceAccelerationStructureData = _req.blasBuffer->GetGPUVirtualAddress();
-	//		_buildDesc.DestAccelerationStructureData = _req.blasBuffer->GetGPUVirtualAddress();
-
-	//		// Scratchバッファ（Update用のスクラッチバッファサイズは初期構築時より小さいことが多い）
-	//		_buildDesc.ScratchAccelerationStructureData = m_scratchBufferForUpdate->GetGPUVirtualAddress();
-
-	//		// BLAS更新コマンドを積む
-	//		a_pCmdList->BuildRaytracingAccelerationStructure(&_buildDesc, 0, nullptr);
-
-	//		// 4. TLAS構築用のキュー（RayWorldのインスタンスリスト等）に登録
-	//		// RayWorld::Instance().AddTLASInstance(_req.blasBuffer, _req.worldMat, ...);
-	//	}
-
-	//	// ==============================================================
-	//	// 5. UAVバリア (BLAS Update -> TLAS Build)
-	//	// ==============================================================
-	//	// 全てのBLAS更新が完了するのを待つ (この後TLASビルドが走るため)
-	//	D3D12_RESOURCE_BARRIER _blasUavBarriers[1] = {};
-	//	_blasUavBarriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
-	//	_blasUavBarriers[0].UAV.pResource = nullptr; // nullptrを指定すると「全てのUAV操作の完了」を待つ（安全策）
-	//	a_pCmdList->ResourceBarrier(1, _blasUavBarriers);
 	}
 }

@@ -38,5 +38,7 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 		{
 			_isLoop = _value ? 1u : 0u;
 		}
+
+		Engine::Editor::Helper::DrawHandle(_comp.dynamicInstanceHandle);
 	}
 };

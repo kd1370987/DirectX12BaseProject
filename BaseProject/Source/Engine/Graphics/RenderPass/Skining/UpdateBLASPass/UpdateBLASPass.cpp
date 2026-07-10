@@ -17,6 +17,7 @@
 #include "../../../../Scene/SceneManager/SceneManager.h"
 
 #include "../../../../ECS/World/World.h"
+#include "../../../../Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
 
 namespace Engine::Graphics
 {
@@ -35,9 +36,12 @@ namespace Engine::Graphics
 				auto* _pCurrentWorld = Scene::SceneManager::Instance().RefWorld();
 				if (!_pCurrentWorld) return;
 
-				// スキニングの書き込み完了を待つバリア
-				a_pGE->RefRWAnimatedBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+				auto* _pMA = a_pGE->RefMeshBufferAllocator();
+				if (!_pMA) return;
 
+				// スキニングの書き込み完了を待つバリア
+				//a_pGE->RefRWAnimatedBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+				_pMA->RefAnimatedVertexBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 				// スキニング対象のBLASを更新
 				for (auto& _item : a_pGE->GetSkinningImtes())
 				{

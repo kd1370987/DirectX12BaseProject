@@ -118,34 +118,11 @@ namespace Engine::Graphics
 		RenderGraph* RefRenderGraph();
 
 		//--------------------------------------------------------------------------------------------
-		// GPUデータ作成
-		//--------------------------------------------------------------------------------------------
-		/// <summary>
-		/// 新しいモデルをロードした時に呼ばれる。空き領域を探してオフセットを返す
-		/// ついでにUploadHeapからDefaultHeapへのデータ転送コマンドも積む 
-		/// </summary>
-		/// <param name="pCmdList">GPU実行のためのコピー用コマンドリスト</param>
-		/// <param name="newMeshData">新たに生成されたメッシュ</param>
-		/// <returns>割り当てられたハンドルが返る</returns>
-		MeshAllocationHandle AllocateAndUpload(
-			D3D12::GraphicsCommandList* a_pCmdList,
-			const Resource::Mesh& a_newMeshData
-		);
-		/// <summary>
-		/// モデルをアンロードする際に呼ぶ
-		/// 上書きするためメモリの解放処理は走らない
-		/// </summary>
-		/// <param name="a_handle">削除される領域</param>
-		void Free(const MeshAllocationHandle& a_handle);
-		//--------------------------------------------------------------------------------------------
 		// GPU送信用データ
 		//--------------------------------------------------------------------------------------------
 		// カメラ
 		void SetCameraMat(const DXSM::Matrix& a_worldMat);
 		void SetProjMat(const DXSM::Matrix& a_projMat);
-
-		// メッシュシェーダーバッファバインド
-		void BindMeshBuffer(D3D12::GraphicsCommandList* a_pCmdList);
 
 		const CameraData& GetCameraData() const;
 		const CameraData& GetGPUCameraData() const;
@@ -254,23 +231,11 @@ namespace Engine::Graphics
 		// パスの描画実行
 		void DrawQueue(Graphics::RenderContext* a_pCtx, uint8_t a_passIndex);
 		void BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex);
-
-		// メガバッファ
-		RangeHandle<Resource::MeshVertexFloat> AllocateMeshVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex);
-		RangeHandle<uint32_t> AllocateMeshIndex(const std::vector<uint32_t>& a_indices);
-
-		const Handle<D3D12::SRV>& GetVertexCPUHandle() const;
-		const Handle<D3D12::SRV>& GetIndexCPUHandle() const;
-		const Handle<D3D12::UAV>& GetAnimatedBufferUAVHandle() const;
-		const Handle<D3D12::SRV>& GetAnimatedBufferSRVHandle() const;
-
-		void AnimatedBufferBarrierUAV(D3D12::GraphicsCommandList* a_pCmdList);
-		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& RefRWAnimatedBuffer();
 		// 配列取得
 		const std::vector<SkinningDispatchItem>& GetSkinningImtes() const { return m_skinningDispathItemVec; }
 
 		// バッファ取得
-
+		MeshBufferAllocator* RefMeshBufferAllocator() { return m_upMeshBufferAllocator.get(); }
 
 	private:
 
@@ -279,7 +244,6 @@ namespace Engine::Graphics
 
 		// レイトレ用BLAS初期化
 		void ProcessInitQueue(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList);
-		void UpdateDynamicRayBLAS(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList);
 
 
 	private:
@@ -337,13 +301,5 @@ namespace Engine::Graphics
 
 		// GPUスキニング配列
 		std::vector<SkinningDispatchItem> m_skinningDispathItemVec = {};
-
-		//--------------------------------------------------------------------------------------------
-		// メガバッファ
-		//--------------------------------------------------------------------------------------------
-		D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat> m_meshVerticesBuffer;
-		D3D12::MegaStructuredBuffer<uint32_t> m_meshIndexBuffer;
-
-		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat> m_animatedVertexBuffer;
 	};
 }

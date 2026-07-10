@@ -58,7 +58,7 @@ namespace Engine::Scene
 
 		// エディター状態なら更新をしない
 		auto _mode = Engine::MainEngine::Instance().GetMode();
-		if (_mode == EAppMode::Editor) return;
+		//if (_mode == EAppMode::Editor) return;
 		
 		// シーンのシステム処理
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Input, a_dt);

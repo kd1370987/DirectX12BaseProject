@@ -63,7 +63,7 @@ void Engine::Editor::Helper::DrawMatrixForPOS_ROT_SCALE(const std::string& a_nam
 	}
 }
 
-void Engine::Editor::Helper::DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a_quat)
+bool Engine::Editor::Helper::DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a_quat)
 {
 	DXSM::Quaternion _quat = a_quat;
 	DXSM::Vector3 _rotRad = _quat.ToEuler();
@@ -100,8 +100,10 @@ void Engine::Editor::Helper::DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a
 			_newQuat.z,
 			_newQuat.w
 		};
+		return true;
 	}
 	
+	return false;
 }
 
 ImVec2 Engine::Editor::Helper::DrawSRVView(D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHandle, float a_width, float a_height, float a_minSize, float a_maxSize)

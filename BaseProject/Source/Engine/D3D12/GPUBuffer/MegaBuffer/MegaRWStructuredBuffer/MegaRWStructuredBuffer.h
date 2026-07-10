@@ -53,11 +53,11 @@ namespace Engine::D3D12
 	inline bool MegaRWStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, UINT a_elemetNum)
 	{
 		// アロケーターの作成
-		m_rangeAllocator.Init(a_elemetNum);
+		m_rangeAllocator.Init(static_cast<uint32_t>(a_elemetNum));
 
 		// バッファ作成
 		GPUBufferDesc _desc = {};
-		_desc.elementNum = a_elemetNum;
+		_desc.elementNum = static_cast<size_t>(a_elemetNum);
 		_desc.strideSize = sizeof(T);
 		_desc.flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		_desc.heapType = D3D12_HEAP_TYPE_DEFAULT;
