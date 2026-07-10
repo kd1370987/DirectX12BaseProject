@@ -130,6 +130,7 @@ namespace Engine::Graphics
 		// 環境データ
 		void SetAmbientData(const AmbientData& a_data);
 		const AmbientData& GetAmbientData() const;
+		AmbientData& RefAmbientData();
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド
 		//--------------------------------------------------------------------------------------------

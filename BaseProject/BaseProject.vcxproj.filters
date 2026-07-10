@@ -1072,6 +1072,9 @@
     <Filter Include="Source\Engine\Editor\Drawers\ComponentEdit">
       <UniqueIdentifier>{67872133-7310-4238-9c2c-8c0e1cd706e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\OptionPanel">
+      <UniqueIdentifier>{f5cc4efa-c1c8-4d8b-9593-527d46f587b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1688,6 +1691,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.cpp">
       <Filter>Source\Engine\Editor\Panel\SceneViewPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\OptionPanel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2623,6 +2629,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Drawers\ComponentEdit\ComponentEdit.h">
       <Filter>Source\Engine\Editor\Drawers\ComponentEdit</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.h">
+      <Filter>Source\Engine\Editor\Panel\OptionPanel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

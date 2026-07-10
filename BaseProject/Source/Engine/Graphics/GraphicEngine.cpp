@@ -318,6 +318,10 @@ namespace Engine::Graphics
 	{
 		return m_cbAmbient;
 	}
+	AmbientData& GraphicsEngine::RefAmbientData()
+	{
+		return m_cbAmbient;
+	}
 	void GraphicsEngine::SubmitSkinning(
 		ECS::World& a_world,
 		const Resource::Model* a_pModel, 

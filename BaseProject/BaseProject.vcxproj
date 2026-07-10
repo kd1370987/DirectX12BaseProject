@@ -331,6 +331,7 @@
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\InspectorPanel.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\SceneManagerEditor\SceneManagerEditor.cpp" />
@@ -618,6 +619,7 @@
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\InspectorPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\IPanel.h" />
+    <ClInclude Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.h" />
     <ClInclude Include="Source\Engine\Editor\SceneManagerEditor\SceneManagerEditor.h" />

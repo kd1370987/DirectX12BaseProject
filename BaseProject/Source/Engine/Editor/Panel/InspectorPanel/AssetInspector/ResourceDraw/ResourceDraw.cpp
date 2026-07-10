@@ -137,7 +137,28 @@ namespace Engine::Editor::Inspector
 	// マテリアル
 	//-----------------------------------------------------------------------------------------
 	void MaterialDraw(EditorContext & a_editContext)
-	{}
+	{
+		auto _guid = a_editContext.pAssetProp->guid;
+		if (Resource::ResourceManager::Instance().Has<Resource::Material>(_guid))
+		{
+			auto _handle = Resource::ResourceManager::Instance().Load<Resource::Material>(_guid);
+			auto* _pData = Resource::ResourceManager::Instance().Ref(_handle);
+			if (!_pData)
+			{
+				ImGui::Text("Not faund particle");
+				return;
+			}
+			_pData->Edit(_guid);
+		}
+		else
+		{
+			ImGui::Text("No loaded file");
+			if (ImGui::Button("Load"))
+			{
+				Resource::ResourceManager::Instance().Load<Resource::Material>(_guid);
+			}
+		}
+	}
 	//-----------------------------------------------------------------------------------------
 	// メッシュ
 	//-----------------------------------------------------------------------------------------

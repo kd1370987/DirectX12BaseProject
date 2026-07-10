@@ -5,6 +5,7 @@
 #include "../Panel/InspectorPanel/InspectorPanel.h"
 #include "../Panel/HierarchyPanel/HierarchyPanel.h"
 #include "../Panel/SceneViewPanel/SceneViewPanel.h"
+#include "../Panel/OptionPanel/OptionPanel.h"
 
 namespace  Engine::Editor
 {
@@ -15,6 +16,7 @@ namespace  Engine::Editor
 		RegisterPanel<InspectorPanel>();
 		RegisterPanel<HierarchyPanel>();
 		RegisterPanel<SceneViewPanel>();
+		RegisterPanel<OptionPanel>();
 	}
 
 	void PanelManager::OnDrawPanels()

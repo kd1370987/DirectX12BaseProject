@@ -1,7 +1,6 @@
 ﻿#include "BaseScene.h"
 
 #include "Engine/ECS/World/World.h"									// ECS
-//#include "Engine/Editor/ECSView/ComponentEdit/ComponentEdit.h"		// エディター
 #include "Engine/Scene/SceneManager/SceneManager.h"					// シーンマネージャー
 
 // コンポーネント
