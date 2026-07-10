@@ -7,9 +7,11 @@
 // コンポーネント
 #include "Application/Components/Persistence/GUIDComponent.h"
 
+// エンジン系
 #include "../../MainEngine.h"
-
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../Collision/CollisionWorld.h"
+
 
 namespace Engine::Scene
 {
@@ -31,6 +33,8 @@ namespace Engine::Scene
 
 	void BaseScene::Exit()
 	{
+		m_upWorld->Release();
+		Engine::MainEngine::Instance().RefCollisionWorld()->Clear();
 	}
 
 	void BaseScene::Update(float a_dt)

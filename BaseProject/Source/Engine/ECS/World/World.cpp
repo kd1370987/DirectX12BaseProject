@@ -34,7 +34,27 @@ namespace Engine::ECS
 
 	void World::Release()
 	{
+		TransitionPhase<ActiveTag, ReleaseTag>();
+		// 削除前にリリース処理を走らせる
+		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
+		// 解放処理がされたエンティティたちは削除予定に追加
+		ForEach<ReleaseTag>(
+			[this]
+			(
+				ArchetypeChunk* a_pChunk,
+				uint32_t a_count,
+				ReleaseTag* a_releaseTag
+				)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					AddRemoveEntity(a_pChunk->entityData[_i]);
+				}
+			}
+		);
 
+		// エンティティの一括削除
+		RemoveEntityStorage();
 	}
 
 	void World::ClaerMemory()
@@ -53,7 +73,7 @@ namespace Engine::ECS
 
 		// エンティティの一括作成
 		CreateAllEntity();
-
+		// ---------------------------------------------------------
 		// エンティティの引っ越し
 		for (auto& _chanCmd : m_changeEntityVec)
 		{
@@ -63,12 +83,29 @@ namespace Engine::ECS
 			_res.isDirty = true;
 		}
 		m_changeEntityVec.clear();
+		// ---------------------------------------------------------
+		// 削除前にリリース処理を走らせる
+		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
+		// 解放処理がされたエンティティたちは削除予定に追加
+		ForEach<ReleaseTag>(
+			[this]
+			(
+				ArchetypeChunk* a_pChunk,
+				uint32_t a_count,
+				ReleaseTag* a_releaseTag
+				)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					AddRemoveEntity(a_pChunk->entityData[_i]);
+				}
+			}
+		);
 
 		// エンティティの一括削除
 		RemoveEntityStorage();
-
-		// 削除されていないリリースタグが付いたエンティティは初期化扱い
-		TransitionPhase<ReleaseTag, PostDeserializeTag>();
+		// ---------------------------------------------------------
+		// 初期化システムズ
 		RunSystem(Engine::ECS::ESystemType::PostDeserialize, 0.0f);
 		TransitionPhase<PostDeserializeTag, AwekeTag>();
 
@@ -77,9 +114,6 @@ namespace Engine::ECS
 
 		RunSystem(Engine::ECS::ESystemType::Start, 0.0f);
 		TransitionPhase<StartTag, ActiveTag>();
-
-		// 削除前にリリース処理を走らせる
-		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
 	}
 
 	void World::ResourceGC()
@@ -264,7 +298,7 @@ namespace Engine::ECS
 		_cmd.entity = a_entity;
 		if (_oldSig.test(GetCompTypeID<ActiveTag>()))
 		{
-			_oldSig.set(GetCompTypeID<ReleaseTag>());
+			_oldSig.set(GetCompTypeID<PostDeserializeTag>());
 			_oldSig.reset(GetCompTypeID<ActiveTag>());
 		}
 		_cmd.toSig = _oldSig;
