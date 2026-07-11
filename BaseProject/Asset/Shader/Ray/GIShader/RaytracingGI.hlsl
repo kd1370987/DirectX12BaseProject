@@ -159,7 +159,7 @@ void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal, float3 a_geoN
 // 反射レイを飛ばす
 void TraceIndirectRay(inout RayPayload a_rayPayload, float3 a_normal)
 {
-	if (a_rayPayload.depth >= 3)
+	if (a_rayPayload.depth >= 1)
 	{
 		return;
 	}

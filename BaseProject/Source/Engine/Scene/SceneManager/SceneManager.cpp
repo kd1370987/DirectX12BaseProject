@@ -8,12 +8,6 @@
 
 namespace Engine::Scene
 {
-	bool SceneManager::Init()
-	{
-		PushScene(Engine::GUID("b467bb54-09cf-4b59-93e9-87c7ba196050"));
-		return true;
-	}
-
 	void SceneManager::Release()
 	{
 		m_upBaseSceneVec.clear();
@@ -87,7 +81,7 @@ namespace Engine::Scene
 		auto _fileName = FileUtility::GetFileNameWithoutExtension(_sceneFilePath);
 		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "scene");
 		_upScene->Archive(_ar);
-
+		_upScene->SetGUID(a_guid);
 		// スタックに積む
 		m_upBaseSceneVec.push_back(std::move(_upScene));
 	}

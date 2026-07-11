@@ -14,5 +14,6 @@ namespace Engine::Editor
 		virtual const char* GetName() const = 0;						// パネル名
 		virtual void OnDrawImGui(EditorContext& a_editContext) = 0;		// 実際のパネルUI描画
 		bool m_isOpen = true;											// メニューバーから開閉するためのフラグ
+		virtual ImGuiWindowFlags GetFlags() const { return 0; }			// ウィンドウフラグ
 	};
 }

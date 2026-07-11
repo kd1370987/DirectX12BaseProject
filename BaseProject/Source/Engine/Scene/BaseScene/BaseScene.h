@@ -45,9 +45,14 @@ namespace Engine::Scene
 		/// <returns></returns>
 		Engine::ECS::World* RefWorld() { return m_upWorld.get(); }
 
+		void SetGUID(const Engine::GUID& a_guid) { m_guid = a_guid; }
+		const Engine::GUID& GetGUID() const { return m_guid; }
+
 
 	private:
 
 		std::unique_ptr<Engine::ECS::World> m_upWorld = nullptr;
+
+		Engine::GUID m_guid;
 	};
 }

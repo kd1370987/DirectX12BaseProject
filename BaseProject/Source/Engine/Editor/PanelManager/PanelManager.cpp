@@ -23,7 +23,7 @@ namespace  Engine::Editor
 	{
 		for (auto& _panel : m_upPanelVec)
 		{
-			if (ImGui::Begin(_panel->GetName(),&_panel->m_isOpen))
+			if (ImGui::Begin(_panel->GetName(),&_panel->m_isOpen,_panel->GetFlags()))
 			{
 				_panel->OnDrawImGui(m_editContext);
 			}

@@ -49,6 +49,9 @@ float CalcDiffuseFromFresnel(float3 a_N, float3 a_L, float3 a_V, float a_roughne
 // @param a_NdotH 法線とハーフベクトルの内積
 float Beckmann(float a_m, float a_t)
 {
+	// ゼロ除算防止
+	a_t = max(a_t,0.001f);
+	
 	float _t2 = a_t * a_t;
 	float _t4 = a_t * a_t * a_t * a_t;
 	float _m2 = a_m * a_m;

@@ -26,6 +26,12 @@ float4 PSMain(VSOutput a_in) : SV_Target
 
 	float _shadow = g_shadowMask.Sample(g_samp,a_in.uv).r;	// 影
 	float3 _rayGI = g_rayGI.Sample(g_samp,a_in.uv).rgb;		// GI
+
+	// オブジェクトのないピクセルは計算をスキップ
+	if(_depth <= 0.0f)
+	{
+		return float4(0, 0, 0, 0);
+	}
 	
 	// 3D空間での位置を復元
 	float3 _viewPos = ReconstructViewPos(a_in.uv, _depth);
@@ -77,7 +83,11 @@ float4 PSMain(VSOutput a_in) : SV_Target
 	_outColor += _diffuse * (1.0f) + _spec;
 
 	// アンビエント
-	_outColor += _rayGI * _albedo;
+	//_outColor += _rayGI * _albedo;
+	_outColor += g_ambient.ambientColor;
+	float3 _ambientDiffuse = _rayGI * _albedo * (1.0f - _metallic);
+	_outColor += _ambientDiffuse;
+	_outColor = clamp(_outColor, g_ambient.ambientColor, float3(100, 100, 100));
 	
 	return float4(_outColor, _arpha);
 }

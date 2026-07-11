@@ -16,7 +16,7 @@ void Engine::Editor::OptionPanel::OnDrawImGui(EditorContext& a_editContext)
 	if (!_pGE) return;
 
 	auto& _ambientData = _pGE->RefAmbientData();
-
+	ImGui::DragFloat3("AmbientColor",&_ambientData.ammbientColorScale.x,0.01f);
 	ImGui::DragFloat3("DLColor",&_ambientData.dlColor.x,0.01f);
 	ImGui::DragFloat3("DLDir",&_ambientData.dlDir.x,0.01f);
 }

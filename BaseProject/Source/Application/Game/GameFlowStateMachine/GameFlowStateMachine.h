@@ -91,5 +91,7 @@ namespace App::Game
 		std::unordered_map<UINT, float> m_currentFloatParams;
 		std::unordered_map<UINT, int> m_currentIntParams;
 		std::unordered_map<UINT, bool> m_currentBoolParams;
+
+		ImNodesEditorContext* m_context; // 専用のコンテキスト
 	};
 }

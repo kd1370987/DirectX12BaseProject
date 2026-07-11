@@ -9,6 +9,7 @@ namespace Engine::Editor
 		None,
 		Entity,
 		Asset,
+		Game,
 	};
 
 	/// <summary>

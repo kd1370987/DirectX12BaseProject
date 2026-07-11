@@ -14,6 +14,9 @@ namespace Engine::Editor
 {
 	void Engine::Editor::SceneViewPanel::OnDrawImGui(EditorContext& a_editContext)
 	{
+		// シーンファイルメニューバー
+		SceneFileMenu(a_editContext);
+
 		// ワールド取得
 		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld || !_pWorld->IsInit()) return;
@@ -114,5 +117,172 @@ namespace Engine::Editor
 
 			DirectX::XMStoreFloat4x4(&_pWorldComp->worldMat, updatedWorld);
 		}
+	}
+	void SceneViewPanel::SceneFileMenu(EditorContext& a_editContext)
+	{
+		if (m_currentSceneGUID == Engine::DefaultGUID)
+		{
+			auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
+			if (!_pScene) return;
+
+			m_currentSceneGUID = _pScene->GetGUID();
+			m_canOverwrite = true; // 上書き可能にする
+			ENGINE_LOG("シーンのGUIDがセットされました : %s", m_currentSceneGUID.String().c_str());
+		}
+
+		// --- ショートカット判定 ---
+		bool _isCtrl = ImGui::GetIO().KeyCtrl;
+		m_isSaveShortcut = _isCtrl && ImGui::IsKeyPressed(ImGuiKey_S);
+		m_doOverwrite = false;
+
+		// Ctr + S が押されたら
+		if (m_isSaveShortcut)
+		{
+			if (m_canOverwrite) m_doOverwrite = true;	// 現在のシーンにデータファイルがあるのなら、上書き
+			else OpenSavePopup();						// なければ新規保存ポップアップ
+		}
+
+		// シーンの走査
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("Create new scene"))
+				{
+					// TODO: 新規シーン生成処理、m_currentSceneGUIDのクリアなど
+					ENGINE_LOG("新規シーンを作成しました。");
+				}
+
+				ImGui::Separator();
+
+				// ロード
+				if (ImGui::MenuItem("Load scene..."))
+				{
+					m_openLoadPopup = true;
+				}
+
+				ImGui::Separator();
+
+				// セーブ
+				// 上書き保存
+				if (ImGui::MenuItem("Save scene", "Ctrl+S", false, m_canOverwrite))
+				{
+					m_doOverwrite = true;
+				}
+				// 名前を付けて保存
+				if (ImGui::MenuItem("Save scene with Name..."))
+				{
+					OpenSavePopup();
+				}
+
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		// ポップアップ処理
+		LoadScenePopup();
+		SaveScenePopup();
+
+		// 実際のセーブ処理の実行
+		if (m_doOverwrite)
+		{
+			SaveScene(m_currentSceneGUID);
+		}
+	}
+	void SceneViewPanel::LoadScenePopup()
+	{
+		if (m_openLoadPopup) { ImGui::OpenPopup("Load Scene Asset"); m_openLoadPopup = false; }
+		if (ImGui::BeginPopupModal("Load Scene Asset", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			const auto& _sceneMetaVec = Resource::AssetDatabase::Instance().GetTypeMetaVec("Scene");
+			if (_sceneMetaVec.empty())
+			{
+				ImGui::TextDisabled("Not find SceneAsset");
+			}
+
+			for (const auto& _sceneMeta : _sceneMetaVec)
+			{
+				if (ImGui::Selectable(_sceneMeta.fileName.c_str(), m_currentSceneGUID == _sceneMeta.guid))
+				{
+					auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
+					if (_pScene)
+					{
+						// ロード処理
+						Engine::Scene::SceneManager::Instance().SetNextScene(_sceneMeta.guid, Scene::SceneChangeType::Replace);
+						ENGINE_LOG("シーンを読み込みました : %s", _sceneMeta.fileName.c_str());
+
+						m_currentSceneGUID = _sceneMeta.guid; // 現在のGUIDを更新
+						m_canOverwrite = true; // 上書き可能にする
+					}
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			ImGui::Separator();
+			if (ImGui::Button("Close", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+			ImGui::EndPopup();
+		}
+	}
+	void SceneViewPanel::SaveScenePopup()
+	{
+		if (m_openSaveAsPopup) { ImGui::OpenPopup("Save Scene As"); m_openSaveAsPopup = false; }
+		if (ImGui::BeginPopupModal("Save Scene As", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Input Filename (.scene) : ");
+
+			// Enterキーで決定できるようにフラグを追加すると便利です
+			bool isEnterPressed = ImGui::InputText("##scenename", &m_sceneNameInput, ImGuiInputTextFlags_EnterReturnsTrue);
+
+			if (ImGui::Button("Save", ImVec2(120, 0)) || isEnterPressed)
+			{
+				if (!m_sceneNameInput.empty())
+				{
+					std::string dirPath = "Asset/Scenes/" + m_sceneNameInput;
+					std::string filepath = dirPath + "/" + m_sceneNameInput;
+
+					// サブディレクトリを作成するように修正
+					std::filesystem::create_directories(dirPath);
+
+					Engine::GUID _guid = Resource::AssetDatabase::Instance().AddMetaData(filepath, "Scene");
+					m_currentSceneGUID = _guid;
+					m_canOverwrite = true;
+
+					SaveScene(m_currentSceneGUID);
+					ImGui::CloseCurrentPopup(); // 保存後に閉じる
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); } // タイポ修正
+			ImGui::EndPopup();
+		}
+	}
+	void SceneViewPanel::OpenSavePopup()
+	{
+		m_openSaveAsPopup = true;
+		m_sceneNameInput = "";
+	}
+	void SceneViewPanel::SaveScene(const Engine::GUID & a_guid)
+	{
+		// 現在のシーンを取得
+		auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
+		if (!_pScene)
+		{
+			ENGINE_LOG("シーンのセーブに失敗しました");
+			return;
+		}
+
+		// ファイルパスを取得
+		auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
+		if (_path.empty())
+		{
+			ENGINE_LOG("シーンのセーブに失敗しました");
+			return;
+		}
+
+		auto _fileDir = FileUtility::GetDirFromPath(_path);
+		auto _fileName = FileUtility::GetFileNameWithoutExtension(_path);
+		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _fileDir, _fileName, "scene");
+		_pScene->Archive(_ar);
 	}
 }

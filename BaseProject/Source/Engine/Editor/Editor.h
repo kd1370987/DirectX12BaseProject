@@ -8,7 +8,6 @@ namespace Engine::Editor
 	class ImGuiContext;
 	class EditorCamera;
 	class WatchView;
-	class SceneManagerEditor;
 	class PanelManager;
 
 	//=======================================================================
@@ -106,9 +105,6 @@ namespace Engine::Editor
 
 		// 計測機
 		std::unique_ptr<WatchView> m_upWatchView = nullptr;
-
-		// シーンマネージャー
-		std::unique_ptr<SceneManagerEditor> m_upSceneManagerEditor = nullptr;
 
 		// エディター用関数登録
 		std::vector<std::function<void()>> m_editFuncVec = {};

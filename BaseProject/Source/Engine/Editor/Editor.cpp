@@ -14,7 +14,6 @@
 
 #include "../Graphics/GraphicEngine.h"
 #include "../Graphics/RenderContext/RenderContext.h"
-#include "SceneManagerEditor/SceneManagerEditor.h"
 
 #include "../Scene/SceneManager/SceneManager.h"
 #include "../ECS/World/World.h"
@@ -52,11 +51,6 @@ namespace Engine::Editor
 		{
 			m_upWatchView = std::make_unique<WatchView>();
 			m_upWatchView->Init();
-		}
-		if (!m_upSceneManagerEditor)
-		{
-			m_upSceneManagerEditor = std::make_unique<SceneManagerEditor>();
-			m_upSceneManagerEditor->Init();
 		}
 
 		// パネルの登録
@@ -97,15 +91,6 @@ namespace Engine::Editor
 		m_upLog->Draw("Log");
 		// 計測表示
 		m_upWatchView->Draw();
-
-		if (ImGui::Begin("Options"))
-		{
-			auto& _opManager = Option::OptionManager::GetInstance();
-			_opManager.DrawEdit();
-		}
-		ImGui::End();
-
-		m_upSceneManagerEditor->Draw();
 
 		// 各登録された関数を実行
 		for (auto _func : m_editFuncVec)

@@ -213,6 +213,8 @@ namespace App::Game
 		}
 
 		m_idCounter = _maxId;
+
+		m_context = ImNodes::EditorContextCreate();
 	}
 
 	std::string_view GameFlowStateMachine::GetNodeName(const UINT& a_hash) const
@@ -286,6 +288,11 @@ namespace App::Game
 		m_defaultStartHash = 0;
 		m_editingLinkID = 0;
 		m_idCounter = 0;
+
+		if(m_context)
+		{
+			ImNodes::EditorContextFree(m_context);
+		}
 	}
 
 	void GameFlowStateMachine::EditImGui()
@@ -637,6 +644,8 @@ namespace App::Game
 
 	void GameFlowStateMachine::DrawNodeEditor()
 	{
+		ImNodes::EditorContextSet(m_context);
+
 		// ノードエディター開始
 		ImNodes::BeginNodeEditor();
 

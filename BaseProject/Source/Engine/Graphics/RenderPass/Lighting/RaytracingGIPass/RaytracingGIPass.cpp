@@ -104,7 +104,7 @@ namespace Engine::Graphics
 		_psoInit.AddShader(L"ShadowMiss", Raytracing::LocalRootSignature::Empty, Raytracing::ShaderCategory::Miss);
 		_psoInit.AddHitGroup(L"HitGroup", L"ClosestHit");
 		_psoInit.AddHitGroup(L"ShadowHitGroup", L"ShadowCHS");
-		_psoInit.maxRecursionDepth = 4;
+		_psoInit.maxRecursionDepth = 2;
 		_psoInit.pGlobalRootSig = a_pPSOManager->Request(_rayGlobal);
 		_psoInit.pHitRootSig = a_pPSOManager->Request(_hitSigInit);
 		_psoInit.pRayGenRootSig = a_pPSOManager->Request(_rayGenSigInit);

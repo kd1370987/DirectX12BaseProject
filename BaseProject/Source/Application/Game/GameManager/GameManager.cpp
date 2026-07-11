@@ -288,9 +288,6 @@ namespace App::Game
 		}
 
 		// 最初のシーンを挿入
-		//Engine::Scene::SceneManager::Instance().SetNextScene(
-		//	Engine::GUID("b467bb54-09cf-4b59-93e9-87c7ba196050"),Engine::Scene::SceneChangeType::Puch
-		//);
 		Engine::GUID _initScene = m_upGameFlowMachine->Start();
 		if (_initScene != Engine::DefaultGUID)
 		{
