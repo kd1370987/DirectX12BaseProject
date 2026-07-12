@@ -103,7 +103,7 @@ namespace Engine::Graphics
 
 		// ノード
 		RenderPassNode _node = {};
-		_node.name = "GBuffer";
+		_node.name = "MeshGBuffer";
 		_node.phase = a_phase;
 
 		// 空のルートシグネチャ作成
@@ -143,8 +143,8 @@ namespace Engine::Graphics
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 			{
 				a_pCtx->BindHeap();
-				a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
-				a_pGE->BindPSO(a_pCtx, _spPassData->index);
+				a_pCtx->SetComputeRootSignature(_spPassData->pRootSig);
+				a_pCtx->SetComputePSO(_spPassData->index);
 				
 				a_pCtx->BindCamera();
 				a_pCtx->BindMeshInstance();

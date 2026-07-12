@@ -44,6 +44,20 @@ namespace Engine::Graphics
 		void RegisterVertexShader(EShaderPermutationFlags a_flag, Handle<Resource::Shader> a_vsHandle);
 
 		/// <summary>
+		/// フラグに対応したMS（メッシュシェーダー）を登録する
+		/// </summary>
+		/// <param name="a_flag">フラグ</param>
+		/// <param name="a_msHandle">MSハンドル</param>
+		void RegisterMeshShader(EShaderPermutationFlags a_flag, Handle<Resource::Shader> a_msHandle);
+
+		/// <summary>
+		/// フラグに対応したAS（アンプリフィケーションシェーダー）を登録する
+		/// </summary>
+		/// <param name="a_flag">フラグ</param>
+		/// <param name="a_asHandle">ASハンドル</param>
+		void RegisterAmplificationShader(EShaderPermutationFlags a_flag, Handle<Resource::Shader> a_asHandle);
+
+		/// <summary>
 		/// パスの標準深度設定を受け取る
 		/// </summary>
 		/// <param name="a_enable">深度テストするかどうか</param>
@@ -68,6 +82,12 @@ namespace Engine::Graphics
 
 		// フラグに対応するVSのマップ
 		std::unordered_map<EShaderPermutationFlags, Handle<Resource::Shader>> m_vsMap;
+
+		// フラグに対応するMSのマップ
+		std::unordered_map<EShaderPermutationFlags, Handle<Resource::Shader>> m_msMap;
+
+		// フラグに対応するASのマップ
+		std::unordered_map<EShaderPermutationFlags, Handle<Resource::Shader>> m_asMap;
 
 		// 深度テスト設定
 		bool m_depthEnable = true;				// 深度テストするかどうか

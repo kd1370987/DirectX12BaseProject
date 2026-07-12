@@ -12,6 +12,7 @@
 #include "../RenderGraph/RenderGraph.h"
 #include "../../D3D12/PipelineStateManager/PipelineStateManager.h"
 #include "../GraphicEngine.h"
+#include "../MeshBufferAllocator/MeshBufferAllocator.h"
 #include "ShapeDraw/ShapeDraw.h"
 
 #include "Engine/Scene/SceneManager/SceneManager.h"
@@ -269,7 +270,7 @@ namespace Engine::Graphics
 		BindSRV(a_rootIdx, _cpu);
 	}
 
-	void RenderContext::ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle)
+	void RenderContext::ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
 	{
 		// 今の空きインデックスカウントを確保
 		UINT _startIdx = m_currentHeapOffset;
@@ -681,13 +682,25 @@ namespace Engine::Graphics
 
 	void RenderContext::BindMeshInstance()
 	{
-		m_pCmdList->SetGraphicsRootShaderResourceView(1,m_meshInstanceBuffer.GetGPUVirtualAddress());
-		m_pCmdList->SetGraphicsRootShaderResourceView(2,m_meshMaterialBuffer.GetGPUVirtualAddress());
+		//m_pCmdList->SetGraphicsRootShaderResourceView(1,m_meshInstanceBuffer.GetGPUVirtualAddress());
+		m_pCmdList->SetComputeRootShaderResourceView(1, m_meshInstanceBuffer.GetGPUVirtualAddress());
+		//m_pCmdList->SetGraphicsRootShaderResourceView(2,m_meshMaterialBuffer.GetGPUVirtualAddress());
+		m_pCmdList->SetComputeRootShaderResourceView(2,m_meshMaterialBuffer.GetGPUVirtualAddress());
 	}
 
 	void RenderContext::BindMeshlet()
 	{
-		//m_pGraphicsEngine->BindMeshBuffer(m_pCmdList);
+		auto* _pBufferManager = m_pGraphicsEngine->RefMeshBufferAllocator();
+		if (!_pBufferManager)return;
+		//ComputeBindSRV(3, _pBufferManager->RefMeshletBuffer().GetSRV());
+		//ComputeBindSRV(4, _pBufferManager->RefUniqueVertexIndicesBuffer().GetSRV());
+		//ComputeBindSRV(5, _pBufferManager->RefMeshletTriangleBuffer().GetSRV());
+		//ComputeBindSRV(6, _pBufferManager->GetStaticVertexBuffer().GetSRV());
+
+		m_pCmdList->SetComputeRootShaderResourceView(3, _pBufferManager->RefMeshletBuffer().GetResource()->GetGPUVirtualAddress());
+		m_pCmdList->SetComputeRootShaderResourceView(4, _pBufferManager->RefUniqueVertexIndicesBuffer().GetResource()->GetGPUVirtualAddress());
+		m_pCmdList->SetComputeRootShaderResourceView(5, _pBufferManager->RefMeshletTriangleBuffer().GetResource()->GetGPUVirtualAddress());
+		m_pCmdList->SetComputeRootShaderResourceView(6, _pBufferManager->GetStaticVertexBuffer().GetResource()->GetGPUVirtualAddress());
 	}
 
 	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)
@@ -770,6 +783,15 @@ namespace Engine::Graphics
 	void RenderContext::SetComputePSO(ID3D12PipelineState* a_pPSO)
 	{
 		m_pCmdList->SetPipelineState(a_pPSO);
+	}
+
+	void RenderContext::SetComputePSO(uint8_t a_pPsoIndex)
+	{
+		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
+		if (!_pPsoManager) return;
+		auto* _pPSO = _pPsoManager->GetPSO(a_pPsoIndex);
+		if (!_pPSO) return;
+		SetComputePSO(_pPSO);
 	}
 
 	void RenderContext::SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri)

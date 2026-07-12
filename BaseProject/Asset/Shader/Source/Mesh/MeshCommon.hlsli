@@ -20,7 +20,6 @@ struct InstanceData
 	uint boneStartIndex;			// 開始位置
 	uint boneCount;					// 配列サイズ
 };
-StructuredBuffer<InstanceData> g_instanceData : register(t0);
 
 // マテリアルの情報
 struct Material
@@ -41,8 +40,6 @@ struct Material
 	int emissiveIndex;
 	int normalIndex;
 };
-StructuredBuffer<Material> g_materialData : register(t1);
-
 // メッシュレット構造体
 struct Meshlet
 {
@@ -51,14 +48,7 @@ struct Meshlet
 	uint primitiveCount;	// このmeshレットが持つポリゴン数（最大126）
 	uint primitiveOffset;	// プリミティブ配列におけるスタート位置
 };
-StructuredBuffer<Meshlet> g_meshletData : register(t2);
-//ByteAddressBuffer g_uniqueVertexIndices : register(t3); // 各meshレットが使う頂点番号リスト
-StructuredBuffer<uint> g_uniqueVertexIndices : register(t3); // 各meshレットが使う頂点番号リスト
-//ByteAddressBuffer g_primitiveIndices : register(t4);
-StructuredBuffer<uint> g_primitiveIndices : register(t4);
-
 // 頂点情報
-//ByteAddressBuffer g_vertices : register(t5);
 struct Vertex
 {
 	float3 pos : POSITION; // 頂点座標
@@ -69,22 +59,29 @@ struct Vertex
 	uint4 skinIndex : SKININDEX; // スキンメッシュのボーンインデックス（何番目のボーンに影響しているかのデータ（最大４））
 	float4 skinWeight : SKINWEIGHT; // ボーンの影響度（最大４）
 };
-StructuredBuffer<Vertex> g_vertices : register(t5);
-
 // アニメーション用バッファ
 struct BonePallet
 {
 	row_major float4x4 mat;
 };
-StructuredBuffer<BonePallet> g_bonePalletData : register(t6);
 
+StructuredBuffer<InstanceData> g_instanceData : register(t0);
+StructuredBuffer<Material> g_materialData : register(t1);
+
+StructuredBuffer<Meshlet> g_meshletData : register(t2);
+StructuredBuffer<uint> g_uniqueVertexIndices : register(t3); // 各meshレットが使う頂点番号リスト
+StructuredBuffer<uint> g_primitiveIndices : register(t4);
+
+StructuredBuffer<Vertex> g_vertices : register(t5);
+StructuredBuffer<BonePallet> g_bonePalletData : register(t6);
 cbuffer RootConstants : register(b1)
 {
 	uint g_baseInstanceIndex; // C++から渡されるインスタンス配列のオフセット
 };
 
-// サンプラー
 SamplerState smp : register(s0);
+
+// サンプラー
 
 // ---- ルートシグネチャ設定 : 全メッシュシェーダーで共通して使う ----
 // カメラ定数バッファ

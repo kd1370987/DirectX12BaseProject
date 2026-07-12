@@ -48,11 +48,13 @@ namespace Engine::Graphics
 			Handle<Resource::Shader> _targetVSHandle;
 
 			// アニメーションか、インスタンシングか、静的か等の優先順位でVSを決定
-			if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned) {
+			if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned) 
+			{
 				_targetVSHandle = m_vsMap[EShaderPermutationFlags::Skinned];
 				_desc.SetInputLayout(D3D12::Input::AnimationInputLayout);
 			}
-			else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing) {
+			else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing) 
+			{
 				_targetVSHandle = m_vsMap[EShaderPermutationFlags::UseGPUInstancing];
 			}
 			else {
@@ -114,6 +116,10 @@ namespace Engine::Graphics
 	{
 		m_vsMap[a_flag] = a_vsHandle;
 	}
+	void ShadingPipelineBuilder::RegisterMeshShader(EShaderPermutationFlags a_flag, Handle<Resource::Shader> a_msHandle)
+	{}
+	void ShadingPipelineBuilder::RegisterAmplificationShader(EShaderPermutationFlags a_flag, Handle<Resource::Shader> a_asHandle)
+	{}
 	void ShadingPipelineBuilder::SetDepthConfig(bool a_enable, bool a_write, D3D12_COMPARISON_FUNC a_func)
 	{
 		m_depthEnable = a_enable;

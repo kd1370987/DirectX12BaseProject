@@ -34,6 +34,9 @@ namespace Engine::Resource
 		// サブセットごとのメッシュレット情報
 		std::vector<SubsetMeshletData> subsetMeshlets;
 
-		// ハンドルを持たせる!!!!!!!!!!!!!!!!!!!!!!!
+		// 各種データのGPUデータハンドル
+		RangeHandle<Resource::Meshlet> meshletHandle;
+		RangeHandle<uint32_t> uinqueVertexIndecsHandle;
+		RangeHandle<DirectX::MeshletTriangle> primitiveIndicesHandle;
 	};
 }

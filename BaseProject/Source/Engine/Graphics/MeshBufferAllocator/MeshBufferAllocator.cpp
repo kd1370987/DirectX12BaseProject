@@ -13,6 +13,10 @@ namespace Engine::Graphics
 		m_staticVerticesBuffer.Create(a_pDevice,a_pCmdList,a_bufferSizes.staticVertexBufferSize);
 		m_indexBuffer.Create(a_pDevice,a_pCmdList,a_bufferSizes.indexBufferSize);
 		m_animatedVertexBuffer.Create(a_pDevice,a_bufferSizes.animatedVertexBufferSize);
+
+		m_meshletBuffer.Create(a_pDevice,a_pCmdList,10000);
+		m_uniqueVertexIndicesBuffer.Create(a_pDevice, a_pCmdList, 1000000);
+		m_meshTriangleBuffer.Create(a_pDevice, a_pCmdList, 1000000);
 	}
 
 	void MeshBufferAllocator::Release()
@@ -20,6 +24,10 @@ namespace Engine::Graphics
 		m_staticVerticesBuffer.Release();
 		m_indexBuffer.Release();
 		m_animatedVertexBuffer.Release();
+
+		m_meshletBuffer.Release();
+		m_uniqueVertexIndicesBuffer.Release();
+		m_meshTriangleBuffer.Release();
 	}
 
 	void MeshBufferAllocator::UpdateFrame(D3D12::GraphicsCommandList* a_pCmdList,uint64_t a_completedFenceValue)
@@ -28,6 +36,10 @@ namespace Engine::Graphics
 		m_staticVerticesBuffer.Update(a_completedFenceValue);
 		m_indexBuffer.Update(a_completedFenceValue);
 		m_animatedVertexBuffer.Update(a_completedFenceValue);
+
+		m_meshletBuffer.Update(a_completedFenceValue);
+		m_uniqueVertexIndicesBuffer.Update(a_completedFenceValue);
+		m_meshTriangleBuffer.Update(a_completedFenceValue);
 	}
 	RangeHandle<Resource::MeshVertexFloat> MeshBufferAllocator::AllocateVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex)
 	{
@@ -40,6 +52,18 @@ namespace Engine::Graphics
 	RangeHandle<Resource::MeshVertexFloat> MeshBufferAllocator::AllocateAnimatedVertex(UINT a_size)
 	{
 		return m_animatedVertexBuffer.Allocate(a_size);
+	}
+	RangeHandle<Resource::Meshlet> MeshBufferAllocator::AllocateMeshlet(const std::vector<Resource::Meshlet>& a_meshlets)
+	{
+		return m_meshletBuffer.AllocateAndUpload(a_meshlets.data(),static_cast<UINT>(a_meshlets.size()));
+	}
+	RangeHandle<uint32_t> MeshBufferAllocator::AllocateUniqueVertIndices(const std::vector<uint32_t>& a_uniqueVertIndices)
+	{
+		return m_uniqueVertexIndicesBuffer.AllocateAndUpload(a_uniqueVertIndices.data(), static_cast<UINT>(a_uniqueVertIndices.size()));
+	}
+	RangeHandle<DirectX::MeshletTriangle> MeshBufferAllocator::AllocateTriangles(const std::vector<DirectX::MeshletTriangle>& a_triangles)
+	{
+		return m_meshTriangleBuffer.AllocateAndUpload(a_triangles.data(), static_cast<UINT>(a_triangles.size()));
 	}
 	void MeshBufferAllocator::StaticVertexFree(const RangeHandle<Resource::MeshVertexFloat>& a_handle)
 	{
@@ -55,5 +79,20 @@ namespace Engine::Graphics
 	{
 		ENGINE_LOG("アニメーション後頂点データバッファ : Free");
 		m_animatedVertexBuffer.Free(a_handle);
+	}
+	void MeshBufferAllocator::MeshletFree(const RangeHandle<Resource::Meshlet>& a_handle)
+	{
+		ENGINE_LOG("メッシュレット : Free");
+		m_meshletBuffer.Free(a_handle);
+	}
+	void MeshBufferAllocator::UniqueVertIndicesFree(const RangeHandle<uint32_t>&a_handle)
+	{
+		ENGINE_LOG("ユニーク頂点インデックス : Free");
+		m_uniqueVertexIndicesBuffer.Free(a_handle);
+	}
+	void MeshBufferAllocator::TrianglesFree(const RangeHandle<DirectX::MeshletTriangle>&a_handle)
+	{
+		ENGINE_LOG("メッシュトライアングル : Free");
+		m_meshTriangleBuffer.Free(a_handle);
 	}
 }

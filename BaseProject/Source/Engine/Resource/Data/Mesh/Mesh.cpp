@@ -16,6 +16,11 @@ bool Engine::Resource::Mesh::CreateFloat(
 	bool a_isSkinMesh
 )
 {
+	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+	if (!_pGE) return false;
+	auto* _pMeshBufferAllocater = _pGE->RefMeshBufferAllocator();
+	if (!_pMeshBufferAllocater) return false;
+
 	m_vertices = a_vertices;
 	m_face = a_face;
 	m_subsets = a_subsets;
@@ -39,6 +44,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 
 	m_opRtData.emplace();
+	m_opMeshShaderData.emplace();
 
 	D3D12::D3D12Wrapper::Instance().ExecuteAsyncCompute(
 		// コマンドを積む処理
@@ -75,34 +81,26 @@ bool Engine::Resource::Mesh::CreateFloat(
 				_indices.push_back(_f.idx[2]);
 			}
 			CreateMeshShaderData(a_pCmdList, a_vertices, _indices, a_face);
+
+			// ハンドルの登録
+			auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+			auto* _pMeshBufferAllocater = _pGE->RefMeshBufferAllocator();
+
+			// メッシュレットアロケート
+			m_opMeshShaderData.value().meshletHandle = _pMeshBufferAllocater->AllocateMeshlet(m_opMeshShaderData->meshlets);
+			m_opMeshShaderData.value().uinqueVertexIndecsHandle =
+				_pMeshBufferAllocater->AllocateUniqueVertIndices(m_opMeshShaderData->uniqueVertexIndices);
+			m_opMeshShaderData.value().primitiveIndicesHandle = _pMeshBufferAllocater->AllocateTriangles(m_opMeshShaderData->primitiveIndices);
 		},
 		// 完了時のコールバック
 		[this, _indices]()
-		{
-			ENGINE_LOG("メッシュの非同期セットアップが完了");
+		{	
+
+			ENGINE_LOG("メッシュシェーダーデータの非同期セットアップが完了");
 		}
 	);
 
-	// ハンドルの登録
-	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
-	if (!_pGE) return false;
-
 	// メガバッファにアロケート
-	auto* _pMeshBufferAllocater = _pGE->RefMeshBufferAllocator();
-	if (!_pMeshBufferAllocater) return false;
-
-	// 構造体バッファ作成
-	std::vector<RTVertex> _rtVertDataVec = {};
-	for (auto& _vert : a_vertices)
-	{
-		RTVertex _rt = {};
-		_rt = _vert;
-		_rtVertDataVec.push_back(_rt);
-	}
-	auto iii = sizeof(MeshVertexFloat);
-	//m_opRtData->vertexHandle = _pGE->AllocateMeshVertex(a_vertices);
-	//m_opRtData->indexHandle = _pGE->AllocateMeshIndex(_indices);
-
 	m_opRtData->vertexHandle = _pMeshBufferAllocater->AllocateVertex(a_vertices);
 	m_opRtData->indexHandle = _pMeshBufferAllocater->AllocateIndex(_indices);
 
@@ -157,9 +155,6 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 	uint32_t _currentMeshletOffset = 0;
 	uint32_t _currentVertexOffset = 0;
 	uint32_t _currentPrimitiveOffset = 0;
-
-	// 空で生成
-	m_opMeshShaderData.emplace();
 
 	// 全サブセットのデータをまとめるマスター配列
 	std::vector<Engine::Resource::Meshlet> _masterMeshlets;
@@ -287,6 +282,10 @@ void Engine::Resource::Mesh::Release()
 	// 登録されているハンドルの解放
 	_pMeshBufferAllocater->StaticVertexFree(m_opRtData->vertexHandle);
 	_pMeshBufferAllocater->IndexFree(m_opRtData->indexHandle);
+
+	_pMeshBufferAllocater->MeshletFree(m_opMeshShaderData->meshletHandle);
+	_pMeshBufferAllocater->UniqueVertIndicesFree(m_opMeshShaderData->uinqueVertexIndecsHandle);
+	_pMeshBufferAllocater->TrianglesFree(m_opMeshShaderData->primitiveIndicesHandle);
 
 	// 各meshデータ解放
 	m_meshMetaData.Release();

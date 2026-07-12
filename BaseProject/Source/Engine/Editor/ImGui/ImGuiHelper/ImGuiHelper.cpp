@@ -119,6 +119,8 @@ ImVec2 Engine::Editor::Helper::DrawSRVView(D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHand
 	// 横幅に合わせて高さを逆算する
 	float drawHeight = drawWidth / aspect;
 
+	ImGui::Text("Size : %f,%f", drawWidth, drawHeight);
+
 	// 計算したサイズで描画
 	ImGui::Image(_imTex, ImVec2(drawWidth, drawHeight));
 

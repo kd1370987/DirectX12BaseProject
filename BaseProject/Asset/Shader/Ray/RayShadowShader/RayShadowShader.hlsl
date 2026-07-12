@@ -41,16 +41,28 @@ void RayGen()
 
 	// 深度値を取得
 	float _depth = _depthTex.Load(int3(_id, 0)).r;
-	if(_depth >= 1.0f)
+	if (_depth >= 1.0f)
 	{
-		gOutPut[_id] = float4(1,1,1,1);
+		gOutPut[_id] = float4(1, 1, 1, 1);
 		return;
 	}
 	
 	// 法線を取得
 	float2 _enc = _normalTex.Load(int3(_id, 0)).rg; // 法線
-	float3 _normal = DecsodeNormal(_enc);			// 法線を復元
+	float3 _normal = DecsodeNormal(_enc); // 法線を復元
 
+	// 光源へ向かうベクトル
+	float3 _lightDir = normalize(-g_ambient.DL_Dir);
+	
+	// 光が当たらない裏面はレイを飛ばさず影(0,0,0)にする
+	float _NdotL = dot(_normal, _lightDir);
+	if (_NdotL <= 0.0f)
+	{
+		gOutPut[_id] = float4(0, 0, 0, 1);
+		return;
+	}
+	
+	
 	// 3D空間での位置を復元
 	float4 _clip = float4(_uv.x * 2.0f - 1.0f, 1.0f - _uv.y * 2.0f, _depth, 1.0f);
 	float4 _worldPos4 = mul(_clip, g_camera.invViewProj);
@@ -65,13 +77,15 @@ void RayGen()
 	float _Nov = max(abs(dot(_normal, _viewDir)), 0.05f);
 
 	// 距離依存バイアスを作成
-	float _biasNormal = max(0.005f,_dist * 0.0002f);
+	float _biasNormal = max(0.005f, _dist * 0.0002f);
 	float _biasView = max(0.01f, _dist * 0.001f) / _Nov;
-	
+
+
+
 	// ピクセル方向に打ち出すレイを作成する
 	RayDesc _ray;
 	_ray.Origin = _worldPos + _normal * _biasNormal + _viewDir * _biasView;
-	_ray.Direction = normalize(-g_ambient.DL_Dir);
+	_ray.Direction = _lightDir;
 	_ray.TMin = 0.001f;
 	_ray.TMax = 10000;
 
@@ -92,8 +106,7 @@ void RayGen()
 		_payload
 	);
 
-	gOutPut[_id] = float4(_payload.color,1);
-
+	gOutPut[_id] = float4(_payload.color, 1);
 }
 [shader("closesthit")]
 void ShadowCHS(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttributes a_attr)

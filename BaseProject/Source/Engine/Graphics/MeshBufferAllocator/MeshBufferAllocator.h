@@ -50,6 +50,9 @@ namespace Engine::Graphics
 		RangeHandle<uint32_t> AllocateIndex(const std::vector<uint32_t>& a_indices);										// インデックス
 		RangeHandle<Resource::MeshVertexFloat> AllocateAnimatedVertex(UINT a_size);											// 動的頂点
 
+		RangeHandle<Resource::Meshlet> AllocateMeshlet(const std::vector<Resource::Meshlet>& a_meshlets);					// メッシュレット
+		RangeHandle<uint32_t> AllocateUniqueVertIndices(const std::vector<uint32_t>& a_uniqueVertIndices);					// 頂点インデックス
+		RangeHandle<DirectX::MeshletTriangle> AllocateTriangles(const std::vector<DirectX::MeshletTriangle>& a_triangles);	// 三角形インデックス
 		//--------------------------------------------------------------------------------------------
 		// ハンドルの返却
 		//--------------------------------------------------------------------------------------------
@@ -57,6 +60,9 @@ namespace Engine::Graphics
 		void IndexFree(const RangeHandle<uint32_t>& a_handle);
 		void AnimatedVertexFree(const RangeHandle<Resource::MeshVertexFloat>& a_handle);
 
+		void MeshletFree(const RangeHandle<Resource::Meshlet>& a_handle);					// メッシュレット
+		void UniqueVertIndicesFree(const RangeHandle<uint32_t>& a_handle);					// 頂点インデックス
+		void TrianglesFree(const RangeHandle<DirectX::MeshletTriangle>& a_handle);			// 三角形インデックス
 		//--------------------------------------------------------------------------------------------
 		// バッファアクセス
 		//--------------------------------------------------------------------------------------------
@@ -68,6 +74,9 @@ namespace Engine::Graphics
 		D3D12::MegaStructuredBuffer<uint32_t>& RefIndexBuffer() { return m_indexBuffer; }
 		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& RefAnimatedVertexBuffer() { return m_animatedVertexBuffer; }
 
+		D3D12::MegaStructuredBuffer<Resource::Meshlet>& RefMeshletBuffer() { return m_meshletBuffer; }
+		D3D12::MegaStructuredBuffer<uint32_t>& RefUniqueVertexIndicesBuffer() { return m_uniqueVertexIndicesBuffer; }
+		D3D12::MegaStructuredBuffer<DirectX::MeshletTriangle>& RefMeshletTriangleBuffer() { return m_meshTriangleBuffer; }
 	private:
 
 		//--------------------------------------------------------------------------------------------
@@ -76,5 +85,9 @@ namespace Engine::Graphics
 		D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat>		m_staticVerticesBuffer;		// 静的な頂点データ
 		D3D12::MegaStructuredBuffer<uint32_t>						m_indexBuffer;				// インデックスバッファ
 		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>	m_animatedVertexBuffer;		// スキニング後の頂点バッファ
+
+		D3D12::MegaStructuredBuffer<Resource::Meshlet>				m_meshletBuffer;			// メッシュレットバッファ
+		D3D12::MegaStructuredBuffer<uint32_t>						m_uniqueVertexIndicesBuffer;// メッシュ頂点インデックスバッファ
+		D3D12::MegaStructuredBuffer<DirectX::MeshletTriangle>		m_meshTriangleBuffer;		// メッシュのインデックス情報
 	};
 }

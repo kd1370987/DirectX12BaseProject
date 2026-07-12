@@ -1072,6 +1072,15 @@
     <Filter Include="Source\Engine\Editor\Panel\OptionPanel">
       <UniqueIdentifier>{f5cc4efa-c1c8-4d8b-9593-527d46f587b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\UpScale">
+      <UniqueIdentifier>{edacbe79-0a48-4a9a-93df-68930cf720a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\UpScale\FullRaytracingUpScalePass">
+      <UniqueIdentifier>{252c48b1-8d00-4de1-bed5-be1c689c5946}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\UpScale">
+      <UniqueIdentifier>{1458f2c8-df39-40c1-abe7-6353418cbc2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1688,6 +1697,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.cpp">
       <Filter>Source\Engine\Editor\Panel\OptionPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\UpScale\FullRaytracingUpScalePass\FullRaytracingUpScalePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\UpScale\FullRaytracingUpScalePass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2624,6 +2636,9 @@
     <ClInclude Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.h">
       <Filter>Source\Engine\Editor\Panel\OptionPanel</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\UpScale\FullRaytracingUpScalePass\FullRaytracingUpScalePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\UpScale\FullRaytracingUpScalePass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -2826,6 +2841,9 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Skining\Skining.hlsl">
       <Filter>Asset\Shader\Compute\Skining</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\UpScale\UpScaleCS.hlsl">
+      <Filter>Asset\Shader\Compute\UpScale</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

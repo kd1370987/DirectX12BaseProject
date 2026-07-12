@@ -121,7 +121,7 @@ namespace Engine::Graphics
 		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
 		void BindSRV(UINT a_rootIdx,Handle<D3D12::SRV> a_srvHandle);
 
-		void ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
+		void ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
 		void ComputeBindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
 		void ComputeBindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle);
 
@@ -213,6 +213,7 @@ namespace Engine::Graphics
 		void SetGraphicPSO(ID3D12PipelineState* a_pPSO);
 		void SetGraphicPSO(uint8_t a_pPsoIndex);
 		void SetComputePSO(ID3D12PipelineState* a_pPSO);
+		void SetComputePSO(uint8_t a_pPsoIndex);
 
 		// プリミティブトポロジーセット
 		void SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri);

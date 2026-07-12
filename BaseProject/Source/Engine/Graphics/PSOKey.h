@@ -11,6 +11,7 @@ namespace Engine::Graphics
 		UseNormalMap		= 1 << 3,	// 法線マップを使っているか
 		DepthMasked			= 1 << 4,	// 深度テストありか
 		UseGPUInstancing	= 1 << 5,	// GPUインスタンシング使用するか
+		MeshShader			= 1 << 6,	// メッシュシェーダー
 
 	};
 
