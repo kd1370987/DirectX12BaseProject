@@ -2,10 +2,73 @@
 
 namespace Engine::Editor
 {
+	AssetDataBasePanel::AssetDataBasePanel()
+	{
+		m_assetCreateFuncs["StateMachinAsset"] = [](const std::string& path, const std::string& name) {
+			Resource::StateMachineAssetLoader::Create(path, name);
+			};
+
+		m_assetCreateFuncs["ParticlesAsset"] = [](const std::string& path, const std::string& name) {
+			Resource::ParticlesAssetLoader::Create(path, name);
+			};
+
+		m_assetCreateFuncs["ShadingModelTable"] = [](const std::string& path, const std::string& name) {
+			Resource::ShadingModelTableLoader::Create(path, name);
+			};
+	}
 	void AssetDataBasePanel::OnDrawImGui(EditorContext& a_editContext)
 	{
 		a_editContext.eInspectorType = EInspectorType::Asset;
+
+		CreateAssetButton(a_editContext);
+
 		AssetDataBaseExplorer(a_editContext);
+	}
+	void AssetDataBasePanel::CreateAssetButton(EditorContext& a_editContext)
+	{
+		if (ImGui::Button("Create New Asset..."))
+		{
+			ImGui::OpenPopup("CreateResourcePopup");
+		}
+
+		// ポップアップの中身
+		if (ImGui::BeginPopup("CreateResourcePopup"))
+		{
+			ImGui::Text("Select Asset Type:");
+			ImGui::Separator();
+
+			// データベースから現在登録されている全てのアセットタイプを取得
+			auto _typeMap = Resource::AssetDatabase::Instance().GetAssetTypeExtensionsMap();
+
+			// ループで動的にUIを生成する！
+			for (const auto& [_typeName, _extensions] : _typeMap)
+			{
+				// ファクトリに登録されていないタイプ（Createできないもの）はスキップする安全策
+				if (!m_assetCreateFuncs.contains(_typeName)) continue;
+
+				// ツリーノードの生成
+				if (ImGui::TreeNodeEx(_typeName.c_str()))
+				{
+					ImGui::InputText("Name", m_nameCach, sizeof(m_nameCach));
+					ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
+
+					if (ImGui::Button("Create"))
+					{
+						// 辞書から該当する関数を引っ張ってきて実行！
+						m_assetCreateFuncs[_typeName](std::string(m_pathCach), std::string(m_nameCach));
+
+						// キャッシュのクリア
+						std::memset(m_nameCach, 0, sizeof(m_nameCach));
+						std::memset(m_pathCach, 0, sizeof(m_pathCach));
+
+						// 作成したらポップアップを閉じる
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::TreePop();
+				}
+			}
+			ImGui::EndPopup();
+		}
 	}
 	void AssetDataBasePanel::AssetDataBaseExplorer(EditorContext& a_editContext)
 	{

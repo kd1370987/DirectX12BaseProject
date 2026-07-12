@@ -109,11 +109,11 @@ namespace Engine::Graphics
 		// 依存関係構築
 		_msBuilder.ReadDepth("Depth");
 
-		_msBuilder.WriteRTV("GBufferAlbedo", DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
-		_msBuilder.WriteRTV("GBufferNormal", DXGI_FORMAT_R16G16_FLOAT);
-		_msBuilder.WriteRTV("GBufferMaterial", DXGI_FORMAT_R8G8B8A8_UNORM);
-		_msBuilder.WriteRTV("GBufferEmissiv", DXGI_FORMAT_R8G8B8A8_UNORM);
-		_msBuilder.WriteRTV("GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT);
+		_msBuilder.WriteRTV("MeshGBufferAlbedo", DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
+		_msBuilder.WriteRTV("MeshGBufferNormal", DXGI_FORMAT_R16G16_FLOAT);
+		_msBuilder.WriteRTV("MeshGBufferMaterial", DXGI_FORMAT_R8G8B8A8_UNORM);
+		_msBuilder.WriteRTV("MeshGBufferEmissiv", DXGI_FORMAT_R8G8B8A8_UNORM);
+		_msBuilder.WriteRTV("MeshGBufferVelocity", DXGI_FORMAT_R16G16_FLOAT);
 
 		// シェーダー関係セット
 		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Mesh/UberMS.cso");

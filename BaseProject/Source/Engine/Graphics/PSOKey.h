@@ -19,11 +19,12 @@ namespace Engine::Graphics
 	{
 		Handle<Resource::ShadingModelTable> shadingModelTableHandle = {};	// どのシェーディングモデルか（PBR, Water等）
 		uint32_t permutationFlags;											// マテリアルやモデル、エンティティの状態
-
+		Handle<Resource::Shader> psHandle = {};
 		// ハッシュ計算用
 		bool operator==(const PSOKey& other) const {
 			return	shadingModelTableHandle == other.shadingModelTableHandle &&
-					permutationFlags == other.permutationFlags;
+					permutationFlags == other.permutationFlags &&
+					psHandle == other.psHandle;
 		}
 	};
 }
@@ -46,6 +47,7 @@ namespace std
 
 			UpdateHash(&key.shadingModelTableHandle.id, sizeof(key.shadingModelTableHandle.id));
 			UpdateHash(&key.permutationFlags, sizeof(key.permutationFlags));
+			UpdateHash(&key.psHandle.id, sizeof(key.psHandle.id));
 
 			return static_cast<size_t>(_hash);
 		}

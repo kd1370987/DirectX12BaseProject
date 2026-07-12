@@ -213,11 +213,11 @@ namespace Engine::Graphics
 
 		// バッファの更新
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(
-			m_instanceDataVec, m_subSetDataVec,m_meshInstanceDataVec,m_meshMaterialDataVec
+			m_instanceDataVec, m_subSetDataVec, m_meshInstanceDataVec, m_meshMaterialDataVec
 		);
 
 		// レイトレ用BLAS初期化 : 初期化命令があれば走る
-		ProcessInitQueue(_pDevice,_pCmdList);
+		ProcessInitQueue(_pDevice, _pCmdList);
 
 		// レイトレ用BLAS更新
 
@@ -232,7 +232,7 @@ namespace Engine::Graphics
 		);
 
 		// レンダーパス実行
-		m_upRenderGraph->Execute(this,m_upRenderContextVec[m_currentFrameIndex].get());
+		m_upRenderGraph->Execute(this, m_upRenderContextVec[m_currentFrameIndex].get());
 
 		D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
 		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(nullptr);
@@ -262,7 +262,7 @@ namespace Engine::Graphics
 		m_meshMaterialDataVec.clear();
 		m_meshMaterialDataVec.reserve(10000);
 
-		
+
 		// デバッグ用配列のクリア
 		Editor::MainEditor::Instance().ClearBuffer();
 	}
@@ -274,7 +274,7 @@ namespace Engine::Graphics
 	Graphics::RenderContext* GraphicsEngine::RefRenderContext()
 	{
 		return m_upRenderContextVec[m_currentFrameIndex].get();
-		
+
 	}
 	D3D12::PipelineStateManager* GraphicsEngine::RefPipelineStateManager()
 	{
@@ -291,13 +291,13 @@ namespace Engine::Graphics
 	void GraphicsEngine::SetCameraMat(const DXSM::Matrix& a_worldMat)
 	{
 		// 座標を代入
-		m_cbCamera.pos = { a_worldMat._41,a_worldMat._42,a_worldMat._43 ,1};
+		m_cbCamera.pos = { a_worldMat._41,a_worldMat._42,a_worldMat._43 ,1 };
 
 		// ビュー行列・逆ビュー行列をセット
 		m_cbCamera.viewMat = a_worldMat.Invert();
 		m_cbCamera.viewInvMat = a_worldMat;
 	}
-	void GraphicsEngine::SetProjMat(const DXSM::Matrix & a_projMat)
+	void GraphicsEngine::SetProjMat(const DXSM::Matrix& a_projMat)
 	{
 		m_cbCamera.projMat = a_projMat;
 		m_cbCamera.projInvMat = a_projMat.Invert();
@@ -328,10 +328,10 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::SubmitSkinning(
 		ECS::World& a_world,
-		const Resource::Model* a_pModel, 
+		const Resource::Model* a_pModel,
 		const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
 		const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle
-)
+	)
 	{
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
 		for (const auto& _cmd : _drawCmdVec)
@@ -357,7 +357,7 @@ namespace Engine::Graphics
 			auto& _pool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
 			auto* _data = _pool.Get(dynamicHandle);
 			if (!_data) continue;
-			
+
 			for (auto& _meshData : _data->meshDataVec)
 			{
 				if (_cmd.meshRawID == _meshData.meshHandle.GetIndex())
@@ -373,7 +373,7 @@ namespace Engine::Graphics
 		ECS::World& a_world,
 		const Resource::Model* a_pModel,
 		const DXSM::Matrix& a_worldMatrix,
-		const DXSM::Color& a_albedScale, 
+		const DXSM::Color& a_albedScale,
 		const DXSM::Vector3& a_emissiveScale
 	)
 	{
@@ -450,6 +450,8 @@ namespace Engine::Graphics
 			_meshInstanceData.primitiveOffset = _pMesh->GetMeshShaderData().primitiveIndicesHandle.startIndex;
 			// ボーンはまだ
 
+			uint32_t _meshInstanceIdx = SetInstanceData(_meshInstanceData);
+
 			// =========================================================
 			// メッシュやマテリアルの状態から PermutationFlags を構築
 			// =========================================================
@@ -491,25 +493,48 @@ namespace Engine::Graphics
 					_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
 				}
 
-				// パスが持っている Builder に PSO をリクエスト
-				// (※ m_pPSOManager は GraphicsEngine が持っている PipelineStateManager のポインタを渡す想定)
-				auto _psoHandle = _pPassNode->pipelineBuilder.Request(_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
+				auto _spanShaderHandles = _pShadingModel->GetShaderHandles(_passHash);
+				if (_spanShaderHandles.empty())
+				{
+					_psoKey.psHandle = {};
+					auto _psoHandle = _pPassNode->pipelineBuilder.Request(_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
 
-				// DrawItemの構築と登録
-				Engine::Graphics::LightWeightDrawItem _item = {};
-				_item.sortKey.bits.meshID = _cmd.meshRawID;
-				_item.sortKey.bits.materialID = _cmd.materialRawID;
-				_item.isAnimation = _isAnimation;
-				_item.subIndex = _cmd.subIdx;
-				_item.instnaceIndex = _instanceIdx;
-				_item.subsetIndex = _subsetIdx;
-				_item.meshInstanceIndex = SetInstanceData(_meshInstanceData);
-				_item.subsetMeshletCount = _pMesh->GetMeshShaderData().meshletHandle.count;
-				// 動的に解決したパスのインデックスと、PSOハンドルの生ID(8bit)をセット
-				_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
-				_item.sortKey.bits.passIndex = _pPassNode->passIndex;
+					Engine::Graphics::LightWeightDrawItem _item = {};
+					_item.sortKey.bits.meshID = _cmd.meshRawID;
+					_item.sortKey.bits.materialID = _cmd.materialRawID;
+					_item.isAnimation = _isAnimation;
+					_item.subIndex = _cmd.subIdx;
+					_item.instnaceIndex = _instanceIdx;
+					_item.subsetIndex = _subsetIdx;
+					_item.meshInstanceIndex = _meshInstanceIdx;
+					_item.subsetMeshletCount = _pMesh->GetMeshShaderData().meshletHandle.count;
+					_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
+					_item.sortKey.bits.passIndex = _pPassNode->passIndex;
 
-				AddItem(_item);
+					AddItem(_item);
+				}
+				else
+				{
+					for (auto& _shader : _spanShaderHandles)
+					{
+						_psoKey.psHandle = _shader;
+						auto _psoHandle = _pPassNode->pipelineBuilder.Request(_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
+
+						Engine::Graphics::LightWeightDrawItem _item = {};
+						_item.sortKey.bits.meshID = _cmd.meshRawID;
+						_item.sortKey.bits.materialID = _cmd.materialRawID;
+						_item.isAnimation = _isAnimation;
+						_item.subIndex = _cmd.subIdx;
+						_item.instnaceIndex = _instanceIdx;
+						_item.subsetIndex = _subsetIdx;
+						_item.meshInstanceIndex = _meshInstanceIdx;
+						_item.subsetMeshletCount = _pMesh->GetMeshShaderData().meshletHandle.count;
+						_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
+						_item.sortKey.bits.passIndex = _pPassNode->passIndex;
+
+						AddItem(_item);
+					}
+				}
 			}
 		}
 	}
@@ -610,24 +635,49 @@ namespace Engine::Graphics
 				auto* _pPassNode = m_upRenderGraph->GetPass(_passHash);
 				if (!_pPassNode) continue;
 
-				// パスが持っている Builder に PSO をリクエスト
-				// (※ m_pPSOManager は GraphicsEngine が持っている PipelineStateManager のポインタを渡す想定)
-				auto _psoHandle = _pPassNode->pipelineBuilder.Request(_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
+				if (_pPassNode->pipelineBuilder.HasMeshShader())
+				{
+					_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
+				}
 
-				// DrawItemの構築と登録
-				Engine::Graphics::LightWeightDrawItem _item = {};
-				_item.sortKey.bits.meshID = _cmd.meshRawID;
-				_item.sortKey.bits.materialID = _cmd.materialRawID;
-				_item.isAnimation = _isAnimation;
-				_item.subIndex = _cmd.subIdx;
-				_item.instnaceIndex = _instanceIdx;
-				_item.subsetIndex = _subsetIdx;
+				auto _spanShaderHandles = _pShadingModel->GetShaderHandles(_passHash);
+				if (_spanShaderHandles.empty())
+				{
+					_psoKey.psHandle = {};
+					auto _psoHandle = _pPassNode->pipelineBuilder.Request(_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
 
-				// 動的に解決したパスのインデックスと、PSOハンドルの生ID(8bit)をセット
-				_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
-				_item.sortKey.bits.passIndex = _pPassNode->passIndex;
+					Engine::Graphics::LightWeightDrawItem _item = {};
+					_item.sortKey.bits.meshID = _cmd.meshRawID;
+					_item.sortKey.bits.materialID = _cmd.materialRawID;
+					_item.isAnimation = _isAnimation;
+					_item.subIndex = _cmd.subIdx;
+					_item.instnaceIndex = _instanceIdx;
+					_item.subsetIndex = _subsetIdx;
+					_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
+					_item.sortKey.bits.passIndex = _pPassNode->passIndex;
 
-				AddItem(_item);
+					AddItem(_item);
+				}
+				else
+				{
+					for (auto& _shader : _spanShaderHandles)
+					{
+						_psoKey.psHandle = _shader;
+						auto _psoHandle = _pPassNode->pipelineBuilder.Request(_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
+
+						Engine::Graphics::LightWeightDrawItem _item = {};
+						_item.sortKey.bits.meshID = _cmd.meshRawID;
+						_item.sortKey.bits.materialID = _cmd.materialRawID;
+						_item.isAnimation = _isAnimation;
+						_item.subIndex = _cmd.subIdx;
+						_item.instnaceIndex = _instanceIdx;
+						_item.subsetIndex = _subsetIdx;
+						_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
+						_item.sortKey.bits.passIndex = _pPassNode->passIndex;
+
+						AddItem(_item);
+					}
+				}
 			}
 		}
 	}
@@ -636,7 +686,7 @@ namespace Engine::Graphics
 	{
 
 		m_dynamicRayRequestVec.push_back(
-			{a_worldMat,a_colorScale,a_emissiveScale,dynamicHandle,nodePoseHnandle}
+			{ a_worldMat,a_colorScale,a_emissiveScale,dynamicHandle,nodePoseHnandle }
 		);
 	}
 
@@ -863,12 +913,12 @@ namespace Engine::Graphics
 		m_cbGPUCamera.pos = m_cbCamera.pos;
 
 		// 通常の描画（SV_Positionの計算）にはジッターありを使う
-		m_cbGPUCamera.viewMat			= _viewMat.Transpose();
-		m_cbGPUCamera.projMat			= _jitteredProjMat.Transpose();
-		m_cbGPUCamera.viewInvMat		= _invViewMat.Transpose();
-		m_cbGPUCamera.projInvMat		= _invJitteredProj.Transpose();
-		m_cbGPUCamera.viewProjMat		= _jitteredViewProj.Transpose();
-		m_cbGPUCamera.invViewProjMat	= _invJitteredViewProj.Transpose();
+		m_cbGPUCamera.viewMat = _viewMat.Transpose();
+		m_cbGPUCamera.projMat = _jitteredProjMat.Transpose();
+		m_cbGPUCamera.viewInvMat = _invViewMat.Transpose();
+		m_cbGPUCamera.projInvMat = _invJitteredProj.Transpose();
+		m_cbGPUCamera.viewProjMat = _jitteredViewProj.Transpose();
+		m_cbGPUCamera.invViewProjMat = _invJitteredViewProj.Transpose();
 
 		// モーションベクターの計算にはジッターなしを使う
 		m_cbGPUCamera.nonJitteredProj = _projMat.Transpose();
@@ -888,7 +938,7 @@ namespace Engine::Graphics
 		// フレームカウントを進める
 		m_totlaFrameCount++;
 	}
-	void GraphicsEngine::ProcessInitQueue(D3D12::Device* a_pDevice,D3D12::GraphicsCommandList* a_pCmdList)
+	void GraphicsEngine::ProcessInitQueue(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		// ワールドと必須リソースの存在チェック
 		auto* _pCurrentWorld = Engine::Scene::SceneManager::Instance().RefWorld();

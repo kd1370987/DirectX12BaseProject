@@ -167,18 +167,28 @@ namespace Engine::Resource
 				UINT _hash = StringUtility::ToHash(_passName);
 				if (_isActive)
 				{
-					m_shaderGUIDMap[_passName] = {}; // 新規追加
+					// シリアライズ用データの更新
+					m_shaderGUIDMap[_passName] = {};
+					m_activePasses.push_back(_passName);
+
+					// ランタイム用データの更新
 					m_shaderHandleMap[_hash] = {};
 					m_activePassHashes.push_back(_hash);
 				}
 				else
 				{
-					m_shaderGUIDMap.erase(_passName); // 登録解除
-					// ランタイム用データからも即時削除
+					// シリアライズ用データの更新
+					m_shaderGUIDMap.erase(_passName);
+					auto _itStr = std::find(m_activePasses.begin(), m_activePasses.end(), _passName);
+					if (_itStr != m_activePasses.end()) {
+						m_activePasses.erase(_itStr);
+					}
+
+					// ランタイム用データからの即時削除
 					m_shaderHandleMap.erase(_hash);
-					auto _it = std::find(m_activePassHashes.begin(), m_activePassHashes.end(), _hash);
-					if (_it != m_activePassHashes.end()) {
-						m_activePassHashes.erase(_it);
+					auto _itHash = std::find(m_activePassHashes.begin(), m_activePassHashes.end(), _hash);
+					if (_itHash != m_activePassHashes.end()) {
+						m_activePassHashes.erase(_itHash);
 					}
 				}
 			}
@@ -212,7 +222,17 @@ namespace Engine::Resource
 						// 削除ボタン
 						if (ImGui::Button(("Remove##" + _passName + std::to_string(_i)).c_str()))
 						{
+							// 1. シリアライズ用データ（GUID）から削除
 							_registeredGUIDs.erase(_registeredGUIDs.begin() + _i);
+
+							// 2. ランタイム用データ（ハンドル）からも削除を追加
+							UINT _hash = StringUtility::ToHash(_passName);
+							auto& _handleList = m_shaderHandleMap[_hash];
+							if (_i < _handleList.size())
+							{
+								_handleList.erase(_handleList.begin() + _i);
+							}
+
 							_i--;
 						}
 					}
@@ -239,8 +259,7 @@ namespace Engine::Resource
 						for (const auto& _meta : _shaderMetaVec)
 						{
 							// .csoとPS以外は除去
-							if (_meta.fileName.find(".cso") == std::string::npos ||
-								_meta.fileName.find("PS") == std::string::npos)
+							if (_meta.fileName.find("PS") == std::string::npos)
 							{
 								continue;
 							}
@@ -257,7 +276,12 @@ namespace Engine::Resource
 							{
 								if (ImGui::Selectable(_meta.fileName.c_str()))
 								{
+									// シリアライズ用データに追加
 									_registeredGUIDs.push_back(_meta.guid);
+
+									// ランタイム用データに追加
+									UINT _strHash = StringUtility::ToHash(_passName);
+									m_shaderHandleMap[_strHash].push_back(ResourceManager::Instance().Load<Shader>(_meta.guid));
 								}
 							}
 						}

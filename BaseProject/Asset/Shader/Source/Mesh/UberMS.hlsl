@@ -13,9 +13,10 @@ void MSMain(
 	out vertices VertexOutput outVerts[64]
 )
 {
-// ---------------------------------------------------------
+	// ---------------------------------------------------------
 	// インスタンスとメッシュレットの情報取得
 	// ---------------------------------------------------------
+	int _i = 0;
 	uint _instanceID = g_baseInstanceIndex + a_gid.y;
 	InstanceData _inst = g_instanceData[_instanceID];
 
