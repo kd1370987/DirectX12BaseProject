@@ -65,6 +65,12 @@ namespace Engine::Graphics
 		/// <param name="a_func">深度値テストの際のコンフィグ</param>
 		void SetDepthConfig(bool a_enable, bool a_write, D3D12_COMPARISON_FUNC a_func);
 
+		/// <summary>
+		/// メッシュシェーダーが登録されているかのチェック
+		/// </summary>
+		/// <returns></returns>
+		bool HasMeshShader() const;
+
 	private:
 
 		// PSOの作成用キーハッシュとハンドル

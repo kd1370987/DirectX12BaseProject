@@ -181,14 +181,6 @@ namespace Engine::Graphics
 			const DXSM::Color& a_albedScale = Color::WHITE,
 			const DXSM::Vector3& a_emissiveScale = { 1,1,1 }
 		);
-		void SubmitMeshShaderModel(
-			ECS::World& a_world,
-			const Resource::Model* a_pModel,
-			const DXSM::Matrix& a_worldMatrix,
-			const DXSM::Matrix& a_prevMatrix,
-			const DXSM::Color& a_albedScale = Color::WHITE,
-			const DXSM::Vector3& a_emissiveScale = { 1,1,1 }
-		);
 		/// <summary>
 		/// 指定したモデルを指定の座標に描画する命令 : 即時実行ではなく、コマンドとしてためたのちに一括で実行される
 		/// </summary>

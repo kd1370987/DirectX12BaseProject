@@ -56,7 +56,7 @@ struct Vertex
 	float2 uv : TEXCOORD; // uv座標
 	float3 tangent : TANGENT; // 接空間
 	float4 color : COLOR; // 頂点色
-	uint4 skinIndex : SKININDEX; // スキンメッシュのボーンインデックス（何番目のボーンに影響しているかのデータ（最大４））
+	uint2 skinIndex : SKININDEX; // スキンメッシュのボーンインデックス（何番目のボーンに影響しているかのデータ（最大４））
 	float4 skinWeight : SKINWEIGHT; // ボーンの影響度（最大４）
 };
 // アニメーション用バッファ

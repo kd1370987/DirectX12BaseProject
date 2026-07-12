@@ -680,12 +680,16 @@ namespace Engine::Graphics
 		GraphicsBindRootCBV(0, _cam);
 	}
 
+	void RenderContext::ComputeBindCamera()
+	{
+		const auto& _cam = m_pGraphicsEngine->GetCameraData();
+		ComputeBindRootCBV(0, _cam);
+	}
+
 	void RenderContext::BindMeshInstance()
 	{
-		//m_pCmdList->SetGraphicsRootShaderResourceView(1,m_meshInstanceBuffer.GetGPUVirtualAddress());
-		m_pCmdList->SetComputeRootShaderResourceView(1, m_meshInstanceBuffer.GetGPUVirtualAddress());
-		//m_pCmdList->SetGraphicsRootShaderResourceView(2,m_meshMaterialBuffer.GetGPUVirtualAddress());
-		m_pCmdList->SetComputeRootShaderResourceView(2,m_meshMaterialBuffer.GetGPUVirtualAddress());
+		m_pCmdList->SetGraphicsRootShaderResourceView(1, m_meshInstanceBuffer.GetGPUVirtualAddress());
+		m_pCmdList->SetGraphicsRootShaderResourceView(2,m_meshMaterialBuffer.GetGPUVirtualAddress());
 	}
 
 	void RenderContext::BindMeshlet()
@@ -697,10 +701,10 @@ namespace Engine::Graphics
 		//ComputeBindSRV(5, _pBufferManager->RefMeshletTriangleBuffer().GetSRV());
 		//ComputeBindSRV(6, _pBufferManager->GetStaticVertexBuffer().GetSRV());
 
-		m_pCmdList->SetComputeRootShaderResourceView(3, _pBufferManager->RefMeshletBuffer().GetResource()->GetGPUVirtualAddress());
-		m_pCmdList->SetComputeRootShaderResourceView(4, _pBufferManager->RefUniqueVertexIndicesBuffer().GetResource()->GetGPUVirtualAddress());
-		m_pCmdList->SetComputeRootShaderResourceView(5, _pBufferManager->RefMeshletTriangleBuffer().GetResource()->GetGPUVirtualAddress());
-		m_pCmdList->SetComputeRootShaderResourceView(6, _pBufferManager->GetStaticVertexBuffer().GetResource()->GetGPUVirtualAddress());
+		m_pCmdList->SetGraphicsRootShaderResourceView(3, _pBufferManager->RefMeshletBuffer().GetResource()->GetGPUVirtualAddress());
+		m_pCmdList->SetGraphicsRootShaderResourceView(4, _pBufferManager->RefUniqueVertexIndicesBuffer().GetResource()->GetGPUVirtualAddress());
+		m_pCmdList->SetGraphicsRootShaderResourceView(5, _pBufferManager->RefMeshletTriangleBuffer().GetResource()->GetGPUVirtualAddress());
+		m_pCmdList->SetGraphicsRootShaderResourceView(6, _pBufferManager->GetStaticVertexBuffer().GetResource()->GetGPUVirtualAddress());
 	}
 
 	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)
@@ -731,9 +735,6 @@ namespace Engine::Graphics
 				_lastPSO = _psoID;
 			}
 			m_pCmdList->SetGraphicsRoot32BitConstant(8,_item.meshInstanceIndex,0);
-
-			if (_item.meshHandle.meshletHandle.count == 0 || _item.meshHandle.meshletHandle.count >= 100000) continue;
-			//m_pCmdList->DispatchMesh(_item.meshHandle.meshletHandle.count, 1, 1);
 			m_pCmdList->DispatchMesh(_item.subsetMeshletCount, 1, 1);
 		}
 	}

@@ -59,7 +59,7 @@ namespace Engine::Graphics
 			_node.pipelineBuilder.SetDepthConfig(
 				true,							// 深度テスト有効
 				false,							// 書き込み無効
-				D3D12_COMPARISON_FUNC_LESS_EQUAL		// ZPreと完全に一致するピクセルだけ描画
+				D3D12_COMPARISON_FUNC_EQUAL		// ZPreと完全に一致するピクセルだけ描画
 			);
 		}
 		else
@@ -97,7 +97,6 @@ namespace Engine::Graphics
 		struct RuntimeData
 		{
 			ID3D12RootSignature* pRootSig;
-			uint8_t index;
 		};
 		auto _spPassData = std::make_shared<RuntimeData>();
 
@@ -105,15 +104,7 @@ namespace Engine::Graphics
 		RenderPassNode _node = {};
 		_node.name = "MeshGBuffer";
 		_node.phase = a_phase;
-
-		// 空のルートシグネチャ作成
-		D3D12::RootSignatureDesc _rootSigDesc = {};
-		_rootSigDesc.isUseStaticSampler = false;
-		_spPassData->pRootSig = a_pPSOManager->Request(_rootSigDesc);
-
-		// PSO作成
 		RGMeshShaderPassBuilder _msBuilder(&_node);
-		auto& _msTmp = _msBuilder.CreatePSODesc("MSTestPSO", _spPassData->index);
 
 		// 依存関係構築
 		_msBuilder.ReadDepth("Depth");
@@ -125,27 +116,27 @@ namespace Engine::Graphics
 		_msBuilder.WriteRTV("GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT);
 
 		// シェーダー関係セット
-		auto* _pBlob = _msBuilder.SetMS(_msTmp, "Asset/Shader/Source/Mesh/UberMS.cso");
-		_msBuilder.SetPS(_msTmp, "Asset/Shader/Source/GBufferShader/MeshGBufferPS.cso");
-		_spPassData->pRootSig = _msBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Mesh/UberMS.cso");
+		auto _msHandle = Resource::ResourceManager::Instance().Load<Resource::Shader>(_guid);
+		_node.pipelineBuilder.RegisterMeshShader(EShaderPermutationFlags::Static, _msHandle);
+
+		// ルートシグネチャセット
+		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/Mesh/UberMS.cso");
 
 		// 深度テスト設定
-		_msTmp.DepthEnable(true);
-		_msTmp.DepthWriteMask(false);
-		_msTmp.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
-
-		
-
-		// コンパイル
-		_msBuilder.ResolveAndCompile(a_pPSOManager);
+		_node.pipelineBuilder.SetDepthConfig(
+			true,							// 深度テスト有効
+			false,							// 書き込み無効
+			D3D12_COMPARISON_FUNC_EQUAL		// ZPreと完全に一致するピクセルだけ描画
+		);
 
 		// 実行関数
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 			{
-				a_pCtx->BindHeap();
-				a_pCtx->SetComputeRootSignature(_spPassData->pRootSig);
-				a_pCtx->SetComputePSO(_spPassData->index);
+				a_pCtx->BindCopyHeapAndSumplerBindLess();
+				a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
 				
+
 				a_pCtx->BindCamera();
 				a_pCtx->BindMeshInstance();
 				a_pCtx->BindMeshlet();

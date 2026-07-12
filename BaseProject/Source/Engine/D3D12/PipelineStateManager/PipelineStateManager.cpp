@@ -256,6 +256,86 @@ namespace Engine::D3D12
 		return _pPso.Get();
 	}
 
+	ID3D12PipelineState* PipelineStateManager::Request(const D3D12::RenderPipelineBuilder& a_builder)
+	{
+		// 安全対策：シェーダーがセットされていない場合はクラッシュするので弾く
+		bool _hasVS = (a_builder.GetVS().pShaderBytecode != nullptr && a_builder.GetVS().BytecodeLength > 0);
+		bool _hasMS = (a_builder.GetMS().pShaderBytecode != nullptr && a_builder.GetMS().BytecodeLength > 0);
+
+		if (!_hasVS && !_hasMS)
+		{
+			// まだシェーダーの準備ができていないので生成をスキップ
+			// （ENGINE_LOG 等で警告を出しても良いです）
+			ENGINE_WARNING("シェーダーが読み込まれていないためPSOが作成できません : レンダー");
+			return nullptr;
+		}
+
+		// ストリーム構造体の組み立て : ゼロクリアしてパディングのゴミを消す
+		RenderPipelineStateStream _streamDesc = {};
+
+		_streamDesc.pRootSignature = a_builder.GetRootSignature();
+		_streamDesc.PrimitiveTopologyType = a_builder.GetPrimitiveTopologyType();
+		_streamDesc.PS = CD3DX12_SHADER_BYTECODE(a_builder.GetPS());
+
+		// MSを持っているかでストリームに詰めるパーツを変える
+		if (a_builder.HasMeshShader())
+		{
+			_streamDesc.MS = CD3DX12_SHADER_BYTECODE(a_builder.GetMS());
+			if (a_builder.HasAmplificationShader()) {
+				_streamDesc.AS = CD3DX12_SHADER_BYTECODE(a_builder.GetAS());
+			}
+		}
+		else
+		{
+			_streamDesc.VS = CD3DX12_SHADER_BYTECODE(a_builder.GetVS());
+			_streamDesc.InputLayout = a_builder.GetInputLayout(); // VSの場合はInputLayoutが必要
+		}
+
+		_streamDesc.BlendState = CD3DX12_BLEND_DESC(a_builder.GetBlendState());
+		_streamDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(a_builder.GetRasterizerState());
+		_streamDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(a_builder.GetDepthStencilState());
+
+		// RTVフォーマットは構造体(D3D12_RT_FORMAT_ARRAY)に直して渡す
+		D3D12_RT_FORMAT_ARRAY _rtvFormatArray = {};
+		_rtvFormatArray.NumRenderTargets = a_builder.GetNumRenderTargets();
+		for (UINT i = 0; i < a_builder.GetNumRenderTargets(); ++i)
+		{
+			_rtvFormatArray.RTFormats[i] = a_builder.GetRenderTargetFormats()[i];
+		}
+		_streamDesc.RTVFormats = _rtvFormatArray;
+		_streamDesc.DSVFormat = a_builder.GetDepthStencilFormat();
+		_streamDesc.SampleDesc = a_builder.GetSampleDesc();
+
+		// ハッシュ計算
+		// ストリーム構造体自体をハッシュ化すれば、VS版/MS版どちらでも一意のハッシュになる
+		uint64_t _hash = CalcHash(&_streamDesc, sizeof(_streamDesc));
+
+		// キャッシュにあれば返す
+		if (m_psoMap.contains(_hash)) {
+			return m_psoMap[_hash].Get();
+		}
+
+		// ストリーム構造体をDirectX側に登録
+		D3D12_PIPELINE_STATE_STREAM_DESC _streamInfo = {};
+		_streamInfo.SizeInBytes = sizeof(_streamDesc);
+		_streamInfo.pPipelineStateSubobjectStream = &_streamDesc;
+
+		ComPtr<ID3D12PipelineState> _pPso;
+		// 従来の CreateGraphicsPipelineState ではなく、Stream を使う CreatePipelineState を呼ぶ
+		HRESULT hr = m_pDevice->CreatePipelineState(&_streamInfo, IID_PPV_ARGS(&_pPso));
+
+		if (FAILED(hr)) {
+			ENGINE_ERRLOG(false, "パイプラインステート(Render)の生成に失敗");
+			return nullptr;
+		}
+
+		// マップに登録して返す
+		m_psoMap[_hash] = _pPso;
+
+		ENGINE_LOG("パイプラインステートの作成に成功 : レンダー");
+		return _pPso.Get();
+	}
+
 	Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
 		const D3D12::GraphicsPipelineDesc& a_desc
 	)
@@ -292,6 +372,18 @@ namespace Engine::D3D12
 			m_pPsoVec.resize(_handle.GetIndex() + 1);
 		}
 		m_pPsoVec[_handle.GetIndex()] = Request(a_desc);
+
+		return _handle;
+	}
+
+	Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(const D3D12::RenderPipelineBuilder& a_builder)
+	{
+		auto _handle = m_psoHandlePool.Allocate();
+		if (m_pPsoVec.size() <= _handle.GetIndex())
+		{
+			m_pPsoVec.resize(_handle.GetIndex() + 1);
+		}
+		m_pPsoVec[_handle.GetIndex()] = Request(a_builder);
 
 		return _handle;
 	}

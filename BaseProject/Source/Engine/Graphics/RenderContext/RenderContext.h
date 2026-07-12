@@ -192,6 +192,7 @@ namespace Engine::Graphics
 
 		// メッシュシェーダー関連
 		void BindCamera();
+		void ComputeBindCamera();
 		void BindMeshInstance();
 		void BindMeshlet();
 

@@ -31,48 +31,96 @@ namespace Engine::Graphics
 		if (!m_compilingPasses.contains(a_key))
 		{
 			m_compilingPasses.insert(a_key);
-			D3D12::GraphicsPipelineDesc _desc = {};
 
-			_desc.DepthEnable(m_depthEnable);
-			_desc.DepthWriteMask(m_depthWrite);
-			_desc.DepthFunc(m_depthFunc);
+			// ★ 新しい統合版ビルダーをインスタンス化
+			D3D12::RenderPipelineBuilder _builder;
+
+			// 共通のステート・フォーマット設定
+			_builder.DepthEnable(m_depthEnable);
+			_builder.DepthWriteMask(m_depthWrite);
+			_builder.DepthFunc(m_depthFunc);
 
 			for (auto& _rtvFormat : m_rtvFormats) {
-				_desc.AddRenderTargetFormat(_rtvFormat);
+				_builder.AddRenderTargetFormat(_rtvFormat);
 			}
-			_desc.desc.DSVFormat = m_dsvFormat;
+			_builder.SetDepthStencilFormat(m_dsvFormat);
 
 			// =========================================================
-			// Vertex Shader の解決 (パスが知っている情報を元にフラグから取得)
+			// VS / MS / AS の解決
 			// =========================================================
-			Handle<Resource::Shader> _targetVSHandle;
-
-			// アニメーションか、インスタンシングか、静的か等の優先順位でVSを決定
-			if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned) 
+			bool _useMeshShader = (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::MeshShader);
+			if (_useMeshShader)
 			{
-				_targetVSHandle = m_vsMap[EShaderPermutationFlags::Skinned];
-				_desc.SetInputLayout(D3D12::Input::AnimationInputLayout);
-			}
-			else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing) 
-			{
-				_targetVSHandle = m_vsMap[EShaderPermutationFlags::UseGPUInstancing];
-			}
-			else {
-				_targetVSHandle = m_vsMap[EShaderPermutationFlags::Static];
-				_desc.SetInputLayout(D3D12::Input::StaticLayout);
-			}
+				Handle<Resource::Shader> _targetMSHandle;
+				Handle<Resource::Shader> _targetASHandle;
 
-			// VSのセットとルートシグネチャの抽出
-			if (auto* _pVS = Resource::ResourceManager::Instance().Get(_targetVSHandle))
-			{
-				auto _vsGUID = Resource::ResourceManager::Instance().GetCache(_targetVSHandle);
-				auto _vsPath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_vsGUID);
+				if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned)
+				{
+					_targetMSHandle = m_msMap[EShaderPermutationFlags::Skinned];
+					_targetASHandle = m_asMap[EShaderPermutationFlags::Skinned];
+				}
+				else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing)
+				{
+					_targetMSHandle = m_msMap[EShaderPermutationFlags::UseGPUInstancing];
+					_targetASHandle = m_asMap[EShaderPermutationFlags::UseGPUInstancing];
+				}
+				else {
+					_targetMSHandle = m_msMap[EShaderPermutationFlags::Static];
+					_targetASHandle = m_asMap[EShaderPermutationFlags::Static];
+				}
 
-				_desc.SetRootSignature(a_pPSOManager->Request(_vsPath));
-				_desc.SetVS(_pVS->GetByteCode());
+				// MSのセットとルートシグネチャの抽出
+				if (auto* _pMS = Resource::ResourceManager::Instance().Get(_targetMSHandle))
+				{
+					auto _msGUID = Resource::ResourceManager::Instance().GetCache(_targetMSHandle);
+					auto _msPath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_msGUID);
+
+					_builder.SetRootSignature(a_pPSOManager->Request(_msPath));
+					_builder.SetMS(_pMS->GetByteCode()); // ★ビルダーにMSをセット
+					ENGINE_LOG("PSO RS = %p\n", _builder.GetRootSignature());
+				}
+				else {
+					ENGINE_LOG("Mesh Shaderが見つかりません");
+				}
+
+				// ASのセット（存在する場合のみ）
+				if (auto* _pAS = Resource::ResourceManager::Instance().Get(_targetASHandle))
+				{
+					_builder.SetAS(_pAS->GetByteCode()); // ★ビルダーにASをセット
+				}
 			}
-			else {
-				ENGINE_LOG("Vertex Shaderが見つかりません");
+			else
+			{
+				// 従来の VS パイプライン
+				Handle<Resource::Shader> _targetVSHandle;
+
+				// アニメーションか、インスタンシングか、静的か等の優先順位でVSを決定
+				if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned)
+				{
+					_targetVSHandle = m_vsMap[EShaderPermutationFlags::Skinned];
+					_builder.SetInputLayout(D3D12::Input::AnimationInputLayout);
+				}
+				else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing)
+				{
+					_targetVSHandle = m_vsMap[EShaderPermutationFlags::UseGPUInstancing];
+				}
+				else {
+					_targetVSHandle = m_vsMap[EShaderPermutationFlags::Static];
+					_builder.SetInputLayout(D3D12::Input::StaticLayout);
+				}
+
+				// VSのセットとルートシグネチャの抽出
+				if (auto* _pVS = Resource::ResourceManager::Instance().Get(_targetVSHandle))
+				{
+					auto _vsGUID = Resource::ResourceManager::Instance().GetCache(_targetVSHandle);
+					auto _vsPath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_vsGUID);
+
+					_builder.SetRootSignature(a_pPSOManager->Request(_vsPath));
+					_builder.SetVS(_pVS->GetByteCode()); // ★ビルダーにVSをセット
+				}
+				else {
+					ENGINE_LOG("Vertex Shaderが見つかりません");
+				}
 			}
 
 			// =========================================================
@@ -85,11 +133,7 @@ namespace Engine::Graphics
 				bool _isZPrePass = (m_passNameHash == StringUtility::ToHash("ZPre"));
 				bool _isOpaque = !(a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::AlphaMasked);
 
-				if (_isZPrePass && _isOpaque)
-				{
-					// PSはセットしない（Nullのまま）
-				}
-				else
+				if (!(_isZPrePass && _isOpaque))
 				{
 					auto _spanShaderHandles = _pShadingModel->GetShaderHandles(m_passNameHash);
 					for (auto& _shaderHandle : _spanShaderHandles)
@@ -97,14 +141,14 @@ namespace Engine::Graphics
 						auto* _pShader = Resource::ResourceManager::Instance().Get(_shaderHandle);
 						if (!_pShader) continue;
 
-						// シェーディングモデルにはPSしかセットできないのでそのままセット
-						_desc.SetPS(_pShader->GetByteCode());
+						_builder.SetPS(_pShader->GetByteCode());
 					}
 				}
 			}
 
-			// いったんランタイムで止めて作成
-			auto _psoHandle = a_pPSOManager->RequestHandle(_desc);
+			// マネージャーにPSOをリクエスト
+			auto _psoHandle = a_pPSOManager->RequestHandle(_builder);
+
 			m_psoMap[a_key] = _psoHandle;
 			m_compilingPasses.erase(a_key);
 			return _psoHandle;
@@ -117,13 +161,25 @@ namespace Engine::Graphics
 		m_vsMap[a_flag] = a_vsHandle;
 	}
 	void ShadingPipelineBuilder::RegisterMeshShader(EShaderPermutationFlags a_flag, Handle<Resource::Shader> a_msHandle)
-	{}
+	{
+		m_msMap[a_flag] = a_msHandle;
+	}
 	void ShadingPipelineBuilder::RegisterAmplificationShader(EShaderPermutationFlags a_flag, Handle<Resource::Shader> a_asHandle)
-	{}
+	{
+		m_asMap[a_flag] = a_asHandle;
+	}
 	void ShadingPipelineBuilder::SetDepthConfig(bool a_enable, bool a_write, D3D12_COMPARISON_FUNC a_func)
 	{
 		m_depthEnable = a_enable;
 		m_depthWrite = a_write;
 		m_depthFunc = a_func;
+	}
+	bool ShadingPipelineBuilder::HasMeshShader() const
+	{
+		if (m_msMap.empty())
+		{
+			return false;
+		}
+		return true;
 	}
 }

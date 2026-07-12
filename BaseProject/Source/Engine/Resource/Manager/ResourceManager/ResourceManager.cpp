@@ -36,8 +36,8 @@ namespace Engine::Resource
 		SweepUnused<Material>();
 		SweepUnused<Texture>();
 		SweepUnused<Mesh>();
-		SweepUnused<Shader>();
-		SweepUnused<ShaderLibrary>();
+		//SweepUnused<Shader>();
+		//SweepUnused<ShaderLibrary>();
 		//SweepUnused<StateMachineAsset>();
 
 		//SweepUnused<AnimationData>();

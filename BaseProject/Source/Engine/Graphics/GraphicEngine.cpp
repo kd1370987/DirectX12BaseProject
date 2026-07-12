@@ -400,6 +400,9 @@ namespace Engine::Graphics
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
 		for (const auto& _cmd : _drawCmdVec)
 		{
+			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Mesh>(_cmd.meshRawID);
+			if (!_pMesh) continue;
+
 			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Material>(_cmd.materialRawID);
 			if (!_pMaterial) continue;
 
@@ -429,98 +432,23 @@ namespace Engine::Graphics
 			uint32_t _instanceIdx = SetInstanceData(_instanceData);
 			uint32_t _subsetIdx = SetSubSetData(_subSetData);
 
-			// =========================================================
-			// メッシュやマテリアルの状態から PermutationFlags を構築
-			// =========================================================
-			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
+			// メッシュシェーダー用送信データ作成
+			MeshMaterial _meshMaterial = {};
+			_meshMaterial.baseColor = a_albedScale;
+			_meshMaterial.emissive = a_emissiveScale;
+			_meshMaterial.metallic = _pMaterial->metallic;
+			_meshMaterial.roughness = _pMaterial->roughness;
+			// SRVインデックス系はまだ
 
-			// アニメーション判定（ボーンがあるか等で判定）
-			bool _isAnimation = false;
-			if (_isAnimation) {
-				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::Skinned;
-			}
-			else {
-				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::Static;
-			}
-
-			// アルファモード判定（マスク対応など）
-			if (_cmd.alphaMode == Engine::Resource::Alpha::Mask) {
-				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
-			}
-
-			// =========================================================
-			// 2. PSOKey の作成
-			// =========================================================
-			Engine::Graphics::PSOKey _psoKey = {};
-			_psoKey.shadingModelTableHandle = _pMaterial->shadingModelHandle;
-			_psoKey.permutationFlags = _flags;
-
-			// =========================================================
-			// 3. マテリアルが登録されている各パスへ描画アイテムを投げる
-			// =========================================================
-			for (UINT _passHash : _pShadingModel->GetPassHashes())
-			{
-				// レンダーグラフから対応するパスノードを取得
-				// (※関数名はRenderGraphの実装に合わせてください)
-				auto* _pPassNode = m_upRenderGraph->GetPass(_passHash);
-				if (!_pPassNode) continue;
-
-				// パスが持っている Builder に PSO をリクエスト
-				// (※ m_pPSOManager は GraphicsEngine が持っている PipelineStateManager のポインタを渡す想定)
-				auto _psoHandle = _pPassNode->pipelineBuilder.Request(_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
-
-				// DrawItemの構築と登録
-				Engine::Graphics::LightWeightDrawItem _item = {};
-				_item.sortKey.bits.meshID = _cmd.meshRawID;
-				_item.sortKey.bits.materialID = _cmd.materialRawID;
-				_item.isAnimation = _isAnimation;
-				_item.subIndex = _cmd.subIdx;
-				_item.instnaceIndex = _instanceIdx;
-				_item.subsetIndex = _subsetIdx;
-
-				// 動的に解決したパスのインデックスと、PSOハンドルの生ID(8bit)をセット
-				_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
-				_item.sortKey.bits.passIndex = _pPassNode->passIndex;
-
-				AddItem(_item);
-			}
-		}
-	}
-
-	void GraphicsEngine::SubmitMeshShaderModel(ECS::World& a_world, const Resource::Model* a_pModel, const DXSM::Matrix& a_worldMatrix, const DXSM::Matrix& a_prevMatrix, const DXSM::Color& a_albedScale, const DXSM::Vector3& a_emissiveScale)
-	{
-		// モデルが持っている描画コマンド（サブセット）を展開
-		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
-		for (const auto& _cmd : _drawCmdVec)
-		{
-			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Material>(_cmd.materialRawID);
-			if (!_pMaterial) continue;
-
-			// マテリアルからシェーディングモデルを取得
-			auto* _pShadingModel = Engine::Resource::ResourceManager::Instance().Get(_pMaterial->shadingModelHandle);
-			if (!_pShadingModel) continue;
-
-			DXSM::Matrix _nodeTransMat(a_pModel->GetOriginalNodeVec()[_cmd.nodeIndex].worldTransform);
-			DXSM::Matrix _mat = _nodeTransMat * a_worldMatrix;
-			DXSM::Matrix _prevMat = _nodeTransMat * a_prevMatrix;
-
-			// -----------------------------------------------------
-			// GPU用データの構築
-			// -----------------------------------------------------
-			InstanceData _instanceData = {};
-			_instanceData.worldMat = _mat.Transpose();
-			_instanceData.prevWorldMat = _prevMat.Transpose();
-			_instanceData.boneStartIndex = 0;
-			_instanceData.boneCount = 0;
-
-			SubSetData _subSetData = {};
-			_subSetData.baseColorScale = a_albedScale;
-			_subSetData.emissiveColorScale = a_emissiveScale;
-			_subSetData.metallic = _pMaterial->metallic;
-			_subSetData.roughness = _pMaterial->roughness;
-
-			uint32_t _instanceIdx = SetInstanceData(_instanceData);
-			uint32_t _subsetIdx = SetSubSetData(_subSetData);
+			MeshInstanceData _meshInstanceData = {};
+			_meshInstanceData.worldMat = _mat.Transpose();
+			_meshInstanceData.prevWorldMat = _prevMat.Transpose();
+			_meshInstanceData.materialOffset = SetMeshMaterialData(_meshMaterial);
+			_meshInstanceData.meshletOffset = _pMesh->GetMeshShaderData().meshletHandle.startIndex;
+			_meshInstanceData.vertexOffset = _pMesh->GetRtData().vertexHandle.startIndex;
+			_meshInstanceData.uviOffset = _pMesh->GetMeshShaderData().uinqueVertexIndecsHandle.startIndex;
+			_meshInstanceData.primitiveOffset = _pMesh->GetMeshShaderData().primitiveIndicesHandle.startIndex;
+			// ボーンはまだ
 
 			// =========================================================
 			// メッシュやマテリアルの状態から PermutationFlags を構築
@@ -549,14 +477,19 @@ namespace Engine::Graphics
 			_psoKey.permutationFlags = _flags;
 
 			// =========================================================
-			// 3. マテリアルが登録されている各パスへ描画アイテムを投げる
+			// マテリアルが登録されている各パスへ描画アイテムを投げる
 			// =========================================================
 			for (UINT _passHash : _pShadingModel->GetPassHashes())
 			{
 				// レンダーグラフから対応するパスノードを取得
-				// (※関数名はRenderGraphの実装に合わせてください)
 				auto* _pPassNode = m_upRenderGraph->GetPass(_passHash);
 				if (!_pPassNode) continue;
+
+				// メッシュシェーダーが登録されているのならフラグON
+				if (_pPassNode->pipelineBuilder.HasMeshShader())
+				{
+					_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
+				}
 
 				// パスが持っている Builder に PSO をリクエスト
 				// (※ m_pPSOManager は GraphicsEngine が持っている PipelineStateManager のポインタを渡す想定)
@@ -570,7 +503,8 @@ namespace Engine::Graphics
 				_item.subIndex = _cmd.subIdx;
 				_item.instnaceIndex = _instanceIdx;
 				_item.subsetIndex = _subsetIdx;
-
+				_item.meshInstanceIndex = SetInstanceData(_meshInstanceData);
+				_item.subsetMeshletCount = _pMesh->GetMeshShaderData().meshletHandle.count;
 				// 動的に解決したパスのインデックスと、PSOハンドルの生ID(8bit)をセット
 				_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
 				_item.sortKey.bits.passIndex = _pPassNode->passIndex;

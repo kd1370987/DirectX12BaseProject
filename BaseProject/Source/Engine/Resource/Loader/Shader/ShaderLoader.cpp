@@ -31,6 +31,7 @@ namespace Engine::Resource
 			return ResourceManager::Instance().AddResourceAndGUID(std::move(_shader), _guid);
 		}
 
+		ENGINE_LOG("シェーダーの読み込みに失敗しました : %s",a_path.c_str());
 		return Handle<Shader>();
 	}
 
