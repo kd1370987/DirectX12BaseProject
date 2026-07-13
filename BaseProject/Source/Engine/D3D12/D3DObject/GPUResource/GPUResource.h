@@ -57,11 +57,14 @@ namespace Engine::D3D12
 		const Handle<D3D12::DSV>& GetReadOnlyDSV() const { return m_readOnlyDsvHandle; }
 		const Handle<D3D12::SRV>& GetImGuiSRV() const { return m_imguiSRVHandle; }
 
+		const DXGI_FORMAT& GetFormat() const { return m_format; }
+
 	protected:
 
 		// データ
 		ComPtr<ID3D12Resource> m_cpResource = nullptr;
 		D3D12_RESOURCE_STATES m_currentState = D3D12_RESOURCE_STATE_COMMON;
+		DXGI_FORMAT m_format;
 
 		size_t m_bufferSize = 0;
 		size_t m_strideSize = 0;

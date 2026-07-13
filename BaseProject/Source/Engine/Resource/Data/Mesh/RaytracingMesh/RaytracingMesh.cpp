@@ -2,20 +2,20 @@
 
 #include "../../../../MainEngine.h"
 #include "../../../../Graphics/GraphicEngine.h"
+#include "../../../../Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
 
 namespace Engine::Resource
 {
 	void RaytracingMesh::Create(
 		D3D12::Device* a_pDevice,
 		D3D12::GraphicsCommandList* a_pCmdList,
-		const std::vector<MeshSubset>& a_subset,
-		const D3D12::DynamicVertexBuffer<MeshVertexFloat>& a_vertexBuffer,
-		DXGI_FORMAT a_vertexFarstFormat,
-		const D3D12::DynamicIndexBuffer& a_indexBuffer,						// インデックスバッファ
-		const std::vector<MeshVertexFloat>& a_vertices,
-		const std::vector<MeshFace>& a_face
+		const std::vector<MeshSubset>& a_subset
 	)
 	{
+		// メッシュのバッファを取得
+		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+		auto* _pMA = _pGE->RefMeshBufferAllocator();
+
 		// BLAS構築
 		std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> _descVec;
 		// レイトレーシング用データ作成
@@ -26,15 +26,18 @@ namespace Engine::Resource
 			_desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
 			_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
 			// 頂点バッファ
-			_desc.Triangles.VertexBuffer.StartAddress = a_vertexBuffer.GetGPUVirtualAddress();
-			_desc.Triangles.VertexBuffer.StrideInBytes = a_vertexBuffer.GetStrideSize();
-			_desc.Triangles.VertexCount = a_vertexBuffer.GetElementNum();
-			_desc.Triangles.VertexFormat = a_vertexFarstFormat;
+			_desc.Triangles.VertexBuffer.StartAddress = 
+				_pMA->RefStaticVertexBuffer().GetGPUVirtualAddress() + 
+				(vertexHandle.startIndex) * sizeof(MeshVertexFloat);
+			_desc.Triangles.VertexBuffer.StrideInBytes = sizeof(MeshVertexFloat);
+			_desc.Triangles.VertexCount = vertexHandle.count;
+			_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 
 			// インデックスバッファ
-			_desc.Triangles.IndexBuffer = a_indexBuffer.GetGPUVirtualAddress() + sizeof(UINT) * _subset.faceStart * 3;
+			_desc.Triangles.IndexBuffer 
+				= _pMA->RefIndexBuffer().GetGPUVirtualAddress() + (indexHandle.startIndex + _subset.faceStart * 3) * sizeof(UINT);
 			_desc.Triangles.IndexCount = _subset.faceCount * 3;
-			_desc.Triangles.IndexFormat = a_indexBuffer.GetView().Format;
+			_desc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
 
 			_descVec.push_back(_desc);
 		}

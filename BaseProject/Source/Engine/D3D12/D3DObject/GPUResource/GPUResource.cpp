@@ -32,6 +32,9 @@ namespace Engine::D3D12
 			return false;
 		}
 
+		// フォーマットセット
+		m_format = a_desc.format;
+
 		// 成功
 		return true;
 	}

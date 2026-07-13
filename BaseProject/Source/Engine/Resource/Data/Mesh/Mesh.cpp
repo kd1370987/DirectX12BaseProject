@@ -131,7 +131,7 @@ void Engine::Resource::Mesh::CreateRtData(
 	const std::vector<MeshFace>& a_face
 )
 {
-	m_opRtData->Create(a_pDevice,a_pCmdList,a_subset,a_vertexBuffer,a_vertexFarstFormat,a_indexBuffer,a_vertices,a_face);
+	m_opRtData->Create(a_pDevice,a_pCmdList,a_subset);
 }
 
 void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<DirectX::XMFLOAT3>& a_vertices, const std::vector<UINT>& a_indices)

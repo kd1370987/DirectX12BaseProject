@@ -9,12 +9,7 @@ namespace Engine::Resource
 		void Create(
 			D3D12::Device* a_pDevice,
 			D3D12::GraphicsCommandList* a_pCmdList,
-			const std::vector<MeshSubset>& a_subset,							// サブセット配列
-			const D3D12::DynamicVertexBuffer<MeshVertexFloat>& a_vertexBuffer,	// 頂点バッファ
-			DXGI_FORMAT a_vertexFarstFormat,
-			const D3D12::DynamicIndexBuffer& a_indexBuffer,						// インデックスバッファ
-			const std::vector<MeshVertexFloat>& a_vertices,
-			const std::vector<MeshFace>& a_face
+			const std::vector<MeshSubset>& a_subset
 		);
 
 		// 解放
