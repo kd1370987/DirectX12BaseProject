@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "../Builder/RootSignatureBuilder/RootSignatureBuilder.h"
-#include "../Builder/PipelineBuilder/MeshPipelineBuilder/MeshPipelineBuilder.h"
 
 #include "../Builder/PipelineBuilder/RenderPipelineBuilder/RenderPipelineBuilder.h"
 
@@ -46,14 +45,12 @@ namespace Engine::D3D12
 
 		ID3D12PipelineState* Request(const D3D12::GraphicsPipelineDesc& a_desc);
 		ID3D12PipelineState* Request(const D3D12::ComputePipelineDesc& a_desc);
-		ID3D12PipelineState* Request(const D3D12::MeshPipelineBuilder& a_builder);
 
 		ID3D12PipelineState* Request(const D3D12::RenderPipelineBuilder& a_builder);
 
 		// パイプラインステートのハンドル管理
 		Handle<ID3D12PipelineState> RequestHandle(const D3D12::GraphicsPipelineDesc& a_desc);
 		Handle<ID3D12PipelineState> RequestHandle(const D3D12::ComputePipelineDesc& a_desc);
-		Handle<ID3D12PipelineState> RequestHandle(const D3D12::MeshPipelineBuilder& a_desc);
 
 		Handle<ID3D12PipelineState> RequestHandle(const D3D12::RenderPipelineBuilder& a_builder);
 

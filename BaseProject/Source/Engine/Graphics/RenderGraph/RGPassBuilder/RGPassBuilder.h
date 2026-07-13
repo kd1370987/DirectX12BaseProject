@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "../RGData/RenderPassNode.h"
-#include "../../../D3D12/Builder/PipelineBuilder/MeshPipelineBuilder/MeshPipelineBuilder.h"
 
 namespace Engine::D3D12
 {
@@ -17,12 +16,6 @@ namespace Engine::Graphics
 	struct TempData
 	{
 		D3D12::GraphicsPipelineDesc desc;
-		uint8_t* pOutIndex;
-	};
-
-	struct TempMSData
-	{
-		D3D12::MeshPipelineBuilder desc;
 		uint8_t* pOutIndex;
 	};
 
@@ -110,6 +103,7 @@ namespace Engine::Graphics
 		void ReadSRV(const std::string& a_texName);
 		void ReadDepth(const std::string& a_texName);
 		void ReadHistorySRV(const std::string& a_texName);
+
 		// =========================================================
 		// 書き込み系
 		// =========================================================
@@ -136,19 +130,9 @@ namespace Engine::Graphics
 			float a_texScale = 1.0f
 		);
 
-		// PSOの作成用構造体
-		D3D12::MeshPipelineBuilder& CreatePSODesc(const std::string& a_name, uint8_t& a_outIndex);
-
 		// ---- パスを通しての共通設定 ----
 		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob);
 		void SetRootSignature(ID3D12RootSignature* a_pRootSig);
-
-		// シェーダーセット
-		ID3DBlob* SetMS(D3D12::MeshPipelineBuilder& a_pso, const std::string& a_msPath);
-		void SetPS(D3D12::MeshPipelineBuilder& a_pso, const std::string& a_psPath);
-
-		// PSOの作成
-		void ResolveAndCompile(D3D12::PipelineStateManager* a_pPSOManager);
 
 	private:
 
@@ -156,9 +140,6 @@ namespace Engine::Graphics
 
 		// ルートシグネチャはパスで一つ
 		ID3D12RootSignature* m_pRootSig = nullptr;
-
-		// PSOはパス内に複数所持
-		std::vector<TempMSData> m_tempMSPSODescVec = {};
 
 		// パスで共通の出力
 		std::vector<DXGI_FORMAT> m_rtvFormatVec;

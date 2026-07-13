@@ -32,7 +32,6 @@
 #include "RenderPass/Geometry/DebugLinePass/DebugLinePass.h"
 #include "RenderPass/Geometry/ParticlePass/ParticlePass.h"
 #include "RenderPass/Geometry/FullRaytracingPass/FullRaytracingPass.h"
-#include "RenderPass/Geometry/TestMeshPass/TestMeshPass.h"
 
 #include "RenderPass/Lighting/DeferredLighting/DeferredLighting.h"
 #include "RenderPass/Lighting/RaytracingGIPass/RaytracingGIPass.h"
@@ -118,8 +117,6 @@ namespace Engine::Graphics
 		AddTAAPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 		AddFullRaytracingUpScalePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 
-		AddMSTestPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
-
 		AddShadowTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 
 		AddGITemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
@@ -185,11 +182,6 @@ namespace Engine::Graphics
 
 		// メッシュバッファの更新
 		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _currentFence);
-
-		//m_meshVerticesBuffer.Update(_currentFence);
-		//m_meshVerticesBuffer.Barrier(_pCmdList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-		//m_meshIndexBuffer.Update(_currentFence);
-		//m_meshIndexBuffer.Barrier(_pCmdList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 		// パーティクルのバッファ更新
 		MainEngine::Instance().RefParticleManager()->UploadEmitData(_pCmdList);

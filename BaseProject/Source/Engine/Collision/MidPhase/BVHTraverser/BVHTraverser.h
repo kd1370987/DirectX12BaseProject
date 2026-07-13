@@ -31,6 +31,7 @@ namespace Engine::Collision
 		int _nodeStack[64];
 		int _stackTop = 0;
 
+
 		// ルートノードをスタックに積む
 		_nodeStack[_stackTop++] = a_collisionMesh.rootNodeIndex;
 
@@ -46,6 +47,9 @@ namespace Engine::Collision
 			// NarrowPhaseを呼び出し、AABB判定をする
 			if (NarrowPhase::TestAABB(a_localPrimitive, _node.box, _boxDist))
 			{
+
+				Editor::MainEditor::Instance().DrawBox(_node.box);
+
 				// 範囲外
 				if (_boxDist > _closestDist) continue;
 

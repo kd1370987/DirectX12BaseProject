@@ -889,9 +889,6 @@
     <Filter Include="Source\Engine\D3D12\Builder\PipelineBuilder">
       <UniqueIdentifier>{21970f9f-fd61-43a9-bcfb-31491b71e03c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder">
-      <UniqueIdentifier>{d7c8313b-c21f-4b7a-af0f-90cbc860c1c9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset\Shader\Source\Test">
       <UniqueIdentifier>{35846641-bf2e-481d-9881-205d130ab91f}</UniqueIdentifier>
     </Filter>
@@ -933,9 +930,6 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\Geometry\ParticlePass">
       <UniqueIdentifier>{7abd4539-df5e-4901-9daa-867fda72819f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass">
-      <UniqueIdentifier>{1f378398-6506-42ec-9017-fb7ab886b433}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\Geometry\ZPrePass">
       <UniqueIdentifier>{278610b4-16aa-4181-ab52-297ec8c98a74}</UniqueIdentifier>
@@ -1581,9 +1575,6 @@
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp">
       <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder\MeshPipelineBuilder.cpp">
-      <Filter>Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.cpp">
       <Filter>Source\Engine\Resource\Loader\Shader\DXCCompiler</Filter>
     </ClCompile>
@@ -1610,9 +1601,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\ParticlePass\ParticlePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\Geometry\ParticlePass</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass\TestMeshPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\ZPrePass\ZPrePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\Geometry\ZPrePass</Filter>
@@ -2492,9 +2480,6 @@
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\MeshShaderData\MeshShaderData.h">
       <Filter>Source\Engine\Resource\Data\Mesh\MeshShaderData</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder\MeshPipelineBuilder.h">
-      <Filter>Source\Engine\D3D12\Builder\PipelineBuilder\MeshPipelineBuilder</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.h">
       <Filter>Source\Engine\Resource\Loader\Shader\DXCCompiler</Filter>
     </ClInclude>
@@ -2536,9 +2521,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\ParticlePass\ParticlePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\Geometry\ParticlePass</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass\TestMeshPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\Geometry\TestMeshPass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\ZPrePass\ZPrePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\Geometry\ZPrePass</Filter>
