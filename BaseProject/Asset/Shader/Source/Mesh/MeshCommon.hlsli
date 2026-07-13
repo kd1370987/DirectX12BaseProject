@@ -64,6 +64,16 @@ struct BonePallet
 {
 	row_major float4x4 mat;
 };
+// ==========================================================
+// ASでカリングする際のメッシュレットごとの当たり判定
+// ==========================================================
+struct MeshletCullData
+{
+	float3 BoundingSphereCenter; // xyz = center
+	float BoundingSphereRadius; // w = radius
+	uint NormalCone; // 8ビット×4 がパックされたuint
+	float ApexOffset; // apexを計算するためのオフセット
+};
 
 StructuredBuffer<InstanceData> g_instanceData : register(t0);
 StructuredBuffer<Material> g_materialData : register(t1);
@@ -74,6 +84,7 @@ StructuredBuffer<uint> g_primitiveIndices : register(t4);
 
 StructuredBuffer<Vertex> g_vertices : register(t5);
 StructuredBuffer<Vertex> g_animatedVertices : register(t6);
+StructuredBuffer<MeshletCullData> g_cullData : register(t7);
 
 cbuffer RootConstants : register(b1)
 {
@@ -103,6 +114,7 @@ SamplerState smp : register(s0);
     "SRV(t4)," \
     "SRV(t5)," \
     "SRV(t6)," \
+    "SRV(t7)," \
     "RootConstants(num32BitConstants=1, b1)," \
     "StaticSampler(s0, " \
     "    filter = FILTER_MIN_MAG_MIP_LINEAR, " \
@@ -136,3 +148,5 @@ struct PayloadStruct
 {
 	uint myArbitaryData;
 };
+
+

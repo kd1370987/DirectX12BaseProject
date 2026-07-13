@@ -17,6 +17,7 @@ namespace Engine::Graphics
 		m_meshletBuffer.Create(a_pDevice,a_pCmdList,10000);
 		m_uniqueVertexIndicesBuffer.Create(a_pDevice, a_pCmdList, 1000000);
 		m_meshTriangleBuffer.Create(a_pDevice, a_pCmdList, 1000000);
+		m_meshletCullDataBuffer.Create(a_pDevice,a_pCmdList,1000000);
 	}
 
 	void MeshBufferAllocator::Release()
@@ -28,6 +29,7 @@ namespace Engine::Graphics
 		m_meshletBuffer.Release();
 		m_uniqueVertexIndicesBuffer.Release();
 		m_meshTriangleBuffer.Release();
+		m_meshletCullDataBuffer.Release();
 	}
 
 	void MeshBufferAllocator::UpdateFrame(D3D12::GraphicsCommandList* a_pCmdList,uint64_t a_completedFenceValue)
@@ -40,6 +42,7 @@ namespace Engine::Graphics
 		m_meshletBuffer.Update(a_completedFenceValue);
 		m_uniqueVertexIndicesBuffer.Update(a_completedFenceValue);
 		m_meshTriangleBuffer.Update(a_completedFenceValue);
+		m_meshletCullDataBuffer.Update(a_completedFenceValue);
 	}
 	RangeHandle<Resource::MeshVertexFloat> MeshBufferAllocator::AllocateVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex)
 	{
@@ -64,6 +67,10 @@ namespace Engine::Graphics
 	RangeHandle<DirectX::MeshletTriangle> MeshBufferAllocator::AllocateTriangles(const std::vector<DirectX::MeshletTriangle>& a_triangles)
 	{
 		return m_meshTriangleBuffer.AllocateAndUpload(a_triangles.data(), static_cast<UINT>(a_triangles.size()));
+	}
+	RangeHandle<DirectX::CullData> MeshBufferAllocator::AllocateCullData(const std::vector<DirectX::CullData>& a_cullData)
+	{
+		return m_meshletCullDataBuffer.AllocateAndUpload(a_cullData.data(),static_cast<UINT>(a_cullData.size()));
 	}
 	void MeshBufferAllocator::StaticVertexFree(const RangeHandle<Resource::MeshVertexFloat>& a_handle)
 	{
@@ -94,5 +101,10 @@ namespace Engine::Graphics
 	{
 		ENGINE_LOG("メッシュトライアングル : Free");
 		m_meshTriangleBuffer.Free(a_handle);
+	}
+	void MeshBufferAllocator::MeshletCullDataFree(const RangeHandle<DirectX::CullData>& a_handle)
+	{
+		ENGINE_LOG("メッシュレット当たり判定データ : Free");
+		m_meshletCullDataBuffer.Free(a_handle);
 	}
 }

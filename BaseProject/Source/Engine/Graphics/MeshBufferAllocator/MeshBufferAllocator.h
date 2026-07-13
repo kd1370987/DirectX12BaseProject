@@ -53,6 +53,7 @@ namespace Engine::Graphics
 		RangeHandle<Resource::Meshlet> AllocateMeshlet(const std::vector<Resource::Meshlet>& a_meshlets);					// メッシュレット
 		RangeHandle<uint32_t> AllocateUniqueVertIndices(const std::vector<uint32_t>& a_uniqueVertIndices);					// 頂点インデックス
 		RangeHandle<DirectX::MeshletTriangle> AllocateTriangles(const std::vector<DirectX::MeshletTriangle>& a_triangles);	// 三角形インデックス
+		RangeHandle<DirectX::CullData> AllocateCullData(const std::vector<DirectX::CullData>& a_cullData);					// カリングデータ
 		//--------------------------------------------------------------------------------------------
 		// ハンドルの返却
 		//--------------------------------------------------------------------------------------------
@@ -63,6 +64,7 @@ namespace Engine::Graphics
 		void MeshletFree(const RangeHandle<Resource::Meshlet>& a_handle);					// メッシュレット
 		void UniqueVertIndicesFree(const RangeHandle<uint32_t>& a_handle);					// 頂点インデックス
 		void TrianglesFree(const RangeHandle<DirectX::MeshletTriangle>& a_handle);			// 三角形インデックス
+		void MeshletCullDataFree(const RangeHandle<DirectX::CullData>& a_handle);			// カリングデータ
 		//--------------------------------------------------------------------------------------------
 		// バッファアクセス
 		//--------------------------------------------------------------------------------------------
@@ -77,6 +79,8 @@ namespace Engine::Graphics
 		D3D12::MegaStructuredBuffer<Resource::Meshlet>& RefMeshletBuffer() { return m_meshletBuffer; }
 		D3D12::MegaStructuredBuffer<uint32_t>& RefUniqueVertexIndicesBuffer() { return m_uniqueVertexIndicesBuffer; }
 		D3D12::MegaStructuredBuffer<DirectX::MeshletTriangle>& RefMeshletTriangleBuffer() { return m_meshTriangleBuffer; }
+		D3D12::MegaStructuredBuffer<DirectX::CullData>& RefMeshletCullDataBuffer() { return m_meshletCullDataBuffer; }
+
 	private:
 
 		//--------------------------------------------------------------------------------------------
@@ -89,5 +93,6 @@ namespace Engine::Graphics
 		D3D12::MegaStructuredBuffer<Resource::Meshlet>				m_meshletBuffer;			// メッシュレットバッファ
 		D3D12::MegaStructuredBuffer<uint32_t>						m_uniqueVertexIndicesBuffer;// メッシュ頂点インデックスバッファ
 		D3D12::MegaStructuredBuffer<DirectX::MeshletTriangle>		m_meshTriangleBuffer;		// メッシュのインデックス情報
+		D3D12::MegaStructuredBuffer<DirectX::CullData>				m_meshletCullDataBuffer;	// メッシュレットごとのカリング判定
 	};
 }

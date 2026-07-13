@@ -94,6 +94,7 @@ bool Engine::Resource::Mesh::CreateFloat(
 			m_opMeshShaderData.value().uinqueVertexIndecsHandle =
 				_pMeshBufferAllocater->AllocateUniqueVertIndices(m_opMeshShaderData->uniqueVertexIndices);
 			m_opMeshShaderData.value().primitiveIndicesHandle = _pMeshBufferAllocater->AllocateTriangles(m_opMeshShaderData->primitiveIndices);
+			m_opMeshShaderData.value().cullDataHandle = _pMeshBufferAllocater->AllocateCullData(m_opMeshShaderData->cullData);
 		},
 		// 完了時のコールバック
 		[this, _indices]()
@@ -159,6 +160,7 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 	std::vector<uint32_t> _masterUVI;
 	std::vector<DirectX::MeshletTriangle> _masterPrimitives;
 	std::vector<SubsetMeshletData> _subsetMeshletData;
+	std::vector<DirectX::CullData> _cullData;
 
 	// 位置情報だけの配列を作成
 	std::vector<DirectX::XMFLOAT3> _positions;
@@ -218,40 +220,36 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 		// uniqueVertexIndices を uint32_t に統一して変換
 		// ---------------------------------------------------------
 		std::vector<uint32_t> _convertedUVI;
+		// 最初から32bitで出力されているのでそのままコピー
+		const uint32_t* _p32 = reinterpret_cast<const uint32_t*>(_uniqueVertexIB.data());
+		size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint32_t);
 
-		// DirectXMeshは頂点数が65535以下なら16bit、それより大きければ32bitでUVIを出力する
-		//if (a_vertices.size() <= 65535)
-		//{
-		//	// 16bitとして出力されているので32bitに変換
-		//	const uint16_t* _p16 = reinterpret_cast<const uint16_t*>(_uniqueVertexIB.data());
-		//	size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint16_t);
+		_convertedUVI.assign(_p32, _p32 + _indexCount);
 
-		//	ENGINE_LOG("%u\n", _p16[0]);
-		//	ENGINE_LOG("%u\n", _p16[1]);
-		//	ENGINE_LOG("%u\n", _p16[2]);
-		//	const uint32_t* p32 =
-		//		reinterpret_cast<const uint32_t*>(_uniqueVertexIB.data());
-
-		//	for (int i = 0; i < 10; i++)
-		//	{
-		//		ENGINE_LOG("%u", p32[i]);
-		//	}
-		//	_convertedUVI.resize(_indexCount);
-		//	for (size_t i = 0; i < _indexCount; ++i)
-		//	{
-		//		_convertedUVI[i] = static_cast<uint32_t>(_p16[i]);
-		//	}
-		//}
-		//else
+		// ---------------------------------------------------------
+		// Meshlet単位で当たり判定を付与
+		// ---------------------------------------------------------
+		std::vector<DirectX::CullData> _subsetCullData(_dxMeshlets.size());
+		_hr = DirectX::ComputeCullData(
+			_positions.data(),			// 頂点座標の配列 : 全頂点
+			_positions.size(),			// 頂点座標の総数
+			_dxMeshlets.data(),			// 生成されたサブセットのメッシュレット
+			_dxMeshlets.size(),			// メッシュレット数
+			_p32,						// 32bit化された UVI 配列
+			_indexCount,				// UVI の要素数
+			_primitiveIndices.data(),	// プリミティブ配列
+			_primitiveIndices.size(),	// プリミティブ数
+			_subsetCullData.data()		// 出力先
+		);
+		if (FAILED(_hr))
 		{
-			// 最初から32bitで出力されているのでそのままコピー
-			const uint32_t* _p32 = reinterpret_cast<const uint32_t*>(_uniqueVertexIB.data());
-			size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint32_t);
-
-			_convertedUVI.assign(_p32, _p32 + _indexCount);
+			ENGINE_ERRLOG(false,"CullDataの生成に失敗");
+			return;
 		}
+		// 生成した CullData をマスター配列に結合
+		_cullData.insert(_cullData.end(), _subsetCullData.begin(), _subsetCullData.end());
 
-		// 変換した配列をマスター配列の後ろに結合 (Append)
+		// 変換した配列をマスター配列の後ろに結合
 		_masterUVI.insert(_masterUVI.end(), _convertedUVI.begin(), _convertedUVI.end());
 		_masterPrimitives.insert(_masterPrimitives.end(), _primitiveIndices.begin(), _primitiveIndices.end());
 
@@ -272,14 +270,9 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 	m_opMeshShaderData.value().uniqueVertexIndices = std::move(_masterUVI);
 	m_opMeshShaderData.value().primitiveIndices = std::move(_masterPrimitives);
 	m_opMeshShaderData.value().subsetMeshlets = std::move(_subsetMeshletData);
-
+	m_opMeshShaderData.value().cullData = std::move(_cullData);
 	// メガバッファに登録
-	ENGINE_LOG("メッシュの非同期セットアップ完了");
-	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
-	ENGINE_ERRLOG(_pGE, "メッシュ読み込み時にグラフィックスエンジンがありません");
-
-	//auto _handle = _pGE->AllocateAndUpload(a_pCmdList, *this);
-	//m_opMeshShaderData.value().meshHandle = _handle;
+	ENGINE_LOG("メッシュのセットアップ完了");
 }
 
 void Engine::Resource::Mesh::Release()
