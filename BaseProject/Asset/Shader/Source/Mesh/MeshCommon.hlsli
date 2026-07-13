@@ -128,3 +128,11 @@ struct VertexOutput
 
 	uint instanceID : INSTANCE_ID;
 };
+
+// ==========================================================
+// ASからMSにわたるペイロード
+// ==========================================================
+struct PayloadStruct
+{
+	uint myArbitaryData;
+};

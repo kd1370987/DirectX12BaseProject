@@ -14,10 +14,13 @@ uint3 UnpackPrimitive(uint a_primitive)
 void MSMain(
 	uint a_gtid : SV_GroupThreadID,			// スレッドグループ内のローカルID（0 ～ 127）
 	uint3 a_gid : SV_GroupID,				// グループID(x : メッシュレットID,y : インスタンスID)
+	in payload PayloadStruct a_meshPayload,
 	out indices uint3 primIndices[126],
 	out vertices VertexOutput outVerts[64]
 )
 {
+	uint _arbitraryData = a_meshPayload.myArbitaryData;
+	
 	// ---------------------------------------------------------
 	// インスタンスとメッシュレットの情報取得
 	// ---------------------------------------------------------
@@ -26,7 +29,8 @@ void MSMain(
 	InstanceData _inst = g_instanceData[_instanceID];
 
 	// 対象のメッシュレットを取得
-	uint _globalMeshletIndex = _inst.meshletOffset + a_gid.x;
+	//uint _globalMeshletIndex = _inst.meshletOffset + a_gid.x;
+	uint _globalMeshletIndex = _inst.meshletOffset + _arbitraryData;
 	Meshlet _m = g_meshletData[_globalMeshletIndex];
 
 	// MSの出力を宣言
@@ -39,6 +43,7 @@ void MSMain(
 	{
 		// ユニーク頂点インデックスの取得 
 		uint _globalUVI = _inst.uviOffset + _m.vertexOffset + a_gtid;
+		//uint _globalUVI = _inst.uviOffset + _m.vertexOffset + _arbitraryData;
 		uint _localVertexIndex = g_uniqueVertexIndices[_globalUVI];
 
 		Vertex _v;

@@ -2836,5 +2836,8 @@
     <FxCompile Include="Asset\Shader\Compute\UpScale\UpScaleCS.hlsl">
       <Filter>Asset\Shader\Compute\UpScale</Filter>
     </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Mesh\TestAS.hlsl">
+      <Filter>Asset\Shader\Source\Mesh</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -76,7 +76,7 @@ namespace Engine::Graphics
 					auto _msPath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_msGUID);
 
 					_builder.SetRootSignature(a_pPSOManager->Request(_msPath));
-					_builder.SetMS(_pMS->GetByteCode()); // ★ビルダーにMSをセット
+					_builder.SetMS(_pMS->GetByteCode());
 					ENGINE_LOG("PSO RS = %p\n", _builder.GetRootSignature());
 				}
 				else {
@@ -86,7 +86,7 @@ namespace Engine::Graphics
 				// ASのセット（存在する場合のみ）
 				if (auto* _pAS = Resource::ResourceManager::Instance().Get(_targetASHandle))
 				{
-					_builder.SetAS(_pAS->GetByteCode()); // ★ビルダーにASをセット
+					_builder.SetAS(_pAS->GetByteCode());
 				}
 			}
 			else
