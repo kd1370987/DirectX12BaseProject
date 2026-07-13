@@ -1,5 +1,10 @@
 #include "MeshCommon.hlsli"
 
+uint3 UnpackPrimitive(uint a_primitive)
+{
+	return uint3(a_primitive & 0x3FF, (a_primitive >> 10) & 0x3FF, (a_primitive >> 20) & 0x3FF);
+}
+
 // ルートシグネチャ定義
 [RootSignature(MESHGLOBAL_ROOT_SIG)]
 // 出力するトポロジーを指定
@@ -73,12 +78,7 @@ void MSMain(
 	{
 		// プリミティブインデックスの取得 
 		uint _globalPrimIndex = _inst.primitiveOffset + _m.primitiveOffset + a_gtid;
-		uint _packedIndices = g_primitiveIndices[_globalPrimIndex];
-
-		uint3 _indices;
-		_indices.x = _packedIndices & 0x3FF; // 0 ～ 9bit
-		_indices.y = (_packedIndices >> 10) & 0x3FF; // 10 ～ 19bit
-		_indices.z = (_packedIndices >> 20) & 0x3FF; // 20 ～ 29bit
+		uint3 _indices = UnpackPrimitive(g_primitiveIndices[_globalPrimIndex]);
 		
 		primIndices[a_gtid] = _indices;
 	}

@@ -189,9 +189,14 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 
 		// メッシュレット生成
 		auto _hr = DirectX::ComputeMeshlets(
-			_subsetIndices.data(), _subsetIndices.size() / 3,
-			_positions.data(), _positions.size(),
-			nullptr, _dxMeshlets, _uniqueVertexIB, _primitiveIndices,
+			_subsetIndices.data(), 
+			_subsetIndices.size() / 3,
+			_positions.data(), 
+			_positions.size(),
+			nullptr,
+			_dxMeshlets, 
+			_uniqueVertexIB,
+			_primitiveIndices,
 			MAX_VERTS, MAX_PRIMS
 		);
 		if (FAILED(_hr))
@@ -217,19 +222,29 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 		std::vector<uint32_t> _convertedUVI;
 
 		// DirectXMeshは頂点数が65535以下なら16bit、それより大きければ32bitでUVIを出力する
-		if (a_vertices.size() <= 65535)
-		{
-			// 16bitとして出力されているので32bitに変換
-			const uint16_t* _p16 = reinterpret_cast<const uint16_t*>(_uniqueVertexIB.data());
-			size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint16_t);
+		//if (a_vertices.size() <= 65535)
+		//{
+		//	// 16bitとして出力されているので32bitに変換
+		//	const uint16_t* _p16 = reinterpret_cast<const uint16_t*>(_uniqueVertexIB.data());
+		//	size_t _indexCount = _uniqueVertexIB.size() / sizeof(uint16_t);
 
-			_convertedUVI.resize(_indexCount);
-			for (size_t i = 0; i < _indexCount; ++i)
-			{
-				_convertedUVI[i] = static_cast<uint32_t>(_p16[i]);
-			}
-		}
-		else
+		//	ENGINE_LOG("%u\n", _p16[0]);
+		//	ENGINE_LOG("%u\n", _p16[1]);
+		//	ENGINE_LOG("%u\n", _p16[2]);
+		//	const uint32_t* p32 =
+		//		reinterpret_cast<const uint32_t*>(_uniqueVertexIB.data());
+
+		//	for (int i = 0; i < 10; i++)
+		//	{
+		//		ENGINE_LOG("%u", p32[i]);
+		//	}
+		//	_convertedUVI.resize(_indexCount);
+		//	for (size_t i = 0; i < _indexCount; ++i)
+		//	{
+		//		_convertedUVI[i] = static_cast<uint32_t>(_p16[i]);
+		//	}
+		//}
+		//else
 		{
 			// 最初から32bitで出力されているのでそのままコピー
 			const uint32_t* _p32 = reinterpret_cast<const uint32_t*>(_uniqueVertexIB.data());

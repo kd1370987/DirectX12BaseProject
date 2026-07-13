@@ -432,26 +432,6 @@ namespace Engine::Graphics
 			uint32_t _instanceIdx = SetInstanceData(_instanceData);
 			uint32_t _subsetIdx = SetSubSetData(_subSetData);
 
-			// メッシュシェーダー用送信データ作成
-			MeshMaterial _meshMaterial = {};
-			_meshMaterial.baseColor = a_albedScale;
-			_meshMaterial.emissive = a_emissiveScale;
-			_meshMaterial.metallic = _pMaterial->metallic;
-			_meshMaterial.roughness = _pMaterial->roughness;
-			// SRVインデックス系はまだ
-
-			MeshInstanceData _meshInstanceData = {};
-			_meshInstanceData.worldMat = _mat.Transpose();
-			_meshInstanceData.prevWorldMat = _prevMat.Transpose();
-			_meshInstanceData.materialOffset = SetMeshMaterialData(_meshMaterial);
-			_meshInstanceData.meshletOffset = _pMesh->GetMeshShaderData().meshletHandle.startIndex;
-			_meshInstanceData.vertexOffset = _pMesh->GetRtData().vertexHandle.startIndex;
-			_meshInstanceData.uviOffset = _pMesh->GetMeshShaderData().uinqueVertexIndecsHandle.startIndex;
-			_meshInstanceData.primitiveOffset = _pMesh->GetMeshShaderData().primitiveIndicesHandle.startIndex;
-			// ボーンはまだ
-
-			uint32_t _meshInstanceIdx = SetInstanceData(_meshInstanceData);
-
 			// =========================================================
 			// メッシュやマテリアルの状態から PermutationFlags を構築
 			// =========================================================
@@ -472,7 +452,7 @@ namespace Engine::Graphics
 			}
 
 			// =========================================================
-			// 2. PSOKey の作成
+			// PSOKey の作成
 			// =========================================================
 			Engine::Graphics::PSOKey _psoKey = {};
 			_psoKey.shadingModelTableHandle = _pMaterial->shadingModelHandle;
@@ -487,9 +467,33 @@ namespace Engine::Graphics
 				auto* _pPassNode = m_upRenderGraph->GetPass(_passHash);
 				if (!_pPassNode) continue;
 
+				uint32_t _meshInstanceIdx = UINT32_MAX;
 				// メッシュシェーダーが登録されているのならフラグON
 				if (_pPassNode->pipelineBuilder.HasMeshShader())
 				{
+
+					// メッシュシェーダー用送信データ作成
+					MeshMaterial _meshMaterial = {};
+					_meshMaterial.baseColor = a_albedScale;
+					_meshMaterial.emissive = a_emissiveScale;
+					_meshMaterial.metallic = _pMaterial->metallic;
+					_meshMaterial.roughness = _pMaterial->roughness;
+					// SRVインデックス系はまだ
+
+					MeshInstanceData _meshInstanceData = {};
+					_meshInstanceData.worldMat = _mat.Transpose();
+					_meshInstanceData.prevWorldMat = _prevMat.Transpose();
+					_meshInstanceData.materialOffset = SetMeshMaterialData(_meshMaterial);
+					_meshInstanceData.meshletOffset = _pMesh->GetMeshShaderData().meshletHandle.startIndex;
+					_meshInstanceData.meshletOffset = _pMesh->GetMeshShaderData().meshletHandle.startIndex + 
+						_pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletOffset;
+					_meshInstanceData.vertexOffset = _pMesh->GetRtData().vertexHandle.startIndex;
+					_meshInstanceData.uviOffset = _pMesh->GetMeshShaderData().uinqueVertexIndecsHandle.startIndex;
+					_meshInstanceData.primitiveOffset = _pMesh->GetMeshShaderData().primitiveIndicesHandle.startIndex;
+					// ボーンはまだ
+
+					_meshInstanceIdx = SetInstanceData(_meshInstanceData);
+
 					_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
 				}
 
@@ -507,7 +511,8 @@ namespace Engine::Graphics
 					_item.instnaceIndex = _instanceIdx;
 					_item.subsetIndex = _subsetIdx;
 					_item.meshInstanceIndex = _meshInstanceIdx;
-					_item.subsetMeshletCount = _pMesh->GetMeshShaderData().meshletHandle.count;
+					//_item.subsetMeshletCount = _pMesh->GetMeshShaderData().meshletHandle.count;
+					_item.subsetMeshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
 					_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
 					_item.sortKey.bits.passIndex = _pPassNode->passIndex;
 

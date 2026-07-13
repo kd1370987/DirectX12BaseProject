@@ -67,6 +67,8 @@ namespace Engine
 		std::queue<PendingFree> m_pendingFrees;
 		uint32_t m_currentAllocationId = 1;
 		uint32_t m_maxCount = 0;
+
+		std::mutex m_mutex;			// 排他処理
 	};
 	template<typename T>
 	inline void RangeAllocator<T>::Init(uint32_t a_maxCount)
@@ -80,6 +82,15 @@ namespace Engine
 	template<typename T>
 	inline RangeHandle<T> RangeAllocator<T>::AllocateRange(uint32_t a_count)
 	{
+		// 要素数が0だったら割り当てられない
+		if (a_count == 0)
+		{
+			ENGINE_ERRLOG(false, "サイズ0のメモリ領域が要求されました");
+			return { std::numeric_limits<uint32_t>::max(), 0, 0 };
+		}
+
+		std::lock_guard<std::mutex> _lock(m_mutex);
+
 		for (auto _it = m_freeBlocks.begin(); _it != m_freeBlocks.end(); ++_it)
 		{
 			if (_it->count >= a_count)
