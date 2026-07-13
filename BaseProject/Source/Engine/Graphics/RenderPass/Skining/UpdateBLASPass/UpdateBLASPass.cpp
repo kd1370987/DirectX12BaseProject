@@ -39,9 +39,12 @@ namespace Engine::Graphics
 				auto* _pMA = a_pGE->RefMeshBufferAllocator();
 				if (!_pMA) return;
 
-				// スキニングの書き込み完了を待つバリア
-				//a_pGE->RefRWAnimatedBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-				_pMA->RefAnimatedVertexBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+				// SRVへバッファを遷移
+				_pMA->RefAnimatedVertexBuffer().Barrier(
+					_pCmdList, 
+					D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE |
+					D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+				);
 				// スキニング対象のBLASを更新
 				for (auto& _item : a_pGE->GetSkinningImtes())
 				{

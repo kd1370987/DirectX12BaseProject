@@ -42,8 +42,11 @@ bool Engine::Resource::Mesh::CreateFloat(
 	// ラスタライザーデータ作成
 	CreateRasterData(_pDevice, a_vertices, a_face, DXGI_FORMAT_R32_UINT);
 
-
+	// レイトレデータ作成 メガバッファにアロケート
 	m_opRtData.emplace();
+	m_opRtData->vertexHandle = _pMeshBufferAllocater->AllocateVertex(a_vertices);
+	m_opRtData->indexHandle = _pMeshBufferAllocater->AllocateIndex(_indices);
+
 	m_opMeshShaderData.emplace();
 
 	D3D12::D3D12Wrapper::Instance().ExecuteAsyncCompute(
@@ -99,11 +102,6 @@ bool Engine::Resource::Mesh::CreateFloat(
 			ENGINE_LOG("メッシュシェーダーデータの非同期セットアップが完了");
 		}
 	);
-
-	// メガバッファにアロケート
-	m_opRtData->vertexHandle = _pMeshBufferAllocater->AllocateVertex(a_vertices);
-	m_opRtData->indexHandle = _pMeshBufferAllocater->AllocateIndex(_indices);
-
 	return true;
 }
 
