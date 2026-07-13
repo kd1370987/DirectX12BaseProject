@@ -246,7 +246,8 @@ namespace Engine::Graphics
 		// レイトレ用BLAS初期化
 		void ProcessInitQueue(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList);
 
-
+		// テクスチャハンドルからSRVのインデックスを取得する
+		int GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle);
 	private:
 		//--------------------------------------------------------------------------------------------
 		// 主要クラス

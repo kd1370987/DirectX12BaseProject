@@ -478,7 +478,10 @@ namespace Engine::Graphics
 					_meshMaterial.emissive = a_emissiveScale;
 					_meshMaterial.metallic = _pMaterial->metallic;
 					_meshMaterial.roughness = _pMaterial->roughness;
-					// SRVインデックス系はまだ
+					_meshMaterial.albedIndex = GetSRVIndexFromTextureHandle(_pMaterial->baseColorTex);
+					_meshMaterial.metaRoughnessIndex = GetSRVIndexFromTextureHandle(_pMaterial->metaRoughTex);
+					_meshMaterial.emissiveIndex = GetSRVIndexFromTextureHandle(_pMaterial->emissiveTex);
+					_meshMaterial.normalIndex = GetSRVIndexFromTextureHandle(_pMaterial->normalTex);
 
 					MeshInstanceData _meshInstanceData = {};
 					_meshInstanceData.worldMat = _mat.Transpose();
@@ -716,7 +719,7 @@ namespace Engine::Graphics
 	UINT GraphicsEngine::SetMeshMaterialData(const MeshMaterial& a_subsetData)
 	{
 		UINT _index = static_cast<UINT>(m_meshMaterialDataVec.size());
-		m_meshMaterialDataVec.size();
+		m_meshMaterialDataVec.push_back(a_subsetData);
 		return _index;
 	}
 	void GraphicsEngine::AddItem(const LightWeightDrawItem& a_item)
@@ -1025,5 +1028,12 @@ namespace Engine::Graphics
 
 		// 処理が終われば命令を解放
 		_initRequestVec.clear();
+	}
+	int GraphicsEngine::GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle)
+	{
+		auto* _pTex = Resource::ResourceManager::Instance().Get(a_texHandle);
+		ENGINE_ERRLOG(_pTex,"テクスチャが見つかりません");
+
+		return static_cast<int>(_pTex->GetSRV().GetIndex());
 	}
 }

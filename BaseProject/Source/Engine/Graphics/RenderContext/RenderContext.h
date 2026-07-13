@@ -208,6 +208,7 @@ namespace Engine::Graphics
 
 		// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
 		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);
+		void SetGraphicsRootSignature1(ID3D12RootSignature* a_pRootSig);
 		void SetComputeRootSignature(ID3D12RootSignature* a_pRootSig);
 
 		// パイプラインステートをセット、前回と変更がない場合はスキップ

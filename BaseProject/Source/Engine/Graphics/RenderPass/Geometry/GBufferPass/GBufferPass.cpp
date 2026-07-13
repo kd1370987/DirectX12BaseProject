@@ -133,10 +133,10 @@ namespace Engine::Graphics
 		// 実行関数
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
 			{
+
 				a_pCtx->BindCopyHeapAndSumplerBindLess();
 				a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
 				
-
 				a_pCtx->BindCamera();
 				a_pCtx->BindMeshInstance();
 				a_pCtx->BindMeshlet();

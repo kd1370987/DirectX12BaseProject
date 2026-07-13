@@ -2753,6 +2753,9 @@
     <None Include="Asset\Shader\Compute\Skining\Skinning.hlsli">
       <Filter>Asset\Shader\Compute\Skining</Filter>
     </None>
+    <None Include="Asset\Shader\Source\GBufferShader\MeshGBufferPS.hlsl">
+      <Filter>Asset\Shader\Source\GBufferShader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
@@ -2844,9 +2847,6 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
       <Filter>Asset\Shader\Source\DebugLineShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\GBufferShader\MeshGBufferPS.hlsl">
-      <Filter>Asset\Shader\Source\GBufferShader</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Skining\Skining.hlsl">
       <Filter>Asset\Shader\Compute\Skining</Filter>

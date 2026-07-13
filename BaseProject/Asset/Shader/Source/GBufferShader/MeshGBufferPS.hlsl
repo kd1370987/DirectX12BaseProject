@@ -35,8 +35,8 @@ PSOutput PSMain(VertexOutput a_input)
 		Texture2D albedoTex = ResourceDescriptorHeap[NonUniformResourceIndex(_mat.albedIndex)];
 		_baseTex = albedoTex.Sample(smp, _uv);
 	}
-	//_out.albedo = _baseTex * _mat.baseColor;
-	_out.albedo = float4(1,0,0,1);
+	_out.albedo = _baseTex * _mat.baseColor;
+	//_out.albedo = float4(1,0,0,1);
 
     // -----------------------------------------------------------
     // 法線 (Normal) & TBN行列
