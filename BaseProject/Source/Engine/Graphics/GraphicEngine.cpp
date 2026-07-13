@@ -514,7 +514,6 @@ namespace Engine::Graphics
 					_item.instnaceIndex = _instanceIdx;
 					_item.subsetIndex = _subsetIdx;
 					_item.meshInstanceIndex = _meshInstanceIdx;
-					//_item.subsetMeshletCount = _pMesh->GetMeshShaderData().meshletHandle.count;
 					_item.subsetMeshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
 					_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
 					_item.sortKey.bits.passIndex = _pPassNode->passIndex;
@@ -536,7 +535,7 @@ namespace Engine::Graphics
 						_item.instnaceIndex = _instanceIdx;
 						_item.subsetIndex = _subsetIdx;
 						_item.meshInstanceIndex = _meshInstanceIdx;
-						_item.subsetMeshletCount = _pMesh->GetMeshShaderData().meshletHandle.count;
+						_item.subsetMeshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
 						_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
 						_item.sortKey.bits.passIndex = _pPassNode->passIndex;
 

@@ -696,11 +696,6 @@ namespace Engine::Graphics
 	{
 		auto* _pBufferManager = m_pGraphicsEngine->RefMeshBufferAllocator();
 		if (!_pBufferManager)return;
-		//ComputeBindSRV(3, _pBufferManager->RefMeshletBuffer().GetSRV());
-		//ComputeBindSRV(4, _pBufferManager->RefUniqueVertexIndicesBuffer().GetSRV());
-		//ComputeBindSRV(5, _pBufferManager->RefMeshletTriangleBuffer().GetSRV());
-		//ComputeBindSRV(6, _pBufferManager->GetStaticVertexBuffer().GetSRV());
-
 		m_pCmdList->SetGraphicsRootShaderResourceView(3, _pBufferManager->RefMeshletBuffer().GetResource()->GetGPUVirtualAddress());
 		m_pCmdList->SetGraphicsRootShaderResourceView(4, _pBufferManager->RefUniqueVertexIndicesBuffer().GetResource()->GetGPUVirtualAddress());
 		m_pCmdList->SetGraphicsRootShaderResourceView(5, _pBufferManager->RefMeshletTriangleBuffer().GetResource()->GetGPUVirtualAddress());
