@@ -17,8 +17,8 @@ struct InstanceData
 	uint primitiveOffset;		// m_primitiveIndices 内のベースインデックス
 	
 	// アニメーションがあればデータが入っている
-	uint boneStartIndex;			// 開始位置
-	uint boneCount;					// 配列サイズ
+	uint animatedVertexStart;			// 開始位置
+	uint isAnimated;					// 配列サイズ
 };
 
 // マテリアルの情報
@@ -73,7 +73,8 @@ StructuredBuffer<uint> g_uniqueVertexIndices : register(t3); // 各meshレット
 StructuredBuffer<uint> g_primitiveIndices : register(t4);
 
 StructuredBuffer<Vertex> g_vertices : register(t5);
-StructuredBuffer<BonePallet> g_bonePalletData : register(t6);
+StructuredBuffer<Vertex> g_animatedVertices : register(t6);
+
 cbuffer RootConstants : register(b1)
 {
 	uint g_baseInstanceIndex; // C++から渡されるインスタンス配列のオフセット

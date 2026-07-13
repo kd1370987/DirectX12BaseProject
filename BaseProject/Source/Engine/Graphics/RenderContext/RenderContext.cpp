@@ -700,6 +700,7 @@ namespace Engine::Graphics
 		m_pCmdList->SetGraphicsRootShaderResourceView(4, _pBufferManager->RefUniqueVertexIndicesBuffer().GetResource()->GetGPUVirtualAddress());
 		m_pCmdList->SetGraphicsRootShaderResourceView(5, _pBufferManager->RefMeshletTriangleBuffer().GetResource()->GetGPUVirtualAddress());
 		m_pCmdList->SetGraphicsRootShaderResourceView(6, _pBufferManager->GetStaticVertexBuffer().GetResource()->GetGPUVirtualAddress());
+		m_pCmdList->SetGraphicsRootShaderResourceView(7, _pBufferManager->GetAnimatedVertexBuffer().GetResource()->GetGPUVirtualAddress());
 	}
 
 	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)

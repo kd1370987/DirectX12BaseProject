@@ -190,6 +190,7 @@ namespace Engine::Graphics
 		/// <param name="a_prevMatrix">過去ワールド行列</param>
 		/// <param name="a_boneHandle">ボーン行列配列ハンドル</param>
 		/// <param name="a_nodePoseHandle">スケルトンポーズ行列配列ハンドル</param>
+		/// <param name="a_animData">アニメーション後頂点配列</param>
 		/// <param name="a_albedScale">カラースケール</param>
 		/// <param name="a_emissiveScale">エミッシブスケール</param>
 		void SubmitModel(
@@ -199,6 +200,7 @@ namespace Engine::Graphics
 			const DXSM::Matrix& a_prevMatrix,
 			const RangeHandle<Resource::BoneMatrix>& a_boneHandle,
 			const RangeHandle<Resource::NodePoseMatrix>& a_nodePoseHandle,
+			const Handle<Raytracing::DynamicRaytracingData>& a_animData,
 			const DXSM::Color& a_albedScale = Color::WHITE,
 			const DXSM::Vector3& a_emissiveScale = { 1,1,1 }
 		);

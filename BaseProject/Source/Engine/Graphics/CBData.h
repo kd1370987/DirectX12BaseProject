@@ -116,8 +116,8 @@ namespace Engine::Graphics
 		UINT primitiveOffset;
 
 		// アニメーションがあればデータが入っている
-		UINT boneStartIndex;			// 開始位置
-		UINT boneCount;					// 配列サイズ
+		UINT animatedVertexStart;
+		UINT isAnimated;
 	};
 	struct MeshMaterial
 	{

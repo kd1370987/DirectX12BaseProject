@@ -47,6 +47,7 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				const ModelComponent& _modelComp = a_modelArray[_i];
 				const SkeletonPoseComponent& _skeComp = a_skeArray[_i];
 				const NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
+				const AnimatorComponent& _animComp = a_aniArray[_i];
 
 				// モデル取得
 				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);;
@@ -59,7 +60,8 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 					_matComp.worldMat,
 					_matComp.worldMat,
 					_skeComp.skeletonPoseHandle,
-					_nodePoseComp.nodePoseHandle
+					_nodePoseComp.nodePoseHandle,
+					_animComp.dynamicInstanceHandle
 				);
 			}
 		}); 

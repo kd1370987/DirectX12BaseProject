@@ -41,11 +41,24 @@ void MSMain(
 		uint _globalUVI = _inst.uviOffset + _m.vertexOffset + a_gtid;
 		uint _localVertexIndex = g_uniqueVertexIndices[_globalUVI];
 
-		// メガバッファ内の絶対インデックスを計算
-		uint _globalVertexIndex = _inst.vertexOffset + _localVertexIndex;
+		Vertex _v;
+		
+		if(_inst.isAnimated == 0)
+		{
+			// メガバッファ内の絶対インデックスを計算
+			uint _globalVertexIndex = _inst.vertexOffset + _localVertexIndex;
 
-		// 頂点データの取得
-		Vertex _v = g_vertices[_globalVertexIndex];
+			// 頂点データの取得
+			_v = g_vertices[_globalVertexIndex];
+		}
+		else
+		{
+			// メガバッファ内の絶対インデックスを計算
+			uint _globalVertexIndex = _inst.animatedVertexStart + _localVertexIndex;
+
+			// 頂点データの取得
+			_v = g_animatedVertices[_globalVertexIndex];
+		}
 
 		// ---------------------------------------------------------
 		// ワールド変換と出力の構築

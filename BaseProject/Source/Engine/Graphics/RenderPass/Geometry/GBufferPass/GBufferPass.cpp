@@ -119,6 +119,7 @@ namespace Engine::Graphics
 		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Mesh/UberMS.cso");
 		auto _msHandle = Resource::ResourceManager::Instance().Load<Resource::Shader>(_guid);
 		_node.pipelineBuilder.RegisterMeshShader(EShaderPermutationFlags::Static, _msHandle);
+		_node.pipelineBuilder.RegisterMeshShader(EShaderPermutationFlags::Skinned, _msHandle);
 
 		// ルートシグネチャセット
 		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/Mesh/UberMS.cso");
@@ -140,7 +141,6 @@ namespace Engine::Graphics
 				a_pCtx->BindCamera();
 				a_pCtx->BindMeshInstance();
 				a_pCtx->BindMeshlet();
-				//a_pCtx->BindBonePalletBuffer(7);
 
 				a_pCtx->DrawQueueDispathMesh(a_passIndex);
 			};
