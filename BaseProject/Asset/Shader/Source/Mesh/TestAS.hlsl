@@ -1,37 +1,66 @@
 #include "MeshCommon.hlsli"
 
-[numthreads(1, 1, 1)]
-void ASMain(in uint3 a_groupID : SV_GroupID)
+// グループ内で共有するPayload変数
+groupshared PayloadStruct s_Payload;
+
+// 可視性チェック
+bool IsVisible(MeshletCullData a_cullData,float4x4 a_worldMat)
 {
-	PayloadStruct _payload;
-	_payload.myArbitaryData = a_groupID.x;
-	DispatchMesh(1, 1, 1, _payload);
+	// ローカル座標系の球の中心にワールド行列を掛けて、ワールド座標に変換する
+	float3 _centerWorld = mul(float4(a_cullData.BoundingSphereCenter, 1.0f), a_worldMat).xyz;
+	
+	float _radiusWorld = a_cullData.BoundingSphereRadius * a_worldMat._11_22_33_44;
+	
+	for (int _idx = 0; _idx < 6; ++_idx)
+	{
+		// 座標と平面との距離計算
+		float4 _plane = g_camera.frustumPlanes[_idx];
+		// 平面の方程式 (dot(Normal, Point) + Distance)
+		if (dot(_plane.xyz, _centerWorld) + _plane.w < -_radiusWorld)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
-//// 1. NormalConeのアンパック（-1.0 ～ 1.0 に戻す）
-//int x = (int) (cullData.NormalCone & 0xFF);
-//int y = (int) ((cullData.NormalCone >> 8) & 0xFF);
-//int z = (int) ((cullData.NormalCone >> 16) & 0xFF);
-//float3 normalAxis = normalize(float3(x, y, z) / 127.5f - 1.0f);
 
-//// 2. 広がり角（コサイン値）のアンパック
-//int w = (int) ((cullData.NormalCone >> 24) & 0xFF);
-//float cutoff = (float) w / 255.0f; // これが w = -cos(a + 90) の値
 
-//// 3. コーンの頂点（Apex）の計算
-//// ローカル空間での球の中心から、法線ベクトルの逆向きにオフセット分ズラす
-//float3 apex = cullData.BoundingSphereCenter - normalAxis * cullData.ApexOffset;
 
-//// 4. ワールド空間に変換（インスタンス行列を使用）
-//float3 apexWorld = mul(float4(apex, 1.0f), _inst.worldMat).xyz;
-//float3 axisWorld = normalize(mul(normalAxis, (float3x3) _inst.worldMat));
+[numthreads(32, 1, 1)]
+void ASMain(
+	uint a_gtid : SV_GroupThreadID, // スレッドのローカルID (0 ~ 31)
+    uint3 a_gid : SV_GroupID // グループID
+)
+{
+	// インスタンス情報の取得
+	uint _instanceID = g_baseInstanceIndex + a_gid.y;
+	InstanceData _inst = g_instanceData[_instanceID];
 
-//// 5. カメラからApexへのベクトル
-//float3 viewDir = normalize(apexWorld - g_camera.position);
+	// メッシュレットIDを計算 (グループID × スレッド数 + ローカルID)
+	uint _dispatchThreadID = (a_gid.x * 32) + a_gtid;
 
-//// 6. バックフェイス判定
-//// カメラの視線ベクトルと法線コーンの軸が成す角度が、cutoffを超えていれば「裏」
-//bool isBackFace = dot(viewDir, axisWorld) >= cutoff;
+	// カリングデータのインデックス
+	uint _cullDataIndex = _inst.cullStart + _dispatchThreadID;
 
-//if (isBackFace) {
-//    // 描画しない（カリングする）
+	// 可視性チェック
+	bool _isVisible = IsVisible(g_cullData[_cullDataIndex], _inst.worldMat);
+	
+	
+	// 可視性チェックが成功したメッシュレットをペイロードに格納
+	if(_isVisible)
+	{
+		uint _idx = WavePrefixCountBits(_isVisible);	// Wave中で何番目に可視性チェックが成功したか
+		s_Payload.MeshletIndices[_idx] = _dispatchThreadID; // 可視性チェックが成功した場合にメッシュレットのインデックス
+	}
+
+	uint _visibleCount = WaveActiveCountBits(_isVisible);	// Wave中で可視性チェックが成功したActiveLaneの数
+	DispatchMesh(_visibleCount, 1, 1, s_Payload); // 可視性チェックが成功した数分のスレッドグループが生成される
+}
+//[numthreads(1, 1, 1)]
+//void ASMain(in uint3 a_groupID : SV_GroupID)
+//{
+//	PayloadStruct _payload;
+//	_payload.myArbitaryData = a_groupID.x;
+//	DispatchMesh(1, 1, 1, _payload);
 //}

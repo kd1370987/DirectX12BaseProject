@@ -14,6 +14,8 @@ namespace Engine::Graphics
 		m_indexBuffer.Create(a_pDevice,a_pCmdList,a_bufferSizes.indexBufferSize);
 		m_animatedVertexBuffer.Create(a_pDevice,a_bufferSizes.animatedVertexBufferSize);
 
+		size_t _size = sizeof(MeshInstanceData);
+
 		m_meshletBuffer.Create(a_pDevice,a_pCmdList,10000);
 		m_uniqueVertexIndicesBuffer.Create(a_pDevice, a_pCmdList, 1000000);
 		m_meshTriangleBuffer.Create(a_pDevice, a_pCmdList, 1000000);

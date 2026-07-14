@@ -37,7 +37,7 @@ bool Application::Init()
 	Engine::InitConfig  _initConfig = {};
 	_initConfig.buildMode = Engine::EBuildConfiguration::Shipping;
 	_initConfig.assetRootPath = "Asset/";
-	_initConfig.isDebugLayer = false;
+	_initConfig.isDebugLayer = true;
 	_initConfig.isGPUValidation = true;
 	_initConfig.maxThreadCount = 4;
 	Engine::RuntimeConfig _runtimeConfig = {};

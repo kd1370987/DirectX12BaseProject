@@ -29,15 +29,41 @@ ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 	}
 	else if (fs::exists(_hlslPath))
 	{
-		// 両方存在する場合はタイムスタンプ（最終更新日時）を比較
+		// .hlsl 自体のタイムスタンプを取得
 		auto _hlslTime = fs::last_write_time(_hlslPath);
+
+		// インクルードディレクトリ内の最新の .hlsli のタイムスタンプを取得
+		auto _newestHlsliTime = fs::file_time_type::min();
+		std::vector<fs::path> _includeDirs = {
+			"Asset\\Shader\\Common",
+			"Asset\\Shader\\Mesh"
+		};
+
+		for (const auto& _dir : _includeDirs)
+		{
+			if (!fs::exists(_dir)) continue;
+			for (const auto& _entry : fs::recursive_directory_iterator(_dir))
+			{
+				if (_entry.is_regular_file() && _entry.path().extension() == ".hlsli")
+				{
+					auto _time = fs::last_write_time(_entry);
+					if (_time > _newestHlsliTime)
+					{
+						_newestHlsliTime = _time;
+					}
+				}
+			}
+		}
+
+		// 比較するタイムスタンプを決定（.hlsl と最新の .hlsli で新しい方）
+		auto _targetTime = std::max(_hlslTime, _newestHlsliTime);
 		auto _csoTime = fs::last_write_time(_csoPath);
 
-		if (_hlslTime > _csoTime)
+		if (_targetTime > _csoTime)
 		{
-			// HLSLの方が新しければ再コンパイル
+			// HLSL または 依存する hlsli の方が新しければ再コンパイル
 			_needsCompile = true;
-			ENGINE_LOG("シェーダーの更新を検知。再コンパイルします: %s", _fileName.c_str());
+			ENGINE_LOG("シェーダー（またはヘッダー）の更新を検知。再コンパイルします: %s", _fileName.c_str());
 		}
 	}
 

@@ -7,30 +7,32 @@ uint3 UnpackPrimitive(uint a_primitive)
 
 // ルートシグネチャ定義
 [RootSignature(MESHGLOBAL_ROOT_SIG)]
+
 // 出力するトポロジーを指定
 [outputtopology("triangle")]
 // スレッドグループのサイズ
 [numthreads(128, 1, 1)]
 void MSMain(
 	uint a_gtid : SV_GroupThreadID,			// スレッドグループ内のローカルID（0 ～ 127）
-	uint3 a_gid : SV_GroupID,				// グループID(x : メッシュレットID,y : インスタンスID)
+	uint3 a_gid : SV_GroupID,				// ASから起動されたグループのインデックス
 	in payload PayloadStruct a_meshPayload,
 	out indices uint3 primIndices[126],
 	out vertices VertexOutput outVerts[64]
 )
 {
-	uint _arbitraryData = a_meshPayload.myArbitaryData;
+	// ペイロードから自分が担当する「本当のメッシュレットID」を取得する
+	uint realMeshletIndex = a_meshPayload.MeshletIndices[a_gid.x];
 	
 	// ---------------------------------------------------------
 	// インスタンスとメッシュレットの情報取得
 	// ---------------------------------------------------------
-	int _i = 0;
+	int p = 0;
 	uint _instanceID = g_baseInstanceIndex + a_gid.y;
 	InstanceData _inst = g_instanceData[_instanceID];
 
 	// 対象のメッシュレットを取得
 	//uint _globalMeshletIndex = _inst.meshletOffset + a_gid.x;
-	uint _globalMeshletIndex = _inst.meshletOffset + _arbitraryData;
+	uint _globalMeshletIndex = _inst.meshletOffset + realMeshletIndex;
 	Meshlet _m = g_meshletData[_globalMeshletIndex];
 
 	// MSの出力を宣言

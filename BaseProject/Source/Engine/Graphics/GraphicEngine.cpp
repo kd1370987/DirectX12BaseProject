@@ -674,6 +674,9 @@ namespace Engine::Graphics
 					_meshInstanceData.uviOffset = _msData.uinqueVertexIndecsHandle.startIndex;
 					_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
 
+					// カリングスタートインデックス
+					_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex;
+
 					// アニメーション結果のスタートインデックスを代入
 					_meshInstanceData.animatedVertexStart = _animatedVertexStart;
 					_meshInstanceData.isAnimated = _isAnimation ? 1 : 0;
@@ -973,6 +976,9 @@ namespace Engine::Graphics
 		m_prevViewMat = _viewMat;
 		m_prevProjMat = _projMat;
 		m_prevNonJitteredViewProj = _nonJitteredViewProj;
+
+		// 完成したデータから、フラスタム平面を求める
+		m_cbGPUCamera.ExtractFrustumPlanes();
 
 		// フレームカウントを進める
 		m_totlaFrameCount++;

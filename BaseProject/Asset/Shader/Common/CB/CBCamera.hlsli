@@ -28,6 +28,10 @@ struct CBCamera
 	// TAA用ジッターオフセット
 	float2 jitterOffset;
 	float2 prevJitterOffset;
+
+	// カリング用：視錐台の6つの平面の方程式 (World Space)
+	// xyz: 平面の法線(Normal), w: 原点からの距離(Distance)
+	float4 frustumPlanes[6];
 };
 
 // カメラの定数バッファ

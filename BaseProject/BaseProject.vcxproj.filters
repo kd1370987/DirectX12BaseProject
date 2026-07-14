@@ -2738,6 +2738,9 @@
     <None Include="Asset\Shader\Source\GBufferShader\MeshGBufferPS.hlsl">
       <Filter>Asset\Shader\Source\GBufferShader</Filter>
     </None>
+    <None Include="Asset\Shader\Source\Mesh\TestAS.hlsl">
+      <Filter>Asset\Shader\Source\Mesh</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
@@ -2835,9 +2838,6 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\UpScale\UpScaleCS.hlsl">
       <Filter>Asset\Shader\Compute\UpScale</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\Mesh\TestAS.hlsl">
-      <Filter>Asset\Shader\Source\Mesh</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

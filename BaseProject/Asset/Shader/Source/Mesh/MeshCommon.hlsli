@@ -19,6 +19,9 @@ struct InstanceData
 	// アニメーションがあればデータが入っている
 	uint animatedVertexStart;			// 開始位置
 	uint isAnimated;					// 配列サイズ
+
+	// カリングデータ
+	uint cullStart;
 };
 
 // マテリアルの情報
@@ -146,7 +149,14 @@ struct VertexOutput
 // ==========================================================
 struct PayloadStruct
 {
-	uint myArbitaryData;
+	//uint myArbitaryData;
+
+	// グループ内で生き残ったメッシュレットの数を記録
+	uint SurvivingMeshlets;
+    
+    // 生き残ったメッシュレットのID（0〜31）を格納する配列
+    // （※ASのスレッドグループサイズ（例: numthreads(32,1,1)）に合わせる）
+	uint MeshletIndices[32];
 };
 
 
