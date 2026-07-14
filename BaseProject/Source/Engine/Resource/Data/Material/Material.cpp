@@ -11,6 +11,8 @@
 
 #include "../../../Editor/EditorUI/EditorUI.h"
 
+#include "../../../Option/OptionManager.h"
+
 void Engine::Resource::Material::Release()
 {
 	ENGINE_LOG("マテリアルの解放 : Release");
@@ -33,6 +35,10 @@ void Engine::Resource::Material::SetTexture2D(
 	metaRoughTex	= TextureLoader::LoadTexture(metaRoughTexGUID, TexColor::ORM);
 	emissiveTex		= TextureLoader::LoadTexture(emissiveTexGUID, TexColor::BLACK);
 	normalTex		= TextureLoader::LoadTexture(normalTexGUID, TexColor::NORMAL);
+
+
+	shedingModelGUID = Option::OptionManager::GetInstance().GetRenderingOption().defaultShadingModelTable;
+	shadingModelHandle = ResourceManager::Instance().Load<ShadingModelTable>(shedingModelGUID);
 }
 
 void Engine::Resource::Material::Archive(Persistence::Archive& a_ar)
@@ -54,6 +60,14 @@ void Engine::Resource::Material::Archive(Persistence::Archive& a_ar)
 
 	// シェーディングモデル
 	a_ar.Field("shedingModelGUID", shedingModelGUID);
+
+	// もしシェーディングモデルがアセットとしてないタイプだった場合
+	// デフォルトのシェーディングモデルを使用
+	auto _path = AssetDatabase::Instance().GetFileNameFromGUID(shedingModelGUID);
+	if (_path.empty())
+	{
+		shedingModelGUID = Option::OptionManager::GetInstance().GetRenderingOption().defaultShadingModelTable;
+	}
 }
 
 void Engine::Resource::Material::Edit(const Engine::GUID& a_guid)

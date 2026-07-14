@@ -10,6 +10,8 @@ namespace Engine::Option::GraphicsOptions
 	
 		bool isZPre = true;
 
+		Engine::GUID defaultShadingModelTable = {};
+
 		// カテゴリー
 		EOptionCategory GetCategory() override
 		{
@@ -31,6 +33,7 @@ namespace Engine::Option::GraphicsOptions
 		void Archive(Persistence::Archive& a_archive) override
 		{
 			a_archive.Field("isZPre", isZPre);
+			a_archive.Field("defaultShadingModelTable",defaultShadingModelTable);
 		}
 	};
 }

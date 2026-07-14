@@ -61,8 +61,7 @@ namespace Engine::Resource
 	public:
 
 		Model() = default;
-		~Model() {
-			ENGINE_LOG("モデルが解放されました"); }
+		~Model() = default;
 		NON_COPYABLE_MOVABLE(Model);
 
 

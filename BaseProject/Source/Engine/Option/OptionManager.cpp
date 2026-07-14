@@ -1,4 +1,7 @@
 ﻿#include "OptionManager.h"
+
+#include "../Editor/EditorUI/EditorUI.h"
+
 namespace Engine::Option
 {
 	void OptionManager::Serialize()
@@ -8,7 +11,13 @@ namespace Engine::Option
 	}
 	void OptionManager::Deserialize()
 	{
-		Persistence::Archive _archive(Persistence::Archive::Mode::Load, "Asset/Data/Option", "GraphicsOption", "optn");
+		Persistence::Archive _archive(
+			Persistence::Archive::Mode::Load, 
+			"Asset/Data/Option",
+			"GraphicsOption", 
+			"optn",
+			Persistence::Archive::ArchiveFormat::Json
+		);
 		Archive(_archive);
 	}
 	void Engine::Option::OptionManager::DrawEdit()
@@ -16,6 +25,15 @@ namespace Engine::Option
 		m_giOptions.DrawEdit();
 		m_windowOption.DrawEdit();
 		m_renderingOption.DrawEdit();
+
+		// シェーディングモデル
+		Handle<Resource::ShadingModelTable> _temp;
+		Editor::UI::DrawAssetSelectCombo<Resource::ShadingModelTable>(
+			"Change Shading Model",
+			"ShadingModelTable",
+			m_renderingOption.defaultShadingModelTable,
+			_temp
+		);
 	}
 	void OptionManager::Archive(Persistence::Archive& a_ar)
 	{

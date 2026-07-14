@@ -122,6 +122,7 @@ namespace Engine::Resource
 // 
 //==========================================================================================
 
+#include "Resource/Common/ResourceBuildContext.h"
 #include "Resource/Common/ResourceRef.h"
 
 //-----------------------------------------------------------------------------------------
