@@ -492,9 +492,8 @@ namespace Engine::Graphics
 					_meshInstanceData.animatedVertexStart = 0;
 					_meshInstanceData.isAnimated = 0;
 
-					_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex;
+					_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex + _msData.subsetMeshlets[_cmd.subIdx].cullOffset;
 
-					//_meshInstanceData.meshletCount = _msData.meshletHandle.count;
 					_meshInstanceData.meshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
 
 					_meshInstanceIdx = SetInstanceData(_meshInstanceData);
@@ -680,7 +679,7 @@ namespace Engine::Graphics
 					_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
 
 					// カリングスタートインデックス
-					_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex;
+					_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex + _msData.subsetMeshlets[_cmd.subIdx].cullOffset;
 
 					//_meshInstanceData.meshletCount = _msData.meshletHandle.count;
 					_meshInstanceData.meshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
@@ -864,46 +863,6 @@ namespace Engine::Graphics
 		a_pCtx->SetGraphicPSO(_pPSO);
 	}
 
-	//RangeHandle<Resource::MeshVertexFloat> GraphicsEngine::AllocateMeshVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex)
-	//{
-	//	return m_meshVerticesBuffer.AllocateAndUpload(a_vertex.data(), static_cast<UINT>(a_vertex.size()));
-	//}
-
-	//RangeHandle<uint32_t> GraphicsEngine::AllocateMeshIndex(const std::vector<uint32_t>& a_indices)
-	//{
-	//	return m_meshIndexBuffer.AllocateAndUpload(a_indices.data(), static_cast<UINT>(a_indices.size()));
-	//}
-
-	//const Handle<D3D12::SRV>& GraphicsEngine::GetVertexCPUHandle() const
-	//{
-	//	return m_meshVerticesBuffer.GetSRV();
-	//}
-
-	//const Handle<D3D12::SRV>& GraphicsEngine::GetIndexCPUHandle() const
-	//{
-	//	return m_meshIndexBuffer.GetSRV();
-	//}
-
-	//const Handle<D3D12::UAV>& GraphicsEngine::GetAnimatedBufferUAVHandle() const
-	//{
-	//	return m_animatedVertexBuffer.GetUAV();
-	//}
-
-	//const Handle<D3D12::SRV>& GraphicsEngine::GetAnimatedBufferSRVHandle() const
-	//{
-	//	return m_animatedVertexBuffer.GetSRV();
-	//}
-
-	//void GraphicsEngine::AnimatedBufferBarrierUAV(D3D12::GraphicsCommandList* a_pCmdList)
-	//{
-	//	m_animatedVertexBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	//}
-
-	//D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& GraphicsEngine::RefRWAnimatedBuffer()
-	//{
-	//	return m_animatedVertexBuffer;
-	//}
-
 	void GraphicsEngine::CreateGPUCameraData()
 	{
 		// リセット
@@ -987,7 +946,7 @@ namespace Engine::Graphics
 		m_prevNonJitteredViewProj = _nonJitteredViewProj;
 
 		// 完成したデータから、フラスタム平面を求める
-		m_cbGPUCamera.ExtractFrustumPlanes();
+		m_cbGPUCamera.ExtractFrustumPlanes(_nonJitteredViewProj);
 
 		// フレームカウントを進める
 		m_totlaFrameCount++;

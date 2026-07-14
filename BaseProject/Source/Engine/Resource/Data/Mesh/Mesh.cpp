@@ -155,6 +155,8 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 	uint32_t _currentVertexOffset = 0;
 	uint32_t _currentPrimitiveOffset = 0;
 
+	uint32_t _currentCullOffset = 0;
+
 	// 全サブセットのデータをまとめるマスター配列
 	std::vector<Engine::Resource::Meshlet> _masterMeshlets;
 	std::vector<uint32_t> _masterUVI;
@@ -257,12 +259,15 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 		SubsetMeshletData _smd = {};
 		_smd.meshletOffset = _currentMeshletOffset;
 		_smd.meshletCount = static_cast<uint32_t>(_dxMeshlets.size());
+		_smd.cullOffset = _currentCullOffset;
+		_smd.cullCount = static_cast<uint32_t>(_subsetCullData.size());
 		_subsetMeshletData.push_back(_smd);
 
 		// 次のサブセットのためにオフセットを進める
 		_currentMeshletOffset += static_cast<uint32_t>(_dxMeshlets.size());
 		_currentVertexOffset += static_cast<uint32_t>(_convertedUVI.size());
 		_currentPrimitiveOffset += static_cast<uint32_t>(_primitiveIndices.size());
+		_currentCullOffset += static_cast<uint32_t>(_subsetCullData.size());
 	}
 
 	// すべてのループが終わったら、構造体にマスター配列をムーブ

@@ -8,6 +8,9 @@ namespace Engine::Resource
 	{
 		uint32_t meshletOffset = 0; // このサブセットの描画を開始するメッシュレットのオフセット
 		uint32_t meshletCount = 0;  // このサブセットが持つメッシュレットの総数
+
+		uint32_t cullOffset = 0;
+		uint32_t cullCount = 0;
 	};
 
 	/// <summary>

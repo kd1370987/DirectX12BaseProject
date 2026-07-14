@@ -21,21 +21,18 @@ void MSMain(
 )
 {
 	
-	uint _arbitraryData = a_meshPayload.SurvivingMeshlets;
-	// ペイロードから自分が担当する「本当のメッシュレットID」を取得する
-	//uint realMeshletIndex = a_meshPayload.MeshletIndices[a_gid.x];
+	//uint _arbitraryData = a_meshPayload.SurvivingMeshlets;
 	
 	// ---------------------------------------------------------
 	// インスタンスとメッシュレットの情報取得
 	// ---------------------------------------------------------
-	uint _instanceID = g_baseInstanceIndex + a_gid.y;
-	//uint _instanceID = a_meshPayload.instanceID;
+	//uint _instanceID = g_baseInstanceIndex + a_gid.y;
+	uint _instanceID = a_meshPayload.instanceID;					// インスタンスIDはAS側で求めたものを使用
 	InstanceData _inst = g_instanceData[_instanceID];
 
 	// 対象のメッシュレットを取得
-	//uint _globalMeshletIndex = _inst.meshletOffset + a_gid.x;
-	uint _globalMeshletIndex = _inst.meshletOffset + _arbitraryData;
-	//uint _globalMeshletIndex = _inst.meshletOffset + realMeshletIndex;
+	//uint _globalMeshletIndex = _inst.meshletOffset + _arbitraryData;
+	uint _globalMeshletIndex = a_meshPayload.MeshletIndices[a_gid.x];
 	Meshlet _m = g_meshletData[_globalMeshletIndex];
 
 	// 上限を超えないように安全装置を入れる
@@ -52,7 +49,6 @@ void MSMain(
 	{
 		// ユニーク頂点インデックスの取得 
 		uint _globalUVI = _inst.uviOffset + _m.vertexOffset + a_gtid;
-		//uint _globalUVI = _inst.uviOffset + _m.vertexOffset + _arbitraryData;
 		uint _localVertexIndex = g_uniqueVertexIndices[_globalUVI];
 
 		Vertex _v;
