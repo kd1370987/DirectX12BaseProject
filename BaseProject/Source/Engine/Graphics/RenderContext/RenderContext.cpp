@@ -732,8 +732,7 @@ namespace Engine::Graphics
 				_lastPSO = _psoID;
 			}
 			m_pCmdList->SetGraphicsRoot32BitConstant(9,_item.meshInstanceIndex,0);
-			//m_pCmdList->DispatchMesh((_item.subsetMeshletCount + 31) / 32, 1, 1);
-			m_pCmdList->DispatchMesh(_item.subsetMeshletCount, 1, 1);
+			m_pCmdList->DispatchMesh((_item.subsetMeshletCount + 31) / 32, 1, 1);
 		}
 	}
 

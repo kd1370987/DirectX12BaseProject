@@ -1,30 +1,30 @@
 #include "MeshCommon.hlsli"
 
-// グループ内で共有するPayload変数
-groupshared PayloadStruct s_Payload;
-// ★追加: 可視メッシュレット数を数えるための共有カウンター
-groupshared uint s_VisibleCount;
-// 可視性チェック
-bool IsVisible(MeshletCullData a_cullData,float4x4 a_worldMat)
-{
-	// ローカル座標系の球の中心にワールド行列を掛けて、ワールド座標に変換する
-	float3 _centerWorld = mul(float4(a_cullData.BoundingSphereCenter, 1.0f), a_worldMat).xyz;
+//// グループ内で共有するPayload変数
+//groupshared PayloadStruct s_Payload;
+//// ★追加: 可視メッシュレット数を数えるための共有カウンター
+//groupshared uint s_VisibleCount;
+//// 可視性チェック
+//bool IsVisible(MeshletCullData a_cullData,float4x4 a_worldMat)
+//{
+//	// ローカル座標系の球の中心にワールド行列を掛けて、ワールド座標に変換する
+//	float3 _centerWorld = mul(float4(a_cullData.BoundingSphereCenter, 1.0f), a_worldMat).xyz;
 	
-	float _radiusWorld = a_cullData.BoundingSphereRadius * a_worldMat._11_22_33_44;
+//	float _radiusWorld = a_cullData.BoundingSphereRadius * a_worldMat._11_22_33_44;
 	
-	for (int _idx = 0; _idx < 6; ++_idx)
-	{
-		// 座標と平面との距離計算
-		float4 _plane = g_camera.frustumPlanes[_idx];
-		// 平面の方程式 (dot(Normal, Point) + Distance)
-		if (dot(_plane.xyz, _centerWorld) + _plane.w < -_radiusWorld)
-		{
-			return false;
-		}
-	}
+//	for (int _idx = 0; _idx < 6; ++_idx)
+//	{
+//		// 座標と平面との距離計算
+//		float4 _plane = g_camera.frustumPlanes[_idx];
+//		// 平面の方程式 (dot(Normal, Point) + Distance)
+//		if (dot(_plane.xyz, _centerWorld) + _plane.w < -_radiusWorld)
+//		{
+//			return false;
+//		}
+//	}
 
-	return true;
-}
+//	return true;
+//}
 
 //[numthreads(32, 1, 1)]
 //void ASMain(
@@ -83,10 +83,22 @@ bool IsVisible(MeshletCullData a_cullData,float4x4 a_worldMat)
 //	DispatchMesh(s_VisibleCount, 1, 1, s_Payload);
 //}
 
-[numthreads(1, 1, 1)]
-void ASMain(in uint3 a_groupID : SV_GroupID)
+// グローバル空間で共有メモリとして宣言
+groupshared PayloadStruct s_payload;
+
+[numthreads(32, 1, 1)]
+void ASMain(
+    uint a_gtid : SV_GroupThreadID,
+    uint3 a_groupID : SV_GroupID)
 {
-	PayloadStruct _payload;
-	_payload.SurvivingMeshlets = a_groupID.x;
-	DispatchMesh(1, 1, 1, _payload);
+    // ペイロードの書き込みは代表スレッド1つにやらせる
+	if (a_gtid == 0)
+	{
+		s_payload.SurvivingMeshlets = a_groupID.x;
+	}
+    
+    // 書き込みが終わるのをグループ内の全スレッドで待つ
+	GroupMemoryBarrierWithGroupSync();
+
+	DispatchMesh(1, 1, 1, s_payload);
 }
