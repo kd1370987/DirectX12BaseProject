@@ -7,6 +7,8 @@
 
 namespace Engine::Resource
 {
+
+
 	struct ModelData
 	{
 		// モデル名
@@ -26,21 +28,21 @@ namespace Engine::Resource
 		std::vector<int>							drawMeshNodeIndices;		// 描画するノード
 
 
-		ModelData() = default;
+		//ModelData() = default;
 
-		ModelData(const ModelData&)
-		{
-			assert(false && "ModelData copy ctor");
-		}
+		//ModelData(const ModelData&)
+		//{
+		//	assert(false && "ModelData copy ctor");
+		//}
 
-		ModelData& operator=(const ModelData&)
-		{
-			assert(false && "ModelData copy assign");
-			return *this;
-		}
+		//ModelData& operator=(const ModelData&)
+		//{
+		//	assert(false && "ModelData copy assign");
+		//	return *this;
+		//}
 
-		ModelData(ModelData&&) noexcept = default;
-		ModelData& operator=(ModelData&&) noexcept = default;
+		//ModelData(ModelData&&) noexcept = default;
+		//ModelData& operator=(ModelData&&) noexcept = default;
 	};
 
 	// モデル描画時用キャッシュデータ
@@ -54,7 +56,31 @@ namespace Engine::Resource
 		uint8_t  subIdx;
 		Engine::Resource::Alpha alphaMode;
 	};
+	struct ModelAssetData
+	{
+		std::string name;
 
+		std::vector<GUID> materialGUIDs;
+		std::vector<GUID> meshGUIDs;
+		std::vector<GUID> animationGUIDs;
+
+		std::vector<Node> nodes;
+
+		std::vector<int> rootNodes;
+		std::vector<int> boneNodes;
+		std::vector<int> meshNodes;
+		std::vector<int> collisionNodes;
+		std::vector<int> drawNodes;
+	};
+
+	struct ModelRuntimeData
+	{
+		std::vector<ResourceRef<Material>> materials;
+		std::vector<ResourceRef<Mesh>> meshes;
+		std::vector<ResourceRef<AnimationData>> animations;
+
+		std::vector<ModelDrawCommand> drawCommands;
+	};
 	// モデルデータ
 	class Model
 	{
@@ -96,6 +122,14 @@ namespace Engine::Resource
 
 		// 描画時用コマンド取得
 		const std::vector<ModelDrawCommand>& GetDrawCommandVec() const { return m_cachedDrawCommands; }
+	private:
+
+		// 描画用のコマンドを事前構築
+		void BuildDrawCmdCach();
+
+
+		// 優先順位の高い拡張子を検索
+		std::string FinddExtension(const std::vector<std::string>& a_extVed);
 
 	private:
 

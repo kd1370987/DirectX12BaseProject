@@ -339,7 +339,7 @@ namespace Engine::Resource
 		return "";
 	}
 
-	Engine::GUID AssetDatabase::GetGUIDFromFilePath(const std::string& a_path)
+	Engine::GUID AssetDatabase::GetGUIDFromFilePath(const std::string& a_path) const
 	{
 		// 入力されたパスから拡張子を取り除き、ベースパスとして正規化する
 		std::filesystem::path _inputPath(a_path);
@@ -371,6 +371,23 @@ namespace Engine::Resource
 			return _it->second;
 		}
 		return std::span<const AssetProperty>();
+	}
+
+	const AssetProperty* AssetDatabase::GetAssetProperty(const Engine::GUID& a_guid) const
+	{
+		auto _it = m_assetMap.find(a_guid);
+		if (_it != m_assetMap.end())
+		{
+			return &_it->second;
+		}
+
+		ENGINE_LOG("アセットが見つかりませんでした : %s",a_guid.String().c_str());
+		return nullptr;
+	}
+
+	const AssetProperty* AssetDatabase::GetAssetProperty(const std::string& a_filePath) const
+	{
+		return GetAssetProperty(GetGUIDFromFilePath(a_filePath));
 	}
 
 	

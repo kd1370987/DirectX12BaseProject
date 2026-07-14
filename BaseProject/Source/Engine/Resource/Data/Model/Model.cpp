@@ -11,28 +11,29 @@
 
 namespace Engine::Resource
 {
+
+	// モデルの構築
 	void Model::Import(const std::string& a_filePath)
 	{
-		ModelData _model = {};
+		// アセットデータベースからメタファイルを検索
+		auto* _pAssetProp = AssetDatabase::Instance().GetAssetProperty(a_filePath);
+		if (!_pAssetProp)
+		{
+			ENGINE_LOG("メタファイルが見つからなかったためモデルの読み込みに失敗");
+			return;
+		}	
 
-		// 拡張子とファイルディレクトリ取得
-		std::string _ext = FileUtility::GetFilePathExtension(a_filePath);
-		std::string _dir = FileUtility::GetDirFromPath(a_filePath);
+		// 優先度の高い拡張子のタイプを検索
+		auto _ext = FinddExtension(_pAssetProp->extensionsVec);
 
-		// 独自形式があるのかチェック
-		auto _originExt = FileUtility::FindExtensionInDirectory(_dir, "ojmdl");
-		//-------------------------------------
-		// 独自形式読み込み
-		//-------------------------------------
-		if (_originExt.size() > 0)
+		if (_ext == ".obmdl")
 		{
 			Load(a_filePath);
 		}
-		//-------------------------------------
-		// TinyGLTFを使用
-		//-------------------------------------
-		else if (_ext == "gltf")
+		else if (_ext == ".gltf")
 		{
+			// パース時の出力用
+			ModelData _model = {};
 			_model = GLTF::Import(a_filePath);
 			m_name = std::move(_model.name);
 
@@ -63,56 +64,18 @@ namespace Engine::Resource
 
 			m_name = FileUtility::GetFileName(a_filePath);
 		}
-		//-------------------------------------
-		// Assimpを使用
-		//-------------------------------------
+		else if (_ext == ".ojmdl")
+		{
+			Load(a_filePath);
+		}
 		else
 		{
-			Engine::Editor::MainEditor::Instance().AddLog("Model Import Err : %s\n",a_filePath);
+			ENGINE_LOG("この拡張子のモデルは対応していません : %s",_ext.c_str());
 			return;
 		}
-
-
-		// ノードに名前のハッシュを作る
-		for (auto& _node : m_originalNodes)
-		{
-			_node.nodeNameHash = StringUtility::ToHash(_node.name);
-		}
-
-		// 描画時コマンド用に事前キャッシュを作っておく
-		// 描画用meshを持っているノード
-		for (auto& _nodeIdx : m_drawMeshNodeIndices)
-		{
-			for (auto& _meshIdx : m_originalNodes[_nodeIdx].meshIndices)
-			{
-				// 描画メッシュハンドル取得
-				const auto& _meshHandle = m_meshHandleVec[_meshIdx];
-				auto* _pMesh = Engine::Resource::ResourceManager::Instance().Ref(_meshHandle);
-				// サブセットごとに描画するアイテムを集める
-				for (UINT _subIdx = 0; _subIdx < _pMesh->GetMetaData().subsets.size(); ++_subIdx)
-				{
-					// 面が一枚もなければスキップ
-					if (_pMesh->GetMetaData().subsets[_subIdx].faceCount == 0) continue;
-
-					// マテリアルハンドル取得
-					const auto& _materialHandle =
-						m_materialHandleVec[_pMesh->GetMetaData().subsets[_subIdx].materialNumber];
-					auto* _pMate = Engine::Resource::ResourceManager::Instance().Ref(_materialHandle);
-
-					// コマンド作成
-					ModelDrawCommand _cmd = {};
-					_cmd.pMaterial = _pMate;
-					_cmd.pMesh = _pMesh;
-					_cmd.nodeIndex = static_cast<uint16_t>(_nodeIdx);
-					_cmd.meshRawID = static_cast<uint16_t>(_meshHandle.GetIndex());
-					_cmd.materialRawID = static_cast<uint16_t>(_materialHandle.GetIndex());
-					_cmd.subIdx = _subIdx;
-					_cmd.alphaMode = _pMate->alphaMode;
-					m_cachedDrawCommands.push_back(_cmd);
-				}
-
-			}
-		}
+	
+		// 描画用事前コマンド構築
+		BuildDrawCmdCach();
 	}
 	void Model::Load(const std::string& a_fileDir)
 	{
@@ -296,5 +259,87 @@ namespace Engine::Resource
 
 		// 見つからなかった場合
 		return Handle<AnimationData>();
+	}
+	void Model::BuildDrawCmdCach()
+	{
+		// ノードに名前のハッシュを作る
+		for (auto& _node : m_originalNodes)
+		{
+			_node.nodeNameHash = StringUtility::ToHash(_node.name);
+		}
+
+		// 描画時コマンド用に事前キャッシュを作っておく
+		// 描画用meshを持っているノード
+		for (auto& _nodeIdx : m_drawMeshNodeIndices)
+		{
+			for (auto& _meshIdx : m_originalNodes[_nodeIdx].meshIndices)
+			{
+				// 描画メッシュハンドル取得
+				const auto& _meshHandle = m_meshHandleVec[_meshIdx];
+				auto* _pMesh = Engine::Resource::ResourceManager::Instance().Ref(_meshHandle);
+				// サブセットごとに描画するアイテムを集める
+				for (UINT _subIdx = 0; _subIdx < _pMesh->GetMetaData().subsets.size(); ++_subIdx)
+				{
+					// 面が一枚もなければスキップ
+					if (_pMesh->GetMetaData().subsets[_subIdx].faceCount == 0) continue;
+
+					// マテリアルハンドル取得
+					const auto& _materialHandle =
+						m_materialHandleVec[_pMesh->GetMetaData().subsets[_subIdx].materialNumber];
+					auto* _pMate = Engine::Resource::ResourceManager::Instance().Ref(_materialHandle);
+
+					// コマンド作成
+					ModelDrawCommand _cmd = {};
+					_cmd.pMaterial = _pMate;
+					_cmd.pMesh = _pMesh;
+					_cmd.nodeIndex = static_cast<uint16_t>(_nodeIdx);
+					_cmd.meshRawID = static_cast<uint16_t>(_meshHandle.GetIndex());
+					_cmd.materialRawID = static_cast<uint16_t>(_materialHandle.GetIndex());
+					_cmd.subIdx = _subIdx;
+					_cmd.alphaMode = _pMate->alphaMode;
+					m_cachedDrawCommands.push_back(_cmd);
+				}
+
+			}
+		}
+	}
+	std::string Model::FinddExtension(const std::vector<std::string>& a_extVed)
+	{
+		enum class EExtTier
+		{
+			OB,				// binary ".obmdl",
+			Default,		// デフォルトのアセット拡張子".gltf",
+			OJ				// JSON  ".ojmdl"
+		};
+		
+		std::string _res = "";
+			
+		EExtTier _tier = EExtTier::OJ;
+		for (size_t _i = 0; _i < a_extVed.size(); ++_i)
+		{
+			if (a_extVed[_i] == ".obmdl")
+			{
+				_res = ".obmdl";
+				break;
+			}
+			else if (a_extVed[_i] == ".gltf")
+			{
+				if(_tier > EExtTier::Default)
+				{
+					_res = ".gltf";
+					_tier = EExtTier::Default;
+				}
+			}
+			else if (a_extVed[_i] == ".ojmdl")
+			{
+				if(_tier > EExtTier::OJ)
+				{
+					_res = ".ojmdl";
+					_tier = EExtTier::OJ;
+				}
+			}
+		}
+
+		return _res;
 	}
 }

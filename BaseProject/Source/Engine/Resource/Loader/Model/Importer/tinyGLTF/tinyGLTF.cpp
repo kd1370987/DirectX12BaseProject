@@ -115,7 +115,7 @@ Engine::Resource::ModelData Engine::Resource::GLTF::Import(const std::string& a_
 	return Engine::Resource::GLTF::Serialize(a_filePath,_spGLTFModel);
 }
 
-std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(std::string_view a_filePath)
+tinygltf::Model tinyLoadFromFile(std::string_view a_filePath)
 {
 	//===============================================
 	//
@@ -145,110 +145,107 @@ std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(
 
 		if (!_warn.empty())
 		{
-			//ImGuiContex::Instance().AddLog("Warn : %s\n", _warn.c_str());
+			ENGINE_WARNING("tinyGLTF : ParseWarn : %s", _warn.c_str());
 		}
-
 		if (!_err.empty())
 		{
-			//ImGuiContex::Instance().AddLog("Err : %s\n", _err.c_str());
+			ENGINE_WARNING("tinyGLTF : ParseErr : %s",_err.c_str());
 		}
-
 		if (!_ret)
 		{
-			//ImGuiContex::Instance().AddLog("Failed to parse gltf: %s", a_filePath.data());
-			return nullptr;
+			ENGINE_WARNING("tinyGLTF : パースに失敗 : %s",a_filePath.data());
 		}
 	}
+	return _tinyModel;
+}
 
-	// 戻り値用データを準備
-	std::shared_ptr<Engine::Resource::GLTF::ModelData> _destModel = {};
-	_destModel = std::make_shared<Engine::Resource::GLTF::ModelData>();
+// マテリアルパース
+std::vector<Engine::Resource::GLTF::Material> ParseMaterial(const tinygltf::Model& a_tinyModel)
+{
+	std::vector<Engine::Resource::GLTF::Material> _result = {};
 
-	//----------------------------------------------------
-	// マテリアル
-	//----------------------------------------------------
+	// 指定Indexのテクスチャ名取得
+	auto GetTextureFilename = [&a_tinyModel](int a_texIndex) -> std::string
+		{
+			if (a_texIndex < 0) return "";
+			int _imgIndex = a_tinyModel.textures[a_texIndex].source;
+			if (_imgIndex < 0) return "";
+			return a_tinyModel.images[_imgIndex].uri;
+		};
+
+	// マテリアル数だけ、配列を確保
+	_result.resize(a_tinyModel.materials.size());
+
+	// 全マテリアルデータをコピーする
+	for (UINT _materialIdx = 0; _materialIdx < _result.size(); ++_materialIdx)
 	{
-		// 指定Indexのテクスチャ名取得
-		auto GetTextureFilename = [&_tinyModel](int a_texIndex) -> std::string
-			{
-				if (a_texIndex < 0) return "";
-				int _imgIndex = _tinyModel.textures[a_texIndex].source;
-				if (_imgIndex < 0) return "";
-				return _tinyModel.images[_imgIndex].uri;
+		const auto& _srcMaterial = a_tinyModel.materials[_materialIdx];        // コピー元確保
+		auto& _destMaterial = _result[_materialIdx];            // コピー先確保
+
+		// マテリアル名
+		_destMaterial.name = _srcMaterial.name;
+
+		// 透明モード設定
+		_destMaterial.alphaMode = _srcMaterial.alphaMode;			   // モード
+		_destMaterial.AlphaCutoff = (float)(_srcMaterial.alphaCutoff); // 閾値
+		_destMaterial.doubleSided = _srcMaterial.doubleSided;          // 設定面
+
+		// 基本色
+		_destMaterial.baseColorTexName = GetTextureFilename(_srcMaterial.pbrMetallicRoughness.baseColorTexture.index); // 名前
+		if (_srcMaterial.pbrMetallicRoughness.baseColorFactor.size() == 4)
+		{
+			// 乗算用値
+			_destMaterial.baseColorFactor = {
+				static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[0]),
+				static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[1]),
+				static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[2]),
+				static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[3])
 			};
-
-		// マテリアル数だけ、配列を確保
-		_destModel->materials.resize(_tinyModel.materials.size());
-
-		// 全マテリアルデータをコピーする
-		for (UINT _materialIdx = 0; _materialIdx < _destModel->materials.size(); ++_materialIdx)
-		{
-			const auto& _srcMaterial = _tinyModel.materials[_materialIdx];        // コピー元確保
-			auto& _destMaterial = _destModel->materials[_materialIdx];            // コピー先確保
-
-			// マテリアル名
-			_destMaterial.name = _srcMaterial.name;
-
-			// 透明モード設定
-			_destMaterial.alphaMode = _srcMaterial.alphaMode;			   // モード
-			_destMaterial.AlphaCutoff = (float)(_srcMaterial.alphaCutoff); // 閾値
-			_destMaterial.doubleSided = _srcMaterial.doubleSided;          // 設定面
-
-			// 基本色
-			_destMaterial.baseColorTexName = GetTextureFilename(_srcMaterial.pbrMetallicRoughness.baseColorTexture.index); // 名前
-			if (_srcMaterial.pbrMetallicRoughness.baseColorFactor.size() == 4)
-			{
-				// 乗算用値
-				_destMaterial.baseColorFactor = {
-					static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[0]),
-					static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[1]),
-					static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[2]),
-					static_cast<float>(_srcMaterial.pbrMetallicRoughness.baseColorFactor[3])
-				};
-			}
-
-
-			// 金属製・粗さ
-			_destMaterial.metallicRoughnessTexName = GetTextureFilename(_srcMaterial.pbrMetallicRoughness.metallicRoughnessTexture.index);
-			_destMaterial.metallicFactor = static_cast<float>(_srcMaterial.pbrMetallicRoughness.metallicFactor);
-			_destMaterial.roughnessFactor = static_cast<float>(_srcMaterial.pbrMetallicRoughness.roughnessFactor);
-
-			// エミッシブ
-			_destMaterial.emissiveTexName = GetTextureFilename(_srcMaterial.emissiveTexture.index);
-			if (_srcMaterial.emissiveFactor.size() == 3)
-			{
-				_destMaterial.emissiveFactor = {
-					static_cast<float>(_srcMaterial.emissiveFactor[0]),
-					static_cast<float>(_srcMaterial.emissiveFactor[1]),
-					static_cast<float>(_srcMaterial.emissiveFactor[2])
-				};
-			}
-
-			// 法線マップ
-			_destMaterial.normalTexName = GetTextureFilename(_srcMaterial.normalTexture.index);
-
-			// オクルージョンマップ
-			_destMaterial.occlusionTexName = GetTextureFilename(_srcMaterial.occlusionTexture.index);
 		}
 
-		// マテリアルがゼロの場合は、１つだけ作成しておく
-		if (_destModel->materials.size() == 0)
+
+		// 金属製・粗さ
+		_destMaterial.metallicRoughnessTexName = GetTextureFilename(_srcMaterial.pbrMetallicRoughness.metallicRoughnessTexture.index);
+		_destMaterial.metallicFactor = static_cast<float>(_srcMaterial.pbrMetallicRoughness.metallicFactor);
+		_destMaterial.roughnessFactor = static_cast<float>(_srcMaterial.pbrMetallicRoughness.roughnessFactor);
+
+		// エミッシブ
+		_destMaterial.emissiveTexName = GetTextureFilename(_srcMaterial.emissiveTexture.index);
+		if (_srcMaterial.emissiveFactor.size() == 3)
 		{
-			_destModel->materials.resize(1);
+			_destMaterial.emissiveFactor = {
+				static_cast<float>(_srcMaterial.emissiveFactor[0]),
+				static_cast<float>(_srcMaterial.emissiveFactor[1]),
+				static_cast<float>(_srcMaterial.emissiveFactor[2])
+			};
 		}
+
+		// 法線マップ
+		_destMaterial.normalTexName = GetTextureFilename(_srcMaterial.normalTexture.index);
+
+		// オクルージョンマップ
+		_destMaterial.occlusionTexName = GetTextureFilename(_srcMaterial.occlusionTexture.index);
 	}
 
-	//----------------------------------------------------
-	// ノード
-	//----------------------------------------------------
+	// マテリアルがゼロの場合は、１つだけ作成しておく
+	if (_result.size() == 0)
+	{
+		_result.resize(1);
+	}
 
-	_destModel->nodes.resize(_tinyModel.nodes.size());      // 全ノード分メモリを確保
+	return _result;
+}
+
+std::vector<Engine::Resource::GLTF::Node> ParseNode(const tinygltf::Model& a_tinyModel)
+{
+	std::vector<Engine::Resource::GLTF::Node> _result = {};
+	_result.resize(a_tinyModel.nodes.size());      // 全ノード分配列を確保
 	//-------------------------
 	// 全ノード　基本情報設定
 	//-------------------------
-	for (UINT _nodeIdx = 0; _nodeIdx < _destModel->nodes.size(); ++_nodeIdx)
+	for (UINT _nodeIdx = 0; _nodeIdx < _result.size(); ++_nodeIdx)
 	{
-		auto* _destNode = &_destModel->nodes[_nodeIdx];     // コピー先
+		auto* _destNode = &_result[_nodeIdx];     // コピー先
 		_destNode->localTransform = DXSM::Matrix::Identity;
 		_destNode->worldTransform = DXSM::Matrix::Identity;
 		_destNode->inverseBindMatrix = DXSM::Matrix::Identity;
@@ -256,13 +253,13 @@ std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(
 		//-----------------------
 		// 情報
 		//-----------------------
-		_destNode->name = _tinyModel.nodes[_nodeIdx].name;              // 名前
-		_destNode->children = _tinyModel.nodes[_nodeIdx].children;      // 子インデックス配列
+		_destNode->name = a_tinyModel.nodes[_nodeIdx].name;              // 名前
+		_destNode->children = a_tinyModel.nodes[_nodeIdx].children;      // 子インデックス配列
 
 		// 全ての子に、親を設定
 		for (auto&& _idx : _destNode->children)
 		{
-			_destModel->nodes[_idx].parent = _nodeIdx;
+			_result[_idx].parent = _nodeIdx;
 		}
 
 		//-----------------------
@@ -272,40 +269,40 @@ std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(
 		DXSM::Matrix _rMat = DXSM::Matrix::Identity;
 		DXSM::Matrix _tMat = DXSM::Matrix::Identity;
 		// 拡縮
-		if (_tinyModel.nodes[_nodeIdx].scale.size() != 0)
+		if (a_tinyModel.nodes[_nodeIdx].scale.size() != 0)
 		{
 			_sMat = DXSM::Matrix::CreateScale(
-				static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[0]),
-				static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[1]),
-				static_cast<float>(_tinyModel.nodes[_nodeIdx].scale[2])
+				static_cast<float>(a_tinyModel.nodes[_nodeIdx].scale[0]),
+				static_cast<float>(a_tinyModel.nodes[_nodeIdx].scale[1]),
+				static_cast<float>(a_tinyModel.nodes[_nodeIdx].scale[2])
 			);
 		}
 		// 回転
-		if (_tinyModel.nodes[_nodeIdx].rotation.size() != 0)
+		if (a_tinyModel.nodes[_nodeIdx].rotation.size() != 0)
 		{
 			DXSM::Quaternion _quat(
-				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[0]),
-				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[1]),
-				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[2]),
-				static_cast<float>(_tinyModel.nodes[_nodeIdx].rotation[3])
+				static_cast<float>(a_tinyModel.nodes[_nodeIdx].rotation[0]),
+				static_cast<float>(a_tinyModel.nodes[_nodeIdx].rotation[1]),
+				static_cast<float>(a_tinyModel.nodes[_nodeIdx].rotation[2]),
+				static_cast<float>(a_tinyModel.nodes[_nodeIdx].rotation[3])
 			);
 			_rMat = DXSM::Matrix::CreateFromQuaternion(_quat);
 		}
 		// 移動
-		if (_tinyModel.nodes[_nodeIdx].translation.size() != 0)
+		if (a_tinyModel.nodes[_nodeIdx].translation.size() != 0)
 		{
 			_tMat = DXSM::Matrix::CreateTranslation(
-				static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[0]),
-				static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[1]),
-				static_cast<float>(_tinyModel.nodes[_nodeIdx].translation[2])
+				static_cast<float>(a_tinyModel.nodes[_nodeIdx].translation[0]),
+				static_cast<float>(a_tinyModel.nodes[_nodeIdx].translation[1]),
+				static_cast<float>(a_tinyModel.nodes[_nodeIdx].translation[2])
 			);
 		}
 		// 行列
-		if (_tinyModel.nodes[_nodeIdx].matrix.size() != 0)
+		if (a_tinyModel.nodes[_nodeIdx].matrix.size() != 0)
 		{
 			for (int _n = 0; _n < 16; ++_n)
 			{
-				*(&_sMat._11 + _n) = (float)_tinyModel.nodes[_nodeIdx].matrix[_n];
+				*(&_sMat._11 + _n) = (float)a_tinyModel.nodes[_nodeIdx].matrix[_n];
 			}
 		}
 
@@ -316,73 +313,51 @@ std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(
 		XMFLOAT4X4MirrorZ(_destNode->localTransform);
 
 		// メッシュあり
-		if (_tinyModel.nodes[_nodeIdx].mesh >= 0)
+		if (a_tinyModel.nodes[_nodeIdx].mesh >= 0)
 		{
 			// メッシュフラグON
 			_destNode->isMesh = true;
 		}
 	}
+	
+	return _result;
+}
+
+std::vector<int> ParseRootNodes(const tinygltf::Model& a_tinyModel)
+{
+	std::vector<int> _result = {};
 	//----------------------------------------------------
 	// ノードノードのみの参照リスト
 	//----------------------------------------------------
-	for (auto&& _idx : _tinyModel.scenes[0].nodes)
+	for (auto&& _idx : a_tinyModel.scenes[0].nodes)
 	{
-		_destModel->rootNodeIndices.push_back(_idx);
+		_result.push_back(_idx);
 	}
+	return _result;
+}
 
-	//----------------------------------------------------
-	// 各ノードのTransformからWorldTransformを算出
-	//----------------------------------------------------
-	{
-		// 行列計算用再起関数
-		std::function<void(Engine::Resource::GLTF::Node*, const DirectX::XMFLOAT4X4*)> _rec =
-			[&_rec, &_destModel](Engine::Resource::GLTF::Node* a_node, const DirectX::XMFLOAT4X4* a_parentMat)
-			{
-				// ワールド行列をもとめる
-				if (a_parentMat)
-				{
-					DXSM::Matrix _localMat(a_node->localTransform);
-					DXSM::Matrix _parentMat(*a_parentMat);
-					a_node->worldTransform = _localMat * _parentMat;
-				}
-				else
-				{
-					a_node->worldTransform = a_node->localTransform;
-				}
-
-
-				// 子の再帰
-				for (auto&& _child : a_node->children)
-				{
-					_rec(&_destModel->nodes[_child], &a_node->worldTransform);
-				}
-			};
-
-		// 親子関係から行列を作成
-		for (int _nodeIdx : _destModel->rootNodeIndices)
-		{
-			_rec(&_destModel->nodes[_nodeIdx], nullptr);
-		}
-	}
+std::vector<int> ParseBoneIndices(const tinygltf::Model& a_tinyModel, std::vector<Engine::Resource::GLTF::Node>& a_nodes)
+{
+	std::vector<int> _result = {};
 
 	//----------------------------------------------------
 	// ボーン
 	//----------------------------------------------------
-	if (_tinyModel.skins.size() > 0)
+	if (a_tinyModel.skins.size() > 0)
 	{
 		// 配列確保
-		_destModel->boneNodeIndices = _tinyModel.skins[0].joints;
+		_result = a_tinyModel.skins[0].joints;
 
 		// InverseBindMarices(オフセット行列)取得用
-		GLTFBufferGetter _ibmGetter(&_tinyModel, _tinyModel.skins[0].inverseBindMatrices);
+		GLTFBufferGetter _ibmGetter(&a_tinyModel, a_tinyModel.skins[0].inverseBindMatrices);
 
 		// ボーンだけのノード参照配列
-		for (UINT _jointIdx = 0; _jointIdx < _tinyModel.skins[0].joints.size(); ++_jointIdx)
+		for (UINT _jointIdx = 0; _jointIdx < a_tinyModel.skins[0].joints.size(); ++_jointIdx)
 		{
 			// _jointIdx番目のボーンの、ノード内でのIndex
-			int _originNodeIdx = _tinyModel.skins[0].joints[_jointIdx];
+			int _originNodeIdx = a_tinyModel.skins[0].joints[_jointIdx];
 
-			Engine::Resource::GLTF::Node* _boneNode = &_destModel->nodes[_originNodeIdx];
+			Engine::Resource::GLTF::Node* _boneNode = &a_nodes[_originNodeIdx];
 			_boneNode->boneNodeIndex = _jointIdx;
 
 			// オフセット行列取得
@@ -401,14 +376,14 @@ std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(
 		}
 
 		// ボーンLocalMat算出
-		for (int _nodeIdx : _destModel->boneNodeIndices)
+		for (int _nodeIdx : _result)
 		{
-			Engine::Resource::GLTF::Node* _boneNode = &_destModel->nodes[_nodeIdx];
+			Engine::Resource::GLTF::Node* _boneNode = &a_nodes[_nodeIdx];
 
 			if (_boneNode->parent >= 0)
 			{
 				DXSM::Matrix _boneWorldMat(_boneNode->worldTransform);
-				DXSM::Matrix _invBindMat(_destModel->nodes[_boneNode->parent].inverseBindMatrix);
+				DXSM::Matrix _invBindMat(a_nodes[_boneNode->parent].inverseBindMatrix);
 				_boneNode->localTransform = _boneWorldMat * _invBindMat;
 			}
 			else
@@ -418,6 +393,63 @@ std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(
 		}
 	}
 
+	return _result;
+}
+
+void CalcWorldTransform(Engine::Resource::GLTF::ModelData* a_model)
+{
+	//----------------------------------------------------
+	// 各ノードのTransformからWorldTransformを算出
+	//----------------------------------------------------
+	
+	// 行列計算用再起関数
+	std::function<void(Engine::Resource::GLTF::Node*, const DirectX::XMFLOAT4X4*)> _rec =
+		[&_rec, &a_model](Engine::Resource::GLTF::Node* a_node, const DirectX::XMFLOAT4X4* a_parentMat)
+		{
+			// ワールド行列をもとめる
+			if (a_parentMat)
+			{
+				DXSM::Matrix _localMat(a_node->localTransform);
+				DXSM::Matrix _parentMat(*a_parentMat);
+				a_node->worldTransform = _localMat * _parentMat;
+			}
+			else
+			{
+				a_node->worldTransform = a_node->localTransform;
+			}
+
+
+			// 子の再帰
+			for (auto&& _child : a_node->children)
+			{
+				_rec(&a_model->nodes[_child], &a_node->worldTransform);
+			}
+		};
+
+	// 親子関係から行列を作成
+	for (int _nodeIdx : a_model->rootNodeIndices)
+	{
+		_rec(&a_model->nodes[_nodeIdx], nullptr);
+	}
+}
+
+std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(std::string_view a_filePath)
+{
+	//===============================================
+	// モデルデータの読み込み
+	//===============================================
+	tinygltf::Model _tinyModel = tinyLoadFromFile(a_filePath);
+
+	// 戻り値用データを準備
+	std::shared_ptr<Engine::Resource::GLTF::ModelData> _destModel = {};
+	_destModel = std::make_shared<Engine::Resource::GLTF::ModelData>();
+
+	_destModel->materials = ParseMaterial(_tinyModel);									// マテリアルパース
+	_destModel->nodes = ParseNode(_tinyModel);											// ノードパース
+	_destModel->rootNodeIndices = ParseRootNodes(_tinyModel);							// ルートノード
+	CalcWorldTransform(_destModel.get());												// 各ノードのTransformからWorldTransformを算出
+	_destModel->boneNodeIndices = ParseBoneIndices(_tinyModel,_destModel->nodes);		// ボーン
+	
 	//----------------------------------------------------
 	// メッシュ
 	//----------------------------------------------------
