@@ -145,6 +145,9 @@ namespace Engine::Graphics
 		uint32_t animatedVertexStart;		// アニメーション頂点オフセット
 		uint32_t isAnimated;				// アニメーションするかどうか
 		uint32_t cullStart;					// カリングバッファオフセット
+
+		uint32_t meshletCount;				// メッシュレットカウント
+		DXSM::Vector3 pad;
 	};
 	struct MeshMaterial
 	{

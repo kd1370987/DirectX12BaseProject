@@ -22,6 +22,11 @@ struct InstanceData
 
 	// カリングデータ
 	uint cullStart;
+
+	// メッシュレット総数 : 安全用
+	uint meshletCount;
+
+	float3 pad;
 };
 
 // マテリアルの情報
@@ -157,6 +162,8 @@ struct PayloadStruct
     // 生き残ったメッシュレットのID（0〜31）を格納する配列
     // （※ASのスレッドグループサイズ（例: numthreads(32,1,1)）に合わせる）
 	uint MeshletIndices[32];
+
+	uint instanceID;
 };
 
 

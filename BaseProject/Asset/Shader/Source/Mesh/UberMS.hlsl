@@ -20,20 +20,27 @@ void MSMain(
 	out vertices VertexOutput outVerts[64]
 )
 {
+	
+	uint _arbitraryData = a_meshPayload.SurvivingMeshlets;
 	// ペイロードから自分が担当する「本当のメッシュレットID」を取得する
-	uint realMeshletIndex = a_meshPayload.MeshletIndices[a_gid.x];
+	//uint realMeshletIndex = a_meshPayload.MeshletIndices[a_gid.x];
 	
 	// ---------------------------------------------------------
 	// インスタンスとメッシュレットの情報取得
 	// ---------------------------------------------------------
-	int p = 0;
 	uint _instanceID = g_baseInstanceIndex + a_gid.y;
+	//uint _instanceID = a_meshPayload.instanceID;
 	InstanceData _inst = g_instanceData[_instanceID];
 
 	// 対象のメッシュレットを取得
 	//uint _globalMeshletIndex = _inst.meshletOffset + a_gid.x;
-	uint _globalMeshletIndex = _inst.meshletOffset + realMeshletIndex;
+	uint _globalMeshletIndex = _inst.meshletOffset + _arbitraryData;
+	//uint _globalMeshletIndex = _inst.meshletOffset + realMeshletIndex;
 	Meshlet _m = g_meshletData[_globalMeshletIndex];
+
+	// 上限を超えないように安全装置を入れる
+	uint _vCount = min(_m.vertexCount,64);
+	uint _pCount = min(_m.primitiveCount,126);
 
 	// MSの出力を宣言
 	SetMeshOutputCounts(_m.vertexCount, _m.primitiveCount);

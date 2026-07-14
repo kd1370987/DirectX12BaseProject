@@ -2,7 +2,8 @@
 
 // グループ内で共有するPayload変数
 groupshared PayloadStruct s_Payload;
-
+// ★追加: 可視メッシュレット数を数えるための共有カウンター
+groupshared uint s_VisibleCount;
 // 可視性チェック
 bool IsVisible(MeshletCullData a_cullData,float4x4 a_worldMat)
 {
@@ -25,42 +26,67 @@ bool IsVisible(MeshletCullData a_cullData,float4x4 a_worldMat)
 	return true;
 }
 
-
-
-[numthreads(32, 1, 1)]
-void ASMain(
-	uint a_gtid : SV_GroupThreadID, // スレッドのローカルID (0 ~ 31)
-    uint3 a_gid : SV_GroupID // グループID
-)
-{
-	// インスタンス情報の取得
-	uint _instanceID = g_baseInstanceIndex + a_gid.y;
-	InstanceData _inst = g_instanceData[_instanceID];
-
-	// メッシュレットIDを計算 (グループID × スレッド数 + ローカルID)
-	uint _dispatchThreadID = (a_gid.x * 32) + a_gtid;
-
-	// カリングデータのインデックス
-	uint _cullDataIndex = _inst.cullStart + _dispatchThreadID;
-
-	// 可視性チェック
-	bool _isVisible = IsVisible(g_cullData[_cullDataIndex], _inst.worldMat);
-	
-	
-	// 可視性チェックが成功したメッシュレットをペイロードに格納
-	if(_isVisible)
-	{
-		uint _idx = WavePrefixCountBits(_isVisible);	// Wave中で何番目に可視性チェックが成功したか
-		s_Payload.MeshletIndices[_idx] = _dispatchThreadID; // 可視性チェックが成功した場合にメッシュレットのインデックス
-	}
-
-	uint _visibleCount = WaveActiveCountBits(_isVisible);	// Wave中で可視性チェックが成功したActiveLaneの数
-	DispatchMesh(_visibleCount, 1, 1, s_Payload); // 可視性チェックが成功した数分のスレッドグループが生成される
-}
-//[numthreads(1, 1, 1)]
-//void ASMain(in uint3 a_groupID : SV_GroupID)
+//[numthreads(32, 1, 1)]
+//void ASMain(
+//	uint a_gtid : SV_GroupThreadID, // スレッドのローカルID (0 ~ 31)
+//    uint3 a_gid : SV_GroupID // グループID
+//)
 //{
-//	PayloadStruct _payload;
-//	_payload.myArbitaryData = a_groupID.x;
-//	DispatchMesh(1, 1, 1, _payload);
+//// --------------------------------------------------
+//	// 1. ペイロードとカウンターの初期化（スレッド0が行う）
+//	// --------------------------------------------------
+//	uint _instanceID = g_baseInstanceIndex + a_gid.y;
+	
+//	if (a_gtid == 0)
+//	{
+//		s_Payload.instanceID = _instanceID;
+//		s_VisibleCount = 0; // カウンターを0にリセット
+//	}
+	
+//	// ★最重要: 初期化が終わるのを全スレッドで確実に待つ！
+//	GroupMemoryBarrierWithGroupSync();
+
+//	InstanceData _inst = g_instanceData[_instanceID];
+
+//	// メッシュレットIDを計算
+//	uint _dispatchThreadID = (a_gid.x * 32) + a_gtid;
+
+//	// --------------------------------------------------
+//	// 2. 可視性チェック
+//	// --------------------------------------------------
+//	bool _isVisible = false;
+//	if (_dispatchThreadID < _inst.meshletCount)
+//	{
+//		// uint _cullDataIndex = _inst.cullStart + _dispatchThreadID;
+//		// _isVisible = IsVisible(g_cullData[_cullDataIndex], _inst.worldMat);
+//		_isVisible = true; // 今はテスト用に強制表示
+//	}
+	
+//	// --------------------------------------------------
+//	// 3. ペイロードへの格納（Wave関数ではなくInterlockedAddを使う）
+//	// --------------------------------------------------
+//	if (_isVisible)
+//	{
+//		uint _idx = 0;
+//		// s_VisibleCount に 1 を足し、足す前の値を _idx に取得する
+//		InterlockedAdd(s_VisibleCount, 1, _idx);
+		
+//		s_Payload.MeshletIndices[_idx] = _dispatchThreadID;
+//	}
+
+//	// ★ ペイロードへの書き込みが終わるのを全スレッドで待つ
+//	GroupMemoryBarrierWithGroupSync();
+
+//	// --------------------------------------------------
+//	// 4. メッシュシェーダーの起動
+//	// --------------------------------------------------
+//	DispatchMesh(s_VisibleCount, 1, 1, s_Payload);
 //}
+
+[numthreads(1, 1, 1)]
+void ASMain(in uint3 a_groupID : SV_GroupID)
+{
+	PayloadStruct _payload;
+	_payload.SurvivingMeshlets = a_groupID.x;
+	DispatchMesh(1, 1, 1, _payload);
+}

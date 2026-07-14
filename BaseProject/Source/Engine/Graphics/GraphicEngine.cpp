@@ -492,6 +492,11 @@ namespace Engine::Graphics
 					_meshInstanceData.animatedVertexStart = 0;
 					_meshInstanceData.isAnimated = 0;
 
+					_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex;
+
+					//_meshInstanceData.meshletCount = _msData.meshletHandle.count;
+					_meshInstanceData.meshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
+
 					_meshInstanceIdx = SetInstanceData(_meshInstanceData);
 				}
 
@@ -676,6 +681,10 @@ namespace Engine::Graphics
 
 					// カリングスタートインデックス
 					_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex;
+
+					//_meshInstanceData.meshletCount = _msData.meshletHandle.count;
+					_meshInstanceData.meshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
+
 
 					// アニメーション結果のスタートインデックスを代入
 					_meshInstanceData.animatedVertexStart = _animatedVertexStart;
