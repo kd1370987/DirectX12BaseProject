@@ -95,6 +95,8 @@ namespace Engine::Graphics
 		// フラグに対応するASのマップ
 		std::unordered_map<EShaderPermutationFlags, Handle<Resource::Shader>> m_asMap;
 
+		// パイプラインモード
+
 		// 深度テスト設定
 		bool m_depthEnable = true;				// 深度テストするかどうか
 		bool m_depthWrite = true;				// 深度テストした結果を書き込むかどうか

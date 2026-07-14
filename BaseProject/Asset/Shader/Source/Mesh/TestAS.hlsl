@@ -9,6 +9,51 @@ groupshared uint s_VisibleCount;
 // 可視性チェック
 bool IsVisible(MeshletCullData a_cullData, float4x4 a_worldMat)
 {
+	// ==========================================================
+	// バックフェイスカリング
+	// ==========================================================
+	// 32bitの NormalCone から各8bitを取り出し、0～255 を -1.0f～1.0fにアンパック
+	//float4 _unpackedCone = float4(
+	//	a_cullData.NormalCone & 0xFF,
+	//	(a_cullData.NormalCone >> 8) & 0xFF,
+	//	(a_cullData.NormalCone >> 16) & 0xFF,
+	//	(a_cullData.NormalCone >> 24) & 0xFF) / 125.5f - 1.0f;
+
+	//float3 _axisLocal = _unpackedCone.xyz;		// メッシュレットが向いている基準の方向 : ローカル
+	//float _cutoff = _unpackedCone.w;			// 許容される角度の閾値 : -cos(angle)に相当するらしい
+
+	uint4 _rawCone = uint4(
+    a_cullData.NormalCone & 0xFF,
+    (a_cullData.NormalCone >> 8) & 0xFF,
+    (a_cullData.NormalCone >> 16) & 0xFF,
+    (a_cullData.NormalCone >> 24) & 0xFF);
+
+	// 軸(xyz)は -1.0～1.0 にアンパック
+	float3 _axisLocal = (_rawCone.xyz / 255.0f) * 2.0f - 1.0f;
+
+	// cutoff(w)は 0.0～1.0 にアンパック（バイアス不要）
+	float _cutoff = _rawCone.w / 255.0f;
+	
+	// コーンの原点(Apex)をローカル座標で求める
+	float3 _apexLocal = a_cullData.BoundingSphereCenter - (_axisLocal * a_cullData.ApexOffset);
+
+	// ワールド空間に変換
+	float3 _apexWorld = mul(float4(_apexLocal,1.0f),a_worldMat).xyz;
+	float3 _axisWorld = normalize(mul(_axisLocal, (float3x3)a_worldMat));
+
+	// コーンの頂点からカメラのベクトル : 正規化
+	float3 _viewToApex = normalize(_apexWorld - g_camera.cameraPos.xyz);
+
+	// カメラから見て、コーンが完全に裏面を向いていたらカリング
+	// 内積が閾値以上なら、裏面を向いていると判定
+	if (dot(_viewToApex,_axisWorld) >= _cutoff)
+	{
+		return false;
+	}
+	
+	// ==========================================================
+	// フラスタムカリング
+	// ==========================================================
 	// ローカル座標系の球の中心にワールド行列を掛けて、ワールド座標に変換する
 	float3 _centerWorld = mul(float4(a_cullData.BoundingSphereCenter, 1.0f), a_worldMat).xyz;
 	
@@ -28,6 +73,7 @@ bool IsVisible(MeshletCullData a_cullData, float4x4 a_worldMat)
 		}
 	}
 
+	// すべてのテストを通過したら true
 	return true;
 }
 
