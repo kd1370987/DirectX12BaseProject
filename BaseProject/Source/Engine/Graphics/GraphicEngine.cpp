@@ -394,6 +394,8 @@ namespace Engine::Graphics
 
 		// モデルが持っている描画コマンド（サブセット）を展開
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
+		if (!a_pModel) return;
+
 		for (const auto& _cmd : _drawCmdVec)
 		{
 			// -----------------------------------------------------

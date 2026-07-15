@@ -37,6 +37,7 @@ void Engine::Resource::StateMachineAsset::Save(const std::string& a_savePath)
 		for (auto& [_hash, _node] : m_stateNodeMap)
 		{
 			_node.animGUID = _pModel->GetAnimationGUIDFromHandle(_node.playAnimData);
+			//_node.animGUID = ResourceManager::Instance().GetCache(_node.playAnimData);
 		}
 	}
 
@@ -235,6 +236,7 @@ void Engine::Resource::StateMachineAsset::Load(const std::string& a_fileDir, con
 		for (auto& [_hash, _node] : m_stateNodeMap)
 		{
 			_node.playAnimData = _pModel->GetAnimationHandleFromGUID(_node.animGUID);
+			//_node.playAnimData = ResourceManager::Instance().GetCache<Resource::AnimationData>(_node.animGUID);
 		}
 	}
 }
