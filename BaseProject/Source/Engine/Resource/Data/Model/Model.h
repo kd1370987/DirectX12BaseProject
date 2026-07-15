@@ -26,23 +26,6 @@ namespace Engine::Resource
 		std::vector<int>							meshNodeIndices;			// メッシュが存在するノード
 		std::vector<int>							collisionMeshNodeIndices;	// 子リジョンメッシュが存在するノード
 		std::vector<int>							drawMeshNodeIndices;		// 描画するノード
-
-
-		//ModelData() = default;
-
-		//ModelData(const ModelData&)
-		//{
-		//	assert(false && "ModelData copy ctor");
-		//}
-
-		//ModelData& operator=(const ModelData&)
-		//{
-		//	assert(false && "ModelData copy assign");
-		//	return *this;
-		//}
-
-		//ModelData(ModelData&&) noexcept = default;
-		//ModelData& operator=(ModelData&&) noexcept = default;
 	};
 
 	// モデル描画時用キャッシュデータ
@@ -159,5 +142,8 @@ namespace Engine::Resource
 
 		// 描画コマンド用事前キャッシュ
 		std::vector<ModelDrawCommand> m_cachedDrawCommands;
+
+		ModelAssetData m_AssetData = {};
+		ModelRuntimeData m_runtimeData = {};
 	};
 }

@@ -393,6 +393,7 @@
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\RasterizationMesh\RasterizationMesh.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Model\IO\ModelConverter\ModelConverter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\ModelIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTFParser.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp" />
@@ -695,7 +696,6 @@
     <ClInclude Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.h" />
     <ClInclude Include="Source\Engine\Raytracing\TLAS\TLAS.h" />
     <ClInclude Include="Source\Engine\Resource\Common\Common.h" />
-    <ClInclude Include="Source\Engine\Resource\Common\ResourceBuildContext.h" />
     <ClInclude Include="Source\Engine\Resource\Common\ResourceRef.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Animation\Animation.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Material\Material.h" />
@@ -705,6 +705,7 @@
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\MeshShaderData\MeshShaderData.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\RasterizationMesh\RasterizationMesh.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Model\IO\ModelConverter\ModelConverter.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\ModelIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\ParserStruct.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTFParser.h" />
