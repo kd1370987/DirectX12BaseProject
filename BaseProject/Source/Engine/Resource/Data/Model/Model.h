@@ -47,13 +47,13 @@ namespace Engine::Resource
 		std::vector<GUID> meshGUIDs;
 		std::vector<GUID> animationGUIDs;
 
-		std::vector<Node> nodes;
+		std::vector<Node> originalNodes;
 
-		std::vector<int> rootNodes;
-		std::vector<int> boneNodes;
-		std::vector<int> meshNodes;
-		std::vector<int> collisionNodes;
-		std::vector<int> drawNodes;
+		std::vector<int> rootNodeIndices;
+		std::vector<int> boneNodeIndices;
+		std::vector<int> meshNodeIndices;
+		std::vector<int> collisionMeshNodeIndices;
+		std::vector<int> drawMeshNodeIndices;
 	};
 
 	struct ModelRuntimeData
@@ -70,6 +70,9 @@ namespace Engine::Resource
 	public:
 
 		Model() = default;
+		Model(ModelAssetData&& a_asset, ModelRuntimeData&& a_runtimeData) 
+			: m_AssetData(std::move(a_asset)), m_runtimeData(std::move(a_runtimeData))
+		{}
 		~Model() = default;
 		NON_COPYABLE_MOVABLE(Model);
 
@@ -81,6 +84,9 @@ namespace Engine::Resource
 
 		// 解放
 		void Release();
+
+		// すぐ消す
+		void TestParse();
 
 		// ---- アクセサ ----
 		// データのハンドル

@@ -244,8 +244,10 @@ namespace Engine::Resource::Converter
 		ModelData _modelData = {};
 
 		ConvertNodes(_modelData,a_rawModel);
-		ConvertMaterial(_modelData,a_rawModel,a_filePath);
+		auto _fileDir = FileUtility::GetDirFromPath(a_filePath);
+		ConvertMaterial(_modelData,a_rawModel,_fileDir);
 		ConvertNodes(_modelData,a_rawModel);
+
 
 		return _modelData;
 	}

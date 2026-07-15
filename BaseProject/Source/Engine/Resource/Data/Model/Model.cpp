@@ -230,6 +230,30 @@ namespace Engine::Resource
 		// 描画コマンド用事前キャッシュ
 		m_cachedDrawCommands.clear();
 	}
+	void Model::TestParse()
+	{
+		m_name = m_AssetData.name;
+		m_materialGUIDVec = m_AssetData.materialGUIDs;
+		m_meshGUIDVec = m_AssetData.meshGUIDs;
+		m_animationGUIDVec = m_AssetData.animationGUIDs;
+
+		m_originalNodes = std::move(m_AssetData.originalNodes);
+
+		// ノード
+		m_rootNodeIndices = m_AssetData.rootNodeIndices;
+		m_boneNodeIndices = m_AssetData.boneNodeIndices;
+		m_meshNodeIndices = m_AssetData.meshNodeIndices;
+		m_collisionMeshNodeIndices = m_AssetData.collisionMeshNodeIndices;
+		m_drawMeshNodeIndices = m_AssetData.drawMeshNodeIndices;
+
+		// ---- ランタイムデータ ----
+		m_materialHandleVec = m_runtimeData.materials;
+		m_meshHandleVec = m_runtimeData.meshes;
+		m_animationHandleVec = m_runtimeData.animations;
+
+		// 描画コマンド用事前キャッシュ
+		m_cachedDrawCommands = m_runtimeData.drawCommands;
+	}
 	Engine::GUID Model::GetAnimationGUIDFromHandle(const Handle<AnimationData>& a_handle) const
 	{
 		// セーブ時の1回だけ線形探索
