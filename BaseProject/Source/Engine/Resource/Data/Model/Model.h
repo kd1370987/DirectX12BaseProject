@@ -106,6 +106,10 @@ namespace Engine::Resource
 		// 描画時用コマンド取得
 		const std::vector<ModelDrawCommand>& GetDrawCommandVec() const { return m_runtimeData.drawCommands; }
 
+		// モデルの全データ取得
+		const ModelAssetData& GetAssestData() { return m_AssetData; }
+		const ModelRuntimeData& GetRuntimeData() { return m_runtimeData; }
+
 	private:
 
 		// アセットデータ

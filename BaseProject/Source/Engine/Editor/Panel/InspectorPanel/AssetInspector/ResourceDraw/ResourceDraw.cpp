@@ -27,6 +27,11 @@ namespace Engine::Editor::Inspector
 					auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
 					_pModel->Save(_path);
 				}
+
+				const auto& _assetData = _pModel->GetAssestData();
+				const auto& _runtimeData = _pModel->GetRuntimeData();
+
+				
 			}
 		}
 		else
@@ -163,7 +168,31 @@ namespace Engine::Editor::Inspector
 	// メッシュ
 	//-----------------------------------------------------------------------------------------
 	void MeshDraw(EditorContext & a_editContext)
-	{}
+	{
+		auto _guid = a_editContext.pAssetProp->guid;
+		if (Resource::ResourceManager::Instance().Has<Resource::Mesh>(_guid))
+		{
+			auto _handle = Resource::ResourceManager::Instance().Load<Resource::Mesh>(_guid);
+			auto* _pData = Resource::ResourceManager::Instance().Ref(_handle);
+			if (!_pData)
+			{
+				ImGui::Text("Not faund particle");
+				return;
+			}
+			else
+			{
+
+			}
+		}
+		else
+		{
+			ImGui::Text("No loaded file");
+			if (ImGui::Button("Load"))
+			{
+				Resource::ResourceManager::Instance().Load<Resource::Mesh>(_guid);
+			}
+		}
+	}
 	//-----------------------------------------------------------------------------------------
 	// アニメーション
 	//-----------------------------------------------------------------------------------------

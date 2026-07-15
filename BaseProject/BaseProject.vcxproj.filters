@@ -1075,6 +1075,9 @@
     <Filter Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF">
       <UniqueIdentifier>{b93b09e5-83ba-47e5-9cd6-4972d31d68d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\Mesh">
+      <UniqueIdentifier>{a965effe-f41b-4baa-83d9-9529c79ea6a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1685,6 +1688,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.cpp">
       <Filter>Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2617,6 +2623,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.h">
       <Filter>Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
