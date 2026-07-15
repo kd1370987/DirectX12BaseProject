@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../../../Loader/Model/Importer/tinyGLTF/tinyGLTF.h"
+#include "../Parser/tinyGLTF/tinyGLTF.h"
 
 namespace Engine::Resource::Converter
 {

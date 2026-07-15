@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Model/ModelLoader.h"
+#include "../Data/Model/IO/ModelIO.h"
 #include "Texture/TextureLoader.h"
 #include "StateMachineAsset/StateMachineAssetLoader.h"
 #include "Shader/ShaderLoader.h"
@@ -33,7 +33,7 @@ namespace Engine::Resource
 		static Model LoadFromFile(const std::string& a_path)
 		{
 			// ModelLoaderクラスの専用処理
-			return ModelLoader::Load(a_path);
+			return ModelIO::Import(a_path);
 		}
 	};
 	// テクスチャ

@@ -4,7 +4,6 @@
 
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Resource/ModelComponent.h"
-#include "Engine/Resource/Loader/Model/ModelLoader.h"
 #include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 void ModelFixupSystem::Init(Engine::ECS::World& a_world)

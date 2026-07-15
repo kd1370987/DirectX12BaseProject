@@ -395,7 +395,7 @@
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\RaytracingMesh\RaytracingMesh.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\ModelConverter\ModelConverter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\ModelIO.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTFParser.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Node\Node.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp" />
@@ -408,11 +408,6 @@
     <ClCompile Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Material\MaterialLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Mesh\MeshLoader.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\obmdl\obmdlImporter.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Loader\Model\ModelLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL\DXIL.cpp" />
@@ -708,7 +703,7 @@
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\ModelConverter\ModelConverter.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\ModelIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\ParserStruct.h" />
-    <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTFParser.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\Model.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Node\Node.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.h" />
@@ -723,11 +718,6 @@
     <ClInclude Include="Source\Engine\Resource\Loader\DefaultLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Material\MaterialLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Mesh\MeshLoader.h" />
-    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.h" />
-    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.h" />
-    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\obmdl\obmdlImporter.h" />
-    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.h" />
-    <ClInclude Include="Source\Engine\Resource\Loader\Model\ModelLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL\DXIL.h" />

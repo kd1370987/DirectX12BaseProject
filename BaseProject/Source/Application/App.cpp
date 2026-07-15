@@ -6,7 +6,6 @@
 #include "Game/GameManager/GameManager.h"
 
 #include "../Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
-#include "../Engine/Resource/Loader/Model/ModelLoader.h"
 
 
 //==================================================================================

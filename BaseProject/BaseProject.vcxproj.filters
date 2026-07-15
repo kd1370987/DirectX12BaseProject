@@ -475,17 +475,11 @@
     <Filter Include="Source\Engine\Resource\Loader">
       <UniqueIdentifier>{119a11fc-3fe1-4252-aab5-af670debc2ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Model">
-      <UniqueIdentifier>{2ea02beb-d349-4f52-b67d-a6e430197d44}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Loader\Texture">
       <UniqueIdentifier>{465e64dd-9ee9-4038-b3c7-dd4a4054e6bd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource\Loader\Shader">
       <UniqueIdentifier>{f8bba13b-df78-421c-9a10-5134ee2cb6bf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Model\Importer">
-      <UniqueIdentifier>{70090936-f966-418b-87b3-78c430085388}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource\Loader\Shader\Importer">
       <UniqueIdentifier>{4437c6be-8af7-41f8-ba27-96682c0ebef6}</UniqueIdentifier>
@@ -502,9 +496,6 @@
     <Filter Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer">
       <UniqueIdentifier>{441750a5-54ab-41e2-9044-7403cb20566e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF">
-      <UniqueIdentifier>{b5a2ad94-1c89-4f8e-b945-948a773dedb8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\Sampler">
       <UniqueIdentifier>{d111ebaa-a845-4115-8d3b-2894a0bbf128}</UniqueIdentifier>
     </Filter>
@@ -513,9 +504,6 @@
     </Filter>
     <Filter Include="Source\Application\Components\Tag\RenderTag">
       <UniqueIdentifier>{5cba0978-4eff-4e23-8ec5-b8bdf27aa766}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Model\Importer\Assimp">
-      <UniqueIdentifier>{d6b135ac-0234-4d7c-aeb6-d28aa6e5bf44}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\PipelineStateManager">
       <UniqueIdentifier>{a735ca8c-bd9f-4f7c-9f30-41827be7b1e6}</UniqueIdentifier>
@@ -624,9 +612,6 @@
     </Filter>
     <Filter Include="Source\Engine\Utility\BinaryHelper">
       <UniqueIdentifier>{312e8f8a-1040-489c-afb0-fbeb1e1cc827}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Model\Importer\obmdl">
-      <UniqueIdentifier>{af775706-7aa3-4b05-8347-e8c5acae0446}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource\Loader\Material">
       <UniqueIdentifier>{5b370f35-bc6d-4dc5-827c-768f0b8c1fc1}</UniqueIdentifier>
@@ -1323,15 +1308,6 @@
     <ClCompile Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.cpp">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.cpp">
-      <Filter>Source\Engine\Resource\Loader\Model\Importer\tinyGLTF</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.cpp">
-      <Filter>Source\Engine\Resource\Loader\Model\Importer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Model\ModelLoader.cpp">
-      <Filter>Source\Engine\Resource\Loader\Model</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\Shader\ShaderLoader.cpp">
       <Filter>Source\Engine\Resource\Loader\Shader</Filter>
     </ClCompile>
@@ -1355,9 +1331,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.cpp">
-      <Filter>Source\Engine\Resource\Loader\Model\Importer\Assimp</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.cpp">
       <Filter>Source\Engine\D3D12\PipelineStateManager</Filter>
@@ -1433,9 +1406,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.cpp">
       <Filter>Source\Engine\Utility\BinaryHelper</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Model\Importer\obmdl\obmdlImporter.cpp">
-      <Filter>Source\Engine\Resource\Loader\Model\Importer\obmdl</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Loader\Material\MaterialLoader.cpp">
       <Filter>Source\Engine\Resource\Loader\Material</Filter>
@@ -1710,11 +1680,11 @@
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\ModelIO.cpp">
       <Filter>Source\Engine\Resource\Data\Model\IO</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTFParser.cpp">
-      <Filter>Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\ModelConverter\ModelConverter.cpp">
       <Filter>Source\Engine\Resource\Data\Model\IO\ModelConverter</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.cpp">
+      <Filter>Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2108,15 +2078,6 @@
     <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.h">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\tinyGLTF\tinyGLTF.h">
-      <Filter>Source\Engine\Resource\Loader\Model\Importer\tinyGLTF</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\ModelImporter.h">
-      <Filter>Source\Engine\Resource\Loader\Model\Importer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Model\ModelLoader.h">
-      <Filter>Source\Engine\Resource\Loader\Model</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\Shader\ShaderLoader.h">
       <Filter>Source\Engine\Resource\Loader\Shader</Filter>
     </ClInclude>
@@ -2146,9 +2107,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\Assimp\AssimpImporter.h">
-      <Filter>Source\Engine\Resource\Loader\Model\Importer\Assimp</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.h">
       <Filter>Source\Engine\D3D12\PipelineStateManager</Filter>
@@ -2248,9 +2206,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.h">
       <Filter>Source\Engine\Utility\BinaryHelper</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Model\Importer\obmdl\obmdlImporter.h">
-      <Filter>Source\Engine\Resource\Loader\Model\Importer\obmdl</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\Material\MaterialLoader.h">
       <Filter>Source\Engine\Resource\Loader\Material</Filter>
@@ -2657,11 +2612,11 @@
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\ParserStruct.h">
       <Filter>Source\Engine\Resource\Data\Model\IO\Parser</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTFParser.h">
-      <Filter>Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\ModelConverter\ModelConverter.h">
       <Filter>Source\Engine\Resource\Data\Model\IO\ModelConverter</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.h">
+      <Filter>Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

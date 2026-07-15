@@ -1,9 +1,5 @@
 ﻿#include "Model.h"
 
-#include "Engine/Resource/Loader/Model/Importer/ModelImporter.h"
-#include "Engine/Resource/Loader/Model/Importer/tinyGLTF/tinyGLTF.h"
-
-
 #include "../../Manager/ResourceManager/ResourceManager.h"
 #include "../../Manager/AssetDatabase/AssetDatabase.h"
 

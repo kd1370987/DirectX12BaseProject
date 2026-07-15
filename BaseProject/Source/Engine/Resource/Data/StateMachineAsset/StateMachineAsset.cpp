@@ -5,7 +5,6 @@
 #include "../../Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Manager/ResourceManager/ResourceManager.h"
 
-#include "../../Loader/Model/ModelLoader.h"
 namespace Engine::Resource
 {
 UINT Engine::Resource::StateMachineAsset::GetStateHash(const std::string& a_stateName) const

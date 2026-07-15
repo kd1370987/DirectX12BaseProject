@@ -2,9 +2,8 @@
 
 #include "ModelConverter/ModelConverter.h"
 
-#include "Parser/tinyGLTF/tinyGLTFParser.h"
+#include "Parser/tinyGLTF/tinyGLTF.h"
 
-#include "../../../Loader/Model/Importer/tinyGLTF/tinyGLTF.h"
 namespace Engine::Resource
 {
 	Model ModelIO::Import(const std::string& a_filePath)
