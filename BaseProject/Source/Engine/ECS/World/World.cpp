@@ -35,6 +35,14 @@ namespace Engine::ECS
 	void World::Release()
 	{
 		TransitionPhase<ActiveTag, ReleaseTag>();
+
+		// エンティティの引っ越し
+		for (auto& _chanCmd : m_changeEntityVec)
+		{
+			ChangeSigneture(_chanCmd);
+		}
+		m_changeEntityVec.clear();
+
 		// 削除前にリリース処理を走らせる
 		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
 		// 解放処理がされたエンティティたちは削除予定に追加
@@ -55,6 +63,17 @@ namespace Engine::ECS
 
 		// エンティティの一括削除
 		RemoveEntityStorage();
+
+		// すべてのECS参照カウントをリセット
+		Engine::Resource::ResourceManager::Instance().AllResetECSRefs();
+
+		// ECSカウントの収集
+		RunSystem(Engine::ECS::ESystemType::GC, 0.0f);
+
+		// 参照カウントがなくなった場合リソースの解放をする
+		Engine::Resource::ResourceManager::Instance().RunGarbageCollectionSweep();
+
+		ENGINE_LOG("Worldの解放");
 	}
 
 	void World::ClaerMemory()

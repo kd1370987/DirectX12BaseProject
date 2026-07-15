@@ -89,6 +89,11 @@ namespace Engine::D3D12
 		/// </summary>
 		void WaitForAsyncTasks();
 
+		/// <summary>
+		/// すべてのGPU処理が終わるのを待機
+		/// </summary>
+		void WaitForFrame();
+
 	public:
 		// ゲッター
 		Adapter* GetDXGIAdapter();						// GPU取得

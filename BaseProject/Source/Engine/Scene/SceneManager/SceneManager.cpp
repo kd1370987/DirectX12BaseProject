@@ -6,6 +6,8 @@
 
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 
+#include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+
 namespace Engine::Scene
 {
 	void SceneManager::Release()
@@ -88,6 +90,9 @@ namespace Engine::Scene
 	void SceneManager::PopScene()
 	{
 		if (m_upBaseSceneVec.empty()) return;
+
+		// GPU待ち
+		D3D12::D3D12Wrapper::Instance().WaitForFrame();
 
 		m_upBaseSceneVec.back()->Exit();
 		m_upBaseSceneVec.pop_back();

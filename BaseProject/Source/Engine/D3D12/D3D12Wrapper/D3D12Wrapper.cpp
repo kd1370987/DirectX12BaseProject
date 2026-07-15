@@ -130,6 +130,11 @@ namespace Engine::D3D12
 	{
 	}
 
+	void D3D12Wrapper::WaitForFrame()
+	{
+		m_upFrameManager->WaitForAll();
+	}
+
 	//==================================================================================
 	// 
 	// ゲッター
