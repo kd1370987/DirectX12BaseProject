@@ -251,4 +251,162 @@ namespace Engine::Resource::Converter
 
 		return _modelData;
 	}
+	bool ModelConverter::ConvertModelDataToBinary(const std::string& a_filePath)
+	{
+		ENGINE_LOG("モデルのconvert開始 : %s",a_filePath.c_str());
+		auto _guid = AssetDatabase::Instance().GetGUIDFromFilePath(a_filePath);
+		return ConvertModelDataToBinary(_guid);
+	}
+	bool ModelConverter::ConvertModelDataToBinary(const Engine::GUID& a_guid)
+	{
+		auto _refHandle = ResourceManager::Instance().Load<Model>(a_guid);
+		return ConvertModelDataToBinary(_refHandle);
+	}
+	bool ModelConverter::ConvertModelDataToBinary(const ResourceRef<Model>& a_modelHandle)
+	{
+		// モデル取得
+		const auto* _pModel = ResourceManager::Instance().Get(a_modelHandle);
+		if (!_pModel)
+		{
+			ENGINE_LOG("コンバート対象のモデル取得に失敗");
+			return false;
+		}
+
+		// モデル内の各情報を取得
+		const auto& _assetData = _pModel->GetAssestData();
+		const auto& _runtimeData = _pModel->GetRuntimeData();
+
+		// 保存用にコピー
+		auto _saveAssetData = _assetData;
+
+		// 各参照データのコンバート処理
+		std::string _mtrlBasePath		= "Asset/Material/";
+		std::string _meshBasePath		= "Asset/Mesh/";
+		std::string _animationBasePath	= "Asset/Animation/";
+		ConvertMaterialToBinary(_mtrlBasePath, _saveAssetData,_runtimeData);
+		ConvertMeshToBinary(_meshBasePath,_saveAssetData,_runtimeData);
+		ConvertAnimationToBinary(_animationBasePath,_saveAssetData,_runtimeData);
+
+		// モデルデータのコンバート処理
+
+		// コンバートパスの取得
+		auto _guid = ResourceManager::Instance().GetCache(a_modelHandle.GetRaw());
+		auto _filePath = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+
+		auto _dir = FileUtility::GetDirFromPath(_filePath);
+		auto _fileName = FileUtility::GetFileNameWithoutExtension(_filePath);
+		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dir, _fileName, "mdl");
+		_ar.StringField("ModelName", _saveAssetData.name);
+
+		_ar.GUIDVectorField("MaterialGUID", _saveAssetData.materialGUIDs);
+		_ar.GUIDVectorField("MeshGUID", _saveAssetData.meshGUIDs);
+		_ar.GUIDVectorField("AnimationGUID", _saveAssetData.animationGUIDs);
+
+		UINT _nodeCount = _saveAssetData.originalNodes.size();
+		_ar.Field("NodeCount", _nodeCount);
+		for (UINT _i = 0; _i < _nodeCount; ++_i)
+		{
+			_saveAssetData.originalNodes[_i].Archive(_ar, _i);
+		}
+
+		_ar.VectorField("RootNodeIndices", _saveAssetData.rootNodeIndices);
+		_ar.VectorField("BoneNodeIndices", _saveAssetData.boneNodeIndices);
+		_ar.VectorField("MeshNodeIndices", _saveAssetData.meshNodeIndices);
+		_ar.VectorField("CollisionMeshNodeIndices", _saveAssetData.collisionMeshNodeIndices);
+		_ar.VectorField("DrawMeshNodeIndices", _saveAssetData.drawMeshNodeIndices);
+
+		return true;
+	}
+	void ModelConverter::ConvertMaterialToBinary(const std::string& a_basePath, ModelAssetData& a_asset,const ModelRuntimeData& a_runtime)
+	{
+
+		UINT _mtrlHandleSize = a_runtime.materials.size();
+		a_asset.materialGUIDs.resize(_mtrlHandleSize);
+		for (UINT _i = 0; _i < _mtrlHandleSize; ++_i)
+		{
+			// マテリアル取得
+			auto _mtrlHandle = a_runtime.materials[_i];
+			auto* _pMaterial = Resource::ResourceManager::Instance().Ref(_mtrlHandle);
+			if (!_pMaterial) continue;
+
+			// コンバートパスの作成
+			auto _dirName = FileUtility::GetFileNameWithoutExtension(a_asset.name);
+			auto _fileName = _dirName + "_" + std::to_string(_i);
+			auto _convertDir = a_basePath + _dirName;
+			auto _fullPath = _convertDir + "/" + _fileName;
+
+			// テクスチャのconvert
+			ConvertTexture(_pMaterial->baseColorTex);
+			ConvertTexture(_pMaterial->metaRoughTex);
+			ConvertTexture(_pMaterial->emissiveTex);
+			ConvertTexture(_pMaterial->normalTex);
+
+			// アセットデータベースに登録
+			a_asset.materialGUIDs[_i] = AssetDatabase::Instance().AddMetaData(_fullPath, "Material");
+
+			// マテリアルのセーブ
+			Persistence::Archive _ar(Persistence::Archive::Mode::Save, _convertDir, _fileName, "mtrl");
+			_pMaterial->Archive(_ar);
+		}
+	}
+	void ModelConverter::ConvertMeshToBinary(const std::string& a_basePath, ModelAssetData& a_asset, const ModelRuntimeData& a_runtime)
+	{
+		size_t _meshHandleSize = a_runtime.meshes.size();
+		a_asset.meshGUIDs.resize(_meshHandleSize);
+		for (size_t _i = 0; _i < _meshHandleSize; ++_i)
+		{
+			// メッシュ取得
+			auto _meshHandle = a_runtime.meshes[_i];
+			auto* _pMesh = Resource::ResourceManager::Instance().Ref(_meshHandle);
+			if (!_pMesh) continue;
+
+			// コンバートパスの作成
+			auto _dirName = FileUtility::GetFileNameWithoutExtension(a_asset.name);
+			auto _fileName = _dirName + "_" + std::to_string(_i);
+			auto _convertDir = a_basePath + _dirName;
+			auto _fullPath = _convertDir + "/" + _fileName;
+
+			// 保存
+			a_asset.meshGUIDs[_i] = AssetDatabase::Instance().AddMetaData(_fullPath, "Mesh");
+			_pMesh->Save(_convertDir, _fileName);
+		}
+	}
+	void ModelConverter::ConvertAnimationToBinary(const std::string & a_basePath, ModelAssetData & a_asset, const ModelRuntimeData & a_runtime)
+	{
+		size_t _animHandleSize = a_runtime.animations.size();
+		a_asset.animationGUIDs.resize(_animHandleSize);
+		for (size_t _i = 0; _i < _animHandleSize; ++_i)
+		{
+			// アニメーションの取得
+			auto _animHandle = a_runtime.animations[_i];
+			auto* _pAnim = Resource::ResourceManager::Instance().Ref(_animHandle);
+			if (!_pAnim) continue;
+
+			// コンバートパスの作成
+			auto _dirName = FileUtility::GetFileNameWithoutExtension(a_asset.name);
+			auto _fileName = _dirName + "_" + std::to_string(_i);
+			auto _convertDir = a_basePath + _dirName;
+			auto _fullPath = _convertDir + "/" + _fileName;
+
+			// 保存
+			a_asset.animationGUIDs[_i] = AssetDatabase::Instance().AddMetaData(_fullPath, "Animation");
+			_pAnim->Save(_convertDir, _fileName);
+		}
+	}
+	void ModelConverter::ConvertTexture(const ResourceRef<Texture>& a_ref)
+	{
+		auto* _pTex = GetTexture(a_ref);
+		if (!_pTex) return;
+
+		auto _guid = ResourceManager::Instance().GetCache(a_ref.GetRaw());
+		if (_guid == Engine::DefaultGUID) return;
+
+		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+
+		_pTex->Save(_path);
+	}
+	Texture* ModelConverter::GetTexture(const ResourceRef<Texture>& a_ref)
+	{
+		return ResourceManager::Instance().Ref(a_ref);
+	}
 }

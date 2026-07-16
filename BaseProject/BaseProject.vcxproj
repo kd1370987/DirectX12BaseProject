@@ -405,6 +405,7 @@
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Loader\Material\MaterialLoader.cpp" />
@@ -714,6 +715,7 @@
     <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h" />
     <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.h" />
     <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Vertex\Vertex.h" />
     <ClInclude Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.h" />

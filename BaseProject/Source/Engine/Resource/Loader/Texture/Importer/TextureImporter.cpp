@@ -229,6 +229,15 @@ namespace Engine::Resource
 				a_img
 			);
 		}
+		else if (_ext == L"dds")
+		{
+			_hr = DirectX::LoadFromDDSFile(
+				a_path.c_str(),
+				DirectX::DDS_FLAGS_NONE,
+				&a_metaData,
+				a_img
+			);
+		}
 		if (FAILED(_hr))
 		{
 			return false;
@@ -265,23 +274,28 @@ namespace Engine::Resource
 			_meta.mipLevels = static_cast<size_t>(a_desc->MipLevels);
 		}
 
-		// みっぷマップ計算
-		DirectX::ScratchImage _mipChain;
-		HRESULT _hr = DirectX::GenerateMipMaps(
-			_sImg.GetImages(),
-			_sImg.GetImageCount(),
-			_sImg.GetMetadata(),
-			DirectX::TEX_FILTER_DEFAULT,
-			0,		// 0 = フルミップ
-			_mipChain
-		);
-		if (FAILED(_hr))
+		// すでにミップマップがある場合（DDSなど）は生成をスキップ
+		if (_meta.mipLevels == 1)
 		{
-			return _cpRes;
-		}
+			DirectX::ScratchImage _mipChain;
+			HRESULT _hr = DirectX::GenerateMipMaps(
+				_sImg.GetImages(),
+				_sImg.GetImageCount(),
+				_sImg.GetMetadata(),
+				DirectX::TEX_FILTER_DEFAULT,
+				0,		// 0 = フルミップ
+				_mipChain
+			);
 
-		_sImg = std::move(_mipChain);
-		_meta = _sImg.GetMetadata();
+			if (FAILED(_hr))
+			{
+				return _cpRes;
+			}
+
+			// 生成に成功した場合のみ差し替え
+			_sImg = std::move(_mipChain);
+			_meta = _sImg.GetMetadata();
+		}
 
 		// テクスチャを構築
 		BuildFromScratchiImage(_pDevice, _cpRes, _meta, _sImg);

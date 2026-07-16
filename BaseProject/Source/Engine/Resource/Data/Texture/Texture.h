@@ -30,7 +30,7 @@ namespace Engine::Resource
 	{
 	public:
 		Texture() = default;
-		~Texture() { ENGINE_LOG("テクスチャが解放されました"); }
+		~Texture() = default;
 		NON_COPYABLE_MOVABLE(Texture);
 
 		// テクスチャ生成
@@ -38,6 +38,11 @@ namespace Engine::Resource
 		void Create(const std::string& a_name, const DirectX::XMFLOAT4& a_defoltData);
 		void Create(const TextureCreateDesc& a_desc);
 		void Create(IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,TextureUsage a_texUsage = TextureUsage::RTV);
+
+		/// <summary>
+		/// 元のPNGなどのパスを基準に横にDDSテクスチャを作成する
+		/// </summary>
+		void Save(const std::string& a_srcPath);
 
 		// 解放
 		void Release();

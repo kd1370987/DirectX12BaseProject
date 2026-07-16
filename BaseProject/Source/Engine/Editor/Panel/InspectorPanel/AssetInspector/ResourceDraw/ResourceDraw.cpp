@@ -3,6 +3,8 @@
 #include "../../../../../Option/OptionManager.h"
 #include "../../../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
+#include "../../../../../Resource/Data/Model/IO/ModelConverter/ModelConverter.h"
+
 namespace Engine::Editor::Inspector
 {
 	//-----------------------------------------------------------------------------------------
@@ -25,11 +27,14 @@ namespace Engine::Editor::Inspector
 				if (ImGui::Button("Convert"))
 				{
 					auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
-					_pModel->Save(_path);
+					//_pModel->Save(_path);
+					Resource::Converter::ModelConverter::ConvertModelDataToBinary(_path);
+					ENGINE_LOG("モデルのconvert処理が完了 : %s",_path.c_str());
 				}
 
 				const auto& _assetData = _pModel->GetAssestData();
 				const auto& _runtimeData = _pModel->GetRuntimeData();
+
 
 				
 			}
@@ -73,6 +78,15 @@ namespace Engine::Editor::Inspector
 			// テクスチャ表示
 			auto _pTex = Engine::Resource::ResourceManager::Instance().Ref(_handle);
 			if (!_pTex) return;
+
+			// 画像の保存
+			if (ImGui::Button("Save to DDS"))
+			{
+				auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+				_pTex->Save(_filePath);
+			}
+
+			// 画像の描画
 			auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
 			Helper::DrawSRVView(_gpuHandle, _winWidth, _winHeight);
 		}

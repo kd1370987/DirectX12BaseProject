@@ -89,6 +89,53 @@ namespace Engine::Resource
 		CreateView();
 	}
 
+	void Texture::Save(const std::string& a_srcPath)
+	{
+		std::wstring _wSrcPath = StringUtility::ToWideString(a_srcPath);
+
+		DirectX::TexMetadata _metaData;
+		DirectX::ScratchImage _image;
+
+		// PNGの読込
+		DirectX::LoadFromWICFile(
+			_wSrcPath.c_str(),
+			DirectX::WIC_FLAGS_NONE,
+			&_metaData,
+			_image
+		);
+
+		// ミップマップの生成
+		DirectX::ScratchImage _mipChain;
+		DirectX::GenerateMipMaps(
+			_image.GetImages(),_image.GetImageCount(),_image.GetMetadata(),
+			DirectX::TEX_FILTER_DEFAULT,
+			0,
+			_mipChain
+		);
+
+		// GPU用フォーマットにブロック圧縮 : BC7
+		DirectX::ScratchImage _compressedImage;
+		DirectX::Compress(
+			_mipChain.GetImages(),_mipChain.GetImageCount(),_mipChain.GetMetadata(),
+			DXGI_FORMAT_BC7_UNORM, // アルファあり・なし両対応の高画質圧縮形式
+			DirectX::TEX_COMPRESS_PARALLEL | DirectX::TEX_COMPRESS_BC7_QUICK,
+			1.0f,
+			_compressedImage
+		);
+
+		// 保存先パスの作成
+		std::string _dir = FileUtility::GetDirFromPath(a_srcPath);
+		std::string _name = FileUtility::GetFileNameWithoutExtension(a_srcPath);
+		std::string _fullDestPath = _dir + "/" + _name + ".dds";
+		std::wstring _wDstPath = StringUtility::ToWideString(_fullDestPath);
+
+		// DDSとして保存
+		DirectX::SaveToDDSFile(
+			_compressedImage.GetImages(),_compressedImage.GetImageCount(),_compressedImage.GetMetadata(),
+			DirectX::DDS_FLAGS_NONE,_wDstPath.c_str()
+		);
+	}
+
 	void Texture::Release()
 	{
 		ENGINE_LOG("テクスチャの解放 : Release");
