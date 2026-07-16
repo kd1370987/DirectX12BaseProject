@@ -242,12 +242,11 @@ namespace Engine::Resource::Converter
 	{
 		// 出力データ
 		ModelData _modelData = {};
-
-		ConvertNodes(_modelData,a_rawModel);
 		auto _fileDir = FileUtility::GetDirFromPath(a_filePath);
-		ConvertMaterial(_modelData,a_rawModel,_fileDir);
-		ConvertNodes(_modelData,a_rawModel);
 
+		ConvertNodes(_modelData,a_rawModel);
+		ConvertMaterial(_modelData,a_rawModel,_fileDir);
+		ConvertAnimation(_modelData,a_rawModel);
 
 		return _modelData;
 	}

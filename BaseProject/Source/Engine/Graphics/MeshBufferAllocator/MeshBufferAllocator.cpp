@@ -16,10 +16,10 @@ namespace Engine::Graphics
 
 		size_t _size = sizeof(MeshInstanceData);
 
-		m_meshletBuffer.Create(a_pDevice,a_pCmdList,10000);
-		m_uniqueVertexIndicesBuffer.Create(a_pDevice, a_pCmdList, 1000000);
-		m_meshTriangleBuffer.Create(a_pDevice, a_pCmdList, 1000000);
-		m_meshletCullDataBuffer.Create(a_pDevice,a_pCmdList,1000000);
+		m_meshletBuffer.Create(a_pDevice,a_pCmdList,100000);
+		m_uniqueVertexIndicesBuffer.Create(a_pDevice, a_pCmdList, 10000000);
+		m_meshTriangleBuffer.Create(a_pDevice, a_pCmdList, 10000000);
+		m_meshletCullDataBuffer.Create(a_pDevice,a_pCmdList,10000000);
 	}
 
 	void MeshBufferAllocator::Release()

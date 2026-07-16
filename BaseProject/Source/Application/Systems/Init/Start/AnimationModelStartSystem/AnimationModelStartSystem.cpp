@@ -12,7 +12,7 @@
 void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.StartTask<const ModelComponent,AnimatorComponent,NodePoseComponent,SkeletonPoseComponent>(
-		Engine::ECS::ESystemType::Start,
+		Engine::ECS::ESystemType::Awake,
 		"AnimationModelStartSystem",
 		[&a_world](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
