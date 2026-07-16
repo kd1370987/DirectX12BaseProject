@@ -50,7 +50,7 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 				const AnimatorComponent& _animComp = a_aniArray[_i];
 
 				// モデル取得
-				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);;
+				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 				if (!_model) continue;
 
 				// 描画

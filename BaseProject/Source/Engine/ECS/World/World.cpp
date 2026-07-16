@@ -150,8 +150,6 @@ namespace Engine::ECS
 		// エンティティIDの生成
 		Signature _sig = a_sig;
 		_sig.set(GetCompTypeID<PostDeserializeTag>());		// 初めて通るシステムフェーズ
-		_sig.set(GetCompTypeID<GUIDComponent>());			// オブジェクトとして追加するときは必ず付与
-		_sig.set(GetCompTypeID<NameComponent>());
 
 		if (_sig.test(GetCompTypeID<ActiveTag>()))
 		{

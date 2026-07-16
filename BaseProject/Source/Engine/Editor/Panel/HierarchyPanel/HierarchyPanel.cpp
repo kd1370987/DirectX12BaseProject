@@ -6,6 +6,8 @@
 #include "../../../Scene/SceneManager/SceneManager.h"
 
 #include "../../../../Application/Components/Transform/LocalTransformComponent.h"
+#include "../../../../Application/Components/Transform/WorldMatrixComponent.h"
+
 #include "../../../../Application/Components/Persistence/NameComponent.h"
 #include "../../../../Application/Components/Hierarchy/HierarchyComponent.h"
 #include "../../../../Application/Components/Persistence/GUIDComponent.h"
@@ -95,6 +97,10 @@ namespace Engine::Editor
 	{
 		Engine::ECS::Signature _sig = {};
 		_sig.set(a_pWorld->GetCompTypeID(typeid(LocalTransformComponent)));
+		_sig.set(a_pWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
+		_sig.set(a_pWorld->GetCompTypeID(typeid(NameComponent)));
+		_sig.set(a_pWorld->GetCompTypeID(typeid(GUIDComponent)));
+		_sig.set(a_pWorld->GetCompTypeID(typeid(PostDeserializeTag)));
 		a_pWorld->AddEntity(_sig);
 	}
 

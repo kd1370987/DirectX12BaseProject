@@ -9,11 +9,16 @@
 #include "../../../../../Application/Components/Hierarchy/HierarchyComponent.h"
 #include "../../../../../Application/Components/Persistence/GUIDComponent.h"
 
+#include "../../../../../Application/Components/Resource/AnimatorComponent.h"
+#include "../../../../../Application/Components/Resource/NodePoseComponent.h"
+#include "../../../../../Application/Components/Resource/SkeletonPoseComponent.h"
+
 namespace Engine::Editor::Inspector
 {
 	// コンポーネントの追加
 	void AddComponent(EditorContext& a_editContext, Engine::ECS::World* a_pWorld)
 	{
+		// 指定して追加
 		if (ImGui::BeginCombo("Add Component", "Select..."))
 		{
 			const ECS::Signature& _sig = a_pWorld->GetSignature(a_editContext.entity);
@@ -31,6 +36,24 @@ namespace Engine::Editor::Inspector
 			}
 
 			ImGui::EndCombo();
+		}
+
+		// 動きごとに追加
+		// アニメーションするエンティティの場合
+		if (ImGui::Button("AnimationEntity"))
+		{
+			ECS::ChangeEntityCmd _cmd = {};
+			_cmd.entity = a_editContext.entity;
+			_cmd.toSig = a_pWorld->GetSignature(a_editContext.entity);
+			_cmd.toSig.set(a_pWorld->GetCompTypeID<AnimatorComponent>());
+			_cmd.toSig.set(a_pWorld->GetCompTypeID<NodePoseComponent>());
+			_cmd.toSig.set(a_pWorld->GetCompTypeID<SkeletonPoseComponent>());
+			_cmd.toSig.set(a_pWorld->GetCompTypeID<PostDeserializeTag>());
+			if (_cmd.toSig.test(a_pWorld->GetCompTypeID<ActiveTag>()))
+			{
+				_cmd.toSig.reset(a_pWorld->GetCompTypeID<ActiveTag>());
+			}
+			a_pWorld->AddChangeSigCommand(_cmd);
 		}
 	}
 
