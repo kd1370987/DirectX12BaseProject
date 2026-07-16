@@ -86,6 +86,7 @@ namespace Engine::Graphics
 		RangeHandle<uint32_t> staticIndexHandle;						// アセット側のインデックスデータ
 		RangeHandle<Resource::NodePoseMatrix> nodePoseMat;				// CPUで更新されたボーンノード行列
 		RangeHandle<Resource::MeshVertexFloat> animatedHandle;
+		RangeHandle<Resource::BoneMatrix> boneHandle;					// ボーン行列
 
 		// 自身のBLASと変形後頂点を入れるメガバッファのハンドルを保持しているインスタンスのハンドル
 		Handle<Raytracing::DynamicRaytracingData> animHandle;
@@ -146,7 +147,8 @@ namespace Engine::Graphics
 			ECS::World& a_world,
 			const Resource::Model* a_pModel,
 			const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
-			const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle
+			const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle,
+			const RangeHandle<Resource::BoneMatrix> boneHandle
 		);
 
 		/// <summary>

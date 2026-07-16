@@ -324,7 +324,8 @@ namespace Engine::Graphics
 		ECS::World& a_world,
 		const Resource::Model* a_pModel,
 		const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
-		const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle
+		const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle,
+		const RangeHandle<Resource::BoneMatrix> boneHandle
 	)
 	{
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
@@ -347,6 +348,7 @@ namespace Engine::Graphics
 			_item.staticIndexHandle = _pMesh->GetRtData().indexHandle;
 			_item.nodePoseMat = nodePoseHnandle;
 			_item.animHandle = dynamicHandle;
+			_item.boneHandle = boneHandle;
 
 			auto& _pool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
 			auto* _data = _pool.Get(dynamicHandle);

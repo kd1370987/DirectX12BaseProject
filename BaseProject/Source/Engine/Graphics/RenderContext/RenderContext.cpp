@@ -624,7 +624,7 @@ namespace Engine::Graphics
 		{
 			auto& _boneMatPool = _pCurrentWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 			const auto& _data = _boneMatPool.GetAllData();
-			m_boneBuffer.AllocateAndWrite(_data.data(),_data.size());
+			m_boneBuffer.AllocateAndWrite(_data.data(), static_cast<UINT>(_data.size()));
 		}
 
 		// デバッグライン用バッファ更新

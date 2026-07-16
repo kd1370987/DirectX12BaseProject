@@ -64,13 +64,9 @@ void Engine::Graphics::AddSkiningPass(D3D12::PipelineStateManager* a_pPSOManager
 			a_pCtx->SetComputePSO(_pPso);
 
 			// バッファバリア
-			//a_pGE->RefRWAnimatedBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			_pMA->RefAnimatedVertexBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			// メッシュ情報バインド
 			a_pCtx->ComputeBindBonePalletBuffer(1);
-			//a_pCtx->ComputeBindSRV(2, a_pGE->GetVertexCPUHandle());
-			//a_pCtx->ComputeBindSRV(3, a_pGE->GetIndexCPUHandle());
-			//a_pCtx->BindUAV(4,a_pGE->GetAnimatedBufferUAVHandle());
 			a_pCtx->ComputeBindSRV(2, _pMA->GetStaticVertexBuffer().GetSRV());
 			a_pCtx->ComputeBindSRV(3, _pMA->GetIndexBuffer().GetSRV());
 			a_pCtx->BindUAV(4, _pMA->GetAnimatedVertexBuffer().GetUAV());
@@ -88,7 +84,8 @@ void Engine::Graphics::AddSkiningPass(D3D12::PipelineStateManager* a_pPSOManager
 				_info.vertexStart = _item.staticVertexHandle.startIndex;
 				_info.animatedVertStart = _item.animatedHandle.startIndex;
 				_info.vertexCount = _item.staticVertexHandle.count;
-				_info.boneOffset = _item.nodePoseMat.startIndex;
+				//_info.boneOffset = _item.nodePoseMat.startIndex;
+				_info.boneOffset = _item.boneHandle.startIndex;
 				a_pCtx->ComputeBindRootCBV(0, _info);
 
 				UINT _x = (_info.vertexCount + 63) / 64;

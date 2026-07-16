@@ -32,7 +32,7 @@ void Engine::Animation::Interpolate(const Engine::Resource::AnimationNode& a_nod
 {
 	bool _isChange = false;
 
-	DXSM::Vector3 _rs = {};
+	DXSM::Vector3 _rs = {1,1,1};
 	DXSM::Quaternion _rq = {};
 	DXSM::Vector3 _rt = {};
 	if (InterpolateScale(a_node, a_currentTime, _rs)) _isChange = true;

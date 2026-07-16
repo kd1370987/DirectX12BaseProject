@@ -51,7 +51,7 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 					ENGINE_ERRLOG(_idx < _nodePoseVec.size(), "アニメーションがスパンの範囲外です");
 					ENGINE_ERRLOG(_idx < _pAni->nodes.size(), "アニメーションのノードの配列外です");
 
-					Engine::Animation::Interpolate(_pAni->nodes[_idx], _aniComp.time, _nodePoseVec[_idx].local);
+					Engine::Animation::Interpolate(_pAni->nodes[_j], _aniComp.time, _nodePoseVec[_idx].local);
 				}
 
 				// アニメーションタイム進行
