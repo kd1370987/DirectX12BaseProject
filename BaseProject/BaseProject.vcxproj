@@ -592,6 +592,7 @@
     <ClInclude Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.h" />
     <ClInclude Include="Source\Engine\ECS\ECSCommon.h" />
     <ClInclude Include="Source\Engine\ECS\EntityManager\EntityManager.h" />
+    <ClInclude Include="Source\Engine\ECS\Internal\CompEditContext.h" />
     <ClInclude Include="Source\Engine\ECS\Internal\EntityLocation.h" />
     <ClInclude Include="Source\Engine\ECS\Internal\SystemComon.h" />
     <ClInclude Include="Source\Engine\ECS\Persistence\EntitySerializeField.h" />

@@ -35,10 +35,10 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
 		using namespace Engine;
-		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_pData);
+		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_context.pData);
 
 		// ステートマシンの選択
 		if (ImGui::BeginCombo("Change StateMachin", "Select..."))

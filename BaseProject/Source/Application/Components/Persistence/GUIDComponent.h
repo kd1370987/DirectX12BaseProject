@@ -13,9 +13,9 @@ struct Engine::ECS::ComponentTraits<GUIDComponent>
 		a_ar.Field("guid", _comp.guid);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		GUIDComponent& _comp = Engine::Editor::GetValue<GUIDComponent>(a_pData);
+		GUIDComponent& _comp = Engine::Editor::GetValue<GUIDComponent>(a_context.pData);
 		ImGui::Text("%s", _comp.guid.String().c_str());
 	}
 };

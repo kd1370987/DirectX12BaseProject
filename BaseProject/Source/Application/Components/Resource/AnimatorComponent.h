@@ -23,9 +23,9 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 		a_ar.Field("isLoop", _comp.isLoop);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_pData);
+		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_context.pData);
 		ImGui::Text("Handle : idx = %d,  gen = %d", (int)_comp.animHandle.GetIndex(), (int)_comp.animHandle.GetGeneration());
 		ImGui::InputScalar("clipID", ImGuiDataType_U32, &_comp.clipID);
 		ImGui::Text("Time : %f", &_comp.time);

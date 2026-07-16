@@ -17,9 +17,9 @@ struct Engine::ECS::ComponentTraits<FollowTargetComponent>
 		a_ar.Field("targetGUID", _comp->targetGUID);
 	}
 
-	static void Edit(void* a_pData) {
+	static void Edit(CompEditContext& a_context) {
 		using namespace Engine;
-		FollowTargetComponent& _comp = Engine::Editor::GetValue<FollowTargetComponent>(a_pData);
+		FollowTargetComponent& _comp = Engine::Editor::GetValue<FollowTargetComponent>(a_context.pData);
 
 		ECS::Entity _entity = _comp.target;
 

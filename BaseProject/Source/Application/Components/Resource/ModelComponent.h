@@ -26,10 +26,10 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		a_ar.Field("modelGUID", _comp.modelGUID);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
 
-		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_pData);
+		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_context.pData);
 
 		// ---------------------------------------------------------
 		// モデルの選択UI

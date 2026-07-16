@@ -21,9 +21,9 @@ struct Engine::ECS::ComponentTraits<LocalTransformComponent>
 
 		_comp.isDirty = true;
 	}
-	static void Edit(void* a_pData) 
+	static void Edit(CompEditContext& a_context)
 	{
-		LocalTransformComponent& _comp = Engine::Editor::GetValue<LocalTransformComponent>(a_pData);
+		LocalTransformComponent& _comp = Engine::Editor::GetValue<LocalTransformComponent>(a_context.pData);
 		bool _isEdit = false;
 		_isEdit |= ImGui::DragFloat3("Position", &_comp.pos.x);
 		_isEdit |= Engine::Editor::Helper::DragRotationDeg3FromQuaternion(_comp.quat);

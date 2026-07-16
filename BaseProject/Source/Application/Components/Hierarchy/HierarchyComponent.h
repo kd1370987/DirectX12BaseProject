@@ -25,9 +25,9 @@ struct Engine::ECS::ComponentTraits<HierarchyComponent>
 		a_ar.Field("depth", _comp.depth);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		HierarchyComponent& _comp = Engine::Editor::GetValue<HierarchyComponent>(a_pData);
+		HierarchyComponent& _comp = Engine::Editor::GetValue<HierarchyComponent>(a_context.pData);
 		ImGui::Text("ParentGUID : %s", _comp.parentGUID.String().c_str());
 		ImGui::Text("ParentID : %d", _comp.parentID);
 		ImGui::Text("Depth : %d", _comp.depth);

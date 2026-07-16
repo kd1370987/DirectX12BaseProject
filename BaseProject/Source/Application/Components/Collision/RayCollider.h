@@ -18,9 +18,9 @@ struct Engine::ECS::ComponentTraits<RayColliderComponent>
 		a_ar.Field("pos", _comp.pos);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		RayColliderComponent& _comp = Engine::Editor::GetValue<RayColliderComponent>(a_pData);
+		RayColliderComponent& _comp = Engine::Editor::GetValue<RayColliderComponent>(a_context.pData);
 		ImGui::DragFloat("Length", &_comp.length, 0.1f);
 		ImGui::DragFloat3("Dir", &_comp.dir.x, 0.1f);
 		ImGui::DragFloat3("Pos", &_comp.pos.x, 0.1f);

@@ -36,9 +36,9 @@ struct Engine::ECS::ComponentTraits<ExoskeletonAttachmentComponent>
 		a_ar.Field("offsetScale",_comp.offsetScale);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		ExoskeletonAttachmentComponent& _comp = Engine::Editor::GetValue<ExoskeletonAttachmentComponent>(a_pData);
+		ExoskeletonAttachmentComponent& _comp = Engine::Editor::GetValue<ExoskeletonAttachmentComponent>(a_context.pData);
 		auto _entity = _comp.parentID;
 		ImGui::Text("ParentGUID : %s", _comp.parentGUID.String().c_str());
 		ImGui::InputScalar("ParentID", ImGuiDataType_U64, &_entity);

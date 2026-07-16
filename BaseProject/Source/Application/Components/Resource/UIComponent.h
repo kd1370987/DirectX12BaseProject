@@ -28,11 +28,11 @@ struct Engine::ECS::ComponentTraits<UIComponent>
 
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
 		// 参照
 		using namespace Engine;
-		UIComponent& _comp = Engine::Editor::GetValue<UIComponent>(a_pData);
+		UIComponent& _comp = Engine::Editor::GetValue<UIComponent>(a_context.pData);
 		auto* _pTex = Resource::ResourceManager::Instance().Ref(_comp.texHandle);
 
 		// UV関連の設定

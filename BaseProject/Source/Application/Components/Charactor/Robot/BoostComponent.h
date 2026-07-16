@@ -31,10 +31,10 @@ struct Engine::ECS::ComponentTraits<BoostComponent>
 		a_ar.Field("fuelRegeneration", _comp.fuelRegeneration);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
 		using namespace Engine;
-		BoostComponent& _comp = Engine::Editor::GetValue<BoostComponent>(a_pData);
+		BoostComponent& _comp = Engine::Editor::GetValue<BoostComponent>(a_context.pData);
 
 		ImGui::Text("Boost Parameters");
 		ImGui::DragFloat("Max Fuel", &_comp.maxFuel, 1.0f, 0.0f);

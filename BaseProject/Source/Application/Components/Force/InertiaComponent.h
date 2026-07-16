@@ -16,9 +16,9 @@ struct Engine::ECS::ComponentTraits<InertiaComponent>
 		a_ar.Field("Inertia", _comp.value);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		InertiaComponent& _comp = Engine::Editor::GetValue<InertiaComponent>(a_pData);
+		InertiaComponent& _comp = Engine::Editor::GetValue<InertiaComponent>(a_context.pData);
 		ImGui::DragFloat("Inertia", &_comp.value, 0.1f);
 	}
 };

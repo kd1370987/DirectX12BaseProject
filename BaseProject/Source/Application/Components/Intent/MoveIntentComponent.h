@@ -17,9 +17,9 @@ struct Engine::ECS::ComponentTraits<MoveIntentComponent>
 		a_ar.Field("jumpPow", _comp.jumpPow);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		MoveIntentComponent& _comp = Engine::Editor::GetValue<MoveIntentComponent>(a_pData);
+		MoveIntentComponent& _comp = Engine::Editor::GetValue<MoveIntentComponent>(a_context.pData);
 		ImGui::Text("MoveIntent");
 		ImGui::Text("x : %f", _comp.value.x);
 		ImGui::Text("y : %f", _comp.value.y);

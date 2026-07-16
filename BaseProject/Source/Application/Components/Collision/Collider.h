@@ -55,10 +55,10 @@ struct Engine::ECS::ComponentTraits<ColliderComponent>
 		a_ar.Field("isPhysical", _comp.isPhysical);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
 		using namespace Engine;
-		ColliderComponent& _comp = Engine::Editor::GetValue<ColliderComponent>(a_pData);
+		ColliderComponent& _comp = Engine::Editor::GetValue<ColliderComponent>(a_context.pData);
 		Editor::DrawEnumCombo("MyLayer", _comp.layer);
 		Editor::DrawEnumFlagsCombo("HItLayer", _comp.collideLayer);
 		bool _is = _comp.isPhysical != 0;

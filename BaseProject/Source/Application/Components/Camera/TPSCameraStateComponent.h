@@ -15,9 +15,9 @@ struct Engine::ECS::ComponentTraits<TPSCameraStateComponent>
 		a_ar.Field("currentLookAt", _comp.currentLookAt);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		TPSCameraStateComponent& _comp = Engine::Editor::GetValue<TPSCameraStateComponent>(a_pData);
+		TPSCameraStateComponent& _comp = Engine::Editor::GetValue<TPSCameraStateComponent>(a_context.pData);
 		ImGui::DragFloat3("currentLookAt", &_comp.currentLookAt.x, 0.0f);
 	}
 };

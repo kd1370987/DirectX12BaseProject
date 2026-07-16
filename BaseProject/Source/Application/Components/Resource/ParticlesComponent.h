@@ -40,10 +40,10 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		a_ar.Field("isBillboard",_comp.isBillboard);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
 		using namespace Engine;
-		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_pData);
+		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_context.pData);
 
 		ImGui::Text("Parameter");
 		ImGui::DragInt("ParticleNum", &_comp.particleCount, 1, 0);

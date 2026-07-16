@@ -13,9 +13,9 @@ struct Engine::ECS::ComponentTraits<NodePoseComponent>
 		NodePoseComponent& _comp = Engine::Editor::GetValue<NodePoseComponent>(a_pData);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		NodePoseComponent& _comp = Engine::Editor::GetValue<NodePoseComponent>(a_pData);
+		NodePoseComponent& _comp = Engine::Editor::GetValue<NodePoseComponent>(a_context.pData);
 		Editor::Helper::DrawHandle(_comp.nodePoseHandle);
 	}
 };

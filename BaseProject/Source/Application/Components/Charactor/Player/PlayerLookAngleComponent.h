@@ -19,9 +19,9 @@ struct Engine::ECS::ComponentTraits<PlayerLookAngleComponent>
 		a_ar.Field("maxPitch", _comp.maxPitch);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		PlayerLookAngleComponent& _comp = Engine::Editor::GetValue<PlayerLookAngleComponent>(a_pData);
+		PlayerLookAngleComponent& _comp = Engine::Editor::GetValue<PlayerLookAngleComponent>(a_context.pData);
 		ImGui::DragFloat("Yaw", &_comp.Yaw, 0.1f);
 		ImGui::DragFloat("Pith", &_comp.Pitch, 0.1f);
 		ImGui::Separator();

@@ -18,7 +18,8 @@ namespace Engine::ECS
 	struct ComponentFunc
 	{
 		std::function<void(void*)> construct;
-		std::function<void(void*)> edit;
+		//std::function<void(void*)> edit;
+		std::function<void(CompEditContext&)> edit;
 		std::function<void(Persistence::Archive& a_ar, void*)> archive;
 	};
 

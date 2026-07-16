@@ -20,9 +20,9 @@ struct Engine::ECS::ComponentTraits<CameraParamComponent>
 		a_ar.Field("farZ",_comp.farZ);
 	}
 
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		CameraParamComponent& _comp = Engine::Editor::GetValue<CameraParamComponent>(a_pData);
+		CameraParamComponent& _comp = Engine::Editor::GetValue<CameraParamComponent>(a_context.pData);
 		ImGui::DragFloat("Fov", &_comp.fovY);
 		ImGui::DragFloat("Aspect", &_comp.aspectRatio);
 		ImGui::DragFloat("NearZ", &_comp.nearZ);

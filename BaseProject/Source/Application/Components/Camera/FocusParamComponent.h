@@ -17,8 +17,8 @@ struct Engine::ECS::ComponentTraits<FocusParamComponent>
 		a_ar.Field("focusBackRange", _comp->focusBackRange);
 	}
 
-	static void Edit(void* a_pData) {
-		auto* _comp = static_cast<FocusParamComponent*>(a_pData);
+	static void Edit(CompEditContext& a_context) {
+		auto* _comp = static_cast<FocusParamComponent*>(a_context.pData);
 		ImGui::DragFloat("ForcusDistance", &_comp->focusDistance);
 		ImGui::DragFloat("ForcusRange", &_comp->focusRange);
 		ImGui::DragFloat("ForcusBackRange", &_comp->focusBackRange);

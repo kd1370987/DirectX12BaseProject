@@ -89,6 +89,9 @@ namespace Engine::Editor::Inspector
 		const Engine::ECS::EntityLocation& _location = _pWorld->GetLocation(a_editContext.entity);
 		Engine::ECS::Signature _sig = _pWorld->GetSignature(a_editContext.entity);
 
+		ECS::CompEditContext _compEditContext = {};
+		_compEditContext.pWorld = _pWorld;
+
 		for (size_t _typeID = 0; _typeID < _sig.size(); ++_typeID)
 		{
 			// 持っているコンポーネントのみ表示
@@ -101,9 +104,12 @@ namespace Engine::Editor::Inspector
 				{
 					// コンポーネントごとの特殊エディター処理を入れる
 					auto _func = _pWorld->GetCompFunc(_typeID).edit;
+					_compEditContext.entity = a_editContext.entity;
+					_compEditContext.pData = _pWorld->NRefData(a_editContext.entity, _typeID);
 					if (_func)
 					{
-						_func(_pWorld->NRefData(a_editContext.entity, _typeID));
+						//_func(_pWorld->NRefData(a_editContext.entity, _typeID));
+						_func(_compEditContext);
 					}
 
 					// コンポーネントを削除するボタン

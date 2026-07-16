@@ -13,9 +13,9 @@ struct Engine::ECS::ComponentTraits<PreviousWorldMatrixComponent>
 		PreviousWorldMatrixComponent& _comp = Engine::Editor::GetValue<PreviousWorldMatrixComponent>(a_pData);
 		_comp.worldMat = DXSM::Matrix::Identity;
 	}
-	static void Edit(void* a_pData)
+	static void Edit(CompEditContext& a_context)
 	{
-		PreviousWorldMatrixComponent& _comp = Engine::Editor::GetValue<PreviousWorldMatrixComponent>(a_pData);
+		PreviousWorldMatrixComponent& _comp = Engine::Editor::GetValue<PreviousWorldMatrixComponent>(a_context.pData);
 		Engine::Editor::Helper::DrawMatrix(_comp.worldMat);
 	}
 };

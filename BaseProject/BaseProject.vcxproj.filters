@@ -2636,6 +2636,9 @@
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.h">
       <Filter>Source\Engine\Resource\Data\Texture\IO</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Internal\CompEditContext.h">
+      <Filter>Source\Engine\ECS\Internal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
