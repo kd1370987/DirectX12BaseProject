@@ -28,8 +28,10 @@ namespace Engine
 		/// 指定した領域の解放 : 現在のフレームでは解放しずにフェンス値によって遅延開放される
 		/// </summary>
 		/// <param name="a_handle">指定した領域</param>
-		/// <param name="a_currentFenceValue">現在のフェンス値</param>
-		void FreeRange(const RangeHandle<T>& a_handle, uint64_t a_currentFenceValue);
+		/// <param name="a_releaseFenceValue">この値をGPUが完了させたら再利用可能になる。
+		/// 今フレームがこの領域を参照している可能性があるため、最後にシグナル済みの値ではなく
+		/// 今フレーム完了時にシグナルされる値を渡すこと</param>
+		void FreeRange(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue);
 
 		// 毎フレームの頭で呼ぶ：GPUが使い終わった領域をフリーリストに戻す
 		
@@ -37,7 +39,7 @@ namespace Engine
 		/// 毎フレーム最初に呼ぶ : GPUが使い終わった領域をフリーリストに戻す
 		/// メッシュバッファアロケータ側のバッファと同期する必要あり
 		/// </summary>
-		/// <param name="a_completedFenceValue">現在のフェンス値</param>
+		/// <param name="a_completedFenceValue">GPUが実際に完了させたフェンス値</param>
 		void UpdateFrees(uint64_t a_completedFenceValue);
 
 
@@ -114,13 +116,13 @@ namespace Engine
 		return { std::numeric_limits<uint32_t>::max(), 0, 0 }; // 無効なハンドル
 	}
 	template<typename T>
-	inline void RangeAllocator<T>::FreeRange(const RangeHandle<T>& a_handle, uint64_t a_currentFenceValue)
+	inline void RangeAllocator<T>::FreeRange(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue)
 	{
 		if (!a_handle.IsValid()) return;
 
 		m_pendingFrees.push({
 			{ a_handle.startIndex, a_handle.count },
-			a_currentFenceValue
+			a_releaseFenceValue
 			});
 	}
 	template<typename T>

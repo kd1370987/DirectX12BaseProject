@@ -150,6 +150,18 @@ namespace Engine
 		// ディスクリプタヒープマネージャー解放
 		D3D12::DescriptorHeapManager::Instance().Release();
 
+		// 遅延解放キューを空にする
+		// 全GPU作業の完了を待ってから実行し、デバイスより先にリソースを解放しきる
+		D3D12::D3D12Wrapper::Instance().WaitForFrame();
+		for (auto& _releaseQueue : m_releaseQueues)
+		{
+			for (auto& _func : _releaseQueue)
+			{
+				_func();
+			}
+			_releaseQueue.clear();
+		}
+
 		// 描画エンジンの解放
 		D3D12::D3D12Wrapper::Instance().Release();
 
@@ -209,16 +221,18 @@ namespace Engine
 		// エディターの更新を入れる
 		Editor::MainEditor::Instance().Update(GetDeltaTime());
 
-		// 今から使うフレームの登録されているファンクションを実行して空にする
+		// 描画開始 : ここでフレームインデックスが更新され、そのフレームのGPU完了を待機する
+		D3D12::D3D12Wrapper::Instance().BeginFrame();
+
+		// 今から使うフレームに登録されているファンクションを実行して空にする
+		// BeginFrameの待機を終えた後に実行することで、このインデックスを前回使ったフレームの
+		// GPU作業が完了していることが保証される
 		UINT _currentFrameIdx = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 		for (auto& _func : m_releaseQueues[_currentFrameIdx])
 		{
 			_func();
 		}
 		m_releaseQueues[_currentFrameIdx].clear();
-
-		// 描画開始 : ここでフレームインデックスが更新される
-		D3D12::D3D12Wrapper::Instance().BeginFrame();
 
 		// 描画フレームリソース
 		m_upGraphicsEngine->BegineFrame();

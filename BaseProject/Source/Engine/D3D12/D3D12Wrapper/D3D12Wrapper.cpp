@@ -200,6 +200,14 @@ namespace Engine::D3D12
 	{
 		return m_upFrameManager->GetCurrentFenceValue();
 	}
+	UINT64 D3D12Wrapper::GetCompletedFenceValue()
+	{
+		return m_upFrameManager->GetCompletedFenceValue();
+	}
+	UINT64 D3D12Wrapper::GetNextFenceValue()
+	{
+		return m_upFrameManager->GetNextFenceValue();
+	}
 	//==================================================================================
 	// 
 	// D3D12オブジェクト作成

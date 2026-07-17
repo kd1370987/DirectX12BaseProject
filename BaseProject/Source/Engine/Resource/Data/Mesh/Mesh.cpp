@@ -291,12 +291,20 @@ void Engine::Resource::Mesh::Release()
 	ENGINE_ERRLOG(_pMeshBufferAllocater, "メッシュ解放時にメッシュバッファアロケーターが存在しません");
 
 	// 登録されているハンドルの解放
-	_pMeshBufferAllocater->StaticVertexFree(m_opRtData->vertexHandle);
-	_pMeshBufferAllocater->IndexFree(m_opRtData->indexHandle);
+	// 各ドメインデータは必要なもののみ実体化されるため、持っているものだけ解放する
+	if (m_opRtData.has_value())
+	{
+		_pMeshBufferAllocater->StaticVertexFree(m_opRtData->vertexHandle);
+		_pMeshBufferAllocater->IndexFree(m_opRtData->indexHandle);
+	}
 
-	_pMeshBufferAllocater->MeshletFree(m_opMeshShaderData->meshletHandle);
-	_pMeshBufferAllocater->UniqueVertIndicesFree(m_opMeshShaderData->uinqueVertexIndecsHandle);
-	_pMeshBufferAllocater->TrianglesFree(m_opMeshShaderData->primitiveIndicesHandle);
+	if (m_opMeshShaderData.has_value())
+	{
+		_pMeshBufferAllocater->MeshletFree(m_opMeshShaderData->meshletHandle);
+		_pMeshBufferAllocater->UniqueVertIndicesFree(m_opMeshShaderData->uinqueVertexIndecsHandle);
+		_pMeshBufferAllocater->TrianglesFree(m_opMeshShaderData->primitiveIndicesHandle);
+		_pMeshBufferAllocater->MeshletCullDataFree(m_opMeshShaderData->cullDataHandle);
+	}
 
 	// 各meshデータ解放
 	m_meshMetaData.Release();

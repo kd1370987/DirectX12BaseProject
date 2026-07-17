@@ -112,7 +112,9 @@ namespace Engine::D3D12
 
 		GraphicsCommandList* GetDirectCommandList();	// コマンドリスト取得
 
-		UINT64 GetCurrentFenceValue();
+		UINT64 GetCurrentFenceValue();		// 最後にシグナルを送った値
+		UINT64 GetCompletedFenceValue();	// GPUが実際に完了させた値
+		UINT64 GetNextFenceValue();			// 記録中フレームの終わりにシグナルされる値
 
 	private:
 		// ---- D3Dオブジェクト作成 ----

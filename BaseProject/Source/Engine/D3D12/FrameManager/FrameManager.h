@@ -65,7 +65,24 @@ namespace Engine::D3D12
 		// ---- アクセサ ----
 		UINT                    GetCPUFrameIndex()     const;
 		ID3D12CommandAllocator* GetCurrentAllocator()  const;
+
+		/// <summary>
+		/// 最後にシグナルを送った値
+		/// 記録中のフレームはまだシグナルされていないため、この値には含まれない
+		/// </summary>
 		UINT64                  GetCurrentFenceValue() const;
+
+		/// <summary>
+		/// GPUが実際に完了させた値
+		/// これ以下のフェンス値でタグ付けされたリソースは解放して良い
+		/// </summary>
+		UINT64                  GetCompletedFenceValue() const;
+
+		/// <summary>
+		/// 記録中のフレームの終わりにシグナルされる予定の値
+		/// 今フレームで参照されうるリソースの遅延解放タグに使う
+		/// </summary>
+		UINT64                  GetNextFenceValue() const;
 
 	private:
 

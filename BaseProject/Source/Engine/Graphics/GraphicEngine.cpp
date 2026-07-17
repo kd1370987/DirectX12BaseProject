@@ -181,7 +181,8 @@ namespace Engine::Graphics
 	{
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
-		auto _currentFence = D3D12::D3D12Wrapper::Instance().GetCurrentFenceValue();
+		// GPUが実際に完了させた値 : これ以下でタグ付けされた領域だけをフリーリストに戻す
+		auto _completedFence = D3D12::D3D12Wrapper::Instance().GetCompletedFenceValue();
 
 		// レイトレ用BLAS初期化 : 初期化命令があれば走る
 		ProcessInitQueue(_pDevice, _pCmdList);
@@ -190,7 +191,7 @@ namespace Engine::Graphics
 		App::Game::GameManager::Instance().Draw();
 
 		// メッシュバッファの更新
-		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _currentFence);
+		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _completedFence);
 
 		// パーティクルのバッファ更新
 		MainEngine::Instance().RefParticleManager()->UploadEmitData(_pCmdList);

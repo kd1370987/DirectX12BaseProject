@@ -32,6 +32,9 @@ namespace Engine::D3D12
 		// テンプレート派生クラスから呼ぶための生データ操作関数
 		void UploadDataAsync(UINT a_destOffsetBytes, const void* a_pData, UINT a_sizeBytes);
 		uint64_t GetCurrentFenceValue() const;
+
+		// 記録中フレームの終わりにシグナルされる値 : 遅延解放のタグに使う
+		uint64_t GetNextFenceValue() const;
 	protected:
 		bool m_isDrty = false;
 	};

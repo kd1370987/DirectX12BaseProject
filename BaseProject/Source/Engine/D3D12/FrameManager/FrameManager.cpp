@@ -133,4 +133,14 @@ namespace Engine::D3D12
 	{
 		return m_currentFenceValue;
 	}
+	UINT64 FrameManager::GetCompletedFenceValue() const
+	{
+		return m_cpFence->GetCompletedValue();
+	}
+	UINT64 FrameManager::GetNextFenceValue() const
+	{
+		// EndFrameで m_currentFenceValue をインクリメントしてからシグナルするため、
+		// 記録中フレームの作業が完了する値は現在値の次になる
+		return m_currentFenceValue + 1;
+	}
 }

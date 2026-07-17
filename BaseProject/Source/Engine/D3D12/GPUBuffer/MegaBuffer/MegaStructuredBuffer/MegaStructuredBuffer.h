@@ -81,9 +81,9 @@ namespace Engine::D3D12
 	{
 		if (!a_handle.IsValid()) return;
 
-		// 基底クラスからフェンス値を取得し、遅延解放を予約
-		uint64_t _currentFence = GetCurrentFenceValue();
-		m_rangeAllocator.FreeRange(a_handle, _currentFence);
+		// 今フレームがこの領域を参照している可能性があるため、
+		// 今フレーム完了時のフェンス値でタグ付けして遅延解放を予約する
+		m_rangeAllocator.FreeRange(a_handle, GetNextFenceValue());
 	}
 	template<typename T>
 	inline void MegaStructuredBuffer<T>::Update(uint64_t a_currentFrameFence)

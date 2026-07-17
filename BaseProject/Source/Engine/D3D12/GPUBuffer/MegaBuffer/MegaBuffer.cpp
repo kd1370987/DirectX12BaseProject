@@ -92,4 +92,9 @@ namespace Engine::D3D12
 		return D3D12Wrapper::Instance().GetCurrentFenceValue();
 	}
 
+	uint64_t MegaBuffer::GetNextFenceValue() const
+	{
+		return D3D12Wrapper::Instance().GetNextFenceValue();
+	}
+
 }

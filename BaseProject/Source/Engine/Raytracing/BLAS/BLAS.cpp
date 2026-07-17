@@ -1,13 +1,26 @@
 ﻿#include "BLAS.h"
 
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../MainEngine.h"
 
 void Engine::Raytracing::BLAS::Release()
 {
+	// TLASがこのBLASのGPUアドレスを参照したまま実行中の可能性があるため、
+	// ここでは解放せず、ComPtrをゴミ箱にムーブして寿命だけを延ばす。
+	// ラムダは中身が空でよく、キューがクリアされた時点でリソースが解放される
+	if (m_cpResource || m_cpUpdateScratch)
+	{
+		MainEngine::Instance().RegisterDeferredResource(
+			[_cpResource = std::move(m_cpResource), _cpUpdateScratch = std::move(m_cpUpdateScratch)]() {}
+		);
+	}
+
+	// ムーブ済みだが、状態を明示的に空にしておく
 	m_cpResource.Reset();
 	m_cpUpdateScratch.Reset();
 
 	m_geometryDescVec.clear();
+	m_isDynamic = false;
 }
 
 void Engine::Raytracing::BLAS::UAVBarrier(D3D12::GraphicsCommandList* a_pCmdList) const
