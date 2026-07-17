@@ -18,15 +18,28 @@ namespace Engine::Resource
 		/// <param name="a_ar">保存・読み込み</param>
 		void Archive(Persistence::Archive& a_ar);
 
-		/// <summary>
-		/// 編集
-		/// </summary>
-		void Edit(const Engine::GUID& a_guid);
-
 		std::string GetName() const { return m_typeName; }
 
 		// シェーダーの有無に関わらず、有効なパスのハッシュを返す
 		std::vector<UINT> GetPassHashes() const;
+
+		// ---- パス編集用アクセサ ----
+		// シリアライズ用データとランタイム用データを常に同期させるため、
+		// エディターからはこの関数を経由して編集する
+
+		// このパスが有効化されているか
+		bool HasPass(const std::string& a_passName) const { return m_shaderGUIDMap.contains(a_passName); }
+
+		// パスに登録されているシェーダーGUID配列を取得 : 無効なパスなら空配列
+		const std::vector<Engine::GUID>& GetShaderGUIDs(const std::string& a_passName) const;
+
+		// パスの有効・無効切り替え
+		void EnablePass(const std::string& a_passName);
+		void DisablePass(const std::string& a_passName);
+
+		// パスへのシェーダー追加・削除
+		void AddShader(const std::string& a_passName, const Engine::GUID& a_shaderGUID);
+		void RemoveShader(const std::string& a_passName, size_t a_index);
 
 	private:
 		// シェーディングモデルタイプネーム

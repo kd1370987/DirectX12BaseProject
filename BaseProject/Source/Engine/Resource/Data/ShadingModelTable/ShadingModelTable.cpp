@@ -2,10 +2,6 @@
 
 #include "../../Manager/ResourceManager/ResourceManager.h"
 
-#include "../../../MainEngine.h"
-#include "../../../Graphics/GraphicEngine.h"
-#include "../../../Graphics/RenderPassRegistry/RenderPassRegistry.h"
-
 namespace Engine::Resource
 {
 	std::span<const ResourceRef<Shader>> Engine::Resource::ShadingModelTable::GetShaderHandles(UINT a_passHash) const
@@ -125,172 +121,76 @@ namespace Engine::Resource
 			}
 		}
 	}
-	void ShadingModelTable::Edit(const Engine::GUID& a_guid)
+	const std::vector<Engine::GUID>& ShadingModelTable::GetShaderGUIDs(const std::string& a_passName) const
 	{
-		ImGui::Text("Shading Model: %s", m_typeName.c_str());
-		ImGui::Separator();
+		static const std::vector<Engine::GUID> _empty = {};
 
-		// 保存ボタン（パス取得やセーブ処理は仮置き）
-		if (ImGui::Button("Save Asset"))
+		auto _it = m_shaderGUIDMap.find(a_passName);
+		if (_it == m_shaderGUIDMap.end()) { return _empty; }
+		return _it->second;
+	}
+	void ShadingModelTable::EnablePass(const std::string& a_passName)
+	{
+		if (m_shaderGUIDMap.contains(a_passName)) { return; }
+
+		UINT _hash = StringUtility::ToHash(a_passName);
+
+		// シリアライズ用データの更新
+		m_shaderGUIDMap[a_passName] = {};
+		m_activePasses.push_back(a_passName);
+
+		// ランタイム用データの更新
+		m_shaderHandleMap[_hash] = {};
+		m_activePassHashes.push_back(_hash);
+	}
+	void ShadingModelTable::DisablePass(const std::string& a_passName)
+	{
+		UINT _hash = StringUtility::ToHash(a_passName);
+
+		// シリアライズ用データの更新
+		m_shaderGUIDMap.erase(a_passName);
+		auto _itStr = std::find(m_activePasses.begin(), m_activePasses.end(), a_passName);
+		if (_itStr != m_activePasses.end())
 		{
-			auto _filePath = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
-			auto _dir = FileUtility::GetDirFromPath(_filePath);
-			auto _fileName = FileUtility::GetFileNameWithoutExtension(_filePath);
-			Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dir, _fileName, "smtble");
-			Archive(_ar);
+			m_activePasses.erase(_itStr);
 		}
 
-		ImGui::Spacing();
-
-		auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
-		if (!_pGE) return;
-		auto* _pRGPassRegistry = _pGE->RefRenderPassRegistry();
-		if (!_pRGPassRegistry) return;
-
-		// レンダーパス一覧を取得
-		auto& _passNodeVec = _pRGPassRegistry->RefPassNodes();
-		// リソースマネージャーから配列を取得
-		auto _shaderMetaVec = AssetDatabase::Instance().GetTypeMetaVec("Shader");
-
-		for (const auto& _passNode : _passNodeVec)
+		// ランタイム用データからの即時削除
+		m_shaderHandleMap.erase(_hash);
+		auto _itHash = std::find(m_activePassHashes.begin(), m_activePassHashes.end(), _hash);
+		if (_itHash != m_activePassHashes.end())
 		{
-			const auto& _passName = _passNode->name;
+			m_activePassHashes.erase(_itHash);
+		}
+	}
+	void ShadingModelTable::AddShader(const std::string& a_passName, const Engine::GUID& a_shaderGUID)
+	{
+		// 無効なパスには追加させない
+		auto _it = m_shaderGUIDMap.find(a_passName);
+		if (_it == m_shaderGUIDMap.end()) { return; }
 
-			// このパスがマテリアルに登録されているか判定
-			bool _isActive = m_shaderGUIDMap.contains(_passName);
+		// シリアライズ用データに追加
+		_it->second.push_back(a_shaderGUID);
 
-			// =======================================================
-			// UI: チェックボックスでパス自体の有効/無効を切り替え
-			// =======================================================
-			if (ImGui::Checkbox(("##Toggle" + _passName).c_str(), &_isActive))
-			{
-				UINT _hash = StringUtility::ToHash(_passName);
-				if (_isActive)
-				{
-					// シリアライズ用データの更新
-					m_shaderGUIDMap[_passName] = {};
-					m_activePasses.push_back(_passName);
+		// ランタイム用データに追加
+		UINT _hash = StringUtility::ToHash(a_passName);
+		m_shaderHandleMap[_hash].push_back(ResourceManager::Instance().Load<Shader>(a_shaderGUID));
+	}
+	void ShadingModelTable::RemoveShader(const std::string& a_passName, size_t a_index)
+	{
+		auto _it = m_shaderGUIDMap.find(a_passName);
+		if (_it == m_shaderGUIDMap.end()) { return; }
+		if (a_index >= _it->second.size()) { return; }
 
-					// ランタイム用データの更新
-					m_shaderHandleMap[_hash] = {};
-					m_activePassHashes.push_back(_hash);
-				}
-				else
-				{
-					// シリアライズ用データの更新
-					m_shaderGUIDMap.erase(_passName);
-					auto _itStr = std::find(m_activePasses.begin(), m_activePasses.end(), _passName);
-					if (_itStr != m_activePasses.end()) {
-						m_activePasses.erase(_itStr);
-					}
+		// シリアライズ用データ（GUID）から削除
+		_it->second.erase(_it->second.begin() + a_index);
 
-					// ランタイム用データからの即時削除
-					m_shaderHandleMap.erase(_hash);
-					auto _itHash = std::find(m_activePassHashes.begin(), m_activePassHashes.end(), _hash);
-					if (_itHash != m_activePassHashes.end()) {
-						m_activePassHashes.erase(_itHash);
-					}
-				}
-			}
-
-			ImGui::SameLine();
-
-			if (ImGui::CollapsingHeader(_passName.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				ImGui::Indent();
-
-				if (!_isActive)
-				{
-					// 有効になっていない場合は設定させない
-					ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "  (Pass is disabled. Check the box to enable.)");
-				}
-				else
-				{
-					// 現在このパスに登録されているGUID配列の参照を取得
-					auto& _registeredGUIDs = m_shaderGUIDMap[_passName];
-
-					// 登録済みシェーダーの表示と削除
-					for (size_t _i = 0; _i < _registeredGUIDs.size(); ++_i)
-					{
-						// シェーダーアセット名取得
-						auto _fileName = AssetDatabase::Instance().GetFileNameFromGUID(_registeredGUIDs[_i]);
-						std::string _shaderName = _fileName;
-
-						ImGui::Text(" %s", _shaderName.c_str());
-						ImGui::SameLine(ImGui::GetWindowWidth() - 80.0f);
-
-						// 削除ボタン
-						if (ImGui::Button(("Remove##" + _passName + std::to_string(_i)).c_str()))
-						{
-							// 1. シリアライズ用データ（GUID）から削除
-							_registeredGUIDs.erase(_registeredGUIDs.begin() + _i);
-
-							// 2. ランタイム用データ（ハンドル）からも削除を追加
-							UINT _hash = StringUtility::ToHash(_passName);
-							auto& _handleList = m_shaderHandleMap[_hash];
-							if (_i < _handleList.size())
-							{
-								_handleList.erase(_handleList.begin() + _i);
-							}
-
-							_i--;
-						}
-					}
-
-					// パスは有効だがPSが登録されていない場合（ZPreやShadowで正しい状態）
-					if (_registeredGUIDs.empty())
-					{
-						ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.3f, 1.0f), "  (No PS assigned. Valid for ZPre/Shadow)");
-					}
-
-					ImGui::Spacing();
-
-					// 新しいシェーダーを追加するボタンとポップアップ
-					if (ImGui::Button(("Add PS Shader##" + _passName).c_str()))
-					{
-						ImGui::OpenPopup(("SelectShaderPopup##" + _passName).c_str());
-					}
-
-					if (ImGui::BeginPopup(("SelectShaderPopup##" + _passName).c_str()))
-					{
-						ImGui::Text("Select Pixel Shader for %s", _passName.c_str());
-						ImGui::Separator();
-
-						for (const auto& _meta : _shaderMetaVec)
-						{
-							// .csoとPS以外は除去
-							if (_meta.fileName.find("PS") == std::string::npos)
-							{
-								continue;
-							}
-
-							// 既に登録されているかチェック
-							bool _isAlreadyAdded = false;
-							for (const auto& _guid : _registeredGUIDs)
-							{
-								if (_guid == _meta.guid) { _isAlreadyAdded = true; break; }
-							}
-
-							// 未登録のものだけを選択可能リストに表示
-							if (!_isAlreadyAdded)
-							{
-								if (ImGui::Selectable(_meta.fileName.c_str()))
-								{
-									// シリアライズ用データに追加
-									_registeredGUIDs.push_back(_meta.guid);
-
-									// ランタイム用データに追加
-									UINT _strHash = StringUtility::ToHash(_passName);
-									m_shaderHandleMap[_strHash].push_back(ResourceManager::Instance().Load<Shader>(_meta.guid));
-								}
-							}
-						}
-						ImGui::EndPopup();
-					}
-				}
-
-				ImGui::Unindent();
-			}
+		// ランタイム用データ（ハンドル）からも削除
+		UINT _hash = StringUtility::ToHash(a_passName);
+		auto& _handleVec = m_shaderHandleMap[_hash];
+		if (a_index < _handleVec.size())
+		{
+			_handleVec.erase(_handleVec.begin() + a_index);
 		}
 	}
 	std::vector<UINT> ShadingModelTable::GetPassHashes() const

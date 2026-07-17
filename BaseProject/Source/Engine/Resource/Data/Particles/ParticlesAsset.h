@@ -26,12 +26,10 @@ namespace Engine::Resource
 		void Load(const std::string& a_fileDir, const std::string& a_fileName);
 		void Load(const std::string& a_filePath);
 
-		// エディターでの編集
-		void EditImGui();
-
 		// ---- アクセサ ----
 		const std::string& GetName()const { return m_name; }				// パーティクル名
 		const Engine::GUID& GetGUID() const { return m_guid; }				// パーティクルGUID
+		const Engine::GUID& GetTexGUID() const { return m_texGUID; }		// テクスチャGUID
 		Handle<Texture> GetTexHandle() const { return m_texHandle; }		// テクスチャハンドル
 		float GetInitalSpeedMin() const { return m_initialSpeedMin; }		// 最小初速
 		float GetInitalSpeedMax() const { return m_initialSpeedMax; }		// 最大初速
@@ -40,6 +38,23 @@ namespace Engine::Resource
 		float GetLifeTimeMax() const { return m_lifeTimeMax; }				// 最大生存時間
 		int GetCapacity() const { return m_capacity; }						// 最大生成数
 		int GetEmissionRate() const { return m_emissionRate; }				// 発生レート
+
+		// ---- 編集用アクセサ : エディターから直接書き換えるためのもの ----
+		std::string& RefName() { return m_name; }
+		float& RefInitalSpeedMin() { return m_initialSpeedMin; }
+		float& RefInitalSpeedMax() { return m_initialSpeedMax; }
+		float& RefGravityPow() { return m_gravityPow; }
+		float& RefLifeTimeMin() { return m_lifeTimeMin; }
+		float& RefLifeTimeMax() { return m_lifeTimeMax; }
+		int& RefCapacity() { return m_capacity; }
+		int& RefEmissionRate() { return m_emissionRate; }
+
+		// テクスチャの差し替え : GUIDとハンドルを同時に更新する
+		void SetTexture(const Engine::GUID& a_guid, const ResourceRef<Texture>& a_handle)
+		{
+			m_texGUID = a_guid;
+			m_texHandle = a_handle;
+		}
 
 
 	private:

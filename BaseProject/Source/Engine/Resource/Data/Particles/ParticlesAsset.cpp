@@ -1,12 +1,7 @@
 ﻿#include "ParticlesAsset.h"
 
-#include "../../../Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
-
 #include "../../Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Manager/ResourceManager/ResourceManager.h"
-#include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-
-#include "../../Data/Texture/IO/TextureIO.h"
 
 namespace Engine::Resource
 {
@@ -93,88 +88,5 @@ namespace Engine::Resource
 
 		// テクスチャのハンドル取得
 		m_texHandle = ResourceManager::Instance().Load<Texture>(m_texGUID);
-	}
-	void ParticlesAsset::EditImGui()
-	{
-		if (ImGui::Button("Save"))
-		{
-			// ファイルパス取得
-			auto _path = AssetDatabase::Instance().GetFilePathFromGUID(m_guid);
-			Save(_path);
-			Editor::MainEditor::Instance().AddLog("%s", _path.c_str());
-			Editor::MainEditor::Instance().AddLog(" : Save Particles\n");
-		}
-
-		// パラメーター変更
-		ImGui::InputText("Name", &m_name);
-		ImGui::Text("%s",m_guid.String().c_str());
-
-		ImGui::Separator();
-
-		ImGui::PushID(1);
-		ImGui::Text("InitialSpeed");
-		ImGui::DragFloat("Min", &m_initialSpeedMin, 0.1f, 0.0);
-		ImGui::DragFloat("Max", &m_initialSpeedMax, 0.1f, 0.0);
-		ImGui::PopID();
-
-		ImGui::Separator();
-
-		ImGui::DragFloat("GravityPow", &m_gravityPow, 0.1f, 0.0f);
-
-		ImGui::Separator();
-
-		ImGui::PushID(2);
-		ImGui::Text("LifeTime");
-		ImGui::DragFloat("Min", &m_lifeTimeMin, 0.1f, 0.0);
-		ImGui::DragFloat("Max", &m_lifeTimeMax, 0.1f, 0.0);
-		ImGui::PopID();
-
-		ImGui::Separator();
-
-		ImGui::DragInt("Capacity", &m_capacity, 1, 0);
-		ImGui::DragInt("EmissionRate", &m_emissionRate, 1, 0);
-
-		ImGui::Separator();
-
-		// 現在選択されているテクスチャの名前と画像を表示
-		const auto* _pTex = ResourceManager::Instance().Get(m_texHandle);
-		std::string _viewName = "Selecte...";
-		if (!_pTex)
-		{
-			ImGui::Text("Not selected texture");
-		}
-		else
-		{
-			_viewName = _pTex->GetName();
-			ImGui::Text("Texture : %s", _viewName.c_str());
-			ImGui::Text("%s",m_texGUID.String().c_str());
-		}
-		ImGui::Separator();
-
-		// テクスチャ選択コンボボックス
-		if (ImGui::BeginCombo("SelectTexture",_viewName.c_str()))
-		{
-			for (auto& _prop : AssetDatabase::Instance().GetTypeMetaVec("Texture"))
-			{
-				// 現在のテクスチャと同じならフラグを立てる
-				bool _selected = (m_texGUID == _prop.guid);
-
-				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
-				{
-					// テクスチャのハンドル取得
-					// ロードされていなかったら止まる
-					m_texHandle = TextureIO::LoadTexture(_prop.guid, TexColor::WHITE);
-					m_texGUID = _prop.guid;
-				}
-			}
-			ImGui::EndCombo();
-		}
-
-		// テクスチャの画像を表示
-		if(_pTex)
-		{
-			auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
-			Editor::Helper::DrawSRVView(_gpuHandle, _pTex->GetDesc().Width, _pTex->GetDesc().Height);
-		}
 	}
 }

@@ -40,9 +40,6 @@ namespace Engine::Resource
 		// ハッシュ値を返す
 		UINT Hash();
 
-		// 編集
-		void Edit(const Engine::GUID& a_guid);
-
 		//---------------------------------------
 		// 材質データ
 		//---------------------------------------

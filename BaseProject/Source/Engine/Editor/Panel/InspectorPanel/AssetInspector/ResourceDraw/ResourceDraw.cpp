@@ -1,52 +1,71 @@
-﻿#include "ResourceDraw.h"
+#include "ResourceDraw.h"
 
-#include "../../../../../Option/OptionManager.h"
-#include "../../../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "ModelEdit.h"
+#include "MeshEdit.h"
+#include "MaterialEdit.h"
+#include "AnimationEdit.h"
+#include "TextureEdit.h"
+#include "ShaderEdit.h"
+#include "ShadingModelTableEdit.h"
+#include "ParticleEdit.h"
+#include "StateMachineEdit.h"
 
 #include "../../../../../Resource/Data/Model/IO/ModelConverter/ModelConverter.h"
 
 namespace Engine::Editor::Inspector
 {
+	namespace
+	{
+		//-----------------------------------------------------------------------------------------
+		// アセットの解決
+		// ロード済みなら実体を返し、未ロードならロードボタンを出してnullptrを返す
+		//-----------------------------------------------------------------------------------------
+		template<typename TResource>
+		TResource* ResolveAsset(const Engine::GUID& a_guid)
+		{
+			if (!Resource::ResourceManager::Instance().Has<TResource>(a_guid))
+			{
+				ImGui::Text("No loaded file");
+				if (ImGui::Button("Load"))
+				{
+					Resource::ResourceManager::Instance().Load<TResource>(a_guid);
+				}
+				return nullptr;
+			}
+
+			auto _handle = Resource::ResourceManager::Instance().GetCache<TResource>(a_guid);
+			auto* _pResource = Resource::ResourceManager::Instance().Ref(_handle);
+			if (!_pResource)
+			{
+				ImGui::Text("Not found asset");
+				return nullptr;
+			}
+
+			return _pResource;
+		}
+	}
+
 	//-----------------------------------------------------------------------------------------
 	// モデル
 	//-----------------------------------------------------------------------------------------
 	void ModelDraw(EditorContext& a_editContext)
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
-		if (Resource::ResourceManager::Instance().Has<Resource::Model>(_guid))
+
+		auto* _pModel = ResolveAsset<Resource::Model>(_guid);
+		if (!_pModel) { return; }
+
+		// バイナリへの変換
+		if (ImGui::Button("Convert"))
 		{
-			auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::Model>(_guid);
-			auto* _pModel = Resource::ResourceManager::Instance().Ref(_handle);
-			if (!_pModel)
-			{
-				ImGui::Text("Not faund model");
-				return;
-			}
-			else
-			{
-				if (ImGui::Button("Convert"))
-				{
-					auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
-					//_pModel->Save(_path);
-					Resource::Converter::ModelConverter::ConvertModelDataToBinary(_path);
-					ENGINE_LOG("モデルのconvert処理が完了 : %s",_path.c_str());
-				}
-
-				const auto& _assetData = _pModel->GetAssestData();
-				const auto& _runtimeData = _pModel->GetRuntimeData();
-
-
-				
-			}
+			auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+			Resource::Converter::ModelConverter::ConvertModelDataToBinary(_filePath);
+			ENGINE_LOG("モデルのconvert処理が完了 : %s", _filePath.c_str());
 		}
-		else
-		{
-			ImGui::Text("No loaded file");
-			if (ImGui::Button("Load"))
-			{
-				Resource::ResourceManager::Instance().Load<Resource::Model>(_guid);
-			}
-		}
+
+		ImGui::Separator();
+
+		ModelEdit(a_editContext, _pModel);
 	}
 
 	//-----------------------------------------------------------------------------------------
@@ -56,191 +75,110 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		// ウィンドウサイズ取得
-		auto _winOp = Option::OptionManager::GetInstance().GetWindowOption();
-		float _winWidth = _winOp.windowWidth;
-		float _winHeight = _winOp.windowHegiht;
-
-		// テクスチャハンドル取得
-		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::Texture>(_guid);
-		auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(_guid);
-
 		// 名前と、GUID表示
+		auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(_guid);
 		ImGui::Text("%s", _fileName.c_str());
 		ImGui::Text("%s", _guid.String().c_str());
 
 		ImGui::Separator();
 
-		// テクスチャハンドルがデフォルト値でない場合
-		// 読み込めている
-		if (_handle != Handle<Resource::Texture>())
-		{
-			// テクスチャ表示
-			auto _pTex = Engine::Resource::ResourceManager::Instance().Ref(_handle);
-			if (!_pTex) return;
+		auto* _pTexture = ResolveAsset<Resource::Texture>(_guid);
+		if (!_pTexture) { return; }
 
-			// 画像の保存
-			if (ImGui::Button("Save to DDS"))
-			{
-				auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
-				_pTex->Save(_filePath);
-			}
-
-			// 画像の描画
-			auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
-			Helper::DrawSRVView(_gpuHandle, _winWidth, _winHeight);
-		}
-		// 読み込めていない
-		else
-		{
-			// ロード
-			if (ImGui::Button("Load"))
-			{
-				Resource::ResourceManager::Instance().Load<Resource::Texture>(_guid);
-			}
-		}
+		TextureEdit(a_editContext, _pTexture);
 	}
+
 	//-----------------------------------------------------------------------------------------
 	// ステートマシン
 	//-----------------------------------------------------------------------------------------
 	void StateMachineDraw(EditorContext& a_editContext)
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
-		if (Resource::ResourceManager::Instance().Has<Resource::StateMachineAsset>(_guid))
-		{
-			auto _handle = Resource::ResourceManager::Instance().Load<Resource::StateMachineAsset>(_guid);
-			auto* _pMachin = Resource::ResourceManager::Instance().Ref(_handle);
-			if (!_pMachin)
-			{
-				ImGui::Text("Not faund state machin");
-				return;
-			}
-			_pMachin->EditImGui(_handle);
-		}
-		else
-		{
-			ImGui::Text("No loaded file");
-			if (ImGui::Button("Load"))
-			{
-				Resource::ResourceManager::Instance().Load<Resource::StateMachineAsset>(_guid);
-			}
-		}
+
+		auto* _pStateMachine = ResolveAsset<Resource::StateMachineAsset>(_guid);
+		if (!_pStateMachine) { return; }
+
+		// ノードエディタ側がハンドルを必要とするため取得しておく
+		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::StateMachineAsset>(_guid);
+
+		StateMachineEdit(a_editContext, _pStateMachine, _handle);
 	}
+
 	//-----------------------------------------------------------------------------------------
 	// パーティクル
 	//-----------------------------------------------------------------------------------------
-	void ParticleDraw(EditorContext & a_editContext)
+	void ParticleDraw(EditorContext& a_editContext)
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
-		if (Resource::ResourceManager::Instance().Has<Resource::ParticlesAsset>(_guid))
-		{
-			auto _handle = Resource::ResourceManager::Instance().Load<Resource::ParticlesAsset>(_guid);
-			auto* _pData = Resource::ResourceManager::Instance().Ref(_handle);
-			if (!_pData)
-			{
-				ImGui::Text("Not faund particle");
-				return;
-			}
-			_pData->EditImGui();
-		}
-		else
-		{
-			ImGui::Text("No loaded file");
-			if (ImGui::Button("Load"))
-			{
-				Resource::ResourceManager::Instance().Load<Resource::ParticlesAsset>(_guid);
-			}
-		}
+
+		auto* _pParticles = ResolveAsset<Resource::ParticlesAsset>(_guid);
+		if (!_pParticles) { return; }
+
+		ParticleEdit(a_editContext, _pParticles);
 	}
+
 	//-----------------------------------------------------------------------------------------
 	// マテリアル
 	//-----------------------------------------------------------------------------------------
-	void MaterialDraw(EditorContext & a_editContext)
+	void MaterialDraw(EditorContext& a_editContext)
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
-		if (Resource::ResourceManager::Instance().Has<Resource::Material>(_guid))
-		{
-			auto _handle = Resource::ResourceManager::Instance().Load<Resource::Material>(_guid);
-			auto* _pData = Resource::ResourceManager::Instance().Ref(_handle);
-			if (!_pData)
-			{
-				ImGui::Text("Not faund particle");
-				return;
-			}
-			_pData->Edit(_guid);
-		}
-		else
-		{
-			ImGui::Text("No loaded file");
-			if (ImGui::Button("Load"))
-			{
-				Resource::ResourceManager::Instance().Load<Resource::Material>(_guid);
-			}
-		}
+
+		auto* _pMaterial = ResolveAsset<Resource::Material>(_guid);
+		if (!_pMaterial) { return; }
+
+		MaterialEdit(a_editContext, _pMaterial);
 	}
+
 	//-----------------------------------------------------------------------------------------
 	// メッシュ
 	//-----------------------------------------------------------------------------------------
-	void MeshDraw(EditorContext & a_editContext)
+	void MeshDraw(EditorContext& a_editContext)
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
-		if (Resource::ResourceManager::Instance().Has<Resource::Mesh>(_guid))
-		{
-			auto _handle = Resource::ResourceManager::Instance().Load<Resource::Mesh>(_guid);
-			auto* _pData = Resource::ResourceManager::Instance().Ref(_handle);
-			if (!_pData)
-			{
-				ImGui::Text("Not faund particle");
-				return;
-			}
-			else
-			{
 
-			}
-		}
-		else
-		{
-			ImGui::Text("No loaded file");
-			if (ImGui::Button("Load"))
-			{
-				Resource::ResourceManager::Instance().Load<Resource::Mesh>(_guid);
-			}
-		}
+		auto* _pMesh = ResolveAsset<Resource::Mesh>(_guid);
+		if (!_pMesh) { return; }
+
+		MeshEdit(a_editContext, _pMesh);
 	}
+
 	//-----------------------------------------------------------------------------------------
 	// アニメーション
 	//-----------------------------------------------------------------------------------------
-	void AnimationDraw(EditorContext & a_editContext)
-	{}
+	void AnimationDraw(EditorContext& a_editContext)
+	{
+		auto _guid = a_editContext.pAssetProp->guid;
+
+		auto* _pAnimation = ResolveAsset<Resource::AnimationData>(_guid);
+		if (!_pAnimation) { return; }
+
+		AnimationEdit(a_editContext, _pAnimation);
+	}
+
 	//-----------------------------------------------------------------------------------------
 	// シェーダー
 	//-----------------------------------------------------------------------------------------
-	void ShaderDraw(EditorContext & a_editContext)
-	{}
+	void ShaderDraw(EditorContext& a_editContext)
+	{
+		auto _guid = a_editContext.pAssetProp->guid;
+
+		auto* _pShader = ResolveAsset<Resource::Shader>(_guid);
+		if (!_pShader) { return; }
+
+		ShaderEdit(a_editContext, _pShader);
+	}
+
 	//-----------------------------------------------------------------------------------------
 	// シェーディングモデルテーブル
 	//-----------------------------------------------------------------------------------------
-	void ShadingModelTableDraw(EditorContext & a_editContext)
+	void ShadingModelTableDraw(EditorContext& a_editContext)
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
-		if (Resource::ResourceManager::Instance().Has<Resource::ShadingModelTable>(_guid))
-		{
-			auto _handle = Resource::ResourceManager::Instance().Load<Resource::ShadingModelTable>(_guid);
-			auto* _pData = Resource::ResourceManager::Instance().Ref(_handle);
-			if (!_pData)
-			{
-				ImGui::Text("Not faund particle");
-				return;
-			}
-			_pData->Edit(_guid);
-		}
-		else
-		{
-			ImGui::Text("No loaded file");
-			if (ImGui::Button("Load"))
-			{
-				Resource::ResourceManager::Instance().Load<Resource::ShadingModelTable>(_guid);
-			}
-		}
+
+		auto* _pTable = ResolveAsset<Resource::ShadingModelTable>(_guid);
+		if (!_pTable) { return; }
+
+		ShadingModelTableEdit(a_editContext, _pTable);
 	}
 }
