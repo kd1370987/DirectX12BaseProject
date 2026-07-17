@@ -1,7 +1,7 @@
 ﻿#pragma once
 namespace Engine::Resource
 {
-	class AnimationLoader
+	class AnimationIO
 	{
 	public:
 		/// <summary>

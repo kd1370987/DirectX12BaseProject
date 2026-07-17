@@ -5,8 +5,6 @@
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
 
-#include "../../../../../Engine/Resource/Loader/StateMachineAsset/StateMachineAssetLoader.h"
-
 #include "../../../../../Engine/Resource/Data/StateMachineAsset/StateMachineAsset.h"
 
 void StateMachinFixupSystem::Init(Engine::ECS::World& a_world)

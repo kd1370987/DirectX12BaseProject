@@ -1,14 +1,14 @@
 ﻿#pragma once
 
 #include "../Data/Model/IO/ModelIO.h"
-#include "Texture/TextureLoader.h"
-#include "StateMachineAsset/StateMachineAssetLoader.h"
-#include "Shader/ShaderLoader.h"
-#include "Particles/ParticlesLoader.h"
-#include "Material/MaterialLoader.h"
-#include "Mesh/MeshLoader.h"
-#include "Animation/AnimationLoader.h"
-#include "ShadingModelTable/ShadingModelTableLoader.h"
+#include "../Data/Texture/IO/TextureIO.h"
+#include "../Data/StateMachineAsset/IO/StateMachineAssetIO.h"
+#include "../Data/Shader/IO/ShaderIO.h"
+#include "../Data/Particles/IO/ParticlesIO.h"
+#include "../Data/Material/IO/MaterialIO.h"
+#include "../Data/Mesh/IO/MeshIO.h"
+#include "../Data/Animation/IO/AnimationIO.h"
+#include "../Data/ShadingModelTable/IO/ShadingModelTableIO.h"
 namespace Engine::Resource
 {
 	// ロード処理の中間用クラス
@@ -42,7 +42,7 @@ namespace Engine::Resource
 	{
 		static Texture LoadFromFile(const std::string& a_path)
 		{
-			return TextureLoader::LoadFromFile(a_path);
+			return TextureIO::LoadFromFile(a_path);
 		}
 	};
 	// ステートマシン
@@ -51,7 +51,7 @@ namespace Engine::Resource
 	{
 		static StateMachineAsset LoadFromFile(const std::string& a_path)
 		{
-			return StateMachineAssetLoader::LoadFromFile(a_path);
+			return StateMachineAssetIO::LoadFromFile(a_path);
 		}
 	};
 	// シェーダー
@@ -60,7 +60,7 @@ namespace Engine::Resource
 	{
 		static Shader LoadFromFile(const std::string& a_path)
 		{
-			return ShaderLoader::LoadShaderFromFile(a_path);
+			return ShaderIO::LoadShaderFromFile(a_path);
 		}
 	};
 	// ライブラリシェーダー
@@ -69,7 +69,7 @@ namespace Engine::Resource
 	{
 		static ShaderLibrary LoadFromFile(const std::string& a_path)
 		{
-			return ShaderLoader::LoadShaderLibraryFromFile(a_path);
+			return ShaderIO::LoadShaderLibraryFromFile(a_path);
 		}
 	};
 	// パーティクル
@@ -78,7 +78,7 @@ namespace Engine::Resource
 	{
 		static ParticlesAsset LoadFromFile(const std::string& a_path)
 		{
-			return ParticlesAssetLoader::LoadFromFile(a_path);
+			return ParticlesAssetIO::LoadFromFile(a_path);
 		}
 	};
 	// マテリアル
@@ -87,7 +87,7 @@ namespace Engine::Resource
 	{
 		static Material LoadFromFile(const std::string& a_path)
 		{
-			return MaterialLoader::LoadFromFile(a_path);
+			return MaterialIO::LoadFromFile(a_path);
 		}
 	};
 	// メッシュ
@@ -96,7 +96,7 @@ namespace Engine::Resource
 	{
 		static Mesh LoadFromFile(const std::string& a_path)
 		{
-			return MeshLoader::LoadFromFile(a_path);
+			return MeshIO::LoadFromFile(a_path);
 		}
 	};
 	// アニメーション
@@ -105,7 +105,7 @@ namespace Engine::Resource
 	{
 		static AnimationData LoadFromFile(const std::string& a_path)
 		{
-			return AnimationLoader::LoadFromFile(a_path);
+			return AnimationIO::LoadFromFile(a_path);
 		}
 	};
 	// シェーディングモデル
@@ -114,7 +114,7 @@ namespace Engine::Resource
 	{
 		static ShadingModelTable LoadFromFile(const std::string& a_path)
 		{
-			return ShadingModelTableLoader::LoadFromFile(a_path);
+			return ShadingModelTableIO::LoadFromFile(a_path);
 		}
 	};
 }

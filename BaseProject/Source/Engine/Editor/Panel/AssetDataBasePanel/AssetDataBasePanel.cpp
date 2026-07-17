@@ -5,15 +5,15 @@ namespace Engine::Editor
 	AssetDataBasePanel::AssetDataBasePanel()
 	{
 		m_assetCreateFuncs["StateMachinAsset"] = [](const std::string& path, const std::string& name) {
-			Resource::StateMachineAssetLoader::Create(path, name);
+			Resource::StateMachineAssetIO::Create(path, name);
 			};
 
 		m_assetCreateFuncs["ParticlesAsset"] = [](const std::string& path, const std::string& name) {
-			Resource::ParticlesAssetLoader::Create(path, name);
+			Resource::ParticlesAssetIO::Create(path, name);
 			};
 
 		m_assetCreateFuncs["ShadingModelTable"] = [](const std::string& path, const std::string& name) {
-			Resource::ShadingModelTableLoader::Create(path, name);
+			Resource::ShadingModelTableIO::Create(path, name);
 			};
 	}
 	void AssetDataBasePanel::OnDrawImGui(EditorContext& a_editContext)

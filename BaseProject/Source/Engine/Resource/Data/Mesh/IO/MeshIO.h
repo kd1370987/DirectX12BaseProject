@@ -1,7 +1,7 @@
 ﻿#pragma once
 namespace Engine::Resource
 {
-	class MeshLoader
+	class MeshIO
 	{
 	public:
 

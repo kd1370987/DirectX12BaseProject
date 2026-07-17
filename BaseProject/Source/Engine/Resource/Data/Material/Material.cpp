@@ -4,7 +4,7 @@
 #include "Engine/D3D12//D3DObject/DescriptorHeap/DescriptorHeap.h"
 
 //#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
-#include "Engine/Resource/Loader/Texture/TextureLoader.h"
+#include "Engine/Resource/Data/Texture/IO/TextureIO.h"
 #include "../../Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../Utility/BinaryHelper/BinaryHelper.h"
@@ -31,10 +31,10 @@ void Engine::Resource::Material::SetTexture2D(
 	emissiveTexGUID		= AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_emissiveTexFileName);
 	normalTexGUID		= AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_normalTexFileName);
 
-	baseColorTex	= TextureLoader::LoadTexture(baseColorTexGUID, TexColor::WHITE);
-	metaRoughTex	= TextureLoader::LoadTexture(metaRoughTexGUID, TexColor::ORM);
-	emissiveTex		= TextureLoader::LoadTexture(emissiveTexGUID, TexColor::BLACK);
-	normalTex		= TextureLoader::LoadTexture(normalTexGUID, TexColor::NORMAL);
+	baseColorTex	= TextureIO::LoadTexture(baseColorTexGUID, TexColor::WHITE);
+	metaRoughTex	= TextureIO::LoadTexture(metaRoughTexGUID, TexColor::ORM);
+	emissiveTex		= TextureIO::LoadTexture(emissiveTexGUID, TexColor::BLACK);
+	normalTex		= TextureIO::LoadTexture(normalTexGUID, TexColor::NORMAL);
 
 
 	shedingModelGUID = Option::OptionManager::GetInstance().GetRenderingOption().defaultShadingModelTable;

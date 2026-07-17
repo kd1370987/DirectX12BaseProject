@@ -1,4 +1,4 @@
-#include "RenderGraph.h"
+﻿#include "RenderGraph.h"
 
 // マネージャー関連
 #include "RGVarsionManager/RGResourceManager.h"
@@ -7,7 +7,6 @@
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../Resource/Loader/Texture/TextureLoader.h"
 #include "../RenderPassRegistry/RenderPassRegistry.h"
 
 // オプション

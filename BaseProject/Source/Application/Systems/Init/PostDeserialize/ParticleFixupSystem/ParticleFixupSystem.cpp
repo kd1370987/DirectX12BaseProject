@@ -4,8 +4,6 @@
 
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Resource/ParticlesComponent.h"
-
-#include "../../../../../Engine/Resource/Loader/Particles/ParticlesLoader.h"
 #include "../../../../../Engine/Resource/Data/Particles/ParticlesAsset.h"
 
 void ParticleFixupSystem::Init(Engine::ECS::World& a_world)

@@ -1,7 +1,6 @@
 ﻿#include "ParticleBufferManager.h"
 
 #include "../Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "../Resource/Loader/Particles/ParticlesLoader.h"
 
 #include "../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 

@@ -1,7 +1,7 @@
 ﻿#include "Texture.h"
 
-#include "../../Loader/Texture/Importer/TextureImporter.h"
-#include "../../Loader/Texture/Creater/TextureCreater.h"
+#include "../../Data/Texture/IO/Importer/TextureImporter.h"
+#include "../../Data/Texture/IO/Creater/TextureCreater.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"

@@ -6,7 +6,7 @@
 #include "../../Manager/ResourceManager/ResourceManager.h"
 #include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "../../Loader/Texture/TextureLoader.h"
+#include "../../Data/Texture/IO/TextureIO.h"
 
 namespace Engine::Resource
 {
@@ -163,7 +163,7 @@ namespace Engine::Resource
 				{
 					// テクスチャのハンドル取得
 					// ロードされていなかったら止まる
-					m_texHandle = TextureLoader::LoadTexture(_prop.guid, TexColor::WHITE);
+					m_texHandle = TextureIO::LoadTexture(_prop.guid, TexColor::WHITE);
 					m_texGUID = _prop.guid;
 				}
 			}

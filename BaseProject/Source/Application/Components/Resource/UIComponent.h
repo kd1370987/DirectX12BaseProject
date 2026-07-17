@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../../Engine/Resource/Loader/Texture/TextureLoader.h"
 
 struct UIComponent
 {

@@ -9,7 +9,6 @@
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../Resource/Loader/Texture/TextureLoader.h"
 
 namespace Engine::D3D12
 {

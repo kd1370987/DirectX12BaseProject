@@ -2,7 +2,7 @@
 
 namespace Engine::Resource
 {
-	class ShadingModelTableLoader
+	class ShadingModelTableIO
 	{
 	public:
 

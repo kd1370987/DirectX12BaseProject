@@ -1,19 +1,19 @@
-﻿#include "ParticlesLoader.h"
+﻿#include "ParticlesIO.h"
 
-#include "../../Data/Particles/ParticlesAsset.h"
+#include "../../../Data/Particles/ParticlesAsset.h"
 
-#include "../../Manager/AssetDatabase/AssetDatabase.h"
-#include "../../Manager/ResourceManager/ResourceManager.h"
+#include "../../../Manager/AssetDatabase/AssetDatabase.h"
+#include "../../../Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Resource
 {
-	ParticlesAsset ParticlesAssetLoader::LoadFromFile(const std::string& a_path)
+	ParticlesAsset ParticlesAssetIO::LoadFromFile(const std::string& a_path)
 	{
 		ParticlesAsset _pa = {};
 		_pa.Load(a_path);
 		return _pa;
 	}
-	void ParticlesAssetLoader::Create(const std::string& a_path, const std::string& a_name)
+	void ParticlesAssetIO::Create(const std::string& a_path, const std::string& a_name)
 	{
 		// ディレクトリ
 		static std::string _dir = "Asset/ParticlesAsset/";

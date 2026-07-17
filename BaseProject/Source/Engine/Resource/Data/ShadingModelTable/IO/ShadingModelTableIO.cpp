@@ -1,10 +1,10 @@
-﻿#include "ShadingModelTableLoader.h"
+﻿#include "ShadingModelTableIO.h"
 
-#include "../../Manager/AssetDatabase/AssetDatabase.h"
-#include "../../Manager/ResourceManager/ResourceManager.h"
+#include "../../../Manager/AssetDatabase/AssetDatabase.h"
+#include "../../../Manager/ResourceManager/ResourceManager.h"
 namespace Engine::Resource
 {
-	ShadingModelTable ShadingModelTableLoader::LoadFromFile(const std::string& a_path)
+	ShadingModelTable ShadingModelTableIO::LoadFromFile(const std::string& a_path)
 	{
 		auto _fileDir = FileUtility::GetDirFromPath(a_path);
 		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_path);
@@ -13,7 +13,7 @@ namespace Engine::Resource
 		_smTable.Archive(_ar);
 		return _smTable;
 	}
-	void ShadingModelTableLoader::Create(const std::string& a_path, const std::string& a_name)
+	void ShadingModelTableIO::Create(const std::string& a_path, const std::string& a_name)
 	{
 		// ディレクトリ
 		static std::string _dir = "Asset/ShadingModelTables/";

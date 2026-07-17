@@ -1,9 +1,9 @@
 ﻿#include "TextureImporter.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
-#include "../../../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../../../Resource/Manager/ResourceManager/ResourceManager.h"
 
-#include "../../../Data/Texture/Texture.h"
+#include "../../../../Data/Texture/Texture.h"
 namespace Engine::Resource
 {
 	void CopyTexRegion(

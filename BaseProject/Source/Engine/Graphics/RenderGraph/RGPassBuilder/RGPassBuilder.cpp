@@ -1,7 +1,7 @@
-#include "RGPassBuilder.h"
+﻿#include "RGPassBuilder.h"
 #include "../../../D3D12/PipelineStateManager/PipelineStateManager.h"
-#include "Engine/Resource/Loader/Shader/ShaderLoader.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../Resource/Data/Shader/IO/ShaderIO.h"
 
 namespace Engine::Graphics
 {
@@ -213,7 +213,7 @@ namespace Engine::Graphics
 		a_pso.SetInputLayout(a_desc);
 
 		// 頂点シェーダーセット
-		auto _vsHandle = Resource::ShaderLoader::Request(a_vsPath);
+		auto _vsHandle = Resource::ShaderIO::Request(a_vsPath);
 		auto* _pShader = Resource::ResourceManager::Instance().Ref(_vsHandle);
 		a_pso.SetVS(_pShader->GetByteCode());
 
@@ -222,7 +222,7 @@ namespace Engine::Graphics
 
 	void RGRasterPassBuilder::SetPS(D3D12::GraphicsPipelineDesc& a_pso, const std::string& a_psPath)
 	{
-		auto _psHandle = Resource::ShaderLoader::Request(a_psPath);
+		auto _psHandle = Resource::ShaderIO::Request(a_psPath);
 		auto _byteCode = Resource::ResourceManager::Instance().Get(_psHandle)->GetByteCode();
 		a_pso.SetPS(_byteCode);
 	}
@@ -274,7 +274,7 @@ namespace Engine::Graphics
 	ID3DBlob* RGComputePassBuilder::SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex)
 	{
 		m_desc.SetName(a_name);
-		auto _csHandle = Resource::ShaderLoader::Request(a_csPath);
+		auto _csHandle = Resource::ShaderIO::Request(a_csPath);
 		auto* _cs = Resource::ResourceManager::Instance().Ref(_csHandle);
 		m_desc.desc.CS.pShaderBytecode = _cs->Get()->GetBufferPointer();
 		m_desc.desc.CS.BytecodeLength = _cs->Get()->GetBufferSize();

@@ -1,17 +1,17 @@
-﻿#include "StateMachineAssetLoader.h"
-#include "../../Data/StateMachineAsset/StateMachineAsset.h"
+﻿#include "StateMachineAssetIO.h"
+#include "../../../Data/StateMachineAsset/StateMachineAsset.h"
 
-#include "../../Manager/AssetDatabase/AssetDatabase.h"
-#include "../../Manager/ResourceManager/ResourceManager.h"
+#include "../../../Manager/AssetDatabase/AssetDatabase.h"
+#include "../../../Manager/ResourceManager/ResourceManager.h"
 namespace Engine::Resource
 {
-	StateMachineAsset StateMachineAssetLoader::LoadFromFile(const std::string& a_path)
+	StateMachineAsset StateMachineAssetIO::LoadFromFile(const std::string& a_path)
 	{
 		StateMachineAsset _sma = {};
 		_sma.Load(a_path);
 		return _sma;
 	}
-	void StateMachineAssetLoader::Create(
+	void StateMachineAssetIO::Create(
 		const std::string& a_path,
 		const std::string& a_name
 	)

@@ -1,7 +1,7 @@
 ﻿#pragma once
 namespace Engine::Resource
 {
-	class StateMachineAssetLoader
+	class StateMachineAssetIO
 	{
 	public:
 

@@ -10,8 +10,6 @@
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 
-#include "Engine/Resource/Loader/Shader/ShaderLoader.h"
-
 #include "Engine/Option/OptionManager.h"
 
 namespace Engine::Graphics

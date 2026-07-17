@@ -1,6 +1,6 @@
 ﻿#include "ShaderLibrary.h"
 
-#include "../../Loader/Shader/Importer/DXIL/DXIL.h"
+#include "../../Data/Shader/IO/Importer/DXIL/DXIL.h"
 
 void Engine::Resource::ShaderLibrary::Load(const std::string& a_path)
 {

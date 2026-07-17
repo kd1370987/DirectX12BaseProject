@@ -475,27 +475,6 @@
     <Filter Include="Source\Engine\Resource\Loader">
       <UniqueIdentifier>{119a11fc-3fe1-4252-aab5-af670debc2ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Texture">
-      <UniqueIdentifier>{465e64dd-9ee9-4038-b3c7-dd4a4054e6bd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Shader">
-      <UniqueIdentifier>{f8bba13b-df78-421c-9a10-5134ee2cb6bf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Shader\Importer">
-      <UniqueIdentifier>{4437c6be-8af7-41f8-ba27-96682c0ebef6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Texture\Importer">
-      <UniqueIdentifier>{55ff2e4a-d3c2-4d2c-9bff-d3658eeb1a3d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Texture\Creater">
-      <UniqueIdentifier>{a7f34fa6-3842-42f9-b1cd-af3461ec853b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL">
-      <UniqueIdentifier>{e95d829a-4914-40e3-9e36-417d8cb3dead}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer">
-      <UniqueIdentifier>{441750a5-54ab-41e2-9044-7403cb20566e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\Sampler">
       <UniqueIdentifier>{d111ebaa-a845-4115-8d3b-2894a0bbf128}</UniqueIdentifier>
     </Filter>
@@ -613,15 +592,6 @@
     <Filter Include="Source\Engine\Utility\BinaryHelper">
       <UniqueIdentifier>{312e8f8a-1040-489c-afb0-fbeb1e1cc827}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Material">
-      <UniqueIdentifier>{5b370f35-bc6d-4dc5-827c-768f0b8c1fc1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Mesh">
-      <UniqueIdentifier>{42d50ddf-1868-4e97-b4e6-ad567896138f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Animation">
-      <UniqueIdentifier>{808bf0ef-b212-482e-90ff-882ac218eb04}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Editor\WatchView">
       <UniqueIdentifier>{8f5ff60d-62b9-4849-9cd4-bf70a3e66213}</UniqueIdentifier>
     </Filter>
@@ -697,9 +667,6 @@
     <Filter Include="Source\Application\Systems\Update\Animation\AnimationStateSystem">
       <UniqueIdentifier>{59fcf3de-de21-4684-978e-a99ae6546615}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\StateMachineAsset">
-      <UniqueIdentifier>{f761a23a-b7bc-4c16-a725-62b1b2f6a5d1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem">
       <UniqueIdentifier>{d4094ff4-6543-49dd-b814-2e5229463f2e}</UniqueIdentifier>
     </Filter>
@@ -732,9 +699,6 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Data\Particles">
       <UniqueIdentifier>{f8864611-a013-44f6-9b25-a58898b3c640}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Particles">
-      <UniqueIdentifier>{534d0d76-bbfd-4e90-80f8-9078e4279434}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer">
       <UniqueIdentifier>{bdf4f8d9-ca30-4f93-85cb-c11a1540048c}</UniqueIdentifier>
@@ -850,9 +814,6 @@
     <Filter Include="Source\Engine\Resource\Data\ShadingModelTable">
       <UniqueIdentifier>{50d35247-e22d-47ef-a14e-a4a7325b4c82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\ShadingModelTable">
-      <UniqueIdentifier>{4c436660-c624-4bc2-8314-6102bbb7c2b7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\ShadingPipelineBuilder">
       <UniqueIdentifier>{f2601013-cd86-4e8d-aa96-27ba28a268dc}</UniqueIdentifier>
     </Filter>
@@ -876,9 +837,6 @@
     </Filter>
     <Filter Include="Asset\Shader\Source\Test">
       <UniqueIdentifier>{35846641-bf2e-481d-9881-205d130ab91f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Loader\Shader\DXCCompiler">
-      <UniqueIdentifier>{6d6af7e2-b167-4115-ad8f-2d79d4db5fa5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Source\Mesh">
       <UniqueIdentifier>{781f418c-bae8-4b0f-b530-26bf0583461e}</UniqueIdentifier>
@@ -1092,6 +1050,45 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\LightManager">
       <UniqueIdentifier>{175f6740-bef4-4d67-8fb6-0c9d05fb78d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Animation\AnimationIO">
+      <UniqueIdentifier>{198a373c-7d3a-4c2a-af96-8c22d076116d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Material\MaterialIO">
+      <UniqueIdentifier>{fc2fee46-aec5-4f8b-8a5b-817b72ad47be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Mesh\MeshIO">
+      <UniqueIdentifier>{d96d6bbd-b90a-43e1-9f41-4f2eb45fb7ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Particles\IO">
+      <UniqueIdentifier>{e5107951-e404-4bde-b029-3242c9b8591c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Shader\IO">
+      <UniqueIdentifier>{f10db526-0373-4450-af53-21ab6d7e8c86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Shader\IO\DXCompiler">
+      <UniqueIdentifier>{bb77fbef-0a4e-4f66-8f20-90b889fdf65b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Shader\IO\Impoter">
+      <UniqueIdentifier>{188fde46-adfe-4f3d-9353-27fccec227d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Shader\IO\Impoter\DXIL">
+      <UniqueIdentifier>{72a2c185-b995-4c99-aba8-87131d9b48e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Shader\IO\Impoter\Rasterize">
+      <UniqueIdentifier>{b390a616-f70f-406a-b9d8-99ddf1057289}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\ShadingModelTable\IO">
+      <UniqueIdentifier>{9a8cc9d9-7317-4a72-b583-911756edde28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\StateMachineAsset\IO">
+      <UniqueIdentifier>{c628b291-b7fd-4b84-a7e0-cb533977b2a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Texture\IO\Importer">
+      <UniqueIdentifier>{83ef4f55-077b-4adb-8bb1-d1020b167192}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Texture\IO\Creater">
+      <UniqueIdentifier>{b4513f5b-7bf7-45a8-b534-1dbb01ac4756}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1326,24 +1323,6 @@
     <ClCompile Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.cpp">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Shader\ShaderLoader.cpp">
-      <Filter>Source\Engine\Resource\Loader\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL\DXIL.cpp">
-      <Filter>Source\Engine\Resource\Loader\Shader\Importer\DXIL</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer\RasterizerImport.cpp">
-      <Filter>Source\Engine\Resource\Loader\Shader\Importer\Rasterizer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Texture\Importer\TextureImporter.cpp">
-      <Filter>Source\Engine\Resource\Loader\Texture\Importer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Texture\Creater\TextureCreater.cpp">
-      <Filter>Source\Engine\Resource\Loader\Texture\Creater</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Texture\TextureLoader.cpp">
-      <Filter>Source\Engine\Resource\Loader\Texture</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.cpp">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\Sampler</Filter>
     </ClCompile>
@@ -1425,9 +1404,6 @@
     <ClCompile Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.cpp">
       <Filter>Source\Engine\Utility\BinaryHelper</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Material\MaterialLoader.cpp">
-      <Filter>Source\Engine\Resource\Loader\Material</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp">
       <Filter>Source\Engine\Persistence\Archive</Filter>
     </ClCompile>
@@ -1449,9 +1425,6 @@
     <ClCompile Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.cpp">
       <Filter>Source\Application\Systems\Update\Animation\AnimationStateSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\StateMachineAsset\StateMachineAssetLoader.cpp">
-      <Filter>Source\Engine\Resource\Loader\StateMachineAsset</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
     </ClCompile>
@@ -1463,9 +1436,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.cpp">
-      <Filter>Source\Engine\Resource\Loader\Particles</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp">
       <Filter>Source\Engine\Resource\Data\Particles</Filter>
@@ -1506,12 +1476,6 @@
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.cpp">
-      <Filter>Source\Engine\Resource\Loader\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Mesh\MeshLoader.cpp">
-      <Filter>Source\Engine\Resource\Loader\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem</Filter>
     </ClCompile>
@@ -1538,9 +1502,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.cpp">
       <Filter>Source\Engine\Resource\Data\ShadingModelTable</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\ShadingModelTable\ShadingModelTableLoader.cpp">
-      <Filter>Source\Engine\Resource\Loader\ShadingModelTable</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp">
       <Filter>Source\Engine\Graphics\ShadingPipelineBuilder</Filter>
@@ -1574,9 +1535,6 @@
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp">
       <Filter>Library\Include\imgui-docking</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.cpp">
-      <Filter>Source\Engine\Resource\Loader\Shader\DXCCompiler</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
@@ -1718,6 +1676,42 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\LightManager\LightManager.cpp">
       <Filter>Source\Engine\Graphics\LightManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Animation\IO\AnimationIO.cpp">
+      <Filter>Source\Engine\Resource\Data\Animation\AnimationIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Material\IO\MaterialIO.cpp">
+      <Filter>Source\Engine\Resource\Data\Material\MaterialIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Mesh\IO\MeshIO.cpp">
+      <Filter>Source\Engine\Resource\Data\Mesh\MeshIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Particles\IO\ParticlesIO.cpp">
+      <Filter>Source\Engine\Resource\Data\Particles\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\ShaderIO.cpp">
+      <Filter>Source\Engine\Resource\Data\Shader\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\DXCCompiler\DXCCompiler.cpp">
+      <Filter>Source\Engine\Resource\Data\Shader\IO\DXCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer\RasterizerImport.cpp">
+      <Filter>Source\Engine\Resource\Data\Shader\IO\Impoter\Rasterize</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\Importer\DXIL\DXIL.cpp">
+      <Filter>Source\Engine\Resource\Data\Shader\IO\Impoter\DXIL</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\IO\ShadingModelTableIO.cpp">
+      <Filter>Source\Engine\Resource\Data\ShadingModelTable\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\StateMachineAsset\IO\StateMachineAssetIO.cpp">
+      <Filter>Source\Engine\Resource\Data\StateMachineAsset\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Importer\TextureImporter.cpp">
+      <Filter>Source\Engine\Resource\Data\Texture\IO\Importer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.cpp">
+      <Filter>Source\Engine\Resource\Data\Texture\IO\Creater</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2111,24 +2105,6 @@
     <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.h">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Shader\ShaderLoader.h">
-      <Filter>Source\Engine\Resource\Loader\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Shader\Importer\DXIL\DXIL.h">
-      <Filter>Source\Engine\Resource\Loader\Shader\Importer\DXIL</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Shader\Importer\Rasterizer\RasterizerImport.h">
-      <Filter>Source\Engine\Resource\Loader\Shader\Importer\Rasterizer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Texture\Importer\TextureImporter.h">
-      <Filter>Source\Engine\Resource\Loader\Texture\Importer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Texture\Creater\TextureCreater.h">
-      <Filter>Source\Engine\Resource\Loader\Texture\Creater</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Texture\TextureLoader.h">
-      <Filter>Source\Engine\Resource\Loader\Texture</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\HeapAllocater.h">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater</Filter>
     </ClInclude>
@@ -2240,9 +2216,6 @@
     <ClInclude Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.h">
       <Filter>Source\Engine\Utility\BinaryHelper</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Material\MaterialLoader.h">
-      <Filter>Source\Engine\Resource\Loader\Material</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h">
       <Filter>Source\Engine\Persistence\Archive</Filter>
     </ClInclude>
@@ -2288,9 +2261,6 @@
     <ClInclude Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.h">
       <Filter>Source\Application\Systems\Update\Animation\AnimationStateSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\StateMachineAsset\StateMachineAssetLoader.h">
-      <Filter>Source\Engine\Resource\Loader\StateMachineAsset</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
     </ClInclude>
@@ -2329,9 +2299,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\ParticlesComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Particles\ParticlesLoader.h">
-      <Filter>Source\Engine\Resource\Loader\Particles</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer\RWStructuredBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer</Filter>
@@ -2405,12 +2372,6 @@
     <ClInclude Include="Source\Engine\Resource\Loader\DefaultLoader.h">
       <Filter>Source\Engine\Resource\Loader</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Animation\AnimationLoader.h">
-      <Filter>Source\Engine\Resource\Loader\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Mesh\MeshLoader.h">
-      <Filter>Source\Engine\Resource\Loader\Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
@@ -2446,9 +2407,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.h">
       <Filter>Source\Engine\Resource\Data\ShadingModelTable</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\ShadingModelTable\ShadingModelTableLoader.h">
-      <Filter>Source\Engine\Resource\Loader\ShadingModelTable</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.h">
       <Filter>Source\Engine\Graphics\ShadingPipelineBuilder</Filter>
@@ -2488,9 +2446,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\MeshShaderData\MeshShaderData.h">
       <Filter>Source\Engine\Resource\Data\Mesh\MeshShaderData</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Loader\Shader\DXCCompiler\DXCCompiler.h">
-      <Filter>Source\Engine\Resource\Loader\Shader\DXCCompiler</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
@@ -2671,6 +2626,42 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\LightManager\LightManager.h">
       <Filter>Source\Engine\Graphics\LightManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Animation\IO\AnimationIO.h">
+      <Filter>Source\Engine\Resource\Data\Animation\AnimationIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Material\IO\MaterialIO.h">
+      <Filter>Source\Engine\Resource\Data\Material\MaterialIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Mesh\IO\MeshIO.h">
+      <Filter>Source\Engine\Resource\Data\Mesh\MeshIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Particles\IO\ParticlesIO.h">
+      <Filter>Source\Engine\Resource\Data\Particles\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\ShaderIO.h">
+      <Filter>Source\Engine\Resource\Data\Shader\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\DXCCompiler\DXCCompiler.h">
+      <Filter>Source\Engine\Resource\Data\Shader\IO\DXCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer\RasterizerImport.h">
+      <Filter>Source\Engine\Resource\Data\Shader\IO\Impoter\Rasterize</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\Importer\DXIL\DXIL.h">
+      <Filter>Source\Engine\Resource\Data\Shader\IO\Impoter\DXIL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\IO\ShadingModelTableIO.h">
+      <Filter>Source\Engine\Resource\Data\ShadingModelTable\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\IO\StateMachineAssetIO.h">
+      <Filter>Source\Engine\Resource\Data\StateMachineAsset\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Importer\TextureImporter.h">
+      <Filter>Source\Engine\Resource\Data\Texture\IO\Importer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.h">
+      <Filter>Source\Engine\Resource\Data\Texture\IO\Creater</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

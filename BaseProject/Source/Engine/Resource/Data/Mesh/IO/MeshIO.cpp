@@ -1,8 +1,8 @@
-﻿#include "MeshLoader.h"
+﻿#include "MeshIO.h"
 
 namespace Engine::Resource
 {
-	Mesh MeshLoader::LoadFromFile(const std::string& a_path)
+	Mesh MeshIO::LoadFromFile(const std::string& a_path)
 	{
 		Mesh _mesh = {};
 		_mesh.Load(a_path);

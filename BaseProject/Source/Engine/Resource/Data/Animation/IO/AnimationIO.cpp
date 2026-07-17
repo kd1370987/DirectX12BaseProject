@@ -1,9 +1,9 @@
-﻿#include "AnimationLoader.h"
+﻿#include "AnimationIO.h"
 
 namespace Engine::Resource
 {
 
-	AnimationData AnimationLoader::LoadFromFile(const std::string& a_path)
+	AnimationData AnimationIO::LoadFromFile(const std::string& a_path)
 	{
 		AnimationData _animData = {};
 		_animData.Load(a_path);

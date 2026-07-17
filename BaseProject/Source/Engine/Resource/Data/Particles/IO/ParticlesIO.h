@@ -1,7 +1,7 @@
 ﻿#pragma once
 namespace Engine::Resource
 {
-	class ParticlesAssetLoader
+	class ParticlesAssetIO
 	{
 	public:
 		/// <summary>
