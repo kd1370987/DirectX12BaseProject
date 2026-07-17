@@ -51,7 +51,7 @@ namespace Engine::Graphics
 		_cpBuilder.ResolveAndCompile(a_pPSOManager);
 
 		// 実行関数
-		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 			{
 				// 全プール分回す
 				for (auto& [_handle, _pool] : MainEngine::Instance().GetParticleManager()->GetPoolMap())

@@ -121,12 +121,14 @@ namespace Engine::Graphics
 		};
 		_spPassData->shaderTable.Init(_pDevice, _shaderTableInit);
 
-		_rpBuilder.ReadSRV("GBufferNormal");
-		_rpBuilder.ReadSRV("Depth");
+		// 依存関係の宣言。返るトークンを実行時に使うのでリソース名の再記述は不要
+		const RGResourceRef _normalRef = _rpBuilder.ReadSRV("GBufferNormal");
+		const RGResourceRef _depthRef  = _rpBuilder.ReadSRV("Depth");
+		const RGResourceRef _outputRef = _rpBuilder.WriteUAV("RayGI", DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Clear, StoreOp::Store, 0.5f);
 
-		_rpBuilder.WriteUAV("RayGI", DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Clear, StoreOp::Store);
-
-		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+		// レイトレはPSOとルートシグネチャを自前で管理するのでグラフの自動バインドは使わない
+		_node.executeFunc = [_spPassData, _normalRef, _depthRef, _outputRef]
+		(GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 		{
 
 			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
@@ -141,7 +143,7 @@ namespace Engine::Graphics
 			{
 				return;
 			}
-			_spPassData->shaderTable.CommitInstanceBindLess(_instanceVec, a_pCtx, _winOp.windowWidth, _winOp.windowHegiht);
+			_spPassData->shaderTable.CommitInstanceBindLess(_instanceVec, a_pCtx, _winOp.windowWidth / 2, _winOp.windowHegiht / 2);
 
 			// ディスクリプタヒープセット
 			a_pCtx->BindCopyHeapAndSumplerBindLess();
@@ -157,12 +159,12 @@ namespace Engine::Graphics
 			Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);
 
 			// UAVをバインド
-			a_pCtx->BindUAVBindLess(2, a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "RayGI")->GetUAV());
+			a_pCtx->BindUAVBindLess(2, a_res.UAVHandle(_outputRef));
 
 			// GBufferIndex
 			GBufferIndex _gbIdx = {};
-			_gbIdx.depth = a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "Depth")->GetSRV().GetIndex();
-			_gbIdx.normal = a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "GBufferNormal")->GetSRV().GetIndex();
+			_gbIdx.depth = a_res.BindlessSRVIndex(_depthRef);
+			_gbIdx.normal = a_res.BindlessSRVIndex(_normalRef);
 			_gbIdx.frameCount = _spPassData->frameCount++;
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<GBufferIndex>(
 				_pCmdList,

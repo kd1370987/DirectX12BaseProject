@@ -50,7 +50,7 @@ namespace Engine::Graphics
 		_node.pipelineBuilder.SetDepthConfig(true, true, D3D12_COMPARISON_FUNC_LESS_EQUAL);
 
 		// 実行関数
-		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 			{
 
 				a_pCtx->BindCopyHeapAndSumplerBindLess();
@@ -60,7 +60,7 @@ namespace Engine::Graphics
 				a_pCtx->BindMeshInstance();
 				a_pCtx->BindMeshlet();
 
-				a_pCtx->DrawQueueDispathMesh(a_passIndex);
+				a_pCtx->DrawQueueDispathMesh(a_res.PassIndex());
 			};
 
 		// パス登録

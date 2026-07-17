@@ -103,9 +103,11 @@ namespace Engine::Graphics
 		};
 		_spPassData->shaderTable.Init(_pDevice, _shaderTableInit);
 
-		_rpBuilder.WriteUAV("FullRay", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
+		const RGResourceRef _outputRef = _rpBuilder.WriteUAV("FullRay", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
-		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+		// レイトレはPSOとルートシグネチャを自前で管理するのでグラフの自動バインドは使わない
+		_node.executeFunc = [_spPassData, _outputRef]
+		(GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 		{
 			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 
@@ -137,7 +139,7 @@ namespace Engine::Graphics
 			Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);
 
 			// UAVをバインド
-			a_pCtx->BindUAVBindLess(2, a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "FullRay")->GetUAV());
+			a_pCtx->BindUAVBindLess(2, a_res.UAVHandle(_outputRef));
 
 			// メッシュ情報バインド
 			a_pCtx->ComputeBindSRVBindLess(5, _pMA->GetStaticVertexBuffer().GetSRV());

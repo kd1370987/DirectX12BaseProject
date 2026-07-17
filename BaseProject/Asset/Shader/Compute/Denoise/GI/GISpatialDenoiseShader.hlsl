@@ -61,8 +61,8 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 
 	// 注目画素（中心）の情報を取得
 	float4 _centerColor = g_GITex.Load(int3(_centerCoord,0));
-	float _centerDepth = g_depthTex.Load(int3(_centerCoord,0)).r;
-	float3 _centerNormal = DecsodeNormal(g_normalTex.Load(int3(_centerCoord,0)).xy);
+	float _centerDepth = g_depthTex.Load(int3(_centerCoord * 2, 0)).r;
+	float3 _centerNormal = DecsodeNormal(g_normalTex.Load(int3(_centerCoord * 2, 0)).xy);
 
 	// 法線を[-1, 1]に展開
 	//_centerNormal = _centerNormal * 2.0f - 1.0f;
@@ -87,8 +87,9 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 
 			// サンプル画素の情報を取得
 			float4 _sampleColor	 = g_GITex.Load(int3(_sampleCoord,0));
-			float  _sampleDepth	 = g_depthTex.Load(int3(_sampleCoord,0)).r;
-			float3 _sampleNormal = DecsodeNormal(g_normalTex.Load(int3(_sampleCoord, 0)).xy);
+			// DepthとNormalはフル解像度から引っ張るので * 2
+			float _sampleDepth = g_depthTex.Load(int3(_sampleCoord * 2, 0)).r;
+			float3 _sampleNormal = DecsodeNormal(g_normalTex.Load(int3(_sampleCoord * 2, 0)).xy);
 			//_sampleNormal = _sampleNormal * 2.0f - 1.0f;
 			
 			// ---- ベースとなるフィルターの重み : B3 Spline ----

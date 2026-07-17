@@ -100,12 +100,14 @@ namespace Engine::Graphics
 		};
 		_spPassData->shaderTable.Init(_pDevice, _shaderTableInit);
 
-		_rpBuilder.ReadSRV("GBufferNormal");
-		_rpBuilder.ReadSRV("Depth");
+		// 依存関係の宣言。返るトークンを実行時に使うのでリソース名の再記述は不要
+		const RGResourceRef _normalRef = _rpBuilder.ReadSRV("GBufferNormal");
+		const RGResourceRef _depthRef  = _rpBuilder.ReadSRV("Depth");
+		const RGResourceRef _outputRef = _rpBuilder.WriteUAV("RayShadow", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
-		_rpBuilder.WriteUAV("RayShadow", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
-
-		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+		// レイトレはPSOとルートシグネチャを自前で管理するのでグラフの自動バインドは使わない
+		_node.executeFunc = [_spPassData, _normalRef, _depthRef, _outputRef]
+		(GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 		{
 			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 
@@ -140,12 +142,12 @@ namespace Engine::Graphics
 			Raytracing::RayEngine::Instance().BindTLAS(a_pCtx);
 
 			// UAVをバインド
-			a_pCtx->BindUAVBindLess(2, a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "RayShadow")->GetUAV());
+			a_pCtx->BindUAVBindLess(2, a_res.UAVHandle(_outputRef));
 
 			// GBufferIndex
 			GBufferIndex _gbIdx = {};
-			_gbIdx.depth = a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "Depth")->GetSRV().GetIndex();
-			_gbIdx.normal = a_pGE->RefRenderGraph()->GetPassResource(a_passIndex, "GBufferNormal")->GetSRV().GetIndex();
+			_gbIdx.depth = a_res.BindlessSRVIndex(_depthRef);
+			_gbIdx.normal = a_res.BindlessSRVIndex(_normalRef);
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<GBufferIndex>(
 				_pCmdList,
 				3,

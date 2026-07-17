@@ -30,7 +30,7 @@ namespace Engine::Graphics
 		RGComputePassBuilder _rpBuilder(&_node);
 
 		// 実行関数
-		_node.executeFunc = [](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+		_node.executeFunc = [](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 			{
 				auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 				auto* _pCurrentWorld = Scene::SceneManager::Instance().RefWorld();

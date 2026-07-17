@@ -1,4 +1,4 @@
-﻿#include "RenderGraph.h"
+#include "RenderGraph.h"
 
 // マネージャー関連
 #include "RGVarsionManager/RGResourceManager.h"
@@ -52,7 +52,7 @@ namespace Engine::Graphics
 		// 宣言された情報をもとに物理リソースを確保する
 		m_upRGResourceManager->AllocateResources(D3D12::D3D12Wrapper::Instance().GetDevice());
 
-		// 文字列からRGResourceHandeへと変換
+		// 文字列からRGResourceHandleへと変換
 		ResolveResourceHandles();
 
 		// ソート配列の作成
@@ -60,6 +60,80 @@ namespace Engine::Graphics
 
 		// コンパイルパスの作成 : バリア , バージョンの作成
 		ComputeBarriersAndVersions();
+
+		// 宣言をCPUディスクリプタまで焼き込む
+		ResolveBindings();
+	}
+
+	bool RenderGraph::IsPassActive(const RenderPassNode* a_pNode) const
+	{
+		switch (a_pNode->frameParity)
+		{
+		case ERGFrameParity::Even:	return (m_tempralIndex % 2) == 0;
+		case ERGFrameParity::Odd:	return (m_tempralIndex % 2) != 0;
+		default:					return true;
+		}
+	}
+
+	void RenderGraph::ApplyStaticBindings(RenderContext* a_pCtx, const CompiledPass& a_pass)
+	{
+		const auto* _pNode = a_pass.pNode;
+		const bool _isCompute = (_pNode->pipelineType == ERGPipelineType::Compute);
+
+		// ヒープ
+		switch (_pNode->heapMode)
+		{
+		case ERGHeapMode::Default:				a_pCtx->BindHeap(); break;
+		case ERGHeapMode::BindlessWithSampler:	a_pCtx->BindCopyHeapAndSumplerBindLess(); break;
+		default: break;
+		}
+
+		// ルートシグネチャ
+		if (_pNode->pRootSig)
+		{
+			if (_isCompute)	a_pCtx->SetComputeRootSignature(_pNode->pRootSig);
+			else			a_pCtx->SetGraphicsRootSignature(_pNode->pRootSig);
+		}
+
+		// パイプラインステート
+		if (_pNode->psoIndex != RenderPassNode::kInvalidPSOIndex)
+		{
+			if (_isCompute)	a_pCtx->SetComputePSO(_pNode->psoIndex);
+			else			a_pCtx->SetGraphicPSO(_pNode->psoIndex);
+		}
+
+		// ルートシグネチャが無いとディスクリプタテーブルは張れない
+		if (a_pass.binds.empty()) return;
+		ENGINE_ERRLOG(
+			_pNode->pRootSig != nullptr,
+			"バインドを宣言していますがルートシグネチャが未設定です : %s",
+			_pNode->name.c_str()
+		);
+		if (!_pNode->pRootSig) return;
+
+		// 焼き込み済みディスクリプタをそのまま張る
+		for (const auto& _bind : a_pass.binds)
+		{
+			std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> _handles(
+				a_pass.descriptorTable.data() + _bind.firstHandle,
+				_bind.count
+			);
+
+			switch (_bind.type)
+			{
+			case ERGBindType::SrvTable:
+			case ERGBindType::Srv:
+				if (_isCompute)	a_pCtx->ComputeBindSRV(_bind.rootIndex, _handles);
+				else			a_pCtx->BindSRV(_bind.rootIndex, _handles);
+				break;
+
+			case ERGBindType::Uav:
+				a_pCtx->BindUAV(_bind.rootIndex, _handles[0]);
+				break;
+
+			default: break;
+			}
+		}
 	}
 
 	void RenderGraph::Execute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
@@ -72,18 +146,16 @@ namespace Engine::Graphics
 			Editor::MainEditor::Instance().StartWatch(_compilePass.pNode->name);
 
 			// リソースバリア（UAVバリアも対応）
+			// パスをスキップする場合でもリソースの状態遷移はコンパイル時の計算通りに進める
 			for (auto& _barrier : _compilePass.preBarriers)
 			{
 				if (_barrier.isUAVBarrier)
 				{
-					// UAVバリアを発行 (※RenderContextにUAVBarrier関数を追加してください)
 					a_pCtx->UAVBarrier(_barrier.pResource->GetResource());
 				}
 				else
 				{
-					// 通常のステート遷移バリア (※RenderContextのTransition関数がGPUResource*を受け取る想定)
-					//a_pCtx->Transition(_barrier.pResource->GetResource(), _barrier.before, _barrier.after);
-					_barrier.pResource->Barrier(_pCmdList,_barrier.after);
+					_barrier.pResource->Barrier(_pCmdList, _barrier.after);
 				}
 			}
 
@@ -103,58 +175,30 @@ namespace Engine::Graphics
 				a_pCtx->ClearDSV(_compilePass.dsvHandle);
 			}
 
-			// パスの実行
-			if (_compilePass.pNode && _compilePass.pNode->executeFunc)
+			// 担当フレームでなければ中身は実行しない
+			if (!IsPassActive(_compilePass.pNode))
 			{
-				_compilePass.pNode->executeFunc(a_pGE, a_pCtx, _compilePass.pNode->passIndex);
+				Editor::MainEditor::Instance().EndWatch(_compilePass.pNode->name);
+				continue;
+			}
+
+			// 宣言済みの静的なバインドを張る
+			ApplyStaticBindings(a_pCtx, _compilePass);
+
+			// 宣言済みのコピーを実行
+			for (auto& [_pSrc, _pDst] : _compilePass.copies)
+			{
+				a_pCtx->ResourceCopy(_pSrc->GetResource(), _pDst->GetResource());
+			}
+
+			// パスの実行 : 静的に宣言しきれなかった部分だけ
+			if (_compilePass.pNode->executeFunc)
+			{
+				_compilePass.pNode->executeFunc(a_pGE, a_pCtx, RGPassResources(&_compilePass));
 			}
 
 			Editor::MainEditor::Instance().EndWatch(_compilePass.pNode->name);
 		}
-
-		//m_upRGResourceManager->ResetForNextFrame(_pCmdList);
-	}
-
-	std::vector<DXGI_FORMAT> RenderGraph::GetPassRTVFormats(uint8_t a_passIndex)
-	{
-		std::vector<DXGI_FORMAT> _result = {};
-
-		for (auto* _node : m_sortedPasses)
-		{
-			if (_node->passIndex == a_passIndex)
-			{
-				for (auto& _wRes : _node->writeRequests)
-				{
-					if (_wRes.type == AccessType::RTV)
-					{
-						_result.push_back(_wRes.format);
-					}
-				}
-			}
-		}
-		return _result;
-	}
-
-	DXGI_FORMAT RenderGraph::GetPassDSVFormat(uint8_t a_passIndex)
-	{
-		DXGI_FORMAT _result = DXGI_FORMAT_UNKNOWN;
-
-		for (auto* _node : m_sortedPasses)
-		{
-			if (_node->passIndex == a_passIndex)
-			{
-				for(auto& _wRes : _node->writeRequests)
-				{
-					if(_wRes.type == AccessType::Depth_Write)
-					{
-						_result = _wRes.format;
-					}
-					if (_result != DXGI_FORMAT_UNKNOWN) break;
-				}
-			}
-			if (_result != DXGI_FORMAT_UNKNOWN) break;
-		}
-		return _result;
 	}
 
 	const RGResourceManager* RenderGraph::GetRGResourceManager() const
@@ -165,45 +209,6 @@ namespace Engine::Graphics
 	{
 		return m_upRGResourceManager.get();
 	}
-
-	D3D12::GPUResource* RenderGraph::GetPassResource(uint8_t a_passIndex, const std::string& a_name) const
-	{
-		auto* _pNode = m_compiledPasses[a_passIndex].pNode;
-
-		// Read要求から探す
-		for (size_t i = 0; i < _pNode->readRequests.size(); ++i) {
-			if (_pNode->readRequests[i].resName == a_name) {
-				return m_upRGResourceManager->GetPhysicalResource(_pNode->read[i]);
-			}
-		}
-		// Write要求から探す
-		for (size_t i = 0; i < _pNode->writeRequests.size(); ++i) {
-			if (_pNode->writeRequests[i].resName == a_name) {
-				return m_upRGResourceManager->GetPhysicalResource(_pNode->write[i]);
-			}
-		}
-		ENGINE_ERRLOG(false,"このパスで要求されていないリソース名です");
-		return nullptr;
-	}
-
-	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetPassSRV(uint8_t a_passIndex, const std::string& a_name) const
-	{
-		auto _pRes = GetPassResource(a_passIndex, a_name);
-		return D3D12::DescriptorHeapManager::Instance().GetCPU(_pRes->GetSRV());
-	}
-
-	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetPassUAV(uint8_t a_passIndex, const std::string& a_name) const
-	{
-		auto _pRes = GetPassResource(a_passIndex, a_name);
-		return D3D12::DescriptorHeapManager::Instance().GetCPU(_pRes->GetUAV());
-	}
-
-	D3D12_CPU_DESCRIPTOR_HANDLE RenderGraph::GetPassDSV(uint8_t a_passIndex, const std::string& a_name) const
-	{
-		auto _pRes = GetPassResource(a_passIndex, a_name);
-		return D3D12::DescriptorHeapManager::Instance().GetCPU(_pRes->GetDSV());
-	}
-
 
 	// コンパイル時の内部処理
 	void RenderGraph::TopologicalSort()
@@ -235,15 +240,15 @@ namespace Engine::Graphics
 					_sortedNodes,
 					[&](auto* a, auto* b)
 					{
-						// 依存があるかどうか
-						for (auto& _write : b->write)
+						// bの書き込みをaが読んでいれば依存がある
+						for (const auto& _wAccess : b->accesses)
 						{
-							for (auto& _read : a->read)
+							if (!_wAccess.isWrite) continue;
+
+							for (const auto& _rAccess : a->accesses)
 							{
-								if (_write == _read)
-								{
-									return true;
-								}
+								if (_rAccess.isWrite) continue;
+								if (_wAccess.handle == _rAccess.handle) return true;
 							}
 						}
 						return false;
@@ -259,31 +264,23 @@ namespace Engine::Graphics
 	void RenderGraph::ResolveResourceHandles()
 	{
 		// =========================================================
-		// 文字列から Resource::ID を取得し、配列に流し込む
+		// 宣言された文字列からリソースハンドルを解決する。
+		// Read を先に全て処理してから Write を処理することで、
+		// 同じパス内で読んでから書くリソースのバージョンが正しく進む
 		for (auto& [_phase, _passNodeVec] : m_pPassNodeMap)
 		{
 			for (auto* _passNode : _passNodeVec)
 			{
-				_passNode->read.clear();
-				_passNode->write.clear();
-				_passNode->resourceAccessVec.clear();
-
-				// Read要求の解決
-				for (auto& _req : _passNode->readRequests)
+				for (auto& _access : _passNode->accesses)
 				{
-					RGResourceHandle _handle = m_upRGResourceManager->Read(_req.resName);
-
-					_passNode->read.push_back(_handle);
-					_passNode->resourceAccessVec.push_back({ _handle, _req.type, _req.load, _req.store });
+					if (_access.isWrite) continue;
+					_access.handle = m_upRGResourceManager->Read(_access.resName);
 				}
 
-				// Write要求の解決
-				for (auto& _req : _passNode->writeRequests)
+				for (auto& _access : _passNode->accesses)
 				{
-					RGResourceHandle _handle = m_upRGResourceManager->Write(_req.resName);
-
-					_passNode->write.push_back(_handle);
-					_passNode->resourceAccessVec.push_back({ _handle, _req.type, _req.load, _req.store });
+					if (!_access.isWrite) continue;
+					_access.handle = m_upRGResourceManager->Write(_access.resName);
 				}
 			}
 		}
@@ -299,16 +296,29 @@ namespace Engine::Graphics
 			std::vector<DXGI_FORMAT> _rtvFormats;
 			DXGI_FORMAT _dsvFormat = DXGI_FORMAT_UNKNOWN;
 
-			// リソース遷移と RTV/DSV の解決
-			for (auto& _access : _pass->resourceAccessVec)
+			// Read を先に、Write を後に処理する。
+			// 同じパスが読んでから書くリソースの遷移順を崩さないため
+			std::vector<size_t> _order;
+			_order.reserve(_pass->accesses.size());
+			for (size_t _i = 0; _i < _pass->accesses.size(); ++_i)
 			{
+				if (!_pass->accesses[_i].isWrite) _order.push_back(_i);
+			}
+			for (size_t _i = 0; _i < _pass->accesses.size(); ++_i)
+			{
+				if (_pass->accesses[_i].isWrite) _order.push_back(_i);
+			}
+
+			// リソース遷移と RTV/DSV の解決
+			for (size_t _orderIdx : _order)
+			{
+				auto& _access = _pass->accesses[_orderIdx];
 				auto _handle = _access.handle;
 				D3D12::GPUResource* _pPhysicalResource = m_upRGResourceManager->GetPhysicalResource(_handle);
 
 				// クリアやDescriptorの取得
 				if (_access.type == AccessType::RTV)
 				{
-					// ※ 物理リソース(D3D12::GPUResource または Resource::Texture)からCPUハンドルを取得する関数がエンジン側にある想定
 					auto _rtvHandle = _pPhysicalResource->GetRTV();
 					D3D12_CPU_DESCRIPTOR_HANDLE _rtv = D3D12::DescriptorHeapManager::Instance().GetCPU(_rtvHandle);
 					_cp.rtvHandles.push_back(_rtv);
@@ -389,6 +399,63 @@ namespace Engine::Graphics
 		}
 	}
 
+	void RenderGraph::ResolveBindings()
+	{
+		// =========================================================
+		// ビルド時の宣言を、実行時にそのまま使える形へ焼き込む。
+		// ここまで来ればリソース名の文字列は一切要らなくなる
+		for (auto& _cp : m_compiledPasses)
+		{
+			auto* _pNode = _cp.pNode;
+			const size_t _accessNum = _pNode->accesses.size();
+
+			_cp.resources.resize(_accessNum, nullptr);
+			_cp.descriptorTable.resize(_accessNum, { 0 });
+
+			auto& _heapManager = D3D12::DescriptorHeapManager::Instance();
+
+			for (size_t _i = 0; _i < _accessNum; ++_i)
+			{
+				const auto& _access = _pNode->accesses[_i];
+				auto* _pRes = m_upRGResourceManager->GetPhysicalResource(_access.handle);
+				_cp.resources[_i] = _pRes;
+
+				if (!_pRes) continue;
+
+				// アクセスタイプに対応したディスクリプタを引いておく
+				switch (_access.type)
+				{
+				case AccessType::SRV:			_cp.descriptorTable[_i] = _heapManager.GetCPU(_pRes->GetSRV()); break;
+				case AccessType::UAV:			_cp.descriptorTable[_i] = _heapManager.GetCPU(_pRes->GetUAV()); break;
+				case AccessType::RTV:			_cp.descriptorTable[_i] = _heapManager.GetCPU(_pRes->GetRTV()); break;
+				case AccessType::Depth_Write:	_cp.descriptorTable[_i] = _heapManager.GetCPU(_pRes->GetDSV()); break;
+				case AccessType::Depth_Read:	_cp.descriptorTable[_i] = _heapManager.GetCPU(_pRes->GetSRV()); break;
+				default: break;
+				}
+			}
+
+			// バインド宣言はアクセス添字がそのままディスクリプタ添字になる
+			_cp.binds.clear();
+			for (const auto& _bind : _pNode->binds)
+			{
+				ENGINE_ERRLOG(
+					static_cast<size_t>(_bind.firstAccess) + _bind.count <= _accessNum,
+					"バインド宣言が宣言済みリソースの範囲外です : %s",
+					_pNode->name.c_str()
+				);
+
+				_cp.binds.push_back({ _bind.type, _bind.rootIndex, _bind.firstAccess, _bind.count });
+			}
+
+			// コピー宣言も物理リソースまで解決しておく
+			_cp.copies.clear();
+			for (const auto& _copy : _pNode->copies)
+			{
+				_cp.copies.emplace_back(_cp.resources[_copy.srcAccess], _cp.resources[_copy.dstAccess]);
+			}
+		}
+	}
+
 	Resource::Texture* RenderGraph::GetTmepTexture(const std::string& a_texNmae)
 	{
 		for (auto& _tex : m_upRGResourceManager->GetTempTextures())
@@ -438,30 +505,28 @@ namespace Engine::Graphics
 		{
 			for (auto* _passNode : _passNodeVec)
 			{
-				// Read要求の収集
-				for (auto& _req : _passNode->readRequests)
+				for (auto& _access : _passNode->accesses)
 				{
-					auto& _info = _globalResourceMap[_req.resName];
-					if (_req.type == AccessType::Depth_Read) _info.usage |= Resource::TextureUsage::DSV;
-					if (_req.type == AccessType::SRV)        _info.usage |= Resource::TextureUsage::SRV;
-					if (_req.type == AccessType::UAV)        _info.usage |= Resource::TextureUsage::UAV;
+					auto& _info = _globalResourceMap[_access.resName];
+					if (_access.isTemporal) _info.isTemporal = true;
 
-					if (_req.isTemporal) _info.isTemporal = true;
-				}
+					if (!_access.isWrite)
+					{
+						// Read要求の収集
+						if (_access.type == AccessType::Depth_Read) _info.usage |= Resource::TextureUsage::DSV;
+						if (_access.type == AccessType::SRV)        _info.usage |= Resource::TextureUsage::SRV;
+						if (_access.type == AccessType::UAV)        _info.usage |= Resource::TextureUsage::UAV;
+					}
+					else
+					{
+						// Write要求の収集（フォーマットとスケールはWrite側が主導権を持つ）
+						if (_access.format != DXGI_FORMAT_UNKNOWN) _info.format = _access.format;
+						_info.texScale = _access.texScale; // 念のためスケールも更新
 
-				// Write要求の収集（フォーマットとスケールはWrite側が主導権を持つ）
-				for (auto& _req : _passNode->writeRequests)
-				{
-					auto& _info = _globalResourceMap[_req.resName];
-					if (_req.isTemporal) _info.isTemporal = true;
-
-					if (_req.format != DXGI_FORMAT_UNKNOWN) _info.format = _req.format;
-					_info.texScale = _req.texScale; // 念のためスケールも更新
-					
-					if (_req.type == AccessType::Depth_Write) _info.usage |= Resource::TextureUsage::DSV | Resource::TextureUsage::SRV;
-					if (_req.type == AccessType::RTV)         _info.usage |= Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;
-					if (_req.type == AccessType::UAV)         _info.usage |= Resource::TextureUsage::UAV | Resource::TextureUsage::SRV;
-
+						if (_access.type == AccessType::Depth_Write) _info.usage |= Resource::TextureUsage::DSV | Resource::TextureUsage::SRV;
+						if (_access.type == AccessType::RTV)         _info.usage |= Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;
+						if (_access.type == AccessType::UAV)         _info.usage |= Resource::TextureUsage::UAV | Resource::TextureUsage::SRV;
+					}
 				}
 			}
 		}
@@ -482,5 +547,4 @@ namespace Engine::Graphics
 			}
 		}
 	}
-
 }

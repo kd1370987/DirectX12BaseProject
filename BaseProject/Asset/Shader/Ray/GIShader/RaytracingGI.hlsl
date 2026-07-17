@@ -142,7 +142,7 @@ void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal, float3 a_geoN
 	_ray.Origin = _posW + a_geoNormal * _normalBias;
 	_ray.Direction = _ligDir;
 	_ray.TMin = 0.0001f;
-	_ray.TMax = 10000;
+	_ray.TMax = 50;
 	
 	TraceRay(
 		g_raytracingWorld, // TLAS
@@ -212,15 +212,19 @@ void RayGen()
 	uint2 _id = DispatchRaysIndex().xy;
 	uint2 _dim = DispatchRaysDimensions().xy;
 
-	// UVを求める
-	float2 _uv = (_id + 0.5) / _dim;
+	// GBuffer はフル解像度だが、出力はハーフ、もしくはクォーターになるため
+	uint2 _fullResId = _id * 2;
+	float2 _fullResDim = _dim * 2.0f;
+	
+	// UVもフル解像度の座標を基準に計算する : GBufferから呼んだピクセルと一致させるため
+	float2 _uv = (_fullResId + 0.5) / _fullResDim;
 	
 	// GBuffer取得
 	Texture2D _depthTex = ResourceDescriptorHeap[g_gbuffer.depth];
 	Texture2D _normalTex = ResourceDescriptorHeap[g_gbuffer.normal];
 
 	// 深度値を取得
-	float _depth = _depthTex.Load(int3(_id, 0)).r;
+	float _depth = _depthTex.Load(int3(_fullResId, 0)).r;
 	if (_depth >= 1.0f)
 	{
 		gOutPut[_id] = float4(1, 1, 1, -1.0f);
@@ -228,7 +232,7 @@ void RayGen()
 	}
 	
 	// 法線を取得
-	float2 _enc = _normalTex.Load(int3(_id, 0)).rg; // 法線
+	float2 _enc = _normalTex.Load(int3(_fullResId, 0)).rg; // 法線
 	float3 _normal = DecsodeNormal(_enc); // 法線を復元
 
 	// 3D空間での位置を復元

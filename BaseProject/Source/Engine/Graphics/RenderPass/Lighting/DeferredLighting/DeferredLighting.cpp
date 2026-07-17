@@ -18,18 +18,6 @@ namespace Engine::Graphics
 {
 	void AddDeferredLighting(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 	{
-		// ランタイム用データ
-		struct RuntimeData
-		{
-			ID3D12RootSignature* pRootSig;
-			uint8_t csIndex;
-			D3D12::PipelineStateManager* pPSOManager;
-			
-		};
-		auto _spPassData = std::make_shared<RuntimeData>();
-		_spPassData->pPSOManager = a_pPSOManager;
-		
-
 		// ノード・ビルダー作成
 		RenderPassNode _node = {};
 		_node.name = "DeferredLighting";
@@ -37,79 +25,49 @@ namespace Engine::Graphics
 		RGComputePassBuilder _rpBuilder(&_node);
 
 		// シェーダー
+		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 		auto* _pBlob = _rpBuilder.SetShader(
 			"Asset/Shader/Compute/Lighting/DeferredLighting/DeferredLightingShader.cso",
-			"DeferredLightingShader", 
-			_spPassData->csIndex
+			"DeferredLightingShader",
+			_csIndex
 		);
 		// ルートシグネチャ
-		_spPassData->pRootSig = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+		_rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+		_rpBuilder.SetHeapMode(ERGHeapMode::Default);
 
-		// 依存関係構築
-		_rpBuilder.ReadSRV("GBufferAlbedo");
-		_rpBuilder.ReadSRV("GBufferNormal");
-		_rpBuilder.ReadSRV("GBufferMaterial");
-		_rpBuilder.ReadSRV("GBufferEmissiv");
-		_rpBuilder.ReadSRV("Depth");
-		_rpBuilder.ReadSRV("AffterDLShadowTempAccumu");
-		_rpBuilder.ReadSRV("FinalGI");
+		// 依存関係とバインドの宣言。
+		// ここでの宣言順がそのままシェーダのレジスタ順（t0～t6）になる
+		_rpBuilder.SrvTable(2)
+			.Add("GBufferAlbedo")
+			.Add("GBufferNormal")
+			.Add("GBufferMaterial")
+			.Add("GBufferEmissiv")
+			.Add("Depth")
+			.Add("AffterDLShadowTempAccumu")
+			.Add("FinalFullRay");
 
-		_rpBuilder.WriteUAV("AffterLighting", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
+		_rpBuilder.BindUAV(3, "AffterLighting", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
 		// コンパイル
 		_rpBuilder.ResolveAndCompile(a_pPSOManager);
 
-		// 実行関数
-		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+		// 実行関数 : 静的に宣言しきれない定数バッファとディスパッチだけ
+		_node.executeFunc = [](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 		{
-			// オプション取得
-			const auto& _winOp = Option::OptionManager::GetInstance().GetInstance().GetWindowOption();
-			// ヒープとルートシグネチャ、PSOをセット
-			auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
-			a_pCtx->BindHeap();
-			a_pCtx->SetComputeRootSignature(_spPassData->pRootSig);
-			a_pCtx->SetComputePSO(_pPSO);
-
-			// カメラセット
-			CameraData _cbCam = a_pGE->GetCameraData();
+			const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 			auto* _pCmd = a_pCtx->GetCurrentCmdList();
-			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(
-				_pCmd,
-				0, 
-				_cbCam
-			);
+
+			// カメラ
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(_pCmd, 0, a_pGE->GetCameraData());
 
 			// アンビエントカラー
-			const AmbientData& _amib = a_pGE->GetAmbientData();
-			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(
-				_pCmd, 
-				1,
-				_amib
-			);
-
-			// 参照SRV
-			std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _gpuVec = {
-				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "GBufferAlbedo"),
-				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "GBufferNormal"),
-				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "GBufferMaterial"),
-				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "GBufferEmissiv"),
-				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "Depth"),
-				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "AffterDLShadowTempAccumu"),
-				a_pGE->RefRenderGraph()->GetPassSRV(a_passIndex, "FinalGI")
-			};
-			a_pCtx->ComputeBindSRV(2, _gpuVec);
-
-			// 出力テクスチャ設定
-			a_pCtx->BindUAV(3, a_pGE->RefRenderGraph()->GetPassUAV(a_passIndex, "AffterLighting"));
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(_pCmd, 1, a_pGE->GetAmbientData());
 
 			// 実行
-			UINT _countX = _winOp.windowWidth / 8;
-			UINT _countY = _winOp.windowHegiht / 8;
-			a_pCtx->Dispatch(_countX, _countY, 1);
+			a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHegiht / 8, 1);
 		};
 
 		// パス登録
-		_node.phase = a_phase;
 		a_pRegistry->RegisterPass(_node);
 	}
 }

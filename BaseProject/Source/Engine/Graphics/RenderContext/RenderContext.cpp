@@ -203,7 +203,7 @@ namespace Engine::Graphics
 		BindSRV(a_rootIdx,_cpuHandles);
 	}
 
-	void RenderContext::BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles)
+	void RenderContext::BindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
 	{
 		// コピー数取得
 		UINT _count = static_cast<UINT>(a_cpuHandles.size());
@@ -296,7 +296,7 @@ namespace Engine::Graphics
 		);
 	}
 
-	void RenderContext::ComputeBindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles)
+	void RenderContext::ComputeBindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
 	{
 		// コピー数取得
 		UINT _count = static_cast<UINT>(a_cpuHandles.size());

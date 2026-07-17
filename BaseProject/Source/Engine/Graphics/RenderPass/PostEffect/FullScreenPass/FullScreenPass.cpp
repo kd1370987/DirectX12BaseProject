@@ -1,4 +1,4 @@
-﻿#include "FullScreenPass.h"
+#include "FullScreenPass.h"
 
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
@@ -12,36 +12,26 @@ namespace Engine::Graphics
 {
 	void AddFullScreenPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 	{
-		// ======================================================================
-			// ランタイムデータ作成
-			// ======================================================================
-		struct RuntimeData
-		{
-			uint8_t staticIndex;
-			D3D12::PipelineStateManager* pPSOManager;
-			ID3D12RootSignature* pRootSig;
-		};
-		auto _spPassData = std::make_shared<RuntimeData>();
-		_spPassData->pPSOManager = a_pPSOManager;
-
 		RenderPassNode _node = {};
 		_node.name = "FullScreenPass";
 		_node.phase = a_phase;
 		RGRasterPassBuilder _rpBuilder(&_node);
 
 		// ======================================================================
-		// 依存関係構築（Setupフェーズ）
+		// 依存関係とバインドの宣言
 		// ======================================================================
 		// TAAパス（またはその後続パス）の最終出力を読み込む
-		_rpBuilder.ReadSRV("AffterTAAColor");
+		_rpBuilder.BindSRV(0, "AffterTAAColor");
+		_rpBuilder.SetHeapMode(ERGHeapMode::Default);
 
-		auto& _sPso = _rpBuilder.CreatePSODesc("FullScreenPass", _spPassData->staticIndex);
+		uint8_t _staticIndex = RenderPassNode::kInvalidPSOIndex;
+		auto& _sPso = _rpBuilder.CreatePSODesc("FullScreenPass", _staticIndex);
 
 		// SetVS には InputLayout の指定が必要なため StaticLayout を渡す
 		auto* _pBlob = _rpBuilder.SetVS(_sPso, "Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso", D3D12::Input::StaticLayout);
 		_rpBuilder.SetPS(_sPso, "Asset/Shader/Source/QuadRenderingShader/QuadRenderingPS.cso");
 
-		_spPassData->pRootSig = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+		_rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
 
 		// デプスとステンシルは無効化（フルスクリーン描画のため）
 		_sPso.DepthEnable(false);
@@ -52,32 +42,14 @@ namespace Engine::Graphics
 
 		_rpBuilder.ResolveAndCompile(a_pPSOManager);
 
+		// PSOが確定したのでグラフに自動セットさせる
+		_rpBuilder.SetPassPSO(_staticIndex);
+
 		// ======================================================================
-		// 実行関数の登録
+		// 実行関数 : バックバッファへの切り替えと描画のみ
 		// ======================================================================
-		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, uint8_t a_passIndex)
+		_node.executeFunc = [](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 			{
-				auto* _pRenderGraph = a_pGE->RefRenderGraph();
-				if (!_pRenderGraph) return;
-
-				auto* _pCmd = a_pCtx->GetCurrentCmdList();
-
-				a_pCtx->BindHeap();
-				a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
-
-				auto* _pPSO = _spPassData->pPSOManager->GetPSO(_spPassData->staticIndex);
-				a_pCtx->SetGraphicPSO(_pPSO);
-
-				// =======================================================
-				// 1. SRVの取得とバインド
-				// =======================================================
-				// レンダーグラフから新しいインターフェースでパス専用のSRVを取得
-				auto _mainTex = _pRenderGraph->GetPassSRV(a_passIndex, "AffterTAAColor");
-				a_pCtx->BindSRV(0, _mainTex);
-
-				// =======================================================
-				// 2. レンダーターゲットの切り替えと描画
-				// =======================================================
 				// （※ChangeBackBufferの中で、バックバッファへのバリア遷移とOMSetRenderTargetsが行われる想定）
 				a_pCtx->ChangeBackBuffer();
 

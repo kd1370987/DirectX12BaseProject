@@ -117,12 +117,13 @@ namespace Engine::Graphics
 		void BindSRV(UINT a_rootIdx, std::vector<Handle<Resource::Texture>>& a_texHandles);
 
 		// SRVハンドルをもらってコピーする
-		void BindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
+		// レンダーグラフがコンパイル時に焼き込んだ連続領域をそのまま渡せるようspanで受ける
+		void BindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
 		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
 		void BindSRV(UINT a_rootIdx,Handle<D3D12::SRV> a_srvHandle);
 
 		void ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
-		void ComputeBindSRV(UINT a_rootIdx, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_cpuHandles);
+		void ComputeBindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
 		void ComputeBindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle);
 
 		void ComputeBindSRVBindLess(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle);
