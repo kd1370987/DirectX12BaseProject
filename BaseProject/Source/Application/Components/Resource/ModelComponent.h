@@ -5,6 +5,8 @@
 
 #include "../../../Engine/Editor/EditorUI/EditorUI.h"
 
+#include "../../../Engine/ECS/World/World.h"
+
 struct ModelComponent
 {
 	DirectX::XMFLOAT4 colorScale = { 1.0f,1.0f,1.0f,1.0f };
@@ -43,6 +45,7 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 			// もしモデルが変更された時に特別な処理（再初期化など）が必要ならここに書ける
 			// (戻り値が不要なら if文 で囲わなくてもOKです)
 			// _comp.UpdateBoundingBox(); 
+			a_context.pWorld->AddRefreshEntity(a_context.entity);
 		}
 
 		ImGui::Text("EmissiveScale");

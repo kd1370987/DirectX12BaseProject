@@ -138,6 +138,8 @@ namespace Engine::ECS
 		void AddChangeSigCommand(ChangeEntityCmd a_cmd);					// 指定シグネチャに変更するコマンド
 		void ChangeSigneture(ChangeEntityCmd a_cmd);						// コマンドから実際にアーキタイプを移動させる
 
+		void AddRefreshEntity(const Entity& a_entity);						// リフレッシュ
+
 		//==========================================================================================
 		// 
 		// コンポーネント関連
@@ -276,6 +278,11 @@ namespace Engine::ECS
 
 	private:
 
+		// リフレッシュリストにたまったエンティティを一括で処理する
+		void RefreshEntities();
+
+	private:
+
 		// マネージャー軍
 		EntityManager m_entityManager;
 		SystemManager m_systemManager;
@@ -295,6 +302,9 @@ namespace Engine::ECS
 
 		// 移動予定エンティティ
 		std::vector<ChangeEntityCmd> m_changeEntityVec = {};
+
+		// リフレッシュ予定エンティティ
+		std::vector<Entity> m_refreshEntityVec = {};
 
 		// インターフェースポインタでリソースを保存
 		std::unordered_map<ResourceTypeID, std::unique_ptr<IResourceWrapper>> m_resourceMap;

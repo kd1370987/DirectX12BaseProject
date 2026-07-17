@@ -123,6 +123,10 @@ namespace Engine::ECS
 
 		// エンティティの一括削除
 		RemoveEntityStorage();
+
+		// エンティティ削除後にエンティティをリフレッシュ
+		RefreshEntities();
+
 		// ---------------------------------------------------------
 		// 初期化システムズ
 		RunSystem(Engine::ECS::ESystemType::PostDeserialize, 0.0f);
@@ -411,6 +415,11 @@ namespace Engine::ECS
 		}
 	}
 
+	void World::AddRefreshEntity(const Entity& a_entity)
+	{
+		m_refreshEntityVec.push_back(a_entity);
+	}
+
 	ECS::ComponentTypeID World::GetCompTypeID(const std::type_index& a_index)
 	{
 		return m_componentMetaRegistry.GetTypeID(a_index);
@@ -458,6 +467,34 @@ namespace Engine::ECS
 	const std::unordered_map<ESystemType, std::vector<SystemTask*>>& World::GetCompileTaskMap() const
 	{
 		return m_systemManager.GetCompileTaskMap();
+	}
+
+	void World::RefreshEntities()
+	{
+		// 頻繁に呼ばれることはない想定なのでfor分内のエンティティを処理するのみ
+		// リリースタグの付与
+		for (auto& _entity : m_refreshEntityVec)
+		{
+			auto _sig = GetSignature(_entity);
+			if (_sig.test(GetCompTypeID<ActiveTag>()))
+			{
+				_sig.reset(GetCompTypeID<ActiveTag>());
+			}
+			_sig.set(GetCompTypeID<ReleaseTag>());
+			ChangeEntityCmd _cmd = {};
+			_cmd.entity = _entity;
+			_cmd.toSig = _sig;
+			ChangeSigneture(_cmd);
+		}
+
+		// リリース処理
+		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
+
+		// リリースされたものを初期化処理に回す
+		TransitionPhase<ReleaseTag,PostDeserializeTag>();
+
+		// コマンドクリア
+		m_refreshEntityVec.clear();
 	}
 
 	World::World()
