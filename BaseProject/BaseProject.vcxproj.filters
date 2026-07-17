@@ -1081,6 +1081,15 @@
     <Filter Include="Source\Engine\Resource\Data\Texture\IO">
       <UniqueIdentifier>{fb9f49a2-6db4-4eb1-9e3e-ab3081fc8735}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem">
+      <UniqueIdentifier>{92e51ad2-0a0f-4c4c-92db-f74ae89c53c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Animation\Common">
+      <UniqueIdentifier>{3cd79525-6ce3-4c2d-b896-acb8017a076e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem">
+      <UniqueIdentifier>{e4f46424-edbf-4aeb-b936-7a284fe21f52}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1697,6 +1706,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.cpp">
       <Filter>Source\Engine\Resource\Data\Texture\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem\RegisterAnimatedRayWorldSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.cpp">
+      <Filter>Source\Application\Systems\Init\Start\RayAnimationModelStartSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2638,6 +2653,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Internal\CompEditContext.h">
       <Filter>Source\Engine\ECS\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem\RegisterAnimatedRayWorldSystem.h">
+      <Filter>Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Animation\Common\AnimatedMeshVertex.h">
+      <Filter>Source\Engine\Animation\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.h">
+      <Filter>Source\Application\Systems\Init\Start\RayAnimationModelStartSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

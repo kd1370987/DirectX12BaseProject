@@ -43,7 +43,7 @@ namespace Engine::Scene
 		// 解放処理と初期化処理も含まれているため、呼び出しはシングルスレッド限定
 		m_upWorld->BegineFrame();
 		static int _i = 0;
-		_i++;
+		//_i++;
 		if(_i == 10)
 		{
 			// すべてのECS参照カウントをリセット

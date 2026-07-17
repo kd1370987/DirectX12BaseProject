@@ -94,6 +94,7 @@
 #include "Application/Systems/Update/PostUpdate/CommitHierarchyWorldMatrixSystem/CommitHierarchyWorldMatrixSystem.h"
 #include "../../Systems/Draw/Draw/SkinningRegisterSystem/SkinningRegisterSystem.h"
 #include "../../Systems/Release/ResourceFreeSystem/ResourceFreeSystem.h"
+#include "../../Systems/Draw/Draw/RegisterAnimatedRayWorldSystem/RegisterAnimatedRayWorldSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -208,6 +209,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<CommitHierarchyWorldMatrixSystem>();
 				a_pWorld->RegisterSystem<SkinningRegisterSystem>();
 				a_pWorld->RegisterSystem<ResourceFreeSystem>();
+				a_pWorld->RegisterSystem<RegisterAnimatedRayWorldSystem>();
 
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
@@ -215,6 +217,7 @@ namespace App::Game
 				a_pWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
 				a_pWorld->AddResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Animation::SkiningMeshData>>();
 
 				// シングルトンインスタンスの登録
 				a_pWorld->AddResource<HierarchyResource>();
@@ -224,6 +227,7 @@ namespace App::Game
 				a_pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>().Init(10000);
 
 				a_pWorld->GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>().Reserve(100);
+				a_pWorld->GetResource<Engine::Pool::ItemPool<Engine::Animation::SkiningMeshData>>().Reserve(100);
 				a_pWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 
 				a_pWorld->GetResource<HierarchyResource>().isDirty = true;

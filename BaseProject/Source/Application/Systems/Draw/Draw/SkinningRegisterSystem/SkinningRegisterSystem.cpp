@@ -17,7 +17,6 @@
 void SkinningRegisterSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<
-		const RayTag,
 		const ModelComponent, 
 		const WorldMatrixComponent,
 		const AnimatorComponent,
@@ -33,7 +32,6 @@ void SkinningRegisterSystem::Init(Engine::ECS::World& a_world)
 			uint32_t a_count,
 			float a_dt,
 			ActiveTag* a_pTags,
-			const RayTag* a_pRayTags,
 			const ModelComponent* a_pModelArray,
 			const WorldMatrixComponent* a_pWorldMatArray,
 			const AnimatorComponent* a_pAnimationArray,
@@ -55,9 +53,6 @@ void SkinningRegisterSystem::Init(Engine::ECS::World& a_world)
 				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);;
 				if (!_model) continue;
 
-				auto& _res = a_world.GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
-				const auto& _dynamicInst = _res.Get(_animComp.dynamicInstanceHandle);
-
 				// GPUスキニング登録
 				_pGE->SubmitSkinning(
 					a_world,
@@ -65,17 +60,6 @@ void SkinningRegisterSystem::Init(Engine::ECS::World& a_world)
 					_animComp.dynamicInstanceHandle,
 					_nodePoseComp.nodePoseHandle,
 					_skePoseComp.skeletonPoseHandle
-				);
-
-				// レイトレワールドに登録
-				Engine::Raytracing::RayEngine::Instance().RegisterSkinningModel(
-					a_world,
-					_wMatComp.worldMat,
-					_modelComp.handle,
-					_animComp.dynamicInstanceHandle,
-					_nodePoseComp.nodePoseHandle,
-					_modelComp.colorScale,
-					_modelComp.emissiveScale
 				);
 			}
 		}

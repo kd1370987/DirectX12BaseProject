@@ -152,6 +152,8 @@ namespace Engine::Resource
 // レイトレ用構造体
 // 
 //==========================================================================================
+
+#include "Animation/Common/AnimatedMeshVertex.h"
 #include "Engine/Raytracing/Common/RaytracingInstance.h"
 #include "Engine/Raytracing/Common/Common.h"
 
