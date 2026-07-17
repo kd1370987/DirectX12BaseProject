@@ -340,6 +340,7 @@
     <ClCompile Include="Source\Engine\Editor\WatchView\WatchView.cpp" />
     <ClCompile Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\LightManager\LightManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp" />
@@ -633,6 +634,7 @@
     <ClInclude Include="Source\Engine\Graphics\CBData.h" />
     <ClInclude Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h" />
+    <ClInclude Include="Source\Engine\Graphics\LightManager\LightManager.h" />
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshAllocationHandle.h" />
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.h" />
     <ClInclude Include="Source\Engine\Graphics\PSOKey.h" />

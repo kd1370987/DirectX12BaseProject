@@ -56,6 +56,10 @@
 
 #include "RenderPass/UpScale/FullRaytracingUpScalePass/FullRaytracingUpScalePass.h"
 
+
+// テスト
+#include "../../Application/Game/GameManager/GameManager.h"
+
 namespace Engine::Graphics
 {
 	GraphicsEngine::GraphicsEngine()
@@ -105,7 +109,7 @@ namespace Engine::Graphics
 		AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 		AddDebugLinePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
 		AddFullScreenPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
-		AddFullRaytracingPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
+		//AddFullRaytracingPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 
 		AddRaytracingShadowPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Shadow);
 		AddRaytracingGIPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Raytracing);
@@ -180,6 +184,12 @@ namespace Engine::Graphics
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
 		auto _currentFence = D3D12::D3D12Wrapper::Instance().GetCurrentFenceValue();
 
+		// レイトレ用BLAS初期化 : 初期化命令があれば走る
+		ProcessInitQueue(_pDevice, _pCmdList);
+
+		// テスト
+		App::Game::GameManager::Instance().Draw();
+
 		// メッシュバッファの更新
 		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _currentFence);
 
@@ -209,11 +219,6 @@ namespace Engine::Graphics
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(
 			m_instanceDataVec, m_subSetDataVec, m_meshInstanceDataVec, m_meshMaterialDataVec
 		);
-
-		// レイトレ用BLAS初期化 : 初期化命令があれば走る
-		ProcessInitQueue(_pDevice, _pCmdList);
-
-		// レイトレ用BLAS更新
 
 
 		// 描画アイテムをソート

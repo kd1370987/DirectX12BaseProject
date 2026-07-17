@@ -101,7 +101,7 @@ void Application::MainLoop()
 		Engine::MainEngine::Instance().BeginDraw();				// 描画開始
 		{
 			// ゲームの描画
-			App::Game::GameManager::Instance().Draw();
+			//App::Game::GameManager::Instance().Draw();
 			// 命令の実行
 			Engine::Editor::MainEditor::Instance().StartWatch("RGDraw");
 			Engine::MainEngine::Instance().ExcuteDrawCmd();

@@ -146,7 +146,7 @@ void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal, float3 a_geoN
 	
 	TraceRay(
 		g_raytracingWorld, // TLAS
-		0, // RayFlags
+		RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER | RAY_FLAG_FORCE_OPAQUE, // RayFlags
 		0xFF, // InstanceInclusionMask
 		1, // RayContributionToHitGroupIndex
 		0, // MultiplierForGeometryContributionToHitGroupIndex

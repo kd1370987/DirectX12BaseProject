@@ -84,15 +84,10 @@ namespace Engine::Graphics
 		struct Payload
 		{
 			DXSM::Vector3 color;
-			float pad;
 			int hit;
-			DXSM::Vector3 pad3_0;
 			int depth;
-			DXSM::Vector3 pad3_1;
 			UINT seed;
-			DXSM::Vector3 pad3_2;
 			float hitDistance;
-			DXSM::Vector3 pad3_3;
 		};
 
 		Raytracing::RayPSODesc _psoInit = {};

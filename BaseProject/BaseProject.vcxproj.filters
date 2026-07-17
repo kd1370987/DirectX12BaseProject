@@ -1090,6 +1090,9 @@
     <Filter Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem">
       <UniqueIdentifier>{e4f46424-edbf-4aeb-b936-7a284fe21f52}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\LightManager">
+      <UniqueIdentifier>{175f6740-bef4-4d67-8fb6-0c9d05fb78d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1712,6 +1715,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\RayAnimationModelStartSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\LightManager\LightManager.cpp">
+      <Filter>Source\Engine\Graphics\LightManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2662,6 +2668,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.h">
       <Filter>Source\Application\Systems\Init\Start\RayAnimationModelStartSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\LightManager\LightManager.h">
+      <Filter>Source\Engine\Graphics\LightManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

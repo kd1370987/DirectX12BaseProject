@@ -134,9 +134,13 @@ void Engine::Raytracing::TLAS::Release()
 
 void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList,const std::vector<Instance>& a_instanceVec)
 {
+
+
 	// インスタンスバッファ構造体更新
 	for (int _i = 0; _i < a_instanceVec.size(); ++_i)
 	{
+		if (a_instanceVec[_i].pBLAS == nullptr || a_instanceVec[_i].pBLAS->GetGPUAddress() == 0) continue;
+
 		m_pInstanceDesc[_i].InstanceID = _i;
 		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = 0;
 		m_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;

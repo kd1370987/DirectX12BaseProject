@@ -124,6 +124,7 @@ namespace Engine::Raytracing
 				if (!_item) continue;
 
 				//_rayInst.pBLAS = &_pMesh->GetRtData().blas;
+				if (_meshDataIdx >= _item->meshDataVec.size()) continue;
 				_rayInst.pBLAS = &_item->meshDataVec[_meshDataIdx].instanceBLAS;
 
 				// メガバッファの割り当て

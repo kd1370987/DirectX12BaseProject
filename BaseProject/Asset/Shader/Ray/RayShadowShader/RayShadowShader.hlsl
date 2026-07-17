@@ -97,7 +97,7 @@ void RayGen()
 	
 	TraceRay(
 		g_raytracingWorld,
-		0,
+		RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH| RAY_FLAG_SKIP_CLOSEST_HIT_SHADER| RAY_FLAG_FORCE_OPAQUE,
 		0xFF,
 		0,
 		0,
