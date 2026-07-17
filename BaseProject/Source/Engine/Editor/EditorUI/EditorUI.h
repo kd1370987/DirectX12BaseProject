@@ -63,6 +63,58 @@ namespace Engine::Editor::UI
 	}
 
 	/// <summary>
+	/// GUIDのみを書き換えるアセット検索欄
+	/// ハンドルはここでは書き換えないため、実体の差し替えを
+	/// リフレッシュ経路（Release → PostDeserializeでのFixup）に任せたい場合に使う
+	/// </summary>
+	/// <param name="a_lable">コンボボックスのラベル</param>
+	/// <param name="a_assetTypeName">アセットデータベースに渡す型名</param>
+	/// <param name="a_inoutGUID">上書きされるGUID</param>
+	/// <returns>選択が変更されたら true</returns>
+	inline bool DrawAssetSelectComboGUID(
+		const char* a_lable,
+		const char* a_assetTypeName,
+		Engine::GUID& a_inoutGUID
+	)
+	{
+		bool _isChanged = false;
+
+		// 現在の選択情報 : ハンドルを持たないのでGUIDから名前を引く
+		auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(a_inoutGUID);
+		if (!_fileName.empty())
+		{
+			ImGui::Text("%s : %s", a_assetTypeName, _fileName.c_str());
+			ImGui::Text("%s", a_inoutGUID.String().c_str());
+		}
+
+		// 選択UI
+		if (ImGui::BeginCombo(a_lable, "Select..."))
+		{
+			const auto& _assetList = Resource::AssetDatabase::Instance().GetTypeMetaVec(a_assetTypeName);
+			for (const auto& _prop : _assetList)
+			{
+				bool _isSelected = (a_inoutGUID == _prop.guid);
+
+				// 選択欄
+				if (ImGui::Selectable(_prop.fileName.c_str(), _isSelected))
+				{
+					a_inoutGUID = _prop.guid;
+					_isChanged = true;
+				}
+
+				// コンボボックスを開いた際、現在の選択アイテムまで自動スクロールする
+				if (_isSelected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		return _isChanged;
+	}
+
+	/// <summary>
 	/// エディター上でテクスチャを表示する
 	/// </summary>
 	/// <param name="a_handle">テクスチャのハンドル</param>

@@ -50,11 +50,12 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 				// ボーンノード
 				for (auto& _nodeIdx : _pModel->GetBoneNodeVec())
 				{
-					ENGINE_ERRLOG(_nodeIdx < _nodePoseMatVec.size(), "スキニング : ノードインデックスが配列の範囲外です");
+					// モデル差し替え直後などのサイズ不整合や、領域確保失敗(空span)の場合は
+					// 落とさずスキップする
+					if (_nodeIdx < 0 || static_cast<size_t>(_nodeIdx) >= _nodePoseMatVec.size()) continue;
 
 					const auto& _dataNode = _dataNodes[_nodeIdx];
-
-					ENGINE_ERRLOG(_dataNode.boneIndex < _boneMatVec.size() , "スキニング : ボーンが配列の範囲外です");
+					if (_dataNode.boneIndex < 0 || static_cast<size_t>(_dataNode.boneIndex) >= _boneMatVec.size()) continue;
 
 					DXSM::Matrix _nodeWorldMat = _nodePoseMatVec[_nodeIdx].world;
 					DXSM::Matrix _invMat = _dataNodes[_nodeIdx].boneInverseWorldMatrix;

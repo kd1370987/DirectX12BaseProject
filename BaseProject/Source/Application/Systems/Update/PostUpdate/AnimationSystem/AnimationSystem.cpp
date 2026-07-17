@@ -47,14 +47,10 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				{
 					UINT _idx = _pAni->nodes[_j].nodeOffset;
 
-					// 範囲外チェック
-
-					if(_idx > _pAni->nodes.size() || _idx > _nodePoseVec.size())
-					{
-
-						ENGINE_ERRLOG(_idx < _nodePoseVec.size(), "アニメーションがスパンの範囲外です");
-						//ENGINE_ERRLOG(_idx < _pAni->nodes.size(), "アニメーションのノードの配列外です");
-					}
+					// モデル差し替え直後などは、ステートマシンが旧モデル用の
+					// アニメーションを指したままのことがある。
+					// 範囲外のチャンネルは適用せずスキップする
+					if (_idx >= _nodePoseVec.size()) continue;
 
 					Engine::Animation::Interpolate(_pAni->nodes[_j], _aniComp.time, _nodePoseVec[_idx].local);
 				}

@@ -36,15 +36,16 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		// ---------------------------------------------------------
 		// モデルの選択UI
 		// ---------------------------------------------------------
-		if (Engine::Editor::UI::DrawAssetSelectCombo<Resource::Model>(
+		// ここではGUIDのみを書き換え、handleは旧モデルのまま残す。
+		// 即時にhandleを差し替えると、今フレームの描画が
+		// 「新モデルの描画コマンド + 旧モデルサイズのノードポーズ領域」で走り、spanが範囲外になる。
+		// 差し替えはリフレッシュ経路に任せる :
+		// Release(旧handleで領域解放) → ModelFixupSystemがGUIDから新handleを復元 → 新サイズで領域再確保
+		if (Engine::Editor::UI::DrawAssetSelectComboGUID(
 			"Change Model",
 			"Model",
-			_comp.modelGUID,
-			_comp.handle))
+			_comp.modelGUID))
 		{
-			// もしモデルが変更された時に特別な処理（再初期化など）が必要ならここに書ける
-			// (戻り値が不要なら if文 で囲わなくてもOKです)
-			// _comp.UpdateBoundingBox(); 
 			a_context.pWorld->AddRefreshEntity(a_context.entity);
 		}
 

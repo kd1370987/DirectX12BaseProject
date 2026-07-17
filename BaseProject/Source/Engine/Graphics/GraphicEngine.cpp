@@ -344,6 +344,9 @@ namespace Engine::Graphics
 			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Mesh>(_cmd.meshRawID);
 			if (!_pMesh) continue;
 
+			// レイトレ用データを持たないメッシュはスキニング登録できない
+			if (!_pMesh->HasRtData()) continue;
+
 			// マテリアルからシェーディングモデルを取得
 			auto* _pShadingModel = Engine::Resource::ResourceManager::Instance().Get(_pMaterial->shadingModelHandle);
 			if (!_pShadingModel) continue;
@@ -604,6 +607,9 @@ namespace Engine::Graphics
 			}
 
 			// ノードのワールド行列を確定
+			// モデル差し替え直後などで描画コマンドとポーズ領域のサイズが食い違った場合は
+			// クラッシュさせずこのコマンドの描画をスキップする
+			if (_cmd.nodeIndex >= _nodePoseMatVec.size()) continue;
 			DXSM::Matrix _nodeTransMat(_nodePoseMatVec[_cmd.nodeIndex].world);
 			DXSM::Matrix _mat = _nodeTransMat * a_worldMatrix;
 
