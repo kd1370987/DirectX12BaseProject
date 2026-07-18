@@ -12,6 +12,11 @@ namespace Engine::Option::GraphicsOptions
 
 		Engine::GUID defaultShadingModelTable = {};
 
+		const std::string& GetName() override
+		{
+			return "RenderingOption";
+		}
+
 		// カテゴリー
 		EOptionCategory GetCategory() override
 		{

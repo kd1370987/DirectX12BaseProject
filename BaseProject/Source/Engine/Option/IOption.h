@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::Option::GraphicsOptions
+namespace Engine::Option
 {
 	enum class EOptionCategory
 	{
@@ -12,6 +12,9 @@ namespace Engine::Option::GraphicsOptions
 	{
 		IOption() = default;
 		virtual ~IOption() = default;
+
+		// 名前取得
+		virtual const std::string& GetName() = 0;
 
 		// カテゴリー取得
 		virtual EOptionCategory GetCategory() = 0;

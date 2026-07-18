@@ -36,7 +36,8 @@ namespace Engine
 		// 設定を保存
 		m_config = a_config;
 
-		// 設定を取得
+		// オプションマネージャーの初期化と読込
+		Option::OptionManager::GetInstance().Init();
 		Option::OptionManager::GetInstance().Deserialize();
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 

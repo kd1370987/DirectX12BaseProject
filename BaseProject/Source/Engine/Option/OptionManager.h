@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 // グラフィックスオプション
+
+#include "IOption.h"
 #include "GraphicsOptions/GIOptions.h"
 #include "GraphicsOptions/WindowOption.h"
 #include "GraphicsOptions/RenderingOption.h"
@@ -10,6 +12,9 @@ namespace Engine::Option
 	class OptionManager
 	{
 	public:
+
+		// 初期化
+		void Init();
 
 		// シリアライズ・デシリアライズ
 		void Serialize();
@@ -42,9 +47,12 @@ namespace Engine::Option
 		GraphicsOptions::WindowOption m_windowOption = {};
 		GraphicsOptions::RenderingOption m_renderingOption = {};
 
+		// ループ処理用
+		std::vector<IOption*> m_pOptionList;
+
 	// シングルトン
 	private:
-		OptionManager() = default;
+		OptionManager();
 		~OptionManager() = default;
 	public:
 

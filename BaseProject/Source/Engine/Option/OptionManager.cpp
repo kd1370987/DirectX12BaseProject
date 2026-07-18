@@ -4,6 +4,14 @@
 
 namespace Engine::Option
 {
+	OptionManager::OptionManager(){}
+	void OptionManager::Init()
+	{
+		m_pOptionList.clear();
+		m_pOptionList.push_back(&m_giOptions);
+		m_pOptionList.push_back(&m_windowOption);
+		m_pOptionList.push_back(&m_renderingOption);
+	}
 	void OptionManager::Serialize()
 	{
 		Persistence::Archive _archive(Persistence::Archive::Mode::Save, "Asset/Data/Option", "GraphicsOption", "optn");
@@ -22,10 +30,12 @@ namespace Engine::Option
 	}
 	void Engine::Option::OptionManager::DrawEdit()
 	{
-		m_giOptions.DrawEdit();
-		m_windowOption.DrawEdit();
-		m_renderingOption.DrawEdit();
+		for (auto* _pOption : m_pOptionList)
+		{
+			_pOption->DrawEdit();
+		}
 
+		// インクルードの関係上CPPに隠蔽したいもの
 		// シェーディングモデル
 		Handle<Resource::ShadingModelTable> _temp;
 		Editor::UI::DrawAssetSelectCombo<Resource::ShadingModelTable>(

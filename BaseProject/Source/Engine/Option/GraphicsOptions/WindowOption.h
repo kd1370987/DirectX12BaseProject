@@ -22,6 +22,11 @@ namespace Engine::Option::GraphicsOptions
 		// 最大フレームレート
 		int targetFrameRate = 0;
 
+		const std::string& GetName() override
+		{
+			return "WindowOption";
+		}
+
 
 		// カテゴリー
 		EOptionCategory GetCategory() override
