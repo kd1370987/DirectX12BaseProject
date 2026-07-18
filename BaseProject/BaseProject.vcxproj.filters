@@ -574,6 +574,12 @@
     <Filter Include="Source\Engine\Resource\Data\StateMachineAsset">
       <UniqueIdentifier>{b26cd422-2854-4874-b89e-a3b0983a789a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\StateGraph">
+      <UniqueIdentifier>{7f3a1c68-9d24-4e5b-8a17-2c6b0f9e4d31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Widget\StateGraphEditor">
+      <UniqueIdentifier>{2b8e5d94-6c31-4a7f-9e02-8d51a3f7b6c4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Components\Intent">
       <UniqueIdentifier>{7b22f186-76d7-4035-91dc-e9f58ab4dd2c}</UniqueIdentifier>
     </Filter>
@@ -1391,6 +1397,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.cpp">
       <Filter>Source\Engine\Resource\Data\StateMachineAsset</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\StateGraph\StateGraphTypes.cpp">
+      <Filter>Source\Engine\Resource\StateGraph</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Move\CharactorMovementSystem</Filter>
@@ -2218,6 +2227,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.h">
       <Filter>Source\Engine\Resource\Data\StateMachineAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraphTypes.h">
+      <Filter>Source\Engine\Resource\StateGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraph.h">
+      <Filter>Source\Engine\Resource\StateGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h">
+      <Filter>Source\Engine\Editor\Widget\StateGraphEditor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\StateMachineComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>

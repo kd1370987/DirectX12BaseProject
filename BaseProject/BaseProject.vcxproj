@@ -426,6 +426,7 @@
     <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\StateMachineAsset\IO\StateMachineAssetIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.cpp" />
+    <ClCompile Include="Source\Engine\Resource\StateGraph\StateGraphTypes.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Importer\TextureImporter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.cpp" />
@@ -748,6 +749,9 @@
     <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.h" />
     <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\IO\StateMachineAssetIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.h" />
+    <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraph.h" />
+    <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraphTypes.h" />
+    <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Importer\TextureImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.h" />
