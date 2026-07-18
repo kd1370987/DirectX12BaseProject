@@ -5,9 +5,29 @@
 #include "../InputDevice/Axis/InputAxisBase.h"
 namespace Engine::Input
 {
+	namespace
+	{
+		// エディタのテキスト入力欄にフォーカスがあるか(=文字入力中か)。
+		// この間はゲーム側の入力を無効化し、プレイヤー操作やシーン遷移が
+		// 誤って走らないようにする。
+		//
+		// 注意: WantCaptureKeyboard は NavEnableKeyboard 有効時、ImGuiウィンドウに
+		//       フォーカスがあるだけで常時 true になり得る(ドッキング型エディタでは
+		//       ほぼ常時ブロックされてしまう)。そのため、テキスト入力中だけ true になる
+		//       WantTextInput を使う。
+		bool IsUICapturingInput()
+		{
+			// ImGuiコンテキストが無い(エディタ無効時など)なら何もブロックしない
+			if (ImGui::GetCurrentContext() == nullptr) return false;
+			return ImGui::GetIO().WantTextInput;
+		}
+	}
+
 	void InputManager::Update()
 	{
 		// 登録された入力でバスの更新を行う
+		// (UIキャプチャ中でもデバイス自体は更新し、状態遷移の整合を保つ。
+		//  実際に「入力なし」として扱うのは取得側で判定する)
 		for (auto& _device : m_upInputDeviceMap)
 		{
 			_device.second->Update();
@@ -17,6 +37,9 @@ namespace Engine::Input
 	// 任意のアプリケーションボタンの入力状態を取得
 	short InputManager::GetButtonState(std::string_view a_name) const
 	{
+		// エディタ操作中(テキスト入力など)はゲーム入力を無効化
+		if (IsUICapturingInput()) return InputButtonBase::EState::Free;
+
 		short _buttonState = InputButtonBase::EState::Free;
 		for (auto& _device : m_upInputDeviceMap)
 		{
@@ -51,6 +74,9 @@ namespace Engine::Input
 	// 指定した入力デバイスの任意の軸の入力状d態を2次元ベクトルで取得する
 	DXSM::Vector2 InputManager::GetAxisState(std::string_view a_name) const
 	{
+		// エディタ操作中(テキスト入力など)はゲーム入力を無効化
+		if (IsUICapturingInput()) return DXSM::Vector2(0.0f, 0.0f);
+
 		float _leftValue = 0.0f;
 		float _rightValue = 0.0f;
 		float _topValue = 0.0f;
