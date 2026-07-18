@@ -31,6 +31,30 @@ namespace Engine::Editor
 		StateGraphEditor() = default;
 		~StateGraphEditor() { DestroyContext(); }
 
+		// ImNodesEditorContext* を生ポインタで所有するため move のみ許可(コピー禁止)。
+		// 資産(StateMachineAssetなど)が値で move される用途に対応する。
+		StateGraphEditor(const StateGraphEditor&) = delete;
+		StateGraphEditor& operator=(const StateGraphEditor&) = delete;
+		StateGraphEditor(StateGraphEditor&& a_other) noexcept
+			: m_context(a_other.m_context)
+			, m_editingLinkID(a_other.m_editingLinkID)
+			, m_applyPositions(a_other.m_applyPositions)
+		{
+			a_other.m_context = nullptr;
+		}
+		StateGraphEditor& operator=(StateGraphEditor&& a_other) noexcept
+		{
+			if (this != &a_other)
+			{
+				DestroyContext();
+				m_context = a_other.m_context;
+				m_editingLinkID = a_other.m_editingLinkID;
+				m_applyPositions = a_other.m_applyPositions;
+				a_other.m_context = nullptr;
+			}
+			return *this;
+		}
+
 		//----------------------------------------------------------------------------------
 		// ImNodesコンテキスト管理(グラフごとに独立して複数開けるように専用で持つ)
 		//----------------------------------------------------------------------------------
@@ -47,15 +71,12 @@ namespace Engine::Editor
 			}
 		}
 
-		// Load直後に呼ぶ: ノードが持つ座標を ImNodes に反映
-		void OnLoaded(Graph& a_graph)
+		// Load直後に呼ぶ。ここでは ImNodes を触らず「次のDrawで座標反映する」フラグだけ立てる。
+		// (リソースロードは非同期の可能性があり、ImNodesのグローバル状態を
+		//  メインスレッド外から触らないための遅延反映)
+		void RequestApplyLoadedPositions()
 		{
-			EnsureContext();
-			ImNodes::EditorContextSet(m_context);
-			for (auto& [_hash, _node] : a_graph.Nodes())
-			{
-				ImNodes::SetNodeEditorSpacePos(_node.nodeID, ImVec2(_node.editorPos.x, _node.editorPos.y));
-			}
+			m_applyPositions = true;
 		}
 
 		// Save直前に呼ぶ: ImNodes 上の現在座標をノードへ書き戻す
@@ -244,6 +265,16 @@ namespace Engine::Editor
 		{
 			EnsureContext();
 			ImNodes::EditorContextSet(m_context);
+
+			// Load後の初回Drawでノード座標を反映(メインスレッド・コンテキスト有効状態で行う)
+			if (m_applyPositions)
+			{
+				for (auto& [_hash, _node] : a_graph.Nodes())
+				{
+					ImNodes::SetNodeEditorSpacePos(_node.nodeID, ImVec2(_node.editorPos.x, _node.editorPos.y));
+				}
+				m_applyPositions = false;
+			}
 
 			ImNodes::BeginNodeEditor();
 
@@ -443,5 +474,6 @@ namespace Engine::Editor
 	private:
 		ImNodesEditorContext* m_context = nullptr;
 		int m_editingLinkID = 0;
+		bool m_applyPositions = false;	// Load後、次のDrawで座標反映する
 	};
 }

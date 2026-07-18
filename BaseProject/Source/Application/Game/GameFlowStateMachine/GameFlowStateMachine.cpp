@@ -40,8 +40,8 @@ namespace App::Game
 		_arch.Field("m_farstSceneGUID", m_farstSceneGUID);
 		m_graph.LoadGraph(_arch);
 
-		// 復元した座標をImNodesへ反映
-		m_editor.OnLoaded(m_graph);
+		// 復元した座標は次のDrawでImNodesへ反映
+		m_editor.RequestApplyLoadedPositions();
 	}
 
 	void GameFlowStateMachine::Release()

@@ -1,175 +1,95 @@
-﻿#pragma once
+#pragma once
+//==========================================================================================
+//
+// StateMachineAsset (Animator)
+//
+// アニメーション用ステートマシンの「設計図」リソース。
+// 設計図データ・遷移ロジックは Engine::StateGraph の再利用コアに委譲し、
+// このクラスは「ステートごとに再生するアニメ」というAnimator固有の意味付けを担当する。
+//
+// ランタイムのパラメータ実体(StateMachinInstance)はエンティティごとに
+// StateMachineComponent 側のプールが持つ(このアセットは共有設計図なので保持しない)。
+//
+//==========================================================================================
+#include "Engine/Resource/StateGraph/StateGraph.h"
+#include "Engine/Editor/Widget/StateGraphEditor/StateGraphEditor.h"
 
 namespace Engine::Resource
 {
-	enum class EParamType { Float, Int, Bool, Trigger };
-
-	// ステートノードが持つ遷移比較対象
-	struct StateParameter
+	// Animator のステートノード。
+	// 共通「つなぎ情報」を継承し、固有データとして再生アニメ情報を持つ。
+	struct AnimStateNode : Engine::StateGraph::StateNodeBase
 	{
-		// 遷移対象名(SpeedとかIsGroundとか)
-		std::string name = "";
-		UINT hash = 0;
-		EParamType type;
-		float defaultFloat = 0.0f;
-		int defaultInt = 0;
-		bool defaultBool = false;
+		Engine::GUID			animGUID;					// セーブ用(アニメのGUID)
+		ResourceRef<AnimationData> playAnimData;			// 実行時に解決される再生アニメ参照
+		float					speed = 0.0f;
+		bool					isLoop = false;
 
 		void Archive(Persistence::Archive& a_arch);
 	};
 
-	// 各ステートノード
-	struct StateNode
-	{
-		// 識別名
-		UINT hash;
-		std::string	name;
-
-		// アニメーション再生用データ
-		Engine::GUID animGUID;					//セーブ用
-		ResourceRef<AnimationData> playAnimData;
-		float speed = 0.0f;
-		bool isLoop;
-
-		// エディター用情報
-		DXSM::Vector2 editorPos = {};		// エディター上の位置情報
-		int nodeID = 0;			// 自身のID
-		int inPinID = 0;		// 自身の入り口
-		int outPinID = 0;		// 自身の出口
-
-		void Archive(Persistence::Archive& a_arch);
-	};
-
-	enum class ECompareOp {Greater,Less,Equal,NotEqual,True,False};
-	// 遷移条件
-	struct TransitionCondition
-	{
-		UINT paramHash;	// 比較対象のノードハッシュ
-		ECompareOp op;		// 比較演算子
-
-		// 比較する閾値
-		float thresholdFloat = 0.0f;
-		int thresholdInt = 0;
-	};
-
-
-	// 遷移データ
-	struct TransitionArrow
-	{
-		int linkID;
-		UINT dstStartHash;		// 遷移先のステートハッシュ
-
-		// 遷移条件
-		std::vector<TransitionCondition> conditions;
-
-		// アニメーション用データ
-		float blendDuration = 0.0f;			// 移行するときのアニメーションブレンドタイム
-
-		void Archive(Persistence::Archive& a_arch);
-		void EditArrow(int a_srcOutPinID,int a_dstInPinID);
-	};
-
-	// インスタンス時データ
-	struct StateMachinInstance
-	{
-		// ステート遷移用判断パラメータ
-		std::unordered_map<UINT, float> floatParams;
-		std::unordered_map<UINT, int> intParams;
-		std::unordered_map<UINT, bool> boolParams;
-	};
+	// ランタイムのパラメータ実体は共通の ParamSet をそのまま使う。
+	// (既存コードとの互換のため名前は StateMachinInstance のまま)
+	using StateMachinInstance = Engine::StateGraph::ParamSet;
 
 	// ステートマシン全体の設計図
-	// 実際のランタイムデータや運用時の設定は各コンポーネントが対応する
 	class StateMachineAsset
 	{
 	public:
+		using Graph = Engine::StateGraph::StateGraph<AnimStateNode>;
+
 		StateMachineAsset() = default;
 		~StateMachineAsset() = default;
 		NON_COPYABLE_MOVABLE(StateMachineAsset);
 
-		UINT GetStateHash(const std::string& a_stateName) const;
+		// ノード情報取得
+		UINT GetStateHash(const std::string& a_stateName) const { return m_graph.GetStateHash(a_stateName); }
+		std::string_view GetNodeName(const UINT& a_hash) const { return m_graph.GetNodeName(a_hash); }
+		const AnimStateNode* GetStateNode(UINT a_stateHash) const { return m_graph.GetStateNode(a_stateHash); }
 
 		// 保存と読み込み
 		void Save(const std::string& a_savePath);
-		void Load(const std::string& a_fileDir,const std::string& a_fileName);
+		void Load(const std::string& a_fileDir, const std::string& a_fileName);
 		void Load(const std::string& a_filePath);
-
-		// ノード名取得
-		std::string_view GetNodeName(const UINT& a_hash) const;
-
-		// ノード参照
-		const StateNode* GetStateNode(UINT a_stateHash) const;
 
 		// 解放
 		void Release();
 
-		// エディターからの呼び出し用
-		// ここで設計図を作る
+		// エディターからの呼び出し用(設計図を編集する)
 		void EditImGui(const Handle<StateMachineAsset>& a_handle);
 
 		// 名前
 		void SetName(const std::string& a_name) { m_name = a_name; }
-		const std::string& GetName()const { return m_name; }
+		const std::string& GetName() const { return m_name; }
 
 		// ---- 判定ロジック ----
-		// デフォルト値を返す
-		UINT GetDefaultStartHash() const { return m_defaultStartHash; }
+		UINT GetDefaultStartHash() const { return m_graph.GetDefaultStartHash(); }
 
 		// ステート遷移判定を行い、次ステートのハッシュを返す
-		UINT EvaluateNextState(UINT a_currentStateHash,StateMachinInstance& a_instance) const;
-		
-		// ArrowID生成
-		int GenerateID() { return ++m_idCounter; }
+		UINT EvaluateNextState(UINT a_currentStateHash, StateMachinInstance& a_instance) const
+		{
+			return m_graph.Evaluate(a_currentStateHash, a_instance);
+		}
+
 	private:
-
-		// ノードの新規作成
-		void AddNode();
-
-		// ステートマシンのリセット
-		void RessetButton();
-
-		// 遷移データ作成
-		void CreateArrow();
-
-		// ノードエディタ描画
-		void DrawNodeEditor();
-
-		// Arrowポップアップ画面
-		void ArrowPopUp();
-
-		// パラメータ編集
-		void EditParameters();
-
-		// モデルをバインド
+		// 参照モデル選択UI(Animator固有)
 		void BindModelComb();
 
-		// ノード編集
-		void EditNode(StateNode& a_node);
+		// 共通のロード処理
+		void LoadInternal(const std::string& a_fileDir, const std::string& a_fileName);
 
 	private:
-
-		// 参照モデル
-		Engine::GUID m_modelGUID = Engine::DefaultGUID;
-		Handle<Model> m_modelHandle = {};
+		// 参照モデル(アニメ選択用)
+		Engine::GUID	m_modelGUID = Engine::DefaultGUID;
+		Handle<Model>	m_modelHandle = {};
 
 		// 識別子
-		std::string m_name;
+		std::string		m_name;
 
-		// 初期ステート
-		UINT m_defaultStartHash = 0;
+		// 設計図(再利用コア)
+		Graph			m_graph;
 
-		// 名前ハッシュ値、データ
-		std::unordered_map<UINT, StateNode> m_stateNodeMap = {};
-
-		// 名前ハッシュ値、変更先
-		std::unordered_map<UINT, std::vector<TransitionArrow>> m_transitionArrowMap = {};
-
-		// ステートマシン全体が持つパラメター一覧
-		std::unordered_map<UINT, StateParameter> m_parameters;
-
-		// 編集用データ
-		int m_editingLinkID = 0;
-
-		int m_idCounter = 0;
+		// 編集UI(汎用ウィジェット)
+		Engine::Editor::StateGraphEditor<AnimStateNode> m_editor;
 	};
 }
