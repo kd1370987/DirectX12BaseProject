@@ -4,7 +4,8 @@
 #include "../AssetDatabase/AssetDatabase.h"
 
 // 各リソース
-#include "../../Data/StateMachineAsset/StateMachineAsset.h"
+#include "../../Data/AnimatorAsset/AnimatorAsset.h"
+#include "../../Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 #include "../../Data/Particles/ParticlesAsset.h"
 
 // ローダー
@@ -151,7 +152,8 @@ namespace Engine::Resource
 		ResourceData<Texture> m_textureData;					// テクスチャ
 		ResourceData<Shader> m_shaderData;						// シェーダー
 		ResourceData<ShaderLibrary> m_shaderLibraryData;		// シェーダーライブラリ
-		ResourceData<StateMachineAsset> m_stateMachineAssetData;// ステートマシンアセット
+		ResourceData<AnimatorAsset> m_animatorAssetData;		// アニメーターアセット
+		ResourceData<ActionStateMachineAsset> m_actionStateMachineAssetData;// ゲームプレイ用ステートマシン
 		ResourceData<ParticlesAsset> m_particleAssetData;		// パーティクル
 		ResourceData<ShadingModelTable> m_shadingModelTableData;// シェーディングモデルテーブル
 
@@ -429,7 +431,8 @@ namespace Engine::Resource
 	template<> inline ResourceData<Texture>& ResourceManager::RefData<Texture>() { return m_textureData; }
 	template<> inline ResourceData<Shader>& ResourceManager::RefData<Shader>() { return m_shaderData; }
 	template<> inline ResourceData<ShaderLibrary>& ResourceManager::RefData<ShaderLibrary>() { return m_shaderLibraryData; }
-	template<> inline ResourceData<StateMachineAsset>& ResourceManager::RefData<StateMachineAsset>() { return m_stateMachineAssetData; }
+	template<> inline ResourceData<AnimatorAsset>& ResourceManager::RefData<AnimatorAsset>() { return m_animatorAssetData; }
+	template<> inline ResourceData<ActionStateMachineAsset>& ResourceManager::RefData<ActionStateMachineAsset>() { return m_actionStateMachineAssetData; }
 	template<> inline ResourceData<ParticlesAsset>& ResourceManager::RefData<ParticlesAsset>() { return m_particleAssetData; }
 	template<> inline ResourceData<ShadingModelTable>& ResourceManager::RefData<ShadingModelTable>() { return m_shadingModelTableData; }
 
@@ -441,7 +444,8 @@ namespace Engine::Resource
 	template<> inline const ResourceData<Texture>& ResourceManager::GetData<Texture>() const { return m_textureData; }
 	template<> inline const ResourceData<Shader>& ResourceManager::GetData<Shader>() const { return m_shaderData; }
 	template<> inline const ResourceData<ShaderLibrary>& ResourceManager::GetData<ShaderLibrary>() const { return m_shaderLibraryData; }
-	template<> inline const ResourceData<StateMachineAsset>& ResourceManager::GetData<StateMachineAsset>() const { return m_stateMachineAssetData; }
+	template<> inline const ResourceData<AnimatorAsset>& ResourceManager::GetData<AnimatorAsset>() const { return m_animatorAssetData; }
+	template<> inline const ResourceData<ActionStateMachineAsset>& ResourceManager::GetData<ActionStateMachineAsset>() const { return m_actionStateMachineAssetData; }
 	template<> inline const ResourceData<ParticlesAsset>& ResourceManager::GetData<ParticlesAsset>() const { return m_particleAssetData; }
 	template<> inline const ResourceData<ShadingModelTable>& ResourceManager::GetData<ShadingModelTable>() const { return m_shadingModelTableData; }
 }

@@ -1,4 +1,4 @@
-#include "StateMachineAsset.h"
+#include "AnimatorAsset.h"
 
 #include "../../../Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
 
@@ -10,7 +10,7 @@ namespace Engine::Resource
 	//======================================================================================
 	// ノードのArchive
 	//======================================================================================
-	void AnimStateNode::Archive(Persistence::Archive& a_arch)
+	void AnimatorNode::Archive(Persistence::Archive& a_arch)
 	{
 		// 共通の「つなぎ情報」(名前・座標・各種ID)
 		ArchiveTopology(a_arch);
@@ -24,7 +24,7 @@ namespace Engine::Resource
 	//======================================================================================
 	// 保存
 	//======================================================================================
-	void StateMachineAsset::Save(const std::string& a_savePath)
+	void AnimatorAsset::Save(const std::string& a_savePath)
 	{
 		// 保存直前: 各ノードの再生アニメ参照(playAnimData)からGUIDを取り出しておく
 		auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
@@ -54,19 +54,19 @@ namespace Engine::Resource
 	//======================================================================================
 	// 読み込み
 	//======================================================================================
-	void StateMachineAsset::Load(const std::string& a_fileDir, const std::string& a_fileName)
+	void AnimatorAsset::Load(const std::string& a_fileDir, const std::string& a_fileName)
 	{
 		LoadInternal(a_fileDir, a_fileName);
 	}
 
-	void StateMachineAsset::Load(const std::string& a_filePath)
+	void AnimatorAsset::Load(const std::string& a_filePath)
 	{
 		auto _dir = FileUtility::GetDirFromPath(a_filePath);
 		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
 		LoadInternal(_dir, _fileName);
 	}
 
-	void StateMachineAsset::LoadInternal(const std::string& a_fileDir, const std::string& a_fileName)
+	void AnimatorAsset::LoadInternal(const std::string& a_fileDir, const std::string& a_fileName)
 	{
 		Release();
 
@@ -96,7 +96,7 @@ namespace Engine::Resource
 		m_editor.RequestApplyLoadedPositions();
 	}
 
-	void StateMachineAsset::Release()
+	void AnimatorAsset::Release()
 	{
 		m_graph.Clear();
 		m_editor.DestroyContext();
@@ -108,16 +108,16 @@ namespace Engine::Resource
 	//======================================================================================
 	// エディター
 	//======================================================================================
-	void StateMachineAsset::EditImGui(const Handle<StateMachineAsset>& a_handle)
+	void AnimatorAsset::EditImGui(const Handle<AnimatorAsset>& a_handle)
 	{
 		// 保存(ファイルパスはハンドル→GUID→パスで解決)
 		if (ImGui::Button("Save"))
 		{
-			auto _guid = ResourceManager::Instance().GetCache<StateMachineAsset>(a_handle);
+			auto _guid = ResourceManager::Instance().GetCache<AnimatorAsset>(a_handle);
 			auto _path = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
 			Save(_path);
 			Editor::MainEditor::Instance().AddLog("%s", _path.c_str());
-			Editor::MainEditor::Instance().AddLog(" : Save StateMachinAsset\n");
+			Editor::MainEditor::Instance().AddLog(" : Save AnimatorAsset\n");
 		}
 		ImGui::Separator();
 
@@ -127,7 +127,7 @@ namespace Engine::Resource
 
 		// ノード本体だけ(アニメ選択UI)を注入して汎用ノードエディタを描画
 		m_editor.Draw(m_graph,
-			[this](AnimStateNode& a_node)
+			[this](AnimatorNode& a_node)
 			{
 				if (m_modelHandle == Handle<Model>()) return;
 
@@ -174,7 +174,7 @@ namespace Engine::Resource
 	//======================================================================================
 	// Animator固有UI: 参照モデル選択
 	//======================================================================================
-	void StateMachineAsset::BindModelComb()
+	void AnimatorAsset::BindModelComb()
 	{
 		std::string _viewName = "Selecte...";
 		auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);

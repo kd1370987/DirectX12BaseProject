@@ -5,7 +5,7 @@
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
 
-#include "../../../../../Engine/Resource/Data/StateMachineAsset/StateMachineAsset.h"
+#include "../../../../../Engine/Resource/Data/AnimatorAsset/AnimatorAsset.h"
 
 void StateMachinFixupSystem::Init(Engine::ECS::World& a_world)
 {
@@ -29,7 +29,7 @@ void StateMachinFixupSystem::Init(Engine::ECS::World& a_world)
 				if (_smComp.stateMachineGUID != Engine::DefaultGUID)
 				{
 					// ステートマシンロード
-					_smComp.stateMachineHandle = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::StateMachineAsset>(_smComp.stateMachineGUID);
+					_smComp.stateMachineHandle = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::AnimatorAsset>(_smComp.stateMachineGUID);
 
 					// インスタンス確保
 					 auto& _stateInstancePool = 

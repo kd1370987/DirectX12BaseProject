@@ -4,8 +4,12 @@ namespace Engine::Editor
 {
 	AssetDataBasePanel::AssetDataBasePanel()
 	{
-		m_assetCreateFuncs["StateMachinAsset"] = [](const std::string& path, const std::string& name) {
-			Resource::StateMachineAssetIO::Create(path, name);
+		m_assetCreateFuncs["AnimatorAsset"] = [](const std::string& path, const std::string& name) {
+			Resource::AnimatorAssetIO::Create(path, name);
+			};
+
+		m_assetCreateFuncs["ActionStateMachineAsset"] = [](const std::string& path, const std::string& name) {
+			Resource::ActionStateMachineAssetIO::Create(path, name);
 			};
 
 		m_assetCreateFuncs["ParticlesAsset"] = [](const std::string& path, const std::string& name) {

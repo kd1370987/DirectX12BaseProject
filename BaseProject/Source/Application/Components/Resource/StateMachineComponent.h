@@ -5,14 +5,14 @@
 #include "../../../Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
 namespace Engine::Resource
 {
-	class StateMachineAsset;
+	class AnimatorAsset;
 }
 
 struct StateMachineComponent
 {
 	// 参照する設計図
 	Engine::GUID stateMachineGUID = {};
-	Engine::Handle<Engine::Resource::StateMachineAsset> stateMachineHandle = {};
+	Engine::Handle<Engine::Resource::AnimatorAsset> stateMachineHandle = {};
 
 	UINT prevStateHash = 0;			// 前回のステート
 	UINT currentStateHash = 0;		// 現在のステート
@@ -42,7 +42,7 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 		// ステートマシンの選択
 		if (ImGui::BeginCombo("Change StateMachin", "Select..."))
 		{
-			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("StateMachinAsset"))
+			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("AnimatorAsset"))
 			{
 				// 現在のステートマシンと同じGUIDなら選択中フラグを立てる
 				bool _selected = (_comp.stateMachineGUID == _prop.guid);
@@ -50,7 +50,7 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 				// 選択欄
 				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
 				{
-					_comp.stateMachineHandle = Resource::ResourceManager::Instance().Load<Resource::StateMachineAsset>(_prop.guid);
+					_comp.stateMachineHandle = Resource::ResourceManager::Instance().Load<Resource::AnimatorAsset>(_prop.guid);
 					_comp.stateMachineGUID = _prop.guid;
 				}
 			}

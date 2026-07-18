@@ -139,7 +139,8 @@ namespace Engine::Resource
 #include "Engine/Resource/Data/Model/Model.h"					// モデル
 #include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"		// クアッドポリゴン
 
-#include "Resource/Data/StateMachineAsset/StateMachineAsset.h"
+#include "Resource/Data/AnimatorAsset/AnimatorAsset.h"
+#include "Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 #include "Resource/Data/Particles/ParticlesAsset.h"
 // 
 //-----------------------------------------------------------------------------------------

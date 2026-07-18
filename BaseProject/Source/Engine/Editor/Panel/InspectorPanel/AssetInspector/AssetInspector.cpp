@@ -41,9 +41,13 @@ void Engine::Editor::Inspector::AssetInspector(EditorContext& a_editContext)
 	{
 		AnimationDraw(a_editContext);
 	}
-	else if (_type == "StateMachinAsset")
+	else if (_type == "AnimatorAsset")
 	{
-		StateMachineDraw(a_editContext);
+		AnimatorDraw(a_editContext);
+	}
+	else if (_type == "ActionStateMachineAsset")
+	{
+		ActionStateMachineDraw(a_editContext);
 	}
 	else if (_type == "Texture")
 	{

@@ -403,12 +403,18 @@ namespace Engine
 		_animationExt.typeExt.push_back(".obanim");
 		_animationExt.typeExt.push_back(".ojanim");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_animationExt);
-		// ステートマシン
+		// アニメーター(アニメ用ステートマシン)
 		Resource::TypeExtension _stateExt = {};
-		_stateExt.type = "StateMachinAsset";
+		_stateExt.type = "AnimatorAsset";
 		_stateExt.typeExt.push_back(".obstet");
 		_stateExt.typeExt.push_back(".ojstet");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_stateExt);
+		// ゲームプレイ用ステートマシン
+		Resource::TypeExtension _actionSmExt = {};
+		_actionSmExt.type = "ActionStateMachineAsset";
+		_actionSmExt.typeExt.push_back(".obasm");
+		_actionSmExt.typeExt.push_back(".ojasm");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_actionSmExt);
 		// パーティクル
 		Resource::TypeExtension _particExt = {};
 		_particExt.type = "ParticlesAsset";

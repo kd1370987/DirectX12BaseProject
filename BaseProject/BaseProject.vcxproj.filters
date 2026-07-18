@@ -571,8 +571,26 @@
     <Filter Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem">
       <UniqueIdentifier>{5a6abe91-0d4a-4fd5-9697-07a17896e94b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Data\StateMachineAsset">
+    <Filter Include="Source\Engine\Resource\Data\AnimatorAsset">
       <UniqueIdentifier>{b26cd422-2854-4874-b89e-a3b0983a789a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\ActionStateMachineAsset">
+      <UniqueIdentifier>{3a1f7c52-8e64-4d19-9b27-1f6a2c8b4e05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\ActionStateMachineAsset\IO">
+      <UniqueIdentifier>{9c4e2b18-7a35-4f60-8d91-3e5b7f0a2c46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem">
+      <UniqueIdentifier>{5d8a3f21-6c94-4b07-a1e8-2f7c9b4d6e13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\ActionIntentSystem">
+      <UniqueIdentifier>{7e2b9c46-1f83-4a50-9d27-6b8e3f1a5c94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem">
+      <UniqueIdentifier>{2f6c8d19-4b71-4e32-8a05-9c1e7b3f2d68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem">
+      <UniqueIdentifier>{8b1d4f73-2a96-4c58-9e07-3d6b8f1c5a29}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource\StateGraph">
       <UniqueIdentifier>{7f3a1c68-9d24-4e5b-8a17-2c6b0f9e4d31}</UniqueIdentifier>
@@ -1084,7 +1102,7 @@
     <Filter Include="Source\Engine\Resource\Data\ShadingModelTable\IO">
       <UniqueIdentifier>{9a8cc9d9-7317-4a72-b583-911756edde28}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Data\StateMachineAsset\IO">
+    <Filter Include="Source\Engine\Resource\Data\AnimatorAsset\IO">
       <UniqueIdentifier>{c628b291-b7fd-4b84-a7e0-cb533977b2a8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource\Data\Texture\IO\Importer">
@@ -1395,8 +1413,29 @@
     <ClCompile Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.cpp">
       <Filter>Source\Application\Systems\Init\Awake\HierarchyLinkSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.cpp">
-      <Filter>Source\Engine\Resource\Data\StateMachineAsset</Filter>
+    <ClCompile Include="Source\Engine\Resource\Data\AnimatorAsset\AnimatorAsset.cpp">
+      <Filter>Source\Engine\Resource\Data\AnimatorAsset</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\ActionStateMachineAsset\ActionStateMachineAsset.cpp">
+      <Filter>Source\Engine\Resource\Data\ActionStateMachineAsset</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\ActionStateMachineAsset\IO\ActionStateMachineAssetIO.cpp">
+      <Filter>Source\Engine\Resource\Data\ActionStateMachineAsset\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem\ActionStateFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\ActionIntentSystem\ActionIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\ActionIntentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\ActionStateCommitSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\ActionBehaviorSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\StateGraph\StateGraphTypes.cpp">
       <Filter>Source\Engine\Resource\StateGraph</Filter>
@@ -1692,7 +1731,7 @@
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\StateMachineEdit.cpp">
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.cpp">
@@ -1734,8 +1773,8 @@
     <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\IO\ShadingModelTableIO.cpp">
       <Filter>Source\Engine\Resource\Data\ShadingModelTable\IO</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\StateMachineAsset\IO\StateMachineAssetIO.cpp">
-      <Filter>Source\Engine\Resource\Data\StateMachineAsset\IO</Filter>
+    <ClCompile Include="Source\Engine\Resource\Data\AnimatorAsset\IO\AnimatorAssetIO.cpp">
+      <Filter>Source\Engine\Resource\Data\AnimatorAsset\IO</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Importer\TextureImporter.cpp">
       <Filter>Source\Engine\Resource\Data\Texture\IO\Importer</Filter>
@@ -2225,8 +2264,32 @@
     <ClInclude Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.h">
       <Filter>Source\Application\Systems\Init\Awake\HierarchyLinkSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\StateMachineAsset.h">
-      <Filter>Source\Engine\Resource\Data\StateMachineAsset</Filter>
+    <ClInclude Include="Source\Engine\Resource\Data\AnimatorAsset\AnimatorAsset.h">
+      <Filter>Source\Engine\Resource\Data\AnimatorAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\ActionStateMachineAsset\ActionStateMachineAsset.h">
+      <Filter>Source\Engine\Resource\Data\ActionStateMachineAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\ActionStateMachineAsset\IO\ActionStateMachineAssetIO.h">
+      <Filter>Source\Engine\Resource\Data\ActionStateMachineAsset\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\ActionStateComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem\ActionStateFixupSystem.h">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\ActionIntentSystem\ActionIntentSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\ActionIntentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\ActionStateCommitSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\ActionBehaviorSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraphTypes.h">
       <Filter>Source\Engine\Resource\StateGraph</Filter>
@@ -2669,7 +2732,7 @@
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\StateMachineEdit.h">
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.h">
@@ -2717,8 +2780,8 @@
     <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\IO\ShadingModelTableIO.h">
       <Filter>Source\Engine\Resource\Data\ShadingModelTable\IO</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\StateMachineAsset\IO\StateMachineAssetIO.h">
-      <Filter>Source\Engine\Resource\Data\StateMachineAsset\IO</Filter>
+    <ClInclude Include="Source\Engine\Resource\Data\AnimatorAsset\IO\AnimatorAssetIO.h">
+      <Filter>Source\Engine\Resource\Data\AnimatorAsset\IO</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Importer\TextureImporter.h">
       <Filter>Source\Engine\Resource\Data\Texture\IO\Importer</Filter>

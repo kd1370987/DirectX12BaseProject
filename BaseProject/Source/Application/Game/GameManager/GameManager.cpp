@@ -85,6 +85,11 @@
 #include "Application/Systems/Init/PostDeserialize/StateMachinFixupSystem/StateMachinFixupSystem.h"
 #include "Application/Systems/Update/Update/StateMachinComitSystem/StateMachinComitSystem.h"
 #include "Application/Systems/Update/PreUpdate/PlayerIntentSystem/PlayerIntentSystem.h"
+#include "Application/Components/Resource/ActionStateComponent.h"
+#include "Application/Systems/Init/PostDeserialize/ActionStateFixupSystem/ActionStateFixupSystem.h"
+#include "Application/Systems/Update/PreUpdate/ActionIntentSystem/ActionIntentSystem.h"
+#include "Application/Systems/Update/Update/ActionStateCommitSystem/ActionStateCommitSystem.h"
+#include "Application/Systems/Update/Update/ActionBehaviorSystem/ActionBehaviorSystem.h"
 #include "Application/Systems/Update/Animation/AnimationStateSystem/AnimationStateSystem.h"
 #include "Application/Systems/Update/Update/Move/RobotBoostSystem/RobotBoostSystem.h"
 #include "Application/Systems/Draw/Draw/EmittParticlesSystem/EmittParticlesSystem.h"
@@ -161,6 +166,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<HierarchyComponent>("HierarchyComponent");
 				a_pWorld->RegisterComponent<ExoskeletonAttachmentComponent>("ExoskeletonAttachmentComponent");
 				a_pWorld->RegisterComponent<StateMachineComponent>("StateMachineComponent");
+				a_pWorld->RegisterComponent<ActionStateComponent>("ActionStateComponent");
 				a_pWorld->RegisterComponent<MoveIntentComponent>("MoveIntentComponent");
 				a_pWorld->RegisterComponent<PreviousWorldMatrixComponent>("PreviousWorldMatrixComponent");
 				a_pWorld->RegisterComponent<BoostComponent>("BoostComponent");
@@ -171,12 +177,15 @@ namespace App::Game
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
 				a_pWorld->RegisterSystem<GUIDFixupSystem>();
 				a_pWorld->RegisterSystem<StateMachinFixupSystem>();
+				a_pWorld->RegisterSystem<ActionStateFixupSystem>();
 				a_pWorld->RegisterSystem<ParticleFixupSystem>();
 				a_pWorld->RegisterSystem<FollowTargetLinkSystem>();
 				a_pWorld->RegisterSystem<AttachmentLinkSystem>();
 				a_pWorld->RegisterSystem<HierarchyLinkSystem>();
 				a_pWorld->RegisterSystem<PlayerIntentSystem>();
+				a_pWorld->RegisterSystem<ActionIntentSystem>();
 				a_pWorld->RegisterSystem<StateMachinComitSystem>();
+				a_pWorld->RegisterSystem<ActionStateCommitSystem>();
 				a_pWorld->RegisterSystem<RegisterCollisionWorldSystem>();
 				a_pWorld->RegisterSystem<CameraStartSystem>();
 				a_pWorld->RegisterSystem<AnimationModelStartSystem>();
@@ -191,6 +200,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<SkinningSystem>();
 				a_pWorld->RegisterSystem<PositionIntegrationSystem>();
 				a_pWorld->RegisterSystem<CharactorMovementSystem>();
+				a_pWorld->RegisterSystem<ActionBehaviorSystem>();
 				a_pWorld->RegisterSystem<TPSSystem>();
 				a_pWorld->RegisterSystem<CalcMatrixSystem>();
 				a_pWorld->RegisterSystem<RobotBoostSystem>();
@@ -213,6 +223,7 @@ namespace App::Game
 
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
 				a_pWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 				a_pWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();

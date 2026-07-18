@@ -1,4 +1,4 @@
-#include "StateGraphTypes.h"
+﻿#include "StateGraphTypes.h"
 
 namespace Engine::StateGraph
 {
@@ -79,8 +79,7 @@ namespace Engine::StateGraph
 
 		for (const auto& _arrow : _it->second)
 		{
-			// TODO: 条件なし矢印は現状スキップ(既存挙動を踏襲)。
-			//       「アニメ終了で無条件に戻る」等を入れるなら、ここを見直す。
+			// 条件なし矢印は現状スキップ
 			if (_arrow.conditions.empty())
 			{
 				continue;

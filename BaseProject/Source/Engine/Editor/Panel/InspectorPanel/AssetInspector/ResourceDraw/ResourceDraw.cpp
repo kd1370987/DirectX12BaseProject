@@ -8,7 +8,8 @@
 #include "ShaderEdit.h"
 #include "ShadingModelTableEdit.h"
 #include "ParticleEdit.h"
-#include "StateMachineEdit.h"
+#include "AnimatorEdit.h"
+#include "ActionStateMachineEdit.h"
 
 #include "../../../../../Resource/Data/Model/IO/ModelConverter/ModelConverter.h"
 
@@ -89,19 +90,34 @@ namespace Engine::Editor::Inspector
 	}
 
 	//-----------------------------------------------------------------------------------------
-	// ステートマシン
+	// アニメーター(アニメ用ステートマシン)
 	//-----------------------------------------------------------------------------------------
-	void StateMachineDraw(EditorContext& a_editContext)
+	void AnimatorDraw(EditorContext& a_editContext)
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pStateMachine = ResolveAsset<Resource::StateMachineAsset>(_guid);
-		if (!_pStateMachine) { return; }
+		auto* _pAnimator = ResolveAsset<Resource::AnimatorAsset>(_guid);
+		if (!_pAnimator) { return; }
 
 		// ノードエディタ側がハンドルを必要とするため取得しておく
-		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::StateMachineAsset>(_guid);
+		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::AnimatorAsset>(_guid);
 
-		StateMachineEdit(a_editContext, _pStateMachine, _handle);
+		AnimatorEdit(a_editContext, _pAnimator, _handle);
+	}
+
+	//-----------------------------------------------------------------------------------------
+	// ゲームプレイ用ステートマシン
+	//-----------------------------------------------------------------------------------------
+	void ActionStateMachineDraw(EditorContext& a_editContext)
+	{
+		auto _guid = a_editContext.pAssetProp->guid;
+
+		auto* _pAsset = ResolveAsset<Resource::ActionStateMachineAsset>(_guid);
+		if (!_pAsset) { return; }
+
+		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::ActionStateMachineAsset>(_guid);
+
+		ActionStateMachineEdit(a_editContext, _pAsset, _handle);
 	}
 
 	//-----------------------------------------------------------------------------------------
