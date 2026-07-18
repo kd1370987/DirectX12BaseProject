@@ -1,4 +1,4 @@
-#include "ActionStateFixupSystem.h"
+﻿#include "ActionStateFixupSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -32,10 +32,10 @@ void ActionStateFixupSystem::Init(Engine::ECS::World& a_world)
 						Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::ActionStateMachineAsset>(_comp.actionGUID);
 
 					// 実行時インスタンス確保
-					auto& _pool =
-						a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
+					auto& _pool = a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
 					Engine::Resource::ActionStateInstance _instance = {};
 					_comp.instanceHandle = _pool.Add(std::move(_instance));
+
 				}
 			}
 		}
