@@ -8,14 +8,18 @@
 // ルートパラメターズ
 #include "../../../Common/CB/CBCamera.hlsli"
 #include "../../../Common/RootParameters/AmbientData.hlsli"
+#include "../../../Common/CB/CBLightingOption.hlsli"
 
 // ルートシグネチャデータ
+// ※末尾に追加することで、既存のルートパラメータ番号(SRVテーブル=2, UAVテーブル=3)を
+//   ずらさずに、ライティング調整用CBをルートパラメータ番号4として足している。
 #define DEFERRED_ROOT_SIG \
 "RootFlags(0)," \
 RS_CAMERA_CB "," \
 RS_AMBIENT_CB "," \
 "DescriptorTable(SRV(t0, numDescriptors=7)), " \
 "DescriptorTable(UAV(u0, numDescriptors=1)), " \
+RS_LIGHTING_OPTION_CB "," \
 RS_STATIC_SAMPLER
 
 
@@ -77,8 +81,9 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
 
 	//float3 _specular = _albedo; // スペキュラはアルベドと同じにしておく（今回はスペキュラを考慮しないため）
+	// 非金属の基本反射率(F0)はオプションから調整可能にする
 	float3 _F0 = lerp(
-		float3(0.04, 0.04, 0.04),
+		g_lightingOp.dielectricF0.xxx,
 		_albedo,
 		_metallic
 	);
@@ -123,11 +128,11 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	//_spec *= lerp(float3(1.0f, 1.0f, 1.0f), _specular, _metallic);
 	_spec *= lerp(float3(1.0f, 1.0f, 1.0f), _F0, _metallic);
 
-	// 滑らかさを考慮した拡散反射を計算
-	_outColor += _diffuse * (1.0f) + _spec;
+	// 直接光(拡散+鏡面)の強さをオプションから調整可能にする
+	_outColor += (_diffuse + _spec) * g_lightingOp.directionalIntensity;
 
-	// アンビエント
-	_outColor += _rayGI * _albedo;
-	
+	// アンビエント(GI/間接光) : 強さをオプションから調整可能にする
+	_outColor += _rayGI * _albedo * g_lightingOp.giIntensity;
+
 	g_output[_centerCoord] = float4(_outColor, 1);
 }

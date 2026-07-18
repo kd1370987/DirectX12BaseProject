@@ -6,6 +6,7 @@
 #include "GraphicsOptions/GIOptions.h"
 #include "GraphicsOptions/WindowOption.h"
 #include "GraphicsOptions/RenderingOption.h"
+#include "GraphicsOptions/LightingOption.h"
 
 namespace Engine::Option
 {
@@ -36,6 +37,10 @@ namespace Engine::Option
 		const GraphicsOptions::RenderingOption& GetRenderingOption() const { return m_renderingOption; }
 		GraphicsOptions::RenderingOption& RefRenderingOption() { return m_renderingOption; }
 
+		// ライティング設定(シェーダーへ送る調整値)
+		const GraphicsOptions::LightingOption& GetLightingOption() const { return m_lightingOption; }
+		GraphicsOptions::LightingOption& RefLightingOption() { return m_lightingOption; }
+
 	private:
 
 		void Archive(Persistence::Archive& a_ar);
@@ -46,6 +51,7 @@ namespace Engine::Option
 		GraphicsOptions::GIOption m_giOptions = {};
 		GraphicsOptions::WindowOption m_windowOption = {};
 		GraphicsOptions::RenderingOption m_renderingOption = {};
+		GraphicsOptions::LightingOption m_lightingOption = {};
 
 		// ループ処理用
 		std::vector<IOption*> m_pOptionList;

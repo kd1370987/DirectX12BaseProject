@@ -2567,6 +2567,9 @@
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\RenderingOption.h">
       <Filter>Source\Engine\Option\GraphicsOptions</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\LightingOption.h">
+      <Filter>Source\Engine\Option\GraphicsOptions</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer</Filter>
     </ClInclude>

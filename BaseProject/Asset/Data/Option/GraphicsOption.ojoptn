@@ -7,6 +7,11 @@
         "phiDepth": 0.009999999776482582,
         "phiNormal": 32.0
     },
+    "LightingOption": {
+        "dielectricF0": 0.04500000178813934,
+        "directionalIntensity": 1.0,
+        "giIntensity": 1.0
+    },
     "RenderingOption": {
         "defaultShadingModelTable": "546d0caa-4043-4f2d-b193-f6ea75299074",
         "isZPre": true

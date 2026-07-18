@@ -63,6 +63,23 @@ namespace Engine::Graphics
 			// アンビエントカラー
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(_pCmd, 1, a_pGE->GetAmbientData());
 
+			// ライティング調整値(オプション → 定数バッファ)
+			// HLSL の LightingOptionData と同じレイアウトで詰める。
+			// ルートパラメータ番号4 = DEFERRED_ROOT_SIG 末尾に足した RS_LIGHTING_OPTION_CB。
+			struct LightingOptionCB
+			{
+				float giIntensity;
+				float directionalIntensity;
+				float dielectricF0;
+				float pad;
+			};
+			const auto& _lightOp = Option::OptionManager::GetInstance().GetLightingOption();
+			LightingOptionCB _lightCB = {};
+			_lightCB.giIntensity          = _lightOp.giIntensity;
+			_lightCB.directionalIntensity = _lightOp.directionalIntensity;
+			_lightCB.dielectricF0         = _lightOp.dielectricF0;
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 4, _lightCB);
+
 			// 実行
 			a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHegiht / 8, 1);
 		};

@@ -11,6 +11,7 @@ namespace Engine::Option
 		m_pOptionList.push_back(&m_giOptions);
 		m_pOptionList.push_back(&m_windowOption);
 		m_pOptionList.push_back(&m_renderingOption);
+		m_pOptionList.push_back(&m_lightingOption);
 	}
 	void OptionManager::Serialize()
 	{
@@ -60,6 +61,11 @@ namespace Engine::Option
 		if (a_ar.BeginGroup("GIOption"))
 		{
 			m_giOptions.Archive(a_ar);
+			a_ar.EndGroup();
+		}
+		if (a_ar.BeginGroup("LightingOption"))
+		{
+			m_lightingOption.Archive(a_ar);
 			a_ar.EndGroup();
 		}
 	}
