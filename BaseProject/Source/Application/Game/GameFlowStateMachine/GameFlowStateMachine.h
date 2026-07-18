@@ -1,15 +1,22 @@
-﻿#pragma once
+#pragma once
 
 #include "GameFlowStateStruct/GameFlowStateStruct.h"
+#include "Engine/Resource/StateGraph/StateGraph.h"
+#include "Engine/Editor/Widget/StateGraphEditor/StateGraphEditor.h"
 
 namespace App::Game
 {
 	// =========================================================
 	// ゲームフロー管理マシン
+	//
+	// 設計図データ・遷移ロジックは Engine::StateGraph の再利用コアに委譲し、
+	// このクラスは「シーン遷移」というGameFlow固有の意味付けだけを担当する。
 	// =========================================================
 	class GameFlowStateMachine
 	{
 	public:
+		using Graph = Engine::StateGraph::StateGraph<FlowNode>;
+
 		GameFlowStateMachine() = default;
 		~GameFlowStateMachine() = default;
 
@@ -22,19 +29,16 @@ namespace App::Game
 		void EditImGui();
 
 		// ノード情報取得
-		UINT GetStateHash(const std::string& a_stateName) const;
-		std::string_view GetNodeName(const UINT& a_hash) const;
-		const FlowStateNode* GetStateNode(UINT a_stateHash) const;
-
+		UINT GetStateHash(const std::string& a_stateName) const { return m_graph.GetStateHash(a_stateName); }
+		std::string_view GetNodeName(const UINT& a_hash) const { return m_graph.GetNodeName(a_hash); }
+		const FlowNode* GetStateNode(UINT a_stateHash) const { return m_graph.GetStateNode(a_stateHash); }
 
 		// ---------------------------------------------------------
 		// ランタイム用 API
 		// ---------------------------------------------------------
 
-		/// <summary>
-		/// ゲームの開始時に呼ぶ。初期化も行う
-		/// </summary>
-		/// <returns>初めのシーンのGUIDが返る</returns>
+		/// <summary>ゲーム開始時に呼ぶ。初期化も行う</summary>
+		/// <returns>初めのシーンのGUID</returns>
 		Engine::GUID Start();
 
 		// パラメータ操作
@@ -43,9 +47,7 @@ namespace App::Game
 		void SetInt(const std::string& a_name, int a_value);
 		void SetFloat(const std::string& a_name, float a_value);
 
-		/// <summary>
-		/// 現在の状態とパラメーターから遷移を評価する
-		/// </summary>
+		/// <summary>現在の状態とパラメーターから遷移を評価する</summary>
 		/// <param name="out_nextSceneGUID">遷移した場合GUIDが更新される</param>
 		/// <returns>遷移した場合 true</returns>
 		bool Evaluate(Engine::GUID& out_nextSceneGUID);
@@ -53,45 +55,26 @@ namespace App::Game
 		// 現在のステートハッシュを取得
 		UINT GetCurrentStateHash() const { return m_currentStateHash; }
 
-		// ---------------------------------------------------------
-
-		int GenerateID() { return ++m_idCounter; }
-
 	private:
-
 		// エディタ用内部関数
-		void FarstSceneSetting();					// 初期シーン設定
-		void AddNode();								// ノード追加
-		void RessetButton();						// クリア用ボタン
-		void CreateArrow();							// 矢印作成
-		void DrawNodeEditor();						// ノード描画
-		void ArrowPopUp();							// 矢印のポップアップウィンドウ
-		void EditParameters();						// パラメーター編集
-		void EditNode(FlowStateNode& a_node);		// ノード編集
+		void FarstSceneSetting();	// 初期シーン設定(GameFlow固有UI)
 
 	private:
-
 		// ---- 識別用データ ----
 		std::string m_filePath = "";
 
-		// --- アセットデータ（設計図） ---
-		Engine::GUID m_farstSceneGUID = {};
-		UINT m_defaultStartHash = 0;
-		std::unordered_map<UINT, FlowStateNode> m_stateNodeMap = {};
-		std::unordered_map<UINT, std::vector<FlowTransitionArrow>> m_transitionArrowMap = {};
-		std::unordered_map<UINT, FlowStateParameter> m_parameters = {};
+		// --- 設計図(再利用コア) ---
+		Graph m_graph;
 
-		// 編集用データ
-		int m_editingLinkID = 0;
-		int m_idCounter = 0;
+		// --- 編集UI(汎用ウィジェット) ---
+		Engine::Editor::StateGraphEditor<FlowNode> m_editor;
+
+		// --- GameFlow固有の設定 ---
+		Engine::GUID m_farstSceneGUID = {};
 		bool m_isFarstScenePopup = false;
 
-		// --- ランタイムデータ（実行状態） ---
+		// --- ランタイムデータ(実行状態) ---
 		UINT m_currentStateHash = 0;
-		std::unordered_map<UINT, float> m_currentFloatParams;
-		std::unordered_map<UINT, int> m_currentIntParams;
-		std::unordered_map<UINT, bool> m_currentBoolParams;
-
-		ImNodesEditorContext* m_context; // 専用のコンテキスト
+		Engine::StateGraph::ParamSet m_params;
 	};
 }
