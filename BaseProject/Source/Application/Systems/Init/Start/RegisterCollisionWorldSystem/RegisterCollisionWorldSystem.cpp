@@ -74,7 +74,6 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				// コリジョンワールドに登録
 				Engine::Collision::CollisionInstance _inst = {};
 				_inst.entity = a_pChunk->entityData[_i];
-				//_inst.modelHandle = _modelComp.handle;
 				_inst.collShape.type = Engine::Collision::EShapeType::Mesh;
 				_inst.collShape.modelHandle = _modelComp.handle;
 

@@ -27,6 +27,25 @@ namespace Engine::Collision
 		// レイ判定
 		bool Raycast(const RayInfo& a_ray,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
 
+		// ---- オーバーラップ系クエリ（触れているエンティティを1つ返す） ----
+		// いずれもワールド空間のプリミティブを渡す。a_myID は自分自身を除外するためのID。
+
+		// 球判定
+		bool VsSphere(const SphereInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
+
+		// カプセル判定
+		bool VsCapsule(const CapsuleInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
+
+		// ボックス(AABB)判定
+		bool VsBox(const BoxInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
+
+		// OBB判定
+		bool VsOBB(const OBBInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
+
+		// フラスタム判定
+		bool VsFrustum(const FrustumInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
+
+
 	private:
 
 		// 静的データ管理

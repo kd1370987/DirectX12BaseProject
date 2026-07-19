@@ -51,6 +51,7 @@
 #include "Application/Components/Charactor/Robot/BoostComponent.h"
 #include "Application/Components/Resource/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
+#include "../../Components/Tag/EnemyTag.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -134,6 +135,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<StartTag>("StartTag");
 				a_pWorld->RegisterComponent<ActiveTag>("ActiveTag");
 				a_pWorld->RegisterComponent<ReleaseTag>("ReleaseTag");
+				a_pWorld->RegisterComponent<EnemyTag>("EnemyTag");
 
 				a_pWorld->RegisterComponent<RayTag>("RayTag");
 

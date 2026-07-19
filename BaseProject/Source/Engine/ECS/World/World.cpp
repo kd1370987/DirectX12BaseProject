@@ -172,9 +172,8 @@ namespace Engine::ECS
 		for (ComponentTypeID _i = 0; _i < _sig.size(); ++_i)
 		{
 			if (!_sig.test(_i)) continue;
-
 			uint8_t* _data = NRefData(_entity, _i);
-			
+			GetCompFunc(_i).construct(_data);
 		}
 
 		return _entity;

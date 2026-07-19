@@ -437,8 +437,8 @@ namespace Engine::Graphics
 			_instanceData.boneCount = 0;
 
 			SubSetData _subSetData = {};
-			_subSetData.baseColorScale = a_albedScale;
-			_subSetData.emissiveColorScale = a_emissiveScale;
+			_subSetData.baseColorScale = _pMaterial->baseColor * a_albedScale;
+			_subSetData.emissiveColorScale = _pMaterial->emissive * a_emissiveScale;
 			_subSetData.metallic = _pMaterial->metallic;
 			_subSetData.roughness = _pMaterial->roughness;
 
@@ -479,8 +479,8 @@ namespace Engine::Graphics
 					_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
 
 					MeshMaterial _meshMaterial = {};
-					_meshMaterial.baseColor = a_albedScale;
-					_meshMaterial.emissive = a_emissiveScale;
+					_meshMaterial.baseColor = _pMaterial->baseColor * a_albedScale;
+					_meshMaterial.emissive = _pMaterial->emissive * a_emissiveScale;
 					_meshMaterial.metallic = _pMaterial->metallic;
 					_meshMaterial.roughness = _pMaterial->roughness;
 					_meshMaterial.albedIndex = GetSRVIndexFromTextureHandle(_pMaterial->baseColorTex);
@@ -672,8 +672,8 @@ namespace Engine::Graphics
 					_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
 
 					MeshMaterial _meshMaterial = {};
-					_meshMaterial.baseColor = a_albedScale;
-					_meshMaterial.emissive = a_emissiveScale;
+					_meshMaterial.baseColor = _pMaterial->baseColor * a_albedScale;
+					_meshMaterial.emissive = _pMaterial->emissive * a_emissiveScale;
 					_meshMaterial.metallic = _pMaterial->metallic;
 					_meshMaterial.roughness = _pMaterial->roughness;
 					_meshMaterial.albedIndex = GetSRVIndexFromTextureHandle(_pMaterial->baseColorTex);

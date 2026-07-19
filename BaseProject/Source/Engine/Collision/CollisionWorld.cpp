@@ -282,4 +282,118 @@ namespace Engine::Collision
 
 		return _isHit;
 	}
+	namespace
+	{
+		// 静的TLASをオーバーラップ走査する共通処理
+		// TLASノードのAABBはワールド空間、クエリのプリミティブもワールド空間なので
+		// NarrowPhase::TestAABB でそのまま枝刈りできる。
+		// 最初に触れたエンティティを返す（索敵・トリガー用途を想定）。
+		template<typename TInfo>
+		bool QueryStaticOverlap(
+			const std::vector<Resource::BVHNode>& a_nodes,
+			int a_rootIndex,
+			const std::vector<int>& a_indexVec,
+			const std::vector<CollisionInstance>& a_instVec,
+			const TInfo& a_worldInfo,
+			const ECS::Entity& a_myID,
+			bool(*a_modelFunc)(const TInfo&, const Resource::Model*, const DirectX::XMFLOAT4X4&, Result&),
+			Result& a_outResult)
+		{
+			if (a_nodes.empty()) return false;
+
+			int _nodeStack[64];
+			int _stackTop = 0;
+			_nodeStack[_stackTop++] = a_rootIndex;
+
+			while (_stackTop > 0)
+			{
+				const auto& _node = a_nodes[_nodeStack[--_stackTop]];
+
+				// TLASノード（ワールドAABB）とプリミティブの交差
+				float _boxDist = 0.0f;
+				if (!NarrowPhase::TestAABB(a_worldInfo, _node.box, _boxDist)) continue;
+
+				if (_node.IsLeaf())
+				{
+					for (int _i = 0; _i < _node.dataCount; ++_i)
+					{
+						int _instIdx = a_indexVec[_node.dataStart + _i];
+						const auto& _instance = a_instVec[_instIdx];
+
+						// 同じエンティティなら無視
+						if (a_myID == _instance.entity) continue;
+
+						// 現状の登録はMeshのみ（Sphere/Box等の登録は今後対応）
+						if (_instance.collShape.type != EShapeType::Mesh) continue;
+
+						auto* _pModel = Resource::ResourceManager::Instance().Get(_instance.collShape.modelHandle);
+						if (!_pModel)
+						{
+							ENGINE_LOG("モデルデータが存在していません");
+							continue;
+						}
+
+						Result _localResult = {};
+						if (a_modelFunc(a_worldInfo, _pModel, _instance.worldMat, _localResult))
+						{
+							a_outResult = _localResult;
+							a_outResult.hitEntity = _instance.entity;
+							a_outResult.isHit = true;
+							return true;	// 最初に触れたエンティティで確定
+						}
+					}
+				}
+				else
+				{
+					if (_stackTop < 62)
+					{
+						_nodeStack[_stackTop++] = _node.leftChild;
+						_nodeStack[_stackTop++] = _node.rightChild;
+					}
+				}
+			}
+			return false;
+		}
+	}
+
+	bool CollisionWorld::VsSphere(const SphereInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
+	{
+		return QueryStaticOverlap(
+			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult);
+	}
+
+	bool CollisionWorld::VsCapsule(const CapsuleInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
+	{
+		return QueryStaticOverlap(
+			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult);
+	}
+
+	bool CollisionWorld::VsBox(const BoxInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
+	{
+		// 軸並行BoxはOBB（回転なし）に変換してOBB経路を通す
+		OBBInfo _obb;
+		_obb.center = a_info.center;
+		_obb.extents = a_info.extents;
+		_obb.orientation = DXSM::Quaternion::Identity;
+
+		return QueryStaticOverlap(
+			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			_obb, a_myID, &Engine::Collision::OBB::VSModel, a_outResult);
+	}
+
+	bool CollisionWorld::VsOBB(const OBBInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
+	{
+		return QueryStaticOverlap(
+			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			a_info, a_myID, &Engine::Collision::OBB::VSModel, a_outResult);
+	}
+
+	bool CollisionWorld::VsFrustum(const FrustumInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
+	{
+		return QueryStaticOverlap(
+			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			a_info, a_myID, &Engine::Collision::Frustum::VSModel, a_outResult);
+	}
 }

@@ -11,10 +11,19 @@ namespace Engine::Collision
 	{
 	public:
 
-		// プリミティブ vs メッシュ
+		// プリミティブ vs メッシュ（レイのような貫通・距離付き判定）
 		template<typename TPrimitive>
 		static bool Traverse(
 			const TPrimitive& a_localPrimitive,					// 判定したいプリミティブ
+			const Resource::CollisionMesh& a_collisionMesh,		// 判定するメッシュ
+			Result& a_outLocalResult							// 返ってくる結果
+		);
+
+		// プリミティブ vs メッシュ（オーバーラップ判定 : 触れているかどうかだけ）
+		// 距離での枝刈りが無いため、最初に触れた三角形で早期リターンする
+		template<typename TPrimitive>
+		static bool TraverseOverlap(
+			const TPrimitive& a_localPrimitive,					// 判定したいプリミティブ（メッシュローカル空間）
 			const Resource::CollisionMesh& a_collisionMesh,		// 判定するメッシュ
 			Result& a_outLocalResult							// 返ってくる結果
 		);
@@ -101,5 +110,67 @@ namespace Engine::Collision
 			}
 		}
 		return _isHit;
+	}
+
+	template<typename TPrimitive>
+	inline bool BVHTraverser::TraverseOverlap(
+		const TPrimitive& a_localPrimitive,
+		const Resource::CollisionMesh& a_collisionMesh,
+		Result& a_outLocalResult)
+	{
+		// 固定長配列による簡易スタック
+		int _nodeStack[64];
+		int _stackTop = 0;
+
+		// ルートノードをスタックに積む
+		_nodeStack[_stackTop++] = a_collisionMesh.rootNodeIndex;
+
+		while (_stackTop > 0)
+		{
+			int _currentNodeIdx = _nodeStack[--_stackTop];
+			const auto& _node = a_collisionMesh.nodeVec[_currentNodeIdx];
+			float _dummyDist = 0.0f;
+
+			// NarrowPhaseでプリミティブ vs ノードAABB
+			if (!NarrowPhase::TestAABB(a_localPrimitive, _node.box, _dummyDist)) continue;
+
+			if (_node.IsLeaf())
+			{
+				// 葉ノードの三角形と判定
+				for (int _i = 0; _i < _node.dataCount; ++_i)
+				{
+					int _triIdx = a_collisionMesh.triangleIndiccesVec[_node.dataStart + _i];
+					const auto& _triangle = a_collisionMesh.triangleVec[_triIdx];
+
+					DirectX::XMVECTOR _v0 = DirectX::XMLoadFloat3(&_triangle.v[0]);
+					DirectX::XMVECTOR _v1 = DirectX::XMLoadFloat3(&_triangle.v[1]);
+					DirectX::XMVECTOR _v2 = DirectX::XMLoadFloat3(&_triangle.v[2]);
+
+					float _dummyTriDist = 0.0f;
+					if (NarrowPhase::TestTriangle(a_localPrimitive, _v0, _v1, _v2, _dummyTriDist))
+					{
+						// 触れていれば十分なので最初のヒットで返す
+						a_outLocalResult.isHit = true;
+						a_outLocalResult.hitDistance = 0.0f;
+
+						// 接触点の目安として当たった三角形の重心を返す
+						DirectX::XMVECTOR _center = DirectX::XMVectorScale(
+							DirectX::XMVectorAdd(DirectX::XMVectorAdd(_v0, _v1), _v2), 1.0f / 3.0f);
+						DirectX::XMStoreFloat3(&a_outLocalResult.hitPos, _center);
+						return true;
+					}
+				}
+			}
+			else
+			{
+				// 子ノードをスタックへ戻す
+				if (_stackTop < 62)
+				{
+					_nodeStack[_stackTop++] = _node.leftChild;
+					_nodeStack[_stackTop++] = _node.rightChild;
+				}
+			}
+		}
+		return false;
 	}
 }

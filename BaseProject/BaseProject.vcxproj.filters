@@ -412,9 +412,6 @@
     <Filter Include="Source\Engine\Persistence">
       <UniqueIdentifier>{61c624a0-fa3b-460f-b306-fffd8f83055e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Persistence\PersistenceManager">
-      <UniqueIdentifier>{ef9c23d8-4460-4cac-a96a-e47197bdb98b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Persistence\Archive">
       <UniqueIdentifier>{3f6d0fca-dfce-423f-83bb-e30947f4c196}</UniqueIdentifier>
     </Filter>
@@ -594,9 +591,6 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\StateGraph">
       <UniqueIdentifier>{7f3a1c68-9d24-4e5b-8a17-2c6b0f9e4d31}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Widget\StateGraphEditor">
-      <UniqueIdentifier>{2b8e5d94-6c31-4a7f-9e02-8d51a3f7b6c4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Components\Intent">
       <UniqueIdentifier>{7b22f186-76d7-4035-91dc-e9f58ab4dd2c}</UniqueIdentifier>
@@ -1316,9 +1310,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\GUID\GUID.cpp">
       <Filter>Source\Engine\Utility\GUID</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.cpp">
-      <Filter>Source\Engine\Persistence\PersistenceManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Persistence\EntitySerializeField.cpp">
       <Filter>Source\Engine\ECS\Persistence</Filter>
@@ -2123,9 +2114,6 @@
     <ClInclude Include="Source\Engine\Utility\GUID\GUID.h">
       <Filter>Source\Engine\Utility\GUID</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.h">
-      <Filter>Source\Engine\Persistence\PersistenceManager</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h">
       <Filter>Source\Application\Components\Hierarchy</Filter>
     </ClInclude>
@@ -2296,9 +2284,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraph.h">
       <Filter>Source\Engine\Resource\StateGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h">
-      <Filter>Source\Engine\Editor\Widget\StateGraphEditor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\StateMachineComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>
@@ -2791,6 +2776,10 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.h">
       <Filter>Source\Engine\Resource\Data\Texture\IO\Creater</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h" />
+    <ClInclude Include="Source\Application\Components\Tag\EnemyTag.h">
+      <Filter>Source\Application\Components\Tag</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

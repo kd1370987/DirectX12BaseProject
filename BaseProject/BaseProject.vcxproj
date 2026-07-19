@@ -391,7 +391,6 @@
     <ClCompile Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp" />
     <ClCompile Include="Source\Engine\Particle\ParticleBufferManager.cpp" />
     <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp" />
-    <ClCompile Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\BLAS\BLAS.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.cpp" />
@@ -499,6 +498,7 @@
     <ClInclude Include="Source\Application\Components\Tag\ActiveCameraTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\EnemyTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\PlayerControllTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\RenderTag\RayTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ActiveTag.h" />
@@ -715,7 +715,6 @@
     <ClInclude Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.h" />
     <ClInclude Include="Source\Engine\Particle\ParticleBufferManager.h" />
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h" />
-    <ClInclude Include="Source\Engine\Persistence\PersistenceManager\PersistenceManager.h" />
     <ClInclude Include="Source\Engine\Raytracing\BLAS\BLAS.h" />
     <ClInclude Include="Source\Engine\Raytracing\Common\Common.h" />
     <ClInclude Include="Source\Engine\Raytracing\Common\RaytracingInstance.h" />

@@ -1,4 +1,7 @@
 ﻿#include "TestTriangle.h"
+
+#include "../PrimitiveHelper/PrimitiveHelper.h"
+
 namespace Engine::Collision::NarrowPhase
 {
 	bool Engine::Collision::NarrowPhase::TestTriangle(
@@ -77,5 +80,58 @@ namespace Engine::Collision::NarrowPhase
 		// 交点との距離を引数に返す
 		a_outDist = _t;
 		return true;
+	}
+
+	bool TestTriangle(
+		const SphereInfo& a_info,
+		const DirectX::XMVECTOR& a_v0,
+		const DirectX::XMVECTOR& a_v1,
+		const DirectX::XMVECTOR& a_v2,
+		float& a_outDist)
+	{
+		a_outDist = 0.0f;
+		return MakeSphere(a_info).Intersects(a_v0, a_v1, a_v2);
+	}
+
+	bool TestTriangle(
+		const CapsuleInfo& a_info,
+		const DirectX::XMVECTOR& a_v0,
+		const DirectX::XMVECTOR& a_v1,
+		const DirectX::XMVECTOR& a_v2,
+		float& a_outDist)
+	{
+		a_outDist = 0.0f;
+
+		// 三角形の頂点を取り出す
+		DXSM::Vector3 _a, _b, _c;
+		DirectX::XMStoreFloat3(&_a, a_v0);
+		DirectX::XMStoreFloat3(&_b, a_v1);
+		DirectX::XMStoreFloat3(&_c, a_v2);
+
+		// 線分と三角形の最近接距離が半径以下なら当たり
+		float _distSq = ClosestDistSqSegmentTriangle(a_info.pointA, a_info.pointB, _a, _b, _c);
+		return _distSq <= a_info.radius * a_info.radius;
+	}
+
+	bool TestTriangle(
+		const OBBInfo& a_info,
+		const DirectX::XMVECTOR& a_v0,
+		const DirectX::XMVECTOR& a_v1,
+		const DirectX::XMVECTOR& a_v2,
+		float& a_outDist)
+	{
+		a_outDist = 0.0f;
+		return MakeOBB(a_info).Intersects(a_v0, a_v1, a_v2);
+	}
+
+	bool TestTriangle(
+		const FrustumInfo& a_info,
+		const DirectX::XMVECTOR& a_v0,
+		const DirectX::XMVECTOR& a_v1,
+		const DirectX::XMVECTOR& a_v2,
+		float& a_outDist)
+	{
+		a_outDist = 0.0f;
+		return MakeFrustum(a_info).Intersects(a_v0, a_v1, a_v2);
 	}
 }
