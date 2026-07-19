@@ -49,6 +49,14 @@ namespace Engine::Collision
 		bool isHit = false;
 	};
 
+	// 押し出し（デペネトレーション）用の接触情報
+	struct Contact
+	{
+		DXSM::Vector3 normal = {};	// 押し出す向き（三角形→プリミティブ）
+		float depth = 0.0f;			// めり込み量
+		bool hit = false;			// 接触しているか
+	};
+
 	// レイ判定時に渡す情報
 	struct RayInfo
 	{

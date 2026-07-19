@@ -38,7 +38,7 @@ namespace
 
 void CapsuleCollisionSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const CapsuleColliderComponent, const LocalTransformComponent>(
+	a_world.ActiveTask<const CapsuleColliderComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"CapsuleCollisionSystem",
 		[](
@@ -47,7 +47,7 @@ void CapsuleCollisionSystem::Init(Engine::ECS::World& a_world)
 			float a_dt,
 			ActiveTag* a_activeTag,
 			const CapsuleColliderComponent* a_capArray,
-			const LocalTransformComponent* a_transArray
+			LocalTransformComponent* a_transArray
 			)
 		{
 			auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld();
@@ -55,7 +55,7 @@ void CapsuleCollisionSystem::Init(Engine::ECS::World& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const CapsuleColliderComponent& _cap = a_capArray[_i];
-				const LocalTransformComponent& _trans = a_transArray[_i];
+				LocalTransformComponent& _trans = a_transArray[_i];
 
 				// 中心（ワールドY軸方向の直立カプセル）
 				DXSM::Vector3 _center = DXSM::Vector3(_trans.pos) + DXSM::Vector3(_cap.offset);
@@ -63,30 +63,25 @@ void CapsuleCollisionSystem::Init(Engine::ECS::World& a_world)
 				DXSM::Vector3 _pointA = _center - _half;	// 下端の球中心
 				DXSM::Vector3 _pointB = _center + _half;	// 上端の球中心
 
-				// カプセル判定情報を作成
-				Engine::Collision::CapsuleInfo _info;
-				_info.pointA = _pointA;
-				_info.pointB = _pointB;
-				_info.radius = _cap.radius;
+				// マップから押し出す（pointA/B は押し出し後に更新される）
+				DXSM::Vector3 _correction = {};
+				bool _isHit = _pCollWorld->ResolveCapsule(
+					_pointA, _pointB, _cap.radius, a_pChunk->entityData[_i], _correction, 4);
 
-				// コリジョンワールドへ問い合わせ（自分自身は除外）
-				Engine::Collision::Result _res = {};
-				bool _isHit = _pCollWorld->VsCapsule(_info, _res, a_pChunk->entityData[_i]);
-
-				// デバッグ描画（当たっていれば赤、なければ緑）
-				// カプセルは直立（ワールドY軸方向）。中心・半径・球中心間距離(height)で描画。
-				DrawCapsuleUpright(
-					_center, _cap.radius, _cap.height,
-					_isHit ? Engine::Color::RED : Engine::Color::GREEN);
-
-				// 接触点を青い球で表示
+				// 補正をトランスフォームへ反映
 				if (_isHit)
 				{
-					DirectX::BoundingSphere _hitSphere;
-					_hitSphere.Center = _res.hitPos;
-					_hitSphere.Radius = 0.1f;
-					Engine::Editor::MainEditor::Instance().DrawSphere(_hitSphere, Engine::Color::BLUE);
+					_trans.pos.x += _correction.x;
+					_trans.pos.y += _correction.y;
+					_trans.pos.z += _correction.z;
+					_trans.isDirty = true;
 				}
+
+				// デバッグ描画（押し出しが起きたら赤、なければ緑）。押し出し後の中心で描画。
+				DXSM::Vector3 _drawCenter = _center + _correction;
+				DrawCapsuleUpright(
+					_drawCenter, _cap.radius, _cap.height,
+					_isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}
 		}
 	);

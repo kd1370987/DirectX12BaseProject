@@ -354,6 +354,60 @@ namespace Engine::Collision
 			}
 			return false;
 		}
+		// 押し出し用：静的TLASを走査し、カプセルに対する最も深い接触を返す（ワールド空間）
+		Contact CapsuleDeepestContactStatic(
+			const std::vector<Resource::BVHNode>& a_nodes,
+			int a_rootIndex,
+			const std::vector<int>& a_indexVec,
+			const std::vector<CollisionInstance>& a_instVec,
+			const CapsuleInfo& a_info,
+			const ECS::Entity& a_myID)
+		{
+			Contact _best;
+			if (a_nodes.empty()) return _best;
+
+			int _nodeStack[64];
+			int _stackTop = 0;
+			_nodeStack[_stackTop++] = a_rootIndex;
+
+			while (_stackTop > 0)
+			{
+				const auto& _node = a_nodes[_nodeStack[--_stackTop]];
+
+				float _boxDist = 0.0f;
+				if (!NarrowPhase::TestAABB(a_info, _node.box, _boxDist)) continue;
+
+				if (_node.IsLeaf())
+				{
+					for (int _i = 0; _i < _node.dataCount; ++_i)
+					{
+						int _instIdx = a_indexVec[_node.dataStart + _i];
+						const auto& _instance = a_instVec[_instIdx];
+
+						if (a_myID == _instance.entity) continue;
+						if (_instance.collShape.type != EShapeType::Mesh) continue;
+
+						auto* _pModel = Resource::ResourceManager::Instance().Get(_instance.collShape.modelHandle);
+						if (!_pModel) continue;
+
+						Contact _ct;
+						if (Engine::Collision::Capsule::ResolveVSModel(a_info, _pModel, _instance.worldMat, _ct))
+						{
+							if (_ct.depth > _best.depth) _best = _ct;
+						}
+					}
+				}
+				else
+				{
+					if (_stackTop < 62)
+					{
+						_nodeStack[_stackTop++] = _node.leftChild;
+						_nodeStack[_stackTop++] = _node.rightChild;
+					}
+				}
+			}
+			return _best;
+		}
 	}
 
 	bool CollisionWorld::VsSphere(const SphereInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
@@ -366,8 +420,15 @@ namespace Engine::Collision
 	bool CollisionWorld::VsCapsule(const CapsuleInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
 	{
 		return QueryStaticOverlap(
-			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
-			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult);
+			m_staticNodeVec, 
+			m_staticRootNodeIndex,
+			m_staticInstanceIndexVec,
+			m_staticInstanceVec,
+			a_info,
+			a_myID,
+			&Engine::Collision::Capsule::VSModel,
+			a_outResult
+		);
 	}
 
 	bool CollisionWorld::VsBox(const BoxInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
@@ -395,5 +456,54 @@ namespace Engine::Collision
 		return QueryStaticOverlap(
 			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
 			a_info, a_myID, &Engine::Collision::Frustum::VSModel, a_outResult);
+	}
+
+	bool CollisionWorld::ResolveCapsule(
+		DXSM::Vector3& a_pointA, DXSM::Vector3& a_pointB, float a_radius,
+		const ECS::Entity& a_myID, DXSM::Vector3& a_outCorrection, int a_iterations)
+	{
+		constexpr float _minDepth = 1e-4f;	// これ以下のめり込みは無視
+		constexpr float _bias = 1e-3f;		// 完全に離すための微小バイアス
+
+		DXSM::Vector3 _total = {};
+		bool _anyPush = false;
+
+		// 反復して複数面（床＋壁など）を解決する
+		for (int _it = 0; _it < a_iterations; ++_it)
+		{
+			CapsuleInfo _info;
+			_info.pointA = a_pointA;
+			_info.pointB = a_pointB;
+			_info.radius = a_radius;
+
+			// 最も深い接触を取得
+			Contact _best = CapsuleDeepestContactStatic(
+				m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+				_info, a_myID);
+
+			if (!_best.hit || _best.depth < _minDepth) break;
+
+			// 法線方向へ押し出す
+			DXSM::Vector3 _push = _best.normal * (_best.depth + _bias);
+			a_pointA += _push;
+			a_pointB += _push;
+			_total += _push;
+			_anyPush = true;
+		}
+
+		a_outCorrection = _total;
+		return _anyPush;
+	}
+
+	bool CollisionWorld::ResolveSphere(
+		DXSM::Vector3& a_center, float a_radius,
+		const ECS::Entity& a_myID, DXSM::Vector3& a_outCorrection, int a_iterations)
+	{
+		// 球は長さ0のカプセルとして押し出しを流用する
+		DXSM::Vector3 _a = a_center;
+		DXSM::Vector3 _b = a_center;
+		bool _pushed = ResolveCapsule(_a, _b, a_radius, a_myID, a_outCorrection, a_iterations);
+		a_center += a_outCorrection;
+		return _pushed;
 	}
 }

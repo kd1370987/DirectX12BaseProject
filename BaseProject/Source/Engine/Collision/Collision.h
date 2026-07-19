@@ -41,6 +41,10 @@ namespace Engine
 		{
 			bool VSModel(const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult);
 			bool VSMesh(const CapsuleInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult);
+
+			// 押し出し用：カプセルとメッシュ/モデルの「最も深い接触」をワールド空間で返す
+			bool ResolveVSMesh(const CapsuleInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat, Contact& a_outContact);
+			bool ResolveVSModel(const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const DirectX::XMFLOAT4X4& a_worldMat, Contact& a_outContact);
 		}
 
 		// OBB判定（軸並行BoxもこのOBB経路を通す）
