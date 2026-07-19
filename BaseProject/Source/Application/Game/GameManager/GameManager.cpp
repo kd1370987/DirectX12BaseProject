@@ -52,6 +52,7 @@
 #include "Application/Components/Resource/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
 #include "../../Components/Tag/EnemyTag.h"
+#include "../../Components/Collision/CapsuleCollider.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -101,6 +102,7 @@
 #include "../../Systems/Draw/Draw/SkinningRegisterSystem/SkinningRegisterSystem.h"
 #include "../../Systems/Release/ResourceFreeSystem/ResourceFreeSystem.h"
 #include "../../Systems/Draw/Draw/RegisterAnimatedRayWorldSystem/RegisterAnimatedRayWorldSystem.h"
+#include "../../Systems/Update/Physics/CapsuleCollisionSystem/CapsuleCollisionSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -174,6 +176,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<BoostComponent>("BoostComponent");
 				a_pWorld->RegisterComponent<ParticlesComponent>("ParticlesComponent");
 				a_pWorld->RegisterComponent<TPSCameraStateComponent>("TPSCameraStateComponent");
+				a_pWorld->RegisterComponent<CapsuleColliderComponent>("CapsuleColliderComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -222,6 +225,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<SkinningRegisterSystem>();
 				a_pWorld->RegisterSystem<ResourceFreeSystem>();
 				a_pWorld->RegisterSystem<RegisterAnimatedRayWorldSystem>();
+				a_pWorld->RegisterSystem<CapsuleCollisionSystem>();
 
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();

@@ -268,6 +268,7 @@
     <ClCompile Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.cpp" />
@@ -477,6 +478,7 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h" />
     <ClInclude Include="Source\Application\Components\Charactor\Player\PlayerLookAngleComponent.h" />
     <ClInclude Include="Source\Application\Components\Charactor\Robot\BoostComponent.h" />
+    <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\Collider.h" />
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\SphreCollider.h" />
@@ -540,6 +542,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.h" />
