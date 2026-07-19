@@ -51,6 +51,9 @@
 #include "Application/Components/Charactor/Robot/BoostComponent.h"
 #include "Application/Components/Resource/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
+#include "Application/Components/Collision/SphreCollider.h"
+#include "Application/Components/Collision/BoxCollider.h"
+#include "Application/Components/Collision/OBBCollider.h"
 #include "../../Components/Tag/EnemyTag.h"
 #include "../../Components/Collision/CapsuleCollider.h"
 
@@ -103,6 +106,9 @@
 #include "../../Systems/Release/ResourceFreeSystem/ResourceFreeSystem.h"
 #include "../../Systems/Draw/Draw/RegisterAnimatedRayWorldSystem/RegisterAnimatedRayWorldSystem.h"
 #include "../../Systems/Update/Physics/CapsuleCollisionSystem/CapsuleCollisionSystem.h"
+#include "../../Systems/Update/Physics/SphereCollisionSystem/SphereCollisionSystem.h"
+#include "../../Systems/Update/Physics/BoxCollisionSystem/BoxCollisionSystem.h"
+#include "../../Systems/Update/Physics/OBBCollisionSystem/OBBCollisionSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -177,6 +183,9 @@ namespace App::Game
 				a_pWorld->RegisterComponent<ParticlesComponent>("ParticlesComponent");
 				a_pWorld->RegisterComponent<TPSCameraStateComponent>("TPSCameraStateComponent");
 				a_pWorld->RegisterComponent<CapsuleColliderComponent>("CapsuleColliderComponent");
+				a_pWorld->RegisterComponent<SphereColliderComponent>("SphereColliderComponent");
+				a_pWorld->RegisterComponent<BoxColliderComponent>("BoxColliderComponent");
+				a_pWorld->RegisterComponent<OBBColliderComponent>("OBBColliderComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -226,6 +235,9 @@ namespace App::Game
 				a_pWorld->RegisterSystem<ResourceFreeSystem>();
 				a_pWorld->RegisterSystem<RegisterAnimatedRayWorldSystem>();
 				a_pWorld->RegisterSystem<CapsuleCollisionSystem>();
+				a_pWorld->RegisterSystem<SphereCollisionSystem>();
+				a_pWorld->RegisterSystem<BoxCollisionSystem>();
+				a_pWorld->RegisterSystem<OBBCollisionSystem>();
 
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
