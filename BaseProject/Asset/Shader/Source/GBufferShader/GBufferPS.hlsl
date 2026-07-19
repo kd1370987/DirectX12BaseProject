@@ -47,9 +47,8 @@ PSOutput PSMain(VSOutput a_input)
 	// モーションベクター
 	float2 _curNDCPos = (a_input.curClipPos.xy / a_input.curClipPos.w);
 	float2 _prevNDCPos = (a_input.prevClipPos.xy / a_input.prevClipPos.w);
-	// Y軸反転
-	float2 _velocity = _curNDCPos - _prevNDCPos;
-	_velocity.y = -_velocity.y;
+	// NDC空間(幅2)の差分をUV空間(幅1)の差分へ変換（Y軸反転込み）
+	float2 _velocity = (_curNDCPos - _prevNDCPos) * float2(0.5f, -0.5f);
 
 	_out.velocity.xy = _velocity;
 	

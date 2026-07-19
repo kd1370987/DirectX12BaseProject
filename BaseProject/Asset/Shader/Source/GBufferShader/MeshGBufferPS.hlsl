@@ -95,10 +95,9 @@ PSOutput PSMain(VertexOutput a_input)
     // クリップ空間からNDC座標へ変換
 	float2 _curNDCPos = a_input.curClipPos.xy / a_input.curClipPos.w;
 	float2 _prevNDCPos = a_input.prevClipPos.xy / a_input.prevClipPos.w;
-    
-    // UV空間(Y下方向)への変換を加味しつつ差分を計算
-	float2 _velocity = _curNDCPos - _prevNDCPos;
-	_velocity.y = -_velocity.y; // Y軸反転（元のロジック通り）
+
+    // NDC空間(幅2)の差分をUV空間(幅1)の差分へ変換（Y軸反転込み）
+	float2 _velocity = (_curNDCPos - _prevNDCPos) * float2(0.5f, -0.5f);
 
 	_out.velocity = _velocity;
     

@@ -61,8 +61,55 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	float3 _currentNormal = DecsodeNormal(g_normalTex.Load(_location).rg);
 	float _currentDepth = g_depthTex.Load(_location).r;
 
+	// -------------------------------------------------------------------------------
+	// 3x3の近傍ピクセルをループ
+	// 平均(m1)と二乗平均(m2)から分散を求めて統計的にクランプ範囲を決める(Variance Clipping)
+	// 同時に一番手前のピクセルを探して Velocity Dilation に使う
+
+	float3 _m1 = float3(0, 0, 0);	// 色の合計
+	float3 _m2 = float3(0, 0, 0);	// 色の二乗の合計
+
+	// Velocity Dilation用（一番手前のピクセルのモーションベクターを採用する）
+	float _closestDepth = 1e10f;
+	int2 _closestCoord = _centerCoord;
+
+	[unroll]
+	for (int _y = -1; _y <= 1; ++_y)
+	{
+		[unroll]
+		for (int _x = -1; _x <= 1; ++_x)
+		{
+			// サンプリング座標を取得
+			int2 _sampleCoord = _centerCoord + int2(_x, _y);
+			_sampleCoord = clamp(_sampleCoord, int2(0, 0), int2(_width - 1, _height - 1)); // 画面クランプ
+
+			// サンプル画素を取得
+			float3 color = g_currentShadowTex.Load(int3(_sampleCoord, 0)).rgb;
+			_m1 += color;
+			_m2 += color * color;
+
+			// もっと手前のピクセルを探す(Velocity Dilation)
+			float _d = g_depthTex.Load(int3(_sampleCoord, 0)).r;
+			if (_d < _closestDepth)
+			{
+				_closestDepth = _d;
+				_closestCoord = _sampleCoord;
+			}
+		}
+	}
+
+	// 平均(mu)と分散から標準偏差(sigma)を求める
+	float3 _mu = _m1 / 9.0f;
+	float3 _sigma = sqrt(abs(_m2 / 9.0f - _mu * _mu));
+
+	// 係数ガンマ（小さいほどゴーストは減るがボケやすくなる）
+	const float _gamma = 1.0f;
+	float3 _minColor = _mu - _gamma * _sigma;
+	float3 _maxColor = _mu + _gamma * _sigma;
+
 	// モーションベクターから過去UVを取得
-	float2 _velocity = g_velocityTex.Load(_location).xy;
+	// 中心ではなく一番手前にあるピクセルのVelocityを使って過去UVを計算する
+	float2 _velocity = g_velocityTex.Load(int3(_closestCoord, 0)).xy;
 	float2 _prevUV = _uv - _velocity;
 
 	// 過去UV画面外チェック
@@ -79,36 +126,8 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	float3 _prevNormal = DecsodeNormal(g_prevNormalTex.SampleLevel(g_smp, _prevUV, 0).rg);
 	float _prevDepth = g_prevDepthTex.SampleLevel(g_smp, _prevUV, 0).r;
 
-	// -------------------------------------------------------------------------------
-	// 3x3の近傍ピクセルをループ
-	// min , max を取得してクランプする
-
-	float3 _minColor = float3(1e10f, 1e10f, 1e10f);
-	float3 _maxColor = float3(-1e10f, -1e10f, -1e10f);
-	
-	[unroll]
-	for (int _y = -1; _y <= 1; ++_y)
-	{
-		[unroll]
-		for (int _x = -1; _x <= 1; ++_x)
-		{
-			// サンプリング座標を取得
-			int2 _sampleCoord = _centerCoord + int2(_x, _y);
-			_sampleCoord = clamp(_sampleCoord, int2(0, 0), int2(_width - 1, _height - 1)); // 画面クランプ
-			
-			// サンプル画素を取得
-			float3 color = g_currentShadowTex.Load(int3(_sampleCoord, 0)).rgb;
-
-			_minColor = min(_minColor, color);
-			_maxColor = max(_maxColor, color);
-		}
-	}
-
-	_historyShadow.rgb =
-    clamp(
-        _historyShadow.rgb,
-        _minColor,
-        _maxColor);
+	// 統計的なクランプで履歴を現在の分布内に収める(Variance Clipping)
+	_historyShadow.rgb = clamp(_historyShadow.rgb, _minColor, _maxColor);
 
 	// -------------------------------------------------------------------------------
 	// ゴースト対策（ディスオクルージョン判定）
