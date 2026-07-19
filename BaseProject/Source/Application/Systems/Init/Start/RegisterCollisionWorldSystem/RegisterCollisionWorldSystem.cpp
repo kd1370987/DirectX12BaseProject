@@ -55,8 +55,8 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 
 					for (size_t _m = 1; _m < _meshHandles.size(); ++_m)
 					{
-						// メッシュ取得
-						const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandles[0]);
+						// メッシュ取得（各サブメッシュを順に見る）
+						const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandles[_m]);
 						if (!_pMesh) continue;
 
 						const auto& _meta = _pMesh->GetMetaData();

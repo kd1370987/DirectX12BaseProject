@@ -1,10 +1,11 @@
-﻿#pragma once
+#pragma once
 
+// 地面判定用のレイ（足元原点から真下へ撃つ前提）
+// 発射点は「足元 + stepUp」、長さは「stepUp + snapDown」の単一プローブ。
 struct RayColliderComponent
 {
-	float length = 0.0f;
-	DirectX::XMFLOAT3 dir = { 0.0f,0.0f,0.0f };
-	DirectX::XMFLOAT3 pos = { 0.0f,0.0f,0.0f };
+	float stepUp   = 0.3f;	// 登れる段差＝発射点を足元より上げる量
+	float snapDown = 0.4f;	// 足元より下で地面に吸着する距離
 };
 
 template<>
@@ -13,16 +14,14 @@ struct Engine::ECS::ComponentTraits<RayColliderComponent>
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
 		RayColliderComponent& _comp = Engine::Editor::GetValue<RayColliderComponent>(a_pData);
-		a_ar.Field("length", _comp.length);
-		a_ar.Field("dir", _comp.dir);
-		a_ar.Field("pos", _comp.pos);
+		a_ar.Field("stepUp", _comp.stepUp);
+		a_ar.Field("snapDown", _comp.snapDown);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
 		RayColliderComponent& _comp = Engine::Editor::GetValue<RayColliderComponent>(a_context.pData);
-		ImGui::DragFloat("Length", &_comp.length, 0.1f);
-		ImGui::DragFloat3("Dir", &_comp.dir.x, 0.1f);
-		ImGui::DragFloat3("Pos", &_comp.pos.x, 0.1f);
+		ImGui::DragFloat("StepUp (登れる段差)", &_comp.stepUp, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("SnapDown (吸着距離)", &_comp.snapDown, 0.01f, 0.0f, 10.0f);
 	}
 };

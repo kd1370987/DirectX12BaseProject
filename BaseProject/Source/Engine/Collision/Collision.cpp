@@ -25,10 +25,13 @@ bool Engine::Collision::Ray::VSModel(
 {
 	if (!a_pModel) return false;
 
-	float _dist = 0.0f;
-
 	// インスタンスのワールド行列をロード
 	DirectX::XMMATRIX _instWorld = DirectX::XMLoadFloat4x4(&a_worldMat);
+
+	// 複数サブメッシュのうち「最も手前」のヒットを採用する
+	bool _hitAny = false;
+	Result _best = {};
+	float _closest = 3.4e38f;
 
 	// 判定ノードインデックスごとに処理
 	for (int _idx : a_pModel->GetCollisionMeshNodeVec())
@@ -49,14 +52,25 @@ bool Engine::Collision::Ray::VSModel(
 			const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
 			if (!_pMesh) continue;
 
-			// メッシュとの判定
-			if (VSMesh(a_rayInfo, _pMesh, _meshWorldMat, a_outResult))
+			// メッシュとの判定（手前のものを残す）
+			Result _local = {};
+			if (VSMesh(a_rayInfo, _pMesh, _meshWorldMat, _local))
 			{
-				return true;
+				if (_local.hitDistance < _closest)
+				{
+					_closest = _local.hitDistance;
+					_best = _local;
+					_hitAny = true;
+				}
 			}
 		}
 	}
 
+	if (_hitAny)
+	{
+		a_outResult = _best;
+		return true;
+	}
 	return false;
 }
 
