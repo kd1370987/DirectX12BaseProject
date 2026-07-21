@@ -210,10 +210,31 @@ namespace Engine::Editor
 			if (ImGui::TreeNodeEx("ParametersList"))
 			{
 				const char* _typeNames[] = { "Float", "Int", "Bool", "Trigger" };
+
+				// 削除は反復中に行うと unordered_map のイテレータが壊れるので予約する
+				UINT _deleteParamHash = 0;
+				int _uiIndex = 0;
 				for (auto& [_hash, _param] : _params)
 				{
-					ImGui::BulletText("[%s] %s", _typeNames[static_cast<int>(_param.type)], _param.name.c_str());
+					ImGui::PushID(_uiIndex++);
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.85f, 0.3f, 0.3f, 1.0f));
+					if (ImGui::SmallButton("x"))
+					{
+						_deleteParamHash = _hash;
+					}
+					ImGui::PopStyleColor(2);
+					ImGui::SameLine();
+					ImGui::Text("[%s] %s", _typeNames[static_cast<int>(_param.type)], _param.name.c_str());
+					ImGui::PopID();
 				}
+
+				// 予約された削除を実行(参照している遷移条件もまとめて消える)
+				if (_deleteParamHash != 0)
+				{
+					a_graph.RemoveParameter(_deleteParamHash);
+				}
+
 				ImGui::TreePop();
 			}
 
@@ -299,6 +320,62 @@ namespace Engine::Editor
 
 			ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_BottomRight);
 			ImNodes::EndNodeEditor();
+
+			// 選択中のノード/リンクを Delete キーで削除
+			HandleDeleteSelection(a_graph);
+
+			// ノード内「Delete Node」ボタンで予約された削除を実行
+			if (m_pendingDeleteNode != 0)
+			{
+				a_graph.RemoveNode(m_pendingDeleteNode);
+				m_pendingDeleteNode = 0;
+			}
+		}
+
+		//----------------------------------------------------------------------------------
+		// 選択中ノード/リンクの Delete キー削除
+		//----------------------------------------------------------------------------------
+		void HandleDeleteSelection(Graph& a_graph)
+		{
+			if (!ImGui::IsKeyPressed(ImGuiKey_Delete, false)) return;
+
+			// 選択中リンク(遷移矢印)を削除
+			int _numLinks = ImNodes::NumSelectedLinks();
+			if (_numLinks > 0)
+			{
+				std::vector<int> _links(_numLinks);
+				ImNodes::GetSelectedLinks(_links.data());
+				for (int _lid : _links)
+				{
+					for (auto& [_src, _arrowVec] : a_graph.Arrows())
+					{
+						_arrowVec.erase(
+							std::remove_if(_arrowVec.begin(), _arrowVec.end(),
+								[_lid](const StateGraph::TransitionArrow& a) { return a.linkID == _lid; }),
+							_arrowVec.end());
+					}
+				}
+				ImNodes::ClearLinkSelection();
+			}
+
+			// 選択中ノードを削除(出入りする矢印も RemoveNode 側で巻き添え削除)
+			int _numNodes = ImNodes::NumSelectedNodes();
+			if (_numNodes > 0)
+			{
+				std::vector<int> _nodes(_numNodes);
+				ImNodes::GetSelectedNodes(_nodes.data());
+				for (int _nid : _nodes)
+				{
+					// nodeID -> hash を引く
+					UINT _hash = 0;
+					for (auto& [_h, _node] : a_graph.Nodes())
+					{
+						if (_node.nodeID == _nid) { _hash = _h; break; }
+					}
+					if (_hash != 0) a_graph.RemoveNode(_hash);
+				}
+				ImNodes::ClearNodeSelection();
+			}
 		}
 
 		void DrawNode(TNode& a_node, const DrawBodyFn& a_drawBody)
@@ -317,6 +394,16 @@ namespace Engine::Editor
 
 			// マシン固有のノード内部UI
 			if (a_drawBody) a_drawBody(a_node);
+
+			// ノード削除ボタン(反復中に消すとイテレータが壊れるので予約だけする)
+			ImGui::Spacing();
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.85f, 0.3f, 0.3f, 1.0f));
+			if (ImGui::SmallButton("Delete Node"))
+			{
+				m_pendingDeleteNode = a_node.hash;
+			}
+			ImGui::PopStyleColor(2);
 
 			ImNodes::EndNode();
 		}
@@ -475,5 +562,6 @@ namespace Engine::Editor
 		ImNodesEditorContext* m_context = nullptr;
 		int m_editingLinkID = 0;
 		bool m_applyPositions = false;	// Load後、次のDrawで座標反映する
+		UINT m_pendingDeleteNode = 0;	// このフレーム内で削除予約されたノードのhash
 	};
 }

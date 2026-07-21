@@ -70,6 +70,50 @@ namespace Engine::StateGraph
 		}
 
 		// 名前からハッシュを引く。無ければ UINT_MAX。
+		// ノードを削除する。
+		// このノードに出入りする遷移矢印もすべて巻き添えで削除し、
+		// 既定開始ステートだった場合は残りのノードへ付け替える。
+		void RemoveNode(UINT a_hash)
+		{
+			m_nodeMap.erase(a_hash);
+
+			// このノードから出る矢印を削除
+			m_arrowMap.erase(a_hash);
+
+			// このノードへ入る矢印を削除
+			for (auto& [_src, _arrowVec] : m_arrowMap)
+			{
+				_arrowVec.erase(
+					std::remove_if(_arrowVec.begin(), _arrowVec.end(),
+						[a_hash](const TransitionArrow& a) { return a.dstStartHash == a_hash; }),
+					_arrowVec.end());
+			}
+
+			// 既定開始ステートが消えたなら残りの先頭へ付け替え(無ければ0)
+			if (m_defaultStartHash == a_hash)
+			{
+				m_defaultStartHash = m_nodeMap.empty() ? 0 : m_nodeMap.begin()->first;
+			}
+		}
+
+		// パラメータを削除する。
+		// このパラメータを参照している遷移条件もすべて削除する。
+		void RemoveParameter(UINT a_hash)
+		{
+			m_parameters.erase(a_hash);
+
+			for (auto& [_src, _arrowVec] : m_arrowMap)
+			{
+				for (auto& _arrow : _arrowVec)
+				{
+					_arrow.conditions.erase(
+						std::remove_if(_arrow.conditions.begin(), _arrow.conditions.end(),
+							[a_hash](const TransitionCondition& c) { return c.paramHash == a_hash; }),
+						_arrow.conditions.end());
+				}
+			}
+		}
+
 		UINT GetStateHash(const std::string& a_name) const
 		{
 			UINT _hash = StringUtility::ToHash(a_name);
