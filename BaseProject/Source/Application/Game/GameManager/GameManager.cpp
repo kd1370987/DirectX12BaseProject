@@ -111,6 +111,7 @@
 #include "../../Systems/Update/Physics/BoxCollisionSystem/BoxCollisionSystem.h"
 #include "../../Systems/Update/Physics/OBBCollisionSystem/OBBCollisionSystem.h"
 #include "../../Systems/Update/Input/InputActionSystem/InputActionSystem.h"
+#include "../../Systems/Update/Update/GunShootSystem/GunShootSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -242,6 +243,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<BoxCollisionSystem>();
 				a_pWorld->RegisterSystem<OBBCollisionSystem>();
 				a_pWorld->RegisterSystem<InputActionSystem>();
+				a_pWorld->RegisterSystem<GunShootSystem>();
 
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();

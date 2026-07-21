@@ -1108,6 +1108,18 @@
     <Filter Include="Source\Application\Systems\Update\Input\InputActionSystem">
       <UniqueIdentifier>{b7db7634-7c93-4439-8aab-074dbeaebc9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\GunShootSystem">
+      <UniqueIdentifier>{8b01a7d1-cc31-4437-a574-99d15551c0f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Prefab">
+      <UniqueIdentifier>{06cd5aa6-96b5-4427-97d3-398901006612}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem">
+      <UniqueIdentifier>{6a2281ea-cd2f-4161-bcfa-8d33120db163}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem">
+      <UniqueIdentifier>{6e959bf9-d070-486e-90b1-7fd73d7cf1ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1776,12 +1788,26 @@
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.cpp">
       <Filter>Source\Engine\Resource\Data\Texture\IO\Creater</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.cpp">
       <Filter>Source\Application\Systems\Update\Input\InputActionSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\GunShootSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Prefab\Prefab.cpp">
+      <Filter>Source\Engine\Resource\Data\Prefab</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Physics\BoxCollisionSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Physics\SphereCollisionSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Physics\CapsuleCollisionSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Physics\OBBCollisionSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2787,17 +2813,9 @@
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.h">
       <Filter>Source\Engine\Resource\Data\Texture\IO\Creater</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h" />
     <ClInclude Include="Source\Application\Components\Tag\EnemyTag.h">
       <Filter>Source\Application\Components\Tag</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h" />
-    <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h" />
-    <ClInclude Include="Source\Application\Components\Collision\OBBCollider.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h" />
     <ClInclude Include="Source\Application\Components\Intent\ActionIntentComponent.h">
       <Filter>Source\Application\Components\Intent</Filter>
     </ClInclude>
@@ -2806,6 +2824,33 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Tag\MainGunTag.h">
       <Filter>Source\Application\Components\Tag</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\GunShootSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h">
+      <Filter>Source\Application\Components\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h">
+      <Filter>Source\Application\Components\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Collision\OBBCollider.h">
+      <Filter>Source\Application\Components\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Prefab\Prefab.h">
+      <Filter>Source\Engine\Resource\Data\Prefab</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.h">
+      <Filter>Source\Application\Systems\Update\Physics\BoxCollisionSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h">
+      <Filter>Source\Application\Systems\Update\Physics\SphereCollisionSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h">
+      <Filter>Source\Application\Systems\Update\Physics\CapsuleCollisionSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h">
+      <Filter>Source\Application\Systems\Update\Physics\OBBCollisionSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

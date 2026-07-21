@@ -145,17 +145,18 @@ namespace Engine::Resource
 	private:
 
 		// 各リソースの実体プール
-		ResourceData<Model> m_modelData;						// モデル
-		ResourceData<Material> m_materialData;					// マテリアル
-		ResourceData<Mesh> m_meshData;							// メッシュ
-		ResourceData<AnimationData> m_animationData;			// アニメーション
-		ResourceData<Texture> m_textureData;					// テクスチャ
-		ResourceData<Shader> m_shaderData;						// シェーダー
-		ResourceData<ShaderLibrary> m_shaderLibraryData;		// シェーダーライブラリ
-		ResourceData<AnimatorAsset> m_animatorAssetData;		// アニメーターアセット
-		ResourceData<ActionStateMachineAsset> m_actionStateMachineAssetData;// ゲームプレイ用ステートマシン
-		ResourceData<ParticlesAsset> m_particleAssetData;		// パーティクル
-		ResourceData<ShadingModelTable> m_shadingModelTableData;// シェーディングモデルテーブル
+		ResourceData<Model> m_modelData;										// モデル
+		ResourceData<Material> m_materialData;									// マテリアル
+		ResourceData<Mesh> m_meshData;											// メッシュ
+		ResourceData<AnimationData> m_animationData;							// アニメーション
+		ResourceData<Texture> m_textureData;									// テクスチャ
+		ResourceData<Shader> m_shaderData;										// シェーダー
+		ResourceData<ShaderLibrary> m_shaderLibraryData;						// シェーダーライブラリ
+		ResourceData<AnimatorAsset> m_animatorAssetData;						// アニメーターアセット
+		ResourceData<ActionStateMachineAsset> m_actionStateMachineAssetData;	// ゲームプレイ用ステートマシン
+		ResourceData<ParticlesAsset> m_particleAssetData;						// パーティクル
+		ResourceData<ShadingModelTable> m_shadingModelTableData;				// シェーディングモデルテーブル
+		ResourceData<Prefab> m_prefabData;										// プレハブデータ
 
 	// シングルトン
 	private:
@@ -435,6 +436,7 @@ namespace Engine::Resource
 	template<> inline ResourceData<ActionStateMachineAsset>& ResourceManager::RefData<ActionStateMachineAsset>() { return m_actionStateMachineAssetData; }
 	template<> inline ResourceData<ParticlesAsset>& ResourceManager::RefData<ParticlesAsset>() { return m_particleAssetData; }
 	template<> inline ResourceData<ShadingModelTable>& ResourceManager::RefData<ShadingModelTable>() { return m_shadingModelTableData; }
+	template<> inline ResourceData<Prefab>& ResourceManager::RefData<Prefab>() { return m_prefabData; }
 
 	// プールの取得
 	template<> inline const ResourceData<Model>& ResourceManager::GetData<Model>() const { return  m_modelData; }
@@ -448,6 +450,7 @@ namespace Engine::Resource
 	template<> inline const ResourceData<ActionStateMachineAsset>& ResourceManager::GetData<ActionStateMachineAsset>() const { return m_actionStateMachineAssetData; }
 	template<> inline const ResourceData<ParticlesAsset>& ResourceManager::GetData<ParticlesAsset>() const { return m_particleAssetData; }
 	template<> inline const ResourceData<ShadingModelTable>& ResourceManager::GetData<ShadingModelTable>() const { return m_shadingModelTableData; }
+	template<> inline const ResourceData<Prefab>& ResourceManager::GetData<Prefab>() const { return m_prefabData; }
 }
 
 namespace Engine

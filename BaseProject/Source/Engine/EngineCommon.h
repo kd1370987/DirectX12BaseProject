@@ -116,6 +116,15 @@ namespace Engine::Resource
 // 
 //==========================================================================================
 #include "Engine/Raytracing/BLAS/BLAS.h"
+
+//==========================================================================================
+// 
+// ECS
+// 
+//==========================================================================================
+#include "Engine/ECS/ECSCommon.h"
+#include "ECS/Internal/CompEditContext.h"
+
 //==========================================================================================
 // 
 // リソース
@@ -138,6 +147,8 @@ namespace Engine::Resource
 
 #include "Engine/Resource/Data/Model/Model.h"					// モデル
 #include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"		// クアッドポリゴン
+
+#include "Resource/Data/Prefab/Prefab.h"						// プレふぁぶ
 
 #include "Resource/Data/AnimatorAsset/AnimatorAsset.h"
 #include "Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
@@ -167,13 +178,7 @@ namespace Engine::Resource
 //==========================================================================================
 #include "Graphics/GraphicCommon.h"
 
-//==========================================================================================
-// 
-// ECS
-// 
-//==========================================================================================
-#include "Engine/ECS/ECSCommon.h"
-#include "ECS/Internal/CompEditContext.h"
+
 //==========================================================================================
 // 
 // 当たり判定

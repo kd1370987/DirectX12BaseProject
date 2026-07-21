@@ -269,12 +269,12 @@
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.cpp" />
@@ -284,6 +284,7 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp" />
@@ -419,6 +420,7 @@
     <ClCompile Include="Source\Engine\Resource\Data\Node\Node.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Particles\IO\ParticlesIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Prefab\Prefab.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\DXCCompiler\DXCCompiler.cpp" />
@@ -482,10 +484,10 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h" />
     <ClInclude Include="Source\Application\Components\Charactor\Player\PlayerLookAngleComponent.h" />
     <ClInclude Include="Source\Application\Components\Charactor\Robot\BoostComponent.h" />
-    <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h" />
-    <ClInclude Include="Source\Application\Components\Collision\OBBCollider.h" />
+    <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\Collider.h" />
+    <ClInclude Include="Source\Application\Components\Collision\OBBCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\SphreCollider.h" />
     <ClInclude Include="Source\Application\Components\Force\GravityComponent.h" />
@@ -551,12 +553,12 @@
     <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.h" />
@@ -566,6 +568,7 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h" />
@@ -760,6 +763,7 @@
     <ClInclude Include="Source\Engine\Resource\Data\Node\Node.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Particles\IO\ParticlesIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Prefab\Prefab.h" />
     <ClInclude Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.h" />
     <ClInclude Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\DXCCompiler\DXCCompiler.h" />
@@ -781,7 +785,6 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.h" />
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraph.h" />
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraphTypes.h" />
-    <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Importer\TextureImporter.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.h" />
