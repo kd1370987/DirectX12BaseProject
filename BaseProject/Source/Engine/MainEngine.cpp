@@ -207,6 +207,8 @@ namespace Engine
 
 		m_upParticleManager->BeginFrame();					// パーティクルデータの更新
 
+		m_upCollisionWorld->ClearDynamicWorld(10000);		// ダイナミック用のコリジョンワールドのクリア
+
 		return true;
 	}
 

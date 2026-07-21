@@ -114,69 +114,15 @@ namespace Engine::Collision
 		return _handle;
 	}
 
-	Handle<CollisionInstance> CollisionWorld::AllcateDynamicEntity(const CollisionInstance& a_instance)
+	void CollisionWorld::AllcateDynamicEntity(const CollisionInstance& a_instance)
 	{
-		auto _handle = m_dynamicHandlePool.Allocate();
-		if (_handle.GetIndex() >= m_dynamicInstanceVec.size())
-		{
-			m_dynamicInstanceVec.resize(_handle.GetIndex() + 1);
-		}
-
-		// インスタンス配列に追加
-		m_dynamicInstanceVec[_handle.GetIndex()] = a_instance;
-
-		return _handle;
+		m_dynamicInstanceVec.push_back(a_instance);
 	}
 
-	void CollisionWorld::BuildWorld(UINT a_resizeNum)
+	void CollisionWorld::BuildWorld()
 	{
-		// 変更があればワールドの構築をし直す
-		if (m_isStaticDirty)
-		{
-			const UINT _instanceCount = m_staticInstanceVec.size();
-
-			// インデックス配列のリセット
-			m_staticInstanceIndexVec.clear();
-			m_staticInstanceIndexVec.reserve(_instanceCount);
-			
-			// ノード配列のリセット
-			m_staticNodeVec.clear();
-			m_staticNodeVec.reserve(_instanceCount);
-
-			// ビルド用データの作成
-			std::vector<BuildInstance> _buildInstanceVec = {};
-			_buildInstanceVec.reserve(_instanceCount);
-			for (size_t _i = 0; _i < _instanceCount; ++_i)
-			{
-				const auto& _originData = m_staticInstanceVec[_i];
-
-				// 有効なエンティティのみビルド対象にする
-				if (_originData.entity == ECS::Limits::INVALID_ENTITY) continue;
-
-				BuildInstance _bi = {};
-				_bi.originalIndex = _i;
-				_bi.modelBoundingBox = _originData.worldAABB;
-				_buildInstanceVec.push_back(_bi);
-			}
-
-			// 実際に存在する有効な数でのビルド
-			if(_buildInstanceVec.size() > 0)
-			{
-				// ノードの再帰ビルド開始
-				m_staticRootNodeIndex = BuildBVHInternal(
-					m_staticInstanceVec, m_staticNodeVec, m_staticInstanceIndexVec, _buildInstanceVec, 0, _instanceCount
-				);
-
-				// ワールド全体のローカルAABBはルートノードのAABBと同じになる
-				if (!m_staticNodeVec.empty())
-				{
-					m_worldAABB = m_staticNodeVec[m_staticRootNodeIndex].box;
-				}
-			}
-
-			// 更新完了
-			m_isStaticDirty = false;
-		}
+		ReBuildStaticTLAS();
+		ReBuildDynamicTLAS();
 
 		// デバッグ描画
 		auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
@@ -184,6 +130,11 @@ namespace Engine::Collision
 		{
 			_pRCT->RefShapeDraw()->AABB(_node.box);
 		}
+	}
+	void CollisionWorld::ClearDynamicWorld(size_t a_size)
+	{
+		m_dynamicInstanceVec.clear();
+		m_dynamicInstanceVec.reserve(a_size);
 	}
 	void CollisionWorld::Clear()
 	{
@@ -505,5 +456,98 @@ namespace Engine::Collision
 		bool _pushed = ResolveCapsule(_a, _b, a_radius, a_myID, a_outCorrection, a_iterations);
 		a_center += a_outCorrection;
 		return _pushed;
+	}
+	void CollisionWorld::ReBuildStaticTLAS()
+	{
+		// 変更があればワールドの構築をし直す
+		if (m_isStaticDirty)
+		{
+			const size_t _instanceCount = m_staticInstanceVec.size();
+
+			// インデックス配列のリセット
+			m_staticInstanceIndexVec.clear();
+			m_staticInstanceIndexVec.reserve(_instanceCount);
+
+			// ノード配列のリセット
+			m_staticNodeVec.clear();
+			m_staticNodeVec.reserve(_instanceCount);
+
+			// ビルド用データの作成
+			std::vector<BuildInstance> _buildInstanceVec = {};
+			_buildInstanceVec.reserve(_instanceCount);
+			for (size_t _i = 0; _i < _instanceCount; ++_i)
+			{
+				const auto& _originData = m_staticInstanceVec[_i];
+
+				// 有効なエンティティのみビルド対象にする
+				if (_originData.entity == ECS::Limits::INVALID_ENTITY) continue;
+
+				BuildInstance _bi = {};
+				_bi.originalIndex = _i;
+				_bi.modelBoundingBox = _originData.worldAABB;
+				_buildInstanceVec.push_back(_bi);
+			}
+
+			// 実際に存在する有効な数でのビルド
+			if (_buildInstanceVec.size() > 0)
+			{
+				// ノードの再帰ビルド開始
+				m_staticRootNodeIndex = BuildBVHInternal(
+					m_staticInstanceVec, m_staticNodeVec, m_staticInstanceIndexVec, _buildInstanceVec, 0, _instanceCount
+				);
+
+				// ワールド全体のローカルAABBはルートノードのAABBと同じになる
+				if (!m_staticNodeVec.empty())
+				{
+					m_worldAABB = m_staticNodeVec[m_staticRootNodeIndex].box;
+				}
+			}
+
+			// 更新完了
+			m_isStaticDirty = false;
+		}
+	}
+	void CollisionWorld::ReBuildDynamicTLAS()
+	{
+		// ダイナミックなTLASは毎フレーム構築しなおす
+		const size_t _instanceCount = m_dynamicInstanceVec.size();
+
+		// インデックス配列のクリア
+		m_dynamicInstanceIndexVec.clear();
+		m_dynamicInstanceIndexVec.reserve(_instanceCount);
+
+		// ノード配列のリセット
+		m_dynamicNodeVec.clear();
+		m_dynamicNodeVec.reserve(_instanceCount);
+
+		// ビルド用データの作成
+		std::vector<BuildInstance> _buildInstanceVec = {};
+		_buildInstanceVec.reserve(_instanceCount);
+
+		for (size_t _i = 0; _i < _instanceCount; ++_i)
+		{
+			const auto& _originData = m_dynamicInstanceVec[_i];
+
+			// データチェック
+			if (_originData.entity == ECS::Limits::INVALID_ENTITY) continue;
+
+			BuildInstance _bi = {};
+			_bi.originalIndex = _i;
+			_bi.modelBoundingBox = _originData.worldAABB;
+			_buildInstanceVec.push_back(_bi);
+		}
+
+		// TLASの構築の必要性チェック
+		if (_buildInstanceVec.empty()) return;
+
+		// ダイナミックTLASの構築
+		m_dynamicRootNodeIndex = BuildBVHInternal(
+			m_dynamicInstanceVec,
+			m_dynamicNodeVec,
+			m_dynamicInstanceIndexVec,
+			_buildInstanceVec,
+			0,
+			_instanceCount
+		);
 	}
 }

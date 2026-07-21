@@ -12,11 +12,13 @@ namespace Engine::Collision
 		// インスタンスの登録
 		// 削除、移動、エディター時の変更用にハンドルを確保しておく
 		Handle<CollisionInstance> AllcateStaticEntity(const CollisionInstance& a_instance);
-		Handle<CollisionInstance> AllcateDynamicEntity(const CollisionInstance& a_instance);
+		void AllcateDynamicEntity(const CollisionInstance& a_instance);
 
 		// フレームに一度だけ呼び出す
-		// 生成時にメモリ確保用にインスタンス数を指定できる。超えてもいい。
-		void BuildWorld(UINT a_resizeNum = 0);
+		void BuildWorld();
+
+		// フレームの初めに呼び出す
+		void ClearDynamicWorld(size_t a_size);
 
 		// シーンの更新時などに呼び出す。ワールドのリセット
 		void Clear();
@@ -56,7 +58,11 @@ namespace Engine::Collision
 		// 球（内部でカプセル押し出しを流用）。a_center は押し出し後に更新される。
 		bool ResolveSphere(DXSM::Vector3& a_center, float a_radius,
 			const ECS::Entity& a_myID, DXSM::Vector3& a_outCorrection, int a_iterations = 4);
+	private:
 
+		// TLASの再構築
+		void ReBuildStaticTLAS();
+		void ReBuildDynamicTLAS();
 
 	private:
 
@@ -68,11 +74,11 @@ namespace Engine::Collision
 		bool m_isStaticDirty = false;								// 更新の必要の有無
 		int m_staticRootNodeIndex = 0;
 
-		// 動的データ管理
-		Storage::HandlePool<CollisionInstance> m_dynamicHandlePool = {};	// 動的ハンドルの管理
+		// 動的データ管理 : ダイナミックTLASは毎フレーム詰めなおし
 		std::vector<CollisionInstance> m_dynamicInstanceVec;				// 動的判定オブジェクト配列
 		std::vector<Resource::BVHNode> m_dynamicNodeVec = {};				// ノード配列
 		std::vector<int> m_dynamicInstanceIndexVec = {};				// 全インスタンスインデックス
+		int m_dynamicRootNodeIndex = 0;
 
 		// ワールド全体のボックス
 		DirectX::BoundingBox m_worldAABB = {};
