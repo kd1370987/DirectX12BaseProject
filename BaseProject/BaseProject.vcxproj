@@ -484,6 +484,7 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h" />
     <ClInclude Include="Source\Application\Components\Charactor\Player\PlayerLookAngleComponent.h" />
     <ClInclude Include="Source\Application\Components\Charactor\Robot\BoostComponent.h" />
+    <ClInclude Include="Source\Application\Components\Charactor\Weapon\Gun\GunStateComponent.h" />
     <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\Collider.h" />

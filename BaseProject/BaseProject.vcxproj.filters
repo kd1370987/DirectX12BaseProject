@@ -1120,6 +1120,12 @@
     <Filter Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem">
       <UniqueIdentifier>{6e959bf9-d070-486e-90b1-7fd73d7cf1ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Components\Charactor\Weapon">
+      <UniqueIdentifier>{b7c5e066-4a5a-423a-8883-94ab61a27334}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Charactor\Weapon\Gun">
+      <UniqueIdentifier>{e5853aec-2a82-4d9e-9ef7-776b42616acd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2851,6 +2857,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h">
       <Filter>Source\Application\Systems\Update\Physics\OBBCollisionSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Charactor\Weapon\Gun\GunStateComponent.h">
+      <Filter>Source\Application\Components\Charactor\Weapon\Gun</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

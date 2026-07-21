@@ -34,6 +34,14 @@ namespace Engine::ECS
 		std::unordered_map<ComponentTypeID, std::vector<uint8_t>> dataMap = {};
 	};
 
+	// データ付きエンティティ生成用(プレハブ実体化など)
+	// シグネチャで生成し、dataMap のバイト列を各コンポーネントへ流し込む。
+	struct CreateEntityWithDataCmd
+	{
+		Signature sig;
+		std::unordered_map<ComponentTypeID, std::vector<uint8_t>> dataMap = {};
+	};
+
 	// カスタムタスク用依存情報
 	template<typename ...Comp> struct ReadList {};
 	template<typename ...Comp> struct WriteList {};
@@ -108,6 +116,8 @@ namespace Engine::ECS
 		//------------------------------------------------------------------------------------------
 
 		void AddEntity(const Signature& a_sig);			// コマンド発行
+		// データ付き生成コマンド(プレハブ実体化など)。BegineFrameで安全に生成される。
+		void AddEntityWithData(const Signature& a_sig, std::unordered_map<ComponentTypeID, std::vector<uint8_t>> a_dataMap);
 		Entity CreateEntity(const Signature& a_sig);	// 実体の作成
 		void CreateAllEntity();							// 一括作成
 
@@ -296,6 +306,9 @@ namespace Engine::ECS
 
 		// 生成予定エンティティリスト
 		std::vector<Signature> m_addEntityVec = {};
+
+		// データ付き生成予定エンティティリスト(プレハブ実体化など)
+		std::vector<CreateEntityWithDataCmd> m_addEntityDataVec = {};
 
 		// 削除予定エンティティ
 		std::vector<Entity> m_removeEntityVec = {};

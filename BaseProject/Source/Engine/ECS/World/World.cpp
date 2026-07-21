@@ -149,6 +149,14 @@ namespace Engine::ECS
 		m_addEntityVec.push_back(a_sig);
 	}
 
+	void World::AddEntityWithData(const Signature& a_sig, std::unordered_map<ComponentTypeID, std::vector<uint8_t>> a_dataMap)
+	{
+		CreateEntityWithDataCmd _cmd = {};
+		_cmd.sig = a_sig;
+		_cmd.dataMap = std::move(a_dataMap);
+		m_addEntityDataVec.push_back(std::move(_cmd));
+	}
+
 	ECS::Entity World::CreateEntity(const ECS::Signature& a_sig)
 	{
 		// エンティティIDの生成
@@ -229,6 +237,32 @@ namespace Engine::ECS
 			_res.isDirty = true;
 		}
 		m_addEntityVec.clear();
+
+		// データ付き生成(プレハブ実体化など)
+		for (auto& _cmd : m_addEntityDataVec)
+		{
+			Entity _entity = CreateEntity(_cmd.sig);
+			if (_entity == ECS::Limits::INVALID_ENTITY) continue;
+
+			// 保存済みの初期値を各コンポーネントへ流し込む
+			for (auto& [_compID, _buffer] : _cmd.dataMap)
+			{
+				if (!_cmd.sig.test(_compID)) continue;
+				if (_buffer.empty()) continue;
+
+				uint8_t* _dst = NRefData(_entity, _compID);
+				if (!_dst) continue;
+
+				size_t _size = GetComponentMetaData(_compID).compSize;
+				size_t _copy = (_size < _buffer.size()) ? _size : _buffer.size();
+				memcpy(_dst, _buffer.data(), _copy);
+			}
+
+			// 階層の変更を通知
+			auto& _res = GetResource<HierarchyResource>();
+			_res.isDirty = true;
+		}
+		m_addEntityDataVec.clear();
 	}
 
 	void World::RemoveEntityStorage()

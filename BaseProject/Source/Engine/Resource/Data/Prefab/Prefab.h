@@ -64,6 +64,8 @@ namespace Engine::Resource
 		uint8_t* RefData(ECS::ComponentTypeID a_compTypeID);
 		// シグネチャ参照
 		const ECS::Signature& GetSignature() const { return m_sigunature; }
+		// コンポーネント初期値バイト列の参照(実体化時の元データ)
+		const std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>>& GetDataMap() const { return m_dataMap; }
 
 		//----------------------------------------------------------------------------------
 		// シリアライズ処理

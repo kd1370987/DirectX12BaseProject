@@ -57,6 +57,7 @@
 #include "../../Components/Tag/EnemyTag.h"
 #include "../../Components/Collision/CapsuleCollider.h"
 #include "../../Components/Intent/ActionIntentComponent.h"
+#include "../../Components/Charactor/Weapon/Gun/GunStateComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -190,6 +191,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<BoxColliderComponent>("BoxColliderComponent");
 				a_pWorld->RegisterComponent<OBBColliderComponent>("OBBColliderComponent");
 				a_pWorld->RegisterComponent<ActionIntentComponent>("ActionIntentComponent");
+				a_pWorld->RegisterComponent<GunStateComponent>("GunStateComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -244,6 +246,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<OBBCollisionSystem>();
 				a_pWorld->RegisterSystem<InputActionSystem>();
 				a_pWorld->RegisterSystem<GunShootSystem>();
+				
 
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
