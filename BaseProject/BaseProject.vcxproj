@@ -267,6 +267,7 @@
     <ClCompile Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.cpp" />
@@ -492,6 +493,7 @@
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
     <ClInclude Include="Source\Application\Components\Hierarchy\ExoskeletonAttachementComponent.h" />
     <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h" />
+    <ClInclude Include="Source\Application\Components\Intent\ActionIntentComponent.h" />
     <ClInclude Include="Source\Application\Components\Intent\MoveIntentComponent.h" />
     <ClInclude Include="Source\Application\Components\Persistence\GUIDComponent.h" />
     <ClInclude Include="Source\Application\Components\Persistence\NameComponent.h" />
@@ -506,6 +508,7 @@
     <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\CameraTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\EnemyTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\MainGunTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\PlayerControllTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\RenderTag\RayTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ActiveTag.h" />
@@ -546,6 +549,7 @@
     <ClInclude Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h" />

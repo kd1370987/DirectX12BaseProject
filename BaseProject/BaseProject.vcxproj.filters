@@ -1105,6 +1105,9 @@
     <Filter Include="Source\Engine\Resource\Data\Texture\IO\Creater">
       <UniqueIdentifier>{b4513f5b-7bf7-45a8-b534-1dbb01ac4756}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Input\InputActionSystem">
+      <UniqueIdentifier>{b7db7634-7c93-4439-8aab-074dbeaebc9b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1772,6 +1775,13 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.cpp">
       <Filter>Source\Engine\Resource\Data\Texture\IO\Creater</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Input\InputActionSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2779,6 +2789,22 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h" />
     <ClInclude Include="Source\Application\Components\Tag\EnemyTag.h">
+      <Filter>Source\Application\Components\Tag</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h" />
+    <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h" />
+    <ClInclude Include="Source\Application\Components\Collision\OBBCollider.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h" />
+    <ClInclude Include="Source\Application\Components\Intent\ActionIntentComponent.h">
+      <Filter>Source\Application\Components\Intent</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.h">
+      <Filter>Source\Application\Systems\Update\Input\InputActionSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Tag\MainGunTag.h">
       <Filter>Source\Application\Components\Tag</Filter>
     </ClInclude>
   </ItemGroup>

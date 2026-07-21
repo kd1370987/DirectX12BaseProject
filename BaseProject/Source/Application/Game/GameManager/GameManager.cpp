@@ -56,6 +56,7 @@
 #include "Application/Components/Collision/OBBCollider.h"
 #include "../../Components/Tag/EnemyTag.h"
 #include "../../Components/Collision/CapsuleCollider.h"
+#include "../../Components/Intent/ActionIntentComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -109,6 +110,7 @@
 #include "../../Systems/Update/Physics/SphereCollisionSystem/SphereCollisionSystem.h"
 #include "../../Systems/Update/Physics/BoxCollisionSystem/BoxCollisionSystem.h"
 #include "../../Systems/Update/Physics/OBBCollisionSystem/OBBCollisionSystem.h"
+#include "../../Systems/Update/Input/InputActionSystem/InputActionSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -186,6 +188,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<SphereColliderComponent>("SphereColliderComponent");
 				a_pWorld->RegisterComponent<BoxColliderComponent>("BoxColliderComponent");
 				a_pWorld->RegisterComponent<OBBColliderComponent>("OBBColliderComponent");
+				a_pWorld->RegisterComponent<ActionIntentComponent>("ActionIntentComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -238,6 +241,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<SphereCollisionSystem>();
 				a_pWorld->RegisterSystem<BoxCollisionSystem>();
 				a_pWorld->RegisterSystem<OBBCollisionSystem>();
+				a_pWorld->RegisterSystem<InputActionSystem>();
 
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
@@ -284,9 +288,6 @@ namespace App::Game
 			Engine::Input::InputAxisForWindows _look(VK_UP, VK_RIGHT, VK_DOWN, VK_LEFT);
 			_keyboard.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForWindows>(_look));
 
-			// テスト用ボタン
-			Engine::Input::InputButtonForWindows _debugCamRBUTTON(VK_RBUTTON);
-			_keyboard.AddButton("FreeCamMode", std::make_shared<Engine::Input::InputButtonForWindows>(_debugCamRBUTTON));
 
 			Engine::Input::InputButtonForWindows _debugCamUp('E');
 			_keyboard.AddButton("FreeCamUp", std::make_shared<Engine::Input::InputButtonForWindows>(_debugCamUp));
@@ -301,6 +302,14 @@ namespace App::Game
 			Engine::Input::InputButtonForWindows _scene('R');
 			_keyboard.AddButton("Scene", std::make_shared<Engine::Input::InputButtonForWindows>(_scene));
 
+			// ---- マウスボタン ----
+			// 打つ
+			Engine::Input::InputButtonForWindows _shoot(VK_RBUTTON);
+			_keyboard.AddButton("Shoot", std::make_shared<Engine::Input::InputButtonForWindows>(_shoot));
+			// 狙う
+			Engine::Input::InputButtonForWindows _aim(VK_LBUTTON);
+			_keyboard.AddButton("Aim", std::make_shared<Engine::Input::InputButtonForWindows>(_aim));
+
 			Engine::Input::InputManager::Instance().AddDevice("Keyboard", std::make_unique<Engine::Input::InputCollector>(_keyboard));
 		}
 		// マウス
@@ -310,6 +319,7 @@ namespace App::Game
 			_mouse.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForWindowsMouse>());
 
 			Engine::Input::InputManager::Instance().AddDevice("Mouse", std::make_unique<Engine::Input::InputCollector>(_mouse));
+
 		}
 		// コントローラー
 		{
