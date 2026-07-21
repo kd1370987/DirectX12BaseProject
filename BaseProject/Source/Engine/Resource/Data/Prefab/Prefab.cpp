@@ -1,6 +1,7 @@
 #include "Prefab.h"
 
 #include <filesystem>
+#include <cstring>
 
 #include "../../../ECS/World/World.h"
 #include "../../../Scene/SceneManager/SceneManager.h"
@@ -99,6 +100,34 @@ namespace Engine::Resource
 			Persistence::Archive::ArchiveFormat::Json);
 
 		Archive(_arch, a_pWorld);
+	}
+
+	//======================================================================================
+	// 実体化
+	//======================================================================================
+	ECS::Entity Prefab::Instantiate(ECS::World* a_pWorld)
+	{
+		if (!a_pWorld) return ECS::Limits::INVALID_ENTITY;
+
+		// シグネチャで実体を生成(各コンポーネントは既定構築される)
+		ECS::Entity _entity = a_pWorld->CreateEntity(m_sigunature);
+		if (_entity == ECS::Limits::INVALID_ENTITY) return _entity;
+
+		// 保存済みの初期値を各コンポーネントへ流し込む
+		// (ハンドル等のランタイム値は既定のまま。GUID から PostDeserialize 系システムが復元する)
+		for (auto& [_typeID, _buffer] : m_dataMap)
+		{
+			if (_buffer.empty()) continue;
+			if (!m_sigunature.test(_typeID)) continue;
+
+			uint8_t* _dst = a_pWorld->NRefData(_entity, _typeID);
+			if (!_dst) continue;
+
+			size_t _size = a_pWorld->GetComponentMetaData(_typeID).compSize;
+			std::memcpy(_dst, _buffer.data(), _size);
+		}
+
+		return _entity;
 	}
 
 	//======================================================================================

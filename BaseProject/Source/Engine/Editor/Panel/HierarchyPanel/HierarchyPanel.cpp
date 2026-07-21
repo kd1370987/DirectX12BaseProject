@@ -5,6 +5,9 @@
 #include "../../../Scene/BaseScene/BaseScene.h"
 #include "../../../Scene/SceneManager/SceneManager.h"
 
+#include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../Resource/Manager/AssetDatabase/AssetDatabase.h"
+
 #include "../../../../Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../Application/Components/Transform/WorldMatrixComponent.h"
 
@@ -53,10 +56,40 @@ namespace Engine::Editor
 		// エンティティ一覧表示
 		ImGui::BeginChild("EntityList");
 		{
-			// 空のエンティティの追加
+			// エンティティ追加(空 or プレハブから)
 			if (ImGui::Button("AddEntity"))
 			{
-				AddEntity(_pWorld);
+				ImGui::OpenPopup("AddEntityPopup");
+			}
+			if (ImGui::BeginPopup("AddEntityPopup"))
+			{
+				// 空のエンティティ
+				if (ImGui::MenuItem("Empty Entity"))
+				{
+					AddEntity(_pWorld);
+				}
+
+				ImGui::Separator();
+				ImGui::TextDisabled("From Prefab");
+
+				// アセットデータベースに登録されているプレハブ一覧
+				const auto& _prefabList = Resource::AssetDatabase::Instance().GetTypeMetaVec("Prefab");
+				if (_prefabList.empty())
+				{
+					ImGui::TextDisabled("  (no prefab)");
+				}
+				else
+				{
+					for (auto& _prop : _prefabList)
+					{
+						if (ImGui::MenuItem(_prop.fileName.c_str()))
+						{
+							InstantiatePrefab(_pWorld, _prop.guid);
+						}
+					}
+				}
+
+				ImGui::EndPopup();
 			}
 			ImGui::Separator();
 
@@ -102,6 +135,22 @@ namespace Engine::Editor
 		_sig.set(a_pWorld->GetCompTypeID(typeid(GUIDComponent)));
 		_sig.set(a_pWorld->GetCompTypeID(typeid(PostDeserializeTag)));
 		a_pWorld->AddEntity(_sig);
+	}
+
+	void Engine::Editor::HierarchyPanel::InstantiatePrefab(ECS::World* a_pWorld, const Engine::GUID& a_guid)
+	{
+		// プレハブをロード(未ロードならここで読み込まれる)
+		if (!Resource::ResourceManager::Instance().Has<Resource::Prefab>(a_guid))
+		{
+			Resource::ResourceManager::Instance().Load<Resource::Prefab>(a_guid);
+		}
+
+		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::Prefab>(a_guid);
+		auto* _pPrefab = Resource::ResourceManager::Instance().Ref(_handle);
+		if (!_pPrefab) return;
+
+		// シーン読み込みと同じ経路で実体化する
+		_pPrefab->Instantiate(a_pWorld);
 	}
 
 	void Engine::Editor::HierarchyPanel::DrawEntityNode(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity)

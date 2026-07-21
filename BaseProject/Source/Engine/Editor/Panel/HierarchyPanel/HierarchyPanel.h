@@ -20,8 +20,11 @@ namespace Engine::Editor
 		void OnDrawImGui(EditorContext& a_editContext) override;
 	private:
 
-		// エンティティの追加
+		// 空のエンティティの追加
 		void AddEntity(ECS::World* a_pWorld);
+
+		// プレハブから実体を生成して追加
+		void InstantiatePrefab(ECS::World* a_pWorld, const Engine::GUID& a_guid);
 
 		// エンティティノードの描画
 		void DrawEntityNode(EditorContext& a_editContext,Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity);
