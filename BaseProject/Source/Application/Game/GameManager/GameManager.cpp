@@ -58,6 +58,8 @@
 #include "../../Components/Collision/CapsuleCollider.h"
 #include "../../Components/Intent/ActionIntentComponent.h"
 #include "../../Components/Charactor/Weapon/Gun/GunStateComponent.h"
+#include "Engine/ECS/Internal/CollisionEvent.h"
+#include "../../Components/Collision/ExplodeOnHitComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -113,6 +115,9 @@
 #include "../../Systems/Update/Physics/OBBCollisionSystem/OBBCollisionSystem.h"
 #include "../../Systems/Update/Input/InputActionSystem/InputActionSystem.h"
 #include "../../Systems/Update/Update/GunShootSystem/GunShootSystem.h"
+#include "../../Systems/Update/PreUpdate/CollisionEventClearSystem/CollisionEventClearSystem.h"
+#include "../../Systems/Update/Physics/HitDetectSystem/HitDetectSystem.h"
+#include "../../Systems/Update/PostUpdate/ExplodeOnHitSystem/ExplodeOnHitSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -192,6 +197,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<OBBColliderComponent>("OBBColliderComponent");
 				a_pWorld->RegisterComponent<ActionIntentComponent>("ActionIntentComponent");
 				a_pWorld->RegisterComponent<GunStateComponent>("GunStateComponent");
+				a_pWorld->RegisterComponent<Engine::ECS::CollisionEvent>("CollisionEvent");
+				a_pWorld->RegisterComponent<ExplodeOnHitComponent>("ExplodeOnHitComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -246,6 +253,9 @@ namespace App::Game
 				a_pWorld->RegisterSystem<OBBCollisionSystem>();
 				a_pWorld->RegisterSystem<InputActionSystem>();
 				a_pWorld->RegisterSystem<GunShootSystem>();
+				a_pWorld->RegisterSystem<CollisionEventClearSystem>();
+				a_pWorld->RegisterSystem<HitDetectSystem>();
+				a_pWorld->RegisterSystem<ExplodeOnHitSystem>();
 				
 
 				// インスタンスデータの登録
