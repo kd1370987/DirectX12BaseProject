@@ -79,16 +79,22 @@ struct Engine::ECS::ComponentTraits<ColliderComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
+		// コンポーネント取得
 		using namespace Engine;
 		ColliderComponent& _comp = Engine::Editor::GetValue<ColliderComponent>(a_context.pData);
+
+		// レイヤー選択
 		Editor::DrawEnumCombo("MyLayer", _comp.layer);
 		Editor::DrawEnumFlagsCombo("HItLayer", _comp.collideLayer);
+
+		// 物理解決
 		bool _is = _comp.isPhysical != 0;
 		if (ImGui::Checkbox("IsPhysical", &_is))
 		{
 			_comp.isPhysical = _is ? 1u : 0u;
 		}
 
+		// シェープタイプ
 		Editor::DrawEnumCombo("ShapeType",_comp.shapeType.type);
 	}
 };

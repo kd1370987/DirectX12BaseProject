@@ -70,6 +70,14 @@ namespace Engine::Scene
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Update, a_dt);
 
+		// 動的コライダーの submit（Update まで）が終わったこのタイミングで動的TLASを構築する。
+		// Physics フェーズの判定クエリが最新の動的ワールドを参照できるようにするため、
+		// 必ず Physics の前に置くこと。
+		if (auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld())
+		{
+			_pCollWorld->BuildDynamicWorld();
+		}
+
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Physics, a_dt);
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Animation, a_dt);

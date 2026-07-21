@@ -14,10 +14,15 @@ namespace Engine::Collision
 		Handle<CollisionInstance> AllcateStaticEntity(const CollisionInstance& a_instance);
 		void AllcateDynamicEntity(const CollisionInstance& a_instance);
 
-		// フレームに一度だけ呼び出す
+		// フレームに一度だけ呼び出す（静的TLASの構築＋デバッグ描画）
 		void BuildWorld();
 
-		// フレームの初めに呼び出す
+		// 動的TLASを構築する。
+		// 動的コライダーの submit 後、判定クエリ（Physicsフェーズ）の前に呼ぶこと。
+		void BuildDynamicWorld();
+
+		// フレームの初めに呼び出す。
+		// 動的ワールドを空にする（インスタンス／ノード／インデックスすべて）
 		void ClearDynamicWorld(size_t a_size);
 
 		// シーンの更新時などに呼び出す。ワールドのリセット

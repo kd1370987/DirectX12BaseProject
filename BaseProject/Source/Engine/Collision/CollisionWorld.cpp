@@ -122,7 +122,6 @@ namespace Engine::Collision
 	void CollisionWorld::BuildWorld()
 	{
 		ReBuildStaticTLAS();
-		ReBuildDynamicTLAS();
 
 		// デバッグ描画
 		auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
@@ -131,10 +130,22 @@ namespace Engine::Collision
 			_pRCT->RefShapeDraw()->AABB(_node.box);
 		}
 	}
+	void CollisionWorld::BuildDynamicWorld()
+	{
+		// 動的コライダーの submit が終わったこのタイミングでTLASを構築する。
+		// これを判定クエリより前に呼ぶことで、同フレームの submit が即座に判定へ反映される。
+		ReBuildDynamicTLAS();
+	}
 	void CollisionWorld::ClearDynamicWorld(size_t a_size)
 	{
+		// 動的ワールドは毎フレーム作り直すため、ツリーごと空にする。
+		// インスタンス配列だけでなくノード／インデックスも消さないと、
+		// 構築前にクエリが走った際に葉ノードが破棄済みインスタンスを指してしまう。
 		m_dynamicInstanceVec.clear();
 		m_dynamicInstanceVec.reserve(a_size);
+		m_dynamicNodeVec.clear();
+		m_dynamicInstanceIndexVec.clear();
+		m_dynamicRootNodeIndex = 0;
 	}
 	void CollisionWorld::Clear()
 	{
@@ -150,23 +161,31 @@ namespace Engine::Collision
 			Editor::MainEditor::Instance().DrawBox(_instance.worldAABB);
 		}
 	}
-	bool CollisionWorld::Raycast(const RayInfo& a_ray, Result& a_outResult, const ECS::Entity& a_myID)
+	namespace
 	{
-		bool _isHit = false;
-		float _closestDist = a_ray.maxDistance;			// これまでに見つかったもっとも近い距離
-		Result _bestResult = {};
-
-		// ---- 静的オブジェクトの走査 ----
-		if (!m_staticNodeVec.empty())
+		// レイで1つのTLASを走査し、これまでより手前のヒットがあれば結果を更新する。
+		// 静的・動的の両ツリーで共通利用するため、比較用の状態は参照で渡す。
+		void RaycastTree(
+			const std::vector<Resource::BVHNode>& a_nodes,
+			int a_rootIndex,
+			const std::vector<int>& a_indexVec,
+			const std::vector<CollisionInstance>& a_instVec,
+			const RayInfo& a_ray,
+			const ECS::Entity& a_myID,
+			float& a_closestDist,
+			Result& a_bestResult,
+			bool& a_isHit)
 		{
+			if (a_nodes.empty()) return;
+
 			int _nodeStack[64];
 			int _stackTop = 0;
-			_nodeStack[_stackTop++] = m_staticRootNodeIndex;
+			_nodeStack[_stackTop++] = a_rootIndex;
 
 			while (_stackTop > 0)
 			{
 				int _currentNodeIdx = _nodeStack[--_stackTop];
-				const auto& _node = m_staticNodeVec[_currentNodeIdx];
+				const auto& _node = a_nodes[_currentNodeIdx];
 
 				float _boxDist = 0.0f;
 				// レイがTLASノード（ワールド空間のAABB）と交差しているか
@@ -175,7 +194,7 @@ namespace Engine::Collision
 					DirectX::XMLoadFloat3(&a_ray.direction),
 					_boxDist))
 				{
-					if (_boxDist > _closestDist) continue; // すでに手前で当たっているものより遠ければスキップ
+					if (_boxDist > a_closestDist) continue; // すでに手前で当たっているものより遠ければスキップ
 
 					// 葉ノードに達した場合
 					if (_node.leftChild == -1 && _node.rightChild == -1)
@@ -183,32 +202,47 @@ namespace Engine::Collision
 						// 葉ノードに含まれるインスタンスをループ
 						for (int _i = 0; _i < _node.dataCount; ++_i)
 						{
-							int _instIdx = m_staticInstanceIndexVec[_node.dataStart + _i];
-							const auto& _instance = m_staticInstanceVec[_instIdx];
+							int _instIdx = a_indexVec[_node.dataStart + _i];
+							const auto& _instance = a_instVec[_instIdx];
 
 							// 同じエンティティなら無視
 							if (a_myID == _instance.entity) continue;
 
-							// モデルとの判定
-							Result _localResult = {};
-
-							// モデル取得
-							if (_instance.collShape.type != EShapeType::Mesh) continue;
-							auto* _pModel = Resource::ResourceManager::Instance().Get(_instance.collShape.modelHandle);
-							if (!_pModel)
+							if (_instance.collShape.type == EShapeType::Mesh)
 							{
-								ENGINE_LOG("モデルデータが存在していません");
-								continue;
-							}
-							if (Engine::Collision::Ray::VSModel(a_ray, _pModel, _instance.worldMat, _localResult))
-							{
-								// より手前で当たったら結果を更新
-								if (_localResult.hitDistance < _closestDist)
+								// モデル取得して厳密判定
+								auto* _pModel = Resource::ResourceManager::Instance().Get(_instance.collShape.modelHandle);
+								if (!_pModel)
 								{
-									_closestDist = _localResult.hitDistance;
-									_bestResult = _localResult;
-									_bestResult.hitEntity = _instance.entity; // どのエンティティに当たったか記録
-									_isHit = true;
+									ENGINE_LOG("モデルデータが存在していません");
+									continue;
+								}
+								Result _localResult = {};
+								if (Engine::Collision::Ray::VSModel(a_ray, _pModel, _instance.worldMat, _localResult))
+								{
+									// より手前で当たったら結果を更新
+									if (_localResult.hitDistance < a_closestDist)
+									{
+										a_closestDist = _localResult.hitDistance;
+										a_bestResult = _localResult;
+										a_bestResult.hitEntity = _instance.entity; // どのエンティティに当たったか記録
+										a_isHit = true;
+									}
+								}
+							}
+							else
+							{
+								// メッシュ以外はワールドAABBでレイ判定（v1概算）
+								float _d = 0.0f;
+								if (NarrowPhase::TestAABB(a_ray, _instance.worldAABB, _d) && _d < a_closestDist)
+								{
+									a_closestDist = _d;
+									a_bestResult = {};
+									a_bestResult.hitEntity = _instance.entity;
+									a_bestResult.hitDistance = _d;
+									a_bestResult.hitPos = DXSM::Vector3(a_ray.origin) + DXSM::Vector3(a_ray.direction) * _d;
+									a_bestResult.isHit = true;
+									a_isHit = true;
 								}
 							}
 						}
@@ -225,6 +259,19 @@ namespace Engine::Collision
 				}
 			}
 		}
+	}
+
+	bool CollisionWorld::Raycast(const RayInfo& a_ray, Result& a_outResult, const ECS::Entity& a_myID)
+	{
+		bool _isHit = false;
+		float _closestDist = a_ray.maxDistance;			// これまでに見つかったもっとも近い距離
+		Result _bestResult = {};
+
+		// 静的・動的の両TLASを走査し、最も手前のヒットを採用する
+		RaycastTree(m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			a_ray, a_myID, _closestDist, _bestResult, _isHit);
+		RaycastTree(m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
+			a_ray, a_myID, _closestDist, _bestResult, _isHit);
 
 		if (_isHit)
 		{
@@ -235,12 +282,12 @@ namespace Engine::Collision
 	}
 	namespace
 	{
-		// 静的TLASをオーバーラップ走査する共通処理
+		// TLAS（静的・動的どちらでも）をオーバーラップ走査する共通処理
 		// TLASノードのAABBはワールド空間、クエリのプリミティブもワールド空間なので
 		// NarrowPhase::TestAABB でそのまま枝刈りできる。
 		// 最初に触れたエンティティを返す（索敵・トリガー用途を想定）。
 		template<typename TInfo>
-		bool QueryStaticOverlap(
+		bool QueryOverlap(
 			const std::vector<Resource::BVHNode>& a_nodes,
 			int a_rootIndex,
 			const std::vector<int>& a_indexVec,
@@ -274,23 +321,38 @@ namespace Engine::Collision
 						// 同じエンティティなら無視
 						if (a_myID == _instance.entity) continue;
 
-						// 現状の登録はMeshのみ（Sphere/Box等の登録は今後対応）
-						if (_instance.collShape.type != EShapeType::Mesh) continue;
-
-						auto* _pModel = Resource::ResourceManager::Instance().Get(_instance.collShape.modelHandle);
-						if (!_pModel)
+						if (_instance.collShape.type == EShapeType::Mesh)
 						{
-							ENGINE_LOG("モデルデータが存在していません");
-							continue;
+							// メッシュはBLASのBVHトラバースで厳密に判定する
+							auto* _pModel = Resource::ResourceManager::Instance().Get(_instance.collShape.modelHandle);
+							if (!_pModel)
+							{
+								ENGINE_LOG("モデルデータが存在していません");
+								continue;
+							}
+
+							Result _localResult = {};
+							if (a_modelFunc(a_worldInfo, _pModel, _instance.worldMat, _localResult))
+							{
+								a_outResult = _localResult;
+								a_outResult.hitEntity = _instance.entity;
+								a_outResult.isHit = true;
+								return true;	// 最初に触れたエンティティで確定
+							}
 						}
-
-						Result _localResult = {};
-						if (a_modelFunc(a_worldInfo, _pModel, _instance.worldMat, _localResult))
+						else
 						{
-							a_outResult = _localResult;
-							a_outResult.hitEntity = _instance.entity;
-							a_outResult.isHit = true;
-							return true;	// 最初に触れたエンティティで確定
+							// メッシュ以外（Sphere/Box/Capsule 等）は現状ワールドAABBでの概算判定。
+							// 弾・敵など動的コライダー向けのv1。厳密な shape-shape は今後対応。
+							float _d = 0.0f;
+							if (NarrowPhase::TestAABB(a_worldInfo, _instance.worldAABB, _d))
+							{
+								a_outResult = {};
+								a_outResult.hitEntity = _instance.entity;
+								a_outResult.hitPos = _instance.worldAABB.Center;
+								a_outResult.isHit = true;
+								return true;
+							}
 						}
 					}
 				}
@@ -305,8 +367,9 @@ namespace Engine::Collision
 			}
 			return false;
 		}
-		// 押し出し用：静的TLASを走査し、カプセルに対する最も深い接触を返す（ワールド空間）
-		Contact CapsuleDeepestContactStatic(
+		// 押し出し用：TLASを走査し、カプセルに対する最も深い接触を返す（ワールド空間）
+		// 押し出しはメッシュ（ステージ形状）に対してのみ行う。
+		Contact CapsuleDeepestContact(
 			const std::vector<Resource::BVHNode>& a_nodes,
 			int a_rootIndex,
 			const std::vector<int>& a_indexVec,
@@ -363,23 +426,25 @@ namespace Engine::Collision
 
 	bool CollisionWorld::VsSphere(const SphereInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
 	{
-		return QueryStaticOverlap(
+		// 静的 → 動的の順に走査し、どちらかで最初に触れたエンティティを返す
+		if (QueryOverlap(
 			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult)) return true;
+
+		return QueryOverlap(
+			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
 			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult);
 	}
 
 	bool CollisionWorld::VsCapsule(const CapsuleInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
 	{
-		return QueryStaticOverlap(
-			m_staticNodeVec, 
-			m_staticRootNodeIndex,
-			m_staticInstanceIndexVec,
-			m_staticInstanceVec,
-			a_info,
-			a_myID,
-			&Engine::Collision::Capsule::VSModel,
-			a_outResult
-		);
+		if (QueryOverlap(
+			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult)) return true;
+
+		return QueryOverlap(
+			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
+			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult);
 	}
 
 	bool CollisionWorld::VsBox(const BoxInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
@@ -390,22 +455,34 @@ namespace Engine::Collision
 		_obb.extents = a_info.extents;
 		_obb.orientation = DXSM::Quaternion::Identity;
 
-		return QueryStaticOverlap(
+		if (QueryOverlap(
 			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			_obb, a_myID, &Engine::Collision::OBB::VSModel, a_outResult)) return true;
+
+		return QueryOverlap(
+			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
 			_obb, a_myID, &Engine::Collision::OBB::VSModel, a_outResult);
 	}
 
 	bool CollisionWorld::VsOBB(const OBBInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
 	{
-		return QueryStaticOverlap(
+		if (QueryOverlap(
 			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			a_info, a_myID, &Engine::Collision::OBB::VSModel, a_outResult)) return true;
+
+		return QueryOverlap(
+			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
 			a_info, a_myID, &Engine::Collision::OBB::VSModel, a_outResult);
 	}
 
 	bool CollisionWorld::VsFrustum(const FrustumInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
 	{
-		return QueryStaticOverlap(
+		if (QueryOverlap(
 			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
+			a_info, a_myID, &Engine::Collision::Frustum::VSModel, a_outResult)) return true;
+
+		return QueryOverlap(
+			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
 			a_info, a_myID, &Engine::Collision::Frustum::VSModel, a_outResult);
 	}
 
@@ -427,10 +504,14 @@ namespace Engine::Collision
 			_info.pointB = a_pointB;
 			_info.radius = a_radius;
 
-			// 最も深い接触を取得
-			Contact _best = CapsuleDeepestContactStatic(
+			// 静的・動的の両TLASから最も深い接触を取得（押し出しはメッシュ形状に対してのみ）
+			Contact _best = CapsuleDeepestContact(
 				m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
 				_info, a_myID);
+			Contact _dyn = CapsuleDeepestContact(
+				m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
+				_info, a_myID);
+			if (_dyn.hit && _dyn.depth > _best.depth) _best = _dyn;
 
 			if (!_best.hit || _best.depth < _minDepth) break;
 

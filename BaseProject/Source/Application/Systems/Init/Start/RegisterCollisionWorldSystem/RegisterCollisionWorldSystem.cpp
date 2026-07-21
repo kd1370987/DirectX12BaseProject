@@ -31,6 +31,9 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				const ModelComponent& _modelComp = a_modelArray[_i];
 				const LocalTransformComponent& _transComp = a_transArray[_i];
 
+				// エンティティが、ダイナミックレイヤーならスキップ
+				if (_collComp.layer == Layer::DiynamicObject) continue;
+
 				// ワールド行列計算
 				DXSM::Matrix _mat = {};
 				DXSM::Matrix _tMat = DXSM::Matrix::CreateTranslation(_transComp.pos);
@@ -74,9 +77,13 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				// コリジョンワールドに登録
 				Engine::Collision::CollisionInstance _inst = {};
 				_inst.entity = a_pChunk->entityData[_i];
-				_inst.collShape.type = Engine::Collision::EShapeType::Mesh;
-				_inst.collShape.modelHandle = _modelComp.handle;
+				_inst.collShape = _collComp.shapeType;
 
+				// メッシュ形状ならモデルのハンドルも登録
+				if (_inst.collShape.type == Engine::Collision::EShapeType::Mesh)
+				{
+					_inst.collShape.modelHandle = _modelComp.handle;
+				}
 				_inst.worldMat = _mat;
 				_inst.worldAABB = _worldAABB;
 				_collComp.collWorldHandle = _pCollWorld->AllcateStaticEntity(_inst);
