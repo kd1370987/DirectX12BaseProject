@@ -65,4 +65,8 @@ void Engine::Editor::Inspector::AssetInspector(EditorContext& a_editContext)
 	{
 		ShadingModelTableDraw(a_editContext);
 	}
+	else if (_type == "Prefab")
+	{
+		PrefabDraw(a_editContext);
+	}
 }

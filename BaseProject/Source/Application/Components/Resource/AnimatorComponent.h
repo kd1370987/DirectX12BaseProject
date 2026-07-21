@@ -44,7 +44,10 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 
 		Engine::Editor::Helper::DrawHandle(_comp.dynamicInstanceHandle);
 
-		if (a_context.pWorld->HasComponent<ModelComponent>(a_context.entity))
+		// プレハブ編集では実体が無い(entity は INVALID)。
+		// 無効IDでエンティティ参照するとレンジ外になるので、実体があるときだけ辿る。
+		if (a_context.entity != Engine::ECS::Limits::INVALID_ENTITY &&
+			a_context.pWorld->HasComponent<ModelComponent>(a_context.entity))
 		{
 			auto* _refData = a_context.pWorld->RefData<ModelComponent>(a_context.entity);
 			if (!_refData) return;

@@ -416,6 +416,10 @@ namespace Engine::ECS
 
 	void World::AddRefreshEntity(const Entity& a_entity)
 	{
+		// 無効エンティティはリフレッシュ経路(GetSignature→GetLocation)で
+		// レンジ外参照になるため弾く。プレハブ編集など実体が無い呼び出し対策。
+		if (a_entity == ECS::Limits::INVALID_ENTITY) return;
+
 		m_refreshEntityVec.push_back(a_entity);
 	}
 

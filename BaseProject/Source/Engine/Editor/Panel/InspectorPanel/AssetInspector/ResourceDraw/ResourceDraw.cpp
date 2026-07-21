@@ -13,6 +13,10 @@
 
 #include "../../../../../Resource/Data/Model/IO/ModelConverter/ModelConverter.h"
 
+// プレハブ編集用(ECSのエンティティインスペクタと同じ構成で描く)
+#include "Engine/ECS/World/World.h"
+#include "Engine/Scene/SceneManager/SceneManager.h"
+
 namespace Engine::Editor::Inspector
 {
 	namespace
@@ -196,5 +200,92 @@ namespace Engine::Editor::Inspector
 		if (!_pTable) { return; }
 
 		ShadingModelTableEdit(a_editContext, _pTable);
+	}
+
+	//-----------------------------------------------------------------------------------------
+	// プレハブ
+	// ECS のエンティティインスペクタと同じ構成で、コンポーネントを追加・削除・編集する
+	//-----------------------------------------------------------------------------------------
+	void PrefabDraw(EditorContext& a_editContext)
+	{
+		auto _guid = a_editContext.pAssetProp->guid;
+
+		auto* _pPrefab = ResolveAsset<Resource::Prefab>(_guid);
+		if (!_pPrefab) { return; }
+
+		// コンポーネントのメタ情報・編集関数を引くために World が必要
+		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
+		if (!_pWorld || !_pWorld->IsInit())
+		{
+			ImGui::Text("No active World.");
+			ImGui::Text("Open a scene to edit prefab components.");
+			return;
+		}
+
+		// ---- 保存 ----
+		if (ImGui::Button("Save"))
+		{
+			auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+			_pPrefab->Save(_pWorld, _path);
+			ENGINE_LOG("Save Prefab : %s", _path.c_str());
+		}
+		ImGui::Separator();
+
+		// ---- 所持コンポーネントの羅列・編集 ----
+		const ECS::Signature& _sig = _pPrefab->GetSignature();
+
+		ECS::CompEditContext _compEditContext = {};
+		_compEditContext.pWorld = _pWorld;
+		_compEditContext.entity = ECS::Limits::INVALID_ENTITY;	// プレハブは実体を持たない
+
+		// 反復中に消すと崩れるので削除は予約する
+		ECS::ComponentTypeID _removeTypeID = ECS::Limits::INVALID_COMPONENTTYPEID;
+
+		for (size_t _typeID = 0; _typeID < _sig.size(); ++_typeID)
+		{
+			if (!_sig.test(_typeID)) continue;
+
+			auto _compTypeID = static_cast<ECS::ComponentTypeID>(_typeID);
+			const auto& _metaData = _pWorld->GetComponentMetaData(_compTypeID);
+
+			if (ImGui::TreeNodeEx(_metaData.name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+			{
+				// コンポーネントごとの編集UI(エンティティインスペクタと同じ edit 関数を使う)
+				_compEditContext.pData = _pPrefab->RefData(_compTypeID);
+				auto _func = _pWorld->GetCompFunc(_compTypeID).edit;
+				if (_func && _compEditContext.pData)
+				{
+					_func(_compEditContext);
+				}
+
+				if (ImGui::Button("RemoveComponent"))
+				{
+					_removeTypeID = _compTypeID;
+				}
+
+				ImGui::TreePop();
+			}
+		}
+
+		if (_removeTypeID != ECS::Limits::INVALID_COMPONENTTYPEID)
+		{
+			_pPrefab->RemoveComponent(_removeTypeID);
+		}
+
+		// ---- コンポーネントの追加 ----
+		if (ImGui::BeginCombo("Add Component", "Select..."))
+		{
+			for (auto& [_compTypeID, _meta] : _pWorld->GetAllComponentMetaData())
+			{
+				// すでに持っていたら出さない
+				if (_sig.test(_compTypeID)) continue;
+
+				if (ImGui::Selectable(_meta.name.c_str()))
+				{
+					_pPrefab->AddComponentDefault(_pWorld, _compTypeID);
+				}
+			}
+			ImGui::EndCombo();
+		}
 	}
 }

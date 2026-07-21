@@ -46,7 +46,13 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 			"Model",
 			_comp.modelGUID))
 		{
-			a_context.pWorld->AddRefreshEntity(a_context.entity);
+			// 実体を持つエンティティのときだけリフレッシュ経路に乗せる。
+			// プレハブ編集では実体が無く entity は INVALID なので、
+			// GUID の書き換えだけ行い、リフレッシュはしない(無効IDで参照するとレンジ外になる)。
+			if (a_context.entity != Engine::ECS::Limits::INVALID_ENTITY)
+			{
+				a_context.pWorld->AddRefreshEntity(a_context.entity);
+			}
 		}
 
 		ImGui::Text("EmissiveScale");

@@ -451,6 +451,12 @@ namespace Engine
 		_shadingModelTable.AddExtensions(".ojsmtble");
 		_shadingModelTable.AddExtensions(".obsmtble");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_shadingModelTable);
+		// プレハブ
+		Resource::TypeExtension _prfb = {};
+		_prfb.type = "Prefab";
+		_prfb.AddExtensions(".ojprfb");
+		_prfb.AddExtensions(".obprfb");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_prfb);
 		// 全アセットに一括でメタファイル作成
 		// すでにあれば無視
 		Resource::AssetDatabase::Instance().CreateMetaFileForAllAssets();

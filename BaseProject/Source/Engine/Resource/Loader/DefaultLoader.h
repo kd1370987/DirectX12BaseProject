@@ -10,6 +10,7 @@
 #include "../Data/Mesh/IO/MeshIO.h"
 #include "../Data/Animation/IO/AnimationIO.h"
 #include "../Data/ShadingModelTable/IO/ShadingModelTableIO.h"
+#include "../Data/Prefab/Prefab.h"
 namespace Engine::Resource
 {
 	// ロード処理の中間用クラス
@@ -125,6 +126,15 @@ namespace Engine::Resource
 		static ShadingModelTable LoadFromFile(const std::string& a_path)
 		{
 			return ShadingModelTableIO::LoadFromFile(a_path);
+		}
+	};
+	// プレハブ
+	template<>
+	struct DefaultLoader<Prefab>
+	{
+		static Prefab LoadFromFile(const std::string& a_path)
+		{
+			return Prefab::LoadFromFile(a_path);
 		}
 	};
 }

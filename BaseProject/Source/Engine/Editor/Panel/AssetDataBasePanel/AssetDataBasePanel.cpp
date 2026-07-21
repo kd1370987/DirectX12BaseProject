@@ -19,6 +19,10 @@ namespace Engine::Editor
 		m_assetCreateFuncs["ShadingModelTable"] = [](const std::string& path, const std::string& name) {
 			Resource::ShadingModelTableIO::Create(path, name);
 			};
+
+		m_assetCreateFuncs["Prefab"] = [](const std::string& path, const std::string& name) {
+			Resource::Prefab::Create(path, name);
+			};
 	}
 	void AssetDataBasePanel::OnDrawImGui(EditorContext& a_editContext)
 	{
