@@ -514,7 +514,7 @@
     <Filter Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer">
       <UniqueIdentifier>{9ec7ad9f-bf3d-496a-82b5-60a90722f9e0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem">
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem">
       <UniqueIdentifier>{f761e75d-2768-4759-9df6-aa52bb916d38}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource\Data\Mesh\MeshMetaData">
@@ -561,9 +561,6 @@
     </Filter>
     <Filter Include="Source\Engine\Collision\BroadPhase\SphereCheck">
       <UniqueIdentifier>{d7aae830-ab8d-47bb-9d51-e3014be3d653}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Awake\AttachmentLinkSystem">
-      <UniqueIdentifier>{41ab8918-1c47-49c7-9238-b9bae0ace5cf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem">
       <UniqueIdentifier>{0d8c3ba0-d37d-4b7f-8723-7eef2d9d7794}</UniqueIdentifier>
@@ -1407,8 +1404,8 @@
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\StaticBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem\FollowAnimationNodeSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.cpp">
       <Filter>Source\Engine\Resource\Data\Mesh\MeshMetaData</Filter>
@@ -1439,9 +1436,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.cpp">
       <Filter>Source\Engine\Collision\BroadPhase\RayCheck</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentLinkSystem\AttachmentLinkSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Awake\AttachmentLinkSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem</Filter>
@@ -2288,14 +2282,14 @@
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\StructuredBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Hierarchy\ExoskeletonAttachementComponent.h">
+    <ClInclude Include="Source\Application\Components\Hierarchy\FollowAnimationNodeComponent.h">
       <Filter>Source\Application\Components\Hierarchy</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Transform\LocalTransformComponent.h">
       <Filter>Source\Application\Components\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem\FollowAnimationNodeSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.h">
       <Filter>Source\Engine\Resource\Data\Mesh\MeshMetaData</Filter>
@@ -2329,9 +2323,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.h">
       <Filter>Source\Engine\Collision\BroadPhase\RayCheck</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Awake\AttachmentLinkSystem\AttachmentLinkSystem.h">
-      <Filter>Source\Application\Systems\Init\Awake\AttachmentLinkSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.h">
       <Filter>Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem</Filter>

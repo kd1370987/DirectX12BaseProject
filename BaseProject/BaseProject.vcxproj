@@ -251,7 +251,6 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentLinkSystem\AttachmentLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.cpp" />
@@ -279,7 +278,7 @@
     <ClCompile Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem\FollowAnimationNodeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem\CommitHierarchyWorldMatrixSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.cpp" />
@@ -291,7 +290,6 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Update\Particle\BoostParticleSystem\BoostParticleSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.cpp" />
@@ -504,7 +502,7 @@
     <ClInclude Include="Source\Application\Components\Force\GravityComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\InertiaComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
-    <ClInclude Include="Source\Application\Components\Hierarchy\ExoskeletonAttachementComponent.h" />
+    <ClInclude Include="Source\Application\Components\Hierarchy\FollowAnimationNodeComponent.h" />
     <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h" />
     <ClInclude Include="Source\Application\Components\Intent\ActionIntentComponent.h" />
     <ClInclude Include="Source\Application\Components\Intent\MoveIntentComponent.h" />
@@ -546,7 +544,6 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Init\Awake\AttachmentLinkSystem\AttachmentLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.h" />
@@ -574,7 +571,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcTransformFromExoskeletonSystem\CalcTransformFromExoskeletonSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem\FollowAnimationNodeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem\CommitHierarchyWorldMatrixSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h" />
@@ -586,7 +583,6 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Update\Particle\BoostParticleSystem\BoostParticleSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.h" />

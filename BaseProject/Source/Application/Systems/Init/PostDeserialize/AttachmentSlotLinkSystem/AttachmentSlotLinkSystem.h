@@ -7,7 +7,7 @@
 //
 // AttachmentSlotsComponent の各スロットが保存している GUID から、
 // ランタイムの Entity(id) を解決する。
-// (ExoskeletonAttachmentComponent の parentGUID -> parentID 解決と同じ流儀)
+// (HierarchyComponent の parentGUID -> parentID 解決と同じ流儀)
 //==========================================================================================
 class AttachmentSlotLinkSystem : public Engine::ECS::SystemBase<AttachmentSlotLinkSystem>
 {

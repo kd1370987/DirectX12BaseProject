@@ -46,7 +46,7 @@
 #include "Application/Components/Persistence/GUIDComponent.h"
 #include "Application/Components/Persistence/NameComponent.h"
 #include "Application/Components/Hierarchy/HierarchyComponent.h"
-#include "Application/Components/Hierarchy/ExoskeletonAttachementComponent.h"
+#include "Application/Components/Hierarchy/FollowAnimationNodeComponent.h"
 #include "Application/Components/Transform/PreviousWorldMatrixComponent.h"
 #include "Application/Components/Charactor/Robot/BoostComponent.h"
 #include "Application/Components/Charactor/Robot/AttachmentSlotsComponent.h"
@@ -66,7 +66,6 @@
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
 #include "Application/Systems/Init/PostDeserialize/GUIDFixupSystem/GUIDFixupSystem.h"
 #include "Application/Systems/Init/Awake/FollowTargetLinkSystem/FollowTargetLinkSystem.h"
-#include "Application/Systems/Init/Awake/AttachmentLinkSystem/AttachmentLinkSystem.h"
 #include "Application/Systems/Init/Awake/HierarchyLinkSystem/HierarchyLinkSystem.h"
 #include "Application/Systems/Init/Start/CameraStartSystem/CameraStartSystem.h"
 #include "Application/Systems/Init/Start/AnimationModelStartSystem/AnimationModelStartSystem.h"
@@ -83,7 +82,7 @@
 #include "Application/Systems/Update/PostUpdate/AnimationSystem/AnimationSystem.h"
 #include "Application/Systems/Update/PostUpdate/SkinningSystem/SkinningSystem.h"
 #include "Application/Systems/Update/PostUpdate/CalcNodeSystem/CalcNodeSystem.h"
-#include "Application/Systems/Update/PostUpdate/CalcTransformFromExoskeletonSystem/CalcTransformFromExoskeletonSystem.h"
+#include "Application/Systems/Update/PostUpdate/FollowAnimationNodeSystem/FollowAnimationNodeSystem.h"
 #include "Application/Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
 #include "Application/Systems/Draw/Draw/StaticObjectDrawSystem/StaticObjectDrawSystem.h"
 #include "Application/Systems/Draw/Draw/DynamicObjectDrawSystem/DynamicObjectDrawSystem.h"
@@ -188,7 +187,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<NameComponent>("NameComponent");
 				a_pWorld->RegisterComponent<GUIDComponent>("GUIDComponent");
 				a_pWorld->RegisterComponent<HierarchyComponent>("HierarchyComponent");
-				a_pWorld->RegisterComponent<ExoskeletonAttachmentComponent>("ExoskeletonAttachmentComponent");
+				a_pWorld->RegisterComponent<FollowAnimationNodeComponent>("FollowAnimationNodeComponent");
 				a_pWorld->RegisterComponent<StateMachineComponent>("StateMachineComponent");
 				a_pWorld->RegisterComponent<ActionStateComponent>("ActionStateComponent");
 				a_pWorld->RegisterComponent<MoveIntentComponent>("MoveIntentComponent");
@@ -213,7 +212,6 @@ namespace App::Game
 				a_pWorld->RegisterSystem<ActionStateFixupSystem>();
 				a_pWorld->RegisterSystem<ParticleFixupSystem>();
 				a_pWorld->RegisterSystem<FollowTargetLinkSystem>();
-				a_pWorld->RegisterSystem<AttachmentLinkSystem>();
 				a_pWorld->RegisterSystem<AttachmentSlotLinkSystem>();
 				a_pWorld->RegisterSystem<HierarchyLinkSystem>();
 				a_pWorld->RegisterSystem<PlayerIntentSystem>();
@@ -240,7 +238,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<TPSSystem>();
 				a_pWorld->RegisterSystem<CalcMatrixSystem>();
 				a_pWorld->RegisterSystem<RobotBoostSystem>();
-				a_pWorld->RegisterSystem<CalccTransformFromExoskeletonSystem>();
+				a_pWorld->RegisterSystem<FollowAnimationNodeSystem>();
 				a_pWorld->RegisterSystem<RayCollisionSystem>();
 				a_pWorld->RegisterSystem<StaticObjectDrawSystem>();
 				a_pWorld->RegisterSystem<DynamicObjectDrawSystem>();

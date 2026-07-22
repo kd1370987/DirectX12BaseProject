@@ -1,4 +1,4 @@
-#include "ParticleEmitSystem.h"
+﻿#include "ParticleEmitSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -42,7 +42,7 @@ void ParticleEmitSystem::Init(Engine::ECS::World& a_world)
 					_p.wasPlaying = false;
 					continue;
 				}
-
+				
 				if (_p.emitRate > 0.0f)
 				{
 					// ---- 連続発生 : 毎秒 emitRate 回 ----

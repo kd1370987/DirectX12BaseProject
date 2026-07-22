@@ -1,4 +1,4 @@
-#include "ThrusterEffectSystem.h"
+﻿#include "ThrusterEffectSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -69,7 +69,7 @@ void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 				// (RobotBoostSystem の推力適用条件に合わせている)
 				bool _boosting = _boost.isBoostIntent && (_boost.currentFuel > _boost.boostFuel);
 
-				// ---- スラスター2系統の点火判定(ACらしい多段推進) ----
+				// ---- スラスター2系統の点火判定 ----
 
 				// 脚 : 通常移動・上昇のメイン推進
 				bool _legOn = _moving || _rising || _boosting;
