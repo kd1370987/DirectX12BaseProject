@@ -49,6 +49,7 @@
 #include "Application/Components/Hierarchy/ExoskeletonAttachementComponent.h"
 #include "Application/Components/Transform/PreviousWorldMatrixComponent.h"
 #include "Application/Components/Charactor/Robot/BoostComponent.h"
+#include "Application/Components/Charactor/Robot/AttachmentSlotsComponent.h"
 #include "Application/Components/Resource/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
 #include "Application/Components/Collision/SphreCollider.h"
@@ -118,6 +119,9 @@
 #include "../../Systems/Update/PreUpdate/CollisionEventClearSystem/CollisionEventClearSystem.h"
 #include "../../Systems/Update/Physics/HitDetectSystem/HitDetectSystem.h"
 #include "../../Systems/Update/PostUpdate/ExplodeOnHitSystem/ExplodeOnHitSystem.h"
+#include "../../Systems/Update/PreUpdate/AttachmentDispatchSystem/AttachmentDispatchSystem.h"
+#include "../../Systems/Init/PostDeserialize/AttachmentSlotLinkSystem/AttachmentSlotLinkSystem.h"
+#include "../../Systems/Update/Update/SubmitDynamicColliderSystem/SubmitDynamicColliderSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -189,6 +193,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<MoveIntentComponent>("MoveIntentComponent");
 				a_pWorld->RegisterComponent<PreviousWorldMatrixComponent>("PreviousWorldMatrixComponent");
 				a_pWorld->RegisterComponent<BoostComponent>("BoostComponent");
+				a_pWorld->RegisterComponent<AttachmentSlotsComponent>("AttachmentSlotsComponent");
 				a_pWorld->RegisterComponent<ParticlesComponent>("ParticlesComponent");
 				a_pWorld->RegisterComponent<TPSCameraStateComponent>("TPSCameraStateComponent");
 				a_pWorld->RegisterComponent<CapsuleColliderComponent>("CapsuleColliderComponent");
@@ -208,8 +213,10 @@ namespace App::Game
 				a_pWorld->RegisterSystem<ParticleFixupSystem>();
 				a_pWorld->RegisterSystem<FollowTargetLinkSystem>();
 				a_pWorld->RegisterSystem<AttachmentLinkSystem>();
+				a_pWorld->RegisterSystem<AttachmentSlotLinkSystem>();
 				a_pWorld->RegisterSystem<HierarchyLinkSystem>();
 				a_pWorld->RegisterSystem<PlayerIntentSystem>();
+				a_pWorld->RegisterSystem<AttachmentDispatchSystem>();
 				a_pWorld->RegisterSystem<ActionIntentSystem>();
 				a_pWorld->RegisterSystem<StateMachinComitSystem>();
 				a_pWorld->RegisterSystem<ActionStateCommitSystem>();
@@ -253,6 +260,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<OBBCollisionSystem>();
 				a_pWorld->RegisterSystem<InputActionSystem>();
 				a_pWorld->RegisterSystem<GunShootSystem>();
+				a_pWorld->RegisterSystem<SubmitDynamicColliderSystem>();
 				a_pWorld->RegisterSystem<CollisionEventClearSystem>();
 				a_pWorld->RegisterSystem<HitDetectSystem>();
 				a_pWorld->RegisterSystem<ExplodeOnHitSystem>();

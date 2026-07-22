@@ -131,7 +131,7 @@ namespace Engine::ECS
 		// 初期化システムズ
 		RunSystem(Engine::ECS::ESystemType::PostDeserialize, 0.0f);
 		TransitionPhase<PostDeserializeTag, AwekeTag>();
-
+	
 		RunSystem(Engine::ECS::ESystemType::Awake, 0.0f);
 		TransitionPhase<AwekeTag, StartTag>();
 

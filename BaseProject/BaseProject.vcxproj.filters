@@ -451,6 +451,9 @@
     <Filter Include="Source\Application\Components\Tag\SystemPhaseTag">
       <UniqueIdentifier>{c5902d69-d370-4672-b396-65beb03b9130}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem">
+      <UniqueIdentifier>{c4f81a26-3b57-4e19-9a72-5d1e6f8b02a4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem">
       <UniqueIdentifier>{4ff5ce68-77de-401c-8ca7-ef7d33bd893c}</UniqueIdentifier>
     </Filter>
@@ -693,6 +696,9 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem">
       <UniqueIdentifier>{83675496-7da3-472b-b73b-af8dacfaa60e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem">
+      <UniqueIdentifier>{b2e7a1c4-9f3d-4a6b-8c21-7de5f0a4b913}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem">
       <UniqueIdentifier>{ca73c634-5fce-4e9d-ada6-0901ab471f24}</UniqueIdentifier>
@@ -1108,6 +1114,9 @@
     <Filter Include="Source\Application\Systems\Update\Input\InputActionSystem">
       <UniqueIdentifier>{b7db7634-7c93-4439-8aab-074dbeaebc9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem">
+      <UniqueIdentifier>{a7d3f091-6c48-4b2e-8f15-9e07a3c1d5b6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\GunShootSystem">
       <UniqueIdentifier>{8b01a7d1-cc31-4437-a574-99d15551c0f1}</UniqueIdentifier>
     </Filter>
@@ -1350,6 +1359,9 @@
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem\AttachmentSlotLinkSystem.cpp">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.cpp">
       <Filter>Source\Application\Systems\Init\Awake\FollowTargetLinkSystem</Filter>
     </ClCompile>
@@ -1499,6 +1511,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
@@ -1808,6 +1823,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\GunShootSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Prefab\Prefab.cpp">
       <Filter>Source\Engine\Resource\Data\Prefab</Filter>
@@ -2207,6 +2225,9 @@
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem\AttachmentSlotLinkSystem.h">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.h">
       <Filter>Source\Application\Systems\Init\Awake\FollowTargetLinkSystem</Filter>
     </ClInclude>
@@ -2405,6 +2426,9 @@
     <ClInclude Include="Source\Application\Components\Charactor\Robot\BoostComponent.h">
       <Filter>Source\Application\Components\Charactor\Robot</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Charactor\Robot\AttachmentSlotsComponent.h">
+      <Filter>Source\Application\Components\Charactor\Robot</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.h">
       <Filter>Source\Application\Systems\Update\Animation\AnimationStateSystem</Filter>
     </ClInclude>
@@ -2416,6 +2440,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
@@ -2851,6 +2878,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.h">
       <Filter>Source\Application\Systems\Update\Update\GunShootSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h">
       <Filter>Source\Application\Components\Collision</Filter>
