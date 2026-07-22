@@ -1126,6 +1126,15 @@
     <Filter Include="Source\Application\Components\Charactor\Weapon\Gun">
       <UniqueIdentifier>{e5853aec-2a82-4d9e-9ef7-776b42616acd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem">
+      <UniqueIdentifier>{21cd4ed3-b293-4765-8679-8ac9f0b62cfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Physics\HitDetectSystem">
+      <UniqueIdentifier>{7c583425-e58b-465b-8df5-834a1e8cccd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem">
+      <UniqueIdentifier>{676272b8-f8b0-43d2-a547-f18422fa05e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1814,6 +1823,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.cpp">
       <Filter>Source\Application\Systems\Update\Physics\OBBCollisionSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Physics\HitDetectSystem\HitDetectSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Physics\HitDetectSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2860,6 +2878,21 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Charactor\Weapon\Gun\GunStateComponent.h">
       <Filter>Source\Application\Components\Charactor\Weapon\Gun</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Internal\CollisionEvent.h">
+      <Filter>Source\Engine\ECS\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Collision\ExplodeOnHitComponent.h">
+      <Filter>Source\Application\Components\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Physics\HitDetectSystem\HitDetectSystem.h">
+      <Filter>Source\Application\Systems\Update\Physics\HitDetectSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

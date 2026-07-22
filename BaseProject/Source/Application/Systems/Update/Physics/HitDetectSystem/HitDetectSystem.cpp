@@ -1,4 +1,4 @@
-#include "HitDetectSystem.h"
+﻿#include "HitDetectSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/ECS/Internal/CollisionEvent.h"
