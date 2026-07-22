@@ -42,6 +42,18 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				auto _nodePoseVec = _nodePosePool.RefRange(_nodeComp.nodePoseHandle);
 				if (_nodePoseVec.empty()) continue;
 
+				// チャンネル適用前に、全ノードのlocalをモデルのバインドポーズで毎フレームリセットする。
+				// これをしないと、クリップが触らないノード(ルート/アーマチュアの向き補正や
+				// 腰オフセット等)がIdentityのまま残り、斜め上を向いて浮く原因になる。
+				// モデル差し替え直後に旧クリップが残っていても、現モデルのバインドポーズに戻せる。
+				{
+					const auto& _nodes = _pModel->GetOriginalNodeVec();
+					for (size_t _n = 0; _n < _nodePoseVec.size() && _n < _nodes.size(); ++_n)
+					{
+						_nodePoseVec[_n].local = _nodes[_n].localTransform;
+					}
+				}
+
 				// すべてのアニメーションノードの行列保管を実行する
 				for (size_t _j = 0; _j < _pAni->nodes.size(); ++_j)
 				{

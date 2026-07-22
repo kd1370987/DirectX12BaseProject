@@ -53,11 +53,17 @@ void RayAnimationModelSystem::Init(Engine::ECS::World& a_world)
 				UINT _totalNodeCount = static_cast<UINT>(_pModel->GetOriginalNodeVec().size());
 				_nodeComp.nodePoseHandle = _nodePosePool.AllocateRange(_totalNodeCount);
 
-				// ノードポーズ初期化
-				for (auto& _mat : _nodePosePool.RefRange(_nodeComp.nodePoseHandle))
+				// ノードポーズ初期化：localはモデルのバインドポーズで初期化する。
+				// Identityにすると、アニメが触らないノードのバインド変換が消えて
+				// 斜め上を向いて浮く原因になる。
 				{
-					_mat.local = DXSM::Matrix::Identity;
-					_mat.world = DXSM::Matrix::Identity;
+					const auto& _nodes = _pModel->GetOriginalNodeVec();
+					auto _nodePoseVec = _nodePosePool.RefRange(_nodeComp.nodePoseHandle);
+					for (size_t _n = 0; _n < _nodePoseVec.size(); ++_n)
+					{
+						_nodePoseVec[_n].local = (_n < _nodes.size()) ? _nodes[_n].localTransform : DXSM::Matrix::Identity;
+						_nodePoseVec[_n].world = DXSM::Matrix::Identity;
+					}
 				}
 
 				// ボーン行列領域確保

@@ -1,4 +1,4 @@
-﻿#include "TPSSystem.h"
+#include "TPSSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -15,7 +15,7 @@
 
 void TPSSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, LocalTransformComponent,TPSCameraStateComponent>(
+	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, LocalTransformComponent, TPSCameraStateComponent>(
 		Engine::ECS::ESystemType::Camera,
 		"TPSSystem",
 		[&a_world](
@@ -28,87 +28,87 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 			TPSLookAngleComponent* a_lookAngArray,
 			LocalTransformComponent* a_trsArray,
 			TPSCameraStateComponent* a_tpsStatArray
-		) 
+		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				// カメラのコンポーネントを取得
-				FollowTargetComponent&	_followComp = a_targetArray[_i];
-				TPSOffsetComponent&		_offsetComp = a_offsetArray[_i];
-				LocalTransformComponent&		_trsComp	= a_trsArray[_i];
-				TPSLookAngleComponent&	_lookComp	= a_lookAngArray[_i];
-				TPSCameraStateComponent& _statComp	= a_tpsStatArray[_i];
+				FollowTargetComponent&		_followComp = a_targetArray[_i];
+				TPSOffsetComponent&			_offsetComp = a_offsetArray[_i];
+				LocalTransformComponent&	_trsComp	= a_trsArray[_i];
+				TPSLookAngleComponent&		_lookComp	= a_lookAngArray[_i];
+				TPSCameraStateComponent&	_statComp	= a_tpsStatArray[_i];
 
-				// ターゲットのコンポーネントを取得
+				//============================================================
+				// ターゲット取得
+				//============================================================
 				Engine::ECS::Entity _target = _followComp.target;
 				if (!a_world.HasComponent<LocalTransformComponent>(_target)) continue;
 				if (!a_world.HasComponent<PlayerLookAngleComponent>(_target)) continue;
-
 				const LocalTransformComponent* _targetTRS = a_world.RefData<LocalTransformComponent>(_target);
 				const PlayerLookAngleComponent* _targetLook = a_world.RefData<PlayerLookAngleComponent>(_target);
 				if (!_targetLook || !_targetTRS) continue;
-				
-				DirectX::XMVECTOR _quat = DirectX::XMQuaternionRotationRollPitchYaw(
-					DirectX::XMConvertToRadians(-_targetLook->Pitch),
+
+				//============================================================
+				// ターゲット回転
+				//------------------------------------------------------------
+				// Yaw/Pitchは度(degree)で保持されているのでラジアンへ変換する。
+				// Vector3オーバーロードは(pitch,yaw,roll)順で軸が入れ替わるため、
+				// スカラー版 CreateFromYawPitchRoll(yaw,pitch,roll) を明示的に使う。
+				//============================================================
+				DXSM::Quaternion _targetRot = DXSM::Quaternion::CreateFromYawPitchRoll(
 					DirectX::XMConvertToRadians(_targetLook->Yaw),
+					DirectX::XMConvertToRadians(-_targetLook->Pitch),
 					0.0f
 				);
+				_targetRot.Normalize();
 
-				_quat = DirectX::XMQuaternionNormalize(_quat);
-
-				DirectX::XMStoreFloat4(&_trsComp.quat, _quat);
-
-				// プレイヤーの後ろ方向を算出
-				DirectX::XMVECTOR _forward = DirectX::XMVector3Rotate(
-					DirectX::XMVectorSet(0, 0, 1, 0),
-					_quat
-				);
-
-				DirectX::XMFLOAT3 _forw;
-				DirectX::XMStoreFloat3(&_forw, _forward);
-
-
+				//============================================================
+				// ピボット / 距離 / 注視点
+				//============================================================
+				DXSM::Vector3 _pivot = _targetTRS->pos + DXSM::Vector3::Up * _offsetComp.y;
 				float _distance = _offsetComp.z;
+				DXSM::Vector3 _targetLookAt = _targetTRS->pos + DXSM::Vector3(0.f, 1.5f, 0.f);
 
-				// カメラの目標座標を計算する
-				DirectX::XMVECTOR _targetCamPos =
-					DirectX::XMVectorAdd(DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&_targetTRS->pos), 
-						DirectX::XMVectorScale(_forward, _distance)), 
-						DirectX::XMVectorScale(DirectX::XMVectorSet(0, 1, 0, 0), _offsetComp.y)
-					);
+				//============================================================
+				// オービット回転の補間(クォータニオンSlerp)
+				//------------------------------------------------------------
+				// Vector3::Lerp+正規化での「向き」補間は、現在向きと目標向きが
+				// ほぼ反対を向いた瞬間に補間結果がゼロ近傍を通り、正規化が破綻して
+				// 高速に180度反転する。Slerpは最短経路で回るためこの破綻が無い。
+				//============================================================
+				float _t = std::min(10.0f * a_dt, 1.0f);		// 補間係数
 
-				// カメラの注視点を計算する
-				DirectX::XMVECTOR _targetLookAt = DirectX::XMVectorAdd(
-					DirectX::XMLoadFloat3(&_targetTRS->pos),
-					DirectX::XMVectorSet(0.0f, 1.5f, 0.0f, 0.0f) // 少し上のオフセット
-				);
+				DXSM::Quaternion _curOrbit = _statComp.currentOrbit;
+				if (_curOrbit.LengthSquared() < 1e-6f) _curOrbit = _targetRot;	// 未初期化保険
 
-				// リープを使って、徐々に目標へ近づける
-				float _lerpSpeed = 10.0f * a_dt;
+				DXSM::Quaternion _orbit = DXSM::Quaternion::Slerp(_curOrbit, _targetRot, _t);
+				_orbit.Normalize();
+				_statComp.currentOrbit = _orbit;
 
-				DirectX::XMVECTOR _currentPos = DirectX::XMLoadFloat3(&_trsComp.pos);
-				_currentPos = DirectX::XMVectorLerp(_currentPos,_targetCamPos,_lerpSpeed);
+				//============================================================
+				// カメラ位置：ピボットの後方へ距離d(常に球面上=距離固定)
+				//============================================================
+				DXSM::Vector3 _dir = DXSM::Vector3::Transform(DXSM::Vector3::Backward, _orbit); // (0,0,1)を回転
+				DXSM::Vector3 _currentPos = _pivot + _dir * _distance;
 
-				DirectX::XMVECTOR _currentLookAt = DirectX::XMLoadFloat3(&_statComp.currentLookAt);
-				_currentLookAt = DirectX::XMVectorLerp(_currentLookAt, _targetLookAt, _lerpSpeed);
-
-				DirectX::XMMATRIX _viewMat = DirectX::XMMatrixLookAtLH(
+				//============================================================
+				// カメラ回転(このエンジンは左手系。CreateLookAtは右手系で
+				// 向きが180度反転するため XMMatrixLookAtLH を使う)
+				//============================================================
+				DXSM::Matrix _view = DirectX::XMMatrixLookAtLH(
 					_currentPos,
-					_currentLookAt,
-					DirectX::XMVectorSet(0, 1, 0, 0)
+					_targetLookAt,
+					DXSM::Vector3::Up
 				);
+				DXSM::Quaternion _camRot = DXSM::Quaternion::CreateFromRotationMatrix(_view.Invert());
 
-				// View行列からカメラのワールドクォータニオンを抽出する
-				DirectX::XMVECTOR _det;
-				DirectX::XMMATRIX _invViewMat = DirectX::XMMatrixInverse(&_det, _viewMat);
-
-				DirectX::XMVECTOR _camQuat = DirectX::XMQuaternionRotationMatrix(_invViewMat);
-				DirectX::XMStoreFloat4(&_trsComp.quat, _camQuat);
-
-				// 状態の保存と移動の適用
-				DirectX::XMStoreFloat3(&_statComp.currentLookAt, _currentLookAt);
-				DirectX::XMStoreFloat3(&_trsComp.pos, _currentPos);
-
+				//============================================================
+				// 保存
+				//============================================================
+				_trsComp.pos = _currentPos;
+				_trsComp.quat = _camRot;
+				_statComp.currentLookAt = _targetLookAt;
 				_trsComp.isDirty = true;
 			}
 		}
