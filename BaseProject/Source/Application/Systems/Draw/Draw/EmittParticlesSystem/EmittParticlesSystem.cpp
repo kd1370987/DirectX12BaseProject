@@ -1,4 +1,4 @@
-﻿#include "EmittParticlesSystem.h"
+#include "EmittParticlesSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/MainEngine.h"
@@ -11,6 +11,13 @@
 #include "../../../../Components/Resource/ParticlesComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 
+//==========================================================================================
+// EmittParticleSystem
+//
+// ParticleEmitSystem が計算した pendingEmitCount 個を、実際に GPU へ emit 要求する。
+// 発生位置・方向は ParticlesComponent::emitSpace に従って決定し、
+// スケール/拡散はコンポーネント、速度/寿命はアセットから取得する。
+//==========================================================================================
 void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ParticlesComponent, const WorldMatrixComponent>(
@@ -28,71 +35,83 @@ void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const auto& _particleComp = a_particleArray[_i];
-				const auto& _transComp = a_transArray[_i];
+				const ParticlesComponent& _p = a_particleArray[_i];
+				const WorldMatrixComponent& _transComp = a_transArray[_i];
 
-				// パーティクル発射命令がオフなら処理しない
-				if (!_particleComp.isPlay) continue;
+				// このフレームの発生数(ParticleEmitSystem が計算済み)
+				if (_p.pendingEmitCount <= 0) continue;
 
 				// パーティクルマネージャー取得
 				auto* _pParticleManager = Engine::MainEngine::Instance().RefParticleManager();
 				if (!_pParticleManager) continue;
 
 				// パーティクルアセット取得
-				auto* _pParticle = Engine::Resource::ResourceManager::Instance().Get(_particleComp.particlesAssetHandle);
+				auto* _pParticle = Engine::Resource::ResourceManager::Instance().Get(_p.particlesAssetHandle);
 				if (!_pParticle) continue;
 
-				// エミットデータ
-				Engine::Particle::EmitterData _emitData = {};
-
 				// ---------------------------------------------------------
-				// ワールド行列から位置と向きを抽出
+				// 発生源(位置・方向)を emitSpace に応じて決定
 				// ---------------------------------------------------------
+				DXSM::Matrix  _world(_transComp.worldMat);
+				DXSM::Vector3 _pos;
+				DXSM::Vector3 _dir;
 
-				// 行列の4行目(41, 42, 43)からワールド位置を抽出
-				_emitData.emitPos.x = _transComp.worldMat._41;
-				_emitData.emitPos.y = _transComp.worldMat._42;
-				_emitData.emitPos.z = _transComp.worldMat._43;
-
-				// 行列の3行目(31, 32, 33)から前方の向き（Z方向）を抽出
-				float _dirX = _transComp.worldMat._31;
-				float _dirY = _transComp.worldMat._32;
-				float _dirZ = _transComp.worldMat._33;
-
-				// スケール成分が含まれている可能性を考慮して正規化（Normalize）する
-				float _length = std::sqrt(_dirX * _dirX + _dirY * _dirY + _dirZ * _dirZ);
-				if (_length > 0.0001f)
+				switch (_p.emitSpace)
 				{
-					_emitData.emitDirection.x = _dirX / _length;
-					_emitData.emitDirection.y = _dirY / _length;
-					_emitData.emitDirection.z = _dirZ / _length;
+				case EEmitSpace::WorldMatrix:
+					// 付いているオブジェクトのワールド位置と前方向(+Z)
+					_pos = _world.Translation();
+					_dir = DXSM::Vector3(_world._31, _world._32, _world._33);
+					break;
+
+				case EEmitSpace::LocalOffset:
+					// worldMat を基準に、ローカルのオフセット位置・方向を合成
+					_pos = DXSM::Vector3::Transform(DXSM::Vector3(_p.posOffset), _world);
+					_dir = DXSM::Vector3::TransformNormal(DXSM::Vector3(_p.emitDir), _world);
+					break;
+
+				case EEmitSpace::FixedWorld:
+				default:
+					// 行列を使わず、コンポーネントの絶対座標・方向をそのまま
+					_pos = DXSM::Vector3(_p.worldPos);
+					_dir = DXSM::Vector3(_p.emitDir);
+					break;
+				}
+
+				// 方向の正規化(スケール成分や 0 ベクトルへの安全策)
+				if (_dir.LengthSquared() > 1e-8f)
+				{
+					_dir.Normalize();
 				}
 				else
 				{
-					// 万が一スケールが0などで長さが取れなかった場合の安全策
-					_emitData.emitDirection = { 0.0f, 0.0f, 1.0f };
+					_dir = DXSM::Vector3(0.0f, 0.0f, 1.0f);
 				}
 
 				// ---------------------------------------------------------
+				// エミットデータ構築
+				// ---------------------------------------------------------
+				Engine::Particle::EmitterData _emitData = {};
 
-				_emitData.emitCount = _particleComp.particleCount;
-				_emitData.baseScale = 1;
+				_emitData.emitPos       = _pos;
+				_emitData.emitDirection = _dir;
+				_emitData.emitCount     = static_cast<UINT>(_p.pendingEmitCount);
 
-				_emitData.positionRadius = 0.5f;
-				_emitData.directionAngle = DirectX::XMConvertToRadians(10);
+				// 形状(スケール/拡散)はコンポーネントから
+				_emitData.baseScale      = _p.baseScale;
+				_emitData.positionRadius = _p.positionRadius;
+				_emitData.directionAngle = DirectX::XMConvertToRadians(_p.directionAngle);
+				_emitData.minScale       = _p.minScale;
+				_emitData.maxScale       = _p.maxScale;
 
-				_emitData.minScale = 0.1f;
-				_emitData.maxScale = 1.0f;
-
-				_emitData.minSpeed = _pParticle->GetInitalSpeedMin();
-				_emitData.maxSpeed = _pParticle->GetInitalSpeedMax();
-
+				// 速度・寿命はアセットから
+				_emitData.minSpeed    = _pParticle->GetInitalSpeedMin();
+				_emitData.maxSpeed    = _pParticle->GetInitalSpeedMax();
 				_emitData.minLifeTime = _pParticle->GetLifeTimeMin();
 				_emitData.maxLifeTime = _pParticle->GetLifeTimeMax();
 
-
 				// 登録
-				_pParticleManager->RequestEmit(_particleComp.particlesAssetHandle, _emitData);
+				_pParticleManager->RequestEmit(_p.particlesAssetHandle, _emitData);
 			}
 		}
 	);

@@ -700,6 +700,9 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem">
       <UniqueIdentifier>{b2e7a1c4-9f3d-4a6b-8c21-7de5f0a4b913}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem">
+      <UniqueIdentifier>{d9c8b3a5-1e42-4f7a-b6d0-3c8f5a2e9107}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem">
       <UniqueIdentifier>{ca73c634-5fce-4e9d-ada6-0901ab471f24}</UniqueIdentifier>
     </Filter>
@@ -1514,6 +1517,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
@@ -2443,6 +2449,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>

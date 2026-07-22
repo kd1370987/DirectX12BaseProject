@@ -1,7 +1,4 @@
-#include "GunShootSystem.h"
-
-#include <cmath>
-#include <cstring>
+﻿#include "GunShootSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"

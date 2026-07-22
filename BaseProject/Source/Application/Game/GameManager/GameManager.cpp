@@ -120,6 +120,7 @@
 #include "../../Systems/Update/Physics/HitDetectSystem/HitDetectSystem.h"
 #include "../../Systems/Update/PostUpdate/ExplodeOnHitSystem/ExplodeOnHitSystem.h"
 #include "../../Systems/Update/PreUpdate/AttachmentDispatchSystem/AttachmentDispatchSystem.h"
+#include "../../Systems/Update/PreUpdate/ThrusterEffectSystem/ThrusterEffectSystem.h"
 #include "../../Systems/Init/PostDeserialize/AttachmentSlotLinkSystem/AttachmentSlotLinkSystem.h"
 #include "../../Systems/Update/Update/SubmitDynamicColliderSystem/SubmitDynamicColliderSystem.h"
 
@@ -217,6 +218,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<HierarchyLinkSystem>();
 				a_pWorld->RegisterSystem<PlayerIntentSystem>();
 				a_pWorld->RegisterSystem<AttachmentDispatchSystem>();
+				a_pWorld->RegisterSystem<ThrusterEffectSystem>();
 				a_pWorld->RegisterSystem<ActionIntentSystem>();
 				a_pWorld->RegisterSystem<StateMachinComitSystem>();
 				a_pWorld->RegisterSystem<ActionStateCommitSystem>();

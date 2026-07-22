@@ -14,7 +14,7 @@ namespace Engine
 		if (UuidToStringA(&value, &str) == RPC_S_OK)
 		{
 			ret = (char*)str;
-			RpcStringFreeA(&str); // ← これ超重要
+			RpcStringFreeA(&str);
 		}
 
 		return ret;

@@ -287,9 +287,11 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Particle\BoostParticleSystem\BoostParticleSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.cpp" />
@@ -580,9 +582,11 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Particle\BoostParticleSystem\BoostParticleSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.h" />

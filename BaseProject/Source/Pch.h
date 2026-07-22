@@ -57,6 +57,8 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 #include <cstdint>
 #include <cinttypes>
+#include <cmath>
+#include <cstring>
 
 // コントローラー対応
 #pragma comment(lib,"Xinput.lib")
