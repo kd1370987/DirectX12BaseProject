@@ -1,8 +1,16 @@
 ﻿#pragma once
 
-namespace Engine::ECS
+namespace Engine
 {
-	class World;
+	namespace ECS
+	{
+		class World;
+	}
+
+	namespace GameObject
+	{
+		class GameObjectManager;
+	}
 }
 namespace Engine::Scene
 {
@@ -50,9 +58,13 @@ namespace Engine::Scene
 
 
 	private:
-
+		// ゲームの本体 : ワールド空間上にあるものすべてはこちらで管理
 		std::unique_ptr<Engine::ECS::World> m_upWorld = nullptr;
 
+		// ECS側で扱いにくいものなどの管理
+		std::unique_ptr<GameObject::GameObjectManager> m_upGameObjectManager = nullptr;
+
+		// 自身のデータの所在
 		Engine::GUID m_guid;
 	};
 }

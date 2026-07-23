@@ -10,7 +10,7 @@
 #include "../../MainEngine.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Collision/CollisionWorld.h"
-
+#include "../../GameObject/GameObjectManager/GameObjectManager.h"
 
 namespace Engine::Scene
 {
@@ -28,6 +28,9 @@ namespace Engine::Scene
 
 		// ワールド設定の呼びだし
 		SceneManager::Instance().InvokeWorldInitCallback(m_upWorld.get());
+
+		// ECS外オブジェクトの生成
+		m_upGameObjectManager = std::make_unique<GameObject::GameObjectManager>();
 	}
 
 	void BaseScene::Exit()
@@ -57,11 +60,6 @@ namespace Engine::Scene
 
 			_i = 0;
 		}
-
-
-		// エディター状態なら更新をしない
-		auto _mode = Engine::MainEngine::Instance().GetMode();
-		//if (_mode == EAppMode::Editor) return;
 		
 		// シーンのシステム処理
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Input, a_dt);
