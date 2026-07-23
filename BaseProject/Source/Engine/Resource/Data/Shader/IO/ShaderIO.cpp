@@ -12,14 +12,6 @@ namespace Engine::Resource
 		return _shader;
 	}
 
-	ShaderLibrary ShaderIO::LoadShaderLibraryFromFile(const std::string& a_path)
-	{
-		// 読み込みチェック
-		ShaderLibrary _shader = {};
-		_shader.Load(a_path);
-		return _shader;
-	}
-
 	Handle<Shader> Engine::Resource::ShaderIO::Request(const std::string& a_path)
 	{
 		// アセットデータベースに問い合わせ
@@ -33,19 +25,5 @@ namespace Engine::Resource
 
 		ENGINE_LOG("シェーダーの読み込みに失敗しました : %s",a_path.c_str());
 		return Handle<Shader>();
-	}
-
-	Handle<ShaderLibrary> Engine::Resource::ShaderIO::RequestShaderLibrary(const std::string& a_path)
-	{
-		// アセットデータベースに問い合わせ
-		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_path);
-		if (_guid != Engine::DefaultGUID)
-		{
-			// 見つかれば
-			auto _shader = LoadShaderLibraryFromFile(a_path);
-			return ResourceManager::Instance().AddResourceAndGUID(std::move(_shader), _guid);
-		}
-
-		return Handle<ShaderLibrary>();
 	}
 }

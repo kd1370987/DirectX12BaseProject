@@ -21,11 +21,11 @@ namespace Engine::Raytracing
 		_subObjects.reserve(14);
 
 		// DXILライブラリを用いてシェーダーをロード
-		m_shader.Load(a_desc.shaderPass);
+		m_shader.LoadLibrary(a_desc.shaderPass);
 
 		// DXIL Libraryを登録
 		BuildSubObjectHelper::DXILLibrarySubObject _dxilLibSO;
-		_dxilLibSO.Init(m_shader.GetIDxcBlob(), a_desc.shaderDataVec);
+		_dxilLibSO.Init(m_shader.Get(), a_desc.shaderDataVec);
 		_subObjects.push_back(_dxilLibSO.subObject);
 
 		// ヒットグループのサブオブジェクトの作成

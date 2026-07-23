@@ -438,9 +438,6 @@ namespace Engine
 		_shaderExt.AddExtensions(".hlsl");
 		_shaderExt.AddExtensions(".cso");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_shaderExt);
-		Resource::TypeExtension _shaderLibraryExt = {};
-		_shaderLibraryExt.type = "ShaderLibrary";
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_shaderLibraryExt);
 		// シーン
 		Resource::TypeExtension _sceneExt = {};
 		_sceneExt.type = "Scene";

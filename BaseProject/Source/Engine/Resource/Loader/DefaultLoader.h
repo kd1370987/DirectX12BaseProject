@@ -74,15 +74,6 @@ namespace Engine::Resource
 			return ShaderIO::LoadShaderFromFile(a_path);
 		}
 	};
-	// ライブラリシェーダー
-	template<>
-	struct DefaultLoader<ShaderLibrary>
-	{
-		static ShaderLibrary LoadFromFile(const std::string& a_path)
-		{
-			return ShaderIO::LoadShaderLibraryFromFile(a_path);
-		}
-	};
 	// パーティクル
 	template<>
 	struct DefaultLoader<ParticlesAsset>

@@ -14,7 +14,6 @@ namespace Engine::Resource
 		m_animationData.pool.Release();
 		m_textureData.pool.Release();
 		m_shaderData.pool.Release();
-		m_shaderLibraryData.pool.Release();
 		m_animatorAssetData.pool.Release();
 		m_actionStateMachineAssetData.pool.Release();
 	}
@@ -27,7 +26,6 @@ namespace Engine::Resource
 		ResetECSRefs<AnimationData>();
 		ResetECSRefs<Mesh>();
 		ResetECSRefs<Shader>();
-		ResetECSRefs<ShaderLibrary>();
 		ResetECSRefs<AnimatorAsset>();
 		ResetECSRefs<ActionStateMachineAsset>();
 	}
@@ -39,7 +37,6 @@ namespace Engine::Resource
 		SweepUnused<Texture>();
 		SweepUnused<Mesh>();
 		//SweepUnused<Shader>();
-		//SweepUnused<ShaderLibrary>();
 		//SweepUnused<AnimatorAsset>();
 
 		//SweepUnused<AnimationData>();

@@ -87,6 +87,6 @@ namespace Engine::Raytracing
 
 		ID3D12RootSignature* m_pRootSig;
 
-		Resource::ShaderLibrary m_shader;
+		Resource::Shader m_shader;
 	};
 }

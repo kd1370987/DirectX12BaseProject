@@ -3,8 +3,9 @@
 
 ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 	const std::string& a_path,
-	const wchar_t* a_plofileVersion, 
-	std::vector<LPCWSTR> a_setting
+	const wchar_t* a_plofileVersion,
+	std::vector<LPCWSTR> a_setting,
+	EShaderStage a_forceStage
 )
 {
 	namespace fs = std::filesystem;
@@ -92,11 +93,25 @@ ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 		return nullptr;
 	}
 
-	// ファイル名からシェーダーの種類を推論する
+	// シェーダーの種類を決める。
+	// 明示指定があればそれを使い、無ければファイル名のサフィックスから推論する。
 	std::wstring _profile = L"ps_6_5";	// デフォルト
 	std::wstring _entryPoint = L"main";
 
-	if (_fileName.length() >= 2)
+	if (a_forceStage != EShaderStage::Unknown)
+	{
+		switch (a_forceStage)
+		{
+		case EShaderStage::MS:	_profile = std::wstring(L"ms_") + a_plofileVersion;	_entryPoint = L"MSMain";	break;
+		case EShaderStage::AS:	_profile = std::wstring(L"as_") + a_plofileVersion;	_entryPoint = L"ASMain";	break;
+		case EShaderStage::VS:	_profile = std::wstring(L"vs_") + a_plofileVersion;	_entryPoint = L"VSMain";	break;
+		case EShaderStage::PS:	_profile = std::wstring(L"ps_") + a_plofileVersion;	_entryPoint = L"PSMain";	break;
+		case EShaderStage::CS:	_profile = std::wstring(L"cs_") + a_plofileVersion;	_entryPoint = L"CSMain";	break;
+		case EShaderStage::Lib:	_profile = std::wstring(L"lib_") + a_plofileVersion;	_entryPoint = L"";			break;
+		default: break;
+		}
+	}
+	else if (_fileName.length() >= 2)
 	{
 		std::string _suffix = _fileName.substr(_fileName.length() - 2);
 		if (_suffix == "MS") { _profile = std::wstring(L"ms_") + a_plofileVersion; _entryPoint = L"MSMain"; }
@@ -121,6 +136,16 @@ ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 	else
 	{
 		_args = a_setting;
+	}
+
+	// シェーダー自身のディレクトリを必ずインクルードパスに追加する。
+	// 同じフォルダに置いた .hlsli を、相対パスなしで include できるようにするため。
+	// 文字列の実体は _args が指すのでコンパイル完了まで生かしておく。
+	std::wstring _selfDir = StringUtility::ToWideString(_hlslPath.parent_path().string());
+	if (!_selfDir.empty())
+	{
+		_args.push_back(L"-I");
+		_args.push_back(_selfDir.c_str());
 	}
 
 	// 前に作った DXCコンパイラの呼び出し

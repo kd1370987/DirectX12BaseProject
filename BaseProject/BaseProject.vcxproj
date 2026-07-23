@@ -433,9 +433,7 @@
     <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Prefab\Prefab.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\DXCCompiler\DXCCompiler.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\Importer\DXIL\DXIL.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer\RasterizerImport.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\ShaderIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp" />
@@ -796,9 +794,7 @@
     <ClInclude Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Prefab\Prefab.h" />
     <ClInclude Include="Source\Engine\Resource\Data\QuadPolygon\QuadPolygon.h" />
-    <ClInclude Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\DXCCompiler\DXCCompiler.h" />
-    <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\Importer\DXIL\DXIL.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer\RasterizerImport.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\ShaderIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h" />

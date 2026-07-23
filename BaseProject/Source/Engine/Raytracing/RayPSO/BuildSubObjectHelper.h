@@ -20,7 +20,9 @@ namespace Engine::Raytracing
 				subObject.Type = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
 				subObject.pDesc = &desc;
 			}
-			void Init(IDxcBlob* a_pBlob,const std::vector<RayShaderData>& a_rayShader)
+			// バイトコードの実体さえ取れればよいので、
+			// DXC が返す IDxcBlob でも ID3DBlob でも構わない
+			void Init(ID3DBlob* a_pBlob,const std::vector<RayShaderData>& a_rayShader)
 			{
 				// エクスポートの説明構造体を作成
 				exports.clear();
@@ -44,7 +46,7 @@ namespace Engine::Raytracing
 				subObject.pDesc = &desc;
 			}
 			std::vector<D3D12_EXPORT_DESC> exports;
-			IDxcBlob* pBlob = nullptr;
+			ID3DBlob* pBlob = nullptr;
 			D3D12_DXIL_LIBRARY_DESC desc = {};
 			D3D12_STATE_SUBOBJECT subObject = {};
 		};

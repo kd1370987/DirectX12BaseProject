@@ -136,7 +136,6 @@ namespace Engine::Resource
 //-----------------------------------------------------------------------------------------
 // データ
 #include "Resource/Data/Shader/Shader.h"
-#include "Engine/Resource/Data/ShaderLibrary/ShaderLibrary.h"	// シェーダーライブラリ
 #include "Engine/Resource/Data/Texture/Texture.h"				// テクスチャ
 #include "Engine/Resource/Data/Mesh/Mesh.h"						// メッシュ
 #include "Engine/Resource/Data/Animation/Animation.h"			// アニメーションデータ

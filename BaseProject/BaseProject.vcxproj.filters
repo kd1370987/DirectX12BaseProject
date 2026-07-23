@@ -343,9 +343,6 @@
     <Filter Include="Source\Engine\Resource\Data\Shader">
       <UniqueIdentifier>{dd498193-cbd7-49ed-88ba-38d10840d1f3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Data\ShaderLibrary">
-      <UniqueIdentifier>{611509b6-f06f-471f-a6b6-fc831d3111eb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\GPUBuffer">
       <UniqueIdentifier>{e4b2626a-2e42-4204-8de7-faa00db40a23}</UniqueIdentifier>
     </Filter>
@@ -1087,9 +1084,6 @@
     <Filter Include="Source\Engine\Resource\Data\Shader\IO\Impoter">
       <UniqueIdentifier>{188fde46-adfe-4f3d-9353-27fccec227d8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Data\Shader\IO\Impoter\DXIL">
-      <UniqueIdentifier>{72a2c185-b995-4c99-aba8-87131d9b48e4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Data\Shader\IO\Impoter\Rasterize">
       <UniqueIdentifier>{b390a616-f70f-406a-b9d8-99ddf1057289}</UniqueIdentifier>
     </Filter>
@@ -1316,9 +1310,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp">
       <Filter>Source\Engine\Resource\Data\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.cpp">
-      <Filter>Source\Engine\Resource\Data\ShaderLibrary</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer</Filter>
@@ -1815,9 +1806,6 @@
     <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer\RasterizerImport.cpp">
       <Filter>Source\Engine\Resource\Data\Shader\IO\Impoter\Rasterize</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\Importer\DXIL\DXIL.cpp">
-      <Filter>Source\Engine\Resource\Data\Shader\IO\Impoter\DXIL</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\IO\ShadingModelTableIO.cpp">
       <Filter>Source\Engine\Resource\Data\ShadingModelTable\IO</Filter>
     </ClCompile>
@@ -2164,9 +2152,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h">
       <Filter>Source\Engine\Resource\Data\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\ShaderLibrary\ShaderLibrary.h">
-      <Filter>Source\Engine\Resource\Data\ShaderLibrary</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer</Filter>
@@ -2875,9 +2860,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer\RasterizerImport.h">
       <Filter>Source\Engine\Resource\Data\Shader\IO\Impoter\Rasterize</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\Importer\DXIL\DXIL.h">
-      <Filter>Source\Engine\Resource\Data\Shader\IO\Impoter\DXIL</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\IO\ShadingModelTableIO.h">
       <Filter>Source\Engine\Resource\Data\ShadingModelTable\IO</Filter>
