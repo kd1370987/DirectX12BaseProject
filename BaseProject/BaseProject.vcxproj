@@ -661,6 +661,7 @@
     <ClInclude Include="Source\Engine\ECS\Internal\CompEditContext.h" />
     <ClInclude Include="Source\Engine\ECS\Internal\EntityLocation.h" />
     <ClInclude Include="Source\Engine\ECS\Internal\SystemComon.h" />
+    <ClInclude Include="Source\Engine\ECS\Internal\SystemContext.h" />
     <ClInclude Include="Source\Engine\ECS\Persistence\EntitySerializeField.h" />
     <ClInclude Include="Source\Engine\ECS\ResourceTypeManager\ResourceTypeManager.h" />
     <ClInclude Include="Source\Engine\ECS\ResourceWrapper\ResourceWrapper.h" />
