@@ -154,9 +154,6 @@
     <Filter Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem">
       <UniqueIdentifier>{d61ed4a8-8f6b-4583-b004-1bf59a92ef2c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Components\Input">
-      <UniqueIdentifier>{95bc3de0-79f5-48ea-a766-31f025ad20a6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Update\Camera\TPSSystem">
       <UniqueIdentifier>{eff4e858-a3a9-4f9f-a51a-3b9ae7f28481}</UniqueIdentifier>
     </Filter>
@@ -991,9 +988,6 @@
     <Filter Include="Source\Application\Systems\Release\ResourceFreeSystem">
       <UniqueIdentifier>{275a4e97-fa93-4e37-9a57-27f7b5781ba7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Release\StateMachinFreeSystem">
-      <UniqueIdentifier>{5dabb07a-6692-47c0-8f27-2a4db030ff10}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Editor\Panel">
       <UniqueIdentifier>{6fc96173-b325-4988-9827-b37056a3a016}</UniqueIdentifier>
     </Filter>
@@ -1143,6 +1137,24 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem">
       <UniqueIdentifier>{676272b8-f8b0-43d2-a547-f18422fa05e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GameObject">
+      <UniqueIdentifier>{2091c567-a640-4d3c-9ba2-72c3235c3ae9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GameObject\BaseObject">
+      <UniqueIdentifier>{09600413-01b4-4641-b3f5-474f614d21a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\GameObject\GameObjectManager">
+      <UniqueIdentifier>{8f6a8a38-ea86-4dec-ba18-844eb1432321}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Release\AdditivePoseFreeSystem">
+      <UniqueIdentifier>{2e460b76-6473-40ab-bc4a-780f18e45806}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\Start\AdditivePoseLinkSystem">
+      <UniqueIdentifier>{1c7289a8-8c4c-414c-bb4b-33704f702cf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem">
+      <UniqueIdentifier>{ccd3b324-1653-4ed7-98fa-5629215f589a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1850,6 +1862,21 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.cpp">
+      <Filter>Source\Engine\GameObject\GameObjectManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\BaseObject\BaseObject.cpp">
+      <Filter>Source\Engine\GameObject\BaseObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.cpp">
+      <Filter>Source\Application\Systems\Release\AdditivePoseFreeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\Start\AdditivePoseLinkSystem\AdditivePoseLinkSystem.cpp">
+      <Filter>Source\Application\Systems\Init\Start\AdditivePoseLinkSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2926,6 +2953,31 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\CameraForcusTargetComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Internal\SystemContext.h" />
+    <ClInclude Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.h">
+      <Filter>Source\Engine\GameObject\GameObjectManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\BaseObject\BaseObject.h">
+      <Filter>Source\Engine\GameObject\BaseObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\AdditiveBoneEntry.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Charactor\Robot\AdditivePoseComponent.h">
+      <Filter>Source\Application\Components\Charactor\Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.h">
+      <Filter>Source\Application\Systems\Release\AdditivePoseFreeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\Start\AdditivePoseLinkSystem\AdditivePoseLinkSystem.h">
+      <Filter>Source\Application\Systems\Init\Start\AdditivePoseLinkSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\AnimatorAsset\AdditivePoseTypes.h">
+      <Filter>Source\Engine\Resource\Data\AnimatorAsset</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

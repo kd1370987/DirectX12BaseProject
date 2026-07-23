@@ -563,7 +563,6 @@
     <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.h" />
@@ -580,6 +579,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem\FollowAnimationNodeSystem.h" />
