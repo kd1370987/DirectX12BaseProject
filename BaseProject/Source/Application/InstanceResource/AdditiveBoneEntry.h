@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/Resource/Data/AnimatorAsset/AdditivePoseTypes.h"
 
@@ -8,7 +8,7 @@
 //
 // マスターは AnimatorAsset が持つ AdditiveBoneDef で、
 // AdditivePoseLinkSystem が「ノード名ハッシュ → nodeIdx」を解決してここへ展開する。
-// つまりこれは解決済みキャッシュであり、保存対象ではない。
+// 解決済みキャッシュであり、保存対象ではない。
 //
 //==========================================================================================
 struct AdditiveBoneEntry
