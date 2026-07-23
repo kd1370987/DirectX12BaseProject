@@ -24,7 +24,7 @@ void BoxCollisionSystem::Init(Engine::ECS::World& a_world)
 			const LocalTransformComponent* a_transArray
 			)
 		{
-			auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld();
+			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -46,7 +46,7 @@ void BoxCollisionSystem::Init(Engine::ECS::World& a_world)
 				DirectX::BoundingBox _drawBox;
 				_drawBox.Center = _center;
 				_drawBox.Extents = _box.extents;
-				Engine::Editor::MainEditor::Instance().DrawBox(
+				a_ctx.pServices->pMainEditor->DrawBox(
 					_drawBox, _isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}
 		}

@@ -29,7 +29,7 @@ void ActionStateFixupSystem::Init(Engine::ECS::World& a_world)
 				{
 					// アセットロード
 					_comp.actionHandle =
-						Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::ActionStateMachineAsset>(_comp.actionGUID);
+						a_ctx.pServices->pResourceManager->Load<Engine::Resource::ActionStateMachineAsset>(_comp.actionGUID);
 
 					// 実行時インスタンス確保
 					auto& _pool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();

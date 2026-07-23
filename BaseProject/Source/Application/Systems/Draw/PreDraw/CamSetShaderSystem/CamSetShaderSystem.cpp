@@ -31,8 +31,8 @@ void CamSetShaderSystem::Init(Engine::ECS::World& a_world)
 			const WorldMatrixComponent* a_worldMatArray
 		)
 		{
-			auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
-			auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
+			auto* _pRCT = a_ctx.pServices->pMainEngine->RefRenderContext();
+			auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

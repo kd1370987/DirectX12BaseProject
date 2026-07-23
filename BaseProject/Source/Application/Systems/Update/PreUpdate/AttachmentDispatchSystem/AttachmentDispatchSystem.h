@@ -13,10 +13,9 @@
 // 実際の噴射(EmittParticleSystem)や発射(GunShootSystem)は、
 // 子エンティティ側の既存システムがそのまま処理する。
 //==========================================================================================
-class AttachmentDispatchSystem : public Engine::ECS::SystemBase<AttachmentDispatchSystem>
+class AttachmentDispatchSystem : public Engine::ECS::SystemBase
 {
 public:
 
-	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::PreUpdate;
 	void Init(Engine::ECS::World& a_world) override;
 };

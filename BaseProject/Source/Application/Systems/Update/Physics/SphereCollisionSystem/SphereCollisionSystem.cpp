@@ -24,7 +24,7 @@ void SphereCollisionSystem::Init(Engine::ECS::World& a_world)
 			LocalTransformComponent* a_transArray
 			)
 		{
-			auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld();
+			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -52,7 +52,7 @@ void SphereCollisionSystem::Init(Engine::ECS::World& a_world)
 				DirectX::BoundingSphere _drawSphere;
 				_drawSphere.Center = _center;
 				_drawSphere.Radius = _sphere.radius;
-				Engine::Editor::MainEditor::Instance().DrawSphere(
+				a_ctx.pServices->pMainEditor->DrawSphere(
 					_drawSphere, _isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}
 		}

@@ -28,7 +28,7 @@ void DynamicObjectDrawSystem::Init(Engine::ECS::World& a_world)
 				)
 			{
 				// グラフィックエンジン取得
-				auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
+				auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
 				if (!_pGE) return;
 
 				for (size_t _i = 0; _i < a_count; ++_i)
@@ -38,7 +38,7 @@ void DynamicObjectDrawSystem::Init(Engine::ECS::World& a_world)
 					const ModelComponent& _modelComp = a_modelArray[_i];
 
 					// モデル取得
-					auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+					auto* _model = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 					if (!_model) continue;
 
 					// 描画

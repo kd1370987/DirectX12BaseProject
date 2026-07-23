@@ -42,11 +42,11 @@ void EmittParticleSystem::Init(Engine::ECS::World& a_world)
 				if (_p.pendingEmitCount <= 0) continue;
 
 				// パーティクルマネージャー取得
-				auto* _pParticleManager = Engine::MainEngine::Instance().RefParticleManager();
+				auto* _pParticleManager = a_ctx.pServices->pMainEngine->RefParticleManager();
 				if (!_pParticleManager) continue;
 
 				// パーティクルアセット取得
-				auto* _pParticle = Engine::Resource::ResourceManager::Instance().Get(_p.particlesAssetHandle);
+				auto* _pParticle = a_ctx.pServices->pResourceManager->Get(_p.particlesAssetHandle);
 				if (!_pParticle) continue;
 
 				// ---------------------------------------------------------

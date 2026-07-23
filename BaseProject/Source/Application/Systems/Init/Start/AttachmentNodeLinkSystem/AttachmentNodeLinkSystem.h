@@ -2,11 +2,10 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class AttachmentNodeLinkSystem : public Engine::ECS::SystemBase<AttachmentNodeLinkSystem>
+class AttachmentNodeLinkSystem : public Engine::ECS::SystemBase
 {
 public:
 
-	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Start;
 
 	void Init(Engine::ECS::World& a_world) override;
 };

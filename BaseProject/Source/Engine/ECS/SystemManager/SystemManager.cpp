@@ -5,10 +5,7 @@ namespace Engine::ECS
 
 	void SystemManager::Init()
 	{
-		for (UINT _i = 0; _i < (UINT)ESystemType::Num; ++_i)
-		{
-			m_systemMap.emplace((ESystemType)_i, std::vector<std::shared_ptr<ISystem>>{});
-		}
+		m_systemVec.clear();
 	}
 
 	void SystemManager::RunSystem(const ESystemType& a_type, const SystemContext& a_context)

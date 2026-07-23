@@ -17,10 +17,9 @@
 // 実際の噴射はブースター子の ParticlesComponent(EmittParticleSystem)が行うため、
 // パーティクルは「プレイヤーに付随したアタッチメントエンティティ」から出る。
 //==========================================================================================
-class ThrusterEffectSystem : public Engine::ECS::SystemBase<ThrusterEffectSystem>
+class ThrusterEffectSystem : public Engine::ECS::SystemBase
 {
 public:
 
-	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::PreUpdate;
 	void Init(Engine::ECS::World& a_world) override;
 };

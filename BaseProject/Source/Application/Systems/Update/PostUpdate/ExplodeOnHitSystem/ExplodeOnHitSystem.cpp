@@ -36,7 +36,7 @@ void ExplodeOnHitSystem::Init(Engine::ECS::World& a_world)
 				// ---- 爆発/エフェクトプレハブを hitPos に生成(設定されていれば) ----
 				if (_explode.explosionPrefabGUID != Engine::DefaultGUID)
 				{
-					auto& _rm = Engine::Resource::ResourceManager::Instance();
+					auto& _rm = *a_ctx.pServices->pResourceManager;
 					if (!_rm.IsValid(_explode.explosionPrefabHandle))
 					{
 						if (!_rm.Has<Engine::Resource::Prefab>(_explode.explosionPrefabGUID))

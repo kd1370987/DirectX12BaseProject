@@ -29,7 +29,7 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 				SkeletonPoseComponent& _skeComp = a_skePoseArray[_i];
 
 				// モデル取得
-				auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+				auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 				if (!_pModel) return;
 
 				// 全ノード

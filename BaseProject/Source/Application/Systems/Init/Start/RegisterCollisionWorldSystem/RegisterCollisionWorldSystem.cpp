@@ -42,7 +42,7 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				_mat = _sMat * _rMat * _tMat;
 
 				// モデルのAABB計算
-				const auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+				const auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 				if (!_pModel) continue;
 				
 				// モデル全体のローカルAABBを計算
@@ -51,7 +51,7 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				if (!_meshHandles.empty())
 				{
 					// メッシュ取得
-					const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandles[0]);
+					const auto* _pMesh = a_ctx.pServices->pResourceManager->Get(_meshHandles[0]);
 
 					// 最初の一個目で初期化
 					_localAABB = _pMesh->GetMetaData().aabb;
@@ -59,7 +59,7 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 					for (size_t _m = 1; _m < _meshHandles.size(); ++_m)
 					{
 						// メッシュ取得（各サブメッシュを順に見る）
-						const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandles[_m]);
+						const auto* _pMesh = a_ctx.pServices->pResourceManager->Get(_meshHandles[_m]);
 						if (!_pMesh) continue;
 
 						const auto& _meta = _pMesh->GetMetaData();
@@ -72,7 +72,7 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				_localAABB.Transform(_worldAABB,_mat);
 
 				// コリジョンワールドの取得
-				auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld();
+				auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
 
 				// コリジョンワールドに登録
 				Engine::Collision::CollisionInstance _inst = {};

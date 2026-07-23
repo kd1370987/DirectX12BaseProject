@@ -23,16 +23,19 @@ namespace
 	// ※ ベースが「半球半径 == 円柱半長」固定比のため、a_height != a_radius*2 のときは
 	//    上下のキャップが楕円に伸びる（当たり判定の線分自体は常に一致）。
 	void DrawCapsuleUpright(
+		Engine::Editor::MainEditor* a_pEditor,
 		const DXSM::Vector3& a_center,
 		float a_radius,
 		float a_height,
 		const DXSM::Color& a_color)
 	{
+		if (!a_pEditor) return;
+
 		DXSM::Matrix _mat =
 			DXSM::Matrix::CreateScale(a_radius * 2.0f, a_height, a_radius * 2.0f) *
 			DXSM::Matrix::CreateTranslation(a_center);
 
-		Engine::Editor::MainEditor::Instance().DrawCapsule(_mat, a_color);
+		a_pEditor->DrawCapsule(_mat, a_color);
 	}
 }
 
@@ -50,7 +53,7 @@ void CapsuleCollisionSystem::Init(Engine::ECS::World& a_world)
 			LocalTransformComponent* a_transArray
 			)
 		{
-			auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld();
+			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -80,6 +83,7 @@ void CapsuleCollisionSystem::Init(Engine::ECS::World& a_world)
 				// デバッグ描画（押し出しが起きたら赤、なければ緑）。押し出し後の中心で描画。
 				DXSM::Vector3 _drawCenter = _center + _correction;
 				DrawCapsuleUpright(
+					a_ctx.pServices->pMainEditor,
 					_drawCenter, _cap.radius, _cap.height,
 					_isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}

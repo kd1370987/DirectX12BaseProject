@@ -24,7 +24,7 @@ void OBBCollisionSystem::Init(Engine::ECS::World& a_world)
 			const LocalTransformComponent* a_transArray
 			)
 		{
-			auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld();
+			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -48,7 +48,7 @@ void OBBCollisionSystem::Init(Engine::ECS::World& a_world)
 				_drawObb.Center = _center;
 				_drawObb.Extents = _obb.extents;
 				_drawObb.Orientation = _trans.quat;
-				Engine::Editor::MainEditor::Instance().DrawBox(
+				a_ctx.pServices->pMainEditor->DrawBox(
 					_drawObb, _isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}
 		}

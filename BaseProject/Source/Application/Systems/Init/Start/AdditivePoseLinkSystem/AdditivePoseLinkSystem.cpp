@@ -33,11 +33,11 @@ void AdditivePoseLinkSystem::Init(Engine::ECS::World& a_world)
 				AdditivePoseComponent& _additiveComp = a_additiveArray[_i];
 
 				// モデル取得
-				const auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+				const auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 				if (!_pModel) continue;
 
 				// 設計図(アニメーター)取得
-				const auto* _pAnimator = Engine::Resource::ResourceManager::Instance().Get(_stateComp.stateMachineHandle);
+				const auto* _pAnimator = a_ctx.pServices->pResourceManager->Get(_stateComp.stateMachineHandle);
 				if (!_pAnimator) continue;
 
 				const auto& _defVec = _pAnimator->GetAdditiveBones();

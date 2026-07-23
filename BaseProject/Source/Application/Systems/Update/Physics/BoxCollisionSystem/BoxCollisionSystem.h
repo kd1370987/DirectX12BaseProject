@@ -4,10 +4,9 @@
 
 // ボックス(AABB)コライダーのテスト用システム
 // コリジョンワールドと重なり判定し、結果をデバッグワイヤーで表示する
-class BoxCollisionSystem : public Engine::ECS::SystemBase<BoxCollisionSystem>
+class BoxCollisionSystem : public Engine::ECS::SystemBase
 {
 public:
-	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Physics;
 
 	void Init(Engine::ECS::World& a_world) override;
 };

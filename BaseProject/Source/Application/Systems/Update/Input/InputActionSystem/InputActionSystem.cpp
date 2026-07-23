@@ -21,8 +21,8 @@ void InputActionSystem::Init(Engine::ECS::World& a_world)
 			)
 		{
 			// ブースト
-			bool _isShoot = Engine::Input::InputManager::Instance().IsHold("Shoot");
-			bool _isAiming = Engine::Input::InputManager::Instance().IsHold("Aim");
+			bool _isShoot = a_ctx.pServices->pInputManager->IsHold("Shoot");
+			bool _isAiming = a_ctx.pServices->pInputManager->IsHold("Aim");
 
 
 			for (size_t _i = 0; _i < a_count; ++_i)

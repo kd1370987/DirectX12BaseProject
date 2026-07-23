@@ -34,11 +34,11 @@ void ScreenUIDrawSystem::Init(Engine::ECS::World& a_world)
 			//	Engine::Graphics::DrawItem2D _item = {};
 			//	_item.worldMat = _matComp.worldMat;
 			//	//_item.srvHandleRange = Engine::Resource::TextureManager::Instance().GetTexture(_uiComp.texHandle).GetSRV();
-			//	_item.srvHandleRange = Engine::Resource::ResourceManager::Instance().Get(_uiComp.texHandle)->GetSRV();
+			//	_item.srvHandleRange = a_ctx.pServices->pResourceManager->Get(_uiComp.texHandle)->GetSRV();
 			//	_item.colorScale = _uiComp.color;
 
 			//	// 描画キューに追加
-			//	auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
+			//	auto* _pRCT = a_ctx.pServices->pMainEngine->RefRenderContext();
 			//	_pRCT->AddItem(RenderQueueType2D::ScreenUI, _item);
 			//}
 		}

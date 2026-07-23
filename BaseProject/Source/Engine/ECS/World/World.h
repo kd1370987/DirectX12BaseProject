@@ -214,6 +214,12 @@ namespace Engine::ECS
 		void SetEngineServices(const EngineServices& a_services) { m_engineServices = a_services; }
 		EngineServices* RefEngineServices() { return &m_engineServices; }
 
+		// 登録済みタスクの実行本体
+		// 実行時に渡された SystemContext の World に対してクエリを回す。
+		// 登録時の World を捕獲しないため、同じシステムを別 World へも流せる。
+		template<typename ...Components, typename... Excludes, typename Func>
+		void DispatchTask(const SystemContext& a_context, Func a_func, Exclude<Excludes...> a_ex = {});
+
 		// 収集関数
 		// 指定したコンポーネント群を持つすべてのチャンクに対して、指定された関数を実行します
 		template<typename... Components, typename Func>
@@ -522,34 +528,42 @@ namespace Engine::ECS
 			"システムのラムダは無捕獲(ステートレス)にしてください。World などは SystemContext から取得します。"
 		);
 
-		// 実行ロジックをラムダ式に包んでタスクとして保存
-		_task.executeFunc = [this, a_func](const SystemContext& a_context)
+		// 実行ロジックをラムダ式に包んでタスクとして保存。
+		// World は捕獲せず、実行時に SystemContext から受け取る。
+		_task.executeFunc = [a_func](const SystemContext& a_context)
 			{
-				// 実行用のシグネチャ
-				Signature _querySig;
-				(_querySig.set(m_componentMetaRegistry.GetTypeID<std::remove_const_t<Components>>()), ...);
-				Signature _excludeSig;
-				(_excludeSig.set(m_componentMetaRegistry.GetTypeID<Excludes>()), ...);
-
-				// チャンクの配列を取得
-				for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_querySig, _excludeSig))
-				{
-					if (!_chunk || _chunk->count == 0) continue;
-					// 操作しやすいように配列にして返す
-					auto _arrays = std::forward_as_tuple(
-						GetComponentArray<Components>(_chunk)...
-					);
-					std::apply(
-						[&](auto... a_data)
-						{
-							a_func(_chunk, _chunk->count, a_context, a_data...);
-						},
-						_arrays
-					);
-				}
+				if (!a_context.pWorld) return;
+				a_context.pWorld->DispatchTask<Components...>(a_context, a_func, Exclude<Excludes...>{});
 			};
 
 		m_systemManager.AddSystemTask(a_phase, _task,a_taskName);
+	}
+
+	template<typename ...Components, typename ...Excludes, typename Func>
+	inline void World::DispatchTask(const SystemContext& a_context, Func a_func, Exclude<Excludes...>)
+	{
+		// 実行用のシグネチャ
+		Signature _querySig;
+		(_querySig.set(m_componentMetaRegistry.GetTypeID<std::remove_const_t<Components>>()), ...);
+		Signature _excludeSig;
+		(_excludeSig.set(m_componentMetaRegistry.GetTypeID<Excludes>()), ...);
+
+		// チャンクの配列を取得
+		for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_querySig, _excludeSig))
+		{
+			if (!_chunk || _chunk->count == 0) continue;
+			// 操作しやすいように配列にして返す
+			auto _arrays = std::forward_as_tuple(
+				GetComponentArray<Components>(_chunk)...
+			);
+			std::apply(
+				[&](auto... a_data)
+				{
+					a_func(_chunk, _chunk->count, a_context, a_data...);
+				},
+				_arrays
+			);
+		}
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
 	inline void World::PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)

@@ -49,7 +49,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				if (_gun.bulletPrefabGUID == Engine::DefaultGUID) continue;
 
 				// プレハブのハンドルを解決(未ロードならロード)
-				auto& _rm = Engine::Resource::ResourceManager::Instance();
+				auto& _rm = *a_ctx.pServices->pResourceManager;
 				if (!_rm.IsValid(_gun.bulletPrefabHandle))
 				{
 					if (!_rm.Has<Engine::Resource::Prefab>(_gun.bulletPrefabGUID))

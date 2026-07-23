@@ -25,7 +25,7 @@ void ActionStateCommitSystem::Init(Engine::ECS::World& a_world)
 				ActionStateComponent& _comp = a_array[_i];
 
 				const auto* _pSM =
-					Engine::Resource::ResourceManager::Instance().Get(_comp.actionHandle);
+					a_ctx.pServices->pResourceManager->Get(_comp.actionHandle);
 
 				auto& _pool =
 					a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();

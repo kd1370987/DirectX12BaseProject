@@ -31,7 +31,7 @@ void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 			StateMachineComponent* a_stateArray
 			)
 		{
-			auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld();
+			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -52,7 +52,7 @@ void RayCollisionSystem::Init(Engine::ECS::World& a_world)
 				bool _isHit = _pCollWorld->Raycast(_info, _res, a_pChunk->entityData[_i]);
 
 				// プローブのデバッグ表示（緑=接地, 赤=空中。終点に球）
-				Engine::Editor::MainEditor::Instance().DrawRay(
+				a_ctx.pServices->pMainEditor->DrawRay(
 					_info.origin, _info.direction, _info.maxDistance, _isHit,
 					_isHit ? Engine::Color::GREEN : Engine::Color::RED);
 

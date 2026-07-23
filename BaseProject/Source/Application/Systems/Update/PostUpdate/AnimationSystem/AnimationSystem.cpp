@@ -30,11 +30,11 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				NodePoseComponent& _nodeComp = a_NodePoseArray[_i];
 
 				// モデル取得
-				const auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+				const auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 				if (!_pModel) continue;
 
 				// アニメーション取得
-				const auto* _pAni = Engine::Resource::ResourceManager::Instance().Get(_aniComp.animHandle);
+				const auto* _pAni = a_ctx.pServices->pResourceManager->Get(_aniComp.animHandle);
 				if (!_pAni) continue;
 
 				// ノードポーズ行列配列取得

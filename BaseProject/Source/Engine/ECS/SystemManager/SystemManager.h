@@ -52,8 +52,8 @@ namespace Engine::ECS
 
 	private:
 
-		// 登録されているシステム群
-		std::unordered_map<ESystemType, std::vector<std::shared_ptr<ISystem>>> m_systemMap;
+		// 登録されているシステム実体(寿命の保持のみ)
+		std::vector<std::shared_ptr<ISystem>> m_systemVec;
 
 		// 登録されているタスク
 		std::unordered_map<ESystemType, std::vector<SystemTask>> m_systemTaskMap = {};
@@ -68,20 +68,15 @@ namespace Engine::ECS
 	template<typename System>
 	inline void SystemManager::Register(World* a_world)
 	{
-		//static_assert(std::is_base_of_v<ISystem, System>, "ISystemを継承していません");
+		static_assert(std::is_base_of_v<ISystem, System>, "ISystemを継承していません");
 
+		// システム実体は Init でタスクを登録するだけの入れ物。
+		// 実行はタスク側で行うので、ここでは寿命の保持だけする。
+		// (フェーズでの分類は不要。フェーズはタスク登録の引数が持つ)
 		std::shared_ptr<ISystem> _spSys = std::make_shared<System>();
 		_spSys->Init(*a_world);
 
-		auto _it = m_systemMap.find(System::s_type);
-		if (_it != m_systemMap.end())
-		{
-			m_systemMap[System::s_type].push_back(_spSys);
-		}
-		else
-		{
-			// 新たなシステムタイプなので新規に増やして登録
-		}
+		m_systemVec.push_back(std::move(_spSys));
 	}
 
 }

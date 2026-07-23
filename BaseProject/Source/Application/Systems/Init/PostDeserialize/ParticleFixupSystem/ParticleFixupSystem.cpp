@@ -29,7 +29,7 @@ void ParticleFixupSystem::Init(Engine::ECS::World& a_world)
 				{
 					// パーティクルロード
 					_particleComp.particlesAssetHandle = 
-						Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::ParticlesAsset>(_particleComp.particleGUID);
+						a_ctx.pServices->pResourceManager->Load<Engine::Resource::ParticlesAsset>(_particleComp.particleGUID);
 				}
 			}
 		}

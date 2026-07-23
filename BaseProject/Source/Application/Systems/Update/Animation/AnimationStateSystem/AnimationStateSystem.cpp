@@ -27,7 +27,7 @@ void AnimationStateSystem::Init(Engine::ECS::World& a_world)
 				AnimatorComponent& _animComp = a_animatorArray[_i];
 
 				// ステートマシン取得
-				auto* _pStateMachin = Engine::Resource::ResourceManager::Instance().Get(_stateComp.stateMachineHandle);
+				auto* _pStateMachin = a_ctx.pServices->pResourceManager->Get(_stateComp.stateMachineHandle);
 				if (!_pStateMachin) continue;
 				const auto* _node = _pStateMachin->GetStateNode(_stateComp.currentStateHash);
 				if (!_node) continue;

@@ -47,11 +47,11 @@ void RegisterAnimatedRayWorldSystem::Init(Engine::ECS::World& a_world)
 					const NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
 					const SkeletonPoseComponent& _skePoseComp = a_skeletonArray[_i];
 
-					auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);;
+					auto* _model = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);;
 					if (!_model) continue;
 
 					// レイトレワールドに登録
-					Engine::Raytracing::RayEngine::Instance().RegisterSkinningModel(
+					a_ctx.pServices->pRayEngine->RegisterSkinningModel(
 						*a_ctx.pWorld,
 						_wMatComp.worldMat,
 						_modelComp.handle,

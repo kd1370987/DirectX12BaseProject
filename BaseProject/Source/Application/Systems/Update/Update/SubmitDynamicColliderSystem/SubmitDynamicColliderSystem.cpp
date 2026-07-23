@@ -32,7 +32,7 @@ void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 			const LocalTransformComponent* a_transArray
 			)
 		{
-			auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld();
+			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
 			if (!_pCollWorld) return;
 
 			for (size_t _i = 0; _i < a_count; ++_i)
@@ -51,7 +51,7 @@ void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 				DXSM::Matrix _mat = _sMat * _rMat * _tMat;
 
 				// モデル取得
-				const auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+				const auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 				if (!_pModel) continue;
 
 				// モデル全体のローカルAABBを計算
@@ -59,7 +59,7 @@ void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 				const auto& _meshHandles = _pModel->GetMeshHandles();
 				if (!_meshHandles.empty())
 				{
-					const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandles[0]);
+					const auto* _pMesh = a_ctx.pServices->pResourceManager->Get(_meshHandles[0]);
 					if (!_pMesh) continue;
 
 					// 最初の一個目で初期化
@@ -67,7 +67,7 @@ void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 
 					for (size_t _m = 1; _m < _meshHandles.size(); ++_m)
 					{
-						const auto* _pSubMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandles[_m]);
+						const auto* _pSubMesh = a_ctx.pServices->pResourceManager->Get(_meshHandles[_m]);
 						if (!_pSubMesh) continue;
 
 						const auto& _meta = _pSubMesh->GetMetaData();

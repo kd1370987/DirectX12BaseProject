@@ -47,10 +47,10 @@ void SkinningRegisterSystem::Init(Engine::ECS::World& a_world)
 				const NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
 				const SkeletonPoseComponent& _skePoseComp = a_skeletonArray[_i];
 
-				auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
+				auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
 				if (!_pGE) continue;
 
-				auto* _model = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);;
+				auto* _model = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);;
 				if (!_model) continue;
 
 				// GPUスキニング登録

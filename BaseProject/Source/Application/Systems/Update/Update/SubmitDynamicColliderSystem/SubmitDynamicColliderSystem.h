@@ -15,10 +15,9 @@
 //   BaseScene::Update が Update と Physics の間で BuildDynamicWorld ->
 //   Physics フェーズのクエリ(HitDetectSystem 等)が静的+動的の両TLASを走査。
 //==========================================================================================
-class SubmitDynamicColliderSystem : public Engine::ECS::SystemBase<SubmitDynamicColliderSystem>
+class SubmitDynamicColliderSystem : public Engine::ECS::SystemBase
 {
 public:
 
-	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Update;
 	void Init(Engine::ECS::World& a_world) override;
 };

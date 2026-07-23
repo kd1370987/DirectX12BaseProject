@@ -32,16 +32,16 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			DXSM::Vector2 _look = {};
 
 			// 移動
-			_inputMove = Engine::Input::InputManager::Instance().GetAxisState("Move");
-			float _jumpInput = Engine::Input::InputManager::Instance().GetButtonState("Jump");
+			_inputMove = a_ctx.pServices->pInputManager->GetAxisState("Move");
+			float _jumpInput = a_ctx.pServices->pInputManager->GetButtonState("Jump");
 			_move = { _inputMove.x,_jumpInput,_inputMove.y };
 
 			// ブースト
-			bool _isHold = Engine::Input::InputManager::Instance().IsHold("Boost");			// 押されっぱなし
-			bool _isPress = Engine::Input::InputManager::Instance().IsPress("Boost");		// 押した瞬間
+			bool _isHold = a_ctx.pServices->pInputManager->IsHold("Boost");			// 押されっぱなし
+			bool _isPress = a_ctx.pServices->pInputManager->IsPress("Boost");		// 押した瞬間
 
 			// 視点
-			_look = Engine::Input::InputManager::Instance().GetAxisState("Look");
+			_look = a_ctx.pServices->pInputManager->GetAxisState("Look");
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

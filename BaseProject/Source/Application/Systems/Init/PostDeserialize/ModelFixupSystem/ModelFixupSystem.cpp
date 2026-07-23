@@ -26,7 +26,7 @@ void ModelFixupSystem::Init(Engine::ECS::World& a_world)
 				// モデルをGUIDから取得してロードした結果のハンドルを取得
 				if(_modelComp.modelGUID != Engine::DefaultGUID)
 				{
-					_modelComp.handle = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::Model>(_modelComp.modelGUID);
+					_modelComp.handle = a_ctx.pServices->pResourceManager->Load<Engine::Resource::Model>(_modelComp.modelGUID);
 				}
 			}
 		}

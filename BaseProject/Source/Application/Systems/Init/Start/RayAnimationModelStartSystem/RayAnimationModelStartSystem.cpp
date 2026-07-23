@@ -37,7 +37,7 @@ void RayAnimationModelSystem::Init(Engine::ECS::World& a_world)
 				SkeletonPoseComponent& _poseComp = a_poseArray[_i];
 
 				// モデル取得
-				auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+				auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 				if (!_pModel) continue;
 
 				// アニメーター初期化

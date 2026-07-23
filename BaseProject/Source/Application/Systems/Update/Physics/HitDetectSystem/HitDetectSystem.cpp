@@ -25,7 +25,7 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 			const LocalTransformComponent* a_transArray
 			)
 		{
-			auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld();
+			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
 			if (!_pCollWorld) return;
 
 			for (size_t _i = 0; _i < a_count; ++_i)

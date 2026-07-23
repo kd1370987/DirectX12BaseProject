@@ -28,7 +28,7 @@ void ActionBehaviorSystem::Init(Engine::ECS::World& a_world)
 				VelocityComponent& _vel = a_velArray[_i];
 
 				const auto* _pSM =
-					Engine::Resource::ResourceManager::Instance().Get(_state.actionHandle);
+					a_ctx.pServices->pResourceManager->Get(_state.actionHandle);
 				if (!_pSM) continue;
 
 				const auto* _node = _pSM->GetStateNode(_state.currentStateHash);

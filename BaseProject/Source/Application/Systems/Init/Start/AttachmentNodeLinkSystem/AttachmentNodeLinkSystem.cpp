@@ -33,7 +33,7 @@ void AttachmentNodeLinkSystem::Init(Engine::ECS::World& a_world)
 				// 親のモデルを取得
 				auto* _pParentModleComp = a_ctx.pWorld->RefData<ModelComponent>(_parentID);
 				if (!_pParentModleComp) continue;
-				const auto* _pParentModel = Engine::Resource::ResourceManager::Instance().Get(_pParentModleComp->handle);
+				const auto* _pParentModel = a_ctx.pServices->pResourceManager->Get(_pParentModleComp->handle);
 				if (!_pParentModel) continue;
 
 				// モデルのノードを検索し、ハッシュ一致するノードのインデックスを解決

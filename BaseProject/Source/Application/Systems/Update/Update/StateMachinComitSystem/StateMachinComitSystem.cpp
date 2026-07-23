@@ -24,7 +24,7 @@ void StateMachinComitSystem::Init(Engine::ECS::World& a_world)
 				StateMachineComponent& _smComp = a_smArray[_i];
 
 				// ステートマシン取得
-				const auto* _pStateMacihne = Engine::Resource::ResourceManager::Instance().Get(_smComp.stateMachineHandle);
+				const auto* _pStateMacihne = a_ctx.pServices->pResourceManager->Get(_smComp.stateMachineHandle);
 
 				// 入力されたステートマシンの値を使って、現在のステートを更新
 				// インスタンスの実体を取得

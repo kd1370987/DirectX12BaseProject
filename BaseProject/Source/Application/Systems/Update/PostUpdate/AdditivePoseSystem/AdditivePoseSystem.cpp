@@ -106,7 +106,7 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				auto _entryVec = _entryPool.RefRange(_addComp.handle);
 				if (_entryVec.empty()) continue;
 
-				const auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+				const auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 				if (!_pModel) continue;
 
 				auto _nodePoseVec = _nodePosePool.RefRange(_nodePoseComp.nodePoseHandle);

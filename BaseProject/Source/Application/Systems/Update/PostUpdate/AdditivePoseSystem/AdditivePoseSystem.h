@@ -12,11 +12,10 @@
 //   CalcNodeSystem(local → world)
 //
 // AnimationSystem より前で書き込むとバインドポーズリセットで消える。
-class AdditivePoseSystem : public Engine::ECS::SystemBase<AdditivePoseSystem>
+class AdditivePoseSystem : public Engine::ECS::SystemBase
 {
 public:
 
-	static constexpr Engine::ECS::ESystemType s_type = Engine::ECS::ESystemType::Animation;
 
 	void Init(Engine::ECS::World& a_world) override;
 };

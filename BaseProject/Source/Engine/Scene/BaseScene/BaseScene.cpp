@@ -11,6 +11,8 @@
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Collision/CollisionWorld.h"
 #include "../../Input/InputManager/InputManager.h"
+#include "../../Editor/Editor.h"
+#include "../../Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "../../GameObject/GameObjectManager/GameObjectManager.h"
 
 namespace Engine::Scene
@@ -31,9 +33,11 @@ namespace Engine::Scene
 		// シングルトンを名指しするのはここ(合成の入り口)だけにして、
 		// 各システムは SystemContext 経由で受け取る。
 		Engine::ECS::EngineServices _services = {};
-		_services.pMainEngine = &Engine::MainEngine::Instance();
-		_services.pResourceManager = &Engine::Resource::ResourceManager::Instance();
-		_services.pInputManager = &Engine::Input::InputManager::Instance();
+		_services.pMainEngine		= &Engine::MainEngine::Instance();
+		_services.pResourceManager	= &Engine::Resource::ResourceManager::Instance();
+		_services.pInputManager		= &Engine::Input::InputManager::Instance();
+		_services.pMainEditor		= &Engine::Editor::MainEditor::Instance();
+		_services.pRayEngine		= &Engine::Raytracing::RayEngine::Instance();
 		m_upWorld->SetEngineServices(_services);
 
 		// ワールド設定の呼びだし

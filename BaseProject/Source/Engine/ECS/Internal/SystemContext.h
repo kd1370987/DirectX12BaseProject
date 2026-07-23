@@ -12,6 +12,14 @@ namespace Engine::Input
 {
 	class InputManager;
 }
+namespace Engine::Editor
+{
+	class MainEditor;
+}
+namespace Engine::Raytracing
+{
+	class RayEngine;
+}
 
 namespace Engine::ECS
 {
@@ -19,12 +27,17 @@ namespace Engine::ECS
 
 	/// <summary>
 	/// エンジン側のアプリケーションを立ち上げたら、終了まで解放されないクラス群
+	///
+	/// ここに足してよいのは「アプリ寿命」のものだけ。
+	/// ワールド寿命のものは World::AddResource / GetResource を使うこと。
 	/// </summary>
 	struct EngineServices
 	{
-		MainEngine* pMainEngine = nullptr;
-		Resource::ResourceManager* pResourceManager = nullptr;
-		Input::InputManager* pInputManager = nullptr;
+		MainEngine*					pMainEngine			= nullptr;
+		Resource::ResourceManager*	pResourceManager	= nullptr;
+		Input::InputManager*		pInputManager		= nullptr;
+		Editor::MainEditor*			pMainEditor			= nullptr;
+		Raytracing::RayEngine*		pRayEngine			= nullptr;
 	};
 
 	/// <summary>
