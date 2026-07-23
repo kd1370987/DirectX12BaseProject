@@ -260,6 +260,9 @@
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Init\Start\AdditivePoseLinkSystem\AdditivePoseLinkSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.cpp" />
@@ -481,6 +484,7 @@
     <ClInclude Include="..\Library\Include\ImGuizmo-master\ImGuizmo.h" />
     <ClInclude Include="..\Library\Include\imnodes-master\imnodes.h" />
     <ClInclude Include="Source\Application\App.h" />
+    <ClInclude Include="Source\Application\Components\Camera\CameraForcusTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h" />
@@ -553,6 +557,12 @@
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Init\Start\AdditivePoseLinkSystem\AdditivePoseLinkSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.h" />
+    <ClInclude Include="Source\Application\Components\Charactor\Robot\AdditivePoseComponent.h" />
+    <ClInclude Include="Source\Application\InstanceResource\AdditiveBoneEntry.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\AnimatorAsset\AdditivePoseTypes.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.h" />

@@ -36,6 +36,9 @@ void AnimationStateSystem::Init(Engine::ECS::World& a_world)
 				_animComp.animHandle = _node->playAnimData;
 				_animComp.speed = _node->speed;
 				_animComp.isLoop = _node->isLoop;
+
+				// 加算ポーズの効きもステートから流し込む
+				_animComp.additiveWeight = _node->additiveWeight;
 			}
 		}
 	);

@@ -10,6 +10,9 @@ struct AnimatorComponent
 	float time = 0.0f;
 	float speed = 1.0f;
 
+	// 加算ポーズの効き。現在のステートの値が毎フレーム流し込まれる。
+	float additiveWeight = 1.0f;
+
 	Engine::ECS::Flg isLoop = 0;
 
 	// レイトレをする際にインスタンスを確保する

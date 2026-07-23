@@ -1,10 +1,11 @@
-#include "TPSSystem.h"
+﻿#include "TPSSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
 #include "Application/Components/Camera/FollowTargetComponent.h"
 #include "Application/Components/Camera/TPSOffsetComponent.h"
 #include "../../../../Components/Camera/TPSCameraStateComponent.h"
+#include "../../../../Components/Camera/CameraForcusTargetComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 
 
@@ -45,9 +46,11 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				Engine::ECS::Entity _target = _followComp.target;
 				if (!a_world.HasComponent<LocalTransformComponent>(_target)) continue;
 				if (!a_world.HasComponent<PlayerLookAngleComponent>(_target)) continue;
+				if (!a_world.HasComponent<CameraForcusTargetComponent>(_target)) continue;
 				const LocalTransformComponent* _targetTRS = a_world.RefData<LocalTransformComponent>(_target);
 				const PlayerLookAngleComponent* _targetLook = a_world.RefData<PlayerLookAngleComponent>(_target);
-				if (!_targetLook || !_targetTRS) continue;
+				const CameraForcusTargetComponent* _forcusTarget = a_world.RefData<CameraForcusTargetComponent>(_target);
+				if (!_targetLook || !_targetTRS || !_forcusTarget) continue;
 
 				//============================================================
 				// ターゲット回転
@@ -68,7 +71,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				//============================================================
 				DXSM::Vector3 _pivot = _targetTRS->pos + DXSM::Vector3::Up * _offsetComp.y;
 				float _distance = _offsetComp.z;
-				DXSM::Vector3 _targetLookAt = _targetTRS->pos + DXSM::Vector3(0.f, 1.5f, 0.f);
+				DXSM::Vector3 _targetLookAt = DXSM::Vector3(_targetTRS->pos) + DXSM::Vector3(_forcusTarget->offsetPos);
 
 				//============================================================
 				// オービット回転の補間(クォータニオンSlerp)

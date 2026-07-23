@@ -2924,6 +2924,9 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\CameraForcusTargetComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

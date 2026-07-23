@@ -61,6 +61,8 @@
 #include "../../Components/Charactor/Weapon/Gun/GunStateComponent.h"
 #include "Engine/ECS/Internal/CollisionEvent.h"
 #include "../../Components/Collision/ExplodeOnHitComponent.h"
+#include "../../Components/Camera/CameraForcusTargetComponent.h"
+#include "../../Components/Charactor/Robot/AdditivePoseComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -122,9 +124,13 @@
 #include "../../Systems/Update/PreUpdate/ThrusterEffectSystem/ThrusterEffectSystem.h"
 #include "../../Systems/Init/PostDeserialize/AttachmentSlotLinkSystem/AttachmentSlotLinkSystem.h"
 #include "../../Systems/Update/Update/SubmitDynamicColliderSystem/SubmitDynamicColliderSystem.h"
+#include "../../Systems/Init/Start/AdditivePoseLinkSystem/AdditivePoseLinkSystem.h"
+#include "../../Systems/Update/PostUpdate/AdditivePoseSystem/AdditivePoseSystem.h"
+#include "../../Systems/Release/AdditivePoseFreeSystem/AdditivePoseFreeSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
+#include "../../InstanceResource/AdditiveBoneEntry.h"
 
 // インプット
 #include "Engine/Input/InputCollector/InputCollector.h"
@@ -204,6 +210,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<GunStateComponent>("GunStateComponent");
 				a_pWorld->RegisterComponent<Engine::ECS::CollisionEvent>("CollisionEvent");
 				a_pWorld->RegisterComponent<ExplodeOnHitComponent>("ExplodeOnHitComponent");
+				a_pWorld->RegisterComponent<CameraForcusTargetComponent>("CameraForcusTargetComponent");
+				a_pWorld->RegisterComponent<AdditivePoseComponent>("AdditivePoseComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -224,12 +232,16 @@ namespace App::Game
 				a_pWorld->RegisterSystem<CameraStartSystem>();
 				a_pWorld->RegisterSystem<AnimationModelStartSystem>();
 				a_pWorld->RegisterSystem<AttachmentNodeLinkSystem>();
+				a_pWorld->RegisterSystem<AdditivePoseLinkSystem>();
 				a_pWorld->RegisterSystem<CamSetShaderSystem>();
 				a_pWorld->RegisterSystem<InputMoveSystem>();
 				a_pWorld->RegisterSystem<GravitySystem>();
 				a_pWorld->RegisterSystem<RotationSystem>();
 				a_pWorld->RegisterSystem<AnimationStateSystem>();
 				a_pWorld->RegisterSystem<AnimationSystem>();
+				// AnimationSystem がバインドポーズでリセットした後、
+				// CalcNodeSystem が local→world を組む前に加算する必要がある
+				a_pWorld->RegisterSystem<AdditivePoseSystem>();
 				a_pWorld->RegisterSystem<CalcNodeSystem>();
 				a_pWorld->RegisterSystem<SkinningSystem>();
 				a_pWorld->RegisterSystem<PositionIntegrationSystem>();
@@ -248,6 +260,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<EmittParticleSystem>();
 				a_pWorld->RegisterSystem<ParticleEmitSystem>();
 				a_pWorld->RegisterSystem<AnimationMatrixFreeSystem>();
+				a_pWorld->RegisterSystem<AdditivePoseFreeSystem>();
 				a_pWorld->RegisterSystem<RegisterPrevWorldMatSystem>();
 				a_pWorld->RegisterSystem<UpdateHierarchyDepthSystem>();
 				a_pWorld->RegisterSystem<CommitHierarchyWorldMatrixSystem>();
@@ -269,11 +282,15 @@ namespace App::Game
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
+
 				a_pWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 				a_pWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				a_pWorld->AddResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
+
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
 				a_pWorld->AddResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Animation::SkiningMeshData>>();
+				
 
 				// シングルトンインスタンスの登録
 				a_pWorld->AddResource<HierarchyResource>();
@@ -281,6 +298,7 @@ namespace App::Game
 				// 初期化
 				a_pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);
 				a_pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>().Init(10000);
+				a_pWorld->GetResource<Engine::Pool::RangePool<AdditiveBoneEntry>>().Init(10000);
 
 				a_pWorld->GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>().Reserve(100);
 				a_pWorld->GetResource<Engine::Pool::ItemPool<Engine::Animation::SkiningMeshData>>().Reserve(100);

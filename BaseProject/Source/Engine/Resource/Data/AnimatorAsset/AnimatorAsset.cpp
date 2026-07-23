@@ -19,6 +19,24 @@ namespace Engine::Resource
 		a_arch.Field("animGUID", animGUID);
 		a_arch.Field("speed", speed);
 		a_arch.Field("isLoop", isLoop);
+		a_arch.Field("additiveWeight", additiveWeight);
+	}
+
+	//======================================================================================
+	// 加算ポーズ用ボーン定義のArchive
+	//======================================================================================
+	void AdditiveBoneDef::Archive(Persistence::Archive& a_arch)
+	{
+		a_arch.StringField("nodeName", nodeName);
+		a_arch.Field("share", share);
+		a_arch.Field("axisScale", axisScale);
+		a_arch.Field("channel", channel);
+
+		// ハッシュは保存せず、名前から張り直す(モデル差し替えに強くするため)
+		if (a_arch.IsLoading())
+		{
+			nodeNameHash = StringUtility::ToHash(nodeName);
+		}
 	}
 
 	//======================================================================================
@@ -49,6 +67,37 @@ namespace Engine::Resource
 
 		// グラフ本体(ノード・矢印・パラメータ・既定開始)
 		m_graph.SaveGraph(_arch);
+
+		// 加算ポーズのボーン定義
+		ArchiveAdditiveBones(_arch);
+	}
+
+	//======================================================================================
+	// 加算ポーズ用ボーン定義のシリアライズ
+	//======================================================================================
+	void AnimatorAsset::ArchiveAdditiveBones(Persistence::Archive& a_arch)
+	{
+		size_t _size = m_additiveBones.size();
+		if (a_arch.BeginArray("AdditiveBones", _size))
+		{
+			// ロード時は読み取った要素数に合わせる
+			if (a_arch.IsLoading()) m_additiveBones.resize(_size);
+
+			for (size_t _i = 0; _i < _size; ++_i)
+			{
+				if (a_arch.BeginObject(_i))
+				{
+					m_additiveBones[_i].Archive(a_arch);
+					a_arch.EndObject();
+				}
+			}
+			a_arch.EndArray();
+		}
+		else if (a_arch.IsLoading())
+		{
+			// 加算ポーズ導入前に保存されたアセットにはこの項目が無い
+			m_additiveBones.clear();
+		}
 	}
 
 	//======================================================================================
@@ -82,6 +131,9 @@ namespace Engine::Resource
 		// グラフ本体
 		m_graph.LoadGraph(_arch);
 
+		// 加算ポーズのボーン定義
+		ArchiveAdditiveBones(_arch);
+
 		// モデルから各ノードの再生アニメ参照を復元(GUID → ハンドル)
 		auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
 		if (_pModel)
@@ -103,6 +155,7 @@ namespace Engine::Resource
 		m_name.clear();
 		m_modelGUID = Engine::DefaultGUID;
 		m_modelHandle = {};
+		m_additiveBones.clear();
 	}
 
 	//======================================================================================
@@ -123,6 +176,10 @@ namespace Engine::Resource
 
 		// アニメを付随させるための参照モデル選択(Animator固有)
 		BindModelComb();
+		ImGui::Separator();
+
+		// 加算ポーズの対象ボーン定義
+		AdditiveBoneEdit();
 		ImGui::Separator();
 
 		// ノード本体だけ(アニメ選択UI)を注入して汎用ノードエディタを描画
@@ -167,6 +224,10 @@ namespace Engine::Resource
 				// ループフラグ
 				ImGui::Checkbox("Loop", &a_node.isLoop);
 
+				// 加算ポーズの効き(ステートごと)
+				ImGui::Text("Additive");
+				ImGui::DragFloat("##AdditiveWeight", &a_node.additiveWeight, 0.01f, 0.0f, 1.0f);
+
 				ImGui::PopItemWidth();
 			});
 	}
@@ -200,6 +261,101 @@ namespace Engine::Resource
 				}
 			}
 			ImGui::EndCombo();
+		}
+	}
+
+	//======================================================================================
+	// Animator固有UI: 加算ポーズの対象ボーン定義
+	//======================================================================================
+	void AnimatorAsset::AdditiveBoneEdit()
+	{
+		if (!ImGui::CollapsingHeader("Additive Bones")) return;
+
+		const auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
+		if (!_pModel)
+		{
+			ImGui::TextDisabled("Select a model first");
+			return;
+		}
+
+		const auto& _nodeVec = _pModel->GetOriginalNodeVec();
+
+		// チャンネルごとの配分合計。1.0から大きく外れていると見た目が破綻するので目安として出す。
+		float _shareSum[3] = { 0.0f, 0.0f, 0.0f };
+		for (const auto& _def : m_additiveBones)
+		{
+			size_t _chIdx = static_cast<size_t>(_def.channel);
+			if (_chIdx < 3) _shareSum[_chIdx] += _def.share;
+		}
+		ImGui::Text("Share sum : Aim %.2f / LagArm %.2f / LagLeg %.2f",
+			_shareSum[0], _shareSum[1], _shareSum[2]);
+
+		int _removeIdx = -1;
+		for (size_t _i = 0; _i < m_additiveBones.size(); ++_i)
+		{
+			AdditiveBoneDef& _def = m_additiveBones[_i];
+			ImGui::PushID(static_cast<int>(_i));
+
+			// 対象ノード選択
+			std::string _current = _def.nodeName.empty() ? "Select node..." : _def.nodeName;
+			if (ImGui::BeginCombo("Node", _current.c_str()))
+			{
+				for (const auto& _node : _nodeVec)
+				{
+					bool _selected = (_def.nodeName == _node.name);
+					if (ImGui::Selectable(_node.name.c_str(), _selected))
+					{
+						_def.nodeName = _node.name;
+						_def.nodeNameHash = StringUtility::ToHash(_node.name);
+					}
+					if (_selected) ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			// チャンネル選択
+			if (ImGui::BeginCombo("Channel", ToString(_def.channel)))
+			{
+				const EAdditiveChannel _channelVec[] =
+				{
+					EAdditiveChannel::Aim,
+					EAdditiveChannel::LagArm,
+					EAdditiveChannel::LagLeg
+				};
+				for (auto _ch : _channelVec)
+				{
+					bool _selected = (_def.channel == _ch);
+					if (ImGui::Selectable(ToString(_ch), _selected))
+					{
+						_def.channel = _ch;
+					}
+					if (_selected) ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			ImGui::DragFloat("Share", &_def.share, 0.01f, 0.0f, 1.0f);
+
+			// Lag系のみ軸ごとの効きを使う(符号を反転させると左右対称にできる)
+			if (_def.channel != EAdditiveChannel::Aim)
+			{
+				ImGui::DragFloat3("AxisScale", &_def.axisScale.x, 0.01f);
+			}
+
+			if (ImGui::Button("Remove")) _removeIdx = static_cast<int>(_i);
+
+			ImGui::Separator();
+			ImGui::PopID();
+		}
+
+		if (_removeIdx >= 0)
+		{
+			m_additiveBones.erase(m_additiveBones.begin() + _removeIdx);
+		}
+
+		if (ImGui::Button("Add Bone"))
+		{
+			m_additiveBones.emplace_back();
 		}
 	}
 }

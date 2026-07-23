@@ -16,6 +16,7 @@
 //==========================================================================================
 #include "Engine/Resource/StateGraph/StateGraph.h"
 #include "Engine/Editor/Widget/StateGraphEditor/StateGraphEditor.h"
+#include "AdditivePoseTypes.h"
 
 namespace Engine::Resource
 {
@@ -27,6 +28,10 @@ namespace Engine::Resource
 		ResourceRef<AnimationData> playAnimData;			// 実行時に解決される再生アニメ参照
 		float					speed = 0.0f;
 		bool					isLoop = false;
+
+		// 加算ポーズの効き。ステートごとに変えられる。
+		// (例: ブースト移動中は0.6、しゃがみ中は0.0)
+		float					additiveWeight = 1.0f;
 
 		void Archive(Persistence::Archive& a_arch);
 	};
@@ -49,6 +54,9 @@ namespace Engine::Resource
 		UINT GetStateHash(const std::string& a_stateName) const { return m_graph.GetStateHash(a_stateName); }
 		std::string_view GetNodeName(const UINT& a_hash) const { return m_graph.GetNodeName(a_hash); }
 		const AnimatorNode* GetStateNode(UINT a_stateHash) const { return m_graph.GetStateNode(a_stateHash); }
+
+		// 加算ポーズのボーン定義(AdditivePoseLinkSystem が nodeIdx へ解決する)
+		const std::vector<AdditiveBoneDef>& GetAdditiveBones() const { return m_additiveBones; }
 
 		// 保存と読み込み
 		void Save(const std::string& a_savePath);
@@ -78,6 +86,12 @@ namespace Engine::Resource
 		// 参照モデル選択UI(Animator固有)
 		void BindModelComb();
 
+		// 加算ポーズのボーン定義編集UI
+		void AdditiveBoneEdit();
+
+		// 加算ポーズのボーン定義のシリアライズ(Save/Load共通)
+		void ArchiveAdditiveBones(Persistence::Archive& a_arch);
+
 		// 共通のロード処理
 		void LoadInternal(const std::string& a_fileDir, const std::string& a_fileName);
 
@@ -91,6 +105,9 @@ namespace Engine::Resource
 
 		// 設計図(再利用コア)
 		Graph			m_graph;
+
+		// 加算ポーズの対象ボーン定義(モデル依存の構造情報)
+		std::vector<AdditiveBoneDef> m_additiveBones;
 
 		// 編集UI(汎用ウィジェット)
 		Engine::Editor::StateGraphEditor<AnimatorNode> m_editor;
