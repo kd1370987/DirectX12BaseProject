@@ -19,10 +19,10 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, LocalTransformComponent, TPSCameraStateComponent>(
 		Engine::ECS::ESystemType::Camera,
 		"TPSSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			FollowTargetComponent* a_targetArray,
 			TPSOffsetComponent* a_offsetArray,
@@ -44,12 +44,12 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// ターゲット取得
 				//============================================================
 				Engine::ECS::Entity _target = _followComp.target;
-				if (!a_world.HasComponent<LocalTransformComponent>(_target)) continue;
-				if (!a_world.HasComponent<PlayerLookAngleComponent>(_target)) continue;
-				if (!a_world.HasComponent<CameraForcusTargetComponent>(_target)) continue;
-				const LocalTransformComponent* _targetTRS = a_world.RefData<LocalTransformComponent>(_target);
-				const PlayerLookAngleComponent* _targetLook = a_world.RefData<PlayerLookAngleComponent>(_target);
-				const CameraForcusTargetComponent* _forcusTarget = a_world.RefData<CameraForcusTargetComponent>(_target);
+				if (!a_ctx.pWorld->HasComponent<LocalTransformComponent>(_target)) continue;
+				if (!a_ctx.pWorld->HasComponent<PlayerLookAngleComponent>(_target)) continue;
+				if (!a_ctx.pWorld->HasComponent<CameraForcusTargetComponent>(_target)) continue;
+				const LocalTransformComponent* _targetTRS = a_ctx.pWorld->RefData<LocalTransformComponent>(_target);
+				const PlayerLookAngleComponent* _targetLook = a_ctx.pWorld->RefData<PlayerLookAngleComponent>(_target);
+				const CameraForcusTargetComponent* _forcusTarget = a_ctx.pWorld->RefData<CameraForcusTargetComponent>(_target);
 				if (!_targetLook || !_targetTRS || !_forcusTarget) continue;
 
 				//============================================================
@@ -80,7 +80,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// ほぼ反対を向いた瞬間に補間結果がゼロ近傍を通り、正規化が破綻して
 				// 高速に180度反転する。Slerpは最短経路で回るためこの破綻が無い。
 				//============================================================
-				float _t = std::min(10.0f * a_dt, 1.0f);		// 補間係数
+				float _t = std::min(10.0f * a_ctx.dt, 1.0f);		// 補間係数
 
 				DXSM::Quaternion _curOrbit = _statComp.currentOrbit;
 				if (_curOrbit.LengthSquared() < 1e-6f) _curOrbit = _targetRot;	// 未初期化保険

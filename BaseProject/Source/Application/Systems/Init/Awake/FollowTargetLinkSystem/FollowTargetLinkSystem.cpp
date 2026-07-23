@@ -10,10 +10,10 @@ void FollowTargetLinkSystem::Init(Engine::ECS::World& a_world)
 	a_world.AwekeTask<const GUIDComponent,FollowTargetComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"FollowTargetLinkSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			AwekeTag* a_tag,
 			const GUIDComponent* a_guidArray,
 			FollowTargetComponent* a_followArray
@@ -26,7 +26,7 @@ void FollowTargetLinkSystem::Init(Engine::ECS::World& a_world)
 				// ターゲットGUIDがあるのなら
 				if (_followComp.targetGUID != Engine::DefaultGUID)
 				{
-					_followComp.target = a_world.GetEntity(_followComp.targetGUID);
+					_followComp.target = a_ctx.pWorld->GetEntity(_followComp.targetGUID);
 				}
 			}
 		}

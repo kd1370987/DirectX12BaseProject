@@ -14,7 +14,7 @@ void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			BoostComponent* a_boostArray,
 			VelocityComponent* a_velArray
@@ -28,7 +28,7 @@ void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 				// 回復
 				if (_boostComp.maxFuel >= _boostComp.currentFuel)
 				{
-					_boostComp.currentFuel += _boostComp.fuelRegeneration * a_dt;
+					_boostComp.currentFuel += _boostComp.fuelRegeneration * a_ctx.dt;
 				}
 
 				// 使用量より燃料が下回っていたらブーストできない

@@ -1,4 +1,4 @@
-#include "AdditivePoseLinkSystem.h"
+﻿#include "AdditivePoseLinkSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
@@ -14,17 +14,17 @@ void AdditivePoseLinkSystem::Init(Engine::ECS::World& a_world)
 	a_world.StartTask<const ModelComponent, const StateMachineComponent, AdditivePoseComponent>(
 		Engine::ECS::ESystemType::Start,
 		"AdditivePoseLinkSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			StartTag* a_startTag,
 			const ModelComponent* a_modelArray,
 			const StateMachineComponent* a_stateMachineArray,
 			AdditivePoseComponent* a_additiveArray
 		)
 		{
-			auto& _entryPool = a_world.GetResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
+			auto& _entryPool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

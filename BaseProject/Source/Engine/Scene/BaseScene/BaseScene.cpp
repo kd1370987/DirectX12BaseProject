@@ -10,6 +10,7 @@
 #include "../../MainEngine.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Collision/CollisionWorld.h"
+#include "../../Input/InputManager/InputManager.h"
 #include "../../GameObject/GameObjectManager/GameObjectManager.h"
 
 namespace Engine::Scene
@@ -25,6 +26,15 @@ namespace Engine::Scene
 		// ワールド作成
 		m_upWorld = std::make_unique<Engine::ECS::World>();
 		m_upWorld->Init();
+
+		// アプリ寿命のサービスを差し込む。
+		// シングルトンを名指しするのはここ(合成の入り口)だけにして、
+		// 各システムは SystemContext 経由で受け取る。
+		Engine::ECS::EngineServices _services = {};
+		_services.pMainEngine = &Engine::MainEngine::Instance();
+		_services.pResourceManager = &Engine::Resource::ResourceManager::Instance();
+		_services.pInputManager = &Engine::Input::InputManager::Instance();
+		m_upWorld->SetEngineServices(_services);
 
 		// ワールド設定の呼びだし
 		SceneManager::Instance().InvokeWorldInitCallback(m_upWorld.get());

@@ -16,11 +16,11 @@ void DynamicObjectDrawSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const WorldMatrixComponent,const PreviousWorldMatrixComponent, const ModelComponent>(
 		Engine::ECS::ESystemType::Draw,
 			"DynamicObjectDrawSystem",
-			[&a_world]
+			[]
 			(
 				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
-				float a_dt,
+				const Engine::ECS::SystemContext& a_ctx,
 				ActiveTag* a_tags,
 				const WorldMatrixComponent* a_worldMatArray,
 				const PreviousWorldMatrixComponent* a_prevWorldMatArray,
@@ -43,7 +43,7 @@ void DynamicObjectDrawSystem::Init(Engine::ECS::World& a_world)
 
 					// 描画
 					_pGE->SubmitModel(
-						a_world,
+						*a_ctx.pWorld,
 						_model,
 						_worldMatComp.worldMat,
 						_modelComp.colorScale,

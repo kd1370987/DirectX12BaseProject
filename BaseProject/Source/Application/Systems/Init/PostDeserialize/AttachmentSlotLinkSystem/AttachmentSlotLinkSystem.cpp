@@ -9,20 +9,20 @@ void AttachmentSlotLinkSystem::Init(Engine::ECS::World& a_world)
 	a_world.AwekeTask<AttachmentSlotsComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"AttachmentSlotLinkSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			AwekeTag* a_tag,
 			AttachmentSlotsComponent* a_slotsArray
 			)
 		{
 			// 1スロットの GUID -> id を解決
-			auto _resolve = [&a_world](AttachmentSlot& a_slot)
+			auto _resolve = [&a_ctx](AttachmentSlot& a_slot)
 			{
 				if (a_slot.guid != Engine::DefaultGUID)
 				{
-					a_slot.id = a_world.GetEntity(a_slot.guid);
+					a_slot.id = a_ctx.pWorld->GetEntity(a_slot.guid);
 				}
 				else
 				{

@@ -12,11 +12,11 @@ void ActionStateFixupSystem::Init(Engine::ECS::World& a_world)
 	a_world.PostDeserializeTask<ActionStateComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"ActionStateFixupSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
 			ActionStateComponent* a_array
 			)
@@ -32,7 +32,7 @@ void ActionStateFixupSystem::Init(Engine::ECS::World& a_world)
 						Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::ActionStateMachineAsset>(_comp.actionGUID);
 
 					// 実行時インスタンス確保
-					auto& _pool = a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
+					auto& _pool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
 					Engine::Resource::ActionStateInstance _instance = {};
 					_comp.instanceHandle = _pool.Add(std::move(_instance));
 

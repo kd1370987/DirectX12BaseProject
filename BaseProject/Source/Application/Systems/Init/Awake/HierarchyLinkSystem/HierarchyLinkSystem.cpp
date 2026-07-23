@@ -10,10 +10,10 @@ void HierarchyLinkSystem::Init(Engine::ECS::World& a_world)
 	a_world.AwekeTask<const GUIDComponent, HierarchyComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"HierarchyLinkSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			AwekeTag* a_tag,
 			const GUIDComponent* a_guidArray,
 			HierarchyComponent* a_hierarchyArray
@@ -26,7 +26,7 @@ void HierarchyLinkSystem::Init(Engine::ECS::World& a_world)
 				// ターゲットGUIDがあるのなら
 				if (_hieComp.parentGUID != Engine::DefaultGUID)
 				{
-					_hieComp.parentID = a_world.GetEntity(_hieComp.parentGUID);
+					_hieComp.parentID = a_ctx.pWorld->GetEntity(_hieComp.parentGUID);
 				}
 			}
 		}

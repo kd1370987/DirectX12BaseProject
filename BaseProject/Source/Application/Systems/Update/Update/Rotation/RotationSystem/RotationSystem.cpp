@@ -15,7 +15,7 @@ void RotationSystem::Init(Engine::ECS::World& a_world)
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const PlayerLookAngleComponent* a_lookArray,
 			LocalTransformComponent* a_trsArray,
@@ -48,7 +48,7 @@ void RotationSystem::Init(Engine::ECS::World& a_world)
 					DirectX::XMVECTOR _targetQuat = DirectX::XMQuaternionRotationRollPitchYaw(0.0f, _targetYaw, 0.0f);
 
 					// 球面線形補間を使って滑らかに旋回させる
-					float _slerpSpeed = 12.0f * a_dt;
+					float _slerpSpeed = 12.0f * a_ctx.dt;
 					DirectX::XMVECTOR _currentQuat = DirectX::XMLoadFloat4(&_trs.quat);
 
 					_currentQuat = DirectX::XMQuaternionSlerp(_currentQuat, _targetQuat, _slerpSpeed);

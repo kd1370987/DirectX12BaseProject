@@ -498,7 +498,14 @@ namespace Engine::ECS
 
 	void World::RunSystem(ESystemType a_type, float a_dt)
 	{
-		m_systemManager.RunSystem(*this, a_type, a_dt);
+		// システムへ渡すコンテキストを組み立てる。
+		// システム側は無捕獲(ステートレス)にして、必要な参照はすべてここから取る。
+		SystemContext _context = {};
+		_context.pWorld = this;
+		_context.pServices = &m_engineServices;
+		_context.dt = a_dt;
+
+		m_systemManager.RunSystem(a_type, _context);
 	}
 
 	const std::unordered_map<ESystemType, std::vector<SystemTask*>>& World::GetCompileTaskMap() const

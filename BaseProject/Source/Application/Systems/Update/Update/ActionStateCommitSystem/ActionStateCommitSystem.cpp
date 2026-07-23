@@ -11,11 +11,11 @@ void ActionStateCommitSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<ActionStateComponent>(
 		Engine::ECS::ESystemType::Update,
 		"ActionStateCommitSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			ActionStateComponent* a_array
 			)
@@ -28,7 +28,7 @@ void ActionStateCommitSystem::Init(Engine::ECS::World& a_world)
 					Engine::Resource::ResourceManager::Instance().Get(_comp.actionHandle);
 
 				auto& _pool =
-					a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
+					a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
 				auto* _pInstance = _pool.Ref(_comp.instanceHandle);
 
 				if (!_pSM || !_pInstance) continue;
@@ -41,7 +41,7 @@ void ActionStateCommitSystem::Init(Engine::ECS::World& a_world)
 					_comp.currentTime = 0.0f;
 				}
 
-				_comp.currentTime += a_dt;
+				_comp.currentTime += a_ctx.dt;
 
 				// 遷移評価
 				UINT _next = _pSM->EvaluateNextState(_comp.currentStateHash, *_pInstance);

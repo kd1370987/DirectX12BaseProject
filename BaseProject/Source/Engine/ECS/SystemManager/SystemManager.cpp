@@ -11,7 +11,7 @@ namespace Engine::ECS
 		}
 	}
 
-	void SystemManager::RunSystem(World& a_world, const ESystemType& a_type, float a_dt)
+	void SystemManager::RunSystem(const ESystemType& a_type, const SystemContext& a_context)
 	{
 
 		// フェーズ検索
@@ -21,7 +21,7 @@ namespace Engine::ECS
 			// フェーズ内のソートされたシステムを順に回す
 			for (auto& _task : _cit->second)
 			{
-				_task->executeFunc(a_dt);
+				_task->executeFunc(a_context);
 			}
 		}
 	}

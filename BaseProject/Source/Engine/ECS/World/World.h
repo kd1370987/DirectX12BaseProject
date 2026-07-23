@@ -210,6 +210,10 @@ namespace Engine::ECS
 		// システムフェーズを指定してデルタタイムを渡す
 		void RunSystem(ESystemType a_type, float a_dt);
 
+		// アプリ寿命のサービス群を差し込む(合成はシーン側が行う)
+		void SetEngineServices(const EngineServices& a_services) { m_engineServices = a_services; }
+		EngineServices* RefEngineServices() { return &m_engineServices; }
+
 		// 収集関数
 		// 指定したコンポーネント群を持つすべてのチャンクに対して、指定された関数を実行します
 		template<typename... Components, typename Func>
@@ -300,6 +304,9 @@ namespace Engine::ECS
 
 		// コンポーネントメタ情報管理
 		ComponentMetaRegistry m_componentMetaRegistry;
+
+		// アプリ寿命のサービス群(SystemContext 経由でシステムへ渡す)
+		EngineServices m_engineServices = {};
 
 		// 初期化済み
 		bool m_isInit = false;
@@ -504,8 +511,19 @@ namespace Engine::ECS
 			}(), ...
 		);
 
+		// システムは状態を持てない(無捕獲ラムダのみ許可)。
+		// 捕獲を許すと登録時の値がシーンをまたいで残り、追いにくい不具合になる。
+		// 必要な参照は SystemContext から取ること。
+		static_assert(
+			std::is_convertible_v<
+				Func,
+				void(*)(ArchetypeChunk*, uint32_t, const SystemContext&, Components*...)
+			>,
+			"システムのラムダは無捕獲(ステートレス)にしてください。World などは SystemContext から取得します。"
+		);
+
 		// 実行ロジックをラムダ式に包んでタスクとして保存
-		_task.executeFunc = [this, a_func](float a_dt)
+		_task.executeFunc = [this, a_func](const SystemContext& a_context)
 			{
 				// 実行用のシグネチャ
 				Signature _querySig;
@@ -524,7 +542,7 @@ namespace Engine::ECS
 					std::apply(
 						[&](auto... a_data)
 						{
-							a_func(_chunk, _chunk->count, a_dt,a_data...);
+							a_func(_chunk, _chunk->count, a_context, a_data...);
 						},
 						_arrays
 					);
@@ -575,9 +593,9 @@ namespace Engine::ECS
 			(_task.writeSig.set(m_componentMetaRegistry.GetTypeID<Write>()), ...);
 		}
 		// 実行関数は自動ループせず、そのまま登録する
-		_task.executeFunc = [a_func](float a_dt)
+		_task.executeFunc = [a_func](const SystemContext& a_context)
 			{
-				a_func(a_dt);
+				a_func(a_context);
 			};
 
 		m_systemManager.AddSystemTask(a_phase, _task,"CatamTask");

@@ -12,11 +12,11 @@ void FollowAnimationNodeSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const FollowAnimationNodeComponent, const HierarchyComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
 		"FollowAnimationNodeSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const FollowAnimationNodeComponent* a_followArray,
 			const HierarchyComponent* a_hierarchyArray,
@@ -34,11 +34,11 @@ void FollowAnimationNodeSystem::Init(Engine::ECS::World& a_world)
 				if (_parentID == Engine::ECS::Limits::INVALID_ENTITY) continue;
 
 				// 親のノードポーズ配列を取得
-				auto* _pNodePoseComp = a_world.RefData<NodePoseComponent>(_parentID);
+				auto* _pNodePoseComp = a_ctx.pWorld->RefData<NodePoseComponent>(_parentID);
 				if (!_pNodePoseComp) continue;
 
 				// ノード行列配列取得
-				auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 				auto _nodePoseVec = _nodePosePool.RefRange(_pNodePoseComp->nodePoseHandle);
 				if (_nodePoseVec.empty()) continue;
 				if (_followComp.targetNodeIdx >= _nodePoseVec.size()) continue;

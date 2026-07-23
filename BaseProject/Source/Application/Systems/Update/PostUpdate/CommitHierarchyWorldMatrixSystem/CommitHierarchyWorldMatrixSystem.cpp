@@ -14,10 +14,10 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 		Engine::ECS::ESystemType::PostUpdate,
 		Engine::ECS::ReadList<LocalTransformComponent, HierarchyComponent>{},
 		Engine::ECS::WriteList<WorldMatrixComponent>{},
-		[&a_world](float a_dt)
+		[](const Engine::ECS::SystemContext& a_ctx)
 		{
 			// 更新前にワールド行列のフラグを消しておく
-			a_world.ForEach<WorldMatrixComponent>(
+			a_ctx.pWorld->ForEach<WorldMatrixComponent>(
 				[]
 				(
 					Engine::ECS::ArchetypeChunk* a_pChunk,
@@ -34,11 +34,11 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 			);
 
 			// 深度ごとに親子階層の更新をする
-			auto& _hRes = a_world.GetResource<HierarchyResource>();
+			auto& _hRes = a_ctx.pWorld->GetResource<HierarchyResource>();
 			for (int _depth = 0; _depth <= _hRes.maxDepth; ++_depth)
 			{
-				a_world.ForEach<LocalTransformComponent, WorldMatrixComponent, HierarchyComponent>(
-					[_depth,&a_world]
+				a_ctx.pWorld->ForEach<LocalTransformComponent, WorldMatrixComponent, HierarchyComponent>(
+					[_depth, &a_ctx]
 					(
 						Engine::ECS::ArchetypeChunk* a_pChunk,
 						uint32_t a_count,
@@ -55,8 +55,8 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 
 							bool _isParentUpdated = false;
 							if (_hComp.parentID != Engine::ECS::Limits::INVALID_ENTITY) {
-								if (!a_world.HasComponent<WorldMatrixComponent>(_hComp.parentID)) continue;
-								auto* _parentMatComp = a_world.RefData<WorldMatrixComponent>(_hComp.parentID);
+								if (!a_ctx.pWorld->HasComponent<WorldMatrixComponent>(_hComp.parentID)) continue;
+								auto* _parentMatComp = a_ctx.pWorld->RefData<WorldMatrixComponent>(_hComp.parentID);
 								if (_parentMatComp) {
 									_isParentUpdated = _parentMatComp->wasUpdatedThisFrame;
 								}
@@ -88,7 +88,7 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 							// 親の行列を掛け合わせる
 							if (_hComp.parentID != Engine::ECS::Limits::INVALID_ENTITY) {
 								// 親のワールド行列を取得
-								auto* _parentMatComp = a_world.RefData<WorldMatrixComponent>(_hComp.parentID);
+								auto* _parentMatComp = a_ctx.pWorld->RefData<WorldMatrixComponent>(_hComp.parentID);
 								DirectX::XMMATRIX _parentMat = DirectX::XMLoadFloat4x4(&_parentMatComp->worldMat);
 
 								// 親 * 子 の順で掛け合わせる

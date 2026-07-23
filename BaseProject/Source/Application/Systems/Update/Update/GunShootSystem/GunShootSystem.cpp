@@ -23,11 +23,11 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<GunStateComponent, const ActionIntentComponent, const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::Update,
 		"GunShootSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			GunStateComponent* a_gunArray,
 			const ActionIntentComponent* a_intentArray,
@@ -85,9 +85,9 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				Engine::ECS::Signature _sig = _pPrefab->GetSignature();
 				auto _data = _pPrefab->GetDataMap();	// コピー(型ID -> バイト列)
 
-				auto _ltID = a_world.GetCompTypeID<LocalTransformComponent>();
-				auto _velID = a_world.GetCompTypeID<VelocityComponent>();
-				auto _wmID = a_world.GetCompTypeID<WorldMatrixComponent>();
+				auto _ltID = a_ctx.pWorld->GetCompTypeID<LocalTransformComponent>();
+				auto _velID = a_ctx.pWorld->GetCompTypeID<VelocityComponent>();
+				auto _wmID = a_ctx.pWorld->GetCompTypeID<WorldMatrixComponent>();
 
 				// 弾が動く・描画されるために最低限必要なコンポーネントが無ければ足す
 				auto _ensure = [&](Engine::ECS::ComponentTypeID _id)
@@ -95,8 +95,8 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 					if (_sig.test(_id)) return;
 					_sig.set(_id);
 					auto& _buf = _data[_id];
-					_buf.assign(a_world.GetComponentMetaData(_id).compAlignSize, 0);
-					auto _ctor = a_world.GetCompFunc(_id).construct;
+					_buf.assign(a_ctx.pWorld->GetComponentMetaData(_id).compAlignSize, 0);
+					auto _ctor = a_ctx.pWorld->GetCompFunc(_id).construct;
 					if (_ctor) _ctor(_buf.data());
 				};
 				_ensure(_ltID);
@@ -122,7 +122,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				// 反復中なので即時生成せず、遅延生成コマンドに積む
-				a_world.AddEntityWithData(_sig, std::move(_data));
+				a_ctx.pWorld->AddEntityWithData(_sig, std::move(_data));
 			}
 		}
 	);

@@ -15,11 +15,11 @@ void ExplodeOnHitSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const Engine::ECS::CollisionEvent, ExplodeOnHitComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
 		"ExplodeOnHitSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const Engine::ECS::CollisionEvent* a_eventArray,
 			ExplodeOnHitComponent* a_explodeArray
@@ -52,15 +52,15 @@ void ExplodeOnHitSystem::Init(Engine::ECS::World& a_world)
 						Engine::ECS::Signature _sig = _pPrefab->GetSignature();
 						auto _data = _pPrefab->GetDataMap();	// コピー
 
-						auto _ltID = a_world.GetCompTypeID<LocalTransformComponent>();
+						auto _ltID = a_ctx.pWorld->GetCompTypeID<LocalTransformComponent>();
 
 						// 位置を入れるため LocalTransform が無ければ足す
 						if (!_sig.test(_ltID))
 						{
 							_sig.set(_ltID);
 							auto& _buf = _data[_ltID];
-							_buf.assign(a_world.GetComponentMetaData(_ltID).compAlignSize, 0);
-							auto _ctor = a_world.GetCompFunc(_ltID).construct;
+							_buf.assign(a_ctx.pWorld->GetComponentMetaData(_ltID).compAlignSize, 0);
+							auto _ctor = a_ctx.pWorld->GetCompFunc(_ltID).construct;
 							if (_ctor) _ctor(_buf.data());
 						}
 
@@ -75,14 +75,14 @@ void ExplodeOnHitSystem::Init(Engine::ECS::World& a_world)
 						}
 
 						// 反復中なので遅延生成
-						a_world.AddEntityWithData(_sig, std::move(_data));
+						a_ctx.pWorld->AddEntityWithData(_sig, std::move(_data));
 					}
 				}
 
 				// ---- 自分を消す ----
 				if (_explode.destroySelf)
 				{
-					a_world.AddRemoveEntity(a_pChunk->entityData[_i]);
+					a_ctx.pWorld->AddRemoveEntity(a_pChunk->entityData[_i]);
 				}
 			}
 		}

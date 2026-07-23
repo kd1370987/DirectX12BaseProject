@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../Internal/SystemComon.h"
+#include "../Internal/SystemContext.h"
 
 #include "../System/ISystem/ISystem.h"
 
@@ -17,7 +18,7 @@ namespace Engine::ECS
 		std::string name = {};
 		Signature readSig;		// 読み込みのみを行うコンポーネント
 		Signature writeSig;		// 書き込みを行うコンポーネント軍
-		std::function<void(float)> executeFunc;	// チャンク処理
+		std::function<void(const SystemContext&)> executeFunc;	// チャンク処理
 	};
 
 
@@ -33,9 +34,9 @@ namespace Engine::ECS
 		void Register(World* a_world);
 
 		// システムの更新
-		// システムのフェーズを指定、デルタタイムを入れる
+		// システムのフェーズを指定、コンテキストを入れる
 		void RunSystem(
-			World& a_world, const ESystemType& a_type, float a_dt
+			const ESystemType& a_type, const SystemContext& a_context
 		);
 
 		// 登録されたタスクをフェーズごとにソートする

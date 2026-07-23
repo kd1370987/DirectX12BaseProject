@@ -9,11 +9,11 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const MoveIntentComponent, const BoostComponent,StateMachineComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"PlayerIntentSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const MoveIntentComponent* a_moveIntentArray,
 			const BoostComponent* a_boostComp,
@@ -32,7 +32,7 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 				StateMachineComponent& _smComp = a_smArray[_i];
 
 				// インスタンスの実体を取得
-				auto& _stateInstancePool = a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+				auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
 				auto* _pInstance = _stateInstancePool.Ref(_smComp.instanceHandle);
 				if (!_pInstance) continue;
 

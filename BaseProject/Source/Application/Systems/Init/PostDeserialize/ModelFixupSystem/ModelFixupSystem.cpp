@@ -14,7 +14,7 @@ void ModelFixupSystem::Init(Engine::ECS::World& a_world)
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
 			ModelComponent* a_modelArray
 		)

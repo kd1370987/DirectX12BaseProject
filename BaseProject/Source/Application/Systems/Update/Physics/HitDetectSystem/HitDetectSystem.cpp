@@ -14,11 +14,11 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const SphereColliderComponent, Engine::ECS::CollisionEvent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"HitDetectSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const SphereColliderComponent* a_sphereArray,
 			Engine::ECS::CollisionEvent* a_eventArray,
@@ -51,9 +51,9 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 				// 当たった相手側にも直接書き込む(相手が CollisionEvent を持っていれば)。
 				// 値の書き換えのみ＝構造変化なしなので反復中でも安全。
 				if (_res.hitEntity != Engine::ECS::Limits::INVALID_ENTITY &&
-					a_world.HasComponent<Engine::ECS::CollisionEvent>(_res.hitEntity))
+					a_ctx.pWorld->HasComponent<Engine::ECS::CollisionEvent>(_res.hitEntity))
 				{
-					auto* _ev = a_world.RefData<Engine::ECS::CollisionEvent>(_res.hitEntity);
+					auto* _ev = a_ctx.pWorld->RefData<Engine::ECS::CollisionEvent>(_res.hitEntity);
 					if (_ev)
 					{
 						_ev->other  = _self;

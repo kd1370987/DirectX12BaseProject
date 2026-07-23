@@ -10,17 +10,17 @@ void UpdateHierarchyDepthSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const HierarchyComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"UpdateHierarchyDepthSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const HierarchyComponent* a_hierarychyArray
 		)
 		{
 			// 参照
-			auto& _hRes = a_world.GetResource<HierarchyResource>();
+			auto& _hRes = a_ctx.pWorld->GetResource<HierarchyResource>();
 			if (!_hRes.isDirty) return;
 
 			// 階層変更の可能性があるのなら走査して検出する

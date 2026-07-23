@@ -21,11 +21,11 @@ void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const AttachmentSlotsComponent, const MoveIntentComponent, const VelocityComponent, const BoostComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"ThrusterEffectSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const AttachmentSlotsComponent* a_slotsArray,
 			const MoveIntentComponent* a_moveArray,
@@ -38,11 +38,11 @@ void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 			constexpr float kRiseEps = 0.1f;	// 上昇とみなす速度
 
 			// ブースター子の噴射 ON/OFF を設定
-			auto _setBoosterPlay = [&a_world](Engine::ECS::Entity a_e, bool a_on)
+			auto _setBoosterPlay = [&a_ctx](Engine::ECS::Entity a_e, bool a_on)
 			{
 				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
-				if (!a_world.HasComponent<ParticlesComponent>(a_e)) return;
-				if (auto* _p = a_world.RefData<ParticlesComponent>(a_e)) _p->isPlay = a_on;
+				if (!a_ctx.pWorld->HasComponent<ParticlesComponent>(a_e)) return;
+				if (auto* _p = a_ctx.pWorld->RefData<ParticlesComponent>(a_e)) _p->isPlay = a_on;
 			};
 
 			for (size_t _i = 0; _i < a_count; ++_i)

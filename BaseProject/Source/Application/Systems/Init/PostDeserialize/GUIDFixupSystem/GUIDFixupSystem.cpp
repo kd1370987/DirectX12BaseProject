@@ -8,10 +8,10 @@ void GUIDFixupSystem::Init(Engine::ECS::World& a_world)
 	a_world.PostDeserializeTask<GUIDComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"GUIDFixupSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
 			GUIDComponent* a_guidArray
 			)
@@ -22,7 +22,7 @@ void GUIDFixupSystem::Init(Engine::ECS::World& a_world)
 
 				if (_guidComp.guid == Engine::DefaultGUID)
 				{
-					auto _func = a_world.GetCompFunc<GUIDComponent>();
+					auto _func = a_ctx.pWorld->GetCompFunc<GUIDComponent>();
 					_func.construct(&_guidComp);
 					// GUIDが付与されていなければ付与
 					_guidComp.guid.Create();

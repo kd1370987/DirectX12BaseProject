@@ -19,7 +19,7 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_ActiveTag,
 			const PlayerControllTag* a_tags,
 			MoveIntentComponent* a_moveIntentArray,

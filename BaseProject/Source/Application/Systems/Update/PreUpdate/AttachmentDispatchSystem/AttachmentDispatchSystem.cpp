@@ -20,22 +20,22 @@ void AttachmentDispatchSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const AttachmentSlotsComponent, const ActionIntentComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"AttachmentDispatchSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const AttachmentSlotsComponent* a_slotsArray,
 			const ActionIntentComponent* a_intentArray
 			)
 		{
 			// 銃子へ発射入力を配信
-			auto _setGunIntent = [&a_world](Engine::ECS::Entity a_e, bool a_shoot, bool a_aim)
+			auto _setGunIntent = [&a_ctx](Engine::ECS::Entity a_e, bool a_shoot, bool a_aim)
 			{
 				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
-				if (!a_world.HasComponent<ActionIntentComponent>(a_e)) return;
-				if (auto* _p = a_world.RefData<ActionIntentComponent>(a_e))
+				if (!a_ctx.pWorld->HasComponent<ActionIntentComponent>(a_e)) return;
+				if (auto* _p = a_ctx.pWorld->RefData<ActionIntentComponent>(a_e))
 				{
 					_p->isGunShoot = a_shoot;
 					_p->isAiming = a_aim;

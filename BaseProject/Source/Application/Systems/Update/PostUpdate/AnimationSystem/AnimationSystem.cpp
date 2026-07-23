@@ -13,10 +13,10 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const ModelComponent, AnimatorComponent, NodePoseComponent>(
 		Engine::ECS::ESystemType::Animation,
 		"AnimationSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const ModelComponent* a_modelArray,
 			AnimatorComponent* a_animatorArray,
@@ -38,7 +38,7 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				if (!_pAni) continue;
 
 				// ノードポーズ行列配列取得
-				auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 				auto _nodePoseVec = _nodePosePool.RefRange(_nodeComp.nodePoseHandle);
 				if (_nodePoseVec.empty()) continue;
 
@@ -68,7 +68,7 @@ void AnimationSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				// アニメーションタイム進行
-				_aniComp.time += a_dt * _aniComp.speed;
+				_aniComp.time += a_ctx.dt * _aniComp.speed;
 
 				if (_aniComp.time >= _pAni->maxLength)
 				{

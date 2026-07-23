@@ -1,12 +1,22 @@
-﻿#pragma once
+#pragma once
 
 namespace Engine
 {
 	class MainEngine;
 }
+namespace Engine::Resource
+{
+	class ResourceManager;
+}
+namespace Engine::Input
+{
+	class InputManager;
+}
 
 namespace Engine::ECS
 {
+	class World;
+
 	/// <summary>
 	/// エンジン側のアプリケーションを立ち上げたら、終了まで解放されないクラス群
 	/// </summary>
@@ -20,6 +30,9 @@ namespace Engine::ECS
 	/// <summary>
 	/// システム関数の引数に渡す構造体
 	/// 主にシステム内で参照される、使われるデータを共通で送るためのもの
+	///
+	/// システムのラムダはこれ以外の状態を持たない(無捕獲)こと。
+	/// 捕獲するとシーンをまたいで状態が残り、追いにくい不具合になる。
 	/// </summary>
 	struct SystemContext
 	{

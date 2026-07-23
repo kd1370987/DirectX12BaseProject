@@ -15,7 +15,7 @@ void CalcMatrixSystem::Init(Engine::ECS::World& a_world)
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const LocalTransformComponent* a_trsArray,
 			WorldMatrixComponent* a_worldMatArray

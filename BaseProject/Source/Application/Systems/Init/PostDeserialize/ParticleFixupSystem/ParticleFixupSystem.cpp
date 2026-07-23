@@ -11,11 +11,11 @@ void ParticleFixupSystem::Init(Engine::ECS::World& a_world)
 	a_world.PostDeserializeTask<ParticlesComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"ParticleFixupSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
 			ParticlesComponent* a_particleArray
 			)

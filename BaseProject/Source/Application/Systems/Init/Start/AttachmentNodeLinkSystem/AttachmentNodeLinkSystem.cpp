@@ -12,10 +12,10 @@ void AttachmentNodeLinkSystem::Init(Engine::ECS::World& a_world)
 	a_world.StartTask<FollowAnimationNodeComponent, const HierarchyComponent>(
 		Engine::ECS::ESystemType::Start,
 		"AttachmentNodeLinkSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			StartTag* a_tag,
 			FollowAnimationNodeComponent* a_followArray,
 			const HierarchyComponent* a_hierarchyArray
@@ -31,7 +31,7 @@ void AttachmentNodeLinkSystem::Init(Engine::ECS::World& a_world)
 				if (_parentID == Engine::ECS::Limits::INVALID_ENTITY) continue;
 
 				// 親のモデルを取得
-				auto* _pParentModleComp = a_world.RefData<ModelComponent>(_parentID);
+				auto* _pParentModleComp = a_ctx.pWorld->RefData<ModelComponent>(_parentID);
 				if (!_pParentModleComp) continue;
 				const auto* _pParentModel = Engine::Resource::ResourceManager::Instance().Get(_pParentModleComp->handle);
 				if (!_pParentModel) continue;

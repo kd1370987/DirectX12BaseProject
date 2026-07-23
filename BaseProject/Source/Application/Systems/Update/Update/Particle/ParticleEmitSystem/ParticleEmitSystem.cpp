@@ -8,7 +8,7 @@
 // ParticleEmitSystem
 //
 // isPlay と emitRate から「このフレーム何個発生させるか(pendingEmitCount)」を計算する。
-// 実フレーム時間(a_dt)を使うため Update フェーズで行う(Draw フェーズは dt=0 のため不可)。
+// 実フレーム時間(a_ctx.dt)を使うため Update フェーズで行う(Draw フェーズは dt=0 のため不可)。
 // 実際の発生命令(RequestEmit)は EmittParticleSystem(Draw) が pendingEmitCount を見て行う。
 //
 //   emitRate > 0 : 連続発生。毎秒 emitRate 回、各回 emitCount 個(小数は time に繰り越し)。
@@ -23,7 +23,7 @@ void ParticleEmitSystem::Init(Engine::ECS::World& a_world)
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			ParticlesComponent* a_particleArray
 			)
@@ -46,7 +46,7 @@ void ParticleEmitSystem::Init(Engine::ECS::World& a_world)
 				if (_p.emitRate > 0.0f)
 				{
 					// ---- 連続発生 : 毎秒 emitRate 回 ----
-					_p.time += a_dt;
+					_p.time += a_ctx.dt;
 					const float _interval = 1.0f / _p.emitRate;
 
 					int _bursts = 0;

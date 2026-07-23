@@ -18,7 +18,7 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			StartTag* a_startTag,
 			ColliderComponent* a_collArray,
 			const ModelComponent* a_modelArray,

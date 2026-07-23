@@ -10,11 +10,11 @@ void StateMachinComitSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<StateMachineComponent>(
 		Engine::ECS::ESystemType::Update,
 		"StateMachinComitSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			StateMachineComponent* a_smArray
 			)
@@ -28,7 +28,7 @@ void StateMachinComitSystem::Init(Engine::ECS::World& a_world)
 
 				// 入力されたステートマシンの値を使って、現在のステートを更新
 				// インスタンスの実体を取得
-				auto& _stateInstancePool = a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+				auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
 				auto* _pInstanceData = _stateInstancePool.Ref(_smComp.instanceHandle);
 				if (!_pInstanceData) continue;
 				
@@ -45,7 +45,7 @@ void StateMachinComitSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				// 現在ステートの経過時間
-				_smComp.currentTime += a_dt;
+				_smComp.currentTime += a_ctx.dt;
 
 				// 遷移の評価
 				UINT _nextStateHash = _pStateMacihne->EvaluateNextState(_smComp.currentStateHash, *_pInstanceData);

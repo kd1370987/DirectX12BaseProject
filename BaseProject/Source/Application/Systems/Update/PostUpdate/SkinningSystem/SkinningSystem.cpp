@@ -12,10 +12,10 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const ModelComponent, NodePoseComponent, SkeletonPoseComponent>(
 		Engine::ECS::ESystemType::Animation,
 		"SkinningSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const ModelComponent* a_modelArray,
 			NodePoseComponent* a_nodePoseArray,
@@ -36,7 +36,7 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 				const auto& _dataNodes = _pModel->GetOriginalNodeVec();
 
 				// 全スケルタルポーズを初期化
-				auto& _boneMatPool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
+				auto& _boneMatPool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 				auto _boneMatVec = _boneMatPool.RefRange(_skeComp.skeletonPoseHandle);
 				for (auto& _mat : _boneMatVec)
 				{
@@ -44,7 +44,7 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				// 全ノードポーズを再帰計算
-				auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 				auto _nodePoseMatVec = _nodePosePool.RefRange(_nodeComp.nodePoseHandle);
 
 				// ボーンノード

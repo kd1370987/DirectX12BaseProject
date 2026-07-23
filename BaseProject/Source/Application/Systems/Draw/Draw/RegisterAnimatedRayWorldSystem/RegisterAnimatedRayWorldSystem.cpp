@@ -25,11 +25,11 @@ void RegisterAnimatedRayWorldSystem::Init(Engine::ECS::World& a_world)
 		(
 			Engine::ECS::ESystemType::Draw,
 			"RegisterRayWorldSystem",
-			[&a_world]
+			[]
 			(
 				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
-				float a_dt,
+				const Engine::ECS::SystemContext& a_ctx,
 				ActiveTag* a_pTags,
 				const RayTag* a_pRayTags,
 				const ModelComponent* a_pModelArray,
@@ -52,7 +52,7 @@ void RegisterAnimatedRayWorldSystem::Init(Engine::ECS::World& a_world)
 
 					// レイトレワールドに登録
 					Engine::Raytracing::RayEngine::Instance().RegisterSkinningModel(
-						a_world,
+						*a_ctx.pWorld,
 						_wMatComp.worldMat,
 						_modelComp.handle,
 						_animComp.dynamicInstanceHandle,

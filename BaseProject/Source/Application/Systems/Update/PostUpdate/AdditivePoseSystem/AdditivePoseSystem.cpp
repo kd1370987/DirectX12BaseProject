@@ -73,10 +73,10 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 		AdditivePoseComponent>(
 		Engine::ECS::ESystemType::Animation,
 		"AdditivePoseSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const ModelComponent* a_modelArray,
 			const AnimatorComponent* a_animatorArray,
@@ -87,10 +87,10 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 			AdditivePoseComponent* a_additiveArray
 		)
 		{
-			if (a_dt <= 0.0f) return;
+			if (a_ctx.dt <= 0.0f) return;
 
-			auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
-			auto& _entryPool = a_world.GetResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
+			auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+			auto& _entryPool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -159,7 +159,7 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				DXSM::Quaternion _currentAim(_addComp.currentAimQuat);
 				if (_currentAim.LengthSquared() < 1e-6f) _currentAim = DXSM::Quaternion::Identity;
 
-				float _t = std::min(_addComp.followRate * a_dt, 1.0f);
+				float _t = std::min(_addComp.followRate * a_ctx.dt, 1.0f);
 				_currentAim = DXSM::Quaternion::Slerp(_currentAim, _targetAim, _t);
 				_currentAim.Normalize();
 				_addComp.currentAimQuat = _currentAim;
@@ -172,7 +172,7 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				DXSM::Vector3 _accWorld = {};
 				if (_addComp.isPrevVelocityValid)
 				{
-					_accWorld = (_velocity - DXSM::Vector3(_addComp.prevVelocity)) / a_dt;
+					_accWorld = (_velocity - DXSM::Vector3(_addComp.prevVelocity)) / a_ctx.dt;
 				}
 				_addComp.prevVelocity = _velocity;
 				_addComp.isPrevVelocityValid = true;
@@ -191,8 +191,8 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				DXSM::Vector3 _lagAngle(_addComp.lagAngle);
 				DXSM::Vector3 _lagVel(_addComp.lagVelocity);
 
-				_lagVel += ((_lagTarget - _lagAngle) * _addComp.lagStiffness - _lagVel * _addComp.lagDamping) * a_dt;
-				_lagAngle += _lagVel * a_dt;
+				_lagVel += ((_lagTarget - _lagAngle) * _addComp.lagStiffness - _lagVel * _addComp.lagDamping) * a_ctx.dt;
+				_lagAngle += _lagVel * a_ctx.dt;
 
 				_lagAngle.x = std::clamp(_lagAngle.x, -_lagLimit, _lagLimit);
 				_lagAngle.y = std::clamp(_lagAngle.y, -_lagLimit, _lagLimit);

@@ -12,11 +12,11 @@ void StateMachinFixupSystem::Init(Engine::ECS::World& a_world)
 	a_world.PostDeserializeTask<StateMachineComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"StateMachinFixupSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
 			StateMachineComponent* a_stateMachinArray
 		)
@@ -33,7 +33,7 @@ void StateMachinFixupSystem::Init(Engine::ECS::World& a_world)
 
 					// インスタンス確保
 					 auto& _stateInstancePool = 
-						 a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+						 a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
 					 Engine::Resource::StateMachinInstance _instance = {};
 					 _smComp.instanceHandle = _stateInstancePool.Add(std::move(_instance));
 				}

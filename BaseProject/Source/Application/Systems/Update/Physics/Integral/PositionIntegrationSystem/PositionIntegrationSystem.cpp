@@ -15,7 +15,7 @@ void PositionIntegrationSystem::Init(Engine::ECS::World& a_world)
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const VelocityComponent* a_velocityArray,
 			LocalTransformComponent* a_trsArray
@@ -32,9 +32,9 @@ void PositionIntegrationSystem::Init(Engine::ECS::World& a_world)
 				{
 					LocalTransformComponent& _trsComp = a_trsArray[_i];
 
-					_trsComp.pos.x += _velComp.value.x * a_dt;
-					_trsComp.pos.y += _velComp.value.y * a_dt;
-					_trsComp.pos.z += _velComp.value.z * a_dt;
+					_trsComp.pos.x += _velComp.value.x * a_ctx.dt;
+					_trsComp.pos.y += _velComp.value.y * a_ctx.dt;
+					_trsComp.pos.z += _velComp.value.z * a_ctx.dt;
 
 					// 座標が変わったのでDirtyフラグを立てる
 					_trsComp.isDirty = true;

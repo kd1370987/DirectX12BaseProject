@@ -13,11 +13,11 @@ void ActionIntentSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<const ActionIntentComponent,const MoveIntentComponent, ActionStateComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"ActionIntentSystem",
-		[&a_world]
+		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const ActionIntentComponent* a_actionIntentArray,
 			const MoveIntentComponent* a_moveIntentArray,
@@ -36,7 +36,7 @@ void ActionIntentSystem::Init(Engine::ECS::World& a_world)
 				ActionStateComponent& _comp = a_array[_i];
 
 				auto& _pool =
-					a_world.GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
+					a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
 				auto* _pInstance = _pool.Ref(_comp.instanceHandle);
 				if (!_pInstance) continue;
 

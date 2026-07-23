@@ -14,10 +14,10 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 	a_world.StartTask<const ModelComponent,AnimatorComponent,NodePoseComponent,SkeletonPoseComponent>(
 		Engine::ECS::ESystemType::Awake,
 		"AnimationModelStartSystem",
-		[&a_world](
+		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
-			float a_dt,
+			const Engine::ECS::SystemContext& a_ctx,
 			StartTag* a_startTag,
 			const ModelComponent* a_pModelArray, 
 			AnimatorComponent* a_animationArray,
@@ -44,7 +44,7 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 				_animationComp.isLoop = true;
 
 				// ノードポーズ行列領域確保
-				auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 	
 				// モデルのアニメーションから最大ノードを持つものを取得
 				UINT _totalNodeCount = static_cast<UINT>(_pModel->GetOriginalNodeVec().size());
@@ -64,7 +64,7 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				// ボーン行列領域確保
-				auto& _boneMatPool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
+				auto& _boneMatPool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 				size_t _boneNodeCount = _pModel->GetBoneNodeVec().size();
 				_poseComp.skeletonPoseHandle = _boneMatPool.AllocateRange(static_cast<uint32_t>(_boneNodeCount));
 
@@ -76,14 +76,14 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 
 				// BLASインスタンス確保
 				auto& _dynamicInstancePool = 
-					a_world.GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
+					a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
 
 				// 空で生成
 				Engine::Raytracing::DynamicRaytracingData _resource = {};
 				_animationComp.dynamicInstanceHandle = _dynamicInstancePool.Add(std::move(_resource));
 
 				// GPU処理のため遅延生成用命令
-				auto& _initRequestVec = a_world.GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+				auto& _initRequestVec = a_ctx.pWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 				Engine::Raytracing::DynamicRaytracingInitRequest _req = {};
 				_req.dynamicInstanceHandle = _animationComp.dynamicInstanceHandle;
 				_req.modelHandle = _modelComp.handle;
