@@ -35,6 +35,16 @@ namespace Engine::D3D12
 		// フォーマットセット
 		m_format = a_desc.format;
 
+		// リーク調査用 : ライブオブジェクトレポートに種別と通し番号を出すため名前を付ける。
+		// (要素サイズ/数も入れておくと、どのバッファか特定しやすい)
+		{
+			static std::atomic<uint32_t> s_counter = 0;
+			wchar_t _name[128];
+			swprintf_s(_name, L"GPUResource#%u (stride=%zu num=%zu)",
+				s_counter.fetch_add(1), a_desc.strideSize, a_desc.elementNum);
+			m_cpResource->SetName(_name);
+		}
+
 		// 成功
 		return true;
 	}

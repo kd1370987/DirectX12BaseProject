@@ -150,6 +150,7 @@ namespace Engine::Resource
 			ENGINE_ERRLOG(false, "テクスチャリソースの生成に失敗");
 			return false;
 		}
+		if (a_cpRes) a_cpRes->SetName(L"Texture_Imported");	// リーク調査用
 
 		// アップロードヒープ作成
 		Engine::Resource::UploadBuffer _uploadBuffer = CreateUploadHeap(a_pDevice, _texDesc, a_meta);

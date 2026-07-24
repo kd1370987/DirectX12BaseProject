@@ -40,6 +40,7 @@ void Engine::Raytracing::ShaderTable::Init(D3D12::Device* a_pDevice, const Shade
 		nullptr,
 		IID_PPV_ARGS(&m_cpShaderTable)
 	);
+	if (SUCCEEDED(_hr) && m_cpShaderTable) m_cpShaderTable->SetName(L"ShaderTable");	// リーク調査用
 	if (FAILED(_hr))
 	{
 		assert(0 && "シェーダーテーブル作成に失敗");

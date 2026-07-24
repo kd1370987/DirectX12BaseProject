@@ -218,4 +218,5 @@ void Engine::Raytracing::TLAS::CreateBuffer(
 	bufDesc.Width = a_size;
 
 	a_pDevice->CreateCommittedResource(&a_heapProps, D3D12_HEAP_FLAG_NONE, &bufDesc, a_initState, nullptr, IID_PPV_ARGS(a_cpRes.ReleaseAndGetAddressOf()));
+	if (a_cpRes) a_cpRes->SetName(L"TLAS_Buffer");	// リーク調査用
 }

@@ -83,6 +83,7 @@ bool Engine::Raytracing::BLAS::BuildInternal(
 		nullptr,
 		IID_PPV_ARGS(m_cpUpdateScratch.ReleaseAndGetAddressOf())
 	);
+	if (m_cpUpdateScratch) m_cpUpdateScratch->SetName(L"BLAS_Scratch");	// リーク調査用
 
 	auto barrierAS2 = CD3DX12_RESOURCE_BARRIER::Transition(
 		m_cpUpdateScratch.Get(),
@@ -105,6 +106,7 @@ bool Engine::Raytracing::BLAS::BuildInternal(
 		nullptr,
 		IID_PPV_ARGS(m_cpResource.ReleaseAndGetAddressOf())
 	);
+	if (m_cpResource) m_cpResource->SetName(L"BLAS_Result");	// リーク調査用
 
 	// Buildコマンド発行
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _buildDesc{};

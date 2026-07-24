@@ -73,6 +73,7 @@ ComPtr<ID3D12Resource> Engine::Resource::CreateTexture(
 		assert(0 && "Textureの生成に失敗");
 		return _cpResource;
 	}
+	if (_cpResource) _cpResource->SetName(L"Texture_Created");	// リーク調査用
 	if (a_pOutDesc)
 	{
 		*a_pOutDesc = _desc;
