@@ -305,6 +305,10 @@ namespace Engine::Editor
 
 		auto _fileDir = FileUtility::GetDirFromPath(_path);
 		auto _fileName = FileUtility::GetFileNameWithoutExtension(_path);
+
+		// どのシーンを保存するかをログ出力する
+		ENGINE_LOG("[Scene] セーブ : %s", _path.c_str());
+
 		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _fileDir, _fileName, "scene");
 		_pScene->Archive(_ar);
 	}

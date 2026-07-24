@@ -179,6 +179,18 @@ namespace Engine::Resource
 		if (IsValid(_handle)) return ResourceRef<T>(_handle);
 
 		std::string _filePath = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);	// パス取得
+
+		// アセットの読み込みをログ出力する(実際に読み込む時=キャッシュミス時のみ)。
+		// テクスチャやモデルなど Archive を通らないアセットもここで拾えるようにする。
+		if (const auto* _prop = AssetDatabase::Instance().GetAssetProperty(a_guid))
+		{
+			ENGINE_LOG("[Resource] ロード : %s \"%s\"", _prop->type.c_str(), _prop->fileName.c_str());
+		}
+		else
+		{
+			ENGINE_LOG("[Resource] ロード : %s", _filePath.c_str());
+		}
+
 		T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath);					// リソースのビルド
 
 		// プールに登録してハンドルを発行

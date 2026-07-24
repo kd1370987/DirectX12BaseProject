@@ -91,6 +91,9 @@ namespace Engine::Resource
 
 	void Texture::Save(const std::string& a_srcPath)
 	{
+		// テクスチャの保存(圧縮DDS化)は Archive を通らないため、ここで個別にログを出す
+		ENGINE_LOG("[Texture] セーブ : %s", a_srcPath.c_str());
+
 		std::wstring _wSrcPath = StringUtility::ToWideString(a_srcPath);
 
 		DirectX::TexMetadata _metaData;

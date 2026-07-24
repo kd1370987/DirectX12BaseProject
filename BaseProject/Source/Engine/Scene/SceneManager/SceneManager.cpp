@@ -75,6 +75,9 @@ namespace Engine::Scene
 			return;
 		}
 
+		// どのシーンを読み込むかをログ出力する
+		ENGINE_LOG("[Scene] ロード : %s", _sceneFilePath.c_str());
+
 		// シーンの初期化
 		_upScene->Enter();
 

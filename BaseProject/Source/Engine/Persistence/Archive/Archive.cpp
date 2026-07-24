@@ -11,6 +11,14 @@ namespace Engine::Persistence
 		m_binPath = a_fileDir + "/" + a_fileName + ".ob" + a_ext;
 		m_jsonPath = a_fileDir + "/" + a_fileName + ".oj" + a_ext;
 
+		// アセット/シーンのセーブ・ロードを一元的にログ出力する。
+		// シーンも各アセットもこの Archive を通るため、ここで出すことで
+		// 「ログが出るものと出ないもの」のばらつきを無くす。
+		ENGINE_LOG("[Archive] %s : %s (.%s)",
+			(a_mode == Mode::Save) ? "セーブ" : "ロード",
+			a_fileName.c_str(),
+			a_ext.c_str());
+
 		switch (a_mode)
 		{
 		case Engine::Persistence::Archive::Mode::Save:
