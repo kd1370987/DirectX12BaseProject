@@ -10,7 +10,7 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
-#include "Engine/D3D12/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/CBAllocator/CBAllocator.h"
 
 #include "Engine/Option/OptionManager.h"
 
@@ -43,10 +43,10 @@ namespace Engine::Graphics
 			.Add("GBufferMaterial")
 			.Add("GBufferEmissiv")
 			.Add("Depth")
-			.Add("AffterDLShadowTempAccumu")
+			.Add("AfterDLShadowTempAccumu")
 			.Add("FinalFullRay");
 
-		_rpBuilder.BindUAV(3, "AffterLighting", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
+		_rpBuilder.BindUAV(3, "AfterLighting", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
 		// コンパイル
 		_rpBuilder.ResolveAndCompile(a_pPSOManager);
@@ -81,7 +81,7 @@ namespace Engine::Graphics
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 4, _lightCB);
 
 			// 実行
-			a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHegiht / 8, 1);
+			a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHeight / 8, 1);
 		};
 
 		// パス登録

@@ -33,7 +33,7 @@ void CameraStartSystem::Init(Engine::ECS::World& a_world)
 
 				// カメラパラメーターの初期化
 				const auto& _winOp = Engine::Option::OptionManager::GetInstance().GetWindowOption();
-				_camParamComp.aspectRatio = (float)_winOp.windowWidth / (float)_winOp.windowHegiht;
+				_camParamComp.aspectRatio = (float)_winOp.windowWidth / (float)_winOp.windowHeight;
 
 				// プロジェクション行列の作成
 				DirectX::XMMATRIX _lhMat = DirectX::XMMatrixPerspectiveFovLH(

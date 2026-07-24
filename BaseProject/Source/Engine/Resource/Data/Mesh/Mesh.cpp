@@ -18,8 +18,8 @@ bool Engine::Resource::Mesh::CreateFloat(
 {
 	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 	if (!_pGE) return false;
-	auto* _pMeshBufferAllocater = _pGE->RefMeshBufferAllocator();
-	if (!_pMeshBufferAllocater) return false;
+	auto* _pMeshBufferAllocator = _pGE->RefMeshBufferAllocator();
+	if (!_pMeshBufferAllocator) return false;
 
 	m_vertices = a_vertices;
 	m_face = a_face;
@@ -44,8 +44,8 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 	// レイトレデータ作成 メガバッファにアロケート
 	m_opRtData.emplace();
-	m_opRtData->vertexHandle = _pMeshBufferAllocater->AllocateVertex(a_vertices);
-	m_opRtData->indexHandle = _pMeshBufferAllocater->AllocateIndex(_indices);
+	m_opRtData->vertexHandle = _pMeshBufferAllocator->AllocateVertex(a_vertices);
+	m_opRtData->indexHandle = _pMeshBufferAllocator->AllocateIndex(_indices);
 
 	m_opMeshShaderData.emplace();
 
@@ -87,14 +87,14 @@ bool Engine::Resource::Mesh::CreateFloat(
 
 			// ハンドルの登録
 			auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
-			auto* _pMeshBufferAllocater = _pGE->RefMeshBufferAllocator();
+			auto* _pMeshBufferAllocator = _pGE->RefMeshBufferAllocator();
 
 			// メッシュレットアロケート
-			m_opMeshShaderData.value().meshletHandle = _pMeshBufferAllocater->AllocateMeshlet(m_opMeshShaderData->meshlets);
-			m_opMeshShaderData.value().uinqueVertexIndecsHandle =
-				_pMeshBufferAllocater->AllocateUniqueVertIndices(m_opMeshShaderData->uniqueVertexIndices);
-			m_opMeshShaderData.value().primitiveIndicesHandle = _pMeshBufferAllocater->AllocateTriangles(m_opMeshShaderData->primitiveIndices);
-			m_opMeshShaderData.value().cullDataHandle = _pMeshBufferAllocater->AllocateCullData(m_opMeshShaderData->cullData);
+			m_opMeshShaderData.value().meshletHandle = _pMeshBufferAllocator->AllocateMeshlet(m_opMeshShaderData->meshlets);
+			m_opMeshShaderData.value().uniqueVertexIndicesHandle =
+				_pMeshBufferAllocator->AllocateUniqueVertIndices(m_opMeshShaderData->uniqueVertexIndices);
+			m_opMeshShaderData.value().primitiveIndicesHandle = _pMeshBufferAllocator->AllocateTriangles(m_opMeshShaderData->primitiveIndices);
+			m_opMeshShaderData.value().cullDataHandle = _pMeshBufferAllocator->AllocateCullData(m_opMeshShaderData->cullData);
 		},
 		// 完了時のコールバック
 		[this, _indices]()
@@ -287,23 +287,23 @@ void Engine::Resource::Mesh::Release()
 	ENGINE_ERRLOG(_pGE,"メッシュ解放時にGraphicsEngineが存在しません");
 
 	// メガバッファにアロケート
-	auto* _pMeshBufferAllocater = _pGE->RefMeshBufferAllocator();
-	ENGINE_ERRLOG(_pMeshBufferAllocater, "メッシュ解放時にメッシュバッファアロケーターが存在しません");
+	auto* _pMeshBufferAllocator = _pGE->RefMeshBufferAllocator();
+	ENGINE_ERRLOG(_pMeshBufferAllocator, "メッシュ解放時にメッシュバッファアロケーターが存在しません");
 
 	// 登録されているハンドルの解放
 	// 各ドメインデータは必要なもののみ実体化されるため、持っているものだけ解放する
 	if (m_opRtData.has_value())
 	{
-		_pMeshBufferAllocater->StaticVertexFree(m_opRtData->vertexHandle);
-		_pMeshBufferAllocater->IndexFree(m_opRtData->indexHandle);
+		_pMeshBufferAllocator->StaticVertexFree(m_opRtData->vertexHandle);
+		_pMeshBufferAllocator->IndexFree(m_opRtData->indexHandle);
 	}
 
 	if (m_opMeshShaderData.has_value())
 	{
-		_pMeshBufferAllocater->MeshletFree(m_opMeshShaderData->meshletHandle);
-		_pMeshBufferAllocater->UniqueVertIndicesFree(m_opMeshShaderData->uinqueVertexIndecsHandle);
-		_pMeshBufferAllocater->TrianglesFree(m_opMeshShaderData->primitiveIndicesHandle);
-		_pMeshBufferAllocater->MeshletCullDataFree(m_opMeshShaderData->cullDataHandle);
+		_pMeshBufferAllocator->MeshletFree(m_opMeshShaderData->meshletHandle);
+		_pMeshBufferAllocator->UniqueVertIndicesFree(m_opMeshShaderData->uniqueVertexIndicesHandle);
+		_pMeshBufferAllocator->TrianglesFree(m_opMeshShaderData->primitiveIndicesHandle);
+		_pMeshBufferAllocator->MeshletCullDataFree(m_opMeshShaderData->cullDataHandle);
 	}
 
 	// 各meshデータ解放

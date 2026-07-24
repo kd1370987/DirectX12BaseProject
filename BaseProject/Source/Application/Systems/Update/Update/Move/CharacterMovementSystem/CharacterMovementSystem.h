@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class CharactorMovementSystem : public Engine::ECS::SystemBase
+class CharacterMovementSystem : public Engine::ECS::SystemBase
 {
 public:
 

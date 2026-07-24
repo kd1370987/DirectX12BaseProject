@@ -6,7 +6,7 @@
 
 #include "Application/Components/Resource/ModelComponent.h"
 #include "Application/Components/Resource/StateMachineComponent.h"
-#include "Application/Components/Charactor/Robot/AdditivePoseComponent.h"
+#include "Application/Components/Character/Robot/AdditivePoseComponent.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
 
 void AdditivePoseLinkSystem::Init(Engine::ECS::World& a_world)

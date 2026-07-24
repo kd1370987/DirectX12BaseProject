@@ -54,7 +54,7 @@ namespace Engine::Raytracing
 
 		// ディスパッチ設定作成
 		D3D12_DISPATCH_RAYS_DESC CreateDispatchDesc(
-			UINT a_instnaceNum,
+			UINT a_instanceNum,
 			UINT a_width,
 			UINT a_height
 		);

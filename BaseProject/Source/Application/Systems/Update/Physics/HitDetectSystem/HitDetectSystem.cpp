@@ -6,7 +6,7 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
 
-#include "Application/Components/Collision/SphreCollider.h"
+#include "Application/Components/Collision/SphereCollider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 
 void HitDetectSystem::Init(Engine::ECS::World& a_world)

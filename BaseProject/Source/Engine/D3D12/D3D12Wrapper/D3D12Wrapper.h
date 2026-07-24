@@ -100,8 +100,8 @@ namespace Engine::D3D12
 		Device* GetDevice();							// デバイス取得
 		UINT CurrentBackBufferIndex();					// 現在のバックバッファ番号
 		UINT CurrentCPUFrameIndex();					// 現在のフレーム番号
-		ID3D12Resource* GetCurrentBackBuffar();			// 現在のバックバッファを取得
-		const Resource::Texture& GetCurrentBackBuffarTex() const;			// 現在のバックバッファを取得
+		ID3D12Resource* GetCurrentBackBuffer();			// 現在のバックバッファを取得
+		const Resource::Texture& GetCurrentBackBufferTex() const;			// 現在のバックバッファを取得
 
 		const Viewport& GetViewport() const { return m_viewport; }
 		const ScissorRect& GetScissorRect() const { return m_scissorRect; }

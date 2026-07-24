@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "Application/Components/Collision/SphreCollider.h"
+#include "Application/Components/Collision/SphereCollider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 
 #include "Engine/MainEngine.h"

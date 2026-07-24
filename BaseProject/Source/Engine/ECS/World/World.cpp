@@ -39,7 +39,7 @@ namespace Engine::ECS
 		// エンティティの引っ越し
 		for (auto& _chanCmd : m_changeEntityVec)
 		{
-			ChangeSigneture(_chanCmd);
+			ChangeSignature(_chanCmd);
 		}
 		m_changeEntityVec.clear();
 
@@ -76,12 +76,12 @@ namespace Engine::ECS
 		ENGINE_LOG("Worldの解放");
 	}
 
-	void World::ClaerMemory()
+	void World::ClearMemory()
 	{
 		m_entityManager.Init();
 	}
 
-	void World::BegineFrame()
+	void World::BeginFrame()
 	{
 		// 階層の変更通知をリセット
 		auto& _res = GetResource<HierarchyResource>();
@@ -96,7 +96,7 @@ namespace Engine::ECS
 		// エンティティの引っ越し
 		for (auto& _chanCmd : m_changeEntityVec)
 		{
-			ChangeSigneture(_chanCmd);
+			ChangeSignature(_chanCmd);
 
 			// エンティティの変更があったため階層の変更を通知する
 			_res.isDirty = true;
@@ -130,10 +130,10 @@ namespace Engine::ECS
 		// ---------------------------------------------------------
 		// 初期化システムズ
 		RunSystem(Engine::ECS::ESystemType::PostDeserialize, 0.0f);
-		TransitionPhase<PostDeserializeTag, AwekeTag>();
+		TransitionPhase<PostDeserializeTag, AwakeTag>();
 	
 		RunSystem(Engine::ECS::ESystemType::Awake, 0.0f);
-		TransitionPhase<AwekeTag, StartTag>();
+		TransitionPhase<AwakeTag, StartTag>();
 
 		RunSystem(Engine::ECS::ESystemType::Start, 0.0f);
 		TransitionPhase<StartTag, ActiveTag>();
@@ -387,7 +387,7 @@ namespace Engine::ECS
 		m_changeEntityVec.push_back(a_cmd);
 	}
 
-	void World::ChangeSigneture(ChangeEntityCmd a_cmd)
+	void World::ChangeSignature(ChangeEntityCmd a_cmd)
 	{
 		// エンティティシグネチャの取得
 		const Signature& _oldSig = m_entityManager.GetSignature(a_cmd.entity);
@@ -528,7 +528,7 @@ namespace Engine::ECS
 			ChangeEntityCmd _cmd = {};
 			_cmd.entity = _entity;
 			_cmd.toSig = _sig;
-			ChangeSigneture(_cmd);
+			ChangeSignature(_cmd);
 		}
 
 		// リリース処理

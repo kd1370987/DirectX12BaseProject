@@ -19,7 +19,7 @@ namespace Engine::Graphics
 	)
 	{
 		// 後続のパス（ポストプロセス等）が常に同じ固定名で最新のTAA結果を参照できるようにする宛先
-		const std::string _finalDst = "AffterTAAColor";
+		const std::string _finalDst = "AfterTAAColor";
 
 		// ======================================================================
 		// 偶数フレーム用と奇数フレーム用の2つのパスセットを登録する
@@ -53,7 +53,7 @@ namespace Engine::Graphics
 
 			// 依存関係とバインドの宣言（宣言順 = t0～t4）
 			_cpBuilder.SrvTable(0)
-				.Add("AffterLighting")
+				.Add("AfterLighting")
 				.Add(_readHistory)			// TAA履歴を読み込む
 				.Add("GBufferVelocity")
 				.Add("Depth")
@@ -69,7 +69,7 @@ namespace Engine::Graphics
 			_node.executeFunc = [](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 				{
 					const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
-					a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHegiht / 8, 1);
+					a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHeight / 8, 1);
 				};
 			a_pRegistry->RegisterPass(_node);
 

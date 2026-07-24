@@ -1,7 +1,7 @@
 ﻿#pragma once
 namespace Engine::Animation
 {
-	struct SkiningMeshData
+	struct SkinningMeshData
 	{
 		// コンピュートシェーダーで書き込む変形後のバッファ
 		RangeHandle<Resource::MeshVertexFloat> animatedVertexHandle = {};
@@ -12,6 +12,6 @@ namespace Engine::Animation
 
 	struct AnimatedMeshVertex
 	{
-		std::vector<Animation::SkiningMeshData> meshDataVec = {};
+		std::vector<Animation::SkinningMeshData> meshDataVec = {};
 	};
 }

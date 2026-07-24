@@ -68,11 +68,11 @@ namespace Engine::Resource
 		template<typename T>
 		T* Ref(const ResourceRef<T>& a_handle);
 		template<typename T>
-		const T* Accece(const Handle<T>& a_handle);
+		const T* Access(const Handle<T>& a_handle);
 		template<typename T>
-		const T* Accece(const ResourceRef<T>& a_handle);
+		const T* Access(const ResourceRef<T>& a_handle);
 		template<typename T>
-		const T* Accece(const uint16_t& a_index);
+		const T* Access(const uint16_t& a_index);
 
 		// リソースの解放
 		template<typename T>
@@ -259,20 +259,20 @@ namespace Engine::Resource
 	}
 
 	template<typename T>
-	inline const T* ResourceManager::Accece(const Handle<T>& a_handle)
+	inline const T* ResourceManager::Access(const Handle<T>& a_handle)
 	{
 		return GetPool<T>().Access(a_handle.GetIndex());
 	}
 
 	template<typename T>
-	inline const T* ResourceManager::Accece(const ResourceRef<T>& a_handle)
+	inline const T* ResourceManager::Access(const ResourceRef<T>& a_handle)
 	{
-		return Accece(a_handle.GetRaw());
+		return Access(a_handle.GetRaw());
 	}
 
 
 	template<typename T>
-	inline const T* ResourceManager::Accece(const uint16_t& a_index)
+	inline const T* ResourceManager::Access(const uint16_t& a_index)
 	{
 		return GetPool<T>().Access(a_index);
 	}

@@ -55,7 +55,7 @@ namespace Engine::Raytracing
 			D3D12::GraphicsCommandList* a_pCmdList);
 
 		// フレーム開始処理
-		void BegineFrame();
+		void BeginFrame();
 		void EndFrame();
 
 		// インスタンス配列取得

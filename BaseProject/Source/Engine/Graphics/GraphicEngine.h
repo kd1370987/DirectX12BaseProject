@@ -59,7 +59,7 @@ namespace Engine::Graphics
 		bool isAnimation = false;
 
 		// 構造体インデックス
-		UINT instnaceIndex = 0;
+		UINT instanceIndex = 0;
 		UINT subsetIndex = 0;
 
 		// メッシュシェーダー用インデックス
@@ -106,8 +106,8 @@ namespace Engine::Graphics
 
 		
 		// フレームの開始・終了処理
-		void BegineFrame();
-		void Excute();
+		void BeginFrame();
+		void Execute();
 		void EndFrame();
 
 		// アクセサ
@@ -130,7 +130,7 @@ namespace Engine::Graphics
 		const CameraData& GetCPUCameraData() const;
 
 		// カメラの割り込み(エディターカメラなど)
-		// ECS側のカメラ設定は Excute() 内の Draw フェーズ(PreDraw)で行われるため、
+		// ECS側のカメラ設定は Execute() 内の Draw フェーズ(PreDraw)で行われるため、
 		// 単に SetCameraMat を先に呼んでも上書きされてしまう。
 		// ここに積んでおくと、ECS側の設定が終わった後・GPUデータ作成の直前に適用される。
 		void SetCameraOverride(const DXSM::Matrix& a_worldMat, const DXSM::Matrix& a_projMat);
@@ -164,13 +164,13 @@ namespace Engine::Graphics
 		/// <param name="a_world">ワールド</param>
 		/// <param name="a_pModel">モデルのポインタ</param>
 		/// <param name="a_worldMatrix">ワールド行列</param>
-		/// <param name="a_albedScale">カラースケール</param>
+		/// <param name="a_albedoScale">カラースケール</param>
 		/// <param name="a_emissiveScale">エミッシブスケール</param>
 		void SubmitModel(
 			ECS::World& a_world,
 			const Resource::Model* a_pModel,
 			const DXSM::Matrix& a_worldMatrix,
-			const DXSM::Color& a_albedScale = Color::WHITE,
+			const DXSM::Color& a_albedoScale = Color::WHITE,
 			const DXSM::Vector3& a_emissiveScale = {1,1,1}
 		);
 		/// <summary>
@@ -180,14 +180,14 @@ namespace Engine::Graphics
 		/// <param name="a_pModel">モデルのポインタ</param>
 		/// <param name="a_worldMatrix">ワールド行列</param>
 		/// <param name="a_prevMatrix">過去ワールド行列</param>
-		/// <param name="a_albedScale">カラースケール</param>
+		/// <param name="a_albedoScale">カラースケール</param>
 		/// <param name="a_emissiveScale">エミッシブスケール</param>
 		void SubmitModel(
 			ECS::World& a_world,
 			const Resource::Model* a_pModel,
 			const DXSM::Matrix& a_worldMatrix,
 			const DXSM::Matrix& a_prevMatrix,
-			const DXSM::Color& a_albedScale = Color::WHITE,
+			const DXSM::Color& a_albedoScale = Color::WHITE,
 			const DXSM::Vector3& a_emissiveScale = { 1,1,1 }
 		);
 		/// <summary>
@@ -200,7 +200,7 @@ namespace Engine::Graphics
 		/// <param name="a_boneHandle">ボーン行列配列ハンドル</param>
 		/// <param name="a_nodePoseHandle">スケルトンポーズ行列配列ハンドル</param>
 		/// <param name="a_animData">アニメーション後頂点配列</param>
-		/// <param name="a_albedScale">カラースケール</param>
+		/// <param name="a_albedoScale">カラースケール</param>
 		/// <param name="a_emissiveScale">エミッシブスケール</param>
 		void SubmitModel(
 			ECS::World& a_world,
@@ -210,7 +210,7 @@ namespace Engine::Graphics
 			const RangeHandle<Resource::BoneMatrix>& a_boneHandle,
 			const RangeHandle<Resource::NodePoseMatrix>& a_nodePoseHandle,
 			const Handle<Raytracing::DynamicRaytracingData>& a_animData,
-			const DXSM::Color& a_albedScale = Color::WHITE,
+			const DXSM::Color& a_albedoScale = Color::WHITE,
 			const DXSM::Vector3& a_emissiveScale = { 1,1,1 }
 		);
 

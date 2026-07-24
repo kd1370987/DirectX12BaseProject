@@ -46,7 +46,7 @@ namespace Engine
 		void Release();
 
 		// フレーム関係
-		bool BegineFrame();
+		bool BeginFrame();
 		void EndFrame();
 
 		// 描画関係
@@ -62,7 +62,7 @@ namespace Engine
 		EAppMode GetMode() { return m_config.GetRuntimeConfig().appMode; }
 
 		// グラフィックス関係
-		void ExcuteDrawCmd();
+		void ExecuteDrawCmd();
 
 		// ウィンドウ取得
 		const Window::NativeWindow* GetNativeWindow() const;

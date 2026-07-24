@@ -2,8 +2,8 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "../../../../Components/Charactor/Robot/AttachmentSlotsComponent.h"
-#include "../../../../Components/Charactor/Robot/BoostComponent.h"
+#include "../../../../Components/Character/Robot/AttachmentSlotsComponent.h"
+#include "../../../../Components/Character/Robot/BoostComponent.h"
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
 #include "../../../../Components/Resource/ParticlesComponent.h"

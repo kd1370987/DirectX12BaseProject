@@ -30,9 +30,9 @@ PSOutput PSMain(VertexOutput a_input)
     // アルベド (BaseColor)
     // -----------------------------------------------------------
 	float4 _baseTex = float4(1, 1, 1, 1);
-	if (_mat.albedIndex >= 0)
+	if (_mat.albedoIndex >= 0)
 	{
-		Texture2D albedoTex = ResourceDescriptorHeap[NonUniformResourceIndex(_mat.albedIndex)];
+		Texture2D albedoTex = ResourceDescriptorHeap[NonUniformResourceIndex(_mat.albedoIndex)];
 		_baseTex = albedoTex.Sample(smp, _uv);
 	}
 	_out.albedo = _baseTex * _mat.baseColor;

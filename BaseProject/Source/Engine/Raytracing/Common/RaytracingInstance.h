@@ -102,7 +102,7 @@ namespace Engine::Raytracing
 
 	struct DynamicRaytracingInitRequest
 	{
-		Handle<Animation::SkiningMeshData> skiningInstanceHandle = {};
+		Handle<Animation::SkinningMeshData> skiningInstanceHandle = {};
 
 		// 初期化先のハンドル
 		Handle<DynamicRaytracingData> dynamicInstanceHandle;

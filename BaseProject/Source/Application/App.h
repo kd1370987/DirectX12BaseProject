@@ -5,7 +5,7 @@ class Application
 public:
 
 	// アプリケーション実行
-	void Excute();
+	void Execute();
 
 private:
 

@@ -13,7 +13,7 @@
 #include "../Internal/SystemComon.h"
 
 #include "../../../Application/Components/Tag/SystemPhaseTag/ActiveTag.h"
-#include "../../../Application/Components/Tag/SystemPhaseTag/AwekeTag.h"
+#include "../../../Application/Components/Tag/SystemPhaseTag/AwakeTag.h"
 #include "../../../Application/Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../Application/Components/Tag/SystemPhaseTag/StartTag.h"
 #include "../../../Application/Components/Tag/SystemPhaseTag/ReleaseTag.h"
@@ -62,11 +62,11 @@ namespace Engine::ECS
 
 		// 解放時に実行
 		void Release();		// 解放処理
-		void ClaerMemory();	// 任意のリセットしたいタイミング
+		void ClearMemory();	// 任意のリセットしたいタイミング
 
 		// フレームの初めに呼び出す関数
 		// シングルフレームで実行したい、生成や破棄、引っ越しを行う
-		void BegineFrame();
+		void BeginFrame();
 
 		/// <summary>
 		/// リソースなどのハンドル管理されているものの解放処理
@@ -116,7 +116,7 @@ namespace Engine::ECS
 		//------------------------------------------------------------------------------------------
 
 		void AddEntity(const Signature& a_sig);			// コマンド発行
-		// データ付き生成コマンド(プレハブ実体化など)。BegineFrameで安全に生成される。
+		// データ付き生成コマンド(プレハブ実体化など)。BeginFrameで安全に生成される。
 		void AddEntityWithData(const Signature& a_sig, std::unordered_map<ComponentTypeID, std::vector<uint8_t>> a_dataMap);
 		Entity CreateEntity(const Signature& a_sig);	// 実体の作成
 		void CreateAllEntity();							// 一括作成
@@ -146,7 +146,7 @@ namespace Engine::ECS
 		void AddComponent(ComponentTypeID a_typeID,Entity a_entity,uint8_t* a_pData = nullptr);		// 追加
 		void SubmitComponent(ComponentTypeID a_typeID,Entity a_entity);		// 削除
 		void AddChangeSigCommand(ChangeEntityCmd a_cmd);					// 指定シグネチャに変更するコマンド
-		void ChangeSigneture(ChangeEntityCmd a_cmd);						// コマンドから実際にアーキタイプを移動させる
+		void ChangeSignature(ChangeEntityCmd a_cmd);						// コマンドから実際にアーキタイプを移動させる
 
 		void AddRefreshEntity(const Entity& a_entity);						// リフレッシュ
 
@@ -231,7 +231,7 @@ namespace Engine::ECS
 		void ForEachEx(Func a_func, Exclude<Excludes...>);
 
 		// システムのフェーズ遷移
-		template<typename Beffor,typename Affter>
+		template<typename Before,typename After>
 		void TransitionPhase();
 
 		// コンパイルされたパスの取得
@@ -253,7 +253,7 @@ namespace Engine::ECS
 		template<typename ...Components, typename... Excludes, typename Func>
 		void PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void AwekeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		void AwakeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
 		void StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
@@ -270,7 +270,7 @@ namespace Engine::ECS
 		template<typename ...Read, typename... Write, typename Func>
 		void PostDeserializeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void AwekeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		void AwakeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
 		void StartCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
@@ -452,19 +452,19 @@ namespace Engine::ECS
 		}
 	}
 
-	template<typename Beffor, typename Affter>
+	template<typename Before, typename After>
 	inline void World::TransitionPhase()
 	{
 		// コンポーネントのタイプIDを取得
-		ComponentTypeID _befforID = GetCompTypeID<Beffor>();
-		ComponentTypeID _affterID = GetCompTypeID<Affter>();
+		ComponentTypeID _befforID = GetCompTypeID<Before>();
+		ComponentTypeID _affterID = GetCompTypeID<After>();
 
-		ForEach<Beffor>(
+		ForEach<Before>(
 			[this,_befforID,_affterID]
 			(
 				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
-				Beffor* a_compArray
+				Before* a_compArray
 			)
 			{
 				for (size_t _i = 0; _i < a_count; ++_i)
@@ -473,7 +473,7 @@ namespace Engine::ECS
 					Entity _entity = a_pChunk->entityData[_i];
 					Signature _sig = GetSignature(_entity);
 
-					// シグネチャに対してBefforIDを排除してAffterを入れる
+					// シグネチャに対してBeforeIDを排除してAfterを入れる
 					_sig.reset(_befforID);
 					_sig.set(_affterID);
 
@@ -571,9 +571,9 @@ namespace Engine::ECS
 		RegisterTask<PostDeserializeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::AwekeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline void World::AwakeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<AwekeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
+		RegisterTask<AwakeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
 	inline void World::StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
@@ -625,11 +625,11 @@ namespace Engine::ECS
 		);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::AwekeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void World::AwakeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
 		RegisterCustomTask(
 			a_phase,
-			ReadList<AwekeTag, Read...>{},
+			ReadList<AwakeTag, Read...>{},
 			WriteList<Write...>{},
 			a_func
 		);

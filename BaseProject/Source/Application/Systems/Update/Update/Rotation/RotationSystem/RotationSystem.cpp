@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "Application/Components/Charactor/Player/PlayerLookAngleComponent.h"
+#include "Application/Components/Character/Player/PlayerLookAngleComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../../Components/Force/VelocityComponent.h"
 

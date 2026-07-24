@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "../CBData.h"
-#include "Engine/D3D12/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/CBAllocator/CBAllocator.h"
 
 namespace Engine::Resource
 {
@@ -86,7 +86,7 @@ namespace Engine::Graphics
 		// バッファ関係
 		//--------------------------------------------------------------------------------------------
 		// 現在のフレームの定数バッファアロケーターにアクセス
-		CBAllocater* BindCB();
+		CBAllocator* BindCB();
 
 		// ---- 定数バッファをルートでバインド ----
 		// グラフィック版
@@ -269,7 +269,7 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// フレーム限定リソース
 		//--------------------------------------------------------------------------------------------
-		std::unique_ptr<CBAllocater> m_upCBAllocater = nullptr;	// 定数バッファアロケーター
+		std::unique_ptr<CBAllocator> m_upCBAllocator = nullptr;	// 定数バッファアロケーター
 		D3D12::GraphicsCommandList* m_pCmdList = nullptr;				// 現在フレームのグラフィックスコマンドリスト
 
 		// コピー用ヒープ
@@ -301,11 +301,11 @@ namespace Engine::Graphics
 	template<typename T>
 	inline void RenderContext::GraphicsBindRootCBV(int a_descIndex, const T& a_data)
 	{
-		m_upCBAllocater->BindAndAttachDataRootCBV(m_pCmdList, a_descIndex, a_data);
+		m_upCBAllocator->BindAndAttachDataRootCBV(m_pCmdList, a_descIndex, a_data);
 	}
 	template<typename T>
 	inline void RenderContext::ComputeBindRootCBV(int a_descIndex, const T & a_data)
 	{
-		m_upCBAllocater->BindAndAttachDataComputeRootCBV(m_pCmdList, a_descIndex, a_data);
+		m_upCBAllocator->BindAndAttachDataComputeRootCBV(m_pCmdList, a_descIndex, a_data);
 	}
 }

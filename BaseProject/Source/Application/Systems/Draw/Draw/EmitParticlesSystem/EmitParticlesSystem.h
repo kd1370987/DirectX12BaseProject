@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/System/SystemBase/SystemBase.h"
 
-class StateMachinComitSystem : public Engine::ECS::SystemBase
+class EmitParticleSystem : public Engine::ECS::SystemBase
 {
 public:
 

@@ -1,19 +1,19 @@
-﻿#include "CharactorMovementSystem.h"
+﻿#include "CharacterMovementSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../../Components/Force/VelocityComponent.h"
-#include "../../../../../Components/Charactor/Player/PlayerLookAngleComponent.h"
+#include "../../../../../Components/Character/Player/PlayerLookAngleComponent.h"
 
 #include "../../../../../Components/Resource/StateMachineComponent.h"
 
-void CharactorMovementSystem::Init(Engine::ECS::World& a_world)
+void CharacterMovementSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const PlayerLookAngleComponent, const MoveIntentComponent,VelocityComponent,StateMachineComponent>(
 		Engine::ECS::ESystemType::Update,
-		"CharactorMovementSystem",
+		"CharacterMovementSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

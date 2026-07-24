@@ -40,7 +40,7 @@ namespace Engine::Resource
 
 		// 各種データのGPUデータハンドル
 		RangeHandle<Resource::Meshlet> meshletHandle;
-		RangeHandle<uint32_t> uinqueVertexIndecsHandle;
+		RangeHandle<uint32_t> uniqueVertexIndicesHandle;
 		RangeHandle<DirectX::MeshletTriangle> primitiveIndicesHandle;
 		RangeHandle<DirectX::CullData> cullDataHandle;
 	};

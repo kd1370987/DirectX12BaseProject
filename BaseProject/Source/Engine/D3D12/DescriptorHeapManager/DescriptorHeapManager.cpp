@@ -1,7 +1,7 @@
 ﻿#include "DescriptorHeapManager.h"
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
-#include "Allocater/SamplerAllocator/SamplerAllocator.h"
+#include "Allocator/SamplerAllocator/SamplerAllocator.h"
 
 namespace Engine::D3D12
 {

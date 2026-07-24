@@ -18,7 +18,7 @@ namespace Engine::Scene
 
 	enum class SceneChangeType
 	{
-		Puch,		// 重ねる
+		Push,		// 重ねる
 		Pop,		// 一つ消去
 		Replace,	// 切り替え
 		Clear		// 全消去

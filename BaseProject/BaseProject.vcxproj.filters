@@ -160,10 +160,10 @@
     <Filter Include="Source\Application\Systems\Update\Camera\AimTargetSystem">
       <UniqueIdentifier>{3a7c1b52-9d64-4f18-8c27-5e0b41d7a903}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Components\Charactor">
+    <Filter Include="Source\Application\Components\Character">
       <UniqueIdentifier>{2101dfbd-ff66-4f2e-a0d4-87591abfee1f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Components\Charactor\Player">
+    <Filter Include="Source\Application\Components\Character\Player">
       <UniqueIdentifier>{723370ac-ccb4-4cd9-a894-fa742c82c92f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Editor">
@@ -193,7 +193,7 @@
     <Filter Include="Source\Engine\D3D12\D3DObject\RootSignature">
       <UniqueIdentifier>{9a56534d-2180-4194-9056-0be0ac6d694b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\CBAllocater">
+    <Filter Include="Source\Engine\D3D12\CBAllocator">
       <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderGraph">
@@ -352,10 +352,10 @@
     <Filter Include="Source\Engine\D3D12\DescriptorHeapManager">
       <UniqueIdentifier>{669008e8-9307-48ec-90bd-30cfce7a8471}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater">
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator">
       <UniqueIdentifier>{ade7b42e-8596-43f4-8159-e6f73163c1d9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager">
+    <Filter Include="Source\Engine\Graphics\RenderGraph\RGVersionManager">
       <UniqueIdentifier>{73a9c6a7-959d-4f5f-bc8a-806fe4172bc0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder">
@@ -472,7 +472,7 @@
     <Filter Include="Source\Engine\Resource\Loader">
       <UniqueIdentifier>{119a11fc-3fe1-4252-aab5-af670debc2ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\Sampler">
+    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\Sampler">
       <UniqueIdentifier>{d111ebaa-a845-4115-8d3b-2894a0bbf128}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem">
@@ -595,7 +595,7 @@
     <Filter Include="Source\Application\Systems\Update\Update\Move">
       <UniqueIdentifier>{689c5aa0-1968-4d5b-af86-f3ca8795955c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem">
+    <Filter Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem">
       <UniqueIdentifier>{713ac76b-a963-4325-a916-fa77e2656520}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Release">
@@ -673,7 +673,7 @@
     <Filter Include="Asset\Shader\Compute\Denoise\Shadow">
       <UniqueIdentifier>{7669dd34-e9ef-43f2-a062-87fd31c8227e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Components\Charactor\Robot">
+    <Filter Include="Source\Application\Components\Character\Robot">
       <UniqueIdentifier>{6291cffc-5cbb-46ce-abbc-4aa653a1dff1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Animation">
@@ -682,10 +682,10 @@
     <Filter Include="Source\Application\Systems\Update\Animation\AnimationStateSystem">
       <UniqueIdentifier>{59fcf3de-de21-4684-978e-a99ae6546615}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem">
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem">
       <UniqueIdentifier>{d4094ff4-6543-49dd-b814-2e5229463f2e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\StateMachinComitSystem">
+    <Filter Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem">
       <UniqueIdentifier>{92bdc9dc-6de6-4b4c-888e-3f25d1edcafd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem">
@@ -739,7 +739,7 @@
     <Filter Include="Source\Engine\Particle\GPU\GPUParticlePool">
       <UniqueIdentifier>{229201f6-2891-4b39-9ee9-fcd39d23ca33}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem">
+    <Filter Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem">
       <UniqueIdentifier>{3bc7d0d3-feee-45e2-84f7-774902bbd308}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Compute\Particle">
@@ -955,7 +955,7 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA">
       <UniqueIdentifier>{660b0b6d-6143-4fa5-afc4-94991529e8b8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\Skining">
+    <Filter Include="Source\Engine\Graphics\RenderPass\Skinning">
       <UniqueIdentifier>{fff8ef66-d42d-4687-b96b-a7792394f519}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\Utility">
@@ -967,7 +967,7 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass">
       <UniqueIdentifier>{6cf8b0fa-118e-4e11-840d-e915298e350a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compute\Skining">
+    <Filter Include="Asset\Shader\Compute\Skinning">
       <UniqueIdentifier>{f52814e5-2fc5-4329-b600-af980ebb83ef}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\FrameResource">
@@ -979,7 +979,7 @@
     <Filter Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem">
       <UniqueIdentifier>{42b34ae5-8f12-4b9e-a20b-14528524dcf1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass">
+    <Filter Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass">
       <UniqueIdentifier>{fa686e9c-f0e8-4134-ad82-9d3f0bda570a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer">
@@ -1153,10 +1153,10 @@
     <Filter Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem">
       <UniqueIdentifier>{6e959bf9-d070-486e-90b1-7fd73d7cf1ec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Components\Charactor\Weapon">
+    <Filter Include="Source\Application\Components\Character\Weapon">
       <UniqueIdentifier>{b7c5e066-4a5a-423a-8883-94ab61a27334}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Components\Charactor\Weapon\Gun">
+    <Filter Include="Source\Application\Components\Character\Weapon\Gun">
       <UniqueIdentifier>{e5853aec-2a82-4d9e-9ef7-776b42616acd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem">
@@ -1272,8 +1272,8 @@
     <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.cpp">
       <Filter>Source\Engine\D3D12\D3D12Wrapper</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp">
-      <Filter>Source\Engine\D3D12\CBAllocater</Filter>
+    <ClCompile Include="Source\Engine\D3D12\CBAllocator\CBAllocator.cpp">
+      <Filter>Source\Engine\D3D12\CBAllocator</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp">
       <Filter>Source\Engine\Graphics\RenderGraph</Filter>
@@ -1296,7 +1296,7 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.cpp">
+    <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.cpp">
       <Filter>Source\Engine\Animation\AnimationEvaluator</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\MainEngine.cpp">
@@ -1356,8 +1356,8 @@
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp">
       <Filter>Source\Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp">
-      <Filter>Source\Engine\Graphics\RenderGraph\RGVarsionManager</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVersionManager\RGResourceManager.cpp">
+      <Filter>Source\Engine\Graphics\RenderGraph\RGVersionManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp">
       <Filter>Source\Engine\Graphics\RenderGraph\RGPassBuilder</Filter>
@@ -1419,8 +1419,8 @@
     <ClCompile Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.cpp">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.cpp">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\Sampler</Filter>
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.cpp">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocator\Sampler</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem</Filter>
@@ -1512,8 +1512,8 @@
     <ClCompile Include="Source\Engine\Resource\StateGraph\StateGraphTypes.cpp">
       <Filter>Source\Engine\Resource\StateGraph</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Move\CharactorMovementSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem\CharacterMovementSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Move\CharacterMovementSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.cpp">
       <Filter>Source\Application\Systems\Release\AnimationMatrixFreeSystem</Filter>
@@ -1542,11 +1542,11 @@
     <ClCompile Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.cpp">
       <Filter>Source\Application\Systems\Update\Animation\AnimationStateSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem\StateMachineFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\StateMachinComitSystem\StateMachinComitSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\StateMachinComitSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\StateMachineCommitSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
@@ -1569,8 +1569,8 @@
     <ClCompile Include="Source\Engine\Particle\ParticleBufferManager.cpp">
       <Filter>Source\Engine\Particle</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\EmittParticlesSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\Draw\EmitParticlesSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\Command\CommandPool\CommandPool.cpp">
       <Filter>Source\Engine\D3D12\Command\CommandPool</Filter>
@@ -1719,8 +1719,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skining\SkiningPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\Skining</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Skinning</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass</Filter>
@@ -1734,8 +1734,8 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\SkinningRegisterSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass\UpdateBLASPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.cpp">
       <Filter>Source\Application\Systems\Release\ResourceFreeSystem</Filter>
@@ -1916,7 +1916,7 @@
     <ClInclude Include="Source\Core\Utility\FileUtility.h">
       <Filter>Source\Core\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Utility\StringUtillity.h">
+    <ClInclude Include="Source\Core\Utility\StringUtility.h">
       <Filter>Source\Core\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Core.h">
@@ -2003,7 +2003,7 @@
     <ClInclude Include="Source\Application\Components\Collision\Collider.h">
       <Filter>Source\Application\Components\Collision</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\SphreCollider.h">
+    <ClInclude Include="Source\Application\Components\Collision\SphereCollider.h">
       <Filter>Source\Application\Components\Collision</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h">
@@ -2054,8 +2054,8 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSLookAngleComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Charactor\Player\PlayerLookAngleComponent.h">
-      <Filter>Source\Application\Components\Charactor\Player</Filter>
+    <ClInclude Include="Source\Application\Components\Character\Player\PlayerLookAngleComponent.h">
+      <Filter>Source\Application\Components\Character\Player</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h">
       <Filter>Source\Engine\Editor\ImGui</Filter>
@@ -2075,8 +2075,8 @@
     <ClInclude Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.h">
       <Filter>Source\Engine\D3D12\D3D12Wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h">
-      <Filter>Source\Engine\D3D12\CBAllocater</Filter>
+    <ClInclude Include="Source\Engine\D3D12\CBAllocator\CBAllocator.h">
+      <Filter>Source\Engine\D3D12\CBAllocator</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EngineCommon.h">
       <Filter>Source\Engine</Filter>
@@ -2123,7 +2123,7 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.h">
+    <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h">
       <Filter>Source\Engine\Animation\AnimationEvaluator</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\MainEngine.h">
@@ -2207,8 +2207,8 @@
     <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h">
       <Filter>Source\Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h">
-      <Filter>Source\Engine\Graphics\RenderGraph\RGVarsionManager</Filter>
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVersionManager\RGResourceManager.h">
+      <Filter>Source\Engine\Graphics\RenderGraph\RGVersionManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h">
       <Filter>Source\Engine\Graphics\RenderGraph\RGPassBuilder</Filter>
@@ -2270,7 +2270,7 @@
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\PostDeserializeTag.h">
       <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\AwekeTag.h">
+    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\AwakeTag.h">
       <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\StartTag.h">
@@ -2300,11 +2300,11 @@
     <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.h">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\HeapAllocater.h">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater</Filter>
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\HeapAllocator.h">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocator</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.h">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocater\Sampler</Filter>
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.h">
+      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocator\Sampler</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Tag\RenderTag\RayTag.h">
       <Filter>Source\Application\Components\Tag\RenderTag</Filter>
@@ -2426,8 +2426,8 @@
     <ClInclude Include="Source\Application\Components\Intent\MoveIntentComponent.h">
       <Filter>Source\Application\Components\Intent</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Move\CharactorMovementSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem\CharacterMovementSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Move\CharacterMovementSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ReleaseTag.h">
       <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
@@ -2477,20 +2477,20 @@
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\WindowOption.h">
       <Filter>Source\Engine\Option\GraphicsOptions</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Charactor\Robot\BoostComponent.h">
-      <Filter>Source\Application\Components\Charactor\Robot</Filter>
+    <ClInclude Include="Source\Application\Components\Character\Robot\BoostComponent.h">
+      <Filter>Source\Application\Components\Character\Robot</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Charactor\Robot\AttachmentSlotsComponent.h">
-      <Filter>Source\Application\Components\Charactor\Robot</Filter>
+    <ClInclude Include="Source\Application\Components\Character\Robot\AttachmentSlotsComponent.h">
+      <Filter>Source\Application\Components\Character\Robot</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.h">
       <Filter>Source\Application\Systems\Update\Animation\AnimationStateSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem\StateMachineFixupSystem.h">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\StateMachinComitSystem\StateMachinComitSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\StateMachinComitSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\StateMachineCommitSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
@@ -2546,8 +2546,8 @@
     <ClInclude Include="Source\Engine\Particle\ParticleBufferManager.h">
       <Filter>Source\Engine\Particle</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.h">
-      <Filter>Source\Application\Systems\Draw\Draw\EmittParticlesSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.h">
+      <Filter>Source\Application\Systems\Draw\Draw\EmitParticlesSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3D12Types.h">
       <Filter>Source\Engine\D3D12</Filter>
@@ -2756,8 +2756,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skining\SkiningPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\Skining</Filter>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Skinning</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass</Filter>
@@ -2771,8 +2771,8 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\SkinningRegisterSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass\UpdateBLASPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass</Filter>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer\MegaRWStructuredBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer</Filter>
@@ -2963,8 +2963,8 @@
     <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h">
       <Filter>Source\Application\Systems\Update\Physics\OBBCollisionSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Charactor\Weapon\Gun\GunStateComponent.h">
-      <Filter>Source\Application\Components\Charactor\Weapon\Gun</Filter>
+    <ClInclude Include="Source\Application\Components\Character\Weapon\Gun\GunStateComponent.h">
+      <Filter>Source\Application\Components\Character\Weapon\Gun</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Internal\CollisionEvent.h">
       <Filter>Source\Engine\ECS\Internal</Filter>
@@ -2981,7 +2981,7 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Camera\CameraForcusTargetComponent.h">
+    <ClInclude Include="Source\Application\Components\Camera\CameraFocusTargetComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Internal\SystemContext.h" />
@@ -2994,11 +2994,11 @@
     <ClInclude Include="Source\Application\InstanceResource\AdditiveBoneEntry.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Charactor\AimTargetPosComponent.h">
-      <Filter>Source\Application\Components\Charactor</Filter>
+    <ClInclude Include="Source\Application\Components\Character\AimTargetPosComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Charactor\Robot\AdditivePoseComponent.h">
-      <Filter>Source\Application\Components\Charactor\Robot</Filter>
+    <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h">
+      <Filter>Source\Application\Components\Character\Robot</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.h">
       <Filter>Source\Application\Systems\Release\AdditivePoseFreeSystem</Filter>
@@ -3114,8 +3114,8 @@
     <None Include="Asset\Shader\Common\Struct\Vertex.hlsli">
       <Filter>Asset\Shader\Common\Struct</Filter>
     </None>
-    <None Include="Asset\Shader\Compute\Skining\Skinning.hlsli">
-      <Filter>Asset\Shader\Compute\Skining</Filter>
+    <None Include="Asset\Shader\Compute\Skinning\Skinning.hlsli">
+      <Filter>Asset\Shader\Compute\Skinning</Filter>
     </None>
     <None Include="Asset\Shader\Source\GBufferShader\MeshGBufferPS.hlsl">
       <Filter>Asset\Shader\Source\GBufferShader</Filter>
@@ -3215,8 +3215,8 @@
     <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
       <Filter>Asset\Shader\Source\DebugLineShader</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Skining\Skining.hlsl">
-      <Filter>Asset\Shader\Compute\Skining</Filter>
+    <FxCompile Include="Asset\Shader\Compute\Skinning\Skinning.hlsl">
+      <Filter>Asset\Shader\Compute\Skinning</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\UpScale\UpScaleCS.hlsl">
       <Filter>Asset\Shader\Compute\UpScale</Filter>

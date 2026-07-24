@@ -21,7 +21,7 @@ struct StateMachineComponent
 	bool isGround = false;
 
 	// ステートマシンインスタンス
-	Engine::Handle<Engine::Resource::StateMachinInstance> instanceHandle = {};
+	Engine::Handle<Engine::Resource::StateMachineInstance> instanceHandle = {};
 };
 
 template<>
@@ -40,7 +40,7 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_context.pData);
 
 		// ステートマシンの選択
-		if (ImGui::BeginCombo("Change StateMachin", "Select..."))
+		if (ImGui::BeginCombo("Change StateMachine", "Select..."))
 		{
 			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("AnimatorAsset"))
 			{

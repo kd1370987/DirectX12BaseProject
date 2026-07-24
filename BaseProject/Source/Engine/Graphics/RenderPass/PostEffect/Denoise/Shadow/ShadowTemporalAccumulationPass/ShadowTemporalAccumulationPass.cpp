@@ -12,7 +12,7 @@ namespace Engine::Graphics
 	void AddShadowTemporalAccumulationPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 	{
 		// 後続のパス（ライティング等）が常に同じ固定名で最新の影を参照できるようにする最終出力先
-		const std::string _finalDst = "AffterDLShadowTempAccumu";
+		const std::string _finalDst = "AfterDLShadowTempAccumu";
 
 		// ======================================================================
 		// 偶数フレーム用(A->B)と奇数フレーム用(B->A)の2つのパスセットを登録する
@@ -71,7 +71,7 @@ namespace Engine::Graphics
 					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, _op);
 
 					// コンピュートシェーダーのディスパッチ
-					a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHegiht / 8, 1);
+					a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHeight / 8, 1);
 				};
 			a_pRegistry->RegisterPass(_node);
 

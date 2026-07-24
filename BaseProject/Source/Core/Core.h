@@ -5,7 +5,7 @@
 // ファイルユーティリティ
 #include "Utility/FileUtility.h"
 // 文字列ユーティリティ
-#include "Utility/StringUtillity.h"
+#include "Utility/StringUtility.h"
 
 // アルゴリズム
 

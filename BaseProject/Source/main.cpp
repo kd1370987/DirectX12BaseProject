@@ -2,6 +2,6 @@
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	Application::Instance().Excute();
+	Application::Instance().Execute();
 	return 0;
 }

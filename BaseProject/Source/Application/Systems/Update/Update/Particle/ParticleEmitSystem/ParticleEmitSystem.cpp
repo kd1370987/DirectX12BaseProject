@@ -4,12 +4,14 @@
 
 #include "../../../../../Components/Resource/ParticlesComponent.h"
 
+
+
 //==========================================================================================
 // ParticleEmitSystem
 //
 // isPlay と emitRate から「このフレーム何個発生させるか(pendingEmitCount)」を計算する。
 // 実フレーム時間(a_ctx.dt)を使うため Update フェーズで行う(Draw フェーズは dt=0 のため不可)。
-// 実際の発生命令(RequestEmit)は EmittParticleSystem(Draw) が pendingEmitCount を見て行う。
+// 実際の発生命令(RequestEmit)は EmitParticleSystem(Draw) が pendingEmitCount を見て行う。
 //
 //   emitRate > 0 : 連続発生。毎秒 emitRate 回、各回 emitCount 個(小数は time に繰り越し)。
 //   emitRate == 0: バースト。isPlay の立ち上がりで一度だけ emitCount 個。

@@ -198,7 +198,7 @@ namespace Engine::Resource
 // アニメーション
 // 
 //==========================================================================================
-#include "Animation/AnimationEvaluator/AnimationEvalutor.h"
+#include "Animation/AnimationEvaluator/AnimationEvaluator.h"
 
 
 

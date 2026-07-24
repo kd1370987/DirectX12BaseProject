@@ -41,8 +41,8 @@ namespace Engine::Graphics
 		m_pShapeDraw = a_desc.pShapeRender;
 
 		// ルート定数バッファアロケーター
-		m_upCBAllocater = std::make_unique<CBAllocater>();
-		m_upCBAllocater->RootCBVCreate(
+		m_upCBAllocator = std::make_unique<CBAllocator>();
+		m_upCBAllocator->RootCBVCreate(
 			m_pDevice, a_desc.cbAllocatorMemSize
 		);
 
@@ -91,7 +91,7 @@ namespace Engine::Graphics
 		m_spQuadPolygon.reset();
 
 		// ルート定数バッファ用アロケーター解放
-		m_upCBAllocater->Release();
+		m_upCBAllocator->Release();
 		
 		// ヒープ解放
 		m_copyHeap.Release();
@@ -111,7 +111,7 @@ namespace Engine::Graphics
 	void RenderContext::Clear()
 	{
 		m_pCmdList = nullptr;
-		m_upCBAllocater->ResetUse();
+		m_upCBAllocator->ResetUse();
 		//m_pShapeDraw->Reset();
 
 		// コピーヒープのリセット
@@ -138,9 +138,9 @@ namespace Engine::Graphics
 	//============================================================================================
 
 
-	CBAllocater* RenderContext::BindCB()
+	CBAllocator* RenderContext::BindCB()
 	{
-		return m_upCBAllocater.get();
+		return m_upCBAllocator.get();
 	}
 
 	void RenderContext::ChangeRenderTarget(const std::vector<Handle<D3D12::RTV>>& a_rtvHandleVec, const Handle<D3D12::DSV>& a_dsvHandle)
@@ -814,7 +814,7 @@ namespace Engine::Graphics
 
 	void RenderContext::BindMaterialSRV(UINT a_index, uint16_t a_materialID)
 	{
-		const auto* _pMaterial = Resource::ResourceManager::Instance().Accece<Resource::Material>(a_materialID);
+		const auto* _pMaterial = Resource::ResourceManager::Instance().Access<Resource::Material>(a_materialID);
 		if (!_pMaterial) return;
 
 		std::vector<Handle<Resource::Texture>> _texVec = {};
@@ -828,7 +828,7 @@ namespace Engine::Graphics
 
 	void RenderContext::BindMesh(uint16_t a_meshID)
 	{
-		const auto* _pMesh = Resource::ResourceManager::Instance().Accece<Resource::Mesh>(a_meshID);
+		const auto* _pMesh = Resource::ResourceManager::Instance().Access<Resource::Mesh>(a_meshID);
 		if (!_pMesh) return;
 
 		if (!_pMesh->HasRasterData()) return;
@@ -851,7 +851,7 @@ namespace Engine::Graphics
 
 	void RenderContext::Draw(uint16_t a_meshID, UINT a_subIdx)
 	{
-		const auto* _pMesh = Resource::ResourceManager::Instance().Accece<Resource::Mesh>(a_meshID);
+		const auto* _pMesh = Resource::ResourceManager::Instance().Access<Resource::Mesh>(a_meshID);
 		if (!_pMesh) return;
 
 		Draw(_pMesh, a_subIdx);
@@ -906,7 +906,7 @@ namespace Engine::Graphics
 	{
 		// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
 		auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
-			D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffarTex().GetRTV()
+			D3D12::D3D12Wrapper::Instance().GetCurrentBackBufferTex().GetRTV()
 		);
 
 		// レンダーターゲットを設定

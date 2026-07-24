@@ -4,7 +4,7 @@
 #include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
 #include "Engine/Graphics/GraphicEngine.h"
 
-#include "Engine/D3D12/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/CBAllocator/CBAllocator.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "../../../../D3D12/PipelineStateManager/PipelineStateManager.h"
@@ -33,7 +33,7 @@ namespace Engine::Graphics
 		// 依存関係構築
 		_rpBuilder.ReadDepth("Depth");
 
-		_rpBuilder.WriteRTV("AffterTAAColor", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Load, StoreOp::Store);
+		_rpBuilder.WriteRTV("AfterTAAColor", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Load, StoreOp::Store);
 
 		// PSO構築
 		auto& _sPso = _rpBuilder.CreatePSODesc("DebugLinePSO", _spPassData->staticPsoIndex);

@@ -67,6 +67,6 @@ namespace Engine::Editor::Inspector
 		// ---- 画像の描画 ----
 		auto _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 		auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(a_pTexture->GetImGuiSRV());
-		Helper::DrawSRVView(_gpuHandle, _winOp.windowWidth, _winOp.windowHegiht);
+		Helper::DrawSRVView(_gpuHandle, _winOp.windowWidth, _winOp.windowHeight);
 	}
 }

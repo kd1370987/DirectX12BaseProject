@@ -14,7 +14,7 @@
 // SubmitDynamicColliderSystem
 //
 // 動的レイヤーのコライダーを、現在の姿勢から worldAABB を作り直して毎フレーム submit する。
-// 動的ワールドは BegineFrame でツリーごと空にされているので、ここでは push するだけでよい。
+// 動的ワールドは BeginFrame でツリーごと空にされているので、ここでは push するだけでよい。
 //==========================================================================================
 void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 {

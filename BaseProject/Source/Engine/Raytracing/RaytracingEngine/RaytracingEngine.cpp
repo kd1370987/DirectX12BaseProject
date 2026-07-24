@@ -10,7 +10,7 @@
 
 #include "../../Graphics/RenderContext/RenderContext.h"
 #include "../../Graphics/GraphicEngine.h"
-#include "../../D3D12/CBAllocater/CBAllocater.h"
+#include "../../D3D12/CBAllocator/CBAllocator.h"
 
 #include "../RayPSO/RayPSO.h"
 #include "../ShaderTable/ShaderTable.h"
@@ -108,7 +108,7 @@ namespace Engine::Raytracing
 		m_upRayWorld->Init(a_pDevice,a_pCmdList,2);
 	}
 
-	void Engine::Raytracing::RayEngine::BegineFrame()
+	void Engine::Raytracing::RayEngine::BeginFrame()
 	{}
 
 	void Engine::Raytracing::RayEngine::EndFrame()

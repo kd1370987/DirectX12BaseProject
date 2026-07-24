@@ -17,7 +17,7 @@ namespace Engine::Resource
 	)
 	{
 		// ディレクトリ(既存資産の場所はそのまま)
-		static std::string _dir = "Asset/StateMachin/";
+		static std::string _dir = "Asset/StateMachine/";
 		auto _basePath = _dir + a_path + "/" + a_name;
 
 		// すでにないかチェック

@@ -21,7 +21,7 @@ namespace Engine::Graphics
 		// 依存関係とバインドの宣言
 		// ======================================================================
 		// TAAパス（またはその後続パス）の最終出力を読み込む
-		_rpBuilder.BindSRV(0, "AffterTAAColor");
+		_rpBuilder.BindSRV(0, "AfterTAAColor");
 		_rpBuilder.SetHeapMode(ERGHeapMode::Default);
 
 		uint8_t _staticIndex = RenderPassNode::kInvalidPSOIndex;

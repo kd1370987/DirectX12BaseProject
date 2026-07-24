@@ -2,7 +2,7 @@
 #include "Engine/ECS/World/World.h"
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
-#include "../../../../Components/Charactor/Robot/BoostComponent.h"
+#include "../../../../Components/Character/Robot/BoostComponent.h"
 
 void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 {
@@ -32,7 +32,7 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 				StateMachineComponent& _smComp = a_smArray[_i];
 
 				// インスタンスの実体を取得
-				auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+				auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
 				auto* _pInstance = _stateInstancePool.Ref(_smComp.instanceHandle);
 				if (!_pInstance) continue;
 

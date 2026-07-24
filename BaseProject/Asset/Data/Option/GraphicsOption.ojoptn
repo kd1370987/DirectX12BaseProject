@@ -19,7 +19,7 @@
     "WindowOption": {
         "isVsync": false,
         "targetFrameRate": 120,
-        "windowHegiht": 1080,
+        "windowHeight": 1080,
         "windowMode": 0,
         "windowWidth": 1920
     }

@@ -40,7 +40,7 @@ struct ParticlesComponent
 	// ---- ランタイム(保存しない) ----
 	bool  isPlay = false;			// 発生させたいか(AttachmentDispatchSystem 等が設定)
 	float time = 0.0f;				// レート発生の小数繰り越し用アキュムレータ
-	int   pendingEmitCount = 0;		// このフレームの発生数(ParticleEmitSystemが計算 / EmittParticleSystemが消費)
+	int   pendingEmitCount = 0;		// このフレームの発生数(ParticleEmitSystemが計算 / EmitParticleSystemが消費)
 	bool  wasPlaying = false;		// バーストの立ち上がり検出用
 };
 

@@ -16,7 +16,7 @@ namespace Engine::Graphics
 		_node.phase = a_phase;
 		RGGlobalsPassBuilder _rpBuilder(&_node);
 
-		_rpBuilder.Copy("AffterTAAColor", "HistoryTAAColor", DXGI_FORMAT_R8G8B8A8_UNORM);
+		_rpBuilder.Copy("AfterTAAColor", "HistoryTAAColor", DXGI_FORMAT_R8G8B8A8_UNORM);
 
 		a_pRegistry->RegisterPass(_node);
 	}

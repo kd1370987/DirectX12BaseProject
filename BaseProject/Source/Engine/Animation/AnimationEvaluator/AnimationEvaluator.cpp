@@ -1,4 +1,4 @@
-﻿#include "AnimationEvalutor.h"
+﻿#include "AnimationEvaluator.h"
 
 /// <summary>
 /// 二分探索で、指定時間から次の配列要素のkeyIndexを求める

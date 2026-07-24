@@ -58,7 +58,7 @@ namespace Engine::Scene
 
 		// シーンの初めに一括でエンティティを生成・削除
 		// 解放処理と初期化処理も含まれているため、呼び出しはシングルスレッド限定
-		m_upWorld->BegineFrame();
+		m_upWorld->BeginFrame();
 		static int _i = 0;
 		//_i++;
 		if(_i == 10)

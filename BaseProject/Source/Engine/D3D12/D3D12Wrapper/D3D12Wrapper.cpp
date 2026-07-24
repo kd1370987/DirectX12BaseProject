@@ -182,12 +182,12 @@ namespace Engine::D3D12
 	}
 
 	// バックバッファ取得
-	ID3D12Resource* D3D12Wrapper::GetCurrentBackBuffar()
+	ID3D12Resource* D3D12Wrapper::GetCurrentBackBuffer()
 	{
 		return m_backBuffers[m_currentBackBufferIndex].GetResource();
 	}
 
-	const Resource::Texture& D3D12Wrapper::GetCurrentBackBuffarTex() const
+	const Resource::Texture& D3D12Wrapper::GetCurrentBackBufferTex() const
 	{
 		return m_backBuffers[m_currentBackBufferIndex];
 	}

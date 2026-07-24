@@ -7,14 +7,14 @@
 
 void FollowTargetLinkSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.AwekeTask<const GUIDComponent,FollowTargetComponent>(
+	a_world.AwakeTask<const GUIDComponent,FollowTargetComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"FollowTargetLinkSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
-			AwekeTag* a_tag,
+			AwakeTag* a_tag,
 			const GUIDComponent* a_guidArray,
 			FollowTargetComponent* a_followArray
 			)

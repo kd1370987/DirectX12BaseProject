@@ -87,7 +87,7 @@ namespace Engine::Editor
 	void MainEditor::Update(float a_dt)
 	{
 		// フリーカメラの更新。
-		// ここは ExcuteDrawCmd より前に呼ばれるので、この結果がそのフレームの描画に間に合う。
+		// ここは ExecuteDrawCmd より前に呼ばれるので、この結果がそのフレームの描画に間に合う。
 		// 参照している ImGui の入力は前フレームの NewFrame 時点のもの
 		// (シーンビューのホバー状態も同じく前フレーム基準なので、ずれは生じない)。
 		if (m_upEditorCamera)

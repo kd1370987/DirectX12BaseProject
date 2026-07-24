@@ -4,7 +4,7 @@
 #include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
 #include "Engine/Graphics/GraphicEngine.h"
 
-#include "Engine/D3D12/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/CBAllocator/CBAllocator.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"

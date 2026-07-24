@@ -124,7 +124,7 @@ const D3D12_DISPATCH_RAYS_DESC& Engine::Raytracing::ShaderTable::GetDispatchDesc
 }
 
 D3D12_DISPATCH_RAYS_DESC Engine::Raytracing::ShaderTable::CreateDispatchDesc(
-	UINT a_instnaceNum,
+	UINT a_instanceNum,
 	UINT a_width,
 	UINT a_height
 )

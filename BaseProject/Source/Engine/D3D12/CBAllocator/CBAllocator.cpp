@@ -1,8 +1,8 @@
-﻿#include "CBAllocater.h"
+﻿#include "CBAllocator.h"
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-void CBAllocater::Release()
+void CBAllocator::Release()
 {
 	ResetUse();
 	m_pDevice = nullptr;
@@ -24,7 +24,7 @@ void CBAllocater::Release()
 	m_spComputeResource.Reset();
 }
 
-void CBAllocater::RootCBVCreate(Engine::D3D12::Device* a_device, size_t a_memSize)
+void CBAllocator::RootCBVCreate(Engine::D3D12::Device* a_device, size_t a_memSize)
 {
 	m_pDevice = a_device;
 	
@@ -58,7 +58,7 @@ void CBAllocater::RootCBVCreate(Engine::D3D12::Device* a_device, size_t a_memSiz
 	CreateCompute(a_memSize);
 }
 
-void CBAllocater::BindAndAttachDataRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const void* a_data, size_t a_size)
+void CBAllocator::BindAndAttachDataRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const void* a_data, size_t a_size)
 {
 	size_t _dataSize = (a_size + 0xff) & ~0xff; // 256バイトアライメント
 
@@ -85,7 +85,7 @@ void CBAllocater::BindAndAttachDataRootCBV(Engine::D3D12::GraphicsCommandList* a
 	m_usedCount += _useValue;
 }
 
-void CBAllocater::CreateCompute(size_t a_memSize)
+void CBAllocator::CreateCompute(size_t a_memSize)
 {
 	UINT64 _sizeAligned = ((a_memSize + 0xff) & ~0xff);
 

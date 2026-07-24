@@ -1,4 +1,4 @@
-﻿#include "StateMachinFixupSystem.h"
+﻿#include "StateMachineFixupSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -7,11 +7,11 @@
 
 #include "../../../../../Engine/Resource/Data/AnimatorAsset/AnimatorAsset.h"
 
-void StateMachinFixupSystem::Init(Engine::ECS::World& a_world)
+void StateMachineFixupSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.PostDeserializeTask<StateMachineComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
-		"StateMachinFixupSystem",
+		"StateMachineFixupSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
@@ -33,8 +33,8 @@ void StateMachinFixupSystem::Init(Engine::ECS::World& a_world)
 
 					// インスタンス確保
 					 auto& _stateInstancePool = 
-						 a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
-					 Engine::Resource::StateMachinInstance _instance = {};
+						 a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
+					 Engine::Resource::StateMachineInstance _instance = {};
 					 _smComp.instanceHandle = _stateInstancePool.Add(std::move(_instance));
 				}
 			}

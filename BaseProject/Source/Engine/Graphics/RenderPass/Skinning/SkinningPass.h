@@ -11,5 +11,5 @@ namespace Engine::Graphics
 {
 	class RenderPassRegistry;
 
-	void AddSkiningPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase);
+	void AddSkinningPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase);
 }

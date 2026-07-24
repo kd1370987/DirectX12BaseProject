@@ -1,15 +1,15 @@
-﻿#include "StateMachinComitSystem.h"
+﻿#include "StateMachineCommitSystem.h"
 #include "Engine/ECS/World/World.h"
 
 #include "../../../../Components/Resource/StateMachineComponent.h"
 
 #include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-void StateMachinComitSystem::Init(Engine::ECS::World& a_world)
+void StateMachineCommitSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<StateMachineComponent>(
 		Engine::ECS::ESystemType::Update,
-		"StateMachinComitSystem",
+		"StateMachineCommitSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,
@@ -28,7 +28,7 @@ void StateMachinComitSystem::Init(Engine::ECS::World& a_world)
 
 				// 入力されたステートマシンの値を使って、現在のステートを更新
 				// インスタンスの実体を取得
-				auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+				auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
 				auto* _pInstanceData = _stateInstancePool.Ref(_smComp.instanceHandle);
 				if (!_pInstanceData) continue;
 				

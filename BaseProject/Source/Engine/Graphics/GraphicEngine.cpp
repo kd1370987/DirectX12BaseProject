@@ -48,8 +48,8 @@
 #include "RenderPass/Particle/UpdateParticlePass/UpdateParticlePass.h"
 #include "RenderPass/Particle/EmitParticlePass/EmitParticlePass.h"
 
-#include "RenderPass/Skining/SkiningPass.h"
-#include "RenderPass/Skining/UpdateBLASPass/UpdateBLASPass.h"
+#include "RenderPass/Skinning/SkinningPass.h"
+#include "RenderPass/Skinning/UpdateBLASPass/UpdateBLASPass.h"
 
 #include "RenderPass/Utility/GBufferHistoryPass/GBufferHistoryPass.h"
 #include "RenderPass/Utility/PostHistoryPass/PostHistoryPass.h"
@@ -102,7 +102,7 @@ namespace Engine::Graphics
 		// ラスター関係
 
 
-		AddSkiningPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
+		AddSkinningPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
 		AddUpdateBLASPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
 
 		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
@@ -136,7 +136,7 @@ namespace Engine::Graphics
 
 		// 定数バッファ初期化
 		m_cbAmbient = {};
-		m_cbAmbient.ammbientColorScale = { 0,0,0 };
+		m_cbAmbient.ambientColorScale = { 0,0,0 };
 		m_cbAmbient.dlDir = { 0.5f,-1.0f,0.5f };
 		m_cbAmbient.dlColor = { 4.0f,4.0f,4.0f };
 
@@ -179,13 +179,13 @@ namespace Engine::Graphics
 
 	}
 
-	void GraphicsEngine::BegineFrame()
+	void GraphicsEngine::BeginFrame()
 	{
 		// 今から使うレンダーコンテキスをクリア
 		m_currentFrameIndex = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 		m_upRenderContextVec[m_currentFrameIndex]->Clear();
 	}
-	void GraphicsEngine::Excute()
+	void GraphicsEngine::Execute()
 	{
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
@@ -207,12 +207,12 @@ namespace Engine::Graphics
 		// バックバッファのresourceバリア
 		D3D12::ResourceBarrier(
 			_pCmdList, // D3D12Wrapper側のバリア関数も引数でリストをもらうように修正してください
-			D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffar(),
+			D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffer(),
 			D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATE_RENDER_TARGET
 		);
 		auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
-			D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffarTex().GetRTV()
+			D3D12::D3D12Wrapper::Instance().GetCurrentBackBufferTex().GetRTV()
 		);
 		float _clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f }; // 背景色
 		_pCmdList->ClearRenderTargetView(_cpuHandle, _clearColor, 0, nullptr);
@@ -364,11 +364,11 @@ namespace Engine::Graphics
 		for (const auto& _cmd : _drawCmdVec)
 		{
 			// マテリアル取得
-			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Material>(_cmd.materialRawID);
+			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Access<Engine::Resource::Material>(_cmd.materialRawID);
 			if (!_pMaterial) continue;
 
 			// メッシュ取得
-			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Mesh>(_cmd.meshRawID);
+			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Access<Engine::Resource::Mesh>(_cmd.meshRawID);
 			if (!_pMesh) continue;
 
 			// レイトレ用データを持たないメッシュはスキニング登録できない
@@ -404,7 +404,7 @@ namespace Engine::Graphics
 		ECS::World& a_world,
 		const Resource::Model* a_pModel,
 		const DXSM::Matrix& a_worldMatrix,
-		const DXSM::Color& a_albedScale,
+		const DXSM::Color& a_albedoScale,
 		const DXSM::Vector3& a_emissiveScale
 	)
 	{
@@ -413,7 +413,7 @@ namespace Engine::Graphics
 			a_pModel,
 			a_worldMatrix,
 			a_worldMatrix,
-			a_albedScale,
+			a_albedoScale,
 			a_emissiveScale
 		);
 	}
@@ -423,7 +423,7 @@ namespace Engine::Graphics
 		const Resource::Model* a_pModel,
 		const DXSM::Matrix& a_worldMatrix,
 		const DXSM::Matrix& a_prevMatrix,
-		const DXSM::Color& a_albedScale,
+		const DXSM::Color& a_albedoScale,
 		const DXSM::Vector3& a_emissiveScale
 	)
 	{
@@ -438,10 +438,10 @@ namespace Engine::Graphics
 			// -----------------------------------------------------
 			// リソースの取得と検証
 			// -----------------------------------------------------
-			auto* _pMesh = _resManager.Accece<Engine::Resource::Mesh>(_cmd.meshRawID);
+			auto* _pMesh = _resManager.Access<Engine::Resource::Mesh>(_cmd.meshRawID);
 			if (!_pMesh) continue;
 
-			auto* _pMaterial = _resManager.Accece<Engine::Resource::Material>(_cmd.materialRawID);
+			auto* _pMaterial = _resManager.Access<Engine::Resource::Material>(_cmd.materialRawID);
 			if (!_pMaterial) continue;
 
 			auto* _pShadingModel = _resManager.Get(_pMaterial->shadingModelHandle);
@@ -464,7 +464,7 @@ namespace Engine::Graphics
 			_instanceData.boneCount = 0;
 
 			SubSetData _subSetData = {};
-			_subSetData.baseColorScale = _pMaterial->baseColor * a_albedScale;
+			_subSetData.baseColorScale = _pMaterial->baseColor * a_albedoScale;
 			_subSetData.emissiveColorScale = _pMaterial->emissive * a_emissiveScale;
 			_subSetData.metallic = _pMaterial->metallic;
 			_subSetData.roughness = _pMaterial->roughness;
@@ -506,11 +506,11 @@ namespace Engine::Graphics
 					_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
 
 					MeshMaterial _meshMaterial = {};
-					_meshMaterial.baseColor = _pMaterial->baseColor * a_albedScale;
+					_meshMaterial.baseColor = _pMaterial->baseColor * a_albedoScale;
 					_meshMaterial.emissive = _pMaterial->emissive * a_emissiveScale;
 					_meshMaterial.metallic = _pMaterial->metallic;
 					_meshMaterial.roughness = _pMaterial->roughness;
-					_meshMaterial.albedIndex = GetSRVIndexFromTextureHandle(_pMaterial->baseColorTex);
+					_meshMaterial.albedoIndex = GetSRVIndexFromTextureHandle(_pMaterial->baseColorTex);
 					_meshMaterial.metaRoughnessIndex = GetSRVIndexFromTextureHandle(_pMaterial->metaRoughTex);
 					_meshMaterial.emissiveIndex = GetSRVIndexFromTextureHandle(_pMaterial->emissiveTex);
 					_meshMaterial.normalIndex = GetSRVIndexFromTextureHandle(_pMaterial->normalTex);
@@ -525,7 +525,7 @@ namespace Engine::Graphics
 					// オフセット計算（重複代入を整理）
 					_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _msData.subsetMeshlets[_cmd.subIdx].meshletOffset;
 					_meshInstanceData.vertexOffset = _pMesh->GetRtData().vertexHandle.startIndex;
-					_meshInstanceData.uviOffset = _msData.uinqueVertexIndecsHandle.startIndex;
+					_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
 					_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
 
 					_meshInstanceData.animatedVertexStart = 0;
@@ -551,7 +551,7 @@ namespace Engine::Graphics
 						_item.sortKey.bits.materialID = _cmd.materialRawID;
 						_item.isAnimation = _isAnimation;
 						_item.subIndex = _cmd.subIdx;
-						_item.instnaceIndex = _instanceIdx;
+						_item.instanceIndex = _instanceIdx;
 						_item.subsetIndex = _subsetIdx;
 						_item.meshInstanceIndex = _meshInstanceIdx;
 						_item.subsetMeshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
@@ -586,7 +586,7 @@ namespace Engine::Graphics
 		const RangeHandle<Resource::BoneMatrix>& a_boneHandle,
 		const RangeHandle<Resource::NodePoseMatrix>& a_nodePoseHandle,
 		const Handle<Raytracing::DynamicRaytracingData>& a_animData,
-		const DXSM::Color& a_albedScale,
+		const DXSM::Color& a_albedoScale,
 		const DXSM::Vector3& a_emissiveScale
 	)
 	{
@@ -606,11 +606,11 @@ namespace Engine::Graphics
 		for (const auto& _cmd : _drawCmdVec)
 		{
 			// メッシュ
-			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Mesh>(_cmd.meshRawID);
+			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Access<Engine::Resource::Mesh>(_cmd.meshRawID);
 			if (!_pMesh) continue;
 
 			// マテリアル
-			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Accece<Engine::Resource::Material>(_cmd.materialRawID);
+			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Access<Engine::Resource::Material>(_cmd.materialRawID);
 			if (!_pMaterial) continue;
 
 			// シェーディングモデル
@@ -652,7 +652,7 @@ namespace Engine::Graphics
 			_instanceData.boneCount = a_boneHandle.count;
 
 			SubSetData _subSetData = {};
-			_subSetData.baseColorScale = a_albedScale;
+			_subSetData.baseColorScale = a_albedoScale;
 			_subSetData.emissiveColorScale = a_emissiveScale;
 			_subSetData.metallic = _pMaterial->metallic;
 			_subSetData.roughness = _pMaterial->roughness;
@@ -699,11 +699,11 @@ namespace Engine::Graphics
 					_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
 
 					MeshMaterial _meshMaterial = {};
-					_meshMaterial.baseColor = _pMaterial->baseColor * a_albedScale;
+					_meshMaterial.baseColor = _pMaterial->baseColor * a_albedoScale;
 					_meshMaterial.emissive = _pMaterial->emissive * a_emissiveScale;
 					_meshMaterial.metallic = _pMaterial->metallic;
 					_meshMaterial.roughness = _pMaterial->roughness;
-					_meshMaterial.albedIndex = GetSRVIndexFromTextureHandle(_pMaterial->baseColorTex);
+					_meshMaterial.albedoIndex = GetSRVIndexFromTextureHandle(_pMaterial->baseColorTex);
 					_meshMaterial.metaRoughnessIndex = GetSRVIndexFromTextureHandle(_pMaterial->metaRoughTex);
 					_meshMaterial.emissiveIndex = GetSRVIndexFromTextureHandle(_pMaterial->emissiveTex);
 					_meshMaterial.normalIndex = GetSRVIndexFromTextureHandle(_pMaterial->normalTex);
@@ -717,7 +717,7 @@ namespace Engine::Graphics
 
 					_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _msData.subsetMeshlets[_cmd.subIdx].meshletOffset;
 					_meshInstanceData.vertexOffset = _pMesh->GetRtData().vertexHandle.startIndex;
-					_meshInstanceData.uviOffset = _msData.uinqueVertexIndecsHandle.startIndex;
+					_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
 					_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
 
 					// カリングスタートインデックス
@@ -747,7 +747,7 @@ namespace Engine::Graphics
 						_item.sortKey.bits.materialID = _cmd.materialRawID;
 						_item.isAnimation = _isAnimation;
 						_item.subIndex = _cmd.subIdx;
-						_item.instnaceIndex = _instanceIdx;
+						_item.instanceIndex = _instanceIdx;
 						_item.subsetIndex = _subsetIdx;
 						_item.meshInstanceIndex = _meshInstanceIdx;
 						_item.subsetMeshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
@@ -888,7 +888,7 @@ namespace Engine::Graphics
 
 			// バッファインデックスセット
 			a_pCtx->BindIndex(
-				_item.instnaceIndex,
+				_item.instanceIndex,
 				_item.subsetIndex,
 				1
 			);
@@ -938,7 +938,7 @@ namespace Engine::Graphics
 
 			// プロジェクション空間（NDC）のサイズに変換 : NDCは幅が２(-1～1)だから2倍
 			_jitterX = (_sHaltonX[_sampleIndex] / (float)_winOp.windowWidth) * 2.0f;
-			_jitterY = (_sHaltonY[_sampleIndex] / (float)_winOp.windowHegiht) * 2.0f;
+			_jitterY = (_sHaltonY[_sampleIndex] / (float)_winOp.windowHeight) * 2.0f;
 		}
 
 		// カメラの行列を一時的に取得

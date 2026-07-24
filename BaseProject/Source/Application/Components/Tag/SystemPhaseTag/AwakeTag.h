@@ -1,10 +1,10 @@
 ﻿
 #pragma once
 
-struct AwekeTag {};
+struct AwakeTag {};
 
 template<>
-struct Engine::ECS::ComponentTraits<AwekeTag>
+struct Engine::ECS::ComponentTraits<AwakeTag>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData) {}
 	static void Edit(CompEditContext& a_context) {}

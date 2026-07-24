@@ -10,7 +10,7 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
-#include "Engine/D3D12/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/CBAllocator/CBAllocator.h"
 
 #include "Engine/Option/OptionManager.h"
 

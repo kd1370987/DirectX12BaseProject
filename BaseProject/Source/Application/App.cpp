@@ -13,7 +13,7 @@
 // 初回呼び出し
 // 
 //==================================================================================
-void Application::Excute()
+void Application::Execute()
 {
 	// アプリケーション初期化
 	Init();
@@ -75,7 +75,7 @@ void Application::MainLoop()
 		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop_Updatea");
 
 		// フレーム開始
-		if (!Engine::MainEngine::Instance().BegineFrame())
+		if (!Engine::MainEngine::Instance().BeginFrame())
 		{
 			break;
 		}
@@ -104,7 +104,7 @@ void Application::MainLoop()
 			//App::Game::GameManager::Instance().Draw();
 			// 命令の実行
 			Engine::Editor::MainEditor::Instance().StartWatch("RGDraw");
-			Engine::MainEngine::Instance().ExcuteDrawCmd();
+			Engine::MainEngine::Instance().ExecuteDrawCmd();
 			Engine::Editor::MainEditor::Instance().EndWatch("RGDraw");
 		}
 		Engine::MainEngine::Instance().EndDraw();					// 描画終了

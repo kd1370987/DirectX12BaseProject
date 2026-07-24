@@ -10,7 +10,7 @@
 // ゲームプレイ(移動可否・無敵など行動)を決めるステートマシンは別アセット
 // (ActionStateMachineAsset)として分離している。
 //
-// ランタイムのパラメータ実体(StateMachinInstance)はエンティティごとに
+// ランタイムのパラメータ実体(StateMachineInstance)はエンティティごとに
 // StateMachineComponent 側のプールが持つ(このアセットは共有設計図なので保持しない)。
 //
 //==========================================================================================
@@ -37,8 +37,8 @@ namespace Engine::Resource
 	};
 
 	// ランタイムのパラメータ実体は共通の ParamSet をそのまま使う。
-	// (既存コードとの互換のため名前は StateMachinInstance のまま)
-	using StateMachinInstance = Engine::StateGraph::ParamSet;
+	// (既存コードとの互換のため名前は StateMachineInstance のまま)
+	using StateMachineInstance = Engine::StateGraph::ParamSet;
 
 	// アニメーター設計図
 	class AnimatorAsset
@@ -77,7 +77,7 @@ namespace Engine::Resource
 		UINT GetDefaultStartHash() const { return m_graph.GetDefaultStartHash(); }
 
 		// ステート遷移判定を行い、次ステートのハッシュを返す
-		UINT EvaluateNextState(UINT a_currentStateHash, StateMachinInstance& a_instance) const
+		UINT EvaluateNextState(UINT a_currentStateHash, StateMachineInstance& a_instance) const
 		{
 			return m_graph.Evaluate(a_currentStateHash, a_instance);
 		}

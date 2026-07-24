@@ -7,7 +7,7 @@
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
-#include "Engine/D3D12/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/CBAllocator/CBAllocator.h"
 
 #include "../../../../../../Option/OptionManager.h"
 
@@ -116,7 +116,7 @@ namespace Engine::Graphics
 					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, _data);
 
 					// 実行
-					a_pCtx->Dispatch(_winOp.windowWidth / 2 / 8, _winOp.windowHegiht / 2 / 8, 1);
+					a_pCtx->Dispatch(_winOp.windowWidth / 2 / 8, _winOp.windowHeight / 2 / 8, 1);
 				};
 
 			a_pRegistry->RegisterPass(_node);

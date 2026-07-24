@@ -5,11 +5,11 @@
 #include "Engine/Resource/Data/Prefab/Prefab.h"
 
 #include "../../../../Components/Intent/ActionIntentComponent.h"
-#include "../../../../Components/Charactor/Weapon/Gun/GunStateComponent.h"
+#include "../../../../Components/Character/Weapon/Gun/GunStateComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 #include "../../../../Components/Transform/LocalTransformComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
-#include "../../../../Components/Charactor/AimTargetPosComponent.h"
+#include "../../../../Components/Character/AimTargetPosComponent.h"
 
 //==========================================================================================
 // GunShootSystem
@@ -17,7 +17,7 @@
 // GunStateComponent を持つエンティティが、発射入力(ActionIntentComponent::isGunShoot)に
 // 応じて、設定されたプレハブを「弾」として生成する。
 // 生成はシステム反復中に即時に行えない(アーキタイプが壊れる)ため、
-// World の遅延生成コマンド(AddEntityWithData)に積み、BegineFrame で安全に生成する。
+// World の遅延生成コマンド(AddEntityWithData)に積み、BeginFrame で安全に生成する。
 //==========================================================================================
 void GunShootSystem::Init(Engine::ECS::World& a_world)
 {

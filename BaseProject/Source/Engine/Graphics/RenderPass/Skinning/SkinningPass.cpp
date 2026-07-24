@@ -1,4 +1,4 @@
-﻿#include "SkiningPass.h"
+﻿#include "SkinningPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -10,12 +10,12 @@
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
-#include "Engine/D3D12/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/CBAllocator/CBAllocator.h"
 
 #include "Engine/Option/OptionManager.h"
 #include "../../../Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
 
-void Engine::Graphics::AddSkiningPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
+void Engine::Graphics::AddSkinningPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 {
 	// ランタイム用データ
 	struct RuntimeData
@@ -37,7 +37,7 @@ void Engine::Graphics::AddSkiningPass(D3D12::PipelineStateManager* a_pPSOManager
 
 	// シェーダー
 	auto* _pBlob = _rpBuilder.SetShader(
-		"Asset/Shader/Compute/Skining/Skining.cso",
+		"Asset/Shader/Compute/Skinning/Skinning.cso",
 		"SkinningCS",
 		_spPassData->csIndex
 	);

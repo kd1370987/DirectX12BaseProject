@@ -56,7 +56,7 @@ namespace Engine::Raytracing
 
 		// インスタンスバッファ
 		ComPtr<ID3D12Resource> m_cpInstanceBuffer = nullptr;
-		uint32_t m_instnaceCount = 0;
+		uint32_t m_instanceCount = 0;
 		const uint32_t m_maxInstanceCount = 1000;
 		D3D12_RAYTRACING_INSTANCE_DESC* m_pInstanceDesc = nullptr;		// マップしておく
 

@@ -12,7 +12,7 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicEngine.h"
 
-#include "Engine/D3D12/CBAllocater/CBAllocater.h"
+#include "Engine/D3D12/CBAllocator/CBAllocator.h"
 
 #include "Engine/Raytracing/RayPSO/RayPSO.h"
 #include "Engine/Raytracing/ShaderTable/ShaderTable.h"
@@ -123,7 +123,7 @@ namespace Engine::Graphics
 			{
 				return;
 			}
-			_spPassData->shaderTable.CommitInstanceBindLess(_instanceVec, a_pCtx,_winOp.windowWidth,_winOp.windowHegiht);
+			_spPassData->shaderTable.CommitInstanceBindLess(_instanceVec, a_pCtx,_winOp.windowWidth,_winOp.windowHeight);
 
 			// ディスクリプタヒープセット
 			a_pCtx->BindCopyHeapAndSumplerBindLess();

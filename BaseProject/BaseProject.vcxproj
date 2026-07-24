@@ -78,7 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.\;Source;..\Library\Include;..\Library\Include\DirectXMesh-main;..\Library\Include\imgui-docking;..\Library\Include\ImGuizmo-master;..\Library\Include\imnodes-master;..\Library\Include\DXC;..\Library\Include\DirectXTex;..\Library\Include\DirectX12</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -116,7 +116,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.\;Source;..\Library\Include;..\Library\Include\DirectXMesh-main;..\Library\Include\imgui-docking;..\Library\Include\ImGuizmo-master;..\Library\Include\imnodes-master;..\Library\Include\DXC;..\Library\Include\DirectXTex;..\Library\Include\DirectX12</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -152,7 +152,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\;Source;..\Library\Include;..\Library\Include\DirectXMesh-main;..\Library\Include\imgui-docking;..\Library\Include\ImGuizmo-master;..\Library\Include\imnodes-master;..\Library\Include\DXC;..\Library\Include\DirectXTex;..\Library\Include\DirectX12</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -193,7 +193,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\;Source;..\Library\Include;..\Library\Include\DirectXMesh-main;..\Library\Include\imgui-docking;..\Library\Include\ImGuizmo-master;..\Library\Include\imnodes-master;..\Library\Include\DXC;..\Library\Include\DirectXTex;..\Library\Include\DirectX12</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -243,7 +243,7 @@
     <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem\RegisterAnimatedRayWorldSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp" />
@@ -257,7 +257,7 @@
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem\AttachmentSlotLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem\StateMachineFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\AdditivePoseLinkSystem\AdditivePoseLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.cpp" />
@@ -296,12 +296,12 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem\CharacterMovementSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Update\StateMachinComitSystem\StateMachinComitSystem.cpp" />
-    <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.cpp" />
+    <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.cpp" />
     <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp" />
     <ClCompile Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.cpp" />
     <ClCompile Include="Source\Engine\Collision\Collision.cpp" />
@@ -312,7 +312,7 @@
     <ClCompile Include="Source\Engine\D3D12\AsyncGPUManager\AsyncGPUManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\CBAllocater\CBAllocater.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\CBAllocator\CBAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\Command\CommandContext\CommandContext.cpp" />
     <ClCompile Include="Source\Engine\D3D12\Command\CommandPool\CommandPool.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.cpp" />
@@ -320,7 +320,7 @@
     <ClCompile Include="Source\Engine\D3D12\D3DObject\GPUResource\GPUResource.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\PipeLineState\PipelineState.cpp" />
     <ClCompile Include="Source\Engine\D3D12\D3DObject\RootSignature\RootSignature.cpp" />
-    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.cpp" />
+    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.cpp" />
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\FrameManager\FrameManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.cpp" />
@@ -370,7 +370,7 @@
     <ClCompile Include="Source\Engine\Graphics\LightManager\LightManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVersionManager\RGResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass\DebugLinePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\FullRaytracingPass\FullRaytracingPass.cpp" />
@@ -388,8 +388,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skining\SkiningPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass\UpdateBLASPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\UpScale\FullRaytracingUpScalePass\FullRaytracingUpScalePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.cpp" />
@@ -486,8 +486,8 @@
     <ClInclude Include="..\Library\Include\ImGuizmo-master\ImGuizmo.h" />
     <ClInclude Include="..\Library\Include\imnodes-master\imnodes.h" />
     <ClInclude Include="Source\Application\App.h" />
-    <ClInclude Include="Source\Application\Components\Camera\CameraForcusTargetComponent.h" />
-    <ClInclude Include="Source\Application\Components\Charactor\AimTargetPosComponent.h" />
+    <ClInclude Include="Source\Application\Components\Camera\CameraFocusTargetComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\AimTargetPosComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h" />
@@ -495,18 +495,18 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSCameraStateComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\TPSLookAngleComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h" />
-    <ClInclude Include="Source\Application\Components\Charactor\Player\PlayerLookAngleComponent.h" />
-    <ClInclude Include="Source\Application\Components\Charactor\Robot\AdditivePoseComponent.h" />
-    <ClInclude Include="Source\Application\Components\Charactor\Robot\BoostComponent.h" />
-    <ClInclude Include="Source\Application\Components\Charactor\Robot\AttachmentSlotsComponent.h" />
-    <ClInclude Include="Source\Application\Components\Charactor\Weapon\Gun\GunStateComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Player\PlayerLookAngleComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Robot\BoostComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Robot\AttachmentSlotsComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Weapon\Gun\GunStateComponent.h" />
     <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\Collider.h" />
     <ClInclude Include="Source\Application\Components\Collision\ExplodeOnHitComponent.h" />
     <ClInclude Include="Source\Application\Components\Collision\OBBCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h" />
-    <ClInclude Include="Source\Application\Components\Collision\SphreCollider.h" />
+    <ClInclude Include="Source\Application\Components\Collision\SphereCollider.h" />
     <ClInclude Include="Source\Application\Components\Force\GravityComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\InertiaComponent.h" />
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
@@ -531,7 +531,7 @@
     <ClInclude Include="Source\Application\Components\Tag\PlayerControllTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\RenderTag\RayTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ActiveTag.h" />
-    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\AwekeTag.h" />
+    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\AwakeTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\PostDeserializeTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ReleaseTag.h" />
     <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\StartTag.h" />
@@ -545,7 +545,7 @@
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\EmittParticlesSystem\EmittParticlesSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem\RegisterAnimatedRayWorldSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h" />
@@ -559,7 +559,7 @@
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem\AttachmentSlotLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachinFixupSystem\StateMachinFixupSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem\StateMachineFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\AdditivePoseLinkSystem\AdditivePoseLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.h" />
@@ -598,18 +598,18 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharactorMovementSystem\CharactorMovementSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem\CharacterMovementSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Update\StateMachinComitSystem\StateMachinComitSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h" />
     <ClInclude Include="Source\Core\Algorithm\Graph\GroupTopologicalSort.h" />
     <ClInclude Include="Source\Core\Algorithm\Graph\TopologicalSort.h" />
     <ClInclude Include="Source\Core\Core.h" />
     <ClInclude Include="Source\Core\Shape\Capsule.h" />
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
-    <ClInclude Include="Source\Core\Utility\StringUtillity.h" />
-    <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvalutor.h" />
+    <ClInclude Include="Source\Core\Utility\StringUtility.h" />
+    <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h" />
     <ClInclude Include="Source\Engine\Animation\Common\AnimatedMeshVertex.h" />
     <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h" />
     <ClInclude Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.h" />
@@ -626,7 +626,7 @@
     <ClInclude Include="Source\Engine\D3D12\AsyncGPUManager\AsyncGPUManager.h" />
     <ClInclude Include="Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.h" />
     <ClInclude Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.h" />
-    <ClInclude Include="Source\Engine\D3D12\CBAllocater\CBAllocater.h" />
+    <ClInclude Include="Source\Engine\D3D12\CBAllocator\CBAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\Command\CommandContext\CommandContext.h" />
     <ClInclude Include="Source\Engine\D3D12\Command\CommandPool\CommandPool.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Common.h" />
@@ -637,8 +637,8 @@
     <ClInclude Include="Source\Engine\D3D12\D3DObject\PipeLineState\PipelineState.h" />
     <ClInclude Include="Source\Engine\D3D12\D3DObject\RootSignature\RootSignature.h" />
     <ClInclude Include="Source\Engine\D3D12\D3D12Types.h" />
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\HeapAllocater.h" />
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocater\SamplerAllocator\SamplerAllocator.h" />
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\HeapAllocator.h" />
+    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.h" />
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />
     <ClInclude Include="Source\Engine\D3D12\FrameManager\FrameManager.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.h" />
@@ -715,7 +715,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGData\RenderPassNode.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVarsionManager\RGResourceManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGVersionManager\RGResourceManager.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass\DebugLinePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\FullRaytracingPass\FullRaytracingPass.h" />
@@ -733,8 +733,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skining\SkiningPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skining\UpdateBLASPass\UpdateBLASPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\UpScale\FullRaytracingUpScalePass\FullRaytracingUpScalePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.h" />
@@ -859,7 +859,7 @@
     <None Include="Asset\Shader\Common\Shape\Capsule.hlsli" />
     <None Include="Asset\Shader\Common\Shape\Sphere.hlsli" />
     <None Include="Asset\Shader\Common\Struct\Vertex.hlsli" />
-    <None Include="Asset\Shader\Compute\Skining\Skinning.hlsli" />
+    <None Include="Asset\Shader\Compute\Skinning\Skinning.hlsli" />
     <None Include="Asset\Shader\Ray\RayGI.hlsli" />
     <None Include="Asset\Shader\Ray\RayShadow.hlsli" />
     <None Include="Asset\Shader\Ray\Raytracing.hlsli" />
@@ -976,7 +976,7 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Skining\Skining.hlsl">
+    <FxCompile Include="Asset\Shader\Compute\Skinning\Skinning.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

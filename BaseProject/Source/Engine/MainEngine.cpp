@@ -59,7 +59,7 @@ namespace Engine
 		m_upWindow = std::make_unique<Window::NativeWindow>();
 		Window::WindowDesc _desc = {};
 		_desc.width = static_cast<UINT>(_winOp.windowWidth);
-		_desc.height = static_cast<UINT>(_winOp.windowHegiht);
+		_desc.height = static_cast<UINT>(_winOp.windowHeight);
 		_desc.titleName = L"DirectX12";
 		_desc.className = L"AppWindow";
 		_desc.windowMode = _winOp.windowMode;
@@ -99,7 +99,7 @@ namespace Engine
 		m_upGraphicsEngine = std::make_unique<Graphics::GraphicsEngine>();
 		Graphics::GraphicsEngineDesc _geDesc = {};
 		_geDesc.width = static_cast<UINT>(_winOp.windowWidth);
-		_geDesc.height = static_cast<UINT>(_winOp.windowHegiht);
+		_geDesc.height = static_cast<UINT>(_winOp.windowHeight);
 		_geDesc.pPipelineStateManager = m_upPipelineStateManager.get();
 		m_upGraphicsEngine->Init(_pCmdList,_geDesc);
 
@@ -199,7 +199,7 @@ namespace Engine
 		}
 	}
 
-	bool MainEngine::BegineFrame()
+	bool MainEngine::BeginFrame()
 	{
 		// フレーム開始
 		m_upTimeManager->BeginFrame();
@@ -253,7 +253,7 @@ namespace Engine
 		m_releaseQueues[_currentFrameIdx].clear();
 
 		// 描画フレームリソース
-		m_upGraphicsEngine->BegineFrame();
+		m_upGraphicsEngine->BeginFrame();
 
 		// 当たり判定構築
 		m_upCollisionWorld->BuildWorld();
@@ -281,7 +281,7 @@ namespace Engine
 
 			// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
 			auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
-				D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffarTex().GetRTV()
+				D3D12::D3D12Wrapper::Instance().GetCurrentBackBufferTex().GetRTV()
 			);
 
 			// レンダーターゲットを設定
@@ -301,7 +301,7 @@ namespace Engine
 			Engine::Editor::MainEditor::Instance().Draw(
 				_pCmdList,
 				_winOp.windowWidth,
-				_winOp.windowHegiht
+				_winOp.windowHeight
 			);
 			D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
 		}
@@ -332,10 +332,10 @@ namespace Engine
 	{
 		m_config.RefRuntimeConfig().appMode = a_mode;
 	}
-	void MainEngine::ExcuteDrawCmd()
+	void MainEngine::ExecuteDrawCmd()
 	{
 		// エディターモードならフリーカメラを割り込ませる
-		// (実際の上書きは GraphicsEngine::Excute() 内、ECS側のカメラ設定が終わった後)
+		// (実際の上書きは GraphicsEngine::Execute() 内、ECS側のカメラ設定が終わった後)
 		bool _isOverride = false;
 		if (m_config.GetRuntimeConfig().appMode == EAppMode::Editor)
 		{
@@ -356,7 +356,7 @@ namespace Engine
 			m_upGraphicsEngine->ClearCameraOverride();
 		}
 
-		m_upGraphicsEngine->Excute();
+		m_upGraphicsEngine->Execute();
 	}
 	const Window::NativeWindow* MainEngine::GetNativeWindow() const
 	{

@@ -12,7 +12,7 @@ namespace Engine::D3D12
 				D3D12_COMMAND_LIST_TYPE_DIRECT,
 				IID_PPV_ARGS(_res.cpAllocator.ReleaseAndGetAddressOf())
 			);
-			ENGINE_ERRLOG(SUCCEEDED(_hr),"CommandAllocater の生成に失敗 HRESULT:%08X", _hr);
+			ENGINE_ERRLOG(SUCCEEDED(_hr),"CommandAllocator の生成に失敗 HRESULT:%08X", _hr);
 
 			// フェンスバリュー初期化
 			_res.fenceValue = 0;

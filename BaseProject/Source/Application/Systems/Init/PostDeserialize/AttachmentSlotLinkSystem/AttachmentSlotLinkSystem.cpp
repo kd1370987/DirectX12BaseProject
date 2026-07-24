@@ -2,18 +2,18 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "../../../../Components/Charactor/Robot/AttachmentSlotsComponent.h"
+#include "../../../../Components/Character/Robot/AttachmentSlotsComponent.h"
 
 void AttachmentSlotLinkSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.AwekeTask<AttachmentSlotsComponent>(
+	a_world.AwakeTask<AttachmentSlotsComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"AttachmentSlotLinkSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
-			AwekeTag* a_tag,
+			AwakeTag* a_tag,
 			AttachmentSlotsComponent* a_slotsArray
 			)
 		{

@@ -3,12 +3,12 @@
 #include "Engine/ECS/World/World.h"
 
 #include "../../../../Components/Intent/MoveIntentComponent.h"
-#include "../../../../Components/Charactor/Robot/BoostComponent.h"
+#include "../../../../Components/Character/Robot/BoostComponent.h"
 #include "Application/Components/Force/InertiaComponent.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 
-#include "Application/Components/Charactor/Player/PlayerLookAngleComponent.h"
+#include "Application/Components/Character/Player/PlayerLookAngleComponent.h"
 
 void InputMoveSystem::Init(Engine::ECS::World& a_world)
 {

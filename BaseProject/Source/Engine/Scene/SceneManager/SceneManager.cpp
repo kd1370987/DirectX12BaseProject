@@ -134,7 +134,7 @@ namespace Engine::Scene
 			auto& _cmd = m_sceneChangeCmd.front();
 			switch (_cmd.changeType)
 			{
-			case SceneChangeType::Puch:
+			case SceneChangeType::Push:
 				PushScene(_cmd.sceneGUID);
 				break;
 			case SceneChangeType::Pop:

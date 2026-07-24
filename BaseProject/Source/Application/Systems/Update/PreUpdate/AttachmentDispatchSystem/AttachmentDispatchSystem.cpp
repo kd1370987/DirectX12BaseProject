@@ -2,9 +2,9 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "../../../../Components/Charactor/Robot/AttachmentSlotsComponent.h"
+#include "../../../../Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "../../../../Components/Intent/ActionIntentComponent.h"
-#include "../../../../Components/Charactor/AimTargetPosComponent.h"
+#include "../../../../Components/Character/AimTargetPosComponent.h"
 
 //==========================================================================================
 // AttachmentDispatchSystem

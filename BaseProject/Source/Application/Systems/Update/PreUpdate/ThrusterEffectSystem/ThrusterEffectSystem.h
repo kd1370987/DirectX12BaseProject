@@ -14,7 +14,7 @@
 //   - 脚ブースター     : 通常移動・上昇時のメイン推進
 //   - 肩ブースター     : ブースト時のアフターバーナー
 //
-// 実際の噴射はブースター子の ParticlesComponent(EmittParticleSystem)が行うため、
+// 実際の噴射はブースター子の ParticlesComponent(EmitParticleSystem)が行うため、
 // パーティクルは「プレイヤーに付随したアタッチメントエンティティ」から出る。
 //==========================================================================================
 class ThrusterEffectSystem : public Engine::ECS::SystemBase

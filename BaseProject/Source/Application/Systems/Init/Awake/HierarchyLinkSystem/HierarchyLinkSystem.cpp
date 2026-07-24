@@ -7,14 +7,14 @@
 
 void HierarchyLinkSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.AwekeTask<const GUIDComponent, HierarchyComponent>(
+	a_world.AwakeTask<const GUIDComponent, HierarchyComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"HierarchyLinkSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
-			AwekeTag* a_tag,
+			AwakeTag* a_tag,
 			const GUIDComponent* a_guidArray,
 			HierarchyComponent* a_hierarchyArray
 			)

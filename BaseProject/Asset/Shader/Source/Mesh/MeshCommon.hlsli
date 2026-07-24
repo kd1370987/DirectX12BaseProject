@@ -43,7 +43,7 @@ struct Material
 	float3 pad;
 
 	// テクスチャのSRVインデックス
-	int albedIndex;					// アルベド
+	int albedoIndex;					// アルベド
 	int metaRoughnessIndex;			// メタリックラフネステクスチャ
 	int emissiveIndex;
 	int normalIndex;

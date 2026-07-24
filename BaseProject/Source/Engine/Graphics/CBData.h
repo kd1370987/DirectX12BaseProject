@@ -74,7 +74,7 @@ namespace Engine::Graphics
 	struct alignas(256) AmbientData
 	{
 		// 環境光
-		DirectX::XMFLOAT3 ammbientColorScale = {0,0,0};
+		DirectX::XMFLOAT3 ambientColorScale = {0,0,0};
 		float pad0;
 		// ディレクショナルライト
 		DirectX::XMFLOAT3 dlDir = {0,0,0};
@@ -163,7 +163,7 @@ namespace Engine::Graphics
 		DXSM::Vector3 pad;
 
 		// テクスチャのSRVインデックス
-		int albedIndex;					// アルベド
+		int albedoIndex;					// アルベド
 		int metaRoughnessIndex;			// メタリックラフネステクスチャ
 		int emissiveIndex;
 		int normalIndex;

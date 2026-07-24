@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-class CBAllocater
+class CBAllocator
 {
 public:
 	
@@ -49,7 +49,7 @@ private:
 };
 
 template<typename T>
-inline void CBAllocater::BindAndAttachDataRootCBV(
+inline void CBAllocator::BindAndAttachDataRootCBV(
 	Engine::D3D12::GraphicsCommandList* a_pCmdList,
 	int a_descIndex,
 	const T& a_data
@@ -81,7 +81,7 @@ inline void CBAllocater::BindAndAttachDataRootCBV(
 }
 
 template<typename T>
-inline void CBAllocater::BindAndAttachDataComputeRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_regiIdx, const T& a_data)
+inline void CBAllocator::BindAndAttachDataComputeRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_regiIdx, const T& a_data)
 {
 	size_t _dataSize = (sizeof(T) + 0xff) & ~0xff; // 256バイトアライメント
 

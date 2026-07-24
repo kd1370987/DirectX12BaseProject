@@ -1,7 +1,7 @@
 ﻿#include "RenderGraph.h"
 
 // マネージャー関連
-#include "RGVarsionManager/RGResourceManager.h"
+#include "RGVersionManager/RGResourceManager.h"
 #include "../GraphicEngine.h"
 #include "../RenderContext/RenderContext.h"
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
@@ -548,7 +548,7 @@ namespace Engine::Graphics
 					_resName,
 					_info.format,
 					static_cast<UINT64>(_winOp.windowWidth * _info.texScale),
-					static_cast<UINT>(_winOp.windowHegiht * _info.texScale),
+					static_cast<UINT>(_winOp.windowHeight * _info.texScale),
 					_info.usage
 				);
 			}

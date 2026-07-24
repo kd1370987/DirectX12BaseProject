@@ -1,4 +1,4 @@
-﻿#include "EmittParticlesSystem.h"
+﻿#include "EmitParticlesSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/MainEngine.h"
@@ -12,17 +12,17 @@
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 
 //==========================================================================================
-// EmittParticleSystem
+// EmitParticleSystem
 //
 // ParticleEmitSystem が計算した pendingEmitCount 個を、実際に GPU へ emit 要求する。
 // 発生位置・方向は ParticlesComponent::emitSpace に従って決定し、
 // スケール/拡散はコンポーネント、速度/寿命はアセットから取得する。
 //==========================================================================================
-void EmittParticleSystem::Init(Engine::ECS::World& a_world)
+void EmitParticleSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ParticlesComponent, const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::Draw,
-		"EmittParticleSystem",
+		"EmitParticleSystem",
 		[]
 		(
 			Engine::ECS::ArchetypeChunk* a_pChunk,

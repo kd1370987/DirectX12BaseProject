@@ -63,7 +63,7 @@ void Engine::Graphics::AddFullRaytracingUpScalePass(
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<UpscaleParames>(_pCmd, 0, _params);
 
 			// 実行
-			a_pCtx->Dispatch((_winOp.windowWidth + 7) / 8, (_winOp.windowHegiht + 7) / 8, 1);
+			a_pCtx->Dispatch((_winOp.windowWidth + 7) / 8, (_winOp.windowHeight + 7) / 8, 1);
 		};
 
 	a_pRegistry->RegisterPass(_node);

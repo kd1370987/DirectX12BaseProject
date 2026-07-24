@@ -5,9 +5,9 @@
 #include "Application/Components/Tag/CameraTag.h"
 #include "Application/Components/Tag/ActiveCameraTag.h"
 #include "Application/Components/Camera/FollowTargetComponent.h"
-#include "Application/Components/Camera/CameraForcusTargetComponent.h"
+#include "Application/Components/Camera/CameraFocusTargetComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
-#include "../../../../Components/Charactor/AimTargetPosComponent.h"
+#include "../../../../Components/Character/AimTargetPosComponent.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
@@ -102,9 +102,9 @@ void AimTargetSystem::Init(Engine::ECS::World& a_world)
 						DXSM::Vector3 _focus = DXSM::Vector3(_pTargetTRS->pos);
 
 						// フォーカスオフセット(TPSSystem の注視点と同じもの)
-						if (a_ctx.pWorld->HasComponent<CameraForcusTargetComponent>(_target))
+						if (a_ctx.pWorld->HasComponent<CameraFocusTargetComponent>(_target))
 						{
-							if (const auto* _pFocus = a_ctx.pWorld->RefData<CameraForcusTargetComponent>(_target))
+							if (const auto* _pFocus = a_ctx.pWorld->RefData<CameraFocusTargetComponent>(_target))
 							{
 								_focus += DXSM::Vector3(_pFocus->offsetPos);
 							}

@@ -12,7 +12,7 @@
 // コンポーネント関係
 // システムフェーズタグ
 #include "Application/Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
-#include "Application/Components/Tag/SystemPhaseTag/AwekeTag.h"
+#include "Application/Components/Tag/SystemPhaseTag/AwakeTag.h"
 #include "Application/Components/Tag/SystemPhaseTag/StartTag.h"
 #include "Application/Components/Tag/SystemPhaseTag/ActiveTag.h"
 
@@ -31,7 +31,7 @@
 #include "Application/Components/Force/GravityComponent.h"
 #include "Application/Components/Force/VelocityComponent.h"
 #include "Application/Components/Force/InertiaComponent.h"
-#include "Application/Components/Charactor/Player/PlayerLookAngleComponent.h"
+#include "Application/Components/Character/Player/PlayerLookAngleComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Intent/MoveIntentComponent.h"
@@ -48,22 +48,22 @@
 #include "Application/Components/Hierarchy/HierarchyComponent.h"
 #include "Application/Components/Hierarchy/FollowAnimationNodeComponent.h"
 #include "Application/Components/Transform/PreviousWorldMatrixComponent.h"
-#include "Application/Components/Charactor/Robot/BoostComponent.h"
-#include "Application/Components/Charactor/Robot/AttachmentSlotsComponent.h"
+#include "Application/Components/Character/Robot/BoostComponent.h"
+#include "Application/Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "Application/Components/Resource/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
-#include "Application/Components/Collision/SphreCollider.h"
+#include "Application/Components/Collision/SphereCollider.h"
 #include "Application/Components/Collision/BoxCollider.h"
 #include "Application/Components/Collision/OBBCollider.h"
 #include "../../Components/Tag/EnemyTag.h"
 #include "../../Components/Collision/CapsuleCollider.h"
 #include "../../Components/Intent/ActionIntentComponent.h"
-#include "../../Components/Charactor/Weapon/Gun/GunStateComponent.h"
+#include "../../Components/Character/Weapon/Gun/GunStateComponent.h"
 #include "Engine/ECS/Internal/CollisionEvent.h"
 #include "../../Components/Collision/ExplodeOnHitComponent.h"
-#include "../../Components/Camera/CameraForcusTargetComponent.h"
-#include "../../Components/Charactor/Robot/AdditivePoseComponent.h"
-#include "../../Components/Charactor/AimTargetPosComponent.h"
+#include "../../Components/Camera/CameraFocusTargetComponent.h"
+#include "../../Components/Character/Robot/AdditivePoseComponent.h"
+#include "../../Components/Character/AimTargetPosComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -77,7 +77,7 @@
 #include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
 #include "Application/Systems/Update/Update/Rotation/RotationSystem/RotationSystem.h"
 #include "Application/Systems/Update/Update/Acceleration/GravitySystem/GravitySystem.h"
-#include "Application/Systems/Update/Update/Move/CharactorMovementSystem/CharactorMovementSystem.h"
+#include "Application/Systems/Update/Update/Move/CharacterMovementSystem/CharacterMovementSystem.h"
 #include "Application/Systems/Update/Physics/RayCollisionSystem/RayCollisionSystem.h"
 #include "Application/Systems/Update/Physics/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
 #include "Application/Systems/Update/Camera/TPSSystem/TPSSystem.h"
@@ -95,8 +95,8 @@
 #include "Application/Systems/Draw/Draw/RegisterRayWorldSystem/RegisterRayWorldSystem.h"
 #include "Application/Systems/Release/AnimationMatrixFreeSystem/AnimationMatrixFreeSystem.h"
 #include "Application/Systems/Draw/PostDraw/RegisterPrevWorldMatSystem/RegisterPrevWorldMatSystem.h"
-#include "Application/Systems/Init/PostDeserialize/StateMachinFixupSystem/StateMachinFixupSystem.h"
-#include "Application/Systems/Update/Update/StateMachinComitSystem/StateMachinComitSystem.h"
+#include "Application/Systems/Init/PostDeserialize/StateMachineFixupSystem/StateMachineFixupSystem.h"
+#include "Application/Systems/Update/Update/StateMachineCommitSystem/StateMachineCommitSystem.h"
 #include "Application/Systems/Update/PreUpdate/PlayerIntentSystem/PlayerIntentSystem.h"
 #include "Application/Components/Resource/ActionStateComponent.h"
 #include "Application/Systems/Init/PostDeserialize/ActionStateFixupSystem/ActionStateFixupSystem.h"
@@ -105,7 +105,7 @@
 #include "Application/Systems/Update/Update/ActionBehaviorSystem/ActionBehaviorSystem.h"
 #include "Application/Systems/Update/Animation/AnimationStateSystem/AnimationStateSystem.h"
 #include "Application/Systems/Update/Update/Move/RobotBoostSystem/RobotBoostSystem.h"
-#include "Application/Systems/Draw/Draw/EmittParticlesSystem/EmittParticlesSystem.h"
+#include "Application/Systems/Draw/Draw/EmitParticlesSystem/EmitParticlesSystem.h"
 #include "Application/Systems/Update/Update/Particle/ParticleEmitSystem/ParticleEmitSystem.h"
 #include "Application/Systems/Init/PostDeserialize/ParticleFixupSystem/ParticleFixupSystem.h"
 #include "Application/Systems/Update/PreUpdate/UpdateHierarchyDepthSystem/UpdateHierarchyDepthSystem.h"
@@ -160,7 +160,7 @@ namespace App::Game
 			{
 				// ECSにコンポーネントを登録
 				a_pWorld->RegisterComponent<PostDeserializeTag>("PostDeserializeTag");
-				a_pWorld->RegisterComponent<AwekeTag>("AwekeTag");
+				a_pWorld->RegisterComponent<AwakeTag>("AwakeTag");
 				a_pWorld->RegisterComponent<StartTag>("StartTag");
 				a_pWorld->RegisterComponent<ActiveTag>("ActiveTag");
 				a_pWorld->RegisterComponent<ReleaseTag>("ReleaseTag");
@@ -212,14 +212,14 @@ namespace App::Game
 				a_pWorld->RegisterComponent<GunStateComponent>("GunStateComponent");
 				a_pWorld->RegisterComponent<Engine::ECS::CollisionEvent>("CollisionEvent");
 				a_pWorld->RegisterComponent<ExplodeOnHitComponent>("ExplodeOnHitComponent");
-				a_pWorld->RegisterComponent<CameraForcusTargetComponent>("CameraForcusTargetComponent");
+				a_pWorld->RegisterComponent<CameraFocusTargetComponent>("CameraFocusTargetComponent");
 				a_pWorld->RegisterComponent<AdditivePoseComponent>("AdditivePoseComponent");
 				a_pWorld->RegisterComponent<AimTargetPosComponent>("AimTargetPosComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
 				a_pWorld->RegisterSystem<GUIDFixupSystem>();
-				a_pWorld->RegisterSystem<StateMachinFixupSystem>();
+				a_pWorld->RegisterSystem<StateMachineFixupSystem>();
 				a_pWorld->RegisterSystem<ActionStateFixupSystem>();
 				a_pWorld->RegisterSystem<ParticleFixupSystem>();
 				a_pWorld->RegisterSystem<FollowTargetLinkSystem>();
@@ -229,7 +229,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<AttachmentDispatchSystem>();
 				a_pWorld->RegisterSystem<ThrusterEffectSystem>();
 				a_pWorld->RegisterSystem<ActionIntentSystem>();
-				a_pWorld->RegisterSystem<StateMachinComitSystem>();
+				a_pWorld->RegisterSystem<StateMachineCommitSystem>();
 				a_pWorld->RegisterSystem<ActionStateCommitSystem>();
 				a_pWorld->RegisterSystem<RegisterCollisionWorldSystem>();
 				a_pWorld->RegisterSystem<CameraStartSystem>();
@@ -248,7 +248,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<CalcNodeSystem>();
 				a_pWorld->RegisterSystem<SkinningSystem>();
 				a_pWorld->RegisterSystem<PositionIntegrationSystem>();
-				a_pWorld->RegisterSystem<CharactorMovementSystem>();
+				a_pWorld->RegisterSystem<CharacterMovementSystem>();
 				a_pWorld->RegisterSystem<ActionBehaviorSystem>();
 				a_pWorld->RegisterSystem<TPSSystem>();
 				// カメラ姿勢が確定した後に狙点レイを撃つ(TPSSystem より後に登録すること)
@@ -262,7 +262,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<AnimationOptionalDrawSystem>();
 				a_pWorld->RegisterSystem<ScreenUIDrawSystem>();
 				a_pWorld->RegisterSystem<RegisterRayWorldSystem>();
-				a_pWorld->RegisterSystem<EmittParticleSystem>();
+				a_pWorld->RegisterSystem<EmitParticleSystem>();
 				a_pWorld->RegisterSystem<ParticleEmitSystem>();
 				a_pWorld->RegisterSystem<AnimationMatrixFreeSystem>();
 				a_pWorld->RegisterSystem<AdditivePoseFreeSystem>();
@@ -285,7 +285,7 @@ namespace App::Game
 				
 
 				// インスタンスデータの登録
-				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachinInstance>>();
+				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
 
 				a_pWorld->AddResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
@@ -294,7 +294,7 @@ namespace App::Game
 
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
 				a_pWorld->AddResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
-				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Animation::SkiningMeshData>>();
+				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Animation::SkinningMeshData>>();
 				
 
 				// シングルトンインスタンスの登録
@@ -306,7 +306,7 @@ namespace App::Game
 				a_pWorld->GetResource<Engine::Pool::RangePool<AdditiveBoneEntry>>().Init(10000);
 
 				a_pWorld->GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>().Reserve(100);
-				a_pWorld->GetResource<Engine::Pool::ItemPool<Engine::Animation::SkiningMeshData>>().Reserve(100);
+				a_pWorld->GetResource<Engine::Pool::ItemPool<Engine::Animation::SkinningMeshData>>().Reserve(100);
 				a_pWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 
 				a_pWorld->GetResource<HierarchyResource>().isDirty = true;
@@ -380,7 +380,7 @@ namespace App::Game
 		Engine::GUID _initScene = m_upGameFlowMachine->Start();
 		if (_initScene != Engine::DefaultGUID)
 		{
-			Engine::Scene::SceneManager::Instance().SetNextScene(_initScene, Engine::Scene::SceneChangeType::Puch);
+			Engine::Scene::SceneManager::Instance().SetNextScene(_initScene, Engine::Scene::SceneChangeType::Push);
 		}
 		else
 		{

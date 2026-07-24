@@ -122,8 +122,8 @@ namespace Engine::Editor
 
 		// 射影行列。アスペクトはウィンドウ設定から取る(ECS側のカメラと同じ作り方)
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
-		const float _aspect = (_winOp.windowHegiht > 0)
-			? static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHegiht)
+		const float _aspect = (_winOp.windowHeight > 0)
+			? static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHeight)
 			: 16.0f / 9.0f;
 
 		m_projMat = DirectX::XMMatrixPerspectiveFovLH(

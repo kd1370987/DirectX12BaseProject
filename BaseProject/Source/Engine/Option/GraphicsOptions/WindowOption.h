@@ -11,7 +11,7 @@ namespace Engine::Option::GraphicsOptions
 	{
 		// ウィンドウサイズ
 		int windowWidth = 0;
-		int windowHegiht = 0;
+		int windowHeight = 0;
 
 		// ウィンドウモード
 		EWindowMode windowMode = EWindowMode::Windowed;
@@ -42,9 +42,9 @@ namespace Engine::Option::GraphicsOptions
 				// ウィンドウサイズ
 				ImGui::Text("WindowSize");
 				ImGui::Text("Width : %f",windowWidth);
-				ImGui::Text("Height : %f",windowHegiht);
+				ImGui::Text("Height : %f",windowHeight);
 				ImGui::DragInt("Width", &windowWidth, 1, 0, 1980);
-				ImGui::DragInt("Height", &windowHegiht, 1, 0, 1080);
+				ImGui::DragInt("Height", &windowHeight, 1, 0, 1080);
 
 				ImGui::Separator();
 
@@ -65,7 +65,7 @@ namespace Engine::Option::GraphicsOptions
 		{
 			// ウィンドウサイズ
 			a_archive.Field("windowWidth", windowWidth);
-			a_archive.Field("windowHegiht", windowHegiht);
+			a_archive.Field("windowHeight", windowHeight);
 
 			// モード
 			UINT _winMode = static_cast<UINT>(windowMode);

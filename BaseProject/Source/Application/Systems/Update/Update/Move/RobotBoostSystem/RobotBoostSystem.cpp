@@ -3,7 +3,7 @@
 #include "Engine/ECS/World/World.h"
 
 #include "../../../../../Components/Force/VelocityComponent.h"
-#include "../../../../../Components/Charactor/Robot/BoostComponent.h"
+#include "../../../../../Components/Character/Robot/BoostComponent.h"
 
 void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 {
