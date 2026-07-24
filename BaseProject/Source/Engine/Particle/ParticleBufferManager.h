@@ -22,6 +22,13 @@ namespace Engine::Particle
 		);
 
 		/// <summary>
+		/// 解放。GPUプール・エミットバッファが持つGPUリソースを破棄する。
+		/// バッファはディスクリプタヒープにハンドルを持つため、
+		/// DescriptorHeapManager の解放より前に呼ぶこと。
+		/// </summary>
+		void Release();
+
+		/// <summary>
 		/// フレームの開始に呼ぶ
 		/// リクエストのクリアなど
 		/// </summary>

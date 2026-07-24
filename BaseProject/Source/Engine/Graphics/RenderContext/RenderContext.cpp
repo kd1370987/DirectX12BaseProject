@@ -102,6 +102,10 @@ namespace Engine::Graphics
 		m_subsetBuffer.Release();
 		m_boneBuffer.Release();
 		m_debugLineBuffer.Release();
+		// 解放漏れしていた分(スキニング後頂点・メッシュインスタンス・メッシュマテリアル)
+		m_skininedVerticesBuffer.Release();
+		m_meshInstanceBuffer.Release();
+		m_meshMaterialBuffer.Release();
 	}
 
 	void RenderContext::Clear()

@@ -146,6 +146,19 @@ namespace Engine
 		m_upGraphicsEngine->Release();
 		m_upGraphicsEngine.reset();
 
+		// パーティクルのGPUバッファ解放。
+		// これらはディスクリプタヒープにハンドルを持つため、
+		// 必ず DescriptorHeapManager の解放より前に破棄する。
+		if (m_upParticleManager)
+		{
+			m_upParticleManager->Release();
+			m_upParticleManager.reset();
+		}
+
+		// レイトレワールド(TLAS/BLAS・各種バッファ)の解放。
+		// シングルトンが握っていて自動破棄されないため明示的に解放する。
+		Raytracing::RayEngine::Instance().Release();
+
 		// パイプラインステート・ルートシグネチャの解放
 		m_upPipelineStateManager->Release();
 		m_upPipelineStateManager.reset();

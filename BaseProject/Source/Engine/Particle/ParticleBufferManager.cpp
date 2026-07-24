@@ -28,6 +28,24 @@ namespace Engine::Particle
 		//	m_emitBuffer[_handle].Create(a_pDevice, a_pCmdList, 100, nullptr);
 		//}
 	}
+	void ParticleBufferManager::Release()
+	{
+		// 非同期ロード中のものが残っていると、ロード完了コールバックが
+		// 破棄済みのマップへ触れる恐れがあるので、その分は待たずとも
+		// ここで一括で破棄する(シャットダウン時なので新規リクエストは来ない)。
+		std::lock_guard<std::mutex> _lock(m_mutex);
+
+		// GPUプール(パーティクル本体/デッドリスト/カウンタ/エミッタの各バッファを保持)を破棄。
+		// unique_ptr の破棄で各バッファの ComPtr が解放され、デバイス参照が落ちる。
+		m_pools.clear();
+
+		// いまフレームのエミット命令バッファを破棄
+		m_emitBuffer.clear();
+
+		// CPU側データ
+		m_emitRequests.clear();
+		m_loadingHandles.clear();
+	}
 	void ParticleBufferManager::BeginFrame()
 	{
 		// リクエストのクリア

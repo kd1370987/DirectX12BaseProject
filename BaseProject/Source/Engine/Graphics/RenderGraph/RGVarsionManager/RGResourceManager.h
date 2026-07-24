@@ -65,6 +65,12 @@ namespace Engine::Graphics
 		// フレーム終了時にリソースを初期状態に戻す
 		void ResetForNextFrame(D3D12::GraphicsCommandList* a_pCmdList);
 
+		// 物理リソース(一時テクスチャ/バッファ)を破棄する。
+		// これらは CreateCommittedResource で作られた個別リソースで、
+		// ディスクリプタヒープにビューを持つため、
+		// DescriptorHeapManager の解放より前に呼ぶこと。
+		void ReleasePhysicalResources();
+
 
 		// ==========================================================
 		// アクセサ (バリア構築やパス実行時に使用)

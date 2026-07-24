@@ -158,6 +158,28 @@ namespace Engine::Graphics
 		m_nameMap.clear();
 		m_logicalResourceVec.clear();
 	}
+	void RGResourceManager::ReleasePhysicalResources()
+	{
+		// 各テクスチャ/バッファの ID3D12Resource とディスクリプタを明示的に解放してから
+		// コンテナを空にする。
+		// (unique_ptr の破棄だけでも ComPtr は解放されるが、Release() を先に呼ぶことで
+		//  ディスクリプタヒープのハンドルも確実に返却し、破棄タイミングに依存しないようにする)
+		for (auto& _upTex : m_tempTextures)
+		{
+			if (_upTex) _upTex->Release();
+		}
+		m_tempTextures.clear();
+
+		for (auto& _upBuf : m_tempBuffers)
+		{
+			if (_upBuf) _upBuf->Release();
+		}
+		m_tempBuffers.clear();
+
+		// 物理リソースを指していた論理リソースの割り当ても無効化
+		m_nameMap.clear();
+		m_logicalResourceVec.clear();
+	}
 	RGResourceHandle RGResourceManager::GetHandle(const std::string& a_name) const
 	{
 		auto _it = m_nameMap.find(a_name);

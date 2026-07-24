@@ -163,6 +163,14 @@ namespace Engine::Graphics
 			_ctx.reset();
 		}
 
+		// レンダーグラフの一時リソース(GBuffer/TAA/各種RTなどのテクスチャ・バッファ)を解放。
+		// デストラクタ任せにすると LIVE_DEVICE として残るため、ここで明示的に解放する。
+		// DescriptorHeapManager の解放より前に呼ぶ必要がある。
+		if (m_upRenderGraph)
+		{
+			m_upRenderGraph->Release();
+		}
+
 		// 各リンク解除
 		m_pPipelineStateManager = nullptr;
 

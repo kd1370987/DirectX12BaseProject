@@ -38,6 +38,14 @@ namespace Engine::Graphics
 	{
 		m_compiledPasses.clear();
 		m_pPassNodeMap.clear();
+
+		// 一時テクスチャ/バッファ(GBuffer・TAA・各種RTなど)のGPUリソースを解放する。
+		// これらは個別のコミット済みリソースで数が多く(十数枚)、ここで解放しないと
+		// 終了時のライブオブジェクト(LIVE_DEVICE)として残り続ける。
+		if (m_upRGResourceManager)
+		{
+			m_upRGResourceManager->ReleasePhysicalResources();
+		}
 	}
 
 	void RenderGraph::Compile()

@@ -21,8 +21,12 @@ namespace Engine::Raytracing
 
 	void RayEngine::Release()
 	{
-		m_upRayWorld->Release();
-		m_upRayWorld.reset();
+		// 未初期化(レイトレ未使用)でも安全に呼べるようにする
+		if (m_upRayWorld)
+		{
+			m_upRayWorld->Release();
+			m_upRayWorld.reset();
+		}
 	}
 
 	void Engine::Raytracing::RayEngine::Commit(D3D12::GraphicsCommandList* a_pCmdList)
