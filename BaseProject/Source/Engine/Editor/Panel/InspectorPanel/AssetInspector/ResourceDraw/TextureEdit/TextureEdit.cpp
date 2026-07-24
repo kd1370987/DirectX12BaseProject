@@ -1,7 +1,7 @@
 #include "TextureEdit.h"
 
-#include "../../../../../Option/OptionManager.h"
-#include "../../../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../../../../../Option/OptionManager.h"
+#include "../../../../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 namespace Engine::Editor::Inspector
 {

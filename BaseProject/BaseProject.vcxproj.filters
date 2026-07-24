@@ -1012,6 +1012,36 @@
     <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw">
       <UniqueIdentifier>{81b2b532-3f42-4981-8cd4-687ee5365994}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit">
+      <UniqueIdentifier>{70cca349-0b1e-43a7-b236-71865c15f3df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit">
+      <UniqueIdentifier>{ec53dd8b-9023-4799-a533-1fa18c7bfeb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit">
+      <UniqueIdentifier>{42e6a43b-0660-440a-8549-4dc1cf035dd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit">
+      <UniqueIdentifier>{121cbf04-49fd-43e9-b27b-6bd404950320}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit">
+      <UniqueIdentifier>{c1c19fb9-795c-47b7-91b7-a05e5973a6c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit">
+      <UniqueIdentifier>{808d461b-faef-422f-b83d-45aab5facb05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit">
+      <UniqueIdentifier>{3b85857a-ef77-4ff0-9d74-555678159556}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit">
+      <UniqueIdentifier>{5890440e-a74f-4a98-9404-00a85cdb13a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit">
+      <UniqueIdentifier>{a80456f8-179d-43e4-8033-9d01fcfac045}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit">
+      <UniqueIdentifier>{9ce1b612-5217-4b01-8b9f-6e06a8fc0772}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Editor\Panel\HierarchyPanel">
       <UniqueIdentifier>{7caba347-d8ed-4d56-8c72-eb7bb089a11e}</UniqueIdentifier>
     </Filter>
@@ -1464,8 +1494,8 @@
     <ClCompile Include="Source\Engine\Resource\Data\ActionStateMachineAsset\IO\ActionStateMachineAssetIO.cpp">
       <Filter>Source\Engine\Resource\Data\ActionStateMachineAsset\IO</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit\ActionStateMachineEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem\ActionStateFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem</Filter>
@@ -1758,32 +1788,32 @@
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.cpp">
       <Filter>Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit\MeshEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit\ModelEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit\MaterialEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit\ShadingModelTableEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.cpp">
       <Filter>Source\Engine\Resource\Data\Texture\IO</Filter>
@@ -2366,8 +2396,8 @@
     <ClInclude Include="Source\Engine\Resource\Data\ActionStateMachineAsset\IO\ActionStateMachineAssetIO.h">
       <Filter>Source\Engine\Resource\Data\ActionStateMachineAsset\IO</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit\ActionStateMachineEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\ActionStateComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>
@@ -2813,32 +2843,32 @@
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.h">
       <Filter>Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit\MeshEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit\ModelEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit\MaterialEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit\ShadingModelTableEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\TextureIO.h">
       <Filter>Source\Engine\Resource\Data\Texture\IO</Filter>

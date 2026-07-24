@@ -1,7 +1,7 @@
 #include "ParticleEdit.h"
 
-#include "../../../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "../../../../../Resource/Data/Texture/IO/TextureIO.h"
+#include "../../../../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../../../../../Resource/Data/Texture/IO/TextureIO.h"
 
 namespace Engine::Editor::Inspector
 {

@@ -1,8 +1,8 @@
 #include "ShadingModelTableEdit.h"
 
-#include "../../../../../MainEngine.h"
-#include "../../../../../Graphics/GraphicEngine.h"
-#include "../../../../../Graphics/RenderPassRegistry/RenderPassRegistry.h"
+#include "../../../../../../MainEngine.h"
+#include "../../../../../../Graphics/GraphicEngine.h"
+#include "../../../../../../Graphics/RenderPassRegistry/RenderPassRegistry.h"
 
 namespace Engine::Editor::Inspector
 {

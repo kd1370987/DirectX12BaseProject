@@ -1,6 +1,6 @@
 #include "MaterialEdit.h"
 
-#include "../../../../EditorUI/EditorUI.h"
+#include "../../../../../EditorUI/EditorUI.h"
 
 namespace Engine::Editor::Inspector
 {
