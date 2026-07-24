@@ -108,7 +108,9 @@ namespace Engine::Graphics
 					a_pCtx->BindUAV(2, { _particleUAV,_deadListUAV,_counterUAV });
 
 					// 実行
-					UINT _dispatchNum = static_cast<UINT>(_pool->GetMaxCapacity() / 32u);
+					// 1スレッド = エミット命令1つ なので、必要なのは命令数分だけ。
+					// (プール容量から求めるのは無駄打ちなうえ、切り捨てで足りなくなる)
+					UINT _dispatchNum = (_cbEmit.requestCount + 31u) / 32u;
 					a_pCtx->Dispatch(_dispatchNum, 1, 1);
 					ENGINE_LOG("ParticleEmitPass : 実行 命令数=%u", _cbEmit.requestCount);
 				}

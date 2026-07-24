@@ -96,7 +96,6 @@ namespace Engine::Graphics
 
 					// 描画
 					a_pCtx->DrawPolygonInstancing(_pool->GetMaxCapacity());
-					ENGINE_LOG("Particle描画中 : %s", _pParticle->GetName().c_str());
 				}
 			};
 

@@ -98,9 +98,13 @@ namespace Engine::Graphics
 					a_pCtx->BindUAV(2, {_particleUAV,_deadListUAV,_counterUAV});
 
 					// 実行
-					UINT _dispatchNum = static_cast<UINT>(_pool->GetMaxCapacity() / 32u);
+					// 切り上げること。切り捨てると容量が32の倍数でない場合に
+					// 末尾のパーティクルが一度も更新されず、寿命が減らないまま残り続ける。
+					// (デッドリストは末尾から取り出すので、最初に発生した粒がまさにそこに入る)
+					// シェーダー側は GetDimensions で範囲外スレッドを弾いているため多い分は安全。
+					const UINT _threadNum = _pool->GetMaxCapacity();
+					UINT _dispatchNum = (_threadNum + 31u) / 32u;
 					a_pCtx->Dispatch(_dispatchNum, 1, 1);
-					ENGINE_LOG("ParticleUpdatePass : 実行");
 				}
 			};
 		a_pRegistry->RegisterPass(_node);

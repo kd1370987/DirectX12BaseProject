@@ -1,4 +1,4 @@
-#include "EmittParticlesSystem.h"
+﻿#include "EmittParticlesSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/MainEngine.h"
