@@ -91,7 +91,14 @@ bool Engine::Collision::Ray::VSMesh(
 	DirectX::XMVECTOR _errVec;
 	DirectX::XMMATRIX _world = DirectX::XMLoadFloat4x4(&a_worldMat);
 	DirectX::XMMATRIX _invWorld = DirectX::XMMatrixInverse(&_errVec, _world);	// 逆ワールド行列
-	if (DirectX::XMVectorGetX(_errVec) == 0.0f)
+
+	// 行列式のチェック。
+	// ワールド行列にNaNが混ざっていると行列式もNaNになるが、NaN との == 比較は必ず false に
+	// なるため「== 0.0f」だけでは素通りしてしまう。
+	// その場合レイをローカル空間へ変換した結果もNaNになり、
+	// BoundingBox::Intersects の XMVector3IsUnit アサートで停止する。
+	float _det = DirectX::XMVectorGetX(_errVec);
+	if (!std::isfinite(_det) || _det == 0.0f)
 	{
 		return false;
 	}
@@ -108,6 +115,15 @@ bool Engine::Collision::Ray::VSMesh(
 	DirectX::XMStoreFloat3(&_localRay.origin, _rayOrigin);
 	DirectX::XMStoreFloat3(&_localRay.direction, _direction);
 	_localRay.maxDistance = a_rayInfo.maxDistance;
+
+	// スケールが極端に小さい/大きい行列では、逆行列変換後のベクトルが
+	// 0 や無限大になり XMVector3Normalize が NaN を返すことがある。
+	// そのまま BoundingBox::Intersects へ渡すと XMVector3IsUnit のアサートで止まるので、
+	// ここで単位ベクトルになっていることを確認しておく(判定基準はDirectXMathと同じ 1e-4)。
+	{
+		float _len = DirectX::XMVectorGetX(DirectX::XMVector3Length(_direction));
+		if (!std::isfinite(_len) || std::fabs(_len - 1.0f) > 1.0e-4f) return false;
+	}
 
 	//----------------------------------------------------------------------------------------------------
 	// BVHトラバーサルの開始

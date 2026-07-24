@@ -263,15 +263,43 @@ namespace Engine::Collision
 
 	bool CollisionWorld::Raycast(const RayInfo& a_ray, Result& a_outResult, const ECS::Entity& a_myID)
 	{
+		//==================================================================================
+		// レイの正規化・検証
+		//----------------------------------------------------------------------------------
+		// DirectXCollision の BoundingBox::Intersects(origin, direction, dist) は
+		// 「direction が単位ベクトルであること」を前提にしており、
+		// そうでないと XMVector3IsUnit のアサートでプログラムが停止する。
+		// また hitPos = origin + direction * dist という計算も単位長を前提にしている。
+		//
+		// 呼び出し側の正規化漏れや、カメラ行列などから流れ込んだNaNで落とさないよう、
+		// ここで一度だけ整えてから走査する。
+		//==================================================================================
+		auto _isFinite3 = [](const DirectX::XMFLOAT3& a_v)
+		{
+			return std::isfinite(a_v.x) && std::isfinite(a_v.y) && std::isfinite(a_v.z);
+		};
+
+		if (!_isFinite3(a_ray.origin) || !_isFinite3(a_ray.direction)) return false;
+		if (!(a_ray.maxDistance > 0.0f)) return false;		// NaN もここで弾かれる
+
+		RayInfo _ray = a_ray;
+		{
+			DXSM::Vector3 _dir(_ray.direction);
+			float _lenSq = _dir.LengthSquared();
+			if (_lenSq < 1e-12f) return false;				// 長さゼロは方向が定まらない
+			_dir /= std::sqrt(_lenSq);
+			_ray.direction = _dir;
+		}
+
 		bool _isHit = false;
-		float _closestDist = a_ray.maxDistance;			// これまでに見つかったもっとも近い距離
+		float _closestDist = _ray.maxDistance;			// これまでに見つかったもっとも近い距離
 		Result _bestResult = {};
 
 		// 静的・動的の両TLASを走査し、最も手前のヒットを採用する
 		RaycastTree(m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
-			a_ray, a_myID, _closestDist, _bestResult, _isHit);
+			_ray, a_myID, _closestDist, _bestResult, _isHit);
 		RaycastTree(m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
-			a_ray, a_myID, _closestDist, _bestResult, _isHit);
+			_ray, a_myID, _closestDist, _bestResult, _isHit);
 
 		if (_isHit)
 		{
@@ -573,8 +601,12 @@ namespace Engine::Collision
 			if (_buildInstanceVec.size() > 0)
 			{
 				// ノードの再帰ビルド開始
+				// 件数は「有効なインスタンス数」を渡すこと。
+				// m_staticInstanceVec 側のサイズ(無効エンティティ込み)を渡すと
+				// _buildInstanceVec の範囲外まで舐めてしまう。
 				m_staticRootNodeIndex = BuildBVHInternal(
-					m_staticInstanceVec, m_staticNodeVec, m_staticInstanceIndexVec, _buildInstanceVec, 0, _instanceCount
+					m_staticInstanceVec, m_staticNodeVec, m_staticInstanceIndexVec, _buildInstanceVec,
+					0, static_cast<int>(_buildInstanceVec.size())
 				);
 
 				// ワールド全体のローカルAABBはルートノードのAABBと同じになる
@@ -622,13 +654,14 @@ namespace Engine::Collision
 		if (_buildInstanceVec.empty()) return;
 
 		// ダイナミックTLASの構築
+		// 件数は有効なインスタンス数(= _buildInstanceVec のサイズ)を渡す
 		m_dynamicRootNodeIndex = BuildBVHInternal(
 			m_dynamicInstanceVec,
 			m_dynamicNodeVec,
 			m_dynamicInstanceIndexVec,
 			_buildInstanceVec,
 			0,
-			_instanceCount
+			static_cast<int>(_buildInstanceVec.size())
 		);
 	}
 }

@@ -157,6 +157,9 @@
     <Filter Include="Source\Application\Systems\Update\Camera\TPSSystem">
       <UniqueIdentifier>{eff4e858-a3a9-4f9f-a51a-3b9ae7f28481}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Camera\AimTargetSystem">
+      <UniqueIdentifier>{3a7c1b52-9d64-4f18-8c27-5e0b41d7a903}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Components\Charactor">
       <UniqueIdentifier>{2101dfbd-ff66-4f2e-a0d4-87591abfee1f}</UniqueIdentifier>
     </Filter>
@@ -1212,6 +1215,9 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Camera\AimTargetSystem\AimTargetSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Camera\AimTargetSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp">
       <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
     </ClCompile>
@@ -1993,6 +1999,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Camera\AimTargetSystem\AimTargetSystem.h">
+      <Filter>Source\Application\Systems\Update\Camera\AimTargetSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h">
       <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
@@ -2945,6 +2954,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\AdditiveBoneEntry.h">
       <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Charactor\AimTargetPosComponent.h">
+      <Filter>Source\Application\Components\Charactor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Charactor\Robot\AdditivePoseComponent.h">
       <Filter>Source\Application\Components\Charactor\Robot</Filter>

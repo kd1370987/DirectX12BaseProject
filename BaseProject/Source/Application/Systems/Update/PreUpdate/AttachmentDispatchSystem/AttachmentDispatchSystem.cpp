@@ -4,6 +4,7 @@
 
 #include "../../../../Components/Charactor/Robot/AttachmentSlotsComponent.h"
 #include "../../../../Components/Intent/ActionIntentComponent.h"
+#include "../../../../Components/Charactor/AimTargetPosComponent.h"
 
 //==========================================================================================
 // AttachmentDispatchSystem
@@ -42,13 +43,38 @@ void AttachmentDispatchSystem::Init(Engine::ECS::World& a_world)
 				}
 			};
 
+			// 狙点(AimTargetSystem がカメラのレイで求めた着弾点)を子へ配信
+			auto _setAimTarget = [&a_ctx](Engine::ECS::Entity a_e, const AimTargetPosComponent* a_pSrc)
+			{
+				if (!a_pSrc) return;
+				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
+				if (!a_ctx.pWorld->HasComponent<AimTargetPosComponent>(a_e)) return;
+				if (auto* _p = a_ctx.pWorld->RefData<AimTargetPosComponent>(a_e))
+				{
+					// 結果だけを渡す(maxDistance / startOffset は子側の設定を壊さない)
+					_p->pos			= a_pSrc->pos;
+					_p->dir			= a_pSrc->dir;
+					_p->hitEntity	= a_pSrc->hitEntity;
+					_p->isHit		= a_pSrc->isHit;
+					_p->isValid		= a_pSrc->isValid;
+				}
+			};
+
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const AttachmentSlotsComponent& _slots = a_slotsArray[_i];
 				const ActionIntentComponent& _intent = a_intentArray[_i];
 
+				// 親の狙点(付いていないプレイヤーもあり得るので任意扱い)
+				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+				const AimTargetPosComponent* _pAim =
+					a_ctx.pWorld->HasComponent<AimTargetPosComponent>(_self)
+					? a_ctx.pWorld->RefData<AimTargetPosComponent>(_self)
+					: nullptr;
+
 				// --- 銃スロットへ配信 ---
 				_setGunIntent(_slots.mainGun.id, _intent.isGunShoot, _intent.isAiming);
+				_setAimTarget(_slots.mainGun.id, _pAim);
 
 				// TODO: missile スロットは専用入力ができ次第、同様に配信する
 			}

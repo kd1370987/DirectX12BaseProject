@@ -9,6 +9,7 @@
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 #include "../../../../Components/Transform/LocalTransformComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
+#include "../../../../Components/Charactor/AimTargetPosComponent.h"
 
 //==========================================================================================
 // GunShootSystem
@@ -61,25 +62,71 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				auto* _pPrefab = _rm.Ref(_gun.bulletPrefabHandle);
 				if (!_pPrefab) continue;
 
-				// ---- 発射位置・方向をワールド行列から求める ----
+				// ---- 銃の位置と、銃自身のローカル +Z 軸 ----
 				const DirectX::XMFLOAT4X4& _m = _worldMat.worldMat;
-				DirectX::XMFLOAT3 _pos = { _m._41, _m._42, _m._43 };	// 平行移動
-				DirectX::XMFLOAT3 _fwd = { _m._31, _m._32, _m._33 };	// ローカル +Z 軸(前方)
+				DXSM::Vector3 _pos = { _m._41, _m._42, _m._43 };	// 平行移動
+				DXSM::Vector3 _gunFwd = { _m._31, _m._32, _m._33 };	// ローカル +Z 軸
 
-				float _len = std::sqrt(_fwd.x * _fwd.x + _fwd.y * _fwd.y + _fwd.z * _fwd.z);
-				if (_len > 0.0001f) { _fwd.x /= _len; _fwd.y /= _len; _fwd.z /= _len; }
+				float _gunFwdLenSq = _gunFwd.LengthSquared();
+				if (_gunFwdLenSq > 1e-8f) _gunFwd /= std::sqrt(_gunFwdLenSq);
 
-				// 銃口を少し前に出した位置から発射
-				DirectX::XMFLOAT3 _spawnPos = {
-					_pos.x + _fwd.x * 1.5f,
-					_pos.y + _fwd.y * 1.5f,
-					_pos.z + _fwd.z * 1.5f,
-				};
-				DirectX::XMFLOAT3 _velValue = {
-					_fwd.x * _gun.speed,
-					_fwd.y * _gun.speed,
-					_fwd.z * _gun.speed,
-				};
+				//======================================================================
+				// 基準の向きを決める
+				//----------------------------------------------------------------------
+				// 銃はアニメーションノードに追従しているため、ローカル +Z 軸が実際の
+				// 銃口方向とは限らない(ボーンの軸がそのまま出る)。
+				// そのため狙点がある時は、銃の軸ではなく「狙いの向き(カメラ前方)」を
+				// 銃口オフセットと後方判定の基準にする。
+				//
+				// AimTargetPosComponent は AimTargetSystem が計算し、
+				// AttachmentDispatchSystem が親から配信してくる。
+				// 付いていない銃は今まで通り自分の +Z 軸へ撃つ。
+				//======================================================================
+				const AimTargetPosComponent* _pAim = nullptr;
+				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+				if (a_ctx.pWorld->HasComponent<AimTargetPosComponent>(_self))
+				{
+					_pAim = a_ctx.pWorld->RefData<AimTargetPosComponent>(_self);
+
+					// まだ一度も計算されていない(=原点が入っている)なら使わない
+					if (_pAim && !_pAim->isValid) _pAim = nullptr;
+				}
+
+				DXSM::Vector3 _baseDir = _gunFwd;
+				if (_pAim)
+				{
+					DXSM::Vector3 _aimDir = DXSM::Vector3(_pAim->dir);
+					float _aimDirLenSq = _aimDir.LengthSquared();
+					if (_aimDirLenSq > 1e-8f) _baseDir = _aimDir / std::sqrt(_aimDirLenSq);
+				}
+
+				// 銃口を基準の向きへ少し前に出した位置から発射
+				DXSM::Vector3 _spawnPos = _pos + _baseDir * 1.5f;
+
+				//======================================================================
+				// 射出方向 : 銃口から狙点へ向ける
+				//======================================================================
+				DXSM::Vector3 _shootDir = _baseDir;
+				if (_pAim)
+				{
+					DXSM::Vector3 _toTarget = DXSM::Vector3(_pAim->pos) - _spawnPos;
+
+					// 狙点が銃口とほぼ同じ位置だと向きが定まらないので、その時は基準のまま
+					if (_toTarget.LengthSquared() > 1e-6f)
+					{
+						_toTarget.Normalize();
+
+						// 狙点が真後ろにある場合は採用しない。
+						// (自機の手前の物を拾ってしまった時に、弾がカメラへ向かって
+						//  飛んでいくのを防ぐための保険。基準は必ず狙いの向き)
+						if (_toTarget.Dot(_baseDir) > 0.0f)
+						{
+							_shootDir = _toTarget;
+						}
+					}
+				}
+
+				DirectX::XMFLOAT3 _velValue = _shootDir * _gun.speed;
 
 				// ---- プレハブのデータをコピーして、位置と速度を上書き ----
 				Engine::ECS::Signature _sig = _pPrefab->GetSignature();

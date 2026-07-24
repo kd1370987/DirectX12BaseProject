@@ -24,7 +24,10 @@ namespace Engine::Graphics
 			ID3D12RootSignature* pRootSig;
 			uint8_t csIndex;
 			D3D12::PipelineStateManager* pPSOManager;
-			
+
+			// 乱数の種。毎フレーム変えないとシェーダー側が
+			// 毎回まったく同じパーティクルを作ってしまう
+			uint32_t frameCounter = 0;
 		};
 		auto _spPassData = std::make_shared<RuntimeData>();
 		_spPassData->pPSOManager = a_pPSOManager;
@@ -52,12 +55,20 @@ namespace Engine::Graphics
 		// 実行関数
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 			{
+				// このフレームの乱数の種を進める
+				++_spPassData->frameCounter;
+
 				// 全プール分回す
 				for (auto& [_handle, _pool] : MainEngine::Instance().GetParticleManager()->GetPoolMap())
 				{
 					if (!_pool) continue;
 					// プールが読み込み済みかチェック
 					if (!MainEngine::Instance().RefParticleManager()->IsLoaded(_handle)) continue;
+
+					// このフレームに発生命令が無いなら何もしない。
+					// (命令0でもDispatchしていたため、ログ上は毎フレーム動いているように見えていた)
+					auto _requests = MainEngine::Instance().GetParticleManager()->GetRequests(_handle);
+					if (_requests.empty()) continue;
 
 					// ヒープとルートシグネチャ、PSOをセット
 					auto* _pPso = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
@@ -67,10 +78,16 @@ namespace Engine::Graphics
 
 					auto* _pCmd = a_pCtx->GetCurrentCmdList();
 
-					struct EmitCB { uint32_t requestCount; };
-					EmitCB _cbEmit;
-					auto _requests = MainEngine::Instance().GetParticleManager()->GetRequests(_handle);
+					struct EmitCB
+					{
+						uint32_t requestCount;
+						uint32_t frameSeed;
+					};
+					EmitCB _cbEmit = {};
 					_cbEmit.requestCount = static_cast<uint32_t>(_requests.size());
+
+					// プールごとにも種をずらす(同一フレームに複数プールが出しても被らないように)
+					_cbEmit.frameSeed = _spPassData->frameCounter * 2654435761u + _handle.id;
 					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<EmitCB>(
 						_pCmd,
 						0,
@@ -93,7 +110,7 @@ namespace Engine::Graphics
 					// 実行
 					UINT _dispatchNum = static_cast<UINT>(_pool->GetMaxCapacity() / 32u);
 					a_pCtx->Dispatch(_dispatchNum, 1, 1);
-					ENGINE_LOG("ParticleEmitPass : 実行");
+					ENGINE_LOG("ParticleEmitPass : 実行 命令数=%u", _cbEmit.requestCount);
 				}
 			};
 

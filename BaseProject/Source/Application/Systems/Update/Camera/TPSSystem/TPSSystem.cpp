@@ -98,13 +98,34 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				//============================================================
 				// カメラ回転(このエンジンは左手系。CreateLookAtは右手系で
 				// 向きが180度反転するため XMMatrixLookAtLH を使う)
+				//------------------------------------------------------------
+				// XMMatrixLookAtLH は「視点==注視点」や「視線がUpと平行」の場合に
+				// 内部の正規化/外積が破綻して行列全体が NaN になる。
+				// NaN のクォータニオンが LocalTransform に入ると、そこから前方ベクトルを
+				// 求める側(AimTargetSystem など)まで NaN が伝播して落ちるため、
+				// 破綻する条件では回転を更新せず前フレームの値を保つ。
 				//============================================================
-				DXSM::Matrix _view = DirectX::XMMatrixLookAtLH(
-					_currentPos,
-					_targetLookAt,
-					DXSM::Vector3::Up
-				);
-				DXSM::Quaternion _camRot = DXSM::Quaternion::CreateFromRotationMatrix(_view.Invert());
+				DXSM::Vector3 _lookVec = _targetLookAt - _currentPos;
+				float _lookLenSq = _lookVec.LengthSquared();
+				bool _isDegenerate = (_lookLenSq < 1e-6f);
+				if (!_isDegenerate)
+				{
+					// 視線がUpとほぼ平行（真上/真下を向いている）かどうか
+					DXSM::Vector3 _lookDir = _lookVec / std::sqrt(_lookLenSq);
+					_isDegenerate = (std::fabs(_lookDir.Dot(DXSM::Vector3::Up)) > 0.9999f);
+				}
+				// 破綻時は前フレームの回転を維持する(位置だけは更新する)
+				DXSM::Quaternion _camRot = DXSM::Quaternion(_trsComp.quat);
+				if (!_isDegenerate)
+				{
+					DXSM::Matrix _view = DirectX::XMMatrixLookAtLH(
+						_currentPos,
+						_targetLookAt,
+						DXSM::Vector3::Up
+					);
+					_camRot = DXSM::Quaternion::CreateFromRotationMatrix(_view.Invert());
+					_camRot.Normalize();
+				}
 
 				//============================================================
 				// 保存

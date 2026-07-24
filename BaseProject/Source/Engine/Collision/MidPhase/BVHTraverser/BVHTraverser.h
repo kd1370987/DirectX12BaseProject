@@ -36,6 +36,16 @@ namespace Engine::Collision
 		Result& a_outLocalResult
 	)
 	{
+		// 判定データが空のメッシュを弾く。
+		// Mesh::HasCollisionMesh() は optional が入っているかしか見ていないため、
+		//   ・三角形0枚のメッシュ(CollisionMesh::Create が即returnして中身が空)
+		//   ・GCで CollisionMesh::Release() された後(optionalは残り、配列だけ空)
+		// のどちらでも true が返る。そのまま nodeVec[rootNodeIndex] を引くと
+		// 空ベクターへの添字アクセスになり、<vector> 内部のアサートで落ちる。
+		if (a_collisionMesh.nodeVec.empty()) return false;
+		if (a_collisionMesh.rootNodeIndex < 0 ||
+			a_collisionMesh.rootNodeIndex >= static_cast<int>(a_collisionMesh.nodeVec.size())) return false;
+
 		// 固定長配列による簡易スタック(再帰呼び出しのオーバーヘッドとメモリ確保を防ぐ)
 		int _nodeStack[64];
 		int _stackTop = 0;
@@ -118,6 +128,11 @@ namespace Engine::Collision
 		const Resource::CollisionMesh& a_collisionMesh,
 		Result& a_outLocalResult)
 	{
+		// 空メッシュ / 不正なルートインデックスを弾く(理由は Traverse 側のコメント参照)
+		if (a_collisionMesh.nodeVec.empty()) return false;
+		if (a_collisionMesh.rootNodeIndex < 0 ||
+			a_collisionMesh.rootNodeIndex >= static_cast<int>(a_collisionMesh.nodeVec.size())) return false;
+
 		// 固定長配列による簡易スタック
 		int _nodeStack[64];
 		int _stackTop = 0;

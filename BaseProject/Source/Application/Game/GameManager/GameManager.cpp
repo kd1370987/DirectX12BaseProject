@@ -63,6 +63,7 @@
 #include "../../Components/Collision/ExplodeOnHitComponent.h"
 #include "../../Components/Camera/CameraForcusTargetComponent.h"
 #include "../../Components/Charactor/Robot/AdditivePoseComponent.h"
+#include "../../Components/Charactor/AimTargetPosComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -80,6 +81,7 @@
 #include "Application/Systems/Update/Physics/RayCollisionSystem/RayCollisionSystem.h"
 #include "Application/Systems/Update/Physics/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
 #include "Application/Systems/Update/Camera/TPSSystem/TPSSystem.h"
+#include "Application/Systems/Update/Camera/AimTargetSystem/AimTargetSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
 #include "Application/Systems/Update/PostUpdate/AnimationSystem/AnimationSystem.h"
 #include "Application/Systems/Update/PostUpdate/SkinningSystem/SkinningSystem.h"
@@ -212,6 +214,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<ExplodeOnHitComponent>("ExplodeOnHitComponent");
 				a_pWorld->RegisterComponent<CameraForcusTargetComponent>("CameraForcusTargetComponent");
 				a_pWorld->RegisterComponent<AdditivePoseComponent>("AdditivePoseComponent");
+				a_pWorld->RegisterComponent<AimTargetPosComponent>("AimTargetPosComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -248,6 +251,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<CharactorMovementSystem>();
 				a_pWorld->RegisterSystem<ActionBehaviorSystem>();
 				a_pWorld->RegisterSystem<TPSSystem>();
+				// カメラ姿勢が確定した後に狙点レイを撃つ(TPSSystem より後に登録すること)
+				a_pWorld->RegisterSystem<AimTargetSystem>();
 				a_pWorld->RegisterSystem<CalcMatrixSystem>();
 				a_pWorld->RegisterSystem<RobotBoostSystem>();
 				a_pWorld->RegisterSystem<FollowAnimationNodeSystem>();

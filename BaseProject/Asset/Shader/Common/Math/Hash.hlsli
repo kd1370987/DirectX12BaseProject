@@ -87,7 +87,9 @@ float3 RandomConeDirection(
 }
 
 // ２点間のランダムな値を取得
-float ValueFloat(float a_min, float a_max, float a_seed)
+// シードは uint で受け取ること。float で受けると 2^24 を超えた値が
+// 丸められて別々のシードが同じ値に潰れる。
+float ValueFloat(float a_min, float a_max, uint a_seed)
 {
 	return lerp(a_min, a_max, Random(a_seed));
 }

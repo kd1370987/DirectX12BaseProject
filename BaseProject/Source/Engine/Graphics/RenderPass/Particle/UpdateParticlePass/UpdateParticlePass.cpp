@@ -72,9 +72,11 @@ namespace Engine::Graphics
 						float deltaTime;
 						DirectX::XMFLOAT3 gravity;
 					};
+					// 固定値だと実フレームレートと寿命の減りが一致しない(重いほど長生きする)ため
+					// 実際の経過時間を渡す
 					UpdateCB _cbData = {};
-					_cbData.deltaTime = 0.008f;
-					
+					_cbData.deltaTime = MainEngine::Instance().GetDeltaTime();
+
 					auto* _pCmd = a_pCtx->GetCurrentCmdList();
 					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<UpdateCB>(
 						_pCmd,

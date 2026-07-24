@@ -28,19 +28,29 @@ namespace Engine::Particle
 		std::iota(_initDeadList.begin(),_initDeadList.end(),0); // すべての配列を0から連番で埋めてくれる
 		uint32_t _initCounter = m_maxCapacity;
 
+		// パーティクル本体もゼロクリアする。
+		// 作りっぱなしのVRAMには前の内容が残っている可能性があり、
+		// life が 0 より大きいゴミが混ざると、出していないパーティクルが動き出したり、
+		// それが寿命切れとしてデッドリストへ返却されてインデックスが二重登録される。
+		std::vector<ParticleData> _initParticles(m_maxCapacity);
+
 		// アップロードバッファを作成してコピーする
 		std::shared_ptr<D3D12::DynamicBuffer> _spDeadListUpload = std::make_shared<D3D12::DynamicBuffer>();
 		std::shared_ptr<D3D12::DynamicBuffer> _spCounterUpload = std::make_shared<D3D12::DynamicBuffer>();
+		std::shared_ptr<D3D12::DynamicBuffer> _spParticleUpload = std::make_shared<D3D12::DynamicBuffer>();
 
 		D3D12::DynamicBufferDesc _deadDesc = { m_maxCapacity, sizeof(uint32_t), D3D12_RESOURCE_FLAG_NONE };
 		D3D12::DynamicBufferDesc _countDesc = { 1, sizeof(uint32_t), D3D12_RESOURCE_FLAG_NONE };
+		D3D12::DynamicBufferDesc _particleDesc = { m_maxCapacity, sizeof(ParticleData), D3D12_RESOURCE_FLAG_NONE };
 
 		_spDeadListUpload->Create(a_pDevice, _deadDesc);
 		_spCounterUpload->Create(a_pDevice, _countDesc);
+		_spParticleUpload->Create(a_pDevice, _particleDesc);
 
 		// データを書き込む
 		_spDeadListUpload->UpdateData(_initDeadList.data(), m_maxCapacity * sizeof(uint32_t));
 		_spCounterUpload->UpdateData(&_initCounter, sizeof(uint32_t));
+		_spParticleUpload->UpdateData(_initParticles.data(), m_maxCapacity * sizeof(ParticleData));
 
 		// コピー前のリソースバリア (DEFAULTヒープを COPY_DEST にする)
 		//m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
@@ -57,13 +67,18 @@ namespace Engine::Particle
 			_spCounterUpload->GetResource(), 0,
 			sizeof(uint32_t)
 		);
+		a_pCmdList->CopyBufferRegion(
+			m_particlePool.GetResource(), 0,
+			_spParticleUpload->GetResource(), 0,
+			m_maxCapacity * sizeof(ParticleData)
+		);
 
 		// コピー後のリソースバリア (DEFAULTヒープを UAV 状態にする)
 		//m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		//m_counterBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		// 解放処理を登録
-		MainEngine::Instance().RegisterDeferredResource([_spDeadListUpload,_spCounterUpload](){});
+		MainEngine::Instance().RegisterDeferredResource([_spDeadListUpload,_spCounterUpload,_spParticleUpload](){});
 	}
 	void GPUParticlePool::UploadEmitRequests(D3D12::GraphicsCommandList* a_pCmdList, std::span<const EmitterData> a_requests)
 	{
