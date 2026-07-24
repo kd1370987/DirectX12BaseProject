@@ -47,6 +47,7 @@ void CBAllocater::RootCBVCreate(Engine::D3D12::Device* a_device, size_t a_memSiz
 		assert(0 && "定数バッファリソースの生成に失敗\n");
 		return;
 	}
+	if (m_spResource) m_spResource->SetName(L"CBAllocator_Graphics");	// リーク調査用
 
 	// 定数バッファをマッピング
 	_hr = m_spResource->Map(0, nullptr, reinterpret_cast<void**>(&m_pMappedData));
@@ -105,6 +106,7 @@ void CBAllocater::CreateCompute(size_t a_memSize)
 		assert(0 && "定数バッファリソースの生成に失敗\n");
 		return;
 	}
+	if (m_spComputeResource) m_spComputeResource->SetName(L"CBAllocator_Compute");	// リーク調査用
 
 	// 定数バッファをマッピング
 	_hr = m_spComputeResource->Map(0, nullptr, reinterpret_cast<void**>(&m_pComputeMappedData));

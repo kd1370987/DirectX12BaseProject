@@ -14,6 +14,9 @@ namespace Engine::D3D12
 {
 	void D3D12Wrapper::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
 	{
+		// デバッグ機能を有効化(終了時のライブオブジェクトレポート等で使用)
+		m_isDebag = true;
+
 		// GPUリソース初期化
 		CreateDxgiFactory();	// ファクトリ作成
 		FindAdapter();			// アダプター検索	
@@ -60,7 +63,22 @@ namespace Engine::D3D12
 		m_cpSwapChain.Reset();
 		m_cpAdapter.Reset();
 		m_cpFactory.Reset();
-		
+
+		// リーク調査 : デバイスがまだ生きているこのタイミングで
+		// ID3D12DebugDevice のレポートを出す。
+		// DXGI の ReportLiveObjects と違い、こちらは SetName で付けた名前を表示するので、
+		// どのリソースが残っているか特定できる。
+		// D3D12_RLDO_IGNORE_INTERNAL を付けて、ランタイム内部の参照だけのオブジェクトは除外する。
+		if (m_isDebag)
+		{
+			ComPtr<ID3D12DebugDevice> _debDev;
+			if (SUCCEEDED(m_cpDevice->QueryInterface(IID_PPV_ARGS(&_debDev))))
+			{
+				_debDev->ReportLiveDeviceObjects(
+					D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+			}
+		}
+
 		// 最後にデバイスを解放
 		m_cpDevice.Reset();
 	}

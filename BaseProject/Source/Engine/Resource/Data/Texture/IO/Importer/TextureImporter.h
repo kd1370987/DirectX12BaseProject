@@ -12,7 +12,11 @@ namespace Engine::Resource
 	// 更新用バッファ
 	struct UploadBuffer
 	{
-		ID3D12Resource* pResource = nullptr;
+		// ComPtr で保持すること。
+		// 生ポインタにすると CreateCommittedResource が付けた参照カウント1が
+		// 誰にも解放されず、アップロードバッファが永久にリークする
+		// (終了時の LIVE_RESOURCE として大量に残る原因だった)。
+		ComPtr<ID3D12Resource> pResource = nullptr;
 
 		UINT subresourceCount = 0;
 

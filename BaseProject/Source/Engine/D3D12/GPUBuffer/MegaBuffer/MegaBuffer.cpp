@@ -64,6 +64,7 @@ namespace Engine::D3D12
 			nullptr,
 			IID_PPV_ARGS(&_cpLoadBuffer)
 		);
+		if (_cpLoadBuffer) _cpLoadBuffer->SetName(L"Mega_UploadBuffer");	// リーク調査用
 
 		// データの書き込み
 		void* _pMapped = nullptr;

@@ -16,7 +16,7 @@ namespace Engine::Resource
 		{
 			// 参照元
 			D3D12_TEXTURE_COPY_LOCATION _src = {};
-			_src.pResource = a_uploadBuffer.pResource;
+			_src.pResource = a_uploadBuffer.pResource.Get();
 			_src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 			_src.PlacedFootprint = a_uploadBuffer.layoutVec[_i];
 
@@ -101,6 +101,7 @@ namespace Engine::Resource
 			assert(0 && "リソース生成に失敗中間バッファ");
 			return Engine::Resource::UploadBuffer();
 		}
+		if (_uploadBuffer.pResource) _uploadBuffer.pResource->SetName(L"Texture_UploadBuffer");	// リーク調査用
 
 		return _uploadBuffer;
 	}
