@@ -342,6 +342,7 @@
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiHelper\ImGuiHelper.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\Log\Log.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\Watch\Watch.cpp" />
+    <ClCompile Include="Source\Engine\Editor\EditorCamera\EditorCamera.cpp" />
     <ClCompile Include="Source\Engine\Editor\PanelManager\PanelManager.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.cpp" />
@@ -678,6 +679,7 @@
     <ClInclude Include="Source\Engine\Editor\ImGui\Log\Log.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\OperationBox\OperationBox.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\Watch\Watch.h" />
+    <ClInclude Include="Source\Engine\Editor\EditorCamera\EditorCamera.h" />
     <ClInclude Include="Source\Engine\Editor\PanelManager\EditorContext.h" />
     <ClInclude Include="Source\Engine\Editor\PanelManager\PanelManager.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.h" />

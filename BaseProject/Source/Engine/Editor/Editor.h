@@ -92,6 +92,11 @@ namespace Engine::Editor
 		//=======================================================================
 		void RegisterEditFunc(std::function<void()> a_func);
 
+		//=======================================================================
+		// エディター用フリーカメラ
+		//=======================================================================
+		EditorCamera* RefEditorCamera() { return m_upEditorCamera.get(); }
+
 	private:
 
 		// ImGuiコンテキスト
@@ -105,6 +110,9 @@ namespace Engine::Editor
 
 		// 計測機
 		std::unique_ptr<WatchView> m_upWatchView = nullptr;
+
+		// エディター用フリーカメラ
+		std::unique_ptr<EditorCamera> m_upEditorCamera = nullptr;
 
 		// エディター用関数登録
 		std::vector<std::function<void()>> m_editFuncVec = {};

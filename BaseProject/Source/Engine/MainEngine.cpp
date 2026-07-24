@@ -22,6 +22,8 @@
 
 #include "Option/OptionManager.h"
 
+#include "Editor/EditorCamera/EditorCamera.h"
+
 
 namespace Engine
 {
@@ -320,8 +322,25 @@ namespace Engine
 	void MainEngine::ExcuteDrawCmd()
 	{
 		// エディターモードならフリーカメラを割り込ませる
+		// (実際の上書きは GraphicsEngine::Excute() 内、ECS側のカメラ設定が終わった後)
+		bool _isOverride = false;
 		if (m_config.GetRuntimeConfig().appMode == EAppMode::Editor)
 		{
+			auto* _pEditorCam = Editor::MainEditor::Instance().RefEditorCamera();
+			if (_pEditorCam && _pEditorCam->IsEnable())
+			{
+				m_upGraphicsEngine->SetCameraOverride(
+					_pEditorCam->GetWorldMatrix(),
+					_pEditorCam->GetProjMatrix()
+				);
+				_isOverride = true;
+			}
+		}
+
+		// ゲームモード、またはフリーカメラ無効ならECSのカメラをそのまま使う
+		if (!_isOverride)
+		{
+			m_upGraphicsEngine->ClearCameraOverride();
 		}
 
 		m_upGraphicsEngine->Excute();

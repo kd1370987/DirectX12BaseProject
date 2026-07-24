@@ -212,6 +212,15 @@ namespace Engine::Graphics
 		// レンダーコンテキストにコマンドリストをセット
 		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(_pCmdList);
 
+		// カメラの割り込み(エディターカメラなど)
+		// ECS側のカメラ設定は上の GameManager::Draw() 内(PreDrawフェーズ)で行われるため、
+		// 上書きするなら必ずこの位置(GPUデータ作成の直前)で行うこと。
+		if (m_isCameraOverride)
+		{
+			SetCameraMat(m_cameraOverrideWorldMat);
+			SetProjMat(m_cameraOverrideProjMat);
+		}
+
 		// GPU用カメラデータを作成
 		CreateGPUCameraData();
 
@@ -300,6 +309,16 @@ namespace Engine::Graphics
 	{
 		m_cbCamera.projMat = a_projMat;
 		m_cbCamera.projInvMat = a_projMat.Invert();
+	}
+	void GraphicsEngine::SetCameraOverride(const DXSM::Matrix& a_worldMat, const DXSM::Matrix& a_projMat)
+	{
+		m_isCameraOverride = true;
+		m_cameraOverrideWorldMat = a_worldMat;
+		m_cameraOverrideProjMat = a_projMat;
+	}
+	void GraphicsEngine::ClearCameraOverride()
+	{
+		m_isCameraOverride = false;
 	}
 	const CameraData& GraphicsEngine::GetCameraData() const
 	{

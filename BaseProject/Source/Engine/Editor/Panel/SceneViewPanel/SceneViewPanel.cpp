@@ -8,6 +8,7 @@
 #include "../../../Scene/SceneManager/SceneManager.h"
 
 #include "../../../ECS/World/World.h"
+#include "../../EditorCamera/EditorCamera.h"
 #include "../../../../Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../Application/Components/Transform/WorldMatrixComponent.h"
 namespace Engine::Editor
@@ -47,6 +48,13 @@ namespace Engine::Editor
 		// テクスチャの描画 : 実際に描画した範囲も取得
 		auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
 		ImVec2 _actualRenderSize = Helper::DrawSRVView(_gpuHandle, static_cast<UINT>(1980), static_cast<UINT>(1080));
+
+		// フリーカメラへホバー状態を渡す。
+		// 右クリックの開始位置がこのパネル内の時だけカメラ操作を始めるための判定。
+		if (auto* _pEditorCam = MainEditor::Instance().RefEditorCamera())
+		{
+			_pEditorCam->SetViewportHovered(ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows));
+		}
 
 		// ギズモ描画
 		GuizmoDraw(_windowPos, _actualRenderSize, a_editContext.entity, _pWorld);
@@ -177,6 +185,21 @@ namespace Engine::Editor
 
 				ImGui::EndMenu();
 			}
+
+			// エディター用フリーカメラの設定
+			if (ImGui::BeginMenu("Camera"))
+			{
+				if (auto* _pEditorCam = MainEditor::Instance().RefEditorCamera())
+				{
+					_pEditorCam->DrawEditUI();
+				}
+				else
+				{
+					ImGui::TextDisabled("EditorCamera is null");
+				}
+				ImGui::EndMenu();
+			}
+
 			ImGui::EndMenuBar();
 		}
 

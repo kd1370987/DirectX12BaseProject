@@ -128,6 +128,13 @@ namespace Engine::Graphics
 		const CameraData& GetCameraData() const;
 		const CameraData& GetGPUCameraData() const;
 		const CameraData& GetCPUCameraData() const;
+
+		// カメラの割り込み(エディターカメラなど)
+		// ECS側のカメラ設定は Excute() 内の Draw フェーズ(PreDraw)で行われるため、
+		// 単に SetCameraMat を先に呼んでも上書きされてしまう。
+		// ここに積んでおくと、ECS側の設定が終わった後・GPUデータ作成の直前に適用される。
+		void SetCameraOverride(const DXSM::Matrix& a_worldMat, const DXSM::Matrix& a_projMat);
+		void ClearCameraOverride();
 		// 環境データ
 		void SetAmbientData(const AmbientData& a_data);
 		const AmbientData& GetAmbientData() const;
@@ -281,6 +288,11 @@ namespace Engine::Graphics
 		// カメラデータ
 		CameraData m_cbCamera = {};
 		CameraData m_cbGPUCamera = {};
+
+		// カメラの割り込み用
+		bool m_isCameraOverride = false;
+		DXSM::Matrix m_cameraOverrideWorldMat = DXSM::Matrix::Identity;
+		DXSM::Matrix m_cameraOverrideProjMat = DXSM::Matrix::Identity;
 		DXSM::Matrix m_prevViewMat = {};
 		DXSM::Matrix m_prevProjMat = {};
 		DXSM::Matrix m_prevNonJitteredViewProj = {};

@@ -27,8 +27,10 @@ namespace Engine::Graphics
 		uint8_t _staticIndex = RenderPassNode::kInvalidPSOIndex;
 		auto& _sPso = _rpBuilder.CreatePSODesc("FullScreenPass", _staticIndex);
 
-		// SetVS には InputLayout の指定が必要なため StaticLayout を渡す
-		auto* _pBlob = _rpBuilder.SetVS(_sPso, "Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso", D3D12::Input::StaticLayout);
+		// このVSは SV_VertexID だけで三角形を生成し、頂点バッファを読まない。
+		// StaticLayout を宣言すると IA が頂点バッファを要求し、直前のパスが残したバッファを
+		// 読もうとして #210(頂点バッファが小さすぎる)警告が出るため、空レイアウトを使う。
+		auto* _pBlob = _rpBuilder.SetVS(_sPso, "Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso", D3D12::Input::gEmptyLayout);
 		_rpBuilder.SetPS(_sPso, "Asset/Shader/Source/QuadRenderingShader/QuadRenderingPS.cso");
 
 		_rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);

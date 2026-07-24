@@ -70,6 +70,17 @@ namespace Engine::D3D12::Input
 		.pInputElementDescs = gParticleInputElement,
 		.NumElements = 2
 	};
+
+	// 空の入力レイアウト。
+	// 頂点バッファを読まず SV_VertexID / SV_InstanceID だけで頂点を生成する
+	// シェーダー(フルスクリーン描画・デバッグライン等)用。
+	// StaticLayout などを宣言してしまうと、IA が頂点バッファを要求し、
+	// 直前のパスが残したバッファ(例: パーティクルのクアッド)を読もうとして
+	// 「頂点バッファが小さすぎる(#210)」警告が大量に出るため、こちらを使う。
+	constexpr D3D12_INPUT_LAYOUT_DESC gEmptyLayout = {
+		.pInputElementDescs = nullptr,
+		.NumElements = 0
+	};
 }
 
 // ルートシグネチャ

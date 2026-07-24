@@ -19,6 +19,7 @@
 #include "../ECS/World/World.h"
 
 #include "PanelManager/PanelManager.h"
+#include "EditorCamera/EditorCamera.h"
 
 namespace Engine::Editor
 {
@@ -60,6 +61,13 @@ namespace Engine::Editor
 			m_upPanelManager->Init();
 		}
 
+		// エディター用フリーカメラ
+		if (!m_upEditorCamera)
+		{
+			m_upEditorCamera = std::make_unique<EditorCamera>();
+			m_upEditorCamera->Init();
+		}
+
 		m_editFuncVec.clear();
 
 		Debug::SetLogCallback(
@@ -78,6 +86,14 @@ namespace Engine::Editor
 	}
 	void MainEditor::Update(float a_dt)
 	{
+		// フリーカメラの更新。
+		// ここは ExcuteDrawCmd より前に呼ばれるので、この結果がそのフレームの描画に間に合う。
+		// 参照している ImGui の入力は前フレームの NewFrame 時点のもの
+		// (シーンビューのホバー状態も同じく前フレーム基準なので、ずれは生じない)。
+		if (m_upEditorCamera)
+		{
+			m_upEditorCamera->Update(a_dt);
+		}
 	}
 	void MainEditor::Draw(D3D12::GraphicsCommandList * a_pCmdList, UINT a_widht, UINT a_height)
 	{
@@ -220,8 +236,11 @@ namespace Engine::Editor
 		// Z軸方向に伸びるようにスケール
 		DXSM::Matrix _scaleMat = DXSM::Matrix::CreateScale(1.0f, 1.0f, _length);
 
-		// 向きと位置を適用
-		DXSM::Matrix _worldMat = DXSM::Matrix::CreateWorld(a_startPos, _dirNorm, _up);
+		// 向きと位置を適用。
+		// ラインメッシュはローカル +Z 方向に伸びているので、+Z を _dirNorm に向けたい。
+		// ただし CreateWorld は右手系で、渡した forward を反転して Z 軸に入れる(zaxis = -forward)。
+		// このエンジンは左手系なので、反転を打ち消すために -_dirNorm を渡す。
+		DXSM::Matrix _worldMat = DXSM::Matrix::CreateWorld(a_startPos, -_dirNorm, _up);
 
 		// データ作成
 		Graphics::DebugLineData _data = {};

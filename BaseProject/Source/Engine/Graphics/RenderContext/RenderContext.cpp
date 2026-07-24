@@ -856,13 +856,23 @@ namespace Engine::Graphics
 	void RenderContext::DrawPolygonInstancing(UINT a_count)
 	{
 		// ポリゴンの頂点、インデックスバッファをバインド
-		m_pCmdList->IASetVertexBuffers(0,1,&m_spQuadPolygon->GetVBView());
-		m_pCmdList->IASetIndexBuffer(&m_spQuadPolygon->GetIBView());
+		const D3D12_VERTEX_BUFFER_VIEW& _vbView = m_spQuadPolygon->GetVBView();
+		const D3D12_INDEX_BUFFER_VIEW& _ibView = m_spQuadPolygon->GetIBView();
+		m_pCmdList->IASetVertexBuffers(0,1,&_vbView);
+		m_pCmdList->IASetIndexBuffer(&_ibView);
+
+		// DrawIndexedInstanced の第1引数は「頂点数」ではなく「インデックス数」。
+		// 四角形は4頂点でも、2枚の三角形を張るのでインデックスは6個必要。
+		// ここに頂点数(4)を渡すとインデックスが4個しか消費されず、
+		// 三角形が1枚しか描かれない(四角形にならない)。
+		// マジックナンバーで6と書くとバッファ側と食い違うので、IBビューから実数を求める。
+		const UINT _indexByteSize = (_ibView.Format == DXGI_FORMAT_R16_UINT) ? 2u : 4u;
+		const UINT _indexCount = _ibView.SizeInBytes / _indexByteSize;
 
 		// GPUインスタンシング
 		m_pCmdList->DrawIndexedInstanced(
-			6,				// 頂点数
-			a_count,		// 描画するオブジェクト数
+			_indexCount,	// インデックス数(四角形なら6)
+			a_count,		// 描画するオブジェクト数(インスタンス数)
 			0,
 			0,
 			0
