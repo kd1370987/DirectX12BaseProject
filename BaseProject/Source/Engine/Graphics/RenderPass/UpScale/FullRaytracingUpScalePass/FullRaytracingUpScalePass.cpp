@@ -40,7 +40,8 @@ void Engine::Graphics::AddFullRaytracingUpScalePass(
 	_cpBuilder.BindSRV(3, "GBufferNormal");
 
 	// 出力用UAV
-	_cpBuilder.BindUAV(4, "FinalFullRay", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
+	// HDR : ライティングが読むGIもR16Fのまま渡す
+	_cpBuilder.BindUAV(4, "FinalFullRay", DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Clear, StoreOp::Store);
 
 	// PSO作成
 	_cpBuilder.ResolveAndCompile(a_pPSOManager);

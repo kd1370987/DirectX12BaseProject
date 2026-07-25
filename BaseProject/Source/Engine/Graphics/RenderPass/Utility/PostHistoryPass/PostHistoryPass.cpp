@@ -16,7 +16,8 @@ namespace Engine::Graphics
 		_node.phase = a_phase;
 		RGGlobalsPassBuilder _rpBuilder(&_node);
 
-		_rpBuilder.Copy("AfterTAAColor", "HistoryTAAColor", DXGI_FORMAT_R8G8B8A8_UNORM);
+		// HDR : コピー元AfterTAAColorがR16Fになったので、コピー先も揃える
+		_rpBuilder.Copy("AfterTAAColor", "HistoryTAAColor", DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 		a_pRegistry->RegisterPass(_node);
 	}

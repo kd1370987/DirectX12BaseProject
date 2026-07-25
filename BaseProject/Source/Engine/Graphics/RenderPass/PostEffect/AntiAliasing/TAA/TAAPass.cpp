@@ -60,7 +60,8 @@ namespace Engine::Graphics
 				.Add("GBufferNormal");
 
 			// 結果を書き込むUAV
-			_cpBuilder.BindUAV(1, _writeHistory, DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
+			// HDR : TAAはトーンマップ前のHDR色を扱うためR16Fで保持する
+			_cpBuilder.BindUAV(1, _writeHistory, DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Clear, StoreOp::Store);
 
 			// PSO作成
 			_cpBuilder.ResolveAndCompile(a_pPSOManager);
@@ -83,7 +84,8 @@ namespace Engine::Graphics
 			RGGlobalsPassBuilder _copyBuilder(&_copyNode);
 
 			_copyBuilder.SetFrameParity(_parity);
-			_copyBuilder.Copy(_writeHistory, _finalDst, DXGI_FORMAT_R8G8B8A8_UNORM);
+			// HDR : AfterTAAColor もR16F。最終のFullScreenPassがこれを読んでACESトーンマップ→R8バックバッファへ
+			_copyBuilder.Copy(_writeHistory, _finalDst, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 			a_pRegistry->RegisterPass(_copyNode);
 		}

@@ -56,7 +56,8 @@ namespace Engine::Graphics
 				.Add("PrevNormal");
 
 			// UAVへの書き込み
-			_cpBuilder.BindUAV(2, _writeHistory, DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store, 0.5f);
+			// HDR : GIは1.0を超えるためR16Fで蓄積する(R8だとここでHDRが潰れる)
+			_cpBuilder.BindUAV(2, _writeHistory, DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Clear, StoreOp::Store, 0.5f);
 
 			_cpBuilder.ResolveAndCompile(a_pPSOManager);
 
@@ -96,7 +97,8 @@ namespace Engine::Graphics
 			RGGlobalsPassBuilder _copyBuilder(&_copyNode);
 
 			_copyBuilder.SetFrameParity(_parity);
-			_copyBuilder.Copy(_writeHistory, _finalDst, DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::DontCare, 0.5f);
+			// HDR : DenoiseGI も履歴と同じR16Fで揃える
+			_copyBuilder.Copy(_writeHistory, _finalDst, DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Clear, StoreOp::DontCare, 0.5f);
 
 			a_pRegistry->RegisterPass(_copyNode);
 		}

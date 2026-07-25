@@ -36,7 +36,8 @@ namespace Engine::Graphics
 
 		// 依存関係構築
 		_rpBuilder.ReadDepth("Depth");
-		_rpBuilder.WriteRTV("AfterLighting", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Load, StoreOp::Store);
+		// HDR : AfterLighting はライティングと同じR16Fで揃える(フォーマット不一致はグラフが破綻する)
+		_rpBuilder.WriteRTV("AfterLighting", DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Load, StoreOp::Store);
 
 		// PSO構築
 		auto& _sPso = _rpBuilder.CreatePSODesc("ParticleDraw", _spPassData->staticIndex);

@@ -47,7 +47,8 @@ namespace Engine::Graphics
 			//.Add("RayShadow")
 			.Add("FinalFullRay");
 
-		_rpBuilder.BindUAV(3, "AfterLighting", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
+		// HDR : ライティング結果は1.0を超えるためR16Fで保持する(R8だとここで白飛びがクランプされる)
+		_rpBuilder.BindUAV(3, "AfterLighting", DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Clear, StoreOp::Store);
 
 		// コンパイル
 		_rpBuilder.ResolveAndCompile(a_pPSOManager);

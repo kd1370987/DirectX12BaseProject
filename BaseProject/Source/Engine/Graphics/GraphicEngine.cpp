@@ -139,7 +139,9 @@ namespace Engine::Graphics
 			"GIPreSpatialDenoisePass", "RayGI", "RayGIDenoised", 3, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 		AddGITemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
-		AddGISpatialDenoisePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
+		// GIは最後までHDRを保つため、スペースデノイズの出力(FinalGI)/中間バッファもR16Fにする
+		AddGISpatialDenoisePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort,
+			"GISpatialDenoisePass", "DenoiseGI", "FinalGI", 5, DXGI_FORMAT_R16G16B16A16_FLOAT);
 		AddFullRaytracingUpScalePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		// パーティクル
 		AddEmitParticlePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Particle);
