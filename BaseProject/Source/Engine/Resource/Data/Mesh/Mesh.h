@@ -99,6 +99,7 @@ namespace Engine::Resource
 		// データ取得
 		const std::vector<MeshVertexFloat>& GetVertexVec() const { return m_vertices; }
 		std::vector<MeshVertexFloat>& RefVertexVec(){ return m_vertices; }
+		const std::vector<MeshFace>& GetFaceVec() const { return m_face; }	// 面インデックス(描画メッシュの三角形)
 
 	private:
 

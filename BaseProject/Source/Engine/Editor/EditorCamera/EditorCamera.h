@@ -49,6 +49,9 @@ namespace Engine::Editor
 		// パラメーター調整用UI
 		void DrawEditUI();
 
+		// マウス座標からスクリーン上の近平面からレイを飛ばす用の設定を作成
+		Collision::RayInfo ScreenPointToRay(const DXSM::Vector2& a_mousePos,float a_maxDistance = 1000);
+
 	private:
 
 		// 現在の姿勢からクォータニオンを作る

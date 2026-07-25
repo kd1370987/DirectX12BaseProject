@@ -7,6 +7,10 @@ namespace Engine
 	{
 		class World;
 	}
+	namespace Collision
+	{
+		struct RayInfo;
+	}
 }
 
 
@@ -21,6 +25,13 @@ namespace Engine::Editor
 		void OnDrawImGui(EditorContext& a_editContext) override;
 		ImGuiWindowFlags GetFlags() const override { return ImGuiWindowFlags_MenuBar; }
 	private:
+
+		// シーンビュー上でのエンティティ選択
+		void SelectEntityForMouse(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const ImVec2& a_pos, const ImVec2& a_rect);
+
+		// レイと描画メッシュのAABBでエンティティをピッキングする(CollisionWorldは使わない)。
+		// 当たり判定を持たないエンティティも選択できるよう、描画メッシュから直接判定する。
+		Engine::ECS::Entity PickEntityByRay(Engine::ECS::World* a_pWorld, const Engine::Collision::RayInfo& a_ray);
 
 		// ギズモ
 		void GuizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, const ECS::Entity& a_currentSelectEntity, Engine::ECS::World* a_pWorld);

@@ -11,6 +11,19 @@
 #include "../../EditorCamera/EditorCamera.h"
 #include "../../../../Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../Application/Components/Transform/WorldMatrixComponent.h"
+
+// CollisionWorld は使わない。エディターでは当たり判定の有無に関わらず、
+// 描画メッシュのAABBに対して直接レイ判定してエンティティを選択する。
+#include "../../../Collision/CollisionCommon.h"
+#include "../../../Collision/NarrowPhase/TestAABB/TestAABB.h"
+
+#include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../Resource/Data/Model/Model.h"
+#include "../../../Resource/Data/Mesh/Mesh.h"
+#include "../../../../Application/Components/Resource/ModelComponent.h"
+
+#include "../../../Option/OptionManager.h"
+
 namespace Engine::Editor
 {
 	void Engine::Editor::SceneViewPanel::OnDrawImGui(EditorContext& a_editContext)
@@ -21,9 +34,6 @@ namespace Engine::Editor
 		// ワールド取得
 		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld || !_pWorld->IsInit()) return;
-
-		ImVec2 _windowPos = ImGui::GetCursorScreenPos(); // ウィンドウの左上（タブなどを除いた純粋な描画領域のスタート位置）
-		ImVec2 _windowSize = ImGui::GetContentRegionAvail(); // 残りのサイズ
 
 		// 現在の最終出力テクスチャを取得
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
@@ -47,7 +57,14 @@ namespace Engine::Editor
 
 		// テクスチャの描画 : 実際に描画した範囲も取得
 		auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
-		ImVec2 _actualRenderSize = Helper::DrawSRVView(_gpuHandle, static_cast<UINT>(1980), static_cast<UINT>(1080));
+		// 表示アスペクトは実解像度(カメラ/アンプロジェクトが使う windowWidth/Height)に合わせる。
+		// ここがずれるとスクリーン→ゲーム座標のスケールが X/Y で食い違い、ピッキングが横方向にずれる。
+		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		ImVec2 _actualRenderSize = Helper::DrawSRVView(
+			_gpuHandle,
+			static_cast<float>(_winOp.windowWidth),
+			static_cast<float>(_winOp.windowHeight));
+		ImVec2 _imageMin = ImGui::GetItemRectMin();   // 画像の実際の左上(スクリーン絶対座標)
 
 		// フリーカメラへホバー状態を渡す。
 		// 右クリックの開始位置がこのパネル内の時だけカメラ操作を始めるための判定。
@@ -56,8 +73,140 @@ namespace Engine::Editor
 			_pEditorCam->SetViewportHovered(ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows));
 		}
 
+		// シーンビュー上でエンティティをクリックした際に選択する
+		SelectEntityForMouse(a_editContext,_pWorld, _imageMin,_actualRenderSize);
+
 		// ギズモ描画
-		GuizmoDraw(_windowPos, _actualRenderSize, a_editContext.entity, _pWorld);
+		GuizmoDraw(_imageMin, _actualRenderSize, a_editContext.entity, _pWorld);
+	}
+	void SceneViewPanel::SelectEntityForMouse(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const ImVec2& a_pos, const ImVec2& a_rect)
+	{
+		// カメラ・ワールドがなければ機能しない
+		if (!a_editContext.pEditorCamera) return;
+		if (!a_pWorld) return;
+
+		// このパネル上にカーソルがあり、左クリックした瞬間だけ判定する
+		// (毎フレーム判定すると選択が固定されて解除できなくなるため)
+		if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows)) return;
+		if (!ImGui::IsMouseClicked(ImGuiMouseButton_Left)) return;
+
+		// ギズモ操作中/ギズモ上のクリックは移動操作なので選択には使わない
+		if (ImGuizmo::IsUsing() || ImGuizmo::IsOver()) return;
+
+		// スクリーン情報取得
+		const auto& _windowOp = Option::OptionManager::GetInstance().GetWindowOption();
+
+		// 画像左上を基準にしたローカルマウス座標
+		ImVec2 _mousePos = ImGui::GetMousePos();
+		DXSM::Vector2 _localMouse = {};
+		_localMouse.x = _mousePos.x - a_pos.x;
+		_localMouse.y = _mousePos.y - a_pos.y;
+
+		// 表示サイズ → レンダーターゲット解像度へスケール
+		if (a_rect.x <= 0.0f || a_rect.y <= 0.0f) return;
+		DXSM::Vector2 _gameMouse = {};
+		_gameMouse.x = _localMouse.x * (static_cast<float>(_windowOp.windowWidth)  / a_rect.x);
+		_gameMouse.y = _localMouse.y * (static_cast<float>(_windowOp.windowHeight) / a_rect.y);
+
+		// スクリーン座標からワールド空間のレイを作成
+		Collision::RayInfo _ray = a_editContext.pEditorCamera->ScreenPointToRay(_gameMouse);
+
+		// CollisionWorld を使わず、描画エンティティを直接ピッキングする
+		Engine::ECS::Entity _picked = PickEntityByRay(a_pWorld, _ray);
+		if (_picked != Engine::ECS::Limits::INVALID_ENTITY)
+		{
+			a_editContext.entity = _picked;
+		}
+	}
+	Engine::ECS::Entity SceneViewPanel::PickEntityByRay(Engine::ECS::World* a_pWorld, const Engine::Collision::RayInfo& a_ray)
+	{
+		Engine::ECS::Entity _picked = Engine::ECS::Limits::INVALID_ENTITY;
+		if (!a_pWorld) return _picked;
+
+		// レイ方向を正規化しておく(AABB判定は単位ベクトルを前提にしている)
+		Collision::RayInfo _ray = a_ray;
+		{
+			DXSM::Vector3 _dir(_ray.direction);
+			if (_dir.LengthSquared() < 1e-12f) return _picked;
+			_dir.Normalize();
+			_ray.direction = _dir;
+		}
+
+		// これまでに見つかった最も手前のヒット距離
+		float _closest = _ray.maxDistance;
+
+		// ModelComponent と WorldMatrixComponent を持つ全エンティティを走査し、
+		// AABBで枝刈りしたうえで描画メッシュの三角形とレイを厳密判定する。
+		// CollisionWorld を介さないので、当たり判定を持たないエンティティも選択できる。
+		a_pWorld->ForEach<ModelComponent, WorldMatrixComponent>(
+			[&](Engine::ECS::ArchetypeChunk* a_pChunk, uint32_t a_count,
+				ModelComponent* a_models, WorldMatrixComponent* a_worlds)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					const auto* _pModel = Resource::ResourceManager::Instance().Get(a_models[_i].handle);
+					if (!_pModel) continue;
+
+					DirectX::XMMATRIX _instWorld = DirectX::XMLoadFloat4x4(&a_worlds[_i].worldMat);
+
+					// 描画メッシュノードごとに判定
+					for (int _nodeIdx : _pModel->GetDrawNodeVec())
+					{
+						const Engine::Resource::Node& _node = _pModel->GetOriginalNodeVec()[_nodeIdx];
+						DirectX::XMMATRIX _nodeGlobal = DirectX::XMLoadFloat4x4(&_node.worldTransform);
+						DirectX::XMMATRIX _meshWorld = DirectX::XMMatrixMultiply(_nodeGlobal, _instWorld);
+
+						for (int _meshIdx : _node.meshIndices)
+						{
+							const auto& _meshHandle = _pModel->GetMeshHandles()[_meshIdx];
+							const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
+							if (!_pMesh) continue;
+
+							// --- ブロードフェーズ ---
+							// まずワールドAABBで大まかに枝刈りし、無関係なメッシュの三角形走査を省く。
+							DirectX::BoundingBox _worldBox;
+							_pMesh->GetMetaData().aabb.Transform(_worldBox, _meshWorld);
+							float _boxDist = 0.0f;
+							if (!Collision::NarrowPhase::TestAABB(_ray, _worldBox, _boxDist)) continue;
+							if (_boxDist > _closest) continue;	// 既に手前で当たっていれば不要
+
+							// --- ナローフェーズ ---
+							// 描画メッシュの三角形とレイを厳密判定する(当たり判定メッシュは使わない)。
+							// 頂点をワールドへ変換し、ワールド空間のレイでそのまま交差を取る。
+							const auto& _verts = _pMesh->GetVertexVec();
+							const auto& _faces = _pMesh->GetFaceVec();
+							const size_t _vertCount = _verts.size();
+
+							DirectX::XMVECTOR _ro = DirectX::XMLoadFloat3(&_ray.origin);
+							DirectX::XMVECTOR _rd = DirectX::XMLoadFloat3(&_ray.direction);	// 正規化済み
+
+							for (const auto& _f : _faces)
+							{
+								// 不正インデックス保護
+								if (_f.idx[0] >= _vertCount || _f.idx[1] >= _vertCount || _f.idx[2] >= _vertCount) continue;
+
+								DirectX::XMVECTOR _p0 = DirectX::XMVector3TransformCoord(DirectX::XMLoadFloat3(&_verts[_f.idx[0]].pos), _meshWorld);
+								DirectX::XMVECTOR _p1 = DirectX::XMVector3TransformCoord(DirectX::XMLoadFloat3(&_verts[_f.idx[1]].pos), _meshWorld);
+								DirectX::XMVECTOR _p2 = DirectX::XMVector3TransformCoord(DirectX::XMLoadFloat3(&_verts[_f.idx[2]].pos), _meshWorld);
+
+								float _t = 0.0f;
+								if (DirectX::TriangleTests::Intersects(_ro, _rd, _p0, _p1, _p2, _t))
+								{
+									// レイ方向は単位ベクトルなので _t はワールド距離
+									if (_t >= 0.0f && _t < _closest)
+									{
+										_closest = _t;
+										_picked = a_pChunk->entityData[_i];
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		);
+
+		return _picked;
 	}
 	void SceneViewPanel::GuizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, const ECS::Entity& a_currentSelectEntity, Engine::ECS::World* a_pWorld)
 	{
@@ -158,7 +307,7 @@ namespace Engine::Editor
 				if (ImGui::MenuItem("Create new scene"))
 				{
 					// TODO: 新規シーン生成処理、m_currentSceneGUIDのクリアなど
-					ENGINE_LOG("新規シーンを作成しました。");
+					ENGINE_LOG("新規シーンを作成する処理はまだありません。");
 				}
 
 				ImGui::Separator();

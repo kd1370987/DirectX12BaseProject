@@ -1,4 +1,4 @@
-#include "EditorCamera.h"
+﻿#include "EditorCamera.h"
 
 #include "../../Option/OptionManager.h"
 
@@ -167,5 +167,48 @@ namespace Engine::Editor
 			m_pitch = 0.0f;
 			m_moveSpeed = 10.0f;
 		}
+	}
+	Collision::RayInfo EditorCamera::ScreenPointToRay(const DXSM::Vector2& a_mousePos, float a_maxDistance)
+	{
+		// スクリーン情報取得
+		const auto& _windowOp = Option::OptionManager::GetInstance().GetWindowOption();
+
+		// 近平面上の位置を取得
+		DXSM::Vector3 _nearPos = DirectX::XMVector3Unproject(
+			DirectX::XMVectorSet(a_mousePos.x, a_mousePos.y, 0.0f, 1.0f),
+			0,
+			0,
+			static_cast<float>(_windowOp.windowWidth),
+			static_cast<float>(_windowOp.windowHeight),
+			0.0f,
+			1.0f,
+			m_projMat,
+			m_worldMat.Invert(),
+			DXSM::Matrix::Identity
+		);
+
+		// 前方の座標を取得
+		DXSM::Vector3 _farPos = DirectX::XMVector3Unproject(
+			DirectX::XMVectorSet(a_mousePos.x, a_mousePos.y, 1.0f, 1.0f),
+			0,
+			0,
+			static_cast<float>(_windowOp.windowWidth),
+			static_cast<float>(_windowOp.windowHeight),
+			0.0f,
+			1.0f,
+			m_projMat,
+			m_worldMat.Invert(),
+			DXSM::Matrix::Identity
+		);
+
+		// レイの射出方向を取得
+		DXSM::Vector3 _dir = _farPos - _nearPos;
+
+		Collision::RayInfo _rayInfo = {};
+		_rayInfo.origin = _nearPos;
+		_rayInfo.direction = _dir;
+		_rayInfo.maxDistance = a_maxDistance;
+
+		return _rayInfo;
 	}
 }
