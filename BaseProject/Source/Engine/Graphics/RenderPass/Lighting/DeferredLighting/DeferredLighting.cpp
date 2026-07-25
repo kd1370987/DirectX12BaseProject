@@ -43,7 +43,8 @@ namespace Engine::Graphics
 			.Add("GBufferMaterial")
 			.Add("GBufferEmissiv")
 			.Add("Depth")
-			.Add("AfterDLShadowTempAccumu")
+			.Add("ShadowDenoised")	// テンポラル→スペースデノイズ後の影
+			//.Add("RayShadow")
 			.Add("FinalFullRay");
 
 		_rpBuilder.BindUAV(3, "AfterLighting", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);

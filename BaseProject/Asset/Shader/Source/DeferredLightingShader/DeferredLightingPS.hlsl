@@ -65,14 +65,17 @@ float4 PSMain(VSOutput a_in) : SV_Target
 	// 最終的な拡散反射光を計算
 	float3 _diffuse = _albedo * _diffuseFromFresnel * _lambertDiffuse;
 
-	// Cook-Torranceモデルを利用した鏡面反射を計算
-	float _spec = CookTorranceSpecular(
+	// Cook-Torranceモデルの鏡面反射BRDF( D*F*G / (4*NdotL*NdotV) )を計算
+	float _specTerm = CookTorranceSpecular(
 		_L,
 		_V,
 		_normal,
 		_metallic,
 		_roughness
 	);
+
+	// レンダリング方程式の cosθ(=NdotL) を掛ける(抜けると明暗境界で発散して側面にリングが出る)
+	float3 _spec = _specTerm * _NdotL;
 	_spec *= g_ambient.DL_Color;
 	_spec *= _shadow;
 

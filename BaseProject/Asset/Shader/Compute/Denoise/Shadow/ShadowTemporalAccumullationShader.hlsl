@@ -1,11 +1,14 @@
 
 #include "../../../Source/CalcNormal.hlsli"
 #include "../../../Source/RootSignatureLayout.hlsli"
+#include "../../../Common/CB/CBCamera.hlsli"		// カメラCB(b0) : ビュー空間復元用
 
 // ルートシグネチャデータ
+// b0 = カメラCB(RS_CAMERA_CB) / b1 = デノイズオプション
 #define SHADOW_TEMPORALACCUMULATION_ROOT_SIG \
 "RootFlags(0), " \
-"CBV(b0),"\
+RS_CAMERA_CB ","\
+"CBV(b1),"\
 "DescriptorTable(SRV(t0, numDescriptors=7)),"\
 "DescriptorTable(UAV(u0, numDescriptors=1)),"\
 RS_STATIC_SAMPLER
@@ -13,13 +16,21 @@ RS_STATIC_SAMPLER
 // ブレンド比率などのオプション
 struct ShadowTAOption
 {
-	float phiDepth;
-	float phiNormal;
+	float phiDepth;		// 位置差の許容量(ビュー深度に対する相対値)
+	float phiNormal;	// 法線一致の下限(dotがこれ未満なら履歴を破棄)
 	float blendRate;
 };
-cbuffer CBShadowTAOption : register(b0)
+cbuffer CBShadowTAOption : register(b1)
 {
 	ShadowTAOption g_option;
+}
+
+// UV と デバイス深度からビュー空間座標を復元する
+float3 ReconstructViewPos(float2 a_uv, float a_depth)
+{
+	float4 _clip = float4(a_uv.x * 2.0f - 1.0f, 1.0f - a_uv.y * 2.0f, a_depth, 1.0f);
+	float4 _view = mul(_clip, g_camera.invProj);
+	return _view.xyz / _view.w;
 }
 
 // 入力
@@ -121,10 +132,16 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 		return;
 	}
 
-	// 過去の履歴をバイリニアサンプリング
+	// 過去の履歴はサブピクセル精度のためバイリニアで取得する
 	float4 _historyShadow = g_historyShadowTex.SampleLevel(g_smp, _prevUV, 0);
-	float3 _prevNormal = DecsodeNormal(g_prevNormalTex.SampleLevel(g_smp, _prevUV, 0).rg);
-	float _prevDepth = g_prevDepthTex.SampleLevel(g_smp, _prevUV, 0).r;
+
+	// ---- 棄却判定に使う過去深度/法線はポイントサンプルする ----
+	// バイリニアだとエッジで前景と背景の深度/法線が混ざり、
+	// ディスオクルージョン判定が「一致寄り」に引っ張られてすり抜ける(=ゴーストの一因)。
+	int2 _prevCoord = int2(_prevUV * float2(_width, _height));
+	_prevCoord = clamp(_prevCoord, int2(0, 0), int2(_width - 1, _height - 1));
+	float3 _prevNormal = DecsodeNormal(g_prevNormalTex.Load(int3(_prevCoord, 0)).rg);
+	float _prevDepth = g_prevDepthTex.Load(int3(_prevCoord, 0)).r;
 
 	// 統計的なクランプで履歴を現在の分布内に収める(Variance Clipping)
 	_historyShadow.rgb = clamp(_historyShadow.rgb, _minColor, _maxColor);
@@ -140,9 +157,13 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 		_isValidHistory = false;
 	}
 
-	// 深度が違いすぎる場合は履歴を捨てる
-	// いったん深度値で比較。ワールド座標での比較に変更予定
-	if (abs(_currentDepth - _prevDepth) > g_option.phiDepth)
+	// 位置(ビュー空間)がずれすぎる場合は別サーフェスとみなして履歴を捨てる。
+	// 生の非線形デバイス深度の単純比較は距離によって精度が偏り、輪郭ですり抜けるため、
+	// ビュー空間座標を復元して距離で比較し、深度に対する相対しきい値で判定する。
+	float3 _curViewPos  = ReconstructViewPos(_uv, _currentDepth);
+	float3 _prevViewPos = ReconstructViewPos(_prevUV, _prevDepth);
+	float _posDist = length(_curViewPos - _prevViewPos);
+	if (_posDist > g_option.phiDepth * max(abs(_curViewPos.z), 1e-3f))
 	{
 		_isValidHistory = false;
 	}

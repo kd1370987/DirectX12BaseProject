@@ -111,7 +111,13 @@ namespace Engine::Graphics
 		AddFullScreenPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
 		//AddFullRaytracingPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 
-		AddRaytracingShadowPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Shadow);
+		// 影レイトレは GBuffer の深度と法線からピクセル位置・裏面判定を復元するため、
+		// 必ず GBufferPass(Geometry) より後で実行する必要がある。
+		// Shadow フェーズ(=1) は Geometry フェーズ(=2) より前に走るため、以前は
+		// 「今フレームの深度 + 前フレームの法線」で影を計算してしまい、カメラ移動時に
+		// 輪郭で裏面カリング/バイアスが誤爆して黒いゴーストが出ていた。
+		// GI と同じ Raytracing フェーズ(=3, Geometry の後)へ移動して現在フレームの法線を読む。
+		AddRaytracingShadowPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Raytracing);
 		AddRaytracingGIPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Raytracing);
 		AddDeferredLighting(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Lighting);
 		AddGBufferHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
@@ -121,6 +127,16 @@ namespace Engine::Graphics
 		AddTAAPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 
 		AddShadowTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
+		// 影はテンポラルのみだと履歴依存が強くゴーストが出るため、蓄積後にスペースデノイズをかける。
+		// NotSort は登録順で実行されるので、必ずテンポラルの後に登録すること。
+		AddShadowSpatialDenoisePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
+
+		// テンポラルデノイズ前に生のRayGIへ一度スペースデノイズをかける(プリデノイズ)。
+		// NotSort は登録順で実行されるため、必ずテンポラルパスより前に登録すること。
+		// RayGI は R16G16B16A16_FLOAT(HDR) なので、出力も同フォーマットにしてレンジを潰さない。
+		AddGISpatialDenoisePass(
+			m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort,
+			"GIPreSpatialDenoisePass", "RayGI", "RayGIDenoised", 3, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 		AddGITemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		AddGISpatialDenoisePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);

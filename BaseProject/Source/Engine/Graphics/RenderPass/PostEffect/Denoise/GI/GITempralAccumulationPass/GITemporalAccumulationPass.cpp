@@ -45,8 +45,9 @@ namespace Engine::Graphics
 			_cpBuilder.SetFrameParity(_parity);
 
 			// 依存関係とバインドの宣言（宣言順 = t0～t6）
+			// t0 は生の RayGI ではなく、テンポラル前に一度スペースデノイズをかけた RayGIDenoised を読む
 			_cpBuilder.SrvTable(1)
-				.Add("RayGI")
+				.Add("RayGIDenoised")
 				.Add("GBufferVelocity")
 				.Add(_readHistory)
 				.Add("Depth")

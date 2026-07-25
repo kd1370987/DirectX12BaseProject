@@ -13,14 +13,25 @@
 
 namespace Engine::Graphics
 {
-	void AddGISpatialDenoisePass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
+	void AddGISpatialDenoisePass(
+		D3D12::PipelineStateManager* a_pPSOManager,
+		RenderPassRegistry* a_pRegistry,
+		const EDrawPhase& a_phase,
+		const std::string& a_passName,
+		const std::string& a_inputRes,
+		const std::string& a_outputRes,
+		int a_passCount,
+		DXGI_FORMAT a_format)
 	{
+		if (a_passCount <= 0) return;
+
 		const std::string _shaderPath = "Asset/Shader/Compute/Denoise/GI/GISpatialDenoiseShader.cso";
 
 		// PSO共通化のため先にルートシグネチャ設定
 		a_pPSOManager->Request(_shaderPath);
 
 		// ダミービルダーを使ってPSOを一度のみ作成（全ステップで使い回すため）
+		// ※PSO/ルートシグネチャはハッシュでキャッシュされるので、本関数を複数回呼んでも重複生成されない
 		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 		RenderPassNode _dummyNode = {};
 		RGComputePassBuilder _psoBuilder(&_dummyNode);
@@ -29,47 +40,36 @@ namespace Engine::Graphics
 		_psoBuilder.ResolveAndCompile(a_pPSOManager);
 
 		// ピンポン用のリソース名設定
-		const std::string _initialSrc = "DenoiseGI";
-		const std::string _tempA = "SpatialTemp_A";
-		const std::string _tempB = "SpatialTemp_B";
-		const std::string _finalDst = "FinalGI";
+		// 中間バッファ名もパス名から生成し、本関数を複数回登録しても衝突しないようにする
+		const std::string _initialSrc = a_inputRes;
+		const std::string _tempA = a_passName + "_Temp_A";
+		const std::string _tempB = a_passName + "_Temp_B";
+		const std::string _finalDst = a_outputRes;
 
-		const int _passCount = 5;
+		const int _passCount = a_passCount;
 
 		// ======================================================================
 		// ループでパスを複数回登録（AとBをピンポンさせる）
 		// ======================================================================
 		for (int _i = 0; _i < _passCount; ++_i)
 		{
-			// ステップサイズの計算 (1, 2, 4, 8, 16)
+			// ステップサイズの計算 (1, 2, 4, 8, 16, ...)
 			const int _stepSize = 1 << _i;
 
-			// 入出力をピンポンさせるルーティング
-			std::string _readGI;
-			std::string _writeGI;
+			const bool _isFirst = (_i == 0);
+			const bool _isLast = (_i == _passCount - 1);
 
-			if (_i == 0)
-			{
-				// 初回
-				_readGI = _initialSrc;
-				_writeGI = _tempA;
-			}
-			else if (_i == _passCount - 1)
-			{
-				// 最終回
-				_readGI = (_i % 2 != 0) ? _tempA : _tempB;
-				_writeGI = _finalDst;
-			}
-			else
-			{
-				// 中間パス
-				_readGI = (_i % 2 != 0) ? _tempA : _tempB;
-				_writeGI = (_i % 2 != 0) ? _tempB : _tempA;
-			}
+			// 入出力をピンポンさせるルーティング。
+			// 1パスのみ(_passCount==1)の場合は入力→出力へ直結する。
+			//   初回      : 入力から読む
+			//   それ以外  : 直前パスが書いた中間バッファ(iが奇数→A / 偶数→B)から読む
+			//   最終回    : 出力へ書く / それ以外は中間バッファ(iが偶数→A / 奇数→B)へ書く
+			const std::string _readGI = _isFirst ? _initialSrc : (((_i - 1) % 2 == 0) ? _tempA : _tempB);
+			const std::string _writeGI = _isLast ? _finalDst : ((_i % 2 == 0) ? _tempA : _tempB);
 
 			// ノード作成
 			RenderPassNode _node = {};
-			_node.name = "GISpatialDenoisePass_Step" + std::to_string(_stepSize);
+			_node.name = a_passName + "_Step" + std::to_string(_stepSize);
 			_node.phase = a_phase;
 			RGComputePassBuilder _cpBuilder(&_node);
 
@@ -86,7 +86,7 @@ namespace Engine::Graphics
 				.Add("GBufferNormal");
 
 			// 中間バッファは毎パス上書きする
-			_cpBuilder.BindUAV(2, _writeGI, DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Load, StoreOp::Store, 0.5f);
+			_cpBuilder.BindUAV(2, _writeGI, a_format, LoadOp::Load, StoreOp::Store, 0.5f);
 
 			// ==================================================================
 			// 実行関数 : ステップサイズ由来の定数バッファとディスパッチのみ

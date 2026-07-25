@@ -42,7 +42,8 @@ namespace Engine::Graphics
 			_cpBuilder.SetFrameParity(_parity);
 
 			// 依存関係とバインドの宣言（宣言順 = t0～t6）
-			_cpBuilder.SrvTable(1)
+			// ルートパラメータ : 0=カメラCB(b0) / 1=オプションCB(b1) / 2=SRVテーブル / 3=UAVテーブル
+			_cpBuilder.SrvTable(2)
 				.Add("RayShadow")
 				.Add("GBufferVelocity")
 				.Add(_readHistory)
@@ -51,7 +52,7 @@ namespace Engine::Graphics
 				.Add("PrevDepth")
 				.Add("PrevNormal");
 
-			_cpBuilder.BindUAV(2, _writeHistory, DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
+			_cpBuilder.BindUAV(3, _writeHistory, DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::Clear, StoreOp::Store);
 
 			_cpBuilder.ResolveAndCompile(a_pPSOManager);
 
@@ -61,14 +62,17 @@ namespace Engine::Graphics
 					const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 					auto* _pCmd = a_pCtx->GetCurrentCmdList();
 
-					// 定数バッファのバインド
+					// カメラCB(b0) : シェーダ側でビュー空間を復元して履歴の棄却判定に使う
+					a_pCtx->ComputeBindRootCBV(0, a_pGE->GetCameraData());
+
+					// 定数バッファのバインド(b1)
 					struct GITAOp { float phiDepth; float phiNormal; float blendRate; };
 					const auto& _giOp = Option::OptionManager::GetInstance().GetGIOption();
 					GITAOp _op = {};
 					_op.phiDepth  = _giOp.TAphiDepth;
 					_op.phiNormal = _giOp.TAphiNormal;
 					_op.blendRate = _giOp.TAblendRate;
-					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, _op);
+					a_pCtx->ComputeBindRootCBV(1, _op);
 
 					// コンピュートシェーダーのディスパッチ
 					a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHeight / 8, 1);

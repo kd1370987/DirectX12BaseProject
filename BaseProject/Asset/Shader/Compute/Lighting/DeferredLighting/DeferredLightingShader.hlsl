@@ -113,19 +113,25 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	// 最終的な拡散反射光を計算
 	float3 _diffuse = _albedo * _diffuseFromFresnel * _lambertDiffuse;
 
-	// Cook-Torranceモデルを利用した鏡面反射を計算
-	float _spec = CookTorranceSpecular(
+	// Cook-Torranceモデルの鏡面反射BRDF( D*F*G / (4*NdotL*NdotV) )を計算
+	float _specTerm = CookTorranceSpecular(
 		_L,
 		_V,
 		_normal,
 		_metallic,
 		_roughness
 	);
+
+	// レンダリング方程式の cosθ(=NdotL) を掛ける。
+	// これが抜けていると BRDF の分母に残る 1/NdotL が NdotL→0 の明暗境界(ターミネータ)で
+	// 発散し、球の側面に明るいリング状の模様が出たり、ハイライトが過剰に大きく/明るくなる。
+	// (拡散反射側は _lambertDiffuse に NdotL が入っているが、鏡面側には掛かっていなかった)
+	// あわせて float3 で受け、色付きライト/F0の色が正しく反映されるようにする。
+	float3 _spec = _specTerm * _NdotL;
 	_spec *= g_ambient.DL_Color;
 	_spec *= _shadow;
 
-	// 金属度が高ければ、鏡面反射はスペキュラカラー、低ければ白
-	//_spec *= lerp(float3(1.0f, 1.0f, 1.0f), _specular, _metallic);
+	// 金属度が高ければ、鏡面反射はF0(スペキュラカラー)、低ければ白
 	_spec *= lerp(float3(1.0f, 1.0f, 1.0f), _F0, _metallic);
 
 	// 直接光(拡散+鏡面)の強さをオプションから調整可能にする
