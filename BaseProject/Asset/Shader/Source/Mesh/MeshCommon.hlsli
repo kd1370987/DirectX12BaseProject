@@ -93,6 +93,7 @@ StructuredBuffer<uint> g_primitiveIndices : register(t4);
 StructuredBuffer<Vertex> g_vertices : register(t5);
 StructuredBuffer<Vertex> g_animatedVertices : register(t6);
 StructuredBuffer<MeshletCullData> g_cullData : register(t7);
+StructuredBuffer<Vertex> g_prevAnimatedVertices : register(t8);	// 前フレームのスキニング済み頂点(モーションベクター用)
 
 cbuffer RootConstants : register(b1)
 {
@@ -124,6 +125,7 @@ SamplerState smp : register(s0);
     "SRV(t6)," \
     "SRV(t7)," \
     "RootConstants(num32BitConstants=1, b1)," \
+    "SRV(t8)," \
     "StaticSampler(s0, " \
     "    filter = FILTER_MIN_MAG_MIP_LINEAR, " \
     "    addressU = TEXTURE_ADDRESS_WRAP, " \

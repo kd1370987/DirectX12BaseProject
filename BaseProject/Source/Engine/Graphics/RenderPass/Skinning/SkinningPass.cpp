@@ -59,11 +59,41 @@ void Engine::Graphics::AddSkinningPass(D3D12::PipelineStateManager* a_pPSOManage
 			auto* _pMA = a_pGE->RefMeshBufferAllocator();
 			if (!_pMA) return;
 
+			// =====================================================================
+			// モーションベクター用 : スキニングで上書きする前に、
+			// 今のアニメ済みバッファ(=前フレームのスキニング結果)を prev バッファへ退避する。
+			// これが無いと過去のスキニング座標が存在せず、変形分の速度が0に切り捨てられる。
+			// =====================================================================
+			{
+				auto& _mainBuf = _pMA->RefAnimatedVertexBuffer();
+				auto& _prevBuf = _pMA->RefPrevAnimatedVertexBuffer();
+
+				_mainBuf.Barrier(_pCmdList, D3D12_RESOURCE_STATE_COPY_SOURCE);
+				_prevBuf.Barrier(_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
+
+				// スキニング対象メッシュの領域だけをコピー(バッファ全体はコピーしない)
+				for (auto& _item : a_pGE->GetSkinningImtes())
+				{
+					const UINT64 _offsetBytes = static_cast<UINT64>(_item.animatedHandle.startIndex) * sizeof(Resource::MeshVertexFloat);
+					const UINT64 _sizeBytes   = static_cast<UINT64>(_item.staticVertexHandle.count) * sizeof(Resource::MeshVertexFloat);
+					_pCmdList->CopyBufferRegion(
+						_prevBuf.GetResource(), _offsetBytes,
+						_mainBuf.GetResource(), _offsetBytes,
+						_sizeBytes
+					);
+				}
+
+				// prev は GBuffer/ZPre のメッシュシェーダが SRV として読むので遷移させておく
+				_prevBuf.Barrier(_pCmdList,
+					D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE |
+					D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			}
+
 			a_pCtx->BindHeap();
 			a_pCtx->SetComputeRootSignature(_spPassData->pRootSig);
 			a_pCtx->SetComputePSO(_pPso);
 
-			// バッファバリア
+			// バッファバリア (main を UAV へ : COPY_SOURCE から遷移)
 			_pMA->RefAnimatedVertexBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			// メッシュ情報バインド
 			a_pCtx->ComputeBindBonePalletBuffer(1);

@@ -75,12 +75,21 @@ void MSMain(
 		// ---------------------------------------------------------
 		VertexOutput _vout;
 		
-		// 座標変換
+		// 座標変換 (現在フレーム)
 		float4 _worldPos = mul(float4(_v.pos, 1.0f), _inst.worldMat);
 		_vout.pos = mul(_worldPos, g_camera.viewProj);
 		_vout.worldPos = _worldPos.xyz;
-		
-		float4 _prevWorldPos = mul(float4(_v.pos, 1.0f), _inst.prevWorldMat);
+
+		// モーションベクター用の過去位置。
+		// アニメメッシュは「前フレームのスキニング済み座標」を使わないと、
+		// ボーン変形分の動きが速度から抜け落ちて残像(ゴースト)になる。
+		// 静的メッシュは変形しないので現在のローカル座標のままでよい(剛体移動は prevWorldMat が担当)。
+		float3 _prevLocalPos = _v.pos;
+		if (_inst.isAnimated != 0)
+		{
+			_prevLocalPos = g_prevAnimatedVertices[_inst.animatedVertexStart + _localVertexIndex].pos;
+		}
+		float4 _prevWorldPos = mul(float4(_prevLocalPos, 1.0f), _inst.prevWorldMat);
 		_vout.curClipPos = _vout.pos;
 		_vout.prevClipPos = mul(_prevWorldPos, g_camera.prevViewProj);
 

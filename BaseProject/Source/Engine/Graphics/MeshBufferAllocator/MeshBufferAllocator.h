@@ -71,10 +71,13 @@ namespace Engine::Graphics
 		const D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat>& GetStaticVertexBuffer() const { return m_staticVerticesBuffer; }
 		const D3D12::MegaStructuredBuffer<uint32_t>& GetIndexBuffer() const { return m_indexBuffer; }
 		const D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& GetAnimatedVertexBuffer() const { return m_animatedVertexBuffer; }
+		// モーションベクター用 : 前フレームのスキニング済み頂点(今フレームの値をスキニング前にコピーして保持)
+		const D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& GetPrevAnimatedVertexBuffer() const { return m_prevAnimatedVertexBuffer; }
 
 		D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat>& RefStaticVertexBuffer() { return m_staticVerticesBuffer; }
 		D3D12::MegaStructuredBuffer<uint32_t>& RefIndexBuffer() { return m_indexBuffer; }
 		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& RefAnimatedVertexBuffer() { return m_animatedVertexBuffer; }
+		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& RefPrevAnimatedVertexBuffer() { return m_prevAnimatedVertexBuffer; }
 
 		D3D12::MegaStructuredBuffer<Resource::Meshlet>& RefMeshletBuffer() { return m_meshletBuffer; }
 		D3D12::MegaStructuredBuffer<uint32_t>& RefUniqueVertexIndicesBuffer() { return m_uniqueVertexIndicesBuffer; }
@@ -88,7 +91,10 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		D3D12::MegaStructuredBuffer<Resource::MeshVertexFloat>		m_staticVerticesBuffer;		// 静的な頂点データ
 		D3D12::MegaStructuredBuffer<uint32_t>						m_indexBuffer;				// インデックスバッファ
-		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>	m_animatedVertexBuffer;		// スキニング後の頂点バッファ
+		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>	m_animatedVertexBuffer;		// スキニング後の頂点バッファ(今フレーム)
+		// 前フレームのスキニング後頂点バッファ。m_animatedVertexBuffer と同じサイズ・同じオフセットで運用し、
+		// スキニング前に今フレームのバッファ内容(=前フレームの結果)をここへコピーしてモーションベクターに使う。
+		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>	m_prevAnimatedVertexBuffer;
 
 		D3D12::MegaStructuredBuffer<Resource::Meshlet>				m_meshletBuffer;			// メッシュレットバッファ
 		D3D12::MegaStructuredBuffer<uint32_t>						m_uniqueVertexIndicesBuffer;// メッシュ頂点インデックスバッファ

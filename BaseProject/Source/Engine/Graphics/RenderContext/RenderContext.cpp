@@ -706,6 +706,8 @@ namespace Engine::Graphics
 		m_pCmdList->SetGraphicsRootShaderResourceView(6, _pBufferManager->GetStaticVertexBuffer().GetResource()->GetGPUVirtualAddress());
 		m_pCmdList->SetGraphicsRootShaderResourceView(7, _pBufferManager->GetAnimatedVertexBuffer().GetResource()->GetGPUVirtualAddress());
 		m_pCmdList->SetGraphicsRootShaderResourceView(8, _pBufferManager->RefMeshletCullDataBuffer().GetResource()->GetGPUVirtualAddress());
+		// 前フレームのスキニング済み頂点(t8 = ルートパラメータ10) : モーションベクター用
+		m_pCmdList->SetGraphicsRootShaderResourceView(10, _pBufferManager->GetPrevAnimatedVertexBuffer().GetResource()->GetGPUVirtualAddress());
 	}
 
 	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)
