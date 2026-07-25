@@ -189,9 +189,9 @@ namespace Engine::Editor
 			// エディター用フリーカメラの設定
 			if (ImGui::BeginMenu("Camera"))
 			{
-				if (auto* _pEditorCam = MainEditor::Instance().RefEditorCamera())
+				if (a_editContext.pEditorCamera)
 				{
-					_pEditorCam->DrawEditUI();
+					a_editContext.pEditorCamera->DrawEditUI();
 				}
 				else
 				{

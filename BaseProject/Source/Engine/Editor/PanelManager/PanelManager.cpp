@@ -9,7 +9,7 @@
 
 namespace  Engine::Editor
 {
-	void PanelManager::Init()
+	void PanelManager::Init(EditorCamera* a_pEditorCamera)
 	{
 		RegisterPanel<RenderGraphResourceViewPanel>();
 		RegisterPanel<AssetDataBasePanel>();
@@ -17,10 +17,13 @@ namespace  Engine::Editor
 		RegisterPanel<HierarchyPanel>();
 		RegisterPanel<SceneViewPanel>();
 		RegisterPanel<OptionPanel>();
+
+		m_editContext.pEditorCamera = a_pEditorCamera;
 	}
 
 	void PanelManager::OnDrawPanels()
 	{
+
 		for (auto& _panel : m_upPanelVec)
 		{
 			if (ImGui::Begin(_panel->GetName(),&_panel->m_isOpen,_panel->GetFlags()))

@@ -13,6 +13,7 @@
 // 共通数学
 #include "Utility/Math/Alignment.h"				// アライメント
 #include "Utility/Math/Random.h"				// ランダム
+#include "Utility/Math/Matrix.h"				// 行列ヘルパー
 
 // マクロ
 #include "Engine/Common/Macros/ClassMacros.h"	// クラス用マクロ

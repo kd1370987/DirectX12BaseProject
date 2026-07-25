@@ -14,6 +14,9 @@
 #include "../../../../Application/Components/Persistence/NameComponent.h"
 #include "../../../../Application/Components/Hierarchy/HierarchyComponent.h"
 #include "../../../../Application/Components/Persistence/GUIDComponent.h"
+
+#include "../../EditorCamera/EditorCamera.h"
+
 namespace Engine::Editor
 {
 	void Engine::Editor::HierarchyPanel::OnDrawImGui(EditorContext& a_editContext)
@@ -66,7 +69,7 @@ namespace Engine::Editor
 				// 空のエンティティ
 				if (ImGui::MenuItem("Empty Entity"))
 				{
-					AddEntity(_pWorld);
+					AddEntity(a_editContext,_pWorld);
 				}
 
 				ImGui::Separator();
@@ -84,7 +87,7 @@ namespace Engine::Editor
 					{
 						if (ImGui::MenuItem(_prop.fileName.c_str()))
 						{
-							InstantiatePrefab(_pWorld, _prop.guid);
+							InstantiatePrefab(a_editContext,_pWorld, _prop.guid);
 						}
 					}
 				}
@@ -126,18 +129,43 @@ namespace Engine::Editor
 		ImGui::EndChild();
 	}
 
-	void Engine::Editor::HierarchyPanel::AddEntity(ECS::World* a_pWorld)
+	void Engine::Editor::HierarchyPanel::AddEntity(EditorContext& a_editContext,ECS::World* a_pWorld)
 	{
+		auto _trsCompTypeID = a_pWorld->GetCompTypeID(typeid(LocalTransformComponent));
+
 		Engine::ECS::Signature _sig = {};
-		_sig.set(a_pWorld->GetCompTypeID(typeid(LocalTransformComponent)));
+		_sig.set(_trsCompTypeID);
 		_sig.set(a_pWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
 		_sig.set(a_pWorld->GetCompTypeID(typeid(NameComponent)));
 		_sig.set(a_pWorld->GetCompTypeID(typeid(GUIDComponent)));
 		_sig.set(a_pWorld->GetCompTypeID(typeid(PostDeserializeTag)));
-		a_pWorld->AddEntity(_sig);
+		
+		// ---- カメラの正面にエンティティを出現させる ----
+		// データ配列用意
+		std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>> _dataMap = {};
+
+		if(a_editContext.pEditorCamera)
+		{
+			auto& _buf = _dataMap[_trsCompTypeID];
+			_buf.assign(a_pWorld->GetComponentMetaData(_trsCompTypeID).compAlignSize, 0);		// 空でメモリ確保
+			auto _ctor = a_pWorld->GetCompFunc(_trsCompTypeID).construct;
+			if (_ctor) _ctor(_buf.data());											// コンストラクタで初期化
+
+			// カメラ情報取得
+			auto _trs = Math::Matrix::Decompose(a_editContext.pEditorCamera->GetWorldMatrix());
+			auto _forward = DXSM::Vector3::Transform(DXSM::Vector3::Backward, _trs.rotation);
+
+			// トランスフォームにカメラの正面 + オフセットを座標として初期化
+			LocalTransformComponent _ltComp = {};
+			_ltComp.pos = _trs.pos + _forward * m_distance;
+			std::memcpy(_buf.data(), &_ltComp, sizeof(_ltComp));
+		}
+
+		// エンティティの追加
+		a_pWorld->AddEntityWithData(_sig,_dataMap);
 	}
 
-	void Engine::Editor::HierarchyPanel::InstantiatePrefab(ECS::World* a_pWorld, const Engine::GUID& a_guid)
+	void Engine::Editor::HierarchyPanel::InstantiatePrefab(EditorContext& a_editContext,ECS::World* a_pWorld, const Engine::GUID& a_guid)
 	{
 		// プレハブをロード(未ロードならここで読み込まれる)
 		if (!Resource::ResourceManager::Instance().Has<Resource::Prefab>(a_guid))
@@ -145,12 +173,35 @@ namespace Engine::Editor
 			Resource::ResourceManager::Instance().Load<Resource::Prefab>(a_guid);
 		}
 
+		// プレハブ取得
 		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::Prefab>(a_guid);
 		auto* _pPrefab = Resource::ResourceManager::Instance().Ref(_handle);
 		if (!_pPrefab) return;
 
-		// シーン読み込みと同じ経路で実体化する
-		_pPrefab->Instantiate(a_pWorld);
+		// プレハブ情報取得
+		auto _sig = _pPrefab->GetSignature();			// 生成シグネチャ
+		auto _data = _pPrefab->GetDataMap();			// 初期データ
+
+		// 初期値スポーン位置の編集
+		auto _ltID = a_pWorld->GetCompTypeID<LocalTransformComponent>();
+
+		// トランスフォームは持っている前提だが、念のためテスト
+		if (_sig.test(_ltID))
+		{
+			// 位置情報の上書き
+			auto& _buf = _data[_ltID];
+			LocalTransformComponent _ltComp = {};
+			auto _trs = Math::Matrix::Decompose(a_editContext.pEditorCamera->GetWorldMatrix());
+			auto _forward = DXSM::Vector3::Transform(DXSM::Vector3::Backward, _trs.rotation);
+
+			std::memcpy(&_ltComp, _buf.data(), sizeof(_ltComp));
+			_ltComp.pos = _trs.pos + _forward * m_distance;
+			_ltComp.isDirty = true;
+			std::memcpy(_buf.data(), &_ltComp, sizeof(_ltComp));
+		}
+
+		// シーンに追加
+		a_pWorld->AddEntityWithData(_sig,std::move(_data));
 	}
 
 	void Engine::Editor::HierarchyPanel::DrawEntityNode(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity)
@@ -246,12 +297,6 @@ namespace Engine::Editor
 		auto* _pParentGUID = a_pWorld->RefData<GUIDComponent>(a_parent);
 		auto* _pChildGUID = a_pWorld->RefData<GUIDComponent>(a_child);
 
-		// すでに子が別の親を持っていた場合は古い親から離脱させる
-		//if (a_pWorld->HasComponent<HierarchyComponent>(a_child))
-		//{
-		//	DettachChild(a_pWorld, a_child);
-		//}
-
 		// 新たな親子関係の構築
 		Engine::GUID _parentGUID = _pParentGUID->guid;
 
@@ -291,47 +336,6 @@ namespace Engine::Editor
 			auto _compTypeID = a_pWorld->GetCompTypeID<HierarchyComponent>();
 			a_pWorld->AddComponent(_compTypeID, a_child, (uint8_t*)&_newComp);
 		}
-	}
-
-	void Engine::Editor::HierarchyPanel::DettachChild(ECS::World* a_pWorld, const ECS::Entity& a_child)
-	{
-		// ヒエラルキーを持っていなかったらリターン
-		if (!a_pWorld->HasComponent<HierarchyComponent>(a_child)) return;
-
-		// データ取得
-		//auto* _pHieComp = a_pWorld->RefData<HierarchyComponent>(a_child);
-		//Engine::GUID _preGUID = _pHieComp->prevSiblingGUID;
-		//Engine::GUID _nextGUID = _pHieComp->nextSiblingGUID;
-		//ECS::Entity _preEntity = FindEntityByGUID(a_pWorld,_preGUID);
-		//ECS::Entity _nextEntity = FindEntityByGUID(a_pWorld, _nextGUID);
-
-		//Engine::GUID _firstGUID = _pHieComp->firstChildGUID;
-		//if (_firstGUID == Engine::GUID())
-		//{
-		//	if (auto* _pMyGUIDComp = a_pWorld->RefData<GUIDComponent>(a_child))
-		//	{
-		//		_firstGUID = _pMyGUIDComp->guid;
-		//	}
-		//}
-
-		//// 前後の兄弟のリンクを繋ぎ直す
-		//if (_preEntity != ECS::Limits::INVALID_ENTITY && a_pWorld->HasComponent<HierarchyComponent>(_preEntity))
-		//{
-		//	auto* _pComp = a_pWorld->RefData<HierarchyComponent>(_preEntity);
-		//	_pComp->nextSiblingGUID = _nextGUID;
-		//	_pComp->nextSiblingID = _nextEntity;
-		//}
-		//if (_nextEntity != ECS::Limits::INVALID_ENTITY && a_pWorld->HasComponent<HierarchyComponent>(_nextEntity))
-		//{
-		//	auto* _pComp = a_pWorld->RefData<HierarchyComponent>(_nextEntity);
-		//	_pComp->prevSiblingGUID = _preGUID;
-		//	_pComp->prevSiblingID = _preEntity;
-		//	_pComp->firstChildGUID = _firstGUID;
-		//}
-
-		// 親なしに戻る
-		auto _compTypeID = a_pWorld->GetCompTypeID<HierarchyComponent>();
-		a_pWorld->SubmitComponent(_compTypeID, a_child);
 	}
 
 	std::vector<Engine::ECS::Entity> Engine::Editor::HierarchyPanel::GetChildEntities(Engine::ECS::World* a_pWorld, ECS::Entity a_parent)

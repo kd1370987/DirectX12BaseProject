@@ -15,6 +15,7 @@
 #include "../../Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "../../GameObject/GameObjectManager/GameObjectManager.h"
 
+
 namespace Engine::Scene
 {
 	BaseScene::BaseScene()
@@ -76,7 +77,10 @@ namespace Engine::Scene
 		}
 		
 		// シーンのシステム処理
-		m_upWorld->RunSystem(Engine::ECS::ESystemType::Input, a_dt);
+		if(MainEngine::Instance().GetMode() == Engine::EAppMode::Game)
+		{
+			m_upWorld->RunSystem(Engine::ECS::ESystemType::Input, a_dt);
+		}
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::PreUpdate, a_dt);
 

@@ -5,6 +5,8 @@
 
 namespace Engine::Editor
 {
+	class EditorCamera;
+
 	/// <summary>
 	/// パネルを管理するためのクラス
 	/// </summary>
@@ -15,7 +17,7 @@ namespace Engine::Editor
 		/// <summary>
 		/// パネルの登録
 		/// </summary>
-		void Init();
+		void Init(EditorCamera* a_pEditorCamera);
 
 		/// <summary>
 		/// パネルの描画

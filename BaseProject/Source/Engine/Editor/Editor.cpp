@@ -54,18 +54,18 @@ namespace Engine::Editor
 			m_upWatchView->Init();
 		}
 
-		// パネルの登録
-		if (!m_upPanelManager)
-		{
-			m_upPanelManager = std::make_unique<PanelManager>();
-			m_upPanelManager->Init();
-		}
-
 		// エディター用フリーカメラ
 		if (!m_upEditorCamera)
 		{
 			m_upEditorCamera = std::make_unique<EditorCamera>();
 			m_upEditorCamera->Init();
+		}
+
+		// パネルの登録
+		if (!m_upPanelManager)
+		{
+			m_upPanelManager = std::make_unique<PanelManager>();
+			m_upPanelManager->Init(m_upEditorCamera.get());
 		}
 
 		m_editFuncVec.clear();

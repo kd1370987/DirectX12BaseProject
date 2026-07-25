@@ -3012,6 +3012,12 @@
     <ClInclude Include="Source\Engine\Resource\Data\AnimatorAsset\AdditivePoseTypes.h">
       <Filter>Source\Engine\Resource\Data\AnimatorAsset</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\Matrix.h">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\Quaternion.h">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

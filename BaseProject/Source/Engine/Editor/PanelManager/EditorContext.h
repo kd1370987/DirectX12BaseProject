@@ -1,6 +1,8 @@
 ﻿#pragma once
 namespace Engine::Editor
 {
+	class EditorCamera;
+
 	/// <summary>
 	/// インスペクターのモード
 	/// </summary>
@@ -28,5 +30,8 @@ namespace Engine::Editor
 
 		// 選択中のエンティティ
 		ECS::Entity entity = ECS::Limits::INVALID_ENTITY;
+
+		// エディターカメラポインタ
+		EditorCamera* pEditorCamera = nullptr;
 	};
 }
