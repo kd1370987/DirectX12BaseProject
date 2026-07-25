@@ -7,7 +7,8 @@ struct InstanceData
 	uint indexCount;
 	
 	uint isAnimated;
-	uint3 pad;
+	uint animatedVertexStart;	// アニメ済み頂点バッファ内の開始オフセット(isAnimated==1のとき使用)
+	uint2 pad;
 };
 // マテリアル構造体
 struct Material
@@ -39,8 +40,21 @@ struct Vertex
 };
 StructuredBuffer<InstanceData>	g_instanceData		: register(t1);		// インスタンスごとのデータ
 StructuredBuffer<Material>		g_materialData		: register(t2);		// インスタンスごとのデータ
-StructuredBuffer<Vertex>		g_vertexfloatData	: register(t3);		// メッシュメガバッファ
+StructuredBuffer<Vertex>		g_vertexfloatData	: register(t3);		// メッシュメガバッファ(静的)
 StructuredBuffer<uint>			g_indexData			: register(t4);		// インデックスメガバッファ
+StructuredBuffer<Vertex>		g_animatedVertexData: register(t5);		// スキニング済み頂点バッファ(動的)
+
+// インスタンスがアニメーションするなら、スキニング済み頂点バッファから頂点を取得する。
+// アニメしないメッシュ・当たり判定(BLAS)だけでなく、ヒットシェーダのシェーディング属性
+// (座標/法線/接線)もアニメ済みを使うことで、静的頂点(バインドポーズ)との不一致を無くす。
+Vertex FetchVertex(InstanceData a_inst, uint a_localIndex)
+{
+	if (a_inst.isAnimated == 0)
+	{
+		return g_vertexfloatData[a_inst.vertexStart + a_localIndex];
+	}
+	return g_animatedVertexData[a_inst.animatedVertexStart + a_localIndex];
+}
 
 struct GBufferIndex
 {
@@ -68,10 +82,10 @@ float2 GetUV(BuiltInTriangleIntersectionAttributes a_attribs, InstanceData insta
 	uint _v1 = g_indexData[_baseIndexLocation + 1];
 	uint _v2 = g_indexData[_baseIndexLocation + 2];
 
-	// オフセットを足してメガバッファからUV取得
-	float2 _uv0 = g_vertexfloatData[instance.vertexStart + _v0].uv;
-	float2 _uv1 = g_vertexfloatData[instance.vertexStart + _v1].uv;
-	float2 _uv2 = g_vertexfloatData[instance.vertexStart + _v2].uv;
+	// オフセットを足してメガバッファからUV取得(アニメメッシュはアニメ済みバッファから)
+	float2 _uv0 = FetchVertex(instance, _v0).uv;
+	float2 _uv1 = FetchVertex(instance, _v1).uv;
+	float2 _uv2 = FetchVertex(instance, _v2).uv;
 
 	float2 _uv = _barycentrics.x * _uv0 + _barycentrics.y * _uv1 + _barycentrics.z * _uv2;
 	return _uv;
@@ -89,16 +103,16 @@ float3 GetNormal(BuiltInTriangleIntersectionAttributes a_attribs, float2 a_uv, I
 	uint _v1 = g_indexData[_baseIndexLocation + 1];
 	uint _v2 = g_indexData[_baseIndexLocation + 2];
 	
-	// 法線取得 (vertexStartを足す)
-	float3 _n0 = g_vertexfloatData[instance.vertexStart + _v0].normal;
-	float3 _n1 = g_vertexfloatData[instance.vertexStart + _v1].normal;
-	float3 _n2 = g_vertexfloatData[instance.vertexStart + _v2].normal;
+	// 法線取得 (アニメメッシュはスキニング済み法線を使う)
+	float3 _n0 = FetchVertex(instance, _v0).normal;
+	float3 _n1 = FetchVertex(instance, _v1).normal;
+	float3 _n2 = FetchVertex(instance, _v2).normal;
 	float3 _normal = normalize(_barycentrics.x * _n0 + _barycentrics.y * _n1 + _barycentrics.z * _n2);
 
-	// タンジェント
-	float3 _t0 = g_vertexfloatData[instance.vertexStart + _v0].tangent;
-	float3 _t1 = g_vertexfloatData[instance.vertexStart + _v1].tangent;
-	float3 _t2 = g_vertexfloatData[instance.vertexStart + _v2].tangent;
+	// タンジェント (アニメメッシュはスキニング済み接線を使う)
+	float3 _t0 = FetchVertex(instance, _v0).tangent;
+	float3 _t1 = FetchVertex(instance, _v1).tangent;
+	float3 _t2 = FetchVertex(instance, _v2).tangent;
 	float3 _tangent = normalize(_barycentrics.x * _t0 + _barycentrics.y * _t1 + _barycentrics.z * _t2);
 
 	// ビノーマルを計算
@@ -322,11 +336,12 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	uint _v1 = g_indexData[_baseIndexLocation + 1];
 	uint _v2 = g_indexData[_baseIndexLocation + 2];
 
-	// 取得したローカルインデックスに、インスタンスの頂点オフセットを足して頂点を取得
-	// ※構造体が VertexFloat に変わっている点に注意
-	Vertex _vert0 = g_vertexfloatData[instance.vertexStart + _v0];
-	Vertex _vert1 = g_vertexfloatData[instance.vertexStart + _v1];
-	Vertex _vert2 = g_vertexfloatData[instance.vertexStart + _v2];
+	// 取得したローカルインデックスから頂点を取得(アニメメッシュはスキニング済み頂点を使う)。
+	// BLASはアニメ済み頂点で更新されているので、ここも合わせないとジオメトリ法線が
+	// バインドポーズ基準になり、アニメ時にライティングがずれる。
+	Vertex _vert0 = FetchVertex(instance, _v0);
+	Vertex _vert1 = FetchVertex(instance, _v1);
+	Vertex _vert2 = FetchVertex(instance, _v2);
 
 	// 頂点の位置（オブジェクト空間）を取得
 	float3 _vpos0 = _vert0.pos;

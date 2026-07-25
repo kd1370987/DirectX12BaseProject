@@ -10,6 +10,10 @@ namespace Engine::Option::GraphicsOptions
 	
 		bool isZPre = true;
 
+		// TAA用のカメラジッター(サブピクセル揺らし)を有効にするか。
+		// OFFにするとジッターが止まり、TAAはブレンドのみ(空間的なAA効果は無くなる)になる。デバッグ用。
+		bool useJitter = true;
+
 		Engine::GUID defaultShadingModelTable = {};
 
 		const std::string& GetName() override
@@ -30,6 +34,7 @@ namespace Engine::Option::GraphicsOptions
 			if (ImGui::TreeNodeEx("RenderingOption", ImGuiTreeNodeFlags_SpanFullWidth))
 			{
 				ImGui::Checkbox("isZPre", &isZPre);
+				ImGui::Checkbox("useJitter (TAA)", &useJitter);
 				ImGui::TreePop();
 			}
 		}
@@ -38,6 +43,7 @@ namespace Engine::Option::GraphicsOptions
 		void Archive(Persistence::Archive& a_archive) override
 		{
 			a_archive.Field("isZPre", isZPre);
+			a_archive.Field("useJitter", useJitter);
 			a_archive.Field("defaultShadingModelTable",defaultShadingModelTable);
 		}
 	};

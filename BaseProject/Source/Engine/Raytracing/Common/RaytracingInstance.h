@@ -20,7 +20,8 @@ namespace Engine::Raytracing
 
 		// --- 16 Bytes (Offset: 16) ---
 		UINT isAnimated;        // アニメーション対象かどうかのフラグ (0: Static, 1: Animated)
-		DXSM::Vector3 pad0;     // 16バイトアライメント用のパディング
+		UINT animatedVertexStart; // アニメ済み頂点バッファ内の参照開始オフセット (isAnimated==1のとき使用)
+		DXSM::Vector2 pad0;     // 16バイトアライメント用のパディング
 	}; // Total: 32 Bytes
 
 	/// <summary>
@@ -70,6 +71,9 @@ namespace Engine::Raytracing
 		UINT vertexOffset = 0;                          // vertexStart に相当
 		UINT indexOffset = 0;                           // indexStart に相当
 		UINT indexCount = 0;                            // indexCount に相当
+
+		// 動的モデルの場合の、アニメ済み頂点バッファ内の開始オフセット
+		UINT animatedVertexOffset = 0;                  // animatedVertexStart に相当
 
 		// 状態フラグ
 		bool isAnimated = false;                        // 動的モデル判定用

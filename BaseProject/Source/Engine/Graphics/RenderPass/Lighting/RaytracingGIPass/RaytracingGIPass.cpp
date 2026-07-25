@@ -58,7 +58,8 @@ namespace Engine::Graphics
 		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 1);		// GBufferインデックス
 		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 10);		// ライト
 		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,3} });	// 頂点
-		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,4} });	// インデックス
+		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,4} });
+			_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,5} }); // アニメ済み頂点バッファ(t5)	// インデックス
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 
@@ -184,6 +185,8 @@ namespace Engine::Graphics
 			//a_pCtx->ComputeBindSRVBindLess(8, a_pGE->GetIndexCPUHandle());
 			a_pCtx->ComputeBindSRVBindLess(7, _pMA->GetStaticVertexBuffer().GetSRV());
 			a_pCtx->ComputeBindSRVBindLess(8, _pMA->GetIndexBuffer().GetSRV());
+			// アニメ済み頂点バッファ(t5) : ヒットシェーダがスキニング済み頂点属性を読むために使う
+			a_pCtx->ComputeBindSRVBindLess(9, _pMA->GetAnimatedVertexBuffer().GetSRV());
 			// ディスパッチ
 			Raytracing::RayEngine::Instance().Dispatch(a_pCtx, _spPassData->shaderTable);
 		};

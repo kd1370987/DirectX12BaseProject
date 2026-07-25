@@ -136,7 +136,7 @@ namespace Engine::Graphics
 		// RayGI は R16G16B16A16_FLOAT(HDR) なので、出力も同フォーマットにしてレンジを潰さない。
 		AddGISpatialDenoisePass(
 			m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort,
-			"GIPreSpatialDenoisePass", "RayGI", "RayGIDenoised", 3, DXGI_FORMAT_R16G16B16A16_FLOAT);
+			"GIPreSpatialDenoisePass", "RayGI", "RayGIDenoised", 5, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 		AddGITemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		// GIは最後までHDRを保つため、スペースデノイズの出力(FinalGI)/中間バッファもR16Fにする
@@ -931,13 +931,14 @@ namespace Engine::Graphics
 		// スクリーン座標を取得
 		const auto& _config = Engine::MainEngine::Instance().GetEngineConfig();
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _renderingOp = Option::OptionManager::GetInstance().GetRenderingOption();
 
 		// ジッターオフセット計算
 		float _jitterX = 0.0f;
 		float _jitterY = 0.0f;
 
-		// ジッターオンオフ
-		if (true)
+		// ジッターオンオフ(グラフィックオプションで切り替え可能。OFFならジッター0でTAAはブレンドのみ)
+		if (_renderingOp.useJitter)
 		{
 			// ハルトンシーケンスのテーブル（ピクセル中心地からのオフセット値 -0.5f ～ 0.5f）
 			static const float _sHaltonX[16] = {

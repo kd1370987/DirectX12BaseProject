@@ -131,6 +131,13 @@ namespace Engine::Raytracing
 				_rayInst.megaVertexHandle = _pMesh->GetRtData().vertexHandle;
 				_rayInst.megaIndexHandle = _pMesh->GetRtData().indexHandle;
 
+				// このインスタンスは動的(スキニング)。
+				// レイの当たり判定(BLAS)だけでなくヒットシェーダの頂点属性もアニメ済みを使えるよう、
+				// アニメフラグとアニメ済み頂点バッファの開始オフセットを持たせる。
+				_rayInst.isAnimated = true;
+				_rayInst.animatedVertexOffset =
+					_item->meshDataVec[_meshDataIdx].animatedVertexHandle.startIndex;
+
 				for (auto& _subset : _pMesh->GetMetaData().subsets)
 				{
 					// マテリアル取得
@@ -222,6 +229,10 @@ namespace Engine::Raytracing
 			_data.vertexStart = _instance.megaVertexHandle.startIndex;
 			_data.indexStart = _instance.megaIndexHandle.startIndex;
 			_data.indexCount = _instance.megaIndexHandle.count;
+
+			// アニメーション情報を転送(以前は未設定で常に静的頂点が使われていた)
+			_data.isAnimated = _instance.isAnimated ? 1u : 0u;
+			_data.animatedVertexStart = _instance.animatedVertexOffset;
 
 			_data.materialOffset = _materialOffset;
 			m_instanceDataVec.push_back(_data);
