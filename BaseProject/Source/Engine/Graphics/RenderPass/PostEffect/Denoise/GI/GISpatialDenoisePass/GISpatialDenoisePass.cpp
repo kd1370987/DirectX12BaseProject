@@ -116,7 +116,8 @@ namespace Engine::Graphics
 					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, _data);
 
 					// 実行
-					a_pCtx->Dispatch(_winOp.windowWidth / 2 / 8, _winOp.windowHeight / 2 / 8, 1);
+					// 切り上げ : ハーフ解像度(例:1080→540)は540/8=67で切り捨てられ下端が処理されないため
+					a_pCtx->Dispatch((_winOp.windowWidth / 2 + 7) / 8, (_winOp.windowHeight / 2 + 7) / 8, 1);
 				};
 
 			a_pRegistry->RegisterPass(_node);

@@ -75,7 +75,8 @@ namespace Engine::Graphics
 					a_pCtx->ComputeBindRootCBV(1, _op);
 
 					// コンピュートシェーダーのディスパッチ
-					a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHeight / 8, 1);
+					// 切り上げ : 解像度が8の倍数でないと末尾タイルが実行されず端が処理されない
+					a_pCtx->Dispatch((_winOp.windowWidth + 7) / 8, (_winOp.windowHeight + 7) / 8, 1);
 				};
 			a_pRegistry->RegisterPass(_node);
 

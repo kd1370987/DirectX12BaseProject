@@ -83,7 +83,8 @@ namespace Engine::Graphics
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 4, _lightCB);
 
 			// 実行
-			a_pCtx->Dispatch(_winOp.windowWidth / 8, _winOp.windowHeight / 8, 1);
+			// 切り上げ : 解像度が8の倍数でないと末尾タイルが実行されず端が処理されない
+			a_pCtx->Dispatch((_winOp.windowWidth + 7) / 8, (_winOp.windowHeight + 7) / 8, 1);
 		};
 
 		// パス登録
