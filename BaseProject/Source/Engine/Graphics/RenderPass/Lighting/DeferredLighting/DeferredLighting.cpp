@@ -44,7 +44,6 @@ namespace Engine::Graphics
 			.Add("GBufferEmissiv")
 			.Add("Depth")
 			.Add("ShadowDenoised")	// テンポラル→スペースデノイズ後の影
-			//.Add("RayShadow")
 			.Add("FinalFullRay");
 
 		// HDR : ライティング結果は1.0を超えるためR16Fで保持する(R8だとここで白飛びがクランプされる)

@@ -580,6 +580,15 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate\ActionIntentSystem">
       <UniqueIdentifier>{7e2b9c46-1f83-4a50-9d27-6b8e3f1a5c94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem">
+      <UniqueIdentifier>{3c6f1a92-8d54-4e11-b7a3-9f2e5c81d640}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem">
+      <UniqueIdentifier>{a1d47b38-2e69-4c05-8f14-7b3d9e02c6a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\FaceTargetSystem">
+      <UniqueIdentifier>{b2e58c49-3f70-4d16-9025-8c4eaf13d7b6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem">
       <UniqueIdentifier>{2f6c8d19-4b71-4e32-8a05-9c1e7b3f2d68}</UniqueIdentifier>
     </Filter>
@@ -1503,6 +1512,15 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\ActionIntentSystem\ActionIntentSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\ActionIntentSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem\SearchPlayerSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\FaceTargetSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\ActionStateCommitSystem</Filter>
     </ClCompile>
@@ -2408,6 +2426,15 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\ActionIntentSystem\ActionIntentSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\ActionIntentSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem\SearchPlayerSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\FaceTargetSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.h">
       <Filter>Source\Application\Systems\Update\Update\ActionStateCommitSystem</Filter>
     </ClInclude>
@@ -2996,6 +3023,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\AimTargetPosComponent.h">
       <Filter>Source\Application\Components\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\TargetEntityComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Collision\ConeCollider.h">
+      <Filter>Source\Application\Components\Collision</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h">
       <Filter>Source\Application\Components\Character\Robot</Filter>

@@ -64,6 +64,8 @@
 #include "../../Components/Camera/CameraFocusTargetComponent.h"
 #include "../../Components/Character/Robot/AdditivePoseComponent.h"
 #include "../../Components/Character/AimTargetPosComponent.h"
+#include "../../Components/Collision/ConeCollider.h"
+#include "../../Components/Character/TargetEntityComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -129,6 +131,9 @@
 #include "../../Systems/Init/Start/AdditivePoseLinkSystem/AdditivePoseLinkSystem.h"
 #include "../../Systems/Update/PostUpdate/AdditivePoseSystem/AdditivePoseSystem.h"
 #include "../../Systems/Release/AdditivePoseFreeSystem/AdditivePoseFreeSystem.h"
+#include "../../Systems/Update/PreUpdate/SearchPlayerSystem/SearchPlayerSystem.h"
+#include "../../Systems/Update/PreUpdate/SightStateBridgeSystem/SightStateBridgeSystem.h"
+#include "../../Systems/Update/Update/FaceTargetSystem/FaceTargetSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -215,6 +220,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<CameraFocusTargetComponent>("CameraFocusTargetComponent");
 				a_pWorld->RegisterComponent<AdditivePoseComponent>("AdditivePoseComponent");
 				a_pWorld->RegisterComponent<AimTargetPosComponent>("AimTargetPosComponent");
+				a_pWorld->RegisterComponent<ConeColliderComponent>("ConeColliderComponent");
+				a_pWorld->RegisterComponent<TargetEntityComponent>("TargetEntityComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -229,6 +236,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<AttachmentDispatchSystem>();
 				a_pWorld->RegisterSystem<ThrusterEffectSystem>();
 				a_pWorld->RegisterSystem<ActionIntentSystem>();
+				a_pWorld->RegisterSystem<SearchPlayerSystem>();
+				a_pWorld->RegisterSystem<SightStateBridgeSystem>();
 				a_pWorld->RegisterSystem<StateMachineCommitSystem>();
 				a_pWorld->RegisterSystem<ActionStateCommitSystem>();
 				a_pWorld->RegisterSystem<RegisterCollisionWorldSystem>();
@@ -240,6 +249,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<InputMoveSystem>();
 				a_pWorld->RegisterSystem<GravitySystem>();
 				a_pWorld->RegisterSystem<RotationSystem>();
+				a_pWorld->RegisterSystem<FaceTargetSystem>();
 				a_pWorld->RegisterSystem<AnimationStateSystem>();
 				a_pWorld->RegisterSystem<AnimationSystem>();
 				// AnimationSystem がバインドポーズでリセットした後、
