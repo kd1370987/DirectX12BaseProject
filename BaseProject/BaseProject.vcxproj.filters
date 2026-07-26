@@ -589,6 +589,12 @@
     <Filter Include="Source\Application\Systems\Update\Update\FaceTargetSystem">
       <UniqueIdentifier>{b2e58c49-3f70-4d16-9025-8c4eaf13d7b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem">
+      <UniqueIdentifier>{c3f69d5a-4a81-4e27-a136-9d5fb024e8c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem">
+      <UniqueIdentifier>{d4a7ae6b-5b92-4f38-b247-ae60c135f9d8}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem">
       <UniqueIdentifier>{2f6c8d19-4b71-4e32-8a05-9c1e7b3f2d68}</UniqueIdentifier>
     </Filter>
@@ -1521,6 +1527,12 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\FaceTargetSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Move\EnemyMovementSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\ActionStateCommitSystem</Filter>
     </ClCompile>
@@ -2434,6 +2446,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.h">
       <Filter>Source\Application\Systems\Update\Update\FaceTargetSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Move\EnemyMovementSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\PatrolComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.h">
       <Filter>Source\Application\Systems\Update\Update\ActionStateCommitSystem</Filter>

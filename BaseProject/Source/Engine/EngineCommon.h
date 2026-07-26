@@ -4,34 +4,37 @@
 // 共通仕様
 // 
 //==========================================================================================
-#include "Engine/Common/Color.h"				// 色
-#include "Engine/Common/Handle.h"				// ハンドル
-#include "Engine/Common/EngineConfigTypes.h"	// エンジン基盤設定
+// ---- 共通変数・固定値 ----
+#include "Engine/Common/Color.h"						// 色
+#include "Engine/Common/Handle.h"						// ハンドル
+#include "Engine/Common/EngineConfigTypes.h"			// エンジン基盤設定
 
-#include "Engine/D3D12/D3D12Types.h"			// D3D12の共通設定
+// ---- マクロ ---- 
+#include "Engine/Common/Macros/ClassMacros.h"			// クラス用マクロ
 
-// 共通数学
-#include "Utility/Math/Alignment.h"				// アライメント
-#include "Utility/Math/Random.h"				// ランダム
-#include "Utility/Math/Matrix.h"				// 行列ヘルパー
+// ---- デバッグ用 ---- 
+#include "Utility/Debug/DebugLog.h"						// ログ出力
 
-// マクロ
-#include "Engine/Common/Macros/ClassMacros.h"	// クラス用マクロ
+// ---- 共通数学 ---- 
+#include "Utility/Math/Alignment.h"						// アライメント
+#include "Utility/Math/Random.h"						// ランダム
+#include "Utility/Math/Matrix.h"						// 行列ヘルパー
 
-//==========================================================================================
-// 
-// 補助クラス・関数
-// 
-//==========================================================================================
-#include "Utility/Debug/DebugLog.h"						// デバッグ用ログ
+// ---- 共通クラス・構造体 ---- 
 #include "Utility/GUID/GUID.h"							// GUID
+
+// ---- 外部ライブラリ連携 ----
 #include "Utility/JSONHelper/JSONHelper.h"				// Jsonヘルパー
+#include "Engine/D3D12/D3D12Types.h"					// D3D12の共通設定
+#include "D3D12/D3D12Helper.h"							// D3D12関連のヘルパー関数
+
+// プール
 #include "Utility/Pool/HandlePool/HandlePool.h"			// ハンドル管理ストレージ
 #include "Utility/Pool/ItemPool/ItemPool.h"				// 実体管理ストレージ
 #include "Utility/Pool/RangePool/RangePool.h"			// レンジ管理ストレージ
 #include "Utility/Pool/RangeAllocator/RangeAllocator.h"	// レンジ管理
 
-#include "D3D12/D3D12Helper.h"					// D3D12関連のヘルパー関数
+
 
 //==========================================================================================
 // 

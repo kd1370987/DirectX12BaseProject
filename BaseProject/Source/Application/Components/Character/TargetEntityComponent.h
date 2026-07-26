@@ -19,6 +19,9 @@ struct Engine::ECS::ComponentTraits<TargetEntityComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		TargetEntityComponent& _comp = Engine::Editor::GetValue<TargetEntityComponent>(a_context.pData);
+		bool _isFind = _comp.isFind;
+		ImGui::Checkbox("IsFind",&_isFind);
+		ImGui::Text("Distance : %f",_comp.distance);
 
 	}
 };

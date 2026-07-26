@@ -134,6 +134,9 @@
 #include "../../Systems/Update/PreUpdate/SearchPlayerSystem/SearchPlayerSystem.h"
 #include "../../Systems/Update/PreUpdate/SightStateBridgeSystem/SightStateBridgeSystem.h"
 #include "../../Systems/Update/Update/FaceTargetSystem/FaceTargetSystem.h"
+#include "../../Systems/Update/PreUpdate/EnemyMoveIntentSystem/EnemyMoveIntentSystem.h"
+#include "../../Systems/Update/Update/Move/EnemyMovementSystem/EnemyMovementSystem.h"
+#include "../../Components/Character/PatrolComponent.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -221,6 +224,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<AdditivePoseComponent>("AdditivePoseComponent");
 				a_pWorld->RegisterComponent<AimTargetPosComponent>("AimTargetPosComponent");
 				a_pWorld->RegisterComponent<ConeColliderComponent>("ConeColliderComponent");
+					a_pWorld->RegisterComponent<PatrolComponent>("PatrolComponent");
 				a_pWorld->RegisterComponent<TargetEntityComponent>("TargetEntityComponent");
 
 				// システム登録
@@ -238,6 +242,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<ActionIntentSystem>();
 				a_pWorld->RegisterSystem<SearchPlayerSystem>();
 				a_pWorld->RegisterSystem<SightStateBridgeSystem>();
+				a_pWorld->RegisterSystem<EnemyMoveIntentSystem>();
 				a_pWorld->RegisterSystem<StateMachineCommitSystem>();
 				a_pWorld->RegisterSystem<ActionStateCommitSystem>();
 				a_pWorld->RegisterSystem<RegisterCollisionWorldSystem>();
@@ -259,6 +264,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<SkinningSystem>();
 				a_pWorld->RegisterSystem<PositionIntegrationSystem>();
 				a_pWorld->RegisterSystem<CharacterMovementSystem>();
+				a_pWorld->RegisterSystem<EnemyMovementSystem>();
 				a_pWorld->RegisterSystem<ActionBehaviorSystem>();
 				a_pWorld->RegisterSystem<TPSSystem>();
 				// カメラ姿勢が確定した後に狙点レイを撃つ(TPSSystem より後に登録すること)

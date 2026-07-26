@@ -451,6 +451,8 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem\SearchPlayerSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.cpp" />
     <ClCompile Include="Source\Engine\Resource\StateGraph\StateGraphTypes.cpp" />
@@ -821,6 +823,9 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem\SearchPlayerSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.h" />
+    <ClInclude Include="Source\Application\Components\Character\PatrolComponent.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.h" />
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraph.h" />
