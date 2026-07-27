@@ -28,7 +28,7 @@
 #include "Engine/D3D12/D3D12Types.h"					// D3D12の共通設定
 #include "D3D12/D3D12Helper.h"							// D3D12関連のヘルパー関数
 
-// プール
+// ---- プール ----
 #include "Utility/Pool/HandlePool/HandlePool.h"			// ハンドル管理ストレージ
 #include "Utility/Pool/ItemPool/ItemPool.h"				// 実体管理ストレージ
 #include "Utility/Pool/RangePool/RangePool.h"			// レンジ管理ストレージ

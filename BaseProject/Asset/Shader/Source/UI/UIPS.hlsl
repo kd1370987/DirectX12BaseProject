@@ -1,0 +1,19 @@
+#include "UI.hlsli"
+
+float4 PSMain(VSOutput a_input) : SV_TARGET
+{
+	// テクスチャ取得
+	Texture2D _tex = ResourceDescriptorHeap[a_input.instID];
+	float4 _texColor = _tex.Sample(g_samp,a_input.uv);
+
+	// 色合成
+	float4 _outColor = _texColor * a_input.color;
+
+	// アルファ値がほぼ0ならピクセルを破棄して描画負荷を下げる
+	if (_outColor.a < 0.001f)
+	{
+		discard;
+	}
+	
+	return _outColor;
+}

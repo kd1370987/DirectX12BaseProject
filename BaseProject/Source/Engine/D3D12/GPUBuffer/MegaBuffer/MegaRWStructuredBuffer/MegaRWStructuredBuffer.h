@@ -4,8 +4,7 @@
 namespace Engine::D3D12
 {
 	/// <summary>
-	/// シーンに一つ持つような巨大なバッファ
-	/// 静的なデータで毎フレーム変わるようなデータには向かない
+	/// シーンに一つ持つような巨大なバッファ : GPU専用
 	/// </summary>
 	template<typename T>
 	class MegaRWStructuredBuffer : public MegaBuffer

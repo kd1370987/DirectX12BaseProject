@@ -30,7 +30,14 @@ namespace Engine::D3D12
 		/// <param name="a_pData">書き込みデータの先頭ポインタ</param>
 		/// <param name="a_count">要素数</param>
 		/// <returns>メガバッファ内の開始インデックス</returns>
-		uint32_t AllocateAndWrite(const T* a_pData, UINT a_count);
+		uint32_t AllocateAndWrite(const T* a_pData, size_t a_count);
+
+		/// <summary>
+		/// データの書き込み : シェーダーに渡すための配列を渡す
+		/// </summary>
+		/// <param name="a_dataVec">書き込まれた配列 : 丸々渡すことになるので間を渡したいときはポインタと要素数のほうで登録</param>
+		/// <returns>メガバッファ内の開始インデックス</returns>
+		uint32_t AllocateAndWrite(const std::vector<T>& a_dataVec);
 
 	private:
 		uint32_t m_currentOffset = 0;
@@ -68,9 +75,9 @@ namespace Engine::D3D12
 		m_currentOffset = 0;
 	}
 	template<typename T>
-	inline uint32_t DynamicStructuredBuffer<T>::AllocateAndWrite(const T* a_pData, UINT a_count)
+	inline uint32_t DynamicStructuredBuffer<T>::AllocateAndWrite(const T* a_pData, size_t a_count)
 	{
-		if (m_currentOffset + a_count > m_elementNum)
+		if (m_currentOffset + static_cast<uint32_t>(a_count) > static_cast<uint32_t>(m_elementNum))
 		{
 			ENGINE_ERRLOG(false, "動的メガバッファの容量オーバー");
 			return 0;
@@ -82,8 +89,13 @@ namespace Engine::D3D12
 		UpdateDataOffset(a_pData, _sizeBytes, _offsetBytes);
 
 		uint32_t _allocatedOffset = m_currentOffset;
-		m_currentOffset += a_count;
+		m_currentOffset += static_cast<uint32_t>(a_count);
 
 		return _allocatedOffset;
+	}
+	template<typename T>
+	inline uint32_t DynamicStructuredBuffer<T>::AllocateAndWrite(const std::vector<T>& a_dataVec)
+	{
+		return AllocateAndWrite(a_dataVec.data(),a_dataVec.size());
 	}
 }

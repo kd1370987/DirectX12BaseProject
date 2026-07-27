@@ -180,6 +180,7 @@ namespace Engine::Graphics
 			const std::vector<MeshInstanceData>& a_mesInstance,
 			const std::vector<MeshMaterial>& a_mesMaterial
 		);
+		void UpdateUIBuffer(const std::vector<UIData>& a_uiInstanceVec);
 
 		// インデックスバインド
 		void BindIndex(UINT a_instanceBufferIndex, UINT a_subsetBufferIndex, UINT a_rootIndex = 1);
@@ -196,6 +197,10 @@ namespace Engine::Graphics
 		void ComputeBindCamera();
 		void BindMeshInstance();
 		void BindMeshlet();
+
+		// UI関連
+		void BindUIBuffer(UINT a_rootIndex);
+		void DrawUI();
 
 		void DrawQueueDispathMesh(uint8_t a_passIndex);
 
@@ -297,6 +302,9 @@ namespace Engine::Graphics
 		// メッシュシェーダー用データ
 		D3D12::StaticStructuredBuffer<MeshInstanceData>		m_meshInstanceBuffer;
 		D3D12::StaticStructuredBuffer<MeshMaterial>			m_meshMaterialBuffer;
+
+		// UIデータ
+		D3D12::DynamicStructuredBuffer<UIData> m_uiInstanceBuffer;
 	};
 	template<typename T>
 	inline void RenderContext::GraphicsBindRootCBV(int a_descIndex, const T& a_data)

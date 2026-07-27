@@ -241,6 +241,7 @@
     <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateMachine.cpp" />
     <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.cpp" />
     <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp" />
+    <ClCompile Include="Source\Application\Object\UI\UIBase.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.cpp" />
@@ -390,6 +391,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\UpScale\FullRaytracingUpScalePass\FullRaytracingUpScalePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.cpp" />
@@ -550,6 +552,7 @@
     <ClInclude Include="Source\Application\Game\GameManager\GameManager.h" />
     <ClInclude Include="Source\Application\InstanceResource\AdditiveBoneEntry.h" />
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
+    <ClInclude Include="Source\Application\Object\UI\UIBase.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.h" />
@@ -742,6 +745,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\UpScale\FullRaytracingUpScalePass\FullRaytracingUpScalePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\GBufferHistoryPass\GBufferHistoryPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass\PostHistoryPass.h" />
@@ -890,6 +894,7 @@
     <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli" />
     <None Include="Asset\Shader\Source\RootSignatureLayout.hlsli" />
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli" />
+    <None Include="Asset\Shader\Source\UI\UI.hlsli" />
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -1333,6 +1338,20 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.5</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.5</ShaderModel>
     </FxCompile>
+    <None Include="Asset\Shader\Source\UI\UIPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Asset\Shader\Source\UI\UIVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+    </None>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\AnimationZPreVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>

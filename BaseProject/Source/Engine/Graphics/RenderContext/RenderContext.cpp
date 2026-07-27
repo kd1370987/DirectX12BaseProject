@@ -49,13 +49,15 @@ namespace Engine::Graphics
 		// バッファ作成
 		m_instanceBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);						// インスタンスデータ
 		m_subsetBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);						// サブセット情報用バッファ
-		//m_boneBuffer.Create(a_desc.pDevice, a_pCmdList, a_desc.boneElementNum, nullptr);		// ボーン行列用
-		m_boneBuffer.Create(a_desc.pDevice, a_desc.boneElementNum);		// ボーン行列用
+		m_boneBuffer.Create(a_desc.pDevice, a_desc.boneElementNum);								// ボーン行列用
 		m_debugLineBuffer.Create(a_desc.pDevice, a_pCmdList, 10000, nullptr);					// 形状描画用バッファ
 
 		// メッシュ用データの作成
 		m_meshInstanceBuffer.Create(a_desc.pDevice, a_pCmdList, 100000, nullptr);
 		m_meshMaterialBuffer.Create(a_desc.pDevice, a_pCmdList, 100000, nullptr);
+
+		// UIインスタンス
+		m_uiInstanceBuffer.Create(a_desc.pDevice,10000);
 
 		// コピー戦略用SRVヒープの作成
 		UINT _heapSize = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize();
@@ -102,10 +104,10 @@ namespace Engine::Graphics
 		m_subsetBuffer.Release();
 		m_boneBuffer.Release();
 		m_debugLineBuffer.Release();
-		// 解放漏れしていた分(スキニング後頂点・メッシュインスタンス・メッシュマテリアル)
 		m_skininedVerticesBuffer.Release();
 		m_meshInstanceBuffer.Release();
 		m_meshMaterialBuffer.Release();
+		m_uiInstanceBuffer.Release();
 	}
 
 	void RenderContext::Clear()
@@ -640,6 +642,12 @@ namespace Engine::Graphics
 		}
 	}
 
+	void RenderContext::UpdateUIBuffer(const std::vector<UIData>& a_uiInstanceVec)
+	{
+		if (a_uiInstanceVec.empty()) return;
+		m_uiInstanceBuffer.AllocateAndWrite(a_uiInstanceVec);
+	}
+
 	void RenderContext::BindIndex(UINT a_instanceBufferIndex, UINT a_subsetBufferIndex, UINT a_rootIndex)
 	{
 		BufferIndexData _indexData = {};
@@ -708,6 +716,20 @@ namespace Engine::Graphics
 		m_pCmdList->SetGraphicsRootShaderResourceView(8, _pBufferManager->RefMeshletCullDataBuffer().GetResource()->GetGPUVirtualAddress());
 		// 前フレームのスキニング済み頂点(t8 = ルートパラメータ10) : モーションベクター用
 		m_pCmdList->SetGraphicsRootShaderResourceView(10, _pBufferManager->GetPrevAnimatedVertexBuffer().GetResource()->GetGPUVirtualAddress());
+	}
+
+	void RenderContext::BindUIBuffer(UINT a_rootIndex)
+	{
+		m_pCmdList->SetGraphicsRootShaderResourceView(a_rootIndex,m_uiInstanceBuffer.GetGPUVirtualAddress());
+	}
+
+	void RenderContext::DrawUI()
+	{
+		const auto& _uiDataVec = m_pGraphicsEngine->GetUIDataBuffer();
+		if (_uiDataVec.empty()) return;
+
+		size_t _uiInstanceCount = _uiDataVec.size();
+		DrawPolygonInstancing(static_cast<UINT>(_uiInstanceCount));
 	}
 
 	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)
@@ -867,11 +889,6 @@ namespace Engine::Graphics
 		m_pCmdList->IASetVertexBuffers(0,1,&_vbView);
 		m_pCmdList->IASetIndexBuffer(&_ibView);
 
-		// DrawIndexedInstanced の第1引数は「頂点数」ではなく「インデックス数」。
-		// 四角形は4頂点でも、2枚の三角形を張るのでインデックスは6個必要。
-		// ここに頂点数(4)を渡すとインデックスが4個しか消費されず、
-		// 三角形が1枚しか描かれない(四角形にならない)。
-		// マジックナンバーで6と書くとバッファ側と食い違うので、IBビューから実数を求める。
 		const UINT _indexByteSize = (_ibView.Format == DXGI_FORMAT_R16_UINT) ? 2u : 4u;
 		const UINT _indexCount = _ibView.SizeInBytes / _indexByteSize;
 

@@ -1,0 +1,8 @@
+{
+    "Files": [
+        ".cso",
+        ".hlsl"
+    ],
+    "GUID": "537e5852-1f35-497a-a215-86ed6d1f6bc8",
+    "Type": "Shader"
+}

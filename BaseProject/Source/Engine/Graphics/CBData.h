@@ -97,6 +97,24 @@ namespace Engine::Graphics
 		DirectX::XMFLOAT2 pad;
 	};
 
+	// UIデータ
+	struct UIData
+	{
+		UINT texIndex;				// SRVインデックス
+
+		DXSM::Vector2 pos;			// 座標
+		DXSM::Vector2 size;			// サイズ
+		float rotation;				// 回転
+
+		float layer;				// Z順
+
+		DXSM::Vector2 uvOffset;		// UVをずらす際のオフセット
+
+		DXSM::Vector4 color;		// 色調補正
+
+		DXSM::Vector2 pivot;		// 中心点
+	};
+
 	// サブメッシュ単位データ
 	struct SubSetData
 	{

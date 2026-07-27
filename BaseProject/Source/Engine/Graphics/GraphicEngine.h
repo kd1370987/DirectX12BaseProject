@@ -140,7 +140,7 @@ namespace Engine::Graphics
 		const AmbientData& GetAmbientData() const;
 		AmbientData& RefAmbientData();
 		//--------------------------------------------------------------------------------------------
-		// 描画コマンド
+		// 計算コマンド : スキニング
 		//--------------------------------------------------------------------------------------------
 		
 		/// <summary>
@@ -157,6 +157,10 @@ namespace Engine::Graphics
 			const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle,
 			const RangeHandle<Resource::BoneMatrix> boneHandle
 		);
+
+		//--------------------------------------------------------------------------------------------
+		// 描画コマンド : モデル
+		//--------------------------------------------------------------------------------------------
 
 		/// <summary>
 		/// 指定したモデルを指定の座標に描画する命令 : 即時実行ではなく、コマンドとしてためたのちに一括で実行される
@@ -230,6 +234,48 @@ namespace Engine::Graphics
 			const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle
 		);
 
+		//--------------------------------------------------------------------------------------------
+		// 描画コマンド : UI
+		//--------------------------------------------------------------------------------------------
+		/// <summary>
+		/// UI描画命令
+		/// </summary>
+		/// <param name="a_texHandle">テクスチャハンドル</param>
+		/// <param name="a_screenPos">テクスチャのスクリーン座標</param>
+		/// <param name="a_screenRect">テクスチャのデフォルトサイズにかかわらず、直接指定</param>
+		void SubmitUI(
+			const Handle<Resource::Texture>& a_texHandle,
+			const DXSM::Vector2& a_screenPos,
+			const DXSM::Vector2& a_screenRect,
+			const DXSM::Vector4& a_color = {},
+			float a_rotation = 0,
+			float a_layer = 0,
+			const DXSM::Vector2& a_uvOffset = {},
+			const DXSM::Vector2& a_pivot = {}
+		);
+
+		/// <summary>
+		/// UI描画命令
+		/// </summary>
+		/// <param name="a_texHandle">テクスチャハンドル</param>
+		/// <param name="a_screenPos">テクスチャのスクリーン座標</param>
+		/// <param name="a_scale">テクスチャに掛けるスケール</param>
+		/// <param name="a_color">色</param>
+		/// <param name="a_rotation">回転</param>
+		/// <param name="a_layer">Z順</param>
+		/// <param name="a_uvOffset">UVオフセット</param>
+		/// <param name="a_pivot">中心軸</param>
+		void SubmitUI(
+			const Handle<Resource::Texture>& a_texHandle,
+			const DXSM::Vector2& a_screenPos,
+			float a_scale = 1.0f,
+			const DXSM::Vector4& a_color = Color::WHITE,
+			float a_rotation = 0,
+			float a_layer = 0,
+			const DXSM::Vector2& a_uvOffset = {},
+			const DXSM::Vector2& a_pivot = {}
+		);
+
 		// 追加
 		UINT SetInstanceData(const InstanceData& a_instanceData);
 		UINT SetInstanceData(const MeshInstanceData& a_instanceData);
@@ -248,6 +294,8 @@ namespace Engine::Graphics
 
 		// バッファ取得
 		MeshBufferAllocator* RefMeshBufferAllocator() { return m_upMeshBufferAllocator.get(); }
+
+		const std::vector<UIData>& GetUIDataBuffer() { return m_uiDrawItemVec; }
 
 	private:
 
@@ -310,14 +358,19 @@ namespace Engine::Graphics
 		std::vector<MeshMaterial> m_meshMaterialDataVec = {};
 
 		//--------------------------------------------------------------------------------------------
-		// 描画命令
+		// 命令配列
 		//--------------------------------------------------------------------------------------------
 		// ソートキー持ち描画コマンドリスト
 		std::vector<LightWeightDrawItem> m_lightWeightDrawItemVec = {};
 
-		std::vector<Raytracing::DynamicRaytracingRequest> m_dynamicRayRequestVec = {};
+		// UI用アイテム配列
+		std::vector<UIData> m_uiDrawItemVec = {};
 
 		// GPUスキニング配列
 		std::vector<SkinningDispatchItem> m_skinningDispathItemVec = {};
+
+		// アニメーション用レイトレインスタンス作成命令
+		std::vector<Raytracing::DynamicRaytracingRequest> m_dynamicRayRequestVec = {};
+
 	};
 }

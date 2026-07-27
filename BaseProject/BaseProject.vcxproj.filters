@@ -1201,6 +1201,24 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem">
       <UniqueIdentifier>{ccd3b324-1653-4ed7-98fa-5629215f589a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object">
+      <UniqueIdentifier>{91fbd461-177e-4dd8-816b-0137e3bfd83f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\UI">
+      <UniqueIdentifier>{50ad7784-1d55-4333-957c-60656a8d08e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\UI\CombatReticleHUD">
+      <UniqueIdentifier>{2e7d9458-8813-4632-9886-e083cfa06481}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\UI">
+      <UniqueIdentifier>{d0a39dc0-d54e-4793-8917-c6872154b83d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\UI\UIPass">
+      <UniqueIdentifier>{a4296c28-f517-4366-9d1e-1fc28a4862be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\UI">
+      <UniqueIdentifier>{3fc54d1a-15bc-4a74-b634-b58f02fe9c37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1937,6 +1955,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIBase.cpp">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\UI\UIPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3075,6 +3099,12 @@
     <ClInclude Include="Source\Engine\Utility\Math\CameraUtility.h">
       <Filter>Source\Engine\Utility\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\UIBase.h">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\UI\UIPass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -3185,6 +3215,15 @@
     </None>
     <None Include="Asset\Shader\Source\Mesh\TestAS.hlsl">
       <Filter>Asset\Shader\Source\Mesh</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\UI\UI.hlsli">
+      <Filter>Asset\Shader\Source\UI</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\UI\UIVS.hlsl">
+      <Filter>Asset\Shader\Source\UI</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\UI\UIPS.hlsl">
+      <Filter>Asset\Shader\Source\UI</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

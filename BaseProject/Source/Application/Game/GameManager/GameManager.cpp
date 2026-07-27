@@ -224,7 +224,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<AdditivePoseComponent>("AdditivePoseComponent");
 				a_pWorld->RegisterComponent<AimTargetPosComponent>("AimTargetPosComponent");
 				a_pWorld->RegisterComponent<ConeColliderComponent>("ConeColliderComponent");
-					a_pWorld->RegisterComponent<PatrolComponent>("PatrolComponent");
+				a_pWorld->RegisterComponent<PatrolComponent>("PatrolComponent");
 				a_pWorld->RegisterComponent<TargetEntityComponent>("TargetEntityComponent");
 
 				// システム登録

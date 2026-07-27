@@ -56,6 +56,8 @@
 
 #include "RenderPass/UpScale/FullRaytracingUpScalePass/FullRaytracingUpScalePass.h"
 
+#include "RenderPass/UI/UIPass/UIPass.h"
+
 
 // テスト
 #include "../../Application/Game/GameManager/GameManager.h"
@@ -123,6 +125,7 @@ namespace Engine::Graphics
 		AddGBufferHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
 		AddPostHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
 
+		AddUIPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
 
 		AddTAAPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 
@@ -254,6 +257,7 @@ namespace Engine::Graphics
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(
 			m_instanceDataVec, m_subSetDataVec, m_meshInstanceDataVec, m_meshMaterialDataVec
 		);
+		m_upRenderContextVec[m_currentFrameIndex]->UpdateUIBuffer(m_uiDrawItemVec);
 
 
 		// 描画アイテムをソート
@@ -277,6 +281,9 @@ namespace Engine::Graphics
 		// 描画命令をクリアしてメモリ領域を確保しておく
 		m_lightWeightDrawItemVec.clear();
 		m_lightWeightDrawItemVec.reserve(10000);
+
+		m_uiDrawItemVec.clear();
+		m_uiDrawItemVec.reserve(10000);
 
 		m_dynamicRayRequestVec.clear();
 		m_dynamicRayRequestVec.reserve(1000);
@@ -798,6 +805,40 @@ namespace Engine::Graphics
 		m_dynamicRayRequestVec.push_back(
 			{ a_worldMat,a_colorScale,a_emissiveScale,dynamicHandle,nodePoseHnandle }
 		);
+	}
+
+	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const DXSM::Vector2& a_screenPos, const DXSM::Vector2& a_screenRect, const DXSM::Vector4& a_color, float a_rotation, float a_layer, const DXSM::Vector2& a_uvOffset, const DXSM::Vector2& a_pivot)
+	{
+		auto* _pTex = Resource::ResourceManager::Instance().Get(a_texHandle);
+		if (!_pTex) return;
+
+		UIData _data = {};
+		_data.texIndex = _pTex->GetSRV().GetIndex();
+		_data.pos = a_screenPos;
+		_data.size = a_screenRect;
+		_data.rotation = a_rotation;
+		_data.layer = a_layer;
+		_data.uvOffset = a_uvOffset;
+		_data.color = a_color;
+		_data.pivot = a_pivot;
+		m_uiDrawItemVec.push_back(_data);
+	}
+
+	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const DXSM::Vector2& a_screenPos, float a_scale, const DXSM::Vector4& a_color, float a_rotation, float a_layer, const DXSM::Vector2& a_uvOffset, const DXSM::Vector2& a_pivot)
+	{
+		auto* _pTex = Resource::ResourceManager::Instance().Get(a_texHandle);
+		if (!_pTex) return;
+
+		UIData _data = {};
+		_data.texIndex = _pTex->GetSRV().GetIndex();
+		_data.pos = a_screenPos;
+		_data.size = { _pTex->GetDesc().Width * a_scale,_pTex->GetDesc().Height * a_scale };
+		_data.rotation = a_rotation;
+		_data.layer = a_layer;
+		_data.uvOffset = a_uvOffset;
+		_data.color = a_color;
+		_data.pivot = a_pivot;
+		m_uiDrawItemVec.push_back(_data);
 	}
 
 	UINT GraphicsEngine::SetInstanceData(const InstanceData& a_instanceData)
