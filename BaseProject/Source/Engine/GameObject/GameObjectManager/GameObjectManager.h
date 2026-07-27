@@ -22,28 +22,32 @@ namespace Engine::GameObject
 		/// <typeparam name="T">クラス型</typeparam>
 		/// <returns>追加した際のポインタ</returns>
 		template<typename T>
-		T* AddObject(ObjectContext& a_context);
+		T* AddObject();
+
+		void PreUpdate();
 
 		/// <summary>
 		/// 全オブジェクトの更新
 		/// </summary>
 		/// <param name="a_dt">デルタタイム</param>
-		void Update(ObjectContext& a_context);
+		void Update(float a_dt);
 
 		/// <summary>
 		/// 全オブジェクトの描画
 		/// </summary>
 		/// <param name="a_dt">デルタタイム</param>
-		void Draw(ObjectContext& a_context);
+		void Draw(float a_dt);
 
 	private:
+
+		ObjectContext m_objContext = {};
 
 		std::vector<std::unique_ptr<BaseObject>> m_upObjectVec = {};
 	};
 
 
 	template<typename T>
-	inline T* GameObjectManager::AddObject(ObjectContext& a_context)
+	inline T* GameObjectManager::AddObject()
 	{
 		// ベースオブジェクトの継承がされているかのチェック
 		static_assert(std::is_base_of_v<BaseObject,T>);
@@ -51,7 +55,11 @@ namespace Engine::GameObject
 		// オブジェクトの追加
 		auto _upObject = std::make_unique<T>();
 		m_upObjectVec.push_back(std::move(_upObject));
-		_upObject->Init(a_context);
-		return m_upObjectVec.back().get();
+
+		// push_back で _upObject は空になっているため、
+		// 格納後の実体を取り出して初期化する
+		T* _pObject = static_cast<T*>(m_upObjectVec.back().get());
+		_pObject->Init(m_objContext);
+		return _pObject;
 	}
 }

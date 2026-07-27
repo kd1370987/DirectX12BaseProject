@@ -32,6 +32,6 @@ VSOutput VSMain(VSInput a_input)
 	_out.pos = float4(_local, _uiData.layer, 1);
 	_out.uv = a_input.uv + _uiData.uvOffset;
 	_out.color = _uiData.color;
-	_out.instID = a_input.instID;
+	_out.texIndex = _uiData.texIndex;	// 実際のSRV番号をPSへ渡す
 	return _out;
 }

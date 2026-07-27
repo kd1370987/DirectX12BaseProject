@@ -47,9 +47,11 @@ struct VSInput
 struct VSOutput
 {
 	float4 pos : SV_Position; // 射影行列
-	
+
 	float2 uv : TEXCOORD0;
 	float4 color : TEXCOORD1;
-	
-	uint instID : SV_InstanceID; // インスタンス番号
+
+	// テクスチャのSRVインデックス(ディスクリプタヒープ番号)。
+	// インスタンスごとに一定なので nointerpolation で渡す。
+	nointerpolation uint texIndex : TEXCOORD2;
 };

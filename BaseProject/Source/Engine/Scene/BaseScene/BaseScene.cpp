@@ -15,6 +15,9 @@
 #include "../../Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "../../GameObject/GameObjectManager/GameObjectManager.h"
 
+// アプリ側UIオブジェクト
+#include "Application/Object/UI/CombatReticleHUD/CombatReticleHUD.h"
+
 
 namespace Engine::Scene
 {
@@ -46,6 +49,10 @@ namespace Engine::Scene
 
 		// ECS外オブジェクトの生成
 		m_upGameObjectManager = std::make_unique<GameObject::GameObjectManager>();
+
+		// テスト用にUIを表示
+		m_upGameObjectManager->AddObject<App::Object::CombatReticleHUD>();
+
 	}
 
 	void BaseScene::Exit()
@@ -56,6 +63,8 @@ namespace Engine::Scene
 
 	void BaseScene::Update(float a_dt)
 	{
+
+		m_upGameObjectManager->PreUpdate();
 
 		// シーンの初めに一括でエンティティを生成・削除
 		// 解放処理と初期化処理も含まれているため、呼び出しはシングルスレッド限定
@@ -101,6 +110,8 @@ namespace Engine::Scene
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Camera, a_dt);
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::PostUpdate, a_dt);
+
+		m_upGameObjectManager->Update(a_dt);
 	}
 
 	void BaseScene::Draw()
@@ -110,6 +121,8 @@ namespace Engine::Scene
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Draw, 0.0f);
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::PostDraw, 0.0f);
+
+		m_upGameObjectManager->Draw(0.0f);
 	}
 
 	void BaseScene::Archive(Persistence::Archive& a_ar)

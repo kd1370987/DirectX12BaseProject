@@ -6,7 +6,7 @@ namespace Engine::GameObject
 	/// </summary>
 	struct ObjectContext
 	{
-		float a_dt;
+		float dt;
 	};
 
 	/// <summary>
@@ -25,5 +25,11 @@ namespace Engine::GameObject
 		virtual void Update(ObjectContext& a_context);
 		virtual void Draw(ObjectContext& a_context);
 
+		bool IsExpired() const { return m_isExpired; }
+
+	protected:
+
+		// 存在フラグ : trueにしたら次フレームの初めにオブジェクトが消去される
+		bool m_isExpired = false;
 	};
 }

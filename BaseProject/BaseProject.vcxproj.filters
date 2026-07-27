@@ -1956,6 +1956,9 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.cpp">
+      <Filter>Source\Application\Object\UI\CombatReticleHUD</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp">
       <Filter>Source\Application\Object\UI</Filter>
     </ClCompile>
@@ -3098,6 +3101,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Math\CameraUtility.h">
       <Filter>Source\Engine\Utility\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.h">
+      <Filter>Source\Application\Object\UI\CombatReticleHUD</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\UIBase.h">
       <Filter>Source\Application\Object\UI</Filter>

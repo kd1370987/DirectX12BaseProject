@@ -4,6 +4,18 @@
 
 namespace App::Object
 {
+	struct UIElement
+	{
+		Engine::Handle<Engine::Resource::Texture> texHandle = {};
+		DXSM::Vector2 screenPos = {};
+		float rotation = 0.0f;
+
+		DXSM::Vector2 size = {};
+		float scale = 0.0f;
+
+		DXSM::Color color = {};
+	};
+
 	class UIBase : public Engine::GameObject::BaseObject
 	{
 	public:
