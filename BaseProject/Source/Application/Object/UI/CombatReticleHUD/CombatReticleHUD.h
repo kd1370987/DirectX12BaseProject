@@ -21,6 +21,19 @@ namespace App::Object
 		// 描画処理 : UI描画命令の発行
 		void Draw(Engine::GameObject::ObjectContext& a_context) override;
 
+		//=======================================================================
+		// エディター用
+		//=======================================================================
+
+		// ヒエラルキー/インスペクター表示名
+		const char* GetEditorName() const override { return "CombatReticleHUD"; }
+
+		// インスペクターの編集UI
+		void DrawInspector() override;
+
+		// シーンビュー上のスクリーンハンドルで位置を編集する
+		bool DrawGizmo(const Engine::GameObject::ObjectGizmoContext& a_ctx) override;
+
 	private:
 
 		// レティクルのテクスチャ参照(ResourceRefで所有し、GCで解放されないようにする)

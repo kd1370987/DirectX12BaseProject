@@ -121,6 +121,13 @@ namespace Engine::Scene
 		return m_upBaseSceneVec.back().get();
 	}
 
+	GameObject::GameObjectManager* SceneManager::RefGameObjectManager()
+	{
+		if (m_upBaseSceneVec.empty()) return nullptr;
+
+		return m_upBaseSceneVec.back()->RefGameObjectManager();
+	}
+
 	void SceneManager::SetNextScene(const Engine::GUID& a_guid, const SceneChangeType& a_changeType)
 	{
 		m_sceneChangeCmd.push({ a_guid,a_changeType });

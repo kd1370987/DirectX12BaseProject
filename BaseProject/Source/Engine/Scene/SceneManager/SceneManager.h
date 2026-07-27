@@ -10,6 +10,10 @@ namespace Engine
 	{
 		class RenderContext;
 	}
+	namespace GameObject
+	{
+		class GameObjectManager;
+	}
 }
 
 namespace Engine::Scene
@@ -66,6 +70,11 @@ namespace Engine::Scene
 		/// </summary>
 		/// <returns>ベースシーンポインタ</returns>
 		BaseScene* GetCurrentTopScene();
+
+		/// <summary>
+		/// 現在のシーンのECS外オブジェクトマネージャーを参照(エディター用)
+		/// </summary>
+		GameObject::GameObjectManager* RefGameObjectManager();
 
 	private:
 

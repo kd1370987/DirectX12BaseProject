@@ -6,21 +6,22 @@
 #include "../../Common/CB/CBCamera.hlsli"
 #include "../RootSignatureLayout.hlsli"
 
+// CPU側(CBData.hのUIData)と1バイトもズレないよう、float4境界で並べる。
+// row0: pos+size / row1: uvOffset+pivot / row2: color / row3: rotation+layer+texIndex+pad
 struct UIData
 {
-	uint texIndex;
-	
 	float2 pos;		// 座標
 	float2 size;	// サイズ
-	float rotation; // 回転
-	
-	float layer;	// Z順
 
-	float2 uvOffset;		// UVをずらす際のオフセット
+	float2 uvOffset;	// UVをずらす際のオフセット
+	float2 pivot;		// 中心点
 
 	float4 color;		// 色調補正
 
-	float2 pivot;		// 中心点
+	float rotation;		// 回転
+	float layer;		// Z順
+	uint texIndex;		// SRVインデックス
+	float _pad;			// 16バイトアライメント用
 };
 
 // ルートシグネチャ

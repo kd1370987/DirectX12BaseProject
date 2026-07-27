@@ -1060,6 +1060,9 @@
     <Filter Include="Source\Engine\Editor\Panel\HierarchyPanel">
       <UniqueIdentifier>{7caba347-d8ed-4d56-8c72-eb7bb089a11e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\GameObjectHierarchyPanel">
+      <UniqueIdentifier>{2b9f4e17-6d3a-4c1e-9a52-77b0c1e8d640}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector">
       <UniqueIdentifier>{af62945a-6181-4141-9e13-2cb16ae96d85}</UniqueIdentifier>
     </Filter>
@@ -1808,6 +1811,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\GameObjectHierarchyPanel\GameObjectHierarchyPanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\GameObjectHierarchyPanel</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.cpp">
       <Filter>Source\Engine\Editor\Panel\HierarchyPanel</Filter>
@@ -2884,6 +2890,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\GameObjectHierarchyPanel\GameObjectHierarchyPanel.h">
+      <Filter>Source\Engine\Editor\Panel\GameObjectHierarchyPanel</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.h">
       <Filter>Source\Engine\Editor\Panel\HierarchyPanel</Filter>

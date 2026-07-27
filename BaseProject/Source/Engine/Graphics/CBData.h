@@ -98,21 +98,24 @@ namespace Engine::Graphics
 	};
 
 	// UIデータ
+	// StructuredBuffer<UIData> と1バイトもズレないよう、16バイト(float4)境界を意識して並べる。
+	// HLSLの構造化バッファは float2 が16バイト境界をまたぐ位置に来ると次の境界へ押し出される。
+	// 各行がちょうど float4 に収まる順序にしておけばパディングのズレが起きない。
+	// (row0: pos+size / row1: uvOffset+pivot / row2: color / row3: rotation+layer+texIndex+pad)
 	struct UIData
 	{
-		UINT texIndex;				// SRVインデックス
-
 		DXSM::Vector2 pos;			// 座標
 		DXSM::Vector2 size;			// サイズ
-		float rotation;				// 回転
-
-		float layer;				// Z順
 
 		DXSM::Vector2 uvOffset;		// UVをずらす際のオフセット
+		DXSM::Vector2 pivot;		// 中心点
 
 		DXSM::Vector4 color;		// 色調補正
 
-		DXSM::Vector2 pivot;		// 中心点
+		float rotation;				// 回転
+		float layer;				// Z順
+		UINT texIndex;				// SRVインデックス
+		float _pad;					// 16バイトアライメント用
 	};
 
 	// サブメッシュ単位データ

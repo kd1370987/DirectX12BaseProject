@@ -347,6 +347,7 @@
     <ClCompile Include="Source\Engine\Editor\EditorCamera\EditorCamera.cpp" />
     <ClCompile Include="Source\Engine\Editor\PanelManager\PanelManager.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Panel\GameObjectHierarchyPanel\GameObjectHierarchyPanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.cpp" />
@@ -695,6 +696,7 @@
     <ClInclude Include="Source\Engine\Editor\PanelManager\EditorContext.h" />
     <ClInclude Include="Source\Engine\Editor\PanelManager\PanelManager.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.h" />
+    <ClInclude Include="Source\Engine\Editor\Panel\GameObjectHierarchyPanel\GameObjectHierarchyPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.h" />

@@ -1,4 +1,10 @@
 ﻿#pragma once
+
+namespace Engine::GameObject
+{
+	class BaseObject;
+}
+
 namespace Engine::Editor
 {
 	class EditorCamera;
@@ -30,6 +36,9 @@ namespace Engine::Editor
 
 		// 選択中のエンティティ
 		ECS::Entity entity = ECS::Limits::INVALID_ENTITY;
+
+		// 選択中のECS外オブジェクト(GameObjectManager管理下)
+		GameObject::BaseObject* pGameObject = nullptr;
 
 		// エディターカメラポインタ
 		EditorCamera* pEditorCamera = nullptr;

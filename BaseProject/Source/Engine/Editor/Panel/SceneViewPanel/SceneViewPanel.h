@@ -36,6 +36,9 @@ namespace Engine::Editor
 		// ギズモ
 		void GuizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, const ECS::Entity& a_currentSelectEntity, Engine::ECS::World* a_pWorld);
 
+		// ECS外オブジェクト用のギズモ(BaseObject::DrawGizmoへ委譲)
+		void GameObjectGizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, EditorContext& a_editContext);
+
 		// メニューバー
 		void SceneFileMenu(EditorContext& a_editContext);
 

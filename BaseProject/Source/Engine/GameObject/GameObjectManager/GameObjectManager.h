@@ -38,6 +38,11 @@ namespace Engine::GameObject
 		/// <param name="a_dt">デルタタイム</param>
 		void Draw(float a_dt);
 
+		/// <summary>
+		/// 管理中のオブジェクト一覧を取得(エディターのヒエラルキー表示用)。
+		/// </summary>
+		const std::vector<std::unique_ptr<BaseObject>>& GetObjects() const { return m_upObjectVec; }
+
 	private:
 
 		ObjectContext m_objContext = {};

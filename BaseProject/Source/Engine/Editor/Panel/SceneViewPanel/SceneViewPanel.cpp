@@ -24,6 +24,8 @@
 
 #include "../../../Option/OptionManager.h"
 
+#include "../../../GameObject/BaseObject/BaseObject.h"
+
 namespace Engine::Editor
 {
 	void Engine::Editor::SceneViewPanel::OnDrawImGui(EditorContext& a_editContext)
@@ -77,7 +79,16 @@ namespace Engine::Editor
 		SelectEntityForMouse(a_editContext,_pWorld, _imageMin,_actualRenderSize);
 
 		// ギズモ描画
-		GuizmoDraw(_imageMin, _actualRenderSize, a_editContext.entity, _pWorld);
+		// ゲームオブジェクト(Gameモード)を選択中ならそちらのギズモを、
+		// そうでなければ従来通りECSエンティティのギズモを出す。
+		if (a_editContext.eInspectorType == EInspectorType::Game && a_editContext.pGameObject)
+		{
+			GameObjectGizmoDraw(_imageMin, _actualRenderSize, a_editContext);
+		}
+		else
+		{
+			GuizmoDraw(_imageMin, _actualRenderSize, a_editContext.entity, _pWorld);
+		}
 	}
 	void SceneViewPanel::SelectEntityForMouse(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const ImVec2& a_pos, const ImVec2& a_rect)
 	{
@@ -274,6 +285,30 @@ namespace Engine::Editor
 
 			DirectX::XMStoreFloat4x4(&_pWorldComp->worldMat, updatedWorld);
 		}
+	}
+	void SceneViewPanel::GameObjectGizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, EditorContext& a_editContext)
+	{
+		auto* _pObj = a_editContext.pGameObject;
+		if (!_pObj) return;
+
+		// ギズモ描画先とレクトを、シーンビュー画像に合わせる(エンティティ用と同じ設定)
+		ImGuizmo::SetDrawlist();
+		ImGuizmo::SetRect(a_pos.x, a_pos.y, a_rect.x, a_rect.y);
+
+		// カメラ行列を取得
+		auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
+		if (!_pGE) return;
+		const auto& _camData = _pGE->GetCPUCameraData();
+
+		// オブジェクトへ渡すコンテキストを組む。
+		// 具体的な編集方法(3Dギズモ/スクリーン上のハンドル等)は各オブジェクトのDrawGizmoに委ねる。
+		GameObject::ObjectGizmoContext _ctx = {};
+		_ctx.viewMat = _camData.viewMat;
+		_ctx.projMat = _camData.projMat;
+		_ctx.viewportPos = { a_pos.x, a_pos.y };
+		_ctx.viewportSize = { a_rect.x, a_rect.y };
+
+		_pObj->DrawGizmo(_ctx);
 	}
 	void SceneViewPanel::SceneFileMenu(EditorContext& a_editContext)
 	{

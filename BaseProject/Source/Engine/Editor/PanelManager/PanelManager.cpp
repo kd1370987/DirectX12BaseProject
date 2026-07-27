@@ -4,6 +4,7 @@
 #include "../Panel/AssetDataBasePanel/AssetDataBasePanel.h"
 #include "../Panel/InspectorPanel/InspectorPanel.h"
 #include "../Panel/HierarchyPanel/HierarchyPanel.h"
+#include "../Panel/GameObjectHierarchyPanel/GameObjectHierarchyPanel.h"
 #include "../Panel/SceneViewPanel/SceneViewPanel.h"
 #include "../Panel/OptionPanel/OptionPanel.h"
 
@@ -15,6 +16,7 @@ namespace  Engine::Editor
 		RegisterPanel<AssetDataBasePanel>();
 		RegisterPanel<InspectorPanel>();
 		RegisterPanel<HierarchyPanel>();
+		RegisterPanel<GameObjectHierarchyPanel>();
 		RegisterPanel<SceneViewPanel>();
 		RegisterPanel<OptionPanel>();
 

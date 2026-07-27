@@ -53,6 +53,11 @@ namespace Engine::Scene
 		/// <returns></returns>
 		Engine::ECS::World* RefWorld() { return m_upWorld.get(); }
 
+		/// <summary>
+		/// ECS外オブジェクトのマネージャーを取得(エディター用)。
+		/// </summary>
+		GameObject::GameObjectManager* RefGameObjectManager() { return m_upGameObjectManager.get(); }
+
 		void SetGUID(const Engine::GUID& a_guid) { m_guid = a_guid; }
 		const Engine::GUID& GetGUID() const { return m_guid; }
 
