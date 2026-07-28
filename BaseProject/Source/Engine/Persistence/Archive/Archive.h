@@ -350,6 +350,30 @@ namespace Engine::Persistence
 			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
+	template<>
+	inline void Archive::Field(const std::string& a_name, DXSM::Color& a_data)
+	{
+		// セーブ時
+		if (IsSaving())
+		{
+			// json処理
+			CurrentNode()[a_name] = { a_data.R(), a_data.G(), a_data.B(), a_data.A()};
+			// binary処理
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		// ロード時
+		else
+		{
+			// json処理
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			{
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1], j[2], j[3] };
+			}
+			// binary処理
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
 	// float2
 	template<>
 	inline void Archive::Field(const std::string& a_name, DirectX::XMFLOAT2& a_data)

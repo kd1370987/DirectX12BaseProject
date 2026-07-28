@@ -42,7 +42,7 @@ namespace App::Object
 		float m_rotation = 0.0f;
 
 		// オプション
-		DXSM::Vector2 m_pivot = {};				// 回転軸
+		DXSM::Vector2 m_pivot = { 0.5f, 0.5f };	// 回転軸/基準点(正規化[0,1], 0.5=中心)
 		DXSM::Vector2 m_uvOffset = {};			// UVスクロールなど
 		float m_layer = 0.0f;					// Z位置
 		DXSM::Vector2 m_editSize = {};			// エディターでいじる際のピクセルサイズ

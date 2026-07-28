@@ -247,42 +247,48 @@ namespace Engine::Graphics
 		// 描画コマンド : UI
 		//--------------------------------------------------------------------------------------------
 		/// <summary>
-		/// UI描画命令
+		/// UI描画命令。座標系はピクセル(左上原点/Y下向き)。回転・アスペクト補正・
+		/// ピボットはエンジン側でピクセル空間で計算するため、斜め回転でも歪まない。
 		/// </summary>
 		/// <param name="a_texHandle">テクスチャハンドル</param>
-		/// <param name="a_screenPos">テクスチャのスクリーン座標</param>
-		/// <param name="a_screenRect">テクスチャのデフォルトサイズにかかわらず、直接指定</param>
+		/// <param name="a_pixelPos">ピボットのスクリーン座標(px, 左上原点)</param>
+		/// <param name="a_pixelSize">表示フルサイズ(px)</param>
+		/// <param name="a_color">色</param>
+		/// <param name="a_rotationDeg">回転(度, 時計回り)</param>
+		/// <param name="a_layer">Z順</param>
+		/// <param name="a_uvOffset">UVオフセット</param>
+		/// <param name="a_pivot">回転軸/基準点(正規化[0,1], 0.5=中心)</param>
 		void SubmitUI(
 			const Handle<Resource::Texture>& a_texHandle,
-			const DXSM::Vector2& a_screenPos,
-			const DXSM::Vector2& a_screenRect,
+			const DXSM::Vector2& a_pixelPos,
+			const DXSM::Vector2& a_pixelSize,
 			const DXSM::Vector4& a_color = {},
-			float a_rotation = 0,
+			float a_rotationDeg = 0,
 			float a_layer = 0,
 			const DXSM::Vector2& a_uvOffset = {},
-			const DXSM::Vector2& a_pivot = {}
+			const DXSM::Vector2& a_pivot = { 0.5f, 0.5f }
 		);
 
 		/// <summary>
-		/// UI描画命令
+		/// UI描画命令(サイズはテクスチャ原寸×スケール)。座標系はピクセル。
 		/// </summary>
 		/// <param name="a_texHandle">テクスチャハンドル</param>
-		/// <param name="a_screenPos">テクスチャのスクリーン座標</param>
-		/// <param name="a_scale">テクスチャに掛けるスケール</param>
+		/// <param name="a_pixelPos">ピボットのスクリーン座標(px, 左上原点)</param>
+		/// <param name="a_scale">テクスチャ原寸に掛けるスケール</param>
 		/// <param name="a_color">色</param>
-		/// <param name="a_rotation">回転</param>
+		/// <param name="a_rotationDeg">回転(度, 時計回り)</param>
 		/// <param name="a_layer">Z順</param>
 		/// <param name="a_uvOffset">UVオフセット</param>
-		/// <param name="a_pivot">中心軸</param>
+		/// <param name="a_pivot">回転軸/基準点(正規化[0,1], 0.5=中心)</param>
 		void SubmitUI(
 			const Handle<Resource::Texture>& a_texHandle,
-			const DXSM::Vector2& a_screenPos,
+			const DXSM::Vector2& a_pixelPos,
 			float a_scale = 1.0f,
 			const DXSM::Vector4& a_color = Color::WHITE,
-			float a_rotation = 0,
+			float a_rotationDeg = 0,
 			float a_layer = 0,
 			const DXSM::Vector2& a_uvOffset = {},
-			const DXSM::Vector2& a_pivot = {}
+			const DXSM::Vector2& a_pivot = { 0.5f, 0.5f }
 		);
 
 		// 追加
@@ -352,13 +358,14 @@ namespace Engine::Graphics
 			const DXSM::Vector3& a_emissiveScale,
 			PSOKey a_psoKey);
 
-		// UIデータを1件バッファへ積む(SubmitUI 各オーバーロード共通)。
+		// ピクセル空間で回転・アスペクト補正・ピボットを解決し、UIData(NDC基底)を
+		// 1件バッファへ積む(SubmitUI 各オーバーロード共通)。
 		void PushUIData(
 			uint32_t a_texIndex,
-			const DXSM::Vector2& a_pos,
-			const DXSM::Vector2& a_size,
+			const DXSM::Vector2& a_pixelPos,
+			const DXSM::Vector2& a_pixelSize,
 			const DXSM::Vector4& a_color,
-			float a_rotation,
+			float a_rotationDeg,
 			float a_layer,
 			const DXSM::Vector2& a_uvOffset,
 			const DXSM::Vector2& a_pivot);

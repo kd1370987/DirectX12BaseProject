@@ -19,29 +19,12 @@ namespace App::Object
 		auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGE) return;
 
-		// UIシェーダ(UIVS.hlsl)はpos/sizeをNDC(クリップ空間)で扱う。
-		// 編集はピクセルで行いたいので、現在のウィンドウ解像度を使ってピクセル→NDCへ変換する。
-		const auto& _winOp = Engine::Option::OptionManager::GetInstance().GetWindowOption();
-		const float _w = static_cast<float>(_winOp.windowWidth);
-		const float _h = static_cast<float>(_winOp.windowHeight);
-		if (_w <= 0.0f || _h <= 0.0f) return;
-
-		// 中心座標 : ピクセル(左上原点/Y下向き) → NDC(中心原点/Y上向き)
-		DXSM::Vector2 _ndcPos;
-		_ndcPos.x = m_pixelPos.x / _w * 2.0f - 1.0f;
-		_ndcPos.y = 1.0f - m_pixelPos.y / _h * 2.0f;
-
-		// サイズ : フルサイズ(px) → NDC半径。
-		// ベースクアッドが-1〜1(全幅2)で size 分だけ拡縮するため、半径 = px / 解像度 となる。
-		DXSM::Vector2 _ndcSize;
-		_ndcSize.x = m_pixelSize.x / _w;
-		_ndcSize.y = m_pixelSize.y / _h;
-
-		// 描画
+		// 座標・サイズ(px)、回転(度)、正規化ピボット[0,1]をそのまま渡す。
+		// NDC変換・アスペクト補正・回転・ピボット処理はエンジン側(SubmitUI)が行う。
 		_pGE->SubmitUI(
 			m_texRef,
-			_ndcPos,
-			_ndcSize,
+			m_pixelPos,
+			m_pixelSize,
 			m_color,
 			m_rotation,
 			m_layer,
@@ -51,11 +34,16 @@ namespace App::Object
 	}
 	void UIBase::Archive(Engine::Persistence::Archive& a_ar)
 	{
-		// 位置・サイズ(ピクセル)とテクスチャGUIDを保存/復元。
-		// 保存・読み込みの分岐は Archive クラスが吸収するので同じ記述で両対応。
+		a_ar.GUIDField("TexGUID", m_texGUID);
+		a_ar.Field("Color", m_color);
+
 		a_ar.Field("PosPixel", m_pixelPos);
 		a_ar.Field("SizePixel", m_pixelSize);
-		a_ar.GUIDField("TexGUID", m_texGUID);
+		a_ar.Field("m_rotation",m_rotation);
+		a_ar.Field("m_pivot",m_pivot);
+		a_ar.Field("m_uvOffset",m_uvOffset);
+		a_ar.Field("m_layer", m_layer);
+		a_ar.Field("m_scale", m_scale);
 
 		m_editSize = m_pixelSize;
 
@@ -136,7 +124,9 @@ namespace App::Object
 		ImGui::Separator();
 		ImGui::Spacing();
 
-		ImGui::DragFloat2("Pivot", &m_pivot.x, 0.01f);
+		// ピボット : 正規化[0,1]。(0.5,0.5)=中心, (0,0)=左上, (1,1)=右下。
+		// この点が PixelPos に配置され、回転の中心にもなる。
+		ImGui::DragFloat2("Pivot (0-1)", &m_pivot.x, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat2("UVOffset", &m_uvOffset.x, 0.01f);
 		ImGui::DragFloat("LayerZ", &m_layer, 1.0f);
 		
@@ -152,14 +142,11 @@ namespace App::Object
 		const float _h = static_cast<float>(_winOp.windowHeight);
 		if (_w <= 0.0f || _h <= 0.0f) return false;
 
-		// ゲーム内ピクセル(左上原点) から シーンビュー上ピクセルへ
+		// ゲーム内ピクセル(左上原点) から シーンビュー上ピクセルへ。
+		// m_pixelPos はピボットのスクリーン座標なので、ハンドルはそのままピボット位置を指す。
 		ImVec2 _handle = {};
 		_handle.x = a_ctx.viewportPos.x + (m_pixelPos.x / _w) * a_ctx.viewportSize.x;
 		_handle.y = a_ctx.viewportPos.y + (m_pixelPos.y / _h) * a_ctx.viewportSize.y;
-
-		// ピボットを中心とする
-		_handle.x += m_pivot.x;
-		_handle.y += m_pivot.y;
 
 		// ギズモハンドルの半径 : ピクセル
 		static const float _handleRadius = 9.0f;

@@ -1092,23 +1092,60 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::PushUIData(
 		uint32_t a_texIndex,
-		const DXSM::Vector2& a_pos,
-		const DXSM::Vector2& a_size,
+		const DXSM::Vector2& a_pixelPos,
+		const DXSM::Vector2& a_pixelSize,
 		const DXSM::Vector4& a_color,
-		float a_rotation,
+		float a_rotationDeg,
 		float a_layer,
 		const DXSM::Vector2& a_uvOffset,
 		const DXSM::Vector2& a_pivot)
 	{
+		// スクリーン解像度(px)
+		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const float _w = static_cast<float>(_winOp.windowWidth);
+		const float _h = static_cast<float>(_winOp.windowHeight);
+		if (_w <= 0.0f || _h <= 0.0f) return;
+
+		// 回転(度→ラジアン)。回転はピクセル空間(等方)で行い、そのあとNDCへ変換する。
+		// こうしないと、NDC空間(x,yで縮尺が違う)で回転させたときに斜めで画像が歪む。
+		const float _rad = DirectX::XMConvertToRadians(a_rotationDeg);
+		const float _cos = std::cos(_rad);
+		const float _sin = std::sin(_rad);
+
+		// 半サイズ(px)と、ピボット(正規化[0,1])からクアッド中心までのオフセット(px)。
+		// (0.5 - pivot) * size がクアッド中心のピボットからのずれ。
+		const DXSM::Vector2 _halfPx = { a_pixelSize.x * 0.5f, a_pixelSize.y * 0.5f };
+		const DXSM::Vector2 _pivotOffPx = {
+			(0.5f - a_pivot.x) * a_pixelSize.x,
+			(0.5f - a_pivot.y) * a_pixelSize.y
+		};
+
+		// クアッド頂点 q∈[-1,1] に対し、ピクセル空間での最終座標は
+		//   finalPx = centerPx + q.x*axisXpx + q.y*axisYpx
+		// 回転はピボットを中心に行うので、centerPx = ピボット位置 + R*ピボットオフセット。
+		//
+		// ベースクアッドのUVは q.x=+1 がテクスチャ右、q.y=+1 がテクスチャ上(v=0)。
+		// よって未回転時、ローカル+Xは画面右(+pixelX)、ローカル+Yは画面上(-pixelY)を向く。
+		// この基底(+X=右, +Y=上)を回転行列 R(θ) で回す。
+		//   axisXpx = R*( halfX,      0) = ( halfX*cos, halfX*sin)
+		//   axisYpx = R*(     0, -halfY) = ( halfY*sin,-halfY*cos)
+		const DXSM::Vector2 _centerPx = {
+			a_pixelPos.x + (_pivotOffPx.x * _cos - _pivotOffPx.y * _sin),
+			a_pixelPos.y + (_pivotOffPx.x * _sin + _pivotOffPx.y * _cos)
+		};
+		const DXSM::Vector2 _axisXpx = { _halfPx.x * _cos,  _halfPx.x * _sin };
+		const DXSM::Vector2 _axisYpx = { _halfPx.y * _sin, -_halfPx.y * _cos };
+
+		// ピクセル(左上原点/Y下向き) → NDC(中心原点/Y上向き)。
+		// 点は原点シフトあり、方向ベクトルはスケールのみ(Yは符号反転)。
 		UIData _data = {};
-		_data.texIndex = a_texIndex;
-		_data.pos = a_pos;
-		_data.size = a_size;
-		_data.rotation = a_rotation;
-		_data.layer = a_layer;
+		_data.pos   = { _centerPx.x / _w * 2.0f - 1.0f, 1.0f - _centerPx.y / _h * 2.0f };
+		_data.axisX = { _axisXpx.x * 2.0f / _w, -_axisXpx.y * 2.0f / _h };
+		_data.axisY = { _axisYpx.x * 2.0f / _w, -_axisYpx.y * 2.0f / _h };
 		_data.uvOffset = a_uvOffset;
 		_data.color = a_color;
-		_data.pivot = a_pivot;
+		_data.layer = a_layer;
+		_data.texIndex = a_texIndex;
 		m_uiDrawItemVec.push_back(_data);
 	}
 }

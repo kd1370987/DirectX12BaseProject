@@ -101,21 +101,24 @@ namespace Engine::Graphics
 	// StructuredBuffer<UIData> と1バイトもズレないよう、16バイト(float4)境界を意識して並べる。
 	// HLSLの構造化バッファは float2 が16バイト境界をまたぐ位置に来ると次の境界へ押し出される。
 	// 各行がちょうど float4 に収まる順序にしておけばパディングのズレが起きない。
-	// (row0: pos+size / row1: uvOffset+pivot / row2: color / row3: rotation+layer+texIndex+pad)
+	// (row0: pos+axisX / row1: axisY+uvOffset / row2: color / row3: layer+texIndex+pad)
+	//
+	// 回転・アスペクト補正・ピボットはCPU(SubmitUI)側でピクセル空間で計算し、
+	// クアッド頂点(-1..1)を線形変換する基底(axisX/axisY)とNDC中心座標(pos)として渡す。
+	// シェーダーは pos + axisX*q.x + axisY*q.y を計算するだけでよい。
 	struct UIData
 	{
-		DXSM::Vector2 pos;			// 座標
-		DXSM::Vector2 size;			// サイズ
+		DXSM::Vector2 pos;			// クアッド中心のNDC座標(平行移動成分)
+		DXSM::Vector2 axisX;		// クアッドx方向の基底(NDC, 回転・アスペクト込み)
 
+		DXSM::Vector2 axisY;		// クアッドy方向の基底(NDC, 回転・アスペクト込み)
 		DXSM::Vector2 uvOffset;		// UVをずらす際のオフセット
-		DXSM::Vector2 pivot;		// 中心点
 
 		DXSM::Vector4 color;		// 色調補正
 
-		float rotation;				// 回転
 		float layer;				// Z順
 		UINT texIndex;				// SRVインデックス
-		float _pad;					// 16バイトアライメント用
+		DXSM::Vector2 _pad;			// 16バイトアライメント用
 	};
 
 	// サブメッシュ単位データ
