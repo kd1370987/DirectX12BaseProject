@@ -15,6 +15,14 @@ namespace Engine
 	{
 		class World;
 	}
+
+	namespace Resource
+	{
+		class Mesh;
+		class Material;
+		class ShadingModelTable;
+		struct ModelDrawCommand;
+	}
 }
 
 namespace Engine::Graphics
@@ -25,6 +33,7 @@ namespace Engine::Graphics
 	class RenderContext;
 	class RenderPassRegistry;
 	class MeshBufferAllocator;
+	struct PSOKey;
 
 	// グラフィックスエンジンの初期化に必要な情報
 	struct GraphicsEngineDesc
@@ -307,6 +316,52 @@ namespace Engine::Graphics
 
 		// テクスチャハンドルからSRVのインデックスを取得する
 		int GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle);
+
+		//--------------------------------------------------------------------------------------------
+		// SubmitModel / SubmitUI 共通処理(重複コードの関数化)
+		//--------------------------------------------------------------------------------------------
+
+		// 描画コマンドからメッシュ・マテリアル・シェーディングモデルをまとめて取得する。
+		// いずれかが取得できなければ false(呼び出し側はスキップする)。
+		bool FetchDrawResources(
+			const Resource::ModelDrawCommand& a_cmd,
+			const Resource::Mesh*& a_pOutMesh,
+			const Resource::Material*& a_pOutMaterial,
+			const Resource::ShadingModelTable*& a_pOutShadingModel);
+
+		// マテリアルとスケールからメッシュシェーダー用マテリアルデータを構築する。
+		MeshMaterial BuildMeshMaterial(
+			const Resource::Material* a_pMaterial,
+			const DXSM::Color& a_albedoScale,
+			const DXSM::Vector3& a_emissiveScale);
+
+		// 1つの描画コマンドを、シェーディングモデルが持つ全パスへ登録する共通処理。
+		// (メッシュシェーダー用データ構築・PSO要求・描画アイテム登録をまとめて行う)
+		void RegisterDrawCommandToPasses(
+			const Resource::ModelDrawCommand& a_cmd,
+			const Resource::Mesh* a_pMesh,
+			const Resource::Material* a_pMaterial,
+			const Resource::ShadingModelTable* a_pShadingModel,
+			const DXSM::Matrix& a_mat,
+			const DXSM::Matrix& a_prevMat,
+			uint32_t a_instanceIdx,
+			uint32_t a_subsetIdx,
+			bool a_isAnimation,
+			uint32_t a_animatedVertexStart,
+			const DXSM::Color& a_albedoScale,
+			const DXSM::Vector3& a_emissiveScale,
+			PSOKey a_psoKey);
+
+		// UIデータを1件バッファへ積む(SubmitUI 各オーバーロード共通)。
+		void PushUIData(
+			uint32_t a_texIndex,
+			const DXSM::Vector2& a_pos,
+			const DXSM::Vector2& a_size,
+			const DXSM::Vector4& a_color,
+			float a_rotation,
+			float a_layer,
+			const DXSM::Vector2& a_uvOffset,
+			const DXSM::Vector2& a_pivot);
 	private:
 		//--------------------------------------------------------------------------------------------
 		// 主要クラス

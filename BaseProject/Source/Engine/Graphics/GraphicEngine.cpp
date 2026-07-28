@@ -64,6 +64,17 @@
 
 namespace Engine::Graphics
 {
+	namespace
+	{
+		// vector を空にしつつ、次フレームぶんの容量を確保し直す(EndFrame用)。
+		template<typename T>
+		void ClearAndReserve(std::vector<T>& a_vec, size_t a_reserveCount)
+		{
+			a_vec.clear();
+			a_vec.reserve(a_reserveCount);
+		}
+	}
+
 	GraphicsEngine::GraphicsEngine()
 	{}
 	GraphicsEngine::~GraphicsEngine()
@@ -279,30 +290,18 @@ namespace Engine::Graphics
 	void GraphicsEngine::EndFrame()
 	{
 		// 描画命令をクリアしてメモリ領域を確保しておく
-		m_lightWeightDrawItemVec.clear();
-		m_lightWeightDrawItemVec.reserve(10000);
-
-		m_uiDrawItemVec.clear();
-		m_uiDrawItemVec.reserve(10000);
-
-		m_dynamicRayRequestVec.clear();
-		m_dynamicRayRequestVec.reserve(1000);
-
-		m_skinningDispathItemVec.clear();
-		m_skinningDispathItemVec.reserve(1000);
+		ClearAndReserve(m_lightWeightDrawItemVec, 10000);
+		ClearAndReserve(m_uiDrawItemVec, 10000);
+		ClearAndReserve(m_dynamicRayRequestVec, 1000);
+		ClearAndReserve(m_skinningDispathItemVec, 1000);
 
 		// オブジェクトデータの消去
-		m_instanceDataVec.clear();
-		m_instanceDataVec.reserve(10000);
-		m_meshInstanceDataVec.clear();
-		m_meshInstanceDataVec.reserve(10000);
+		ClearAndReserve(m_instanceDataVec, 10000);
+		ClearAndReserve(m_meshInstanceDataVec, 10000);
 
 		// サブセット情報の消去
-		m_subSetDataVec.clear();
-		m_subSetDataVec.reserve(10000);
-		m_meshMaterialDataVec.clear();
-		m_meshMaterialDataVec.reserve(10000);
-
+		ClearAndReserve(m_subSetDataVec, 10000);
+		ClearAndReserve(m_meshMaterialDataVec, 10000);
 
 		// デバッグ用配列のクリア
 		Editor::MainEditor::Instance().ClearBuffer();
@@ -452,25 +451,20 @@ namespace Engine::Graphics
 		const DXSM::Vector3& a_emissiveScale
 	)
 	{
-		auto& _resManager = Engine::Resource::ResourceManager::Instance();
+		if (!a_pModel) return;
 
 		// モデルが持っている描画コマンド（サブセット）を展開
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
-		if (!a_pModel) return;
 
 		for (const auto& _cmd : _drawCmdVec)
 		{
 			// -----------------------------------------------------
 			// リソースの取得と検証
 			// -----------------------------------------------------
-			auto* _pMesh = _resManager.Access<Engine::Resource::Mesh>(_cmd.meshRawID);
-			if (!_pMesh) continue;
-
-			auto* _pMaterial = _resManager.Access<Engine::Resource::Material>(_cmd.materialRawID);
-			if (!_pMaterial) continue;
-
-			auto* _pShadingModel = _resManager.Get(_pMaterial->shadingModelHandle);
-			if (!_pShadingModel) continue;
+			const Resource::Mesh* _pMesh = nullptr;
+			const Resource::Material* _pMaterial = nullptr;
+			const Resource::ShadingModelTable* _pShadingModel = nullptr;
+			if (!FetchDrawResources(_cmd, _pMesh, _pMaterial, _pShadingModel)) continue;
 
 			// -----------------------------------------------------
 			// 行列計算
@@ -516,90 +510,13 @@ namespace Engine::Graphics
 			_psoKey.permutationFlags = _flags;
 
 			// -----------------------------------------------------
-			// 各パスへの描画アイテム登録
+			// 各パスへの描画アイテム登録(共通処理)
 			// -----------------------------------------------------
-			for (UINT _passHash : _pShadingModel->GetPassHashes())
-			{
-				auto* _pPassNode = m_upRenderGraph->GetPass(_passHash);
-				if (!_pPassNode) continue;
-
-				uint32_t _meshInstanceIdx = UINT32_MAX;
-
-				// メッシュシェーダー対応パスの場合のデータ構築
-				if (_pPassNode->pipelineBuilder.HasMeshShader())
-				{
-					_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
-
-					MeshMaterial _meshMaterial = {};
-					_meshMaterial.baseColor = _pMaterial->baseColor * a_albedoScale;
-					_meshMaterial.emissive = _pMaterial->emissive * a_emissiveScale;
-					_meshMaterial.metallic = _pMaterial->metallic;
-					_meshMaterial.roughness = _pMaterial->roughness;
-					_meshMaterial.albedoIndex = GetSRVIndexFromTextureHandle(_pMaterial->baseColorTex);
-					_meshMaterial.metaRoughnessIndex = GetSRVIndexFromTextureHandle(_pMaterial->metaRoughTex);
-					_meshMaterial.emissiveIndex = GetSRVIndexFromTextureHandle(_pMaterial->emissiveTex);
-					_meshMaterial.normalIndex = GetSRVIndexFromTextureHandle(_pMaterial->normalTex);
-
-					const auto& _msData = _pMesh->GetMeshShaderData();
-
-					MeshInstanceData _meshInstanceData = {};
-					_meshInstanceData.worldMat = _mat.Transpose();
-					_meshInstanceData.prevWorldMat = _prevMat.Transpose();
-					_meshInstanceData.materialOffset = SetMeshMaterialData(_meshMaterial);
-
-					// オフセット計算（重複代入を整理）
-					_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _msData.subsetMeshlets[_cmd.subIdx].meshletOffset;
-					_meshInstanceData.vertexOffset = _pMesh->GetRtData().vertexHandle.startIndex;
-					_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
-					_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
-
-					_meshInstanceData.animatedVertexStart = 0;
-					_meshInstanceData.isAnimated = 0;
-
-					_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex + _msData.subsetMeshlets[_cmd.subIdx].cullOffset;
-
-					_meshInstanceData.meshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
-
-					_meshInstanceIdx = SetInstanceData(_meshInstanceData);
-				}
-
-				// ==========================================
-				// 描画アイテム登録用のローカルヘルパー関数
-				// ==========================================
-				auto AddDrawItemFunc = [&](const auto& a_psHandle)
-					{
-						_psoKey.psHandle = a_psHandle;
-						auto _psoHandle = _pPassNode->pipelineBuilder.Request(_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
-
-						Engine::Graphics::LightWeightDrawItem _item = {};
-						_item.sortKey.bits.meshID = _cmd.meshRawID;
-						_item.sortKey.bits.materialID = _cmd.materialRawID;
-						_item.isAnimation = _isAnimation;
-						_item.subIndex = _cmd.subIdx;
-						_item.instanceIndex = _instanceIdx;
-						_item.subsetIndex = _subsetIdx;
-						_item.meshInstanceIndex = _meshInstanceIdx;
-						_item.subsetMeshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
-						_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
-						_item.sortKey.bits.passIndex = _pPassNode->passIndex;
-
-						AddItem(_item);
-					};
-
-				// シェーダーの登録
-				auto _spanShaderHandles = _pShadingModel->GetShaderHandles(_passHash);
-				if (_spanShaderHandles.empty())
-				{
-					AddDrawItemFunc(Handle<Resource::Shader>()); // 空のハンドルで1回登録
-				}
-				else
-				{
-					for (const auto& _shader : _spanShaderHandles)
-					{
-						AddDrawItemFunc(_shader); // 各シェーダーごとに登録
-					}
-				}
-			}
+			RegisterDrawCommandToPasses(
+				_cmd, _pMesh, _pMaterial, _pShadingModel,
+				_mat, _prevMat, _instanceIdx, _subsetIdx,
+				_isAnimation, 0 /*animatedVertexStart*/,
+				a_albedoScale, a_emissiveScale, _psoKey);
 		}
 	}
 
@@ -615,8 +532,6 @@ namespace Engine::Graphics
 		const DXSM::Vector3& a_emissiveScale
 	)
 	{
-		auto& _resManager = Resource::ResourceManager::Instance();
-
 		// ノード行列取得
 		auto& _nodePosePool = a_world.GetResource<Pool::RangePool<Resource::NodePoseMatrix>>();
 		const auto& _nodePoseMatVec = _nodePosePool.GetRange(a_nodePoseHandle);
@@ -630,17 +545,11 @@ namespace Engine::Graphics
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
 		for (const auto& _cmd : _drawCmdVec)
 		{
-			// メッシュ
-			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Access<Engine::Resource::Mesh>(_cmd.meshRawID);
-			if (!_pMesh) continue;
-
-			// マテリアル
-			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Access<Engine::Resource::Material>(_cmd.materialRawID);
-			if (!_pMaterial) continue;
-
-			// シェーディングモデル
-			auto* _pShadingModel = Engine::Resource::ResourceManager::Instance().Get(_pMaterial->shadingModelHandle);
-			if (!_pShadingModel) continue;
+			// メッシュ・マテリアル・シェーディングモデルの取得と検証
+			const Resource::Mesh* _pMesh = nullptr;
+			const Resource::Material* _pMaterial = nullptr;
+			const Resource::ShadingModelTable* _pShadingModel = nullptr;
+			if (!FetchDrawResources(_cmd, _pMesh, _pMaterial, _pShadingModel)) continue;
 
 			// -----------------------------------------------------
 			// アニメーション用頂点オフセットの検索
@@ -707,95 +616,13 @@ namespace Engine::Graphics
 			_psoKey.permutationFlags = _flags;
 
 			// =========================================================
-			// 各パスへ描画アイテムを投げる
+			// 各パスへ描画アイテムを投げる(共通処理)
 			// =========================================================
-			for (UINT _passHash : _pShadingModel->GetPassHashes())
-			{
-				auto* _pPassNode = m_upRenderGraph->GetPass(_passHash);
-				if (!_pPassNode) continue;
-
-				uint32_t _meshInstanceIdx = UINT32_MAX;
-
-				// -----------------------------------------------------
-				// メッシュシェーダーが登録されている場合のデータ構築
-				// -----------------------------------------------------
-				if (_pPassNode->pipelineBuilder.HasMeshShader())
-				{
-					_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
-
-					MeshMaterial _meshMaterial = {};
-					_meshMaterial.baseColor = _pMaterial->baseColor * a_albedoScale;
-					_meshMaterial.emissive = _pMaterial->emissive * a_emissiveScale;
-					_meshMaterial.metallic = _pMaterial->metallic;
-					_meshMaterial.roughness = _pMaterial->roughness;
-					_meshMaterial.albedoIndex = GetSRVIndexFromTextureHandle(_pMaterial->baseColorTex);
-					_meshMaterial.metaRoughnessIndex = GetSRVIndexFromTextureHandle(_pMaterial->metaRoughTex);
-					_meshMaterial.emissiveIndex = GetSRVIndexFromTextureHandle(_pMaterial->emissiveTex);
-					_meshMaterial.normalIndex = GetSRVIndexFromTextureHandle(_pMaterial->normalTex);
-
-					const auto& _msData = _pMesh->GetMeshShaderData();
-
-					MeshInstanceData _meshInstanceData = {};
-					_meshInstanceData.worldMat = _mat.Transpose();
-					_meshInstanceData.prevWorldMat = _prevMat.Transpose();
-					_meshInstanceData.materialOffset = SetMeshMaterialData(_meshMaterial);
-
-					_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _msData.subsetMeshlets[_cmd.subIdx].meshletOffset;
-					_meshInstanceData.vertexOffset = _pMesh->GetRtData().vertexHandle.startIndex;
-					_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
-					_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
-
-					// カリングスタートインデックス
-					_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex + _msData.subsetMeshlets[_cmd.subIdx].cullOffset;
-
-					//_meshInstanceData.meshletCount = _msData.meshletHandle.count;
-					_meshInstanceData.meshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
-
-
-					// アニメーション結果のスタートインデックスを代入
-					_meshInstanceData.animatedVertexStart = _animatedVertexStart;
-					_meshInstanceData.isAnimated = _isAnimation ? 1 : 0;
-
-					_meshInstanceIdx = SetInstanceData(_meshInstanceData);
-				}
-
-				// ==========================================
-				// アイテム登録処理のラムダ化
-				// ==========================================
-				auto AddDrawItemFunc = [&](const auto& psHandle)
-					{
-						_psoKey.psHandle = psHandle;
-						auto _psoHandle = _pPassNode->pipelineBuilder.Request(_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
-
-						Engine::Graphics::LightWeightDrawItem _item = {};
-						_item.sortKey.bits.meshID = _cmd.meshRawID;
-						_item.sortKey.bits.materialID = _cmd.materialRawID;
-						_item.isAnimation = _isAnimation;
-						_item.subIndex = _cmd.subIdx;
-						_item.instanceIndex = _instanceIdx;
-						_item.subsetIndex = _subsetIdx;
-						_item.meshInstanceIndex = _meshInstanceIdx;
-						_item.subsetMeshletCount = _pMesh->GetMeshShaderData().subsetMeshlets[_cmd.subIdx].meshletCount;
-						_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
-						_item.sortKey.bits.passIndex = _pPassNode->passIndex;
-
-						AddItem(_item);
-					};
-
-				// シェーダーハンドルの展開と登録
-				auto _spanShaderHandles = _pShadingModel->GetShaderHandles(_passHash);
-				if (_spanShaderHandles.empty())
-				{
-					AddDrawItemFunc(Handle<Resource::Shader>());
-				}
-				else
-				{
-					for (const auto& _shader : _spanShaderHandles)
-					{
-						AddDrawItemFunc(_shader);
-					}
-				}
-			}
+			RegisterDrawCommandToPasses(
+				_cmd, _pMesh, _pMaterial, _pShadingModel,
+				_mat, _prevMat, _instanceIdx, _subsetIdx,
+				_isAnimation, _animatedVertexStart,
+				a_albedoScale, a_emissiveScale, _psoKey);
 		}
 	}
 
@@ -812,16 +639,8 @@ namespace Engine::Graphics
 		auto* _pTex = Resource::ResourceManager::Instance().Get(a_texHandle);
 		if (!_pTex) return;
 
-		UIData _data = {};
-		_data.texIndex = _pTex->GetSRV().GetIndex();
-		_data.pos = a_screenPos;
-		_data.size = a_screenRect;
-		_data.rotation = a_rotation;
-		_data.layer = a_layer;
-		_data.uvOffset = a_uvOffset;
-		_data.color = a_color;
-		_data.pivot = a_pivot;
-		m_uiDrawItemVec.push_back(_data);
+		// サイズは呼び出し側の指定値をそのまま使う
+		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, a_screenRect, a_color, a_rotation, a_layer, a_uvOffset, a_pivot);
 	}
 
 	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const DXSM::Vector2& a_screenPos, float a_scale, const DXSM::Vector4& a_color, float a_rotation, float a_layer, const DXSM::Vector2& a_uvOffset, const DXSM::Vector2& a_pivot)
@@ -829,16 +648,9 @@ namespace Engine::Graphics
 		auto* _pTex = Resource::ResourceManager::Instance().Get(a_texHandle);
 		if (!_pTex) return;
 
-		UIData _data = {};
-		_data.texIndex = _pTex->GetSRV().GetIndex();
-		_data.pos = a_screenPos;
-		_data.size = { _pTex->GetDesc().Width * a_scale,_pTex->GetDesc().Height * a_scale };
-		_data.rotation = a_rotation;
-		_data.layer = a_layer;
-		_data.uvOffset = a_uvOffset;
-		_data.color = a_color;
-		_data.pivot = a_pivot;
-		m_uiDrawItemVec.push_back(_data);
+		// テクスチャの元サイズにスケールを掛けたものを表示サイズにする
+		DXSM::Vector2 _size = { _pTex->GetDesc().Width * a_scale, _pTex->GetDesc().Height * a_scale };
+		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, _size, a_color, a_rotation, a_layer, a_uvOffset, a_pivot);
 	}
 
 	UINT GraphicsEngine::SetInstanceData(const InstanceData& a_instanceData)
@@ -1142,5 +954,161 @@ namespace Engine::Graphics
 		ENGINE_ERRLOG(_pTex,"テクスチャが見つかりません");
 
 		return static_cast<int>(_pTex->GetSRV().GetIndex());
+	}
+
+	bool GraphicsEngine::FetchDrawResources(
+		const Resource::ModelDrawCommand& a_cmd,
+		const Resource::Mesh*& a_pOutMesh,
+		const Resource::Material*& a_pOutMaterial,
+		const Resource::ShadingModelTable*& a_pOutShadingModel)
+	{
+		auto& _resManager = Resource::ResourceManager::Instance();
+
+		// メッシュ
+		a_pOutMesh = _resManager.Access<Resource::Mesh>(a_cmd.meshRawID);
+		if (!a_pOutMesh) return false;
+
+		// マテリアル
+		a_pOutMaterial = _resManager.Access<Resource::Material>(a_cmd.materialRawID);
+		if (!a_pOutMaterial) return false;
+
+		// シェーディングモデル
+		a_pOutShadingModel = _resManager.Get(a_pOutMaterial->shadingModelHandle);
+		if (!a_pOutShadingModel) return false;
+
+		return true;
+	}
+
+	MeshMaterial GraphicsEngine::BuildMeshMaterial(
+		const Resource::Material* a_pMaterial,
+		const DXSM::Color& a_albedoScale,
+		const DXSM::Vector3& a_emissiveScale)
+	{
+		MeshMaterial _meshMaterial = {};
+		_meshMaterial.baseColor = a_pMaterial->baseColor * a_albedoScale;
+		_meshMaterial.emissive = a_pMaterial->emissive * a_emissiveScale;
+		_meshMaterial.metallic = a_pMaterial->metallic;
+		_meshMaterial.roughness = a_pMaterial->roughness;
+		_meshMaterial.albedoIndex = GetSRVIndexFromTextureHandle(a_pMaterial->baseColorTex);
+		_meshMaterial.metaRoughnessIndex = GetSRVIndexFromTextureHandle(a_pMaterial->metaRoughTex);
+		_meshMaterial.emissiveIndex = GetSRVIndexFromTextureHandle(a_pMaterial->emissiveTex);
+		_meshMaterial.normalIndex = GetSRVIndexFromTextureHandle(a_pMaterial->normalTex);
+		return _meshMaterial;
+	}
+
+	void GraphicsEngine::RegisterDrawCommandToPasses(
+		const Resource::ModelDrawCommand& a_cmd,
+		const Resource::Mesh* a_pMesh,
+		const Resource::Material* a_pMaterial,
+		const Resource::ShadingModelTable* a_pShadingModel,
+		const DXSM::Matrix& a_mat,
+		const DXSM::Matrix& a_prevMat,
+		uint32_t a_instanceIdx,
+		uint32_t a_subsetIdx,
+		bool a_isAnimation,
+		uint32_t a_animatedVertexStart,
+		const DXSM::Color& a_albedoScale,
+		const DXSM::Vector3& a_emissiveScale,
+		PSOKey a_psoKey)
+	{
+		for (UINT _passHash : a_pShadingModel->GetPassHashes())
+		{
+			auto* _pPassNode = m_upRenderGraph->GetPass(_passHash);
+			if (!_pPassNode) continue;
+
+			uint32_t _meshInstanceIdx = UINT32_MAX;
+
+			// -----------------------------------------------------
+			// メッシュシェーダー対応パスの場合のデータ構築
+			// -----------------------------------------------------
+			if (_pPassNode->pipelineBuilder.HasMeshShader())
+			{
+				a_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
+
+				MeshMaterial _meshMaterial = BuildMeshMaterial(a_pMaterial, a_albedoScale, a_emissiveScale);
+
+				const auto& _msData = a_pMesh->GetMeshShaderData();
+
+				MeshInstanceData _meshInstanceData = {};
+				_meshInstanceData.worldMat = a_mat.Transpose();
+				_meshInstanceData.prevWorldMat = a_prevMat.Transpose();
+				_meshInstanceData.materialOffset = SetMeshMaterialData(_meshMaterial);
+
+				_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _msData.subsetMeshlets[a_cmd.subIdx].meshletOffset;
+				_meshInstanceData.vertexOffset = a_pMesh->GetRtData().vertexHandle.startIndex;
+				_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
+				_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
+
+				_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex + _msData.subsetMeshlets[a_cmd.subIdx].cullOffset;
+				_meshInstanceData.meshletCount = a_pMesh->GetMeshShaderData().subsetMeshlets[a_cmd.subIdx].meshletCount;
+
+				// アニメーション結果のスタートインデックス(非アニメ時は0)
+				_meshInstanceData.animatedVertexStart = a_animatedVertexStart;
+				_meshInstanceData.isAnimated = a_isAnimation ? 1 : 0;
+
+				_meshInstanceIdx = SetInstanceData(_meshInstanceData);
+			}
+
+			// -----------------------------------------------------
+			// 描画アイテム登録用のローカルヘルパー
+			// -----------------------------------------------------
+			auto AddDrawItemFunc = [&](const auto& a_psHandle)
+				{
+					a_psoKey.psHandle = a_psHandle;
+					auto _psoHandle = _pPassNode->pipelineBuilder.Request(a_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
+
+					Engine::Graphics::LightWeightDrawItem _item = {};
+					_item.sortKey.bits.meshID = a_cmd.meshRawID;
+					_item.sortKey.bits.materialID = a_cmd.materialRawID;
+					_item.isAnimation = a_isAnimation;
+					_item.subIndex = a_cmd.subIdx;
+					_item.instanceIndex = a_instanceIdx;
+					_item.subsetIndex = a_subsetIdx;
+					_item.meshInstanceIndex = _meshInstanceIdx;
+					_item.subsetMeshletCount = a_pMesh->GetMeshShaderData().subsetMeshlets[a_cmd.subIdx].meshletCount;
+					_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
+					_item.sortKey.bits.passIndex = _pPassNode->passIndex;
+
+					AddItem(_item);
+				};
+
+			// -----------------------------------------------------
+			// シェーダーハンドルの展開と登録
+			// -----------------------------------------------------
+			auto _spanShaderHandles = a_pShadingModel->GetShaderHandles(_passHash);
+			if (_spanShaderHandles.empty())
+			{
+				AddDrawItemFunc(Handle<Resource::Shader>()); // 空のハンドルで1回登録
+			}
+			else
+			{
+				for (const auto& _shader : _spanShaderHandles)
+				{
+					AddDrawItemFunc(_shader); // 各シェーダーごとに登録
+				}
+			}
+		}
+	}
+
+	void GraphicsEngine::PushUIData(
+		uint32_t a_texIndex,
+		const DXSM::Vector2& a_pos,
+		const DXSM::Vector2& a_size,
+		const DXSM::Vector4& a_color,
+		float a_rotation,
+		float a_layer,
+		const DXSM::Vector2& a_uvOffset,
+		const DXSM::Vector2& a_pivot)
+	{
+		UIData _data = {};
+		_data.texIndex = a_texIndex;
+		_data.pos = a_pos;
+		_data.size = a_size;
+		_data.rotation = a_rotation;
+		_data.layer = a_layer;
+		_data.uvOffset = a_uvOffset;
+		_data.color = a_color;
+		_data.pivot = a_pivot;
+		m_uiDrawItemVec.push_back(_data);
 	}
 }
