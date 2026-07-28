@@ -20,21 +20,6 @@ namespace Engine::Graphics
 	class ShapeRenderer;
 	class GraphicsEngine;
 
-	struct DrawItem2D
-	{
-		Handle<D3D12::SRV> srvHandleRange = {};
-
-		DirectX::XMFLOAT4X4 worldMat = {};
-		DirectX::XMFLOAT4	colorScale = { 1,1,1,1 };
-	};
-
-	struct DebugDrawInfo
-	{
-		UINT startIndex;		// インデックスバッファの開始位置
-	};
-
-	
-
 	// レンダーコンテキスト作成時に必要な情報
 	struct RenderContextDesc
 	{
@@ -75,8 +60,6 @@ namespace Engine::Graphics
 		// フレームの初めに呼ぶ
 		void Clear();
 
-		ID3D12DescriptorHeap* GetCBV_SRV_UAVHeap() const;
-
 		// 現在のコマンドリストを取得
 		D3D12::GraphicsCommandList* GetCurrentCmdList();
 
@@ -103,23 +86,17 @@ namespace Engine::Graphics
 		);
 
 		// レンダーターゲットの切り替え
-		// 基本的にハンドルで管理しているため内部以外では直接触らない
-		void ChangeRenderTarget(
-			const std::vector<Handle<D3D12::RTV>>& a_rtvHandleVec,
-			const Handle<D3D12::DSV>& a_dsvHandle
-		);
 		void SetRenderTargets(
 			const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_rtvHandleVec,
 			const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDsvHandle
 		);
 
-		// テクスチャハンドルからSRVをバインドする
+		// SRVのバインド(現在キャッシュしているヒープへコピーしてディスクリプタテーブルを張る)
+		// テクスチャハンドル配列から
 		void BindSRV(UINT a_rootIdx, std::vector<Handle<Resource::Texture>>& a_texHandles);
-
-		// SRVハンドルをもらってコピーする
 		// レンダーグラフがコンパイル時に焼き込んだ連続領域をそのまま渡せるようspanで受ける
 		void BindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
-		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle);
+		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
 		void BindSRV(UINT a_rootIdx,Handle<D3D12::SRV> a_srvHandle);
 
 		void ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
@@ -127,7 +104,7 @@ namespace Engine::Graphics
 		void ComputeBindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle);
 
 		void ComputeBindSRVBindLess(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle);
-		
+
 
 		// UAV
 		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
@@ -136,7 +113,6 @@ namespace Engine::Graphics
 		void BindUAVBindLess(UINT a_rootIdx, Handle<D3D12::UAV> a_handle);
 
 		// 直接GPUアドレスを取得
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandleBindLess(Handle<D3D12::SRV> a_handle);
 
@@ -151,22 +127,12 @@ namespace Engine::Graphics
 		// 矩形描画のためのクラス取得
 		ShapeRenderer* RefShapeDraw();
 
-		// ヒープのセット
+		// ヒープのセット(セットしたヒープを m_pCurrentHeap にキャッシュする)
 		void BindHeap();
-		void BindCopyHeapAndSumpler();
 		void BindCopyHeapAndSumplerBindLess();
-		void BindHeaps(UINT a_numHeaps, ID3D12DescriptorHeap *const* a_pHeaps);
-
-		// バインドボーン
-		// すべてのアニメーション行列を配置しているから一括で送れる
-		// 定数バッファでスタートインデックスとカウントを送る必要あり
-		void BindSRVBone();
 
 		void Dispatch(UINT a_x,UINT a_y,UINT a_z);
 		void DispatchMesh(UINT a_x,UINT a_y,UINT a_z);
-
-		// カメラのバインド
-		void BindGraphicsCamera();
 
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド
@@ -186,15 +152,11 @@ namespace Engine::Graphics
 		void BindIndex(UINT a_instanceBufferIndex, UINT a_subsetBufferIndex, UINT a_rootIndex = 1);
 
 		// バッファバインド
-		void BindInstanceBuffer(UINT a_rootIndex);
-		void BindSubsetBuffer(UINT a_rootIndex);
-		void BindBonePalletBuffer(UINT a_rootIndex);
 		void ComputeBindBonePalletBuffer(UINT a_rootIndex);
 		void BindGraphicsDebugLineBuffer(UINT a_rootIndex);
 
-		// メッシュシェーダー関連
+		// カメラ・メッシュシェーダー関連
 		void BindCamera();
-		void ComputeBindCamera();
 		void BindMeshInstance();
 		void BindMeshlet();
 
@@ -207,14 +169,12 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// 描画パス構築
 		//--------------------------------------------------------------------------------------------
-		
-		// テクスチャのコピー
-		void TexCopy(const Handle<Resource::Texture>& a_src,const Handle<Resource::Texture>& a_dst);
+
+		// リソースのコピー
 		void ResourceCopy(ID3D12Resource* a_pSrc,ID3D12Resource* a_pDst);
 
-		// グラフィックスルートシグネチャをセット、前回と変更がない場合はスキップ
+		// ルートシグネチャをセット
 		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);
-		void SetGraphicsRootSignature1(ID3D12RootSignature* a_pRootSig);
 		void SetComputeRootSignature(ID3D12RootSignature* a_pRootSig);
 
 		// パイプラインステートをセット、前回と変更がない場合はスキップ
@@ -258,10 +218,20 @@ namespace Engine::Graphics
 			D3D12_RESOURCE_STATES a_before,
 			D3D12_RESOURCE_STATES a_after
 		);
-		void UAVBarrier(ID3D12Resource* a_pResource);
-
+		
 		// バックバッファに切り替え
 		void ChangeBackBuffer();
+
+	private:
+		//--------------------------------------------------------------------------------------------
+		// ディスクリプタコピーの共通処理
+		//--------------------------------------------------------------------------------------------
+		// 現在キャッシュしているヒープ(m_pCurrentHeap)へCPUハンドル群をコピーし、
+		// 先頭のGPUハンドルを返す。容量オーバー時は ptr==0 のハンドルを返す。
+		D3D12_GPU_DESCRIPTOR_HANDLE CopyToCurrentHeap(std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
+		// コピー後にグラフィック/コンピュートのディスクリプタテーブルを張る
+		void GraphicsBindTable(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
+		void ComputeBindTable(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
 
 	private:
 		//--------------------------------------------------------------------------------------------
@@ -282,6 +252,10 @@ namespace Engine::Graphics
 		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_bindLessHeap;	// バインドレス用
 		UINT m_currentHeapOffset = 0;
 
+		// 現在セットしているCBV_SRV_UAVヒープのキャッシュ(&m_copyHeap か &m_bindLessHeap)。
+		// ヒープセット関数で更新し、SRV/UAVのバインドはこのヒープに対して行う。
+		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>*	m_pCurrentHeap = nullptr;
+
 		// オブジェクト単位データ
 		D3D12::StaticStructuredBuffer<InstanceData> m_instanceBuffer;
 		// サブメッシュ単位データ
@@ -289,9 +263,6 @@ namespace Engine::Graphics
 
 		// ボーン用データ
 		D3D12::DynamicStructuredBuffer<Resource::BoneMatrix> m_boneBuffer;
-
-		// アニメーション用頂点データ
-		D3D12::RWStructuredBuffer<Resource::MeshVertexFloat> m_skininedVerticesBuffer;
 
 		// デバッグライン用頂点
 		D3D12::StaticStructuredBuffer<DebugLineData> m_debugLineBuffer;

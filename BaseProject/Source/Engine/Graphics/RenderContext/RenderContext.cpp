@@ -76,6 +76,9 @@ namespace Engine::Graphics
 			0
 		);
 
+		// 既定はコピー用ヒープをカレントにしておく
+		m_pCurrentHeap = &m_copyHeap;
+
 
 		// クワッドポリゴン
 		m_spQuadPolygon = std::make_shared<Resource::QuadPolygon>();
@@ -104,7 +107,6 @@ namespace Engine::Graphics
 		m_subsetBuffer.Release();
 		m_boneBuffer.Release();
 		m_debugLineBuffer.Release();
-		m_skininedVerticesBuffer.Release();
 		m_meshInstanceBuffer.Release();
 		m_meshMaterialBuffer.Release();
 		m_uiInstanceBuffer.Release();
@@ -116,13 +118,9 @@ namespace Engine::Graphics
 		m_upCBAllocator->ResetUse();
 		//m_pShapeDraw->Reset();
 
-		// コピーヒープのリセット
+		// コピーヒープのリセット。カレントヒープも既定へ戻す
 		m_currentHeapOffset = 0;
-	}
-
-	ID3D12DescriptorHeap* RenderContext::GetCBV_SRV_UAVHeap() const
-	{
-		return m_copyHeap.GetHeap();
+		m_pCurrentHeap = &m_copyHeap;
 	}
 
 	D3D12::GraphicsCommandList* RenderContext::GetCurrentCmdList()
@@ -145,37 +143,6 @@ namespace Engine::Graphics
 		return m_upCBAllocator.get();
 	}
 
-	void RenderContext::ChangeRenderTarget(const std::vector<Handle<D3D12::RTV>>& a_rtvHandleVec, const Handle<D3D12::DSV>& a_dsvHandle)
-	{
-		// 変数用意
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _rtvCPUVec = {};
-		D3D12_CPU_DESCRIPTOR_HANDLE _dsvCPU;
-		D3D12_CPU_DESCRIPTOR_HANDLE* _pDSVCPU = nullptr;
-
-		// RTVをハンドルへ変換
-		for (auto& _rtv : a_rtvHandleVec)
-		{
-			_rtvCPUVec.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_rtv));
-		}
-		// 初期値じゃなければ
-		if (a_dsvHandle != Handle<D3D12::DSV>())
-		{
-			_dsvCPU = D3D12::DescriptorHeapManager::Instance().GetCPU(a_dsvHandle);
-			_pDSVCPU = &_dsvCPU;
-		}
-
-		// チェンジ
-		m_pCmdList->OMSetRenderTargets(
-			static_cast<UINT>(std::size(_rtvCPUVec)),
-			_rtvCPUVec.data(),
-			false,
-			_pDSVCPU
-		);
-
-		// ビューポートとシザー矩形を設定
-		m_pCmdList->RSSetViewports(1, &D3D12::D3D12Wrapper::Instance().GetViewport());
-		m_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
-	}
 	void RenderContext::SetRenderTargets(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_rtvHandleVec, const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDsvHandle)
 	{
 		m_pCmdList->OMSetRenderTargets(
@@ -209,65 +176,55 @@ namespace Engine::Graphics
 		BindSRV(a_rootIdx,_cpuHandles);
 	}
 
-	void RenderContext::BindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
+	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::CopyToCurrentHeap(std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
 	{
-		// コピー数取得
+		// 今の空きインデックスから連続領域を確保
 		UINT _count = static_cast<UINT>(a_cpuHandles.size());
-
-		// 今の空きインデックスカウントを確保
 		UINT _startIdx = m_currentHeapOffset;
 		m_currentHeapOffset += _count;
 
-		// ヒープサイズが足りなければリターン
-		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
+		// ヒープサイズが足りなければ無効ハンドルを返す
+		if (m_currentHeapOffset >= m_pCurrentHeap->GetMaxSize()) return D3D12_GPU_DESCRIPTOR_HANDLE{};
 
-		// 確保した領域にコピーしていく
+		// カレントヒープの確保領域へ1個ずつコピー(空ハンドルはスキップ)
 		for (UINT _i = 0; _i < _count; ++_i)
 		{
-			D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx + _i);
-
 			if (a_cpuHandles[_i].ptr == 0) continue;
 
-			// 一個ずつ連続した領域にコピー
 			m_pDevice->CopyDescriptorsSimple(
 				1,
-				_destHandle,
+				m_pCurrentHeap->GetCPU(_startIdx + _i),
 				a_cpuHandles[_i],
 				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
 			);
 		}
 
-		// コマンドリストにバインド
-		m_pCmdList->SetGraphicsRootDescriptorTable(
-			a_rootIdx,
-			m_copyHeap.GetGPU(_startIdx)
-		);
+		// 確保領域の先頭GPUハンドルを返す
+		return m_pCurrentHeap->GetGPU(_startIdx);
 	}
 
-	void RenderContext::BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE& a_cpuHandle)
+	void RenderContext::GraphicsBindTable(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
 	{
-		// 今の空きインデックスカウントを確保
-		UINT _startIdx = m_currentHeapOffset;
-		m_currentHeapOffset++;
+		D3D12_GPU_DESCRIPTOR_HANDLE _gpu = CopyToCurrentHeap(a_cpuHandles);
+		if (_gpu.ptr == 0) return;	// 容量オーバー時はバインドしない
+		m_pCmdList->SetGraphicsRootDescriptorTable(a_rootIdx, _gpu);
+	}
 
-		// ヒープサイズが足りなければリターン
-		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
+	void RenderContext::ComputeBindTable(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
+	{
+		D3D12_GPU_DESCRIPTOR_HANDLE _gpu = CopyToCurrentHeap(a_cpuHandles);
+		if (_gpu.ptr == 0) return;	// 容量オーバー時はバインドしない
+		m_pCmdList->SetComputeRootDescriptorTable(a_rootIdx, _gpu);
+	}
 
-		D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx);
+	void RenderContext::BindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
+	{
+		GraphicsBindTable(a_rootIdx, a_cpuHandles);
+	}
 
-		// 一個ずつ連続した領域にコピー
-		m_pDevice->CopyDescriptorsSimple(
-			1,
-			_destHandle,
-			a_cpuHandle,
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-		);
-
-		// コマンドリストにバインド
-		m_pCmdList->SetGraphicsRootDescriptorTable(
-			a_rootIdx,
-			m_copyHeap.GetGPU(_startIdx)
-		);
+	void RenderContext::BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
+	{
+		GraphicsBindTable(a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE>(&a_cpuHandle, 1));
 	}
 
 	void RenderContext::BindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
@@ -278,63 +235,12 @@ namespace Engine::Graphics
 
 	void RenderContext::ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
 	{
-		// 今の空きインデックスカウントを確保
-		UINT _startIdx = m_currentHeapOffset;
-		m_currentHeapOffset++;
-
-		// ヒープサイズが足りなければリターン
-		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
-
-		D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx);
-
-		// 一個ずつ連続した領域にコピー
-		m_pDevice->CopyDescriptorsSimple(
-			1,
-			_destHandle,
-			a_cpuHandle,
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-		);
-
-		// コマンドリストにバインド
-		m_pCmdList->SetComputeRootDescriptorTable(
-			a_rootIdx,
-			m_copyHeap.GetGPU(_startIdx)
-		);
+		ComputeBindTable(a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE>(&a_cpuHandle, 1));
 	}
 
 	void RenderContext::ComputeBindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
 	{
-		// コピー数取得
-		UINT _count = static_cast<UINT>(a_cpuHandles.size());
-
-		// 今の空きインデックスカウントを確保
-		UINT _startIdx = m_currentHeapOffset;
-		m_currentHeapOffset += _count;
-
-		// ヒープサイズが足りなければリターン
-		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
-
-		// 確保した領域にコピーしていく
-		for (UINT _i = 0; _i < _count; ++_i)
-		{
-			D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx + _i);
-
-			if (a_cpuHandles[_i].ptr == 0) continue;
-
-			// 一個ずつ連続した領域にコピー
-			m_pDevice->CopyDescriptorsSimple(
-				1,
-				_destHandle,
-				a_cpuHandles[_i],
-				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-			);
-		}
-
-		// コマンドリストにバインド
-		m_pCmdList->SetComputeRootDescriptorTable(
-			a_rootIdx,
-			m_copyHeap.GetGPU(_startIdx)
-		);
+		ComputeBindTable(a_rootIdx, a_cpuHandles);
 	}
 
 	void RenderContext::ComputeBindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
@@ -345,37 +251,16 @@ namespace Engine::Graphics
 
 	void RenderContext::ComputeBindSRVBindLess(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
 	{
-		// コマンドリストにバインド
+		// バインドレスヒープはカレントヒープ(=m_bindLessHeap)を直接インデックスで引く
 		m_pCmdList->SetComputeRootDescriptorTable(
 			a_rootIdx,
-			m_bindLessHeap.GetGPU(a_srvHandle.GetIndex())
+			m_pCurrentHeap->GetGPU(a_srvHandle.GetIndex())
 		);
 	}
 
 	void RenderContext::BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
 	{
-		// 今の空きインデックスカウントを確保
-		UINT _startIdx = m_currentHeapOffset;
-		m_currentHeapOffset++;
-
-		// ヒープサイズが足りなければリターン
-		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
-
-		D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx);
-
-		// 一個ずつ連続した領域にコピー
-		m_pDevice->CopyDescriptorsSimple(
-			1,
-			_destHandle,
-			a_cpuHandle,
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-		);
-
-		// コマンドリストにバインド
-		m_pCmdList->SetComputeRootDescriptorTable(
-			a_rootIdx,
-			m_copyHeap.GetGPU(_startIdx)
-		);
+		ComputeBindTable(a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE>(&a_cpuHandle, 1));
 	}
 
 	void RenderContext::BindUAV(UINT a_rootIdx, Handle<D3D12::UAV> a_uavHandle)
@@ -386,104 +271,33 @@ namespace Engine::Graphics
 
 	void RenderContext::BindUAV(UINT a_rootIdx, std::vector<Handle<D3D12::UAV>> a_uavHandles)
 	{
-		// コピー数取得
-		UINT _count = static_cast<UINT>(a_uavHandles.size());
-
-		// 今の空きインデックスカウントを確保
-		UINT _startIdx = m_currentHeapOffset;
-		m_currentHeapOffset += _count;
-
-		// ヒープサイズが足りなければリターン
-		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return;
-
-		// 確保した領域にコピーしていく
-		for (UINT _i = 0; _i < _count; ++_i)
+		// ハンドル配列をCPUハンドル配列へ変換してまとめてバインド
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuHandles = {};
+		_cpuHandles.reserve(a_uavHandles.size());
+		for (const auto& _handle : a_uavHandles)
 		{
-			auto _cpuHandle = D3D12::DescriptorHeapManager::Instance().GetCPU(a_uavHandles[_i]);
-			D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx + _i);
-
-			if (_cpuHandle.ptr == 0) continue;
-
-			// 一個ずつ連続した領域にコピー
-			m_pDevice->CopyDescriptorsSimple(
-				1,
-				_destHandle,
-				_cpuHandle,
-				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-			);
+			_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_handle));
 		}
-
-		// コマンドリストにバインド
-		m_pCmdList->SetComputeRootDescriptorTable(
-			a_rootIdx,
-			m_copyHeap.GetGPU(_startIdx)
-		);
+		ComputeBindTable(a_rootIdx, _cpuHandles);
 	}
 
 	void RenderContext::BindUAVBindLess(UINT a_rootIdx, Handle<D3D12::UAV> a_handle)
 	{
-		// コマンドリストにバインド
+		// バインドレスヒープはカレントヒープ(=m_bindLessHeap)を直接インデックスで引く
 		m_pCmdList->SetComputeRootDescriptorTable(
 			a_rootIdx,
-			m_bindLessHeap.GetGPU(a_handle.GetIndex())
+			m_pCurrentHeap->GetGPU(a_handle.GetIndex())
 		);
-	}
-
-	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
-	{
-		// 今の空きインデックスカウントを確保
-		UINT _startIdx = m_currentHeapOffset;
-		m_currentHeapOffset++;
-
-		// ヒープサイズが足りなければリターン
-		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return D3D12_GPU_DESCRIPTOR_HANDLE();
-
-		D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx);
-
-		// 一個ずつ連続した領域にコピー
-		m_pDevice->CopyDescriptorsSimple(
-			1,
-			_destHandle,
-			a_cpuHandle,
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-		);
-
-		return m_copyHeap.GetGPU(_startIdx);
 	}
 
 	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandle(std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
 	{
-		// コピー数取得
-		UINT _count = static_cast<UINT>(a_cpuHandles.size());
-
-		// 今の空きインデックスカウントを確保
-		UINT _startIdx = m_currentHeapOffset;
-		m_currentHeapOffset += _count;
-
-		// ヒープサイズが足りなければリターン
-		if (m_currentHeapOffset >= m_copyHeap.GetMaxSize())return D3D12_GPU_DESCRIPTOR_HANDLE();
-
-		// 確保した領域にコピーしていく
-		for (UINT _i = 0; _i < _count; ++_i)
-		{
-			D3D12_CPU_DESCRIPTOR_HANDLE _destHandle = m_copyHeap.GetCPU(_startIdx + _i);
-
-			// 一個ずつ連続した領域にコピー
-			m_pDevice->CopyDescriptorsSimple(
-				1,
-				_destHandle,
-				a_cpuHandles[_i],
-				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-			);
-		}
-
-		// ハンドルを返す
-		return m_copyHeap.GetGPU(_startIdx);
+		return CopyToCurrentHeap(a_cpuHandles);
 	}
 
 	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandleBindLess(Handle<D3D12::SRV> a_handle)
 	{
-		return m_bindLessHeap.GetGPU(a_handle.GetIndex());
+		return m_pCurrentHeap->GetGPU(a_handle.GetIndex());
 	}
 
 	void RenderContext::ClearRenderTarget(const Handle<Resource::Texture>& a_texHandle)
@@ -534,17 +348,11 @@ namespace Engine::Graphics
 			m_copyHeap.GetHeap()
 		};
 		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+
+		// セットしたヒープをカレントとしてキャッシュ
+		m_pCurrentHeap = &m_copyHeap;
 	}
 
-	void RenderContext::BindCopyHeapAndSumpler()
-	{
-		// ディスクリプタヒープをセット
-		ID3D12DescriptorHeap* _heaps[] = {
-			m_copyHeap.GetHeap(),
-			D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
-		};
-		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
-	}
 	void RenderContext::BindCopyHeapAndSumplerBindLess()
 	{
 		ID3D12DescriptorHeap* _srcHeap = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeap();
@@ -564,16 +372,9 @@ namespace Engine::Graphics
 			D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
 		};
 		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
-	}
 
-	void RenderContext::BindHeaps(UINT a_numHeaps, ID3D12DescriptorHeap* const* a_pHeaps)
-	{
-		m_pCmdList->SetDescriptorHeaps(a_numHeaps,a_pHeaps);
-	}
-
-	void RenderContext::BindSRVBone()
-	{
-		BindSRV(6, m_boneBuffer.GetSRV());
+		// セットしたヒープをカレントとしてキャッシュ
+		m_pCurrentHeap = &m_bindLessHeap;
 	}
 
 	void RenderContext::Dispatch(UINT a_x, UINT a_y, UINT a_z)
@@ -585,18 +386,6 @@ namespace Engine::Graphics
 	{
 		m_pCmdList->DispatchMesh(a_x,a_y,a_z);
 	}
-
-	void RenderContext::BindGraphicsCamera()
-	{
-		if (!m_pGraphicsEngine) return;
-		auto _cam = m_pGraphicsEngine->GetCameraData();
-		GraphicsBindRootCBV<CameraData>(
-			0,
-			_cam
-		);
-	}
-
-
 
 	void RenderContext::UpdateBuffer(const std::vector<InstanceData>& a_instanceVec, const std::vector<SubSetData>& a_subsetVec, const std::vector<MeshInstanceData>& a_mesInstance, const std::vector<MeshMaterial>& a_mesMaterial)
 	{
@@ -668,21 +457,6 @@ namespace Engine::Graphics
 		);
 	}
 
-	void RenderContext::BindInstanceBuffer(UINT a_rootIndex)
-	{
-		BindSRV(a_rootIndex,m_instanceBuffer.GetSRVHandle());
-	}
-
-	void RenderContext::BindSubsetBuffer(UINT a_rootIndex)
-	{
-		BindSRV(a_rootIndex,m_subsetBuffer.GetSRVHandle());
-	}
-
-	void RenderContext::BindBonePalletBuffer(UINT a_rootIndex)
-	{
-		BindSRV(a_rootIndex,m_boneBuffer.GetSRV());
-	}
-
 	void RenderContext::ComputeBindBonePalletBuffer(UINT a_rootIndex)
 	{
 		ComputeBindSRV(a_rootIndex, m_boneBuffer.GetSRV());
@@ -695,14 +469,9 @@ namespace Engine::Graphics
 
 	void RenderContext::BindCamera()
 	{
+		if (!m_pGraphicsEngine) return;
 		const auto& _cam = m_pGraphicsEngine->GetCameraData();
 		GraphicsBindRootCBV(0, _cam);
-	}
-
-	void RenderContext::ComputeBindCamera()
-	{
-		const auto& _cam = m_pGraphicsEngine->GetCameraData();
-		ComputeBindRootCBV(0, _cam);
 	}
 
 	void RenderContext::BindMeshInstance()
@@ -769,15 +538,6 @@ namespace Engine::Graphics
 			m_pCmdList->SetGraphicsRoot32BitConstant(9,_item.meshInstanceIndex,0);
 			m_pCmdList->DispatchMesh((_item.subsetMeshletCount + 31) / 32, 1, 1);
 		}
-	}
-
-	void RenderContext::TexCopy(
-		const Handle<Resource::Texture>& a_src, const Handle<Resource::Texture>& a_dst
-	)
-	{
-		auto* _srcTex = Resource::ResourceManager::Instance().Ref(a_src);
-		auto* _dstTex = Resource::ResourceManager::Instance().Ref(a_dst);
-		m_pCmdList->CopyResource(_dstTex->GetResource(), _srcTex->GetResource());
 	}
 
 	void RenderContext::ResourceCopy(ID3D12Resource* a_pSrc, ID3D12Resource* a_pDst)
@@ -923,10 +683,6 @@ namespace Engine::Graphics
 		);
 	}
 
-	void RenderContext::UAVBarrier(ID3D12Resource* a_pResource)
-	{
-		
-	}
 
 	void RenderContext::ChangeBackBuffer()
 	{

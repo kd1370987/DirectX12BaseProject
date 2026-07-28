@@ -65,7 +65,7 @@ namespace Engine::Graphics
 				a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 				// カメラのバインド
-				a_pCtx->BindGraphicsCamera();
+				a_pCtx->BindCamera();
 
 				// デバッグライン描画用構造体バッファバインド
 				a_pCtx->BindGraphicsDebugLineBuffer(1);
