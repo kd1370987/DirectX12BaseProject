@@ -4,18 +4,6 @@
 
 namespace App::Object
 {
-	struct UIElement
-	{
-		Engine::ResourceRef<Engine::Resource::Texture> texHandle = {};
-		DXSM::Vector2 screenPos = {};
-		float rotation = 0.0f;
-
-		DXSM::Vector2 size = {};
-		float scale = 0.0f;
-
-		DXSM::Color color = {};
-	};
-
 	class UIBase : public Engine::GameObject::BaseObject
 	{
 	public:
@@ -26,10 +14,38 @@ namespace App::Object
 		// 描画処理
 		void Draw(Engine::GameObject::ObjectContext& a_context) override;
 
-	private:
+		// アーカイブ
+		void Archive(Engine::Persistence::Archive& a_ar) override;
+
+		//-----------------------------------------------------------------------
+		// エディター用
+		//-----------------------------------------------------------------------
+		
+		// UIでの基本的なステータスをいじる : 継承先で作るのなら、初めに呼ぶ
+		void DrawInspector() override;
+
+		// シーンビュー上のスクリーンハンドルで位置を編集する
+		bool DrawGizmo(const Engine::GameObject::ObjectGizmoContext& a_ctx) override;
+
+	protected:
 
 		// 描画するUIの構成テクスチャ
-		std::vector<UIElement> m_elemets = {};
+		Engine::ResourceRef<Engine::Resource::Texture> m_texRef = {};
+		Engine::GUID m_texGUID = {};
 
+		// 色
+		DXSM::Color m_color = Engine::Color::WHITE;
+
+		// 座標系
+		DXSM::Vector2 m_pixelPos = {};
+		DXSM::Vector2 m_pixelSize = {};			// ピクセルサイズ
+		float m_rotation = 0.0f;
+
+		// オプション
+		DXSM::Vector2 m_pivot = {};				// 回転軸
+		DXSM::Vector2 m_uvOffset = {};			// UVスクロールなど
+		float m_layer = 0.0f;					// Z位置
+		DXSM::Vector2 m_editSize = {};			// エディターでいじる際のピクセルサイズ
+		float m_scale = 1.0f;					// 等倍スケール用
 	};
 }
