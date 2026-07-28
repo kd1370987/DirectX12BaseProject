@@ -39,10 +39,10 @@ namespace App::Object
 		// レティクルのテクスチャ参照(ResourceRefで所有し、GCで解放されないようにする)
 		Engine::ResourceRef<Engine::Resource::Texture> m_reticleTexRef = {};
 
-		// 描画するスクリーン座標(NDC : 画面中央が原点)
-		DXSM::Vector2 m_screenPos = { 0.0f, 0.0f };
+		// 描画するスクリーン座標(ピクセル : 画面左上が原点、Xは右・Yは下方向が正。矩形の中心を指す)
+		DXSM::Vector2 m_posPixel = { 960.0f, 540.0f };
 
-		// レティクルのサイズ(NDC半径 : ベースクアッドが-1〜1のため)
-		DXSM::Vector2 m_size = { 0.08f, 0.08f };
+		// レティクルの表示サイズ(ピクセル : 幅・高さ)
+		DXSM::Vector2 m_sizePixel = { 128.0f, 128.0f };
 	};
 }

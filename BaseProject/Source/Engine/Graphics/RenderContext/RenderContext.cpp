@@ -645,6 +645,13 @@ namespace Engine::Graphics
 	void RenderContext::UpdateUIBuffer(const std::vector<UIData>& a_uiInstanceVec)
 	{
 		if (a_uiInstanceVec.empty()) return;
+
+		// 書き込みオフセットを毎フレーム先頭へ戻す。
+		// BindUIBuffer() はバッファ先頭(element0)のGPUアドレスを固定でバインドするため、
+		// リセットしないと AllocateAndWrite が毎フレーム後方へ書き進み、
+		// シェーダーは初回フレームのデータ(element0)を読み続けてUIが動かなくなる。
+		// (ボーン用 m_boneBuffer と同じ運用に揃える)
+		m_uiInstanceBuffer.ResetForNewFrame();
 		m_uiInstanceBuffer.AllocateAndWrite(a_uiInstanceVec);
 	}
 
