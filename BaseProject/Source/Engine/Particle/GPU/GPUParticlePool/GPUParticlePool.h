@@ -41,6 +41,14 @@ namespace Engine::Particle
 		const Handle<D3D12::UAV>& GetDeadListUAV() const { return m_deadList.GetUAV(); }
 		const Handle<D3D12::UAV>& GetCounterUAV() const { return m_counterBuffer.GetUAV(); }
 		UINT GetMaxCapacity() const { return m_maxCapacity; }
+
+		// UAVバリア用の生リソース。
+		// Emit(取り出し)と Update(返却)は同じデッドリスト/カウンターを触るため、
+		// Dispatch の間で同期を取る必要がある。
+		ID3D12Resource* GetParticlePoolResource() const { return m_particlePool.GetResource(); }
+		ID3D12Resource* GetDeadListResource()     const { return m_deadList.GetResource(); }
+		ID3D12Resource* GetCounterResource()      const { return m_counterBuffer.GetResource(); }
+
 		const Handle<D3D12::SRV>& GetEmitterBufferSRV() const { return m_emitterBuffer.GetSRVHandle(); }
 		UINT GetEmitterCount() const { return m_emitterCount; }
 

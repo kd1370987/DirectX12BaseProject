@@ -29,6 +29,38 @@ namespace Engine::D3D12
 
 
 	/// <summary>
+	/// UAVバリア
+	/// 同じUAVを触るDispatch同士は、バリアを張らないとGPU上で並列に走る。
+	/// 前のDispatchの書き込みを次のDispatchが必ず見る必要がある場合に挟む。
+	/// (状態遷移ではないので、リソースのステートは変化しない)
+	/// </summary>
+	/// <param name="a_pCmdList">実行リスト</param>
+	/// <param name="a_resources">同期したいリソース群</param>
+	inline void UAVBarrier(
+		GraphicsCommandList* a_pCmdList,
+		std::initializer_list<ID3D12Resource*> a_resources
+	)
+	{
+		std::vector<D3D12_RESOURCE_BARRIER> _barriers;
+		_barriers.reserve(a_resources.size());
+
+		for (auto* _pResource : a_resources)
+		{
+			if (!_pResource) continue;
+
+			D3D12_RESOURCE_BARRIER _barrier = {};
+			_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+			_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			_barrier.UAV.pResource = _pResource;
+			_barriers.push_back(_barrier);
+		}
+
+		if (_barriers.empty()) return;
+
+		a_pCmdList->ResourceBarrier(static_cast<UINT>(_barriers.size()), _barriers.data());
+	}
+
+	/// <summary>
 	/// レンダーターゲットのクリア
 	/// </summary>
 	/// <param name="a_pCmdList"></param>

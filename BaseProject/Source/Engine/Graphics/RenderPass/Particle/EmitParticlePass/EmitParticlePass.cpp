@@ -78,13 +78,25 @@ namespace Engine::Graphics
 
 					auto* _pCmd = a_pCtx->GetCurrentCmdList();
 
+					// 命令バインド
+					const auto* _pEmitBuff = MainEngine::Instance().GetParticleManager()->GetEmitBuffer(_handle);
+					if (!_pEmitBuff) continue;
+					a_pCtx->ComputeBindSRV(1, _pEmitBuff->GetSRVHandle());
+
 					struct EmitCB
 					{
 						uint32_t requestCount;
 						uint32_t frameSeed;
 					};
 					EmitCB _cbEmit = {};
-					_cbEmit.requestCount = static_cast<uint32_t>(_requests.size());
+
+					// 命令バッファの要素数を超えた分は転送されていない。
+					// そのまま渡すとシェーダーが未初期化領域を EmitData として読み、
+					// でたらめな emitCount でプールを食いつぶすので必ず切り詰める。
+					_cbEmit.requestCount = static_cast<uint32_t>(
+						(std::min)(_requests.size(), _pEmitBuff->GetElementNum())
+					);
+					if (_cbEmit.requestCount == 0) continue;
 
 					// プールごとにも種をずらす(同一フレームに複数プールが出しても被らないように)
 					_cbEmit.frameSeed = _spPassData->frameCounter * 2654435761u + _handle.id;
@@ -93,13 +105,6 @@ namespace Engine::Graphics
 						0,
 						_cbEmit
 					);
-
-					// 命令バインド
-					const auto* _pEmitBuff = MainEngine::Instance().GetParticleManager()->GetEmitBuffer(_handle);
-					if (_pEmitBuff)
-					{
-						a_pCtx->ComputeBindSRV(1, _pEmitBuff->GetSRVHandle());
-					}
 
 					// GPUパーティクルプールバインド
 					auto _particleUAV = _pool->GetParticlePoolUAV();
@@ -113,6 +118,24 @@ namespace Engine::Graphics
 					UINT _dispatchNum = (_cbEmit.requestCount + 31u) / 32u;
 					a_pCtx->Dispatch(_dispatchNum, 1, 1);
 					ENGINE_LOG("ParticleEmitPass : 実行 命令数=%u", _cbEmit.requestCount);
+
+					// ★UAVバリア必須。
+					// このあとの UpdateParticlePass は同じ deadList / counter を触る。
+					// バリアが無いと2つのDispatchがGPU上で並列に走り、
+					// Update側の「返却(counter++ してから deadList[count] へ書く)」と
+					// Emit側の「取り出し(counter-- してから deadList[count-1] を読む)」が
+					// 交錯する。書き込み前のスロットを読んでしまうと、
+					// ・使用中インデックスを二重に掴む(生きている粒が上書きされて消える)
+					// ・返却したインデックスがカウンターの上に取り残されて二度と拾われない
+					// が起き、空きスロットが少しずつ減り続けてエミット数が先細りする。
+					D3D12::UAVBarrier(
+						_pCmd,
+						{
+							_pool->GetParticlePoolResource(),
+							_pool->GetDeadListResource(),
+							_pool->GetCounterResource()
+						}
+					);
 				}
 			};
 

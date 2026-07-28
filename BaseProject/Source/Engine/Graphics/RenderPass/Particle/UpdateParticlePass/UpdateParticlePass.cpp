@@ -105,6 +105,21 @@ namespace Engine::Graphics
 					const UINT _threadNum = _pool->GetMaxCapacity();
 					UINT _dispatchNum = (_threadNum + 31u) / 32u;
 					a_pCtx->Dispatch(_dispatchNum, 1, 1);
+
+					// ★UAVバリア必須。
+					// 次フレームの EmitParticlePass が同じ deadList / counter から取り出す。
+					// D3D12 は同一キューでもバリアが無ければ Dispatch 同士が重なって走れるため、
+					// (コマンドリストをまたいでも)ここで区切らないと
+					// このフレームの返却が終わる前に次の取り出しが走り、
+					// 空きスロットが取りこぼされて減り続ける。
+					D3D12::UAVBarrier(
+						_pCmd,
+						{
+							_pool->GetParticlePoolResource(),
+							_pool->GetDeadListResource(),
+							_pool->GetCounterResource()
+						}
+					);
 				}
 			};
 		a_pRegistry->RegisterPass(_node);

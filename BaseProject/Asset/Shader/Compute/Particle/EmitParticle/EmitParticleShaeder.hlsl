@@ -44,10 +44,17 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 		uint _origCount;
 
 		// カウンターから１引いて、引く前の数を origCount に取得する（アトミック演算）
-		InterlockedAdd(g_counterBuffer[0], -1, _origCount);
+		InterlockedAdd(g_counterBuffer[0], (uint) - 1, _origCount);
 
 		// 空きがあった場合 : 引く前の数が１以上なら
-		if (_origCount > 0)
+		// ★カウンターは uint。空きが0の状態で複数スレッドが同時に引くと、
+		//   2番目以降は 0xFFFFFFFF(=符号付きなら-1) へラップする。
+		//   unsigned のまま > 0 判定すると、この巨大値を「空きあり」と誤認して
+		//   デッドリストを範囲外参照し、しかもカウンターを復元しないため
+		//   カウンターが永久破壊され、以降エミットが止まる。
+		//   符号付きで判定すれば、引きすぎたスレッドは必ず else 側で復元され、
+		//   カウンターは最終的に 0 へ収束する（自己修復する）。
+		if ((int) _origCount > 0)
 		{
 			// デッドリストの末尾から、空いているパーティクルのインデックス番号を取得
 			uint _newIndex = g_deadList[_origCount - 1];
@@ -72,6 +79,12 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 
 			// 生存時間
 			_p.life = ValueFloat(_emitInfo.minLifeTime, _emitInfo.maxLifeTime, _seed++);
+
+			// ★寿命が 0 以下だと Update 側の「死亡済み」ガードに即座に弾かれ、
+			//   デッドリストへ返却されずスロットが永久リークする。
+			//   （ライフタイム未設定 min=max=0 などで起きる）
+			//   必ず正の最低寿命を保証し、たとえ即死でも次フレームに返却されるようにする。
+			_p.life = max(_p.life, 0.0001f);
 
 			// 発射方向計算
 			float3 _forward = normalize(_emitInfo.emitDirection);

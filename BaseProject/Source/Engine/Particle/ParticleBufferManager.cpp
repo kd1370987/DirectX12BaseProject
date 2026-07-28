@@ -98,8 +98,12 @@ namespace Engine::Particle
 			auto _it = m_emitBuffer.find(_handle);
 			if (_it != m_emitBuffer.end())
 			{
+				// バッファは固定長。要素数を超えて書くとマップ領域を踏み越えるので切り詰める。
+				// (パス側も同じ数で requestCount を丸めるので、あふれた命令はこのフレームでは捨てる)
+				const size_t _uploadNum = (std::min)(_emitDataVec.size(), _it->second.GetElementNum());
+
 				// バッファにデータを流し込む
-				_it->second.UpdateData(_emitDataVec.data(), sizeof(EmitterData) * _emitDataVec.size());
+				_it->second.UpdateData(_emitDataVec.data(), sizeof(EmitterData) * _uploadNum);
 				// GPUへの転送コマンドを積む
 				_it->second.Update(a_pCmdList);
 			}
