@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../BaseObject/BaseObject.h"
+#include "../ObjectMetaRegistry/ObjectMetaRegistry.h"
 
 namespace Engine::GameObject
 {
@@ -24,6 +25,26 @@ namespace Engine::GameObject
 		template<typename T>
 		T* AddObject();
 
+		/// <summary>
+		/// クラスメタマネージャーに登録済みのタイプインデックスから実体を生成して追加する。
+		/// (エディターの AddObject ボタン用)。新規GUIDを発行する。
+		/// </summary>
+		/// <param name="a_typeID">ObjectMetaRegistry に登録されたタイプID</param>
+		/// <returns>追加した実体(失敗時 nullptr)</returns>
+		BaseObject* AddObjectByTypeID(ObjectTypeID a_typeID);
+
+		/// <summary>
+		/// シーン保存・読み込み。
+		/// 保存時 : 各オブジェクトの [タイプインデックス / GUID / データ] を書き出す。
+		/// 読み込み時 : タイプインデックスからクラスを復元し、GUIDとデータを流し込む。
+		/// </summary>
+		void Archive(Persistence::Archive& a_ar);
+
+		/// <summary>
+		/// GUIDからインスタンスを引く(参照解決用)。無ければ nullptr。
+		/// </summary>
+		BaseObject* FindByGUID(const Engine::GUID& a_guid) const;
+
 		void PreUpdate();
 
 		/// <summary>
@@ -45,9 +66,17 @@ namespace Engine::GameObject
 
 	private:
 
+		// GUID→実体の対応表を更新しつつ末尾に追加する共通処理
+		BaseObject* Register(std::unique_ptr<BaseObject> a_upObject);
+
+	private:
+
 		ObjectContext m_objContext = {};
 
 		std::vector<std::unique_ptr<BaseObject>> m_upObjectVec = {};
+
+		// GUID からインスタンスを引くための対応表
+		std::unordered_map<Engine::GUID, BaseObject*> m_guidMap = {};
 	};
 
 
@@ -57,13 +86,16 @@ namespace Engine::GameObject
 		// ベースオブジェクトの継承がされているかのチェック
 		static_assert(std::is_base_of_v<BaseObject,T>);
 
-		// オブジェクトの追加
+		// オブジェクトの生成
 		auto _upObject = std::make_unique<T>();
-		m_upObjectVec.push_back(std::move(_upObject));
 
-		// push_back で _upObject は空になっているため、
-		// 格納後の実体を取り出して初期化する
-		T* _pObject = static_cast<T*>(m_upObjectVec.back().get());
+		// 新規GUIDを発行(まだ持っていなければ)
+		Engine::GUID _guid = {};
+		_guid.Create();
+		_upObject->SetGUID(_guid);
+
+		// 追加して初期化
+		T* _pObject = static_cast<T*>(Register(std::move(_upObject)));
 		_pObject->Init(m_objContext);
 		return _pObject;
 	}

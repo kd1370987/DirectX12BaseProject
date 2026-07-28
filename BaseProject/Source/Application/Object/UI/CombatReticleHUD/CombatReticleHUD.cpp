@@ -17,9 +17,34 @@ namespace App::Object
 
 	void CombatReticleHUD::Init(Engine::GameObject::ObjectContext& a_context)
 	{
-		// パスからGUIDを引いてテクスチャを読み込む
-		Engine::GUID _guid = Engine::Resource::AssetDatabase::Instance().GetGUIDFromFilePath(RETICLE_TEXTURE_PATH);
-		m_reticleTexRef = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::Texture>(_guid);
+		// GUID未設定(新規追加)ならデフォルトのテスト用テクスチャを引く。
+		// シーン読み込み時は Archive で復元済みのGUIDを尊重する。
+		if (!m_texGUID.IsValid())
+		{
+			m_texGUID = Engine::Resource::AssetDatabase::Instance().GetGUIDFromFilePath(RETICLE_TEXTURE_PATH);
+		}
+		LoadTexture();
+	}
+
+	void CombatReticleHUD::LoadTexture()
+	{
+		if (!m_texGUID.IsValid()) return;
+		m_reticleTexRef = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::Texture>(m_texGUID);
+	}
+
+	void CombatReticleHUD::Archive(Engine::Persistence::Archive& a_ar)
+	{
+		// 位置・サイズ(ピクセル)とテクスチャGUIDを保存/復元。
+		// 保存・読み込みの分岐は Archive クラスが吸収するので同じ記述で両対応。
+		a_ar.Field("PosPixel", m_posPixel);
+		a_ar.Field("SizePixel", m_sizePixel);
+		a_ar.GUIDField("TexGUID", m_texGUID);
+
+		// 読み込み時は復元したGUIDでテクスチャを引き直す
+		if (a_ar.IsLoading())
+		{
+			LoadTexture();
+		}
 	}
 
 	void CombatReticleHUD::Update(Engine::GameObject::ObjectContext& a_context)

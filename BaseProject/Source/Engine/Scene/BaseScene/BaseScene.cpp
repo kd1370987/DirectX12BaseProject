@@ -48,11 +48,8 @@ namespace Engine::Scene
 		SceneManager::Instance().InvokeWorldInitCallback(m_upWorld.get());
 
 		// ECS外オブジェクトの生成
+		// 中身はシーン読み込み(Archive)またはエディターの AddObject で追加される。
 		m_upGameObjectManager = std::make_unique<GameObject::GameObjectManager>();
-
-		// テスト用にUIを表示
-		m_upGameObjectManager->AddObject<App::Object::CombatReticleHUD>();
-
 	}
 
 	void BaseScene::Exit()
@@ -217,6 +214,15 @@ namespace Engine::Scene
 				}
 			}
 			a_ar.EndArray(); // エンティティ配列の終了
+		}
+
+		// ---------------------------------------------------------
+		// ECS外オブジェクト(GameObject)のシリアライズ
+		// タイプインデックス / GUID / データ を GameObjectManager 側で処理する。
+		// ---------------------------------------------------------
+		if (m_upGameObjectManager)
+		{
+			m_upGameObjectManager->Archive(a_ar);
 		}
 	}
 }

@@ -21,6 +21,9 @@ namespace App::Object
 		// 描画処理 : UI描画命令の発行
 		void Draw(Engine::GameObject::ObjectContext& a_context) override;
 
+		// シリアライズ : 位置・サイズ・テクスチャGUIDを保存/復元
+		void Archive(Engine::Persistence::Archive& a_ar) override;
+
 		//=======================================================================
 		// エディター用
 		//=======================================================================
@@ -36,8 +39,14 @@ namespace App::Object
 
 	private:
 
+		// m_texGUID からテクスチャ参照を読み込む
+		void LoadTexture();
+
 		// レティクルのテクスチャ参照(ResourceRefで所有し、GCで解放されないようにする)
 		Engine::ResourceRef<Engine::Resource::Texture> m_reticleTexRef = {};
+
+		// 表示テクスチャのGUID(シリアライズ対象。読み込み時はここからテクスチャを復元する)
+		Engine::GUID m_texGUID = {};
 
 		// 描画するスクリーン座標(ピクセル : 画面左上が原点、Xは右・Yは下方向が正。矩形の中心を指す)
 		DXSM::Vector2 m_posPixel = { 960.0f, 540.0f };

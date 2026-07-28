@@ -9,6 +9,10 @@
 // ECS関係
 #include "../../../Engine/ECS/World/World.h"
 
+// ECS外オブジェクト(クラスメタマネージャー / 登録するクラス)
+#include "../../../Engine/GameObject/ObjectMetaRegistry/ObjectMetaRegistry.h"
+#include "Application/Object/UI/CombatReticleHUD/CombatReticleHUD.h"
+
 // コンポーネント関係
 // システムフェーズタグ
 #include "Application/Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
@@ -161,6 +165,17 @@ namespace App::Game
 		// ゲームフロウの読み込み
 		m_upGameFlowMachine = std::make_unique<GameFlowStateMachine>();
 		m_upGameFlowMachine->Load("Asset/Scenes/Flow/Flow.scene");
+
+		// ------------------------------------------------------------------
+		// ECS外オブジェクト(GameObject)のクラスをメタマネージャーへ登録する。
+		// ここで登録した順にタイプインデックスが振られ、シーンの保存/読み込み・
+		// エディターの AddObject 一覧で利用される。
+		// 新しいオブジェクトクラスを追加したら、ここに RegisterType を足すこと。
+		// ------------------------------------------------------------------
+		{
+			auto& _objRegistry = Engine::GameObject::ObjectMetaRegistry::Instance();
+			_objRegistry.RegisterType<App::Object::CombatReticleHUD>("CombatReticleHUD");
+		}
 
 		// ワールドの初期化関数登録
 		Engine::Scene::SceneManager::Instance().SetWorldInitCallback(

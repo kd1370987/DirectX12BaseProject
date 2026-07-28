@@ -1195,6 +1195,9 @@
     <Filter Include="Source\Engine\GameObject\GameObjectManager">
       <UniqueIdentifier>{8f6a8a38-ea86-4dec-ba18-844eb1432321}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\GameObject\ObjectMetaRegistry">
+      <UniqueIdentifier>{7b1e5c2a-9d84-4a6f-bf20-2c3f9d8a41e7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Release\AdditivePoseFreeSystem">
       <UniqueIdentifier>{2e460b76-6473-40ab-bc4a-780f18e45806}</UniqueIdentifier>
     </Filter>
@@ -1952,6 +1955,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\BaseObject\BaseObject.cpp">
       <Filter>Source\Engine\GameObject\BaseObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.cpp">
+      <Filter>Source\Engine\GameObject\ObjectMetaRegistry</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.cpp">
       <Filter>Source\Application\Systems\Release\AdditivePoseFreeSystem</Filter>
@@ -3074,6 +3080,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GameObject\BaseObject\BaseObject.h">
       <Filter>Source\Engine\GameObject\BaseObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.h">
+      <Filter>Source\Engine\GameObject\ObjectMetaRegistry</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\AdditiveBoneEntry.h">
       <Filter>Source\Application\InstanceResource</Filter>

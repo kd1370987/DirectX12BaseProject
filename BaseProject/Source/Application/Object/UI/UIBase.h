@@ -6,7 +6,7 @@ namespace App::Object
 {
 	struct UIElement
 	{
-		Engine::Handle<Engine::Resource::Texture> texHandle = {};
+		Engine::ResourceRef<Engine::Resource::Texture> texHandle = {};
 		DXSM::Vector2 screenPos = {};
 		float rotation = 0.0f;
 
@@ -29,7 +29,7 @@ namespace App::Object
 	private:
 
 		// 描画するUIの構成テクスチャ
-		std::vector<Engine::Handle<Engine::Resource::Texture>> m_textureHandles = {};
+		std::vector<UIElement> m_elemets = {};
 
 	};
 }

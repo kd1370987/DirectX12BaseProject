@@ -3,6 +3,7 @@
 #include "../../../Scene/SceneManager/SceneManager.h"
 #include "../../../GameObject/GameObjectManager/GameObjectManager.h"
 #include "../../../GameObject/BaseObject/BaseObject.h"
+#include "../../../GameObject/ObjectMetaRegistry/ObjectMetaRegistry.h"
 
 namespace Engine::Editor
 {
@@ -19,6 +20,51 @@ namespace Engine::Editor
 			ImGui::TextDisabled("No GameObjectManager");
 			a_editContext.pGameObject = nullptr;
 			return;
+		}
+
+		// ------------------------------------------------------------------
+		// AddObject : クラスメタマネージャーに登録済みのクラスを選んでシーンへ追加する
+		// ------------------------------------------------------------------
+		if (ImGui::Button("AddObject"))
+		{
+			ImGui::OpenPopup("AddObjectPopup");
+		}
+		if (ImGui::BeginPopup("AddObjectPopup"))
+		{
+			ImGui::TextDisabled("Select Class");
+			ImGui::Separator();
+
+			const auto& _allMeta = GameObject::ObjectMetaRegistry::Instance().GetAllMeta();
+			if (_allMeta.empty())
+			{
+				ImGui::TextDisabled("No registered class");
+			}
+			else
+			{
+				// タイプインデックス順に並べて表示(map は順不同のため一旦ソート)
+				std::vector<GameObject::ObjectTypeID> _ids;
+				_ids.reserve(_allMeta.size());
+				for (const auto& [_id, _meta] : _allMeta) _ids.push_back(_id);
+				std::sort(_ids.begin(), _ids.end());
+
+				for (GameObject::ObjectTypeID _id : _ids)
+				{
+					const auto& _meta = _allMeta.at(_id);
+					std::string _label = _meta.name + "##addobj" + std::to_string(_id);
+					if (ImGui::Selectable(_label.c_str()))
+					{
+						// 生成してそのまま選択状態にする
+						GameObject::BaseObject* _pNew = _pManager->AddObjectByTypeID(_id);
+						if (_pNew)
+						{
+							a_editContext.pGameObject = _pNew;
+							a_editContext.entity = ECS::Limits::INVALID_ENTITY;
+						}
+						ImGui::CloseCurrentPopup();
+					}
+				}
+			}
+			ImGui::EndPopup();
 		}
 
 		const auto& _objects = _pManager->GetObjects();
