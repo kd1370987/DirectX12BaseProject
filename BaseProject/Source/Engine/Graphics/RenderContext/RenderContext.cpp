@@ -708,14 +708,6 @@ namespace Engine::Graphics
 		m_pCmdList->ClearRenderTargetView(_cpuHandle, _clearColor, 0, nullptr);		// レンダーターゲット
 	}
 
-	void RenderContext::DrawQuad()
-	{
-		// コマンドリストの取得
-		m_pCmdList->DrawInstanced(
-			3, 1, 0, 0
-		);
-	}
-
 	void RenderContext::DrawShape()
 	{
 		const auto& _debugVec = Editor::MainEditor::Instance().GetDebugLineDataVec();

@@ -655,6 +655,9 @@
     <Filter Include="Asset\Shader\Compute">
       <UniqueIdentifier>{0f860c13-cd63-44bf-b321-a6ffa6d68e59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Compute\FullScreen">
+      <UniqueIdentifier>{3a7c1f5e-2b94-4d6a-9c18-7e5f2a0b6d34}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Asset\Shader\Compute\TemporalAccumulationShader">
       <UniqueIdentifier>{02c2faa4-cd28-4187-bc61-583fe69efc8c}</UniqueIdentifier>
     </Filter>
@@ -3132,9 +3135,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingShader.hlsli">
-      <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
-    </None>
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>
     </None>
@@ -3251,11 +3251,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingPS.hlsl">
-      <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\QuadRenderingShader\QuadRenderingVS.hlsl">
-      <Filter>Asset\Shader\Source\QuadRenderingShader</Filter>
+    <FxCompile Include="Asset\Shader\Compute\FullScreen\FullScreenCS.hlsl">
+      <Filter>Asset\Shader\Compute\FullScreen</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\ZPreVS.hlsl">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>

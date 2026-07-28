@@ -156,11 +156,9 @@ namespace Engine::Graphics
 			// パスをスキップする場合でもリソースの状態遷移はコンパイル時の計算通りに進める
 			for (auto& _barrier : _compilePass.preBarriers)
 			{
-				if (_barrier.isUAVBarrier)
-				{
-					a_pCtx->UAVBarrier(_barrier.pResource->GetResource());
-				}
-				else
+				// UAVバリアは従来 RenderContext::UAVBarrier が空実装(何もしない)だったため、
+				// 状態遷移バリアのみ従来どおり張る(挙動は変更しない)。
+				if (!_barrier.isUAVBarrier)
 				{
 					_barrier.pResource->Barrier(_pCmdList, _barrier.after);
 				}

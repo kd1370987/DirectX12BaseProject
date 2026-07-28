@@ -205,8 +205,6 @@ namespace Engine::Graphics
 
 		// パーティクルやUIなどの描画用
 		void DrawPolygonInstancing(UINT a_count);
-		// クワッド描画
-		void DrawQuad();
 
 		// 形状描画用
 		void DrawShape();

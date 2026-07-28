@@ -6,57 +6,76 @@
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../../RenderPassRegistry/RenderPassRegistry.h"
+
+#include "../../../../Option/OptionManager.h"
 
 namespace Engine::Graphics
 {
 	void AddFullScreenPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 	{
+		const std::string _shaderPath = "Asset/Shader/Compute/FullScreen/FullScreenCS.cso";
+
 		RenderPassNode _node = {};
 		_node.name = "FullScreenPass";
 		_node.phase = a_phase;
-		RGRasterPassBuilder _rpBuilder(&_node);
+		RGComputePassBuilder _cpBuilder(&_node);
+
+		// ======================================================================
+		// PSO / ルートシグネチャ
+		// ======================================================================
+		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
+		auto* _pBlob = _cpBuilder.SetShader(_shaderPath, "FullScreenCS", _csIndex);
+		_cpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+		_cpBuilder.ResolveAndCompile(a_pPSOManager);
+		_cpBuilder.SetPassPSO(_csIndex);
+		_cpBuilder.SetHeapMode(ERGHeapMode::Default);
 
 		// ======================================================================
 		// 依存関係とバインドの宣言
 		// ======================================================================
-		// TAAパス（またはその後続パス）の最終出力を読み込む
-		_rpBuilder.BindSRV(0, "AfterTAAColor");
-		_rpBuilder.SetHeapMode(ERGHeapMode::Default);
+		// 入力 : TAA(またはその後続)の最終カラー(SRV t0)
+		_cpBuilder.SrvTable(0).Add("AfterTAAColor");
 
-		uint8_t _staticIndex = RenderPassNode::kInvalidPSOIndex;
-		auto& _sPso = _rpBuilder.CreatePSODesc("FullScreenPass", _staticIndex);
-
-		// このVSは SV_VertexID だけで三角形を生成し、頂点バッファを読まない。
-		// StaticLayout を宣言すると IA が頂点バッファを要求し、直前のパスが残したバッファを
-		// 読もうとして #210(頂点バッファが小さすぎる)警告が出るため、空レイアウトを使う。
-		auto* _pBlob = _rpBuilder.SetVS(_sPso, "Asset/Shader/Source/QuadRenderingShader/QuadRenderingVS.cso", D3D12::Input::gEmptyLayout);
-		_rpBuilder.SetPS(_sPso, "Asset/Shader/Source/QuadRenderingShader/QuadRenderingPS.cso");
-
-		_rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
-
-		// デプスとステンシルは無効化（フルスクリーン描画のため）
-		_sPso.DepthEnable(false);
-		_sPso.StencilEnable(false);
-
-		// ★バックバッファはレンダーグラフにRTVとして要求しないため、ここで手動フォーマット指定
-		_sPso.AddRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
-
-		_rpBuilder.ResolveAndCompile(a_pPSOManager);
-
-		// PSOが確定したのでグラフに自動セットさせる
-		_rpBuilder.SetPassPSO(_staticIndex);
+		// 出力 : 提示用カラー(UAV u0)
+		// スワップチェインのバックバッファは UAV にできないため、いったん中間UAVへ書き、
+		// このあと executeFunc でバックバッファへコピーする。
+		// 全画素をCSで上書きするので LoadOp は DontCare。
+		const RGResourceRef _outputRef = _cpBuilder.BindUAV(
+			1, "PresentColor", DXGI_FORMAT_R8G8B8A8_UNORM, LoadOp::DontCare, StoreOp::Store);
 
 		// ======================================================================
-		// 実行関数 : バックバッファへの切り替えと描画のみ
+		// 実行関数 : ディスパッチ後、中間UAVをバックバッファへコピー
 		// ======================================================================
-		_node.executeFunc = [](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
+		_node.executeFunc = [_outputRef](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 			{
-				// （※ChangeBackBufferの中で、バックバッファへのバリア遷移とOMSetRenderTargetsが行われる想定）
-				a_pCtx->ChangeBackBuffer();
+				const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 
-				// 画面全体に描画
-				a_pCtx->DrawQuad();
+				// ヒープ・ルートシグネチャ・PSO・SRV/UAV はグラフが実行前に張り終えている。
+				// 画面全体を 8x8 スレッドグループでディスパッチ(端数切り上げ)。
+				a_pCtx->Dispatch(
+					(_winOp.windowWidth + 7) / 8,
+					(_winOp.windowHeight + 7) / 8,
+					1
+				);
+
+				// 中間UAV(PresentColor)をバックバッファへコピーする。
+				// バックバッファはレンダーグラフ管理外なので手動でバリアを張り、
+				// コピー後は元の状態へ戻してグラフ/EndFrameの状態前提を崩さない。
+				ID3D12Resource* _pPresent = a_res.Resource(_outputRef)->GetResource();
+				ID3D12Resource* _pBackBuffer = D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffer();
+
+				// コピー用状態へ遷移
+				a_pCtx->Transition(_pPresent, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+				a_pCtx->Transition(_pBackBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST);
+
+				// PresentColor -> バックバッファ
+				a_pCtx->ResourceCopy(_pPresent, _pBackBuffer);
+
+				// 状態を元へ戻す(バックバッファ=RENDER_TARGET, PresentColor=UNORDERED_ACCESS)
+				a_pCtx->Transition(_pBackBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+				a_pCtx->Transition(_pPresent, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			};
 
 		a_pRegistry->RegisterPass(_node);
