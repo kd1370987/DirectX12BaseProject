@@ -56,6 +56,7 @@
 #include "Application/Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "Application/Components/Resource/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
+#include "Application/Components/Camera/TPSFollowComponent.h"
 #include "Application/Components/Collision/SphereCollider.h"
 #include "Application/Components/Collision/BoxCollider.h"
 #include "Application/Components/Collision/OBBCollider.h"
@@ -228,6 +229,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<AttachmentSlotsComponent>("AttachmentSlotsComponent");
 				a_pWorld->RegisterComponent<ParticlesComponent>("ParticlesComponent");
 				a_pWorld->RegisterComponent<TPSCameraStateComponent>("TPSCameraStateComponent");
+				a_pWorld->RegisterComponent<TPSFollowComponent>("TPSFollowComponent");
 				a_pWorld->RegisterComponent<CapsuleColliderComponent>("CapsuleColliderComponent");
 				a_pWorld->RegisterComponent<SphereColliderComponent>("SphereColliderComponent");
 				a_pWorld->RegisterComponent<BoxColliderComponent>("BoxColliderComponent");

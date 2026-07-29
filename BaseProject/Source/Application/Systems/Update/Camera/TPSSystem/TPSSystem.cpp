@@ -1,22 +1,49 @@
-﻿#include "TPSSystem.h"
+#include "TPSSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
 #include "Application/Components/Camera/FollowTargetComponent.h"
 #include "Application/Components/Camera/TPSOffsetComponent.h"
 #include "../../../../Components/Camera/TPSCameraStateComponent.h"
+#include "../../../../Components/Camera/TPSFollowComponent.h"
 #include "../../../../Components/Camera/CameraFocusTargetComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/Components/Force/VelocityComponent.h"
 
 
 #include "Application/Components/Camera/TPSLookAngleComponent.h"
 
 #include "Application/Components/Character/LookAngleComponent.h"
 
+//==========================================================================================
+// TPSSystem
+//
+// ターゲット(自機)を追いかけるTPSカメラ。
+//
+// ピボット・注視点・引き量をそれぞれ「遅れて」追従させることで、
+// アーマードコアのように機体へ貼り付かず、加速すると置いていかれて
+// 少ししてから追いつく挙動になる。調整値は TPSFollowComponent が持つ。
+//
+// 補間はすべてフレームレート非依存の指数減衰で行う。
+//   t = 1 - exp(-rate * dt)
+// よくある t = rate * dt は dt が伸びると t > 1 になって行き過ぎ、
+// フレームレートによって追従の速さが変わってしまう。
+//==========================================================================================
+namespace
+{
+	//--------------------------------------------------------------------------------------
+	// 指数減衰の補間係数。rate が 0 以下なら追従しない。
+	//--------------------------------------------------------------------------------------
+	float DampFactor(float a_rate, float a_dt)
+	{
+		if (!(a_rate > 0.0f) || !(a_dt > 0.0f)) return 0.0f;
+		return 1.0f - std::exp(-a_rate * a_dt);
+	}
+}
 
 void TPSSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, LocalTransformComponent, TPSCameraStateComponent>(
+	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, const TPSFollowComponent, LocalTransformComponent, TPSCameraStateComponent>(
 		Engine::ECS::ESystemType::Camera,
 		"TPSSystem",
 		[](
@@ -27,6 +54,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 			FollowTargetComponent* a_targetArray,
 			TPSOffsetComponent* a_offsetArray,
 			TPSLookAngleComponent* a_lookAngArray,
+			const TPSFollowComponent* a_followParamArray,
 			LocalTransformComponent* a_trsArray,
 			TPSCameraStateComponent* a_tpsStatArray
 		)
@@ -34,11 +62,12 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				// カメラのコンポーネントを取得
-				FollowTargetComponent&		_followComp = a_targetArray[_i];
-				TPSOffsetComponent&			_offsetComp = a_offsetArray[_i];
-				LocalTransformComponent&	_trsComp	= a_trsArray[_i];
-				TPSLookAngleComponent&		_lookComp	= a_lookAngArray[_i];
-				TPSCameraStateComponent&	_statComp	= a_tpsStatArray[_i];
+				FollowTargetComponent&		_followComp		= a_targetArray[_i];
+				TPSOffsetComponent&			_offsetComp		= a_offsetArray[_i];
+				const TPSFollowComponent&	_followParam	= a_followParamArray[_i];
+				LocalTransformComponent&	_trsComp		= a_trsArray[_i];
+				TPSLookAngleComponent&		_lookComp		= a_lookAngArray[_i];
+				TPSCameraStateComponent&	_statComp		= a_tpsStatArray[_i];
 
 				//============================================================
 				// ターゲット取得
@@ -67,11 +96,78 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				_targetRot.Normalize();
 
 				//============================================================
-				// ピボット / 距離 / 注視点
+				// 追従の目標値
 				//============================================================
-				DXSM::Vector3 _pivot = _targetTRS->pos + DXSM::Vector3::Up * _offsetComp.y;
-				float _distance = _offsetComp.z;
-				DXSM::Vector3 _targetLookAt = DXSM::Vector3(_targetTRS->pos) + DXSM::Vector3(_forcusTarget->offsetPos);
+				DXSM::Vector3 _goalPivot	= DXSM::Vector3(_targetTRS->pos) + DXSM::Vector3::Up * _offsetComp.y;
+				DXSM::Vector3 _goalLookAt	= DXSM::Vector3(_targetTRS->pos) + DXSM::Vector3(_forcusTarget->offsetPos);
+
+				//============================================================
+				// 水平速度(引きの量に使う)
+				//------------------------------------------------------------
+				// 落下速度まで含めると、ただ落ちているだけでカメラが引いてしまうので
+				// 水平成分だけを見る。速度を持たないターゲットなら 0 として扱う。
+				//============================================================
+				float _horizontalSpeed = 0.0f;
+				if (a_ctx.pWorld->HasComponent<VelocityComponent>(_target))
+				{
+					if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_target))
+					{
+						_horizontalSpeed = DXSM::Vector2(_pVel->value.x, _pVel->value.z).Length();
+					}
+				}
+				float _goalPullBack = std::clamp(
+					_horizontalSpeed * _followParam.speedPullBack,
+					0.0f,
+					std::max(_followParam.maxPullBack, 0.0f));
+
+				//============================================================
+				// 初回はスナップ
+				//------------------------------------------------------------
+				// 未初期化のまま補間すると、原点(あるいは保存時の座標)から
+				// カメラが飛んでくる。シーン開始直後だけ目標値をそのまま入れる。
+				//============================================================
+				if (!_statComp.isInitialized)
+				{
+					_statComp.currentPivot		= _goalPivot;
+					_statComp.currentLookAt		= _goalLookAt;
+					_statComp.currentOrbit		= _targetRot;
+					_statComp.currentPullBack	= _goalPullBack;
+					_statComp.isInitialized		= true;
+				}
+
+				//============================================================
+				// ピボットの追従
+				//------------------------------------------------------------
+				// 水平と垂直で追従速度を分ける。垂直を遅くしておくと、
+				// 上昇/落下でカメラがすぐに持ち上がらず柔らかい見え方になる。
+				//============================================================
+				DXSM::Vector3 _pivot = _statComp.currentPivot;
+				{
+					float _tH = DampFactor(_followParam.posRateHorizontal, a_ctx.dt);
+					float _tV = DampFactor(_followParam.posRateVertical, a_ctx.dt);
+
+					_pivot.x += (_goalPivot.x - _pivot.x) * _tH;
+					_pivot.z += (_goalPivot.z - _pivot.z) * _tH;
+					_pivot.y += (_goalPivot.y - _pivot.y) * _tV;
+
+					// 離れすぎたら引き戻す。
+					// テレポートや極端な加速でカメラが千切れたままになるのを防ぐ保険。
+					DXSM::Vector3 _lag = _pivot - _goalPivot;
+					float _lagLen = _lag.Length();
+					if (_followParam.maxLagDistance > 0.0f && _lagLen > _followParam.maxLagDistance)
+					{
+						_pivot = _goalPivot + _lag * (_followParam.maxLagDistance / _lagLen);
+					}
+				}
+				_statComp.currentPivot = _pivot;
+
+				//============================================================
+				// 注視点の追従
+				//------------------------------------------------------------
+				// ピボットより速く追従させる。ここが遅いと機体が画面から逃げる。
+				//============================================================
+				DXSM::Vector3 _lookAt = DXSM::Vector3(_statComp.currentLookAt);
+				_lookAt += (_goalLookAt - _lookAt) * DampFactor(_followParam.lookAtRate, a_ctx.dt);
 
 				//============================================================
 				// オービット回転の補間(クォータニオンSlerp)
@@ -80,18 +176,32 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// ほぼ反対を向いた瞬間に補間結果がゼロ近傍を通り、正規化が破綻して
 				// 高速に180度反転する。Slerpは最短経路で回るためこの破綻が無い。
 				//============================================================
-				float _t = std::min(10.0f * a_ctx.dt, 1.0f);		// 補間係数
-
 				DXSM::Quaternion _curOrbit = _statComp.currentOrbit;
 				if (_curOrbit.LengthSquared() < 1e-6f) _curOrbit = _targetRot;	// 未初期化保険
 
-				DXSM::Quaternion _orbit = DXSM::Quaternion::Slerp(_curOrbit, _targetRot, _t);
+				DXSM::Quaternion _orbit = DXSM::Quaternion::Slerp(
+					_curOrbit, _targetRot, DampFactor(_followParam.orbitRate, a_ctx.dt));
 				_orbit.Normalize();
 				_statComp.currentOrbit = _orbit;
 
 				//============================================================
-				// カメラ位置：ピボットの後方へ距離d(常に球面上=距離固定)
+				// 引き量の追従
+				//------------------------------------------------------------
+				// 速度そのものではなく、遅れて伸び縮みする値にする。
+				// 加速した瞬間に引き切ってしまうと「引いている」感じが出ない。
 				//============================================================
+				_statComp.currentPullBack +=
+					(_goalPullBack - _statComp.currentPullBack) * DampFactor(_followParam.pullBackRate, a_ctx.dt);
+
+				//============================================================
+				// カメラ位置：ピボットの後方へ距離d(常に球面上=距離固定)
+				//------------------------------------------------------------
+				// offset.z は「前方向にどれだけ進めるか」なので、後方から見る設定では
+				// 負の値になっている。引きは符号を合わせて足す(=さらに遠ざける)。
+				//============================================================
+				float _distanceSign = (_offsetComp.z < 0.0f) ? -1.0f : 1.0f;
+				float _distance = _offsetComp.z + _distanceSign * _statComp.currentPullBack;
+
 				DXSM::Vector3 _dir = DXSM::Vector3::Transform(DXSM::Vector3::Backward, _orbit); // (0,0,1)を回転
 				DXSM::Vector3 _currentPos = _pivot + _dir * _distance;
 
@@ -105,7 +215,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// 求める側(AimTargetSystem など)まで NaN が伝播して落ちるため、
 				// 破綻する条件では回転を更新せず前フレームの値を保つ。
 				//============================================================
-				DXSM::Vector3 _lookVec = _targetLookAt - _currentPos;
+				DXSM::Vector3 _lookVec = _lookAt - _currentPos;
 				float _lookLenSq = _lookVec.LengthSquared();
 				bool _isDegenerate = (_lookLenSq < 1e-6f);
 				if (!_isDegenerate)
@@ -120,7 +230,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				{
 					DXSM::Matrix _view = DirectX::XMMatrixLookAtLH(
 						_currentPos,
-						_targetLookAt,
+						_lookAt,
 						DXSM::Vector3::Up
 					);
 					_camRot = DXSM::Quaternion::CreateFromRotationMatrix(_view.Invert());
@@ -132,7 +242,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				//============================================================
 				_trsComp.pos = _currentPos;
 				_trsComp.quat = _camRot;
-				_statComp.currentLookAt = _targetLookAt;
+				_statComp.currentLookAt = _lookAt;
 				_trsComp.isDirty = true;
 			}
 		}

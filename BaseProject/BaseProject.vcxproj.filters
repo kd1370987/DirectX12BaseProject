@@ -2696,6 +2696,9 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSCameraStateComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\TPSFollowComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Utility\String\String.h">
       <Filter>Source\Engine\Utility\String</Filter>
     </ClInclude>
