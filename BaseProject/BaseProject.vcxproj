@@ -435,6 +435,8 @@
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\ModelConverter\ModelConverter.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\ModelIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Processor\ModelProcessor.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Common\ScopedResourceBuild.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Model\Model.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Node\Node.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Particles\IO\ParticlesIO.cpp" />
@@ -797,6 +799,8 @@
     <ClInclude Include="Source\Engine\Raytracing\TLAS\TLAS.h" />
     <ClInclude Include="Source\Engine\Resource\Common\Common.h" />
     <ClInclude Include="Source\Engine\Resource\Common\ResourceRef.h" />
+    <ClInclude Include="Source\Engine\Resource\Common\ResourceBuildContext.h" />
+    <ClInclude Include="Source\Engine\Resource\Common\ScopedResourceBuild.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Animation\Animation.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Animation\IO\AnimationIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\AnimatorAsset\AdditivePoseTypes.h" />
@@ -813,6 +817,7 @@
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\ModelIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\ParserStruct.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Processor\ModelProcessor.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Model\Model.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Node\Node.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Particles\IO\ParticlesIO.h" />

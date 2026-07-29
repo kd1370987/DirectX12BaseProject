@@ -30,11 +30,36 @@ namespace Engine::D3D12
 
 	protected:
 		// テンプレート派生クラスから呼ぶための生データ操作関数
+
+		/// <summary>
+		/// 転送を単独で実行する : この呼び出し1回ごとにExecuteCommandListsとSignalが走る
+		/// まとまった量を扱うときは RecordUploadData を使うこと
+		/// </summary>
 		void UploadDataAsync(UINT a_destOffsetBytes, const void* a_pData, UINT a_sizeBytes);
+
+		/// <summary>
+		/// 渡されたコマンドリストへ転送コマンドを積むだけ
+		/// 実行は呼び出し元(バッチを開いた側)の責任
+		/// </summary>
+		/// <param name="a_pCmdList">積み先のコピーコマンドリスト</param>
+		/// <param name="a_keepAlive">転送完了まで生かしておく中間バッファの預け先</param>
+		void RecordUploadData(
+			GraphicsCommandList* a_pCmdList,
+			std::vector<ComPtr<ID3D12Resource>>& a_keepAlive,
+			UINT a_destOffsetBytes,
+			const void* a_pData,
+			UINT a_sizeBytes
+		);
+
 		uint64_t GetCurrentFenceValue() const;
 
 		// 記録中フレームの終わりにシグナルされる値 : 遅延解放のタグに使う
 		uint64_t GetNextFenceValue() const;
+
+	private:
+		// CPUデータを書き込んだUploadヒープを作る
+		ComPtr<ID3D12Resource> CreateUploadBuffer(const void* a_pData, UINT a_sizeBytes);
+
 	protected:
 		bool m_isDrty = false;
 	};

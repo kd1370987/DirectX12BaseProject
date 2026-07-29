@@ -4,8 +4,66 @@ namespace Engine::Resource::Converter
 {
 	namespace
 	{
-		void ConvertNodes(ModelData& a_destModel, const GLTF::ModelData& a_rawModel)
+		// 中間素材の頂点をエンジン側の頂点形式へ詰め替える
+		std::vector<Engine::Resource::MeshVertexFloat> ConvertVertices(const Parse::RawMesh& a_srcMesh)
 		{
+			std::vector<Engine::Resource::MeshVertexFloat> _vertices = {};
+			_vertices.resize(a_srcMesh.vertices.size());
+
+			for (size_t _j = 0; _j < a_srcMesh.vertices.size(); ++_j)
+			{
+				const auto& _srcVertex = a_srcMesh.vertices[_j];
+				Engine::Resource::MeshVertexFloat _dstVertex = {};
+
+				unsigned int _srcColor = _srcVertex.color;
+				float r = ((float)((_srcColor >> 24) & 0xFF)) / 255.0f;
+				float g = ((float)((_srcColor >> 16) & 0xFF)) / 255.0f;
+				float b = ((float)((_srcColor >> 8) & 0xFF)) / 255.0f;
+				float a = ((float)((_srcColor >> 0) & 0xFF)) / 255.0f;
+				_dstVertex.color = DirectX::XMFLOAT4(r, g, b, a);
+
+				_dstVertex.normal = _srcVertex.normal;
+				_dstVertex.pos = _srcVertex.pos;
+				_dstVertex.tangent = _srcVertex.tangent;
+				_dstVertex.uv = _srcVertex.uv;
+
+				_dstVertex.skinIndexList = _srcVertex.skinIndexList;
+				_dstVertex.skinWeightList = _srcVertex.skinWeightList;
+
+				_vertices[_j] = _dstVertex;
+			}
+
+			return _vertices;
+		}
+
+		void ConvertNodes(
+			const ResourceBuildContext& a_ctx,
+			ModelData& a_destModel,
+			const Parse::RawModel& a_rawModel
+		)
+		{
+			//=================================================
+			// メッシュ作成
+			// 中間素材のメッシュ配列とMeshVecは1対1で対応させる
+			//=================================================
+			a_destModel.MeshVec.resize(a_rawModel.meshes.size());
+			for (size_t _meshIdx = 0; _meshIdx < a_rawModel.meshes.size(); ++_meshIdx)
+			{
+				const auto& _srcMesh = a_rawModel.meshes[_meshIdx];
+
+				// 頂点配列の詰め替え
+				auto _vertices = ConvertVertices(_srcMesh);
+
+				// メッシュ作成 : GPU命令はコンテキストのコマンドリストへ積まれるだけ
+				a_destModel.MeshVec[_meshIdx].CreateFloat(
+					a_ctx,
+					_vertices,
+					_srcMesh.faces,
+					_srcMesh.subsets,
+					_srcMesh.isSkinMesh
+				);
+			}
+
 			//=================================================
 			// ノード作成
 			//=================================================
@@ -13,54 +71,16 @@ namespace Engine::Resource::Converter
 			for (UINT _i = 0; _i < static_cast<UINT>(a_rawModel.nodes.size()); ++_i)
 			{
 				// ノード情報
-				const Engine::Resource::GLTF::Node& _srcNode = a_rawModel.nodes[_i];	// 入力元
-				Engine::Resource::Node& _dstNode = a_destModel.originalNodes[_i];			// 出力先
+				const Parse::RawNode& _srcNode = a_rawModel.nodes[_i];			// 入力元
+				Engine::Resource::Node& _dstNode = a_destModel.originalNodes[_i];	// 出力先
 
-				// 基本情報コピー
-				if (_srcNode.isMesh)
+				// メッシュを持つノードなら参照を張る
+				if (_srcNode.HasMesh())
 				{
-					// メッシュ作成
-					Engine::Resource::Mesh _mesh = {};
-
-					// 頂点配列作成
-					std::vector<Engine::Resource::MeshVertexFloat> _vertices = {};
-					_vertices.resize(_srcNode.nodeMesh.vertices.size());
-					for (size_t _j = 0; _j < _srcNode.nodeMesh.vertices.size(); ++_j)
-					{
-						Engine::Resource::MeshVertexFloat _dstVertex = {};
-
-						unsigned int _srcColor = _srcNode.nodeMesh.vertices[_j].color;
-						float r = ((float)((_srcColor >> 24) & 0xFF)) / 255.0f;
-						float g = ((float)((_srcColor >> 16) & 0xFF)) / 255.0f;
-						float b = ((float)((_srcColor >> 8) & 0xFF)) / 255.0f;
-						float a = ((float)((_srcColor >> 0) & 0xFF)) / 255.0f;
-						_dstVertex.color = DirectX::XMFLOAT4(r, g, b, a);
-
-						_dstVertex.normal = _srcNode.nodeMesh.vertices[_j].normal;
-						_dstVertex.pos = _srcNode.nodeMesh.vertices[_j].pos;
-						_dstVertex.tangent = _srcNode.nodeMesh.vertices[_j].tangent;
-						_dstVertex.uv = _srcNode.nodeMesh.vertices[_j].uv;
-
-						_dstVertex.skinIndexList = _srcNode.nodeMesh.vertices[_j].skinIndexList;
-						_dstVertex.skinWeightList = _srcNode.nodeMesh.vertices[_j].skinWeightList;
-
-						_vertices[_j] = _dstVertex;
-					}
-
-					// メッシュ作成
-					_mesh.CreateFloat(
-						_vertices,
-						_srcNode.nodeMesh.faces,
-						_srcNode.nodeMesh.subsets,
-						_srcNode.nodeMesh.isSkinMesh
-					);
-
-
 					// メッシュノードリストにインデックス登録
 					a_destModel.meshNodeIndices.push_back(_i);
-
-					_dstNode.meshIndices.push_back(static_cast<int>(a_destModel.MeshVec.size()));
-					a_destModel.MeshVec.push_back(std::move(_mesh));
+					_dstNode.meshIndices.push_back(_srcNode.meshIndex);
+					_dstNode.isSkinMesh = a_rawModel.meshes[_srcNode.meshIndex].isSkinMesh;	// スキンメッシュ持ちかどうか
 				}
 
 				// ノード情報セット
@@ -73,7 +93,6 @@ namespace Engine::Resource::Converter
 				_dstNode.children = _srcNode.children;								// 子供リスト
 
 				_dstNode.boneIndex = _srcNode.boneNodeIndex;						// ボーンインデックス
-				_dstNode.isSkinMesh = _srcNode.nodeMesh.isSkinMesh;					// スキンメッシュ持ちかどうか
 
 				// 当たり判定用ノードの検索
 				if (_dstNode.name.find("COL") != std::string::npos)
@@ -122,18 +141,19 @@ namespace Engine::Resource::Converter
 				{
 					for (auto& _meshIdx : a_destModel.originalNodes[_idx].meshIndices)
 					{
-						const auto& _node = a_rawModel.nodes[_idx];
+						const auto& _srcMesh = a_rawModel.meshes[_meshIdx];
 
 						// 頂点配列作成
 						std::vector<DirectX::XMFLOAT3> _collisionVertices;
-						_collisionVertices.resize(_node.nodeMesh.vertices.size());
+						_collisionVertices.resize(_srcMesh.vertices.size());
 
-						for (size_t _j = 0; _j < _node.nodeMesh.vertices.size(); ++_j)
+						for (size_t _j = 0; _j < _srcMesh.vertices.size(); ++_j)
 						{
-							_collisionVertices[_j] = _node.nodeMesh.vertices[_j].pos;
+							_collisionVertices[_j] = _srcMesh.vertices[_j].pos;
 						}
 						std::vector<UINT> _indices = {};
-						for (auto& _f : _node.nodeMesh.faces)
+						_indices.reserve(_srcMesh.faces.size() * 3);
+						for (auto& _f : _srcMesh.faces)
 						{
 							_indices.push_back(_f.idx[0]);
 							_indices.push_back(_f.idx[1]);
@@ -151,10 +171,16 @@ namespace Engine::Resource::Converter
 		/// <summary>
 		/// マテリアルのコンバート
 		/// </summary>
+		/// <param name="a_ctx">ビルドコンテキスト</param>
 		/// <param name="a_dstModel">出力モデル</param>
-		/// <param name="a_srcModel">入力モデル : パース直後</param>
+		/// <param name="a_srcModel">入力モデル : 加工済みの中間素材</param>
 		/// <param name="a_fileDir">モデルのディレクトリパス</param>
-		void ConvertMaterial(ModelData& a_dstModel,const GLTF::ModelData& a_srcModel,const std::string& a_fileDir)
+		void ConvertMaterial(
+			const ResourceBuildContext& a_ctx,
+			ModelData& a_dstModel,
+			const Parse::RawModel& a_srcModel,
+			const std::string& a_fileDir
+		)
 		{
 			//=================================================
 			// マテリアル作成
@@ -167,7 +193,7 @@ namespace Engine::Resource::Converter
 			{
 				// マテリアル情報
 				a_dstModel.MaterialVec[_i] = {};
-				const Engine::Resource::GLTF::Material& _srcMaterial = a_srcModel.materials[_i];	// 入力元
+				const Parse::RawMaterial& _srcMaterial = a_srcModel.materials[_i];					// 入力元
 				Engine::Resource::Material& _dstMaterial = a_dstModel.MaterialVec[_i];				// 出力先
 
 				// マテリアル情報コピー
@@ -195,6 +221,7 @@ namespace Engine::Resource::Converter
 
 				// テクスチャセット
 				_dstMaterial.SetTexture2D(
+					a_ctx,
 					a_fileDir,
 					_srcMaterial.baseColorTexName,
 					_srcMaterial.metallicRoughnessTexName,
@@ -204,31 +231,31 @@ namespace Engine::Resource::Converter
 			}
 		}
 
-		void ConvertAnimation(ModelData& a_dstModel,const GLTF::ModelData& a_srcModel)
+		void ConvertAnimation(ModelData& a_dstModel,const Parse::RawModel& a_srcModel)
 		{
 			a_dstModel.AnimationVec.resize(a_srcModel.animations.size());		// アニメーション配列確保
 
 			for (UINT _i = 0; _i < a_dstModel.AnimationVec.size(); ++_i)
 			{
-				auto _srcAnimation = a_srcModel.animations[_i];	// 元データ
+				const auto& _srcAnimation = a_srcModel.animations[_i];	// 元データ
 
 				a_dstModel.AnimationVec[_i] = {};
 				Engine::Resource::AnimationData& _dstAnimation = a_dstModel.AnimationVec[_i];							// 出力先
 
 				// アニメーション情報コピー
-				_dstAnimation.name = _srcAnimation->name;									// 名前
-				_dstAnimation.maxLength = _srcAnimation->maxLength;							// アニメーションの長さ
+				_dstAnimation.name = _srcAnimation.name;									// 名前
+				_dstAnimation.maxLength = _srcAnimation.maxLength;							// アニメーションの長さ
 
-				_dstAnimation.nodes.resize(_srcAnimation->spAnimationNodes.size());			// ノード配列確保
+				_dstAnimation.nodes.resize(_srcAnimation.animationNodes.size());				// ノード配列確保
 				for (UINT _nIdx = 0; _nIdx < _dstAnimation.nodes.size(); ++_nIdx)
 				{
-					auto _srcNode = _srcAnimation->spAnimationNodes[_nIdx];	// 元データ
+					const auto& _srcNode = _srcAnimation.animationNodes[_nIdx];	// 元データ
 					Engine::Resource::AnimationNode& _dstAnimaNode = _dstAnimation.nodes[_nIdx];						// 出力先
 					// ノード情報コピー
-					_dstAnimaNode.nodeOffset = _srcNode->nodeOffset;				// 対象ノードのオフセット
-					_dstAnimaNode.translations = _srcNode->translations;			// 座標キーリスト
-					_dstAnimaNode.rotations = _srcNode->rotations;					// 回転キーリスト
-					_dstAnimaNode.scales = _srcNode->scales;						// 拡縮キーリスト
+					_dstAnimaNode.nodeOffset = _srcNode.nodeOffset;					// 対象ノードのオフセット
+					_dstAnimaNode.translations = _srcNode.translations;				// 座標キーリスト
+					_dstAnimaNode.rotations = _srcNode.rotations;					// 回転キーリスト
+					_dstAnimaNode.scales = _srcNode.scales;							// 拡縮キーリスト
 				}
 
 			}
@@ -236,16 +263,17 @@ namespace Engine::Resource::Converter
 	}
 
 	ModelData Engine::Resource::Converter::ModelConverter::ConvertModelData(
+		const ResourceBuildContext& a_ctx,
 		const std::string& a_filePath,
-		const GLTF::ModelData& a_rawModel
+		const Parse::RawModel& a_rawModel
 	)
 	{
 		// 出力データ
 		ModelData _modelData = {};
 		auto _fileDir = FileUtility::GetDirFromPath(a_filePath);
 
-		ConvertNodes(_modelData,a_rawModel);
-		ConvertMaterial(_modelData,a_rawModel,_fileDir);
+		ConvertNodes(a_ctx,_modelData,a_rawModel);
+		ConvertMaterial(a_ctx,_modelData,a_rawModel,_fileDir);
 		ConvertAnimation(_modelData,a_rawModel);
 
 		return _modelData;

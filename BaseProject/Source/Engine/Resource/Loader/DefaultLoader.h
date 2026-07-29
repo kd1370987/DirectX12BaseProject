@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../Data/Model/IO/ModelIO.h"
 #include "../Data/Texture/IO/TextureIO.h"
@@ -14,10 +14,14 @@
 namespace Engine::Resource
 {
 	// ロード処理の中間用クラス
+	//
+	// LoadFromFile は必ずビルドコンテキストを受け取る形にしてある。
+	// GPUリソースを作らないアセットは無視してよいが、
+	// 作るアセット(Model/Mesh/Texture)は必ずコンテキスト側のコマンドリストへ積むこと。
 	template<typename T>
 	struct DefaultLoader
 	{
-		static T LoadFromFile(const std::string& a_path)
+		static T LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			// 特殊化されていない型で Load<T> が呼ばれたらコンパイルを止める
 			static_assert(sizeof(T) == 0, "特殊化されていない型のLoaderが呼ばれました。DefaultLoaderを特殊化してください。");
@@ -32,17 +36,17 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<Model>
 	{
-		static Model LoadFromFile(const std::string& a_path)
+		static Model LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			// ModelLoaderクラスの専用処理
-			return ModelIO::Import(a_path);
+			return ModelIO::Import(a_path, a_pContext);
 		}
 	};
 	// テクスチャ
 	template<>
 	struct DefaultLoader<Texture>
 	{
-		static Texture LoadFromFile(const std::string& a_path)
+		static Texture LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return TextureIO::LoadFromFile(a_path);
 		}
@@ -51,7 +55,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<AnimatorAsset>
 	{
-		static AnimatorAsset LoadFromFile(const std::string& a_path)
+		static AnimatorAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return AnimatorAssetIO::LoadFromFile(a_path);
 		}
@@ -60,7 +64,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<ActionStateMachineAsset>
 	{
-		static ActionStateMachineAsset LoadFromFile(const std::string& a_path)
+		static ActionStateMachineAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return ActionStateMachineAssetIO::LoadFromFile(a_path);
 		}
@@ -69,7 +73,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<Shader>
 	{
-		static Shader LoadFromFile(const std::string& a_path)
+		static Shader LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return ShaderIO::LoadShaderFromFile(a_path);
 		}
@@ -78,7 +82,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<ParticlesAsset>
 	{
-		static ParticlesAsset LoadFromFile(const std::string& a_path)
+		static ParticlesAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return ParticlesAssetIO::LoadFromFile(a_path);
 		}
@@ -87,7 +91,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<Material>
 	{
-		static Material LoadFromFile(const std::string& a_path)
+		static Material LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return MaterialIO::LoadFromFile(a_path);
 		}
@@ -96,16 +100,16 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<Mesh>
 	{
-		static Mesh LoadFromFile(const std::string& a_path)
+		static Mesh LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
-			return MeshIO::LoadFromFile(a_path);
+			return MeshIO::LoadFromFile(a_path, a_pContext);
 		}
 	};
 	// アニメーション
 	template<>
 	struct DefaultLoader<AnimationData>
 	{
-		static AnimationData LoadFromFile(const std::string& a_path)
+		static AnimationData LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return AnimationIO::LoadFromFile(a_path);
 		}
@@ -114,7 +118,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<ShadingModelTable>
 	{
-		static ShadingModelTable LoadFromFile(const std::string& a_path)
+		static ShadingModelTable LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return ShadingModelTableIO::LoadFromFile(a_path);
 		}
@@ -123,7 +127,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<Prefab>
 	{
-		static Prefab LoadFromFile(const std::string& a_path)
+		static Prefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return Prefab::LoadFromFile(a_path);
 		}

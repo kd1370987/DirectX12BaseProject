@@ -26,7 +26,11 @@ namespace Engine::Resource
 		//---------------------------------------
 		// テクスチャのセット
 		//---------------------------------------
+		/// <param name="a_ctx">
+		/// ビルドコンテキスト : 参照するマネージャーはここから引く
+		/// </param>
 		void SetTexture2D(
+			const ResourceBuildContext& a_ctx,
 			const std::string& a_fileDir,
 			const std::string& a_baseColorTexFileName,
 			const std::string& a_metallicRoughnessTexFileName,

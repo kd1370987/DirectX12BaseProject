@@ -7,6 +7,27 @@ namespace Engine::D3D12
 	class FrameManager;
 	class AsyncGPUManager;
 
+	/// <summary>
+	/// まとまった単位(モデル1体など)でGPUへ転送するためのバッチ
+	///
+	/// メッシュ1個ごとにExecuteCommandListsとSignalを打つと、
+	/// モデル1体で数十〜数百回のsubmitになってしまう。
+	/// Beginで確保したコマンドリストへまとめて積み、Endで1回だけ実行する。
+	/// </summary>
+	struct AsyncBuildBatch
+	{
+		ID3D12CommandAllocator* pCopyAllocator = nullptr;
+		ID3D12CommandAllocator* pComputeAllocator = nullptr;
+
+		GraphicsCommandList* pCopyCmdList = nullptr;
+		GraphicsCommandList* pComputeCmdList = nullptr;
+
+		// 転送完了まで生かしておく中間バッファ
+		std::vector<ComPtr<ID3D12Resource>> keepAliveResources;
+
+		bool IsValid() const { return pCopyCmdList != nullptr || pComputeCmdList != nullptr; }
+	};
+
 	class D3D12Wrapper
 	{
 	public:
@@ -83,6 +104,22 @@ namespace Engine::D3D12
 			std::function<void(GraphicsCommandList*)> a_recordCmds,
 			std::function<void()> a_onComplete
 		);
+
+		/// <summary>
+		/// まとまった単位でGPU転送を行うためのバッチを開く
+		/// </summary>
+		/// <param name="a_useCopy">アップロード転送用のコピーリストを確保するか</param>
+		/// <param name="a_useCompute">BLAS構築用のコンピュートリストを確保するか</param>
+		AsyncBuildBatch BeginAsyncBuildBatch(bool a_useCopy = true, bool a_useCompute = true);
+
+		/// <summary>
+		/// バッチを閉じて実行する
+		/// コピー実行 → シグナル → コンピュートキューで待機 → コンピュート実行 の順に流す。
+		/// BLASはコピーで転送したメガバッファを直接読むため、この順序でないと未転送のデータを掴む。
+		/// </summary>
+		/// <param name="a_batch">閉じるバッチ : 呼び出し後は空になる</param>
+		/// <param name="a_onComplete">GPU処理完了時に裏で呼ばれるコールバック</param>
+		void EndAsyncBuildBatch(AsyncBuildBatch& a_batch, std::function<void()> a_onComplete = nullptr);
 
 		/// <summary>
 		/// すべての非同期タスクが完了するまでCPUを待機させる

@@ -45,15 +45,20 @@ namespace Engine::Graphics
 
 		//--------------------------------------------------------------------------------------------
 		// バッファにアロケート
+		//
+		// 転送を伴うものはビルドコンテキストを受け取り、そのコピーコマンドリストへ積むだけにする。
+		// キューへの実行はバッチを開いた側(モデルのインポート処理など)がまとめて行う。
 		//--------------------------------------------------------------------------------------------
-		RangeHandle<Resource::MeshVertexFloat> AllocateVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex);		// 静的頂点
-		RangeHandle<uint32_t> AllocateIndex(const std::vector<uint32_t>& a_indices);										// インデックス
-		RangeHandle<Resource::MeshVertexFloat> AllocateAnimatedVertex(UINT a_size);											// 動的頂点
+		RangeHandle<Resource::MeshVertexFloat> AllocateVertex(const Resource::ResourceBuildContext& a_ctx, const std::vector<Resource::MeshVertexFloat>& a_vertex);		// 静的頂点
+		RangeHandle<uint32_t> AllocateIndex(const Resource::ResourceBuildContext& a_ctx, const std::vector<uint32_t>& a_indices);										// インデックス
 
-		RangeHandle<Resource::Meshlet> AllocateMeshlet(const std::vector<Resource::Meshlet>& a_meshlets);					// メッシュレット
-		RangeHandle<uint32_t> AllocateUniqueVertIndices(const std::vector<uint32_t>& a_uniqueVertIndices);					// 頂点インデックス
-		RangeHandle<DirectX::MeshletTriangle> AllocateTriangles(const std::vector<DirectX::MeshletTriangle>& a_triangles);	// 三角形インデックス
-		RangeHandle<DirectX::CullData> AllocateCullData(const std::vector<DirectX::CullData>& a_cullData);					// カリングデータ
+		RangeHandle<Resource::Meshlet> AllocateMeshlet(const Resource::ResourceBuildContext& a_ctx, const std::vector<Resource::Meshlet>& a_meshlets);					// メッシュレット
+		RangeHandle<uint32_t> AllocateUniqueVertIndices(const Resource::ResourceBuildContext& a_ctx, const std::vector<uint32_t>& a_uniqueVertIndices);					// 頂点インデックス
+		RangeHandle<DirectX::MeshletTriangle> AllocateTriangles(const Resource::ResourceBuildContext& a_ctx, const std::vector<DirectX::MeshletTriangle>& a_triangles);	// 三角形インデックス
+		RangeHandle<DirectX::CullData> AllocateCullData(const Resource::ResourceBuildContext& a_ctx, const std::vector<DirectX::CullData>& a_cullData);					// カリングデータ
+
+		// 転送を伴わないもの : GPU側で書き込むだけの領域確保
+		RangeHandle<Resource::MeshVertexFloat> AllocateAnimatedVertex(UINT a_size);											// 動的頂点
 		//--------------------------------------------------------------------------------------------
 		// ハンドルの返却
 		//--------------------------------------------------------------------------------------------

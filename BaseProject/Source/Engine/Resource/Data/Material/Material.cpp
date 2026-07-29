@@ -17,6 +17,7 @@ void Engine::Resource::Material::Release()
 }
 
 void Engine::Resource::Material::SetTexture2D(
+	const ResourceBuildContext& a_ctx,
 	const std::string& a_fileDir,
 	const std::string& a_baseColorTexFileName,
 	const std::string& a_metallicRoughnessTexFileName,
@@ -24,19 +25,23 @@ void Engine::Resource::Material::SetTexture2D(
 	const std::string& a_normalTexFileName
 )
 {
-	baseColorTexGUID	= AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_baseColorTexFileName);
-	metaRoughTexGUID	= AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_metallicRoughnessTexFileName);
-	emissiveTexGUID		= AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_emissiveTexFileName);
-	normalTexGUID		= AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_normalTexFileName);
+	// 参照するマネージャーはコンテキストから引く
+	auto& _assetDb = a_ctx.pAssetDatabase ? *a_ctx.pAssetDatabase : AssetDatabase::Instance();
+	auto& _resMgr = a_ctx.pResourceManager ? *a_ctx.pResourceManager : ResourceManager::Instance();
 
-	baseColorTex	= TextureIO::LoadTexture(baseColorTexGUID, TexColor::WHITE);
-	metaRoughTex	= TextureIO::LoadTexture(metaRoughTexGUID, TexColor::ORM);
-	emissiveTex		= TextureIO::LoadTexture(emissiveTexGUID, TexColor::BLACK);
-	normalTex		= TextureIO::LoadTexture(normalTexGUID, TexColor::NORMAL);
+	baseColorTexGUID	= _assetDb.GetGUIDFromFilePath(a_fileDir + a_baseColorTexFileName);
+	metaRoughTexGUID	= _assetDb.GetGUIDFromFilePath(a_fileDir + a_metallicRoughnessTexFileName);
+	emissiveTexGUID		= _assetDb.GetGUIDFromFilePath(a_fileDir + a_emissiveTexFileName);
+	normalTexGUID		= _assetDb.GetGUIDFromFilePath(a_fileDir + a_normalTexFileName);
+
+	baseColorTex	= TextureIO::LoadTexture(baseColorTexGUID, TexColor::WHITE, &a_ctx);
+	metaRoughTex	= TextureIO::LoadTexture(metaRoughTexGUID, TexColor::ORM, &a_ctx);
+	emissiveTex		= TextureIO::LoadTexture(emissiveTexGUID, TexColor::BLACK, &a_ctx);
+	normalTex		= TextureIO::LoadTexture(normalTexGUID, TexColor::NORMAL, &a_ctx);
 
 
 	shedingModelGUID = Option::OptionManager::GetInstance().GetRenderingOption().defaultShadingModelTable;
-	shadingModelHandle = ResourceManager::Instance().Load<ShadingModelTable>(shedingModelGUID);
+	shadingModelHandle = _resMgr.Load<ShadingModelTable>(shedingModelGUID, &a_ctx);
 }
 
 void Engine::Resource::Material::Archive(Persistence::Archive& a_ar)

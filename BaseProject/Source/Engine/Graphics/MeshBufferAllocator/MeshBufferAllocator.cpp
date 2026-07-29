@@ -49,33 +49,51 @@ namespace Engine::Graphics
 		m_meshTriangleBuffer.Update(a_completedFenceValue);
 		m_meshletCullDataBuffer.Update(a_completedFenceValue);
 	}
-	RangeHandle<Resource::MeshVertexFloat> MeshBufferAllocator::AllocateVertex(const std::vector<Resource::MeshVertexFloat>& a_vertex)
+	RangeHandle<Resource::MeshVertexFloat> MeshBufferAllocator::AllocateVertex(const Resource::ResourceBuildContext& a_ctx, const std::vector<Resource::MeshVertexFloat>& a_vertex)
 	{
-		return m_staticVerticesBuffer.AllocateAndUpload(a_vertex.data(), static_cast<UINT>(a_vertex.size()));
+		return m_staticVerticesBuffer.AllocateAndRecordUpload(
+			a_ctx.pCopyCmdList, *a_ctx.pKeepAliveUploads,
+			a_vertex.data(), static_cast<UINT>(a_vertex.size())
+		);
 	}
-	RangeHandle<uint32_t> MeshBufferAllocator::AllocateIndex(const std::vector<uint32_t>& a_indices)
+	RangeHandle<uint32_t> MeshBufferAllocator::AllocateIndex(const Resource::ResourceBuildContext& a_ctx, const std::vector<uint32_t>& a_indices)
 	{
-		return m_indexBuffer.AllocateAndUpload(a_indices.data(), static_cast<UINT>(a_indices.size()));
+		return m_indexBuffer.AllocateAndRecordUpload(
+			a_ctx.pCopyCmdList, *a_ctx.pKeepAliveUploads,
+			a_indices.data(), static_cast<UINT>(a_indices.size())
+		);
+	}
+	RangeHandle<Resource::Meshlet> MeshBufferAllocator::AllocateMeshlet(const Resource::ResourceBuildContext& a_ctx, const std::vector<Resource::Meshlet>& a_meshlets)
+	{
+		return m_meshletBuffer.AllocateAndRecordUpload(
+			a_ctx.pCopyCmdList, *a_ctx.pKeepAliveUploads,
+			a_meshlets.data(), static_cast<UINT>(a_meshlets.size())
+		);
+	}
+	RangeHandle<uint32_t> MeshBufferAllocator::AllocateUniqueVertIndices(const Resource::ResourceBuildContext& a_ctx, const std::vector<uint32_t>& a_uniqueVertIndices)
+	{
+		return m_uniqueVertexIndicesBuffer.AllocateAndRecordUpload(
+			a_ctx.pCopyCmdList, *a_ctx.pKeepAliveUploads,
+			a_uniqueVertIndices.data(), static_cast<UINT>(a_uniqueVertIndices.size())
+		);
+	}
+	RangeHandle<DirectX::MeshletTriangle> MeshBufferAllocator::AllocateTriangles(const Resource::ResourceBuildContext& a_ctx, const std::vector<DirectX::MeshletTriangle>& a_triangles)
+	{
+		return m_meshTriangleBuffer.AllocateAndRecordUpload(
+			a_ctx.pCopyCmdList, *a_ctx.pKeepAliveUploads,
+			a_triangles.data(), static_cast<UINT>(a_triangles.size())
+		);
+	}
+	RangeHandle<DirectX::CullData> MeshBufferAllocator::AllocateCullData(const Resource::ResourceBuildContext& a_ctx, const std::vector<DirectX::CullData>& a_cullData)
+	{
+		return m_meshletCullDataBuffer.AllocateAndRecordUpload(
+			a_ctx.pCopyCmdList, *a_ctx.pKeepAliveUploads,
+			a_cullData.data(), static_cast<UINT>(a_cullData.size())
+		);
 	}
 	RangeHandle<Resource::MeshVertexFloat> MeshBufferAllocator::AllocateAnimatedVertex(UINT a_size)
 	{
 		return m_animatedVertexBuffer.Allocate(a_size);
-	}
-	RangeHandle<Resource::Meshlet> MeshBufferAllocator::AllocateMeshlet(const std::vector<Resource::Meshlet>& a_meshlets)
-	{
-		return m_meshletBuffer.AllocateAndUpload(a_meshlets.data(),static_cast<UINT>(a_meshlets.size()));
-	}
-	RangeHandle<uint32_t> MeshBufferAllocator::AllocateUniqueVertIndices(const std::vector<uint32_t>& a_uniqueVertIndices)
-	{
-		return m_uniqueVertexIndicesBuffer.AllocateAndUpload(a_uniqueVertIndices.data(), static_cast<UINT>(a_uniqueVertIndices.size()));
-	}
-	RangeHandle<DirectX::MeshletTriangle> MeshBufferAllocator::AllocateTriangles(const std::vector<DirectX::MeshletTriangle>& a_triangles)
-	{
-		return m_meshTriangleBuffer.AllocateAndUpload(a_triangles.data(), static_cast<UINT>(a_triangles.size()));
-	}
-	RangeHandle<DirectX::CullData> MeshBufferAllocator::AllocateCullData(const std::vector<DirectX::CullData>& a_cullData)
-	{
-		return m_meshletCullDataBuffer.AllocateAndUpload(a_cullData.data(),static_cast<UINT>(a_cullData.size()));
 	}
 	void MeshBufferAllocator::StaticVertexFree(const RangeHandle<Resource::MeshVertexFloat>& a_handle)
 	{

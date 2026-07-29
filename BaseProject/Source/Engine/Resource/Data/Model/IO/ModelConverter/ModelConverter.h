@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include "../Parser/tinyGLTF/tinyGLTF.h"
+#include "../Parser/ParserStruct.h"
 
 namespace Engine::Resource::Converter
 {
@@ -11,12 +11,17 @@ namespace Engine::Resource::Converter
 		~ModelConverter() = default;
 
 		/// <summary>
-		/// パースされたデータをエンジン側の仕様に合わせて詰め替え
+		/// 加工済みの中間素材をエンジン側の仕様に合わせて詰め替え
 		/// </summary>
+		/// <param name="a_ctx">ビルドコンテキスト : GPUリソースの構築先</param>
 		/// <param name="a_filePath">モデルパス</param>
-		/// <param name="a_rawModel">パースされたモデルデータ</param>
+		/// <param name="a_rawModel">加工済みの中間素材</param>
 		/// <returns>エンジン形式のモデルデータ</returns>
-		static ModelData ConvertModelData(const std::string& a_filePath, const GLTF::ModelData& a_rawModel);
+		static ModelData ConvertModelData(
+			const ResourceBuildContext& a_ctx,
+			const std::string& a_filePath,
+			const Parse::RawModel& a_rawModel
+		);
 
 		/// <summary>
 		/// 指定したモデルファイルをbinary、DDSなどに変換したファイルを作る。

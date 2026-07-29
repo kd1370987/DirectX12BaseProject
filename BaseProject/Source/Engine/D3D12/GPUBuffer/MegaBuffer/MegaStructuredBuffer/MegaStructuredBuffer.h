@@ -29,11 +29,24 @@ namespace Engine::D3D12
 		);
 
 		/// <summary>
-		/// データのアップロード
+		/// データのアップロード : この呼び出し1回ごとにキューへの実行が走る
 		/// </summary>
 		/// <param name="a_pData">型データ</param>
 		/// <param name="a_count">要素数</param>
 		RangeHandle<T> AllocateAndUpload(const T* a_pData, UINT a_count);
+
+		/// <summary>
+		/// 領域を確保し、渡されたコマンドリストへ転送コマンドを積む
+		/// 実行はバッチを開いた側が行うため、まとめて読むときはこちらを使う
+		/// </summary>
+		/// <param name="a_pCmdList">積み先のコピーコマンドリスト</param>
+		/// <param name="a_keepAlive">転送完了まで生かしておく中間バッファの預け先</param>
+		RangeHandle<T> AllocateAndRecordUpload(
+			GraphicsCommandList* a_pCmdList,
+			std::vector<ComPtr<ID3D12Resource>>& a_keepAlive,
+			const T* a_pData,
+			UINT a_count
+		);
 
 		/// <summary>
 		/// 領域の解放
@@ -72,6 +85,28 @@ namespace Engine::D3D12
 
 		// 基底クラスの隠蔽された関数を呼んで非同期アップロード
 		UploadDataAsync(_destOffsetBytes, a_pData, _sizeBytes);
+
+		return _handle;
+	}
+
+	template<typename T>
+	inline RangeHandle<T> MegaStructuredBuffer<T>::AllocateAndRecordUpload(
+		GraphicsCommandList* a_pCmdList,
+		std::vector<ComPtr<ID3D12Resource>>& a_keepAlive,
+		const T* a_pData,
+		UINT a_count
+	)
+	{
+		// アロケーターから領域を確保
+		auto _handle = m_rangeAllocator.AllocateRange(a_count);
+		if (!_handle.IsValid()) return _handle;		// 容量不足
+
+		// バイトオフセットとサイズを計算
+		UINT _destOffsetBytes = _handle.startIndex * sizeof(T);
+		UINT _sizeBytes = a_count * sizeof(T);
+
+		// 基底クラスの隠蔽された関数を呼んで転送コマンドを積む
+		RecordUploadData(a_pCmdList, a_keepAlive, _destOffsetBytes, a_pData, _sizeBytes);
 
 		return _handle;
 	}

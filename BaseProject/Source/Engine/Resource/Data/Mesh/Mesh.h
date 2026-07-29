@@ -24,8 +24,15 @@ namespace Engine::Resource
 		~Mesh() = default;
 		NON_COPYABLE_MOVABLE(Mesh);
 
-		// メッシュ作成
+		/// <summary>
+		/// メッシュ作成
+		///
+		/// GPUへの転送・BLAS構築はコンテキストのコマンドリストへ積むだけで、
+		/// キューへの実行は行わない。実行はバッチを開いた側(モデルのインポート処理など)の責任。
+		/// </summary>
+		/// <param name="a_ctx">ビルドコンテキスト</param>
 		bool CreateFloat(
+			const ResourceBuildContext& a_ctx,					// ビルドコンテキスト
 			const std::vector<MeshVertexFloat>& a_vertices,		// 頂点配列
 			const std::vector<MeshFace>& a_face,				// 面インデックス情報配列
 			const std::vector<MeshSubset>& a_subsets,			// サブセット情報配列
@@ -44,27 +51,20 @@ namespace Engine::Resource
 			const std::vector<MeshFace>& a_face,
 			DXGI_FORMAT a_indexFormat
 		);
-		// レイトレーシングデータ作成
+		// レイトレーシングデータ作成 : コンテキストのコンピュートリストへBLAS構築を積む
 		void CreateRtData(
-			D3D12::Device* a_pDevice,
-			D3D12::GraphicsCommandList* a_pCmdList,
-			const std::vector<MeshSubset>& a_subset,							// サブセット配列
-			const D3D12::DynamicVertexBuffer<MeshVertexFloat>& a_vertexBuffer,	// 頂点バッファ
-			DXGI_FORMAT a_vertexFarstFormat,
-			const D3D12::DynamicIndexBuffer& a_indexBuffer,						// インデックスバッファ
-			const std::vector<MeshVertexFloat>& a_vertices,
-			const std::vector<MeshFace>& a_face
+			const ResourceBuildContext& a_ctx,
+			const std::vector<MeshSubset>& a_subset								// サブセット配列
 		);
 		// BVHでの当たり判定構築
 		void CreateCollisionMesh(
-			const std::vector<DirectX::XMFLOAT3>& a_vertices, 
+			const std::vector<DirectX::XMFLOAT3>& a_vertices,
 			const std::vector<UINT>& a_indices
 		);
-		// メッシュシェーダー用データの作成
+		// メッシュシェーダー用データの作成 : メッシュレット生成(CPU)と転送コマンドの記録
 		void CreateMeshShaderData(
-			D3D12::GraphicsCommandList* a_pCmdList,
+			const ResourceBuildContext& a_ctx,
 			const std::vector<MeshVertexFloat>& a_vertices,
-			const std::vector<uint32_t>& a_indices,
 			const std::vector<MeshFace>& a_face
 		);
 
@@ -75,8 +75,8 @@ namespace Engine::Resource
 		// 保存
 		//=================================================
 		void Save(const std::string& a_fileDir, const std::string& a_name);
-		void Load(const std::string& a_fileDir, const std::string& a_name);
-		void Load(const std::string& a_filePath);
+		void Load(const ResourceBuildContext& a_ctx, const std::string& a_fileDir, const std::string& a_name);
+		void Load(const ResourceBuildContext& a_ctx, const std::string& a_filePath);
 
 		//=================================================
 		// アクセサ

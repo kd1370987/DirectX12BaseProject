@@ -6,9 +6,13 @@ namespace Engine::Resource
 	//==========================================================
 	struct RaytracingMesh
 	{
+		/// <summary>
+		/// BLASの構築コマンドをコンテキストのコンピュートリストへ積む
+		/// 参照するメガバッファへの転送はコピーリスト側で積まれるため、
+		/// 実行時にキュー間の待ちを張る必要がある(D3D12Wrapper::EndAsyncBuildBatchが担当)
+		/// </summary>
 		void Create(
-			D3D12::Device* a_pDevice,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			const ResourceBuildContext& a_ctx,
 			const std::vector<MeshSubset>& a_subset
 		);
 

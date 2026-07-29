@@ -25,8 +25,13 @@ namespace Engine::Resource
 		/// </summary>
 		/// <param name="a_guid">読み込みたいテクスチャGUID</param>
 		/// <param name="a_defaultColor">読み込めなかったときのためのテクスチャカラー</param>
+		/// <param name="a_pContext">ビルドコンテキスト : 参照するマネージャーはここから引く</param>
 		/// <returns>リソースマネージャーに登録されたハンドル</returns>
-		static Handle<Texture> LoadTexture(const Engine::GUID& a_guid,const DXSM::Color& a_defaultColor);
+		static Handle<Texture> LoadTexture(
+			const Engine::GUID& a_guid,
+			const DXSM::Color& a_defaultColor,
+			const ResourceBuildContext* a_pContext = nullptr
+		);
 
 	private:
 

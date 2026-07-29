@@ -7,14 +7,22 @@
 namespace Engine::Resource
 {
 	void RaytracingMesh::Create(
-		D3D12::Device* a_pDevice,
-		D3D12::GraphicsCommandList* a_pCmdList,
+		const ResourceBuildContext& a_ctx,
 		const std::vector<MeshSubset>& a_subset
 	)
 	{
 		// メッシュのバッファを取得
-		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
-		auto* _pMA = _pGE->RefMeshBufferAllocator();
+		auto* _pMA = a_ctx.pMeshBufferAllocator;
+		if (!_pMA)
+		{
+			ENGINE_ERRLOG(false, "BLAS構築時にメッシュバッファアロケーターがコンテキストに設定されていません");
+			return;
+		}
+		if (!a_ctx.CanRecordCompute())
+		{
+			ENGINE_ERRLOG(false, "BLAS構築時にコンピュートコマンドリストがコンテキストに設定されていません");
+			return;
+		}
 
 		// BLAS構築
 		std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> _descVec;
@@ -43,7 +51,7 @@ namespace Engine::Resource
 		}
 
 		// BLAS作成
-		blas.CreateStatic(a_pDevice, a_pCmdList, _descVec);
+		blas.CreateStatic(a_ctx.pDevice, a_ctx.pComputeCmdList, _descVec);
 
 		return;
 	}

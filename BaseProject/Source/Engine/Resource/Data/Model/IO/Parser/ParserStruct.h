@@ -1,12 +1,15 @@
-﻿#pragma once
+#pragma once
 namespace Engine::Resource::Parse
 {
 	//====================================================================================================
 	// 中間素材
 	// .gltf .obj .fbx ... などから読み込んだものを独自の構造体に入れる前の中間素材。
 	// Zミラーなどの処理に渡すためのものなので、読み込んだままの情報が入る
+	//
+	// この層はフォーマット非依存・エンジンのGPUリソース非依存であることを保つこと。
+	// 座標系の変換は ModelProcessor が担当するため、パーサ側では一切行わない。
 	//====================================================================================================
-	
+
 	/// <summary>
 	/// パースされたマテリアル情報
 	/// </summary>
@@ -50,6 +53,18 @@ namespace Engine::Resource::Parse
 	};
 
 	/// <summary>
+	/// パースされたメッシュ情報
+	/// </summary>
+	struct RawMesh
+	{
+		std::vector<Engine::Resource::MeshVertex8bit>	vertices = {};		// 頂点配列
+		std::vector<Engine::Resource::MeshFace>			faces = {};			// 面情報配列
+		std::vector<Engine::Resource::MeshSubset>		subsets = {};		// サブセット配列
+
+		bool				isSkinMesh = false;								// スキンメッシュはあるかどうか
+	};
+
+	/// <summary>
 	/// パースされたノード情報
 	/// </summary>
 	struct RawNode
@@ -69,62 +84,36 @@ namespace Engine::Resource::Parse
 		//---------------------------------
 		// Mesh専用
 		//---------------------------------
-		bool						isMesh = false;		// メッシュがあるかどうか
-		int meshIndex = -1;
-	};
-	struct RawMesh
-	{
-		std::vector<Engine::Resource::MeshVertex8bit>	vertices = {};			// 頂点配列
-		std::vector<Engine::Resource::MeshFace>	faces = {};				// 面情報配列
-		std::vector<Engine::Resource::MeshSubset> subsets = {};			// サブセット配列
+		int						meshIndex = -1;				// RawModel::meshes へのIndex(-1ならメッシュなし)
 
-		bool					isSkinMesh = false;	// スキンメッシュはあるかどうか
-	};
-	//==========================================================
-	// アニメーションキー（クォータニオン : 回転など）
-	//==========================================================
-	struct AnimationKeyQuaternion
-	{
-		void Archive(Persistence::Archive& a_ar);
-
-		float				time = 0;		// 時間
-		DirectX::XMFLOAT4	quat = {};			// クォータニオンデータ
-	};
-
-	//==========================================================
-	// アニメーションキー（ベクトル : 座標,拡縮など）
-	//==========================================================
-	struct AnimationKeyXMFLOAT3
-	{
-		void Archive(Persistence::Archive& a_ar);
-
-		float				time = 0;		// 時間
-		DirectX::XMFLOAT3	vec = {};			// 3Dベクトルデータ
+		bool HasMesh() const { return meshIndex >= 0; }
 	};
 
 	//==========================================================
 	// アニメーションノード
+	// キー自体はエンジン側と同じ表現でよいため既存型を再利用する
 	//==========================================================
 	struct RawAnimationNode
 	{
-		void Archive(Persistence::Archive& a_ar);
-
-		int									nodeOffset = -1;	// 対象ノードのオフセット
+		int													nodeOffset = -1;	// 対象ノードのオフセット
 
 		// 各チャンネル
-		std::vector<AnimationKeyXMFLOAT3>	translations = {};	// 座標キーリスト
-		std::vector<AnimationKeyQuaternion> rotations = {};		// 回転キーリスト
-		std::vector<AnimationKeyXMFLOAT3>	scales = {};		// 拡縮キーリスト
+		std::vector<Engine::Resource::AnimationKeyXMFLOAT3>	translations = {};	// 座標キーリスト
+		std::vector<Engine::Resource::AnimationKeyQuaternion> rotations = {};	// 回転キーリスト
+		std::vector<Engine::Resource::AnimationKeyXMFLOAT3>	scales = {};		// 拡縮キーリスト
 	};
 
+	/// <summary>
+	/// パースされたアニメーション情報
+	/// </summary>
 	struct RawAnimation
 	{
 		//---------------------------------
 		// 基本情報
 		//---------------------------------
-		std::string									name = "none";					// 名前
-		float										maxLength = 0;			// アニメーションの長さ
-		std::vector<RawAnimationNode> animationNodes = {};		// 全ノード用アニメーションデータ
+		std::string						name = "none";			// 名前
+		float							maxLength = 0;			// アニメーションの長さ
+		std::vector<RawAnimationNode>	animationNodes = {};	// 全ノード用アニメーションデータ
 	};
 
 	//=========================================================
@@ -136,11 +125,11 @@ namespace Engine::Resource::Parse
 		// ノードデータ
 		//---------------------------------
 		std::vector<RawMaterial>	materials = {};			// マテリアル
-		std::vector<RawMesh>		materials = {};			// メッシュ
+		std::vector<RawMesh>		meshes = {};			// メッシュ
 		std::vector<RawAnimation>	animations = {};		// アニメーションデータリスト
 		std::vector<RawNode>		nodes = {};				// 全ノードデータ
 
-		std::vector<int>			rootNodeIndices = {};				// ルートノードのみのIndexリスト
-		std::vector<int>			boneNodeIndices = {};				// ボーンノードのみのIndexリスト
+		std::vector<int>			rootNodeIndices = {};	// ルートノードのみのIndexリスト
+		std::vector<int>			boneNodeIndices = {};	// ボーンノードのみのIndexリスト
 	};
 }

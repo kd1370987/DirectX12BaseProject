@@ -38,7 +38,7 @@ namespace Engine::D3D12
 	}
 
 
-	void MegaBuffer::UploadDataAsync(UINT a_destOffsetBytes, const void* a_pData, UINT a_sizeBytes)
+	ComPtr<ID3D12Resource> MegaBuffer::CreateUploadBuffer(const void* a_pData, UINT a_sizeBytes)
 	{
 		// 一時的なUploadバッファを作ってCPUデータを書き込む
 		Microsoft::WRL::ComPtr<ID3D12Resource> _cpLoadBuffer;
@@ -72,6 +72,15 @@ namespace Engine::D3D12
 		std::memcpy(_pMapped, a_pData, a_sizeBytes);
 		_cpLoadBuffer->Unmap(0, nullptr);
 
+		return _cpLoadBuffer;
+	}
+
+	void MegaBuffer::UploadDataAsync(UINT a_destOffsetBytes, const void* a_pData, UINT a_sizeBytes)
+	{
+		// 中間バッファの用意
+		auto _cpLoadBuffer = CreateUploadBuffer(a_pData, a_sizeBytes);
+		if (!_cpLoadBuffer) return;
+
 		// 非同期処理に投げる
 		D3D12Wrapper::Instance().ExecuteAsyncCopy(
 			[this, a_destOffsetBytes, _cpLoadBuffer, a_sizeBytes](D3D12::GraphicsCommandList* a_pCmdList)
@@ -86,6 +95,30 @@ namespace Engine::D3D12
 				ENGINE_LOG("メガバッファの非同期アップロード完了 : メモリ解放");
 			}
 		);
+	}
+
+	void MegaBuffer::RecordUploadData(
+		GraphicsCommandList* a_pCmdList,
+		std::vector<ComPtr<ID3D12Resource>>& a_keepAlive,
+		UINT a_destOffsetBytes,
+		const void* a_pData,
+		UINT a_sizeBytes
+	)
+	{
+		if (!a_pCmdList) return;
+
+		// 中間バッファの用意
+		auto _cpLoadBuffer = CreateUploadBuffer(a_pData, a_sizeBytes);
+		if (!_cpLoadBuffer) return;
+
+		// 転送コマンドを積むだけ : 実行はバッチを開いた側が行う
+		a_pCmdList->CopyBufferRegion(
+			m_cpResource.Get(), a_destOffsetBytes,
+			_cpLoadBuffer.Get(), 0, a_sizeBytes
+		);
+
+		// GPUの転送が終わるまで中間バッファを生かしておく
+		a_keepAlive.push_back(std::move(_cpLoadBuffer));
 	}
 
 	uint64_t MegaBuffer::GetCurrentFenceValue() const

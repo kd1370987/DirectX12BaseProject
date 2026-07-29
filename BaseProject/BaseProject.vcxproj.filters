@@ -1105,6 +1105,9 @@
     <Filter Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF">
       <UniqueIdentifier>{b93b09e5-83ba-47e5-9cd6-4972d31d68d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Model\IO\Processor">
+      <UniqueIdentifier>{3f2a6c14-58d1-4a97-9c05-7e2b41d9a6c3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Resource\Data\Texture\IO">
       <UniqueIdentifier>{fb9f49a2-6db4-4eb1-9e3e-ab3081fc8735}</UniqueIdentifier>
     </Filter>
@@ -1853,6 +1856,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.cpp">
       <Filter>Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Model\IO\Processor\ModelProcessor.cpp">
+      <Filter>Source\Engine\Resource\Data\Model\IO\Processor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Common\ScopedResourceBuild.cpp">
+      <Filter>Source\Engine\Resource\Common</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit\MeshEdit.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit</Filter>
@@ -2882,6 +2891,12 @@
     <ClInclude Include="Source\Engine\Resource\Common\ResourceRef.h">
       <Filter>Source\Engine\Resource\Common</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Common\ResourceBuildContext.h">
+      <Filter>Source\Engine\Resource\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Common\ScopedResourceBuild.h">
+      <Filter>Source\Engine\Resource\Common</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.h">
       <Filter>Source\Application\Systems\Release\ResourceFreeSystem</Filter>
     </ClInclude>
@@ -2947,6 +2962,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF\tinyGLTF.h">
       <Filter>Source\Engine\Resource\Data\Model\IO\Parser\tinyGLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Model\IO\Processor\ModelProcessor.h">
+      <Filter>Source\Engine\Resource\Data\Model\IO\Processor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit\MeshEdit.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit</Filter>

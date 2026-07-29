@@ -67,12 +67,20 @@ namespace Engine::Resource
 		return Engine::GUID();
 	}
 
-	Handle<Texture> TextureIO::LoadTexture(const Engine::GUID& a_guid, const DXSM::Color& a_defaultColor)
+	Handle<Texture> TextureIO::LoadTexture(
+		const Engine::GUID& a_guid,
+		const DXSM::Color& a_defaultColor,
+		const ResourceBuildContext* a_pContext
+	)
 	{
+		// 参照するマネージャーはコンテキストから引く
+		auto& _assetDb = (a_pContext && a_pContext->pAssetDatabase) ? *a_pContext->pAssetDatabase : AssetDatabase::Instance();
+		auto& _resMgr = (a_pContext && a_pContext->pResourceManager) ? *a_pContext->pResourceManager : ResourceManager::Instance();
+
 		// AssetDatabaseに存在する有効なGUIDなら、統合ロード処理へ投げる
-		if (AssetDatabase::Instance().IsValid(a_guid))
+		if (_assetDb.IsValid(a_guid))
 		{
-			return ResourceManager::Instance().Load<Texture>(a_guid);
+			return _resMgr.Load<Texture>(a_guid, a_pContext);
 		}
 
 		// ---- 無効なGUIDフォールバック処理 ----
@@ -80,7 +88,7 @@ namespace Engine::Resource
 		Engine::GUID _colorGuid = GetColorGUID(a_defaultColor);
 
 		// すでに同じ色のテクスチャが作られていないかキャッシュをチェック
-		Handle<Texture> _handle = ResourceManager::Instance().GetCache<Texture>(_colorGuid);
+		Handle<Texture> _handle = _resMgr.GetCache<Texture>(_colorGuid);
 
 		if (_handle == Handle<Texture>())
 		{
@@ -88,7 +96,7 @@ namespace Engine::Resource
 			Texture _newTex = CreateColorTexture(a_defaultColor);
 
 			// 生成した実体を、色専用のGUIDと一緒にResourceManagerに登録する
-			_handle = ResourceManager::Instance().AddResourceAndGUID(std::move(_newTex), _colorGuid);
+			_handle = _resMgr.AddResourceAndGUID(std::move(_newTex), _colorGuid);
 		}
 
 		return _handle;

@@ -143,6 +143,89 @@ namespace Engine::D3D12
 		);
 	}
 
+	AsyncBuildBatch D3D12Wrapper::BeginAsyncBuildBatch(bool a_useCopy, bool a_useCompute)
+	{
+		AsyncBuildBatch _batch = {};
+
+		// コピー用
+		if (a_useCopy)
+		{
+			_batch.pCopyAllocator = m_upAsyncGPUManager->AcquireAllocator(m_cpDevice.Get(), AsyncCommandType::Copy);
+			_batch.pCopyCmdList = m_upCommandContext->RefCopyPool()->AcquireList(m_cpDevice.Get(), _batch.pCopyAllocator);
+		}
+
+		// コンピュート用
+		if (a_useCompute)
+		{
+			_batch.pComputeAllocator = m_upAsyncGPUManager->AcquireAllocator(m_cpDevice.Get(), AsyncCommandType::Compute);
+			_batch.pComputeCmdList = m_upCommandContext->RefComputePool()->AcquireList(m_cpDevice.Get(), _batch.pComputeAllocator);
+		}
+
+		return _batch;
+	}
+
+	void D3D12Wrapper::EndAsyncBuildBatch(AsyncBuildBatch& a_batch, std::function<void()> a_onComplete)
+	{
+		auto* _pCopyPool = m_upCommandContext->RefCopyPool();
+		auto* _pComputePool = m_upCommandContext->RefComputePool();
+
+		const bool _hasCopy = (a_batch.pCopyCmdList != nullptr);
+		const bool _hasCompute = (a_batch.pComputeCmdList != nullptr);
+
+		// ---- コピーの実行 ----
+		UINT64 _copyFenceValue = 0;
+		if (_hasCopy)
+		{
+			_pCopyPool->SubmitList(a_batch.pCopyCmdList);
+			_copyFenceValue = _pCopyPool->ExecutePendingLists();
+		}
+
+		// ---- コンピュートの実行 ----
+		if (_hasCompute)
+		{
+			// BLASはコピーで転送したメガバッファを直接読むため、
+			// コピーの完了をコンピュートキュー側で待たせる
+			if (_hasCopy)
+			{
+				_pComputePool->GetCommandQueue()->Wait(_pCopyPool->GetFence(), _copyFenceValue);
+			}
+
+			_pComputePool->SubmitList(a_batch.pComputeCmdList);
+			UINT64 _computeFenceValue = _pComputePool->ExecutePendingLists();
+
+			// 完了通知はGPU処理の最後になるコンピュート側に載せる
+			m_upAsyncGPUManager->RegisterTask(
+				AsyncCommandType::Compute,
+				a_batch.pComputeAllocator,
+				_pComputePool->GetFence(),
+				_computeFenceValue,
+				a_onComplete
+			);
+
+			// コンピュート側で消化したので、コピー側では呼ばない
+			a_onComplete = nullptr;
+		}
+
+		// ---- コピー側のアロケーター返却と中間バッファの解放 ----
+		if (_hasCopy)
+		{
+			m_upAsyncGPUManager->RegisterTask(
+				AsyncCommandType::Copy,
+				a_batch.pCopyAllocator,
+				_pCopyPool->GetFence(),
+				_copyFenceValue,
+				[_keepAlive = std::move(a_batch.keepAliveResources), _onComplete = std::move(a_onComplete)]()
+				{
+					// _keepAlive のデストラクタで中間のUploadバッファが解放される
+					if (_onComplete) _onComplete();
+				}
+			);
+		}
+
+		// 使い終わったバッチを空にする
+		a_batch = {};
+	}
+
 	void D3D12Wrapper::WaitForAsyncTasks()
 	{
 	}

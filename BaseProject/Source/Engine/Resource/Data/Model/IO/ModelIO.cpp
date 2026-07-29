@@ -3,10 +3,13 @@
 #include "ModelConverter/ModelConverter.h"
 
 #include "Parser/tinyGLTF/tinyGLTF.h"
+#include "Processor/ModelProcessor.h"
+
+#include "../../../Common/ScopedResourceBuild.h"
 
 namespace Engine::Resource
 {
-	Model ModelIO::Import(const std::string& a_filePath)
+	Model ModelIO::Import(const std::string& a_filePath, const ResourceBuildContext* a_pContext)
 	{
 		// アセットデータベースからメタファイルを検索
 		auto* _pAssetProp = AssetDatabase::Instance().GetAssetProperty(a_filePath);
@@ -19,28 +22,29 @@ namespace Engine::Resource
 		// 優先度の高い拡張子のタイプを検索
 		auto _ext = FinddExtension(_pAssetProp->extensionsVec);
 
-		Model _resultModel = {};
-
-		// 拡張子ごとに読み込み方を変更する
-		if (_ext == ".obmdl")
-		{
-			return Load(a_filePath);
-		}
-		else if (_ext == ".gltf")
-		{
-			return GLTFLoad(a_filePath);
-		}
-		else if (_ext == ".ojmdl")
-		{
-			return Load(a_filePath);
-		}
-		else
+		// 対応していない拡張子はここで弾く : バッチを開く前に判定する
+		if (_ext != ".obmdl" && _ext != ".gltf" && _ext != ".ojmdl")
 		{
 			ENGINE_ERRLOG(false,"この拡張子のモデルは対応していません : %s", _ext.c_str());
-			return _resultModel;
+			return Model();
 		}
+
+		// モデル1体分のバッチを開く
+		// ここで開いたコマンドリストへ、配下のメッシュ・マテリアル・テクスチャがまとめて積まれる。
+		// スコープを抜けるところで1回だけキューへ実行される。
+		ResourceBuildScope _scope(a_pContext);
+		const auto& _ctx = _scope.GetContext();
+
+		// 拡張子ごとに読み込み方を変更する
+		if (_ext == ".gltf")
+		{
+			return GLTFLoad(_ctx, a_filePath);
+		}
+
+		// .obmdl / .ojmdl はコンバート済みの独自形式
+		return Load(_ctx, a_filePath);
 	}
-	Model ModelIO::Load(const std::string& a_filePath)
+	Model ModelIO::Load(const ResourceBuildContext& a_ctx, const std::string& a_filePath)
 	{
 		auto _dir = FileUtility::GetDirFromPath(a_filePath);
 		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
@@ -71,19 +75,22 @@ namespace Engine::Resource
 		ModelRuntimeData _runtimeData = {};
 
 		// ---- 参照しているデータの復元 ----
+		// コンテキストを渡すことで、配下のリソースも同じバッチへ積まれる
+		auto& _resMgr = a_ctx.pResourceManager ? *a_ctx.pResourceManager : ResourceManager::Instance();
+
 		for (const auto& _guid : _assetData.materialGUIDs)
 		{
-			auto _handle = ResourceManager::Instance().Load<Material>(_guid);
+			auto _handle = _resMgr.Load<Material>(_guid, &a_ctx);
 			_runtimeData.materials.push_back(std::move(_handle));
 		}
 		for (const auto& _guid : _assetData.meshGUIDs)
 		{
-			auto _handle = ResourceManager::Instance().Load<Mesh>(_guid);
+			auto _handle = _resMgr.Load<Mesh>(_guid, &a_ctx);
 			_runtimeData.meshes.push_back(std::move(_handle));
 		}
 		for (const auto& _guid : _assetData.animationGUIDs)
 		{
-			auto _handle = ResourceManager::Instance().Load<AnimationData>(_guid);
+			auto _handle = _resMgr.Load<AnimationData>(_guid, &a_ctx);
 			_runtimeData.animations.push_back(std::move(_handle));
 		}
 
@@ -94,20 +101,34 @@ namespace Engine::Resource
 		}
 
 		// 描画用コマンドの構築
-		CreateDrawCmd(_assetData, _runtimeData);
+		CreateDrawCmd(a_ctx, _assetData, _runtimeData);
 
 		return Model(std::move(_assetData), std::move(_runtimeData));
 	}
-	Model ModelIO::GLTFLoad(const std::string& a_filePath)
+	Model ModelIO::GLTFLoad(const ResourceBuildContext& a_ctx, const std::string& a_filePath)
 	{
-		// モデルデータのパース
-		auto _spRawModel = GLTF::Load(a_filePath);
+		//----------------------------------------------------------------
+		// パース : 読み込んだままの中間素材を得る
+		//----------------------------------------------------------------
+		auto _rawModel = GLTF::Load(a_filePath);
 
-		// エンジン側の仕様に合わせてコンバート
-		GLTF::ModelData _rawModel = *_spRawModel.get();
-		auto _model = Converter::ModelConverter::ConvertModelData(a_filePath, _rawModel);
+		//----------------------------------------------------------------
+		// 加工 : 座標系の変換など、エンジンの仕様へ合わせる
+		//----------------------------------------------------------------
+		// TODO: インポート設定はアセットの .meta から読めるようにする
+		Processor::ModelImportSettings _importSettings = {};
+		Processor::ModelProcessor::Process(_rawModel, _importSettings);
 
-		// エンジン側に登録してランタイムデータとして保存
+		//----------------------------------------------------------------
+		// コンバート : エンジン形式へ詰め替え、GPU命令をバッチへ積む
+		//----------------------------------------------------------------
+		auto _model = Converter::ModelConverter::ConvertModelData(a_ctx, a_filePath, _rawModel);
+
+		//----------------------------------------------------------------
+		// 登録 : ResourceManagerへ実体を預けてハンドル化する
+		//----------------------------------------------------------------
+		auto& _resMgr = a_ctx.pResourceManager ? *a_ctx.pResourceManager : ResourceManager::Instance();
+
 		ModelAssetData _assetData = {};
 		_assetData.name = FileUtility::GetFileName(a_filePath);
 		_assetData.originalNodes = std::move(_model.originalNodes);
@@ -120,17 +141,17 @@ namespace Engine::Resource
 		ModelRuntimeData _runtimeData = {};
 		for (auto& _material : _model.MaterialVec)
 		{
-			auto _handle = Resource::ResourceManager::Instance().Add(std::move(_material));
+			auto _handle = _resMgr.Add(std::move(_material));
 			_runtimeData.materials.push_back(_handle);
 		}
 		for (auto& _mesh : _model.MeshVec)
 		{
-			auto _handle = ResourceManager::Instance().Add(std::move(_mesh));
+			auto _handle = _resMgr.Add(std::move(_mesh));
 			_runtimeData.meshes.push_back(_handle);
 		}
 		for (auto& _ani : _model.AnimationVec)
 		{
-			auto _handle = ResourceManager::Instance().Add(std::move(_ani));
+			auto _handle = _resMgr.Add(std::move(_ani));
 			_runtimeData.animations.push_back(_handle);
 		}
 
@@ -141,13 +162,15 @@ namespace Engine::Resource
 		}
 
 		// 描画用コマンドの構築
-		CreateDrawCmd(_assetData,_runtimeData);
+		CreateDrawCmd(a_ctx, _assetData, _runtimeData);
 
 		return Model(std::move(_assetData), std::move(_runtimeData));
 	}
 
-	void ModelIO::CreateDrawCmd(const ModelAssetData& a_modelAssetData, ModelRuntimeData& a_runtimeData)
+	void ModelIO::CreateDrawCmd(const ResourceBuildContext& a_ctx, const ModelAssetData& a_modelAssetData, ModelRuntimeData& a_runtimeData)
 	{
+		auto& _resMgr = a_ctx.pResourceManager ? *a_ctx.pResourceManager : ResourceManager::Instance();
+
 		// 描画時用に事前コマンド構築
 		for (auto& _meshNodeIdx : a_modelAssetData.drawMeshNodeIndices)
 		{
@@ -156,7 +179,7 @@ namespace Engine::Resource
 			{
 				// 描画メッシュハンドルを取得
 				const auto& _meshHandle = a_runtimeData.meshes[_meshIdx];
-				auto* _pMesh = ResourceManager::Instance().Ref(_meshHandle);
+				auto* _pMesh = _resMgr.Ref(_meshHandle);
 				if (!_pMesh)
 				{
 					ENGINE_ERRLOG(false, "メッシュが読み込まれていません");
@@ -171,7 +194,7 @@ namespace Engine::Resource
 
 					// マテリアルハンドル取得
 					const auto& _materialHandle = a_runtimeData.materials[_pMesh->GetMetaData().subsets[_subIdx].materialNumber];
-					auto* _pMate = Engine::Resource::ResourceManager::Instance().Ref(_materialHandle);
+					auto* _pMate = _resMgr.Ref(_materialHandle);
 					if (!_pMate)
 					{
 						ENGINE_ERRLOG(false, "マテリアルが読み込まれていません");

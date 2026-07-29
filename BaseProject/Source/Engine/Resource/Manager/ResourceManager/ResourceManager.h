@@ -30,9 +30,17 @@ namespace Engine::Resource
 		// 解放
 		void Release();
 
-		// リソースの読み込み
+		/// <summary>
+		/// リソースの読み込み
+		/// </summary>
+		/// <param name="a_guid">アセットのGUID</param>
+		/// <param name="a_pBuildContext">
+		/// ビルドコンテキスト。
+		/// モデルのように複数のリソースをまとめて読むときは、呼び出し元でバッチを開いて渡すこと。
+		/// 省略した場合はロード側がその場でバッチを開くため、リソース1個ごとにキューへの実行が走る。
+		/// </param>
 		template<typename T>
-		inline ResourceRef<T> Load(const Engine::GUID& a_guid);
+		inline ResourceRef<T> Load(const Engine::GUID& a_guid, const ResourceBuildContext* a_pBuildContext = nullptr);
 
 		// リソースの追加
 		template<typename T>
@@ -172,7 +180,7 @@ namespace Engine::Resource
 	};
 	// リソースのロード
 	template<typename T>
-	inline ResourceRef<T> ResourceManager::Load(const Engine::GUID& a_guid)
+	inline ResourceRef<T> ResourceManager::Load(const Engine::GUID& a_guid, const ResourceBuildContext* a_pBuildContext)
 	{
 		// 読み込み済みかチェック
 		const auto& _handle = GetCache<T>(a_guid);
@@ -191,7 +199,7 @@ namespace Engine::Resource
 			ENGINE_LOG("[Resource] ロード : %s", _filePath.c_str());
 		}
 
-		T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath);					// リソースのビルド
+		T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath, a_pBuildContext);	// リソースのビルド
 
 		// プールに登録してハンドルを発行
 		return ResourceRef<T>(AddResourceAndGUID(std::move(_resourceData), a_guid));

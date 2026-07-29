@@ -1,4 +1,4 @@
-﻿#include "tinyGLTF.h"
+#include "tinyGLTF.h"
 
 // TinyGLTF
 #define TINYGLTF_IMPLEMENTATION
@@ -90,31 +90,6 @@ private:
 	const tinygltf::Buffer* m_pBuffer = nullptr;        // 実際のバイナリデータ（頂点座標とか法線、UVなど）
 };
 
-//===================================================
-// 行列のZ軸ミラーリング
-//===================================================
-static void XMFLOAT4X4MirrorZ(DirectX::XMFLOAT4X4& a_mat)
-{
-	// 回転のZミラーリング
-	a_mat._13 *= -1;
-	a_mat._23 *= -1;
-	a_mat._31 *= -1;
-	a_mat._32 *= -1;
-
-	// 座標のZミラーリング
-	a_mat._43 *= -1;
-}
-
-
-Engine::Resource::ModelData Engine::Resource::GLTF::Import(const std::string& a_filePath)
-{
-	// GLTFを読み込み
-	auto _spGLTFModel = Load(a_filePath);
-
-	// モデルデータにシリアライズして返す
-	return Engine::Resource::GLTF::Serialize(a_filePath,_spGLTFModel);
-}
-
 tinygltf::Model tinyLoadFromFile(std::string_view a_filePath)
 {
 	//===============================================
@@ -160,9 +135,9 @@ tinygltf::Model tinyLoadFromFile(std::string_view a_filePath)
 }
 
 // マテリアルパース
-std::vector<Engine::Resource::GLTF::Material> ParseMaterial(const tinygltf::Model& a_tinyModel)
+std::vector<Engine::Resource::Parse::RawMaterial> ParseMaterial(const tinygltf::Model& a_tinyModel)
 {
-	std::vector<Engine::Resource::GLTF::Material> _result = {};
+	std::vector<Engine::Resource::Parse::RawMaterial> _result = {};
 
 	// 指定Indexのテクスチャ名取得
 	auto GetTextureFilename = [&a_tinyModel](int a_texIndex) -> std::string
@@ -236,9 +211,9 @@ std::vector<Engine::Resource::GLTF::Material> ParseMaterial(const tinygltf::Mode
 	return _result;
 }
 
-std::vector<Engine::Resource::GLTF::Node> ParseNode(const tinygltf::Model& a_tinyModel)
+std::vector<Engine::Resource::Parse::RawNode> ParseNode(const tinygltf::Model& a_tinyModel)
 {
-	std::vector<Engine::Resource::GLTF::Node> _result = {};
+	std::vector<Engine::Resource::Parse::RawNode> _result = {};
 	_result.resize(a_tinyModel.nodes.size());      // 全ノード分配列を確保
 	//-------------------------
 	// 全ノード　基本情報設定
@@ -306,20 +281,10 @@ std::vector<Engine::Resource::GLTF::Node> ParseNode(const tinygltf::Model& a_tin
 			}
 		}
 
-		// 変換行列を格納
+		// 変換行列を格納 : 座標系の変換は ModelProcessor が行う
 		_destNode->localTransform = _sMat * _rMat * _tMat;
-
-		// Z軸ミラーリング
-		XMFLOAT4X4MirrorZ(_destNode->localTransform);
-
-		// メッシュあり
-		if (a_tinyModel.nodes[_nodeIdx].mesh >= 0)
-		{
-			// メッシュフラグON
-			_destNode->isMesh = true;
-		}
 	}
-	
+
 	return _result;
 }
 
@@ -336,7 +301,7 @@ std::vector<int> ParseRootNodes(const tinygltf::Model& a_tinyModel)
 	return _result;
 }
 
-std::vector<int> ParseBoneIndices(const tinygltf::Model& a_tinyModel, std::vector<Engine::Resource::GLTF::Node>& a_nodes)
+std::vector<int> ParseBoneIndices(const tinygltf::Model& a_tinyModel, std::vector<Engine::Resource::Parse::RawNode>& a_nodes)
 {
 	std::vector<int> _result = {};
 
@@ -357,18 +322,16 @@ std::vector<int> ParseBoneIndices(const tinygltf::Model& a_tinyModel, std::vecto
 			// _jointIdx番目のボーンの、ノード内でのIndex
 			int _originNodeIdx = a_tinyModel.skins[0].joints[_jointIdx];
 
-			Engine::Resource::GLTF::Node* _boneNode = &a_nodes[_originNodeIdx];
+			Engine::Resource::Parse::RawNode* _boneNode = &a_nodes[_originNodeIdx];
 			_boneNode->boneNodeIndex = _jointIdx;
 
-			// オフセット行列取得
+			// オフセット行列取得 : 座標系の変換は ModelProcessor が行う
 			DXSM::Matrix _invBindMat = DXSM::Matrix::Identity;
 			for (int _matIdx = 0; _matIdx < 16; ++_matIdx)
 			{
 				(&_invBindMat._11)[_matIdx] = _ibmGetter.GetValue_Float(_jointIdx * 16 + _matIdx);
 			}
 
-			// Z軸ミラーリングして格納
-			XMFLOAT4X4MirrorZ(_invBindMat);
 			_boneNode->inverseBindMatrix = _invBindMat;
 
 			// 変換行列へ変換
@@ -378,7 +341,7 @@ std::vector<int> ParseBoneIndices(const tinygltf::Model& a_tinyModel, std::vecto
 		// ボーンLocalMat算出
 		for (int _nodeIdx : _result)
 		{
-			Engine::Resource::GLTF::Node* _boneNode = &a_nodes[_nodeIdx];
+			Engine::Resource::Parse::RawNode* _boneNode = &a_nodes[_nodeIdx];
 
 			if (_boneNode->parent >= 0)
 			{
@@ -396,15 +359,15 @@ std::vector<int> ParseBoneIndices(const tinygltf::Model& a_tinyModel, std::vecto
 	return _result;
 }
 
-void CalcWorldTransform(Engine::Resource::GLTF::ModelData* a_model)
+void CalcWorldTransform(Engine::Resource::Parse::RawModel& a_model)
 {
 	//----------------------------------------------------
 	// 各ノードのTransformからWorldTransformを算出
 	//----------------------------------------------------
-	
+
 	// 行列計算用再起関数
-	std::function<void(Engine::Resource::GLTF::Node*, const DirectX::XMFLOAT4X4*)> _rec =
-		[&_rec, &a_model](Engine::Resource::GLTF::Node* a_node, const DirectX::XMFLOAT4X4* a_parentMat)
+	std::function<void(Engine::Resource::Parse::RawNode*, const DirectX::XMFLOAT4X4*)> _rec =
+		[&_rec, &a_model](Engine::Resource::Parse::RawNode* a_node, const DirectX::XMFLOAT4X4* a_parentMat)
 		{
 			// ワールド行列をもとめる
 			if (a_parentMat)
@@ -422,25 +385,25 @@ void CalcWorldTransform(Engine::Resource::GLTF::ModelData* a_model)
 			// 子の再帰
 			for (auto&& _child : a_node->children)
 			{
-				_rec(&a_model->nodes[_child], &a_node->worldTransform);
+				_rec(&a_model.nodes[_child], &a_node->worldTransform);
 			}
 		};
 
 	// 親子関係から行列を作成
-	for (int _nodeIdx : a_model->rootNodeIndices)
+	for (int _nodeIdx : a_model.rootNodeIndices)
 	{
-		_rec(&a_model->nodes[_nodeIdx], nullptr);
+		_rec(&a_model.nodes[_nodeIdx], nullptr);
 	}
 }
 
-void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Node>& a_destNodes)
+void ParseMesh(tinygltf::Model& a_model, Engine::Resource::Parse::RawModel& a_dest)
 {
 	//----------------------------------------------------
 	// メッシュ
 	//----------------------------------------------------
-	for (UINT _nodeIdx = 0; _nodeIdx < a_destNodes.size(); ++_nodeIdx)
+	for (UINT _nodeIdx = 0; _nodeIdx < a_dest.nodes.size(); ++_nodeIdx)
 	{
-		auto* _destNode = &a_destNodes[_nodeIdx]; // コピー先確保
+		auto* _destNode = &a_dest.nodes[_nodeIdx]; // コピー先確保
 
 		//-----------------------
 		// メッシュの場合
@@ -448,8 +411,8 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 		int _meshIdx = a_model.nodes[_nodeIdx].mesh;     // メッシュIndex取得
 		if (_meshIdx < 0)continue;                          // メッシュなし
 
-		// メッシュフラグON
-		_destNode->isMesh = true;
+		// このノードのメッシュ
+		Engine::Resource::Parse::RawMesh _destMesh = {};
 
 		// 作業データ
 		struct GLTFPrimitive
@@ -461,7 +424,8 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 
 			std::map<std::string, int>  attributes = {};
 		};
-		std::vector<std::shared_ptr<GLTFPrimitive>> _tmpPrimitives(a_model.meshes[_meshIdx].primitives.size());
+		std::vector<std::shared_ptr<GLTFPrimitive>> _tmpPrimitives;
+		_tmpPrimitives.reserve(a_model.meshes[_meshIdx].primitives.size());
 
 		//-----------------------
 		// 全プリミティブ
@@ -476,7 +440,7 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 
 			// 作成
 			std::shared_ptr<GLTFPrimitive> _destPrimitive = std::make_shared<GLTFPrimitive>();
-			_tmpPrimitives[_primitiveIdx] = _destPrimitive;
+			_tmpPrimitives.push_back(_destPrimitive);
 			_destPrimitive->attributes = _srcPrimitive.attributes;
 
 			// マテリアルナンバー
@@ -507,7 +471,7 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 					// コピー
 					_ver.pos.x = _posGetter.GetValue_Float(_vertexIdx * 3 + 0);
 					_ver.pos.y = _posGetter.GetValue_Float(_vertexIdx * 3 + 1);
-					_ver.pos.z = _posGetter.GetValue_Float(_vertexIdx * 3 + 2) * -1;    // Z軸ミラー
+					_ver.pos.z = _posGetter.GetValue_Float(_vertexIdx * 3 + 2);
 				}
 			}
 
@@ -523,7 +487,7 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 					// コピー
 					_nor.x = _normalGetter.GetValue_Float(_vertexIdx * 3 + 0);
 					_nor.y = _normalGetter.GetValue_Float(_vertexIdx * 3 + 1);
-					_nor.z = _normalGetter.GetValue_Float(_vertexIdx * 3 + 2) * -1;    // Z軸ミラー
+					_nor.z = _normalGetter.GetValue_Float(_vertexIdx * 3 + 2);
 				}
 			}
 
@@ -587,7 +551,7 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 				// スキンIndex
 				if (_srcPrimitive.attributes.count("JOINTS_0") > 0)
 				{
-					_destNode->nodeMesh.isSkinMesh = true;      // スキンメッシュ持ち
+					_destMesh.isSkinMesh = true;      // スキンメッシュ持ち
 					GLTFBufferGetter _jointGetter(&a_model, _srcPrimitive.attributes["JOINTS_0"]);
 					for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
 					{
@@ -603,7 +567,7 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 				// スキンウェイト
 				if (_srcPrimitive.attributes.count("WEIGHTS_0") > 0)
 				{
-					_destNode->nodeMesh.isSkinMesh = true;      // スキンメッシュ持ち
+					_destMesh.isSkinMesh = true;      // スキンメッシュ持ち
 					GLTFBufferGetter _weightGetter(&a_model, _srcPrimitive.attributes["WEIGHTS_0"]);
 					for (UINT _vertexIdx = 0; _vertexIdx < _destPrimitive->vertices.size(); ++_vertexIdx)
 					{
@@ -641,12 +605,12 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 			_destPrimitive->faces.resize(_indexGetter.GetAccsessor()->count / 3);   // 面の数分配列を確保
 			for (UINT _faceIdx = 0; _faceIdx < _destPrimitive->faces.size(); ++_faceIdx)
 			{
-				// データ型のバイト数をもとめる（Z軸ミラーのため、1 と 2 を入れ替える）
+				// 巻き順は読み込んだまま。反転は ModelProcessor が行う
 				_destPrimitive->faces[_faceIdx].idx[0] =
 					static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 0));
-				_destPrimitive->faces[_faceIdx].idx[2] =
-					static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 1));
 				_destPrimitive->faces[_faceIdx].idx[1] =
+					static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 1));
+				_destPrimitive->faces[_faceIdx].idx[2] =
 					static_cast<UINT>(_indexGetter.GetValue_Int(_faceIdx * 3 + 2));
 			}
 		}
@@ -658,18 +622,18 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 		std::sort(
 			_tmpPrimitives.begin(),
 			_tmpPrimitives.end(),
-			[](std::shared_ptr<GLTFPrimitive> a_v1, std::shared_ptr<GLTFPrimitive>a_v2)
+			[](const std::shared_ptr<GLTFPrimitive>& a_v1, const std::shared_ptr<GLTFPrimitive>& a_v2)
 			{
 				return a_v1->materialNumber < a_v2->materialNumber;
 			}
 		);
 
 		// マテリアルの最大数分サブセット作成
-		_destNode->nodeMesh.subsets.resize(_tmpPrimitives.size());
+		_destMesh.subsets.resize(_tmpPrimitives.size());
 		for (UINT _priIdx = 0; _priIdx < _tmpPrimitives.size(); ++_priIdx)
 		{
 			// マテリアル番号
-			_destNode->nodeMesh.subsets[_priIdx].materialNumber = _tmpPrimitives[_priIdx]->materialNumber;
+			_destMesh.subsets[_priIdx].materialNumber = _tmpPrimitives[_priIdx]->materialNumber;
 		}
 
 		// 全プリミティブを合成し、１つのメッシュにする
@@ -683,9 +647,9 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 			// 頂点バッファの合成
 			if (_primitive->vertices.size() >= 1)
 			{
-				UINT _st = static_cast<UINT>(_destNode->nodeMesh.vertices.size());
-				_destNode->nodeMesh.vertices.resize(_destNode->nodeMesh.vertices.size() + _primitive->vertices.size());
-				memcpy(&_destNode->nodeMesh.vertices[_st],
+				UINT _st = static_cast<UINT>(_destMesh.vertices.size());
+				_destMesh.vertices.resize(_destMesh.vertices.size() + _primitive->vertices.size());
+				memcpy(&_destMesh.vertices[_st],
 					&_primitive->vertices[0], _primitive->vertices.size() * sizeof(Engine::Resource::MeshVertex8bit)
 				);
 			}
@@ -693,19 +657,18 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 			// インデックス合成
 			if (_primitive->faces.size() >= 1)
 			{
-				UINT _st = static_cast<UINT>(_destNode->nodeMesh.faces.size());
-				_destNode->nodeMesh.faces.resize(_destNode->nodeMesh.faces.size() + _primitive->faces.size());
-				// 反転するため 0, 2, 1の順番にする（通常は 0, 1, 2の順番）
+				UINT _st = static_cast<UINT>(_destMesh.faces.size());
+				_destMesh.faces.resize(_destMesh.faces.size() + _primitive->faces.size());
 				for (UINT _faceIdx = 0; _faceIdx < _primitive->faces.size(); ++_faceIdx)
 				{
-					_destNode->nodeMesh.faces[_st + _faceIdx].idx[0] = _primitive->faces[_faceIdx].idx[0] + _currentVertexIdx;
-					_destNode->nodeMesh.faces[_st + _faceIdx].idx[1] = _primitive->faces[_faceIdx].idx[1] + _currentVertexIdx;
-					_destNode->nodeMesh.faces[_st + _faceIdx].idx[2] = _primitive->faces[_faceIdx].idx[2] + _currentVertexIdx;
+					_destMesh.faces[_st + _faceIdx].idx[0] = _primitive->faces[_faceIdx].idx[0] + _currentVertexIdx;
+					_destMesh.faces[_st + _faceIdx].idx[1] = _primitive->faces[_faceIdx].idx[1] + _currentVertexIdx;
+					_destMesh.faces[_st + _faceIdx].idx[2] = _primitive->faces[_faceIdx].idx[2] + _currentVertexIdx;
 				}
 			}
 
 			// サブセット
-			_destNode->nodeMesh.subsets[_priIdx].faceCount += static_cast<UINT>(_primitive->faces.size());		// 面数を加算
+			_destMesh.subsets[_priIdx].faceCount += static_cast<UINT>(_primitive->faces.size());		// 面数を加算
 
 			// 頂点数・面数を次の開始位置に設定
 			_currentVertexIdx += static_cast<UINT>(_primitive->vertices.size());
@@ -717,207 +680,184 @@ void ParseMesh(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Nod
 
 		// サブセットのオフセットをもとめる
 		UINT _offset = 0;
-		for (UINT _priIdx = 0; _priIdx < _destNode->nodeMesh.subsets.size(); ++_priIdx)
+		for (UINT _priIdx = 0; _priIdx < _destMesh.subsets.size(); ++_priIdx)
 		{
-			_destNode->nodeMesh.subsets[_priIdx].faceStart = _offset;		// 面描画の開始Index
-			_offset += _destNode->nodeMesh.subsets[_priIdx].faceCount;		// 次のプリミティブの開始位置設定
+			_destMesh.subsets[_priIdx].faceStart = _offset;		// 面描画の開始Index
+			_offset += _destMesh.subsets[_priIdx].faceCount;		// 次のプリミティブの開始位置設定
 		}
 
-		// メッシュの全長点の接線を計算する（任意接線生成）
-		for (auto&& _vertex : _destNode->nodeMesh.vertices)
-		{
-			// 接線が存在する場合はスキップ
-			DXSM::Vector3 _tangent = _vertex.tangent;
-			if (_tangent.LengthSquared() > 0.0f)	continue;
-
-			DXSM::Vector3 _normal = _vertex.normal;
-
-			// 法線と平衡になりにくい基準ベクトルを用意
-			DXSM::Vector3 _ref = (fabs(_normal.y) < 0.999f) ? DXSM::Vector3::Up : DXSM::Vector3::Forward;
-
-			// クロス結果を求めて正規化
-			DXSM::Vector3 _t = _ref.Cross(_normal);
-			_t.Normalize();
-
-			// 結果を格納
-			_vertex.tangent = _t;
-		}
+		// メッシュ配列へ登録し、ノードから参照させる
+		_destNode->meshIndex = static_cast<int>(a_dest.meshes.size());
+		a_dest.meshes.push_back(std::move(_destMesh));
 	}
 }
 
-std::vector<std::shared_ptr<Engine::Resource::GLTF::AnimationData>> ParseAnimation(tinygltf::Model& a_model, std::vector<Engine::Resource::GLTF::Node>& a_destNodes)
+std::vector<Engine::Resource::Parse::RawAnimation> ParseAnimation(tinygltf::Model& a_model, size_t a_nodeCount)
 {
-	std::vector<std::shared_ptr<Engine::Resource::GLTF::AnimationData>> _result = {};
+	std::vector<Engine::Resource::Parse::RawAnimation> _result = {};
 
 	//----------------------------------------------------
-// アニメーション
-//----------------------------------------------------
-for (UINT _animaIdx = 0; _animaIdx < a_model.animations.size(); ++_animaIdx)
-{
-	// 参照元用意
-	const auto& _srcAnima = a_model.animations[_animaIdx];
-
-	// アニメーションデータに追加
-	std::shared_ptr<Engine::Resource::GLTF::AnimationData> _spAnimation = {};
-	_spAnimation = std::make_shared<Engine::Resource::GLTF::AnimationData>();
-
-	_result.push_back(_spAnimation);
-
-	// 名前
-	_spAnimation->name = _srcAnima.name;
-
-	// アニメーションノード
-	std::vector<std::shared_ptr<Engine::Resource::AnimationNode>> _tmpNodes;		// 一時的な作業データ準備
-	_tmpNodes.resize(a_destNodes.size());					// 配列確保
-
-	// 全チャンネル
-	for (const auto& _channel : _srcAnima.channels)
+	// アニメーション
+	//----------------------------------------------------
+	for (UINT _animaIdx = 0; _animaIdx < a_model.animations.size(); ++_animaIdx)
 	{
 		// 参照元用意
-		const auto& _sampler = _srcAnima.samplers[_channel.sampler];
+		const auto& _srcAnima = a_model.animations[_animaIdx];
 
-		// 対象ノードのIndex
-		auto& _destAnimaNode = _tmpNodes[_channel.target_node];
+		// アニメーションデータに追加
+		Engine::Resource::Parse::RawAnimation _dstAnimation = {};
 
-		// 初回のみ
-		if (_destAnimaNode == nullptr)
+		// 名前
+		_dstAnimation.name = _srcAnima.name;
+
+		// アニメーションノード : 一時的な作業データ準備(nodeOffsetが-1のものは未使用)
+		std::vector<Engine::Resource::Parse::RawAnimationNode> _tmpNodes;
+		_tmpNodes.resize(a_nodeCount);
+
+		// 全チャンネル
+		for (const auto& _channel : _srcAnima.channels)
 		{
-			_destAnimaNode = std::make_shared<Engine::Resource::AnimationNode>();
-			_destAnimaNode->nodeOffset = _channel.target_node;
-		}
+			// 参照元用意
+			const auto& _sampler = _srcAnima.samplers[_channel.sampler];
 
-		GLTFBufferGetter _timeGetter(&a_model, _sampler.input);		// 時間アクセサ
-		GLTFBufferGetter _valueGetter(&a_model, _sampler.output);	// データアクセサ
+			// 対象ノードのIndex
+			auto& _destAnimaNode = _tmpNodes[_channel.target_node];
+			_destAnimaNode.nodeOffset = _channel.target_node;
 
-		// 座標のアニメーションノード設定
-		if (_channel.target_path == "translation")
-		{
-			for (UINT _kIdx = 0; _kIdx < _timeGetter.GetAccsessor()->count; ++_kIdx)
+			GLTFBufferGetter _timeGetter(&a_model, _sampler.input);		// 時間アクセサ
+			GLTFBufferGetter _valueGetter(&a_model, _sampler.output);	// データアクセサ
+
+			// 座標のアニメーションノード設定
+			if (_channel.target_path == "translation")
 			{
-				Engine::Resource::AnimationKeyXMFLOAT3 _vec;
+				for (UINT _kIdx = 0; _kIdx < _timeGetter.GetAccsessor()->count; ++_kIdx)
+				{
+					Engine::Resource::AnimationKeyXMFLOAT3 _vec;
 
-				// 時間
-				_vec.time = _timeGetter.GetValue_Float(_kIdx) * 60.0f;		// 元が60fpsとして変換
-				if (_vec.time > _spAnimation->maxLength)
-				{
-					_spAnimation->maxLength = _vec.time;
-				}
+					// 時間
+					_vec.time = _timeGetter.GetValue_Float(_kIdx) * 60.0f;		// 元が60fpsとして変換
+					if (_vec.time > _dstAnimation.maxLength)
+					{
+						_dstAnimation.maxLength = _vec.time;
+					}
 
-				// 値
-				if (_sampler.interpolation == "STEP")
-				{
-					_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 3 + 0);
-					_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 3 + 1);
-					_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 3 + 2) * -1;		// Z軸ミラー
-					_destAnimaNode->translations.push_back(_vec);						// 保存
+					// 値
+					if (_sampler.interpolation == "STEP")
+					{
+						_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 3 + 0);
+						_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 3 + 1);
+						_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 3 + 2);
+						_destAnimaNode.translations.push_back(_vec);						// 保存
+					}
+					else if (_sampler.interpolation == "LINEAR")
+					{
+						_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 3 + 0);
+						_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 3 + 1);
+						_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 3 + 2);
+						_destAnimaNode.translations.push_back(_vec);						// 保存
+					}
+					else if (_sampler.interpolation == "CUBICSPLINE")
+					{
+						_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 9 + 3);
+						_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 9 + 4);
+						_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 9 + 5);
+						_destAnimaNode.translations.push_back(_vec);						// 保存
+					}
 				}
-				else if (_sampler.interpolation == "LINEAR")
+			}
+			else if (_channel.target_path == "scale")
+			{
+				for (UINT _kIdx = 0; _kIdx < _timeGetter.GetAccsessor()->count; ++_kIdx)
 				{
-					_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 3 + 0);
-					_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 3 + 1);
-					_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 3 + 2) * -1;		// Z軸ミラー
-					_destAnimaNode->translations.push_back(_vec);						// 保存
+					Engine::Resource::AnimationKeyXMFLOAT3 _vec;
+
+					// 時間
+					_vec.time = _timeGetter.GetValue_Float(_kIdx) * 60.0f;		// 元が60fpsとして変換
+					if (_vec.time > _dstAnimation.maxLength)
+					{
+						_dstAnimation.maxLength = _vec.time;
+					}
+
+					// 値
+					if (_sampler.interpolation == "STEP")
+					{
+						_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 3 + 0);
+						_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 3 + 1);
+						_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 3 + 2);
+						_destAnimaNode.scales.push_back(_vec);						// 保存
+					}
+					else if (_sampler.interpolation == "LINEAR")
+					{
+						_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 3 + 0);
+						_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 3 + 1);
+						_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 3 + 2);
+						_destAnimaNode.scales.push_back(_vec);						// 保存
+					}
+					else if (_sampler.interpolation == "CUBICSPLINE")
+					{
+						_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 9 + 3);
+						_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 9 + 4);
+						_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 9 + 5);
+						_destAnimaNode.scales.push_back(_vec);						// 保存
+					}
 				}
-				else if (_sampler.interpolation == "CUBICSPLINE")
+			}
+			else if (_channel.target_path == "rotation")
+			{
+				for (UINT _kIdx = 0; _kIdx < _timeGetter.GetAccsessor()->count; ++_kIdx)
 				{
-					_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 9 + 3);
-					_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 9 + 4);
-					_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 9 + 5) * -1;		// Z軸ミラー
-					_destAnimaNode->translations.push_back(_vec);						// 保存
+					Engine::Resource::AnimationKeyQuaternion _quat;
+
+					// 時間
+					_quat.time = _timeGetter.GetValue_Float(_kIdx) * 60.0f;		// 元が60fpsとして変換
+					if (_quat.time > _dstAnimation.maxLength)
+					{
+						_dstAnimation.maxLength = _quat.time;
+					}
+
+					// 値
+					if (_sampler.interpolation == "STEP")
+					{
+						_quat.quat.x = _valueGetter.GetValue_Float(_kIdx * 4 + 0);
+						_quat.quat.y = _valueGetter.GetValue_Float(_kIdx * 4 + 1);
+						_quat.quat.z = _valueGetter.GetValue_Float(_kIdx * 4 + 2);
+						_quat.quat.w = _valueGetter.GetValue_Float(_kIdx * 4 + 3);
+						_destAnimaNode.rotations.push_back(_quat);						// 保存
+					}
+					else if (_sampler.interpolation == "LINEAR")
+					{
+						_quat.quat.x = _valueGetter.GetValue_Float(_kIdx * 4 + 0);
+						_quat.quat.y = _valueGetter.GetValue_Float(_kIdx * 4 + 1);
+						_quat.quat.z = _valueGetter.GetValue_Float(_kIdx * 4 + 2);
+						_quat.quat.w = _valueGetter.GetValue_Float(_kIdx * 4 + 3);
+						_destAnimaNode.rotations.push_back(_quat);						// 保存
+					}
+					else if (_sampler.interpolation == "CUBICSPLINE")
+					{
+						_quat.quat.x = _valueGetter.GetValue_Float(_kIdx * 12 + 4);
+						_quat.quat.y = _valueGetter.GetValue_Float(_kIdx * 12 + 5);
+						_quat.quat.z = _valueGetter.GetValue_Float(_kIdx * 12 + 6);
+						_quat.quat.w = _valueGetter.GetValue_Float(_kIdx * 12 + 7);
+						_destAnimaNode.rotations.push_back(_quat);						// 保存
+					}
 				}
 			}
 		}
-		else if (_channel.target_path == "scale")
+
+		// アニメーションで使用していない不必要なノードを除外したリストを作成
+		for (auto&& _n : _tmpNodes)
 		{
-			for (UINT _kIdx = 0; _kIdx < _timeGetter.GetAccsessor()->count; ++_kIdx)
-			{
-				Engine::Resource::AnimationKeyXMFLOAT3 _vec;
-
-				// 時間
-				_vec.time = _timeGetter.GetValue_Float(_kIdx) * 60.0f;		// 元が60fpsとして変換
-				if (_vec.time > _spAnimation->maxLength)
-				{
-					_spAnimation->maxLength = _vec.time;
-				}
-
-				// 値
-				if (_sampler.interpolation == "STEP")
-				{
-					_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 3 + 0);
-					_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 3 + 1);
-					_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 3 + 2);
-					_destAnimaNode->scales.push_back(_vec);						// 保存
-				}
-				else if (_sampler.interpolation == "LINEAR")
-				{
-					_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 3 + 0);
-					_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 3 + 1);
-					_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 3 + 2);
-					_destAnimaNode->scales.push_back(_vec);						// 保存
-				}
-				else if (_sampler.interpolation == "CUBICSPLINE")
-				{
-					_vec.vec.x = _valueGetter.GetValue_Float(_kIdx * 9 + 3);
-					_vec.vec.y = _valueGetter.GetValue_Float(_kIdx * 9 + 4);
-					_vec.vec.z = _valueGetter.GetValue_Float(_kIdx * 9 + 5);
-					_destAnimaNode->scales.push_back(_vec);						// 保存
-				}
-			}
+			if (_n.nodeOffset < 0)continue;
+			_dstAnimation.animationNodes.push_back(std::move(_n));
 		}
-		else if (_channel.target_path == "rotation")
-		{
-			for (UINT _kIdx = 0; _kIdx < _timeGetter.GetAccsessor()->count; ++_kIdx)
-			{
-				Engine::Resource::AnimationKeyQuaternion _quat;
 
-				// 時間
-				_quat.time = _timeGetter.GetValue_Float(_kIdx) * 60.0f;		// 元が60fpsとして変換
-				if (_quat.time > _spAnimation->maxLength)
-				{
-					_spAnimation->maxLength = _quat.time;
-				}
-
-				// 値
-				if (_sampler.interpolation == "STEP")
-				{
-					_quat.quat.x = _valueGetter.GetValue_Float(_kIdx * 4 + 0) * -1;	// Z軸ミラー
-					_quat.quat.y = _valueGetter.GetValue_Float(_kIdx * 4 + 1) * -1;
-					_quat.quat.z = _valueGetter.GetValue_Float(_kIdx * 4 + 2);
-					_quat.quat.w = _valueGetter.GetValue_Float(_kIdx * 4 + 3);
-					_destAnimaNode->rotations.push_back(_quat);						// 保存
-				}
-				else if (_sampler.interpolation == "LINEAR")
-				{
-					_quat.quat.x = _valueGetter.GetValue_Float(_kIdx * 4 + 0) * -1;	// Z軸ミラー
-					_quat.quat.y = _valueGetter.GetValue_Float(_kIdx * 4 + 1) * -1;
-					_quat.quat.z = _valueGetter.GetValue_Float(_kIdx * 4 + 2);
-					_quat.quat.w = _valueGetter.GetValue_Float(_kIdx * 4 + 3);
-					_destAnimaNode->rotations.push_back(_quat);						// 保存
-				}
-				else if (_sampler.interpolation == "CUBICSPLINE")
-				{
-					_quat.quat.x = _valueGetter.GetValue_Float(_kIdx * 12 + 4) * -1;// Z軸ミラー
-					_quat.quat.y = _valueGetter.GetValue_Float(_kIdx * 12 + 5) * -1;
-					_quat.quat.z = _valueGetter.GetValue_Float(_kIdx * 12 + 6);
-					_quat.quat.w = _valueGetter.GetValue_Float(_kIdx * 12 + 7);
-					_destAnimaNode->rotations.push_back(_quat);						// 保存
-				}
-			}
-		}
+		_result.push_back(std::move(_dstAnimation));
 	}
 
-	// アニメーションで使用していない不必要なノードを除外したリストを作成
-	_spAnimation->spAnimationNodes.clear();
-	for (auto&& _n : _tmpNodes)
-	{
-		if (_n == nullptr)continue;
-		_spAnimation->spAnimationNodes.push_back(_n);
-	}
-}
 	return _result;
 }
 
-std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(std::string_view a_filePath)
+Engine::Resource::Parse::RawModel Engine::Resource::GLTF::Load(std::string_view a_filePath)
 {
 	//===============================================
 	// モデルデータの読み込み
@@ -925,285 +865,16 @@ std::shared_ptr<Engine::Resource::GLTF::ModelData> Engine::Resource::GLTF::Load(
 	tinygltf::Model _tinyModel = tinyLoadFromFile(a_filePath);
 
 	// 戻り値用データを準備
-	std::shared_ptr<Engine::Resource::GLTF::ModelData> _destModel = {};
-	_destModel = std::make_shared<Engine::Resource::GLTF::ModelData>();
+	Engine::Resource::Parse::RawModel _destModel = {};
 
-	_destModel->materials = ParseMaterial(_tinyModel);									// マテリアルパース
-	_destModel->nodes = ParseNode(_tinyModel);											// ノードパース
-	_destModel->rootNodeIndices = ParseRootNodes(_tinyModel);							// ルートノード
-	CalcWorldTransform(_destModel.get());												// 各ノードのTransformからWorldTransformを算出
-	_destModel->boneNodeIndices = ParseBoneIndices(_tinyModel,_destModel->nodes);		// ボーン
-	ParseMesh(_tinyModel,_destModel->nodes);											// メッシュ、マテリアル、プリミティブ
-	_destModel->animations = ParseAnimation(_tinyModel,_destModel->nodes);				// アニメーション
+	_destModel.materials = ParseMaterial(_tinyModel);								// マテリアルパース
+	_destModel.nodes = ParseNode(_tinyModel);										// ノードパース
+	_destModel.rootNodeIndices = ParseRootNodes(_tinyModel);						// ルートノード
+	CalcWorldTransform(_destModel);													// 各ノードのTransformからWorldTransformを算出
+	_destModel.boneNodeIndices = ParseBoneIndices(_tinyModel, _destModel.nodes);		// ボーン
+	ParseMesh(_tinyModel, _destModel);												// メッシュ、マテリアル、プリミティブ
+	_destModel.animations = ParseAnimation(_tinyModel, _destModel.nodes.size());		// アニメーション
 
-	// シリアライズしたモデルを返す
+	// 読み込んだままの中間素材を返す
 	return _destModel;
-}
-void CreateNodes(
-	Engine::Resource::ModelData& a_dst,
-	const std::shared_ptr<Engine::Resource::GLTF::ModelData>& a_src
-)
-{
-	//=================================================
-	// ノード作成
-	//=================================================
-	a_dst.originalNodes.resize(a_src->nodes.size());		// ノード配列確保
-	for (UINT _i = 0; _i < static_cast<UINT>(a_src->nodes.size()); ++_i)
-	{
-		// ノード情報
-		const Engine::Resource::GLTF::Node& _srcNode = a_src->nodes[_i];	// 入力元
-		Engine::Resource::Node& _dstNode = a_dst.originalNodes[_i];			// 出力先
-
-		// 基本情報コピー
-		if (_srcNode.isMesh)
-		{
-			// メッシュ作成
-			Engine::Resource::Mesh _mesh = {};
-
-			// 頂点配列作成
-			std::vector<Engine::Resource::MeshVertexFloat> _vertices = {};
-			_vertices.resize(_srcNode.nodeMesh.vertices.size());
-			for (size_t _j = 0; _j < _srcNode.nodeMesh.vertices.size(); ++_j)
-			{
-				Engine::Resource::MeshVertexFloat _dstVertex = {};
-
-				unsigned int _srcColor = _srcNode.nodeMesh.vertices[_j].color;
-				float r = ((float)((_srcColor >> 24) & 0xFF)) / 255.0f;
-				float g = ((float)((_srcColor >> 16) & 0xFF)) / 255.0f;
-				float b = ((float)((_srcColor >> 8) & 0xFF)) / 255.0f;
-				float a = ((float)((_srcColor >> 0) & 0xFF)) / 255.0f;
-				_dstVertex.color = DirectX::XMFLOAT4(r, g, b, a);
-
-				_dstVertex.normal = _srcNode.nodeMesh.vertices[_j].normal;
-				_dstVertex.pos = _srcNode.nodeMesh.vertices[_j].pos;
-				_dstVertex.tangent = _srcNode.nodeMesh.vertices[_j].tangent;
-				_dstVertex.uv = _srcNode.nodeMesh.vertices[_j].uv;
-
-				_dstVertex.skinIndexList = _srcNode.nodeMesh.vertices[_j].skinIndexList;
-				_dstVertex.skinWeightList = _srcNode.nodeMesh.vertices[_j].skinWeightList;
-
-				_vertices[_j] = _dstVertex;
-			}
-
-			// メッシュ作成
-			_mesh.CreateFloat(
-				_vertices,
-				_srcNode.nodeMesh.faces,
-				_srcNode.nodeMesh.subsets,
-				_srcNode.nodeMesh.isSkinMesh
-			);
-			
-
-			// メッシュノードリストにインデックス登録
-			a_dst.meshNodeIndices.push_back(_i);
-
-			_dstNode.meshIndices.push_back(static_cast<int>(a_dst.MeshVec.size()));
-			a_dst.MeshVec.push_back(std::move(_mesh));
-		}
-
-		// ノード情報セット
-		_dstNode.name = _srcNode.name;										// ノード名
-		_dstNode.localTransform = _srcNode.localTransform;					// ローカル行列
-		_dstNode.worldTransform = _srcNode.worldTransform;					// ワールド行列
-		_dstNode.boneInverseWorldMatrix = _srcNode.inverseBindMatrix;		// ボーンのオフセット行列
-
-		_dstNode.parent = _srcNode.parent;									// 親インデックス
-		_dstNode.children = _srcNode.children;								// 子供リスト
-
-		_dstNode.boneIndex = _srcNode.boneNodeIndex;						// ボーンインデックス
-		_dstNode.isSkinMesh = _srcNode.nodeMesh.isSkinMesh;					// スキンメッシュ持ちかどうか
-
-		// 当たり判定用ノードの検索
-		if (_dstNode.name.find("COL") != std::string::npos)
-		{
-			// 判定用ノードに割り当て
-			a_dst.collisionMeshNodeIndices.push_back(_i);
-		}
-		else
-		{
-			// 描画用ノードに割り当て
-			a_dst.drawMeshNodeIndices.push_back(_i);
-		}
-	}
-
-	//=================================================
-	// ルートノード・ボーンノードリスト作成
-	//=================================================
-	for (UINT _nodeIdx = 0; _nodeIdx < a_src->nodes.size(); ++_nodeIdx)
-	{
-		// ルートノードの登録
-		if (a_src->nodes[_nodeIdx].parent == -1)
-		{
-			a_dst.rootNodeIndices.push_back(_nodeIdx);
-		}
-		// ボーンノードの登録
-		int _boneIdx = a_src->nodes[_nodeIdx].boneNodeIndex;		// ボーンインデックス取得
-		if (_boneIdx >= 0)
-		{
-			// ボーンノードリストのサイズ確保
-			if (_boneIdx >= (int)a_dst.boneNodeIndices.size())
-			{
-				a_dst.boneNodeIndices.resize(_boneIdx + 1);
-			}
-
-			// 登録
-			a_dst.boneNodeIndices[_boneIdx] = _nodeIdx;
-		}
-	}
-
-	// 当たり判定用ノードがなければ、a_dst.drawMeshNodeと同じ割り当てを行う
-	if (a_dst.collisionMeshNodeIndices.size() == 0)
-	{
-		a_dst.collisionMeshNodeIndices = a_dst.drawMeshNodeIndices;
-
-		for (auto& _idx : a_dst.collisionMeshNodeIndices)
-		{
-			for (auto& _meshIdx : a_dst.originalNodes[_idx].meshIndices)
-			{
-				const auto& _node = a_src->nodes[_idx];
-
-				// 頂点配列作成
-				std::vector<DirectX::XMFLOAT3> _collisionVertices;
-				_collisionVertices.resize(_node.nodeMesh.vertices.size());
-
-				for (size_t _j = 0; _j < _node.nodeMesh.vertices.size(); ++_j)
-				{
-					_collisionVertices[_j] = _node.nodeMesh.vertices[_j].pos;
-				}
-				std::vector<UINT> _indices = {};
-				for (auto& _f : _node.nodeMesh.faces)
-				{
-					_indices.push_back(_f.idx[0]);
-					_indices.push_back(_f.idx[1]);
-					_indices.push_back(_f.idx[2]);
-				}
-				a_dst.MeshVec[_meshIdx].CreateCollisionMesh(
-					_collisionVertices,
-					_indices
-				);
-			}
-		}
-	}
-}
-void CreateMaterials(
-	Engine::Resource::ModelData& a_dst,
-	const std::shared_ptr<Engine::Resource::GLTF::ModelData>& a_src,
-	const std::string& a_fileDir
-)
-{
-	//=================================================
-	// マテリアル作成
-	//=================================================
-
-	// マテリアル配列を受け取れるサイズのメモリを確保
-	a_dst.MaterialVec.resize(a_src->materials.size());
-
-	for (UINT _i = 0; _i < a_dst.MaterialVec.size(); ++_i)
-	{
-		// マテリアル情報
-		a_dst.MaterialVec[_i] = {};
-		const Engine::Resource::GLTF::Material& _srcMaterial = a_src->materials[_i];	// 入力元
-		Engine::Resource::Material& _dstMaterial = a_dst.MaterialVec[_i];				// 出力先
-
-		// マテリアル情報コピー
-		_dstMaterial.name = _srcMaterial.name;									// マテリアル名
-
-		// アルファ
-		if (_srcMaterial.alphaMode == "OPAQUE")
-		{
-			_dstMaterial.alphaMode = Engine::Resource::Alpha::Opaque;
-		}
-		else if (_srcMaterial.alphaMode == "MASK")
-		{
-			_dstMaterial.alphaMode = Engine::Resource::Alpha::Mask;
-		}
-		else if (_srcMaterial.alphaMode == "BLEND")
-		{
-			_dstMaterial.alphaMode = Engine::Resource::Alpha::Blend;
-		}
-
-		// 材質データ
-		_dstMaterial.baseColor = _srcMaterial.baseColorFactor;				// 基本色
-		_dstMaterial.metallic = _srcMaterial.metallicFactor;				// 金属製
-		_dstMaterial.roughness = _srcMaterial.roughnessFactor;				// 粗さ
-		_dstMaterial.emissive = _srcMaterial.emissiveFactor;				// エミッシブ
-
-		// テクスチャセット
-		_dstMaterial.SetTexture2D(
-			a_fileDir,
-			_srcMaterial.baseColorTexName,
-			_srcMaterial.metallicRoughnessTexName,
-			_srcMaterial.emissiveTexName,
-			_srcMaterial.normalTexName
-		);
-	}
-}
-void CreateAnimations(
-	Engine::Resource::ModelData& a_dst,
-	const std::shared_ptr<Engine::Resource::GLTF::ModelData>& a_src
-)
-{
-	//=================================================
-	// アニメーション作成
-	//=================================================
-	a_dst.AnimationVec.resize(a_src->animations.size());		// アニメーション配列確保
-
-	for (UINT _i = 0; _i < a_dst.AnimationVec.size(); ++_i)
-	{
-		auto _srcAnimation = a_src->animations[_i];	// 元データ
-
-		a_dst.AnimationVec[_i] = {};
-		Engine::Resource::AnimationData& _dstAnimation = a_dst.AnimationVec[_i];							// 出力先
-
-		// アニメーション情報コピー
-		_dstAnimation.name = _srcAnimation->name;									// 名前
-		_dstAnimation.maxLength = _srcAnimation->maxLength;							// アニメーションの長さ
-
-		_dstAnimation.nodes.resize(_srcAnimation->spAnimationNodes.size());			// ノード配列確保
-		for (UINT _nIdx = 0; _nIdx < _dstAnimation.nodes.size(); ++_nIdx)
-		{
-			auto _srcNode = _srcAnimation->spAnimationNodes[_nIdx];	// 元データ
-			Engine::Resource::AnimationNode& _dstAnimaNode = _dstAnimation.nodes[_nIdx];						// 出力先
-			// ノード情報コピー
-			_dstAnimaNode.nodeOffset = _srcNode->nodeOffset;				// 対象ノードのオフセット
-			_dstAnimaNode.translations = _srcNode->translations;			// 座標キーリスト
-			_dstAnimaNode.rotations = _srcNode->rotations;					// 回転キーリスト
-			_dstAnimaNode.scales = _srcNode->scales;						// 拡縮キーリスト
-		}
-
-	}
-}
-
-Engine::Resource::ModelData Engine::Resource::GLTF::Serialize(
-	const std::string& a_filePath,
-	std::shared_ptr<Engine::Resource::GLTF::ModelData> a_spGLTFModel
-)
-{
-	// ファイルのディレクトリパスを取得
-	std::string _fileDir = FileUtility::GetDirFromPath(a_filePath);
-
-	// モデル構造体を準備
-	Engine::Resource::ModelData _model = {};
-	_model.MaterialVec.clear();
-	_model.AnimationVec.clear();
-	_model.MeshVec.clear();
-
-	_model.originalNodes.clear();
-
-	_model.rootNodeIndices.clear();
-	_model.boneNodeIndices.clear();
-	_model.meshNodeIndices.clear();
-	_model.drawMeshNodeIndices.clear();
-	_model.collisionMeshNodeIndices.clear();
-	
-	// ノード作成
-	CreateNodes(_model, a_spGLTFModel);
-
-	// マテリアル作成
-	CreateMaterials(_model, a_spGLTFModel, _fileDir);
-
-	// アニメーション
-	CreateAnimations(_model, a_spGLTFModel);
-
-	return _model;
 }
