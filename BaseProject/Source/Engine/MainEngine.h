@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "EngineConfig.h"
-
 namespace Engine
 {
 	// 前方宣言
@@ -42,7 +40,7 @@ namespace Engine
 	public:
 
 		// 初期化・解放
-		void Init(EngineConfig a_config);
+		void Init();
 		void Release();
 
 		// フレーム関係

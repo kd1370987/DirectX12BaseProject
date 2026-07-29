@@ -33,16 +33,17 @@ namespace Engine
 	MainEngine::~MainEngine()
 	{}
 
-	void MainEngine::Init(EngineConfig a_config)
+	void MainEngine::Init()
 	{
-		// 設定を保存
-		m_appMode = a_config.GetRuntimeConfig().appMode;
-		m_buildMode = a_config.GetInitConfig().buildMode;
-
 		// オプションマネージャーの初期化と読込
-		Option::OptionManager::GetInstance().Init();
-		Option::OptionManager::GetInstance().Deserialize();
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		auto& _optionManager = Option::OptionManager::GetInstance();
+		_optionManager.Init();
+		_optionManager.Deserialize();
+		const auto& _winOp = _optionManager.GetWindowOption();
+
+		// 設定を保存
+		m_appMode = EAppMode::Game;
+		m_buildMode = _optionManager.GetBuildConfig().buildMode;
 
 		// ビルドモードによって、仕様を変更
 		switch (m_buildMode)
@@ -54,28 +55,21 @@ namespace Engine
 			{
 				_debug->EnableDebugLayer();
 			}
+			ENGINE_LOG("[Option] : Debug モードでビルドされます");
 			break;
 		}
 		case EBuildConfiguration::Development:
 		{
+			ENGINE_LOG("[Option] : Development モードでビルドされます");
 			break;
 		}
 		case EBuildConfiguration::Shipping:
 		{
+			ENGINE_LOG("[Option] : Shipping モードでビルドされます");
 			break;
 		}
 		default:
 			break;
-		}
-
-		// DirectX12でGPUの詳細なエラーを確認するためのもの
-		if (a_config.GetInitConfig().isDebugLayer)
-		{
-			ComPtr<ID3D12Debug> _debug;
-			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&_debug))))
-			{
-				_debug->EnableDebugLayer();
-			}
 		}
 
 		// ウィンドウクラスの生成

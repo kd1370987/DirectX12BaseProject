@@ -33,18 +33,7 @@ void Application::Execute()
 bool Application::Init()
 {
 	// エンジンの初期化
-	Engine::InitConfig  _initConfig = {};
-	_initConfig.buildMode = Engine::EBuildConfiguration::Debug;
-	_initConfig.assetRootPath = "Asset/";
-	_initConfig.isDebugLayer = true;
-	_initConfig.isGPUValidation = true;
-	_initConfig.maxThreadCount = 4;
-	Engine::RuntimeConfig _runtimeConfig = {};
-	_runtimeConfig.appMode = Engine::EAppMode::Editor;
-	_runtimeConfig.mainSoundBolume = 50;
-	Engine::EngineConfig _config;
-	_config.Init(_initConfig,_runtimeConfig);
-	Engine::MainEngine::Instance().Init(_config);
+	Engine::MainEngine::Instance().Init();
 
 	// ゲームの初期化
 	App::Game::GameManager::Instance().Init();
