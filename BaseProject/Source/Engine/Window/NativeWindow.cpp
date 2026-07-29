@@ -4,11 +4,14 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-//==================================================================================
-// 
-// メッセージの取得
-//
-//==================================================================================
+/// <summary>
+/// 各種メッセージを処理する関数
+/// </summary>
+/// <param name="a_hWnd">ウィンドウハンドル</param>
+/// <param name="a_message">メッセージID</param>
+/// <param name="a_wParam">メッセージの追加情報</param>
+/// <param name="a_lParam">メッセージの追加情報</param>
+/// <returns>処理結果</returns>
 LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_lParam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(a_hWnd, a_message, a_wParam, a_lParam))
@@ -75,7 +78,7 @@ namespace Engine::Window
 		switch (a_desc.windowMode)
 		{
 			case EWindowMode::Windowed:
-				_style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
+				_style = WS_OVERLAPPEDWINDOW;
 				break;
 			case EWindowMode::FullScreen:
 			case EWindowMode::Borederless:
@@ -101,7 +104,7 @@ namespace Engine::Window
 		m_hWnd = CreateWindowEx(
 			_exStyle,					// 拡張スタイル
 			a_desc.className.c_str(),	// ウィンドウのクラス名（登録したのと同じもの）
-			a_desc.titleName.c_str(),		// タイトルバーの名前
+			a_desc.titleName.c_str(),	// タイトルバーの名前
 			_style,						// ウィンドウのスタイル
 			_x,							// ウィンドウの X座標
 			_y,							// ウィンドウの Y座標
@@ -132,6 +135,10 @@ namespace Engine::Window
 		m_clientWidth = a_desc.width;
 		m_clientHeight = a_desc.height;
 		m_windowMode = a_desc.windowMode;
+
+		// 現在のウィンドウ設定を保持
+		m_windowPlacement.length = sizeof(WINDOWPLACEMENT);
+		GetWindowPlacement(m_hWnd, &m_windowPlacement);
 
 		return true;
 	}
@@ -165,6 +172,67 @@ namespace Engine::Window
 	void NativeWindow::ChangeTitle(const std::string& a_title)
 	{
 		SetWindowTextA(m_hWnd, a_title.c_str());
+	}
+	void NativeWindow::ChangeWindowMode(EWindowMode a_nextWindowMode)
+	{
+		if (m_windowMode == a_nextWindowMode) return;
+		m_windowMode = a_nextWindowMode;
+
+		switch (a_nextWindowMode)
+		{
+		case Engine::EWindowMode::Windowed:
+			// ウィンドウスタイル変更
+			SetWindowLongPtr(
+				m_hWnd,
+				GWL_STYLE,
+				WS_OVERLAPPEDWINDOW
+			);
+
+			// 保存していた位置を復元
+			SetWindowPlacement(
+				m_hWnd,
+				&m_windowPlacement
+			);
+
+			// ウィンドウの位置調整
+			SetWindowPos(
+				m_hWnd,
+				nullptr,
+				0,
+				0,
+				0,
+				0,
+				SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED
+			);
+
+			break;
+		case Engine::EWindowMode::FullScreen:
+		case Engine::EWindowMode::Borederless:
+			// 現在のウィンドウ設定を保持
+			m_windowPlacement.length = sizeof(WINDOWPLACEMENT);
+			GetWindowPlacement(m_hWnd, &m_windowPlacement);
+
+			// ウィンドを広げる
+			SetWindowLongPtr(
+				m_hWnd,
+				GWL_STYLE,
+				WS_POPUP | WS_VISIBLE
+			);
+
+			// ウィンドウの位置を左上に移動
+			SetWindowPos(
+				m_hWnd,
+				HWND_TOP,
+				0,
+				0,
+				GetSystemMetrics(SM_CXSCREEN),
+				GetSystemMetrics(SM_CYSCREEN),
+				SWP_FRAMECHANGED
+			);
+			break;
+		default:
+			break;
+		}
 	}
 	double NativeWindow::GetMemoryUsage()
 	{

@@ -49,9 +49,7 @@ namespace Engine::Persistence
 			else if (a_format == ArchiveFormat::Binary) _loadBin = true;
 			else
 			{
-				auto _buildMode = MainEngine::Instance().GetEngineConfig().GetInitConfig().buildMode;
-				if (_buildMode == Engine::EBuildConfiguration::Development) _loadJson = true;
-				else if (_buildMode == Engine::EBuildConfiguration::Shipping) _loadBin = true;
+				_loadBin = true;		// デフォルトではバイナリで読込
 			}
 
 			if (_loadJson)

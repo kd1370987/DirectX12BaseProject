@@ -18,7 +18,8 @@ namespace Engine::Option::GraphicsOptions
 
 		const std::string& GetName() override
 		{
-			return "RenderingOption";
+			static const std::string _name = "RenderingOption";
+			return _name;
 		}
 
 		// カテゴリー
@@ -28,23 +29,9 @@ namespace Engine::Option::GraphicsOptions
 		}
 
 		// エディター
-		void DrawEdit() override
-		{
-
-			if (ImGui::TreeNodeEx("RenderingOption", ImGuiTreeNodeFlags_SpanFullWidth))
-			{
-				ImGui::Checkbox("isZPre", &isZPre);
-				ImGui::Checkbox("useJitter (TAA)", &useJitter);
-				ImGui::TreePop();
-			}
-		}
+		void DrawEdit() override;
 
 		// アーカイブ
-		void Archive(Persistence::Archive& a_archive) override
-		{
-			a_archive.Field("isZPre", isZPre);
-			a_archive.Field("useJitter", useJitter);
-			a_archive.Field("defaultShadingModelTable",defaultShadingModelTable);
-		}
+		void Archive(Persistence::Archive& a_archive) override;
 	};
 }

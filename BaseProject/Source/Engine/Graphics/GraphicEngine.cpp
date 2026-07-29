@@ -782,7 +782,6 @@ namespace Engine::Graphics
 		m_cbGPUCamera = {};
 
 		// スクリーン座標を取得
-		const auto& _config = Engine::MainEngine::Instance().GetEngineConfig();
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 		const auto& _renderingOp = Option::OptionManager::GetInstance().GetRenderingOption();
 

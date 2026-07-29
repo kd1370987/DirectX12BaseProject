@@ -1,8 +1,11 @@
 ﻿#pragma once
 
-// グラフィックスオプション
-
 #include "IOption.h"
+
+// プロジェクトオプション
+#include "ProjectOptions/BuildConfig.h"
+
+// グラフィックスオプション
 #include "GraphicsOptions/GIOptions.h"
 #include "GraphicsOptions/WindowOption.h"
 #include "GraphicsOptions/RenderingOption.h"
@@ -23,8 +26,14 @@ namespace Engine::Option
 
 		// エディター描画
 		void DrawEdit();
+		//-------------------------------------------------------------------------------------------------
+		// アクセサ
+		//-------------------------------------------------------------------------------------------------
+		// ---- プロジェクト ----
+		const ProjectOptions::BuildConfig& GetBuildConfig() const{ return m_buildConfig; }
 
-		// ---- アクセサ ----
+
+		// ---- グラフィックス ---- 
 		// GI設定
 		const GraphicsOptions::GIOption& GetGIOption() const { return m_giOptions; }
 		GraphicsOptions::GIOption& RefGIOption() { return m_giOptions; }
@@ -46,6 +55,9 @@ namespace Engine::Option
 		void Archive(Persistence::Archive& a_ar);
 
 	private:
+
+		// プロジェクトオプション
+		ProjectOptions::BuildConfig m_buildConfig = {};
 
 		// グラフィックスオプション
 		GraphicsOptions::GIOption m_giOptions = {};

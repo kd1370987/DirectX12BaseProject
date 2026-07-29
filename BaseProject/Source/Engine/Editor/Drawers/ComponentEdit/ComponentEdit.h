@@ -11,9 +11,11 @@ namespace Engine::Editor
 
 	// Enumをコンボとして描画するヘルパー関数
 	template<typename Enum>
-	void DrawEnumCombo(const char* a_lable, Enum& a_value)
+	bool DrawEnumCombo(const char* a_lable, Enum& a_value)
 	{
 		const char* _preview = magic_enum::enum_name(a_value).data();
+
+		bool _isChange = false;
 
 		if (ImGui::BeginCombo(a_lable, _preview))
 		{
@@ -24,6 +26,7 @@ namespace Engine::Editor
 				if (ImGui::Selectable(magic_enum::enum_name(_v).data(), _isSelect))
 				{
 					a_value = _v;
+					_isChange = true;
 				}
 
 				if (_isSelect)
@@ -34,6 +37,8 @@ namespace Engine::Editor
 
 			ImGui::EndCombo();
 		}
+
+		return _isChange;
 	}
 	// Enumをビットのコンボとして描画するヘルパー関数
 	template<typename Enum>

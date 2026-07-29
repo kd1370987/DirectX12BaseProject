@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../IOption.h"
 
@@ -26,13 +26,9 @@ namespace Engine::Option::GraphicsOptions
 
 		void DrawEdit() override
 		{
-			if (ImGui::TreeNodeEx("LightingOption", ImGuiTreeNodeFlags_SpanFullWidth))
-			{
-				ImGui::DragFloat("GI Intensity", &giIntensity, 0.01f, 0.0f, 10.0f);
-				ImGui::DragFloat("Directional Intensity", &directionalIntensity, 0.01f, 0.0f, 10.0f);
-				ImGui::DragFloat("Dielectric F0", &dielectricF0, 0.001f, 0.0f, 1.0f);
-				ImGui::TreePop();
-			}
+			ImGui::DragFloat("GI Intensity", &giIntensity, 0.01f, 0.0f, 10.0f);
+			ImGui::DragFloat("Directional Intensity", &directionalIntensity, 0.01f, 0.0f, 10.0f);
+			ImGui::DragFloat("Dielectric F0", &dielectricF0, 0.001f, 0.0f, 1.0f);
 		}
 
 		void Archive(Persistence::Archive& a_archive) override

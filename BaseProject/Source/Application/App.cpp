@@ -34,7 +34,7 @@ bool Application::Init()
 {
 	// エンジンの初期化
 	Engine::InitConfig  _initConfig = {};
-	_initConfig.buildMode = Engine::EBuildConfiguration::Shipping;
+	_initConfig.buildMode = Engine::EBuildConfiguration::Debug;
 	_initConfig.assetRootPath = "Asset/";
 	_initConfig.isDebugLayer = true;
 	_initConfig.isGPUValidation = true;

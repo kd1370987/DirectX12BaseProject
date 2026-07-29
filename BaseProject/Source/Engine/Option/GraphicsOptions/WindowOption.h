@@ -9,6 +9,10 @@ namespace Engine::Option::GraphicsOptions
 	// GIのスペースデノイズの設定
 	struct WindowOption : IOption
 	{
+		// ウィンドウタイトル
+		std::string windowTitle = "Window";			// 名前
+		bool isTitleFPS = false;					// FPSをタイトルに表示するか
+
 		// ウィンドウサイズ
 		int windowWidth = 0;
 		int windowHeight = 0;
@@ -24,7 +28,8 @@ namespace Engine::Option::GraphicsOptions
 
 		const std::string& GetName() override
 		{
-			return "WindowOption";
+			static const std::string _name = "WindowOption";
+			return _name;
 		}
 
 
@@ -35,45 +40,9 @@ namespace Engine::Option::GraphicsOptions
 		}
 
 		// エディター
-		void DrawEdit() override
-		{
-			if (ImGui::TreeNodeEx("WindowOption", ImGuiTreeNodeFlags_SpanFullWidth))
-			{
-				// ウィンドウサイズ
-				ImGui::Text("WindowSize");
-				ImGui::Text("Width : %f",windowWidth);
-				ImGui::Text("Height : %f",windowHeight);
-				ImGui::DragInt("Width", &windowWidth, 1, 0, 1980);
-				ImGui::DragInt("Height", &windowHeight, 1, 0, 1080);
-
-				ImGui::Separator();
-
-				// ウィンドウモード
-				Editor::DrawEnumCombo("WindowMode", windowMode);
-				ImGui::Checkbox("Vsync",&isVsync);
-				ImGui::DragInt("TargetFrameRate", &targetFrameRate, 1, 0, 1000);
-
-				ImGui::Separator();
-
-				ImGui::TreePop();
-			}
-
-		}
+		void DrawEdit() override;
 
 		// アーカイブ
-		void Archive(Persistence::Archive& a_archive) override
-		{
-			// ウィンドウサイズ
-			a_archive.Field("windowWidth", windowWidth);
-			a_archive.Field("windowHeight", windowHeight);
-
-			// モード
-			UINT _winMode = static_cast<UINT>(windowMode);
-			a_archive.Field("windowMode",_winMode);
-			windowMode = static_cast<EWindowMode>(_winMode);
-
-			a_archive.Field("isVsync",isVsync);
-			a_archive.Field("targetFrameRate",targetFrameRate);
-		}
+		void Archive(Persistence::Archive& a_archive) override;
 	};
 }

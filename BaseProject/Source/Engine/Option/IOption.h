@@ -5,6 +5,7 @@ namespace Engine::Option
 	{
 		None,
 		Graphics,
+		Project,
 		Count
 	};
 

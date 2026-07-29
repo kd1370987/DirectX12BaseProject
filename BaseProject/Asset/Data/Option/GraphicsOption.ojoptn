@@ -1,4 +1,9 @@
 {
+    "BuildConfig": {
+        "assetRootPath": "Asset/",
+        "buildMode": 0,
+        "maxThreadCount": 4
+    },
     "GIOption": {
         "TAblendRate": 0.09000000357627869,
         "TAphiDepth": 0.009999999776482582,
@@ -18,6 +23,8 @@
         "useJitter": true
     },
     "WindowOption": {
+        "WindowTitle": "DirectX12Game",
+        "isTitleFPS": true,
         "isVsync": false,
         "targetFrameRate": 120,
         "windowHeight": 1080,

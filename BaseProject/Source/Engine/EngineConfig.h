@@ -1,13 +1,7 @@
 ﻿#pragma once
 namespace Engine
 {
-	// ビルド構成
-	enum class EBuildConfiguration
-	{
-		Debug,			// 最適化なし、デバッグ機能フル稼働
-		Development,	// 最適化あり、エディター、プロファイラーなどの開発ツール有効
-		Shipping		// リリース用、デバッグ機能、エディタ機能はすべて除外
-	};
+
 
 	// 起動時設定
 	struct InitConfig
@@ -24,14 +18,6 @@ namespace Engine
 
 		// システムリソース
 		UINT maxThreadCount = 4;			// 使用できるスレッド最大数
-	};
-
-	// アプリケーションモード
-	enum class EAppMode
-	{
-		Game,			// ゲームを遊ぶ時と同じ画面
-		Editor,			// エディター画面
-		// マルチやモニターモードが追加されればここに
 	};
 
 

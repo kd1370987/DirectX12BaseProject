@@ -29,6 +29,9 @@ namespace Engine::Window
 		// タイトルの変更
 		void ChangeTitle(const std::string& a_title);
 
+		// ウィンドウモードの変更
+		void ChangeWindowMode(EWindowMode a_nextWindowMode);
+
 		// アクセサ
 		const HWND& GetWindowHandle() const { return m_hWnd; }
 		const UINT& GetClientWidth() const { return m_clientWidth; }
@@ -57,5 +60,8 @@ namespace Engine::Window
 
 		// ウィンドウモード
 		EWindowMode m_windowMode = EWindowMode::Windowed;
+
+		// 現在のウィンドウ設定
+		WINDOWPLACEMENT m_windowPlacement = {};
 	};
 }

@@ -1,6 +1,5 @@
 ﻿#include "OptionManager.h"
 
-#include "../Editor/EditorUI/EditorUI.h"
 
 namespace Engine::Option
 {
@@ -12,6 +11,8 @@ namespace Engine::Option
 		m_pOptionList.push_back(&m_windowOption);
 		m_pOptionList.push_back(&m_renderingOption);
 		m_pOptionList.push_back(&m_lightingOption);
+
+		m_pOptionList.push_back(&m_buildConfig);
 	}
 	void OptionManager::Serialize()
 	{
@@ -33,40 +34,23 @@ namespace Engine::Option
 	{
 		for (auto* _pOption : m_pOptionList)
 		{
-			_pOption->DrawEdit();
+			ImGui::Separator();
+			if (ImGui::TreeNodeEx(_pOption->GetName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth))
+			{
+				_pOption->DrawEdit();
+				ImGui::TreePop();
+			}
 		}
-
-		// インクルードの関係上CPPに隠蔽したいもの
-		// シェーディングモデル
-		Handle<Resource::ShadingModelTable> _temp;
-		Editor::UI::DrawAssetSelectCombo<Resource::ShadingModelTable>(
-			"Change Shading Model",
-			"ShadingModelTable",
-			m_renderingOption.defaultShadingModelTable,
-			_temp
-		);
 	}
 	void OptionManager::Archive(Persistence::Archive& a_ar)
 	{
-		if (a_ar.BeginGroup("RenderingOption"))
+		for (auto* _pOption : m_pOptionList)
 		{
-			m_renderingOption.Archive(a_ar);
-			a_ar.EndGroup();
-		}
-		if (a_ar.BeginGroup("WindowOption"))
-		{
-			m_windowOption.Archive(a_ar);
-			a_ar.EndGroup();
-		}
-		if (a_ar.BeginGroup("GIOption"))
-		{
-			m_giOptions.Archive(a_ar);
-			a_ar.EndGroup();
-		}
-		if (a_ar.BeginGroup("LightingOption"))
-		{
-			m_lightingOption.Archive(a_ar);
-			a_ar.EndGroup();
+			if (a_ar.BeginGroup(_pOption->GetName().c_str()))
+			{
+				_pOption->Archive(a_ar);
+				a_ar.EndGroup();
+			}
 		}
 	}
 }

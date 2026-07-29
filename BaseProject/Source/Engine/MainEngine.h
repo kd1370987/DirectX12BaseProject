@@ -59,7 +59,7 @@ namespace Engine
 
 		// モード切替
 		void ChangeMode(EAppMode a_mode);
-		EAppMode GetMode() { return m_config.GetRuntimeConfig().appMode; }
+		EAppMode GetMode() { return m_appMode; }
 
 		// グラフィックス関係
 		void ExecuteDrawCmd();
@@ -79,8 +79,7 @@ namespace Engine
 		Collision::CollisionWorld* RefCollisionWorld();
 
 		// コンフィグ取得
-		const EngineConfig& GetEngineConfig() const { return m_config; }
-		EngineConfig& RefEngineConfig() { return m_config; }
+		EBuildConfiguration GetBuildMode() const { return m_buildMode; }
 
 		// パーティクル
 		const Particle::ParticleBufferManager* GetParticleManager() const ;
@@ -111,7 +110,8 @@ namespace Engine
 		std::unique_ptr<Collision::CollisionWorld> m_upCollisionWorld = nullptr;		// 当たり判定用ワールド
 		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;	// パーティクルマネージャー
 		// エンジン設定
-		EngineConfig m_config = {};
+		EAppMode m_appMode = EAppMode::Editor;								// アプリケーションのモード
+		EBuildConfiguration m_buildMode = EBuildConfiguration::Debug;		// ビルドモード
 
 		// フレーム分のごみ箱を用意する
 		std::vector<std::function<void()>> m_releaseQueues[CPU_FRAME_COUNT];
@@ -122,6 +122,7 @@ namespace Engine
 		// コンストラクタ・デストラクタ
 		MainEngine();
 		~MainEngine();
+		NON_COPYABLE_NON_MOVABLE(MainEngine);
 
 	public:
 

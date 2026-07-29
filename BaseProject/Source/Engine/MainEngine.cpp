@@ -36,12 +36,37 @@ namespace Engine
 	void MainEngine::Init(EngineConfig a_config)
 	{
 		// 設定を保存
-		m_config = a_config;
+		m_appMode = a_config.GetRuntimeConfig().appMode;
+		m_buildMode = a_config.GetInitConfig().buildMode;
 
 		// オプションマネージャーの初期化と読込
 		Option::OptionManager::GetInstance().Init();
 		Option::OptionManager::GetInstance().Deserialize();
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+
+		// ビルドモードによって、仕様を変更
+		switch (m_buildMode)
+		{
+		case EBuildConfiguration::Debug:
+		{
+			ComPtr<ID3D12Debug> _debug;
+			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&_debug))))
+			{
+				_debug->EnableDebugLayer();
+			}
+			break;
+		}
+		case EBuildConfiguration::Development:
+		{
+			break;
+		}
+		case EBuildConfiguration::Shipping:
+		{
+			break;
+		}
+		default:
+			break;
+		}
 
 		// DirectX12でGPUの詳細なエラーを確認するためのもの
 		if (a_config.GetInitConfig().isDebugLayer)
@@ -53,14 +78,12 @@ namespace Engine
 			}
 		}
 
-		
-
 		// ウィンドウクラスの生成
 		m_upWindow = std::make_unique<Window::NativeWindow>();
 		Window::WindowDesc _desc = {};
 		_desc.width = static_cast<UINT>(_winOp.windowWidth);
 		_desc.height = static_cast<UINT>(_winOp.windowHeight);
-		_desc.titleName = L"DirectX12";
+		_desc.titleName = StringUtility::ToWideString(_winOp.windowTitle);
 		_desc.className = L"AppWindow";
 		_desc.windowMode = _winOp.windowMode;
 		if (!m_upWindow->Create(_desc))
@@ -116,8 +139,6 @@ namespace Engine
 			assert(0 && "エディターの初期化に失敗");
 			return;
 		}
-
-		m_config = a_config;
 
 		// コリジョンワールド構築
 		m_upCollisionWorld = std::make_unique<Collision::CollisionWorld>();
@@ -185,9 +206,14 @@ namespace Engine
 		m_upTimeManager->Release();
 		m_upWindow->Release();
 
-		// 解放時にエラー検出（一番最後に呼ぶ）
-		if (m_config.GetInitConfig().isDebugLayer)
+		
+
+		// ビルドモードによって、仕様を変更
+		switch (m_buildMode)
 		{
+		case EBuildConfiguration::Debug:
+		{
+			// 解放時にエラー検出（一番最後に呼ぶ）
 			ComPtr<IDXGIDebug1> debug;
 			if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
 			{
@@ -196,11 +222,25 @@ namespace Engine
 					DXGI_DEBUG_RLO_DETAIL
 				);
 			}
+			break;
+		}
+		case EBuildConfiguration::Development:
+		{
+			break;
+		}
+		case EBuildConfiguration::Shipping:
+		{
+			break;
+		}
+		default:
+			break;
 		}
 	}
 
 	bool MainEngine::BeginFrame()
 	{
+		auto& _optionManager = Option::OptionManager::GetInstance();
+
 		// フレーム開始
 		m_upTimeManager->BeginFrame();
 
@@ -210,10 +250,14 @@ namespace Engine
 			return false;
 		}
 
-		// タイトル文字列変更
-		std::string _str = "DX12_FrameWork FPS = " + std::to_string(m_upTimeManager->GetNowFPS()) +
-			"; DELTATIME = " + std::to_string(m_upTimeManager->GetDeltaTime()) + ";";
-		m_upWindow->ChangeTitle(_str);
+		// タイトルにFPSを表示するかどうか
+		if (_optionManager.GetWindowOption().isTitleFPS)
+		{
+			std::string _titleName = _optionManager.GetWindowOption().windowTitle;
+			_titleName += std::string(": FPS = ") + std::to_string(m_upTimeManager->GetNowFPS());
+			_titleName += std::string(": DELTATIME = ") + std::to_string(m_upTimeManager->GetDeltaTime());
+			m_upWindow->ChangeTitle(_titleName);
+		}
 
 		// 入力更新
 		Input::InputManager::Instance().Update();
@@ -270,7 +314,7 @@ namespace Engine
 		Editor::MainEditor::Instance().StartWatch("EditorPhase");
 
 		// ゲームモード以外の処理
-		if (m_config.GetRuntimeConfig().appMode != EAppMode::Game)
+		if (m_appMode != EAppMode::Game)
 		{
 			auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
 			// ディスクリプタヒープをセット
@@ -330,14 +374,14 @@ namespace Engine
 
 	void MainEngine::ChangeMode(EAppMode a_mode)
 	{
-		m_config.RefRuntimeConfig().appMode = a_mode;
+		m_appMode = a_mode;
 	}
 	void MainEngine::ExecuteDrawCmd()
 	{
 		// エディターモードならフリーカメラを割り込ませる
 		// (実際の上書きは GraphicsEngine::Execute() 内、ECS側のカメラ設定が終わった後)
 		bool _isOverride = false;
-		if (m_config.GetRuntimeConfig().appMode == EAppMode::Editor)
+		if (m_appMode == EAppMode::Editor)
 		{
 			auto* _pEditorCam = Editor::MainEditor::Instance().RefEditorCamera();
 			if (_pEditorCam && _pEditorCam->IsEnable())

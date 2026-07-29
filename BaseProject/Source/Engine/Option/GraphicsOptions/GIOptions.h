@@ -19,7 +19,8 @@ namespace Engine::Option::GraphicsOptions
 
 		const std::string& GetName() override
 		{
-			return "GIOption";
+			static const std::string _name = "GIOption";
+			return _name;
 		}
 
 		// カテゴリー
@@ -32,24 +33,22 @@ namespace Engine::Option::GraphicsOptions
 		void DrawEdit() override
 		{
 			// テンポラルデノイズ
-			if (ImGui::TreeNodeEx("GITemporalAccumulationOption", ImGuiTreeNodeFlags_SpanFullWidth))
+			//if (ImGui::TreeNodeEx("GITemporalAccumulationOption", ImGuiTreeNodeFlags_SpanFullWidth))
 			{
 				ImGui::DragFloat("TADepth", &TAphiDepth, 0.01f, 0, 1);
 				ImGui::DragFloat("TANormal", &TAphiNormal, 0.1f, 0);
 				ImGui::DragFloat("TABlendRate", &TAblendRate, 0.01f, 0, 1);
 
-				ImGui::TreePop();
+				//ImGui::TreePop();
 			}
 
 			// スペースデノイズセッティング
-			if (ImGui::TreeNodeEx("GISpatialDenoiseOption", ImGuiTreeNodeFlags_SpanFullWidth))
-			{
-				ImGui::DragFloat("Depth", &phiDepth, 0.1f, 0);
-				ImGui::DragFloat("Normal", &phiNormal, 0.1f, 0);
-				ImGui::DragFloat("Color", &phiColor, 0.1f, 0);
+			ImGui::Separator();
+			ImGui::Text("");
+			ImGui::DragFloat("Depth", &phiDepth, 0.1f, 0);
+			ImGui::DragFloat("Normal", &phiNormal, 0.1f, 0);
+			ImGui::DragFloat("Color", &phiColor, 0.1f, 0);
 
-				ImGui::TreePop();
-			}
 		}
 
 		// アーカイブ
