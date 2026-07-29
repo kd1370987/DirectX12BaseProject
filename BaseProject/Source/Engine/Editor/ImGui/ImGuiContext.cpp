@@ -14,9 +14,11 @@ namespace Engine::Editor
 		auto& _pD3DWrapper = Engine::D3D12::D3D12Wrapper::Instance();
 		auto& _pDescriptorManager = D3D12::DescriptorHeapManager::Instance();
 
-		// メインモニターのスケールとDPI作成
-		ImGui_ImplWin32_EnableDpiAwareness();
-		float _mainScale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0,0 }, MONITOR_DEFAULTTOPRIMARY));
+		// ウィンドウが乗っているモニターの表示スケールを取得
+		// DPI対応の有効化自体は NativeWindow::Create の中で
+		// ウィンドウ作成前に済ませてある（後から呼んでも既存ウィンドウには効かない）
+		float _mainScale = ImGui_ImplWin32_GetDpiScaleForHwnd(a_hwnd);
+		if (_mainScale <= 0.0f) _mainScale = 1.0f;
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -42,9 +44,8 @@ namespace Engine::Editor
 
 		// サイズのセットアップ
 		ImGuiStyle& _style = ImGui::GetStyle();
-		_style.ScaleAllSizes(_mainScale);		// 取得したモニターサイズと合わせる
-		_style.FontScaleDpi = _mainScale;		// 数値としても記録
-		_style.ScaleAllSizes(1.0f);				// 全体的に縮小
+		_style.ScaleAllSizes(_mainScale);		// 余白やウィジェットの大きさをモニターの表示スケールに合わせる
+		_style.FontScaleDpi = _mainScale;		// フォントも同じ倍率で拡大する
 
 
 		// 描画するバックエンド・プラットフォームを設定
@@ -67,19 +68,49 @@ namespace Engine::Editor
 		return true;
 	}
 
-	void ImGuiContext::Begin(UINT a_width, UINT a_height)
+	void ImGuiContext::Begin()
 	{
-	
+
 		// ImGuiフレームの描画開始
 		ImGui_ImplDX12_NewFrame();
-		ImGui_ImplWin32_NewFrame();
+		ImGui_ImplWin32_NewFrame();		// ここで io.DisplaySize にクライアント領域のピクセル数が入る
+
+		// 1論理ピクセルが何ピクセルのバックバッファに描かれるかを伝える
+		//
+		// バックバッファは描画解像度で作られ、スワップチェインの STRETCH で
+		// クライアント領域まで引き伸ばされて表示される。
+		// 一方でWin32バックエンドは io.DisplaySize にクライアント領域のサイズを入れ、
+		// DX12バックエンドは DisplaySize * FramebufferScale をビューポートに使う。
+		// ここを 1 のままにすると、UIはバックバッファの左上
+		// (クライアント領域と同じピクセル数)だけに描かれ、
+		// 右と下に余りを残した状態で画面全体へ伸ばされる = ウィンドウサイズと合わなくなる。
+		//
+		// 座標系はクライアント領域基準のまま(マウス座標もそのまま使える)で、
+		// 描画とフォントのラスタライズだけバックバッファ解像度に合わせる。
+		ImGuiIO& _io = ImGui::GetIO();
+		const auto& _backBufferViewport = Engine::D3D12::D3D12Wrapper::Instance().GetViewport();
+		if (_io.DisplaySize.x > 0.0f && _io.DisplaySize.y > 0.0f &&
+			_backBufferViewport.Width > 0.0f && _backBufferViewport.Height > 0.0f)
+		{
+			_io.DisplayFramebufferScale = ImVec2(
+				_backBufferViewport.Width / _io.DisplaySize.x,
+				_backBufferViewport.Height / _io.DisplaySize.y
+			);
+		}
+
 		ImGui::NewFrame();
 
 		ImGuizmo::BeginFrame();
 
-		// ウィンドウサイズをゲーム画面に合わせる
-		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(a_width, a_height));
+		// ドックの土台をクライアント領域全体に広げる
+		//
+		// 描画解像度(WindowOptionのwindowWidth/Height)を渡してはいけない。
+		// ImGuiの座標系はクライアント領域基準なので、
+		// 枠やDPI・ウィンドウモードでクライアント領域が変わった瞬間に
+		// ドック領域だけが画面外へはみ出し、パネルのサイズが合わなくなる。
+		const ImGuiViewport* _pViewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(_pViewport->WorkPos);
+		ImGui::SetNextWindowSize(_pViewport->WorkSize);
 
 		// ビューポート切り替え
 		ImGui::Begin(

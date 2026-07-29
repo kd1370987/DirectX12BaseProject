@@ -18,7 +18,9 @@ namespace Engine::Editor
 		void Release();
 
 		// ImGui描画
-		void Begin(UINT a_width,UINT a_height);
+		// ドックの土台はクライアント領域(ImGuiのメインビューポート)に合わせるため
+		// サイズを外から渡す必要はない
+		void Begin();
 		void End(D3D12::GraphicsCommandList* a_pCmdList);
 
 	private:

@@ -91,7 +91,16 @@ namespace Engine
 		m_upTimeManager->Init(static_cast<int>(_winOp.targetFrameRate));
 
 		// DirectX12関連オブジェクトの初期化
-		D3D12::D3D12Wrapper::Instance().Init(m_upWindow->GetWindowHandle(), m_upWindow->GetClientWidth(), m_upWindow->GetClientHeight());
+		// バックバッファは「描画解像度」で作る。
+		// レンダーグラフのテクスチャも windowWidth/Height 基準で、
+		// 最終合成(FullScreenPass)がバックバッファへ CopyResource するため
+		// サイズを一致させておく必要がある。
+		// クライアント領域へはスワップチェインの STRETCH で伸ばされる。
+		D3D12::D3D12Wrapper::Instance().Init(
+			m_upWindow->GetWindowHandle(),
+			static_cast<UINT>(_winOp.windowWidth),
+			static_cast<UINT>(_winOp.windowHeight)
+		);
 		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
 
@@ -336,11 +345,7 @@ namespace Engine
 			_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
 
 			// エディター描画
-			Engine::Editor::MainEditor::Instance().Draw(
-				_pCmdList,
-				_winOp.windowWidth,
-				_winOp.windowHeight
-			);
+			Engine::Editor::MainEditor::Instance().Draw(_pCmdList);
 			D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
 		}
 

@@ -4,6 +4,51 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+// 古いSDK対策 (Windows8.1+ のヘッダにしか定義がない)
+#ifndef WM_DPICHANGED
+#define WM_DPICHANGED 0x02E0
+#endif
+#ifndef _DPI_AWARENESS_CONTEXTS_
+DECLARE_HANDLE(DPI_AWARENESS_CONTEXT);
+#endif
+#ifndef DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+#define DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 ((DPI_AWARENESS_CONTEXT)-4)
+#endif
+
+namespace
+{
+	/// <summary>
+	/// マニフェストを使わずにDPI対応を有効化する
+	///
+	/// 必ずウィンドウ作成より前に呼ぶこと。
+	/// ウィンドウのDPI意識レベルは生成時のスレッド設定で決まるため、
+	/// 後から有効化しても既存のウィンドウには反映されず、
+	/// OSによる拡大(DPI仮想化)が掛かったままになる。
+	/// そうなるとGetClientRectが返す値と実際のピクセル数が食い違い、
+	/// ImGuiのレイアウトが画面外へはみ出す。
+	/// </summary>
+	void EnableDpiAwareness()
+	{
+		using PFN_SetProcessDpiAwarenessContext = BOOL(WINAPI*)(DPI_AWARENESS_CONTEXT);
+
+		// Windows10 1703以降ならモニター単位で追従できる
+		// (user32はGUIアプリなら必ずロード済みなのでモジュールを引くだけ)
+		if (HMODULE _user32 = GetModuleHandleW(L"user32.dll"))
+		{
+			auto _setContextFunc = reinterpret_cast<PFN_SetProcessDpiAwarenessContext>(
+				GetProcAddress(_user32, "SetProcessDpiAwarenessContext")
+			);
+			if (_setContextFunc && _setContextFunc(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2))
+			{
+				return;
+			}
+		}
+
+		// 取れなければシステムDPI基準で妥協する
+		SetProcessDPIAware();
+	}
+}
+
 /// <summary>
 /// 各種メッセージを処理する関数
 /// </summary>
@@ -14,12 +59,44 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 /// <returns>処理結果</returns>
 LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_lParam)
 {
+	// CreateWindowExで渡した this をウィンドウ側へ保存する
+	// (WM_NCCREATEはCreateWindowExの中で最初に届くので、以降のメッセージで使える)
+	if (a_message == WM_NCCREATE)
+	{
+		auto* _pCreateStruct = reinterpret_cast<CREATESTRUCT*>(a_lParam);
+		SetWindowLongPtr(a_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(_pCreateStruct->lpCreateParams));
+	}
+	auto* _pWindow = reinterpret_cast<Engine::Window::NativeWindow*>(GetWindowLongPtr(a_hWnd, GWLP_USERDATA));
+
 	if (ImGui_ImplWin32_WndProcHandler(a_hWnd, a_message, a_wParam, a_lParam))
 		return true;
 
 	// ウィンドウズからのメッセージを処理
 	switch (a_message)
 	{
+	case WM_SIZE:					// クライアント領域のサイズが変わった
+		// 最小化はクライアント領域が0になるだけなので無視する
+		if (a_wParam != SIZE_MINIMIZED && _pWindow)
+		{
+			_pWindow->RefreshClientSize();
+		}
+		break;
+	case WM_DPICHANGED:				// モニター間の移動や表示スケール変更でDPIが変わった
+	{
+		// OSが提案してくるサイズへ合わせる
+		// (無視すると新しいDPIの枠と中身の大きさがずれる)
+		const RECT* _pSuggestedRect = reinterpret_cast<const RECT*>(a_lParam);
+		SetWindowPos(
+			a_hWnd,
+			nullptr,
+			_pSuggestedRect->left,
+			_pSuggestedRect->top,
+			_pSuggestedRect->right - _pSuggestedRect->left,
+			_pSuggestedRect->bottom - _pSuggestedRect->top,
+			SWP_NOZORDER | SWP_NOACTIVATE
+		);
+		break;
+	}
 	case WM_DESTROY:				// OSに対して終了を伝える
 		PostQuitMessage(0);
 		break;
@@ -40,6 +117,11 @@ namespace Engine::Window
 {
 	bool NativeWindow::Create(const  WindowDesc& a_desc)
 	{
+		// DPI対応の有効化
+		// ウィンドウを作る前に済ませないとDPI仮想化が掛かり、
+		// 論理サイズと実ピクセル数がずれてImGuiのサイズが合わなくなる
+		EnableDpiAwareness();
+
 		// 実行ファイルのインスタンスハンドル取得
 		m_hInst = GetModuleHandle(nullptr);
 		if (!m_hInst)
@@ -113,7 +195,7 @@ namespace Engine::Window
 			nullptr,					// 親ウィンドウハンドル（トップレベルのため無し）
 			nullptr,					// メニューハンドル（無し）
 			m_hInst,					// 登録したときと同じハンドルを渡す
-			nullptr						// 作成パラメタ　追加オプション
+			this						// 作成パラメタ : ウィンドウプロシージャから自身を触るため
 		);
 		if (!m_hWnd) {
 			DWORD err = GetLastError();
@@ -132,9 +214,19 @@ namespace Engine::Window
 
 		// メンバ変数の保存
 		m_className = a_desc.className;
-		m_clientWidth = a_desc.width;
-		m_clientHeight = a_desc.height;
 		m_windowMode = a_desc.windowMode;
+
+		// クライアント領域を要求サイズへ合わせる
+		// 枠の太さはDPIによって変わるため、AdjustWindowRectの結果だけでは合わない
+		if (a_desc.windowMode == EWindowMode::Windowed)
+		{
+			FitClientSize(a_desc.width, a_desc.height);
+		}
+
+		// 実際のクライアント領域サイズを保持する
+		// 要求値をそのまま持つと、枠やモニター解像度で丸められた実サイズと
+		// 食い違ってImGuiやスワップチェインのサイズが合わなくなる
+		RefreshClientSize();
 
 		// 現在のウィンドウ設定を保持
 		m_windowPlacement.length = sizeof(WINDOWPLACEMENT);
@@ -147,6 +239,71 @@ namespace Engine::Window
 	{
 		// ウィンドウの解放
 		UnregisterClass(m_className.c_str(), m_hInst);
+	}
+
+	void NativeWindow::RefreshClientSize()
+	{
+		if (!m_hWnd) return;
+
+		RECT _clientRect = {};
+		if (!GetClientRect(m_hWnd, &_clientRect)) return;
+
+		const UINT _width = static_cast<UINT>(_clientRect.right - _clientRect.left);
+		const UINT _height = static_cast<UINT>(_clientRect.bottom - _clientRect.top);
+
+		// 最小化中は0が返るので保持しない
+		if (_width == 0 || _height == 0) return;
+
+		m_clientWidth = _width;
+		m_clientHeight = _height;
+	}
+
+	void NativeWindow::FitClientSize(UINT a_width, UINT a_height)
+	{
+		if (!m_hWnd) return;
+
+		// 枠の太さを実測する（ウィンドウ全体 - クライアント領域）
+		RECT _clientRect = {};
+		RECT _windowRect = {};
+		if (!GetClientRect(m_hWnd, &_clientRect)) return;
+		if (!GetWindowRect(m_hWnd, &_windowRect)) return;
+
+		const LONG _frameWidth = (_windowRect.right - _windowRect.left) - (_clientRect.right - _clientRect.left);
+		const LONG _frameHeight = (_windowRect.bottom - _windowRect.top) - (_clientRect.bottom - _clientRect.top);
+
+		LONG _targetWidth = static_cast<LONG>(a_width);
+		LONG _targetHeight = static_cast<LONG>(a_height);
+		LONG _posX = _windowRect.left;
+		LONG _posY = _windowRect.top;
+
+		// モニターの作業領域(タスクバーを除いた範囲)に収まるところまで縮めて寄せる
+		// はみ出したままだと画面外のパネルが操作できなくなる
+		MONITORINFO _monitorInfo = { sizeof(MONITORINFO) };
+		if (GetMonitorInfo(MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTONEAREST), &_monitorInfo))
+		{
+			const RECT& _work = _monitorInfo.rcWork;
+
+			_targetWidth = std::min(_targetWidth, (_work.right - _work.left) - _frameWidth);
+			_targetHeight = std::min(_targetHeight, (_work.bottom - _work.top) - _frameHeight);
+			if (_targetWidth <= 0 || _targetHeight <= 0) return;
+
+			// 右下がはみ出す分だけ左上へ寄せる
+			_posX = std::min(_posX, _work.right - (_targetWidth + _frameWidth));
+			_posY = std::min(_posY, _work.bottom - (_targetHeight + _frameHeight));
+			_posX = std::max(_posX, _work.left);
+			_posY = std::max(_posY, _work.top);
+		}
+		if (_targetWidth <= 0 || _targetHeight <= 0) return;
+
+		SetWindowPos(
+			m_hWnd,
+			nullptr,
+			_posX,
+			_posY,
+			_targetWidth + _frameWidth,
+			_targetHeight + _frameHeight,
+			SWP_NOZORDER
+		);
 	}
 
 	bool NativeWindow::ProcessMessage()
@@ -233,6 +390,10 @@ namespace Engine::Window
 		default:
 			break;
 		}
+
+		// スタイル変更後のクライアント領域を取り直す
+		// (WM_SIZE でも更新されるが、切替直後から正しい値を返せるようにしておく)
+		RefreshClientSize();
 	}
 	double NativeWindow::GetMemoryUsage()
 	{
