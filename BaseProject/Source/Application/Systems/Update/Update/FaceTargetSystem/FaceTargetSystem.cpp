@@ -15,8 +15,12 @@
 // ・旋回は Y 軸まわり(Yaw)のみ。上下に傾かないよう方向は水平化する。
 // ・このエンジンは左手系でローカル +Z が前方。RotationSystem と同じく
 //   Yaw = atan2(dir.x, dir.z) で目標角を作り、Slerp で追従する。
-// ・RotationSystem は PlayerLookAngleComponent 保持者(プレイヤー)専用なので、
-//   敵の quat をここで書いても競合しない。
+// ・姿勢を書く他システムとの住み分け:
+//     RotationSystem       … LookAngleComponent 保持者(プレイヤー以外)
+//     LockOnRotationSystem … PlayerControllTag 保持者
+//   敵は LookAngleComponent を持たないので、ここで quat を書いても競合しない。
+//   将来敵に LookAngleComponent を付けるなら、視線角をこのシステムで更新して
+//   姿勢の書き込みは RotationSystem に任せる形へ寄せること。
 // ・Update 帯に置く。書いた quat は PostUpdate の行列計算で反映される。
 //==============================================================================
 void FaceTargetSystem::Init(Engine::ECS::World& a_world)

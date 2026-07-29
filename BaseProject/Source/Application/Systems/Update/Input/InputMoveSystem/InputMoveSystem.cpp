@@ -8,11 +8,11 @@
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 
-#include "Application/Components/Character/Player/PlayerLookAngleComponent.h"
+#include "Application/Components/Character/LookAngleComponent.h"
 
 void InputMoveSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const PlayerControllTag, MoveIntentComponent, PlayerLookAngleComponent,BoostComponent>(
+	a_world.ActiveTask<const PlayerControllTag, MoveIntentComponent, LookAngleComponent,BoostComponent>(
 		Engine::ECS::ESystemType::Input,
 		"InputMoveSystem",
 		[]
@@ -23,7 +23,7 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			ActiveTag* a_ActiveTag,
 			const PlayerControllTag* a_tags,
 			MoveIntentComponent* a_moveIntentArray,
-			PlayerLookAngleComponent* a_playerLookArray,
+			LookAngleComponent* a_playerLookArray,
 			BoostComponent* a_boostArray
 		)
 		{
@@ -45,7 +45,7 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				PlayerLookAngleComponent& _lookComp = a_playerLookArray[_i];
+				LookAngleComponent& _lookComp = a_playerLookArray[_i];
 				MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
 				BoostComponent& _boostComp = a_boostArray[_i];
 

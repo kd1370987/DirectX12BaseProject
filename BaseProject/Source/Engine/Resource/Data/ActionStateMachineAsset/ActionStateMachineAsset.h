@@ -16,6 +16,19 @@
 
 namespace Engine::Resource
 {
+	//--------------------------------------------------------------------------------------
+	// このステート中に「体をどちらへ向けるか」
+	//
+	// 銃を撃つ/敵を狙っているステートでは AimDirection にしておくと、
+	// 上体の加算ポーズ(AdditivePoseSystem)だけでなく機体全体が狙点を向く。
+	//--------------------------------------------------------------------------------------
+	enum class EFaceMode : int
+	{
+		MoveDirection = 0,	// 進行方向を向く(従来の挙動)
+		AimDirection = 1,	// 狙っている方向(ターゲット)を体全体で向く
+		Keep = 2,			// 今の向きを保つ(旋回しない)
+	};
+
 	// ゲームプレイのステートノード。
 	// 共通「つなぎ情報」を継承し、固有データとして“このステート中の行動制約”を持つ。
 	struct ActionNode : Engine::StateGraph::StateNodeBase
@@ -24,6 +37,12 @@ namespace Engine::Resource
 		bool	canRotate = true;		// 向きを変えられるか
 		bool	invincible = false;		// 無敵か(被弾しないか)
 		float	moveSpeedScale = 1.0f;	// 移動速度の倍率
+
+		// ---- 向きの調整 ----
+		// canRotate が false のときは、どのモードでも旋回しない(マスタースイッチ)。
+		EFaceMode	faceMode = EFaceMode::MoveDirection;	// 何を向くか
+		float		turnSpeed = 12.0f;						// 旋回の追従速度(1秒あたりの補間強度)
+		float		faceYawOffsetDeg = 0.0f;				// 目標方向からのYawオフセット(度)
 
 		void Archive(Persistence::Archive& a_arch);
 	};

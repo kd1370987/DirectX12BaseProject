@@ -10,7 +10,7 @@
 // EnemyMovementSystem
 //
 // 敵の MoveIntent(世界空間の水平方向 × throttle)を水平速度へ変換する。
-// プレイヤー用の CharacterMovementSystem は PlayerLookAngleComponent 必須
+// プレイヤー用の CharacterMovementSystem は LookAngleComponent 必須
 // (カメラ相対)なので敵には効かない。その敵版。
 //
 // ・PatrolComponent を持つ = 敵、というクエリで対象を絞る。

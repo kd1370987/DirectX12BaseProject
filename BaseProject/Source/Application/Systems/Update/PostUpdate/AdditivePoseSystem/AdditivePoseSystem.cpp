@@ -7,7 +7,7 @@
 #include "Application/Components/Resource/AnimatorComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Character/Robot/AdditivePoseComponent.h"
-#include "Application/Components/Character/Player/PlayerLookAngleComponent.h"
+#include "Application/Components/Character/LookAngleComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Force/VelocityComponent.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
@@ -66,7 +66,7 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 	a_world.ActiveTask<
 		const ModelComponent,
 		const AnimatorComponent,
-		const PlayerLookAngleComponent,
+		const LookAngleComponent,
 		const LocalTransformComponent,
 		const VelocityComponent,
 		NodePoseComponent,
@@ -80,7 +80,7 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 			ActiveTag* a_tags,
 			const ModelComponent* a_modelArray,
 			const AnimatorComponent* a_animatorArray,
-			const PlayerLookAngleComponent* a_lookArray,
+			const LookAngleComponent* a_lookArray,
 			const LocalTransformComponent* a_trsArray,
 			const VelocityComponent* a_velocityArray,
 			NodePoseComponent* a_nodePoseArray,
@@ -96,7 +96,7 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 			{
 				const ModelComponent& _modelComp = a_modelArray[_i];
 				const AnimatorComponent& _animComp = a_animatorArray[_i];
-				const PlayerLookAngleComponent& _lookComp = a_lookArray[_i];
+				const LookAngleComponent& _lookComp = a_lookArray[_i];
 				const LocalTransformComponent& _trsComp = a_trsArray[_i];
 				const VelocityComponent& _velComp = a_velocityArray[_i];
 				NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];

@@ -35,7 +35,7 @@
 #include "Application/Components/Force/GravityComponent.h"
 #include "Application/Components/Force/VelocityComponent.h"
 #include "Application/Components/Force/InertiaComponent.h"
-#include "Application/Components/Character/Player/PlayerLookAngleComponent.h"
+#include "Application/Components/Character/LookAngleComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Intent/MoveIntentComponent.h"
@@ -82,6 +82,7 @@
 #include "Application/Systems/Init/Start/AttachmentNodeLinkSystem/AttachmentNodeLinkSystem.h"
 #include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
 #include "Application/Systems/Update/Update/Rotation/RotationSystem/RotationSystem.h"
+#include "Application/Systems/Update/Update/Rotation/LockOnRotationSystem/LockOnRotationSystem.h"
 #include "Application/Systems/Update/Update/Acceleration/GravitySystem/GravitySystem.h"
 #include "Application/Systems/Update/Update/Move/CharacterMovementSystem/CharacterMovementSystem.h"
 #include "Application/Systems/Update/Physics/RayCollisionSystem/RayCollisionSystem.h"
@@ -205,7 +206,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<VelocityComponent>("VelocityComponent");
 				a_pWorld->RegisterComponent<GravityComponent>("GravityComponent");
 				a_pWorld->RegisterComponent<InertiaComponent>("InertiaComponent");
-				a_pWorld->RegisterComponent<PlayerLookAngleComponent>("PlayerLookAngleComponent");
+				a_pWorld->RegisterComponent<LookAngleComponent>("LookAngleComponent");
 				a_pWorld->RegisterComponent<ColliderComponent>("ColliderComponent");
 				a_pWorld->RegisterComponent<RayColliderComponent>("RayColliderComponent");
 				a_pWorld->RegisterComponent<LocalTransformComponent>("LocalTransformComponent");
@@ -269,6 +270,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<InputMoveSystem>();
 				a_pWorld->RegisterSystem<GravitySystem>();
 				a_pWorld->RegisterSystem<RotationSystem>();
+				// プレイヤーの旋回は ActionState を見て切り替えるので専用システムが持つ
+				a_pWorld->RegisterSystem<LockOnRotationSystem>();
 				a_pWorld->RegisterSystem<FaceTargetSystem>();
 				a_pWorld->RegisterSystem<AnimationStateSystem>();
 				a_pWorld->RegisterSystem<AnimationSystem>();

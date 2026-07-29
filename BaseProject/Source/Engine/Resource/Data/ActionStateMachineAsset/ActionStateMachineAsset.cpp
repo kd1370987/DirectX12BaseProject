@@ -20,6 +20,11 @@ namespace Engine::Resource
 		a_arch.Field("canRotate", canRotate);
 		a_arch.Field("invincible", invincible);
 		a_arch.Field("moveSpeedScale", moveSpeedScale);
+
+		// 向きの調整。旧データにキーが無い場合は既定値(進行方向)のまま読み飛ばされる。
+		a_arch.Field("faceMode", faceMode);
+		a_arch.Field("turnSpeed", turnSpeed);
+		a_arch.Field("faceYawOffsetDeg", faceYawOffsetDeg);
 	}
 
 	//======================================================================================
@@ -94,6 +99,16 @@ namespace Engine::Resource
 				ImGui::Checkbox("CanRotate", &a_node.canRotate);
 				ImGui::Checkbox("Invincible", &a_node.invincible);
 				ImGui::DragFloat("SpeedScale", &a_node.moveSpeedScale, 0.01f, 0.0f, 10.0f);
+
+				// 向きの調整(CanRotate が入っているときだけ意味を持つ)
+				static const char* _faceModeName[] = { "MoveDirection", "AimDirection", "Keep" };
+				int _faceMode = static_cast<int>(a_node.faceMode);
+				if (ImGui::Combo("FaceMode", &_faceMode, _faceModeName, IM_ARRAYSIZE(_faceModeName)))
+				{
+					a_node.faceMode = static_cast<EFaceMode>(_faceMode);
+				}
+				ImGui::DragFloat("TurnSpeed", &a_node.turnSpeed, 0.1f, 0.0f, 100.0f);
+				ImGui::DragFloat("FaceYawOffset", &a_node.faceYawOffsetDeg, 0.5f, -180.0f, 180.0f);
 				ImGui::PopItemWidth();
 			});
 	}

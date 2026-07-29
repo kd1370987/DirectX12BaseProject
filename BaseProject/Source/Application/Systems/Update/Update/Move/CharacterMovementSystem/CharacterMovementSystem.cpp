@@ -5,13 +5,13 @@
 
 #include "../../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../../Components/Force/VelocityComponent.h"
-#include "../../../../../Components/Character/Player/PlayerLookAngleComponent.h"
+#include "../../../../../Components/Character/LookAngleComponent.h"
 
 #include "../../../../../Components/Resource/StateMachineComponent.h"
 
 void CharacterMovementSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const PlayerLookAngleComponent, const MoveIntentComponent,VelocityComponent,StateMachineComponent>(
+	a_world.ActiveTask<const LookAngleComponent, const MoveIntentComponent,VelocityComponent,StateMachineComponent>(
 		Engine::ECS::ESystemType::Update,
 		"CharacterMovementSystem",
 		[]
@@ -20,7 +20,7 @@ void CharacterMovementSystem::Init(Engine::ECS::World& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
-			const PlayerLookAngleComponent* a_lookArray,
+			const LookAngleComponent* a_lookArray,
 			const MoveIntentComponent* a_intentArray,
 			VelocityComponent* a_velArray,
 			StateMachineComponent* a_stateMachineArray
@@ -28,7 +28,7 @@ void CharacterMovementSystem::Init(Engine::ECS::World& a_world)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const PlayerLookAngleComponent& _lookComp = a_lookArray[_i];
+				const LookAngleComponent& _lookComp = a_lookArray[_i];
 				const MoveIntentComponent& _moveIntent = a_intentArray[_i];
 				VelocityComponent& _velComp = a_velArray[_i];
 				StateMachineComponent& _stateMachineComp = a_stateMachineArray[_i];

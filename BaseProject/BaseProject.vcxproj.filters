@@ -1228,6 +1228,12 @@
     <Filter Include="Asset\Shader\Source\UI">
       <UniqueIdentifier>{3fc54d1a-15bc-4a74-b634-b58f02fe9c37}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Option\ProjectOptions">
+      <UniqueIdentifier>{85c28754-0169-46eb-a78c-4b7f7853703d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem">
+      <UniqueIdentifier>{8a69a85f-8d5b-4d75-8c43-677b3f88f09f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1980,6 +1986,9 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\UI\UIPass</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem\LockOnRotationSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -2126,8 +2135,8 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSLookAngleComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Player\PlayerLookAngleComponent.h">
-      <Filter>Source\Application\Components\Character\Player</Filter>
+    <ClInclude Include="Source\Application\Components\Character\LookAngleComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h">
       <Filter>Source\Engine\Editor\ImGui</Filter>
@@ -3131,6 +3140,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\UI\UIPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem\LockOnRotationSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

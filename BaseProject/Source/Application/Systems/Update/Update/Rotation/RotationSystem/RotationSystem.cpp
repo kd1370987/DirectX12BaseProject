@@ -1,14 +1,27 @@
-﻿#include "RotationSystem.h"
+#include "RotationSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
-#include "Application/Components/Character/Player/PlayerLookAngleComponent.h"
+#include "Application/Components/Character/LookAngleComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
-#include "../../../../../Components/Force/VelocityComponent.h"
+#include "Application/Components/Tag/PlayerControllTag.h"
 
+//==============================================================================
+// RotationSystem
+//
+// LookAngleComponent から来た角度の通りに機体を向かせるだけの汎用システム。
+// 「どこを向くべきか」を決めるのは別のシステムの仕事で、ここは適用専門。
+//
+// ・使うのは Yaw だけ。Pitch は視線(TPSカメラ・上体の加算ポーズ)用の角度で、
+//   これを機体へ適用すると体ごと前傾/後傾してしまうため使わない。
+// ・このエンジンは左手系でローカル +Z が前方。Vector3 オーバーロードは
+//   (pitch,yaw,roll)順で軸が入れ替わるのでスカラー版を明示的に使う。
+// ・プレイヤーは ActionState を見て挙動を切り替える LockOnRotationSystem が
+//   姿勢を書くので、二重書き込みにならないよう PlayerControllTag を除外する。
+//==============================================================================
 void RotationSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const PlayerLookAngleComponent, LocalTransformComponent,const VelocityComponent>(
+	a_world.ActiveTask<const LookAngleComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,
 		"RotationSystem",
 		[]
@@ -17,51 +30,27 @@ void RotationSystem::Init(Engine::ECS::World& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
-			const PlayerLookAngleComponent* a_lookArray,
-			LocalTransformComponent* a_trsArray,
-			const VelocityComponent* a_velocityArray
+			const LookAngleComponent* a_lookArray,
+			LocalTransformComponent* a_trsArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const PlayerLookAngleComponent& _lookAng = a_lookArray[_i];
+				const LookAngleComponent& _lookAng = a_lookArray[_i];
 				LocalTransformComponent& _trs = a_trsArray[_i];
-				const VelocityComponent& _velComp = a_velocityArray[_i];
 
-				// Y軸の移動を無視した平面での移動ベクトル取得
-				DirectX::XMVECTOR _velocity = DirectX::XMLoadFloat3(&_velComp.value);
-				_velocity = DirectX::XMVectorSetY(_velocity, 0.0f);
+				// 角度は度で保持されているのでラジアンへ変換する
+				DXSM::Quaternion _quat = DXSM::Quaternion::CreateFromYawPitchRoll(
+					DirectX::XMConvertToRadians(_lookAng.Yaw),
+					0.0f,
+					0.0f
+				);
+				_quat.Normalize();
 
-				// 移動している場合のみ機体を旋回させる
-				if (DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(_velocity)) > 0.001f)
-				{
-					// 移動方向のベクトルを正規化
-					DirectX::XMVECTOR _forward = DirectX::XMVector3Normalize(_velocity);
-
-					// Z軸とX軸から、目標となるYaw角を計算
-					float _targetYaw = atan2f(
-						DirectX::XMVectorGetX(_forward),
-						DirectX::XMVectorGetZ(_forward)
-					);
-
-					// 目標のクォータニオンを作成
-					DirectX::XMVECTOR _targetQuat = DirectX::XMQuaternionRotationRollPitchYaw(0.0f, _targetYaw, 0.0f);
-
-					// 球面線形補間を使って滑らかに旋回させる
-					float _slerpSpeed = 12.0f * a_ctx.dt;
-					DirectX::XMVECTOR _currentQuat = DirectX::XMLoadFloat4(&_trs.quat);
-
-					_currentQuat = DirectX::XMQuaternionSlerp(_currentQuat, _targetQuat, _slerpSpeed);
-
-					// 結果を保存
-					DirectX::XMStoreFloat4(&_trs.quat, _currentQuat);
-				}
-				else
-				{
-					// ※ロックオン時や射撃時など、移動していなくてもカメラや敵の方向を
-					// 強制的に向かせたい場合は、ここに別のSlerp処理を書くことになります。
-				}
+				_trs.quat = _quat;
+				_trs.isDirty = true;	// 停止中でも行列を再構築させる
 			}
-		}
+		},
+		Engine::ECS::Exclude<PlayerControllTag>{}
 	);
 }

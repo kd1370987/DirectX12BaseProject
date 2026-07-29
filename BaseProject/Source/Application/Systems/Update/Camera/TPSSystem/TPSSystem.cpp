@@ -11,7 +11,7 @@
 
 #include "Application/Components/Camera/TPSLookAngleComponent.h"
 
-#include "Application/Components/Character/Player/PlayerLookAngleComponent.h"
+#include "Application/Components/Character/LookAngleComponent.h"
 
 
 void TPSSystem::Init(Engine::ECS::World& a_world)
@@ -45,10 +45,10 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				//============================================================
 				Engine::ECS::Entity _target = _followComp.target;
 				if (!a_ctx.pWorld->HasComponent<LocalTransformComponent>(_target)) continue;
-				if (!a_ctx.pWorld->HasComponent<PlayerLookAngleComponent>(_target)) continue;
+				if (!a_ctx.pWorld->HasComponent<LookAngleComponent>(_target)) continue;
 				if (!a_ctx.pWorld->HasComponent<CameraFocusTargetComponent>(_target)) continue;
 				const LocalTransformComponent* _targetTRS = a_ctx.pWorld->RefData<LocalTransformComponent>(_target);
-				const PlayerLookAngleComponent* _targetLook = a_ctx.pWorld->RefData<PlayerLookAngleComponent>(_target);
+				const LookAngleComponent* _targetLook = a_ctx.pWorld->RefData<LookAngleComponent>(_target);
 				const CameraFocusTargetComponent* _forcusTarget = a_ctx.pWorld->RefData<CameraFocusTargetComponent>(_target);
 				if (!_targetLook || !_targetTRS || !_forcusTarget) continue;
 
