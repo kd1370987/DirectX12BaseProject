@@ -10,6 +10,7 @@ struct BoostComponent
 
 	// --- パラメータ ---
 	float boostPower = 20.0f;		// ブースト時の推力
+	float tapBoostScale = 1.5f;		// 押した瞬間の推力倍率（継続ブーストに対する倍率。初動を少し大きくする）
 	float boostFuel = 5.0f;			// ブースト単押しの使用燃料
 	float boostFuelPerSec = 1.0f;	// ブースト連続使用時の毎秒消費燃料量
 
@@ -26,6 +27,7 @@ struct Engine::ECS::ComponentTraits<BoostComponent>
 		BoostComponent& _comp = Engine::Editor::GetValue<BoostComponent>(a_pData);
 		a_ar.Field("maxFuel", _comp.maxFuel);
 		a_ar.Field("boostPower", _comp.boostPower);
+		a_ar.Field("tapBoostScale", _comp.tapBoostScale);
 		a_ar.Field("boostFuel", _comp.boostFuel);
 		a_ar.Field("boostFuelPerSec", _comp.boostFuelPerSec);
 		a_ar.Field("fuelRegeneration", _comp.fuelRegeneration);
@@ -39,6 +41,7 @@ struct Engine::ECS::ComponentTraits<BoostComponent>
 		ImGui::Text("Boost Parameters");
 		ImGui::DragFloat("Max Fuel", &_comp.maxFuel, 1.0f, 0.0f);
 		ImGui::DragFloat("Boost Power", &_comp.boostPower, 0.1f, 0.0f);
+		ImGui::DragFloat("Tap Boost Scale", &_comp.tapBoostScale, 0.05f, 0.0f);
 		ImGui::DragFloat("Boost Fuel (Tap)", &_comp.boostFuel, 0.1f, 0.0f);
 		ImGui::DragFloat("Boost Fuel / Sec", &_comp.boostFuelPerSec, 0.1f, 0.0f);
 

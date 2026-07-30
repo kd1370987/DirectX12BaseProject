@@ -278,6 +278,7 @@
     <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\HitDetectSystem\HitDetectSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem\InertiaIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.cpp" />
@@ -598,6 +599,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\HitDetectSystem\HitDetectSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem\InertiaIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h" />

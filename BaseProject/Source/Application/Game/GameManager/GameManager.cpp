@@ -88,6 +88,7 @@
 #include "Application/Systems/Update/Update/Move/CharacterMovementSystem/CharacterMovementSystem.h"
 #include "Application/Systems/Update/Physics/RayCollisionSystem/RayCollisionSystem.h"
 #include "Application/Systems/Update/Physics/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
+#include "Application/Systems/Update/Physics/Integral/InertiaIntegrationSystem/InertiaIntegrationSystem.h"
 #include "Application/Systems/Update/Camera/TPSSystem/TPSSystem.h"
 #include "Application/Systems/Update/Camera/AimTargetSystem/AimTargetSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
@@ -283,6 +284,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<CalcNodeSystem>();
 				a_pWorld->RegisterSystem<SkinningSystem>();
 				a_pWorld->RegisterSystem<PositionIntegrationSystem>();
+				a_pWorld->RegisterSystem<InertiaIntegrationSystem>();
 				a_pWorld->RegisterSystem<CharacterMovementSystem>();
 				a_pWorld->RegisterSystem<EnemyMovementSystem>();
 				a_pWorld->RegisterSystem<ActionBehaviorSystem>();

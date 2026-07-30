@@ -36,24 +36,31 @@ void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 				{
 					continue;
 				}
+
+				// ブーストが押されている最中の推力
+				const float _holdPower = _boostComp.boostPower / 2;
+
 				// ブースト押された瞬間
-				else if (_boostComp.isBoostTriger)
+				// 押した瞬間と押しっぱなしは同じフレームで両方成立するので、初動を優先して二重に掛からないようにする
+				if (_boostComp.isBoostTriger)
 				{
-					_velComp.value.x *= _boostComp.boostPower;
-					_velComp.value.y *= _boostComp.boostPower;
-					_velComp.value.z *= _boostComp.boostPower;
+					// 初動は tapBoostScale の分だけ大きめの推力を出す
+					const float _tapPower = _holdPower * _boostComp.tapBoostScale;
+
+					_velComp.value.x *= _tapPower;
+					_velComp.value.y *= _tapPower;
+					_velComp.value.z *= _tapPower;
 
 					_boostComp.currentFuel -= _boostComp.boostFuel;
 				}
-
 				// ブーストが押されている最中
-				if (_boostComp.isBoostIntent)
+				else if (_boostComp.isBoostIntent)
 				{
-					_velComp.value.x *= _boostComp.boostPower / 2;
-					_velComp.value.y *= _boostComp.boostPower / 2;
-					_velComp.value.z *= _boostComp.boostPower / 2;
+					_velComp.value.x *= _holdPower;
+					_velComp.value.y *= _holdPower;
+					_velComp.value.z *= _holdPower;
 
-					_boostComp.currentFuel -= _boostComp.boostFuelPerSec;
+					_boostComp.currentFuel -= _boostComp.boostFuelPerSec * a_ctx.dt;
 				}
 			}
 		}

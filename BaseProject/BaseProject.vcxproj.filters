@@ -253,6 +253,9 @@
     <Filter Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem">
       <UniqueIdentifier>{29d208e6-31fb-42f8-8dc2-2f171faa9124}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem">
+      <UniqueIdentifier>{1c4a7f52-6d0b-4a3e-9f5c-8b2d61e7a904}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Animation">
       <UniqueIdentifier>{970309e0-5b86-474c-b88d-2359ee56a5eb}</UniqueIdentifier>
     </Filter>
@@ -1293,6 +1296,9 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Acceleration\GravitySystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem\InertiaIntegrationSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp">
       <Filter>Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem</Filter>
     </ClCompile>
@@ -2116,6 +2122,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h">
       <Filter>Source\Application\Systems\Update\Update\Acceleration\GravitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem\InertiaIntegrationSystem.h">
+      <Filter>Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h">
       <Filter>Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem</Filter>

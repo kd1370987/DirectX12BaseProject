@@ -36,6 +36,14 @@ namespace Engine::Editor
 		// ギズモ
 		void GuizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, const ECS::Entity& a_currentSelectEntity, Engine::ECS::World* a_pWorld);
 
+		// 選択エンティティの親のワールド行列を取得する。
+		// 親がいない/親のワールドがまだ無い場合は単位行列を入れて false を返す。
+		bool TryGetParentWorldMatrix(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, DirectX::XMMATRIX& a_outParentMat);
+
+		// ギズモに載せられない情報(各種オフセット位置・パーティクルの発生方向など)を
+		// シーンビュー画像の上へ直接描くHUD。
+		void DrawEntityHUD(const ImVec2& a_pos, const ImVec2& a_rect, const ECS::Entity& a_entity, Engine::ECS::World* a_pWorld);
+
 		// ECS外オブジェクト用のギズモ(BaseObject::DrawGizmoへ委譲)
 		void GameObjectGizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, EditorContext& a_editContext);
 
