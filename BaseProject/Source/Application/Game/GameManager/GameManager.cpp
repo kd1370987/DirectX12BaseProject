@@ -161,10 +161,15 @@
 // ゲームフロウ
 #include "../GameFlowStateMachine/GameFlowStateMachine.h"
 
+#include "../../../Engine/Audio/AudioManager.h"
+
 namespace App::Game
 {
 	void App::Game::GameManager::Init()
 	{
+		Engine::Audio::AudioManager::Instance().Init();
+		Engine::Audio::AudioManager::Instance().GetSoundInstance("Asset/Sound/TEST/test.wav");
+
 		// ゲームフロウの読み込み
 		m_upGameFlowMachine = std::make_unique<GameFlowStateMachine>();
 		m_upGameFlowMachine->Load("Asset/Scenes/Flow/Flow.scene");

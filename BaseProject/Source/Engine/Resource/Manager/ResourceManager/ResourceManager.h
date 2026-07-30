@@ -164,6 +164,7 @@ namespace Engine::Resource
 		ResourceData<ParticlesAsset> m_particleAssetData;						// パーティクル
 		ResourceData<ShadingModelTable> m_shadingModelTableData;				// シェーディングモデルテーブル
 		ResourceData<Prefab> m_prefabData;										// プレハブデータ
+		ResourceData<Sound> m_soundData;										// サウンド
 
 	// シングルトン
 	private:
@@ -455,6 +456,7 @@ namespace Engine::Resource
 	template<> inline ResourceData<ParticlesAsset>& ResourceManager::RefData<ParticlesAsset>() { return m_particleAssetData; }
 	template<> inline ResourceData<ShadingModelTable>& ResourceManager::RefData<ShadingModelTable>() { return m_shadingModelTableData; }
 	template<> inline ResourceData<Prefab>& ResourceManager::RefData<Prefab>() { return m_prefabData; }
+	template<> inline ResourceData<Sound>& ResourceManager::RefData<Sound>() { return m_soundData; }
 
 	// プールの取得
 	template<> inline const ResourceData<Model>& ResourceManager::GetData<Model>() const { return  m_modelData; }
@@ -468,6 +470,7 @@ namespace Engine::Resource
 	template<> inline const ResourceData<ParticlesAsset>& ResourceManager::GetData<ParticlesAsset>() const { return m_particleAssetData; }
 	template<> inline const ResourceData<ShadingModelTable>& ResourceManager::GetData<ShadingModelTable>() const { return m_shadingModelTableData; }
 	template<> inline const ResourceData<Prefab>& ResourceManager::GetData<Prefab>() const { return m_prefabData; }
+	template<> inline const ResourceData<Sound>& ResourceManager::GetData<Sound>() const { return m_soundData; }
 }
 
 namespace Engine

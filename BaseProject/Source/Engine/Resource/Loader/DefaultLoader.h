@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../Data/Model/IO/ModelIO.h"
 #include "../Data/Texture/IO/TextureIO.h"
@@ -11,6 +11,7 @@
 #include "../Data/Animation/IO/AnimationIO.h"
 #include "../Data/ShadingModelTable/IO/ShadingModelTableIO.h"
 #include "../Data/Prefab/Prefab.h"
+#include "../Data/Sound/IO/SoundIO.h"
 namespace Engine::Resource
 {
 	// ロード処理の中間用クラス
@@ -130,6 +131,15 @@ namespace Engine::Resource
 		static Prefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return Prefab::LoadFromFile(a_path);
+		}
+	};
+	// サウンド
+	template<>
+	struct DefaultLoader<Sound>
+	{
+		static Sound LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		{
+			return SoundIO::Load(a_path);
 		}
 	};
 }

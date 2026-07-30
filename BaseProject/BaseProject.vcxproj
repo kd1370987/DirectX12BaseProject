@@ -78,7 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -116,7 +116,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -152,7 +152,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -193,7 +193,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -306,6 +306,7 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.cpp" />
     <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.cpp" />
+    <ClCompile Include="Source\Engine\Audio\AudioManager.cpp" />
     <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp" />
     <ClCompile Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.cpp" />
     <ClCompile Include="Source\Engine\Collision\Collision.cpp" />
@@ -466,6 +467,8 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Sound\IO\SoundIO.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\Sound\Sound.cpp" />
     <ClCompile Include="Source\Engine\Resource\StateGraph\StateGraphTypes.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Importer\TextureImporter.cpp" />
@@ -634,6 +637,7 @@
     <ClInclude Include="Source\Core\Utility\StringUtility.h" />
     <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h" />
     <ClInclude Include="Source\Engine\Animation\Common\AnimatedMeshVertex.h" />
+    <ClInclude Include="Source\Engine\Audio\AudioManager.h" />
     <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h" />
     <ClInclude Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.h" />
     <ClInclude Include="Source\Engine\Collision\Collision.h" />
@@ -850,6 +854,8 @@
     <ClInclude Include="Source\Application\Components\Character\PatrolComponent.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Sound\IO\SoundIO.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\Sound\Sound.h" />
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraph.h" />
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraphTypes.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.h" />
@@ -913,7 +919,6 @@
     <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli" />
     <None Include="Asset\Shader\Source\UI\UI.hlsli" />
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Compute\AntiAliasing\TAA\TAA.hlsl">
@@ -1389,13 +1394,5 @@
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="packages\directxtk12_uwp.2025.10.28.1\build\native\directxtk12_uwp.targets" Condition="Exists('packages\directxtk12_uwp.2025.10.28.1\build\native\directxtk12_uwp.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>このプロジェクトは、このコンピューター上にない NuGet パッケージを参照しています。それらのパッケージをダウンロードするには、[NuGet パッケージの復元] を使用します。詳細については、http://go.microsoft.com/fwlink/?LinkID=322105 を参照してください。見つからないファイルは {0} です。</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('packages\directxtk12_uwp.2025.10.28.1\build\native\directxtk12_uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\directxtk12_uwp.2025.10.28.1\build\native\directxtk12_uwp.targets'))" />
-  </Target>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>
