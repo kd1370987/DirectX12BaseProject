@@ -18,11 +18,16 @@ namespace Engine::Audio
 		// アクセサ
 		//----------------------------------------------------------------------------------------------------
 		DirectX::AudioEngine* RefAudioEngine() { return m_upAudioEngine.get(); }
+		DirectX::AudioListener& RefAudioListner() { return m_listener; }
+
+		const Resource::SoundInstance* GetInstance(const Handle<Resource::SoundInstance>& a_handle) const;
+		Resource::SoundInstance* RefInstance(const Handle<Resource::SoundInstance>& a_handle);
 
 		//----------------------------------------------------------------------------------------------------
 		// サウンドインスタンスの発行
 		//----------------------------------------------------------------------------------------------------
 		Handle<Resource::SoundInstance> GetSoundInstance(const std::string& a_filePath);
+		Handle<Resource::SoundInstance> GetSoundInstance(const Engine::GUID& a_guid);
 
 	private:
 

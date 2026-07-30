@@ -24,6 +24,8 @@
 
 #include "Editor/EditorCamera/EditorCamera.h"
 
+#include "Audio/AudioManager.h"
+
 
 namespace Engine
 {
@@ -103,6 +105,9 @@ namespace Engine
 		);
 		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
+
+		// オーディオエンジンの初期化
+		Audio::AudioManager::Instance().Init();
 
 		// アセットマネージャー作成
 		InitializeAssetDatabase();

@@ -27,6 +27,14 @@ namespace Engine::Audio
 	{
 		m_upAudioEngine = nullptr;
 	}
+	const Resource::SoundInstance* AudioManager::GetInstance(const Handle<Resource::SoundInstance>& a_handle) const
+	{
+		return m_soundInstancePool.Get(a_handle);
+	}
+	Resource::SoundInstance* AudioManager::RefInstance(const Handle<Resource::SoundInstance>& a_handle)
+	{
+		return m_soundInstancePool.Ref(a_handle);
+	}
 	Handle<Resource::SoundInstance> AudioManager::GetSoundInstance(const std::string& a_filePath)
 	{
 		// サウンドエンジンがなければ発行しない
@@ -36,11 +44,24 @@ namespace Engine::Audio
 			return Handle<Resource::SoundInstance>();
 		}
 
+		// ファイルパスの存在チェック
+		if(a_filePath.empty()) return Handle<Resource::SoundInstance>();
+
 		// サウンドデータの読込
 		auto _sound = Resource::SoundIO::Load(a_filePath);
 
-
 		return Handle<Resource::SoundInstance>();
+	}
+	Handle<Resource::SoundInstance> AudioManager::GetSoundInstance(const Engine::GUID& a_guid)
+	{
+		auto _soundRef = Resource::ResourceManager::Instance().Load<Resource::Sound>(a_guid);
+		if (!_soundRef.IsValid()) return;
+
+		Resource::SoundInstance _instance = {};
+		_instance.Init(_soundRef);
+
+		auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
+		return GetSoundInstance(_filePath);
 	}
 	AudioManager::AudioManager()
 	{}
