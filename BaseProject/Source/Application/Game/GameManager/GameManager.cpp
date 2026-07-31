@@ -172,6 +172,9 @@ namespace App::Game
 		m_upGameFlowMachine = std::make_unique<GameFlowStateMachine>();
 		m_upGameFlowMachine->Load("Asset/Scenes/Flow/Flow.scene");
 
+		// テスト : 音源読み込み
+		m_testHandle = Engine::Audio::AudioManager::Instance().RequestSoundInstance("Asset/Sound/TEST/test.wav");
+
 		// ------------------------------------------------------------------
 		// ECS外オブジェクト(GameObject)のクラスをメタマネージャーへ登録する。
 		// ここで登録した順にタイプインデックスが振られ、シーンの保存/読み込み・
@@ -450,6 +453,12 @@ namespace App::Game
 		if (Engine::Input::InputManager::Instance().IsPress("Scene"))
 		{
 			m_upGameFlowMachine->SetTrigger("ToTitle");
+		}
+
+		if (Engine::Input::InputManager::Instance().IsPress("Test"))
+		{
+			auto* _pSoundInstance = Engine::Audio::AudioManager::Instance().RefInstance(m_testHandle);
+			_pSoundInstance->Play();
 		}
 			
 		// 遷移チェック

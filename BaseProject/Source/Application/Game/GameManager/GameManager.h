@@ -69,6 +69,8 @@ namespace App::Game
 		// ゲームフロウ管理用
 		std::unique_ptr<GameFlowStateMachine> m_upGameFlowMachine = nullptr;
 
+		Engine::Handle<Engine::Resource::SoundInstance> m_testHandle = { };
+
 	// シングルトン
 	private:
 		GameManager();

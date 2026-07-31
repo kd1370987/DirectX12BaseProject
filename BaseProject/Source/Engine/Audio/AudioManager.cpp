@@ -35,33 +35,46 @@ namespace Engine::Audio
 	{
 		return m_soundInstancePool.Ref(a_handle);
 	}
-	Handle<Resource::SoundInstance> AudioManager::GetSoundInstance(const std::string& a_filePath)
+	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(const std::string& a_filePath)
+	{
+		// ファイルパスの存在チェック
+		if(a_filePath.empty()) return Handle<Resource::SoundInstance>();
+		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_filePath);
+		return RequestSoundInstance(_guid);
+
+	}
+	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(const Engine::GUID& a_guid)
 	{
 		// サウンドエンジンがなければ発行しない
-		if (!m_upAudioEngine) 
+		if (!m_upAudioEngine)
 		{
 			ENGINE_WARNING("サウンドエンジンがない状態でサウンドのリクエストが来ました");
 			return Handle<Resource::SoundInstance>();
 		}
 
-		// ファイルパスの存在チェック
-		if(a_filePath.empty()) return Handle<Resource::SoundInstance>();
+		if(a_guid == Engine::DefaultGUID) return Handle<Resource::SoundInstance>();
 
-		// サウンドデータの読込
-		auto _sound = Resource::SoundIO::Load(a_filePath);
-
-		return Handle<Resource::SoundInstance>();
-	}
-	Handle<Resource::SoundInstance> AudioManager::GetSoundInstance(const Engine::GUID& a_guid)
-	{
-		auto _soundRef = Resource::ResourceManager::Instance().Load<Resource::Sound>(a_guid);
-		if (!_soundRef.IsValid()) return;
-
+		// インスタンスを作成
 		Resource::SoundInstance _instance = {};
-		_instance.Init(_soundRef);
 
-		auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
-		return GetSoundInstance(_filePath);
+		// ロード済みのサウンドかチェック
+		if (Resource::ResourceManager::Instance().Has<Resource::Sound>(a_guid))
+		{
+			// サウンドの取得
+			auto _soundRef = Resource::ResourceManager::Instance().GetCache<Resource::Sound>(a_guid);
+			if (!_soundRef.IsValid()) return Handle<Resource::SoundInstance>();
+			_instance.Init(_soundRef);// インスタンスの初期化
+			
+		}
+		else
+		{
+			// サウンドのロード
+			auto _soundRef = Resource::ResourceManager::Instance().Load<Resource::Sound>(a_guid);
+			if (!_soundRef.IsValid()) return Handle<Resource::SoundInstance>();
+			_instance.Init(_soundRef);// インスタンスの初期化
+		}
+
+		return m_soundInstancePool.Add(std::move(_instance));
 	}
 	AudioManager::AudioManager()
 	{}

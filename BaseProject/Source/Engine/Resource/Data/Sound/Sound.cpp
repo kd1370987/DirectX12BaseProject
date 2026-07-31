@@ -38,7 +38,7 @@ namespace Engine::Resource
 		// 再生
 		m_upSoundInstance->Play(a_isLoop);
 	}
-	void SoundInstance::Play(const DXSM::Vector3 & a_pos, bool a_isLoop)
+	void SoundInstance::Play3D(const DXSM::Vector3 & a_pos, bool a_isLoop)
 	{
 		if (!m_upSoundInstance) return;
 

@@ -536,6 +536,11 @@ namespace Engine
 		_prfb.AddExtensions(".ojprfb");
 		_prfb.AddExtensions(".obprfb");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_prfb);
+		// サウンド
+		Resource::TypeExtension _sound = {};
+		_sound.type = "Sound";
+		_sound.AddExtensions(".wav");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_sound);
 		// 全アセットに一括でメタファイル作成
 		// すでにあれば無視
 		Resource::AssetDatabase::Instance().CreateMetaFileForAllAssets();

@@ -26,8 +26,8 @@ namespace Engine::Audio
 		//----------------------------------------------------------------------------------------------------
 		// サウンドインスタンスの発行
 		//----------------------------------------------------------------------------------------------------
-		Handle<Resource::SoundInstance> GetSoundInstance(const std::string& a_filePath);
-		Handle<Resource::SoundInstance> GetSoundInstance(const Engine::GUID& a_guid);
+		Handle<Resource::SoundInstance> RequestSoundInstance(const std::string& a_filePath);
+		Handle<Resource::SoundInstance> RequestSoundInstance(const Engine::GUID& a_guid);
 
 	private:
 
