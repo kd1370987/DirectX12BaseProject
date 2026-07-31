@@ -18,6 +18,11 @@ namespace Engine::Resource
 		//==================================================================
 		// インスタンス作成
 		//==================================================================
+		/// <param name="a_is3D">
+		/// 3Dサウンドとして作成するか。
+		/// false で作ったインスタンスに Play3D / SetPos / Apply3D は使えない
+		/// (DirectXTK が例外を投げるため、こちら側で弾いている)
+		/// </param>
 		bool Init(const ResourceRef<Sound>& a_resourceRef, bool a_is3D = false);
 
 		//==================================================================
@@ -42,6 +47,7 @@ namespace Engine::Resource
 		// ---- 取得 ----
 		bool IsPlay();			// 再生中か否か
 		bool IsPause();			// 一時停止中か否か
+		bool Is3D() const { return m_is3D; }	// 3Dサウンドとして作られたか
 
 	private:
 

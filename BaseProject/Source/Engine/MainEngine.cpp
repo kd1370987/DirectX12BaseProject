@@ -280,7 +280,10 @@ namespace Engine
 		// 入力更新
 		Input::InputManager::Instance().Update();
 
-		
+		// オーディオ更新
+		// 鳴り終わったワンショットの回収とデバイスロスト復帰を行うため、
+		// 音を鳴らしていなくても毎フレーム呼ぶ必要がある
+		Audio::AudioManager::Instance().Update();
 
 		m_upParticleManager->BeginFrame();					// パーティクルデータの更新
 

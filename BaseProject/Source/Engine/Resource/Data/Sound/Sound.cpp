@@ -24,7 +24,8 @@ namespace Engine::Resource
 		{
 			_flags |= DirectX::SoundEffectInstance_Use3D | DirectX::SoundEffectInstance_ReverbUseFilters;
 		}
-		m_upSoundInstance = std::move(_pEffect->CreateInstance());
+		m_upSoundInstance = _pEffect->CreateInstance(_flags);
+		m_is3D = a_is3D;
 
 		// 元データを参照として保持し、インスタンスが生きている間は
 		// Sound(= DirectX::SoundEffect) が解放されないようにする
@@ -46,6 +47,15 @@ namespace Engine::Resource
 	{
 		if (!m_upSoundInstance) return;
 
+		if (!m_is3D)
+		{
+			// 3Dなしで作られたインスタンスに Apply3D を掛けると DirectXTK が例外を投げる。
+			// 3Dで鳴らしたい場合は RequestSoundInstance(..., true) で発行すること
+			ENGINE_WARNING("3D指定なしで作成されたサウンドインスタンスに Play3D が呼ばれました");
+			Play(a_isLoop);
+			return;
+		}
+
 		m_upSoundInstance->Stop();
 		m_upSoundInstance->SetVolume(1);
 
@@ -59,6 +69,11 @@ namespace Engine::Resource
 	void SoundInstance::Apply3D()
 	{
 		if (!m_upSoundInstance) return;
+
+		// SoundEffectInstance_Use3D なしで作られたインスタンスに対して
+		// Apply3D を呼ぶと DirectXTK が例外を投げるため、ここで弾く
+		if (!m_is3D) return;
+
 		m_upSoundInstance->Apply3D(Audio::AudioManager::Instance().RefAudioListner(), m_emitter, false);
 	}
 	void SoundInstance::Stop()
@@ -80,19 +95,19 @@ namespace Engine::Resource
 	{
 		if (!m_upSoundInstance) return;
 		m_upSoundInstance->SetVolume(a_vol);
-		m_upSoundInstance->Apply3D(Audio::AudioManager::Instance().RefAudioListner(), m_emitter, false);
+		Apply3D();
 	}
 	void SoundInstance::SetPos(const DXSM::Vector3 & a_pos)
 	{
 		if (!m_upSoundInstance) return;
 		m_emitter.SetPosition(a_pos);
-		m_upSoundInstance->Apply3D(Audio::AudioManager::Instance().RefAudioListner(), m_emitter, false);
+		Apply3D();
 	}
 	void SoundInstance::SetCurveDistanceScaler(float a_val)
 	{
 		if (!m_upSoundInstance) return;
 		m_emitter.CurveDistanceScaler = a_val;
-		m_upSoundInstance->Apply3D(Audio::AudioManager::Instance().RefAudioListner(), m_emitter, false);
+		Apply3D();
 	}
 	bool SoundInstance::IsPlay()
 	{

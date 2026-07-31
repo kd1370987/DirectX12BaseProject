@@ -41,6 +41,23 @@ namespace Engine::Audio
 
 		m_upAudioEngine = nullptr;
 	}
+	void AudioManager::Update()
+	{
+		if (!m_upAudioEngine) return;
+
+		// Update() が false を返すのは「無音」か「デバイスロスト」のどちらか
+		if (m_upAudioEngine->Update()) return;
+
+		if (!m_upAudioEngine->IsCriticalError()) return;
+
+		// オーディオデバイスが失われたので作り直す。
+		// 発行済みの SoundEffectInstance は AudioEngine 側で新デバイスへ移行される
+		ENGINE_WARNING("オーディオデバイスをロストしました。再初期化します");
+		if (!m_upAudioEngine->Reset())
+		{
+			ENGINE_WARNING("オーディオデバイスの再初期化に失敗しました");
+		}
+	}
 	const Resource::SoundInstance* AudioManager::GetInstance(const Handle<Resource::SoundInstance>& a_handle) const
 	{
 		return m_soundInstancePool.Get(a_handle);
@@ -49,15 +66,15 @@ namespace Engine::Audio
 	{
 		return m_soundInstancePool.Ref(a_handle);
 	}
-	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(const std::string& a_filePath)
+	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(const std::string& a_filePath, bool a_is3D)
 	{
 		// ファイルパスの存在チェック
 		if(a_filePath.empty()) return Handle<Resource::SoundInstance>();
 		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_filePath);
-		return RequestSoundInstance(_guid);
+		return RequestSoundInstance(_guid, a_is3D);
 
 	}
-	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(const Engine::GUID& a_guid)
+	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(const Engine::GUID& a_guid, bool a_is3D)
 	{
 		// サウンドエンジンがなければ発行しない
 		if (!m_upAudioEngine)
@@ -77,15 +94,15 @@ namespace Engine::Audio
 			// サウンドの取得
 			auto _soundRef = Resource::ResourceManager::Instance().GetCache<Resource::Sound>(a_guid);
 			if (!_soundRef.IsValid()) return Handle<Resource::SoundInstance>();
-			_instance.Init(_soundRef);// インスタンスの初期化
-			
+			_instance.Init(_soundRef, a_is3D);// インスタンスの初期化
+
 		}
 		else
 		{
 			// サウンドのロード
 			auto _soundRef = Resource::ResourceManager::Instance().Load<Resource::Sound>(a_guid);
 			if (!_soundRef.IsValid()) return Handle<Resource::SoundInstance>();
-			_instance.Init(_soundRef);// インスタンスの初期化
+			_instance.Init(_soundRef, a_is3D);// インスタンスの初期化
 		}
 
 		return m_soundInstancePool.Add(std::move(_instance));

@@ -26,6 +26,17 @@ namespace Engine::Audio
 		void Release();
 
 		//----------------------------------------------------------------------------------------------------
+		// 更新
+		//----------------------------------------------------------------------------------------------------
+
+		/// <summary>
+		/// 毎フレーム呼ぶこと
+		/// 再生し終わったワンショットボイスの回収と、
+		/// オーディオデバイスのロスト検出・復帰をここで行う
+		/// </summary>
+		void Update();
+
+		//----------------------------------------------------------------------------------------------------
 		// アクセサ
 		//----------------------------------------------------------------------------------------------------
 		DirectX::AudioEngine* RefAudioEngine() { return m_upAudioEngine.get(); }
@@ -37,8 +48,12 @@ namespace Engine::Audio
 		//----------------------------------------------------------------------------------------------------
 		// サウンドインスタンスの発行
 		//----------------------------------------------------------------------------------------------------
-		Handle<Resource::SoundInstance> RequestSoundInstance(const std::string& a_filePath);
-		Handle<Resource::SoundInstance> RequestSoundInstance(const Engine::GUID& a_guid);
+		/// <param name="a_is3D">
+		/// true で3Dサウンド用インスタンスを発行する。
+		/// Play3D / SetPos / Apply3D はこれを true にしたインスタンスでしか使えない
+		/// </param>
+		Handle<Resource::SoundInstance> RequestSoundInstance(const std::string& a_filePath, bool a_is3D = false);
+		Handle<Resource::SoundInstance> RequestSoundInstance(const Engine::GUID& a_guid, bool a_is3D = false);
 
 	private:
 

@@ -86,6 +86,15 @@ namespace Engine::Resource
 		template<typename T>
 		void SweepUnused();
 
+		/// <summary>
+		/// 型ごとの管理データを丸ごと破棄する
+		/// プールを空にしただけだとキャッシュと参照カウントが残り、
+		/// 同じインデックス・世代が再利用されたときに別リソースを掴んでしまうため、
+		/// 必ず4つまとめて捨てる
+		/// </summary>
+		template<typename T>
+		void ReleaseData();
+
 		void AllResetECSRefs();
 
 		// 疑似ガベージコレクション : 全プールのスイープ処理を実行
@@ -343,6 +352,16 @@ namespace Engine::Resource
 				}
 			}
 		}
+	}
+
+	template<typename T>
+	inline void ResourceManager::ReleaseData()
+	{
+		auto& _data = RefData<T>();
+		_data.pool.Release();
+		_data.cache.clear();
+		_data.manualRefCounts.clear();
+		_data.ecsRefCounts.clear();
 	}
 
 	// プールの取得

@@ -7,20 +7,25 @@ namespace Engine::Resource
 
 		RunGarbageCollectionSweep();
 
-		// 各プール解放
-		m_modelData.pool.Release();
-		m_materialData.pool.Release();
-		m_meshData.pool.Release();
-		m_animationData.pool.Release();
-		m_textureData.pool.Release();
-		m_shaderData.pool.Release();
-		m_animatorAssetData.pool.Release();
-		m_actionStateMachineAssetData.pool.Release();
+		// 全プール解放。
+		// ここで解放し損ねたリソースはシングルトンの静的破棄まで生き残ってしまい、
+		// 破棄順が保証されない他マネージャー(AudioEngine など)を掴んだまま落ちる。
+		// リソース型を追加したらここにも必ず足すこと。
+		ReleaseData<Model>();
+		ReleaseData<Material>();
+		ReleaseData<Mesh>();
+		ReleaseData<AnimationData>();
+		ReleaseData<Texture>();
+		ReleaseData<Shader>();
+		ReleaseData<AnimatorAsset>();
+		ReleaseData<ActionStateMachineAsset>();
+		ReleaseData<ParticlesAsset>();
+		ReleaseData<ShadingModelTable>();
+		ReleaseData<Prefab>();
 
 		// サウンド : DirectX::SoundEffect は AudioEngine を参照しているため、
-		// AudioEngine が生きているこのタイミングで必ず解放しきる。
-		// (静的変数の破棄まで残すと AudioEngine が先に消えて落ちる)
-		m_soundData.pool.Release();
+		// AudioEngine が生きているこのタイミングで必ず解放しきる
+		ReleaseData<Sound>();
 	}
 
 	void ResourceManager::AllResetECSRefs()
