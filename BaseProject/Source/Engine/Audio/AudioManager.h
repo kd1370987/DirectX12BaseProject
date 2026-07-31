@@ -12,6 +12,17 @@ namespace Engine::Audio
 		// 初期化・解放
 		//----------------------------------------------------------------------------------------------------
 		bool Init();
+
+		/// <summary>
+		/// 発行済みのサウンドインスタンスをすべて停止・破棄する
+		/// DirectX::SoundEffectInstance は生成元の SoundEffect と AudioEngine を
+		/// 参照しているため、それらより先にここで破棄しきる必要がある
+		/// </summary>
+		void ReleaseInstances();
+
+		/// <summary>
+		/// 全解放 : サウンドインスタンス → オーディオエンジン の順で破棄する
+		/// </summary>
 		void Release();
 
 		//----------------------------------------------------------------------------------------------------
@@ -30,6 +41,10 @@ namespace Engine::Audio
 		Handle<Resource::SoundInstance> RequestSoundInstance(const Engine::GUID& a_guid);
 
 	private:
+
+		// ---- メンバの宣言順が破棄順を決めるので入れ替えないこと ----
+		// 破棄は宣言の逆順。SoundInstance が AudioEngine を参照しているため、
+		// オーディオエンジンは必ず一番上(= 最後に破棄される位置)に置く。
 
 		// オーディオエンジン
 		std::unique_ptr<DirectX::AudioEngine> m_upAudioEngine = nullptr;

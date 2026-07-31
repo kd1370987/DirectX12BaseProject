@@ -165,8 +165,18 @@ namespace Engine
 		// アプリケーション・上位層の解放
 		m_upCollisionWorld.reset(); // コリジョン解放
 
-		// リソースの解放
+		// 再生中のサウンドインスタンスを破棄。
+		// SoundEffectInstance は生成元の SoundEffect(= Resource::Sound) を
+		// 参照しているため、リソース解放より先に片付ける。
+		Audio::AudioManager::Instance().ReleaseInstances();
+
+		// リソースの解放（Sound = DirectX::SoundEffect もここで解放される）
 		Resource::ResourceManager::Instance().Release();
+
+		// オーディオエンジンの解放。
+		// SoundEffect が AudioEngine を参照しているため、必ずリソース解放の後に行う。
+		// シングルトンの破棄順は保証されないので、ここで明示的に解放しておくこと。
+		Audio::AudioManager::Instance().Release();
 
 		// エディター（ImGui）解放
 		Engine::Editor::MainEditor::Instance().Release();

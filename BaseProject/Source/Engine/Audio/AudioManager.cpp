@@ -21,10 +21,24 @@ namespace Engine::Audio
 		m_listener.OrientFront = { 0,0,1 };
 
 		ENGINE_LOG("[Init] AudioManager が初期化されました");
-		return false;
+		return true;
+	}
+	void AudioManager::ReleaseInstances()
+	{
+		// 鳴っているものを止めてから破棄する
+		for (auto& _instance : m_soundInstancePool.RefAll())
+		{
+			if (!_instance.has_value()) continue;
+			_instance->Stop();
+		}
+		m_soundInstancePool.Release();
 	}
 	void AudioManager::Release()
 	{
+		// SoundEffectInstance は AudioEngine を参照しているため、
+		// エンジンより先にインスタンスを破棄しきる
+		ReleaseInstances();
+
 		m_upAudioEngine = nullptr;
 	}
 	const Resource::SoundInstance* AudioManager::GetInstance(const Handle<Resource::SoundInstance>& a_handle) const
@@ -79,5 +93,10 @@ namespace Engine::Audio
 	AudioManager::AudioManager()
 	{}
 	AudioManager::~AudioManager()
-	{}
+	{
+		// 本来は MainEngine::Release() から明示的に解放されている想定。
+		// ここに到達するのは静的変数の破棄フェーズなので、
+		// 取りこぼしがあった場合の保険として正しい順序で解放しておく
+		Release();
+	}
 }

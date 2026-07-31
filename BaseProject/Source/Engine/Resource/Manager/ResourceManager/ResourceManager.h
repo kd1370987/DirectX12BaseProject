@@ -124,7 +124,25 @@ namespace Engine::Resource
 		template<typename T>
 		void AddEcsRef(const Handle<T>& a_handle);
 
+		/// <summary>
+		/// シングルトンの実体が生存しているか
+		/// 関数内 static の破棄順はシングルトン同士で保証されないため、
+		/// デストラクタから ResourceManager に触りにいく可能性のあるもの
+		/// (ResourceRef など) は必ずこれで生存確認してからアクセスすること
+		/// </summary>
+		static bool IsAlive() noexcept { return AliveFlag(); }
+
 	private:
+
+		/// <summary>
+		/// 生存フラグ : bool は自明なデストラクタを持つためデストラクタが登録されず、
+		/// プロセス終了までこの参照自体は安全に読める
+		/// </summary>
+		static bool& AliveFlag() noexcept
+		{
+			static bool _alive = false;
+			return _alive;
+		}
 
 		// キャッシュ追加
 		template<typename T>
@@ -493,7 +511,13 @@ namespace Engine
 	// デストラクタ
 	template<typename T>
 	inline ResourceRef<T>::~ResourceRef() {
-		if (Resource::ResourceManager::Instance().IsValid(m_handle)) 
+		// ResourceRef がシングルトン(AudioManager など)に保持されている場合、
+		// このデストラクタは静的変数の破棄フェーズで走ることがある。
+		// そのとき ResourceManager が先に壊されていると Instance() は
+		// 破棄済みオブジェクトへの参照を返すため、必ず生存確認する
+		if (!Resource::ResourceManager::IsAlive()) return;
+
+		if (Resource::ResourceManager::Instance().IsValid(m_handle))
 		{
 			Resource::ResourceManager::Instance().ReleaseRef(m_handle);
 		}

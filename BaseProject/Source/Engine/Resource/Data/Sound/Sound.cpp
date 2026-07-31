@@ -26,6 +26,10 @@ namespace Engine::Resource
 		}
 		m_upSoundInstance = std::move(_pEffect->CreateInstance());
 
+		// 元データを参照として保持し、インスタンスが生きている間は
+		// Sound(= DirectX::SoundEffect) が解放されないようにする
+		m_soundRef = a_resourceRef;
+
 		return true;
 	}
 	void SoundInstance::Play(bool a_isLoop)
