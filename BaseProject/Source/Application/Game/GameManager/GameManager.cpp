@@ -71,6 +71,7 @@
 #include "../../Components/Character/AimTargetPosComponent.h"
 #include "../../Components/Collision/ConeCollider.h"
 #include "../../Components/Character/TargetEntityComponent.h"
+#include "../../Components/Resource/SoundComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -251,6 +252,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<ConeColliderComponent>("ConeColliderComponent");
 				a_pWorld->RegisterComponent<PatrolComponent>("PatrolComponent");
 				a_pWorld->RegisterComponent<TargetEntityComponent>("TargetEntityComponent");
+				a_pWorld->RegisterComponent<SoundComponent>("SoundComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
