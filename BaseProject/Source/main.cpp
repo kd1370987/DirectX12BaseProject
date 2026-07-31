@@ -10,6 +10,7 @@
 /// <returns>終了コード : 通常は 0 </returns>
 int WINAPI WinMain(HINSTANCE a_hInstance, HINSTANCE a_hPrevInstance, LPSTR a_lpCmdLine, int a_nCmdShow)
 {
-	Application::Instance().Execute();
+	Application _app = {};
+	_app.Execute();
 	return 0;
 }

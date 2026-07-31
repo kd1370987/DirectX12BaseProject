@@ -1240,6 +1240,15 @@
     <Filter Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem">
       <UniqueIdentifier>{8a69a85f-8d5b-4d75-8c43-677b3f88f09f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Audio">
+      <UniqueIdentifier>{dc1380b3-99b4-42e9-b2a9-6521c9e453a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Sound">
+      <UniqueIdentifier>{51117783-605f-4494-8e73-be9dcf77c6fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Sound\IO">
+      <UniqueIdentifier>{e90c2f76-59d7-4393-85f5-db61b6f3b86e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2004,6 +2013,21 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem\LockOnRotationSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Audio\AudioManager.cpp">
+      <Filter>Source\Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Sound\Sound.cpp">
+      <Filter>Source\Engine\Resource\Data\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Sound\IO\SoundIO.cpp">
+      <Filter>Source\Engine\Resource\Data\Sound\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Option\GraphicsOptions\RenderingOption.cpp">
+      <Filter>Source\Engine\Option\GraphicsOptions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Option\GraphicsOptions\WindowOption.cpp">
+      <Filter>Source\Engine\Option\GraphicsOptions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -2557,9 +2581,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h">
       <Filter>Source\Engine\Persistence\Archive</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EngineConfig.h">
-      <Filter>Source\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\WatchView\WatchView.h">
       <Filter>Source\Engine\Editor\WatchView</Filter>
@@ -3116,7 +3137,6 @@
     <ClInclude Include="Source\Application\Components\Camera\CameraFocusTargetComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Internal\SystemContext.h" />
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.h">
       <Filter>Source\Engine\GameObject\GameObjectManager</Filter>
     </ClInclude>
@@ -3174,9 +3194,23 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem\LockOnRotationSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Audio\AudioManager.h">
+      <Filter>Source\Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Sound\Sound.h">
+      <Filter>Source\Engine\Resource\Data\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Sound\IO\SoundIO.h">
+      <Filter>Source\Engine\Resource\Data\Sound\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Option\ProjectOptions\BuildConfig.h">
+      <Filter>Source\Engine\Option\ProjectOptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Internal\SystemContext.h">
+      <Filter>Source\Engine\ECS\Internal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>
     </None>

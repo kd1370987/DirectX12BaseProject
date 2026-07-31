@@ -4,6 +4,9 @@ class Application
 {
 public:
 
+	Application();
+	~Application();
+
 	// アプリケーション実行
 	void Execute();
 
@@ -17,22 +20,5 @@ private:
 
 	// メインループ
 	void MainLoop();
-
-private:
-
-
-// シングルトン
-private:
-
-	Application();
-	~Application();
-
-public:
-
-	static Application& Instance()
-	{
-		static Application _instance;
-		return _instance;
-	}
 
 };
