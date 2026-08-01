@@ -5,7 +5,7 @@
 #include "Application/Components/Tag/CameraTag.h"
 #include "Application/Components/Tag/ActiveCameraTag.h"
 #include "Application/Components/Camera/FollowTargetComponent.h"
-#include "Application/Components/Camera/CameraFocusTargetComponent.h"
+#include "Application/Components/Camera/TPSCameraStateComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../Components/Character/AimTargetPosComponent.h"
 
@@ -94,25 +94,29 @@ void AimTargetSystem::Init(Engine::ECS::World& a_world)
 				// そこから startOffset だけ先を始点にする。
 				// これならカメラ距離を変えても自動で追従する。
 				//============================================================
+				// フォーカス点は TPSSystem が解決済みの値をそのまま使う。
+				// offsetPos はカメラ空間(オービット基準)なので、ここで
+				// ワールド座標へ組み直すとオービットの式を二重に持つことになり、
+				// 片方だけ直したときに静かにズレる。
+				//
+				// TPSSystem はカメラの LocalTransform を書き、こちらはそれを読むので
+				// RAW 依存でこのシステムが後になる = 同フレームの値が入っている。
+				// TPS 以外のカメラなど、状態が無い場合はフォーカス点を諦めて
+				// startOffset だけで撃つ(従来通り)。
+				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+
 				float _startDist = _pAim->startOffset;
-				if (a_ctx.pWorld->HasComponent<LocalTransformComponent>(_target))
+				if (a_ctx.pWorld->HasComponent<TPSCameraStateComponent>(_self))
 				{
-					if (const auto* _pTargetTRS = a_ctx.pWorld->RefData<LocalTransformComponent>(_target))
+					if (const auto* _pState = a_ctx.pWorld->RefData<TPSCameraStateComponent>(_self))
 					{
-						DXSM::Vector3 _focus = DXSM::Vector3(_pTargetTRS->pos);
-
-						// フォーカスオフセット(TPSSystem の注視点と同じもの)
-						if (a_ctx.pWorld->HasComponent<CameraFocusTargetComponent>(_target))
+						if (_pState->isInitialized)
 						{
-							if (const auto* _pFocus = a_ctx.pWorld->RefData<CameraFocusTargetComponent>(_target))
-							{
-								_focus += DXSM::Vector3(_pFocus->offsetPos);
-							}
+							// カメラ前方軸への射影 = カメラからフォーカス点までの前方距離
+							float _proj =
+								(DXSM::Vector3(_pState->lookAtWorld) - DXSM::Vector3(_trsComp.pos)).Dot(_fwd);
+							_startDist = std::max(_proj, 0.0f) + _pAim->startOffset;
 						}
-
-						// カメラ前方軸への射影 = カメラからフォーカス点までの前方距離
-						float _proj = (_focus - DXSM::Vector3(_trsComp.pos)).Dot(_fwd);
-						_startDist = std::max(_proj, 0.0f) + _pAim->startOffset;
 					}
 				}
 

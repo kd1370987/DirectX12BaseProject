@@ -17,6 +17,7 @@
 #include "../../../../Application/Components/Hierarchy/FollowAnimationNodeComponent.h"
 #include "../../../../Application/Components/Resource/ParticlesComponent.h"
 #include "../../../../Application/Components/Camera/CameraFocusTargetComponent.h"
+#include "../../../../Application/Components/Character/LookAngleComponent.h"
 #include "../../../../Application/Components/Camera/TPSOffsetComponent.h"
 #include "../../../../Application/Components/Camera/FollowTargetComponent.h"
 
@@ -668,13 +669,36 @@ namespace Engine::Editor
 
 		//==================================================================================
 		// カメラの注視点オフセット
-		// TPSSystem は注視点をターゲット座標 + offsetPos で求めるので、それをそのまま出す。
+		// TPSSystem は offsetPos をカメラ空間(オービット基準)として扱い、
+		// 注視点 = ターゲット座標 + オービットで回したオフセット で求める。
+		// (左手系なので +X が画面右、+Y が画面上、+Z が視線の奥)
+		//
+		// オービットは LookAngleComponent の Yaw/Pitch へ追従するので、
+		// ここでも同じ角度から回転を組む。機体の姿勢(quat)で回すと、
+		// 胴体が視線と別方向を向いている間だけ表示がずれる。
+		// LookAngle を持たないエンティティはワールド軸で出す(回転なし)。
 		//==================================================================================
 		if (a_pWorld->HasComponent<CameraFocusTargetComponent>(a_entity))
 		{
 			if (auto* _pFocus = a_pWorld->RefData<CameraFocusTargetComponent>(a_entity))
 			{
-				const DXSM::Vector3 _focusPos = _originPos + DXSM::Vector3(_pFocus->offsetPos);
+				DXSM::Quaternion _orbit = DXSM::Quaternion::Identity;
+				if (a_pWorld->HasComponent<LookAngleComponent>(a_entity))
+				{
+					if (auto* _pLookAng = a_pWorld->RefData<LookAngleComponent>(a_entity))
+					{
+						// 角度は度で保持されている。Vector3 オーバーロードは軸が
+						// 入れ替わるのでスカラー版を明示的に使う(TPSSystem と同じ式)。
+						_orbit = DXSM::Quaternion::CreateFromYawPitchRoll(
+							DirectX::XMConvertToRadians(_pLookAng->Yaw),
+							DirectX::XMConvertToRadians(-_pLookAng->Pitch),
+							0.0f);
+						_orbit.Normalize();
+					}
+				}
+
+				const DXSM::Vector3 _focusPos =
+					_originPos + DXSM::Vector3::Transform(DXSM::Vector3(_pFocus->offsetPos), _orbit);
 				_hud.Line(_originPos, _focusPos, HUD_COL_CAMERA, 1.0f);
 				_hud.Marker(_focusPos, HUD_COL_CAMERA, "FocusOffset", 5.0f);
 			}

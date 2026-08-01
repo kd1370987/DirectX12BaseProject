@@ -1,4 +1,4 @@
-#include "TPSSystem.h"
+﻿#include "TPSSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -97,9 +97,20 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 
 				//============================================================
 				// 追従の目標値
+				//------------------------------------------------------------
+				// 注視点のオフセットは「カメラ空間(オービット基準)」で扱う。
+				// 左手系なので +Z が視線の奥、+X が画面右、+Y が画面上。
+				//   例) 機体を画面の左下に置いて右上を狙うなら x,y を正にする。
+				//
+				// 機体の姿勢(LocalTransform の quat)で回してはいけない。
+				// プレイヤーの胴体は LockOnRotationSystem が狙点/進行方向へ
+				// Slerp で向けるため視線角と一致せず、横移動や旋回のたびに
+				// 「機体の右上」がカメラから見て回り込み、それを追ってカメラが
+				// 振られる。カメラ空間で持てば機体がどちらを向いても
+				// 画面内の構図は変わらない。
 				//============================================================
-				DXSM::Vector3 _goalPivot	= DXSM::Vector3(_targetTRS->pos) + DXSM::Vector3::Up * _offsetComp.y;
-				DXSM::Vector3 _goalLookAt	= DXSM::Vector3(_targetTRS->pos) + DXSM::Vector3(_forcusTarget->offsetPos);
+				DXSM::Vector3 _goalPivot		= DXSM::Vector3(_targetTRS->pos) + DXSM::Vector3::Up * _offsetComp.y;
+				DXSM::Vector3 _goalLookAtLocal	= DXSM::Vector3(_forcusTarget->offsetPos);
 
 				//============================================================
 				// 水平速度(引きの量に使う)
@@ -129,7 +140,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				if (!_statComp.isInitialized)
 				{
 					_statComp.currentPivot		= _goalPivot;
-					_statComp.currentLookAt		= _goalLookAt;
+					_statComp.currentLookAt		= _goalLookAtLocal;
 					_statComp.currentOrbit		= _targetRot;
 					_statComp.currentPullBack	= _goalPullBack;
 					_statComp.isInitialized		= true;
@@ -162,19 +173,13 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				_statComp.currentPivot = _pivot;
 
 				//============================================================
-				// 注視点の追従
-				//------------------------------------------------------------
-				// ピボットより速く追従させる。ここが遅いと機体が画面から逃げる。
-				//============================================================
-				DXSM::Vector3 _lookAt = DXSM::Vector3(_statComp.currentLookAt);
-				_lookAt += (_goalLookAt - _lookAt) * DampFactor(_followParam.lookAtRate, a_ctx.dt);
-
-				//============================================================
 				// オービット回転の補間(クォータニオンSlerp)
 				//------------------------------------------------------------
 				// Vector3::Lerp+正規化での「向き」補間は、現在向きと目標向きが
 				// ほぼ反対を向いた瞬間に補間結果がゼロ近傍を通り、正規化が破綻して
 				// 高速に180度反転する。Slerpは最短経路で回るためこの破綻が無い。
+				//
+				// 注視点のオフセットをこの回転で解決するので、注視点より先に求める。
 				//============================================================
 				DXSM::Quaternion _curOrbit = _statComp.currentOrbit;
 				if (_curOrbit.LengthSquared() < 1e-6f) _curOrbit = _targetRot;	// 未初期化保険
@@ -183,6 +188,22 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 					_curOrbit, _targetRot, DampFactor(_followParam.orbitRate, a_ctx.dt));
 				_orbit.Normalize();
 				_statComp.currentOrbit = _orbit;
+
+				//============================================================
+				// 注視点の追従
+				//------------------------------------------------------------
+				// 補間はカメラ空間のまま行う。ワールドで補間すると、遅れている間に
+				// 機体が動いた分だけ注視点が取り残されて構図が揺れる。
+				//
+				// ワールドへ戻すときの基準はピボット(遅れて追従する)ではなく
+				// ターゲットの実際の位置。ここが遅れると機体が画面から逃げる。
+				// 回転はオービットなので、機体の向きには一切影響されない。
+				//============================================================
+				DXSM::Vector3 _lookAtLocal = DXSM::Vector3(_statComp.currentLookAt);
+				_lookAtLocal += (_goalLookAtLocal - _lookAtLocal) * DampFactor(_followParam.lookAtRate, a_ctx.dt);
+
+				DXSM::Vector3 _lookAt =
+					DXSM::Vector3(_targetTRS->pos) + DXSM::Vector3::Transform(_lookAtLocal, _orbit);
 
 				//============================================================
 				// 引き量の追従
@@ -242,7 +263,8 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				//============================================================
 				_trsComp.pos = _currentPos;
 				_trsComp.quat = _camRot;
-				_statComp.currentLookAt = _lookAt;
+				_statComp.currentLookAt = _lookAtLocal;	// 保持するのはカメラ空間の相対座標
+				_statComp.lookAtWorld	= _lookAt;		// 解決後のワールド座標(他システム参照用)
 				_trsComp.isDirty = true;
 			}
 		}

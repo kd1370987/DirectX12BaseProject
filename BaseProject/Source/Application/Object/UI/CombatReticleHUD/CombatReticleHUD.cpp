@@ -29,7 +29,6 @@ namespace App::Object
 
 	void CombatReticleHUD::Update(Engine::GameObject::ObjectContext& a_context)
 	{
-		// テスト段階のため更新処理は無し
 	}
 
 }
