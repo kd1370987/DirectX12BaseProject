@@ -20,6 +20,10 @@ namespace Engine::Raytracing
 {
 	class RayEngine;
 }
+namespace Engine::Audio
+{
+	class AudioManager;
+}
 
 namespace Engine::ECS
 {
@@ -38,6 +42,7 @@ namespace Engine::ECS
 		Input::InputManager*		pInputManager		= nullptr;
 		Editor::MainEditor*			pMainEditor			= nullptr;
 		Raytracing::RayEngine*		pRayEngine			= nullptr;
+		Audio::AudioManager*		pAudioManager		= nullptr;
 	};
 
 	/// <summary>

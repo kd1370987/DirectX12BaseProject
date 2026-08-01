@@ -55,6 +55,13 @@ namespace Engine::Audio
 		Handle<Resource::SoundInstance> RequestSoundInstance(const std::string& a_filePath, bool a_is3D = false);
 		Handle<Resource::SoundInstance> RequestSoundInstance(const Engine::GUID& a_guid, bool a_is3D = false);
 
+		/// <summary>
+		/// 発行したサウンドインスタンスを停止して破棄する
+		/// プールはアプリ寿命なので、発行した側(コンポーネント等)が必ず返却すること
+		/// </summary>
+		/// <param name="a_handle">RequestSoundInstance が返したハンドル : 無効なら何もしない</param>
+		void ReleaseSoundInstance(const Handle<Resource::SoundInstance>& a_handle);
+
 	private:
 
 		// ---- メンバの宣言順が破棄順を決めるので入れ替えないこと ----

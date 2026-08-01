@@ -715,6 +715,9 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem">
       <UniqueIdentifier>{b2e7a1c4-9f3d-4a6b-8c21-7de5f0a4b913}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem">
+      <UniqueIdentifier>{541c9668-05e1-4902-b497-892715a4a70b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem">
       <UniqueIdentifier>{d9c8b3a5-1e42-4f7a-b6d0-3c8f5a2e9107}</UniqueIdentifier>
     </Filter>
@@ -813,6 +816,9 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem">
       <UniqueIdentifier>{56a92f0c-190f-4f54-a10d-b4bc41efcb15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize\SoundFixupSystem">
+      <UniqueIdentifier>{28810f8a-9fe6-4cf3-b29e-b08a50e70a46}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Utility\String">
       <UniqueIdentifier>{a89720f8-c303-4c35-961b-802545baf70a}</UniqueIdentifier>
@@ -1008,6 +1014,9 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Release\ResourceFreeSystem">
       <UniqueIdentifier>{275a4e97-fa93-4e37-9a57-27f7b5781ba7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Release\SoundFreeSystem">
+      <UniqueIdentifier>{88a8efb5-3d3f-42fb-975e-19ff52c9302a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Editor\Panel">
       <UniqueIdentifier>{6fc96173-b325-4988-9827-b37056a3a016}</UniqueIdentifier>
@@ -1635,6 +1644,9 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem\BoostSoundSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\BoostSoundSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem</Filter>
     </ClCompile>
@@ -1676,6 +1688,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\SoundFixupSystem\SoundFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\SoundFixupSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
@@ -1817,6 +1832,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.cpp">
+      <Filter>Source\Application\Systems\Release\SoundFreeSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.cpp">
       <Filter>Source\Application\Systems\Release\ResourceFreeSystem</Filter>
@@ -2636,6 +2654,9 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem\BoostSoundSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\BoostSoundSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem</Filter>
     </ClInclude>
@@ -2725,6 +2746,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\SoundFixupSystem\SoundFixupSystem.h">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\SoundFixupSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
@@ -2926,6 +2950,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Common\ScopedResourceBuild.h">
       <Filter>Source\Engine\Resource\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.h">
+      <Filter>Source\Application\Systems\Release\SoundFreeSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.h">
       <Filter>Source\Application\Systems\Release\ResourceFreeSystem</Filter>

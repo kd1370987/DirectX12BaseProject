@@ -144,6 +144,9 @@
 #include "../../Systems/Update/Update/FaceTargetSystem/FaceTargetSystem.h"
 #include "../../Systems/Update/PreUpdate/EnemyMoveIntentSystem/EnemyMoveIntentSystem.h"
 #include "../../Systems/Update/Update/Move/EnemyMovementSystem/EnemyMovementSystem.h"
+#include "../../Systems/Init/PostDeserialize/SoundFixupSystem/SoundFixupSystem.h"
+#include "../../Systems/Update/PreUpdate/BoostSoundSystem/BoostSoundSystem.h"
+#include "../../Systems/Release/SoundFreeSystem/SoundFreeSystem.h"
 #include "../../Components/Character/PatrolComponent.h"
 
 // リソース関係
@@ -260,12 +263,14 @@ namespace App::Game
 				a_pWorld->RegisterSystem<StateMachineFixupSystem>();
 				a_pWorld->RegisterSystem<ActionStateFixupSystem>();
 				a_pWorld->RegisterSystem<ParticleFixupSystem>();
+				a_pWorld->RegisterSystem<SoundFixupSystem>();
 				a_pWorld->RegisterSystem<FollowTargetLinkSystem>();
 				a_pWorld->RegisterSystem<AttachmentSlotLinkSystem>();
 				a_pWorld->RegisterSystem<HierarchyLinkSystem>();
 				a_pWorld->RegisterSystem<PlayerIntentSystem>();
 				a_pWorld->RegisterSystem<AttachmentDispatchSystem>();
 				a_pWorld->RegisterSystem<ThrusterEffectSystem>();
+				a_pWorld->RegisterSystem<BoostSoundSystem>();
 				a_pWorld->RegisterSystem<ActionIntentSystem>();
 				a_pWorld->RegisterSystem<SearchPlayerSystem>();
 				a_pWorld->RegisterSystem<SightStateBridgeSystem>();
@@ -312,6 +317,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<ParticleEmitSystem>();
 				a_pWorld->RegisterSystem<AnimationMatrixFreeSystem>();
 				a_pWorld->RegisterSystem<AdditivePoseFreeSystem>();
+				a_pWorld->RegisterSystem<SoundFreeSystem>();
 				a_pWorld->RegisterSystem<RegisterPrevWorldMatSystem>();
 				a_pWorld->RegisterSystem<UpdateHierarchyDepthSystem>();
 				a_pWorld->RegisterSystem<CommitHierarchyWorldMatrixSystem>();

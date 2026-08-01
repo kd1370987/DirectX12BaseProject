@@ -13,6 +13,7 @@
 #include "../../Input/InputManager/InputManager.h"
 #include "../../Editor/Editor.h"
 #include "../../Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "../../Audio/AudioManager.h"
 #include "../../GameObject/GameObjectManager/GameObjectManager.h"
 
 // アプリ側UIオブジェクト
@@ -42,6 +43,7 @@ namespace Engine::Scene
 		_services.pInputManager		= &Engine::Input::InputManager::Instance();
 		_services.pMainEditor		= &Engine::Editor::MainEditor::Instance();
 		_services.pRayEngine		= &Engine::Raytracing::RayEngine::Instance();
+		_services.pAudioManager		= &Engine::Audio::AudioManager::Instance();
 		m_upWorld->SetEngineServices(_services);
 
 		// ワールド設定の呼びだし

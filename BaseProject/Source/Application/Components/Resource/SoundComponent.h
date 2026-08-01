@@ -2,12 +2,14 @@
 
 #include "../../../Engine/Editor/EditorUI/EditorUI.h"
 #include "../../../Engine/ECS/World/World.h"
+#include "../../../Engine/Audio/AudioManager.h"
 
 struct SoundComponent
 {
 	Engine::GUID soundGUID = Engine::DefaultGUID;									// サウンド本体のGUID
 	Engine::Handle<Engine::Resource::SoundInstance> soundInstanceHandle = {};		// サウンドから作られたインスタンスのハンドル
-	float vol = 0.0f;
+	float vol = 1.0f;
+	bool isLoop = false;															// ループ再生するか : 鳴らす側がこの設定を見て Play する
 };
 
 template<>
@@ -18,6 +20,7 @@ struct Engine::ECS::ComponentTraits<SoundComponent>
 		SoundComponent& _comp = Engine::Editor::GetValue<SoundComponent>(a_pData);
 		a_ar.Field("SoundGUID",_comp.soundGUID);
 		a_ar.Field("Vol",_comp.vol);
+		a_ar.Field("IsLoop",_comp.isLoop);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -35,6 +38,18 @@ struct Engine::ECS::ComponentTraits<SoundComponent>
 			{
 				a_context.pWorld->AddRefreshEntity(a_context.entity);
 			}
+		}
+
+		// ループ再生するかどうか。
+		// 鳴らす側のシステムが Play(isLoop) で参照する。
+		// (例: ブースト継続音は true、発進音のような単発は false)
+		ImGui::Checkbox("Loop", &_comp.isLoop);
+
+		// 音量は発行済みインスタンスへ即時反映して、鳴らしながら調整できるようにする
+		if (ImGui::DragFloat("Volume", &_comp.vol, 0.01f, 0.0f, 1.0f))
+		{
+			auto* _pInstance = Engine::Audio::AudioManager::Instance().RefInstance(_comp.soundInstanceHandle);
+			if (_pInstance) _pInstance->SetVolume(_comp.vol);
 		}
 	}
 };

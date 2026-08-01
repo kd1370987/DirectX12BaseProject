@@ -18,10 +18,17 @@ namespace Engine::Graphics
 
 		size_t _size = sizeof(MeshInstanceData);
 
-		m_meshletBuffer.Create(a_pDevice,a_pCmdList,100000);
+		// メッシュレット数の上限。
+		// CullData は DirectX::ComputeCullData がメッシュレット1個につき1個生成するため、
+		// カリングバッファはメッシュレットバッファと必ず同じ要素数で確保する。
+		// (別々の値にしていると CullData 側だけ 100 倍確保するような取り違えが起きる。
+		//  sizeof(DirectX::CullData) は 24 バイトなので 1000万要素だと 229MiB を無駄に常駐させることになる)
+		constexpr size_t kMaxMeshletNum = 100000;
+
+		m_meshletBuffer.Create(a_pDevice,a_pCmdList,kMaxMeshletNum);
 		m_uniqueVertexIndicesBuffer.Create(a_pDevice, a_pCmdList, 10000000);
 		m_meshTriangleBuffer.Create(a_pDevice, a_pCmdList, 10000000);
-		m_meshletCullDataBuffer.Create(a_pDevice,a_pCmdList,10000000);
+		m_meshletCullDataBuffer.Create(a_pDevice,a_pCmdList,kMaxMeshletNum);
 	}
 
 	void MeshBufferAllocator::Release()

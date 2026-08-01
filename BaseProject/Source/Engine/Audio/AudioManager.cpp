@@ -107,6 +107,15 @@ namespace Engine::Audio
 
 		return m_soundInstancePool.Add(std::move(_instance));
 	}
+	void AudioManager::ReleaseSoundInstance(const Handle<Resource::SoundInstance>& a_handle)
+	{
+		// 存在しないハンドルは Remove 側で弾かれるので、ここでは停止だけ気にする
+		if (auto* _pInstance = m_soundInstancePool.Ref(a_handle))
+		{
+			_pInstance->Stop();
+		}
+		m_soundInstancePool.Remove(a_handle);
+	}
 	AudioManager::AudioManager()
 	{}
 	AudioManager::~AudioManager()
