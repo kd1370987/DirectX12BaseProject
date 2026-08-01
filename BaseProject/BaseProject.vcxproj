@@ -238,6 +238,7 @@
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp" />
     <ClCompile Include="..\Library\Include\imnodes-master\imnodes.cpp" />
     <ClCompile Include="Source\Application\App.cpp" />
+    <ClCompile Include="Source\Application\Editor\CompEditHelper\CompEditHelper.cpp" />
     <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateMachine.cpp" />
     <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.cpp" />
     <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp" />
@@ -346,6 +347,7 @@
     <ClCompile Include="Source\Engine\ECS\SystemManager\SystemManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\World\World.cpp" />
     <ClCompile Include="Source\Engine\Editor\Editor.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Helper\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiHelper\ImGuiHelper.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\Log\Log.cpp" />
@@ -563,6 +565,7 @@
     <ClInclude Include="Source\Application\Components\Transform\LocalTransformComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\PreviousWorldMatrixComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h" />
+    <ClInclude Include="Source\Application\Editor\CompEditHelper\CompEditHelper.h" />
     <ClInclude Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateMachine.h" />
     <ClInclude Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.h" />
     <ClInclude Include="Source\Application\Game\GameManager\GameManager.h" />
@@ -707,6 +710,7 @@
     <ClInclude Include="Source\Engine\Editor\Drawers\ComponentEdit\ComponentEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Editor.h" />
     <ClInclude Include="Source\Engine\Editor\EditorUI\EditorUI.h" />
+    <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiHelper\ImGuiHelper.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\Log\Log.h" />

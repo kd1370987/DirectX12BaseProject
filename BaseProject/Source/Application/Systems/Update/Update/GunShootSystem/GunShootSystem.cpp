@@ -10,6 +10,7 @@
 #include "../../../../Components/Transform/LocalTransformComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
 #include "../../../../Components/Character/AimTargetPosComponent.h"
+#include "../../../../Components/Resource/ModelComponent.h"
 
 //==========================================================================================
 // GunShootSystem
@@ -21,7 +22,8 @@
 //==========================================================================================
 void GunShootSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<GunStateComponent, const ActionIntentComponent, const WorldMatrixComponent>(
+	a_world.ActiveTask<GunStateComponent, const ActionIntentComponent, const WorldMatrixComponent,
+		const ModelComponent>(
 		Engine::ECS::ESystemType::Update,
 		"GunShootSystem",
 		[]
@@ -32,7 +34,8 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 			ActiveTag* a_tags,
 			GunStateComponent* a_gunArray,
 			const ActionIntentComponent* a_intentArray,
-			const WorldMatrixComponent* a_worldMatArray
+			const WorldMatrixComponent* a_worldMatArray,
+			const ModelComponent* a_modelArray
 			)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
@@ -40,6 +43,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				GunStateComponent& _gun = a_gunArray[_i];
 				const ActionIntentComponent& _intent = a_intentArray[_i];
 				const WorldMatrixComponent& _worldMat = a_worldMatArray[_i];
+				const ModelComponent& _modelComp = a_modelArray[_i];
 
 				// 発射判定 : 単発はエッジ、オートは押しっぱなしで毎フレーム
 				bool _fire = _intent.isGunShoot && (_gun.isAuto || !_gun.prevShoot);
@@ -100,8 +104,25 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 					if (_aimDirLenSq > 1e-8f) _baseDir = _aimDir / std::sqrt(_aimDirLenSq);
 				}
 
+				// ヌルポインタノードが設定されていたらそのノードをオフセット座標とする
+				DXSM::Vector3 _offsetPos = {};
+				DXSM::Vector3 _offsetDir = {};
+				if (_gun.nullPtrNodeHash == 0)
+				{
+					auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+					if (_pModel)
+					{
+						const auto& _node = _pModel->GetOriginalNodeVec()[_gun.nodeIndex];
+						auto _trs = Math::Matrix::Decompose(_node.worldTransform);
+						_offsetPos = _trs.pos;
+						auto _quat = _trs.rotation;
+						_offsetPos = DXSM::Vector3::Transform(_offsetPos,_quat);
+					}
+				}
+
 				// 銃口を基準の向きへ少し前に出した位置から発射
-				DXSM::Vector3 _spawnPos = _pos + _baseDir * 1.5f;
+				//DXSM::Vector3 _spawnPos = _pos + _baseDir * 1.5f;
+				DXSM::Vector3 _spawnPos = _pos + _offsetPos;
 
 				//======================================================================
 				// 射出方向 : 銃口から狙点へ向ける

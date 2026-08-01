@@ -7,6 +7,9 @@
 #include "../Resource/ModelComponent.h"
 #include "HierarchyComponent.h"
 
+
+#include "../../Editor/CompEditHelper/CompEditHelper.h"
+
 //==============================================================================
 // ヒエラルキー(HierarchyComponent)で親に紐づいたうえで、
 // 親モデルの特定アニメーションノードへ追従したい、という意思を表すコンポーネント。
@@ -42,10 +45,6 @@ struct Engine::ECS::ComponentTraits<FollowAnimationNodeComponent>
 	{
 		FollowAnimationNodeComponent& _comp = Engine::Editor::GetValue<FollowAnimationNodeComponent>(a_context.pData);
 
-		auto* _pWorld = a_context.pWorld
-			? a_context.pWorld
-			: Engine::Scene::SceneManager::Instance().RefWorld();
-
 		ImGui::Text("TargetNodeIdx  : %d", _comp.targetNodeIdx);
 		ImGui::Text("TargetNodeHash : %d", _comp.targetNodeHash);
 		ImGui::Separator();
@@ -56,65 +55,11 @@ struct Engine::ECS::ComponentTraits<FollowAnimationNodeComponent>
 		ImGui::DragFloat3("OffsetScalse", &_comp.offsetScale.x, 0.1f);
 		ImGui::Separator();
 
-		// 親エンティティはヒエラルキーから取得する
-		Engine::ECS::Entity _parentID = Engine::ECS::Limits::INVALID_ENTITY;
-		if (_pWorld && a_context.entity != Engine::ECS::Limits::INVALID_ENTITY)
-		{
-			auto* _pHierarchy = _pWorld->RefData<HierarchyComponent>(a_context.entity);
-			if (_pHierarchy) _parentID = _pHierarchy->parentID;
-		}
-
-		if (!_pWorld || _parentID == Engine::ECS::Limits::INVALID_ENTITY)
-		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: No parent via HierarchyComponent.");
-			return;
-		}
-
-		// 親のモデルコンポーネントを取得
-		auto* _pParentModelComp = _pWorld->RefData<ModelComponent>(_parentID);
-		if (!_pParentModelComp)
-		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: ModelComponent not found on Parent.");
-			return;
-		}
-
-		// リソースマネージャーから実際のモデルを取得
-		const auto* _pParentModel = Engine::Resource::ResourceManager::Instance().Get(_pParentModelComp->handle);
-		if (!_pParentModel)
-		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: Model Resource is null.");
-			return;
-		}
-
-		// モデルが管理する全ノード配列を取得
-		const auto& _nodes = _pParentModel->GetOriginalNodeVec();
-
-		// 現在選択されているノード名を表示用として取得
-		std::string _currentNodeName = "None / Invalid";
-		if (_comp.targetNodeIdx < _nodes.size())
-		{
-			_currentNodeName = _nodes[_comp.targetNodeIdx].name;
-		}
-
-		// ImGuiのコンボボックスで選択可能にする
-		if (ImGui::BeginCombo("Target Node", _currentNodeName.c_str()))
-		{
-			for (size_t _i = 0; _i < _nodes.size(); ++_i)
-			{
-				bool _isSelected = (_comp.targetNodeIdx == _i);
-
-				if (ImGui::Selectable(_nodes[_i].name.c_str(), _isSelected))
-				{
-					_comp.targetNodeHash = _nodes[_i].nodeNameHash;
-					_comp.targetNodeIdx = static_cast<UINT>(_i);
-				}
-
-				if (_isSelected)
-				{
-					ImGui::SetItemDefaultFocus();
-				}
-			}
-			ImGui::EndCombo();
-		}
+		App::Editor::CompEditHelper::SelectModelNode(
+			a_context,
+			_comp.targetNodeHash,
+			_comp.targetNodeIdx
+		);
+		
 	}
 };

@@ -1258,6 +1258,15 @@
     <Filter Include="Source\Engine\Resource\Data\Sound\IO">
       <UniqueIdentifier>{e90c2f76-59d7-4393-85f5-db61b6f3b86e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\Helper">
+      <UniqueIdentifier>{ad3ffab4-be6c-47e8-a828-946754b75d07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Editor">
+      <UniqueIdentifier>{8ec41a0e-27a6-4a7b-95cf-00406d76aae9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Editor\CompEditHelper">
+      <UniqueIdentifier>{2fa737ca-2387-4deb-8323-102fc7ebd99a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2045,6 +2054,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\WindowOption.cpp">
       <Filter>Source\Engine\Option\GraphicsOptions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Helper\EditorHelper.cpp">
+      <Filter>Source\Engine\Editor\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Editor\CompEditHelper\CompEditHelper.cpp">
+      <Filter>Source\Application\Editor\CompEditHelper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3235,6 +3250,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Internal\SystemContext.h">
       <Filter>Source\Engine\ECS\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h">
+      <Filter>Source\Engine\Editor\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Editor\CompEditHelper\CompEditHelper.h">
+      <Filter>Source\Application\Editor\CompEditHelper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

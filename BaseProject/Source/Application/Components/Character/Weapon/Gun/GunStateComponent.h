@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
-#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Engine/Editor/EditorUI/EditorUI.h"
+
+#include "../../../../Editor/CompEditHelper/CompEditHelper.h"
 
 // 銃(発射体)の設定を持つコンポーネント。
 // 「どのプレハブを・どれくらいの初速で撃つか」を保持する。
@@ -16,6 +16,9 @@ struct GunStateComponent
 	Engine::Handle<Engine::Resource::Prefab> bulletPrefabHandle = {};	// ランタイム用(発射時に解決)
 
 	bool  prevShoot = false;		// 前フレームの発射入力(単発のエッジ検出用。保存しない)
+
+	UINT nullPtrNodeHash = 0;		// モデルのヌルポイント名ハッシュ値
+	UINT nodeIndex = 0;				// ランタイム用ノードインデックス
 };
 
 template<>
@@ -27,6 +30,7 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 		a_ar.Field("speed", _comp.speed);
 		a_ar.Field("isAuto", _comp.isAuto);
 		a_ar.Field("bulletPrefabGUID", _comp.bulletPrefabGUID);
+		a_ar.Field("nullPtrNodeHash", _comp.nullPtrNodeHash);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -42,5 +46,11 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 			// GUIDが変わったらハンドルは作り直す(発射時に再解決)
 			_comp.bulletPrefabHandle = {};
 		}
+
+		App::Editor::CompEditHelper::SelectModelNode(
+			a_context,
+			_comp.nullPtrNodeHash,
+			_comp.nodeIndex
+		);
 	}
 };
