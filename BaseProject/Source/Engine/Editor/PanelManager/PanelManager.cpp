@@ -7,6 +7,7 @@
 #include "../Panel/GameObjectHierarchyPanel/GameObjectHierarchyPanel.h"
 #include "../Panel/SceneViewPanel/SceneViewPanel.h"
 #include "../Panel/OptionPanel/OptionPanel.h"
+#include "../Panel/ProfilerPanel/ProfilerPanel.h"
 
 namespace  Engine::Editor
 {
@@ -19,6 +20,7 @@ namespace  Engine::Editor
 		RegisterPanel<GameObjectHierarchyPanel>();
 		RegisterPanel<SceneViewPanel>();
 		RegisterPanel<OptionPanel>();
+		RegisterPanel<ProfilerPanel>();
 
 		m_editContext.pEditorCamera = a_pEditorCamera;
 	}

@@ -1,23 +1,32 @@
-﻿#pragma once
+#pragma once
 
-#include "../ImGui/Watch/Watch.h"
+#include "../IPanel.h"
+#include "../../ImGui/Watch/Watch.h"
 
 namespace Engine::Editor
 {
-	class WatchView
+	/// <summary>
+	/// エンジンの計測結果を表示するパネル
+	/// FPS/メモリなどの全体統計と、StartWatch/EndWatchで積んだ関数ごとの計測結果を出す
+	/// </summary>
+	class ProfilerPanel : public IPanel
 	{
 	public:
+		~ProfilerPanel() override = default;
 
-		void Init();
+		const char* GetName() const override { return "ProfilerPanel"; };
+		void OnDrawImGui(EditorContext& a_editContext) override;
 
-		// 描画
-		void Draw();
+		//=======================================================================
+		// 計測関連
+		//=======================================================================
 
 		// 任意の時間を図りたいとき
 		void StartWatch(const std::string& a_name);
 		void EndWatch(const std::string& a_name);
 
 	private:
+
 		// メモリ使用率(Ram)
 		void DrawMemoryUsage();
 
@@ -34,14 +43,16 @@ namespace Engine::Editor
 		void DrawRenderStats();
 
 		// ディスクリプタヒープ使用率
-
 		void DrawDescriptorHeapUsage();
+
+		// 関数ごとの計測結果(ソート済みテーブル)
+		void DrawWatchTable();
+
 	private:
 
 		// ウォッチ用
 		std::unordered_map<std::string, UINT> m_watchIndexMap = {};
 		std::vector<Watch> m_watchVec = {};		// 実体の配列
 		std::vector<Watch*> m_cache = {};		// ソートされた配列
-
 	};
 }

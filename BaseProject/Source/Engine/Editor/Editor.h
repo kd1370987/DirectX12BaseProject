@@ -7,7 +7,7 @@ namespace Engine::Editor
 	class ComponentEdit;
 	class ImGuiContext;
 	class EditorCamera;
-	class WatchView;
+	class ProfilerPanel;
 	class PanelManager;
 
 	//=======================================================================
@@ -108,8 +108,8 @@ namespace Engine::Editor
 		// パネルマネージャー
 		std::unique_ptr<PanelManager> m_upPanelManager = nullptr;
 
-		// 計測機
-		std::unique_ptr<WatchView> m_upWatchView = nullptr;
+		// 計測機 : 実体はパネルマネージャーが持つので参照だけを持つ
+		ProfilerPanel* m_pProfilerPanel = nullptr;
 
 		// エディター用フリーカメラ
 		std::unique_ptr<EditorCamera> m_upEditorCamera = nullptr;

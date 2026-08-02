@@ -625,8 +625,8 @@
     <Filter Include="Source\Engine\Utility\BinaryHelper">
       <UniqueIdentifier>{312e8f8a-1040-489c-afb0-fbeb1e1cc827}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\WatchView">
-      <UniqueIdentifier>{8f5ff60d-62b9-4849-9cd4-bf70a3e66213}</UniqueIdentifier>
+    <Filter Include="Source\Engine\Editor\Panel\ProfilerPanel">
+      <UniqueIdentifier>{ca050a17-b355-47f7-b972-aacb3cebcc83}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Ray\RayShadowShader">
       <UniqueIdentifier>{fa448bb5-8379-4ae5-95cc-671635fde6b1}</UniqueIdentifier>
@@ -1614,8 +1614,8 @@
     <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp">
       <Filter>Source\Engine\Persistence\Archive</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\WatchView\WatchView.cpp">
-      <Filter>Source\Engine\Editor\WatchView</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.cpp">
       <Filter>Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem</Filter>
@@ -2606,9 +2606,12 @@
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h">
       <Filter>Source\Engine\Persistence\Archive</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\WatchView\WatchView.h">
-      <Filter>Source\Engine\Editor\WatchView</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.h">
+      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
     </ClInclude>
+    <None Include="Source\Engine\Editor\Helper\EditorHelper.inl">
+      <Filter>Source\Engine\Editor\Helper</Filter>
+    </None>
     <ClInclude Include="Source\Engine\Graphics\CBData.h">
       <Filter>Source\Engine\Graphics</Filter>
     </ClInclude>

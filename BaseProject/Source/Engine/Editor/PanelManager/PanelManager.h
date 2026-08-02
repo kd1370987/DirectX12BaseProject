@@ -31,6 +31,15 @@ namespace Engine::Editor
 		template<typename T>
 		void RegisterPanel();
 
+		/// <summary>
+		/// 登録済みパネルの取得
+		/// パネルは登録後に増減しないので、返したポインタは保持してよい
+		/// </summary>
+		/// <typeparam name="T">取得したいパネルの型</typeparam>
+		/// <returns>見つからなければ nullptr</returns>
+		template<typename T>
+		T* RefPanel();
+
 	private:
 
 		// 描画パネル配列
@@ -44,5 +53,18 @@ namespace Engine::Editor
 	inline void PanelManager::RegisterPanel()
 	{
 		m_upPanelVec.push_back(std::make_unique<T>());
+	}
+
+	template<typename T>
+	inline T* PanelManager::RefPanel()
+	{
+		for (auto& _upPanel : m_upPanelVec)
+		{
+			if (auto* _pTarget = dynamic_cast<T*>(_upPanel.get()))
+			{
+				return _pTarget;
+			}
+		}
+		return nullptr;
 	}
 }

@@ -4,7 +4,7 @@
 #include "ImGui/Log/Log.h"
 #include "ImGui/Watch/Watch.h"
 
-#include "WatchView/WatchView.h"
+#include "Panel/ProfilerPanel/ProfilerPanel.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
@@ -48,12 +48,6 @@ namespace Engine::Editor
 			m_upLog = std::make_unique<Log>();
 			m_upLog->Init();
 		}
-		if (!m_upWatchView)
-		{
-			m_upWatchView = std::make_unique<WatchView>();
-			m_upWatchView->Init();
-		}
-
 		// エディター用フリーカメラ
 		if (!m_upEditorCamera)
 		{
@@ -66,6 +60,9 @@ namespace Engine::Editor
 		{
 			m_upPanelManager = std::make_unique<PanelManager>();
 			m_upPanelManager->Init(m_upEditorCamera.get());
+
+			// 計測はパネル側が持つので、登録後に参照を取っておく
+			m_pProfilerPanel = m_upPanelManager->RefPanel<ProfilerPanel>();
 		}
 
 		m_editFuncVec.clear();
@@ -105,8 +102,6 @@ namespace Engine::Editor
 
 		// ログ表示
 		m_upLog->Draw("Log");
-		// 計測表示
-		m_upWatchView->Draw();
 
 		// 各登録された関数を実行
 		for (auto _func : m_editFuncVec)
@@ -200,13 +195,13 @@ namespace Engine::Editor
 	}
 	void MainEditor::StartWatch(const std::string & a_name)
 	{
-		if (!m_isInit) return;
-		m_upWatchView->StartWatch(a_name);
+		if (!m_isInit || !m_pProfilerPanel) return;
+		m_pProfilerPanel->StartWatch(a_name);
 	}
 	void MainEditor::EndWatch(const std::string & a_name)
 	{
-		if (!m_isInit) return;
-		m_upWatchView->EndWatch(a_name);
+		if (!m_isInit || !m_pProfilerPanel) return;
+		m_pProfilerPanel->EndWatch(a_name);
 	}
 	void MainEditor::DrawLine(
 		const DirectX::SimpleMath::Vector3& a_startPos,
