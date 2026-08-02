@@ -1,4 +1,4 @@
-#include "ParticleEdit.h"
+﻿#include "ParticleEdit.h"
 
 #include "../../../../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../../../../../Resource/Data/Texture/IO/TextureIO.h"
@@ -75,7 +75,7 @@ namespace Engine::Editor::Inspector
 		if (_pTex)
 		{
 			auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
-			Helper::DrawSRVView(_gpuHandle, static_cast<float>(_pTex->GetDesc().Width), static_cast<float>(_pTex->GetDesc().Height));
+			EditorHelper::DrawSRVView(_gpuHandle, static_cast<float>(_pTex->GetDesc().Width), static_cast<float>(_pTex->GetDesc().Height));
 		}
 	}
 }

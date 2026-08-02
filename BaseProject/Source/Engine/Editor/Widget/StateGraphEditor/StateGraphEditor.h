@@ -16,7 +16,6 @@
 //==========================================================================================
 #include "Engine/Resource/StateGraph/StateGraph.h"
 #include "Engine/Editor/Helper/EditorHelper.h"	// DrawEnumCombo
-#include "Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"		// Node::TitleBar
 
 namespace Engine::Editor
 {
@@ -382,7 +381,7 @@ namespace Engine::Editor
 		{
 			ImNodes::BeginNode(a_node.nodeID);
 
-			Node::TitleBar(a_node.name);
+			EditorHelper::DrawNodeTitleBar(a_node.name);
 
 			ImNodes::BeginInputAttribute(a_node.inPinID);
 			ImGui::Text("In");

@@ -52,7 +52,7 @@ namespace Engine::Editor
 
 					// テクスチャ描画
 					auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_upTempTex->GetImGuiSRV());
-					Helper::DrawSRVView(_gpuHandle, static_cast<UINT>(_drawWidth), static_cast<UINT>(_drawHeight));
+					EditorHelper::DrawSRVView(_gpuHandle, static_cast<UINT>(_drawWidth), static_cast<UINT>(_drawHeight));
 
 					ImGui::TreePop();
 				}

@@ -17,9 +17,7 @@ struct Engine::ECS::ComponentTraits<ProjMatComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		ProjMatComponent& _comp = Engine::Editor::GetValue<ProjMatComponent>(a_context.pData);
-		ImGui::Text("projMat");
-		Engine::Editor::Helper::DrawMatrix(_comp.projMat);
-		ImGui::Text("projInvMat");
-		Engine::Editor::Helper::DrawMatrix(_comp.projInvMat);
+		Engine::Editor::EditorHelper::DrawMatrix("projMat", _comp.projMat);
+		Engine::Editor::EditorHelper::DrawMatrix("projInvMat", _comp.projInvMat);
 	}
 };

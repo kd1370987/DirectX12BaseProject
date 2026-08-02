@@ -2,8 +2,6 @@
 
 #include "../../../Editor/Helper/EditorHelper.inl"
 
-#include "../../../Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
-
 #include "../../Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Manager/ResourceManager/ResourceManager.h"
 

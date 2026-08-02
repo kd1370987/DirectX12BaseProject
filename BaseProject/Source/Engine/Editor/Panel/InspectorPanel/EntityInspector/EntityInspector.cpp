@@ -60,10 +60,18 @@ namespace Engine::Editor::Inspector
 	// コンポーネントの削除
 	void SubmitCommponent(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, ECS::ComponentTypeID a_typeID)
 	{
+		ImGui::Separator();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.80f, 0.15f, 0.15f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.95f, 0.25f, 0.25f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.65f, 0.05f, 0.05f, 1.0f));
+
 		if (ImGui::Button("RemoveComponnet"))
 		{
 			a_pWorld->SubmitComponent(a_typeID, a_editContext.entity);
 		}
+
+		ImGui::PopStyleColor(3);
 	}
 
 	void EntityInspector(EditorContext& a_editContext)

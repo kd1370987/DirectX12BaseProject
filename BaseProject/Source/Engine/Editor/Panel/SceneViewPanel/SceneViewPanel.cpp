@@ -253,7 +253,7 @@ namespace Engine::Editor
 		// 表示アスペクトは実解像度(カメラ/アンプロジェクトが使う windowWidth/Height)に合わせる。
 		// ここがずれるとスクリーン→ゲーム座標のスケールが X/Y で食い違い、ピッキングが横方向にずれる。
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
-		ImVec2 _actualRenderSize = Helper::DrawSRVView(
+		ImVec2 _actualRenderSize = EditorHelper::DrawSRVView(
 			_gpuHandle,
 			static_cast<float>(_winOp.windowWidth),
 			static_cast<float>(_winOp.windowHeight));

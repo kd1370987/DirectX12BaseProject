@@ -294,4 +294,229 @@ namespace Engine::Editor
 		// 実際に描画したサイズを返す
 		return ImVec2(drawWidth, drawHeight);
 	}
+
+	//======================================================================================
+	// SRVを画像としてImGui上に描画させる
+	//======================================================================================
+	ImVec2 EditorHelper::DrawSRVView(
+		D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHandle,
+		float a_width, float a_height,
+		float a_minSize, float a_maxSize
+	)
+	{
+		ImTextureID _imTex = (ImTextureID)(a_gpuHandle.ptr);
+
+		// 横幅だけを取得（縦の残り領域は無視する）
+		float drawWidth = ImGui::GetContentRegionAvail().x;
+
+		// アスペクト比を計算
+		float aspect = a_width / a_height;
+
+		// 横幅に合わせて高さを逆算する
+		float drawHeight = drawWidth / aspect;
+
+		ImGui::Text("Size : %f,%f", drawWidth, drawHeight);
+
+		// 計算したサイズで描画
+		ImGui::Image(_imTex, ImVec2(drawWidth, drawHeight));
+
+		// 実際に描画したサイズを返す
+		return ImVec2(drawWidth, drawHeight);
+	}
+
+	namespace
+	{
+		//----------------------------------------------------------------------------------
+		// 行列の成分をそのまま並べる
+		//----------------------------------------------------------------------------------
+		bool DrawMatrixRaw(DirectX::XMFLOAT4X4& a_mat)
+		{
+			float* _m = reinterpret_cast<float*>(a_mat.m);
+
+			bool _isEdit = false;
+
+			for (int _row = 0; _row < 4; ++_row)
+			{
+				ImGui::Text("M%d", _row);
+				ImGui::SameLine();
+
+				ImGui::PushID(_row);
+				_isEdit |= ImGui::DragFloat4(
+					"##Value",
+					&_m[_row * 4],
+					0.01f,
+					-FLT_MAX,
+					FLT_MAX,
+					"%.3f");
+				ImGui::PopID();
+			}
+
+			return _isEdit;
+		}
+
+		//----------------------------------------------------------------------------------
+		// 行列を位置・回転・スケールに分解して表示する
+		// 編集されたら分解した値から組み直して書き戻す
+		//----------------------------------------------------------------------------------
+		bool DrawMatrixPosRotScale(DirectX::XMFLOAT4X4& a_mat)
+		{
+			DXSM::Matrix _mat = a_mat;
+
+			// 行列の分解
+			DXSM::Vector3 _scale = {};
+			DXSM::Quaternion _rotQuat = {};
+			DXSM::Vector3 _pos = {};
+			if (!_mat.Decompose(_scale, _rotQuat, _pos))
+			{
+				ImGui::Text("Matrix Decompose Failed");
+				return false;
+			}
+
+			// クォータニオンをEulerに直してDegreeへ変換
+			DXSM::Vector3 _rotRad = _rotQuat.ToEuler();
+			DXSM::Vector3 _rotDeg = {
+				DirectX::XMConvertToDegrees(_rotRad.x),
+				DirectX::XMConvertToDegrees(_rotRad.y),
+				DirectX::XMConvertToDegrees(_rotRad.z)
+			};
+
+			bool _isEdit = false;
+
+			ImGui::Text("Position");
+			_isEdit |= ImGui::DragFloat3("##Position", &_pos.x, 0.1f);
+
+			ImGui::Separator();
+
+			ImGui::Text("Rotation");
+			_isEdit |= ImGui::DragFloat3("##Rotation", &_rotDeg.x, 0.5f);
+
+			ImGui::Separator();
+
+			ImGui::Text("Scale");
+			_isEdit |= ImGui::DragFloat3("##Scale", &_scale.x, 0.1f);
+
+			// 触られたときだけ組み直す(毎フレーム分解->合成すると誤差が乗るため)
+			if (_isEdit)
+			{
+				DXSM::Quaternion _newQuat =
+					DXSM::Quaternion::CreateFromYawPitchRoll(
+						DirectX::XMConvertToRadians(_rotDeg.y),	// Yaw
+						DirectX::XMConvertToRadians(_rotDeg.x),	// Pitch
+						DirectX::XMConvertToRadians(_rotDeg.z)	// Roll
+					);
+
+				a_mat = DXSM::Matrix::CreateScale(_scale)
+					* DXSM::Matrix::CreateFromQuaternion(_newQuat)
+					* DXSM::Matrix::CreateTranslation(_pos);
+			}
+
+			return _isEdit;
+		}
+	}
+
+	//======================================================================================
+	// 行列の編集
+	//======================================================================================
+	bool EditorHelper::DrawMatrix(
+		const char* a_lable,
+		DirectX::XMFLOAT4X4& a_mat,
+		EMatrixViewMode a_defaultMode
+	)
+	{
+		bool _isEdit = false;
+
+		ImGui::PushID(a_lable);
+
+		if (ImGui::TreeNodeEx(a_lable, ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			// 表示形式はImGuiの状態ストレージにラベル単位で覚えさせる
+			ImGuiStorage* _pStorage = ImGui::GetStateStorage();
+			const ImGuiID _key = ImGui::GetID("MatrixViewMode");
+
+			auto _mode = static_cast<EMatrixViewMode>(
+				_pStorage->GetInt(_key, static_cast<int>(a_defaultMode)));
+
+			// 表示形式の切り替え
+			if (DrawEnumCombo("ViewMode", _mode))
+			{
+				_pStorage->SetInt(_key, static_cast<int>(_mode));
+			}
+			ImGui::Separator();
+
+			switch (_mode)
+			{
+			case EMatrixViewMode::PosRotScale:
+				_isEdit = DrawMatrixPosRotScale(a_mat);
+				break;
+
+			case EMatrixViewMode::Raw:
+			default:
+				_isEdit = DrawMatrixRaw(a_mat);
+				break;
+			}
+
+			ImGui::TreePop();
+		}
+
+		ImGui::PopID();
+
+		return _isEdit;
+	}
+
+	//======================================================================================
+	// クォータニオンを度数法のオイラー角として編集する
+	//======================================================================================
+	bool EditorHelper::DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a_quat)
+	{
+		DXSM::Quaternion _quat = a_quat;
+		DXSM::Vector3 _rotRad = _quat.ToEuler();
+
+		// Degreeへ変換
+		DXSM::Vector3 _rotDeg = {
+			DirectX::XMConvertToDegrees(_rotRad.x),
+			DirectX::XMConvertToDegrees(_rotRad.y),
+			DirectX::XMConvertToDegrees(_rotRad.z)
+		};
+
+		ImGui::Text("Rotation");
+		// 値が変更されたか取得
+		if (ImGui::DragFloat3("##Rotation", &_rotDeg.x, 0.5f))
+		{
+			// Degree → Radian
+			_rotRad = {
+				DirectX::XMConvertToRadians(_rotDeg.x),
+				DirectX::XMConvertToRadians(_rotDeg.y),
+				DirectX::XMConvertToRadians(_rotDeg.z)
+			};
+
+			// Euler → Quaternion
+			DXSM::Quaternion _newQuat =
+				DXSM::Quaternion::CreateFromYawPitchRoll(
+					_rotRad.y, // Yaw
+					_rotRad.x, // Pitch
+					_rotRad.z  // Roll
+				);
+
+			// 引数へ反映
+			a_quat = {
+				_newQuat.x,
+				_newQuat.y,
+				_newQuat.z,
+				_newQuat.w
+			};
+			return true;
+		}
+
+		return false;
+	}
+
+	//======================================================================================
+	// ノードのタイトルバー表示
+	//======================================================================================
+	void EditorHelper::DrawNodeTitleBar(const std::string& a_name)
+	{
+		ImNodes::BeginNodeTitleBar();
+		ImGui::Text("%s", a_name.c_str());
+		ImNodes::EndNodeTitleBar();
+	}
 }

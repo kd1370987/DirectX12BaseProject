@@ -2,7 +2,7 @@
 
 #include "../IOption.h"
 
-#include "../../Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
+#include "../../Editor/Helper/EditorHelper.h"
 
 namespace Engine::Option::GraphicsOptions
 {

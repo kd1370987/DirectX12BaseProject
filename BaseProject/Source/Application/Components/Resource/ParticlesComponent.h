@@ -1,9 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Engine/Resource/Data/Particles/ParticlesAsset.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "../../../Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
 #include "../../../Engine/Editor/Helper/EditorHelper.h"	// DrawEnumCombo
 
 // パーティクルの発生源(位置・方向)をどこから取るか
@@ -108,7 +107,7 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 
 		// ---- アセット選択(既存踏襲) ----
 		// ロードではなくキャッシュ参照で解決したいので、選択だけを共通ヘルパーに任せる
-		Editor::Helper::DrawHandle(_comp.particlesAssetHandle);
+		Editor::EditorHelper::DrawHandle(_comp.particlesAssetHandle);
 		GUID _selectedGUID = {};
 		if (Editor::EditorHelper::DrawAssetGUIDCombo(
 			"Change Particle",

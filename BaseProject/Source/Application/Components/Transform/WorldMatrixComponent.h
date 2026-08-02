@@ -18,6 +18,6 @@ struct Engine::ECS::ComponentTraits<WorldMatrixComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		WorldMatrixComponent& _comp = Engine::Editor::GetValue<WorldMatrixComponent>(a_context.pData);
-		Engine::Editor::Helper::DrawMatrix(_comp.worldMat);
+		Engine::Editor::EditorHelper::DrawMatrix("worldMat", _comp.worldMat);
 	}
 };

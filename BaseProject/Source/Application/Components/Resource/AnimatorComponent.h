@@ -45,7 +45,7 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 			_isLoop = _value ? 1u : 0u;
 		}
 
-		Engine::Editor::Helper::DrawHandle(_comp.dynamicInstanceHandle);
+		Engine::Editor::EditorHelper::DrawHandle(_comp.dynamicInstanceHandle);
 
 		// プレハブ編集では実体が無い(entity は INVALID)。
 		// 無効IDでエンティティ参照するとレンジ外になるので、実体があるときだけ辿る。

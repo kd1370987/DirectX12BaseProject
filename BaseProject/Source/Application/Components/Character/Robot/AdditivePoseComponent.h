@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/ECS/World/World.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
@@ -82,7 +82,7 @@ struct Engine::ECS::ComponentTraits<AdditivePoseComponent>
 		ImGui::DragFloat("LegScale",		&_comp.lagLegScale,		0.01f, 0.0f);
 
 		ImGui::SeparatorText("Runtime");
-		Editor::Helper::DrawHandle(_comp.handle);
+		Editor::EditorHelper::DrawHandle(_comp.handle);
 
 		// 解決済みボーンの確認(読み取り専用)
 		if (a_context.pWorld)

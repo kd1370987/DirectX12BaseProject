@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../../Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
+#include "../../../Engine/Editor/Helper/EditorHelper.h"
 #include "Engine/Scene/SceneManager\SceneManager.h"
 #include "../../../Engine/ECS/World/World.h"
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
@@ -51,7 +51,7 @@ struct Engine::ECS::ComponentTraits<FollowAnimationNodeComponent>
 
 		// ノード基準のオフセット(位置・回転)
 		ImGui::DragFloat3("OffsetPos", &_comp.offsetPosition.x, 0.1f);
-		Engine::Editor::Helper::DragRotationDeg3FromQuaternion(_comp.offsetRotation);
+		Engine::Editor::EditorHelper::DragRotationDeg3FromQuaternion(_comp.offsetRotation);
 		ImGui::DragFloat3("OffsetScalse", &_comp.offsetScale.x, 0.1f);
 		ImGui::Separator();
 

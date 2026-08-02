@@ -1,4 +1,4 @@
-#include "MeshEdit.h"
+﻿#include "MeshEdit.h"
 
 namespace Engine::Editor::Inspector
 {
@@ -58,10 +58,10 @@ namespace Engine::Editor::Inspector
 			const auto& _rtData = a_pMesh->GetRtData();
 
 			ImGui::Text("VertexHandle");
-			Helper::DrawHandle(_rtData.vertexHandle);
+			EditorHelper::DrawHandle(_rtData.vertexHandle);
 			ImGui::Separator();
 			ImGui::Text("IndexHandle");
-			Helper::DrawHandle(_rtData.indexHandle);
+			EditorHelper::DrawHandle(_rtData.indexHandle);
 		}
 
 		// ---- メッシュシェーダーデータ ----

@@ -2,7 +2,6 @@
 
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "../../../Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
 #include "../../../Engine/Editor/Helper/EditorHelper.inl"
 namespace Engine::Resource
 {

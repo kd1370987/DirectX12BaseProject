@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
-#include "Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
+#include "Engine/Editor/Helper/EditorHelper.h"
 #include "Application/Components/Persistence/GUIDComponent.h"
 #include "Application/Components/Persistence/NameComponent.h"
 

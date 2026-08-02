@@ -18,6 +18,6 @@ struct Engine::ECS::ComponentTraits<SkeletonPoseComponent>
 	{
 		using namespace Engine;
 		SkeletonPoseComponent& _comp = Engine::Editor::GetValue<SkeletonPoseComponent>(a_context.pData);
-		Editor::Helper::DrawHandle(_comp.skeletonPoseHandle);
+		Editor::EditorHelper::DrawHandle(_comp.skeletonPoseHandle);
 	}
 };
