@@ -72,6 +72,7 @@
 #include "../../Components/Collision/ConeCollider.h"
 #include "../../Components/Character/TargetEntityComponent.h"
 #include "../../Components/Resource/SoundComponent.h"
+#include "../../Components/Character/PatrolComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -147,7 +148,7 @@
 #include "../../Systems/Init/PostDeserialize/SoundFixupSystem/SoundFixupSystem.h"
 #include "../../Systems/Update/PreUpdate/BoostSoundSystem/BoostSoundSystem.h"
 #include "../../Systems/Release/SoundFreeSystem/SoundFreeSystem.h"
-#include "../../Components/Character/PatrolComponent.h"
+#include "../../Systems/Init/Start/GunStateStartSystem/GunStateStartSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -334,6 +335,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<CollisionEventClearSystem>();
 				a_pWorld->RegisterSystem<HitDetectSystem>();
 				a_pWorld->RegisterSystem<ExplodeOnHitSystem>();
+				a_pWorld->RegisterSystem<GunStateStartSystem>();
 				
 
 				// インスタンスデータの登録

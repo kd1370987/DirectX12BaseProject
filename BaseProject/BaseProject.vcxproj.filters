@@ -1255,6 +1255,9 @@
     <Filter Include="Source\Application\Editor\CompEditHelper">
       <UniqueIdentifier>{2fa737ca-2387-4deb-8323-102fc7ebd99a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Init\Start\GunStateStartSystem">
+      <UniqueIdentifier>{51320e8c-b456-46f8-9e90-ae4cbbd4abdf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2045,6 +2048,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Editor\CompEditHelper\CompEditHelper.cpp">
       <Filter>Source\Application\Editor\CompEditHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.cpp">
+      <Filter>Source\Application\Systems\Init\Start\GunStateStartSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3235,6 +3241,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Editor\CompEditHelper\CompEditHelper.h">
       <Filter>Source\Application\Editor\CompEditHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.h">
+      <Filter>Source\Application\Systems\Init\Start\GunStateStartSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

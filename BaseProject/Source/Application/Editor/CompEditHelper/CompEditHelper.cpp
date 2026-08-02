@@ -7,7 +7,7 @@
 
 namespace App::Editor
 {
-	void App::Editor::CompEditHelper::SelectModelNode(
+	void App::Editor::CompEditHelper::SelectParentModelNode(
 		Engine::ECS::CompEditContext& a_editContext,
 		UINT& a_nodeNameHash, 
 		UINT& a_nodeIndex
@@ -37,8 +37,38 @@ namespace App::Editor
 			return;
 		}
 
+		// 描画
+		SelectModelNode(
+			a_editContext,
+			_pParentModelComp->handle,
+			a_nodeNameHash,
+			a_nodeIndex
+		);
+	}
+
+	void CompEditHelper::SelectSelfModelNode(Engine::ECS::CompEditContext& a_editContext, UINT& a_nodeNameHash, UINT& a_nodeIndex)
+	{
+		// モデルコンポーネントを取得
+		auto* _pParentModelComp = a_editContext.pWorld->RefData<ModelComponent>(a_editContext.entity);
+		if (!_pParentModelComp)
+		{
+			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: ModelComponent not found on Parent.");
+			return;
+		}
+
+		// 描画
+		SelectModelNode(
+			a_editContext,
+			_pParentModelComp->handle,
+			a_nodeNameHash,
+			a_nodeIndex
+		);
+	}
+
+	void CompEditHelper::SelectModelNode(Engine::ECS::CompEditContext& a_editContext, const Engine::Handle<Engine::Resource::Model>& a_modelHandle, UINT& a_nodeNameHash, UINT& a_nodeIndex)
+	{
 		// リソースマネージャーから実際のモデルを取得
-		const auto* _pParentModel = Engine::Resource::ResourceManager::Instance().Get(_pParentModelComp->handle);
+		const auto* _pParentModel = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
 		if (!_pParentModel)
 		{
 			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: Model Resource is null.");

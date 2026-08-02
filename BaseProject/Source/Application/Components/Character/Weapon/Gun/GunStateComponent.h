@@ -47,7 +47,7 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 			_comp.bulletPrefabHandle = {};
 		}
 
-		App::Editor::CompEditHelper::SelectModelNode(
+		App::Editor::CompEditHelper::SelectSelfModelNode(
 			a_context,
 			_comp.nullPtrNodeHash,
 			_comp.nodeIndex

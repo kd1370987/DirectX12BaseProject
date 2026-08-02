@@ -55,7 +55,7 @@ struct Engine::ECS::ComponentTraits<FollowAnimationNodeComponent>
 		ImGui::DragFloat3("OffsetScalse", &_comp.offsetScale.x, 0.1f);
 		ImGui::Separator();
 
-		App::Editor::CompEditHelper::SelectModelNode(
+		App::Editor::CompEditHelper::SelectParentModelNode(
 			a_context,
 			_comp.targetNodeHash,
 			_comp.targetNodeIdx

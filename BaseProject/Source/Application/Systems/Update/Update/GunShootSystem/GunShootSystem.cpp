@@ -104,25 +104,29 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 					if (_aimDirLenSq > 1e-8f) _baseDir = _aimDir / std::sqrt(_aimDirLenSq);
 				}
 
-				// ヌルポインタノードが設定されていたらそのノードをオフセット座標とする
-				DXSM::Vector3 _offsetPos = {};
-				DXSM::Vector3 _offsetDir = {};
-				if (_gun.nullPtrNodeHash == 0)
+				//======================================================================
+				// 発射位置 : 銃口ヌルノードが設定されていればそこから撃つ
+				//----------------------------------------------------------------------
+				// node.worldTransform は「モデルルート基準」の行列なので、その平行移動
+				// 成分はモデル空間の値。銃の向き・スケールを反映させるため、
+				// エンティティのワールド行列で変換してワールド座標にする。
+				// (ノードインデックスは GunStateStartSystem がハッシュから解決する)
+				//======================================================================
+				DXSM::Vector3 _spawnPos = _pos;
+				if (_gun.nullPtrNodeHash != 0)
 				{
 					auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
 					if (_pModel)
 					{
-						const auto& _node = _pModel->GetOriginalNodeVec()[_gun.nodeIndex];
-						auto _trs = Math::Matrix::Decompose(_node.worldTransform);
-						_offsetPos = _trs.pos;
-						auto _quat = _trs.rotation;
-						_offsetPos = DXSM::Vector3::Transform(_offsetPos,_quat);
+						const auto& _nodeVec = _pModel->GetOriginalNodeVec();
+						if (_gun.nodeIndex < _nodeVec.size())
+						{
+							const DirectX::XMFLOAT4X4& _nodeMat = _nodeVec[_gun.nodeIndex].worldTransform;
+							DXSM::Vector3 _nodeLocalPos = { _nodeMat._41, _nodeMat._42, _nodeMat._43 };
+							_spawnPos = DXSM::Vector3::Transform(_nodeLocalPos, DXSM::Matrix(_m));
+						}
 					}
 				}
-
-				// 銃口を基準の向きへ少し前に出した位置から発射
-				//DXSM::Vector3 _spawnPos = _pos + _baseDir * 1.5f;
-				DXSM::Vector3 _spawnPos = _pos + _offsetPos;
 
 				//======================================================================
 				// 射出方向 : 銃口から狙点へ向ける
