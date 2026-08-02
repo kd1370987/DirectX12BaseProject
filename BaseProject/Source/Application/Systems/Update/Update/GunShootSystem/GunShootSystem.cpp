@@ -45,10 +45,21 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				const WorldMatrixComponent& _worldMat = a_worldMatArray[_i];
 				const ModelComponent& _modelComp = a_modelArray[_i];
 
-				// 発射判定 : 単発はエッジ、オートは押しっぱなしで毎フレーム
-				bool _fire = _intent.isGunShoot && (_gun.isAuto || !_gun.prevShoot);
+				// クールタイムを進める(撃っていなくても常に減らす)
+				if (_gun.shootCoolTime > 0.0f)
+				{
+					_gun.shootCoolTime -= a_ctx.dt;
+					if (_gun.shootCoolTime < 0.0f) _gun.shootCoolTime = 0.0f;
+				}
+
+				// 発射判定 : 単発はエッジ、オートは押しっぱなし + 発射レート間隔
+				bool _fire = _intent.isGunShoot
+					&& (_gun.isAuto ? (_gun.shootCoolTime <= 0.0f) : !_gun.prevShoot);
 				_gun.prevShoot = _intent.isGunShoot;
 				if (!_fire) continue;
+
+				// 次弾までの間隔(秒) = 1 / 発射レート
+				_gun.shootCoolTime = (_gun.fireRate > 0.0f) ? (1.0f / _gun.fireRate) : 0.0f;
 
 				// プレハブ未設定ならスキップ
 				if (_gun.bulletPrefabGUID == Engine::DefaultGUID) continue;
