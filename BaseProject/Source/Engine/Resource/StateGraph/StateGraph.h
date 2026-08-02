@@ -96,6 +96,19 @@ namespace Engine::StateGraph
 			}
 		}
 
+		// プログラム側から書き込むパラメータの定義を確保する。
+		// 定義に無いとエディターのパラメータ一覧に出てこないため、
+		// システムが値を入れる前にこれを呼んでおく。
+		// 既にある場合は何もしない(エディターで設定した型/デフォルト値を尊重する)。
+		StateParameter& EnsureParameter(UINT a_hash, const std::string& a_name, EParamType a_type)
+		{
+			return Engine::StateGraph::EnsureParameter(m_parameters, a_hash, a_name, a_type);
+		}
+		StateParameter& EnsureParameter(const std::string& a_name, EParamType a_type)
+		{
+			return EnsureParameter(StringUtility::ToHash(a_name), a_name, a_type);
+		}
+
 		// パラメータを削除する。
 		// このパラメータを参照している遷移条件もすべて削除する。
 		void RemoveParameter(UINT a_hash)

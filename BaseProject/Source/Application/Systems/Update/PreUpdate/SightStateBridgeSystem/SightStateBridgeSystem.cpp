@@ -55,8 +55,12 @@ void SightStateBridgeSystem::Init(Engine::ECS::World& a_world)
 				auto* _pInstance = _pool.Ref(_state.instanceHandle);
 				if (!_pInstance) continue;
 
-				_pInstance->boolParams[s_seeHash]   = _target.isFind;
-				_pInstance->floatParams[s_distHash] = _target.distance;
+				// 設計図(パラメータ定義を足すので Ref で可変参照を取る)
+				auto* _pActionSM = a_ctx.pServices->pResourceManager->Ref(_state.actionHandle);
+				if (!_pActionSM) continue;
+
+				_pActionSM->SetBoolParam(*_pInstance, s_seeHash, "SeePlayer", _target.isFind);
+				_pActionSM->SetFloatParam(*_pInstance, s_distHash, "TargetDistance", _target.distance);
 			}
 		}
 	);

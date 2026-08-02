@@ -82,6 +82,30 @@ namespace Engine::Resource
 			return m_graph.Evaluate(a_currentStateHash, a_instance);
 		}
 
+		//----------------------------------------------------------------------------------
+		// プログラム側からのパラメータ書き込み
+		//
+		// 設計図の定義マップに無いパラメータはエディターの一覧に出てこないので、
+		// 「無ければ定義を追加してから値を入れる」をまとめて行う。
+		// 定義済みの場合はエディターで設定した型/デフォルト値をそのまま使う。
+		// (ハッシュは呼び出し側で static キャッシュして渡す想定)
+		//----------------------------------------------------------------------------------
+		void SetFloatParam(StateMachineInstance& a_instance, UINT a_hash, const std::string& a_name, float a_value)
+		{
+			m_graph.EnsureParameter(a_hash, a_name, StateGraph::EParamType::Float);
+			a_instance.SetFloat(a_hash, a_value);
+		}
+		void SetIntParam(StateMachineInstance& a_instance, UINT a_hash, const std::string& a_name, int a_value)
+		{
+			m_graph.EnsureParameter(a_hash, a_name, StateGraph::EParamType::Int);
+			a_instance.SetInt(a_hash, a_value);
+		}
+		void SetBoolParam(StateMachineInstance& a_instance, UINT a_hash, const std::string& a_name, bool a_value)
+		{
+			m_graph.EnsureParameter(a_hash, a_name, StateGraph::EParamType::Bool);
+			a_instance.SetBool(a_hash, a_value);
+		}
+
 	private:
 		// 参照モデル選択UI(Animator固有)
 		void BindModelComb();

@@ -99,24 +99,39 @@ namespace App::Game
 		return m_farstSceneGUID;
 	}
 
+	//======================================================================================
+	// パラメータ書き込み
+	//
+	// 設計図の定義マップに無いパラメータはエディターの一覧に出てこないので、
+	// 値を入れる前に EnsureParameter で定義を確保する。
+	// 定義済みならエディターで設定した型/デフォルト値をそのまま使う。
+	//======================================================================================
 	void GameFlowStateMachine::SetTrigger(const std::string& a_triggerName)
 	{
-		m_params.SetBool(StringUtility::ToHash(a_triggerName), true);
+		UINT _hash = StringUtility::ToHash(a_triggerName);
+		m_graph.EnsureParameter(_hash, a_triggerName, Engine::StateGraph::EParamType::Trigger);
+		m_params.SetBool(_hash, true);
 	}
 
 	void GameFlowStateMachine::SetBool(const std::string& a_name, bool a_value)
 	{
-		m_params.SetBool(StringUtility::ToHash(a_name), a_value);
+		UINT _hash = StringUtility::ToHash(a_name);
+		m_graph.EnsureParameter(_hash, a_name, Engine::StateGraph::EParamType::Bool);
+		m_params.SetBool(_hash, a_value);
 	}
 
 	void GameFlowStateMachine::SetInt(const std::string& a_name, int a_value)
 	{
-		m_params.SetInt(StringUtility::ToHash(a_name), a_value);
+		UINT _hash = StringUtility::ToHash(a_name);
+		m_graph.EnsureParameter(_hash, a_name, Engine::StateGraph::EParamType::Int);
+		m_params.SetInt(_hash, a_value);
 	}
 
 	void GameFlowStateMachine::SetFloat(const std::string& a_name, float a_value)
 	{
-		m_params.SetFloat(StringUtility::ToHash(a_name), a_value);
+		UINT _hash = StringUtility::ToHash(a_name);
+		m_graph.EnsureParameter(_hash, a_name, Engine::StateGraph::EParamType::Float);
+		m_params.SetFloat(_hash, a_value);
 	}
 
 	bool GameFlowStateMachine::Evaluate(Engine::GUID& out_nextSceneGUID)

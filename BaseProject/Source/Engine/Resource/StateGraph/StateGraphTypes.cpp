@@ -62,6 +62,30 @@ namespace Engine::StateGraph
 	}
 
 	//======================================================================================
+	// パラメータ定義の確保
+	//
+	// 定義に無いパラメータはエディターの一覧に出ないので、プログラム側から
+	// 書き込むパラメータはここで定義を作っておく。
+	// 既存の定義がある場合は上書きしない(エディターで変えた型やデフォルト値を壊さない)。
+	//======================================================================================
+	StateParameter& EnsureParameter(
+		std::unordered_map<UINT, StateParameter>& a_parameters,
+		UINT a_hash,
+		const std::string& a_name,
+		EParamType a_type)
+	{
+		auto _it = a_parameters.find(a_hash);
+		if (_it != a_parameters.end()) return _it->second;
+
+		StateParameter _newParam;
+		_newParam.name = a_name;
+		_newParam.hash = a_hash;
+		_newParam.type = a_type;
+
+		return a_parameters.emplace(a_hash, std::move(_newParam)).first->second;
+	}
+
+	//======================================================================================
 	// 遷移評価(共有アルゴリズム)
 	//
 	// 挙動は既存の StateMachineAsset::EvaluateNextState /

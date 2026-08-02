@@ -40,15 +40,19 @@ void ActionIntentSystem::Init(Engine::ECS::World& a_world)
 				auto* _pInstance = _pool.Ref(_comp.instanceHandle);
 				if (!_pInstance) continue;
 
+				// 設計図(パラメータ定義を足すので Ref で可変参照を取る)
+				auto* _pActionSM = a_ctx.pServices->pResourceManager->Ref(_comp.actionHandle);
+				if (!_pActionSM) continue;
+
 				// 移動入力の大きさを Speed パラメータへ
 				float _speed = std::sqrt(
 					(_intent.value.x * _intent.value.x) +
 					(_intent.value.z * _intent.value.z));
-				_pInstance->floatParams[s_speedHash] = _speed;
+				_pActionSM->SetFloatParam(*_pInstance, s_speedHash, "Speed", _speed);
 
 				// 銃関係
-				_pInstance->boolParams[s_shoot] = _actionIntent.isGunShoot;
-				_pInstance->boolParams[s_aim] = _actionIntent.isAiming;
+				_pActionSM->SetBoolParam(*_pInstance, s_shoot, "Shoot", _actionIntent.isGunShoot);
+				_pActionSM->SetBoolParam(*_pInstance, s_aim, "Aim", _actionIntent.isAiming);
 			}
 		}
 	);
