@@ -45,36 +45,13 @@ namespace App::Editor
 			return;
 		}
 
-		// モデルが管理する全ノード配列を取得
-		const auto& _nodes = _pParentModel->GetOriginalNodeVec();
-
-		// 現在選択されているノード名を表示用として取得
-		std::string _currentNodeName = "None / Invalid";
-		if (a_nodeIndex < _nodes.size())
-		{
-			_currentNodeName = _nodes[a_nodeIndex].name;
-		}
-
-		// ImGuiのコンボボックスで選択可能にする
-		if (ImGui::BeginCombo("Target Node", _currentNodeName.c_str()))
-		{
-			for (size_t _i = 0; _i < _nodes.size(); ++_i)
-			{
-				bool _isSelected = (a_nodeIndex == _i);
-
-				if (ImGui::Selectable(_nodes[_i].name.c_str(), _isSelected))
-				{
-					a_nodeNameHash = _nodes[_i].nodeNameHash;
-					a_nodeIndex = static_cast<UINT>(_i);
-				}
-
-				if (_isSelected)
-				{
-					ImGui::SetItemDefaultFocus();
-				}
-			}
-			ImGui::EndCombo();
-		}
+		// ノード一覧の描画自体はエンジン側の共通ヘルパーに任せる
+		Engine::Editor::EditorHelper::DrawModelNodeCombo(
+			"Target Node",
+			_pParentModel,
+			a_nodeIndex,
+			a_nodeNameHash
+		);
 	}
 
 }

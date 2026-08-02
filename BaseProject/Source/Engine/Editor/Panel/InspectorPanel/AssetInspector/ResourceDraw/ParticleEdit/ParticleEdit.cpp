@@ -52,38 +52,23 @@ namespace Engine::Editor::Inspector
 
 		ImGui::Separator();
 
-		// 現在選択されているテクスチャの名前と画像を表示
+		// 現在選択されているテクスチャ
 		const auto* _pTex = Resource::ResourceManager::Instance().Ref(a_pParticles->GetTexHandle());
-		std::string _viewName = "Selecte...";
-		if (!_pTex)
-		{
-			ImGui::Text("Not selected texture");
-		}
-		else
-		{
-			_viewName = _pTex->GetName();
-			ImGui::Text("Texture : %s", _viewName.c_str());
-			ImGui::Text("%s", a_pParticles->GetTexGUID().String().c_str());
-		}
 
 		ImGui::Separator();
 
 		// テクスチャ選択コンボボックス
-		if (ImGui::BeginCombo("SelectTexture", _viewName.c_str()))
+		// 反映は専用のロード関数を通すので、選択だけを共通ヘルパーに任せる
+		GUID _selectedGUID = {};
+		if (Editor::EditorHelper::DrawAssetGUIDCombo(
+			"SelectTexture",
+			"Texture",
+			a_pParticles->GetTexGUID(),
+			_selectedGUID))
 		{
-			for (const auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("Texture"))
-			{
-				// 現在のテクスチャと同じならフラグを立てる
-				bool _isSelected = (a_pParticles->GetTexGUID() == _prop.guid);
-
-				if (ImGui::Selectable(_prop.fileName.c_str(), _isSelected))
-				{
-					// テクスチャのハンドル取得
-					// ロードされていなかったら止まる
-					a_pParticles->SetTexture(_prop.guid, Resource::TextureIO::LoadTexture(_prop.guid, TexColor::WHITE));
-				}
-			}
-			ImGui::EndCombo();
+			// テクスチャのハンドル取得
+			// ロードされていなかったら止まる
+			a_pParticles->SetTexture(_selectedGUID, Resource::TextureIO::LoadTexture(_selectedGUID, TexColor::WHITE));
 		}
 
 		// テクスチャの画像を表示

@@ -3,6 +3,7 @@
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../../Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
+#include "../../../Engine/Editor/Helper/EditorHelper.inl"
 namespace Engine::Resource
 {
 	class AnimatorAsset;
@@ -40,28 +41,17 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_context.pData);
 
 		// ステートマシンの選択
-		if (ImGui::BeginCombo("Change StateMachine", "Select..."))
-		{
-			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("AnimatorAsset"))
-			{
-				// 現在のステートマシンと同じGUIDなら選択中フラグを立てる
-				bool _selected = (_comp.stateMachineGUID == _prop.guid);
-
-				// 選択欄
-				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
-				{
-					_comp.stateMachineHandle = Resource::ResourceManager::Instance().Load<Resource::AnimatorAsset>(_prop.guid);
-					_comp.stateMachineGUID = _prop.guid;
-				}
-			}
-			ImGui::EndCombo();
-		}
+		Editor::EditorHelper::DrawAssetSelectCombo<Resource::AnimatorAsset>(
+			"Change StateMachine",
+			"AnimatorAsset",
+			_comp.stateMachineGUID,
+			_comp.stateMachineHandle
+		);
 
 		// 現在のステートを表示
 		const auto* _sm = Resource::ResourceManager::Instance().Get(_comp.stateMachineHandle);
 		if (_sm)
 		{
-			std::string_view _nodeName = _sm->GetNodeName(_comp.currentStateHash);
 			std::string _nodeNameStr(_sm->GetNodeName(_comp.currentStateHash));
 			ImGui::Text("Current Node : %s", _nodeNameStr.c_str());
 		}

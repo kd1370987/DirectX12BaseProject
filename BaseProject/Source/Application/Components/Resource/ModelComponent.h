@@ -3,7 +3,7 @@
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
-#include "../../../Engine/Editor/EditorUI/EditorUI.h"
+#include "../../../Engine/Editor/Helper/EditorHelper.h"
 
 #include "../../../Engine/ECS/World/World.h"
 
@@ -41,7 +41,7 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		// 「新モデルの描画コマンド + 旧モデルサイズのノードポーズ領域」で走り、spanが範囲外になる。
 		// 差し替えはリフレッシュ経路に任せる :
 		// Release(旧handleで領域解放) → ModelFixupSystemがGUIDから新handleを復元 → 新サイズで領域再確保
-		if (Engine::Editor::UI::DrawAssetSelectComboGUID(
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
 			"Change Model",
 			"Model",
 			_comp.modelGUID))

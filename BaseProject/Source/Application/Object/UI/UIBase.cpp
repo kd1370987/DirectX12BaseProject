@@ -7,7 +7,7 @@
 #include "Engine/Common/Color.h"
 #include "Engine/Option/OptionManager.h"	// ウィンドウ解像度(px)取得用
 
-#include "../../../Engine/Editor/EditorUI/EditorUI.h"
+#include "../../../Engine/Editor/Helper/EditorHelper.h"
 
 namespace App::Object
 {
@@ -65,7 +65,7 @@ namespace App::Object
 		if (ImGui::CollapsingHeader("Texture"))
 		{
 			// テクスチャ選択
-			if (Engine::Editor::UI::DrawAssetSelectComboGUID(
+			if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
 				"Change Texture",
 				"Texture",
 				m_texGUID))
@@ -74,7 +74,7 @@ namespace App::Object
 				m_texRef = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::Texture>(m_texGUID);
 			}
 			ImGui::DragFloat4("ColorScale", &m_color.x, 0.01f, 0.0f);
-			Engine::Editor::UI::DrawTexture(m_texRef, 256, 256);
+			Engine::Editor::EditorHelper::DrawTexture(m_texRef, 256, 256);
 		}
 
 		ImGui::Spacing();

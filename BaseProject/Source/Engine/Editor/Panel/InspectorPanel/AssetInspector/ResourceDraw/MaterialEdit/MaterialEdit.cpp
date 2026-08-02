@@ -1,6 +1,6 @@
-#include "MaterialEdit.h"
+﻿#include "MaterialEdit.h"
 
-#include "../../../../../EditorUI/EditorUI.h"
+#include "../../../../../Helper/EditorHelper.inl"
 
 namespace Engine::Editor::Inspector
 {
@@ -24,10 +24,10 @@ namespace Engine::Editor::Inspector
 
 		ImGui::InputText("name", &a_pMaterial->name);
 		ImGui::Separator();
-		Editor::DrawEnumFlagsCombo("AlphaMode", a_pMaterial->alphaMode);
+		Editor::EditorHelper::DrawEnumFlagsCombo("AlphaMode", a_pMaterial->alphaMode);
 
 		// シェーディングモデル
-		Editor::UI::DrawAssetSelectCombo<Resource::ShadingModelTable>(
+		Editor::EditorHelper::DrawAssetSelectCombo<Resource::ShadingModelTable>(
 			"Change Shading Model",
 			"ShadingModelTable",
 			a_pMaterial->shedingModelGUID,
@@ -39,18 +39,18 @@ namespace Engine::Editor::Inspector
 		// 各テクスチャの描画
 		if (ImGui::CollapsingHeader("Albedo"))
 		{
-			Editor::UI::DrawAssetSelectCombo<Resource::Texture>(
+			Editor::EditorHelper::DrawAssetSelectCombo<Resource::Texture>(
 				"Change AlbedTex",
 				"Texture",
 				a_pMaterial->baseColorTexGUID,
 				a_pMaterial->baseColorTex
 			);
 			ImGui::DragFloat4("AlbedScale", &a_pMaterial->baseColor.x, 0.01f, 0.0f);
-			Editor::UI::DrawTexture(a_pMaterial->baseColorTex, 256, 256);
+			Editor::EditorHelper::DrawTexture(a_pMaterial->baseColorTex, 256, 256);
 		}
 		if (ImGui::CollapsingHeader("Metallic / Roughness"))
 		{
-			Editor::UI::DrawAssetSelectCombo<Resource::Texture>(
+			Editor::EditorHelper::DrawAssetSelectCombo<Resource::Texture>(
 				"Change MetaricRoughnessTex",
 				"Texture",
 				a_pMaterial->metaRoughTexGUID,
@@ -58,28 +58,28 @@ namespace Engine::Editor::Inspector
 			);
 			ImGui::DragFloat("MetallicScale", &a_pMaterial->metallic, 0.01f, 0.0f);
 			ImGui::DragFloat("RoughnessScale", &a_pMaterial->roughness, 0.01f, 0.0f);
-			Editor::UI::DrawTexture(a_pMaterial->metaRoughTex, 256, 256);
+			Editor::EditorHelper::DrawTexture(a_pMaterial->metaRoughTex, 256, 256);
 		}
 		if (ImGui::CollapsingHeader("Emissive"))
 		{
-			Editor::UI::DrawAssetSelectCombo<Resource::Texture>(
+			Editor::EditorHelper::DrawAssetSelectCombo<Resource::Texture>(
 				"Change EmissiveTex",
 				"Texture",
 				a_pMaterial->emissiveTexGUID,
 				a_pMaterial->emissiveTex
 			);
 			ImGui::DragFloat3("EmissiveScale", &a_pMaterial->emissive.x, 0.01f, 0.0f);
-			Editor::UI::DrawTexture(a_pMaterial->emissiveTex, 256, 256);
+			Editor::EditorHelper::DrawTexture(a_pMaterial->emissiveTex, 256, 256);
 		}
 		if (ImGui::CollapsingHeader("Normal"))
 		{
-			Editor::UI::DrawAssetSelectCombo<Resource::Texture>(
+			Editor::EditorHelper::DrawAssetSelectCombo<Resource::Texture>(
 				"Change NormalTex",
 				"Texture",
 				a_pMaterial->normalTexGUID,
 				a_pMaterial->normalTex
 			);
-			Editor::UI::DrawTexture(a_pMaterial->normalTex, 256, 256);
+			Editor::EditorHelper::DrawTexture(a_pMaterial->normalTex, 256, 256);
 		}
 	}
 }

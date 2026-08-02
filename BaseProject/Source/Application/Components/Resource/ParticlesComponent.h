@@ -4,7 +4,7 @@
 #include "../../../Engine/Resource/Data/Particles/ParticlesAsset.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../../Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
-#include "../../../Engine/Editor/Drawers/ComponentEdit/ComponentEdit.h"	// DrawEnumCombo
+#include "../../../Engine/Editor/Helper/EditorHelper.h"	// DrawEnumCombo
 
 // パーティクルの発生源(位置・方向)をどこから取るか
 enum class EEmitSpace : uint32_t
@@ -75,7 +75,7 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 
 		// ---- 発生源 ----
 		ImGui::Text("Emit Source");
-		Editor::DrawEnumCombo("EmitSpace", _comp.emitSpace);
+		Editor::EditorHelper::DrawEnumCombo("EmitSpace", _comp.emitSpace);
 		if (_comp.emitSpace == EEmitSpace::LocalOffset)
 		{
 			ImGui::DragFloat3("PosOffset", &_comp.posOffset.x, 0.05f);
@@ -107,19 +107,17 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		ImGui::Separator();
 
 		// ---- アセット選択(既存踏襲) ----
+		// ロードではなくキャッシュ参照で解決したいので、選択だけを共通ヘルパーに任せる
 		Editor::Helper::DrawHandle(_comp.particlesAssetHandle);
-		if (ImGui::BeginCombo("Change Particle", "Select..."))
+		GUID _selectedGUID = {};
+		if (Editor::EditorHelper::DrawAssetGUIDCombo(
+			"Change Particle",
+			"ParticlesAsset",
+			_comp.particleGUID,
+			_selectedGUID))
 		{
-			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("ParticlesAsset"))
-			{
-				bool _selected = (_comp.particleGUID == _prop.guid);
-				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
-				{
-					_comp.particlesAssetHandle = Resource::ResourceManager::Instance().GetCache<Resource::ParticlesAsset>(_prop.guid);
-					_comp.particleGUID = _prop.guid;
-				}
-			}
-			ImGui::EndCombo();
+			_comp.particlesAssetHandle = Resource::ResourceManager::Instance().GetCache<Resource::ParticlesAsset>(_selectedGUID);
+			_comp.particleGUID = _selectedGUID;
 		}
 
 		// ---- ランタイム状態(参考) ----

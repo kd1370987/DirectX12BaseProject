@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "Engine/Editor/EditorUI/EditorUI.h"
+#include "Engine/Editor/Helper/EditorHelper.h"
 
 // CollisionEvent がヒットしたときの反応を設定するコンポーネント。
 // ・爆発/エフェクトプレハブを当たった位置に生成する
@@ -28,7 +28,7 @@ struct Engine::ECS::ComponentTraits<ExplodeOnHitComponent>
 	{
 		ExplodeOnHitComponent& _comp = Engine::Editor::GetValue<ExplodeOnHitComponent>(a_context.pData);
 
-		if (Engine::Editor::UI::DrawAssetSelectComboGUID("Explosion Prefab", "Prefab", _comp.explosionPrefabGUID))
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Explosion Prefab", "Prefab", _comp.explosionPrefabGUID))
 		{
 			_comp.explosionPrefabHandle = {};	// GUIDが変わったら作り直し
 		}

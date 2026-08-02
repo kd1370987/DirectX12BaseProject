@@ -1,6 +1,6 @@
 ﻿#include "RenderingOption.h"
 
-#include "../../Editor/EditorUI/EditorUI.h"
+#include "../../Editor/Helper/EditorHelper.inl"
 
 void Engine::Option::GraphicsOptions::RenderingOption::DrawEdit()
 {
@@ -9,7 +9,7 @@ void Engine::Option::GraphicsOptions::RenderingOption::DrawEdit()
 
 	// シェーディングモデル
 	Handle<Resource::ShadingModelTable> _temp;
-	Editor::UI::DrawAssetSelectCombo<Resource::ShadingModelTable>(
+	Editor::EditorHelper::DrawAssetSelectCombo<Resource::ShadingModelTable>(
 		"Change Shading Model",
 		"ShadingModelTable",
 		defaultShadingModelTable,

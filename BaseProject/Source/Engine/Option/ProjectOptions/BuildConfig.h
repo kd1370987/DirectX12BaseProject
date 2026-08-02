@@ -33,7 +33,7 @@ namespace Engine::Option::ProjectOptions
 
 		void DrawEdit() override
 		{
-			Editor::DrawEnumCombo("BuildMode",buildMode);
+			Editor::EditorHelper::DrawEnumCombo("BuildMode",buildMode);
 			ImGui::InputText("AssetRootPath",&assetRootPath);
 			int _count = (int)maxThreadCount;
 			ImGui::DragInt("maxThreadCount",&_count);

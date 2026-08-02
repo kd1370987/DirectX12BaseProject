@@ -41,7 +41,7 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit()
 	ImGui::Spacing();
 
 	// ウィンドウモード
-	if (Editor::DrawEnumCombo("WindowMode", windowMode))
+	if (Editor::EditorHelper::DrawEnumCombo("WindowMode", windowMode))
 	{
 		// ウィンドウがない状況はあり得ないが一応
 		auto* _pWindow = MainEngine::Instance().RefNativeWindow();

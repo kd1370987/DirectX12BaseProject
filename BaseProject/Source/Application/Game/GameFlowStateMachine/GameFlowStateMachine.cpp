@@ -74,21 +74,11 @@ namespace App::Game
 			[](FlowNode& a_node)
 			{
 				ImGui::Text("SceneAsset");
-				ImGui::Text("%s", a_node.sceneGUID.String().c_str());
-
-				auto _fileName = Engine::Resource::AssetDatabase::Instance().GetFileNameFromGUID(a_node.sceneGUID);
-				if (ImGui::BeginCombo(_fileName.c_str(), "Select..."))
-				{
-					for (auto& _prop : Engine::Resource::AssetDatabase::Instance().GetTypeMetaVec("Scene"))
-					{
-						bool _selected = (a_node.sceneGUID == _prop.guid);
-						if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
-						{
-							a_node.sceneGUID = _prop.guid;
-						}
-					}
-					ImGui::EndCombo();
-				}
+				Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+					"##ChangeScene",
+					"Scene",
+					a_node.sceneGUID
+				);
 			});
 	}
 

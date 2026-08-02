@@ -1,8 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../../Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
+#include "../../../Engine/Editor/Helper/EditorHelper.inl"
 namespace Engine::Resource
 {
 	class ActionStateMachineAsset;
@@ -39,19 +40,12 @@ struct Engine::ECS::ComponentTraits<ActionStateComponent>
 		ActionStateComponent& _comp = Engine::Editor::GetValue<ActionStateComponent>(a_context.pData);
 
 		// ステートマシンの選択
-		if (ImGui::BeginCombo("Change ActionSM", "Select..."))
-		{
-			for (auto& _prop : Resource::AssetDatabase::Instance().GetTypeMetaVec("ActionStateMachineAsset"))
-			{
-				bool _selected = (_comp.actionGUID == _prop.guid);
-				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
-				{
-					_comp.actionHandle = Resource::ResourceManager::Instance().Load<Resource::ActionStateMachineAsset>(_prop.guid);
-					_comp.actionGUID = _prop.guid;
-				}
-			}
-			ImGui::EndCombo();
-		}
+		Editor::EditorHelper::DrawAssetSelectCombo<Resource::ActionStateMachineAsset>(
+			"Change ActionSM",
+			"ActionStateMachineAsset",
+			_comp.actionGUID,
+			_comp.actionHandle
+		);
 
 		// 現在のステートを表示
 		const auto* _sm = Resource::ResourceManager::Instance().Get(_comp.actionHandle);

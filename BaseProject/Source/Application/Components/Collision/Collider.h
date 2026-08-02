@@ -84,8 +84,8 @@ struct Engine::ECS::ComponentTraits<ColliderComponent>
 		ColliderComponent& _comp = Engine::Editor::GetValue<ColliderComponent>(a_context.pData);
 
 		// レイヤー選択
-		Editor::DrawEnumCombo("MyLayer", _comp.layer);
-		Editor::DrawEnumFlagsCombo("HItLayer", _comp.collideLayer);
+		Editor::EditorHelper::DrawEnumCombo("MyLayer", _comp.layer);
+		Editor::EditorHelper::DrawEnumFlagsCombo("HItLayer", _comp.collideLayer);
 
 		// 物理解決
 		bool _is = _comp.isPhysical != 0;
@@ -95,6 +95,6 @@ struct Engine::ECS::ComponentTraits<ColliderComponent>
 		}
 
 		// シェープタイプ
-		Editor::DrawEnumCombo("ShapeType",_comp.shapeType.type);
+		Editor::EditorHelper::DrawEnumCombo("ShapeType",_comp.shapeType.type);
 	}
 };

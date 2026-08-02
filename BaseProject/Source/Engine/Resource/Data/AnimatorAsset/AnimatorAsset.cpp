@@ -1,4 +1,6 @@
-#include "AnimatorAsset.h"
+﻿#include "AnimatorAsset.h"
+
+#include "../../../Editor/Helper/EditorHelper.inl"
 
 #include "../../../Editor/ImGui/ImGuiHelper/ImGuiHelper.h"
 
@@ -191,31 +193,11 @@ namespace Engine::Resource
 				auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
 				if (!_pModel) return;
 
-				// 現在の再生アニメ名
-				std::string _viewName = "Select...";
-				if (a_node.playAnimData != Handle<AnimationData>())
-				{
-					auto* _pAnimData = ResourceManager::Instance().Get(a_node.playAnimData);
-					if (_pAnimData) _viewName = _pAnimData->name;
-				}
-
 				ImGui::PushItemWidth(130.0f);
 
 				// アニメ選択
 				ImGui::Text("Animation");
-				if (ImGui::BeginCombo("##ChangeAnimation", _viewName.c_str()))
-				{
-					for (auto& _handle : _pModel->GetAnimationHandles())
-					{
-						auto* _pAnimData = ResourceManager::Instance().Get(_handle);
-						bool _selected = (a_node.playAnimData == _handle);
-						if (ImGui::Selectable(_pAnimData->name.c_str(), _selected))
-						{
-							a_node.playAnimData = _handle;
-						}
-					}
-					ImGui::EndCombo();
-				}
+				Editor::EditorHelper::DrawModelAnimationCombo("##ChangeAnimation", _pModel, a_node.playAnimData);
 
 				// 再生スピード
 				ImGui::Text("Speed");
@@ -237,31 +219,12 @@ namespace Engine::Resource
 	//======================================================================================
 	void AnimatorAsset::BindModelComb()
 	{
-		std::string _viewName = "Selecte...";
-		auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
-		if (!_pModel)
-		{
-			ImGui::Text("Not selected model");
-		}
-		else
-		{
-			_viewName = _pModel->GetName();
-			ImGui::Text("Model : %s", _viewName.c_str());
-		}
-
-		if (ImGui::BeginCombo("Change model", _viewName.c_str()))
-		{
-			for (auto& _prop : AssetDatabase::Instance().GetTypeMetaVec("Model"))
-			{
-				bool _selected = (m_modelGUID == _prop.guid);
-				if (ImGui::Selectable(_prop.fileName.c_str(), _selected))
-				{
-					m_modelHandle = ResourceManager::Instance().Load<Model>(_prop.guid);
-					m_modelGUID = _prop.guid;
-				}
-			}
-			ImGui::EndCombo();
-		}
+		Editor::EditorHelper::DrawAssetSelectCombo<Model>(
+			"Change model",
+			"Model",
+			m_modelGUID,
+			m_modelHandle
+		);
 	}
 
 	//======================================================================================
@@ -277,8 +240,6 @@ namespace Engine::Resource
 			ImGui::TextDisabled("Select a model first");
 			return;
 		}
-
-		const auto& _nodeVec = _pModel->GetOriginalNodeVec();
 
 		// チャンネルごとの配分合計。1.0から大きく外れていると見た目が破綻するので目安として出す。
 		float _shareSum[3] = { 0.0f, 0.0f, 0.0f };
@@ -297,21 +258,7 @@ namespace Engine::Resource
 			ImGui::PushID(static_cast<int>(_i));
 
 			// 対象ノード選択
-			std::string _current = _def.nodeName.empty() ? "Select node..." : _def.nodeName;
-			if (ImGui::BeginCombo("Node", _current.c_str()))
-			{
-				for (const auto& _node : _nodeVec)
-				{
-					bool _selected = (_def.nodeName == _node.name);
-					if (ImGui::Selectable(_node.name.c_str(), _selected))
-					{
-						_def.nodeName = _node.name;
-						_def.nodeNameHash = StringUtility::ToHash(_node.name);
-					}
-					if (_selected) ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-			}
+			Editor::EditorHelper::DrawModelNodeComboByName("Node", _pModel, _def.nodeName, _def.nodeNameHash);
 
 			// チャンネル選択
 			if (ImGui::BeginCombo("Channel", ToString(_def.channel)))

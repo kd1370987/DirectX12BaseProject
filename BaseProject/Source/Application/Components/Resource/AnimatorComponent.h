@@ -59,48 +59,7 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 			if (!_pModel) return;
 
 			// モデル内のアニメーションコンボ
-			bool _isChanged = false;
-
-			// 現在の情報
-			auto* _pCurrentAnim = Resource::ResourceManager::Instance().Get(_comp.animHandle);
-			if (_pCurrentAnim)
-			{
-				ImGui::Text("%s",_pCurrentAnim->name.c_str());
-			}
-			else
-			{
-				ImGui::Text("No selected");
-			}
-			
-			// 選択UI
-			if (ImGui::BeginCombo("Animation", "Selected..."))
-			{
-				for (auto& _handle : _pModel->GetAnimationHandles())
-				{
-					bool _isSelected = (_handle == _comp.animHandle);
-
-					auto* _pAnim = Resource::ResourceManager::Instance().Get(_handle);
-					if (!_pAnim) continue;
-
-					// 選択欄
-					if (ImGui::Selectable(_pAnim->name.c_str(), _isSelected))
-					{
-						// ハンドルとGUIDを更新
-						_comp.animHandle = _handle;
-						_isChanged = true;
-					}
-
-					// コンボボックスを開いた際、現在の選択アイテムまで自動スクロールする
-					if (_isSelected)
-					{
-						ImGui::SetItemDefaultFocus();
-					}
-				}
-
-				ImGui::EndCombo();
-			}
-
-		
+			Engine::Editor::EditorHelper::DrawModelAnimationCombo("Animation", _pModel, _comp.animHandle);
 		}
 	}
 };

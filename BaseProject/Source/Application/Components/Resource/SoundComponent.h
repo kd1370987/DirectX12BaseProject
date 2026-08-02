@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../../Engine/Editor/EditorUI/EditorUI.h"
+#include "../../../Engine/Editor/Helper/EditorHelper.h"
 #include "../../../Engine/ECS/World/World.h"
 #include "../../../Engine/Audio/AudioManager.h"
 
@@ -26,7 +26,7 @@ struct Engine::ECS::ComponentTraits<SoundComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		SoundComponent& _comp = Engine::Editor::GetValue<SoundComponent>(a_context.pData);
-		if (Engine::Editor::UI::DrawAssetSelectComboGUID(
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
 			"Change Sound",
 			"Sound",
 			_comp.soundGUID))

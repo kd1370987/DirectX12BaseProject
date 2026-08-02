@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 //==========================================================================================
 //
 // StateGraphEditor<TNode>
@@ -15,7 +15,7 @@
 //
 //==========================================================================================
 #include "Engine/Resource/StateGraph/StateGraph.h"
-#include "Engine/Editor/Drawers/ComponentEdit/ComponentEdit.h"	// DrawEnumCombo
+#include "Engine/Editor/Helper/EditorHelper.h"	// DrawEnumCombo
 #include "Engine/Editor/ImGui/ImGuiHelper/ImGuiHelper.h"		// Node::TitleBar
 
 namespace Engine::Editor
@@ -528,7 +528,7 @@ namespace Engine::Editor
 
 				// 比較演算子 + 閾値
 				ImGui::SetNextItemWidth(100.0f);
-				DrawEnumCombo("Condition", _it->op);
+				EditorHelper::DrawEnumCombo("Condition", _it->op);
 				if (_params.find(_it->paramHash) != _params.end())
 				{
 					auto& _paramDef = _params[_it->paramHash];

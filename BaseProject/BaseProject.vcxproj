@@ -707,9 +707,7 @@
     <ClInclude Include="Source\Engine\ECS\System\ISystem\ISystem.h" />
     <ClInclude Include="Source\Engine\ECS\System\SystemBase\SystemBase.h" />
     <ClInclude Include="Source\Engine\ECS\World\World.h" />
-    <ClInclude Include="Source\Engine\Editor\Drawers\ComponentEdit\ComponentEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Editor.h" />
-    <ClInclude Include="Source\Engine\Editor\EditorUI\EditorUI.h" />
     <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiHelper\ImGuiHelper.h" />

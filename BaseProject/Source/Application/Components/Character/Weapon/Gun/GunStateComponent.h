@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/Editor/EditorUI/EditorUI.h"
+#include "Engine/Editor/Helper/EditorHelper.h"
 
 #include "../../../../Editor/CompEditHelper/CompEditHelper.h"
 
@@ -41,7 +41,7 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 		ImGui::Checkbox("IsAuto", &_comp.isAuto);
 
 		// 発射するプレハブの選択(アセットDBの Prefab 一覧から)
-		if (Engine::Editor::UI::DrawAssetSelectComboGUID("Bullet Prefab", "Prefab", _comp.bulletPrefabGUID))
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Bullet Prefab", "Prefab", _comp.bulletPrefabGUID))
 		{
 			// GUIDが変わったらハンドルは作り直す(発射時に再解決)
 			_comp.bulletPrefabHandle = {};
