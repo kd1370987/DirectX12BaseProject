@@ -20,7 +20,7 @@ namespace Engine::Input
 
 		// マウスのマイフレームの移動量を使って、軸の入力状況を更新
 		// 初めの１フレームのみ、０ベクトル
-		void Update() override;
+		void Update(InputContext& a_inputContext) override;
 
 	private:
 		POINT m_prevMousePos = {0,0};

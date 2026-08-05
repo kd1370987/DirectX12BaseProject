@@ -7,12 +7,13 @@ namespace Engine::Input
 		m_prevConState = m_conState;
 	}
 
-	void InputAxisForXInput::Update()
+	// 入力コンテキストは使用しない
+	void InputAxisForXInput::Update(InputContext&)
 	{
 		DWORD _res = XInputGetState(m_userIndex, &m_conState);
 		if (_res != ERROR_SUCCESS)
 		{
-			assert(0 && "コントローラー未接続です");
+			ENGINE_ERRLOG(false,"コントローラーが未接続です");
 			return;
 		}
 

@@ -1,4 +1,5 @@
 ﻿#include "InputButtonForXInput.h"
+
 namespace Engine::Input
 {
 	InputButtonForXInput::InputButtonForXInput(WORD a_button)
@@ -10,7 +11,8 @@ namespace Engine::Input
 		m_buttonVec.clear();
 		m_buttonVec = a_buttonVec;
 	}
-	void InputButtonForXInput::Update()
+	// 入力コンテキストは使用しない
+	void InputButtonForXInput::Update(InputContext&)
 	{
 		// 更新済みなら飛ばす
 		if (!m_needUpdate) return;

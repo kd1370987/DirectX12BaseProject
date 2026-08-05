@@ -1,4 +1,5 @@
 ﻿#include "InputButtonForWindows.h"
+
 namespace Engine::Input
 {
 	InputButtonForWindows::InputButtonForWindows(int a_keyCode)
@@ -22,7 +23,8 @@ namespace Engine::Input
 		}
 	}
 
-	void InputButtonForWindows::Update()
+	// 入力コンテキストは使用しない
+	void InputButtonForWindows::Update(InputContext&)
 	{
 		// すでに更新済みなら
 		if (!m_needUpdate) return;

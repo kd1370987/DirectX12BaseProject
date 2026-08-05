@@ -26,6 +26,8 @@
 
 #include "Audio/AudioManager.h"
 
+#include "Input/InputManager/InputManager.h"
+
 
 namespace Engine
 {
@@ -46,6 +48,9 @@ namespace Engine
 		// 設定を保存
 		m_appMode = EAppMode::Game;
 		m_buildMode = _optionManager.GetBuildConfig().buildMode;
+
+		// インプット初期化
+		Input::InputManager::Instance().Init();
 
 		// ビルドモードによって、仕様を変更
 		switch (m_buildMode)

@@ -24,12 +24,12 @@ namespace Engine::Input
 	}
 
 
-	void InputAxisForWindows::Update()
+	void InputAxisForWindows::Update(InputContext& a_inputContext)
 	{
 		m_axis = DXSM::Vector2::Zero;
 		for (auto& _dirButton : m_spDirButtons)
 		{
-			_dirButton->Update();
+			_dirButton->Update(a_inputContext);
 		}
 
 		if (m_spDirButtons[EDir::Up]->GetState())		m_axis.y += 1.0f;

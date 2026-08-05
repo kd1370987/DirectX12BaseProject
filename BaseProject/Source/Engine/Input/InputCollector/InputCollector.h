@@ -5,6 +5,8 @@ namespace Engine::Input
 	class InputButtonBase;
 	class InputAxisBase;
 
+	struct InputContext;
+
 	/// <summary>
 	/// 単一の入力デバイスからの入力をコレクションするクラス
 	/// キーボードやゲームパッド等のそれぞれのInputCollectorが必要
@@ -24,7 +26,7 @@ namespace Engine::Input
 		InputCollector();
 		~InputCollector();
 
-		void Update();
+		void Update(InputContext& a_inputContext);
 
 		// 何かしらの入力を検知したか
 		bool IsSomethigInput();

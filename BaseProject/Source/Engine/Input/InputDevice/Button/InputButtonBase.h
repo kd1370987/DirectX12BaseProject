@@ -2,6 +2,8 @@
 
 namespace Engine::Input
 {
+	struct InputContext;
+
 	class InputButtonBase
 	{
 	public:
@@ -21,7 +23,7 @@ namespace Engine::Input
 		void PreUpdate() { m_needUpdate = true; }
 
 		// 入力状態の更新 継承先で必須
-		virtual void Update() = 0;
+		virtual void Update(InputContext& a_inputContext) = 0;
 
 		// 強制的に入力をなしにする
 		void NoInput() { m_state = EState::Free; }

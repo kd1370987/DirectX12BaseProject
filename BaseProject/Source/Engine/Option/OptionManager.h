@@ -4,6 +4,7 @@
 
 // プロジェクトオプション
 #include "ProjectOptions/BuildConfig.h"
+#include "ProjectOptions/InputOption.h"
 
 // グラフィックスオプション
 #include "GraphicsOptions/GIOptions.h"
@@ -30,8 +31,12 @@ namespace Engine::Option
 		// アクセサ
 		//-------------------------------------------------------------------------------------------------
 		// ---- プロジェクト ----
+		// 起動設定
 		const ProjectOptions::BuildConfig& GetBuildConfig() const{ return m_buildConfig; }
 
+		// 入力設定
+		const ProjectOptions::InputOption& GetInputOption() const { return m_inputOption; }
+		ProjectOptions::InputOption& RefInputOption() { return m_inputOption; }
 
 		// ---- グラフィックス ---- 
 		// GI設定
@@ -58,6 +63,7 @@ namespace Engine::Option
 
 		// プロジェクトオプション
 		ProjectOptions::BuildConfig m_buildConfig = {};
+		ProjectOptions::InputOption m_inputOption = {};
 
 		// グラフィックスオプション
 		GraphicsOptions::GIOption m_giOptions = {};

@@ -15,7 +15,7 @@ namespace Engine::Input
 		InputButtonForWindows(const std::vector<int>& a_keyCodeList);
 		~InputButtonForWindows() override = default;
 
-		void Update() override;
+		void Update(InputContext& a_inputContext) override;
 
 		void GetCode(std::vector<int>& a_ret) const override;
 

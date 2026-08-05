@@ -2,6 +2,8 @@
 
 namespace Engine::Input
 {
+	struct InputContext;
+
 	// 単一の軸入力状態を保持する規定クラス
 	// スティックや十字操作などの、二次元入力を保持する
 	class InputAxisBase
@@ -11,7 +13,7 @@ namespace Engine::Input
 		virtual ~InputAxisBase() = default;
 
 		virtual void PreUpdate() {};
-		virtual void Update() = 0;
+		virtual void Update(InputContext& a_inputContext) = 0;
 
 		// 強制的に入力をなくす
 		void NoInput() { m_axis = DXSM::Vector2::Zero; }

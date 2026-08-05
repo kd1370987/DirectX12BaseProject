@@ -149,10 +149,12 @@
 #include "../../Systems/Update/PreUpdate/BoostSoundSystem/BoostSoundSystem.h"
 #include "../../Systems/Release/SoundFreeSystem/SoundFreeSystem.h"
 #include "../../Systems/Init/Start/GunStateStartSystem/GunStateStartSystem.h"
+#include "../../Systems/Update/PreUpdate/HitEventClearSystem/HitEventClearSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
 #include "../../InstanceResource/AdditiveBoneEntry.h"
+#include "Application/InstanceResource/HitEventResource.h"
 
 // インプット
 #include "Engine/Input/InputCollector/InputCollector.h"
@@ -333,6 +335,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<GunShootSystem>();
 				a_pWorld->RegisterSystem<SubmitDynamicColliderSystem>();
 				a_pWorld->RegisterSystem<CollisionEventClearSystem>();
+				a_pWorld->RegisterSystem<HitEventClearSystem>();
 				a_pWorld->RegisterSystem<HitDetectSystem>();
 				a_pWorld->RegisterSystem<ExplodeOnHitSystem>();
 				a_pWorld->RegisterSystem<GunStateStartSystem>();
@@ -353,6 +356,7 @@ namespace App::Game
 
 				// シングルトンインスタンスの登録
 				a_pWorld->AddResource<HierarchyResource>();
+				a_pWorld->AddResource<HitEventResource>();
 
 				// 初期化
 				a_pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);
@@ -364,6 +368,9 @@ namespace App::Game
 				a_pWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 
 				a_pWorld->GetResource<HierarchyResource>().isDirty = true;
+
+				// 1フレーム分のヒット数はたかが知れているので少なめに確保
+				a_pWorld->GetResource<HitEventResource>().Reserve(256);
 			}
 		);
 

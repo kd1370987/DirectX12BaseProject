@@ -1186,6 +1186,9 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem">
       <UniqueIdentifier>{21cd4ed3-b293-4765-8679-8ac9f0b62cfe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem">
+      <UniqueIdentifier>{6f2a1c04-9d3b-4a17-b58e-2c7d90f4a1b6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\Physics\HitDetectSystem">
       <UniqueIdentifier>{7c583425-e58b-465b-8df5-834a1e8cccd4}</UniqueIdentifier>
     </Filter>
@@ -1257,6 +1260,9 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Init\Start\GunStateStartSystem">
       <UniqueIdentifier>{51320e8c-b456-46f8-9e90-ae4cbbd4abdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Input\Internal">
+      <UniqueIdentifier>{26408662-9891-4b4c-8464-fab18166ec09}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1992,6 +1998,9 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem\HitEventClearSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\HitEventClearSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Physics\HitDetectSystem\HitDetectSystem.cpp">
       <Filter>Source\Application\Systems\Update\Physics\HitDetectSystem</Filter>
     </ClCompile>
@@ -2051,6 +2060,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\GunStateStartSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Option\ProjectOptions\InputOption.cpp">
+      <Filter>Source\Engine\Option\ProjectOptions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2777,6 +2789,9 @@
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\HitEventResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem</Filter>
     </ClInclude>
@@ -3152,6 +3167,9 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem\HitEventClearSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\HitEventClearSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Components\Collision\ExplodeOnHitComponent.h">
       <Filter>Source\Application\Components\Collision</Filter>
     </ClInclude>
@@ -3244,6 +3262,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.h">
       <Filter>Source\Application\Systems\Init\Start\GunStateStartSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Option\ProjectOptions\InputOption.h">
+      <Filter>Source\Engine\Option\ProjectOptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Input\Internal\InputContext.h">
+      <Filter>Source\Engine\Input\Internal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

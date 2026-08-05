@@ -1,8 +1,15 @@
 ﻿#include "InputManager.h"
 
+#include "../Internal/InputContext.h"
+
 #include "../InputCollector/InputCollector.h"
 #include "../InputDevice/Button/InputButtonBase.h"
 #include "../InputDevice/Axis/InputAxisBase.h"
+
+#include "../../MainEngine.h"
+#include "../../Window/NativeWindow.h"
+#include "../../Option/OptionManager.h"
+
 namespace Engine::Input
 {
 	namespace
@@ -23,15 +30,127 @@ namespace Engine::Input
 		}
 	}
 
+	void InputManager::Init()
+	{
+		// 保存されている設定を反映する
+		// この時点ではまだウィンドウが生成されていないため、
+		// 中心座標はここでは求めず、固定を行うフレームごとに実測する
+		SetCursorCentered(Option::OptionManager::GetInstance().GetInputOption().isCursorLockedToCenter);
+	}
+
 	void InputManager::Update()
 	{
+		// マウスの固定化
+		// エディタ操作中(Gameモード以外)は固定しない
+		const auto _mode = MainEngine::Instance().GetMode();
+		m_isCursorLockActive = (m_isCursorLockedToCenter && _mode == EAppMode::Game);
+
+		if (m_isCursorLockActive)
+		{
+			SetCursorLock();
+		}
+		else
+		{
+			// 固定していない間の移動量は持ち越さない。
+			// 次に固定を開始したフレームは基準を取り直す
+			m_deltaX = 0;
+			m_deltaY = 0;
+			m_needCursorLockReset = true;
+		}
+
 		// 登録された入力でバスの更新を行う
 		// (UIキャプチャ中でもデバイス自体は更新し、状態遷移の整合を保つ。
 		//  実際に「入力なし」として扱うのは取得側で判定する)
+		InputContext _context = {};
+		_context.isMouseLockToCenter = m_isCursorLockActive;
+		_context.deltaX = m_deltaX;
+		_context.deltaY = m_deltaY;
 		for (auto& _device : m_upInputDeviceMap)
 		{
-			_device.second->Update();
+			_device.second->Update(_context);
 		}
+	}
+
+	void InputManager::SetCursorCentered(bool a_enable)
+	{
+		m_isCursorLockedToCenter = a_enable;
+		ENGINE_LOG("マウス座標固定化 : %s", BOOL_STR(a_enable));
+	}
+
+	// カーソルをクライアント領域の中心へ戻し、そのフレームの移動量を確定させる
+	void InputManager::SetCursorLock()
+	{
+		POINT _center = {};
+		if (!GetClientCenterPos(_center))
+		{
+			// ウィンドウが取れない・最小化中などは移動量なし
+			m_deltaX = 0;
+			m_deltaY = 0;
+			m_needCursorLockReset = true;
+			return;
+		}
+
+		POINT _nowPos = {};
+		if (!GetCursorPos(&_nowPos))
+		{
+			m_deltaX = 0;
+			m_deltaY = 0;
+			m_needCursorLockReset = true;
+			return;
+		}
+
+		if (m_needCursorLockReset)
+		{
+			// 固定を開始したフレームは基準が無いので移動量を出さない
+			// (ここで差分を取ると、固定前のカーソル位置ぶん視点が飛ぶ)
+			m_deltaX = 0;
+			m_deltaY = 0;
+			m_needCursorLockReset = false;
+		}
+		else
+		{
+			// 前フレームに「実際にカーソルを置いた位置」からの差分がこのフレームの移動量
+			m_deltaX = _nowPos.x - m_lockAnchorPos.x;
+			m_deltaY = _nowPos.y - m_lockAnchorPos.y;
+		}
+
+		// マウスを中央へ固定
+		SetCursorPos(_center.x, _center.y);
+
+		// 実際に移動できた座標を次フレームの基準にする。
+		// 画面端でのクランプやDPIの丸めで要求どおりに移動できない場合があり、
+		// 要求値を基準にすると毎フレーム同じ差分が残り続けて視点が震える
+		if (!GetCursorPos(&m_lockAnchorPos))
+		{
+			m_lockAnchorPos = _center;
+		}
+	}
+
+	// クライアント領域の中心をスクリーン座標で取得する
+	bool InputManager::GetClientCenterPos(POINT& a_outPos) const
+	{
+		auto* _pWind = MainEngine::Instance().GetNativeWindow();
+		if (!_pWind) return false;
+
+		const HWND _hWnd = _pWind->GetWindowHandle();
+		if (!_hWnd) return false;
+
+		// ウィンドウの移動・リサイズ・フルスクリーン切替に追従するため毎回取り直す
+		RECT _clientRect = {};
+		if (!GetClientRect(_hWnd, &_clientRect)) return false;
+
+		const LONG _width = _clientRect.right - _clientRect.left;
+		const LONG _height = _clientRect.bottom - _clientRect.top;
+
+		// 最小化中はクライアント領域が0になる
+		if (_width <= 0 || _height <= 0) return false;
+
+		// クライアント座標の中心を求めてからスクリーン座標へ変換する
+		// (呼び出し側のメンバをそのまま渡すと、変換が累積して中心がずれていく)
+		a_outPos.x = _clientRect.left + _width / 2;
+		a_outPos.y = _clientRect.top + _height / 2;
+
+		return (ClientToScreen(_hWnd, &a_outPos) != FALSE);
 	}
 
 	// 任意のアプリケーションボタンの入力状態を取得

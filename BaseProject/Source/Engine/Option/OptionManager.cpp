@@ -13,18 +13,19 @@ namespace Engine::Option
 		m_pOptionList.push_back(&m_lightingOption);
 
 		m_pOptionList.push_back(&m_buildConfig);
+		m_pOptionList.push_back(&m_inputOption);
 	}
 	void OptionManager::Serialize()
 	{
-		Persistence::Archive _archive(Persistence::Archive::Mode::Save, "Asset/Data/Option", "GraphicsOption", "optn");
+		Persistence::Archive _archive(Persistence::Archive::Mode::Save, "Asset/Data/Engine", "EngineData", "optn");
 		Archive(_archive);
 	}
 	void OptionManager::Deserialize()
 	{
 		Persistence::Archive _archive(
 			Persistence::Archive::Mode::Load, 
-			"Asset/Data/Option",
-			"GraphicsOption", 
+			"Asset/Data/Engine",
+			"EngineData", 
 			"optn",
 			Persistence::Archive::ArchiveFormat::Json
 		);

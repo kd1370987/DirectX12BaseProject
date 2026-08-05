@@ -295,6 +295,7 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem\HitEventClearSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem\BoostSoundSystem.cpp" />
@@ -422,6 +423,7 @@
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\RenderingOption.cpp" />
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\WindowOption.cpp" />
     <ClCompile Include="Source\Engine\Option\OptionManager.cpp" />
+    <ClCompile Include="Source\Engine\Option\ProjectOptions\InputOption.cpp" />
     <ClCompile Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp" />
     <ClCompile Include="Source\Engine\Particle\ParticleBufferManager.cpp" />
     <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp" />
@@ -571,6 +573,7 @@
     <ClInclude Include="Source\Application\Game\GameManager\GameManager.h" />
     <ClInclude Include="Source\Application\InstanceResource\AdditiveBoneEntry.h" />
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
+    <ClInclude Include="Source\Application\InstanceResource\HitEventResource.h" />
     <ClInclude Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\UIBase.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
@@ -624,6 +627,7 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem\HitEventClearSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem\BoostSoundSystem.h" />
@@ -787,6 +791,7 @@
     <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows\InputButtonForWindows.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput\InputButtonForXInput.h" />
     <ClInclude Include="Source\Engine\Input\InputManager\InputManager.h" />
+    <ClInclude Include="Source\Engine\Input\Internal\InputContext.h" />
     <ClInclude Include="Source\Engine\MainEngine.h" />
     <ClInclude Include="Source\Engine\EngineCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />
@@ -800,6 +805,7 @@
     <ClInclude Include="Source\Engine\Option\IOption.h" />
     <ClInclude Include="Source\Engine\Option\OptionManager.h" />
     <ClInclude Include="Source\Engine\Option\ProjectOptions\BuildConfig.h" />
+    <ClInclude Include="Source\Engine\Option\ProjectOptions\InputOption.h" />
     <ClInclude Include="Source\Engine\Particle\Core\EmitterData.h" />
     <ClInclude Include="Source\Engine\Particle\Core\ParticleData.h" />
     <ClInclude Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.h" />

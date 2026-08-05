@@ -1,5 +1,7 @@
 ﻿#include "InputAxisForWindowsMouse.h"
 
+#include "../../../Internal/InputContext.h"
+
 #include "../../Button/InputButtonForWindows/InputButtonForWindows.h"
 
 namespace Engine::Input
@@ -17,7 +19,7 @@ namespace Engine::Input
 		m_spFixButton->PreUpdate();
 	}
 
-	void InputAxisForWindowsMouse::Update()
+	void InputAxisForWindowsMouse::Update(InputContext& a_inputContext)
 	{
 		bool _needCreateAxisState = true;
 		bool _needUpdatePrevPos = true;
@@ -25,7 +27,7 @@ namespace Engine::Input
 		// 軸固定モードで固定ボタンが押されているときは軸情報を作成し、軸の中心を更新しない
 		if (m_spFixButton)
 		{
-			m_spFixButton->Update();
+			m_spFixButton->Update(a_inputContext);
 
 			if (m_spFixButton->GetState())
 			{
@@ -44,8 +46,19 @@ namespace Engine::Input
 		// 開始フレームでない & 軸情報の生成を必要とするとき
 		if (!m_isBeginFrame && _needCreateAxisState)
 		{
-			m_axis.x = float(_nowPos.x - m_prevMousePos.x);
-			m_axis.y = float(m_prevMousePos.y - _nowPos.y);
+			if(a_inputContext.isMouseLockToCenter)
+			{
+				// カーソルを中央へ戻しているため自前の座標差分は使えない
+				// (戻した分まで拾ってしまう)ので、確定済みの移動量を使う。
+				// スクリーン座標のYは下方向が正なので、上方向を正とする軸に合わせて反転する
+				m_axis.x = static_cast<float>(a_inputContext.deltaX);
+				m_axis.y = -static_cast<float>(a_inputContext.deltaY);
+			}
+			else
+			{
+				m_axis.x = float(_nowPos.x - m_prevMousePos.x);
+				m_axis.y = float(m_prevMousePos.y - _nowPos.y);
+			}
 		}
 		else
 		{

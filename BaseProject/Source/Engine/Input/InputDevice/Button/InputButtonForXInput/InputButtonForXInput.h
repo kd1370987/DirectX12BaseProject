@@ -11,7 +11,7 @@ namespace Engine::Input
 		InputButtonForXInput(const std::vector<WORD>& a_buttonVec);
 		~InputButtonForXInput() override = default;
 
-		void Update() override;
+		void Update(InputContext& a_inputContext) override;
 
 		void GetCode(std::vector<int>& a_ret)const override;
 

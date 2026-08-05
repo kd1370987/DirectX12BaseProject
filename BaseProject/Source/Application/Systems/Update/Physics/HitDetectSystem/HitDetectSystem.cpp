@@ -8,6 +8,7 @@
 
 #include "Application/Components/Collision/SphereCollider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/InstanceResource/HitEventResource.h"
 
 void HitDetectSystem::Init(Engine::ECS::World& a_world)
 {
@@ -27,6 +28,13 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 		{
 			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
 			if (!_pCollWorld) return;
+
+			// ワールド側のヒット履歴(反応系が横から読む)
+			HitEventResource* _pHitEvents = nullptr;
+			if (a_ctx.pWorld->HasResource<HitEventResource>())
+			{
+				_pHitEvents = &a_ctx.pWorld->GetResource<HitEventResource>();
+			}
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -61,6 +69,24 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 						// 相手から見た方向は逆
 						_ev->hitDir = { -_res.hitNormal.x, -_res.hitNormal.y, -_res.hitNormal.z };
 					}
+				}
+
+				// ワールドのヒットイベントにも1件積む。
+				// CollisionEvent は1エンティティ1件しか持てず、消えた弾の分も残らないので、
+				// エフェクト生成やのけぞりなどの反応系はこちらを読む。
+				if (_pHitEvents && _res.hitEntity != Engine::ECS::Limits::INVALID_ENTITY)
+				{
+					HitEvent _hit = {};
+					_hit.attacker = _self;
+					_hit.victim   = _res.hitEntity;
+					_hit.hitPos   = _res.hitPos;
+					// 受けた側から見た方向にそろえる(のけぞりの向きに使う)
+					_hit.hitDir   = { -_res.hitNormal.x, -_res.hitNormal.y, -_res.hitNormal.z };
+					// このタスクを通るのは球コライダー＋CollisionEvent を持つ弾だけなので Bullet 固定。
+					// 近接など別経路が増えたら、産む側で種別を指定すること。
+					_hit.type     = EHitEventType::Bullet;
+
+					_pHitEvents->Push(_hit);
 				}
 			}
 		}

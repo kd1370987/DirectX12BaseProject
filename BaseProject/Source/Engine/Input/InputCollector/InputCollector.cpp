@@ -1,4 +1,7 @@
 ﻿#include "InputCollector.h"
+
+#include "../Internal/InputContext.h"
+
 #include "../InputDevice/Button/InputButtonBase.h"
 #include "../InputDevice/Axis/InputAxisBase.h"
 
@@ -8,7 +11,7 @@ namespace Engine::Input
 	{}
 	InputCollector::~InputCollector()
 	{}
-	void InputCollector::Update()
+	void InputCollector::Update(InputContext& a_inputContext)
 	{
 		// 更新前の準備
 		{
@@ -27,11 +30,11 @@ namespace Engine::Input
 		{
 			for (auto& _button : m_spButtonMap)
 			{
-				_button.second->Update();
+				_button.second->Update(a_inputContext);
 			}
 			for(auto& _axis : m_spAxisMap)
 			{
-				_axis.second->Update();
+				_axis.second->Update(a_inputContext);
 			}
 		}
 		// 無効 : すべて入力されていない状態に更新

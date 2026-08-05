@@ -17,7 +17,7 @@ namespace Engine::Input
 		InputAxisForWindows(int a_upCode, int a_rightCode, int a_downCode, int a_leftCode);
 
 		void PreUpdate() override;
-		void Update() override;
+		void Update(InputContext& a_inputContext) override;
 
 	private:
 		enum EDir
