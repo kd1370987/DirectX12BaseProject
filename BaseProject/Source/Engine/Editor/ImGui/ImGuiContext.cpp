@@ -59,8 +59,25 @@ namespace Engine::Editor
 		_initInfo.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 		_initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;
 		_initInfo.SrvDescriptorHeap = _pDescriptorManager.GetImGuiHeap();
-		_initInfo.LegacySingleSrvCpuDescriptor = _pDescriptorManager.GetImGuiCPUHandle();
-		_initInfo.LegacySingleSrvGpuDescriptor = _pDescriptorManager.GetImGuiGPUHandle();
+
+		// バックエンドのディスクリプタ確保をアプリ側に委譲する
+		//
+		// LegacySingleSrv～ を使うとディスクリプタが1枚しか持てない。
+		// 1.92のフォントアトラスはグリフ追加のたびに作り直されるうえ、
+		// 「新しいテクスチャを作ってから古いテクスチャを壊す」順になることがあるので、
+		// 1枚だと LegacySingleDescriptorUsed のアサートに引っかかる。
+		// 予約領域(ヒープ先頭 IMGUI_BACKEND_DESCRIPTOR_COUNT 個)を回して使わせる。
+		_initInfo.SrvDescriptorAllocFn =
+			[](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE* a_pOutCPU, D3D12_GPU_DESCRIPTOR_HANDLE* a_pOutGPU)
+			{
+				D3D12::DescriptorHeapManager::Instance().AllocateImGuiBackendDescriptor(a_pOutCPU, a_pOutGPU);
+			};
+		_initInfo.SrvDescriptorFreeFn =
+			[](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle, D3D12_GPU_DESCRIPTOR_HANDLE)
+			{
+				D3D12::DescriptorHeapManager::Instance().FreeImGuiBackendDescriptor(a_cpuHandle);
+			};
+
 		ImGui_ImplDX12_Init(&_initInfo);
 
 		// ノードエディター

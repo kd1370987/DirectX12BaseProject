@@ -55,7 +55,7 @@ namespace Engine::D3D12
 		const Handle<D3D12::RTV>& GetRTV() const { return m_rtvHandle; }
 		const Handle<D3D12::DSV>& GetDSV() const { return m_dsvHandle; }
 		const Handle<D3D12::DSV>& GetReadOnlyDSV() const { return m_readOnlyDsvHandle; }
-		const Handle<D3D12::SRV>& GetImGuiSRV() const { return m_imguiSRVHandle; }
+		const Handle<D3D12::ImGuiSRV>& GetImGuiSRV() const { return m_imguiSRVHandle; }
 
 		const DXGI_FORMAT& GetFormat() const { return m_format; }
 
@@ -76,6 +76,7 @@ namespace Engine::D3D12
 		Handle<D3D12::RTV> m_rtvHandle = {};
 		Handle<D3D12::DSV> m_dsvHandle = {};
 		Handle<D3D12::DSV> m_readOnlyDsvHandle = {};
-		Handle<D3D12::SRV> m_imguiSRVHandle = {};
+		// ImGui用SRV : SRVと別型にしておかないと Free() が本体のSRVアロケーターへ飛ぶ
+		Handle<D3D12::ImGuiSRV> m_imguiSRVHandle = {};
 	};
 }

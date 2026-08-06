@@ -41,26 +41,40 @@ namespace Engine::D3D12
 		ID3D12DescriptorHeap* GetCBVSRVUAVHeap();
 
 		//==========================================================================================
-		// 
+		//
 		// ImGui
-		// 
+		//
 		//==========================================================================================
+
+		// ImGuiヒープの先頭に確保しておくバックエンド専用ディスクリプタ数
+		//
+		// ImGuiのDX12バックエンドは自分でSRVを作るので、その置き場を
+		// アプリ側(m_ImGuiSRVAllocator)の払い出し範囲の外に隔離しておく必要がある。
+		// ここを共有すると、テクスチャを確保し続けたときに
+		// フォントアトラスのディスクリプタが上書きされて文字が化ける。
+		static constexpr UINT IMGUI_BACKEND_DESCRIPTOR_COUNT = 8;
 
 		// ImGui初期設定用
 		ID3D12DescriptorHeap* GetImGuiHeap() const;
-		D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiCPUHandle();
-		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiGPUHandle();
+
+		// ImGuiバックエンドが使うディスクリプタの確保／解放
+		// (ImGui_ImplDX12_InitInfo の SrvDescriptorAllocFn / SrvDescriptorFreeFn から呼ぶ)
+		bool AllocateImGuiBackendDescriptor(
+			D3D12_CPU_DESCRIPTOR_HANDLE* a_pOutCPU,
+			D3D12_GPU_DESCRIPTOR_HANDLE* a_pOutGPU
+		);
+		void FreeImGuiBackendDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
 
 		// 一括でSRVを確保
-		Handle<SRV> AllocateImGuiSRV(ID3D12Resource* a_pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC* a_desc);
+		Handle<ImGuiSRV> AllocateImGuiSRV(ID3D12Resource* a_pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC* a_desc);
 
 
 		// 解放
-		void FreeImGuiSRV(const Handle<SRV>& a_handle);
+		void FreeImGuiSRV(const Handle<ImGuiSRV>& a_handle);
 
 		// ImGuiのSRVハンドルを取得
-		D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Handle<SRV> a_range);
-		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Engine::Handle<SRV> a_range);
+		D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Handle<ImGuiSRV> a_range);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Engine::Handle<ImGuiSRV> a_range);
 
 		//==========================================================================================
 		// 
@@ -101,7 +115,10 @@ namespace Engine::D3D12
 		HeapAllocator<DSV>		m_DSVAllocator;
 		
 		std::unique_ptr<SamplerAllocator>	m_upSamplerAllocator = nullptr;
-		HeapAllocator<SRV>					m_ImGuiSRVAllocator;
+		HeapAllocator<ImGuiSRV>				m_ImGuiSRVAllocator;
+
+		// ImGuiバックエンド専用ディスクリプタ(ヒープ先頭の予約領域)の空きインデックス
+		std::vector<UINT>					m_imguiBackendFreeIndices;
 
 		// サンプラー
 		Engine::Handle<SAMPLER> m_linerWrap;
@@ -182,6 +199,13 @@ namespace Engine::D3D12
 			ENGINE_LOG("DSVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
 			return m_DSVAllocator.Remove(a_handle);
 		}
+		else if constexpr (std::is_same_v<T, ImGuiSRV>)
+		{
+			// ImGui用SRVは専用アロケーターへ返す
+			// (SRVと同じ型で持たせると m_SRVAllocator に飛んで本体のプールを壊す)
+			ENGINE_LOG("ImGuiSRVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
+			return m_ImGuiSRVAllocator.Remove(a_handle);
+		}
 	}
 	template<IsHeapType T>
 	inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetCPU(Handle<T> a_handle)
@@ -206,6 +230,10 @@ namespace Engine::D3D12
 		{
 			return m_DSVAllocator.GetCPU(a_handle);
 		}
+		else if constexpr (std::is_same_v<T, ImGuiSRV>)
+		{
+			return m_ImGuiSRVAllocator.GetCPU(a_handle);
+		}
 		//else
 		//{
 		//	static_assert(slways_false_v<T>, "Unsupported Heap Type");
@@ -226,6 +254,10 @@ namespace Engine::D3D12
 		else if constexpr (std::is_same_v<T, UAV>)
 		{
 			return m_UAVAllocator.GetGPU(a_handle);
+		}
+		else if constexpr (std::is_same_v<T, ImGuiSRV>)
+		{
+			return m_ImGuiSRVAllocator.GetGPU(a_handle);
 		}
 		//else
 		//{

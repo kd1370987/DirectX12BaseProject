@@ -74,7 +74,7 @@ namespace Engine::D3D12
 		{
 			a_pDevice->CreateConstantBufferView(a_desc,_cpuHandle);
 		}
-		else if constexpr (std::is_same_v<T, SRV>)
+		else if constexpr (std::is_same_v<T, SRV> || std::is_same_v<T, ImGuiSRV>)
 		{
 			D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
 			if (a_desc)

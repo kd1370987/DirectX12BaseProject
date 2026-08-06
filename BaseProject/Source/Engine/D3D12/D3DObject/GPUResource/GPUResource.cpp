@@ -57,7 +57,7 @@ namespace Engine::D3D12
 		DescriptorHeapManager::Instance().Free(m_rtvHandle);
 		DescriptorHeapManager::Instance().Free(m_dsvHandle);
 		DescriptorHeapManager::Instance().Free(m_readOnlyDsvHandle);
-		DescriptorHeapManager::Instance().Free(m_imguiSRVHandle);
+		DescriptorHeapManager::Instance().FreeImGuiSRV(m_imguiSRVHandle);
 
 	}
 	void GPUResource::Barrier(D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)

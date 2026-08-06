@@ -102,7 +102,6 @@ namespace Engine::Input
 		if (m_needCursorLockReset)
 		{
 			// 固定を開始したフレームは基準が無いので移動量を出さない
-			// (ここで差分を取ると、固定前のカーソル位置ぶん視点が飛ぶ)
 			m_deltaX = 0;
 			m_deltaY = 0;
 			m_needCursorLockReset = false;
