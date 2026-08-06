@@ -487,24 +487,24 @@ namespace App::Game
 		}
 
 		// タイマー開始
-		Engine::Editor::MainEditor::Instance().StartWatch("GameUpdate");
+		Engine::Editor::MainEditor::Instance().StartTimer("GameUpdate");
 		
 		// シーンマネージャーの更新
 		Engine::Scene::SceneManager::Instance().Update(a_dt);
 
 		// タイマーストップ
-		Engine::Editor::MainEditor::Instance().EndWatch("GameUpdate");
+		Engine::Editor::MainEditor::Instance().StopTimer("GameUpdate");
 	}
 	void GameManager::Draw()
 	{
 		// タイマー開始
-		Engine::Editor::MainEditor::Instance().StartWatch("GameDraw");
+		Engine::Editor::MainEditor::Instance().StartTimer("GameDraw");
 
 		// シーンの描画 : 描画命令を積むだけで実行はしない
 		Engine::Scene::SceneManager::Instance().Draw();
 
 		// タイマーストップ
-		Engine::Editor::MainEditor::Instance().EndWatch("GameDraw");
+		Engine::Editor::MainEditor::Instance().StopTimer("GameDraw");
 	}
 	void GameManager::Release()
 	{}

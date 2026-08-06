@@ -1,9 +1,6 @@
 ﻿#pragma once
 namespace Engine::D3D12
 {
-	// 前方宣言
-	class CommandList;
-
 	// リソース作成用構造体
 	struct GPUResourceDesc
 	{

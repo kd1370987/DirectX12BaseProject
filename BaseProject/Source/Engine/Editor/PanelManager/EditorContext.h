@@ -8,6 +8,7 @@ namespace Engine::GameObject
 namespace Engine::Editor
 {
 	class EditorCamera;
+	class Profiler;
 
 	/// <summary>
 	/// インスペクターのモード
@@ -42,5 +43,8 @@ namespace Engine::Editor
 
 		// エディターカメラポインタ
 		EditorCamera* pEditorCamera = nullptr;
+
+		// プロファイラポインタ : 計測はプロファイラ側が行い、パネルは結果を読むだけ
+		Profiler* pProfiler = nullptr;
 	};
 }

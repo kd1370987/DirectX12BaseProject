@@ -1,5 +1,7 @@
 #include "ProfilerPanel.h"
 
+#include "../../Profiler/Profiler.h"
+
 #include "../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../../MainEngine.h"
 #include "../../../Window/NativeWindow.h"
@@ -33,107 +35,76 @@ namespace Engine::Editor
 		ImGui::Separator();
 		ImGui::Spacing();
 
-		// 下部にこれまでの「関数ごとの詳細な計測結果（ソートテーブル）」を表示する
-		DrawWatchTable();
-	}
-
-	//======================================================================================
-	// 計測開始
-	//======================================================================================
-	void ProfilerPanel::StartWatch(const std::string& a_name)
-	{
-		auto _it = m_watchIndexMap.find(a_name);
-		if (_it != m_watchIndexMap.end())
-		{
-			m_watchVec[_it->second].Start();
-		}
-		else
-		{
-			auto _size = m_watchVec.size();
-			m_watchIndexMap[a_name] = static_cast<UINT>(_size);
-
-			Watch _watch = {};
-			m_watchVec.push_back(_watch);
-			m_watchVec[_size].Start();
-		}
-	}
-
-	//======================================================================================
-	// 計測終了
-	//======================================================================================
-	void ProfilerPanel::EndWatch(const std::string& a_name)
-	{
-		auto _it = m_watchIndexMap.find(a_name);
-		if (_it != m_watchIndexMap.end())
-		{
-			m_watchVec[_it->second].End();
-			return;
-		}
-		else
-		{
-			Editor::MainEditor::Instance().AddLog("登録されていない計測 : %s", a_name.c_str());
-		}
+		// 下部にこれまでの「関数ごとの詳細な計測結果（ソート済みテーブル）」を表示する
+		DrawTimerTable(a_editContext.pProfiler);
 	}
 
 	//======================================================================================
 	// 関数ごとの計測結果
+	//
+	// 並べ替えまで Profiler が済ませているので、ここは受け取った順に並べるだけ
 	//======================================================================================
-	void ProfilerPanel::DrawWatchTable()
+	void ProfilerPanel::DrawTimerTable(Profiler* a_pProfiler)
 	{
 		ImGui::Text("CPU Detail Timings");
+
+		if (!a_pProfiler)
+		{
+			ImGui::TextDisabled("Profiler is not available.");
+			return;
+		}
+
+		// 平均を取り直す間隔
+		int _avelageRate = a_pProfiler->GetAvelageRate();
+		if (ImGui::DragInt("Avelage Rate (frame)", &_avelageRate, 1.0f, 1, 600))
+		{
+			a_pProfiler->SetAvelageRate(_avelageRate);
+		}
 
 		// 全体でリセット
 		if (ImGui::Button("Reset"))
 		{
-			for (auto& _watch : m_watchVec)
-			{
-				_watch.Reset();
-			}
+			a_pProfiler->ResetAll();
 		}
 		ImGui::Separator();
 
-		// 描画用構造体
-		struct DisplayItem
-		{
-			std::string name;
-			Watch* watchPtr;
-		};
-		std::vector<DisplayItem> _displayList;
-		_displayList.reserve(m_watchIndexMap.size());
-
-		// マップから名前とWatchのポインタをペアにしてリストに詰める
-		for (const auto& _pair : m_watchIndexMap)
-		{
-			_displayList.push_back({ _pair.first,&m_watchVec[_pair.second] });
-		}
-
-		// 並べ替え
-		std::sort(
-			_displayList.begin(), _displayList.end(),
-			[](const DisplayItem& a, const DisplayItem& b)
-			{
-				return a.watchPtr->GetAvelage() > b.watchPtr->GetAvelage();
-			}
-		);
-
 		// 描画
-		if (ImGui::BeginTable("WatchTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+		constexpr ImGuiTableFlags _tableFlags =
+			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp;
+
+		if (ImGui::BeginTable("TimerTable", 6, _tableFlags))
 		{
 			ImGui::TableSetupColumn("Title");
-			ImGui::TableSetupColumn("Result");
+			ImGui::TableSetupColumn("Now(ms)");
+			ImGui::TableSetupColumn("Avg(ms)");
+			ImGui::TableSetupColumn("Min(ms)");
+			ImGui::TableSetupColumn("Max(ms)");
+			ImGui::TableSetupColumn("Count");
 			ImGui::TableHeadersRow();
 
-			for (const auto& _item : _displayList)
+			for (const auto& _result : a_pProfiler->GetResults())
 			{
+				const Timer& _timer = _result.timer;
+
 				ImGui::TableNextRow();
 
-				// 1列目: 名前
 				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("%s", _item.name.c_str());
+				ImGui::Text("%s", _result.name.c_str());
 
-				// 2列目: 計測結果（Watch側のDrawResultにお任せ）
 				ImGui::TableSetColumnIndex(1);
-				_item.watchPtr->DrawResult(_item.name);
+				ImGui::Text("%.3f", _timer.time);
+
+				ImGui::TableSetColumnIndex(2);
+				ImGui::Text("%.3f", _timer.averageTime);
+
+				ImGui::TableSetColumnIndex(3);
+				ImGui::Text("%.3f", _timer.minTime);
+
+				ImGui::TableSetColumnIndex(4);
+				ImGui::Text("%.3f", _timer.maxTime);
+
+				ImGui::TableSetColumnIndex(5);
+				ImGui::Text("%d", _timer.totalCount);
 			}
 			ImGui::EndTable();
 		}

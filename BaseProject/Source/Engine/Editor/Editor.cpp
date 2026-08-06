@@ -2,9 +2,8 @@
 
 #include "ImGui/ImGuiContext.h"
 #include "ImGui/Log/Log.h"
-#include "ImGui/Watch/Watch.h"
 
-#include "Panel/ProfilerPanel/ProfilerPanel.h"
+#include "Profiler/Profiler.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
@@ -55,14 +54,19 @@ namespace Engine::Editor
 			m_upEditorCamera->Init();
 		}
 
+		// プロファイラ
+		// パネルより先に作る : パネルへは参照だけを渡す
+		if (!m_upProfiler)
+		{
+			m_upProfiler = std::make_unique<Profiler>();
+			m_upProfiler->Init();
+		}
+
 		// パネルの登録
 		if (!m_upPanelManager)
 		{
 			m_upPanelManager = std::make_unique<PanelManager>();
-			m_upPanelManager->Init(m_upEditorCamera.get());
-
-			// 計測はパネル側が持つので、登録後に参照を取っておく
-			m_pProfilerPanel = m_upPanelManager->RefPanel<ProfilerPanel>();
+			m_upPanelManager->Init(m_upEditorCamera.get(), m_upProfiler.get());
 		}
 
 		m_editFuncVec.clear();
@@ -193,15 +197,25 @@ namespace Engine::Editor
 		AddLog(buffer);
 		OutputDebugStringA(buffer);
 	}
-	void MainEditor::StartWatch(const std::string & a_name)
+	void MainEditor::BeginProfileFrame()
 	{
-		if (!m_isInit || !m_pProfilerPanel) return;
-		m_pProfilerPanel->StartWatch(a_name);
+		if (!m_isInit || !m_upProfiler) return;
+		m_upProfiler->BeginFrame();
 	}
-	void MainEditor::EndWatch(const std::string & a_name)
+	void MainEditor::EndProfileFrame()
 	{
-		if (!m_isInit || !m_pProfilerPanel) return;
-		m_pProfilerPanel->EndWatch(a_name);
+		if (!m_isInit || !m_upProfiler) return;
+		m_upProfiler->EndFrame();
+	}
+	void MainEditor::StartTimer(const std::string & a_name)
+	{
+		if (!m_isInit || !m_upProfiler) return;
+		m_upProfiler->StartTimer(a_name);
+	}
+	void MainEditor::StopTimer(const std::string & a_name)
+	{
+		if (!m_isInit || !m_upProfiler) return;
+		m_upProfiler->StopTimer(a_name);
 	}
 	void MainEditor::DrawLine(
 		const DirectX::SimpleMath::Vector3& a_startPos,

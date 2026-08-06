@@ -3,12 +3,11 @@ namespace Engine::Editor
 {
 	// 前方宣言
 	class Log;
-	class Watch;
 	class ComponentEdit;
 	class ImGuiContext;
 	class EditorCamera;
-	class ProfilerPanel;
 	class PanelManager;
+	class Profiler;
 
 	//=======================================================================
 	// 
@@ -50,11 +49,19 @@ namespace Engine::Editor
 
 		//=======================================================================
 		// 計測関連
+		// 実測はProfilerが行う。ここはその入口だけを提供する
 		//=======================================================================
+		// フレームの開始・終了 : メインループの先頭と末尾で呼ぶ
+		void BeginProfileFrame();
+		void EndProfileFrame();
+
 		// 計測開始
-		void StartWatch(const std::string& a_name);
+		void StartTimer(const std::string& a_name);
 		// 計測終了
-		void EndWatch(const std::string& a_name);
+		void StopTimer(const std::string& a_name);
+
+		// プロファイラの取得
+		Profiler* RefProfiler() { return m_upProfiler.get(); }
 
 		//=======================================================================
 		// デバッグ描画用
@@ -108,8 +115,8 @@ namespace Engine::Editor
 		// パネルマネージャー
 		std::unique_ptr<PanelManager> m_upPanelManager = nullptr;
 
-		// 計測機 : 実体はパネルマネージャーが持つので参照だけを持つ
-		ProfilerPanel* m_pProfilerPanel = nullptr;
+		// 計測機 : 計測と集計はここが持ち、パネルは結果を読むだけ
+		std::unique_ptr<Profiler> m_upProfiler = nullptr;
 
 		// エディター用フリーカメラ
 		std::unique_ptr<EditorCamera> m_upEditorCamera = nullptr;

@@ -4,9 +4,6 @@
 
 namespace Engine::D3D12
 {
-	// 前方宣言
-	class CommandList;
-
 	// クラス作成用データ
 	struct StaticBufferDesc
 	{

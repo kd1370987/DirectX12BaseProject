@@ -337,7 +337,7 @@ namespace Engine
 	{
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 
-		Editor::MainEditor::Instance().StartWatch("EditorPhase");
+		Editor::MainEditor::Instance().StartTimer("EditorPhase");
 
 		// ゲームモード以外の処理
 		if (m_appMode != EAppMode::Game)
@@ -374,14 +374,14 @@ namespace Engine
 
 		m_upGraphicsEngine->EndFrame();
 
-		Editor::MainEditor::Instance().EndWatch("EditorPhase");
+		Editor::MainEditor::Instance().StopTimer("EditorPhase");
 
-		Editor::MainEditor::Instance().StartWatch("EndFramePhase");
+		Editor::MainEditor::Instance().StartTimer("EndFramePhase");
 
 		// 描画終了
 		D3D12::D3D12Wrapper::Instance().EndFrame(_winOp.isVsync);
 
-		Editor::MainEditor::Instance().EndWatch("EndFramePhase");
+		Editor::MainEditor::Instance().StopTimer("EndFramePhase");
 	}
 
 	UINT MainEngine::GetFPS()

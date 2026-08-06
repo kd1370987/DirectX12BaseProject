@@ -60,8 +60,11 @@ void Application::MainLoop()
 {
 	while (true)
 	{
-		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop");
-		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop_Updatea");
+		// プロファイラのフレーム開始
+		Engine::Editor::MainEditor::Instance().BeginProfileFrame();
+
+		Engine::Editor::MainEditor::Instance().StartTimer("MainLoop");
+		Engine::Editor::MainEditor::Instance().StartTimer("MainLoop_Updatea");
 
 		// フレーム開始
 		if (!Engine::MainEngine::Instance().BeginFrame())
@@ -82,9 +85,9 @@ void Application::MainLoop()
 		// ゲームの更新
 		App::Game::GameManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
 
-		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop_Updatea");
+		Engine::Editor::MainEditor::Instance().StopTimer("MainLoop_Updatea");
 
-		Engine::Editor::MainEditor::Instance().StartWatch("MainLoop_Draw");
+		Engine::Editor::MainEditor::Instance().StartTimer("MainLoop_Draw");
 
 		// 描画
 		Engine::MainEngine::Instance().BeginDraw();				// 描画開始
@@ -92,15 +95,19 @@ void Application::MainLoop()
 			// ゲームの描画
 			//App::Game::GameManager::Instance().Draw();
 			// 命令の実行
-			Engine::Editor::MainEditor::Instance().StartWatch("RGDraw");
+			Engine::Editor::MainEditor::Instance().StartTimer("RGDraw");
 			Engine::MainEngine::Instance().ExecuteDrawCmd();
-			Engine::Editor::MainEditor::Instance().EndWatch("RGDraw");
+			Engine::Editor::MainEditor::Instance().StopTimer("RGDraw");
 		}
 		Engine::MainEngine::Instance().EndDraw();					// 描画終了
-		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop_Draw");
+		Engine::Editor::MainEditor::Instance().StopTimer("MainLoop_Draw");
 		// フレーム終了
 		Engine::MainEngine::Instance().EndFrame();
-		Engine::Editor::MainEditor::Instance().EndWatch("MainLoop");
+		Engine::Editor::MainEditor::Instance().StopTimer("MainLoop");
+
+		// プロファイラのフレーム終了
+		// ここで平均の確定と表示用の並べ替えが行われ、次フレームのパネル描画で使われる
+		Engine::Editor::MainEditor::Instance().EndProfileFrame();
 	}
 }
 

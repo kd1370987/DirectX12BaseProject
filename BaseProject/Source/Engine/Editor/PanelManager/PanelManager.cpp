@@ -11,7 +11,7 @@
 
 namespace  Engine::Editor
 {
-	void PanelManager::Init(EditorCamera* a_pEditorCamera)
+	void PanelManager::Init(EditorCamera* a_pEditorCamera, Profiler* a_pProfiler)
 	{
 		RegisterPanel<RenderGraphResourceViewPanel>();
 		RegisterPanel<AssetDataBasePanel>();
@@ -23,6 +23,7 @@ namespace  Engine::Editor
 		RegisterPanel<ProfilerPanel>();
 
 		m_editContext.pEditorCamera = a_pEditorCamera;
+		m_editContext.pProfiler = a_pProfiler;
 	}
 
 	void PanelManager::OnDrawPanels()
