@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 namespace Engine::Editor
 {
 	/// <summary>
@@ -9,16 +9,16 @@ namespace Engine::Editor
 	/// </summary>
 	struct Timer
 	{
+		//---------------------------------------------------------------------
 		// CPU時間
+		//---------------------------------------------------------------------
 		std::chrono::high_resolution_clock::time_point startTime;		// 計測開始ポイント
 		std::chrono::high_resolution_clock::time_point endTime;			// 計測終了ポイント
 
 		double time = 0.0;					// 現在フレームの時間
 		double accumulatedTime = 0.0;		// 累積時間
 
-		//---------------------------------------------------------------------
-		// 集計結果 : 表示側はここを読むだけ
-		//---------------------------------------------------------------------
+		// 集計結果
 		double averageTime = 0.0;			// 平均時間 (平均レートごとに更新)
 		double minTime = 0.0;				// リセット以降の最小時間
 		double maxTime = 0.0;				// リセット以降の最大時間
@@ -29,6 +29,12 @@ namespace Engine::Editor
 		bool isMeasuring = false;			// Start済みかどうか (Stopのみ呼ばれた場合の弾き用)
 		bool hasSample = false;				// 一度でも計測できたか (min/maxの初期化判定)
 
+		//---------------------------------------------------------------------
 		// GPU時間
+		//---------------------------------------------------------------------
+		uint32_t startIndex = 0;			// 開始インデックス
+		uint32_t endIndex = 0;				// 終了インデックス
+		double gpuTime = 0.0;				// 計測結果
+		double gpuAccumulatedTime = 0.0;	// GPU累積結果
 	};
 }

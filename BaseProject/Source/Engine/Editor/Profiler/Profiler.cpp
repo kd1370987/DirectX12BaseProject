@@ -1,7 +1,9 @@
-#include "Profiler.h"
+﻿#include "Profiler.h"
 
 #include "CPUProfiler/CPUProfiler.h"
 #include "GPUProfiler/GPUProfiler.h"
+
+#include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 namespace Engine::Editor
 {
@@ -22,7 +24,22 @@ namespace Engine::Editor
 	}
 
 	//======================================================================================
+	// 解放
+	// リードバックバッファをマップしっぱなしにしているので、デバイス破棄より前に外す
+	//======================================================================================
+	void Profiler::Release()
+	{
+		if (m_upGPUProfiler)
+		{
+			m_upGPUProfiler->Releasse();
+		}
+	}
+
+	//======================================================================================
 	// フレーム開始
+	//
+	// GPUクエリの割り当てを先頭に戻すだけ
+	// このフレームで積まれる GPU計測より前に呼ばれている必要がある
 	//======================================================================================
 	void Profiler::BeginFrame()
 	{
@@ -33,6 +50,25 @@ namespace Engine::Editor
 	}
 
 	//======================================================================================
+	// GPU計測結果の読み戻し
+	//
+	// タイムスタンプはコマンドリストがGPUで実行されて初めて確定するので、
+	// フレーム末尾ではなく「GPU待機を抜けた直後」に呼ぶ
+	// 読めるのは待機が保証しているフレームぶんなので、数フレーム前の結果になる
+	//======================================================================================
+	void Profiler::CollectGPUResult()
+	{
+		if (!m_upGPUProfiler) return;
+
+		// GetDirectCommandList() はプールからリストを確保する副作用付きなので呼ばない
+		// (読み戻しにコマンドリストは不要)
+		m_upGPUProfiler->EndFrame(
+			D3D12::D3D12Wrapper::Instance().GetCommandQueue(),
+			m_timers
+		);
+	}
+
+	//======================================================================================
 	// フレーム終了
 	//
 	// 平均レートに達したら平均を確定させ、表示用の並べ替え済み配列を作り直す
@@ -40,11 +76,6 @@ namespace Engine::Editor
 	//======================================================================================
 	void Profiler::EndFrame()
 	{
-		if (m_upGPUProfiler)
-		{
-			m_upGPUProfiler->EndFrame();
-		}
-
 		// 平均の確定
 		++m_frameCount;
 		if (m_frameCount >= m_avelageRate)
@@ -82,17 +113,25 @@ namespace Engine::Editor
 	// 計測開始
 	// 未登録の名前はここで作る
 	//======================================================================================
-	void Profiler::StartTimer(const std::string& a_name)
+	void Profiler::StartTimer(const std::string& a_name, D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		if (!m_upCPUProfiler) return;
 
-		m_upCPUProfiler->Start(m_timers[a_name]);
+		Timer& _timer = m_timers[a_name];
+
+		m_upCPUProfiler->Start(_timer);
+
+		// コマンドリストがあればGPU計測もする
+		if (!a_pCmdList) return;
+		if (!m_upGPUProfiler) return;
+
+		m_upGPUProfiler->Start(a_pCmdList, _timer);
 	}
 
 	//======================================================================================
 	// 計測終了
 	//======================================================================================
-	void Profiler::StopTimer(const std::string& a_name)
+	void Profiler::StopTimer(const std::string& a_name, D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		if (!m_upCPUProfiler) return;
 
@@ -104,6 +143,12 @@ namespace Engine::Editor
 		}
 
 		m_upCPUProfiler->Stop(_it->second);
+
+		// コマンドリストがあればGPU計測もする
+		if (!a_pCmdList) return;
+		if (!m_upGPUProfiler) return;
+
+		m_upGPUProfiler->End(a_pCmdList, _it->second);
 	}
 
 	//======================================================================================

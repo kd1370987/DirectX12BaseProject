@@ -55,10 +55,13 @@ namespace Engine::Editor
 		void BeginProfileFrame();
 		void EndProfileFrame();
 
-		// 計測開始
-		void StartTimer(const std::string& a_name);
+		// GPU計測結果の読み戻し : GPU待機を抜けた直後に呼ぶ
+		void CollectGPUProfileResult();
+
+		// 計測開始 : コマンドリストを渡すとGPU時間も測る
+		void StartTimer(const std::string& a_name, D3D12::GraphicsCommandList* a_pCmdList = nullptr);
 		// 計測終了
-		void StopTimer(const std::string& a_name);
+		void StopTimer(const std::string& a_name, D3D12::GraphicsCommandList* a_pCmdList = nullptr);
 
 		// プロファイラの取得
 		Profiler* RefProfiler() { return m_upProfiler.get(); }

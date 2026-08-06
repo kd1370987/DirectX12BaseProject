@@ -83,6 +83,13 @@ namespace Engine::Editor
 	void MainEditor::Release()
 	{
 		Debug::SetLogCallback(nullptr);
+
+		// プロファイラのGPUリソース(リードバックバッファ)を先に手放す
+		if (m_upProfiler)
+		{
+			m_upProfiler->Release();
+		}
+
 		m_upImGuiContext->Release();
 	}
 	void MainEditor::Update(float a_dt)
@@ -207,15 +214,20 @@ namespace Engine::Editor
 		if (!m_isInit || !m_upProfiler) return;
 		m_upProfiler->EndFrame();
 	}
-	void MainEditor::StartTimer(const std::string & a_name)
+	void MainEditor::CollectGPUProfileResult()
 	{
 		if (!m_isInit || !m_upProfiler) return;
-		m_upProfiler->StartTimer(a_name);
+		m_upProfiler->CollectGPUResult();
 	}
-	void MainEditor::StopTimer(const std::string & a_name)
+	void MainEditor::StartTimer(const std::string & a_name, D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		if (!m_isInit || !m_upProfiler) return;
-		m_upProfiler->StopTimer(a_name);
+		m_upProfiler->StartTimer(a_name, a_pCmdList);
+	}
+	void MainEditor::StopTimer(const std::string & a_name, D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		if (!m_isInit || !m_upProfiler) return;
+		m_upProfiler->StopTimer(a_name, a_pCmdList);
 	}
 	void MainEditor::DrawLine(
 		const DirectX::SimpleMath::Vector3& a_startPos,

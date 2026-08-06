@@ -312,6 +312,11 @@ namespace Engine
 		// 描画開始 : ここでフレームインデックスが更新され、そのフレームのGPU完了を待機する
 		D3D12::D3D12Wrapper::Instance().BeginFrame();
 
+		// GPU計測結果の読み戻し
+		// タイムスタンプはGPUが実行し終えて初めて確定するので、
+		// 上のGPU待機を抜けた直後がフレーム中で唯一の安全な読み出し地点になる
+		Editor::MainEditor::Instance().CollectGPUProfileResult();
+
 		// 今から使うフレームに登録されているファンクションを実行して空にする
 		// BeginFrameの待機を終えた後に実行することで、このインデックスを前回使ったフレームの
 		// GPU作業が完了していることが保証される

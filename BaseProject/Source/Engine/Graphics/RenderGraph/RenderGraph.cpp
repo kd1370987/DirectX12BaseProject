@@ -150,7 +150,9 @@ namespace Engine::Graphics
 		auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 		for (auto& _compilePass : m_compiledPasses)
 		{
-			Editor::MainEditor::Instance().StartTimer(_compilePass.pNode->name);
+			// パス単位はGPU計測も行う
+			// パスは入れ子にならず順番に並ぶので、開始と終了のクエリが必ず隣り合う
+			Editor::MainEditor::Instance().StartTimer(_compilePass.pNode->name, _pCmdList);
 
 			// リソースバリア（UAVバリアも対応）
 			// パスをスキップする場合でもリソースの状態遷移はコンパイル時の計算通りに進める
@@ -183,7 +185,7 @@ namespace Engine::Graphics
 			// 担当フレームでなければ中身は実行しない
 			if (!IsPassActive(_compilePass.pNode))
 			{
-				Editor::MainEditor::Instance().StopTimer(_compilePass.pNode->name);
+				Editor::MainEditor::Instance().StopTimer(_compilePass.pNode->name, _pCmdList);
 				continue;
 			}
 
@@ -202,7 +204,7 @@ namespace Engine::Graphics
 				_compilePass.pNode->executeFunc(a_pGE, a_pCtx, RGPassResources(&_compilePass));
 			}
 
-			Editor::MainEditor::Instance().StopTimer(_compilePass.pNode->name);
+			Editor::MainEditor::Instance().StopTimer(_compilePass.pNode->name, _pCmdList);
 		}
 	}
 

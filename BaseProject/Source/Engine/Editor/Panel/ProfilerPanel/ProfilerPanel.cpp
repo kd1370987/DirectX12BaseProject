@@ -72,10 +72,11 @@ namespace Engine::Editor
 		constexpr ImGuiTableFlags _tableFlags =
 			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp;
 
-		if (ImGui::BeginTable("TimerTable", 6, _tableFlags))
+		if (ImGui::BeginTable("TimerTable", 7, _tableFlags))
 		{
 			ImGui::TableSetupColumn("Title");
-			ImGui::TableSetupColumn("Now(ms)");
+			ImGui::TableSetupColumn("CPU(ms)");
+			ImGui::TableSetupColumn("GPU(ms)");
 			ImGui::TableSetupColumn("Avg(ms)");
 			ImGui::TableSetupColumn("Min(ms)");
 			ImGui::TableSetupColumn("Max(ms)");
@@ -94,16 +95,27 @@ namespace Engine::Editor
 				ImGui::TableSetColumnIndex(1);
 				ImGui::Text("%.3f", _timer.time);
 
+				// GPU計測はコマンドリストを渡した項目だけ入る
 				ImGui::TableSetColumnIndex(2);
-				ImGui::Text("%.3f", _timer.averageTime);
+				if (_timer.gpuTime > 0.0)
+				{
+					ImGui::Text("%.3f", _timer.gpuTime);
+				}
+				else
+				{
+					ImGui::TextDisabled("-");
+				}
 
 				ImGui::TableSetColumnIndex(3);
-				ImGui::Text("%.3f", _timer.minTime);
+				ImGui::Text("%.3f", _timer.averageTime);
 
 				ImGui::TableSetColumnIndex(4);
-				ImGui::Text("%.3f", _timer.maxTime);
+				ImGui::Text("%.3f", _timer.minTime);
 
 				ImGui::TableSetColumnIndex(5);
+				ImGui::Text("%.3f", _timer.maxTime);
+
+				ImGui::TableSetColumnIndex(6);
 				ImGui::Text("%d", _timer.totalCount);
 			}
 			ImGui::EndTable();

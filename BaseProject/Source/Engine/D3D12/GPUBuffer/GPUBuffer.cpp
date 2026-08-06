@@ -19,8 +19,22 @@ namespace Engine::D3D12
 		_desc.pClearValue = nullptr;
 
 		// 初期化状態の決定
-		_desc.farstState = (a_desc.heapType == D3D12_HEAP_TYPE_UPLOAD)
-			? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COMMON;
+		//
+		// UPLOAD は GENERIC_READ、READBACK は COPY_DEST でないと
+		// CreateCommittedResource が E_INVALIDARG で落ちる(D3D12の仕様)。
+		// 生成に失敗するとリソースがnullのままMapへ進んでアクセス違反になる。
+		switch (a_desc.heapType)
+		{
+		case D3D12_HEAP_TYPE_UPLOAD:
+			_desc.farstState = D3D12_RESOURCE_STATE_GENERIC_READ;
+			break;
+		case D3D12_HEAP_TYPE_READBACK:
+			_desc.farstState = D3D12_RESOURCE_STATE_COPY_DEST;
+			break;
+		default:
+			_desc.farstState = D3D12_RESOURCE_STATE_COMMON;
+			break;
+		}
 
 		return GPUResource::Create(a_pDevice,_desc);
 	}
