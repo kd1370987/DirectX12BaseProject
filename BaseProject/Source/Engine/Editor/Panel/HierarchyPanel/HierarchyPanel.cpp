@@ -211,7 +211,8 @@ namespace Engine::Editor
 
 		// ツリーノードして表示 : ドラッグアンドドロップ受け入れ
 		ImGuiTreeNodeFlags _flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
-		if (a_editContext.entity == a_entity)
+		// 複数選択中はすべての選択エンティティをハイライトする
+		if (a_editContext.IsSelectedEntity(a_entity))
 		{
 			_flags |= ImGuiTreeNodeFlags_Selected;
 		}
@@ -239,9 +240,10 @@ namespace Engine::Editor
 		bool _isNodeOpen = ImGui::TreeNodeEx((void*)(intptr_t)a_entity, _flags, _label.c_str());
 
 		// clickで選択
+		// LCtrl押下中は追加選択(再クリックで解除)、押していなければ単体選択に切り替わる
 		if (ImGui::IsItemClicked())
 		{
-			a_editContext.entity = a_entity;
+			a_editContext.SelectEntity(a_entity, a_editContext.m_isSelecting);
 		}
 
 		// ドラッグアンドドロップの制御

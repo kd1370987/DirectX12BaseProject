@@ -28,6 +28,10 @@ namespace  Engine::Editor
 
 	void PanelManager::OnDrawPanels()
 	{
+		// 複数選択の修飾キー状態をフレーム頭で確定させる。
+		// 各パネルが個別にキーを見ると、パネルごとに判定タイミングがずれるので
+		// ここで一度だけ取って全パネルで共有する。
+		m_editContext.m_isSelecting = ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
 
 		for (auto& _panel : m_upPanelVec)
 		{

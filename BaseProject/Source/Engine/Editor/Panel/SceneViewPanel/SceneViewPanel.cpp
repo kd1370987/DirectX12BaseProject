@@ -278,7 +278,8 @@ namespace Engine::Editor
 		}
 		else
 		{
-			GuizmoDraw(_imageMin, _actualRenderSize, a_editContext.entity, _pWorld);
+			// ギズモはプライマリ選択(選択リストの先頭)に対して出す
+			GuizmoDraw(_imageMin, _actualRenderSize, a_editContext.GetPrimaryEntity(), _pWorld);
 		}
 	}
 	void SceneViewPanel::SelectEntityForMouse(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const ImVec2& a_pos, const ImVec2& a_rect)
@@ -317,7 +318,8 @@ namespace Engine::Editor
 		Engine::ECS::Entity _picked = PickEntityByRay(a_pWorld, _ray);
 		if (_picked != Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			a_editContext.entity = _picked;
+			// LCtrl押下中は追加選択(再クリックで解除)、押していなければ単体選択に切り替わる
+			a_editContext.SelectEntity(_picked, a_editContext.m_isSelecting);
 		}
 	}
 	Engine::ECS::Entity SceneViewPanel::PickEntityByRay(Engine::ECS::World* a_pWorld, const Engine::Collision::RayInfo& a_ray)

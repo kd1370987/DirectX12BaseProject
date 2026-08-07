@@ -19,9 +19,12 @@ namespace Engine::Editor::Inspector
 	void AddComponent(EditorContext& a_editContext, Engine::ECS::World* a_pWorld)
 	{
 		// 指定して追加
+		// 編集対象はプライマリ選択(選択リストの先頭)
+		const ECS::Entity _entity = a_editContext.GetPrimaryEntity();
+
 		if (ImGui::BeginCombo("Add Component", "Select..."))
 		{
-			const ECS::Signature& _sig = a_pWorld->GetSignature(a_editContext.entity);
+			const ECS::Signature& _sig = a_pWorld->GetSignature(_entity);
 			for (auto& [_typeID, _meta] : a_pWorld->GetAllComponentMetaData())
 			{
 				// 所持していたら表示しない
@@ -31,7 +34,7 @@ namespace Engine::Editor::Inspector
 				if (ImGui::Selectable(_meta.name.c_str()))
 				{
 					// コンポーネントの追加
-					a_pWorld->AddComponent(_typeID, a_editContext.entity);
+					a_pWorld->AddComponent(_typeID, _entity);
 				}
 			}
 
@@ -43,8 +46,8 @@ namespace Engine::Editor::Inspector
 		if (ImGui::Button("AnimationEntity"))
 		{
 			ECS::ChangeEntityCmd _cmd = {};
-			_cmd.entity = a_editContext.entity;
-			_cmd.toSig = a_pWorld->GetSignature(a_editContext.entity);
+			_cmd.entity = _entity;
+			_cmd.toSig = a_pWorld->GetSignature(_entity);
 			_cmd.toSig.set(a_pWorld->GetCompTypeID<AnimatorComponent>());
 			_cmd.toSig.set(a_pWorld->GetCompTypeID<NodePoseComponent>());
 			_cmd.toSig.set(a_pWorld->GetCompTypeID<SkeletonPoseComponent>());
@@ -68,7 +71,7 @@ namespace Engine::Editor::Inspector
 
 		if (ImGui::Button("RemoveComponnet"))
 		{
-			a_pWorld->SubmitComponent(a_typeID, a_editContext.entity);
+			a_pWorld->SubmitComponent(a_typeID, a_editContext.GetPrimaryEntity());
 		}
 
 		ImGui::PopStyleColor(3);
@@ -80,22 +83,35 @@ namespace Engine::Editor::Inspector
 		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld || !_pWorld->IsInit()) return;
 
+		// インスペクターの編集対象はプライマリ選択(選択リストの先頭)1体のみ
 		if (ImGui::Button("RemoveEntity"))
 		{
-			_pWorld->RemoveEntity(a_editContext.entity);
-			a_editContext.entity = Engine::ECS::Limits::INVALID_ENTITY;
+			const Engine::ECS::Entity _removeEntity = a_editContext.GetPrimaryEntity();
+			if (_removeEntity != Engine::ECS::Limits::INVALID_ENTITY)
+			{
+				_pWorld->RemoveEntity(_removeEntity);
+				a_editContext.DeselectEntity(_removeEntity);
+			}
 		}
 
-		if (a_editContext.entity == Engine::ECS::Limits::INVALID_ENTITY)
+		const Engine::ECS::Entity _entity = a_editContext.GetPrimaryEntity();
+		if (_entity == Engine::ECS::Limits::INVALID_ENTITY)
 		{
 			return;
 		}
 
-		ImGui::Text("Entity ID : %d", a_editContext.entity);
+		ImGui::Text("Entity ID : %llu", _entity);
+
+		// 複数選択中は、編集されるのが先頭の1体だけであることを明示しておく
+		if (a_editContext.selectedEntities.size() > 1)
+		{
+			ImGui::TextDisabled("(%d selected / editing the first)",
+				static_cast<int>(a_editContext.selectedEntities.size()));
+		}
 
 		// エンティティが持っているコンポーネントを羅列する
-		const Engine::ECS::EntityLocation& _location = _pWorld->GetLocation(a_editContext.entity);
-		Engine::ECS::Signature _sig = _pWorld->GetSignature(a_editContext.entity);
+		const Engine::ECS::EntityLocation& _location = _pWorld->GetLocation(_entity);
+		Engine::ECS::Signature _sig = _pWorld->GetSignature(_entity);
 
 		ECS::CompEditContext _compEditContext = {};
 		_compEditContext.pWorld = _pWorld;
@@ -112,11 +128,10 @@ namespace Engine::Editor::Inspector
 				{
 					// コンポーネントごとの特殊エディター処理を入れる
 					auto _func = _pWorld->GetCompFunc(_typeID).edit;
-					_compEditContext.entity = a_editContext.entity;
-					_compEditContext.pData = _pWorld->NRefData(a_editContext.entity, _typeID);
+					_compEditContext.entity = _entity;
+					_compEditContext.pData = _pWorld->NRefData(_entity, _typeID);
 					if (_func)
 					{
-						//_func(_pWorld->NRefData(a_editContext.entity, _typeID));
 						_func(_compEditContext);
 					}
 

@@ -1,4 +1,4 @@
-#include "GameObjectHierarchyPanel.h"
+﻿#include "GameObjectHierarchyPanel.h"
 
 #include "../../../Scene/SceneManager/SceneManager.h"
 #include "../../../GameObject/GameObjectManager/GameObjectManager.h"
@@ -58,7 +58,7 @@ namespace Engine::Editor
 						if (_pNew)
 						{
 							a_editContext.pGameObject = _pNew;
-							a_editContext.entity = ECS::Limits::INVALID_ENTITY;
+							a_editContext.ClearEntitySelection();
 						}
 						ImGui::CloseCurrentPopup();
 					}
@@ -93,7 +93,7 @@ namespace Engine::Editor
 				{
 					// ゲームオブジェクト選択に切り替え(ECSエンティティの選択は解除)
 					a_editContext.pGameObject = _pObj;
-					a_editContext.entity = ECS::Limits::INVALID_ENTITY;
+					a_editContext.ClearEntitySelection();
 					_selectedStillAlive = true;
 				}
 
