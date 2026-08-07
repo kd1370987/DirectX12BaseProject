@@ -7,8 +7,10 @@ struct SubsetData
 	float4 baseColorScale;
 	float3 emissiveColorScale;
 
-	int metallic;
-	int roughness;
+	// C++側(Graphics::SubSetData)は float なので int にしてはいけない。
+	// サイズは同じで通ってしまうが、floatのビット列をintとして読むことになる。
+	float metallic;
+	float roughness;
 
 	float3 pad;
 };

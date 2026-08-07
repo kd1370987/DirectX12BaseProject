@@ -358,11 +358,27 @@ namespace Engine::ECS
 		_cmd.toSig = _oldSig;
 
 		// 初期化データはディープコピーして保持
+		const size_t _size = m_componentMetaRegistry.GetMetaData(a_typeID).compSize;
 		if(a_pData)
 		{
 			// サイズ分コピー
-			size_t _size = m_componentMetaRegistry.GetMetaData(a_typeID).compSize;
 			_cmd.dataMap[a_typeID] = std::vector<uint8_t>(a_pData, a_pData + _size);
+		}
+		else
+		{
+			// 初期値が渡されなかった場合は既定値で構築しておく。
+			//
+			// ここを空のままにすると、チャンクの生メモリがそのまま新しいコンポーネントになり、
+			// C++側のメンバ初期化子(ModelComponent::emissiveScale = {1,1,1} など)が
+			// 一切効かないままゼロ値で始まってしまう。
+			// インスペクタの AddComponent はデータを渡さないので、必ずここを通る。
+			auto _construct = GetCompFunc(a_typeID).construct;
+			if (_construct)
+			{
+				std::vector<uint8_t> _buffer(_size);
+				_construct(_buffer.data());
+				_cmd.dataMap[a_typeID] = std::move(_buffer);
+			}
 		}
 		m_changeEntityVec.push_back(_cmd);
 	}

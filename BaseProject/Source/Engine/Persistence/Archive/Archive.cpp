@@ -85,13 +85,11 @@ namespace Engine::Persistence
 		if (m_ifs.is_open()) m_ifs.close();
 
 		// JSONの書き出し
-#ifdef _DEBUG
 		if (IsSaving() && !m_json.is_null())
 		{
 			std::ofstream _ofs(m_jsonPath);
 			_ofs << m_json.dump(4); // インデント付きで綺麗に出力
 		}
-#endif
 	}
 	void Archive::StringField(const std::string& a_name, std::string& a_data)
 	{

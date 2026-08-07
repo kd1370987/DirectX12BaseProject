@@ -38,7 +38,11 @@ namespace Engine::Graphics
 		_msBuilder.WriteRTV("GBufferAlbedo", DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 		_msBuilder.WriteRTV("GBufferNormal", DXGI_FORMAT_R16G16_FLOAT);
 		_msBuilder.WriteRTV("GBufferMaterial", DXGI_FORMAT_R8G8B8A8_UNORM);
-		_msBuilder.WriteRTV("GBufferEmissiv", DXGI_FORMAT_R8G8B8A8_UNORM);
+		// エミッシブはHDR : R8だと1.0でクランプされて、強い発光やブルームの素材にならない。
+		// アルファは使っていないのでRGBのみの浮動小数フォーマットで足りる。
+		// エミッシブはHDR : R8だと1.0でクランプされて、強い発光やブルームの素材にならない。
+		// アルファは使っていないのでRGBのみの浮動小数フォーマットで足りる。
+		_msBuilder.WriteRTV("GBufferEmissiv", DXGI_FORMAT_R11G11B10_FLOAT);
 		_msBuilder.WriteRTV("GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT);
 
 		// シェーダー関係セット

@@ -55,8 +55,11 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 			}
 		}
 
+		// emissiveScale は XMFLOAT3 なので必ず3成分版を使うこと。
+		// ColorPicker4 にすると float 4個ぶん書き戻され、
+		// 直後にある handle メンバをアルファ値で潰してしまう。
 		ImGui::Text("EmissiveScale");
-		ImGui::ColorPicker4("EmissiveScale", (float*)&_comp.emissiveScale.x);
+		ImGui::ColorPicker3("EmissiveScale", (float*)&_comp.emissiveScale.x);
 
 		ImGui::Text("ColorScale");
 		ImGui::ColorPicker4("ColorScale", (float*)&_comp.colorScale.x);

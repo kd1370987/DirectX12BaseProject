@@ -94,32 +94,61 @@ ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 	}
 
 	// シェーダーの種類を決める。
-	// 明示指定があればそれを使い、無ければファイル名のサフィックスから推論する。
+	//
+	// 優先順位は 明示指定 → ファイル名のサフィックス → 既存CSOのリフレクション。
+	//
+	// サフィックスだけに頼ってはいけない。
+	// Skinning / TAA / DeferredLightingShader のように "CS" で終わらないコンピュートシェーダーが多く、
+	// 推論に失敗すると ps_6_5 / main でコンパイルしにいって
+	// "missing entry point definition" で失敗する。
+	// 再コンパイル時は必ず古いCSOが残っているので、そこから本当のステージを読み取れる。
+	EShaderStage _stage = a_forceStage;
+
+	if (_stage == EShaderStage::Unknown && _fileName.length() >= 2)
+	{
+		std::string _suffix = _fileName.substr(_fileName.length() - 2);
+		if (_suffix == "MS")		_stage = EShaderStage::MS;
+		else if (_suffix == "AS")	_stage = EShaderStage::AS;
+		else if (_suffix == "VS")	_stage = EShaderStage::VS;
+		else if (_suffix == "PS")	_stage = EShaderStage::PS;
+		else if (_suffix == "CS")	_stage = EShaderStage::CS;
+		else if (_suffix == "LB")	_stage = EShaderStage::Lib;
+	}
+
+	if (_stage == EShaderStage::Unknown && fs::exists(_hlslPath))
+	{
+		// ソースを直接見てエントリーポイント名から判別する。
+		// このプロジェクトのシェーダーは MSMain / ASMain / VSMain / PSMain / CSMain で統一されている。
+		std::ifstream _srcFile(_hlslPath, std::ios::binary);
+		if (_srcFile.is_open())
+		{
+			std::string _src(
+				(std::istreambuf_iterator<char>(_srcFile)),
+				std::istreambuf_iterator<char>()
+			);
+
+			if (_src.find("MSMain") != std::string::npos)		_stage = EShaderStage::MS;
+			else if (_src.find("ASMain") != std::string::npos)	_stage = EShaderStage::AS;
+			else if (_src.find("CSMain") != std::string::npos)	_stage = EShaderStage::CS;
+			else if (_src.find("VSMain") != std::string::npos)	_stage = EShaderStage::VS;
+			else if (_src.find("PSMain") != std::string::npos)	_stage = EShaderStage::PS;
+		}
+	}
+
 	std::wstring _profile = L"ps_6_5";	// デフォルト
 	std::wstring _entryPoint = L"main";
 
-	if (a_forceStage != EShaderStage::Unknown)
+	switch (_stage)
 	{
-		switch (a_forceStage)
-		{
-		case EShaderStage::MS:	_profile = std::wstring(L"ms_") + a_plofileVersion;	_entryPoint = L"MSMain";	break;
-		case EShaderStage::AS:	_profile = std::wstring(L"as_") + a_plofileVersion;	_entryPoint = L"ASMain";	break;
-		case EShaderStage::VS:	_profile = std::wstring(L"vs_") + a_plofileVersion;	_entryPoint = L"VSMain";	break;
-		case EShaderStage::PS:	_profile = std::wstring(L"ps_") + a_plofileVersion;	_entryPoint = L"PSMain";	break;
-		case EShaderStage::CS:	_profile = std::wstring(L"cs_") + a_plofileVersion;	_entryPoint = L"CSMain";	break;
-		case EShaderStage::Lib:	_profile = std::wstring(L"lib_") + a_plofileVersion;	_entryPoint = L"";			break;
-		default: break;
-		}
-	}
-	else if (_fileName.length() >= 2)
-	{
-		std::string _suffix = _fileName.substr(_fileName.length() - 2);
-		if (_suffix == "MS") { _profile = std::wstring(L"ms_") + a_plofileVersion; _entryPoint = L"MSMain"; }
-		else if (_suffix == "AS") { _profile = std::wstring(L"as_") + a_plofileVersion; _entryPoint = L"ASMain"; }
-		else if (_suffix == "VS") { _profile = std::wstring(L"vs_") + a_plofileVersion; _entryPoint = L"VSMain"; }
-		else if (_suffix == "PS") { _profile = std::wstring(L"ps_") + a_plofileVersion; _entryPoint = L"PSMain"; }
-		else if (_suffix == "CS") { _profile = std::wstring(L"cs_") + a_plofileVersion; _entryPoint = L"CSMain"; }
-		else if (_suffix == "LB") { _profile = std::wstring(L"lib_") + a_plofileVersion; _entryPoint = L""; }
+	case EShaderStage::MS:	_profile = std::wstring(L"ms_") + a_plofileVersion;	_entryPoint = L"MSMain";	break;
+	case EShaderStage::AS:	_profile = std::wstring(L"as_") + a_plofileVersion;	_entryPoint = L"ASMain";	break;
+	case EShaderStage::VS:	_profile = std::wstring(L"vs_") + a_plofileVersion;	_entryPoint = L"VSMain";	break;
+	case EShaderStage::PS:	_profile = std::wstring(L"ps_") + a_plofileVersion;	_entryPoint = L"PSMain";	break;
+	case EShaderStage::CS:	_profile = std::wstring(L"cs_") + a_plofileVersion;	_entryPoint = L"CSMain";	break;
+	case EShaderStage::Lib:	_profile = std::wstring(L"lib_") + a_plofileVersion;	_entryPoint = L"";			break;
+	default:
+		ENGINE_ERRLOG(false, "シェーダーステージを判別できませんでした : %s", a_path.c_str());
+		break;
 	}
 
 	// コンパイル引数の設定

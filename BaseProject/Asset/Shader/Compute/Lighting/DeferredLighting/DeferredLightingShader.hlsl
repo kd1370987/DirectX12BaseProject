@@ -72,6 +72,8 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	float _metallic = g_materialTex.Load(int3(_centerCoord, 0)).b; // 金属度
 	float _roughness = g_materialTex.Load(int3(_centerCoord, 0)).g; // 粗さ
 
+	float3 _emissive = g_emiTex.Load(int3(_centerCoord, 0)).rgb; // エミッシブ(自己発光)
+
 	float _shadow = g_shadowMask.Load(int3(_centerCoord, 0)).r; // 影
 	float3 _rayGI = g_rayGI.Load(int3(_centerCoord, 0)).rgb; // GI
 
@@ -139,6 +141,11 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 
 	// アンビエント(GI/間接光) : 強さをオプションから調整可能にする
 	_outColor += _rayGI * _albedo * g_lightingOp.giIntensity;
+
+	// エミッシブ(自己発光)
+	// 面が自分で出している光なので、影やライトの向きの影響を受けずそのまま足す。
+	// GBufferEmissiv は R11G11B10_FLOAT なので 1.0 を超える値もそのまま乗る。
+	_outColor += _emissive;
 
 	g_output[_centerCoord] = float4(_outColor, 1);
 }

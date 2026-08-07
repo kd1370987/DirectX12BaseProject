@@ -42,7 +42,6 @@ PSOutput PSMain(VSOutput a_input)
 	// エミッシブ
 	float4 _eTex = g_emiTex.Sample(smp, _uv);
 	_out.emissiv = _eTex * float4(g_subsetData[_subIdx].emissiveColorScale,1);
-	_out.emissiv = _eTex;
 
 	// モーションベクター
 	float2 _curNDCPos = (a_input.curClipPos.xy / a_input.curClipPos.w);
