@@ -16,6 +16,79 @@
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
 
+DirectX::BoundingBox Engine::Collision::CalcModelLocalAABB(
+	const Engine::Resource::Model* a_pModel,
+	bool a_isMeshShape
+)
+{
+	DirectX::BoundingBox _localAABB = {};
+	if (!a_pModel) return _localAABB;
+
+	const auto& _meshHandles = a_pModel->GetMeshHandles();
+	const auto& _nodeVec = a_pModel->GetOriginalNodeVec();
+
+	// メッシュ形状なら判定用ノード、それ以外は描画メッシュノードを見る
+	const auto& _nodeIndices =
+		(a_isMeshShape && !a_pModel->GetCollisionMeshNodeVec().empty())
+		? a_pModel->GetCollisionMeshNodeVec()
+		: a_pModel->GetMeshNodeVec();
+
+	bool _hasAABB = false;
+
+	for (int _nodeIdx : _nodeIndices)
+	{
+		if (_nodeIdx < 0 || _nodeIdx >= static_cast<int>(_nodeVec.size())) continue;
+		const auto& _node = _nodeVec[_nodeIdx];
+
+		DirectX::XMMATRIX _nodeGlobal = DirectX::XMLoadFloat4x4(&_node.worldTransform);
+
+		for (int _meshIdx : _node.meshIndices)
+		{
+			if (_meshIdx < 0 || _meshIdx >= static_cast<int>(_meshHandles.size())) continue;
+
+			const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandles[_meshIdx]);
+			if (!_pMesh) continue;
+
+			// メッシュローカルAABB → モデル空間（ノード変換込み）
+			DirectX::BoundingBox _nodeAABB = {};
+			_pMesh->GetMetaData().aabb.Transform(_nodeAABB, _nodeGlobal);
+
+			if (!_hasAABB)
+			{
+				_localAABB = _nodeAABB;
+				_hasAABB = true;
+			}
+			else
+			{
+				DirectX::BoundingBox::CreateMerged(_localAABB, _localAABB, _nodeAABB);
+			}
+		}
+	}
+
+	// ノード情報を持たないモデルは、全メッシュのAABBをそのままマージする
+	if (!_hasAABB)
+	{
+		for (const auto& _handle : _meshHandles)
+		{
+			const auto* _pMesh = Resource::ResourceManager::Instance().Get(_handle);
+			if (!_pMesh) continue;
+
+			const auto& _meta = _pMesh->GetMetaData();
+			if (!_hasAABB)
+			{
+				_localAABB = _meta.aabb;
+				_hasAABB = true;
+			}
+			else
+			{
+				DirectX::BoundingBox::CreateMerged(_localAABB, _localAABB, _meta.aabb);
+			}
+		}
+	}
+
+	return _localAABB;
+}
+
 bool Engine::Collision::Ray::VSModel(
 	const RayInfo& a_rayInfo,
 	const Engine::Resource::Model* a_pModel,
@@ -106,24 +179,34 @@ bool Engine::Collision::Ray::VSMesh(
 	// レイをモデル空間に変更
 	DirectX::XMVECTOR _rayOrigin = DirectX::XMLoadFloat3(&a_rayInfo.origin);
 	_rayOrigin = DirectX::XMVector3TransformCoord(_rayOrigin, _invWorld);
-	DirectX::XMVECTOR _direction = DirectX::XMLoadFloat3(&a_rayInfo.direction);
-	_direction = DirectX::XMVector3TransformNormal(_direction, _invWorld);
-	_direction = DirectX::XMVector3Normalize(_direction);
+
+	// 方向は正規化する前の長さを取っておく。
+	// 呼び出し側(CollisionWorld::Raycast)でワールド方向は単位化済みなので、
+	// この長さがそのまま「ワールドで1進む＝ローカルで何進むか」の倍率になる。
+	// (この方向に限れば非等方スケールでも厳密)
+	DirectX::XMVECTOR _dirRaw = DirectX::XMVector3TransformNormal(
+		DirectX::XMLoadFloat3(&a_rayInfo.direction), _invWorld);
+
+	// スケールが極端に小さい/大きい行列では、逆行列変換後のベクトルが
+	// 0 や無限大になり、正規化した結果が NaN になることがある。
+	// そのまま BoundingBox::Intersects へ渡すと XMVector3IsUnit のアサートで止まるため、
+	// ここで長さが正常であることを確認しておく。
+	float _dirLen = DirectX::XMVectorGetX(DirectX::XMVector3Length(_dirRaw));
+	if (!std::isfinite(_dirLen) || _dirLen < 1e-12f) return false;
+
+	DirectX::XMVECTOR _direction = DirectX::XMVectorScale(_dirRaw, 1.0f / _dirLen);
 
 	// ローカルレイを作成
 	RayInfo _localRay = {};
 	DirectX::XMStoreFloat3(&_localRay.origin, _rayOrigin);
 	DirectX::XMStoreFloat3(&_localRay.direction, _direction);
-	_localRay.maxDistance = a_rayInfo.maxDistance;
 
-	// スケールが極端に小さい/大きい行列では、逆行列変換後のベクトルが
-	// 0 や無限大になり XMVector3Normalize が NaN を返すことがある。
-	// そのまま BoundingBox::Intersects へ渡すと XMVector3IsUnit のアサートで止まるので、
-	// ここで単位ベクトルになっていることを確認しておく(判定基準はDirectXMathと同じ 1e-4)。
-	{
-		float _len = DirectX::XMVectorGetX(DirectX::XMVector3Length(_direction));
-		if (!std::isfinite(_len) || std::fabs(_len - 1.0f) > 1.0e-4f) return false;
-	}
+	// 射程もローカル空間の長さへ変換する。
+	// ここでワールドの値をそのまま入れると、ノードにスケールが掛かったモデル
+	// (例: メッシュ座標が巨大でノード側で1/100に縮小しているglTF)で
+	// TestTriangle の「_t > maxDistance」に必ず引っかかり、
+	// 交差自体は求まっているのに射程外として捨てられてしまう。
+	_localRay.maxDistance = a_rayInfo.maxDistance * _dirLen;
 
 	//----------------------------------------------------------------------------------------------------
 	// BVHトラバーサルの開始

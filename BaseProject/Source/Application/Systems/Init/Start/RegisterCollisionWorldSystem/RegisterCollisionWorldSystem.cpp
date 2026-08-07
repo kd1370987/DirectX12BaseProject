@@ -8,6 +8,7 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
+#include "Engine/Collision/Collision.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
@@ -45,27 +46,10 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				const auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 				if (!_pModel) continue;
 				
-				// モデル全体のローカルAABBを計算
-				DirectX::BoundingBox _localAABB = {};
-				const auto& _meshHandles = _pModel->GetMeshHandles();
-				if (!_meshHandles.empty())
-				{
-					// メッシュ取得
-					const auto* _pMesh = a_ctx.pServices->pResourceManager->Get(_meshHandles[0]);
-
-					// 最初の一個目で初期化
-					_localAABB = _pMesh->GetMetaData().aabb;
-
-					for (size_t _m = 1; _m < _meshHandles.size(); ++_m)
-					{
-						// メッシュ取得（各サブメッシュを順に見る）
-						const auto* _pMesh = a_ctx.pServices->pResourceManager->Get(_meshHandles[_m]);
-						if (!_pMesh) continue;
-
-						const auto& _meta = _pMesh->GetMetaData();
-						DirectX::BoundingBox::CreateMerged(_localAABB, _localAABB, _meta.aabb);
-					}
-				}
+				// モデル全体のローカルAABBを計算（モデル内ノードのworldTransform込み）
+				DirectX::BoundingBox _localAABB = Engine::Collision::CalcModelLocalAABB(
+					_pModel,
+					_collComp.shapeType.type == Engine::Collision::EShapeType::Mesh);
 
 				// ローカルAABBをワールドに変換
 				DirectX::BoundingBox _worldAABB;

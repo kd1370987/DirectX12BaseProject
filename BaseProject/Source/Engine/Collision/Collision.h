@@ -8,6 +8,18 @@ namespace Engine
 {
 	namespace Collision
 	{
+		// モデルのローカルAABB（モデル内ノードのworldTransform込み）を計算する。
+		//
+		// TLASへ登録するボックスは、判定側(Ray::VSModel / *::VSModel)がメッシュを置くのと
+		// 同じ空間になっていないといけない。判定側は「ノードのworldTransform × インスタンス行列」を
+		// 使うので、ここでもノード変換を掛けた上でマージする。
+		// これを怠ると、ノードにスケールや平行移動を持つモデルでブロードフェーズが判定漏れを起こす。
+		//
+		// a_isMeshShape : メッシュ形状なら判定用ノード、それ以外は描画メッシュノードを対象にする
+		DirectX::BoundingBox CalcModelLocalAABB(
+			const Engine::Resource::Model* a_pModel,
+			bool a_isMeshShape
+		);
 
 		// レイ判定
 		namespace Ray
