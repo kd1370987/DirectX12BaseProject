@@ -12,10 +12,10 @@
 
 namespace Engine::D3D12
 {
-	void D3D12Wrapper::Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight)
+	void D3D12Wrapper::Init(const HWND& a_hWnd, bool a_isDebug, UINT a_windowWidth, UINT a_windowHeight)
 	{
 		// デバッグ機能を有効化(終了時のライブオブジェクトレポート等で使用)
-		m_isDebag = true;
+		m_isDebag = a_isDebug;
 
 		// GPUリソース初期化
 		CreateDxgiFactory();	// ファクトリ作成

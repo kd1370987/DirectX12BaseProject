@@ -90,7 +90,9 @@ void Application::MainLoop()
 		Engine::Editor::MainEditor::Instance().StartTimer("MainLoop_Draw");
 
 		// 描画
+		Engine::Editor::MainEditor::Instance().StartTimer("BeginDraw");
 		Engine::MainEngine::Instance().BeginDraw();				// 描画開始
+		Engine::Editor::MainEditor::Instance().StopTimer("BeginDraw");
 		{
 			// ゲームの描画
 			//App::Game::GameManager::Instance().Draw();
@@ -99,7 +101,9 @@ void Application::MainLoop()
 			Engine::MainEngine::Instance().ExecuteDrawCmd();
 			Engine::Editor::MainEditor::Instance().StopTimer("RGDraw");
 		}
-		Engine::MainEngine::Instance().EndDraw();					// 描画終了
+		Engine::Editor::MainEditor::Instance().StartTimer("EndDraw");
+		Engine::MainEngine::Instance().EndDraw();						// 描画終了
+		Engine::Editor::MainEditor::Instance().StopTimer("EndDraw");
 		Engine::Editor::MainEditor::Instance().StopTimer("MainLoop_Draw");
 		// フレーム終了
 		Engine::MainEngine::Instance().EndFrame();

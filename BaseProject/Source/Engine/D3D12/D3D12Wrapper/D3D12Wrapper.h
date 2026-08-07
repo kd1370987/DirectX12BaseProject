@@ -38,7 +38,7 @@ namespace Engine::D3D12
 		/// <param name="a_hWnd">ウィンドウハンドル</param>
 		/// <param name="a_windowWidth">ウィンドウ横</param>
 		/// <param name="a_windowHeight">ウィンドウ縦</param>
-		void Init(const HWND& a_hWnd, UINT a_windowWidth, UINT a_windowHeight);
+		void Init(const HWND& a_hWnd, bool a_isDebug,UINT a_windowWidth, UINT a_windowHeight);
 
 		/// <summary>
 		/// 終了処理

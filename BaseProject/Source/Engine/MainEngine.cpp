@@ -51,7 +51,7 @@ namespace Engine
 
 		// インプット初期化
 		Input::InputManager::Instance().Init();
-
+		bool _isD3DDebug = false;
 		// ビルドモードによって、仕様を変更
 		switch (m_buildMode)
 		{
@@ -62,6 +62,8 @@ namespace Engine
 			{
 				_debug->EnableDebugLayer();
 			}
+			// D3DデバッグON
+			_isD3DDebug = true;
 			ENGINE_LOG("[Option] : Debug モードでビルドされます");
 			break;
 		}
@@ -105,6 +107,7 @@ namespace Engine
 		// クライアント領域へはスワップチェインの STRETCH で伸ばされる。
 		D3D12::D3D12Wrapper::Instance().Init(
 			m_upWindow->GetWindowHandle(),
+			_isD3DDebug,
 			static_cast<UINT>(_winOp.windowWidth),
 			static_cast<UINT>(_winOp.windowHeight)
 		);
@@ -310,7 +313,10 @@ namespace Engine
 		Editor::MainEditor::Instance().Update(GetDeltaTime());
 
 		// 描画開始 : ここでフレームインデックスが更新され、そのフレームのGPU完了を待機する
+
+		Engine::Editor::MainEditor::Instance().StartTimer("D3D12WrapperBeginFrame");
 		D3D12::D3D12Wrapper::Instance().BeginFrame();
+		Engine::Editor::MainEditor::Instance().StopTimer("D3D12WrapperBeginFrame");
 
 		// GPU計測結果の読み戻し
 		// タイムスタンプはGPUが実行し終えて初めて確定するので、
