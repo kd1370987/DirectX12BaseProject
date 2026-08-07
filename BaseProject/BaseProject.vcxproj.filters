@@ -235,9 +235,6 @@
     <Filter Include="Source\Engine\Editor\Internal">
       <UniqueIdentifier>{a1c0f001-1111-4a10-9f01-000000000004}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\ImGui\OperationBox">
-      <UniqueIdentifier>{7ada4956-e6cf-4123-b5e7-290ea44e1078}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem">
       <UniqueIdentifier>{3025c83e-fc74-49a4-b298-22098ab9184d}</UniqueIdentifier>
     </Filter>
@@ -2281,9 +2278,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Internal\EditorTimer.h">
       <Filter>Source\Engine\Editor\Internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\ImGui\OperationBox\OperationBox.h">
-      <Filter>Source\Engine\Editor\ImGui\OperationBox</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\AnimatorComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>

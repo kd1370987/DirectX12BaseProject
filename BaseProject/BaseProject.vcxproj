@@ -718,7 +718,6 @@
     <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\Log\Log.h" />
-    <ClInclude Include="Source\Engine\Editor\ImGui\OperationBox\OperationBox.h" />
     <ClInclude Include="Source\Engine\Editor\Profiler\Profiler.h" />
     <ClInclude Include="Source\Engine\Editor\Profiler\CPUProfiler\CPUProfiler.h" />
     <ClInclude Include="Source\Engine\Editor\Profiler\GPUProfiler\GPUProfiler.h" />

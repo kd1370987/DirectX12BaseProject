@@ -12,6 +12,7 @@
 #include "../../../../Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../Application/Components/Transform/WorldMatrixComponent.h"
 #include "../../../../Application/Components/Hierarchy/HierarchyComponent.h"
+#include "../../../../Application/Components/Persistence/GUIDComponent.h"
 
 // HUD表示に使うコンポーネント群(オフセット・パーティクルの発生方向など)
 #include "../../../../Application/Components/Hierarchy/FollowAnimationNodeComponent.h"
@@ -268,6 +269,9 @@ namespace Engine::Editor
 
 		// シーンビュー上でエンティティをクリックした際に選択する
 		SelectEntityForMouse(a_editContext,_pWorld, _imageMin,_actualRenderSize);
+
+		// エンティティコピー(Ctrl+C / Ctrl+V)
+		CopyEntities(a_editContext, _pWorld);
 
 		// ギズモ描画
 		// ゲームオブジェクト(Gameモード)を選択中ならそちらのギズモを、
@@ -1026,5 +1030,209 @@ namespace Engine::Editor
 
 		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _fileDir, _fileName, "scene");
 		_pScene->Archive(_ar);
+	}
+	void SceneViewPanel::CopyEntities(EditorContext& a_editContext, Engine::ECS::World* a_pWorld)
+	{
+		// コピー : LCtr + C で選択中のエンティティをコピー
+		if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_C))
+		{
+			CopyToBuffer(a_editContext, a_pWorld);
+		}
+
+		// ペースト
+		// バッファは消さないので、続けて何度でも貼り付けられる
+		if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_V))
+		{
+			PasteFromBuffer(a_pWorld);
+		}
+	}
+
+	void SceneViewPanel::CopyToBuffer(EditorContext& a_editContext, Engine::ECS::World* a_pWorld)
+	{
+		m_copyBufferVec.clear();
+		if (!a_pWorld) return;
+
+		// 選択中のエンティティとその子孫が対象
+		const std::vector<ECS::Entity> _targets = CollectCopyTargets(a_pWorld, a_editContext);
+		if (_targets.empty()) return;
+
+		m_copyBufferVec.reserve(_targets.size());
+
+		for (const ECS::Entity& _entity : _targets)
+		{
+			EntityCopyData _copyData = {};
+			_copyData.sig = a_pWorld->GetSignature(_entity);
+
+			// 全コンポーネントのバイト列をそのまま控える。
+			// コンポーネントは登録時に trivially copyable を強制しているので memcpy で複製できる。
+			for (size_t _typeID = 0; _typeID < _copyData.sig.size(); ++_typeID)
+			{
+				if (!_copyData.sig.test(_typeID)) continue;
+
+				const auto _compTypeID = static_cast<ECS::ComponentTypeID>(_typeID);
+
+				const uint8_t* _pSrc = a_pWorld->NRefData(_entity, _compTypeID);
+				if (!_pSrc) continue;
+
+				const size_t _size = a_pWorld->GetComponentMetaData(_compTypeID).compSize;
+				if (_size == 0) continue;
+
+				auto& _buffer = _copyData.dataMap[_compTypeID];
+				_buffer.resize(_size);
+				std::memcpy(_buffer.data(), _pSrc, _size);
+			}
+
+			// 貼り付け時に親子関係を貼り直すため、コピー元のGUIDを覚えておく
+			if (a_pWorld->HasComponent<GUIDComponent>(_entity))
+			{
+				if (const auto* _pGUIDComp = a_pWorld->RefData<GUIDComponent>(_entity))
+				{
+					_copyData.srcGUID = _pGUIDComp->guid;
+				}
+			}
+
+			m_copyBufferVec.push_back(std::move(_copyData));
+		}
+
+		ENGINE_LOG("[Scene] エンティティをコピーしました : %d 体", static_cast<int>(m_copyBufferVec.size()));
+	}
+
+	void SceneViewPanel::PasteFromBuffer(Engine::ECS::World* a_pWorld)
+	{
+		if (!a_pWorld) return;
+		if (m_copyBufferVec.empty()) return;
+
+		// 貼り付けるたびに新しいGUIDを配る。
+		// 親子関係は parentGUID で繋がっているので、
+		// 「コピー元のGUID → 今回作るGUID」の対応表を先に作ってから付け替える必要がある。
+		std::unordered_map<Engine::GUID, Engine::GUID> _guidMap = {};
+		for (const EntityCopyData& _copyData : m_copyBufferVec)
+		{
+			if (!_copyData.srcGUID.IsValid()) continue;
+
+			Engine::GUID _newGUID = {};
+			_newGUID.Create();
+			_guidMap.emplace(_copyData.srcGUID, _newGUID);
+		}
+
+		const auto _guidTypeID			= a_pWorld->GetCompTypeID<GUIDComponent>();
+		const auto _hierarchyTypeID		= a_pWorld->GetCompTypeID<HierarchyComponent>();
+		const auto _localTransformTypeID = a_pWorld->GetCompTypeID<LocalTransformComponent>();
+
+		const auto _postDeserializeTypeID	= a_pWorld->GetCompTypeID<PostDeserializeTag>();
+		const auto _awakeTypeID				= a_pWorld->GetCompTypeID<AwakeTag>();
+		const auto _startTypeID				= a_pWorld->GetCompTypeID<StartTag>();
+		const auto _activeTypeID			= a_pWorld->GetCompTypeID<ActiveTag>();
+
+		for (const EntityCopyData& _copyData : m_copyBufferVec)
+		{
+			// バイト列はこの後書き換えるので、バッファ本体ではなくコピーを触る
+			// (バッファを残しておくことで何度でも貼り付けられる)
+			ECS::Signature _sig = _copyData.sig;
+			auto _dataMap = _copyData.dataMap;
+
+			// GUIDは一意でなければならないので、配り直したものへ差し替える
+			auto _guidIt = _dataMap.find(_guidTypeID);
+			if (_guidIt != _dataMap.end() && _guidIt->second.size() >= sizeof(GUIDComponent))
+			{
+				auto* _pGUIDComp = reinterpret_cast<GUIDComponent*>(_guidIt->second.data());
+
+				auto _found = _guidMap.find(_pGUIDComp->guid);
+				if (_found != _guidMap.end()) _pGUIDComp->guid = _found->second;
+			}
+
+			// 親子関係の貼り直し
+			auto _hierarchyIt = _dataMap.find(_hierarchyTypeID);
+			if (_hierarchyIt != _dataMap.end() && _hierarchyIt->second.size() >= sizeof(HierarchyComponent))
+			{
+				auto* _pHierarchyComp = reinterpret_cast<HierarchyComponent*>(_hierarchyIt->second.data());
+
+				// 親も一緒にコピーされているなら、新しく作られる親の方へ繋ぎ替える。
+				// コピー範囲の外にいる親はそのままなので、コピー元の兄弟として生成される。
+				auto _found = _guidMap.find(_pHierarchyComp->parentGUID);
+				if (_found != _guidMap.end()) _pHierarchyComp->parentGUID = _found->second;
+
+				// ランタイム用のIDは PostDeserialize 以降で貼り直されるので、ここでは無効化しておく
+				_pHierarchyComp->parentID = ECS::Limits::INVALID_ENTITY;
+			}
+
+			// 親が変わっている可能性があるので、ワールド行列は必ず作り直させる
+			auto _transformIt = _dataMap.find(_localTransformTypeID);
+			if (_transformIt != _dataMap.end() && _transformIt->second.size() >= sizeof(LocalTransformComponent))
+			{
+				reinterpret_cast<LocalTransformComponent*>(_transformIt->second.data())->isDirty = true;
+			}
+
+			// 生成直後に初期化フェーズを通す。
+			// PostDeserialize → Awake → Start → Active と遷移する間に
+			// GUID解決・親子リンク・リソース確保などが走るので、
+			// コピー元が持っていたフェーズタグは落としておく。
+			_sig.set(_postDeserializeTypeID);
+			_sig.reset(_awakeTypeID);
+			_sig.reset(_startTypeID);
+			_sig.reset(_activeTypeID);
+
+			a_pWorld->AddEntityWithData(_sig, std::move(_dataMap));
+		}
+
+		ENGINE_LOG("[Scene] エンティティを貼り付けました : %d 体", static_cast<int>(m_copyBufferVec.size()));
+	}
+
+	std::vector<Engine::ECS::Entity> SceneViewPanel::CollectCopyTargets(Engine::ECS::World* a_pWorld, const EditorContext& a_editContext)
+	{
+		std::vector<ECS::Entity> _targets = {};
+		if (!a_pWorld) return _targets;
+
+		// 「親 → 子リスト」の対応表を一度だけ作る。
+		// 子をたどるたびに全エンティティを舐め直さないため。
+		std::unordered_map<ECS::Entity, std::vector<ECS::Entity>> _childMap = {};
+		a_pWorld->ForEach<HierarchyComponent>(
+			[&_childMap]
+			(
+				ECS::ArchetypeChunk* a_pChunk,
+				uint32_t a_count,
+				HierarchyComponent* a_hierarchyArray
+				)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					const ECS::Entity _parent = a_hierarchyArray[_i].parentID;
+					if (_parent == ECS::Limits::INVALID_ENTITY) continue;
+
+					_childMap[_parent].push_back(a_pChunk->entityData[_i]);
+				}
+			}
+		);
+
+		// 選択中のエンティティを起点に子孫をたどって集める
+		std::vector<ECS::Entity> _stack = {};
+		for (const ECS::Entity& _entity : a_editContext.selectedEntities)
+		{
+			if (_entity == ECS::Limits::INVALID_ENTITY) continue;
+			_stack.push_back(_entity);
+		}
+
+		std::unordered_set<ECS::Entity> _visited = {};
+		while (!_stack.empty())
+		{
+			const ECS::Entity _entity = _stack.back();
+			_stack.pop_back();
+
+			// 親と子を同時に選んでいた場合などの重複はここで弾かれる。
+			// 循環参照があっても訪問済みで止まるので無限ループにはならない。
+			if (!_visited.insert(_entity).second) continue;
+
+			_targets.push_back(_entity);
+
+			auto _it = _childMap.find(_entity);
+			if (_it == _childMap.end()) continue;
+
+			for (const ECS::Entity& _child : _it->second)
+			{
+				_stack.push_back(_child);
+			}
+		}
+
+		return _targets;
 	}
 }

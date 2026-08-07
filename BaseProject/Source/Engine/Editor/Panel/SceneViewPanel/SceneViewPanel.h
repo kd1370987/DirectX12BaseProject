@@ -67,6 +67,31 @@ namespace Engine::Editor
 		void OpenSavePopup();
 		void SaveScene(const Engine::GUID& a_guid);
 
+		// エンティティコピー : Ctrl+C / Ctrl+V のショートカット処理
+		void CopyEntities(EditorContext& a_editContext, Engine::ECS::World* a_pWorld);
+
+		// 選択中のエンティティ(と子孫)をコピーバッファへ控える
+		void CopyToBuffer(EditorContext& a_editContext, Engine::ECS::World* a_pWorld);
+
+		// コピーバッファの内容から新しいエンティティを生成する
+		void PasteFromBuffer(Engine::ECS::World* a_pWorld);
+
+		// コピー対象を集める : 選択中のエンティティとその子孫すべて(重複なし)
+		std::vector<ECS::Entity> CollectCopyTargets(Engine::ECS::World* a_pWorld, const EditorContext& a_editContext);
+
+	private:
+
+		// コピーしたエンティティ1体分のスナップショット。
+		// コピー時点のバイト列をそのまま持つので、コピー元が消えても貼り付けられる。
+		struct EntityCopyData
+		{
+			ECS::Signature sig = {};
+			std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>> dataMap = {};
+
+			// コピー元のGUID。貼り付け時に親子関係を貼り直すために使う
+			Engine::GUID srcGUID = {};
+		};
+
 	private:
 
 		// シーンファイル操作系
@@ -79,6 +104,9 @@ namespace Engine::Editor
 		bool m_isSaveShortcut = false;
 		bool m_canOverwrite = false;
 		bool m_doOverwrite = false;
+
+		// コピー用 : Ctrl+C で詰めて、Ctrl+V のたびに中身から生成する(何度でも貼り付け可)
+		std::vector<EntityCopyData> m_copyBufferVec = {};
 
 		Engine::GUID m_currentSceneGUID = Engine::DefaultGUID;
 	};
