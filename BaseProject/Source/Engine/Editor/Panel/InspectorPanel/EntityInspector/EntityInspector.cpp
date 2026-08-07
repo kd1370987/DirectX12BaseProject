@@ -83,15 +83,23 @@ namespace Engine::Editor::Inspector
 		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld || !_pWorld->IsInit()) return;
 
-		// インスペクターの編集対象はプライマリ選択(選択リストの先頭)1体のみ
-		if (ImGui::Button("RemoveEntity"))
+		// 削除は選択中のエンティティすべてが対象
+		const int _selectedCount = static_cast<int>(a_editContext.selectedEntities.size());
+		const std::string _removeLabel = (_selectedCount > 1)
+			? ("RemoveEntity (" + std::to_string(_selectedCount) + ")")
+			: std::string("RemoveEntity");
+
+		if (ImGui::Button(_removeLabel.c_str()))
 		{
-			const Engine::ECS::Entity _removeEntity = a_editContext.GetPrimaryEntity();
-			if (_removeEntity != Engine::ECS::Limits::INVALID_ENTITY)
+			// RemoveEntity は即座にチャンクを詰め替えるため、
+			// 選択リストを直接舐めながら消さずに一度コピーしてから回す。
+			const std::vector<Engine::ECS::Entity> _removeTargets = a_editContext.selectedEntities;
+			for (const Engine::ECS::Entity& _removeEntity : _removeTargets)
 			{
+				if (_removeEntity == Engine::ECS::Limits::INVALID_ENTITY) continue;
 				_pWorld->RemoveEntity(_removeEntity);
-				a_editContext.DeselectEntity(_removeEntity);
 			}
+			a_editContext.ClearEntitySelection();
 		}
 
 		const Engine::ECS::Entity _entity = a_editContext.GetPrimaryEntity();
@@ -102,11 +110,11 @@ namespace Engine::Editor::Inspector
 
 		ImGui::Text("Entity ID : %llu", _entity);
 
-		// 複数選択中は、編集されるのが先頭の1体だけであることを明示しておく
-		if (a_editContext.selectedEntities.size() > 1)
+		// 複数選択中は、コンポーネント編集の対象が先頭1体だけであることを明示しておく
+		// (移動と削除は選択中すべてに効く)
+		if (_selectedCount > 1)
 		{
-			ImGui::TextDisabled("(%d selected / editing the first)",
-				static_cast<int>(a_editContext.selectedEntities.size()));
+			ImGui::TextDisabled("(%d selected / editing the first)", _selectedCount);
 		}
 
 		// エンティティが持っているコンポーネントを羅列する

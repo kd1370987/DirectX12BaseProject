@@ -278,8 +278,9 @@ namespace Engine::Editor
 		}
 		else
 		{
-			// ギズモはプライマリ選択(選択リストの先頭)に対して出す
-			GuizmoDraw(_imageMin, _actualRenderSize, a_editContext.GetPrimaryEntity(), _pWorld);
+			// ギズモはプライマリ選択(選択リストの先頭)に出し、
+			// 動かした分は選択中の全エンティティへ適用する
+			GuizmoDraw(_imageMin, _actualRenderSize, a_editContext, _pWorld);
 		}
 	}
 	void SceneViewPanel::SelectEntityForMouse(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const ImVec2& a_pos, const ImVec2& a_rect)
@@ -412,7 +413,7 @@ namespace Engine::Editor
 
 		return _picked;
 	}
-	void SceneViewPanel::GuizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, const ECS::Entity& a_currentSelectEntity, Engine::ECS::World* a_pWorld)
+	void SceneViewPanel::GuizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, EditorContext& a_editContext, Engine::ECS::World* a_pWorld)
 	{
 		// 現在のウィンドウの描画リストにギズモを追加するよう指示
 		ImGuizmo::SetDrawlist();
@@ -421,20 +422,23 @@ namespace Engine::Editor
 		ImGuizmo::SetRect(a_pos.x, a_pos.y, a_rect.x, a_rect.y);
 
 		if (!a_pWorld) return;
-		if (a_currentSelectEntity == ECS::Limits::INVALID_ENTITY) return;
+
+		// ギズモを出す基準はプライマリ選択(選択リストの先頭)
+		const ECS::Entity _primaryEntity = a_editContext.GetPrimaryEntity();
+		if (_primaryEntity == ECS::Limits::INVALID_ENTITY) return;
 
 		// オフセットやパーティクル方向のHUDは、
 		// トランスフォームを持たないエンティティでも出したいのでギズモより先に描く。
-		DrawEntityHUD(a_pos, a_rect, a_currentSelectEntity, a_pWorld);
+		DrawEntityHUD(a_pos, a_rect, _primaryEntity, a_pWorld);
 
 		// トランスフォームを持っているかチェック
-		if (!a_pWorld->HasComponent<LocalTransformComponent>(a_currentSelectEntity)) return;
+		if (!a_pWorld->HasComponent<LocalTransformComponent>(_primaryEntity)) return;
 
 		// 取得
-		auto* _pTrsComp = a_pWorld->RefData<LocalTransformComponent>(a_currentSelectEntity);
+		auto* _pTrsComp = a_pWorld->RefData<LocalTransformComponent>(_primaryEntity);
 		if (!_pTrsComp) return;
 
-		auto* _pWorldComp = a_pWorld->RefData<WorldMatrixComponent>(a_currentSelectEntity);
+		auto* _pWorldComp = a_pWorld->RefData<WorldMatrixComponent>(_primaryEntity);
 		if (!_pWorldComp) return;
 
 		// 現在のカメラ行列を取得
@@ -455,7 +459,7 @@ namespace Engine::Editor
 		// ギズモが実際の見た目の位置からずれる。CommitHierarchyWorldMatrixSystem と
 		// 同じ world = local * parentWorld で合成してから渡す。
 		DirectX::XMMATRIX _mParent = DirectX::XMMatrixIdentity();
-		const bool _hasParent = TryGetParentWorldMatrix(a_pWorld, a_currentSelectEntity, _mParent);
+		const bool _hasParent = TryGetParentWorldMatrix(a_pWorld, _primaryEntity, _mParent);
 
 		DirectX::XMMATRIX _mWorld = _hasParent ? (_mLocal * _mParent) : _mLocal;
 
@@ -475,36 +479,98 @@ namespace Engine::Editor
 		);
 
 		// ギズモをドラッグ中ならコンポーネントを更新
-		if (ImGuizmo::IsUsing()) {
-			DirectX::XMMATRIX updatedWorld = DirectX::XMLoadFloat4x4(&_worldFloat4x4);
+		if (ImGuizmo::IsUsing())
+		{
+			DirectX::XMMATRIX _updatedWorld = DirectX::XMLoadFloat4x4(&_worldFloat4x4);
 
-			// ギズモが返すのはワールド行列なので、親がいるなら親基準のローカルへ戻してから書き戻す
-			DirectX::XMMATRIX updatedLocal = updatedWorld;
-			if (_hasParent)
+			// 移動のみのギズモなので、ワールド空間での平行移動量だけを取り出す。
+			// 行列を分解して書き戻す方式だと複数エンティティへ同じ操作を配れないため、
+			// 「移動量」に落としてから選択中の各エンティティへ適用する。
+			DirectX::XMVECTOR _worldDelta = DirectX::XMVectorSubtract(_updatedWorld.r[3], _mWorld.r[3]);
+
+			// 動いていないフレームは何もしない(isDirtyを立て続けないため)
+			if (DirectX::XMVector3NearEqual(_worldDelta, DirectX::XMVectorZero(), DirectX::XMVectorReplicate(1e-8f)))
 			{
-				DirectX::XMVECTOR _det;
-				DirectX::XMMATRIX _invParent = DirectX::XMMatrixInverse(&_det, _mParent);
-
-				// 親のスケールが0などで逆行列が作れない場合、
-				// そのまま書き戻すとローカルがNaNで壊れるので更新しない。
-				if (DirectX::XMVector4Equal(_det, DirectX::XMVectorZero())) return;
-
-				updatedLocal = updatedWorld * _invParent;
+				return;
 			}
 
-			DirectX::XMVECTOR outScale, outRotQuat, outTrans;
+			// 選択中の全エンティティへ同じ移動量を適用する
+			for (const ECS::Entity& _entity : a_editContext.selectedEntities)
+			{
+				if (_entity == ECS::Limits::INVALID_ENTITY) continue;
 
-			// 行列を分解
-			DirectX::XMMatrixDecompose(&outScale, &outRotQuat, &outTrans, updatedLocal);
+				// 祖先も一緒に選ばれている場合、親の移動が子へ伝播するので自分では動かさない。
+				// (動かすと親の分と自分の分で二重に移動してしまう)
+				if (IsAncestorSelected(a_pWorld, a_editContext, _entity)) continue;
 
-			DirectX::XMStoreFloat3(&_pTrsComp->pos, outTrans);
-			DirectX::XMStoreFloat4(&_pTrsComp->quat, outRotQuat);
-			DirectX::XMStoreFloat3(&_pTrsComp->scale, outScale);
-
-			_pTrsComp->isDirty = true;
-
-			DirectX::XMStoreFloat4x4(&_pWorldComp->worldMat, updatedWorld);
+				TranslateEntity(a_pWorld, _entity, _worldDelta);
+			}
 		}
+	}
+
+	void SceneViewPanel::TranslateEntity(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, DirectX::FXMVECTOR a_worldDelta)
+	{
+		if (!a_pWorld) return;
+		if (!a_pWorld->HasComponent<LocalTransformComponent>(a_entity)) return;
+
+		auto* _pTrsComp = a_pWorld->RefData<LocalTransformComponent>(a_entity);
+		if (!_pTrsComp) return;
+
+		// LocalTransform は親基準なので、ワールドの移動量を親空間へ変換してから足す
+		DirectX::XMVECTOR _localDelta = a_worldDelta;
+
+		DirectX::XMMATRIX _mParent = DirectX::XMMatrixIdentity();
+		if (TryGetParentWorldMatrix(a_pWorld, a_entity, _mParent))
+		{
+			DirectX::XMVECTOR _det;
+			DirectX::XMMATRIX _invParent = DirectX::XMMatrixInverse(&_det, _mParent);
+
+			// 親のスケールが0などで逆行列が作れない場合、
+			// そのまま書き戻すとローカルがNaNで壊れるので動かさない。
+			if (DirectX::XMVector4Equal(_det, DirectX::XMVectorZero())) return;
+
+			// 位置ではなく変位なので TransformNormal(平行移動成分を無視)を使う
+			_localDelta = DirectX::XMVector3TransformNormal(a_worldDelta, _invParent);
+		}
+
+		DirectX::XMVECTOR _pos = DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&_pTrsComp->pos), _localDelta);
+		DirectX::XMStoreFloat3(&_pTrsComp->pos, _pos);
+		_pTrsComp->isDirty = true;
+
+		// ワールド行列も同フレーム中に追従させる。
+		// ここを更新しないと、次のフレームで行列が再計算されるまでギズモとHUDの位置が1フレーム遅れる。
+		if (a_pWorld->HasComponent<WorldMatrixComponent>(a_entity))
+		{
+			if (auto* _pWorldComp = a_pWorld->RefData<WorldMatrixComponent>(a_entity))
+			{
+				DirectX::XMMATRIX _mWorld = DirectX::XMLoadFloat4x4(&_pWorldComp->worldMat);
+				_mWorld.r[3] = DirectX::XMVectorAdd(_mWorld.r[3], a_worldDelta);
+				DirectX::XMStoreFloat4x4(&_pWorldComp->worldMat, _mWorld);
+			}
+		}
+	}
+
+	bool SceneViewPanel::IsAncestorSelected(Engine::ECS::World* a_pWorld, const EditorContext& a_editContext, const ECS::Entity& a_entity)
+	{
+		if (!a_pWorld) return false;
+
+		// 親子関係が万が一循環していても止まらなくならないよう、たどる深さに上限を設ける
+		constexpr int _maxDepth = 64;
+
+		ECS::Entity _current = a_entity;
+		for (int _i = 0; _i < _maxDepth; ++_i)
+		{
+			if (!a_pWorld->HasComponent<HierarchyComponent>(_current)) return false;
+
+			auto* _pHierarchy = a_pWorld->RefData<HierarchyComponent>(_current);
+			if (!_pHierarchy) return false;
+
+			_current = _pHierarchy->parentID;
+			if (_current == ECS::Limits::INVALID_ENTITY) return false;
+
+			if (a_editContext.IsSelectedEntity(_current)) return true;
+		}
+		return false;
 	}
 	bool SceneViewPanel::TryGetParentWorldMatrix(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, DirectX::XMMATRIX& a_outParentMat)
 	{

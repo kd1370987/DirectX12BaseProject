@@ -34,7 +34,17 @@ namespace Engine::Editor
 		Engine::ECS::Entity PickEntityByRay(Engine::ECS::World* a_pWorld, const Engine::Collision::RayInfo& a_ray);
 
 		// ギズモ
-		void GuizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, const ECS::Entity& a_currentSelectEntity, Engine::ECS::World* a_pWorld);
+		// ギズモ本体はプライマリ選択に出し、動かした分は選択中の全エンティティへ適用する。
+		void GuizmoDraw(const ImVec2& a_pos, const ImVec2& a_rect, EditorContext& a_editContext, Engine::ECS::World* a_pWorld);
+
+		// ワールド空間の移動量をエンティティへ加算する。
+		// 親を持つ場合は LocalTransform が親基準なので、移動量も親空間へ変換してから足す。
+		void TranslateEntity(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, DirectX::FXMVECTOR a_worldDelta);
+
+		// 祖先に選択中のエンティティがいるか。
+		// 親と子を同時に選んでいると、親の移動が子へ伝播したうえに子自身も動いて二重に移動してしまうので、
+		// その判定に使う。
+		bool IsAncestorSelected(Engine::ECS::World* a_pWorld, const EditorContext& a_editContext, const ECS::Entity& a_entity);
 
 		// 選択エンティティの親のワールド行列を取得する。
 		// 親がいない/親のワールドがまだ無い場合は単位行列を入れて false を返す。
