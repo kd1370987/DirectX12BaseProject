@@ -1024,9 +1024,6 @@
     <Filter Include="Source\Engine\Editor\EditorCamera">
       <UniqueIdentifier>{7b2e9f14-6c83-4a51-9d0e-2f6a83c14b57}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\PanelManager">
-      <UniqueIdentifier>{a7251d68-4f8d-40bc-8615-a11d2e40e7c5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel">
       <UniqueIdentifier>{889d1e3f-bbfa-4110-a6b5-930e7c58f753}</UniqueIdentifier>
     </Filter>
@@ -1857,9 +1854,6 @@
     <ClCompile Include="Source\Engine\Editor\EditorCamera\EditorCamera.cpp">
       <Filter>Source\Engine\Editor\EditorCamera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\PanelManager\PanelManager.cpp">
-      <Filter>Source\Engine\Editor\PanelManager</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp">
       <Filter>Source\Engine\Editor\Panel\RenderGraphResourceViewPanel</Filter>
     </ClCompile>
@@ -2075,6 +2069,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Option\ProjectOptions\InputOption.cpp">
       <Filter>Source\Engine\Option\ProjectOptions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\PanelManager.cpp">
+      <Filter>Source\Engine\Editor\Panel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2999,12 +2996,6 @@
     <ClInclude Include="Source\Engine\Editor\EditorCamera\EditorCamera.h">
       <Filter>Source\Engine\Editor\EditorCamera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\PanelManager\PanelManager.h">
-      <Filter>Source\Engine\Editor\PanelManager</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\PanelManager\EditorContext.h">
-      <Filter>Source\Engine\Editor\PanelManager</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.h">
       <Filter>Source\Engine\Editor\Panel\RenderGraphResourceViewPanel</Filter>
     </ClInclude>
@@ -3286,6 +3277,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Input\Internal\InputContext.h">
       <Filter>Source\Engine\Input\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Internal\EditorContext.h">
+      <Filter>Source\Engine\Editor\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\PanelManager.h">
+      <Filter>Source\Engine\Editor\Panel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

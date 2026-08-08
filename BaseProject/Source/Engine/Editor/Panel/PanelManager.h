@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "EditorContext.h"
+#include "../Internal/EditorContext.h"
 #include "../Panel/IPanel.h"
 
 namespace Engine::Editor

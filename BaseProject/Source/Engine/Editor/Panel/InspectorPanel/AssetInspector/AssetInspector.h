@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../../PanelManager/EditorContext.h"
+#include "../../../Internal/EditorContext.h"
 
 namespace Engine::Editor::Inspector
 {

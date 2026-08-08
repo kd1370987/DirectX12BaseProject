@@ -17,7 +17,7 @@
 #include "../Scene/SceneManager/SceneManager.h"
 #include "../ECS/World/World.h"
 
-#include "PanelManager/PanelManager.h"
+#include "Panel/PanelManager.h"
 #include "EditorCamera/EditorCamera.h"
 
 namespace Engine::Editor
