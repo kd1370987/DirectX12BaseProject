@@ -1,14 +1,15 @@
-﻿#include "Log.h"
+#include "LogPanel.h"
+
 namespace Engine::Editor
 {
-	void Log::Init()
+	LogPanel::LogPanel()
 	{
-		m_isAutoScroll = true;
-		m_isScrollToBottom = false;
+		// m_lineOffsets は先頭行のオフセット(0)が入っている状態が初期状態になる。
+		// ここを空のままにすると1行目が描画対象から漏れるので、必ず Clear を通す
 		Clear();
 	}
 
-	void Log::Clear()
+	void LogPanel::Clear()
 	{
 		m_textBuffer.clear();
 		m_textFilter.Clear();
@@ -16,7 +17,7 @@ namespace Engine::Editor
 		m_lineOffsets.push_back(0);
 	}
 
-	void Log::AddLog(const char* a_fmt, ...)
+	void LogPanel::AddLog(const char* a_fmt, ...)
 	{
 		// 前回のサイズを記録
 		int _oldSize = m_textBuffer.size();
@@ -30,7 +31,7 @@ namespace Engine::Editor
 		UpdateOffsetsAndScroll(_oldSize);
 	}
 
-	void Log::AddLogRow(const char* a_text)
+	void LogPanel::AddLogRow(const char* a_text)
 	{
 		int _oldSize = m_textBuffer.size();
 
@@ -40,10 +41,9 @@ namespace Engine::Editor
 		UpdateOffsetsAndScroll(_oldSize);
 	}
 
-	void Log::Draw(const char* a_title, bool* a_pOpen)
+	void LogPanel::OnDrawImGui(EditorContext& a_editContext)
 	{
-		ImGui::Begin(a_title, a_pOpen);
-
+		// ウィンドウの Begin/End は PanelManager 側が行うので、ここでは中身だけを描く
 
 		// オプションメニュー
 		if (ImGui::BeginPopup("Options"))
@@ -135,9 +135,9 @@ namespace Engine::Editor
 		}
 		m_isScrollToBottom = false;
 		ImGui::EndChild();
-		ImGui::End();
 	}
-	void Log::UpdateOffsetsAndScroll(int a_oldSize)
+
+	void LogPanel::UpdateOffsetsAndScroll(int a_oldSize)
 	{
 		// 前回のサイズから増えた分の間に改行があれば改行する
 		for (int _newSize = m_textBuffer.size(); a_oldSize < _newSize; ++a_oldSize)

@@ -220,7 +220,7 @@
     <Filter Include="Asset\Shader\Source\DeferredLightingShader">
       <UniqueIdentifier>{b44b6e49-c1be-485b-a652-9f9732478622}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\ImGui\Log">
+    <Filter Include="Source\Engine\Editor\Panel\LogPanel">
       <UniqueIdentifier>{1e8eaa4a-e3f0-4c01-85b5-1eb7065a71ed}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Editor\Profiler">
@@ -1362,8 +1362,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp">
       <Filter>Source\Engine\Graphics\RenderGraph</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\ImGui\Log\Log.cpp">
-      <Filter>Source\Engine\Editor\ImGui\Log</Filter>
+    <ClCompile Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\LogPanel</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Profiler\Profiler.cpp">
       <Filter>Source\Engine\Editor\Profiler</Filter>
@@ -2261,8 +2261,8 @@
     <ClInclude Include="Source\Core\Algorithm\Graph\TopologicalSort.h">
       <Filter>Source\Core\Algorithm\Graph</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\ImGui\Log\Log.h">
-      <Filter>Source\Engine\Editor\ImGui\Log</Filter>
+    <ClInclude Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.h">
+      <Filter>Source\Engine\Editor\Panel\LogPanel</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Profiler\Profiler.h">
       <Filter>Source\Engine\Editor\Profiler</Filter>

@@ -351,7 +351,7 @@
     <ClCompile Include="Source\Engine\Editor\Editor.cpp" />
     <ClCompile Include="Source\Engine\Editor\Helper\EditorHelper.cpp" />
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp" />
-    <ClCompile Include="Source\Engine\Editor\ImGui\Log\Log.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\PanelManager.cpp" />
     <ClCompile Include="Source\Engine\Editor\Profiler\Profiler.cpp" />
     <ClCompile Include="Source\Engine\Editor\Profiler\CPUProfiler\CPUProfiler.cpp" />
@@ -717,7 +717,7 @@
     <ClInclude Include="Source\Engine\Editor\Editor.h" />
     <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
-    <ClInclude Include="Source\Engine\Editor\ImGui\Log\Log.h" />
+    <ClInclude Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Internal\EditorContext.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\PanelManager.h" />
     <ClInclude Include="Source\Engine\Editor\Profiler\Profiler.h" />

@@ -1,7 +1,7 @@
 ﻿#include "Editor.h"
 
 #include "ImGui/ImGuiContext.h"
-#include "ImGui/Log/Log.h"
+#include "Panel/LogPanel/LogPanel.h"
 
 #include "Profiler/Profiler.h"
 
@@ -41,12 +41,6 @@ namespace Engine::Editor
 			m_upImGuiContext = std::make_unique<ImGuiContext>();
 			m_upImGuiContext->Init(a_hwnd);
 		}
-		// ログ
-		if (!m_upLog)
-		{
-			m_upLog = std::make_unique<Log>();
-			m_upLog->Init();
-		}
 		// エディター用フリーカメラ
 		if (!m_upEditorCamera)
 		{
@@ -69,13 +63,17 @@ namespace Engine::Editor
 			m_upPanelManager->Init(m_upEditorCamera.get(), m_upProfiler.get());
 		}
 
+		// ログパネルの参照を取得しておく。
+		// ログの追加はここを経由するので、パネル登録より後で引くこと
+		m_pLogPanel = m_upPanelManager->RefPanel<LogPanel>();
+
 		m_editFuncVec.clear();
 
 		Debug::SetLogCallback(
 			[this](const char* a_msg)
 			{
-				if (!m_upLog) return;
-				m_upLog->AddLogRow(a_msg);
+				if (!m_pLogPanel) return;
+				m_pLogPanel->AddLogRow(a_msg);
 			}
 		);
 		return true;
@@ -83,6 +81,9 @@ namespace Engine::Editor
 	void MainEditor::Release()
 	{
 		Debug::SetLogCallback(nullptr);
+
+		// パネル本体より先に参照を切っておく
+		m_pLogPanel = nullptr;
 
 		// プロファイラのGPUリソース(リードバックバッファ)を先に手放す
 		if (m_upProfiler)
@@ -108,11 +109,8 @@ namespace Engine::Editor
 		// ImGui描画開始
 		m_upImGuiContext->Begin();
 
-		// パネルマネージャー
+		// パネルマネージャー(ログパネルもここで描画される)
 		m_upPanelManager->OnDrawPanels();
-
-		// ログ表示
-		m_upLog->Draw("Log");
 
 		// 各登録された関数を実行
 		for (auto _func : m_editFuncVec)
@@ -127,7 +125,7 @@ namespace Engine::Editor
 	void MainEditor::AddLog(const char* a_fmt, ...)
 	{
 		// 初期化チェック
-		if (!m_isInit || !m_upLog) return;
+		if (!m_isInit || !m_pLogPanel) return;
 
 		char buffer[2048];
 		// フォーマットと引数の結合
@@ -136,12 +134,12 @@ namespace Engine::Editor
 		vsnprintf(buffer, sizeof(buffer), a_fmt, args);
 		va_end(args);
 
-		m_upLog->AddLog(buffer);
+		m_pLogPanel->AddLog(buffer);
 	}
 	void MainEditor::AddLogVector(const float* a_data, const size_t& a_size)
 	{
 		if (!m_isInit) return;
-		if (!m_upLog) return;
+		if (!m_pLogPanel) return;
 
 		for (size_t _i = 0; _i < a_size; ++_i)
 		{
@@ -152,7 +150,7 @@ namespace Engine::Editor
 	void MainEditor::AddLogMatrix(const std::string & a_name, const DirectX::XMFLOAT4X4 & a_mat)
 	{
 		if (!m_isInit) return;
-		if (!m_upLog) return;
+		if (!m_pLogPanel) return;
 
 		AddLog("MatrixName : %s\n", a_name.c_str());
 
@@ -168,7 +166,7 @@ namespace Engine::Editor
 	void MainEditor::WarningLog(const char* a_fmt, ...)
 	{
 		// 初期化済みチェック
-		if (!m_isInit || !m_upLog) return;
+		if (!m_isInit || !m_pLogPanel) return;
 
 		char _buffer[2048];
 

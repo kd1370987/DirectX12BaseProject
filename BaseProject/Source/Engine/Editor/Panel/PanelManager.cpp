@@ -8,6 +8,7 @@
 #include "../Panel/SceneViewPanel/SceneViewPanel.h"
 #include "../Panel/OptionPanel/OptionPanel.h"
 #include "../Panel/ProfilerPanel/ProfilerPanel.h"
+#include "../Panel/LogPanel/LogPanel.h"
 
 namespace  Engine::Editor
 {
@@ -21,6 +22,7 @@ namespace  Engine::Editor
 		RegisterPanel<SceneViewPanel>();
 		RegisterPanel<OptionPanel>();
 		RegisterPanel<ProfilerPanel>();
+		RegisterPanel<LogPanel>();
 
 		m_editContext.pEditorCamera = a_pEditorCamera;
 		m_editContext.pProfiler = a_pProfiler;

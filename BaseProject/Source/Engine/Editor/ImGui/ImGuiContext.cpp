@@ -3,8 +3,6 @@
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "Log/Log.h"
-
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Editor
 {

@@ -2,7 +2,7 @@
 namespace Engine::Editor
 {
 	// 前方宣言
-	class Log;
+	class LogPanel;
 	class ComponentEdit;
 	class ImGuiContext;
 	class EditorCamera;
@@ -112,11 +112,12 @@ namespace Engine::Editor
 		// ImGuiコンテキスト
 		std::unique_ptr<ImGuiContext> m_upImGuiContext = nullptr;
 
-		// ログ
-		std::unique_ptr<Log> m_upLog = nullptr;
-
 		// パネルマネージャー
 		std::unique_ptr<PanelManager> m_upPanelManager = nullptr;
+
+		// ログパネル : 実体は PanelManager が所有する。
+		// パネルは登録後に増減しないので、ここでは参照だけを持っておく
+		LogPanel* m_pLogPanel = nullptr;
 
 		// 計測機 : 計測と集計はここが持ち、パネルは結果を読むだけ
 		std::unique_ptr<Profiler> m_upProfiler = nullptr;
