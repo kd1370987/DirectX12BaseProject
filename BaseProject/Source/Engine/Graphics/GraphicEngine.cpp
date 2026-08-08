@@ -174,9 +174,9 @@ namespace Engine::Graphics
 
 		// バッファ管理クラス
 		BufferSizeDesc _bufferSizeDesc = {};
-		_bufferSizeDesc.staticVertexBufferSize = 10000000;
-		_bufferSizeDesc.indexBufferSize = 10000000;
-		_bufferSizeDesc.animatedVertexBufferSize = 20000000;
+		_bufferSizeDesc.staticVertexBufferSize = 20000000;
+		_bufferSizeDesc.indexBufferSize = 20000000;
+		_bufferSizeDesc.animatedVertexBufferSize = 5000000;
 		m_upMeshBufferAllocator = std::make_unique<MeshBufferAllocator>();
 		m_upMeshBufferAllocator->Init(
 			_pDevice,
