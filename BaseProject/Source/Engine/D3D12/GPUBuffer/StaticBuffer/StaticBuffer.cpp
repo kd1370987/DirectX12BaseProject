@@ -71,6 +71,15 @@ namespace Engine::D3D12
 	{
 		if (!a_pData || a_sizeBytes == 0) return;
 
+		// 範囲外なら CopyBufferRegion も積まない。
+		// UpdateDataOffset 側だけ弾いてコピーを積むと、リソース外を指したコピーで
+		// デバイスロストになり、これも原因が追いにくい形で表面化する
+		if (a_destOffsetBytes + a_sizeBytes > GetBufferSize())
+		{
+			assert(0 && "バッファサイズを超える部分更新 : Createの要素数が足りていない");
+			return;
+		}
+
 		// CPU側のアップロードバッファの特定領域のみを更新する
 		this->UpdateDataOffset(a_pData, a_sizeBytes, a_destOffsetBytes);
 

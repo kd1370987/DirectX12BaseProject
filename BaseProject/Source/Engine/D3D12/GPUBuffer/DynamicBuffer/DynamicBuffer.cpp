@@ -40,11 +40,26 @@ void Engine::D3D12::DynamicBuffer::Release()
 
 void Engine::D3D12::DynamicBuffer::UpdateData(const void* a_data, size_t a_size)
 {
+	// 確保した要素数を超えて書くとアップロードヒープの外を踏み、
+	// 原因とまったく関係ない場所でヒープ破壊として表面化する。
+	// 書けない場合は書かずに止めて、Createの要素数不足として気づけるようにする。
+	if (a_size > GetBufferSize())
+	{
+		assert(0 && "バッファサイズを超える書き込み : Createの要素数が足りていない");
+		return;
+	}
+
 	std::memcpy(m_pMapData,a_data,a_size);
 }
 
 void Engine::D3D12::DynamicBuffer::UpdateDataOffset(const void* a_pData, size_t a_sizeBytes, size_t a_offsetBytes)
 {
+	if (a_offsetBytes + a_sizeBytes > GetBufferSize())
+	{
+		assert(0 && "バッファサイズを超える書き込み : オフセット指定");
+		return;
+	}
+
 	// 先頭ポインタからオフセット分ずらしてコピー
 	uint8_t* _pDest = static_cast<uint8_t*>(m_pMapData) + a_offsetBytes;
 	std::memcpy(_pDest, a_pData, a_sizeBytes);

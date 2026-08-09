@@ -123,12 +123,12 @@ namespace Engine::Collision
 	{
 		ReBuildStaticTLAS();
 
-		// デバッグ描画
-		auto* _pRCT = Engine::MainEngine::Instance().RefRenderContext();
-		for (auto& _node : m_staticNodeVec)
-		{
-			_pRCT->RefShapeDraw()->AABB(_node.box);
-		}
+		// ここでTLASノードのAABBを ShapeRenderer へ積んでいたが、積み先の頂点配列は
+		// RenderContext::Clear() のリセットが無効化されたままで一度もクリアされず、
+		// なおかつ描画にも使われていない(GetVertexVec の呼び出し元が存在しない)。
+		// 静的ノード数 × 24頂点 が毎フレーム溜まり続けるだけだったので削除した。
+		// TLASを可視化したい場合は、毎フレーム ClearBuffer されるデバッグライン側
+		// (MainEditor::DrawBox) を使うこと。
 	}
 	void CollisionWorld::BuildDynamicWorld()
 	{
