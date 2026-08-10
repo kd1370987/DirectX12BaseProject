@@ -16,7 +16,8 @@
 // 敵の「行動決定」をプレイヤーの入力と同じ帯(PreUpdate)で行い、結果を
 // MoveIntentComponent(世界空間・水平)へ書く。プレイヤーの InputMoveSystem に相当。
 //
-//   発見(isFind == true) : プレイヤー方向へ進む。stopDistance 以下なら停止(攻撃間合い)。
+//   発見(isFind == true) : stopDistance(±keepMargin)の間合いを保つ。遠ければ詰め、
+//                          近づかれすぎたら後ずさりし、間合いの内では止まる。
 //                          同時に「最後に見た位置」を毎フレーム記録しておく。
 //   見失い(発見 → 未発見): 最後に見た位置へ向かい(MoveTo)、着いたら見渡す(LookAround)。
 //                          見渡し中に再発見できなければ徘徊へ戻る。
@@ -88,11 +89,24 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 							_to.y = 0.0f;	// 水平のみ
 
 							float _lenSq = _to.LengthSquared();
-							// stopDistance より遠いときだけ前進(距離は SearchPlayer 計算済み)
-							if (_lenSq > 1e-6f && _target.distance > _patrol.stopDistance)
+							if (_lenSq > 1e-6f)
 							{
-								_moveDir  = _to / std::sqrt(_lenSq);
-								_throttle = _patrol.chaseThrottle;
+								// 遠隔攻撃なので間合いを保つ(距離は SearchPlayer 計算済み)
+								//   遠い → 詰める / 近い → 下がる / 間 → 止まる
+								const float _far  = _patrol.stopDistance + _patrol.keepMargin;
+								const float _near = _patrol.stopDistance - _patrol.keepMargin;
+
+								if (_target.distance > _far)
+								{
+									_moveDir  = _to / std::sqrt(_lenSq);
+									_throttle = _patrol.chaseThrottle;
+								}
+								else if (_target.distance < _near)
+								{
+									// プレイヤーを向いたまま後ずさりする(向きは FaceTargetSystem)
+									_moveDir  = -_to / std::sqrt(_lenSq);
+									_throttle = _patrol.backThrottle;
+								}
 							}
 						}
 					}

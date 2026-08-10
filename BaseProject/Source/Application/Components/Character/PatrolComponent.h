@@ -38,7 +38,18 @@ struct PatrolComponent
 	float patrolThrottle   = 0.4f;	// 徘徊時のスロットル(0..1)
 	float chaseThrottle    = 1.0f;	// 追跡時のスロットル(0..1)
 	float retargetInterval = 2.5f;	// 徘徊で1つの方向へ歩き続ける時間(秒)
-	float stopDistance     = 2.0f;	// 追跡時、これ以下まで近づいたら止まる(攻撃間合い)
+
+	// ---- 追跡時に保つ間合い(保存される) ----
+	// 遠隔攻撃なので「近づきすぎず離れすぎず」を保つ。
+	//   stopDistance + keepMargin より遠い … 詰める
+	//   stopDistance - keepMargin より近い … 下がる
+	//   その間                             … 止まる(デッドバンド)
+	// ※ FSM の Aim 進入距離より内側で止まるよう、
+	//    stopDistance + keepMargin < Aim進入距離 になる値にしておくこと。
+	//    境界上で止まると Chase と Aim を往復してしまう。
+	float stopDistance  = 15.0f;	// 保ちたい間合い(この距離で止まる)
+	float keepMargin    = 2.0f;		// 間合いの許容幅(±)。0 にすると境界で震える
+	float backThrottle  = 0.6f;		// 近づかれすぎて下がるときのスロットル(0..1)
 
 	// ---- 徘徊で立ち止まったときの設定(保存される) ----
 	float patrolPauseTime   = 2.0f;		// 立ち止まって首を振る時間(秒)
@@ -77,6 +88,8 @@ struct Engine::ECS::ComponentTraits<PatrolComponent>
 		a_ar.Field("chaseThrottle", _comp.chaseThrottle);
 		a_ar.Field("retargetInterval", _comp.retargetInterval);
 		a_ar.Field("stopDistance", _comp.stopDistance);
+		a_ar.Field("keepMargin", _comp.keepMargin);
+		a_ar.Field("backThrottle", _comp.backThrottle);
 
 		// 徘徊で立ち止まったとき。旧データにキーが無い場合は既定値のまま読み飛ばされる。
 		a_ar.Field("patrolPauseTime", _comp.patrolPauseTime);
@@ -99,6 +112,8 @@ struct Engine::ECS::ComponentTraits<PatrolComponent>
 		ImGui::DragFloat("ChaseThrottle", &_comp.chaseThrottle, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("RetargetInterval", &_comp.retargetInterval, 0.1f, 0.0f);
 		ImGui::DragFloat("StopDistance", &_comp.stopDistance, 0.1f, 0.0f);
+		ImGui::DragFloat("KeepMargin", &_comp.keepMargin, 0.1f, 0.0f);
+		ImGui::DragFloat("BackThrottle", &_comp.backThrottle, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("PatrolPauseTime", &_comp.patrolPauseTime, 0.1f, 0.0f);
 		ImGui::DragFloat("PatrolLookYawDeg", &_comp.patrolLookYawDeg, 1.0f, 0.0f, 180.0f);
 
