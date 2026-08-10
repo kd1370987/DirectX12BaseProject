@@ -144,6 +144,8 @@
 #include "../../Systems/Update/PreUpdate/SightStateBridgeSystem/SightStateBridgeSystem.h"
 #include "../../Systems/Update/Update/FaceTargetSystem/FaceTargetSystem.h"
 #include "../../Systems/Update/PreUpdate/EnemyMoveIntentSystem/EnemyMoveIntentSystem.h"
+#include "../../Systems/Update/PreUpdate/LostTargetBridgeSystem/LostTargetBridgeSystem.h"
+#include "../../Systems/Update/Update/LookAroundSystem/LookAroundSystem.h"
 #include "../../Systems/Update/Update/Move/EnemyMovementSystem/EnemyMovementSystem.h"
 #include "../../Systems/Init/PostDeserialize/SoundFixupSystem/SoundFixupSystem.h"
 #include "../../Systems/Update/PreUpdate/BoostSoundSystem/BoostSoundSystem.h"
@@ -278,6 +280,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<SearchPlayerSystem>();
 				a_pWorld->RegisterSystem<SightStateBridgeSystem>();
 				a_pWorld->RegisterSystem<EnemyMoveIntentSystem>();
+				// 見失い探索のフェーズ(EnemyMoveIntentSystem が進める)を FSM パラメータへ
+				a_pWorld->RegisterSystem<LostTargetBridgeSystem>();
 				a_pWorld->RegisterSystem<StateMachineCommitSystem>();
 				a_pWorld->RegisterSystem<ActionStateCommitSystem>();
 				a_pWorld->RegisterSystem<RegisterCollisionWorldSystem>();
@@ -292,6 +296,8 @@ namespace App::Game
 				// プレイヤーの旋回は ActionState を見て切り替えるので専用システムが持つ
 				a_pWorld->RegisterSystem<LockOnRotationSystem>();
 				a_pWorld->RegisterSystem<FaceTargetSystem>();
+				// 見失い探索中の旋回。視認中(FaceTargetSystem)とは条件が排他
+				a_pWorld->RegisterSystem<LookAroundSystem>();
 				a_pWorld->RegisterSystem<AnimationStateSystem>();
 				a_pWorld->RegisterSystem<AnimationSystem>();
 				// AnimationSystem がバインドポーズでリセットした後、

@@ -473,6 +473,8 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem\LostTargetBridgeSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.cpp" />
@@ -869,6 +871,8 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem\LostTargetBridgeSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.h" />
     <ClInclude Include="Source\Application\Components\Character\PatrolComponent.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.h" />

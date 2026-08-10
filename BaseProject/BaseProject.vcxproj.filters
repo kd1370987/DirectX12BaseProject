@@ -598,6 +598,12 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem">
       <UniqueIdentifier>{c3f69d5a-4a81-4e27-a136-9d5fb024e8c7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem">
+      <UniqueIdentifier>{e5b81c72-6c03-4a49-9358-bf71d246a0e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\LookAroundSystem">
+      <UniqueIdentifier>{f6c92d83-7d14-4b5a-a469-c082e357b1fa}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem">
       <UniqueIdentifier>{d4a7ae6b-5b92-4f38-b247-ae60c135f9d8}</UniqueIdentifier>
     </Filter>
@@ -1602,6 +1608,12 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem\LostTargetBridgeSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\LookAroundSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Move\EnemyMovementSystem</Filter>
     </ClCompile>
@@ -2590,6 +2602,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem\LostTargetBridgeSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\LookAroundSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Move\EnemyMovementSystem</Filter>
