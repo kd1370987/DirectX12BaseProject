@@ -6,7 +6,7 @@
     },
     "DoFOption": {
         "enable": true,
-        "farRange": 30.0,
+        "farRange": 1000.0,
         "focusDistance": 10.0,
         "focusRange": 5.0,
         "maxBlurRadius": 8.0,
