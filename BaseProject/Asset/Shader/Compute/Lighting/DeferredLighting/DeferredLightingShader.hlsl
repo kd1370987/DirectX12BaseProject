@@ -9,6 +9,7 @@
 #include "../../../Common/CB/CBCamera.hlsli"
 #include "../../../Common/RootParameters/AmbientData.hlsli"
 #include "../../../Common/CB/CBLightingOption.hlsli"
+#include "../../../Common/Lighting/Fog.hlsli"
 
 // ルートシグネチャデータ
 // ※末尾に追加することで、既存のルートパラメータ番号(SRVテーブル=2, UAVテーブル=3)を
@@ -146,6 +147,12 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	// 面が自分で出している光なので、影やライトの向きの影響を受けずそのまま足す。
 	// GBufferEmissiv は R11G11B10_FLOAT なので 1.0 を超える値もそのまま乗る。
 	_outColor += _emissive;
+
+	// フォグ
+	// ライティングが終わった色に対して、カメラからの深度(ビュー空間Z)と
+	// ワールドYを見て掛ける。無効なら AmbientData の enable で丸ごとスキップされる。
+	// 何も描かれていない画素は深度が最遠なので、そのままフォグ色で埋まる(地平線のかすみ)。
+	_outColor = ApplyFog(_outColor, _viewPos.z, _worldPos.y);
 
 	g_output[_centerCoord] = float4(_outColor, 1);
 }

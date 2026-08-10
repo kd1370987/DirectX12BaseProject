@@ -71,6 +71,10 @@ namespace Engine::Graphics
 	};
 
 	// 環境データ
+	//
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/AmbientData.hlsli)と
+	//    1バイトもズレないよう、16バイト(float4)境界ごとに区切って並べること。
+	//    HLSL の定数バッファは float3 が16バイト境界をまたぐと次の境界へ押し出される。
 	struct alignas(256) AmbientData
 	{
 		// 環境光
@@ -81,6 +85,47 @@ namespace Engine::Graphics
 		float pad1;
 		DirectX::XMFLOAT3 dlColor = {0,0,0};
 		float pad2;
+
+		//------------------------------------------------------------------------------
+		// 高さフォグ
+		// heightFogHeight を境に、denseDown で指定した側へ heightFogMaxRange 進むまでを
+		// 0%→100% で線形グラデーションする。マックスレンジより先は 100%(フォグ色一色)。
+		//------------------------------------------------------------------------------
+		DirectX::XMFLOAT3 heightFogColor = { 0.5f, 0.6f, 0.7f };	// フォグの色
+		float heightFogMaxRange = 30.0f;							// 100% になるまでの距離(基準高さから)
+
+		float heightFogHeight    = 0.0f;	// フォグが出始める高さ(ワールドY)
+		int   heightFogEnable    = 0;		// 0 なら計算ごとスキップ
+		int   heightFogDenseDown = 1;		// 1 = 下へ行くほど濃い / 0 = 上へ行くほど濃い
+		float pad3;
+
+		//------------------------------------------------------------------------------
+		// 距離フォグ
+		// distanceFogStart から distanceFogMaxRange までを 0%→100% で線形グラデーション
+		// する。どちらもカメラからの深度。マックスレンジより奥は 100%。
+		//------------------------------------------------------------------------------
+		DirectX::XMFLOAT3 distanceFogColor = { 0.5f, 0.6f, 0.7f };	// フォグの色
+		float distanceFogMaxRange = 200.0f;							// 100% になる距離
+
+		float distanceFogStart  = 30.0f;	// フォグが出始める距離
+		int   distanceFogEnable = 0;		// 0 なら計算ごとスキップ
+		DirectX::XMFLOAT2 pad4;
+	};
+
+	// 被写界深度(DoF)の調整値
+	// CoCパスとDoFパスの両方へ送る。
+	// ※ HLSL 側(Asset/Shader/Common/CB/CBDoFOption.hlsli)と並びを合わせること
+	struct DoFOptionCB
+	{
+		float focusDistance;	// ピントが合う距離(カメラからの深度)
+		float focusRange;		// ピントが合う幅
+		float nearRange;		// 手前側が最大ボケになるまでの距離
+		float farRange;			// 奥側が最大ボケになるまでの距離
+
+		float maxBlurRadius;	// 最大ボケ半径(ピクセル)
+		int   enable;			// 0 ならボカさずそのまま通す
+		float pad0;
+		float pad1;
 	};
 
 	// インスタンスデータ

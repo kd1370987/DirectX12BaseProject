@@ -39,6 +39,8 @@
 #include "RenderPass/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
 
 #include "RenderPass/PostEffect/AntiAliasing/TAA/TAAPass.h"
+#include "RenderPass/PostEffect/DoF/CoCPass/CoCPass.h"
+#include "RenderPass/PostEffect/DoF/DoFPass/DoFPass.h"
 #include "RenderPass/PostEffect/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
 #include "RenderPass/PostEffect/Denoise/GI/GITempralAccumulationPass/GITemporalAccumulationPass.h"
 #include "RenderPass/PostEffect/Denoise/Shadow/ShadowSpatialDenoisePass/ShadowSpatialDenoisePass.h"
@@ -139,6 +141,12 @@ namespace Engine::Graphics
 		AddUIPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
 
 		AddTAAPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
+
+		// 被写界深度。ボカした絵にTAAを掛けると履歴がにじむので、必ずTAAの後に登録する。
+		// (同一フェーズ内はリソースのバージョンで依存が決まるため、登録順が
+		//  「TAAの出力を読む」という関係の解決に効く)
+		AddCoCPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
+		AddDoFPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 
 		AddShadowTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		// 影はテンポラルのみだと履歴依存が強くゴーストが出るため、蓄積後にスペースデノイズをかける。

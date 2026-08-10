@@ -11,6 +11,7 @@
 #include "GraphicsOptions/WindowOption.h"
 #include "GraphicsOptions/RenderingOption.h"
 #include "GraphicsOptions/LightingOption.h"
+#include "GraphicsOptions/DoFOption.h"
 
 namespace Engine::Option
 {
@@ -55,6 +56,10 @@ namespace Engine::Option
 		const GraphicsOptions::LightingOption& GetLightingOption() const { return m_lightingOption; }
 		GraphicsOptions::LightingOption& RefLightingOption() { return m_lightingOption; }
 
+		// 被写界深度設定(CoC/DoFパスへ送る調整値)
+		const GraphicsOptions::DoFOption& GetDoFOption() const { return m_dofOption; }
+		GraphicsOptions::DoFOption& RefDoFOption() { return m_dofOption; }
+
 	private:
 
 		void Archive(Persistence::Archive& a_ar);
@@ -70,6 +75,7 @@ namespace Engine::Option
 		GraphicsOptions::WindowOption m_windowOption = {};
 		GraphicsOptions::RenderingOption m_renderingOption = {};
 		GraphicsOptions::LightingOption m_lightingOption = {};
+		GraphicsOptions::DoFOption m_dofOption = {};
 
 		// ループ処理用
 		std::vector<IOption*> m_pOptionList;

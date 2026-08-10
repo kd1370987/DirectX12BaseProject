@@ -988,6 +988,24 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA">
       <UniqueIdentifier>{660b0b6d-6143-4fa5-afc4-94991529e8b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF">
+      <UniqueIdentifier>{3a6f1c84-9d20-4b17-8e55-1c7a4b90d6e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass">
+      <UniqueIdentifier>{4b702d95-ae31-4c28-9f66-2d8b5ca1e7f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\DoFPass">
+      <UniqueIdentifier>{5c813ea6-bf42-4d39-a077-3e9c6db2f803}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\PostEffect">
+      <UniqueIdentifier>{6d924fb7-c053-4e4a-b188-4fad7ec30914}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\PostEffect\DoF">
+      <UniqueIdentifier>{7ea350c8-d164-4f5b-c299-50be8fd41a25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\Lighting">
+      <UniqueIdentifier>{8fb461d9-e275-405c-d3aa-61cf90e52b36}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\Skinning">
       <UniqueIdentifier>{fff8ef66-d42d-4687-b96b-a7792394f519}</UniqueIdentifier>
     </Filter>
@@ -1838,6 +1856,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass\CoCPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\DoFPass\DoFPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\DoF\DoFPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\Skinning</Filter>
@@ -2915,6 +2939,9 @@
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\LightingOption.h">
       <Filter>Source\Engine\Option\GraphicsOptions</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\DoFOption.h">
+      <Filter>Source\Engine\Option\GraphicsOptions</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer</Filter>
     </ClInclude>
@@ -2971,6 +2998,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass\CoCPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\DoFPass\DoFPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\DoF\DoFPass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\Skinning</Filter>
@@ -3337,6 +3370,12 @@
     <None Include="Asset\Shader\Common\CB\CBCamera.hlsli">
       <Filter>Asset\Shader\Common\CB</Filter>
     </None>
+    <None Include="Asset\Shader\Common\CB\CBDoFOption.hlsli">
+      <Filter>Asset\Shader\Common\CB</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\Lighting\Fog.hlsli">
+      <Filter>Asset\Shader\Common\Lighting</Filter>
+    </None>
     <None Include="Asset\Shader\Common\Math\Normal.hlsli">
       <Filter>Asset\Shader\Common\Math</Filter>
     </None>
@@ -3473,6 +3512,12 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\AntiAliasing\TAA\TAA.hlsl">
       <Filter>Asset\Shader\Compute\Anti-aliasing\TAA</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\PostEffect\DoF\CoCShader.hlsl">
+      <Filter>Asset\Shader\Compute\PostEffect\DoF</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\PostEffect\DoF\DoFShader.hlsl">
+      <Filter>Asset\Shader\Compute\PostEffect\DoF</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Lighting\DeferredLighting\DeferredLightingShader.hlsl">
       <Filter>Asset\Shader\Compute\Ligthting\DeferredLighting</Filter>

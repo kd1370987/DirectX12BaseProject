@@ -398,6 +398,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass\EmitParticlePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass\UpdateParticlePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass\CoCPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\DoFPass\DoFPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.cpp" />
@@ -775,6 +777,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass\EmitParticlePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Particle\UpdateParticlePass\UpdateParticlePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass\CoCPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\DoFPass\DoFPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h" />
@@ -807,6 +811,7 @@
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\GIOptions.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\RenderingOption.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\LightingOption.h" />
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\DoFOption.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\WindowOption.h" />
     <ClInclude Include="Source\Engine\Option\IOption.h" />
     <ClInclude Include="Source\Engine\Option\OptionManager.h" />
@@ -912,6 +917,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\Common\CB\CBCamera.hlsli" />
+    <None Include="Asset\Shader\Common\CB\CBDoFOption.hlsli" />
+    <None Include="Asset\Shader\Common\Lighting\Fog.hlsli" />
     <None Include="Asset\Shader\Common\Math\Hash.hlsli" />
     <None Include="Asset\Shader\Common\Math\Normal.hlsli" />
     <None Include="Asset\Shader\Common\Math\Transform.hlsli" />
@@ -945,6 +952,34 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Compute\AntiAliasing\TAA\TAA.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\PostEffect\DoF\CoCShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\PostEffect\DoF\DoFShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
