@@ -73,6 +73,8 @@
 #include "../../Components/Character/TargetEntityComponent.h"
 #include "../../Components/Resource/SoundComponent.h"
 #include "../../Components/Character/PatrolComponent.h"
+#include "../../Components/Character/Weapon/Projectile/HomingComponent.h"
+#include "../../Components/Character/Weapon/Projectile/ProjectileComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -133,6 +135,7 @@
 #include "../../Systems/Update/PreUpdate/CollisionEventClearSystem/CollisionEventClearSystem.h"
 #include "../../Systems/Update/Physics/HitDetectSystem/HitDetectSystem.h"
 #include "../../Systems/Update/PostUpdate/ExplodeOnHitSystem/ExplodeOnHitSystem.h"
+#include "../../Systems/Update/PostUpdate/ProjectileLifeTimeSystem/ProjectileLifeTimeSystem.h"
 #include "../../Systems/Update/PreUpdate/AttachmentDispatchSystem/AttachmentDispatchSystem.h"
 #include "../../Systems/Update/PreUpdate/ThrusterEffectSystem/ThrusterEffectSystem.h"
 #include "../../Systems/Init/PostDeserialize/AttachmentSlotLinkSystem/AttachmentSlotLinkSystem.h"
@@ -261,6 +264,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<PatrolComponent>("PatrolComponent");
 				a_pWorld->RegisterComponent<TargetEntityComponent>("TargetEntityComponent");
 				a_pWorld->RegisterComponent<SoundComponent>("SoundComponent");
+				a_pWorld->RegisterComponent<HomingComponent>("HomingComponent");
+				a_pWorld->RegisterComponent<ProjectileComponent>("ProjectileComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -344,8 +349,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<HitEventClearSystem>();
 				a_pWorld->RegisterSystem<HitDetectSystem>();
 				a_pWorld->RegisterSystem<ExplodeOnHitSystem>();
+				a_pWorld->RegisterSystem<ProjectileLifeTimeSystem>();
 				a_pWorld->RegisterSystem<GunStateStartSystem>();
-				
 
 				// インスタンスデータの登録
 				a_pWorld->AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();

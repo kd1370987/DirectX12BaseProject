@@ -1222,6 +1222,9 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem">
       <UniqueIdentifier>{676272b8-f8b0-43d2-a547-f18422fa05e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem">
+      <UniqueIdentifier>{9ac572ea-f386-4160-e4bb-72d0a1f63c47}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\GameObject">
       <UniqueIdentifier>{2091c567-a640-4d3c-9ba2-72c3235c3ae9}</UniqueIdentifier>
     </Filter>
@@ -2048,6 +2051,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem\ProjectileLifeTimeSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.cpp">
       <Filter>Source\Engine\GameObject\GameObjectManager</Filter>
@@ -3238,6 +3244,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem\ProjectileLifeTimeSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\CameraFocusTargetComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
