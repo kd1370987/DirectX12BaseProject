@@ -29,6 +29,12 @@ struct ParticlesComponent
 	int   emitCount = 8;		// 1回の発生数
 	float emitRate  = 0.0f;		// >0: 毎秒 emitRate 回の連続発生 / 0: isPlay立ち上がりで1回だけバースト
 
+	// 生成された時点から発生させるか(ParticleFixupSystem が isPlay に反映する)。
+	// ミサイルの噴煙のように「出っぱなし」のものはこれを立てる。
+	// ブースターのように状況で入り切りするものは false のままにして、
+	// 制御側のシステム(ThrusterEffectSystem 等)に isPlay を任せる。
+	bool  playOnStart = false;
+
 	// ---- 形状(スケール/拡散) : アセットに持たせていないのでインスタンス側で持つ ----
 	float baseScale      = 1.0f;	// 全体スケール
 	float minScale       = 0.1f;	// 個々のスケール下限
@@ -59,6 +65,7 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 
 		a_ar.Field("emitCount",      _comp.emitCount);
 		a_ar.Field("emitRate",       _comp.emitRate);
+		a_ar.Field("playOnStart",    _comp.playOnStart);
 
 		a_ar.Field("baseScale",      _comp.baseScale);
 		a_ar.Field("minScale",       _comp.minScale);
@@ -92,6 +99,13 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		ImGui::Text("Emission");
 		ImGui::DragInt("EmitCount", &_comp.emitCount, 1, 0);
 		ImGui::DragFloat("EmitRate (/s, 0=Burst)", &_comp.emitRate, 0.5f, 0.0f);
+
+		// 出っぱなしにするか。切り替えは即座に反映して、エディタで確認できるようにする
+		// (生成時の反映は ParticleFixupSystem が行う)
+		if (ImGui::Checkbox("PlayOnStart", &_comp.playOnStart))
+		{
+			_comp.isPlay = _comp.playOnStart;
+		}
 
 		ImGui::Separator();
 

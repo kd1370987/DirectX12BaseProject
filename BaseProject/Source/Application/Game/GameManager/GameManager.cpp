@@ -157,6 +157,13 @@
 #include "../../Systems/Update/PreUpdate/HitEventClearSystem/HitEventClearSystem.h"
 #include "../../Systems/Update/PreUpdate/EnemyShootIntentSystem/EnemyShootIntentSystem.h"
 #include "../../Systems/Update/PreUpdate/HomingSystem/HomingSystem.h"
+#include "../../Systems/Update/PostUpdate/HitSoundSystem/HitSoundSystem.h"
+#include "../../Components/Resource/HitSoundComponent.h"
+#include "../../Systems/Update/PostUpdate/AudioListenerSystem/AudioListenerSystem.h"
+#include "../../Systems/Update/PostUpdate/FlyingSoundSystem/FlyingSoundSystem.h"
+#include "../../Components/Resource/AudioListenerComponent.h"
+#include "../../Components/Character/FlyingSound.h"
+#include "../../InstanceResource/FlyingSoundResource.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -266,6 +273,9 @@ namespace App::Game
 				a_pWorld->RegisterComponent<PatrolComponent>("PatrolComponent");
 				a_pWorld->RegisterComponent<TargetEntityComponent>("TargetEntityComponent");
 				a_pWorld->RegisterComponent<SoundComponent>("SoundComponent");
+				a_pWorld->RegisterComponent<HitSoundComponent>("HitSoundComponent");
+				a_pWorld->RegisterComponent<AudioListenerComponent>("AudioListenerComponent");
+				a_pWorld->RegisterComponent<FlyingSoundComponent>("FlyingSoundComponent");
 				a_pWorld->RegisterComponent<HomingComponent>("HomingComponent");
 				a_pWorld->RegisterComponent<ProjectileComponent>("ProjectileComponent");
 
@@ -356,6 +366,12 @@ namespace App::Game
 				a_pWorld->RegisterSystem<HitDetectSystem>();
 				a_pWorld->RegisterSystem<ExplodeOnHitSystem>();
 				a_pWorld->RegisterSystem<ProjectileLifeTimeSystem>();
+				// 3Dサウンドの聞き手。鳴らす側より先に登録して、先にリスナーを更新させる
+				a_pWorld->RegisterSystem<AudioListenerSystem>();
+				// 被弾音。HitEventResource を読むので Physics より後・クリアより前
+				a_pWorld->RegisterSystem<HitSoundSystem>();
+				// ミサイル等の飛翔音。消えたエンティティのボイス回収もここで行う
+				a_pWorld->RegisterSystem<FlyingSoundSystem>();
 				a_pWorld->RegisterSystem<GunStateStartSystem>();
 
 				// インスタンスデータの登録
@@ -374,6 +390,7 @@ namespace App::Game
 				// シングルトンインスタンスの登録
 				a_pWorld->AddResource<HierarchyResource>();
 				a_pWorld->AddResource<HitEventResource>();
+				a_pWorld->AddResource<FlyingSoundResource>();
 
 				// 初期化
 				a_pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);

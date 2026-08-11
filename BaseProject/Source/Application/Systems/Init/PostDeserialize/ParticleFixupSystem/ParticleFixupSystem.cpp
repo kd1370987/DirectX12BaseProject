@@ -28,9 +28,21 @@ void ParticleFixupSystem::Init(Engine::ECS::World& a_world)
 				if (_particleComp.particleGUID != Engine::DefaultGUID)
 				{
 					// パーティクルロード
-					_particleComp.particlesAssetHandle = 
+					_particleComp.particlesAssetHandle =
 						a_ctx.pServices->pResourceManager->Load<Engine::Resource::ParticlesAsset>(_particleComp.particleGUID);
 				}
+
+				// 出っぱなしの指定なら、ここで再生状態にしておく。
+				// isPlay は保存されないランタイム値なので、誰かが立てないと
+				// ParticleEmitSystem が発生数を出さず、いつまでも出ない。
+				// 状況で入り切りするもの(ブースター等)は playOnStart を false にして、
+				// 制御側のシステムが毎フレーム isPlay を書く。
+				_particleComp.isPlay = _particleComp.playOnStart;
+
+				// 発生の進み具合もここでリセットしておく
+				_particleComp.time = 0.0f;
+				_particleComp.pendingEmitCount = 0;
+				_particleComp.wasPlaying = false;
 			}
 		}
 	);

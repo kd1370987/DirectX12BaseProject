@@ -3,6 +3,19 @@
 namespace Engine::Audio
 {
 	/// <summary>
+	/// 3Dサウンドの「聞き手」の情報。
+	/// 誰がリスナーなのかはエンジンは知らないので、持っている側(プレイヤー等)が
+	/// 毎フレーム SubmitListener で送り込む。
+	/// </summary>
+	struct ListenerData
+	{
+		DXSM::Vector3 pos      = { 0.0f, 0.0f, 0.0f };	// ワールド座標
+		DXSM::Vector3 front    = { 0.0f, 0.0f, 1.0f };	// 前方 : このエンジンは左手系で +Z が前
+		DXSM::Vector3 up       = { 0.0f, 1.0f, 0.0f };	// 上方向
+		DXSM::Vector3 velocity = { 0.0f, 0.0f, 0.0f };	// 速度(m/秒)。ドップラーに使う
+	};
+
+	/// <summary>
 	/// 音関係を扱うシングルトンクラス、サウンドはここで読込要求が来るとロードしてインスタンスのみを返す
 	/// </summary>
 	class AudioManager
@@ -41,6 +54,16 @@ namespace Engine::Audio
 		//----------------------------------------------------------------------------------------------------
 		DirectX::AudioEngine* RefAudioEngine() { return m_upAudioEngine.get(); }
 		DirectX::AudioListener& RefAudioListner() { return m_listener; }
+
+		//----------------------------------------------------------------------------------------------------
+		// リスナー
+		//----------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// 聞き手の情報を更新する。リスナーを持つ側から毎フレーム呼ぶこと。
+		/// 3D再生(Apply3D)は必ずここで設定された最新のリスナーを見る。
+		/// 送らない間は初期値(原点で +Z 向き)のままなので、定位がおかしくなる。
+		/// </summary>
+		void SubmitListener(const ListenerData& a_data);
 
 		const Resource::SoundInstance* GetInstance(const Handle<Resource::SoundInstance>& a_handle) const;
 		Resource::SoundInstance* RefInstance(const Handle<Resource::SoundInstance>& a_handle);

@@ -4,8 +4,16 @@
 
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Resource/SoundComponent.h"
+#include "../../../../Components/Resource/HitSoundComponent.h"
 #include "../../../../../Engine/Audio/AudioManager.h"
 
+//==========================================================================================
+// SoundFixupSystem
+//
+// GUID しか保存されていないサウンドから、再生用インスタンスを発行し直す。
+// サウンドを持つコンポーネントごとにタスクを登録する
+// (同じ寿命の管理なので、システムを分けずここにまとめている)。
+//==========================================================================================
 void SoundFixupSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.PostDeserializeTask<SoundComponent>(
@@ -45,6 +53,48 @@ void SoundFixupSystem::Init(Engine::ECS::World& a_world)
 				if (auto* _pInstance = _pAudioManager->RefInstance(_soundComp.soundInstanceHandle))
 				{
 					_pInstance->SetVolume(_soundComp.vol);
+				}
+			}
+		}
+	);
+
+	// 被弾音。SoundComponent とまったく同じ発行の流れ
+	a_world.PostDeserializeTask<HitSoundComponent>(
+		Engine::ECS::ESystemType::PostDeserialize,
+		"HitSoundFixupSystem",
+		[]
+		(
+			Engine::ECS::ArchetypeChunk* a_pChunk,
+			uint32_t a_count,
+			const Engine::ECS::SystemContext& a_ctx,
+			PostDeserializeTag* a_tag,
+			HitSoundComponent* a_hitSoundArray
+			)
+		{
+			auto* _pAudioManager = a_ctx.pServices->pAudioManager;
+			if (!_pAudioManager) return;
+
+			for (size_t _i = 0; _i < a_count; ++_i)
+			{
+				HitSoundComponent& _hitSoundComp = a_hitSoundArray[_i];
+
+				// 二重発行を防ぐ(リフレッシュ経路では返却済み)
+				if (_hitSoundComp.soundInstanceHandle.IsValid())
+				{
+					_pAudioManager->ReleaseSoundInstance(_hitSoundComp.soundInstanceHandle);
+					_hitSoundComp.soundInstanceHandle = {};
+				}
+
+				// 鳴らす条件は作り直しでリセットしておく
+				_hitSoundComp.coolTime = 0.0f;
+
+				if (_hitSoundComp.soundGUID == Engine::DefaultGUID) continue;
+
+				_hitSoundComp.soundInstanceHandle = _pAudioManager->RequestSoundInstance(_hitSoundComp.soundGUID);
+
+				if (auto* _pInstance = _pAudioManager->RefInstance(_hitSoundComp.soundInstanceHandle))
+				{
+					_pInstance->SetVolume(_hitSoundComp.vol);
 				}
 			}
 		}

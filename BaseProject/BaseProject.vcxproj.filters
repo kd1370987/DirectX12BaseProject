@@ -1228,6 +1228,15 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem">
       <UniqueIdentifier>{676272b8-f8b0-43d2-a547-f18422fa05e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem">
+      <UniqueIdentifier>{148a215d-cff2-4780-a9a6-8e6c366e8635}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem">
+      <UniqueIdentifier>{0683327e-eaad-47bd-a8ad-4905db68f2b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem">
+      <UniqueIdentifier>{f6c93a8d-7db4-415a-9469-c082e357b1fa}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem">
       <UniqueIdentifier>{9ac572ea-f386-4160-e4bb-72d0a1f63c47}</UniqueIdentifier>
     </Filter>
@@ -2066,6 +2075,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\AudioListenerSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\HitSoundSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem\ProjectileLifeTimeSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem</Filter>
@@ -3266,6 +3284,24 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\AudioListenerSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\AudioListenerComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\FlyingSound.h">
+      <Filter>Source\Application\Components\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\FlyingSoundResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\HitSoundSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem\ProjectileLifeTimeSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem</Filter>
     </ClInclude>
@@ -3364,6 +3400,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\PanelManager.h">
       <Filter>Source\Engine\Editor\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\HitSoundComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\HomingComponent.h">
       <Filter>Source\Application\Components\Character\Weapon\Projectile</Filter>

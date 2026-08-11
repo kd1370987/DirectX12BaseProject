@@ -58,6 +58,31 @@ namespace Engine::Audio
 			ENGINE_WARNING("オーディオデバイスの再初期化に失敗しました");
 		}
 	}
+	void AudioManager::SubmitListener(const ListenerData& a_data)
+	{
+		m_listener.SetPosition(a_data.pos);
+		m_listener.SetVelocity(a_data.velocity);
+
+		// X3DAudio は前方・上方向が「正規化されていて直交している」ことを前提にしている。
+		// 送られてきた行列にスケールや微妙な歪みが乗っていても落ちないよう、ここで整える。
+		DXSM::Vector3 _front = a_data.front;
+		if (_front.LengthSquared() > 1e-8f) _front.Normalize();
+		else                                _front = DXSM::Vector3(0.0f, 0.0f, 1.0f);
+
+		// 上方向から前方成分を抜いて直交化する
+		DXSM::Vector3 _up = a_data.up - _front * a_data.up.Dot(_front);
+		if (_up.LengthSquared() <= 1e-8f)
+		{
+			// 前方と上方向が平行だった場合の逃げ道。前方と重ならない軸から作り直す
+			DXSM::Vector3 _ref = (std::fabs(_front.y) > 0.99f)
+				? DXSM::Vector3(0.0f, 0.0f, 1.0f)
+				: DXSM::Vector3(0.0f, 1.0f, 0.0f);
+			_up = _ref - _front * _ref.Dot(_front);
+		}
+		_up.Normalize();
+
+		m_listener.SetOrientation(_front, _up);
+	}
 	const Resource::SoundInstance* AudioManager::GetInstance(const Handle<Resource::SoundInstance>& a_handle) const
 	{
 		return m_soundInstancePool.Get(a_handle);
