@@ -8,6 +8,7 @@
 
 #include "Application/Components/Collision/SphereCollider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/Components/Character/Weapon/Projectile/ProjectileComponent.h"
 #include "Application/InstanceResource/HitEventResource.h"
 
 void HitDetectSystem::Init(Engine::ECS::World& a_world)
@@ -42,13 +43,26 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 				const LocalTransformComponent& _trans = a_transArray[_i];
 				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
-				// 自分の球で重なりクエリ(自分自身は除外)
+				// 投射物なら発射元も除外する。
+				// 銃口は撃った本人の体の中にあるので、除外しないと発射した瞬間に
+				// 自分へ当たって消える。ProjectileComponent は弾しか持たないので、
+				// クエリには含めず持っている時だけ引く。
+				Engine::ECS::Entity _shooter = Engine::ECS::Limits::INVALID_ENTITY;
+				if (a_ctx.pWorld->HasComponent<ProjectileComponent>(_self))
+				{
+					if (const auto* _pProjectile = a_ctx.pWorld->RefData<ProjectileComponent>(_self))
+					{
+						_shooter = _pProjectile->shooterEntity;
+					}
+				}
+
+				// 自分の球で重なりクエリ(自分自身と発射元は除外)
 				Engine::Collision::SphereInfo _info;
 				_info.origin = DXSM::Vector3(_trans.pos) + DXSM::Vector3(_sphere.offset);
 				_info.radius = _sphere.radius;
 
 				Engine::Collision::Result _res = {};
-				if (!_pCollWorld->VsSphere(_info, _res, _self)) continue;
+				if (!_pCollWorld->VsSphere(_info, _res, _self, _shooter)) continue;
 				if (!_res.isHit) continue;
 
 				// 自分側に記録(弾が hitPos で反応/消滅するため)

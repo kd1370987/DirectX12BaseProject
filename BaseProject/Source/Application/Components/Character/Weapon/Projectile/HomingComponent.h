@@ -4,9 +4,10 @@
 /// </summary>
 struct HomingComponent
 {
+	// 追う相手。発射した瞬間に GunShootSystem が埋める(保存しない)
 	Engine::ECS::Entity targetEntity = Engine::ECS::Limits::INVALID_ENTITY;
-	float turnSpeed = 0.0f;				// 旋回スピード
-	float searchRange = 0.0f;			// ターゲットを探す最大距離
+	float turnSpeed = 0.0f;				// 旋回スピード : ラジアン/秒。0 以下なら誘導しない
+	float searchRange = 0.0f;			// ターゲットを探す最大距離。0 以下なら距離制限なし
 };
 
 template<>
@@ -24,5 +25,15 @@ struct Engine::ECS::ComponentTraits<HomingComponent>
 		HomingComponent& _comp = Engine::Editor::GetValue<HomingComponent>(a_context.pData);
 		ImGui::DragFloat("turnSpeed", &_comp.turnSpeed, 0.1f);
 		ImGui::DragFloat("searchRange", &_comp.searchRange, 0.1f);
+
+		// 追跡中の相手(表示のみ。発射時に埋まる)
+		if (_comp.targetEntity == Engine::ECS::Limits::INVALID_ENTITY)
+		{
+			ImGui::TextDisabled("Target : None");
+		}
+		else
+		{
+			ImGui::TextDisabled("Target : %llu", static_cast<unsigned long long>(_comp.targetEntity));
+		}
 	}
 };

@@ -475,6 +475,8 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem\SearchPlayerSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem\EnemyShootIntentSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem\LostTargetBridgeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.cpp" />
@@ -879,6 +881,8 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem\SearchPlayerSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem\EnemyShootIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem\LostTargetBridgeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.h" />

@@ -38,7 +38,10 @@ namespace Engine::Collision
 		// いずれもワールド空間のプリミティブを渡す。a_myID は自分自身を除外するためのID。
 
 		// 球判定
-		bool VsSphere(const SphereInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
+		// a_ignoreID : 自分以外にもう1つだけ除外したい相手。
+		//              弾から見た発射元(銃口が体の中にあるので必ず触れてしまう)を想定。
+		bool VsSphere(const SphereInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY,
+			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY);
 
 		// カプセル判定
 		bool VsCapsule(const CapsuleInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);

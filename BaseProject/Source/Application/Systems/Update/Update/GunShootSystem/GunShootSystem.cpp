@@ -11,6 +11,11 @@
 #include "../../../../Components/Force/VelocityComponent.h"
 #include "../../../../Components/Character/AimTargetPosComponent.h"
 #include "../../../../Components/Resource/ModelComponent.h"
+#include "../../../../Components/Character/TargetEntityComponent.h"
+#include "../../../../Components/Character/Weapon/Projectile/HomingComponent.h"
+#include "../../../../Components/Character/Weapon/Projectile/ProjectileComponent.h"
+#include "../../../../Components/Hierarchy/HierarchyComponent.h"
+#include "../../../../Components/Collision/Collider.h"
 
 //==========================================================================================
 // GunShootSystem
@@ -19,7 +24,101 @@
 // 応じて、設定されたプレハブを「弾」として生成する。
 // 生成はシステム反復中に即時に行えない(アーキタイプが壊れる)ため、
 // World の遅延生成コマンド(AddEntityWithData)に積み、BeginFrame で安全に生成する。
+//
+// プレハブが HomingComponent を持っていた場合は、ここで「追う相手」を埋める。
+// 発射した後から相手を探すのではなく、撃った瞬間に撃った側が捉えている相手を
+// 弾へ渡す形にしている(敵の索敵結果 = TargetEntityComponent がそのまま弾の的になる)。
+// 実際に曲げるのは HomingSystem。
 //==========================================================================================
+namespace
+{
+	//======================================================================================
+	// 撃った側が「今どのエンティティを狙っているか」を解決する
+	//
+	//   1) 自分 → 親 と辿って TargetEntityComponent(索敵結果)を探す。
+	//      銃はアタッチメントの子エンティティになっていることがあるので、
+	//      索敵している本体(敵キャラ)は親側にいる。
+	//   2) 見つからなければ狙点(レティクル)が当たっている相手を使う。
+	//      プレイヤーが誘導弾を撃った時はこちらが拾われる。
+	//
+	// 誰も狙っていなければ無効値を返す(＝誘導せずに直進する弾になる)。
+	//======================================================================================
+	Engine::ECS::Entity ResolveHomingTarget(
+		Engine::ECS::World&          a_world,
+		Engine::ECS::Entity          a_shooter,
+		const AimTargetPosComponent* a_pAim)
+	{
+		// 親を辿る深さの上限。親子が循環していても止まるように付けておく
+		constexpr int _kMaxDepth = 8;
+
+		Engine::ECS::Entity _entity = a_shooter;
+		for (int _d = 0; _d < _kMaxDepth; ++_d)
+		{
+			if (_entity == Engine::ECS::Limits::INVALID_ENTITY) break;
+
+			if (a_world.HasComponent<TargetEntityComponent>(_entity))
+			{
+				const auto* _pTarget = a_world.RefData<TargetEntityComponent>(_entity);
+
+				// 見失っている間の的は信用しない(古い位置を追ってしまうため)
+				if (_pTarget && _pTarget->isFind &&
+					_pTarget->targetEntity != Engine::ECS::Limits::INVALID_ENTITY)
+				{
+					return _pTarget->targetEntity;
+				}
+			}
+
+			// 親へ
+			if (!a_world.HasComponent<HierarchyComponent>(_entity)) break;
+			const auto* _pHierarchy = a_world.RefData<HierarchyComponent>(_entity);
+			if (!_pHierarchy) break;
+			_entity = _pHierarchy->parentID;
+		}
+
+		// 狙点が何かに当たっているなら、それを追わせる
+		if (a_pAim && a_pAim->isHit) return a_pAim->hitEntity;
+
+		return Engine::ECS::Limits::INVALID_ENTITY;
+	}
+
+	//======================================================================================
+	// 「発射元」として弾に持たせるエンティティを解決する
+	//
+	// 銃は本体にぶら下がる子エンティティのことがあり、コライダーを持つのは本体側
+	// (銃自体はコリジョンワールドに登録されていない)。弾が当たらないようにしたいのは
+	// 本体なので、自分 → 親 と辿って最初に ColliderComponent を持つものを発射元とする。
+	// 銃が本体そのもの(敵など)なら自分がそのまま返る。
+	// 誰もコライダーを持たなければ、辿れた最上位を返しておく。
+	//======================================================================================
+	Engine::ECS::Entity ResolveShooterEntity(
+		Engine::ECS::World& a_world,
+		Engine::ECS::Entity a_gunEntity)
+	{
+		// 親を辿る深さの上限。親子が循環していても止まるように付けておく
+		constexpr int _kMaxDepth = 8;
+
+		Engine::ECS::Entity _entity = a_gunEntity;
+		Engine::ECS::Entity _last   = a_gunEntity;
+
+		for (int _d = 0; _d < _kMaxDepth; ++_d)
+		{
+			if (_entity == Engine::ECS::Limits::INVALID_ENTITY) break;
+			_last = _entity;
+
+			// コライダーを持つ = コリジョンワールドに居る本体
+			if (a_world.HasComponent<ColliderComponent>(_entity)) return _entity;
+
+			// 親へ
+			if (!a_world.HasComponent<HierarchyComponent>(_entity)) break;
+			const auto* _pHierarchy = a_world.RefData<HierarchyComponent>(_entity);
+			if (!_pHierarchy) break;
+			_entity = _pHierarchy->parentID;
+		}
+
+		return _last;
+	}
+}
+
 void GunShootSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<GunStateComponent, const ActionIntentComponent, const WorldMatrixComponent,
@@ -202,6 +301,33 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 					std::memcpy(&_v, _buf.data(), sizeof(_v));
 					_v.value = _velValue;
 					std::memcpy(_buf.data(), &_v, sizeof(_v));
+				}
+				// 発射元を入れる。弾が自分を撃った相手に当たらないようにするため
+				// (銃口は体の中にあるので、入れないと発射した瞬間に自分へ当たる)
+				{
+					auto _projID = a_ctx.pWorld->GetCompTypeID<ProjectileComponent>();
+					auto _it = _data.find(_projID);
+					if (_sig.test(_projID) &&
+						_it != _data.end() && _it->second.size() >= sizeof(ProjectileComponent))
+					{
+						ProjectileComponent _proj = {};
+						std::memcpy(&_proj, _it->second.data(), sizeof(_proj));
+						_proj.shooterEntity = ResolveShooterEntity(*a_ctx.pWorld, _self);
+						std::memcpy(_it->second.data(), &_proj, sizeof(_proj));
+					}
+				}
+				// 誘導弾なら追う相手を入れる(持っていない弾には足さない)
+				{
+					auto _homingID = a_ctx.pWorld->GetCompTypeID<HomingComponent>();
+					auto _it = _data.find(_homingID);
+					if (_sig.test(_homingID) &&
+						_it != _data.end() && _it->second.size() >= sizeof(HomingComponent))
+					{
+						HomingComponent _homing = {};
+						std::memcpy(&_homing, _it->second.data(), sizeof(_homing));
+						_homing.targetEntity = ResolveHomingTarget(*a_ctx.pWorld, _self, _pAim);
+						std::memcpy(_it->second.data(), &_homing, sizeof(_homing));
+					}
 				}
 
 				// 反復中なので即時生成せず、遅延生成コマンドに積む

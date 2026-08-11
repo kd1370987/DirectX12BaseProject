@@ -598,6 +598,12 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem">
       <UniqueIdentifier>{c3f69d5a-4a81-4e27-a136-9d5fb024e8c7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\HomingSystem">
+      <UniqueIdentifier>{d4a71e6b-5b92-4f38-b247-ae60c135f9d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem">
+      <UniqueIdentifier>{e5b82f7c-6ca3-4049-c358-bf71d246a0e9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem">
       <UniqueIdentifier>{e5b81c72-6c03-4a49-9358-bf71d246a0e9}</UniqueIdentifier>
     </Filter>
@@ -1294,6 +1300,9 @@
     <Filter Include="Source\Engine\Input\Internal">
       <UniqueIdentifier>{26408662-9891-4b4c-8464-fab18166ec09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Components\Character\Weapon\Projectile">
+      <UniqueIdentifier>{b4829625-9998-4796-b84e-6c3790cd1f75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -1625,6 +1634,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\FaceTargetSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\HomingSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem\EnemyShootIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem</Filter>
@@ -2630,6 +2645,12 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.h">
       <Filter>Source\Application\Systems\Update\Update\FaceTargetSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\HomingSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem\EnemyShootIntentSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem</Filter>
     </ClInclude>
@@ -3343,6 +3364,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\PanelManager.h">
       <Filter>Source\Engine\Editor\Panel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\HomingComponent.h">
+      <Filter>Source\Application\Components\Character\Weapon\Projectile</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\ProjectileComponent.h">
+      <Filter>Source\Application\Components\Character\Weapon\Projectile</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

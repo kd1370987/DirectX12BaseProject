@@ -155,6 +155,8 @@
 #include "../../Systems/Release/SoundFreeSystem/SoundFreeSystem.h"
 #include "../../Systems/Init/Start/GunStateStartSystem/GunStateStartSystem.h"
 #include "../../Systems/Update/PreUpdate/HitEventClearSystem/HitEventClearSystem.h"
+#include "../../Systems/Update/PreUpdate/EnemyShootIntentSystem/EnemyShootIntentSystem.h"
+#include "../../Systems/Update/PreUpdate/HomingSystem/HomingSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -284,6 +286,10 @@ namespace App::Game
 				a_pWorld->RegisterSystem<ActionIntentSystem>();
 				a_pWorld->RegisterSystem<SearchPlayerSystem>();
 				a_pWorld->RegisterSystem<SightStateBridgeSystem>();
+				// 索敵結果(isFind)を敵の発射入力へ。銃が子なら AttachmentDispatchSystem が配信する
+				a_pWorld->RegisterSystem<EnemyShootIntentSystem>();
+				// 誘導弾の進行方向決め。速度を書くだけなので Physics の積分より前に置く
+				a_pWorld->RegisterSystem<HomingSystem>();
 				a_pWorld->RegisterSystem<EnemyMoveIntentSystem>();
 				// 見失い探索のフェーズ(EnemyMoveIntentSystem が進める)を FSM パラメータへ
 				a_pWorld->RegisterSystem<LostTargetBridgeSystem>();

@@ -48,18 +48,28 @@ namespace App::Editor
 
 	void CompEditHelper::SelectSelfModelNode(Engine::ECS::CompEditContext& a_editContext, UINT& a_nodeNameHash, UINT& a_nodeIndex)
 	{
-		// モデルコンポーネントを取得
-		auto* _pParentModelComp = a_editContext.pWorld->RefData<ModelComponent>(a_editContext.entity);
-		if (!_pParentModelComp)
+		auto* _pWorld = a_editContext.pWorld;
+
+		// 実体を持たない編集(プレハブのインスペクタ)では entity が無効値で来る。
+		// RefData は生きているエンティティ前提で添え字を引くので、必ず先に弾く。
+		if (!_pWorld || a_editContext.entity == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: ModelComponent not found on Parent.");
+			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: No entity. Set the node on the scene entity.");
+			return;
+		}
+
+		// モデルコンポーネントを取得
+		auto* _pSelfModelComp = _pWorld->RefData<ModelComponent>(a_editContext.entity);
+		if (!_pSelfModelComp)
+		{
+			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: ModelComponent not found on Self.");
 			return;
 		}
 
 		// 描画
 		SelectModelNode(
 			a_editContext,
-			_pParentModelComp->handle,
+			_pSelfModelComp->handle,
 			a_nodeNameHash,
 			a_nodeIndex
 		);

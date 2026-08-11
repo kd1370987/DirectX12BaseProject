@@ -323,7 +323,9 @@ namespace Engine::Collision
 			const TInfo& a_worldInfo,
 			const ECS::Entity& a_myID,
 			bool(*a_modelFunc)(const TInfo&, const Resource::Model*, const DirectX::XMFLOAT4X4&, Result&),
-			Result& a_outResult)
+			Result& a_outResult,
+			// 自分以外にもう1つ除外したい相手(弾から見た発射元など)。既定は除外なし
+			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY)
 		{
 			if (a_nodes.empty()) return false;
 
@@ -348,6 +350,12 @@ namespace Engine::Collision
 
 						// 同じエンティティなら無視
 						if (a_myID == _instance.entity) continue;
+
+						// 呼び出し側が指定した除外対象(発射元など)も無視。
+						// ここで弾かないと「最初に触れた1体」が発射元で埋まってしまい、
+						// 同じフレームに重なっている他の相手を拾えなくなる。
+						if (a_ignoreID != ECS::Limits::INVALID_ENTITY &&
+							a_ignoreID == _instance.entity) continue;
 
 						if (_instance.collShape.type == EShapeType::Mesh)
 						{
@@ -452,16 +460,17 @@ namespace Engine::Collision
 		}
 	}
 
-	bool CollisionWorld::VsSphere(const SphereInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
+	bool CollisionWorld::VsSphere(const SphereInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID,
+		const ECS::Entity& a_ignoreID)
 	{
 		// 静的 → 動的の順に走査し、どちらかで最初に触れたエンティティを返す
 		if (QueryOverlap(
 			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
-			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult)) return true;
+			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult, a_ignoreID)) return true;
 
 		return QueryOverlap(
 			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
-			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult);
+			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult, a_ignoreID);
 	}
 
 	bool CollisionWorld::VsCapsule(const CapsuleInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)

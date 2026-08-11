@@ -38,6 +38,10 @@ struct Engine::ECS::ComponentTraits<CameraParamComponent>
 		_comp.nearZ = std::max(0.1f, _comp.nearZ);
 		_comp.farZ = std::max(1.0f,_comp.farZ);
 
+		// プレハブのインスペクタは実体を持たない(entity が無効値)。
+		// RefData は生存エンティティ前提で添え字を引くので、先に弾く
+		if (!a_context.pWorld || a_context.entity == Engine::ECS::Limits::INVALID_ENTITY) return;
+
 		auto* _pProjMatComp = a_context.pWorld->RefData<ProjMatComponent>(a_context.entity);
 		if (!_pProjMatComp) return;
 
