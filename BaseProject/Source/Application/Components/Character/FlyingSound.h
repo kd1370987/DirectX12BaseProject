@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../../../Engine/Editor/Helper/EditorHelper.h"
 #include "../../../Engine/ECS/World/World.h"

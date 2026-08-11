@@ -1,15 +1,23 @@
 #include "ExplodeOnHitSystem.h"
 
-#include <cstring>
-
 #include "Engine/ECS/World/World.h"
 #include "Engine/ECS/Internal/CollisionEvent.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Resource/Data/Prefab/Prefab.h"
 
 #include "Application/Components/Collision/ExplodeOnHitComponent.h"
-#include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/Components/Character/HealthComponent.h"
+#include "Application/Utility/PrefabSpawnHelper.h"
 
+//==============================================================================
+// ExplodeOnHitSystem
+//
+// 何かに当たった瞬間に爆発して消えるもの(弾・ミサイルなど)を処理する。
+//
+// 体力を持つもの(HealthComponent)はここでは扱わない。
+// 敵のように「殴られても耐える」ものまで一撃で消えてしまうため、
+// 体力持ちの死亡は HealthSystem 側に一本化している。
+// 撃破時に同じ爆発プレハブを出すので、見た目は変わらない。
+//==============================================================================
 void ExplodeOnHitSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveTask<const Engine::ECS::CollisionEvent, ExplodeOnHitComponent>(
@@ -34,50 +42,12 @@ void ExplodeOnHitSystem::Init(Engine::ECS::World& a_world)
 				if (_event.other == Engine::ECS::Limits::INVALID_ENTITY) continue;
 
 				// ---- 爆発/エフェクトプレハブを hitPos に生成(設定されていれば) ----
-				if (_explode.explosionPrefabGUID != Engine::DefaultGUID)
-				{
-					auto& _rm = *a_ctx.pServices->pResourceManager;
-					if (!_rm.IsValid(_explode.explosionPrefabHandle))
-					{
-						if (!_rm.Has<Engine::Resource::Prefab>(_explode.explosionPrefabGUID))
-						{
-							_rm.Load<Engine::Resource::Prefab>(_explode.explosionPrefabGUID);
-						}
-						_explode.explosionPrefabHandle = _rm.GetCache<Engine::Resource::Prefab>(_explode.explosionPrefabGUID);
-					}
-
-					auto* _pPrefab = _rm.Ref(_explode.explosionPrefabHandle);
-					if (_pPrefab)
-					{
-						Engine::ECS::Signature _sig = _pPrefab->GetSignature();
-						auto _data = _pPrefab->GetDataMap();	// コピー
-
-						auto _ltID = a_ctx.pWorld->GetCompTypeID<LocalTransformComponent>();
-
-						// 位置を入れるため LocalTransform が無ければ足す
-						if (!_sig.test(_ltID))
-						{
-							_sig.set(_ltID);
-							auto& _buf = _data[_ltID];
-							_buf.assign(a_ctx.pWorld->GetComponentMetaData(_ltID).compAlignSize, 0);
-							auto _ctor = a_ctx.pWorld->GetCompFunc(_ltID).construct;
-							if (_ctor) _ctor(_buf.data());
-						}
-
-						// hitPos に配置
-						{
-							auto& _buf = _data[_ltID];
-							LocalTransformComponent _lt = {};
-							std::memcpy(&_lt, _buf.data(), sizeof(_lt));
-							_lt.pos = _event.hitPos;
-							_lt.isDirty = true;
-							std::memcpy(_buf.data(), &_lt, sizeof(_lt));
-						}
-
-						// 反復中なので遅延生成
-						a_ctx.pWorld->AddEntityWithData(_sig, std::move(_data));
-					}
-				}
+				App::Utility::SpawnPrefabAt(
+					*a_ctx.pWorld,
+					*a_ctx.pServices->pResourceManager,
+					_explode.explosionPrefabGUID,
+					_explode.explosionPrefabHandle,
+					_event.hitPos);
 
 				// ---- 自分を消す ----
 				if (_explode.destroySelf)
@@ -85,6 +55,8 @@ void ExplodeOnHitSystem::Init(Engine::ECS::World& a_world)
 					a_ctx.pWorld->AddRemoveEntity(a_pChunk->entityData[_i]);
 				}
 			}
-		}
+		},
+		// 体力を持つものは HealthSystem が面倒を見る
+		Engine::ECS::Exclude<HealthComponent>()
 	);
 }

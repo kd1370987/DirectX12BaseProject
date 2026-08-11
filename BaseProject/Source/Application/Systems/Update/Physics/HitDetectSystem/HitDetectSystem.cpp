@@ -43,16 +43,18 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 				const LocalTransformComponent& _trans = a_transArray[_i];
 				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
-				// 投射物なら発射元も除外する。
+				// 投射物なら、与えるダメージと発射元を拾っておく。
 				// 銃口は撃った本人の体の中にあるので、除外しないと発射した瞬間に
 				// 自分へ当たって消える。ProjectileComponent は弾しか持たないので、
 				// クエリには含めず持っている時だけ引く。
 				Engine::ECS::Entity _shooter = Engine::ECS::Limits::INVALID_ENTITY;
+				float               _damage  = 0.0f;
 				if (a_ctx.pWorld->HasComponent<ProjectileComponent>(_self))
 				{
 					if (const auto* _pProjectile = a_ctx.pWorld->RefData<ProjectileComponent>(_self))
 					{
 						_shooter = _pProjectile->shooterEntity;
+						_damage  = _pProjectile->damage;
 					}
 				}
 
@@ -94,6 +96,8 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 					_hit.attacker = _self;
 					_hit.victim   = _res.hitEntity;
 					_hit.hitPos   = _res.hitPos;
+					// 受けた側の体力を削る量(HealthSystem が読む)。弾以外は 0 のまま
+					_hit.damage   = _damage;
 					// 受けた側から見た方向にそろえる(のけぞりの向きに使う)
 					_hit.hitDir   = { -_res.hitNormal.x, -_res.hitNormal.y, -_res.hitNormal.z };
 					// このタスクを通るのは球コライダー＋CollisionEvent を持つ弾だけなので Bullet 固定。

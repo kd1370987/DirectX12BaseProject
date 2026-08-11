@@ -164,6 +164,9 @@
 #include "../../Components/Resource/AudioListenerComponent.h"
 #include "../../Components/Character/FlyingSound.h"
 #include "../../InstanceResource/FlyingSoundResource.h"
+#include "../../Components/Character/HealthComponent.h"
+#include "../../Systems/Init/PostDeserialize/HealthFixupSystem/HealthFixupSystem.h"
+#include "../../Systems/Update/PostUpdate/HealthSystem/HealthSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -276,6 +279,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<HitSoundComponent>("HitSoundComponent");
 				a_pWorld->RegisterComponent<AudioListenerComponent>("AudioListenerComponent");
 				a_pWorld->RegisterComponent<FlyingSoundComponent>("FlyingSoundComponent");
+				a_pWorld->RegisterComponent<HealthComponent>("HealthComponent");
 				a_pWorld->RegisterComponent<HomingComponent>("HomingComponent");
 				a_pWorld->RegisterComponent<ProjectileComponent>("ProjectileComponent");
 
@@ -286,6 +290,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<ActionStateFixupSystem>();
 				a_pWorld->RegisterSystem<ParticleFixupSystem>();
 				a_pWorld->RegisterSystem<SoundFixupSystem>();
+				// 現在体力を最大体力で満たす
+				a_pWorld->RegisterSystem<HealthFixupSystem>();
 				a_pWorld->RegisterSystem<FollowTargetLinkSystem>();
 				a_pWorld->RegisterSystem<AttachmentSlotLinkSystem>();
 				a_pWorld->RegisterSystem<HierarchyLinkSystem>();
@@ -365,6 +371,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<HitEventClearSystem>();
 				a_pWorld->RegisterSystem<HitDetectSystem>();
 				a_pWorld->RegisterSystem<ExplodeOnHitSystem>();
+				// 被弾で体力を削り、尽きたら消す(体力持ちは ExplodeOnHit の対象外)
+				a_pWorld->RegisterSystem<HealthSystem>();
 				a_pWorld->RegisterSystem<ProjectileLifeTimeSystem>();
 				// 3Dサウンドの聞き手。鳴らす側より先に登録して、先にリスナーを更新させる
 				a_pWorld->RegisterSystem<AudioListenerSystem>();

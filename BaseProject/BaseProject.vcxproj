@@ -295,6 +295,9 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem\ProjectileLifeTimeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.cpp" />
+    <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp" />
@@ -641,6 +644,10 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem\ProjectileLifeTimeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.h" />
+    <ClInclude Include="Source\Application\Utility\PrefabSpawnHelper.h" />
+    <ClInclude Include="Source\Application\Components\Character\HealthComponent.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.h" />
     <ClInclude Include="Source\Application\Components\Resource\AudioListenerComponent.h" />

@@ -1234,6 +1234,15 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem">
       <UniqueIdentifier>{0683327e-eaad-47bd-a8ad-4905db68f2b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\HealthSystem">
+      <UniqueIdentifier>{62bf4979-55ca-45a7-94aa-966859926464}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem">
+      <UniqueIdentifier>{938c4e29-3023-4895-b3b1-9e0c45d6049d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Utility">
+      <UniqueIdentifier>{18be77b3-0b87-4b8b-b895-d89ff72571df}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem">
       <UniqueIdentifier>{f6c93a8d-7db4-415a-9469-c082e357b1fa}</UniqueIdentifier>
     </Filter>
@@ -2081,6 +2090,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\HealthSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp">
+      <Filter>Source\Application\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\HitSoundSystem</Filter>
@@ -3298,6 +3316,18 @@
     </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\FlyingSoundResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\HealthSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.h">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Utility\PrefabSpawnHelper.h">
+      <Filter>Source\Application\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\HealthComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\HitSoundSystem</Filter>
