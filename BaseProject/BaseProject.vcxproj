@@ -297,6 +297,7 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.cpp" />
@@ -647,6 +648,7 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.h" />
     <ClInclude Include="Source\Application\Components\Character\DeathEffectComponent.h" />
     <ClInclude Include="Source\Application\InstanceResource\DeathEventResource.h" />
     <ClInclude Include="Source\Application\Components\Common\LifeTimeComponent.h" />

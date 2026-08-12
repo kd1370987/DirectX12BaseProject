@@ -1240,6 +1240,9 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem">
       <UniqueIdentifier>{d43aa155-e10e-4438-aa78-74ed50becd24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem">
+      <UniqueIdentifier>{6b1f2c74-3d58-4a0e-9c2b-5e7a1d0f83b6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem">
       <UniqueIdentifier>{9e979bb1-18ed-42c5-aec4-f0206709b1aa}</UniqueIdentifier>
     </Filter>
@@ -2102,6 +2105,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\DeathEffectSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\ExplosionSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\LifeTimeSystem</Filter>
@@ -3337,6 +3343,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\DeathEffectSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\ExplosionSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\DeathEffectComponent.h">
       <Filter>Source\Application\Components\Character</Filter>
