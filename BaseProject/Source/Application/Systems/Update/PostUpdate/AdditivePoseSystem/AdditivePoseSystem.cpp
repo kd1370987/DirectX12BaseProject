@@ -10,6 +10,7 @@
 #include "Application/Components/Character/LookAngleComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Force/VelocityComponent.h"
+#include "Application/Components/Force/InertiaComponent.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
 
 namespace
@@ -167,8 +168,24 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				//==========================================================================
 				// Lag: 速度ではなく加速度で駆動する。
 				// 速度で駆動すると等速移動中ずっと手足が流れたままになり不自然になる。
+				//
+				// 慣性を持つ機体は InertiaComponent の実速度を見る。
+				// VelocityComponent は「目標速度」で、入力やブーストで 0 → 30 のように
+				// 1フレームで飛ぶため、加速度が dt 依存の巨大なスパイクになり、
+				// lagScale を何に設定しても毎回上限に張り付いてしまう。
+				// 実速度は慣性で滑らかに変化するので、歩き出しは小さく、
+				// ブーストは大きく、と加速の強さがそのまま角度に出る。
 				//==========================================================================
 				DXSM::Vector3 _velocity(_velComp.value);
+
+				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+				if (a_ctx.pWorld->HasComponent<InertiaComponent>(_self))
+				{
+					if (const auto* _pInertia = a_ctx.pWorld->RefData<InertiaComponent>(_self))
+					{
+						_velocity = DXSM::Vector3(_pInertia->velocity);
+					}
+				}
 				DXSM::Vector3 _accWorld = {};
 				if (_addComp.isPrevVelocityValid)
 				{

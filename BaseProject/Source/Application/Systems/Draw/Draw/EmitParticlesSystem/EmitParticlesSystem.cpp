@@ -10,6 +10,7 @@
 
 #include "../../../../Components/Resource/ParticlesComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
+#include "../../../../Components/Force/VelocityComponent.h"
 
 //==========================================================================================
 // EmitParticleSystem
@@ -69,6 +70,32 @@ void EmitParticleSystem::Init(Engine::ECS::World& a_world)
 					_pos = DXSM::Vector3::Transform(DXSM::Vector3(_p.posOffset), _world);
 					_dir = DXSM::Vector3::TransformNormal(DXSM::Vector3(_p.emitDir), _world);
 					break;
+
+				case EEmitSpace::ReverseVelocity:
+				{
+					// 進行方向の逆へ吹く(噴射・排気)。
+					// 弾やミサイルは見た目の姿勢が進行方向と一致していないので、
+					// 行列の軸ではなく実際の速度から向きを取る。
+					// VelocityComponent はこのクエリに含めない
+					// (持たないエンティティのパーティクルまで止まってしまうため)
+					_pos = DXSM::Vector3::Transform(DXSM::Vector3(_p.posOffset), _world);
+
+					Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+					if (a_ctx.pWorld->HasComponent<VelocityComponent>(_self))
+					{
+						if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_self))
+						{
+							_dir = -DXSM::Vector3(_pVel->value);
+						}
+					}
+
+					// 止まっている(または速度を持たない)ときは後ろ向き＝ローカル +Z の逆
+					if (_dir.LengthSquared() <= 1e-8f)
+					{
+						_dir = -DXSM::Vector3(_world._31, _world._32, _world._33);
+					}
+					break;
+				}
 
 				case EEmitSpace::FixedWorld:
 				default:
