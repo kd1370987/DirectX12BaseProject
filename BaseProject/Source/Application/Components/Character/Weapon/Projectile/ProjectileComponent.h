@@ -10,8 +10,9 @@ struct ProjectileComponent
 	// HitDetectSystem がこの相手を判定から除外する(自分の弾に当たらないように)
 	Engine::ECS::Entity shooterEntity = Engine::ECS::Limits::INVALID_ENTITY;
 	float speed = 0.0f;			// スピード
-	float lifeTime = 0.0f;		// 生存時間 : 秒
 	float damage = 0.0f;		// ヒット時ダメージ
+
+	// 生存時間は LifeTimeComponent が持つ。時間で消したい弾にはそちらを付けること
 };
 
 template<>
@@ -21,7 +22,6 @@ struct Engine::ECS::ComponentTraits<ProjectileComponent>
 	{
 		ProjectileComponent& _comp = Engine::Editor::GetValue<ProjectileComponent>(a_pData);
 		a_ar.Field("speed", _comp.speed);
-		a_ar.Field("lifeTime", _comp.lifeTime);
 		a_ar.Field("damage", _comp.damage);
 	}
 
@@ -29,7 +29,6 @@ struct Engine::ECS::ComponentTraits<ProjectileComponent>
 	{
 		ProjectileComponent& _comp = Engine::Editor::GetValue<ProjectileComponent>(a_context.pData);
 		ImGui::DragFloat("speed", &_comp.speed, 0.1f);
-		ImGui::DragFloat("lifeTime", &_comp.lifeTime, 0.1f);
 		ImGui::DragFloat("damage", &_comp.damage, 0.1f);
 
 		// 発射元(表示のみ。発射時に埋まる)

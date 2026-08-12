@@ -1234,6 +1234,15 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem">
       <UniqueIdentifier>{0683327e-eaad-47bd-a8ad-4905db68f2b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Components\Effect">
+      <UniqueIdentifier>{2fc9a0c8-127e-4e31-9328-86b924a0df09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem">
+      <UniqueIdentifier>{9e979bb1-18ed-42c5-aec4-f0206709b1aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Common">
+      <UniqueIdentifier>{b2da767d-112f-4fc9-8533-c85c7f3e0cc0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\HealthSystem">
       <UniqueIdentifier>{62bf4979-55ca-45a7-94aa-966859926464}</UniqueIdentifier>
     </Filter>
@@ -1245,9 +1254,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem">
       <UniqueIdentifier>{f6c93a8d-7db4-415a-9469-c082e357b1fa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem">
-      <UniqueIdentifier>{9ac572ea-f386-4160-e4bb-72d0a1f63c47}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\GameObject">
       <UniqueIdentifier>{2091c567-a640-4d3c-9ba2-72c3235c3ae9}</UniqueIdentifier>
@@ -2091,6 +2097,9 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\LifeTimeSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\HealthSystem</Filter>
     </ClCompile>
@@ -2102,9 +2111,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\HitSoundSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem\ProjectileLifeTimeSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.cpp">
       <Filter>Source\Engine\GameObject\GameObjectManager</Filter>
@@ -3317,6 +3323,18 @@
     <ClInclude Include="Source\Application\InstanceResource\FlyingSoundResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Effect\EffectComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Effect\ExplosionComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\LifeTimeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Common\LifeTimeComponent.h">
+      <Filter>Source\Application\Components\Common</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\HealthSystem</Filter>
     </ClInclude>
@@ -3331,9 +3349,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\HitSoundSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem\ProjectileLifeTimeSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\ProjectileLifeTimeSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\CameraFocusTargetComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>

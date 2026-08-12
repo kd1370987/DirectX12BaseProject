@@ -135,7 +135,7 @@
 #include "../../Systems/Update/PreUpdate/CollisionEventClearSystem/CollisionEventClearSystem.h"
 #include "../../Systems/Update/Physics/HitDetectSystem/HitDetectSystem.h"
 #include "../../Systems/Update/PostUpdate/ExplodeOnHitSystem/ExplodeOnHitSystem.h"
-#include "../../Systems/Update/PostUpdate/ProjectileLifeTimeSystem/ProjectileLifeTimeSystem.h"
+#include "../../Systems/Update/PostUpdate/LifeTimeSystem/LifeTimeSystem.h"
 #include "../../Systems/Update/PreUpdate/AttachmentDispatchSystem/AttachmentDispatchSystem.h"
 #include "../../Systems/Update/PreUpdate/ThrusterEffectSystem/ThrusterEffectSystem.h"
 #include "../../Systems/Init/PostDeserialize/AttachmentSlotLinkSystem/AttachmentSlotLinkSystem.h"
@@ -167,6 +167,8 @@
 #include "../../Components/Character/HealthComponent.h"
 #include "../../Systems/Init/PostDeserialize/HealthFixupSystem/HealthFixupSystem.h"
 #include "../../Systems/Update/PostUpdate/HealthSystem/HealthSystem.h"
+#include "../../Components/Effect/EffectComponent.h"
+#include "../../Components/Common/LifeTimeComponent.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -280,6 +282,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<AudioListenerComponent>("AudioListenerComponent");
 				a_pWorld->RegisterComponent<FlyingSoundComponent>("FlyingSoundComponent");
 				a_pWorld->RegisterComponent<HealthComponent>("HealthComponent");
+				a_pWorld->RegisterComponent<EffectComponent>("EffectComponent");
+				a_pWorld->RegisterComponent<LifeTimeComponent>("LifeTimeComponent");
 				a_pWorld->RegisterComponent<HomingComponent>("HomingComponent");
 				a_pWorld->RegisterComponent<ProjectileComponent>("ProjectileComponent");
 
@@ -373,7 +377,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<ExplodeOnHitSystem>();
 				// 被弾で体力を削り、尽きたら消す(体力持ちは ExplodeOnHit の対象外)
 				a_pWorld->RegisterSystem<HealthSystem>();
-				a_pWorld->RegisterSystem<ProjectileLifeTimeSystem>();
+				// 寿命持ち(弾・エフェクトなど)の共通処理。尽きたら自分で消える
+				a_pWorld->RegisterSystem<LifeTimeSystem>();
 				// 3Dサウンドの聞き手。鳴らす側より先に登録して、先にリスナーを更新させる
 				a_pWorld->RegisterSystem<AudioListenerSystem>();
 				// 被弾音。HitEventResource を読むので Physics より後・クリアより前
