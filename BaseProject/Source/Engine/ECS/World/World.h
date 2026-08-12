@@ -128,11 +128,18 @@ namespace Engine::ECS
 		// フレームの初めにエンティティを削除する
 		void RemoveEntityStorage();
 
-		// 削除予定エンティティを追加
-		void AddRemoveEntity(const Entity& a_entity);
-
-		// エンティティの削除
-		void RemoveEntity(const Entity& a_entity);
+		/// <summary>
+		/// エンティティに ReleaseTag を付けて解放予約する : 削除はすべてこれを通す
+		///
+		/// 次の BeginFrame で ActiveTag が外れて Release フェーズが走り、
+		/// そのまま削除される。
+		/// 借りているものを返してから消えるので、寿命切れの弾やエフェクト、
+		/// 撃破された敵、エディターでの削除で各種プールが漏れない。
+		///
+		/// 解放処理を通さない即時削除(AddRemoveEntity / RemoveEntity)は、
+		/// 借りているものを返す機会がないまま消えて漏れるため private にしてある。
+		/// </summary>
+		void AddReleaseEntity(const Entity& a_entity);
 
 		//------------------------------------------------------------------------------------------
 		// エンティティの検索
@@ -300,6 +307,20 @@ namespace Engine::ECS
 
 		// リフレッシュリストにたまったエンティティを一括で処理する
 		void RefreshEntities();
+
+		//------------------------------------------------------------------------------------------
+		// エンティティの即時削除
+		//
+		// Release フェーズを通さずに消すので、外からは使わせない。
+		// 解放処理を終えたエンティティを実際に片付ける最後の一手として、
+		// BeginFrame / Release からのみ呼ぶこと。削除の入口は AddReleaseEntity。
+		//------------------------------------------------------------------------------------------
+
+		// 削除予定エンティティを追加
+		void AddRemoveEntity(const Entity& a_entity);
+
+		// エンティティの削除
+		void RemoveEntity(const Entity& a_entity);
 
 	private:
 

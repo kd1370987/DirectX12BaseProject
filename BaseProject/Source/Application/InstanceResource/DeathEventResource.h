@@ -12,7 +12,7 @@
 // 積む : 死亡を決めるシステム(HealthSystem / ExplodeOnHitSystem など)
 // 読む : DeathEffectSystem(読み終わったら自分でクリアする)
 //
-// 死亡したエンティティは AddRemoveEntity で削除予約された状態で、
+// 死亡したエンティティは AddReleaseEntity で解放予約された状態で、
 // 実際に消えるのは次フレームの BeginFrame。読む側が動くのは同じフレームの後半なので、
 // entity からコンポーネントを引くことはまだできる。
 // ただし消えた後の位置は引けないので、座標は積む側が入れておくこと。

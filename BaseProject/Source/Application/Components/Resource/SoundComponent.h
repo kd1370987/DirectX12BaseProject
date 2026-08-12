@@ -10,6 +10,10 @@ struct SoundComponent
 	Engine::Handle<Engine::Resource::SoundInstance> soundInstanceHandle = {};		// サウンドから作られたインスタンスのハンドル
 	float vol = 1.0f;
 	bool isLoop = false;															// ループ再生するか : 鳴らす側がこの設定を見て Play する
+
+	// 湧いた瞬間に自動で鳴らすか : 鳴らすのは SpawnSoundSystem(Startフェーズ)
+	// 爆発などのエフェクトプレハブ用。誰かに鳴らしてもらう必要がなくなる
+	bool isPlayOnSpawn = false;
 };
 
 template<>
@@ -21,6 +25,7 @@ struct Engine::ECS::ComponentTraits<SoundComponent>
 		a_ar.Field("SoundGUID",_comp.soundGUID);
 		a_ar.Field("Vol",_comp.vol);
 		a_ar.Field("IsLoop",_comp.isLoop);
+		a_ar.Field("IsPlayOnSpawn",_comp.isPlayOnSpawn);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -44,6 +49,11 @@ struct Engine::ECS::ComponentTraits<SoundComponent>
 		// 鳴らす側のシステムが Play(isLoop) で参照する。
 		// (例: ブースト継続音は true、発進音のような単発は false)
 		ImGui::Checkbox("Loop", &_comp.isLoop);
+
+		// 湧いた瞬間に鳴らすか。爆発などのエフェクトプレハブに付けておくと、
+		// 出した側が鳴らしに行かなくてもエフェクト単体で音まで完結する
+		ImGui::Checkbox("Play On Spawn", &_comp.isPlayOnSpawn);
+		ImGui::TextDisabled("湧いたフレームに一度だけ鳴る");
 
 		// 音量は発行済みインスタンスへ即時反映して、鳴らしながら調整できるようにする
 		if (ImGui::DragFloat("Volume", &_comp.vol, 0.01f, 0.0f, 1.0f))

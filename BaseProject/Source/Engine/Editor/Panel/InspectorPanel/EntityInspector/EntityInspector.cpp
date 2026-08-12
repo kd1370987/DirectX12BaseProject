@@ -299,13 +299,14 @@ namespace Engine::Editor::Inspector
 
 		if (ImGui::Button(_removeLabel.c_str()))
 		{
-			// RemoveEntity は即座にチャンクを詰め替えるため、
-			// 選択リストを直接舐めながら消さずに一度コピーしてから回す。
-			const std::vector<Engine::ECS::Entity> _removeTargets = a_editContext.selectedEntities;
-			for (const Engine::ECS::Entity& _removeEntity : _removeTargets)
+			// 解放予約だけしておく。実際に消えるのは次の BeginFrame で、
+			// その前に Release フェーズが走るので、借りているもの
+			// (サウンドのボイス・ポーズ行列など)を返してから消える。
+			// この場でチャンクは動かないため、選択リストをそのまま舐めてよい。
+			for (const Engine::ECS::Entity& _removeEntity : a_editContext.selectedEntities)
 			{
 				if (_removeEntity == Engine::ECS::Limits::INVALID_ENTITY) continue;
-				_pWorld->RemoveEntity(_removeEntity);
+				_pWorld->AddReleaseEntity(_removeEntity);
 			}
 			a_editContext.ClearEntitySelection();
 		}

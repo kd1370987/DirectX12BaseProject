@@ -22,7 +22,9 @@
 // ・体力を持つものは ExplodeOnHitSystem の対象から外してある(Exclude<HealthComponent>)。
 //   即死させる役目とここが二重に効かないようにするためで、
 //   体力持ちの死亡はこのシステムだけが決める。
-// ・削除は AddRemoveEntity で予約する。反復中に消すとチャンクが壊れるため。
+// ・削除は AddReleaseEntity で予約する。反復中に消すとチャンクが壊れるため。
+//   ReleaseTag 経由にしているのは、敵が持っているポーズ行列やアニメーション用頂点を
+//   Release フェーズで返してから消すため(直接消すと返す機会がないまま漏れる)。
 // ・爆発の位置に WorldMatrix ではなく LocalTransform を使っているのは、
 //   PostUpdate 帯で WorldMatrix を読む ActiveTask を作るとシステムのソートが循環するため
 //   (CommitHierarchyWorldMatrixSystem が ActiveTag を読んで WorldMatrix を書いている)。
@@ -77,7 +79,7 @@ void HealthSystem::Init(Engine::ECS::World& a_world)
 				// ---- 撃破 ----
 				_health.currentHealth = 0.0f;
 
-				a_ctx.pWorld->AddRemoveEntity(_self);
+				a_ctx.pWorld->AddReleaseEntity(_self);
 
 				// 死亡を積む(エフェクトは DeathEffectSystem が出す)
 				if (a_ctx.pWorld->HasResource<DeathEventResource>())

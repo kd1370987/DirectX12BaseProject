@@ -292,6 +292,31 @@ namespace Engine::ECS
 		m_removeEntityVec.push_back(a_entity);
 	}
 
+	void World::AddReleaseEntity(const ECS::Entity& a_entity)
+	{
+		if (a_entity == ECS::Limits::INVALID_ENTITY) return;
+
+		Signature _sig = m_entityManager.GetSignature(a_entity);
+
+		// すでに解放待ちなら積み直さない(寿命と撃破が同じフレームに重なる等)
+		if (_sig.test(GetCompTypeID<ReleaseTag>())) return;
+
+		// もう動かす必要はないので Active から外して Release へ移す。
+		// BeginFrame では「引っ越し → Release実行 → ReleaseTag付きを削除」の順に流れるので、
+		// 次のフレームの頭で解放処理まで済ませて消える
+		if (_sig.test(GetCompTypeID<ActiveTag>()))
+		{
+			_sig.reset(GetCompTypeID<ActiveTag>());
+		}
+		_sig.set(GetCompTypeID<ReleaseTag>());
+
+		ChangeEntityCmd _cmd = {};
+		_cmd.entity = a_entity;
+		_cmd.toSig = _sig;
+
+		AddChangeSigCommand(_cmd);
+	}
+
 	void World::RemoveEntity(const ECS::Entity& a_entity)
 	{
 		// ロケーション取得

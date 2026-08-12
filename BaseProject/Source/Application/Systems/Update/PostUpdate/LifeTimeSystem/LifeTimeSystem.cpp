@@ -15,8 +15,9 @@
 // ・value はそのまま残り時間として減らしていく。プレハブに書いてある値は
 //   実体化のたびにコピーされるので、カウントダウンしても設計値は壊れない。
 // ・負の値は無期限として扱い、何もしない。
-// ・削除は AddRemoveEntity で予約する。チャンクを反復している最中に消すと
-//   配列が詰め替えられて壊れるため。
+// ・削除は AddReleaseEntity で予約する。チャンクを反復している最中に消すと
+//   配列が詰め替えられて壊れるため。ReleaseTag を付ける形にしているのは、
+//   サウンドのボイスなど借りているものを Release フェーズで返してから消すため。
 // ・生成側(ExplodeOnHitSystem / HealthSystem など)と同じ PostUpdate 帯に置く。
 //   生成は遅延コマンドで次フレームの BeginFrame に実体化されるので、
 //   出たフレームにいきなり消えることはない。
@@ -45,10 +46,10 @@ void LifeTimeSystem::Init(Engine::ECS::World& a_world)
 				// 残り時間を減らす
 				_lifeTime.value -= a_ctx.dt;
 
-				// 尽きたら削除を予約する
+				// 尽きたら解放を予約する
 				if (_lifeTime.value <= 0.0f)
 				{
-					a_ctx.pWorld->AddRemoveEntity(a_pChunk->entityData[_i]);
+					a_ctx.pWorld->AddReleaseEntity(a_pChunk->entityData[_i]);
 				}
 			}
 		}

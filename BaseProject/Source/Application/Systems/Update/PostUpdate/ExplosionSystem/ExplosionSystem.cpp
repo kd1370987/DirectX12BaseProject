@@ -81,10 +81,10 @@ void ExplosionSystem::Init(Engine::ECS::World& a_world)
 					_parts.isEmitted = true;
 				}
 
-				// 全部炊き終わったので退場する(削除は予約。反復中に消すとチャンクが壊れるため)
+				// 全部炊き終わったので退場する(解放を予約。反復中に消すとチャンクが壊れるため)
 				if (_isAllEmitted)
 				{
-					a_ctx.pWorld->AddRemoveEntity(a_pChunk->entityData[_i]);
+					a_ctx.pWorld->AddReleaseEntity(a_pChunk->entityData[_i]);
 				}
 			}
 		}

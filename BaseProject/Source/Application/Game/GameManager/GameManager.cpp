@@ -152,6 +152,7 @@
 #include "../../Systems/Update/Update/Move/EnemyMovementSystem/EnemyMovementSystem.h"
 #include "../../Systems/Init/PostDeserialize/SoundFixupSystem/SoundFixupSystem.h"
 #include "../../Systems/Update/PreUpdate/BoostSoundSystem/BoostSoundSystem.h"
+#include "../../Systems/Init/Start/SpawnSoundSystem/SpawnSoundSystem.h"
 #include "../../Systems/Release/SoundFreeSystem/SoundFreeSystem.h"
 #include "../../Systems/Init/Start/GunStateStartSystem/GunStateStartSystem.h"
 #include "../../Systems/Update/PreUpdate/HitEventClearSystem/HitEventClearSystem.h"
@@ -327,6 +328,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<AnimationModelStartSystem>();
 				a_pWorld->RegisterSystem<AttachmentNodeLinkSystem>();
 				a_pWorld->RegisterSystem<AdditivePoseLinkSystem>();
+				// 湧いた瞬間に鳴らす音(エフェクト用)。インスタンスは SoundFixupSystem が先に用意する
+				a_pWorld->RegisterSystem<SpawnSoundSystem>();
 				a_pWorld->RegisterSystem<CamSetShaderSystem>();
 				a_pWorld->RegisterSystem<InputMoveSystem>();
 				a_pWorld->RegisterSystem<GravitySystem>();

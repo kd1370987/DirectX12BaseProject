@@ -1327,6 +1327,9 @@
     <Filter Include="Source\Application\Systems\Init\Start\GunStateStartSystem">
       <UniqueIdentifier>{51320e8c-b456-46f8-9e90-ae4cbbd4abdf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Init\Start\SpawnSoundSystem">
+      <UniqueIdentifier>{9a4c7e21-0d63-4b58-8f17-2c95b6ea4d70}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Input\Internal">
       <UniqueIdentifier>{26408662-9891-4b4c-8464-fab18166ec09}</UniqueIdentifier>
     </Filter>
@@ -2177,6 +2180,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\GunStateStartSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\Start\SpawnSoundSystem\SpawnSoundSystem.cpp">
+      <Filter>Source\Application\Systems\Init\Start\SpawnSoundSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Option\ProjectOptions\InputOption.cpp">
       <Filter>Source\Engine\Option\ProjectOptions</Filter>
@@ -3457,6 +3463,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.h">
       <Filter>Source\Application\Systems\Init\Start\GunStateStartSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\Start\SpawnSoundSystem\SpawnSoundSystem.h">
+      <Filter>Source\Application\Systems\Init\Start\SpawnSoundSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Option\ProjectOptions\InputOption.h">
       <Filter>Source\Engine\Option\ProjectOptions</Filter>
