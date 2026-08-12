@@ -1,17 +1,14 @@
-﻿#pragma once
+#pragma once
 
-#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Engine/Editor/Helper/EditorHelper.h"
 
 // CollisionEvent がヒットしたときの反応を設定するコンポーネント。
-// ・爆発/エフェクトプレハブを当たった位置に生成する
-// ・自分を消すか
+//
+// 出すエフェクトはここでは持たない。死亡時のエフェクトは DeathEffectComponent に
+// 登録しておけば、着弾で消えるときも体力が尽きて消えるときも同じように出る。
 struct ExplodeOnHitComponent
 {
-	Engine::GUID explosionPrefabGUID = {};									// 生成するプレハブ(任意)
-	Engine::Handle<Engine::Resource::Prefab> explosionPrefabHandle = {};	// ランタイム用
-	bool destroySelf = true;												// 当たったら自分を消すか
+	bool destroySelf = true;		// 当たったら自分を消すか
 };
 
 template<>
@@ -20,7 +17,6 @@ struct Engine::ECS::ComponentTraits<ExplodeOnHitComponent>
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
 		ExplodeOnHitComponent& _comp = Engine::Editor::GetValue<ExplodeOnHitComponent>(a_pData);
-		a_ar.Field("explosionPrefabGUID", _comp.explosionPrefabGUID);
 		a_ar.Field("destroySelf", _comp.destroySelf);
 	}
 
@@ -28,10 +24,7 @@ struct Engine::ECS::ComponentTraits<ExplodeOnHitComponent>
 	{
 		ExplodeOnHitComponent& _comp = Engine::Editor::GetValue<ExplodeOnHitComponent>(a_context.pData);
 
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Explosion Prefab", "Prefab", _comp.explosionPrefabGUID))
-		{
-			_comp.explosionPrefabHandle = {};	// GUIDが変わったら作り直し
-		}
 		ImGui::Checkbox("DestroySelf", &_comp.destroySelf);
+		ImGui::TextDisabled("Effect is DeathEffectComponent.");
 	}
 };

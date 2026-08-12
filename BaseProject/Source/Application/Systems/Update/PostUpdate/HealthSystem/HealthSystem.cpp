@@ -3,10 +3,9 @@
 #include "Engine/ECS/World/World.h"
 
 #include "Application/Components/Character/HealthComponent.h"
-#include "Application/Components/Collision/ExplodeOnHitComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/InstanceResource/HitEventResource.h"
-#include "Application/Utility/PrefabSpawnHelper.h"
+#include "Application/InstanceResource/DeathEventResource.h"
 
 //==============================================================================
 // HealthSystem
@@ -17,9 +16,9 @@
 //   弾は当たった直後に自分が消えるので、当てた側から殴りに行くのではなく
 //   「そのフレームに起きたヒット全部」が残るこちらを受け手側が読む。
 //   1フレームに複数発当たった場合もすべて食らう(CollisionEvent は1件しか持てない)。
-// ・撃破時、ExplodeOnHitComponent を持っていればその爆発プレハブを出してから消える。
-//   「当たった瞬間に消える」弾の処理(ExplodeOnHitSystem)と生成部分は
-//   PrefabSpawnHelper で共有している。
+// ・撃破時はエフェクトを出さず、死亡を DeathEventResource へ積むだけにする。
+//   何を出すかは DeathEffectComponent、出すのは DeathEffectSystem の仕事で、
+//   弾が着弾で消えるときと同じ入口にそろえてある。
 // ・体力を持つものは ExplodeOnHitSystem の対象から外してある(Exclude<HealthComponent>)。
 //   即死させる役目とここが二重に効かないようにするためで、
 //   体力持ちの死亡はこのシステムだけが決める。
@@ -78,21 +77,17 @@ void HealthSystem::Init(Engine::ECS::World& a_world)
 				// ---- 撃破 ----
 				_health.currentHealth = 0.0f;
 
-				// 爆発の設定を持っていれば、その場に出してから消える
-				if (a_ctx.pWorld->HasComponent<ExplodeOnHitComponent>(_self))
-				{
-					if (auto* _pExplode = a_ctx.pWorld->RefData<ExplodeOnHitComponent>(_self))
-					{
-						App::Utility::SpawnPrefabAt(
-							*a_ctx.pWorld,
-							*a_ctx.pServices->pResourceManager,
-							_pExplode->explosionPrefabGUID,
-							_pExplode->explosionPrefabHandle,
-							_trs.pos);
-					}
-				}
-
 				a_ctx.pWorld->AddRemoveEntity(_self);
+
+				// 死亡を積む(エフェクトは DeathEffectSystem が出す)
+				if (a_ctx.pWorld->HasResource<DeathEventResource>())
+				{
+					DeathEvent _death = {};
+					_death.entity = _self;
+					_death.pos    = _trs.pos;
+
+					a_ctx.pWorld->GetResource<DeathEventResource>().Push(_death);
+				}
 			}
 		}
 	);

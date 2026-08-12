@@ -6,17 +6,20 @@
 
 #include "Application/Components/Collision/ExplodeOnHitComponent.h"
 #include "Application/Components/Character/HealthComponent.h"
-#include "Application/Utility/PrefabSpawnHelper.h"
+#include "Application/InstanceResource/DeathEventResource.h"
 
 //==============================================================================
 // ExplodeOnHitSystem
 //
-// 何かに当たった瞬間に爆発して消えるもの(弾・ミサイルなど)を処理する。
+// 何かに当たった瞬間に消えるもの(弾・ミサイルなど)を処理する。
+//
+// エフェクトはここでは出さない。当たった位置を「死亡」として積むだけで、
+// 何を出すかは DeathEffectComponent、出すのは DeathEffectSystem が持つ
+// (体力切れの死と同じ入口にそろえてある)。
 //
 // 体力を持つもの(HealthComponent)はここでは扱わない。
 // 敵のように「殴られても耐える」ものまで一撃で消えてしまうため、
 // 体力持ちの死亡は HealthSystem 側に一本化している。
-// 撃破時に同じ爆発プレハブを出すので、見た目は変わらない。
 //==============================================================================
 void ExplodeOnHitSystem::Init(Engine::ECS::World& a_world)
 {
@@ -41,18 +44,21 @@ void ExplodeOnHitSystem::Init(Engine::ECS::World& a_world)
 				// 未ヒットならスキップ
 				if (_event.other == Engine::ECS::Limits::INVALID_ENTITY) continue;
 
-				// ---- 爆発/エフェクトプレハブを hitPos に生成(設定されていれば) ----
-				App::Utility::SpawnPrefabAt(
-					*a_ctx.pWorld,
-					*a_ctx.pServices->pResourceManager,
-					_explode.explosionPrefabGUID,
-					_explode.explosionPrefabHandle,
-					_event.hitPos);
-
 				// ---- 自分を消す ----
-				if (_explode.destroySelf)
+				if (!_explode.destroySelf) continue;
+
+				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+				a_ctx.pWorld->AddRemoveEntity(_self);
+
+				// ---- 死亡を積む(エフェクトは DeathEffectSystem が出す) ----
+				// 弾の場合は自分の位置ではなく当たった位置に出したいので hitPos を渡す
+				if (a_ctx.pWorld->HasResource<DeathEventResource>())
 				{
-					a_ctx.pWorld->AddRemoveEntity(a_pChunk->entityData[_i]);
+					DeathEvent _death = {};
+					_death.entity = _self;
+					_death.pos    = _event.hitPos;
+
+					a_ctx.pWorld->GetResource<DeathEventResource>().Push(_death);
 				}
 			}
 		},

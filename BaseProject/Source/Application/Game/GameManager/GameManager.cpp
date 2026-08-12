@@ -169,6 +169,9 @@
 #include "../../Systems/Update/PostUpdate/HealthSystem/HealthSystem.h"
 #include "../../Components/Effect/EffectComponent.h"
 #include "../../Components/Common/LifeTimeComponent.h"
+#include "../../Components/Character/DeathEffectComponent.h"
+#include "../../InstanceResource/DeathEventResource.h"
+#include "../../Systems/Update/PostUpdate/DeathEffectSystem/DeathEffectSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -284,6 +287,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<HealthComponent>("HealthComponent");
 				a_pWorld->RegisterComponent<EffectComponent>("EffectComponent");
 				a_pWorld->RegisterComponent<LifeTimeComponent>("LifeTimeComponent");
+				a_pWorld->RegisterComponent<DeathEffectComponent>("DeathEffectComponent");
 				a_pWorld->RegisterComponent<HomingComponent>("HomingComponent");
 				a_pWorld->RegisterComponent<ProjectileComponent>("ProjectileComponent");
 
@@ -379,6 +383,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<HealthSystem>();
 				// 寿命持ち(弾・エフェクトなど)の共通処理。尽きたら自分で消える
 				a_pWorld->RegisterSystem<LifeTimeSystem>();
+				// 死亡したものの DeathEffect プレハブを出す(死亡を積む側より後ろで回る)
+				a_pWorld->RegisterSystem<DeathEffectSystem>();
 				// 3Dサウンドの聞き手。鳴らす側より先に登録して、先にリスナーを更新させる
 				a_pWorld->RegisterSystem<AudioListenerSystem>();
 				// 被弾音。HitEventResource を読むので Physics より後・クリアより前
@@ -403,6 +409,7 @@ namespace App::Game
 				// シングルトンインスタンスの登録
 				a_pWorld->AddResource<HierarchyResource>();
 				a_pWorld->AddResource<HitEventResource>();
+				a_pWorld->AddResource<DeathEventResource>();
 				a_pWorld->AddResource<FlyingSoundResource>();
 
 				// 初期化
@@ -418,6 +425,7 @@ namespace App::Game
 
 				// 1フレーム分のヒット数はたかが知れているので少なめに確保
 				a_pWorld->GetResource<HitEventResource>().Reserve(256);
+				a_pWorld->GetResource<DeathEventResource>().Reserve(64);
 			}
 		);
 

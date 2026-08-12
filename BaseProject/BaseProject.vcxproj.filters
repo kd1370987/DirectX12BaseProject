@@ -1237,6 +1237,9 @@
     <Filter Include="Source\Application\Components\Effect">
       <UniqueIdentifier>{2fc9a0c8-127e-4e31-9328-86b924a0df09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem">
+      <UniqueIdentifier>{d43aa155-e10e-4438-aa78-74ed50becd24}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem">
       <UniqueIdentifier>{9e979bb1-18ed-42c5-aec4-f0206709b1aa}</UniqueIdentifier>
     </Filter>
@@ -2096,6 +2099,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\DeathEffectSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\LifeTimeSystem</Filter>
@@ -3328,6 +3334,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Effect\ExplosionComponent.h">
       <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\DeathEffectSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\DeathEffectComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\DeathEventResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\LifeTimeSystem</Filter>
