@@ -9,8 +9,10 @@ struct BoostComponent
 	bool isBoosting = false;		// 実際に現在ブースト中か（燃料切れなどで押してても飛べない場合があるため）
 
 	// --- パラメータ ---
-	float boostPower = 20.0f;		// ブースト時の推力
-	float tapBoostScale = 1.5f;		// 押した瞬間の推力倍率（継続ブーストに対する倍率。初動を少し大きくする）
+	// ブースト中の水平速度(m/秒)。進む向きは移動入力、入力が無ければ向いている方向。
+	// 以前の「今の速度に掛ける倍率」ではないので注意(止まっていても飛べるようにするため)
+	float boostPower = 30.0f;
+	float tapBoostScale = 2.0f;		// 押した瞬間の速度倍率（継続ブーストに対する倍率。初動を少し大きくする）
 	float boostFuel = 5.0f;			// ブースト単押しの使用燃料
 	float boostFuelPerSec = 1.0f;	// ブースト連続使用時の毎秒消費燃料量
 
@@ -40,7 +42,7 @@ struct Engine::ECS::ComponentTraits<BoostComponent>
 
 		ImGui::Text("Boost Parameters");
 		ImGui::DragFloat("Max Fuel", &_comp.maxFuel, 1.0f, 0.0f);
-		ImGui::DragFloat("Boost Power", &_comp.boostPower, 0.1f, 0.0f);
+		ImGui::DragFloat("Boost Power (m/s)", &_comp.boostPower, 0.1f, 0.0f);
 		ImGui::DragFloat("Tap Boost Scale", &_comp.tapBoostScale, 0.05f, 0.0f);
 		ImGui::DragFloat("Boost Fuel (Tap)", &_comp.boostFuel, 0.1f, 0.0f);
 		ImGui::DragFloat("Boost Fuel / Sec", &_comp.boostFuelPerSec, 0.1f, 0.0f);

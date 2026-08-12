@@ -22,6 +22,7 @@
 //
 // GunStateComponent を持つエンティティが、発射入力(ActionIntentComponent::isGunShoot)に
 // 応じて、設定されたプレハブを「弾」として生成する。
+// 撃ち方は Auto(押しっぱなしで連射)と Burst(まとめて数発)の2種類。
 // 生成はシステム反復中に即時に行えない(アーキタイプが壊れる)ため、
 // World の遅延生成コマンド(AddEntityWithData)に積み、BeginFrame で安全に生成する。
 //
@@ -144,21 +145,46 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				const WorldMatrixComponent& _worldMat = a_worldMatArray[_i];
 				const ModelComponent& _modelComp = a_modelArray[_i];
 
-				// クールタイムを進める(撃っていなくても常に減らす)
-				if (_gun.shootCoolTime > 0.0f)
-				{
-					_gun.shootCoolTime -= a_ctx.dt;
-					if (_gun.shootCoolTime < 0.0f) _gun.shootCoolTime = 0.0f;
-				}
-
-				// 発射判定 : 単発はエッジ、オートは押しっぱなし + 発射レート間隔
-				bool _fire = _intent.isGunShoot
-					&& (_gun.isAuto ? (_gun.shootCoolTime <= 0.0f) : !_gun.prevShoot);
-				_gun.prevShoot = _intent.isGunShoot;
-				if (!_fire) continue;
+				// 前回発射からの経過時間を進める。
+				// 撃っていない間もステートが変わっても止めずに足し続けるので、
+				// 「久しぶりに引き金を引いたら即撃てる」形になる
+				_gun.timeSinceShoot += a_ctx.dt;
 
 				// 次弾までの間隔(秒) = 1 / 発射レート
-				_gun.shootCoolTime = (_gun.fireRate > 0.0f) ? (1.0f / _gun.fireRate) : 0.0f;
+				const float _shotInterval = (_gun.fireRate > 0.0f) ? (1.0f / _gun.fireRate) : 0.0f;
+
+				//======================================================================
+				// 発射判定
+				//   Auto  : 押している間、発射レートの間隔で撃ち続ける
+				//   Burst : 一度始まったらトリガーを離しても burstCount 発を撃ち切り、
+				//           撃ち切ったら burstInterval あけて次のバーストへ
+				//======================================================================
+				bool _fire = false;
+				if (_gun.fireMode == EFireMode::Burst)
+				{
+					if (_gun.burstRemain > 0)
+					{
+						// バースト継続中。残弾はレート間隔で撃つ
+						_fire = (_gun.timeSinceShoot >= _shotInterval);
+					}
+					else if (_intent.isGunShoot)
+					{
+						// 次のバーストを始められるか(前回発射からの間隔で見る)
+						_fire = (_gun.timeSinceShoot >= _gun.burstInterval);
+						if (_fire) _gun.burstRemain = (_gun.burstCount > 0) ? _gun.burstCount : 1;
+					}
+				}
+				else
+				{
+					_fire = _intent.isGunShoot && (_gun.timeSinceShoot >= _shotInterval);
+				}
+
+				if (!_fire) continue;
+
+				// 撃つと決めた時点で数える。この後プレハブが無くて撃てなくても、
+				// 間隔の計算とバーストの進行は進める
+				_gun.timeSinceShoot = 0.0f;
+				if (_gun.burstRemain > 0) --_gun.burstRemain;
 
 				// プレハブ未設定ならスキップ
 				if (_gun.bulletPrefabGUID == Engine::DefaultGUID) continue;
