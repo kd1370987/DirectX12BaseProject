@@ -28,29 +28,39 @@ bool IsVisible(MeshletCullData a_cullData, float4x4 a_worldMat)
     (a_cullData.NormalCone >> 16) & 0xFF,
     (a_cullData.NormalCone >> 24) & 0xFF);
 
-	// 軸(xyz)は -1.0～1.0 にアンパック
-	float3 _axisLocal = (_rawCone.xyz / 255.0f) * 2.0f - 1.0f;
-
-	// cutoff(w)は 0.0～1.0 にアンパック（バイアス不要）
-	float _cutoff = _rawCone.w / 255.0f;
-	
-	// コーンの原点(Apex)をローカル座標で求める
-	float3 _apexLocal = a_cullData.BoundingSphereCenter - (_axisLocal * a_cullData.ApexOffset);
-
-	// ワールド空間に変換
-	float3 _apexWorld = mul(float4(_apexLocal,1.0f),a_worldMat).xyz;
-	float3 _axisWorld = normalize(mul(_axisLocal, (float3x3)a_worldMat));
-
-	// コーンの頂点からカメラのベクトル : 正規化
-	float3 _viewToApex = normalize(_apexWorld - g_camera.cameraPos.xyz);
-
-	// カメラから見て、コーンが完全に裏面を向いていたらカリング
-	// 内積が閾値以上なら、裏面を向いていると判定
-	if (dot(_viewToApex,_axisWorld) >= _cutoff)
+	// 法線の広がりが 90 度以上あるメッシュレットは、コーンで裏表を判定できない。
+	// DirectXMesh はその場合 NormalCone を (0,0,0,255) で書き出してくるので、
+	// 判定に使わず素通しする。
+	// (無視すると軸が normalize(-1,-1,-1)・閾値 1.0 の「ほぼ当たらないが、
+	//  真正面から見たときだけ当たる」コーンとして効いてしまい、
+	//  角度によってメッシュレットが1枚だけ消える)
+	bool _isConeDegenerate = (_rawCone.w == 0xFF);
+	if (!_isConeDegenerate)
 	{
-		return false;
+		// 軸(xyz)は -1.0～1.0 にアンパック
+		float3 _axisLocal = (_rawCone.xyz / 255.0f) * 2.0f - 1.0f;
+
+		// cutoff(w)は 0.0～1.0 にアンパック（バイアス不要）
+		float _cutoff = _rawCone.w / 255.0f;
+
+		// コーンの原点(Apex)をローカル座標で求める
+		float3 _apexLocal = a_cullData.BoundingSphereCenter - (_axisLocal * a_cullData.ApexOffset);
+
+		// ワールド空間に変換
+		float3 _apexWorld = mul(float4(_apexLocal,1.0f),a_worldMat).xyz;
+		float3 _axisWorld = normalize(mul(_axisLocal, (float3x3)a_worldMat));
+
+		// コーンの頂点からカメラのベクトル : 正規化
+		float3 _viewToApex = normalize(_apexWorld - g_camera.cameraPos.xyz);
+
+		// カメラから見て、コーンが完全に裏面を向いていたらカリング
+		// 内積が閾値を超えたら、裏面を向いていると判定
+		if (dot(_viewToApex,_axisWorld) > _cutoff)
+		{
+			return false;
+		}
 	}
-	
+
 	// ==========================================================
 	// フラスタムカリング
 	// ==========================================================
@@ -119,9 +129,32 @@ void ASMain(
 	bool _isVisible = false;
 	if (_localMeshletID < _inst.meshletCount)
 	{
-		uint _cullDataIndex = _inst.cullStart + _localMeshletID;
-		_isVisible = IsVisible(g_cullData[_cullDataIndex], _inst.worldMat);
-		//_isVisible = true; // 今はテスト用に強制表示
+		// ==========================================================
+		// スキニングするメッシュはカリングしない
+		// ----------------------------------------------------------
+		// カリング情報(境界球・法線コーン)は DirectXMesh がバインドポーズの
+		// 頂点から作ったもので、モデルローカル空間に固定されている。
+		// 一方 MS が読むのはスキニング済みの頂点なので、ボーンが動くほど
+		// 実際の位置と離れていく。手足のように大きく動く部分ほどズレが大きい。
+		//
+		// そのズレは「境界がフラスタム面をまたぐとき」だけ結果に出る。
+		// 画面の中央で全身が収まっている間はどの面にも当たらないので誰も気付かないが、
+		// カメラに近い(ニア面をまたぐ)ときや画面端(左右上下の面をまたぐ)では、
+		// 実際には映っているメッシュレットがバインドポーズの位置で判定されて
+		// 消えてしまう。法線コーンも同じ理由で当てにならない。
+		//
+		// 正しく間引くにはスキニング後の頂点から毎フレーム境界を作り直す必要があるので、
+		// それまでは素通しする。
+		// ==========================================================
+		if (_inst.isAnimated != 0)
+		{
+			_isVisible = true;
+		}
+		else
+		{
+			uint _cullDataIndex = _inst.cullStart + _localMeshletID;
+			_isVisible = IsVisible(g_cullData[_cullDataIndex], _inst.worldMat);
+		}
 	}
 	
 	// --------------------------------------------------
