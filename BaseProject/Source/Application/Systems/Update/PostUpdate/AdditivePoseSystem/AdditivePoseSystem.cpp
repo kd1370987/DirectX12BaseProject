@@ -166,15 +166,19 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				_addComp.currentAimQuat = _currentAim;
 
 				//==========================================================================
-				// Lag: 速度ではなく加速度で駆動する。
-				// 速度で駆動すると等速移動中ずっと手足が流れたままになり不自然になる。
+				// Lag: 進行方向の逆へ手足を流す。
+				//
+				// 駆動するのは加速度ではなく速度。
+				// 加速度で駆動すると、減速中(スティックを離した後)は加速度が進行方向と
+				// 逆を向くため、まだ同じ方向へ動いているのに流れる向きが反転してしまう。
+				// 速度で見れば「動いている方向の逆へ流れる」が常に成り立ち、
+				// 止まれば速度と一緒に自然と戻る。
 				//
 				// 慣性を持つ機体は InertiaComponent の実速度を見る。
 				// VelocityComponent は「目標速度」で、入力やブーストで 0 → 30 のように
-				// 1フレームで飛ぶため、加速度が dt 依存の巨大なスパイクになり、
-				// lagScale を何に設定しても毎回上限に張り付いてしまう。
-				// 実速度は慣性で滑らかに変化するので、歩き出しは小さく、
-				// ブーストは大きく、と加速の強さがそのまま角度に出る。
+				// 1フレームで飛ぶ値なので、そのまま使うと流れ始めが階段状になる。
+				// 実速度は慣性で滑らかに変化するので、歩き出しは浅く、
+				// ブーストは深く、と速さがそのまま角度に出る。
 				//==========================================================================
 				DXSM::Vector3 _velocity(_velComp.value);
 
@@ -186,23 +190,18 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 						_velocity = DXSM::Vector3(_pInertia->velocity);
 					}
 				}
-				DXSM::Vector3 _accWorld = {};
-				if (_addComp.isPrevVelocityValid)
-				{
-					_accWorld = (_velocity - DXSM::Vector3(_addComp.prevVelocity)) / a_ctx.dt;
-				}
-				_addComp.prevVelocity = _velocity;
-				_addComp.isPrevVelocityValid = true;
 
-				// ワールド加速度をモデル空間へ(x:右 y:上 z:前)
-				DXSM::Vector3 _accModel = DXSM::Vector3::Transform(_accWorld, _bodyConj);
+				// ワールド速度をモデル空間へ(x:右 y:上 z:前)
+				DXSM::Vector3 _velModel = DXSM::Vector3::Transform(_velocity, _bodyConj);
 
-				// 前方向の加速は X軸(右)まわり、横方向の加速は Z軸(前)まわりに倒す
+				// 前方向の速度は X軸(右)まわり、横方向の速度は Z軸(前)まわりに倒す。
+				// どちらも軸スケールが正のときに「進行方向の逆へ流れる」向きになる
+				// (下向きの手足に対して、+X 回転は後ろへ、+Z 回転は右へ振れるため符号が入れ替わる)
 				const float _lagLimit = DirectX::XMConvertToRadians(_addComp.lagLimitDeg);
 				DXSM::Vector3 _lagTarget = {};
-				_lagTarget.x = std::clamp(_accModel.z * _addComp.lagScale, -_lagLimit, _lagLimit);
+				_lagTarget.x = std::clamp(_velModel.z * _addComp.lagScale, -_lagLimit, _lagLimit);
 				_lagTarget.y = 0.0f;
-				_lagTarget.z = std::clamp(-_accModel.x * _addComp.lagScale, -_lagLimit, _lagLimit);
+				_lagTarget.z = std::clamp(-_velModel.x * _addComp.lagScale, -_lagLimit, _lagLimit);
 
 				// バネで追従させ、加速が止まったら自然に戻す
 				DXSM::Vector3 _lagAngle(_addComp.lagAngle);

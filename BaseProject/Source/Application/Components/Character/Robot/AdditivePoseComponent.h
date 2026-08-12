@@ -24,7 +24,7 @@ struct AdditivePoseComponent
 	float followRate	= 12.0f;	// 照準追従のSlerp速度
 	float lagStiffness	= 20.0f;	// 引っ張られのバネ定数
 	float lagDamping	= 8.0f;		// 引っ張られの減衰
-	float lagScale		= 0.02f;	// 加速度→角度の変換係数
+	float lagScale		= 0.02f;	// 速度→角度の変換係数(rad / (m/秒))
 	float lagLimitDeg	= 25.0f;	// 引っ張られの最大角
 	float lagArmScale	= 1.0f;		// LagArm チャンネルの倍率
 	float lagLegScale	= 0.7f;		// LagLeg チャンネルの倍率
@@ -36,8 +36,6 @@ struct AdditivePoseComponent
 	DirectX::XMFLOAT4 currentAimQuat	= { 0.0f, 0.0f, 0.0f, 1.0f };	// 現在の上半身回転(補間後)
 	DirectX::XMFLOAT3 lagAngle			= { 0.0f, 0.0f, 0.0f };			// バネの現在値(ラジアン)
 	DirectX::XMFLOAT3 lagVelocity		= { 0.0f, 0.0f, 0.0f };			// バネの速度
-	DirectX::XMFLOAT3 prevVelocity		= { 0.0f, 0.0f, 0.0f };			// 加速度算出用
-	bool			  isPrevVelocityValid = false;						// 初回フレームの加速度暴れ防止
 };
 
 template<>

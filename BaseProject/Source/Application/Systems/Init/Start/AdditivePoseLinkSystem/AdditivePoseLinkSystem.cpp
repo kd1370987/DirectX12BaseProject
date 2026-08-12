@@ -92,8 +92,6 @@ void AdditivePoseLinkSystem::Init(Engine::ECS::World& a_world)
 				_additiveComp.currentAimQuat = { 0.0f, 0.0f, 0.0f, 1.0f };
 				_additiveComp.lagAngle = {};
 				_additiveComp.lagVelocity = {};
-				_additiveComp.prevVelocity = {};
-				_additiveComp.isPrevVelocityValid = false;
 			}
 		}
 	);
