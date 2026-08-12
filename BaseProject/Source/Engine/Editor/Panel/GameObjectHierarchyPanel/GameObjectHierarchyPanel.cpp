@@ -5,6 +5,8 @@
 #include "../../../GameObject/BaseObject/BaseObject.h"
 #include "../../../GameObject/ObjectMetaRegistry/ObjectMetaRegistry.h"
 
+#include "../../Helper/EditorHelper.h"
+
 namespace Engine::Editor
 {
 	void GameObjectHierarchyPanel::OnDrawImGui(EditorContext& a_editContext)
@@ -41,6 +43,9 @@ namespace Engine::Editor
 			}
 			else
 			{
+				// 数が増えると探せなくなるのでクラス名で絞り込めるようにする
+				const std::string& _search = EditorHelper::DrawSearchBox();
+
 				// タイプインデックス順に並べて表示(map は順不同のため一旦ソート)
 				std::vector<GameObject::ObjectTypeID> _ids;
 				_ids.reserve(_allMeta.size());
@@ -50,6 +55,8 @@ namespace Engine::Editor
 				for (GameObject::ObjectTypeID _id : _ids)
 				{
 					const auto& _meta = _allMeta.at(_id);
+					if (!EditorHelper::IsMatchSearch(_search, _meta.name)) continue;
+
 					std::string _label = _meta.name + "##addobj" + std::to_string(_id);
 					if (ImGui::Selectable(_label.c_str()))
 					{
@@ -72,7 +79,13 @@ namespace Engine::Editor
 		ImGui::Text("ObjectNum : %d", static_cast<int>(_objects.size()));
 		ImGui::Separator();
 
+		// 名前でオブジェクトを探す。出しっぱなしの欄なので入力は消さない
+		const std::string& _search = EditorHelper::DrawSearchBox("##ObjectSearch", "Search object...", false);
+
+		ImGui::Separator();
+
 		// 選択中ポインタがまだ生きているか検証(破棄やシーン切り替えでダングリング化するのを防ぐ)
+		// 絞り込みで一覧から外れただけの相手を「消えた」と誤判定しないよう、検証は絞り込みの前に行う
 		bool _selectedStillAlive = false;
 
 		ImGui::BeginChild("GameObjectList");
@@ -85,7 +98,10 @@ namespace Engine::Editor
 				if (_pObj == a_editContext.pGameObject) _selectedStillAlive = true;
 
 				// ラベル : 表示名 + インデックスで一意化
-				std::string _label = _pObj->GetEditorName();
+				std::string _name = _pObj->GetEditorName();
+				if (!EditorHelper::IsMatchSearch(_search, _name)) continue;
+
+				std::string _label = _name;
 				_label += "##" + std::to_string(_i);
 
 				bool _isSelected = (a_editContext.pGameObject == _pObj);

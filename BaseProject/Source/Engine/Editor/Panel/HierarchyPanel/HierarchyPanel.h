@@ -27,7 +27,11 @@ namespace Engine::Editor
 		void InstantiatePrefab(EditorContext& a_editContext,ECS::World* a_pWorld, const Engine::GUID& a_guid);
 
 		// エンティティノードの描画
-		void DrawEntityNode(EditorContext& a_editContext,Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity);
+		// a_isDrawChildren = false のときは子をたどらない(検索中の平坦表示用)
+		void DrawEntityNode(EditorContext& a_editContext,Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity, bool a_isDrawChildren = true);
+
+		// 一覧に出す名前(NameComponent が無ければエンティティID)
+		std::string GetEntityLabel(Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity);
 
 		// ドラッグアンドドロップの制御
 		void HandleDragAndDrop(ECS::World* a_pWorld, const ECS::Entity& a_entity, const std::string& a_label);

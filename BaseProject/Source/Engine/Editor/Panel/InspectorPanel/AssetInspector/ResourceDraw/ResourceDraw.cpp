@@ -16,6 +16,7 @@
 // プレハブ編集用(ECSのエンティティインスペクタと同じ構成で描く)
 #include "Engine/ECS/World/World.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
+#include "Engine/Editor/Helper/EditorHelper.h"
 
 namespace Engine::Editor::Inspector
 {
@@ -275,10 +276,15 @@ namespace Engine::Editor::Inspector
 		// ---- コンポーネントの追加 ----
 		if (ImGui::BeginCombo("Add Component", "Select..."))
 		{
+			// 数が増えると探せなくなるので名前で絞り込めるようにする
+			const std::string& _search = EditorHelper::DrawSearchBox();
+
 			for (auto& [_compTypeID, _meta] : _pWorld->GetAllComponentMetaData())
 			{
 				// すでに持っていたら出さない
 				if (_sig.test(_compTypeID)) continue;
+
+				if (!EditorHelper::IsMatchSearch(_search, _meta.name)) continue;
 
 				if (ImGui::Selectable(_meta.name.c_str()))
 				{

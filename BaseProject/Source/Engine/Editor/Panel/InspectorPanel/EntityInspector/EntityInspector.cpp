@@ -5,6 +5,7 @@
 #include "../../../../Scene/SceneManager/SceneManager.h"
 
 #include "../../../../Resource/Manager/AssetDatabase/AssetDatabase.h"
+#include "../../../Helper/EditorHelper.h"
 
 #include "../../../../../Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../../Application/Components/Persistence/NameComponent.h"
@@ -26,11 +27,16 @@ namespace Engine::Editor::Inspector
 
 		if (ImGui::BeginCombo("Add Component", "Select..."))
 		{
+			// 数が増えると探せなくなるので名前で絞り込めるようにする
+			const std::string& _search = EditorHelper::DrawSearchBox();
+
 			const ECS::Signature& _sig = a_pWorld->GetSignature(_entity);
 			for (auto& [_typeID, _meta] : a_pWorld->GetAllComponentMetaData())
 			{
 				// 所持していたら表示しない
 				if (_sig.test(_typeID)) continue;
+
+				if (!EditorHelper::IsMatchSearch(_search, _meta.name)) continue;
 
 				// メタ情報から名前表示
 				if (ImGui::Selectable(_meta.name.c_str()))

@@ -16,6 +16,7 @@
 #include "../../../../Application/Components/Persistence/GUIDComponent.h"
 
 #include "../../EditorCamera/EditorCamera.h"
+#include "../../Helper/EditorHelper.h"
 
 namespace Engine::Editor
 {
@@ -83,8 +84,13 @@ namespace Engine::Editor
 				}
 				else
 				{
+					// 数が増えると探せなくなるので名前で絞り込めるようにする
+					const std::string& _search = EditorHelper::DrawSearchBox();
+
 					for (auto& _prop : _prefabList)
 					{
+						if (!EditorHelper::IsMatchSearch(_search, _prop.fileName)) continue;
+
 						if (ImGui::MenuItem(_prop.fileName.c_str()))
 						{
 							InstantiatePrefab(a_editContext,_pWorld, _prop.guid);
@@ -96,34 +102,49 @@ namespace Engine::Editor
 			}
 			ImGui::Separator();
 
+			// 名前でエンティティを探す。出しっぱなしの欄なので入力は消さない
+			const std::string& _search = EditorHelper::DrawSearchBox("##EntitySearch", "Search entity...", false);
+
+			ImGui::Separator();
+
 			// ループ中のコンポーネント追加/削除によるベクター破損を防ぐため、一度EntityIDのリストをコピーする
 			const auto& _entityLocationList = _pWorld->GetEntityList();
-			std::vector<Engine::ECS::Entity> _rootEntities;
-			_rootEntities.reserve(_entityLocationList.size());
+			std::vector<Engine::ECS::Entity> _drawEntities;
+			_drawEntities.reserve(_entityLocationList.size());
 
 			for (auto& _location : _entityLocationList)
 			{
 				Engine::ECS::Entity _entity = _pWorld->GetEntity(_location);
-				// 親を持っていないものをルートとして抽出
-				if (_entity != ECS::Limits::INVALID_ENTITY)
+				if (_entity == ECS::Limits::INVALID_ENTITY) continue;
+
+				// 検索中は親子をたどらず、名前が一致したものだけを平らに並べる。
+				// 一致した子だけを出したいのに、親をたどると出てこない/親ごと出てしまうため
+				if (!_search.empty())
 				{
-					// ヒエラルキーコンポーネントを持っているものは親がいるかチェック
-					if (_pWorld->HasComponent<HierarchyComponent>(_entity))
+					if (EditorHelper::IsMatchSearch(_search, GetEntityLabel(_pWorld, _entity)))
 					{
-						auto* _pHieComp = _pWorld->RefData<HierarchyComponent>(_entity);
-						if (_pHieComp->parentGUID != Engine::DefaultGUID)
-						{
-							continue;
-						}
+						_drawEntities.push_back(_entity);
 					}
-					_rootEntities.push_back(_entity);
+					continue;
 				}
+
+				// 親を持っていないものをルートとして抽出
+				// ヒエラルキーコンポーネントを持っているものは親がいるかチェック
+				if (_pWorld->HasComponent<HierarchyComponent>(_entity))
+				{
+					auto* _pHieComp = _pWorld->RefData<HierarchyComponent>(_entity);
+					if (_pHieComp->parentGUID != Engine::DefaultGUID)
+					{
+						continue;
+					}
+				}
+				_drawEntities.push_back(_entity);
 			}
 
 			// コピーした安全なリストで描画を回す
-			for (const auto& _entity : _rootEntities)
+			for (const auto& _entity : _drawEntities)
 			{
-				DrawEntityNode(a_editContext, _pWorld, _entity);
+				DrawEntityNode(a_editContext, _pWorld, _entity, _search.empty());
 			}
 		}
 		ImGui::EndChild();
@@ -204,7 +225,7 @@ namespace Engine::Editor
 		a_pWorld->AddEntityWithData(_sig,std::move(_data));
 	}
 
-	void Engine::Editor::HierarchyPanel::DrawEntityNode(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity)
+	void Engine::Editor::HierarchyPanel::DrawEntityNode(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity, bool a_isDrawChildren)
 	{
 		// エンティティチェック
 		if (a_entity == Engine::ECS::Limits::INVALID_ENTITY) return;
@@ -217,24 +238,19 @@ namespace Engine::Editor
 			_flags |= ImGuiTreeNodeFlags_Selected;
 		}
 
-		std::vector<ECS::Entity> _children = GetChildEntities(a_pWorld, a_entity);
+		// 検索中は一致したものを平らに並べるので、子はたどらない
+		std::vector<ECS::Entity> _children = {};
+		if (a_isDrawChildren)
+		{
+			_children = GetChildEntities(a_pWorld, a_entity);
+		}
 		if (_children.empty())
 		{
 			_flags |= ImGuiTreeNodeFlags_Leaf;
 		}
 
 		// ラベル作成
-		std::string _label = {};
-		if (a_pWorld->HasComponent<NameComponent>(a_entity))
-		{
-			auto* _nameComp = a_pWorld->RefData<NameComponent>(a_entity);
-			_label = _nameComp->name;
-		}
-		if (_label.empty() || (_label == ""))
-		{
-			_label = std::to_string(a_entity);
-		}
-
+		std::string _label = GetEntityLabel(a_pWorld, a_entity);
 
 		// ツリーノード表示
 		bool _isNodeOpen = ImGui::TreeNodeEx((void*)(intptr_t)a_entity, _flags, _label.c_str());
@@ -260,6 +276,21 @@ namespace Engine::Editor
 			// ツリーノード終了
 			ImGui::TreePop();
 		}
+	}
+
+	std::string Engine::Editor::HierarchyPanel::GetEntityLabel(Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity)
+	{
+		if (a_pWorld->HasComponent<NameComponent>(a_entity))
+		{
+			auto* _pNameComp = a_pWorld->RefData<NameComponent>(a_entity);
+			if (_pNameComp && _pNameComp->name[0] != '\0')
+			{
+				return _pNameComp->name;
+			}
+		}
+
+		// 名前を持っていないものはIDで見分ける
+		return std::to_string(a_entity);
 	}
 
 	void Engine::Editor::HierarchyPanel::HandleDragAndDrop(ECS::World* a_pWorld, const ECS::Entity& a_entity, const std::string& a_label)

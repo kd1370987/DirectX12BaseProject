@@ -25,6 +25,10 @@ namespace Engine::Editor
 		const auto* _pRGResourceManager = _pRenderGraph->GetRGResourceManager();
 		if (!_pRGResourceManager) { ImGui::End(); return; }
 
+		// 名前でリソースを探す。出しっぱなしの欄なので入力は消さない
+		const std::string& _search = EditorHelper::DrawSearchBox("##ResourceSearch", "Search resource...", false);
+		ImGui::Separator();
+
 		// スクロールバー付きの子ウィンドウ領域を作成
 		if (ImGui::BeginChild("ResourceViewScrollRegion", ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_AlwaysVerticalScrollbar))
 		{
@@ -33,6 +37,9 @@ namespace Engine::Editor
 			for (auto& _upTempTex : _pRGResourceManager->GetTempTextures())
 			{
 				if (!_upTempTex) continue;
+
+				if (!EditorHelper::IsMatchSearch(_search, _upTempTex->GetName())) continue;
+
 				// ノード
 				if (ImGui::TreeNodeEx(_upTempTex->GetName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 				{

@@ -8,6 +8,57 @@
 namespace Engine::Editor
 {
 	//======================================================================================
+	// 一覧を絞り込むための検索欄
+	//======================================================================================
+	const std::string& EditorHelper::DrawSearchBox(const char* a_lable, const char* a_hint, bool a_isAutoFocus)
+	{
+		// 入力は呼び出し位置(ImGuiのID)ごとに覚える。
+		// 呼ぶ側に文字列を持たせずに済ませるためで、
+		// アセット選択のように同じ関数を何十箇所からも呼ぶ欄でも入力が混ざらない
+		// (IDは窓とIDスタックを含むので、ラベルが同じでも別の欄なら別キーになる)。
+		static std::unordered_map<ImGuiID, std::string> s_searchMap;
+
+		std::string& _search = s_searchMap[ImGui::GetID(a_lable)];
+
+		// 開いた直後はそのまま打ち始められるようにする。
+		// 前回の入力が残っていると「何も出ない」ように見えるのでここで消す。
+		// 出しっぱなしのパネルでは邪魔なので、呼ぶ側が切れるようにしてある。
+		if (a_isAutoFocus && ImGui::IsWindowAppearing())
+		{
+			_search.clear();
+			ImGui::SetKeyboardFocusHere();
+		}
+
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::InputTextWithHint(a_lable, a_hint, &_search);
+
+		return _search;
+	}
+
+	//======================================================================================
+	// 検索文字列に引っかかるか
+	//======================================================================================
+	bool EditorHelper::IsMatchSearch(const std::string& a_search, const std::string& a_text)
+	{
+		// 未入力なら絞り込まない
+		if (a_search.empty()) return true;
+
+		// 大文字小文字を区別しない部分一致。
+		// 小文字化したコピーを作らずに済ませたいので std::search で比較器を差し替える
+		auto _isSameChar = [](char a_lhs, char a_rhs)
+		{
+			return
+				std::tolower(static_cast<unsigned char>(a_lhs)) ==
+				std::tolower(static_cast<unsigned char>(a_rhs));
+		};
+
+		return std::search(
+			a_text.begin(), a_text.end(),
+			a_search.begin(), a_search.end(),
+			_isSameChar) != a_text.end();
+	}
+
+	//======================================================================================
 	// アセットデータベースから1件選ばせるだけの土台
 	//======================================================================================
 	bool EditorHelper::DrawAssetGUIDCombo(
@@ -30,9 +81,14 @@ namespace Engine::Editor
 		// 選択UI
 		if (ImGui::BeginCombo(a_lable, "Select..."))
 		{
+			// 数が増えると探せなくなるので名前で絞り込めるようにする
+			const std::string& _search = DrawSearchBox();
+
 			const auto& _assetList = Resource::AssetDatabase::Instance().GetTypeMetaVec(a_assetTypeName);
 			for (const auto& _prop : _assetList)
 			{
+				if (!IsMatchSearch(_search, _prop.fileName)) continue;
+
 				bool _isSelected = (a_currentGUID == _prop.guid);
 
 				// 選択欄
@@ -43,7 +99,8 @@ namespace Engine::Editor
 				}
 
 				// コンボボックスを開いた際、現在の選択アイテムまで自動スクロールする
-				if (_isSelected)
+				// (絞り込み中は検索欄に入力しているので、そちらからフォーカスを奪わない)
+				if (_isSelected && _search.empty())
 				{
 					ImGui::SetItemDefaultFocus();
 				}
@@ -103,8 +160,13 @@ namespace Engine::Editor
 
 		if (ImGui::BeginCombo(a_lable, _currentNodeName.c_str()))
 		{
+			// ボーンは数が多いので名前で絞り込めるようにする
+			const std::string& _search = DrawSearchBox();
+
 			for (size_t _i = 0; _i < _nodes.size(); ++_i)
 			{
+				if (!IsMatchSearch(_search, _nodes[_i].name)) continue;
+
 				bool _isSelected = (a_inoutNodeIndex == _i);
 
 				if (ImGui::Selectable(_nodes[_i].name.c_str(), _isSelected))
@@ -114,7 +176,8 @@ namespace Engine::Editor
 					_isChanged = true;
 				}
 
-				if (_isSelected)
+				// 絞り込み中は検索欄からフォーカスを奪わない
+				if (_isSelected && _search.empty())
 				{
 					ImGui::SetItemDefaultFocus();
 				}
@@ -150,8 +213,13 @@ namespace Engine::Editor
 
 		if (ImGui::BeginCombo(a_lable, _currentNodeName.c_str()))
 		{
+			// ボーンは数が多いので名前で絞り込めるようにする
+			const std::string& _search = DrawSearchBox();
+
 			for (const auto& _node : _nodes)
 			{
+				if (!IsMatchSearch(_search, _node.name)) continue;
+
 				bool _isSelected = (a_inoutNodeName == _node.name);
 
 				if (ImGui::Selectable(_node.name.c_str(), _isSelected))
@@ -161,7 +229,8 @@ namespace Engine::Editor
 					_isChanged = true;
 				}
 
-				if (_isSelected)
+				// 絞り込み中は検索欄からフォーカスを奪わない
+				if (_isSelected && _search.empty())
 				{
 					ImGui::SetItemDefaultFocus();
 				}
@@ -200,10 +269,15 @@ namespace Engine::Editor
 
 			if (ImGui::BeginCombo(a_lable, _viewName.c_str()))
 			{
+				// 名前で絞り込めるようにする
+				const std::string& _search = EditorHelper::DrawSearchBox();
+
 				for (const auto& _ref : a_pModel->GetAnimationHandles())
 				{
 					const auto* _pAnim = Resource::ResourceManager::Instance().Get(_ref);
 					if (!_pAnim) continue;
+
+					if (!EditorHelper::IsMatchSearch(_search, _pAnim->name)) continue;
 
 					bool _isSelected = (_ref == a_currentHandle);
 
@@ -214,7 +288,8 @@ namespace Engine::Editor
 					}
 
 					// コンボボックスを開いた際、現在の選択アイテムまで自動スクロールする
-					if (_isSelected)
+					// (絞り込み中は検索欄からフォーカスを奪わない)
+					if (_isSelected && _search.empty())
 					{
 						ImGui::SetItemDefaultFocus();
 					}

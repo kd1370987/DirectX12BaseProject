@@ -9,6 +9,7 @@
 
 #include "../../../ECS/World/World.h"
 #include "../../EditorCamera/EditorCamera.h"
+#include "../../Helper/EditorHelper.h"
 #include "../../../../Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../Application/Components/Transform/WorldMatrixComponent.h"
 #include "../../../../Application/Components/Hierarchy/HierarchyComponent.h"
@@ -943,8 +944,13 @@ namespace Engine::Editor
 				ImGui::TextDisabled("Not find SceneAsset");
 			}
 
+			// 数が増えると探せなくなるので名前で絞り込めるようにする
+			const std::string& _search = EditorHelper::DrawSearchBox();
+
 			for (const auto& _sceneMeta : _sceneMetaVec)
 			{
+				if (!EditorHelper::IsMatchSearch(_search, _sceneMeta.fileName)) continue;
+
 				if (ImGui::Selectable(_sceneMeta.fileName.c_str(), m_currentSceneGUID == _sceneMeta.guid))
 				{
 					auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();

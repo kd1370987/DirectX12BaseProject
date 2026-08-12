@@ -1,5 +1,7 @@
 ﻿#include "AssetDataBasePanel.h"
 
+#include "../../Helper/EditorHelper.h"
+
 namespace Engine::Editor
 {
 	AssetDataBasePanel::AssetDataBasePanel()
@@ -80,6 +82,18 @@ namespace Engine::Editor
 	}
 	void AssetDataBasePanel::AssetDataBaseExplorer(EditorContext& a_editContext)
 	{
+		// ファイル名でアセットを探す。出しっぱなしの欄なので入力は消さない
+		const std::string& _search = EditorHelper::DrawSearchBox("##AssetSearch", "Search asset...", false);
+		ImGui::Separator();
+
+		// 表示対象のアセットか : タブの種別と検索文字列の両方を満たすもの
+		auto _isShowAsset = [&_search](const Resource::AssetProperty* a_pAsset, const std::string& a_filter)
+			{
+				if (!a_pAsset) return false;
+				if (a_filter != "All" && a_pAsset->type != a_filter) return false;
+				return EditorHelper::IsMatchSearch(_search, a_pAsset->fileName);
+			};
+
 		// 再帰的にツリーを描画する関数
 		auto _drawNodeFunc = [&]
 			(
@@ -87,17 +101,17 @@ namespace Engine::Editor
 				const Resource::AssetNode& a_node,
 				const std::string& a_tabName,
 				auto& a_self
-			) 
+			)
 			{
-				// 子ノードの中にこのタブのフィルターに一致するアセットが一つでもあるか確認
+				// 子ノードの中に表示対象のアセットが一つでもあるか確認
+				// (空のフォルダだけが並ぶのを防ぐ。絞り込み中は一致するものを持つ階層だけが残る)
 				auto _hasMatchingAsset = [&](
 					const Resource::AssetNode& a_node,
 					const std::string& a_filter,
 					auto& a_checkSelf
 					) -> bool
 					{
-						if (a_filter == "All") return true;
-						for (auto* a : a_node.assets) { if (a->type == a_filter) return true; }
+						for (auto* a : a_node.assets) { if (_isShowAsset(a, a_filter)) return true; }
 						for (auto& c : a_node.children) { if (a_checkSelf(c.second, a_filter, a_checkSelf)) return true; }
 						return false;
 					};
@@ -127,7 +141,8 @@ namespace Engine::Editor
 					for (auto* _asset : a_node.assets)
 					{
 						// Allタブ以外の場合、Typeが一致しないファイルを除外
-						if (a_tabName != "All" && _asset->type != a_tabName) { continue; }
+						// 検索中は名前が一致しないものも除外
+						if (!_isShowAsset(_asset, a_tabName)) { continue; }
 
 						bool _sel = (a_editContext.pAssetProp && a_editContext.pAssetProp->guid == _asset->guid);
 						if (ImGui::Selectable(_asset->fileName.c_str(), _sel))

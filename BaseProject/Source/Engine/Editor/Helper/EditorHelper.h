@@ -42,6 +42,37 @@ namespace Engine::Editor
 	{
 	public:
 		//--------------------------------------------------------------------------------------
+		// 検索
+		//--------------------------------------------------------------------------------------
+
+		/// <summary>
+		/// 一覧を絞り込むための検索欄
+		/// 入力は呼び出し位置(ImGuiのID)ごとに覚えるので、呼ぶ側は文字列を持たなくてよい。
+		/// コンボの中で使う場合は BeginCombo の直後に呼ぶこと。
+		/// </summary>
+		/// <param name="a_lable">検索欄のラベル(ImGuiのID兼用。同じ窓に複数置くなら変える)</param>
+		/// <param name="a_hint">未入力時に薄く出す文字</param>
+		/// <param name="a_isAutoFocus">
+		/// 開いた瞬間に入力を消してフォーカスを入れるか。
+		/// 開くたびに打ち直すコンボ・ポップアップでは true、
+		/// 出しっぱなしのパネル(入力を保ちたい / 勝手にフォーカスを奪われたくない)では false。
+		/// </param>
+		/// <returns>入力中の検索文字列(空なら絞り込みなし)</returns>
+		static const std::string& DrawSearchBox(
+			const char* a_lable = "##Search",
+			const char* a_hint = "Search...",
+			bool a_isAutoFocus = true
+		);
+
+		/// <summary>
+		/// 検索文字列に引っかかるか(大文字小文字を区別しない部分一致)
+		/// </summary>
+		/// <param name="a_search">DrawSearchBox が返した検索文字列</param>
+		/// <param name="a_text">候補の表示名</param>
+		/// <returns>表示してよければ true(検索文字列が空なら常に true)</returns>
+		static bool IsMatchSearch(const std::string& a_search, const std::string& a_text);
+
+		//--------------------------------------------------------------------------------------
 		// アセット選択
 		//--------------------------------------------------------------------------------------
 

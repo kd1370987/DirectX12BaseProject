@@ -3,6 +3,7 @@
 #include "../../../../../../MainEngine.h"
 #include "../../../../../../Graphics/GraphicEngine.h"
 #include "../../../../../../Graphics/RenderPassRegistry/RenderPassRegistry.h"
+#include "../../../../../Helper/EditorHelper.h"
 
 namespace Engine::Editor::Inspector
 {
@@ -116,10 +117,15 @@ namespace Engine::Editor::Inspector
 				ImGui::Text("Select Pixel Shader for %s", _passName.c_str());
 				ImGui::Separator();
 
+				// 数が増えると探せなくなるので名前で絞り込めるようにする
+				const std::string& _search = EditorHelper::DrawSearchBox();
+
 				for (const auto& _meta : _shaderMetaVec)
 				{
 					// PS以外は除去
 					if (_meta.fileName.find("PS") == std::string::npos) { continue; }
+
+					if (!EditorHelper::IsMatchSearch(_search, _meta.fileName)) { continue; }
 
 					// 既に登録されているものは選択させない
 					bool _isAlreadyAdded = false;
