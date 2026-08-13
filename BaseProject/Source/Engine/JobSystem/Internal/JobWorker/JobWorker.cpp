@@ -27,10 +27,6 @@ namespace Engine::Thread
 		m_jobQueue.Push(a_job);
 		m_condition.notify_one();
 	}
-	bool JobWorker::IsIdle() const
-	{
-		return !m_isWorking.load(std::memory_order_acquire) && !m_jobQueue.HasJob();
-	}
 	void Engine::Thread::JobWorker::Run()
 	{
 		while (m_isRunning)
@@ -58,9 +54,12 @@ namespace Engine::Thread
 	}
 	void JobWorker::Execute(std::function<void()>& a_job)
 	{
-		m_isWorking = true;
 		a_job();
-		m_isWorking = false;
+
+		// 実行し終えたので未完了数を減らす。
+		// これを通さないと WaitForAll() 側が永久に待ち続けるため、
+		// どの経路で取得したジョブでも必ずここを通すこと
+		m_pContext->FinishPendingJob();
 	}
 	bool JobWorker::TrySteal(std::function<void()>& a_outJob)
 	{

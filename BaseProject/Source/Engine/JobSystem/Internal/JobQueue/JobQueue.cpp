@@ -26,6 +26,6 @@ namespace Engine::Thread
 		a_outJob = std::move(m_jobs.front());
 		m_jobs.pop_front();
 
-		return false;
+		return true;
 	}
 }

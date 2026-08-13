@@ -44,6 +44,10 @@ namespace Engine::Thread
 
 	void Engine::Thread::JobSystem::PushJob(std::function<void()>&& a_job)
 	{
+		// キューへ積む前にカウンタを増やす。
+		// 積んでから増やすと、走り出したワーカーが増える前のカウンタを減らしてしまう
+		m_upJobContext->AddPendingJob();
+
 		auto& _worker = m_jobWorkers[m_nextWorker];
 		_worker->PushJob(std::move(a_job));
 
@@ -54,18 +58,8 @@ namespace Engine::Thread
 
 	void Engine::Thread::JobSystem::WaitForAll()
 	{
-		std::unique_lock _lock(m_jobFinishedMutex);
+		if (!m_upJobContext) return;
 
-		m_jobFinishedCondition.wait(
-			_lock,
-			[this]()
-			{
-				for (auto& _worker : m_jobWorkers)
-				{
-					if (!_worker->IsIdle()) return false;
-				}
-				return true;
-			}
-		);
+		m_upJobContext->WaitForAllJobs();
 	}
 }

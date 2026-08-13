@@ -117,7 +117,6 @@ namespace Engine::Graphics
 					// (プール容量から求めるのは無駄打ちなうえ、切り捨てで足りなくなる)
 					UINT _dispatchNum = (_cbEmit.requestCount + 31u) / 32u;
 					a_pCtx->Dispatch(_dispatchNum, 1, 1);
-					ENGINE_LOG("ParticleEmitPass : 実行 命令数=%u", _cbEmit.requestCount);
 
 					// ★UAVバリア必須。
 					// このあとの UpdateParticlePass は同じ deadList / counter を触る。

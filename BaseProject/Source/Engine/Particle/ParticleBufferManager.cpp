@@ -73,7 +73,6 @@ namespace Engine::Particle
 		{
 			// すでに読み込まれたことのあるパーティクルなら
 			_it->second.push_back(a_emitterData);
-			ENGINE_LOG("パーティクルが登録されました : %d", a_emitterData.emitCount);
 		}
 		else
 		{

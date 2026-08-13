@@ -29,14 +29,13 @@ namespace Engine::Thread
 
 		// 実際に動いているワーカースレッド
 		std::vector<std::unique_ptr<JobWorker>> m_jobWorkers = {};
+
+		// ワーカーとの共有データ : 完了待ちのカウンタもここが持つ。
+		// ワーカーが動いている間ずっと参照されるので、必ず全スレッドを止めてから破棄すること
 		std::unique_ptr<JobContext> m_upJobContext = nullptr;
 
 		// Jobの割り当て先
 		uint32_t m_nextWorker = 0;
-
-		// Job完了通知
-		std::condition_variable m_jobFinishedCondition;
-		std::mutex m_jobFinishedMutex;
 
 		std::atomic<bool> m_isRunning = false;
 

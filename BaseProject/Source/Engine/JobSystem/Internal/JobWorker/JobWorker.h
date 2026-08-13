@@ -19,7 +19,6 @@ namespace Engine::Thread
 		uint32_t GetID() const { return m_workerID; }
 		JobQueue& RefQueue() { return m_jobQueue; }
 		bool IsRunning() const { return m_isRunning; }
-		bool IsIdle() const;
 
 	private:
 
@@ -40,7 +39,6 @@ namespace Engine::Thread
 
 		JobContext* m_pContext;								// ジョブシステム側との共通データ
 
-		std::atomic<bool> m_isWorking = false;				// 現在タスクの処理中かどうか
 		std::atomic<bool> m_isRunning = false;				// 処理を終了させるか否か
 
 		std::condition_variable m_condition;				// スレッドで待機するための条件変数

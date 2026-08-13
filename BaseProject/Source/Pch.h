@@ -10,8 +10,10 @@
 #include <cinttypes>
 #include <cmath>
 #include <concepts>
+#include <condition_variable>
 #include <cstdint>
 #include <cstring>
+#include <deque>
 #include <filesystem>
 #include <fstream>
 #include <functional>
