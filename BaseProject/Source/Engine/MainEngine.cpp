@@ -28,6 +28,7 @@
 
 #include "Input/InputManager/InputManager.h"
 
+#include "JobSystem/JobSystem.h"
 
 namespace Engine
 {
@@ -114,6 +115,10 @@ namespace Engine
 		auto* _pDev = D3D12::D3D12Wrapper::Instance().GetDevice();
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
 
+		// ジョブシステム起動
+		m_upJobSystem = std::make_unique<Thread::JobSystem>();
+		m_upJobSystem->Init(8);
+
 		// オーディオエンジンの初期化
 		Audio::AudioManager::Instance().Init();
 
@@ -163,6 +168,18 @@ namespace Engine
 		// ダイレクトキューの実行
 		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
 
+		m_upJobSystem->PushJob(
+			[]() 
+			{
+				int _test = 0;
+				for (int _i = 0; _i < 10000; ++_i)
+				{
+					_test++;
+				}
+				ENGINE_LOG("テストジョブ");
+			}
+		);
+
 	}
 
 	void MainEngine::Release()
@@ -205,6 +222,9 @@ namespace Engine
 		// レイトレワールド(TLAS/BLAS・各種バッファ)の解放。
 		// シングルトンが握っていて自動破棄されないため明示的に解放する。
 		Raytracing::RayEngine::Instance().Release();
+
+		// ジョブシステムの解放
+		m_upJobSystem->Release();
 
 		// パイプラインステート・ルートシグネチャの解放
 		m_upPipelineStateManager->Release();

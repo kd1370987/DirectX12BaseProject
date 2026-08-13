@@ -34,6 +34,11 @@ namespace Engine
 		class CollisionWorld;
 	}
 
+	namespace Thread
+	{
+		class JobSystem;
+	}
+
 	// エンジンクラス
 	class MainEngine
 	{
@@ -107,6 +112,7 @@ namespace Engine
 		std::unique_ptr<D3D12::PipelineStateManager> m_upPipelineStateManager = nullptr;// パイプラインステート管理
 		std::unique_ptr<Collision::CollisionWorld> m_upCollisionWorld = nullptr;		// 当たり判定用ワールド
 		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;	// パーティクルマネージャー
+		std::unique_ptr<Thread::JobSystem> m_upJobSystem = nullptr;						// ジョブシステム
 		// エンジン設定
 		EAppMode m_appMode = EAppMode::Editor;								// アプリケーションのモード
 		EBuildConfiguration m_buildMode = EBuildConfiguration::Debug;		// ビルドモード

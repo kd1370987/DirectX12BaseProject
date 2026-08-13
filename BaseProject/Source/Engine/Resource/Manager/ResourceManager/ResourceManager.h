@@ -13,11 +13,37 @@
 
 namespace Engine::Resource
 {
+	//==========================================================================================
+	// リソース1件の状態
+	//
+	// スロット(プールの添え字)ごとに1つ持つ。今はロードが同期なので
+	// 「登録された時点で Ready」になり、Loading は素通りする。
+	//
+	// ロードを別スレッドへ移したときは、
+	//   1) メインスレッドが空のリソースを Loading で登録してハンドルを返す
+	//   2) ワーカーが中身をビルドする
+	//   3) 終わったら SetState で Ready / Failed を通知する
+	// という流れになる。使う側は IsReady() を見てから触ること。
+	// スイープ(GC)は Loading のスロットを触らないので、
+	// 参照カウントが立つ前にビルド先を引き抜かれることはない。
+	//
+	// ※ 状態そのものは素の enum 配列なので、実際にワーカーから書き換えるときは
+	//    アトミック化かロックが別途必要になる。
+	//==========================================================================================
+	enum class EResourceState
+	{
+		Empty,			// リソースが空
+		Loading,		// 読込中
+		Ready,			// 使用可能
+		Failed			// 読込失敗,使用不可
+	};
+
 	template<typename T>
 	struct ResourceData
 	{
-		Pool::ItemPool<T>							pool;					// モデル
+		Pool::ItemPool<T>							pool;					// リソース
 		std::unordered_map<Engine::GUID, Handle<T>> cache = {};				// GUID to Handle
+		std::vector<EResourceState>					resourceStates = {};	// リソースの状態
 		std::vector<uint16_t>						manualRefCounts = {};	// ECS外の処理カウント
 		std::vector<uint16_t>						ecsRefCounts = {};		// ECS走査時のカウント
 	};
@@ -81,6 +107,39 @@ namespace Engine::Resource
 		const T* Access(const ResourceRef<T>& a_handle);
 		template<typename T>
 		const T* Access(const uint16_t& a_index);
+
+		//------------------------------------------------------------------------------------------
+		// リソースの状態
+		//------------------------------------------------------------------------------------------
+
+		/// <summary>
+		/// ハンドルが指すリソースの状態を取得する
+		/// 無効ハンドル(未登録・世代違い)は Empty を返す
+		/// </summary>
+		template<typename T>
+		EResourceState GetState(const Handle<T>& a_handle);
+
+		/// <summary>
+		/// GUIDからリソースの状態を取得する : まだ読んでいないものは Empty
+		/// </summary>
+		template<typename T>
+		EResourceState GetState(const Engine::GUID& a_guid);
+
+		/// <summary>
+		/// 状態を書き換える
+		/// ロード側が Loading -> Ready / Failed を通知するのに使う
+		/// </summary>
+		template<typename T>
+		void SetState(const Handle<T>& a_handle, EResourceState a_state);
+
+		/// <summary>
+		/// 使用可能か : ハンドルが有効で、かつ読み込みが終わっているか
+		/// 中身を触る前にこれを見ること(読込中/失敗のリソースを掴まないため)
+		/// </summary>
+		template<typename T>
+		bool IsReady(const Handle<T>& a_handle);
+		template<typename T>
+		bool IsReady(const ResourceRef<T>& a_ref);
 
 		// リソースの解放
 		template<typename T>
@@ -153,6 +212,16 @@ namespace Engine::Resource
 			return _alive;
 		}
 
+		/// <summary>
+		/// スロットに紐づく配列(状態・参照カウント)を、指定の添え字まで伸ばす
+		///
+		/// 3本とも同じ添え字で引くので、伸ばすときは必ずまとめて伸ばす。
+		/// 片方だけ伸ばしていると、参照されないまま登録されたリソースを
+		/// スイープが見に行ったときに範囲外を読む
+		/// </summary>
+		template<typename T>
+		void EnsureSlot(uint16_t a_index);
+
 		// キャッシュ追加
 		template<typename T>
 		void RegisterCache(const Handle<T>& a_handle, const Engine::GUID& a_guid);
@@ -198,6 +267,7 @@ namespace Engine::Resource
 
 		ResourceManager();
 		~ResourceManager();
+		NON_COPYABLE_NON_MOVABLE(ResourceManager);
 
 	public:
 		static ResourceManager& Instance()
@@ -229,38 +299,58 @@ namespace Engine::Resource
 
 		T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath, a_pBuildContext);	// リソースのビルド
 
-		// プールに登録してハンドルを発行
-		return ResourceRef<T>(AddResourceAndGUID(std::move(_resourceData), a_guid));
+		// プールに登録してハンドルを発行(この時点で Ready になる)
+		auto _newHandle = AddResourceAndGUID(std::move(_resourceData), a_guid);
+
+		// パスを引けなかった場合、ビルドされたのは空のリソース。
+		// 実体は登録したまま使用不可の印だけ付けておく
+		// (毎フレーム読み直しに行かないよう、キャッシュには残す)
+		if (_filePath.empty())
+		{
+			ENGINE_WARNING("[Resource] パスを解決できませんでした : %s", a_guid.String().c_str());
+			SetState(_newHandle, EResourceState::Failed);
+		}
+
+		return ResourceRef<T>(_newHandle);
 	}
 	// リソースの追加
 	template<typename T>
 	inline ResourceRef<T> ResourceManager::Add(T&& a_resource)
 	{
-		return ResourceRef<T>(RefPool<T>().Add(std::move(a_resource)));
+		auto _handle = RefPool<T>().Add(std::move(a_resource));
+
+		// 出来上がったものを渡されているので、登録した時点で使用可能
+		EnsureSlot<T>(_handle.GetIndex());
+		RefData<T>().resourceStates[_handle.GetIndex()] = EResourceState::Ready;
+
+		return ResourceRef<T>(_handle);
 	}
 	template<typename T>
 	inline void ResourceManager::AddRef(const Handle<T>& a_handle)
 	{
-		auto& _data = RefData<T>();
-		uint16_t _idx = a_handle.GetIndex();
-		if (_data.manualRefCounts.size() <= _idx)
-		{
-			_data.manualRefCounts.resize(_idx + 1, 0);
-			_data.ecsRefCounts.resize(_idx + 1, 0);
-		}
-		_data.manualRefCounts[_idx]++;
+		EnsureSlot<T>(a_handle.GetIndex());
+		RefData<T>().manualRefCounts[a_handle.GetIndex()]++;
 	}
 	template<typename T>
 	inline Handle<T> ResourceManager::AddResourceAndGUID(T&& a_resource, const Engine::GUID& a_guid)
 	{
 		auto _handle = RefPool<T>().Add(std::move(a_resource));
 		RegisterCache<T>(_handle, a_guid); // キャッシュにも登録
+
+		// 出来上がったものを渡されているので、登録した時点で使用可能
+		EnsureSlot<T>(_handle.GetIndex());
+		RefData<T>().resourceStates[_handle.GetIndex()] = EResourceState::Ready;
+
 		return _handle;                    // ハンドルを返す
 	}
 	template<typename T>
 	inline void ResourceManager::Remove(const Handle<T>& a_handle)
 	{
-		return RefPool<T>().Remove(a_handle);
+		// スロットが空くので状態も戻す。
+		// 同じ添え字が別のリソースに再利用されたときに、前の状態を引き継がないため
+		SetState(a_handle, EResourceState::Empty);
+
+		RefPool<T>().Remove(a_handle);
 	}
 	template<typename T>
 	inline void ResourceManager::ReleaseRef(const Handle<T>& a_handle)
@@ -318,10 +408,21 @@ namespace Engine::Resource
 	{
 		auto& _data = RefData<T>();
 		size_t _poolSize = _data.pool.GetAll().size();
+
+		// 参照カウントも状態もスロット単位なので、プールの大きさまで揃えてから回す
+		if (_poolSize > 0)
+		{
+			EnsureSlot<T>(static_cast<uint16_t>(_poolSize - 1));
+		}
+
 		for (uint16_t _i = 0; _i < _poolSize; ++_i)
 		{
 			// 存在チェック
 			if (_data.pool.Access(_i) == nullptr) continue;
+
+			// 読込中のスロットは参照カウントが立つ前なので、
+			// ここで消すとビルド中の書き込み先を引き抜いてしまう
+			if (_data.resourceStates[_i] == EResourceState::Loading) continue;
 
 			uint16_t _refCount = _data.manualRefCounts[_i];
 			uint16_t _ecsRefCount = _data.ecsRefCounts[_i];
@@ -349,6 +450,9 @@ namespace Engine::Resource
 					// プールの Remove を呼んで実体とキューを安全に解放
 					_data.pool.Ref(_targetHandle)->Release();
 					_data.pool.Remove(_targetHandle);
+
+					// 空いたスロットとして状態を戻す
+					_data.resourceStates[_i] = EResourceState::Empty;
 				}
 			}
 		}
@@ -360,8 +464,74 @@ namespace Engine::Resource
 		auto& _data = RefData<T>();
 		_data.pool.Release();
 		_data.cache.clear();
+		_data.resourceStates.clear();
 		_data.manualRefCounts.clear();
 		_data.ecsRefCounts.clear();
+	}
+
+	//==========================================================================================
+	// リソースの状態
+	//==========================================================================================
+	template<typename T>
+	inline EResourceState ResourceManager::GetState(const Handle<T>& a_handle)
+	{
+		// 未登録・世代違いのハンドルは状態を持たない扱い
+		if (!IsValid(a_handle)) return EResourceState::Empty;
+
+		const auto& _states = GetData<T>().resourceStates;
+
+		uint16_t _idx = a_handle.GetIndex();
+		if (_states.size() <= _idx) return EResourceState::Empty;
+
+		return _states[_idx];
+	}
+
+	template<typename T>
+	inline EResourceState ResourceManager::GetState(const Engine::GUID& a_guid)
+	{
+		return GetState<T>(GetCache<T>(a_guid));
+	}
+
+	template<typename T>
+	inline void ResourceManager::SetState(const Handle<T>& a_handle, EResourceState a_state)
+	{
+		if (!IsValid(a_handle)) return;
+
+		EnsureSlot<T>(a_handle.GetIndex());
+		RefData<T>().resourceStates[a_handle.GetIndex()] = a_state;
+	}
+
+	template<typename T>
+	inline bool ResourceManager::IsReady(const Handle<T>& a_handle)
+	{
+		return GetState<T>(a_handle) == EResourceState::Ready;
+	}
+
+	template<typename T>
+	inline bool ResourceManager::IsReady(const ResourceRef<T>& a_ref)
+	{
+		return IsReady<T>(a_ref.GetRaw());
+	}
+
+	// スロットに紐づく配列をまとめて伸ばす
+	template<typename T>
+	inline void ResourceManager::EnsureSlot(uint16_t a_index)
+	{
+		auto& _data = RefData<T>();
+		const size_t _needSize = static_cast<size_t>(a_index) + 1;
+
+		if (_data.resourceStates.size() < _needSize)
+		{
+			_data.resourceStates.resize(_needSize, EResourceState::Empty);
+		}
+		if (_data.manualRefCounts.size() < _needSize)
+		{
+			_data.manualRefCounts.resize(_needSize, 0);
+		}
+		if (_data.ecsRefCounts.size() < _needSize)
+		{
+			_data.ecsRefCounts.resize(_needSize, 0);
+		}
 	}
 
 	// プールの取得
@@ -459,12 +629,9 @@ namespace Engine::Resource
 	inline void ResourceManager::AddEcsRef(const Handle<T>& a_handle)
 	{
 		if (!IsValid(a_handle)) return;
-		auto& _ecsCounts = RefData<T>().ecsRefCounts;
-		uint16_t _idx = a_handle.GetIndex();
-		if (_ecsCounts.size() <= _idx) {
-			_ecsCounts.resize(_idx + 1, 0);
-		}
-		_ecsCounts[_idx]++;
+
+		EnsureSlot<T>(a_handle.GetIndex());
+		RefData<T>().ecsRefCounts[a_handle.GetIndex()]++;
 	}
 
 	// 型ごとにキャッシュに登録
