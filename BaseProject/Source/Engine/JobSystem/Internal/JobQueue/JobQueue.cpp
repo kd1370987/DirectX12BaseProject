@@ -4,7 +4,7 @@ namespace Engine::Thread
 	void Engine::Thread::JobQueue::Push(std::function<void()> a_job)
 	{
 		std::lock_guard _lock(m_mutex);
-		m_jobs.push_back(a_job);
+		m_jobs.push_back(std::move(a_job));
 	}
 	bool JobQueue::TryPop(std::function<void()>&a_outJob)
 	{

@@ -44,16 +44,27 @@ namespace Engine::Thread
 
 	void Engine::Thread::JobSystem::PushJob(std::function<void()>&& a_job)
 	{
+		// 積む先がないとカウンタだけ増えて WaitForAll() が返らなくなるため、
+		// 未初期化ならカウンタを触らずに弾く
+		if (m_jobWorkers.empty())
+		{
+			ENGINE_WARNING("[JobSystem] 初期化前にPushJobが呼ばれました");
+			return;
+		}
+
 		// キューへ積む前にカウンタを増やす。
 		// 積んでから増やすと、走り出したワーカーが増える前のカウンタを減らしてしまう
 		m_upJobContext->AddPendingJob();
 
-		auto& _worker = m_jobWorkers[m_nextWorker];
-		_worker->PushJob(std::move(a_job));
+		// 割り当て先の決定。
+		// ジョブの中からジョブを積むとここが複数スレッドから同時に走るため、
+		// 「加算」と「読み出し」を分けると割り込まれて範囲外の添え字を引く。
+		// fetch_add で取った値をそのまま自分の取り分として使う
+		const uint32_t _workerIndex =
+			m_nextWorker.fetch_add(1, std::memory_order_relaxed)
+			% static_cast<uint32_t>(m_jobWorkers.size());
 
-		// 次の割り振りを決める
-		++m_nextWorker;
-		if (m_nextWorker >= m_jobWorkers.size()) m_nextWorker = 0;
+		m_jobWorkers[_workerIndex]->PushJob(std::move(a_job));
 	}
 
 	void Engine::Thread::JobSystem::WaitForAll()

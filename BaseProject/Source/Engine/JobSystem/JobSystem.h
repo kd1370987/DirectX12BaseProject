@@ -35,7 +35,9 @@ namespace Engine::Thread
 		std::unique_ptr<JobContext> m_upJobContext = nullptr;
 
 		// Jobの割り当て先
-		uint32_t m_nextWorker = 0;
+		// ジョブの中からジョブを積む(モデル -> メッシュ/テクスチャ)経路があるため、
+		// メインスレッド以外からも進められる。必ずアトミックに回すこと
+		std::atomic<uint32_t> m_nextWorker = 0;
 
 		std::atomic<bool> m_isRunning = false;
 

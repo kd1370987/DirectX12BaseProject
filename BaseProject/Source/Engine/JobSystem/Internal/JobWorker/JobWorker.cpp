@@ -14,8 +14,17 @@ namespace Engine::Thread
 	}
 	void JobWorker::Stop()
 	{
-		m_isRunning = false;
+		// 停止フラグは WaitForJob() の述語が見る値なので、
+		// 必ず待機側と同じミューテックスの下で書き換える。
+		// ロックを取らずに書き換えて通知すると、
+		// 「述語が false と判定された直後・眠りにつく前」に通知がすれ違い、
+		// 二度と起きずに join() が返らなくなる(lost wakeup)
+		{
+			std::lock_guard _lock(m_mutex);
+			m_isRunning = false;
+		}
 		m_condition.notify_one();
+
 		if (m_thread.joinable())
 		{
 			m_thread.join(); // このスレッドが来るまで、現在のスレッドを待つ
@@ -24,7 +33,14 @@ namespace Engine::Thread
 	}
 	void JobWorker::PushJob(std::function<void()>&& a_job)
 	{
-		m_jobQueue.Push(a_job);
+		m_jobQueue.Push(std::move(a_job));
+
+		// キューの中身も述語が見る値。
+		// キュー自身のロックとは別物なので、通知の前に待機側のミューテックスを
+		// 一度通しておかないと Stop() と同じすれ違いでジョブが放置される
+		{
+			std::lock_guard _lock(m_mutex);
+		}
 		m_condition.notify_one();
 	}
 	void Engine::Thread::JobWorker::Run()
