@@ -24,7 +24,9 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <queue>
+#include <shared_mutex>
 #include <random>
 #include <span>
 #include <sstream>

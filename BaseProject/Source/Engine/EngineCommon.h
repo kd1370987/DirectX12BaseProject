@@ -31,6 +31,7 @@
 // ---- プール ----
 #include "Utility/Pool/HandlePool/HandlePool.h"			// ハンドル管理ストレージ
 #include "Utility/Pool/ItemPool/ItemPool.h"				// 実体管理ストレージ
+#include "Utility/Pool/ItemPool/AtomicItemPool.h"		// 実体管理ストレージ(スレッドセーフ版)
 #include "Utility/Pool/RangePool/RangePool.h"			// レンジ管理ストレージ
 #include "Utility/Pool/RangeAllocator/RangeAllocator.h"	// レンジ管理
 

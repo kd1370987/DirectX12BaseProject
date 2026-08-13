@@ -952,6 +952,7 @@
     <ClInclude Include="Source\Engine\Utility\Math\Quaternion.h" />
     <ClInclude Include="Source\Engine\Utility\Math\Random.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\HandlePool\HandlePool.h" />
+    <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\AtomicItemPool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\RangePool\RangePool.h" />
     <ClInclude Include="Source\Engine\Utility\String\String.h" />
