@@ -6,9 +6,16 @@ namespace Engine::Thread
 	//==========================================================================================
 	// ジョブシステムとワーカースレッドの共有データ
 	//
-	// 完了待ちは「各キューが空か」ではなく未完了ジョブ数で数える。
-	// キューの中身だけを見ると、ワーカーがジョブを取り出した後・実行を始める前の隙間で
-	// 「どこにも仕事がない」状態に見えてしまい、待機側が素通りしてしまうため。
+	// ジョブの件数を2種類のカウンタで持つ。
+	//
+	//   pendingJobCount : 投入されてから実行し終わるまで (キュー待ち + 実行中)
+	//                     -> WaitForAll() の判定に使う
+	//   queuedJobCount  : 投入されてからワーカーに取り出されるまで (キュー待ちのみ)
+	//                     -> 寝ているワーカーを起こすかどうかの判定に使う
+	//
+	// 完了待ちを「各キューが空か」で見ないのは、
+	// ワーカーがジョブを取り出した後・実行を始める前の隙間で
+	// 「どこにも仕事がない」状態に見えてしまい、待機側が素通りするため。
 	//
 	// カウンタは投入側(PushJob)で増やし、実行し終えたワーカーが減らす。
 	// ジョブの中からさらにジョブを積む場合も、親が減らす前に子が増えるので
@@ -23,6 +30,15 @@ namespace Engine::Thread
 		std::condition_variable	finishedCondition;		// 全ジョブ完了の通知
 		std::mutex				finishedMutex;
 
+		// ---- ジョブ待ち ----
+		// ワーカーは全員この1つの条件変数で待つ。
+		// ワーカーごとに条件変数を持って自分のキューだけを見ていると、
+		// 他のワーカーに仕事が溜まっていても寝たままになり、
+		// ワークスティールが「たまたま起きていたとき」しか働かない
+		std::atomic<uint32_t>	queuedJobCount = 0;		// まだ誰にも取り出されていないジョブ数
+		std::condition_variable	jobAvailableCondition;	// 仕事が来たことの通知
+		std::mutex				jobAvailableMutex;
+
 		/// <summary>
 		/// ジョブの投入を通知する
 		/// 実際にキューへ積む前に呼ぶこと。
@@ -31,6 +47,16 @@ namespace Engine::Thread
 		void AddPendingJob()
 		{
 			pendingJobCount.fetch_add(1, std::memory_order_relaxed);
+			queuedJobCount.fetch_add(1, std::memory_order_release);
+		}
+
+		/// <summary>
+		/// ワーカーがキューから取り出したときに呼ぶ
+		/// 「待っている仕事」ではなくなるので、起こす判断からは外れる
+		/// </summary>
+		void OnJobDequeued()
+		{
+			queuedJobCount.fetch_sub(1, std::memory_order_acq_rel);
 		}
 
 		/// <summary>
@@ -65,6 +91,31 @@ namespace Engine::Thread
 					return pendingJobCount.load(std::memory_order_acquire) == 0;
 				}
 			);
+		}
+
+		/// <summary>
+		/// 仕事が入ったことを知らせて、寝ているワーカーを1つ起こす
+		/// キューへ積み終わってから呼ぶこと
+		/// </summary>
+		void NotifyJobAvailable()
+		{
+			// 起こし損ねを防ぐため、待機側と同じミューテックスを一度通してから通知する
+			{
+				std::lock_guard _lock(jobAvailableMutex);
+			}
+			jobAvailableCondition.notify_one();
+		}
+
+		/// <summary>
+		/// 全ワーカーを起こす : 停止を伝えるときに使う
+		/// どのスレッドが寝ているか特定できないため、まとめて起こす
+		/// </summary>
+		void NotifyAllWorkers()
+		{
+			{
+				std::lock_guard _lock(jobAvailableMutex);
+			}
+			jobAvailableCondition.notify_all();
 		}
 	};
 }

@@ -23,16 +23,22 @@ namespace Engine::Thread
 		// 処理の終了待ち : 全処理が終わるまで待機
 		void WaitForAll();
 
+		// アクセサ
+		// 起動しているワーカー数 : 処理をチャンクに分ける粒度を決めるのに使う
+		uint32_t GetWorkerCount() const { return m_workerCount; }
+		bool IsRunning() const { return m_isRunning.load(std::memory_order_acquire); }
+
 	private:
 
 		uint32_t m_workerCount = 0;
 
+		// ワーカーとの共有データ : 完了待ちのカウンタもここが持つ。
+		// ワーカーが動いている間ずっと参照されるので、
+		// ワーカーより先に宣言して「ワーカーが片付いた後に壊れる」ようにしておく
+		std::unique_ptr<JobContext> m_upJobContext = nullptr;
+
 		// 実際に動いているワーカースレッド
 		std::vector<std::unique_ptr<JobWorker>> m_jobWorkers = {};
-
-		// ワーカーとの共有データ : 完了待ちのカウンタもここが持つ。
-		// ワーカーが動いている間ずっと参照されるので、必ず全スレッドを止めてから破棄すること
-		std::unique_ptr<JobContext> m_upJobContext = nullptr;
 
 		// Jobの割り当て先
 		// ジョブの中からジョブを積む(モデル -> メッシュ/テクスチャ)経路があるため、

@@ -10,15 +10,22 @@ namespace Engine::Thread
 	public:
 
 
-		void Start(JobContext* a_pJobContext);			// タスクの処理開始
-		void Stop();									// タスク処理の終了
-		
+		void Start(JobContext* a_pJobContext, uint32_t a_workerID);	// タスクの処理開始
+
+		// 停止要求 : スレッドの終了は待たない。
+		// 停止は「全ワーカーへ要求」->「全ワーカーをJoin」の2段で行うこと。
+		// 1つずつ 要求->Join とすると、止めたワーカーのキューに残った仕事を
+		// ほかのワーカーが引き取れないまま捨てることになる
+		void RequestStop();
+
+		void Join();									// スレッドの終了待ち
+
 		void PushJob(std::function<void()>&& a_job);
 
 		// アクセサ
 		uint32_t GetID() const { return m_workerID; }
 		JobQueue& RefQueue() { return m_jobQueue; }
-		bool IsRunning() const { return m_isRunning; }
+		bool IsRunning() const { return m_isRunning.load(std::memory_order_acquire); }
 
 	private:
 
@@ -37,11 +44,8 @@ namespace Engine::Thread
 		std::thread m_thread;								// 自身のOSスレッド
 		JobQueue m_jobQueue;								// 自身が抱えるタスクキュー
 
-		JobContext* m_pContext;								// ジョブシステム側との共通データ
+		JobContext* m_pContext = nullptr;					// ジョブシステム側との共通データ
 
 		std::atomic<bool> m_isRunning = false;				// 処理を終了させるか否か
-
-		std::condition_variable m_condition;				// スレッドで待機するための条件変数
-		std::mutex m_mutex;
 	};
 }
