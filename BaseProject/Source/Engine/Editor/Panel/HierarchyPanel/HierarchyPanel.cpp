@@ -191,7 +191,7 @@ namespace Engine::Editor
 		// プレハブをロード(未ロードならここで読み込まれる)
 		if (!Resource::ResourceManager::Instance().Has<Resource::Prefab>(a_guid))
 		{
-			Resource::ResourceManager::Instance().Load<Resource::Prefab>(a_guid);
+			Resource::ResourceManager::Instance().LoadImmediate<Resource::Prefab>(a_guid);
 		}
 
 		// プレハブ取得

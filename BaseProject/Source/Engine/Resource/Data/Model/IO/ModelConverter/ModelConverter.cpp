@@ -286,7 +286,7 @@ namespace Engine::Resource::Converter
 	}
 	bool ModelConverter::ConvertModelDataToBinary(const Engine::GUID& a_guid)
 	{
-		auto _refHandle = ResourceManager::Instance().Load<Model>(a_guid);
+		auto _refHandle = ResourceManager::Instance().LoadImmediate<Model>(a_guid);
 		return ConvertModelDataToBinary(_refHandle);
 	}
 	bool ModelConverter::ConvertModelDataToBinary(const ResourceRef<Model>& a_modelHandle)

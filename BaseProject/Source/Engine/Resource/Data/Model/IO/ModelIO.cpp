@@ -80,17 +80,17 @@ namespace Engine::Resource
 
 		for (const auto& _guid : _assetData.materialGUIDs)
 		{
-			auto _handle = _resMgr.Load<Material>(_guid, &a_ctx);
+			auto _handle = _resMgr.LoadImmediate<Material>(_guid, &a_ctx);
 			_runtimeData.materials.push_back(std::move(_handle));
 		}
 		for (const auto& _guid : _assetData.meshGUIDs)
 		{
-			auto _handle = _resMgr.Load<Mesh>(_guid, &a_ctx);
+			auto _handle = _resMgr.LoadImmediate<Mesh>(_guid, &a_ctx);
 			_runtimeData.meshes.push_back(std::move(_handle));
 		}
 		for (const auto& _guid : _assetData.animationGUIDs)
 		{
-			auto _handle = _resMgr.Load<AnimationData>(_guid, &a_ctx);
+			auto _handle = _resMgr.LoadImmediate<AnimationData>(_guid, &a_ctx);
 			_runtimeData.animations.push_back(std::move(_handle));
 		}
 
@@ -202,9 +202,8 @@ namespace Engine::Resource
 					}
 
 					// コマンド作成
+					// 実体はリソースマネージャーに置いたままにして、参照先の番号だけを控える
 					ModelDrawCommand _cmd = {};
-					_cmd.pMaterial = _pMate;
-					_cmd.pMesh = _pMesh;
 					_cmd.nodeIndex = static_cast<uint16_t>(_meshNodeIdx);
 					_cmd.meshRawID = static_cast<uint16_t>(_meshHandle.GetIndex());
 					_cmd.materialRawID = static_cast<uint16_t>(_materialHandle.GetIndex());

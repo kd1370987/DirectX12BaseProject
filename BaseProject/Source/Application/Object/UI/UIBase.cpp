@@ -51,7 +51,7 @@ namespace App::Object
 		if (a_ar.IsLoading())
 		{
 			if (!m_texGUID.IsValid()) return;
-			m_texRef = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::Texture>(m_texGUID);
+			m_texRef = Engine::Resource::ResourceManager::Instance().LoadImmediate<Engine::Resource::Texture>(m_texGUID);
 		}
 	}
 	void UIBase::DrawInspector()
@@ -71,7 +71,7 @@ namespace App::Object
 				m_texGUID))
 			{
 				// テクスチャの差し替え
-				m_texRef = Engine::Resource::ResourceManager::Instance().Load<Engine::Resource::Texture>(m_texGUID);
+				m_texRef = Engine::Resource::ResourceManager::Instance().LoadImmediate<Engine::Resource::Texture>(m_texGUID);
 			}
 			ImGui::DragFloat4("ColorScale", &m_color.x, 0.01f, 0.0f);
 			Engine::Editor::EditorHelper::DrawTexture(m_texRef, 256, 256);

@@ -1,4 +1,4 @@
-#include "ResourceDraw.h"
+﻿#include "ResourceDraw.h"
 
 #include "ModelEdit/ModelEdit.h"
 #include "MeshEdit/MeshEdit.h"
@@ -34,7 +34,7 @@ namespace Engine::Editor::Inspector
 				ImGui::Text("No loaded file");
 				if (ImGui::Button("Load"))
 				{
-					Resource::ResourceManager::Instance().Load<TResource>(a_guid);
+					Resource::ResourceManager::Instance().LoadImmediate<TResource>(a_guid);
 				}
 				return nullptr;
 			}

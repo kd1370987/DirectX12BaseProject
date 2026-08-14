@@ -29,7 +29,7 @@ void StateMachineFixupSystem::Init(Engine::ECS::World& a_world)
 				if (_smComp.stateMachineGUID != Engine::DefaultGUID)
 				{
 					// ステートマシンロード
-					_smComp.stateMachineHandle = a_ctx.pServices->pResourceManager->Load<Engine::Resource::AnimatorAsset>(_smComp.stateMachineGUID);
+					_smComp.stateMachineHandle = a_ctx.pServices->pResourceManager->LoadImmediate<Engine::Resource::AnimatorAsset>(_smComp.stateMachineGUID);
 
 					// インスタンス確保
 					 auto& _stateInstancePool = 

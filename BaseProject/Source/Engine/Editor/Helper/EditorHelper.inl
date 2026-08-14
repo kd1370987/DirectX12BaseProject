@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //------------------------------------------------------------------------------------------
 // EditorHelperのうち、ResourceManagerを必要とするテンプレート実装。
@@ -28,7 +28,7 @@ namespace Engine::Editor
 		}
 
 		// ハンドルとGUIDを更新
-		a_inoutHandle = Resource::ResourceManager::Instance().Load<TResource>(_selectedGUID);
+		a_inoutHandle = Resource::ResourceManager::Instance().LoadImmediate<TResource>(_selectedGUID);
 		a_inoutGUID = _selectedGUID;
 		return true;
 	}

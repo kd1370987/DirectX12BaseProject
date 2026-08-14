@@ -195,7 +195,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				{
 					if (!_rm.Has<Engine::Resource::Prefab>(_gun.bulletPrefabGUID))
 					{
-						_rm.Load<Engine::Resource::Prefab>(_gun.bulletPrefabGUID);
+						_rm.LoadImmediate<Engine::Resource::Prefab>(_gun.bulletPrefabGUID);
 					}
 					_gun.bulletPrefabHandle = _rm.GetCache<Engine::Resource::Prefab>(_gun.bulletPrefabGUID);
 				}

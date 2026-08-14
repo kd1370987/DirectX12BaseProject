@@ -59,7 +59,7 @@ namespace Engine::Resource
 		}
 
 		// テクスチャのハンドル取得
-		m_texHandle = ResourceManager::Instance().Load<Texture>(m_texGUID);
+		m_texHandle = ResourceManager::Instance().LoadImmediate<Texture>(m_texGUID);
 	}
 	void ParticlesAsset::Load(const std::string& a_filePath)
 	{
@@ -87,6 +87,6 @@ namespace Engine::Resource
 		}
 
 		// テクスチャのハンドル取得
-		m_texHandle = ResourceManager::Instance().Load<Texture>(m_texGUID);
+		m_texHandle = ResourceManager::Instance().LoadImmediate<Texture>(m_texGUID);
 	}
 }

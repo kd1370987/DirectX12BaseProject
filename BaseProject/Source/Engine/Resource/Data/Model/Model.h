@@ -29,10 +29,14 @@ namespace Engine::Resource
 	};
 
 	// モデル描画時用キャッシュデータ
+	//
+	// メッシュ・マテリアルの実体はリソースマネージャーに置いたままにして、
+	// ここでは参照先の番号だけを持つ。
+	// 実体のポインタを持たせると、スイープでスロットが解放・再利用されたときに
+	// 行き先を失ったポインタがモデル側に残る。
+	// 描画時に ResourceManager から引き直すこと
 	struct ModelDrawCommand
 	{
-		Mesh* pMesh = nullptr;
-		Material* pMaterial = nullptr;
 		uint16_t nodeIndex;      // モデル内のローカルノード番号
 		uint16_t meshRawID;      // ResourceManager 内の配列インデックス(Raw ID)
 		uint16_t materialRawID;  // ResourceManager 内の配列インデックス(Raw ID)

@@ -125,7 +125,7 @@ namespace Engine::Audio
 		else
 		{
 			// サウンドのロード
-			auto _soundRef = Resource::ResourceManager::Instance().Load<Resource::Sound>(a_guid);
+			auto _soundRef = Resource::ResourceManager::Instance().LoadImmediate<Resource::Sound>(a_guid);
 			if (!_soundRef.IsValid()) return Handle<Resource::SoundInstance>();
 			_instance.Init(_soundRef, a_is3D);// インスタンスの初期化
 		}

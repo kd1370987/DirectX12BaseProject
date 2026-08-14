@@ -11,24 +11,26 @@
 // ローダー
 #include "../../Loader/DefaultLoader.h"
 
+// 非同期ロードの実行先
+#include "Engine/JobSystem/JobSystem.h"
+
 namespace Engine::Resource
 {
 	//==========================================================================================
 	// リソース1件の状態
 	//
-	// スロット(プールの添え字)ごとに1つ持つ。今はロードが同期なので
-	// 「登録された時点で Ready」になり、Loading は素通りする。
+	// スロット(プールの添え字)ごとに1つ持つ。
 	//
-	// ロードを別スレッドへ移したときは、
-	//   1) メインスレッドが空のリソースを Loading で登録してハンドルを返す
-	//   2) ワーカーが中身をビルドする
-	//   3) 終わったら SetState で Ready / Failed を通知する
-	// という流れになる。使う側は IsReady() を見てから触ること。
+	// ロードの流れ :
+	//   1) 先着1本が空の実体でスロットを押さえ、Loading にしてハンドルを確定させる
+	//   2) 中身ができる前でもハンドルは呼び出し元へ返せる
+	//   3) ビルドし終えたところで Ready / Failed に切り替わる
+	//
+	// 2) があるため、ハンドルを持っていても中身が使えるとは限らない。
+	// 触る前に必ず IsReady() を見ること。
+	//
 	// スイープ(GC)は Loading のスロットを触らないので、
 	// 参照カウントが立つ前にビルド先を引き抜かれることはない。
-	//
-	// ※ 状態そのものは素の enum 配列なので、実際にワーカーから書き換えるときは
-	//    アトミック化かロックが別途必要になる。
 	//==========================================================================================
 	enum class EResourceState
 	{
@@ -38,14 +40,48 @@ namespace Engine::Resource
 		Failed			// 読込失敗,使用不可
 	};
 
+	//==========================================================================================
+	// スロット1件分の付随情報
+	//
+	// 中身をすべてアトミックにしてあるので、スロットの本数が変わらない限り
+	// 共有ロックのまま複数スレッドから更新できる。
+	// 実体は個別に確保して配列には unique_ptr で並べる :
+	// こうしておくと本数を増やしても既存スロットのアドレスが動かないため、
+	// 一度取り出したスロットへのポインタが他スレッドの追加で無効にならない
+	//==========================================================================================
+	struct ResourceSlot
+	{
+		std::atomic<EResourceState>	state = EResourceState::Empty;	// リソースの状態
+		std::atomic<uint16_t>		manualRefCount = 0;				// ECS外の処理カウント
+		std::atomic<uint16_t>		ecsRefCount = 0;				// ECS走査時のカウント
+	};
+
+	//==========================================================================================
+	// 型ごとの管理データ
+	//
+	// ワーカースレッドからロードを流す前提のため、4つの領域それぞれに守りを入れてある。
+	//
+	//   pool          : AtomicItemPool が自前でロックを持つ
+	//   cache         : cacheMutex で保護 (loadingCondition も同じロック)
+	//   slots         : slotMutex は「本数」だけを守る。中身の更新はアトミックに任せる
+	//
+	// 「いま読み込み中か」はスロットの状態(Loading)がそのまま印になるので、
+	// 別途 in-flight の一覧は持たない。
+	//
+	// ロック順序は cacheMutex -> (pool / slotMutex) の一方向のみ。
+	// 逆向きに取る経路を作らないこと
+	//==========================================================================================
 	template<typename T>
 	struct ResourceData
 	{
-		Pool::ItemPool<T>							pool;					// リソース
-		std::unordered_map<Engine::GUID, Handle<T>> cache = {};				// GUID to Handle
-		std::vector<EResourceState>					resourceStates = {};	// リソースの状態
-		std::vector<uint16_t>						manualRefCounts = {};	// ECS外の処理カウント
-		std::vector<uint16_t>						ecsRefCounts = {};		// ECS走査時のカウント
+		Pool::AtomicItemPool<T>						pool;					// リソース
+
+		std::unordered_map<Engine::GUID, Handle<T>>	cache = {};				// GUID to Handle
+		mutable std::mutex							cacheMutex;				// cache を守る
+		std::condition_variable						loadingCondition;		// 読み込み完了の通知
+
+		std::vector<std::unique_ptr<ResourceSlot>>	slots = {};				// スロットごとの状態
+		mutable std::shared_mutex					slotMutex;				// slots の本数を守る
 	};
 
 	// リソースの管理のみ
@@ -57,7 +93,45 @@ namespace Engine::Resource
 		void Release();
 
 		/// <summary>
-		/// リソースの読み込み
+		/// 非同期ロードの実行先を登録する
+		///
+		/// ResourceManager 側からエンジンのシングルトンを直接引かないよう、
+		/// 起動時に外から渡す。ジョブシステムを止める前に必ず nullptr を入れ直すこと
+		/// </summary>
+		void SetJobSystem(Thread::JobSystem* a_pJobSystem)
+		{
+			m_pJobSystem.store(a_pJobSystem, std::memory_order_release);
+		}
+		Thread::JobSystem* GetJobSystem() const
+		{
+			return m_pJobSystem.load(std::memory_order_acquire);
+		}
+
+		/// <summary>
+		/// リソースの読み込みを要求する : 呼び出しスレッドは待たない
+		///
+		/// 空ならスロットだけ押さえてジョブへ流し、読込中・読込済みなら何もしない。
+		/// どの場合もハンドルは即座に返る。
+		///
+		/// 返ったハンドルは「まだ中身が空」の可能性があるため、
+		/// 実体を触る前に必ず IsReady() を見ること。
+		///
+		/// ジョブシステムが未登録の場合のみ、その場で同期的に読む
+		/// </summary>
+		/// <param name="a_guid">アセットのGUID</param>
+		template<typename T>
+		inline ResourceRef<T> RequestLoad(const Engine::GUID& a_guid);
+
+		/// <summary>
+		/// リソースの読み込み : 実体ができるまで呼び出しスレッドを待たせる
+		///
+		/// 同じGUIDを複数スレッドが同時に要求した場合、実際に読むのは先着1本だけで、
+		/// 後続は完了を待って同じハンドルを受け取る。
+		/// 違うGUIDどうしは並行して読まれる。
+		///
+		/// 返った時点で必ず Ready(または Failed)になっているので、
+		/// 「今すぐ実体が要る」経路はこちらを使う。
+		/// メインスレッドを止めたくない経路は RequestLoad() へ移すこと
 		/// </summary>
 		/// <param name="a_guid">アセットのGUID</param>
 		/// <param name="a_pBuildContext">
@@ -66,7 +140,7 @@ namespace Engine::Resource
 		/// 省略した場合はロード側がその場でバッチを開くため、リソース1個ごとにキューへの実行が走る。
 		/// </param>
 		template<typename T>
-		inline ResourceRef<T> Load(const Engine::GUID& a_guid, const ResourceBuildContext* a_pBuildContext = nullptr);
+		inline ResourceRef<T> LoadImmediate(const Engine::GUID& a_guid, const ResourceBuildContext* a_pBuildContext = nullptr);
 
 		// リソースの追加
 		template<typename T>
@@ -93,6 +167,10 @@ namespace Engine::Resource
 		void ReleaseRef(const Handle<T>& a_handle);
 
 		// リソースの取得
+		//
+		// 返るポインタは他スレッドの追加では壊れないが、
+		// 同じリソースの Remove / スイープには勝てない。
+		// 破棄はジョブを流していないタイミングで行うこと
 		template<typename T>
 		const T* Get(const Handle<T>& a_handle)const;
 		template<typename T>
@@ -141,7 +219,10 @@ namespace Engine::Resource
 		template<typename T>
 		bool IsReady(const ResourceRef<T>& a_ref);
 
-		// リソースの解放
+		/// <summary>
+		/// リソースの解放
+		/// 実体を破棄するため、他スレッドがポインタを握っていない状態で呼ぶこと
+		/// </summary>
 		template<typename T>
 		void SweepUnused();
 
@@ -149,7 +230,7 @@ namespace Engine::Resource
 		/// 型ごとの管理データを丸ごと破棄する
 		/// プールを空にしただけだとキャッシュと参照カウントが残り、
 		/// 同じインデックス・世代が再利用されたときに別リソースを掴んでしまうため、
-		/// 必ず4つまとめて捨てる
+		/// 必ずまとめて捨てる
 		/// </summary>
 		template<typename T>
 		void ReleaseData();
@@ -160,17 +241,14 @@ namespace Engine::Resource
 		// 参照カウントがないプールのリソースは解放される
 		void RunGarbageCollectionSweep();
 
-		// プールの取得
-		template<typename T>
-		const Pool::ItemPool<T>& GetPool() const;
-		template<typename T>
-		Pool::ItemPool<T>& RefPool();
-
 		// キャッシュアクセス
+		//
+		// 参照ではなく値で返す :
+		// マップの中身への参照を返すと、他スレッドの登録・削除で足元が崩れる
 		template<typename T>
-		const Handle<T>& GetCache(const Engine::GUID& a_guid);
+		Handle<T> GetCache(const Engine::GUID& a_guid);
 		template<typename T>
-		const Engine::GUID& GetCache(const Handle<T>& a_handle);
+		Engine::GUID GetCache(const Handle<T>& a_handle);
 
 		// キャッシュから削除
 		template<typename T>
@@ -213,22 +291,49 @@ namespace Engine::Resource
 		}
 
 		/// <summary>
-		/// スロットに紐づく配列(状態・参照カウント)を、指定の添え字まで伸ばす
+		/// スロットを、指定の添え字まで伸ばす
 		///
-		/// 3本とも同じ添え字で引くので、伸ばすときは必ずまとめて伸ばす。
-		/// 片方だけ伸ばしていると、参照されないまま登録されたリソースを
-		/// スイープが見に行ったときに範囲外を読む
+		/// 伸ばす必要がないときは共有ロックだけで抜ける。
+		/// 実体は個別確保なので、伸ばしても既に配られたスロットのアドレスは動かない
 		/// </summary>
 		template<typename T>
 		void EnsureSlot(uint16_t a_index);
 
+		/// <summary>
+		/// スロットの取り出し
+		/// 返るポインタは ReleaseData / Release まで有効
+		/// </summary>
+		/// <returns>範囲外なら nullptr</returns>
+		template<typename T>
+		ResourceSlot* RefSlot(uint16_t a_index);
+
+		/// <summary>
+		/// GUIDに対応するスロットを押さえる
+		///
+		/// まだ無ければ空の実体で新規に確保し、Loading にしてからキャッシュへ載せる。
+		/// 状態を先に立ててから公開しないと、中身も状態もできていないハンドルが
+		/// 他スレッドから見えてしまう
+		/// </summary>
+		/// <param name="a_outIsOwner">このスロットを新規に押さえた(=ビルド担当)なら true</param>
+		template<typename T>
+		Handle<T> ReserveSlot(const Engine::GUID& a_guid, bool& a_outIsOwner);
+
+		/// <summary>
+		/// 押さえておいたスロットへ実体をビルドして流し込む
+		/// 終わったところで Ready / Failed に切り替え、待っているスレッドを起こす
+		/// </summary>
+		template<typename T>
+		void BuildIntoSlot(const Engine::GUID& a_guid, const Handle<T>& a_handle, const ResourceBuildContext* a_pBuildContext);
+
+		/// <summary>
+		/// 対象スロットが Loading でなくなるまで待つ
+		/// </summary>
+		template<typename T>
+		void WaitUntilLoaded(const Handle<T>& a_handle);
+
 		// キャッシュ追加
 		template<typename T>
 		void RegisterCache(const Handle<T>& a_handle, const Engine::GUID& a_guid);
-
-		// キャッシュのマップ参照
-		template<typename T>
-		std::unordered_map<Engine::GUID, Handle<T>>& RefMap();
 
 		/// <summary>
 		/// テンプレート特殊化された内部データを参照するための関数
@@ -246,6 +351,12 @@ namespace Engine::Resource
 		template<typename T>
 		ResourceData<T>& RefData();
 
+		// プールの取得
+		template<typename T>
+		const Pool::AtomicItemPool<T>& GetPool() const;
+		template<typename T>
+		Pool::AtomicItemPool<T>& RefPool();
+
 	private:
 
 		// 各リソースの実体プール
@@ -262,6 +373,9 @@ namespace Engine::Resource
 		ResourceData<Prefab> m_prefabData;										// プレハブデータ
 		ResourceData<Sound> m_soundData;										// サウンド
 
+		// 非同期ロードの実行先 : 未登録なら同期で読む
+		std::atomic<Thread::JobSystem*> m_pJobSystem = nullptr;
+
 	// シングルトン
 	private:
 
@@ -276,42 +390,176 @@ namespace Engine::Resource
 			return _instance;
 		}
 	};
-	// リソースのロード
+	// リソースの読み込み要求 : 待たない
 	template<typename T>
-	inline ResourceRef<T> ResourceManager::Load(const Engine::GUID& a_guid, const ResourceBuildContext* a_pBuildContext)
+	inline ResourceRef<T> ResourceManager::RequestLoad(const Engine::GUID& a_guid)
 	{
-		// 読み込み済みかチェック
-		const auto& _handle = GetCache<T>(a_guid);
-		if (IsValid(_handle)) return ResourceRef<T>(_handle);
+		bool _isOwner = false;
+		const Handle<T> _handle = ReserveSlot<T>(a_guid, _isOwner);
 
-		std::string _filePath = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);	// パス取得
+		// 既に読込中 / 読込済み : 何もしない
+		if (!_isOwner) return ResourceRef<T>(_handle);
 
-		// アセットの読み込みをログ出力する(実際に読み込む時=キャッシュミス時のみ)。
-		// テクスチャやモデルなど Archive を通らないアセットもここで拾えるようにする。
-		if (const auto* _prop = AssetDatabase::Instance().GetAssetProperty(a_guid))
+		auto* _pJobSystem = m_pJobSystem.load(std::memory_order_acquire);
+		if (_pJobSystem == nullptr)
 		{
-			ENGINE_LOG("[Resource] ロード : %s \"%s\"", _prop->type.c_str(), _prop->fileName.c_str());
+			// ジョブシステムが未登録(起動直後・ツール実行など)ならその場で読む
+			BuildIntoSlot<T>(a_guid, _handle, nullptr);
+			return ResourceRef<T>(_handle);
+		}
+
+		// ジョブが持つ分の参照を先に立てておく。
+		// 呼び出し元がすぐ参照を捨てても、ビルド中にGCで実体を引き抜かれないようにする
+		AddRef(_handle);
+
+		_pJobSystem->PushJob(
+			[this, a_guid, _handle]()
+			{
+				BuildIntoSlot<T>(a_guid, _handle, nullptr);
+				ReleaseRef(_handle);
+			}
+		);
+
+		return ResourceRef<T>(_handle);
+	}
+
+	// リソースのロード : 実体ができるまで待つ
+	template<typename T>
+	inline ResourceRef<T> ResourceManager::LoadImmediate(const Engine::GUID& a_guid, const ResourceBuildContext* a_pBuildContext)
+	{
+		bool _isOwner = false;
+		const Handle<T> _handle = ReserveSlot<T>(a_guid, _isOwner);
+
+		if (_isOwner)
+		{
+			// 自分がビルド担当 : 呼び出しスレッドで読み切る
+			BuildIntoSlot<T>(a_guid, _handle, a_pBuildContext);
 		}
 		else
 		{
-			ENGINE_LOG("[Resource] ロード : %s", _filePath.c_str());
+			// ほかの誰か(ジョブ含む)が読込中なら、実体ができるまで待つ
+			WaitUntilLoaded<T>(_handle);
 		}
 
-		T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath, a_pBuildContext);	// リソースのビルド
+		return ResourceRef<T>(_handle);
+	}
 
-		// プールに登録してハンドルを発行(この時点で Ready になる)
-		auto _newHandle = AddResourceAndGUID(std::move(_resourceData), a_guid);
+	// スロットの確保
+	template<typename T>
+	inline Handle<T> ResourceManager::ReserveSlot(const Engine::GUID& a_guid, bool& a_outIsOwner)
+	{
+		auto& _data = RefData<T>();
 
-		// パスを引けなかった場合、ビルドされたのは空のリソース。
-		// 実体は登録したまま使用不可の印だけ付けておく
-		// (毎フレーム読み直しに行かないよう、キャッシュには残す)
-		if (_filePath.empty())
+		a_outIsOwner = false;
+
+		std::lock_guard _lock(_data.cacheMutex);
+
+		auto _it = _data.cache.find(a_guid);
+		if (_it != _data.cache.end())
 		{
-			ENGINE_WARNING("[Resource] パスを解決できませんでした : %s", a_guid.String().c_str());
-			SetState(_newHandle, EResourceState::Failed);
+			// 実体が生きているならそれを使う(読込中でも同じハンドルを返す)
+			if (_data.pool.IsValid(_it->second)) return _it->second;
+
+			// 実体だけ消えた古い登録が残っている : 捨てて取り直す
+			_data.cache.erase(_it);
 		}
 
-		return ResourceRef<T>(_newHandle);
+		// 空の実体でスロットを押さえる。
+		// ここでハンドルを確定させておくことで、中身ができる前に呼び出し元へ返せる
+		const Handle<T> _handle = _data.pool.Add(T());
+
+		// 状態を Loading にしてからキャッシュへ載せる。
+		// 逆にすると、中身も状態もできていないハンドルが他スレッドから見えてしまう
+		EnsureSlot<T>(_handle.GetIndex());
+		if (auto* _pSlot = RefSlot<T>(_handle.GetIndex()))
+		{
+			_pSlot->state.store(EResourceState::Loading, std::memory_order_release);
+		}
+
+		_data.cache[a_guid] = _handle;
+
+		a_outIsOwner = true;
+		return _handle;
+	}
+
+	// 実体のビルドと流し込み
+	template<typename T>
+	inline void ResourceManager::BuildIntoSlot(const Engine::GUID& a_guid, const Handle<T>& a_handle, const ResourceBuildContext* a_pBuildContext)
+	{
+		auto& _data = RefData<T>();
+
+		// 途中で何が起きても Loading のまま放置しない。
+		// 放置すると、このリソースを待っているスレッドが永久に起きてこない
+		try
+		{
+			std::string _filePath = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);	// パス取得
+
+			// アセットの読み込みをログ出力する(実際に読み込む時=キャッシュミス時のみ)。
+			// テクスチャやモデルなど Archive を通らないアセットもここで拾えるようにする。
+			if (const auto* _prop = AssetDatabase::Instance().GetAssetProperty(a_guid))
+			{
+				ENGINE_LOG("[Resource] ロード : %s \"%s\"", _prop->type.c_str(), _prop->fileName.c_str());
+			}
+			else
+			{
+				ENGINE_LOG("[Resource] ロード : %s", _filePath.c_str());
+			}
+
+			T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath, a_pBuildContext);	// リソースのビルド
+
+			// 押さえておいたスロットへ流し込む
+			_data.pool.Write(a_handle, [&_resourceData](T& a_dst) { a_dst = std::move(_resourceData); });
+
+			// パスを引けなかった場合、ビルドされたのは空のリソース。
+			// 実体は登録したまま使用不可の印だけ付けておく
+			// (毎フレーム読み直しに行かないよう、キャッシュには残す)
+			if (_filePath.empty())
+			{
+				ENGINE_WARNING("[Resource] パスを解決できませんでした : %s", a_guid.String().c_str());
+				SetState(a_handle, EResourceState::Failed);
+			}
+			else
+			{
+				SetState(a_handle, EResourceState::Ready);
+			}
+		}
+		catch (const std::exception& _e)
+		{
+			ENGINE_WARNING("[Resource] ビルド中に例外が発生しました : %s", _e.what());
+			SetState(a_handle, EResourceState::Failed);
+		}
+		catch (...)
+		{
+			ENGINE_WARNING("[Resource] ビルド中に不明な例外が発生しました");
+			SetState(a_handle, EResourceState::Failed);
+		}
+
+		// 完了を待っているスレッドを起こす。
+		// 待機側と同じロックを一度通してから通知しないと、起こし損ねる
+		{
+			std::lock_guard _lock(_data.cacheMutex);
+		}
+		_data.loadingCondition.notify_all();
+	}
+
+	// 読み込み完了待ち
+	template<typename T>
+	inline void ResourceManager::WaitUntilLoaded(const Handle<T>& a_handle)
+	{
+		const auto* _pSlot = RefSlot<T>(a_handle.GetIndex());
+		if (_pSlot == nullptr) return;
+
+		auto& _data = RefData<T>();
+
+		std::unique_lock _lock(_data.cacheMutex);
+
+		_data.loadingCondition.wait(
+			_lock,
+			[_pSlot]()
+			{
+				return _pSlot->state.load(std::memory_order_acquire) != EResourceState::Loading;
+			}
+		);
 	}
 	// リソースの追加
 	template<typename T>
@@ -321,7 +569,10 @@ namespace Engine::Resource
 
 		// 出来上がったものを渡されているので、登録した時点で使用可能
 		EnsureSlot<T>(_handle.GetIndex());
-		RefData<T>().resourceStates[_handle.GetIndex()] = EResourceState::Ready;
+		if (auto* _pSlot = RefSlot<T>(_handle.GetIndex()))
+		{
+			_pSlot->state.store(EResourceState::Ready, std::memory_order_release);
+		}
 
 		return ResourceRef<T>(_handle);
 	}
@@ -329,7 +580,11 @@ namespace Engine::Resource
 	inline void ResourceManager::AddRef(const Handle<T>& a_handle)
 	{
 		EnsureSlot<T>(a_handle.GetIndex());
-		RefData<T>().manualRefCounts[a_handle.GetIndex()]++;
+
+		if (auto* _pSlot = RefSlot<T>(a_handle.GetIndex()))
+		{
+			_pSlot->manualRefCount.fetch_add(1, std::memory_order_acq_rel);
+		}
 	}
 	template<typename T>
 	inline Handle<T> ResourceManager::AddResourceAndGUID(T&& a_resource, const Engine::GUID& a_guid)
@@ -339,7 +594,10 @@ namespace Engine::Resource
 
 		// 出来上がったものを渡されているので、登録した時点で使用可能
 		EnsureSlot<T>(_handle.GetIndex());
-		RefData<T>().resourceStates[_handle.GetIndex()] = EResourceState::Ready;
+		if (auto* _pSlot = RefSlot<T>(_handle.GetIndex()))
+		{
+			_pSlot->state.store(EResourceState::Ready, std::memory_order_release);
+		}
 
 		return _handle;                    // ハンドルを返す
 	}
@@ -355,11 +613,20 @@ namespace Engine::Resource
 	template<typename T>
 	inline void ResourceManager::ReleaseRef(const Handle<T>& a_handle)
 	{
-		auto& _data = RefData<T>();
-		uint16_t _idx = a_handle.GetIndex();
-		if (_idx < _data.manualRefCounts.size() && _data.manualRefCounts[_idx] > 0)
+		auto* _pSlot = RefSlot<T>(a_handle.GetIndex());
+		if (!_pSlot) return;
+
+		// 0 を下回らせない。
+		// 単純な fetch_sub だと、同時に呼ばれたときに 0 を通り越して巻き上がる
+		uint16_t _current = _pSlot->manualRefCount.load(std::memory_order_acquire);
+		while (_current > 0)
 		{
-			_data.manualRefCounts[_idx]--;
+			if (_pSlot->manualRefCount.compare_exchange_weak(
+					_current, static_cast<uint16_t>(_current - 1),
+					std::memory_order_acq_rel, std::memory_order_acquire))
+			{
+				break;
+			}
 		}
 	}
 	template<typename T>
@@ -407,54 +674,56 @@ namespace Engine::Resource
 	inline void ResourceManager::SweepUnused()
 	{
 		auto& _data = RefData<T>();
-		size_t _poolSize = _data.pool.GetAll().size();
+		const size_t _poolSize = _data.pool.Size();
+		if (_poolSize == 0) return;
 
-		// 参照カウントも状態もスロット単位なので、プールの大きさまで揃えてから回す
-		if (_poolSize > 0)
-		{
-			EnsureSlot<T>(static_cast<uint16_t>(_poolSize - 1));
-		}
+		// スロットはプールの大きさまで揃えてから回す
+		EnsureSlot<T>(static_cast<uint16_t>(_poolSize - 1));
 
-		for (uint16_t _i = 0; _i < _poolSize; ++_i)
+		for (size_t _i = 0; _i < _poolSize; ++_i)
 		{
+			const uint16_t _index = static_cast<uint16_t>(_i);
+
 			// 存在チェック
-			if (_data.pool.Access(_i) == nullptr) continue;
+			if (_data.pool.Access(_index) == nullptr) continue;
+
+			auto* _pSlot = RefSlot<T>(_index);
+			if (_pSlot == nullptr) continue;
 
 			// 読込中のスロットは参照カウントが立つ前なので、
 			// ここで消すとビルド中の書き込み先を引き抜いてしまう
-			if (_data.resourceStates[_i] == EResourceState::Loading) continue;
+			if (_pSlot->state.load(std::memory_order_acquire) == EResourceState::Loading) continue;
 
-			uint16_t _refCount = _data.manualRefCounts[_i];
-			uint16_t _ecsRefCount = _data.ecsRefCounts[_i];
+			// アプリ側からも、ECS側からも参照されていない場合のみ
+			if (_pSlot->manualRefCount.load(std::memory_order_acquire) != 0) continue;
+			if (_pSlot->ecsRefCount.load(std::memory_order_acquire) != 0) continue;
 
-			// アプリ側からも、ECS側からも参照されていない場合
-			if (_refCount == 0 && _ecsRefCount == 0)
+			// インデックスと世代から正しいハンドルを復元する
+			const uint16_t _generation = _data.pool.GetGeneration(_index);
+			Handle<T> _targetHandle(_index, _generation);
+
+			// キャッシュ (GUIDマップ) から削除
 			{
-				// ItemPool内に実体が存在しているかチェック
-				if (_data.pool.Access(_i) != nullptr)
+				std::lock_guard _lock(_data.cacheMutex);
+				for (auto _it = _data.cache.begin(); _it != _data.cache.end(); )
 				{
-					// インデックスと世代から正しいハンドルを復元する
-					uint16_t _generation = _data.pool.GetGeneration(_i);
-					Handle<T> _targetHandle(_i, _generation);
-
-					// キャッシュ (GUIDマップ) から削除
-					for (auto it = _data.cache.begin(); it != _data.cache.end(); ) {
-						if (it->second == _targetHandle) {
-							it = _data.cache.erase(it);
-						}
-						else {
-							++it;
-						}
+					if (_it->second == _targetHandle)
+					{
+						_it = _data.cache.erase(_it);
 					}
-
-					// プールの Remove を呼んで実体とキューを安全に解放
-					_data.pool.Ref(_targetHandle)->Release();
-					_data.pool.Remove(_targetHandle);
-
-					// 空いたスロットとして状態を戻す
-					_data.resourceStates[_i] = EResourceState::Empty;
+					else
+					{
+						++_it;
+					}
 				}
 			}
+
+			// 実体の後始末はプールのロックの中で行う
+			_data.pool.Write(_targetHandle, [](T& a_resource) { a_resource.Release(); });
+			_data.pool.Remove(_targetHandle);
+
+			// 空いたスロットとして状態を戻す
+			_pSlot->state.store(EResourceState::Empty, std::memory_order_release);
 		}
 	}
 
@@ -462,11 +731,20 @@ namespace Engine::Resource
 	inline void ResourceManager::ReleaseData()
 	{
 		auto& _data = RefData<T>();
+
 		_data.pool.Release();
-		_data.cache.clear();
-		_data.resourceStates.clear();
-		_data.manualRefCounts.clear();
-		_data.ecsRefCounts.clear();
+
+		{
+			std::lock_guard _lock(_data.cacheMutex);
+			_data.cache.clear();
+		}
+		// 読み込み待ちで寝ているスレッドを取り残さない
+		_data.loadingCondition.notify_all();
+
+		{
+			std::unique_lock _lock(_data.slotMutex);
+			_data.slots.clear();
+		}
 	}
 
 	//==========================================================================================
@@ -478,12 +756,10 @@ namespace Engine::Resource
 		// 未登録・世代違いのハンドルは状態を持たない扱い
 		if (!IsValid(a_handle)) return EResourceState::Empty;
 
-		const auto& _states = GetData<T>().resourceStates;
+		const auto* _pSlot = RefSlot<T>(a_handle.GetIndex());
+		if (_pSlot == nullptr) return EResourceState::Empty;
 
-		uint16_t _idx = a_handle.GetIndex();
-		if (_states.size() <= _idx) return EResourceState::Empty;
-
-		return _states[_idx];
+		return _pSlot->state.load(std::memory_order_acquire);
 	}
 
 	template<typename T>
@@ -498,7 +774,11 @@ namespace Engine::Resource
 		if (!IsValid(a_handle)) return;
 
 		EnsureSlot<T>(a_handle.GetIndex());
-		RefData<T>().resourceStates[a_handle.GetIndex()] = a_state;
+
+		if (auto* _pSlot = RefSlot<T>(a_handle.GetIndex()))
+		{
+			_pSlot->state.store(a_state, std::memory_order_release);
+		}
 	}
 
 	template<typename T>
@@ -513,59 +793,78 @@ namespace Engine::Resource
 		return IsReady<T>(a_ref.GetRaw());
 	}
 
-	// スロットに紐づく配列をまとめて伸ばす
+	// スロットを必要な本数まで伸ばす
 	template<typename T>
 	inline void ResourceManager::EnsureSlot(uint16_t a_index)
 	{
 		auto& _data = RefData<T>();
 		const size_t _needSize = static_cast<size_t>(a_index) + 1;
 
-		if (_data.resourceStates.size() < _needSize)
+		// 足りているなら共有ロックだけで抜ける(ここが大半)
 		{
-			_data.resourceStates.resize(_needSize, EResourceState::Empty);
+			std::shared_lock _lock(_data.slotMutex);
+			if (_data.slots.size() >= _needSize) return;
 		}
-		if (_data.manualRefCounts.size() < _needSize)
+
+		std::unique_lock _lock(_data.slotMutex);
+
+		// ロックを取り直す間に他スレッドが伸ばしている可能性があるため、改めて見る
+		while (_data.slots.size() < _needSize)
 		{
-			_data.manualRefCounts.resize(_needSize, 0);
+			_data.slots.push_back(std::make_unique<ResourceSlot>());
 		}
-		if (_data.ecsRefCounts.size() < _needSize)
-		{
-			_data.ecsRefCounts.resize(_needSize, 0);
-		}
+	}
+
+	// スロットの取り出し
+	template<typename T>
+	inline ResourceSlot* ResourceManager::RefSlot(uint16_t a_index)
+	{
+		auto& _data = RefData<T>();
+
+		std::shared_lock _lock(_data.slotMutex);
+		if (a_index >= _data.slots.size()) return nullptr;
+
+		// 実体は個別確保しているので、ロックを抜けてもこのポインタは動かない
+		return _data.slots[a_index].get();
 	}
 
 	// プールの取得
 	template<typename T>
-	inline const Pool::ItemPool<T>& ResourceManager::GetPool() const
+	inline const Pool::AtomicItemPool<T>& ResourceManager::GetPool() const
 	{
 		return GetData<T>().pool;
 	}
 
 	// プールの参照
 	template<typename T>
-	inline Pool::ItemPool<T>& ResourceManager::RefPool()
+	inline Pool::AtomicItemPool<T>& ResourceManager::RefPool()
 	{
 		return RefData<T>().pool;
 	}
 
 	// キャッシュアクセス
 	template<typename T>
-	inline const Handle<T>& ResourceManager::GetCache(const Engine::GUID& a_guid)
+	inline Handle<T> ResourceManager::GetCache(const Engine::GUID& a_guid)
 	{
-		auto& _map = RefMap<T>();
-		auto _it = _map.find(a_guid);
-		if (_it != _map.end())
+		auto& _data = RefData<T>();
+
+		std::lock_guard _lock(_data.cacheMutex);
+
+		auto _it = _data.cache.find(a_guid);
+		if (_it != _data.cache.end())
 		{
 			return _it->second;
 		}
-		static Handle<T> s_defaultHandle = {};
-		return s_defaultHandle;
+		return Handle<T>();
 	}
 	template<typename T>
-	inline const Engine::GUID& ResourceManager::GetCache(const Handle<T>& a_handle)
+	inline Engine::GUID ResourceManager::GetCache(const Handle<T>& a_handle)
 	{
-		auto& _map = RefMap<T>();
-		for (const auto& [_guid, _h] : _map)
+		auto& _data = RefData<T>();
+
+		std::lock_guard _lock(_data.cacheMutex);
+
+		for (const auto& [_guid, _h] : _data.cache)
 		{
 			if (_h == a_handle)
 			{
@@ -573,19 +872,21 @@ namespace Engine::Resource
 			}
 		}
 		ENGINE_LOG("登録されていないハンドルです");
-		static Engine::GUID s_defaultGuid = {};
-		return s_defaultGuid;
+		return Engine::GUID();
 	}
 	// キャッシュ削除
 	template<typename T>
 	inline void ResourceManager::RemoveCache(const Handle<T>& a_handle)
 	{
-		auto& _map = RefMap<T>();
-		for (auto _it = _map.begin(); _it != _map.end(); ++_it)
+		auto& _data = RefData<T>();
+
+		std::lock_guard _lock(_data.cacheMutex);
+
+		for (auto _it = _data.cache.begin(); _it != _data.cache.end(); ++_it)
 		{
 			if (_it->second == a_handle)
 			{
-				_map.erase(_it); // ハンドルが一致したものを消す
+				_data.cache.erase(_it); // ハンドルが一致したものを消す
 				break;
 			}
 		}
@@ -594,20 +895,19 @@ namespace Engine::Resource
 	template<typename T>
 	inline void ResourceManager::RemoveCache(const Engine::GUID& a_guid)
 	{
-		RefMap<T>().erase(a_guid); // GUIDから一発で削除
+		auto& _data = RefData<T>();
+
+		std::lock_guard _lock(_data.cacheMutex);
+		_data.cache.erase(a_guid); // GUIDから一発で削除
 	}
 
 	template<typename T>
 	inline bool ResourceManager::Has(const Engine::GUID& a_guid)
 	{
-		auto& _map = RefMap<T>();
+		auto& _data = RefData<T>();
 
-		auto _it = _map.find(a_guid);
-		if (_it != _map.end())
-		{
-			return true;
-		}
-		return false;
+		std::lock_guard _lock(_data.cacheMutex);
+		return _data.cache.contains(a_guid);
 	}
 
 	// ハンドルが使用可能かどうか
@@ -620,9 +920,15 @@ namespace Engine::Resource
 	template<typename T>
 	inline void ResourceManager::ResetECSRefs()
 	{
-		auto& _ecsCounts = RefData<T>().ecsRefCounts;
-		// 連続メモリを一気にゼロクリア（爆速）
-		std::fill(_ecsCounts.begin(), _ecsCounts.end(), 0);
+		auto& _data = RefData<T>();
+
+		// 本数を変えないので共有ロックでよい。中身の書き換えはアトミックが担保する
+		std::shared_lock _lock(_data.slotMutex);
+
+		for (auto& _upSlot : _data.slots)
+		{
+			_upSlot->ecsRefCount.store(0, std::memory_order_release);
+		}
 	}
 
 	template<typename T>
@@ -631,21 +937,21 @@ namespace Engine::Resource
 		if (!IsValid(a_handle)) return;
 
 		EnsureSlot<T>(a_handle.GetIndex());
-		RefData<T>().ecsRefCounts[a_handle.GetIndex()]++;
+
+		if (auto* _pSlot = RefSlot<T>(a_handle.GetIndex()))
+		{
+			_pSlot->ecsRefCount.fetch_add(1, std::memory_order_acq_rel);
+		}
 	}
 
 	// 型ごとにキャッシュに登録
 	template<typename T>
 	inline void ResourceManager::RegisterCache(const Handle<T>& a_handle, const Engine::GUID& a_guid)
 	{
-		RefMap<T>()[a_guid] = a_handle;
-	}
+		auto& _data = RefData<T>();
 
-	// マップの参照
-	template<typename T>
-	inline std::unordered_map<Engine::GUID, Handle<T>>& ResourceManager::RefMap()
-	{
-		return RefData<T>().cache;
+		std::lock_guard _lock(_data.cacheMutex);
+		_data.cache[a_guid] = a_handle;
 	}
 
 	// プールの参照
@@ -686,7 +992,7 @@ namespace Engine
 
 	// コンストラクタ
 	template<typename T>
-	inline ResourceRef<T>::ResourceRef(Handle<T> a_h) : m_handle(a_h) 
+	inline ResourceRef<T>::ResourceRef(Handle<T> a_h) : m_handle(a_h)
 	{
 		if (Resource::ResourceManager::Instance().IsValid(m_handle))
 		{
@@ -713,7 +1019,7 @@ namespace Engine
 	template<typename T>
 	inline ResourceRef<T>::ResourceRef(const ResourceRef& a_other) : m_handle(a_other.m_handle)
 	{
-		if (Resource::ResourceManager::Instance().IsValid(m_handle)) 
+		if (Resource::ResourceManager::Instance().IsValid(m_handle))
 		{
 			Resource::ResourceManager::Instance().AddRef(m_handle);
 		}
@@ -730,7 +1036,7 @@ namespace Engine
 				Resource::ResourceManager::Instance().ReleaseRef(m_handle);
 			}
 			m_handle = a_other.m_handle;
-			if (Resource::ResourceManager::Instance().IsValid(m_handle)) 
+			if (Resource::ResourceManager::Instance().IsValid(m_handle))
 			{
 				Resource::ResourceManager::Instance().AddRef(m_handle);
 			}
@@ -750,7 +1056,7 @@ namespace Engine
 	inline ResourceRef<T>& ResourceRef<T>::operator=(ResourceRef&& a_other) noexcept
 	{
 		if (this != &a_other) {
-			if (Resource::ResourceManager::Instance().IsValid(m_handle)) 
+			if (Resource::ResourceManager::Instance().IsValid(m_handle))
 			{
 				Resource::ResourceManager::Instance().ReleaseRef(m_handle);
 			}

@@ -24,7 +24,7 @@ namespace Engine::Resource
 	{
 		static T LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
-			// 特殊化されていない型で Load<T> が呼ばれたらコンパイルを止める
+			// 特殊化されていない型で LoadImmediate<T> が呼ばれたらコンパイルを止める
 			static_assert(sizeof(T) == 0, "特殊化されていない型のLoaderが呼ばれました。DefaultLoaderを特殊化してください。");
 			return T();
 		}

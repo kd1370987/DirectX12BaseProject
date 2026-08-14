@@ -33,12 +33,12 @@ namespace Engine::Graphics
 
 		// シェーダー関係セット
 		auto _guidMS = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Mesh/UberMS.cso");
-		auto _msHandle = Resource::ResourceManager::Instance().Load<Resource::Shader>(_guidMS);
+		auto _msHandle = Resource::ResourceManager::Instance().LoadImmediate<Resource::Shader>(_guidMS);
 		_node.pipelineBuilder.RegisterMeshShader(EShaderPermutationFlags::Static, _msHandle);
 		_node.pipelineBuilder.RegisterMeshShader(EShaderPermutationFlags::Skinned, _msHandle);
 
 		auto _guidAS = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Mesh/TestAS.cso");
-		auto _asHandle = Resource::ResourceManager::Instance().Load<Resource::Shader>(_guidAS);
+		auto _asHandle = Resource::ResourceManager::Instance().LoadImmediate<Resource::Shader>(_guidAS);
 		_node.pipelineBuilder.RegisterAmplificationShader(EShaderPermutationFlags::Static, _asHandle);
 		_node.pipelineBuilder.RegisterAmplificationShader(EShaderPermutationFlags::Skinned, _asHandle);
 

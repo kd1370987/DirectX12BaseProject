@@ -1,4 +1,4 @@
-#include "PrefabSpawnHelper.h"
+﻿#include "PrefabSpawnHelper.h"
 
 #include <cstring>
 
@@ -24,7 +24,7 @@ namespace App::Utility
 		{
 			if (!a_resourceManager.Has<Engine::Resource::Prefab>(a_prefabGUID))
 			{
-				a_resourceManager.Load<Engine::Resource::Prefab>(a_prefabGUID);
+				a_resourceManager.LoadImmediate<Engine::Resource::Prefab>(a_prefabGUID);
 			}
 			a_refHandle = a_resourceManager.GetCache<Engine::Resource::Prefab>(a_prefabGUID);
 		}

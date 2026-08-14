@@ -16,7 +16,7 @@ namespace Engine::Resource
 		_mat.emissiveTex = TextureIO::LoadTexture(_mat.emissiveTexGUID, TexColor::BLACK);
 		_mat.normalTex = TextureIO::LoadTexture(_mat.normalTexGUID, TexColor::NORMAL);
 
-		_mat.shadingModelHandle = ResourceManager::Instance().Load<ShadingModelTable>(_mat.shedingModelGUID);
+		_mat.shadingModelHandle = ResourceManager::Instance().LoadImmediate<ShadingModelTable>(_mat.shedingModelGUID);
 
 		return _mat;
 	}

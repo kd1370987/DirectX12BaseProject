@@ -80,7 +80,7 @@ namespace Engine::Resource
 		// AssetDatabaseに存在する有効なGUIDなら、統合ロード処理へ投げる
 		if (_assetDb.IsValid(a_guid))
 		{
-			return _resMgr.Load<Texture>(a_guid, a_pContext);
+			return _resMgr.LoadImmediate<Texture>(a_guid, a_pContext);
 		}
 
 		// ---- 無効なGUIDフォールバック処理 ----

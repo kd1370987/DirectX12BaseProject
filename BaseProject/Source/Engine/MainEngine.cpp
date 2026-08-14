@@ -119,6 +119,10 @@ namespace Engine
 		m_upJobSystem = std::make_unique<Thread::JobSystem>();
 		m_upJobSystem->Init(8);
 
+		// 非同期ロードの実行先として登録する。
+		// ResourceManager 側からエンジンのシングルトンを引かせないよう、ここで渡す
+		Resource::ResourceManager::Instance().SetJobSystem(m_upJobSystem.get());
+
 		// オーディオエンジンの初期化
 		Audio::AudioManager::Instance().Init();
 
@@ -187,6 +191,12 @@ namespace Engine
 		// 設定を保存
 		Option::OptionManager::GetInstance().Serialize();
 
+		// ジョブシステムの解放は最初に行う。
+		// 走っているジョブはリソースやGPUリソースを触っているため、
+		// それらを解放する前に必ずワーカーを止めきること
+		Resource::ResourceManager::Instance().SetJobSystem(nullptr);
+		m_upJobSystem->Release();
+
 		// アプリケーション・上位層の解放
 		m_upCollisionWorld.reset(); // コリジョン解放
 
@@ -222,9 +232,6 @@ namespace Engine
 		// レイトレワールド(TLAS/BLAS・各種バッファ)の解放。
 		// シングルトンが握っていて自動破棄されないため明示的に解放する。
 		Raytracing::RayEngine::Instance().Release();
-
-		// ジョブシステムの解放
-		m_upJobSystem->Release();
 
 		// パイプラインステート・ルートシグネチャの解放
 		m_upPipelineStateManager->Release();

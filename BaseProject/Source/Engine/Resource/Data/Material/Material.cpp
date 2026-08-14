@@ -41,7 +41,7 @@ void Engine::Resource::Material::SetTexture2D(
 
 
 	shedingModelGUID = Option::OptionManager::GetInstance().GetRenderingOption().defaultShadingModelTable;
-	shadingModelHandle = _resMgr.Load<ShadingModelTable>(shedingModelGUID, &a_ctx);
+	shadingModelHandle = _resMgr.LoadImmediate<ShadingModelTable>(shedingModelGUID, &a_ctx);
 }
 
 void Engine::Resource::Material::Archive(Persistence::Archive& a_ar)

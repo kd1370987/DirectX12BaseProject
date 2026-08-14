@@ -61,6 +61,11 @@ namespace Engine::D3D12
 
 	GraphicsCommandList* CommandPool::AcquireList(Device* a_pDevice, ID3D12CommandAllocator* a_pAllocator)
 	{
+		// ここは m_inFlightLists / m_freeLists / m_trackingMap をすべて書き換える。
+		// ワーカースレッドからリソースをビルドすると同時に呼ばれるため、
+		// SubmitList や ExecutePendingLists と同じロックで守る
+		std::lock_guard<std::mutex> _lock(m_mutex);
+
 		// 完了済みのものをフリーに戻す
 		UINT64 _completed = m_cpFence->GetCompletedValue();
 		for (auto it = m_inFlightLists.begin(); it != m_inFlightLists.end();)

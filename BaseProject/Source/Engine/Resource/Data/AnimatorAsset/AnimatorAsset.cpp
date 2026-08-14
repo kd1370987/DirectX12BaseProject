@@ -126,7 +126,7 @@ namespace Engine::Resource
 		// Animator固有ヘッダ
 		_arch.Field("m_name", m_name);
 		_arch.Field("m_modelGUID", m_modelGUID);
-		m_modelHandle = ResourceManager::Instance().Load<Model>(m_modelGUID);
+		m_modelHandle = ResourceManager::Instance().LoadImmediate<Model>(m_modelGUID);
 
 		// グラフ本体
 		m_graph.LoadGraph(_arch);

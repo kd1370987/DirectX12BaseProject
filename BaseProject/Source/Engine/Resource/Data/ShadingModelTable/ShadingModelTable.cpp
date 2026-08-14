@@ -116,7 +116,7 @@ namespace Engine::Resource
 
 				for (auto& _shaderGUID : _shaderGUIDVec)
 				{
-					m_shaderHandleMap[_hash].push_back(ResourceManager::Instance().Load<Shader>(_shaderGUID));
+					m_shaderHandleMap[_hash].push_back(ResourceManager::Instance().LoadImmediate<Shader>(_shaderGUID));
 				}
 			}
 		}
@@ -174,7 +174,7 @@ namespace Engine::Resource
 
 		// ランタイム用データに追加
 		UINT _hash = StringUtility::ToHash(a_passName);
-		m_shaderHandleMap[_hash].push_back(ResourceManager::Instance().Load<Shader>(a_shaderGUID));
+		m_shaderHandleMap[_hash].push_back(ResourceManager::Instance().LoadImmediate<Shader>(a_shaderGUID));
 	}
 	void ShadingModelTable::RemoveShader(const std::string& a_passName, size_t a_index)
 	{

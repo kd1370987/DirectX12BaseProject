@@ -29,7 +29,7 @@ void ParticleFixupSystem::Init(Engine::ECS::World& a_world)
 				{
 					// パーティクルロード
 					_particleComp.particlesAssetHandle =
-						a_ctx.pServices->pResourceManager->Load<Engine::Resource::ParticlesAsset>(_particleComp.particleGUID);
+						a_ctx.pServices->pResourceManager->LoadImmediate<Engine::Resource::ParticlesAsset>(_particleComp.particleGUID);
 				}
 
 				// 出っぱなしの指定なら、ここで再生状態にしておく。
