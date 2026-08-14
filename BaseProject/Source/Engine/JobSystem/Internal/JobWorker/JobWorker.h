@@ -2,6 +2,7 @@
 
 #include "../JobContext.h"
 #include "../JobQueue/JobQueue.h"
+#include "../JobPool/JobPool.h"
 
 namespace Engine::Thread
 {
@@ -42,7 +43,9 @@ namespace Engine::Thread
 
 		uint32_t m_workerID = 0;							// 自身のID
 		std::thread m_thread;								// 自身のOSスレッド
+
 		JobQueue m_jobQueue;								// 自身が抱えるタスクキュー
+		JobPool m_jobPool;
 
 		JobContext* m_pContext = nullptr;					// ジョブシステム側との共通データ
 

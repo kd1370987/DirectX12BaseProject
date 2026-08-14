@@ -6,14 +6,31 @@ namespace Engine::Thread
 	/// </summary>
 	struct Job
 	{
-		Handle<Job> handle;					// 自身のハンドル
-		std::function<void()> task = {};	// 処理の実体
+		Job() = default;
+		Job(std::function<void()>&& a_task, Job* a_pParent = nullptr) : task(a_task), pParent(a_pParent) {}
 
-		// 自身の完了によって実行可能になるJob
-		std::array<Handle<Job>, 8> dependents;
-		std::atomic<uint32_t> dependentCount = 0;
+		void Run() 
+		{
+			task();
+			unfinishedJobs--;
 
-		// 実行可能になるまでに残っている依存数
-		std::atomic<uint32_t> unresolvedDependencies = 0;
+			if (Finished())
+			{
+				if (pParent)
+				{
+					pParent->unfinishedJobs--;
+				}
+			}
+		};
+
+		bool Finished()const { return unfinishedJobs == 0; }
+
+		std::function<void()> task;
+
+		// 自身が終わった際に通知するジョブ
+		Job* pParent = nullptr;
+
+		// 自身を走らせるために完了すべきジョブ数
+		std::atomic<uint32_t> unfinishedJobs = 1;
 	};
 }
