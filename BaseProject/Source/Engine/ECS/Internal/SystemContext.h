@@ -24,6 +24,10 @@ namespace Engine::Audio
 {
 	class AudioManager;
 }
+namespace Engine::Thread
+{
+	class JobSystem;
+}
 
 namespace Engine::ECS
 {
@@ -43,6 +47,7 @@ namespace Engine::ECS
 		Editor::MainEditor*			pMainEditor			= nullptr;
 		Raytracing::RayEngine*		pRayEngine			= nullptr;
 		Audio::AudioManager*		pAudioManager		= nullptr;
+		Thread::JobSystem*			pJobSystem			= nullptr;
 	};
 
 	/// <summary>

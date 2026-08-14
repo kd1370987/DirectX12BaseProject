@@ -169,4 +169,13 @@ namespace Engine::Thread
 
 		m_upJobContext->WaitForAllJobs();
 	}
+
+	void JobSystem::WaitFor(Job* a_pJob)
+	{
+		if (a_pJob == nullptr || !m_upJobContext) return;
+
+		m_upJobContext->WaitForJobFinished(
+			[a_pJob]() { return a_pJob->IsFinished(); }
+		);
+	}
 }

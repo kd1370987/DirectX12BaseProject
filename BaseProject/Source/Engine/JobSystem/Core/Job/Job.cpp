@@ -1,4 +1,4 @@
-﻿#include "Job.h"
+#include "Job.h"
 
 namespace Engine::Thread
 {
@@ -9,11 +9,12 @@ namespace Engine::Thread
 		task = nullptr;
 		waitingCount.store(0, std::memory_order_relaxed);
 
-		m_continuations = {};
-		m_continuationCount = 0;
+		// clear() は確保済みの容量を手放さないので、
+		// プールから取り直すたびに確保し直すことにはならない
+		m_continuations.clear();
 
 		// ここから「実行中」になる
-		m_isFinished.store(false, std::memory_order_release);
+		m_isFinished.store(false, std::memory_order_seq_cst);
 	}
 
 	bool Job::AddContinuation(Job* a_pJob)
@@ -26,33 +27,22 @@ namespace Engine::Thread
 		// 呼び出し側にその場で待ち数を減らしてもらう
 		if (m_isFinished.load(std::memory_order_acquire)) return false;
 
-		if (m_continuationCount >= MAX_CONTINUATION_COUNT)
-		{
-			// 溢れた分は待たせたままにするとデッドロックになるため、
-			// 「解決済み」として扱って先に進める。
-			// 依存の張り方を見直すこと
-			ENGINE_WARNING("[JobSystem] 後続ジョブの上限(%u)を超えたため依存を張れませんでした", MAX_CONTINUATION_COUNT);
-			return false;
-		}
-
-		m_continuations[m_continuationCount] = a_pJob;
-		++m_continuationCount;
+		m_continuations.push_back(a_pJob);
 		return true;
 	}
 
-	uint32_t Job::FinishAndTakeContinuations(std::array<Job*, MAX_CONTINUATION_COUNT>& a_outContinuations)
+	void Job::FinishAndTakeContinuations(std::vector<Job*>& a_outContinuations)
 	{
 		std::lock_guard _lock(m_continuationMutex);
 
 		// フラグを立てるのと後続の取り出しは不可分に行う。
 		// 分けると、その隙間に入った AddContinuation の登録を取りこぼす
-		m_isFinished.store(true, std::memory_order_release);
+		m_isFinished.store(true, std::memory_order_seq_cst);
 
-		a_outContinuations = m_continuations;
-
-		const uint32_t _count = m_continuationCount;
-		m_continuationCount = 0;
-
-		return _count;
+		// swap ではなく代入で渡す。
+		// swap だと呼び出し側の使い回し用の容量がこちらへ移ってしまい、
+		// 次にこのジョブを使うときに確保し直すことになる
+		a_outContinuations.assign(m_continuations.begin(), m_continuations.end());
+		m_continuations.clear();
 	}
 }

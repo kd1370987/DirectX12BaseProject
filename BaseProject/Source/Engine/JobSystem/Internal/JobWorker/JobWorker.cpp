@@ -123,6 +123,10 @@ namespace Engine::Thread
 		// ここを飛ばすと、このジョブを待っているものが永久に起きてこない
 		FinishJob(a_pJob);
 
+		// このジョブ1件を名指しで待っているスレッドを起こす。
+		// 待ち人がいなければ中で素通りするので、通常のロードジョブでは実質ただの読み出し
+		m_pContext->NotifyJobFinished();
+
 		// 完了通知は後続を流したあとに行う。
 		// 先に減らすと、後続がキューへ入る前に未完了数が0になり、
 		// WaitForAll() がまだ仕事が残っているのに返ってしまう
@@ -132,12 +136,14 @@ namespace Engine::Thread
 	{
 		// 完了印を付けつつ後続を引き取る。
 		// この2つを不可分に行わないと、隙間に入った依存登録を取りこぼす
-		std::array<Job*, Job::MAX_CONTINUATION_COUNT> _continuations = {};
-		const uint32_t _count = a_pJob->FinishAndTakeContinuations(_continuations);
+		//
+		// 受け取り先はワーカーの使い回しバッファ。
+		// FinishJob はこのワーカースレッドからしか呼ばれず、入れ子にもならないので、
+		// 1本を使い回して毎回の確保を避けている
+		a_pJob->FinishAndTakeContinuations(m_continuationBuffer);
 
-		for (uint32_t _i = 0; _i < _count; ++_i)
+		for (Job* _pNext : m_continuationBuffer)
 		{
-			Job* _pNext = _continuations[_i];
 			if (_pNext == nullptr) continue;
 
 			// 待ち数を0にしたスレッドだけがキューへ積む。

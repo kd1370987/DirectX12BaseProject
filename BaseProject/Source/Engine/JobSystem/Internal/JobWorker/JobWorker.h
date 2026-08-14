@@ -57,6 +57,10 @@ namespace Engine::Thread
 
 		JobContext* m_pContext = nullptr;					// ジョブシステム側との共通データ
 
+		// 後続ジョブの引き取り先 : FinishJob でのみ使う。
+		// このワーカースレッド専用なので、毎回確保せず使い回す
+		std::vector<Job*> m_continuationBuffer = {};
+
 		std::atomic<bool> m_isRunning = false;				// 処理を終了させるか否か
 	};
 }

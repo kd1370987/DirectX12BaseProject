@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 namespace Engine::Thread
 {
 	class JobWorker;
@@ -19,12 +19,16 @@ namespace Engine::Thread
 	// これを防ぐため、完了フラグの書き込みと後続リストの操作は
 	// 同じミューテックスの下で行い、
 	// 「登録できなかった(=すでに終わっていた)」を呼び出し側へ返す
+	//
+	// ---- 後続リストの本数について ----
+	// 以前は固定長で持っていたが、溢れた分を「解決済み」として捨てるしかなく、
+	// 依存が黙って消えてレースになっていた。
+	// ECS のシステムを1タスク1ジョブで流すと1つのジョブに十数本の後続が付くため、
+	// 上限を持たない vector に変更してある。
+	// Job はプールで使い回されるので、確保した容量はそのまま再利用される
 	//==========================================================================================
 	struct Job
 	{
-		// 1つのジョブが持てる後続の数
-		static constexpr uint32_t MAX_CONTINUATION_COUNT = 15;
-
 		Job() = default;
 
 		// ミューテックスとアトミックを持つのでコピーもムーブも不可
@@ -43,8 +47,8 @@ namespace Engine::Thread
 		/// <param name="a_pJob">自分の完了を待っているジョブ</param>
 		/// <returns>
 		/// 登録できたら true。
-		/// false は「すでに完了済み」または「後続リストが溢れた」で、
-		/// どちらも通知が飛ばないため、呼び出し側で待ち数を減らすこと
+		/// false は「すでに完了済み」で、通知が飛ばないため
+		/// 呼び出し側で待ち数を減らすこと
 		/// </returns>
 		bool AddContinuation(Job* a_pJob);
 
@@ -52,9 +56,21 @@ namespace Engine::Thread
 		/// 完了印を付けて、後続リストを取り出す
 		/// 以降 AddContinuation は false を返すようになる
 		/// </summary>
-		/// <param name="a_outContinuations">後続の受け取り先</param>
-		/// <returns>取り出した後続の数</returns>
-		uint32_t FinishAndTakeContinuations(std::array<Job*, MAX_CONTINUATION_COUNT>& a_outContinuations);
+		/// <param name="a_outContinuations">
+		/// 後続の受け取り先 : 中身は上書きされる。
+		/// 呼び出し側で使い回して確保を避けること
+		/// </param>
+		void FinishAndTakeContinuations(std::vector<Job*>& a_outContinuations);
+
+		/// <summary>
+		/// このジョブが終わっているか
+		///
+		/// JobSystem::WaitFor() の判定に使う。
+		/// 「完了印を付ける -> 待っている人がいるか見る」と
+		/// 「待つ人数を増やす -> 完了印を見る」がすれ違うと待ちっぱなしになるため、
+		/// この読み書きは seq_cst にして全スレッドで1本の順序に並べる
+		/// </summary>
+		bool IsFinished() const { return m_isFinished.load(std::memory_order_seq_cst); }
 
 		// 実行する処理
 		std::function<void()> task;
@@ -66,15 +82,14 @@ namespace Engine::Thread
 	private:
 
 		// 自分の完了で待ち数が減る後続ジョブ
-		std::array<Job*, MAX_CONTINUATION_COUNT>	m_continuations = {};
-		uint32_t									m_continuationCount = 0;
+		std::vector<Job*>	m_continuations = {};
 
 		// 完了済みか
 		// 未使用スロットは true から始める : プールの踏み潰し検出に使う
-		std::atomic<bool>							m_isFinished = true;
+		std::atomic<bool>	m_isFinished = true;
 
 		// 完了フラグと後続リストをまとめて守る
-		std::mutex									m_continuationMutex;
+		std::mutex			m_continuationMutex;
 
 		friend class JobPool;
 	};

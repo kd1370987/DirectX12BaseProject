@@ -44,6 +44,7 @@ namespace Engine::Scene
 		_services.pMainEditor		= &Engine::Editor::MainEditor::Instance();
 		_services.pRayEngine		= &Engine::Raytracing::RayEngine::Instance();
 		_services.pAudioManager		= &Engine::Audio::AudioManager::Instance();
+		_services.pJobSystem		= Engine::MainEngine::Instance().RefJobSystem();
 		m_upWorld->SetEngineServices(_services);
 
 		// ワールド設定の呼びだし

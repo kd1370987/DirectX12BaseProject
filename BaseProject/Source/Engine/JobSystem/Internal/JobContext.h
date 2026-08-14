@@ -30,6 +30,15 @@ namespace Engine::Thread
 		std::condition_variable	finishedCondition;		// 全ジョブ完了の通知
 		std::mutex				finishedMutex;
 
+		// ---- 個別ジョブの完了待ち ----
+		// WaitForAll() は「システム全体のジョブが尽きるまで」しか待てない。
+		// モデルロードのような長いジョブが同時に走っているので、
+		// フレーム内の同期(ECS のフェーズ終わり待ちなど)には使えない。
+		// そのため「このジョブが終わるまで」だけを待つ経路を別に用意する
+		std::atomic<uint32_t>	jobWaiterCount = 0;		// WaitFor() で待っているスレッド数
+		std::condition_variable	jobFinishedCondition;	// ジョブ1件の完了通知
+		std::mutex				jobFinishedMutex;
+
 		// ---- ジョブ待ち ----
 		// ワーカーは全員この1つの条件変数で待つ。
 		// ワーカーごとに条件変数を持って自分のキューだけを見ていると、
@@ -87,6 +96,48 @@ namespace Engine::Thread
 				std::lock_guard _lock(finishedMutex);
 			}
 			finishedCondition.notify_all();
+		}
+
+		/// <summary>
+		/// ジョブ1件の完了を知らせる : ワーカーが1件終えるたびに呼ぶ
+		///
+		/// ロードジョブのように大量に流れるものでミューテックスを踏まないよう、
+		/// 待っている人がいないときは何もしない。
+		///
+		/// この「先に完了印を付けてから待ち人数を見る」と
+		/// WaitForJob() 側の「先に待ち人数を増やしてから完了印を見る」は
+		/// 互いにすれ違う形になっているため、
+		/// 両方の読み書きを seq_cst にして1本の順序へ載せてある。
+		/// これで「通知が飛ばず、かつ完了印も見えない」という組み合わせは起きない
+		/// </summary>
+		void NotifyJobFinished()
+		{
+			if (jobWaiterCount.load(std::memory_order_seq_cst) == 0) return;
+
+			// 待機側は jobFinishedMutex を握って述語を評価するため、
+			// ロックを一度通してから通知しないと lost wakeup になる
+			{
+				std::lock_guard _lock(jobFinishedMutex);
+			}
+			jobFinishedCondition.notify_all();
+		}
+
+		/// <summary>
+		/// 指定したジョブが終わるまで待機する
+		/// </summary>
+		template<typename FinishedPredicateFnc>
+		void WaitForJobFinished(FinishedPredicateFnc&& a_isFinished)
+		{
+			// 待ち人数は「完了印を見る前」に増やしきる。
+			// 後にすると、その隙間に終わったジョブの通知を取りこぼす
+			jobWaiterCount.fetch_add(1, std::memory_order_seq_cst);
+
+			{
+				std::unique_lock _lock(jobFinishedMutex);
+				jobFinishedCondition.wait(_lock, a_isFinished);
+			}
+
+			jobWaiterCount.fetch_sub(1, std::memory_order_seq_cst);
 		}
 
 		/// <summary>

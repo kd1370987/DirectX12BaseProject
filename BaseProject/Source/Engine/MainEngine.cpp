@@ -486,6 +486,10 @@ namespace Engine
 	{
 		return m_upCollisionWorld.get();
 	}
+	Thread::JobSystem* MainEngine::RefJobSystem()
+	{
+		return m_upJobSystem.get();
+	}
 	const Particle::ParticleBufferManager* MainEngine::GetParticleManager() const
 	{
 		return m_upParticleManager.get();

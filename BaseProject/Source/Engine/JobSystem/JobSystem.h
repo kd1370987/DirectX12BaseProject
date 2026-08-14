@@ -34,7 +34,21 @@ namespace Engine::Thread
 		Job* PushJob(std::function<void()>&& a_job, std::initializer_list<Job*> a_dependencies);
 
 		// 処理の終了待ち : 全処理が終わるまで待機
+		//
+		// 「システムに積まれた全ジョブ」が対象なので、
+		// 非同期ロードなど別系統のジョブが走っている間は返ってこない。
+		// フレーム内の同期には WaitFor() を使うこと
 		void WaitForAll();
+
+		/// <summary>
+		/// 指定したジョブ1件が終わるまで待機する
+		///
+		/// 依存を1点にまとめたフェンスジョブを待つ用途を想定している。
+		/// 待っている間このスレッドは眠るので、
+		/// 呼ぶ側は待ちに入る前に積めるものを積みきっておくこと
+		/// </summary>
+		/// <param name="a_pJob">待つジョブ : nullptr なら即座に返る</param>
+		void WaitFor(Job* a_pJob);
 
 		// アクセサ
 		// 起動しているワーカー数 : 処理をチャンクに分ける粒度を決めるのに使う

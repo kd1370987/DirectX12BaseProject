@@ -81,6 +81,9 @@ namespace Engine
 		// コリジョンワールド
 		Collision::CollisionWorld* RefCollisionWorld();
 
+		// ジョブシステム
+		Thread::JobSystem* RefJobSystem();
+
 		// コンフィグ取得
 		EBuildConfiguration GetBuildMode() const { return m_buildMode; }
 
