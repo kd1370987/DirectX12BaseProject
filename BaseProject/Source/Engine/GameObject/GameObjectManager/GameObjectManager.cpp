@@ -1,8 +1,17 @@
 #include "GameObjectManager.h"
+
+#include "../../ECS/World/World.h"
+
 namespace Engine::GameObject
 {
-	GameObjectManager::GameObjectManager()
-	{}
+	GameObjectManager::GameObjectManager(Engine::ECS::World* a_pWorld)
+	{
+		// 以降 Init/Update/Draw/Archive へ渡すコンテキストに載せておく。
+		// サービス群はワールドが持っているものをそのまま使う
+		// (シーン側で組んだ1つの束を、システムとオブジェクトで共有する)
+		m_objContext.pWorld = a_pWorld;
+		m_objContext.pServices = a_pWorld ? a_pWorld->RefEngineServices() : nullptr;
+	}
 	GameObjectManager::~GameObjectManager()
 	{}
 	void GameObjectManager::PreUpdate()
@@ -125,7 +134,7 @@ namespace Engine::GameObject
 					// 個別データ
 					if (a_ar.BeginGroup("Data"))
 					{
-						_pObject->Archive(a_ar);
+						_pObject->Archive(a_ar, m_objContext);
 						a_ar.EndGroup();
 					}
 				}
@@ -151,7 +160,7 @@ namespace Engine::GameObject
 						_pObject->Init(m_objContext);
 						if (a_ar.BeginGroup("Data"))
 						{
-							_pObject->Archive(a_ar);
+							_pObject->Archive(a_ar, m_objContext);
 							a_ar.EndGroup();
 						}
 					}

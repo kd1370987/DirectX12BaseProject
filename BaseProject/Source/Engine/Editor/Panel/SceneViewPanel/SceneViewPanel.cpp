@@ -6,6 +6,7 @@
 
 #include "../../../Scene/BaseScene/BaseScene.h"
 #include "../../../Scene/SceneManager/SceneManager.h"
+#include "../../../GameObject/GameObjectManager/GameObjectManager.h"
 
 #include "../../../ECS/World/World.h"
 #include "../../EditorCamera/EditorCamera.h"
@@ -827,6 +828,11 @@ namespace Engine::Editor
 		auto* _pObj = a_editContext.pGameObject;
 		if (!_pObj) return;
 
+		// オブジェクト側がシングルトンを触らずに済むよう、
+		// マネージャーが配っているものと同じ実行コンテキストを渡す
+		auto* _pObjManager = Engine::Scene::SceneManager::Instance().RefGameObjectManager();
+		if (!_pObjManager) return;
+
 		// ギズモ描画先とレクトを、シーンビュー画像に合わせる(エンティティ用と同じ設定)
 		ImGuizmo::SetDrawlist();
 		ImGuizmo::SetRect(a_pos.x, a_pos.y, a_rect.x, a_rect.y);
@@ -844,7 +850,7 @@ namespace Engine::Editor
 		_ctx.viewportPos = { a_pos.x, a_pos.y };
 		_ctx.viewportSize = { a_rect.x, a_rect.y };
 
-		_pObj->DrawGizmo(_ctx);
+		_pObj->DrawGizmo(_ctx, _pObjManager->RefObjectContext());
 	}
 	void SceneViewPanel::SceneFileMenu(EditorContext& a_editContext)
 	{

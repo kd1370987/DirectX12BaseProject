@@ -15,17 +15,17 @@ namespace App::Object
 		void Draw(Engine::GameObject::ObjectContext& a_context) override;
 
 		// アーカイブ
-		void Archive(Engine::Persistence::Archive& a_ar) override;
+		void Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context) override;
 
 		//-----------------------------------------------------------------------
 		// エディター用
 		//-----------------------------------------------------------------------
 		
 		// UIでの基本的なステータスをいじる : 継承先で作るのなら、初めに呼ぶ
-		void DrawInspector() override;
+		void DrawInspector(Engine::GameObject::ObjectContext& a_context) override;
 
 		// シーンビュー上のスクリーンハンドルで位置を編集する
-		bool DrawGizmo(const Engine::GameObject::ObjectGizmoContext& a_ctx) override;
+		bool DrawGizmo(const Engine::GameObject::ObjectGizmoContext& a_ctx, Engine::GameObject::ObjectContext& a_context) override;
 
 	protected:
 

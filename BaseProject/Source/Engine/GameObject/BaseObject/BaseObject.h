@@ -1,12 +1,29 @@
 ﻿#pragma once
+
+namespace Engine::ECS
+{
+	class World;
+	struct EngineServices;
+}
+
 namespace Engine::GameObject
 {
 	/// <summary>
 	/// 引数で持たせる
+	///
+	/// オブジェクト側からシングルトンを名指ししなくて済むように、
+	/// シーン生成時にマネージャーへ差し込んだものをここで配る。
+	/// (システム側の SystemContext と同じ考え方)
 	/// </summary>
 	struct ObjectContext
 	{
-		float dt;
+		float dt = 0.0f;
+
+		// 自分が属するシーンのECSワールド
+		Engine::ECS::World* pWorld = nullptr;
+
+		// アプリ寿命のサービス群(グラフィックス・リソース・オプションなど)
+		Engine::ECS::EngineServices* pServices = nullptr;
 	};
 
 	/// <summary>
@@ -48,7 +65,8 @@ namespace Engine::GameObject
 		/// (保存/読み込みの分岐は Archive クラスが内部で吸収する)
 		/// </summary>
 		/// <param name="a_ar">保存・読み込み両対応のアーカイブ</param>
-		virtual void Archive(Persistence::Archive& a_ar) {}
+		/// <param name="a_context">リソース再要求などに使う実行コンテキスト</param>
+		virtual void Archive(Persistence::Archive& a_ar, ObjectContext& a_context) {}
 
 		//=======================================================================
 		// エディター用
@@ -62,14 +80,16 @@ namespace Engine::GameObject
 		/// <summary>
 		/// インスペクターに描画する編集UI。ImGuiで自由に組む。
 		/// </summary>
-		virtual void DrawInspector() {}
+		/// <param name="a_context">リソース参照などに使う実行コンテキスト</param>
+		virtual void DrawInspector(ObjectContext& a_context) {}
 
 		/// <summary>
 		/// シーンビュー上でギズモ編集する場合にオーバーライドする。
 		/// </summary>
 		/// <param name="a_ctx">カメラ行列・ビューポート情報</param>
+		/// <param name="a_context">リソース参照などに使う実行コンテキスト</param>
 		/// <returns>ギズモを表示・操作したなら true</returns>
-		virtual bool DrawGizmo(const ObjectGizmoContext& a_ctx) { return false; }
+		virtual bool DrawGizmo(const ObjectGizmoContext& a_ctx, ObjectContext& a_context) { return false; }
 
 		//=======================================================================
 

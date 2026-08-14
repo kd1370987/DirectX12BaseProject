@@ -12,6 +12,7 @@
 // ECS外オブジェクト(クラスメタマネージャー / 登録するクラス)
 #include "../../../Engine/GameObject/ObjectMetaRegistry/ObjectMetaRegistry.h"
 #include "Application/Object/UI/CombatReticleHUD/CombatReticleHUD.h"
+#include "Application/Object/UI/TargetBoxHUD/TargetBoxHUD.h"
 
 // コンポーネント関係
 // システムフェーズタグ
@@ -219,6 +220,7 @@ namespace App::Game
 		{
 			auto& _objRegistry = Engine::GameObject::ObjectMetaRegistry::Instance();
 			_objRegistry.RegisterType<App::Object::CombatReticleHUD>("CombatReticleHUD");
+			_objRegistry.RegisterType<App::Object::TargetBoxHUD>("TargetBoxHUD");
 		}
 
 		// ワールドの初期化関数登録

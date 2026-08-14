@@ -13,7 +13,15 @@ namespace Engine::GameObject
 	class GameObjectManager
 	{
 	public:
-		GameObjectManager();
+
+		/// <summary>
+		/// コンストラクタ
+		/// </summary>
+		/// <param name="a_pWorld">
+		/// 同じシーンのECSワールド。ここで受け取ったものを ObjectContext に載せて
+		/// 各オブジェクトへ配るので、オブジェクト側はシングルトンを触らずに済む。
+		/// </param>
+		explicit GameObjectManager(Engine::ECS::World* a_pWorld);
 		~GameObjectManager();
 		NON_COPYABLE_NON_MOVABLE(GameObjectManager);
 
@@ -63,6 +71,12 @@ namespace Engine::GameObject
 		/// 管理中のオブジェクト一覧を取得(エディターのヒエラルキー表示用)。
 		/// </summary>
 		const std::vector<std::unique_ptr<BaseObject>>& GetObjects() const { return m_upObjectVec; }
+
+		/// <summary>
+		/// オブジェクトへ配っている実行コンテキストを取得。
+		/// エディターから DrawInspector / DrawGizmo を呼ぶときに渡す。
+		/// </summary>
+		ObjectContext& RefObjectContext() { return m_objContext; }
 
 	private:
 

@@ -7,6 +7,11 @@ namespace Engine
 namespace Engine::Resource
 {
 	class ResourceManager;
+	class AssetDatabase;
+}
+namespace Engine::Option
+{
+	class OptionManager;
 }
 namespace Engine::Input
 {
@@ -43,11 +48,13 @@ namespace Engine::ECS
 	{
 		MainEngine*					pMainEngine			= nullptr;
 		Resource::ResourceManager*	pResourceManager	= nullptr;
+		Resource::AssetDatabase*	pAssetDatabase		= nullptr;
 		Input::InputManager*		pInputManager		= nullptr;
 		Editor::MainEditor*			pMainEditor			= nullptr;
 		Raytracing::RayEngine*		pRayEngine			= nullptr;
 		Audio::AudioManager*		pAudioManager		= nullptr;
 		Thread::JobSystem*			pJobSystem			= nullptr;
+		Option::OptionManager*		pOptionManager		= nullptr;
 	};
 
 	/// <summary>

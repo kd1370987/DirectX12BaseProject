@@ -243,6 +243,7 @@
     <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateStruct\GameFlowStateStruct.cpp" />
     <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp" />
     <ClCompile Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.cpp" />
+    <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp" />
@@ -602,6 +603,7 @@
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\HitEventResource.h" />
     <ClInclude Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.h" />
+    <ClInclude Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\UIBase.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h" />

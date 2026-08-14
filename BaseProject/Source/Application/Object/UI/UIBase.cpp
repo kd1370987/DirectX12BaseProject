@@ -1,5 +1,6 @@
 ﻿#include "UIBase.h"
 
+#include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
@@ -16,7 +17,9 @@ namespace App::Object
 
 	void UIBase::Draw(Engine::GameObject::ObjectContext& a_context)
 	{
-		auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
+		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
+
+		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
 		if (!_pGE) return;
 
 		// 座標・サイズ(px)、回転(度)、正規化ピボット[0,1]をそのまま渡す。
@@ -32,7 +35,7 @@ namespace App::Object
 			m_pivot
 		);
 	}
-	void UIBase::Archive(Engine::Persistence::Archive& a_ar)
+	void UIBase::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
 	{
 		a_ar.GUIDField("TexGUID", m_texGUID);
 		a_ar.Field("Color", m_color);
@@ -53,13 +56,18 @@ namespace App::Object
 		if (a_ar.IsLoading())
 		{
 			if (!m_texGUID.IsValid()) return;
-			m_texRef = Engine::Resource::ResourceManager::Instance().RequestLoad<Engine::Resource::Texture>(m_texGUID);
+			if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
+
+			m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
 		}
 	}
-	void UIBase::DrawInspector()
+	void UIBase::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
+		if (!a_context.pServices) return;
+		if (!a_context.pServices->pOptionManager || !a_context.pServices->pResourceManager) return;
+
 		// ウィンドウサイズの取得
-		const auto& _winOp = Engine::Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _winOp = a_context.pServices->pOptionManager->GetWindowOption();
 		const float _w = static_cast<float>(_winOp.windowWidth);
 		const float _h = static_cast<float>(_winOp.windowHeight);
 
@@ -73,7 +81,7 @@ namespace App::Object
 				m_texGUID))
 			{
 				// テクスチャの差し替え : 届くまでは描画側がスキップする
-				m_texRef = Engine::Resource::ResourceManager::Instance().RequestLoad<Engine::Resource::Texture>(m_texGUID);
+				m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
 			}
 			ImGui::DragFloat4("ColorScale", &m_color.x, 0.01f, 0.0f);
 			Engine::Editor::EditorHelper::DrawTexture(m_texRef, 256, 256);
@@ -107,7 +115,7 @@ namespace App::Object
 		{
 			m_pixelPos = { _w / 2.0f,_h / 2.0f };
 
-			const auto* _pTex = Engine::Resource::ResourceManager::Instance().Get(m_texRef);
+			const auto* _pTex = a_context.pServices->pResourceManager->Get(m_texRef);
 			if (_pTex)
 			{
 				const auto& _desc = _pTex->GetDesc();
@@ -133,13 +141,14 @@ namespace App::Object
 		ImGui::DragFloat("LayerZ", &m_layer, 1.0f);
 		
 	}
-	bool UIBase::DrawGizmo(const Engine::GameObject::ObjectGizmoContext& a_ctx)
+	bool UIBase::DrawGizmo(const Engine::GameObject::ObjectGizmoContext& a_ctx, Engine::GameObject::ObjectContext& a_context)
 	{
 		// シーンビュー上にドラッグ可能なハンドルを出してピクセル座標を編集する
 		if (a_ctx.viewportSize.x <= 0.0f || a_ctx.viewportSize.y <= 0.0f) return false;
+		if (!a_context.pServices || !a_context.pServices->pOptionManager) return false;
 
 		// ウィンドウサイズの取得
-		const auto& _winOp = Engine::Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _winOp = a_context.pServices->pOptionManager->GetWindowOption();
 		const float _w = static_cast<float>(_winOp.windowWidth);
 		const float _h = static_cast<float>(_winOp.windowHeight);
 		if (_w <= 0.0f || _h <= 0.0f) return false;

@@ -1291,6 +1291,9 @@
     <Filter Include="Source\Application\Object\UI\CombatReticleHUD">
       <UniqueIdentifier>{2e7d9458-8813-4632-9886-e083cfa06481}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\UI\TargetBoxHUD">
+      <UniqueIdentifier>{7c1a2f36-4b90-4e58-9d21-5f0c3ba7e412}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\UI">
       <UniqueIdentifier>{d0a39dc0-d54e-4793-8917-c6872154b83d}</UniqueIdentifier>
     </Filter>
@@ -2174,6 +2177,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.cpp">
       <Filter>Source\Application\Object\UI\CombatReticleHUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp">
+      <Filter>Source\Application\Object\UI\TargetBoxHUD</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp">
       <Filter>Source\Application\Object\UI</Filter>
@@ -3478,6 +3484,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.h">
       <Filter>Source\Application\Object\UI\CombatReticleHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.h">
+      <Filter>Source\Application\Object\UI\TargetBoxHUD</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\UIBase.h">
       <Filter>Source\Application\Object\UI</Filter>

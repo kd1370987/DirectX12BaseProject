@@ -9,6 +9,8 @@
 // エンジン系
 #include "../../MainEngine.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
+#include "../../Option/OptionManager.h"
 #include "../../Collision/CollisionWorld.h"
 #include "../../Input/InputManager/InputManager.h"
 #include "../../Editor/Editor.h"
@@ -40,11 +42,13 @@ namespace Engine::Scene
 		Engine::ECS::EngineServices _services = {};
 		_services.pMainEngine		= &Engine::MainEngine::Instance();
 		_services.pResourceManager	= &Engine::Resource::ResourceManager::Instance();
+		_services.pAssetDatabase	= &Engine::Resource::AssetDatabase::Instance();
 		_services.pInputManager		= &Engine::Input::InputManager::Instance();
 		_services.pMainEditor		= &Engine::Editor::MainEditor::Instance();
 		_services.pRayEngine		= &Engine::Raytracing::RayEngine::Instance();
 		_services.pAudioManager		= &Engine::Audio::AudioManager::Instance();
 		_services.pJobSystem		= Engine::MainEngine::Instance().RefJobSystem();
+		_services.pOptionManager	= &Engine::Option::OptionManager::GetInstance();
 		m_upWorld->SetEngineServices(_services);
 
 		// ワールド設定の呼びだし
@@ -52,7 +56,8 @@ namespace Engine::Scene
 
 		// ECS外オブジェクトの生成
 		// 中身はシーン読み込み(Archive)またはエディターの AddObject で追加される。
-		m_upGameObjectManager = std::make_unique<GameObject::GameObjectManager>();
+		// 自シーンのワールドを渡し、各オブジェクトへは ObjectContext 経由で配らせる。
+		m_upGameObjectManager = std::make_unique<GameObject::GameObjectManager>(m_upWorld.get());
 	}
 
 	void BaseScene::Exit()
