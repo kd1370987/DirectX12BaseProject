@@ -24,7 +24,9 @@ namespace App::Object
 			m_texGUID = Engine::Resource::AssetDatabase::Instance().GetGUIDFromFilePath(RETICLE_TEXTURE_PATH);
 		}
 		if (!m_texGUID.IsValid()) return;
-		m_texRef = Engine::Resource::ResourceManager::Instance().LoadImmediate<Engine::Resource::Texture>(m_texGUID);
+
+		// 実体の到着は待たない。描画側が IsReady を見てスキップする
+		m_texRef = Engine::Resource::ResourceManager::Instance().RequestLoad<Engine::Resource::Texture>(m_texGUID);
 	}
 
 	void CombatReticleHUD::Update(Engine::GameObject::ObjectContext& a_context)

@@ -47,11 +47,13 @@ namespace App::Object
 
 		m_editSize = m_pixelSize;
 
-		// 読み込み時は復元したGUIDでテクスチャを引き直す
+		// 読み込み時は復元したGUIDでテクスチャを引き直す。
+		// 実体が届くのを待つ必要はないので、要求だけ出して先へ進む。
+		// 描画側は IsReady を見て、まだのフレームは描かない
 		if (a_ar.IsLoading())
 		{
 			if (!m_texGUID.IsValid()) return;
-			m_texRef = Engine::Resource::ResourceManager::Instance().LoadImmediate<Engine::Resource::Texture>(m_texGUID);
+			m_texRef = Engine::Resource::ResourceManager::Instance().RequestLoad<Engine::Resource::Texture>(m_texGUID);
 		}
 	}
 	void UIBase::DrawInspector()
@@ -70,8 +72,8 @@ namespace App::Object
 				"Texture",
 				m_texGUID))
 			{
-				// テクスチャの差し替え
-				m_texRef = Engine::Resource::ResourceManager::Instance().LoadImmediate<Engine::Resource::Texture>(m_texGUID);
+				// テクスチャの差し替え : 届くまでは描画側がスキップする
+				m_texRef = Engine::Resource::ResourceManager::Instance().RequestLoad<Engine::Resource::Texture>(m_texGUID);
 			}
 			ImGui::DragFloat4("ColorScale", &m_color.x, 0.01f, 0.0f);
 			Engine::Editor::EditorHelper::DrawTexture(m_texRef, 256, 256);

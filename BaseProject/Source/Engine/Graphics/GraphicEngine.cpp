@@ -644,7 +644,14 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const DXSM::Vector2& a_screenPos, const DXSM::Vector2& a_screenRect, const DXSM::Vector4& a_color, float a_rotation, float a_layer, const DXSM::Vector2& a_uvOffset, const DXSM::Vector2& a_pivot)
 	{
-		auto* _pTex = Resource::ResourceManager::Instance().Get(a_texHandle);
+		auto& _resMgr = Resource::ResourceManager::Instance();
+
+		// 読み込みが終わっていないものは、そのフレームは描かない。
+		// 非同期ロード中のスロットには空の実体が入っているため、
+		// ポインタのnullチェックだけでは弾けない
+		if (!_resMgr.IsReady(a_texHandle)) return;
+
+		auto* _pTex = _resMgr.Get(a_texHandle);
 		if (!_pTex) return;
 
 		// サイズは呼び出し側の指定値をそのまま使う
@@ -653,7 +660,12 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const DXSM::Vector2& a_screenPos, float a_scale, const DXSM::Vector4& a_color, float a_rotation, float a_layer, const DXSM::Vector2& a_uvOffset, const DXSM::Vector2& a_pivot)
 	{
-		auto* _pTex = Resource::ResourceManager::Instance().Get(a_texHandle);
+		auto& _resMgr = Resource::ResourceManager::Instance();
+
+		// 読み込み中のものは描かない : 空の実体のサイズを掛けても意味がない
+		if (!_resMgr.IsReady(a_texHandle)) return;
+
+		auto* _pTex = _resMgr.Get(a_texHandle);
 		if (!_pTex) return;
 
 		// テクスチャの元サイズにスケールを掛けたものを表示サイズにする

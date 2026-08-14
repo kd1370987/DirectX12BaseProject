@@ -344,7 +344,16 @@ namespace Engine::Editor
 	)
 	{
 		// テクスチャ表示
-		auto* _pTex = Resource::ResourceManager::Instance().Ref(a_handle);
+		auto& _resMgr = Resource::ResourceManager::Instance();
+
+		// 読み込み中はまだ中身が空なので、SRVを引くと不正なディスクリプタを掴む
+		if (!_resMgr.IsReady(a_handle))
+		{
+			ImGui::Text("Loading...");
+			return { 0,0 };
+		}
+
+		auto* _pTex = _resMgr.Ref(a_handle);
 		if (!_pTex)
 		{
 			ImGui::Text("Not find texture");
