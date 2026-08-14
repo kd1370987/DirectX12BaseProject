@@ -430,6 +430,8 @@
     <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows\InputButtonForWindows.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput\InputButtonForXInput.cpp" />
     <ClCompile Include="Source\Engine\Input\InputManager\InputManager.cpp" />
+    <ClCompile Include="Source\Engine\JobSystem\Core\Job\Job.cpp" />
+    <ClCompile Include="Source\Engine\JobSystem\Internal\JobPool\JobPool.cpp" />
     <ClCompile Include="Source\Engine\JobSystem\Internal\JobQueue\JobQueue.cpp" />
     <ClCompile Include="Source\Engine\JobSystem\Internal\JobWorker\JobWorker.cpp" />
     <ClCompile Include="Source\Engine\JobSystem\JobSystem.cpp" />
@@ -841,6 +843,7 @@
     <ClInclude Include="Source\Engine\Input\Internal\InputContext.h" />
     <ClInclude Include="Source\Engine\JobSystem\Core\Job\Job.h" />
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobContext.h" />
+    <ClInclude Include="Source\Engine\JobSystem\Internal\JobPool\JobPool.h" />
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobQueue\JobQueue.h" />
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobWorker\JobWorker.h" />
     <ClInclude Include="Source\Engine\JobSystem\JobSystem.h" />

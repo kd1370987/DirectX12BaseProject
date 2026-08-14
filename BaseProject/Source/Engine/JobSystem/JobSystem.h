@@ -18,8 +18,20 @@ namespace Engine::Thread
 
 		// タスクの追加
 		// すべてのタスクはここで受け付けて、内部で各ワーカーに割り振られる
-		void PushJob(std::function<void()>&& a_job);
-		Handle<Job> Schedule(std::function<void()>&& a_job);
+		Job* PushJob(std::function<void()>&& a_job);
+
+		/// <summary>
+		/// 先行ジョブの完了を待ってから走るタスクを追加する
+		///
+		/// 渡したジョブがすべて終わった時点で自動的にキューへ流れる。
+		/// 登録時にすでに終わっていた先行ジョブは、その場で解決済みとして扱う。
+		///
+		/// 返るポインタはワーカーのジョブプールを指す。
+		/// プールはリングで使い回されるため、後続を張る目的以外で長く持たないこと
+		/// </summary>
+		/// <param name="a_dependencies">先行ジョブ : nullptr は無視される</param>
+		Job* PushJob(std::function<void()>&& a_job, std::span<Job* const> a_dependencies);
+		Job* PushJob(std::function<void()>&& a_job, std::initializer_list<Job*> a_dependencies);
 
 		// 処理の終了待ち : 全処理が終わるまで待機
 		void WaitForAll();

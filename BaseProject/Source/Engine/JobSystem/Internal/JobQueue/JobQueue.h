@@ -5,10 +5,10 @@ namespace Engine::Thread
 	{
 	public:
 
-		void Push(std::function<void()> a_job);
+		void Push(Job* a_pJob);
 
-		bool TryPop(std::function<void()>& a_outJob);
-		bool TrySteal(std::function<void()>& a_outJob);
+		bool TryPop(Job*& a_pOutJob);
+		bool TrySteal(Job*& a_pOutJob);
 
 		// 待機側の述語から呼ばれる。
 		// 他スレッドが Push/Pop している最中の deque を素で読むと競合するため、
@@ -20,7 +20,7 @@ namespace Engine::Thread
 		}
 
 	private:
-		std::deque<std::function<void()>> m_jobs = {};		// タスク
+		std::deque<Job*> m_jobs = {};		// タスク
 		mutable std::mutex m_mutex;
 	};
 }

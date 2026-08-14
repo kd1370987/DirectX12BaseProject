@@ -21,7 +21,17 @@ namespace Engine::Thread
 
 		void Join();									// スレッドの終了待ち
 
-		void PushJob(std::function<void()>&& a_job);
+		/// <summary>
+		/// ジョブの実体を1つ作る : この時点ではまだ実行されない
+		/// 依存を張り終えてから PushReadyJob() で流すこと
+		/// </summary>
+		Job* CreateJob(std::function<void()>&& a_task);
+
+		/// <summary>
+		/// 実行可能になったジョブをキューへ積む
+		/// 依存待ちのジョブをここへ入れないこと
+		/// </summary>
+		void PushReadyJob(Job* a_pJob);
 
 		// アクセサ
 		uint32_t GetID() const { return m_workerID; }
@@ -30,13 +40,11 @@ namespace Engine::Thread
 
 	private:
 
-		void Run();											// タスク処理
-
-		void Execute(std::function<void()>& a_job);			// ジョブの実行
-
-		bool TrySteal(std::function<void()>& a_outJob);		// ほかスレッドからタスクをとってくる
-
-		void WaitForJob();									// ジョブが来るまで待機
+		void Run();							// タスク処理
+		void Execute(Job* a_pJob);			// ジョブの実行
+		void FinishJob(Job* a_pJob);		// 完了処理 : 後続の待ち数を減らして、解けたものを流す
+		bool TrySteal(Job*& a_pOutJob);		// ほかスレッドからタスクをとってくる
+		void WaitForJob();					// ジョブが来るまで待機
 
 
 	private:
@@ -45,7 +53,7 @@ namespace Engine::Thread
 		std::thread m_thread;								// 自身のOSスレッド
 
 		JobQueue m_jobQueue;								// 自身が抱えるタスクキュー
-		JobPool m_jobPool;
+		JobPool m_jobPool;									// ジョブの実体 : ローカルキュー
 
 		JobContext* m_pContext = nullptr;					// ジョブシステム側との共通データ
 

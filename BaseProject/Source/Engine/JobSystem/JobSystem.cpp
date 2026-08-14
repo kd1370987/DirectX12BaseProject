@@ -84,18 +84,29 @@ namespace Engine::Thread
 		m_workerCount = 0;
 	}
 
-	void Engine::Thread::JobSystem::PushJob(std::function<void()>&& a_job)
+	Job* Engine::Thread::JobSystem::PushJob(std::function<void()>&& a_job)
+	{
+		return PushJob(std::move(a_job), std::span<Job* const>());
+	}
+
+	Job* JobSystem::PushJob(std::function<void()>&& a_job, std::initializer_list<Job*> a_dependencies)
+	{
+		return PushJob(std::move(a_job), std::span<Job* const>(a_dependencies.begin(), a_dependencies.size()));
+	}
+
+	Job* JobSystem::PushJob(std::function<void()>&& a_job, std::span<Job* const> a_dependencies)
 	{
 		// 停止中や未初期化で積むと、カウンタだけ増えて誰も処理しない。
 		// WaitForAll() が返らなくなるので、カウンタを触る前に弾く
 		if (!m_isRunning.load(std::memory_order_acquire) || m_jobWorkers.empty())
 		{
 			ENGINE_WARNING("[JobSystem] 停止中または未初期化のためジョブを破棄しました");
-			return;
+			return nullptr;
 		}
 
-		// キューへ積む前にカウンタを増やす。
-		// 積んでから増やすと、走り出したワーカーが増える前のカウンタを減らしてしまう
+		// 受付の時点で完了待ちに数える。
+		// 依存待ちの間もこのジョブは「まだ終わっていない」ので、
+		// ここで数えておかないと WaitForAll() が素通りする
 		m_upJobContext->AddPendingJob();
 
 		// 割り当て先の決定。
@@ -106,30 +117,50 @@ namespace Engine::Thread
 			m_nextWorker.fetch_add(1, std::memory_order_relaxed)
 			% static_cast<uint32_t>(m_jobWorkers.size());
 
-		m_jobWorkers[_workerIndex]->PushJob(std::move(a_job));
-	}
+		auto& _upWorker = m_jobWorkers[_workerIndex];
 
-	Handle<Job> JobSystem::Schedule(std::function<void()>&& a_job)
-	{
-		// ジョブを発行できるかチェック
-		if (!m_isRunning.load(std::memory_order_acquire) || m_jobWorkers.empty())
+		Job* _pJob = _upWorker->CreateJob(std::move(a_job));
+
+		//--------------------------------------------------------------------------------------
+		// 依存の登録
+		//--------------------------------------------------------------------------------------
+
+		// 有効な先行ジョブの数を数える
+		uint32_t _validCount = 0;
+		for (Job* _pDependency : a_dependencies)
 		{
-			ENGINE_WARNING("[JobSystem] 停止中または未初期化のためジョブを破棄しました");
-			return Handle<Job>{};
+			if (_pDependency != nullptr) ++_validCount;
 		}
 
-		// 未完了ジョブカウンタを増やす
-		m_upJobContext->AddPendingJob();
+		// 依存がなければそのまま流す
+		if (_validCount == 0)
+		{
+			_upWorker->PushReadyJob(_pJob);
+			return _pJob;
+		}
 
-		// 割当先決定
-		const uint32_t _workerIndex =
-			m_nextWorker.fetch_add(1, std::memory_order_relaxed)
-			% static_cast<uint32_t>(m_jobWorkers.size());
+		// 待ち数は「登録を始める前」に立てきる。
+		// 途中で立てると、先に終わった先行ジョブの減算を取りこぼす
+		_pJob->waitingCount.store(_validCount, std::memory_order_release);
 
-		m_jobWorkers[_workerIndex]->PushJob(std::move(a_job));
+		// 登録した時点ですでに終わっていたものは、通知が飛んでこないので自分で数える
+		uint32_t _alreadyFinishedCount = 0;
+		for (Job* _pDependency : a_dependencies)
+		{
+			if (_pDependency == nullptr) continue;
+			if (!_pDependency->AddContinuation(_pJob)) ++_alreadyFinishedCount;
+		}
 
+		// 解決済みの分をまとめて引く。
+		// 待ち数を0にしたのが自分だったときだけキューへ積む。
+		// 先行ジョブ側も同じ判定をしているので、両方が積む二重投入は起きない
+		if (_alreadyFinishedCount > 0 &&
+			_pJob->waitingCount.fetch_sub(_alreadyFinishedCount, std::memory_order_acq_rel) == _alreadyFinishedCount)
+		{
+			_upWorker->PushReadyJob(_pJob);
+		}
 
-
+		return _pJob;
 	}
 
 	void Engine::Thread::JobSystem::WaitForAll()

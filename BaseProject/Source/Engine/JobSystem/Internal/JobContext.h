@@ -40,13 +40,25 @@ namespace Engine::Thread
 		std::mutex				jobAvailableMutex;
 
 		/// <summary>
-		/// ジョブの投入を通知する
-		/// 実際にキューへ積む前に呼ぶこと。
-		/// 後に呼ぶと、積んだ直後に走り出したワーカーが増える前のカウンタを減らしてしまう
+		/// ジョブの受付を通知する : 完了待ちの総数を増やす
+		///
+		/// 依存待ちのジョブはすぐにはキューへ入らないため、
+		/// 「受け付けた数」と「キューに積まれた数」は別々に数える。
+		/// まとめて数えると、依存が解けるまでの間ずっと
+		/// 「仕事がある」と見えてワーカーが空回りし続ける
 		/// </summary>
 		void AddPendingJob()
 		{
 			pendingJobCount.fetch_add(1, std::memory_order_relaxed);
+		}
+
+		/// <summary>
+		/// キューへの投入を通知する
+		/// 実際にキューへ積む前に呼ぶこと。
+		/// 後に呼ぶと、積んだ直後に走り出したワーカーが増える前のカウンタを減らしてしまう
+		/// </summary>
+		void AddQueuedJob()
+		{
 			queuedJobCount.fetch_add(1, std::memory_order_release);
 		}
 

@@ -1354,6 +1354,9 @@
     <Filter Include="Source\Engine\JobSystem\Core\Job">
       <UniqueIdentifier>{da68246d-ecc5-4494-a8a9-b652c6d918d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\JobSystem\Internal\JobPool">
+      <UniqueIdentifier>{3f31d191-5d50-4aad-ac95-938ea1266bf4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
@@ -2216,6 +2219,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\JobSystem\JobSystem.cpp">
       <Filter>Source\Engine\JobSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\JobSystem\Internal\JobPool\JobPool.cpp">
+      <Filter>Source\Engine\JobSystem\Internal\JobPool</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\JobSystem\Core\Job\Job.cpp">
+      <Filter>Source\Engine\JobSystem\Core\Job</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3532,6 +3541,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\JobSystem\Core\Job\Job.h">
       <Filter>Source\Engine\JobSystem\Core\Job</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\JobSystem\Internal\JobPool\JobPool.h">
+      <Filter>Source\Engine\JobSystem\Internal\JobPool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

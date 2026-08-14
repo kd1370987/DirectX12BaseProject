@@ -39,9 +39,24 @@ namespace Engine::Thread
 		}
 		m_pContext = nullptr;
 	}
-	void JobWorker::PushJob(std::function<void()>&& a_job)
+	Job* JobWorker::CreateJob(std::function<void()>&& a_task)
 	{
-		m_jobQueue.Push(std::move(a_job));
+		Job* _pJob = m_jobPool.AllocateJob();
+		_pJob->task = std::move(a_task);
+
+		// まだキューへは積まない。
+		// 依存を張り終えてから PushReadyJob() で流す
+		return _pJob;
+	}
+	void JobWorker::PushReadyJob(Job* a_pJob)
+	{
+		if (a_pJob == nullptr) return;
+
+		// キューへ積む前に数える。
+		// 積んでから増やすと、走り出したワーカーが増える前のカウンタを減らしてしまう
+		m_pContext->AddQueuedJob();
+
+		m_jobQueue.Push(a_pJob);
 
 		// 積み終わってから起こす。
 		// 先に起こすと、起きたワーカーが空のキューを見て寝直すだけになる
@@ -52,19 +67,19 @@ namespace Engine::Thread
 		while (m_isRunning.load(std::memory_order_acquire))
 		{
 			// ジョブの入れ物準備
-			std::function<void()> _job;
+			Job* _pJob = nullptr;
 
 			// 自身のキューからタスクを取得
-			if (m_jobQueue.TryPop(_job))
+			if (m_jobQueue.TryPop(_pJob))
 			{
-				Execute(_job);
+				Execute(_pJob);
 				continue;
 			}
 
 			// ほかのWorkerから盗む
-			if (TrySteal(_job))
+			if (TrySteal(_pJob))
 			{
-				Execute(_job);
+				Execute(_pJob);
 				continue;
 			}
 
@@ -75,14 +90,16 @@ namespace Engine::Thread
 		// 停止要求と入れ違いで積まれた分の回収。
 		// ここで拾わないと未完了カウンタが減らず、
 		// 以降の WaitForAll() が永久に返らなくなる
-		std::function<void()> _restJob;
-		while (m_jobQueue.TryPop(_restJob))
+		Job* _pRestJob = nullptr;
+		while (m_jobQueue.TryPop(_pRestJob))
 		{
-			Execute(_restJob);
+			Execute(_pRestJob);
 		}
 	}
-	void JobWorker::Execute(std::function<void()>& a_job)
+	void JobWorker::Execute(Job* a_pJob)
 	{
+		if (a_pJob == nullptr) return;
+
 		// 取り出した時点で「待っている仕事」ではなくなる
 		m_pContext->OnJobDequeued();
 
@@ -91,7 +108,7 @@ namespace Engine::Thread
 		// ここで受け止めてジョブ1件の失敗に閉じ込める
 		try
 		{
-			a_job();
+			if (a_pJob->task) a_pJob->task();
 		}
 		catch (const std::exception& _e)
 		{
@@ -102,11 +119,38 @@ namespace Engine::Thread
 			ENGINE_WARNING("[JobSystem] ジョブが不明な例外で終了しました");
 		}
 
-		// 例外で終わっても必ず減らす。
-		// ここを飛ばすと WaitForAll() が永久に返らなくなる
+		// 例外で終わっても後続は必ず動かす。
+		// ここを飛ばすと、このジョブを待っているものが永久に起きてこない
+		FinishJob(a_pJob);
+
+		// 完了通知は後続を流したあとに行う。
+		// 先に減らすと、後続がキューへ入る前に未完了数が0になり、
+		// WaitForAll() がまだ仕事が残っているのに返ってしまう
 		m_pContext->FinishPendingJob();
 	}
-	bool JobWorker::TrySteal(std::function<void()>& a_outJob)
+	void JobWorker::FinishJob(Job* a_pJob)
+	{
+		// 完了印を付けつつ後続を引き取る。
+		// この2つを不可分に行わないと、隙間に入った依存登録を取りこぼす
+		std::array<Job*, Job::MAX_CONTINUATION_COUNT> _continuations = {};
+		const uint32_t _count = a_pJob->FinishAndTakeContinuations(_continuations);
+
+		for (uint32_t _i = 0; _i < _count; ++_i)
+		{
+			Job* _pNext = _continuations[_i];
+			if (_pNext == nullptr) continue;
+
+			// 待ち数を0にしたスレッドだけがキューへ積む。
+			// fetch_sub の戻り値で判定しないと、
+			// 同時に最後の1を減らした複数スレッドが二重に積んでしまう
+			if (_pNext->waitingCount.fetch_sub(1, std::memory_order_acq_rel) == 1)
+			{
+				// 自分のキューへ積む : 直前に触ったデータが暖まっている
+				PushReadyJob(_pNext);
+			}
+		}
+	}
+	bool JobWorker::TrySteal(Job*& a_pOutJob)
 	{
 		// 全ワーカーから盗めるタスクを探す。
 		// 停止済みのワーカーも対象にする : 除外すると、
@@ -114,7 +158,7 @@ namespace Engine::Thread
 		for (auto* _pWorker : m_pContext->pJobWorker)
 		{
 			if (_pWorker == this) continue;
-			if (_pWorker->RefQueue().TrySteal(a_outJob)) return true;
+			if (_pWorker->RefQueue().TrySteal(a_pOutJob)) return true;
 		}
 
 		return false;
