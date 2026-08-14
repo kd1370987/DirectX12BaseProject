@@ -75,7 +75,7 @@ namespace Engine::Collision
 	private:
 
 		// 静的データ管理
-		Storage::HandlePool<CollisionInstance> m_staticHandlePool = {};		// 静的ハンドルの管理
+		Pool::HandlePool<CollisionInstance> m_staticHandlePool = {};		// 静的ハンドルの管理
 		std::vector<CollisionInstance> m_staticInstanceVec;					// 静的判定オブジェクト配列
 		std::vector<Resource::BVHNode> m_staticNodeVec = {};				// ノード配列
 		std::vector<int> m_staticInstanceIndexVec = {};				// 全インスタンスインデックス

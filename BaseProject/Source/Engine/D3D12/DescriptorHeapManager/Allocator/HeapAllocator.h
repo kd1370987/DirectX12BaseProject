@@ -27,7 +27,7 @@ namespace Engine::D3D12
 		DescriptorHeap<T::type>* m_pHeap = nullptr;
 		
 		// ハンドル管理
-		Storage::HandlePool<T> m_HandlePool = {};
+		Pool::HandlePool<T> m_HandlePool = {};
 
 		UINT m_startIndex = 0;
 		UINT m_maxCount = 0;

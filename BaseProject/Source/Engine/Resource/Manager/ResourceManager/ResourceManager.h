@@ -168,9 +168,13 @@ namespace Engine::Resource
 
 		// リソースの取得
 		//
+		// 取得はハンドル経由に限定している。
+		// 添え字だけで引く口を用意すると、スロットが再利用されていたときに
+		// 世代の食い違いを検出できず、別のリソースを黙って掴んでしまう。
+		//
 		// 返るポインタは他スレッドの追加では壊れないが、
 		// 同じリソースの Remove / スイープには勝てない。
-		// 破棄はジョブを流していないタイミングで行うこと
+		// 使う瞬間にここで引き直し、ローカルの外へ持ち出さないこと
 		template<typename T>
 		const T* Get(const Handle<T>& a_handle)const;
 		template<typename T>
@@ -179,12 +183,6 @@ namespace Engine::Resource
 		T* Ref(const Handle<T>& a_handle);
 		template<typename T>
 		T* Ref(const ResourceRef<T>& a_handle);
-		template<typename T>
-		const T* Access(const Handle<T>& a_handle);
-		template<typename T>
-		const T* Access(const ResourceRef<T>& a_handle);
-		template<typename T>
-		const T* Access(const uint16_t& a_index);
 
 		//------------------------------------------------------------------------------------------
 		// リソースの状態
@@ -652,25 +650,6 @@ namespace Engine::Resource
 	}
 
 	template<typename T>
-	inline const T* ResourceManager::Access(const Handle<T>& a_handle)
-	{
-		return GetPool<T>().Access(a_handle.GetIndex());
-	}
-
-	template<typename T>
-	inline const T* ResourceManager::Access(const ResourceRef<T>& a_handle)
-	{
-		return Access(a_handle.GetRaw());
-	}
-
-
-	template<typename T>
-	inline const T* ResourceManager::Access(const uint16_t& a_index)
-	{
-		return GetPool<T>().Access(a_index);
-	}
-
-	template<typename T>
 	inline void ResourceManager::SweepUnused()
 	{
 		auto& _data = RefData<T>();
@@ -685,7 +664,7 @@ namespace Engine::Resource
 			const uint16_t _index = static_cast<uint16_t>(_i);
 
 			// 存在チェック
-			if (_data.pool.Access(_index) == nullptr) continue;
+			if (!_data.pool.IsOccupied(_index)) continue;
 
 			auto* _pSlot = RefSlot<T>(_index);
 			if (_pSlot == nullptr) continue;

@@ -205,8 +205,8 @@ namespace Engine::Resource
 					// 実体はリソースマネージャーに置いたままにして、参照先の番号だけを控える
 					ModelDrawCommand _cmd = {};
 					_cmd.nodeIndex = static_cast<uint16_t>(_meshNodeIdx);
-					_cmd.meshRawID = static_cast<uint16_t>(_meshHandle.GetIndex());
-					_cmd.materialRawID = static_cast<uint16_t>(_materialHandle.GetIndex());
+					_cmd.meshHandle = _meshHandle;
+					_cmd.materialHandle = _materialHandle;
 					_cmd.subIdx = _subIdx;
 					_cmd.alphaMode = _pMate->alphaMode;
 					a_runtimeData.drawCommands.push_back(_cmd);

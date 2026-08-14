@@ -263,12 +263,14 @@ namespace Engine::Editor::Inspector
 				}
 
 				ImGui::Text(
-					"[%zu] node=%s sub=%u meshRawID=%u materialRawID=%u alpha=%s",
+					"[%zu] node=%s sub=%u mesh=%u(gen%u) material=%u(gen%u) alpha=%s",
 					_i,
 					_nodeName.c_str(),
 					static_cast<UINT>(_cmd.subIdx),
-					static_cast<UINT>(_cmd.meshRawID),
-					static_cast<UINT>(_cmd.materialRawID),
+					static_cast<UINT>(_cmd.meshHandle.GetIndex()),
+					static_cast<UINT>(_cmd.meshHandle.GetGeneration()),
+					static_cast<UINT>(_cmd.materialHandle.GetIndex()),
+					static_cast<UINT>(_cmd.materialHandle.GetGeneration()),
 					std::string(magic_enum::enum_name(_cmd.alphaMode)).c_str()
 				);
 			}

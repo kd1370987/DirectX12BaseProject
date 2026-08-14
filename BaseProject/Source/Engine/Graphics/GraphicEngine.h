@@ -45,6 +45,10 @@ namespace Engine::Graphics
 	};
 
 	// 64ビットのソートキー
+	//
+	// ここに詰まっている ID は「並べ替えと、同じ状態をまとめるため」だけのもの。
+	// 世代を持たないので、ここからリソースを引かないこと。
+	// 実体が必要なときは LightWeightDrawItem のハンドルから取得する
 	union RenderSortKey
 	{
 		uint64_t value;
@@ -64,6 +68,12 @@ namespace Engine::Graphics
 		RenderSortKey sortKey;
 		UINT subIndex = 0;
 
+		// 描画に使うリソース。
+		// 実体はリソースマネージャーに置いたままにして、ここではハンドルだけを持つ。
+		// 描画する瞬間に引き直すこと
+		Handle<Resource::Mesh>		meshHandle = {};
+		Handle<Resource::Material>	materialHandle = {};
+
 		// インスタンスデータ
 		bool isAnimation = false;
 
@@ -74,7 +84,6 @@ namespace Engine::Graphics
 		// メッシュシェーダー用インデックス
 		UINT meshInstanceIndex = 0;
 		UINT meshMaterialIndex = 0;
-		MeshAllocationHandle meshHandle = {};
 
 		// このサブセットを描画するためのメッシュレット数
 		UINT subsetMeshletCount = 0;
@@ -82,8 +91,6 @@ namespace Engine::Graphics
 		// ヘルパー関数
 		uint8_t GetPassIndex()		const { return static_cast<uint8_t>(sortKey.value >> 56); }
 		uint8_t GetPSOID()			const { return static_cast<uint8_t>((sortKey.value >> 48) & 0xFF); }
-		uint16_t GetMaterialID()	const { return static_cast<uint16_t>((sortKey.value >> 32) & 0xFFFF); }
-		uint16_t GetMeshID()		const { return static_cast<uint16_t>((sortKey.value >> 16) & 0xFFFF); }
 	};
 
 	/// <summary>

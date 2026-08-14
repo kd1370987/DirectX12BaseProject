@@ -839,6 +839,7 @@
     <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput\InputButtonForXInput.h" />
     <ClInclude Include="Source\Engine\Input\InputManager\InputManager.h" />
     <ClInclude Include="Source\Engine\Input\Internal\InputContext.h" />
+    <ClInclude Include="Source\Engine\JobSystem\Core\Job\Job.h" />
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobContext.h" />
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobQueue\JobQueue.h" />
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobWorker\JobWorker.h" />

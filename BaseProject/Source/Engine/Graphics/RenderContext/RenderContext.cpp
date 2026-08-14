@@ -511,8 +511,6 @@ namespace Engine::Graphics
 	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)
 	{
 		// キャッシュ
-		uint16_t _lassMaterialID = 0xFFFF;
-		uint16_t _lastMeshID = 0xFFFF;
 		uint8_t _lastPSO = 0xFF;
 
 		// 指定タイプの命令キューを取得
@@ -521,9 +519,9 @@ namespace Engine::Graphics
 
 		for (auto& _item : _itemVec)
 		{
+			// メッシュシェーダー経路はインスタンスデータ側にリソースを寄せてあるため、
+			// ここではメッシュ・マテリアルをバインドしない
 			uint8_t  _psoID = _item.GetPSOID();
-			uint16_t _materialID = _item.GetMaterialID();
-			uint16_t _meshID = _item.GetMeshID();
 			// ----------------------------------------------------
 			// PSOの切り替え
 			// ----------------------------------------------------
@@ -603,9 +601,9 @@ namespace Engine::Graphics
 		BindSRV(a_index, _texVec);
 	}
 
-	void RenderContext::BindMaterialSRV(UINT a_index, uint16_t a_materialID)
+	void RenderContext::BindMaterialSRV(UINT a_index, const Handle<Resource::Material>& a_materialHandle)
 	{
-		const auto* _pMaterial = Resource::ResourceManager::Instance().Access<Resource::Material>(a_materialID);
+		const auto* _pMaterial = Resource::ResourceManager::Instance().Get(a_materialHandle);
 		if (!_pMaterial) return;
 
 		std::vector<Handle<Resource::Texture>> _texVec = {};
@@ -617,9 +615,9 @@ namespace Engine::Graphics
 		
 	}
 
-	void RenderContext::BindMesh(uint16_t a_meshID)
+	void RenderContext::BindMesh(const Handle<Resource::Mesh>& a_meshHandle)
 	{
-		const auto* _pMesh = Resource::ResourceManager::Instance().Access<Resource::Mesh>(a_meshID);
+		const auto* _pMesh = Resource::ResourceManager::Instance().Get(a_meshHandle);
 		if (!_pMesh) return;
 
 		if (!_pMesh->HasRasterData()) return;
@@ -640,9 +638,9 @@ namespace Engine::Graphics
 		);
 	}
 
-	void RenderContext::Draw(uint16_t a_meshID, UINT a_subIdx)
+	void RenderContext::Draw(const Handle<Resource::Mesh>& a_meshHandle, UINT a_subIdx)
 	{
-		const auto* _pMesh = Resource::ResourceManager::Instance().Access<Resource::Mesh>(a_meshID);
+		const auto* _pMesh = Resource::ResourceManager::Instance().Get(a_meshHandle);
 		if (!_pMesh) return;
 
 		Draw(_pMesh, a_subIdx);

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::Storage
+namespace Engine::Pool
 {
 	// ハンドルを管理するクラス
 	template<typename T>

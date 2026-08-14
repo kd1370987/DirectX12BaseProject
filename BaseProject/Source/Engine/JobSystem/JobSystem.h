@@ -19,6 +19,7 @@ namespace Engine::Thread
 		// タスクの追加
 		// すべてのタスクはここで受け付けて、内部で各ワーカーに割り振られる
 		void PushJob(std::function<void()>&& a_job);
+		Handle<Job> Schedule(std::function<void()>&& a_job);
 
 		// 処理の終了待ち : 全処理が終わるまで待機
 		void WaitForAll();
@@ -46,6 +47,8 @@ namespace Engine::Thread
 		std::atomic<uint32_t> m_nextWorker = 0;
 
 		std::atomic<bool> m_isRunning = false;
+
+		
 
 	};
 }

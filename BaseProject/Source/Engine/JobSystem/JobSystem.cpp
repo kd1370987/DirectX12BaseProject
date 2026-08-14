@@ -109,6 +109,29 @@ namespace Engine::Thread
 		m_jobWorkers[_workerIndex]->PushJob(std::move(a_job));
 	}
 
+	Handle<Job> JobSystem::Schedule(std::function<void()>&& a_job)
+	{
+		// ジョブを発行できるかチェック
+		if (!m_isRunning.load(std::memory_order_acquire) || m_jobWorkers.empty())
+		{
+			ENGINE_WARNING("[JobSystem] 停止中または未初期化のためジョブを破棄しました");
+			return Handle<Job>{};
+		}
+
+		// 未完了ジョブカウンタを増やす
+		m_upJobContext->AddPendingJob();
+
+		// 割当先決定
+		const uint32_t _workerIndex =
+			m_nextWorker.fetch_add(1, std::memory_order_relaxed)
+			% static_cast<uint32_t>(m_jobWorkers.size());
+
+		m_jobWorkers[_workerIndex]->PushJob(std::move(a_job));
+
+
+
+	}
+
 	void Engine::Thread::JobSystem::WaitForAll()
 	{
 		if (!m_upJobContext) return;

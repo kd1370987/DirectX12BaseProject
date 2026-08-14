@@ -35,7 +35,8 @@
 #include "Utility/Pool/RangePool/RangePool.h"			// レンジ管理ストレージ
 #include "Utility/Pool/RangeAllocator/RangeAllocator.h"	// レンジ管理
 
-
+// ジョブシステム
+#include "JobSystem/Core/Job/Job.h"
 
 //==========================================================================================
 // 

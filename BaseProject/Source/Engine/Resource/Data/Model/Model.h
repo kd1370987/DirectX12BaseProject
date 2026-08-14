@@ -31,15 +31,18 @@ namespace Engine::Resource
 	// モデル描画時用キャッシュデータ
 	//
 	// メッシュ・マテリアルの実体はリソースマネージャーに置いたままにして、
-	// ここでは参照先の番号だけを持つ。
+	// ここではハンドルだけを持つ。
 	// 実体のポインタを持たせると、スイープでスロットが解放・再利用されたときに
 	// 行き先を失ったポインタがモデル側に残る。
+	// 添え字だけを持つのも同様に危険で、
+	// スロットが再利用されていた場合に別のリソースを黙って掴んでしまう。
+	// ハンドルなら世代が食い違った時点で取得が nullptr になる。
 	// 描画時に ResourceManager から引き直すこと
 	struct ModelDrawCommand
 	{
-		uint16_t nodeIndex;      // モデル内のローカルノード番号
-		uint16_t meshRawID;      // ResourceManager 内の配列インデックス(Raw ID)
-		uint16_t materialRawID;  // ResourceManager 内の配列インデックス(Raw ID)
+		uint16_t nodeIndex;					// モデル内のローカルノード番号
+		Handle<Mesh> meshHandle;			// 描画するメッシュ
+		Handle<Material> materialHandle;	// 使用するマテリアル
 		uint8_t  subIdx;
 		Engine::Resource::Alpha alphaMode;
 	};

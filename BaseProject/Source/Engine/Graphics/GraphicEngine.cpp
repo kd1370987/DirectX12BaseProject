@@ -396,11 +396,11 @@ namespace Engine::Graphics
 		for (const auto& _cmd : _drawCmdVec)
 		{
 			// マテリアル取得
-			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Access<Engine::Resource::Material>(_cmd.materialRawID);
+			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Get(_cmd.materialHandle);
 			if (!_pMaterial) continue;
 
 			// メッシュ取得
-			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Access<Engine::Resource::Mesh>(_cmd.meshRawID);
+			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_cmd.meshHandle);
 			if (!_pMesh) continue;
 
 			// レイトレ用データを持たないメッシュはスキニング登録できない
@@ -423,7 +423,7 @@ namespace Engine::Graphics
 
 			for (auto& _meshData : _data->meshDataVec)
 			{
-				if (_cmd.meshRawID == _meshData.meshHandle.GetIndex())
+				if (_cmd.meshHandle == _meshData.meshHandle)
 				{
 					_item.animatedHandle = _meshData.animatedVertexHandle;
 				}
@@ -567,7 +567,7 @@ namespace Engine::Graphics
 			{
 				for (const auto& _meshData : _data->meshDataVec)
 				{
-					if (_cmd.meshRawID == _meshData.meshHandle.GetIndex())
+					if (_cmd.meshHandle == _meshData.meshHandle)
 					{
 						_animatedVertexStart = _meshData.animatedVertexHandle.startIndex;
 						break; // 見つかったらループを抜ける
@@ -723,9 +723,9 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::DrawQueue(Graphics::RenderContext* a_pCtx, uint8_t a_passIndex)
 	{
-		// キャッシュ
-		uint16_t _lassMaterialID = 0xFFFF;
-		uint16_t _lastMeshID = 0xFFFF;
+		// キャッシュ : 同じものが続く間はバインドし直さない
+		Handle<Resource::Material> _lastMaterialHandle = {};
+		Handle<Resource::Mesh> _lastMeshHandle = {};
 		uint8_t _lastPSO = 0xFF;
 
 		// 指定タイプの命令キューを取得
@@ -735,8 +735,6 @@ namespace Engine::Graphics
 		for (auto& _item : _itemVec)
 		{
 			uint8_t  _psoID = _item.GetPSOID();
-			uint16_t _materialID = _item.GetMaterialID();
-			uint16_t _meshID = _item.GetMeshID();
 			// ----------------------------------------------------
 			// PSOの切り替え
 			// ----------------------------------------------------
@@ -751,18 +749,18 @@ namespace Engine::Graphics
 			// ----------------------------------------------------
 			// マテリアルのバインド
 			// ----------------------------------------------------
-			if (_materialID != _lassMaterialID)
+			if (!(_item.materialHandle == _lastMaterialHandle))
 			{
-				a_pCtx->BindMaterialSRV(5, _materialID);
-				_lassMaterialID = _materialID;
+				a_pCtx->BindMaterialSRV(5, _item.materialHandle);
+				_lastMaterialHandle = _item.materialHandle;
 			}
 			// ----------------------------------------------------
 			// メッシュのバインド
 			// ----------------------------------------------------
-			if (_meshID != _lastMeshID)
+			if (!(_item.meshHandle == _lastMeshHandle))
 			{
-				a_pCtx->BindMesh(_meshID);
-				_lastMeshID = _meshID;
+				a_pCtx->BindMesh(_item.meshHandle);
+				_lastMeshHandle = _item.meshHandle;
 			}
 
 			// バッファインデックスセット
@@ -773,7 +771,7 @@ namespace Engine::Graphics
 			);
 
 			// メッシュ描画
-			a_pCtx->Draw(_item.GetMeshID(), _item.subIndex);
+			a_pCtx->Draw(_item.meshHandle, _item.subIndex);
 		}
 	}
 
@@ -972,11 +970,11 @@ namespace Engine::Graphics
 		auto& _resManager = Resource::ResourceManager::Instance();
 
 		// メッシュ
-		a_pOutMesh = _resManager.Access<Resource::Mesh>(a_cmd.meshRawID);
+		a_pOutMesh = _resManager.Get(a_cmd.meshHandle);
 		if (!a_pOutMesh) return false;
 
 		// マテリアル
-		a_pOutMaterial = _resManager.Access<Resource::Material>(a_cmd.materialRawID);
+		a_pOutMaterial = _resManager.Get(a_cmd.materialHandle);
 		if (!a_pOutMaterial) return false;
 
 		// シェーディングモデル
@@ -1065,8 +1063,14 @@ namespace Engine::Graphics
 					auto _psoHandle = _pPassNode->pipelineBuilder.Request(a_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
 
 					Engine::Graphics::LightWeightDrawItem _item = {};
-					_item.sortKey.bits.meshID = a_cmd.meshRawID;
-					_item.sortKey.bits.materialID = a_cmd.materialRawID;
+
+					// 描画時に引き直すためのハンドル
+					_item.meshHandle = a_cmd.meshHandle;
+					_item.materialHandle = a_cmd.materialHandle;
+
+					// ソートキーは同じ状態をまとめるためのものなので、添え字だけで足りる
+					_item.sortKey.bits.meshID = a_cmd.meshHandle.GetIndex();
+					_item.sortKey.bits.materialID = a_cmd.materialHandle.GetIndex();
 					_item.isAnimation = a_isAnimation;
 					_item.subIndex = a_cmd.subIdx;
 					_item.instanceIndex = a_instanceIdx;

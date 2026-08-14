@@ -58,13 +58,6 @@ namespace Engine::Pool
 		std::vector<std::optional<T>>& RefAll();
 
 		/// <summary>
-		/// インデックスアクセス : チェックができないので危険
-		/// </summary>
-		/// <param name="a_index">ハンドルインデックス</param>
-		/// <returns>ポインタ</returns>
-		const T* Access(uint16_t a_index) const;
-
-		/// <summary>
 		/// インデックスから世代を取得
 		/// </summary>
 		/// <param name="a_index"></param>
@@ -176,15 +169,6 @@ namespace Engine::Pool
 	inline std::vector<std::optional<T>>& ItemPool<T>::RefAll()
 	{
 		return m_data;
-	}
-	template<typename T>
-	inline const T* ItemPool<T>::Access(uint16_t a_index) const
-	{
-		if (!m_data[a_index].has_value())
-		{
-			return nullptr;
-		}
-		return &m_data[a_index].value();
 	}
 	template<typename T>
 	inline uint16_t ItemPool<T>::GetGeneration(uint16_t a_index) const

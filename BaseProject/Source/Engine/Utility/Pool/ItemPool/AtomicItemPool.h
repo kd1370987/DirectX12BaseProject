@@ -85,11 +85,17 @@ namespace Engine::Pool
 		const T* Get(const Handle<T>& a_handle) const;
 
 		/// <summary>
-		/// インデックスアクセス : 世代を見ないので、狙ったものとは別の実体が返りうる
+		/// スロットに実体が入っているか
+		///
+		/// 添え字で実体そのものを取り出す口はあえて用意していない。
+		/// 世代を見ずに引けてしまうと、スロットが再利用されていたときに
+		/// 別のリソースを掴んでもそれに気づけないため。
+		/// 実体が要る場合はハンドルを作って Get()/Ref() を通すこと。
+		/// これは全スロットを舐めるスイープ処理のための存在確認用
 		/// </summary>
-		/// <param name="a_index">ハンドルインデックス</param>
-		/// <returns>ポインタ : 範囲外・空スロットなら nullptr</returns>
-		const T* Access(uint16_t a_index) const;
+		/// <param name="a_index">スロット番号</param>
+		/// <returns>範囲内かつ実体があれば true</returns>
+		bool IsOccupied(uint16_t a_index) const;
 
 		/// <summary>
 		/// インデックスから世代を取得
@@ -273,18 +279,14 @@ namespace Engine::Pool
 	}
 
 	template<typename T>
-	inline const T* AtomicItemPool<T>::Access(uint16_t a_index) const
+	inline bool AtomicItemPool<T>::IsOccupied(uint16_t a_index) const
 	{
 		std::shared_lock _lock(m_mutex);
 
 		// スロット数は他スレッドの Add() で変わるため、必ず範囲を見てから触る
-		if (a_index >= m_data.size()) return nullptr;
+		if (a_index >= m_data.size()) return false;
 
-		if (!m_data[a_index].has_value())
-		{
-			return nullptr;
-		}
-		return &m_data[a_index].value();
+		return m_data[a_index].has_value();
 	}
 
 	template<typename T>

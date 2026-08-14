@@ -193,15 +193,15 @@ namespace Engine::Graphics
 		);
 		void BindMaterialSRV(
 			UINT a_index,
-			uint16_t a_materialID
+			const Handle<Resource::Material>& a_materialHandle
 		);
 
-		void BindMesh(uint16_t a_meshID);
-	
+		void BindMesh(const Handle<Resource::Mesh>& a_meshHandle);
+
 
 		// モデルの描画
 		void Draw(const Resource::Mesh* a_pMesh,UINT a_subIdx);
-		void Draw(uint16_t a_meshID,UINT a_subIdx);
+		void Draw(const Handle<Resource::Mesh>& a_meshHandle,UINT a_subIdx);
 
 		// パーティクルやUIなどの描画用
 		void DrawPolygonInstancing(UINT a_count);
