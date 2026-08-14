@@ -23,10 +23,13 @@ void ModelFixupSystem::Init(Engine::ECS::World& a_world)
 			{
 				ModelComponent& _modelComp = a_modelArray[_i];
 
-				// モデルをGUIDから取得してロードした結果のハンドルを取得
+				// モデルの読み込みを要求する。
+				// 実体の到着は待たない : ここで待つとシーン読み込みでメインスレッドが止まる。
+				// 届くまでは ModelReadyGateSystem がこのエンティティを
+				// Start フェーズへ進めないので、Start 系は揃ってから1回だけ走る
 				if(_modelComp.modelGUID != Engine::DefaultGUID)
 				{
-					_modelComp.handle = a_ctx.pServices->pResourceManager->LoadImmediate<Engine::Resource::Model>(_modelComp.modelGUID);
+					_modelComp.handle = a_ctx.pServices->pResourceManager->RequestLoad<Engine::Resource::Model>(_modelComp.modelGUID);
 				}
 			}
 		}

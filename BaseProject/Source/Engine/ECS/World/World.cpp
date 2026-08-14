@@ -8,6 +8,7 @@
 
 // シングルトンリソース
 #include "../../../Application/InstanceResource/HierarchyResource.h"		// 階層保持
+#include "../../../Application/InstanceResource/ResourceWaitResource.h"	// リソース到着待ち
 
 
 namespace Engine::ECS
@@ -133,7 +134,26 @@ namespace Engine::ECS
 		TransitionPhase<PostDeserializeTag, AwakeTag>();
 	
 		RunSystem(Engine::ECS::ESystemType::Awake, 0.0f);
-		TransitionPhase<AwakeTag, StartTag>();
+
+		// リソースが揃ったエンティティだけ Start へ進める。
+		// 揃っていないものは AwakeTag のまま残り、次のフレームで再判定される。
+		//
+		// Start の中で個別にスキップしないのは、同じエンティティに
+		// Start 系が複数ぶら下がっていて「一部だけ走った」状態を作れないため。
+		// 領域確保をするシステムがあるので、二重実行はそのままリークになる
+		{
+			auto& _waitRes = GetResource<ResourceWaitResource>();
+
+			TransitionPhase<AwakeTag, StartTag>(
+				[&_waitRes](Entity a_entity)
+				{
+					return !_waitRes.IsWaiting(a_entity);
+				}
+			);
+
+			// 判定はフレームごとにやり直す
+			_waitRes.waitingEntities.clear();
+		}
 
 		RunSystem(Engine::ECS::ESystemType::Start, 0.0f);
 		TransitionPhase<StartTag, ActiveTag>();

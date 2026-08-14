@@ -241,6 +241,15 @@ namespace Engine::ECS
 		template<typename Before,typename After>
 		void TransitionPhase();
 
+		/// <summary>
+		/// 条件付きのフェーズ遷移
+		/// 述語が false を返したエンティティは Before のタグを持ったまま残る。
+		/// フェーズは毎フレーム回るので、次のフレームで再判定される
+		/// </summary>
+		/// <param name="a_canTransition">Entity を受け取り、進めてよいなら true</param>
+		template<typename Before, typename After, typename Pred>
+		void TransitionPhase(Pred a_canTransition);
+
 		// コンパイルされたパスの取得
 		const std::unordered_map<ESystemType, std::vector<SystemTask*>>& GetCompileTaskMap()const;
 
@@ -476,12 +485,19 @@ namespace Engine::ECS
 	template<typename Before, typename After>
 	inline void World::TransitionPhase()
 	{
+		// 条件なし : すべて進める
+		TransitionPhase<Before, After>([](Entity) { return true; });
+	}
+
+	template<typename Before, typename After, typename Pred>
+	inline void World::TransitionPhase(Pred a_canTransition)
+	{
 		// コンポーネントのタイプIDを取得
 		ComponentTypeID _befforID = GetCompTypeID<Before>();
 		ComponentTypeID _affterID = GetCompTypeID<After>();
 
 		ForEach<Before>(
-			[this,_befforID,_affterID]
+			[this,_befforID,_affterID,&a_canTransition]
 			(
 				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
@@ -492,6 +508,11 @@ namespace Engine::ECS
 				{
 					// シグネチャの取得
 					Entity _entity = a_pChunk->entityData[_i];
+
+					// まだ進めないものは Before のタグを持ったまま残す。
+					// フェーズは毎フレーム回るので、次のフレームで再度判定される
+					if (!a_canTransition(_entity)) continue;
+
 					Signature _sig = GetSignature(_entity);
 
 					// シグネチャに対してBeforeIDを排除してAfterを入れる

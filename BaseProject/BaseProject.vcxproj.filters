@@ -1357,7 +1357,13 @@
     <Filter Include="Source\Engine\JobSystem\Internal\JobPool">
       <UniqueIdentifier>{3f31d191-5d50-4aad-ac95-938ea1266bf4}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
+      <Filter Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem">
+      <UniqueIdentifier>{60245d12-9c89-46d8-9ff5-77703533bb55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem">
+      <UniqueIdentifier>{897bfa03-643c-4dae-a9dd-5d7a5c2e4e3d}</UniqueIdentifier>
+    </Filter>
+</ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
       <Filter>Source</Filter>
@@ -2226,7 +2232,13 @@
     <ClCompile Include="Source\Engine\JobSystem\Core\Job\Job.cpp">
       <Filter>Source\Engine\JobSystem\Core\Job</Filter>
     </ClCompile>
-  </ItemGroup>
+      <ClCompile Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.cpp">
+      <Filter>Source\Application\Systems\Init\Awake\ModelReadyGateSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.cpp">
+      <Filter>Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem</Filter>
+    </ClCompile>
+</ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
       <Filter>Source</Filter>
@@ -3545,7 +3557,16 @@
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobPool\JobPool.h">
       <Filter>Source\Engine\JobSystem\Internal\JobPool</Filter>
     </ClInclude>
-  </ItemGroup>
+      <ClInclude Include="Source\Application\InstanceResource\ResourceWaitResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.h">
+      <Filter>Source\Application\Systems\Init\Awake\ModelReadyGateSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.h">
+      <Filter>Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem</Filter>
+    </ClInclude>
+</ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>

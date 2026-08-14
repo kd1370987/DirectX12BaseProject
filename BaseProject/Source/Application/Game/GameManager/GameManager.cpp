@@ -79,6 +79,8 @@
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
 #include "Application/Systems/Init/PostDeserialize/GUIDFixupSystem/GUIDFixupSystem.h"
+#include "Application/Systems/Init/Awake/ModelReadyGateSystem/ModelReadyGateSystem.h"
+#include "Application/Systems/Init/Awake/AttachmentReadyGateSystem/AttachmentReadyGateSystem.h"
 #include "Application/Systems/Init/Awake/FollowTargetLinkSystem/FollowTargetLinkSystem.h"
 #include "Application/Systems/Init/Awake/HierarchyLinkSystem/HierarchyLinkSystem.h"
 #include "Application/Systems/Init/Start/CameraStartSystem/CameraStartSystem.h"
@@ -178,6 +180,7 @@
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
+#include "Application/InstanceResource/ResourceWaitResource.h"
 #include "../../InstanceResource/AdditiveBoneEntry.h"
 #include "Application/InstanceResource/HitEventResource.h"
 
@@ -304,9 +307,17 @@ namespace App::Game
 				a_pWorld->RegisterSystem<SoundFixupSystem>();
 				// 現在体力を最大体力で満たす
 				a_pWorld->RegisterSystem<HealthFixupSystem>();
+				// リソースの到着待ちゲート。
+				// AwakeTag -> StartTag の遷移より前に走らせる必要があるため、
+				// Awake フェーズの先頭付近に置くこと
+				a_pWorld->RegisterSystem<ModelReadyGateSystem>();
 				a_pWorld->RegisterSystem<FollowTargetLinkSystem>();
 				a_pWorld->RegisterSystem<AttachmentSlotLinkSystem>();
 				a_pWorld->RegisterSystem<HierarchyLinkSystem>();
+				// 親モデルの到着待ちゲート。
+				// 親IDの解決(HierarchyLinkSystem)より後に走る必要があるため、
+				// 必ずこの位置より下に置くこと
+				a_pWorld->RegisterSystem<AttachmentReadyGateSystem>();
 				a_pWorld->RegisterSystem<PlayerIntentSystem>();
 				a_pWorld->RegisterSystem<AttachmentDispatchSystem>();
 				a_pWorld->RegisterSystem<ThrusterEffectSystem>();
@@ -416,6 +427,7 @@ namespace App::Game
 
 				// シングルトンインスタンスの登録
 				a_pWorld->AddResource<HierarchyResource>();
+				a_pWorld->AddResource<ResourceWaitResource>();
 				a_pWorld->AddResource<HitEventResource>();
 				a_pWorld->AddResource<DeathEventResource>();
 				a_pWorld->AddResource<FlyingSoundResource>();
