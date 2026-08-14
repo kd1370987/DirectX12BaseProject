@@ -166,9 +166,6 @@ namespace Engine::ECS
 
 	void World::AddEntity(const Signature& a_sig)
 	{
-		// 並列で走るシステムから同時に積まれる
-		std::lock_guard _lock(m_structuralCommandMutex);
-
 		m_addEntityVec.push_back(a_sig);
 	}
 
@@ -177,10 +174,6 @@ namespace Engine::ECS
 		CreateEntityWithDataCmd _cmd = {};
 		_cmd.sig = a_sig;
 		_cmd.dataMap = std::move(a_dataMap);
-
-		// コマンドを組み立ててから握る : ロックの中でコピーを走らせない
-		std::lock_guard _lock(m_structuralCommandMutex);
-
 		m_addEntityDataVec.push_back(std::move(_cmd));
 	}
 
@@ -316,8 +309,6 @@ namespace Engine::ECS
 
 	void World::AddRemoveEntity(const ECS::Entity& a_entity)
 	{
-		std::lock_guard _lock(m_structuralCommandMutex);
-
 		m_removeEntityVec.push_back(a_entity);
 	}
 
@@ -454,11 +445,6 @@ namespace Engine::ECS
 
 	void World::AddChangeSigCommand(ChangeEntityCmd a_cmd)
 	{
-		// 並列で走るシステムから同時に積まれる。
-		// 実際の引っ越しは BeginFrame がメインスレッド単独で行うので、
-		// ここで守るのは積み込みだけでよい
-		std::lock_guard _lock(m_structuralCommandMutex);
-
 		m_changeEntityVec.push_back(std::move(a_cmd));
 	}
 
@@ -528,8 +514,6 @@ namespace Engine::ECS
 		// 無効エンティティはリフレッシュ経路(GetSignature→GetLocation)で
 		// レンジ外参照になるため弾く。プレハブ編集など実体が無い呼び出し対策。
 		if (a_entity == ECS::Limits::INVALID_ENTITY) return;
-
-		std::lock_guard _lock(m_structuralCommandMutex);
 
 		m_refreshEntityVec.push_back(a_entity);
 	}

@@ -217,11 +217,6 @@ namespace Engine::ECS
 		// システムフェーズを指定してデルタタイムを渡す
 		void RunSystem(ESystemType a_type, float a_dt);
 
-		// 更新系フェーズをジョブシステムで並列実行するか
-		// 既定は OFF : 有効化の条件は SystemManager::SetParallelEnabled のコメントを見ること
-		void SetSystemParallelEnabled(bool a_isEnabled) { m_systemManager.SetParallelEnabled(a_isEnabled); }
-		bool IsSystemParallelEnabled() const { return m_systemManager.IsParallelEnabled(); }
-
 		// アプリ寿命のサービス群を差し込む(合成はシーン側が行う)
 		void SetEngineServices(const EngineServices& a_services) { m_engineServices = a_services; }
 		EngineServices* RefEngineServices() { return &m_engineServices; }
@@ -366,16 +361,6 @@ namespace Engine::ECS
 
 		// リフレッシュ予定エンティティ
 		std::vector<Entity> m_refreshEntityVec = {};
-
-		// 上の「予定リスト」への追加を守るロック
-		//
-		// 更新系フェーズのシステムは複数スレッドで同時に走るため、
-		// 生成・削除・引っ越し・リフレッシュの積み込みが競合する。
-		// 実際に処理するのは BeginFrame(メインスレッド単独)なので、
-		// 守るのは積み込みの瞬間だけでよい。
-		// 競合が目立つようなら、スレッドごとにバッファを持って
-		// BeginFrame で合流させる形へ移すこと
-		std::mutex m_structuralCommandMutex;
 
 		// インターフェースポインタでリソースを保存
 		std::unordered_map<ResourceTypeID, std::unique_ptr<IResourceWrapper>> m_resourceMap;
@@ -558,18 +543,11 @@ namespace Engine::ECS
 		(
 			[&]()
 			{
-				// const がついていたら読み込み用。
-				//
-				// タグ(空構造体)は中身を持たないので、非 const で受け取っていても
-				// 「書き込み」とは数えない。
-				// 書き込み扱いにすると、同じタグで絞り込んでいるだけのシステム同士が
-				// 書き込み衝突と判定され、すべて直列にしか回せなくなる
+				// const がついていたら読み込み用
 				// const を外した元の型でTypeIDを取得
 				auto _typeID = m_componentMetaRegistry.GetTypeID<std::remove_const_t<Components>>();
 
-				if constexpr (
-					std::is_const_v<Components> ||
-					std::is_empty_v<std::remove_const_t<Components>>)
+				if constexpr (std::is_const_v<Components>)
 				{
 					_task.readSig.set(_typeID);
 				}
