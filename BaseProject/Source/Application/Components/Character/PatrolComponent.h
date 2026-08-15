@@ -44,9 +44,10 @@ struct PatrolComponent
 	//   stopDistance + keepMargin より遠い … 詰める
 	//   stopDistance - keepMargin より近い … 下がる
 	//   その間                             … 止まる(デッドバンド)
-	// ※ FSM の Aim 進入距離より内側で止まるよう、
-	//    stopDistance + keepMargin < Aim進入距離 になる値にしておくこと。
-	//    境界上で止まると Chase と Aim を往復してしまう。
+	// ※ 攻撃可能距離(TargetEntityComponent.attackDistance)より内側で止まること。
+	//    外で止まると永久に攻撃圏へ入れないので、EnemyMoveIntentSystem 側でも
+	//    attackDistance - keepMargin を上限として寄せている。
+	//    ちょうど境界上で止まる設定にすると、攻撃可能/不能を往復してしまう。
 	float stopDistance  = 15.0f;	// 保ちたい間合い(この距離で止まる)
 	float keepMargin    = 2.0f;		// 間合いの許容幅(±)。0 にすると境界で震える
 	float backThrottle  = 0.6f;		// 近づかれすぎて下がるときのスロットル(0..1)

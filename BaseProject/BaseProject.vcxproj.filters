@@ -3521,9 +3521,6 @@
     <ClInclude Include="Source\Application\Components\Character\TargetEntityComponent.h">
       <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\ConeCollider.h">
-      <Filter>Source\Application\Components\Collision</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h">
       <Filter>Source\Application\Components\Character\Robot</Filter>
     </ClInclude>

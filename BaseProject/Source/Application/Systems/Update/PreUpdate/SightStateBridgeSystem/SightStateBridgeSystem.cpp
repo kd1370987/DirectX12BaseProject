@@ -12,12 +12,21 @@
 //
 // SearchPlayerSystem が書いた探索結果(TargetEntityComponent)を、
 // 行動 FSM(ActionStateComponent)のパラメータへ橋渡しする。
-//   SeePlayer      (bool)  : プレイヤーを視認しているか
+//   SeePlayer      (bool)  : 戦闘モードに入っているか(= 発見距離まで近づかれたか)
+//   InAttackRange  (bool)  : 攻撃可能距離の内側か
 //   TargetDistance (float) : プレイヤーまでの距離
 //
+// ※ パラメータ名は SeePlayer のままだが、視界コーンを廃止したので意味は
+//   「視認しているか」ではなく「戦闘距離の内側か」。FSM アセット側の
+//   パラメータ名を変えると既存の遷移条件が全部繋ぎ直しになるので名前は据え置く。
+//
 // これで 巡回→追跡→攻撃 の遷移条件を、FSM 側の設計図(パラメータ)だけで組める。
-//   例) Patrol --[SeePlayer==true]--> Chase
-//       Chase  --[TargetDistance < 2.0]--> Attack
+//   例) Patrol --[SeePlayer==true]--> Chase        (発見 → 追従)
+//       Chase  --[InAttackRange==true]--> Aim      (攻撃圏に到達)
+//
+// ※ 攻撃圏の判定を FSM の TargetDistance 閾値ではなく bool にしているのは、
+//   距離の設定値を敵ごと(TargetEntityComponent)に持たせるため。閾値を
+//   アセットに直書きすると、そのアセットを使う敵すべてで射程が共通になる。
 //
 // ※ StateMachineComponent は AnimatorAsset(アニメーター)を握っているので、
 //   ゲームプレイの状態機械としては ActionStateComponent を使う。
@@ -41,8 +50,9 @@ void SightStateBridgeSystem::Init(Engine::ECS::World& a_world)
 		)
 		{
 			// パラメータ名のハッシュは static でキャッシュ
-			static const UINT s_seeHash  = StringUtility::ToHash("SeePlayer");
-			static const UINT s_distHash = StringUtility::ToHash("TargetDistance");
+			static const UINT s_seeHash    = StringUtility::ToHash("SeePlayer");
+			static const UINT s_attackHash = StringUtility::ToHash("InAttackRange");
+			static const UINT s_distHash   = StringUtility::ToHash("TargetDistance");
 
 			auto& _pool =
 				a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
@@ -60,6 +70,7 @@ void SightStateBridgeSystem::Init(Engine::ECS::World& a_world)
 				if (!_pActionSM) continue;
 
 				_pActionSM->SetBoolParam(*_pInstance, s_seeHash, "SeePlayer", _target.isFind);
+				_pActionSM->SetBoolParam(*_pInstance, s_attackHash, "InAttackRange", _target.isInAttackRange);
 				_pActionSM->SetFloatParam(*_pInstance, s_distHash, "TargetDistance", _target.distance);
 			}
 		}

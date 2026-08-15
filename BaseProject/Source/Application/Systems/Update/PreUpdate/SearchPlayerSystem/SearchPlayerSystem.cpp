@@ -1,86 +1,73 @@
-﻿#include "SearchPlayerSystem.h"
+#include "SearchPlayerSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
-#include "../../../../Components/Collision/ConeCollider.h"
 #include "../../../../Components/Character/TargetEntityComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 #include "../../../../Components/Tag/PlayerControllTag.h"
 
-#include "Engine/MainEngine.h"
-#include "Engine/Collision/CollisionWorld.h"
 #include "Engine/Editor/Editor.h"
 #include "Engine/Common/Color.h"
 
 //==============================================================================
 // SearchPlayerSystem
 //
-// 敵の前方に「視界コーン」を張り、その内側にターゲット(プレイヤー)が入っているかを
-// 判定して TargetEntityComponent に結果(isFind / distance)を書き込む。
-// コーンはデバッグ描画する(内側なら赤、そうでなければ緑)。
+// 敵とターゲット(プレイヤー)の距離だけを見て索敵し、TargetEntityComponent へ
+// 結果(isFind / isInAttackRange / distance)を書き込む。
+//
+// ・視界コーン + 壁越し判定(LOS)は廃止した。
+//     ボス型の敵(オメガフェニックス方式)は「向き」や「遮蔽」で気づく/見失うのではなく、
+//     プレイヤーが一定距離まで近づいたら戦闘に入り、離れれば解除される。
+//     背後から近づいても、柱を挟んでも戦闘は始まる。
+//
+// ・距離は 2 段階。発見したら追従し、攻撃圏まで詰めてから撃つ。
+//     detectDistance 以内 … 戦闘モード(isFind)。追従を始める
+//     attackDistance 以内 … 攻撃可能(isInAttackRange)。ここで初めて撃つ
+//
+// ・どちらも「入る距離 / 抜ける距離」のヒステリシス付き。
+//   入りと抜けを同じ距離にすると境界上で往復するので、抜ける距離は必ず
+//   入る距離以上として扱う(エディターで逆に入力されても max で吸収する)。
+//
+// ・distance は戦闘モードでなくても実距離を書く(3D距離・高低差込み)。
+//   FSM の TargetDistance がそのまま素直な値になる。
 //
 // ・PreUpdate フェーズに置く理由
 //     WorldMatrix は前フレームの PostUpdate で確定済みなので、ここでは 1 フレーム前の
 //     姿勢で判定する。プレイヤー入力→Intent と同じ PreUpdate 帯なので、この結果を
 //     後段のステートマシン用パラメータへ渡す流れに素直に乗る。
-//
-// ・コーンの形状(ConeColliderComponent)
-//     頂点  = 敵の位置 + offset(ローカル空間のオフセットを world 変換した点)
-//     軸    = 敵の前方(このエンジンは左手系でローカル +Z が前方)
-//     height= 軸方向の長さ(＝探索距離)
-//     radius= 最遠面(底面)の半径。軸方向へ進むほど線形に広がる。
 //==============================================================================
 namespace
 {
-	// 視界コーンをワイヤーフレームでデバッグ描画する
-	void DrawVisionCone(
+	// 攻撃可能距離の可視化色(黄)。Engine::Color には無いのでここで作る
+	constexpr DirectX::XMFLOAT4 kAttackRangeColor = { 1.0f, 0.85f, 0.1f, 1.0f };
+
+	// 索敵範囲を水平の円でデバッグ描画する
+	void DrawRangeCircle(
 		Engine::Editor::MainEditor* a_pEditor,
-		const DXSM::Vector3&        a_apex,		// 頂点(敵の目の位置)
-		const DXSM::Vector3&        a_dir,		// 軸方向(正規化済み)
-		float                       a_height,	// 軸方向の長さ
-		float                       a_radius,	// 底面の半径
+		const DXSM::Vector3&        a_center,	// 円の中心(敵の位置)
+		float                       a_radius,	// 半径
 		const DXSM::Color&          a_color)
 	{
 		if (!a_pEditor)         return;
-		if (a_height <= 1e-4f)  return;
+		if (a_radius <= 1e-4f)  return;
 
-		// 軸に直交する基底(_u, _w)を作る。軸がほぼ真上/真下のときは参照ベクトルを変える
-		DXSM::Vector3 _ref = (std::fabs(a_dir.y) > 0.99f)
-			? DXSM::Vector3(1.0f, 0.0f, 0.0f)
-			: DXSM::Vector3(0.0f, 1.0f, 0.0f);
-		DXSM::Vector3 _u = a_dir.Cross(_ref);
-		_u.Normalize();
-		DXSM::Vector3 _w = a_dir.Cross(_u);
-		_w.Normalize();
-
-		// 底面(最遠面)の中心
-		DXSM::Vector3 _center = a_apex + a_dir * a_height;
-
-		constexpr int _kSeg = 24;	// 円周の分割数
-		constexpr int _kRib = 8;	// 頂点から底面へ伸ばす稜線の本数
+		constexpr int _kSeg = 32;	// 円周の分割数
 
 		DXSM::Vector3 _prev = {};
 		for (int _s = 0; _s <= _kSeg; ++_s)
 		{
 			float _t = (DirectX::XM_2PI * _s) / _kSeg;
-			DXSM::Vector3 _p = _center + (_u * std::cos(_t) + _w * std::sin(_t)) * a_radius;
+			DXSM::Vector3 _p = a_center + DXSM::Vector3(std::sin(_t), 0.0f, std::cos(_t)) * a_radius;
 
-			// 円周を線分でつなぐ
 			if (_s > 0) a_pEditor->DrawLine(_prev, _p, a_color);
 			_prev = _p;
-
-			// 稜線(頂点 → 底面の円周)
-			if ((_s % (_kSeg / _kRib)) == 0) a_pEditor->DrawLine(a_apex, _p, a_color);
 		}
-
-		// 中心軸
-		a_pEditor->DrawLine(a_apex, _center, a_color);
 	}
 }
 
 void SearchPlayerSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const WorldMatrixComponent, const ConeColliderComponent, TargetEntityComponent>(
+	a_world.ActiveTask<const WorldMatrixComponent, TargetEntityComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"SearchPlayerSystem",
 		[](
@@ -89,22 +76,13 @@ void SearchPlayerSystem::Init(Engine::ECS::World& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                       a_tags,
 			const WorldMatrixComponent*      a_worldMatArray,
-			const ConeColliderComponent*     a_coneColliderArray,
 			TargetEntityComponent*           a_targetEntityArray
 		)
 		{
-			// 壁越し判定(LOS)に使う衝突ワールド
-			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
-
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const WorldMatrixComponent&  _worldComp = a_worldMatArray[_i];
-				const ConeColliderComponent& _cone      = a_coneColliderArray[_i];
-				TargetEntityComponent&       _target    = a_targetEntityArray[_i];
-
-				// 今フレームの結果をリセット
-				_target.isFind   = false;
-				_target.distance = 0.0f;
+				const WorldMatrixComponent& _worldComp = a_worldMatArray[_i];
+				TargetEntityComponent&      _target    = a_targetEntityArray[_i];
 
 				//==================================================
 				// 探索対象(プレイヤー)の解決
@@ -140,22 +118,9 @@ void SearchPlayerSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				//==================================================
-				// 敵の頂点・前方向
-				//   左手系: ローカル +Z が前方(= worldMat の Z 軸)。
-				//   SimpleMath の Vector3::Forward は (0,0,-1) で逆を向くので使わない。
-				//==================================================
-				DXSM::Matrix  _world(_worldComp.worldMat);
-				DXSM::Vector3 _apex = DXSM::Vector3::Transform(DXSM::Vector3(_cone.offset), _world);
-				DXSM::Vector3 _dir  = DXSM::Vector3::TransformNormal(DXSM::Vector3(0.0f, 0.0f, 1.0f), _world);
-
-				// 前方が潰れている(scale 0 など)場合は判定不能。NaN も弾ける形で書く
-				float _dirLenSq = _dir.LengthSquared();
-				if (!(_dirLenSq > 1e-8f)) continue;
-				_dir /= std::sqrt(_dirLenSq);
-
-				//==================================================
 				// ターゲット位置の取得
 				//==================================================
+				DXSM::Vector3 _selfPos   = DXSM::Matrix(_worldComp.worldMat).Translation();
 				bool          _hasTarget = false;
 				DXSM::Vector3 _playerPos = {};
 				if (_playerEntity != Engine::ECS::Limits::INVALID_ENTITY &&
@@ -169,66 +134,56 @@ void SearchPlayerSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				//==================================================
-				// コーン内包判定(中身の詰まったコーン)
-				//   1) 軸方向の射影距離が [0, height] に収まるか
-				//   2) その距離でのコーン半径(radius * axial/height)以内に居るか
-				//   3) 頂点→対象へレイを撃ち、壁などに遮られていないか(LOS)
+				// 距離判定(2段階・それぞれヒステリシス付き)
+				//   発見    : 未発見 → 発見 は detectDistance 以内、
+				//             発見 → 未発見 は detectExitDistance より遠く
+				//   攻撃可能: 同じ形で attackDistance / attackExitDistance
 				//
-				// 可視化の色: 緑=対象なし/コーン外, 青=コーン内だが遮蔽, 赤=発見
+				// 攻撃可能は戦闘モードの内側でしか成立させない。発見していない相手を
+				// 距離だけで撃ち始めないようにするため。
 				//==================================================
-				DXSM::Color _color = Engine::Color::GREEN;
-				if (_hasTarget && _cone.height > 1e-4f)
+				if (!_hasTarget)
 				{
-					DXSM::Vector3 _toTarget = _playerPos - _apex;
-					float _axial = _toTarget.Dot(_dir);
-
-					if (_axial >= 0.0f && _axial <= _cone.height)
-					{
-						// 軸からの垂直距離
-						DXSM::Vector3 _perp   = _toTarget - _dir * _axial;
-						float         _radial = _perp.Length();
-
-						// その距離におけるコーンの半径(線形に広がる)
-						float _coneR = _cone.radius * (_axial / _cone.height);
-
-						if (_radial <= _coneR)
-						{
-							// コーン内。ここから壁越し(遮蔽)チェック
-							_color = Engine::Color::BLUE;	// コーン内・遮蔽の既定色
-
-							float _dist    = _toTarget.Length();
-							bool  _visible = true;
-
-							if (_pCollWorld && _dist > 1e-4f)
-							{
-								Engine::Collision::RayInfo _ray;
-								_ray.origin      = _apex;
-								_ray.direction   = _toTarget / _dist;	// 対象への単位方向
-								_ray.maxDistance = _dist;
-
-								Engine::Collision::Result _res = {};
-								// 自分自身は除外して撃つ
-								bool _hit = _pCollWorld->Raycast(
-									_ray, _res, a_pChunk->entityData[_i]);
-
-								// 対象以外に当たっていれば、間に遮蔽物がある
-								if (_hit && _res.hitEntity != _playerEntity) _visible = false;
-							}
-
-							if (_visible)
-							{
-								_target.isFind   = true;
-								_target.distance = _dist;
-								_color           = Engine::Color::RED;
-							}
-						}
-					}
+					// 対象がいない間は戦闘に入らない
+					_target.isFind          = false;
+					_target.isInAttackRange = false;
+					_target.distance        = 0.0f;
+					continue;
 				}
 
-				// 可視化(赤=発見 / 青=コーン内だが遮蔽 / 緑=それ以外)
-				DrawVisionCone(
-					a_ctx.pServices->pMainEditor,
-					_apex, _dir, _cone.height, _cone.radius, _color);
+				float _dist = (_playerPos - _selfPos).Length();
+
+				const float _detect      = _target.detectDistance;
+				const float _detectExit  = (std::max)(_target.detectExitDistance, _detect);
+				const float _attack      = _target.attackDistance;
+				const float _attackExit  = (std::max)(_target.attackExitDistance, _attack);
+
+				// 直前の状態によって見る距離を切り替える(入る距離 / 抜ける距離)
+				_target.isFind = _target.isFind
+					? (_dist <= _detectExit)
+					: (_dist <= _detect);
+
+				_target.isInAttackRange = _target.isFind && (_target.isInAttackRange
+					? (_dist <= _attackExit)
+					: (_dist <= _attack));
+
+				_target.distance = _dist;
+
+				//==================================================
+				// 可視化
+				//   発見距離     : 赤=戦闘中 / 緑=非戦闘
+				//   解除距離     : 青(戦闘中のみ)
+				//   攻撃可能距離 : 黄(戦闘中のみ。圏内は破線ではなく色で判別できないので
+				//                  IsInAttackRange はインスペクタで見る)
+				//==================================================
+				auto* _pEditor = a_ctx.pServices->pMainEditor;
+				DrawRangeCircle(_pEditor, _selfPos, _detect,
+					_target.isFind ? Engine::Color::RED : Engine::Color::GREEN);
+				if (_target.isFind)
+				{
+					DrawRangeCircle(_pEditor, _selfPos, _detectExit, Engine::Color::BLUE);
+					DrawRangeCircle(_pEditor, _selfPos, _attack, kAttackRangeColor);
+				}
 			}
 		}
 	);

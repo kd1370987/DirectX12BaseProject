@@ -16,12 +16,14 @@
 // 敵の「行動決定」をプレイヤーの入力と同じ帯(PreUpdate)で行い、結果を
 // MoveIntentComponent(世界空間・水平)へ書く。プレイヤーの InputMoveSystem に相当。
 //
-//   発見(isFind == true) : stopDistance(±keepMargin)の間合いを保つ。遠ければ詰め、
-//                          近づかれすぎたら後ずさりし、間合いの内では止まる。
-//                          同時に「最後に見た位置」を毎フレーム記録しておく。
-//   見失い(発見 → 未発見): 最後に見た位置へ向かい(MoveTo)、着いたら見渡す(LookAround)。
-//                          見渡し中に再発見できなければ徘徊へ戻る。
-//   未発見(isFind == false): ランダム方向へ歩く → 立ち止まって首を振る、を繰り返す。
+//   戦闘中(isFind == true) : stopDistance(±keepMargin)の間合いを保つ。遠ければ詰め、
+//                            近づかれすぎたら後ずさりし、間合いの内では止まる。
+//                            同時に「最後に見た位置」を毎フレーム記録しておく。
+//   離脱(戦闘 → 非戦闘)   : 最後に見た位置へ向かい(MoveTo)、着いたら見渡す(LookAround)。
+//                            見渡し中に再び戦闘距離へ入らなければ徘徊へ戻る。
+//   非戦闘(isFind == false): ランダム方向へ歩く → 立ち止まって首を振る、を繰り返す。
+//
+// ※ 戦闘に入る/抜ける判定は距離のみ(SearchPlayerSystem)。視界コーンは廃止した。
 //
 // ・方向の選択と「見失い探索のフェーズ進行」だけをここで行う。最終的な
 //   「動けるか / 速度倍率」は FSM 側の canMove / moveSpeedScale を見て
@@ -93,8 +95,15 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 							{
 								// 遠隔攻撃なので間合いを保つ(距離は SearchPlayer 計算済み)
 								//   遠い → 詰める / 近い → 下がる / 間 → 止まる
-								const float _far  = _patrol.stopDistance + _patrol.keepMargin;
-								const float _near = _patrol.stopDistance - _patrol.keepMargin;
+								//
+								// 保つ間合いは攻撃可能距離の内側であること。外で止まると
+								// 永久に攻撃圏へ入れず、追従したまま撃たなくなる。
+								// stopDistance がそれより外なら攻撃圏の内側へ寄せる。
+								const float _keep = (std::max)(0.0f,
+									(std::min)(_patrol.stopDistance, _target.attackDistance - _patrol.keepMargin));
+
+								const float _far  = _keep + _patrol.keepMargin;
+								const float _near = _keep - _patrol.keepMargin;
 
 								if (_target.distance > _far)
 								{

@@ -1,4 +1,4 @@
-#include "BloomExtractPass.h"
+﻿#include "BloomExtractPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"

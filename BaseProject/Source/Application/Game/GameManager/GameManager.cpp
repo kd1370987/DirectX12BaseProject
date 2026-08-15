@@ -70,7 +70,6 @@
 #include "../../Components/Camera/CameraFocusTargetComponent.h"
 #include "../../Components/Character/Robot/AdditivePoseComponent.h"
 #include "../../Components/Character/AimTargetPosComponent.h"
-#include "../../Components/Collision/ConeCollider.h"
 #include "../../Components/Character/TargetEntityComponent.h"
 #include "../../Components/Resource/SoundComponent.h"
 #include "../../Components/Character/PatrolComponent.h"
@@ -285,7 +284,6 @@ namespace App::Game
 				a_pWorld->RegisterComponent<CameraFocusTargetComponent>("CameraFocusTargetComponent");
 				a_pWorld->RegisterComponent<AdditivePoseComponent>("AdditivePoseComponent");
 				a_pWorld->RegisterComponent<AimTargetPosComponent>("AimTargetPosComponent");
-				a_pWorld->RegisterComponent<ConeColliderComponent>("ConeColliderComponent");
 				a_pWorld->RegisterComponent<PatrolComponent>("PatrolComponent");
 				a_pWorld->RegisterComponent<TargetEntityComponent>("TargetEntityComponent");
 				a_pWorld->RegisterComponent<SoundComponent>("SoundComponent");

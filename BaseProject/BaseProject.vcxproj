@@ -547,7 +547,6 @@
     <ClInclude Include="Source\Application\Components\Character\TargetEntityComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\HomingComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\ProjectileComponent.h" />
-    <ClInclude Include="Source\Application\Components\Collision\ConeCollider.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h" />
