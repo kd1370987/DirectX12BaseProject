@@ -41,6 +41,10 @@
 #include "RenderPass/PostEffect/AntiAliasing/TAA/TAAPass.h"
 #include "RenderPass/PostEffect/DoF/CoCPass/CoCPass.h"
 #include "RenderPass/PostEffect/DoF/DoFPass/DoFPass.h"
+#include "RenderPass/PostEffect/Blur/GaussianBlurPass/GaussianBlurPass.h"
+#include "RenderPass/PostEffect/Bloom/BloomExtractPass/BloomExtractPass.h"
+#include "RenderPass/PostEffect/Bloom/KawaseBlurPass/KawaseBlurPass.h"
+#include "RenderPass/PostEffect/Bloom/BloomCompositePass/BloomCompositePass.h"
 #include "RenderPass/PostEffect/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
 #include "RenderPass/PostEffect/Denoise/GI/GITempralAccumulationPass/GITemporalAccumulationPass.h"
 #include "RenderPass/PostEffect/Denoise/Shadow/ShadowSpatialDenoisePass/ShadowSpatialDenoisePass.h"
@@ -147,6 +151,77 @@ namespace Engine::Graphics
 		//  「TAAの出力を読む」という関係の解決に効く)
 		AddCoCPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 		AddDoFPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
+
+		// ------------------------------------------------------------------
+		// 川瀬式ブルーム
+		//
+		//   抽出(等倍) → 1/2 → 1/4 → 1/8 → 1/16 と縮小しながらガウシアンブラー
+		//              → 4枚それぞれを等倍まで拡大 → 平均して1枚に → メインカラーへ加算
+		//
+		// 縮小率ごとにボケの広がりが変わるので、それを重ねると
+		// 「芯は明るく、外へ行くほどゆるく広がる」ブルーム特有の減衰になる。
+		// 同じ広がりを1回の大きなブラーで出そうとするとタップ数が跳ね上がるため、
+		// 縮小バッファを積むこの形が安い。
+		//
+		// 合成はメインカラー(AfterTAAColor)を読んで書き戻すので、必ずDoFより後に登録する。
+		// (同一フェーズ内はリソースのバージョンで依存が決まるため、登録順が
+		//  「DoFの出力を読む」という関係の解決に効く)
+		// ------------------------------------------------------------------
+		{
+			// 高輝度成分の抽出(等倍)
+			AddBloomExtractPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
+
+			// 各段の解像度スケール
+			constexpr float kBloomScales[4] = { 0.5f, 0.25f, 0.125f, 0.0625f };
+
+			// 縮小側のブラー。低解像度で回るので広め(5x5)に取れる
+			constexpr float kDownSigma = 1.2f;
+			constexpr int   kDownTapRadius = 2;
+
+			// 拡大側のブラー。こちらはフル解像度で回るのでタップ数を絞る(3x3)。
+			// 入力テクセル単位で刻むため、半径1でも拡大後は十分な広がりになる
+			constexpr float kUpSigma = 1.0f;
+			constexpr int   kUpTapRadius = 1;
+
+			const std::string _extractName = "BloomExtract";
+
+			// 縮小 : 1つ前の段を入力にして半分ずつ小さくしていく
+			for (int _i = 0; _i < 4; ++_i)
+			{
+				const float _srcScale = (_i == 0) ? 1.0f : kBloomScales[_i - 1];
+				const std::string _srcName = (_i == 0) ? _extractName : ("BloomBlurDown" + std::to_string(_i - 1));
+
+				AddGaussianBlurPass(
+					m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess,
+					"BloomBlurDownPass" + std::to_string(_i),
+					_srcName,
+					"BloomBlurDown" + std::to_string(_i),
+					_srcScale, kBloomScales[_i],
+					kDownSigma, kDownTapRadius
+				);
+			}
+
+			// 拡大 : 縮小した4枚をそれぞれ等倍まで引き伸ばす。
+			// 段を追って戻すのではなく各段から直接戻すことで、4段階ぶんの
+			// 違う広がりのボケが独立したまま残る
+			for (int _i = 0; _i < 4; ++_i)
+			{
+				AddGaussianBlurPass(
+					m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess,
+					"BloomBlurUpPass" + std::to_string(_i),
+					"BloomBlurDown" + std::to_string(_i),
+					"BloomBlurUp" + std::to_string(_i),
+					kBloomScales[_i], 1.0f,
+					kUpSigma, kUpTapRadius
+				);
+			}
+
+			// 4枚を1枚のブルームへまとめる
+			AddKawaseBlurPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
+
+			// メインカラーへ加算合成して固定名へ戻す
+			AddBloomCompositePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
+		}
 
 		AddShadowTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		// 影はテンポラルのみだと履歴依存が強くゴーストが出るため、蓄積後にスペースデノイズをかける。
@@ -311,6 +386,11 @@ namespace Engine::Graphics
 		ClearAndReserve(m_subSetDataVec, 10000);
 		ClearAndReserve(m_meshMaterialDataVec, 10000);
 
+		// 被写界深度は毎フレーム、アクティブカメラが設定し直す。
+		// ここで落としておけば、カメラが居ない/ピント設定を持たないフレームは
+		// 前フレームの値でボケ続けることなく素通しになる
+		m_cbDoF = {};
+
 		// デバッグ用配列のクリア
 		Editor::MainEditor::Instance().ClearBuffer();
 	}
@@ -349,6 +429,14 @@ namespace Engine::Graphics
 	{
 		m_cbCamera.projMat = a_projMat;
 		m_cbCamera.projInvMat = a_projMat.Invert();
+	}
+	void GraphicsEngine::SetDoFData(const DoFOptionCB& a_data)
+	{
+		m_cbDoF = a_data;
+	}
+	const DoFOptionCB& GraphicsEngine::GetDoFData() const
+	{
+		return m_cbDoF;
 	}
 	void GraphicsEngine::SetCameraOverride(const DXSM::Matrix& a_worldMat, const DXSM::Matrix& a_projMat)
 	{

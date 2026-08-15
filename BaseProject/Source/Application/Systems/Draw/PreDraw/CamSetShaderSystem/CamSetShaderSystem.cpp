@@ -38,9 +38,34 @@ void CamSetShaderSystem::Init(Engine::ECS::World& a_world)
 			{
 				const ProjMatComponent& _projMatComp = a_projMatArray[_i];
 				const WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
-				
+
 				_pGE->SetCameraMat(_worldMatComp.worldMat);
 				_pGE->SetProjMat(_projMatComp.projMat);
+
+				//============================================================
+				// 被写界深度(DoF)
+				//------------------------------------------------------------
+				// ピントはカメラの持ち物なので FocusParamComponent から送る。
+				// クエリ条件には入れず、持っているカメラだけ拾う。
+				// (条件に足すと、ピント設定を持たないカメラが
+				//  ビュー/射影行列ごと設定されなくなってしまう)
+				//
+				// 未設定のフレームは GraphicsEngine 側でリセット済み = ボケなし。
+				//============================================================
+				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+				if (!a_ctx.pWorld->HasComponent<FocusParamComponent>(_self)) continue;
+
+				const auto* _pFocus = a_ctx.pWorld->RefData<FocusParamComponent>(_self);
+				if (!_pFocus) continue;
+
+				Engine::Graphics::DoFOptionCB _dofCB = {};
+				_dofCB.focusDistance	= _pFocus->focusDistance;
+				_dofCB.focusRange		= _pFocus->focusRange;
+				_dofCB.nearRange		= _pFocus->nearRange;
+				_dofCB.farRange			= _pFocus->farRange;
+				_dofCB.maxBlurRadius	= _pFocus->maxBlurRadius;
+				_dofCB.enable			= _pFocus->enable ? 1 : 0;
+				_pGE->SetDoFData(_dofCB);
 			}
 		}
 	);

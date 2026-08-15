@@ -230,6 +230,59 @@ namespace Engine::Editor::Inspector
 			_pPrefab->Save(_pWorld, _path);
 			ENGINE_LOG("Save Prefab : %s", _path.c_str());
 		}
+
+		//------------------------------------------------------------------
+		// シグネチャのコピー / ペースト
+		//
+		// 別のプレハブへコンポーネント構成をそのまま持っていくためのもの。
+		// 初期値のバイト列ごと運ぶので、貼り付け先は編集済みの値まで引き継ぐ。
+		// 貼り付けはメモリ上のプレハブを書き換えるだけなので、
+		// 確定させるには Save を押すこと。
+		//------------------------------------------------------------------
+		auto& _clipboard = a_editContext.prefabClipboard;
+
+		ImGui::SameLine();
+		if (ImGui::Button("Copy Signature"))
+		{
+			_clipboard.signature = _pPrefab->GetSignature();
+			_clipboard.dataMap = _pPrefab->GetDataMap();
+			_clipboard.isValid = true;
+
+			ENGINE_LOG("Copy Prefab Signature : %d components", static_cast<int>(_clipboard.GetCount()));
+		}
+
+		// コピー前は貼り付けられない
+		ImGui::SameLine();
+		ImGui::BeginDisabled(!_clipboard.isValid);
+		if (ImGui::Button("Paste Signature"))
+		{
+			_pPrefab->PasteSignatureAndData(_clipboard.signature, _clipboard.dataMap);
+			ENGINE_LOG("Paste Prefab Signature : %d components", static_cast<int>(_clipboard.GetCount()));
+		}
+		ImGui::EndDisabled();
+
+		// クリップボードの中身を出しておく : 何を貼るのか押す前に分かるようにする
+		if (_clipboard.isValid)
+		{
+			ImGui::TextDisabled("Clipboard : %d components", static_cast<int>(_clipboard.GetCount()));
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+				for (size_t _typeID = 0; _typeID < _clipboard.signature.size(); ++_typeID)
+				{
+					if (!_clipboard.signature.test(_typeID)) continue;
+
+					const auto& _meta = _pWorld->GetComponentMetaData(static_cast<ECS::ComponentTypeID>(_typeID));
+					ImGui::Text("%s", _meta.name.c_str());
+				}
+				ImGui::EndTooltip();
+			}
+		}
+		else
+		{
+			ImGui::TextDisabled("Clipboard : empty");
+		}
+
 		ImGui::Separator();
 
 		// ---- 所持コンポーネントの羅列・編集 ----

@@ -11,7 +11,7 @@
 #include "GraphicsOptions/WindowOption.h"
 #include "GraphicsOptions/RenderingOption.h"
 #include "GraphicsOptions/LightingOption.h"
-#include "GraphicsOptions/DoFOption.h"
+#include "GraphicsOptions/BloomOption.h"
 
 // デバッグオプション
 #include "DebugOptions/DebugDrawOption.h"
@@ -59,9 +59,12 @@ namespace Engine::Option
 		const GraphicsOptions::LightingOption& GetLightingOption() const { return m_lightingOption; }
 		GraphicsOptions::LightingOption& RefLightingOption() { return m_lightingOption; }
 
-		// 被写界深度設定(CoC/DoFパスへ送る調整値)
-		const GraphicsOptions::DoFOption& GetDoFOption() const { return m_dofOption; }
-		GraphicsOptions::DoFOption& RefDoFOption() { return m_dofOption; }
+		// ブルーム設定(シェーダーへ送る調整値)
+		const GraphicsOptions::BloomOption& GetBloomOption() const { return m_bloomOption; }
+		GraphicsOptions::BloomOption& RefBloomOption() { return m_bloomOption; }
+
+		// ※ 被写界深度(DoF)はカメラの持ち物なので、
+		//    アクティブカメラの FocusParamComponent が持つ(旧 DoFOption)
 
 		// ---- デバッグ ----
 		// デバッグ描画設定(ワイヤー表示のオンオフ)
@@ -83,7 +86,7 @@ namespace Engine::Option
 		GraphicsOptions::WindowOption m_windowOption = {};
 		GraphicsOptions::RenderingOption m_renderingOption = {};
 		GraphicsOptions::LightingOption m_lightingOption = {};
-		GraphicsOptions::DoFOption m_dofOption = {};
+		GraphicsOptions::BloomOption m_bloomOption = {};
 
 		// デバッグオプション
 		DebugOptions::DebugDrawOption m_debugDrawOption = {};

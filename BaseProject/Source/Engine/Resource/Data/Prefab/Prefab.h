@@ -58,6 +58,19 @@ namespace Engine::Resource
 		// コンポーネントを削除する
 		void RemoveComponent(ECS::ComponentTypeID a_compTypeID);
 
+		/// <summary>
+		/// シグネチャと初期値をまとめて差し替える(エディタのコピー&ペースト用)。
+		///
+		/// 「構成をそのまま持ってくる」操作なので、元から持っていて
+		/// コピー元に無いコンポーネントは落とす(マージではない)。
+		/// バイト列ごと入れ替えるため、編集済みの初期値もそのまま引き継ぐ。
+		/// </summary>
+		/// <param name="a_sig">貼り付け元のシグネチャ</param>
+		/// <param name="a_dataMap">貼り付け元のコンポーネント初期値</param>
+		void PasteSignatureAndData(
+			const ECS::Signature& a_sig,
+			const std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>>& a_dataMap);
+
 		// 所持しているか
 		bool Has(ECS::ComponentTypeID a_compTypeID) const;
 		// コンポーネント先頭バイトへのポインタ(エディタ編集用。無ければ nullptr)

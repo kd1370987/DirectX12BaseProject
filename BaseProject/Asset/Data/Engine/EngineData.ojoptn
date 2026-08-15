@@ -1,4 +1,10 @@
 {
+    "BloomOption": {
+        "enable": true,
+        "intensity": 0.6000000238418579,
+        "softKnee": 0.23999999463558197,
+        "threshold": 1.0
+    },
     "BuildConfig": {
         "assetRootPath": "Asset/",
         "buildMode": 1,
@@ -6,14 +12,6 @@
     },
     "DebugDrawOption": {
         "drawWire": false
-    },
-    "DoFOption": {
-        "enable": true,
-        "farRange": 1000.0,
-        "focusDistance": 10.0,
-        "focusRange": 5.0,
-        "maxBlurRadius": 8.0,
-        "nearRange": 5.0
     },
     "GIOption": {
         "TAblendRate": 0.09000000357627869,
@@ -42,7 +40,7 @@
         "isVsync": false,
         "targetFrameRate": 120,
         "windowHeight": 1080,
-        "windowMode": 0,
+        "windowMode": 2,
         "windowWidth": 1920
     }
 }

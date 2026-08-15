@@ -53,6 +53,25 @@ namespace Engine::Resource
 		m_dataMap.erase(a_compTypeID);
 	}
 
+	void Prefab::PasteSignatureAndData(
+		const ECS::Signature& a_sig,
+		const std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>>& a_dataMap)
+	{
+		// まるごと差し替える
+		m_sigunature = a_sig;
+
+		// データはシグネチャに載っているものだけを引き継ぐ。
+		// (コピー元で削除済みのバッファが残っていても持ち込まないようにする)
+		m_dataMap.clear();
+		for (const auto& [_typeID, _buffer] : a_dataMap)
+		{
+			if (!a_sig.test(_typeID)) continue;
+			if (_buffer.empty()) continue;
+
+			m_dataMap[_typeID] = _buffer;
+		}
+	}
+
 	bool Prefab::Has(ECS::ComponentTypeID a_compTypeID) const
 	{
 		return m_sigunature.test(a_compTypeID);

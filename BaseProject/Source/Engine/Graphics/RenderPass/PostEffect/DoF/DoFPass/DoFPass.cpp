@@ -68,16 +68,8 @@ namespace Engine::Graphics
 			const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 			auto* _pCmd = a_pCtx->GetCurrentCmdList();
 
-			// DoF調整値(オプション → 定数バッファ)
-			const auto& _dofOp = Option::OptionManager::GetInstance().GetDoFOption();
-			DoFOptionCB _dofCB = {};
-			_dofCB.focusDistance = _dofOp.focusDistance;
-			_dofCB.focusRange    = _dofOp.focusRange;
-			_dofCB.nearRange     = _dofOp.nearRange;
-			_dofCB.farRange      = _dofOp.farRange;
-			_dofCB.maxBlurRadius = _dofOp.maxBlurRadius;
-			_dofCB.enable        = _dofOp.enable ? 1 : 0;
-			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, _dofCB);
+			// DoF調整値(アクティブカメラの FocusParamComponent から積まれたもの)
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, a_pGE->GetDoFData());
 
 			// 実行
 			// 切り上げ : 解像度が8の倍数でないと末尾タイルが実行されず端が処理されない

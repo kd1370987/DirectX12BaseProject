@@ -113,6 +113,7 @@ namespace Engine::Graphics
 	};
 
 	// 被写界深度(DoF)の調整値
+	// アクティブカメラの FocusParamComponent を CamSetShaderSystem が詰め、
 	// CoCパスとDoFパスの両方へ送る。
 	// ※ HLSL 側(Asset/Shader/Common/CB/CBDoFOption.hlsli)と並びを合わせること
 	struct DoFOptionCB
@@ -126,6 +127,27 @@ namespace Engine::Graphics
 		int   enable;			// 0 ならボカさずそのまま通す
 		float pad0;
 		float pad1;
+	};
+
+	// 川瀬式ブルームの調整値
+	// OptionManager の BloomOption を、抽出パスと合成パスの両方が詰めて送る。
+	// ※ HLSL 側(Asset/Shader/Common/CB/CBBloomOption.hlsli)と並びを合わせること
+	struct BloomOptionCB
+	{
+		float threshold;	// 高輝度として抽出し始める輝度
+		float softKnee;		// しきい値付近をなめらかにつなぐ幅の割合(0でハードカット)
+		float intensity;	// 合成時のブルームの強さ
+		int   enable;		// 0 ならブルームを掛けない
+	};
+
+	// ガウシアンブラーパスの設定値
+	// 入力の解像度とボケ幅はパスごとに違うので、登録時に決めた値を毎フレーム送る。
+	// ※ HLSL 側(Asset/Shader/Compute/PostEffect/Blur/GaussianBlurShader.hlsl)と並びを合わせること
+	struct GaussianBlurCB
+	{
+		DirectX::XMFLOAT2 srcTexelSize;	// 入力テクスチャの1テクセルぶんのUV(= 1 / 入力解像度)
+		float sigma;					// ガウス分布の標準偏差(入力テクセル単位)
+		int   tapRadius;				// 片側のタップ数(0でブラーなし)
 	};
 
 	// インスタンスデータ

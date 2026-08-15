@@ -22,6 +22,25 @@ namespace Engine::Editor
 	};
 
 	/// <summary>
+	/// プレハブのコピー&ペースト用クリップボード。
+	///
+	/// シグネチャだけでなくコンポーネントの初期値バイト列ごと持つので、
+	/// 貼り付け先は編集済みの値まで引き継げる。
+	/// コンポーネントのタイプIDはワールド生成時に同じ順で振られるため、
+	/// 実行中は別シーンのプレハブへ貼っても同じ型を指す。
+	/// (アプリを閉じると消える。ファイルには残らない)
+	/// </summary>
+	struct PrefabClipboard
+	{
+		bool isValid = false;
+		ECS::Signature signature = {};
+		std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>> dataMap = {};
+
+		// クリップボードに載っているコンポーネント数
+		size_t GetCount() const { return signature.count(); }
+	};
+
+	/// <summary>
 	/// パネル間でやり取りされるメモ帳
 	/// </summary>
 	struct EditorContext
@@ -109,6 +128,9 @@ namespace Engine::Editor
 
 		// 選択中のECS外オブジェクト(GameObjectManager管理下)
 		GameObject::BaseObject* pGameObject = nullptr;
+
+		// プレハブのシグネチャ+初期値のコピー先
+		PrefabClipboard prefabClipboard = {};
 
 		// エディターカメラポインタ
 		EditorCamera* pEditorCamera = nullptr;

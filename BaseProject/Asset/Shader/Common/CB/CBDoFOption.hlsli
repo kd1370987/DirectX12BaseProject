@@ -2,7 +2,7 @@
 #ifndef CB_DOF_OPTION_HLSLI
 #define CB_DOF_OPTION_HLSLI
 
-// オプション(DoFOption)からCPU側で詰めて送られてくる被写界深度の調整値
+// アクティブカメラの FocusParamComponent からCPU側で詰めて送られてくる被写界深度の調整値
 //
 //   ピントが合う範囲 : focusDistance ± focusRange * 0.5
 //   そこから手前へ nearRange 進むと最大ボケ(CoC = -1)

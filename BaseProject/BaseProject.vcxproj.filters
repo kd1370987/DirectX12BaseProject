@@ -1012,6 +1012,39 @@
     <Filter Include="Asset\Shader\Compute\PostEffect\DoF">
       <UniqueIdentifier>{7ea350c8-d164-4f5b-c299-50be8fd41a25}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom">
+      <UniqueIdentifier>{8fb461d9-e275-4a6c-93aa-61cf9ae52b36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomExtractPass">
+      <UniqueIdentifier>{90c572ea-f386-4b7d-84bb-72d0abf63c47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\KawaseBlurPass">
+      <UniqueIdentifier>{a1d683fb-0497-4c8e-95cc-83e1bc074d58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomCompositePass">
+      <UniqueIdentifier>{b2e7940c-15a8-4d9f-a6dd-94f2cd185e69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur">
+      <UniqueIdentifier>{c3f8a51d-26b9-4ea0-b7ee-a503de296f7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass">
+      <UniqueIdentifier>{d409b62e-37ca-4fb1-c8ff-b614ef3a708b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Bloom">
+      <UniqueIdentifier>{e51ac73f-48db-4a02-d900-c725fa4b819c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Bloom\BloomExtractShader">
+      <UniqueIdentifier>{f62bd840-59ec-4b13-ea11-d836ab5c92ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Bloom\KawaseBlurShader">
+      <UniqueIdentifier>{073ce951-6afd-4c24-fb22-e947bc6da3be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Bloom\BloomCompositeShader">
+      <UniqueIdentifier>{184dfa62-7b0e-4d35-0c33-fa58cd7eb4cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\PostEffect\Blur">
+      <UniqueIdentifier>{295e0b73-8c1f-4e46-1d44-0b69de8fc5d0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Asset\Shader\Common\Lighting">
       <UniqueIdentifier>{8fb461d9-e275-405c-d3aa-61cf90e52b36}</UniqueIdentifier>
     </Filter>
@@ -1940,6 +1973,18 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomExtractPass\BloomExtractPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomExtractPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\KawaseBlurPass\KawaseBlurPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Bloom\KawaseBlurPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomCompositePass\BloomCompositePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomCompositePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass\GaussianBlurPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass\CoCPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass</Filter>
@@ -3083,7 +3128,7 @@
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\LightingOption.h">
       <Filter>Source\Engine\Option\GraphicsOptions</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Option\GraphicsOptions\DoFOption.h">
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\BloomOption.h">
       <Filter>Source\Engine\Option\GraphicsOptions</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Option\DebugOptions\DebugDrawOption.h">
@@ -3145,6 +3190,21 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA\TAAPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\AntiAliasing\TAA</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomCommon.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Bloom</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomExtractPass\BloomExtractPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomExtractPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\KawaseBlurPass\KawaseBlurPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Bloom\KawaseBlurPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomCompositePass\BloomCompositePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Bloom\BloomCompositePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass\GaussianBlurPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass\CoCPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass</Filter>
@@ -3619,6 +3679,9 @@
     <None Include="Asset\Shader\Common\CB\CBDoFOption.hlsli">
       <Filter>Asset\Shader\Common\CB</Filter>
     </None>
+    <None Include="Asset\Shader\Common\CB\CBBloomOption.hlsli">
+      <Filter>Asset\Shader\Common\CB</Filter>
+    </None>
     <None Include="Asset\Shader\Common\Lighting\Fog.hlsli">
       <Filter>Asset\Shader\Common\Lighting</Filter>
     </None>
@@ -3764,6 +3827,18 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\PostEffect\DoF\DoFShader.hlsl">
       <Filter>Asset\Shader\Compute\PostEffect\DoF</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Bloom\BloomExtractShader\BloomExtractShader.hlsl">
+      <Filter>Asset\Shader\Compute\Bloom\BloomExtractShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Bloom\KawaseBlurShader\KawaseBlurShader.hlsl">
+      <Filter>Asset\Shader\Compute\Bloom\KawaseBlurShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\Bloom\BloomCompositeShader\BloomCompositeShader.hlsl">
+      <Filter>Asset\Shader\Compute\Bloom\BloomCompositeShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Compute\PostEffect\Blur\GaussianBlurShader.hlsl">
+      <Filter>Asset\Shader\Compute\PostEffect\Blur</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Compute\Lighting\DeferredLighting\DeferredLightingShader.hlsl">
       <Filter>Asset\Shader\Compute\Ligthting\DeferredLighting</Filter>

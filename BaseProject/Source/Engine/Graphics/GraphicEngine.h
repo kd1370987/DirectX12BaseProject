@@ -151,6 +151,13 @@ namespace Engine::Graphics
 		// ここに積んでおくと、ECS側の設定が終わった後・GPUデータ作成の直前に適用される。
 		void SetCameraOverride(const DXSM::Matrix& a_worldMat, const DXSM::Matrix& a_projMat);
 		void ClearCameraOverride();
+
+		// 被写界深度(DoF)の調整値
+		// カメラの持ち物なので、アクティブカメラの FocusParamComponent から
+		// CamSetShaderSystem が毎フレーム詰める。CoCパス/DoFパスはこれを読む。
+		// 誰も設定しなかったフレームは無効(ボケなし)として扱われる。
+		void SetDoFData(const DoFOptionCB& a_data);
+		const DoFOptionCB& GetDoFData() const;
 		// 環境データ
 		void SetAmbientData(const AmbientData& a_data);
 		const AmbientData& GetAmbientData() const;
@@ -417,6 +424,9 @@ namespace Engine::Graphics
 
 		// 環境データ
 		AmbientData m_cbAmbient = {};
+
+		// 被写界深度データ(アクティブカメラの FocusParamComponent から毎フレーム設定)
+		DoFOptionCB m_cbDoF = {};
 		
 		// オブジェクト単位データ
 		std::vector<InstanceData> m_instanceDataVec = {};
