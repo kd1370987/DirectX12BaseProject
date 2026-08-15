@@ -49,7 +49,8 @@ void StaticObjectDrawSystem::Init(Engine::ECS::World& a_world)
 					_model,
 					_worldMatComp.worldMat,
 					_modelComp.colorScale,
-					_modelComp.emissiveScale
+					_modelComp.emissiveScale,
+					_modelComp.GetEmissiveAdd()
 				);
 			}
 		},

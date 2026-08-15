@@ -189,6 +189,7 @@ namespace Engine::Graphics
 	};
 
 	// サブメッシュ単位データ
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/SubsetData.hlsli)と並びを合わせること
 	struct SubSetData
 	{
 		// テクスチャスケール
@@ -197,7 +198,10 @@ namespace Engine::Graphics
 		float metallic = 0.0f;
 		float roughness = 0.0f;
 
-		DirectX::XMFLOAT3 pad;
+		// マテリアルとは独立した自己発光(ModelComponent の 発光色 × 発光強度)。
+		// emissiveColorScale はエミッシブテクスチャに掛ける倍率なので、テクスチャを
+		// 持たないモデルは何倍しても光らない。こちらは加算なので単体で光らせられる。
+		DirectX::XMFLOAT3 emissiveAdd = {};
 	};
 
 	// ボーンデータ
@@ -251,7 +255,10 @@ namespace Engine::Graphics
 
 		float roughness;
 
-		DXSM::Vector3 pad;
+		// マテリアルとは独立した自己発光(ModelComponent の 発光色 × 発光強度)。
+		// emissive はエミッシブテクスチャに掛ける倍率なので、テクスチャを持たない
+		// モデルは何倍しても光らない。こちらは加算なので単体で光らせられる。
+		DXSM::Vector3 emissiveAdd;
 
 		// テクスチャのSRVインデックス
 		int albedoIndex;					// アルベド

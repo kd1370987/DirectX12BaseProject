@@ -12,9 +12,37 @@ struct ModelComponent
 	DirectX::XMFLOAT4 colorScale = { 1.0f,1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT3 emissiveScale = { 1.0f,1.0f,1.0f };
 
+	//--------------------------------------------------------------------------
+	// 自己発光（ブルームで光らせたいとき用）
+	//
+	// emissiveScale は「エミッシブテクスチャに掛ける倍率」なので、
+	// テクスチャを持たないモデル(黒テクスチャにフォールバックする)は
+	// 何倍しても 0 のままで絶対に光らない。
+	// こちらはテクスチャもマテリアルの emissive も要らない加算の発光。
+	//
+	//   実際にGBufferへ書かれる値 = emissiveColor * emissiveIntensity
+	//
+	// 色は 0〜1 のまま扱い、1.0 超えは強度側で作る。
+	// ブルームは輝度がしきい値(既定1.0)を超えた画素だけを拾うので、
+	// 光らせたいなら強度をしきい値より大きくすること。
+	// 既定は強度0＝オフなので、設定しなければ今までと同じ見た目になる。
+	//--------------------------------------------------------------------------
+	DirectX::XMFLOAT3 emissiveColor = { 1.0f,1.0f,1.0f };	// 発光色(0〜1)
+	float emissiveIntensity = 0.0f;							// 発光の強さ(上限なし / 0でオフ)
+
 	// モデル参照用
 	Engine::Handle<Engine::Resource::Model> handle = {};	// ランタイム用
 	Engine::GUID modelGUID = {};									// 記録用
+
+	// シェーダーへ送る実効的な自己発光
+	DirectX::XMFLOAT3 GetEmissiveAdd() const
+	{
+		return {
+			emissiveColor.x * emissiveIntensity,
+			emissiveColor.y * emissiveIntensity,
+			emissiveColor.z * emissiveIntensity
+		};
+	}
 };
 
 template<>
@@ -25,6 +53,8 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_pData);
 		a_ar.Field("colorScale", _comp.colorScale);
 		a_ar.Field("emissiveScale", _comp.emissiveScale);
+		a_ar.Field("emissiveColor", _comp.emissiveColor);
+		a_ar.Field("emissiveIntensity", _comp.emissiveIntensity);
 		a_ar.Field("modelGUID", _comp.modelGUID);
 	}
 
@@ -55,13 +85,36 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 			}
 		}
 
-		// emissiveScale は XMFLOAT3 なので必ず3成分版を使うこと。
-		// ColorPicker4 にすると float 4個ぶん書き戻され、
-		// 直後にある handle メンバをアルファ値で潰してしまう。
-		ImGui::Text("EmissiveScale");
-		ImGui::ColorPicker3("EmissiveScale", (float*)&_comp.emissiveScale.x);
+		// ---------------------------------------------------------
+		// 色まわり
+		//
+		// ColorPicker(常時展開)ではなく ColorEdit(色見本をクリックでピッカー)を使う。
+		// インスペクタが縦に短くなるのと、こちらはドラッグや右クリックでの
+		// 数値入力にも対応していて、色の指定方法を選べるため。
+		//
+		// ※ emissiveScale / emissiveColor は XMFLOAT3 なので必ず3成分版を使うこと。
+		//    ColorEdit4 にすると float 4個ぶん書き戻され、
+		//    直後にあるメンバをアルファ値で潰してしまう。
+		// ---------------------------------------------------------
+		ImGui::ColorEdit4("ColorScale", (float*)&_comp.colorScale.x);
+		ImGui::ColorEdit3("EmissiveScale", (float*)&_comp.emissiveScale.x);
 
-		ImGui::Text("ColorScale");
-		ImGui::ColorPicker4("ColorScale", (float*)&_comp.colorScale.x);
+		// ---------------------------------------------------------
+		// 自己発光（ブルーム用）
+		//
+		// 色は 0〜1 のピッカーで選び、1.0 超えは強度側で作る。
+		// ピッカー自体は 0〜1 しか扱えないので、HDRの明るさは
+		// 「色 × 強度」に分けるのが結局いちばん触りやすい。
+		// ---------------------------------------------------------
+		ImGui::SeparatorText("Emissive (Bloom)");
+
+		ImGui::ColorEdit3("Emissive Color", (float*)&_comp.emissiveColor.x);
+
+		// 上限なし。ブルームのしきい値(既定1.0)を超えるまで上げると光り出す
+		ImGui::DragFloat("Emissive Intensity", &_comp.emissiveIntensity, 0.05f, 0.0f, FLT_MAX);
+
+		// 実際にシェーダーへ渡る値。しきい値を超えているかの目安になる
+		const DirectX::XMFLOAT3 _emissiveAdd = _comp.GetEmissiveAdd();
+		ImGui::TextDisabled("-> (%.2f, %.2f, %.2f)", _emissiveAdd.x, _emissiveAdd.y, _emissiveAdd.z);
 	}
 };

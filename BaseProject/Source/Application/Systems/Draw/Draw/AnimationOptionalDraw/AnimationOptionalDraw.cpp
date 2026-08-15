@@ -61,7 +61,13 @@ void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
 					_matComp.worldMat,
 					_skeComp.skeletonPoseHandle,
 					_nodePoseComp.nodePoseHandle,
-					_animComp.dynamicInstanceHandle
+					_animComp.dynamicInstanceHandle,
+					// 静的・動的の描画システムと同じく、コンポーネントの色設定を渡す。
+					// (ここだけ既定値のままで、インスペクタの ColorScale /
+					//  EmissiveScale がアニメーションモデルにだけ効いていなかった)
+					_modelComp.colorScale,
+					_modelComp.emissiveScale,
+					_modelComp.GetEmissiveAdd()
 				);
 			}
 		}); 

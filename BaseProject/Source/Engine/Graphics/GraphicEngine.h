@@ -192,13 +192,15 @@ namespace Engine::Graphics
 		/// <param name="a_pModel">モデルのポインタ</param>
 		/// <param name="a_worldMatrix">ワールド行列</param>
 		/// <param name="a_albedoScale">カラースケール</param>
-		/// <param name="a_emissiveScale">エミッシブスケール</param>
+		/// <param name="a_emissiveScale">エミッシブスケール(エミッシブテクスチャに掛ける倍率)</param>
+		/// <param name="a_emissiveAdd">マテリアルに依らない自己発光(加算・1.0超え可)</param>
 		void SubmitModel(
 			ECS::World& a_world,
 			const Resource::Model* a_pModel,
 			const DXSM::Matrix& a_worldMatrix,
 			const DXSM::Color& a_albedoScale = Color::WHITE,
-			const DXSM::Vector3& a_emissiveScale = {1,1,1}
+			const DXSM::Vector3& a_emissiveScale = {1,1,1},
+			const DXSM::Vector3& a_emissiveAdd = {0,0,0}
 		);
 		/// <summary>
 		/// 指定したモデルを指定の座標に描画する命令 : 即時実行ではなく、コマンドとしてためたのちに一括で実行される
@@ -208,14 +210,16 @@ namespace Engine::Graphics
 		/// <param name="a_worldMatrix">ワールド行列</param>
 		/// <param name="a_prevMatrix">過去ワールド行列</param>
 		/// <param name="a_albedoScale">カラースケール</param>
-		/// <param name="a_emissiveScale">エミッシブスケール</param>
+		/// <param name="a_emissiveScale">エミッシブスケール(エミッシブテクスチャに掛ける倍率)</param>
+		/// <param name="a_emissiveAdd">マテリアルに依らない自己発光(加算・1.0超え可)</param>
 		void SubmitModel(
 			ECS::World& a_world,
 			const Resource::Model* a_pModel,
 			const DXSM::Matrix& a_worldMatrix,
 			const DXSM::Matrix& a_prevMatrix,
 			const DXSM::Color& a_albedoScale = Color::WHITE,
-			const DXSM::Vector3& a_emissiveScale = { 1,1,1 }
+			const DXSM::Vector3& a_emissiveScale = { 1,1,1 },
+			const DXSM::Vector3& a_emissiveAdd = { 0,0,0 }
 		);
 		/// <summary>
 		/// 指定したモデルを指定の座標に描画する命令 : 即時実行ではなく、コマンドとしてためたのちに一括で実行される
@@ -228,7 +232,8 @@ namespace Engine::Graphics
 		/// <param name="a_nodePoseHandle">スケルトンポーズ行列配列ハンドル</param>
 		/// <param name="a_animData">アニメーション後頂点配列</param>
 		/// <param name="a_albedoScale">カラースケール</param>
-		/// <param name="a_emissiveScale">エミッシブスケール</param>
+		/// <param name="a_emissiveScale">エミッシブスケール(エミッシブテクスチャに掛ける倍率)</param>
+		/// <param name="a_emissiveAdd">マテリアルに依らない自己発光(加算・1.0超え可)</param>
 		void SubmitModel(
 			ECS::World& a_world,
 			const Resource::Model* a_pModel,
@@ -238,7 +243,8 @@ namespace Engine::Graphics
 			const RangeHandle<Resource::NodePoseMatrix>& a_nodePoseHandle,
 			const Handle<Raytracing::DynamicRaytracingData>& a_animData,
 			const DXSM::Color& a_albedoScale = Color::WHITE,
-			const DXSM::Vector3& a_emissiveScale = { 1,1,1 }
+			const DXSM::Vector3& a_emissiveScale = { 1,1,1 },
+			const DXSM::Vector3& a_emissiveAdd = { 0,0,0 }
 		);
 
 		/// <summary>
@@ -353,7 +359,8 @@ namespace Engine::Graphics
 		MeshMaterial BuildMeshMaterial(
 			const Resource::Material* a_pMaterial,
 			const DXSM::Color& a_albedoScale,
-			const DXSM::Vector3& a_emissiveScale);
+			const DXSM::Vector3& a_emissiveScale,
+			const DXSM::Vector3& a_emissiveAdd);
 
 		// 1つの描画コマンドを、シェーディングモデルが持つ全パスへ登録する共通処理。
 		// (メッシュシェーダー用データ構築・PSO要求・描画アイテム登録をまとめて行う)
@@ -370,6 +377,7 @@ namespace Engine::Graphics
 			uint32_t a_animatedVertexStart,
 			const DXSM::Color& a_albedoScale,
 			const DXSM::Vector3& a_emissiveScale,
+			const DXSM::Vector3& a_emissiveAdd,
 			PSOKey a_psoKey);
 
 		// ピクセル空間で回転・アスペクト補正・ピボットを解決し、UIData(NDC基底)を

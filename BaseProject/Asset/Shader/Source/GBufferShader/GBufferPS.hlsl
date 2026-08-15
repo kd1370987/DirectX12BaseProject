@@ -40,8 +40,12 @@ PSOutput PSMain(VSOutput a_input)
 	);
 
 	// エミッシブ
+	// エミッシブテクスチャ由来の発光 ＋ マテリアルに依らない自己発光。
+	// 加算側は1.0を超えて構わない(出力先がR11G11B10_FLOATなのでクランプされない)。
+	// ここが1.0を超えるとブルームの抽出しきい値に乗る
 	float4 _eTex = g_emiTex.Sample(smp, _uv);
-	_out.emissiv = _eTex * float4(g_subsetData[_subIdx].emissiveColorScale,1);
+	_out.emissiv = _eTex * float4(g_subsetData[_subIdx].emissiveColorScale,1)
+	             + float4(g_subsetData[_subIdx].emissiveAdd, 0);
 
 	// モーションベクター
 	float2 _curNDCPos = (a_input.curClipPos.xy / a_input.curClipPos.w);

@@ -156,12 +156,15 @@ namespace Engine::Graphics
 		// 川瀬式ブルーム
 		//
 		//   抽出(等倍) → 1/2 → 1/4 → 1/8 → 1/16 と縮小しながらガウシアンブラー
-		//              → 4枚それぞれを等倍まで拡大 → 平均して1枚に → メインカラーへ加算
+		//              → 4枚を平均して1枚に → メインカラーへ加算
 		//
 		// 縮小率ごとにボケの広がりが変わるので、それを重ねると
 		// 「芯は明るく、外へ行くほどゆるく広がる」ブルーム特有の減衰になる。
 		// 同じ広がりを1回の大きなブラーで出そうとするとタップ数が跳ね上がるため、
 		// 縮小バッファを積むこの形が安い。
+		//
+		// 等倍へ戻す拡大パスは持たない。合流(KawaseBlurPass)がUVでサンプリングするので、
+		// 解像度の違いはサンプラーのバイリニアが吸収してくれる。
 		//
 		// 合成はメインカラー(AfterTAAColor)を読んで書き戻すので、必ずDoFより後に登録する。
 		// (同一フェーズ内はリソースのバージョンで依存が決まるため、登録順が
@@ -174,14 +177,9 @@ namespace Engine::Graphics
 			// 各段の解像度スケール
 			constexpr float kBloomScales[4] = { 0.5f, 0.25f, 0.125f, 0.0625f };
 
-			// 縮小側のブラー。低解像度で回るので広め(5x5)に取れる
-			constexpr float kDownSigma = 1.2f;
-			constexpr int   kDownTapRadius = 2;
-
-			// 拡大側のブラー。こちらはフル解像度で回るのでタップ数を絞る(3x3)。
-			// 入力テクセル単位で刻むため、半径1でも拡大後は十分な広がりになる
-			constexpr float kUpSigma = 1.0f;
-			constexpr int   kUpTapRadius = 1;
+			// ブラーの広がり。すべて縮小後の低解像度で回るので広め(5x5)に取れる
+			constexpr float kBlurSigma = 1.2f;
+			constexpr int   kBlurTapRadius = 2;
 
 			const std::string _extractName = "BloomExtract";
 
@@ -197,26 +195,11 @@ namespace Engine::Graphics
 					_srcName,
 					"BloomBlurDown" + std::to_string(_i),
 					_srcScale, kBloomScales[_i],
-					kDownSigma, kDownTapRadius
+					kBlurSigma, kBlurTapRadius
 				);
 			}
 
-			// 拡大 : 縮小した4枚をそれぞれ等倍まで引き伸ばす。
-			// 段を追って戻すのではなく各段から直接戻すことで、4段階ぶんの
-			// 違う広がりのボケが独立したまま残る
-			for (int _i = 0; _i < 4; ++_i)
-			{
-				AddGaussianBlurPass(
-					m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess,
-					"BloomBlurUpPass" + std::to_string(_i),
-					"BloomBlurDown" + std::to_string(_i),
-					"BloomBlurUp" + std::to_string(_i),
-					kBloomScales[_i], 1.0f,
-					kUpSigma, kUpTapRadius
-				);
-			}
-
-			// 4枚を1枚のブルームへまとめる
+			// 4枚を1枚のブルームへまとめる（拡大はここのサンプリングが兼ねる）
 			AddKawaseBlurPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 
 			// メインカラーへ加算合成して固定名へ戻す
@@ -525,7 +508,8 @@ namespace Engine::Graphics
 		const Resource::Model* a_pModel,
 		const DXSM::Matrix& a_worldMatrix,
 		const DXSM::Color& a_albedoScale,
-		const DXSM::Vector3& a_emissiveScale
+		const DXSM::Vector3& a_emissiveScale,
+		const DXSM::Vector3& a_emissiveAdd
 	)
 	{
 		SubmitModel(
@@ -534,7 +518,8 @@ namespace Engine::Graphics
 			a_worldMatrix,
 			a_worldMatrix,
 			a_albedoScale,
-			a_emissiveScale
+			a_emissiveScale,
+			a_emissiveAdd
 		);
 	}
 
@@ -544,7 +529,8 @@ namespace Engine::Graphics
 		const DXSM::Matrix& a_worldMatrix,
 		const DXSM::Matrix& a_prevMatrix,
 		const DXSM::Color& a_albedoScale,
-		const DXSM::Vector3& a_emissiveScale
+		const DXSM::Vector3& a_emissiveScale,
+		const DXSM::Vector3& a_emissiveAdd
 	)
 	{
 		if (!a_pModel) return;
@@ -581,6 +567,7 @@ namespace Engine::Graphics
 			SubSetData _subSetData = {};
 			_subSetData.baseColorScale = _pMaterial->baseColor * a_albedoScale;
 			_subSetData.emissiveColorScale = _pMaterial->emissive * a_emissiveScale;
+			_subSetData.emissiveAdd = a_emissiveAdd;
 			_subSetData.metallic = _pMaterial->metallic;
 			_subSetData.roughness = _pMaterial->roughness;
 
@@ -612,7 +599,7 @@ namespace Engine::Graphics
 				_cmd, _pMesh, _pMaterial, _pShadingModel,
 				_mat, _prevMat, _instanceIdx, _subsetIdx,
 				_isAnimation, 0 /*animatedVertexStart*/,
-				a_albedoScale, a_emissiveScale, _psoKey);
+				a_albedoScale, a_emissiveScale, a_emissiveAdd, _psoKey);
 		}
 	}
 
@@ -625,7 +612,8 @@ namespace Engine::Graphics
 		const RangeHandle<Resource::NodePoseMatrix>& a_nodePoseHandle,
 		const Handle<Raytracing::DynamicRaytracingData>& a_animData,
 		const DXSM::Color& a_albedoScale,
-		const DXSM::Vector3& a_emissiveScale
+		const DXSM::Vector3& a_emissiveScale,
+		const DXSM::Vector3& a_emissiveAdd
 	)
 	{
 		// ノード行列取得
@@ -684,6 +672,7 @@ namespace Engine::Graphics
 			SubSetData _subSetData = {};
 			_subSetData.baseColorScale = a_albedoScale;
 			_subSetData.emissiveColorScale = a_emissiveScale;
+			_subSetData.emissiveAdd = a_emissiveAdd;
 			_subSetData.metallic = _pMaterial->metallic;
 			_subSetData.roughness = _pMaterial->roughness;
 
@@ -718,7 +707,7 @@ namespace Engine::Graphics
 				_cmd, _pMesh, _pMaterial, _pShadingModel,
 				_mat, _prevMat, _instanceIdx, _subsetIdx,
 				_isAnimation, _animatedVertexStart,
-				a_albedoScale, a_emissiveScale, _psoKey);
+				a_albedoScale, a_emissiveScale, a_emissiveAdd, _psoKey);
 		}
 	}
 
@@ -1087,11 +1076,13 @@ namespace Engine::Graphics
 	MeshMaterial GraphicsEngine::BuildMeshMaterial(
 		const Resource::Material* a_pMaterial,
 		const DXSM::Color& a_albedoScale,
-		const DXSM::Vector3& a_emissiveScale)
+		const DXSM::Vector3& a_emissiveScale,
+		const DXSM::Vector3& a_emissiveAdd)
 	{
 		MeshMaterial _meshMaterial = {};
 		_meshMaterial.baseColor = a_pMaterial->baseColor * a_albedoScale;
 		_meshMaterial.emissive = a_pMaterial->emissive * a_emissiveScale;
+		_meshMaterial.emissiveAdd = a_emissiveAdd;
 		_meshMaterial.metallic = a_pMaterial->metallic;
 		_meshMaterial.roughness = a_pMaterial->roughness;
 		_meshMaterial.albedoIndex = GetSRVIndexFromTextureHandle(a_pMaterial->baseColorTex);
@@ -1114,6 +1105,7 @@ namespace Engine::Graphics
 		uint32_t a_animatedVertexStart,
 		const DXSM::Color& a_albedoScale,
 		const DXSM::Vector3& a_emissiveScale,
+		const DXSM::Vector3& a_emissiveAdd,
 		PSOKey a_psoKey)
 	{
 		for (UINT _passHash : a_pShadingModel->GetPassHashes())
@@ -1130,7 +1122,7 @@ namespace Engine::Graphics
 			{
 				a_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
 
-				MeshMaterial _meshMaterial = BuildMeshMaterial(a_pMaterial, a_albedoScale, a_emissiveScale);
+				MeshMaterial _meshMaterial = BuildMeshMaterial(a_pMaterial, a_albedoScale, a_emissiveScale, a_emissiveAdd);
 
 				const auto& _msData = a_pMesh->GetMeshShaderData();
 

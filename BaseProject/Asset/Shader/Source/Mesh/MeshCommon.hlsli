@@ -37,10 +37,15 @@ struct Material
 	
 	float3 emissive;
 	float metallic;
-	
+
 	float roughness;
 
-	float3 pad;
+	// マテリアルとは独立した自己発光（ModelComponent の 発光色 × 発光強度）。
+	// emissive はエミッシブテクスチャに掛ける倍率なので、テクスチャが無い
+	// (＝黒テクスチャにフォールバックする)モデルは何倍しても光らない。
+	// こちらは加算なので、テクスチャもマテリアルの emissive も要らずに光らせられる。
+	// 既定は0で、使わないモデルの見た目は変わらない。
+	float3 emissiveAdd;
 
 	// テクスチャのSRVインデックス
 	int albedoIndex;					// アルベド

@@ -34,10 +34,20 @@ ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 		auto _hlslTime = fs::last_write_time(_hlslPath);
 
 		// インクルードディレクトリ内の最新の .hlsli のタイムスタンプを取得
+		//
+		// ここに挙げたディレクトリ配下の .hlsli が1つでも .cso より新しければ、
+		// その .hlsli を実際に include しているかに関わらず再コンパイルする。
+		// (どのシェーダーがどのヘッダーに依存しているかを持っていないので、
+		//  取りこぼすくらいなら余分に焼き直す方に倒している)
+		//
+		// ※ 以前は "Asset\\Shader\\Mesh" を見ていたが、そのディレクトリは存在せず
+		//    (実体は Asset\Shader\Source\Mesh)、fs::exists で弾かれて素通りしていた。
+		//    そのため MeshCommon.hlsli や RootSignatureLayout.hlsli など
+		//    Source 配下のヘッダーを直しても再コンパイルが走らなかった。
 		auto _newestHlsliTime = fs::file_time_type::min();
 		std::vector<fs::path> _includeDirs = {
 			"Asset\\Shader\\Common",
-			"Asset\\Shader\\Mesh"
+			"Asset\\Shader\\Source"
 		};
 
 		for (const auto& _dir : _includeDirs)

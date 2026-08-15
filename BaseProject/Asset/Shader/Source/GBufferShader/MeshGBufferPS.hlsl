@@ -87,7 +87,10 @@ PSOutput PSMain(VertexOutput a_input)
 		Texture2D emissiveTex = ResourceDescriptorHeap[NonUniformResourceIndex(_mat.emissiveIndex)];
 		_eTex = emissiveTex.Sample(smp, _uv);
 	}
-	_out.emissiv = _eTex * float4(_mat.emissive, 1.0f);
+	// エミッシブテクスチャ由来の発光 ＋ マテリアルに依らない自己発光。
+	// 加算側は1.0を超えて構わない(出力先がR11G11B10_FLOATなのでクランプされない)。
+	// ここが1.0を超えるとブルームの抽出しきい値に乗る
+	_out.emissiv = _eTex * float4(_mat.emissive, 1.0f) + float4(_mat.emissiveAdd, 0.0f);
 
     // -----------------------------------------------------------
     // モーションベクター (Velocity)
