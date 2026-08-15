@@ -24,7 +24,8 @@ namespace Engine::Raytracing
 		const DXSM::Matrix& a_worldMat,
 		const Engine::Handle<Engine::Resource::Model>& a_modelHandle,
 		const DXSM::Vector4& a_colorScale,
-		const DXSM::Vector3& a_emissiveScale
+		const DXSM::Vector3& a_emissiveScale,
+		const DXSM::Vector3& a_emissiveAdd
 	)
 	{
 		m_isDrity = true;
@@ -68,6 +69,7 @@ namespace Engine::Raytracing
 					_mat.metallic = _pMate->metallic;
 					_mat.roughness = _pMate->roughness;
 					_mat.emissive = _emiColor * a_emissiveScale;
+					_mat.emissiveAdd = a_emissiveAdd;
 					_mat.startIndexLocation = _subset.faceStart * 3;
 					_mat.baseIndex = GetTexHepaIndex(_pMate->baseColorTex);
 					_mat.metaRoughnessIndex = GetTexHepaIndex(_pMate->metaRoughTex);
@@ -91,7 +93,8 @@ namespace Engine::Raytracing
 		const Handle<DynamicRaytracingData>& a_dynamicDataHandle,
 		const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatHandle,
 		const DXSM::Vector4& a_colorScale, 
-		const DXSM::Vector3& a_emissiveScale
+		const DXSM::Vector3& a_emissiveScale,
+		const DXSM::Vector3& a_emissiveAdd
 	)
 	{
 		// ノード行列取得
@@ -152,6 +155,7 @@ namespace Engine::Raytracing
 					_mat.metallic			= _pMate->metallic;
 					_mat.roughness			= _pMate->roughness;
 					_mat.emissive			= _emiColor * a_emissiveScale;
+					_mat.emissiveAdd		= a_emissiveAdd;
 					_mat.startIndexLocation = _subset.faceStart * 3;
 					_mat.baseIndex			= GetTexHepaIndex(_pMate->baseColorTex);
 					_mat.metaRoughnessIndex = GetTexHepaIndex(_pMate->metaRoughTex);

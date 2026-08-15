@@ -46,7 +46,15 @@ namespace Engine::Raytracing
 		UINT                normalIndex;            // NormalマップテクスチャのSRVインデックス
 		UINT                startIndexLocation;     // インデックスバッファ内のサブメッシュ開始位置
 		DirectX::XMFLOAT2   pad0;                   // 16バイトアライメント用のパディング
-	}; // Total: 64 Bytes
+
+		// --- 16 Bytes (Offset: 64) ---
+		// マテリアルとは独立した自己発光(ModelComponent の 発光色 × 発光強度)。
+		// emissive はマテリアルの発光色に倍率を掛けたものなので、発光しない
+		// マテリアル(emissive = 0)は何倍しても光らない。こちらは加算なので単体で光る。
+		// GBuffer側の SubSetData::emissiveAdd / MeshMaterial::emissiveAdd と同じ値が入る。
+		DirectX::XMFLOAT3   emissiveAdd;            // 自己発光(加算・1.0超え可)
+		float               pad1;                   // 16バイトアライメント用のパディング
+	}; // Total: 80 Bytes
 
 	// ===================================================================================
 	// CPU側 レイワールド構築用データ構造
@@ -119,6 +127,7 @@ namespace Engine::Raytracing
 		DXSM::Matrix worldMat;				// ワールド行列
 		DXSM::Vector4 colorScale;			// 色スケール
 		DXSM::Vector3 emissiveScale;		// エミッシブスケール
+		DXSM::Vector3 emissiveAdd;			// 自己発光(加算・1.0超え可)
 
 		Engine::Handle<DynamicRaytracingData> dynamicHandle = {};
 		Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle = {};

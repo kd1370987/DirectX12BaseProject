@@ -260,7 +260,8 @@ namespace Engine::Graphics
 			const DXSM::Vector4& a_colorScale,			// 色スケール
 			const DXSM::Vector3& a_emissiveScale,		// エミッシブスケール
 			const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
-			const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle
+			const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle,
+			const DXSM::Vector3& a_emissiveAdd = { 0,0,0 }	// 自己発光(加算)
 		);
 
 		//--------------------------------------------------------------------------------------------

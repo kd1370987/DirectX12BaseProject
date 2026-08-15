@@ -58,7 +58,8 @@ void RegisterAnimatedRayWorldSystem::Init(Engine::ECS::World& a_world)
 						_animComp.dynamicInstanceHandle,
 						_nodePoseComp.nodePoseHandle,
 						_modelComp.colorScale,
-						_modelComp.emissiveScale
+						_modelComp.emissiveScale,
+						_modelComp.GetEmissiveAdd()
 					);
 				}
 			}

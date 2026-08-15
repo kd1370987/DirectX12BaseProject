@@ -711,11 +711,11 @@ namespace Engine::Graphics
 		}
 	}
 
-	void GraphicsEngine::SubmitModel(const DXSM::Matrix& a_worldMat, const DXSM::Vector4& a_colorScale, const DXSM::Vector3& a_emissiveScale, const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle)
+	void GraphicsEngine::SubmitModel(const DXSM::Matrix& a_worldMat, const DXSM::Vector4& a_colorScale, const DXSM::Vector3& a_emissiveScale, const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle, const DXSM::Vector3& a_emissiveAdd)
 	{
 
 		m_dynamicRayRequestVec.push_back(
-			{ a_worldMat,a_colorScale,a_emissiveScale,dynamicHandle,nodePoseHnandle }
+			{ a_worldMat,a_colorScale,a_emissiveScale,a_emissiveAdd,dynamicHandle,nodePoseHnandle }
 		);
 	}
 

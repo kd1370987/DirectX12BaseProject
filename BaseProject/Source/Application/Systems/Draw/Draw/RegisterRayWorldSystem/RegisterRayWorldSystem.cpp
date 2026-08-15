@@ -35,7 +35,8 @@ void RegisterRayWorldSystem::Init(Engine::ECS::World& a_world)
 					_wMatComp.worldMat,
 					_modelComp.handle,
 					_modelComp.colorScale,
-					_modelComp.emissiveScale
+					_modelComp.emissiveScale,
+					_modelComp.GetEmissiveAdd()
 				);
 			}
 		},

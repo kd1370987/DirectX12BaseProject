@@ -39,7 +39,8 @@ namespace Engine::Raytracing
 			const DirectX::XMFLOAT4X4& a_worldMat,
 			const Engine::Handle<Resource::Model>& a_modelHandle,
 			const DXSM::Vector4& a_colorScale,
-			const DXSM::Vector3& a_emissiveScale
+			const DXSM::Vector3& a_emissiveScale,
+			const DXSM::Vector3& a_emissiveAdd = { 0,0,0 }
 		);
 		void RegisterSkinningModel(
 			ECS::World& a_world,
@@ -48,7 +49,8 @@ namespace Engine::Raytracing
 			const Handle<DynamicRaytracingData>& a_dynamicData,
 			const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatVec,
 			const DXSM::Vector4& a_colorScale,
-			const DXSM::Vector3& a_emissiveScale
+			const DXSM::Vector3& a_emissiveScale,
+			const DXSM::Vector3& a_emissiveAdd = { 0,0,0 }
 		);
 		// レイトレワールドの構築
 		void CommitWorld(D3D12::Device* a_pDevice,

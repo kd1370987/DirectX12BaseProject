@@ -35,6 +35,12 @@ struct Material
 	int normalIndex;
 	uint startIndexLocation; // このサブメッシュのインデックスバッファが何番目から始まるか
 	float2 pad;
+
+	// マテリアルとは独立した自己発光(ModelComponent の 発光色 × 発光強度)。
+	// emissive はマテリアルの発光色に倍率を掛けたものなので、発光しない
+	// マテリアル(emissive = 0)は何倍しても光らない。こちらは加算なので単体で光る
+	float3 emissiveAdd;
+	float pad1;
 };
 // 頂点構造体
 struct Vertex

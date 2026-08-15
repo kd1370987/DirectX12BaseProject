@@ -25,6 +25,12 @@ struct Material
 	int normalIndex;
 	uint startIndexLocation; // このサブメッシュのインデックスバッファが何番目から始まるか
 	float2 pad;
+
+	// マテリアルとは独立した自己発光(ModelComponent の 発光色 × 発光強度)。
+	// emissive はマテリアルの発光色に倍率を掛けたものなので、発光しない
+	// マテリアル(emissive = 0)は何倍しても光らない。こちらは加算なので単体で光る
+	float3 emissiveAdd;
+	float pad1;
 };
 // 頂点構造体
 struct Vertex
@@ -403,7 +409,9 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float3 _indirectLight = _refPayload.color; // 飛んだ先から持ち帰ってきた色
 
 	// アルベド * (直接光 + 間接光) + エミッシブ(自己発光)
-	float3 _finalColor = _albedo * (_directLight + _indirectLight) + _material.emissive;
+	// emissiveAdd はマテリアルに依らない自己発光。ここに乗せることで、
+	// 光っている物体が跳ね返りのレイ経由で周りを照らす(GIの光源になる)
+	float3 _finalColor = _albedo * (_directLight + _indirectLight) + _material.emissive + _material.emissiveAdd;
 
 	// RGBの計算結果がマイナスや無限大（NaN）になるのを防ぐ
 	a_payload.color = clamp(_finalColor, 0.0f, 10.0f);
