@@ -109,6 +109,13 @@ namespace Engine::Editor
 
 	private:
 
+		// デバッグ形状を1つ積んでよいか。
+		// オプション(DebugDrawOption::drawWire)のオンオフと、バッファの空きをまとめて見る。
+		// 各 Draw～ の入口はここだけを見ればよい
+		bool CanPushDebugShape();
+
+	private:
+
 		// ImGuiコンテキスト
 		std::unique_ptr<ImGuiContext> m_upImGuiContext = nullptr;
 

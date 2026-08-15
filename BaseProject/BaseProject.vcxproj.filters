@@ -694,6 +694,9 @@
     <Filter Include="Source\Engine\Option\GraphicsOptions">
       <UniqueIdentifier>{0d25129d-d165-4472-aff5-df486ed58360}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Option\DebugOptions">
+      <UniqueIdentifier>{3f6b90c2-5d47-4a18-8e73-1c94a2f60db5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Asset\Shader\Compute\Anti-aliasing">
       <UniqueIdentifier>{a41220f6-f1b7-4069-a1d9-269a2a50eeee}</UniqueIdentifier>
     </Filter>
@@ -3082,6 +3085,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\DoFOption.h">
       <Filter>Source\Engine\Option\GraphicsOptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Option\DebugOptions\DebugDrawOption.h">
+      <Filter>Source\Engine\Option\DebugOptions</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer</Filter>

@@ -233,11 +233,7 @@ namespace Engine::Editor
 		const DirectX::SimpleMath::Color& a_color
 	)
 	{
-		if (m_debugLineDataVec.size() >= m_debugLineDataCapacity)
-		{
-			ENGINE_LOG("これ以上のデバッグラインは描画できません");
-			return;
-		}
+		if (!CanPushDebugShape()) return;
 
 		// 方向と長さを求める
 		DXSM::Vector3 _dir = a_endPos - a_startPos;
@@ -272,11 +268,7 @@ namespace Engine::Editor
 	}
 	void MainEditor::DrawBox(const DirectX::SimpleMath::Matrix & a_worldMat, const DirectX::SimpleMath::Color & a_color)
 	{
-		if (m_debugLineDataVec.size() >= m_debugLineDataCapacity)
-		{
-			ENGINE_LOG("これ以上のデバッグラインは描画できません");
-			return;
-		}
+		if (!CanPushDebugShape()) return;
 
 		// データ作成
 		Graphics::DebugLineData _data = {};
@@ -311,11 +303,7 @@ namespace Engine::Editor
 	}
 	void MainEditor::DrawCapsule(const DirectX::SimpleMath::Matrix & a_worldMat, const DirectX::SimpleMath::Color & a_color)
 	{
-		if (m_debugLineDataVec.size() >= m_debugLineDataCapacity)
-		{
-			ENGINE_LOG("これ以上のデバッグラインは描画できません");
-			return;
-		}
+		if (!CanPushDebugShape()) return;
 
 		// データ作成
 		Graphics::DebugLineData _data = {};
@@ -326,11 +314,7 @@ namespace Engine::Editor
 	}
 	void MainEditor::DrawSphere(const DirectX::SimpleMath::Matrix & a_worldMat, const DirectX::SimpleMath::Color & a_color)
 	{
-		if (m_debugLineDataVec.size() >= m_debugLineDataCapacity)
-		{
-			ENGINE_LOG("これ以上のデバッグラインは描画できません");
-			return;
-		}
+		if (!CanPushDebugShape()) return;
 
 		// データ作成
 		Graphics::DebugLineData _data = {};
@@ -359,11 +343,7 @@ namespace Engine::Editor
 		const DirectX::SimpleMath::Color & a_color
 	)
 	{
-		if (m_debugLineDataVec.size() >= m_debugLineDataCapacity)
-		{
-			ENGINE_LOG("これ以上のデバッグラインは描画できません");
-			return;
-		}
+		if (!CanPushDebugShape()) return;
 
 		auto _endPos = a_startPos + (a_dir * a_length);
 		DrawLine(a_startPos,_endPos,a_color);
@@ -373,6 +353,21 @@ namespace Engine::Editor
 			auto _mat = DXSM::Matrix::CreateTranslation(_endPos);
 			DrawSphere(_mat, Color::RED);
 		}
+	}
+	bool MainEditor::CanPushDebugShape()
+	{
+		// オプションで切られていれば1本も積まない。
+		// 空のままなら RenderContext::DrawShape も早期リターンするので、
+		// 描画コマンドごと止まる
+		if (!Option::OptionManager::GetInstance().GetDebugDrawOption().drawWire) return false;
+
+		if (m_debugLineDataVec.size() >= m_debugLineDataCapacity)
+		{
+			ENGINE_LOG("これ以上のデバッグラインは描画できません");
+			return false;
+		}
+
+		return true;
 	}
 	void MainEditor::ClearBuffer()
 	{

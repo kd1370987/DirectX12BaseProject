@@ -6,6 +6,7 @@ namespace Engine::Option
 		None,
 		Graphics,
 		Project,
+		Debug,
 		Count
 	};
 

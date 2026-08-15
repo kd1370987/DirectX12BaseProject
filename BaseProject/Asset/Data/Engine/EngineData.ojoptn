@@ -4,6 +4,9 @@
         "buildMode": 1,
         "maxThreadCount": 4
     },
+    "DebugDrawOption": {
+        "drawWire": false
+    },
     "DoFOption": {
         "enable": true,
         "farRange": 1000.0,

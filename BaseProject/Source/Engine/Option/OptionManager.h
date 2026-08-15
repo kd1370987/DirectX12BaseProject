@@ -13,6 +13,9 @@
 #include "GraphicsOptions/LightingOption.h"
 #include "GraphicsOptions/DoFOption.h"
 
+// デバッグオプション
+#include "DebugOptions/DebugDrawOption.h"
+
 namespace Engine::Option
 {
 	class OptionManager
@@ -60,6 +63,11 @@ namespace Engine::Option
 		const GraphicsOptions::DoFOption& GetDoFOption() const { return m_dofOption; }
 		GraphicsOptions::DoFOption& RefDoFOption() { return m_dofOption; }
 
+		// ---- デバッグ ----
+		// デバッグ描画設定(ワイヤー表示のオンオフ)
+		const DebugOptions::DebugDrawOption& GetDebugDrawOption() const { return m_debugDrawOption; }
+		DebugOptions::DebugDrawOption& RefDebugDrawOption() { return m_debugDrawOption; }
+
 	private:
 
 		void Archive(Persistence::Archive& a_ar);
@@ -76,6 +84,9 @@ namespace Engine::Option
 		GraphicsOptions::RenderingOption m_renderingOption = {};
 		GraphicsOptions::LightingOption m_lightingOption = {};
 		GraphicsOptions::DoFOption m_dofOption = {};
+
+		// デバッグオプション
+		DebugOptions::DebugDrawOption m_debugDrawOption = {};
 
 		// ループ処理用
 		std::vector<IOption*> m_pOptionList;
