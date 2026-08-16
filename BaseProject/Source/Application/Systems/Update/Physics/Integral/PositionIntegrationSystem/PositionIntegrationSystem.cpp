@@ -5,7 +5,7 @@
 #include "Application/Components/Force/VelocityComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 
-#include "Application/Components/Force/InertiaComponent.h"
+#include "Application/Components/Force/MovementComponent.h"
 
 void PositionIntegrationSystem::Init(Engine::ECS::World& a_world)
 {
@@ -41,6 +41,7 @@ void PositionIntegrationSystem::Init(Engine::ECS::World& a_world)
 				}
 			}
 		},
-		Engine::ECS::Exclude<InertiaComponent>()
+		// 加減速を持つ側は MovementIntegrationSystem が実速度で進める
+		Engine::ECS::Exclude<MovementComponent>()
 	);
 }

@@ -37,7 +37,7 @@ void CameraStartSystem::Init(Engine::ECS::World& a_world)
 
 				// プロジェクション行列の作成
 				DirectX::XMMATRIX _lhMat = DirectX::XMMatrixPerspectiveFovLH(
-					DirectX::XMConvertToRadians(_camParamComp.fovY),
+					DirectX::XMConvertToRadians(_camParamComp.GetFovY()),
 					_camParamComp.aspectRatio,
 					_camParamComp.nearZ,
 					_camParamComp.farZ

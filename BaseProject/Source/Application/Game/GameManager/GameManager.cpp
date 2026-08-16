@@ -13,6 +13,7 @@
 #include "../../../Engine/GameObject/ObjectMetaRegistry/ObjectMetaRegistry.h"
 #include "Application/Object/UI/CombatReticleHUD/CombatReticleHUD.h"
 #include "Application/Object/UI/TargetBoxHUD/TargetBoxHUD.h"
+#include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 
 // コンポーネント関係
 // システムフェーズタグ
@@ -35,7 +36,7 @@
 #include "Application/Components/Camera/TPSLookAngleComponent.h"
 #include "Application/Components/Force/GravityComponent.h"
 #include "Application/Components/Force/VelocityComponent.h"
-#include "Application/Components/Force/InertiaComponent.h"
+#include "Application/Components/Force/MovementComponent.h"
 #include "Application/Components/Character/LookAngleComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
@@ -52,6 +53,7 @@
 #include "Application/Components/Persistence/NameComponent.h"
 #include "Application/Components/Hierarchy/HierarchyComponent.h"
 #include "Application/Components/Hierarchy/FollowAnimationNodeComponent.h"
+#include "Application/Components/Hierarchy/SpownerComponent.h"
 #include "Application/Components/Transform/PreviousWorldMatrixComponent.h"
 #include "Application/Components/Character/Robot/BoostComponent.h"
 #include "Application/Components/Character/Robot/AttachmentSlotsComponent.h"
@@ -94,8 +96,9 @@
 #include "Application/Systems/Update/Update/Move/CharacterMovementSystem/CharacterMovementSystem.h"
 #include "Application/Systems/Update/Physics/RayCollisionSystem/RayCollisionSystem.h"
 #include "Application/Systems/Update/Physics/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
-#include "Application/Systems/Update/Physics/Integral/InertiaIntegrationSystem/InertiaIntegrationSystem.h"
+#include "Application/Systems/Update/Physics/Integral/MovementIntegrationSystem/MovementIntegrationSystem.h"
 #include "Application/Systems/Update/Camera/TPSSystem/TPSSystem.h"
+#include "Application/Systems/Update/Camera/CameraProjUpdateSystem/CameraProjUpdateSystem.h"
 #include "Application/Systems/Update/Camera/AimTargetSystem/AimTargetSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
 #include "Application/Systems/Update/PostUpdate/AnimationSystem/AnimationSystem.h"
@@ -220,6 +223,7 @@ namespace App::Game
 			auto& _objRegistry = Engine::GameObject::ObjectMetaRegistry::Instance();
 			_objRegistry.RegisterType<App::Object::CombatReticleHUD>("CombatReticleHUD");
 			_objRegistry.RegisterType<App::Object::TargetBoxHUD>("TargetBoxHUD");
+			_objRegistry.RegisterType<App::Object::SceneSequence>("SceneSequence");
 		}
 
 		// ワールドの初期化関数登録
@@ -249,7 +253,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<TPSLookAngleComponent>("TPSLookAngleComponent");
 				a_pWorld->RegisterComponent<VelocityComponent>("VelocityComponent");
 				a_pWorld->RegisterComponent<GravityComponent>("GravityComponent");
-				a_pWorld->RegisterComponent<InertiaComponent>("InertiaComponent");
+				a_pWorld->RegisterComponent<MovementComponent>("MovementComponent");
 				a_pWorld->RegisterComponent<LookAngleComponent>("LookAngleComponent");
 				a_pWorld->RegisterComponent<ColliderComponent>("ColliderComponent");
 				a_pWorld->RegisterComponent<RayColliderComponent>("RayColliderComponent");
@@ -263,6 +267,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<NameComponent>("NameComponent");
 				a_pWorld->RegisterComponent<GUIDComponent>("GUIDComponent");
 				a_pWorld->RegisterComponent<HierarchyComponent>("HierarchyComponent");
+				// 出現させた側(SceneSequence)の印。ウェーブの全滅判定に使う
+				a_pWorld->RegisterComponent<SpownerComponent>("SpownerComponent");
 				a_pWorld->RegisterComponent<FollowAnimationNodeComponent>("FollowAnimationNodeComponent");
 				a_pWorld->RegisterComponent<StateMachineComponent>("StateMachineComponent");
 				a_pWorld->RegisterComponent<ActionStateComponent>("ActionStateComponent");
@@ -358,11 +364,14 @@ namespace App::Game
 				a_pWorld->RegisterSystem<CalcNodeSystem>();
 				a_pWorld->RegisterSystem<SkinningSystem>();
 				a_pWorld->RegisterSystem<PositionIntegrationSystem>();
-				a_pWorld->RegisterSystem<InertiaIntegrationSystem>();
+				a_pWorld->RegisterSystem<MovementIntegrationSystem>();
 				a_pWorld->RegisterSystem<CharacterMovementSystem>();
 				a_pWorld->RegisterSystem<EnemyMovementSystem>();
 				a_pWorld->RegisterSystem<ActionBehaviorSystem>();
 				a_pWorld->RegisterSystem<TPSSystem>();
+				// スピードで動く画角(TPSSystem が fovBoost を書く)を射影行列へ反映する。
+				// CameraParamComponent を読むので TPSSystem より後に回る
+				a_pWorld->RegisterSystem<CameraProjUpdateSystem>();
 				// カメラ姿勢が確定した後に狙点レイを撃つ(TPSSystem より後に登録すること)
 				a_pWorld->RegisterSystem<AimTargetSystem>();
 				a_pWorld->RegisterSystem<CalcMatrixSystem>();

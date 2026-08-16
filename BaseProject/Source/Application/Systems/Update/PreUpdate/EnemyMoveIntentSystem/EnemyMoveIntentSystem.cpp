@@ -99,8 +99,11 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 								// 保つ間合いは攻撃可能距離の内側であること。外で止まると
 								// 永久に攻撃圏へ入れず、追従したまま撃たなくなる。
 								// stopDistance がそれより外なら攻撃圏の内側へ寄せる。
+								// 上限は「止まる上限(keep + keepMargin)が攻撃可能距離より
+								// keepMargin ぶん内側」になる値。境界ちょうどで止まると
+								// 攻撃可能/不能を往復してしまうため。
 								const float _keep = (std::max)(0.0f,
-									(std::min)(_patrol.stopDistance, _target.attackDistance - _patrol.keepMargin));
+									(std::min)(_patrol.stopDistance, _target.attackDistance - _patrol.keepMargin * 2.0f));
 
 								const float _far  = _keep + _patrol.keepMargin;
 								const float _near = _keep - _patrol.keepMargin;

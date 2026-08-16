@@ -10,7 +10,7 @@
 #include "Application/Components/Character/LookAngleComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Force/VelocityComponent.h"
-#include "Application/Components/Force/InertiaComponent.h"
+#include "Application/Components/Force/MovementComponent.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
 
 namespace
@@ -174,20 +174,20 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				// 速度で見れば「動いている方向の逆へ流れる」が常に成り立ち、
 				// 止まれば速度と一緒に自然と戻る。
 				//
-				// 慣性を持つ機体は InertiaComponent の実速度を見る。
+				// 加減速を持つ機体は MovementComponent の実速度を見る。
 				// VelocityComponent は「目標速度」で、入力やブーストで 0 → 30 のように
 				// 1フレームで飛ぶ値なので、そのまま使うと流れ始めが階段状になる。
-				// 実速度は慣性で滑らかに変化するので、歩き出しは浅く、
+				// 実速度は加速度/減速度で滑らかに変化するので、歩き出しは浅く、
 				// ブーストは深く、と速さがそのまま角度に出る。
 				//==========================================================================
 				DXSM::Vector3 _velocity(_velComp.value);
 
 				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
-				if (a_ctx.pWorld->HasComponent<InertiaComponent>(_self))
+				if (a_ctx.pWorld->HasComponent<MovementComponent>(_self))
 				{
-					if (const auto* _pInertia = a_ctx.pWorld->RefData<InertiaComponent>(_self))
+					if (const auto* _pMovement = a_ctx.pWorld->RefData<MovementComponent>(_self))
 					{
-						_velocity = DXSM::Vector3(_pInertia->velocity);
+						_velocity = DXSM::Vector3(_pMovement->velocity);
 					}
 				}
 

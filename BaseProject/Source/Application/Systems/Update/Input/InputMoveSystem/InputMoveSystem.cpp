@@ -4,7 +4,6 @@
 
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Character/Robot/BoostComponent.h"
-#include "Application/Components/Force/InertiaComponent.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 

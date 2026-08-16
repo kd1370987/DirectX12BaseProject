@@ -12,8 +12,9 @@
 //     発見済みのプレイヤーを見失ったら、最後に見た地点まで移動し、着いたら周囲を見渡す。
 //     見渡している間に再発見できれば追跡へ戻り、できなければ徘徊へ戻る。
 //
-// 実際の速度は throttle(0..1) × maxSpeed。さらに FSM 側の moveSpeedScale / canMove で
-// ActionBehaviorSystem がゲート・スケールする(=状態が最終的な行動を決める)。
+// 実際の速度は throttle(0..1) × MovementComponent.moveSpeed。さらに FSM 側の
+// moveSpeedScale / canMove で ActionBehaviorSystem がゲート・スケールする
+// (=状態が最終的な行動を決める)。加速度/減速度も MovementComponent 側。
 //==========================================================================================
 
 // 徘徊のフェーズ
@@ -34,7 +35,7 @@ enum class ELostPhase : int
 struct PatrolComponent
 {
 	// ---- 設定(保存される) ----
-	float maxSpeed         = 4.0f;	// throttle=1.0 のときの速度(units/sec)
+	// throttle は MovementComponent.moveSpeed に掛ける倍率(0..1)
 	float patrolThrottle   = 0.4f;	// 徘徊時のスロットル(0..1)
 	float chaseThrottle    = 1.0f;	// 追跡時のスロットル(0..1)
 	float retargetInterval = 2.5f;	// 徘徊で1つの方向へ歩き続ける時間(秒)
@@ -84,7 +85,6 @@ struct Engine::ECS::ComponentTraits<PatrolComponent>
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
 		PatrolComponent& _comp = Engine::Editor::GetValue<PatrolComponent>(a_pData);
-		a_ar.Field("maxSpeed", _comp.maxSpeed);
 		a_ar.Field("patrolThrottle", _comp.patrolThrottle);
 		a_ar.Field("chaseThrottle", _comp.chaseThrottle);
 		a_ar.Field("retargetInterval", _comp.retargetInterval);
@@ -108,7 +108,6 @@ struct Engine::ECS::ComponentTraits<PatrolComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		PatrolComponent& _comp = Engine::Editor::GetValue<PatrolComponent>(a_context.pData);
-		ImGui::DragFloat("MaxSpeed", &_comp.maxSpeed, 0.1f, 0.0f);
 		ImGui::DragFloat("PatrolThrottle", &_comp.patrolThrottle, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("ChaseThrottle", &_comp.chaseThrottle, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("RetargetInterval", &_comp.retargetInterval, 0.1f, 0.0f);

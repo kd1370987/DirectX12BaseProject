@@ -37,8 +37,9 @@
 //   落下ぶんも打ち消されるので、吹かしている間は視線と上昇入力で高度を操れる。
 //   水平ブースト中は Y に触らないので、いつも通り落下する。
 //
-// ・VelocityComponent は目標速度で、実際の移動は InertiaIntegrationSystem が
-//   慣性で追従させる。ここで差し替えても急にワープはしない。
+// ・VelocityComponent は目標速度で、実際の移動は MovementIntegrationSystem が
+//   MovementComponent の加速度/減速度で追従させる。ここで差し替えても急にワープはしない。
+//   (水平だけが加減速の対象。上下は目標速度がそのまま出る)
 //==============================================================================
 void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 {

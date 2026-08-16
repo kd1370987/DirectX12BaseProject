@@ -154,6 +154,9 @@
     <Filter Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem">
       <UniqueIdentifier>{d61ed4a8-8f6b-4583-b004-1bf59a92ef2c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem">
+      <UniqueIdentifier>{a1c7f2e4-7b41-4d9e-9c62-0e3f5a8d1b77}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\Camera\TPSSystem">
       <UniqueIdentifier>{eff4e858-a3a9-4f9f-a51a-3b9ae7f28481}</UniqueIdentifier>
     </Filter>
@@ -259,7 +262,7 @@
     <Filter Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem">
       <UniqueIdentifier>{29d208e6-31fb-42f8-8dc2-2f171faa9124}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem">
+    <Filter Include="Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem">
       <UniqueIdentifier>{1c4a7f52-6d0b-4a3e-9f5c-8b2d61e7a904}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Animation">
@@ -1327,6 +1330,12 @@
     <Filter Include="Source\Application\Object\UI\CombatReticleHUD">
       <UniqueIdentifier>{2e7d9458-8813-4632-9886-e083cfa06481}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Sequence">
+      <UniqueIdentifier>{6f2d9c15-3a84-4f0b-8f57-1d2a4b6c9e30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Sequence\SceneSequence">
+      <UniqueIdentifier>{6f2d9c15-3a84-4f0b-8f57-1d2a4b6c9e31}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Object\UI\TargetBoxHUD">
       <UniqueIdentifier>{7c1a2f36-4b90-4e58-9d21-5f0c3ba7e412}</UniqueIdentifier>
     </Filter>
@@ -1458,8 +1467,8 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Acceleration\GravitySystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem\InertiaIntegrationSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem\MovementIntegrationSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp">
       <Filter>Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem</Filter>
@@ -1472,6 +1481,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp">
       <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem\CameraProjUpdateSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Camera\CameraProjUpdateSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp">
       <Filter>Source\Engine\Editor\ImGui</Filter>
@@ -2229,6 +2241,9 @@
     <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp">
       <Filter>Source\Application\Object\UI\TargetBoxHUD</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp">
+      <Filter>Source\Application\Object\Sequence\SceneSequence</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp">
       <Filter>Source\Application\Object\UI</Filter>
     </ClCompile>
@@ -2381,7 +2396,7 @@
     <ClInclude Include="Source\Application\Components\Tag\ActiveCameraTag.h">
       <Filter>Source\Application\Components\Tag</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Force\InertiaComponent.h">
+    <ClInclude Include="Source\Application\Components\Force\MovementComponent.h">
       <Filter>Source\Application\Components\Force</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Collision\Collider.h">
@@ -2411,8 +2426,8 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h">
       <Filter>Source\Application\Systems\Update\Update\Acceleration\GravitySystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem\InertiaIntegrationSystem.h">
-      <Filter>Source\Application\Systems\Update\Physics\Integral\InertiaIntegrationSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem\MovementIntegrationSystem.h">
+      <Filter>Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h">
       <Filter>Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem</Filter>
@@ -2428,6 +2443,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h">
       <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem\CameraProjUpdateSystem.h">
+      <Filter>Source\Application\Systems\Update\Camera\CameraProjUpdateSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
@@ -2643,6 +2661,9 @@
       <Filter>Source\Engine\Utility\GUID</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h">
+      <Filter>Source\Application\Components\Hierarchy</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Hierarchy\SpownerComponent.h">
       <Filter>Source\Application\Components\Hierarchy</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Persistence\GUIDComponent.h">
@@ -3550,6 +3571,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.h">
       <Filter>Source\Application\Object\UI\TargetBoxHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.h">
+      <Filter>Source\Application\Object\Sequence\SceneSequence</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\UIBase.h">
       <Filter>Source\Application\Object\UI</Filter>

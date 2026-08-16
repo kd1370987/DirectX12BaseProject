@@ -15,7 +15,11 @@ struct TPSCameraStateComponent
 	DirectX::XMFLOAT3 lookAtWorld = { 0.0f, 0.0f, 0.0f };
 
 	DirectX::XMFLOAT3 currentPivot  = { 0.0f, 0.0f, 0.0f }; // 現在のピボット。ターゲットへ遅れて追従する
-	float currentPullBack = 0.0f;							// 現在の引き量(m)。水平速度に応じて伸びる
+	float currentPullBack = 0.0f;							// 現在の引き量(m)。速度に応じて伸びる
+
+	// 速度レスポンスの実行時値(保存しない)
+	float currentSpeed01  = 0.0f;	// 速度の正規化値(0..1)。引き/追従/画角の効きはすべてこれ基準
+	float currentFovAdd   = 0.0f;	// 現在の画角の上乗せ(度)。CameraParamComponent.fovBoost へ入る
 
 	// 追従状態が一度でも作られたか。
 	// 保存しないので、シーンをロードした直後の1フレーム目は必ずターゲットへスナップする
@@ -45,5 +49,7 @@ struct Engine::ECS::ComponentTraits<TPSCameraStateComponent>
 		ImGui::Text("CurrentPivot  : %.2f, %.2f, %.2f",
 			_comp.currentPivot.x, _comp.currentPivot.y, _comp.currentPivot.z);
 		ImGui::Text("PullBack      : %.2f", _comp.currentPullBack);
+		ImGui::Text("Speed01       : %.2f", _comp.currentSpeed01);
+		ImGui::Text("FovAdd        : %.2f", _comp.currentFovAdd);
 	}
 };
