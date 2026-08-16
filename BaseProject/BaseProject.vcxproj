@@ -244,6 +244,8 @@
     <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp" />
     <ClCompile Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp" />
+    <ClCompile Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.cpp" />
+    <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
@@ -612,6 +614,8 @@
     <ClInclude Include="Source\Application\InstanceResource\HitEventResource.h" />
     <ClInclude Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.h" />
+    <ClInclude Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.h" />
+    <ClInclude Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.h" />
     <ClInclude Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.h" />
     <ClInclude Include="Source\Application\Object\UI\UIBase.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />

@@ -94,6 +94,9 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 				{
 					HitEvent _hit = {};
 					_hit.attacker = _self;
+					// 弾を撃った本体。ヒットマーカーのように「自分の弾が当たったか」を
+					// 見たい側は、弾(attacker)ではなくこちらで判定する
+					_hit.shooter  = _shooter;
 					_hit.victim   = _res.hitEntity;
 					_hit.hitPos   = _res.hitPos;
 					// 受けた側の体力を削る量(HealthSystem が読む)。弾以外は 0 のまま

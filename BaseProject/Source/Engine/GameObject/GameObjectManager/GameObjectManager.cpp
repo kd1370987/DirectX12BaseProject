@@ -13,7 +13,14 @@ namespace Engine::GameObject
 		m_objContext.pServices = a_pWorld ? a_pWorld->RefEngineServices() : nullptr;
 	}
 	GameObjectManager::~GameObjectManager()
-	{}
+	{
+		// 借りているもの(サウンドインスタンス等)を返してから破棄する。
+		// プールはアプリ寿命なので、返さないとシーンを跨いで溜まり続ける
+		for (auto& _upObject : m_upObjectVec)
+		{
+			if (_upObject) _upObject->Release(m_objContext);
+		}
+	}
 	void GameObjectManager::PreUpdate()
 	{
 		// 削除処理 : オブジェクト自身が削除命令を出した場合に配列上から削除する
@@ -21,6 +28,9 @@ namespace Engine::GameObject
 		{
 			if (m_upObjectVec[_idx]->IsExpired())
 			{
+				// 消える前に借りているものを返させる
+				m_upObjectVec[_idx]->Release(m_objContext);
+
 				// GUID対応表からも取り除く
 				m_guidMap.erase(m_upObjectVec[_idx]->GetGUID());
 

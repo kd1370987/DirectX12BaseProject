@@ -85,7 +85,7 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 				}
 			);
 
-			const DXSM::Vector2 _screenCenter = { _w * 0.5f, _h * 0.5f };
+			const DXSM::Vector2 _defaultCenter = { _w * 0.5f, _h * 0.5f };
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -101,6 +101,13 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 
 				const DirectX::XMFLOAT4X4& _pm = _playerWorld.worldMat;
 				const DXSM::Vector3 _playerPos = { _pm._41, _pm._42, _pm._43 };
+
+				// 判定の円。内側のレティクル(AimReticleHUD)が居ればそれに合わせる。
+				// UI が無い構成でも動くよう、届いていなければ画面中央 × 設定値で判定する
+				const DXSM::Vector2 _reticleCenter = _lockOn.isReticleFromHUD
+					? DXSM::Vector2(_lockOn.reticleCenter)
+					: _defaultCenter;
+				const float _reticleRadius = _lockOn.GetActiveReticleRadius();
 
 				// 画面中央にいちばん近いものを選ぶための最小値
 				float _nearestDist = FLT_MAX;
@@ -152,8 +159,8 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 							//------------------------------------------------------
 							// レティクルの内側か
 							//------------------------------------------------------
-							const float _distFromCenter = (_screenPos - _screenCenter).Length();
-							if (_distFromCenter > _lockOn.reticleRadius) continue;
+							const float _distFromCenter = (_screenPos - _reticleCenter).Length();
+							if (_distFromCenter > _reticleRadius) continue;
 
 							// 枠を出す相手として登録(上限を超えたぶんは表示だけ諦める)
 							if (_lockOn.targetCount < LockOnTargetComponent::TARGET_MAX)

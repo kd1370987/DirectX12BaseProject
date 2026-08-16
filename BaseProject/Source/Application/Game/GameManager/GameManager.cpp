@@ -13,6 +13,8 @@
 #include "../../../Engine/GameObject/ObjectMetaRegistry/ObjectMetaRegistry.h"
 #include "Application/Object/UI/CombatReticleHUD/CombatReticleHUD.h"
 #include "Application/Object/UI/TargetBoxHUD/TargetBoxHUD.h"
+#include "Application/Object/UI/AimReticleHUD/AimReticleHUD.h"
+#include "Application/Object/UI/HitEffectHUD/HitEffectHUD.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 
 // コンポーネント関係
@@ -226,6 +228,8 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::CombatReticleHUD>("CombatReticleHUD");
 			_objRegistry.RegisterType<App::Object::TargetBoxHUD>("TargetBoxHUD");
 			_objRegistry.RegisterType<App::Object::SceneSequence>("SceneSequence");
+			_objRegistry.RegisterType<App::Object::AimReticleHUD>("AimReticleHUD");
+			_objRegistry.RegisterType<App::Object::HitEffectHUD>("HitEffectHUD");
 		}
 
 		// ワールドの初期化関数登録

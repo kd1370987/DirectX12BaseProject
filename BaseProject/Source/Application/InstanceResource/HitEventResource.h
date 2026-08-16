@@ -30,6 +30,12 @@ struct HitEvent
 	// 当てた側(弾やダメージ判定を出した敵など)
 	Engine::ECS::Entity attacker = Engine::ECS::Limits::INVALID_ENTITY;
 
+	// 当てた側の持ち主(弾を撃った本体)。
+	// attacker は弾そのものなので、「自分の攻撃が当たったか」を知りたい側
+	// (ヒットマーカーなど)は attacker ではなくこちらを見る。
+	// 弾以外で持ち主が居ない場合は無効値のまま。
+	Engine::ECS::Entity shooter = Engine::ECS::Limits::INVALID_ENTITY;
+
 	// 当てられた側(敵やプレイヤー)
 	Engine::ECS::Entity victim = Engine::ECS::Limits::INVALID_ENTITY;
 

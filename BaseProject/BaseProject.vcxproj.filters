@@ -1339,6 +1339,12 @@
     <Filter Include="Source\Application\Object\Sequence\SceneSequence">
       <UniqueIdentifier>{6f2d9c15-3a84-4f0b-8f57-1d2a4b6c9e31}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\UI\AimReticleHUD">
+      <UniqueIdentifier>{8c41b2a7-5d63-4e19-9a08-3f7b2c6e4d15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\UI\HitEffectHUD">
+      <UniqueIdentifier>{8c41b2a7-5d63-4e19-9a08-3f7b2c6e4d16}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Object\UI\TargetBoxHUD">
       <UniqueIdentifier>{7c1a2f36-4b90-4e58-9d21-5f0c3ba7e412}</UniqueIdentifier>
     </Filter>
@@ -2246,6 +2252,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp">
       <Filter>Source\Application\Object\UI\TargetBoxHUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.cpp">
+      <Filter>Source\Application\Object\UI\AimReticleHUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp">
+      <Filter>Source\Application\Object\UI\HitEffectHUD</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp">
       <Filter>Source\Application\Object\Sequence\SceneSequence</Filter>
@@ -3583,6 +3595,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.h">
       <Filter>Source\Application\Object\UI\TargetBoxHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.h">
+      <Filter>Source\Application\Object\UI\AimReticleHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.h">
+      <Filter>Source\Application\Object\UI\HitEffectHUD</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.h">
       <Filter>Source\Application\Object\Sequence\SceneSequence</Filter>

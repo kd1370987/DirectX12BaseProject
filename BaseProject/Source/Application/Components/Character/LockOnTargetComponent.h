@@ -20,9 +20,26 @@ struct LockOnTargetComponent
 	static constexpr int TARGET_MAX = 16;
 
 	// ---- 設定(保存される) ----
-	float reticleRadius = 160.0f;	// レティクル判定の半径(px)。画面中央からこの距離以内を対象にする
+	// レティクル判定の既定値。画面に AimReticleHUD(内側のレティクル)が居る場合は、
+	// そちらが毎フレーム下の reticleCenter / reticleRadius を上書きする。
+	// UI と判定を別々に持つと「枠の内側なのにロックされない」ズレが起きるため、
+	// 実際に描いている UI 側を基準にする。
+	float reticleRadius = 160.0f;	// 判定の半径(px)
 	float maxDistance   = 300.0f;	// ロック可能な距離(m)。0 以下なら距離で切らない
 	float targetOffsetY = 0.0f;		// 敵の原点から上へずらす量(m)。原点が足元のモデルで胴体に枠を合わせる用
+
+	// ---- レティクル(ランタイム。AimReticleHUD が書く) ----
+	// 保存値(reticleRadius)は上書きしない。実行中に書き換えると、
+	// エディターで見ている設定値が UI の値に置き換わってしまうため。
+	DirectX::XMFLOAT2 reticleCenter    = { 0.0f, 0.0f };	// 判定の中心(px, 左上原点)
+	float             hudReticleRadius = 0.0f;				// UI が出している判定半径(px)
+	bool              isReticleFromHUD = false;				// UI から届いているか(false なら画面中央 × reticleRadius)
+
+	// 実際に使う判定の半径
+	float GetActiveReticleRadius() const
+	{
+		return isReticleFromHUD ? hudReticleRadius : reticleRadius;
+	}
 
 	// ---- 結果(ランタイム。保存しない) ----
 	Engine::ECS::Entity targets[TARGET_MAX]   = {};	// レティクル内の敵
@@ -57,6 +74,12 @@ struct Engine::ECS::ComponentTraits<LockOnTargetComponent>
 
 		// 結果は毎フレーム上書きされるので表示のみ
 		ImGui::Separator();
+		ImGui::Text("ReticleFromHUD : %s", _comp.isReticleFromHUD ? "yes" : "no");
+		if (_comp.isReticleFromHUD)
+		{
+			ImGui::Text("ReticleCenter  : %.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
+		}
+		ImGui::Text("ActiveRadius   : %.0f px", _comp.GetActiveReticleRadius());
 		ImGui::Text("Targets : %d", _comp.targetCount);
 		ImGui::Text("Locked  : %s", _comp.IsLocked() ? "yes" : "no");
 		if (_comp.IsLocked())
