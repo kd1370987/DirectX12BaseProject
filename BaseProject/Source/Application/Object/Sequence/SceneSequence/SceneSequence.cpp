@@ -5,14 +5,14 @@
 #include "Engine/Editor/Editor.h"
 #include "Engine/Common/Color.h"
 
-#include "Application/Components/Hierarchy/SpownerComponent.h"
+#include "Application/Components/Hierarchy/SpawnerComponent.h"
 #include "Application/Utility/PrefabSpawnHelper.h"
 
 //==========================================================================================
 // SceneSequence
 //
 // ウェーブの進行:
-//   1) 生存数を数える      … 出したエンティティに付けた SpownerComponent を毎フレーム集計
+//   1) 生存数を数える      … 出したエンティティに付けた SpawnerComponent を毎フレーム集計
 //   2) 全滅判定を進める    … 生存数が 0 になった瞬間の時刻を覚えておく
 //   3) 条件を満たしたウェーブを出す
 //
@@ -26,10 +26,13 @@ namespace App::Object
 	namespace
 	{
 		// 実体化を待つ時間(秒)。これを過ぎても生存が確認できなければ全滅扱いにして次へ進む
-		constexpr float SPOWAN_CONFIRM_TIMEOUT = 2.0f;
+		constexpr float SPAWN_CONFIRM_TIMEOUT = 2.0f;
 
 		// 出現位置マーカーの大きさ(m)
 		constexpr float MARKER_SIZE = 1.0f;
+
+		// 出し終えたウェーブのマーカー色(これから出るものと見分けるため落とした色)
+		constexpr DirectX::XMFLOAT4 DIMMED_COLOR = { 0.35f, 0.35f, 0.35f, 1.0f };
 
 		// dir(水平方向)から左手系 +Z 前方のクォータニオンを作る。
 		// 長さが無い/真上を向いている場合は回さない(プレハブの向きのまま)。
@@ -60,15 +63,15 @@ namespace App::Object
 		UpdateAliveCount(a_context);
 		UpdateClearState();
 
-		for (size_t _i = 0; _i < m_weaves.size(); ++_i)
+		for (size_t _i = 0; _i < m_waves.size(); ++_i)
 		{
-			if (m_weaves[_i].isSpowan) continue;
-			if (!CanSpowan(_i)) continue;
+			if (m_waves[_i].isSpawned) continue;
+			if (!CanSpawn(_i)) continue;
 
-			Spowan(a_context, _i);
+			Spawn(a_context, _i);
 		}
 
-		DrawSpowanMarker(a_context);
+		DrawSpawnMarker(a_context);
 	}
 
 	//======================================================================================
@@ -79,28 +82,28 @@ namespace App::Object
 	//======================================================================================
 	void SceneSequence::UpdateAliveCount(Engine::GameObject::ObjectContext& a_context)
 	{
-		for (Weave& _weave : m_weaves) _weave.aliveCount = 0;
+		for (Wave& _wave : m_waves) _wave.aliveCount = 0;
 
 		const Engine::GUID _selfGUID = GetGUID();
 		if (!_selfGUID.IsValid()) return;
 
-		a_context.pWorld->ForEach<const ActiveTag, const SpownerComponent>(
+		a_context.pWorld->ForEach<const ActiveTag, const SpawnerComponent>(
 			[&](
 				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
 				const ActiveTag* a_activeTagArray,
-				const SpownerComponent* a_spownerArray
+				const SpawnerComponent* a_spawnerArray
 			)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
-					const SpownerComponent& _spowner = a_spownerArray[_i];
+					const SpawnerComponent& _spawner = a_spawnerArray[_i];
 
-					if (!(_spowner.spownerGUID == _selfGUID)) continue;
-					if (_spowner.waveIndex < 0) continue;
-					if (static_cast<size_t>(_spowner.waveIndex) >= m_weaves.size()) continue;
+					if (!(_spawner.spawnerGUID == _selfGUID)) continue;
+					if (_spawner.waveIndex < 0) continue;
+					if (static_cast<size_t>(_spawner.waveIndex) >= m_waves.size()) continue;
 
-					++m_weaves[_spowner.waveIndex].aliveCount;
+					++m_waves[_spawner.waveIndex].aliveCount;
 				}
 			}
 		);
@@ -111,30 +114,30 @@ namespace App::Object
 	//======================================================================================
 	void SceneSequence::UpdateClearState()
 	{
-		for (Weave& _weave : m_weaves)
+		for (Wave& _wave : m_waves)
 		{
-			if (!_weave.isSpowan || _weave.isCleared) continue;
+			if (!_wave.isSpawned || _wave.isCleared) continue;
 
 			// 1体も出せなかったウェーブは待つ相手がいないので即クリア扱い
-			if (_weave.spowanCount <= 0)
+			if (_wave.spawnCount <= 0)
 			{
-				_weave.isCleared   = true;
-				_weave.clearedTime = m_time;
+				_wave.isCleared   = true;
+				_wave.clearedTime = m_time;
 				continue;
 			}
 
 			// 実体化を確認するまでは全滅とみなさない(遅延生成の1フレームずれ対策)
-			if (_weave.aliveCount > 0)
+			if (_wave.aliveCount > 0)
 			{
-				_weave.isConfirmed = true;
+				_wave.isConfirmed = true;
 				continue;
 			}
 
-			const bool _isTimeout = (m_time - _weave.spowanTime) >= SPOWAN_CONFIRM_TIMEOUT;
-			if (!_weave.isConfirmed && !_isTimeout) continue;
+			const bool _isTimeout = (m_time - _wave.spawnTime) >= SPAWN_CONFIRM_TIMEOUT;
+			if (!_wave.isConfirmed && !_isTimeout) continue;
 
-			_weave.isCleared   = true;
-			_weave.clearedTime = m_time;
+			_wave.isCleared   = true;
+			_wave.clearedTime = m_time;
 		}
 	}
 
@@ -145,44 +148,46 @@ namespace App::Object
 	//   isAnnihilation = true  : 前のウェーブが全滅してから timing 秒
 	//                            (先頭のウェーブは待つ相手がいないので時間だけ見る)
 	//======================================================================================
-	bool SceneSequence::CanSpowan(size_t a_index) const
+	bool SceneSequence::CanSpawn(size_t a_index) const
 	{
-		if (a_index >= m_weaves.size()) return false;
+		if (a_index >= m_waves.size()) return false;
 
-		const Weave& _weave = m_weaves[a_index];
+		const Wave& _wave = m_waves[a_index];
 
-		if (!_weave.isAnnihilation || a_index == 0)
+		if (!_wave.isAnnihilation || a_index == 0)
 		{
-			return m_time >= _weave.timing;
+			return m_time >= _wave.timing;
 		}
 
-		const Weave& _prev = m_weaves[a_index - 1];
+		const Wave& _prev = m_waves[a_index - 1];
 		if (!_prev.isCleared) return false;
 
-		return (m_time - _prev.clearedTime) >= _weave.timing;
+		return (m_time - _prev.clearedTime) >= _wave.timing;
 	}
 
 	//======================================================================================
 	// 出現
 	//======================================================================================
-	void SceneSequence::Spowan(Engine::GameObject::ObjectContext& a_context, size_t a_index)
+	void SceneSequence::Spawn(Engine::GameObject::ObjectContext& a_context, size_t a_index)
 	{
-		if (a_index >= m_weaves.size()) return;
+		if (a_index >= m_waves.size()) return;
 		if (!a_context.pWorld) return;
 		if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
 
-		Weave& _weave = m_weaves[a_index];
+		Wave& _wave = m_waves[a_index];
 
 		// 出現処理はこのフレームで完了させる。プレハブが引けずに0体でも進める
 		// (待ち続けるとウェーブの連鎖が止まってしまうため)
-		_weave.isSpowan    = true;
-		_weave.spowanTime  = m_time;
-		_weave.spowanCount = 0;
+		_wave.isSpawned  = true;
+		_wave.spawnTime  = m_time;
+		_wave.spawnCount = 0;
 
-		for (SpowanSettings& _settings : _weave.spowanEntities)
+		for (SpawnSettings& _settings : _wave.spawnEntities)
 		{
 			App::Utility::SpawnParams _params = {};
-			_params.pos = _settings.pos;
+
+			// 出現位置はウェーブ位置からの相対。ウェーブごと動かせるようにするため
+			_params.pos = _wave.pos + _settings.pos;
 
 			bool _hasRotation = false;
 			const DXSM::Quaternion _quat = MakeYawQuat(_settings.dir, _hasRotation);
@@ -190,17 +195,17 @@ namespace App::Object
 			_params.isOverrideRotation = _hasRotation;
 
 			// 全滅判定用の印。ウェーブ番号まで入れて自分の中で区別する
-			_params.spownerGUID = GetGUID();
+			_params.spawnerGUID = GetGUID();
 			_params.waveIndex   = static_cast<int>(a_index);
 
-			const bool _isSpowaned = App::Utility::SpawnPrefab(
+			const bool _isSpawned = App::Utility::SpawnPrefab(
 				*a_context.pWorld,
 				*a_context.pServices->pResourceManager,
-				_settings.spowanEntityGUID,
-				_settings.spowanPrefabHandle,
+				_settings.spawnEntityGUID,
+				_settings.spawnPrefabHandle,
 				_params);
 
-			if (_isSpowaned) ++_weave.spowanCount;
+			if (_isSpawned) ++_wave.spawnCount;
 		}
 	}
 
@@ -211,45 +216,79 @@ namespace App::Object
 	{
 		m_time = 0.0f;
 
-		for (Weave& _weave : m_weaves)
+		for (Wave& _wave : m_waves)
 		{
-			_weave.isSpowan    = false;
-			_weave.spowanCount = 0;
-			_weave.aliveCount  = 0;
-			_weave.isConfirmed = false;
-			_weave.isCleared   = false;
-			_weave.spowanTime  = 0.0f;
-			_weave.clearedTime = 0.0f;
+			_wave.isSpawned   = false;
+			_wave.spawnCount  = 0;
+			_wave.aliveCount  = 0;
+			_wave.isConfirmed = false;
+			_wave.isCleared   = false;
+			_wave.spawnTime   = 0.0f;
+			_wave.clearedTime = 0.0f;
 		}
 	}
 
 	//======================================================================================
-	// デバッグ描画 : まだ出していないウェーブの出現位置と向きを出す
+	// ギズモの対象を外す(添え字がずれる操作のあとに呼ぶ)
 	//======================================================================================
-	void SceneSequence::DrawSpowanMarker(Engine::GameObject::ObjectContext& a_context) const
+	void SceneSequence::ClearGizmoTarget()
+	{
+		m_gizmoWaveIndex  = -1;
+		m_gizmoSpawnIndex = -1;
+	}
+
+	//======================================================================================
+	// デバッグ描画 : ウェーブの基準位置と、そこからの出現位置・向きを出す
+	//--------------------------------------------------------------------------------------
+	// 出し終えたウェーブは灰色にして、これから出るものと見分けられるようにする。
+	// ギズモで選んでいる点は白。
+	//======================================================================================
+	void SceneSequence::DrawSpawnMarker(Engine::GameObject::ObjectContext& a_context) const
 	{
 		if (!a_context.pServices) return;
 
 		auto* _pEditor = a_context.pServices->pMainEditor;
 		if (!_pEditor) return;
 
-		for (const Weave& _weave : m_weaves)
-		{
-			if (_weave.isSpowan) continue;
-
-			for (const SpowanSettings& _settings : _weave.spowanEntities)
+		// 位置の十字(縦は上方向だけ伸ばして地面基準に見せる)
+		auto _drawCross = [&](const DXSM::Vector3& a_pos, float a_size, const DXSM::Color& a_color)
 			{
-				const DXSM::Vector3 _pos = _settings.pos;
+				_pEditor->DrawLine(
+					a_pos - DXSM::Vector3(a_size, 0.0f, 0.0f),
+					a_pos + DXSM::Vector3(a_size, 0.0f, 0.0f), a_color);
+				_pEditor->DrawLine(
+					a_pos - DXSM::Vector3(0.0f, 0.0f, a_size),
+					a_pos + DXSM::Vector3(0.0f, 0.0f, a_size), a_color);
+				_pEditor->DrawLine(
+					a_pos, a_pos + DXSM::Vector3(0.0f, a_size, 0.0f), a_color);
+			};
 
-				// 位置の十字
-				_pEditor->DrawLine(
-					_pos - DXSM::Vector3(MARKER_SIZE, 0.0f, 0.0f),
-					_pos + DXSM::Vector3(MARKER_SIZE, 0.0f, 0.0f), Engine::Color::GREEN);
-				_pEditor->DrawLine(
-					_pos - DXSM::Vector3(0.0f, 0.0f, MARKER_SIZE),
-					_pos + DXSM::Vector3(0.0f, 0.0f, MARKER_SIZE), Engine::Color::GREEN);
-				_pEditor->DrawLine(
-					_pos, _pos + DXSM::Vector3(0.0f, MARKER_SIZE, 0.0f), Engine::Color::GREEN);
+		for (size_t _i = 0; _i < m_waves.size(); ++_i)
+		{
+			const Wave& _wave = m_waves[_i];
+
+			const bool _isGizmoWave = (m_gizmoWaveIndex == static_cast<int>(_i));
+			const DXSM::Color _baseColor = _wave.isSpawned ? DIMMED_COLOR : Engine::Color::GREEN;
+
+			// ウェーブの基準位置は少し大きめに
+			_drawCross(_wave.pos, MARKER_SIZE * 2.0f,
+				(_isGizmoWave && m_gizmoSpawnIndex < 0) ? Engine::Color::WHITE : _baseColor);
+
+			for (size_t _s = 0; _s < _wave.spawnEntities.size(); ++_s)
+			{
+				const SpawnSettings& _settings = _wave.spawnEntities[_s];
+
+				// 出現位置はウェーブからの相対
+				const DXSM::Vector3 _pos = _wave.pos + _settings.pos;
+
+				const bool _isGizmoSpawn =
+					_isGizmoWave && (m_gizmoSpawnIndex == static_cast<int>(_s));
+				const DXSM::Color _color = _isGizmoSpawn ? Engine::Color::WHITE : _baseColor;
+
+				_drawCross(_pos, MARKER_SIZE, _color);
+
+				// ウェーブとのつながり
+				_pEditor->DrawLine(_wave.pos, _pos, _baseColor);
 
 				// 向き
 				DXSM::Vector3 _dir = { _settings.dir.x, 0.0f, _settings.dir.z };
@@ -263,34 +302,91 @@ namespace App::Object
 	}
 
 	//======================================================================================
+	// ギズモ : インスペクタで選んだ1点を動かす
+	//--------------------------------------------------------------------------------------
+	// ImGuizmo は一度に1つの行列しか操作できないので、対象はインスペクタ側で選ぶ。
+	// SetDrawlist / SetRect は呼び出し元(SceneViewPanel)が済ませてある。
+	//======================================================================================
+	bool SceneSequence::DrawGizmo(
+		const Engine::GameObject::ObjectGizmoContext& a_ctx,
+		Engine::GameObject::ObjectContext& a_context)
+	{
+		if (m_gizmoWaveIndex < 0) return false;
+		if (static_cast<size_t>(m_gizmoWaveIndex) >= m_waves.size()) return false;
+
+		Wave& _wave = m_waves[m_gizmoWaveIndex];
+
+		// 動かす座標と、その座標が乗っている基準(ワールド)
+		DXSM::Vector3* _pTargetPos = &_wave.pos;
+		DXSM::Vector3  _origin     = {};
+
+		if (m_gizmoSpawnIndex >= 0)
+		{
+			if (static_cast<size_t>(m_gizmoSpawnIndex) >= _wave.spawnEntities.size()) return false;
+
+			_pTargetPos = &_wave.spawnEntities[m_gizmoSpawnIndex].pos;
+			_origin     = _wave.pos;	// 出現位置はウェーブからの相対
+		}
+
+		const DXSM::Vector3 _worldPos = _origin + *_pTargetPos;
+
+		DirectX::XMFLOAT4X4 _mat = {};
+		DirectX::XMStoreFloat4x4(&_mat,
+			DirectX::XMMatrixTranslation(_worldPos.x, _worldPos.y, _worldPos.z));
+
+		// Ctrl を押している間だけスナップ(エンティティ用ギズモと同じ操作感)
+		float _snapValues[3] = { 1.0f, 1.0f, 1.0f };
+		const bool _isSnap = ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
+
+		ImGuizmo::Manipulate(
+			&a_ctx.viewMat._11,
+			&a_ctx.projMat._11,
+			ImGuizmo::OPERATION::TRANSLATE,
+			ImGuizmo::MODE::WORLD,
+			&_mat._11,
+			nullptr,
+			_isSnap ? &_snapValues[0] : nullptr
+		);
+
+		if (ImGuizmo::IsUsing())
+		{
+			// 保持しているのは相対座標なので、基準を引いてから書き戻す
+			*_pTargetPos = DXSM::Vector3(_mat._41, _mat._42, _mat._43) - _origin;
+		}
+
+		return true;
+	}
+
+	//======================================================================================
 	// シリアライズ : 設定値だけを保存する(進行状況は保存しない)
 	//======================================================================================
 	void SceneSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
 	{
-		size_t _weaveCount = m_weaves.size();
-		if (!a_ar.BeginArray("Weaves", _weaveCount)) return;
+		size_t _waveCount = m_waves.size();
+		if (!a_ar.BeginArray("Waves", _waveCount)) return;
 
-		m_weaves.resize(_weaveCount);
+		m_waves.resize(_waveCount);
 
-		for (size_t _i = 0; _i < _weaveCount; ++_i)
+		for (size_t _i = 0; _i < _waveCount; ++_i)
 		{
 			if (!a_ar.BeginObject(_i)) continue;
 
-			Weave& _weave = m_weaves[_i];
-			a_ar.Field("timing", _weave.timing);
-			a_ar.Field("isAnnihilation", _weave.isAnnihilation);
+			Wave& _wave = m_waves[_i];
+			a_ar.Field("pos", _wave.pos);
+			a_ar.Field("timing", _wave.timing);
+			a_ar.Field("isAnnihilation", _wave.isAnnihilation);
 
-			size_t _spowanCount = _weave.spowanEntities.size();
-			if (a_ar.BeginArray("Spowans", _spowanCount))
+			size_t _spawnCount = _wave.spawnEntities.size();
+			if (a_ar.BeginArray("Spawns", _spawnCount))
 			{
-				_weave.spowanEntities.resize(_spowanCount);
+				_wave.spawnEntities.resize(_spawnCount);
 
-				for (size_t _s = 0; _s < _spowanCount; ++_s)
+				for (size_t _s = 0; _s < _spawnCount; ++_s)
 				{
 					if (!a_ar.BeginObject(_s)) continue;
 
-					SpowanSettings& _settings = _weave.spowanEntities[_s];
-					a_ar.GUIDField("prefabGUID", _settings.spowanEntityGUID);
+					SpawnSettings& _settings = _wave.spawnEntities[_s];
+					a_ar.GUIDField("prefabGUID", _settings.spawnEntityGUID);
 					a_ar.Field("pos", _settings.pos);
 					a_ar.Field("dir", _settings.dir);
 
@@ -313,65 +409,99 @@ namespace App::Object
 		ImGui::SameLine();
 		if (ImGui::Button("Reset Progress")) ResetProgress();
 
+		ImGui::TextDisabled("Gizmo : select a position below (Ctrl to snap)");
+
 		ImGui::Separator();
 
-		if (ImGui::Button("Add Wave")) m_weaves.emplace_back();
+		if (ImGui::Button("Add Wave")) m_waves.emplace_back();
 
 		int _removeWaveIndex = -1;
 
-		for (size_t _i = 0; _i < m_weaves.size(); ++_i)
+		for (size_t _i = 0; _i < m_waves.size(); ++_i)
 		{
-			Weave& _weave = m_weaves[_i];
+			Wave& _wave = m_waves[_i];
 
 			ImGui::PushID(static_cast<int>(_i));
 
 			const std::string _label = "Wave " + std::to_string(_i);
 			if (ImGui::CollapsingHeader(_label.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				// ---- 出現条件 ----
-				ImGui::Checkbox("IsAnnihilation", &_weave.isAnnihilation);
-				ImGui::SameLine();
-				ImGui::TextDisabled(_weave.isAnnihilation ? "(after prev cleared)" : "(from scene start)");
+				// ---- 基準位置 ----
+				// ここを動かすと配下の出現位置(相対座標)がまとめて動く
+				ImGui::DragFloat3("Wave Pos", &_wave.pos.x, 0.1f);
 
-				ImGui::DragFloat("Timing", &_weave.timing, 0.1f, 0.0f, 3600.0f);
+				ImGui::SameLine();
+				const bool _isGizmoWave =
+					(m_gizmoWaveIndex == static_cast<int>(_i)) && (m_gizmoSpawnIndex < 0);
+				if (ImGui::RadioButton("Gizmo##wave", _isGizmoWave))
+				{
+					m_gizmoWaveIndex  = static_cast<int>(_i);
+					m_gizmoSpawnIndex = -1;
+				}
+
+				// ---- 出現条件 ----
+				ImGui::Checkbox("IsAnnihilation", &_wave.isAnnihilation);
+				ImGui::SameLine();
+				ImGui::TextDisabled(_wave.isAnnihilation ? "(after prev cleared)" : "(from scene start)");
+
+				ImGui::DragFloat("Timing", &_wave.timing, 0.1f, 0.0f, 3600.0f);
 
 				// ---- 進行状況 ----
-				ImGui::TextDisabled("Spowaned : %s / Alive : %d / Cleared : %s",
-					_weave.isSpowan ? "yes" : "no",
-					_weave.aliveCount,
-					_weave.isCleared ? "yes" : "no");
+				ImGui::TextDisabled("Spawned : %s / Alive : %d / Cleared : %s",
+					_wave.isSpawned ? "yes" : "no",
+					_wave.aliveCount,
+					_wave.isCleared ? "yes" : "no");
 
 				// ---- 出現させるエンティティ ----
-				if (ImGui::Button("Add Spowan")) _weave.spowanEntities.emplace_back();
+				if (ImGui::Button("Add Spawn")) _wave.spawnEntities.emplace_back();
 
-				int _removeSpowanIndex = -1;
+				int _removeSpawnIndex = -1;
 
-				for (size_t _s = 0; _s < _weave.spowanEntities.size(); ++_s)
+				for (size_t _s = 0; _s < _wave.spawnEntities.size(); ++_s)
 				{
-					SpowanSettings& _settings = _weave.spowanEntities[_s];
+					SpawnSettings& _settings = _wave.spawnEntities[_s];
 
 					ImGui::PushID(static_cast<int>(_s));
 					ImGui::Separator();
 
 					// プレハブを選び直したらハンドルを捨てて解決し直させる
 					if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
-						"Prefab", "Prefab", _settings.spowanEntityGUID))
+						"Prefab", "Prefab", _settings.spawnEntityGUID))
 					{
-						_settings.spowanPrefabHandle = {};
+						_settings.spawnPrefabHandle = {};
 					}
 
-					ImGui::DragFloat3("Pos", &_settings.pos.x, 0.1f);
-					ImGui::DragFloat3("Dir", &_settings.dir.x, 0.01f);
+					// 位置はウェーブからの相対
+					ImGui::DragFloat3("Pos (relative)", &_settings.pos.x, 0.1f);
 
-					if (ImGui::Button("Remove Spowan")) _removeSpowanIndex = static_cast<int>(_s);
+					ImGui::SameLine();
+					const bool _isGizmoSpawn =
+						(m_gizmoWaveIndex == static_cast<int>(_i)) &&
+						(m_gizmoSpawnIndex == static_cast<int>(_s));
+					if (ImGui::RadioButton("Gizmo##spawn", _isGizmoSpawn))
+					{
+						m_gizmoWaveIndex  = static_cast<int>(_i);
+						m_gizmoSpawnIndex = static_cast<int>(_s);
+					}
+
+					ImGui::DragFloat3("Dir", &_settings.dir.x, 0.01f);
+					ImGui::TextDisabled("World : %.2f, %.2f, %.2f",
+						_wave.pos.x + _settings.pos.x,
+						_wave.pos.y + _settings.pos.y,
+						_wave.pos.z + _settings.pos.z);
+
+					if (ImGui::Button("Remove Spawn")) _removeSpawnIndex = static_cast<int>(_s);
 
 					ImGui::PopID();
 				}
 
-				if (_removeSpowanIndex >= 0)
+				if (_removeSpawnIndex >= 0)
 				{
-					_weave.spowanEntities.erase(
-						_weave.spowanEntities.begin() + _removeSpowanIndex);
+					_wave.spawnEntities.erase(
+						_wave.spawnEntities.begin() + _removeSpawnIndex);
+
+					// 添え字がずれるのでギズモの対象は外す
+					ClearGizmoTarget();
 				}
 
 				ImGui::Separator();
@@ -383,10 +513,11 @@ namespace App::Object
 
 		if (_removeWaveIndex >= 0)
 		{
-			m_weaves.erase(m_weaves.begin() + _removeWaveIndex);
+			m_waves.erase(m_waves.begin() + _removeWaveIndex);
 
 			// ウェーブ番号がずれるので、出し済みの個体との対応も作り直す
 			ResetProgress();
+			ClearGizmoTarget();
 		}
 	}
 }

@@ -34,9 +34,9 @@ namespace App::Utility
 		DirectX::XMFLOAT4 quat = { 0.0f, 0.0f, 0.0f, 1.0f };
 		bool isOverrideRotation = false;
 
-		// 生成元の印(SpownerComponent)。付けると出した側が生存数を数えられる。
-		// spownerGUID が無効なら印は付けない。
-		Engine::GUID spownerGUID = Engine::DefaultGUID;
+		// 生成元の印(SpawnerComponent)。付けると出した側が生存数を数えられる。
+		// spawnerGUID が無効なら印は付けない。
+		Engine::GUID spawnerGUID = Engine::DefaultGUID;
 		int          waveIndex   = -1;
 	};
 

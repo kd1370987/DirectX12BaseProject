@@ -7,7 +7,7 @@
 #include "Engine/Resource/Data/Prefab/Prefab.h"
 
 #include "../Components/Transform/LocalTransformComponent.h"
-#include "../Components/Hierarchy/SpownerComponent.h"
+#include "../Components/Hierarchy/SpawnerComponent.h"
 
 namespace App::Utility
 {
@@ -78,16 +78,16 @@ namespace App::Utility
 		}
 
 		// 生成元の印。出した側が「自分が出した生存エンティティ」を数えるのに使う
-		if (a_params.spownerGUID.IsValid())
+		if (a_params.spawnerGUID.IsValid())
 		{
 			if (uint8_t* _pBuf = EnsureComponentBuffer(
-				a_world, _sig, _data, a_world.GetCompTypeID<SpownerComponent>()))
+				a_world, _sig, _data, a_world.GetCompTypeID<SpawnerComponent>()))
 			{
-				SpownerComponent _spowner = {};
-				std::memcpy(&_spowner, _pBuf, sizeof(_spowner));
-				_spowner.spownerGUID = a_params.spownerGUID;
-				_spowner.waveIndex   = a_params.waveIndex;
-				std::memcpy(_pBuf, &_spowner, sizeof(_spowner));
+				SpawnerComponent _spawner = {};
+				std::memcpy(&_spawner, _pBuf, sizeof(_spawner));
+				_spawner.spawnerGUID = a_params.spawnerGUID;
+				_spawner.waveIndex   = a_params.waveIndex;
+				std::memcpy(_pBuf, &_spawner, sizeof(_spawner));
 			}
 		}
 

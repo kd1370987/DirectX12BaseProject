@@ -574,7 +574,7 @@
     <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h" />
     <ClInclude Include="Source\Application\Components\Hierarchy\FollowAnimationNodeComponent.h" />
     <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h" />
-    <ClInclude Include="Source\Application\Components\Hierarchy\SpownerComponent.h" />
+    <ClInclude Include="Source\Application\Components\Hierarchy\SpawnerComponent.h" />
     <ClInclude Include="Source\Application\Components\Intent\ActionIntentComponent.h" />
     <ClInclude Include="Source\Application\Components\Intent\MoveIntentComponent.h" />
     <ClInclude Include="Source\Application\Components\Persistence\GUIDComponent.h" />

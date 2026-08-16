@@ -1,7 +1,7 @@
 #pragma once
 
 //==========================================================================================
-// SpownerComponent
+// SpawnerComponent
 //
 // 「誰に出されたエンティティか」を出された側に持たせる印。SceneSequence のウェーブ管理が使う。
 //
@@ -11,28 +11,28 @@
 // 印を出される側に持たせておけば、生成元は毎フレーム「自分の印が付いた生存エンティティ」を
 // 数えるだけで全滅判定ができる。
 //==========================================================================================
-struct SpownerComponent
+struct SpawnerComponent
 {
-	Engine::GUID spownerGUID = Engine::DefaultGUID;	// 生成元(GameObject)のGUID
+	Engine::GUID spawnerGUID = Engine::DefaultGUID;	// 生成元(GameObject)のGUID
 	int          waveIndex   = -1;					// 生成元の中での区分(ウェーブ番号)
 };
 
 template<>
-struct Engine::ECS::ComponentTraits<SpownerComponent>
+struct Engine::ECS::ComponentTraits<SpawnerComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		SpownerComponent& _comp = Engine::Editor::GetValue<SpownerComponent>(a_pData);
-		a_ar.GUIDField("spownerGUID", _comp.spownerGUID);
+		SpawnerComponent& _comp = Engine::Editor::GetValue<SpawnerComponent>(a_pData);
+		a_ar.GUIDField("spawnerGUID", _comp.spawnerGUID);
 		a_ar.Field("waveIndex", _comp.waveIndex);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		SpownerComponent& _comp = Engine::Editor::GetValue<SpownerComponent>(a_context.pData);
+		SpawnerComponent& _comp = Engine::Editor::GetValue<SpawnerComponent>(a_context.pData);
 
 		// 生成時に書き込まれる値なので表示のみ
-		ImGui::Text("SpownerGUID : %s", _comp.spownerGUID.String().c_str());
+		ImGui::Text("SpawnerGUID : %s", _comp.spawnerGUID.String().c_str());
 		ImGui::Text("WaveIndex   : %d", _comp.waveIndex);
 	}
 };

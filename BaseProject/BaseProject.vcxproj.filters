@@ -2663,7 +2663,7 @@
     <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h">
       <Filter>Source\Application\Components\Hierarchy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Hierarchy\SpownerComponent.h">
+    <ClInclude Include="Source\Application\Components\Hierarchy\SpawnerComponent.h">
       <Filter>Source\Application\Components\Hierarchy</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Persistence\GUIDComponent.h">

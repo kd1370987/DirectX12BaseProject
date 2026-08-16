@@ -53,7 +53,7 @@
 #include "Application/Components/Persistence/NameComponent.h"
 #include "Application/Components/Hierarchy/HierarchyComponent.h"
 #include "Application/Components/Hierarchy/FollowAnimationNodeComponent.h"
-#include "Application/Components/Hierarchy/SpownerComponent.h"
+#include "Application/Components/Hierarchy/SpawnerComponent.h"
 #include "Application/Components/Transform/PreviousWorldMatrixComponent.h"
 #include "Application/Components/Character/Robot/BoostComponent.h"
 #include "Application/Components/Character/Robot/AttachmentSlotsComponent.h"
@@ -268,7 +268,7 @@ namespace App::Game
 				a_pWorld->RegisterComponent<GUIDComponent>("GUIDComponent");
 				a_pWorld->RegisterComponent<HierarchyComponent>("HierarchyComponent");
 				// 出現させた側(SceneSequence)の印。ウェーブの全滅判定に使う
-				a_pWorld->RegisterComponent<SpownerComponent>("SpownerComponent");
+				a_pWorld->RegisterComponent<SpawnerComponent>("SpawnerComponent");
 				a_pWorld->RegisterComponent<FollowAnimationNodeComponent>("FollowAnimationNodeComponent");
 				a_pWorld->RegisterComponent<StateMachineComponent>("StateMachineComponent");
 				a_pWorld->RegisterComponent<ActionStateComponent>("ActionStateComponent");
