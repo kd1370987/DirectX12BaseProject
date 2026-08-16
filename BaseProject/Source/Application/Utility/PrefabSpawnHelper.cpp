@@ -62,8 +62,24 @@ namespace App::Utility
 		auto* _pPrefab = a_resourceManager.Ref(a_refHandle);
 		if (!_pPrefab) return false;
 
-		Engine::ECS::Signature _sig = _pPrefab->GetSignature();
-		auto _data = _pPrefab->GetDataMap();	// コピー(型ID -> バイト列)
+		//------------------------------------------------------------------
+		// ルート + 子ぶんの材料を作る
+		//------------------------------------------------------------------
+		// GUID の振り直しと親子リンクの張り替えはプレハブ側で済んでいる。
+		// 先頭がルートで、親が子より前に並んでいる。
+		//------------------------------------------------------------------
+		std::vector<Engine::Resource::PrefabInstanceData> _instanceVec =
+			_pPrefab->BuildInstanceData(&a_world);
+		if (_instanceVec.empty()) return false;
+
+		// 子は保存された姿のまま出す(位置と向きは親に追従する)
+		for (size_t _i = 1; _i < _instanceVec.size(); ++_i)
+		{
+			a_world.AddEntityWithData(_instanceVec[_i].sig, std::move(_instanceVec[_i].dataMap));
+		}
+
+		Engine::ECS::Signature _sig = _instanceVec[0].sig;
+		auto _data = std::move(_instanceVec[0].dataMap);
 
 		// 位置と向きを入れる。LocalTransform が無ければ足す
 		if (uint8_t* _pBuf = EnsureComponentBuffer(

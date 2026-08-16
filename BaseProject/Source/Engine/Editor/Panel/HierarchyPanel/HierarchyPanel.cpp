@@ -199,18 +199,28 @@ namespace Engine::Editor
 		auto* _pPrefab = Resource::ResourceManager::Instance().Ref(_handle);
 		if (!_pPrefab) return;
 
+		//------------------------------------------------------------------
 		// プレハブ情報取得
-		auto _sig = _pPrefab->GetSignature();			// 生成シグネチャ
-		auto _data = _pPrefab->GetDataMap();			// 初期データ
+		//------------------------------------------------------------------
+		// シグネチャと初期データを直に取ると、そのプレハブが覚えている
+		// 子エンティティが落ちる(ルート1体しか生えない)。
+		// 材料の組み立てはプレハブ側に任せること。GUIDの振り直しと
+		// 親子リンクの張り替えもそちらで済ませてくれる。
+		//------------------------------------------------------------------
+		std::vector<Resource::PrefabInstanceData> _instanceVec = _pPrefab->BuildInstanceData(a_pWorld);
+		if (_instanceVec.empty()) return;
 
 		// 初期値スポーン位置の編集
 		auto _ltID = a_pWorld->GetCompTypeID<LocalTransformComponent>();
 
+		// 位置を動かすのはルートだけ。子はルートからの相対で付いてくる
+		Resource::PrefabInstanceData& _root = _instanceVec[0];
+
 		// トランスフォームは持っている前提だが、念のためテスト
-		if (_sig.test(_ltID))
+		if (_root.sig.test(_ltID))
 		{
 			// 位置情報の上書き
-			auto& _buf = _data[_ltID];
+			auto& _buf = _root.dataMap[_ltID];
 			LocalTransformComponent _ltComp = {};
 			auto _trs = Math::Matrix::Decompose(a_editContext.pEditorCamera->GetWorldMatrix());
 			auto _forward = DXSM::Vector3::Transform(DXSM::Vector3::Backward, _trs.rotation);
@@ -221,8 +231,11 @@ namespace Engine::Editor
 			std::memcpy(_buf.data(), &_ltComp, sizeof(_ltComp));
 		}
 
-		// シーンに追加
-		a_pWorld->AddEntityWithData(_sig,std::move(_data));
+		// シーンに追加(ルート → 子の順。親が先に居ないと親子リンクが解決できない)
+		for (Resource::PrefabInstanceData& _instance : _instanceVec)
+		{
+			a_pWorld->AddEntityWithData(_instance.sig, std::move(_instance.dataMap));
+		}
 	}
 
 	void Engine::Editor::HierarchyPanel::DrawEntityNode(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity, bool a_isDrawChildren)

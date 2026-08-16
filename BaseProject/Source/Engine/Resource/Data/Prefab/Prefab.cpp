@@ -7,6 +7,10 @@
 #include "../../Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Manager/ResourceManager/ResourceManager.h"
 
+// 実体化のたびにGUIDを振り直すために触る。
+// (World.h がフェーズタグを取り込んでいるのと同じで、ここも土台側のコンポーネント)
+#include "Application/Components/Persistence/GUIDComponent.h"
+
 namespace Engine::Resource
 {
 	Prefab::Prefab()
@@ -120,31 +124,160 @@ namespace Engine::Resource
 	}
 
 	//======================================================================================
+	// 実体化の材料を組み立てる
+	//--------------------------------------------------------------------------------------
+	// ノードごとに新しいGUIDを振り、保存時GUIDへの参照を全部そちらへ張り替える。
+	//
+	// 張り替えはバイト列を GUID(16バイト)単位で走査して行う。
+	// 参照を持つコンポーネント(親リンク・アタッチメント・ターゲット指定など)を
+	// ここで型として列挙すると、参照を持つコンポーネントが増えるたびに
+	// このリソースを直す羽目になる。GUID は乱数なので、保存したエンティティの
+	// GUID と偶然一致するバイト列が別の意味で入っていることは実質ない。
+	// アセットのGUID(モデルや音)は対応表に載っていないので触られない。
+	//======================================================================================
+	std::vector<PrefabInstanceData> Prefab::BuildInstanceData(ECS::World* a_pWorld) const
+	{
+		std::vector<PrefabInstanceData> _instanceVec = {};
+		if (!a_pWorld) return _instanceVec;
+
+		_instanceVec.reserve(m_children.size() + 1);
+
+		// ---- ルート ----
+		PrefabInstanceData _root = {};
+		_root.sig     = m_sigunature;
+		_root.dataMap = m_dataMap;
+		_instanceVec.push_back(std::move(_root));
+
+		// ---- 子 ----
+		for (const PrefabChild& _child : m_children)
+		{
+			PrefabInstanceData _data = {};
+			_data.sig     = _child.sig;
+			_data.dataMap = _child.dataMap;
+			_instanceVec.push_back(std::move(_data));
+		}
+
+		//----------------------------------------------------------------------
+		// 保存時GUID → 新しいGUID の対応表を作る
+		//----------------------------------------------------------------------
+		std::unordered_map<Engine::GUID, Engine::GUID> _guidMap = {};
+
+		std::vector<Engine::GUID> _newGUIDVec(_instanceVec.size());
+		for (auto& _newGUID : _newGUIDVec) _newGUID.Create();
+
+		if (m_savedGUID.IsValid()) _guidMap[m_savedGUID] = _newGUIDVec[0];
+
+		for (size_t _i = 0; _i < m_children.size(); ++_i)
+		{
+			const Engine::GUID& _savedGUID = m_children[_i].savedGUID;
+			if (!_savedGUID.IsValid()) continue;
+
+			_guidMap[_savedGUID] = _newGUIDVec[_i + 1];
+		}
+
+		//----------------------------------------------------------------------
+		// 参照の張り替えと、自分自身のGUIDの書き込み
+		//----------------------------------------------------------------------
+		const ECS::ComponentTypeID _guidTypeID = a_pWorld->GetCompTypeID<GUIDComponent>();
+
+		for (size_t _i = 0; _i < _instanceVec.size(); ++_i)
+		{
+			for (auto& [_typeID, _buffer] : _instanceVec[_i].dataMap)
+			{
+				if (_buffer.empty()) continue;
+				RemapGUIDs(_buffer.data(), _buffer.size(), _guidMap);
+			}
+
+			// 自分のGUIDは対応表に載っていない場合(ルートは空で保存している)があるので、
+			// ここで確実に新しいものを入れておく。子から親を引けるようにするため
+			if (_guidTypeID == ECS::Limits::INVALID_COMPONENTTYPEID) continue;
+			if (!_instanceVec[_i].sig.test(_guidTypeID)) continue;
+
+			auto _it = _instanceVec[_i].dataMap.find(_guidTypeID);
+			if (_it == _instanceVec[_i].dataMap.end() || _it->second.size() < sizeof(GUIDComponent))
+			{
+				continue;
+			}
+
+			GUIDComponent _guidComp = {};
+			std::memcpy(&_guidComp, _it->second.data(), sizeof(_guidComp));
+			_guidComp.guid = _newGUIDVec[_i];
+			std::memcpy(_it->second.data(), &_guidComp, sizeof(_guidComp));
+		}
+
+		return _instanceVec;
+	}
+
+	//======================================================================================
+	// バイト列に残っている GUID を張り替える
+	//--------------------------------------------------------------------------------------
+	// GUID(UUID)の先頭は 4 バイト境界に載るので、4 バイト刻みで見れば取りこぼさない。
+	//======================================================================================
+	void Prefab::RemapGUIDs(
+		uint8_t* a_pData, size_t a_size,
+		const std::unordered_map<Engine::GUID, Engine::GUID>& a_guidMap)
+	{
+		if (!a_pData || a_guidMap.empty()) return;
+		if (a_size < sizeof(Engine::GUID)) return;
+
+		constexpr size_t _kStride = 4;
+		const size_t _end = a_size - sizeof(Engine::GUID);
+
+		for (size_t _offset = 0; _offset <= _end; _offset += _kStride)
+		{
+			Engine::GUID _guid = {};
+			std::memcpy(&_guid, a_pData + _offset, sizeof(_guid));
+
+			// 未設定(全ゼロ)は「参照なし」の意味なので触らない
+			if (!_guid.IsValid()) continue;
+
+			auto _it = a_guidMap.find(_guid);
+			if (_it == a_guidMap.end()) continue;
+
+			std::memcpy(a_pData + _offset, &_it->second, sizeof(_it->second));
+		}
+	}
+
+	//======================================================================================
 	// 実体化
 	//======================================================================================
 	ECS::Entity Prefab::Instantiate(ECS::World* a_pWorld)
 	{
 		if (!a_pWorld) return ECS::Limits::INVALID_ENTITY;
 
-		// シグネチャで実体を生成(各コンポーネントは既定構築される)
-		ECS::Entity _entity = a_pWorld->CreateEntity(m_sigunature);
-		if (_entity == ECS::Limits::INVALID_ENTITY) return _entity;
+		// ルート + 子ぶんの材料(GUIDは振り直し済み)
+		std::vector<PrefabInstanceData> _instanceVec = BuildInstanceData(a_pWorld);
+		if (_instanceVec.empty()) return ECS::Limits::INVALID_ENTITY;
 
-		// 保存済みの初期値を各コンポーネントへ流し込む
-		// (ハンドル等のランタイム値は既定のまま。GUID から PostDeserialize 系システムが復元する)
-		for (auto& [_typeID, _buffer] : m_dataMap)
+		ECS::Entity _rootEntity = ECS::Limits::INVALID_ENTITY;
+
+		for (size_t _i = 0; _i < _instanceVec.size(); ++_i)
 		{
-			if (_buffer.empty()) continue;
-			if (!m_sigunature.test(_typeID)) continue;
+			PrefabInstanceData& _data = _instanceVec[_i];
 
-			uint8_t* _dst = a_pWorld->NRefData(_entity, _typeID);
-			if (!_dst) continue;
+			// シグネチャで実体を生成(各コンポーネントは既定構築される)
+			ECS::Entity _entity = a_pWorld->CreateEntity(_data.sig);
+			if (_entity == ECS::Limits::INVALID_ENTITY) continue;
 
-			size_t _size = a_pWorld->GetComponentMetaData(_typeID).compSize;
-			std::memcpy(_dst, _buffer.data(), _size);
+			if (_i == 0) _rootEntity = _entity;
+
+			// 保存済みの初期値を各コンポーネントへ流し込む
+			// (ハンドル等のランタイム値は既定のまま。GUID から PostDeserialize 系システムが復元する。
+			//  親子リンクも parentGUID を張り替えてあるので HierarchyLinkSystem が繋ぎ直す)
+			for (auto& [_typeID, _buffer] : _data.dataMap)
+			{
+				if (_buffer.empty()) continue;
+				if (!_data.sig.test(_typeID)) continue;
+
+				uint8_t* _dst = a_pWorld->NRefData(_entity, _typeID);
+				if (!_dst) continue;
+
+				size_t _size = a_pWorld->GetComponentMetaData(_typeID).compSize;
+				std::memcpy(_dst, _buffer.data(), _size);
+			}
 		}
 
-		return _entity;
+		return _rootEntity;
 	}
 
 	//======================================================================================
@@ -252,5 +385,82 @@ namespace Engine::Resource
 				}
 			}
 		}
+
+		//----------------------------------------------------------------------
+		// ルートのGUIDと子エンティティ
+		//----------------------------------------------------------------------
+		// 既存のプレハブにはこれらのキーが無い。読み込み時は BeginArray が false を返し、
+		// GUID も既定のまま残るので、子なしのプレハブとして今までどおり動く。
+		//----------------------------------------------------------------------
+		a_ar.GUIDField("SavedGUID", m_savedGUID);
+
+		size_t _childCount = m_children.size();
+		if (!a_ar.BeginArray("Children", _childCount)) return;
+
+		m_children.resize(_childCount);
+
+		for (size_t _i = 0; _i < _childCount; ++_i)
+		{
+			if (!a_ar.BeginObject(_i)) continue;
+
+			PrefabChild& _child = m_children[_i];
+
+			a_ar.GUIDField("SavedGUID", _child.savedGUID);
+			a_ar.Field("ParentIndex", _child.parentIndex);
+
+			// この子が持つコンポーネント名
+			std::vector<std::string> _childCompNames = {};
+			if (a_ar.GetMode() == Persistence::Archive::Mode::Save)
+			{
+				for (auto& [_typeID, _meta] : a_pWorld->GetAllComponentMetaData())
+				{
+					if (_child.sig.test(_typeID)) _childCompNames.push_back(_meta.name);
+				}
+			}
+			a_ar.VectorField("ComponentNames", _childCompNames);
+
+			// 【ロード時のみ】名前からシグネチャを作り、既定値バッファを確保する
+			if (a_ar.GetMode() == Persistence::Archive::Mode::Load)
+			{
+				_child.sig = {};
+				_child.dataMap.clear();
+
+				for (const std::string& _name : _childCompNames)
+				{
+					ECS::ComponentTypeID _typeID = a_pWorld->GetCompTypeID(_name);
+					if (_typeID == ECS::Limits::INVALID_COMPONENTTYPEID) continue;
+
+					_child.sig.set(_typeID);
+
+					auto& _buffer = _child.dataMap[_typeID];
+					_buffer.assign(a_pWorld->GetComponentMetaData(_typeID).compAlignSize, 0);
+
+					auto _ctor = a_pWorld->GetCompFunc(_typeID).construct;
+					if (_ctor) _ctor(_buffer.data());
+				}
+			}
+
+			// 各コンポーネントデータ(ルートと同じ形)
+			for (const std::string& _name : _childCompNames)
+			{
+				ECS::ComponentTypeID _typeID = a_pWorld->GetCompTypeID(_name);
+				if (_typeID == ECS::Limits::INVALID_COMPONENTTYPEID) continue;
+
+				auto _dataIt = _child.dataMap.find(_typeID);
+				if (_dataIt == _child.dataMap.end() || _dataIt->second.empty()) continue;
+
+				auto _func = a_pWorld->GetCompFunc(_typeID).archive;
+				if (!_func) continue;
+
+				if (a_ar.BeginGroup(_name))
+				{
+					_func(a_ar, _dataIt->second.data());
+					a_ar.EndGroup();
+				}
+			}
+
+			a_ar.EndObject();
+		}
+		a_ar.EndArray();
 	}
 }

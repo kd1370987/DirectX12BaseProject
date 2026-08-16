@@ -162,8 +162,68 @@ namespace Engine::Editor::Inspector
 			a_typeID == a_pWorld->GetCompTypeID<ReleaseTag>();
 	}
 
+	// エンティティのGUIDを引く(持っていなければ既定値)
+	Engine::GUID GetEntityGUID(ECS::World* a_pWorld, const ECS::Entity& a_entity)
+	{
+		if (!a_pWorld->HasComponent<GUIDComponent>(a_entity)) return Engine::GUID{};
+
+		const auto* _pGUIDComp = a_pWorld->RefData<GUIDComponent>(a_entity);
+		return _pGUIDComp ? _pGUIDComp->guid : Engine::GUID{};
+	}
+
+	// 指定エンティティのコンポーネントをプレハブ用のバイト列へ写す
+	void CopyComponents(
+		ECS::World* a_pWorld,
+		const ECS::Entity& a_entity,
+		ECS::Signature& a_outSig,
+		std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>>& a_outDataMap)
+	{
+		const ECS::Signature _sig = a_pWorld->GetSignature(a_entity);
+
+		for (size_t _i = 0; _i < _sig.size(); ++_i)
+		{
+			if (!_sig.test(_i)) continue;
+
+			auto _compTypeID = static_cast<ECS::ComponentTypeID>(_i);
+			if (IsSystemPhaseTag(a_pWorld, _compTypeID)) continue;
+
+			const uint8_t* _pSrc = a_pWorld->NRefData(a_entity, _compTypeID);
+			if (!_pSrc) continue;
+
+			a_outSig.set(_compTypeID);
+
+			auto& _buffer = a_outDataMap[_compTypeID];
+			_buffer.assign(a_pWorld->GetComponentMetaData(_compTypeID).compAlignSize, 0);
+			std::memcpy(_buffer.data(), _pSrc, a_pWorld->GetComponentMetaData(_compTypeID).compSize);
+		}
+	}
+
+	// 親 → 子の対応表を作る(HierarchyComponent は親しか持たないので毎回組み立てる)
+	std::unordered_map<ECS::Entity, std::vector<ECS::Entity>> BuildChildMap(ECS::World* a_pWorld)
+	{
+		std::unordered_map<ECS::Entity, std::vector<ECS::Entity>> _childMap = {};
+
+		a_pWorld->ForEach<const HierarchyComponent>(
+			[&_childMap](
+				ECS::ArchetypeChunk* a_pChunk,
+				uint32_t a_count,
+				const HierarchyComponent* a_hierarchyArray)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					const HierarchyComponent& _hierarchy = a_hierarchyArray[_i];
+					if (_hierarchy.parentID == ECS::Limits::INVALID_ENTITY) continue;
+
+					_childMap[_hierarchy.parentID].push_back(a_pChunk->entityData[_i]);
+				}
+			}
+		);
+
+		return _childMap;
+	}
+
 	// エンティティの現在の状態をプレハブアセットとして保存する
-	// 子エンティティは含まない(プレハブは1エンティティのテンプレート)
+	// 子エンティティ(孫以降も含む)も一緒に覚える
 	void CreatePrefabFromEntity(ECS::World* a_pWorld, const ECS::Entity& a_entity, const std::string& a_name)
 	{
 		if (!a_pWorld || a_entity == ECS::Limits::INVALID_ENTITY) return;
@@ -194,7 +254,10 @@ namespace Engine::Editor::Inspector
 		}
 
 		// ---- 実体固有の値はテンプレートに持ち込まない ----
-		// GUIDは実体化時に GUIDFixupSystem が振り直すので空にしておく
+		// GUIDは実体化時に振り直すので空にしておく。
+		// ただし子から親を指す鍵として必要なので、元のGUIDはプレハブ側に覚えさせる
+		_prefab.SetSavedGUID(GetEntityGUID(a_pWorld, a_entity));
+
 		if (uint8_t* _pGUIDData = _prefab.RefData(a_pWorld->GetCompTypeID<GUIDComponent>()))
 		{
 			GUIDComponent _guidComp = {};
@@ -205,6 +268,78 @@ namespace Engine::Editor::Inspector
 		{
 			HierarchyComponent _hierarchyComp = {};
 			std::memcpy(_pHierarchyData, &_hierarchyComp, sizeof(_hierarchyComp));
+		}
+
+		//------------------------------------------------------------------
+		// ---- 子エンティティ(孫以降も)を一緒に覚える ----
+		//------------------------------------------------------------------
+		// 親から辿れる順(幅優先)に積む。親が子より先に並ぶので、
+		// 実体化するときも上から順に作れば親子リンクが必ず解決できる。
+		//
+		// 子の GUID は保存したまま残す。実体化のたびにプレハブ側が振り直し、
+		// 親リンクやアタッチメントの参照もそこで張り替わる。
+		//------------------------------------------------------------------
+		const auto _childMap = BuildChildMap(a_pWorld);
+
+		// ルートの深さ。子の depth をここからの相対に直すために使う
+		UINT _rootDepth = 0;
+		if (a_pWorld->HasComponent<HierarchyComponent>(a_entity))
+		{
+			if (const auto* _pRootHierarchy = a_pWorld->RefData<HierarchyComponent>(a_entity))
+			{
+				_rootDepth = _pRootHierarchy->depth;
+			}
+		}
+
+		// エンティティ → プレハブ内での位置(-1 = ルート)
+		std::unordered_map<ECS::Entity, int> _indexMap = { { a_entity, -1 } };
+
+		std::vector<ECS::Entity> _queue = { a_entity };
+		for (size_t _head = 0; _head < _queue.size(); ++_head)
+		{
+			const ECS::Entity _parent = _queue[_head];
+
+			auto _it = _childMap.find(_parent);
+			if (_it == _childMap.end()) continue;
+
+			for (const ECS::Entity& _child : _it->second)
+			{
+				// 循環していても無限に積まないよう、一度見た相手は飛ばす
+				if (_indexMap.find(_child) != _indexMap.end()) continue;
+
+				Resource::PrefabChild _prefabChild = {};
+				CopyComponents(a_pWorld, _child, _prefabChild.sig, _prefabChild.dataMap);
+
+				_prefabChild.savedGUID   = GetEntityGUID(a_pWorld, _child);
+				_prefabChild.parentIndex = _indexMap[_parent];
+
+				//------------------------------------------------------
+				// 階層の値は「ルートを 0 とした」相対に直す
+				//------------------------------------------------------
+				// parentID はシーン上の実体を指したままなので必ず捨てる。
+				// (親リンクは parentGUID から HierarchyLinkSystem が繋ぎ直す)
+				// depth も元の階層のままだと、プレハブから出したときに
+				// ルートが 0 なのに子だけ深いという食い違いが起きる。
+				auto _hierarchyIt = _prefabChild.dataMap.find(a_pWorld->GetCompTypeID<HierarchyComponent>());
+				if (_hierarchyIt != _prefabChild.dataMap.end() &&
+					_hierarchyIt->second.size() >= sizeof(HierarchyComponent))
+				{
+					HierarchyComponent _hierarchyComp = {};
+					std::memcpy(&_hierarchyComp, _hierarchyIt->second.data(), sizeof(_hierarchyComp));
+
+					_hierarchyComp.parentID = ECS::Limits::INVALID_ENTITY;
+					_hierarchyComp.depth    = static_cast<UINT>(_rootDepth < _hierarchyComp.depth
+						? (_hierarchyComp.depth - _rootDepth)
+						: 1);
+
+					std::memcpy(_hierarchyIt->second.data(), &_hierarchyComp, sizeof(_hierarchyComp));
+				}
+
+				_indexMap[_child] = static_cast<int>(_prefab.GetChildren().size());
+				_prefab.AddChild(std::move(_prefabChild));
+
+				_queue.push_back(_child);
+			}
 		}
 
 		// ---- アセットとして登録して保存する ----

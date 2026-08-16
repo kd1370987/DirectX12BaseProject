@@ -290,8 +290,21 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				DirectX::XMFLOAT3 _velValue = _shootDir * _gun.speed;
 
 				// ---- プレハブのデータをコピーして、位置と速度を上書き ----
-				Engine::ECS::Signature _sig = _pPrefab->GetSignature();
-				auto _data = _pPrefab->GetDataMap();	// コピー(型ID -> バイト列)
+				// 子を持つプレハブ(銃口エフェクト付きの弾など)でも落とさないよう、
+				// 材料の組み立てはプレハブ側に任せる。先頭がルート=弾本体。
+				std::vector<Engine::Resource::PrefabInstanceData> _instanceVec =
+					_pPrefab->BuildInstanceData(a_ctx.pWorld);
+				if (_instanceVec.empty()) continue;
+
+				// 子は保存された姿のまま出す(位置と向きは親に追従する)
+				for (size_t _c = 1; _c < _instanceVec.size(); ++_c)
+				{
+					a_ctx.pWorld->AddEntityWithData(
+						_instanceVec[_c].sig, std::move(_instanceVec[_c].dataMap));
+				}
+
+				Engine::ECS::Signature _sig = _instanceVec[0].sig;
+				auto _data = std::move(_instanceVec[0].dataMap);	// (型ID -> バイト列)
 
 				auto _ltID = a_ctx.pWorld->GetCompTypeID<LocalTransformComponent>();
 				auto _velID = a_ctx.pWorld->GetCompTypeID<VelocityComponent>();

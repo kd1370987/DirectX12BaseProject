@@ -20,6 +20,33 @@ namespace Engine
 
 namespace Engine::Resource
 {
+	//======================================================================================
+	// プレハブに含める子エンティティ1つぶんのテンプレート
+	//
+	// 親子関係は「保存時のGUID」で持つ。実体化のたびに全ノードへ新しいGUIDを振り直し、
+	// 保存済みのバイト列に残っている旧GUIDを新GUIDへ張り替えることで、
+	// 親子リンク(HierarchyComponent.parentGUID)やアタッチメントの参照が
+	// そのインスタンスの中だけで閉じるようにする。
+	//======================================================================================
+	struct PrefabChild
+	{
+		ECS::Signature sig;
+		std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>> dataMap = {};
+
+		// 保存したときのGUID。実体化時に「旧→新」の対応を作るための鍵として使う
+		Engine::GUID savedGUID = {};
+
+		// 親の位置。-1 ならルート直下、それ以外は children の添え字
+		int parentIndex = -1;
+	};
+
+	// 実体化するときの1エンティティぶんの材料(ルートを先頭に、親→子の順)
+	struct PrefabInstanceData
+	{
+		ECS::Signature sig;
+		std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>> dataMap = {};
+	};
+
 	class Prefab
 	{
 	public:
@@ -43,10 +70,33 @@ namespace Engine::Resource
 
 		//----------------------------------------------------------------------------------
 		// 実体化
-		// このプレハブのシグネチャ・初期値からエンティティを1つ生成して返す。
+		// このプレハブのシグネチャ・初期値からエンティティを生成してルートを返す。
+		// 子を持つプレハブなら子も一緒に作り、親子リンクを繋ぎ直す。
 		// (シーン読み込みと同じく CreateEntity → 各コンポーネントへ初期値を流し込む)
 		//----------------------------------------------------------------------------------
 		ECS::Entity Instantiate(ECS::World* a_pWorld);
+
+		/// <summary>
+		/// 実体化に使う材料を組み立てる(まだ生成はしない)。
+		///
+		/// ルートを先頭に、親が子より前に来る順で返す。各ノードには新しいGUIDが振られ、
+		/// バイト列に残っている保存時GUIDへの参照(親リンクやアタッチメント)も
+		/// 新しいGUIDへ張り替え済み。
+		///
+		/// 遅延生成(World::AddEntityWithData)側からも同じ材料を使えるように分けてある。
+		/// </summary>
+		std::vector<PrefabInstanceData> BuildInstanceData(ECS::World* a_pWorld) const;
+
+		//----------------------------------------------------------------------------------
+		// 子エンティティ(エディタのプレハブ化から積む)
+		//----------------------------------------------------------------------------------
+		void AddChild(PrefabChild a_child) { m_children.push_back(std::move(a_child)); }
+		void ClearChildren() { m_children.clear(); }
+		const std::vector<PrefabChild>& GetChildren() const { return m_children; }
+
+		// ルートを保存したときのGUID(参照の張り替えに使う)
+		void SetSavedGUID(const Engine::GUID& a_guid) { m_savedGUID = a_guid; }
+		const Engine::GUID& GetSavedGUID() const { return m_savedGUID; }
 
 		//----------------------------------------------------------------------------------
 		// コンポーネント操作(エディタから使用)
@@ -85,6 +135,15 @@ namespace Engine::Resource
 		//----------------------------------------------------------------------------------
 		void Archive(Persistence::Archive& a_ar, ECS::World* a_pWorld);
 
+		/// <summary>
+		/// バイト列に含まれる GUID を対応表で張り替える。
+		/// 参照を持つコンポーネントを型で列挙しなくて済むよう、バイト単位で走査する。
+		/// (GUID は乱数なので、別の意味のバイト列が偶然一致することは実質ない)
+		/// </summary>
+		static void RemapGUIDs(
+			uint8_t* a_pData, size_t a_size,
+			const std::unordered_map<Engine::GUID, Engine::GUID>& a_guidMap);
+
 	private:
 
 		// 生成エンティティシグネチャ
@@ -93,5 +152,12 @@ namespace Engine::Resource
 		// コンポーネントごとの初期値バイト列(型ID -> バイト列)
 		std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>> m_dataMap = {};
 
+		// ルートを保存したときのGUID。
+		// ルート自身の GUIDComponent は空のまま(従来どおり実体化時に振る)なので、
+		// 子から親を指すための鍵としてここに別で覚えておく。
+		Engine::GUID m_savedGUID = {};
+
+		// 子エンティティ(親が子より前に来る順で持つ)
+		std::vector<PrefabChild> m_children = {};
 	};
 }

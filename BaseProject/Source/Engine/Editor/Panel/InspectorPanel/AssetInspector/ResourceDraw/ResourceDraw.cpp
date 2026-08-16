@@ -285,6 +285,44 @@ namespace Engine::Editor::Inspector
 
 		ImGui::Separator();
 
+		//------------------------------------------------------------------
+		// 一緒に覚えている子エンティティ
+		//------------------------------------------------------------------
+		// ここで編集はできない(このインスペクタはルートの構成を触る場所)。
+		// 実体化すると、この一覧ぶんが親子リンク付きで一緒に生成される。
+		//------------------------------------------------------------------
+		const auto& _childVec = _pPrefab->GetChildren();
+		if (_childVec.empty())
+		{
+			ImGui::TextDisabled("Children : none");
+		}
+		else
+		{
+			ImGui::Text("Children : %d", static_cast<int>(_childVec.size()));
+
+			if (ImGui::TreeNode("Children List"))
+			{
+				for (size_t _i = 0; _i < _childVec.size(); ++_i)
+				{
+					const auto& _child = _childVec[_i];
+
+					// 親の位置(-1 はルート直下)
+					const std::string _parentLabel = (_child.parentIndex < 0)
+						? std::string("Root")
+						: ("Child " + std::to_string(_child.parentIndex));
+
+					// コンポーネント数だけ出しておけば、空でないことは分かる
+					ImGui::BulletText("Child %d : parent = %s (%d components)",
+						static_cast<int>(_i),
+						_parentLabel.c_str(),
+						static_cast<int>(_child.sig.count()));
+				}
+				ImGui::TreePop();
+			}
+		}
+
+		ImGui::Separator();
+
 		// ---- 所持コンポーネントの羅列・編集 ----
 		const ECS::Signature& _sig = _pPrefab->GetSignature();
 
