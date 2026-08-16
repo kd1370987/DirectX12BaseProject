@@ -6,6 +6,7 @@
 #include "Application/Components/Tag/PlayerControllTag.h"
 #include "Application/Components/Character/LookAngleComponent.h"
 #include "Application/Components/Character/AimTargetPosComponent.h"
+#include "Application/Components/Character/LockOnTargetComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../../Components/Force/VelocityComponent.h"
 #include "../../../../../Components/Resource/ActionStateComponent.h"
@@ -21,6 +22,11 @@
 //   ・EFaceMode::MoveDirection … 進行方向を向く(従来の RotationSystem と同じ挙動)。
 //   ・EFaceMode::Keep          … 旋回しない。
 //   ・canRotate == false       … モードに関わらず旋回しない(マスタースイッチ)。
+//
+// ただしロック対象(LockOnTargetComponent.lockedEntity ＝ HUD で赤枠になっている敵)が
+// 居る間は、モードより優先してその相手を向く。ロックしているのに進行方向を向いて
+// 背中を見せる、という見え方を避けるため。
+// 「旋回しない」指定(Keep / canRotate == false)はロックより強い。
 //
 // 旋回は Y 軸まわり(Yaw)のみ。上下に傾かないよう方向は水平化する。
 // 上体だけの追従は AdditivePoseSystem が別に持っているので、
@@ -139,7 +145,31 @@ void LockOnRotationSystem::Init(Engine::ECS::World& a_world)
 				//==============================================================
 				float _targetYaw = 0.0f;
 
-				if (_faceMode == EFaceMode::AimDirection)
+				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+
+				//--------------------------------------------------------------
+				// ロック中の相手が居ればそちらを最優先で向く。
+				// ロック結果は PostUpdate(LockOnTargetSystem)が書くので 1 フレーム前の
+				// 値だが、どのみち Slerp で追従させるので体感差は出ない。
+				//--------------------------------------------------------------
+				bool _hasLockYaw = false;
+				if (a_ctx.pWorld->HasComponent<LockOnTargetComponent>(_self))
+				{
+					if (const auto* _pLockOn = a_ctx.pWorld->RefData<LockOnTargetComponent>(_self))
+					{
+						if (_pLockOn->IsLocked())
+						{
+							_hasLockYaw = CalcYawFromDir(
+								DXSM::Vector3(_pLockOn->lockedPos) - DXSM::Vector3(_trs.pos), _targetYaw);
+						}
+					}
+				}
+
+				if (_hasLockYaw)
+				{
+					// ロック優先。下の faceMode 別の処理は飛ばす
+				}
+				else if (_faceMode == EFaceMode::AimDirection)
 				{
 					//----------------------------------------------------------
 					// 狙っている方向。
@@ -151,7 +181,6 @@ void LockOnRotationSystem::Init(Engine::ECS::World& a_world)
 					//----------------------------------------------------------
 					bool _hasYaw = false;
 
-					Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 					if (a_ctx.pWorld->HasComponent<AimTargetPosComponent>(_self))
 					{
 						if (const auto* _pAim = a_ctx.pWorld->RefData<AimTargetPosComponent>(_self))

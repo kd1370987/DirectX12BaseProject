@@ -56,6 +56,18 @@ namespace Engine::ECS
 			ESystemType a_systemType,const SystemTask& a_systemTask,const std::string& a_taskName
 		);
 
+	private:
+
+		// ソート失敗(依存の循環)時に、巻き込まれたタスクをログへ出して
+		// 登録順で末尾へ足す。黙って実行されなくなるのを防ぐための後始末。
+		void ReportSortFailure(
+			ESystemType a_phase,
+			const std::vector<SystemTask*>& a_allTaskVec,
+			std::vector<SystemTask*>& a_sortedTaskVec
+		);
+
+	public:
+
 		// ---- アクセサ ----
 		const std::unordered_map<ESystemType, std::vector<SystemTask*>>& GetCompileTaskMap() const;
 

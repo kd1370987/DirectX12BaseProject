@@ -8,6 +8,7 @@
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../Components/Character/AimTargetPosComponent.h"
+#include "../../../../Components/Character/LockOnTargetComponent.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
@@ -153,10 +154,56 @@ void AimTargetSystem::Init(Engine::ECS::World& a_world)
 				_pAim->isHit	= _isHit;
 				_pAim->isValid	= true;
 
-				// デバッグ表示(青=ヒット, 白=空振り)
-				a_ctx.pServices->pMainEditor->DrawRay(
-					_info.origin, _info.direction, _info.maxDistance, _isHit,
-					_isHit ? Engine::Color::BLUE : Engine::Color::WHITE);
+				//============================================================
+				// ロック中はロック相手を狙点にする
+				//------------------------------------------------------------
+				// レイはカメラ前方＝レティクルの下を狙うので、
+				// 「レティクルには入っているが枠の中心からは少しずれている」相手には
+				// 当たらない。さらにカメラの前方は構図のオフセット
+				// (CameraFocusTargetComponent.offsetPos.x)ぶん横へ振れているため、
+				// 空振りしたときの狙点は自機から見て常に同じ側へ寄る。
+				// 体はロック相手を向く(LockOnRotationSystem)ので、狙点だけ
+				// カメラ前方のままだと見た目と弾道がずれてしまう。
+				//
+				// ロック結果は PostUpdate(LockOnTargetSystem)が書くので1フレーム前だが、
+				// 狙点はもともと次フレームに銃へ配られるので差は出ない。
+				//============================================================
+				bool _isLockAim = false;
+				if (a_ctx.pWorld->HasComponent<LockOnTargetComponent>(_target))
+				{
+					if (const auto* _pLockOn = a_ctx.pWorld->RefData<LockOnTargetComponent>(_target))
+					{
+						if (_pLockOn->IsLocked())
+						{
+							DXSM::Vector3 _toLock =
+								DXSM::Vector3(_pLockOn->lockedPos) - DXSM::Vector3(_info.origin);
+
+							// 長さのチェックは NaN も弾ける形で書くこと
+							float _toLockLenSq = _toLock.LengthSquared();
+							if (_toLockLenSq > 1e-6f)
+							{
+								_pAim->pos       = _pLockOn->lockedPos;
+								_pAim->dir       = _toLock / std::sqrt(_toLockLenSq);
+								_pAim->hitEntity = _pLockOn->lockedEntity;
+								_pAim->isHit     = true;
+								_isLockAim       = true;
+							}
+						}
+					}
+				}
+
+				// デバッグ表示(赤=ロック狙点, 青=ヒット, 白=空振り)
+				if (_isLockAim)
+				{
+					a_ctx.pServices->pMainEditor->DrawLine(
+						_info.origin, DXSM::Vector3(_pAim->pos), Engine::Color::RED);
+				}
+				else
+				{
+					a_ctx.pServices->pMainEditor->DrawRay(
+						_info.origin, _info.direction, _info.maxDistance, _isHit,
+						_isHit ? Engine::Color::BLUE : Engine::Color::WHITE);
+				}
 			}
 		}
 	);

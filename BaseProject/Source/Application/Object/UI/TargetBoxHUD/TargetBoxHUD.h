@@ -5,13 +5,16 @@
 namespace App::Object
 {
 	/// <summary>
-	/// 敵(EnemyTag)へ重ねて表示するターゲットボックスHUD。
+	/// 敵へ重ねて表示するターゲットボックスHUD。
 	///
-	/// アクティブカメラのエンティティから ProjMatComponent / WorldMatrixComponent を引き、
-	/// EnemyTag を持つ全エンティティのワールド座標をスクリーン座標へ射影して、
-	/// 1体につき1枚ずつUIを積む。
+	/// 出す相手は LockOnTargetSystem がプレイヤーの LockOnTargetComponent へ書いた結果。
+	///   レティクル内の敵           … 通常テクスチャ(黄色の枠)
+	///   そのうち画面中央に最も近い … ロックテクスチャ(赤い枠)
 	///
-	/// 位置は毎フレーム敵から作り直すため、UIBase の PixelPos は使わない。
+	/// スクリーン座標はロック判定側が計算済みのものをそのまま使う。ここで射影をやり直すと、
+	/// 条件のわずかな差で「枠は出ているのにロックされない」といったズレが起きるため。
+	///
+	/// 位置は毎フレーム作り直すので、UIBase の PixelPos は使わない。
 	/// (サイズ・色・回転・ピボットなどの見た目は UIBase 側の値を全ボックス共通で使う)
 	/// </summary>
 	class TargetBoxHUD : public UIBase
@@ -21,7 +24,7 @@ namespace App::Object
 		// 初期化処理 : ターゲットボックス用テクスチャの読み込み
 		void Init(Engine::GameObject::ObjectContext& a_context) override;
 
-		// 更新処理 : 敵のスクリーン座標を集める
+		// 更新処理 : プレイヤーのロック結果からスクリーン座標を集める
 		void Update(Engine::GameObject::ObjectContext& a_context) override;
 
 		// 描画処理 : 集めた座標ぶんだけUIを積む
@@ -49,12 +52,20 @@ namespace App::Object
 
 	private:
 
-		// 敵のワールド座標に足すYオフセット。
-		// 敵の原点が足元にあるモデルで、胴体あたりへボックスを合わせたいときに使う。
-		float m_worldOffsetY = 0.0f;
+		// ロック中の相手に使うテクスチャ(赤い枠)。
+		// 通常の枠(黄色)は UIBase の m_texRef / m_texGUID を使う。
+		Engine::ResourceRef<Engine::Resource::Texture> m_lockTexRef = {};
+		Engine::GUID m_lockTexGUID = {};
+
+		// ロック枠の拡大率(通常枠のピクセルサイズに掛ける)
+		float m_lockSizeScale = 1.0f;
 
 		// このフレームに描くボックスのスクリーン座標(px, 左上原点)。
 		// Update で作って Draw で消費する。
 		std::vector<DXSM::Vector2> m_targetScreenPosVec = {};
+
+		// ロック中の相手のスクリーン座標(px)。isLocked が false のフレームは描かない
+		DXSM::Vector2 m_lockedScreenPos = {};
+		bool m_isLocked = false;
 	};
 }

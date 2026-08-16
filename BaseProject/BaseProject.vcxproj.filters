@@ -145,6 +145,9 @@
     <Filter Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem">
       <UniqueIdentifier>{92d037be-07d0-497e-b6f0-9845d50682d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem">
+      <UniqueIdentifier>{2b7e6d40-91a5-4c18-b3d2-7c5e8a1f4d62}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem">
       <UniqueIdentifier>{0040f83e-bfab-46de-8dce-75676fefed1d}</UniqueIdentifier>
     </Filter>
@@ -1458,6 +1461,9 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem\LockOnTargetSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp">
       <Filter>Source\Application\Systems\Update\Physics\RayCollisionSystem</Filter>
     </ClCompile>
@@ -2416,6 +2422,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem\LockOnTargetSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h">
       <Filter>Source\Application\Systems\Update\Physics\RayCollisionSystem</Filter>
@@ -3540,6 +3549,9 @@
       <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\TargetEntityComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\LockOnTargetComponent.h">
       <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h">

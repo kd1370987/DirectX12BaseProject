@@ -543,17 +543,40 @@ namespace Engine::ECS
 		(
 			[&]()
 			{
-				// const がついていたら読み込み用
-				// const を外した元の型でTypeIDを取得
-				auto _typeID = m_componentMetaRegistry.GetTypeID<std::remove_const_t<Components>>();
+				using _CompType = std::remove_const_t<Components>;
 
-				if constexpr (std::is_const_v<Components>)
+				// フェーズタグ(ActiveTag など)は「データ」ではなく問い合わせ条件なので、
+				// 実行順を決める依存(read/write)には含めない。
+				//
+				// 含めてしまうと、ActiveTask は先頭に ActiveTag を非constで足すので
+				// 「全ての ActiveTask が ActiveTag の書き手」になる。一方 ActiveCustomTask は
+				// ActiveTag を読み手として持つため、カスタムタスクが書いた成分を読む
+				// ActiveTask が1つでも現れた瞬間に相互依存(循環)が成立して
+				// トポロジカルソートが失敗する。タグは誰も書き換えないので外すのが正しい。
+				//
+				// 問い合わせ用のシグネチャは DispatchTask が Components... から作り直すので、
+				// ここで外してもタグによる絞り込みは効いたまま。
+				constexpr bool _isPhaseTag =
+					std::is_same_v<_CompType, ActiveTag> ||
+					std::is_same_v<_CompType, StartTag> ||
+					std::is_same_v<_CompType, AwakeTag> ||
+					std::is_same_v<_CompType, PostDeserializeTag> ||
+					std::is_same_v<_CompType, ReleaseTag>;
+
+				if constexpr (!_isPhaseTag)
 				{
-					_task.readSig.set(_typeID);
-				}
-				else
-				{
-					_task.writeSig.set(_typeID);
+					// const がついていたら読み込み用
+					// const を外した元の型でTypeIDを取得
+					auto _typeID = m_componentMetaRegistry.GetTypeID<_CompType>();
+
+					if constexpr (std::is_const_v<Components>)
+					{
+						_task.readSig.set(_typeID);
+					}
+					else
+					{
+						_task.writeSig.set(_typeID);
+					}
 				}
 			}(), ...
 		);
@@ -660,7 +683,7 @@ namespace Engine::ECS
 	{
 		RegisterCustomTask(
 			a_phase,
-			ReadList<PostDeserializeTag, Read...>{},
+			ReadList<Read...>{},
 			WriteList<Write...>{},
 			a_func
 		);
@@ -670,7 +693,7 @@ namespace Engine::ECS
 	{
 		RegisterCustomTask(
 			a_phase,
-			ReadList<AwakeTag, Read...>{},
+			ReadList<Read...>{},
 			WriteList<Write...>{},
 			a_func
 		);
@@ -680,7 +703,7 @@ namespace Engine::ECS
 	{
 		RegisterCustomTask(
 			a_phase,
-			ReadList<StartTag, Read...>{},
+			ReadList<Read...>{},
 			WriteList<Write...>{},
 			a_func
 		);
@@ -690,7 +713,7 @@ namespace Engine::ECS
 	{
 		RegisterCustomTask(
 			a_phase,
-			ReadList<ActiveTag, Read...>{},
+			ReadList<Read...>{},
 			WriteList<Write...>{},
 			a_func
 		);
@@ -700,7 +723,7 @@ namespace Engine::ECS
 	{
 		RegisterCustomTask(
 			a_phase,
-			ReadList<ReleaseTag, Read...>{},
+			ReadList<Read...>{},
 			WriteList<Write...>{},
 			a_func
 		);

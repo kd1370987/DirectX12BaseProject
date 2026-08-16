@@ -73,6 +73,7 @@
 #include "../../Components/Character/Robot/AdditivePoseComponent.h"
 #include "../../Components/Character/AimTargetPosComponent.h"
 #include "../../Components/Character/TargetEntityComponent.h"
+#include "../../Components/Character/LockOnTargetComponent.h"
 #include "../../Components/Resource/SoundComponent.h"
 #include "../../Components/Character/PatrolComponent.h"
 #include "../../Components/Character/Weapon/Projectile/HomingComponent.h"
@@ -101,6 +102,7 @@
 #include "Application/Systems/Update/Camera/CameraProjUpdateSystem/CameraProjUpdateSystem.h"
 #include "Application/Systems/Update/Camera/AimTargetSystem/AimTargetSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
+#include "Application/Systems/Update/PostUpdate/LockOnTargetSystem/LockOnTargetSystem.h"
 #include "Application/Systems/Update/PostUpdate/AnimationSystem/AnimationSystem.h"
 #include "Application/Systems/Update/PostUpdate/SkinningSystem/SkinningSystem.h"
 #include "Application/Systems/Update/PostUpdate/CalcNodeSystem/CalcNodeSystem.h"
@@ -292,6 +294,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<AimTargetPosComponent>("AimTargetPosComponent");
 				a_pWorld->RegisterComponent<PatrolComponent>("PatrolComponent");
 				a_pWorld->RegisterComponent<TargetEntityComponent>("TargetEntityComponent");
+				// プレイヤーのレティクル内の敵とロック対象。HUDと旋回が読む
+				a_pWorld->RegisterComponent<LockOnTargetComponent>("LockOnTargetComponent");
 				a_pWorld->RegisterComponent<SoundComponent>("SoundComponent");
 				a_pWorld->RegisterComponent<HitSoundComponent>("HitSoundComponent");
 				a_pWorld->RegisterComponent<AudioListenerComponent>("AudioListenerComponent");
@@ -375,6 +379,9 @@ namespace App::Game
 				// カメラ姿勢が確定した後に狙点レイを撃つ(TPSSystem より後に登録すること)
 				a_pWorld->RegisterSystem<AimTargetSystem>();
 				a_pWorld->RegisterSystem<CalcMatrixSystem>();
+				// レティクル内の敵集めとロック。ワールド行列を読むので
+				// それを書く CalcMatrix / CommitHierarchyWorldMatrix より後ろに回る
+				a_pWorld->RegisterSystem<LockOnTargetSystem>();
 				a_pWorld->RegisterSystem<RobotBoostSystem>();
 				a_pWorld->RegisterSystem<FollowAnimationNodeSystem>();
 				a_pWorld->RegisterSystem<RayCollisionSystem>();

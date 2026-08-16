@@ -8,6 +8,7 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Character/Robot/AdditivePoseComponent.h"
 #include "Application/Components/Character/LookAngleComponent.h"
+#include "Application/Components/Character/LockOnTargetComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Force/VelocityComponent.h"
 #include "Application/Components/Force/MovementComponent.h"
@@ -131,10 +132,46 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				// 角度は度で保持されているのでラジアンへ変換する。
 				// Vector3 オーバーロードは(pitch,yaw,roll)順で軸が入れ替わるため、
 				// スカラー版 CreateFromYawPitchRoll(yaw,pitch,roll) を明示的に使う。
+				//
+				// 既定は視点角(カメラの向き)。ただし視点角には「自分がどこに居るか」が
+				// 入っていないので、自機が画面の中央から外れているほど、狙っている相手では
+				// なくカメラの正面を向いてしまう。カメラが速度で後ろへ引かれて自機が画面端へ
+				// 流れる場面ほど差が開き、しかも左右で符号が逆になるので、
+				// 片側だけ正しく見えるという出方をする。
+				// そのためロック中は視点角を捨て、「自分 → ロック相手」の向きから作り直す。
 				//==========================================================================
+				float _aimYaw   = DirectX::XMConvertToRadians(_lookComp.Yaw);
+				float _aimPitch = DirectX::XMConvertToRadians(-_lookComp.Pitch);
+
+				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+				if (a_ctx.pWorld->HasComponent<LockOnTargetComponent>(_self))
+				{
+					if (const auto* _pLockOn = a_ctx.pWorld->RefData<LockOnTargetComponent>(_self))
+					{
+						if (_pLockOn->IsLocked())
+						{
+							DXSM::Vector3 _toTarget =
+								DXSM::Vector3(_pLockOn->lockedPos) - DXSM::Vector3(_trsComp.pos);
+
+							// 長さのチェックは NaN も弾ける形で書くこと
+							float _lenSq = _toTarget.LengthSquared();
+							if (_lenSq > 1e-6f)
+							{
+								_toTarget /= std::sqrt(_lenSq);
+
+								// 左手系 +Z 前方。CreateFromYawPitchRoll の前方は
+								//   (sinYaw*cosPitch, -sinPitch, cosYaw*cosPitch)
+								// なので、上を向かせたいとき pitch は負になる。
+								_aimYaw   = std::atan2(_toTarget.x, _toTarget.z);
+								_aimPitch = std::asin(std::clamp(-_toTarget.y, -1.0f, 1.0f));
+							}
+						}
+					}
+				}
+
 				DXSM::Quaternion _lookQuat = DXSM::Quaternion::CreateFromYawPitchRoll(
-					DirectX::XMConvertToRadians(_lookComp.Yaw),
-					DirectX::XMConvertToRadians(-_lookComp.Pitch),
+					_aimYaw,
+					_aimPitch,
 					0.0f
 				);
 				_lookQuat.Normalize();
@@ -182,7 +219,6 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				//==========================================================================
 				DXSM::Vector3 _velocity(_velComp.value);
 
-				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 				if (a_ctx.pWorld->HasComponent<MovementComponent>(_self))
 				{
 					if (const auto* _pMovement = a_ctx.pWorld->RefData<MovementComponent>(_self))
