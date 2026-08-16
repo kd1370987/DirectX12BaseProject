@@ -90,7 +90,7 @@ namespace Engine::Editor::Inspector
 				ImGui::SameLine(ImGui::GetWindowWidth() - 80.0f);
 
 				// 削除ボタン
-				if (ImGui::Button(("Remove##" + _passName + std::to_string(_i)).c_str()))
+				if (Engine::Editor::EditorHelper::DeleteButton(("Remove##" + _passName + std::to_string(_i)).c_str()))
 				{
 					// 削除で配列が詰まるため、このフレームの列挙はここで打ち切る
 					a_pTable->RemoveShader(_passName, _i);
@@ -107,7 +107,7 @@ namespace Engine::Editor::Inspector
 			ImGui::Spacing();
 
 			// 新しいシェーダーを追加するボタンとポップアップ
-			if (ImGui::Button(("Add PS Shader##" + _passName).c_str()))
+			if (Engine::Editor::EditorHelper::CreateButton(("Add PS Shader##" + _passName).c_str()))
 			{
 				ImGui::OpenPopup(("SelectShaderPopup##" + _passName).c_str());
 			}

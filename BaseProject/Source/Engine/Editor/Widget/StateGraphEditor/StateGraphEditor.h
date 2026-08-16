@@ -120,14 +120,11 @@ namespace Engine::Editor
 		//----------------------------------------------------------------------------------
 		void DrawResetButton(Graph& a_graph)
 		{
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.2f, 0.2f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0.1f, 0.1f, 1.0f));
-			if (ImGui::Button("Reset All"))
+			// ノード・遷移・パラメータを全部消すので削除扱い(色は EditorHelper に寄せてある)
+			if (EditorHelper::DeleteButton("Reset All"))
 			{
 				ImGui::OpenPopup("Reset Confirmation Popup");
 			}
-			ImGui::PopStyleColor(3);
 
 			ImVec2 _center = ImGui::GetMainViewport()->GetCenter();
 			ImGui::SetNextWindowPos(_center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -135,7 +132,7 @@ namespace Engine::Editor
 			{
 				ImGui::Text("Are you sure you want to reset the state machine?\nAll nodes, links, and parameters will be permanently deleted.");
 				ImGui::Separator();
-				if (ImGui::Button("Yes, Reset", ImVec2(120, 0)))
+				if (EditorHelper::DeleteButton("Yes, Reset", ImVec2(120, 0)))
 				{
 					a_graph.Clear();
 					ImGui::CloseCurrentPopup();
@@ -159,7 +156,7 @@ namespace Engine::Editor
 			ImGui::Text("Parameters");
 			ImGui::Indent();
 
-			if (ImGui::Button("Add Parameter"))
+			if (EditorHelper::CreateButton("Add Parameter"))
 			{
 				ImGui::OpenPopup("Add Parameter Popup");
 			}
@@ -177,7 +174,7 @@ namespace Engine::Editor
 				ImGui::Combo("Type", &_paramTypeIdx, _typeNames, IM_ARRAYSIZE(_typeNames));
 				ImGui::Separator();
 
-				if (ImGui::Button("Create", ImVec2(120, 0)))
+				if (EditorHelper::CreateButton("Create", ImVec2(120, 0)))
 				{
 					if (std::strlen(_paramName) > 0)
 					{
@@ -218,7 +215,7 @@ namespace Engine::Editor
 					ImGui::PushID(_uiIndex++);
 					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
 					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.85f, 0.3f, 0.3f, 1.0f));
-					if (ImGui::SmallButton("x"))
+					if (EditorHelper::DeleteSmallButton("x"))
 					{
 						_deleteParamHash = _hash;
 					}
@@ -245,7 +242,7 @@ namespace Engine::Editor
 		//----------------------------------------------------------------------------------
 		void DrawAddNode(Graph& a_graph)
 		{
-			if (ImGui::Button("Add Node"))
+			if (EditorHelper::CreateButton("Add Node"))
 			{
 				ImGui::OpenPopup("Add Node Popup");
 			}
@@ -258,7 +255,7 @@ namespace Engine::Editor
 				ImGui::InputText("Node Name", _name, sizeof(_name));
 				ImGui::Separator();
 
-				if (ImGui::Button("Create", ImVec2(120, 0)))
+				if (EditorHelper::CreateButton("Create", ImVec2(120, 0)))
 				{
 					if (std::strlen(_name) > 0)
 					{
@@ -398,7 +395,7 @@ namespace Engine::Editor
 			ImGui::Spacing();
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.85f, 0.3f, 0.3f, 1.0f));
-			if (ImGui::SmallButton("Delete Node"))
+			if (EditorHelper::DeleteSmallButton("Delete Node"))
 			{
 				m_pendingDeleteNode = a_node.hash;
 			}
@@ -472,7 +469,7 @@ namespace Engine::Editor
 
 			ImGui::Text("Edit Link ID : %d", m_editingLinkID);
 
-			if (ImGui::Button("Delete Arrow", ImVec2(90, 0)))
+			if (EditorHelper::DeleteButton("Delete Arrow", ImVec2(90, 0)))
 			{
 				auto _it = std::remove_if(_pArrowVec->begin(), _pArrowVec->end(),
 					[this](const StateGraph::TransitionArrow& a) { return a.linkID == m_editingLinkID; });
@@ -496,7 +493,7 @@ namespace Engine::Editor
 				ImGui::Separator();
 				ImGui::PushID(_uiIndex);
 
-				if (ImGui::Button("x"))
+				if (EditorHelper::DeleteButton("x"))
 				{
 					_it = _pArrow->conditions.erase(_it);
 					ImGui::PopID();
@@ -549,7 +546,7 @@ namespace Engine::Editor
 			}
 			ImGui::Separator();
 
-			if (ImGui::Button("Add Condition"))
+			if (EditorHelper::CreateButton("Add Condition"))
 			{
 				_pArrow->conditions.emplace_back();
 			}

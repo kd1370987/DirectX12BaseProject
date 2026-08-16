@@ -161,17 +161,35 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				const float _vWeight = std::clamp(_followParam.verticalSpeedWeight, 0.0f, 1.0f);
-				const float _speed = DXSM::Vector3(
+				const float _rawSpeed = DXSM::Vector3(
 					_targetVel.x, _targetVel.y * _vWeight, _targetVel.z).Length();
 
 				// 0..1 へ正規化。speedReference が 0 以下なら速度レスポンスなし
-				const float _speed01 = (_followParam.speedReference > 1e-4f)
-					? std::clamp(_speed / _followParam.speedReference, 0.0f, 1.0f)
+				const float _rawSpeed01 = (_followParam.speedReference > 1e-4f)
+					? std::clamp(_rawSpeed / _followParam.speedReference, 0.0f, 1.0f)
 					: 0.0f;
-				_statComp.currentSpeed01 = _speed01;
 
+				//============================================================
+				// 速度レスポンスは「なまして」から使う
+				//------------------------------------------------------------
+				// 実速度のうち上下成分は加減速を通さず目標速度がそのまま出る
+				// (重力や着地が鈍らないよう MovementIntegrationSystem がそう作ってある)。
+				// そのため上下ブーストの瞬間は速さが 1 フレームで跳ね、これを直接
+				// 引き・追従レート・遅れ上限・画角へ流すと、カメラが一気に動いて見える。
+				// 特に遅れ上限は「そこまで来たら引き戻す」という強い制限なので、
+				// 値が急に縮むとピボットがその場で引き寄せられてカクつく。
+				//
+				// 速さそのものを指数減衰でなましてから配れば、どの効きも滑らかに立ち上がる。
+				//============================================================
+				_statComp.currentSpeed01 +=
+					(_rawSpeed01 - _statComp.currentSpeed01)
+					* DampFactor(_followParam.speedResponseRate, a_ctx.dt);
+
+				const float _speed01 = _statComp.currentSpeed01;
+
+				// 引きの量も、なました速さから作る(跳ねをそのまま距離にしない)
 				float _goalPullBack = std::clamp(
-					_speed * _followParam.speedPullBack,
+					_speed01 * _followParam.speedReference * _followParam.speedPullBack,
 					0.0f,
 					std::max(_followParam.maxPullBack, 0.0f));
 
@@ -196,7 +214,8 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 					_statComp.currentLookAt		= _goalLookAtLocal;
 					_statComp.currentOrbit		= _targetRot;
 					_statComp.currentPullBack	= _goalPullBack;
-					_statComp.currentFovAdd		= _followParam.fovAddAtSpeed * _speed01;
+					_statComp.currentSpeed01	= _rawSpeed01;
+					_statComp.currentFovAdd		= _followParam.fovAddAtSpeed * _rawSpeed01;
 					_statComp.isInitialized		= true;
 				}
 
@@ -205,11 +224,17 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				//------------------------------------------------------------
 				// 水平と垂直で追従速度を分ける。垂直を遅くしておくと、
 				// 上昇/落下でカメラがすぐに持ち上がらず柔らかい見え方になる。
+				//
+				// 速度で鈍らせる(followRateScale)のは水平だけ。垂直まで鈍らせると、
+				// 上下ブーストで機体が一気に上下したときにカメラが付いていけず、
+				// 遅れ上限まで離れて「引き戻し」が効いた瞬間にガクッと動く。
+				// 水平の遅れは「置いていかれる」気持ちよさになるが、
+				// 垂直の遅れは機体が画面から出るだけで得がない。
 				//============================================================
 				DXSM::Vector3 _pivot = _statComp.currentPivot;
 				{
 					float _tH = DampFactor(_followParam.posRateHorizontal * _rateScale, a_ctx.dt);
-					float _tV = DampFactor(_followParam.posRateVertical * _rateScale, a_ctx.dt);
+					float _tV = DampFactor(_followParam.posRateVertical, a_ctx.dt);
 
 					_pivot.x += (_goalPivot.x - _pivot.x) * _tH;
 					_pivot.z += (_goalPivot.z - _pivot.z) * _tH;

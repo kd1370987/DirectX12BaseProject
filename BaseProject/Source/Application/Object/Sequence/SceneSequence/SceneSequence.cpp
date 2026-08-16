@@ -413,7 +413,7 @@ namespace App::Object
 
 		ImGui::Separator();
 
-		if (ImGui::Button("Add Wave")) m_waves.emplace_back();
+		if (Engine::Editor::EditorHelper::CreateButton("Add Wave")) m_waves.emplace_back();
 
 		int _removeWaveIndex = -1;
 
@@ -453,7 +453,7 @@ namespace App::Object
 					_wave.isCleared ? "yes" : "no");
 
 				// ---- 出現させるエンティティ ----
-				if (ImGui::Button("Add Spawn")) _wave.spawnEntities.emplace_back();
+				if (Engine::Editor::EditorHelper::CreateButton("Add Spawn")) _wave.spawnEntities.emplace_back();
 
 				int _removeSpawnIndex = -1;
 
@@ -490,7 +490,7 @@ namespace App::Object
 						_wave.pos.y + _settings.pos.y,
 						_wave.pos.z + _settings.pos.z);
 
-					if (ImGui::Button("Remove Spawn")) _removeSpawnIndex = static_cast<int>(_s);
+					if (Engine::Editor::EditorHelper::DeleteButton("Remove Spawn")) _removeSpawnIndex = static_cast<int>(_s);
 
 					ImGui::PopID();
 				}
@@ -505,7 +505,7 @@ namespace App::Object
 				}
 
 				ImGui::Separator();
-				if (ImGui::Button("Remove Wave")) _removeWaveIndex = static_cast<int>(_i);
+				if (Engine::Editor::EditorHelper::DeleteButton("Remove Wave")) _removeWaveIndex = static_cast<int>(_i);
 			}
 
 			ImGui::PopID();

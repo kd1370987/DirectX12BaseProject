@@ -287,7 +287,7 @@ namespace Engine::Resource
 				ImGui::DragFloat3("AxisScale", &_def.axisScale.x, 0.01f);
 			}
 
-			if (ImGui::Button("Remove")) _removeIdx = static_cast<int>(_i);
+			if (Engine::Editor::EditorHelper::DeleteButton("Remove")) _removeIdx = static_cast<int>(_i);
 
 			ImGui::Separator();
 			ImGui::PopID();
@@ -298,7 +298,7 @@ namespace Engine::Resource
 			m_additiveBones.erase(m_additiveBones.begin() + _removeIdx);
 		}
 
-		if (ImGui::Button("Add Bone"))
+		if (Engine::Editor::EditorHelper::CreateButton("Add Bone"))
 		{
 			m_additiveBones.emplace_back();
 		}

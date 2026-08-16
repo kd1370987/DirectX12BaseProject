@@ -312,7 +312,7 @@ namespace Engine::Editor::Inspector
 					_func(_compEditContext);
 				}
 
-				if (ImGui::Button("RemoveComponent"))
+				if (Engine::Editor::EditorHelper::DeleteButton("RemoveComponent"))
 				{
 					_removeTypeID = _compTypeID;
 				}

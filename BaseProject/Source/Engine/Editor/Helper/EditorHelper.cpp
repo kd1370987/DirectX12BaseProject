@@ -597,6 +597,70 @@ namespace Engine::Editor
 	//======================================================================================
 	// ノードのタイトルバー表示
 	//======================================================================================
+	//======================================================================================
+	// 生成/削除ボタン
+	//--------------------------------------------------------------------------------------
+	// 色は「通常 / ホバー / 押下」の3つを差し替える。3つとも入れないと、
+	// カーソルを乗せた瞬間に既定色へ戻って別のボタンに見えてしまう。
+	// 文字色は触らない(テーマ側の可読性設定をそのまま活かす)。
+	//======================================================================================
+	namespace
+	{
+		// 生成系(緑)
+		constexpr ImVec4 CREATE_COLOR         = { 0.20f, 0.52f, 0.24f, 1.0f };
+		constexpr ImVec4 CREATE_HOVERED_COLOR = { 0.26f, 0.66f, 0.30f, 1.0f };
+		constexpr ImVec4 CREATE_ACTIVE_COLOR  = { 0.16f, 0.44f, 0.20f, 1.0f };
+
+		// 削除系(赤)
+		constexpr ImVec4 DELETE_COLOR         = { 0.58f, 0.20f, 0.20f, 1.0f };
+		constexpr ImVec4 DELETE_HOVERED_COLOR = { 0.72f, 0.26f, 0.26f, 1.0f };
+		constexpr ImVec4 DELETE_ACTIVE_COLOR  = { 0.48f, 0.16f, 0.16f, 1.0f };
+
+		void PushButtonColor(const ImVec4& a_normal, const ImVec4& a_hovered, const ImVec4& a_active)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, a_normal);
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, a_hovered);
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, a_active);
+		}
+
+		void PopButtonColor()
+		{
+			ImGui::PopStyleColor(3);
+		}
+	}
+
+	bool EditorHelper::CreateButton(const char* a_label, const ImVec2& a_size)
+	{
+		PushButtonColor(CREATE_COLOR, CREATE_HOVERED_COLOR, CREATE_ACTIVE_COLOR);
+		const bool _isPressed = ImGui::Button(a_label, a_size);
+		PopButtonColor();
+		return _isPressed;
+	}
+
+	bool EditorHelper::CreateSmallButton(const char* a_label)
+	{
+		PushButtonColor(CREATE_COLOR, CREATE_HOVERED_COLOR, CREATE_ACTIVE_COLOR);
+		const bool _isPressed = ImGui::SmallButton(a_label);
+		PopButtonColor();
+		return _isPressed;
+	}
+
+	bool EditorHelper::DeleteButton(const char* a_label, const ImVec2& a_size)
+	{
+		PushButtonColor(DELETE_COLOR, DELETE_HOVERED_COLOR, DELETE_ACTIVE_COLOR);
+		const bool _isPressed = ImGui::Button(a_label, a_size);
+		PopButtonColor();
+		return _isPressed;
+	}
+
+	bool EditorHelper::DeleteSmallButton(const char* a_label)
+	{
+		PushButtonColor(DELETE_COLOR, DELETE_HOVERED_COLOR, DELETE_ACTIVE_COLOR);
+		const bool _isPressed = ImGui::SmallButton(a_label);
+		PopButtonColor();
+		return _isPressed;
+	}
+
 	void EditorHelper::DrawNodeTitleBar(const std::string& a_name)
 	{
 		ImNodes::BeginNodeTitleBar();

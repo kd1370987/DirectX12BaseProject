@@ -73,16 +73,11 @@ namespace Engine::Editor::Inspector
 	{
 		ImGui::Separator();
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.80f, 0.15f, 0.15f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.95f, 0.25f, 0.25f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.65f, 0.05f, 0.05f, 1.0f));
-
-		if (ImGui::Button("RemoveComponnet"))
+		// 削除系の色分けは EditorHelper に寄せてある(色をここで持たない)
+		if (Engine::Editor::EditorHelper::DeleteButton("RemoveComponnet"))
 		{
 			a_pWorld->SubmitComponent(a_typeID, a_editContext.GetPrimaryEntity());
 		}
-
-		ImGui::PopStyleColor(3);
 	}
 
 	//======================================================================================
@@ -232,7 +227,7 @@ namespace Engine::Editor::Inspector
 		// 入力中のプレハブ名
 		static char _nameCach[256] = "";
 
-		if (ImGui::Button("Create Prefab"))
+		if (Engine::Editor::EditorHelper::CreateButton("Create Prefab"))
 		{
 			// 入力の初期値はエンティティ名にしておく
 			std::string _defaultName = "NewPrefab";
@@ -297,7 +292,7 @@ namespace Engine::Editor::Inspector
 			? ("RemoveEntity (" + std::to_string(_selectedCount) + ")")
 			: std::string("RemoveEntity");
 
-		if (ImGui::Button(_removeLabel.c_str()))
+		if (Engine::Editor::EditorHelper::DeleteButton(_removeLabel.c_str()))
 		{
 			// 解放予約だけしておく。実際に消えるのは次の BeginFrame で、
 			// その前に Release フェーズが走るので、借りているもの

@@ -31,6 +31,13 @@ struct TPSFollowComponent
 	float speedReference		= 30.0f;	// 全開とみなす速度(m/s)。ブースト速度あたりが目安
 	float verticalSpeedWeight	= 0.6f;		// 速度へ上下成分を混ぜる割合(0=水平のみ)
 
+	// speed01 自体の追従レート。
+	// 上下の速度は加減速を通さず目標速度がそのまま出る(重力や着地を鈍らせないため)ので、
+	// 上下ブーストの瞬間は速さが1フレームで跳ねる。それを直接効かせるとカメラが
+	// 一気に動くため、速さをなましてから引き・追従・画角へ配る。
+	// 大きくするほど跳ねがそのまま出る。0 以下にすると速度レスポンスが止まる。
+	float speedResponseRate		= 6.0f;
+
 	// ---- 速度に応じた引き ----
 	float speedPullBack		= 0.15f;	// 速度1あたり何m後ろへ引くか
 	float maxPullBack		= 5.0f;		// 引きの上限(m)
@@ -69,6 +76,7 @@ struct Engine::ECS::ComponentTraits<TPSFollowComponent>
 		// 速度レスポンス。旧データにキーが無い場合は既定値のまま読み飛ばされる。
 		a_ar.Field("speedReference", _comp.speedReference);
 		a_ar.Field("verticalSpeedWeight", _comp.verticalSpeedWeight);
+		a_ar.Field("speedResponseRate", _comp.speedResponseRate);
 		a_ar.Field("followRateScale", _comp.followRateScale);
 		a_ar.Field("maxLagAtSpeed", _comp.maxLagAtSpeed);
 		a_ar.Field("lookAtLagRatio", _comp.lookAtLagRatio);
@@ -90,6 +98,8 @@ struct Engine::ECS::ComponentTraits<TPSFollowComponent>
 		ImGui::TextDisabled("Speed Response");
 		ImGui::DragFloat("SpeedReference", &_comp.speedReference, 0.5f, 0.1f, 500.0f);
 		ImGui::DragFloat("VerticalSpeedWeight", &_comp.verticalSpeedWeight, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("SpeedResponseRate", &_comp.speedResponseRate, 0.1f, 0.0f, 60.0f);
+		ImGui::TextDisabled("小さいほど速度変化の効きがゆっくり立ち上がる");
 
 		ImGui::Separator();
 		ImGui::TextDisabled("Speed Pull Back");
