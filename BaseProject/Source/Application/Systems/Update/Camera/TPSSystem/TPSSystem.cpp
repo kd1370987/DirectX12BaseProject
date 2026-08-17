@@ -43,6 +43,8 @@
 //   4) 注視点  … 注視点の基準をターゲットの現在位置から「遅れたピボット」側へ寄せる
 //                (lookAtLagRatio)。ここが 0 だと機体は常に画面中央から動かない。
 //                上げるほど進行方向と反対の画面端へ機体が流れ、見切れる寸前になる。
+//                **寄せるのは水平だけ**。高さを寄せると上昇ブーストで機体が
+//                画面の上へ飛ぶ(理由は該当箇所のコメント)。
 //   5) 画角    … fovAddAtSpeed まで広角へ。CameraParamComponent.fovBoost へ書き、
 //                射影行列の作り直しは CameraProjUpdateSystem が行う。
 //
@@ -289,8 +291,22 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// ピボットは offset.y ぶん持ち上げてあるので、比較できるよう戻してから混ぜる
 				DXSM::Vector3 _laggedPos  = _pivot - DXSM::Vector3::Up * _offsetComp.y;
 				const float   _lookAtLag  = std::clamp(_followParam.lookAtLagRatio, 0.0f, 1.0f) * _speed01;
-				DXSM::Vector3 _lookAtBase = DXSM::Vector3::Lerp(
-					DXSM::Vector3(_targetTRS->pos), _laggedPos, _lookAtLag);
+				//------------------------------------------------------------
+				// 寄せるのは水平だけ。高さは必ずターゲットの実際の位置に合わせる。
+				//
+				// 垂直まで寄せると、上昇ブーストの瞬間に機体が画面の上へ飛ぶ。
+				// 上下の実速度は加減速を通さないので目標速度が1フレームでそのまま出る
+				// 一方、ピボットの垂直追従(posRateVertical)はわざと遅くしてある。
+				// その差で一気に開いた遅れを注視点にも混ぜていたため、カメラが下を
+				// 向いて機体だけが上へ瞬間移動したように見えていた(2026-08-17 のバグ)。
+				//
+				// 水平の遅れは「置いていかれる」気持ちよさになるが、垂直の遅れは
+				// 機体が画面から出るだけで得がない。followRateScale を水平だけに
+				// 掛けているのと同じ理由。
+				//------------------------------------------------------------
+				DXSM::Vector3 _lookAtBase = DXSM::Vector3(_targetTRS->pos);
+				_lookAtBase.x += (_laggedPos.x - _lookAtBase.x) * _lookAtLag;
+				_lookAtBase.z += (_laggedPos.z - _lookAtBase.z) * _lookAtLag;
 
 				DXSM::Vector3 _lookAt = _lookAtBase + DXSM::Vector3::Transform(_lookAtLocal, _orbit);
 

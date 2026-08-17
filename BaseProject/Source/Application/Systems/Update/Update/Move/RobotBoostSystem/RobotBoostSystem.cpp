@@ -145,9 +145,16 @@ void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 
 				// 上下は該当する場合だけ。触らない間は Y が残るので、
 				// 直前に GravitySystem が足した落下ぶんがそのまま効く
+				//
+				// ※ 初動の tapBoostScale は上下には掛けない。
+				//   水平は MovementIntegrationSystem の加減速が初動を均してくれるので
+				//   倍率が「踏み込み」として効くが、上下は目標速度がそのまま実速度に
+				//   なるため、倍率ぶんがそのフレームの移動量に直接乗る。
+				//   boostPower 30 / tapBoostScale 2 / 60fps だと1フレームで 1m 上へ跳び、
+				//   上入力だけでブーストしたときに瞬間移動して見えていた。
 				if (_applyVertical)
 				{
-					_velComp.value.y = _dir.y * _speed;
+					_velComp.value.y = _dir.y * _boostComp.boostPower;
 				}
 
 				_boostComp.isBoosting = true;
