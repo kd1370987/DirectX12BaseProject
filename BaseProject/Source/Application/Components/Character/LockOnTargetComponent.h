@@ -3,11 +3,12 @@
 //==========================================================================================
 // LockOnTargetComponent
 //
-// プレイヤーに付ける「レティクルに入っている敵」と「ロック中の敵」の置き場。
+// プレイヤーに付ける「画面に映っている敵」と「ロック中の敵」の置き場。
 // 中身を作るのは LockOnTargetSystem(PostUpdate)。
 //
-//   targets[]    … レティクル(画面中央から reticleRadius px)の内側に居る敵。UI では黄色の枠
-//   lockedEntity … そのうち画面中央にいちばん近いもの。UI では赤い枠で、プレイヤーが体を向ける相手
+//   targets[]    … 画面内に映っている敵。UI では黄色の枠
+//   lockedEntity … そのうちレティクル(reticleCenter から reticleRadius px)の内側で
+//                   いちばん中心に近いもの。UI では赤い枠で、プレイヤーが体を向ける相手
 //
 // ・スクリーン座標まで持たせているのは、HUD(TargetBoxHUD)が同じ射影をもう一度やらずに
 //   済ませるため。UI とロック判定が別々に射影すると、条件のわずかな差で
@@ -17,10 +18,12 @@
 struct LockOnTargetComponent
 {
 	// 同時に枠を出せる数。増やすときはここだけ変えればよい
-	static constexpr int TARGET_MAX = 16;
+	// (保存しないランタイム配列なので、変えても既存データには影響しない)
+	static constexpr int TARGET_MAX = 32;
 
 	// ---- 設定(保存される) ----
-	// レティクル判定の既定値。画面に AimReticleHUD(内側のレティクル)が居る場合は、
+	// レティクル判定の既定値。ロック(赤枠)の判定にだけ使う。黄色い枠は画面内なら出る。
+	// 画面に AimReticleHUD(内側のレティクル)が居る場合は、
 	// そちらが毎フレーム下の reticleCenter / reticleRadius を上書きする。
 	// UI と判定を別々に持つと「枠の内側なのにロックされない」ズレが起きるため、
 	// 実際に描いている UI 側を基準にする。
@@ -42,7 +45,7 @@ struct LockOnTargetComponent
 	}
 
 	// ---- 結果(ランタイム。保存しない) ----
-	Engine::ECS::Entity targets[TARGET_MAX]   = {};	// レティクル内の敵
+	Engine::ECS::Entity targets[TARGET_MAX]   = {};	// 画面内に映っている敵
 	DirectX::XMFLOAT2   screenPos[TARGET_MAX] = {};	// その敵のスクリーン座標(px, 左上原点)
 	int                 targetCount           = 0;	// 有効な要素数
 

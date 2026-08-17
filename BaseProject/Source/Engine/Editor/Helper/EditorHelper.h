@@ -189,6 +189,37 @@ namespace Engine::Editor
 		);
 
 		//--------------------------------------------------------------------------------------
+		// 色
+		//--------------------------------------------------------------------------------------
+
+		/// <summary>
+		/// 色(RGBA)を編集する。UI/HUD の色はすべてこれを通す
+		/// </summary>
+		/// <remarks>
+		/// スウォッチとピッカーに加えて、下に数値のドラッグを出す。
+		/// UI は HDR のレンダーターゲット(AfterLighting)へ描くので 1 を超える値も
+		/// 意味がある(光らせたい枠など)が、ピッカーは 0..1 しか触れないため。
+		/// </remarks>
+		/// <returns>値が変わったら true</returns>
+		static bool DrawColorEdit(const char* a_label, DXSM::Color& a_color)
+		{
+			bool _isChange = false;
+
+			constexpr ImGuiColorEditFlags _kFlags =
+				ImGuiColorEditFlags_Float |
+				ImGuiColorEditFlags_HDR |
+				ImGuiColorEditFlags_AlphaBar |
+				ImGuiColorEditFlags_AlphaPreviewHalf;
+
+			ImGui::PushID(a_label);
+			_isChange |= ImGui::ColorEdit4(a_label, &a_color.x, _kFlags);
+			_isChange |= ImGui::DragFloat4("##ColorValue", &a_color.x, 0.01f, 0.0f, 0.0f, "%.2f");
+			ImGui::PopID();
+
+			return _isChange;
+		}
+
+		//--------------------------------------------------------------------------------------
 		// Enum
 		//--------------------------------------------------------------------------------------
 

@@ -17,11 +17,14 @@
 //==========================================================================================
 // LockOnTargetSystem
 //
-// プレイヤーのレティクル(画面中央の円)に入っている敵を集め、
-// そのうち画面中央にいちばん近いものをロック対象にする。
+// 画面内に映っている敵を集め、そのうちレティクル(画面中央の円)の内側で
+// いちばん中心に近いものをロック対象にする。
 //
-//   レティクル内   … LockOnTargetComponent.targets[](HUD が黄色い枠で囲う)
-//   画面中央に最近 … lockedEntity(HUD が赤い枠で囲い、プレイヤーが体を向ける)
+//   画面内         … LockOnTargetComponent.targets[](HUD が黄色い枠で囲う)
+//   レティクル内で最近 … lockedEntity(HUD が赤い枠で囲い、プレイヤーが体を向ける)
+//
+// ・枠(画面内)とロック(レティクル内)は条件が別。枠が出ている相手すべてが
+//   ロック対象になるわけではない。距離(maxDistance)は両方に効く。
 //
 // ・PostUpdate に置く理由
 //     判定はスクリーン座標で行うので、カメラと敵の「今フレームの」ワールド行列が要る。
@@ -157,10 +160,12 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 							};
 
 							//------------------------------------------------------
-							// レティクルの内側か
+							// 枠 : 画面内に映っているか
 							//------------------------------------------------------
-							const float _distFromCenter = (_screenPos - _reticleCenter).Length();
-							if (_distFromCenter > _reticleRadius) continue;
+							// NDC のままで見る(ピクセルに直してから比べるのと同じ)。
+							// 画面外の敵に枠を出すと、端に貼り付いた枠が残ってしまう
+							if (_ndc.x < -1.0f || _ndc.x > 1.0f) continue;
+							if (_ndc.y < -1.0f || _ndc.y > 1.0f) continue;
 
 							// 枠を出す相手として登録(上限を超えたぶんは表示だけ諦める)
 							if (_lockOn.targetCount < LockOnTargetComponent::TARGET_MAX)
@@ -171,7 +176,14 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 								++_lockOn.targetCount;
 							}
 
-							// 画面中央にいちばん近いものをロックする
+							//------------------------------------------------------
+							// ロック : レティクルの内側で、いちばん中心に近いもの
+							//------------------------------------------------------
+							// 枠(画面内)より狭い条件。枠が出ている相手すべてが
+							// ロック対象になるわけではない
+							const float _distFromCenter = (_screenPos - _reticleCenter).Length();
+							if (_distFromCenter > _reticleRadius) continue;
+
 							if (_distFromCenter < _nearestDist)
 							{
 								_nearestDist            = _distFromCenter;

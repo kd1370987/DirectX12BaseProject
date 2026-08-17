@@ -1,6 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Source\Application\Object\UI\MissileLockBoxHUD">
+      <UniqueIdentifier>{8a1b0c10-4f2e-4c3a-9d51-7e6b2f0a9110}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem">
+      <UniqueIdentifier>{8a1b0c00-4f2e-4c3a-9d51-7e6b2f0a9100}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Shared">
+      <UniqueIdentifier>{8a1b0c01-4f2e-4c3a-9d51-7e6b2f0a9101}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Shared\ProjectileSpawn">
+      <UniqueIdentifier>{8a1b0c02-4f2e-4c3a-9d51-7e6b2f0a9102}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Character\Weapon\Missile">
+      <UniqueIdentifier>{8a1b0c03-4f2e-4c3a-9d51-7e6b2f0a9103}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source">
       <UniqueIdentifier>{c5c0cd0d-3efc-47ee-8020-c44edc6eaf9d}</UniqueIdentifier>
     </Filter>
@@ -1470,6 +1485,12 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem\LockOnTargetSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem\MissileSalvoSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.cpp">
+      <Filter>Source\Application\Systems\Shared\ProjectileSpawn</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp">
       <Filter>Source\Application\Systems\Update\Physics\RayCollisionSystem</Filter>
     </ClCompile>
@@ -2255,6 +2276,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.cpp">
       <Filter>Source\Application\Object\UI\AimReticleHUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.cpp">
+      <Filter>Source\Application\Object\UI\MissileLockBoxHUD</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp">
       <Filter>Source\Application\Object\UI\HitEffectHUD</Filter>
@@ -3566,6 +3590,15 @@
     <ClInclude Include="Source\Application\Components\Character\LockOnTargetComponent.h">
       <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Weapon\Missile\MissileLockComponent.h">
+      <Filter>Source\Application\Components\Character\Weapon\Missile</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem\MissileSalvoSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.h">
+      <Filter>Source\Application\Systems\Shared\ProjectileSpawn</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h">
       <Filter>Source\Application\Components\Character\Robot</Filter>
     </ClInclude>
@@ -3598,6 +3631,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.h">
       <Filter>Source\Application\Object\UI\AimReticleHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.h">
+      <Filter>Source\Application\Object\UI\MissileLockBoxHUD</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.h">
       <Filter>Source\Application\Object\UI\HitEffectHUD</Filter>

@@ -95,6 +95,12 @@ namespace Engine::Graphics
 					if (!_pTex) continue;
 					a_pCtx->BindSRV(2, _pTex->GetSRV());
 
+					// 描画設定バインド : 板ポリを進行方向へ向けるかどうかはアセット単位
+					Particle::ParticleDrawData _cbDraw = {};
+					_cbDraw.orientation = static_cast<uint32_t>(_pParticle->GetOrientation());
+					_cbDraw.stretch     = _pParticle->GetStretch();
+					a_pCtx->GraphicsBindRootCBV(3, _cbDraw);
+
 					// 描画
 					a_pCtx->DrawPolygonInstancing(_pool->GetMaxCapacity());
 				}

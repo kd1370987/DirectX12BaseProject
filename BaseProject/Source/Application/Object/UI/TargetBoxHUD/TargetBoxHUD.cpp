@@ -143,7 +143,7 @@ namespace App::Object
 				_lockTex,
 				m_lockedScreenPos,
 				m_pixelSize * m_lockSizeScale,
-				m_color,
+				m_lockColor,
 				m_rotation,
 				m_layer,
 				m_uvOffset,
@@ -159,6 +159,7 @@ namespace App::Object
 
 		a_ar.GUIDField("LockTexGUID", m_lockTexGUID);
 		a_ar.Field("LockSizeScale", m_lockSizeScale);
+		a_ar.Field("LockColor", m_lockColor);
 
 		// 読み込み時は復元したGUIDでロック枠のテクスチャを引き直す
 		if (a_ar.IsLoading())
@@ -182,6 +183,9 @@ namespace App::Object
 
 		if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
 
+		// 通常枠(画面内の敵)の色は UIBase の Color。ロック枠だけここで別に持つ
+		Engine::Editor::EditorHelper::DrawColorEdit("LockColor", m_lockColor);
+
 		// ロック中に使うテクスチャ(赤い枠)
 		if (ImGui::CollapsingHeader("Lock Texture"))
 		{
@@ -198,8 +202,10 @@ namespace App::Object
 
 		ImGui::DragFloat("LockSizeScale", &m_lockSizeScale, 0.01f, 0.0f, 8.0f);
 
-		// レティクル半径やロック距離はプレイヤー側(LockOnTargetComponent)の設定
-		ImGui::TextDisabled("Reticle radius / range : Player's LockOnTargetComponent");
+		// 枠は画面内の敵すべてに出る。
+		// ロック(赤枠)の判定半径と距離はプレイヤー側(LockOnTargetComponent)の設定
+		ImGui::TextDisabled("Boxes : every enemy on screen (within MaxDistance)");
+		ImGui::TextDisabled("Lock radius / range : Player's LockOnTargetComponent");
 		ImGui::TextDisabled("PixelPos is unused (follows enemies)");
 		ImGui::Text("Boxes : %d%s",
 			static_cast<int>(m_targetScreenPosVec.size()),

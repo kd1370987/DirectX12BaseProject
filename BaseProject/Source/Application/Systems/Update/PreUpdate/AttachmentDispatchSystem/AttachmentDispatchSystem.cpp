@@ -76,7 +76,10 @@ void AttachmentDispatchSystem::Init(Engine::ECS::World& a_world)
 				_setGunIntent(_slots.mainGun.id, _intent.isGunShoot, _intent.isAiming);
 				_setAimTarget(_slots.mainGun.id, _pAim);
 
-				// TODO: missile スロットは専用入力ができ次第、同様に配信する
+				// missile スロットへは配信しない。ミサイルは「押している間に溜めて
+				// 離すと一斉射」なので、入力を子へ流すだけでは足りない。
+				// MissileSalvoSystem がプレイヤー側で溜めを持ち、発射のときだけ
+				// このスロットが指すポッドの GunStateComponent(弾・弾速・銃口)を読む
 			}
 		}
 	);

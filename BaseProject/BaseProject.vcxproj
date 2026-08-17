@@ -245,6 +245,7 @@
     <ClCompile Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.cpp" />
+    <ClCompile Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp" />
@@ -299,6 +300,8 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem\CommitHierarchyWorldMatrixSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem\LockOnTargetSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem\MissileSalvoSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.cpp" />
@@ -531,9 +534,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-      <ClCompile Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.cpp" />
-</ItemGroup>
+  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Library\Include\imgui-docking\imconfig.h" />
     <ClInclude Include="..\Library\Include\imgui-docking\imgui.h" />
@@ -551,6 +554,7 @@
     <ClInclude Include="Source\Application\Components\Character\AimTargetPosComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\TargetEntityComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\LockOnTargetComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Weapon\Missile\MissileLockComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\HomingComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\ProjectileComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraParamComponent.h" />
@@ -615,6 +619,7 @@
     <ClInclude Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.h" />
+    <ClInclude Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.h" />
     <ClInclude Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.h" />
     <ClInclude Include="Source\Application\Object\UI\UIBase.h" />
@@ -669,6 +674,8 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem\CommitHierarchyWorldMatrixSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem\LockOnTargetSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem\MissileSalvoSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.h" />
@@ -710,7 +717,6 @@
     <ClInclude Include="Source\Core\Algorithm\Graph\GroupTopologicalSort.h" />
     <ClInclude Include="Source\Core\Algorithm\Graph\TopologicalSort.h" />
     <ClInclude Include="Source\Core\Core.h" />
-    <ClInclude Include="Source\Core\Shape\Capsule.h" />
     <ClInclude Include="Source\Core\Utility\FileUtility.h" />
     <ClInclude Include="Source\Core\Utility\StringUtility.h" />
     <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h" />
@@ -987,10 +993,10 @@
     <ClInclude Include="Source\Engine\Utility\String\String.h" />
     <ClInclude Include="Source\Engine\Window\NativeWindow.h" />
     <ClInclude Include="Source\Pch.h" />
-      <ClInclude Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.h" />
     <ClInclude Include="Source\Application\InstanceResource\ResourceWaitResource.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.h" />
-</ItemGroup>
+  </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\Common\CB\CBCamera.hlsli" />
     <None Include="Asset\Shader\Common\CB\CBBloomOption.hlsli" />

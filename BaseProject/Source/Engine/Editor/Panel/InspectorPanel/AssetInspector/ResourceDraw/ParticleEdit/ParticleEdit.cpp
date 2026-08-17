@@ -52,6 +52,22 @@ namespace Engine::Editor::Inspector
 
 		ImGui::Separator();
 
+		// ---- 板ポリの向き ----
+		// 進行方向に画像を回すかどうか。Billboard 以外のとき Stretch が効く
+		ImGui::Text("Orientation");
+		EditorHelper::DrawEnumCombo("Orientation", a_pParticles->RefOrientation());
+		if (a_pParticles->GetOrientation() == Particle::EParticleOrientation::Billboard)
+		{
+			ImGui::TextDisabled("Always faces camera (texture up = screen up)");
+		}
+		else
+		{
+			ImGui::TextDisabled("Texture up (V=0) points along velocity");
+			ImGui::DragFloat("Stretch", &a_pParticles->RefStretch(), 0.05f, 0.01f);
+		}
+
+		ImGui::Separator();
+
 		// 現在選択されているテクスチャ
 		const auto* _pTex = Resource::ResourceManager::Instance().Ref(a_pParticles->GetTexHandle());
 

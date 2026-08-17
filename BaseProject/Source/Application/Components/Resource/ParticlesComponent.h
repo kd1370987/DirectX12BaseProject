@@ -46,11 +46,31 @@ struct ParticlesComponent
 	float positionRadius = 0.5f;	// 発生位置の半径(ばらつき)
 	float directionAngle = 10.0f;	// 方向のばらつき(度)
 
+	// ---- 火花(サブパーティクル) ----
+	// isPlay の立ち上がり / 立ち下がりで一度だけ出す別アセット。
+	// ブースターの点火・消火の「バチッ」とした表現用。
+	// 発生源(emitSpace / posOffset / emitDir)は本体と共有し、
+	// 同じフレームに本体と2つ同時に emit される。
+	Engine::GUID sparkGUID;
+	Engine::Handle<Engine::Resource::ParticlesAsset> sparkAssetHandle;
+
+	bool  emitSparkOnStart = false;	// 発動時(isPlay false→true)に出す
+	bool  emitSparkOnEnd   = false;	// 終了時(isPlay true→false)に出す
+	int   sparkEmitCount   = 16;	// 1回の発生数
+
+	// 火花は本体より大きく・広く散らしたいことが多いので、形状は別に持つ
+	float sparkBaseScale      = 1.0f;
+	float sparkMinScale       = 0.1f;
+	float sparkMaxScale       = 1.0f;
+	float sparkPositionRadius = 0.5f;
+	float sparkDirectionAngle = 45.0f;
+
 	// ---- ランタイム(保存しない) ----
 	bool  isPlay = false;			// 発生させたいか(AttachmentDispatchSystem 等が設定)
 	float time = 0.0f;				// レート発生の小数繰り越し用アキュムレータ
 	int   pendingEmitCount = 0;		// このフレームの発生数(ParticleEmitSystemが計算 / EmitParticleSystemが消費)
-	bool  wasPlaying = false;		// バーストの立ち上がり検出用
+	int   pendingSparkEmitCount = 0;// このフレームの火花発生数(同上)
+	bool  wasPlaying = false;		// バーストの立ち上がり / 立ち下がり検出用
 };
 
 
@@ -76,6 +96,17 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		a_ar.Field("maxScale",       _comp.maxScale);
 		a_ar.Field("positionRadius", _comp.positionRadius);
 		a_ar.Field("directionAngle", _comp.directionAngle);
+
+		// ※ 追加は末尾に。バイナリは順次読みなので途中に挿すと既存データが全部ずれる
+		a_ar.Field("sparkGUID",            _comp.sparkGUID);
+		a_ar.Field("emitSparkOnStart",     _comp.emitSparkOnStart);
+		a_ar.Field("emitSparkOnEnd",       _comp.emitSparkOnEnd);
+		a_ar.Field("sparkEmitCount",       _comp.sparkEmitCount);
+		a_ar.Field("sparkBaseScale",       _comp.sparkBaseScale);
+		a_ar.Field("sparkMinScale",        _comp.sparkMinScale);
+		a_ar.Field("sparkMaxScale",        _comp.sparkMaxScale);
+		a_ar.Field("sparkPositionRadius",  _comp.sparkPositionRadius);
+		a_ar.Field("sparkDirectionAngle",  _comp.sparkDirectionAngle);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -143,9 +174,39 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 			_comp.particleGUID = _selectedGUID;
 		}
 
+		ImGui::Separator();
+
+		// ---- 火花(発動時 / 終了時のワンショット) ----
+		// 本体と同じ発生源から、同じフレームに同時に出る
+		if (ImGui::CollapsingHeader("Spark (Start / End)"))
+		{
+			ImGui::Checkbox("EmitSparkOnStart", &_comp.emitSparkOnStart);
+			ImGui::Checkbox("EmitSparkOnEnd", &_comp.emitSparkOnEnd);
+
+			ImGui::DragInt("SparkEmitCount", &_comp.sparkEmitCount, 1, 0);
+
+			ImGui::DragFloat("SparkBaseScale", &_comp.sparkBaseScale, 0.05f, 0.0f);
+			ImGui::DragFloat("SparkMinScale", &_comp.sparkMinScale, 0.01f, 0.0f);
+			ImGui::DragFloat("SparkMaxScale", &_comp.sparkMaxScale, 0.01f, 0.0f);
+			ImGui::DragFloat("SparkPositionRadius", &_comp.sparkPositionRadius, 0.05f, 0.0f);
+			ImGui::DragFloat("SparkDirectionAngle (deg)", &_comp.sparkDirectionAngle, 0.5f, 0.0f);
+
+			Editor::EditorHelper::DrawHandle(_comp.sparkAssetHandle);
+			GUID _selectedSparkGUID = {};
+			if (Editor::EditorHelper::DrawAssetGUIDCombo(
+				"Change Spark Particle",
+				"ParticlesAsset",
+				_comp.sparkGUID,
+				_selectedSparkGUID))
+			{
+				_comp.sparkAssetHandle = Resource::ResourceManager::Instance().GetCache<Resource::ParticlesAsset>(_selectedSparkGUID);
+				_comp.sparkGUID = _selectedSparkGUID;
+			}
+		}
+
 		// ---- ランタイム状態(参考) ----
 		ImGui::Separator();
-		ImGui::TextDisabled("isPlay:%d  pending:%d  time:%.2f",
-			_comp.isPlay ? 1 : 0, _comp.pendingEmitCount, _comp.time);
+		ImGui::TextDisabled("isPlay:%d  pending:%d  spark:%d  time:%.2f",
+			_comp.isPlay ? 1 : 0, _comp.pendingEmitCount, _comp.pendingSparkEmitCount, _comp.time);
 	}
 };

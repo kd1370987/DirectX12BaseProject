@@ -18,6 +18,9 @@
 // ParticleEmitSystem が計算した pendingEmitCount 個を、実際に GPU へ emit 要求する。
 // 発生位置・方向は ParticlesComponent::emitSpace に従って決定し、
 // スケール/拡散はコンポーネント、速度/寿命はアセットから取得する。
+//
+// 火花(pendingSparkEmitCount)がある場合は、同じ発生源から別アセットを
+// もう1回 emit する。点火/消火のフレームは本体と火花が同時に出る。
 //==========================================================================================
 void EmitParticleSystem::Init(Engine::ECS::World& a_world)
 {
@@ -40,15 +43,12 @@ void EmitParticleSystem::Init(Engine::ECS::World& a_world)
 				const WorldMatrixComponent& _transComp = a_transArray[_i];
 
 				// このフレームの発生数(ParticleEmitSystem が計算済み)
-				if (_p.pendingEmitCount <= 0) continue;
+				// 火花は本体が止まったフレームにも出るので、どちらかがあれば処理する
+				if (_p.pendingEmitCount <= 0 && _p.pendingSparkEmitCount <= 0) continue;
 
 				// パーティクルマネージャー取得
 				auto* _pParticleManager = a_ctx.pServices->pMainEngine->RefParticleManager();
 				if (!_pParticleManager) continue;
-
-				// パーティクルアセット取得
-				auto* _pParticle = a_ctx.pServices->pResourceManager->Get(_p.particlesAssetHandle);
-				if (!_pParticle) continue;
 
 				// ---------------------------------------------------------
 				// 発生源(位置・方向)を emitSpace に応じて決定
@@ -117,28 +117,61 @@ void EmitParticleSystem::Init(Engine::ECS::World& a_world)
 
 				// ---------------------------------------------------------
 				// エミットデータ構築
+				// 本体と火花で発生源は共通、形状とアセットだけが違う
 				// ---------------------------------------------------------
-				Engine::Particle::EmitterData _emitData = {};
+				auto _requestEmit = [&]
+				(
+					const Engine::Handle<Engine::Resource::ParticlesAsset>& a_handle,
+					int   a_count,
+					float a_baseScale,
+					float a_minScale,
+					float a_maxScale,
+					float a_positionRadius,
+					float a_directionAngle
+					)
+				{
+					if (a_count <= 0) return;
 
-				_emitData.emitPos       = _pos;
-				_emitData.emitDirection = _dir;
-				_emitData.emitCount     = static_cast<UINT>(_p.pendingEmitCount);
+					// パーティクルアセット取得
+					auto* _pParticle = a_ctx.pServices->pResourceManager->Get(a_handle);
+					if (!_pParticle) return;
 
-				// 形状(スケール/拡散)はコンポーネントから
-				_emitData.baseScale      = _p.baseScale;
-				_emitData.positionRadius = _p.positionRadius;
-				_emitData.directionAngle = DirectX::XMConvertToRadians(_p.directionAngle);
-				_emitData.minScale       = _p.minScale;
-				_emitData.maxScale       = _p.maxScale;
+					Engine::Particle::EmitterData _emitData = {};
 
-				// 速度・寿命はアセットから
-				_emitData.minSpeed    = _pParticle->GetInitalSpeedMin();
-				_emitData.maxSpeed    = _pParticle->GetInitalSpeedMax();
-				_emitData.minLifeTime = _pParticle->GetLifeTimeMin();
-				_emitData.maxLifeTime = _pParticle->GetLifeTimeMax();
+					_emitData.emitPos       = _pos;
+					_emitData.emitDirection = _dir;
+					_emitData.emitCount     = static_cast<UINT>(a_count);
 
-				// 登録
-				_pParticleManager->RequestEmit(_p.particlesAssetHandle, _emitData);
+					// 形状(スケール/拡散)はコンポーネントから
+					_emitData.baseScale      = a_baseScale;
+					_emitData.positionRadius = a_positionRadius;
+					_emitData.directionAngle = DirectX::XMConvertToRadians(a_directionAngle);
+					_emitData.minScale       = a_minScale;
+					_emitData.maxScale       = a_maxScale;
+
+					// 速度・寿命はアセットから
+					_emitData.minSpeed    = _pParticle->GetInitalSpeedMin();
+					_emitData.maxSpeed    = _pParticle->GetInitalSpeedMax();
+					_emitData.minLifeTime = _pParticle->GetLifeTimeMin();
+					_emitData.maxLifeTime = _pParticle->GetLifeTimeMax();
+
+					// 登録
+					_pParticleManager->RequestEmit(a_handle, _emitData);
+				};
+
+				// 本体(噴射)
+				_requestEmit(
+					_p.particlesAssetHandle,
+					_p.pendingEmitCount,
+					_p.baseScale, _p.minScale, _p.maxScale,
+					_p.positionRadius, _p.directionAngle);
+
+				// 火花(点火/消火)
+				_requestEmit(
+					_p.sparkAssetHandle,
+					_p.pendingSparkEmitCount,
+					_p.sparkBaseScale, _p.sparkMinScale, _p.sparkMaxScale,
+					_p.sparkPositionRadius, _p.sparkDirectionAngle);
 			}
 		}
 	);

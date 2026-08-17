@@ -60,6 +60,9 @@ namespace App::Object
 		// ロック枠の拡大率(通常枠のピクセルサイズに掛ける)
 		float m_lockSizeScale = 1.0f;
 
+		// ロック枠の色。通常枠(黄色)は UIBase の m_color を使う
+		DXSM::Color m_lockColor = Engine::Color::RED;
+
 		// このフレームに描くボックスのスクリーン座標(px, 左上原点)。
 		// Update で作って Draw で消費する。
 		std::vector<DXSM::Vector2> m_targetScreenPosVec = {};

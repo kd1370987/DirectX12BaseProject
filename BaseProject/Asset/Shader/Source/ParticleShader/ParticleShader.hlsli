@@ -13,11 +13,18 @@ RS_FLAGS","\
 RS_CAMERA_CB","\
 "DescriptorTable(SRV(t0, numDescriptors=1),visibility = SHADER_VISIBILITY_VERTEX), " \
 "DescriptorTable(SRV(t1, numDescriptors=1),visibility = SHADER_VISIBILITY_PIXEL), " \
+"CBV(b1,visibility = SHADER_VISIBILITY_VERTEX), " \
 RS_STATIC_SAMPLER
 
 // パーティクルデータ
 StructuredBuffer<ParticleData> g_particleBuffer : register(t0);
 Texture2D g_mainTex : register(t1);
+
+// 描画設定(アセット単位) : ルートパラメーター3番
+cbuffer particleDraw : register(b1)
+{
+	ParticleDrawData g_draw;
+}
 
 // サンプラー
 SamplerState g_samp : register(s0);

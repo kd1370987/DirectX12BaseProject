@@ -15,6 +15,7 @@
 #include "Application/Object/UI/TargetBoxHUD/TargetBoxHUD.h"
 #include "Application/Object/UI/AimReticleHUD/AimReticleHUD.h"
 #include "Application/Object/UI/HitEffectHUD/HitEffectHUD.h"
+#include "Application/Object/UI/MissileLockBoxHUD/MissileLockBoxHUD.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 
 // コンポーネント関係
@@ -80,6 +81,7 @@
 #include "../../Components/Character/PatrolComponent.h"
 #include "../../Components/Character/Weapon/Projectile/HomingComponent.h"
 #include "../../Components/Character/Weapon/Projectile/ProjectileComponent.h"
+#include "../../Components/Character/Weapon/Missile/MissileLockComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -105,6 +107,7 @@
 #include "Application/Systems/Update/Camera/AimTargetSystem/AimTargetSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
 #include "Application/Systems/Update/PostUpdate/LockOnTargetSystem/LockOnTargetSystem.h"
+#include "Application/Systems/Update/PostUpdate/MissileSalvoSystem/MissileSalvoSystem.h"
 #include "Application/Systems/Update/PostUpdate/AnimationSystem/AnimationSystem.h"
 #include "Application/Systems/Update/PostUpdate/SkinningSystem/SkinningSystem.h"
 #include "Application/Systems/Update/PostUpdate/CalcNodeSystem/CalcNodeSystem.h"
@@ -230,6 +233,7 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::SceneSequence>("SceneSequence");
 			_objRegistry.RegisterType<App::Object::AimReticleHUD>("AimReticleHUD");
 			_objRegistry.RegisterType<App::Object::HitEffectHUD>("HitEffectHUD");
+			_objRegistry.RegisterType<App::Object::MissileLockBoxHUD>("MissileLockBoxHUD");
 		}
 
 		// ワールドの初期化関数登録
@@ -300,6 +304,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<TargetEntityComponent>("TargetEntityComponent");
 				// プレイヤーのレティクル内の敵とロック対象。HUDと旋回が読む
 				a_pWorld->RegisterComponent<LockOnTargetComponent>("LockOnTargetComponent");
+				// ミサイルの溜め撃ち。コンバットレティクル内の敵を溜めて一斉射する
+				a_pWorld->RegisterComponent<MissileLockComponent>("MissileLockComponent");
 				a_pWorld->RegisterComponent<SoundComponent>("SoundComponent");
 				a_pWorld->RegisterComponent<HitSoundComponent>("HitSoundComponent");
 				a_pWorld->RegisterComponent<AudioListenerComponent>("AudioListenerComponent");
@@ -386,6 +392,7 @@ namespace App::Game
 				// レティクル内の敵集めとロック。ワールド行列を読むので
 				// それを書く CalcMatrix / CommitHierarchyWorldMatrix より後ろに回る
 				a_pWorld->RegisterSystem<LockOnTargetSystem>();
+				a_pWorld->RegisterSystem<MissileSalvoSystem>();
 				a_pWorld->RegisterSystem<RobotBoostSystem>();
 				a_pWorld->RegisterSystem<FollowAnimationNodeSystem>();
 				a_pWorld->RegisterSystem<RayCollisionSystem>();
@@ -511,6 +518,11 @@ namespace App::Game
 			// 狙う
 			Engine::Input::InputButtonForWindows _aim(VK_LBUTTON);
 			_keyboard.AddButton("Aim", std::make_shared<Engine::Input::InputButtonForWindows>(_aim));
+
+			// ミサイル : 押している間ターゲットを溜め、離すと一斉射
+			// (デバッグカメラの FreeCamUp と同じ E キー。使う場面が別なので共存させる)
+			Engine::Input::InputButtonForWindows _missile('E');
+			_keyboard.AddButton("Missile", std::make_shared<Engine::Input::InputButtonForWindows>(_missile));
 
 			Engine::Input::InputManager::Instance().AddDevice("Keyboard", std::make_unique<Engine::Input::InputCollector>(_keyboard));
 		}

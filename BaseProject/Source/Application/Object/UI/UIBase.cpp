@@ -83,9 +83,14 @@ namespace App::Object
 				// テクスチャの差し替え : 届くまでは描画側がスキップする
 				m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
 			}
-			ImGui::DragFloat4("ColorScale", &m_color.x, 0.01f, 0.0f);
 			Engine::Editor::EditorHelper::DrawTexture(m_texRef, 256, 256);
 		}
+
+		ImGui::Spacing();
+
+		// 色 : テクスチャに掛ける乗算色。畳まずに常に出しておく
+		// (白いテクスチャを1枚用意して、色だけで作り分けられるようにするため)
+		Engine::Editor::EditorHelper::DrawColorEdit("Color", m_color);
 
 		ImGui::Spacing();
 		ImGui::Separator();

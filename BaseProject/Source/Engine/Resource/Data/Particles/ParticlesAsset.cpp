@@ -34,6 +34,10 @@ namespace Engine::Resource
 		_archi.Field("m_ligeTimeMax",m_lifeTimeMax);
 		_archi.Field("m_capacity", m_capacity);
 		_archi.Field("m_emissionRate", m_emissionRate);
+
+		// ※ 追加は末尾に。バイナリは順次読みなので途中に挿すと既存データが全部ずれる
+		_archi.Field("m_orientation", m_orientation);
+		_archi.Field("m_stretch", m_stretch);
 	}
 	void ParticlesAsset::Load(const std::string & a_fileDir, const std::string & a_fileName)
 	{
@@ -52,10 +56,20 @@ namespace Engine::Resource
 		_archi.Field("m_capacity", m_capacity);
 		_archi.Field("m_emissionRate", m_emissionRate);
 
+		// ※ 追加は末尾に。バイナリは順次読みなので途中に挿すと既存データが全部ずれる
+		_archi.Field("m_orientation", m_orientation);
+		_archi.Field("m_stretch", m_stretch);
+
 		// キャパシティが0だとリソース生成ができないので最低値を入れておく
 		if (m_capacity == 0)
 		{
 			m_capacity = 1000;
+		}
+
+		// 伸ばし倍率が0だと板が潰れて見えなくなるので最低値を入れておく
+		if (m_stretch <= 0.0f)
+		{
+			m_stretch = 1.0f;
 		}
 
 		// テクスチャのハンドル取得
@@ -80,10 +94,20 @@ namespace Engine::Resource
 		_archi.Field("m_capacity", m_capacity);
 		_archi.Field("m_emissionRate", m_emissionRate);
 
+		// ※ 追加は末尾に。バイナリは順次読みなので途中に挿すと既存データが全部ずれる
+		_archi.Field("m_orientation", m_orientation);
+		_archi.Field("m_stretch", m_stretch);
+
 		// キャパシティが0だとリソース生成ができないので最低値を入れておく
 		if (m_capacity == 0)
 		{
 			m_capacity = 1000;
+		}
+
+		// 伸ばし倍率が0だと板が潰れて見えなくなるので最低値を入れておく
+		if (m_stretch <= 0.0f)
+		{
+			m_stretch = 1.0f;
 		}
 
 		// テクスチャのハンドル取得

@@ -24,12 +24,15 @@ void InputActionSystem::Init(Engine::ECS::World& a_world)
 			bool _isShoot = a_ctx.pServices->pInputManager->IsHold("Shoot");
 			bool _isAiming = a_ctx.pServices->pInputManager->IsHold("Aim");
 
+			// ミサイル : 押している間が溜め、離した瞬間が発射(判定は MissileSalvoSystem)
+			bool _isMissile = a_ctx.pServices->pInputManager->IsHold("Missile");
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				ActionIntentComponent& _intent = a_actionIntentArray[_i];
 				_intent.isGunShoot = _isShoot;
 				_intent.isAiming = _isAiming;
+				_intent.isMissileHold = _isMissile;
 			}
 		}
 	);

@@ -32,6 +32,13 @@ void ParticleFixupSystem::Init(Engine::ECS::World& a_world)
 						a_ctx.pServices->pResourceManager->LoadImmediate<Engine::Resource::ParticlesAsset>(_particleComp.particleGUID);
 				}
 
+				// 火花(発動時 / 終了時)のアセットも同様にハンドルを解決しておく
+				if (_particleComp.sparkGUID != Engine::DefaultGUID)
+				{
+					_particleComp.sparkAssetHandle =
+						a_ctx.pServices->pResourceManager->LoadImmediate<Engine::Resource::ParticlesAsset>(_particleComp.sparkGUID);
+				}
+
 				// 出っぱなしの指定なら、ここで再生状態にしておく。
 				// isPlay は保存されないランタイム値なので、誰かが立てないと
 				// ParticleEmitSystem が発生数を出さず、いつまでも出ない。
@@ -42,6 +49,7 @@ void ParticleFixupSystem::Init(Engine::ECS::World& a_world)
 				// 発生の進み具合もここでリセットしておく
 				_particleComp.time = 0.0f;
 				_particleComp.pendingEmitCount = 0;
+				_particleComp.pendingSparkEmitCount = 0;
 				_particleComp.wasPlaying = false;
 			}
 		}

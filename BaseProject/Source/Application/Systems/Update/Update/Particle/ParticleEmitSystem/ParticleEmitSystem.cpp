@@ -15,6 +15,9 @@
 //
 //   emitRate > 0 : 連続発生。毎秒 emitRate 回、各回 emitCount 個(小数は time に繰り越し)。
 //   emitRate == 0: バースト。isPlay の立ち上がりで一度だけ emitCount 個。
+//
+// あわせて、isPlay の立ち上がり / 立ち下がりで出す火花(pendingSparkEmitCount)も決める。
+// 立ち下がりは isPlay が false のフレームに出すので、本体が止まった後も1フレームだけ発生する。
 //==========================================================================================
 void ParticleEmitSystem::Init(Engine::ECS::World& a_world)
 {
@@ -36,15 +39,29 @@ void ParticleEmitSystem::Init(Engine::ECS::World& a_world)
 
 				// デフォルトは今フレーム発生なし
 				_p.pendingEmitCount = 0;
+				_p.pendingSparkEmitCount = 0;
 
 				// 停止中はリセット
 				if (!_p.isPlay)
 				{
+					// 立ち下がり(再生中→停止)なら、消火の火花を1回だけ
+					if (_p.wasPlaying && _p.emitSparkOnEnd)
+					{
+						_p.pendingSparkEmitCount = _p.sparkEmitCount;
+					}
+
 					_p.time = 0.0f;
 					_p.wasPlaying = false;
 					continue;
 				}
-				
+
+				// 立ち上がり(停止→再生)なら、点火の火花を1回だけ。
+				// 本体のバーストと同じフレームに出るので、2つ同時に発生する
+				if (!_p.wasPlaying && _p.emitSparkOnStart)
+				{
+					_p.pendingSparkEmitCount = _p.sparkEmitCount;
+				}
+
 				if (_p.emitRate > 0.0f)
 				{
 					// ---- 連続発生 : 毎秒 emitRate 回 ----

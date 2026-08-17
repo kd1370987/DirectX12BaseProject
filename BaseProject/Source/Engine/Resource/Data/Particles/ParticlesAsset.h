@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../../../Particle/Core/ParticleData.h"
+
 namespace Engine::Resource
 {
 
@@ -38,6 +40,8 @@ namespace Engine::Resource
 		float GetLifeTimeMax() const { return m_lifeTimeMax; }				// 最大生存時間
 		int GetCapacity() const { return m_capacity; }						// 最大生成数
 		int GetEmissionRate() const { return m_emissionRate; }				// 発生レート
+		Particle::EParticleOrientation GetOrientation() const { return m_orientation; }	// 板ポリの向き
+		float GetStretch() const { return m_stretch; }						// 進行方向への伸ばし倍率
 
 		// ---- 編集用アクセサ : エディターから直接書き換えるためのもの ----
 		std::string& RefName() { return m_name; }
@@ -48,6 +52,8 @@ namespace Engine::Resource
 		float& RefLifeTimeMax() { return m_lifeTimeMax; }
 		int& RefCapacity() { return m_capacity; }
 		int& RefEmissionRate() { return m_emissionRate; }
+		Particle::EParticleOrientation& RefOrientation() { return m_orientation; }
+		float& RefStretch() { return m_stretch; }
 
 		// テクスチャの差し替え : GUIDとハンドルを同時に更新する
 		void SetTexture(const Engine::GUID& a_guid, const ResourceRef<Texture>& a_handle)
@@ -83,7 +89,14 @@ namespace Engine::Resource
 
 		// 発生レート / s
 		int m_emissionRate = 0;
- 
+
+		// 板ポリの向き : 進行方向へ画像を回すかどうか
+		Particle::EParticleOrientation m_orientation = Particle::EParticleOrientation::Billboard;
+
+		// 進行方向への伸ばし倍率 : 1 で伸ばさない。速い火花や弾道を線にしたいときに上げる
+		// (Billboard 指定のときは使わない)
+		float m_stretch = 1.0f;
+
 		// ---- ランタイム用データ ----
 		ResourceRef<Texture> m_texHandle;
 	};
