@@ -15,35 +15,75 @@ namespace Engine::Editor
 		m_textFilter.Clear();
 		m_lineOffsets.clear();
 		m_lineOffsets.push_back(0);
+
+		// 流し込み待ちも一緒に捨てる。
+		// 残しておくとクリアした直後に古いログが復活してしまう
+		{
+			std::lock_guard _lock(m_pendingMutex);
+			m_pendingVec.clear();
+		}
 	}
 
 	void LogPanel::AddLog(const char* a_fmt, ...)
 	{
-		// 前回のサイズを記録
-		int _oldSize = m_textBuffer.size();
+		if (!a_fmt) return;
 
-		// テキストバッファにデータを追加
+		// 書式を解決してから積む。
+		// 本文への追記は描画スレッドが FlushPending() で行う
+		char _buf[2048];
+
 		va_list _args = nullptr;
 		va_start(_args, a_fmt);
-		m_textBuffer.appendfv(a_fmt, _args);
+		vsnprintf(_buf, sizeof(_buf), a_fmt, _args);
 		va_end(_args);
 
-		UpdateOffsetsAndScroll(_oldSize);
+		AddLogRow(_buf);
 	}
 
 	void LogPanel::AddLogRow(const char* a_text)
 	{
-		int _oldSize = m_textBuffer.size();
+		if (!a_text) return;
 
-		// appendfv ではなく append を使う！（% を解釈しない）
-		m_textBuffer.append(a_text);
+		std::lock_guard _lock(m_pendingMutex);
 
-		UpdateOffsetsAndScroll(_oldSize);
+		// 描かれないまま溜まり続けるのを防ぐ。古いものから捨てる
+		if (m_pendingVec.size() >= PENDING_MAX)
+		{
+			m_pendingVec.erase(m_pendingVec.begin());
+		}
+
+		m_pendingVec.emplace_back(a_text);
+	}
+
+	void LogPanel::FlushPending()
+	{
+		// ロックしている間は本文へ触らない。
+		// 一度手元へ移してから追記することで、他スレッドを待たせる時間を短くする
+		std::vector<std::string> _logVec;
+		{
+			std::lock_guard _lock(m_pendingMutex);
+			if (m_pendingVec.empty()) return;
+			_logVec.swap(m_pendingVec);
+		}
+
+		for (const std::string& _log : _logVec)
+		{
+			const int _oldSize = m_textBuffer.size();
+
+			// 書式は積む前に解決済み。'%' を解釈させないため append を使う
+			m_textBuffer.append(_log.c_str());
+
+			UpdateOffsetsAndScroll(_oldSize);
+		}
 	}
 
 	void LogPanel::OnDrawImGui(EditorContext& a_editContext)
 	{
 		// ウィンドウの Begin/End は PanelManager 側が行うので、ここでは中身だけを描く
+
+		// 他スレッドから来たログを本文へ流し込む。
+		// 本文と行オフセットを触るのはここから下(描画スレッド)だけにする
+		FlushPending();
 
 		// オプションメニュー
 		if (ImGui::BeginPopup("Options"))

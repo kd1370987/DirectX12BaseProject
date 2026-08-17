@@ -134,7 +134,10 @@ namespace Engine::Editor
 		vsnprintf(buffer, sizeof(buffer), a_fmt, args);
 		va_end(args);
 
-		m_pLogPanel->AddLog(buffer);
+		// 解決済みの文字列なので、書式として解釈させないこと。
+		// AddLog へ渡すと '%' を含むログ(パスや割合など)で
+		// 存在しない可変引数を読みにいって落ちる
+		m_pLogPanel->AddLogRow(buffer);
 	}
 	void MainEditor::AddLogVector(const float* a_data, const size_t& a_size)
 	{
@@ -179,8 +182,8 @@ namespace Engine::Editor
 
 		std::string _warnStr = std::string("[WARNING] ") + _buffer;
 
-		// ログ
-		AddLog(_warnStr.c_str());
+		// ログ : 解決済みなので書式としては解釈させない
+		if (m_pLogPanel) m_pLogPanel->AddLogRow(_warnStr.c_str());
 		// visualスタジオ側にも一応出力
 		OutputDebugStringA((_warnStr + "\n").c_str());
 	}
@@ -199,7 +202,8 @@ namespace Engine::Editor
 		//assert(false && buffer);
 #endif
 
-		AddLog(buffer);
+		// 解決済みなので書式としては解釈させない
+		if (m_isInit && m_pLogPanel) m_pLogPanel->AddLogRow(buffer);
 		OutputDebugStringA(buffer);
 	}
 	void MainEditor::BeginProfileFrame()
