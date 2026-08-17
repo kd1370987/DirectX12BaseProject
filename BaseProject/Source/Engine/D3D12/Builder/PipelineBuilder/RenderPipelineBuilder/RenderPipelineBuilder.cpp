@@ -18,9 +18,9 @@ namespace Engine::D3D12
 		m_name = a_name;
 	}
 
-	void RenderPipelineBuilder::SetRootSignature(ID3D12RootSignature* a_pSig)
+	void RenderPipelineBuilder::SetRootSignature(const Handle<ID3D12RootSignature>& a_handle)
 	{
-		m_pRootSignature = a_pSig;
+		m_rootSigHandle = a_handle;
 	}
 
 	// ==========================================================

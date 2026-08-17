@@ -1453,13 +1453,13 @@
     <Filter Include="Source\Engine\JobSystem\Internal\JobPool">
       <UniqueIdentifier>{3f31d191-5d50-4aad-ac95-938ea1266bf4}</UniqueIdentifier>
     </Filter>
-      <Filter Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem">
+    <Filter Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem">
       <UniqueIdentifier>{60245d12-9c89-46d8-9ff5-77703533bb55}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem">
       <UniqueIdentifier>{897bfa03-643c-4dae-a9dd-5d7a5c2e4e3d}</UniqueIdentifier>
     </Filter>
-</ItemGroup>
+  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Pch.cpp">
       <Filter>Source</Filter>
@@ -2367,7 +2367,7 @@
     <ClCompile Include="Source\Engine\JobSystem\Core\Job\Job.cpp">
       <Filter>Source\Engine\JobSystem\Core\Job</Filter>
     </ClCompile>
-      <ClCompile Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.cpp">
+    <ClCompile Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.cpp">
       <Filter>Source\Application\Systems\Init\Awake\ModelReadyGateSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.cpp">
@@ -2388,7 +2388,7 @@
     <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector3.cpp">
       <Filter>Source\Engine\Utility\Math\Vector</Filter>
     </ClCompile>
-</ItemGroup>
+  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
       <Filter>Source</Filter>
@@ -3125,9 +3125,6 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSFollowComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\String\String.h">
-      <Filter>Source\Engine\Utility\String</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Loader\DefaultLoader.h">
       <Filter>Source\Engine\Resource\Loader</Filter>
     </ClInclude>
@@ -3752,7 +3749,7 @@
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobPool\JobPool.h">
       <Filter>Source\Engine\JobSystem\Internal\JobPool</Filter>
     </ClInclude>
-      <ClInclude Include="Source\Application\InstanceResource\ResourceWaitResource.h">
+    <ClInclude Include="Source\Application\InstanceResource\ResourceWaitResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.h">
@@ -3782,7 +3779,7 @@
     <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector4.h">
       <Filter>Source\Engine\Utility\Math\Vector</Filter>
     </ClInclude>
-</ItemGroup>
+  </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>

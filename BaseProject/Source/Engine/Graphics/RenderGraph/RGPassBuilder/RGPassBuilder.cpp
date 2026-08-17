@@ -175,7 +175,7 @@ namespace Engine::Graphics
 		for (auto& _tempPSO : m_tempPSODescVec)
 		{
 			// ルートシグネチャ設定
-			_tempPSO.desc.SetRootSignature(m_pNode->pRootSig);
+			_tempPSO.desc.SetRootSignature(a_pPSOManager->GetRootSignature(m_pNode->rootSigHandle));
 
 			// 出力フォーマットセット
 			for (auto& _fmt : _rtvFormatVec)
@@ -193,16 +193,16 @@ namespace Engine::Graphics
 		}
 	}
 
-	ID3D12RootSignature* RGRasterPassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob)
+	Handle<ID3D12RootSignature> RGRasterPassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob)
 	{
-		auto* _pRootSig = a_pPSOManager->Request(a_pBlob);
-		if (!_pRootSig)
+		auto _rootSigHandle = a_pPSOManager->Request(a_pBlob);
+		if (!_rootSigHandle.IsValid())
 		{
 			Engine::Editor::MainEditor::Instance().ErrorLog("ルートシグネチャが生成されませんでした");
-			return nullptr;
+			return {};
 		}
-		StoreRootSignature(_pRootSig);
-		return _pRootSig;
+		StoreRootSignature(_rootSigHandle);
+		return _rootSigHandle;
 	}
 
 	ID3DBlob* RGRasterPassBuilder::SetVS(
@@ -230,16 +230,16 @@ namespace Engine::Graphics
 	// =========================================================
 	// RGMeshShaderPassBuilder
 	// =========================================================
-	ID3D12RootSignature* RGMeshShaderPassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob)
+	Handle<ID3D12RootSignature> RGMeshShaderPassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob)
 	{
-		auto* _pRootSig = a_pPSOManager->Request(a_pBlob);
-		if (!_pRootSig)
+		auto _rootSigHandle = a_pPSOManager->Request(a_pBlob);
+		if (!_rootSigHandle.IsValid())
 		{
 			Engine::Editor::MainEditor::Instance().ErrorLog("ルートシグネチャが生成されませんでした");
-			return nullptr;
+			return {};
 		}
-		StoreRootSignature(_pRootSig);
-		return _pRootSig;
+		StoreRootSignature(_rootSigHandle);
+		return _rootSigHandle;
 	}
 
 	// =========================================================
@@ -247,7 +247,7 @@ namespace Engine::Graphics
 	// =========================================================
 	void RGComputePassBuilder::ResolveAndCompile(D3D12::PipelineStateManager* a_pPSOManager)
 	{
-		m_desc.SetRootSignature(m_pNode->pRootSig);
+		m_desc.SetRootSignature(a_pPSOManager->GetRootSignature(m_pNode->rootSigHandle));
 		if (a_pPSOManager && m_pOutIndex)
 		{
 			auto _handle = a_pPSOManager->RequestHandle(m_desc);
@@ -259,16 +259,16 @@ namespace Engine::Graphics
 		}
 	}
 
-	ID3D12RootSignature* RGComputePassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob)
+	Handle<ID3D12RootSignature> RGComputePassBuilder::SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob)
 	{
-		auto* _pRootSig = a_pPSOManager->Request(a_pBlob);
-		if (!_pRootSig)
+		auto _rootSigHandle = a_pPSOManager->Request(a_pBlob);
+		if (!_rootSigHandle.IsValid())
 		{
 			Engine::Editor::MainEditor::Instance().ErrorLog("ルートシグネチャが生成されませんでした");
-			return nullptr;
+			return {};
 		}
-		StoreRootSignature(_pRootSig);
-		return _pRootSig;
+		StoreRootSignature(_rootSigHandle);
+		return _rootSigHandle;
 	}
 
 	ID3DBlob* RGComputePassBuilder::SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex)

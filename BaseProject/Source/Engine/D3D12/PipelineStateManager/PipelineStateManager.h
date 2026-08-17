@@ -38,11 +38,24 @@ namespace Engine::D3D12
 		// 解放
 		void Release();
 
-		// 初期値からリクエスト
-		ID3D12RootSignature* Request(const D3D12::RootSignatureDesc& a_desc);
-		ID3D12RootSignature* Request(const std::string& a_shaderPath);
-		ID3D12RootSignature* Request(ID3DBlob* a_pShaderBlob);
+		//----------------------------------------------------------------------------------
+		// ルートシグネチャ
+		//----------------------------------------------------------------------------------
+		// 返すのはハンドル。実体(ID3D12RootSignature*)はマネージャーが握ったままにして、
+		// 保持する側はハンドルだけを持ち、使う直前に GetRootSignature で引く。
+		// 同じ内容のものはハッシュで共有されるので、同じハンドルが返る。
 
+		Handle<ID3D12RootSignature> Request(const D3D12::RootSignatureDesc& a_desc);
+		Handle<ID3D12RootSignature> Request(const std::string& a_shaderPath);
+		Handle<ID3D12RootSignature> Request(ID3DBlob* a_pShaderBlob);
+
+		/// <summary>ハンドルから実体を引く</summary>
+		/// <returns>無効なハンドルなら nullptr</returns>
+		ID3D12RootSignature* GetRootSignature(const Handle<ID3D12RootSignature>& a_handle) const;
+
+		//----------------------------------------------------------------------------------
+		// パイプラインステート
+		//----------------------------------------------------------------------------------
 		ID3D12PipelineState* Request(const D3D12::GraphicsPipelineDesc& a_desc);
 		ID3D12PipelineState* Request(const D3D12::ComputePipelineDesc& a_desc);
 
@@ -63,11 +76,21 @@ namespace Engine::D3D12
 		uint64_t CalcHash(const void* a_pData,size_t a_size);
 		uint64_t CalcHash(const D3D12::RootSignatureDesc& a_desc);
 
+		// 生成済みのルートシグネチャを登録してハンドルを発行する
+		// (同じハッシュが既にあればそのハンドルを返し、実体は作り直さない)
+		Handle<ID3D12RootSignature> RegisterRootSignature(
+			uint64_t a_hash, const ComPtr<ID3D12RootSignature>& a_cpRootSig);
+
 	private:
 
 		D3D12::Device* m_pDevice = nullptr;
 
-		std::unordered_map<uint64_t, ComPtr<ID3D12RootSignature>> m_rootSigMap;
+		// ---- ルートシグネチャ ----
+		// ハッシュ -> ハンドル : 同じ内容のものを共有するための索引
+		std::unordered_map<uint64_t, Handle<ID3D12RootSignature>> m_rootSigHashMap;
+		// ハンドルのインデックスで引く実体。ハンドルを配ったら詰め替えない
+		std::vector<ComPtr<ID3D12RootSignature>> m_cpRootSigVec = {};
+		Pool::HandlePool<ID3D12RootSignature> m_rootSigHandlePool = {};
 
 		std::unordered_map<uint64_t, ComPtr<ID3D12PipelineState>> m_psoMap;
 		Pool::HandlePool<ID3D12PipelineState> m_psoHandlePool = {};

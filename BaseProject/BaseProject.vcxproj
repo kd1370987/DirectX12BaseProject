@@ -1001,7 +1001,6 @@
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\AtomicItemPool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\RangePool\RangePool.h" />
-    <ClInclude Include="Source\Engine\Utility\String\String.h" />
     <ClInclude Include="Source\Engine\Window\NativeWindow.h" />
     <ClInclude Include="Source\Pch.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.h" />

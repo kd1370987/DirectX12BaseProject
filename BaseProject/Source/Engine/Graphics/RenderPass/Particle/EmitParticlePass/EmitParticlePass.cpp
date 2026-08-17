@@ -21,7 +21,7 @@ namespace Engine::Graphics
 		// ランタイムデータ
 		struct RuntimeData
 		{
-			ID3D12RootSignature* pRootSig;
+			Handle<ID3D12RootSignature> rootSigHandle = {};
 			uint8_t csIndex;
 			D3D12::PipelineStateManager* pPSOManager;
 
@@ -47,7 +47,7 @@ namespace Engine::Graphics
 			_spPassData->csIndex
 		);
 		// ルートシグネチャセット
-		_spPassData->pRootSig = _cpBuilder.SetRootSignature(a_pPSOManager,_pBlob);
+		_spPassData->rootSigHandle = _cpBuilder.SetRootSignature(a_pPSOManager,_pBlob);
 
 		// PSO作成
 		_cpBuilder.ResolveAndCompile(a_pPSOManager);
@@ -73,7 +73,7 @@ namespace Engine::Graphics
 					// ヒープとルートシグネチャ、PSOをセット
 					auto* _pPso = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
 					a_pCtx->BindHeap();
-					a_pCtx->SetComputeRootSignature(_spPassData->pRootSig);
+					a_pCtx->SetComputeRootSignature(_spPassData->rootSigHandle);
 					a_pCtx->SetComputePSO(_pPso);
 
 					auto* _pCmd = a_pCtx->GetCurrentCmdList();

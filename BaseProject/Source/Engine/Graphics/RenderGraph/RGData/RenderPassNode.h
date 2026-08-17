@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../../ShadingPipelineBuilder/ShadingPipelineBuilder.h"
 
@@ -165,7 +165,7 @@ namespace Engine::Graphics
 
 		// グラフがパス実行前にセットするルートシグネチャ・PSO
 		// nullptr / 未設定なら executeFunc 側で自前セットする契約
-		ID3D12RootSignature*	pRootSig	= nullptr;
+		Handle<ID3D12RootSignature>	rootSigHandle	= {};
 		uint8_t					psoIndex	= kInvalidPSOIndex;
 
 		// シェーディングパイプライン

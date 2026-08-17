@@ -95,11 +95,11 @@ namespace Engine::Graphics
 		default: break;
 		}
 
-		// ルートシグネチャ
-		if (_pNode->pRootSig)
+		// ルートシグネチャ : ハンドルから実体を引くのはここ(使う直前)
+		if (_pNode->rootSigHandle.IsValid())
 		{
-			if (_isCompute)	a_pCtx->SetComputeRootSignature(_pNode->pRootSig);
-			else			a_pCtx->SetGraphicsRootSignature(_pNode->pRootSig);
+			if (_isCompute)	a_pCtx->SetComputeRootSignature(_pNode->rootSigHandle);
+			else			a_pCtx->SetGraphicsRootSignature(_pNode->rootSigHandle);
 		}
 
 		// パイプラインステート
@@ -112,11 +112,11 @@ namespace Engine::Graphics
 		// ルートシグネチャが無いとディスクリプタテーブルは張れない
 		if (a_pass.binds.empty()) return;
 		ENGINE_ERRLOG(
-			_pNode->pRootSig != nullptr,
+			_pNode->rootSigHandle.IsValid(),
 			"バインドを宣言していますがルートシグネチャが未設定です : %s",
 			_pNode->name.c_str()
 		);
-		if (!_pNode->pRootSig) return;
+		if (!_pNode->rootSigHandle.IsValid()) return;
 
 		// 焼き込み済みディスクリプタをそのまま張る
 		for (const auto& _bind : a_pass.binds)

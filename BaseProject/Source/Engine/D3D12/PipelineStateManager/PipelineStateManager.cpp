@@ -4,7 +4,8 @@ namespace Engine::D3D12
 	void PipelineStateManager::Init(D3D12::Device* a_pDevice)
 	{
 		m_pDevice = a_pDevice;
-		m_rootSigMap = {};
+		m_rootSigHashMap = {};
+		m_cpRootSigVec = {};
 		m_psoMap = {};
 	}
 	void PipelineStateManager::Release()
@@ -12,13 +13,15 @@ namespace Engine::D3D12
 		m_pDevice = nullptr;
 
 		// ルートシグネチャ解放
-		for (auto& [_hash, _cpRootSig] : m_rootSigMap)
+		m_rootSigHashMap.clear();
+		for (auto& _cpRootSig : m_cpRootSigVec)
 		{
 			if (_cpRootSig)
 			{
 				_cpRootSig.Reset();
 			}
 		}
+		m_cpRootSigVec.clear();
 
 		// PSO解放
 		m_pPsoVec.clear();
@@ -31,20 +34,57 @@ namespace Engine::D3D12
 		}
 
 	}
-	ID3D12RootSignature* PipelineStateManager::Request(const D3D12::RootSignatureDesc& a_desc)
+	Handle<ID3D12RootSignature> PipelineStateManager::RegisterRootSignature(
+		uint64_t a_hash, const ComPtr<ID3D12RootSignature>& a_cpRootSig)
+	{
+		if (!a_cpRootSig) return {};
+
+		// 同じ内容が既にあればそのハンドルを使い回す
+		auto _it = m_rootSigHashMap.find(a_hash);
+		if (_it != m_rootSigHashMap.end())
+		{
+			return _it->second;
+		}
+
+		// ハンドルを発行して、そのインデックスの位置へ実体を置く
+		auto _handle = m_rootSigHandlePool.Allocate();
+		if (m_cpRootSigVec.size() <= _handle.GetIndex())
+		{
+			m_cpRootSigVec.resize(static_cast<size_t>(_handle.GetIndex()) + 1);
+		}
+		m_cpRootSigVec[_handle.GetIndex()] = a_cpRootSig;
+
+		m_rootSigHashMap[a_hash] = _handle;
+		return _handle;
+	}
+
+	ID3D12RootSignature* PipelineStateManager::GetRootSignature(const Handle<ID3D12RootSignature>& a_handle) const
+	{
+		if (!m_rootSigHandlePool.IsValid(a_handle)) return nullptr;
+		if (m_cpRootSigVec.size() <= a_handle.GetIndex()) return nullptr;
+
+		return m_cpRootSigVec[a_handle.GetIndex()].Get();
+	}
+
+	Handle<ID3D12RootSignature> PipelineStateManager::Request(const D3D12::RootSignatureDesc& a_desc)
 	{
 		// ハッシュを求める
 		uint64_t _hash = CalcHash(a_desc);
 
 		// キャッシュ検索
-		auto _it = m_rootSigMap.find(_hash);
-		if(_it != m_rootSigMap.end())
+		auto _it = m_rootSigHashMap.find(_hash);
+		if(_it != m_rootSigHashMap.end())
 		{
-			return _it->second.Get();
+			return _it->second;
 		}
 
 		// キャッシュになければ作成
 		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(a_desc);
+		if (!_rootSig)
+		{
+			ENGINE_ERRLOG(false, "ルートシグネチャの生成に失敗 : %s", a_desc.name.c_str());
+			return {};
+		}
 
 		// 名前があれば
 		if (!a_desc.name.empty())
@@ -52,11 +92,10 @@ namespace Engine::D3D12
 			_rootSig->SetName(Engine::String::ToWideString(a_desc.name).c_str());
 		}
 
-		// マップに保存して返す
-		m_rootSigMap[_hash] = _rootSig;
-		return _rootSig.Get();
+		// 登録してハンドルを返す
+		return RegisterRootSignature(_hash, _rootSig);
 	}
-	ID3D12RootSignature* PipelineStateManager::Request(const std::string& a_shaderPath)
+	Handle<ID3D12RootSignature> PipelineStateManager::Request(const std::string& a_shaderPath)
 	{
 		// バイナリデータ
 		ComPtr<ID3DBlob> _cpBlob = nullptr;
@@ -70,7 +109,7 @@ namespace Engine::D3D12
 		if (FAILED(_hr))
 		{
 			assert(0 && "ルートシグネチャ生成用のシェーダーファイル読み込みに失敗");
-			return nullptr;
+			return {};
 		}
 
 		// シェーダーバイトコードの読み込み
@@ -81,37 +120,42 @@ namespace Engine::D3D12
 			0,
 			&_cpRootSigBlob
 		);
-		if (SUCCEEDED(_hr))
+		if (FAILED(_hr))
 		{
-			// シェーダーからルートシグネチャの抽出に成功
-			// ルートシグネチャの部分からハッシュ値を求める
-			uint64_t _hash = CalcHash((void*)_cpRootSigBlob->GetBufferPointer(), _cpRootSigBlob->GetBufferSize());
-
-			// すでに構築されているルートシグネチャならポインタを返す
-			auto _it = m_rootSigMap.find(_hash);
-			if (_it != m_rootSigMap.end())
-			{
-				return _it->second.Get();
-			}
-
-			// なければ生成
-			ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(_cpRootSigBlob);
-			if (!_rootSig)
-			{
-				assert(0 && ".cso内にRootSignatureが見つかりませんでした");
-				return nullptr;
-			}
-
-			// 名前を付ける
-			_rootSig->SetName(Engine::String::ToWideString(a_shaderPath).c_str());
-
-			// マップに保存して返す
-			m_rootSigMap[_hash] = _rootSig;
-			return _rootSig.Get();
+			// 抽出に失敗。無効ハンドルを返す(以前は何も返さず未定義動作だった)
+			ENGINE_ERRLOG(false, ".cso内にRootSignatureが見つかりませんでした : %s", a_shaderPath.c_str());
+			return {};
 		}
+
+		// シェーダーからルートシグネチャの抽出に成功
+		// ルートシグネチャの部分からハッシュ値を求める
+		uint64_t _hash = CalcHash((void*)_cpRootSigBlob->GetBufferPointer(), _cpRootSigBlob->GetBufferSize());
+
+		// すでに構築されているルートシグネチャならそのハンドルを返す
+		auto _it = m_rootSigHashMap.find(_hash);
+		if (_it != m_rootSigHashMap.end())
+		{
+			return _it->second;
+		}
+
+		// なければ生成
+		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(_cpRootSigBlob);
+		if (!_rootSig)
+		{
+			assert(0 && ".cso内にRootSignatureが見つかりませんでした");
+			return {};
+		}
+
+		// 名前を付ける
+		_rootSig->SetName(Engine::String::ToWideString(a_shaderPath).c_str());
+
+		// 登録してハンドルを返す
+		return RegisterRootSignature(_hash, _rootSig);
 	}
-	ID3D12RootSignature* PipelineStateManager::Request(ID3DBlob* a_pShaderBlob)
+	Handle<ID3D12RootSignature> PipelineStateManager::Request(ID3DBlob* a_pShaderBlob)
 	{
+		if (!a_pShaderBlob) return {};
+
 		ComPtr<ID3DBlob> _cpRootSigBlob = nullptr;
 		// シェーダーバイトコードの読み込み
 		auto _hr = D3DGetBlobPart(
@@ -121,31 +165,34 @@ namespace Engine::D3D12
 			0,
 			&_cpRootSigBlob
 		);
-		if (SUCCEEDED(_hr))
+		if (FAILED(_hr))
 		{
-			// シェーダーからルートシグネチャの抽出に成功
-			// ルートシグネチャの部分からハッシュ値を求める
-			uint64_t _hash = CalcHash((void*)_cpRootSigBlob->GetBufferPointer(), _cpRootSigBlob->GetBufferSize());
-
-			// すでに構築されているルートシグネチャならポインタを返す
-			auto _it = m_rootSigMap.find(_hash);
-			if (_it != m_rootSigMap.end())
-			{
-				return _it->second.Get();
-			}
-
-			// なければ生成
-			ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(_cpRootSigBlob);
-			if (!_rootSig)
-			{
-				assert(0 && ".cso内にRootSignatureが見つかりませんでした");
-				return nullptr;
-			}
-
-			// マップに保存して返す
-			m_rootSigMap[_hash] = _rootSig;
-			return _rootSig.Get();
+			// 抽出に失敗。無効ハンドルを返す(以前は何も返さず未定義動作だった)
+			ENGINE_ERRLOG(false, "シェーダー内にRootSignatureが見つかりませんでした");
+			return {};
 		}
+
+		// シェーダーからルートシグネチャの抽出に成功
+		// ルートシグネチャの部分からハッシュ値を求める
+		uint64_t _hash = CalcHash((void*)_cpRootSigBlob->GetBufferPointer(), _cpRootSigBlob->GetBufferSize());
+
+		// すでに構築されているルートシグネチャならそのハンドルを返す
+		auto _it = m_rootSigHashMap.find(_hash);
+		if (_it != m_rootSigHashMap.end())
+		{
+			return _it->second;
+		}
+
+		// なければ生成
+		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(_cpRootSigBlob);
+		if (!_rootSig)
+		{
+			assert(0 && ".cso内にRootSignatureが見つかりませんでした");
+			return {};
+		}
+
+		// 登録してハンドルを返す
+		return RegisterRootSignature(_hash, _rootSig);
 	}
 	ID3D12PipelineState* PipelineStateManager::Request(const D3D12::GraphicsPipelineDesc& a_desc)
 	{
@@ -226,7 +273,7 @@ namespace Engine::D3D12
 		// ストリーム構造体の組み立て : ゼロクリアしてパディングのゴミを消す
 		RenderPipelineStateStream _streamDesc = {};
 
-		_streamDesc.pRootSignature = a_builder.GetRootSignature();
+		_streamDesc.pRootSignature = GetRootSignature(a_builder.GetRootSignatureHandle());
 		_streamDesc.PrimitiveTopologyType = a_builder.GetPrimitiveTopologyType();
 		_streamDesc.PS = CD3DX12_SHADER_BYTECODE(a_builder.GetPS());
 

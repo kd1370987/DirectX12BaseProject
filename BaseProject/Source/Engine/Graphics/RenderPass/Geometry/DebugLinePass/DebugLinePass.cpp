@@ -16,7 +16,7 @@ namespace Engine::Graphics
 		// ランタイム用データ
 		struct RuntimeData
 		{
-			ID3D12RootSignature* pRootSig;
+			Handle<ID3D12RootSignature> rootSigHandle = {};
 			uint8_t staticPsoIndex;
 		};
 		auto _spPassData = std::make_shared<RuntimeData>();
@@ -47,7 +47,7 @@ namespace Engine::Graphics
 		_sPso.DepthWriteMask(false);
 		_sPso.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
 
-		_spPassData->pRootSig = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+		_spPassData->rootSigHandle = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
 
 		_sPso.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 
@@ -59,7 +59,7 @@ namespace Engine::Graphics
 			{
 				// ヒープ・ルートシグネチャ・PSOセット
 				a_pCtx->BindHeap();
-				a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
+				a_pCtx->SetGraphicsRootSignature(_spPassData->rootSigHandle);
 				a_pCtx->SetGraphicPSO(_spPassData->staticPsoIndex);
 
 				a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_LINELIST);

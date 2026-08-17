@@ -177,6 +177,11 @@ namespace Engine::Graphics
 		void SetGraphicsRootSignature(ID3D12RootSignature* a_pRootSig);
 		void SetComputeRootSignature(ID3D12RootSignature* a_pRootSig);
 
+		// ハンドル版 : PipelineStateManager から実体を引いて張る。
+		// 保持側はハンドルのまま持ち、張る直前にここで解決する
+		void SetGraphicsRootSignature(const Handle<ID3D12RootSignature>& a_handle);
+		void SetComputeRootSignature(const Handle<ID3D12RootSignature>& a_handle);
+
 		// パイプラインステートをセット、前回と変更がない場合はスキップ
 		void SetGraphicPSO(ID3D12PipelineState* a_pPSO);
 		void SetGraphicPSO(uint8_t a_pPsoIndex);

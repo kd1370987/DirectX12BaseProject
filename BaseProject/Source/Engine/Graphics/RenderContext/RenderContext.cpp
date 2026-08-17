@@ -553,6 +553,24 @@ namespace Engine::Graphics
 		m_pCmdList->SetComputeRootSignature(a_pRootSig);
 	}
 
+	void RenderContext::SetGraphicsRootSignature(const Handle<ID3D12RootSignature>& a_handle)
+	{
+		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
+		if (!_pPsoManager) return;
+		auto* _pRootSig = _pPsoManager->GetRootSignature(a_handle);
+		if (!_pRootSig) return;
+		SetGraphicsRootSignature(_pRootSig);
+	}
+
+	void RenderContext::SetComputeRootSignature(const Handle<ID3D12RootSignature>& a_handle)
+	{
+		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
+		if (!_pPsoManager) return;
+		auto* _pRootSig = _pPsoManager->GetRootSignature(a_handle);
+		if (!_pRootSig) return;
+		SetComputeRootSignature(_pRootSig);
+	}
+
 
 
 	void RenderContext::SetGraphicPSO(ID3D12PipelineState* a_pPSO)

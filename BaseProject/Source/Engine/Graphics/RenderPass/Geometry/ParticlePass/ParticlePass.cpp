@@ -21,7 +21,7 @@ namespace Engine::Graphics
 		// ランタイム用データ
 		struct RuntimeData
 		{
-			ID3D12RootSignature* pRootSig;
+			Handle<ID3D12RootSignature> rootSigHandle = {};
 			uint8_t staticIndex;
 		};
 		auto _spPassData = std::make_shared<RuntimeData>();
@@ -44,7 +44,7 @@ namespace Engine::Graphics
 		auto* _pBlob = _rpBuilder.SetVS(_sPso, "Asset/Shader/Source/ParticleShader/ParticleVS.cso", D3D12::Input::gParticleInputLayout);
 		_rpBuilder.SetPS(_sPso, "Asset/Shader/Source/ParticleShader/ParticlePS.cso");
 
-		_spPassData->pRootSig = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+		_spPassData->rootSigHandle = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
 		// PSOブレンド設定
 		 //カラーブレンド
 		_sPso.BlendEnable(true);
@@ -78,7 +78,7 @@ namespace Engine::Graphics
 
 					// ヒープ、ルートシグネチャバインド
 					a_pCtx->BindHeap();
-					a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
+					a_pCtx->SetGraphicsRootSignature(_spPassData->rootSigHandle);
 					a_pGE->BindPSO(a_pCtx, _spPassData->staticIndex);
 					// カメラバインド
 					CameraData _cbCam = a_pGE->GetCameraData();

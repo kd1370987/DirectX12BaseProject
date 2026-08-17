@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../RGData/RenderPassNode.h"
 
@@ -171,7 +171,7 @@ namespace Engine::Graphics
 		RGResourceRef PushAccess(const RGAccessDecl& a_decl);
 
 		// ルートシグネチャを記録（グラフが実行前にセットする）
-		void StoreRootSignature(ID3D12RootSignature* a_pRootSig) { m_pNode->pRootSig = a_pRootSig; }
+		void StoreRootSignature(const Handle<ID3D12RootSignature>& a_handle) { m_pNode->rootSigHandle = a_handle; }
 
 		RenderPassNode* m_pNode = nullptr;
 	};
@@ -201,7 +201,7 @@ namespace Engine::Graphics
 		void ResolveAndCompile(D3D12::PipelineStateManager* a_pPSOManager);
 
 		// ルートシグネチャセット
-		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob);
+		Handle<ID3D12RootSignature> SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob);
 
 		// ---- ヘルパー ----
 		ID3DBlob* SetVS(D3D12::GraphicsPipelineDesc& a_pso, const std::string& a_vsPath, const D3D12_INPUT_LAYOUT_DESC& a_desc);
@@ -224,8 +224,8 @@ namespace Engine::Graphics
 			: RGPassBuilderBase(a_pNode, ERGPipelineType::Graphics) {}
 		~RGMeshShaderPassBuilder() = default;
 
-		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob);
-		void SetRootSignature(ID3D12RootSignature* a_pRootSig) { StoreRootSignature(a_pRootSig); }
+		Handle<ID3D12RootSignature> SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob);
+		void SetRootSignature(const Handle<ID3D12RootSignature>& a_handle) { StoreRootSignature(a_handle); }
 	};
 
 	// =========================================================
@@ -242,7 +242,7 @@ namespace Engine::Graphics
 		void ResolveAndCompile(D3D12::PipelineStateManager* a_pPSOManager);
 
 		// ルートシグネチャセット
-		ID3D12RootSignature* SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob);
+		Handle<ID3D12RootSignature> SetRootSignature(D3D12::PipelineStateManager* a_pPSOManager, ID3DBlob* a_pBlob);
 
 		ID3DBlob* SetShader(const std::string& a_csPath, const std::string& a_name, uint8_t& a_outIndex);
 

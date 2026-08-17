@@ -80,12 +80,13 @@ namespace Engine::Graphics
 		_psoInit.AddShader(L"ShadowMiss", Raytracing::LocalRootSignature::Empty, Raytracing::ShaderCategory::Miss);
 		_psoInit.AddHitGroup(L"ShadowHitGroup", L"ShadowCHS");
 		_psoInit.maxRecursionDepth = 1;
-		_psoInit.pGlobalRootSig = a_pPSOManager->Request(_rayGlobal);
-		_psoInit.pHitRootSig = a_pPSOManager->Request(_hitSigInit);
-		_psoInit.pRayGenRootSig = a_pPSOManager->Request(_rayGenSigInit);
-		_psoInit.pMissRootSig = a_pPSOManager->Request(_missSigInit);
+		// ルートシグネチャはハンドルのまま渡す。実体を引くのは RayPSO::Init の中
+		_psoInit.globalRootSig = a_pPSOManager->Request(_rayGlobal);
+		_psoInit.hitRootSig    = a_pPSOManager->Request(_hitSigInit);
+		_psoInit.rayGenRootSig = a_pPSOManager->Request(_rayGenSigInit);
+		_psoInit.missRootSig   = a_pPSOManager->Request(_missSigInit);
 
-		if (!_spPassData->rayPSO.Init(_pDevice,_psoInit))
+		if (!_spPassData->rayPSO.Init(_pDevice, a_pPSOManager, _psoInit))
 		{
 			ENGINE_ERRLOG(false,"PSOの初期化に失敗");
 		}
@@ -133,7 +134,7 @@ namespace Engine::Graphics
 
 			// パイプラインとルートシグネチャセット
 			_pCmdList->SetPipelineState1(_spPassData->rayPSO.Get());
-			_pCmdList->SetComputeRootSignature(_spPassData->rayPSO.GetRootSig());
+			a_pCtx->SetComputeRootSignature(_spPassData->rayPSO.GetRootSigHandle());
 
 			// カメラバインド
 			a_pCtx->ComputeBindRootCBV(0, a_pGE->GetCameraData());

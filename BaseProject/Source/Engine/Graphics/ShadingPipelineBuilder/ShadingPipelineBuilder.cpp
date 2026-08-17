@@ -77,7 +77,7 @@ namespace Engine::Graphics
 
 					_builder.SetRootSignature(a_pPSOManager->Request(_msPath));
 					_builder.SetMS(_pMS->GetByteCode());
-					ENGINE_LOG("PSO RS = %p\n", _builder.GetRootSignature());
+					ENGINE_LOG("PSO RS = %p\n", a_pPSOManager->GetRootSignature(_builder.GetRootSignatureHandle()));
 				}
 				else {
 					ENGINE_LOG("Mesh Shaderが見つかりません");

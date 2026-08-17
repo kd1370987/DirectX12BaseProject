@@ -20,7 +20,7 @@ void Engine::Graphics::AddSkinningPass(D3D12::PipelineStateManager* a_pPSOManage
 	// ランタイム用データ
 	struct RuntimeData
 	{
-		ID3D12RootSignature* pRootSig;
+		Handle<ID3D12RootSignature> rootSigHandle = {};
 		uint8_t csIndex;
 		D3D12::PipelineStateManager* pPSOManager;
 
@@ -42,7 +42,7 @@ void Engine::Graphics::AddSkinningPass(D3D12::PipelineStateManager* a_pPSOManage
 		_spPassData->csIndex
 	);
 	// ルートシグネチャ
-	_spPassData->pRootSig = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+	_spPassData->rootSigHandle = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
 
 	// 依存関係構築
 
@@ -90,7 +90,7 @@ void Engine::Graphics::AddSkinningPass(D3D12::PipelineStateManager* a_pPSOManage
 			}
 
 			a_pCtx->BindHeap();
-			a_pCtx->SetComputeRootSignature(_spPassData->pRootSig);
+			a_pCtx->SetComputeRootSignature(_spPassData->rootSigHandle);
 			a_pCtx->SetComputePSO(_pPso);
 
 			// バッファバリア (main を UAV へ : COPY_SOURCE から遷移)

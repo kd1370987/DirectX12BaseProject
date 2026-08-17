@@ -13,7 +13,7 @@ namespace Engine::D3D12
 		void SetName(const std::string& a_name);
 
 		// ルートシグネチャ
-		void SetRootSignature(ID3D12RootSignature* a_pSig);
+		void SetRootSignature(const Handle<ID3D12RootSignature>& a_handle);
 
 		// ==========================================================
 		// シェーダー設定
@@ -74,7 +74,8 @@ namespace Engine::D3D12
 		// ゲッター (ManagerがPSOを構築する際に使用)
 		// ==========================================================
 		const std::string& GetName() const { return m_name; }
-		ID3D12RootSignature* GetRootSignature() const { return m_pRootSignature; }
+		// 実体はここでは持たない。PSO生成時に PipelineStateManager が引く
+		const Handle<ID3D12RootSignature>& GetRootSignatureHandle() const { return m_rootSigHandle; }
 
 		const D3D12_SHADER_BYTECODE& GetVS() const { return m_vs; }
 		const D3D12_SHADER_BYTECODE& GetPS() const { return m_ps; }
@@ -104,7 +105,7 @@ namespace Engine::D3D12
 
 		std::string m_name = "DefaultRenderPSO";
 
-		ID3D12RootSignature* m_pRootSignature = nullptr;
+		Handle<ID3D12RootSignature> m_rootSigHandle = {};
 
 		// シェーダー
 		D3D12_SHADER_BYTECODE m_vs = {};

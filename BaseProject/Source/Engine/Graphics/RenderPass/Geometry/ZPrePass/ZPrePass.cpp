@@ -18,7 +18,7 @@ namespace Engine::Graphics
 		// if (!Engine::System::OptionManager::Instance().IsZPreEnabled()) return;
 
 		struct RuntimeData {
-			ID3D12RootSignature* pRootSig = nullptr;
+			Handle<ID3D12RootSignature> rootSigHandle = {};
 		};
 		auto _spPassData = std::make_shared<RuntimeData>();
 
@@ -43,7 +43,7 @@ namespace Engine::Graphics
 		_node.pipelineBuilder.RegisterAmplificationShader(EShaderPermutationFlags::Skinned, _asHandle);
 
 		// ルートシグネチャセット
-		_spPassData->pRootSig = a_pPSOManager->Request("Asset/Shader/Source/Mesh/UberMS.cso");
+		_spPassData->rootSigHandle = a_pPSOManager->Request("Asset/Shader/Source/Mesh/UberMS.cso");
 
 		// 深度テスト(LESS_EQUAL)と深度書き込み(true)をBuilderに教える
 		_node.pipelineBuilder.SetDepthConfig(true, true, D3D12_COMPARISON_FUNC_LESS_EQUAL);
@@ -53,7 +53,7 @@ namespace Engine::Graphics
 			{
 
 				a_pCtx->BindCopyHeapAndSumplerBindLess();
-				a_pCtx->SetGraphicsRootSignature(_spPassData->pRootSig);
+				a_pCtx->SetGraphicsRootSignature(_spPassData->rootSigHandle);
 
 				a_pCtx->BindCamera();
 				a_pCtx->BindMeshInstance();

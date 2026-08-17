@@ -2,16 +2,26 @@
 
 #include "BuildSubObjectHelper.h"
 
+#include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
+
 namespace Engine::Raytracing
 {
 	void RayPSO::Release()
 	{
-		m_pRootSig = nullptr;
+		m_globalRootSigHandle = {};
 		m_shader.Release();
 		m_cpPSO.Reset();
 	}
-	bool RayPSO::Init(D3D12::Device* a_pDevice, RayPSODesc& a_desc)
+	bool RayPSO::Init(D3D12::Device* a_pDevice, D3D12::PipelineStateManager* a_pPSOManager, RayPSODesc& a_desc)
 	{
+		if (!a_pPSOManager) return false;
+
+		// ハンドルから実体を引く。D3D のサブオブジェクトは生ポインタしか受け取れない
+		auto* _pGlobalRootSig = a_pPSOManager->GetRootSignature(a_desc.globalRootSig);
+		auto* _pRayGenRootSig = a_pPSOManager->GetRootSignature(a_desc.rayGenRootSig);
+		auto* _pMissRootSig   = a_pPSOManager->GetRootSignature(a_desc.missRootSig);
+		auto* _pHitRootSig    = a_pPSOManager->GetRootSignature(a_desc.hitRootSig);
+
 		// エラー出力
 		ComPtr<ID3D12InfoQueue> infoQueue;
 		a_pDevice->QueryInterface(IID_PPV_ARGS(&infoQueue));
@@ -49,15 +59,15 @@ namespace Engine::Raytracing
 			{
 				if (a_rootSig == LocalRootSignature::RayGen)
 				{
-					a_rsSO.Init(a_desc.pRayGenRootSig);
+					a_rsSO.Init(_pRayGenRootSig);
 				}
 				if (a_rootSig == LocalRootSignature::PBRMaterialHit)
 				{
-					a_rsSO.Init(a_desc.pHitRootSig);
+					a_rsSO.Init(_pHitRootSig);
 				}
 				if (a_rootSig == LocalRootSignature::Empty)
 				{
-					a_rsSO.Init(a_desc.pMissRootSig);
+					a_rsSO.Init(_pMissRootSig);
 				}
 				_subObjects.push_back(a_rsSO.subObject);
 				uint32_t _rgSOIndex = _subObjects.size() - 1;
@@ -80,19 +90,19 @@ namespace Engine::Raytracing
 		const WCHAR* _modelExportName[5];
 		const WCHAR* _emptyExportName[5];
 		// レイジェネレーションシェーダーにルートシグネチャがあれば関連付ける
-		if (a_desc.pRayGenRootSig)
+		if (_pRayGenRootSig)
 		{
 			BuildAndRegistRootSignatureAndAssSubObjectFunc(
 				_rayGenSigSO, _rayGenAssSO, LocalRootSignature::RayGen, _rayGenExportName);
 		}
 		// ヒットシェーダーにルートシグネチャがあれば関連付ける
-		if(a_desc.pHitRootSig)
+		if(_pHitRootSig)
 		{
 			BuildAndRegistRootSignatureAndAssSubObjectFunc(
 				_modelSigSO, _modelAssSO, LocalRootSignature::PBRMaterialHit, _modelExportName);
 		}
 		// ミスシェーダーにルートシグネチャがあれば関連付ける
-		if(a_desc.pMissRootSig)
+		if(_pMissRootSig)
 		{
 			BuildAndRegistRootSignatureAndAssSubObjectFunc(
 				_emptySigSO, _emptyAssSO, LocalRootSignature::Empty, _emptyExportName);
@@ -133,8 +143,8 @@ namespace Engine::Raytracing
 
 		// グローバルルートシグネチャのサブオブジェクト作成
 		BuildSubObjectHelper::GlobalRootSignatureSubObject _gRootSig;
-		m_pRootSig = a_desc.pGlobalRootSig;
-		_gRootSig.Init(a_desc.pGlobalRootSig);
+		m_globalRootSigHandle = a_desc.globalRootSig;
+		_gRootSig.Init(_pGlobalRootSig);
 		_subObjects.push_back(_gRootSig.subObject);
 
 		// パイプライン作成

@@ -19,7 +19,7 @@ namespace Engine::Graphics
 		// ランタイム用データ
 		struct RuntimeData
 		{
-			ID3D12RootSignature* pRootSig;
+			Handle<ID3D12RootSignature> rootSigHandle = {};
 			uint8_t staticIndex;
 		};
 		auto _spPassData = std::make_shared<RuntimeData>();
@@ -48,7 +48,7 @@ namespace Engine::Graphics
 		auto& _pso = _rpBuilder.CreatePSODesc("UIPso", _spPassData->staticIndex);
 		auto* _pBlob = _rpBuilder.SetVS(_pso, "Asset/Shader/Source/UI/UIVS.cso", D3D12::Input::gParticleInputLayout);
 		_rpBuilder.SetPS(_pso, "Asset/Shader/Source/UI/UIPS.cso");
-		_spPassData->pRootSig = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+		_spPassData->rootSigHandle = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
 
 		// UIは深度を使わない。DSVを張らないので、PSO側の深度フォーマットもUNKNOWNにする。
 		// (でないと #615 DEPTH_STENCIL_FORMAT_MISMATCH_PIPELINE_STATE になる)
