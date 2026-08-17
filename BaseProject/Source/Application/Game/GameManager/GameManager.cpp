@@ -73,6 +73,7 @@
 #include "Engine/ECS/Internal/CollisionEvent.h"
 #include "../../Components/Collision/ExplodeOnHitComponent.h"
 #include "../../Components/Camera/CameraFocusTargetComponent.h"
+#include "../../Components/Camera/CameraDeadZoneComponent.h"
 #include "../../Components/Character/Robot/AdditivePoseComponent.h"
 #include "../../Components/Character/AimTargetPosComponent.h"
 #include "../../Components/Character/TargetEntityComponent.h"
@@ -298,6 +299,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<Engine::ECS::CollisionEvent>("CollisionEvent");
 				a_pWorld->RegisterComponent<ExplodeOnHitComponent>("ExplodeOnHitComponent");
 				a_pWorld->RegisterComponent<CameraFocusTargetComponent>("CameraFocusTargetComponent");
+				// TPSカメラの追従範囲。枠から出たぶんだけカメラを平行移動させる
+				a_pWorld->RegisterComponent<CameraDeadZoneComponent>("CameraDeadZoneComponent");
 				a_pWorld->RegisterComponent<AdditivePoseComponent>("AdditivePoseComponent");
 				a_pWorld->RegisterComponent<AimTargetPosComponent>("AimTargetPosComponent");
 				a_pWorld->RegisterComponent<PatrolComponent>("PatrolComponent");

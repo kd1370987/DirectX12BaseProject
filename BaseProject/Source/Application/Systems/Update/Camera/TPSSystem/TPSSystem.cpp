@@ -7,6 +7,7 @@
 #include "../../../../Components/Camera/TPSCameraStateComponent.h"
 #include "../../../../Components/Camera/TPSFollowComponent.h"
 #include "../../../../Components/Camera/CameraFocusTargetComponent.h"
+#include "../../../../Components/Camera/CameraDeadZoneComponent.h"
 #include "Application/Components/Camera/CameraParamComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Force/VelocityComponent.h"
@@ -22,9 +23,25 @@
 //
 // ターゲット(自機)を追いかけるTPSカメラ。
 //
-// ピボット・注視点・引き量をそれぞれ「遅れて」追従させることで、
-// アーマードコアのように機体へ貼り付かず、加速すると置いていかれて
-// 少ししてから追いつく挙動になる。調整値は TPSFollowComponent が持つ。
+//------------------------------------------------------------------------------------------
+// 向きと位置を分けて考える
+//------------------------------------------------------------------------------------------
+// ・**向きは視点角(LookAngle)だけで決まる**。クランプ済みの Yaw/Pitch から作った
+//   オービット回転をそのままカメラの姿勢にする。
+//   注視点への LookAt では作らない。構図オフセットで横へずらした点を
+//   ワールドUpと一緒に LookAt へ渡すと、視線が真上に近づくほどヨーが暴れて
+//   「上を向くと左右にそれる」挙動になるため(2026-08-17 修正)。
+//   こうしておくとマウスの移動量と画面の回り方が常に 1 対 1 になり、
+//   自機がどう動いてもカメラが回らないので照準がブレない。
+//
+// ・**位置は自機を追いかける**。ただし毎フレーム貼り付くのではなく、
+//   自機が画面のデッドゾーン(CameraDeadZoneComponent)から出たぶんだけ
+//   カメラを平行移動させて押し戻す。枠の中に居る間カメラは動かない。
+//
+// ・**注視点(CameraFocusTargetComponent::offsetPos)は既定の構図を決める**。
+//   カメラ空間でカメラ自身をずらす量として使い、自機が画面のどこに映るかを決める。
+//   +X なら自機は画面左へ、+Y なら画面下へ寄る(カメラが右上へずれるため)。
+//   デッドゾーンはこの既定位置を中心とした許容範囲になる。
 //
 // 補間はすべてフレームレート非依存の指数減衰で行う。
 //   t = 1 - exp(-rate * dt)
@@ -34,19 +51,17 @@
 //------------------------------------------------------------------------------------------
 // 速度レスポンス(スピード感)
 //------------------------------------------------------------------------------------------
-// ターゲットの「実速度」を 0..1(speed01)へ正規化し、次の4つをまとめて動かす。
-// 速いほどカメラが機体に追いつけなくなり、画角が広がる、という一本の軸にしてある。
+// ターゲットの「実速度」を 0..1(speed01)へ正規化して、次の2つを動かす。
 //
-//   1) 引き    … speed × speedPullBack だけ後方へ(上限 maxPullBack)
-//   2) 追従    … 位置/注視点の追従レートへ followRateScale を掛けて鈍らせる
-//   3) 遅れ幅  … 許すピボットの遅れを maxLagDistance → maxLagAtSpeed へ広げる
-//   4) 注視点  … 注視点の基準をターゲットの現在位置から「遅れたピボット」側へ寄せる
-//                (lookAtLagRatio)。ここが 0 だと機体は常に画面中央から動かない。
-//                上げるほど進行方向と反対の画面端へ機体が流れ、見切れる寸前になる。
-//                **寄せるのは水平だけ**。高さを寄せると上昇ブーストで機体が
-//                画面の上へ飛ぶ(理由は該当箇所のコメント)。
-//   5) 画角    … fovAddAtSpeed まで広角へ。CameraParamComponent.fovBoost へ書き、
-//                射影行列の作り直しは CameraProjUpdateSystem が行う。
+//   1) 引き  … speed × speedPullBack だけ後方へ(上限 maxPullBack)
+//   2) 画角  … fovAddAtSpeed まで広角へ。CameraParamComponent.fovBoost へ書き、
+//              射影行列の作り直しは CameraProjUpdateSystem が行う。
+//
+// どちらもカメラを回さないので照準には影響しない。
+// 以前あった「速度で追従を鈍らせて機体を画面端へ流す」効き
+// (followRateScale / maxLagAtSpeed / lookAtLagRatio)はデッドゾーンに置き換えた。
+// TPSFollowComponent のフィールドは保存データの互換のために残してあるが、
+// デッドゾーンを持つカメラでは読まれない。
 //
 // 速さは「目標速度(VelocityComponent)」ではなく MovementComponent の実速度を使う。
 // 目標速度は入力やブーストで 1 フレームで飛ぶので、そのまま使うと画角と引きが
@@ -195,14 +210,14 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 					0.0f,
 					std::max(_followParam.maxPullBack, 0.0f));
 
-				// 速いほど追従を鈍らせる(1.0 → followRateScale)
-				const float _rateScale =
-					1.0f + (std::clamp(_followParam.followRateScale, 0.0f, 1.0f) - 1.0f) * _speed01;
-
-				// 速いほど遅れてよい距離を広げる
-				const float _maxLag =
-					_followParam.maxLagDistance +
-					(_followParam.maxLagAtSpeed - _followParam.maxLagDistance) * _speed01;
+				//============================================================
+				// カメラまでの距離(符号付き)
+				//------------------------------------------------------------
+				// offset.z は「前方向にどれだけ進めるか」なので、後方から見る設定では
+				// 負の値になっている。引きは符号を合わせて足す(=さらに遠ざける)。
+				// デッドゾーンの判定でも使うので、ピボットより先に求めておく。
+				//============================================================
+				const float _distanceSign = (_offsetComp.z < 0.0f) ? -1.0f : 1.0f;
 
 				//============================================================
 				// 初回はスナップ
@@ -222,46 +237,27 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				//============================================================
-				// ピボットの追従
+				// 引き量の追従
 				//------------------------------------------------------------
-				// 水平と垂直で追従速度を分ける。垂直を遅くしておくと、
-				// 上昇/落下でカメラがすぐに持ち上がらず柔らかい見え方になる。
-				//
-				// 速度で鈍らせる(followRateScale)のは水平だけ。垂直まで鈍らせると、
-				// 上下ブーストで機体が一気に上下したときにカメラが付いていけず、
-				// 遅れ上限まで離れて「引き戻し」が効いた瞬間にガクッと動く。
-				// 水平の遅れは「置いていかれる」気持ちよさになるが、
-				// 垂直の遅れは機体が画面から出るだけで得がない。
+				// 速度そのものではなく、遅れて伸び縮みする値にする。
+				// 加速した瞬間に引き切ってしまうと「引いている」感じが出ない。
 				//============================================================
-				Math::Vector3 _pivot = _statComp.currentPivot;
-				{
-					float _tH = DampFactor(_followParam.posRateHorizontal * _rateScale, a_ctx.dt);
-					float _tV = DampFactor(_followParam.posRateVertical, a_ctx.dt);
+				_statComp.currentPullBack +=
+					(_goalPullBack - _statComp.currentPullBack) * DampFactor(_followParam.pullBackRate, a_ctx.dt);
 
-					_pivot.x += (_goalPivot.x - _pivot.x) * _tH;
-					_pivot.z += (_goalPivot.z - _pivot.z) * _tH;
-					_pivot.y += (_goalPivot.y - _pivot.y) * _tV;
-
-					// 離れすぎたら引き戻す。
-					// テレポートや極端な加速でカメラが千切れたままになるのを防ぐ保険。
-					// 上限は速度で広がる(止まっているときは maxLagDistance)。
-					Math::Vector3 _lag = _pivot - _goalPivot;
-					float _lagLen = _lag.Length();
-					if (_maxLag > 0.0f && _lagLen > _maxLag)
-					{
-						_pivot = _goalPivot + _lag * (_maxLag / _lagLen);
-					}
-				}
-				_statComp.currentPivot = _pivot;
+				// ピボットからカメラまでの距離(符号付き)。デッドゾーンの判定でも使う
+				const float _distanceToCamera =
+					_offsetComp.z + _distanceSign * _statComp.currentPullBack;
 
 				//============================================================
 				// オービット回転の補間(クォータニオンSlerp)
 				//------------------------------------------------------------
+				// これがそのままカメラの姿勢になる。元は視点角(クランプ済み)なので、
+				// 自機の動きでは絶対に回らない = マウスの入力量と画面の回転が一致する。
+				//
 				// Vector3::Lerp+正規化での「向き」補間は、現在向きと目標向きが
 				// ほぼ反対を向いた瞬間に補間結果がゼロ近傍を通り、正規化が破綻して
 				// 高速に180度反転する。Slerpは最短経路で回るためこの破綻が無い。
-				//
-				// 注視点のオフセットをこの回転で解決するので、注視点より先に求める。
 				//============================================================
 				Math::Quaternion _curOrbit = _statComp.currentOrbit;
 				if (_curOrbit.LengthSquared() < 1e-6f) _curOrbit = _targetRot;	// 未初期化保険
@@ -271,53 +267,143 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				_orbit.Normalize();
 				_statComp.currentOrbit = _orbit;
 
+				// カメラ空間の3軸(この回転で作った基底)
+				const Math::Vector3 _camRight   = Math::Vector3::Transform(Math::Vector3::Right(), _orbit);
+				const Math::Vector3 _camUp      = Math::Vector3::Transform(Math::Vector3::Up(), _orbit);
+				const Math::Vector3 _camForward = Math::Vector3::Transform(Math::Vector3::Forward(), _orbit);
+
 				//============================================================
-				// 注視点の追従
+				// 注視点(構図)の追従
 				//------------------------------------------------------------
-				// 補間はカメラ空間のまま行う。ワールドで補間すると、遅れている間に
-				// 機体が動いた分だけ注視点が取り残されて構図が揺れる。
-				//
-				// ワールドへ戻すときの基準は、ターゲットの実際の位置と
-				// 「遅れているピボット」を speed01 × lookAtLagRatio で混ぜたもの。
-				//   ターゲット基準 … 機体は常に画面中央。構図は安定するが速さが出ない
-				//   ピボット基準   … 遅れたぶんだけ機体が進行方向側の画面端へ流れる
-				// 止まっているときは前者に一致するので、通常時の構図は変わらない。
-				// 回転はオービットなので、機体の向きには一切影響されない。
+				// カメラ空間のオフセットなので、そのまま補間してよい。
+				// これは「自機を画面のどこに置くか」を決める既定の構図で、
+				// 実際にカメラをこの分だけずらす(自機は逆側へ寄って見える)。
 				//============================================================
 				Math::Vector3 _lookAtLocal = Math::Vector3(_statComp.currentLookAt);
 				_lookAtLocal += (_goalLookAtLocal - _lookAtLocal)
-					* DampFactor(_followParam.lookAtRate * _rateScale, a_ctx.dt);
-
-				// ピボットは offset.y ぶん持ち上げてあるので、比較できるよう戻してから混ぜる
-				Math::Vector3 _laggedPos  = _pivot - Math::Vector3::Up() * _offsetComp.y;
-				const float   _lookAtLag  = std::clamp(_followParam.lookAtLagRatio, 0.0f, 1.0f) * _speed01;
-				//------------------------------------------------------------
-				// 寄せるのは水平だけ。高さは必ずターゲットの実際の位置に合わせる。
-				//
-				// 垂直まで寄せると、上昇ブーストの瞬間に機体が画面の上へ飛ぶ。
-				// 上下の実速度は加減速を通さないので目標速度が1フレームでそのまま出る
-				// 一方、ピボットの垂直追従(posRateVertical)はわざと遅くしてある。
-				// その差で一気に開いた遅れを注視点にも混ぜていたため、カメラが下を
-				// 向いて機体だけが上へ瞬間移動したように見えていた(2026-08-17 のバグ)。
-				//
-				// 水平の遅れは「置いていかれる」気持ちよさになるが、垂直の遅れは
-				// 機体が画面から出るだけで得がない。followRateScale を水平だけに
-				// 掛けているのと同じ理由。
-				//------------------------------------------------------------
-				Math::Vector3 _lookAtBase = Math::Vector3(_targetTRS->pos);
-				_lookAtBase.x += (_laggedPos.x - _lookAtBase.x) * _lookAtLag;
-				_lookAtBase.z += (_laggedPos.z - _lookAtBase.z) * _lookAtLag;
-
-				Math::Vector3 _lookAt = _lookAtBase + Math::Vector3::Transform(_lookAtLocal, _orbit);
+					* DampFactor(_followParam.lookAtRate, a_ctx.dt);
 
 				//============================================================
-				// 引き量の追従
+				// ピボットの追従(デッドゾーン)
 				//------------------------------------------------------------
-				// 速度そのものではなく、遅れて伸び縮みする値にする。
-				// 加速した瞬間に引き切ってしまうと「引いている」感じが出ない。
+				// 自機が画面の枠の中に居る間はカメラを動かさない。
+				// 出たぶんだけカメラ空間で平行移動させて枠の内側へ押し戻す。
+				// 向きは一切触らないので、追従中も照準はブレない。
+				//
+				// デッドゾーンを持たないカメラ(旧データ)は、
+				// 今までどおり指数減衰で自機へ寄せる。
 				//============================================================
-				_statComp.currentPullBack +=
-					(_goalPullBack - _statComp.currentPullBack) * DampFactor(_followParam.pullBackRate, a_ctx.dt);
+				Math::Vector3 _pivot = _statComp.currentPivot;
+
+				auto* _pDeadZone =
+					a_ctx.pWorld->HasComponent<CameraDeadZoneComponent>(a_pChunk->entityData[_i])
+					? a_ctx.pWorld->RefData<CameraDeadZoneComponent>(a_pChunk->entityData[_i])
+					: nullptr;
+
+				if (_pDeadZone)
+				{
+					// ---- 画面のどこに映っているかを求める ----
+					// カメラは pivot から見て「構図オフセット + 後方へ距離」の位置にある。
+					// 自機(=goalPivot)をカメラ空間へ落とせば、割り算だけで NDC が出る。
+					const Math::Vector3 _toTarget = _goalPivot - _pivot;
+
+					// ワールド → カメラ空間(回転の逆をかける)
+					const Math::Quaternion _orbitConj = _orbit.Conjugate();
+					Math::Vector3 _targetCam = Math::Vector3::Transform(_toTarget, _orbitConj);
+
+					// カメラ自身のずれ(構図オフセットと引き)を引いて、カメラ原点基準にする
+					_targetCam -= _lookAtLocal;
+					_targetCam.z -= _distanceToCamera;
+
+					// 画角から NDC へ。z が手前(0以下)のときは計算できないので追従だけさせる
+					const float _tanY = std::tan(DirectX::XMConvertToRadians(_camParamComp.GetFovY()) * 0.5f);
+					const float _tanX = _tanY * std::max(_camParamComp.aspectRatio, 1e-4f);
+
+					Math::Vector2 _ndc = { 0.0f, 0.0f };
+					const bool _isFront = (_targetCam.z > 1e-3f) && (_tanX > 1e-6f) && (_tanY > 1e-6f);
+					if (_isFront)
+					{
+						_ndc.x = (_targetCam.x / _targetCam.z) / _tanX;
+						_ndc.y = (_targetCam.y / _targetCam.z) / _tanY;
+					}
+
+					// ---- 枠からはみ出したぶんを、カメラ空間の移動量に直す ----
+					const Math::Vector2 _half = _pDeadZone->GetSafeHalfExtents();
+
+					Math::Vector3 _pushCam = {};
+					bool _isOutside = false;
+
+					if (_isFront)
+					{
+						// はみ出し量(NDC) → カメラ空間の距離
+						if (_ndc.x > _half.x)
+						{
+							_pushCam.x = (_ndc.x - _half.x) * _tanX * _targetCam.z;
+							_isOutside = true;
+						}
+						else if (_ndc.x < -_half.x)
+						{
+							_pushCam.x = (_ndc.x + _half.x) * _tanX * _targetCam.z;
+							_isOutside = true;
+						}
+
+						if (_ndc.y > _half.y)
+						{
+							_pushCam.y = (_ndc.y - _half.y) * _tanY * _targetCam.z;
+							_isOutside = true;
+						}
+						else if (_ndc.y < -_half.y)
+						{
+							_pushCam.y = (_ndc.y + _half.y) * _tanY * _targetCam.z;
+							_isOutside = true;
+						}
+					}
+					else
+					{
+						// 後ろに回り込まれた。枠では直せないので水平だけ一気に合わせる
+						_pushCam.x = _targetCam.x;
+						_pushCam.y = _targetCam.y;
+						_isOutside = true;
+					}
+
+					// ---- 奥行き ----
+					// 画面の枠では前後を直せないので、離れ/寄りすぎだけ別に詰める
+					const float _depthDiff = _targetCam.z - _distanceToCamera * -1.0f;
+					const float _depthTol  = std::max(_pDeadZone->depthTolerance, 0.0f);
+					float _pushDepth = 0.0f;
+					if (_depthDiff > _depthTol)       _pushDepth = _depthDiff - _depthTol;
+					else if (_depthDiff < -_depthTol) _pushDepth = _depthDiff + _depthTol;
+
+					// ---- 実際に寄せる ----
+					const float _tXY = DampFactor(_pDeadZone->followRate, a_ctx.dt);
+					const float _tZ  = DampFactor(_pDeadZone->depthFollowRate, a_ctx.dt);
+
+					_pivot += (_camRight * _pushCam.x + _camUp * _pushCam.y) * _tXY;
+					_pivot += _camForward * (_pushDepth * _tZ);
+
+					// 離れすぎたら枠を無視して一気に寄せる(テレポート対策)
+					if (_pDeadZone->snapDistance > 0.0f &&
+						(_goalPivot - _pivot).Length() > _pDeadZone->snapDistance)
+					{
+						_pivot = _goalPivot;
+					}
+
+					// 確認用に結果を残す
+					_pDeadZone->currentNdc = _ndc;
+					_pDeadZone->isOutside  = _isOutside;
+				}
+				else
+				{
+					// デッドゾーン未設定 : 従来どおり指数減衰で寄せる
+					const float _tH = DampFactor(_followParam.posRateHorizontal, a_ctx.dt);
+					const float _tV = DampFactor(_followParam.posRateVertical, a_ctx.dt);
+
+					_pivot.x += (_goalPivot.x - _pivot.x) * _tH;
+					_pivot.z += (_goalPivot.z - _pivot.z) * _tH;
+					_pivot.y += (_goalPivot.y - _pivot.y) * _tV;
+				}
+
+				_statComp.currentPivot = _pivot;
 
 				//============================================================
 				// 画角の追従
@@ -338,56 +424,32 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				//============================================================
-				// カメラ位置：ピボットの後方へ距離d(常に球面上=距離固定)
+				// カメラ位置
 				//------------------------------------------------------------
-				// offset.z は「前方向にどれだけ進めるか」なので、後方から見る設定では
-				// 負の値になっている。引きは符号を合わせて足す(=さらに遠ざける)。
+				// ピボットの後方へ距離d、そこから構図オフセットぶんカメラ空間でずらす。
+				// 注視点を「見る点」ではなく「カメラをずらす量」として使うので、
+				// どれだけ上下を向いても姿勢は視点角のまま = 横にそれない。
 				//============================================================
-				float _distanceSign = (_offsetComp.z < 0.0f) ? -1.0f : 1.0f;
-				float _distance = _offsetComp.z + _distanceSign * _statComp.currentPullBack;
-
-				Math::Vector3 _dir = Math::Vector3::Transform(Math::Vector3::Forward(), _orbit); // (0,0,1)を回転
-				Math::Vector3 _currentPos = _pivot + _dir * _distance;
-
-				//============================================================
-				// カメラ回転(このエンジンは左手系。CreateLookAtは右手系で
-				// 向きが180度反転するため XMMatrixLookAtLH を使う)
-				//------------------------------------------------------------
-				// XMMatrixLookAtLH は「視点==注視点」や「視線がUpと平行」の場合に
-				// 内部の正規化/外積が破綻して行列全体が NaN になる。
-				// NaN のクォータニオンが LocalTransform に入ると、そこから前方ベクトルを
-				// 求める側(AimTargetSystem など)まで NaN が伝播して落ちるため、
-				// 破綻する条件では回転を更新せず前フレームの値を保つ。
-				//============================================================
-				Math::Vector3 _lookVec = _lookAt - _currentPos;
-				float _lookLenSq = _lookVec.LengthSquared();
-				bool _isDegenerate = (_lookLenSq < 1e-6f);
-				if (!_isDegenerate)
-				{
-					// 視線がUpとほぼ平行（真上/真下を向いている）かどうか
-					Math::Vector3 _lookDir = _lookVec / std::sqrt(_lookLenSq);
-					_isDegenerate = (std::fabs(_lookDir.Dot(Math::Vector3::Up())) > 0.9999f);
-				}
-				// 破綻時は前フレームの回転を維持する(位置だけは更新する)
-				Math::Quaternion _camRot = Math::Quaternion(_trsComp.quat);
-				if (!_isDegenerate)
-				{
-					Math::Matrix _view = Math::Matrix::CreateLookAt(
-						_currentPos,
-						_lookAt,
-						Math::Vector3::Up()
-					);
-					_camRot = Math::Quaternion::CreateFromRotationMatrix(_view.Invert());
-					_camRot.Normalize();
-				}
+				Math::Vector3 _currentPos =
+					_pivot
+					+ _camForward * _distanceToCamera
+					+ _camRight * _lookAtLocal.x
+					+ _camUp * _lookAtLocal.y
+					+ _camForward * _lookAtLocal.z;
 
 				//============================================================
 				// 保存
+				//------------------------------------------------------------
+				// カメラの姿勢はオービット回転そのもの。
+				// LookAt を通さないので、真上/真下でも破綻しない。
 				//============================================================
 				_trsComp.pos = _currentPos;
-				_trsComp.quat = _camRot;
+				_trsComp.quat = _orbit;
 				_statComp.currentLookAt = _lookAtLocal;	// 保持するのはカメラ空間の相対座標
-				_statComp.lookAtWorld	= _lookAt;		// 解決後のワールド座標(他システム参照用)
+
+				// 解決後の注視点(他システム参照用)。カメラが実際に向いている先
+				_statComp.lookAtWorld = _pivot + Math::Vector3::Transform(_lookAtLocal, _orbit);
+
 				_trsComp.isDirty = true;
 			}
 		}

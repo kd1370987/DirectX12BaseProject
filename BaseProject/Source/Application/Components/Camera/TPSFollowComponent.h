@@ -17,6 +17,9 @@
 struct TPSFollowComponent
 {
 	// ---- 追従速度(1秒あたりの減衰レート) ----
+	// ※ posRate* が効くのは CameraDeadZoneComponent を持たないカメラだけ。
+	//    デッドゾーンを持つカメラは「枠から出たぶんだけ寄せる」方式になり、
+	//    寄せる速さは CameraDeadZoneComponent::followRate が持つ。
 	float posRateHorizontal	= 9.0f;		// ピボットの水平追従。小さいほど機体が先行して見える
 	float posRateVertical	= 4.0f;		// ピボットの垂直追従。水平より遅くすると上昇/落下が柔らかくなる
 	float lookAtRate		= 12.0f;	// 注視点の追従
@@ -44,18 +47,21 @@ struct TPSFollowComponent
 	float pullBackRate		= 3.0f;		// 引き量そのものの追従速度(伸び/戻りの滑らかさ)
 
 	// ---- 全開時(speed01 = 1)の効き ----
-	// どれも停止時の値から speed01 で線形に寄せる。速いほど「置いていかれて」
-	// 機体が画面の進行方向側へ流れ、画角が広がってスピード感が出る。
-	float followRateScale	= 0.4f;		// 追従レート(位置/注視点)に掛ける倍率。小さいほど遅れる
-	float maxLagAtSpeed		= 18.0f;	// 許すピボットの遅れ(m)。停止時は maxLagDistance
-	float lookAtLagRatio	= 0.65f;	// 注視点の基準を「遅れたピボット」へ寄せる割合(0..1)
-										// 0 なら常に機体が画面中央。上げるほど画面端へ流れて見切れる
+	//
+	// ※ followRateScale / maxLagAtSpeed / lookAtLagRatio / maxLagDistance は
+	//    **もう読まれていない**。「速度で追従を鈍らせて機体を画面端へ流す」効きは
+	//    CameraDeadZoneComponent(画面の枠を出たぶんだけ寄せる)に置き換えた。
+	//    自機の動きでカメラが回ってしまい、マウスでの照準が難しかったため。
+	//    保存済みデータとのバイナリ互換のためフィールドだけ残してある
+	//    (消すと既存の .ob* が全部ずれる)。
+	float followRateScale	= 0.4f;		// [未使用]
+	float maxLagAtSpeed		= 18.0f;	// [未使用]
+	float lookAtLagRatio	= 0.65f;	// [未使用]
 	float fovAddAtSpeed		= 22.0f;	// 足す画角(度)。CameraParamComponent.fovY への加算
 	float fovRate			= 5.0f;		// 画角の追従レート
 
 	// ---- 遅れの上限 ----
-	float maxLagDistance	= 8.0f;		// 停止時にピボットがターゲットから離れてよい最大距離(m)
-										// テレポートや極端な加速でカメラが千切れないための保険
+	float maxLagDistance	= 8.0f;		// [未使用] 引き戻しは CameraDeadZoneComponent::snapDistance が担当
 };
 
 template<>
@@ -109,13 +115,22 @@ struct Engine::ECS::ComponentTraits<TPSFollowComponent>
 
 		ImGui::Separator();
 		ImGui::TextDisabled("At Full Speed");
-		ImGui::DragFloat("FollowRateScale", &_comp.followRateScale, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("MaxLagAtSpeed", &_comp.maxLagAtSpeed, 0.1f, 0.0f, 100.0f);
-		ImGui::DragFloat("LookAtLagRatio", &_comp.lookAtLagRatio, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("FovAddAtSpeed", &_comp.fovAddAtSpeed, 0.5f, 0.0f, 90.0f);
 		ImGui::DragFloat("FovRate", &_comp.fovRate, 0.1f, 0.0f, 60.0f);
 
 		ImGui::Separator();
-		ImGui::DragFloat("MaxLagDistance", &_comp.maxLagDistance, 0.1f, 0.0f, 100.0f);
+
+		// 追従の遅れ系は CameraDeadZoneComponent へ移した。
+		// 保存データの互換のためフィールドは残っているが、触っても効かない
+		if (ImGui::CollapsingHeader("Legacy (未使用)"))
+		{
+			ImGui::TextDisabled("追従範囲は CameraDeadZoneComponent が持ちます");
+			ImGui::BeginDisabled(true);
+			ImGui::DragFloat("FollowRateScale", &_comp.followRateScale, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("MaxLagAtSpeed", &_comp.maxLagAtSpeed, 0.1f, 0.0f, 100.0f);
+			ImGui::DragFloat("LookAtLagRatio", &_comp.lookAtLagRatio, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("MaxLagDistance", &_comp.maxLagDistance, 0.1f, 0.0f, 100.0f);
+			ImGui::EndDisabled();
+		}
 	}
 };

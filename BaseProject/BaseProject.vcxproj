@@ -556,6 +556,7 @@
     <ClInclude Include="..\Library\Include\imnodes-master\imnodes.h" />
     <ClInclude Include="Source\Application\App.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraFocusTargetComponent.h" />
+    <ClInclude Include="Source\Application\Components\Camera\CameraDeadZoneComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\AimTargetPosComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\TargetEntityComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\LockOnTargetComponent.h" />

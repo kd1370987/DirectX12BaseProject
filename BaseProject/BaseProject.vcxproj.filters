@@ -3779,7 +3779,10 @@
     <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector4.h">
       <Filter>Source\Engine\Utility\Math\Vector</Filter>
     </ClInclude>
-  </ItemGroup>
+      <ClInclude Include="Source\Application\Components\Camera\CameraDeadZoneComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+</ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>
