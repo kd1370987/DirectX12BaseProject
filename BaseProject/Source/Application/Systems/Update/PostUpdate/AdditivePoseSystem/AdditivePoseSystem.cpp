@@ -122,8 +122,9 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				if (_bodyQuat.LengthSquared() < 1e-6f) _bodyQuat = Math::Quaternion::Identity();
 				_bodyQuat.Normalize();
 
-				Math::Quaternion _bodyConj = _bodyQuat;
-				_bodyConj.Conjugate();
+				// 機体の向きの逆。Conjugate() は「その場で反転」ではなく
+				// 反転したものを返すので、必ず受け取ること
+				const Math::Quaternion _bodyConj = _bodyQuat.Conjugate();
 
 				//==========================================================================
 				// Aim: 照準方向と機体の向きの差分を、モデル空間の回転として求める

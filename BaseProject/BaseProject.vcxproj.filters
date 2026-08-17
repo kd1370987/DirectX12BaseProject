@@ -1,21 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector2.cpp">
-      <Filter>Source\Engine\Utility\Math\Vector</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector4.cpp">
-      <Filter>Source\Engine\Utility\Math\Vector</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\Math\Quaternion.cpp">
-      <Filter>Source\Engine\Utility\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\Math\Matrix.cpp">
-      <Filter>Source\Engine\Utility\Math</Filter>
-    </ClCompile>
-    <ClInclude Include="Source\Engine\Utility\Math\TRS.h">
-      <Filter>Source\Engine\Utility\Math</Filter>
-    </ClInclude>
     <Filter Include="Source\Application\Object\UI\MissileLockBoxHUD">
       <UniqueIdentifier>{8a1b0c10-4f2e-4c3a-9d51-7e6b2f0a9110}</UniqueIdentifier>
     </Filter>
@@ -570,6 +555,12 @@
     </Filter>
     <Filter Include="Asset\Shader\Ray\GIShader">
       <UniqueIdentifier>{4f754aed-db16-43c6-8dd0-9b8b6e22b53e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Utility\Math\Vector">
+      <UniqueIdentifier>{5b2f4a10-9c7d-4e21-8f36-2a4d61b0c701}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Utility\Math\DirectX">
+      <UniqueIdentifier>{5b2f4a10-9c7d-4e21-8f36-2a4d61b0c702}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Utility\Math">
       <UniqueIdentifier>{7ce9559e-fdc6-4075-bc84-db1f4870b840}</UniqueIdentifier>
@@ -2364,6 +2355,21 @@
     <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.cpp">
       <Filter>Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector2.cpp">
+      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector4.cpp">
+      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Math\Quaternion.cpp">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Math\Matrix.cpp">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector3.cpp">
+      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    </ClCompile>
 </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Pch.h">
@@ -3742,6 +3748,27 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.h">
       <Filter>Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\TRS.h">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\Color.h">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\DirectX\Math_DirectX.h">
+      <Filter>Source\Engine\Utility\Math\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\DirectX\Math_DirectXSimpleMath.h">
+      <Filter>Source\Engine\Utility\Math\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector2.h">
+      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector3.h">
+      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector4.h">
+      <Filter>Source\Engine\Utility\Math\Vector</Filter>
     </ClInclude>
 </ItemGroup>
   <ItemGroup>

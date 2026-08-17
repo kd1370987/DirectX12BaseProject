@@ -87,8 +87,9 @@ namespace Math
 		//-----------------------------------------------------------------------------------------------------
 		// 行列演算
 		//-----------------------------------------------------------------------------------------------------
-		Matrix Invert()    const noexcept;
-		Matrix Transpose() const noexcept;
+		// ※ どちらも自分は書き換えず、結果を返す。捨てたらコンパイルエラーにする
+		[[nodiscard]] Matrix Invert()    const noexcept;
+		[[nodiscard]] Matrix Transpose() const noexcept;
 
 		/// <summary>スケール / 回転 / 平行移動へ分解する</summary>
 		/// <returns>分解できたら true(スケールが 0 の軸があると false)</returns>

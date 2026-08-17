@@ -60,7 +60,7 @@ namespace Math
 		// Normalize
 		// 長さ 0 のときは 0 のまま(0除算で NaN を撒かない)
 		void Normalize() noexcept;
-		Vector2 Normalized() const noexcept;
+		[[nodiscard]] Vector2 Normalized() const noexcept;
 
 		//-----------------------------------------------------------------------------------------------------
 		// Vector math

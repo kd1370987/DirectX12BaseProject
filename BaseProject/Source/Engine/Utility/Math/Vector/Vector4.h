@@ -64,7 +64,7 @@ namespace Math
 		//-----------------------------------------------------------------------------------------------------
 		// Normalize
 		void Normalize() noexcept;
-		Vector4 Normalized() const noexcept;
+		[[nodiscard]] Vector4 Normalized() const noexcept;
 
 		//-----------------------------------------------------------------------------------------------------
 		// Vector math

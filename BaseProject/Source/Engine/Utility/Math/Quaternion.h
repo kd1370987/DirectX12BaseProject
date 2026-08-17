@@ -61,12 +61,15 @@ namespace Math
 		// 補間や行列化の前に必ず通す。長さ 0 のときは単位クォータニオンへ戻す
 		// (0 のまま行列にすると全成分 0 の行列ができて描画が消えるため)
 		void Normalize() noexcept;
-		Quaternion Normalized() const noexcept;
+		[[nodiscard]] Quaternion Normalized() const noexcept;
 
 		//-----------------------------------------------------------------------------------------------------
 		// 逆回転
-		constexpr Quaternion Conjugate() const noexcept { return { -x, -y, -z, w }; }
-		Quaternion Inverse() const noexcept;
+		// ※ どちらも「その場で反転」ではなく、反転したものを返す。
+		//    SimpleMath の Conjugate() は破壊的だったので、戻り値を捨てると
+		//    黙って無回転のまま進む。捨てたらコンパイルエラーになるようにしてある
+		[[nodiscard]] constexpr Quaternion Conjugate() const noexcept { return { -x, -y, -z, w }; }
+		[[nodiscard]] Quaternion Inverse() const noexcept;
 
 		constexpr float Dot(const Quaternion& a_other) const noexcept
 		{
@@ -96,7 +99,7 @@ namespace Math
 		/// <summary>オイラー角(ラジアン / x=Pitch, y=Yaw, z=Roll)へ戻す</summary>
 		/// <remarks>エディターで角度として見せる用。表示のたびに往復させると誤差が乗るので、
 		/// 触られたときだけ組み直すこと。</remarks>
-		Vector3 ToEuler() const noexcept;
+		[[nodiscard]] Vector3 ToEuler() const noexcept;
 
 		//-----------------------------------------------------------------------------------------------------
 		// 補間
