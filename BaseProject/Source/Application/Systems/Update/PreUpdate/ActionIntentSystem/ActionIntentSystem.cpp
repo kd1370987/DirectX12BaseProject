@@ -25,9 +25,9 @@ void ActionIntentSystem::Init(Engine::ECS::World& a_world)
 			)
 		{
 			// パラメータ名ハッシュはstaticで保持
-			static const UINT s_speedHash = StringUtility::ToHash("Speed");
-			static const UINT s_shoot = StringUtility::ToHash("Shoot");
-			static const UINT s_aim = StringUtility::ToHash("Aim");
+			static const UINT s_speedHash = Engine::String::ToHash("Speed");
+			static const UINT s_shoot = Engine::String::ToHash("Shoot");
+			static const UINT s_aim = Engine::String::ToHash("Aim");
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

@@ -157,7 +157,7 @@ namespace Engine::Raytracing
 		ComPtr<ID3D12StateObjectProperties> _props;
 		m_cpPSO.As(&_props);
 
-		std::wstring _entry = StringUtility::ToWideString(a_shaderEntry);
+		std::wstring _entry = Engine::String::ToWideString(a_shaderEntry);
 
 		return _props->GetShaderIdentifier(_entry.c_str());
 	}

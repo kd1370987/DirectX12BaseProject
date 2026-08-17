@@ -719,11 +719,10 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h" />
-    <ClInclude Include="Source\Core\Algorithm\Graph\GroupTopologicalSort.h" />
-    <ClInclude Include="Source\Core\Algorithm\Graph\TopologicalSort.h" />
-    <ClInclude Include="Source\Core\Core.h" />
-    <ClInclude Include="Source\Core\Utility\FileUtility.h" />
-    <ClInclude Include="Source\Core\Utility\StringUtility.h" />
+    <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\GroupTopologicalSort.h" />
+    <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\TopologicalSort.h" />
+    <ClInclude Include="Source\Engine\Utility\File\FileUtility.h" />
+    <ClInclude Include="Source\Engine\Utility\String\StringUtility.h" />
     <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h" />
     <ClInclude Include="Source\Engine\Animation\Common\AnimatedMeshVertex.h" />
     <ClInclude Include="Source\Engine\Audio\AudioManager.h" />

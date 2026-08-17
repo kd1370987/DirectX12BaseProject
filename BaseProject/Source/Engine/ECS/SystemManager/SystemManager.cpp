@@ -1,4 +1,4 @@
-#include "SystemManager.h"
+﻿#include "SystemManager.h"
 
 namespace Engine::ECS
 {
@@ -43,7 +43,7 @@ namespace Engine::ECS
 
 			auto& _sortedVec = m_compileTaskMap[_systemPhase];
 
-			const bool _isSuccess = Algorithm::Graph::TopologicalSort(
+			const bool _isSuccess = Engine::Algorithm::Graph::TopologicalSort(
 				_taskVec,
 				_sortedVec,
 				[](const SystemTask* a, const SystemTask* b)

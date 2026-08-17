@@ -20,7 +20,7 @@ namespace Engine::Resource
 			auto* _matrial = Resource::ResourceManager::Instance().Ref(_mateHandle);
 
 			// 保存データ作成
-			auto _fileName = FileUtility::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
+			auto _fileName = Engine::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
 			std::string basePath ="Asset/Material/" + _fileName;
 
 			// 保存
@@ -41,7 +41,7 @@ namespace Engine::Resource
 			auto* _mesh = Resource::ResourceManager::Instance().Ref(_meshHandle);
 
 			// 保存データ作成
-			auto _fileName = FileUtility::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
+			auto _fileName = Engine::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
 			std::string basePath ="Asset/Mesh/" + _fileName;
 
 			// 保存
@@ -60,7 +60,7 @@ namespace Engine::Resource
 			auto* _anim = Resource::ResourceManager::Instance().Ref(_animHandle);
 
 			// 保存データ作成
-			auto _fileName = FileUtility::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
+			auto _fileName = Engine::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
 			std::string basePath = "Asset/Animation/" + _fileName;
 
 			// 保存
@@ -70,8 +70,8 @@ namespace Engine::Resource
 		}
 
 		// モデルデータの保存
-		auto _dir = FileUtility::GetDirFromPath(a_fileDir);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_fileDir);
+		auto _dir = Engine::File::GetDirFromPath(a_fileDir);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_fileDir);
 		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dir, _fileName, "mdl");
 		_ar.StringField("ModelName", m_AssetData.name);
 

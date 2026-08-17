@@ -82,8 +82,8 @@ namespace Engine::Scene
 		_upScene->Enter();
 
 		// シーンの再構築
-		auto _fileDir = FileUtility::GetDirFromPath(_sceneFilePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(_sceneFilePath);
+		auto _fileDir = Engine::File::GetDirFromPath(_sceneFilePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(_sceneFilePath);
 		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "scene",Persistence::Archive::ArchiveFormat::Json);
 		_upScene->Archive(_ar);
 		_upScene->SetGUID(a_guid);

@@ -4,6 +4,12 @@
 // 共通仕様
 // 
 //==========================================================================================
+// ---- 依存の無い小物(旧 Core) ----
+#include "Utility/String/StringUtility.h"				// 文字列
+#include "Utility/File/FileUtility.h"					// ファイルパス
+#include "Utility/Algorithm/Graph/TopologicalSort.h"		// トポロジカルソート
+#include "Utility/Algorithm/Graph/GroupTopologicalSort.h"	// グループ分けトポロジカルソート
+
 // ---- 共通変数・固定値 ----
 #include "Engine/Common/Color.h"						// 色
 #include "Engine/Common/Handle.h"						// ハンドル

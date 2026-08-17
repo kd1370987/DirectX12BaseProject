@@ -9,7 +9,7 @@ namespace Engine::Resource
 		auto* _pAudioEngine = Audio::AudioManager::Instance().RefAudioEngine();
 		if (!_pAudioEngine) return Sound();
 
-		auto _wFilePath = StringUtility::ToWideString(a_filePath);
+		auto _wFilePath = Engine::String::ToWideString(a_filePath);
 		Sound _sound(std::move(DirectX::SoundEffect(_pAudioEngine, _wFilePath.c_str())));
 
 		return _sound;

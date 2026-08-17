@@ -213,7 +213,7 @@ namespace Engine::Resource
 		// 拡張子によって読み込み方法を変える
 		//----------------------------------------
 		HRESULT _hr = E_FAIL;
-		std::wstring _ext = FileUtility::GetFilePathExtension(a_path);
+		std::wstring _ext = Engine::File::GetFilePathExtension(a_path);
 		if (_ext == L"png" || _ext == L"jpg" || _ext == L"jpeg")
 		{
 			_hr = DirectX::LoadFromWICFile(
@@ -256,7 +256,7 @@ namespace Engine::Resource
 		// データ準備
 		//----------------------------------------
 		ComPtr<ID3D12Resource> _cpRes = nullptr;
-		std::wstring _path = StringUtility::ToWideString(a_filePath);
+		std::wstring _path = Engine::String::ToWideString(a_filePath);
 		DirectX::TexMetadata _meta = {};
 		DirectX::ScratchImage _sImg = {};
 		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();

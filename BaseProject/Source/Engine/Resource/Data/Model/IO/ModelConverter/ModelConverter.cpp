@@ -270,7 +270,7 @@ namespace Engine::Resource::Converter
 	{
 		// 出力データ
 		ModelData _modelData = {};
-		auto _fileDir = FileUtility::GetDirFromPath(a_filePath);
+		auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
 
 		ConvertNodes(a_ctx,_modelData,a_rawModel);
 		ConvertMaterial(a_ctx,_modelData,a_rawModel,_fileDir);
@@ -320,8 +320,8 @@ namespace Engine::Resource::Converter
 		auto _guid = ResourceManager::Instance().GetCache(a_modelHandle.GetRaw());
 		auto _filePath = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
 
-		auto _dir = FileUtility::GetDirFromPath(_filePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(_filePath);
+		auto _dir = Engine::File::GetDirFromPath(_filePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(_filePath);
 		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dir, _fileName, "mdl");
 		_ar.StringField("ModelName", _saveAssetData.name);
 
@@ -357,7 +357,7 @@ namespace Engine::Resource::Converter
 			if (!_pMaterial) continue;
 
 			// コンバートパスの作成
-			auto _dirName = FileUtility::GetFileNameWithoutExtension(a_asset.name);
+			auto _dirName = Engine::File::GetFileNameWithoutExtension(a_asset.name);
 			auto _fileName = _dirName + "_" + std::to_string(_i);
 			auto _convertDir = a_basePath + _dirName;
 			auto _fullPath = _convertDir + "/" + _fileName;
@@ -388,7 +388,7 @@ namespace Engine::Resource::Converter
 			if (!_pMesh) continue;
 
 			// コンバートパスの作成
-			auto _dirName = FileUtility::GetFileNameWithoutExtension(a_asset.name);
+			auto _dirName = Engine::File::GetFileNameWithoutExtension(a_asset.name);
 			auto _fileName = _dirName + "_" + std::to_string(_i);
 			auto _convertDir = a_basePath + _dirName;
 			auto _fullPath = _convertDir + "/" + _fileName;
@@ -410,7 +410,7 @@ namespace Engine::Resource::Converter
 			if (!_pAnim) continue;
 
 			// コンバートパスの作成
-			auto _dirName = FileUtility::GetFileNameWithoutExtension(a_asset.name);
+			auto _dirName = Engine::File::GetFileNameWithoutExtension(a_asset.name);
 			auto _fileName = _dirName + "_" + std::to_string(_i);
 			auto _convertDir = a_basePath + _dirName;
 			auto _fullPath = _convertDir + "/" + _fileName;

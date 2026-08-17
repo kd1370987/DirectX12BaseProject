@@ -130,7 +130,7 @@ namespace Engine::Graphics
 			if (_pShadingModel)
 			{
 				// ZPreかつ不透明(Opaque)なら、PSのセットをスキップ
-				bool _isZPrePass = (m_passNameHash == StringUtility::ToHash("ZPre"));
+				bool _isZPrePass = (m_passNameHash == Engine::String::ToHash("ZPre"));
 				bool _isOpaque = !(a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::AlphaMasked);
 
 				if (!(_isZPrePass && _isOpaque))

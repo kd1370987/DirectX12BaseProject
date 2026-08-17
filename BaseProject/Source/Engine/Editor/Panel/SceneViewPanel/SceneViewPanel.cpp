@@ -1034,8 +1034,8 @@ namespace Engine::Editor
 			return;
 		}
 
-		auto _fileDir = FileUtility::GetDirFromPath(_path);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(_path);
+		auto _fileDir = Engine::File::GetDirFromPath(_path);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(_path);
 
 		// どのシーンを保存するかをログ出力する
 		ENGINE_LOG("[Scene] セーブ : %s", _path.c_str());

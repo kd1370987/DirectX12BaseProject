@@ -49,7 +49,7 @@ namespace Engine::D3D12
 		// 名前があれば
 		if (!a_desc.name.empty())
 		{
-			_rootSig->SetName(StringUtility::ToWideString(a_desc.name).c_str());
+			_rootSig->SetName(Engine::String::ToWideString(a_desc.name).c_str());
 		}
 
 		// マップに保存して返す
@@ -64,7 +64,7 @@ namespace Engine::D3D12
 
 		// シェーダーバイトコードの読み込み
 		auto _hr = D3DReadFileToBlob(
-			StringUtility::ToWideString(a_shaderPath).c_str(),
+			Engine::String::ToWideString(a_shaderPath).c_str(),
 			_cpBlob.ReleaseAndGetAddressOf()
 		);
 		if (FAILED(_hr))
@@ -103,7 +103,7 @@ namespace Engine::D3D12
 			}
 
 			// 名前を付ける
-			_rootSig->SetName(StringUtility::ToWideString(a_shaderPath).c_str());
+			_rootSig->SetName(Engine::String::ToWideString(a_shaderPath).c_str());
 
 			// マップに保存して返す
 			m_rootSigMap[_hash] = _rootSig;
@@ -170,7 +170,7 @@ namespace Engine::D3D12
 		// 名前があれば
 		if (!a_desc.name.empty())
 		{
-			_pso->SetName(StringUtility::ToWideString(a_desc.name).c_str());
+			_pso->SetName(Engine::String::ToWideString(a_desc.name).c_str());
 		}
 
 		// マップに保存して生ポインタを返す
@@ -201,7 +201,7 @@ namespace Engine::D3D12
 		// 名前があれば
 		if (!a_desc.name.empty())
 		{
-			_pso->SetName(StringUtility::ToWideString(a_desc.name).c_str());
+			_pso->SetName(Engine::String::ToWideString(a_desc.name).c_str());
 		}
 
 		// マップに保存して生ポインタを返す

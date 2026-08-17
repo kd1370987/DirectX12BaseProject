@@ -1,4 +1,4 @@
-#include "SightStateBridgeSystem.h"
+﻿#include "SightStateBridgeSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -50,9 +50,9 @@ void SightStateBridgeSystem::Init(Engine::ECS::World& a_world)
 		)
 		{
 			// パラメータ名のハッシュは static でキャッシュ
-			static const UINT s_seeHash    = StringUtility::ToHash("SeePlayer");
-			static const UINT s_attackHash = StringUtility::ToHash("InAttackRange");
-			static const UINT s_distHash   = StringUtility::ToHash("TargetDistance");
+			static const UINT s_seeHash    = Engine::String::ToHash("SeePlayer");
+			static const UINT s_attackHash = Engine::String::ToHash("InAttackRange");
+			static const UINT s_distHash   = Engine::String::ToHash("TargetDistance");
 
 			auto& _pool =
 				a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();

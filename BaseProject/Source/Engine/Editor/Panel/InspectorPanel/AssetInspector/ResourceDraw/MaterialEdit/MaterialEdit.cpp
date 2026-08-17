@@ -16,8 +16,8 @@ namespace Engine::Editor::Inspector
 		if (ImGui::Button("Save"))
 		{
 			auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
-			auto _fileDir = FileUtility::GetDirFromPath(_filePath);
-			auto _fileName = FileUtility::GetFileNameWithoutExtension(_filePath);
+			auto _fileDir = Engine::File::GetDirFromPath(_filePath);
+			auto _fileName = Engine::File::GetFileNameWithoutExtension(_filePath);
 			Persistence::Archive _ar(Persistence::Archive::Mode::Save, _fileDir, _fileName, "mtrl");
 			a_pMaterial->Archive(_ar);
 		}

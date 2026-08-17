@@ -1,4 +1,4 @@
-#include "LostTargetBridgeSystem.h"
+﻿#include "LostTargetBridgeSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -43,7 +43,7 @@ void LostTargetBridgeSystem::Init(Engine::ECS::World& a_world)
 		)
 		{
 			// パラメータ名のハッシュは static でキャッシュ
-			static const UINT s_lostHash = StringUtility::ToHash("LostSearch");
+			static const UINT s_lostHash = Engine::String::ToHash("LostSearch");
 
 			auto& _pool =
 				a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();

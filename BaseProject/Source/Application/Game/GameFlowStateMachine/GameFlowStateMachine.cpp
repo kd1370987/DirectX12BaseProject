@@ -1,4 +1,4 @@
-#include "GameFlowStateMachine.h"
+﻿#include "GameFlowStateMachine.h"
 
 #include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
@@ -12,8 +12,8 @@ namespace App::Game
 		// ImNodes上の現在座標をノードへ書き戻してから保存
 		m_editor.SyncPositions(m_graph);
 
-		auto _dir = FileUtility::GetDirFromPath(a_savePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_savePath);
+		auto _dir = Engine::File::GetDirFromPath(a_savePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_savePath);
 		Engine::Persistence::Archive _arch(Engine::Persistence::Archive::Mode::Save, _dir, _fileName, "stet");
 
 		// GameFlow固有ヘッダ
@@ -28,8 +28,8 @@ namespace App::Game
 		if (a_filePath.empty()) return;
 		m_filePath = a_filePath;
 
-		auto _dir = FileUtility::GetDirFromPath(a_filePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
+		auto _dir = Engine::File::GetDirFromPath(a_filePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 
 		Release();
 
@@ -108,28 +108,28 @@ namespace App::Game
 	//======================================================================================
 	void GameFlowStateMachine::SetTrigger(const std::string& a_triggerName)
 	{
-		UINT _hash = StringUtility::ToHash(a_triggerName);
+		UINT _hash = Engine::String::ToHash(a_triggerName);
 		m_graph.EnsureParameter(_hash, a_triggerName, Engine::StateGraph::EParamType::Trigger);
 		m_params.SetBool(_hash, true);
 	}
 
 	void GameFlowStateMachine::SetBool(const std::string& a_name, bool a_value)
 	{
-		UINT _hash = StringUtility::ToHash(a_name);
+		UINT _hash = Engine::String::ToHash(a_name);
 		m_graph.EnsureParameter(_hash, a_name, Engine::StateGraph::EParamType::Bool);
 		m_params.SetBool(_hash, a_value);
 	}
 
 	void GameFlowStateMachine::SetInt(const std::string& a_name, int a_value)
 	{
-		UINT _hash = StringUtility::ToHash(a_name);
+		UINT _hash = Engine::String::ToHash(a_name);
 		m_graph.EnsureParameter(_hash, a_name, Engine::StateGraph::EParamType::Int);
 		m_params.SetInt(_hash, a_value);
 	}
 
 	void GameFlowStateMachine::SetFloat(const std::string& a_name, float a_value)
 	{
-		UINT _hash = StringUtility::ToHash(a_name);
+		UINT _hash = Engine::String::ToHash(a_name);
 		m_graph.EnsureParameter(_hash, a_name, Engine::StateGraph::EParamType::Float);
 		m_params.SetFloat(_hash, a_value);
 	}

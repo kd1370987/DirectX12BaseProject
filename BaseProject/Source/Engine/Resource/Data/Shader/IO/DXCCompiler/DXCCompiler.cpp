@@ -11,7 +11,7 @@ namespace Engine::Resource::Compiler
 		if (a_path.empty()) return nullptr;
 
 		// 変数準備
-		std::wstring _filePath = StringUtility::ToWideString(a_path);
+		std::wstring _filePath = Engine::String::ToWideString(a_path);
 		ComPtr<IDxcBlob> _cpResultBlob;
 
 		// DXILライブラリを作成 : シェーダーのテキストファイルから Blob 作成

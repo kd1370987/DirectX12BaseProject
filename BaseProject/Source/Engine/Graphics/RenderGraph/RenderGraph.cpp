@@ -242,7 +242,7 @@ namespace Engine::Graphics
 			else
 			{
 				// ソート配列の作成
-				Algorithm::Graph::TopologicalSort(
+				Engine::Algorithm::Graph::TopologicalSort(
 					_pPassVec,
 					_sortedNodes,
 					[&](auto* a, auto* b)
@@ -397,7 +397,7 @@ namespace Engine::Graphics
 
 			// パスのインデックスを指定
 			_cp.pNode->passIndex = static_cast<uint8_t>(m_compiledPasses.size());
-			_cp.pNode->nameHash = StringUtility::ToHash(_cp.pNode->name);
+			_cp.pNode->nameHash = Engine::String::ToHash(_cp.pNode->name);
 
 			// パイプラインステート作成用クラス初期化
 			_cp.pNode->pipelineBuilder.Init(_rtvFormats, _dsvFormat, _cp.pNode->nameHash);

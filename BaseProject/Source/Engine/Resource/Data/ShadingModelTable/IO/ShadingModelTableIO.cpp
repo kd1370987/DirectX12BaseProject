@@ -6,8 +6,8 @@ namespace Engine::Resource
 {
 	ShadingModelTable ShadingModelTableIO::LoadFromFile(const std::string& a_path)
 	{
-		auto _fileDir = FileUtility::GetDirFromPath(a_path);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_path);
+		auto _fileDir = Engine::File::GetDirFromPath(a_path);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_path);
 		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "smtble");
 		ShadingModelTable _smTable = {};
 		_smTable.Archive(_ar);
@@ -34,8 +34,8 @@ namespace Engine::Resource
 
 		// リソースマネージャーに登録
 		ShadingModelTable _sma(a_name);
-		auto _saveFileDir = FileUtility::GetDirFromPath(_basePath);
-		auto _saveFileName = FileUtility::GetFileNameWithoutExtension(_basePath);
+		auto _saveFileDir = Engine::File::GetDirFromPath(_basePath);
+		auto _saveFileName = Engine::File::GetFileNameWithoutExtension(_basePath);
 		Persistence::Archive _ar(Persistence::Archive::Mode::Save,_saveFileDir,_saveFileName,"smtble");
 		_sma.Archive(_ar);
 

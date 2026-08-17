@@ -1,5 +1,5 @@
-#pragma once
-namespace Algorithm
+﻿#pragma once
+namespace Engine::Algorithm
 {
 	namespace Graph
 	{

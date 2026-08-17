@@ -4,7 +4,7 @@ namespace Engine::Graphics
 {
 	RenderPassRegistry::NodeState RenderPassRegistry::RegisterPass(const RenderPassNode& a_node)
 	{
-		UINT _hash = StringUtility::ToHash(a_node.name);
+		UINT _hash = Engine::String::ToHash(a_node.name);
 
 		// 名前の重複チェック
 		if (m_hashNodeMap.contains(_hash))
@@ -51,7 +51,7 @@ namespace Engine::Graphics
 
 	RenderPassNode* RenderPassRegistry::RefNode(const std::string& a_name)
 	{
-		UINT hash = StringUtility::ToHash(a_name);
+		UINT hash = Engine::String::ToHash(a_name);
 		return RefNode(hash);
 	}
 

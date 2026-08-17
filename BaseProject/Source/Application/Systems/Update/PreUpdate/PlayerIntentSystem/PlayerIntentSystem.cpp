@@ -1,4 +1,4 @@
-#include "PlayerIntentSystem.h"
+﻿#include "PlayerIntentSystem.h"
 #include "Engine/ECS/World/World.h"
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Intent/ActionIntentComponent.h"
@@ -34,11 +34,11 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 			)
 		{
 			// 毎フレーム計算するのは無駄なので、パラメータ名のハッシュ値はstaticで保持しておく
-			static const UINT s_speedHash = StringUtility::ToHash("Speed");
-			static const UINT s_jumpHash = StringUtility::ToHash("Jump");
-			static const UINT s_isGroundHash = StringUtility::ToHash("IsGround");
-			static const UINT s_isShootHash = StringUtility::ToHash("IsShoot");
-			static const UINT s_isAimingHash = StringUtility::ToHash("IsAiming");
+			static const UINT s_speedHash = Engine::String::ToHash("Speed");
+			static const UINT s_jumpHash = Engine::String::ToHash("Jump");
+			static const UINT s_isGroundHash = Engine::String::ToHash("IsGround");
+			static const UINT s_isShootHash = Engine::String::ToHash("IsShoot");
+			static const UINT s_isAimingHash = Engine::String::ToHash("IsAiming");
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

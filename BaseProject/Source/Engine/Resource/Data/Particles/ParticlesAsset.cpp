@@ -19,8 +19,8 @@ namespace Engine::Resource
 	void ParticlesAsset::Save(const std::string & a_filePath)
 	{
 		// アーカイブ作成
-		auto _fileDir = FileUtility::GetDirFromPath(a_filePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
+		auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 		Persistence::Archive _archi(Persistence::Archive::Mode::Save,_fileDir,_fileName,"ptic");
 
 		// 保存
@@ -78,8 +78,8 @@ namespace Engine::Resource
 	void ParticlesAsset::Load(const std::string& a_filePath)
 	{
 		// アーカイブ作成
-		auto _fileDir = FileUtility::GetDirFromPath(a_filePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
+		auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 		Persistence::Archive _archi(Persistence::Archive::Mode::Load, _fileDir, _fileName, "ptic");
 
 		// 読み込み

@@ -1,4 +1,4 @@
-#include "ShadingModelTableEdit.h"
+﻿#include "ShadingModelTableEdit.h"
 
 #include "../../../../../../MainEngine.h"
 #include "../../../../../../Graphics/GraphicEngine.h"
@@ -23,8 +23,8 @@ namespace Engine::Editor::Inspector
 		if (ImGui::Button("Save Asset"))
 		{
 			auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
-			auto _fileDir = FileUtility::GetDirFromPath(_filePath);
-			auto _fileName = FileUtility::GetFileNameWithoutExtension(_filePath);
+			auto _fileDir = Engine::File::GetDirFromPath(_filePath);
+			auto _fileName = Engine::File::GetFileNameWithoutExtension(_filePath);
 			Persistence::Archive _ar(Persistence::Archive::Mode::Save, _fileDir, _fileName, "smtble");
 			a_pTable->Archive(_ar);
 		}

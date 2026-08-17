@@ -178,7 +178,7 @@ namespace Engine::Editor
 				{
 					if (std::strlen(_paramName) > 0)
 					{
-						UINT _hash = StringUtility::ToHash(_paramName);
+						UINT _hash = Engine::String::ToHash(_paramName);
 						if (_params.find(_hash) == _params.end())
 						{
 							StateGraph::StateParameter _newParam;

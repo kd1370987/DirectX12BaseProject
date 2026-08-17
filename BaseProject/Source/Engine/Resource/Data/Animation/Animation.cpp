@@ -84,8 +84,8 @@ void Engine::Resource::AnimationData::Load(const std::string& a_fileDir, const s
 
 void Engine::Resource::AnimationData::Load(const std::string& a_filePath)
 {
-	auto _fileDir = FileUtility::GetDirFromPath(a_filePath);
-	auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
+	auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
+	auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 	Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "anim");
 	Archive(_ar);
 }

@@ -1,4 +1,4 @@
-#include "tinyGLTF.h"
+﻿#include "tinyGLTF.h"
 
 // TinyGLTF
 #define TINYGLTF_IMPLEMENTATION
@@ -103,7 +103,7 @@ tinygltf::Model tinyLoadFromFile(std::string_view a_filePath)
 		std::string _err;
 		std::string _warn;
 		std::string _input_filename(a_filePath);
-		std::string _ext = FileUtility::GetFilePathExtension(_input_filename);
+		std::string _ext = Engine::File::GetFilePathExtension(_input_filename);
 
 		// GLTF読込
 		bool _ret = false;

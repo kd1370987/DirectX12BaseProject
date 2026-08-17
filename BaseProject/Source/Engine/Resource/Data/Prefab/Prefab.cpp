@@ -93,8 +93,8 @@ namespace Engine::Resource
 	//======================================================================================
 	void Prefab::Save(ECS::World* a_pWorld, const std::string& a_savePath)
 	{
-		auto _dir = FileUtility::GetDirFromPath(a_savePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_savePath);
+		auto _dir = Engine::File::GetDirFromPath(a_savePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_savePath);
 
 		// 保存先ディレクトリが無ければ作成しておく
 		if (!_dir.empty())
@@ -113,8 +113,8 @@ namespace Engine::Resource
 		m_sigunature = {};
 		m_dataMap.clear();
 
-		auto _dir = FileUtility::GetDirFromPath(a_filePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
+		auto _dir = Engine::File::GetDirFromPath(a_filePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 
 		Persistence::Archive _arch(
 			Persistence::Archive::Mode::Load, _dir, _fileName, "prfb",

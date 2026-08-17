@@ -87,7 +87,7 @@ namespace Engine
 		Window::WindowDesc _desc = {};
 		_desc.width = static_cast<UINT>(_winOp.windowWidth);
 		_desc.height = static_cast<UINT>(_winOp.windowHeight);
-		_desc.titleName = StringUtility::ToWideString(_winOp.windowTitle);
+		_desc.titleName = Engine::String::ToWideString(_winOp.windowTitle);
 		_desc.className = L"AppWindow";
 		_desc.windowMode = _winOp.windowMode;
 		if (!m_upWindow->Create(_desc))

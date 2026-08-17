@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 //==========================================================================================
 //
 // StateGraph<TNode>
@@ -55,7 +55,7 @@ namespace Engine::StateGraph
 		{
 			TNode _node;
 			_node.name = a_name;
-			_node.hash = StringUtility::ToHash(a_name);
+			_node.hash = Engine::String::ToHash(a_name);
 			_node.nodeID = GenerateID();
 			_node.inPinID = GenerateID();
 			_node.outPinID = GenerateID();
@@ -106,7 +106,7 @@ namespace Engine::StateGraph
 		}
 		StateParameter& EnsureParameter(const std::string& a_name, EParamType a_type)
 		{
-			return EnsureParameter(StringUtility::ToHash(a_name), a_name, a_type);
+			return EnsureParameter(Engine::String::ToHash(a_name), a_name, a_type);
 		}
 
 		// パラメータを削除する。
@@ -129,7 +129,7 @@ namespace Engine::StateGraph
 
 		UINT GetStateHash(const std::string& a_name) const
 		{
-			UINT _hash = StringUtility::ToHash(a_name);
+			UINT _hash = Engine::String::ToHash(a_name);
 			auto _it = m_nodeMap.find(_hash);
 			return (_it != m_nodeMap.end()) ? _it->first : UINT_MAX;
 		}
@@ -267,7 +267,7 @@ namespace Engine::StateGraph
 						TNode _node;
 						_node.Archive(a_arch);
 
-						UINT _key = StringUtility::ToHash(_node.name);
+						UINT _key = Engine::String::ToHash(_node.name);
 						_node.hash = _key;
 
 						// ID未設定なら採番。既存IDは最大値追跡に使う。

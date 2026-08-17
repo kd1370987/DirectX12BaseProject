@@ -46,8 +46,8 @@ namespace Engine::Resource
 	}
 	Model ModelIO::Load(const ResourceBuildContext& a_ctx, const std::string& a_filePath)
 	{
-		auto _dir = FileUtility::GetDirFromPath(a_filePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
+		auto _dir = Engine::File::GetDirFromPath(a_filePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _dir, _fileName, "mdl");
 
 		ModelAssetData _assetData = {};
@@ -97,7 +97,7 @@ namespace Engine::Resource
 		// 各ノードに名前のハッシュ値をつける
 		for (auto& _node : _assetData.originalNodes)
 		{
-			_node.nodeNameHash = StringUtility::ToHash(_node.name);
+			_node.nodeNameHash = Engine::String::ToHash(_node.name);
 		}
 
 		// 描画用コマンドの構築
@@ -130,7 +130,7 @@ namespace Engine::Resource
 		auto& _resMgr = a_ctx.pResourceManager ? *a_ctx.pResourceManager : ResourceManager::Instance();
 
 		ModelAssetData _assetData = {};
-		_assetData.name = FileUtility::GetFileName(a_filePath);
+		_assetData.name = Engine::File::GetFileName(a_filePath);
 		_assetData.originalNodes = std::move(_model.originalNodes);
 		_assetData.rootNodeIndices = _model.rootNodeIndices;
 		_assetData.boneNodeIndices = _model.boneNodeIndices;
@@ -158,7 +158,7 @@ namespace Engine::Resource
 		// 各ノードに名前のハッシュ値をつける
 		for (auto& _node : _assetData.originalNodes)
 		{
-			_node.nodeNameHash = StringUtility::ToHash(_node.name);
+			_node.nodeNameHash = Engine::String::ToHash(_node.name);
 		}
 
 		// 描画用コマンドの構築

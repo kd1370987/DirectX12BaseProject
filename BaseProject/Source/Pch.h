@@ -124,5 +124,4 @@ namespace DXSM = DirectX::SimpleMath;
 //=============================================================================
 // Project Core / Engine (自作ヘッダー)
 //=============================================================================
-#include "Core/Core.h"
 #include "Engine/EngineCommon.h"

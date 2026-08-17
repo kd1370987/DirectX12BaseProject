@@ -5,8 +5,8 @@ namespace Engine::Resource
 	Material MaterialIO::LoadFromFile(const std::string& a_path)
 	{
 		Material _mat = {};
-		auto _fileDir = FileUtility::GetDirFromPath(a_path);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_path);
+		auto _fileDir = Engine::File::GetDirFromPath(a_path);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_path);
 		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "mtrl");
 		_mat.Archive(_ar);
 

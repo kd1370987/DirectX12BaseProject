@@ -34,8 +34,8 @@ namespace Engine::Resource
 	{
 		m_editor.SyncPositions(m_graph);
 
-		auto _dir = FileUtility::GetDirFromPath(a_savePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_savePath);
+		auto _dir = Engine::File::GetDirFromPath(a_savePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_savePath);
 		Persistence::Archive _arch(Persistence::Archive::Mode::Save, _dir, _fileName, "asm");
 
 		_arch.Field("m_name", m_name);
@@ -49,8 +49,8 @@ namespace Engine::Resource
 
 	void ActionStateMachineAsset::Load(const std::string& a_filePath)
 	{
-		auto _dir = FileUtility::GetDirFromPath(a_filePath);
-		auto _fileName = FileUtility::GetFileNameWithoutExtension(a_filePath);
+		auto _dir = Engine::File::GetDirFromPath(a_filePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 		LoadInternal(_dir, _fileName);
 	}
 

@@ -58,7 +58,7 @@ namespace Engine::Resource
 		m_cpResource = Engine::Resource::CreateTexture(a_desc, &m_desc);
 		m_currentState = D3D12_RESOURCE_STATE_COMMON;
 
-		m_cpResource.Get()->SetName(StringUtility::ToWideString(a_desc.name).c_str());
+		m_cpResource.Get()->SetName(Engine::String::ToWideString(a_desc.name).c_str());
 
 		// 変数保存
 		m_name = a_desc.name;
@@ -81,7 +81,7 @@ namespace Engine::Resource
 		m_currentState = D3D12_RESOURCE_STATE_PRESENT;
 		// 名前設定
 		std::string _name = "BackBuffer_" + a_backBufferIndex;
-		m_cpResource->SetName(StringUtility::ToWideString(_name).c_str());
+		m_cpResource->SetName(Engine::String::ToWideString(_name).c_str());
 
 		// メンバ作成
 		m_name = _name;
@@ -94,7 +94,7 @@ namespace Engine::Resource
 		// テクスチャの保存(圧縮DDS化)は Archive を通らないため、ここで個別にログを出す
 		ENGINE_LOG("[Texture] セーブ : %s", a_srcPath.c_str());
 
-		std::wstring _wSrcPath = StringUtility::ToWideString(a_srcPath);
+		std::wstring _wSrcPath = Engine::String::ToWideString(a_srcPath);
 
 		DirectX::TexMetadata _metaData;
 		DirectX::ScratchImage _image;
@@ -127,10 +127,10 @@ namespace Engine::Resource
 		);
 
 		// 保存先パスの作成
-		std::string _dir = FileUtility::GetDirFromPath(a_srcPath);
-		std::string _name = FileUtility::GetFileNameWithoutExtension(a_srcPath);
+		std::string _dir = Engine::File::GetDirFromPath(a_srcPath);
+		std::string _name = Engine::File::GetFileNameWithoutExtension(a_srcPath);
 		std::string _fullDestPath = _dir + "/" + _name + ".dds";
-		std::wstring _wDstPath = StringUtility::ToWideString(_fullDestPath);
+		std::wstring _wDstPath = Engine::String::ToWideString(_fullDestPath);
 
 		// DDSとして保存
 		DirectX::SaveToDDSFile(
@@ -212,7 +212,7 @@ namespace Engine::Resource
 	void Engine::Resource::Texture::SetName(const std::string& a_name)
 	{
 		m_name = a_name;
-		m_cpResource.Get()->SetName(StringUtility::ToWideString(m_name).c_str());
+		m_cpResource.Get()->SetName(Engine::String::ToWideString(m_name).c_str());
 	}
 
 	const std::string& Engine::Resource::Texture::GetName() const

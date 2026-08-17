@@ -106,7 +106,7 @@ namespace Engine::Resource
 
 			for (auto& [_pathName, _shaderGUIDVec] : m_shaderGUIDMap)
 			{
-				UINT _hash = StringUtility::ToHash(_pathName);
+				UINT _hash = Engine::String::ToHash(_pathName);
 
 				// 有効なパスとしてハッシュを登録
 				m_activePassHashes.push_back(_hash);
@@ -133,7 +133,7 @@ namespace Engine::Resource
 	{
 		if (m_shaderGUIDMap.contains(a_passName)) { return; }
 
-		UINT _hash = StringUtility::ToHash(a_passName);
+		UINT _hash = Engine::String::ToHash(a_passName);
 
 		// シリアライズ用データの更新
 		m_shaderGUIDMap[a_passName] = {};
@@ -145,7 +145,7 @@ namespace Engine::Resource
 	}
 	void ShadingModelTable::DisablePass(const std::string& a_passName)
 	{
-		UINT _hash = StringUtility::ToHash(a_passName);
+		UINT _hash = Engine::String::ToHash(a_passName);
 
 		// シリアライズ用データの更新
 		m_shaderGUIDMap.erase(a_passName);
@@ -173,7 +173,7 @@ namespace Engine::Resource
 		_it->second.push_back(a_shaderGUID);
 
 		// ランタイム用データに追加
-		UINT _hash = StringUtility::ToHash(a_passName);
+		UINT _hash = Engine::String::ToHash(a_passName);
 		m_shaderHandleMap[_hash].push_back(ResourceManager::Instance().LoadImmediate<Shader>(a_shaderGUID));
 	}
 	void ShadingModelTable::RemoveShader(const std::string& a_passName, size_t a_index)
@@ -186,7 +186,7 @@ namespace Engine::Resource
 		_it->second.erase(_it->second.begin() + a_index);
 
 		// ランタイム用データ（ハンドル）からも削除
-		UINT _hash = StringUtility::ToHash(a_passName);
+		UINT _hash = Engine::String::ToHash(a_passName);
 		auto& _handleVec = m_shaderHandleMap[_hash];
 		if (a_index < _handleVec.size())
 		{
