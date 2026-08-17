@@ -9,8 +9,8 @@
 
 struct ModelComponent
 {
-	DirectX::XMFLOAT4 colorScale = { 1.0f,1.0f,1.0f,1.0f };
-	DirectX::XMFLOAT3 emissiveScale = { 1.0f,1.0f,1.0f };
+	Math::Color colorScale = { 1.0f,1.0f,1.0f,1.0f };
+	Math::Vector3 emissiveScale = { 1.0f,1.0f,1.0f };
 
 	//--------------------------------------------------------------------------
 	// 自己発光（ブルームで光らせたいとき用）
@@ -27,7 +27,7 @@ struct ModelComponent
 	// 光らせたいなら強度をしきい値より大きくすること。
 	// 既定は強度0＝オフなので、設定しなければ今までと同じ見た目になる。
 	//--------------------------------------------------------------------------
-	DirectX::XMFLOAT3 emissiveColor = { 1.0f,1.0f,1.0f };	// 発光色(0〜1)
+	Math::Vector3 emissiveColor = { 1.0f,1.0f,1.0f };	// 発光色(0〜1)
 	float emissiveIntensity = 0.0f;							// 発光の強さ(上限なし / 0でオフ)
 
 	// モデル参照用
@@ -35,7 +35,7 @@ struct ModelComponent
 	Engine::GUID modelGUID = {};									// 記録用
 
 	// シェーダーへ送る実効的な自己発光
-	DirectX::XMFLOAT3 GetEmissiveAdd() const
+	Math::Vector3 GetEmissiveAdd() const
 	{
 		return {
 			emissiveColor.x * emissiveIntensity,
@@ -92,11 +92,11 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		// インスペクタが縦に短くなるのと、こちらはドラッグや右クリックでの
 		// 数値入力にも対応していて、色の指定方法を選べるため。
 		//
-		// ※ emissiveScale / emissiveColor は XMFLOAT3 なので必ず3成分版を使うこと。
+		// ※ emissiveScale / emissiveColor は Math::Vector3(3成分)なので必ず3成分版を使うこと。
 		//    ColorEdit4 にすると float 4個ぶん書き戻され、
 		//    直後にあるメンバをアルファ値で潰してしまう。
 		// ---------------------------------------------------------
-		ImGui::ColorEdit4("ColorScale", (float*)&_comp.colorScale.x);
+		ImGui::ColorEdit4("ColorScale", _comp.colorScale.Data());
 		ImGui::ColorEdit3("EmissiveScale", (float*)&_comp.emissiveScale.x);
 
 		// ---------------------------------------------------------
@@ -114,7 +114,7 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		ImGui::DragFloat("Emissive Intensity", &_comp.emissiveIntensity, 0.05f, 0.0f, FLT_MAX);
 
 		// 実際にシェーダーへ渡る値。しきい値を超えているかの目安になる
-		const DirectX::XMFLOAT3 _emissiveAdd = _comp.GetEmissiveAdd();
+		const Math::Vector3 _emissiveAdd = _comp.GetEmissiveAdd();
 		ImGui::TextDisabled("-> (%.2f, %.2f, %.2f)", _emissiveAdd.x, _emissiveAdd.y, _emissiveAdd.z);
 	}
 };

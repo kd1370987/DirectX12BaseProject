@@ -23,9 +23,9 @@ struct FollowAnimationNodeComponent
 	UINT targetNodeIdx = 0;			// ランタイム用ノードインデックス
 
 	// ノード基準のオフセット
-	DirectX::XMFLOAT3 offsetPosition = { 0, 0, 0 };
-	DirectX::XMFLOAT4 offsetRotation = { 0, 0, 0, 1 };
-	DirectX::XMFLOAT3 offsetScale = { 0, 0, 0 };
+	Math::Vector3 offsetPosition = { 0, 0, 0 };
+	Math::Quaternion offsetRotation = { 0, 0, 0, 1 };
+	Math::Vector3 offsetScale = { 0, 0, 0 };
 };
 
 

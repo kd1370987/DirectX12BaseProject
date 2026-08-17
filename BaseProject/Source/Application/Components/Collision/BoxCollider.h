@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 // テスト用のボックス（AABB：ワールド軸に平行）コライダー
 struct BoxColliderComponent
 {
-	DirectX::XMFLOAT3 extents = { 0.5f, 0.5f, 0.5f };	// 各軸の半分の長さ
-	DirectX::XMFLOAT3 offset  = { 0.0f, 0.0f, 0.0f };	// エンティティ位置からの中心オフセット
+	Math::Vector3 extents = { 0.5f, 0.5f, 0.5f };	// 各軸の半分の長さ
+	Math::Vector3 offset  = { 0.0f, 0.0f, 0.0f };	// エンティティ位置からの中心オフセット
 };
 
 template<>

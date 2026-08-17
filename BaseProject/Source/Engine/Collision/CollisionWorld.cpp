@@ -524,8 +524,8 @@ namespace Engine::Collision
 	}
 
 	bool CollisionWorld::ResolveCapsule(
-		DXSM::Vector3& a_pointA, DXSM::Vector3& a_pointB, float a_radius,
-		const ECS::Entity& a_myID, DXSM::Vector3& a_outCorrection, int a_iterations)
+		Math::Vector3& a_pointA, Math::Vector3& a_pointB, float a_radius,
+		const ECS::Entity& a_myID, Math::Vector3& a_outCorrection, int a_iterations)
 	{
 		constexpr float _minDepth = 1e-4f;	// これ以下のめり込みは無視
 		constexpr float _bias = 1e-3f;		// 完全に離すための微小バイアス
@@ -553,7 +553,7 @@ namespace Engine::Collision
 			if (!_best.hit || _best.depth < _minDepth) break;
 
 			// 法線方向へ押し出す
-			DXSM::Vector3 _push = _best.normal * (_best.depth + _bias);
+			Math::Vector3 _push = Math::Vector3(_best.normal) * (_best.depth + _bias);
 			a_pointA += _push;
 			a_pointB += _push;
 			_total += _push;
@@ -565,12 +565,12 @@ namespace Engine::Collision
 	}
 
 	bool CollisionWorld::ResolveSphere(
-		DXSM::Vector3& a_center, float a_radius,
-		const ECS::Entity& a_myID, DXSM::Vector3& a_outCorrection, int a_iterations)
+		Math::Vector3& a_center, float a_radius,
+		const ECS::Entity& a_myID, Math::Vector3& a_outCorrection, int a_iterations)
 	{
 		// 球は長さ0のカプセルとして押し出しを流用する
-		DXSM::Vector3 _a = a_center;
-		DXSM::Vector3 _b = a_center;
+		Math::Vector3 _a = a_center;
+		Math::Vector3 _b = a_center;
 		bool _pushed = ResolveCapsule(_a, _b, a_radius, a_myID, a_outCorrection, a_iterations);
 		a_center += a_outCorrection;
 		return _pushed;

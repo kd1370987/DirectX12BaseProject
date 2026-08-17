@@ -72,9 +72,9 @@ void AimTargetSystem::Init(Engine::ECS::World& a_world)
 				// このエンジンは左手系で、ローカル +Z が前方(WorldMatrix の _31.._33 と同じ軸)。
 				// SimpleMath の Vector3::Forward は (0,0,-1) で逆を向くため使わない。
 				//============================================================
-				DXSM::Vector3 _fwd = DXSM::Vector3::Transform(
-					DXSM::Vector3(0.0f, 0.0f, 1.0f),
-					DXSM::Quaternion(_trsComp.quat)
+				Math::Vector3 _fwd = Math::Vector3::Transform(
+					Math::Vector3(0.0f, 0.0f, 1.0f),
+					Math::Quaternion(_trsComp.quat)
 				);
 
 				// 長さのチェックは NaN も弾ける形で書くこと。
@@ -115,7 +115,7 @@ void AimTargetSystem::Init(Engine::ECS::World& a_world)
 						{
 							// カメラ前方軸への射影 = カメラからフォーカス点までの前方距離
 							float _proj =
-								(DXSM::Vector3(_pState->lookAtWorld) - DXSM::Vector3(_trsComp.pos)).Dot(_fwd);
+								(Math::Vector3(_pState->lookAtWorld) - Math::Vector3(_trsComp.pos)).Dot(_fwd);
 							_startDist = std::max(_proj, 0.0f) + _pAim->startOffset;
 						}
 					}
@@ -127,7 +127,7 @@ void AimTargetSystem::Init(Engine::ECS::World& a_world)
 				// フォーカス対象自身は myID で除外する。
 				//============================================================
 				Engine::Collision::RayInfo _info;
-				_info.origin		= DXSM::Vector3(_trsComp.pos) + _fwd * _startDist;
+				_info.origin		= Math::Vector3(_trsComp.pos) + _fwd * _startDist;
 				_info.direction		= _fwd;
 				_info.maxDistance	= _pAim->maxDistance;
 
@@ -147,7 +147,7 @@ void AimTargetSystem::Init(Engine::ECS::World& a_world)
 				}
 				else
 				{
-					_pAim->pos			= DXSM::Vector3(_info.origin) + _fwd * _info.maxDistance;
+					_pAim->pos			= Math::Vector3(_info.origin) + _fwd * _info.maxDistance;
 					_pAim->hitEntity	= Engine::ECS::Limits::INVALID_ENTITY;
 				}
 				_pAim->dir		= _fwd;		// 狙いの向き。銃側で基準軸として使う
@@ -175,8 +175,8 @@ void AimTargetSystem::Init(Engine::ECS::World& a_world)
 					{
 						if (_pLockOn->IsLocked())
 						{
-							DXSM::Vector3 _toLock =
-								DXSM::Vector3(_pLockOn->lockedPos) - DXSM::Vector3(_info.origin);
+							Math::Vector3 _toLock =
+								Math::Vector3(_pLockOn->lockedPos) - Math::Vector3(_info.origin);
 
 							// 長さのチェックは NaN も弾ける形で書くこと
 							float _toLockLenSq = _toLock.LengthSquared();
@@ -196,7 +196,7 @@ void AimTargetSystem::Init(Engine::ECS::World& a_world)
 				if (_isLockAim)
 				{
 					a_ctx.pServices->pMainEditor->DrawLine(
-						_info.origin, DXSM::Vector3(_pAim->pos), Engine::Color::RED);
+						_info.origin, Math::Vector3(_pAim->pos), Engine::Color::RED);
 				}
 				else
 				{

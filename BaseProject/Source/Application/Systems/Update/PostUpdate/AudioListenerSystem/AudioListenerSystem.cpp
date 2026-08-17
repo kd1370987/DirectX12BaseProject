@@ -1,4 +1,4 @@
-#include "AudioListenerSystem.h"
+﻿#include "AudioListenerSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Audio/AudioManager.h"
@@ -54,21 +54,21 @@ void AudioListenerSystem::Init(Engine::ECS::World& a_world)
 						AudioListenerComponent&     _listener  = a_listenerArray[_i];
 						const WorldMatrixComponent& _worldComp = a_worldMatArray[_i];
 
-						DXSM::Matrix _world(_worldComp.worldMat);
+						Math::Matrix _world(_worldComp.worldMat);
 
 						Engine::Audio::ListenerData _data = {};
 
 						// 耳の位置(ローカルオフセットをワールドへ)
-						_data.pos = DXSM::Vector3::Transform(DXSM::Vector3(_listener.posOffset), _world);
+						_data.pos = Math::Vector3::Transform(Math::Vector3(_listener.posOffset), _world);
 
 						// 左手系 : +Z が前方、+Y が上
-						_data.front = DXSM::Vector3(_world._31, _world._32, _world._33);
-						_data.up    = DXSM::Vector3(_world._21, _world._22, _world._23);
+						_data.front = Math::Vector3(_world._31, _world._32, _world._33);
+						_data.up    = Math::Vector3(_world._21, _world._22, _world._23);
 
 						// 速度 : 前フレームからの移動量
 						if (_listener.useVelocity && _listener.hasPrevPos && _dt > 0.0f)
 						{
-							_data.velocity = (_data.pos - DXSM::Vector3(_listener.prevPos)) / _dt;
+							_data.velocity = (_data.pos - Math::Vector3(_listener.prevPos)) / _dt;
 						}
 
 						_listener.prevPos    = _data.pos;

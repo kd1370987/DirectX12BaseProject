@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // TPSカメラの実行時状態(TPSSystem が毎フレーム更新する)
 struct TPSCameraStateComponent
@@ -6,15 +6,15 @@ struct TPSCameraStateComponent
 	// 現在の注視点。ワールドの絶対座標ではなく「カメラ空間(オービット基準)の相対座標」で持つ。
 	// 左手系なので +Z が視線の奥、+X が画面右、+Y が画面上。
 	// 機体の姿勢で解決すると、胴体が視線と別方向を向いた瞬間に構図が振られる。
-	DirectX::XMFLOAT3 currentLookAt = { 0.0f, 0.0f, 0.0f };
-	DirectX::XMFLOAT4 currentOrbit  = { 0.0f, 0.0f, 0.0f, 1.0f }; // 現在のオービット回転(Slerp補間用)
+	Math::Vector3 currentLookAt = { 0.0f, 0.0f, 0.0f };
+	Math::Quaternion currentOrbit  = { 0.0f, 0.0f, 0.0f, 1.0f }; // 現在のオービット回転(Slerp補間用)
 
 	// currentLookAt をワールドへ解決した結果。TPSSystem が毎フレーム書く。
 	// 他システム(AimTargetSystem)がオービットの式を再現しなくて済むように置いている。
 	// 実行時の派生値なので保存しない。
-	DirectX::XMFLOAT3 lookAtWorld = { 0.0f, 0.0f, 0.0f };
+	Math::Vector3 lookAtWorld = { 0.0f, 0.0f, 0.0f };
 
-	DirectX::XMFLOAT3 currentPivot  = { 0.0f, 0.0f, 0.0f }; // 現在のピボット。ターゲットへ遅れて追従する
+	Math::Vector3 currentPivot  = { 0.0f, 0.0f, 0.0f }; // 現在のピボット。ターゲットへ遅れて追従する
 	float currentPullBack = 0.0f;							// 現在の引き量(m)。速度に応じて伸びる
 
 	// 速度レスポンスの実行時値(保存しない)

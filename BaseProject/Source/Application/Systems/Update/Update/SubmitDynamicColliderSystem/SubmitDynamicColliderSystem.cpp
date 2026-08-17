@@ -1,4 +1,4 @@
-#include "SubmitDynamicColliderSystem.h"
+﻿#include "SubmitDynamicColliderSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -46,10 +46,10 @@ void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 				if (_collComp.layer != Layer::DiynamicObject) continue;
 
 				// ワールド行列計算
-				DXSM::Matrix _tMat = DXSM::Matrix::CreateTranslation(_transComp.pos);
-				DXSM::Matrix _rMat = DXSM::Matrix::CreateFromQuaternion(_transComp.quat);
-				DXSM::Matrix _sMat = DXSM::Matrix::CreateScale(_transComp.scale);
-				DXSM::Matrix _mat = _sMat * _rMat * _tMat;
+				Math::Matrix _tMat = Math::Matrix::CreateTranslation(_transComp.pos);
+				Math::Matrix _rMat = Math::Matrix::CreateFromQuaternion(_transComp.quat);
+				Math::Matrix _sMat = Math::Matrix::CreateScale(_transComp.scale);
+				Math::Matrix _mat = _sMat * _rMat * _tMat;
 
 				// モデル取得
 				const auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
@@ -62,7 +62,7 @@ void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 
 				// ローカルAABBをワールドに変換
 				DirectX::BoundingBox _worldAABB;
-				_localAABB.Transform(_worldAABB, _mat);
+				_localAABB.Transform(_worldAABB, Math::DX::Load(_mat));
 
 				// インスタンスを組んで動的ワールドへ submit
 				Engine::Collision::CollisionInstance _inst = {};

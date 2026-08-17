@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //==========================================================================================
 // PatrolComponent
@@ -66,14 +66,14 @@ struct PatrolComponent
 	float lookAroundSpeedDeg = 120.0f;	// 見渡すときの旋回速度(度/秒)
 
 	// ---- 徘徊状態(ランタイム) ----
-	DirectX::XMFLOAT3 wanderDir = { 0.0f, 0.0f, 1.0f };			// 現在の徘徊方向(世界/水平/単位)
+	Math::Vector3 wanderDir = { 0.0f, 0.0f, 1.0f };			// 現在の徘徊方向(世界/水平/単位)
 	float             wanderTimer = 0.0f;						// 現フェーズの残り時間(秒)
 	EPatrolPhase      patrolPhase = EPatrolPhase::Pause;		// 現在のフェーズ(初回は方向選びから始める)
 	float             patrolLookYaw = 0.0f;						// 首振りの基準ヨー(止まった向き/ラジアン)
 
 	// ---- 見失い探索の状態(ランタイム) ----
 	ELostPhase        lostPhase     = ELostPhase::None;			// 現在のフェーズ
-	DirectX::XMFLOAT3 lastSeenPos   = { 0.0f, 0.0f, 0.0f };		// 最後にプレイヤーを見た位置
+	Math::Vector3 lastSeenPos   = { 0.0f, 0.0f, 0.0f };		// 最後にプレイヤーを見た位置
 	float             lostTimer     = 0.0f;						// 現フェーズの経過時間(秒)
 	float             lookAroundYaw = 0.0f;						// 見渡しの基準ヨー(到着時の向き/ラジアン)
 	bool              wasFind       = false;					// 前フレームの isFind(見失った瞬間の検出用)

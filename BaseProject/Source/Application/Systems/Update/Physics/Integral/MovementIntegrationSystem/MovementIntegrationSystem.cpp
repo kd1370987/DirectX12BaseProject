@@ -1,4 +1,4 @@
-#include "MovementIntegrationSystem.h"
+﻿#include "MovementIntegrationSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -45,10 +45,10 @@ void MovementIntegrationSystem::Init(Engine::ECS::World& a_world)
 				//----------------------------------------------------------
 				// 水平: 目標速度へ加速度/減速度で寄せる
 				//----------------------------------------------------------
-				DXSM::Vector2 _current(_moveComp.velocity.x, _moveComp.velocity.z);
-				DXSM::Vector2 _target(_velComp.value.x, _velComp.value.z);
+				Math::Vector2 _current(_moveComp.velocity.x, _moveComp.velocity.z);
+				Math::Vector2 _target(_velComp.value.x, _velComp.value.z);
 
-				DXSM::Vector2 _diff   = _target - _current;
+				Math::Vector2 _diff   = _target - _current;
 				float         _diffLen = _diff.Length();
 
 				if (_diffLen > 1e-6f)

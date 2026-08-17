@@ -60,12 +60,12 @@ namespace Engine::Collision
 
 		// カプセル（球は pointA==pointB で表現）。
 		// a_pointA / a_pointB は押し出し後の位置に更新され、a_outCorrection に合計補正が入る。
-		bool ResolveCapsule(DXSM::Vector3& a_pointA, DXSM::Vector3& a_pointB, float a_radius,
-			const ECS::Entity& a_myID, DXSM::Vector3& a_outCorrection, int a_iterations = 4);
+		bool ResolveCapsule(Math::Vector3& a_pointA, Math::Vector3& a_pointB, float a_radius,
+			const ECS::Entity& a_myID, Math::Vector3& a_outCorrection, int a_iterations = 4);
 
 		// 球（内部でカプセル押し出しを流用）。a_center は押し出し後に更新される。
-		bool ResolveSphere(DXSM::Vector3& a_center, float a_radius,
-			const ECS::Entity& a_myID, DXSM::Vector3& a_outCorrection, int a_iterations = 4);
+		bool ResolveSphere(Math::Vector3& a_center, float a_radius,
+			const ECS::Entity& a_myID, Math::Vector3& a_outCorrection, int a_iterations = 4);
 	private:
 
 		// TLASの再構築

@@ -26,9 +26,9 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			BoostComponent* a_boostArray
 		)
 		{
-			DXSM::Vector3 _move = {};
-			DXSM::Vector2 _inputMove = {};
-			DXSM::Vector2 _look = {};
+			Math::Vector3 _move = {};
+			Math::Vector2 _inputMove = {};
+			Math::Vector2 _look = {};
 
 			// 移動
 			_inputMove = a_ctx.pServices->pInputManager->GetAxisState("Move");

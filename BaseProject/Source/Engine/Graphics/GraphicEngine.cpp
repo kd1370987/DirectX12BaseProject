@@ -719,7 +719,7 @@ namespace Engine::Graphics
 		);
 	}
 
-	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const DXSM::Vector2& a_screenPos, const DXSM::Vector2& a_screenRect, const DXSM::Vector4& a_color, float a_rotation, float a_layer, const DXSM::Vector2& a_uvOffset, const DXSM::Vector2& a_pivot)
+	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot)
 	{
 		auto& _resMgr = Resource::ResourceManager::Instance();
 
@@ -735,7 +735,7 @@ namespace Engine::Graphics
 		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, a_screenRect, a_color, a_rotation, a_layer, a_uvOffset, a_pivot);
 	}
 
-	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const DXSM::Vector2& a_screenPos, float a_scale, const DXSM::Vector4& a_color, float a_rotation, float a_layer, const DXSM::Vector2& a_uvOffset, const DXSM::Vector2& a_pivot)
+	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, float a_scale, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot)
 	{
 		auto& _resMgr = Resource::ResourceManager::Instance();
 
@@ -746,7 +746,7 @@ namespace Engine::Graphics
 		if (!_pTex) return;
 
 		// テクスチャの元サイズにスケールを掛けたものを表示サイズにする
-		DXSM::Vector2 _size = { _pTex->GetDesc().Width * a_scale, _pTex->GetDesc().Height * a_scale };
+		Math::Vector2 _size = { _pTex->GetDesc().Width * a_scale, _pTex->GetDesc().Height * a_scale };
 		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, _size, a_color, a_rotation, a_layer, a_uvOffset, a_pivot);
 	}
 
@@ -1195,13 +1195,13 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::PushUIData(
 		uint32_t a_texIndex,
-		const DXSM::Vector2& a_pixelPos,
-		const DXSM::Vector2& a_pixelSize,
-		const DXSM::Vector4& a_color,
+		const Math::Vector2& a_pixelPos,
+		const Math::Vector2& a_pixelSize,
+		const Math::Color& a_color,
 		float a_rotationDeg,
 		float a_layer,
-		const DXSM::Vector2& a_uvOffset,
-		const DXSM::Vector2& a_pivot)
+		const Math::Vector2& a_uvOffset,
+		const Math::Vector2& a_pivot)
 	{
 		// スクリーン解像度(px)
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
@@ -1246,7 +1246,7 @@ namespace Engine::Graphics
 		_data.axisX = { _axisXpx.x * 2.0f / _w, -_axisXpx.y * 2.0f / _h };
 		_data.axisY = { _axisYpx.x * 2.0f / _w, -_axisYpx.y * 2.0f / _h };
 		_data.uvOffset = a_uvOffset;
-		_data.color = a_color;
+		_data.color = Math::DX::ToVector4(a_color);
 		_data.layer = a_layer;
 		_data.texIndex = a_texIndex;
 		m_uiDrawItemVec.push_back(_data);

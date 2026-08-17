@@ -423,6 +423,136 @@ namespace Engine::Persistence
 			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
+	//======================================================================================
+	// 自作数学型(Math::～)
+	//--------------------------------------------------------------------------------------
+	// ECS のコンポーネントはこちらを使う。
+	// JSON の並びもバイナリのバイト数も XMFLOAT系とまったく同じにしてあるので、
+	// XMFLOAT3 → Math::Vector3 のように差し替えても既存の .ob* / .oj* はそのまま読める。
+	//======================================================================================
+	template<>
+	inline void Archive::Field(const std::string& a_name, Math::Vector2& a_data)
+	{
+		if (IsSaving())
+		{
+			CurrentNode()[a_name] = { a_data.x, a_data.y };
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		else
+		{
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			{
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1] };
+			}
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+	template<>
+	inline void Archive::Field(const std::string& a_name, Math::Vector3& a_data)
+	{
+		if (IsSaving())
+		{
+			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z };
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		else
+		{
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			{
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1], j[2] };
+			}
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+	template<>
+	inline void Archive::Field(const std::string& a_name, Math::Vector4& a_data)
+	{
+		if (IsSaving())
+		{
+			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		else
+		{
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			{
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1], j[2], j[3] };
+			}
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+	template<>
+	inline void Archive::Field(const std::string& a_name, Math::Quaternion& a_data)
+	{
+		if (IsSaving())
+		{
+			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		else
+		{
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			{
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1], j[2], j[3] };
+			}
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+	template<>
+	inline void Archive::Field(const std::string& a_name, Math::Color& a_data)
+	{
+		if (IsSaving())
+		{
+			CurrentNode()[a_name] = { a_data.r, a_data.g, a_data.b, a_data.a };
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		else
+		{
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			{
+				auto& j = CurrentNode()[a_name];
+				a_data = { j[0], j[1], j[2], j[3] };
+			}
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+	template<>
+	inline void Archive::Field(const std::string& a_name, Math::Matrix& a_data)
+	{
+		if (IsSaving())
+		{
+			CurrentNode()[a_name] =
+			{
+				a_data._11,a_data._12,a_data._13,a_data._14,
+				a_data._21,a_data._22,a_data._23,a_data._24,
+				a_data._31,a_data._32,a_data._33,a_data._34,
+				a_data._41,a_data._42,a_data._43,a_data._44
+			};
+
+			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
+		}
+		else
+		{
+			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			{
+				auto& j = CurrentNode()[a_name];
+				a_data =
+				{
+					j[0],j[1],j[2],j[3],
+					j[4],j[5],j[6],j[7],
+					j[8],j[9],j[10],j[11],
+					j[12],j[13],j[14],j[15]
+				};
+			}
+
+			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+		}
+	}
+
 	// 文字列
 	template<>
 	inline void Archive::Field(const std::string& a_name, std::string& a_data)

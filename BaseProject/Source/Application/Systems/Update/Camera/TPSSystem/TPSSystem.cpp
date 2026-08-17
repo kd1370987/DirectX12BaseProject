@@ -113,7 +113,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// Vector3オーバーロードは(pitch,yaw,roll)順で軸が入れ替わるため、
 				// スカラー版 CreateFromYawPitchRoll(yaw,pitch,roll) を明示的に使う。
 				//============================================================
-				DXSM::Quaternion _targetRot = DXSM::Quaternion::CreateFromYawPitchRoll(
+				Math::Quaternion _targetRot = Math::Quaternion::CreateFromYawPitchRoll(
 					DirectX::XMConvertToRadians(_targetLook->Yaw),
 					DirectX::XMConvertToRadians(-_targetLook->Pitch),
 					0.0f
@@ -134,8 +134,8 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// 振られる。カメラ空間で持てば機体がどちらを向いても
 				// 画面内の構図は変わらない。
 				//============================================================
-				DXSM::Vector3 _goalPivot		= DXSM::Vector3(_targetTRS->pos) + DXSM::Vector3::Up * _offsetComp.y;
-				DXSM::Vector3 _goalLookAtLocal	= DXSM::Vector3(_forcusTarget->offsetPos);
+				Math::Vector3 _goalPivot		= Math::Vector3(_targetTRS->pos) + Math::Vector3::Up() * _offsetComp.y;
+				Math::Vector3 _goalLookAtLocal	= Math::Vector3(_forcusTarget->offsetPos);
 
 				//============================================================
 				// ターゲットの速さ(引き/追従/画角のすべての効きの元)
@@ -146,24 +146,24 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// 上下成分は verticalSpeedWeight で混ぜる。空中戦の上昇/降下でも
 				// スピード感が出るが、重みを下げればただの落下ではあまり効かない。
 				//============================================================
-				DXSM::Vector3 _targetVel = {};
+				Math::Vector3 _targetVel = {};
 				if (a_ctx.pWorld->HasComponent<MovementComponent>(_target))
 				{
 					if (const auto* _pMove = a_ctx.pWorld->RefData<MovementComponent>(_target))
 					{
-						_targetVel = DXSM::Vector3(_pMove->velocity);
+						_targetVel = Math::Vector3(_pMove->velocity);
 					}
 				}
 				else if (a_ctx.pWorld->HasComponent<VelocityComponent>(_target))
 				{
 					if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_target))
 					{
-						_targetVel = DXSM::Vector3(_pVel->value);
+						_targetVel = Math::Vector3(_pVel->value);
 					}
 				}
 
 				const float _vWeight = std::clamp(_followParam.verticalSpeedWeight, 0.0f, 1.0f);
-				const float _rawSpeed = DXSM::Vector3(
+				const float _rawSpeed = Math::Vector3(
 					_targetVel.x, _targetVel.y * _vWeight, _targetVel.z).Length();
 
 				// 0..1 へ正規化。speedReference が 0 以下なら速度レスポンスなし
@@ -233,7 +233,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// 水平の遅れは「置いていかれる」気持ちよさになるが、
 				// 垂直の遅れは機体が画面から出るだけで得がない。
 				//============================================================
-				DXSM::Vector3 _pivot = _statComp.currentPivot;
+				Math::Vector3 _pivot = _statComp.currentPivot;
 				{
 					float _tH = DampFactor(_followParam.posRateHorizontal * _rateScale, a_ctx.dt);
 					float _tV = DampFactor(_followParam.posRateVertical, a_ctx.dt);
@@ -245,7 +245,7 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 					// 離れすぎたら引き戻す。
 					// テレポートや極端な加速でカメラが千切れたままになるのを防ぐ保険。
 					// 上限は速度で広がる(止まっているときは maxLagDistance)。
-					DXSM::Vector3 _lag = _pivot - _goalPivot;
+					Math::Vector3 _lag = _pivot - _goalPivot;
 					float _lagLen = _lag.Length();
 					if (_maxLag > 0.0f && _lagLen > _maxLag)
 					{
@@ -263,10 +263,10 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				//
 				// 注視点のオフセットをこの回転で解決するので、注視点より先に求める。
 				//============================================================
-				DXSM::Quaternion _curOrbit = _statComp.currentOrbit;
+				Math::Quaternion _curOrbit = _statComp.currentOrbit;
 				if (_curOrbit.LengthSquared() < 1e-6f) _curOrbit = _targetRot;	// 未初期化保険
 
-				DXSM::Quaternion _orbit = DXSM::Quaternion::Slerp(
+				Math::Quaternion _orbit = Math::Quaternion::Slerp(
 					_curOrbit, _targetRot, DampFactor(_followParam.orbitRate, a_ctx.dt));
 				_orbit.Normalize();
 				_statComp.currentOrbit = _orbit;
@@ -284,12 +284,12 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// 止まっているときは前者に一致するので、通常時の構図は変わらない。
 				// 回転はオービットなので、機体の向きには一切影響されない。
 				//============================================================
-				DXSM::Vector3 _lookAtLocal = DXSM::Vector3(_statComp.currentLookAt);
+				Math::Vector3 _lookAtLocal = Math::Vector3(_statComp.currentLookAt);
 				_lookAtLocal += (_goalLookAtLocal - _lookAtLocal)
 					* DampFactor(_followParam.lookAtRate * _rateScale, a_ctx.dt);
 
 				// ピボットは offset.y ぶん持ち上げてあるので、比較できるよう戻してから混ぜる
-				DXSM::Vector3 _laggedPos  = _pivot - DXSM::Vector3::Up * _offsetComp.y;
+				Math::Vector3 _laggedPos  = _pivot - Math::Vector3::Up() * _offsetComp.y;
 				const float   _lookAtLag  = std::clamp(_followParam.lookAtLagRatio, 0.0f, 1.0f) * _speed01;
 				//------------------------------------------------------------
 				// 寄せるのは水平だけ。高さは必ずターゲットの実際の位置に合わせる。
@@ -304,11 +304,11 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// 機体が画面から出るだけで得がない。followRateScale を水平だけに
 				// 掛けているのと同じ理由。
 				//------------------------------------------------------------
-				DXSM::Vector3 _lookAtBase = DXSM::Vector3(_targetTRS->pos);
+				Math::Vector3 _lookAtBase = Math::Vector3(_targetTRS->pos);
 				_lookAtBase.x += (_laggedPos.x - _lookAtBase.x) * _lookAtLag;
 				_lookAtBase.z += (_laggedPos.z - _lookAtBase.z) * _lookAtLag;
 
-				DXSM::Vector3 _lookAt = _lookAtBase + DXSM::Vector3::Transform(_lookAtLocal, _orbit);
+				Math::Vector3 _lookAt = _lookAtBase + Math::Vector3::Transform(_lookAtLocal, _orbit);
 
 				//============================================================
 				// 引き量の追従
@@ -346,8 +346,8 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				float _distanceSign = (_offsetComp.z < 0.0f) ? -1.0f : 1.0f;
 				float _distance = _offsetComp.z + _distanceSign * _statComp.currentPullBack;
 
-				DXSM::Vector3 _dir = DXSM::Vector3::Transform(DXSM::Vector3::Backward, _orbit); // (0,0,1)を回転
-				DXSM::Vector3 _currentPos = _pivot + _dir * _distance;
+				Math::Vector3 _dir = Math::Vector3::Transform(Math::Vector3::Forward(), _orbit); // (0,0,1)を回転
+				Math::Vector3 _currentPos = _pivot + _dir * _distance;
 
 				//============================================================
 				// カメラ回転(このエンジンは左手系。CreateLookAtは右手系で
@@ -359,25 +359,25 @@ void TPSSystem::Init(Engine::ECS::World& a_world)
 				// 求める側(AimTargetSystem など)まで NaN が伝播して落ちるため、
 				// 破綻する条件では回転を更新せず前フレームの値を保つ。
 				//============================================================
-				DXSM::Vector3 _lookVec = _lookAt - _currentPos;
+				Math::Vector3 _lookVec = _lookAt - _currentPos;
 				float _lookLenSq = _lookVec.LengthSquared();
 				bool _isDegenerate = (_lookLenSq < 1e-6f);
 				if (!_isDegenerate)
 				{
 					// 視線がUpとほぼ平行（真上/真下を向いている）かどうか
-					DXSM::Vector3 _lookDir = _lookVec / std::sqrt(_lookLenSq);
-					_isDegenerate = (std::fabs(_lookDir.Dot(DXSM::Vector3::Up)) > 0.9999f);
+					Math::Vector3 _lookDir = _lookVec / std::sqrt(_lookLenSq);
+					_isDegenerate = (std::fabs(_lookDir.Dot(Math::Vector3::Up())) > 0.9999f);
 				}
 				// 破綻時は前フレームの回転を維持する(位置だけは更新する)
-				DXSM::Quaternion _camRot = DXSM::Quaternion(_trsComp.quat);
+				Math::Quaternion _camRot = Math::Quaternion(_trsComp.quat);
 				if (!_isDegenerate)
 				{
-					DXSM::Matrix _view = DirectX::XMMatrixLookAtLH(
+					Math::Matrix _view = Math::Matrix::CreateLookAt(
 						_currentPos,
 						_lookAt,
-						DXSM::Vector3::Up
+						Math::Vector3::Up()
 					);
-					_camRot = DXSM::Quaternion::CreateFromRotationMatrix(_view.Invert());
+					_camRot = Math::Quaternion::CreateFromRotationMatrix(_view.Invert());
 					_camRot.Normalize();
 				}
 

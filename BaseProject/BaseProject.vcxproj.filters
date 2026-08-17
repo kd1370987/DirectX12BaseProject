@@ -1,6 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector2.cpp">
+      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector4.cpp">
+      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Math\Quaternion.cpp">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Math\Matrix.cpp">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClCompile>
+    <ClInclude Include="Source\Engine\Utility\Math\TRS.h">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClInclude>
     <Filter Include="Source\Application\Object\UI\MissileLockBoxHUD">
       <UniqueIdentifier>{8a1b0c10-4f2e-4c3a-9d51-7e6b2f0a9110}</UniqueIdentifier>
     </Filter>

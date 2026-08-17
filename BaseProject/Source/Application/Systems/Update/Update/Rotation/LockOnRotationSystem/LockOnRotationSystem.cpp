@@ -1,4 +1,4 @@
-#include "LockOnRotationSystem.h"
+﻿#include "LockOnRotationSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
@@ -46,9 +46,9 @@ namespace
 	// このエンジンは左手系でローカル +Z が前方なので Yaw = atan2(x, z)。
 	// 真上/真下・ゼロ長・NaN の場合は false を返して呼び出し側で旋回を諦める。
 	//--------------------------------------------------------------------------
-	bool CalcYawFromDir(const DXSM::Vector3& a_dir, float& a_outYaw)
+	bool CalcYawFromDir(const Math::Vector3& a_dir, float& a_outYaw)
 	{
-		DXSM::Vector3 _flat(a_dir.x, 0.0f, a_dir.z);
+		Math::Vector3 _flat(a_dir.x, 0.0f, a_dir.z);
 
 		// 長さのチェックは NaN も弾ける形で書くこと
 		float _lenSq = _flat.LengthSquared();
@@ -64,14 +64,14 @@ namespace
 	//--------------------------------------------------------------------------
 	void ApplyYawSlerp(LocalTransformComponent& a_trs, float a_targetYaw, float a_turnSpeed, float a_dt)
 	{
-		DXSM::Quaternion _targetQuat = DXSM::Quaternion::CreateFromYawPitchRoll(a_targetYaw, 0.0f, 0.0f);
+		Math::Quaternion _targetQuat = Math::Quaternion::CreateFromYawPitchRoll(a_targetYaw, 0.0f, 0.0f);
 		_targetQuat.Normalize();
 
-		DXSM::Quaternion _currentQuat(a_trs.quat);
-		if (_currentQuat.LengthSquared() < 1e-6f) _currentQuat = DXSM::Quaternion::Identity;
+		Math::Quaternion _currentQuat(a_trs.quat);
+		if (_currentQuat.LengthSquared() < 1e-6f) _currentQuat = Math::Quaternion::Identity();
 
 		float _t = std::clamp(a_turnSpeed * a_dt, 0.0f, 1.0f);
-		_currentQuat = DXSM::Quaternion::Slerp(_currentQuat, _targetQuat, _t);
+		_currentQuat = Math::Quaternion::Slerp(_currentQuat, _targetQuat, _t);
 		_currentQuat.Normalize();
 
 		a_trs.quat = _currentQuat;
@@ -160,7 +160,7 @@ void LockOnRotationSystem::Init(Engine::ECS::World& a_world)
 						if (_pLockOn->IsLocked())
 						{
 							_hasLockYaw = CalcYawFromDir(
-								DXSM::Vector3(_pLockOn->lockedPos) - DXSM::Vector3(_trs.pos), _targetYaw);
+								Math::Vector3(_pLockOn->lockedPos) - Math::Vector3(_trs.pos), _targetYaw);
 						}
 					}
 				}
@@ -188,12 +188,12 @@ void LockOnRotationSystem::Init(Engine::ECS::World& a_world)
 							if (_pAim->isValid)
 							{
 								_hasYaw = CalcYawFromDir(
-									DXSM::Vector3(_pAim->pos) - DXSM::Vector3(_trs.pos), _targetYaw);
+									Math::Vector3(_pAim->pos) - Math::Vector3(_trs.pos), _targetYaw);
 
 								// 狙点が真上/真下・自機と同一座標。狙いの向きで代用する
 								if (!_hasYaw)
 								{
-									_hasYaw = CalcYawFromDir(DXSM::Vector3(_pAim->dir), _targetYaw);
+									_hasYaw = CalcYawFromDir(Math::Vector3(_pAim->dir), _targetYaw);
 								}
 							}
 						}
@@ -210,7 +210,7 @@ void LockOnRotationSystem::Init(Engine::ECS::World& a_world)
 					// 進行方向(従来の挙動)。
 					// 停止中は目標が作れないので今の向きのままにする。
 					//----------------------------------------------------------
-					if (!CalcYawFromDir(DXSM::Vector3(_velComp.value), _targetYaw)) continue;
+					if (!CalcYawFromDir(Math::Vector3(_velComp.value), _targetYaw)) continue;
 				}
 
 				_targetYaw += DirectX::XMConvertToRadians(_yawOffset);
@@ -249,7 +249,7 @@ void LockOnRotationSystem::Init(Engine::ECS::World& a_world)
 				LocalTransformComponent&	_trs		= a_trsArray[_i];
 
 				float _targetYaw = 0.0f;
-				if (!CalcYawFromDir(DXSM::Vector3(_velComp.value), _targetYaw)) continue;
+				if (!CalcYawFromDir(Math::Vector3(_velComp.value), _targetYaw)) continue;
 
 				ApplyYawSlerp(_trs, _targetYaw, kDefaultTurnSpeed, a_ctx.dt);
 			}

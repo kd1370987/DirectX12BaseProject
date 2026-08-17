@@ -1,4 +1,4 @@
-#include "EditorHelper.h"
+﻿#include "EditorHelper.h"
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../Resource/Data/Model/Model.h"
@@ -413,7 +413,7 @@ namespace Engine::Editor
 		//----------------------------------------------------------------------------------
 		// 行列の成分をそのまま並べる
 		//----------------------------------------------------------------------------------
-		bool DrawMatrixRaw(DirectX::XMFLOAT4X4& a_mat)
+		bool DrawMatrixRaw(Math::Matrix& a_mat)
 		{
 			float* _m = reinterpret_cast<float*>(a_mat.m);
 
@@ -442,23 +442,21 @@ namespace Engine::Editor
 		// 行列を位置・回転・スケールに分解して表示する
 		// 編集されたら分解した値から組み直して書き戻す
 		//----------------------------------------------------------------------------------
-		bool DrawMatrixPosRotScale(DirectX::XMFLOAT4X4& a_mat)
+		bool DrawMatrixPosRotScale(Math::Matrix& a_mat)
 		{
-			DXSM::Matrix _mat = a_mat;
-
 			// 行列の分解
-			DXSM::Vector3 _scale = {};
-			DXSM::Quaternion _rotQuat = {};
-			DXSM::Vector3 _pos = {};
-			if (!_mat.Decompose(_scale, _rotQuat, _pos))
+			Math::Vector3 _scale = {};
+			Math::Quaternion _rotQuat = {};
+			Math::Vector3 _pos = {};
+			if (!a_mat.Decompose(_scale, _rotQuat, _pos))
 			{
 				ImGui::Text("Matrix Decompose Failed");
 				return false;
 			}
 
 			// クォータニオンをEulerに直してDegreeへ変換
-			DXSM::Vector3 _rotRad = _rotQuat.ToEuler();
-			DXSM::Vector3 _rotDeg = {
+			Math::Vector3 _rotRad = _rotQuat.ToEuler();
+			Math::Vector3 _rotDeg = {
 				DirectX::XMConvertToDegrees(_rotRad.x),
 				DirectX::XMConvertToDegrees(_rotRad.y),
 				DirectX::XMConvertToDegrees(_rotRad.z)
@@ -482,16 +480,14 @@ namespace Engine::Editor
 			// 触られたときだけ組み直す(毎フレーム分解->合成すると誤差が乗るため)
 			if (_isEdit)
 			{
-				DXSM::Quaternion _newQuat =
-					DXSM::Quaternion::CreateFromYawPitchRoll(
+				Math::Quaternion _newQuat =
+					Math::Quaternion::CreateFromYawPitchRoll(
 						DirectX::XMConvertToRadians(_rotDeg.y),	// Yaw
 						DirectX::XMConvertToRadians(_rotDeg.x),	// Pitch
 						DirectX::XMConvertToRadians(_rotDeg.z)	// Roll
 					);
 
-				a_mat = DXSM::Matrix::CreateScale(_scale)
-					* DXSM::Matrix::CreateFromQuaternion(_newQuat)
-					* DXSM::Matrix::CreateTranslation(_pos);
+				a_mat = Math::Matrix::CreateTRS(_pos, _newQuat, _scale);
 			}
 
 			return _isEdit;
@@ -503,7 +499,7 @@ namespace Engine::Editor
 	//======================================================================================
 	bool EditorHelper::DrawMatrix(
 		const char* a_lable,
-		DirectX::XMFLOAT4X4& a_mat,
+		Math::Matrix& a_mat,
 		EMatrixViewMode a_defaultMode
 	)
 	{
@@ -550,13 +546,12 @@ namespace Engine::Editor
 	//======================================================================================
 	// クォータニオンを度数法のオイラー角として編集する
 	//======================================================================================
-	bool EditorHelper::DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a_quat)
+	bool EditorHelper::DragRotationDeg3FromQuaternion(Math::Quaternion& a_quat)
 	{
-		DXSM::Quaternion _quat = a_quat;
-		DXSM::Vector3 _rotRad = _quat.ToEuler();
+		Math::Vector3 _rotRad = a_quat.ToEuler();
 
 		// Degreeへ変換
-		DXSM::Vector3 _rotDeg = {
+		Math::Vector3 _rotDeg = {
 			DirectX::XMConvertToDegrees(_rotRad.x),
 			DirectX::XMConvertToDegrees(_rotRad.y),
 			DirectX::XMConvertToDegrees(_rotRad.z)
@@ -574,8 +569,8 @@ namespace Engine::Editor
 			};
 
 			// Euler → Quaternion
-			DXSM::Quaternion _newQuat =
-				DXSM::Quaternion::CreateFromYawPitchRoll(
+			Math::Quaternion _newQuat =
+				Math::Quaternion::CreateFromYawPitchRoll(
 					_rotRad.y, // Yaw
 					_rotRad.x, // Pitch
 					_rotRad.z  // Roll

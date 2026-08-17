@@ -58,8 +58,8 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 					auto _nodePoseVec = _nodePosePool.RefRange(_nodeComp.nodePoseHandle);
 					for (size_t _n = 0; _n < _nodePoseVec.size(); ++_n)
 					{
-						_nodePoseVec[_n].local = (_n < _nodes.size()) ? _nodes[_n].localTransform : DXSM::Matrix::Identity;
-						_nodePoseVec[_n].world = DXSM::Matrix::Identity;
+						_nodePoseVec[_n].local = (_n < _nodes.size()) ? Math::Matrix(_nodes[_n].localTransform) : Math::Matrix::Identity();
+						_nodePoseVec[_n].world = Math::Matrix::Identity();
 					}
 				}
 
@@ -71,7 +71,7 @@ void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 				// スケルタルポーズ初期化
 				for (auto& _mat : _boneMatPool.RefRange(_poseComp.skeletonPoseHandle))
 				{
-					_mat.mat = DXSM::Matrix::Identity;
+					_mat.mat = Math::Matrix::Identity();
 				}
 
 				// BLASインスタンス確保

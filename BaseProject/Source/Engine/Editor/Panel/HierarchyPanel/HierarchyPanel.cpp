@@ -173,8 +173,8 @@ namespace Engine::Editor
 			if (_ctor) _ctor(_buf.data());											// コンストラクタで初期化
 
 			// カメラ情報取得
-			auto _trs = Math::Matrix::Decompose(a_editContext.pEditorCamera->GetWorldMatrix());
-			auto _forward = DXSM::Vector3::Transform(DXSM::Vector3::Backward, _trs.rotation);
+			auto _trs = Math::Decompose(a_editContext.pEditorCamera->GetWorldMatrix());
+			auto _forward = Math::Vector3::Transform(Math::Vector3::Forward(), _trs.rotation);
 
 			// トランスフォームにカメラの正面 + オフセットを座標として初期化
 			LocalTransformComponent _ltComp = {};
@@ -222,8 +222,8 @@ namespace Engine::Editor
 			// 位置情報の上書き
 			auto& _buf = _root.dataMap[_ltID];
 			LocalTransformComponent _ltComp = {};
-			auto _trs = Math::Matrix::Decompose(a_editContext.pEditorCamera->GetWorldMatrix());
-			auto _forward = DXSM::Vector3::Transform(DXSM::Vector3::Backward, _trs.rotation);
+			auto _trs = Math::Decompose(a_editContext.pEditorCamera->GetWorldMatrix());
+			auto _forward = Math::Vector3::Transform(Math::Vector3::Forward(), _trs.rotation);
 
 			std::memcpy(&_ltComp, _buf.data(), sizeof(_ltComp));
 			_ltComp.pos = _trs.pos + _forward * m_distance;

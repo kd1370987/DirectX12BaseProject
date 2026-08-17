@@ -32,24 +32,24 @@ namespace App::Object
 		constexpr float MARKER_SIZE = 1.0f;
 
 		// 出し終えたウェーブのマーカー色(これから出るものと見分けるため落とした色)
-		constexpr DirectX::XMFLOAT4 DIMMED_COLOR = { 0.35f, 0.35f, 0.35f, 1.0f };
+		constexpr Math::Color DIMMED_COLOR = { 0.35f, 0.35f, 0.35f, 1.0f };
 
 		// dir(水平方向)から左手系 +Z 前方のクォータニオンを作る。
 		// 長さが無い/真上を向いている場合は回さない(プレハブの向きのまま)。
-		DXSM::Quaternion MakeYawQuat(const DXSM::Vector3& a_dir, bool& a_outHasRotation)
+		Math::Quaternion MakeYawQuat(const Math::Vector3& a_dir, bool& a_outHasRotation)
 		{
-			DXSM::Vector3 _flat = { a_dir.x, 0.0f, a_dir.z };
+			Math::Vector3 _flat = { a_dir.x, 0.0f, a_dir.z };
 			if (_flat.LengthSquared() <= 1e-6f)
 			{
 				a_outHasRotation = false;
-				return DXSM::Quaternion::Identity;
+				return Math::Quaternion::Identity();
 			}
 
 			a_outHasRotation = true;
 
 			// 左手系 +Z 前方なので Yaw = atan2(x, z)
 			const float _yaw = std::atan2(_flat.x, _flat.z);
-			return DXSM::Quaternion::CreateFromYawPitchRoll(_yaw, 0.0f, 0.0f);
+			return Math::Quaternion::CreateFromYawPitchRoll(_yaw, 0.0f, 0.0f);
 		}
 	}
 
@@ -190,7 +190,7 @@ namespace App::Object
 			_params.pos = _wave.pos + _settings.pos;
 
 			bool _hasRotation = false;
-			const DXSM::Quaternion _quat = MakeYawQuat(_settings.dir, _hasRotation);
+			const Math::Quaternion _quat = MakeYawQuat(_settings.dir, _hasRotation);
 			_params.quat               = _quat;
 			_params.isOverrideRotation = _hasRotation;
 
@@ -251,16 +251,16 @@ namespace App::Object
 		if (!_pEditor) return;
 
 		// 位置の十字(縦は上方向だけ伸ばして地面基準に見せる)
-		auto _drawCross = [&](const DXSM::Vector3& a_pos, float a_size, const DXSM::Color& a_color)
+		auto _drawCross = [&](const Math::Vector3& a_pos, float a_size, const Math::Color& a_color)
 			{
 				_pEditor->DrawLine(
-					a_pos - DXSM::Vector3(a_size, 0.0f, 0.0f),
-					a_pos + DXSM::Vector3(a_size, 0.0f, 0.0f), a_color);
+					a_pos - Math::Vector3(a_size, 0.0f, 0.0f),
+					a_pos + Math::Vector3(a_size, 0.0f, 0.0f), a_color);
 				_pEditor->DrawLine(
-					a_pos - DXSM::Vector3(0.0f, 0.0f, a_size),
-					a_pos + DXSM::Vector3(0.0f, 0.0f, a_size), a_color);
+					a_pos - Math::Vector3(0.0f, 0.0f, a_size),
+					a_pos + Math::Vector3(0.0f, 0.0f, a_size), a_color);
 				_pEditor->DrawLine(
-					a_pos, a_pos + DXSM::Vector3(0.0f, a_size, 0.0f), a_color);
+					a_pos, a_pos + Math::Vector3(0.0f, a_size, 0.0f), a_color);
 			};
 
 		for (size_t _i = 0; _i < m_waves.size(); ++_i)
@@ -268,22 +268,22 @@ namespace App::Object
 			const Wave& _wave = m_waves[_i];
 
 			const bool _isGizmoWave = (m_gizmoWaveIndex == static_cast<int>(_i));
-			const DXSM::Color _baseColor = _wave.isSpawned ? DIMMED_COLOR : Engine::Color::GREEN;
+			const Math::Color _baseColor = _wave.isSpawned ? DIMMED_COLOR : Math::Color(Engine::Color::GREEN);
 
 			// ウェーブの基準位置は少し大きめに
 			_drawCross(_wave.pos, MARKER_SIZE * 2.0f,
-				(_isGizmoWave && m_gizmoSpawnIndex < 0) ? Engine::Color::WHITE : _baseColor);
+				(_isGizmoWave && m_gizmoSpawnIndex < 0) ? Math::Color(Engine::Color::WHITE) : _baseColor);
 
 			for (size_t _s = 0; _s < _wave.spawnEntities.size(); ++_s)
 			{
 				const SpawnSettings& _settings = _wave.spawnEntities[_s];
 
 				// 出現位置はウェーブからの相対
-				const DXSM::Vector3 _pos = _wave.pos + _settings.pos;
+				const Math::Vector3 _pos = _wave.pos + _settings.pos;
 
 				const bool _isGizmoSpawn =
 					_isGizmoWave && (m_gizmoSpawnIndex == static_cast<int>(_s));
-				const DXSM::Color _color = _isGizmoSpawn ? Engine::Color::WHITE : _baseColor;
+				const Math::Color _color = _isGizmoSpawn ? Math::Color(Engine::Color::WHITE) : _baseColor;
 
 				_drawCross(_pos, MARKER_SIZE, _color);
 
@@ -291,7 +291,7 @@ namespace App::Object
 				_pEditor->DrawLine(_wave.pos, _pos, _baseColor);
 
 				// 向き
-				DXSM::Vector3 _dir = { _settings.dir.x, 0.0f, _settings.dir.z };
+				Math::Vector3 _dir = { _settings.dir.x, 0.0f, _settings.dir.z };
 				if (_dir.LengthSquared() > 1e-6f)
 				{
 					_dir.Normalize();
@@ -317,8 +317,8 @@ namespace App::Object
 		Wave& _wave = m_waves[m_gizmoWaveIndex];
 
 		// 動かす座標と、その座標が乗っている基準(ワールド)
-		DXSM::Vector3* _pTargetPos = &_wave.pos;
-		DXSM::Vector3  _origin     = {};
+		Math::Vector3* _pTargetPos = &_wave.pos;
+		Math::Vector3  _origin     = {};
 
 		if (m_gizmoSpawnIndex >= 0)
 		{
@@ -328,11 +328,9 @@ namespace App::Object
 			_origin     = _wave.pos;	// 出現位置はウェーブからの相対
 		}
 
-		const DXSM::Vector3 _worldPos = _origin + *_pTargetPos;
+		const Math::Vector3 _worldPos = _origin + *_pTargetPos;
 
-		DirectX::XMFLOAT4X4 _mat = {};
-		DirectX::XMStoreFloat4x4(&_mat,
-			DirectX::XMMatrixTranslation(_worldPos.x, _worldPos.y, _worldPos.z));
+		Math::Matrix _mat = Math::Matrix::CreateTranslation(_worldPos);
 
 		// Ctrl を押している間だけスナップ(エンティティ用ギズモと同じ操作感)
 		float _snapValues[3] = { 1.0f, 1.0f, 1.0f };
@@ -351,7 +349,7 @@ namespace App::Object
 		if (ImGuizmo::IsUsing())
 		{
 			// 保持しているのは相対座標なので、基準を引いてから書き戻す
-			*_pTargetPos = DXSM::Vector3(_mat._41, _mat._42, _mat._43) - _origin;
+			*_pTargetPos = Math::Vector3(_mat._41, _mat._42, _mat._43) - _origin;
 		}
 
 		return true;

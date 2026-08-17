@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //==========================================================================================
 // MissileLockComponent
@@ -39,7 +39,7 @@ struct MissileLockComponent
 	// ---- レティクル(ランタイム。CombatReticleHUD が書く) ----
 	// 保存値(reticleRadius)は上書きしない。実行中に書き換えると、
 	// エディターで見ている設定値が UI の値に置き換わってしまうため。
-	DirectX::XMFLOAT2 reticleCenter    = { 0.0f, 0.0f };	// 判定の中心(px, 左上原点)
+	Math::Vector2 reticleCenter    = { 0.0f, 0.0f };	// 判定の中心(px, 左上原点)
 	float             hudReticleRadius = 0.0f;				// UI が出している半径(px)
 	bool              isReticleFromHUD = false;				// UI から届いているか
 
@@ -57,7 +57,7 @@ struct MissileLockComponent
 
 	// ---- 収集結果(ランタイム。保存しない) ----
 	Engine::ECS::Entity locks[MISSILE_MAX]         = {};	// ロックした敵(重複なし)
-	DirectX::XMFLOAT2   lockScreenPos[MISSILE_MAX] = {};	// その敵のスクリーン座標(px)。HUD 用
+	Math::Vector2   lockScreenPos[MISSILE_MAX] = {};	// その敵のスクリーン座標(px)。HUD 用
 	int                 lockCount                  = 0;
 
 	bool  isCharging    = false;	// 収集中(キーを押している)か

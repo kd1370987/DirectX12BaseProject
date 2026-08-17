@@ -171,9 +171,9 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				if (!_pPrefab) continue;
 
 				// ---- 銃の位置と、銃自身のローカル +Z 軸 ----
-				const DirectX::XMFLOAT4X4& _m = _worldMat.worldMat;
-				DXSM::Vector3 _pos = { _m._41, _m._42, _m._43 };	// 平行移動
-				DXSM::Vector3 _gunFwd = { _m._31, _m._32, _m._33 };	// ローカル +Z 軸
+				const Math::Matrix& _m = _worldMat.worldMat;
+				Math::Vector3 _pos = { _m._41, _m._42, _m._43 };	// 平行移動
+				Math::Vector3 _gunFwd = { _m._31, _m._32, _m._33 };	// ローカル +Z 軸
 
 				float _gunFwdLenSq = _gunFwd.LengthSquared();
 				if (_gunFwdLenSq > 1e-8f) _gunFwd /= std::sqrt(_gunFwdLenSq);
@@ -200,10 +200,10 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 					if (_pAim && !_pAim->isValid) _pAim = nullptr;
 				}
 
-				DXSM::Vector3 _baseDir = _gunFwd;
+				Math::Vector3 _baseDir = _gunFwd;
 				if (_pAim)
 				{
-					DXSM::Vector3 _aimDir = DXSM::Vector3(_pAim->dir);
+					Math::Vector3 _aimDir = Math::Vector3(_pAim->dir);
 					float _aimDirLenSq = _aimDir.LengthSquared();
 					if (_aimDirLenSq > 1e-8f) _baseDir = _aimDir / std::sqrt(_aimDirLenSq);
 				}
@@ -216,7 +216,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				// エンティティのワールド行列で変換してワールド座標にする。
 				// (ノードインデックスは GunStateStartSystem がハッシュから解決する)
 				//======================================================================
-				DXSM::Vector3 _spawnPos = _pos;
+				Math::Vector3 _spawnPos = _pos;
 				if (_gun.nullPtrNodeHash != 0)
 				{
 					auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
@@ -225,9 +225,9 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 						const auto& _nodeVec = _pModel->GetOriginalNodeVec();
 						if (_gun.nodeIndex < _nodeVec.size())
 						{
-							const DirectX::XMFLOAT4X4& _nodeMat = _nodeVec[_gun.nodeIndex].worldTransform;
-							DXSM::Vector3 _nodeLocalPos = { _nodeMat._41, _nodeMat._42, _nodeMat._43 };
-							_spawnPos = DXSM::Vector3::Transform(_nodeLocalPos, DXSM::Matrix(_m));
+							const Math::Matrix& _nodeMat = _nodeVec[_gun.nodeIndex].worldTransform;
+							Math::Vector3 _nodeLocalPos = { _nodeMat._41, _nodeMat._42, _nodeMat._43 };
+							_spawnPos = Math::Vector3::Transform(_nodeLocalPos, Math::Matrix(_m));
 						}
 					}
 				}
@@ -235,10 +235,10 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				//======================================================================
 				// 射出方向 : 銃口から狙点へ向ける
 				//======================================================================
-				DXSM::Vector3 _shootDir = _baseDir;
+				Math::Vector3 _shootDir = _baseDir;
 				if (_pAim)
 				{
-					DXSM::Vector3 _toTarget = DXSM::Vector3(_pAim->pos) - _spawnPos;
+					Math::Vector3 _toTarget = Math::Vector3(_pAim->pos) - _spawnPos;
 
 					// 狙点が銃口とほぼ同じ位置だと向きが定まらないので、その時は基準のまま
 					if (_toTarget.LengthSquared() > 1e-6f)
@@ -255,7 +255,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 					}
 				}
 
-				DirectX::XMFLOAT3 _velValue = _shootDir * _gun.speed;
+				Math::Vector3 _velValue = _shootDir * _gun.speed;
 
 				// 生成はミサイルと共通のヘルパーへ(遅延生成コマンドに積まれる)
 				App::Systems::ProjectileSpawn::Spawn(

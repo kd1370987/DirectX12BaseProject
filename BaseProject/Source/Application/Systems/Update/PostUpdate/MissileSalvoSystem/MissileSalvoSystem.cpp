@@ -1,4 +1,4 @@
-#include "MissileSalvoSystem.h"
+﻿#include "MissileSalvoSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Option/OptionManager.h"
@@ -47,8 +47,8 @@ namespace
 	//   基準方向を軸にしたコーンの側面へ、発射順で回しながら並べる。
 	//   散らしたあとは HomingSystem が相手へ寄せるので、
 	//   「いったん広がってから食いつく」いつもの見た目になる。
-	DXSM::Vector3 MakeSpreadDir(
-		const DXSM::Vector3& a_baseDir,
+	Math::Vector3 MakeSpreadDir(
+		const Math::Vector3& a_baseDir,
 		float                a_spreadRad,
 		int                  a_index,
 		int                  a_total)
@@ -56,21 +56,21 @@ namespace
 		if (a_spreadRad <= 0.0f || a_total <= 0) return a_baseDir;
 
 		// 基準方向に直交する基底を作る。真上を向いている時だけ参照軸を変える
-		const DXSM::Vector3 _ref = (std::fabs(a_baseDir.y) > 0.99f)
-			? DXSM::Vector3(1.0f, 0.0f, 0.0f)
-			: DXSM::Vector3(0.0f, 1.0f, 0.0f);
+		const Math::Vector3 _ref = (std::fabs(a_baseDir.y) > 0.99f)
+			? Math::Vector3(1.0f, 0.0f, 0.0f)
+			: Math::Vector3(0.0f, 1.0f, 0.0f);
 
-		DXSM::Vector3 _right = _ref.Cross(a_baseDir);
+		Math::Vector3 _right = _ref.Cross(a_baseDir);
 		if (_right.LengthSquared() <= 1e-8f) return a_baseDir;
 		_right.Normalize();
 
-		DXSM::Vector3 _up = a_baseDir.Cross(_right);
+		Math::Vector3 _up = a_baseDir.Cross(_right);
 		_up.Normalize();
 
 		// コーンの周りを等間隔に回す
 		const float _azimuth = DirectX::XM_2PI * static_cast<float>(a_index) / static_cast<float>(a_total);
 
-		DXSM::Vector3 _dir =
+		Math::Vector3 _dir =
 			a_baseDir * std::cos(a_spreadRad) +
 			(_right * std::cos(_azimuth) + _up * std::sin(_azimuth)) * std::sin(a_spreadRad);
 
@@ -108,7 +108,7 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 			//==================================================================
 			// アクティブカメラから ViewProj を作る(LockOnTargetSystem と同じ)
 			//==================================================================
-			DXSM::Matrix _viewProjMat = DXSM::Matrix::Identity;
+			Math::Matrix _viewProjMat = Math::Matrix::Identity();
 			bool _hasCamera = false;
 
 			a_ctx.pWorld->ForEach<const ActiveCameraTag, const CameraTag, const ProjMatComponent, const WorldMatrixComponent>(
@@ -124,15 +124,15 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 					// アクティブカメラは1台の想定。先に見つかったものを使う
 					if (_hasCamera || a_camCount == 0) return;
 
-					const DXSM::Matrix _camWorldMat = a_camWorldMatArray[0].worldMat;
-					const DXSM::Matrix _projMat     = a_projMatArray[0].projMat;
+					const Math::Matrix _camWorldMat = a_camWorldMatArray[0].worldMat;
+					const Math::Matrix _projMat     = a_projMatArray[0].projMat;
 
 					_viewProjMat = _camWorldMat.Invert() * _projMat;
 					_hasCamera   = true;
 				}
 			);
 
-			const DXSM::Vector2 _defaultCenter = { _w * 0.5f, _h * 0.5f };
+			const Math::Vector2 _defaultCenter = { _w * 0.5f, _h * 0.5f };
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -150,8 +150,8 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 						std::max(_missile.cooldownTimer - a_ctx.dt, 0.0f);
 				}
 
-				const DirectX::XMFLOAT4X4& _pm = _selfWorld.worldMat;
-				const DXSM::Vector3 _selfPos = { _pm._41, _pm._42, _pm._43 };
+				const Math::Matrix& _pm = _selfWorld.worldMat;
+				const Math::Vector3 _selfPos = { _pm._41, _pm._42, _pm._43 };
 
 				//==============================================================
 				// 1. ターゲットの収集
@@ -171,8 +171,8 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 					_missile.isCharging = true;
 
 					// 判定の円。CombatReticleHUD が居ればそれに合わせる
-					const DXSM::Vector2 _reticleCenter = _missile.isReticleFromHUD
-						? DXSM::Vector2(_missile.reticleCenter)
+					const Math::Vector2 _reticleCenter = _missile.isReticleFromHUD
+						? Math::Vector2(_missile.reticleCenter)
 						: _defaultCenter;
 					const float _reticleRadius = _missile.GetActiveReticleRadius();
 					const int   _lockMax       = _missile.GetActiveMissileCount();
@@ -210,8 +210,8 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 						{
 							for (uint32_t _e = 0; _e < a_enemyCount; ++_e)
 							{
-								const DirectX::XMFLOAT4X4& _em = a_enemyWorldMatArray[_e].worldMat;
-								DXSM::Vector3 _worldPos = { _em._41, _em._42, _em._43 };
+								const Math::Matrix& _em = a_enemyWorldMatArray[_e].worldMat;
+								Math::Vector3 _worldPos = { _em._41, _em._42, _em._43 };
 								_worldPos.y += _missile.targetOffsetY;
 
 								// 距離で足切り(0 以下なら距離では切らない)
@@ -221,21 +221,20 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 								}
 
 								// ワールド → スクリーン
-								DXSM::Vector4 _clipPos = {};
-								DXSM::Vector3::Transform(_worldPos, _viewProjMat, _clipPos);
+								Math::Vector4 _clipPos = Math::Vector4::Transform(_worldPos, _viewProjMat);
 
 								// w <= 0 はカメラ後方。割ると画面内へ折り返して映るので弾く
 								if (_clipPos.w <= 1e-4f) continue;
 
 								const float _invW = 1.0f / _clipPos.w;
-								const DXSM::Vector3 _ndc = {
+								const Math::Vector3 _ndc = {
 									_clipPos.x * _invW, _clipPos.y * _invW, _clipPos.z * _invW };
 
 								// ニア/ファーの外は狙わない(DirectXの深度は0..1)
 								if (_ndc.z < 0.0f || _ndc.z > 1.0f) continue;
 
 								// NDC(中心原点/Y上向き) → ピクセル(左上原点/Y下向き)
-								const DXSM::Vector2 _screenPos = {
+								const Math::Vector2 _screenPos = {
 									(_ndc.x * 0.5f + 0.5f) * _w,
 									(0.5f - _ndc.y * 0.5f) * _h
 								};
@@ -366,8 +365,8 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 				// (node.worldTransform はモデルルート基準なので、ポッドの
 				//  ワールド行列で変換してワールド座標にする。GunShootSystem と同じ)
 				//--------------------------------------------------------------
-				const DirectX::XMFLOAT4X4& _podMat = _pPodWorld->worldMat;
-				DXSM::Vector3 _spawnPos = { _podMat._41, _podMat._42, _podMat._43 };
+				const Math::Matrix& _podMat = _pPodWorld->worldMat;
+				Math::Vector3 _spawnPos = { _podMat._41, _podMat._42, _podMat._43 };
 
 				if (_pGun->nullPtrNodeHash != 0 &&
 					a_ctx.pWorld->HasComponent<ModelComponent>(_podEntity))
@@ -380,9 +379,9 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 							const auto& _nodeVec = _pModel->GetOriginalNodeVec();
 							if (_pGun->nodeIndex < _nodeVec.size())
 							{
-								const DirectX::XMFLOAT4X4& _nodeMat = _nodeVec[_pGun->nodeIndex].worldTransform;
-								DXSM::Vector3 _nodeLocalPos = { _nodeMat._41, _nodeMat._42, _nodeMat._43 };
-								_spawnPos = DXSM::Vector3::Transform(_nodeLocalPos, DXSM::Matrix(_podMat));
+								const Math::Matrix& _nodeMat = _nodeVec[_pGun->nodeIndex].worldTransform;
+								Math::Vector3 _nodeLocalPos = { _nodeMat._41, _nodeMat._42, _nodeMat._43 };
+								_spawnPos = Math::Vector3::Transform(_nodeLocalPos, Math::Matrix(_podMat));
 							}
 						}
 					}
@@ -393,20 +392,20 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 				//   狙点(カメラのレイ)があればそちら、無ければ自機の前方(+Z)。
 				//   ロックしている相手が居る弾は、その相手への向きを基準にする
 				//--------------------------------------------------------------
-				DXSM::Vector3 _aimDir = { _pm._31, _pm._32, _pm._33 };	// 左手系 +Z = 前方
+				Math::Vector3 _aimDir = { _pm._31, _pm._32, _pm._33 };	// 左手系 +Z = 前方
 				if (a_ctx.pWorld->HasComponent<AimTargetPosComponent>(_self))
 				{
 					if (const auto* _pAim = a_ctx.pWorld->RefData<AimTargetPosComponent>(_self))
 					{
 						if (_pAim->isValid)
 						{
-							DXSM::Vector3 _d(_pAim->dir);
+							Math::Vector3 _d(_pAim->dir);
 							if (_d.LengthSquared() > 1e-8f) _aimDir = _d;
 						}
 					}
 				}
 				if (_aimDir.LengthSquared() > 1e-8f) _aimDir.Normalize();
-				else                                 _aimDir = DXSM::Vector3(0.0f, 0.0f, 1.0f);
+				else                                 _aimDir = Math::Vector3(0.0f, 0.0f, 1.0f);
 
 				const float _spreadRad = DirectX::XMConvertToRadians(std::max(_missile.spreadAngle, 0.0f));
 				const Engine::ECS::Entity _shooter =
@@ -424,17 +423,17 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 					const Engine::ECS::Entity _target = _missile.fireTargets[_index];
 
 					// 相手が居るならそちらを基準に、居なければ狙いの向きを基準に散らす
-					DXSM::Vector3 _baseDir = _aimDir;
+					Math::Vector3 _baseDir = _aimDir;
 					if (_target != Engine::ECS::Limits::INVALID_ENTITY &&
 						a_ctx.pWorld->HasComponent<WorldMatrixComponent>(_target))
 					{
 						if (const auto* _pTargetWorld = a_ctx.pWorld->RefData<WorldMatrixComponent>(_target))
 						{
-							DXSM::Vector3 _targetPos =
-								DXSM::Matrix(_pTargetWorld->worldMat).Translation();
+							Math::Vector3 _targetPos =
+								Math::Matrix(_pTargetWorld->worldMat).Translation();
 							_targetPos.y += _missile.targetOffsetY;
 
-							DXSM::Vector3 _toTarget = _targetPos - _spawnPos;
+							Math::Vector3 _toTarget = _targetPos - _spawnPos;
 							if (_toTarget.LengthSquared() > 1e-6f)
 							{
 								_toTarget.Normalize();
@@ -443,7 +442,7 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 						}
 					}
 
-					const DXSM::Vector3 _shootDir =
+					const Math::Vector3 _shootDir =
 						MakeSpreadDir(_baseDir, _spreadRad, _index, _missile.fireTotal);
 
 					App::Systems::ProjectileSpawn::Spawn(

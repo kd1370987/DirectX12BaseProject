@@ -15,6 +15,6 @@ struct AdditiveBoneEntry
 {
 	int									nodeIdx = -1;						// 対象ノード(解決済み)
 	float								share = 1.0f;						// このボーンが受け持つ配分
-	DirectX::XMFLOAT3					axisScale = { 1.0f, 1.0f, 1.0f };	// Lag用: 各軸の効き(符号で左右反転)
+	Math::Vector3					axisScale = { 1.0f, 1.0f, 1.0f };	// Lag用: 各軸の効き(符号で左右反転)
 	Engine::Resource::EAdditiveChannel	channel = Engine::Resource::EAdditiveChannel::Aim;
 };

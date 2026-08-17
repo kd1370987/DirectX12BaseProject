@@ -1,4 +1,4 @@
-#include "FaceTargetSystem.h"
+﻿#include "FaceTargetSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -54,10 +54,10 @@ void FaceTargetSystem::Init(Engine::ECS::World& a_world)
 					a_ctx.pWorld->RefData<WorldMatrixComponent>(_target.targetEntity);
 				if (!_pPlayerWorld) continue;
 
-				DXSM::Vector3 _playerPos = DXSM::Matrix(_pPlayerWorld->worldMat).Translation();
+				Math::Vector3 _playerPos = Math::Matrix(_pPlayerWorld->worldMat).Translation();
 
 				// 対象への水平方向(Y を無視)
-				DXSM::Vector3 _dir = _playerPos - DXSM::Vector3(_trs.pos);
+				Math::Vector3 _dir = _playerPos - Math::Vector3(_trs.pos);
 				_dir.y = 0.0f;
 
 				float _lenSq = _dir.LengthSquared();
@@ -66,15 +66,12 @@ void FaceTargetSystem::Init(Engine::ECS::World& a_world)
 
 				// 左手系 +Z 前方: Yaw = atan2(x, z)
 				float _targetYaw = std::atan2(_dir.x, _dir.z);
-				DirectX::XMVECTOR _targetQuat =
-					DirectX::XMQuaternionRotationRollPitchYaw(0.0f, _targetYaw, 0.0f);
+				const Math::Quaternion _targetQuat =
+					Math::Quaternion::CreateFromYawPitchRoll(_targetYaw, 0.0f, 0.0f);
 
 				// 現在の姿勢から Slerp で滑らかに追従
-				DirectX::XMVECTOR _currentQuat = DirectX::XMLoadFloat4(&_trs.quat);
-				float _t = std::min(_kTurnSpeed * a_ctx.dt, 1.0f);
-				_currentQuat = DirectX::XMQuaternionSlerp(_currentQuat, _targetQuat, _t);
-
-				DirectX::XMStoreFloat4(&_trs.quat, _currentQuat);
+				const float _t = std::min(_kTurnSpeed * a_ctx.dt, 1.0f);
+				_trs.quat = Math::Quaternion::Slerp(_trs.quat, _targetQuat, _t);
 				_trs.isDirty = true;	// 停止中でも行列を再構築させる
 			}
 		}

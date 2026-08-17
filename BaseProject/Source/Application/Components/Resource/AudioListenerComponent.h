@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../../../Engine/ECS/World/World.h"
 
@@ -16,13 +16,13 @@
 struct AudioListenerComponent
 {
 	// 耳の位置。エンティティ原点からのローカルオフセット(足元基準のモデルで頭の高さへ上げる等)
-	DirectX::XMFLOAT3 posOffset = { 0.0f, 0.0f, 0.0f };
+	Math::Vector3 posOffset = { 0.0f, 0.0f, 0.0f };
 
 	// 速度も送るか。ドップラーを掛けたくない場合は false
 	bool useVelocity = true;
 
 	// ---- ランタイム(保存しない) ----
-	DirectX::XMFLOAT3 prevPos = { 0.0f, 0.0f, 0.0f };	// 速度を出すための前フレーム位置
+	Math::Vector3 prevPos = { 0.0f, 0.0f, 0.0f };	// 速度を出すための前フレーム位置
 	bool hasPrevPos = false;							// 1フレーム目は速度を出せない
 };
 

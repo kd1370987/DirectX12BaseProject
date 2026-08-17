@@ -1,4 +1,4 @@
-#include "CameraProjUpdateSystem.h"
+﻿#include "CameraProjUpdateSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -39,13 +39,12 @@ void CameraProjUpdateSystem::Init(Engine::ECS::World& a_world)
 				if (!_camParamComp.isDirty) continue;
 				_camParamComp.isDirty = false;
 
-				DirectX::XMMATRIX _lhMat = DirectX::XMMatrixPerspectiveFovLH(
+				_projMatComp.projMat = Math::Matrix::CreatePerspectiveFieldOfView(
 					DirectX::XMConvertToRadians(_camParamComp.GetFovY()),
 					_camParamComp.aspectRatio,
 					_camParamComp.nearZ,
 					_camParamComp.farZ
 				);
-				DirectX::XMStoreFloat4x4(&_projMatComp.projMat, _lhMat);
 			}
 		}
 	);

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //==========================================================================================
 //
@@ -39,8 +39,8 @@ struct HitEvent
 	// 当てられた側(敵やプレイヤー)
 	Engine::ECS::Entity victim = Engine::ECS::Limits::INVALID_ENTITY;
 
-	DirectX::XMFLOAT3 hitPos = { 0.0f, 0.0f, 0.0f };	// 当たった位置(エフェクト発生点)
-	DirectX::XMFLOAT3 hitDir = { 0.0f, 0.0f, 0.0f };	// victim から見て受けた方向(のけぞりの向きに使う)
+	Math::Vector3 hitPos = { 0.0f, 0.0f, 0.0f };	// 当たった位置(エフェクト発生点)
+	Math::Vector3 hitDir = { 0.0f, 0.0f, 0.0f };	// victim から見て受けた方向(のけぞりの向きに使う)
 
 	float damage = 0.0f;							// 与えたダメージ(未使用なら0)
 	EHitEventType type = EHitEventType::Unknown;	// ヒットの種別

@@ -2,7 +2,7 @@
 
 struct VelocityComponent
 {
-	DirectX::XMFLOAT3 value = { 0.0f, 0.0f, 0.0f };
+	Math::Vector3 value = { 0.0f, 0.0f, 0.0f };
 };
 
 template<>

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //==========================================================================================
 //
@@ -26,7 +26,7 @@ struct DeathEvent
 	Engine::ECS::Entity entity = Engine::ECS::Limits::INVALID_ENTITY;
 
 	// 死んだ位置(ワールド)。エフェクトの発生点に使う
-	DirectX::XMFLOAT3 pos = { 0.0f, 0.0f, 0.0f };
+	Math::Vector3 pos = { 0.0f, 0.0f, 0.0f };
 };
 
 // ワールドに1つだけ置く死亡イベントの配列

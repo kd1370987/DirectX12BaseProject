@@ -30,23 +30,13 @@ void CalcMatrixSystem::Init(Engine::ECS::World& a_world)
 
 				WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
 
-				// 変換行列計算
-				DirectX::XMMATRIX _transMat = DirectX::XMMatrixTranslationFromVector(
-					DirectX::XMLoadFloat3(&_trsComp.pos)
-				);
-				DirectX::XMVECTOR _quat = DirectX::XMQuaternionNormalize(
-					DirectX::XMLoadFloat4(&_trsComp.quat)
-				);
-				DirectX::XMMATRIX _rotMat = DirectX::XMMatrixRotationQuaternion(
-					_quat
-				);
-				DirectX::XMMATRIX _scaleMat = DirectX::XMMatrixScalingFromVector(
-					DirectX::XMLoadFloat3(&_trsComp.scale)
-				);
-
-				DirectX::XMMATRIX _worldMat = _scaleMat * _rotMat * _transMat;
-
-				DirectX::XMStoreFloat4x4(&_worldMatComp.worldMat, _worldMat);
+				// 変換行列計算(スケール→回転→平行移動の順で合成)
+				// 回転は正規化してから使う。エディタで直打ちした値が
+				// 単位長でないとスケールが混ざるため
+				_worldMatComp.worldMat = Math::Matrix::CreateTRS(
+					_trsComp.pos,
+					_trsComp.quat.Normalized(),
+					_trsComp.scale);
 
 				// mutubleでconstを無視している
 				_trsComp.isDirty = false;

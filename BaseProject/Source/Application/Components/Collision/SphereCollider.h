@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 // 押し出しテスト用の球コライダー
 struct SphereColliderComponent
 {
 	float radius = 0.5f;								// 半径
-	DirectX::XMFLOAT3 offset = { 0.0f, 0.0f, 0.0f };	// エンティティ位置からの中心オフセット
+	Math::Vector3 offset = { 0.0f, 0.0f, 0.0f };	// エンティティ位置からの中心オフセット
 };
 
 template<>

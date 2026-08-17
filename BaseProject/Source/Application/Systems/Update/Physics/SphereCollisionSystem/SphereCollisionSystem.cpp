@@ -1,4 +1,4 @@
-#include "SphereCollisionSystem.h"
+﻿#include "SphereCollisionSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -32,10 +32,10 @@ void SphereCollisionSystem::Init(Engine::ECS::World& a_world)
 				LocalTransformComponent& _trans = a_transArray[_i];
 
 				// 中心
-				DXSM::Vector3 _center = DXSM::Vector3(_trans.pos) + DXSM::Vector3(_sphere.offset);
+				Math::Vector3 _center = Math::Vector3(_trans.pos) + Math::Vector3(_sphere.offset);
 
 				// マップから押し出す（_center は押し出し後に更新される）
-				DXSM::Vector3 _correction = {};
+				Math::Vector3 _correction = {};
 				bool _isHit = _pCollWorld->ResolveSphere(
 					_center, _sphere.radius, a_pChunk->entityData[_i], _correction, 4);
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //==========================================================================================
 // LockOnTargetComponent
@@ -34,7 +34,7 @@ struct LockOnTargetComponent
 	// ---- レティクル(ランタイム。AimReticleHUD が書く) ----
 	// 保存値(reticleRadius)は上書きしない。実行中に書き換えると、
 	// エディターで見ている設定値が UI の値に置き換わってしまうため。
-	DirectX::XMFLOAT2 reticleCenter    = { 0.0f, 0.0f };	// 判定の中心(px, 左上原点)
+	Math::Vector2 reticleCenter    = { 0.0f, 0.0f };	// 判定の中心(px, 左上原点)
 	float             hudReticleRadius = 0.0f;				// UI が出している判定半径(px)
 	bool              isReticleFromHUD = false;				// UI から届いているか(false なら画面中央 × reticleRadius)
 
@@ -46,12 +46,12 @@ struct LockOnTargetComponent
 
 	// ---- 結果(ランタイム。保存しない) ----
 	Engine::ECS::Entity targets[TARGET_MAX]   = {};	// 画面内に映っている敵
-	DirectX::XMFLOAT2   screenPos[TARGET_MAX] = {};	// その敵のスクリーン座標(px, 左上原点)
+	Math::Vector2   screenPos[TARGET_MAX] = {};	// その敵のスクリーン座標(px, 左上原点)
 	int                 targetCount           = 0;	// 有効な要素数
 
 	Engine::ECS::Entity lockedEntity    = Engine::ECS::Limits::INVALID_ENTITY;	// ロック中の敵
-	DirectX::XMFLOAT2   lockedScreenPos = { 0.0f, 0.0f };						// その敵のスクリーン座標(px)
-	DirectX::XMFLOAT3   lockedPos       = { 0.0f, 0.0f, 0.0f };					// その敵のワールド座標(旋回用)
+	Math::Vector2   lockedScreenPos = { 0.0f, 0.0f };						// その敵のスクリーン座標(px)
+	Math::Vector3   lockedPos       = { 0.0f, 0.0f, 0.0f };					// その敵のワールド座標(旋回用)
 
 	bool IsLocked() const { return lockedEntity != Engine::ECS::Limits::INVALID_ENTITY; }
 };

@@ -69,35 +69,25 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 								continue;
 							}
 
-							// 変換行列計算
-							DirectX::XMMATRIX _transMat = DirectX::XMMatrixTranslationFromVector(
-								DirectX::XMLoadFloat3(&_trsComp.pos)
-							);
-							DirectX::XMVECTOR _quat = DirectX::XMQuaternionNormalize(
-								DirectX::XMLoadFloat4(&_trsComp.quat)
-							);
-							DirectX::XMMATRIX _rotMat = DirectX::XMMatrixRotationQuaternion(
-								_quat
-							);
-							DirectX::XMMATRIX _scaleMat = DirectX::XMMatrixScalingFromVector(
-								DirectX::XMLoadFloat3(&_trsComp.scale)
-							);
-
-							DirectX::XMMATRIX _myLocalMat = _scaleMat * _rotMat * _transMat;
+							// 変換行列計算(スケール→回転→平行移動の順で合成)
+							// 回転は正規化してから使う。エディタで直打ちした値が
+							// 単位長でないとスケールが混ざるため
+							Math::Matrix _myLocalMat = Math::Matrix::CreateTRS(
+								_trsComp.pos,
+								_trsComp.quat.Normalized(),
+								_trsComp.scale);
 
 							// 親の行列を掛け合わせる
 							if (_hComp.parentID != Engine::ECS::Limits::INVALID_ENTITY) {
 								// 親のワールド行列を取得
 								auto* _parentMatComp = a_ctx.pWorld->RefData<WorldMatrixComponent>(_hComp.parentID);
-								DirectX::XMMATRIX _parentMat = DirectX::XMLoadFloat4x4(&_parentMatComp->worldMat);
 
-								// 親 * 子 の順で掛け合わせる
-								DirectX::XMMATRIX _worldMat = _myLocalMat * _parentMat;
-								DirectX::XMStoreFloat4x4(&_worldMatComp.worldMat, _worldMat);
+								// 子 * 親 の順(自分のローカルを先に適用してから親へ乗せる)
+								_worldMatComp.worldMat = _myLocalMat * _parentMatComp->worldMat;
 							}
 							else {
 								// 親がいない場合はそのまま（ルート）
-								DirectX::XMStoreFloat4x4(&_worldMatComp.worldMat, _myLocalMat);
+								_worldMatComp.worldMat = _myLocalMat;
 							}
 
 							_worldMatComp.wasUpdatedThisFrame = true;

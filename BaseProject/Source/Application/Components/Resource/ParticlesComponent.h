@@ -25,9 +25,9 @@ struct ParticlesComponent
 
 	// ---- 発生源 ----
 	EEmitSpace			emitSpace = EEmitSpace::WorldMatrix;
-	DirectX::XMFLOAT3	posOffset = { 0,0,0 };		// LocalOffset時: worldMat基準の追加移動(ローカル座標)
-	DirectX::XMFLOAT3	emitDir   = { 0,0,1 };		// Local/Fixed時の発生方向
-	DirectX::XMFLOAT3	worldPos  = { 0,0,0 };		// FixedWorld時の絶対ワールド座標
+	Math::Vector3	posOffset = { 0,0,0 };		// LocalOffset時: worldMat基準の追加移動(ローカル座標)
+	Math::Vector3	emitDir   = { 0,0,1 };		// Local/Fixed時の発生方向
+	Math::Vector3	worldPos  = { 0,0,0 };		// FixedWorld時の絶対ワールド座標
 
 	// ---- 発生量 ----
 	int   emitCount = 8;		// 1回の発生数

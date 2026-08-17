@@ -1,4 +1,4 @@
-#include "LookAroundSystem.h"
+﻿#include "LookAroundSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -72,14 +72,14 @@ void LookAroundSystem::Init(Engine::ECS::World& a_world)
 				bool  _isSmooth  = true;	// 目標へ Slerp で追従するか(false は直接入れる)
 
 				// 向きたい水平方向。決まったものだけ Yaw に変換する
-				DXSM::Vector3 _dir    = {};
+				Math::Vector3 _dir    = {};
 				bool          _hasDir = false;
 
 				switch (_patrol.lostPhase)
 				{
 				case ELostPhase::MoveTo:
 					// 向かっている地点の方向を向く
-					_dir    = DXSM::Vector3(_patrol.lastSeenPos) - DXSM::Vector3(_trs.pos);
+					_dir    = Math::Vector3(_patrol.lastSeenPos) - Math::Vector3(_trs.pos);
 					_hasDir = true;
 					break;
 
@@ -106,7 +106,7 @@ void LookAroundSystem::Init(Engine::ECS::World& a_world)
 					else
 					{
 						// 歩いている方向を向く
-						_dir    = DXSM::Vector3(_patrol.wanderDir);
+						_dir    = Math::Vector3(_patrol.wanderDir);
 						_hasDir = true;
 					}
 					break;
@@ -123,17 +123,16 @@ void LookAroundSystem::Init(Engine::ECS::World& a_world)
 					_targetYaw = std::atan2(_dir.x, _dir.z);
 				}
 
-				DirectX::XMVECTOR _targetQuat =
-					DirectX::XMQuaternionRotationRollPitchYaw(0.0f, _targetYaw, 0.0f);
+				Math::Quaternion _targetQuat =
+					Math::Quaternion::CreateFromYawPitchRoll(_targetYaw, 0.0f, 0.0f);
 
 				if (_isSmooth)
 				{
-					DirectX::XMVECTOR _currentQuat = DirectX::XMLoadFloat4(&_trs.quat);
-					float _t = std::min(_kTurnSpeed * a_ctx.dt, 1.0f);
-					_targetQuat = DirectX::XMQuaternionSlerp(_currentQuat, _targetQuat, _t);
+					const float _t = std::min(_kTurnSpeed * a_ctx.dt, 1.0f);
+					_targetQuat = Math::Quaternion::Slerp(_trs.quat, _targetQuat, _t);
 				}
 
-				DirectX::XMStoreFloat4(&_trs.quat, _targetQuat);
+				_trs.quat = _targetQuat;
 				_trs.isDirty = true;	// 停止中でも行列を再構築させる
 			}
 		}

@@ -1,4 +1,4 @@
-#include "OBBCollisionSystem.h"
+﻿#include "OBBCollisionSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -32,7 +32,7 @@ void OBBCollisionSystem::Init(Engine::ECS::World& a_world)
 				const LocalTransformComponent& _trans = a_transArray[_i];
 
 				// 中心・向き（向きはエンティティの回転を使う）
-				DXSM::Vector3 _center = DXSM::Vector3(_trans.pos) + DXSM::Vector3(_obb.offset);
+				Math::Vector3 _center = Math::Vector3(_trans.pos) + Math::Vector3(_obb.offset);
 
 				// 重なり判定
 				Engine::Collision::OBBInfo _info;

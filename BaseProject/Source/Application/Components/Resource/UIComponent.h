@@ -11,9 +11,9 @@ struct UIComponent
 	Engine::GUID texGUID = {};
 
 	// UVオフセットとタイル
-	DirectX::XMFLOAT4 uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
+	Math::Vector4 uvOffsetTiling = { 0.0f,0.0f,1.0f,1.0f };
 	// 色
-	DirectX::XMFLOAT4 color = { 1.0f,1.0f,1.0f,1.0f };
+	Math::Color color = { 1.0f,1.0f,1.0f,1.0f };
 };
 
 template<>
@@ -47,6 +47,6 @@ struct Engine::ECS::ComponentTraits<UIComponent>
 		);
 
 		ImGui::Text("ColorScale");
-		ImGui::ColorPicker4("ColorScale", &_comp.color.x);
+		ImGui::ColorPicker4("ColorScale", _comp.color.Data());
 	}
 };

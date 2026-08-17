@@ -1,4 +1,4 @@
-#include "RotationSystem.h"
+﻿#include "RotationSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -40,7 +40,7 @@ void RotationSystem::Init(Engine::ECS::World& a_world)
 				LocalTransformComponent& _trs = a_trsArray[_i];
 
 				// 角度は度で保持されているのでラジアンへ変換する
-				DXSM::Quaternion _quat = DXSM::Quaternion::CreateFromYawPitchRoll(
+				Math::Quaternion _quat = Math::Quaternion::CreateFromYawPitchRoll(
 					DirectX::XMConvertToRadians(_lookAng.Yaw),
 					0.0f,
 					0.0f

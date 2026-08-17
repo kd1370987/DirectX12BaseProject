@@ -15,7 +15,7 @@
 //==========================================================================================
 struct CameraFocusTargetComponent
 {
-	DirectX::XMFLOAT3 offsetPos;
+	Math::Vector3 offsetPos;
 };
 
 template<>

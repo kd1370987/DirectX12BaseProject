@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../UIBase.h"
 
@@ -52,6 +52,6 @@ namespace App::Object
 
 		// このフレームに描く枠のスクリーン座標(px, 左上原点)。
 		// Update で作って Draw で消費する
-		std::vector<DXSM::Vector2> m_lockScreenPosVec = {};
+		std::vector<Math::Vector2> m_lockScreenPosVec = {};
 	};
 }

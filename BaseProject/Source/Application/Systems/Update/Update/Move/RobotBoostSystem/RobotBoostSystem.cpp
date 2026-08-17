@@ -97,9 +97,9 @@ void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 
 				// 移動入力(前後左右)は水平のまま合成する。
 				// 前後の軸から Pitch を抜いてあるので、視点を上下しても水平に滑る
-				DXSM::Vector3 _dir =
-					DXSM::Vector3(_sinY, 0.0f, _cosY) * _moveIntent.value.z +
-					DXSM::Vector3(_cosY, 0.0f, -_sinY) * _moveIntent.value.x;
+				Math::Vector3 _dir =
+					Math::Vector3(_sinY, 0.0f, _cosY) * _moveIntent.value.z +
+					Math::Vector3(_cosY, 0.0f, -_sinY) * _moveIntent.value.x;
 
 				// 上下を付けるのは「視点方向へ飛ぶとき」と「上方向の入力があるとき」だけ
 				bool _applyVertical = false;

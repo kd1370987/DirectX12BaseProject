@@ -1,4 +1,4 @@
-#include "EnemyMoveIntentSystem.h"
+﻿#include "EnemyMoveIntentSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -63,7 +63,7 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 				const LocalTransformComponent& _trs  = a_trsArray[_i];
 				MoveIntentComponent&         _intent = a_intentArray[_i];
 
-				DXSM::Vector3 _moveDir = {};	// 世界・水平・単位
+				Math::Vector3 _moveDir = {};	// 世界・水平・単位
 				float         _throttle = 0.0f;	// 0..1
 
 				if (_target.isFind)
@@ -82,12 +82,12 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 						if (const auto* _pPlayerWorld =
 							a_ctx.pWorld->RefData<WorldMatrixComponent>(_target.targetEntity))
 						{
-							DXSM::Vector3 _playerPos = DXSM::Matrix(_pPlayerWorld->worldMat).Translation();
+							Math::Vector3 _playerPos = Math::Matrix(_pPlayerWorld->worldMat).Translation();
 
 							// 見失ったときに向かう地点として、見えている間ずっと更新しておく
 							_patrol.lastSeenPos = { _playerPos.x, _playerPos.y, _playerPos.z };
 
-							DXSM::Vector3 _to = _playerPos - DXSM::Vector3(_trs.pos);
+							Math::Vector3 _to = _playerPos - Math::Vector3(_trs.pos);
 							_to.y = 0.0f;	// 水平のみ
 
 							float _lenSq = _to.LengthSquared();
@@ -141,7 +141,7 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 						//------------------------------------------------
 						_patrol.lostTimer += a_ctx.dt;
 
-						DXSM::Vector3 _to = DXSM::Vector3(_patrol.lastSeenPos) - DXSM::Vector3(_trs.pos);
+						Math::Vector3 _to = Math::Vector3(_patrol.lastSeenPos) - Math::Vector3(_trs.pos);
 						_to.y = 0.0f;
 						float _lenSq = _to.LengthSquared();
 
@@ -154,8 +154,8 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 
 							// 見渡しの基準は「到着したときに向いている方向」
 							// 左手系 +Z 前方: Yaw = atan2(x, z)
-							DXSM::Vector3 _forward = DXSM::Vector3::Transform(
-								DXSM::Vector3(0.0f, 0.0f, 1.0f), DXSM::Quaternion(_trs.quat));
+							Math::Vector3 _forward = Math::Vector3::Transform(
+								Math::Vector3(0.0f, 0.0f, 1.0f), Math::Quaternion(_trs.quat));
 							_patrol.lookAroundYaw = std::atan2(_forward.x, _forward.z);
 						}
 						else
@@ -196,8 +196,8 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 							{
 								// 歩き終わり → その場で立ち止まる
 								// 首振りの基準は「立ち止まったときに向いている方向」
-								DXSM::Vector3 _forward = DXSM::Vector3::Transform(
-									DXSM::Vector3(0.0f, 0.0f, 1.0f), DXSM::Quaternion(_trs.quat));
+								Math::Vector3 _forward = Math::Vector3::Transform(
+									Math::Vector3(0.0f, 0.0f, 1.0f), Math::Quaternion(_trs.quat));
 								_patrol.patrolLookYaw = std::atan2(_forward.x, _forward.z);
 
 								_patrol.patrolPhase = EPatrolPhase::Pause;
@@ -217,7 +217,7 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 						// 立ち止まっている間は動かない
 						if (_patrol.patrolPhase == EPatrolPhase::Move)
 						{
-							_moveDir  = DXSM::Vector3(_patrol.wanderDir);
+							_moveDir  = Math::Vector3(_patrol.wanderDir);
 							_throttle = _patrol.patrolThrottle;
 						}
 					}

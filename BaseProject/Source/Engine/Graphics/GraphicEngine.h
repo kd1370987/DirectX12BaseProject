@@ -281,13 +281,13 @@ namespace Engine::Graphics
 		/// <param name="a_pivot">回転軸/基準点(正規化[0,1], 0.5=中心)</param>
 		void SubmitUI(
 			const Handle<Resource::Texture>& a_texHandle,
-			const DXSM::Vector2& a_pixelPos,
-			const DXSM::Vector2& a_pixelSize,
-			const DXSM::Vector4& a_color = {},
+			const Math::Vector2& a_pixelPos,
+			const Math::Vector2& a_pixelSize,
+			const Math::Color& a_color = {},
 			float a_rotationDeg = 0,
 			float a_layer = 0,
-			const DXSM::Vector2& a_uvOffset = {},
-			const DXSM::Vector2& a_pivot = { 0.5f, 0.5f }
+			const Math::Vector2& a_uvOffset = {},
+			const Math::Vector2& a_pivot = { 0.5f, 0.5f }
 		);
 
 		/// <summary>
@@ -303,13 +303,13 @@ namespace Engine::Graphics
 		/// <param name="a_pivot">回転軸/基準点(正規化[0,1], 0.5=中心)</param>
 		void SubmitUI(
 			const Handle<Resource::Texture>& a_texHandle,
-			const DXSM::Vector2& a_pixelPos,
+			const Math::Vector2& a_pixelPos,
 			float a_scale = 1.0f,
-			const DXSM::Vector4& a_color = Color::WHITE,
+			const Math::Color& a_color = Math::Color::White(),
 			float a_rotationDeg = 0,
 			float a_layer = 0,
-			const DXSM::Vector2& a_uvOffset = {},
-			const DXSM::Vector2& a_pivot = { 0.5f, 0.5f }
+			const Math::Vector2& a_uvOffset = {},
+			const Math::Vector2& a_pivot = { 0.5f, 0.5f }
 		);
 
 		// 追加
@@ -385,13 +385,13 @@ namespace Engine::Graphics
 		// 1件バッファへ積む(SubmitUI 各オーバーロード共通)。
 		void PushUIData(
 			uint32_t a_texIndex,
-			const DXSM::Vector2& a_pixelPos,
-			const DXSM::Vector2& a_pixelSize,
-			const DXSM::Vector4& a_color,
+			const Math::Vector2& a_pixelPos,
+			const Math::Vector2& a_pixelSize,
+			const Math::Color& a_color,
 			float a_rotationDeg,
 			float a_layer,
-			const DXSM::Vector2& a_uvOffset,
-			const DXSM::Vector2& a_pivot);
+			const Math::Vector2& a_uvOffset,
+			const Math::Vector2& a_pivot);
 	private:
 		//--------------------------------------------------------------------------------------------
 		// 主要クラス

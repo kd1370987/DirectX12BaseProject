@@ -33,9 +33,9 @@ struct AdditivePoseComponent
 	// currentAimQuat は必ず単位クォータニオンで初期化すること。
 	// ゼロクォータニオンを XMMatrixRotationQuaternion に渡すとスケール0の行列になり、
 	// メッシュが原点に潰れる。
-	DirectX::XMFLOAT4 currentAimQuat	= { 0.0f, 0.0f, 0.0f, 1.0f };	// 現在の上半身回転(補間後)
-	DirectX::XMFLOAT3 lagAngle			= { 0.0f, 0.0f, 0.0f };			// バネの現在値(ラジアン)
-	DirectX::XMFLOAT3 lagVelocity		= { 0.0f, 0.0f, 0.0f };			// バネの速度
+	Math::Quaternion currentAimQuat	= { 0.0f, 0.0f, 0.0f, 1.0f };	// 現在の上半身回転(補間後)
+	Math::Vector3 lagAngle			= { 0.0f, 0.0f, 0.0f };			// バネの現在値(ラジアン)
+	Math::Vector3 lagVelocity		= { 0.0f, 0.0f, 0.0f };			// バネの速度
 };
 
 template<>

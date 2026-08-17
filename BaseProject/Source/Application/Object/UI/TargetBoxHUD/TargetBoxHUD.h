@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../UIBase.h"
 
@@ -61,14 +61,14 @@ namespace App::Object
 		float m_lockSizeScale = 1.0f;
 
 		// ロック枠の色。通常枠(黄色)は UIBase の m_color を使う
-		DXSM::Color m_lockColor = Engine::Color::RED;
+		Math::Color m_lockColor = Engine::Color::RED;
 
 		// このフレームに描くボックスのスクリーン座標(px, 左上原点)。
 		// Update で作って Draw で消費する。
-		std::vector<DXSM::Vector2> m_targetScreenPosVec = {};
+		std::vector<Math::Vector2> m_targetScreenPosVec = {};
 
 		// ロック中の相手のスクリーン座標(px)。isLocked が false のフレームは描かない
-		DXSM::Vector2 m_lockedScreenPos = {};
+		Math::Vector2 m_lockedScreenPos = {};
 		bool m_isLocked = false;
 	};
 }

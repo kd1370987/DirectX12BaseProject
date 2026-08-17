@@ -13,8 +13,8 @@ namespace App::Object
 		Engine::Handle<Engine::Resource::Prefab>	spawnPrefabHandle = {};	// 解決済みハンドル(ランタイム)
 
 		// 初期情報
-		DXSM::Vector3 pos = {};						// 位置(ウェーブ位置からの相対座標)
-		DXSM::Vector3 dir = { 0.0f, 0.0f, 1.0f };	// 方向(左手系 +Z 前方。水平成分だけ使う)
+		Math::Vector3 pos = {};						// 位置(ウェーブ位置からの相対座標)
+		Math::Vector3 dir = { 0.0f, 0.0f, 1.0f };	// 方向(左手系 +Z 前方。水平成分だけ使う)
 	};
 
 	/// <summary>
@@ -28,7 +28,7 @@ namespace App::Object
 		// ウェーブの基準位置(ワールド)。
 		// 各 SpawnSettings.pos はここからの相対座標なので、ここを動かせば
 		// そのウェーブの出現位置がまとめて動く。
-		DXSM::Vector3 pos = {};
+		Math::Vector3 pos = {};
 
 		// ウェーブ条件(保存する)
 		float timing = 0.0f;			// 出現タイミング(秒)

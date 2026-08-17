@@ -53,22 +53,22 @@ void EmitParticleSystem::Init(Engine::ECS::World& a_world)
 				// ---------------------------------------------------------
 				// 発生源(位置・方向)を emitSpace に応じて決定
 				// ---------------------------------------------------------
-				DXSM::Matrix  _world(_transComp.worldMat);
-				DXSM::Vector3 _pos;
-				DXSM::Vector3 _dir;
+				Math::Matrix  _world(_transComp.worldMat);
+				Math::Vector3 _pos;
+				Math::Vector3 _dir;
 
 				switch (_p.emitSpace)
 				{
 				case EEmitSpace::WorldMatrix:
 					// 付いているオブジェクトのワールド位置と前方向(+Z)
 					_pos = _world.Translation();
-					_dir = DXSM::Vector3(_world._31, _world._32, _world._33);
+					_dir = Math::Vector3(_world._31, _world._32, _world._33);
 					break;
 
 				case EEmitSpace::LocalOffset:
 					// worldMat を基準に、ローカルのオフセット位置・方向を合成
-					_pos = DXSM::Vector3::Transform(DXSM::Vector3(_p.posOffset), _world);
-					_dir = DXSM::Vector3::TransformNormal(DXSM::Vector3(_p.emitDir), _world);
+					_pos = Math::Vector3::Transform(Math::Vector3(_p.posOffset), _world);
+					_dir = Math::Vector3::TransformNormal(Math::Vector3(_p.emitDir), _world);
 					break;
 
 				case EEmitSpace::ReverseVelocity:
@@ -78,21 +78,21 @@ void EmitParticleSystem::Init(Engine::ECS::World& a_world)
 					// 行列の軸ではなく実際の速度から向きを取る。
 					// VelocityComponent はこのクエリに含めない
 					// (持たないエンティティのパーティクルまで止まってしまうため)
-					_pos = DXSM::Vector3::Transform(DXSM::Vector3(_p.posOffset), _world);
+					_pos = Math::Vector3::Transform(Math::Vector3(_p.posOffset), _world);
 
 					Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 					if (a_ctx.pWorld->HasComponent<VelocityComponent>(_self))
 					{
 						if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_self))
 						{
-							_dir = -DXSM::Vector3(_pVel->value);
+							_dir = -Math::Vector3(_pVel->value);
 						}
 					}
 
 					// 止まっている(または速度を持たない)ときは後ろ向き＝ローカル +Z の逆
 					if (_dir.LengthSquared() <= 1e-8f)
 					{
-						_dir = -DXSM::Vector3(_world._31, _world._32, _world._33);
+						_dir = -Math::Vector3(_world._31, _world._32, _world._33);
 					}
 					break;
 				}
@@ -100,8 +100,8 @@ void EmitParticleSystem::Init(Engine::ECS::World& a_world)
 				case EEmitSpace::FixedWorld:
 				default:
 					// 行列を使わず、コンポーネントの絶対座標・方向をそのまま
-					_pos = DXSM::Vector3(_p.worldPos);
-					_dir = DXSM::Vector3(_p.emitDir);
+					_pos = Math::Vector3(_p.worldPos);
+					_dir = Math::Vector3(_p.emitDir);
 					break;
 				}
 
@@ -112,7 +112,7 @@ void EmitParticleSystem::Init(Engine::ECS::World& a_world)
 				}
 				else
 				{
-					_dir = DXSM::Vector3(0.0f, 0.0f, 1.0f);
+					_dir = Math::Vector3(0.0f, 0.0f, 1.0f);
 				}
 
 				// ---------------------------------------------------------

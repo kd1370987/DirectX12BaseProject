@@ -1,4 +1,4 @@
-#include "SearchPlayerSystem.h"
+﻿#include "SearchPlayerSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -39,25 +39,25 @@
 namespace
 {
 	// 攻撃可能距離の可視化色(黄)。Engine::Color には無いのでここで作る
-	constexpr DirectX::XMFLOAT4 kAttackRangeColor = { 1.0f, 0.85f, 0.1f, 1.0f };
+	constexpr Math::Color kAttackRangeColor = { 1.0f, 0.85f, 0.1f, 1.0f };
 
 	// 索敵範囲を水平の円でデバッグ描画する
 	void DrawRangeCircle(
 		Engine::Editor::MainEditor* a_pEditor,
-		const DXSM::Vector3&        a_center,	// 円の中心(敵の位置)
+		const Math::Vector3&        a_center,	// 円の中心(敵の位置)
 		float                       a_radius,	// 半径
-		const DXSM::Color&          a_color)
+		const Math::Color&          a_color)
 	{
 		if (!a_pEditor)         return;
 		if (a_radius <= 1e-4f)  return;
 
 		constexpr int _kSeg = 32;	// 円周の分割数
 
-		DXSM::Vector3 _prev = {};
+		Math::Vector3 _prev = {};
 		for (int _s = 0; _s <= _kSeg; ++_s)
 		{
 			float _t = (DirectX::XM_2PI * _s) / _kSeg;
-			DXSM::Vector3 _p = a_center + DXSM::Vector3(std::sin(_t), 0.0f, std::cos(_t)) * a_radius;
+			Math::Vector3 _p = a_center + Math::Vector3(std::sin(_t), 0.0f, std::cos(_t)) * a_radius;
 
 			if (_s > 0) a_pEditor->DrawLine(_prev, _p, a_color);
 			_prev = _p;
@@ -120,15 +120,15 @@ void SearchPlayerSystem::Init(Engine::ECS::World& a_world)
 				//==================================================
 				// ターゲット位置の取得
 				//==================================================
-				DXSM::Vector3 _selfPos   = DXSM::Matrix(_worldComp.worldMat).Translation();
+				Math::Vector3 _selfPos   = Math::Matrix(_worldComp.worldMat).Translation();
 				bool          _hasTarget = false;
-				DXSM::Vector3 _playerPos = {};
+				Math::Vector3 _playerPos = {};
 				if (_playerEntity != Engine::ECS::Limits::INVALID_ENTITY &&
 					a_ctx.pWorld->HasComponent<WorldMatrixComponent>(_playerEntity))
 				{
 					if (const auto* _pPlayerWorld = a_ctx.pWorld->RefData<WorldMatrixComponent>(_playerEntity))
 					{
-						_playerPos = DXSM::Matrix(_pPlayerWorld->worldMat).Translation();
+						_playerPos = Math::Matrix(_pPlayerWorld->worldMat).Translation();
 						_hasTarget = true;
 					}
 				}

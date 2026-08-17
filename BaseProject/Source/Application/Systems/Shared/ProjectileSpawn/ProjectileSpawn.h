@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/ECS/World/World.h"
 
@@ -44,8 +44,8 @@ namespace App::Systems::ProjectileSpawn
 	void Spawn(
 		Engine::ECS::World&       a_world,
 		Engine::Resource::Prefab* a_pPrefab,
-		const DirectX::XMFLOAT3&  a_pos,
-		const DirectX::XMFLOAT3&  a_velocity,
+		const Math::Vector3&  a_pos,
+		const Math::Vector3&  a_velocity,
 		Engine::ECS::Entity       a_shooter,
 		Engine::ECS::Entity       a_homingTarget);
 }

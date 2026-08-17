@@ -1,4 +1,4 @@
-#include "AdditivePoseSystem.h"
+﻿#include "AdditivePoseSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
@@ -20,10 +20,10 @@ namespace
 	// 回転行列の前方ベクトルから Yaw / Pitch(ラジアン)を取り出す。
 	// このエンジンは行ベクトル規約なので、前方ベクトルは行列の第3行になる。
 	//----------------------------------------------------------------------------------
-	void ExtractYawPitch(const DXSM::Quaternion& a_quat, float& a_outYaw, float& a_outPitch)
+	void ExtractYawPitch(const Math::Quaternion& a_quat, float& a_outYaw, float& a_outPitch)
 	{
-		DXSM::Matrix _mat = DXSM::Matrix::CreateFromQuaternion(a_quat);
-		DXSM::Vector3 _forward(_mat._31, _mat._32, _mat._33);
+		Math::Matrix _mat = Math::Matrix::CreateFromQuaternion(a_quat);
+		Math::Vector3 _forward(_mat._31, _mat._32, _mat._33);
 		_forward.Normalize();
 
 		a_outYaw = std::atan2f(_forward.x, _forward.z);
@@ -41,23 +41,22 @@ namespace
 	//   qBone = qBind * qModel * conj(qBind)
 	// と共役変換すれば、見た目はモデル空間で qModel だけ回したものと一致する。
 	//----------------------------------------------------------------------------------
-	DXSM::Quaternion ToBoneSpace(const DXSM::Quaternion& a_modelQuat, const DirectX::XMFLOAT4X4& a_bindWorld)
+	Math::Quaternion ToBoneSpace(const Math::Quaternion& a_modelQuat, const Math::Matrix& a_bindWorld)
 	{
-		DXSM::Matrix _bindMat(a_bindWorld);
+		Math::Matrix _bindMat(a_bindWorld);
 
-		DXSM::Vector3 _bindScale;
-		DXSM::Quaternion _bindRot;
-		DXSM::Vector3 _bindTrans;
+		Math::Vector3 _bindScale;
+		Math::Quaternion _bindRot;
+		Math::Vector3 _bindTrans;
 		if (!_bindMat.Decompose(_bindScale, _bindRot, _bindTrans))
 		{
 			// バインド行列が壊れている場合はモデル空間のまま適用する
 			return a_modelQuat;
 		}
 
-		DXSM::Quaternion _bindConj;
-		_bindRot.Conjugate(_bindConj);
+		const Math::Quaternion _bindConj = _bindRot.Conjugate();
 
-		DXSM::Quaternion _result = _bindRot * a_modelQuat * _bindConj;
+		Math::Quaternion _result = _bindRot * a_modelQuat * _bindConj;
 		_result.Normalize();
 		return _result;
 	}
@@ -119,11 +118,11 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				//==========================================================================
 				// 機体の向き(ワールド)
 				//==========================================================================
-				DXSM::Quaternion _bodyQuat(_trsComp.quat);
-				if (_bodyQuat.LengthSquared() < 1e-6f) _bodyQuat = DXSM::Quaternion::Identity;
+				Math::Quaternion _bodyQuat(_trsComp.quat);
+				if (_bodyQuat.LengthSquared() < 1e-6f) _bodyQuat = Math::Quaternion::Identity();
 				_bodyQuat.Normalize();
 
-				DXSM::Quaternion _bodyConj = _bodyQuat;
+				Math::Quaternion _bodyConj = _bodyQuat;
 				_bodyConj.Conjugate();
 
 				//==========================================================================
@@ -150,8 +149,8 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 					{
 						if (_pLockOn->IsLocked())
 						{
-							DXSM::Vector3 _toTarget =
-								DXSM::Vector3(_pLockOn->lockedPos) - DXSM::Vector3(_trsComp.pos);
+							Math::Vector3 _toTarget =
+								Math::Vector3(_pLockOn->lockedPos) - Math::Vector3(_trsComp.pos);
 
 							// 長さのチェックは NaN も弾ける形で書くこと
 							float _lenSq = _toTarget.LengthSquared();
@@ -169,7 +168,7 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 					}
 				}
 
-				DXSM::Quaternion _lookQuat = DXSM::Quaternion::CreateFromYawPitchRoll(
+				Math::Quaternion _lookQuat = Math::Quaternion::CreateFromYawPitchRoll(
 					_aimYaw,
 					_aimPitch,
 					0.0f
@@ -177,7 +176,7 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				_lookQuat.Normalize();
 
 				// Mat(offset) = Mat(look) * Mat(body)^-1 となる差分
-				DXSM::Quaternion _offsetQuat = _lookQuat * _bodyConj;
+				Math::Quaternion _offsetQuat = _lookQuat * _bodyConj;
 				_offsetQuat.Normalize();
 
 				// 可動域でクランプしてから作り直す(ロールは捨てる)
@@ -190,15 +189,15 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				_yaw = std::clamp(_yaw, -_yawLimit, _yawLimit);
 				_pitch = std::clamp(_pitch, -_pitchLimit, _pitchLimit);
 
-				DXSM::Quaternion _targetAim = DXSM::Quaternion::CreateFromYawPitchRoll(_yaw, _pitch, 0.0f);
+				Math::Quaternion _targetAim = Math::Quaternion::CreateFromYawPitchRoll(_yaw, _pitch, 0.0f);
 				_targetAim.Normalize();
 
 				// Slerpで追従(急に振り向かせない)
-				DXSM::Quaternion _currentAim(_addComp.currentAimQuat);
-				if (_currentAim.LengthSquared() < 1e-6f) _currentAim = DXSM::Quaternion::Identity;
+				Math::Quaternion _currentAim(_addComp.currentAimQuat);
+				if (_currentAim.LengthSquared() < 1e-6f) _currentAim = Math::Quaternion::Identity();
 
 				float _t = std::min(_addComp.followRate * a_ctx.dt, 1.0f);
-				_currentAim = DXSM::Quaternion::Slerp(_currentAim, _targetAim, _t);
+				_currentAim = Math::Quaternion::Slerp(_currentAim, _targetAim, _t);
 				_currentAim.Normalize();
 				_addComp.currentAimQuat = _currentAim;
 
@@ -217,31 +216,31 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 				// 実速度は加速度/減速度で滑らかに変化するので、歩き出しは浅く、
 				// ブーストは深く、と速さがそのまま角度に出る。
 				//==========================================================================
-				DXSM::Vector3 _velocity(_velComp.value);
+				Math::Vector3 _velocity(_velComp.value);
 
 				if (a_ctx.pWorld->HasComponent<MovementComponent>(_self))
 				{
 					if (const auto* _pMovement = a_ctx.pWorld->RefData<MovementComponent>(_self))
 					{
-						_velocity = DXSM::Vector3(_pMovement->velocity);
+						_velocity = Math::Vector3(_pMovement->velocity);
 					}
 				}
 
 				// ワールド速度をモデル空間へ(x:右 y:上 z:前)
-				DXSM::Vector3 _velModel = DXSM::Vector3::Transform(_velocity, _bodyConj);
+				Math::Vector3 _velModel = Math::Vector3::Transform(_velocity, _bodyConj);
 
 				// 前方向の速度は X軸(右)まわり、横方向の速度は Z軸(前)まわりに倒す。
 				// どちらも軸スケールが正のときに「進行方向の逆へ流れる」向きになる
 				// (下向きの手足に対して、+X 回転は後ろへ、+Z 回転は右へ振れるため符号が入れ替わる)
 				const float _lagLimit = DirectX::XMConvertToRadians(_addComp.lagLimitDeg);
-				DXSM::Vector3 _lagTarget = {};
+				Math::Vector3 _lagTarget = {};
 				_lagTarget.x = std::clamp(_velModel.z * _addComp.lagScale, -_lagLimit, _lagLimit);
 				_lagTarget.y = 0.0f;
 				_lagTarget.z = std::clamp(-_velModel.x * _addComp.lagScale, -_lagLimit, _lagLimit);
 
 				// バネで追従させ、加速が止まったら自然に戻す
-				DXSM::Vector3 _lagAngle(_addComp.lagAngle);
-				DXSM::Vector3 _lagVel(_addComp.lagVelocity);
+				Math::Vector3 _lagAngle(_addComp.lagAngle);
+				Math::Vector3 _lagVel(_addComp.lagVelocity);
 
 				_lagVel += ((_lagTarget - _lagAngle) * _addComp.lagStiffness - _lagVel * _addComp.lagDamping) * a_ctx.dt;
 				_lagAngle += _lagVel * a_ctx.dt;
@@ -267,13 +266,13 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 					if (static_cast<size_t>(_entry.nodeIdx) >= _nodeVec.size()) continue;
 
 					// モデル空間での加算回転を作る
-					DXSM::Quaternion _modelQuat = DXSM::Quaternion::Identity;
+					Math::Quaternion _modelQuat = Math::Quaternion::Identity();
 
 					if (_entry.channel == Engine::Resource::EAdditiveChannel::Aim)
 					{
 						// チェーン内の配分だけ効かせる
 						float _share = std::clamp(_entry.share * _weight, 0.0f, 1.0f);
-						_modelQuat = DXSM::Quaternion::Slerp(DXSM::Quaternion::Identity, _currentAim, _share);
+						_modelQuat = Math::Quaternion::Slerp(Math::Quaternion::Identity(), _currentAim, _share);
 					}
 					else
 					{
@@ -284,19 +283,19 @@ void AdditivePoseSystem::Init(Engine::ECS::World& a_world)
 
 						float _scale = _entry.share * _weight * _channelScale;
 
-						DXSM::Vector3 _axisScale(_entry.axisScale);
+						Math::Vector3 _axisScale(_entry.axisScale);
 						_modelQuat =
-							DXSM::Quaternion::CreateFromAxisAngle(DXSM::Vector3(1.0f, 0.0f, 0.0f), _lagAngle.x * _axisScale.x * _scale) *
-							DXSM::Quaternion::CreateFromAxisAngle(DXSM::Vector3(0.0f, 1.0f, 0.0f), _lagAngle.y * _axisScale.y * _scale) *
-							DXSM::Quaternion::CreateFromAxisAngle(DXSM::Vector3(0.0f, 0.0f, 1.0f), _lagAngle.z * _axisScale.z * _scale);
+							Math::Quaternion::CreateFromAxisAngle(Math::Vector3(1.0f, 0.0f, 0.0f), _lagAngle.x * _axisScale.x * _scale) *
+							Math::Quaternion::CreateFromAxisAngle(Math::Vector3(0.0f, 1.0f, 0.0f), _lagAngle.y * _axisScale.y * _scale) *
+							Math::Quaternion::CreateFromAxisAngle(Math::Vector3(0.0f, 0.0f, 1.0f), _lagAngle.z * _axisScale.z * _scale);
 					}
 					_modelQuat.Normalize();
 
 					// ボーン空間へ移して、クリップ適用済みのローカル行列へ前から掛ける
-					DXSM::Quaternion _boneQuat = ToBoneSpace(_modelQuat, _nodeVec[_entry.nodeIdx].worldTransform);
+					Math::Quaternion _boneQuat = ToBoneSpace(_modelQuat, _nodeVec[_entry.nodeIdx].worldTransform);
 
-					DXSM::Matrix _addMat = DXSM::Matrix::CreateFromQuaternion(_boneQuat);
-					DXSM::Matrix _local(_nodePoseVec[_entry.nodeIdx].local);
+					Math::Matrix _addMat = Math::Matrix::CreateFromQuaternion(_boneQuat);
+					Math::Matrix _local(_nodePoseVec[_entry.nodeIdx].local);
 					_nodePoseVec[_entry.nodeIdx].local = _addMat * _local;
 				}
 			}

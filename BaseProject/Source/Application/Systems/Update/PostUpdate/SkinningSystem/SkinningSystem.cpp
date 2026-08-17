@@ -40,7 +40,7 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 				auto _boneMatVec = _boneMatPool.RefRange(_skeComp.skeletonPoseHandle);
 				for (auto& _mat : _boneMatVec)
 				{
-					_mat.mat = DXSM::Matrix::Identity;
+					_mat.mat = Math::Matrix::Identity();
 				}
 
 				// 全ノードポーズを再帰計算
@@ -57,8 +57,8 @@ void SkinningSystem::Init(Engine::ECS::World& a_world)
 					const auto& _dataNode = _dataNodes[_nodeIdx];
 					if (_dataNode.boneIndex < 0 || static_cast<size_t>(_dataNode.boneIndex) >= _boneMatVec.size()) continue;
 
-					DXSM::Matrix _nodeWorldMat = _nodePoseMatVec[_nodeIdx].world;
-					DXSM::Matrix _invMat = _dataNodes[_nodeIdx].boneInverseWorldMatrix;
+					Math::Matrix _nodeWorldMat = _nodePoseMatVec[_nodeIdx].world;
+					Math::Matrix _invMat = _dataNodes[_nodeIdx].boneInverseWorldMatrix;
 					_boneMatVec[_dataNode.boneIndex].mat = _invMat * _nodeWorldMat;
 				}
 

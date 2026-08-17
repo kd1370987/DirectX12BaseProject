@@ -36,10 +36,10 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				if (_collComp.layer == Layer::DiynamicObject) continue;
 
 				// ワールド行列計算
-				DXSM::Matrix _mat = {};
-				DXSM::Matrix _tMat = DXSM::Matrix::CreateTranslation(_transComp.pos);
-				DXSM::Matrix _rMat = DXSM::Matrix::CreateFromQuaternion(_transComp.quat);
-				DXSM::Matrix _sMat = DXSM::Matrix::CreateScale(_transComp.scale);
+				Math::Matrix _mat = {};
+				Math::Matrix _tMat = Math::Matrix::CreateTranslation(_transComp.pos);
+				Math::Matrix _rMat = Math::Matrix::CreateFromQuaternion(_transComp.quat);
+				Math::Matrix _sMat = Math::Matrix::CreateScale(_transComp.scale);
 				_mat = _sMat * _rMat * _tMat;
 
 				// モデルのAABB計算
@@ -53,7 +53,7 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 
 				// ローカルAABBをワールドに変換
 				DirectX::BoundingBox _worldAABB;
-				_localAABB.Transform(_worldAABB,_mat);
+				_localAABB.Transform(_worldAABB, Math::DX::Load(_mat));
 
 				// コリジョンワールドの取得
 				auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();

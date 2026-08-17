@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //==========================================================================================
 //
@@ -27,11 +27,11 @@ namespace App::Utility
 	/// </summary>
 	struct SpawnParams
 	{
-		DirectX::XMFLOAT3 pos  = { 0.0f, 0.0f, 0.0f };			// 生成位置(ワールド)
+		Math::Vector3 pos  = { 0.0f, 0.0f, 0.0f };			// 生成位置(ワールド)
 
 		// 生成時の向き。isOverrideRotation が false ならプレハブの保存値をそのまま使う
 		// (爆発エフェクトのように、プレハブ側で付けた傾きを潰したくない用途があるため)
-		DirectX::XMFLOAT4 quat = { 0.0f, 0.0f, 0.0f, 1.0f };
+		Math::Quaternion quat = { 0.0f, 0.0f, 0.0f, 1.0f };
 		bool isOverrideRotation = false;
 
 		// 生成元の印(SpawnerComponent)。付けると出した側が生存数を数えられる。
@@ -62,5 +62,5 @@ namespace App::Utility
 		Engine::Resource::ResourceManager& a_resourceManager,
 		const Engine::GUID& a_prefabGUID,
 		Engine::Handle<Engine::Resource::Prefab>& a_refHandle,
-		const DirectX::XMFLOAT3& a_pos);
+		const Math::Vector3& a_pos);
 }

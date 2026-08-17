@@ -60,7 +60,7 @@ namespace
 		bool ToScreen(const DXSM::Vector3& a_world, ImVec2& a_out) const
 		{
 			// w で割る必要があるので TransformCoord ではなく Transform を使う
-			DirectX::XMVECTOR _clip = DirectX::XMVector3Transform(DirectX::XMLoadFloat3(&a_world), viewProj);
+			DirectX::XMVECTOR _clip = DirectX::XMVector3Transform(Math::DX::Load(a_world), viewProj);
 
 			const float _w = DirectX::XMVectorGetW(_clip);
 			if (_w <= 1e-4f) return false;
@@ -358,13 +358,13 @@ namespace Engine::Editor
 					const auto* _pModel = Resource::ResourceManager::Instance().Get(a_models[_i].handle);
 					if (!_pModel) continue;
 
-					DirectX::XMMATRIX _instWorld = DirectX::XMLoadFloat4x4(&a_worlds[_i].worldMat);
+					DirectX::XMMATRIX _instWorld = Math::DX::Load(a_worlds[_i].worldMat);
 
 					// 描画メッシュノードごとに判定
 					for (int _nodeIdx : _pModel->GetDrawNodeVec())
 					{
 						const Engine::Resource::Node& _node = _pModel->GetOriginalNodeVec()[_nodeIdx];
-						DirectX::XMMATRIX _nodeGlobal = DirectX::XMLoadFloat4x4(&_node.worldTransform);
+						DirectX::XMMATRIX _nodeGlobal = Math::DX::Load(_node.worldTransform);
 						DirectX::XMMATRIX _meshWorld = DirectX::XMMatrixMultiply(_nodeGlobal, _instWorld);
 
 						for (int _meshIdx : _node.meshIndices)
@@ -388,17 +388,17 @@ namespace Engine::Editor
 							const auto& _faces = _pMesh->GetFaceVec();
 							const size_t _vertCount = _verts.size();
 
-							DirectX::XMVECTOR _ro = DirectX::XMLoadFloat3(&_ray.origin);
-							DirectX::XMVECTOR _rd = DirectX::XMLoadFloat3(&_ray.direction);	// 正規化済み
+							DirectX::XMVECTOR _ro = Math::DX::Load(_ray.origin);
+							DirectX::XMVECTOR _rd = Math::DX::Load(_ray.direction);	// 正規化済み
 
 							for (const auto& _f : _faces)
 							{
 								// 不正インデックス保護
 								if (_f.idx[0] >= _vertCount || _f.idx[1] >= _vertCount || _f.idx[2] >= _vertCount) continue;
 
-								DirectX::XMVECTOR _p0 = DirectX::XMVector3TransformCoord(DirectX::XMLoadFloat3(&_verts[_f.idx[0]].pos), _meshWorld);
-								DirectX::XMVECTOR _p1 = DirectX::XMVector3TransformCoord(DirectX::XMLoadFloat3(&_verts[_f.idx[1]].pos), _meshWorld);
-								DirectX::XMVECTOR _p2 = DirectX::XMVector3TransformCoord(DirectX::XMLoadFloat3(&_verts[_f.idx[2]].pos), _meshWorld);
+								DirectX::XMVECTOR _p0 = DirectX::XMVector3TransformCoord(Math::DX::Load(_verts[_f.idx[0]].pos), _meshWorld);
+								DirectX::XMVECTOR _p1 = DirectX::XMVector3TransformCoord(Math::DX::Load(_verts[_f.idx[1]].pos), _meshWorld);
+								DirectX::XMVECTOR _p2 = DirectX::XMVector3TransformCoord(Math::DX::Load(_verts[_f.idx[2]].pos), _meshWorld);
 
 								float _t = 0.0f;
 								if (DirectX::TriangleTests::Intersects(_ro, _rd, _p0, _p1, _p2, _t))
@@ -453,9 +453,9 @@ namespace Engine::Editor
 		const auto& _camData = _pGE->GetCPUCameraData();
 
 		// Pos/Quat/Scale から 4x4ワールド行列を合成
-		DirectX::XMVECTOR _vScale = DirectX::XMLoadFloat3(&_pTrsComp->scale);
-		DirectX::XMVECTOR _vQuat = DirectX::XMLoadFloat4(&_pTrsComp->quat);
-		DirectX::XMVECTOR _vPos = DirectX::XMLoadFloat3(&_pTrsComp->pos);
+		DirectX::XMVECTOR _vScale = Math::DX::Load(_pTrsComp->scale);
+		DirectX::XMVECTOR _vQuat = Math::DX::Load(_pTrsComp->quat);
+		DirectX::XMVECTOR _vPos = Math::DX::Load(_pTrsComp->pos);
 
 		// アフィン変換行列を作成(親を持つ場合、これは親基準のローカル行列)
 		DirectX::XMMATRIX _mLocal = DirectX::XMMatrixAffineTransformation(_vScale, DirectX::XMVectorZero(), _vQuat, _vPos);
@@ -470,7 +470,7 @@ namespace Engine::Editor
 		DirectX::XMMATRIX _mWorld = _hasParent ? (_mLocal * _mParent) : _mLocal;
 
 		DirectX::XMFLOAT4X4 _worldFloat4x4;
-		DirectX::XMStoreFloat4x4(&_worldFloat4x4, _mWorld);
+		_worldFloat4x4 = Math::DX::StoreMatrix(_mWorld);
 		float _snapValues[3] = { 1.0f, 1.0f, 1.0f };
 		bool _isSnap = ImGui::IsKeyDown(ImGuiKey_LeftCtrl); // Ctrlキーを押している時だけスナップ
 		// マニピュレーターの操作
@@ -487,7 +487,7 @@ namespace Engine::Editor
 		// ギズモをドラッグ中ならコンポーネントを更新
 		if (ImGuizmo::IsUsing())
 		{
-			DirectX::XMMATRIX _updatedWorld = DirectX::XMLoadFloat4x4(&_worldFloat4x4);
+			DirectX::XMMATRIX _updatedWorld = Math::DX::Load(_worldFloat4x4);
 
 			// 移動のみのギズモなので、ワールド空間での平行移動量だけを取り出す。
 			// 行列を分解して書き戻す方式だと複数エンティティへ同じ操作を配れないため、
@@ -539,8 +539,8 @@ namespace Engine::Editor
 			_localDelta = DirectX::XMVector3TransformNormal(a_worldDelta, _invParent);
 		}
 
-		DirectX::XMVECTOR _pos = DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&_pTrsComp->pos), _localDelta);
-		DirectX::XMStoreFloat3(&_pTrsComp->pos, _pos);
+		DirectX::XMVECTOR _pos = DirectX::XMVectorAdd(Math::DX::Load(_pTrsComp->pos), _localDelta);
+		_pTrsComp->pos = Math::DX::StoreVector3(_pos);
 		_pTrsComp->isDirty = true;
 
 		// ワールド行列も同フレーム中に追従させる。
@@ -549,9 +549,9 @@ namespace Engine::Editor
 		{
 			if (auto* _pWorldComp = a_pWorld->RefData<WorldMatrixComponent>(a_entity))
 			{
-				DirectX::XMMATRIX _mWorld = DirectX::XMLoadFloat4x4(&_pWorldComp->worldMat);
+				DirectX::XMMATRIX _mWorld = Math::DX::Load(_pWorldComp->worldMat);
 				_mWorld.r[3] = DirectX::XMVectorAdd(_mWorld.r[3], a_worldDelta);
-				DirectX::XMStoreFloat4x4(&_pWorldComp->worldMat, _mWorld);
+				_pWorldComp->worldMat = Math::DX::StoreMatrix(_mWorld);
 			}
 		}
 	}
@@ -597,7 +597,7 @@ namespace Engine::Editor
 		auto* _pParentWorldComp = a_pWorld->RefData<WorldMatrixComponent>(_parent);
 		if (!_pParentWorldComp) return false;
 
-		a_outParentMat = DirectX::XMLoadFloat4x4(&_pParentWorldComp->worldMat);
+		a_outParentMat = Math::DX::Load(_pParentWorldComp->worldMat);
 		return true;
 	}
 	void SceneViewPanel::DrawEntityHUD(const ImVec2& a_pos, const ImVec2& a_rect, const ECS::Entity& a_entity, Engine::ECS::World* a_pWorld)
@@ -613,8 +613,8 @@ namespace Engine::Editor
 
 		HudPainter _hud;
 		_hud.viewProj =
-			DirectX::XMLoadFloat4x4(&_camData.viewMat) *
-			DirectX::XMLoadFloat4x4(&_camData.projMat);
+			Math::DX::Load(_camData.viewMat) *
+			Math::DX::Load(_camData.projMat);
 		_hud.origin = a_pos;
 		_hud.size = a_rect;
 		_hud.pDrawList = ImGui::GetWindowDrawList();
@@ -638,10 +638,10 @@ namespace Engine::Editor
 			if (auto* _pTrsComp = a_pWorld->RefData<LocalTransformComponent>(a_entity))
 			{
 				_world = DXSM::Matrix(DirectX::XMMatrixAffineTransformation(
-					DirectX::XMLoadFloat3(&_pTrsComp->scale),
+					Math::DX::Load(_pTrsComp->scale),
 					DirectX::XMVectorZero(),
-					DirectX::XMLoadFloat4(&_pTrsComp->quat),
-					DirectX::XMLoadFloat3(&_pTrsComp->pos)));
+					Math::DX::Load(_pTrsComp->quat),
+					Math::DX::Load(_pTrsComp->pos)));
 			}
 		}
 		const DXSM::Vector3 _originPos = _world.Translation();
@@ -670,16 +670,16 @@ namespace Engine::Editor
 			if (auto* _pFollowNode = a_pWorld->RefData<FollowAnimationNodeComponent>(a_entity))
 			{
 				const DirectX::XMMATRIX _offsetMat =
-					DirectX::XMMatrixRotationQuaternion(DirectX::XMLoadFloat4(&_pFollowNode->offsetRotation)) *
-					DirectX::XMMatrixScalingFromVector(DirectX::XMLoadFloat3(&_pFollowNode->offsetScale)) *
-					DirectX::XMMatrixTranslationFromVector(DirectX::XMLoadFloat3(&_pFollowNode->offsetPosition));
+					DirectX::XMMatrixRotationQuaternion(Math::DX::Load(_pFollowNode->offsetRotation)) *
+					DirectX::XMMatrixScalingFromVector(Math::DX::Load(_pFollowNode->offsetScale)) *
+					DirectX::XMMatrixTranslationFromVector(Math::DX::Load(_pFollowNode->offsetPosition));
 
 				// offsetScale が 0 だと逆行列を作れないので、その時はノード位置を出さない
 				DirectX::XMVECTOR _det;
 				const DirectX::XMMATRIX _invOffset = DirectX::XMMatrixInverse(&_det, _offsetMat);
 				if (!DirectX::XMVector4Equal(_det, DirectX::XMVectorZero()))
 				{
-					const DirectX::XMMATRIX _nodeWorld = _invOffset * DirectX::XMLoadFloat4x4(&_world);
+					const DirectX::XMMATRIX _nodeWorld = _invOffset * Math::DX::Load(_world);
 					const DXSM::Vector3 _nodePos = DXSM::Matrix(_nodeWorld).Translation();
 					_hud.Marker(_nodePos, HUD_COL_OFFSET, "Node", 4.0f);
 					_hud.Line(_nodePos, _originPos, HUD_COL_OFFSET, 1.5f);

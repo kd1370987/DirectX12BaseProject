@@ -1,4 +1,4 @@
-#include "TargetBoxHUD.h"
+﻿#include "TargetBoxHUD.h"
 
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/MainEngine.h"
@@ -98,12 +98,12 @@ namespace App::Object
 					// ロック中の相手は赤い枠で別に描くので、黄色の枠からは外す
 					if (_lockOn.IsLocked() && _lockOn.targets[_i] == _lockOn.lockedEntity) continue;
 
-					m_targetScreenPosVec.push_back(DXSM::Vector2(_lockOn.screenPos[_i]));
+					m_targetScreenPosVec.push_back(Math::Vector2(_lockOn.screenPos[_i]));
 				}
 
 				if (_lockOn.IsLocked())
 				{
-					m_lockedScreenPos = DXSM::Vector2(_lockOn.lockedScreenPos);
+					m_lockedScreenPos = Math::Vector2(_lockOn.lockedScreenPos);
 					m_isLocked = true;
 				}
 			}
@@ -119,7 +119,7 @@ namespace App::Object
 		if (!_pGE) return;
 
 		// 見た目(サイズ・色・回転など)は全ボックス共通。位置だけ敵ごとに差し替える
-		for (const DXSM::Vector2& _screenPos : m_targetScreenPosVec)
+		for (const Math::Vector2& _screenPos : m_targetScreenPosVec)
 		{
 			_pGE->SubmitUI(
 				m_texRef,

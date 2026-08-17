@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //------------------------------------------------------------------------------------------
 // このヘッダーはAnimatorAsset -> StateGraphEditor 経由で
@@ -201,7 +201,7 @@ namespace Engine::Editor
 		/// 意味がある(光らせたい枠など)が、ピッカーは 0..1 しか触れないため。
 		/// </remarks>
 		/// <returns>値が変わったら true</returns>
-		static bool DrawColorEdit(const char* a_label, DXSM::Color& a_color)
+		static bool DrawColorEdit(const char* a_label, Math::Color& a_color)
 		{
 			bool _isChange = false;
 
@@ -212,8 +212,8 @@ namespace Engine::Editor
 				ImGuiColorEditFlags_AlphaPreviewHalf;
 
 			ImGui::PushID(a_label);
-			_isChange |= ImGui::ColorEdit4(a_label, &a_color.x, _kFlags);
-			_isChange |= ImGui::DragFloat4("##ColorValue", &a_color.x, 0.01f, 0.0f, 0.0f, "%.2f");
+			_isChange |= ImGui::ColorEdit4(a_label, a_color.Data(), _kFlags);
+			_isChange |= ImGui::DragFloat4("##ColorValue", a_color.Data(), 0.01f, 0.0f, 0.0f, "%.2f");
 			ImGui::PopID();
 
 			return _isChange;
@@ -356,7 +356,7 @@ namespace Engine::Editor
 		/// <returns>値が編集されたら true</returns>
 		static bool DrawMatrix(
 			const char* a_lable,
-			DirectX::XMFLOAT4X4& a_mat,
+			Math::Matrix& a_mat,
 			EMatrixViewMode a_defaultMode = EMatrixViewMode::Raw
 		);
 
@@ -365,7 +365,7 @@ namespace Engine::Editor
 		/// </summary>
 		/// <param name="a_quat">編集するクォータニオン</param>
 		/// <returns>値が編集されたら true</returns>
-		static bool DragRotationDeg3FromQuaternion(DirectX::XMFLOAT4& a_quat);
+		static bool DragRotationDeg3FromQuaternion(Math::Quaternion& a_quat);
 
 		//--------------------------------------------------------------------------------------
 		// ハンドル

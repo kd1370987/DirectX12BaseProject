@@ -34,7 +34,7 @@ void RegisterRayWorldSystem::Init(Engine::ECS::World& a_world)
 				a_ctx.pServices->pRayEngine->RegistModel(
 					_wMatComp.worldMat,
 					_modelComp.handle,
-					_modelComp.colorScale,
+					Math::DX::ToVector4(_modelComp.colorScale),
 					_modelComp.emissiveScale,
 					_modelComp.GetEmissiveAdd()
 				);

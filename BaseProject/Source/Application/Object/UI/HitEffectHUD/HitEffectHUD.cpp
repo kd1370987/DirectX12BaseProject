@@ -1,4 +1,4 @@
-#include "HitEffectHUD.h"
+﻿#include "HitEffectHUD.h"
 
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/MainEngine.h"
@@ -161,8 +161,8 @@ namespace App::Object
 			: 1.0f;
 
 		// 消えぎわに薄くする
-		DXSM::Color _color = m_color;
-		if (m_isFadeOut) _color.w *= _rate;
+		Math::Color _color = m_color;
+		if (m_isFadeOut) _color.a *= _rate;
 
 		// 出た瞬間だけ少し大きく見せる(punchScale → 等倍へ戻る)
 		const float _scale = 1.0f + (m_punchScale - 1.0f) * _rate;

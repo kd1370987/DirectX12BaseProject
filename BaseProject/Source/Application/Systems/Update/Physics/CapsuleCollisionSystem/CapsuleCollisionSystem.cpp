@@ -24,16 +24,16 @@ namespace
 	//    上下のキャップが楕円に伸びる（当たり判定の線分自体は常に一致）。
 	void DrawCapsuleUpright(
 		Engine::Editor::MainEditor* a_pEditor,
-		const DXSM::Vector3& a_center,
+		const Math::Vector3& a_center,
 		float a_radius,
 		float a_height,
-		const DXSM::Color& a_color)
+		const Math::Color& a_color)
 	{
 		if (!a_pEditor) return;
 
-		DXSM::Matrix _mat =
-			DXSM::Matrix::CreateScale(a_radius * 2.0f, a_height, a_radius * 2.0f) *
-			DXSM::Matrix::CreateTranslation(a_center);
+		Math::Matrix _mat =
+			Math::Matrix::CreateScale(a_radius * 2.0f, a_height, a_radius * 2.0f) *
+			Math::Matrix::CreateTranslation(a_center);
 
 		a_pEditor->DrawCapsule(_mat, a_color);
 	}
@@ -61,13 +61,13 @@ void CapsuleCollisionSystem::Init(Engine::ECS::World& a_world)
 				LocalTransformComponent& _trans = a_transArray[_i];
 
 				// 中心（ワールドY軸方向の直立カプセル）
-				DXSM::Vector3 _center = DXSM::Vector3(_trans.pos) + DXSM::Vector3(_cap.offset);
-				DXSM::Vector3 _half = { 0.0f, _cap.height * 0.5f, 0.0f };
-				DXSM::Vector3 _pointA = _center - _half;	// 下端の球中心
-				DXSM::Vector3 _pointB = _center + _half;	// 上端の球中心
+				Math::Vector3 _center = Math::Vector3(_trans.pos) + Math::Vector3(_cap.offset);
+				Math::Vector3 _half = { 0.0f, _cap.height * 0.5f, 0.0f };
+				Math::Vector3 _pointA = _center - _half;	// 下端の球中心
+				Math::Vector3 _pointB = _center + _half;	// 上端の球中心
 
 				// マップから押し出す（pointA/B は押し出し後に更新される）
-				DXSM::Vector3 _correction = {};
+				Math::Vector3 _correction = {};
 				bool _isHit = _pCollWorld->ResolveCapsule(
 					_pointA, _pointB, _cap.radius, a_pChunk->entityData[_i], _correction, 4);
 
@@ -81,7 +81,7 @@ void CapsuleCollisionSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				// デバッグ描画（押し出しが起きたら赤、なければ緑）。押し出し後の中心で描画。
-				DXSM::Vector3 _drawCenter = _center + _correction;
+				Math::Vector3 _drawCenter = _center + _correction;
 				DrawCapsuleUpright(
 					a_ctx.pServices->pMainEditor,
 					_drawCenter, _cap.radius, _cap.height,

@@ -1,4 +1,4 @@
-#include "MissileLockBoxHUD.h"
+﻿#include "MissileLockBoxHUD.h"
 
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/MainEngine.h"
@@ -43,7 +43,7 @@ namespace App::Object
 			m_editSize  = m_pixelSize;
 
 			// ミサイルの溜めは黄色の枠
-			m_color = DXSM::Color(1.0f, 1.0f, 0.0f, 1.0f);
+			m_color = Math::Color(1.0f, 1.0f, 0.0f, 1.0f);
 		}
 
 		// 実体の到着は待たない。描画側が IsReady を見てスキップする
@@ -93,7 +93,7 @@ namespace App::Object
 
 				for (int _i = 0; _i < _count; ++_i)
 				{
-					m_lockScreenPosVec.push_back(DXSM::Vector2(_missile.lockScreenPos[_i]));
+					m_lockScreenPosVec.push_back(Math::Vector2(_missile.lockScreenPos[_i]));
 				}
 			}
 		);
@@ -108,7 +108,7 @@ namespace App::Object
 		if (!_pGE) return;
 
 		// 見た目(サイズ・色・回転など)は全ボックス共通。位置だけ敵ごとに差し替える
-		for (const DXSM::Vector2& _screenPos : m_lockScreenPosVec)
+		for (const Math::Vector2& _screenPos : m_lockScreenPosVec)
 		{
 			_pGE->SubmitUI(
 				m_texRef,

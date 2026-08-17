@@ -2,7 +2,7 @@
 
 struct WorldMatrixComponent
 {
-	DirectX::XMFLOAT4X4 worldMat= {};
+	Math::Matrix worldMat= {};
 	bool wasUpdatedThisFrame = true;
 };
 
@@ -12,7 +12,7 @@ struct Engine::ECS::ComponentTraits<WorldMatrixComponent>
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
 		WorldMatrixComponent& _comp = Engine::Editor::GetValue<WorldMatrixComponent>(a_pData);
-		_comp.worldMat = DXSM::Matrix::Identity;
+		_comp.worldMat = Math::Matrix::Identity();
 		_comp.wasUpdatedThisFrame = false;
 	}
 	static void Edit(CompEditContext& a_context)

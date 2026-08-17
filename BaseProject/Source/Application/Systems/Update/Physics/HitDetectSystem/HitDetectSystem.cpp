@@ -60,7 +60,7 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 
 				// 自分の球で重なりクエリ(自分自身と発射元は除外)
 				Engine::Collision::SphereInfo _info;
-				_info.origin = DXSM::Vector3(_trans.pos) + DXSM::Vector3(_sphere.offset);
+				_info.origin = Math::Vector3(_trans.pos) + Math::Vector3(_sphere.offset);
 				_info.radius = _sphere.radius;
 
 				Engine::Collision::Result _res = {};

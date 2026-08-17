@@ -15,10 +15,20 @@
 // ---- デバッグ用 ---- 
 #include "Utility/Debug/DebugLog.h"						// ログ出力
 
-// ---- 共通数学 ---- 
+// ---- 共通数学 ----
 #include "Utility/Math/Alignment.h"						// アライメント
 #include "Utility/Math/Random.h"						// ランダム
-#include "Utility/Math/Matrix.h"						// 行列ヘルパー
+
+// 自作の数学型。ECSのコンポーネントはこちらで持つ(XMFLOAT系は使わない)。
+// DirectXMath / SimpleMath とは暗黙に相互変換できるので、GPUへ渡す境界はそのまま書ける
+#include "Utility/Math/Vector/Vector2.h"					// Vector2
+#include "Utility/Math/Vector/Vector3.h"					// Vector3
+#include "Utility/Math/Vector/Vector4.h"					// Vector4
+#include "Utility/Math/Quaternion.h"					// クォータニオン
+#include "Utility/Math/Matrix.h"						// 行列
+#include "Utility/Math/Color.h"							// 色
+#include "Utility/Math/TRS.h"							// 行列の分解結果
+#include "Utility/Math/DirectX/Math_DirectX.h"			// DirectXMath との橋渡し
 
 // ---- 共通クラス・構造体 ---- 
 #include "Utility/GUID/GUID.h"							// GUID

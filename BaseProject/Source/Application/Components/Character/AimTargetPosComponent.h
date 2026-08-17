@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //==========================================================================================
 // AimTargetPosComponent
@@ -19,8 +19,8 @@ struct AimTargetPosComponent
 									// カメラからの絶対距離ではないので、カメラ距離を変えても調整不要。
 
 	// ---- 結果(ランタイム。保存しない) ----
-	DirectX::XMFLOAT3 pos = { 0.0f,0.0f,0.0f };								// 狙点(ワールド座標)
-	DirectX::XMFLOAT3 dir = { 0.0f,0.0f,1.0f };								// 狙いの向き(=カメラ前方。単位ベクトル)
+	Math::Vector3 pos = { 0.0f,0.0f,0.0f };								// 狙点(ワールド座標)
+	Math::Vector3 dir = { 0.0f,0.0f,1.0f };								// 狙いの向き(=カメラ前方。単位ベクトル)
 	Engine::ECS::Entity hitEntity = Engine::ECS::Limits::INVALID_ENTITY;	// 当たった相手
 	bool isHit = false;														// 何かに当たったか
 	bool isValid = false;													// 一度でも計算されたか(未計算のpos=原点を撃たないため)

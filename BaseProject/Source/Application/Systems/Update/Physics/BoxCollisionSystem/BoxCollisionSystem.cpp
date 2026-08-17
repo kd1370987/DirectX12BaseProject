@@ -1,4 +1,4 @@
-#include "BoxCollisionSystem.h"
+﻿#include "BoxCollisionSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -32,7 +32,7 @@ void BoxCollisionSystem::Init(Engine::ECS::World& a_world)
 				const LocalTransformComponent& _trans = a_transArray[_i];
 
 				// 中心（ワールド軸に平行なAABB）
-				DXSM::Vector3 _center = DXSM::Vector3(_trans.pos) + DXSM::Vector3(_box.offset);
+				Math::Vector3 _center = Math::Vector3(_trans.pos) + Math::Vector3(_box.offset);
 
 				// 重なり判定
 				Engine::Collision::BoxInfo _info;

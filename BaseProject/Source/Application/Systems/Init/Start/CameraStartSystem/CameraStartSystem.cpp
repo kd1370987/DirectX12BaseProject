@@ -36,13 +36,12 @@ void CameraStartSystem::Init(Engine::ECS::World& a_world)
 				_camParamComp.aspectRatio = (float)_winOp.windowWidth / (float)_winOp.windowHeight;
 
 				// プロジェクション行列の作成
-				DirectX::XMMATRIX _lhMat = DirectX::XMMatrixPerspectiveFovLH(
+				_projMatComp.projMat = Math::Matrix::CreatePerspectiveFieldOfView(
 					DirectX::XMConvertToRadians(_camParamComp.GetFovY()),
 					_camParamComp.aspectRatio,
 					_camParamComp.nearZ,
 					_camParamComp.farZ
 				);
-				DirectX::XMStoreFloat4x4(&_projMatComp.projMat, _lhMat);
 			}
 		}
 	);

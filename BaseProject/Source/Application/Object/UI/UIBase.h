@@ -34,18 +34,18 @@ namespace App::Object
 		Engine::GUID m_texGUID = {};
 
 		// 色
-		DXSM::Color m_color = Engine::Color::WHITE;
+		Math::Color m_color = Engine::Color::WHITE;
 
 		// 座標系
-		DXSM::Vector2 m_pixelPos = {};
-		DXSM::Vector2 m_pixelSize = {};			// ピクセルサイズ
+		Math::Vector2 m_pixelPos = {};
+		Math::Vector2 m_pixelSize = {};			// ピクセルサイズ
 		float m_rotation = 0.0f;
 
 		// オプション
-		DXSM::Vector2 m_pivot = { 0.5f, 0.5f };	// 回転軸/基準点(正規化[0,1], 0.5=中心)
-		DXSM::Vector2 m_uvOffset = {};			// UVスクロールなど
+		Math::Vector2 m_pivot = { 0.5f, 0.5f };	// 回転軸/基準点(正規化[0,1], 0.5=中心)
+		Math::Vector2 m_uvOffset = {};			// UVスクロールなど
 		float m_layer = 0.0f;					// Z位置
-		DXSM::Vector2 m_editSize = {};			// エディターでいじる際のピクセルサイズ
+		Math::Vector2 m_editSize = {};			// エディターでいじる際のピクセルサイズ
 		float m_scale = 1.0f;					// 等倍スケール用
 	};
 }

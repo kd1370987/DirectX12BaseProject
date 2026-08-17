@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //==========================================================================================
 // MovementComponent
@@ -26,7 +26,7 @@ struct MovementComponent
 	float deceleration = 30.0f;		// 減速度(units/sec^2)
 
 	// ---- ランタイム ----
-	DirectX::XMFLOAT3 velocity = { 0.0f, 0.0f, 0.0f };	// 加減速を適用した実速度
+	Math::Vector3 velocity = { 0.0f, 0.0f, 0.0f };	// 加減速を適用した実速度
 };
 
 template<>

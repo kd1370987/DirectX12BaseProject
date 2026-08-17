@@ -4,7 +4,7 @@
 
 struct MoveIntentComponent
 {
-	DirectX::XMFLOAT3 value;
+	Math::Vector3 value;
 	float jumpPow = 0.0f;
 };
 

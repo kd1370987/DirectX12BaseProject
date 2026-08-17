@@ -57,13 +57,12 @@ struct Engine::ECS::ComponentTraits<CameraParamComponent>
 
 		if (_isEdit)
 		{
-			DirectX::XMMATRIX _lhMat = DirectX::XMMatrixPerspectiveFovLH(
+			_pProjMatComp->projMat = Math::Matrix::CreatePerspectiveFieldOfView(
 				DirectX::XMConvertToRadians(_comp.GetFovY()),
 				_comp.aspectRatio,
 				_comp.nearZ,
 				_comp.farZ
 			);
-			DirectX::XMStoreFloat4x4(&_pProjMatComp->projMat, _lhMat);
 		};
 	}
 };

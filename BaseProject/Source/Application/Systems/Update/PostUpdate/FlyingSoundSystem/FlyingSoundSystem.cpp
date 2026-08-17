@@ -1,4 +1,4 @@
-#include "FlyingSoundSystem.h"
+﻿#include "FlyingSoundSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Audio/AudioManager.h"
@@ -66,7 +66,7 @@ void FlyingSoundSystem::Init(Engine::ECS::World& a_world)
 						if (_flyingSound.soundGUID == Engine::DefaultGUID) continue;
 
 						Engine::ECS::Entity _self = a_pChunk->entityData[_i];
-						DXSM::Vector3 _pos = DXSM::Matrix(_worldComp.worldMat).Translation();
+						Math::Vector3 _pos = Math::Matrix(_worldComp.worldMat).Translation();
 
 						FlyingSoundVoice* _pVoice = _res.Find(_self);
 

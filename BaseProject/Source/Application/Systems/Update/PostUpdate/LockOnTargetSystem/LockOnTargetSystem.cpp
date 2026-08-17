@@ -1,4 +1,4 @@
-#include "LockOnTargetSystem.h"
+﻿#include "LockOnTargetSystem.h"
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Option/OptionManager.h"
@@ -64,7 +64,7 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 			// アクティブカメラから ViewProj を作る
 			//   ビュー行列はカメラのワールド行列の逆行列
 			//==================================================================
-			DXSM::Matrix _viewProjMat = DXSM::Matrix::Identity;
+			Math::Matrix _viewProjMat = Math::Matrix::Identity();
 			bool _hasCamera = false;
 
 			a_ctx.pWorld->ForEach<const ActiveCameraTag, const CameraTag, const ProjMatComponent, const WorldMatrixComponent>(
@@ -80,15 +80,15 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 					// アクティブカメラは1台の想定。先に見つかったものを使う
 					if (_hasCamera || a_camCount == 0) return;
 
-					const DXSM::Matrix _camWorldMat = a_camWorldMatArray[0].worldMat;
-					const DXSM::Matrix _projMat     = a_projMatArray[0].projMat;
+					const Math::Matrix _camWorldMat = a_camWorldMatArray[0].worldMat;
+					const Math::Matrix _projMat     = a_projMatArray[0].projMat;
 
 					_viewProjMat = _camWorldMat.Invert() * _projMat;
 					_hasCamera   = true;
 				}
 			);
 
-			const DXSM::Vector2 _defaultCenter = { _w * 0.5f, _h * 0.5f };
+			const Math::Vector2 _defaultCenter = { _w * 0.5f, _h * 0.5f };
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -102,13 +102,13 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 				// カメラがいないフレームは誰も狙えない
 				if (!_hasCamera) continue;
 
-				const DirectX::XMFLOAT4X4& _pm = _playerWorld.worldMat;
-				const DXSM::Vector3 _playerPos = { _pm._41, _pm._42, _pm._43 };
+				const Math::Matrix& _pm = _playerWorld.worldMat;
+				const Math::Vector3 _playerPos = { _pm._41, _pm._42, _pm._43 };
 
 				// 判定の円。内側のレティクル(AimReticleHUD)が居ればそれに合わせる。
 				// UI が無い構成でも動くよう、届いていなければ画面中央 × 設定値で判定する
-				const DXSM::Vector2 _reticleCenter = _lockOn.isReticleFromHUD
-					? DXSM::Vector2(_lockOn.reticleCenter)
+				const Math::Vector2 _reticleCenter = _lockOn.isReticleFromHUD
+					? Math::Vector2(_lockOn.reticleCenter)
 					: _defaultCenter;
 				const float _reticleRadius = _lockOn.GetActiveReticleRadius();
 
@@ -127,8 +127,8 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 						for (uint32_t _e = 0; _e < a_enemyCount; ++_e)
 						{
 							// ワールド行列の平行移動成分がその敵の位置
-							const DirectX::XMFLOAT4X4& _em = a_enemyWorldMatArray[_e].worldMat;
-							DXSM::Vector3 _worldPos = { _em._41, _em._42, _em._43 };
+							const Math::Matrix& _em = a_enemyWorldMatArray[_e].worldMat;
+							Math::Vector3 _worldPos = { _em._41, _em._42, _em._43 };
 							_worldPos.y += _lockOn.targetOffsetY;
 
 							// 距離で足切り(0 以下なら距離では切らない)
@@ -140,21 +140,20 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 							//------------------------------------------------------
 							// ワールド → スクリーン
 							//------------------------------------------------------
-							DXSM::Vector4 _clipPos = {};
-							DXSM::Vector3::Transform(_worldPos, _viewProjMat, _clipPos);
+							Math::Vector4 _clipPos = Math::Vector4::Transform(_worldPos, _viewProjMat);
 
 							// w <= 0 はカメラ後方。ここで割ると画面内へ折り返して映るので必ず弾く
 							if (_clipPos.w <= 1e-4f) continue;
 
 							const float _invW = 1.0f / _clipPos.w;
-							const DXSM::Vector3 _ndc = {
+							const Math::Vector3 _ndc = {
 								_clipPos.x * _invW, _clipPos.y * _invW, _clipPos.z * _invW };
 
 							// ニア/ファーの外は狙わない(DirectXの深度は0..1)
 							if (_ndc.z < 0.0f || _ndc.z > 1.0f) continue;
 
 							// NDC(中心原点/Y上向き) → ピクセル(左上原点/Y下向き)
-							const DXSM::Vector2 _screenPos = {
+							const Math::Vector2 _screenPos = {
 								(_ndc.x * 0.5f + 0.5f) * _w,
 								(0.5f - _ndc.y * 0.5f) * _h
 							};
@@ -208,7 +207,7 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 				{
 					auto* _pEditor = a_ctx.pServices->pMainEditor;
 
-					DXSM::Vector3 _toTarget = DXSM::Vector3(_lockOn.lockedPos) - _playerPos;
+					Math::Vector3 _toTarget = Math::Vector3(_lockOn.lockedPos) - _playerPos;
 					_toTarget.y = 0.0f;
 					if (_toTarget.LengthSquared() > 1e-6f)
 					{
@@ -217,7 +216,7 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 					}
 
 					// 自機の前方(左手系 +Z = ワールド行列の第3行)
-					DXSM::Vector3 _forward = { _pm._31, _pm._32, _pm._33 };
+					Math::Vector3 _forward = { _pm._31, _pm._32, _pm._33 };
 					_forward.y = 0.0f;
 					if (_forward.LengthSquared() > 1e-6f)
 					{

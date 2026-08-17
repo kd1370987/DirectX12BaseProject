@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // プレイヤー等に持たせるカプセルコライダー（テスト用）
 // 直立（ワールドY軸方向）のカプセルとして扱う。
@@ -7,7 +7,7 @@ struct CapsuleColliderComponent
 {
 	float radius = 0.5f;								// 半径
 	float height = 1.0f;								// 端点間の距離（線分の長さ）
-	DirectX::XMFLOAT3 offset = { 0.0f, 0.0f, 0.0f };	// エンティティ位置からの中心オフセット
+	Math::Vector3 offset = { 0.0f, 0.0f, 0.0f };	// エンティティ位置からの中心オフセット
 };
 
 template<>

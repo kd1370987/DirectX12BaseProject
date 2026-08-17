@@ -1,4 +1,4 @@
-#include "CombatReticleHUD.h"
+﻿#include "CombatReticleHUD.h"
 
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/MainEngine.h"
@@ -51,7 +51,7 @@ namespace App::Object
 		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld) return;
 
-		const DXSM::Vector2 _center = m_pixelPos;
+		const Math::Vector2 _center = m_pixelPos;
 		const float         _radius = CalcCollectRadius();
 
 		//==================================================================

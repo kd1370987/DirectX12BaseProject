@@ -1,4 +1,4 @@
-#include "HomingSystem.h"
+﻿#include "HomingSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -80,22 +80,22 @@ void HomingSystem::Init(Engine::ECS::World& a_world)
 					continue;
 				}
 
-				DXSM::Vector3 _targetPos = DXSM::Matrix(_pTargetWorld->worldMat).Translation();
+				Math::Vector3 _targetPos = Math::Matrix(_pTargetWorld->worldMat).Translation();
 
 				//------------------------------------------------------
 				// 現在の進行方向(速度が無いと向きが決まらない)
 				//------------------------------------------------------
-				DXSM::Vector3 _velValue(_vel.value);
+				Math::Vector3 _velValue(_vel.value);
 				float _speedSq = _velValue.LengthSquared();
 				if (!(_speedSq > 1e-8f)) continue;
 
 				float         _speed   = std::sqrt(_speedSq);
-				DXSM::Vector3 _curDir  = _velValue / _speed;
+				Math::Vector3 _curDir  = _velValue / _speed;
 
 				//------------------------------------------------------
 				// ターゲットへの向き
 				//------------------------------------------------------
-				DXSM::Vector3 _toTarget = _targetPos - DXSM::Vector3(_trs.pos);
+				Math::Vector3 _toTarget = _targetPos - Math::Vector3(_trs.pos);
 				float _distSq = _toTarget.LengthSquared();
 				if (!(_distSq > 1e-6f)) continue;	// ほぼ重なっている
 
@@ -113,11 +113,11 @@ void HomingSystem::Init(Engine::ECS::World& a_world)
 				float _cos     = std::clamp(_curDir.Dot(_toTarget), -1.0f, 1.0f);
 				float _angle   = std::acos(_cos);
 
-				DXSM::Vector3 _newDir = _toTarget;
+				Math::Vector3 _newDir = _toTarget;
 				if (_angle > _maxStep)
 				{
 					// 回転軸 = 現在の向き × 目標の向き
-					DXSM::Vector3 _axis      = _curDir.Cross(_toTarget);
+					Math::Vector3 _axis      = _curDir.Cross(_toTarget);
 					float         _axisLenSq = _axis.LengthSquared();
 
 					if (_axisLenSq > 1e-8f)
@@ -127,15 +127,15 @@ void HomingSystem::Init(Engine::ECS::World& a_world)
 					else
 					{
 						// ちょうど真後ろ。軸が作れないので直交する適当な軸で回し始める
-						DXSM::Vector3 _ref = (std::fabs(_curDir.y) > 0.99f)
-							? DXSM::Vector3(1.0f, 0.0f, 0.0f)
-							: DXSM::Vector3(0.0f, 1.0f, 0.0f);
+						Math::Vector3 _ref = (std::fabs(_curDir.y) > 0.99f)
+							? Math::Vector3(1.0f, 0.0f, 0.0f)
+							: Math::Vector3(0.0f, 1.0f, 0.0f);
 						_axis = _curDir.Cross(_ref);
 						_axis.Normalize();
 					}
 
-					DXSM::Quaternion _rot = DXSM::Quaternion::CreateFromAxisAngle(_axis, _maxStep);
-					_newDir = DXSM::Vector3::Transform(_curDir, _rot);
+					Math::Quaternion _rot = Math::Quaternion::CreateFromAxisAngle(_axis, _maxStep);
+					_newDir = Math::Vector3::Transform(_curDir, _rot);
 					_newDir.Normalize();
 				}
 

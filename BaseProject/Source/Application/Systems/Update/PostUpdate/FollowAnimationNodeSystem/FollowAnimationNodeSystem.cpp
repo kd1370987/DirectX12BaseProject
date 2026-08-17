@@ -46,26 +46,19 @@ void FollowAnimationNodeSystem::Init(Engine::ECS::World& a_world)
 				// 対象ノードのローカル行列(親モデル空間)を取得。
 				// 親エンティティのワールドは後段の CommitHierarchyWorldMatrixSystem が
 				// world = local * parentWorld として掛けるため、ここでは掛けない。
-				const DirectX::XMMATRIX _nodeMat = DirectX::XMLoadFloat4x4(&_nodePoseVec[_followComp.targetNodeIdx].world);
+				const Math::Matrix _nodeMat = _nodePoseVec[_followComp.targetNodeIdx].world;
 
-				// ノード基準のオフセット行列(回転 → 平行移動。スケールは持たない)
-				DirectX::XMMATRIX _offsetMat =
-					DirectX::XMMatrixRotationQuaternion(DirectX::XMLoadFloat4(&_followComp.offsetRotation)) *
-					DirectX::XMMatrixScalingFromVector(DirectX::XMLoadFloat3(&_followComp.offsetScale)) *
-					DirectX::XMMatrixTranslationFromVector(DirectX::XMLoadFloat3(&_followComp.offsetPosition));
+				// ノード基準のオフセット行列(回転 → スケール → 平行移動)
+				const Math::Matrix _offsetMat =
+					Math::Matrix::CreateFromQuaternion(_followComp.offsetRotation) *
+					Math::Matrix::CreateScale(_followComp.offsetScale) *
+					Math::Matrix::CreateTranslation(_followComp.offsetPosition);
 
 				// ノードのローカルに、ノード基準のオフセットを適用したローカル行列
-				DirectX::XMMATRIX _finalLocalMat = _offsetMat * _nodeMat;
+				const Math::Matrix _finalLocalMat = _offsetMat * _nodeMat;
 
 				// 行列から位置・回転・スケールを抽出して書き戻す
-				DirectX::XMVECTOR _outScale;
-				DirectX::XMVECTOR _outQuat;
-				DirectX::XMVECTOR _outPos;
-				DirectX::XMMatrixDecompose(&_outScale, &_outQuat, &_outPos, _finalLocalMat);
-
-				DirectX::XMStoreFloat3(&_trsComp.pos, _outPos);
-				DirectX::XMStoreFloat4(&_trsComp.quat, _outQuat);
-				DirectX::XMStoreFloat3(&_trsComp.scale, _outScale);
+				_finalLocalMat.Decompose(_trsComp.scale, _trsComp.quat, _trsComp.pos);
 
 				_trsComp.isDirty = true;
 			}

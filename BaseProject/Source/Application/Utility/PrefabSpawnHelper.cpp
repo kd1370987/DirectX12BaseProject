@@ -1,4 +1,4 @@
-#include "PrefabSpawnHelper.h"
+﻿#include "PrefabSpawnHelper.h"
 
 #include <cstring>
 
@@ -117,7 +117,7 @@ namespace App::Utility
 		Engine::Resource::ResourceManager& a_resourceManager,
 		const Engine::GUID& a_prefabGUID,
 		Engine::Handle<Engine::Resource::Prefab>& a_refHandle,
-		const DirectX::XMFLOAT3& a_pos)
+		const Math::Vector3& a_pos)
 	{
 		// 向きも印も付けない(プレハブの保存値のまま出す)
 		SpawnParams _params = {};
