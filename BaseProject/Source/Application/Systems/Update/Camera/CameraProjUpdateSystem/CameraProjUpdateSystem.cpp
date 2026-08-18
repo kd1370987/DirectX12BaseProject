@@ -9,13 +9,6 @@
 // CameraProjUpdateSystem
 //
 // 画角(fovY + fovBoost)が動いたカメラの射影行列を作り直す。
-//
-// ・射影行列は CameraStartSystem が起動時に一度だけ作る作りだったので、
-//   実行中に画角を動かしても絵に反映されなかった。その差分更新だけを担当する。
-// ・作り直すのは isDirty が立っているフレームだけ。書く側(TPSSystem など)が
-//   「変わった」と判断したときに立てる契約。
-// ・CameraParamComponent を書く TPSSystem と同じ Camera 帯。あちらが書き、
-//   こちらが読む(RAW)ので実行順は自動で後ろに回る。
 //==========================================================================================
 void CameraProjUpdateSystem::Init(Engine::ECS::World& a_world)
 {

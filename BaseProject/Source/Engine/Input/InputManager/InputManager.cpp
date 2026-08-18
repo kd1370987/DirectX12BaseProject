@@ -28,6 +28,20 @@ namespace Engine::Input
 			if (ImGui::GetCurrentContext() == nullptr) return false;
 			return ImGui::GetIO().WantTextInput;
 		}
+
+		// ゲーム入力を受け付けてよい状態か。
+		//
+		// プレイモード以外(エディター操作中)は、キーもマウスもエディターのものなので
+		// ゲーム側へは一切渡さない。ここで止めておけば、エディターで WASD を押しても
+		// プレイヤーが動かないし、シーンビューでカーソルを振り回しても視点が回らない。
+		//
+		// 「入力が残らない」ためにも効く。取得側が常に無入力を返すので、
+		// 入力フェーズのシステムが毎フレーム MoveIntent などへ 0 を書き込み、
+		// 切り替え前の入力が押しっぱなしのまま固まらない。
+		bool IsGameInputEnable()
+		{
+			return MainEngine::Instance().GetMode() == EAppMode::Game;
+		}
 	}
 
 	void InputManager::Init()
@@ -68,6 +82,27 @@ namespace Engine::Input
 		for (auto& _device : m_upInputDeviceMap)
 		{
 			_device.second->Update(_context);
+		}
+	}
+
+	//======================================================================================
+	// 溜まっている入力状態を捨てる
+	//--------------------------------------------------------------------------------------
+	// モードの切り替え時に呼ぶ。押しっぱなしのまま切り替えると、戻ってきたフレームが
+	// 「押した瞬間(Press)」を挟まずに Hold から始まってしまう。
+	// マウスは移動量と固定の基準も捨てる。切り替えの前後でカーソルが飛んでいるので、
+	// そのまま差分を取ると1フレーム目に大きな視点移動が入ってしまう。
+	//======================================================================================
+	void InputManager::ResetInput()
+	{
+		m_deltaX = 0;
+		m_deltaY = 0;
+		m_needCursorLockReset = true;
+		m_lockAnchorPos = {};
+
+		for (auto& _device : m_upInputDeviceMap)
+		{
+			if (_device.second) _device.second->ResetInput();
 		}
 	}
 
@@ -155,6 +190,9 @@ namespace Engine::Input
 	// 任意のアプリケーションボタンの入力状態を取得
 	short InputManager::GetButtonState(std::string_view a_name) const
 	{
+		// プレイモード以外はゲーム入力を渡さない
+		if (!IsGameInputEnable()) return InputButtonBase::EState::Free;
+
 		// エディタ操作中(テキスト入力など)はゲーム入力を無効化
 		if (IsUICapturingInput()) return InputButtonBase::EState::Free;
 
@@ -192,6 +230,9 @@ namespace Engine::Input
 	// 指定した入力デバイスの任意の軸の入力状d態を2次元ベクトルで取得する
 	DXSM::Vector2 InputManager::GetAxisState(std::string_view a_name) const
 	{
+		// プレイモード以外はゲーム入力を渡さない
+		if (!IsGameInputEnable()) return DXSM::Vector2(0.0f, 0.0f);
+
 		// エディタ操作中(テキスト入力など)はゲーム入力を無効化
 		if (IsUICapturingInput()) return DXSM::Vector2(0.0f, 0.0f);
 

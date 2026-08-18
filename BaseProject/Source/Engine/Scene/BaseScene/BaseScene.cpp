@@ -91,10 +91,13 @@ namespace Engine::Scene
 		}
 		
 		// シーンのシステム処理
-		if(MainEngine::Instance().GetMode() == Engine::EAppMode::Game)
-		{
-			m_upWorld->RunSystem(Engine::ECS::ESystemType::Input, a_dt);
-		}
+		//
+		// 入力フェーズはモードに関わらず毎フレーム回す。
+		// プレイモード以外では InputManager が無入力を返すので、入力フェーズの
+		// システムが MoveIntent などへ 0 を書き込み続けることになる。
+		// ここを止めてしまうと最後に書き込まれた入力がそのまま残り、
+		// エディターへ戻ってもプレイヤーが走り続ける(＝入力が残る)。
+		m_upWorld->RunSystem(Engine::ECS::ESystemType::Input, a_dt);
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::PreUpdate, a_dt);
 

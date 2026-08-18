@@ -16,6 +16,15 @@ namespace Engine::Input
 		// 毎フレーム必須
 		void Update();
 
+		/// <summary>
+		/// 溜まっている入力状態を捨てる
+		/// </summary>
+		/// <remarks>
+		/// アプリのモード切り替えで呼ぶ。押しっぱなしのボタン・マウスの移動量・
+		/// カーソル固定の基準を、切り替えの向こう側へ持ち越さないようにする。
+		/// </remarks>
+		void ResetInput();
+
 		// マウス制御
 		void SetCursorCentered(bool a_enable);		// 毎フレーム中央にマウスを固定
 		void SetCursorLock();						// 一度だけマウスを中央に戻す

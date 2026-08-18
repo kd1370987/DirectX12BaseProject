@@ -51,6 +51,20 @@ namespace Engine::Input
 		}
 	}
 
+	// 溜まっている入力状態を捨てる
+	void InputCollector::ResetInput()
+	{
+		for (auto& _button : m_spButtonMap)
+		{
+			if (_button.second) _button.second->NoInput();
+		}
+		for (auto& _axis : m_spAxisMap)
+		{
+			// 軸は覚えている座標まで捨てさせたいので NoInput ではなくこちらを呼ぶ
+			if (_axis.second) _axis.second->ResetInput();
+		}
+	}
+
 	// 何かしらの入力検知したときにtureを返す
 	bool InputCollector::IsSomethigInput()
 	{

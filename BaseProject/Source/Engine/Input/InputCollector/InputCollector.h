@@ -28,6 +28,15 @@ namespace Engine::Input
 
 		void Update(InputContext& a_inputContext);
 
+		/// <summary>
+		/// このデバイスに溜まっている入力状態を捨てる
+		/// </summary>
+		/// <remarks>
+		/// アプリのモード切り替えで呼ぶ。押しっぱなし(Hold)のまま切り替えると、
+		/// 戻ってきたときに「押した瞬間(Press)」を挟まずに Hold から始まってしまう。
+		/// </remarks>
+		void ResetInput();
+
 		// 何かしらの入力を検知したか
 		bool IsSomethigInput();
 

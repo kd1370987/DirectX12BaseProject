@@ -18,6 +18,16 @@ namespace Engine::Input
 		// 強制的に入力をなくす
 		void NoInput() { m_axis = DXSM::Vector2::Zero; }
 
+		/// <summary>
+		/// 溜まっている状態を捨てて初期状態へ戻す
+		/// </summary>
+		/// <remarks>
+		/// アプリのモード切り替えで呼ぶ。値を消すだけでよい軸は NoInput のままでよいが、
+		/// 前フレームの座標などを覚えている軸(マウス)は、それも捨てないと
+		/// 切り替えを跨いだ差分が1フレーム目に一気に出てしまう。
+		/// </remarks>
+		virtual void ResetInput() { NoInput(); }
+
 		// アクセサ
 		void SetValueRate(float a_rate) { m_valueRate = a_rate; }		// レート設定
 		void SetLimitValue(float a_limit) { m_limitValue = a_limit; }	// 限界値設定

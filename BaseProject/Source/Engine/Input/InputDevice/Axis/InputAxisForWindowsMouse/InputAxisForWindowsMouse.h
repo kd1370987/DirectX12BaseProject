@@ -22,6 +22,11 @@ namespace Engine::Input
 		// 初めの１フレームのみ、０ベクトル
 		void Update(InputContext& a_inputContext) override;
 
+		// 覚えている座標も捨てて、次のフレームを「開始フレーム」に戻す。
+		// モードを跨いだ移動量(エディター操作でカーソルが動いた分)を
+		// ゲーム側の視点移動として拾わないようにするため
+		void ResetInput() override;
+
 	private:
 		POINT m_prevMousePos = {0,0};
 		bool m_isBeginFrame = true;

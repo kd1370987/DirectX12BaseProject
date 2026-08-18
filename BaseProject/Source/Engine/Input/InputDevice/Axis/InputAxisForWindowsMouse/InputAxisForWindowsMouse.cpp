@@ -11,6 +11,19 @@ namespace Engine::Input
 		m_spFixButton = std::make_shared<InputButtonForWindows>(a_fixCode);
 	}
 
+	void InputAxisForWindowsMouse::ResetInput()
+	{
+		NoInput();
+
+		// 次の Update を「開始フレーム」扱いにして移動量を作らせない。
+		// m_prevMousePos は切り替え前の座標なので、そのまま差分を取ると
+		// エディター操作で動かしたぶんが一気に視点移動として入ってしまう
+		m_isBeginFrame  = true;
+		m_prevMousePos  = {};
+
+		if (m_spFixButton) m_spFixButton->NoInput();
+	}
+
 	void InputAxisForWindowsMouse::PreUpdate()
 	{
 		if (!m_spFixButton) return;

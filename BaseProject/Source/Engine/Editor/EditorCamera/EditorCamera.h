@@ -43,6 +43,17 @@ namespace Engine::Editor
 		// 右クリック操作中かどうか(ギズモなど他の操作との競合を避ける用)
 		bool IsControlling() const { return m_isControlling; }
 
+		/// <summary>
+		/// 操作中の状態を強制的に解除する
+		/// </summary>
+		/// <remarks>
+		/// 操作の継続判定は ImGui の「右ボタンが押されているか」だけを見ている。
+		/// プレイモード中は ImGui の入力が更新されないので、押したまま切り替えると
+		/// 押しっぱなしのまま固まり、戻ってきた瞬間に暴れる。
+		/// モードの切り替え時にここで断ち切る。
+		/// </remarks>
+		void CancelControl() { m_isControlling = false; }
+
 		// シーンビューにカーソルが乗っているか。SceneViewPanel が毎フレーム設定する。
 		void SetViewportHovered(bool a_isHovered) { m_isViewportHovered = a_isHovered; }
 

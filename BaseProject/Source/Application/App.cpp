@@ -73,13 +73,35 @@ void Application::MainLoop()
 		}
 
 		// モード切替
-		if (GetAsyncKeyState('O'))
+		//
+		// GetAsyncKeyState は押している間ずっと真を返し、しかもどこにフォーカスが
+		// あっても拾ってしまう。押した瞬間だけを見て、さらにエディターで
+		// 文字を打っている間は無視する(名前に O/P が入るたびに切り替わるため)。
 		{
-			Engine::MainEngine::Instance().ChangeMode(Engine::EAppMode::Editor);
-		}
-		if (GetAsyncKeyState('P'))
-		{
-			Engine::MainEngine::Instance().ChangeMode(Engine::EAppMode::Game);
+			const bool _isTyping =
+				(ImGui::GetCurrentContext() != nullptr) && ImGui::GetIO().WantTextInput;
+
+			// 押した瞬間の検出用。押しっぱなしで連続発火させない
+			static bool s_wasEditorKeyDown = false;
+			static bool s_wasGameKeyDown   = false;
+
+			const bool _isEditorKeyDown = (GetAsyncKeyState('O') & 0x8000) != 0;
+			const bool _isGameKeyDown   = (GetAsyncKeyState('P') & 0x8000) != 0;
+
+			if (!_isTyping)
+			{
+				if (_isEditorKeyDown && !s_wasEditorKeyDown)
+				{
+					Engine::MainEngine::Instance().ChangeMode(Engine::EAppMode::Editor);
+				}
+				if (_isGameKeyDown && !s_wasGameKeyDown)
+				{
+					Engine::MainEngine::Instance().ChangeMode(Engine::EAppMode::Game);
+				}
+			}
+
+			s_wasEditorKeyDown = _isEditorKeyDown;
+			s_wasGameKeyDown   = _isGameKeyDown;
 		}
 
 		// ゲームの更新
