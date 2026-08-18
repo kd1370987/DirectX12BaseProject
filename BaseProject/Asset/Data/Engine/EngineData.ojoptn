@@ -22,7 +22,11 @@
         "phiNormal": 32.0
     },
     "InputOption": {
-        "isCursorLockedToCenter": true
+        "isCursorLockedToCenter": true,
+        "isInvertLookY": false,
+        "lookSensitivityX": 0.125,
+        "lookSensitivityY": 0.125,
+        "mouseDpi": 800
     },
     "LightingOption": {
         "dielectricF0": 0.04500000178813934,

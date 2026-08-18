@@ -69,8 +69,10 @@ namespace Engine::Input
 		bool m_isCursorLockActive = false;		// このフレームで実際に固定が働いているか
 		bool m_needCursorLockReset = true;		// 固定開始直後 : 基準を取り直し移動量を0にする
 		POINT m_lockAnchorPos = {};				// 前フレームに実際にカーソルを移動させたスクリーン座標
-		int m_deltaX = 0;						// 移動量X
-		int m_deltaY = 0;						// 移動量Y
+		// 移動量(感度を掛けた後)。生のマウス入力(WM_INPUT)から作る。
+		// 感度を下げたときに端数を捨てないよう float で持つ
+		float m_deltaX = 0.0f;					// 移動量X
+		float m_deltaY = 0.0f;					// 移動量Y
 
 	private:
 		InputManager();

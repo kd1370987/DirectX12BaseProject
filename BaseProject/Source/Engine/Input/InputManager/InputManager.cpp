@@ -42,6 +42,21 @@ namespace Engine::Input
 		{
 			return MainEngine::Instance().GetMode() == EAppMode::Game;
 		}
+
+		// 溜まっている生のマウス移動量を捨てる
+		//
+		// 生の入力は読み出すまで足し込まれ続ける。視点操作をしていない間
+		// (エディター操作中など)に捨てておかないと、操作を再開した最初の
+		// フレームでその間の移動が一気に効いて視点が飛ぶ。
+		void DiscardRawMouseDelta()
+		{
+			auto* _pWind = MainEngine::Instance().RefNativeWindow();
+			if (!_pWind) return;
+
+			int _rawX = 0;
+			int _rawY = 0;
+			_pWind->ConsumeRawMouseDelta(_rawX, _rawY);
+		}
 	}
 
 	void InputManager::Init()
@@ -67,9 +82,12 @@ namespace Engine::Input
 		{
 			// 固定していない間の移動量は持ち越さない。
 			// 次に固定を開始したフレームは基準を取り直す
-			m_deltaX = 0;
-			m_deltaY = 0;
+			m_deltaX = 0.0f;
+			m_deltaY = 0.0f;
 			m_needCursorLockReset = true;
+
+			// 生の入力は読むまで足し込まれ続けるので、毎フレーム捨てておく
+			DiscardRawMouseDelta();
 		}
 
 		// 登録された入力でバスの更新を行う
@@ -95,10 +113,13 @@ namespace Engine::Input
 	//======================================================================================
 	void InputManager::ResetInput()
 	{
-		m_deltaX = 0;
-		m_deltaY = 0;
+		m_deltaX = 0.0f;
+		m_deltaY = 0.0f;
 		m_needCursorLockReset = true;
 		m_lockAnchorPos = {};
+
+		// 切り替え前に溜まっていた生の移動量も捨てる
+		DiscardRawMouseDelta();
 
 		for (auto& _device : m_upInputDeviceMap)
 		{
@@ -112,41 +133,87 @@ namespace Engine::Input
 		ENGINE_LOG("マウス座標固定化 : %s", BOOL_STR(a_enable));
 	}
 
+	//======================================================================================
 	// カーソルをクライアント領域の中心へ戻し、そのフレームの移動量を確定させる
+	//--------------------------------------------------------------------------------------
+	// 移動量は WM_INPUT で届いた「デバイスが報告したカウント」を使う。
+	// カーソル座標の差分は使わない。あちらは
+	//   ・ポインターの速度スライダーで拡縮される(既定の半分なら動きも半分になる)
+	//   ・「ポインターの精度を高める」で速さに応じて倍率が変わる(素早く振ると非線形になる)
+	//   ・ピクセル単位に丸められ、端数が捨てられる
+	//   ・デスクトップの端でクランプされ、大きく振ったぶんが頭打ちになる
+	// という加工を通った後の値で、素早く振ったときほど実際の動きから離れてしまう。
+	//
+	// カーソルを中央へ戻すのは今までどおり続ける。移動量の取得には使わないが、
+	// 画面外へ出てウィンドウの外をクリックしてしまうのを防ぐ役目がある。
+	//======================================================================================
 	void InputManager::SetCursorLock()
 	{
+		auto* _pWind = MainEngine::Instance().RefNativeWindow();
+
+		// ---- 移動量 : 生の入力から取る ----
+		bool _hasRawDelta = false;
+		if (_pWind)
+		{
+			int _rawX = 0;
+			int _rawY = 0;
+			_pWind->ConsumeRawMouseDelta(_rawX, _rawY);
+
+			// 感度はここでしか掛からない(Windows側の設定を通っていないため)
+			const auto& _inputOption = Option::OptionManager::GetInstance().GetInputOption();
+
+			m_deltaX = static_cast<float>(_rawX) * _inputOption.lookSensitivityX;
+			m_deltaY = static_cast<float>(_rawY) * _inputOption.lookSensitivityY;
+
+			// 上下の反転はここで掛ける。
+			// 後段(InputAxisForWindowsMouse)は「下が正」で届いた値を軸の向きへ
+			// 直すために必ず符号を反転するので、あちらでやると設定と実際が食い違う
+			if (_inputOption.isInvertLookY) m_deltaY = -m_deltaY;
+
+			_hasRawDelta = true;
+		}
+
+		// ---- カーソルの固定 ----
 		POINT _center = {};
 		if (!GetClientCenterPos(_center))
 		{
 			// ウィンドウが取れない・最小化中などは移動量なし
-			m_deltaX = 0;
-			m_deltaY = 0;
+			m_deltaX = 0.0f;
+			m_deltaY = 0.0f;
 			m_needCursorLockReset = true;
 			return;
 		}
 
 		POINT _nowPos = {};
-		if (!GetCursorPos(&_nowPos))
+		const bool _hasCursorPos = (GetCursorPos(&_nowPos) != FALSE);
+
+		// 生の入力が使えないとき(登録に失敗した等)だけ、従来どおり
+		// カーソル座標の差分で代用する
+		if (!_hasRawDelta)
 		{
-			m_deltaX = 0;
-			m_deltaY = 0;
-			m_needCursorLockReset = true;
-			return;
+			if (!_hasCursorPos)
+			{
+				m_deltaX = 0.0f;
+				m_deltaY = 0.0f;
+				m_needCursorLockReset = true;
+				return;
+			}
+
+			if (m_needCursorLockReset)
+			{
+				// 固定を開始したフレームは基準が無いので移動量を出さない
+				m_deltaX = 0.0f;
+				m_deltaY = 0.0f;
+			}
+			else
+			{
+				// 前フレームに「実際にカーソルを置いた位置」からの差分
+				m_deltaX = static_cast<float>(_nowPos.x - m_lockAnchorPos.x);
+				m_deltaY = static_cast<float>(_nowPos.y - m_lockAnchorPos.y);
+			}
 		}
 
-		if (m_needCursorLockReset)
-		{
-			// 固定を開始したフレームは基準が無いので移動量を出さない
-			m_deltaX = 0;
-			m_deltaY = 0;
-			m_needCursorLockReset = false;
-		}
-		else
-		{
-			// 前フレームに「実際にカーソルを置いた位置」からの差分がこのフレームの移動量
-			m_deltaX = _nowPos.x - m_lockAnchorPos.x;
-			m_deltaY = _nowPos.y - m_lockAnchorPos.y;
-		}
+		m_needCursorLockReset = false;
 
 		// マウスを中央へ固定
 		SetCursorPos(_center.x, _center.y);
@@ -154,6 +221,7 @@ namespace Engine::Input
 		// 実際に移動できた座標を次フレームの基準にする。
 		// 画面端でのクランプやDPIの丸めで要求どおりに移動できない場合があり、
 		// 要求値を基準にすると毎フレーム同じ差分が残り続けて視点が震える
+		// (生の入力を使っている間は参照されないが、代用へ落ちたときのために更新しておく)
 		if (!GetCursorPos(&m_lockAnchorPos))
 		{
 			m_lockAnchorPos = _center;

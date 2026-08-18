@@ -38,6 +38,27 @@ namespace Engine::Window
 		/// </summary>
 		void RefreshClientSize();
 
+		/// <summary>
+		/// 溜まっている生のマウス移動量を取り出す(取り出したら0に戻る)
+		/// </summary>
+		/// <param name="a_outX">横の移動量(マウスのカウント。右が正)</param>
+		/// <param name="a_outY">縦の移動量(マウスのカウント。下が正)</param>
+		/// <remarks>
+		/// WM_INPUT で届いた移動量をそのまま足し合わせたもの。
+		/// カーソル座標の差分と違い、Windowsのポインター速度・ポインターの精度を高める
+		/// (加速)・画面端でのクランプ・ピクセル単位への丸めを一切通っていない。
+		/// 視点操作はこちらを使うこと。
+		///
+		/// 1フレームに複数回届くので、読むまで足し込み続ける。
+		/// 読み捨てないと溜まり続けるため、毎フレーム必ず呼ぶこと。
+		/// </remarks>
+		void ConsumeRawMouseDelta(int& a_outX, int& a_outY);
+
+		/// <summary>
+		/// WM_INPUT を処理して移動量を足し込む(ウィンドウプロシージャから呼ばれる)
+		/// </summary>
+		void OnRawInput(LPARAM a_lParam);
+
 		// アクセサ
 		const HWND& GetWindowHandle() const { return m_hWnd; }
 		const UINT& GetClientWidth() const { return m_clientWidth; }
@@ -55,6 +76,11 @@ namespace Engine::Window
 		/// モニターの作業領域に収まらない場合は収まるところまで縮める
 		/// </summary>
 		void FitClientSize(UINT a_width, UINT a_height);
+
+		/// <summary>
+		/// 生のマウス入力(WM_INPUT)を受け取れるように登録する
+		/// </summary>
+		void RegisterRawMouse();
 
 	private:
 		// Windows用
@@ -80,5 +106,19 @@ namespace Engine::Window
 
 		// 現在のウィンドウ設定
 		WINDOWPLACEMENT m_windowPlacement = {};
+
+		//-------------------------------------------------------------------
+		// 生のマウス移動量(WM_INPUT)
+		//-------------------------------------------------------------------
+		// 読み出されるまで足し込み続ける。1フレームに複数回メッセージが来るため、
+		// 「最後の1件」ではなく合計を持つ必要がある。
+		int  m_rawMouseDeltaX = 0;
+		int  m_rawMouseDeltaY = 0;
+
+		// 絶対座標で報告してくる機器(リモートデスクトップ・ペンタブ等)用。
+		// 相対値が入っていないので、前回位置との差から自前で作る
+		bool m_hasPrevRawAbsolutePos = false;
+		LONG m_prevRawAbsoluteX = 0;
+		LONG m_prevRawAbsoluteY = 0;
 	};
 }

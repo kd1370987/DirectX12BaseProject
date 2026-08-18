@@ -97,6 +97,12 @@ LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_
 		);
 		break;
 	}
+	case WM_INPUT:					// 生のマウス移動量が届いた
+		if (_pWindow)
+		{
+			_pWindow->OnRawInput(a_lParam);
+		}
+		break;
 	case WM_DESTROY:				// OSに対して終了を伝える
 		PostQuitMessage(0);
 		break;
@@ -232,7 +238,92 @@ namespace Engine::Window
 		m_windowPlacement.length = sizeof(WINDOWPLACEMENT);
 		GetWindowPlacement(m_hWnd, &m_windowPlacement);
 
+		// 視点操作用に生のマウス入力を受け取れるようにする
+		RegisterRawMouse();
+
 		return true;
+	}
+
+	//==================================================================================
+	// 生のマウス入力(WM_INPUT)
+	//----------------------------------------------------------------------------------
+	// 視点操作にカーソル座標の差分を使ってはいけない。カーソル座標は
+	//   ・ポインターの速度(コントロールパネルのスライダー)で拡縮され
+	//   ・「ポインターの精度を高める」(加速)で移動の速さに応じて倍率が変わり
+	//   ・ピクセル単位へ丸められ(端数は切り捨てられて消える)
+	//   ・デスクトップの端でクランプされる
+	// という加工を全部通った後の値で、素早く振ったときほど元の動きから離れる。
+	//
+	// WM_INPUT はデバイスが報告したカウントがそのまま届くので、上のどれも通らない。
+	// 1フレームに複数回届くため、読み出すまで足し込んでおく。
+	//==================================================================================
+	void NativeWindow::RegisterRawMouse()
+	{
+		if (!m_hWnd) return;
+
+		RAWINPUTDEVICE _device = {};
+		_device.usUsagePage = 0x01;		// Generic Desktop Controls
+		_device.usUsage     = 0x02;		// Mouse
+		_device.dwFlags     = 0;		// フォーカスがある間だけ受け取る(RIDEV_INPUTSINK は付けない)
+		_device.hwndTarget  = m_hWnd;
+
+		if (!RegisterRawInputDevices(&_device, 1, sizeof(_device)))
+		{
+			// 受け取れなくても致命傷ではない。
+			// InputManager 側がカーソル座標の差分へ自動で切り替える
+			ENGINE_WARNING("[Window] 生のマウス入力を登録できませんでした。カーソル座標から視点移動を作ります");
+		}
+	}
+
+	void NativeWindow::OnRawInput(LPARAM a_lParam)
+	{
+		RAWINPUT _raw = {};
+		UINT _size = sizeof(_raw);
+
+		const UINT _result = GetRawInputData(
+			reinterpret_cast<HRAWINPUT>(a_lParam),
+			RID_INPUT,
+			&_raw,
+			&_size,
+			sizeof(RAWINPUTHEADER));
+
+		// 取得できなかった場合は (UINT)-1 が返る
+		if (_result == static_cast<UINT>(-1)) return;
+		if (_raw.header.dwType != RIM_TYPEMOUSE) return;
+
+		const RAWMOUSE& _mouse = _raw.data.mouse;
+
+		if ((_mouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
+		{
+			// 絶対座標で報告してくる機器(リモートデスクトップ・ペンタブ等)。
+			// 相対値が入っていないので前回位置との差から作る。
+			// 最初の1件は基準が無いので移動量を出さない
+			if (m_hasPrevRawAbsolutePos)
+			{
+				m_rawMouseDeltaX += static_cast<int>(_mouse.lLastX - m_prevRawAbsoluteX);
+				m_rawMouseDeltaY += static_cast<int>(_mouse.lLastY - m_prevRawAbsoluteY);
+			}
+
+			m_prevRawAbsoluteX      = _mouse.lLastX;
+			m_prevRawAbsoluteY      = _mouse.lLastY;
+			m_hasPrevRawAbsolutePos = true;
+			return;
+		}
+
+		// 通常のマウスは相対値がそのまま入っている
+		m_hasPrevRawAbsolutePos = false;
+
+		m_rawMouseDeltaX += static_cast<int>(_mouse.lLastX);
+		m_rawMouseDeltaY += static_cast<int>(_mouse.lLastY);
+	}
+
+	void NativeWindow::ConsumeRawMouseDelta(int& a_outX, int& a_outY)
+	{
+		a_outX = m_rawMouseDeltaX;
+		a_outY = m_rawMouseDeltaY;
+
+		m_rawMouseDeltaX = 0;
+		m_rawMouseDeltaY = 0;
 	}
 
 	void NativeWindow::Release()

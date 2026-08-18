@@ -63,9 +63,11 @@ namespace Engine::Input
 			{
 				// カーソルを中央へ戻しているため自前の座標差分は使えない
 				// (戻した分まで拾ってしまう)ので、確定済みの移動量を使う。
-				// スクリーン座標のYは下方向が正なので、上方向を正とする軸に合わせて反転する
-				m_axis.x = static_cast<float>(a_inputContext.deltaX);
-				m_axis.y = -static_cast<float>(a_inputContext.deltaY);
+				// 中身は生のマウス入力(WM_INPUT)に感度を掛けたもので、
+				// Windowsのポインター速度や加速を通っていない値。
+				// Yは下方向が正で届くので、上方向を正とする軸に合わせて反転する
+				m_axis.x = a_inputContext.deltaX;
+				m_axis.y = -a_inputContext.deltaY;
 			}
 			else
 			{
