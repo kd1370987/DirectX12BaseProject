@@ -8,7 +8,6 @@
 #include "../../../../Components/Transform/LocalTransformComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 
-#include <random>
 
 //==============================================================================
 // EnemyMoveIntentSystem
@@ -52,10 +51,6 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 			MoveIntentComponent*              a_intentArray
 		)
 		{
-			// 徘徊方向の乱数(角度)。プロセス内で 1 つ持てば十分
-			static std::mt19937 s_rng{ std::random_device{}() };
-			static std::uniform_real_distribution<float> s_angle(0.0f, DirectX::XM_2PI);
-
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const TargetEntityComponent& _target = a_targetArray[_i];
@@ -206,7 +201,8 @@ void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
 							else
 							{
 								// 見終わり → 次の方向を選んで歩き出す
-								float _a = s_angle(s_rng);
+								// 徘徊方向は Math::Random から引く(乱数はユーティリティへ集約)
+								float _a = Math::Random::Float(0.0f, DirectX::XM_2PI);
 								_patrol.wanderDir = { std::sin(_a), 0.0f, std::cos(_a) };
 
 								_patrol.patrolPhase = EPatrolPhase::Move;

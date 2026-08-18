@@ -17,7 +17,6 @@
 #include "../../../../Components/Force/VelocityComponent.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
 
-#include <random>
 
 //==========================================================================================
 // BossCombatIntentSystem
@@ -86,12 +85,10 @@ namespace
 	}
 
 	// 間隔 ± 揺らぎ。同じ周期で動くと読まれてしまうので散らす
-	float NextInterval(std::mt19937& a_rng, float a_base, float a_random)
+	// (抽選そのものは Math::Random に寄せてある)
+	float NextInterval(float a_base, float a_random)
 	{
-		if (a_random <= 0.0f) return std::max(a_base, 0.05f);
-
-		std::uniform_real_distribution<float> _dist(-a_random, a_random);
-		return std::max(a_base + _dist(a_rng), 0.05f);
+		return std::max(Math::Random::Deviation(a_base, a_random), 0.05f);
 	}
 
 	//======================================================================================
@@ -110,6 +107,7 @@ namespace
 		float dashIntervalScale;	// クイックブースト間隔の倍率(小さいほど頻繁)
 		float gunRangeScale;		// 銃を撃ち始める距離の倍率
 		float missileIntervalScale;	// 一斉射の間隔の倍率(小さいほど多く撒く)
+		bool  canHold;				// 横の切り返しで足を止めてよいか
 	};
 
 	PatternProfile MakeProfile(const BossComponent& a_boss, EBossPattern a_pattern)
@@ -119,31 +117,33 @@ namespace
 		case EBossPattern::Rush:
 			// 懐へ飛び込む。横へ逃げずに真っ直ぐ詰めたいので切り返しは長め、
 			// 代わりにクイックブーストを頻繁に入れて直線的に見せない
-			return { a_boss.rushDistance, 0.5f, a_boss.rushHeight, 0.6f, 1.5f, 0.45f, 1.0f, 1.0f };
+			// 止まらない : 飛び込むこと自体が狙いなので、途中で足を止めると意味が無くなる
+			return { a_boss.rushDistance, 0.5f, a_boss.rushHeight, 0.6f, 1.5f, 0.45f, 1.0f, 1.0f, false };
 
 		case EBossPattern::HighGround:
 			// 上を取って撃ち下ろす。距離は少し詰めて、ミサイルを多めに撒く
 			return { a_boss.keepDistance * 0.8f, 1.0f, a_boss.highGroundHeight,
-					 1.0f, 1.0f, 0.8f, 1.0f, 0.5f };
+					 1.0f, 1.0f, 0.8f, 1.0f, 0.5f, true };
 
 		case EBossPattern::LowGround:
 			// 低く潜り込んで撃ち上げる。横の動きを強めて的を絞らせない
 			return { a_boss.keepDistance * 0.7f, 1.0f, a_boss.lowGroundHeight,
-					 1.3f, 0.8f, 0.7f, 1.0f, 1.0f };
+					 1.3f, 0.8f, 0.7f, 1.0f, 1.0f, true };
 
 		case EBossPattern::Orbit:
 			// 間合いを保ったまま同じ向きへ回り込む。切り返しをほとんど挟まない
 			return { a_boss.keepDistance, 1.0f, a_boss.keepHeight,
-					 a_boss.orbitStrafeScale, 3.0f, 0.6f, 1.0f, 1.0f };
+					 a_boss.orbitStrafeScale, 3.0f, 0.6f, 1.0f, 1.0f, true };
 
 		case EBossPattern::Retreat:
 			// 大きく離れてミサイル主体。銃は届かない距離なので撃たせない
+			// 止まらない : 距離を取るための動きなので、途中で止まると離れきれない
 			return { a_boss.retreatDistance, 1.5f, a_boss.keepHeight + 8.0f,
-					 0.8f, 1.2f, 1.2f, 0.5f, 0.5f };
+					 0.8f, 1.2f, 1.2f, 0.5f, 0.5f, false };
 
 		case EBossPattern::Standoff:
 		default:
-			return { a_boss.keepDistance, 1.0f, a_boss.keepHeight, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+			return { a_boss.keepDistance, 1.0f, a_boss.keepHeight, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, true };
 		}
 	}
 
@@ -154,7 +154,7 @@ namespace
 	// (重みが1つしか立っていない等)全体から引き直す。
 	// 同じパターンが連続すると、詰めてくると分かった状態がそのまま続いてしまうため。
 	//======================================================================================
-	EBossPattern PickPattern(std::mt19937& a_rng, const BossComponent& a_boss, EBossPattern a_current)
+	EBossPattern PickPattern(const BossComponent& a_boss, EBossPattern a_current)
 	{
 		constexpr int _kCount = static_cast<int>(EBossPattern::Max);
 
@@ -183,8 +183,7 @@ namespace
 			}
 			if (_total <= 0.0f) continue;
 
-			std::uniform_real_distribution<float> _dist(0.0f, _total);
-			float _roll = _dist(a_rng);
+			float _roll = Math::Random::Float(0.0f, _total);
 
 			for (int _i = 0; _i < _kCount; ++_i)
 			{
@@ -231,10 +230,6 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 			AimTargetPosComponent*            a_aimArray
 		)
 		{
-			// 揺らぎ用の乱数。ECS はシングルスレッドで回るのでプロセス内に1つで足りる
-			static std::mt19937 s_rng{ std::random_device{}() };
-			static std::uniform_int_distribution<int> s_coin(0, 1);
-
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const TargetEntityComponent&    _target = a_targetArray[_i];
@@ -304,7 +299,8 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 					_boss.distance         = _hasTarget ? _target.distance : 0.0f;
 
 					// 戦闘に入った最初のフレームでパターンを引き直させる
-					_boss.patternTimer = 0.0f;
+					_boss.patternTimer    = 0.0f;
+					_boss.strafeHoldTimer = 0.0f;
 
 					_intent.value = {};
 
@@ -328,12 +324,13 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 				_boss.patternTimer -= a_ctx.dt;
 				if (_boss.patternTimer <= 0.0f)
 				{
-					_boss.pattern      = PickPattern(s_rng, _boss, _boss.pattern);
+					_boss.pattern      = PickPattern(_boss, _boss.pattern);
 					_boss.patternTimer =
-						NextInterval(s_rng, _boss.patternDuration, _boss.patternDurationRand);
+						NextInterval(_boss.patternDuration, _boss.patternDurationRand);
 
-					_boss.strafeSign  = (s_coin(s_rng) == 0) ? -1.0f : 1.0f;
-					_boss.strafeTimer = 0.0f;
+					_boss.strafeSign      = Math::Random::Sign();
+					_boss.strafeTimer     = 0.0f;
+					_boss.strafeHoldTimer = 0.0f;	// 前のパターンの静止は引きずらない
 				}
 
 				const PatternProfile _profile = MakeProfile(_boss, _boss.pattern);
@@ -432,19 +429,47 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 				// 切り返しの間隔はパターン任せ。回り込み(Orbit)は長く、
 				// 詰め(Rush)は真っ直ぐ行きたいので実質切り返さない。
 				//==========================================================
+				// 足を止めている残り時間を進める
+				_boss.strafeHoldTimer = std::max(_boss.strafeHoldTimer - a_ctx.dt, 0.0f);
+
 				_boss.strafeTimer -= a_ctx.dt;
 				if (_boss.strafeTimer <= 0.0f)
 				{
 					// たまに同じ向きへ続けて、切り返しの周期を読ませない
-					_boss.strafeSign = (s_coin(s_rng) == 0) ? -_boss.strafeSign : _boss.strafeSign;
+					if (Math::Random::Bool()) _boss.strafeSign = -_boss.strafeSign;
 					if (_boss.strafeSign == 0.0f) _boss.strafeSign = 1.0f;
 
 					_boss.strafeTimer = NextInterval(
-						s_rng,
 						_boss.strafeInterval * _profile.strafeIntervalScale,
 						_boss.strafeIntervalRand);
+
+					//------------------------------------------------------
+					// 折り返しの瞬間だけ足を止める
+					//------------------------------------------------------
+					// 横へ振り続けているだけだと狙いを置く先が定まらず、当てるのが
+					// ほぼ運になってしまう。折り返しは元々速度が乗っていない場所なので、
+					// ここで止めれば動きとして不自然にならず、狙える隙になる。
+					// 毎回止まると読まれるので、止まるかどうかも時間も抽選する。
+					//------------------------------------------------------
+					if (_profile.canHold && Math::Random::Chance(_boss.strafeHoldChance))
+					{
+						const float _minTime = std::max(_boss.strafeHoldTimeMin, 0.0f);
+						const float _maxTime = std::max(_boss.strafeHoldTimeMax, _minTime);
+
+						_boss.strafeHoldTimer = Math::Random::Float(_minTime, _maxTime);
+
+						// 止まっている間に次の切り返しが来ないよう、待ち時間を積んでおく
+						_boss.strafeTimer += _boss.strafeHoldTimer;
+					}
 				}
-				const float _side = _boss.strafeSign * _boss.strafeThrottle * _profile.strafeScale;
+
+				// 止まっている間は横にも前後にも動かない(高度だけは保つ)
+				const bool _isHolding = (_boss.strafeHoldTimer > 0.0f);
+				if (_isHolding) _boss.maneuver = EBossManeuver::Hold;
+
+				const float _side = _isHolding
+					? 0.0f
+					: _boss.strafeSign * _boss.strafeThrottle * _profile.strafeScale;
 
 				//==========================================================
 				// 上下 : パターンが決めた高さに居座る
@@ -489,7 +514,7 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 				// 視点基準の移動入力(プレイヤーのスティック入力と同じ意味)
 				_intent.value.x = _side;
 				_intent.value.y = _up;
-				_intent.value.z = _forward;
+				_intent.value.z = _isHolding ? 0.0f : _forward;
 
 				//==========================================================
 				// ブースト
@@ -498,7 +523,11 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 				// 混ぜてクイックブーストをかける(初動だけ tapBoostScale が乗る)。
 				// 残量が予備を切ったら休んで回復させる。
 				//==========================================================
+				// 静止中は吹かさない。
+				// ブーストは進みたい向きへ速度を差し替えるので、吹かしたままだと止まれない。
+				// (水平入力が0のときは視線方向へ飛んでしまうので、切っておく必要がある)
 				const bool _canBoost =
+					!_isHolding &&
 					_boost.currentFuel > (_boost.boostFuel + _boss.boostFuelReserve);
 
 				_boost.isBoostIntent = _canBoost;
@@ -511,7 +540,6 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 
 					// 頻度もパターン任せ。詰めや回り込みでは短くして踏み込みを増やす
 					_boss.dashTimer = NextInterval(
-						s_rng,
 						_boss.dashInterval * _profile.dashIntervalScale,
 						_boss.dashIntervalRand);
 				}
@@ -559,7 +587,6 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 
 					// 上を取ったときや離脱中はミサイル主体にしたいので、間隔もパターン任せ
 					_boss.missileTimer = NextInterval(
-						s_rng,
 						_boss.missileInterval * _profile.missileIntervalScale,
 						_boss.missileIntervalRand);
 				}

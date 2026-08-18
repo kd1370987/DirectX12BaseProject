@@ -35,6 +35,7 @@ enum class EBossManeuver : int
 	Approach,	// 間合いより遠い : 詰める
 	Keep,		// 間合いの内   : 横に流しながら撃ち合う
 	Back,		// 近すぎる     : 下がる
+	Hold,		// 横の切り返しで足を止めている(撃たれてもよい隙)
 };
 
 //==========================================================================================
@@ -109,6 +110,15 @@ struct BossComponent
 	float strafeInterval     = 1.4f;	// 横移動の向きを切り替える間隔(秒)
 	float strafeIntervalRand = 0.8f;	// その揺らぎ(±秒)。同じ周期で往復すると読まれてしまう
 	float strafeThrottle     = 1.0f;	// 横移動のスロットル(0..1)
+
+	// ---- 切り返しの静止(保存される) ----
+	// 撃ち合いの最中、横に振る動きの折り返しで足を止める。
+	// 常に横へ流れ続けていると狙いを置く先が定まらず、当てるのがほぼ運になってしまうため、
+	// 「止まっているあいだは狙って当てられる」という隙をこちらから作る。
+	// 詰め(Rush)と離脱(Retreat)では止まらない(移動そのものが目的の動きなので)。
+	float strafeHoldChance   = 0.5f;	// 折り返しで止まる確率(0..1)。0 で止まらない
+	float strafeHoldTimeMin  = 1.0f;	// 止まっている時間の下限(秒)
+	float strafeHoldTimeMax  = 2.0f;	// 止まっている時間の上限(秒)
 	float approachThrottle   = 1.0f;	// 詰めるときのスロットル(0..1)
 	float backThrottle       = 1.0f;	// 下がるときのスロットル(0..1)
 	float verticalThrottle   = 1.0f;	// 上下移動のスロットル(0..1)
@@ -138,6 +148,7 @@ struct BossComponent
 	float patternTimer     = 0.0f;		// 次にパターンを選び直すまでの残り時間(秒)
 	float strafeSign       = 1.0f;		// 横移動の向き(+1 / -1)
 	float strafeTimer      = 0.0f;		// 次に横移動を切り替えるまでの残り時間(秒)
+	float strafeHoldTimer  = 0.0f;		// 足を止めている残り時間(秒)。0 なら動いている
 	float dashTimer        = 0.0f;		// 次のクイックブーストまでの残り時間(秒)
 	float gunTimer         = 0.0f;		// 撃つ/休むの残り時間(秒)
 	bool  isGunActive      = false;		// 今は撃つ番か
@@ -183,6 +194,9 @@ struct Engine::ECS::ComponentTraits<BossComponent>
 		a_ar.Field("strafeInterval", _comp.strafeInterval);
 		a_ar.Field("strafeIntervalRand", _comp.strafeIntervalRand);
 		a_ar.Field("strafeThrottle", _comp.strafeThrottle);
+		a_ar.Field("strafeHoldChance", _comp.strafeHoldChance);
+		a_ar.Field("strafeHoldTimeMin", _comp.strafeHoldTimeMin);
+		a_ar.Field("strafeHoldTimeMax", _comp.strafeHoldTimeMax);
 		a_ar.Field("approachThrottle", _comp.approachThrottle);
 		a_ar.Field("backThrottle", _comp.backThrottle);
 		a_ar.Field("verticalThrottle", _comp.verticalThrottle);
@@ -254,6 +268,17 @@ struct Engine::ECS::ComponentTraits<BossComponent>
 		ImGui::DragFloat("StrafeInterval", &_comp.strafeInterval, 0.05f, 0.0f);
 		ImGui::DragFloat("StrafeIntervalRand", &_comp.strafeIntervalRand, 0.05f, 0.0f);
 		ImGui::DragFloat("StrafeThrottle", &_comp.strafeThrottle, 0.01f, 0.0f, 1.0f);
+
+		ImGui::TextDisabled("Hold (pause at strafe turn-around)");
+		ImGui::DragFloat("StrafeHoldChance", &_comp.strafeHoldChance, 0.01f, 0.0f, 1.0f);
+		if (ImGui::DragFloat("StrafeHoldTimeMin", &_comp.strafeHoldTimeMin, 0.05f, 0.0f))
+		{
+			if (_comp.strafeHoldTimeMax < _comp.strafeHoldTimeMin) _comp.strafeHoldTimeMax = _comp.strafeHoldTimeMin;
+		}
+		if (ImGui::DragFloat("StrafeHoldTimeMax", &_comp.strafeHoldTimeMax, 0.05f, 0.0f))
+		{
+			if (_comp.strafeHoldTimeMax < _comp.strafeHoldTimeMin) _comp.strafeHoldTimeMin = _comp.strafeHoldTimeMax;
+		}
 		ImGui::DragFloat("ApproachThrottle", &_comp.approachThrottle, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("BackThrottle", &_comp.backThrottle, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("VerticalThrottle", &_comp.verticalThrottle, 0.01f, 0.0f, 1.0f);
@@ -280,13 +305,14 @@ struct Engine::ECS::ComponentTraits<BossComponent>
 		ImGui::SeparatorText("Runtime");
 		static const char* _patternName[] = {
 			"Standoff", "Rush", "HighGround", "LowGround", "Orbit", "Retreat" };
-		static const char* _maneuverName[] = { "Wait", "Approach", "Keep", "Back" };
+		static const char* _maneuverName[] = { "Wait", "Approach", "Keep", "Back", "Hold" };
 
 		ImGui::Text("Pattern  : %s (next %.2f s)",
 			_patternName[static_cast<int>(_comp.pattern)], _comp.patternTimer);
 		ImGui::Text("Maneuver : %s", _maneuverName[static_cast<int>(_comp.maneuver)]);
 		ImGui::Text("Distance : %.2f m", _comp.distance);
 		ImGui::Text("Strafe   : %+.0f (next %.2f s)", _comp.strafeSign, _comp.strafeTimer);
+		ImGui::Text("Hold     : %.2f s", _comp.strafeHoldTimer);
 		ImGui::Text("Gun      : %s (next %.2f s)", _comp.isGunActive ? "fire" : "rest", _comp.gunTimer);
 		ImGui::Text("Missile  : next %.2f s", _comp.missileTimer);
 	}
