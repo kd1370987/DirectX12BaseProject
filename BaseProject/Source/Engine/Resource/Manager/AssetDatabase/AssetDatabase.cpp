@@ -2,6 +2,25 @@
 
 namespace Engine::Resource
 {
+	namespace
+	{
+		//----------------------------------------------------------------------
+		// パスを小文字化する
+		//----------------------------------------------------------------------
+		// Windowsのファイルシステムは大文字小文字を区別しないので、
+		// 「同じファイルを指しているか」を文字列で判定したいときはこれを通す。
+		// 表示や実際のファイル操作には元の綴りを使うこと。
+		//----------------------------------------------------------------------
+		std::string ToLowerPath(const std::string& a_path)
+		{
+			std::string _result = a_path;
+			std::transform(_result.begin(), _result.end(), _result.begin(),
+				[](unsigned char a_c) { return static_cast<char>(std::tolower(a_c)); });
+
+			return _result;
+		}
+	}
+
 	void AssetDatabase::Init(
 		const std::string& a_assetFilePath,
 		const std::string& a_metafileExtension
@@ -100,8 +119,26 @@ namespace Engine::Resource
 	}
 	void AssetDatabase::CreateMetaFileForAllAssets()
 	{
-		// 拡張子なしのベースパスに付随する拡張子リスト
-		std::map<std::string, std::vector<std::string>> _assetGroups;
+		//----------------------------------------------------------------------
+		// 拡張子なしのベースパスごとに拡張子をまとめる
+		//----------------------------------------------------------------------
+		// キーは小文字化したベースパス。Windowsのファイルシステムは大文字小文字を
+		// 区別しないので、"Sand.gltf" と "sand.png" は別のグループになるのに、
+		// 書き出す .assetmeta は同じ1つのファイルを指してしまう。
+		// 分けたままにすると、後から書いたグループが先のグループの拡張子リストを
+		// 丸ごと上書きする(GUIDとTypeだけは既存ファイルから引き継がれるので、
+		// 「Typeは Model なのに Files は .png だけ」という状態が出来上がり、
+		// モデルとして読もうとしたときに拡張子が見つからず読み込みに失敗する)。
+		//
+		// 実際に使うベースパスの綴りは、最初に見つけたものを採用する。
+		//----------------------------------------------------------------------
+		struct AssetGroup
+		{
+			std::string              basePath   = "";	// 拡張子なしのベースパス(実際の綴り)
+			std::vector<std::string> extensions = {};	// そのベースパスに付いている拡張子
+		};
+
+		std::map<std::string, AssetGroup> _assetGroups;
 
 		// スキャンしてベース名ごとに拡張子をグループ化
 		for (const std::filesystem::directory_entry& _entry : std::filesystem::recursive_directory_iterator(m_assetsFilePath))
@@ -112,14 +149,67 @@ namespace Engine::Resource
 				std::filesystem::path _basePath = _entry.path().parent_path() / _entry.path().stem();
 				std::string _basePathStr = _basePath.lexically_normal().generic_string();				// 拡張子なしのベースパス
 
-				// ベースパスのグループに追加
-				_assetGroups[_basePathStr].push_back(_entry.path().extension().string());
+				// ベースパスのグループに追加(ファイルシステムに合わせて大文字小文字を無視する)
+				AssetGroup& _group = _assetGroups[ToLowerPath(_basePathStr)];
+				if (_group.basePath.empty()) _group.basePath = _basePathStr;
+
+				_group.extensions.push_back(_entry.path().extension().string());
 			}
 		}
 
-		// 全ファイルがグループに登録されたため、グループごとのメタファイルを作成
-		for (const auto& [_basePathStr, _extensions] : _assetGroups)
+		// 拡張子から所属するアセットの種別を引く(見つからなければ空)
+		auto _findType = [this](const std::string& a_ext) -> std::string
 		{
+			for (const auto& [_typeName, _typeExtData] : m_assetTypeExtensionsMap)
+			{
+				// 独自規格のチェック (.ob, .oj)
+				for (const auto& _tExt : _typeExtData.typeExt)
+				{
+					if (a_ext.find(_tExt) == 0) return _typeName;
+				}
+
+				// ベース拡張子のチェック (.gltf など)
+				for (const auto& _baseExt : _typeExtData.extensions)
+				{
+					if (a_ext == _baseExt) return _typeName;
+				}
+			}
+
+			return "";
+		};
+
+		// 全ファイルがグループに登録されたため、グループごとのメタファイルを作成
+		for (const auto& [_key, _group] : _assetGroups)
+		{
+			const std::string&              _basePathStr = _group.basePath;
+			const std::vector<std::string>& _extensions  = _group.extensions;
+
+			//------------------------------------------------------------------
+			// 種別のまたがりを知らせる
+			//------------------------------------------------------------------
+			// このデータベースは「拡張子を除いたパス」でアセットを1件と数えるので、
+			// 同じフォルダの同じ名前に別種のファイルを置くと1件にまとめられてしまう
+			// (例 : Sand.gltf と sand.png)。まとめられた側は個別のアセットとして
+			// 引けなくなり、モデルのテクスチャが解決できないといった形で出る。
+			// 直し方は「片方の名前を変える」しかないので、気づけるように出しておく。
+			//------------------------------------------------------------------
+			{
+				std::string _firstType = "";
+				for (const auto& _ext : _extensions)
+				{
+					const std::string _type = _findType(_ext);
+					if (_type.empty()) continue;
+
+					if (_firstType.empty()) { _firstType = _type; continue; }
+					if (_firstType == _type) continue;
+
+					ENGINE_WARNING(
+						"[AssetDatabase] 同じ名前に別種のアセットがあります(片方の名前を変えてください) : %s (%s / %s)",
+						_basePathStr.c_str(), _firstType.c_str(), _type.c_str());
+					break;
+				}
+			}
+
 			// 作成するメタファイルのフルパスを作成
 			std::filesystem::path _metafilePath = _basePathStr + m_metafileExtension;
 
@@ -140,20 +230,18 @@ namespace Engine::Resource
 				_guid.Create();
 				_json["GUID"] = _guid.String();
 
-				// 拡張子からタイプを推測
+				// 拡張子からタイプを推測する。
+				// 最初に見つかった拡張子のタイプで確定させる(=先に並んでいるものが優先)。
+				// 種別ごとのループを抜けずに回し続けると、後ろの種別に一致したときに
+				// 上書きされ、同じ構成でも並び順しだいで別のタイプになってしまう。
 				std::string _typeStr = "Unknown";
 				for (const auto& _ext : _extensions)
 				{
-					for (const auto& [_typeName, _typeExtData] : m_assetTypeExtensionsMap)
-					{
-						for (const auto& _tExt : _typeExtData.typeExt) {
-							if (_ext.find(_tExt) == 0) { _typeStr = _typeName; break; }
-						}
-						for (const auto& _baseExt : _typeExtData.extensions) {
-							if (_ext == _baseExt) { _typeStr = _typeName; break; }
-						}
-					}
-					if (_typeStr != "Unknown") break;
+					const std::string _type = _findType(_ext);
+					if (_type.empty()) continue;
+
+					_typeStr = _type;
+					break;
 				}
 				_json["Type"] = _typeStr;
 			}

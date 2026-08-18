@@ -35,7 +35,17 @@ bool IsVisible(MeshletCullData a_cullData, float4x4 a_worldMat)
 	//  真正面から見たときだけ当たる」コーンとして効いてしまい、
 	//  角度によってメッシュレットが1枚だけ消える)
 	bool _isConeDegenerate = (_rawCone.w == 0xFF);
-	if (!_isConeDegenerate)
+
+	// 非等方スケールが掛かっているとコーンは使えない。
+	//
+	// 軸だけなら逆転置で正しく移せるが、コーンの開き角(cutoff)は
+	// スケールで潰れたり広がったりするので、ローカルで作った値のまま使うと
+	// 実際より狭いコーンとして判定してしまい、見えているメッシュレットまで消える。
+	// (glTFのノードに 50,1,50 のようなスケールが入った地形で顕著に出る)
+	// 開き角を移す手立てが無いので、等方スケールのときだけ判定に使う。
+	bool _canUseCone = !_isConeDegenerate && IsUniformScale(a_worldMat);
+
+	if (_canUseCone)
 	{
 		// 軸(xyz)は -1.0～1.0 にアンパック
 		float3 _axisLocal = (_rawCone.xyz / 255.0f) * 2.0f - 1.0f;
@@ -47,8 +57,9 @@ bool IsVisible(MeshletCullData a_cullData, float4x4 a_worldMat)
 		float3 _apexLocal = a_cullData.BoundingSphereCenter - (_axisLocal * a_cullData.ApexOffset);
 
 		// ワールド空間に変換
+		// 軸は法線と同じ扱い(逆転置)。ワールド行列をそのまま掛けると向きがずれる
 		float3 _apexWorld = mul(float4(_apexLocal,1.0f),a_worldMat).xyz;
-		float3 _axisWorld = normalize(mul(_axisLocal, (float3x3)a_worldMat));
+		float3 _axisWorld = Normal_LocalToWorld(_axisLocal, a_worldMat);
 
 		// コーンの頂点からカメラのベクトル : 正規化
 		float3 _viewToApex = normalize(_apexWorld - g_camera.cameraPos.xyz);

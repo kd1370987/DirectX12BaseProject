@@ -1,4 +1,4 @@
-#include "GBufferShader.hlsli"
+﻿#include "GBufferShader.hlsli"
 
 // 頂点シェーダー入出力構造体
 struct VSInput
@@ -47,8 +47,10 @@ VSOutput VSMain(VSInput a_input)
 	
 	// ワールド法線、接線、副接線
 	float3 _binormal = cross(a_input.normal, a_input.tangent.xyz);
-	_output.wT = Normal_LocalToWorld(a_input.tangent.xyz, _worldMat);
-	_output.wB = Normal_LocalToWorld(_binormal, _worldMat);
+	// 接線・副接線は面に沿うベクトルなのでワールド行列をそのまま掛ける
+	// (法線と同じ逆転置を掛けると、非等方スケールで接空間が法線とねじれる)
+	_output.wT = Tangent_LocalToWorld(a_input.tangent.xyz, _worldMat);
+	_output.wB = Tangent_LocalToWorld(_binormal, _worldMat);
 	_output.wN = Normal_LocalToWorld(a_input.normal, _worldMat);
 
 	// モーションベクター用

@@ -94,8 +94,12 @@ void MSMain(
 		_vout.prevClipPos = mul(_prevWorldPos, g_camera.prevViewProj);
 
 		// 法線と接線の回転
-		_vout.normal = normalize(mul(_v.normal, (float3x3) _inst.worldMat));
-		_vout.tangent = normalize(mul(_v.tangent, (float3x3) _inst.worldMat));
+		//
+		// 法線は逆転置(GetNormalMatrix)で移す。ワールド行列をそのまま掛けると、
+		// 非等方スケールのモデルで法線が引き伸ばされた軸へ倒れて陰影が壊れる。
+		// 接線は面に沿うベクトルなのでワールド行列のままでよい。
+		_vout.normal = Normal_LocalToWorld(_v.normal, _inst.worldMat);
+		_vout.tangent = Tangent_LocalToWorld(_v.tangent, _inst.worldMat);
 		
 		_vout.uv = _v.uv;
 		_vout.instanceID = _instanceID;

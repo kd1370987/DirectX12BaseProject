@@ -218,16 +218,21 @@ namespace Engine::Resource
 
 	std::string ModelIO::FinddExtension(const std::vector<std::string>& a_extVed)
 	{
+		// 数字が小さいほど優先。None は「まだ何も見つかっていない」
 		enum class EExtTier
 		{
 			OB,				// binary ".obmdl",
 			Default,		// デフォルトのアセット拡張子".gltf",
-			OJ				// JSON  ".ojmdl"
+			OJ,				// JSON  ".ojmdl"
+			None			// 未決定
 		};
 
 		std::string _res = "";
 
-		EExtTier _tier = EExtTier::OJ;
+		// 最下位(OJ)から始めると ".ojmdl" の判定( _tier > OJ )が絶対に成立せず、
+		// .ojmdl しか持たないモデルが「拡張子なし」として弾かれてしまう。
+		// 未決定を表す段を用意して、そこから始めること
+		EExtTier _tier = EExtTier::None;
 		for (size_t _i = 0; _i < a_extVed.size(); ++_i)
 		{
 			if (a_extVed[_i] == ".obmdl")

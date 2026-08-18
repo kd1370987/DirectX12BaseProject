@@ -1,5 +1,6 @@
 // ---- ルートパラメーター ----
 #include "../../Common/CB/CBCamera.hlsli"
+#include "../../Common/Math/Normal.hlsli"
 
 // インスタンスごとのデータ : サブメッシュ単位なため、参照するマテリアルは一つ
 struct InstanceData
