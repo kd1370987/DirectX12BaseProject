@@ -8,6 +8,7 @@ namespace Engine::ECS
 
 namespace Engine::GameObject
 {
+	class GameObjectManager;
 	/// <summary>
 	/// 引数で持たせる
 	///
@@ -24,6 +25,11 @@ namespace Engine::GameObject
 
 		// アプリ寿命のサービス群(グラフィックス・リソース・オプションなど)
 		Engine::ECS::EngineServices* pServices = nullptr;
+
+		// 自分を持っているマネージャー。
+		// オブジェクト同士を GUID で参照する(FindByGUID)ときに使う。
+		// シングルトンを名指ししないための経路なので、必ずここから引くこと
+		GameObjectManager* pObjectManager = nullptr;
 	};
 
 	/// <summary>

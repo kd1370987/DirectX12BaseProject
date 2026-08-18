@@ -16,6 +16,9 @@
 #include "Application/Object/UI/AimReticleHUD/AimReticleHUD.h"
 #include "Application/Object/UI/HitEffectHUD/HitEffectHUD.h"
 #include "Application/Object/UI/MissileLockBoxHUD/MissileLockBoxHUD.h"
+#include "Application/Object/UI/UIButton/UIButton.h"
+#include "Application/Object/UI/UIImage/UIImage.h"
+#include "Application/Object/Sequence/TitleSequence/TitleSequence.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 
 // コンポーネント関係
@@ -238,6 +241,12 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::AimReticleHUD>("AimReticleHUD");
 			_objRegistry.RegisterType<App::Object::HitEffectHUD>("HitEffectHUD");
 			_objRegistry.RegisterType<App::Object::MissileLockBoxHUD>("MissileLockBoxHUD");
+			// 押せるUI。押されて何をするかは SetOnClick で外から差し込む
+			_objRegistry.RegisterType<App::Object::UIButton>("UIButton");
+			// 置くだけの画像(タイトルの背景など)
+			_objRegistry.RegisterType<App::Object::UIImage>("UIImage");
+			// タイトル画面の進行役。ボタンへ「押されたらシーンを切り替える」を差し込む
+			_objRegistry.RegisterType<App::Object::TitleSequence>("TitleSequence");
 		}
 
 		// ワールドの初期化関数登録
@@ -530,6 +539,11 @@ namespace App::Game
 			// 狙う
 			Engine::Input::InputButtonForWindows _aim(VK_LBUTTON);
 			_keyboard.AddButton("Aim", std::make_shared<Engine::Input::InputButtonForWindows>(_aim));
+
+			// UIのボタン押下。UIButton が既定で見に行くアクション名
+			// (視点操作の Aim と同じ左クリックだが、意味が別なので名前を分けておく)
+			Engine::Input::InputButtonForWindows _uiClick(VK_LBUTTON);
+			_keyboard.AddButton("UIClick", std::make_shared<Engine::Input::InputButtonForWindows>(_uiClick));
 
 			// ミサイル : 押している間ターゲットを溜め、離すと一斉射
 			// (デバッグカメラの FreeCamUp と同じ E キー。使う場面が別なので共存させる)

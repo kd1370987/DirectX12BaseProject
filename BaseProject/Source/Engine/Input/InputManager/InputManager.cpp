@@ -38,7 +38,7 @@ namespace Engine::Input
 		// 「入力が残らない」ためにも効く。取得側が常に無入力を返すので、
 		// 入力フェーズのシステムが毎フレーム MoveIntent などへ 0 を書き込み、
 		// 切り替え前の入力が押しっぱなしのまま固まらない。
-		bool IsGameInputEnable()
+		bool IsPlayMode()
 		{
 			return MainEngine::Instance().GetMode() == EAppMode::Game;
 		}
@@ -228,6 +228,29 @@ namespace Engine::Input
 		}
 	}
 
+	// ゲーム入力を受け付けてよい状態か(判定は上のヘルパーと同じ)
+	bool InputManager::IsGameInputEnable() const
+	{
+		return IsPlayMode() && !IsUICapturingInput();
+	}
+
+	// カーソルのクライアント領域内の座標を取得する
+	bool InputManager::GetCursorClientPos(Math::Vector2& a_outPos) const
+	{
+		auto* _pWind = MainEngine::Instance().GetNativeWindow();
+		if (!_pWind) return false;
+
+		const HWND _hWnd = _pWind->GetWindowHandle();
+		if (!_hWnd) return false;
+
+		POINT _pos = {};
+		if (!GetCursorPos(&_pos)) return false;
+		if (!ScreenToClient(_hWnd, &_pos)) return false;
+
+		a_outPos = { static_cast<float>(_pos.x), static_cast<float>(_pos.y) };
+		return true;
+	}
+
 	// クライアント領域の中心をスクリーン座標で取得する
 	bool InputManager::GetClientCenterPos(POINT& a_outPos) const
 	{
@@ -259,7 +282,7 @@ namespace Engine::Input
 	short InputManager::GetButtonState(std::string_view a_name) const
 	{
 		// プレイモード以外はゲーム入力を渡さない
-		if (!IsGameInputEnable()) return InputButtonBase::EState::Free;
+		if (!IsPlayMode()) return InputButtonBase::EState::Free;
 
 		// エディタ操作中(テキスト入力など)はゲーム入力を無効化
 		if (IsUICapturingInput()) return InputButtonBase::EState::Free;
@@ -299,7 +322,7 @@ namespace Engine::Input
 	DXSM::Vector2 InputManager::GetAxisState(std::string_view a_name) const
 	{
 		// プレイモード以外はゲーム入力を渡さない
-		if (!IsGameInputEnable()) return DXSM::Vector2(0.0f, 0.0f);
+		if (!IsPlayMode()) return DXSM::Vector2(0.0f, 0.0f);
 
 		// エディタ操作中(テキスト入力など)はゲーム入力を無効化
 		if (IsUICapturingInput()) return DXSM::Vector2(0.0f, 0.0f);

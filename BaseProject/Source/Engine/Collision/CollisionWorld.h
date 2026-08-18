@@ -44,7 +44,10 @@ namespace Engine::Collision
 			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY);
 
 		// カプセル判定
-		bool VsCapsule(const CapsuleInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
+		// a_ignoreID : 自分以外にもう1体だけ判定から外す(弾から見た発射元など)。
+		// 弾の連続判定(移動前→移動後を結んだカプセル)で銃口の本体を拾わないために要る
+		bool VsCapsule(const CapsuleInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY,
+			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY);
 
 		// ボックス(AABB)判定
 		bool VsBox(const BoxInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);

@@ -32,6 +32,28 @@ namespace Engine::Input
 		// このフレームでカーソル固定が実際に働いているか
 		bool IsCursorLockActive() const { return m_isCursorLockActive; }
 
+		/// <summary>
+		/// ゲーム側の入力を受け付けてよい状態か
+		/// </summary>
+		/// <remarks>
+		/// プレイモード以外(エディター操作中)やテキスト入力中は false。
+		/// ボタンUIのように「入力を見て自分で判定するもの」が、
+		/// エディター操作に反応してしまわないよう確認に使う。
+		/// </remarks>
+		bool IsGameInputEnable() const;
+
+		/// <summary>
+		/// カーソルのクライアント領域内の座標を取得する
+		/// </summary>
+		/// <param name="a_outPos">左上を原点としたクライアント座標(px)</param>
+		/// <returns>取得できたら true</returns>
+		/// <remarks>
+		/// UIの当たり判定はこの座標を描画解像度へ直して使う。
+		/// カーソルを中央へ固定している間(IsCursorLockActive)は毎フレーム中央へ
+		/// 戻されるので、位置に意味は無い。メニューを出す場面では固定を切ること。
+		/// </remarks>
+		bool GetCursorClientPos(Math::Vector2& a_outPos) const;
+
 		// すべての有効な入力装置からのボタン入力状態を取得
 		short GetButtonState(std::string_view a_name) const;
 

@@ -1,4 +1,4 @@
-#include "GameObjectManager.h"
+﻿#include "GameObjectManager.h"
 
 #include "../../ECS/World/World.h"
 
@@ -11,6 +11,9 @@ namespace Engine::GameObject
 		// (シーン側で組んだ1つの束を、システムとオブジェクトで共有する)
 		m_objContext.pWorld = a_pWorld;
 		m_objContext.pServices = a_pWorld ? a_pWorld->RefEngineServices() : nullptr;
+
+		// オブジェクトから他のオブジェクトを引けるようにする
+		m_objContext.pObjectManager = this;
 	}
 	GameObjectManager::~GameObjectManager()
 	{

@@ -113,6 +113,12 @@ namespace App::Systems::ProjectileSpawn
 				ProjectileComponent _proj = {};
 				std::memcpy(&_proj, _it->second.data(), sizeof(_proj));
 				_proj.shooterEntity = a_shooter;
+
+				// 連続判定の起点。銃口の位置から入れておかないと、
+				// 生成された最初のフレームの移動ぶんだけ判定が抜ける
+				_proj.prevPos    = a_pos;
+				_proj.hasPrevPos = true;
+
 				std::memcpy(_it->second.data(), &_proj, sizeof(_proj));
 			}
 		}

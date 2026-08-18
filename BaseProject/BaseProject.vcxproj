@@ -249,6 +249,8 @@
     <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp" />
+    <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp" />
+    <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.cpp" />
@@ -632,6 +634,9 @@
     <ClInclude Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.h" />
     <ClInclude Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.h" />
     <ClInclude Include="Source\Application\Object\UI\UIBase.h" />
+    <ClInclude Include="Source\Application\Object\UI\UIButton\UIButton.h" />
+    <ClInclude Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.h" />
+    <ClInclude Include="Source\Application\Object\UI\UIImage\UIImage.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.h" />

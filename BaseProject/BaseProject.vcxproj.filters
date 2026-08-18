@@ -1378,6 +1378,15 @@
     <Filter Include="Source\Application\Object">
       <UniqueIdentifier>{91fbd461-177e-4dd8-816b-0137e3bfd83f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Sequence\TitleSequence">
+      <UniqueIdentifier>{c8d2e3f4-9a51-4b62-8d73-1e84f5a6b702}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\UI\UIImage">
+      <UniqueIdentifier>{c8d2e3f4-9a51-4b62-8d73-1e84f5a6b703}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\UI\UIButton">
+      <UniqueIdentifier>{b7c1d2e3-8f40-4a51-9c62-0d73e4f5a601}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Object\UI">
       <UniqueIdentifier>{50ad7784-1d55-4333-957c-60656a8d08e4}</UniqueIdentifier>
     </Filter>
@@ -2333,6 +2342,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp">
       <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp">
+      <Filter>Source\Application\Object\UI\UIButton</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp">
+      <Filter>Source\Application\Object\Sequence\TitleSequence</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\UI\UIPass</Filter>
@@ -3706,6 +3721,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\UIBase.h">
       <Filter>Source\Application\Object\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\UIButton\UIButton.h">
+      <Filter>Source\Application\Object\UI\UIButton</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.h">
+      <Filter>Source\Application\Object\Sequence\TitleSequence</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\UIImage\UIImage.h">
+      <Filter>Source\Application\Object\UI\UIImage</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\UI\UIPass</Filter>

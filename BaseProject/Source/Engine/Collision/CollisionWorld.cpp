@@ -473,15 +473,16 @@ namespace Engine::Collision
 			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult, a_ignoreID);
 	}
 
-	bool CollisionWorld::VsCapsule(const CapsuleInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
+	bool CollisionWorld::VsCapsule(const CapsuleInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID,
+		const ECS::Entity& a_ignoreID)
 	{
 		if (QueryOverlap(
 			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
-			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult)) return true;
+			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult, a_ignoreID)) return true;
 
 		return QueryOverlap(
 			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
-			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult);
+			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult, a_ignoreID);
 	}
 
 	bool CollisionWorld::VsBox(const BoxInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)

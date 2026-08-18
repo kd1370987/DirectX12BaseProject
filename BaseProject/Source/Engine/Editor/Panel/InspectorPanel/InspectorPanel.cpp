@@ -1,4 +1,4 @@
-#include "InspectorPanel.h"
+﻿#include "InspectorPanel.h"
 
 #include "AssetInspector/AssetInspector.h"
 
