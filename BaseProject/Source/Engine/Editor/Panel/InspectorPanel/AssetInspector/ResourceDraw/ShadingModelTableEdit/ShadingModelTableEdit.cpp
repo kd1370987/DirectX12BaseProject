@@ -120,12 +120,21 @@ namespace Engine::Editor::Inspector
 				// 数が増えると探せなくなるので名前で絞り込めるようにする
 				const std::string& _search = EditorHelper::DrawSearchBox();
 
-				for (const auto& _meta : _shaderMetaVec)
+				// 同名のシェーダーが別フォルダにあり得るので、置き場所を添える対象を先に拾う
+				const auto _duplicatedSet = EditorHelper::CollectDuplicatedNames(
+					_shaderMetaVec,
+					[](const Resource::AssetProperty& a_prop) { return a_prop.fileName; });
+
+				for (size_t _i = 0; _i < _shaderMetaVec.size(); ++_i)
 				{
+					const auto& _meta = _shaderMetaVec[_i];
+
 					// PS以外は除去
 					if (_meta.fileName.find("PS") == std::string::npos) { continue; }
 
-					if (!EditorHelper::IsMatchSearch(_search, _meta.fileName)) { continue; }
+					// 同名が並ぶときはフォルダ名で絞り込めたほうが早いので、パスも検索対象にする
+					if (!EditorHelper::IsMatchSearch(_search, _meta.fileName) &&
+						!EditorHelper::IsMatchSearch(_search, _meta.filePath)) { continue; }
 
 					// 既に登録されているものは選択させない
 					bool _isAlreadyAdded = false;
@@ -135,10 +144,20 @@ namespace Engine::Editor::Inspector
 					}
 					if (_isAlreadyAdded) { continue; }
 
-					if (ImGui::Selectable(_meta.fileName.c_str()))
+					// 名前が同じでもImGuiのIDがぶつからないようにする
+					// (Selectable のIDはラベル文字列から作られるため)
+					ImGui::PushID(static_cast<int>(_i));
+
+					const std::string _label = EditorHelper::MakeUniqueLabel(
+						_duplicatedSet, _meta.fileName,
+						Engine::File::GetDirFromPath(_meta.filePath));
+
+					if (ImGui::Selectable(_label.c_str()))
 					{
 						a_pTable->AddShader(_passName, _meta.guid);
 					}
+
+					ImGui::PopID();
 				}
 				ImGui::EndPopup();
 			}

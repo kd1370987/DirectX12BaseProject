@@ -18,7 +18,10 @@
 #include "Application/Components/Resource/ModelComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
+#include "Application/Components/Character/Boss/BossComponent.h"
+
 #include "../../../Shared/ProjectileSpawn/ProjectileSpawn.h"
+#include "../../../Shared/MissileSalvo/MissileSalvo.h"
 
 //==========================================================================================
 // MissileSalvoSystem
@@ -40,44 +43,11 @@
 // ・弾のプレハブ・弾速・銃口ノードはミサイルポッド側の GunStateComponent を使う。
 //   ポッドは既に銃と同じ部品(GunState / Model / WorldMatrix)を持っているので、
 //   ミサイル専用に同じ設定をもう一組作らない。
+// ・実際に撃ち出すところ(キューの消化)は App::Systems::MissileSalvo へ寄せてある。
+//   ボス側(BossMissileSalvoSystem)と同じ処理なので、片方だけ直して食い違わないため。
+//   ここが持つのは「スクリーン座標で敵を溜める」プレイヤー固有の部分だけ。
+// ・ボスは溜め方が違う(相手が最初からプレイヤー1体に決まっている)ので除外する。
 //==========================================================================================
-namespace
-{
-	// 一斉射の弾を散らす向きを作る
-	//   基準方向を軸にしたコーンの側面へ、発射順で回しながら並べる。
-	//   散らしたあとは HomingSystem が相手へ寄せるので、
-	//   「いったん広がってから食いつく」いつもの見た目になる。
-	Math::Vector3 MakeSpreadDir(
-		const Math::Vector3& a_baseDir,
-		float                a_spreadRad,
-		int                  a_index,
-		int                  a_total)
-	{
-		if (a_spreadRad <= 0.0f || a_total <= 0) return a_baseDir;
-
-		// 基準方向に直交する基底を作る。真上を向いている時だけ参照軸を変える
-		const Math::Vector3 _ref = (std::fabs(a_baseDir.y) > 0.99f)
-			? Math::Vector3(1.0f, 0.0f, 0.0f)
-			: Math::Vector3(0.0f, 1.0f, 0.0f);
-
-		Math::Vector3 _right = _ref.Cross(a_baseDir);
-		if (_right.LengthSquared() <= 1e-8f) return a_baseDir;
-		_right.Normalize();
-
-		Math::Vector3 _up = a_baseDir.Cross(_right);
-		_up.Normalize();
-
-		// コーンの周りを等間隔に回す
-		const float _azimuth = DirectX::XM_2PI * static_cast<float>(a_index) / static_cast<float>(a_total);
-
-		Math::Vector3 _dir =
-			a_baseDir * std::cos(a_spreadRad) +
-			(_right * std::cos(_azimuth) + _up * std::sin(_azimuth)) * std::sin(a_spreadRad);
-
-		_dir.Normalize();
-		return _dir;
-	}
-}
 
 void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 {
@@ -311,87 +281,14 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 
 				//==============================================================
 				// 3. 発射キューの消化
+				//--------------------------------------------------------------
+				// 撃ち出しはボスと共通なので App::Systems::MissileSalvo に任せる。
+				// ここで渡すのは「ロックした相手が居ない弾が飛ぶ向き」だけ。
+				//   狙点(カメラのレイ)があればそちら、無ければ自機の前方(+Z)。
+				//   相手が居る弾は、あちらがその相手への向きを基準に散らす。
 				//==============================================================
 				if (!_missile.IsFiring()) continue;
 
-				_missile.fireTimer -= a_ctx.dt;
-				if (_missile.fireTimer > 0.0f) continue;
-
-				// ---- ミサイルポッド(発射する武器)を引く ----
-				const Engine::ECS::Entity _podEntity = _slots.missile.id;
-				if (_podEntity == Engine::ECS::Limits::INVALID_ENTITY)
-				{
-					// 武器が付いていないなら撃てない。キューは捨てる
-					_missile.fireRemain = 0;
-					continue;
-				}
-				if (!a_ctx.pWorld->HasComponent<GunStateComponent>(_podEntity) ||
-					!a_ctx.pWorld->HasComponent<WorldMatrixComponent>(_podEntity))
-				{
-					_missile.fireRemain = 0;
-					continue;
-				}
-
-				auto* _pGun      = a_ctx.pWorld->RefData<GunStateComponent>(_podEntity);
-				auto* _pPodWorld = a_ctx.pWorld->RefData<WorldMatrixComponent>(_podEntity);
-				if (!_pGun || !_pPodWorld)
-				{
-					_missile.fireRemain = 0;
-					continue;
-				}
-
-				// プレハブ未設定なら撃てない
-				if (_pGun->bulletPrefabGUID == Engine::DefaultGUID)
-				{
-					_missile.fireRemain = 0;
-					continue;
-				}
-
-				// プレハブのハンドルを解決(未ロードならロード)
-				auto& _rm = *a_ctx.pServices->pResourceManager;
-				if (!_rm.IsValid(_pGun->bulletPrefabHandle))
-				{
-					if (!_rm.Has<Engine::Resource::Prefab>(_pGun->bulletPrefabGUID))
-					{
-						_rm.LoadImmediate<Engine::Resource::Prefab>(_pGun->bulletPrefabGUID);
-					}
-					_pGun->bulletPrefabHandle = _rm.GetCache<Engine::Resource::Prefab>(_pGun->bulletPrefabGUID);
-				}
-				auto* _pPrefab = _rm.Ref(_pGun->bulletPrefabHandle);
-				if (!_pPrefab) continue;
-
-				//--------------------------------------------------------------
-				// 発射位置 : 銃口ヌルノードが設定されていればそこから
-				// (node.worldTransform はモデルルート基準なので、ポッドの
-				//  ワールド行列で変換してワールド座標にする。GunShootSystem と同じ)
-				//--------------------------------------------------------------
-				const Math::Matrix& _podMat = _pPodWorld->worldMat;
-				Math::Vector3 _spawnPos = { _podMat._41, _podMat._42, _podMat._43 };
-
-				if (_pGun->nullPtrNodeHash != 0 &&
-					a_ctx.pWorld->HasComponent<ModelComponent>(_podEntity))
-				{
-					if (const auto* _pModelComp = a_ctx.pWorld->RefData<ModelComponent>(_podEntity))
-					{
-						auto* _pModel = a_ctx.pServices->pResourceManager->Get(_pModelComp->handle);
-						if (_pModel)
-						{
-							const auto& _nodeVec = _pModel->GetOriginalNodeVec();
-							if (_pGun->nodeIndex < _nodeVec.size())
-							{
-								const Math::Matrix& _nodeMat = _nodeVec[_pGun->nodeIndex].worldTransform;
-								Math::Vector3 _nodeLocalPos = { _nodeMat._41, _nodeMat._42, _nodeMat._43 };
-								_spawnPos = Math::Vector3::Transform(_nodeLocalPos, Math::Matrix(_podMat));
-							}
-						}
-					}
-				}
-
-				//--------------------------------------------------------------
-				// 基準の向き
-				//   狙点(カメラのレイ)があればそちら、無ければ自機の前方(+Z)。
-				//   ロックしている相手が居る弾は、その相手への向きを基準にする
-				//--------------------------------------------------------------
 				Math::Vector3 _aimDir = { _pm._31, _pm._32, _pm._33 };	// 左手系 +Z = 前方
 				if (a_ctx.pWorld->HasComponent<AimTargetPosComponent>(_self))
 				{
@@ -404,59 +301,11 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 						}
 					}
 				}
-				if (_aimDir.LengthSquared() > 1e-8f) _aimDir.Normalize();
-				else                                 _aimDir = Math::Vector3(0.0f, 0.0f, 1.0f);
 
-				const float _spreadRad = DirectX::XMConvertToRadians(std::max(_missile.spreadAngle, 0.0f));
-				const Engine::ECS::Entity _shooter =
-					App::Systems::ProjectileSpawn::ResolveShooterEntity(*a_ctx.pWorld, _podEntity);
-
-				//--------------------------------------------------------------
-				// 溜まっているぶんを撃つ
-				//   launchInterval が 0 なら timer が進まないので同フレームに全弾出る
-				//--------------------------------------------------------------
-				while (_missile.fireRemain > 0 && _missile.fireTimer <= 0.0f)
-				{
-					// 何発目か(散らしの角度を弾ごとにずらすため)
-					const int _index = _missile.fireTotal - _missile.fireRemain;
-
-					const Engine::ECS::Entity _target = _missile.fireTargets[_index];
-
-					// 相手が居るならそちらを基準に、居なければ狙いの向きを基準に散らす
-					Math::Vector3 _baseDir = _aimDir;
-					if (_target != Engine::ECS::Limits::INVALID_ENTITY &&
-						a_ctx.pWorld->HasComponent<WorldMatrixComponent>(_target))
-					{
-						if (const auto* _pTargetWorld = a_ctx.pWorld->RefData<WorldMatrixComponent>(_target))
-						{
-							Math::Vector3 _targetPos =
-								Math::Matrix(_pTargetWorld->worldMat).Translation();
-							_targetPos.y += _missile.targetOffsetY;
-
-							Math::Vector3 _toTarget = _targetPos - _spawnPos;
-							if (_toTarget.LengthSquared() > 1e-6f)
-							{
-								_toTarget.Normalize();
-								_baseDir = _toTarget;
-							}
-						}
-					}
-
-					const Math::Vector3 _shootDir =
-						MakeSpreadDir(_baseDir, _spreadRad, _index, _missile.fireTotal);
-
-					App::Systems::ProjectileSpawn::Spawn(
-						*a_ctx.pWorld,
-						_pPrefab,
-						_spawnPos,
-						_shootDir * _pGun->speed,
-						_shooter,
-						_target);
-
-					--_missile.fireRemain;
-					_missile.fireTimer += std::max(_missile.launchInterval, 0.0f);
-				}
+				App::Systems::MissileSalvo::ConsumeFireQueue(
+					a_ctx, _missile, _slots.missile.id, _aimDir);
 			}
-		}
+		},
+		Engine::ECS::Exclude<BossComponent>{}
 	);
 }

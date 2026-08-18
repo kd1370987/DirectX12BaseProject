@@ -302,6 +302,9 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem\LockOnTargetSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem\MissileSalvoSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.cpp" />
+    <ClCompile Include="Source\Application\Systems\Shared\MissileSalvo\MissileSalvo.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem\BossCombatIntentSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem\BossMissileSalvoSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.cpp" />
@@ -682,6 +685,10 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem\LockOnTargetSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem\MissileSalvoSystem.h" />
     <ClInclude Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.h" />
+    <ClInclude Include="Source\Application\Systems\Shared\MissileSalvo\MissileSalvo.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem\BossCombatIntentSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem\BossMissileSalvoSystem.h" />
+    <ClInclude Include="Source\Application\Components\Character\Boss\BossComponent.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.h" />

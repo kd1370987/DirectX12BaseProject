@@ -532,6 +532,7 @@ namespace Engine::ECS
 	{
 		const EntityLocation& _loca = m_entityManager.GetLocation(a_entity);
 		ECS::ComponentTypeID _typeID = m_componentMetaRegistry.GetTypeID(a_index);
+		if (!_loca.pArchetypeChunk) return nullptr;
 		return m_archetypeChunkManager.RefComponent(_loca, _typeID);
 	}
 

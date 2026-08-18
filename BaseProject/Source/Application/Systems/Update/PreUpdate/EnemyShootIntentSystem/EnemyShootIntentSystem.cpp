@@ -4,6 +4,7 @@
 
 #include "../../../../Components/Tag/EnemyTag.h"
 #include "../../../../Components/Character/TargetEntityComponent.h"
+#include "../../../../Components/Character/Boss/BossComponent.h"
 #include "../../../../Components/Intent/ActionIntentComponent.h"
 
 //==============================================================================
@@ -21,6 +22,9 @@
 //   (このシステムが ActionIntent を書き、あちらが読むので実行順は自動で決まる)。
 // ・敵本体が直接 GunStateComponent を持っていてもよい。その場合は配信を挟まず、
 //   同じ ActionIntentComponent を GunShootSystem がそのまま見る。
+// ・ボスは除外する。ボスは距離ではなく戦闘開始命令で撃ち始め、撃つ/休むのリズムも
+//   自分で持つので、BossCombatIntentSystem が同じ ActionIntentComponent を書く。
+//   どちらも書き手になると実行順が登録順頼みになり、撃つ/撃たないが安定しない。
 //==============================================================================
 void EnemyShootIntentSystem::Init(Engine::ECS::World& a_world)
 {
@@ -47,6 +51,7 @@ void EnemyShootIntentSystem::Init(Engine::ECS::World& a_world)
 					_target.isInAttackRange &&
 					_target.targetEntity != Engine::ECS::Limits::INVALID_ENTITY;
 			}
-		}
+		},
+		Engine::ECS::Exclude<BossComponent>{}
 	);
 }

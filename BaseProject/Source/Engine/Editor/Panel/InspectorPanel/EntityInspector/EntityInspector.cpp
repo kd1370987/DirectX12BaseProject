@@ -38,12 +38,18 @@ namespace Engine::Editor::Inspector
 
 				if (!EditorHelper::IsMatchSearch(_search, _meta.name)) continue;
 
+				// 登録名が同じコンポーネントがあってもImGuiのIDがぶつからないようにする
+				// (Selectable のIDはラベル文字列から作られるため)
+				ImGui::PushID(static_cast<int>(_typeID));
+
 				// メタ情報から名前表示
 				if (ImGui::Selectable(_meta.name.c_str()))
 				{
 					// コンポーネントの追加
 					a_pWorld->AddComponent(_typeID, _entity);
 				}
+
+				ImGui::PopID();
 			}
 
 			ImGui::EndCombo();

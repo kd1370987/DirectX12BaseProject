@@ -47,11 +47,40 @@ namespace App::Object
 	};
 
 	/// <summary>
+	/// ボスへ送る「戦闘開始命令」1件ぶん
+	/// </summary>
+	/// <remarks>
+	/// ボス(BossComponent 保持者)は出しただけでは動かず、この命令が届いてから
+	/// 戦闘を始める。「出現 → 演出 → 戦闘開始」のように、出す時刻と戦い始める時刻を
+	/// 分けて置けるようにするため。
+	///
+	/// 命令はエンティティIDではなくコンポーネントへ直接立てる。プレハブの実体化は
+	/// 遅延生成なので、出した側はIDを持ち歩けない(ウェーブの全滅判定と同じ事情)。
+	/// </remarks>
+	struct BossOrder
+	{
+		// ---- 送る条件(保存する) ----
+		float timing = 0.0f;			// 送るタイミング(秒)
+										//   afterWaveIndex < 0  : シーン開始からの経過時間
+										//   afterWaveIndex >= 0 : そのウェーブが全滅してからの経過時間
+		int   afterWaveIndex  = -1;		// 待つウェーブの番号。-1 ならシーン開始から数える
+
+		// 送る相手。-1 なら「シーンに居る全てのボス」へ送る。
+		// 0 以上なら、自分がそのウェーブで出したボスだけに絞る(SpawnerComponent の印で判別)。
+		int   targetWaveIndex = -1;
+
+		// ---- 状態(保存しない) ----
+		bool  isSent    = false;		// 1体でも送れたか
+		int   sentCount = 0;			// 送れた数
+		float sentTime  = 0.0f;			// 送った時刻(シーン経過秒)
+	};
+
+	/// <summary>
 	/// シーン全体の流れを握る : シーンに一つのみ存在
 	///
 	/// 敵の出現(ウェーブ)やチュートリアルの操作説明など、
 	/// 「時間や状況で進むイベント」をここでまとめて管理する。
-	/// 今はウェーブだけを持つ。
+	/// 今はウェーブと、ボスへの戦闘開始命令(BossOrder)を持つ。
 	///
 	/// ・出現させたエンティティには SpawnerComponent(自分のGUID + ウェーブ番号)が付く。
 	///   全滅判定は毎フレームその印を数えるだけなので、エンティティIDを持ち歩かなくて済む
@@ -101,6 +130,12 @@ namespace App::Object
 		// ウェーブを出現させる
 		void Spawn(Engine::GameObject::ObjectContext& a_context, size_t a_index);
 
+		// 条件を満たした戦闘開始命令をボスへ送る
+		void SendBossOrders(Engine::GameObject::ObjectContext& a_context);
+
+		// 命令を送ってよい時刻になっているか
+		bool CanSendOrder(size_t a_index) const;
+
 		// 進行状況を初期化して最初からやり直す
 		void ResetProgress();
 
@@ -111,6 +146,9 @@ namespace App::Object
 
 		// 敵の出現をつかさどる
 		std::vector<Wave> m_waves = {};
+
+		// ボスへの戦闘開始命令
+		std::vector<BossOrder> m_bossOrders = {};
 
 		// シーンの経過時間
 		float m_time = 0.0f;

@@ -58,6 +58,18 @@
     <Filter Include="Source\Application\Systems\Shared">
       <UniqueIdentifier>{8a1b0c01-4f2e-4c3a-9d51-7e6b2f0a9101}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Shared\MissileSalvo">
+      <UniqueIdentifier>{a1b2c3d4-1e5f-4a60-9b71-0c82d3e4f501}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem">
+      <UniqueIdentifier>{a1b2c3d4-2e5f-4a60-9b71-0c82d3e4f502}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem">
+      <UniqueIdentifier>{a1b2c3d4-3e5f-4a60-9b71-0c82d3e4f503}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Character\Boss">
+      <UniqueIdentifier>{a1b2c3d4-4e5f-4a60-9b71-0c82d3e4f504}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Shared\ProjectileSpawn">
       <UniqueIdentifier>{8a1b0c02-4f2e-4c3a-9d51-7e6b2f0a9102}</UniqueIdentifier>
     </Filter>
@@ -1514,6 +1526,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.cpp">
       <Filter>Source\Application\Systems\Shared\ProjectileSpawn</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Shared\MissileSalvo\MissileSalvo.cpp">
+      <Filter>Source\Application\Systems\Shared\MissileSalvo</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem\BossCombatIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem\BossMissileSalvoSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp">
       <Filter>Source\Application\Systems\Update\Physics\RayCollisionSystem</Filter>
@@ -3628,6 +3649,18 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.h">
       <Filter>Source\Application\Systems\Shared\ProjectileSpawn</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Shared\MissileSalvo\MissileSalvo.h">
+      <Filter>Source\Application\Systems\Shared\MissileSalvo</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem\BossCombatIntentSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem\BossMissileSalvoSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Boss\BossComponent.h">
+      <Filter>Source\Application\Components\Character\Boss</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h">
       <Filter>Source\Application\Components\Character\Robot</Filter>

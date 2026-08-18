@@ -121,6 +121,7 @@ namespace Engine::ECS
 	uint8_t* ArchetypeChunkManager::RefComponent(const EntityLocation& a_loca, const ECS::ComponentTypeID& a_typeID)
 	{
 		ArchetypeChunk* _chunk = a_loca.pArchetypeChunk;
+		if (!_chunk) return nullptr;
 		size_t _offset = 0;
 		size_t _stride = 0;
 		auto _it = _chunk->layoutMap.find(a_typeID);

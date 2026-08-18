@@ -70,11 +70,17 @@ namespace Engine::Editor
 	{
 		bool _isChanged = false;
 
-		// 現在の選択情報 : ハンドルを持たない前提なのでGUIDから名前を引く
+		// 現在の選択情報 : ハンドルを持たない前提なのでGUIDから名前を引く。
+		// 同名のアセットが別フォルダにあり得るので、置き場所も一緒に出す
 		auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(a_currentGUID);
 		if (!_fileName.empty())
 		{
 			ImGui::Text("%s : %s", a_assetTypeName, _fileName.c_str());
+
+			if (const auto* _pProp = Resource::AssetDatabase::Instance().GetAssetProperty(a_currentGUID))
+			{
+				ImGui::TextDisabled("%s", _pProp->filePath.c_str());
+			}
 			ImGui::Text("%s", a_currentGUID.String().c_str());
 		}
 
@@ -85,14 +91,31 @@ namespace Engine::Editor
 			const std::string& _search = DrawSearchBox();
 
 			const auto& _assetList = Resource::AssetDatabase::Instance().GetTypeMetaVec(a_assetTypeName);
-			for (const auto& _prop : _assetList)
+
+			// 同名のアセットは名前だけでは選び分けられないので、置き場所を添える対象を先に拾う
+			const auto _duplicatedSet = CollectDuplicatedNames(
+				_assetList, [](const Resource::AssetProperty& a_prop) { return a_prop.fileName; });
+
+			for (size_t _i = 0; _i < _assetList.size(); ++_i)
 			{
-				if (!IsMatchSearch(_search, _prop.fileName)) continue;
+				const auto& _prop = _assetList[_i];
+
+				// 同名が並ぶときはフォルダ名で絞り込めたほうが早いので、パスも検索対象にする
+				if (!IsMatchSearch(_search, _prop.fileName) &&
+					!IsMatchSearch(_search, _prop.filePath)) continue;
 
 				bool _isSelected = (a_currentGUID == _prop.guid);
 
+				// 同名でもImGuiのIDがぶつからないようにする。
+				// Selectable のIDはラベル文字列から作られるので、名前が同じだと
+				// 別のアセットが同じ項目として扱われてしまう
+				ImGui::PushID(static_cast<int>(_i));
+
+				const std::string _label = MakeUniqueLabel(
+					_duplicatedSet, _prop.fileName, Engine::File::GetDirFromPath(_prop.filePath));
+
 				// 選択欄
-				if (ImGui::Selectable(_prop.fileName.c_str(), _isSelected))
+				if (ImGui::Selectable(_label.c_str(), _isSelected))
 				{
 					a_outSelectedGUID = _prop.guid;
 					_isChanged = true;
@@ -104,6 +127,8 @@ namespace Engine::Editor
 				{
 					ImGui::SetItemDefaultFocus();
 				}
+
+				ImGui::PopID();
 			}
 			ImGui::EndCombo();
 		}
@@ -149,11 +174,13 @@ namespace Engine::Editor
 		// モデルが管理する全ノード配列
 		const auto& _nodes = a_pModel->GetOriginalNodeVec();
 
-		// 現在選択されているノード名を表示用として取得
+		// 現在選択されているノード名を表示用として取得。
+		// 同名のノードがあるモデルもあるので、番号まで出して区別できるようにする
 		std::string _currentNodeName = "None / Invalid";
 		if (a_inoutNodeIndex < _nodes.size())
 		{
-			_currentNodeName = _nodes[a_inoutNodeIndex].name;
+			_currentNodeName = _nodes[a_inoutNodeIndex].name +
+				"   [#" + std::to_string(a_inoutNodeIndex) + "]";
 		}
 
 		bool _isChanged = false;
@@ -163,13 +190,23 @@ namespace Engine::Editor
 			// ボーンは数が多いので名前で絞り込めるようにする
 			const std::string& _search = DrawSearchBox();
 
+			// 同名のノードは名前だけでは選び分けられないので、番号を添える対象を先に拾う
+			const auto _duplicatedSet = CollectDuplicatedNames(
+				_nodes, [](const auto& a_node) { return a_node.name; });
+
 			for (size_t _i = 0; _i < _nodes.size(); ++_i)
 			{
 				if (!IsMatchSearch(_search, _nodes[_i].name)) continue;
 
 				bool _isSelected = (a_inoutNodeIndex == _i);
 
-				if (ImGui::Selectable(_nodes[_i].name.c_str(), _isSelected))
+				// 同名でもImGuiのIDがぶつからないようにする
+				ImGui::PushID(static_cast<int>(_i));
+
+				const std::string _label = MakeUniqueLabel(
+					_duplicatedSet, _nodes[_i].name, "#" + std::to_string(_i));
+
+				if (ImGui::Selectable(_label.c_str(), _isSelected))
 				{
 					a_inoutNodeNameHash = _nodes[_i].nodeNameHash;
 					a_inoutNodeIndex = static_cast<UINT>(_i);
@@ -181,6 +218,8 @@ namespace Engine::Editor
 				{
 					ImGui::SetItemDefaultFocus();
 				}
+
+				ImGui::PopID();
 			}
 			ImGui::EndCombo();
 		}
@@ -216,13 +255,27 @@ namespace Engine::Editor
 			// ボーンは数が多いので名前で絞り込めるようにする
 			const std::string& _search = DrawSearchBox();
 
-			for (const auto& _node : _nodes)
+			// 同名のノードがあると一覧で見分けが付かないので、番号を添える対象を先に拾う。
+			// ただしこの欄が持ち帰るのは名前(とそのハッシュ)なので、同名を選び分けても
+			// 保存される値は同じになる。区別が要る場面ではインデックス版を使うこと
+			const auto _duplicatedSet = CollectDuplicatedNames(
+				_nodes, [](const auto& a_node) { return a_node.name; });
+
+			for (size_t _i = 0; _i < _nodes.size(); ++_i)
 			{
+				const auto& _node = _nodes[_i];
+
 				if (!IsMatchSearch(_search, _node.name)) continue;
 
 				bool _isSelected = (a_inoutNodeName == _node.name);
 
-				if (ImGui::Selectable(_node.name.c_str(), _isSelected))
+				// 同名でもImGuiのIDがぶつからないようにする
+				ImGui::PushID(static_cast<int>(_i));
+
+				const std::string _label = MakeUniqueLabel(
+					_duplicatedSet, _node.name, "#" + std::to_string(_i));
+
+				if (ImGui::Selectable(_label.c_str(), _isSelected))
 				{
 					a_inoutNodeName = _node.name;
 					a_inoutNodeNameHash = _node.nodeNameHash;
@@ -234,6 +287,8 @@ namespace Engine::Editor
 				{
 					ImGui::SetItemDefaultFocus();
 				}
+
+				ImGui::PopID();
 			}
 			ImGui::EndCombo();
 		}
@@ -257,12 +312,24 @@ namespace Engine::Editor
 		{
 			if (!a_pModel) { return false; }
 
-			// 現在の再生アニメ名をプレビューにする
-			std::string _viewName = "Select...";
-			const auto* _pCurrentAnim = Resource::ResourceManager::Instance().Get(a_currentHandle);
-			if (_pCurrentAnim)
+			const auto& _handleVec = a_pModel->GetAnimationHandles();
+
+			// ハンドルから名前を引く。取れなければ空(この後の一覧では飛ばす)
+			auto _animName = [](const auto& a_ref) -> std::string
 			{
-				_viewName = _pCurrentAnim->name;
+				const auto* _pAnim = Resource::ResourceManager::Instance().Get(a_ref);
+				return _pAnim ? _pAnim->name : std::string();
+			};
+
+			// 現在の再生アニメ名をプレビューにする。
+			// 同名のアニメを持つモデルもあるので、そのときは番号まで出す
+			std::string _viewName = "Select...";
+			for (size_t _i = 0; _i < _handleVec.size(); ++_i)
+			{
+				if (!(_handleVec[_i] == a_currentHandle)) continue;
+
+				_viewName = _animName(_handleVec[_i]) + "   [#" + std::to_string(_i) + "]";
+				break;
 			}
 
 			bool _isChanged = false;
@@ -272,8 +339,14 @@ namespace Engine::Editor
 				// 名前で絞り込めるようにする
 				const std::string& _search = EditorHelper::DrawSearchBox();
 
-				for (const auto& _ref : a_pModel->GetAnimationHandles())
+				// 同名のアニメは名前だけでは選び分けられないので、番号を添える対象を先に拾う
+				const auto _duplicatedSet =
+					EditorHelper::CollectDuplicatedNames(_handleVec, _animName);
+
+				for (size_t _i = 0; _i < _handleVec.size(); ++_i)
 				{
+					const auto& _ref = _handleVec[_i];
+
 					const auto* _pAnim = Resource::ResourceManager::Instance().Get(_ref);
 					if (!_pAnim) continue;
 
@@ -281,7 +354,13 @@ namespace Engine::Editor
 
 					bool _isSelected = (_ref == a_currentHandle);
 
-					if (ImGui::Selectable(_pAnim->name.c_str(), _isSelected))
+					// 同名でもImGuiのIDがぶつからないようにする
+					ImGui::PushID(static_cast<int>(_i));
+
+					const std::string _label = EditorHelper::MakeUniqueLabel(
+						_duplicatedSet, _pAnim->name, "#" + std::to_string(_i));
+
+					if (ImGui::Selectable(_label.c_str(), _isSelected))
 					{
 						a_outSelected = _ref;
 						_isChanged = true;
@@ -293,6 +372,8 @@ namespace Engine::Editor
 					{
 						ImGui::SetItemDefaultFocus();
 					}
+
+					ImGui::PopID();
 				}
 				ImGui::EndCombo();
 			}

@@ -73,6 +73,55 @@ namespace Engine::Editor
 		static bool IsMatchSearch(const std::string& a_search, const std::string& a_text);
 
 		//--------------------------------------------------------------------------------------
+		// 名前の衝突対策
+		//--------------------------------------------------------------------------------------
+
+		/// <summary>
+		/// 一覧の中で2件以上ある名前を集める
+		/// </summary>
+		/// <param name="a_range">候補の並び</param>
+		/// <param name="a_getName">1件から表示名を取り出す関数</param>
+		/// <returns>重複していた名前の集合</returns>
+		/// <remarks>
+		/// コンボの選択欄は名前しか出さないので、同名のアセット・同名のボーンが並ぶと
+		/// どちらを選んでいるのか分からなくなる。重複しているものにだけ手掛かり
+		/// (置き場所や番号)を添えるために、先に重複を数えておく。
+		/// 全件に手掛かりを付けると普段の一覧がうるさくなるので、必要なものだけに絞る。
+		/// </remarks>
+		template<typename Range, typename GetName>
+		static std::unordered_set<std::string> CollectDuplicatedNames(
+			const Range& a_range, GetName a_getName)
+		{
+			std::unordered_map<std::string, int> _countMap;
+			for (const auto& _item : a_range) ++_countMap[a_getName(_item)];
+
+			std::unordered_set<std::string> _duplicatedSet;
+			for (const auto& [_name, _count] : _countMap)
+			{
+				if (_count > 1) _duplicatedSet.insert(_name);
+			}
+
+			return _duplicatedSet;
+		}
+
+		/// <summary>
+		/// 表示名に手掛かりを足す(重複していないときはそのまま)
+		/// </summary>
+		/// <param name="a_duplicatedSet">CollectDuplicatedNames の結果</param>
+		/// <param name="a_name">候補の表示名</param>
+		/// <param name="a_hint">同名があるときに添える文字(置き場所・番号など)</param>
+		static std::string MakeUniqueLabel(
+			const std::unordered_set<std::string>& a_duplicatedSet,
+			const std::string& a_name,
+			const std::string& a_hint)
+		{
+			if (a_duplicatedSet.find(a_name) == a_duplicatedSet.end()) return a_name;
+			if (a_hint.empty()) return a_name;
+
+			return a_name + "   [" + a_hint + "]";
+		}
+
+		//--------------------------------------------------------------------------------------
 		// アセット選択
 		//--------------------------------------------------------------------------------------
 

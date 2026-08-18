@@ -953,11 +953,28 @@ namespace Engine::Editor
 			// 数が増えると探せなくなるので名前で絞り込めるようにする
 			const std::string& _search = EditorHelper::DrawSearchBox();
 
-			for (const auto& _sceneMeta : _sceneMetaVec)
-			{
-				if (!EditorHelper::IsMatchSearch(_search, _sceneMeta.fileName)) continue;
+			// 同名のシーンが別フォルダにあり得るので、置き場所を添える対象を先に拾う
+			const auto _duplicatedSet = EditorHelper::CollectDuplicatedNames(
+				_sceneMetaVec,
+				[](const Resource::AssetProperty& a_prop) { return a_prop.fileName; });
 
-				if (ImGui::Selectable(_sceneMeta.fileName.c_str(), m_currentSceneGUID == _sceneMeta.guid))
+			for (size_t _i = 0; _i < _sceneMetaVec.size(); ++_i)
+			{
+				const auto& _sceneMeta = _sceneMetaVec[_i];
+
+				// 同名が並ぶときはフォルダ名で絞り込めたほうが早いので、パスも検索対象にする
+				if (!EditorHelper::IsMatchSearch(_search, _sceneMeta.fileName) &&
+					!EditorHelper::IsMatchSearch(_search, _sceneMeta.filePath)) continue;
+
+				// 名前が同じでもImGuiのIDがぶつからないようにする
+				// (Selectable のIDはラベル文字列から作られるため)
+				ImGui::PushID(static_cast<int>(_i));
+
+				const std::string _label = EditorHelper::MakeUniqueLabel(
+					_duplicatedSet, _sceneMeta.fileName,
+					Engine::File::GetDirFromPath(_sceneMeta.filePath));
+
+				if (ImGui::Selectable(_label.c_str(), m_currentSceneGUID == _sceneMeta.guid))
 				{
 					auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
 					if (_pScene)
@@ -971,6 +988,8 @@ namespace Engine::Editor
 					}
 					ImGui::CloseCurrentPopup();
 				}
+
+				ImGui::PopID();
 			}
 
 			ImGui::Separator();

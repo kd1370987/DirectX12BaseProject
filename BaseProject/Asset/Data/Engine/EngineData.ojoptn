@@ -11,7 +11,7 @@
         "maxThreadCount": 4
     },
     "DebugDrawOption": {
-        "drawWire": false
+        "drawWire": true
     },
     "GIOption": {
         "TAblendRate": 0.09000000357627869,

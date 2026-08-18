@@ -377,10 +377,16 @@ namespace Engine::Editor::Inspector
 
 				if (!EditorHelper::IsMatchSearch(_search, _meta.name)) continue;
 
+				// 登録名が同じコンポーネントがあってもImGuiのIDがぶつからないようにする
+				// (Selectable のIDはラベル文字列から作られるため)
+				ImGui::PushID(static_cast<int>(_compTypeID));
+
 				if (ImGui::Selectable(_meta.name.c_str()))
 				{
 					_pPrefab->AddComponentDefault(_pWorld, _compTypeID);
 				}
+
+				ImGui::PopID();
 			}
 			ImGui::EndCombo();
 		}

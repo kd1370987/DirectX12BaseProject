@@ -71,14 +71,47 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 			return a_guid.String();
 		};
 
+		// 候補に出すエンティティ(GUIDを持つもの)を先に集める。
+		// 名前は重複し得る(武器を複製すれば同名が並ぶ)ので、
+		// 同名のものにだけGUIDの頭を添えて選び分けられるようにする
+		struct SlotCandidate
+		{
+			Engine::ECS::Entity entity = Engine::ECS::Limits::INVALID_ENTITY;
+			Engine::GUID        guid   = {};
+			std::string         name   = {};
+		};
+
+		std::vector<SlotCandidate> _candidateVec;
+		for (const auto& _loc : _pWorld->GetEntityList())
+		{
+			Engine::ECS::Entity _e = _pWorld->GetEntity(_loc);
+			if (_e == Engine::ECS::Limits::INVALID_ENTITY) continue;
+			if (!_pWorld->HasComponent<GUIDComponent>(_e)) continue;
+
+			auto* _pGuid = _pWorld->RefData<GUIDComponent>(_e);
+			if (!_pGuid) continue;
+
+			_candidateVec.push_back({ _e, _pGuid->guid, _entityLabel(_e, _pGuid->guid) });
+		}
+
+		const auto _duplicatedSet = Engine::Editor::EditorHelper::CollectDuplicatedNames(
+			_candidateVec, [](const SlotCandidate& a_candidate) { return a_candidate.name; });
+
+		// 同名を見分けるための手掛かり。GUIDは長いので頭だけ出す
+		auto _guidHint = [](const Engine::GUID& a_guid) -> std::string
+		{
+			return a_guid.String().substr(0, 8);
+		};
+
 		// 1スロット分の選択コンボを描画
 		auto _drawSlot = [&](const char* a_label, AttachmentSlot& a_slot)
 		{
-			// 現在の選択表示
+			// 現在の選択表示。同名の候補があるならGUIDの頭まで出す
 			std::string _current = "None";
 			if (a_slot.guid != Engine::DefaultGUID)
 			{
-				_current = _entityLabel(a_slot.id, a_slot.guid);
+				_current = Engine::Editor::EditorHelper::MakeUniqueLabel(
+					_duplicatedSet, _entityLabel(a_slot.id, a_slot.guid), _guidHint(a_slot.guid));
 			}
 
 			if (ImGui::BeginCombo(a_label, _current.c_str()))
@@ -90,23 +123,21 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 					a_slot.id = Engine::ECS::Limits::INVALID_ENTITY;
 				}
 
-				// GUIDComponent を持つ全エンティティを候補に列挙
-				for (const auto& _loc : _pWorld->GetEntityList())
+				// GUIDComponent を持つ全エンティティが候補
+				for (const SlotCandidate& _candidate : _candidateVec)
 				{
-					Engine::ECS::Entity _e = _pWorld->GetEntity(_loc);
-					if (_e == Engine::ECS::Limits::INVALID_ENTITY) continue;
-					if (!_pWorld->HasComponent<GUIDComponent>(_e)) continue;
+					// 名前が同じでもImGuiのIDがぶつからないようにエンティティIDでPushID
+					ImGui::PushID(static_cast<int>(_candidate.entity));
 
-					auto* _pGuid = _pWorld->RefData<GUIDComponent>(_e);
-					if (!_pGuid) continue;
+					bool _selected = (a_slot.guid == _candidate.guid);
 
-					// GUIDが同名でも区別できるようにエンティティIDでPushID
-					ImGui::PushID(static_cast<int>(_e));
-					bool _selected = (a_slot.guid == _pGuid->guid);
-					if (ImGui::Selectable(_entityLabel(_e, _pGuid->guid).c_str(), _selected))
+					const std::string _label = Engine::Editor::EditorHelper::MakeUniqueLabel(
+						_duplicatedSet, _candidate.name, _guidHint(_candidate.guid));
+
+					if (ImGui::Selectable(_label.c_str(), _selected))
 					{
-						a_slot.guid = _pGuid->guid;
-						a_slot.id = _e;
+						a_slot.guid = _candidate.guid;
+						a_slot.id = _candidate.entity;
 					}
 					if (_selected) ImGui::SetItemDefaultFocus();
 					ImGui::PopID();

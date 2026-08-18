@@ -3,6 +3,7 @@
 #include "Engine/ECS/World/World.h"
 
 #include "../../../../Components/Character/TargetEntityComponent.h"
+#include "../../../../Components/Character/LookAngleComponent.h"
 #include "../../../../Components/Transform/LocalTransformComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 
@@ -18,9 +19,10 @@
 // ・姿勢を書く他システムとの住み分け:
 //     RotationSystem       … LookAngleComponent 保持者(プレイヤー以外)
 //     LockOnRotationSystem … PlayerControllTag 保持者
-//   敵は LookAngleComponent を持たないので、ここで quat を書いても競合しない。
-//   将来敵に LookAngleComponent を付けるなら、視線角をこのシステムで更新して
-//   姿勢の書き込みは RotationSystem に任せる形へ寄せること。
+//   ザコ敵は LookAngleComponent を持たないので、ここで quat を書いても競合しない。
+//   逆に LookAngleComponent を持つ側(ボスなど)は、視線角を自分で更新して姿勢の
+//   書き込みは RotationSystem に任せる作りになっているので、ここでは除外する。
+//   除外しないと同じ quat を2つのシステムが書き、実行順が登録順頼みになってしまう。
 // ・Update 帯に置く。書いた quat は PostUpdate の行列計算で反映される。
 //==============================================================================
 void FaceTargetSystem::Init(Engine::ECS::World& a_world)
@@ -74,6 +76,7 @@ void FaceTargetSystem::Init(Engine::ECS::World& a_world)
 				_trs.quat = Math::Quaternion::Slerp(_trs.quat, _targetQuat, _t);
 				_trs.isDirty = true;	// 停止中でも行列を再構築させる
 			}
-		}
+		},
+		Engine::ECS::Exclude<LookAngleComponent>{}
 	);
 }

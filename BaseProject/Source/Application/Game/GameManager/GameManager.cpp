@@ -83,6 +83,7 @@
 #include "../../Components/Character/Weapon/Projectile/HomingComponent.h"
 #include "../../Components/Character/Weapon/Projectile/ProjectileComponent.h"
 #include "../../Components/Character/Weapon/Missile/MissileLockComponent.h"
+#include "../../Components/Character/Boss/BossComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -109,6 +110,7 @@
 #include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
 #include "Application/Systems/Update/PostUpdate/LockOnTargetSystem/LockOnTargetSystem.h"
 #include "Application/Systems/Update/PostUpdate/MissileSalvoSystem/MissileSalvoSystem.h"
+#include "Application/Systems/Update/PostUpdate/BossMissileSalvoSystem/BossMissileSalvoSystem.h"
 #include "Application/Systems/Update/PostUpdate/AnimationSystem/AnimationSystem.h"
 #include "Application/Systems/Update/PostUpdate/SkinningSystem/SkinningSystem.h"
 #include "Application/Systems/Update/PostUpdate/CalcNodeSystem/CalcNodeSystem.h"
@@ -170,6 +172,7 @@
 #include "../../Systems/Init/Start/GunStateStartSystem/GunStateStartSystem.h"
 #include "../../Systems/Update/PreUpdate/HitEventClearSystem/HitEventClearSystem.h"
 #include "../../Systems/Update/PreUpdate/EnemyShootIntentSystem/EnemyShootIntentSystem.h"
+#include "../../Systems/Update/PreUpdate/BossCombatIntentSystem/BossCombatIntentSystem.h"
 #include "../../Systems/Update/PreUpdate/HomingSystem/HomingSystem.h"
 #include "../../Systems/Update/PostUpdate/HitSoundSystem/HitSoundSystem.h"
 #include "../../Components/Resource/HitSoundComponent.h"
@@ -309,6 +312,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<LockOnTargetComponent>("LockOnTargetComponent");
 				// ミサイルの溜め撃ち。コンバットレティクル内の敵を溜めて一斉射する
 				a_pWorld->RegisterComponent<MissileLockComponent>("MissileLockComponent");
+				// 人型ボスの戦闘設定と機動状態。シーケンスからの戦闘開始命令もここに立つ
+				a_pWorld->RegisterComponent<BossComponent>("BossComponent");
 				a_pWorld->RegisterComponent<SoundComponent>("SoundComponent");
 				a_pWorld->RegisterComponent<HitSoundComponent>("HitSoundComponent");
 				a_pWorld->RegisterComponent<AudioListenerComponent>("AudioListenerComponent");
@@ -350,6 +355,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<SightStateBridgeSystem>();
 				// 索敵結果(isFind)を敵の発射入力へ。銃が子なら AttachmentDispatchSystem が配信する
 				a_pWorld->RegisterSystem<EnemyShootIntentSystem>();
+				// ボスの行動決定。プレイヤーの入力と同じ形(視点角/移動/ブースト/発射/狙点)を作る
+				a_pWorld->RegisterSystem<BossCombatIntentSystem>();
 				// 誘導弾の進行方向決め。速度を書くだけなので Physics の積分より前に置く
 				a_pWorld->RegisterSystem<HomingSystem>();
 				a_pWorld->RegisterSystem<EnemyMoveIntentSystem>();
@@ -396,6 +403,8 @@ namespace App::Game
 				// それを書く CalcMatrix / CommitHierarchyWorldMatrix より後ろに回る
 				a_pWorld->RegisterSystem<LockOnTargetSystem>();
 				a_pWorld->RegisterSystem<MissileSalvoSystem>();
+				// ボスのミサイル。撃ち出しはプレイヤーと共通(MissileSalvo)で、溜め方だけが違う
+				a_pWorld->RegisterSystem<BossMissileSalvoSystem>();
 				a_pWorld->RegisterSystem<RobotBoostSystem>();
 				a_pWorld->RegisterSystem<FollowAnimationNodeSystem>();
 				a_pWorld->RegisterSystem<RayCollisionSystem>();

@@ -6,6 +6,7 @@
 #include "Engine/Common/Color.h"
 
 #include "Application/Components/Hierarchy/SpawnerComponent.h"
+#include "Application/Components/Character/Boss/BossComponent.h"
 #include "Application/Utility/PrefabSpawnHelper.h"
 
 //==========================================================================================
@@ -15,6 +16,11 @@
 //   1) 生存数を数える      … 出したエンティティに付けた SpawnerComponent を毎フレーム集計
 //   2) 全滅判定を進める    … 生存数が 0 になった瞬間の時刻を覚えておく
 //   3) 条件を満たしたウェーブを出す
+//   4) 条件を満たした戦闘開始命令をボスへ送る
+//
+// ボスはウェーブで「出す」だけでは動かない。BossOrder が届いてから戦い始める。
+// 出現と戦闘開始を分けておくと、湧いた直後に演出を挟んでから戦わせる、といった
+// 組み立てがシーケンス側の設定だけでできる。
 //
 // 「出した直後は生存数 0」問題に注意。プレハブの実体化は遅延生成(次の BeginFrame)なので、
 // 出した次の瞬間に数えると 0 になり、全滅扱いで次のウェーブが即座に走ってしまう。
@@ -70,6 +76,8 @@ namespace App::Object
 
 			Spawn(a_context, _i);
 		}
+
+		SendBossOrders(a_context);
 
 		DrawSpawnMarker(a_context);
 	}
@@ -210,6 +218,105 @@ namespace App::Object
 	}
 
 	//======================================================================================
+	// 戦闘開始命令の送信条件
+	//--------------------------------------------------------------------------------------
+	//   afterWaveIndex < 0  : シーン開始から timing 秒
+	//   afterWaveIndex >= 0 : そのウェーブが全滅してから timing 秒
+	//                         (全滅していなければまだ送らない)
+	//======================================================================================
+	bool SceneSequence::CanSendOrder(size_t a_index) const
+	{
+		if (a_index >= m_bossOrders.size()) return false;
+
+		const BossOrder& _order = m_bossOrders[a_index];
+
+		if (_order.afterWaveIndex < 0)
+		{
+			return m_time >= _order.timing;
+		}
+
+		const size_t _waveIndex = static_cast<size_t>(_order.afterWaveIndex);
+		if (_waveIndex >= m_waves.size()) return false;
+
+		const Wave& _wave = m_waves[_waveIndex];
+		if (!_wave.isCleared) return false;
+
+		return (m_time - _wave.clearedTime) >= _order.timing;
+	}
+
+	//======================================================================================
+	// 戦闘開始命令の送信
+	//--------------------------------------------------------------------------------------
+	// BossComponent を持つエンティティの isCombatStarted を立てる。あとは
+	// BossCombatIntentSystem が勝手に動き出すので、ここは合図を送るだけでよい。
+	//
+	// targetWaveIndex で相手を絞るときは、ウェーブの全滅判定と同じ SpawnerComponent の
+	// 印を見る。絞らない(-1)ときはシーンに直接置いたボスにも届く。
+	//
+	// 1体も居なければ「送った」ことにせず、次のフレームでもう一度試す。プレハブの
+	// 実体化は遅延生成なので、出した直後のフレームはまだ相手が居ないため。
+	//======================================================================================
+	void SceneSequence::SendBossOrders(Engine::GameObject::ObjectContext& a_context)
+	{
+		if (!a_context.pWorld) return;
+		if (m_bossOrders.empty()) return;
+
+		const Engine::GUID _selfGUID = GetGUID();
+
+		for (size_t _i = 0; _i < m_bossOrders.size(); ++_i)
+		{
+			BossOrder& _order = m_bossOrders[_i];
+
+			if (_order.isSent) continue;
+			if (!CanSendOrder(_i)) continue;
+
+			// 印で絞るのに自分のGUIDが無効だと誰にも当たらない。設定ミスで
+			// 全ボスへ送ってしまうより、送らないほうが分かりやすい
+			if (_order.targetWaveIndex >= 0 && !_selfGUID.IsValid()) continue;
+
+			int _sentCount = 0;
+
+			a_context.pWorld->ForEach<const ActiveTag, BossComponent>(
+				[&](
+					Engine::ECS::ArchetypeChunk* a_pChunk,
+					uint32_t a_count,
+					const ActiveTag* a_activeTagArray,
+					BossComponent* a_bossArray
+				)
+				{
+					for (uint32_t _b = 0; _b < a_count; ++_b)
+					{
+						// ウェーブで絞る場合は、自分が出した個体かどうかを印で確かめる
+						if (_order.targetWaveIndex >= 0)
+						{
+							const Engine::ECS::Entity _entity = a_pChunk->entityData[_b];
+
+							if (!a_context.pWorld->HasComponent<SpawnerComponent>(_entity)) continue;
+
+							const auto* _pSpawner =
+								a_context.pWorld->RefData<SpawnerComponent>(_entity);
+							if (!_pSpawner) continue;
+
+							if (!(_pSpawner->spawnerGUID == _selfGUID)) continue;
+							if (_pSpawner->waveIndex != _order.targetWaveIndex) continue;
+						}
+
+						a_bossArray[_b].isCombatStarted = true;
+						++_sentCount;
+					}
+				}
+			);
+
+			// まだ相手が居ない。次のフレームで送り直す
+			if (_sentCount <= 0) continue;
+
+			_order.isSent    = true;
+			_order.sentCount = _sentCount;
+			_order.sentTime  = m_time;
+		}
+	}
+
+	//======================================================================================
 	// 進行状況のリセット(エディターから何度も試せるように)
 	//======================================================================================
 	void SceneSequence::ResetProgress()
@@ -225,6 +332,15 @@ namespace App::Object
 			_wave.isCleared   = false;
 			_wave.spawnTime   = 0.0f;
 			_wave.clearedTime = 0.0f;
+		}
+
+		// 命令は送り直させる。すでに戦闘に入っているボスまでは止められない
+		// (相手のIDを持っていないため)ので、必要なら個体のインスペクタから戻すこと
+		for (BossOrder& _order : m_bossOrders)
+		{
+			_order.isSent    = false;
+			_order.sentCount = 0;
+			_order.sentTime  = 0.0f;
 		}
 	}
 
@@ -360,38 +476,69 @@ namespace App::Object
 	//======================================================================================
 	void SceneSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
 	{
+		//----------------------------------------------------------------------
+		// ウェーブ
+		//----------------------------------------------------------------------
+		// キーが無ければ中身を飛ばすだけにして、後ろのボス命令まで読み進める
+		// (ウェーブを持たず命令だけを置くシーケンスもあり得るため)。
+		//----------------------------------------------------------------------
 		size_t _waveCount = m_waves.size();
-		if (!a_ar.BeginArray("Waves", _waveCount)) return;
+		if (a_ar.BeginArray("Waves", _waveCount))
+		{
+			m_waves.resize(_waveCount);
 
-		m_waves.resize(_waveCount);
+			for (size_t _i = 0; _i < _waveCount; ++_i)
+			{
+				if (!a_ar.BeginObject(_i)) continue;
 
-		for (size_t _i = 0; _i < _waveCount; ++_i)
+				Wave& _wave = m_waves[_i];
+				a_ar.Field("pos", _wave.pos);
+				a_ar.Field("timing", _wave.timing);
+				a_ar.Field("isAnnihilation", _wave.isAnnihilation);
+
+				size_t _spawnCount = _wave.spawnEntities.size();
+				if (a_ar.BeginArray("Spawns", _spawnCount))
+				{
+					_wave.spawnEntities.resize(_spawnCount);
+
+					for (size_t _s = 0; _s < _spawnCount; ++_s)
+					{
+						if (!a_ar.BeginObject(_s)) continue;
+
+						SpawnSettings& _settings = _wave.spawnEntities[_s];
+						a_ar.GUIDField("prefabGUID", _settings.spawnEntityGUID);
+						a_ar.Field("pos", _settings.pos);
+						a_ar.Field("dir", _settings.dir);
+
+						a_ar.EndObject();
+					}
+					a_ar.EndArray();
+				}
+
+				a_ar.EndObject();
+			}
+			a_ar.EndArray();
+		}
+
+		//----------------------------------------------------------------------
+		// ボスへの戦闘開始命令
+		//----------------------------------------------------------------------
+		// 既存のシーンにはこのキーが無い。読み込み時は BeginArray が false を返すので、
+		// 命令なし(＝今までどおり)として読み込まれる。
+		//----------------------------------------------------------------------
+		size_t _orderCount = m_bossOrders.size();
+		if (!a_ar.BeginArray("BossOrders", _orderCount)) return;
+
+		m_bossOrders.resize(_orderCount);
+
+		for (size_t _i = 0; _i < _orderCount; ++_i)
 		{
 			if (!a_ar.BeginObject(_i)) continue;
 
-			Wave& _wave = m_waves[_i];
-			a_ar.Field("pos", _wave.pos);
-			a_ar.Field("timing", _wave.timing);
-			a_ar.Field("isAnnihilation", _wave.isAnnihilation);
-
-			size_t _spawnCount = _wave.spawnEntities.size();
-			if (a_ar.BeginArray("Spawns", _spawnCount))
-			{
-				_wave.spawnEntities.resize(_spawnCount);
-
-				for (size_t _s = 0; _s < _spawnCount; ++_s)
-				{
-					if (!a_ar.BeginObject(_s)) continue;
-
-					SpawnSettings& _settings = _wave.spawnEntities[_s];
-					a_ar.GUIDField("prefabGUID", _settings.spawnEntityGUID);
-					a_ar.Field("pos", _settings.pos);
-					a_ar.Field("dir", _settings.dir);
-
-					a_ar.EndObject();
-				}
-				a_ar.EndArray();
-			}
+			BossOrder& _order = m_bossOrders[_i];
+			a_ar.Field("timing", _order.timing);
+			a_ar.Field("afterWaveIndex", _order.afterWaveIndex);
+			a_ar.Field("targetWaveIndex", _order.targetWaveIndex);
 
 			a_ar.EndObject();
 		}
@@ -516,6 +663,63 @@ namespace App::Object
 			// ウェーブ番号がずれるので、出し済みの個体との対応も作り直す
 			ResetProgress();
 			ClearGizmoTarget();
+		}
+
+		//==================================================================================
+		// ボスへの戦闘開始命令
+		//==================================================================================
+		ImGui::Separator();
+		ImGui::SeparatorText("Boss Orders");
+		ImGui::TextDisabled("Bosses stand by until an order reaches them");
+
+		if (Engine::Editor::EditorHelper::CreateButton("Add Boss Order")) m_bossOrders.emplace_back();
+
+		int _removeOrderIndex = -1;
+
+		for (size_t _i = 0; _i < m_bossOrders.size(); ++_i)
+		{
+			BossOrder& _order = m_bossOrders[_i];
+
+			// ウェーブ側と添え字が衝突しないように別の基点でIDを振る
+			ImGui::PushID(static_cast<int>(_i) + 10000);
+
+			const std::string _label = "Boss Order " + std::to_string(_i);
+			if (ImGui::CollapsingHeader(_label.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				// ---- 送る条件 ----
+				ImGui::DragInt("AfterWaveIndex", &_order.afterWaveIndex, 0.1f, -1,
+					static_cast<int>(m_waves.size()) - 1);
+				ImGui::SameLine();
+				ImGui::TextDisabled(_order.afterWaveIndex < 0
+					? "(from scene start)"
+					: "(after that wave cleared)");
+
+				ImGui::DragFloat("Timing", &_order.timing, 0.1f, 0.0f, 3600.0f);
+
+				// ---- 送る相手 ----
+				ImGui::DragInt("TargetWaveIndex", &_order.targetWaveIndex, 0.1f, -1,
+					static_cast<int>(m_waves.size()) - 1);
+				ImGui::SameLine();
+				ImGui::TextDisabled(_order.targetWaveIndex < 0
+					? "(all bosses)"
+					: "(bosses spawned by that wave)");
+
+				// ---- 進行状況 ----
+				ImGui::TextDisabled("Sent : %s / Count : %d",
+					_order.isSent ? "yes" : "no", _order.sentCount);
+
+				if (Engine::Editor::EditorHelper::DeleteButton("Remove Boss Order"))
+				{
+					_removeOrderIndex = static_cast<int>(_i);
+				}
+			}
+
+			ImGui::PopID();
+		}
+
+		if (_removeOrderIndex >= 0)
+		{
+			m_bossOrders.erase(m_bossOrders.begin() + _removeOrderIndex);
 		}
 	}
 }

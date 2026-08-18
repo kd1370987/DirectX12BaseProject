@@ -512,11 +512,18 @@ namespace Engine::Editor
 					for (auto& [_hash, _param] : _params)
 					{
 						bool _isSelected = (_it->paramHash == _hash);
+
+						// 名前が同じパラメータがあってもImGuiのIDがぶつからないようにする
+						// (Selectable のIDはラベル文字列から作られるため)
+						ImGui::PushID(static_cast<int>(_hash));
+
 						if (ImGui::Selectable(_param.name.c_str(), _isSelected))
 						{
 							_it->paramHash = _hash;
 						}
 						if (_isSelected) ImGui::SetItemDefaultFocus();
+
+						ImGui::PopID();
 					}
 					ImGui::EndCombo();
 				}

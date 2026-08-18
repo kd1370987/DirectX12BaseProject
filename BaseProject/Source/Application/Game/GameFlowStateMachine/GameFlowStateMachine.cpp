@@ -169,9 +169,26 @@ namespace App::Game
 				ImGui::TextDisabled("Not find SceneAsset");
 			}
 
-			for (const auto& _sceneMeta : _sceneMetaVec)
+			// 同名のシーンが別フォルダにあり得るので、置き場所を添える対象を先に拾う
+			const auto _duplicatedSet = Engine::Editor::EditorHelper::CollectDuplicatedNames(
+				_sceneMetaVec,
+				[](const Engine::Resource::AssetProperty& a_prop) { return a_prop.fileName; });
+
+			for (size_t _i = 0; _i < _sceneMetaVec.size(); ++_i)
 			{
-				if (ImGui::Selectable(_sceneMeta.fileName.c_str(), m_farstSceneGUID == _sceneMeta.guid))
+				const auto& _sceneMeta = _sceneMetaVec[_i];
+
+				// 名前が同じでもImGuiのIDがぶつからないようにする
+				// (Selectable のIDはラベル文字列から作られるため)
+				ImGui::PushID(static_cast<int>(_i));
+
+				const std::string _label = Engine::Editor::EditorHelper::MakeUniqueLabel(
+					_duplicatedSet, _sceneMeta.fileName,
+					Engine::File::GetDirFromPath(_sceneMeta.filePath));
+
+				const bool _isSelected = (m_farstSceneGUID == _sceneMeta.guid);
+
+				if (ImGui::Selectable(_label.c_str(), _isSelected))
 				{
 					m_farstSceneGUID = _sceneMeta.guid;
 					ImGui::CloseCurrentPopup();
@@ -185,6 +202,8 @@ namespace App::Game
 						}
 					}
 				}
+
+				ImGui::PopID();
 			}
 
 			ImGui::Separator();

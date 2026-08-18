@@ -1,4 +1,4 @@
-#include "LogPanel.h"
+﻿#include "LogPanel.h"
 
 namespace Engine::Editor
 {
