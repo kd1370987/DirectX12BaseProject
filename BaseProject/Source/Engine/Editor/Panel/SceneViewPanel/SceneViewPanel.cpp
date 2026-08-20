@@ -244,7 +244,7 @@ namespace Engine::Editor
 			ImGui::End();
 			return;
 		}
-		const auto* _pTex = _pRG->GetTmepTexture("AfterTAAColor");
+		const auto* _pTex = _pRG->GetTmepTexture("FinalColor");
 		if (!_pTex)
 		{
 			ImGui::End();

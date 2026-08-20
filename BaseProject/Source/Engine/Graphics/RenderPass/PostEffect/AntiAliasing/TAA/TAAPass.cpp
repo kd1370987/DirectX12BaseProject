@@ -85,7 +85,7 @@ namespace Engine::Graphics
 			RGGlobalsPassBuilder _copyBuilder(&_copyNode);
 
 			_copyBuilder.SetFrameParity(_parity);
-			// HDR : AfterTAAColor もR16F。最終のFullScreenPassがこれを読んでACESトーンマップ→R8バックバッファへ
+			// HDR : AfterTAAColor もR16F。最終の ToneMapPass がこれを読んでトーンマップ→R8のFinalColorへ
 			_copyBuilder.Copy(_writeHistory, _finalDst, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 			a_pRegistry->RegisterPass(_copyNode);

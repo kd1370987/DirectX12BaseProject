@@ -742,8 +742,8 @@
     <Filter Include="Asset\Shader\Compute">
       <UniqueIdentifier>{0f860c13-cd63-44bf-b321-a6ffa6d68e59}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compute\FullScreen">
-      <UniqueIdentifier>{3a7c1f5e-2b94-4d6a-9c18-7e5f2a0b6d34}</UniqueIdentifier>
+    <Filter Include="Asset\Shader\Compute\PostEffect\ToneMap">
+      <UniqueIdentifier>{72e0ef99-6ee1-4a0e-a3bd-da790d47e3e8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Compute\TemporalAccumulationShader">
       <UniqueIdentifier>{02c2faa4-cd28-4187-bc61-583fe69efc8c}</UniqueIdentifier>
@@ -1030,8 +1030,14 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise">
       <UniqueIdentifier>{c19b419f-679a-45a5-88eb-01176422c4fb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass">
-      <UniqueIdentifier>{51093ea7-cc11-4f1d-aa56-c9382e01d1a9}</UniqueIdentifier>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\ToneMap">
+      <UniqueIdentifier>{9b04d7ca-3442-4575-be54-35a6fa4fce3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Present">
+      <UniqueIdentifier>{cee95b8b-d1ad-4721-a7fb-bd760bad1487}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass">
+      <UniqueIdentifier>{5c8ada8a-3302-46f3-abf7-7c4c50f5c836}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI">
       <UniqueIdentifier>{9d1f388f-0fa3-49f0-a833-1678c8f5e843}</UniqueIdentifier>
@@ -1455,6 +1461,9 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem">
       <UniqueIdentifier>{c0de0017-1111-4222-8333-0000c0de0017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\Effect">
+      <UniqueIdentifier>{08fe880d-dda2-407a-b38f-12f9b01d0b38}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem">
       <UniqueIdentifier>{c0de0018-1111-4222-8333-0000c0de0018}</UniqueIdentifier>
@@ -2091,8 +2100,11 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass\EmitParticlePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\ToneMap\ToneMapPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\ToneMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass\CopyToBackBufferPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass</Filter>
@@ -3383,8 +3395,11 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass\EmitParticlePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\Particle\EmitParticlePass</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.h">
-      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass</Filter>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\ToneMap\ToneMapPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\ToneMap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass\CopyToBackBufferPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass</Filter>
@@ -4003,6 +4018,9 @@
     <None Include="Asset\Shader\Common\CB\CBBloomOption.hlsli">
       <Filter>Asset\Shader\Common\CB</Filter>
     </None>
+    <None Include="Asset\Shader\Common\CB\CBToneMapOption.hlsli">
+      <Filter>Asset\Shader\Common\CB</Filter>
+    </None>
     <None Include="Asset\Shader\Common\Lighting\Fog.hlsli">
       <Filter>Asset\Shader\Common\Lighting</Filter>
     </None>
@@ -4089,8 +4107,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Asset\Shader\Compute\FullScreen\FullScreenCS.hlsl">
-      <Filter>Asset\Shader\Compute\FullScreen</Filter>
+    <FxCompile Include="Asset\Shader\Compute\PostEffect\ToneMap\ToneMapShader.hlsl">
+      <Filter>Asset\Shader\Compute\PostEffect\ToneMap</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\ZPreShader\ZPreVS.hlsl">
       <Filter>Asset\Shader\Source\ZPreShader</Filter>

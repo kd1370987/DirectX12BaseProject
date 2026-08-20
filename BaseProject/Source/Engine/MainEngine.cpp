@@ -104,7 +104,7 @@ namespace Engine
 		// DirectX12関連オブジェクトの初期化
 		// バックバッファは「描画解像度」で作る。
 		// レンダーグラフのテクスチャも windowWidth/Height 基準で、
-		// 最終合成(FullScreenPass)がバックバッファへ CopyResource するため
+		// 最終段(CopyToBackBufferPass)がバックバッファへ CopyResource するため
 		// サイズを一致させておく必要がある。
 		// クライアント領域へはスワップチェインの STRETCH で伸ばされる。
 		D3D12::D3D12Wrapper::Instance().Init(

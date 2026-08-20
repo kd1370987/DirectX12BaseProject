@@ -436,7 +436,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\ToneMap\ToneMapPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass\CopyToBackBufferPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.cpp" />
@@ -888,7 +889,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GITempralAccumulationPass\GITemporalAccumulationPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\FullScreenPass\FullScreenPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\ToneMap\ToneMapPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass\CopyToBackBufferPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.h" />
@@ -1052,6 +1054,7 @@
   <ItemGroup>
     <None Include="Asset\Shader\Common\CB\CBCamera.hlsli" />
     <None Include="Asset\Shader\Common\CB\CBBloomOption.hlsli" />
+    <None Include="Asset\Shader\Common\CB\CBToneMapOption.hlsli" />
     <None Include="Asset\Shader\Common\CB\CBDoFOption.hlsli" />
     <None Include="Asset\Shader\Common\Lighting\Fog.hlsli" />
     <None Include="Asset\Shader\Common\Math\Hash.hlsli" />
@@ -1531,7 +1534,7 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\FullScreen\FullScreenCS.hlsl">
+    <FxCompile Include="Asset\Shader\Compute\PostEffect\ToneMap\ToneMapShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

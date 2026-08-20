@@ -33,7 +33,7 @@ namespace Engine::Graphics
 		// 依存宣言
 		// UIはシーンの最終カラー(AfterTAAColor)の上に重ねて描く。
 		// DebugLinePassと同じターゲット/フォーマットに合わせ、LoadOp::Load で既存のシーンを
-		// 保持したまま上書き合成する。こうすることで、最後の FullScreenPass がこのカラーを
+		// 保持したまま上書き合成する。こうすることで、最後の ToneMapPass がこのカラーを
 		// バックバッファへ提示してくれる。専用の"UI"ターゲットは誰も読まず画面に出ないため使わない。
 		_rpBuilder.WriteRTV("AfterTAAColor", DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Load, StoreOp::Store);
 

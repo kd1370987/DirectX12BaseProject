@@ -434,7 +434,7 @@ namespace Engine::Editor
 
 		// シーンビューと同じ最終出力を出す。
 		// ゲームのシーンと同じレンダーグラフを通っているので、ここで見えているものが本番の見え方
-		const auto* _pTex = _pRG->GetTmepTexture("AfterTAAColor");
+		const auto* _pTex = _pRG->GetTmepTexture("FinalColor");
 		if (!_pTex) { ImGui::TextDisabled("出力テクスチャがまだありません"); return; }
 
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();

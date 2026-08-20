@@ -49,7 +49,8 @@
 #include "RenderPass/PostEffect/Denoise/GI/GITempralAccumulationPass/GITemporalAccumulationPass.h"
 #include "RenderPass/PostEffect/Denoise/Shadow/ShadowSpatialDenoisePass/ShadowSpatialDenoisePass.h"
 #include "RenderPass/PostEffect/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
-#include "RenderPass/PostEffect/FullScreenPass/FullScreenPass.h"
+#include "RenderPass/PostEffect/ToneMap/ToneMapPass.h"
+#include "RenderPass/Present/CopyToBackBufferPass/CopyToBackBufferPass.h"
 
 #include "RenderPass/Particle/UpdateParticlePass/UpdateParticlePass.h"
 #include "RenderPass/Particle/EmitParticlePass/EmitParticlePass.h"
@@ -127,7 +128,10 @@ namespace Engine::Graphics
 		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
 		AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 		AddDebugLinePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
-		AddFullScreenPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
+		// 最終段 : HDR をトーンマップして FinalColor を作り、それをバックバッファへ載せる。
+		// どちらも Present 帯。FinalColor の書き手→読み手の関係でグラフがこの順に並べる
+		AddToneMapPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
+		AddCopyToBackBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
 		//AddFullRaytracingPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
 
 		// 影レイトレは GBuffer の深度と法線からピクセル位置・裏面判定を復元するため、

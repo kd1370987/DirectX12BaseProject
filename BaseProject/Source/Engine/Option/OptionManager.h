@@ -12,6 +12,7 @@
 #include "GraphicsOptions/RenderingOption.h"
 #include "GraphicsOptions/LightingOption.h"
 #include "GraphicsOptions/BloomOption.h"
+#include "GraphicsOptions/ToneMapOption.h"
 
 // デバッグオプション
 #include "DebugOptions/DebugDrawOption.h"
@@ -63,6 +64,10 @@ namespace Engine::Option
 		const GraphicsOptions::BloomOption& GetBloomOption() const { return m_bloomOption; }
 		GraphicsOptions::BloomOption& RefBloomOption() { return m_bloomOption; }
 
+		// トーンマップ設定(シェーダーへ送る調整値)
+		const GraphicsOptions::ToneMapOption& GetToneMapOption() const { return m_toneMapOption; }
+		GraphicsOptions::ToneMapOption& RefToneMapOption() { return m_toneMapOption; }
+
 		// ※ 被写界深度(DoF)はカメラの持ち物なので、
 		//    アクティブカメラの FocusParamComponent が持つ(旧 DoFOption)
 
@@ -87,6 +92,7 @@ namespace Engine::Option
 		GraphicsOptions::RenderingOption m_renderingOption = {};
 		GraphicsOptions::LightingOption m_lightingOption = {};
 		GraphicsOptions::BloomOption m_bloomOption = {};
+		GraphicsOptions::ToneMapOption m_toneMapOption = {};
 
 		// デバッグオプション
 		DebugOptions::DebugDrawOption m_debugDrawOption = {};
