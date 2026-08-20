@@ -15,8 +15,17 @@ struct ParticleData
 	// 寿命は粒ごとにランダムなので、「今どこまで進んだか(0〜1)」を出すには
 	// 割る相手を粒自身が覚えているしかない。サイズ・色・フェードがこれを使う
 	float startLife;
-	float3 pad;
+
+	// どの発生源の座標系で回っているか(ParticleDrawData.emitterMatrices の添字)。
+	// 0 は単位行列で予約してあるので、ワールド空間で回す粒はここが 0 のまま
+	uint emitterIndex;
+
+	float2 pad;
 };
+
+// 1つのパーティクルアセットが同時に持てる発生源の数
+// ※ C++ 側 Engine::Particle::PARTICLE_EMITTER_MAX と合わせること
+#define PARTICLE_EMITTER_MAX 8
 
 // 板ポリの向きの決め方
 // ※ C++ 側 Engine::Particle::EParticleOrientation と数値を合わせること
@@ -45,6 +54,15 @@ struct ParticleDrawData
 
 	float4	startColor;		// 発生時の色(RGBは1を超えてよい。ブルームが乗る)
 	float4	endColor;		// 消える直前の色
+
+	//----------------------------------------------------------------------
+	// 発生源の行列
+	//
+	// ローカル空間で回している粒を、描くときにワールドへ戻すためのもの。
+	// 添字 0 は単位行列で予約してあるので、ワールド空間で回している粒は
+	// そのまま掛けても何も起きない(分岐が要らない)。
+	//----------------------------------------------------------------------
+	row_major float4x4 emitterMatrices[PARTICLE_EMITTER_MAX];
 };
 
 struct EmitData
@@ -72,6 +90,10 @@ struct EmitData
 
 	// 発生方向の決め方 : 上の PARTICLE_EMIT_SHAPE_*
 	uint	emitShape;
-	float3	shapePad;
+
+	// 出した粒に持たせる発生源の番号(ワールド空間なら 0)
+	uint	emitterIndex;
+
+	float2	shapePad;
 };
 #endif // PARTICLE_CORE_HLSLI

@@ -46,6 +46,7 @@ namespace Engine::Resource
 		a_ar.Field("m_fadeOutRatio", m_fadeOutRatio);
 
 		a_ar.Field("m_blendMode", m_blendMode);
+		a_ar.Field("m_simulationSpace", m_simulationSpace);
 	}
 
 	//======================================================================================

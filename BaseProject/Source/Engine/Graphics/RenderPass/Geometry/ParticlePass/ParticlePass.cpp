@@ -148,6 +148,17 @@ namespace Engine::Graphics
 						_cbDraw.fadeOutRatio = a_particle.GetFadeOutRatio();
 						_cbDraw.startColor   = a_particle.GetStartColor();
 						_cbDraw.endColor     = a_particle.GetEndColor();
+
+						// ローカル空間で回した粒を戻すための行列。
+						// 席 0 は単位行列なので、ワールド空間の粒は素通りする
+						const auto _emitterMatrices = _particleManager->GetEmitterMatrices(a_handle);
+						const size_t _matCount =
+							(std::min)(_emitterMatrices.size(), Particle::PARTICLE_EMITTER_MAX);
+						for (size_t _m = 0; _m < _matCount; ++_m)
+						{
+							_cbDraw.emitterMatrices[_m] = _emitterMatrices[_m];
+						}
+
 						a_pCtx->GraphicsBindRootCBV(3, _cbDraw);
 
 						// 描画

@@ -6,7 +6,6 @@
 #include "../../../../Components/Character/Robot/BoostComponent.h"
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
-#include "../../../../Components/Resource/ParticlesComponent.h"
 #include "../../../../Components/Effect/EffectAssetComponent.h"
 
 //==========================================================================================
@@ -17,13 +16,12 @@
 // 子エンティティはこのクエリに含まれないため World::RefData で横断参照する
 // (構造変更は行わないので反復中でも安全)。
 //
-// 噴射の中身は EffectAsset(パーティクル+メッシュ)が持つので、ここが伝えるのは ON/OFF だけ。
+// 噴射の中身は EffectAsset(パーティクル+メッシュ)が持ち、
+// 取り付け位置や吹かしたときの膨らみは BoosterEffectComponent が持つので、
+// ここが伝えるのは ON/OFF だけ。
 //
-// ブースター側が EffectAssetComponent を持っていればそちらへ、
-// 持っていなければ従来どおり ParticlesComponent へ流す。
-// どちらを使うかはブースターのプレハブ側が決めるので、
-// 機体ごとに1つずつ EffectAsset へ移していける
-// (全部移し終えたら ParticlesComponent の分岐は消してよい)。
+// 以前はブースターに ParticlesComponent を直に付けていて、
+// それ向けの分岐もここにあったが、ブースターは全て EffectAsset へ移したので消した。
 //==========================================================================================
 void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 {
@@ -46,24 +44,18 @@ void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 			constexpr float kMoveEps = 0.1f;	// 水平移動とみなす速さ
 			constexpr float kRiseEps = 0.1f;	// 上昇とみなす速度
 
-			// ブースター子の噴射 ON/OFF を設定
+			// ブースター子の噴射 ON/OFF を設定。
+			// RefData は持っていないコンポーネントでも非nullを返すので、
+			// 必ず HasComponent で確かめてから引くこと
 			auto _setBoosterPlay = [&a_ctx](Engine::ECS::Entity a_e, bool a_on)
 			{
 				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
+				if (!a_ctx.pWorld->HasComponent<EffectAssetComponent>(a_e)) return;
 
-				// エフェクトアセットを持っているならそちらが本命
-				if (a_ctx.pWorld->HasComponent<EffectAssetComponent>(a_e))
+				if (auto* _pEffect = a_ctx.pWorld->RefData<EffectAssetComponent>(a_e))
 				{
-					if (auto* _pEffect = a_ctx.pWorld->RefData<EffectAssetComponent>(a_e))
-					{
-						_pEffect->isPlay = a_on;
-						return;
-					}
+					_pEffect->isPlay = a_on;
 				}
-
-				// まだ移していないブースター向け
-				if (!a_ctx.pWorld->HasComponent<ParticlesComponent>(a_e)) return;
-				if (auto* _p = a_ctx.pWorld->RefData<ParticlesComponent>(a_e)) _p->isPlay = a_on;
 			};
 
 			for (size_t _i = 0; _i < a_count; ++_i)

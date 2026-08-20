@@ -1459,6 +1459,9 @@
     <Filter Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem">
       <UniqueIdentifier>{c0de0018-1111-4222-8333-0000c0de0018}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem">
+      <UniqueIdentifier>{c8a86abd-b451-44dd-afa3-2ef0afebd67f}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem">
       <UniqueIdentifier>{c0de0019-1111-4222-8333-0000c0de0019}</UniqueIdentifier>
     </Filter>
@@ -2249,6 +2252,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem\BoosterEffectSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem\EffectDrawSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\EffectDrawSystem</Filter>
@@ -3104,6 +3110,9 @@
     <ClInclude Include="Source\Application\Components\Character\Robot\BoostComponent.h">
       <Filter>Source\Application\Components\Character\Robot</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Robot\BoosterEffectComponent.h">
+      <Filter>Source\Application\Components\Character\Robot</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Robot\AttachmentSlotsComponent.h">
       <Filter>Source\Application\Components\Character\Robot</Filter>
     </ClInclude>
@@ -3883,6 +3892,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem\BoosterEffectSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem\EffectDrawSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\EffectDrawSystem</Filter>

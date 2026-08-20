@@ -63,7 +63,10 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 			// ★構造体の全メンバーを埋めること。1つでも未初期化のまま UAV へ書くと
 			//   DXC の検証が "Assignment of undefined values to UAV" で落ちる
 			ParticleData _p;
-			_p.pad = float3(0.0f, 0.0f, 0.0f);
+			_p.pad = float2(0.0f, 0.0f);
+
+			// どの発生源の座標系で回るか。ワールド空間なら 0(単位行列)
+			_p.emitterIndex = _emitInfo.emitterIndex;
 
 			// シード値取得
 			// ・frameSeed を混ぜないと毎フレーム完全に同じパーティクルが生成され、

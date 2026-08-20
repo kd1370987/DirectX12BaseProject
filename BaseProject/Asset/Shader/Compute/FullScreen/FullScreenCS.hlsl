@@ -19,6 +19,8 @@ Texture2D<float4>   g_input  : register(t0);	// トーンマップ前のHDRカ�
 RWTexture2D<float4> g_output : register(u0);	// 提示用カラー
 
 // ACESフィルミックトーンマッピング
+//
+// 彩度や色味が変わって見える、ハイライトを滑らかに圧縮
 float3 ACESFilm(float3 x)
 {
 	float a = 2.51;
@@ -28,6 +30,38 @@ float3 ACESFilm(float3 x)
 	float e = 0.14;
 	return saturate((x * (a * x + b)) / (x * (c * x + d) + e));
 }
+
+// Reinhardフィルター
+//
+// 白があまり白くならない、全体的に少し暗い、派手さが減る場合がある
+float3 Reinhard(float3 a_color)
+{
+	return a_color / (1.0f + a_color);
+}
+
+// ExtendedReinhardフィルター : 白点を指定できる
+float3 ReinhardExtended(float3 a_color, float a_whitePoint)
+{
+	return a_color * (1.0f + a_color / (a_whitePoint * a_whitePoint)) / (1.0f + a_color);
+
+}
+
+// Uncharted 2 Filmic
+//
+// ハイライトが自然、強いブルームと相性がいい
+float3 Uncharted2Tonemap(float3 a_color)
+{
+	float _a = 0.15f;
+	float _b = 0.50f;
+	float _c = 0.10f;
+	float _d = 0.20f;
+	float _e = 0.02f;
+	float _f = 0.30f;
+
+	return ((a_color * (_a * a_color + _c * _b) + _d * _e) / (a_color * (_a * a_color + _b) + _d * _f)) - _e / _f;
+}
+
+
 
 [RootSignature(FULLSCREEN_ROOT_SIG)]
 [numthreads(8, 8, 1)]

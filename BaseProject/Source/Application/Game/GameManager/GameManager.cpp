@@ -62,6 +62,7 @@
 #include "Application/Components/Hierarchy/SpawnerComponent.h"
 #include "Application/Components/Transform/PreviousWorldMatrixComponent.h"
 #include "Application/Components/Character/Robot/BoostComponent.h"
+#include "Application/Components/Character/Robot/BoosterEffectComponent.h"
 #include "Application/Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "Application/Components/Resource/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
@@ -141,6 +142,7 @@
 #include "Application/Systems/Init/PostDeserialize/ParticleFixupSystem/ParticleFixupSystem.h"
 #include "Application/Systems/Init/PostDeserialize/EffectFixupSystem/EffectFixupSystem.h"
 #include "Application/Systems/Update/Update/Effect/EffectUpdateSystem/EffectUpdateSystem.h"
+#include "Application/Systems/Update/Update/Effect/BoosterEffectSystem/BoosterEffectSystem.h"
 #include "Application/Systems/Draw/Draw/EffectDrawSystem/EffectDrawSystem.h"
 #include "Application/Systems/Update/PreUpdate/UpdateHierarchyDepthSystem/UpdateHierarchyDepthSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitHierarchyWorldMatrixSystem/CommitHierarchyWorldMatrixSystem.h"
@@ -344,6 +346,9 @@ namespace App::Game
 				a_pWorld->RegisterComponent<ExplosionComponent>("ExplosionComponent");
 				a_pWorld->RegisterComponent<HomingComponent>("HomingComponent");
 				a_pWorld->RegisterComponent<ProjectileComponent>("ProjectileComponent");
+				// ※ 追加はここから下(末尾)へ。途中に挿すとコンポーネントのタイプIDがずれて
+				//    保存済みのプレハブ・シーンが全部壊れる
+				a_pWorld->RegisterComponent<BoosterEffectComponent>("BoosterEffectComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -437,6 +442,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<ParticleEmitSystem>();
 				// エフェクト : 時間を進めるのは Update、出すのは Draw
 				a_pWorld->RegisterSystem<EffectUpdateSystem>();
+				// ブースターの噴射の置き方と、吹かした瞬間の膨らみをエフェクトへ渡す
+				a_pWorld->RegisterSystem<BoosterEffectSystem>();
 				a_pWorld->RegisterSystem<EffectDrawSystem>();
 				a_pWorld->RegisterSystem<AnimationMatrixFreeSystem>();
 				a_pWorld->RegisterSystem<AdditivePoseFreeSystem>();

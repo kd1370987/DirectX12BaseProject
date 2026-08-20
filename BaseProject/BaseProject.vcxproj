@@ -528,6 +528,7 @@
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem\EffectFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem\BoosterEffectSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem\EffectDrawSystem.cpp" />
     <ClCompile Include="Source\Engine\Resource\StateGraph\StateGraphTypes.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.cpp" />
@@ -591,6 +592,7 @@
     <ClInclude Include="Source\Application\Components\Character\LookAngleComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\BoostComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Robot\BoosterEffectComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\AttachmentSlotsComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\Gun\GunStateComponent.h" />
     <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h" />
@@ -1004,6 +1006,7 @@
     <ClInclude Include="Source\Application\Components\Effect\EffectAssetComponent.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem\EffectFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem\BoosterEffectSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem\EffectDrawSystem.h" />
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraph.h" />
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraphTypes.h" />

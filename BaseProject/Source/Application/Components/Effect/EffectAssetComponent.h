@@ -42,6 +42,26 @@ struct EffectAssetComponent
 	// ---- ランタイム(保存しない) ----
 	// 再生させたいか。制御側のシステムが毎フレーム書く
 	bool isPlay = false;
+
+	//======================================================================================
+	// 出す側からの上書き(ランタイム。制御側のシステムが毎フレーム書く)
+	//
+	// アセットは GUID 単位で全員に共有されるので、「同じ噴射でも取り付け位置と向きが
+	// 個体ごとに違う」といった差はアセットへは書けない。かといって個体ごとに
+	// アセットを増やすと、絵を1つ直すのに全部開いて回ることになる。
+	// そこで「アセットが決めるのは中身、個体が決めるのは置き方」に分け、
+	// 置き方はここへ毎フレーム書いてもらう(BoosterEffectSystem など)。
+	//======================================================================================
+
+	// エフェクト全体のスケール倍率。1 で等倍。
+	// パーティクルの粒の大きさ・ばらつき半径・パーツの配置とメッシュにまとめて掛かる
+	float effectScale = 1.0f;
+
+	// 下の2つを使うか。false ならアセットのパーツが持っている値をそのまま使う
+	bool isOverrideTransform = false;
+
+	Math::Vector3 overridePosOffset = { 0.0f, 0.0f, 0.0f };	// オーナーの行列基準の発生位置
+	Math::Vector3 overrideEmitDir = { 0.0f, 0.0f, 1.0f };	// オーナーの行列基準の発生方向
 };
 
 template<>
@@ -104,5 +124,19 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 		ImGui::Text("Runtime");
 		ImGui::Checkbox("IsPlay", &_comp.isPlay);
 		ImGui::Text("Elapsed : %.2f", _comp.instance.elapsed);
+
+		// 置き方の上書き : 制御側のシステムが毎フレーム書くので表示だけ
+		ImGui::Text("Scale : %.2f", _comp.effectScale);
+		if (_comp.isOverrideTransform)
+		{
+			ImGui::Text("Override Pos : %.2f, %.2f, %.2f",
+				_comp.overridePosOffset.x, _comp.overridePosOffset.y, _comp.overridePosOffset.z);
+			ImGui::Text("Override Dir : %.2f, %.2f, %.2f",
+				_comp.overrideEmitDir.x, _comp.overrideEmitDir.y, _comp.overrideEmitDir.z);
+		}
+		else
+		{
+			ImGui::TextDisabled("(置き方はアセットのパーツ側)");
+		}
 	}
 };

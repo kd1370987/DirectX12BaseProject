@@ -41,6 +41,39 @@ namespace Engine::Particle
 		/// <param name="a_emitterData">個数やデータ</param>
 		void RequestEmit(const Handle<Resource::ParticlesAsset>& a_handle,const EmitterData& a_emitterData);
 
+		//----------------------------------------------------------------------------------
+		// 発生源の席(ローカル空間で回すパーティクル用)
+		//
+		// GPUプールはアセット単位なので、同じ噴射アセットを左右のブースターが使うと
+		// 粒が1つのプールに混ざる。「どの発生源にくっついているか」を粒ごとに
+		// 持たせないと、描くときに戻す行列を選べない。
+		// そこで発生源ごとに席(番号)を配り、粒にはその番号だけを持たせている。
+		//
+		// 席 0 は単位行列で予約。ワールド空間で回す粒はここを指すので、
+		// 描画側は分岐なしで同じ掛け算を通せる。
+		//----------------------------------------------------------------------------------
+
+		/// <summary>
+		/// 発生源の席を確保して番号を返す。すでに配ってあれば行列だけ更新する
+		/// </summary>
+		/// <param name="a_ownerKey">発生源を見分ける鍵(エンティティIDなど)</param>
+		/// <param name="a_ownerWorld">発生源のワールド行列</param>
+		/// <returns>席の番号。席が尽きたら 0(=ワールド空間として出る)</returns>
+		/// <remarks>
+		/// 渡された行列からは拡縮を落として、位置と回転だけを覚える。
+		/// 落とさないと、取り付け側のスケール(ブースターは 0.1 倍など)が
+		/// そのまま粒の飛距離に掛かってしまう。
+		/// </remarks>
+		uint32_t AcquireEmitterSlot(
+			const Handle<Resource::ParticlesAsset>& a_handle,
+			uint64_t a_ownerKey,
+			const Math::Matrix& a_ownerWorld);
+
+		/// <summary>
+		/// 席の行列一覧。描画時に定数バッファへ積む
+		/// </summary>
+		std::span<const Math::Matrix> GetEmitterMatrices(const Handle<Resource::ParticlesAsset>& a_handle) const;
+
 		/// <summary>
 		/// パーティクルのバッファを取得
 		/// </summary>
@@ -88,6 +121,15 @@ namespace Engine::Particle
 
 
 		std::unordered_map<Handle<Resource::ParticlesAsset>, D3D12::StaticStructuredBuffer<EmitterData>> m_emitBuffer;
+
+		// アセットごとの発生源の席。
+		// フレームを跨いで保つ(粒より先に席が消えると、まだ生きている粒の行列が引けない)
+		struct EmitterSlotTable
+		{
+			std::unordered_map<uint64_t, uint32_t> slotMap = {};	// 鍵 → 席番号
+			std::vector<Math::Matrix> matrices = {};				// 席番号 → 行列([0] は単位行列)
+		};
+		std::unordered_map<Handle<Resource::ParticlesAsset>, EmitterSlotTable> m_emitterSlots;
 
 
 		std::mutex m_mutex;

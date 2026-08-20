@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /// <summary>
 /// エフェクトとして生成されるエンティティに付与する目印
 ///
@@ -10,6 +10,7 @@
 /// </summary>
 struct EffectComponent
 {
+
 };
 
 template<>

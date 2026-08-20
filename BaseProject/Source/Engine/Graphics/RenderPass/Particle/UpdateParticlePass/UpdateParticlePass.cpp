@@ -82,9 +82,18 @@ namespace Engine::Graphics
 					UpdateCB _cbData = {};
 					_cbData.deltaTime = MainEngine::Instance().GetDeltaTime();
 
-					// 速度の減衰はアセット単位。プールごとに回しているのでここで引ける
+					// 重力と減衰はアセット単位。プールごとに回しているのでここで引ける
 					if (const auto* _pParticle = Resource::ResourceManager::Instance().Get(_handle))
 					{
+						// GravityPow は「重力をどれだけ受けるか」の倍率。
+						// 1 で普通に落ち、0 で無重力、負にすると浮き上がる(煙向き)。
+						//
+						// ここへ渡すまで、この値はどこからも使われていなかった
+						// (UpdateCB の gravity が 0 のままだった)。
+						// アセット側に項目だけあって効かない状態だったので繋いである
+						constexpr float _kGravity = 9.81f;
+						_cbData.gravity = { 0.0f, -_kGravity * _pParticle->GetGravityPow(), 0.0f };
+
 						_cbData.drag = _pParticle->GetDrag();
 					}
 

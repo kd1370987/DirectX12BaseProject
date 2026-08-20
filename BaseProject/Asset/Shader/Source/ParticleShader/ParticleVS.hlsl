@@ -18,6 +18,19 @@ VSOutput VSMain(VSInput a_input)
 		return _out;
 	}
 
+	//----------------------------------------------------------------
+	// 発生源の座標系からワールドへ戻す
+	//
+	// ローカル空間で回している粒は、発生源(ブースターなど)にくっついて動いてほしい。
+	// シミュレーションはローカルのまま進めて、描くときにここで戻す。
+	// 添字 0 は単位行列で予約してあるので、ワールド空間の粒は素通りする(分岐が要らない)。
+	//----------------------------------------------------------------
+	uint _emitterIndex = min(_particleData.emitterIndex, (uint) (PARTICLE_EMITTER_MAX - 1));
+	float4x4 _emitterMat = g_draw.emitterMatrices[_emitterIndex];
+
+	float3 _simPos = mul(float4(_particleData.pos, 1.0f), _emitterMat).xyz;
+	float3 _simVelocity = mul(float4(_particleData.velocity, 0.0f), _emitterMat).xyz;
+
 	float _debugSize = (_particleData.size <= 0.0f) ? 1.0f : _particleData.size;
 	float3 _debugPos = g_camera.invView[3].xyz + (g_camera.invView[2].xyz * 5.0f);
 	
@@ -37,7 +50,7 @@ VSOutput VSMain(VSInput a_input)
 
 	if (g_draw.orientation != PARTICLE_ORIENT_BILLBOARD)
 	{
-		float3 _velocity = _particleData.velocity;
+		float3 _velocity = _simVelocity;
 		float _speedSq = dot(_velocity, _velocity);
 
 		// 止まっているものは向きが決まらないので、そのままビルボードで出す
@@ -63,7 +76,7 @@ VSOutput VSMain(VSInput a_input)
 				// ワールドの進行方向をそのまま縦軸にする。
 				// カメラへ真っ直ぐ向かってくるものは短く(点に)見えるので、
 				// 弾道や火花のように「線として飛んでいる」表現向き
-				float3 _toCamera = g_camera.cameraPos.xyz - _particleData.pos;
+				float3 _toCamera = g_camera.cameraPos.xyz - _simPos;
 				float3 _side = cross(_toCamera, _dir);
 				if (dot(_side, _side) > 1e-8f)
 				{
@@ -93,8 +106,9 @@ VSOutput VSMain(VSInput a_input)
 	// 進行方向へ伸ばす(縦軸のみ)
 	_localPos.y *= _stretch;
 
-	// ワールド座標の算出
-	float3 _worldPos = _particleData.pos + (_axisX * _localPos.x) + (_axisY * _localPos.y);
+	// ワールド座標の算出。
+	// 板ポリの軸はカメラ基準(ワールド)なので、中心だけを戻せばよい
+	float3 _worldPos = _simPos + (_axisX * _localPos.x) + (_axisY * _localPos.y);
 	//float3 _worldPos = _debugPos + (_camRight * _localPos.x) + (_camUp * _localPos.y);
 
 	// ワールド座標から射影空間へ変換

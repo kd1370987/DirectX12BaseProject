@@ -35,8 +35,12 @@ namespace Engine::Particle
 		// 発生方向の決め方(EParticleEmitShape)。
 		// Cone のときだけ directionAngle が効く
 		UINT emitShape;
+
+		// 出した粒に持たせる発生源の番号。
+		// ローカル空間で回すときだけ 1 以上になる(0 は単位行列 = ワールド空間)
+		UINT emitterIndex;
+
 		float pad0;
 		float pad1;
-		float pad2;
 	};
 }

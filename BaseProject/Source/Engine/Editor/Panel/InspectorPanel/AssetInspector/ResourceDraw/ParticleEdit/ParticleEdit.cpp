@@ -35,7 +35,9 @@ namespace Engine::Editor::Inspector
 
 		ImGui::Separator();
 
-		ImGui::DragFloat("GravityPow", &a_pParticles->RefGravityPow(), 0.1f, 0.0f);
+		// 下限を 0 にしない : 負の値で浮き上がらせたいことがある(煙・炎)
+		ImGui::DragFloat("GravityPow", &a_pParticles->RefGravityPow(), 0.05f);
+		ImGui::TextDisabled("1 で普通に落ちる / 0 で無重力 / 負で浮き上がる");
 
 		// ---- 空気抵抗 ----
 		// 勢いよく飛び出して失速する動き。爆発の破片や煙はこれが無いと
@@ -83,6 +85,24 @@ namespace Engine::Editor::Inspector
 		if (a_pParticles->GetFadeInRatio() + a_pParticles->GetFadeOutRatio() > 1.0f)
 		{
 			ImGui::TextDisabled("合計が 1 を超えています(不透明になりきる前に消え始めます)");
+		}
+
+		ImGui::Separator();
+
+		// ---- どの座標系で回すか ----
+		// ワールドのままだと、発生源が横へ動いた瞬間に出した粒だけ置き去りになる。
+		// 噴射のように発生源へくっついてほしいものは Local
+		ImGui::Text("Simulation");
+		EditorHelper::DrawEnumCombo("SimulationSpace", a_pParticles->RefSimulationSpace());
+		if (a_pParticles->IsLocalSpace())
+		{
+			ImGui::TextDisabled("発生源にくっついて動く(ブースターの噴射など)");
+			ImGui::TextDisabled("※ 重力は発生源のローカル軸に掛かるので GravityPow は 0 推奨");
+			ImGui::TextDisabled("※ 同じアセットを同時に使える発生源は 8 個まで");
+		}
+		else
+		{
+			ImGui::TextDisabled("出したその場に残る(煙・爆発・弾の軌跡など)");
 		}
 
 		ImGui::Separator();

@@ -68,6 +68,8 @@ namespace Engine::Resource
 		float GetFadeInRatio() const { return m_fadeInRatio; }				// フェードインの割合
 		float GetFadeOutRatio() const { return m_fadeOutRatio; }			// フェードアウトの割合
 		Particle::EParticleBlendMode GetBlendMode() const { return m_blendMode; }	// 色の重ね方
+		Particle::EParticleSimulationSpace GetSimulationSpace() const { return m_simulationSpace; }	// どの座標系で回すか
+		bool IsLocalSpace() const { return m_simulationSpace == Particle::EParticleSimulationSpace::Local; }
 
 		// ---- 編集用アクセサ : エディターから直接書き換えるためのもの ----
 		std::string& RefName() { return m_name; }
@@ -87,6 +89,7 @@ namespace Engine::Resource
 		float& RefFadeInRatio() { return m_fadeInRatio; }
 		float& RefFadeOutRatio() { return m_fadeOutRatio; }
 		Particle::EParticleBlendMode& RefBlendMode() { return m_blendMode; }
+		Particle::EParticleSimulationSpace& RefSimulationSpace() { return m_simulationSpace; }
 
 		// テクスチャの差し替え : GUIDとハンドルを同時に更新する
 		void SetTexture(const Engine::GUID& a_guid, const ResourceRef<Texture>& a_handle)
@@ -110,7 +113,8 @@ namespace Engine::Resource
 		float m_initialSpeedMin = 1.0f;
 		float m_initialSpeedMax = 5.0f;
 
-		// 重力からの影響度
+		// 重力からの影響度。
+		// 1 で普通に落ち、0 で無重力、負にすると浮き上がる(煙・炎向き)
 		float m_gravityPow = 0.0f;
 
 		// 生存時間
@@ -160,6 +164,12 @@ namespace Engine::Resource
 		// 既定を加算にしてあるのは、これを入れる前が加算固定だったため
 		// (既存のアセットの見え方を変えない)
 		Particle::EParticleBlendMode m_blendMode = Particle::EParticleBlendMode::Additive;
+
+		// どの座標系で回すか。
+		// 既定をワールドにしてあるのは、これを入れる前がワールド固定だったため
+		// (既存のアセットの見え方を変えない)。
+		// ブースターの噴射のように発生源へくっついてほしいものは Local にする
+		Particle::EParticleSimulationSpace m_simulationSpace = Particle::EParticleSimulationSpace::World;
 
 		// ---- ランタイム用データ ----
 		ResourceRef<Texture> m_texHandle;

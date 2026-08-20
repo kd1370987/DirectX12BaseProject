@@ -57,6 +57,26 @@ void EffectDrawSystem::Init(Engine::ECS::World& a_world)
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
 				//----------------------------------------------------------
+				// 出す側からの上書きを、行列1つにまとめておく
+				//
+				// アセットは共有なので、取り付け位置や大きさの個体差は
+				// コンポーネント側(EffectAssetComponent)から受け取る。
+				//   v * Scale * Translate * ownerWorld
+				// の順で掛けると「オーナーのローカル空間で、指定位置を中心に拡縮」になる。
+				// パーティクルの発生位置もメッシュパーツもこの1つで済む
+				//----------------------------------------------------------
+				const float _effectScale = (_comp.effectScale > 0.0f) ? _comp.effectScale : 1.0f;
+
+				Math::Matrix _effectWorld = _ownerWorld;
+				if (_comp.isOverrideTransform || _effectScale != 1.0f)
+				{
+					_effectWorld =
+						Math::Matrix::CreateScale(_effectScale) *
+						Math::Matrix::CreateTranslation(_comp.overridePosOffset) *
+						_ownerWorld;
+				}
+
+				//----------------------------------------------------------
 				// パーティクル
 				//----------------------------------------------------------
 				if (_pParticleManager)
@@ -82,52 +102,100 @@ void EffectDrawSystem::Init(Engine::ECS::World& a_world)
 						}
 
 						//--------------------------------------------------
-						// 発生源(位置・方向)を space に応じて決める
+						// 発生源(位置・方向)を決める
+						//
+						// ローカル空間で回すパーティクルは、発生源にくっついて動いてほしいので
+						// ワールドではなくその座標系のまま出す。ワールドへ戻すのは描画時。
+						// 戻すのに使う行列の席をここで確保しておく。
+						//
+						// このときパーツの space(WorldMatrix / ReverseVelocity)は使わない。
+						// どれも「ワールドのどこに出すか」を決めるものなので、
+						// ローカルで回す粒には意味を成さない。
 						//--------------------------------------------------
 						Math::Vector3 _pos;
 						Math::Vector3 _dir;
 
-						switch (_part.space)
+						UINT _emitterIndex = 0;
+						if (_pParticle->IsLocalSpace())
 						{
-						case Engine::Resource::EEffectSpace::WorldMatrix:
-							// 相手のワールド位置と前方向(+Z)
-							_pos = _ownerWorld.Translation();
-							_dir = Math::Vector3(_ownerWorld._31, _ownerWorld._32, _ownerWorld._33);
-							break;
-
-						case Engine::Resource::EEffectSpace::ReverseVelocity:
-						{
-							// 進行方向の逆へ吹く(噴射・排気)。
-							// 弾やミサイルは見た目の姿勢が進行方向と一致しないので、
-							// 行列の軸ではなく実際の速度から向きを取る。
-							// VelocityComponent はこのクエリに含めない
-							// (持たないエンティティのエフェクトまで止まってしまうため)
-							_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _ownerWorld);
-
-							// RefData は持っていないコンポーネントでも非nullを返すので、
-							// 必ず HasComponent で確かめてから引くこと
-							if (a_ctx.pWorld->HasComponent<VelocityComponent>(_self))
-							{
-								if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_self))
-								{
-									_dir = -Math::Vector3(_pVel->value);
-								}
-							}
-
-							// 止まっている(または速度を持たない)ときは後ろ向き＝ローカル +Z の逆
-							if (_dir.LengthSquared() <= 1e-8f)
-							{
-								_dir = -Math::Vector3(_ownerWorld._31, _ownerWorld._32, _ownerWorld._33);
-							}
-							break;
+							_emitterIndex = _pParticleManager->AcquireEmitterSlot(
+								_part.particleHandle,
+								static_cast<uint64_t>(_self),
+								_ownerWorld);
 						}
 
-						case Engine::Resource::EEffectSpace::LocalOffset:
-						default:
-							// 相手の行列を基準に、ローカルのオフセット位置・方向を合成
-							_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _ownerWorld);
-							_dir = Math::Vector3::TransformNormal(Math::Vector3(_part.emitDir), _ownerWorld);
-							break;
+						if (_emitterIndex != 0)
+						{
+							//----------------------------------------------
+							// ローカル空間 : 発生源の行列を掛けずに出す
+							//----------------------------------------------
+							// 取り付け位置とパーツのオフセットだけを合成する。
+							// _effectWorld から発生源の行列を除いたものと同じ組み立て
+							const Math::Matrix _localMat =
+								Math::Matrix::CreateScale(_effectScale) *
+								Math::Matrix::CreateTranslation(_comp.overridePosOffset);
+
+							_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _localMat);
+							_dir = _comp.isOverrideTransform
+								? Math::Vector3(_comp.overrideEmitDir)
+								: Math::Vector3(_part.emitDir);
+						}
+						else
+						{
+							//----------------------------------------------
+							// ワールド空間 : 出した場所にそのまま残る
+							//----------------------------------------------
+							switch (_part.space)
+							{
+							case Engine::Resource::EEffectSpace::WorldMatrix:
+								// 相手のワールド位置と前方向(+Z)
+								_pos = _effectWorld.Translation();
+								_dir = Math::Vector3(_ownerWorld._31, _ownerWorld._32, _ownerWorld._33);
+								break;
+
+							case Engine::Resource::EEffectSpace::ReverseVelocity:
+							{
+								// 進行方向の逆へ吹く(噴射・排気)。
+								// 弾やミサイルは見た目の姿勢が進行方向と一致しないので、
+								// 行列の軸ではなく実際の速度から向きを取る。
+								// VelocityComponent はこのクエリに含めない
+								// (持たないエンティティのエフェクトまで止まってしまうため)
+								_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _effectWorld);
+
+								// RefData は持っていないコンポーネントでも非nullを返すので、
+								// 必ず HasComponent で確かめてから引くこと
+								if (a_ctx.pWorld->HasComponent<VelocityComponent>(_self))
+								{
+									if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_self))
+									{
+										_dir = -Math::Vector3(_pVel->value);
+									}
+								}
+
+								// 止まっている(または速度を持たない)ときは後ろ向き＝ローカル +Z の逆
+								if (_dir.LengthSquared() <= 1e-8f)
+								{
+									_dir = -Math::Vector3(_ownerWorld._31, _ownerWorld._32, _ownerWorld._33);
+								}
+								break;
+							}
+
+							case Engine::Resource::EEffectSpace::LocalOffset:
+							default:
+								// 相手の行列を基準に、ローカルのオフセット位置・方向を合成
+								_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _effectWorld);
+								_dir = Math::Vector3::TransformNormal(Math::Vector3(_part.emitDir), _ownerWorld);
+								break;
+							}
+
+							// 向きの上書き : パーツが持っている向きを、出す側の指定で置き換える。
+							// 取り付け角度が個体ごとに違うもの(ブースターなど)向け。
+							// 位置と違って足し合わせても意味を成さないので、こちらは差し替える
+							if (_comp.isOverrideTransform)
+							{
+								_dir = Math::Vector3::TransformNormal(
+									Math::Vector3(_comp.overrideEmitDir), _ownerWorld);
+							}
 						}
 
 						// 方向の正規化(スケール成分や 0 ベクトルへの安全策)
@@ -150,10 +218,13 @@ void EffectDrawSystem::Init(Engine::ECS::World& a_world)
 						_emitData.emitDirection = _dir;
 						_emitData.emitCount     = static_cast<UINT>(_emitCount);
 
-						_emitData.baseScale      = _part.baseScale;
-						_emitData.positionRadius = _part.positionRadius;
+						// 大きさとばらつき半径も一緒に拡縮する。
+						// 粒だけ大きくして散らばりが元のままだと、束が太らずに粒が重なるだけになる
+						_emitData.baseScale      = _part.baseScale * _effectScale;
+						_emitData.positionRadius = _part.positionRadius * _effectScale;
 						_emitData.directionAngle = DirectX::XMConvertToRadians(_part.directionAngle);
 						_emitData.emitShape      = static_cast<UINT>(_part.emitShape);
+						_emitData.emitterIndex   = _emitterIndex;
 						_emitData.minScale       = _part.minScale;
 						_emitData.maxScale       = _part.maxScale;
 
@@ -185,7 +256,7 @@ void EffectDrawSystem::Init(Engine::ECS::World& a_world)
 						Math::Color   _colorScale;
 						Math::Vector3 _emissiveAdd;
 						if (!_pEffect->BuildMeshDraw(
-							_m, _comp.instance, _ownerWorld,
+							_m, _comp.instance, _effectWorld,
 							_meshWorld, _colorScale, _emissiveAdd))
 						{
 							continue;
