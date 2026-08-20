@@ -11,6 +11,7 @@
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
 
 #include "Engine/Option/OptionManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Graphics
 {
@@ -66,16 +67,26 @@ namespace Engine::Graphics
 					a_pCtx->SetComputeRootSignature(_spPassData->rootSigHandle);
 					a_pCtx->SetComputePSO(_pPso);
 
-					// カメラバインド
+					// 更新設定バインド
+					// ※ HLSL 側 UpdateCB(UpdateParticleShader.hlsl)と並びを合わせること
 					struct UpdateCB
 					{
 						float deltaTime;
 						DirectX::XMFLOAT3 gravity;
+
+						float drag;
+						DirectX::XMFLOAT3 pad;
 					};
 					// 固定値だと実フレームレートと寿命の減りが一致しない(重いほど長生きする)ため
 					// 実際の経過時間を渡す
 					UpdateCB _cbData = {};
 					_cbData.deltaTime = MainEngine::Instance().GetDeltaTime();
+
+					// 速度の減衰はアセット単位。プールごとに回しているのでここで引ける
+					if (const auto* _pParticle = Resource::ResourceManager::Instance().Get(_handle))
+					{
+						_cbData.drag = _pParticle->GetDrag();
+					}
 
 					auto* _pCmd = a_pCtx->GetCurrentCmdList();
 					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<UpdateCB>(

@@ -44,7 +44,11 @@ struct ParticlesComponent
 	float minScale       = 0.1f;	// 個々のスケール下限
 	float maxScale       = 1.0f;	// 個々のスケール上限
 	float positionRadius = 0.5f;	// 発生位置の半径(ばらつき)
-	float directionAngle = 10.0f;	// 方向のばらつき(度)
+	float directionAngle = 10.0f;	// 方向のばらつき(度)。Cone のときだけ効く
+
+	// 発生方向の決め方。噴射は Cone、爆発は Sphere。
+	// 火花(サブパーティクル)も同じ形状で出す
+	Engine::Particle::EParticleEmitShape emitShape = Engine::Particle::EParticleEmitShape::Cone;
 
 	// ---- 火花(サブパーティクル) ----
 	// isPlay の立ち上がり / 立ち下がりで一度だけ出す別アセット。
@@ -107,6 +111,8 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		a_ar.Field("sparkMaxScale",        _comp.sparkMaxScale);
 		a_ar.Field("sparkPositionRadius",  _comp.sparkPositionRadius);
 		a_ar.Field("sparkDirectionAngle",  _comp.sparkDirectionAngle);
+
+		a_ar.Field("emitShape",            _comp.emitShape);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -156,7 +162,14 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		ImGui::DragFloat("MinScale", &_comp.minScale, 0.01f, 0.0f);
 		ImGui::DragFloat("MaxScale", &_comp.maxScale, 0.01f, 0.0f);
 		ImGui::DragFloat("PositionRadius", &_comp.positionRadius, 0.05f, 0.0f);
-		ImGui::DragFloat("DirectionAngle (deg)", &_comp.directionAngle, 0.5f, 0.0f);
+
+		// どっちへ出すか。Cone の角度を 360 にしても全方向にはならないので、
+		// 爆発のように四方八方へ飛ばしたいときは Sphere を選ぶ
+		Editor::EditorHelper::DrawEnumCombo("EmitShape", _comp.emitShape);
+
+		ImGui::BeginDisabled(_comp.emitShape != Engine::Particle::EParticleEmitShape::Cone);
+		ImGui::DragFloat("DirectionAngle (deg)", &_comp.directionAngle, 0.5f, 0.0f, 180.0f);
+		ImGui::EndDisabled();
 
 		ImGui::Separator();
 

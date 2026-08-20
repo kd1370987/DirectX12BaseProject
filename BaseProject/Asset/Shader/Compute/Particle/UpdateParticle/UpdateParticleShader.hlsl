@@ -12,6 +12,9 @@ cbuffer UpdateCB : register(b0)
 {
 	float deltaTime; // 経過時間
 	float3 gravity; // 重力など
+
+	float drag; // 速度の減衰(1秒あたりの割合)。0 なら減衰しない
+	float3 pad;
 };
 
 // 入力
@@ -46,6 +49,16 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	// パーティクルの更新ロジック
 	_p.life -= deltaTime;					// 寿命を減らす
 	_p.velocity += gravity * deltaTime;		// 重力を減らす
+
+	// 空気抵抗 : 勢いよく飛び出して失速する動きを作る。
+	// 爆発の破片や煙は「初速だけ速い」ので、これが無いと最後まで等速で飛んでいってしまう。
+	// フレームレートが変わっても減り方が同じになるよう指数で落とす
+	// (1 - drag*dt の掛け算だと dt が大きいフレームで減りすぎる)
+	if (drag > 0.0f)
+	{
+		_p.velocity *= exp(-drag * deltaTime);
+	}
+
 	_p.pos += _p.velocity * deltaTime;		// 座標を更新
 
 	// ★NaN/Inf 対策。

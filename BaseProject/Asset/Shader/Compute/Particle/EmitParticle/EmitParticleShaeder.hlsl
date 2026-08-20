@@ -59,8 +59,11 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 			// デッドリストの末尾から、空いているパーティクルのインデックス番号を取得
 			uint _newIndex = g_deadList[_origCount - 1];
 
-			// 新しいパーティクルデータを初期化してプールに書き込む
+			// 新しいパーティクルデータを初期化してプールに書き込む。
+			// ★構造体の全メンバーを埋めること。1つでも未初期化のまま UAV へ書くと
+			//   DXC の検証が "Assignment of undefined values to UAV" で落ちる
 			ParticleData _p;
+			_p.pad = float3(0.0f, 0.0f, 0.0f);
 
 			// シード値取得
 			// ・frameSeed を混ぜないと毎フレーム完全に同じパーティクルが生成され、
@@ -86,11 +89,43 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 			//   必ず正の最低寿命を保証し、たとえ即死でも次フレームに返却されるようにする。
 			_p.life = max(_p.life, 0.0001f);
 
+			// ★寿命に沿った変化(サイズ・色・フェード)の分母。
+			//   寿命は粒ごとにランダムなので、発生時の値を覚えておかないと
+			//   「今どこまで進んだか」が出せない。
+			_p.startLife = _p.life;
+
 			// 発射方向計算
+			//
+			//   Cone       : 指定方向を軸にした円錐。噴射・排気のように向きがあるもの
+			//   Sphere     : 中心から全方向。爆発のように四方八方へ飛び散るもの
+			//   Hemisphere : 指定方向側の半球だけ。地面での爆発など、下へ潜らせたくないもの
+			//
+			// ※ Cone の角度を 360 度にしても全方向にはならない。
+			//    円錐の「半頂角」なので全方向にしたければ 180 度で、
+			//    しかもその極限は分布が偏る。全方向は専用の分岐で出すこと。
 			float3 _forward = normalize(_emitInfo.emitDirection);
-			float3 _coneDir = RandomConeDirection(_forward, _emitInfo.directionAngle, _seed);
-			_seed += 2;		// RandomConeDirection も内部で種を2つ消費する
-			_p.velocity = _coneDir * ValueFloat(_emitInfo.minSpeed, _emitInfo.maxSpeed, _seed++);
+			float3 _emitDir;
+
+			if (_emitInfo.emitShape == PARTICLE_EMIT_SHAPE_SPHERE)
+			{
+				_emitDir = RandomDirection(_seed);
+				_seed += 2;		// RandomDirection は内部で種を2つ消費する
+			}
+			else if (_emitInfo.emitShape == PARTICLE_EMIT_SHAPE_HEMISPHERE)
+			{
+				// 全方向のうち、基準方向の裏側へ出たものだけ折り返す。
+				// コーンの角度を90度にするより分布が素直になる
+				float3 _randomDir = RandomDirection(_seed);
+				_seed += 2;
+				_emitDir = (dot(_randomDir, _forward) < 0.0f) ? -_randomDir : _randomDir;
+			}
+			else
+			{
+				_emitDir = RandomConeDirection(_forward, _emitInfo.directionAngle, _seed);
+				_seed += 2;		// RandomConeDirection も内部で種を2つ消費する
+			}
+
+			_p.velocity = _emitDir * ValueFloat(_emitInfo.minSpeed, _emitInfo.maxSpeed, _seed++);
 
 			// スケール
 			_p.size = _emitInfo.baseScale * ValueFloat(_emitInfo.minScale, _emitInfo.maxScale, _seed++);

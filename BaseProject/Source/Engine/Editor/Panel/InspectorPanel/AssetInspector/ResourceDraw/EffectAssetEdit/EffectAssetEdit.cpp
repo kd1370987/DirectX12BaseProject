@@ -84,6 +84,24 @@ namespace Engine::Editor::Inspector
 				ImGui::TextDisabled("Pos/Dir : 付いている相手の行列そのまま");
 			}
 
+			ImGui::SeparatorText("Emit Shape");
+
+			// ---- どっちへ出すか ----
+			EditorHelper::DrawEnumCombo("Shape", a_part.emitShape);
+			switch (a_part.emitShape)
+			{
+			case Particle::EParticleEmitShape::Sphere:
+				ImGui::TextDisabled("中心から全方向へ均等に飛び散る(爆発向き)");
+				break;
+			case Particle::EParticleEmitShape::Hemisphere:
+				ImGui::TextDisabled("EmitDir 側の半球だけへ飛び散る(地面での爆発向き)");
+				break;
+			case Particle::EParticleEmitShape::Cone:
+			default:
+				ImGui::TextDisabled("EmitDir を軸にした円錐。広がりは DirectionAngle");
+				break;
+			}
+
 			ImGui::SeparatorText("Emission");
 
 			// ---- どれだけ出すか ----
@@ -105,8 +123,17 @@ namespace Engine::Editor::Inspector
 			ImGui::DragFloat("MinScale", &a_part.minScale, 0.01f, 0.0f);
 			ImGui::DragFloat("MaxScale", &a_part.maxScale, 0.01f, 0.0f);
 			ImGui::DragFloat("PositionRadius", &a_part.positionRadius, 0.05f, 0.0f);
-			ImGui::DragFloat("DirectionAngle (deg)", &a_part.directionAngle, 0.5f, 0.0f);
-			ImGui::TextDisabled("初速・寿命・絵はパーティクルアセット側");
+
+			// 円錐のときしか効かない値なので、それ以外では触らせない
+			ImGui::BeginDisabled(a_part.emitShape != Particle::EParticleEmitShape::Cone);
+			ImGui::DragFloat("DirectionAngle (deg)", &a_part.directionAngle, 0.5f, 0.0f, 180.0f);
+			ImGui::EndDisabled();
+			if (a_part.emitShape != Particle::EParticleEmitShape::Cone)
+			{
+				ImGui::TextDisabled("(DirectionAngle は Cone のときだけ効きます)");
+			}
+
+			ImGui::TextDisabled("初速・寿命・絵・減衰・色はパーティクルアセット側");
 
 			return _isChanged;
 		}

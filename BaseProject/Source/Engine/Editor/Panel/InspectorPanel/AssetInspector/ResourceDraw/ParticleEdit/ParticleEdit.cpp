@@ -37,6 +37,19 @@ namespace Engine::Editor::Inspector
 
 		ImGui::DragFloat("GravityPow", &a_pParticles->RefGravityPow(), 0.1f, 0.0f);
 
+		// ---- 空気抵抗 ----
+		// 勢いよく飛び出して失速する動き。爆発の破片や煙はこれが無いと
+		// 最後まで等速で飛んでいってしまう
+		ImGui::DragFloat("Drag (/s)", &a_pParticles->RefDrag(), 0.05f, 0.0f);
+		if (a_pParticles->GetDrag() <= 0.0f)
+		{
+			ImGui::TextDisabled("0 : 減速しない(等速で飛び続ける)");
+		}
+		else
+		{
+			ImGui::TextDisabled("大きいほど早く失速する(爆発の破片なら 2〜5 が目安)");
+		}
+
 		ImGui::Separator();
 
 		ImGui::PushID(2);
@@ -49,6 +62,45 @@ namespace Engine::Editor::Inspector
 
 		ImGui::DragInt("Capacity", &a_pParticles->RefCapacity(), 1, 0);
 		ImGui::DragInt("EmissionRate", &a_pParticles->RefEmissionRate(), 1, 0);
+
+		ImGui::SeparatorText("Over Lifetime");
+		ImGui::TextDisabled("寿命のどこまで進んだかで、サイズと色を動かす");
+
+		// ---- サイズの変化 ----
+		ImGui::DragFloat("EndSizeScale", &a_pParticles->RefEndSizeScale(), 0.05f, 0.0f);
+		ImGui::TextDisabled("寿命の終わりでのサイズ倍率。煙は 1 より大きく、火花は小さく");
+
+		// ---- 色の変化 ----
+		// RGB は 1 を超えてよい。超えたぶんがブルームのしきい値を抜けて光る
+		EditorHelper::DrawColorEdit("StartColor", a_pParticles->RefStartColor());
+		EditorHelper::DrawColorEdit("EndColor", a_pParticles->RefEndColor());
+		ImGui::TextDisabled("RGB は 1 を超えてよい(超えたぶんが光る)。爆発は白→橙→暗い煙");
+
+		// ---- フェード ----
+		// 寿命に対する割合で持つので、粒ごとに寿命がばらついても見え方が揃う
+		ImGui::DragFloat("FadeIn (ratio)", &a_pParticles->RefFadeInRatio(), 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("FadeOut (ratio)", &a_pParticles->RefFadeOutRatio(), 0.01f, 0.0f, 1.0f);
+		if (a_pParticles->GetFadeInRatio() + a_pParticles->GetFadeOutRatio() > 1.0f)
+		{
+			ImGui::TextDisabled("合計が 1 を超えています(不透明になりきる前に消え始めます)");
+		}
+
+		ImGui::Separator();
+
+		// ---- 色の重ね方 ----
+		// 加算は光り物、半透明は煙や破片。
+		// 加算のまま煙を出すと背景ごと明るくなってしまう
+		ImGui::Text("Blend");
+		EditorHelper::DrawEnumCombo("BlendMode", a_pParticles->RefBlendMode());
+		if (a_pParticles->GetBlendMode() == Particle::EParticleBlendMode::Additive)
+		{
+			ImGui::TextDisabled("重ねるほど明るくなる。火花・炎・爆発の芯向き");
+		}
+		else
+		{
+			ImGui::TextDisabled("背景を明るくしない。煙・破片向き");
+			ImGui::TextDisabled("※ 粒の前後は並べ替えていないので、重なりが入れ替わって見えることがあります");
+		}
 
 		ImGui::Separator();
 

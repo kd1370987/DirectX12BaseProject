@@ -153,6 +153,7 @@ void EffectDrawSystem::Init(Engine::ECS::World& a_world)
 						_emitData.baseScale      = _part.baseScale;
 						_emitData.positionRadius = _part.positionRadius;
 						_emitData.directionAngle = DirectX::XMConvertToRadians(_part.directionAngle);
+						_emitData.emitShape      = static_cast<UINT>(_part.emitShape);
 						_emitData.minScale       = _part.minScale;
 						_emitData.maxScale       = _part.maxScale;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../../Particle/Core/ParticleData.h"
+
 namespace Engine::Resource
 {
 	//==========================================================================================
@@ -86,6 +88,14 @@ namespace Engine::Resource
 		Math::Vector3 posOffset = { 0.0f, 0.0f, 0.0f };	// 相手の行列基準の発生位置
 		Math::Vector3 emitDir = { 0.0f, 0.0f, 1.0f };	// 相手の行列基準の発生方向
 
+		// ---- どっちへ出すか ----
+		// Cone       : emitDir を軸にした円錐(directionAngle が広がり)。噴射・排気
+		// Sphere     : 中心から全方向へ均等。爆発
+		// Hemisphere : emitDir 側の半球だけ。地面での爆発
+		// ※ Cone の角度を 360 にしても全方向にはならない(円錐の半頂角なので)。
+		//    四方八方へ飛び散らせたいときは Sphere を選ぶこと
+		Particle::EParticleEmitShape emitShape = Particle::EParticleEmitShape::Cone;
+
 		// ---- どれだけ出すか ----
 		int   emitCount = 8;		// 1回の発生数
 		float emitRate = 0.0f;		// >0 : 毎秒この回数だけ発生 / 0 : 開始時に1回だけ(バースト)
@@ -99,7 +109,7 @@ namespace Engine::Resource
 		float minScale = 0.1f;			// 1粒のスケール下限
 		float maxScale = 1.0f;			// 1粒のスケール上限
 		float positionRadius = 0.5f;	// 発生位置のばらつき半径
-		float directionAngle = 10.0f;	// 発生方向のばらつき(度)
+		float directionAngle = 10.0f;	// 発生方向のばらつき(度)。Cone のときだけ効く
 
 		bool IsValid() const { return particleGUID != Engine::DefaultGUID; }
 

@@ -5,6 +5,9 @@ namespace Engine::Particle
 	/// CPUが毎フレーム計算して Uploadヒープ経由で
 	/// いまフレーム、どこから何個出すかの命令
 	/// </summary>
+	/// <remarks>
+	/// HLSL 側 EmitData(Common/RootParameters/Particle.hlsli)と並びを合わせること
+	/// </remarks>
 	struct EmitterData
 	{
 		DirectX::XMFLOAT3 emitPos;		// 発生源のワールド座標
@@ -15,7 +18,7 @@ namespace Engine::Particle
 
 		// ---- ランダム要素 ----
 		float positionRadius;		// 発生位置の半径
-		float directionAngle;		// 方向のばらつき角度 (度)
+		float directionAngle;		// 方向のばらつき角度 (ラジアン。Cone のときだけ使う)
 
 		// 拡縮区間
 		float minScale;
@@ -28,5 +31,12 @@ namespace Engine::Particle
 		// 生存時間区間
 		float minLifeTime;
 		float maxLifeTime;
+
+		// 発生方向の決め方(EParticleEmitShape)。
+		// Cone のときだけ directionAngle が効く
+		UINT emitShape;
+		float pad0;
+		float pad1;
+		float pad2;
 	};
 }

@@ -146,6 +146,7 @@ void EmitParticleSystem::Init(Engine::ECS::World& a_world)
 					_emitData.baseScale      = a_baseScale;
 					_emitData.positionRadius = a_positionRadius;
 					_emitData.directionAngle = DirectX::XMConvertToRadians(a_directionAngle);
+					_emitData.emitShape      = static_cast<UINT>(_p.emitShape);
 					_emitData.minScale       = a_minScale;
 					_emitData.maxScale       = a_maxScale;
 

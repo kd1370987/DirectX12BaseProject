@@ -45,6 +45,9 @@ namespace Engine::Resource
 		a_ar.Field("MaxScale", maxScale);
 		a_ar.Field("PositionRadius", positionRadius);
 		a_ar.Field("DirectionAngle", directionAngle);
+
+		// ※ 追加は末尾に。バイナリは順次読みなので途中に挿すと既存データが全部ずれる
+		a_ar.Field("EmitShape", emitShape);
 	}
 
 	//======================================================================================

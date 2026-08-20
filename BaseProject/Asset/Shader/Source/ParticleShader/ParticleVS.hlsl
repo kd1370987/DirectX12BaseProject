@@ -75,8 +75,19 @@ VSOutput VSMain(VSInput a_input)
 		}
 	}
 
+	// ---------------------------------------------------------------
+	// 寿命のどこまで進んだか (0 = 生まれた瞬間 / 1 = 消える直前)
+	// サイズ・色・フェードはすべてこれを基準にする
+	// ---------------------------------------------------------------
+	float _startLife = max(_particleData.startLife, 1e-4f);
+	float _lifeT = saturate(1.0f - (_particleData.life / _startLife));
+
+	// 寿命に沿ったサイズ変化。
+	// 煙は膨らみ(>1)、火花は縮む(<1)。1 なら変化しない
+	float _sizeScale = lerp(1.0f, g_draw.endSizeScale, _lifeT);
+
 	// ビルボード計算
-	float3 _localPos = a_input.pos.xyz * _particleData.size;
+	float3 _localPos = a_input.pos.xyz * (_particleData.size * _sizeScale);
 	//float3 _localPos = a_input.pos.xyz * _debugSize;
 
 	// 進行方向へ伸ばす(縦軸のみ)
@@ -92,9 +103,27 @@ VSOutput VSMain(VSInput a_input)
 	// UV座標のパススルー
 	_out.uv = a_input.uv;
 	
-	// 寿命に応じたフェードアウト
-	float alpha = saturate(_particleData.life / 1.0f);
-	_out.color = float4(1.0f,1.0f,1.0f, alpha);
-	
+	// ---------------------------------------------------------------
+	// 寿命に沿った色
+	//
+	// 爆発は「白く光る → オレンジ → くすんだ煙」のように色が変わる。
+	// RGB は 1 を超えてよく、超えたぶんがブルームのしきい値を抜けて光って見える
+	// ---------------------------------------------------------------
+	float4 _color = lerp(g_draw.startColor, g_draw.endColor, _lifeT);
+
+	// 出だしと終わりのフェード。
+	// 割合(0〜1)で指定するので、粒ごとに寿命が違っても同じ見え方になる
+	float _alpha = _color.a;
+	if (g_draw.fadeInRatio > 0.0f)
+	{
+		_alpha *= saturate(_lifeT / g_draw.fadeInRatio);
+	}
+	if (g_draw.fadeOutRatio > 0.0f)
+	{
+		_alpha *= saturate((1.0f - _lifeT) / g_draw.fadeOutRatio);
+	}
+
+	_out.color = float4(_color.rgb, _alpha);
+
 	return _out;
 }

@@ -28,6 +28,25 @@ namespace Engine::Resource
 		void Load(const std::string& a_fileDir, const std::string& a_fileName);
 		void Load(const std::string& a_filePath);
 
+	private:
+
+		/// <summary>
+		/// 保存と読み込みで共通の項目並び
+		/// </summary>
+		/// <remarks>
+		/// 以前は Save と Load 2つに同じ並びを3回書いていて、
+		/// 項目を足すときに片方だけ直すと読み書きがずれた。1箇所に寄せてある。
+		/// ※ 追加は末尾に。バイナリは順次読みなので途中に挿すと既存データが全部ずれる
+		/// </remarks>
+		void Archive(Persistence::Archive& a_ar);
+
+		/// <summary>
+		/// 読み込み後の後始末(値の下限補正とテクスチャの解決)
+		/// </summary>
+		void OnLoaded();
+
+	public:
+
 		// ---- アクセサ ----
 		const std::string& GetName()const { return m_name; }				// パーティクル名
 		const Engine::GUID& GetGUID() const { return m_guid; }				// パーティクルGUID
@@ -42,6 +61,13 @@ namespace Engine::Resource
 		int GetEmissionRate() const { return m_emissionRate; }				// 発生レート
 		Particle::EParticleOrientation GetOrientation() const { return m_orientation; }	// 板ポリの向き
 		float GetStretch() const { return m_stretch; }						// 進行方向への伸ばし倍率
+		float GetDrag() const { return m_drag; }							// 速度の減衰
+		float GetEndSizeScale() const { return m_endSizeScale; }			// 寿命の終わりでのサイズ倍率
+		const Math::Color& GetStartColor() const { return m_startColor; }	// 発生時の色
+		const Math::Color& GetEndColor() const { return m_endColor; }		// 消える直前の色
+		float GetFadeInRatio() const { return m_fadeInRatio; }				// フェードインの割合
+		float GetFadeOutRatio() const { return m_fadeOutRatio; }			// フェードアウトの割合
+		Particle::EParticleBlendMode GetBlendMode() const { return m_blendMode; }	// 色の重ね方
 
 		// ---- 編集用アクセサ : エディターから直接書き換えるためのもの ----
 		std::string& RefName() { return m_name; }
@@ -54,6 +80,13 @@ namespace Engine::Resource
 		int& RefEmissionRate() { return m_emissionRate; }
 		Particle::EParticleOrientation& RefOrientation() { return m_orientation; }
 		float& RefStretch() { return m_stretch; }
+		float& RefDrag() { return m_drag; }
+		float& RefEndSizeScale() { return m_endSizeScale; }
+		Math::Color& RefStartColor() { return m_startColor; }
+		Math::Color& RefEndColor() { return m_endColor; }
+		float& RefFadeInRatio() { return m_fadeInRatio; }
+		float& RefFadeOutRatio() { return m_fadeOutRatio; }
+		Particle::EParticleBlendMode& RefBlendMode() { return m_blendMode; }
 
 		// テクスチャの差し替え : GUIDとハンドルを同時に更新する
 		void SetTexture(const Engine::GUID& a_guid, const ResourceRef<Texture>& a_handle)
@@ -96,6 +129,37 @@ namespace Engine::Resource
 		// 進行方向への伸ばし倍率 : 1 で伸ばさない。速い火花や弾道を線にしたいときに上げる
 		// (Billboard 指定のときは使わない)
 		float m_stretch = 1.0f;
+
+		//----------------------------------------------------------------------------------
+		// 寿命に沿った変化
+		//
+		// 爆発は「速く飛び出して失速し、膨らみながら白→オレンジ→煙へ落ちて消える」。
+		// 初速と寿命だけでは等速で飛び続けて唐突に消えるので、その間を埋めるための設定。
+		//----------------------------------------------------------------------------------
+
+		// 速度の減衰(1秒あたりの割合)。0 で減衰なし。
+		// 大きいほど早く失速する。爆発の破片は 2〜5 あたりが目安
+		float m_drag = 0.0f;
+
+		// 寿命の終わりでのサイズ倍率。1 で変化なし。
+		// 煙のように膨らむなら 1 より大きく、火花のように縮むなら小さく
+		float m_endSizeScale = 1.0f;
+
+		// 発生時と消える直前の色。
+		// RGB は 1 を超えてよく、超えたぶんがブルームのしきい値を抜けて光って見える
+		// (爆発の芯を白く飛ばしたいときは startColor を 3〜10 くらいに上げる)
+		Math::Color m_startColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		Math::Color m_endColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		// 寿命に対する割合でのフェード。0 でそのフェードをしない。
+		// 割合で持つので、粒ごとに寿命がばらついても見え方が揃う
+		float m_fadeInRatio = 0.0f;
+		float m_fadeOutRatio = 0.25f;
+
+		// 色の重ね方。光り物は加算、煙や破片は半透明。
+		// 既定を加算にしてあるのは、これを入れる前が加算固定だったため
+		// (既存のアセットの見え方を変えない)
+		Particle::EParticleBlendMode m_blendMode = Particle::EParticleBlendMode::Additive;
 
 		// ---- ランタイム用データ ----
 		ResourceRef<Texture> m_texHandle;
