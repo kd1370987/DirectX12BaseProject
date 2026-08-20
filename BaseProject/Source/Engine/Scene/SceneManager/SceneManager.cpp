@@ -9,6 +9,7 @@
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 #include "../../Editor/Editor.h"
+#include "../../Editor/EffectEditor/EffectEditor.h"
 
 namespace Engine::Scene
 {
@@ -20,8 +21,33 @@ namespace Engine::Scene
 		m_upBaseSceneVec.clear();
 	}
 
+	//======================================================================================
+	// エフェクトエディターが開いているか
+	//--------------------------------------------------------------------------------------
+	// 開いている間はゲームのシーンを止め、あちらの確認用ワールドだけを回す。
+	// エフェクト単体を見るための画面なので、後ろでゲームが動いていると
+	// 描画も当たり判定も混ざってしまう。
+	//======================================================================================
+	namespace
+	{
+		Editor::EffectEditor* GetActiveEffectEditor()
+		{
+			auto* _pEffectEditor = Editor::MainEditor::Instance().RefEffectEditor();
+			if (!_pEffectEditor || !_pEffectEditor->IsOpen()) return nullptr;
+			return _pEffectEditor;
+		}
+	}
+
 	void SceneManager::Update(float a_dt)
 	{
+		// エフェクト確認中はゲームのシーンを止める。
+		// シーンの切り替え命令もここで消化しないので、閉じたあとに順番どおり流れる
+		if (auto* _pEffectEditor = GetActiveEffectEditor())
+		{
+			_pEffectEditor->UpdateScene(a_dt);
+			return;
+		}
+
 		// シーンの切り替え
 		ChangeScenen();
 
@@ -48,6 +74,14 @@ namespace Engine::Scene
 
 	void SceneManager::Draw()
 	{
+		// エフェクト確認中は、あちらのワールドの描画命令だけをレンダーグラフへ流す。
+		// レンダーグラフ自体はゲームと同じものを通るので、見え方は本番と揃う
+		if (auto* _pEffectEditor = GetActiveEffectEditor())
+		{
+			_pEffectEditor->DrawScene();
+			return;
+		}
+
 		// すべてのシーンを描画
 		for (auto& _scene : m_upBaseSceneVec)
 		{

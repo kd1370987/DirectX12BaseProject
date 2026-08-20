@@ -8,6 +8,7 @@ namespace Engine::Editor
 	class EditorCamera;
 	class PanelManager;
 	class Profiler;
+	class EffectEditor;
 
 	//=======================================================================
 	// 
@@ -127,6 +128,26 @@ namespace Engine::Editor
 		//=======================================================================
 		EditorCamera* RefEditorCamera() { return m_upEditorCamera.get(); }
 
+		//=======================================================================
+		// エフェクトエディター
+		//
+		// エフェクト1枚をゲームと同じ描画環境で確認するためのモーダル画面。
+		// 開いている間はゲームのシーンが止まり、レンダーグラフには
+		// あちらの確認用ワールドの描画命令だけが流れる。
+		//=======================================================================
+		EffectEditor* RefEffectEditor() { return m_upEffectEditor.get(); }
+
+		/// <summary>
+		/// エディターがモーダルな画面を出しているか
+		/// </summary>
+		/// <remarks>
+		/// true の間は、その画面以外の操作を受け付けてはいけない。
+		/// ImGui のウィンドウはモーダル自身が塞いでくれるが、
+		/// ImGui を通らない操作(アプリのモード切り替え・フリーカメラ)は
+		/// 呼ぶ側でここを見て止めること。
+		/// </remarks>
+		bool IsModalActive() const;
+
 	private:
 
 		// デバッグ形状を1つ積んでよいか。
@@ -151,6 +172,9 @@ namespace Engine::Editor
 
 		// エディター用フリーカメラ
 		std::unique_ptr<EditorCamera> m_upEditorCamera = nullptr;
+
+		// エフェクト確認用のモーダル画面
+		std::unique_ptr<EffectEditor> m_upEffectEditor = nullptr;
 
 		// エディター用関数登録
 		std::vector<std::function<void()>> m_editFuncVec = {};

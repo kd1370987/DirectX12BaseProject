@@ -1,6 +1,8 @@
 #include "EffectAssetEdit.h"
 
 #include "../../../../../Helper/EditorHelper.h"
+#include "../../../../../EffectEditor/EffectEditor.h"
+#include "../../../../../Editor.h"
 #include "../../../../../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 namespace Engine::Editor::Inspector
@@ -180,6 +182,18 @@ namespace Engine::Editor::Inspector
 			auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
 			a_pEffect->Save(_filePath);
 			ENGINE_LOG("Save EffectAsset : %s", _filePath.c_str());
+		}
+
+		// 単体確認用の画面を開く。
+		// 開いている間はゲームのシーンが止まり、このエフェクトだけがゲームと同じ
+		// レンダーグラフで描かれる。ここでの編集はそのまま向こうの見た目に反映される
+		ImGui::SameLine();
+		if (ImGui::Button("Open Effect Editor"))
+		{
+			if (auto* _pEffectEditor = MainEditor::Instance().RefEffectEditor())
+			{
+				_pEffectEditor->Open(_guid);
+			}
 		}
 
 		ImGui::Spacing();

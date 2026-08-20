@@ -19,6 +19,7 @@
 
 #include "Panel/PanelManager.h"
 #include "EditorCamera/EditorCamera.h"
+#include "EffectEditor/EffectEditor.h"
 
 namespace Engine::Editor
 {
@@ -46,6 +47,12 @@ namespace Engine::Editor
 		{
 			m_upEditorCamera = std::make_unique<EditorCamera>();
 			m_upEditorCamera->Init();
+		}
+
+		// エフェクト確認用のモーダル画面
+		if (!m_upEffectEditor)
+		{
+			m_upEffectEditor = std::make_unique<EffectEditor>();
 		}
 
 		// プロファイラ
@@ -91,6 +98,12 @@ namespace Engine::Editor
 			m_upProfiler->Release();
 		}
 
+		// エフェクトエディターが抱えている確認用ワールドを捨てる
+		if (m_upEffectEditor)
+		{
+			m_upEffectEditor->Release();
+		}
+
 		m_upImGuiContext->Release();
 	}
 	void MainEditor::Update(float a_dt)
@@ -124,6 +137,15 @@ namespace Engine::Editor
 			return;
 		}
 
+		// モーダルな画面(エフェクトエディター)が出ている間はフリーカメラを止める。
+		// あちらは自前のカメラで描いているので、ここで動かすと
+		// 見えていないシーンビューのために操作を奪い合うだけになる
+		if (IsModalActive())
+		{
+			if (m_upEditorCamera) m_upEditorCamera->CancelControl();
+			return;
+		}
+
 		// フリーカメラの更新。
 		// ここは ExecuteDrawCmd より前に呼ばれるので、この結果がそのフレームの描画に間に合う。
 		// 参照している ImGui の入力は前フレームの NewFrame 時点のもの
@@ -132,6 +154,14 @@ namespace Engine::Editor
 		{
 			m_upEditorCamera->Update(a_dt);
 		}
+	}
+
+	//======================================================================================
+	// モーダルな画面が出ているか
+	//======================================================================================
+	bool MainEditor::IsModalActive() const
+	{
+		return m_upEffectEditor && m_upEffectEditor->IsOpen();
 	}
 
 	//======================================================================================
@@ -170,6 +200,14 @@ namespace Engine::Editor
 
 		// パネルマネージャー(ログパネルもここで描画される)
 		m_upPanelManager->OnDrawPanels();
+
+		// モーダル画面はパネルの後に出す。
+		// ImGui のポップアップは「開く要求を出したときのIDスタック」に紐づくので、
+		// パネルの中(インスペクター)からではなくここで開くこと
+		if (m_upEffectEditor)
+		{
+			m_upEffectEditor->OnDrawImGui();
+		}
 
 		// 各登録された関数を実行
 		for (auto _func : m_editFuncVec)

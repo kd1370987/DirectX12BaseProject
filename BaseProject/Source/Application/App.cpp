@@ -81,6 +81,11 @@ void Application::MainLoop()
 			const bool _isTyping =
 				(ImGui::GetCurrentContext() != nullptr) && ImGui::GetIO().WantTextInput;
 
+			// エディターがモーダルな画面(エフェクトエディター)を出している間は切り替えない。
+			// あちらが開いている間はゲームのシーンが止まっているので、
+			// ここで切り替えると「プレイモードなのに何も動かない」状態になってしまう
+			const bool _isModal = Engine::Editor::MainEditor::Instance().IsModalActive();
+
 			// 押した瞬間の検出用。押しっぱなしで連続発火させない
 			static bool s_wasEditorKeyDown = false;
 			static bool s_wasGameKeyDown   = false;
@@ -88,7 +93,7 @@ void Application::MainLoop()
 			const bool _isEditorKeyDown = (GetAsyncKeyState('O') & 0x8000) != 0;
 			const bool _isGameKeyDown   = (GetAsyncKeyState('P') & 0x8000) != 0;
 
-			if (!_isTyping)
+			if (!_isTyping && !_isModal)
 			{
 				if (_isEditorKeyDown && !s_wasEditorKeyDown)
 				{

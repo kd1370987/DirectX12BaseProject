@@ -45,7 +45,8 @@ namespace App::Utility
 	bool SpawnEffectAt(
 		Engine::ECS::World& a_world,
 		const Engine::GUID& a_effectGUID,
-		const Math::Vector3& a_pos)
+		const Math::Vector3& a_pos,
+		bool a_isDestroyOnFinish)
 	{
 		if (a_effectGUID == Engine::DefaultGUID) return false;
 
@@ -70,7 +71,7 @@ namespace App::Utility
 		EffectAssetComponent _effect = {};
 		_effect.effectGUID = a_effectGUID;
 		_effect.playOnStart = true;			// 出た瞬間から再生する
-		_effect.destroyOnFinish = true;		// 出し切ったら自分から消える
+		_effect.destroyOnFinish = a_isDestroyOnFinish;	// 出し切ったら自分から消える
 		if (!PushComponent(a_world, _sig, _data, _effect)) return false;
 
 		// ---- エフェクトである印 ----

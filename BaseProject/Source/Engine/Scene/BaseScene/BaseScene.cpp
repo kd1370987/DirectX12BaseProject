@@ -30,11 +30,15 @@ namespace Engine::Scene
 	BaseScene::~BaseScene()
 	{}
 
-	void BaseScene::Enter()
+	//======================================================================================
+	// シーン用ワールドの生成
+	//--------------------------------------------------------------------------------------
+	// 通常のシーンとエディターのプレビュー用シーンで同じものを使う。詳細はヘッダを参照。
+	//======================================================================================
+	std::unique_ptr<Engine::ECS::World> CreateSceneWorld()
 	{
-		// ワールド作成
-		m_upWorld = std::make_unique<Engine::ECS::World>();
-		m_upWorld->Init();
+		auto _upWorld = std::make_unique<Engine::ECS::World>();
+		_upWorld->Init();
 
 		// アプリ寿命のサービスを差し込む。
 		// シングルトンを名指しするのはここ(合成の入り口)だけにして、
@@ -49,10 +53,18 @@ namespace Engine::Scene
 		_services.pAudioManager		= &Engine::Audio::AudioManager::Instance();
 		_services.pJobSystem		= Engine::MainEngine::Instance().RefJobSystem();
 		_services.pOptionManager	= &Engine::Option::OptionManager::GetInstance();
-		m_upWorld->SetEngineServices(_services);
+		_upWorld->SetEngineServices(_services);
 
-		// ワールド設定の呼びだし
-		SceneManager::Instance().InvokeWorldInitCallback(m_upWorld.get());
+		// コンポーネントとシステムの登録
+		SceneManager::Instance().InvokeWorldInitCallback(_upWorld.get());
+
+		return _upWorld;
+	}
+
+	void BaseScene::Enter()
+	{
+		// ワールド作成
+		m_upWorld = CreateSceneWorld();
 
 		// ECS外オブジェクトの生成
 		// 中身はシーン読み込み(Archive)またはエディターの AddObject で追加される。

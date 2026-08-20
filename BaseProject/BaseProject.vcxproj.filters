@@ -1147,6 +1147,9 @@
     <Filter Include="Source\Engine\Editor\EditorCamera">
       <UniqueIdentifier>{7b2e9f14-6c83-4a51-9d0e-2f6a83c14b57}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\EffectEditor">
+      <UniqueIdentifier>{7ca6906d-6eee-4c3d-8c16-2255e448608e}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel">
       <UniqueIdentifier>{889d1e3f-bbfa-4110-a6b5-930e7c58f753}</UniqueIdentifier>
     </Filter>
@@ -2147,6 +2150,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\EditorCamera\EditorCamera.cpp">
       <Filter>Source\Engine\Editor\EditorCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\EffectEditor\EffectEditor.cpp">
+      <Filter>Source\Engine\Editor\EffectEditor</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp">
       <Filter>Source\Engine\Editor\Panel\RenderGraphResourceViewPanel</Filter>
@@ -3448,6 +3454,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\EditorCamera\EditorCamera.h">
       <Filter>Source\Engine\Editor\EditorCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\EffectEditor\EffectEditor.h">
+      <Filter>Source\Engine\Editor\EffectEditor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.h">
       <Filter>Source\Engine\Editor\Panel\RenderGraphResourceViewPanel</Filter>

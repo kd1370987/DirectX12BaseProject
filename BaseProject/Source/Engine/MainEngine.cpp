@@ -23,6 +23,7 @@
 #include "Option/OptionManager.h"
 
 #include "Editor/EditorCamera/EditorCamera.h"
+#include "Editor/EffectEditor/EffectEditor.h"
 
 #include "Audio/AudioManager.h"
 
@@ -456,7 +457,21 @@ namespace Engine
 		// エディターモードならフリーカメラを割り込ませる
 		// (実際の上書きは GraphicsEngine::Execute() 内、ECS側のカメラ設定が終わった後)
 		bool _isOverride = false;
-		if (m_appMode == EAppMode::Editor)
+
+		// エフェクトエディターが開いているなら、そちらのカメラが最優先。
+		// 描いているのがあちらの確認用ワールドなので、フリーカメラで見ても何も映らない
+		{
+			auto* _pEffectEditor = Editor::MainEditor::Instance().RefEffectEditor();
+			DXSM::Matrix _camWorld = {};
+			DXSM::Matrix _camProj = {};
+			if (_pEffectEditor && _pEffectEditor->TryGetCameraOverride(_camWorld, _camProj))
+			{
+				m_upGraphicsEngine->SetCameraOverride(_camWorld, _camProj);
+				_isOverride = true;
+			}
+		}
+
+		if (!_isOverride && m_appMode == EAppMode::Editor)
 		{
 			auto* _pEditorCam = Editor::MainEditor::Instance().RefEditorCamera();
 			if (_pEditorCam && _pEditorCam->IsEnable())

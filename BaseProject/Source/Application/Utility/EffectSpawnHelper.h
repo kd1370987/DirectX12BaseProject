@@ -28,9 +28,16 @@ namespace App::Utility
 	/// </summary>
 	/// <param name="a_effectGUID">再生するエフェクト。未設定なら何もしない</param>
 	/// <param name="a_pos">再生位置(ワールド)</param>
+	/// <param name="a_isDestroyOnFinish">
+	/// 出し切ったら自分ごと消えるか。
+	/// 撃ちっぱなしにする通常の演出は true。
+	/// エディターのプレビューのように「同じものを何度も再生し直したい」場合は false にして、
+	/// 出したエンティティの寿命を呼んだ側が握る
+	/// </param>
 	/// <returns>生成コマンドを積めたら true</returns>
 	bool SpawnEffectAt(
 		Engine::ECS::World& a_world,
 		const Engine::GUID& a_effectGUID,
-		const Math::Vector3& a_pos);
+		const Math::Vector3& a_pos,
+		bool a_isDestroyOnFinish = true);
 }
