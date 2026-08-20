@@ -3,19 +3,26 @@
 namespace Engine
 {
 	namespace ECS { class World; }
+	namespace Resource
+	{
+		class EffectAsset;
+		class ParticlesAsset;
+	}
 }
 
 namespace Engine::Editor
 {
+	class EditorCamera;
+
 	//======================================================================================
 	//
 	// エフェクトエディター
 	//
-	// エフェクトアセット1枚だけを、ゲームと同じ描画環境で確認するための画面。
+	// エフェクトアセット1枚を、ゲームと同じ描画環境で「見ながら組む」ための画面。
 	// アセットインスペクターの「Open Effect Editor」から開く。
 	//
 	// ・確認用の専用ワールド(エディターシーン)を1つ持つ。
-	//   中身は選んだエフェクトの実体1つだけ。周りに何も無いので、
+	//   中身は編集中のエフェクトの実体1つだけ。周りに何も無いので、
 	//   ゲームのシーンに置いて他のものに埋もれる前に、単体で見え方を詰められる。
 	//
 	// ・描画は「ゲームのシーンと同じレンダーグラフ」をそのまま通す。
@@ -24,9 +31,14 @@ namespace Engine::Editor
 	//   ゲームに持っていくとずれるため。開いている間はゲームのシーンを止めて、
 	//   このワールドの描画命令だけをレンダーグラフへ流す。
 	//
-	// ・カメラは注視点まわりを回る軌道カメラを自前で持つ。
-	//   ECSのカメラエンティティは作らず、GraphicsEngine のカメラ割り込み
-	//   (フリーカメラと同じ仕組み)へ行列を渡す。
+	// ・右側で編集する。中身はアセットインスペクターとまったく同じ関数
+	//   (EffectAssetEdit / ParticleEdit)を呼んでいるだけで、UIを二重に持っていない。
+	//     Effect   タブ : パーツの足し引き・発生位置・発生数・時間指定
+	//     Particle タブ : そのパーツが使っている粒そのもの(初速・寿命・絵)
+	//   粒まで同じ画面で触れないと、「もう少し細く」のたびに画面を往復することになる。
+	//
+	// ・カメラはシーンビューと同じ EditorCamera(右クリック中だけ操作するフリーカメラ)。
+	//   操作感を変えると、こちらで合わせた画角をシーンで作り直すことになるため。
 	//
 	// ・開いている間はモーダル。他のパネルもアプリのモード切り替え(O/P)も受け付けない。
 	//   ゲームのシーンが止まっている状態でモードを切り替えられると、
@@ -66,6 +78,15 @@ namespace Engine::Editor
 		void DrawScene();
 
 		/// <summary>
+		/// カメラの更新。MainEditor がフリーカメラの代わりに呼ぶ
+		/// </summary>
+		/// <remarks>
+		/// シーンビューのフリーカメラと同じく、参照する ImGui の入力は前フレームの
+		/// NewFrame 時点のもの。ホバー判定も前フレーム基準なのでずれは生じない
+		/// </remarks>
+		void UpdateCamera(float a_dt);
+
+		/// <summary>
 		/// カメラの割り込み行列を取得する
 		/// </summary>
 		/// <returns>開いていなければ false(割り込まない)</returns>
@@ -86,7 +107,7 @@ namespace Engine::Editor
 		// プレビュー用ワールドを作る(初回に開いたときだけ)
 		void EnsureWorld();
 
-		// 選択中のエフェクトの実体を出す / 片付ける
+		// 編集中のエフェクトの実体を出す / 片付ける
 		void RequestSpawn();
 		void DestroyEffectEntity();
 
@@ -94,14 +115,18 @@ namespace Engine::Editor
 		struct EffectRef;
 		EffectRef FindEffect() const;
 
-		// 軌道カメラ
-		void UpdateCamera();
-		void BuildCameraMatrix();
+		// 編集対象のアセット。読み込めていなければ nullptr
+		Resource::EffectAsset* RefEffectAsset() const;
+
+		// 今 Particle タブで開いているパーツの粒。選んでいなければ nullptr
+		Resource::ParticlesAsset* RefSelectedParticleAsset() const;
 
 		// UI
 		void DrawToolbar();
 		void DrawViewport();
 		void DrawInfo();
+		void DrawEditPane();
+		void DrawParticleTab();
 
 		// 目安になる格子をデバッグ線で描く(大きさの把握用)
 		void DrawGrid() const;
@@ -115,11 +140,16 @@ namespace Engine::Editor
 		bool m_isOpenRequest = false;	// ImGui へポップアップを開かせる要求(開いた最初の1回だけ)
 
 		Engine::GUID m_effectGUID = Engine::DefaultGUID;
+		Engine::Handle<Resource::EffectAsset> m_effectHandle = {};
 
 		// プレビュー用のエディターシーン。
 		// 閉じても捨てずに使い回す。World::Release() はリソースのGC掃除まで走るので、
 		// ゲームのシーンが生きている間に呼ぶとゲーム側のモデルまで解放してしまう
 		std::unique_ptr<Engine::ECS::World> m_upWorld = nullptr;
+
+		// シーンビューと同じフリーカメラ。
+		// プレビュー専用の実体を持つ(シーンビュー側の位置を動かさないため)
+		std::unique_ptr<EditorCamera> m_upCamera = nullptr;
 
 		//----------------------------------------------------------------------------------
 		// 再生
@@ -130,21 +160,10 @@ namespace Engine::Editor
 		bool  m_isRestartRequest = false;
 
 		//----------------------------------------------------------------------------------
-		// 軌道カメラ
+		// 編集
 		//----------------------------------------------------------------------------------
-		DXSM::Vector3 m_focusPos = { 0.0f, 0.0f, 0.0f };	// 注視点(エフェクトの発生位置)
-		float m_yawDeg = 0.0f;
-		float m_pitchDeg = 12.0f;
-		float m_distance = 8.0f;
-		float m_fovY = 60.0f;
-
-		DXSM::Matrix m_camWorldMat = DXSM::Matrix::Identity;
-		DXSM::Matrix m_camProjMat = DXSM::Matrix::Identity;
-
-		// ドラッグ操作は画像の上で押し始めたときだけ始める。
-		// 始まったあとは枠の外へ出ても離すまで続けたいので、状態を持つ
-		bool m_isOrbiting = false;
-		bool m_isPanning = false;
+		int m_selectedParticlePart = 0;	// Particle タブで開いているパーツ番号
+		float m_editPaneWidth = 420.0f;	// 右の編集欄の幅(px)
 
 		//----------------------------------------------------------------------------------
 		// 表示

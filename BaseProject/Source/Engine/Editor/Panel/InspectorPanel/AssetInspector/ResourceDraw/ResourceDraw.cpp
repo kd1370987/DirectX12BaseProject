@@ -137,7 +137,7 @@ namespace Engine::Editor::Inspector
 		auto* _pParticles = ResolveAsset<Resource::ParticlesAsset>(_guid);
 		if (!_pParticles) { return; }
 
-		ParticleEdit(a_editContext, _pParticles);
+		ParticleEdit(_pParticles);
 	}
 
 	//-----------------------------------------------------------------------------------------
@@ -228,7 +228,7 @@ namespace Engine::Editor::Inspector
 		auto* _pEffect = ResolveAsset<Resource::EffectAsset>(_guid);
 		if (!_pEffect) { return; }
 
-		EffectAssetEdit(a_editContext, _pEffect);
+		EffectAssetEdit(_guid, _pEffect);
 	}
 
 	//-----------------------------------------------------------------------------------------

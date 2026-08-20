@@ -8,7 +8,7 @@ namespace Engine::Editor::Inspector
 	//-----------------------------------------------------------------------------------------
 	// パーティクルアセットの編集・詳細表示
 	//-----------------------------------------------------------------------------------------
-	void ParticleEdit(EditorContext& a_editContext, Resource::ParticlesAsset* a_pParticles)
+	void ParticleEdit(Resource::ParticlesAsset* a_pParticles)
 	{
 		if (!a_pParticles) { return; }
 

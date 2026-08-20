@@ -2,6 +2,10 @@
 
 #include "../Editor.h"
 #include "../Helper/EditorHelper.h"
+#include "../EditorCamera/EditorCamera.h"
+
+#include "../Panel/InspectorPanel/AssetInspector/ResourceDraw/EffectAssetEdit/EffectAssetEdit.h"
+#include "../Panel/InspectorPanel/AssetInspector/ResourceDraw/ParticleEdit/ParticleEdit.h"
 
 #include "../../MainEngine.h"
 #include "../../ECS/World/World.h"
@@ -13,6 +17,7 @@
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Resource/Data/EffectAsset/EffectAsset.h"
+#include "../../Resource/Data/Particles/ParticlesAsset.h"
 
 #include "Application/Components/Effect/EffectAssetComponent.h"
 #include "Application/Utility/EffectSpawnHelper.h"
@@ -24,16 +29,13 @@ namespace Engine::Editor
 		// ポップアップのID。OpenPopup と BeginPopupModal で同じものを使う
 		constexpr const char* POPUP_ID = "Effect Editor";
 
-		// 軌道カメラの操作感
-		constexpr float ORBIT_SENSITIVITY = 0.4f;	// 度/ピクセル
-		constexpr float PAN_SENSITIVITY = 0.01f;	// メートル/ピクセル(距離1あたり)
-		constexpr float ZOOM_SENSITIVITY = 0.15f;	// ホイール1目盛りあたりの倍率
-		constexpr float MIN_DISTANCE = 0.5f;
-		constexpr float MAX_DISTANCE = 200.0f;
-		constexpr float MAX_PITCH = 89.0f;
-
 		// エフェクトを出す位置。プレビューは常に原点固定にしておく
 		const Math::Vector3 EFFECT_ORIGIN = { 0.0f, 0.0f, 0.0f };
+
+		// カメラの定位置。原点に出るエフェクトが正面に収まる位置
+		const DXSM::Vector3 CAMERA_HOME_POS = { 0.0f, 2.5f, -8.0f };
+		constexpr float CAMERA_HOME_YAW = 0.0f;
+		constexpr float CAMERA_HOME_PITCH = 10.0f;
 	}
 
 	//======================================================================================
@@ -64,18 +66,23 @@ namespace Engine::Editor
 		DestroyEffectEntity();
 
 		m_effectGUID = a_effectGUID;
+		m_effectHandle =
+			Resource::ResourceManager::Instance().LoadImmediate<Resource::EffectAsset>(a_effectGUID);
+
 		m_isOpen = true;
 		m_isOpenRequest = true;
 
 		// 再生状態は開くたびに頭から
 		m_isPlaying = true;
 		m_isRestartRequest = false;
-
-		// 注視点はエフェクトの発生位置(原点)へ戻す。
-		// 前回パンしたまま開くと、出したものが画面の外から始まってしまう
-		m_focusPos = { 0.0f, 0.0f, 0.0f };
+		m_selectedParticlePart = 0;
 
 		EnsureWorld();
+
+		// カメラは開くたびに定位置へ。
+		// 前回どこかへ飛ばしたまま開くと、出したものが画面の外から始まってしまう
+		if (m_upCamera) m_upCamera->SetPose(CAMERA_HOME_POS, CAMERA_HOME_YAW, CAMERA_HOME_PITCH);
+
 		RequestSpawn();
 	}
 
@@ -87,6 +94,10 @@ namespace Engine::Editor
 
 		m_isOpen = false;
 		m_effectGUID = Engine::DefaultGUID;
+		m_effectHandle = {};
+
+		// 押しっぱなし扱いを閉じたあとへ持ち越さない
+		if (m_upCamera) m_upCamera->CancelControl();
 	}
 
 	void EffectEditor::Release()
@@ -98,6 +109,7 @@ namespace Engine::Editor
 		// ここが呼ばれるのはアプリ終了時(ResourceManager::Release のあと)なので、
 		// 持ち物を捨てるだけでよい。
 		m_upWorld.reset();
+		m_upCamera.reset();
 		m_isOpen = false;
 	}
 
@@ -106,6 +118,12 @@ namespace Engine::Editor
 	//======================================================================================
 	void EffectEditor::EnsureWorld()
 	{
+		if (!m_upCamera)
+		{
+			m_upCamera = std::make_unique<EditorCamera>();
+			m_upCamera->Init();
+		}
+
 		if (m_upWorld) return;
 
 		// ゲームのシーンとまったく同じ構成(コンポーネント・システム・ワールドリソース)で作る。
@@ -120,8 +138,7 @@ namespace Engine::Editor
 
 		// 実体化は次の BeginFrame。
 		// 出し切っても消えないようにしておく(何度も再生し直したいので寿命はこちらが握る)。
-		// 発生位置は常に原点。注視点(m_focusPos)はカメラ側の都合で動くので、
-		// そちらを発生位置に使うとパンしただけでエフェクトが移動したことになる
+		// 発生位置は常に原点。カメラは自由に動かせるので、見る位置と出す位置は分けておく
 		App::Utility::SpawnEffectAt(*m_upWorld, m_effectGUID, EFFECT_ORIGIN, false);
 	}
 
@@ -171,6 +188,23 @@ namespace Engine::Editor
 		);
 
 		return _ref;
+	}
+
+	Resource::EffectAsset* EffectEditor::RefEffectAsset() const
+	{
+		return Resource::ResourceManager::Instance().Ref(m_effectHandle);
+	}
+
+	Resource::ParticlesAsset* EffectEditor::RefSelectedParticleAsset() const
+	{
+		const auto* _pEffect = RefEffectAsset();
+		if (!_pEffect) return nullptr;
+
+		const auto& _parts = _pEffect->GetParticleParts();
+		if (m_selectedParticlePart < 0) return nullptr;
+		if (static_cast<size_t>(m_selectedParticlePart) >= _parts.size()) return nullptr;
+
+		return Resource::ResourceManager::Instance().Ref(_parts[m_selectedParticlePart].particleHandle);
 	}
 
 	//======================================================================================
@@ -246,114 +280,37 @@ namespace Engine::Editor
 
 		auto& _editor = MainEditor::Instance();
 
-		// 格子はエフェクトの発生位置(原点)に敷く。注視点に付けると
-		// パンしたときに一緒に動いてしまい、大きさの目安にならない
+		// 格子はエフェクトの発生位置(原点)に敷く
 		const float _half = m_gridSize;
 		const int   _count = static_cast<int>(m_gridSize);	// 1mごと
 
 		for (int _i = -_count; _i <= _count; ++_i)
 		{
 			const float _p = static_cast<float>(_i);
-			const bool _isAxis = (_i == 0);
-			const DXSM::Color& _col = _isAxis ? _axisColor : _lineColor;
+			const DXSM::Color& _col = (_i == 0) ? _axisColor : _lineColor;
 
-			_editor.DrawLine(
-				DXSM::Vector3(_p, 0.0f, -_half),
-				DXSM::Vector3(_p, 0.0f, _half), _col);
-			_editor.DrawLine(
-				DXSM::Vector3(-_half, 0.0f, _p),
-				DXSM::Vector3(_half, 0.0f, _p), _col);
+			_editor.DrawLine(DXSM::Vector3(_p, 0.0f, -_half), DXSM::Vector3(_p, 0.0f, _half), _col);
+			_editor.DrawLine(DXSM::Vector3(-_half, 0.0f, _p), DXSM::Vector3(_half, 0.0f, _p), _col);
 		}
 	}
 
 	//======================================================================================
-	// カメラ
+	// カメラ : シーンビューのフリーカメラと同じもの
 	//======================================================================================
+	void EffectEditor::UpdateCamera(float a_dt)
+	{
+		if (!m_isOpen || !m_upCamera) return;
+
+		m_upCamera->Update(a_dt);
+	}
+
 	bool EffectEditor::TryGetCameraOverride(DXSM::Matrix& a_outWorldMat, DXSM::Matrix& a_outProjMat) const
 	{
-		if (!m_isOpen) return false;
+		if (!m_isOpen || !m_upCamera) return false;
 
-		a_outWorldMat = m_camWorldMat;
-		a_outProjMat = m_camProjMat;
+		a_outWorldMat = m_upCamera->GetWorldMatrix();
+		a_outProjMat = m_upCamera->GetProjMatrix();
 		return true;
-	}
-
-	void EffectEditor::BuildCameraMatrix()
-	{
-		// 注視点から見た向き。左手系 +Z 前方なので、Yaw/Pitch から前方を作って
-		// その逆向きへ distance だけ下がった位置にカメラを置く
-		const DXSM::Quaternion _rot = DXSM::Quaternion::CreateFromYawPitchRoll(
-			DirectX::XMConvertToRadians(m_yawDeg),
-			DirectX::XMConvertToRadians(m_pitchDeg),
-			0.0f);
-
-		const DXSM::Vector3 _forward = DXSM::Vector3::Transform(DXSM::Vector3(0.0f, 0.0f, 1.0f), _rot);
-		const DXSM::Vector3 _pos = m_focusPos - _forward * m_distance;
-
-		m_camWorldMat =
-			DXSM::Matrix::CreateFromQuaternion(_rot) *
-			DXSM::Matrix::CreateTranslation(_pos);
-
-		// アスペクトはゲームと同じ描画解像度から取る。
-		// レンダーグラフを共有している以上、ここを変えると本番と画角がずれる
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
-		const float _aspect = (_winOp.windowHeight > 0)
-			? static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHeight)
-			: 16.0f / 9.0f;
-
-		m_camProjMat = DirectX::XMMatrixPerspectiveFovLH(
-			DirectX::XMConvertToRadians(m_fovY), _aspect, 0.1f, 1000.0f);
-	}
-
-	//--------------------------------------------------------------------------------------
-	// 画像の上でのカメラ操作
-	//   左ドラッグ   : 回す
-	//   中ドラッグ   : 注視点を平行移動
-	//   ホイール     : 寄る / 引く
-	//--------------------------------------------------------------------------------------
-	void EffectEditor::UpdateCamera()
-	{
-		// 直前に描いた画像の上にカーソルがあるときだけ操作する
-		const bool _isHovered = ImGui::IsItemHovered();
-
-		if (_isHovered)
-		{
-			const float _wheel = ImGui::GetIO().MouseWheel;
-			if (_wheel != 0.0f)
-			{
-				m_distance *= (1.0f - _wheel * ZOOM_SENSITIVITY);
-				m_distance = std::clamp(m_distance, MIN_DISTANCE, MAX_DISTANCE);
-			}
-		}
-
-		// ドラッグは画像の上で押し始めたときだけ始まる。
-		// 一度始まれば枠の外へ出ても、離すまで続ける(シーンビューのフリーカメラと同じ)
-		if (_isHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))   m_isOrbiting = true;
-		if (_isHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Middle)) m_isPanning = true;
-
-		if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))   m_isOrbiting = false;
-		if (!ImGui::IsMouseDown(ImGuiMouseButton_Middle)) m_isPanning = false;
-
-		const ImVec2 _delta = ImGui::GetIO().MouseDelta;
-
-		if (m_isOrbiting)
-		{
-			m_yawDeg += _delta.x * ORBIT_SENSITIVITY;
-			m_pitchDeg += _delta.y * ORBIT_SENSITIVITY;
-			m_pitchDeg = std::clamp(m_pitchDeg, -MAX_PITCH, MAX_PITCH);
-		}
-		else if (m_isPanning)
-		{
-			// 画面の右方向・上方向へ、距離に比例した量だけ注視点を動かす
-			const DXSM::Vector3 _right(m_camWorldMat._11, m_camWorldMat._12, m_camWorldMat._13);
-			const DXSM::Vector3 _up(m_camWorldMat._21, m_camWorldMat._22, m_camWorldMat._23);
-
-			const float _scale = PAN_SENSITIVITY * m_distance;
-			m_focusPos -= _right * (_delta.x * _scale);
-			m_focusPos += _up * (_delta.y * _scale);
-		}
-
-		BuildCameraMatrix();
 	}
 
 	//======================================================================================
@@ -374,7 +331,7 @@ namespace Engine::Editor
 
 		// 画面の大部分を使う。モーダルなので後ろのパネルは触れない
 		const ImVec2 _display = ImGui::GetIO().DisplaySize;
-		ImGui::SetNextWindowSize(ImVec2(_display.x * 0.8f, _display.y * 0.85f), ImGuiCond_Appearing);
+		ImGui::SetNextWindowSize(ImVec2(_display.x * 0.9f, _display.y * 0.9f), ImGuiCond_Appearing);
 		ImGui::SetNextWindowPos(ImVec2(_display.x * 0.5f, _display.y * 0.5f), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
 		bool _isWindowOpen = true;
@@ -382,8 +339,26 @@ namespace Engine::Editor
 		{
 			DrawToolbar();
 			ImGui::Separator();
-			DrawViewport();
-			DrawInfo();
+
+			// 左 : 見る / 右 : 組む
+			const float _paneWidth = (std::min)(m_editPaneWidth, ImGui::GetContentRegionAvail().x * 0.6f);
+			const float _viewWidth =
+				ImGui::GetContentRegionAvail().x - _paneWidth - ImGui::GetStyle().ItemSpacing.x;
+
+			if (ImGui::BeginChild("EffectEditorViewport", ImVec2((std::max)(64.0f, _viewWidth), 0.0f)))
+			{
+				DrawViewport();
+				DrawInfo();
+			}
+			ImGui::EndChild();
+
+			ImGui::SameLine();
+
+			if (ImGui::BeginChild("EffectEditorEditPane", ImVec2(_paneWidth, 0.0f), true))
+			{
+				DrawEditPane();
+			}
+			ImGui::EndChild();
 
 			ImGui::EndPopup();
 		}
@@ -396,9 +371,11 @@ namespace Engine::Editor
 		}
 	}
 
+	//--------------------------------------------------------------------------------------
+	// 上段 : 再生と表示
+	//--------------------------------------------------------------------------------------
 	void EffectEditor::DrawToolbar()
 	{
-		// 何を見ているか
 		const auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(m_effectGUID);
 		ImGui::Text("Effect : %s", _fileName.c_str());
 		ImGui::SameLine();
@@ -429,16 +406,12 @@ namespace Engine::Editor
 			ImGui::TextDisabled("(Option の Draw Debug Wire が off のため出ません)");
 		}
 		ImGui::SameLine();
-		ImGui::SetNextItemWidth(120.0f);
-		ImGui::SliderFloat("FOV", &m_fovY, 20.0f, 100.0f, "%.0f deg");
-		ImGui::SameLine();
 		if (ImGui::Button("Reset Camera"))
 		{
-			m_yawDeg = 0.0f;
-			m_pitchDeg = 12.0f;
-			m_distance = 8.0f;
-			m_focusPos = { 0.0f, 0.0f, 0.0f };
+			if (m_upCamera) m_upCamera->SetPose(CAMERA_HOME_POS, CAMERA_HOME_YAW, CAMERA_HOME_PITCH);
 		}
+		ImGui::SameLine();
+		ImGui::TextDisabled("右ドラッグ中のみ視点操作 / WASD・EQ移動 / Shift加速");
 
 		ImGui::SameLine();
 		if (EditorHelper::DeleteButton("Close"))
@@ -448,6 +421,9 @@ namespace Engine::Editor
 		}
 	}
 
+	//--------------------------------------------------------------------------------------
+	// 左 : ゲームと同じレンダーグラフの出力
+	//--------------------------------------------------------------------------------------
 	void EffectEditor::DrawViewport()
 	{
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
@@ -471,7 +447,8 @@ namespace Engine::Editor
 		const float _reserveY = ImGui::GetTextLineHeightWithSpacing() * 3.0f;
 		const float _maxH = (std::max)(64.0f, _avail.y - _reserveY);
 
-		ImVec2 _size(_avail.x, _avail.x / _aspect);
+		ImVec2 _size((std::max)(64.0f, _avail.x), 0.0f);
+		_size.y = _size.x / _aspect;
 		if (_size.y > _maxH)
 		{
 			_size.y = _maxH;
@@ -481,8 +458,9 @@ namespace Engine::Editor
 		auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
 		ImGui::Image((ImTextureID)(_gpuHandle.ptr), _size);
 
-		// 画像の上でのカメラ操作(ImGui::Image の直後に呼ぶこと。IsItemHovered が画像を指す)
-		UpdateCamera();
+		// フリーカメラへホバー状態を渡す。
+		// 右クリックの開始位置がこの画像の上の時だけ操作を始めるための判定(シーンビューと同じ)
+		if (m_upCamera) m_upCamera->SetViewportHovered(ImGui::IsItemHovered());
 	}
 
 	void EffectEditor::DrawInfo()
@@ -504,9 +482,96 @@ namespace Engine::Editor
 
 		ImGui::Text("Elapsed : %.2f s", _ref.pComp->instance.elapsed);
 		ImGui::SameLine();
-		ImGui::TextDisabled("| Particle Parts : %d / Mesh Parts : %d | Camera %.0f deg, %.0f deg, %.1f m",
+		ImGui::TextDisabled("| Particle Parts : %d / Mesh Parts : %d",
 			static_cast<int>(_pEffect->GetParticleParts().size()),
-			static_cast<int>(_pEffect->GetMeshParts().size()),
-			m_yawDeg, m_pitchDeg, m_distance);
+			static_cast<int>(_pEffect->GetMeshParts().size()));
+	}
+
+	//--------------------------------------------------------------------------------------
+	// 右 : 組む
+	//
+	// 中身はアセットインスペクターと同じ関数を呼ぶだけ。
+	// ここで独自のUIを書くと、パーツにフィールドを足したときに片方だけ直し忘れる
+	//--------------------------------------------------------------------------------------
+	void EffectEditor::DrawEditPane()
+	{
+		auto* _pEffect = RefEffectAsset();
+		if (!_pEffect)
+		{
+			ImGui::TextDisabled("エフェクトアセットを読み込めませんでした");
+			return;
+		}
+
+		if (!ImGui::BeginTabBar("EffectEditorTabs")) return;
+
+		if (ImGui::BeginTabItem("Effect"))
+		{
+			// 自分自身を開くボタンは要らないので出さない
+			Inspector::EffectAssetEdit(m_effectGUID, _pEffect, false);
+			ImGui::EndTabItem();
+		}
+
+		if (ImGui::BeginTabItem("Particle"))
+		{
+			DrawParticleTab();
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
+	}
+
+	//--------------------------------------------------------------------------------------
+	// Particle タブ : パーツが使っている粒そのものを触る
+	//
+	// 「どこから・どれだけ出すか」は Effect タブ(パーツ)、
+	// 「1粒がどう飛んでどう消えるか」はこちら(パーティクルアセット)。
+	// 同じ粒を別のエフェクトも使っている場合、ここでの変更はそちらにも効く
+	//--------------------------------------------------------------------------------------
+	void EffectEditor::DrawParticleTab()
+	{
+		const auto* _pEffect = RefEffectAsset();
+		if (!_pEffect) return;
+
+		const auto& _parts = _pEffect->GetParticleParts();
+		if (_parts.empty())
+		{
+			ImGui::TextDisabled("パーティクルパーツがありません");
+			ImGui::TextDisabled("Effect タブの Add Particle Part から足してください");
+			return;
+		}
+
+		// どのパーツの粒を触るか
+		m_selectedParticlePart = std::clamp(m_selectedParticlePart, 0, static_cast<int>(_parts.size()) - 1);
+
+		const std::string _preview = "Particle " + std::to_string(m_selectedParticlePart);
+		if (ImGui::BeginCombo("Part", _preview.c_str()))
+		{
+			for (size_t _i = 0; _i < _parts.size(); ++_i)
+			{
+				const std::string _name =
+					"Particle " + std::to_string(_i) + " : " +
+					Resource::AssetDatabase::Instance().GetFileNameFromGUID(_parts[_i].particleGUID);
+
+				const bool _isSelected = (static_cast<int>(_i) == m_selectedParticlePart);
+				if (ImGui::Selectable(_name.c_str(), _isSelected))
+				{
+					m_selectedParticlePart = static_cast<int>(_i);
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		ImGui::Separator();
+
+		auto* _pParticles = RefSelectedParticleAsset();
+		if (!_pParticles)
+		{
+			ImGui::TextDisabled("このパーツにはパーティクルが割り当てられていません");
+			ImGui::TextDisabled("Effect タブでアセットを選ぶと、ここで中身を触れます");
+			return;
+		}
+
+		ImGui::TextDisabled("この粒を使っている他のエフェクトにも変更が効きます");
+		Inspector::ParticleEdit(_pParticles);
 	}
 }

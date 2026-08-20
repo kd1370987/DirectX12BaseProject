@@ -57,6 +57,11 @@ namespace Engine::Editor
 		// シーンビューにカーソルが乗っているか。SceneViewPanel が毎フレーム設定する。
 		void SetViewportHovered(bool a_isHovered) { m_isViewportHovered = a_isHovered; }
 
+		/// <summary>
+		/// 位置と向きを直接入れる(初期位置へ戻す用)
+		/// </summary>
+		void SetPose(const DXSM::Vector3& a_pos, float a_yawDeg, float a_pitchDeg);
+
 		// パラメーター調整用UI
 		void DrawEditUI();
 

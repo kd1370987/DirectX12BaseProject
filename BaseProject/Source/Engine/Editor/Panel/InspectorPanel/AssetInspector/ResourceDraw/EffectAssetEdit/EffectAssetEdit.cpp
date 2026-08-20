@@ -167,11 +167,14 @@ namespace Engine::Editor::Inspector
 	//-----------------------------------------------------------------------------------------
 	// エフェクトアセットの編集・詳細表示
 	//-----------------------------------------------------------------------------------------
-	void EffectAssetEdit(EditorContext& a_editContext, Resource::EffectAsset* a_pEffect)
+	void EffectAssetEdit(
+		const Engine::GUID& a_guid,
+		Resource::EffectAsset* a_pEffect,
+		bool a_isShowOpenEditorButton)
 	{
 		if (!a_pEffect) { return; }
 
-		const auto _guid = a_editContext.pAssetProp->guid;
+		const auto& _guid = a_guid;
 
 		ImGui::Text("Effect : %s", a_pEffect->GetName().c_str());
 		ImGui::Separator();
@@ -187,12 +190,15 @@ namespace Engine::Editor::Inspector
 		// 単体確認用の画面を開く。
 		// 開いている間はゲームのシーンが止まり、このエフェクトだけがゲームと同じ
 		// レンダーグラフで描かれる。ここでの編集はそのまま向こうの見た目に反映される
-		ImGui::SameLine();
-		if (ImGui::Button("Open Effect Editor"))
+		if (a_isShowOpenEditorButton)
 		{
-			if (auto* _pEffectEditor = MainEditor::Instance().RefEffectEditor())
+			ImGui::SameLine();
+			if (ImGui::Button("Open Effect Editor"))
 			{
-				_pEffectEditor->Open(_guid);
+				if (auto* _pEffectEditor = MainEditor::Instance().RefEffectEditor())
+				{
+					_pEffectEditor->Open(_guid);
+				}
 			}
 		}
 

@@ -137,12 +137,13 @@ namespace Engine::Editor
 			return;
 		}
 
-		// モーダルな画面(エフェクトエディター)が出ている間はフリーカメラを止める。
-		// あちらは自前のカメラで描いているので、ここで動かすと
-		// 見えていないシーンビューのために操作を奪い合うだけになる
+		// モーダルな画面(エフェクトエディター)が出ている間は、そちらのカメラを回す。
+		// あちらも同じ EditorCamera だが実体は別。シーンビュー側の位置を動かさないため、
+		// ここでシーンビューのフリーカメラは止めておく
 		if (IsModalActive())
 		{
 			if (m_upEditorCamera) m_upEditorCamera->CancelControl();
+			if (m_upEffectEditor) m_upEffectEditor->UpdateCamera(a_dt);
 			return;
 		}
 

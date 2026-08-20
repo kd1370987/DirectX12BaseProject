@@ -113,6 +113,15 @@ namespace Engine::Editor
 		m_pos += _move * _speed * a_dt;
 	}
 
+	void EditorCamera::SetPose(const DXSM::Vector3& a_pos, float a_yawDeg, float a_pitchDeg)
+	{
+		m_pos = a_pos;
+		m_yaw = a_yawDeg;
+		m_pitch = std::clamp(a_pitchDeg, -MAX_PITCH, MAX_PITCH);
+
+		BuildMatrix();
+	}
+
 	void EditorCamera::BuildMatrix()
 	{
 		// カメラのワールド行列(GraphicsEngine 側で反転してビュー行列にされる)
