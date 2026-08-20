@@ -23,6 +23,13 @@ namespace Engine::Option
 		Persistence::Archive _archive(Persistence::Archive::Mode::Save, "Asset/Data/Engine", "EngineData", "optn");
 		Archive(_archive);
 	}
+	//======================================================================================
+	// エンジン設定の読み込み
+	//
+	// ここだけは形式を JSON で固定している。ビルドモード(Development / Shipping)を
+	// 決めているのがこのファイル自身で、読む時点ではまだモードが分からないため。
+	// Auto にすると「モードを決めるためにモードを見る」ことになる。
+	//======================================================================================
 	void OptionManager::Deserialize()
 	{
 		Persistence::Archive _archive(

@@ -34,4 +34,10 @@ namespace Engine::Editor::Inspector
 
 	// プレハブ
 	void PrefabDraw(EditorContext& a_editContext);
+
+	// オーディオビヘイビア
+	void AudioBehaviorDraw(EditorContext& a_editContext);
+
+	// エフェクト
+	void EffectAssetDraw(EditorContext& a_editContext);
 }

@@ -49,7 +49,9 @@ namespace Engine::Persistence
 			else if (a_format == ArchiveFormat::Binary) _loadBin = true;
 			else
 			{
-				_loadBin = true;		// デフォルトではバイナリで読込
+				// Auto : ビルドモードで決める(下の ShouldLoadJson を参照)
+				_loadJson = ShouldLoadJson(a_ext);
+				_loadBin  = !_loadJson;
 			}
 
 			if (_loadJson)
@@ -77,6 +79,42 @@ namespace Engine::Persistence
 		default:
 			break;
 		}
+	}
+
+	//======================================================================================
+	// Auto のときの読み込み形式
+	//
+	// ・Shipping        : 必ずバイナリ(.ob)。JSON は開発中の編集用なので製品には持ち込まない。
+	// ・Debug/Development : .oj があればそちらを優先する。
+	//
+	// JSON を優先するのは、バイナリが「フィールドを書いた順にそのまま並べるだけ」の
+	// 形式で、キーを持たないため。コンポーネントやアセットにフィールドを1つ足すと
+	// それ以降の読み出しが全部ずれ、保存済みの .ob* は作り直すまで使えなくなる。
+	// JSON はキー付きなので、知らないキーは飛ばし、無いキーは既定値のまま残る。
+	// 開発中はこちらを読んでおけば、フィールドを足しても既存データが壊れない。
+	//
+	// ただし重いデータ(モデル・メッシュ・アニメーション)は除く。中身は頂点や行列の
+	// 羅列で、手で書き換えることも無いのに JSON にすると読み込みが桁違いに遅くなる。
+	//
+	// .oj が無ければバイナリへ落ちる。両方を書き出すのは Save 側(Auto)なので、
+	// 片方しか無いのは「バイナリだけ配ったアセット」か「まだ保存し直していないもの」。
+	//======================================================================================
+	bool Archive::IsHeavyDataExtension(const std::string& a_ext)
+	{
+		return a_ext == "mdl" || a_ext == "mesh" || a_ext == "anim";
+	}
+
+	bool Archive::ShouldLoadJson(const std::string& a_ext) const
+	{
+		// 製品ビルドはバイナリのみ
+		if (MainEngine::Instance().GetBuildMode() == EBuildConfiguration::Shipping) return false;
+
+		// 重いデータはモードによらずバイナリ
+		if (IsHeavyDataExtension(a_ext)) return false;
+
+		// JSON が無ければバイナリへ
+		std::error_code _ec;
+		return std::filesystem::exists(m_jsonPath, _ec);
 	}
 
 	Archive::~Archive()

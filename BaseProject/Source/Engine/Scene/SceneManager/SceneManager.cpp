@@ -8,10 +8,15 @@
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
+#include "../../Editor/Editor.h"
+
 namespace Engine::Scene
 {
 	void SceneManager::Release()
 	{
+		// エディターが覚えている選択はここで消えるシーンのもの
+		Engine::Editor::MainEditor::Instance().OnSceneChanged();
+
 		m_upBaseSceneVec.clear();
 	}
 
@@ -84,7 +89,8 @@ namespace Engine::Scene
 		// シーンの再構築
 		auto _fileDir = Engine::File::GetDirFromPath(_sceneFilePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(_sceneFilePath);
-		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "scene",Persistence::Archive::ArchiveFormat::Json);
+		// 形式はビルドモード任せ(Auto)。Development までは .ojscene 優先、Shipping は .obscene のみ
+		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "scene");
 		_upScene->Archive(_ar);
 		_upScene->SetGUID(a_guid);
 		// スタックに積む
@@ -139,6 +145,18 @@ namespace Engine::Scene
 		while (!m_sceneChangeCmd.empty())
 		{
 			auto& _cmd = m_sceneChangeCmd.front();
+
+			//----------------------------------------------------------------------
+			// 実行前にエディターの選択を捨てる
+			//
+			// 選択中のエンティティIDもゲームオブジェクトのポインタも、
+			// 今のシーンのワールド・オブジェクトマネージャーが持っているもの。
+			// Pop/Replace/Clear では実体ごと消え、Push でも参照先のシーンが
+			// 変わるため、どの切り替え方でも持ち越してはいけない。
+			// (パネル側の検証は描画時にしか回らないので、ここで先に断つ)
+			//----------------------------------------------------------------------
+			Engine::Editor::MainEditor::Instance().OnSceneChanged();
+
 			switch (_cmd.changeType)
 			{
 			case SceneChangeType::Push:

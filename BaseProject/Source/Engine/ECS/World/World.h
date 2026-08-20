@@ -96,6 +96,13 @@ namespace Engine::ECS
 		UINT GetAliveEntityCount();
 
 		/// <summary>
+		/// そのエンティティが今このワールドで生きているか。
+		/// フレームやシーンを跨いでIDを保持する側(エディターなど)は、
+		/// 中身を引く前にこれで確かめること
+		/// </summary>
+		bool IsAliveEntity(const Entity& a_entity);
+
+		/// <summary>
 		/// ロケーションからエンティティを取得
 		/// </summary>
 		const Entity& GetEntity(const EntityLocation& a_location);

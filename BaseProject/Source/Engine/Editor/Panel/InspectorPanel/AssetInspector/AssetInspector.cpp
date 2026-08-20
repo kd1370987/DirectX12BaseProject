@@ -69,4 +69,12 @@ void Engine::Editor::Inspector::AssetInspector(EditorContext& a_editContext)
 	{
 		PrefabDraw(a_editContext);
 	}
+	else if (_type == "AudioBehavior")
+	{
+		AudioBehaviorDraw(a_editContext);
+	}
+	else if (_type == "EffectAsset")
+	{
+		EffectAssetDraw(a_editContext);
+	}
 }

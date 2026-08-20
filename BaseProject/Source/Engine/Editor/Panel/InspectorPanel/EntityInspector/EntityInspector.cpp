@@ -453,6 +453,16 @@ namespace Engine::Editor::Inspector
 			return;
 		}
 
+		// 前のシーンのIDを持ち越していないか確かめる。
+		// 世代が違うだけの生きた添え字だと、別のエンティティの中身を
+		// そのまま編集してしまうのでここで止める
+		if (!_pWorld->IsAliveEntity(_entity))
+		{
+			a_editContext.ClearEntitySelection();
+			ImGui::Text("No selected");
+			return;
+		}
+
 		// 選択中のエンティティをプレハブとして保存する(対象はプライマリ選択の1体)
 		CreatePrefabButton(a_editContext, _pWorld);
 

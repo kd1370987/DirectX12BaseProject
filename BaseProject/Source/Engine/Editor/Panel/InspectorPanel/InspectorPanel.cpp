@@ -30,6 +30,17 @@ void Engine::Editor::InspectorPanel::OnDrawImGui(EditorContext& a_editContext)
 			auto* _pManager = Engine::Scene::SceneManager::Instance().RefGameObjectManager();
 			if (!_pManager) break;
 
+			// 今のシーンのオブジェクトかどうかを、中身を触る前に確かめる。
+			// このパネルは GameObjectHierarchyPanel より先に描かれるので、
+			// あちらの選択検証はまだ回っていない。
+			// シーン切り替え直後は解放済みのポインタが残っていることがある
+			if (!_pManager->IsManaged(a_editContext.pGameObject))
+			{
+				a_editContext.pGameObject = nullptr;
+				ImGui::Text("No selected object");
+				break;
+			}
+
 			ImGui::Text("%s", a_editContext.pGameObject->GetEditorName());
 			ImGui::Separator();
 			a_editContext.pGameObject->DrawInspector(_pManager->RefObjectContext());

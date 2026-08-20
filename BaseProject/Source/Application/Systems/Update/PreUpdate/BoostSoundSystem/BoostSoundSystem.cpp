@@ -1,22 +1,36 @@
-#include "BoostSoundSystem.h"
+﻿#include "BoostSoundSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
 #include "../../../../Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "../../../../Components/Character/Robot/BoostComponent.h"
-#include "../../../../Components/Resource/SoundComponent.h"
+#include "../../../../Components/Resource/AudioBehaviorComponent.h"
+#include "../../../../Components/Transform/WorldMatrixComponent.h"
 #include "../../../../../Engine/Audio/AudioManager.h"
 
 //==========================================================================================
 // BoostSoundSystem
 //
-// ブースト状態からサウンドを鳴らす。ThrusterEffectSystem のサウンド版で、
+// ブースト状態から音を鳴らす。ThrusterEffectSystem のサウンド版で、
 // 噴射エフェクトと同じスロット構成をそのまま使う。
 //
-// ・発進音 : 踏んだ瞬間に、スロットが指すブースター子エンティティの音を鳴らす(単発想定)
-// ・継続音 : ブースト中、ブースターを付けている親エンティティの音を鳴らし続ける(ループ想定)
+// 鳴らす中身は AudioBehavior アセットが持っているので、ここが伝えるのは状態だけ。
 //
-// 子エンティティと親自身の SoundComponent はこのクエリに含まれないため
+//   噴射に入った瞬間 -> Start + Loop
+//   噴射している間   -> Loop (毎フレーム呼んでよい)
+//   噴射が終わった後 -> End  (始動していたときだけ1回鳴る)
+//
+// 起動・終了の判定は「推力が出ているか」の立ち上がり/立ち下がりだけで決める。
+// 入力の押下フラグを見ないので、プレイヤーでもボスでも、
+// 燃料切れで落ちた場合でも同じように鳴る。
+//
+// 始動音だけ・継続音だけといった組み合わせも、アセット側の空欄で表現できる。
+//
+// 対象はブースターを付けている親自身と、スロットが指すブースター子エンティティ。
+// どれも同じ流れを受け取るので、機体側で1つ鳴らす・ノズルごとに鳴らすの
+// どちらもアセットの割り当てだけで決められる。
+//
+// 子エンティティと親自身の AudioBehaviorComponent はこのクエリに含まれないため
 // World::RefData で横断参照する(構造変更は行わないので反復中でも安全)。
 //==========================================================================================
 void BoostSoundSystem::Init(Engine::ECS::World& a_world)
@@ -35,33 +49,60 @@ void BoostSoundSystem::Init(Engine::ECS::World& a_world)
 			)
 		{
 			auto* _pAudioManager = a_ctx.pServices->pAudioManager;
-			if (!_pAudioManager) return;
+			auto* _pResourceManager = a_ctx.pServices->pResourceManager;
+			if (!_pAudioManager || !_pResourceManager) return;
 
-			// エンティティが持つサウンドインスタンスを引く
-			// SoundComponent が無い/サウンド未設定なら nullptr
-			auto _refSound = [&a_ctx](Engine::ECS::Entity a_e, const SoundComponent** a_ppComp)
-				-> Engine::Resource::SoundInstance*
+			// エンティティ1体へブーストの状態を伝える。
+			// ビヘイビアが付いていない・まだ読めていない相手は黙って飛ばす
+			auto _driveBehavior =
+				[&a_ctx, _pAudioManager, _pResourceManager]
+				(Engine::ECS::Entity a_entity, bool a_isBoosting)
 			{
-				*a_ppComp = nullptr;
-				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return nullptr;
-				if (!a_ctx.pWorld->HasComponent<SoundComponent>(a_e)) return nullptr;
+				if (a_entity == Engine::ECS::Limits::INVALID_ENTITY) return;
+				if (!a_ctx.pWorld->HasComponent<AudioBehaviorComponent>(a_entity)) return;
 
-				auto* _pComp = a_ctx.pWorld->RefData<SoundComponent>(a_e);
-				if (!_pComp) return nullptr;
+				auto* _pComp = a_ctx.pWorld->RefData<AudioBehaviorComponent>(a_entity);
+				if (!_pComp) return;
 
-				*a_ppComp = _pComp;
-				return a_ctx.pServices->pAudioManager->RefInstance(_pComp->soundInstanceHandle);
-			};
+				auto* _pBehavior = _pResourceManager->Ref(_pComp->behaviorHandle);
+				if (!_pBehavior) return;
 
-			// ブースターの発進音を頭から鳴らす
-			auto _playBoosterSound = [&_refSound](Engine::ECS::Entity a_e)
-			{
-				const SoundComponent* _pComp = nullptr;
-				auto* _pInstance = _refSound(a_e, &_pComp);
-				if (!_pInstance) return;
+				// 3D指定のパートを鳴らす位置。
+				// 鳴らす前に入れておかないと、原点で鳴ってから移動することになる。
+				// (2D指定しか入っていないビヘイビアでは読み捨てられる)
+				//
+				// RefData は持っていないコンポーネントでも非nullを返すので、
+				// 必ず HasComponent で確かめてから引くこと
+				if (a_ctx.pWorld->HasComponent<WorldMatrixComponent>(a_entity))
+				{
+					if (auto* _pWorldComp = a_ctx.pWorld->RefData<WorldMatrixComponent>(a_entity))
+					{
+						_pComp->instance.SetPos(*_pAudioManager, Math::Matrix(_pWorldComp->worldMat).Translation());
+					}
+				}
 
-				// Play は内部で Stop してから鳴らすので、連打しても頭から鳴り直す
-				_pInstance->Play(_pComp->isLoop);
+				if (a_isBoosting)
+				{
+					// 噴射に入った最初のフレームだけ始動音を鳴らす。
+					//
+					// 入力側の「押した瞬間」フラグ(isBoostTriger)は見ない。
+					// あれはプレイヤー入力でしか立たず、ボスのように
+					// isBoostIntent だけ立てて噴射に入る相手だと始動音が抜ける。
+					// ビヘイビア自身が「始動〜終了の間か」を isActive で覚えているので、
+					// その立ち上がりを見れば誰が噴射させたかによらず1回だけ鳴らせる
+					if (!_pComp->instance.isActive)
+					{
+						_pBehavior->Start(*_pAudioManager, _pComp->instance);
+					}
+
+					// 始動音と噴射音は同じフレームから重なって鳴る
+					_pBehavior->Loop(*_pAudioManager, _pComp->instance);
+				}
+				else
+				{
+					// 始動していたときだけ終了音が鳴る(End側で見ている)
+					_pBehavior->End(*_pAudioManager, _pComp->instance);
+				}
 			};
 
 			for (size_t _i = 0; _i < a_count; ++_i)
@@ -71,38 +112,19 @@ void BoostSoundSystem::Init(Engine::ECS::World& a_world)
 
 				// 実際に推力が出る条件。
 				// 燃料切れで飛べないときに音だけ鳴らないよう、
-				// RobotBoostSystem / ThrusterEffectSystem と同じ判定にしている
+				// RobotBoostSystem / ThrusterEffectSystem と同じ判定にしている。
+				// 燃料切れで落ちたときも、そのまま終了音まで流れる
 				const bool _hasFuel  = _boost.currentFuel > _boost.boostFuel;
 				const bool _boosting = _boost.isBoostIntent && _hasFuel;
-				const bool _justBoosted = _boost.isBoostTriger && _hasFuel;
 
-				// ---- 発進音 : ブースター側で鳴らす ----
-				if (_justBoosted)
-				{
-					_playBoosterSound(_slots.rightShoulderBoost.id);
-					_playBoosterSound(_slots.leftShoulderBoost.id);
-					_playBoosterSound(_slots.rightLegBoost.id);
-					_playBoosterSound(_slots.leftLegBoost.id);
-				}
+				// ブースターを付けている親自身
+				_driveBehavior(a_pChunk->entityData[_i], _boosting);
 
-				// ---- 継続音 : ブースターを付けている親側で鳴らす ----
-				const SoundComponent* _pOwnerSound = nullptr;
-				auto* _pOwnerInstance = _refSound(a_pChunk->entityData[_i], &_pOwnerSound);
-				if (!_pOwnerInstance) continue;
-
-				if (_boosting)
-				{
-					// ループ設定なら鳴りっぱなしになるので、
-					// 止まっているときだけ鳴らし直せば二重再生にならない
-					if (!_pOwnerInstance->IsPlay())
-					{
-						_pOwnerInstance->Play(_pOwnerSound->isLoop);
-					}
-				}
-				else if (_pOwnerInstance->IsPlay())
-				{
-					_pOwnerInstance->Stop();
-				}
+				// スロットが指すブースター側
+				_driveBehavior(_slots.rightShoulderBoost.id, _boosting);
+				_driveBehavior(_slots.leftShoulderBoost.id, _boosting);
+				_driveBehavior(_slots.rightLegBoost.id, _boosting);
+				_driveBehavior(_slots.leftLegBoost.id, _boosting);
 			}
 		}
 	);

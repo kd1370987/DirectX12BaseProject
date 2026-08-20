@@ -116,9 +116,11 @@ namespace Engine::Resource
 		auto _dir = Engine::File::GetDirFromPath(a_filePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 
+		// 形式はビルドモード任せ(Auto)。
+		// Development までは .ojprfb があればそちらを読むので、コンポーネントに
+		// フィールドを足しても保存済みのプレハブが壊れない。Shipping は .obprfb のみ
 		Persistence::Archive _arch(
-			Persistence::Archive::Mode::Load, _dir, _fileName, "prfb",
-			Persistence::Archive::ArchiveFormat::Json);
+			Persistence::Archive::Mode::Load, _dir, _fileName, "prfb");
 
 		Archive(_arch, a_pWorld);
 	}

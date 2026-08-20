@@ -5,6 +5,9 @@
 #include "../../../../Components/Character/TargetEntityComponent.h"
 #include "../../../../Components/Character/PatrolComponent.h"
 #include "../../../../Components/Transform/LocalTransformComponent.h"
+#include "../../../../Components/Resource/ActionStateComponent.h"
+
+#include "Engine/Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 
 //==============================================================================
 // LookAroundSystem
@@ -18,6 +21,7 @@
 //
 // ・戦闘モード中(isFind == true)は何もしない。そちらは FaceTargetSystem が
 //   プレイヤーの方向へ旋回させる。条件が排他なので同じ quat を奪い合わない。
+// ・行動ステートの canRotate == false のあいだも何もしない(死亡ステートなど)。
 // ・旋回は Y 軸まわり(Yaw)のみ。左手系 +Z 前方なので Yaw = atan2(x, z)。
 // ・首振りは sin 波そのものが滑らかな軌道なので目標角を直接入れる。
 //   基準が「止まった瞬間の向き」なので切り替わった瞬間も飛ばない。
@@ -43,7 +47,8 @@ namespace
 
 void LookAroundSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const TargetEntityComponent, const PatrolComponent, LocalTransformComponent>(
+	a_world.ActiveTask<const TargetEntityComponent, const PatrolComponent,
+		const ActionStateComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,
 		"LookAroundSystem",
 		[](
@@ -53,6 +58,7 @@ void LookAroundSystem::Init(Engine::ECS::World& a_world)
 			ActiveTag*                        a_tags,
 			const TargetEntityComponent*      a_targetArray,
 			const PatrolComponent*            a_patrolArray,
+			const ActionStateComponent*       a_stateArray,
 			LocalTransformComponent*          a_trsArray
 		)
 		{
@@ -63,7 +69,15 @@ void LookAroundSystem::Init(Engine::ECS::World& a_world)
 			{
 				const TargetEntityComponent& _target = a_targetArray[_i];
 				const PatrolComponent&       _patrol = a_patrolArray[_i];
+				const ActionStateComponent&  _state  = a_stateArray[_i];
 				LocalTransformComponent&     _trs    = a_trsArray[_i];
+
+				// このステート中は向きを変えられない(死亡ステートなど)
+				if (const auto* _pSM = a_ctx.pServices->pResourceManager->Get(_state.actionHandle))
+				{
+					const auto* _pNode = _pSM->GetStateNode(_state.currentStateHash);
+					if (_pNode && !_pNode->canRotate) continue;
+				}
 
 				// 視認中は FaceTargetSystem に任せる
 				if (_target.isFind) continue;

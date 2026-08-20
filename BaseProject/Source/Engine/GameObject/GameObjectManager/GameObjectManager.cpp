@@ -109,6 +109,18 @@ namespace Engine::GameObject
 		return nullptr;
 	}
 
+	bool GameObjectManager::IsManaged(const BaseObject* a_pObject) const
+	{
+		if (!a_pObject) return false;
+
+		// 実体は触らず、持っているポインタと同じアドレスかどうかだけを見る
+		for (const auto& _upObject : m_upObjectVec)
+		{
+			if (_upObject.get() == a_pObject) return true;
+		}
+		return false;
+	}
+
 	void GameObjectManager::Archive(Persistence::Archive& a_ar)
 	{
 		auto& _registry = ObjectMetaRegistry::Instance();

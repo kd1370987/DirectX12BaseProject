@@ -26,6 +26,11 @@ namespace Engine::Editor
 		void OnDrawPanels();
 
 		/// <summary>
+		/// シーンに紐づく選択状態を捨てる(シーン切り替え時に呼ぶ)
+		/// </summary>
+		void ClearSceneContext();
+
+		/// <summary>
 		/// パネルの登録
 		/// </summary>
 		/// <typeparam name="T">型</typeparam>
@@ -40,6 +45,17 @@ namespace Engine::Editor
 		/// <returns>見つからなければ nullptr</returns>
 		template<typename T>
 		T* RefPanel();
+
+	private:
+
+		/// <summary>
+		/// 選択中のものが今のシーンにまだ在るかを確かめ、無ければ選択を外す。
+		///
+		/// パネル側にも同じ検証はあるが、あちらは ImGui::Begin が false
+		/// (畳まれている・タブが裏)だと呼ばれないので当てにできない。
+		/// 描画の前にここで一度だけ通す
+		/// </summary>
+		void ValidateContext();
 
 	private:
 

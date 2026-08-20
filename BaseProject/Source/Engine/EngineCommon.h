@@ -168,9 +168,11 @@ namespace Engine::Resource
 #include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"					// クアッドポリゴン
 #include "Resource/Data/Prefab/Prefab.h"									// プレハブ
 #include "Resource/Data/Sound/Sound.h"										// サウンド
+#include "Resource/Data/AudioBehavior/AudioBehavior.h"					// サウンドの流れ(始動/継続/終了)
 #include "Resource/Data/AnimatorAsset/AnimatorAsset.h"						// アニメーション
 #include "Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"	// アクション用ステートマシン
 #include "Resource/Data/Particles/ParticlesAsset.h"							// パーティクル
+#include "Resource/Data/EffectAsset/EffectAsset.h"							// エフェクト(パーティクル+メッシュのまとめ)
 // 
 //-----------------------------------------------------------------------------------------
 #include "Resource/Manager/ResourceManager/ResourceManager.h"	// マネージャー

@@ -96,6 +96,24 @@ namespace Engine::ECS
 		return m_entityLocationVec[_idx];
 	}
 
+	bool EntityManager::IsAlive(const ECS::Entity& a_entity)
+	{
+		if (a_entity == ECS::Limits::INVALID_ENTITY) return false;
+
+		const uint32_t _idx = GetIndex(a_entity);
+		const uint32_t _gen = GetGeneration(a_entity);
+
+		// 別ワールドのIDなどで添え字が範囲外になることがある
+		if (_idx >= m_entityLocationVec.size()) return false;
+
+		// 削除のたびに世代が進むので、使い回された添え字はここで弾ける
+		if (m_entityGeneVec[_idx] != _gen) return false;
+
+		// 生成済みなら必ずチャンクに載っている。
+		// 一度も使われていない添え字(世代0のまま)はここで落ちる
+		return m_entityLocationVec[_idx].pArchetypeChunk != nullptr;
+	}
+
 	EntityLocation& EntityManager::RefEntityLocation(const ECS::Entity& a_entity)
 	{
 		uint32_t _idx = GetIndex(a_entity);

@@ -833,6 +833,13 @@ namespace Engine::Editor
 		auto* _pObjManager = Engine::Scene::SceneManager::Instance().RefGameObjectManager();
 		if (!_pObjManager) return;
 
+		// シーン切り替えを跨いだ選択が残っていないか、実体を触る前に確かめる
+		if (!_pObjManager->IsManaged(_pObj))
+		{
+			a_editContext.pGameObject = nullptr;
+			return;
+		}
+
 		// ギズモ描画先とレクトを、シーンビュー画像に合わせる(エンティティ用と同じ設定)
 		ImGuizmo::SetDrawlist();
 		ImGuizmo::SetRect(a_pos.x, a_pos.y, a_rect.x, a_rect.y);

@@ -10,6 +10,8 @@
 #include "ParticleEdit/ParticleEdit.h"
 #include "AnimatorEdit/AnimatorEdit.h"
 #include "ActionStateMachineEdit/ActionStateMachineEdit.h"
+#include "AudioBehaviorEdit/AudioBehaviorEdit.h"
+#include "EffectAssetEdit/EffectAssetEdit.h"
 
 #include "../../../../../Resource/Data/Model/IO/ModelConverter/ModelConverter.h"
 
@@ -201,6 +203,32 @@ namespace Engine::Editor::Inspector
 		if (!_pTable) { return; }
 
 		ShadingModelTableEdit(a_editContext, _pTable);
+	}
+
+	//-----------------------------------------------------------------------------------------
+	// オーディオビヘイビア
+	//-----------------------------------------------------------------------------------------
+	void AudioBehaviorDraw(EditorContext& a_editContext)
+	{
+		auto _guid = a_editContext.pAssetProp->guid;
+
+		auto* _pBehavior = ResolveAsset<Resource::AudioBehavior>(_guid);
+		if (!_pBehavior) { return; }
+
+		AudioBehaviorEdit(a_editContext, _pBehavior);
+	}
+
+	//-----------------------------------------------------------------------------------------
+	// エフェクト
+	//-----------------------------------------------------------------------------------------
+	void EffectAssetDraw(EditorContext& a_editContext)
+	{
+		auto _guid = a_editContext.pAssetProp->guid;
+
+		auto* _pEffect = ResolveAsset<Resource::EffectAsset>(_guid);
+		if (!_pEffect) { return; }
+
+		EffectAssetEdit(a_editContext, _pEffect);
 	}
 
 	//-----------------------------------------------------------------------------------------

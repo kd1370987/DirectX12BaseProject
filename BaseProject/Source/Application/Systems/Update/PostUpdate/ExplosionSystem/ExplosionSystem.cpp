@@ -1,4 +1,4 @@
-#include "ExplosionSystem.h"
+﻿#include "ExplosionSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -25,6 +25,10 @@
 //   (CommitHierarchyWorldMatrixSystem が ActiveTag を読んで WorldMatrix を書いている)。
 //   爆発は親を持たない単体エンティティとして出すので、ローカル座標がそのままワールド座標になる。
 // ・PostUpdate 帯。出す側(DeathEffectSystem)や寿命(LifeTimeSystem)と同じ帯に置いてある。
+//
+// ※ EffectAsset に置き換え済み(残してあるのは既存データのため)。
+//   時間差は EffectAsset のパーツごとの EffectTiming で表せる。
+//   詳しくは ExplosionComponent の説明を参照。
 //==============================================================================
 void ExplosionSystem::Init(Engine::ECS::World& a_world)
 {

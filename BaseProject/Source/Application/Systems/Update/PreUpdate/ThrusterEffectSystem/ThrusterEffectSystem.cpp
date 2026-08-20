@@ -7,6 +7,7 @@
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
 #include "../../../../Components/Resource/ParticlesComponent.h"
+#include "../../../../Components/Effect/EffectAssetComponent.h"
 
 //==========================================================================================
 // ThrusterEffectSystem
@@ -15,6 +16,14 @@
 // スロットが指すブースター子エンティティの噴射 ON/OFF を決める。
 // 子エンティティはこのクエリに含まれないため World::RefData で横断参照する
 // (構造変更は行わないので反復中でも安全)。
+//
+// 噴射の中身は EffectAsset(パーティクル+メッシュ)が持つので、ここが伝えるのは ON/OFF だけ。
+//
+// ブースター側が EffectAssetComponent を持っていればそちらへ、
+// 持っていなければ従来どおり ParticlesComponent へ流す。
+// どちらを使うかはブースターのプレハブ側が決めるので、
+// 機体ごとに1つずつ EffectAsset へ移していける
+// (全部移し終えたら ParticlesComponent の分岐は消してよい)。
 //==========================================================================================
 void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 {
@@ -41,6 +50,18 @@ void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 			auto _setBoosterPlay = [&a_ctx](Engine::ECS::Entity a_e, bool a_on)
 			{
 				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
+
+				// エフェクトアセットを持っているならそちらが本命
+				if (a_ctx.pWorld->HasComponent<EffectAssetComponent>(a_e))
+				{
+					if (auto* _pEffect = a_ctx.pWorld->RefData<EffectAssetComponent>(a_e))
+					{
+						_pEffect->isPlay = a_on;
+						return;
+					}
+				}
+
+				// まだ移していないブースター向け
 				if (!a_ctx.pWorld->HasComponent<ParticlesComponent>(a_e)) return;
 				if (auto* _p = a_ctx.pWorld->RefData<ParticlesComponent>(a_e)) _p->isPlay = a_on;
 			};

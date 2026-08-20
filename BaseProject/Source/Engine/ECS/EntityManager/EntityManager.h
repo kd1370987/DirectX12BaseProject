@@ -41,6 +41,15 @@ namespace Engine::ECS
 		/// </summary>
 		const EntityLocation& GetLocation(const Entity& a_entity);
 
+		/// <summary>
+		/// そのエンティティが今このワールドで生きているか
+		///
+		/// 添え字の範囲・世代・チャンクへの割り当ての3つを見る。
+		/// エディターのように「前のフレーム(前のシーン)のID」を持ち越す側は、
+		/// 中身を引く前に必ずこれを通すこと。
+		/// </summary>
+		bool IsAlive(const Entity& a_entity);
+
 		// ロケーション操作
 		EntityLocation& RefEntityLocation(const Entity& a_entity);
 

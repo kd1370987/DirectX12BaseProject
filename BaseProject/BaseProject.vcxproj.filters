@@ -1333,6 +1333,9 @@
     <Filter Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem">
       <UniqueIdentifier>{d43aa155-e10e-4438-aa78-74ed50becd24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\DeathStateSystem">
+      <UniqueIdentifier>{f9cf5446-b23e-4c82-884e-6acbcdefb791}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem">
       <UniqueIdentifier>{6b1f2c74-3d58-4a0e-9c2b-5e7a1d0f83b6}</UniqueIdentifier>
     </Filter>
@@ -1431,6 +1434,33 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Data\Sound\IO">
       <UniqueIdentifier>{e90c2f76-59d7-4393-85f5-db61b6f3b86e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\AudioBehavior">
+      <UniqueIdentifier>{c0de0011-1111-4222-8333-0000c0de0011}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\AudioBehavior\IO">
+      <UniqueIdentifier>{c0de0012-1111-4222-8333-0000c0de0012}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\EffectAsset">
+      <UniqueIdentifier>{c0de0014-1111-4222-8333-0000c0de0014}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\EffectAsset\IO">
+      <UniqueIdentifier>{c0de0015-1111-4222-8333-0000c0de0015}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit">
+      <UniqueIdentifier>{c0de0016-1111-4222-8333-0000c0de0016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem">
+      <UniqueIdentifier>{c0de0017-1111-4222-8333-0000c0de0017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem">
+      <UniqueIdentifier>{c0de0018-1111-4222-8333-0000c0de0018}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem">
+      <UniqueIdentifier>{c0de0019-1111-4222-8333-0000c0de0019}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit">
+      <UniqueIdentifier>{c0de0013-1111-4222-8333-0000c0de0013}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Editor\Helper">
       <UniqueIdentifier>{ad3ffab4-be6c-47e8-a828-946754b75d07}</UniqueIdentifier>
@@ -2190,6 +2220,33 @@
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit\ShadingModelTableEdit.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\AudioBehavior\AudioBehavior.cpp">
+      <Filter>Source\Engine\Resource\Data\AudioBehavior</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\AudioBehavior\IO\AudioBehaviorIO.cpp">
+      <Filter>Source\Engine\Resource\Data\AudioBehavior\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\EffectAsset\EffectAsset.cpp">
+      <Filter>Source\Engine\Resource\Data\EffectAsset</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\EffectAsset\IO\EffectAssetIO.cpp">
+      <Filter>Source\Engine\Resource\Data\EffectAsset\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem\EffectFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem\EffectDrawSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\Draw\EffectDrawSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit</Filter>
     </ClCompile>
@@ -2286,6 +2343,9 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\DeathEffectSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\DeathStateSystem\DeathStateSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\DeathStateSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\ExplosionSystem</Filter>
     </ClCompile>
@@ -2299,6 +2359,9 @@
       <Filter>Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp">
+      <Filter>Source\Application\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Utility\EffectSpawnHelper.cpp">
       <Filter>Source\Application\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.cpp">
@@ -3602,6 +3665,9 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\DeathEffectSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\DeathStateSystem\DeathStateSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\DeathStateSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\ExplosionSystem</Filter>
     </ClInclude>
@@ -3624,6 +3690,9 @@
       <Filter>Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Utility\PrefabSpawnHelper.h">
+      <Filter>Source\Application\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Utility\EffectSpawnHelper.h">
       <Filter>Source\Application\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\HealthComponent.h">
@@ -3778,6 +3847,39 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\HitSoundComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\AudioBehaviorComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\AudioBehavior\AudioBehavior.h">
+      <Filter>Source\Engine\Resource\Data\AudioBehavior</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\AudioBehavior\IO\AudioBehaviorIO.h">
+      <Filter>Source\Engine\Resource\Data\AudioBehavior\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\EffectAsset\EffectAsset.h">
+      <Filter>Source\Engine\Resource\Data\EffectAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\EffectAsset\IO\EffectAssetIO.h">
+      <Filter>Source\Engine\Resource\Data\EffectAsset\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Effect\EffectAssetComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem\EffectFixupSystem.h">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem\EffectDrawSystem.h">
+      <Filter>Source\Application\Systems\Draw\Draw\EffectDrawSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\HomingComponent.h">
       <Filter>Source\Application\Components\Character\Weapon\Projectile</Filter>

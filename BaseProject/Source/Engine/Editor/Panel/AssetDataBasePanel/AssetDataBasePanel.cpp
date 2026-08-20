@@ -25,6 +25,14 @@ namespace Engine::Editor
 		m_assetCreateFuncs["Prefab"] = [](const std::string& path, const std::string& name) {
 			Resource::Prefab::Create(path, name);
 			};
+
+		m_assetCreateFuncs["AudioBehavior"] = [](const std::string& path, const std::string& name) {
+			Resource::AudioBehaviorIO::Create(path, name);
+			};
+
+		m_assetCreateFuncs["EffectAsset"] = [](const std::string& path, const std::string& name) {
+			Resource::EffectAssetIO::Create(path, name);
+			};
 	}
 	void AssetDataBasePanel::OnDrawImGui(EditorContext& a_editContext)
 	{

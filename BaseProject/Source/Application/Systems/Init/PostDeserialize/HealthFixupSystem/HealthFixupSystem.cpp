@@ -8,7 +8,8 @@
 //==============================================================================
 // HealthFixupSystem
 //
-// 現在体力は保存しないランタイム値なので、生成された時点で最大体力に満たす。
+// 現在体力と死亡状態は保存しないランタイム値なので、生成された時点で
+// 「満タンの生存」に戻す。
 // シーンから読み込まれたエンティティも、プレハブから撃ち出されたエンティティも
 // 必ず PostDeserialize を通るので、ここで初期化すれば取りこぼしがない。
 //==============================================================================
@@ -31,7 +32,11 @@ void HealthFixupSystem::Init(Engine::ECS::World& a_world)
 				HealthComponent& _health = a_healthArray[_i];
 
 				if (_health.maxHealth < 0.0f) _health.maxHealth = 0.0f;
+				if (_health.releaseDelay < 0.0f) _health.releaseDelay = 0.0f;
+
 				_health.currentHealth = _health.maxHealth;
+				_health.isDead        = false;
+				_health.deathTimer    = 0.0f;
 			}
 		}
 	);

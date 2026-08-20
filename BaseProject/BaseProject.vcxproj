@@ -312,9 +312,11 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\DeathStateSystem\DeathStateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp" />
+    <ClCompile Include="Source\Application\Utility\EffectSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp" />
@@ -392,6 +394,7 @@
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit\ShadingModelTableEdit.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp" />
@@ -517,6 +520,14 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Sound\IO\SoundIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Sound\Sound.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\AudioBehavior\AudioBehavior.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\AudioBehavior\IO\AudioBehaviorIO.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\EffectAsset\EffectAsset.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\EffectAsset\IO\EffectAssetIO.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.cpp" />
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem\EffectFixupSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem\EffectDrawSystem.cpp" />
     <ClCompile Include="Source\Engine\Resource\StateGraph\StateGraphTypes.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Importer\TextureImporter.cpp" />
@@ -699,6 +710,7 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\DeathStateSystem\DeathStateSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.h" />
     <ClInclude Include="Source\Application\Components\Character\DeathEffectComponent.h" />
     <ClInclude Include="Source\Application\InstanceResource\DeathEventResource.h" />
@@ -707,6 +719,7 @@
     <ClInclude Include="Source\Application\Components\Effect\ExplosionComponent.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.h" />
     <ClInclude Include="Source\Application\Utility\PrefabSpawnHelper.h" />
+    <ClInclude Include="Source\Application\Utility\EffectSpawnHelper.h" />
     <ClInclude Include="Source\Application\Components\Character\HealthComponent.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.h" />
@@ -714,6 +727,7 @@
     <ClInclude Include="Source\Application\Components\Character\FlyingSound.h" />
     <ClInclude Include="Source\Application\InstanceResource\FlyingSoundResource.h" />
     <ClInclude Include="Source\Application\Components\Resource\HitSoundComponent.h" />
+    <ClInclude Include="Source\Application\Components\Resource\AudioBehaviorComponent.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem\HitEventClearSystem.h" />
@@ -821,6 +835,7 @@
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit\ShadingModelTableEdit.h" />
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.h" />
@@ -979,6 +994,15 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Sound\IO\SoundIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Sound\Sound.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\AudioBehavior\AudioBehavior.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\AudioBehavior\IO\AudioBehaviorIO.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\EffectAsset\EffectAsset.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\EffectAsset\IO\EffectAssetIO.h" />
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.h" />
+    <ClInclude Include="Source\Application\Components\Effect\EffectAssetComponent.h" />
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem\EffectFixupSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem\EffectDrawSystem.h" />
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraph.h" />
     <ClInclude Include="Source\Engine\Resource\StateGraph\StateGraphTypes.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.h" />

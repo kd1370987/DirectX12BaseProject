@@ -12,6 +12,8 @@
 #include "../Data/ShadingModelTable/IO/ShadingModelTableIO.h"
 #include "../Data/Prefab/Prefab.h"
 #include "../Data/Sound/IO/SoundIO.h"
+#include "../Data/AudioBehavior/IO/AudioBehaviorIO.h"
+#include "../Data/EffectAsset/IO/EffectAssetIO.h"
 namespace Engine::Resource
 {
 	// ロード処理の中間用クラス
@@ -140,6 +142,24 @@ namespace Engine::Resource
 		static Sound LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return SoundIO::Load(a_path);
+		}
+	};
+	// オーディオビヘイビア
+	template<>
+	struct DefaultLoader<AudioBehavior>
+	{
+		static AudioBehavior LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		{
+			return AudioBehaviorIO::LoadFromFile(a_path);
+		}
+	};
+	// エフェクト
+	template<>
+	struct DefaultLoader<EffectAsset>
+	{
+		static EffectAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		{
+			return EffectAssetIO::LoadFromFile(a_path);
 		}
 	};
 }

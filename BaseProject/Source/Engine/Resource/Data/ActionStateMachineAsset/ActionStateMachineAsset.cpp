@@ -58,9 +58,9 @@ namespace Engine::Resource
 	{
 		Release();
 
+		// 形式はビルドモード任せ(Auto)。Development までは .ojasm 優先、Shipping は .obasm のみ
 		Persistence::Archive _arch(
-			Persistence::Archive::Mode::Load, a_fileDir, a_fileName, "asm",
-			Persistence::Archive::ArchiveFormat::Json);
+			Persistence::Archive::Mode::Load, a_fileDir, a_fileName, "asm");
 
 		_arch.Field("m_name", m_name);
 		m_graph.LoadGraph(_arch);

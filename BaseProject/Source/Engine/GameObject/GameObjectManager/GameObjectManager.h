@@ -53,6 +53,16 @@ namespace Engine::GameObject
 		/// </summary>
 		BaseObject* FindByGUID(const Engine::GUID& a_guid) const;
 
+		/// <summary>
+		/// そのポインタが今このマネージャーの管理下にあるか。
+		///
+		/// エディターは選択中のオブジェクトを生ポインタで覚えているので、
+		/// 破棄やシーン切り替えの後に触ると解放済みメモリを読む。
+		/// 参照する前にここでアドレスの一致だけを見て確かめる
+		/// (実体を触らないので、相手が死んでいても安全に判定できる)。
+		/// </summary>
+		bool IsManaged(const BaseObject* a_pObject) const;
+
 		void PreUpdate();
 
 		/// <summary>

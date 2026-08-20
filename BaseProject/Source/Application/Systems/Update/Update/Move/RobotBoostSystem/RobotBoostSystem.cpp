@@ -12,16 +12,14 @@
 //
 // ブーストの推力を「進みたい向き」へ与える。
 //
-// ・向きは視点(LookAngle)を基準に組み立てる。上下が付くのは次の2つの場合だけ。
-//     (1) 視点方向へ飛ぶとき(移動入力なし)
-//         視点の前方をそのまま使うので Pitch が乗る。上を向いて吹かせば上昇、
-//         下を向けば降下する。
-//     (2) 上方向の入力があるとき(MoveIntent.y ＝ ジャンプ入力)
-//         ワールドの上をその分だけ足す。前後左右と混ぜれば斜め上に飛ぶ。
+// ・向きは視点(LookAngle)の Yaw を基準に組み立てる。上下が付くのは次の2つの場合だけ。
+//     (1) 上下の入力があるとき(MoveIntent.y ＝ ジャンプ / 急降下)
+//         ワールドの上下をその分だけ足す。前後左右と混ぜれば斜め上下に飛ぶ。
+//     (2) 入力がまったく無いとき
+//         真上へ飛ぶ。視点の Pitch は見ないので、どこを向いていても上昇になる。
 //   移動入力だけのとき(前後左右)は水平のまま。視点をどれだけ上下させても
 //   地表を滑る挙動になり、歩いている方向とブーストで飛ぶ方向も一致する。
 //
-//   視点前方 = (sinYaw*cosPitch, sinPitch, cosYaw*cosPitch)
 //   水平前方 = (sinYaw, 0, cosYaw)
 //   右       = (cosYaw, 0, -sinYaw)
 //   左手系 +Z 前方で、TPSSystem がカメラ姿勢に使っている
@@ -87,13 +85,11 @@ void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 				//----------------------------------------------------------
 				// 進む向きを決める
 				//----------------------------------------------------------
-				const float _yawRad   = DirectX::XMConvertToRadians(_lookComp.Yaw);
-				const float _pitchRad = DirectX::XMConvertToRadians(_lookComp.Pitch);
+				// 上下は入力だけで決めるので Pitch は使わない
+				const float _yawRad = DirectX::XMConvertToRadians(_lookComp.Yaw);
 
 				const float _sinY = std::sin(_yawRad);
 				const float _cosY = std::cos(_yawRad);
-				const float _sinP = std::sin(_pitchRad);
-				const float _cosP = std::cos(_pitchRad);
 
 				// 移動入力(前後左右)は水平のまま合成する。
 				// 前後の軸から Pitch を抜いてあるので、視点を上下しても水平に滑る
@@ -101,20 +97,23 @@ void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 					Math::Vector3(_sinY, 0.0f, _cosY) * _moveIntent.value.z +
 					Math::Vector3(_cosY, 0.0f, -_sinY) * _moveIntent.value.x;
 
-				// 上下を付けるのは「視点方向へ飛ぶとき」と「上方向の入力があるとき」だけ
+				// 上下を付けるのは「上下の入力があるとき」と「入力がまったく無いとき」だけ
 				bool _applyVertical = false;
 
-				// 上昇入力(MoveIntent.y ＝ ジャンプ入力)ぶんを足す
+				// 上下入力(MoveIntent.y ＝ ジャンプで上、急降下で下)ぶんを足す
 				if (std::fabs(_moveIntent.value.y) > 1e-6f)
 				{
 					_dir.y += _moveIntent.value.y;
 					_applyVertical = true;
 				}
 
-				// 入力がまったく無いなら視点の方向へ飛ぶ(このときだけ Pitch が乗る)
+				// 入力がまったく無いなら真上へ飛ぶ。
+				// 視点の前方ではなくワールドの上を使うので、
+				// 下を向いていても「何も入れずに吹かせば上がる」で固定できる。
+				// 下がりたいときは急降下(LCtrl)を入れて上下入力の側で決める
 				if (_dir.LengthSquared() <= 1e-6f)
 				{
-					_dir = { _sinY * _cosP, _sinP, _cosY * _cosP };
+					_dir = { 0.0f, 1.0f, 0.0f };
 					_applyVertical = true;
 				}
 

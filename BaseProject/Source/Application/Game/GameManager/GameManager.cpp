@@ -139,6 +139,9 @@
 #include "Application/Systems/Draw/Draw/EmitParticlesSystem/EmitParticlesSystem.h"
 #include "Application/Systems/Update/Update/Particle/ParticleEmitSystem/ParticleEmitSystem.h"
 #include "Application/Systems/Init/PostDeserialize/ParticleFixupSystem/ParticleFixupSystem.h"
+#include "Application/Systems/Init/PostDeserialize/EffectFixupSystem/EffectFixupSystem.h"
+#include "Application/Systems/Update/Update/Effect/EffectUpdateSystem/EffectUpdateSystem.h"
+#include "Application/Systems/Draw/Draw/EffectDrawSystem/EffectDrawSystem.h"
 #include "Application/Systems/Update/PreUpdate/UpdateHierarchyDepthSystem/UpdateHierarchyDepthSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitHierarchyWorldMatrixSystem/CommitHierarchyWorldMatrixSystem.h"
 #include "../../Systems/Draw/Draw/SkinningRegisterSystem/SkinningRegisterSystem.h"
@@ -179,6 +182,7 @@
 #include "../../Systems/Update/PreUpdate/HomingSystem/HomingSystem.h"
 #include "../../Systems/Update/PostUpdate/HitSoundSystem/HitSoundSystem.h"
 #include "../../Components/Resource/HitSoundComponent.h"
+#include "../../Components/Resource/AudioBehaviorComponent.h"
 #include "../../Systems/Update/PostUpdate/AudioListenerSystem/AudioListenerSystem.h"
 #include "../../Systems/Update/PostUpdate/FlyingSoundSystem/FlyingSoundSystem.h"
 #include "../../Components/Resource/AudioListenerComponent.h"
@@ -187,7 +191,9 @@
 #include "../../Components/Character/HealthComponent.h"
 #include "../../Systems/Init/PostDeserialize/HealthFixupSystem/HealthFixupSystem.h"
 #include "../../Systems/Update/PostUpdate/HealthSystem/HealthSystem.h"
+#include "../../Systems/Update/PostUpdate/DeathStateSystem/DeathStateSystem.h"
 #include "../../Components/Effect/EffectComponent.h"
+#include "../../Components/Effect/EffectAssetComponent.h"
 #include "../../Components/Common/LifeTimeComponent.h"
 #include "../../Components/Character/DeathEffectComponent.h"
 #include "../../Components/Effect/ExplosionComponent.h"
@@ -325,10 +331,14 @@ namespace App::Game
 				a_pWorld->RegisterComponent<BossComponent>("BossComponent");
 				a_pWorld->RegisterComponent<SoundComponent>("SoundComponent");
 				a_pWorld->RegisterComponent<HitSoundComponent>("HitSoundComponent");
+				// 始動/継続/終了の音をまとめた AudioBehavior アセットを鳴らす
+				a_pWorld->RegisterComponent<AudioBehaviorComponent>("AudioBehaviorComponent");
 				a_pWorld->RegisterComponent<AudioListenerComponent>("AudioListenerComponent");
 				a_pWorld->RegisterComponent<FlyingSoundComponent>("FlyingSoundComponent");
 				a_pWorld->RegisterComponent<HealthComponent>("HealthComponent");
 				a_pWorld->RegisterComponent<EffectComponent>("EffectComponent");
+				// パーティクル+メッシュをまとめた EffectAsset を再生する
+				a_pWorld->RegisterComponent<EffectAssetComponent>("EffectAssetComponent");
 				a_pWorld->RegisterComponent<LifeTimeComponent>("LifeTimeComponent");
 				a_pWorld->RegisterComponent<DeathEffectComponent>("DeathEffectComponent");
 				a_pWorld->RegisterComponent<ExplosionComponent>("ExplosionComponent");
@@ -341,6 +351,7 @@ namespace App::Game
 				a_pWorld->RegisterSystem<StateMachineFixupSystem>();
 				a_pWorld->RegisterSystem<ActionStateFixupSystem>();
 				a_pWorld->RegisterSystem<ParticleFixupSystem>();
+				a_pWorld->RegisterSystem<EffectFixupSystem>();
 				a_pWorld->RegisterSystem<SoundFixupSystem>();
 				// 現在体力を最大体力で満たす
 				a_pWorld->RegisterSystem<HealthFixupSystem>();
@@ -424,6 +435,9 @@ namespace App::Game
 				a_pWorld->RegisterSystem<RegisterRayWorldSystem>();
 				a_pWorld->RegisterSystem<EmitParticleSystem>();
 				a_pWorld->RegisterSystem<ParticleEmitSystem>();
+				// エフェクト : 時間を進めるのは Update、出すのは Draw
+				a_pWorld->RegisterSystem<EffectUpdateSystem>();
+				a_pWorld->RegisterSystem<EffectDrawSystem>();
 				a_pWorld->RegisterSystem<AnimationMatrixFreeSystem>();
 				a_pWorld->RegisterSystem<AdditivePoseFreeSystem>();
 				a_pWorld->RegisterSystem<SoundFreeSystem>();
@@ -444,8 +458,12 @@ namespace App::Game
 				a_pWorld->RegisterSystem<HitEventClearSystem>();
 				a_pWorld->RegisterSystem<HitDetectSystem>();
 				a_pWorld->RegisterSystem<ExplodeOnHitSystem>();
-				// 被弾で体力を削り、尽きたら消す(体力持ちは ExplodeOnHit の対象外)
+				// 被弾で体力を削り、尽きたら死亡状態にする(体力持ちは ExplodeOnHit の対象外)
 				a_pWorld->RegisterSystem<HealthSystem>();
+				// 死亡状態のあいだ入力/AIを止め、指定秒たったら解放予約する。
+				// 体力を書く HealthSystem より後に登録すること
+				// (同じ PostUpdate 帯で HealthComponent を書く同士なので登録順で並ぶ)
+				a_pWorld->RegisterSystem<DeathStateSystem>();
 				// 寿命持ち(弾・エフェクトなど)の共通処理。尽きたら自分で消える
 				a_pWorld->RegisterSystem<LifeTimeSystem>();
 				// 死亡したものの DeathEffect プレハブを出す(死亡を積む側より後ろで回る)
@@ -511,6 +529,10 @@ namespace App::Game
 			// ジャンプ
 			Engine::Input::InputButtonForWindows _jump(VK_SPACE);
 			_keyboard.AddButton("Jump", std::make_shared<Engine::Input::InputButtonForWindows>(_jump));
+			// 急降下 : ジャンプ(上昇)の逆で、押している間は下向きの入力になる
+			// (エディターの複数選択も LCtrl だが、あちらは ImGui 側で見ているので共存する)
+			Engine::Input::InputButtonForWindows _dive(VK_LCONTROL);
+			_keyboard.AddButton("Dive", std::make_shared<Engine::Input::InputButtonForWindows>(_dive));
 			// ブースト
 			Engine::Input::InputButtonForWindows _boost(VK_LSHIFT);
 			_keyboard.AddButton("Boost", std::make_shared<Engine::Input::InputButtonForWindows>(_boost));

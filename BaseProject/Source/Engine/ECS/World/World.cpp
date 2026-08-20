@@ -222,6 +222,11 @@ namespace Engine::ECS
 		return m_entityManager.GetAliveEntityCount();
 	}
 
+	bool World::IsAliveEntity(const ECS::Entity& a_entity)
+	{
+		return m_entityManager.IsAlive(a_entity);
+	}
+
 	const ECS::Entity& World::GetEntity(const EntityLocation& a_location)
 	{
 		if (!a_location.pArchetypeChunk) return ECS::Limits::INVALID_ENTITY;

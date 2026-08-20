@@ -7,6 +7,7 @@
 
 #include "Application/Components/Hierarchy/SpawnerComponent.h"
 #include "Application/Components/Character/Boss/BossComponent.h"
+#include "Application/Components/Character/HealthComponent.h"
 #include "Application/Utility/PrefabSpawnHelper.h"
 
 //==========================================================================================
@@ -87,6 +88,10 @@ namespace App::Object
 	//--------------------------------------------------------------------------------------
 	// 自分のGUIDが付いた生存エンティティを、ウェーブ番号ごとに数える。
 	// ActiveTag も条件に入れているので、解放待ち(ReleaseTag)の個体は数えない。
+	//
+	// 死亡状態(HealthComponent.isDead)の個体も数えない。倒されてから実際に消えるまでは
+	// 死亡演出のぶんの猶予があり、その間もまだ ActiveTag が付いているため、
+	// そのまま数えると全滅判定が演出の尺だけ遅れてしまう。
 	//======================================================================================
 	void SceneSequence::UpdateAliveCount(Engine::GameObject::ObjectContext& a_context)
 	{
@@ -110,6 +115,14 @@ namespace App::Object
 					if (!(_spawner.spawnerGUID == _selfGUID)) continue;
 					if (_spawner.waveIndex < 0) continue;
 					if (static_cast<size_t>(_spawner.waveIndex) >= m_waves.size()) continue;
+
+					// 倒されて消えるのを待っているだけの個体は生存に数えない
+					const Engine::ECS::Entity _entity = a_pChunk->entityData[_i];
+					if (a_context.pWorld->HasComponent<HealthComponent>(_entity))
+					{
+						const auto* _pHealth = a_context.pWorld->RefData<HealthComponent>(_entity);
+						if (_pHealth && _pHealth->isDead) continue;
+					}
 
 					++m_waves[_spawner.waveIndex].aliveCount;
 				}

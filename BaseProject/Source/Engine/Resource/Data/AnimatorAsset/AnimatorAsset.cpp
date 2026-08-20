@@ -119,9 +119,9 @@ namespace Engine::Resource
 	{
 		Release();
 
+		// 形式はビルドモード任せ(Auto)。Development までは .ojstet 優先、Shipping は .obstet のみ
 		Persistence::Archive _arch(
-			Persistence::Archive::Mode::Load, a_fileDir, a_fileName, "stet",
-			Persistence::Archive::ArchiveFormat::Json);
+			Persistence::Archive::Mode::Load, a_fileDir, a_fileName, "stet");
 
 		// Animator固有ヘッダ
 		_arch.Field("m_name", m_name);

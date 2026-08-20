@@ -137,5 +137,26 @@ namespace Engine::Editor
 
 		// プロファイラポインタ : 計測はプロファイラ側が行い、パネルは結果を読むだけ
 		Profiler* pProfiler = nullptr;
+
+		//==============================================================================
+		// シーンに紐づくものを捨てる
+		//
+		// 選択中のエンティティとゲームオブジェクトは、そのシーンのワールド・
+		// オブジェクトマネージャーが持っているものを指している。
+		// シーンが切り替わると実体ごと消えるため、持ち越すと解放済みメモリを触る。
+		// アセット選択(pAssetProp)はアセットデータベースの持ち物でシーンを跨いで
+		// 生きているので、ここでは捨てない。
+		//==============================================================================
+		void ClearSceneContext()
+		{
+			ClearEntitySelection();
+			pGameObject = nullptr;
+
+			// アセットを見ていたならその表示は残す
+			if (eInspectorType == EInspectorType::Entity || eInspectorType == EInspectorType::Game)
+			{
+				eInspectorType = EInspectorType::None;
+			}
+		}
 	};
 }

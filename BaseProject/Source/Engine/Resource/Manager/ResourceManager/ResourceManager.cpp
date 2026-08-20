@@ -26,6 +26,13 @@ namespace Engine::Resource
 		// サウンド : DirectX::SoundEffect は AudioEngine を参照しているため、
 		// AudioEngine が生きているこのタイミングで必ず解放しきる
 		ReleaseData<Sound>();
+
+		// サウンドの流れ : 中身はGUIDと設定値だけだが、
+		// ここに足しておかないとプールが静的破棄まで残る
+		ReleaseData<AudioBehavior>();
+
+		// エフェクト : 参照しているパーティクル/モデルより後に解放する
+		ReleaseData<EffectAsset>();
 	}
 
 	void ResourceManager::AllResetECSRefs()

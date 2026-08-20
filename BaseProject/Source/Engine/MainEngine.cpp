@@ -616,6 +616,18 @@ namespace Engine
 		_sound.type = "Sound";
 		_sound.AddExtensions(".wav");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_sound);
+		// オーディオビヘイビア(始動/継続/終了の音をまとめたもの)
+		Resource::TypeExtension _audioBehavior = {};
+		_audioBehavior.type = "AudioBehavior";
+		_audioBehavior.AddExtensions(".ojaudbhv");
+		_audioBehavior.AddExtensions(".obaudbhv");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_audioBehavior);
+		// エフェクト(パーティクル+メッシュをまとめたもの)
+		Resource::TypeExtension _effect = {};
+		_effect.type = "EffectAsset";
+		_effect.AddExtensions(".ojeffect");
+		_effect.AddExtensions(".obeffect");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_effect);
 		// 全アセットに一括でメタファイル作成
 		// すでにあれば無視
 		Resource::AssetDatabase::Instance().CreateMetaFileForAllAssets();

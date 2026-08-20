@@ -33,9 +33,9 @@ namespace App::Game
 
 		Release();
 
+		// 形式はビルドモード任せ(Auto)。Development までは .ojstet 優先、Shipping は .obstet のみ
 		Engine::Persistence::Archive _arch(
-			Engine::Persistence::Archive::Mode::Load, _dir, _fileName, "stet",
-			Engine::Persistence::Archive::ArchiveFormat::Json);
+			Engine::Persistence::Archive::Mode::Load, _dir, _fileName, "stet");
 
 		_arch.Field("m_farstSceneGUID", m_farstSceneGUID);
 		m_graph.LoadGraph(_arch);

@@ -151,6 +151,18 @@ namespace Engine::Editor
 		_io.ClearInputKeys();		// 押しっぱなしのキーを離した扱いにする
 		_io.ClearInputMouse();		// マウスのボタンと座標も同様
 	}
+	//======================================================================================
+	// シーン切り替えの通知
+	//--------------------------------------------------------------------------------------
+	// 選択していたものは切り替え先には無い。次の描画が触りにいく前に捨てる
+	//======================================================================================
+	void MainEditor::OnSceneChanged()
+	{
+		if (!m_upPanelManager) return;
+
+		m_upPanelManager->ClearSceneContext();
+	}
+
 	void MainEditor::Draw(D3D12::GraphicsCommandList * a_pCmdList)
 	{
 		// ImGui描画開始

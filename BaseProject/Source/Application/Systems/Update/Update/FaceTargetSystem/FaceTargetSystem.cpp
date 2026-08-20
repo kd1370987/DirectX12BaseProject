@@ -6,6 +6,9 @@
 #include "../../../../Components/Character/LookAngleComponent.h"
 #include "../../../../Components/Transform/LocalTransformComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
+#include "../../../../Components/Resource/ActionStateComponent.h"
+
+#include "Engine/Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 
 //==============================================================================
 // FaceTargetSystem
@@ -23,11 +26,14 @@
 //   逆に LookAngleComponent を持つ側(ボスなど)は、視線角を自分で更新して姿勢の
 //   書き込みは RotationSystem に任せる作りになっているので、ここでは除外する。
 //   除外しないと同じ quat を2つのシステムが書き、実行順が登録順頼みになってしまう。
+// ・行動ステートの canRotate == false のあいだは旋回しない(LockOnRotationSystem と同じ)。
+//   死亡ステートのように「もう向きを変えない」状態を、アセット側の設定だけで
+//   表せるようにするため。設計図やノードが取れないときは従来どおり旋回する。
 // ・Update 帯に置く。書いた quat は PostUpdate の行列計算で反映される。
 //==============================================================================
 void FaceTargetSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const TargetEntityComponent, LocalTransformComponent>(
+	a_world.ActiveTask<const TargetEntityComponent, const ActionStateComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,
 		"FaceTargetSystem",
 		[](
@@ -36,6 +42,7 @@ void FaceTargetSystem::Init(Engine::ECS::World& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
 			const TargetEntityComponent*      a_targetArray,
+			const ActionStateComponent*       a_stateArray,
 			LocalTransformComponent*          a_trsArray
 		)
 		{
@@ -45,7 +52,15 @@ void FaceTargetSystem::Init(Engine::ECS::World& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const TargetEntityComponent& _target = a_targetArray[_i];
+				const ActionStateComponent&  _state  = a_stateArray[_i];
 				LocalTransformComponent&     _trs    = a_trsArray[_i];
+
+				// このステート中は向きを変えられない(死亡ステートなど)
+				if (const auto* _pSM = a_ctx.pServices->pResourceManager->Get(_state.actionHandle))
+				{
+					const auto* _pNode = _pSM->GetStateNode(_state.currentStateHash);
+					if (_pNode && !_pNode->canRotate) continue;
+				}
 
 				// 視認していないときは旋回しない
 				if (!_target.isFind) continue;
