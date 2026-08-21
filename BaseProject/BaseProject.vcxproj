@@ -756,6 +756,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h" />
     <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\GroupTopologicalSort.h" />
     <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\TopologicalSort.h" />
+    <ClInclude Include="Source\Engine\Utility\EnumFlags.h" />
     <ClInclude Include="Source\Engine\Utility\File\FileUtility.h" />
     <ClInclude Include="Source\Engine\Utility\String\StringUtility.h" />
     <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h" />

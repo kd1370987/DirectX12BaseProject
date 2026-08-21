@@ -9,6 +9,7 @@
 #include "Utility/File/FileUtility.h"					// ファイルパス
 #include "Utility/Algorithm/Graph/TopologicalSort.h"		// トポロジカルソート
 #include "Utility/Algorithm/Graph/GroupTopologicalSort.h"	// グループ分けトポロジカルソート
+#include "Utility/EnumFlags.h"
 
 // ---- 共通変数・固定値 ----
 #include "Engine/Common/Color.h"						// 色

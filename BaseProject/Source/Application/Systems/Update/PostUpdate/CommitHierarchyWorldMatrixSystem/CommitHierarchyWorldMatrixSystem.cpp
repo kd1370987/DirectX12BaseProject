@@ -69,9 +69,7 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 								continue;
 							}
 
-							// 変換行列計算(スケール→回転→平行移動の順で合成)
-							// 回転は正規化してから使う。エディタで直打ちした値が
-							// 単位長でないとスケールが混ざるため
+							// ローカル上で行列を作成
 							Math::Matrix _myLocalMat = Math::Matrix::CreateTRS(
 								_trsComp.pos,
 								_trsComp.quat.Normalized(),
@@ -81,9 +79,38 @@ void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
 							if (_hComp.parentID != Engine::ECS::Limits::INVALID_ENTITY) {
 								// 親のワールド行列を取得
 								auto* _parentMatComp = a_ctx.pWorld->RefData<WorldMatrixComponent>(_hComp.parentID);
+								if (!_parentMatComp) continue;
 
-								// 子 * 親 の順(自分のローカルを先に適用してから親へ乗せる)
-								_worldMatComp.worldMat = _myLocalMat * _parentMatComp->worldMat;
+
+								if (_trsComp.inheritance == ETransformInheritance::All)
+								{
+									// 子 * 親 の順(自分のローカルを先に適用してから親へ乗せる)
+									_worldMatComp.worldMat = _myLocalMat * _parentMatComp->worldMat;
+								}
+								else
+								{
+									// 分解
+									Math::Matrix _parentMat = Math::Matrix::Identity();
+									Math::Vector3 _pos = {};
+									Math::Quaternion _quat = {};
+									Math::Vector3 _scale = {};
+									_parentMatComp->worldMat.Decompose(_scale,_quat, _pos);
+
+									if (Engine::Utility::HasFlag(_trsComp.inheritance, ETransformInheritance::Scale))
+									{
+										_parentMat *= Math::Matrix::CreateScale(_scale);
+									}
+									if (Engine::Utility::HasFlag(_trsComp.inheritance, ETransformInheritance::Rotation))
+									{
+										_parentMat *= Math::Matrix::CreateFromQuaternion(_quat);
+									}
+									if (Engine::Utility::HasFlag(_trsComp.inheritance, ETransformInheritance::Translation))
+									{
+										_parentMat *= Math::Matrix::CreateTranslation(_pos);
+									}
+									
+									_worldMatComp.worldMat = _myLocalMat * _parentMat;
+								}
 							}
 							else {
 								// 親がいない場合はそのまま（ルート）
