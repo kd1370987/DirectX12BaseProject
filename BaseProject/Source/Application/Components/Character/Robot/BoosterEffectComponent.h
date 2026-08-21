@@ -1,6 +1,9 @@
 #pragma once
 
-#include "../../../../Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
+#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorHelper.inl"
 
 //==========================================================================================
 // BoosterEffectComponent
@@ -25,6 +28,17 @@
 //     burstTime かけて baseScale へ戻す。
 //     噴射が出っぱなしの一定量だと、吹かし始めの「ドンッ」という手応えが出ない。
 //
+// ・ブーストダッシュ(Shift)の見せ方
+//     ジェットは「出ているか」しか変わらないので、歩いている時と
+//     一気に加速した時が同じ絵になってしまう。そこで2つ足してある。
+//       (1) ダッシュしている間はジェットを boostScale 倍に太らせる(持続)
+//       (2) 踏み込んだ瞬間にスパークのエフェクトを1回だけ出す(瞬間)
+//     (1) はジェットそのものの大きさなのでここが倍率を持ち、
+//     (2) は絵がまったく別物なので、ジェットのアセットとは分けて
+//     sparkEffectGUID に別の EffectAsset を持たせる。
+//     どちらを動かすかは BoosterEffectSystem が isBoosting を見て決める
+//     (isBoosting を書くのは ThrusterEffectSystem)。
+//
 // ・以前はパーティクルコンポーネント(ParticlesComponent)を直に付けていたが、
 //   あちらは汎用なので、ブースター1つを調整するのに
 //   発生量・寿命・絵といった「アセットに書くべきもの」まで並んでしまっていた。
@@ -41,9 +55,27 @@ struct BoosterEffectComponent
 	float burstScale = 1.8f;	// 点火した瞬間のスケール倍率(baseScale より小さくすると縮んでから戻る)
 	float burstTime = 0.18f;	// baseScale へ戻るまでの秒数。0 なら膨らませない
 
+	// ---- ブーストダッシュ中の太らせ(設定値) ----
+	// 上の膨らみに掛ける倍率。1 なら通常移動と同じ太さのまま
+	float boostScale = 1.7f;
+	// 倍率の行き来にかける秒数。0 なら即座に切り替わる。
+	// 入り切りをそのまま出すとジェットが1フレームで跳ねるので、少しだけ均す
+	float boostBlendTime = 0.08f;
+
+	// ---- 踏み込んだ瞬間のスパーク(設定値) ----
+	// ジェットとは別のエフェクトを噴射口へ1回だけ出す。
+	// 未設定なら何も出ない(ジェットの太らせだけが効く)
+	Engine::GUID sparkEffectGUID = Engine::DefaultGUID;
+	Engine::Handle<Engine::Resource::EffectAsset> sparkHandle = {};	// EffectFixupSystem が解決する
+	float sparkScale = 1.0f;	// スパークの大きさ倍率(アセットは共有なので個体差はここで付ける)
+
 	// ---- ランタイム(保存しない) ----
 	float burstTimer = 0.0f;	// 戻るまでの残り時間
 	bool  wasPlaying = false;	// 点火の立ち上がりを見るための前フレームの状態
+
+	bool  isBoosting = false;	// ブーストダッシュ中か(ThrusterEffectSystem が毎フレーム書く)
+	bool  wasBoosting = false;	// 踏み込みの立ち上がりを見るための前フレームの状態
+	float boostBlend = 0.0f;	// 0 = 通常 / 1 = ブースト中。boostBlendTime で行き来する
 };
 
 template<>
@@ -59,6 +91,12 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 		a_ar.Field("baseScale", _comp.baseScale);
 		a_ar.Field("burstScale", _comp.burstScale);
 		a_ar.Field("burstTime", _comp.burstTime);
+
+		a_ar.Field("boostScale", _comp.boostScale);
+		a_ar.Field("boostBlendTime", _comp.boostBlendTime);
+
+		a_ar.Field("sparkEffectGUID", _comp.sparkEffectGUID);
+		a_ar.Field("sparkScale", _comp.sparkScale);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -80,9 +118,33 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 			ImGui::TextDisabled("0 : 膨らませない(常に BaseScale)");
 		}
 
+		ImGui::SeparatorText("Boost Dash");
+		ImGui::TextDisabled("ブースト中だけジェットを太らせる(上の大きさに掛かる)");
+		ImGui::DragFloat("BoostScale", &_comp.boostScale, 0.01f, 0.0f);
+		ImGui::DragFloat("BoostBlendTime (s)", &_comp.boostBlendTime, 0.01f, 0.0f);
+		if (_comp.boostScale <= 1.0f)
+		{
+			ImGui::TextDisabled("1 以下 : ブーストしても太らない");
+		}
+
+		ImGui::SeparatorText("Boost Spark");
+		ImGui::TextDisabled("踏み込んだ瞬間に噴射口へ1回だけ出す。ジェットとは別のアセット");
+		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Resource::EffectAsset>(
+			"Spark Effect",
+			"EffectAsset",
+			_comp.sparkEffectGUID,
+			_comp.sparkHandle);
+		ImGui::DragFloat("SparkScale", &_comp.sparkScale, 0.01f, 0.0f);
+		if (_comp.sparkEffectGUID == Engine::DefaultGUID)
+		{
+			ImGui::TextDisabled("(未設定 : ダッシュしても何も出ない)");
+		}
+
 		// ランタイムは表示のみ
 		ImGui::SeparatorText("Runtime");
 		ImGui::Text("BurstTimer : %.3f", _comp.burstTimer);
 		ImGui::Text("Playing    : %s", _comp.wasPlaying ? "true" : "false");
+		ImGui::Text("Boosting   : %s", _comp.isBoosting ? "true" : "false");
+		ImGui::Text("BoostBlend : %.3f", _comp.boostBlend);
 	}
 };

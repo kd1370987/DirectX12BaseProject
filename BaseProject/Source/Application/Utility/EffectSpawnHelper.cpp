@@ -46,7 +46,9 @@ namespace App::Utility
 		Engine::ECS::World& a_world,
 		const Engine::GUID& a_effectGUID,
 		const Math::Vector3& a_pos,
-		bool a_isDestroyOnFinish)
+		bool a_isDestroyOnFinish,
+		const Math::Vector3& a_emitDir,
+		float a_scale)
 	{
 		if (a_effectGUID == Engine::DefaultGUID) return false;
 
@@ -72,6 +74,22 @@ namespace App::Utility
 		_effect.effectGUID = a_effectGUID;
 		_effect.playOnStart = true;			// 出た瞬間から再生する
 		_effect.destroyOnFinish = a_isDestroyOnFinish;	// 出し切ったら自分から消える
+
+		// ---- 出す側からの上書き ----
+		// アセットは共有なので、大きさと向きの違いはここで付ける。
+		// このエンティティは平行移動しか持たないので、渡された向きはそのままワールドの向きになる
+		_effect.effectScale = (a_scale > 0.0f) ? a_scale : 1.0f;
+
+		Math::Vector3 _emitDir = a_emitDir;
+		if (_emitDir.LengthSquared() > 1e-8f)
+		{
+			// 手で入れた値は長さがまちまちなので揃えておく。
+			// 揃えないと受け側(EffectDrawSystem)で行列を掛けたときに長さが効いてしまう
+			_emitDir.Normalize();
+			_effect.isOverrideTransform = true;
+			_effect.overrideEmitDir = _emitDir;
+		}
+
 		if (!PushComponent(a_world, _sig, _data, _effect)) return false;
 
 		// ---- エフェクトである印 ----

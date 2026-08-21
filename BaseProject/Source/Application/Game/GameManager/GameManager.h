@@ -8,7 +8,8 @@ namespace App::Game
 	/// </summary>
 	struct GlobalGameData
 	{
-		
+		float sccor = 0.0f;			// ゲーム中に倒した敵の数
+		float claerTime = 0.0f;		// クリアにかかった時間
 	};
 
 	/// <summary>

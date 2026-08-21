@@ -34,10 +34,20 @@ namespace App::Utility
 	/// エディターのプレビューのように「同じものを何度も再生し直したい」場合は false にして、
 	/// 出したエンティティの寿命を呼んだ側が握る
 	/// </param>
+	/// <param name="a_emitDir">
+	/// 吹き出す向き(ワールド)。0ベクトルならアセットのパーツが持っている向きのまま出す。
+	/// 出す場所は同じでも向きだけ変えたいもの(ブースターのスパークなど)向け
+	/// </param>
+	/// <param name="a_scale">
+	/// エフェクト全体の大きさ倍率。アセットは GUID 単位で共有されるので、
+	/// 同じ絵を大小で使い分けたいときはアセットを増やさずここで付ける
+	/// </param>
 	/// <returns>生成コマンドを積めたら true</returns>
 	bool SpawnEffectAt(
 		Engine::ECS::World& a_world,
 		const Engine::GUID& a_effectGUID,
 		const Math::Vector3& a_pos,
-		bool a_isDestroyOnFinish = true);
+		bool a_isDestroyOnFinish = true,
+		const Math::Vector3& a_emitDir = {},
+		float a_scale = 1.0f);
 }
