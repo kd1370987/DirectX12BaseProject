@@ -227,12 +227,12 @@ namespace Engine::Graphics
 		// RayGI は R16G16B16A16_FLOAT(HDR) なので、出力も同フォーマットにしてレンジを潰さない。
 		AddGISpatialDenoisePass(
 			m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort,
-			"GIPreSpatialDenoisePass", "RayGI", "RayGIDenoised", 5, DXGI_FORMAT_R16G16B16A16_FLOAT);
+			"GIPreSpatialDenoisePass", "RayGI", "RayGIDenoised", 2, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 		AddGITemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		// GIは最後までHDRを保つため、スペースデノイズの出力(FinalGI)/中間バッファもR16Fにする
 		AddGISpatialDenoisePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort,
-			"GISpatialDenoisePass", "DenoiseGI", "FinalGI", 5, DXGI_FORMAT_R16G16B16A16_FLOAT);
+			"GISpatialDenoisePass", "DenoiseGI", "FinalGI", 2, DXGI_FORMAT_R16G16B16A16_FLOAT);
 		AddFullRaytracingUpScalePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		// パーティクル
 		AddEmitParticlePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Particle);
@@ -465,6 +465,26 @@ namespace Engine::Graphics
 	AmbientData& GraphicsEngine::RefAmbientData()
 	{
 		return m_cbAmbient;
+	}
+	void GraphicsEngine::SetSkyData(const SkyData& a_data)
+	{
+		m_cbSky = a_data;
+	}
+	const SkyData& GraphicsEngine::GetSkyData() const
+	{
+		return m_cbSky;
+	}
+	SkyData& GraphicsEngine::RefSkyData()
+	{
+		return m_cbSky;
+	}
+	void GraphicsEngine::SetSkyTexture(const Handle<Resource::Texture>& a_handle)
+	{
+		m_skyTexHandle = a_handle;
+	}
+	const Handle<Resource::Texture>& GraphicsEngine::GetSkyTexture() const
+	{
+		return m_skyTexHandle;
 	}
 	void GraphicsEngine::SubmitSkinning(
 		ECS::World& a_world,

@@ -251,6 +251,7 @@
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp" />
+    <ClCompile Include="Source\Application\Object\Scene\SceneAmbientObject\SceneAmbientObject.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.cpp" />
@@ -654,6 +655,7 @@
     <ClInclude Include="Source\Application\Object\UI\UIBase.h" />
     <ClInclude Include="Source\Application\Object\UI\UIButton\UIButton.h" />
     <ClInclude Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.h" />
+    <ClInclude Include="Source\Application\Object\Scene\SceneAmbientObject\SceneAmbientObject.h" />
     <ClInclude Include="Source\Application\Object\UI\UIImage\UIImage.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h" />
@@ -896,7 +898,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\ToneMap\ToneMapPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Sky\SkyPass\SkyPass.h" />
-    <ClInclude Include="Source\Engine\Option\GraphicsOptions\SkyOption.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass\CopyToBackBufferPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.h" />
@@ -1062,8 +1063,8 @@
     <None Include="Asset\Shader\Common\CB\CBCamera.hlsli" />
     <None Include="Asset\Shader\Common\CB\CBBloomOption.hlsli" />
     <None Include="Asset\Shader\Common\CB\CBToneMapOption.hlsli" />
-    <None Include="Asset\Shader\Common\CB\CBSkyOption.hlsli" />
-    <None Include="Asset\Shader\Source\SkyShader\SkyPS.hlsl" />
+    <None Include="Asset\Shader\Common\CB\CBSky.hlsli" />
+    <None Include="Asset\Shader\Compute\Sky\SkyShader.hlsl" />
     <None Include="Asset\Shader\Common\CB\CBDoFOption.hlsli" />
     <None Include="Asset\Shader\Common\Lighting\Fog.hlsli" />
     <None Include="Asset\Shader\Common\Math\Hash.hlsli" />

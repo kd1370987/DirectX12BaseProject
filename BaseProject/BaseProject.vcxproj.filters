@@ -766,14 +766,20 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\Sky\SkyPass">
       <UniqueIdentifier>{c0de001b-1111-4222-8333-0000c0de001b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Source\SkyShader">
-      <UniqueIdentifier>{c0de001c-1111-4222-8333-0000c0de001c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Components\Character\Weapon">
       <UniqueIdentifier>{c0de001d-1111-4222-8333-0000c0de001d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem">
       <UniqueIdentifier>{c0de001e-1111-4222-8333-0000c0de001e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Scene">
+      <UniqueIdentifier>{c0de001f-1111-4222-8333-0000c0de001f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Scene\SceneAmbientObject">
+      <UniqueIdentifier>{c0de0020-1111-4222-8333-0000c0de0020}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Compute\Sky">
+      <UniqueIdentifier>{c0de0021-1111-4222-8333-0000c0de0021}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Option\GraphicsOptions">
       <UniqueIdentifier>{0d25129d-d165-4472-aff5-df486ed58360}</UniqueIdentifier>
@@ -2457,6 +2463,9 @@
     <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp">
       <Filter>Source\Application\Object\Sequence\TitleSequence</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Object\Scene\SceneAmbientObject\SceneAmbientObject.cpp">
+      <Filter>Source\Application\Object\Scene\SceneAmbientObject</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\UI\UIPass</Filter>
     </ClCompile>
@@ -3425,9 +3434,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Sky\SkyPass\SkyPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\Sky\SkyPass</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Option\GraphicsOptions\SkyOption.h">
-      <Filter>Source\Engine\Option\GraphicsOptions</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass\CopyToBackBufferPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass</Filter>
     </ClInclude>
@@ -3863,6 +3869,9 @@
     <ClInclude Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.h">
       <Filter>Source\Application\Object\Sequence\TitleSequence</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Object\Scene\SceneAmbientObject\SceneAmbientObject.h">
+      <Filter>Source\Application\Object\Scene\SceneAmbientObject</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\UIImage\UIImage.h">
       <Filter>Source\Application\Object\UI\UIImage</Filter>
     </ClInclude>
@@ -4054,11 +4063,11 @@
     <None Include="Asset\Shader\Common\CB\CBToneMapOption.hlsli">
       <Filter>Asset\Shader\Common\CB</Filter>
     </None>
-    <None Include="Asset\Shader\Common\CB\CBSkyOption.hlsli">
+    <None Include="Asset\Shader\Common\CB\CBSky.hlsli">
       <Filter>Asset\Shader\Common\CB</Filter>
     </None>
-    <None Include="Asset\Shader\Source\SkyShader\SkyPS.hlsl">
-      <Filter>Asset\Shader\Source\SkyShader</Filter>
+    <None Include="Asset\Shader\Compute\Sky\SkyShader.hlsl">
+      <Filter>Asset\Shader\Compute\Sky</Filter>
     </None>
     <None Include="Asset\Shader\Common\Lighting\Fog.hlsli">
       <Filter>Asset\Shader\Common\Lighting</Filter>

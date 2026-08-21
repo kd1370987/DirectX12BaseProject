@@ -6,123 +6,119 @@
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/D3D12/CBAllocator/CBAllocator.h"
+#include "Engine/D3D12/D3D12Helper.h"
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
+
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "Engine/Option/OptionManager.h"
 
-//==============================================================================
+//==============================================================================================
 // SkyPass
 //
-// スカイ(Sky)シェーディングモデルを付けたマテリアルだけが通るパス。
+// 何も描かれていないピクセル(深度が far のまま残っているピクセル)を空で埋める。
 //
-// ・GBuffer は通らない。空はライティングの計算対象ではないので、
-//   アルベドや法線を書き出しても使い道が無く、むしろ
-//   ディファードライティングに拾われて余計な陰影が付いてしまう。
-//   どのパスを通るかはシェーディングモデルのテーブル(Asset/ShadingModelTables/Sky)が
-//   決めるので、そこで "Sky" だけを有効にしてある。
+// スカイドームのメッシュは置かない。画面の各ピクセルが「どちらを向いているか」を
+// カメラの逆行列から復元し、その視線を仮想ドームへ飛ばして、交点の方向に対応する
+// 正距円筒のスカイテクスチャを引く。判断は全部シェーダー側(SkyShader.hlsl)。
 //
-// ・置き場所はディファードライティングの後ろ。
-//   ライティング結果(AfterLighting)へ直接色を書く。
-//   ZPre も通っていないため深度は空のぶんだけ抜けたままで、
-//   不透明が書いた深度に対して LESS_EQUAL で弾かれることで
-//   手前のオブジェクトの裏に回る。深度は書かない(空の後ろには何も無い)。
+// ・スカイテクスチャとドームの形(地平線の高さ・半径・回転)・露出は、
+//   シーンに置いた SceneAmbientObject の持ち物。
+//   ここは GraphicsEngine 経由で受け取るだけで、シーンのことは知らない。
+//   テクスチャが設定されていないシーンでは何も描かずに素通りする。
 //
-// ・モーションベクター(GBufferVelocity)もここで書く。
-//   GBufferPass を通らない以上ここで書かないと空の速度は0のままで、
-//   カメラを振ったときに TAA が「動いていない」と判断して空が尾を引く。
-//   Lighting 帯で上書きするので、TAA(PostProcess 帯)には空の速度が入ったものが渡る。
+// ・置き場所はディファードライティングの後ろ。ライティング結果(AfterLighting)へ
+//   直接色を書く。深度は読むだけで、比較はシェーダー内で行う
+//   (far のまま残っているピクセルだけが空)。
+//
+// ・モーションベクター(GBufferVelocity)もここで書く。GBuffer を通らない以上
+//   ここで書かないと空の速度は 0 のままで、カメラを振ったときに TAA が
+//   「動いていない」と判断して空が尾を引く。
+//   Lighting 帯で上書きするので TAA(PostProcess 帯)には空の速度が入ったものが渡る。
 //   影とGIのテンポラルデノイズ(NotSort 帯)はこれより前に走るため、
 //   これまでどおり GBuffer が書いた「空は0」のほうを読む。空のぶんは使わないので構わない。
-//==============================================================================
+//==============================================================================================
 namespace Engine::Graphics
 {
 	namespace
 	{
-		// MESHGLOBAL_ROOT_SIG の末尾に足したスカイ設定CB(b15)のルートパラメータ番号。
-		// 0=カメラCB / 1〜8=SRV(t0〜t7) / 9=ルート定数 / 10=SRV(t8) / 11=ここ
-		constexpr int kSkyOptionRootIndex = 11;
-
-		// スカイ設定 → 定数バッファ
-		// ※ HLSL 側 SkyOptionData(CBSkyOption.hlsli)と並びを合わせること
-		struct SkyOptionData
-		{
-			float exposure;
-			float pad[3];
-		};
-
-		SkyOptionData MakeSkyOptionCB()
-		{
-			const auto& _op = Option::OptionManager::GetInstance().GetSkyOption();
-
-			SkyOptionData _cb = {};
-			_cb.exposure = _op.exposure;
-
-			return _cb;
-		}
+		// ルートパラメータ番号(SkyShader.hlsl の SKY_ROOT_SIG と合わせること)
+		constexpr int  kRootCameraCB   = 0;
+		constexpr int  kRootSkyCB      = 1;
+		constexpr UINT kRootDepthSRV   = 2;	// レンダーグラフが張る
+		constexpr UINT kRootSkyTexSRV  = 3;	// このパスが張る
+		constexpr UINT kRootColorUAV   = 4;	// レンダーグラフが張る
+		constexpr UINT kRootVelocityUAV = 5;	// レンダーグラフが張る
 	}
 
 	void AddSkyPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 	{
-		// ランタイム用データ
-		struct RuntimeData
-		{
-			Handle<ID3D12RootSignature> rootSigHandle = {};
-		};
-		auto _spPassData = std::make_shared<RuntimeData>();
-
 		// ノード・ビルダー作成
 		RenderPassNode _node = {};
 		_node.name = "Sky";
 		_node.phase = a_phase;
-		RGMeshShaderPassBuilder _msBuilder(&_node);
+		RGComputePassBuilder _cpBuilder(&_node);
 
-		// 依存関係構築
-		// 深度は不透明が書いたものをそのまま使う(読み取り専用)
-		_msBuilder.ReadDepth("Depth");
-
-		// 宣言順がそのまま SV_Target の番号になる。
-		// AfterLighting はライティングと同じ R16F で揃える(フォーマット不一致はグラフが破綻する)
-		_msBuilder.WriteRTV("AfterLighting", DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Load, StoreOp::Store);
-		_msBuilder.WriteRTV("GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT, LoadOp::Load, StoreOp::Store);
-
-		// シェーダー関係セット : メッシュの展開は GBuffer と同じものを使い回す
-		auto _guidMS = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Mesh/UberMS.cso");
-		auto _msHandle = Resource::ResourceManager::Instance().LoadImmediate<Resource::Shader>(_guidMS);
-		_node.pipelineBuilder.RegisterMeshShader(EShaderPermutationFlags::Static, _msHandle);
-		_node.pipelineBuilder.RegisterMeshShader(EShaderPermutationFlags::Skinned, _msHandle);
-
-		auto _guidAS = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Mesh/TestAS.cso");
-		auto _asHandle = Resource::ResourceManager::Instance().LoadImmediate<Resource::Shader>(_guidAS);
-		_node.pipelineBuilder.RegisterAmplificationShader(EShaderPermutationFlags::Static, _asHandle);
-		_node.pipelineBuilder.RegisterAmplificationShader(EShaderPermutationFlags::Skinned, _asHandle);
-
-		// ルートシグネチャセット
-		_spPassData->rootSigHandle = a_pPSOManager->Request("Asset/Shader/Source/Mesh/UberMS.cso");
-
-		// 深度テスト設定
-		_node.pipelineBuilder.SetDepthConfig(
-			true,								// 深度テスト有効
-			false,								// 書き込み無効
-			D3D12_COMPARISON_FUNC_LESS_EQUAL	// ZPre を通っていないので手前のものに負ける形で比較する
+		// シェーダー
+		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
+		auto* _pBlob = _cpBuilder.SetShader(
+			"Asset/Shader/Compute/Sky/SkyShader.cso",
+			"SkyShader",
+			_csIndex
 		);
+		_cpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+		_cpBuilder.SetPassPSO(_csIndex);
+		_cpBuilder.SetHeapMode(ERGHeapMode::Default);
 
-		// カリング設定 : モデル側の向きに任せるので既定の背面カリングのまま
-		_node.pipelineBuilder.SetCullMode(D3D12_CULL_MODE_BACK);
+		// 依存関係とバインドの宣言
+		// スカイテクスチャはレンダーグラフの管理外(リソースマネージャーの持ち物)なので、
+		// 同じテーブルには混ぜられない。別のルートパラメータにして実行時に張る
+		_cpBuilder.SrvTable(kRootDepthSRV).Add("Depth");
 
-		// 実行関数
-		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
+		// AfterLighting はライティングと同じ R16F で揃える(フォーマット不一致はグラフが破綻する)。
+		// どちらも既に書かれている絵の上に乗せるので LoadOp は Load
+		const RGResourceRef _colorRef =
+			_cpBuilder.BindUAV(kRootColorUAV, "AfterLighting", DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Load, StoreOp::Store);
+		_cpBuilder.BindUAV(kRootVelocityUAV, "GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT, LoadOp::Load, StoreOp::Store);
+
+		// コンパイル
+		_cpBuilder.ResolveAndCompile(a_pPSOManager);
+
+		// 実行関数 : 定数バッファとスカイテクスチャ、そしてディスパッチだけ
+		_node.executeFunc = [_colorRef](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 			{
-				a_pCtx->BindCopyHeapAndSumplerBindLess();
-				a_pCtx->SetGraphicsRootSignature(_spPassData->rootSigHandle);
+				// スカイテクスチャが設定されていないシーンでは何も描かない。
+				// ディスパッチごと飛ばすので、ライティングの結果がそのまま残る
+				auto* _pSkyTex = Resource::ResourceManager::Instance().Get(a_pGE->GetSkyTexture());
+				if (!_pSkyTex) return;
 
-				a_pCtx->BindCamera();
-				a_pCtx->BindMeshInstance();
-				a_pCtx->BindMeshlet();
+				const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+				auto* _pCmd = a_pCtx->GetCurrentCmdList();
 
-				// スカイ設定(オプション → 定数バッファ)
-				a_pCtx->GraphicsBindRootCBV(kSkyOptionRootIndex, MakeSkyOptionCB());
+				// カメラ : 視線方向の復元とモーションベクターに使う
+				a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(_pCmd, kRootCameraCB, a_pGE->GetCameraData());
 
-				a_pCtx->DrawQueueDispathMesh(a_res.PassIndex());
+				// スカイ設定(シーンのアンビエントオブジェクト → 定数バッファ)
+				a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<SkyData>(_pCmd, kRootSkyCB, a_pGE->GetSkyData());
+
+				// スカイテクスチャ
+				a_pCtx->ComputeBindSRV(kRootSkyTexSRV, _pSkyTex->GetSRV());
+
+				// ★UAVバリア必須。
+				// 直前の DeferredLighting も同じ AfterLighting へ UAV で書いている。
+				// UAV同士は状態が変わらないのでレンダーグラフが遷移バリアを積まず、
+				// バリアが無いと2つのDispatchがGPU上で並列に走ってしまう。
+				// そうなると空を書いたあとからライティングの結果が同じ画素へ降ってきて、
+				// 空が出たり消えたりする。
+				D3D12::UAVBarrier(_pCmd, { a_res.Resource(_colorRef)->GetResource() });
+
+				// 切り上げ : 解像度が8の倍数でないと末尾タイルが実行されず端が処理されない
+				a_pCtx->Dispatch(
+					(_winOp.windowWidth + 7) / 8,
+					(_winOp.windowHeight + 7) / 8,
+					1
+				);
 			};
 
 		// パス登録

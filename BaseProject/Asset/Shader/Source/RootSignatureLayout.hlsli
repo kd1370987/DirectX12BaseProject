@@ -19,6 +19,17 @@
 "    addressW = TEXTURE_ADDRESS_CLAMP)"
 
 
+// 正距円筒(緯度経度)のスカイテクスチャ用サンプラー
+// U は経度なので一周してつながる(WRAP)。V は緯度で、真上と真下より先は無いので
+// CLAMP にする(WRAP のままだと天頂で地面の色が回り込む)
+#define RS_STATIC_SAMPLER_SKY \
+"StaticSampler(s0, " \
+"    filter = FILTER_MIN_MAG_MIP_LINEAR, " \
+"    addressU = TEXTURE_ADDRESS_WRAP, " \
+"    addressV = TEXTURE_ADDRESS_CLAMP, " \
+"    addressW = TEXTURE_ADDRESS_CLAMP)"
+
+
 // デフォルト用
 #define RS_FLAGS \
 "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | " \

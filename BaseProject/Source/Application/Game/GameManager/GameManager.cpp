@@ -19,6 +19,7 @@
 #include "Application/Object/UI/UIButton/UIButton.h"
 #include "Application/Object/UI/UIImage/UIImage.h"
 #include "Application/Object/Sequence/TitleSequence/TitleSequence.h"
+#include "../../Object/Scene/SceneAmbientObject/SceneAmbientObject.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 
 // コンポーネント関係
@@ -257,6 +258,10 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::UIImage>("UIImage");
 			// タイトル画面の進行役。ボタンへ「押されたらシーンを切り替える」を差し込む
 			_objRegistry.RegisterType<App::Object::TitleSequence>("TitleSequence");
+			// シーンの環境設定(環境光・平行光・フォグ・空)。シーンに1つ置く。
+			// ※ タイプIDは登録順で振られるので、必ず末尾に足すこと
+			//    (間に挟むと既存シーンの TypeIndex が全部ずれる)
+			_objRegistry.RegisterType<App::Object::SceneAmbientObject>("SceneAmbientObject");
 		}
 
 		// ワールドの初期化関数登録

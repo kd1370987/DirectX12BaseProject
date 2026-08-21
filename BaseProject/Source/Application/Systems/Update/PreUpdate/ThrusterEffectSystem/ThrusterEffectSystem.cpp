@@ -90,11 +90,13 @@ void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 				// 肩 : ブースト時のアフターバーナー
 				bool _shoulderOn = _boosting;
 
+				bool _boostOn = _moving || _rising || _boosting;
+
 				// ---- ブースタースロットへ配信 ----
-				_setBoosterPlay(_slots.rightLegBoost.id,      _legOn);
-				_setBoosterPlay(_slots.leftLegBoost.id,       _legOn);
-				_setBoosterPlay(_slots.rightShoulderBoost.id, _shoulderOn);
-				_setBoosterPlay(_slots.leftShoulderBoost.id,  _shoulderOn);
+				_setBoosterPlay(_slots.rightLegBoost.id, _boostOn);
+				_setBoosterPlay(_slots.leftLegBoost.id, _boostOn);
+				_setBoosterPlay(_slots.rightShoulderBoost.id, _boostOn);
+				_setBoosterPlay(_slots.leftShoulderBoost.id, _boostOn);
 			}
 		}
 	);

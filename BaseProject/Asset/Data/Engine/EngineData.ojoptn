@@ -38,9 +38,6 @@
         "isZPre": true,
         "useJitter": true
     },
-    "SkyOption": {
-        "exposure": 1.0
-    },
     "ToneMapOption": {
         "exposure": 1.0,
         "type": 4,

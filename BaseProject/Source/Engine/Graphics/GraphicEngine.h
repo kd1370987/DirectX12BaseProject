@@ -162,6 +162,18 @@ namespace Engine::Graphics
 		void SetAmbientData(const AmbientData& a_data);
 		const AmbientData& GetAmbientData() const;
 		AmbientData& RefAmbientData();
+
+		// スカイの設定とテクスチャ
+		//
+		// どちらもシーンに置いた SceneAmbientObject の持ち物で、毎フレーム流し込まれる。
+		// テクスチャは所有せずハンドルだけ預かるので、置いた側が消えたら
+		// 空のハンドルへ戻してもらう(空の間はスカイパスが何も描かない)。
+		void SetSkyData(const SkyData& a_data);
+		const SkyData& GetSkyData() const;
+		SkyData& RefSkyData();
+
+		void SetSkyTexture(const Handle<Resource::Texture>& a_handle);
+		const Handle<Resource::Texture>& GetSkyTexture() const;
 		//--------------------------------------------------------------------------------------------
 		// 計算コマンド : スキニング
 		//--------------------------------------------------------------------------------------------
@@ -433,6 +445,10 @@ namespace Engine::Graphics
 
 		// 環境データ
 		AmbientData m_cbAmbient = {};
+
+		// スカイの設定と、引くスカイテクスチャ(所有はしない)
+		SkyData m_cbSky = {};
+		Handle<Resource::Texture> m_skyTexHandle = {};
 
 		// 被写界深度データ(アクティブカメラの FocusParamComponent から毎フレーム設定)
 		DoFOptionCB m_cbDoF = {};
