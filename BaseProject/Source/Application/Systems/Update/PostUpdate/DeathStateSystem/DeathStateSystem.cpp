@@ -1,4 +1,4 @@
-#include "DeathStateSystem.h"
+﻿#include "DeathStateSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -129,9 +129,9 @@ void DeathStateSystem::Init(Engine::ECS::World& a_world)
 				if (!a_healthArray[_i].isDead) continue;
 
 				ActionIntentComponent& _intent = a_intentArray[_i];
-				_intent.isGunShoot    = false;
-				_intent.isAiming      = false;
-				_intent.isMissileHold = false;
+				_intent.isLeftWeaponShoot  = false;
+				_intent.isRightWeaponShoot = false;
+				_intent.isMissileHold      = false;
 			}
 		}
 	);

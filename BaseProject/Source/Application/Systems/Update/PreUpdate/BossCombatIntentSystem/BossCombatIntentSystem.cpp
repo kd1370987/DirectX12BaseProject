@@ -304,9 +304,9 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 
 					_intent.value = {};
 
-					_action.isGunShoot    = false;
-					_action.isAiming      = false;
-					_action.isMissileHold = false;
+					_action.isLeftWeaponShoot  = false;
+					_action.isRightWeaponShoot = false;
+					_action.isMissileHold      = false;
 
 					_boost.isBoostIntent = false;
 					_boost.isBoostTriger = false;
@@ -339,7 +339,7 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 				// 狙点(偏差撃ち)
 				//----------------------------------------------------------
 				// 弾が届くまでの時間だけ相手の未来位置を読む。
-				// 弾速はメイン武器の GunStateComponent から引く(弾ごとに変わるため)。
+				// 弾速は左手の武器(無ければ右手)の GunStateComponent から引く(弾ごとに変わるため)。
 				//==========================================================
 				Math::Vector3 _aimPos = _targetPos;
 				_aimPos.y += _boss.aimOffsetY;
@@ -348,13 +348,19 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 				_boss.distance = _distance;
 
 				float _bulletSpeed = 0.0f;
-				if (_slots.mainGun.id != Engine::ECS::Limits::INVALID_ENTITY &&
-					a_ctx.pWorld->HasComponent<GunStateComponent>(_slots.mainGun.id))
 				{
-					if (const auto* _pGun = a_ctx.pWorld->RefData<GunStateComponent>(_slots.mainGun.id))
+					auto _readSpeed = [&](Engine::ECS::Entity a_weapon)
 					{
-						_bulletSpeed = _pGun->speed;
-					}
+						if (_bulletSpeed > 0.0f) return;
+						if (a_weapon == Engine::ECS::Limits::INVALID_ENTITY) return;
+						if (!a_ctx.pWorld->HasComponent<GunStateComponent>(a_weapon)) return;
+						if (const auto* _pGun = a_ctx.pWorld->RefData<GunStateComponent>(a_weapon))
+						{
+							_bulletSpeed = _pGun->speed;
+						}
+					};
+					_readSpeed(_slots.leftWeapon.id);
+					_readSpeed(_slots.rightWeapon.id);
 				}
 
 				if (_bulletSpeed > 0.0f && _boss.aimLeadScale > 0.0f)
@@ -562,10 +568,12 @@ void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
 				// 撃ち始める距離もパターン任せ。離脱中(Retreat)は届かないので撃たない
 				const float _gunRange = _boss.gunRange * _profile.gunRangeScale;
 
-				_action.isGunShoot    = _boss.isGunActive && _isInCone && (_distance <= _gunRange);
-				_action.isAiming      = (_distance <= _gunRange);
+				// 左右の区別は付けない。ボスは両手ぶんの武器を同じリズムで撃つ
+				const bool _shoot = _boss.isGunActive && _isInCone && (_distance <= _gunRange);
+				_action.isLeftWeaponShoot  = _shoot;
+				_action.isRightWeaponShoot = _shoot;
 				// ミサイルは溜め撃ちではなく間隔で撃つので、この入力は使わない
-				_action.isMissileHold = false;
+				_action.isMissileHold      = false;
 
 				//==========================================================
 				// ミサイル : 間隔ごとに一斉射を要求する

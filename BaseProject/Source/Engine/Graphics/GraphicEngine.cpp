@@ -38,6 +38,8 @@
 
 #include "RenderPass/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
 
+#include "RenderPass/Sky/SkyPass/SkyPass.h"
+
 #include "RenderPass/PostEffect/AntiAliasing/TAA/TAAPass.h"
 #include "RenderPass/PostEffect/DoF/CoCPass/CoCPass.h"
 #include "RenderPass/PostEffect/DoF/DoFPass/DoFPass.h"
@@ -143,6 +145,11 @@ namespace Engine::Graphics
 		AddRaytracingShadowPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Raytracing);
 		AddRaytracingGIPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Raytracing);
 		AddDeferredLighting(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Lighting);
+		// スカイはライティングの結果(AfterLighting)へ直接描くので、必ずディファードライティングより後。
+		// 同一フェーズ内はトポロジカルソートで並ぶが、この2つの間には
+		// 「読む→書く」の関係が無い(スカイは上書きするだけ)ので辺が張られない。
+		// 辺が無いものは登録順で並ぶため、ここの順番がそのまま実行順になる
+		AddSkyPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Lighting);
 		AddGBufferHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
 		AddPostHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
 

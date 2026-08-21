@@ -760,6 +760,21 @@
     <Filter Include="Source\Engine\Option">
       <UniqueIdentifier>{881cff70-bcd4-4e3e-b84b-26111ec77600}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Sky">
+      <UniqueIdentifier>{c0de001a-1111-4222-8333-0000c0de001a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\Sky\SkyPass">
+      <UniqueIdentifier>{c0de001b-1111-4222-8333-0000c0de001b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\SkyShader">
+      <UniqueIdentifier>{c0de001c-1111-4222-8333-0000c0de001c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Character\Weapon">
+      <UniqueIdentifier>{c0de001d-1111-4222-8333-0000c0de001d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem">
+      <UniqueIdentifier>{c0de001e-1111-4222-8333-0000c0de001e}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Option\GraphicsOptions">
       <UniqueIdentifier>{0d25129d-d165-4472-aff5-df486ed58360}</UniqueIdentifier>
     </Filter>
@@ -1947,6 +1962,9 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem\SelfWeaponTriggerSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem\BoostSoundSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\BoostSoundSystem</Filter>
     </ClCompile>
@@ -2102,6 +2120,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\ToneMap\ToneMapPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\ToneMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Sky\SkyPass\SkyPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\Sky\SkyPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass\CopyToBackBufferPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass</Filter>
@@ -3143,6 +3164,9 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem\SelfWeaponTriggerSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem\BoostSoundSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\BoostSoundSystem</Filter>
     </ClInclude>
@@ -3397,6 +3421,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\ToneMap\ToneMapPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\ToneMap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Sky\SkyPass\SkyPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\Sky\SkyPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\SkyOption.h">
+      <Filter>Source\Engine\Option\GraphicsOptions</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass\CopyToBackBufferPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass</Filter>
@@ -3655,6 +3685,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Weapon\Gun\GunStateComponent.h">
       <Filter>Source\Application\Components\Character\Weapon\Gun</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Weapon\WeaponTriggerComponent.h">
+      <Filter>Source\Application\Components\Character\Weapon</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Internal\CollisionEvent.h">
       <Filter>Source\Engine\ECS\Internal</Filter>
@@ -4020,6 +4053,12 @@
     </None>
     <None Include="Asset\Shader\Common\CB\CBToneMapOption.hlsli">
       <Filter>Asset\Shader\Common\CB</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\CB\CBSkyOption.hlsli">
+      <Filter>Asset\Shader\Common\CB</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\SkyShader\SkyPS.hlsl">
+      <Filter>Asset\Shader\Source\SkyShader</Filter>
     </None>
     <None Include="Asset\Shader\Common\Lighting\Fog.hlsli">
       <Filter>Asset\Shader\Common\Lighting</Filter>

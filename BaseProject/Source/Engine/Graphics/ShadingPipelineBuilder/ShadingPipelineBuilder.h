@@ -66,6 +66,14 @@ namespace Engine::Graphics
 		void SetDepthConfig(bool a_enable, bool a_write, D3D12_COMPARISON_FUNC a_func);
 
 		/// <summary>
+		/// パスのカリング設定を受け取る
+		/// 既定は D3D12_CULL_MODE_BACK。スカイドームのように内側から見る形状で
+		/// 裏返したいパスだけが触る
+		/// </summary>
+		/// <param name="a_mode">カリングモード</param>
+		void SetCullMode(D3D12_CULL_MODE a_mode);
+
+		/// <summary>
 		/// メッシュシェーダーが登録されているかのチェック
 		/// </summary>
 		/// <returns></returns>
@@ -101,5 +109,8 @@ namespace Engine::Graphics
 		bool m_depthEnable = true;				// 深度テストするかどうか
 		bool m_depthWrite = true;				// 深度テストした結果を書き込むかどうか
 		D3D12_COMPARISON_FUNC m_depthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;	// 深度テストする際のコンフィグ
+
+		// カリング設定 : 既定はビルダーの標準と同じ背面カリング
+		D3D12_CULL_MODE m_cullMode = D3D12_CULL_MODE_BACK;
 	};
 }

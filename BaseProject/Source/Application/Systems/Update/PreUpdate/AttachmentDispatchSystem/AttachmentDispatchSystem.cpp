@@ -5,6 +5,7 @@
 #include "../../../../Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "../../../../Components/Intent/ActionIntentComponent.h"
 #include "../../../../Components/Character/AimTargetPosComponent.h"
+#include "../../../../Components/Character/Weapon/WeaponTriggerComponent.h"
 
 //==========================================================================================
 // AttachmentDispatchSystem
@@ -12,6 +13,11 @@
 // プレイヤー(AttachmentSlotsComponent 保持者)を反復し、スロットが指す子エンティティの
 // コンポーネントへ入力を配信する。子エンティティはこのクエリには含まれないため、
 // World::RefData でエンティティ横断的に参照する(構造変更は行わないので反復中でも安全)。
+//
+// ここが渡すのは「引き金を引いているか」と「どこを狙っているか」だけ。
+// 撃てるかどうか(連射間隔・バースト・オーバーヒート)も、何をどう撃つか(弾・弾速・銃口)も
+// 武器側の GunStateComponent が持ち、GunShootSystem が判断する。
+// 持ち主は左右どちらの武器を使うかしか知らない。
 //
 // ※ ブースター(移動スラスター)の噴射制御は ThrusterEffectSystem が担当する。
 //    ここでは武器系の入力配信のみを行う。
@@ -31,15 +37,14 @@ void AttachmentDispatchSystem::Init(Engine::ECS::World& a_world)
 			const ActionIntentComponent* a_intentArray
 			)
 		{
-			// 銃子へ発射入力を配信
-			auto _setGunIntent = [&a_ctx](Engine::ECS::Entity a_e, bool a_shoot, bool a_aim)
+			// 武器へ引き金の状態を配信
+			auto _setTrigger = [&a_ctx](Engine::ECS::Entity a_e, bool a_pulled)
 			{
 				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
-				if (!a_ctx.pWorld->HasComponent<ActionIntentComponent>(a_e)) return;
-				if (auto* _p = a_ctx.pWorld->RefData<ActionIntentComponent>(a_e))
+				if (!a_ctx.pWorld->HasComponent<WeaponTriggerComponent>(a_e)) return;
+				if (auto* _p = a_ctx.pWorld->RefData<WeaponTriggerComponent>(a_e))
 				{
-					_p->isGunShoot = a_shoot;
-					_p->isAiming = a_aim;
+					_p->isPulled = a_pulled;
 				}
 			};
 
@@ -72,9 +77,14 @@ void AttachmentDispatchSystem::Init(Engine::ECS::World& a_world)
 					? a_ctx.pWorld->RefData<AimTargetPosComponent>(_self)
 					: nullptr;
 
-				// --- 銃スロットへ配信 ---
-				_setGunIntent(_slots.mainGun.id, _intent.isGunShoot, _intent.isAiming);
-				_setAimTarget(_slots.mainGun.id, _pAim);
+				// --- 左右の武器へ配信 ---
+				// スロットが空でも、片方だけでも、ここは何も気にしない。
+				// 「押されている」と伝えるだけで、撃つかどうかは武器が決める
+				_setTrigger(_slots.leftWeapon.id,  _intent.isLeftWeaponShoot);
+				_setTrigger(_slots.rightWeapon.id, _intent.isRightWeaponShoot);
+
+				_setAimTarget(_slots.leftWeapon.id,  _pAim);
+				_setAimTarget(_slots.rightWeapon.id, _pAim);
 
 				// missile スロットへは配信しない。ミサイルは「押している間に溜めて
 				// 離すと一斉射」なので、入力を子へ流すだけでは足りない。

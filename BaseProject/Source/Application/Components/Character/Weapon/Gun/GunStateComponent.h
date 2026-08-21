@@ -11,8 +11,12 @@ enum class EFireMode : uint32_t
 	Burst,		// 1回で burstCount 発を fireRate の間隔で撃ち、burstInterval あけて次のバーストへ
 };
 
-// 銃(発射体)の設定を持つコンポーネント。
-// 「どのプレハブを・どれくらいの初速で・どう撃つか」を保持する。
+// 銃(発射体)の設定と状態を持つコンポーネント。
+// 「どのプレハブを・どれくらいの初速で・どう撃つか」と、
+// 「今この瞬間に撃てるのか」(連射間隔・バースト・熱)をすべてここが持つ。
+//
+// 持ち主は WeaponTriggerComponent に「引いているか」を書くだけで、
+// 撃てる/撃てないの判断には一切関わらない。判断するのは GunShootSystem。
 //
 // 単発撃ち(トリガーの立ち上がりで1発)は用意していない。
 // 押しっぱなしの Auto を基本にして、ミサイルのようにまとめて撃つものは Burst を使う。
@@ -30,6 +34,22 @@ struct GunStateComponent
 	Engine::GUID bulletPrefabGUID = {};									// 記録用(セーブされる)
 	Engine::Handle<Engine::Resource::Prefab> bulletPrefabHandle = {};	// ランタイム用(発射時に解決)
 
+	//---------------------------------------------------------------------------
+	// オーバーヒート
+	//
+	// 撃つほど熱が溜まり、上限に届くと撃てなくなる。
+	// 冷えて復帰しきい値を下回るまでは引き金を引いても無反応。
+	//
+	// 既定は無効。有効にすると弾の出方が変わるので、
+	// 使いたい武器だけインスペクターで入れる(既存の武器の手応えを勝手に変えないため)
+	//---------------------------------------------------------------------------
+	bool  useOverheat        = false;	// 熱を使うか
+	float heatPerShot        = 3.0f;	// 1発あたりに溜まる熱
+	float heatLimit          = 100.0f;	// ここまで溜まるとオーバーヒート
+	float heatCoolRate       = 40.0f;	// 毎秒冷える量
+	float overheatCoolScale  = 0.75f;	// オーバーヒート中の冷却倍率(1未満にすると復帰が遅くなる)
+	float restartHeatRatio   = 0.2f;	// 復帰する熱の割合(heatLimit 比)。0なら完全に冷えるまで撃てない
+
 	// ---- ランタイム(保存しない) ----
 
 	// 前回発射してからの経過時間(秒)。撃った瞬間だけ 0 に戻し、あとは毎フレーム dt を足す。
@@ -39,8 +59,14 @@ struct GunStateComponent
 
 	int   burstRemain = 0;			// Burst : 今のバーストで残っている発数
 
+	float heat       = 0.0f;		// 今の熱
+	bool  isOverheat = false;		// オーバーヒート中か(復帰しきい値を下回るまで撃てない)
+
 	UINT nullPtrNodeHash = 0;		// モデルのヌルポイント名ハッシュ値
 	UINT nodeIndex = 0;				// ランタイム用ノードインデックス
+
+	// 熱の溜まり具合(0〜1)。HUD やインスペクターの表示用
+	float HeatRatio() const { return (heatLimit > 0.0f) ? (heat / heatLimit) : 0.0f; }
 };
 
 template<>
@@ -55,6 +81,12 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 		a_ar.Field("burstCount", _comp.burstCount);
 		a_ar.Field("burstInterval", _comp.burstInterval);
 		a_ar.Field("bulletPrefabGUID", _comp.bulletPrefabGUID);
+		a_ar.Field("useOverheat", _comp.useOverheat);
+		a_ar.Field("heatPerShot", _comp.heatPerShot);
+		a_ar.Field("heatLimit", _comp.heatLimit);
+		a_ar.Field("heatCoolRate", _comp.heatCoolRate);
+		a_ar.Field("overheatCoolScale", _comp.overheatCoolScale);
+		a_ar.Field("restartHeatRatio", _comp.restartHeatRatio);
 		a_ar.Field("nullPtrNodeHash", _comp.nullPtrNodeHash);
 	}
 
@@ -97,9 +129,31 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 			_comp.nodeIndex
 		);
 
+		// ---- オーバーヒート ----
+		ImGui::Separator();
+		ImGui::Checkbox("Use Overheat", &_comp.useOverheat);
+
+		ImGui::BeginDisabled(!_comp.useOverheat);
+		ImGui::DragFloat("Heat Per Shot", &_comp.heatPerShot, 0.1f, 0.0f, 1000.0f);
+		ImGui::DragFloat("Heat Limit", &_comp.heatLimit, 1.0f, 0.01f, 10000.0f);
+		ImGui::DragFloat("Heat Cool Rate", &_comp.heatCoolRate, 0.5f, 0.0f, 10000.0f, "%.2f /s");
+		ImGui::DragFloat("Overheat Cool Scale", &_comp.overheatCoolScale, 0.01f, 0.0f, 4.0f);
+		ImGui::DragFloat("Restart Heat Ratio", &_comp.restartHeatRatio, 0.01f, 0.0f, 1.0f);
+		ImGui::EndDisabled();
+
+		// 上限が 0 以下だと割り算も判定も壊れるので下限で止める
+		if (_comp.heatLimit < 0.01f) _comp.heatLimit = 0.01f;
+
 		// ---- ランタイム状態(参考) ----
 		ImGui::Separator();
 		ImGui::TextDisabled("TimeSinceShoot : %.2f s  BurstRemain : %d",
 			_comp.timeSinceShoot, _comp.burstRemain);
+
+		if (_comp.useOverheat)
+		{
+			ImGui::ProgressBar(_comp.HeatRatio(), ImVec2(-1.0f, 0.0f));
+			ImGui::TextDisabled("Heat : %.1f / %.1f%s",
+				_comp.heat, _comp.heatLimit, _comp.isOverheat ? "  [OVERHEAT]" : "");
+		}
 	}
 };

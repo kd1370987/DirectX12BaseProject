@@ -74,6 +74,7 @@
 #include "../../Components/Collision/CapsuleCollider.h"
 #include "../../Components/Intent/ActionIntentComponent.h"
 #include "../../Components/Character/Weapon/Gun/GunStateComponent.h"
+#include "../../Components/Character/Weapon/WeaponTriggerComponent.h"
 #include "Engine/ECS/Internal/CollisionEvent.h"
 #include "../../Components/Collision/ExplodeOnHitComponent.h"
 #include "../../Components/Camera/CameraFocusTargetComponent.h"
@@ -160,6 +161,7 @@
 #include "../../Systems/Update/PostUpdate/ExplodeOnHitSystem/ExplodeOnHitSystem.h"
 #include "../../Systems/Update/PostUpdate/LifeTimeSystem/LifeTimeSystem.h"
 #include "../../Systems/Update/PreUpdate/AttachmentDispatchSystem/AttachmentDispatchSystem.h"
+#include "../../Systems/Update/PreUpdate/SelfWeaponTriggerSystem/SelfWeaponTriggerSystem.h"
 #include "../../Systems/Update/PreUpdate/ThrusterEffectSystem/ThrusterEffectSystem.h"
 #include "../../Systems/Init/PostDeserialize/AttachmentSlotLinkSystem/AttachmentSlotLinkSystem.h"
 #include "../../Systems/Update/Update/SubmitDynamicColliderSystem/SubmitDynamicColliderSystem.h"
@@ -316,6 +318,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<OBBColliderComponent>("OBBColliderComponent");
 				a_pWorld->RegisterComponent<ActionIntentComponent>("ActionIntentComponent");
 				a_pWorld->RegisterComponent<GunStateComponent>("GunStateComponent");
+				// 武器が外から受け取る引き金。持ち主の命令と武器の挙動を分ける受け口
+				a_pWorld->RegisterComponent<WeaponTriggerComponent>("WeaponTriggerComponent");
 				a_pWorld->RegisterComponent<Engine::ECS::CollisionEvent>("CollisionEvent");
 				a_pWorld->RegisterComponent<ExplodeOnHitComponent>("ExplodeOnHitComponent");
 				a_pWorld->RegisterComponent<CameraFocusTargetComponent>("CameraFocusTargetComponent");
@@ -373,6 +377,9 @@ namespace App::Game
 				a_pWorld->RegisterSystem<AttachmentReadyGateSystem>();
 				a_pWorld->RegisterSystem<PlayerIntentSystem>();
 				a_pWorld->RegisterSystem<AttachmentDispatchSystem>();
+				// 本体が武器を兼ねているキャラ(銃を子に持たない敵など)の引き金を渡す。
+				// 武器が子の場合は上の AttachmentDispatchSystem が受け持つ
+				a_pWorld->RegisterSystem<SelfWeaponTriggerSystem>();
 				a_pWorld->RegisterSystem<ThrusterEffectSystem>();
 				a_pWorld->RegisterSystem<BoostSoundSystem>();
 				a_pWorld->RegisterSystem<ActionIntentSystem>();
@@ -562,15 +569,16 @@ namespace App::Game
 			_keyboard.AddButton("Scene", std::make_shared<Engine::Input::InputButtonForWindows>(_scene));
 
 			// ---- マウスボタン ----
-			// 打つ
-			Engine::Input::InputButtonForWindows _shoot(VK_RBUTTON);
-			_keyboard.AddButton("Shoot", std::make_shared<Engine::Input::InputButtonForWindows>(_shoot));
-			// 狙う
-			Engine::Input::InputButtonForWindows _aim(VK_LBUTTON);
-			_keyboard.AddButton("Aim", std::make_shared<Engine::Input::InputButtonForWindows>(_aim));
+			// 武器 : 左クリックで左手、右クリックで右手。
+			// 撃てるかどうかは武器側(GunStateComponent / GunShootSystem)の担当で、
+			// ここで作るのは「押されている」という命令だけ
+			Engine::Input::InputButtonForWindows _shootLeft(VK_LBUTTON);
+			_keyboard.AddButton("ShootLeft", std::make_shared<Engine::Input::InputButtonForWindows>(_shootLeft));
+			Engine::Input::InputButtonForWindows _shootRight(VK_RBUTTON);
+			_keyboard.AddButton("ShootRight", std::make_shared<Engine::Input::InputButtonForWindows>(_shootRight));
 
 			// UIのボタン押下。UIButton が既定で見に行くアクション名
-			// (視点操作の Aim と同じ左クリックだが、意味が別なので名前を分けておく)
+			// (左手の武器と同じ左クリックだが、意味が別なので名前を分けておく)
 			Engine::Input::InputButtonForWindows _uiClick(VK_LBUTTON);
 			_keyboard.AddButton("UIClick", std::make_shared<Engine::Input::InputButtonForWindows>(_uiClick));
 

@@ -324,6 +324,7 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem\HitEventClearSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem\SelfWeaponTriggerSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem\BoostSoundSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.cpp" />
@@ -438,6 +439,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\ToneMap\ToneMapPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass\CopyToBackBufferPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\Sky\SkyPass\SkyPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\UI\UIPass\UIPass.cpp" />
@@ -596,6 +598,7 @@
     <ClInclude Include="Source\Application\Components\Character\Robot\BoosterEffectComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\AttachmentSlotsComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\Gun\GunStateComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Weapon\WeaponTriggerComponent.h" />
     <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\Collider.h" />
@@ -737,6 +740,7 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem\HitEventClearSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem\SelfWeaponTriggerSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem\BoostSoundSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.h" />
@@ -890,6 +894,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowSpatialDenoisePass\ShadowSpatialDenoisePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\Shadow\ShadowTemporalAccumulationPass\ShadowTemporalAccumulationPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\ToneMap\ToneMapPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\Sky\SkyPass\SkyPass.h" />
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\SkyOption.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Present\CopyToBackBufferPass\CopyToBackBufferPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\SkinningPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Skinning\UpdateBLASPass\UpdateBLASPass.h" />
@@ -1055,6 +1061,8 @@
     <None Include="Asset\Shader\Common\CB\CBCamera.hlsli" />
     <None Include="Asset\Shader\Common\CB\CBBloomOption.hlsli" />
     <None Include="Asset\Shader\Common\CB\CBToneMapOption.hlsli" />
+    <None Include="Asset\Shader\Common\CB\CBSkyOption.hlsli" />
+    <None Include="Asset\Shader\Source\SkyShader\SkyPS.hlsl" />
     <None Include="Asset\Shader\Common\CB\CBDoFOption.hlsli" />
     <None Include="Asset\Shader\Common\Lighting\Fog.hlsli" />
     <None Include="Asset\Shader\Common\Math\Hash.hlsli" />

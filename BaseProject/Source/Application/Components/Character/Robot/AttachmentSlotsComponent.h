@@ -24,8 +24,14 @@ struct AttachmentSlotsComponent
 	AttachmentSlot rightLegBoost;
 	AttachmentSlot leftLegBoost;
 
-	// 武器
-	AttachmentSlot mainGun;
+	// 武器 : 左手・右手。プレイヤーは左クリックで左、右クリックで右を撃つ。
+	// スロットが指す先は「引き金の受け口(WeaponTriggerComponent)を持つ武器エンティティ」で、
+	// 撃てるかどうかや弾の設定は武器側の GunStateComponent が持つ
+	AttachmentSlot leftWeapon;
+	AttachmentSlot rightWeapon;
+
+	// ミサイル : 溜めて一斉射なので、引き金を配信するのではなく
+	// MissileSalvoSystem がこのスロットのポッドを直接撃たせる
 	AttachmentSlot missile;
 };
 
@@ -41,7 +47,8 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 		a_ar.Field("leftShoulderBoostGUID",  _comp.leftShoulderBoost.guid);
 		a_ar.Field("rightLegBoostGUID",      _comp.rightLegBoost.guid);
 		a_ar.Field("leftLegBoostGUID",       _comp.leftLegBoost.guid);
-		a_ar.Field("mainGunGUID",            _comp.mainGun.guid);
+		a_ar.Field("leftWeaponGUID",         _comp.leftWeapon.guid);
+		a_ar.Field("rightWeaponGUID",        _comp.rightWeapon.guid);
 		a_ar.Field("missileGUID",            _comp.missile.guid);
 	}
 
@@ -159,7 +166,8 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 		ImGui::Separator();
 
 		ImGui::Text("Weapons");
-		_drawSlot("Main Gun", _comp.mainGun);
-		_drawSlot("Missile",  _comp.missile);
+		_drawSlot("Left Weapon",  _comp.leftWeapon);
+		_drawSlot("Right Weapon", _comp.rightWeapon);
+		_drawSlot("Missile",      _comp.missile);
 	}
 };

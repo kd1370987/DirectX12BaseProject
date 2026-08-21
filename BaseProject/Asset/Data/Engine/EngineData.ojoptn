@@ -38,6 +38,14 @@
         "isZPre": true,
         "useJitter": true
     },
+    "SkyOption": {
+        "exposure": 1.0
+    },
+    "ToneMapOption": {
+        "exposure": 1.0,
+        "type": 4,
+        "whitePoint": 1.0499999523162842
+    },
     "WindowOption": {
         "WindowTitle": "DirectX12Game",
         "isTitleFPS": true,

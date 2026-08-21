@@ -40,6 +40,8 @@ namespace Engine::Graphics
 			_builder.DepthWriteMask(m_depthWrite);
 			_builder.DepthFunc(m_depthFunc);
 
+			_builder.CullMode(m_cullMode);
+
 			for (auto& _rtvFormat : m_rtvFormats) {
 				_builder.AddRenderTargetFormat(_rtvFormat);
 			}
@@ -173,6 +175,10 @@ namespace Engine::Graphics
 		m_depthEnable = a_enable;
 		m_depthWrite = a_write;
 		m_depthFunc = a_func;
+	}
+	void ShadingPipelineBuilder::SetCullMode(D3D12_CULL_MODE a_mode)
+	{
+		m_cullMode = a_mode;
 	}
 	bool ShadingPipelineBuilder::HasMeshShader() const
 	{

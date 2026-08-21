@@ -1,4 +1,4 @@
-#include "AttachmentSlotLinkSystem.h"
+﻿#include "AttachmentSlotLinkSystem.h"
 
 #include "Engine/ECS/World/World.h"
 
@@ -38,7 +38,8 @@ void AttachmentSlotLinkSystem::Init(Engine::ECS::World& a_world)
 				_resolve(_slots.leftShoulderBoost);
 				_resolve(_slots.rightLegBoost);
 				_resolve(_slots.leftLegBoost);
-				_resolve(_slots.mainGun);
+				_resolve(_slots.leftWeapon);
+				_resolve(_slots.rightWeapon);
 				_resolve(_slots.missile);
 			}
 		}

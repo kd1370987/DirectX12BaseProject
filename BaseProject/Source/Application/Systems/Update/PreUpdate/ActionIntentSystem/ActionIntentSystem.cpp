@@ -27,7 +27,6 @@ void ActionIntentSystem::Init(Engine::ECS::World& a_world)
 			// パラメータ名ハッシュはstaticで保持
 			static const UINT s_speedHash = Engine::String::ToHash("Speed");
 			static const UINT s_shoot = Engine::String::ToHash("Shoot");
-			static const UINT s_aim = Engine::String::ToHash("Aim");
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -50,9 +49,11 @@ void ActionIntentSystem::Init(Engine::ECS::World& a_world)
 					(_intent.value.z * _intent.value.z));
 				_pActionSM->SetFloatParam(*_pInstance, s_speedHash, "Speed", _speed);
 
-				// 銃関係
-				_pActionSM->SetBoolParam(*_pInstance, s_shoot, "Shoot", _actionIntent.isGunShoot);
-				_pActionSM->SetBoolParam(*_pInstance, s_aim, "Aim", _actionIntent.isAiming);
+				// 銃関係。左右どちらかを撃っていれば「撃っている」とする。
+				// 構え(Aim)は入力から無くなったので送らない。
+				// アセット側のパラメータは既定値(false)のままになるので、
+				// Aiming ステートは通り抜けるだけになる
+				_pActionSM->SetBoolParam(*_pInstance, s_shoot, "Shoot", _actionIntent.IsAnyWeaponShoot());
 			}
 		}
 	);

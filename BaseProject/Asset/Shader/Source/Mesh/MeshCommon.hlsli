@@ -1,5 +1,6 @@
 // ---- ルートパラメーター ----
 #include "../../Common/CB/CBCamera.hlsli"
+#include "../../Common/CB/CBSkyOption.hlsli"
 #include "../../Common/Math/Normal.hlsli"
 
 // インスタンスごとのデータ : サブメッシュ単位なため、参照するマテリアルは一つ
@@ -119,6 +120,12 @@ SamplerState smp : register(s0);
 // プリミティブインデックス
 // 頂点配列
 // アニメーション用ボーン配列
+//
+// ※ ルートパラメータの追加は必ず末尾へ。
+//    C++ 側は添字でバインドしているので(RenderContext::BindMeshInstance / BindMeshlet、
+//    DrawQueueDispathMesh の 9 番など)、間に挟むと既存のバインドが全部ずれる。
+//    末尾の RS_SKY_OPTION_CB(=11番) はスカイパスだけが張る。
+//    使わないパスは張らないままでよく、シェーダーが参照しなければ何も起きない
 #define MESHGLOBAL_ROOT_SIG \
     "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
     "CBV(b0)," \
@@ -132,6 +139,7 @@ SamplerState smp : register(s0);
     "SRV(t7)," \
     "RootConstants(num32BitConstants=1, b1)," \
     "SRV(t8)," \
+    RS_SKY_OPTION_CB "," \
     "StaticSampler(s0, " \
     "    filter = FILTER_MIN_MAG_MIP_LINEAR, " \
     "    addressU = TEXTURE_ADDRESS_WRAP, " \

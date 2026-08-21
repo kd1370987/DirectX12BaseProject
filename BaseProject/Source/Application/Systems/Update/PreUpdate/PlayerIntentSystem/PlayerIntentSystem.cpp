@@ -38,7 +38,6 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 			static const UINT s_jumpHash = Engine::String::ToHash("Jump");
 			static const UINT s_isGroundHash = Engine::String::ToHash("IsGround");
 			static const UINT s_isShootHash = Engine::String::ToHash("IsShoot");
-			static const UINT s_isAimingHash = Engine::String::ToHash("IsAiming");
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -69,18 +68,18 @@ void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
 				_pAnimator->SetBoolParam(*_pInstance, s_isGroundHash, "IsGround", _smComp.isGround);
 
 				//--------------------------------------------------------------------------
-				// 銃関係(発射中 / エイム中)
+				// 銃関係(発射中)
 				//
 				// ActionIntentComponent は付いていないキャラもいるので、
 				// アーキタイプを狭めないようにエンティティ単位で参照する。
+				// 左右どちらかを撃っていれば「撃っている」とする。
 				//--------------------------------------------------------------------------
 				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 				if (a_ctx.pWorld->HasComponent<ActionIntentComponent>(_self))
 				{
 					if (const auto* _pActionIntent = a_ctx.pWorld->RefData<ActionIntentComponent>(_self))
 					{
-						_pAnimator->SetBoolParam(*_pInstance, s_isShootHash, "IsShoot", _pActionIntent->isGunShoot);
-						_pAnimator->SetBoolParam(*_pInstance, s_isAimingHash, "IsAiming", _pActionIntent->isAiming);
+						_pAnimator->SetBoolParam(*_pInstance, s_isShootHash, "IsShoot", _pActionIntent->IsAnyWeaponShoot());
 					}
 				}
 			}

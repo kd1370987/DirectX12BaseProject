@@ -13,6 +13,7 @@
 #include "GraphicsOptions/LightingOption.h"
 #include "GraphicsOptions/BloomOption.h"
 #include "GraphicsOptions/ToneMapOption.h"
+#include "GraphicsOptions/SkyOption.h"
 
 // デバッグオプション
 #include "DebugOptions/DebugDrawOption.h"
@@ -68,6 +69,10 @@ namespace Engine::Option
 		const GraphicsOptions::ToneMapOption& GetToneMapOption() const { return m_toneMapOption; }
 		GraphicsOptions::ToneMapOption& RefToneMapOption() { return m_toneMapOption; }
 
+		// スカイ設定(シェーダーへ送る調整値)
+		const GraphicsOptions::SkyOption& GetSkyOption() const { return m_skyOption; }
+		GraphicsOptions::SkyOption& RefSkyOption() { return m_skyOption; }
+
 		// ※ 被写界深度(DoF)はカメラの持ち物なので、
 		//    アクティブカメラの FocusParamComponent が持つ(旧 DoFOption)
 
@@ -93,6 +98,7 @@ namespace Engine::Option
 		GraphicsOptions::LightingOption m_lightingOption = {};
 		GraphicsOptions::BloomOption m_bloomOption = {};
 		GraphicsOptions::ToneMapOption m_toneMapOption = {};
+		GraphicsOptions::SkyOption m_skyOption = {};
 
 		// デバッグオプション
 		DebugOptions::DebugDrawOption m_debugDrawOption = {};

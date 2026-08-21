@@ -4,7 +4,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/Prefab/Prefab.h"
 
-#include "../../../../Components/Intent/ActionIntentComponent.h"
+#include "../../../../Components/Character/Weapon/WeaponTriggerComponent.h"
 #include "../../../../Components/Character/Weapon/Gun/GunStateComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 #include "../../../../Components/Transform/LocalTransformComponent.h"
@@ -22,8 +22,12 @@
 //==========================================================================================
 // GunShootSystem
 //
-// GunStateComponent を持つエンティティが、発射入力(ActionIntentComponent::isGunShoot)に
+// GunStateComponent を持つエンティティが、引き金(WeaponTriggerComponent::isPulled)に
 // 応じて、設定されたプレハブを「弾」として生成する。
+//
+// 引き金を引いているかどうかしか外からは来ない。
+// 実際に撃てるかどうか(連射間隔・バースト・オーバーヒート)も、
+// 何をどう撃つか(弾・弾速・銃口)も、すべて武器側のこのシステムが決める。
 // 撃ち方は Auto(押しっぱなしで連射)と Burst(まとめて数発)の2種類。
 // 生成はシステム反復中に即時に行えない(アーキタイプが壊れる)ため、
 // World の遅延生成コマンド(AddEntityWithData)に積み、BeginFrame で安全に生成する。
@@ -90,7 +94,7 @@ namespace
 
 void GunShootSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<GunStateComponent, const ActionIntentComponent, const WorldMatrixComponent,
+	a_world.ActiveTask<GunStateComponent, const WeaponTriggerComponent, const WorldMatrixComponent,
 		const ModelComponent>(
 		Engine::ECS::ESystemType::Update,
 		"GunShootSystem",
@@ -101,7 +105,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			GunStateComponent* a_gunArray,
-			const ActionIntentComponent* a_intentArray,
+			const WeaponTriggerComponent* a_triggerArray,
 			const WorldMatrixComponent* a_worldMatArray,
 			const ModelComponent* a_modelArray
 			)
@@ -109,7 +113,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				GunStateComponent& _gun = a_gunArray[_i];
-				const ActionIntentComponent& _intent = a_intentArray[_i];
+				const WeaponTriggerComponent& _trigger = a_triggerArray[_i];
 				const WorldMatrixComponent& _worldMat = a_worldMatArray[_i];
 				const ModelComponent& _modelComp = a_modelArray[_i];
 
@@ -118,8 +122,36 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				// 「久しぶりに引き金を引いたら即撃てる」形になる
 				_gun.timeSinceShoot += a_ctx.dt;
 
+				//======================================================================
+				// 冷却
+				//----------------------------------------------------------------------
+				// 撃っていてもいなくても毎フレーム冷ます。
+				// オーバーヒート中は overheatCoolScale を掛けて冷えを鈍らせられる
+				// (無理をした分だけ復帰を待たされる、というペナルティ)。
+				// 熱が復帰しきい値まで下がったらまた撃てるようにする。
+				//======================================================================
+				if (_gun.useOverheat)
+				{
+					const float _coolScale = _gun.isOverheat ? _gun.overheatCoolScale : 1.0f;
+					_gun.heat = (std::max)(_gun.heat - _gun.heatCoolRate * _coolScale * a_ctx.dt, 0.0f);
+
+					if (_gun.isOverheat && _gun.heat <= _gun.heatLimit * _gun.restartHeatRatio)
+					{
+						_gun.isOverheat = false;
+					}
+				}
+				else
+				{
+					// 途中で設定を切られたときに熱が残り続けないようにしておく
+					_gun.heat = 0.0f;
+					_gun.isOverheat = false;
+				}
+
 				// 次弾までの間隔(秒) = 1 / 発射レート
 				const float _shotInterval = (_gun.fireRate > 0.0f) ? (1.0f / _gun.fireRate) : 0.0f;
+
+				// 引き金が引かれていても、熱が上限に達している間は反応しない
+				const bool _canPull = _trigger.isPulled && !_gun.isOverheat;
 
 				//======================================================================
 				// 発射判定
@@ -135,7 +167,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 						// バースト継続中。残弾はレート間隔で撃つ
 						_fire = (_gun.timeSinceShoot >= _shotInterval);
 					}
-					else if (_intent.isGunShoot)
+					else if (_canPull)
 					{
 						// 次のバーストを始められるか(前回発射からの間隔で見る)
 						_fire = (_gun.timeSinceShoot >= _gun.burstInterval);
@@ -144,7 +176,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				}
 				else
 				{
-					_fire = _intent.isGunShoot && (_gun.timeSinceShoot >= _shotInterval);
+					_fire = _canPull && (_gun.timeSinceShoot >= _shotInterval);
 				}
 
 				if (!_fire) continue;
@@ -153,6 +185,19 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				// 間隔の計算とバーストの進行は進める
 				_gun.timeSinceShoot = 0.0f;
 				if (_gun.burstRemain > 0) --_gun.burstRemain;
+
+				// 熱を溜める。上限に届いたらオーバーヒート。
+				// バーストの途中でも撃ち切らせずに止める(熱が尽きたら撃てない、を優先する)
+				if (_gun.useOverheat)
+				{
+					_gun.heat += _gun.heatPerShot;
+					if (_gun.heat >= _gun.heatLimit)
+					{
+						_gun.heat = _gun.heatLimit;
+						_gun.isOverheat = true;
+						_gun.burstRemain = 0;
+					}
+				}
 
 				// プレハブ未設定ならスキップ
 				if (_gun.bulletPrefabGUID == Engine::DefaultGUID) continue;

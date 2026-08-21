@@ -20,9 +20,11 @@ void InputActionSystem::Init(Engine::ECS::World& a_world)
 			ActionIntentComponent* a_actionIntentArray
 			)
 		{
-			// ブースト
-			bool _isShoot = a_ctx.pServices->pInputManager->IsHold("Shoot");
-			bool _isAiming = a_ctx.pServices->pInputManager->IsHold("Aim");
+			// 武器 : 左クリックが左手、右クリックが右手。
+			// ここで作るのは「押されている」という命令だけで、
+			// 撃てるかどうか(連射間隔・バースト・熱)は武器側が決める
+			bool _isLeftShoot = a_ctx.pServices->pInputManager->IsHold("ShootLeft");
+			bool _isRightShoot = a_ctx.pServices->pInputManager->IsHold("ShootRight");
 
 			// ミサイル : 押している間が溜め、離した瞬間が発射(判定は MissileSalvoSystem)
 			bool _isMissile = a_ctx.pServices->pInputManager->IsHold("Missile");
@@ -30,8 +32,8 @@ void InputActionSystem::Init(Engine::ECS::World& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				ActionIntentComponent& _intent = a_actionIntentArray[_i];
-				_intent.isGunShoot = _isShoot;
-				_intent.isAiming = _isAiming;
+				_intent.isLeftWeaponShoot = _isLeftShoot;
+				_intent.isRightWeaponShoot = _isRightShoot;
 				_intent.isMissileHold = _isMissile;
 			}
 		}
