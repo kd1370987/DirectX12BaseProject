@@ -104,6 +104,8 @@ namespace App::Object
 		a_ar.Field("SkyHorizonHeight", m_sky.horizonHeight);
 		a_ar.Field("SkyRadius", m_sky.radius);
 		a_ar.Field("SkyRotationDeg", m_sky.rotationDeg);
+		a_ar.Field("IsSkyDof", m_sky.isSkyDof);
+		a_ar.Field("SkyDofScale", m_sky.dofScale);
 
 		// 読み込み時は復元したGUIDでテクスチャを引き直す。
 		// 実体が届くのを待つ必要はないので要求だけ出して先へ進む。
@@ -226,5 +228,28 @@ namespace App::Object
 		ImGui::DragFloat("RotationDeg", &m_sky.rotationDeg, 0.5f, -360.0f, 360.0f);
 		if (m_sky.rotationDeg >= 360.0f) m_sky.rotationDeg -= 360.0f;
 		if (m_sky.rotationDeg <= -360.0f) m_sky.rotationDeg += 360.0f;
+
+		ImGui::Spacing();
+
+		//----------------------------------------------------------------------
+		// 空に被写界深度を掛けるか
+		//
+		// 空は深度が far のまま残るので、切っておかないと「一番遠いもの」として
+		// 最大の奥ボケが掛かり、空だけがべったり滲む。
+		// 掛けたいときだけ有効にして、倍率で強さを決める(1.0 で他の遠景と同じ)
+		//----------------------------------------------------------------------
+		bool _isSkyDof = (m_sky.isSkyDof != 0);
+		if (ImGui::Checkbox("IsSkyDof", &_isSkyDof))
+		{
+			m_sky.isSkyDof = _isSkyDof ? 1 : 0;
+		}
+
+		ImGui::BeginDisabled(!_isSkyDof);
+		ImGui::DragFloat("SkyDofScale", &m_sky.dofScale, 0.01f, 0.0f, 1.0f);
+		ImGui::EndDisabled();
+		if (!_isSkyDof)
+		{
+			ImGui::TextDisabled("(空にはボケが掛かりません)");
+		}
 	}
 }

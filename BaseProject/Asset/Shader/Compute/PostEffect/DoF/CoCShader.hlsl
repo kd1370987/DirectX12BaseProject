@@ -17,14 +17,18 @@
 
 #include "../../../Common/CB/CBCamera.hlsli"
 #include "../../../Common/CB/CBDoFOption.hlsli"
+#include "../../../Common/CB/CBSky.hlsli"
 
 // ルートシグネチャデータ
+// ※末尾に追加することで、既存のルートパラメータ番号(SRVテーブル=2, UAV=3)を
+//   ずらさずに、スカイ設定CBをルートパラメータ番号4として足している。
 #define COC_ROOT_SIG \
 "RootFlags(0)," \
 RS_CAMERA_CB "," \
 RS_DOF_OPTION_CB "," \
 "DescriptorTable(SRV(t0, numDescriptors=1)), " \
 "DescriptorTable(UAV(u0, numDescriptors=1)), " \
+RS_SKY_CB "," \
 RS_STATIC_SAMPLER
 
 // 入力
@@ -70,21 +74,32 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	float _depth = g_depthTex.Load(int3(_coord, 0)).r;
 
 	//--------------------------------------------------------------------------------------
-	// 空はボカさない
+	// 空の扱い
 	//
 	// 空はメッシュを持たないので深度が far(1.0)のまま残る。そのまま距離で判定すると
 	// 「一番遠いもの」として最大の奥ボケが掛かり、空だけがべったり滲む。
 	// レンズの話としても、無限遠へピントを合わせていない限り空は必ずボケる……のだが、
 	// 絵として欲しいのは「手前の被写体が浮き上がること」であって空の滲みではない。
 	//
+	// どちらが欲しいかはシーン次第なので、シーンのアンビエント設定
+	// (SceneAmbientObject → SkyData)から受け取って切り替える。
+	//   isSkyDof = 0 … 空だけ CoC を 0 にして素通し
+	//   isSkyDof = 1 … 通常どおり計算したうえで dofScale を掛ける
+	//
 	// CoC を 0 にしておけば、DoF パス側のギャザーはこの画素を混ぜに来ない。
 	// 手前のボケた被写体が空へ滲み出すほうは、あちらがサンプル自身の CoC で
 	// 重み付けしているのでこれまでどおり効く(輪郭が痩せることはない)。
 	//--------------------------------------------------------------------------------------
+	float _skyCoCScale = 1.0f;
 	if (_depth >= 0.999999f)
 	{
-		g_outputCoC[_coord] = 0.0f;
-		return;
+		if (g_sky.isSkyDof == 0)
+		{
+			g_outputCoC[_coord] = 0.0f;
+			return;
+		}
+
+		_skyCoCScale = g_sky.dofScale;
 	}
 
 	// 深度 → カメラからの深度(ビュー空間Z)
@@ -111,5 +126,6 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 		_coc = (_range > 1e-4f) ? saturate((_viewDepth - _focusEnd) / _range) : 1.0f;
 	}
 
-	g_outputCoC[_coord] = _coc;
+	// 空のときだけ倍率が掛かる(それ以外は 1.0 なので素通り)
+	g_outputCoC[_coord] = _coc * _skyCoCScale;
 }

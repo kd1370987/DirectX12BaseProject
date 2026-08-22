@@ -43,7 +43,7 @@ namespace Engine::Graphics
 		_cpBuilder.SetHeapMode(ERGHeapMode::Default);
 
 		// 依存関係とバインドの宣言
-		// ルートパラメータ : 0=カメラCB / 1=DoF設定CB / 2=SRVテーブル / 3=UAV
+		// ルートパラメータ : 0=カメラCB / 1=DoF設定CB / 2=SRVテーブル / 3=UAV / 4=スカイ設定CB
 		_cpBuilder.SrvTable(2).Add("Depth");
 
 		// CoC は1チャンネル。全画素を書き潰すので LoadOp は DontCare
@@ -63,6 +63,10 @@ namespace Engine::Graphics
 
 			// DoF調整値(アクティブカメラの FocusParamComponent から積まれたもの)
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 1, a_pGE->GetDoFData());
+
+			// スカイ設定(シーンの SceneAmbientObject から積まれたもの)。
+			// ここで使うのは「空にも被写界深度を掛けるか」と、その倍率だけ
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<SkyData>(_pCmd, 4, a_pGE->GetSkyData());
 
 			// 実行
 			// 切り上げ : 解像度が8の倍数でないと末尾タイルが実行されず端が処理されない
