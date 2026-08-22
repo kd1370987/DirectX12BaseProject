@@ -10,6 +10,21 @@
         "buildMode": 1,
         "maxThreadCount": 4
     },
+    "CursorOption": {
+        "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "hotspot": [
+            0.38100001215934753,
+            0.24300000071525574
+        ],
+        "isEnable": true,
+        "sizePixel": 64.0,
+        "textureGUID": "eaa92474-cfe9-4399-bc6e-9078675e454b"
+    },
     "DebugDrawOption": {
         "drawWire": false
     },

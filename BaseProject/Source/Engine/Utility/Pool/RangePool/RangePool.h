@@ -55,6 +55,20 @@ namespace Engine::Pool
 		/// <returns></returns>
 		const std::vector<T>& GetAllData() const;
 
+		/// <summary>
+		/// 一度でも確保された範囲の末尾を取得
+		/// </summary>
+		/// <remarks>
+		/// Init で確保した領域は最初から丸ごと存在する(既定は10000要素)ので、
+		/// GetAllData() をそのままGPUへ上げると使っていない分まで毎フレーム転送してしまう。
+		/// 「ここから後ろは一度も使われていない」境目を返すので、転送はここまでで足りる。
+		///
+		/// 解放しても下げない。前の方に穴が空いているだけで、
+		/// その穴より後ろにはまだ生きている領域があるため。
+		/// </remarks>
+		/// <returns>使用済み領域の末尾(要素数)</returns>
+		uint32_t GetUsedCount() const { return m_usedCount; }
+
 	private:
 
 		/// <summary>
@@ -76,6 +90,9 @@ namespace Engine::Pool
 		std::vector<uint32_t> m_generations;
 		std::vector<FreeBlock> m_freeBlocks;
 		uint32_t m_currentGeneration = 0;
+
+		// 一度でも確保された範囲の末尾
+		uint32_t m_usedCount = 0;
 	};
 
 	template<typename T>
@@ -87,6 +104,8 @@ namespace Engine::Pool
 		// 全領域が一つのフリーブロック
 		m_freeBlocks.clear();
 		m_freeBlocks.push_back({ 0,static_cast<uint32_t>(a_maxCount) });
+
+		m_usedCount = 0;
 	}
 	template<typename T>
 	inline RangeHandle<T> RangePool<T>::AllocateRange(uint32_t a_count)
@@ -97,6 +116,12 @@ namespace Engine::Pool
 			{
 				// 開始位置を記録
 				uint32_t _startIdx = _it->startIndex;
+
+				// 使用済み領域の末尾を伸ばす
+				if (_startIdx + a_count > m_usedCount)
+				{
+					m_usedCount = _startIdx + a_count;
+				}
 
 				// ブロックを分割
 				if (_it->count == a_count)

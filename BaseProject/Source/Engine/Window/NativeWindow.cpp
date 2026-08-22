@@ -68,6 +68,27 @@ LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_
 	}
 	auto* _pWindow = reinterpret_cast<Engine::Window::NativeWindow*>(GetWindowLongPtr(a_hWnd, GWLP_USERDATA));
 
+	//==============================================================================
+	// OSのカーソルを消す
+	//------------------------------------------------------------------------------
+	// クライアント領域の上だけ消して、代わりに自前の画像をカーソル位置へ描く
+	// (Engine::Graphics::MouseCursor)。枠やリサイズの境目はOSに任せるので
+	// ヒットテストが HTCLIENT のときだけ止める。
+	//
+	// ImGui のハンドラより前に置くこと。あちらも WM_SETCURSOR を拾って
+	// カーソルの形を設定するので、後ろに回すと上書きされて消えなくなる。
+	//
+	// 消してよいかどうかは MouseCursor が決める(画像を出せているフレームだけ true)。
+	// 出せないうちから消すと、カーソルが1つも無い状態になってしまう。
+	//==============================================================================
+	if (a_message == WM_SETCURSOR &&
+		_pWindow && _pWindow->IsCursorHidden() &&
+		LOWORD(a_lParam) == HTCLIENT)
+	{
+		SetCursor(nullptr);
+		return TRUE;
+	}
+
 	if (ImGui_ImplWin32_WndProcHandler(a_hWnd, a_message, a_wParam, a_lParam))
 		return true;
 
@@ -152,7 +173,9 @@ namespace Engine::Window
 		_wc.style = CS_OWNDC;												// 描画スタイル
 		_wc.lpfnWndProc = (WNDPROC)WndProc;									// ウィンドウ関数
 		_wc.hIcon = LoadIcon(m_hInst, IDI_APPLICATION);						// ウィンドウのアイコン（Alt+Tabなど）
-		_wc.hCursor = LoadCursor(m_hInst, IDC_ARROW);						// ウィンドウ内のデフォルトカーソル
+		// 標準カーソルは hInstance に nullptr を渡すこと(自前のモジュールを指すと取得できない)。
+		// 自前カーソルを切ったときはこれが出る
+		_wc.hCursor = LoadCursor(nullptr, IDC_ARROW);						// ウィンドウ内のデフォルトカーソル
 		_wc.hInstance = m_hInst;											// インスタンスハンドル
 		_wc.hbrBackground = nullptr;										// 初期の背景塗りつぶし色
 		_wc.lpszMenuName = nullptr;											// ウィンドウクラスのメニューリソースID

@@ -64,6 +64,18 @@ namespace Engine::Window
 		const UINT& GetClientWidth() const { return m_clientWidth; }
 		const UINT& GetClientHeight() const { return m_clientHeight; }
 
+		/// <summary>
+		/// クライアント領域でOSのカーソルを消すか
+		/// </summary>
+		/// <remarks>
+		/// 自前のカーソル画像を描いている間だけ true にする(Engine::Graphics::MouseCursor)。
+		/// ウィンドウプロシージャが WM_SETCURSOR でこれを見る。
+		/// 絵を出せていないうちから消すとカーソルが1つも無い状態になるので、
+		/// 「消す」と「描く」は必ず対で切り替えること。
+		/// </remarks>
+		void SetCursorHidden(bool a_isHidden) { m_isCursorHidden = a_isHidden; }
+		bool IsCursorHidden() const { return m_isCursorHidden; }
+
 		// メモリ使用率取得
 		// バイト単位での取得
 		double GetMemoryUsage();
@@ -96,6 +108,9 @@ namespace Engine::Window
 
 		// スタイル保持
 		DWORD m_windowedStyle = WS_OVERLAPPEDWINDOW;
+
+		// クライアント領域でOSのカーソルを消すか
+		bool m_isCursorHidden = false;
 
 		// ウィンドウ設定
 		UINT m_clientWidth = 0;

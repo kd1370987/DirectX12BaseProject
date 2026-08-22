@@ -476,6 +476,8 @@
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\WindowOption.cpp" />
     <ClCompile Include="Source\Engine\Option\OptionManager.cpp" />
     <ClCompile Include="Source\Engine\Option\ProjectOptions\InputOption.cpp" />
+    <ClCompile Include="Source\Engine\Option\ProjectOptions\CursorOption.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\MouseCursor\MouseCursor.cpp" />
     <ClCompile Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp" />
     <ClCompile Include="Source\Engine\Particle\ParticleBufferManager.cpp" />
     <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp" />
@@ -955,6 +957,8 @@
     <ClInclude Include="Source\Engine\Option\OptionManager.h" />
     <ClInclude Include="Source\Engine\Option\ProjectOptions\BuildConfig.h" />
     <ClInclude Include="Source\Engine\Option\ProjectOptions\InputOption.h" />
+    <ClInclude Include="Source\Engine\Option\ProjectOptions\CursorOption.h" />
+    <ClInclude Include="Source\Engine\Graphics\MouseCursor\MouseCursor.h" />
     <ClInclude Include="Source\Engine\Particle\Core\EmitterData.h" />
     <ClInclude Include="Source\Engine\Particle\Core\ParticleData.h" />
     <ClInclude Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.h" />

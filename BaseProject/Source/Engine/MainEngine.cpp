@@ -1,6 +1,7 @@
 ﻿#include "MainEngine.h"
 
 #include "Engine/Window/NativeWindow.h"
+#include "Graphics/MouseCursor/MouseCursor.h"
 #include "Engine/Time/TimeManager.h"
 #include "Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Resource/Manager/ResourceManager/ResourceManager.h"
@@ -166,6 +167,27 @@ namespace Engine
 			return;
 		}
 
+		//==============================================================
+		// 自前のマウスカーソル
+		//--------------------------------------------------------------
+		// OSのカーソルはクライアント領域では消し、代わりに設定された画像を
+		// カーソル位置へ描く。設定は CursorOption。
+		//
+		// 描く先はモードで変わる。
+		//   ゲーム   : UIパス(GraphicsEngine::Execute がUIを積み終えた後に呼ぶ)
+		//   それ以外 : ImGuiの最前面レイヤー。ここで登録しておく
+		//              (登録した関数は ImGui のフレームの中で呼ばれる)
+		//==============================================================
+		m_upMouseCursor = std::make_unique<Graphics::MouseCursor>();
+		m_upMouseCursor->Init();
+
+		Engine::Editor::MainEditor::Instance().RegisterEditFunc(
+			[this]()
+			{
+				if (m_upMouseCursor) m_upMouseCursor->DrawImGui();
+			}
+		);
+
 		// コリジョンワールド構築
 		m_upCollisionWorld = std::make_unique<Collision::CollisionWorld>();
 		m_upCollisionWorld->Clear();
@@ -200,6 +222,14 @@ namespace Engine
 
 		// アプリケーション・上位層の解放
 		m_upCollisionWorld.reset(); // コリジョン解放
+
+		// 自前カーソルが握っているテクスチャの参照を返す。
+		// リソースの解放より前に手放しておくこと
+		if (m_upMouseCursor)
+		{
+			m_upMouseCursor->Release();
+			m_upMouseCursor.reset();
+		}
 
 		// 再生中のサウンドインスタンスを破棄。
 		// SoundEffectInstance は生成元の SoundEffect(= Resource::Sound) を
@@ -322,6 +352,19 @@ namespace Engine
 		Audio::AudioManager::Instance().Update();
 
 		m_upParticleManager->BeginFrame();					// パーティクルデータの更新
+
+		// 自前カーソルの位置決め。
+		// 描くのは後(ゲームはUIパス / エディターはImGui)だが、どちらから描かれても
+		// 同じ位置になるようここで一度だけ決める。
+		// OSのカーソルを消してよいかもここで決まるのでウィンドウへ伝える
+		if (m_upMouseCursor)
+		{
+			m_upMouseCursor->Update();
+			if (m_upWindow)
+			{
+				m_upWindow->SetCursorHidden(m_upMouseCursor->IsHideOSCursor());
+			}
+		}
 
 		m_upCollisionWorld->ClearDynamicWorld(10000);		// ダイナミック用のコリジョンワールドのクリア
 
@@ -511,6 +554,10 @@ namespace Engine
 	Graphics::RenderContext* MainEngine::RefRenderContext()
 	{
 		return m_upGraphicsEngine->RefRenderContext();
+	}
+	Graphics::MouseCursor* MainEngine::RefMouseCursor()
+	{
+		return m_upMouseCursor.get();
 	}
 	Collision::CollisionWorld* MainEngine::RefCollisionWorld()
 	{

@@ -15,6 +15,7 @@
 #include "../Particle/ParticleBufferManager.h"
 #include "RenderPassRegistry/RenderPassRegistry.h"
 #include "MeshBufferAllocator/MeshBufferAllocator.h"
+#include "MouseCursor/MouseCursor.h"
 
 // シーン
 #include "../Scene/BaseScene/BaseScene.h"
@@ -113,7 +114,9 @@ namespace Engine::Graphics
 			_desc.pShapeRender = m_upShapeRender.get();
 
 			_desc.cbAllocatorMemSize = 32 * 1024 * 1024;
-			_desc.boneElementNum = 10000;
+			// シーンを重ねて描くとき(ポーズ画面など)は全ワールドのボーン行列を
+			// 1本のパレットへ連結するので、1ワールド分(プールの確保数)では足りない
+			_desc.boneElementNum = 40000;
 
 			_upCtx->Init(this, a_pCmdList, _desc);
 			m_upRenderContextVec.push_back(std::move(_upCtx));
@@ -307,6 +310,20 @@ namespace Engine::Graphics
 		// テスト
 		App::Game::GameManager::Instance().Draw();
 
+		// 自前のマウスカーソルを最前面へ。
+		// UIパスは深度を切ってあるので積んだ順がそのまま前後になる。
+		// シーンのUIを全部積み終えたここで積むことで、必ず一番手前に出る。
+		//
+		// ゲームモード以外はエディターのImGuiが上に重なるので、あちらの
+		// 最前面レイヤーへ描く(MouseCursor::DrawImGui)。ここでは積まない
+		if (MainEngine::Instance().GetMode() == EAppMode::Game)
+		{
+			if (auto* _pCursor = MainEngine::Instance().RefMouseCursor())
+			{
+				_pCursor->SubmitUI(this);
+			}
+		}
+
 		// メッシュバッファの更新
 		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _completedFence);
 
@@ -342,8 +359,11 @@ namespace Engine::Graphics
 		CreateGPUCameraData();
 
 		// バッファの更新
+		// ボーン行列は上の GameManager::Draw() で描くワールドぶんだけ積まれている。
+		// 「今の一番上のシーン」から引いてはいけない(ポーズ中は後ろのゲームのボーンが載らない)
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(
-			m_instanceDataVec, m_subSetDataVec, m_meshInstanceDataVec, m_meshMaterialDataVec
+			m_instanceDataVec, m_subSetDataVec, m_meshInstanceDataVec, m_meshMaterialDataVec,
+			m_boneMatrixVec
 		);
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateUIBuffer(m_uiDrawItemVec);
 
@@ -371,6 +391,10 @@ namespace Engine::Graphics
 		ClearAndReserve(m_uiDrawItemVec, 10000);
 		ClearAndReserve(m_dynamicRayRequestVec, 1000);
 		ClearAndReserve(m_skinningDispathItemVec, 1000);
+
+		// ボーンパレットと、ワールドごとの土台の対応表
+		ClearAndReserve(m_boneMatrixVec, 10000);
+		m_boneBaseIndexMap.clear();
 
 		// オブジェクトデータの消去
 		ClearAndReserve(m_instanceDataVec, 10000);
@@ -486,6 +510,46 @@ namespace Engine::Graphics
 	{
 		return m_skyTexHandle;
 	}
+	//======================================================================================
+	// ボーンパレットへこのワールドのボーン行列を積む
+	//--------------------------------------------------------------------------------------
+	// ボーン行列はワールド(シーン)ごとの RangePool に入っていて、その添字も
+	// ワールドごとに 0 から始まる。GPU側のボーンパレットは1本しかないので、
+	// 複数のシーンを重ねて描くときは連結したうえで土台を足してやる必要がある。
+	//
+	// ポーズ画面はゲームのシーンへ重ねて出す(Push)ので、描くワールドが2つになる。
+	// ここで両方を積んでおかないと、片方のキャラのボーンが単位行列でも他人のものでもない
+	// 場所を指し、頂点が一点に潰れて消えたように見える。
+	//
+	// 呼ばれるのは描画フェーズ(GameManager::Draw)の中で、ボーン行列自体は
+	// それより前の Animation フェーズで確定しているので、この時点の値で正しい。
+	//======================================================================================
+	uint32_t GraphicsEngine::AcquireBoneBaseIndex(ECS::World& a_world)
+	{
+		// 同じワールドをこのフレームで既に積んでいればその位置を返す
+		auto _it = m_boneBaseIndexMap.find(&a_world);
+		if (_it != m_boneBaseIndexMap.end()) return _it->second;
+
+		const uint32_t _baseIndex = static_cast<uint32_t>(m_boneMatrixVec.size());
+
+		if (a_world.HasResource<Pool::RangePool<Resource::BoneMatrix>>())
+		{
+			auto& _boneMatPool = a_world.GetResource<Pool::RangePool<Resource::BoneMatrix>>();
+
+			// プールは最初から10000要素ぶん確保されているので、丸ごと積むと
+			// ワールドを2つ重ねただけでGPU側のボーンパレットが溢れる。
+			// 実際に使われている末尾までで足りる(ハンドルの添字は必ずこの内側)
+			const auto& _data = _boneMatPool.GetAllData();
+			const size_t _usedCount = (std::min)(
+				static_cast<size_t>(_boneMatPool.GetUsedCount()), _data.size());
+
+			m_boneMatrixVec.insert(m_boneMatrixVec.end(), _data.begin(), _data.begin() + _usedCount);
+		}
+
+		m_boneBaseIndexMap.emplace(&a_world, _baseIndex);
+		return _baseIndex;
+	}
+
 	void GraphicsEngine::SubmitSkinning(
 		ECS::World& a_world,
 		const Resource::Model* a_pModel,
@@ -494,6 +558,9 @@ namespace Engine::Graphics
 		const RangeHandle<Resource::BoneMatrix> boneHandle
 	)
 	{
+		// このワールドのボーン行列をパレットへ積み、GPU上の土台を得る
+		const uint32_t _boneBaseIndex = AcquireBoneBaseIndex(a_world);
+
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
 		for (const auto& _cmd : _drawCmdVec)
 		{
@@ -513,11 +580,15 @@ namespace Engine::Graphics
 			if (!_pShadingModel) continue;
 
 			SkinningDispatchItem _item = {};
+			_item.pWorld = &a_world;
 			_item.staticVertexHandle = _pMesh->GetRtData().vertexHandle;
 			_item.staticIndexHandle = _pMesh->GetRtData().indexHandle;
 			_item.nodePoseMat = nodePoseHnandle;
 			_item.animHandle = dynamicHandle;
 			_item.boneHandle = boneHandle;
+
+			// スキニングのコンピュートが読むのはGPU上の位置なので土台を足す
+			_item.boneBufferStart = _boneBaseIndex + boneHandle.startIndex;
 
 			auto& _pool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
 			auto* _data = _pool.Get(dynamicHandle);
@@ -656,6 +727,9 @@ namespace Engine::Graphics
 		auto* _data = _pool.Get(a_animData);
 		if (!_data) return;
 
+		// このワールドのボーン行列をパレットへ積み、GPU上の土台を得る
+		const uint32_t _boneBaseIndex = AcquireBoneBaseIndex(a_world);
+
 		// モデルが持っている描画コマンド（サブセット）を展開
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
 		for (const auto& _cmd : _drawCmdVec)
@@ -697,7 +771,8 @@ namespace Engine::Graphics
 			InstanceData _instanceData = {};
 			_instanceData.worldMat = _mat.Transpose();
 			_instanceData.prevWorldMat = _prevMat.Transpose();
-			_instanceData.boneStartIndex = a_boneHandle.startIndex;
+			// 頂点シェーダーが引くのもGPU上の位置なので土台を足す
+			_instanceData.boneStartIndex = static_cast<int>(_boneBaseIndex + a_boneHandle.startIndex);
 			_instanceData.boneCount = a_boneHandle.count;
 
 			SubSetData _subSetData = {};

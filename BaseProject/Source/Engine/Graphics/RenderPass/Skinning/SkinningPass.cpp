@@ -115,7 +115,9 @@ void Engine::Graphics::AddSkinningPass(D3D12::PipelineStateManager* a_pPSOManage
 				_info.animatedVertStart = _item.animatedHandle.startIndex;
 				_info.vertexCount = _item.staticVertexHandle.count;
 				//_info.boneOffset = _item.nodePoseMat.startIndex;
-				_info.boneOffset = _item.boneHandle.startIndex;
+				// プールの添字ではなくボーンパレット(GPU)上の位置。
+				// ワールドごとの土台が足してあるので、シーンを重ねても他人のボーンを踏まない
+				_info.boneOffset = _item.boneBufferStart;
 				a_pCtx->ComputeBindRootCBV(0, _info);
 
 				UINT _x = (_info.vertexCount + 63) / 64;

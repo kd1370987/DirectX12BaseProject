@@ -16,6 +16,7 @@ namespace Engine::Option
 
 		m_pOptionList.push_back(&m_buildConfig);
 		m_pOptionList.push_back(&m_inputOption);
+		m_pOptionList.push_back(&m_cursorOption);
 
 		m_pOptionList.push_back(&m_debugDrawOption);
 	}

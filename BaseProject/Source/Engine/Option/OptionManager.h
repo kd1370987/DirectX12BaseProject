@@ -5,6 +5,7 @@
 // プロジェクトオプション
 #include "ProjectOptions/BuildConfig.h"
 #include "ProjectOptions/InputOption.h"
+#include "ProjectOptions/CursorOption.h"
 
 // グラフィックスオプション
 #include "GraphicsOptions/GIOptions.h"
@@ -42,6 +43,10 @@ namespace Engine::Option
 		// 入力設定
 		const ProjectOptions::InputOption& GetInputOption() const { return m_inputOption; }
 		ProjectOptions::InputOption& RefInputOption() { return m_inputOption; }
+
+		// 自前で描くマウスカーソルの設定
+		const ProjectOptions::CursorOption& GetCursorOption() const { return m_cursorOption; }
+		ProjectOptions::CursorOption& RefCursorOption() { return m_cursorOption; }
 
 		// ---- グラフィックス ---- 
 		// GI設定
@@ -85,6 +90,7 @@ namespace Engine::Option
 		// プロジェクトオプション
 		ProjectOptions::BuildConfig m_buildConfig = {};
 		ProjectOptions::InputOption m_inputOption = {};
+		ProjectOptions::CursorOption m_cursorOption = {};
 
 		// グラフィックスオプション
 		GraphicsOptions::GIOption m_giOptions = {};

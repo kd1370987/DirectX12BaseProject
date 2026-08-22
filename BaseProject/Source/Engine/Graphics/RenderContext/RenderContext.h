@@ -33,7 +33,7 @@ namespace Engine::Graphics
 		size_t cbAllocatorMemSize = 32 * 1024 * 1024;
 
 		// ボーン用行列数
-		UINT boneElementNum = 0;
+		UINT boneElementNum = 0;	// ボーンパレットの要素数(重ねたシーンぶんを連結するので、1ワールド分では足りない)
 	};
 	
 
@@ -140,11 +140,14 @@ namespace Engine::Graphics
 
 
 		// 描画命令の実行
+		// a_boneMatVec : このフレームに描くワールドすべてのボーン行列を連結したもの。
+		// シーンから直接引かず渡してもらう(重ねて描くときに描く側しか全体を知らないため)
 		void UpdateBuffer(
 			const std::vector<InstanceData>& a_instanceVec,
 			const std::vector<SubSetData>& a_subsetVec,
 			const std::vector<MeshInstanceData>& a_mesInstance,
-			const std::vector<MeshMaterial>& a_mesMaterial
+			const std::vector<MeshMaterial>& a_mesMaterial,
+			const std::vector<Resource::BoneMatrix>& a_boneMatVec
 		);
 		void UpdateUIBuffer(const std::vector<UIData>& a_uiInstanceVec);
 

@@ -15,8 +15,6 @@
 #include "../MeshBufferAllocator/MeshBufferAllocator.h"
 #include "ShapeDraw/ShapeDraw.h"
 
-#include "Engine/Scene/SceneManager/SceneManager.h"
-
 #include "../../ECS/World/World.h"
 
 //============================================================================================
@@ -387,7 +385,12 @@ namespace Engine::Graphics
 		m_pCmdList->DispatchMesh(a_x,a_y,a_z);
 	}
 
-	void RenderContext::UpdateBuffer(const std::vector<InstanceData>& a_instanceVec, const std::vector<SubSetData>& a_subsetVec, const std::vector<MeshInstanceData>& a_mesInstance, const std::vector<MeshMaterial>& a_mesMaterial)
+	void RenderContext::UpdateBuffer(
+		const std::vector<InstanceData>& a_instanceVec,
+		const std::vector<SubSetData>& a_subsetVec,
+		const std::vector<MeshInstanceData>& a_mesInstance,
+		const std::vector<MeshMaterial>& a_mesMaterial,
+		const std::vector<Resource::BoneMatrix>& a_boneMatVec)
 	{
 		// インスタンスデータバッファ
 		if(!a_instanceVec.empty())
@@ -413,13 +416,15 @@ namespace Engine::Graphics
 		}
 
 		// ボーン行列の更新
+		//
+		// 中身は呼び出し側(GraphicsEngine)が用意する。
+		// 以前はここで SceneManager::RefWorld() =「一番上のシーン」から直接引いていたが、
+		// ポーズ画面のようにシーンを重ねているとポーズ側のワールドしか載らず、
+		// 後ろのゲームのキャラがボーン行列を失って一点に潰れ、消えたように見えていた。
 		m_boneBuffer.ResetForNewFrame();
-		auto* _pCurrentWorld = Engine::Scene::SceneManager::Instance().RefWorld();
-		if (_pCurrentWorld->HasResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>())
+		if (!a_boneMatVec.empty())
 		{
-			auto& _boneMatPool = _pCurrentWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
-			const auto& _data = _boneMatPool.GetAllData();
-			m_boneBuffer.AllocateAndWrite(_data.data(), static_cast<UINT>(_data.size()));
+			m_boneBuffer.AllocateAndWrite(a_boneMatVec.data(), static_cast<UINT>(a_boneMatVec.size()));
 		}
 
 		// デバッグライン用バッファ更新

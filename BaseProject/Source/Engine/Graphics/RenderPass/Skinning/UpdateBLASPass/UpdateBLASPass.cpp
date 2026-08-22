@@ -33,8 +33,6 @@ namespace Engine::Graphics
 		_node.executeFunc = [](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 			{
 				auto* _pCmdList = a_pCtx->GetCurrentCmdList();
-				auto* _pCurrentWorld = Scene::SceneManager::Instance().RefWorld();
-				if (!_pCurrentWorld) return;
 
 				auto* _pMA = a_pGE->RefMeshBufferAllocator();
 				if (!_pMA) return;
@@ -46,9 +44,18 @@ namespace Engine::Graphics
 					D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 				);
 				// スキニング対象のBLASを更新
+				//
+				// プールは命令を出したワールドのものを引く。
+				// 以前は SceneManager::RefWorld() =「一番上のシーン」から引いていたため、
+				// ポーズ画面のようにシーンを重ねている間は後ろのゲームのキャラのハンドルを
+				// ポーズ側のプールで探すことになり、動的BLASが更新されなかった
+				// (レイトレのGIや影からキャラが居なくなる)。
 				for (auto& _item : a_pGE->GetSkinningImtes())
 				{
-					auto& _pool = _pCurrentWorld->GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+					if (!_item.pWorld) continue;
+					if (!_item.pWorld->HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) continue;
+
+					auto& _pool = _item.pWorld->GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
 					auto* _animMeshData = _pool.Ref(_item.animHandle);
 					if (!_animMeshData) continue;
 

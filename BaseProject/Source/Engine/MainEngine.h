@@ -23,6 +23,7 @@ namespace Engine
 	{
 		class GraphicsEngine;
 		class RenderContext;
+		class MouseCursor;
 	}
 
 	namespace D3D12
@@ -78,6 +79,9 @@ namespace Engine
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
 
+		// 自前で描くマウスカーソル
+		Graphics::MouseCursor* RefMouseCursor();
+
 		// コリジョンワールド
 		Collision::CollisionWorld* RefCollisionWorld();
 
@@ -116,6 +120,7 @@ namespace Engine
 		std::unique_ptr<Collision::CollisionWorld> m_upCollisionWorld = nullptr;		// 当たり判定用ワールド
 		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;	// パーティクルマネージャー
 		std::unique_ptr<Thread::JobSystem> m_upJobSystem = nullptr;						// ジョブシステム
+		std::unique_ptr<Graphics::MouseCursor> m_upMouseCursor = nullptr;				// 自前で描くマウスカーソル
 		// エンジン設定
 		EAppMode m_appMode = EAppMode::Editor;								// アプリケーションのモード
 		EBuildConfiguration m_buildMode = EBuildConfiguration::Debug;		// ビルドモード

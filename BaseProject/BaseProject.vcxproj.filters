@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Source\Engine\Graphics\MouseCursor">
+      <UniqueIdentifier>{c0de0f01-1111-4222-8333-0000c0de0f01}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Library">
       <UniqueIdentifier>{c0de0001-1111-4222-8333-0000c0de0001}</UniqueIdentifier>
     </Filter>
@@ -2544,6 +2547,12 @@
     <ClCompile Include="Source\Engine\Option\ProjectOptions\InputOption.cpp">
       <Filter>Source\Engine\Option\ProjectOptions</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Option\ProjectOptions\CursorOption.cpp">
+      <Filter>Source\Engine\Option\ProjectOptions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\MouseCursor\MouseCursor.cpp">
+      <Filter>Source\Engine\Graphics\MouseCursor</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\PanelManager.cpp">
       <Filter>Source\Engine\Editor\Panel</Filter>
     </ClCompile>
@@ -3979,6 +3988,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Option\ProjectOptions\InputOption.h">
       <Filter>Source\Engine\Option\ProjectOptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Option\ProjectOptions\CursorOption.h">
+      <Filter>Source\Engine\Option\ProjectOptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\MouseCursor\MouseCursor.h">
+      <Filter>Source\Engine\Graphics\MouseCursor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Input\Internal\InputContext.h">
       <Filter>Source\Engine\Input\Internal</Filter>

@@ -102,10 +102,22 @@ namespace Engine::Graphics
 		RangeHandle<uint32_t> staticIndexHandle;						// アセット側のインデックスデータ
 		RangeHandle<Resource::NodePoseMatrix> nodePoseMat;				// CPUで更新されたボーンノード行列
 		RangeHandle<Resource::MeshVertexFloat> animatedHandle;
-		RangeHandle<Resource::BoneMatrix> boneHandle;					// ボーン行列
+		RangeHandle<Resource::BoneMatrix> boneHandle;					// ボーン行列(ワールド内のプール添字)
+
+		// ボーンパレット(GPU)での開始位置。
+		// プールの添字はワールドごとに 0 から振り直されるので、
+		// 複数のシーンを重ねて描くとそのままでは他シーンのボーンを踏む。
+		// アップロード時に付く土台を足した「GPU上の」位置をここに持つ
+		uint32_t boneBufferStart = 0;
 
 		// 自身のBLASと変形後頂点を入れるメガバッファのハンドルを保持しているインスタンスのハンドル
 		Handle<Raytracing::DynamicRaytracingData> animHandle;
+
+		// この命令を出したワールド。
+		// animHandle はワールドごとのプールの鍵なので、引くときは必ずこのワールドから引く。
+		// シーンを重ねて描くと命令配列に複数のワールドのものが混ざるため、
+		// 「今の一番上のシーン」から引くと他人のプールを鍵違いで探すことになる
+		ECS::World* pWorld = nullptr;
 	};
 
 	// グラフィックスエンジン
@@ -352,6 +364,10 @@ namespace Engine::Graphics
 
 	private:
 
+		// このワールドのボーン行列をボーンパレットへ積み、GPU上の開始位置を返す。
+		// 同じフレームで同じワールドを二度呼んでも積み直さず、最初に積んだ位置を返す
+		uint32_t AcquireBoneBaseIndex(ECS::World& a_world);
+
 		// カメラをGPU用データに変換
 		void CreateGPUCameraData();
 
@@ -481,6 +497,15 @@ namespace Engine::Graphics
 
 		// アニメーション用レイトレインスタンス作成命令
 		std::vector<Raytracing::DynamicRaytracingRequest> m_dynamicRayRequestVec = {};
+
+		//--------------------------------------------------------------------------------------------
+		// ボーンパレット
+		//--------------------------------------------------------------------------------------------
+		// ボーン行列はシーン(ワールド)ごとのプールに入っていて、添字も 0 から振り直される。
+		// ポーズ画面のようにシーンを重ねて描くときは複数のワールドを1フレームで描くので、
+		// ここで全ワールド分を1本に連結し、各ワールドの土台(開始位置)を覚えておく。
+		std::vector<Resource::BoneMatrix> m_boneMatrixVec = {};
+		std::unordered_map<const ECS::World*, uint32_t> m_boneBaseIndexMap = {};
 
 	};
 }
