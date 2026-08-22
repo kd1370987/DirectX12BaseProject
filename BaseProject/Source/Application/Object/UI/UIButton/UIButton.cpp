@@ -49,12 +49,13 @@ namespace App::Object
 		//==================================================================
 		// 押せない状態
 		//------------------------------------------------------------------
+		// ・出していない(見えていないものは押せない)
 		// ・無効にされている
 		// ・プレイモードでない / エディターで文字を打っている
 		// このときは状態を全部落とす。押しっぱなしのまま無効にされて、
 		// 有効へ戻した瞬間に押し切られたことにならないようにする。
 		//==================================================================
-		if (!m_isInteractable || !_input.IsGameInputEnable())
+		if (!m_isVisible || !m_isInteractable || !_input.IsGameInputEnable())
 		{
 			m_isHovered = false;
 			m_isPressed = false;
@@ -68,7 +69,7 @@ namespace App::Object
 		Math::Vector2 _cursorPos = {};
 		const bool _hasCursor = CalcCursorUIPos(a_context, _cursorPos);
 
-		m_isHovered = _hasCursor && IsPointInside(_cursorPos);
+		m_isHovered = _hasCursor && IsPointInsideSelf(_cursorPos);
 
 		//==================================================================
 		// 押下の進行
@@ -110,6 +111,9 @@ namespace App::Object
 
 	void UIButton::Draw(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 出さない指示が出ているものは描かない(UIBase::Draw と同じ扱い)
+		if (!m_isVisible) return;
+
 		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
 
 		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
@@ -157,88 +161,21 @@ namespace App::Object
 	}
 
 	//======================================================================================
-	// カーソル位置をUIのピクセル座標へ直す
-	//--------------------------------------------------------------------------------------
-	// クライアント領域(実際のウィンドウの大きさ) → 描画解像度(UIの座標系)。
-	// バックバッファは描画解像度で作られ、クライアント領域へ引き伸ばして表示されるので、
-	// 単純に比率を掛ければよい。
-	//======================================================================================
-	bool UIButton::CalcCursorUIPos(Engine::GameObject::ObjectContext& a_context, Math::Vector2& a_outPos) const
-	{
-		if (!a_context.pServices) return false;
-		if (!a_context.pServices->pInputManager || !a_context.pServices->pOptionManager) return false;
-		if (!a_context.pServices->pMainEngine) return false;
-
-		// カーソル(クライアント座標)
-		Math::Vector2 _clientPos = {};
-		if (!a_context.pServices->pInputManager->GetCursorClientPos(_clientPos)) return false;
-
-		// 描画解像度
-		const auto& _winOp = a_context.pServices->pOptionManager->GetWindowOption();
-		const float _renderW = static_cast<float>(_winOp.windowWidth);
-		const float _renderH = static_cast<float>(_winOp.windowHeight);
-		if (_renderW <= 0.0f || _renderH <= 0.0f) return false;
-
-		// クライアント領域の実サイズ
-		const auto* _pWind = a_context.pServices->pMainEngine->GetNativeWindow();
-		if (!_pWind) return false;
-
-		const float _clientW = static_cast<float>(_pWind->GetClientWidth());
-		const float _clientH = static_cast<float>(_pWind->GetClientHeight());
-
-		// 最小化中は0になる
-		if (_clientW <= 0.0f || _clientH <= 0.0f) return false;
-
-		a_outPos.x = _clientPos.x * (_renderW / _clientW);
-		a_outPos.y = _clientPos.y * (_renderH / _clientH);
-
-		return true;
-	}
-
-	//======================================================================================
 	// 矩形の内側か
 	//--------------------------------------------------------------------------------------
-	// GraphicsEngine::PushUIData がクアッドを組み立てるのと同じ式で軸を作り、
-	// その軸へ射影した長さで判定する。回転もピボットもそのまま効く。
-	//
-	//   ローカル+X(画面右) を回したもの : ( cos,  sin)
-	//   ローカル+Y(画面上) を回したもの : ( sin, -cos)
-	//   クアッド中心 : ピボット位置 + R * ピボットからのずれ
+	// 判定そのものは UIBase の共通実装(描画と同じ式でクアッドを組む)。
+	// ここは自分の位置・大きさ・ピボット・回転をそのまま渡すだけにしてある。
+	// オブジェクトを置かずに並べたUI(ステージ一覧など)からも同じ判定を使うため。
 	//======================================================================================
-	bool UIButton::IsPointInside(const Math::Vector2& a_uiPos) const
+	bool UIButton::IsPointInsideSelf(const Math::Vector2& a_uiPos) const
 	{
-		// 判定の半サイズ(余白ぶんを足す)
-		const Math::Vector2 _half = {
-			m_pixelSize.x * 0.5f + m_hitPadding.x,
-			m_pixelSize.y * 0.5f + m_hitPadding.y
-		};
-
-		// 大きさが無ければ押しようがない
-		if (_half.x <= 0.0f || _half.y <= 0.0f) return false;
-
-		const float _rad = DirectX::XMConvertToRadians(m_rotation);
-		const float _cos = std::cos(_rad);
-		const float _sin = std::sin(_rad);
-
-		// ピボットからクアッド中心までのずれ(回転前)
-		const Math::Vector2 _pivotOff = {
-			(0.5f - m_pivot.x) * m_pixelSize.x,
-			(0.5f - m_pivot.y) * m_pixelSize.y
-		};
-
-		// 回転はピボットを中心に行われる
-		const Math::Vector2 _center = {
-			m_pixelPos.x + (_pivotOff.x * _cos - _pivotOff.y * _sin),
-			m_pixelPos.y + (_pivotOff.x * _sin + _pivotOff.y * _cos)
-		};
-
-		const Math::Vector2 _diff = { a_uiPos.x - _center.x, a_uiPos.y - _center.y };
-
-		// 各軸へ射影した長さ(軸はどちらも単位ベクトル)
-		const float _u = _diff.x * _cos + _diff.y * _sin;
-		const float _v = _diff.x * _sin - _diff.y * _cos;
-
-		return (std::fabs(_u) <= _half.x) && (std::fabs(_v) <= _half.y);
+		return UIBase::IsPointInside(
+			a_uiPos,
+			m_pixelPos,
+			m_pixelSize,
+			m_pivot,
+			m_rotation,
+			m_hitPadding);
 	}
 
 	//======================================================================================

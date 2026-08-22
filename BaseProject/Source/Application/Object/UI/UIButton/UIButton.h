@@ -105,11 +105,9 @@ namespace App::Object
 
 	private:
 
-		// カーソル位置をUIのピクセル座標(描画解像度基準)で取得する
-		bool CalcCursorUIPos(Engine::GameObject::ObjectContext& a_context, Math::Vector2& a_outPos) const;
-
 		// UIのピクセル座標が自分の矩形の内側にあるか
-		bool IsPointInside(const Math::Vector2& a_uiPos) const;
+		// (判定そのものは UIBase の共通実装。自分の位置・大きさを渡すだけ)
+		bool IsPointInsideSelf(const Math::Vector2& a_uiPos) const;
 
 		// 今の状態に対応する色を返す
 		const Math::Color& GetStateColor() const;

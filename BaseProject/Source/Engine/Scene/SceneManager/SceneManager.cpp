@@ -103,7 +103,7 @@ namespace Engine::Scene
 		}
 	}
 
-	void SceneManager::PushScene(const Engine::GUID& a_guid)
+	bool SceneManager::PushScene(const Engine::GUID& a_guid)
 	{
 		// シーンの新規作成 : GUIDからロードする
 		auto _upScene = std::make_unique<BaseScene>();
@@ -111,7 +111,7 @@ namespace Engine::Scene
 		if (_sceneFilePath.empty())
 		{
 			ENGINE_ERRLOG(false, "指定されたGUIDのシーンファイルが見つかりません");
-			return;
+			return false;
 		}
 
 		// どのシーンを読み込むかをログ出力する
@@ -129,6 +129,8 @@ namespace Engine::Scene
 		_upScene->SetGUID(a_guid);
 		// スタックに積む
 		m_upBaseSceneVec.push_back(std::move(_upScene));
+
+		return true;
 	}
 	void SceneManager::PopScene()
 	{
@@ -141,9 +143,25 @@ namespace Engine::Scene
 		m_upBaseSceneVec.pop_back();
 	}
 	
+	//======================================================================================
+	// シーンの切り替え
+	//--------------------------------------------------------------------------------------
+	// 消してから読み込むので、読み込みに失敗すると「シーンが1つも無い」状態が残る。
+	// そうなると現在のシーンを引く先が全部空振りし、以降のフレームで落ちる。
+	//
+	// 消す前に行き先が引けるかどうかを確かめて、引けなければ今のシーンを残す。
+	// (行き先の指定漏れ・GUIDの消滅は設定ミスなので、気付けるように知らせる)
+	//======================================================================================
 	void SceneManager::ReplaceScene(const Engine::GUID& a_guid)
 	{
 		if (m_upBaseSceneVec.empty()) return;
+
+		if (Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid).empty())
+		{
+			ENGINE_WARNING("[Scene] 切り替え先のシーンが見つかりません : %s 今のシーンを続けます",
+				a_guid.String().c_str());
+			return;
+		}
 
 		PopScene();
 		PushScene(a_guid);
@@ -158,6 +176,10 @@ namespace Engine::Scene
 
 	BaseScene* SceneManager::GetCurrentTopScene()
 	{
+		// シーンが1つも無い間(起動直後・全消去後)もここは呼ばれる。
+		// 空のまま back() を取るとその場で落ちるので、呼び出し側へ nullptr を返す
+		if (m_upBaseSceneVec.empty()) return nullptr;
+
 		return m_upBaseSceneVec.back().get();
 	}
 

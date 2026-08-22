@@ -83,7 +83,7 @@ namespace Engine::Scene
 		//------------------------------------------------------------------------------------------
 		void ChangeScenen();								// フレームの初めにシーンの切り替えを実行する
 		void ReplaceScene(const Engine::GUID& a_guid);		// シーンの切り替え
-		void PushScene(const Engine::GUID& a_guid);			// シーンを重ねる
+		bool PushScene(const Engine::GUID& a_guid);			// シーンを重ねる(読み込めたら true)
 		void PopScene();									// 最前面のシーンを消去
 
 	private:

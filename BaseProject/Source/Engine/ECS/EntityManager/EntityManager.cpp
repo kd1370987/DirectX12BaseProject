@@ -62,6 +62,11 @@ namespace Engine::ECS
 		uint32_t _idx = uint32_t(a_entity & 0xFFFFFFFF);
 		uint32_t _gen = uint32_t(a_entity >> 32);
 
+		// 無効なIDが混じっても落とさない。
+		// 世代を見る前に添え字で引くので、確かめるのはこちらが先
+		if (a_entity == ECS::Limits::INVALID_ENTITY) return;
+		if (_idx >= m_entityGeneVec.size()) return;
+
 		if (m_entityGeneVec[_idx] != _gen)
 		{
 			return;
@@ -88,10 +93,23 @@ namespace Engine::ECS
 		m_entityLocationVec[_idx] = a_loca;
 	}
 
+	//======================================================================================
+	// 住所の取得
+	//--------------------------------------------------------------------------------------
+	// GetSignature と同じ理由で、無効なエンティティが来ても落ちないようにしてある。
+	// 空の住所(チャンク無し)を返すと、この先の RefComponent が nullptr を返すので、
+	// 「持っていない」として扱われる。
+	//======================================================================================
 	const EntityLocation& EntityManager::GetLocation(const ECS::Entity& a_entity)
 	{
-		uint32_t _idx = uint32_t(a_entity & 0xFFFFFFFF);
-		uint32_t _gen = uint32_t(a_entity >> 32);
+		static const EntityLocation _emptyLoca = {};
+
+		if (a_entity == ECS::Limits::INVALID_ENTITY) return _emptyLoca;
+
+		uint32_t _idx = GetIndex(a_entity);
+
+		// 別ワールドのIDなどで添え字が範囲外になることがある
+		if (_idx >= m_entityLocationVec.size()) return _emptyLoca;
 
 		return m_entityLocationVec[_idx];
 	}
@@ -131,9 +149,32 @@ namespace Engine::ECS
 		return m_aliveCount;
 	}
 
+	//======================================================================================
+	// シグネチャの取得
+	//--------------------------------------------------------------------------------------
+	// 無効なエンティティが来ることを前提にしてある。
+	//
+	// HasComponent はここを通るので、「持っているかどうか」を確かめる側は
+	// 相手が居るかどうかを気にせず呼べる必要がある。
+	// 見つからなかった参照は INVALID_ENTITY(=UINT64_MAX)で返ってくるため、
+	// そのまま添え字にすると範囲外を読んで落ちる。
+	// (例 : 追従先のGUIDがそのシーンに居ないカメラ → HasComponent で弾くつもりが
+	//       HasComponent 自体で落ちていた)
+	//
+	// 空のシグネチャを返せば「何も持っていない」扱いになり、
+	// 呼び出し側の HasComponent 判定がそのまま効く。
+	//======================================================================================
 	const ECS::Signature& EntityManager::GetSignature(const ECS::Entity& a_entity)
 	{
+		static const ECS::Signature _emptySig = {};
+
+		if (a_entity == ECS::Limits::INVALID_ENTITY) return _emptySig;
+
 		uint32_t _idx = GetIndex(a_entity);
+
+		// 別ワールドのIDなどで添え字が範囲外になることがある
+		if (_idx >= m_signatureVec.size()) return _emptySig;
+
 		return m_signatureVec[_idx];
 	}
 

@@ -847,6 +847,9 @@
     <Filter Include="Source\Application\Object\Sequence\ResultSequence">
       <UniqueIdentifier>{9bdd3ccf-4975-46d7-bde0-7b49028c58be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Sequence\HomeSequence">
+      <UniqueIdentifier>{8e7fbc0c-8408-410f-bea0-e67969f04b8c}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Utility\Pool">
       <UniqueIdentifier>{9bc13487-f5a9-4b72-81af-5fe0029cccee}</UniqueIdentifier>
     </Filter>
@@ -2009,6 +2012,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Sequence\ResultSequence\ResultSequence.cpp">
       <Filter>Source\Application\Object\Sequence\ResultSequence</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.cpp">
+      <Filter>Source\Application\Object\Sequence\HomeSequence</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp">
       <Filter>Source\Engine\Resource\Data\Particles</Filter>
@@ -3196,6 +3202,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Sequence\ResultSequence\ResultSequence.h">
       <Filter>Source\Application\Object\Sequence\ResultSequence</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.h">
+      <Filter>Source\Application\Object\Sequence\HomeSequence</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\ScoreTargetComponent.h">
       <Filter>Source\Application\Components\Character</Filter>

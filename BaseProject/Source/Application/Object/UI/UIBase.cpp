@@ -7,6 +7,8 @@
 #include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Engine/Common/Color.h"
 #include "Engine/Option/OptionManager.h"	// ウィンドウ解像度(px)取得用
+#include "Engine/Input/InputManager/InputManager.h"	// カーソル位置の取得用
+#include "Engine/Window/NativeWindow.h"				// クライアント領域の実サイズ取得用
 
 #include "../../../Engine/Editor/Helper/EditorHelper.h"
 
@@ -17,6 +19,9 @@ namespace App::Object
 
 	void UIBase::Draw(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 出さない指示が出ているものは描かない
+		if (!m_isVisible) return;
+
 		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
 
 		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
@@ -48,6 +53,10 @@ namespace App::Object
 		a_ar.Field("m_layer", m_layer);
 		a_ar.Field("m_scale", m_scale);
 
+		// 出し分けの状態。※ 追加は必ずここより上でなく末尾へ
+		//    (バイナリは並び順で読むので、間に挟むと既存のデータがずれる)
+		a_ar.Field("IsVisible", m_isVisible);
+
 		m_editSize = m_pixelSize;
 
 		// 読み込み時は復元したGUIDでテクスチャを引き直す。
@@ -61,6 +70,100 @@ namespace App::Object
 			m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
 		}
 	}
+	//======================================================================================
+	// カーソル位置をUIのピクセル座標へ直す
+	//--------------------------------------------------------------------------------------
+	// クライアント領域(実際のウィンドウの大きさ) → 描画解像度(UIの座標系)。
+	// バックバッファは描画解像度で作られ、クライアント領域へ引き伸ばして表示されるので、
+	// 単純に比率を掛ければよい。
+	// (ウィンドウサイズを変えても判定がずれないよう、毎フレーム実測する)
+	//======================================================================================
+	bool UIBase::CalcCursorUIPos(Engine::GameObject::ObjectContext& a_context, Math::Vector2& a_outPos)
+	{
+		if (!a_context.pServices) return false;
+		if (!a_context.pServices->pInputManager || !a_context.pServices->pOptionManager) return false;
+		if (!a_context.pServices->pMainEngine) return false;
+
+		// カーソル(クライアント座標)
+		Math::Vector2 _clientPos = {};
+		if (!a_context.pServices->pInputManager->GetCursorClientPos(_clientPos)) return false;
+
+		// 描画解像度
+		const auto& _winOp = a_context.pServices->pOptionManager->GetWindowOption();
+		const float _renderW = static_cast<float>(_winOp.windowWidth);
+		const float _renderH = static_cast<float>(_winOp.windowHeight);
+		if (_renderW <= 0.0f || _renderH <= 0.0f) return false;
+
+		// クライアント領域の実サイズ
+		const auto* _pWind = a_context.pServices->pMainEngine->GetNativeWindow();
+		if (!_pWind) return false;
+
+		const float _clientW = static_cast<float>(_pWind->GetClientWidth());
+		const float _clientH = static_cast<float>(_pWind->GetClientHeight());
+
+		// 最小化中は0になる
+		if (_clientW <= 0.0f || _clientH <= 0.0f) return false;
+
+		a_outPos.x = _clientPos.x * (_renderW / _clientW);
+		a_outPos.y = _clientPos.y * (_renderH / _clientH);
+
+		return true;
+	}
+
+	//======================================================================================
+	// 矩形の内側か
+	//--------------------------------------------------------------------------------------
+	// GraphicsEngine::PushUIData がクアッドを組み立てるのと同じ式で軸を作り、
+	// その軸へ射影した長さで判定する。回転もピボットもそのまま効く。
+	// (判定用に別の値を持たせると「絵はここなのに押せない」ズレが必ず出るため、
+	//  描画に渡すものと同じ値をそのまま受け取る形にしてある)
+	//
+	//   ローカル+X(画面右) を回したもの : ( cos,  sin)
+	//   ローカル+Y(画面上) を回したもの : ( sin, -cos)
+	//   クアッド中心 : ピボット位置 + R * ピボットからのずれ
+	//======================================================================================
+	bool UIBase::IsPointInside(
+		const Math::Vector2& a_uiPos,
+		const Math::Vector2& a_pixelPos,
+		const Math::Vector2& a_pixelSize,
+		const Math::Vector2& a_pivot,
+		float a_rotationDeg,
+		const Math::Vector2& a_hitPadding)
+	{
+		// 判定の半サイズ(余白ぶんを足す)
+		const Math::Vector2 _half = {
+			a_pixelSize.x * 0.5f + a_hitPadding.x,
+			a_pixelSize.y * 0.5f + a_hitPadding.y
+		};
+
+		// 大きさが無ければ触りようがない
+		if (_half.x <= 0.0f || _half.y <= 0.0f) return false;
+
+		const float _rad = DirectX::XMConvertToRadians(a_rotationDeg);
+		const float _cos = std::cos(_rad);
+		const float _sin = std::sin(_rad);
+
+		// ピボットからクアッド中心までのずれ(回転前)
+		const Math::Vector2 _pivotOff = {
+			(0.5f - a_pivot.x) * a_pixelSize.x,
+			(0.5f - a_pivot.y) * a_pixelSize.y
+		};
+
+		// 回転はピボットを中心に行われる
+		const Math::Vector2 _center = {
+			a_pixelPos.x + (_pivotOff.x * _cos - _pivotOff.y * _sin),
+			a_pixelPos.y + (_pivotOff.x * _sin + _pivotOff.y * _cos)
+		};
+
+		const Math::Vector2 _diff = { a_uiPos.x - _center.x, a_uiPos.y - _center.y };
+
+		// 各軸へ射影した長さ(軸はどちらも単位ベクトル)
+		const float _u = _diff.x * _cos + _diff.y * _sin;
+		const float _v = _diff.x * _sin - _diff.y * _cos;
+
+		return (std::fabs(_u) <= _half.x) && (std::fabs(_v) <= _half.y);
+	}
+
 	void UIBase::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
 		if (!a_context.pServices) return;
@@ -70,6 +173,11 @@ namespace App::Object
 		const auto& _winOp = a_context.pServices->pOptionManager->GetWindowOption();
 		const float _w = static_cast<float>(_winOp.windowWidth);
 		const float _h = static_cast<float>(_winOp.windowHeight);
+
+		// 表示するか : 出し分けを持つ画面(ホームなど)は進行役がここを切り替える
+		ImGui::Checkbox("Visible", &m_isVisible);
+		ImGui::SameLine();
+		ImGui::TextDisabled("(切ると描画も入力も止まる)");
 
 		// テクスチャの編集
 		if (ImGui::CollapsingHeader("Texture"))

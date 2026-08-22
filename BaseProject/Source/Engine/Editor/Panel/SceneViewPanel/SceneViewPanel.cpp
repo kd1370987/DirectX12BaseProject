@@ -861,13 +861,27 @@ namespace Engine::Editor
 	}
 	void SceneViewPanel::SceneFileMenu(EditorContext& a_editContext)
 	{
-		if (m_currentSceneGUID == Engine::DefaultGUID)
-		{
-			auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
-			if (!_pScene) return;
+		//------------------------------------------------------------------
+		// 開いているシーンを実物から取り直す
+		//
+		// シーンはエディターからだけでなくゲーム側からも切り替わる
+		// (タイトル→ホーム、ホーム→出撃先など)。以前はここで一度覚えたきり
+		// だったので、ゲームが切り替えた後もエディターは前のシーンを指したまま
+		// になり、Ctrl+S で「別のシーンのファイル」へ上書きしてしまっていた。
+		//
+		// 実際に積まれているシーンが自分のGUIDを持っているので、毎フレーム
+		// そこから取り直す。これで表示も保存先も必ず今のシーンを指す。
+		//------------------------------------------------------------------
+		auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
+		if (!_pScene) return;
 
+		if (!(m_currentSceneGUID == _pScene->GetGUID()))
+		{
 			m_currentSceneGUID = _pScene->GetGUID();
-			m_canOverwrite = true; // 上書き可能にする
+
+			// 保存先のファイルがあるシーンだけ上書きさせる
+			m_canOverwrite = m_currentSceneGUID.IsValid();
+
 			ENGINE_LOG("シーンのGUIDがセットされました : %s", m_currentSceneGUID.String().c_str());
 		}
 
@@ -1061,6 +1075,14 @@ namespace Engine::Editor
 					Engine::GUID _guid = Resource::AssetDatabase::Instance().AddMetaData(filepath, "Scene");
 					m_currentSceneGUID = _guid;
 					m_canOverwrite = true;
+
+					// 名前を付けて保存した先が、このシーンの新しい置き場所になる。
+					// シーン本体にも覚えさせておかないと、上のGUID取り直しで
+					// 保存前のGUIDへ戻ってしまう
+					if (auto* _pCurrentScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene())
+					{
+						_pCurrentScene->SetGUID(_guid);
+					}
 
 					SaveScene(m_currentSceneGUID);
 					ImGui::CloseCurrentPopup(); // 保存後に閉じる

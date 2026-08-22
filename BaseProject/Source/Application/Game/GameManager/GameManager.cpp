@@ -21,6 +21,7 @@
 #include "Application/Object/UI/UIButton/UIButton.h"
 #include "Application/Object/UI/UIImage/UIImage.h"
 #include "Application/Object/Sequence/TitleSequence/TitleSequence.h"
+#include "Application/Object/Sequence/HomeSequence/HomeSequence.h"
 #include "../../Object/Scene/SceneAmbientObject/SceneAmbientObject.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 
@@ -273,6 +274,8 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::ScoreHUD>("ScoreHUD");
 			// リザルト画面の進行役。ホームのボタンへ「押されたらタイトルへ」を差し込む
 			_objRegistry.RegisterType<App::Object::ResultSequence>("ResultSequence");
+			// ホーム画面の進行役。ステージセレクト(一覧・詳細・出撃)と倉庫のボタンを束ねる
+			_objRegistry.RegisterType<App::Object::HomeSequence>("HomeSequence");
 		}
 
 		// ワールドの初期化関数登録
