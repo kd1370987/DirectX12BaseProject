@@ -15,6 +15,8 @@
 #include "Application/Object/UI/TargetBoxHUD/TargetBoxHUD.h"
 #include "Application/Object/UI/AimReticleHUD/AimReticleHUD.h"
 #include "Application/Object/UI/HitEffectHUD/HitEffectHUD.h"
+#include "Application/Object/UI/ScoreHUD/ScoreHUD.h"
+#include "Application/Object/Sequence/ResultSequence/ResultSequence.h"
 #include "Application/Object/UI/MissileLockBoxHUD/MissileLockBoxHUD.h"
 #include "Application/Object/UI/UIButton/UIButton.h"
 #include "Application/Object/UI/UIImage/UIImage.h"
@@ -65,6 +67,7 @@
 #include "Application/Components/Character/Robot/BoostComponent.h"
 #include "Application/Components/Character/Robot/BoosterEffectComponent.h"
 #include "Application/Components/Character/Robot/ChargeDashComponent.h"
+#include "Application/Components/Character/ScoreTargetComponent.h"
 #include "Application/Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "Application/Components/Resource/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
@@ -184,6 +187,7 @@
 #include "../../Systems/Release/SoundFreeSystem/SoundFreeSystem.h"
 #include "../../Systems/Init/Start/GunStateStartSystem/GunStateStartSystem.h"
 #include "../../Systems/Update/PreUpdate/HitEventClearSystem/HitEventClearSystem.h"
+#include "../../Systems/Update/PreUpdate/DeathEventClearSystem/DeathEventClearSystem.h"
 #include "../../Systems/Update/PreUpdate/EnemyShootIntentSystem/EnemyShootIntentSystem.h"
 #include "../../Systems/Update/PreUpdate/BossCombatIntentSystem/BossCombatIntentSystem.h"
 #include "../../Systems/Update/PreUpdate/HomingSystem/HomingSystem.h"
@@ -206,6 +210,7 @@
 #include "../../Components/Effect/ExplosionComponent.h"
 #include "../../InstanceResource/DeathEventResource.h"
 #include "../../Systems/Update/PostUpdate/DeathEffectSystem/DeathEffectSystem.h"
+#include "../../Systems/Update/PostUpdate/ScoreSystem/ScoreSystem.h"
 #include "../../Systems/Update/PostUpdate/ExplosionSystem/ExplosionSystem.h"
 
 // リソース関係
@@ -264,6 +269,10 @@ namespace App::Game
 			// ※ タイプIDは登録順で振られるので、必ず末尾に足すこと
 			//    (間に挟むと既存シーンの TypeIndex が全部ずれる)
 			_objRegistry.RegisterType<App::Object::SceneAmbientObject>("SceneAmbientObject");
+			// スコアの表示。数える側(ScoreSystem)とは分かれていて、ここは出すだけ
+			_objRegistry.RegisterType<App::Object::ScoreHUD>("ScoreHUD");
+			// リザルト画面の進行役。ホームのボタンへ「押されたらタイトルへ」を差し込む
+			_objRegistry.RegisterType<App::Object::ResultSequence>("ResultSequence");
 		}
 
 		// ワールドの初期化関数登録
@@ -362,6 +371,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<BoosterEffectComponent>("BoosterEffectComponent");
 				// ジャンプ長押しで溜めて直進するチャージダッシュ
 				a_pWorld->RegisterComponent<ChargeDashComponent>("ChargeDashComponent");
+				// 倒す相手であることの印と、倒したときに入るスコア
+				a_pWorld->RegisterComponent<ScoreTargetComponent>("ScoreTargetComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -482,6 +493,9 @@ namespace App::Game
 				a_pWorld->RegisterSystem<SubmitDynamicColliderSystem>();
 				a_pWorld->RegisterSystem<CollisionEventClearSystem>();
 				a_pWorld->RegisterSystem<HitEventClearSystem>();
+				// 死亡イベントも読み手が複数(エフェクトとスコア)になったので、
+				// ヒットと同じく捨てる係を分けてある
+				a_pWorld->RegisterSystem<DeathEventClearSystem>();
 				a_pWorld->RegisterSystem<HitDetectSystem>();
 				a_pWorld->RegisterSystem<ExplodeOnHitSystem>();
 				// 被弾で体力を削り、尽きたら死亡状態にする(体力持ちは ExplodeOnHit の対象外)
@@ -494,6 +508,8 @@ namespace App::Game
 				a_pWorld->RegisterSystem<LifeTimeSystem>();
 				// 死亡したものの DeathEffect プレハブを出す(死亡を積む側より後ろで回る)
 				a_pWorld->RegisterSystem<DeathEffectSystem>();
+				// 倒した相手ぶんのスコアを足す(死亡を積む側より後ろで回る)
+				a_pWorld->RegisterSystem<ScoreSystem>();
 				// 時間差で複数のエフェクトを炊き、出し切ったら自分で消える
 				a_pWorld->RegisterSystem<ExplosionSystem>();
 				// 3Dサウンドの聞き手。鳴らす側より先に登録して、先にリスナーを更新させる

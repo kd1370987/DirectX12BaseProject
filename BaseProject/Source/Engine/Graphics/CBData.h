@@ -187,7 +187,7 @@ namespace Engine::Graphics
 	// StructuredBuffer<UIData> と1バイトもズレないよう、16バイト(float4)境界を意識して並べる。
 	// HLSLの構造化バッファは float2 が16バイト境界をまたぐ位置に来ると次の境界へ押し出される。
 	// 各行がちょうど float4 に収まる順序にしておけばパディングのズレが起きない。
-	// (row0: pos+axisX / row1: axisY+uvOffset / row2: color / row3: layer+texIndex+pad)
+	// (row0: pos+axisX / row1: axisY+uvOffset / row2: color / row3: layer+texIndex+uvScale)
 	//
 	// 回転・アスペクト補正・ピボットはCPU(SubmitUI)側でピクセル空間で計算し、
 	// クアッド頂点(-1..1)を線形変換する基底(axisX/axisY)とNDC中心座標(pos)として渡す。
@@ -204,7 +204,12 @@ namespace Engine::Graphics
 
 		float layer;				// Z順
 		UINT texIndex;				// SRVインデックス
-		DXSM::Vector2 _pad;			// 16バイトアライメント用
+
+		// UVに掛ける倍率。1つのテクスチャに並べた絵を切り出すために使う
+		// (数字の 0〜9 を横に並べたものから1文字だけ出す、など)。
+		// uv * uvScale + uvOffset の順で効く。既定は等倍。
+		// row3 の余りに入れているので、構造体の大きさは変わらない
+		DXSM::Vector2 uvScale = { 1.0f, 1.0f };
 	};
 
 	// サブメッシュ単位データ

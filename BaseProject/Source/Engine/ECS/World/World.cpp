@@ -5,6 +5,7 @@
 // エンティティに初めからつけるためこの二つはインクルード
 #include "../../../Application/Components/Persistence/GUIDComponent.h"		// GUID
 #include "../../../Application/Components/Persistence/NameComponent.h"		// 名前
+#include "../../../Application/Components/Hierarchy/HierarchyComponent.h"	// 親子関係(解放を子へ広げるのに使う)
 
 // シングルトンリソース
 #include "../../../Application/InstanceResource/HierarchyResource.h"		// 階層保持
@@ -103,6 +104,11 @@ namespace Engine::ECS
 			_res.isDirty = true;
 		}
 		m_changeEntityVec.clear();
+		// ---------------------------------------------------------
+		// 解放されるものの子孫にもタグを広げる。
+		// 引っ越しが済んだ後に呼ぶので、この時点で親にはもうタグが付いている。
+		// ここで広げておけば、親子ともに同じフレームの Release フェーズを通ってから消える
+		PropagateReleaseToChildren();
 		// ---------------------------------------------------------
 		// 削除前にリリース処理を走らせる
 		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
@@ -315,6 +321,126 @@ namespace Engine::ECS
 	void World::AddRemoveEntity(const ECS::Entity& a_entity)
 	{
 		m_removeEntityVec.push_back(a_entity);
+	}
+
+	//======================================================================================
+	// 解放されるエンティティの子孫にも ReleaseTag を広げる
+	//--------------------------------------------------------------------------------------
+	// HierarchyComponent が持っているのは親だけなので、子は「親が誰か」を見て探す。
+	// 親→子の対応表はどこにも無く、作っても親子が変わるたびに作り直しになるため、
+	// 解放が起きたフレームだけ層ごとに舐める。
+	//
+	//   1周目 : 親が解放される子
+	//   2周目 : その子が親になっている孫
+	//   ...
+	// 新しく見つからなくなったら終わり。すでに対象に入っているものは飛ばすので、
+	// 親子が循環していても止まる。
+	//
+	// タグを付けるのは全部見終わってから。反復の最中に引っ越しをかけると
+	// チャンクの中身が動いて、走査そのものが壊れる。
+	//======================================================================================
+	void World::PropagateReleaseToChildren()
+	{
+		const ComponentTypeID _releaseTypeID = GetCompTypeID<ReleaseTag>();
+		const ComponentTypeID _activeTypeID  = GetCompTypeID<ActiveTag>();
+		if (_releaseTypeID == Limits::INVALID_COMPONENTTYPEID) return;
+
+		//----------------------------------------------------------------------
+		// このフレームに解放されるもの
+		//----------------------------------------------------------------------
+		std::unordered_set<Entity> _releasing = {};
+
+		ForEach<ReleaseTag>(
+			[&_releasing]
+			(
+				ArchetypeChunk* a_pChunk,
+				uint32_t a_count,
+				ReleaseTag* a_releaseTag
+				)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					_releasing.insert(a_pChunk->entityData[_i]);
+				}
+			}
+		);
+
+		if (_releasing.empty()) return;
+
+		//----------------------------------------------------------------------
+		// 子・孫…と辿って集める
+		//----------------------------------------------------------------------
+		// 深さの保険。親子が循環していなくてもここで必ず止まる
+		constexpr int _kMaxDepth = 32;
+
+		std::vector<Entity> _found = {};
+		std::vector<Entity> _targets = {};
+
+		for (int _depth = 0; _depth < _kMaxDepth; ++_depth)
+		{
+			_found.clear();
+
+			ForEach<const HierarchyComponent>(
+				[&_releasing, &_found]
+				(
+					ArchetypeChunk* a_pChunk,
+					uint32_t a_count,
+					const HierarchyComponent* a_hierarchyArray
+					)
+				{
+					for (uint32_t _i = 0; _i < a_count; ++_i)
+					{
+						const Entity _parent = a_hierarchyArray[_i].parentID;
+						if (_parent == Limits::INVALID_ENTITY) continue;
+
+						// 親が解放されないなら、この子はそのまま残す
+						if (!_releasing.contains(_parent)) continue;
+
+						// すでに対象になっているものは数えない(循環よけも兼ねる)
+						const Entity _child = a_pChunk->entityData[_i];
+						if (_releasing.contains(_child)) continue;
+
+						_found.push_back(_child);
+					}
+				}
+			);
+
+			// これ以上ぶら下がっていない
+			if (_found.empty()) break;
+
+			for (const Entity& _child : _found)
+			{
+				_releasing.insert(_child);
+				_targets.push_back(_child);
+			}
+		}
+
+		if (_targets.empty()) return;
+
+		//----------------------------------------------------------------------
+		// タグを付ける(走査が終わってから)
+		//----------------------------------------------------------------------
+		for (const Entity& _child : _targets)
+		{
+			Signature _sig = m_entityManager.GetSignature(_child);
+
+			// もう動かす必要はないので Active から外して Release へ移す。
+			// この後すぐ Release フェーズが走るので、借りているものは返ってから消える
+			if (_activeTypeID != Limits::INVALID_COMPONENTTYPEID)
+			{
+				_sig.reset(_activeTypeID);
+			}
+			_sig.set(_releaseTypeID);
+
+			ChangeEntityCmd _cmd = {};
+			_cmd.entity = _child;
+			_cmd.toSig = _sig;
+
+			ChangeSignature(_cmd);
+		}
+
+		// 階層が変わったので通知しておく
+		GetResource<HierarchyResource>().isDirty = true;
 	}
 
 	void World::AddReleaseEntity(const ECS::Entity& a_entity)

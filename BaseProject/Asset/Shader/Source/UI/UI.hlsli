@@ -7,7 +7,7 @@
 #include "../RootSignatureLayout.hlsli"
 
 // CPU側(CBData.hのUIData)と1バイトもズレないよう、float4境界で並べる。
-// row0: pos+axisX / row1: axisY+uvOffset / row2: color / row3: layer+texIndex+pad
+// row0: pos+axisX / row1: axisY+uvOffset / row2: color / row3: layer+texIndex+uvScale
 // 回転・アスペクト補正・ピボットはCPU側でピクセル空間で計算済み。
 // ここでは pos + axisX*q.x + axisY*q.y の線形変換をするだけ。
 struct UIData
@@ -22,7 +22,7 @@ struct UIData
 
 	float layer;		// Z順
 	uint texIndex;		// SRVインデックス
-	float2 _pad;		// 16バイトアライメント用
+	float2 uvScale;		// UVに掛ける倍率(uv * uvScale + uvOffset)。既定は(1,1)
 };
 
 // ルートシグネチャ

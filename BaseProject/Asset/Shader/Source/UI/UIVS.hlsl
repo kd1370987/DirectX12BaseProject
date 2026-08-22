@@ -15,7 +15,9 @@ VSOutput VSMain(VSInput a_input)
 	// 構造体にしてPSへ
 	VSOutput _out;
 	_out.pos = float4(_ndc, _uiData.layer, 1);
-	_out.uv = a_input.uv + _uiData.uvOffset;
+	// 倍率 → オフセットの順。1枚に並べた絵から1コマだけ切り出すときは
+	// 倍率でコマの大きさ、オフセットで何コマ目かを指定する
+	_out.uv = a_input.uv * _uiData.uvScale + _uiData.uvOffset;
 	_out.color = _uiData.color;
 	_out.texIndex = _uiData.texIndex;	// 実際のSRV番号をPSへ渡す
 	return _out;

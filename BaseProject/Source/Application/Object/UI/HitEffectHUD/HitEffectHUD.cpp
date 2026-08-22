@@ -11,6 +11,7 @@
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 #include "Application/InstanceResource/HitEventResource.h"
+#include "Application/Components/Character/ScoreTargetComponent.h"
 
 namespace App::Object
 {
@@ -142,6 +143,17 @@ namespace App::Object
 		{
 			if (_event.shooter != _player) continue;
 
+			//--------------------------------------------------------------
+			// 手応えを出すのは「倒す相手」に当てたときだけ
+			//
+			// 弾は壁でも地面でも味方の部品でも同じように当たる。
+			// そこまで音とマークが出ると、何に当てても当たった気になってしまい、
+			// 狙う価値のある相手に当てた合図として働かなくなる。
+			// 相手として置かれているかは ScoreTargetComponent の有無で見る
+			//--------------------------------------------------------------
+			if (_event.victim == Engine::ECS::Limits::INVALID_ENTITY) continue;
+			if (!_pWorld->HasComponent<ScoreTargetComponent>(_event.victim)) continue;
+
 			OnHit(a_context);
 			break;
 		}
@@ -241,6 +253,6 @@ namespace App::Object
 		ImGui::Separator();
 		ImGui::Text("HitCount : %d", m_hitCount);
 		ImGui::Text("Remain   : %.2f", m_remainTime);
-		ImGui::TextDisabled("自分が撃った弾が当たったフレームに反応します");
+		ImGui::TextDisabled("自分が撃った弾が ScoreTarget に当たったフレームに反応します");
 	}
 }

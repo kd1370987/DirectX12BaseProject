@@ -750,7 +750,7 @@ namespace Engine::Graphics
 		);
 	}
 
-	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot)
+	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_uvScale)
 	{
 		auto& _resMgr = Resource::ResourceManager::Instance();
 
@@ -763,7 +763,7 @@ namespace Engine::Graphics
 		if (!_pTex) return;
 
 		// サイズは呼び出し側の指定値をそのまま使う
-		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, a_screenRect, a_color, a_rotation, a_layer, a_uvOffset, a_pivot);
+		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, a_screenRect, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, a_uvScale);
 	}
 
 	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, float a_scale, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot)
@@ -1232,7 +1232,8 @@ namespace Engine::Graphics
 		float a_rotationDeg,
 		float a_layer,
 		const Math::Vector2& a_uvOffset,
-		const Math::Vector2& a_pivot)
+		const Math::Vector2& a_pivot,
+		const Math::Vector2& a_uvScale)
 	{
 		// スクリーン解像度(px)
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
@@ -1277,6 +1278,7 @@ namespace Engine::Graphics
 		_data.axisX = { _axisXpx.x * 2.0f / _w, -_axisXpx.y * 2.0f / _h };
 		_data.axisY = { _axisYpx.x * 2.0f / _w, -_axisYpx.y * 2.0f / _h };
 		_data.uvOffset = a_uvOffset;
+		_data.uvScale = a_uvScale;
 		_data.color = Math::DX::ToVector4(a_color);
 		_data.layer = a_layer;
 		_data.texIndex = a_texIndex;

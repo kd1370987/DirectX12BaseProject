@@ -1,16 +1,10 @@
 ﻿#pragma once
+
+#include "../GlobalGameContext.h"
+
 namespace App::Game
 {
 	class GameFlowStateMachine;
-	
-	/// <summary>
-	/// シーンを跨いで保持したいゲーム情報
-	/// </summary>
-	struct GlobalGameData
-	{
-		float sccor = 0.0f;			// ゲーム中に倒した敵の数
-		float claerTime = 0.0f;		// クリアにかかった時間
-	};
 
 	/// <summary>
 	/// シングルトン
@@ -41,8 +35,8 @@ namespace App::Game
 		void Release();
 
 		// ---- アクセサ ----
-		const GlobalGameData& GetGameData() const { return m_gameData; }
-		GlobalGameData& RefGameData() { return m_gameData; }
+		const GlobalGameContext& GetGameData() const { return m_gameData; }
+		GlobalGameContext& RefGameData() { return m_gameData; }
 
 		/// <summary>
 		/// ゲーム内イベントの発火（UIのボタンやシステムから呼ばれる） 
@@ -57,9 +51,8 @@ namespace App::Game
 
 	private:
 
-		// グローバルデータ
-		GlobalGameData m_gameData;
-
+		// シーンをまたいで保持できる情報
+		GlobalGameContext m_gameData;
 
 		// 現在のフローのハッシュ値
 		UINT m_currentFlowHash = 0;

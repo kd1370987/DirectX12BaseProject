@@ -835,6 +835,18 @@
     <Filter Include="Source\Application\Systems\Update\Update\Move\ChargeDashSystem">
       <UniqueIdentifier>{8c01f798-6cb1-424a-bfb8-848e4b0c0e02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PostUpdate\ScoreSystem">
+      <UniqueIdentifier>{a2c685fc-c54b-4fc6-a2b5-4d70e8993a2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem">
+      <UniqueIdentifier>{ff19ea60-9884-4f66-ad0b-a2bdd387e6d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\UI\ScoreHUD">
+      <UniqueIdentifier>{c374721c-449b-4b1f-ab47-8ee043754764}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Sequence\ResultSequence">
+      <UniqueIdentifier>{9bdd3ccf-4975-46d7-bde0-7b49028c58be}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Utility\Pool">
       <UniqueIdentifier>{9bc13487-f5a9-4b72-81af-5fe0029cccee}</UniqueIdentifier>
     </Filter>
@@ -1985,6 +1997,18 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\ChargeDashSystem\ChargeDashSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Move\ChargeDashSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ScoreSystem\ScoreSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PostUpdate\ScoreSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem\DeathEventClearSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\ScoreHUD\ScoreHUD.cpp">
+      <Filter>Source\Application\Object\UI\ScoreHUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\ResultSequence\ResultSequence.cpp">
+      <Filter>Source\Application\Object\Sequence\ResultSequence</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp">
       <Filter>Source\Engine\Resource\Data\Particles</Filter>
@@ -3160,6 +3184,21 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Robot\ChargeDashComponent.h">
       <Filter>Source\Application\Components\Character\Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ScoreSystem\ScoreSystem.h">
+      <Filter>Source\Application\Systems\Update\PostUpdate\ScoreSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem\DeathEventClearSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\ScoreHUD\ScoreHUD.h">
+      <Filter>Source\Application\Object\UI\ScoreHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Sequence\ResultSequence\ResultSequence.h">
+      <Filter>Source\Application\Object\Sequence\ResultSequence</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\ScoreTargetComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Robot\BoosterEffectComponent.h">
       <Filter>Source\Application\Components\Character\Robot</Filter>

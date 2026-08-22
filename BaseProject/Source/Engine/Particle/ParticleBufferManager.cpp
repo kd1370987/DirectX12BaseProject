@@ -49,6 +49,10 @@ namespace Engine::Particle
 	}
 	void ParticleBufferManager::BeginFrame()
 	{
+		// 席の使用状況を測るためのフレーム番号。
+		// 「しばらく使われていない席」を見分けるのに使う
+		++m_frameCount;
+
 		// リクエストのクリア
 		for (auto& [_handle, _emitDataVec] : m_emitRequests)
 		{
@@ -95,6 +99,8 @@ namespace Engine::Particle
 		if (_table.matrices.empty())
 		{
 			_table.matrices.push_back(Math::Matrix{});
+			_table.slotOwners.push_back(0);
+			_table.slotUsedFrame.push_back(0);
 		}
 
 		//----------------------------------------------------------------------
@@ -123,25 +129,74 @@ namespace Engine::Particle
 		auto _it = _table.slotMap.find(a_ownerKey);
 		if (_it != _table.slotMap.end())
 		{
-			_table.matrices[_it->second] = _mat;
+			_table.matrices[_it->second]     = _mat;
+			_table.slotUsedFrame[_it->second] = m_frameCount;
 			return _it->second;
 		}
 
-		// 席が尽きたらワールド空間として出す。
-		// 席を奪い合うと、まだ生きている粒の行列が別の発生源のものへ化ける
-		if (_table.matrices.size() >= PARTICLE_EMITTER_MAX)
+		//----------------------------------------------------------------------
+		// 空いている席があれば、そこへ座る
+		//----------------------------------------------------------------------
+		if (_table.matrices.size() < PARTICLE_EMITTER_MAX)
 		{
+			const uint32_t _slot = static_cast<uint32_t>(_table.matrices.size());
+			_table.matrices.push_back(_mat);
+			_table.slotOwners.push_back(a_ownerKey);
+			_table.slotUsedFrame.push_back(m_frameCount);
+			_table.slotMap.emplace(a_ownerKey, _slot);
+
+			return _slot;
+		}
+
+		//----------------------------------------------------------------------
+		// 席が尽きた : しばらく使われていない席を回す
+		//
+		// 鍵はエンティティなので、シーンを読み直すたびに作り直されるもの
+		// (ブースターなど)は毎回ちがう鍵で席を取る。返す仕組みが無いと
+		// 数回の読み直しで席が尽き、そこから先はワールド空間で出てしまう。
+		//
+		// 回してよいのは EMITTER_SLOT_KEEP_FRAMES のあいだ一度も使われていない席だけ。
+		// 出し終わった粒が消えるまでの猶予をここで取っているので、
+		// まだ生きている粒の行列を奪うことにはならない。
+		//----------------------------------------------------------------------
+		uint32_t _oldestSlot = 0;
+		uint64_t _oldestFrame = m_frameCount;
+
+		for (uint32_t _i = 1; _i < static_cast<uint32_t>(_table.slotUsedFrame.size()); ++_i)
+		{
+			if (_table.slotUsedFrame[_i] < _oldestFrame)
+			{
+				_oldestFrame = _table.slotUsedFrame[_i];
+				_oldestSlot  = _i;
+			}
+		}
+
+		const bool _isStale =
+			(_oldestSlot != 0) &&
+			((m_frameCount - _oldestFrame) >= EMITTER_SLOT_KEEP_FRAMES);
+
+		if (!_isStale)
+		{
+			// 全部が現役 : 奪うと生きている粒が化けるので、ワールド空間で出す
 			ENGINE_WARNING(
 				"[Particle] 発生源の席が足りません(上限 %d)。ワールド空間で出します",
 				static_cast<int>(PARTICLE_EMITTER_MAX));
 			return 0;
 		}
 
-		const uint32_t _slot = static_cast<uint32_t>(_table.matrices.size());
-		_table.matrices.push_back(_mat);
-		_table.slotMap.emplace(a_ownerKey, _slot);
+		// 前の持ち主を忘れて、席を引き継ぐ
+		const uint64_t _prevOwner = _table.slotOwners[_oldestSlot];
+		if (_prevOwner != 0)
+		{
+			_table.slotMap.erase(_prevOwner);
+		}
 
-		return _slot;
+		_table.matrices[_oldestSlot]     = _mat;
+		_table.slotOwners[_oldestSlot]   = a_ownerKey;
+		_table.slotUsedFrame[_oldestSlot] = m_frameCount;
+		_table.slotMap.emplace(a_ownerKey, _oldestSlot);
+
+		return _oldestSlot;
 	}
 
 	std::span<const Math::Matrix> ParticleBufferManager::GetEmitterMatrices(

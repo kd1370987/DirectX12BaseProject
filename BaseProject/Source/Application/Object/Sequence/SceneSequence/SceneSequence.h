@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "../../../../Engine/GameObject/BaseObject/BaseObject.h"
 
+#include "../../../Game/GlobalGameContext.h"
+
 namespace App::Object
 {
 	/// <summary>
@@ -87,6 +89,15 @@ namespace App::Object
 	///   (プレハブの実体化は遅延生成なので、出した直後はIDが取れない)。
 	/// ・生成は GameObjectManager::Update から呼ばれる。ECSのシステム反復の外なので
 	///   World の遅延生成コマンドがそのまま次の BeginFrame で消化される。
+	///
+	/// ・決着(リザルトへ移る条件)もここが握る。
+	///     負け : プレイヤーが倒された
+	///     勝ち : プレイヤーが生きていて、全ウェーブを出し切って全滅させた
+	///   ボスも1つのウェーブとして出すので、ボスを倒せばそのウェーブが片付き、
+	///   それが最後のウェーブならそのまま勝ちになる(ボス専用の判定は要らない)。
+	///   決着したら記録(スコア・タイム・結末)を GlobalGameContext へ移してから
+	///   リザルトシーンを読み込む。ワールドのリソースはシーンを切り替えると
+	///   作り直されるので、持っていきたいものはグローバル側へ置く。
 	/// </summary>
 	class SceneSequence : public Engine::GameObject::BaseObject
 	{
@@ -139,6 +150,25 @@ namespace App::Object
 		// 進行状況を初期化して最初からやり直す
 		void ResetProgress();
 
+		//-------------------------------------------------------------------
+		// 決着まわり
+		//-------------------------------------------------------------------
+
+		// 勝ち負けを見て、決まっていれば結末を立てる
+		void UpdateResultState(Engine::GameObject::ObjectContext& a_context);
+
+		// プレイヤーが倒されたか(消えてしまった場合も倒された扱い)
+		bool IsPlayerDead(Engine::GameObject::ObjectContext& a_context);
+
+		// 全ウェーブを出し切って全滅させたか
+		bool IsAllWaveCleared() const;
+
+		// 全滅させたウェーブの数
+		int GetClearedWaveCount() const;
+
+		// 記録をグローバルへ移してリザルトシーンを読み込む
+		void RequestResultScene();
+
 		// ギズモの対象を外す(要素を消して添え字がずれたとき用)
 		void ClearGizmoTarget();
 
@@ -152,6 +182,28 @@ namespace App::Object
 
 		// シーンの経過時間
 		float m_time = 0.0f;
+
+		//=======================================================================
+		// 決着(リザルトへの遷移)
+		//=======================================================================
+		// ---- 設定(保存する) ----
+		Engine::GUID m_resultSceneGUID = {};	// 遷移先。未設定なら遷移しない
+
+		// 決着してから実際に移るまでの待ち。倒れる演出や爆発を見せるための間
+		float m_clearDelay = 3.0f;	// 勝ったとき
+		float m_deadDelay  = 3.0f;	// 負けたとき
+
+		// シーンが始まったときにグローバルの記録を消すか。
+		// ゲームシーンの入り口なので既定で消す(前回のスコアが残らないように)
+		bool m_isResetOnStart = true;
+
+		// ---- 状態(保存しない) ----
+		App::Game::EGameResult m_result = App::Game::EGameResult::None;	// 決着の内容
+		float m_resultTimer = 0.0f;			// 移るまでの残り時間(秒)
+		bool  m_isSceneRequested = false;	// 二重に遷移要求を出さないための印
+		bool  m_isPlayerFound = false;		// プレイヤーを一度でも見つけたか
+											// (湧く前の1フレームを死亡と間違えないため)
+		bool  m_isStarted = false;			// 最初の更新を通ったか(記録を消す判定に使う)
 
 		//=======================================================================
 		// エディター用(保存しない)

@@ -3,6 +3,8 @@
 #include "Engine/ECS/World/World.h"
 
 #include "Application/Components/Character/DeathEffectComponent.h"
+#include "Application/Components/Character/HealthComponent.h"
+#include "Application/Components/Collision/ExplodeOnHitComponent.h"
 #include "Application/InstanceResource/DeathEventResource.h"
 #include "Application/Utility/EffectSpawnHelper.h"
 
@@ -25,15 +27,24 @@
 //   弾の場合は解放予約された状態で、消えるのは次フレームの BeginFrame。
 //   どちらもこの時点ではコンポーネントを引ける。
 // ・カスタムタスクで登録している。1フレームに1回だけ走らせたいため。
-// ・読み終わったらここでクリアする。消費するのがこのシステムだけだからで、
-//   他にも死亡を見たいものが出てきたら HitEventResource と同じく
-//   PreUpdate でクリアする形へ移すこと。
+//
+// ・読み込みに HealthComponent と ExplodeOnHitComponent を挙げている。
+//   このシステム自体はどちらも触らないが、死亡を積むのがその2つを書くシステム
+//   (HealthSystem / ExplodeOnHitSystem)なので、こう書いておくと
+//   「書く側 → 読む側」の辺が張られて必ず後ろに回る。
+//
+//   挙げていないと、依存の無いタスクとして真っ先に実行されてしまう。
+//   同じ PostUpdate 帯でも順序は依存でしか決まらないので、
+//   積まれる前に読んで毎フレーム空振りし、エフェクトが一切出なくなる。
+// ・クリアはしない。スコア加算(ScoreSystem)も同じ死亡を読むようになったので、
+//   HitEventResource と同じく捨てる係を分けてある(DeathEventClearSystem / PreUpdate)。
+//   先に読んだ方が消す形だと、読み手が増えたときに登録順で動いたり動かなかったりする。
 //==============================================================================
 void DeathEffectSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,
-		Engine::ECS::ReadList<DeathEffectComponent>{},
+		Engine::ECS::ReadList<DeathEffectComponent, HealthComponent, ExplodeOnHitComponent>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)
 		{
@@ -65,8 +76,6 @@ void DeathEffectSystem::Init(Engine::ECS::World& a_world)
 						_pDeathEffect->effectGUID.String().c_str());
 				}
 			}
-
-			_deathEvents.Clear();
 		}
 	);
 }

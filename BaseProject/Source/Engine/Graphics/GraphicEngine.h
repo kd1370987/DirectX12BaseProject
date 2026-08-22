@@ -291,6 +291,10 @@ namespace Engine::Graphics
 		/// <param name="a_layer">Z順</param>
 		/// <param name="a_uvOffset">UVオフセット</param>
 		/// <param name="a_pivot">回転軸/基準点(正規化[0,1], 0.5=中心)</param>
+		/// <param name="a_uvScale">
+		/// UVに掛ける倍率(uv * uvScale + uvOffset)。既定は等倍。
+		/// 1枚に並べた絵から1コマだけ出すときに、倍率でコマの大きさを指定する
+		/// </param>
 		void SubmitUI(
 			const Handle<Resource::Texture>& a_texHandle,
 			const Math::Vector2& a_pixelPos,
@@ -299,7 +303,8 @@ namespace Engine::Graphics
 			float a_rotationDeg = 0,
 			float a_layer = 0,
 			const Math::Vector2& a_uvOffset = {},
-			const Math::Vector2& a_pivot = { 0.5f, 0.5f }
+			const Math::Vector2& a_pivot = { 0.5f, 0.5f },
+			const Math::Vector2& a_uvScale = { 1.0f, 1.0f }
 		);
 
 		/// <summary>
@@ -403,7 +408,8 @@ namespace Engine::Graphics
 			float a_rotationDeg,
 			float a_layer,
 			const Math::Vector2& a_uvOffset,
-			const Math::Vector2& a_pivot);
+			const Math::Vector2& a_pivot,
+			const Math::Vector2& a_uvScale = { 1.0f, 1.0f });
 	private:
 		//--------------------------------------------------------------------------------------------
 		// 主要クラス

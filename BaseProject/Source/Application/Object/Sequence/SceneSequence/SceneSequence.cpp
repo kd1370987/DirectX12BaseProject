@@ -9,6 +9,10 @@
 #include "Application/Components/Character/Boss/BossComponent.h"
 #include "Application/Components/Character/HealthComponent.h"
 #include "Application/Utility/PrefabSpawnHelper.h"
+#include "Application/Components/Tag/PlayerControllTag.h"
+#include "Application/Game/GameManager/GameManager.h"
+
+#include "Engine/Scene/SceneManager/SceneManager.h"
 
 //==========================================================================================
 // SceneSequence
@@ -80,7 +84,185 @@ namespace App::Object
 
 		SendBossOrders(a_context);
 
+		// 勝ち負けの判定と、決まっていればリザルトへ
+		UpdateResultState(a_context);
+
 		DrawSpawnMarker(a_context);
+	}
+
+	//======================================================================================
+	// 決着の判定
+	//--------------------------------------------------------------------------------------
+	// 負けを先に見る。プレイヤーが倒れた時に最後の敵も道連れになっていた場合、
+	// 勝ち負けが同じフレームに揃うので、そこは負けを優先する。
+	//
+	// 決まった後は待ち時間を進めるだけ。倒れる演出や爆発を見せてから移りたいので、
+	// 決まった瞬間には切り替えない。
+	//======================================================================================
+	void SceneSequence::UpdateResultState(Engine::GameObject::ObjectContext& a_context)
+	{
+		//----------------------------------------------------------------------
+		// シーンの入り口で記録を消す
+		//
+		// リザルトからやり直したときに前回のスコアが残らないようにする。
+		// 最初の更新でだけ行う(Update の頭ではなくここに置いているのは、
+		// 決着まわりの持ち物をひとまとめにしておくため)
+		//----------------------------------------------------------------------
+		if (!m_isStarted)
+		{
+			m_isStarted = true;
+
+			if (m_isResetOnStart)
+			{
+				App::Game::GameManager::Instance().RefGameData().ResetRun();
+			}
+		}
+
+		//----------------------------------------------------------------------
+		// タイムは毎フレーム移しておく
+		//
+		// 決着した時だけ書くと、ゲーム中のタイム表示が 0 のままになる。
+		// 決まった後は止める。リザルトに出したいのは決着した時刻で、
+		// その後も進み続けると遷移待ちのぶんだけ伸びてしまう
+		//----------------------------------------------------------------------
+		auto& _gameData = App::Game::GameManager::Instance().RefGameData();
+		if (m_result == App::Game::EGameResult::None)
+		{
+			_gameData.time = m_time;
+		}
+
+		// 決着済み : 待ってから移る
+		if (m_result != App::Game::EGameResult::None)
+		{
+			if (m_isSceneRequested) return;
+
+			m_resultTimer = (std::max)(0.0f, m_resultTimer - a_context.dt);
+			if (m_resultTimer > 0.0f) return;
+
+			RequestResultScene();
+			return;
+		}
+
+		// ---- 負け ----
+		if (IsPlayerDead(a_context))
+		{
+			m_result = App::Game::EGameResult::GameOver;
+			m_resultTimer = m_deadDelay;
+			return;
+		}
+
+		// ---- 勝ち ----
+		if (IsAllWaveCleared())
+		{
+			m_result = App::Game::EGameResult::Clear;
+			m_resultTimer = m_clearDelay;
+		}
+	}
+
+	//======================================================================================
+	// プレイヤーが倒されたか
+	//--------------------------------------------------------------------------------------
+	// 「死亡状態になった」と「居なくなった」の両方を倒された扱いにする。
+	// 死亡してから消えるまでには猶予があるが、消えた後は探しても見つからないため。
+	//
+	// 湧く前の1フレームを死亡と間違えないよう、一度でも見つけるまでは判定しない
+	// (プレハブの実体化は遅延生成なので、シーンの最初のフレームはまだ居ない)。
+	//======================================================================================
+	bool SceneSequence::IsPlayerDead(Engine::GameObject::ObjectContext& a_context)
+	{
+		if (!a_context.pWorld) return false;
+
+		bool _isFound = false;
+		bool _isDead  = false;
+
+		a_context.pWorld->ForEach<const ActiveTag, const PlayerControllTag>(
+			[&](
+				Engine::ECS::ArchetypeChunk* a_pChunk,
+				uint32_t a_count,
+				const ActiveTag* a_activeTagArray,
+				const PlayerControllTag* a_playerTagArray
+			)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					_isFound = true;
+
+					const Engine::ECS::Entity _entity = a_pChunk->entityData[_i];
+					if (!a_context.pWorld->HasComponent<HealthComponent>(_entity)) continue;
+
+					const auto* _pHealth = a_context.pWorld->RefData<HealthComponent>(_entity);
+					if (_pHealth && _pHealth->isDead) _isDead = true;
+				}
+			}
+		);
+
+		if (_isFound)
+		{
+			m_isPlayerFound = true;
+			return _isDead;
+		}
+
+		// 居たはずのものが見つからない = 消えた
+		return m_isPlayerFound;
+	}
+
+	//======================================================================================
+	// 全ウェーブを片付けたか
+	//--------------------------------------------------------------------------------------
+	// ボスも1つのウェーブとして出すので、ここで一緒に見ている。
+	// ウェーブを1つも置いていないシーンは「終わりの無いシーン」として扱い、
+	// 勝ちにはしない(置き忘れた瞬間にリザルトへ飛ぶのを防ぐ)。
+	//======================================================================================
+	bool SceneSequence::IsAllWaveCleared() const
+	{
+		if (m_waves.empty()) return false;
+
+		for (const Wave& _wave : m_waves)
+		{
+			if (!_wave.isSpawned) return false;
+			if (!_wave.isCleared) return false;
+		}
+
+		return true;
+	}
+
+	int SceneSequence::GetClearedWaveCount() const
+	{
+		int _count = 0;
+		for (const Wave& _wave : m_waves)
+		{
+			if (_wave.isCleared) ++_count;
+		}
+		return _count;
+	}
+
+	//======================================================================================
+	// 記録を移してリザルトシーンへ
+	//--------------------------------------------------------------------------------------
+	// スコアは倒すたびに ScoreSystem がグローバルへ足しているので、
+	// ここで移すのはこのシーンでしか分からないもの(タイム・結末・ウェーブ数)だけ。
+	//======================================================================================
+	void SceneSequence::RequestResultScene()
+	{
+		m_isSceneRequested = true;
+
+		auto& _gameData = App::Game::GameManager::Instance().RefGameData();
+
+		// タイムは決着するまで毎フレーム入れているので、ここでは触らない
+		_gameData.result           = m_result;
+		_gameData.clearedWaveCount = GetClearedWaveCount();
+		_gameData.totalWaveCount   = static_cast<int>(m_waves.size());
+
+		if (!m_resultSceneGUID.IsValid())
+		{
+			// 設定していなければ記録だけ残してその場に留まる。
+			// (作りかけのシーンで勝手に飛ばされない方が調べやすい)
+			ENGINE_WARNING("[SceneSequence] リザルトシーンが設定されていません");
+			return;
+		}
+
+		Engine::Scene::SceneManager::Instance().SetNextScene(
+			m_resultSceneGUID, Engine::Scene::SceneChangeType::Replace);
 	}
 
 	//======================================================================================
@@ -336,6 +518,13 @@ namespace App::Object
 	{
 		m_time = 0.0f;
 
+		// 決着もやり直す。遷移待ちの途中で押されても止められるようにしておく
+		m_result           = App::Game::EGameResult::None;
+		m_resultTimer      = 0.0f;
+		m_isSceneRequested = false;
+		m_isPlayerFound    = false;
+		m_isStarted        = false;
+
 		for (Wave& _wave : m_waves)
 		{
 			_wave.isSpawned   = false;
@@ -540,22 +729,34 @@ namespace App::Object
 		// 命令なし(＝今までどおり)として読み込まれる。
 		//----------------------------------------------------------------------
 		size_t _orderCount = m_bossOrders.size();
-		if (!a_ar.BeginArray("BossOrders", _orderCount)) return;
-
-		m_bossOrders.resize(_orderCount);
-
-		for (size_t _i = 0; _i < _orderCount; ++_i)
+		if (a_ar.BeginArray("BossOrders", _orderCount))
 		{
-			if (!a_ar.BeginObject(_i)) continue;
+			m_bossOrders.resize(_orderCount);
 
-			BossOrder& _order = m_bossOrders[_i];
-			a_ar.Field("timing", _order.timing);
-			a_ar.Field("afterWaveIndex", _order.afterWaveIndex);
-			a_ar.Field("targetWaveIndex", _order.targetWaveIndex);
+			for (size_t _i = 0; _i < _orderCount; ++_i)
+			{
+				if (!a_ar.BeginObject(_i)) continue;
 
-			a_ar.EndObject();
+				BossOrder& _order = m_bossOrders[_i];
+				a_ar.Field("timing", _order.timing);
+				a_ar.Field("afterWaveIndex", _order.afterWaveIndex);
+				a_ar.Field("targetWaveIndex", _order.targetWaveIndex);
+
+				a_ar.EndObject();
+			}
+			a_ar.EndArray();
 		}
-		a_ar.EndArray();
+
+		//----------------------------------------------------------------------
+		// 決着(リザルトへの遷移)
+		//
+		// ※ 追加は末尾に。以前はここで早期 return していたので、
+		//    命令が入っていないシーンだと後ろが読まれずに落ちていた
+		//----------------------------------------------------------------------
+		a_ar.GUIDField("ResultSceneGUID", m_resultSceneGUID);
+		a_ar.Field("ClearDelay", m_clearDelay);
+		a_ar.Field("DeadDelay", m_deadDelay);
+		a_ar.Field("IsResetOnStart", m_isResetOnStart);
 	}
 
 	//======================================================================================
@@ -568,6 +769,46 @@ namespace App::Object
 		if (ImGui::Button("Reset Progress")) ResetProgress();
 
 		ImGui::TextDisabled("Gizmo : select a position below (Ctrl to snap)");
+
+		ImGui::Separator();
+
+		//----------------------------------------------------------------------
+		// 決着(リザルトへの遷移)
+		//----------------------------------------------------------------------
+		if (ImGui::CollapsingHeader("Result", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGui::TextDisabled("負け : プレイヤーが倒された");
+			ImGui::TextDisabled("勝ち : 生き残って全ウェーブを全滅させた(ボスも1ウェーブ)");
+
+			Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+				"Result Scene", "Scene", m_resultSceneGUID);
+			if (!m_resultSceneGUID.IsValid())
+			{
+				ImGui::TextDisabled("(未設定 : 決着しても移動しません)");
+			}
+
+			ImGui::DragFloat("Clear Delay (s)", &m_clearDelay, 0.1f, 0.0f, 60.0f);
+			ImGui::DragFloat("Dead Delay (s)", &m_deadDelay, 0.1f, 0.0f, 60.0f);
+			ImGui::TextDisabled("決着してから移るまでの間(演出を見せる時間)");
+
+			ImGui::Checkbox("Reset On Start", &m_isResetOnStart);
+			ImGui::TextDisabled("シーンの入り口でスコアとタイムを消す");
+
+			// 実行中の状態は表示のみ
+			ImGui::Separator();
+			const char* _resultName = "None";
+			switch (m_result)
+			{
+			case App::Game::EGameResult::Clear:    _resultName = "Clear";    break;
+			case App::Game::EGameResult::GameOver: _resultName = "GameOver"; break;
+			default: break;
+			}
+			ImGui::Text("Result    : %s", _resultName);
+			ImGui::Text("Timer     : %.2f", m_resultTimer);
+			ImGui::Text("Cleared   : %d / %d", GetClearedWaveCount(), static_cast<int>(m_waves.size()));
+			ImGui::Text("PlayerHit : %s", m_isPlayerFound ? "found" : "not yet");
+			ImGui::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
+		}
 
 		ImGui::Separator();
 

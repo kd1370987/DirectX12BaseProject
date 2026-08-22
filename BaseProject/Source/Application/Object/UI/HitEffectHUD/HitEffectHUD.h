@@ -12,6 +12,8 @@ namespace App::Object
 	/// ・ヒットは HitEventResource(そのフレームのヒット全部)を見る。弾は当たった直後に
 	///   消えるので弾側のコンポーネントでは間に合わない。「誰が撃った弾か」は
 	///   HitEvent.shooter に入っているので、プレイヤーが撃ったものだけを拾う。
+	/// ・当てた相手が ScoreTargetComponent を持っているときだけ反応する。
+	///   壁や地面に当てても手応えが出ると、当たった合図として意味を成さないため。
 	/// ・GameObjectManager::Update は Physics(ヒットを積む)より後、
 	///   HitEventClearSystem(次フレーム PreUpdate で消す)より前なので、
 	///   このタイミングなら同じフレームのヒットがそのまま読める。

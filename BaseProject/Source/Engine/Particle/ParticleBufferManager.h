@@ -122,14 +122,32 @@ namespace Engine::Particle
 
 		std::unordered_map<Handle<Resource::ParticlesAsset>, D3D12::StaticStructuredBuffer<EmitterData>> m_emitBuffer;
 
-		// アセットごとの発生源の席。
-		// フレームを跨いで保つ(粒より先に席が消えると、まだ生きている粒の行列が引けない)
+		//------------------------------------------------------------------
+		// アセットごとの発生源の席
+		//
+		// フレームを跨いで保つ(粒より先に席が消えると、まだ生きている粒の行列が引けない)。
+		//
+		// ただし持ちっぱなしにはしない。席は1アセットあたり
+		// PARTICLE_EMITTER_MAX 個しか無く、鍵はエンティティなので、
+		// 出しては消えるもの(シーンを読み直すたびに作り直されるブースター等)が
+		// 席を取ったまま居なくなると、そのうち席が尽きて
+		// 後から来たものが全部ワールド空間で出てしまう。
+		//
+		// そこで最後に使われたフレームを覚えておき、席が尽きたときは
+		// 「しばらく使われていない席」を回して使う。
+		// 十分に間を空けてから回すので、生きている粒の行列を奪うことにはならない。
+		//------------------------------------------------------------------
 		struct EmitterSlotTable
 		{
 			std::unordered_map<uint64_t, uint32_t> slotMap = {};	// 鍵 → 席番号
 			std::vector<Math::Matrix> matrices = {};				// 席番号 → 行列([0] は単位行列)
+			std::vector<uint64_t> slotOwners = {};				// 席番号 → 鍵([0] は未使用)
+			std::vector<uint64_t> slotUsedFrame = {};			// 席番号 → 最後に使われたフレーム
 		};
 		std::unordered_map<Handle<Resource::ParticlesAsset>, EmitterSlotTable> m_emitterSlots;
+
+		// 席の使用状況を測るためのフレーム番号(BeginFrame で進める)
+		uint64_t m_frameCount = 0;
 
 
 		std::mutex m_mutex;
