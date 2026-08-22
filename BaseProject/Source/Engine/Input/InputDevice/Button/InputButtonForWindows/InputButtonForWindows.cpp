@@ -29,43 +29,15 @@ namespace Engine::Input
 		// すでに更新済みなら
 		if (!m_needUpdate) return;
 
-		// 登録されているキーが押されているかどうか
+		// 登録されているキーが押されているかどうか(どれか1つでも押されていれば押下)
 		short _keyState = 0;
 		for (int _keyCode : m_keyCodeList)
 		{
 			_keyState |= GetAsyncKeyState(_keyCode);
 		}
 
-		// キーが押されていたら
-		if (_keyState & 0x8000)
-		{
-			// ホールドフラグがついていたらそのフレームに押されたわけではないのでフラグを消す
-			if (m_state & EState::Hold)
-			{
-				m_state &= ~EState::Press;
-			}
-			// 押されていない状態なら
-			else
-			{
-				m_state |= EState::Press | EState::Hold;
-			}
-		}
-		// キーが押されていないのなら
-		else
-		{
-			// 押されているのなら離されたフレームにする
-			if (m_state & EState::Hold)
-			{
-				m_state &= ~EState::Press;
-				m_state &= ~EState::Hold;
-				m_state |= EState::Release;
-			}
-			// 離されたフラグ解除
-			else
-			{
-				m_state &= ~EState::Release;
-			}
-		}
+		// Press/Hold/Release の組み立ては基底に任せる
+		UpdateState((_keyState & 0x8000) != 0);
 
 		// 更新済み
 		m_needUpdate = false;

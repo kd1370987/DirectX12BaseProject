@@ -457,6 +457,9 @@
     <Filter Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows">
       <UniqueIdentifier>{77654a49-b02c-48ff-a21a-f93d83735509}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindowsChord">
+      <UniqueIdentifier>{1cd9729e-af13-4371-b53e-2c5a81ca66b7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Input\InputCollector">
       <UniqueIdentifier>{b035f981-695f-4e8d-9227-d5f2ac500724}</UniqueIdentifier>
     </Filter>
@@ -1785,6 +1788,9 @@
     <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows\InputButtonForWindows.cpp">
       <Filter>Source\Engine\Input\InputDevice\Button\InputButtonForWindows</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindowsChord\InputButtonForWindowsChord.cpp">
+      <Filter>Source\Engine\Input\InputDevice\Button\InputButtonForWindowsChord</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.cpp">
       <Filter>Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse</Filter>
     </ClCompile>
@@ -2911,6 +2917,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows\InputButtonForWindows.h">
       <Filter>Source\Engine\Input\InputDevice\Button\InputButtonForWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindowsChord\InputButtonForWindowsChord.h">
+      <Filter>Source\Engine\Input\InputDevice\Button\InputButtonForWindowsChord</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.h">
       <Filter>Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse</Filter>

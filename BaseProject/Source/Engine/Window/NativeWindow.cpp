@@ -1,6 +1,6 @@
 ﻿#include "NativeWindow.h"
 
-
+#include "../Input/InputManager/InputManager.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -106,6 +106,16 @@ LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_
 	case WM_DESTROY:				// OSに対して終了を伝える
 		PostQuitMessage(0);
 		break;
+	case WM_SETFOCUS:				// ウィンドウが選択された際
+	{
+		Engine::Input::InputManager::Instance().SetActive(true);
+		break;
+	}
+	case WM_KILLFOCUS:				// ウィンドウの選択が外された際
+	{
+		Engine::Input::InputManager::Instance().SetActive(false);
+		break;
+	}
 	default:
 		break;
 	}

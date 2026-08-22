@@ -460,6 +460,7 @@
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindows\InputAxisForWindows.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForXInput\InputAxisForXInput.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows\InputButtonForWindows.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindowsChord\InputButtonForWindowsChord.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput\InputButtonForXInput.cpp" />
     <ClCompile Include="Source\Engine\Input\InputManager\InputManager.cpp" />
     <ClCompile Include="Source\Engine\JobSystem\Core\Job\Job.cpp" />
@@ -928,6 +929,7 @@
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForXInput\InputAxisForXInput.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonBase.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindows\InputButtonForWindows.h" />
+    <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForWindowsChord\InputButtonForWindowsChord.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput\InputButtonForXInput.h" />
     <ClInclude Include="Source\Engine\Input\InputManager\InputManager.h" />
     <ClInclude Include="Source\Engine\Input\Internal\InputContext.h" />

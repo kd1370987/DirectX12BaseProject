@@ -9,6 +9,19 @@ namespace Engine::Input
 	{
 	public:
 
+		//==================================================================================
+		// システム用の入力
+		//----------------------------------------------------------------------------------
+		// ゲームの操作とは別に、エンジン側が必ず持っておく入力。
+		// アプリ側の登録に関係なく使えるように Init() の中で登録している。
+		//==================================================================================
+
+		// システム用デバイスの名前(アプリ側が同じ名前で上書きしないこと)
+		static constexpr const char* SYSTEM_DEVICE_NAME = "System";
+
+		// エディター / ゲームの切り替え : Ctrl+P
+		static constexpr const char* SYSTEM_ACTION_TOGGLE_APPMODE = "ToggleAppMode";
+
 		// 初期化
 		void Init();
 
@@ -62,6 +75,22 @@ namespace Engine::Input
 		bool IsHold(std::string_view a_name) const;
 		bool IsRelease(std::string_view a_name) const;
 
+		/// <summary>
+		/// プレイモードでなくても拾いたい入力の状態を取得する
+		/// </summary>
+		/// <remarks>
+		/// 上の GetButtonState はプレイモード以外だと必ず「入力なし」を返す。
+		/// エディター操作中にゲームが動いてしまわないための決まりだが、
+		/// モードの切り替えそのものはエディター側に居るときに押すので、
+		/// それだとエディターから戻れない。
+		///
+		/// こちらはその一段外側で、アプリのモードを見ずに状態を返す。
+		/// ゲームの操作には使わないこと(エディター操作中にも反応してしまう)。
+		/// </remarks>
+		short GetSystemButtonState(std::string_view a_name) const;
+		bool IsSystemPress(std::string_view a_name) const;
+		bool IsSystemHold(std::string_view a_name) const;
+
 		// すべての有効な入力装置からの軸入力状態を取得
 		DXSM::Vector2 GetAxisState(std::string_view a_name) const;
 
@@ -73,6 +102,9 @@ namespace Engine::Input
 		const std::unique_ptr<InputCollector>& GetDevice(std::string_view a_name) const;
 		std::unique_ptr<InputCollector>& RefDevice(std::string_view a_name);
 
+		bool IsActive() const { return m_isActive; }
+		void SetActive(bool a_active) { m_isActive = a_active; }
+
 		// 解放
 		void Release();
 
@@ -82,7 +114,13 @@ namespace Engine::Input
 		// ウィンドウの移動・リサイズ・フルスクリーン切替に追従するため毎回実測する
 		bool GetClientCenterPos(POINT& a_outPos) const;
 
+		// システム用の入力を登録する(Init から呼ぶ)
+		void RegisterSystemDevice();
+
 	private:
+
+		// ウィンドウが選択されていたら入力を受け付ける
+		bool m_isActive = true;
 
 		std::unordered_map<std::string, std::unique_ptr<InputCollector>> m_upInputDeviceMap = {};
 

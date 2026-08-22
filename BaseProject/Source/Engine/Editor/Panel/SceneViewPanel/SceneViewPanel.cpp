@@ -956,7 +956,7 @@ namespace Engine::Editor
 			//
 			// 入っている間はマウスがゲーム側の持ち物になる(カーソルは画面中央へ
 			// 固定され、エディターはマウスを受け取らない)ので、
-			// 抜けるのは O キー。ボタンの文字にも出しておく。
+			// 抜けるのは Ctrl+P。ボタンの文字にも出しておく。
 			//
 			// 色は付けない。このエディターでは色付きのボタンは
 			// 「押すと増える(緑)/減る(赤)」を表す決まりなので、
@@ -967,7 +967,7 @@ namespace Engine::Editor
 				const bool _isDebugPlay = (_engine.GetMode() == EAppMode::DebugPlay);
 
 				if (ImGui::Button(_isDebugPlay
-					? "Debug Play : ON   (O key to Editor)"
+					? "Debug Play : ON   (Ctrl+P to Editor)"
 					: "Debug Play : OFF"))
 				{
 					_engine.ChangeMode(_isDebugPlay ? EAppMode::Editor : EAppMode::DebugPlay);
@@ -977,7 +977,7 @@ namespace Engine::Editor
 				{
 					ImGui::SetTooltip(
 						"エディターを出したままシーンビューで遊ぶ\n"
-						"入るとマウスはゲーム側へ渡るので、抜けるときは O キー");
+						"入るとマウスはゲーム側へ渡るので、抜けるときは Ctrl+P");
 				}
 			}
 

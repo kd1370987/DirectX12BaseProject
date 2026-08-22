@@ -48,6 +48,20 @@ namespace Engine::Input
 		EActiveState GetActiveState() const { return m_state; }
 		void SetActiveState(EActiveState a_state) { m_state = a_state; }
 
+		/// <summary>
+		/// モード切り替えの入力リセットで捨てないデバイスにする
+		/// </summary>
+		/// <remarks>
+		/// リセットは「切り替え前の操作を向こう側へ持ち越さない」ためのものなので、
+		/// ゲームの操作は捨ててよい。
+		///
+		/// ただし切り替えそのものに使うキー(Ctrl+P)を捨てると、押しっぱなしの状態が
+		/// 「押した瞬間」へ戻り、押している間ずっと切り替わり続けてしまう。
+		/// システム用のデバイスはこれを立てて、リセットの対象から外す。
+		/// </remarks>
+		void SetKeepOnReset(bool a_isKeep) { m_isKeepOnReset = a_isKeep; }
+		bool IsKeepOnReset() const { return m_isKeepOnReset; }
+
 		// アプリケーションボタンの追加・上書き
 		void AddButton(std::string_view a_name, InputButtonBase* a_pButton);
 		void AddButton(std::string_view a_name, std::shared_ptr<InputButtonBase> a_spButton);
@@ -71,5 +85,8 @@ namespace Engine::Input
 
 		// 有効
 		EActiveState m_state = EActiveState::Enable;
+
+		// モード切り替えのリセットで捨てないか(システム用の入力だけ true)
+		bool m_isKeepOnReset = false;
 	};
 }

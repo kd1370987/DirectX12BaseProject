@@ -4,6 +4,7 @@
 
 #include "../InputCollector/InputCollector.h"
 #include "../InputDevice/Button/InputButtonBase.h"
+#include "../InputDevice/Button/InputButtonForWindowsChord/InputButtonForWindowsChord.h"
 #include "../InputDevice/Axis/InputAxisBase.h"
 
 #include "../../MainEngine.h"
@@ -68,10 +69,43 @@ namespace Engine::Input
 		// この時点ではまだウィンドウが生成されていないため、
 		// 中心座標はここでは求めず、固定を行うフレームごとに実測する
 		SetCursorCentered(Option::OptionManager::GetInstance().GetInputOption().isCursorLockedToCenter);
+
+		// システム用の入力を用意する
+		RegisterSystemDevice();
+	}
+
+	//======================================================================================
+	// システム用の入力
+	//--------------------------------------------------------------------------------------
+	// ゲームの操作(アプリ側が GameManager で登録するもの)とは別の束にしてある。
+	//
+	//   ・エディターとゲームの行き来はエンジン側の機能なので、アプリの登録漏れで
+	//     戻れなくなることがないよう、ここで必ず登録しておく
+	//   ・アプリ側が同じ名前("Keyboard")でデバイスを登録し直しても消えない
+	//   ・プレイモードでなくても拾う必要がある(取得は IsSystemPress を使う)
+	//
+	// モード切り替えは Ctrl+P。単独のキーだと、エディターで名前を打っているときや
+	// ゲーム操作と取り合いになるため、修飾キー付きにしてある。
+	//======================================================================================
+	void InputManager::RegisterSystemDevice()
+	{
+		auto _upSystem = std::make_unique<InputCollector>();
+
+		_upSystem->AddButton(
+			SYSTEM_ACTION_TOGGLE_APPMODE,
+			std::make_shared<InputButtonForWindowsChord>('P', std::initializer_list<int>{ VK_CONTROL }));
+
+		// 切り替えの瞬間に走る入力リセットで、この束だけは捨てない
+		// (捨てると押しっぱなしが押した瞬間へ戻り、押している間ずっと切り替わる)
+		_upSystem->SetKeepOnReset(true);
+
+		AddDevice(SYSTEM_DEVICE_NAME, std::move(_upSystem));
 	}
 
 	void InputManager::Update()
 	{
+		if (!m_isActive) return;
+
 		// マウスの固定化
 		// エディタ操作中は固定しない。
 		// デバッグプレイ中は固定する : 視点の移動量は固定していないと作られないので、
@@ -129,7 +163,14 @@ namespace Engine::Input
 
 		for (auto& _device : m_upInputDeviceMap)
 		{
-			if (_device.second) _device.second->ResetInput();
+			if (!_device.second) continue;
+
+			// 切り替えに使ったキー自体は捨てない。
+			// 捨てると押しっぱなしが「押した瞬間」に戻り、押している間ずっと
+			// 切り替わり続けてしまう
+			if (_device.second->IsKeepOnReset()) continue;
+
+			_device.second->ResetInput();
 		}
 	}
 
@@ -155,6 +196,7 @@ namespace Engine::Input
 	//======================================================================================
 	void InputManager::SetCursorLock()
 	{
+		if (!m_isActive) return;
 		auto* _pWind = MainEngine::Instance().RefNativeWindow();
 
 		// ---- 移動量 : 生の入力から取る ----
@@ -237,6 +279,7 @@ namespace Engine::Input
 	// ゲーム入力を受け付けてよい状態か(判定は上のヘルパーと同じ)
 	bool InputManager::IsGameInputEnable() const
 	{
+		if (!m_isActive) return false;
 		return IsPlayMode() && !IsUICapturingInput();
 	}
 
@@ -287,6 +330,7 @@ namespace Engine::Input
 	// 任意のアプリケーションボタンの入力状態を取得
 	short InputManager::GetButtonState(std::string_view a_name) const
 	{
+		if (!m_isActive) return InputButtonBase::EState::Free;
 		// プレイモード以外はゲーム入力を渡さない
 		if (!IsPlayMode()) return InputButtonBase::EState::Free;
 
@@ -308,25 +352,65 @@ namespace Engine::Input
 	// 任意のアプリケーションボタンが押されていない状態か判定
 	bool InputManager::IsFree(std::string_view a_name) const
 	{
+		if (!m_isActive) return false;
 		return (GetButtonState(a_name) == InputButtonBase::EState::Free);
 	}
 	bool InputManager::IsPress(std::string_view a_name) const
 	{
+		if (!m_isActive) return false;
 		return (GetButtonState(a_name) & InputButtonBase::EState::Press);
 	}
 	bool InputManager::IsHold(std::string_view a_name) const
 	{
+		if (!m_isActive) return false;
 		return (GetButtonState(a_name) & InputButtonBase::EState::Hold);
 	}
 	bool InputManager::IsRelease(std::string_view a_name) const
 	{
+		if (!m_isActive) return false;
 		return (GetButtonState(a_name) & InputButtonBase::EState::Release);
+	}
+
+	//======================================================================================
+	// システム用の入力状態
+	//--------------------------------------------------------------------------------------
+	// プレイモードかどうかを見ない。エディターに居るときに押すもの
+	// (モードの切り替え)を拾うためのもの。
+	// 反対に「エディター操作に反応してほしくないもの」はこちらを使わないこと。
+	//======================================================================================
+	short InputManager::GetSystemButtonState(std::string_view a_name) const
+	{
+		if (!m_isActive) return InputButtonBase::EState::Free;
+
+		short _buttonState = InputButtonBase::EState::Free;
+		for (auto& _device : m_upInputDeviceMap)
+		{
+			if (!_device.second) continue;
+
+			// 有効な時のみ入力に影響を与える
+			if (_device.second->GetActiveState() == InputCollector::EActiveState::Enable)
+			{
+				_buttonState |= _device.second->GetButtonState(a_name);
+			}
+		}
+		return _buttonState;
+	}
+
+	bool InputManager::IsSystemPress(std::string_view a_name) const
+	{
+		return (GetSystemButtonState(a_name) & InputButtonBase::EState::Press);
+	}
+
+	bool InputManager::IsSystemHold(std::string_view a_name) const
+	{
+		return (GetSystemButtonState(a_name) & InputButtonBase::EState::Hold);
 	}
 
 	// 任意の軸の入力状態を取得
 	// 指定した入力デバイスの任意の軸の入力状d態を2次元ベクトルで取得する
 	DXSM::Vector2 InputManager::GetAxisState(std::string_view a_name) const
 	{
+		if (!m_isActive) return DXSM::Vector2(0.0f, 0.0f);
 		// プレイモード以外はゲーム入力を渡さない
 		if (!IsPlayMode()) return DXSM::Vector2(0.0f, 0.0f);
 

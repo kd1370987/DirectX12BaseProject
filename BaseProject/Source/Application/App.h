@@ -21,4 +21,7 @@ private:
 	// メインループ
 	void MainLoop();
 
+	// エディターとゲームの切り替え(Ctrl+P)
+	void ToggleAppMode();
+
 };

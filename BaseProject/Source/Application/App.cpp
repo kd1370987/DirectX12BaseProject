@@ -3,6 +3,7 @@
 #include "Engine/MainEngine.h"
 
 #include "Engine/Scene/SceneManager/SceneManager.h"
+#include "Engine/Input/InputManager/InputManager.h"
 #include "Game/GameManager/GameManager.h"
 
 #include "../Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
@@ -74,48 +75,13 @@ void Application::MainLoop()
 
 		// モード切替
 		//
-		// GetAsyncKeyState は押している間ずっと真を返し、しかもどこにフォーカスが
-		// あっても拾ってしまう。押した瞬間だけを見て、さらにエディターで
-		// 文字を打っている間は無視する(名前に O/P が入るたびに切り替わるため)。
-		{
-			const bool _isTyping =
-				(ImGui::GetCurrentContext() != nullptr) && ImGui::GetIO().WantTextInput;
-
-			// エディターがモーダルな画面(エフェクトエディター)を出している間は切り替えない。
-			// あちらが開いている間はゲームのシーンが止まっているので、
-			// ここで切り替えると「プレイモードなのに何も動かない」状態になってしまう
-			const bool _isModal = Engine::Editor::MainEditor::Instance().IsModalActive();
-
-			// 押した瞬間の検出用。押しっぱなしで連続発火させない
-			static bool s_wasEditorKeyDown = false;
-			static bool s_wasGameKeyDown   = false;
-
-			const bool _isEditorKeyDown = (GetAsyncKeyState('O') & 0x8000) != 0;
-			const bool _isGameKeyDown   = (GetAsyncKeyState('P') & 0x8000) != 0;
-
-			// デバッグプレイ中は文字入力を理由に止めない。
-			// あちらはエディターがマウスを受け取らないので、入ってしまうと
-			// 文字入力の状態が残っていた場合に O も効かず抜けられなくなる。
-			// (入るにはボタンを押す＝入力欄からフォーカスが外れるので普通は起きないが、
-			//  戻れなくなる類の詰まり方なので念のため道を空けておく)
-			const bool _isDebugPlay =
-				Engine::MainEngine::Instance().GetMode() == Engine::EAppMode::DebugPlay;
-
-			if ((!_isTyping || _isDebugPlay) && !_isModal)
-			{
-				if (_isEditorKeyDown && !s_wasEditorKeyDown)
-				{
-					Engine::MainEngine::Instance().ChangeMode(Engine::EAppMode::Editor);
-				}
-				if (_isGameKeyDown && !s_wasGameKeyDown)
-				{
-					Engine::MainEngine::Instance().ChangeMode(Engine::EAppMode::Game);
-				}
-			}
-
-			s_wasEditorKeyDown = _isEditorKeyDown;
-			s_wasGameKeyDown   = _isGameKeyDown;
-		}
+		// 入力はすべて InputManager 経由で取る。キーの割り当て(Ctrl+P)も
+		// InputManager が持っているので、ここが見るのは「押されたかどうか」だけ。
+		//
+		// 押した瞬間(Press)なので押しっぱなしで連続発火しない。
+		// エディターに居るときに押すものなので、プレイモードを見ない
+		// IsSystemPress で取ること(IsPress はプレイモード以外だと常に無入力を返す)。
+		ToggleAppMode();
 
 		// ゲームの更新
 		App::Game::GameManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
@@ -148,6 +114,38 @@ void Application::MainLoop()
 		// ここで平均の確定と表示用の並べ替えが行われ、次フレームのパネル描画で使われる
 		Engine::Editor::MainEditor::Instance().EndProfileFrame();
 	}
+}
+
+//==================================================================================
+//
+// エディターとゲームの切り替え
+//
+//----------------------------------------------------------------------------------
+// キーは InputManager が持っている(Ctrl+P / SYSTEM_ACTION_TOGGLE_APPMODE)。
+// 割り当てを変えたいときはあちらを触ること。
+//
+//   エディター    → ゲーム
+//   ゲーム        → エディター
+//   デバッグプレイ → エディター(抜ける)
+//
+//==================================================================================
+void Application::ToggleAppMode()
+{
+	// エディターがモーダルな画面(エフェクトエディター)を出している間は切り替えない。
+	// あちらが開いている間はゲームのシーンが止まっているので、
+	// ここで切り替えると「プレイモードなのに何も動かない」状態になってしまう
+	if (Engine::Editor::MainEditor::Instance().IsModalActive()) return;
+
+	// プレイモードでなくても拾う取り方。エディターに居るときに押すため
+	if (!Engine::Input::InputManager::Instance().IsSystemPress(
+		Engine::Input::InputManager::SYSTEM_ACTION_TOGGLE_APPMODE)) return;
+
+	auto& _engine = Engine::MainEngine::Instance();
+
+	// ゲームからでもデバッグプレイからでも、行き先はエディター
+	const bool _isPlaying = (_engine.GetMode() != Engine::EAppMode::Editor);
+
+	_engine.ChangeMode(_isPlaying ? Engine::EAppMode::Editor : Engine::EAppMode::Game);
 }
 
 Application::Application()
