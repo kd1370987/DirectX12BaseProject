@@ -67,6 +67,11 @@ void EffectDrawSystem::Init(Engine::ECS::World& a_world)
 				//----------------------------------------------------------
 				const float _effectScale = (_comp.effectScale > 0.0f) ? _comp.effectScale : 1.0f;
 
+				// 束の長さの倍率。粒の初速へ掛けるので、寿命が同じなら
+				// 飛ぶ距離＝噴射の長さがそのまま倍率ぶん伸びる。
+				// 太さ(_effectScale)とは別物なので、掛ける先も分けてある
+				const float _lengthScale = (_comp.effectLengthScale > 0.0f) ? _comp.effectLengthScale : 1.0f;
+
 				Math::Matrix _effectWorld = _ownerWorld;
 				if (_comp.isOverrideTransform || _effectScale != 1.0f)
 				{
@@ -228,8 +233,10 @@ void EffectDrawSystem::Init(Engine::ECS::World& a_world)
 						_emitData.minScale       = _part.minScale;
 						_emitData.maxScale       = _part.maxScale;
 
-						_emitData.minSpeed    = _pParticle->GetInitalSpeedMin();
-						_emitData.maxSpeed    = _pParticle->GetInitalSpeedMax();
+						// 初速だけ長さの倍率で伸ばす。寿命は触らないので、
+						// 束は同じ濃さのまま前へ伸びる(寿命側を伸ばすと尾を引いて残る)
+						_emitData.minSpeed    = _pParticle->GetInitalSpeedMin() * _lengthScale;
+						_emitData.maxSpeed    = _pParticle->GetInitalSpeedMax() * _lengthScale;
 						_emitData.minLifeTime = _pParticle->GetLifeTimeMin();
 						_emitData.maxLifeTime = _pParticle->GetLifeTimeMax();
 

@@ -4,6 +4,7 @@
 
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Character/Robot/BoostComponent.h"
+#include "../../../../Components/Character/Robot/ChargeDashComponent.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 
@@ -44,7 +45,10 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			// 押している間は2倍、離したフレームには4倍の入力が入ってしまう。
 			// (押したフレームは Press|Hold なので IsHold でも拾える)
 			//--------------------------------------------------------------
-			const float _jumpInput = a_ctx.pServices->pInputManager->IsHold("Jump") ? 1.0f : 0.0f;
+			const bool _isJumpHold = a_ctx.pServices->pInputManager->IsHold("Jump");
+			const bool _isJumpRelease = a_ctx.pServices->pInputManager->IsRelease("Jump");
+
+			const float _jumpInput = _isJumpHold ? 1.0f : 0.0f;
 			const float _diveInput = a_ctx.pServices->pInputManager->IsHold("Dive") ? 1.0f : 0.0f;
 
 			_move = { _inputMove.x, _jumpInput - _diveInput, _inputMove.y };
@@ -71,6 +75,29 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 
 				_boostComp.isBoostTriger = _isPress;
 				_boostComp.isBoostIntent = _isHold;
+
+				//--------------------------------------------------------------
+				// チャージダッシュ(ジャンプ長押し)
+				//
+				// 上昇と同じボタンを使う。押している間は今まで通り上昇したまま溜まり、
+				// 溜まりきってから離すと撃ち出す(進行は ChargeDashSystem)。
+				//
+				// ChargeDashComponent はクエリに入れず、持っているエンティティだけへ書く。
+				// クエリに足すとアーキタイプが狭まり、付けていない機体の
+				// 移動・視点入力まで丸ごと止まってしまうため。
+				//
+				// RefData は持っていないコンポーネントでも非nullを返すので、
+				// 必ず HasComponent で確かめてから引くこと
+				//--------------------------------------------------------------
+				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+				if (a_ctx.pWorld->HasComponent<ChargeDashComponent>(_self))
+				{
+					if (auto* _pChargeDash = a_ctx.pWorld->RefData<ChargeDashComponent>(_self))
+					{
+						_pChargeDash->isChargeIntent = _isJumpHold;
+						_pChargeDash->isChargeRelease = _isJumpRelease;
+					}
+				}
 			}
 		}
 	);

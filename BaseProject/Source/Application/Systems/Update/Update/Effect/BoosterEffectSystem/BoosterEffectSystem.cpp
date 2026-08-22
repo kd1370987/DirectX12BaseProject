@@ -25,6 +25,10 @@
 //         ダッシュしている間だけ boostScale 倍。こちらは持続する。
 //   (1) だけだと踏み込みの一瞬しか差が出ず、飛んでいる間は歩いている時と
 //   同じ絵になる。(2) だけだと切り替わりが平坦で踏み込みの手応えが出ない。
+//     (3) チャージダッシュ
+//         溜めている間は溜まり具合ぶん太らせ(chargeScale)、撃ち出している間は
+//         束の長さを伸ばす(dashLengthScale)。太さと長さで分けているのは、
+//         「溜まっている」と「もう出た」を一目で区別させるため。
 //   点火/消火とダッシュ中かを決めるのは ThrusterEffectSystem(PreUpdate)なので、
 //   ここは Update 帯に置いてそのフレームの値を見る。
 //   実際に出すのは EffectDrawSystem(Draw)なので、書いた値はそのフレームに間に合う。
@@ -146,7 +150,47 @@ void BoosterEffectSystem::Init(Engine::ECS::World& a_world)
 				// 足し算にすると baseScale を変えたときに効き具合が変わってしまう
 				_scale *= 1.0f + (_booster.boostScale - 1.0f) * _booster.boostBlend;
 
+				//--------------------------------------------------------------
+				// チャージダッシュの溜め : 溜まり具合そのままに太らせる
+				//
+				// ここだけ時間で均していないのは、元の値(chargeRate)が
+				// すでに 0 から 1 へ時間をかけて上がってくるものだから。
+				// 均すと溜まりきってからも膨らみ続けて、撃ち出しと重なってしまう
+				//--------------------------------------------------------------
+				const float _chargeRate = std::clamp(_booster.chargeRate, 0.0f, 1.0f);
+				_scale *= 1.0f + (_booster.chargeScale - 1.0f) * _chargeRate;
+
 				_effect.effectScale = _scale;
+
+				//--------------------------------------------------------------
+				// チャージダッシュの撃ち出し : 束の長さを伸ばす
+				//
+				// 太さ(effectScale)ではなく長さ(effectLengthScale)を動かすのは、
+				// 溜めの側がすでに太さを使っているため。撃ち出しでさらに太らせると
+				// 溜めの続きにしか見えず、前へ飛び出した感じが出ない
+				//--------------------------------------------------------------
+				const float _lengthTarget = _booster.isChargeDashing ? 1.0f : 0.0f;
+				if (_booster.dashLengthBlendTime > 0.0f)
+				{
+					const float _lengthStep = a_ctx.dt / _booster.dashLengthBlendTime;
+					if (_booster.dashLengthBlend < _lengthTarget)
+					{
+						_booster.dashLengthBlend =
+							(std::min)(_lengthTarget, _booster.dashLengthBlend + _lengthStep);
+					}
+					else
+					{
+						_booster.dashLengthBlend =
+							(std::max)(_lengthTarget, _booster.dashLengthBlend - _lengthStep);
+					}
+				}
+				else
+				{
+					_booster.dashLengthBlend = _lengthTarget;
+				}
+
+				_effect.effectLengthScale =
+					1.0f + (_booster.dashLengthScale - 1.0f) * _booster.dashLengthBlend;
 
 				//--------------------------------------------------------------
 				// 置き方 : 噴射口の位置と向きを渡す

@@ -18,6 +18,7 @@
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Resource/Data/EffectAsset/EffectAsset.h"
 #include "../../Resource/Data/Particles/ParticlesAsset.h"
+#include "../../Audio/AudioManager.h"
 
 #include "Application/Components/Effect/EffectAssetComponent.h"
 #include "Application/Utility/EffectSpawnHelper.h"
@@ -237,7 +238,11 @@ namespace Engine::Editor
 			// 出し切ったら頭から。
 			// 出しっぱなしのパーツを含むエフェクトは IsFinished が立たないので、
 			// ループ指定でも何も起きない(それでよい : もともと終わらない演出のため)
-			if (m_isLoop && _pEffect && _pEffect->IsFinished(_ref.pComp->instance))
+			//
+			// 音も見るのはゲーム側(EffectUpdateSystem)と揃えるため。
+			// 見ないと、絵が終わった時点で頭出しされて音が毎回途中で切れる
+			if (m_isLoop && _pEffect &&
+				_pEffect->IsFinished(_ref.pComp->instance, &Audio::AudioManager::Instance()))
 			{
 				m_isRestartRequest = true;
 			}

@@ -6,7 +6,7 @@ namespace Engine::Editor::Inspector
 {
 	/// <summary>
 	/// エフェクトアセットの編集・詳細表示
-	/// パーティクルとメッシュのパーツを足し引きして、1つのエフェクトに組み上げる
+	/// パーティクル・メッシュ・サウンドのパーツを足し引きして、1つのエフェクトに組み上げる
 	/// </summary>
 	/// <param name="a_guid">編集対象のGUID(保存先を引くのに使う)</param>
 	/// <param name="a_pEffect">編集対象のエフェクト</param>

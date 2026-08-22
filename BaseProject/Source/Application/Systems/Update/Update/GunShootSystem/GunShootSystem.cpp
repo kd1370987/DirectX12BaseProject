@@ -18,6 +18,7 @@
 #include "../../../../Components/Collision/Collider.h"
 
 #include "../../../Shared/ProjectileSpawn/ProjectileSpawn.h"
+#include "../../../../Utility/EffectSpawnHelper.h"
 
 //==========================================================================================
 // GunShootSystem
@@ -31,6 +32,9 @@
 // 撃ち方は Auto(押しっぱなしで連射)と Burst(まとめて数発)の2種類。
 // 生成はシステム反復中に即時に行えない(アーキタイプが壊れる)ため、
 // World の遅延生成コマンド(AddEntityWithData)に積み、BeginFrame で安全に生成する。
+//
+// 1発撃つごとに、銃口へマズルフラッシュ(EffectAsset)も出す。
+// 弾と同じ位置・同じ向きへ単発で出すだけなので、銃に付けて追従させてはいない。
 //
 // プレハブが HomingComponent を持っていた場合は、ここで「追う相手」を埋める。
 // 発射した後から相手を探すのではなく、撃った瞬間に撃った側が捉えている相手を
@@ -310,6 +314,32 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 					_velValue,
 					App::Systems::ProjectileSpawn::ResolveShooterEntity(*a_ctx.pWorld, _self),
 					ResolveHomingTarget(*a_ctx.pWorld, _self, _pAim));
+
+				//======================================================================
+				// マズルフラッシュ
+				//----------------------------------------------------------------------
+				// 弾を出したのと同じ位置・同じ向きへ、単発のエフェクトを出す。
+				// 弾は飛んで行ってしまうので、これが無いと撃った手応えが銃の側に残らない。
+				//
+				// 銃に付けるのではなく、その場へ独立したエンティティとして出す。
+				// 銃口の光は一瞬で消えるものなので、銃に付いて動く必要が無く、
+				// 連射で前の1発がまだ消えていなくても撃ち直せる
+				// (銃に持たせると、次の発射で前の再生を打ち切ることになる)。
+				// 出したものは destroyOnFinish で自分から消えるので後片付けは要らない。
+				//
+				// 撃つと決まった後に置いているので、
+				// 弾が出なかったフレーム(プレハブ未設定など)では光らない
+				//======================================================================
+				if (_gun.muzzleEffectGUID != Engine::DefaultGUID)
+				{
+					App::Utility::SpawnEffectAt(
+						*a_ctx.pWorld,
+						_gun.muzzleEffectGUID,
+						_spawnPos,
+						true,			// 出し切ったら自分で消える
+						_shootDir,
+						_gun.muzzleEffectScale);
+				}
 			}
 		}
 	);

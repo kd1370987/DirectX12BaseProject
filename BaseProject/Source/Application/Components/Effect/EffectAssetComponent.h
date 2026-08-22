@@ -57,6 +57,13 @@ struct EffectAssetComponent
 	// パーティクルの粒の大きさ・ばらつき半径・パーツの配置とメッシュにまとめて掛かる
 	float effectScale = 1.0f;
 
+	// 噴射の「長さ」の倍率。1 で等倍。
+	// 粒の初速に掛かるので、寿命が同じなら飛ぶ距離＝束の長さがそのまま倍率ぶん伸びる。
+	// effectScale と分けてあるのは、太さは変えずに長さだけ伸ばしたい場面
+	// (チャージダッシュの撃ち出しなど)があるため。
+	// あちらを上げると粒もばらつき半径も一緒に太るので、噴射が丸く膨らんでしまう
+	float effectLengthScale = 1.0f;
+
 	// 下の2つを使うか。false ならアセットのパーツが持っている値をそのまま使う
 	bool isOverrideTransform = false;
 
@@ -127,6 +134,7 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 
 		// 置き方の上書き : 制御側のシステムが毎フレーム書くので表示だけ
 		ImGui::Text("Scale : %.2f", _comp.effectScale);
+		ImGui::Text("LengthScale : %.2f", _comp.effectLengthScale);
 		if (_comp.isOverrideTransform)
 		{
 			ImGui::Text("Override Pos : %.2f, %.2f, %.2f",

@@ -1,6 +1,7 @@
 ﻿#include "EffectAsset.h"
 
 #include "../../Manager/ResourceManager/ResourceManager.h"
+#include "../../../Audio/AudioManager.h"
 
 namespace Engine::Resource
 {
@@ -73,6 +74,60 @@ namespace Engine::Resource
 	}
 
 	//======================================================================================
+	// EffectSoundPart
+	//======================================================================================
+	void EffectSoundPart::Archive(Persistence::Archive& a_ar)
+	{
+		a_ar.Field("SoundGUID", soundGUID);
+
+		timing.Archive(a_ar);
+
+		a_ar.Field("Vol", vol);
+		a_ar.Field("IsLoop", isLoop);
+		a_ar.Field("Is3DSound", is3DSound);
+		a_ar.Field("DistanceScaler", distanceScaler);
+		a_ar.Field("IsWaitFinish", isWaitFinish);
+	}
+
+	//======================================================================================
+	// EffectInstance : 借りている声への操作
+	//
+	// どれもアセットを見ないので、アセットが読めていなくても呼べる。
+	// 解放の経路(エンティティが消える)はアセットの生存と無関係に走るため
+	//======================================================================================
+	void EffectInstance::SetSoundPos(Engine::Audio::AudioManager& a_audioManager, const Math::Vector3& a_pos)
+	{
+		soundPos = a_pos;
+
+		for (size_t _i = 0; _i < EFFECT_SOUND_MAX; ++_i)
+		{
+			auto* _pInstance = a_audioManager.RefInstance(soundHandles[_i]);
+			if (!_pInstance) continue;
+
+			// 2Dで発行されたインスタンスに位置を渡すと DirectXTK が例外を投げる
+			if (!_pInstance->Is3D()) continue;
+
+			_pInstance->SetPos(soundPos);
+		}
+	}
+
+	void EffectInstance::ReleaseSounds(Engine::Audio::AudioManager& a_audioManager)
+	{
+		for (size_t _i = 0; _i < EFFECT_SOUND_MAX; ++_i)
+		{
+			// 鳴っていても止めて返却される
+			a_audioManager.ReleaseSoundInstance(soundHandles[_i]);
+			soundHandles[_i] = {};
+			soundTriggered[_i] = false;
+
+			// 何から発行したかも空にする。
+			// 残しておくと、次に作り直すときに「合っている」と判断されて声が湧かない
+			soundSourceGUID[_i] = Engine::DefaultGUID;
+			soundSource3D[_i] = false;
+		}
+	}
+
+	//======================================================================================
 	// EffectAsset : 編集
 	//======================================================================================
 	bool EffectAsset::AddParticlePart()
@@ -89,6 +144,13 @@ namespace Engine::Resource
 		return true;
 	}
 
+	bool EffectAsset::AddSoundPart()
+	{
+		if (m_soundParts.size() >= EFFECT_SOUND_MAX) return false;
+		m_soundParts.emplace_back();
+		return true;
+	}
+
 	void EffectAsset::RemoveParticlePart(size_t a_index)
 	{
 		if (a_index >= m_particleParts.size()) return;
@@ -99,6 +161,12 @@ namespace Engine::Resource
 	{
 		if (a_index >= m_meshParts.size()) return;
 		m_meshParts.erase(m_meshParts.begin() + a_index);
+	}
+
+	void EffectAsset::RemoveSoundPart(size_t a_index)
+	{
+		if (a_index >= m_soundParts.size()) return;
+		m_soundParts.erase(m_soundParts.begin() + a_index);
 	}
 
 	//======================================================================================
@@ -169,6 +237,39 @@ namespace Engine::Resource
 				m_meshParts.resize(EFFECT_MESH_MAX);
 			}
 		}
+
+		//------------------------------------------------------------------
+		// サウンド
+		//
+		// 後から足した並びなので、必ず末尾に置くこと。
+		// JSON は「SoundParts が無ければ音なし」で素通しできるが、
+		// バイナリはキーを持たない順次読みなので、途中に挿すと
+		// 保存済みの .obeffect が全部ずれる
+		//------------------------------------------------------------------
+		size_t _soundCount = m_soundParts.size();
+		if (a_ar.BeginArray("SoundParts", _soundCount))
+		{
+			if (a_ar.IsLoading())
+			{
+				m_soundParts.assign(_soundCount, EffectSoundPart{});
+			}
+
+			for (size_t _i = 0; _i < _soundCount; ++_i)
+			{
+				if (a_ar.BeginObject(_i))
+				{
+					m_soundParts[_i].Archive(a_ar);
+					a_ar.EndObject();
+				}
+			}
+			a_ar.EndArray();
+
+			// 実体側(EffectInstance)の声の席が固定長なので、超えたぶんは鳴らせない
+			if (a_ar.IsLoading() && m_soundParts.size() > EFFECT_SOUND_MAX)
+			{
+				m_soundParts.resize(EFFECT_SOUND_MAX);
+			}
+		}
 	}
 
 	void EffectAsset::Save(const std::string& a_baseFilePath)
@@ -203,18 +304,93 @@ namespace Engine::Resource
 			}
 			_part.modelHandle = _resourceManager.LoadImmediate<Model>(_part.modelGUID);
 		}
+
+		// 波形はここで読んでおく。
+		// 実際に鳴らすのは声(SoundInstance)の方で、そちらは使う側が1つずつ持つが、
+		// 元の波形は全員で共有できる。持っておかないと
+		// 初めて鳴らすエフェクトが湧いた瞬間に読み込みが走る
+		for (auto& _part : m_soundParts)
+		{
+			if (!_part.IsValid())
+			{
+				_part.soundHandle = {};
+				continue;
+			}
+			_part.soundHandle = _resourceManager.LoadImmediate<Sound>(_part.soundGUID);
+		}
 	}
 
 	//======================================================================================
 	// EffectAsset : 再生
 	//======================================================================================
+	void EffectAsset::CreateSoundInstances(Engine::Audio::AudioManager& a_audioManager, EffectInstance& a_inst) const
+	{
+		// 作り直しでも漏らさないよう、まず持っているものを返す。
+		// 返した時点で「何から発行したか」も空になるので、
+		// 下の Sync は全スロットを食い違いとみなして作り直す
+		a_inst.ReleaseSounds(a_audioManager);
+
+		SyncSoundInstances(a_audioManager, a_inst);
+	}
+
+	void EffectAsset::SyncSoundInstances(Engine::Audio::AudioManager& a_audioManager, EffectInstance& a_inst) const
+	{
+		for (size_t _i = 0; _i < EFFECT_SOUND_MAX; ++_i)
+		{
+			//----------------------------------------------------------
+			// このスロットに欲しい声
+			//
+			// パーツが無い/音が空のスロットは「声なし」が正しい姿。
+			// エディターでパーツを消したときに、古い声が残らないようにする
+			//----------------------------------------------------------
+			Engine::GUID _wantGUID = Engine::DefaultGUID;
+			bool _want3D = false;
+
+			const EffectSoundPart* _pPart = nullptr;
+			if (_i < m_soundParts.size() && m_soundParts[_i].IsValid())
+			{
+				_pPart = &m_soundParts[_i];
+				_wantGUID = _pPart->soundGUID;
+				_want3D = _pPart->is3DSound;
+			}
+
+			// 食い違っていなければそのまま使う(ほとんどのフレームはこちら)
+			if (a_inst.soundSourceGUID[_i] == _wantGUID &&
+				a_inst.soundSource3D[_i] == _want3D)
+			{
+				continue;
+			}
+
+			// 古い声を返してから作り直す。
+			// 3D で鳴らすかは発行時にしか決められないので、
+			// 入り切りを変えたときも作り直しになる
+			// (2Dで作ったインスタンスに Apply3D を掛けると DirectXTK が例外を投げる)
+			a_audioManager.ReleaseSoundInstance(a_inst.soundHandles[_i]);
+			a_inst.soundHandles[_i] = {};
+			a_inst.soundTriggered[_i] = false;
+
+			a_inst.soundSourceGUID[_i] = _wantGUID;
+			a_inst.soundSource3D[_i] = _want3D;
+
+			if (!_pPart) continue;
+
+			a_inst.soundHandles[_i] = a_audioManager.RequestSoundInstance(_wantGUID, _want3D);
+
+			if (auto* _pInstance = a_audioManager.RefInstance(a_inst.soundHandles[_i]))
+			{
+				_pInstance->SetVolume(_pPart->vol);
+				_pInstance->SetCurveDistanceScaler(_pPart->distanceScaler);
+			}
+		}
+	}
+
 	void EffectAsset::Play(EffectInstance& a_inst) const
 	{
 		a_inst.Reset();
 		a_inst.isPlaying = true;
 	}
 
-	void EffectAsset::Stop(EffectInstance& a_inst) const
+	void EffectAsset::Stop(EffectInstance& a_inst, Engine::Audio::AudioManager* a_pAudioManager) const
 	{
 		a_inst.isPlaying = false;
 
@@ -224,9 +400,37 @@ namespace Engine::Resource
 			a_inst.pendingEmit[_i] = 0;
 			a_inst.wasEmitting[_i] = false;
 		}
+
+		//------------------------------------------------------------------
+		// 鳴っている音
+		//
+		// 止めるのはループを掛けたものだけ。噴射音のように鳴りっぱなしのものは
+		// ここで止めないと吹かすのをやめても鳴り続ける。
+		// 一方で単発音は鳴らしきらせる。点火の「ボッ」のような短い音まで切ると、
+		// 出し入れの激しい演出で音がぶつ切りになるため
+		//------------------------------------------------------------------
+		if (a_pAudioManager)
+		{
+			const size_t _count = std::min<size_t>(m_soundParts.size(), EFFECT_SOUND_MAX);
+			for (size_t _i = 0; _i < _count; ++_i)
+			{
+				if (!m_soundParts[_i].IsValid()) continue;
+
+				if (m_soundParts[_i].isLoop)
+				{
+					if (auto* _pInstance = a_pAudioManager->RefInstance(a_inst.soundHandles[_i]))
+					{
+						_pInstance->Stop();
+					}
+				}
+
+				// 次に再生したときは鳴らし直す
+				a_inst.soundTriggered[_i] = false;
+			}
+		}
 	}
 
-	void EffectAsset::Update(EffectInstance& a_inst, float a_dt) const
+	void EffectAsset::Update(EffectInstance& a_inst, float a_dt, Engine::Audio::AudioManager* a_pAudioManager) const
 	{
 		// 既定は今フレーム発生なし
 		for (size_t _i = 0; _i < EFFECT_PARTICLE_MAX; ++_i)
@@ -280,9 +484,70 @@ namespace Engine::Resource
 
 			a_inst.wasEmitting[_i] = true;
 		}
+
+		//------------------------------------------------------------------
+		// サウンド
+		//
+		// パーティクルと同じ時間軸(elapsed)で、StartDelay が来たものから鳴らす。
+		// 「絵と音を1枚のアセットにまとめる」のが狙いなので、
+		// 鳴らす側は再生を伝えるだけでよく、音を別に鳴らしに行かなくてよい。
+		//
+		// 単発音は1回鳴らすだけ。毎フレーム Play を呼ぶと頭出しが繰り返されて
+		// 音が伸びないので、鳴らした印(soundTriggered)で1回に抑える
+		//------------------------------------------------------------------
+		if (a_pAudioManager)
+		{
+			// エディターで音を差し替えたぶんをここで拾う。
+			// 食い違っているスロットだけ作り直すので、毎フレーム通してよい
+			SyncSoundInstances(*a_pAudioManager, a_inst);
+
+			const size_t _soundCount = std::min<size_t>(m_soundParts.size(), EFFECT_SOUND_MAX);
+			for (size_t _i = 0; _i < _soundCount; ++_i)
+			{
+				const EffectSoundPart& _part = m_soundParts[_i];
+				if (!_part.IsValid()) continue;
+
+				auto* _pInstance = a_pAudioManager->RefInstance(a_inst.soundHandles[_i]);
+				if (!_pInstance) continue;
+
+				// まだ鳴らす時間になっていない
+				if (a_inst.elapsed < _part.timing.startDelay) continue;
+
+				// ループ音は Duration で止める(0 なら止めるまで鳴りっぱなし)。
+				// 単発音は自分で鳴り終わるので、長さの指定は見ない
+				if (_part.isLoop && _part.timing.IsFinishedAt(a_inst.elapsed))
+				{
+					if (a_inst.soundTriggered[_i])
+					{
+						_pInstance->Stop();
+						a_inst.soundTriggered[_i] = false;
+					}
+					continue;
+				}
+
+				if (a_inst.soundTriggered[_i]) continue;
+				a_inst.soundTriggered[_i] = true;
+
+				// 3D 指定でも、発行が2Dだったなら2Dで鳴らす
+				// (3D かどうかは発行時にしか決められないため。CreateSoundInstances 参照)
+				if (_part.is3DSound && _pInstance->Is3D())
+				{
+					_pInstance->SetCurveDistanceScaler(_part.distanceScaler);
+					_pInstance->Play3D(a_inst.soundPos, _part.isLoop);
+				}
+				else
+				{
+					_pInstance->Play(_part.isLoop);
+				}
+
+				// Play3D は音量を 1 に戻すので、鳴らした後に入れ直す。
+				// エディターで音量をいじったぶんもここで乗る
+				_pInstance->SetVolume(_part.vol);
+			}
+		}
 	}
 
-	bool EffectAsset::IsFinished(const EffectInstance& a_inst) const
+	bool EffectAsset::IsFinished(const EffectInstance& a_inst, Engine::Audio::AudioManager* a_pAudioManager) const
 	{
 		// まだ一度も再生していない/止めたものは「出し切った」ではない。
 		// ここで true を返すと、再生前のエフェクトが
@@ -298,6 +563,42 @@ namespace Engine::Resource
 		{
 			if (!_part.IsValid()) continue;
 			if (!_part.timing.IsFinishedAt(a_inst.elapsed)) return false;
+		}
+
+		//------------------------------------------------------------------
+		// サウンド
+		//
+		// 絵より音の方が長いことは珍しくない(爆発の余韻など)。
+		// 音を見ないと、絵が消えたフレームで destroyOnFinish がエンティティごと
+		// 消してしまい、借りている声も返却されて音がぶつ切りになる。
+		//
+		// 待つかどうかはパーツごとの isWaitFinish で選べる。
+		// (BGM的に長い音を足したときに、エフェクトがいつまでも消えなくなるため)
+		//------------------------------------------------------------------
+		if (a_pAudioManager)
+		{
+			const size_t _soundCount = std::min<size_t>(m_soundParts.size(), EFFECT_SOUND_MAX);
+			for (size_t _i = 0; _i < _soundCount; ++_i)
+			{
+				const EffectSoundPart& _part = m_soundParts[_i];
+				if (!_part.IsValid()) continue;
+				if (!_part.isWaitFinish) continue;
+
+				// ループ音は止めるまで終わらない。パーティクルの出しっぱなしと同じ扱い
+				if (_part.isLoop && _part.timing.duration <= 0.0f) return false;
+
+				// 鳴らす前(待ち時間中)は、まだ終わっていない
+				if (!a_inst.soundTriggered[_i])
+				{
+					if (a_inst.elapsed < _part.timing.startDelay) return false;
+					continue;
+				}
+
+				auto* _pInstance = a_pAudioManager->RefInstance(a_inst.soundHandles[_i]);
+				if (!_pInstance) continue;
+
+				if (_pInstance->IsPlay()) return false;
+			}
 		}
 
 		return true;

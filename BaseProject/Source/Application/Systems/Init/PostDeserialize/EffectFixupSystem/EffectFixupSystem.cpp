@@ -6,6 +6,7 @@
 #include "../../../../Components/Effect/EffectAssetComponent.h"
 #include "../../../../Components/Character/DeathEffectComponent.h"
 #include "../../../../Components/Character/Robot/BoosterEffectComponent.h"
+#include "../../../../Components/Character/Weapon/Gun/GunStateComponent.h"
 
 //==========================================================================================
 // EffectFixupSystem
@@ -13,10 +14,13 @@
 // GUID しか保存されていないエフェクトから、アセットのハンドルを解決し直す。
 // あわせて、進行状態(保存されないランタイム値)を作り直した状態に戻す。
 //
-// 死亡エフェクト(DeathEffectComponent)とブーストのスパーク(BoosterEffectComponent)も
-// 同じ EffectAsset を指すので、ここで一緒に解決する。
-// どちらも「その瞬間が来たら出すもの」なので進行状態は持たず、ハンドルを引くだけ。
-// 死んだ瞬間・踏み込んだ瞬間に読み込みが走らないよう、生成時に解決しておく。
+// エフェクトにサウンドパーツが入っていれば、再生用の声もここで確保する。
+// 鳴らす瞬間にインスタンスを作ると、その1フレームだけ音が遅れるため。
+//
+// 死亡エフェクト(DeathEffectComponent)・ブーストのスパーク(BoosterEffectComponent)・
+// 銃のマズルフラッシュ(GunStateComponent)も同じ EffectAsset を指すので、ここで一緒に解決する。
+// どれも「その瞬間が来たら出すもの」なので進行状態は持たず、ハンドルを引くだけ。
+// 死んだ瞬間・踏み込んだ瞬間・撃った瞬間に読み込みが走らないよう、生成時に解決しておく。
 //==========================================================================================
 void EffectFixupSystem::Init(Engine::ECS::World& a_world)
 {
@@ -38,9 +42,18 @@ void EffectFixupSystem::Init(Engine::ECS::World& a_world)
 			auto* _pResourceManager = a_ctx.pServices->pResourceManager;
 			if (!_pResourceManager) return;
 
+			auto* _pAudioManager = a_ctx.pServices->pAudioManager;
+
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				EffectAssetComponent& _effectComp = a_effectArray[_i];
+
+				// 借りている声を先に返す。
+				// 進行状態を丸ごと潰すと、ハンドルまで消えて返却先が分からなくなる
+				if (_pAudioManager)
+				{
+					_effectComp.instance.ReleaseSounds(*_pAudioManager);
+				}
 
 				// 進行状態はランタイム値なので、作り直しでリセットしておく。
 				// これをしないと、差し替え前の再生位置から続きが出てしまう
@@ -58,6 +71,16 @@ void EffectFixupSystem::Init(Engine::ECS::World& a_world)
 
 				_effectComp.effectHandle =
 					_pResourceManager->LoadImmediate<Engine::Resource::EffectAsset>(_effectComp.effectGUID);
+
+				// 鳴らす瞬間に読み込みが走らないよう、声はここで確保しておく。
+				// (爆発のように「出た瞬間に鳴ってほしい」ものが1フレーム遅れないように)
+				if (_pAudioManager)
+				{
+					if (auto* _pEffect = _pResourceManager->Ref(_effectComp.effectHandle))
+					{
+						_pEffect->CreateSoundInstances(*_pAudioManager, _effectComp.instance);
+					}
+				}
 			}
 		}
 	);
@@ -134,6 +157,40 @@ void EffectFixupSystem::Init(Engine::ECS::World& a_world)
 
 				_boosterComp.sparkHandle =
 					_pResourceManager->LoadImmediate<Engine::Resource::EffectAsset>(_boosterComp.sparkEffectGUID);
+			}
+		}
+	);
+
+	//--------------------------------------------------------------------------
+	// 銃のマズルフラッシュ : ハンドルを解決するだけ
+	//--------------------------------------------------------------------------
+	a_world.PostDeserializeTask<GunStateComponent>(
+		Engine::ECS::ESystemType::PostDeserialize,
+		"MuzzleEffectFixupSystem",
+		[]
+		(
+			Engine::ECS::ArchetypeChunk* a_pChunk,
+			uint32_t a_count,
+			const Engine::ECS::SystemContext& a_ctx,
+			PostDeserializeTag* a_tag,
+			GunStateComponent* a_gunArray
+			)
+		{
+			auto* _pResourceManager = a_ctx.pServices->pResourceManager;
+			if (!_pResourceManager) return;
+
+			for (size_t _i = 0; _i < a_count; ++_i)
+			{
+				GunStateComponent& _gunComp = a_gunArray[_i];
+
+				if (_gunComp.muzzleEffectGUID == Engine::DefaultGUID)
+				{
+					_gunComp.muzzleEffectHandle = {};
+					continue;
+				}
+
+				_gunComp.muzzleEffectHandle =
+					_pResourceManager->LoadImmediate<Engine::Resource::EffectAsset>(_gunComp.muzzleEffectGUID);
 			}
 		}
 	);

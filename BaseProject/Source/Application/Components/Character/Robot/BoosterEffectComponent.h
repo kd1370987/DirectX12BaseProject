@@ -39,6 +39,14 @@
 //     どちらを動かすかは BoosterEffectSystem が isBoosting を見て決める
 //     (isBoosting を書くのは ThrusterEffectSystem)。
 //
+// ・チャージダッシュ(Space長押し)の見せ方
+//     溜めと撃ち出しで動かす軸を分けてある。
+//       溜め   : 溜まり具合ぶんジェットを chargeScale まで太らせる(だんだん)
+//       撃ち出し: 束の長さを dashLengthScale 倍にする(粒の初速に掛かる)
+//     どちらも太さでやると「溜まりきった」のか「もう出た」のかが読めない。
+//     溜め具合と撃ち出し中かを配るのは ThrusterEffectSystem で、
+//     元を持っているのは機体側の ChargeDashComponent。
+//
 // ・以前はパーティクルコンポーネント(ParticlesComponent)を直に付けていたが、
 //   あちらは汎用なので、ブースター1つを調整するのに
 //   発生量・寿命・絵といった「アセットに書くべきもの」まで並んでしまっていた。
@@ -62,6 +70,18 @@ struct BoosterEffectComponent
 	// 入り切りをそのまま出すとジェットが1フレームで跳ねるので、少しだけ均す
 	float boostBlendTime = 0.08f;
 
+	// ---- チャージダッシュ(設定値) ----
+	// 溜めている間は少しずつ太らせ、撃ち出した瞬間に束を前へ伸ばす。
+	//
+	// 溜めを太さで、撃ち出しを長さで見せているのは、2つが同時に起きないため。
+	// どちらも太さでやると「溜まりきった」のか「もう出た」のかが読み取れず、
+	// 撃ち出しの側を太さでやると、ただ膨らむだけで前へ進む感じが出ない
+	float chargeScale = 1.6f;		// 溜まりきったときのスケール倍率(1 なら太らない)
+	float dashLengthScale = 2.0f;	// ダッシュ中の束の長さの倍率(粒の初速に掛かる)
+	// 長さの行き来にかける秒数。0 なら即座に切り替わる。
+	// 撃ち出しは一瞬で伸びてほしいので、太さの boostBlendTime より短めが合う
+	float dashLengthBlendTime = 0.05f;
+
 	// ---- 踏み込んだ瞬間のスパーク(設定値) ----
 	// ジェットとは別のエフェクトを噴射口へ1回だけ出す。
 	// 未設定なら何も出ない(ジェットの太らせだけが効く)
@@ -76,6 +96,10 @@ struct BoosterEffectComponent
 	bool  isBoosting = false;	// ブーストダッシュ中か(ThrusterEffectSystem が毎フレーム書く)
 	bool  wasBoosting = false;	// 踏み込みの立ち上がりを見るための前フレームの状態
 	float boostBlend = 0.0f;	// 0 = 通常 / 1 = ブースト中。boostBlendTime で行き来する
+
+	float chargeRate = 0.0f;	// チャージの溜まり具合 0〜1(ThrusterEffectSystem が毎フレーム書く)
+	bool  isChargeDashing = false;	// チャージダッシュ中か(同上)
+	float dashLengthBlend = 0.0f;	// 0 = 通常 / 1 = ダッシュ中。dashLengthBlendTime で行き来する
 };
 
 template<>
@@ -94,6 +118,10 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 
 		a_ar.Field("boostScale", _comp.boostScale);
 		a_ar.Field("boostBlendTime", _comp.boostBlendTime);
+
+		a_ar.Field("chargeScale", _comp.chargeScale);
+		a_ar.Field("dashLengthScale", _comp.dashLengthScale);
+		a_ar.Field("dashLengthBlendTime", _comp.dashLengthBlendTime);
 
 		a_ar.Field("sparkEffectGUID", _comp.sparkEffectGUID);
 		a_ar.Field("sparkScale", _comp.sparkScale);
@@ -127,6 +155,20 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 			ImGui::TextDisabled("1 以下 : ブーストしても太らない");
 		}
 
+		ImGui::SeparatorText("Charge Dash");
+		ImGui::TextDisabled("溜めている間は太らせ、撃ち出している間は束を前へ伸ばす");
+		ImGui::DragFloat("ChargeScale", &_comp.chargeScale, 0.01f, 0.0f);
+		if (_comp.chargeScale <= 1.0f)
+		{
+			ImGui::TextDisabled("1 以下 : 溜めても太らない");
+		}
+		ImGui::DragFloat("DashLengthScale", &_comp.dashLengthScale, 0.01f, 0.0f);
+		ImGui::DragFloat("DashLengthBlendTime (s)", &_comp.dashLengthBlendTime, 0.01f, 0.0f);
+		if (_comp.dashLengthScale <= 1.0f)
+		{
+			ImGui::TextDisabled("1 以下 : 撃ち出しても伸びない");
+		}
+
 		ImGui::SeparatorText("Boost Spark");
 		ImGui::TextDisabled("踏み込んだ瞬間に噴射口へ1回だけ出す。ジェットとは別のアセット");
 		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Resource::EffectAsset>(
@@ -146,5 +188,8 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 		ImGui::Text("Playing    : %s", _comp.wasPlaying ? "true" : "false");
 		ImGui::Text("Boosting   : %s", _comp.isBoosting ? "true" : "false");
 		ImGui::Text("BoostBlend : %.3f", _comp.boostBlend);
+		ImGui::Text("ChargeRate : %.3f", _comp.chargeRate);
+		ImGui::Text("ChargeDash : %s", _comp.isChargeDashing ? "true" : "false");
+		ImGui::Text("DashBlend  : %.3f", _comp.dashLengthBlend);
 	}
 };

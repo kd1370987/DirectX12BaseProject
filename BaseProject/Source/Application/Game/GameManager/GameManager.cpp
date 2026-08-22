@@ -64,6 +64,7 @@
 #include "Application/Components/Transform/PreviousWorldMatrixComponent.h"
 #include "Application/Components/Character/Robot/BoostComponent.h"
 #include "Application/Components/Character/Robot/BoosterEffectComponent.h"
+#include "Application/Components/Character/Robot/ChargeDashComponent.h"
 #include "Application/Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "Application/Components/Resource/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
@@ -139,6 +140,7 @@
 #include "Application/Systems/Update/Update/ActionBehaviorSystem/ActionBehaviorSystem.h"
 #include "Application/Systems/Update/Animation/AnimationStateSystem/AnimationStateSystem.h"
 #include "Application/Systems/Update/Update/Move/RobotBoostSystem/RobotBoostSystem.h"
+#include "Application/Systems/Update/Update/Move/ChargeDashSystem/ChargeDashSystem.h"
 #include "Application/Systems/Draw/Draw/EmitParticlesSystem/EmitParticlesSystem.h"
 #include "Application/Systems/Update/Update/Particle/ParticleEmitSystem/ParticleEmitSystem.h"
 #include "Application/Systems/Init/PostDeserialize/ParticleFixupSystem/ParticleFixupSystem.h"
@@ -358,6 +360,8 @@ namespace App::Game
 				// ※ 追加はここから下(末尾)へ。途中に挿すとコンポーネントのタイプIDがずれて
 				//    保存済みのプレハブ・シーンが全部壊れる
 				a_pWorld->RegisterComponent<BoosterEffectComponent>("BoosterEffectComponent");
+				// ジャンプ長押しで溜めて直進するチャージダッシュ
+				a_pWorld->RegisterComponent<ChargeDashComponent>("ChargeDashComponent");
 
 				// システム登録
 				a_pWorld->RegisterSystem<ModelFixupSystem>();
@@ -443,6 +447,9 @@ namespace App::Game
 				// ボスのミサイル。撃ち出しはプレイヤーと共通(MissileSalvo)で、溜め方だけが違う
 				a_pWorld->RegisterSystem<BossMissileSalvoSystem>();
 				a_pWorld->RegisterSystem<RobotBoostSystem>();
+				// チャージダッシュ。速度を書く仲間(重力・ブースト)より後に登録して、
+				// ダッシュ中はこちらの値が最後に残るようにする
+				a_pWorld->RegisterSystem<ChargeDashSystem>();
 				a_pWorld->RegisterSystem<FollowAnimationNodeSystem>();
 				a_pWorld->RegisterSystem<RayCollisionSystem>();
 				a_pWorld->RegisterSystem<StaticObjectDrawSystem>();

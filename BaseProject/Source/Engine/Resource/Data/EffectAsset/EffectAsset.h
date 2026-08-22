@@ -2,6 +2,11 @@
 
 #include "../../../Particle/Core/ParticleData.h"
 
+namespace Engine::Audio
+{
+	class AudioManager;
+}
+
 namespace Engine::Resource
 {
 	//==========================================================================================
@@ -14,6 +19,7 @@ namespace Engine::Resource
 	//==========================================================================================
 	inline constexpr size_t EFFECT_PARTICLE_MAX = 4;
 	inline constexpr size_t EFFECT_MESH_MAX = 4;
+	inline constexpr size_t EFFECT_SOUND_MAX = 4;
 
 	//==========================================================================================
 	// 発生源の取り方
@@ -157,6 +163,52 @@ namespace Engine::Resource
 	};
 
 	//==========================================================================================
+	// サウンド1件
+	//
+	// 「爆発の絵と爆発音」のように、絵と音がいつも一緒に出るものを1枚のアセットで扱う。
+	// 出す側は再生を伝えるだけでよく、音を別に鳴らしに行かなくてよくなる。
+	//
+	// ・音源そのもの(波形)は Sound アセットの持ち物。ここが持つのは「どう鳴らすか」だけ。
+	// ・鳴らす実体(SoundInstance)はアセットには持てない。アセットは GUID 単位で
+	//   全員に共有されるので、同じエフェクトを使う者同士で音を奪い合ってしまう。
+	//   実体は EffectInstance 側(使う側が1つずつ持つ)にある。
+	//   この分け方は AudioBehavior と同じ。
+	// ・鳴らす位置は「エフェクトが付いている相手のワールド座標」。
+	//   パーティクルのような発生位置のオフセットは持たせていない。
+	//   音の定位はメートル単位でずらしても聞き分けられないため。
+	//==========================================================================================
+	struct EffectSoundPart
+	{
+		// ---- 何を鳴らすか ----
+		Engine::GUID soundGUID = Engine::DefaultGUID;
+		Handle<Sound> soundHandle = {};	// ランタイム用(読み込み時に解決)。
+										// 鳴らす瞬間に波形の読み込みが走らないよう先に持っておく
+
+		// ---- いつ鳴らすか ----
+		// startDelay : 再生開始から何秒後に鳴らし始めるか
+		// duration   : ループ音を鳴らし続ける長さ(0 なら止めるまで)。
+		//              単発音(isLoop = false)では使わない
+		EffectTiming timing = {};
+
+		// ---- どう鳴らすか ----
+		float vol = 1.0f;			// 音量。1 で 100%
+		bool  isLoop = false;		// 鳴りっぱなしにするか(噴射音など)。エフェクトを止めれば止まる
+		bool  is3DSound = true;		// 位置による定位・距離減衰を付けるか。false なら常に同じ音量で鳴る
+		float distanceScaler = 1.0f;// 3D の減衰倍率。大きいほど遠くまで届く(3D のときだけ効く)
+
+		// ---- 出し切ったかの判定に混ぜるか ----
+		// true : この音が鳴り終わるまで「エフェクトは終わっていない」とみなす。
+		//        destroyOnFinish のエフェクト(単発の爆発など)で、絵が消えた瞬間に
+		//        エンティティごと消えて音が途切れるのを防ぐ。
+		// false: 音の長さを見ない。絵が終わればエフェクトも終わる
+		bool isWaitFinish = true;
+
+		bool IsValid() const { return soundGUID != Engine::DefaultGUID; }
+
+		void Archive(Persistence::Archive& a_ar);
+	};
+
+	//==========================================================================================
 	// 実体側 : 再生するものが1つずつ持つ
 	//
 	// アセットはGUID単位で全員に共有されるので、進行状態をアセットへ持たせると
@@ -175,6 +227,24 @@ namespace Engine::Resource
 		int   pendingEmit[EFFECT_PARTICLE_MAX] = {};// このフレームの発生数(Update が積み、Draw が消費)
 		bool  wasEmitting[EFFECT_PARTICLE_MAX] = {};// バーストの立ち上がり検出用
 
+		//------------------------------------------------------------------
+		// サウンドパーツごとの進行状態
+		//
+		// ハンドルは「借りている声」なので Reset() では消さないこと。
+		// 消すと返却先が分からなくなって、鳴りっぱなしの声がプールに残る。
+		// 発行は CreateSoundInstances / 返却は ReleaseSounds の担当
+		//------------------------------------------------------------------
+		Handle<SoundInstance> soundHandles[EFFECT_SOUND_MAX] = {};
+		bool  soundTriggered[EFFECT_SOUND_MAX] = {};	// もう鳴らしたか(単発を1回だけにする)
+		Math::Vector3 soundPos = { 0.0f, 0.0f, 0.0f };	// 3D 指定のパーツを鳴らす位置
+
+		// その声を何から発行したか。
+		// アセット側の指定と食い違っていたら作り直す(SyncSoundInstances)。
+		// エディターで音や 3D 指定を差し替えたとき、
+		// すでに出ているエフェクトにも次のフレームから効かせるためのもの
+		Engine::GUID soundSourceGUID[EFFECT_SOUND_MAX] = {};
+		bool         soundSource3D[EFFECT_SOUND_MAX] = {};
+
 		// 頭から再生し直す
 		void Reset()
 		{
@@ -185,17 +255,36 @@ namespace Engine::Resource
 				pendingEmit[_i] = 0;
 				wasEmitting[_i] = false;
 			}
+			for (size_t _i = 0; _i < EFFECT_SOUND_MAX; ++_i)
+			{
+				soundTriggered[_i] = false;
+			}
 		}
+
+		//------------------------------------------------------------------
+		// 発行済みインスタンスに対しての操作
+		//
+		// どれもアセットの中身を見ないので、
+		// アセットが読めていない・破棄された後でも呼べる(AudioBehaviorInstance と同じ)
+		//------------------------------------------------------------------
+
+		// 3D再生の位置を更新する。鳴っている音にも即時反映される
+		void SetSoundPos(Engine::Audio::AudioManager& a_audioManager, const Math::Vector3& a_pos);
+
+		// 発行済みインスタンスをすべて返却して空にする
+		void ReleaseSounds(Engine::Audio::AudioManager& a_audioManager);
 	};
 
 	//==========================================================================================
 	// エフェクト
 	//
-	// メッシュ形状やパーティクルをまとめて扱う。
+	// メッシュ形状やパーティクル、鳴らす音をまとめて扱う。
 	// 例) ジェット噴射されている中心は白い縦長のメッシュで、周りにパーティクルを散らす。
+	//     爆発なら、粒と火球に「ドン」という音まで込みで1枚。
 	//
 	// 使う側は「再生する・止める」だけを伝えればよく、
-	// 何個のパーティクルとメッシュで出来ているかを知らなくてよい。
+	// 何個のパーティクルとメッシュと音で出来ているかを知らなくてよい。
+	// (音だけ別に鳴らしに行かなくてよい、というのがサウンドパーツの狙い)
 	//==========================================================================================
 	class EffectAsset
 	{
@@ -210,16 +299,20 @@ namespace Engine::Resource
 		//--------------------------------------------------------------------
 		const std::vector<EffectParticlePart>& GetParticleParts() const { return m_particleParts; }
 		const std::vector<EffectMeshPart>& GetMeshParts() const { return m_meshParts; }
+		const std::vector<EffectSoundPart>& GetSoundParts() const { return m_soundParts; }
 
 		// 編集用 : エディターから直接書き換える
 		std::vector<EffectParticlePart>& RefParticleParts() { return m_particleParts; }
 		std::vector<EffectMeshPart>& RefMeshParts() { return m_meshParts; }
+		std::vector<EffectSoundPart>& RefSoundParts() { return m_soundParts; }
 
 		// 追加・削除 : 上限を超えないようにここを通す
 		bool AddParticlePart();
 		bool AddMeshPart();
+		bool AddSoundPart();
 		void RemoveParticlePart(size_t a_index);
 		void RemoveMeshPart(size_t a_index);
+		void RemoveSoundPart(size_t a_index);
 
 		const std::string& GetName() const { return m_name; }
 		void SetName(const std::string& a_name) { m_name = a_name; }
@@ -231,7 +324,7 @@ namespace Engine::Resource
 		void Save(const std::string& a_baseFilePath);
 
 		/// <summary>
-		/// GUIDから参照アセット(パーティクル・モデル)のハンドルを解決する
+		/// GUIDから参照アセット(パーティクル・モデル・サウンド)のハンドルを解決する
 		/// </summary>
 		/// <remarks>
 		/// ロード直後と、エディターで差し替えた後に呼ぶ。
@@ -245,29 +338,55 @@ namespace Engine::Resource
 		// 鳴らす対象は使う側が持っている実体(EffectInstance)。
 		//--------------------------------------------------------------------
 
+		/// <summary>
+		/// 定義に沿って再生用のサウンドインスタンスを発行する
+		/// </summary>
+		/// <remarks>
+		/// すでに発行済みなら一度返してから作り直すので、二重発行にはならない。
+		/// 音を設定していないパーツのハンドルは無効のままになる。
+		/// 鳴らす瞬間に読み込みが走らないよう、生成時に呼んでおくこと(EffectFixupSystem)
+		/// </remarks>
+		void CreateSoundInstances(Engine::Audio::AudioManager& a_audioManager, EffectInstance& a_inst) const;
+
 		// 頭から再生する
 		void Play(EffectInstance& a_inst) const;
 
-		// 止める。出ている途中のパーティクルはそのまま寿命で消える
-		void Stop(EffectInstance& a_inst) const;
+		/// <summary>
+		/// 止める。出ている途中のパーティクルはそのまま寿命で消える
+		/// </summary>
+		/// <param name="a_pAudioManager">
+		/// 渡すと鳴っている音も止める。null なら音はそのまま鳴り続ける
+		/// (単発音を最後まで鳴らしたい場合)
+		/// </param>
+		void Stop(EffectInstance& a_inst, Engine::Audio::AudioManager* a_pAudioManager = nullptr) const;
 
 		/// <summary>
-		/// 時間を進めて、このフレームの発生数を決める
+		/// 時間を進めて、このフレームの発生数を決める。時間が来たサウンドもここで鳴らす
 		/// </summary>
+		/// <param name="a_pAudioManager">null ならサウンドパーツは鳴らさない</param>
 		/// <remarks>
 		/// 実フレーム時間が要るので Update フェーズで呼ぶこと。
 		/// 実際の発生要求は Draw フェーズ側が pendingEmit を見て行う
 		/// </remarks>
-		void Update(EffectInstance& a_inst, float a_dt) const;
+		void Update(
+			EffectInstance& a_inst,
+			float a_dt,
+			Engine::Audio::AudioManager* a_pAudioManager = nullptr) const;
 
 		/// <summary>
 		/// 全パーツが出し終わったか
 		/// </summary>
+		/// <param name="a_pAudioManager">
+		/// 渡すと isWaitFinish のサウンドが鳴り終わるまで false を返す。
+		/// null ならサウンドは見ない
+		/// </param>
 		/// <remarks>
 		/// 出しっぱなし(duration = 0)のパーツが1つでもあれば、いつまでも false。
 		/// 単発エフェクトの後片付け(自分を消す)の判断に使う
 		/// </remarks>
-		bool IsFinished(const EffectInstance& a_inst) const;
+		bool IsFinished(
+			const EffectInstance& a_inst,
+			Engine::Audio::AudioManager* a_pAudioManager = nullptr) const;
 
 		/// <summary>
 		/// メッシュパーツの今フレームの描画情報を作る
@@ -285,11 +404,24 @@ namespace Engine::Resource
 
 	private:
 
+		/// <summary>
+		/// 発行済みの声を、今のアセットの指定に合わせ直す
+		/// </summary>
+		/// <remarks>
+		/// 食い違っているスロットだけ発行し直すので、毎フレーム呼んでよい。
+		/// 3D かどうかは声を発行するときにしか決められないため、
+		/// エディターで音や 3D 指定を差し替えたときは、ここが作り直しの受け口になる
+		/// </remarks>
+		void SyncSoundInstances(Engine::Audio::AudioManager& a_audioManager, EffectInstance& a_inst) const;
+
+	private:
+
 		// 識別子
 		std::string m_name;
 
 		// パーツ
 		std::vector<EffectParticlePart> m_particleParts;
 		std::vector<EffectMeshPart> m_meshParts;
+		std::vector<EffectSoundPart> m_soundParts;
 	};
 }

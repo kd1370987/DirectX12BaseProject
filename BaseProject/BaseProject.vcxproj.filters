@@ -832,6 +832,9 @@
     <Filter Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem">
       <UniqueIdentifier>{ca73c634-5fce-4e9d-ada6-0901ab471f24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\Move\ChargeDashSystem">
+      <UniqueIdentifier>{8c01f798-6cb1-424a-bfb8-848e4b0c0e02}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Utility\Pool">
       <UniqueIdentifier>{9bc13487-f5a9-4b72-81af-5fe0029cccee}</UniqueIdentifier>
     </Filter>
@@ -1979,6 +1982,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Move\ChargeDashSystem\ChargeDashSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Move\ChargeDashSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp">
       <Filter>Source\Engine\Resource\Data\Particles</Filter>
@@ -3152,6 +3158,9 @@
     <ClInclude Include="Source\Application\Components\Character\Robot\BoostComponent.h">
       <Filter>Source\Application\Components\Character\Robot</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Robot\ChargeDashComponent.h">
+      <Filter>Source\Application\Components\Character\Robot</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Robot\BoosterEffectComponent.h">
       <Filter>Source\Application\Components\Character\Robot</Filter>
     </ClInclude>
@@ -3184,6 +3193,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Move\ChargeDashSystem\ChargeDashSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Move\ChargeDashSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h">
       <Filter>Source\Engine\Utility\Pool\ItemPool</Filter>

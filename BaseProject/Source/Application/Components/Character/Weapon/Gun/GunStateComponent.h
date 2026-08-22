@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorHelper.inl"
+#include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
 
 #include "../../../../Editor/CompEditHelper/CompEditHelper.h"
 
@@ -33,6 +35,24 @@ struct GunStateComponent
 	// 発射するプレハブ
 	Engine::GUID bulletPrefabGUID = {};									// 記録用(セーブされる)
 	Engine::Handle<Engine::Resource::Prefab> bulletPrefabHandle = {};	// ランタイム用(発射時に解決)
+
+	//---------------------------------------------------------------------------
+	// マズルフラッシュ
+	//
+	// 弾を1発撃つたびに、銃口へ単発のエフェクトを出す。
+	// 弾そのものは飛んで行ってしまうので、それだけだと「撃った」手応えが銃の側に残らない。
+	//
+	// ・出す場所と向きは弾とまったく同じ(銃口ヌルノードの位置 / 射出方向)。
+	//   弾の見た目と光る位置がずれると、撃った瞬間だけ像が二重に見える。
+	// ・エフェクト側は destroyOnFinish で自分から消えるので後片付けは要らない。
+	//   そのため Duration を入れた(出し切りで終わる)アセットを指定すること。
+	//   出しっぱなしのパーツを含むアセットだと、撃つたびに消えないものが増えていく。
+	// ・発砲音もこのエフェクトのサウンドパーツに入れておけば、
+	//   銃側は「撃った」と伝えるだけで絵と音が揃う。
+	//---------------------------------------------------------------------------
+	Engine::GUID muzzleEffectGUID = Engine::DefaultGUID;						// 記録用(セーブされる)
+	Engine::Handle<Engine::Resource::EffectAsset> muzzleEffectHandle = {};		// EffectFixupSystem が解決する
+	float muzzleEffectScale = 1.0f;	// 大きさ倍率(アセットは共有なので個体差はここで付ける)
 
 	//---------------------------------------------------------------------------
 	// オーバーヒート
@@ -88,6 +108,10 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 		a_ar.Field("overheatCoolScale", _comp.overheatCoolScale);
 		a_ar.Field("restartHeatRatio", _comp.restartHeatRatio);
 		a_ar.Field("nullPtrNodeHash", _comp.nullPtrNodeHash);
+
+		// ※ 追加は末尾に。バイナリは順次読みなので途中に挿すと既存データが全部ずれる
+		a_ar.Field("muzzleEffectGUID", _comp.muzzleEffectGUID);
+		a_ar.Field("muzzleEffectScale", _comp.muzzleEffectScale);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -128,6 +152,25 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 			_comp.nullPtrNodeHash,
 			_comp.nodeIndex
 		);
+
+		// ---- マズルフラッシュ ----
+		// 1発撃つごとに銃口へ出す単発エフェクト。位置と向きは弾と同じ
+		ImGui::Separator();
+		ImGui::TextDisabled("Muzzle Flash : 1発撃つごとに銃口へ出す");
+		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Resource::EffectAsset>(
+			"Muzzle Effect",
+			"EffectAsset",
+			_comp.muzzleEffectGUID,
+			_comp.muzzleEffectHandle);
+		ImGui::DragFloat("Muzzle Effect Scale", &_comp.muzzleEffectScale, 0.01f, 0.0f);
+		if (_comp.muzzleEffectGUID == Engine::DefaultGUID)
+		{
+			ImGui::TextDisabled("(未設定 : 撃っても何も出ない)");
+		}
+		else
+		{
+			ImGui::TextDisabled("出し切ったら自分で消えるので、Duration を入れたアセットを指定すること");
+		}
 
 		// ---- オーバーヒート ----
 		ImGui::Separator();

@@ -189,6 +189,77 @@ namespace Engine::Editor::Inspector
 
 			return _isChanged;
 		}
+
+		//-----------------------------------------------------------------------------------------
+		// サウンド1件
+		//-----------------------------------------------------------------------------------------
+		bool SoundPartEdit(Resource::EffectSoundPart& a_part)
+		{
+			bool _isChanged = false;
+
+			// ---- 何を鳴らすか ----
+			if (EditorHelper::DrawAssetSelectComboGUID("Sound", "Sound", a_part.soundGUID))
+			{
+				_isChanged = true;
+			}
+			DrawAssignedName(a_part.soundGUID);
+
+			if (a_part.IsValid())
+			{
+				ImGui::SameLine();
+				if (EditorHelper::DeleteButton("Clear"))
+				{
+					a_part.soundGUID = Engine::DefaultGUID;
+					_isChanged = true;
+				}
+			}
+
+			ImGui::SeparatorText("Timing");
+			ImGui::TextDisabled("StartDelay : 再生から何秒後に鳴らすか");
+			ImGui::DragFloat("StartDelay (s)", &a_part.timing.startDelay, 0.01f, 0.0f);
+
+			// Duration はループ音を止めるための長さ。単発音では使わない
+			ImGui::BeginDisabled(!a_part.isLoop);
+			ImGui::DragFloat("Duration (s, 0=infinite)", &a_part.timing.duration, 0.01f, 0.0f);
+			ImGui::EndDisabled();
+			if (!a_part.isLoop)
+			{
+				ImGui::TextDisabled("(Duration は Loop のときだけ効きます)");
+			}
+			else if (a_part.timing.duration <= 0.0f)
+			{
+				ImGui::TextDisabled("エフェクトを止めるまで鳴らし続ける");
+			}
+
+			ImGui::SeparatorText("Play");
+			ImGui::DragFloat("Volume", &a_part.vol, 0.01f, 0.0f, 1.0f);
+			ImGui::Checkbox("Loop", &a_part.isLoop);
+			ImGui::TextDisabled(a_part.isLoop
+				? "鳴りっぱなし。エフェクトを止めると一緒に止まる"
+				: "一度だけ鳴らす。エフェクトを止めても鳴りきる");
+
+			ImGui::Checkbox("3D Sound", &a_part.is3DSound);
+			ImGui::TextDisabled(a_part.is3DSound
+				? "エフェクトの居場所で鳴る(定位・距離減衰あり)"
+				: "常に同じ音量で鳴る(UI・全体演出向き)");
+
+			ImGui::BeginDisabled(!a_part.is3DSound);
+			ImGui::DragFloat("DistanceScaler", &a_part.distanceScaler, 0.05f, 0.0f);
+			ImGui::EndDisabled();
+			if (a_part.is3DSound)
+			{
+				ImGui::TextDisabled("大きいほど遠くまで届く(1 = 通常)");
+			}
+
+			ImGui::SeparatorText("Finish");
+			ImGui::Checkbox("WaitFinish", &a_part.isWaitFinish);
+			ImGui::TextDisabled(a_part.isWaitFinish
+				? "この音が鳴り終わるまでエフェクトを終わらせない"
+				: "音の長さを見ない(絵が終わればエフェクトも終わる)");
+			ImGui::TextDisabled("DestroyOnFinish のエフェクトで音が途切れるのを防ぐ設定");
+
+			return _isChanged;
+		}
 	}
 
 	//-----------------------------------------------------------------------------------------
@@ -323,6 +394,55 @@ namespace Engine::Editor::Inspector
 		if (_removeMeshIndex >= 0)
 		{
 			a_pEffect->RemoveMeshPart(static_cast<size_t>(_removeMeshIndex));
+		}
+
+		//------------------------------------------------------------------
+		// サウンドパーツ
+		//
+		// 絵と音がいつも一緒に出るものを1枚にまとめるための欄。
+		// 出す側は再生を伝えるだけでよく、音を別に鳴らしに行かなくてよくなる
+		//------------------------------------------------------------------
+		auto& _soundParts = a_pEffect->RefSoundParts();
+
+		ImGui::SeparatorText("Sound Parts");
+		ImGui::Text("%d / %d",
+			static_cast<int>(_soundParts.size()),
+			static_cast<int>(Resource::EFFECT_SOUND_MAX));
+
+		// 上限まで来たら足せない(実体側の声の席が固定長のため)
+		ImGui::BeginDisabled(_soundParts.size() >= Resource::EFFECT_SOUND_MAX);
+		if (EditorHelper::CreateButton("Add Sound Part"))
+		{
+			a_pEffect->AddSoundPart();
+		}
+		ImGui::EndDisabled();
+
+		int _removeSoundIndex = -1;
+
+		for (size_t _i = 0; _i < _soundParts.size(); ++_i)
+		{
+			// 上2つと番号が被らないように、IDの土台をずらしておく
+			ImGui::PushID(static_cast<int>(_i + Resource::EFFECT_PARTICLE_MAX + Resource::EFFECT_MESH_MAX));
+
+			const std::string _label = "Sound " + std::to_string(_i);
+			if (ImGui::TreeNodeEx(_label.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+			{
+				if (EditorHelper::DeleteButton("Remove Part"))
+				{
+					_removeSoundIndex = static_cast<int>(_i);
+				}
+
+				if (SoundPartEdit(_soundParts[_i])) _isChanged = true;
+
+				ImGui::TreePop();
+			}
+
+			ImGui::PopID();
+		}
+
+		if (_removeSoundIndex >= 0)
+		{
+			a_pEffect->RemoveSoundPart(static_cast<size_t>(_removeSoundIndex));
 		}
 
 		// 参照を差し替えたらハンドルを引き直す。

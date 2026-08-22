@@ -4,6 +4,7 @@
 
 #include "../../../../Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "../../../../Components/Character/Robot/BoostComponent.h"
+#include "../../../../Components/Character/Robot/ChargeDashComponent.h"
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
 #include "../../../../Components/Effect/EffectAssetComponent.h"
@@ -61,7 +62,8 @@ void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 			// 必ず HasComponent で確かめてから引くこと。
 			// BoosterEffectComponent を付けていないブースターもあり得るので、
 			// 2つは別々に確かめる(付いていない側は黙って飛ばす)
-			auto _driveBooster = [&a_ctx](Engine::ECS::Entity a_e, bool a_on, bool a_isBoosting)
+			auto _driveBooster = [&a_ctx](Engine::ECS::Entity a_e, bool a_on, bool a_isBoosting,
+				float a_chargeRate, bool a_isChargeDashing)
 			{
 				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
 
@@ -78,6 +80,8 @@ void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 					if (auto* _pBooster = a_ctx.pWorld->RefData<BoosterEffectComponent>(a_e))
 					{
 						_pBooster->isBoosting = a_isBoosting;
+						_pBooster->chargeRate = a_chargeRate;
+						_pBooster->isChargeDashing = a_isChargeDashing;
 					}
 				}
 			};
@@ -106,6 +110,29 @@ void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 				// (RobotBoostSystem の推力適用条件に合わせている)
 				bool _boosting = _boost.isBoostIntent && (_boost.currentFuel > _boost.boostFuel);
 
+				//--------------------------------------------------------------
+				// チャージダッシュの溜め具合と、撃ち出し中か
+				//
+				// ChargeDashComponent はクエリに入れず、持っている機体からだけ拾う。
+				// クエリに足すと、付けていない機体(敵・ボス)のブースターが
+				// 丸ごとこのシステムの対象から外れて噴射しなくなってしまう。
+				//
+				// RefData は持っていないコンポーネントでも非nullを返すので、
+				// 必ず HasComponent で確かめてから引くこと
+				//--------------------------------------------------------------
+				float _chargeRate = 0.0f;
+				bool  _chargeDashing = false;
+
+				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+				if (a_ctx.pWorld->HasComponent<ChargeDashComponent>(_self))
+				{
+					if (const auto* _pChargeDash = a_ctx.pWorld->RefData<ChargeDashComponent>(_self))
+					{
+						_chargeRate = _pChargeDash->charge01;
+						_chargeDashing = _pChargeDash->isDashing;
+					}
+				}
+
 				// ---- スラスター2系統の点火判定 ----
 
 				// 脚 : 通常移動・上昇のメイン推進
@@ -114,13 +141,23 @@ void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
 				// 肩 : ブースト時のアフターバーナー
 				bool _shoulderOn = _boosting;
 
-				bool _boostOn = _moving || _rising || _boosting;
+				// 溜めている間と撃ち出している間も点火しておく。
+				// 溜めは「少しずつ太っていく」ことで見せるので、
+				// 消えたままだと膨らむ様子がそもそも出ない
+				bool _charging = (_chargeRate > 0.0f);
+
+				bool _boostOn = _moving || _rising || _boosting || _charging || _chargeDashing;
+
+				// ダッシュ中はブースト時と同じ太さにもする。
+				// 撃ち出しの長さ(dashLengthScale)だけだと束が細いまま前に伸びて、
+				// 一番速い場面なのに噴射が痩せて見えてしまう
+				bool _fatJet = _boosting || _chargeDashing;
 
 				// ---- ブースタースロットへ配信 ----
-				_driveBooster(_slots.rightLegBoost.id, _boostOn, _boosting);
-				_driveBooster(_slots.leftLegBoost.id, _boostOn, _boosting);
-				_driveBooster(_slots.rightShoulderBoost.id, _boostOn, _boosting);
-				_driveBooster(_slots.leftShoulderBoost.id, _boostOn, _boosting);
+				_driveBooster(_slots.rightLegBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
+				_driveBooster(_slots.leftLegBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
+				_driveBooster(_slots.rightShoulderBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
+				_driveBooster(_slots.leftShoulderBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
 			}
 		}
 	);
