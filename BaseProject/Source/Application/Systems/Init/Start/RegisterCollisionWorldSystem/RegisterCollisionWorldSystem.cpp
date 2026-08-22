@@ -56,7 +56,7 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				_localAABB.Transform(_worldAABB, Math::DX::Load(_mat));
 
 				// コリジョンワールドの取得
-				auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
+				auto* _pCollWorld = &a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
 
 				// コリジョンワールドに登録
 				Engine::Collision::CollisionInstance _inst = {};

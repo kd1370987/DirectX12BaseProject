@@ -176,6 +176,19 @@ namespace Engine::ECS
 		void AddChangeSigCommand(ChangeEntityCmd a_cmd);					// 指定シグネチャに変更するコマンド
 		void ChangeSignature(ChangeEntityCmd a_cmd);						// コマンドから実際にアーキタイプを移動させる
 
+		/// <summary>
+		/// 溜まっているシグネチャ変更を今すぐ反映する
+		/// </summary>
+		/// <remarks>
+		/// TransitionPhase は ForEach の最中に呼ばれるため、その場でアーキタイプを
+		/// 動かせず変更を予約する。予約したままにすると次の BeginFrame まで反映されず、
+		/// フェーズが1段進むのに1フレームかかってしまう。
+		///
+		/// 反復が終わった直後にこれを呼べば同じフレームのうちに反映できる。
+		/// 反復中に呼んではいけない(チャンクの並びが変わる)。
+		/// </remarks>
+		void ApplyChangeSignatures();
+
 		void AddRefreshEntity(const Entity& a_entity);						// リフレッシュ
 
 		//==========================================================================================

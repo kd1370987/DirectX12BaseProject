@@ -33,8 +33,7 @@ void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 			const LocalTransformComponent* a_transArray
 			)
 		{
-			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
-			if (!_pCollWorld) return;
+			auto* _pCollWorld = &a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

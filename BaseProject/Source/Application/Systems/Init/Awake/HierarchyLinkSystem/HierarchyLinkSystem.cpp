@@ -8,7 +8,10 @@
 void HierarchyLinkSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.AwakeTask<const GUIDComponent, HierarchyComponent>(
-		Engine::ECS::ESystemType::PostDeserialize,
+		// AwakeTag を見るので Awake フェーズで回す。
+		// 親IDを解決する側なので、これを待つ AttachmentReadyGateSystem より前に
+		// 走る必要がある(HierarchyComponent の読み書きで順序が確定する)
+		Engine::ECS::ESystemType::Awake,
 		"HierarchyLinkSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,

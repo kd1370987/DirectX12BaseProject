@@ -7,7 +7,8 @@
 void AttachmentSlotLinkSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.AwakeTask<AttachmentSlotsComponent>(
-		Engine::ECS::ESystemType::PostDeserialize,
+		// AwakeTag を見るので Awake フェーズで回す
+		Engine::ECS::ESystemType::Awake,
 		"AttachmentSlotLinkSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,

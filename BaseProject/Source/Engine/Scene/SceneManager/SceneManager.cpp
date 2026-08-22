@@ -8,7 +8,6 @@
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
-#include "../../Collision/CollisionWorld.h"
 
 #include "../../Editor/Editor.h"
 #include "../../Editor/EffectEditor/EffectEditor.h"
@@ -171,13 +170,9 @@ namespace Engine::Scene
 		m_upBaseSceneVec.pop_back();
 
 		// 後ろに何も残っていなければ、共有しているものをまとめて片付ける
+		// (当たり判定の空間はワールドの持ち物なので、上の Exit で一緒に消えている)
 		if (_isLastScene)
 		{
-			if (auto* _pCollWorld = MainEngine::Instance().RefCollisionWorld())
-			{
-				_pCollWorld->Clear();
-			}
-
 			// 誰も持っていないリソースはここで破棄する
 			Resource::ResourceManager::Instance().SweepUnusedAll();
 		}

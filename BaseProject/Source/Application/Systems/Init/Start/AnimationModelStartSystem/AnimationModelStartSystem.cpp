@@ -12,7 +12,11 @@
 void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.StartTask<const ModelComponent,AnimatorComponent,NodePoseComponent,SkeletonPoseComponent>(
-		Engine::ECS::ESystemType::Awake,
+		// StartTag を見るので Start フェーズで回す。
+		// アニメーターとポーズ領域を確保する側なので、これを使う
+		// AttachmentNodeLinkSystem / AdditivePoseLinkSystem より先に登録しておくこと
+		// (互いに読み書きが噛み合わないため、順序は登録順で決まる)
+		Engine::ECS::ESystemType::Start,
 		"AnimationModelStartSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,

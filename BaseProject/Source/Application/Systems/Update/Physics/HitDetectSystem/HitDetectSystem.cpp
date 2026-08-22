@@ -27,8 +27,7 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 			const LocalTransformComponent* a_transArray
 			)
 		{
-			auto* _pCollWorld = a_ctx.pServices->pMainEngine->RefCollisionWorld();
-			if (!_pCollWorld) return;
+			auto* _pCollWorld = &a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
 
 			// ワールド側のヒット履歴(反応系が横から読む)
 			HitEventResource* _pHitEvents = nullptr;

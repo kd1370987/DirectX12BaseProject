@@ -55,6 +55,19 @@ namespace Engine::Scene
 		_services.pOptionManager	= &Engine::Option::OptionManager::GetInstance();
 		_upWorld->SetEngineServices(_services);
 
+		// 当たり判定の空間。
+		//
+		// シーン(ワールド)ごとに1つ持つ。以前はエンジンが1つだけ持つ共有物だったため、
+		//   ・ポーズ画面を重ねただけで消すと後ろのゲームの静的コライダーが失われる
+		//     (登録は Start の一度きりなので戻らない)
+		//   ・エフェクトエディターのプレビューがゲームのコライダーと同じ空間に乗る
+		// といった具合に、持ち主が誰なのかを場所ごとに考える必要があった。
+		// ワールドと同じ寿命にしておけば、シーンを消せば当たり判定も一緒に消える。
+		//
+		// ここで足しているのでプレビュー用のワールドにも必ず1つある。
+		// システムは a_ctx.pWorld->GetResource<CollisionWorld>() で引くこと。
+		_upWorld->AddResource<Collision::CollisionWorld>();
+
 		// コンポーネントとシステムの登録
 		SceneManager::Instance().InvokeWorldInitCallback(_upWorld.get());
 
@@ -78,9 +91,9 @@ namespace Engine::Scene
 	// エンティティを消すところまで。コンポーネントが借りているリソースは
 	// 解放フック(ComponentTraits<T>::Release)が返すので、ここで数え直すことはしない。
 	//
-	// 共有しているもの(誰も持っていないリソースの破棄・当たり判定の空間)を
-	// 片付けてよいかどうかは、他にシーンが残っているかを見ないと決められない。
-	// その判断は呼び出し側(SceneManager::PopScene)が持つ。
+	// 当たり判定の空間はワールドの持ち物なので、ワールドと一緒に消える。
+	// 残るのは「誰も持っていないリソースの破棄」だけで、これは他にシーンが
+	// 残っているかを見ないと決められないので呼び出し側(SceneManager::PopScene)が持つ。
 	//======================================================================================
 	void BaseScene::Exit()
 	{
@@ -94,7 +107,17 @@ namespace Engine::Scene
 
 		// シーンの初めに一括でエンティティを生成・削除
 		// 解放処理と初期化処理も含まれているため、呼び出しはシングルスレッド限定
+		// (この中で Start フェーズが走り、静的コライダーの登録もここで行われる)
 		m_upWorld->BeginFrame();
+
+		// このシーンの当たり判定の空間。ワールドの持ち物なので、
+		// 重ねているシーンがあっても互いのコライダーが混ざることはない
+		auto& _collWorld = m_upWorld->GetResource<Engine::Collision::CollisionWorld>();
+
+		// 動的ワールドは毎フレーム詰めなおす。
+		// この後の Update フェーズ(SubmitDynamicColliderSystem)が積み直すので、
+		// 積む前に空にしておくこと
+		_collWorld.ClearDynamicWorld(kDynamicColliderReserve);
 
 		// シーンのシステム処理
 		//
@@ -109,13 +132,17 @@ namespace Engine::Scene
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Update, a_dt);
 
-		// 動的コライダーの submit（Update まで）が終わったこのタイミングで動的TLASを構築する。
-		// Physics フェーズの判定クエリが最新の動的ワールドを参照できるようにするため、
+		// 動的コライダーの submit（Update まで）が終わったこのタイミングでTLASを構築する。
+		// Physics フェーズの判定クエリが最新のワールドを参照できるようにするため、
 		// 必ず Physics の前に置くこと。
-		if (auto* _pCollWorld = Engine::MainEngine::Instance().RefCollisionWorld())
-		{
-			_pCollWorld->BuildDynamicWorld();
-		}
+		//
+		// 静的側もここで構築する。登録は上の BeginFrame(Start フェーズ)で済んでいるので、
+		// 置いたそのフレームから判定に乗る。
+		// (以前は全シーンの更新が終わった後=BeginDraw で構築していたため、
+		//  静的コライダーが判定へ反映されるのが1フレーム遅れていた)
+		// 中身に変更が無ければ ReBuildStaticTLAS は素通りするので、毎フレーム呼んでよい
+		_collWorld.BuildDynamicWorld();
+		_collWorld.BuildWorld();
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Physics, a_dt);
 
@@ -130,6 +157,10 @@ namespace Engine::Scene
 
 	void BaseScene::Draw()
 	{
+		// 静的コライダーのAABBをデバッグ表示へ積む。
+		// 実際に出すかどうかは MainEditor 側(デバッグ表示の設定)が決める
+		m_upWorld->GetResource<Engine::Collision::CollisionWorld>().DrawDebug();
+
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::PreDraw, 0.0f);
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Draw, 0.0f);

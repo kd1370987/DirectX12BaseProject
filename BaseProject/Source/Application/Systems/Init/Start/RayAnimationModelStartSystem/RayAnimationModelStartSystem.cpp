@@ -14,7 +14,8 @@
 void RayAnimationModelSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.StartTask<const ModelComponent,const RayTag,AnimatorComponent, NodePoseComponent, SkeletonPoseComponent>(
-		Engine::ECS::ESystemType::Awake,
+		// StartTag を見るので Start フェーズで回す
+		Engine::ECS::ESystemType::Start,
 		"AnimationModelStartSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,

@@ -97,14 +97,7 @@ namespace Engine::ECS
 		CreateAllEntity();
 		// ---------------------------------------------------------
 		// エンティティの引っ越し
-		for (auto& _chanCmd : m_changeEntityVec)
-		{
-			ChangeSignature(_chanCmd);
-
-			// エンティティの変更があったため階層の変更を通知する
-			_res.isDirty = true;
-		}
-		m_changeEntityVec.clear();
+		ApplyChangeSignatures();
 		// ---------------------------------------------------------
 		// 解放されるものの子孫にもタグを広げる。
 		// 引っ越しが済んだ後に呼ぶので、この時点で親にはもうタグが付いている。
@@ -133,14 +126,31 @@ namespace Engine::ECS
 		RemoveEntityStorage();
 
 		// エンティティ削除後にエンティティをリフレッシュ
+		// 作り直しに回されたものは PostDeserializeTag が予約されるだけなので、
+		// ここで流しておかないと下の初期化フェーズに乗り遅れて1フレーム待たされる
 		RefreshEntities();
+		ApplyChangeSignatures();
 
 		// ---------------------------------------------------------
 		// 初期化システムズ
+		// PostDeserialize -> Awake -> Start -> Active をこの1回の BeginFrame で通しきる。
+		// 各フェーズの遷移ごとに引っ越しを流し込むのがその要。
+		//
+		// TransitionPhase はタグの張り替えを「予約」するだけなので、流さないと反映が
+		// 次の BeginFrame になる。つまりフェーズが1段進むのに1フレームかかり、
+		// 生成命令を出してから描画されるまで4フレーム待たされていた
+		// (弾やエフェクトが遅れて見える原因)。
+		//
+		// システムが実行中に足したコンポーネントも、遷移の前に流しておくこと。
+		// TransitionPhase は張り替え先をその場のシグネチャから作るので、予約が
+		// 残っていると後から流したほうに上書きされて消える。
 		RunSystem(Engine::ECS::ESystemType::PostDeserialize, 0.0f);
+		ApplyChangeSignatures();
 		TransitionPhase<PostDeserializeTag, AwakeTag>();
+		ApplyChangeSignatures();
 	
 		RunSystem(Engine::ECS::ESystemType::Awake, 0.0f);
+		ApplyChangeSignatures();
 
 		// リソースが揃ったエンティティだけ Start へ進める。
 		// 揃っていないものは AwakeTag のまま残り、次のフレームで再判定される。
@@ -158,12 +168,37 @@ namespace Engine::ECS
 				}
 			);
 
+			ApplyChangeSignatures();
+
 			// 判定はフレームごとにやり直す
 			_waitRes.waitingEntities.clear();
 		}
 
 		RunSystem(Engine::ECS::ESystemType::Start, 0.0f);
+		ApplyChangeSignatures();
 		TransitionPhase<StartTag, ActiveTag>();
+		ApplyChangeSignatures();
+	}
+
+	//======================================================================================
+	// 溜まっているシグネチャ変更を今すぐ反映する
+	//--------------------------------------------------------------------------------------
+	// TransitionPhase は ForEach の最中に呼ばれるのでその場ではアーキタイプを動かせず、
+	// 変更を予約する。反復が終わった直後にこれを呼んで流し込む。
+	// 反復中に呼ぶとチャンクの並びが変わるので不可。
+	//======================================================================================
+	void World::ApplyChangeSignatures()
+	{
+		if (m_changeEntityVec.empty()) return;
+
+		for (auto& _chanCmd : m_changeEntityVec)
+		{
+			ChangeSignature(_chanCmd);
+		}
+		m_changeEntityVec.clear();
+
+		// エンティティの構成が変わったので階層の作り直しを促す
+		GetResource<HierarchyResource>().isDirty = true;
 	}
 
 	void World::AddEntity(const Signature& a_sig)

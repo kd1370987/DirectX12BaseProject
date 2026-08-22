@@ -8,7 +8,8 @@
 void FollowTargetLinkSystem::Init(Engine::ECS::World& a_world)
 {
 	a_world.AwakeTask<const GUIDComponent,FollowTargetComponent>(
-		Engine::ECS::ESystemType::PostDeserialize,
+		// AwakeTag を見るので Awake フェーズで回す
+		Engine::ECS::ESystemType::Awake,
 		"FollowTargetLinkSystem",
 		[](
 			Engine::ECS::ArchetypeChunk* a_pChunk,

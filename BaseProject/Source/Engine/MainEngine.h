@@ -30,10 +30,6 @@ namespace Engine
 	{
 		class PipelineStateManager;
 	}
-	namespace Collision
-	{
-		class CollisionWorld;
-	}
 
 	namespace Thread
 	{
@@ -82,9 +78,6 @@ namespace Engine
 		// 自前で描くマウスカーソル
 		Graphics::MouseCursor* RefMouseCursor();
 
-		// コリジョンワールド
-		Collision::CollisionWorld* RefCollisionWorld();
-
 		// ジョブシステム
 		Thread::JobSystem* RefJobSystem();
 
@@ -117,7 +110,6 @@ namespace Engine
 		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;					// 時間管理クラス
 		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス
 		std::unique_ptr<D3D12::PipelineStateManager> m_upPipelineStateManager = nullptr;// パイプラインステート管理
-		std::unique_ptr<Collision::CollisionWorld> m_upCollisionWorld = nullptr;		// 当たり判定用ワールド
 		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;	// パーティクルマネージャー
 		std::unique_ptr<Thread::JobSystem> m_upJobSystem = nullptr;						// ジョブシステム
 		std::unique_ptr<Graphics::MouseCursor> m_upMouseCursor = nullptr;				// 自前で描くマウスカーソル

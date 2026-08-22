@@ -19,7 +19,6 @@
 
 #include "Application/App.h"
 
-#include "Collision/CollisionWorld.h"
 
 #include "Option/OptionManager.h"
 
@@ -188,10 +187,6 @@ namespace Engine
 			}
 		);
 
-		// コリジョンワールド構築
-		m_upCollisionWorld = std::make_unique<Collision::CollisionWorld>();
-		m_upCollisionWorld->Clear();
-
 		// ダイレクトキューの実行
 		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
 
@@ -221,7 +216,6 @@ namespace Engine
 		m_upJobSystem->Release();
 
 		// アプリケーション・上位層の解放
-		m_upCollisionWorld.reset(); // コリジョン解放
 
 		// 自前カーソルが握っているテクスチャの参照を返す。
 		// リソースの解放より前に手放しておくこと
@@ -366,7 +360,6 @@ namespace Engine
 			}
 		}
 
-		m_upCollisionWorld->ClearDynamicWorld(10000);		// ダイナミック用のコリジョンワールドのクリア
 
 		return true;
 	}
@@ -406,10 +399,6 @@ namespace Engine
 
 		// 描画フレームリソース
 		m_upGraphicsEngine->BeginFrame();
-
-		// 当たり判定構築
-		m_upCollisionWorld->BuildWorld();
-		m_upCollisionWorld->DrawDebug();
 
 		// レイワールドインスタンスのクリア
 		Raytracing::RayEngine::Instance().EndFrame();
@@ -558,10 +547,6 @@ namespace Engine
 	Graphics::MouseCursor* MainEngine::RefMouseCursor()
 	{
 		return m_upMouseCursor.get();
-	}
-	Collision::CollisionWorld* MainEngine::RefCollisionWorld()
-	{
-		return m_upCollisionWorld.get();
 	}
 	Thread::JobSystem* MainEngine::RefJobSystem()
 	{
