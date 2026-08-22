@@ -57,6 +57,23 @@ struct ExplosionComponent
 template<>
 struct Engine::ECS::ComponentTraits<ExplosionComponent>
 {
+	//----------------------------------------------------------------------------------
+	// 借りているリソースを返す
+	//
+	// パーツのプレハブは初回に解決して参照を1つ取っているので、
+	// ここで全部返す。
+	//----------------------------------------------------------------------------------
+	static void Release(void* a_pData)
+	{
+		ExplosionComponent& _comp = Engine::Editor::GetValue<ExplosionComponent>(a_pData);
+		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+
+		for (PartsEffect& _parts : _comp.parts)
+		{
+			_resourceManager.ReleaseHandle(_parts.prefabHandle);
+		}
+	}
+
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
 		ExplosionComponent& _comp = Engine::Editor::GetValue<ExplosionComponent>(a_pData);

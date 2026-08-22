@@ -137,8 +137,7 @@ void SoundFixupSystem::Init(Engine::ECS::World& a_world)
 				}
 
 				// ビヘイビアアセットを解決
-				_behaviorComp.behaviorHandle =
-					_pResourceManager->LoadImmediate<Engine::Resource::AudioBehavior>(_behaviorComp.behaviorGUID);
+				_pResourceManager->AcquireImmediate(_behaviorComp.behaviorHandle, _behaviorComp.behaviorGUID);
 
 				auto* _pBehavior = _pResourceManager->Ref(_behaviorComp.behaviorHandle);
 				if (!_pBehavior) continue;

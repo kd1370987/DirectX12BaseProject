@@ -79,14 +79,15 @@ namespace Engine::Graphics
 			_cpBuilder.SetHeapMode(ERGHeapMode::Default);
 
 			// 依存関係とバインドの宣言（宣言順 = t0～t2）
+			// ルートパラメータ : 0=カメラCB(b0) / 1=設定CB(b1) / 2=SRVテーブル / 3=UAVテーブル
 			// ※レンダーグラフはここで宣言した順序とバージョンを完璧に追跡します
-			_cpBuilder.SrvTable(1)
+			_cpBuilder.SrvTable(2)
 				.Add(_readGI)
 				.Add("Depth")
 				.Add("GBufferNormal");
 
 			// 中間バッファは毎パス上書きする
-			_cpBuilder.BindUAV(2, _writeGI, a_format, LoadOp::Load, StoreOp::Store, 0.5f);
+			_cpBuilder.BindUAV(3, _writeGI, a_format, LoadOp::Load, StoreOp::Store, 0.5f);
 
 			// ==================================================================
 			// 実行関数 : ステップサイズ由来の定数バッファとディスパッチのみ
@@ -112,8 +113,11 @@ namespace Engine::Graphics
 					_data.phiNormal = _giOp.phiNormal;
 					_data.phiColor  = _giOp.phiColor;
 
-					// 定数バッファバインド
-					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, _data);
+					// カメラCB(b0) : シェーダ側でワールド座標を復元してエッジ判定に使う
+					a_pCtx->ComputeBindRootCBV(0, a_pGE->GetCameraData());
+
+					// 定数バッファバインド(b1)
+					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 1, _data);
 
 					// 実行
 					// 切り上げ : ハーフ解像度(例:1080→540)は540/8=67で切り捨てられ下端が処理されないため

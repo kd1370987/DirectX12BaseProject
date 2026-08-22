@@ -27,7 +27,6 @@ namespace Engine::ECS
 
 		// 解放
 		Release,
-		GC,
 
 		// システム分類総数
 		Num

@@ -28,8 +28,7 @@ void ActionStateFixupSystem::Init(Engine::ECS::World& a_world)
 				if (_comp.actionGUID != Engine::DefaultGUID)
 				{
 					// アセットロード
-					_comp.actionHandle =
-						a_ctx.pServices->pResourceManager->LoadImmediate<Engine::Resource::ActionStateMachineAsset>(_comp.actionGUID);
+					a_ctx.pServices->pResourceManager->AcquireImmediate(_comp.actionHandle, _comp.actionGUID);
 
 					// 実行時インスタンス確保
 					auto& _pool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();

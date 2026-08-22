@@ -34,6 +34,16 @@ namespace Engine::ECS
 		return m_isInit;
 	}
 
+	//======================================================================================
+	// ワールドの解放
+	//--------------------------------------------------------------------------------------
+	// エンティティを全部消す。コンポーネントが借りているリソースは、
+	// 消すときに解放フック(ComponentTraits<T>::Release)が必ず返すので、
+	// ここでリソースを数え直す必要はない。
+	//
+	// 参照が 0 になった実体を捨てるのはシーンの切れ目
+	// (SceneManager::PopScene から ResourceManager::SweepUnusedAll)。
+	//======================================================================================
 	void World::Release()
 	{
 		TransitionPhase<ActiveTag, ReleaseTag>();
@@ -65,15 +75,6 @@ namespace Engine::ECS
 
 		// エンティティの一括削除
 		RemoveEntityStorage();
-
-		// すべてのECS参照カウントをリセット
-		Engine::Resource::ResourceManager::Instance().AllResetECSRefs();
-
-		// ECSカウントの収集
-		RunSystem(Engine::ECS::ESystemType::GC, 0.0f);
-
-		// 参照カウントがなくなった場合リソースの解放をする
-		Engine::Resource::ResourceManager::Instance().RunGarbageCollectionSweep();
 
 		ENGINE_LOG("Worldの解放");
 	}
@@ -163,11 +164,6 @@ namespace Engine::ECS
 
 		RunSystem(Engine::ECS::ESystemType::Start, 0.0f);
 		TransitionPhase<StartTag, ActiveTag>();
-	}
-
-	void World::ResourceGC()
-	{
-
 	}
 
 	void World::AddEntity(const Signature& a_sig)
@@ -474,6 +470,11 @@ namespace Engine::ECS
 		const auto& _loca = m_entityManager.GetLocation(a_entity);
 		if (!_loca.pArchetypeChunk)return;
 
+		// 消える前に、コンポーネントが借りているものを返させる。
+		// コンポーネントはデストラクタが走らない(trivially copyable 縛り)ので、
+		// リソースの参照カウントはここで返さないと戻らない
+		ReleaseComponents(a_entity, m_entityManager.GetSignature(a_entity));
+
 		// アーキタイプから削除して、移動したエンティティの情報をもらう
 		auto [_entity, _idx] = m_archetypeChunkManager.RemoveEntity(_loca);
 
@@ -483,6 +484,44 @@ namespace Engine::ECS
 		// 移動したエンティティのロケーションを変更
 		auto& _swapLoca = m_entityManager.RefEntityLocation(_entity);
 		_swapLoca.chunkIndex = _idx;
+	}
+
+	//======================================================================================
+	// コンポーネントが借りているものを返させる
+	//--------------------------------------------------------------------------------------
+	// ComponentTraits<T>::Release を書いてあるコンポーネントだけが対象。
+	// 解放フックはハンドルを空にするので、返したものを持ち主のふりで持ち続けない。
+	//======================================================================================
+	void World::ReleaseComponents(const ECS::Entity& a_entity, const Signature& a_sig)
+	{
+		for (ComponentTypeID _compID = 0; _compID < a_sig.size(); ++_compID)
+		{
+			if (!a_sig.test(_compID)) continue;
+
+			const auto& _release = GetCompFunc(_compID).release;
+			if (!_release) continue;
+
+			if (uint8_t* _pData = NRefData(a_entity, _compID))
+			{
+				_release(_pData);
+			}
+		}
+	}
+
+	//======================================================================================
+	// 退避したコンポーネントのデータに対して解放フックを呼ぶ
+	//--------------------------------------------------------------------------------------
+	// アーキタイプの引っ越し中は実体の置き場所が変わるので、退避したバッファを直接渡す。
+	// 引っ越し先へ書き戻されるのはこのバッファなので、空にした結果もそのまま伝わる。
+	//======================================================================================
+	void World::ReleaseComponentData(ComponentTypeID a_compID, uint8_t* a_pData)
+	{
+		if (!a_pData) return;
+
+		const auto& _release = GetCompFunc(a_compID).release;
+		if (!_release) return;
+
+		_release(a_pData);
 	}
 
 	Entity World::GetEntity(const Engine::GUID& a_guid)
@@ -598,6 +637,32 @@ namespace Engine::ECS
 			memcpy(_buffer.data(),NRefData(a_cmd.entity,_compID),_size);
 
 			_oldData[_compID] = _buffer;
+		}
+
+		//------------------------------------------------------------------
+		// 借りているものを返させる
+		//------------------------------------------------------------------
+		// 対象は次の2つ。どちらも退避したバッファに対して呼ぶので、
+		// ハンドルを空にした結果は引っ越し先へそのまま伝わる。
+		//
+		//   ・外されるコンポーネント   : この先持ち主がいなくなる
+		//   ・PostDeserialize へ入り直す : 直後に fixup が取り直すので、
+		//                              ここで返さないと二重に持つことになる
+		//------------------------------------------------------------------
+		const ComponentTypeID _postDeserializeID = GetCompTypeID<PostDeserializeTag>();
+		const bool _isBackToFixup =
+			a_cmd.toSig.test(_postDeserializeID) && !_oldSig.test(_postDeserializeID);
+
+		for (auto& [_compID, _buffer] : _oldData)
+		{
+			const bool _isRemoved = !a_cmd.toSig.test(_compID);
+
+			// 初期値で上書きされるものも、今持っているぶんは返す
+			const bool _isOverwritten = (a_cmd.dataMap.find(_compID) != a_cmd.dataMap.end());
+
+			if (!_isRemoved && !_isBackToFixup && !_isOverwritten) continue;
+
+			ReleaseComponentData(_compID, _buffer.data());
 		}
 
 		// エンティティの削除

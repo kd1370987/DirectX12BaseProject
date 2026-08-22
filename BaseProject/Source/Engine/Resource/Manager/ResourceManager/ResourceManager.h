@@ -52,8 +52,7 @@ namespace Engine::Resource
 	struct ResourceSlot
 	{
 		std::atomic<EResourceState>	state = EResourceState::Empty;	// リソースの状態
-		std::atomic<uint16_t>		manualRefCount = 0;				// ECS外の処理カウント
-		std::atomic<uint16_t>		ecsRefCount = 0;				// ECS走査時のカウント
+		std::atomic<uint16_t>		refCount = 0;					// 参照カウント : 持ち主の数
 	};
 
 	//==========================================================================================
@@ -166,6 +165,49 @@ namespace Engine::Resource
 		template<typename T>
 		void ReleaseRef(const Handle<T>& a_handle);
 
+		//------------------------------------------------------------------------------------------
+		// 生ハンドルの取得と返却 (ECSコンポーネント用)
+		//------------------------------------------------------------------------------------------
+		//
+		// ECSのコンポーネントは trivially copyable でなければならない(チャンク間を memcpy で
+		// 動かすため)ので、RAIIの ResourceRef を持てない。代わりに
+		//
+		//   取るとき : Acquire〜 を通す(参照カウントを1つ取り、ハンドルを書き込む)
+		//   返すとき : ComponentTraits<T>::Release から ReleaseHandle を呼ぶ
+		//
+		// という決まりで数える。ECSは
+		//   ・エンティティを消すとき
+		//   ・コンポーネントを外すとき
+		//   ・PostDeserialize へ入り直すとき(直後に fixup が取り直す)
+		// に必ず解放フックを呼ぶので、取りっぱなしにはならない。
+		//
+		// Acquire〜 は「今入っているハンドルは持ち主ではない」前提で必ず1つ取る。
+		// 上の決まりで、取り直す前には必ず返してあるため。
+		//------------------------------------------------------------------------------------------
+
+		/// <summary>
+		/// 参照を1つ取って、ハンドルを書き込む : 実体の到着は待たない
+		/// </summary>
+		template<typename T>
+		void AcquireRequest(Handle<T>& a_inoutHandle, const Engine::GUID& a_guid);
+
+		/// <summary>
+		/// 参照を1つ取って、ハンドルを書き込む : 実体ができるまで待つ
+		/// </summary>
+		template<typename T>
+		void AcquireImmediate(Handle<T>& a_inoutHandle, const Engine::GUID& a_guid,
+			const ResourceBuildContext* a_pBuildContext = nullptr);
+
+		/// <summary>
+		/// 取った参照を返して、ハンドルを空にする
+		/// </summary>
+		/// <remarks>
+		/// ハンドルを空にするのは、返した後のものを持ち主のふりで持ち続けないため。
+		/// 使う側は無効ハンドルを見て取り直せばよい。
+		/// </remarks>
+		template<typename T>
+		void ReleaseHandle(Handle<T>& a_inoutHandle);
+
 		// リソースの取得
 		//
 		// 取得はハンドル経由に限定している。
@@ -233,11 +275,15 @@ namespace Engine::Resource
 		template<typename T>
 		void ReleaseData();
 
-		void AllResetECSRefs();
-
-		// 疑似ガベージコレクション : 全プールのスイープ処理を実行
-		// 参照カウントがないプールのリソースは解放される
-		void RunGarbageCollectionSweep();
+		/// <summary>
+		/// 使われなくなったリソースを全プールから片付ける
+		/// </summary>
+		/// <remarks>
+		/// 参照カウントが 0 のものだけを破棄する。呼ぶのはシーンの切れ目。
+		/// 参照が 0 になった瞬間に捨てないのは、同じシーンの中で出し直すたびに
+		/// 読み直しが走るのを避けるため。
+		/// </remarks>
+		void SweepUnusedAll();
 
 		// キャッシュアクセス
 		//
@@ -261,12 +307,6 @@ namespace Engine::Resource
 		// ハンドルの有効チェック
 		template<typename T>
 		bool IsValid(const Handle<T>& a_handle);
-
-		template<typename T>
-		void ResetECSRefs();
-
-		template<typename T>
-		void AddEcsRef(const Handle<T>& a_handle);
 
 		/// <summary>
 		/// シングルトンの実体が生存しているか
@@ -583,9 +623,66 @@ namespace Engine::Resource
 
 		if (auto* _pSlot = RefSlot<T>(a_handle.GetIndex()))
 		{
-			_pSlot->manualRefCount.fetch_add(1, std::memory_order_acq_rel);
+			_pSlot->refCount.fetch_add(1, std::memory_order_acq_rel);
 		}
 	}
+	//======================================================================================
+	// 生ハンドルの取得と返却
+	//======================================================================================
+	template<typename T>
+	inline void ResourceManager::AcquireRequest(Handle<T>& a_inoutHandle, const Engine::GUID& a_guid)
+	{
+		if (!a_guid.IsValid())
+		{
+			a_inoutHandle = {};
+			return;
+		}
+
+		// ResourceRef は寿命が尽きると参照を返してしまうので、
+		// ハンドルだけ取り出してから自前で1つ取る
+		Handle<T> _handle = RequestLoad<T>(a_guid).GetRaw();
+		if (!IsValid(_handle))
+		{
+			a_inoutHandle = {};
+			return;
+		}
+
+		AddRef(_handle);
+		a_inoutHandle = _handle;
+	}
+
+	template<typename T>
+	inline void ResourceManager::AcquireImmediate(Handle<T>& a_inoutHandle, const Engine::GUID& a_guid,
+		const ResourceBuildContext* a_pBuildContext)
+	{
+		if (!a_guid.IsValid())
+		{
+			a_inoutHandle = {};
+			return;
+		}
+
+		Handle<T> _handle = LoadImmediate<T>(a_guid, a_pBuildContext).GetRaw();
+		if (!IsValid(_handle))
+		{
+			a_inoutHandle = {};
+			return;
+		}
+
+		AddRef(_handle);
+		a_inoutHandle = _handle;
+	}
+
+	template<typename T>
+	inline void ResourceManager::ReleaseHandle(Handle<T>& a_inoutHandle)
+	{
+		if (IsValid(a_inoutHandle))
+		{
+			ReleaseRef(a_inoutHandle);
+		}
+
+		a_inoutHandle = {};
+	}
+
 	template<typename T>
 	inline Handle<T> ResourceManager::AddResourceAndGUID(T&& a_resource, const Engine::GUID& a_guid)
 	{
@@ -618,10 +715,10 @@ namespace Engine::Resource
 
 		// 0 を下回らせない。
 		// 単純な fetch_sub だと、同時に呼ばれたときに 0 を通り越して巻き上がる
-		uint16_t _current = _pSlot->manualRefCount.load(std::memory_order_acquire);
+		uint16_t _current = _pSlot->refCount.load(std::memory_order_acquire);
 		while (_current > 0)
 		{
-			if (_pSlot->manualRefCount.compare_exchange_weak(
+			if (_pSlot->refCount.compare_exchange_weak(
 					_current, static_cast<uint16_t>(_current - 1),
 					std::memory_order_acq_rel, std::memory_order_acquire))
 			{
@@ -675,9 +772,8 @@ namespace Engine::Resource
 			// ここで消すとビルド中の書き込み先を引き抜いてしまう
 			if (_pSlot->state.load(std::memory_order_acquire) == EResourceState::Loading) continue;
 
-			// アプリ側からも、ECS側からも参照されていない場合のみ
-			if (_pSlot->manualRefCount.load(std::memory_order_acquire) != 0) continue;
-			if (_pSlot->ecsRefCount.load(std::memory_order_acquire) != 0) continue;
+			// 誰も持っていないものだけ片付ける
+			if (_pSlot->refCount.load(std::memory_order_acquire) != 0) continue;
 
 			// インデックスと世代から正しいハンドルを復元する
 			const uint16_t _generation = _data.pool.GetGeneration(_index);
@@ -700,7 +796,11 @@ namespace Engine::Resource
 			}
 
 			// 実体の後始末はプールのロックの中で行う
-			_data.pool.Write(_targetHandle, [](T& a_resource) { a_resource.Release(); });
+			// (自分で後始末を持つ型だけ。持たない型はプールから外すだけでよい)
+			if constexpr (requires (T& a_resource) { a_resource.Release(); })
+			{
+				_data.pool.Write(_targetHandle, [](T& a_resource) { a_resource.Release(); });
+			}
 			_data.pool.Remove(_targetHandle);
 
 			// 空いたスロットとして状態を戻す
@@ -896,33 +996,6 @@ namespace Engine::Resource
 	inline bool ResourceManager::IsValid(const Handle<T>& a_handle)
 	{
 		return GetPool<T>().IsValid(a_handle);
-	}
-
-	template<typename T>
-	inline void ResourceManager::ResetECSRefs()
-	{
-		auto& _data = RefData<T>();
-
-		// 本数を変えないので共有ロックでよい。中身の書き換えはアトミックが担保する
-		std::shared_lock _lock(_data.slotMutex);
-
-		for (auto& _upSlot : _data.slots)
-		{
-			_upSlot->ecsRefCount.store(0, std::memory_order_release);
-		}
-	}
-
-	template<typename T>
-	inline void ResourceManager::AddEcsRef(const Handle<T>& a_handle)
-	{
-		if (!IsValid(a_handle)) return;
-
-		EnsureSlot<T>(a_handle.GetIndex());
-
-		if (auto* _pSlot = RefSlot<T>(a_handle.GetIndex()))
-		{
-			_pSlot->ecsRefCount.fetch_add(1, std::memory_order_acq_rel);
-		}
 	}
 
 	// 型ごとにキャッシュに登録

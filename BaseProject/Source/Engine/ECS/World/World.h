@@ -61,7 +61,9 @@ namespace Engine::ECS
 		bool IsInit();	// 初期化されているかどうか
 
 		// 解放時に実行
-		void Release();		// 解放処理
+		// 解放処理 : エンティティを全部消す
+		// (コンポーネントが借りているリソースは解放フックが返す)
+		void Release();
 		void ClearMemory();	// 任意のリセットしたいタイミング
 
 		// フレームの初めに呼び出す関数
@@ -69,10 +71,22 @@ namespace Engine::ECS
 		void BeginFrame();
 
 		/// <summary>
-		/// リソースなどのハンドル管理されているものの解放処理
-		/// 数フレームに一度だけ実行して、全エンティティのハンドル数をカウントして、ないものは解放していく
+		/// コンポーネントが借りているものを返させる
 		/// </summary>
-		void ResourceGC();
+		/// <remarks>
+		/// コンポーネントは trivially copyable 縛りでデストラクタが走らないので、
+		/// リソースの参照カウントのように「取ったら返す」ものは
+		/// ComponentTraits<T>::Release に書き、ここから呼ばせる。
+		/// 呼ぶのはエンティティを消すときと、コンポーネントを外す/入れ直すとき。
+		/// </remarks>
+		void ReleaseComponents(const ECS::Entity& a_entity, const Signature& a_sig);
+
+		/// <summary>
+		/// 退避したコンポーネントのデータに対して解放フックを呼ぶ
+		/// (アーキタイプの引っ越し中は実体の置き場所が変わるため)
+		/// </summary>
+		void ReleaseComponentData(ComponentTypeID a_compID, uint8_t* a_pData);
+
 
 		//==========================================================================================
 		// 

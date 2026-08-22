@@ -156,14 +156,22 @@ void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal, float3 a_geoN
 
 	// 光源の方向にレイを飛ばす
 	RayDesc _ray;
-	// 法線方向に少し浮かせたあとに、光方向にも少し引っ張り上げ
-	float _normalBias = 0.00001f;
-	float _lightBias = 0.0;
+	// 法線方向に少し浮かせる。押し出し量はカメラからの距離に比例させる
+	// (遠景ほどワールド座標の精度が粗くなるため、固定値だとアクネが出る)
+	float _dist = length(g_camera.cameraPos.xyz - _posW);
+	float _normalBias = max(0.005f, _dist * 0.001f);
 	_ray.Origin = _posW + a_geoNormal * _normalBias;
 	_ray.Direction = _ligDir;
-	_ray.TMin = 0.0001f;
+	_ray.TMin = _normalBias;
 	_ray.TMax = 50;
-	
+
+	// 遮蔽されているかどうかの初期値。
+	// RAY_FLAG_SKIP_CLOSEST_HIT_SHADER を付けているので「当たった場合は何も実行されない」。
+	// つまりヒット側では誰も hit を書けないので、"遮蔽されている(1)" を初期値にして、
+	// 何にも当たらなかったときだけ ShadowMiss が 0 を書く、という形にする必要がある。
+	// ここを 0 で初期化すると当たっても外れても hit == 0 になり、影が一切出なくなる。
+	a_rayPayload.hit = 1;
+
 	TraceRay(
 		g_raytracingWorld, // TLAS
 		RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER | RAY_FLAG_FORCE_OPAQUE, // RayFlags
@@ -179,6 +187,11 @@ void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal, float3 a_geoN
 // 反射レイを飛ばす
 void TraceIndirectRay(inout RayPayload a_rayPayload, float3 a_normal)
 {
+	// ※現状このガードは常に成立して即returnする(=GIは1バウンス)。
+	//   ClosestHit の先頭で depth を ++ してから呼ぶので、ここに来る時点で depth は必ず 1 以上。
+	//   2バウンス目を有効にするには RayPSODesc::maxRecursionDepth を 3 に上げたうえで
+	//   (バウンス先の ClosestHit がさらにシャドウレイを飛ばすため) このしきい値を緩める必要がある。
+	//   1sppのままバウンスを増やすとノイズが増えるので、デノイズが安定してから触ること。
 	if (a_rayPayload.depth >= 1)
 	{
 		return;
@@ -225,6 +238,75 @@ void TraceIndirectRay(inout RayPayload a_rayPayload, float3 a_normal)
 }
 
 
+// フル解像度のピクセル座標とデバイス深度からワールド座標を復元する
+float3 ReconstructWorldPos(int2 a_fullResId, float2 a_fullResDim, float a_depth)
+{
+	float2 _uv = (float2(a_fullResId) + 0.5f) / a_fullResDim;
+	float4 _clip = float4(_uv.x * 2.0f - 1.0f, 1.0f - _uv.y * 2.0f, a_depth, 1.0f);
+	float4 _world = mul(_clip, g_camera.invViewProj);
+	return _world.xyz / _world.w;
+}
+
+// 深度バッファからポリゴン平面の法線(ジオメトリ法線)を復元する
+//
+// GBufferの法線は法線マップ適用後のシェーディング法線なので、
+// これをレイの押し出し方向や半球の基準に使うと、ポリゴン平面より下に
+// レイが潜り込んで自分自身に当たる(自己交差)。
+// 当たった先は自分の面なので暗い色を持ち帰り、しかも方向が毎フレーム
+// 乱数で変わるため、位置の変わる黒い斑点＝Zファイティングのような
+// チカチカとして出る。
+//
+// 前方差分と後方差分のうち深度の変化が小さい方を採用して、
+// 輪郭(深度の段差)で法線が破綻するのを防ぐ。
+float3 ReconstructGeometryNormal(
+	Texture2D a_depthTex,
+	int2 a_fullResId,
+	float2 a_fullResDim,
+	float a_centerDepth,
+	float3 a_worldPos,
+	float3 a_fallbackNormal)
+{
+	int2 _maxId = int2(a_fullResDim) - 1;
+
+	int2 _rightId = min(a_fullResId + int2(1, 0), _maxId);
+	int2 _leftId  = max(a_fullResId - int2(1, 0), int2(0, 0));
+	int2 _downId  = min(a_fullResId + int2(0, 1), _maxId);
+	int2 _upId    = max(a_fullResId - int2(0, 1), int2(0, 0));
+
+	float _rightDepth = a_depthTex.Load(int3(_rightId, 0)).r;
+	float _leftDepth  = a_depthTex.Load(int3(_leftId, 0)).r;
+	float _downDepth  = a_depthTex.Load(int3(_downId, 0)).r;
+	float _upDepth    = a_depthTex.Load(int3(_upId, 0)).r;
+
+	// 深度差が小さい側（＝同じ面に乗っている可能性が高い側）を選ぶ
+	float3 _dx = (abs(_rightDepth - a_centerDepth) < abs(_leftDepth - a_centerDepth))
+		? (ReconstructWorldPos(_rightId, a_fullResDim, _rightDepth) - a_worldPos)
+		: (a_worldPos - ReconstructWorldPos(_leftId, a_fullResDim, _leftDepth));
+
+	float3 _dy = (abs(_downDepth - a_centerDepth) < abs(_upDepth - a_centerDepth))
+		? (ReconstructWorldPos(_downId, a_fullResDim, _downDepth) - a_worldPos)
+		: (a_worldPos - ReconstructWorldPos(_upId, a_fullResDim, _upDepth));
+
+	float3 _cross = cross(_dx, _dy);
+	float _len = length(_cross);
+
+	// 復元に失敗した(隣接ピクセルが同じ位置になる等)場合はシェーディング法線で代用する
+	if (_len < 1e-8f)
+	{
+		return a_fallbackNormal;
+	}
+
+	float3 _geoNormal = _cross / _len;
+
+	// 外積の向きは座標系と差分の取り方で反転しうるので、
+	// シェーディング法線を基準にして表を向かせる
+	if (dot(_geoNormal, a_fallbackNormal) < 0.0f)
+	{
+		_geoNormal = -_geoNormal;
+	}
+	return _geoNormal;
+}
+
 // レイ生成シェーダー
 [shader("raygeneration")]
 void RayGen()
@@ -236,9 +318,9 @@ void RayGen()
 	uint2 _fullResId = _id * 2;
 	float2 _fullResDim = _dim * 2.0f;
 	
-	// UVもフル解像度の座標を基準に計算する : GBufferから呼んだピクセルと一致させるため
-	float2 _uv = (_fullResId + 0.5) / _fullResDim;
-	
+	// ※画面UVからのワールド座標復元は ReconstructWorldPos にまとめてある
+	//   （ジオメトリ法線の復元でも隣接ピクセルに対して同じ計算が要るため）
+
 	// GBuffer取得
 	Texture2D _depthTex = ResourceDescriptorHeap[g_gbuffer.depth];
 	Texture2D _normalTex = ResourceDescriptorHeap[g_gbuffer.normal];
@@ -256,9 +338,11 @@ void RayGen()
 	float3 _normal = DecsodeNormal(_enc); // 法線を復元
 
 	// 3D空間での位置を復元
-	float4 _clip = float4(_uv.x * 2.0f - 1.0f, 1.0f - _uv.y * 2.0f, _depth, 1.0f);
-	float4 _worldPos4 = mul(_clip, g_camera.invViewProj);
-	float3 _worldPos = _worldPos4.xyz / _worldPos4.w;
+	float3 _worldPos = ReconstructWorldPos(_fullResId, _fullResDim, _depth);
+
+	// ポリゴン平面の法線を復元する（レイの押し出しと半球のクランプに使う）
+	float3 _geoNormal = ReconstructGeometryNormal(
+		_depthTex, _fullResId, _fullResDim, _depth, _worldPos, _normal);
 
 	// ピクセル座標からサーフェイス面上で阪急範囲にランダムにレイを飛ばす
 	// ピクセル位置と時間をXORで混ぜてからハッシュ化する
@@ -268,10 +352,26 @@ void RayGen()
 	// レイ構造体を作成
 	RayDesc _ray;
 	float _dist = length(g_camera.cameraPos.xyz - _worldPos);
-	float _bias = max(0.001f, _dist * 0.0002f);
-	_ray.Origin = _worldPos + _normal * _bias;
-	_ray.Direction = SampleHemisphereCosine(_normal, float2(Random01(_seed), Random01(_seed * 17 + 3)));
-	_ray.TMin = 0.001;
+
+	// 押し出し量。深度から復元したワールド座標は遠景ほど誤差が乗るので距離に比例させる。
+	// 押し出す向きはシェーディング法線ではなくジオメトリ法線を使う
+	// （法線マップで傾いた方向に押し出しても面から離れられないため）
+	float _bias = max(0.01f, _dist * 0.002f);
+	_ray.Origin = _worldPos + _geoNormal * _bias;
+
+	// 半球サンプリング自体はシェーディング法線基準（見た目の凹凸をGIに反映させたい）
+	float3 _dir = SampleHemisphereCosine(_normal, float2(Random01(_seed), Random01(_seed * 17 + 3)));
+
+	// ただしポリゴン平面より下を向いてしまった方向は面の上へ折り返す。
+	// これをやらないと自分自身に当たって黒い斑点になる
+	if (dot(_dir, _geoNormal) < 0.0f)
+	{
+		_dir = normalize(reflect(_dir, _geoNormal));
+	}
+	_ray.Direction = _dir;
+
+	// 原点をずらしただけだと浅い角度で面をかすめるので、TMinも同じスケールで持ち上げる
+	_ray.TMin = _bias;
 	_ray.TMax = 1000;
 
 	// ペイロードを作成
@@ -370,7 +470,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float3 _normal = GetNormal(a_attr, _uv, instance, primID, _material);
 
 	// 光源に向かってレイを飛ばす
-	a_payload.hit = 0;
+	// hit の初期化は TraceLightRay の中で行う（フラグと対で意味が決まるため）
 	TraceLightRay(a_payload, _normal, _geoNormal);
 	float _lig = 0.0f;
 	// 直接光が当たってる

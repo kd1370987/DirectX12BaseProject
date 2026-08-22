@@ -42,8 +42,13 @@ namespace Engine::Scene
 		void Enter();
 
 		/// <summary>
-		/// 解放
+		/// 解放 : エンティティを消すところまで
 		/// </summary>
+		/// <remarks>
+		/// コンポーネントが借りているリソースは解放フックが返す。
+		/// 共有しているもの(誰も持っていないリソースの破棄・当たり判定の空間)の
+		/// 片付けは SceneManager::PopScene が持つ。
+		/// </remarks>
 		void Exit();
 
 		/// <summary>

@@ -72,10 +72,19 @@ namespace Engine::Scene
 		m_upGameObjectManager = std::make_unique<GameObject::GameObjectManager>(m_upWorld.get());
 	}
 
+	//======================================================================================
+	// 解放
+	//--------------------------------------------------------------------------------------
+	// エンティティを消すところまで。コンポーネントが借りているリソースは
+	// 解放フック(ComponentTraits<T>::Release)が返すので、ここで数え直すことはしない。
+	//
+	// 共有しているもの(誰も持っていないリソースの破棄・当たり判定の空間)を
+	// 片付けてよいかどうかは、他にシーンが残っているかを見ないと決められない。
+	// その判断は呼び出し側(SceneManager::PopScene)が持つ。
+	//======================================================================================
 	void BaseScene::Exit()
 	{
 		m_upWorld->Release();
-		Engine::MainEngine::Instance().RefCollisionWorld()->Clear();
 	}
 
 	void BaseScene::Update(float a_dt)
@@ -86,22 +95,7 @@ namespace Engine::Scene
 		// シーンの初めに一括でエンティティを生成・削除
 		// 解放処理と初期化処理も含まれているため、呼び出しはシングルスレッド限定
 		m_upWorld->BeginFrame();
-		static int _i = 0;
-		//_i++;
-		if(_i == 10)
-		{
-			// すべてのECS参照カウントをリセット
-			Engine::Resource::ResourceManager::Instance().AllResetECSRefs();
 
-			// ECSカウントの収集
-			m_upWorld->RunSystem(Engine::ECS::ESystemType::GC, a_dt);
-
-			// 参照カウントがなくなった場合リソースの解放をする
-			Engine::Resource::ResourceManager::Instance().RunGarbageCollectionSweep();
-
-			_i = 0;
-		}
-		
 		// シーンのシステム処理
 		//
 		// 入力フェーズはモードに関わらず毎フレーム回す。

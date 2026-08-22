@@ -56,6 +56,17 @@ namespace Engine::Scene
 		/// <param name="a_changeType">切り替え方法</param>
 		void SetNextScene(const Engine::GUID& a_guid, const SceneChangeType& a_changeType);
 
+		/// <summary>
+		/// 更新するのを一番上のシーンだけにするか
+		/// </summary>
+		/// <remarks>
+		/// 既定は true。ポーズ画面のように重ねたシーンを出している間、
+		/// 後ろのシーンは描画だけ続けて更新は止まる。
+		/// 後ろも動かしたい重ね方をするときだけ false にすること。
+		/// </remarks>
+		void SetUpdateTopSceneOnly(bool a_isTopOnly) { m_isUpdateTopSceneOnly = a_isTopOnly; }
+		bool IsUpdateTopSceneOnly() const { return m_isUpdateTopSceneOnly; }
+
 		//------------------------------------------------------------------------------------------
 		// 取得
 		//------------------------------------------------------------------------------------------
@@ -96,7 +107,9 @@ namespace Engine::Scene
 
 		// シーンスタック
 		std::vector<std::unique_ptr<BaseScene>> m_upBaseSceneVec;
-		bool m_isOneUpdate = false;
+
+		// 更新するのは一番上のシーンだけか(重ねたシーンの後ろを止めるための既定)
+		bool m_isUpdateTopSceneOnly = true;
 
 		// シーン切り替え命令スタック
 		std::queue<SceneChangeCmd> m_sceneChangeCmd = {};

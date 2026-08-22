@@ -22,6 +22,7 @@
 #include "Application/Object/UI/UIImage/UIImage.h"
 #include "Application/Object/Sequence/TitleSequence/TitleSequence.h"
 #include "Application/Object/Sequence/HomeSequence/HomeSequence.h"
+#include "Application/Object/Sequence/PauseSequence/PauseSequence.h"
 #include "../../Object/Scene/SceneAmbientObject/SceneAmbientObject.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 
@@ -155,7 +156,6 @@
 #include "Application/Systems/Update/PreUpdate/UpdateHierarchyDepthSystem/UpdateHierarchyDepthSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitHierarchyWorldMatrixSystem/CommitHierarchyWorldMatrixSystem.h"
 #include "../../Systems/Draw/Draw/SkinningRegisterSystem/SkinningRegisterSystem.h"
-#include "../../Systems/Release/ResourceFreeSystem/ResourceFreeSystem.h"
 #include "../../Systems/Draw/Draw/RegisterAnimatedRayWorldSystem/RegisterAnimatedRayWorldSystem.h"
 #include "../../Systems/Update/Physics/CapsuleCollisionSystem/CapsuleCollisionSystem.h"
 #include "../../Systems/Update/Physics/SphereCollisionSystem/SphereCollisionSystem.h"
@@ -276,6 +276,8 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::ResultSequence>("ResultSequence");
 			// ホーム画面の進行役。ステージセレクト(一覧・詳細・出撃)と倉庫のボタンを束ねる
 			_objRegistry.RegisterType<App::Object::HomeSequence>("HomeSequence");
+			// ポーズ画面の進行役。重ねたシーンを閉じる側(重ねるのは SceneSequence)
+			_objRegistry.RegisterType<App::Object::PauseSequence>("PauseSequence");
 		}
 
 		// ワールドの初期化関数登録
@@ -485,7 +487,6 @@ namespace App::Game
 				a_pWorld->RegisterSystem<UpdateHierarchyDepthSystem>();
 				a_pWorld->RegisterSystem<CommitHierarchyWorldMatrixSystem>();
 				a_pWorld->RegisterSystem<SkinningRegisterSystem>();
-				a_pWorld->RegisterSystem<ResourceFreeSystem>();
 				a_pWorld->RegisterSystem<RegisterAnimatedRayWorldSystem>();
 				a_pWorld->RegisterSystem<CapsuleCollisionSystem>();
 				a_pWorld->RegisterSystem<SphereCollisionSystem>();
@@ -598,6 +599,12 @@ namespace App::Game
 			// シーン遷移用
 			Engine::Input::InputButtonForWindows _scene('R');
 			_keyboard.AddButton("Scene", std::make_shared<Engine::Input::InputButtonForWindows>(_scene));
+
+			// ポーズ : ゲーム中はポーズ画面を重ね、ポーズ中は閉じて戻る。
+			// 拾うのは重ねる側(SceneSequence)と閉じる側(PauseSequence)の2つで、
+			// どちらも「一番上のシーン」しか更新されないので取り合いにならない
+			Engine::Input::InputButtonForWindows _pause(VK_ESCAPE);
+			_keyboard.AddButton("Pause", std::make_shared<Engine::Input::InputButtonForWindows>(_pause));
 
 			// ---- マウスボタン ----
 			// 武器 : 左クリックで左手、右クリックで右手。

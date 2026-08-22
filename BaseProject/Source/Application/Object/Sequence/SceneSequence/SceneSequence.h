@@ -169,6 +169,13 @@ namespace App::Object
 		// 記録をグローバルへ移してリザルトシーンを読み込む
 		void RequestResultScene();
 
+		//-------------------------------------------------------------------
+		// ポーズ
+		//-------------------------------------------------------------------
+
+		// ポーズ入力を見て、押されていればポーズ画面を重ねる
+		void UpdatePause(Engine::GameObject::ObjectContext& a_context);
+
 		// ギズモの対象を外す(要素を消して添え字がずれたとき用)
 		void ClearGizmoTarget();
 
@@ -196,6 +203,25 @@ namespace App::Object
 		// シーンが始まったときにグローバルの記録を消すか。
 		// ゲームシーンの入り口なので既定で消す(前回のスコアが残らないように)
 		bool m_isResetOnStart = true;
+
+		//=======================================================================
+		// ポーズ
+		//=======================================================================
+		// 重ねるポーズ画面のシーン。未設定ならポーズしない。
+		//
+		// 切り替え(Replace)ではなく重ねる(Push)ので、このシーンは消えずに残る。
+		// 更新されるのは一番上のシーンだけなので、重ねている間ここは止まり、
+		// 描画だけが続く(SceneManager::SetUpdateTopSceneOnly)。
+		// 閉じるのは重ねた側(PauseSequence)の仕事。
+		Engine::GUID m_pauseSceneGUID = {};
+
+		// ポーズに使う入力アクション名(InputManager へ登録した名前)
+		std::string m_pauseActionName = "Pause";
+
+		// ---- 状態(保存しない) ----
+		// ポーズ画面を重ねるよう頼んだか。重ねている間このシーンは更新されないので、
+		// 戻ってきた最初のフレームで下ろす
+		bool m_isPauseRequested = false;
 
 		// ---- 状態(保存しない) ----
 		App::Game::EGameResult m_result = App::Game::EGameResult::None;	// 決着の内容

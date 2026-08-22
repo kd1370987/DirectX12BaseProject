@@ -48,6 +48,21 @@ struct ModelComponent
 template<>
 struct Engine::ECS::ComponentTraits<ModelComponent>
 {
+	//----------------------------------------------------------------------------------
+	// 借りているリソースを返す
+	//
+	// コンポーネントはデストラクタが走らないので、参照を返すのはここの仕事。
+	// ECS がエンティティを消すとき・コンポーネントを外すとき・
+	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
+	//----------------------------------------------------------------------------------
+	static void Release(void* a_pData)
+	{
+		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_pData);
+		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+
+		_resourceManager.ReleaseHandle(_comp.handle);
+	}
+
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
 		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_pData);

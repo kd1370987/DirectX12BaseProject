@@ -5,8 +5,10 @@
 #include "Engine/MainEngine.h"
 
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
+#include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../../Collision/CollisionWorld.h"
 
 #include "../../Editor/Editor.h"
 #include "../../Editor/EffectEditor/EffectEditor.h"
@@ -51,16 +53,18 @@ namespace Engine::Scene
 		// シーンの切り替え
 		ChangeScenen();
 
+		//==================================================================
 		// シーンの更新
-		if (!m_isOneUpdate)
-		{
-			// すべてのシーンを更新
-			for (auto& _scene : m_upBaseSceneVec)
-			{
-				_scene->Update(a_dt);
-			}
-		}
-		else
+		//------------------------------------------------------------------
+		// 既定は一番上のシーンだけ。重ねたシーン(ポーズ画面)を出している間、
+		// 後ろのゲームは止まっていてほしいため。
+		//
+		// 描画(Draw)は積んであるシーンを全部通すので、止まっていても後ろは
+		// 見えたままになる。
+		//
+		// 後ろも一緒に動かしたい重ね方をするときだけ、この切り替えを外す。
+		//==================================================================
+		if (m_isUpdateTopSceneOnly)
 		{
 			// 最前面のみ更新
 			if (!m_upBaseSceneVec.empty())
@@ -68,8 +72,14 @@ namespace Engine::Scene
 				m_upBaseSceneVec.back()->Update(a_dt);
 			}
 		}
-
-
+		else
+		{
+			// すべてのシーンを更新
+			for (auto& _scene : m_upBaseSceneVec)
+			{
+				_scene->Update(a_dt);
+			}
+		}
 	}
 
 	void SceneManager::Draw()
@@ -132,6 +142,21 @@ namespace Engine::Scene
 
 		return true;
 	}
+	//======================================================================================
+	// 最前面のシーンを消す
+	//--------------------------------------------------------------------------------------
+	// 使われなくなったリソースの破棄も当たり判定の空間も全シーンで共有しているので、
+	// 片付けてよいのはシーンが1つも残らなくなったときだけ。
+	//
+	// ポーズ画面のように重ねたシーンを外しただけで片付けてしまうと、
+	//   ・後ろのシーンがまだ持っているつもりのものが消える
+	//   ・後ろのシーンの静的コライダーが消える(登録は Start の一度きりなので戻らない)
+	// といった形で、戻った先が壊れる。
+	//
+	// リソースの破棄をここで行うのは、参照が外れた瞬間に捨てると
+	// 同じシーンの中で出し直すたびに読み直しが走ってしまうため。
+	// シーンの中では読み込んだものを持ったままにして、切れ目でまとめて片付ける。
+	//======================================================================================
 	void SceneManager::PopScene()
 	{
 		if (m_upBaseSceneVec.empty()) return;
@@ -139,8 +164,23 @@ namespace Engine::Scene
 		// GPU待ち
 		D3D12::D3D12Wrapper::Instance().WaitForFrame();
 
+		// これを外すと1つも残らないか
+		const bool _isLastScene = (m_upBaseSceneVec.size() == 1);
+
 		m_upBaseSceneVec.back()->Exit();
 		m_upBaseSceneVec.pop_back();
+
+		// 後ろに何も残っていなければ、共有しているものをまとめて片付ける
+		if (_isLastScene)
+		{
+			if (auto* _pCollWorld = MainEngine::Instance().RefCollisionWorld())
+			{
+				_pCollWorld->Clear();
+			}
+
+			// 誰も持っていないリソースはここで破棄する
+			Resource::ResourceManager::Instance().SweepUnusedAll();
+		}
 	}
 	
 	//======================================================================================
@@ -225,10 +265,11 @@ namespace Engine::Scene
 				ReplaceScene(_cmd.sceneGUID);
 				break;
 			case SceneChangeType::Clear:
+				// 1つずつ Pop に通す。最後の1つを外したところで
+				// 共有の当たり判定空間が空になる
 				while (!m_upBaseSceneVec.empty())
 				{
-					m_upBaseSceneVec.back()->Exit();
-					m_upBaseSceneVec.pop_back();
+					PopScene();
 				}
 				break;
 			default:

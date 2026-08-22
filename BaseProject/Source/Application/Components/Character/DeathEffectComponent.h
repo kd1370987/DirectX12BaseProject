@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
@@ -35,6 +35,21 @@ struct DeathEffectComponent
 template<>
 struct Engine::ECS::ComponentTraits<DeathEffectComponent>
 {
+	//----------------------------------------------------------------------------------
+	// 借りているリソースを返す
+	//
+	// コンポーネントはデストラクタが走らないので、参照を返すのはここの仕事。
+	// ECS がエンティティを消すとき・コンポーネントを外すとき・
+	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
+	//----------------------------------------------------------------------------------
+	static void Release(void* a_pData)
+	{
+		DeathEffectComponent& _comp = Engine::Editor::GetValue<DeathEffectComponent>(a_pData);
+		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+
+		_resourceManager.ReleaseHandle(_comp.effectHandle);
+	}
+
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
 		DeathEffectComponent& _comp = Engine::Editor::GetValue<DeathEffectComponent>(a_pData);

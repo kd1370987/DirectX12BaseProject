@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../../../Engine/Editor/Helper/EditorHelper.h"
 #include "../../../Engine/ECS/World/World.h"
@@ -33,6 +33,21 @@ struct AudioBehaviorComponent
 template<>
 struct Engine::ECS::ComponentTraits<AudioBehaviorComponent>
 {
+	//----------------------------------------------------------------------------------
+	// 借りているリソースを返す
+	//
+	// コンポーネントはデストラクタが走らないので、参照を返すのはここの仕事。
+	// ECS がエンティティを消すとき・コンポーネントを外すとき・
+	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
+	//----------------------------------------------------------------------------------
+	static void Release(void* a_pData)
+	{
+		AudioBehaviorComponent& _comp = Engine::Editor::GetValue<AudioBehaviorComponent>(a_pData);
+		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+
+		_resourceManager.ReleaseHandle(_comp.behaviorHandle);
+	}
+
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
 		AudioBehaviorComponent& _comp = Engine::Editor::GetValue<AudioBehaviorComponent>(a_pData);

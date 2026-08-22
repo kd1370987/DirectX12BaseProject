@@ -2,6 +2,7 @@
 
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/ECS/World/World.h"
+#include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Editor/Editor.h"
 #include "Engine/Common/Color.h"
 
@@ -67,6 +68,11 @@ namespace App::Object
 	void SceneSequence::Update(Engine::GameObject::ObjectContext& a_context)
 	{
 		if (!a_context.pWorld) return;
+
+		// ポーズ画面を重ねる/戻ってきたことを拾う。
+		// 重ねている間このシーンは更新されないので、下の処理はそのまま止まる
+		UpdatePause(a_context);
+		if (m_isPauseRequested) return;
 
 		m_time += a_context.dt;
 
@@ -263,6 +269,46 @@ namespace App::Object
 
 		Engine::Scene::SceneManager::Instance().SetNextScene(
 			m_resultSceneGUID, Engine::Scene::SceneChangeType::Replace);
+	}
+
+	//======================================================================================
+	// ポーズ
+	//--------------------------------------------------------------------------------------
+	// ポーズ画面は切り替え(Replace)ではなく重ねる(Push)。このシーンは消えずに残るので、
+	// 閉じればウェーブの進行も敵の配置もそのまま続きから動く。
+	//
+	// 更新されるのは一番上のシーンだけなので、重ねている間ここは自動的に止まる。
+	// 「止める」ための旗を別に持つ必要はない。
+	//
+	// 閉じるのは重ねた側(PauseSequence)の仕事。ここは重ねるところまでを持つ。
+	//======================================================================================
+	void SceneSequence::UpdatePause(Engine::GameObject::ObjectContext& a_context)
+	{
+		//----------------------------------------------------------------------
+		// 重ねている間ここは更新されない。
+		// つまり印が立ったままここへ来たのは「ポーズ画面が閉じられた」ときなので、
+		// 印を下ろして続きから再開する
+		//----------------------------------------------------------------------
+		if (m_isPauseRequested)
+		{
+			m_isPauseRequested = false;
+			return;
+		}
+
+		// 行き先が無ければ止められない
+		if (!m_pauseSceneGUID.IsValid()) return;
+
+		// 決着した後は止めない(リザルトへ移る待ち時間の最中)
+		if (m_result != App::Game::EGameResult::None) return;
+
+		if (!a_context.pServices || !a_context.pServices->pInputManager) return;
+		if (!a_context.pServices->pInputManager->IsPress(m_pauseActionName)) return;
+
+		// 重ねる。実際に積まれるのは次のフレームの初め
+		Engine::Scene::SceneManager::Instance().SetNextScene(
+			m_pauseSceneGUID, Engine::Scene::SceneChangeType::Push);
+
+		m_isPauseRequested = true;
 	}
 
 	//======================================================================================
@@ -757,6 +803,12 @@ namespace App::Object
 		a_ar.Field("ClearDelay", m_clearDelay);
 		a_ar.Field("DeadDelay", m_deadDelay);
 		a_ar.Field("IsResetOnStart", m_isResetOnStart);
+
+		//----------------------------------------------------------------------
+		// ポーズ(重ねるシーン)
+		//----------------------------------------------------------------------
+		a_ar.GUIDField("PauseSceneGUID", m_pauseSceneGUID);
+		a_ar.StringField("PauseActionName", m_pauseActionName);
 	}
 
 	//======================================================================================
@@ -808,6 +860,26 @@ namespace App::Object
 			ImGui::Text("Cleared   : %d / %d", GetClearedWaveCount(), static_cast<int>(m_waves.size()));
 			ImGui::Text("PlayerHit : %s", m_isPlayerFound ? "found" : "not yet");
 			ImGui::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
+		}
+
+		//----------------------------------------------------------------------
+		// ポーズ(重ねるシーン)
+		//----------------------------------------------------------------------
+		if (ImGui::CollapsingHeader("Pause", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGui::TextDisabled("切り替えずに重ねるので、閉じれば続きから再開する");
+
+			Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+				"Pause Scene", "Scene", m_pauseSceneGUID);
+			if (!m_pauseSceneGUID.IsValid())
+			{
+				ImGui::TextDisabled("(未設定 : ポーズしません)");
+			}
+
+			ImGui::InputText("Pause Action", &m_pauseActionName);
+			ImGui::TextDisabled("InputManager へ登録したアクション名(既定 : Esc)");
+
+			ImGui::Text("Paused    : %s", m_isPauseRequested ? "yes" : "no");
 		}
 
 		ImGui::Separator();

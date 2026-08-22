@@ -69,8 +69,7 @@ void EffectFixupSystem::Init(Engine::ECS::World& a_world)
 					continue;
 				}
 
-				_effectComp.effectHandle =
-					_pResourceManager->LoadImmediate<Engine::Resource::EffectAsset>(_effectComp.effectGUID);
+				_pResourceManager->AcquireImmediate(_effectComp.effectHandle, _effectComp.effectGUID);
 
 				// 鳴らす瞬間に読み込みが走らないよう、声はここで確保しておく。
 				// (爆発のように「出た瞬間に鳴ってほしい」ものが1フレーム遅れないように)
@@ -113,8 +112,7 @@ void EffectFixupSystem::Init(Engine::ECS::World& a_world)
 					continue;
 				}
 
-				_deathComp.effectHandle =
-					_pResourceManager->LoadImmediate<Engine::Resource::EffectAsset>(_deathComp.effectGUID);
+				_pResourceManager->AcquireImmediate(_deathComp.effectHandle, _deathComp.effectGUID);
 			}
 		}
 	);
@@ -155,8 +153,7 @@ void EffectFixupSystem::Init(Engine::ECS::World& a_world)
 					continue;
 				}
 
-				_boosterComp.sparkHandle =
-					_pResourceManager->LoadImmediate<Engine::Resource::EffectAsset>(_boosterComp.sparkEffectGUID);
+				_pResourceManager->AcquireImmediate(_boosterComp.sparkHandle, _boosterComp.sparkEffectGUID);
 			}
 		}
 	);
@@ -189,8 +186,7 @@ void EffectFixupSystem::Init(Engine::ECS::World& a_world)
 					continue;
 				}
 
-				_gunComp.muzzleEffectHandle =
-					_pResourceManager->LoadImmediate<Engine::Resource::EffectAsset>(_gunComp.muzzleEffectGUID);
+				_pResourceManager->AcquireImmediate(_gunComp.muzzleEffectHandle, _gunComp.muzzleEffectGUID);
 			}
 		}
 	);

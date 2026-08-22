@@ -853,6 +853,9 @@
     <Filter Include="Source\Application\Object\Sequence\HomeSequence">
       <UniqueIdentifier>{8e7fbc0c-8408-410f-bea0-e67969f04b8c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Sequence\PauseSequence">
+      <UniqueIdentifier>{ae36ba85-9ecf-45d4-9717-d265a9d8dfef}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Utility\Pool">
       <UniqueIdentifier>{9bc13487-f5a9-4b72-81af-5fe0029cccee}</UniqueIdentifier>
     </Filter>
@@ -1182,9 +1185,6 @@
     </Filter>
     <Filter Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer">
       <UniqueIdentifier>{66fb64bc-5b02-459b-8bda-2dcecb664d44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Release\ResourceFreeSystem">
-      <UniqueIdentifier>{275a4e97-fa93-4e37-9a57-27f7b5781ba7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Release\SoundFreeSystem">
       <UniqueIdentifier>{88a8efb5-3d3f-42fb-975e-19ff52c9302a}</UniqueIdentifier>
@@ -2022,6 +2022,9 @@
     <ClCompile Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.cpp">
       <Filter>Source\Application\Object\Sequence\HomeSequence</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.cpp">
+      <Filter>Source\Application\Object\Sequence\PauseSequence</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp">
       <Filter>Source\Engine\Resource\Data\Particles</Filter>
     </ClCompile>
@@ -2228,9 +2231,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.cpp">
       <Filter>Source\Application\Systems\Release\SoundFreeSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.cpp">
-      <Filter>Source\Application\Systems\Release\ResourceFreeSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\EditorCamera\EditorCamera.cpp">
       <Filter>Source\Engine\Editor\EditorCamera</Filter>
@@ -3215,6 +3215,9 @@
     <ClInclude Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.h">
       <Filter>Source\Application\Object\Sequence\HomeSequence</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.h">
+      <Filter>Source\Application\Object\Sequence\PauseSequence</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\ScoreTargetComponent.h">
       <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
@@ -3574,9 +3577,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.h">
       <Filter>Source\Application\Systems\Release\SoundFreeSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.h">
-      <Filter>Source\Application\Systems\Release\ResourceFreeSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\IPanel.h">
       <Filter>Source\Engine\Editor\Panel</Filter>

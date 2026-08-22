@@ -1,4 +1,4 @@
-#include "MissileSalvo.h"
+﻿#include "MissileSalvo.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/Prefab/Prefab.h"
@@ -91,11 +91,9 @@ namespace App::Systems::MissileSalvo
 		auto& _rm = *a_ctx.pServices->pResourceManager;
 		if (!_rm.IsValid(_pGun->bulletPrefabHandle))
 		{
-			if (!_rm.Has<Engine::Resource::Prefab>(_pGun->bulletPrefabGUID))
-			{
-				_rm.LoadImmediate<Engine::Resource::Prefab>(_pGun->bulletPrefabGUID);
-			}
-			_pGun->bulletPrefabHandle = _rm.GetCache<Engine::Resource::Prefab>(_pGun->bulletPrefabGUID);
+			// 取った参照は銃が消えるときに返す
+			// (GunStateComponent の解放フック)
+			_rm.AcquireImmediate(_pGun->bulletPrefabHandle, _pGun->bulletPrefabGUID);
 		}
 		auto* _pPrefab = _rm.Ref(_pGun->bulletPrefabHandle);
 		if (!_pPrefab) return;

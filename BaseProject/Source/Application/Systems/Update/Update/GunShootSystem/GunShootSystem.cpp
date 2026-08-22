@@ -210,11 +210,9 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				auto& _rm = *a_ctx.pServices->pResourceManager;
 				if (!_rm.IsValid(_gun.bulletPrefabHandle))
 				{
-					if (!_rm.Has<Engine::Resource::Prefab>(_gun.bulletPrefabGUID))
-					{
-						_rm.LoadImmediate<Engine::Resource::Prefab>(_gun.bulletPrefabGUID);
-					}
-					_gun.bulletPrefabHandle = _rm.GetCache<Engine::Resource::Prefab>(_gun.bulletPrefabGUID);
+					// 取った参照は銃が消えるときに返す
+					// (GunStateComponent の解放フック)
+					_rm.AcquireImmediate(_gun.bulletPrefabHandle, _gun.bulletPrefabGUID);
 				}
 				auto* _pPrefab = _rm.Ref(_gun.bulletPrefabHandle);
 				if (!_pPrefab) continue;

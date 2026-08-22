@@ -29,7 +29,7 @@ void ModelFixupSystem::Init(Engine::ECS::World& a_world)
 				// Start フェーズへ進めないので、Start 系は揃ってから1回だけ走る
 				if(_modelComp.modelGUID != Engine::DefaultGUID)
 				{
-					_modelComp.handle = a_ctx.pServices->pResourceManager->RequestLoad<Engine::Resource::Model>(_modelComp.modelGUID);
+					a_ctx.pServices->pResourceManager->AcquireRequest(_modelComp.handle, _modelComp.modelGUID);
 				}
 			}
 		}

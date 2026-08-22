@@ -280,7 +280,6 @@
     <ClCompile Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Camera\AimTargetSystem\AimTargetSystem.cpp" />
@@ -342,6 +341,7 @@
     <ClCompile Include="Source\Application\Object\UI\ScoreHUD\ScoreHUD.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\ResultSequence\ResultSequence.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.cpp" />
+    <ClCompile Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.cpp" />
@@ -609,6 +609,7 @@
     <ClInclude Include="Source\Application\Object\UI\ScoreHUD\ScoreHUD.h" />
     <ClInclude Include="Source\Application\Object\Sequence\ResultSequence\ResultSequence.h" />
     <ClInclude Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.h" />
+    <ClInclude Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.h" />
     <ClInclude Include="Source\Application\Components\Character\ScoreTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\BoosterEffectComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\AttachmentSlotsComponent.h" />
@@ -699,7 +700,6 @@
     <ClInclude Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.h" />
     <ClInclude Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Release\ResourceFreeSystem\ResourceFreeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Camera\AimTargetSystem\AimTargetSystem.h" />

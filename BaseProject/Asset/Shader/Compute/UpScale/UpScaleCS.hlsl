@@ -1,10 +1,12 @@
 #include "../../Source/CalcNormal.hlsli"
+#include "../../Common/CB/CBCamera.hlsli"		// カメラCB(b0) : ワールド座標復元用
 
 // ==========================================
 // ルートシグネチャの定義
 // ==========================================
 #define UPSCALE_RS \
     "CBV(b0), " \
+    "CBV(b1), " \
     "DescriptorTable(SRV(t0)), " \
     "DescriptorTable(SRV(t1)), " \
     "DescriptorTable(SRV(t2)), " \
@@ -23,13 +25,22 @@ Texture2D<float2> g_fullResNormalTex : register(t2);	// 法線
 RWTexture2D<float4> g_outputTex : register(u0);		// アップスケール結果
 
 // パラメータ
-cbuffer CBUpscaleParams : register(b0)
+cbuffer CBUpscaleParams : register(b1)
 {
 	float g_scaleRatio;	// スケール倍率
-	float g_depthSigma;	// 深度の許容差 : 小さいほど厳密にエッジで色を分ける
-	float g_normalPower;	// 法線の許容差 : 大きいほど少しの角度の違いで色を分ける
+	float g_depthSigma;	// 深度の許容差 : ビュー深度に対する相対値。小さいほど厳密にエッジで色を分ける
+	float g_normalPower;	// 法線の許容差 : pow()の指数。大きいほど少しの角度の違いで色を分ける
 	float g_padding;
 };
+
+// フル解像度のピクセル座標とデバイス深度からワールド座標を復元する
+float3 ReconstructWorldPos(int2 a_fullCoord, float2 a_fullDim, float a_depth)
+{
+	float2 _uv = (float2(a_fullCoord) + 0.5f) / a_fullDim;
+	float4 _clip = float4(_uv.x * 2.0f - 1.0f, 1.0f - _uv.y * 2.0f, a_depth, 1.0f);
+	float4 _world = mul(_clip, g_camera.invViewProj);
+	return _world.xyz / _world.w;
+}
 
 // ==========================================
 // コンピュートシェーダー本体
@@ -54,6 +65,14 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	float2 _enc = g_fullResNormalTex.Load(int3(_fullPos, 0)).rg;
 	float3 _currentNormal = DecsodeNormal(_enc);					// 法線を復元
 
+	// エッジ判定をワールド空間で行うための下ごしらえ。
+	// 生の非線形デバイス深度の差で判定すると、近景では常に弾かれ遠景では常に通過して
+	// しまい、事実上ただのバイリニア拡大になる(シルエットでGIがにじむ原因)
+	float2 _fullDim = float2(_fullWidth, _fullHeight);
+	float3 _currentWorldPos = ReconstructWorldPos(int2(_fullPos), _fullDim, _currentDepth);
+	float _currentDist = max(length(g_camera.cameraPos.xyz - _currentWorldPos), 1e-3f);
+	float _depthDenom = max(g_depthSigma * _currentDist, 1e-4f);
+
 	// 対応する低解像度テクスチャの座標計算
 	// ピクセル中心を考慮して低解像度での浮動小数点座標を求める
 	float2 _lowResCoord = (_fullPos + 0.5f) / g_scaleRatio - 0.5f;
@@ -76,9 +95,13 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 			int2 _sampleLowPos = _lowResBasePos + int2(_x,_y);
 			_sampleLowPos = clamp(_sampleLowPos, int2(0, 0), int2(_lowWidth - 1, _lowHeight - 1));
 			
-			// 低解像度ピクセルの中心に当たる、フル解像度上での座標を推測
-			// フル解像度の法線 / 深度バッファから、比較対象データをとってくるためのデータ
-			int2 _sampleFullPos = (int2) (_sampleLowPos * g_scaleRatio + (g_scaleRatio * 0.5f));
+			// フル解像度の法線 / 深度バッファから比較対象データをとるための座標。
+			// この低解像度ピクセルが「どのフル解像度ピクセルを見て計算されたか」を求める。
+			// レイ生成シェーダー(RaytracingGI.hlsl)は 2x2 ブロックの左上テクセル
+			// (fullResId = id * 2) を見ているので、ここも同じテクセルを指さないと
+			// ガイドが1テクセルずれ、シルエット際でにじみ・ちらつきになる。
+			// ※以前は「+ scaleRatio * 0.5」でブロックの右下寄りを見ていた
+			int2 _sampleFullPos = (int2) (_sampleLowPos * g_scaleRatio);
 			_sampleFullPos = clamp(_sampleFullPos, int2(0, 0), int2(_fullWidth - 1, _fullHeight - 1));
 
 			// サンプリングポイントの法線・深度を取得
@@ -93,8 +116,11 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 			float _spatialWeight = _weightX * _weightY;
 
 			// 深度ウェイト : 段差がある = 別オブジェクトなら重みを 0 に近づける
-			float _depthDiff = abs(_currentDepth - _sampleDepth);
-			float _depthWeight = exp(-_depthDiff / g_depthSigma);
+			// 「注目ピクセルの接平面からどれだけ浮いているか」で評価する。
+			// 同一平面上なら傾いていても距離が0になるので、斜めの床や壁でも均せる
+			float3 _sampleWorldPos = ReconstructWorldPos(_sampleFullPos, _fullDim, _sampleDepth);
+			float _planeDist = abs(dot(_sampleWorldPos - _currentWorldPos, _currentNormal));
+			float _depthWeight = exp(-_planeDist / _depthDenom);
 
 			// 法線ウェイト : 向きが違う = 別オブジェクトや角なら重みを 0 に近づける
 			float _normalDot = max(0.0f, dot(_currentNormal, _sampleNormal));

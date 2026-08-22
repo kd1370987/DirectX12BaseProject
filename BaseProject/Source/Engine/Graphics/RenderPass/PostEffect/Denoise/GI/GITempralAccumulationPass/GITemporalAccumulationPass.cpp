@@ -45,8 +45,9 @@ namespace Engine::Graphics
 			_cpBuilder.SetFrameParity(_parity);
 
 			// 依存関係とバインドの宣言（宣言順 = t0～t6）
+			// ルートパラメータ : 0=カメラCB(b0) / 1=オプションCB(b1) / 2=SRVテーブル / 3=UAVテーブル
 			// t0 は生の RayGI ではなく、テンポラル前に一度スペースデノイズをかけた RayGIDenoised を読む
-			_cpBuilder.SrvTable(1)
+			_cpBuilder.SrvTable(2)
 				.Add("RayGIDenoised")
 				.Add("GBufferVelocity")
 				.Add(_readHistory)
@@ -57,7 +58,7 @@ namespace Engine::Graphics
 
 			// UAVへの書き込み
 			// HDR : GIは1.0を超えるためR16Fで蓄積する(R8だとここでHDRが潰れる)
-			_cpBuilder.BindUAV(2, _writeHistory, DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Clear, StoreOp::Store, 0.5f);
+			_cpBuilder.BindUAV(3, _writeHistory, DXGI_FORMAT_R16G16B16A16_FLOAT, LoadOp::Clear, StoreOp::Store, 0.5f);
 
 			_cpBuilder.ResolveAndCompile(a_pPSOManager);
 
@@ -67,7 +68,10 @@ namespace Engine::Graphics
 					const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 					auto* _pCmd = a_pCtx->GetCurrentCmdList();
 
-					// 定数バッファ
+					// カメラCB(b0) : シェーダ側でビュー空間を復元して履歴の棄却判定に使う
+					a_pCtx->ComputeBindRootCBV(0, a_pGE->GetCameraData());
+
+					// 定数バッファ(b1)
 					struct GITAOp
 					{
 						float phiDepth;
@@ -79,7 +83,7 @@ namespace Engine::Graphics
 					_op.phiDepth  = _giOp.TAphiDepth;
 					_op.phiNormal = _giOp.TAphiNormal;
 					_op.blendRate = _giOp.TAblendRate;
-					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 0, _op);
+					a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 1, _op);
 
 					// 実行
 					// 切り上げ : ハーフ解像度(例:1080→540)は540/8=67で切り捨てられ下端が処理されないため

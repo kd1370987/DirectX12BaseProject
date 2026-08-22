@@ -6,6 +6,13 @@
 struct AnimatorComponent
 {
 	uint32_t clipID = 0;
+
+	// 今流しているアニメーション。
+	//
+	// ここは**借りているだけ**で参照は取らない(解放フックも要らない)。
+	// 実体を持っているのはモデル(ModelRuntimeData が ResourceRef で握っている)で、
+	// ここへ入るのはステートマシンが毎フレーム選んだものだから。
+	// 参照を取る形にすると、切り替わるたびに返して取り直すことになる。
 	Engine::Handle<Engine::Resource::AnimationData> animHandle;
 	float time = 0.0f;
 	float speed = 1.0f;

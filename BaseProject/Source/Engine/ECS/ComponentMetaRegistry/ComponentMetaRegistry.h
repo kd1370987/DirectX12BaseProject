@@ -20,6 +20,20 @@ namespace Engine::ECS
 		std::function<void(void*)> construct;
 		std::function<void(CompEditContext&)> edit;
 		std::function<void(Persistence::Archive& a_ar, void*)> archive;
+
+		//----------------------------------------------------------------------------------
+		// 借りているものを返す処理(持っていないコンポーネントは空のまま)
+		//
+		// ECSが必ず呼ぶ場所 :
+		//   ・エンティティを消すとき
+		//   ・コンポーネントを外すとき / 初期値で上書きするとき
+		//   ・PostDeserialize へ入り直すとき(直後に fixup が取り直す)
+		//
+		// コンポーネントは trivially copyable でなければならず、デストラクタが
+		// 走らない。リソースの参照カウントのように「取ったら返す」ものは、
+		// ComponentTraits<T>::Release(void*) を書いてここへ載せること。
+		//----------------------------------------------------------------------------------
+		std::function<void(void*)> release;
 	};
 
 	class ComponentMetaRegistry
@@ -115,6 +129,12 @@ namespace Engine::ECS
 		_func.construct = [](void* a_ptr) {new (a_ptr) Comp(); };		// すでに作られたメモリ上を初期化
 		_func.archive = ComponentTraits<Comp>::Archive;					// セーブロード用
 		_func.edit = ComponentTraits<Comp>::Edit;						// エディター用
+
+		// 解放処理は持っているものだけ。書いていないコンポーネントは空のまま
+		if constexpr (requires (void* a_pData) { ComponentTraits<Comp>::Release(a_pData); })
+		{
+			_func.release = ComponentTraits<Comp>::Release;
+		}
 
 		// 登録
 		m_compNameMap.emplace(a_name,_typeID);		// 名前との対応表

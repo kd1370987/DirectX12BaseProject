@@ -49,14 +49,11 @@ namespace App::Utility
 	{
 		if (a_prefabGUID == Engine::DefaultGUID) return false;
 
-		// ハンドルを解決(未ロードならロード)
+		// ハンドルを解決(未ロードならロード)して、参照を1つ取る。
+		// 返すのはこのハンドルを持っているコンポーネントの解放フック
 		if (!a_resourceManager.IsValid(a_refHandle))
 		{
-			if (!a_resourceManager.Has<Engine::Resource::Prefab>(a_prefabGUID))
-			{
-				a_resourceManager.LoadImmediate<Engine::Resource::Prefab>(a_prefabGUID);
-			}
-			a_refHandle = a_resourceManager.GetCache<Engine::Resource::Prefab>(a_prefabGUID);
+			a_resourceManager.AcquireImmediate(a_refHandle, a_prefabGUID);
 		}
 
 		auto* _pPrefab = a_resourceManager.Ref(a_refHandle);

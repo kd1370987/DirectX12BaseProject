@@ -28,15 +28,15 @@ void ParticleFixupSystem::Init(Engine::ECS::World& a_world)
 				if (_particleComp.particleGUID != Engine::DefaultGUID)
 				{
 					// パーティクルロード
-					_particleComp.particlesAssetHandle =
-						a_ctx.pServices->pResourceManager->LoadImmediate<Engine::Resource::ParticlesAsset>(_particleComp.particleGUID);
+					a_ctx.pServices->pResourceManager->AcquireImmediate(
+						_particleComp.particlesAssetHandle, _particleComp.particleGUID);
 				}
 
 				// 火花(発動時 / 終了時)のアセットも同様にハンドルを解決しておく
 				if (_particleComp.sparkGUID != Engine::DefaultGUID)
 				{
-					_particleComp.sparkAssetHandle =
-						a_ctx.pServices->pResourceManager->LoadImmediate<Engine::Resource::ParticlesAsset>(_particleComp.sparkGUID);
+					a_ctx.pServices->pResourceManager->AcquireImmediate(
+						_particleComp.sparkAssetHandle, _particleComp.sparkGUID);
 				}
 
 				// 出っぱなしの指定なら、ここで再生状態にしておく。
