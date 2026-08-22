@@ -37,7 +37,13 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			//--------------------------------------------------------------
 			// 上下の入力
 			//
-			// ジャンプが上、急降下(LCtrl)が下。両方押されたら打ち消し合って0になる。
+			// 下向きは急降下(LCtrl)。上向きの入力はここでは作らない。
+			//
+			// Space は上昇ではなくチャージダッシュの溜め専用にした。
+			// 上昇したいときはブースト(LShift)を移動入力なしで吹かす
+			// (RobotBoostSystem が「入力が無ければ真上」で拾う)。
+			// ダッシュ中だけは Space が上昇に化けるが、それを決めるのは
+			// ChargeDashSystem 側なので、ここでは押されているかを渡すだけ。
 			//
 			// 強さは「押しているか」だけで決めたいので IsHold で取る。
 			// GetButtonState が返すのは EState のビットマスク
@@ -48,10 +54,9 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 			const bool _isJumpHold = a_ctx.pServices->pInputManager->IsHold("Jump");
 			const bool _isJumpRelease = a_ctx.pServices->pInputManager->IsRelease("Jump");
 
-			const float _jumpInput = _isJumpHold ? 1.0f : 0.0f;
 			const float _diveInput = a_ctx.pServices->pInputManager->IsHold("Dive") ? 1.0f : 0.0f;
 
-			_move = { _inputMove.x, _jumpInput - _diveInput, _inputMove.y };
+			_move = { _inputMove.x, -_diveInput, _inputMove.y };
 
 			// ブースト
 			bool _isHold = a_ctx.pServices->pInputManager->IsHold("Boost");			// 押されっぱなし
@@ -79,8 +84,9 @@ void InputMoveSystem::Init(Engine::ECS::World& a_world)
 				//--------------------------------------------------------------
 				// チャージダッシュ(ジャンプ長押し)
 				//
-				// 上昇と同じボタンを使う。押している間は今まで通り上昇したまま溜まり、
-				// 溜まりきってから離すと撃ち出す(進行は ChargeDashSystem)。
+				// 押している間だけ溜まり、溜まりきってから離すと撃ち出す
+				// (進行は ChargeDashSystem)。
+				// 溜めている間は上昇しない。上昇はブーストの担当に寄せてある。
 				//
 				// ChargeDashComponent はクエリに入れず、持っているエンティティだけへ書く。
 				// クエリに足すとアーキタイプが狭まり、付けていない機体の

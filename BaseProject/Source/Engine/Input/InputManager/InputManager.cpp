@@ -40,7 +40,10 @@ namespace Engine::Input
 		// 切り替え前の入力が押しっぱなしのまま固まらない。
 		bool IsPlayMode()
 		{
-			return MainEngine::Instance().GetMode() == EAppMode::Game;
+			// デバッグプレイはエディターを出したまま遊ぶモードなので、入力はゲーム側へ渡す。
+			// (画の出し方は Editor 寄り、操作は Game 寄り)
+			const auto _mode = MainEngine::Instance().GetMode();
+			return (_mode == EAppMode::Game) || (_mode == EAppMode::DebugPlay);
 		}
 
 		// 溜まっている生のマウス移動量を捨てる
@@ -70,9 +73,12 @@ namespace Engine::Input
 	void InputManager::Update()
 	{
 		// マウスの固定化
-		// エディタ操作中(Gameモード以外)は固定しない
+		// エディタ操作中は固定しない。
+		// デバッグプレイ中は固定する : 視点の移動量は固定していないと作られないので、
+		// ここを外すとマウスで振り向けなくなる
 		const auto _mode = MainEngine::Instance().GetMode();
-		m_isCursorLockActive = (m_isCursorLockedToCenter && _mode == EAppMode::Game);
+		const bool _isPlaying = (_mode == EAppMode::Game) || (_mode == EAppMode::DebugPlay);
+		m_isCursorLockActive = (m_isCursorLockedToCenter && _isPlaying);
 
 		if (m_isCursorLockActive)
 		{

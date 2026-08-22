@@ -7,6 +7,7 @@
 #include "../../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../../Components/Character/LookAngleComponent.h"
 #include "../../../../../Components/Character/Robot/ChargeDashComponent.h"
+#include "../../../../../Components/Character/Robot/BoostComponent.h"
 
 //==============================================================================
 // ChargeDashSystem
@@ -14,15 +15,29 @@
 // ジャンプを溜めて撃ち出すチャージダッシュの進行。
 // 溜め → 発動 → 直進 → 停止 の一本道を、ChargeDashComponent の上で回す。
 //
-// ・向きは発動した瞬間に1回だけ決めて dashDir へ焼き付ける。
+// ・進む軸は発動した瞬間に1回だけ決めて dashDir へ焼き付ける。
 //   ブースト(RobotBoostSystem)は毎フレーム入力から向きを作り直すので曲がれるが、
-//   こちらは焼き付けた向きしか使わないので曲がれない。
-//   視点を回しても軌道は変わらず、変わるのは「逆入力で止まるかどうか」の判定だけ。
+//   こちらは焼き付けた軸しか使わないので曲がれない。視点を回しても軌道は変わらない。
+//
+//   ただし軸から外れた向きへは動かせる。入力から進行軸の成分を抜いた残りを
+//   dashStrafeSpeed で足すことで、突っ込みながら横へ流せる。
+//   軸に沿った成分は落としているので、前を押しても速くならず、
+//   後ろを押したときは加速ではなく停止(brakeDot)の側で拾われる。
+//   上下は入力ぶんをそのまま dashVerticalSpeed で足す。
+//
+// ・止まるのは「エネルギーが尽きたとき」と「逆入力が入ったとき」の2つだけで、
+//   時間では止まらない。エネルギーはブーストと同じ BoostComponent の燃料を吸う。
+//   燃料は RobotBoostSystem が毎フレーム回復させているので、
+//   dashFuelPerSec がその回復量を上回っていないと永久に飛べてしまう。
+//
+//   BoostComponent もクエリに入れずに RefData で引く。
+//   クエリに入れると RobotBoostSystem と互いに読み書きすることになり、
+//   Boost の読み書きで両向きに辺が張られて依存が輪になる。
 //
 // ・速度の入れ方
 //   VelocityComponent(目標速度)だけを書くと、実速度は MovementIntegrationSystem が
 //   MovementComponent.acceleration で追いかける。プレイヤーの加速度は 150 前後なので
-//   dashSpeed 90 に乗るまで 0.6 秒ほどかかり、dashTime とほぼ同じ長さになってしまう。
+//   dashSpeed 90 に乗るまで 0.6 秒ほどかかり、ダッシュが終わる頃にようやく最高速になる。
 //   撃ち出しの手応えが出ないので、実速度(MovementComponent.velocity)にも同じ値を直接入れて
 //   その場で最高速へ乗せる。目標と実速度が一致していれば、
 //   後段の MovementIntegrationSystem は差分 0 でそのまま通す。
@@ -104,11 +119,19 @@ void ChargeDashSystem::Init(Engine::ECS::World& a_world)
 					_pMovement = a_ctx.pWorld->RefData<MovementComponent>(_self);
 				}
 
-				// 目標速度と実速度へ同じ水平速度を入れる
-				auto _applyHorizontal = [&](const Math::Vector3& a_dir, float a_speed)
+				// ダッシュを支えるエネルギー。ブーストと同じ燃料を吸う
+				// (持っていない相手は尽きないので、逆入力でしか止まらない)
+				BoostComponent* _pBoost = nullptr;
+				if (a_ctx.pWorld->HasComponent<BoostComponent>(_self))
 				{
-					_velComp.value.x = a_dir.x * a_speed;
-					_velComp.value.z = a_dir.z * a_speed;
+					_pBoost = a_ctx.pWorld->RefData<BoostComponent>(_self);
+				}
+
+				// 目標速度と実速度へ同じ水平速度を入れる
+				auto _applyHorizontal = [&](const Math::Vector3& a_velocity)
+				{
+					_velComp.value.x = a_velocity.x;
+					_velComp.value.z = a_velocity.z;
 
 					if (_pMovement)
 					{
@@ -137,38 +160,90 @@ void ChargeDashSystem::Init(Engine::ECS::World& a_world)
 				//----------------------------------------------------------
 				if (_dashComp.isDashing)
 				{
-					_dashComp.dashTimer = (std::max)(0.0f, _dashComp.dashTimer - a_ctx.dt);
+					_dashComp.dashElapsed += a_ctx.dt;
+
+					//------------------------------------------------------
+					// エネルギーを吸う
+					//
+					// 直前に RobotBoostSystem が回復ぶんを足しているので、
+					// 実際に減るのは dashFuelPerSec との差ぶん。
+					// 回復量を下回る設定にすると尽きなくなる(その旨はエディターに出してある)
+					//------------------------------------------------------
+					bool _isEnergyEmpty = false;
+					if (_pBoost && _dashComp.dashFuelPerSec > 0.0f)
+					{
+						_pBoost->currentFuel -= _dashComp.dashFuelPerSec * a_ctx.dt;
+						if (_pBoost->currentFuel <= 0.0f)
+						{
+							_pBoost->currentFuel = 0.0f;
+							_isEnergyEmpty = true;
+						}
+					}
 
 					// 進行方向の逆へ入力されたか(既定の操作なら S)。
 					// キーではなくワールドでの向きで見ているので、
-					// 視点を回して「進んでいる向きの逆」を入れても止まる
+					// 視点を回して「進んでいる向きの逆」を入れても止まる。
+					// 横入力は内積がほぼ 0 になるので、ここには引っ掛からない
 					const bool _isBrake =
 						_hasInput && (_inputDir.Dot(_dashComp.dashDir) <= _dashComp.brakeDot);
 
-					const bool _isTimeUp = (_dashComp.dashTimer <= 0.0f);
-
-					if (_isBrake || _isTimeUp)
+					if (_isBrake || _isEnergyEmpty)
 					{
 						// 抜けるときは 0 にせず少しだけ速度を残す。
 						// いきなり止めると、そのフレームだけ画も操作も固まって見える
 						const float _exitSpeed =
 							_dashComp.dashSpeed * std::clamp(_dashComp.exitSpeedScale, 0.0f, 1.0f);
 
-						_applyHorizontal(_dashComp.dashDir, _exitSpeed);
+						_applyHorizontal(_dashComp.dashDir * _exitSpeed);
 
 						_dashComp.isDashing = false;
-						_dashComp.dashTimer = 0.0f;
+						_dashComp.dashElapsed = 0.0f;
 						_dashComp.coolTimer = _dashComp.coolTime;
 					}
 					else
 					{
-						_applyHorizontal(_dashComp.dashDir, _dashComp.dashSpeed);
+						//--------------------------------------------------
+						// 横へずらす
+						//
+						// 入力から進行軸の成分を抜いた残りだけを足す。
+						// 抜いておかないと前入力で加速してしまい、
+						// 「軸は変えられない」という決まりが崩れる。
+						// 残りは軸と直交しているので、真横だけでなく
+						// 斜め入力でも『はみ出したぶん』が素直に効く
+						//--------------------------------------------------
+						Math::Vector3 _velocity = _dashComp.dashDir * _dashComp.dashSpeed;
 
-						// 高さを保つ : 直前に GravitySystem が足した落下ぶんと、
-						// 上下入力から CharacterMovementSystem が入れた上昇ぶんを打ち消す
+						if (_hasInput && _dashComp.dashStrafeSpeed > 0.0f)
+						{
+							const Math::Vector3 _side =
+								_inputDir - _dashComp.dashDir * _inputDir.Dot(_dashComp.dashDir);
+
+							_velocity += _side * _dashComp.dashStrafeSpeed;
+						}
+
+						_applyHorizontal(_velocity);
+
+						//--------------------------------------------------
+						// 上下
+						//
+						// 上昇は溜めと同じ Space。出ている間は溜められないので取り合わない。
+						// 下降は MoveIntent.y(急降下)がそのまま入っている
+						//--------------------------------------------------
+						const float _ascend =
+							(_dashComp.isUseJumpAscend && _dashComp.isChargeIntent) ? 1.0f : 0.0f;
+
+						const float _upInput =
+							std::clamp(_moveIntent.value.y + _ascend, -1.0f, 1.0f);
+
 						if (_dashComp.isKeepHeight)
 						{
-							_velComp.value.y = 0.0f;
+							// 直前に GravitySystem が足した落下ぶんを捨てて、入力ぶんだけにする
+							_velComp.value.y = _upInput * _dashComp.dashVerticalSpeed;
+						}
+						else
+						{
+							// 落ちながら進む。入力は重力に足す
+							_velComp.value.y += _upInput * _dashComp.dashVerticalSpeed;
 						}
 					}
 
@@ -255,12 +330,13 @@ void ChargeDashSystem::Init(Engine::ECS::World& a_world)
 				_dashComp.dashDir      = _dir;
 				_dashComp.isDashing    = true;
 				_dashComp.isJustDashed = true;
-				_dashComp.dashTimer    = _dashComp.dashTime;
+				_dashComp.dashElapsed  = 0.0f;
 
 				_resetCharge();
 
-				// 出たフレームからいきなり最高速で進む
-				_applyHorizontal(_dir, _dashComp.dashSpeed);
+				// 出たフレームからいきなり最高速で進む。
+				// 横と上下は次のフレームから(出た瞬間はまっすぐ撃ち出したい)
+				_applyHorizontal(_dir * _dashComp.dashSpeed);
 				if (_dashComp.isKeepHeight)
 				{
 					_velComp.value.y = 0.0f;

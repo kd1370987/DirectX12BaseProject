@@ -93,7 +93,15 @@ void Application::MainLoop()
 			const bool _isEditorKeyDown = (GetAsyncKeyState('O') & 0x8000) != 0;
 			const bool _isGameKeyDown   = (GetAsyncKeyState('P') & 0x8000) != 0;
 
-			if (!_isTyping && !_isModal)
+			// デバッグプレイ中は文字入力を理由に止めない。
+			// あちらはエディターがマウスを受け取らないので、入ってしまうと
+			// 文字入力の状態が残っていた場合に O も効かず抜けられなくなる。
+			// (入るにはボタンを押す＝入力欄からフォーカスが外れるので普通は起きないが、
+			//  戻れなくなる類の詰まり方なので念のため道を空けておく)
+			const bool _isDebugPlay =
+				Engine::MainEngine::Instance().GetMode() == Engine::EAppMode::DebugPlay;
+
+			if ((!_isTyping || _isDebugPlay) && !_isModal)
 			{
 				if (_isEditorKeyDown && !s_wasEditorKeyDown)
 				{

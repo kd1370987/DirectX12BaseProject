@@ -933,6 +933,40 @@ namespace Engine::Editor
 				ImGui::EndMenu();
 			}
 
+			//--------------------------------------------------------------
+			// デバッグプレイの入り切り
+			//
+			// エディターを出したままゲームを動かすモード。
+			// インスペクターで値の動きを見ながら操作を確かめるためのもので、
+			// 映るのはゲームのカメラ、入力もゲームへ渡る。
+			//
+			// 入っている間はマウスがゲーム側の持ち物になる(カーソルは画面中央へ
+			// 固定され、エディターはマウスを受け取らない)ので、
+			// 抜けるのは O キー。ボタンの文字にも出しておく。
+			//
+			// 色は付けない。このエディターでは色付きのボタンは
+			// 「押すと増える(緑)/減る(赤)」を表す決まりなので、
+			// 表示の切り替えに使うと意味が食い違う
+			//--------------------------------------------------------------
+			{
+				auto& _engine = MainEngine::Instance();
+				const bool _isDebugPlay = (_engine.GetMode() == EAppMode::DebugPlay);
+
+				if (ImGui::Button(_isDebugPlay
+					? "Debug Play : ON   (O key to Editor)"
+					: "Debug Play : OFF"))
+				{
+					_engine.ChangeMode(_isDebugPlay ? EAppMode::Editor : EAppMode::DebugPlay);
+				}
+
+				if (!_isDebugPlay && ImGui::IsItemHovered())
+				{
+					ImGui::SetTooltip(
+						"エディターを出したままシーンビューで遊ぶ\n"
+						"入るとマウスはゲーム側へ渡るので、抜けるときは O キー");
+				}
+			}
+
 			ImGui::EndMenuBar();
 		}
 
