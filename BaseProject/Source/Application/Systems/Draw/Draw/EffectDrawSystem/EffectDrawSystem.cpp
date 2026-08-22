@@ -48,8 +48,6 @@ void EffectDrawSystem::Init(Engine::ECS::World& a_world)
 				const EffectAssetComponent& _comp = a_effectArray[_i];
 				if (!_comp.instance.isPlaying) continue;
 
-				if (!_pParticleManager) ENGINE_LOG("[DBG-Draw] ParticleManager が null");
-
 				auto* _pEffect = _pResourceManager->Ref(_comp.effectHandle);
 				if (!_pEffect) continue;
 
@@ -99,12 +97,7 @@ void EffectDrawSystem::Init(Engine::ECS::World& a_world)
 
 						// パーティクルアセットが引けなければ出しようがない
 						auto* _pParticle = _pResourceManager->Get(_part.particleHandle);
-						if (!_pParticle)
-						{
-							ENGINE_LOG("[DBG-Draw] part%d パーティクルが引けない (handleValid=%d)",
-								static_cast<int>(_p), _part.particleHandle.IsValid() ? 1 : 0);
-							continue;
-						}
+						if (!_pParticle) continue;
 
 						//--------------------------------------------------
 						// 発生源(位置・方向)を決める
@@ -240,8 +233,6 @@ void EffectDrawSystem::Init(Engine::ECS::World& a_world)
 						_emitData.minLifeTime = _pParticle->GetLifeTimeMin();
 						_emitData.maxLifeTime = _pParticle->GetLifeTimeMax();
 
-						ENGINE_LOG("[DBG-Draw] part%d RequestEmit n=%d pos=(%.2f,%.2f,%.2f)",
-							static_cast<int>(_p), _emitCount, _pos.x, _pos.y, _pos.z);
 						_pParticleManager->RequestEmit(_part.particleHandle, _emitData);
 					}
 				}

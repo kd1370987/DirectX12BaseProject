@@ -76,7 +76,6 @@ void EffectUpdateSystem::Init(Engine::ECS::World& a_world)
 				if (_comp.isPlay && !_comp.instance.isPlaying)
 				{
 					_pEffect->Play(_comp.instance);
-					ENGINE_LOG("[DBG-Update] Play (dt=%.4f)", a_ctx.dt);
 				}
 				else if (!_comp.isPlay && _comp.instance.isPlaying)
 				{
@@ -94,14 +93,7 @@ void EffectUpdateSystem::Init(Engine::ECS::World& a_world)
 				// (音が鳴り終わるまで待つかはサウンドパーツの isWaitFinish 次第)
 				if (_comp.destroyOnFinish && _pEffect->IsFinished(_comp.instance, _pAudioManager))
 				{
-					ENGINE_LOG("[DBG-Update] Finish -> release (elapsed=%.3f)", _comp.instance.elapsed);
 					a_ctx.pWorld->AddReleaseEntity(a_pChunk->entityData[_i]);
-				}
-				else if (_comp.instance.pendingEmit[0] > 0 || _comp.instance.pendingEmit[1] > 0)
-				{
-					ENGINE_LOG("[DBG-Update] elapsed=%.3f pending=%d/%d",
-						_comp.instance.elapsed,
-						_comp.instance.pendingEmit[0], _comp.instance.pendingEmit[1]);
 				}
 			}
 		}

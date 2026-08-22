@@ -18,7 +18,7 @@
 #include "../../../../Components/Collision/Collider.h"
 
 #include "../../../Shared/ProjectileSpawn/ProjectileSpawn.h"
-#include "../../../../Utility/EffectSpawnHelper.h"
+#include "../../../../Components/Effect/EffectAssetComponent.h"
 
 //==========================================================================================
 // GunShootSystem
@@ -263,6 +263,10 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				// エンティティのワールド行列で変換してワールド座標にする。
 				// (ノードインデックスは GunStateStartSystem がハッシュから解決する)
 				//======================================================================
+				// 銃ローカルの銃口位置。マズルフラッシュの発生位置に使う
+				// (エフェクトは銃自身に付いているので、渡すのは銃基準のオフセット)
+				Math::Vector3 _muzzleLocalPos = { 0.0f, 0.0f, 0.0f };
+
 				Math::Vector3 _spawnPos = _pos;
 				if (_gun.nullPtrNodeHash != 0)
 				{
@@ -274,6 +278,7 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 						{
 							const Math::Matrix& _nodeMat = _nodeVec[_gun.nodeIndex].worldTransform;
 							Math::Vector3 _nodeLocalPos = { _nodeMat._41, _nodeMat._42, _nodeMat._43 };
+							_muzzleLocalPos = _nodeLocalPos;
 							_spawnPos = Math::Vector3::Transform(_nodeLocalPos, Math::Matrix(_m));
 						}
 					}
@@ -316,27 +321,51 @@ void GunShootSystem::Init(Engine::ECS::World& a_world)
 				//======================================================================
 				// マズルフラッシュ
 				//----------------------------------------------------------------------
-				// 弾を出したのと同じ位置・同じ向きへ、単発のエフェクトを出す。
-				// 弾は飛んで行ってしまうので、これが無いと撃った手応えが銃の側に残らない。
+				// 銃口の位置・射出方向へ、銃自身が持っている再生枠を頭から再生し直す。
 				//
-				// 銃に付けるのではなく、その場へ独立したエンティティとして出す。
-				// 銃口の光は一瞬で消えるものなので、銃に付いて動く必要が無く、
-				// 連射で前の1発がまだ消えていなくても撃ち直せる
-				// (銃に持たせると、次の発射で前の再生を打ち切ることになる)。
-				// 出したものは destroyOnFinish で自分から消えるので後片付けは要らない。
+				// エフェクト用のエンティティは出さない。出すとそのエンティティは
+				// エフェクトが終わるまでワールドに残るので、移動しながら撃つと
+				// 撃った位置に取り残されて尾を引いて見える。
+				// (枠を持たせるのは GunStateStartSystem)
+				//
+				// 置き方は毎発入れ直す。銃口ノードは変わらなくても、
+				// 狙いの向きは撃つたびに変わるため。
 				//
 				// 撃つと決まった後に置いているので、
 				// 弾が出なかったフレーム(プレハブ未設定など)では光らない
 				//======================================================================
-				if (_gun.muzzleEffectGUID != Engine::DefaultGUID)
+				if (_gun.muzzleEffectGUID != Engine::DefaultGUID &&
+					a_ctx.pWorld->HasComponent<EffectAssetComponent>(_self))
 				{
-					App::Utility::SpawnEffectAt(
-						*a_ctx.pWorld,
-						_gun.muzzleEffectGUID,
-						_spawnPos,
-						true,			// 出し切ったら自分で消える
-						_shootDir,
-						_gun.muzzleEffectScale);
+					auto* _pMuzzleComp = a_ctx.pWorld->RefData<EffectAssetComponent>(_self);
+					auto* _pMuzzleEffect = _pMuzzleComp
+						? Engine::Resource::ResourceManager::Instance().Ref(_pMuzzleComp->effectHandle)
+						: nullptr;
+
+					if (_pMuzzleEffect)
+					{
+						// 位置も向きも銃のローカルへ直して渡す。
+						// EffectDrawSystem がこの銃のワールド行列を掛けるので、
+						// ワールドのまま渡すと二重に掛かる
+						const Math::Matrix _gunInvMat = Math::Matrix(_m).Invert();
+
+						_pMuzzleComp->effectScale = _gun.muzzleEffectScale;
+						_pMuzzleComp->isOverrideTransform = true;
+						_pMuzzleComp->overridePosOffset = _muzzleLocalPos;
+						_pMuzzleComp->overrideEmitDir =
+							Math::Vector3::TransformNormal(_shootDir, _gunInvMat);
+
+						// 頭から出し直す(Play は中で Reset を呼ぶ)。
+						//
+						// isPlay は一度立てたら下ろさない。EffectUpdateSystem は
+						// isPlay の立ち下がりで Stop するので、下ろすと消えてしまう。
+						// また立ち上がりの Play は「まだ再生していない」ときしか走らず、
+						// 連射の上書きには使えないので、ここで直接 Play を呼ぶ。
+						// 出し切った後はどのパーツも出す時間帯から外れるだけなので、
+						// 再生中のまま置いておいても何も出ない
+						_pMuzzleComp->isPlay = true;
+						_pMuzzleEffect->Play(_pMuzzleComp->instance);
+					}
 				}
 			}
 		}

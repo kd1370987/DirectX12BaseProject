@@ -46,10 +46,18 @@ namespace Engine::Editor
 
 		std::lock_guard _lock(m_pendingMutex);
 
+		//------------------------------------------------------------------
 		// 描かれないまま溜まり続けるのを防ぐ。古いものから捨てる
+		//
+		// 1件ずつ捨てると、溜まりきった後は1行積むたびに PENDING_MAX 件の
+		// 詰め直しが走る。ゲームモードでは FlushPending(描画側)が回らないので
+		// 必ずこの状態になり、毎フレーム出るログがあると一気に重くなる。
+		// まとめて捨てて、詰め直しの回数を減らす
+		//------------------------------------------------------------------
 		if (m_pendingVec.size() >= PENDING_MAX)
 		{
-			m_pendingVec.erase(m_pendingVec.begin());
+			const size_t _dropCount = PENDING_MAX / 2;
+			m_pendingVec.erase(m_pendingVec.begin(), m_pendingVec.begin() + _dropCount);
 		}
 
 		m_pendingVec.emplace_back(a_text);
