@@ -1,6 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include "../../Engine/Resource/Data/Sound/Sound.h"
+#include "../../Engine/Audio/AudioManager.h"
 
 //==========================================================================================
 //
@@ -34,6 +35,36 @@ struct FlyingSoundResource
 {
 	// 持ち主のエンティティ -> ボイス
 	std::unordered_map<Engine::ECS::Entity, FlyingSoundVoice> voiceMap = {};
+
+	//----------------------------------------------------------------------------------
+	// ワールドと一緒に消えるときに、抱えているボイスを全部返す
+	//
+	// 回収は FlyingSoundSystem の「見かけなかったものを消す」掃除に任せているが、
+	// あれが回るのはシーンが動いている間だけ。シーンを切り替えるとワールドごと
+	// 消えるので掃除が走らず、ループ再生のボイスがプールに残って鳴り続けていた。
+	//
+	// ここで AudioManager を名指ししているのは、デストラクタには
+	// コンテキストを渡す口が無いため。
+	// シーンの破棄(SceneManager::Release)はオーディオの解放より先に走るので、
+	// この時点では AudioManager は生きている
+	//----------------------------------------------------------------------------------
+	~FlyingSoundResource()
+	{
+		ReleaseAll();
+	}
+
+	// 抱えているボイスを全部返す(鳴っていても止まる)
+	void ReleaseAll()
+	{
+		auto& _audioManager = Engine::Audio::AudioManager::Instance();
+
+		for (auto& [_entity, _voice] : voiceMap)
+		{
+			_audioManager.ReleaseSoundInstance(_voice.handle);
+		}
+
+		voiceMap.clear();
+	}
 
 	// フレーム頭に呼ぶ。全部「見かけていない」に戻す
 	void ResetAliveFlags()

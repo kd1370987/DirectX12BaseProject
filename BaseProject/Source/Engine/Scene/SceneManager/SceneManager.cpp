@@ -9,6 +9,8 @@
 
 #include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
+#include "../../Audio/AudioManager.h"
+
 #include "../../Editor/Editor.h"
 #include "../../Editor/EffectEditor/EffectEditor.h"
 
@@ -237,6 +239,23 @@ namespace Engine::Scene
 		// (当たり判定の空間はワールドの持ち物なので、上の Exit で一緒に消えている)
 		if (_isLastScene)
 		{
+			//--------------------------------------------------------------
+			// 鳴り残っている音を止める
+			//
+			// 音を借りているものは、消えるときに自分で返す作りになっている
+			//   ・コンポーネント … Release フェーズ(SoundFreeSystem など)
+			//   ・UI / 進行役    … GameObjectManager の破棄が Release を呼ぶ
+			// ただし返し漏れが1つでもあると、鳴っているボイスがプールに残り、
+			// 次のシーンへ持ち越して鳴り続ける。ループ再生だと止まらない。
+			//
+			// シーンが1つも残っていないなら、鳴っていてよい音はもう無い。
+			// ここで残りをまとめて止めて、取りこぼしを次のシーンへ持ち込まない。
+			//
+			// ※ 重ねたシーン(ポーズ)を外しただけのときは通らない。
+			//    後ろのゲームで鳴っている音を巻き添えにしないため
+			//--------------------------------------------------------------
+			Audio::AudioManager::Instance().ReleaseInstances();
+
 			// 誰も持っていないリソースはここで破棄する
 			Resource::ResourceManager::Instance().SweepUnusedAll();
 		}
