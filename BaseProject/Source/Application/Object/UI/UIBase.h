@@ -60,8 +60,8 @@ namespace App::Object
 		/// 画面の中で出したり引っ込めたりするもの(ホームとステージセレクトの
 		/// 出し分けなど)は、消さずにこれで切り替える。
 		/// </remarks>
-		bool IsVisible() const { return m_isVisible; }
-		void SetVisible(bool a_isVisible) { m_isVisible = a_isVisible; }
+		bool IsVisible() const override { return m_isVisible; }
+		void SetVisible(bool a_isVisible) override { m_isVisible = a_isVisible; }
 
 		//-----------------------------------------------------------------------
 		// 飾り

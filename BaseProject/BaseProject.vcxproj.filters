@@ -862,6 +862,9 @@
     <Filter Include="Source\Application\Object\Sequence\HomeSequence">
       <UniqueIdentifier>{8e7fbc0c-8408-410f-bea0-e67969f04b8c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Sequence\MissionSelect">
+      <UniqueIdentifier>{78d06404-cc4f-4309-8e51-a58917e730ee}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Object\Sequence\PauseSequence">
       <UniqueIdentifier>{ae36ba85-9ecf-45d4-9717-d265a9d8dfef}</UniqueIdentifier>
     </Filter>
@@ -2039,6 +2042,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.cpp">
       <Filter>Source\Application\Object\Sequence\PauseSequence</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\MissionSelect\MissionSelect.cpp">
+      <Filter>Source\Application\Object\Sequence\MissionSelect</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Particles\ParticlesAsset.cpp">
       <Filter>Source\Engine\Resource\Data\Particles</Filter>
@@ -3241,6 +3247,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.h">
       <Filter>Source\Application\Object\Sequence\PauseSequence</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Sequence\MissionSelect\MissionSelect.h">
+      <Filter>Source\Application\Object\Sequence\MissionSelect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\ObjectPicker.h">
+      <Filter>Source\Application\Object</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\ScoreTargetComponent.h">
       <Filter>Source\Application\Components\Character</Filter>

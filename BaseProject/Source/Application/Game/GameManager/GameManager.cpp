@@ -23,6 +23,7 @@
 #include "Application/Object/Sequence/TitleSequence/TitleSequence.h"
 #include "Application/Object/Sequence/HomeSequence/HomeSequence.h"
 #include "Application/Object/Sequence/PauseSequence/PauseSequence.h"
+#include "Application/Object/Sequence/MissionSelect/MissionSelect.h"
 #include "../../Object/Scene/SceneAmbientObject/SceneAmbientObject.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 
@@ -278,6 +279,8 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::HomeSequence>("HomeSequence");
 			// ポーズ画面の進行役。重ねたシーンを閉じる側(重ねるのは SceneSequence)
 			_objRegistry.RegisterType<App::Object::PauseSequence>("PauseSequence");
+			// ミッションセレクト。ホームから出し入れされ、選ぶと確認ボックスを出して出撃する
+			_objRegistry.RegisterType<App::Object::MissionSelect>("MissionSelect");
 		}
 
 		// ワールドの初期化関数登録

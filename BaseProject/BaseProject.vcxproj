@@ -343,6 +343,7 @@
     <ClCompile Include="Source\Application\Object\Sequence\ResultSequence\ResultSequence.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.cpp" />
+    <ClCompile Include="Source\Application\Object\Sequence\MissionSelect\MissionSelect.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.cpp" />
@@ -616,6 +617,8 @@
     <ClInclude Include="Source\Application\Object\Sequence\ResultSequence\ResultSequence.h" />
     <ClInclude Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.h" />
     <ClInclude Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.h" />
+    <ClInclude Include="Source\Application\Object\Sequence\MissionSelect\MissionSelect.h" />
+    <ClInclude Include="Source\Application\Object\ObjectPicker.h" />
     <ClInclude Include="Source\Application\Components\Character\ScoreTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\BoosterEffectComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\AttachmentSlotsComponent.h" />

@@ -156,6 +156,11 @@ namespace Engine::GameObject
 					a_ar.Field("TypeIndex", _typeID);
 					a_ar.GUIDField("GUID", _guid);
 
+					// ヒエラルキー上の親(エディターの並びだけに効く)。
+					// 派生の Archive を1つずつ直さずに済むよう、ここでまとめて面倒を見る
+					Engine::GUID _parentGUID = _pObject->GetParentGUID();
+					a_ar.GUIDField("ParentGUID", _parentGUID);
+
 					// 個別データ
 					if (a_ar.BeginGroup("Data"))
 					{
@@ -170,8 +175,10 @@ namespace Engine::GameObject
 					// --------------------------------------------------
 					ObjectTypeID _typeID = INVALID_OBJECT_TYPE_ID;
 					Engine::GUID _guid = {};
+					Engine::GUID _parentGUID = {};
 					a_ar.Field("TypeIndex", _typeID);
 					a_ar.GUIDField("GUID", _guid);
+					a_ar.GUIDField("ParentGUID", _parentGUID);
 
 					// ファクトリで実体を生成
 					auto _upObject = _registry.Create(_typeID);
@@ -179,6 +186,10 @@ namespace Engine::GameObject
 					{
 						// GUIDを復元して登録
 						_upObject->SetGUID(_guid);
+
+						// 親はまだ読み込まれていないことがあるが、
+						// 実体ではなくGUIDで持つので順番を気にしなくてよい
+						_upObject->SetParentGUID(_parentGUID);
 						BaseObject* _pObject = Register(std::move(_upObject));
 
 						// 既定初期化 → 保存データで上書き復元

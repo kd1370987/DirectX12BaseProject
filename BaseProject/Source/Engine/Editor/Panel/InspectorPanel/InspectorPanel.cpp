@@ -42,6 +42,36 @@ void Engine::Editor::InspectorPanel::OnDrawImGui(EditorContext& a_editContext)
 			}
 
 			ImGui::Text("%s", a_editContext.pGameObject->GetEditorName());
+
+			//--------------------------------------------------------------
+			// 自身のGUID
+			//
+			// 進行役(HomeSequence / MissionSelect など)は相手を GUID で指すので、
+			// 目当てのオブジェクトを開いたときにここから拾えるようにしておく
+			//--------------------------------------------------------------
+			{
+				const std::string _guid = a_editContext.pGameObject->GetGUID().String();
+
+				ImGui::TextDisabled("GUID : %s", _guid.c_str());
+				ImGui::SameLine();
+				if (ImGui::SmallButton("Copy")) ImGui::SetClipboardText(_guid.c_str());
+
+				// ヒエラルキー上の親(並びのまとまりだけ。座標も表示も伝わらない)
+				const Engine::GUID& _parentGUID = a_editContext.pGameObject->GetParentGUID();
+				if (_parentGUID.IsValid())
+				{
+					const auto* _pParent = _pManager->FindByGUID(_parentGUID);
+
+					ImGui::TextDisabled("Parent : %s",
+						_pParent ? _pParent->GetEditorName() : "(missing)");
+					ImGui::SameLine();
+					if (ImGui::SmallButton("Unparent"))
+					{
+						a_editContext.pGameObject->SetParentGUID({});
+					}
+				}
+			}
+
 			ImGui::Separator();
 			a_editContext.pGameObject->DrawInspector(_pManager->RefObjectContext());
 		}
