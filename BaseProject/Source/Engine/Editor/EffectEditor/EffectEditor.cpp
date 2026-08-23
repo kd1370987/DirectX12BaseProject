@@ -279,6 +279,18 @@ namespace Engine::Editor
 	{
 		if (!m_isOpen || !m_upWorld) return;
 
+		// スカイだけは消しておく。
+		// エフェクト単体の見え方を詰めるための画面なので、後ろに空があると
+		// 薄い粒や加算の抜けが空の色に紛れて判断できない。
+		//
+		// ゲームのシーンは止まっていて SceneAmbientObject::Draw が走らないので、
+		// ここで貸し出しを外せば開いているあいだはずっと空無しのまま。
+		// 閉じればシーン側が毎フレーム貸し直すので、そのまま元へ戻る
+		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
+		{
+			_pGE->SetSkyTexture({});
+		}
+
 		m_upWorld->RunSystem(ECS::ESystemType::PreDraw, 0.0f);
 		m_upWorld->RunSystem(ECS::ESystemType::Draw, 0.0f);
 		m_upWorld->RunSystem(ECS::ESystemType::PostDraw, 0.0f);
