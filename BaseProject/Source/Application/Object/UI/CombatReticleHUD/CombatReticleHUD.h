@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../UIBase.h"
 
@@ -37,7 +37,7 @@ namespace App::Object
 	private:
 
 		// 収集円の半径(px)を求める。
-		// 表示サイズに内接する円なので、画像を大きくすれば収集範囲も広がる。
+		// アンカーの PixelSize に内接する円なので、アンカーを大きくすれば収集範囲も広がる。
 		// 倍率で詰めたい場合はプレイヤーの MissileLockComponent::reticleScale を使う
 		// (この HUD 側に設定を足すと、既存シーンのバイナリ配置が崩れるため)
 		float CalcCollectRadius() const;

@@ -28,13 +28,6 @@ namespace App::Object
 		if (!a_context.pServices) return;
 		if (!a_context.pServices->pAssetDatabase || !a_context.pServices->pResourceManager) return;
 
-		// GUID未設定(新規追加)なら既定テクスチャを引く。
-		// シーン読み込み時は Archive で復元済みのGUIDを尊重する。
-		if (!m_texGUID.IsValid())
-		{
-			m_texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(LOCK_BOX_TEXTURE_PATH);
-		}
-
 		// 新規追加直後はサイズが0で何も見えないので、既定サイズと色を入れておく。
 		// シーン読み込み時はこの後の Archive で保存値に上書きされる。
 		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f)
@@ -46,15 +39,25 @@ namespace App::Object
 			m_color = Math::Color(1.0f, 1.0f, 0.0f, 1.0f);
 		}
 
-		// 実体の到着は待たない。描画側が IsReady を見てスキップする
-		if (m_texGUID.IsValid())
+		// 既定の枠を1つ用意する。作るのは飾りを1つも持っていないときだけで、
+		// シーン読み込み時はこの後の Archive が保存された飾りで置き換える
+		if (m_decorationVec.empty())
 		{
-			m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
+			Decoration::Decoration& _box = AddDecoration(Decoration::EDecorationType::Image);
+			_box.name = "LockBox";
+			_box.pixelSize = m_pixelSize;
+			_box.texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(LOCK_BOX_TEXTURE_PATH);
 		}
+
+		// 実体の到着は待たない。描画側が IsReady を見てスキップする
+		RequestDecorationResources(a_context);
 	}
 
 	void MissileLockBoxHUD::Update(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 飾りのアニメーションを進める
+		UIBase::Update(a_context);
+
 		// このフレームぶんを作り直す
 		m_lockScreenPosVec.clear();
 
@@ -102,24 +105,15 @@ namespace App::Object
 	void MissileLockBoxHUD::Draw(Engine::GameObject::ObjectContext& a_context)
 	{
 		if (m_lockScreenPosVec.empty()) return;
-		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
 
-		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
-		if (!_pGE) return;
+		// 見た目は飾りそのまま。位置だけ敵ごとに差し替える
+		Decoration::DrawOverride _override = {};
+		_override.isUsePos = true;
 
-		// 見た目(サイズ・色・回転など)は全ボックス共通。位置だけ敵ごとに差し替える
 		for (const Math::Vector2& _screenPos : m_lockScreenPosVec)
 		{
-			_pGE->SubmitUI(
-				m_texRef,
-				_screenPos,
-				m_pixelSize,
-				m_color,
-				m_rotation,
-				m_layer,
-				m_uvOffset,
-				m_pivot
-			);
+			_override.pixelPos = _screenPos;
+			DrawDecorations(a_context, _override);
 		}
 	}
 

@@ -40,11 +40,8 @@ namespace App::Object
 			};
 		}
 
-		// テクスチャ(クロスマーク)は差し替え前提なので既定パスは持たない
-		if (m_texGUID.IsValid())
-		{
-			m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
-		}
+		// 飾り(クロスマーク)は差し替え前提なので既定の絵は持たない
+		RequestDecorationResources(a_context);
 
 		RequestSound(a_context);
 	}
@@ -104,6 +101,9 @@ namespace App::Object
 
 	void HitEffectHUD::Update(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 飾りのアニメーションを進める
+		UIBase::Update(a_context);
+
 		// 表示時間と間引きを進める
 		if (m_remainTime > 0.0f) m_remainTime = std::max(m_remainTime - a_context.dt, 0.0f);
 		if (m_coolTime > 0.0f)   m_coolTime   = std::max(m_coolTime - a_context.dt, 0.0f);
@@ -167,33 +167,21 @@ namespace App::Object
 	void HitEffectHUD::Draw(Engine::GameObject::ObjectContext& a_context)
 	{
 		if (m_remainTime <= 0.0f) return;
-		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
-
-		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
-		if (!_pGE) return;
 
 		// 残り時間の割合(1 → 0)。出た瞬間が 1
 		const float _rate = (m_showTime > 1e-4f)
 			? std::clamp(m_remainTime / m_showTime, 0.0f, 1.0f)
 			: 1.0f;
 
-		// 消えぎわに薄くする
-		Math::Color _color = m_color;
-		if (m_isFadeOut) _color.a *= _rate;
+		Decoration::DrawOverride _override = {};
 
 		// 出た瞬間だけ少し大きく見せる(punchScale → 等倍へ戻る)
-		const float _scale = 1.0f + (m_punchScale - 1.0f) * _rate;
+		_override.scale = 1.0f + (m_punchScale - 1.0f) * _rate;
 
-		_pGE->SubmitUI(
-			m_texRef,
-			m_pixelPos,
-			m_pixelSize * _scale,
-			_color,
-			m_rotation,
-			m_layer,
-			m_uvOffset,
-			m_pivot
-		);
+		// 消えぎわに薄くする : 掛ける色なので、飾りごとの色はそのまま残る
+		if (m_isFadeOut) _override.tint.a = _rate;
+
+		DrawDecorations(a_context, _override);
 	}
 
 	void HitEffectHUD::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
@@ -258,6 +246,6 @@ namespace App::Object
 		ImGui::Separator();
 		ImGui::Text("HitCount : %d", m_hitCount);
 		ImGui::Text("Remain   : %.2f", m_remainTime);
-		ImGui::TextDisabled("自分が撃った弾が ScoreTarget に当たったフレームに反応します");
+		ImGui::TextDisabled("自分が撃った弾が HealthComponent 持ちに当たったフレームに反応します");
 	}
 }

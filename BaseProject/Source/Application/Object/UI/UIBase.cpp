@@ -17,39 +17,133 @@ namespace App::Object
 	void UIBase::Release(Engine::GameObject::ObjectContext& a_context)
 	{}
 
+	//======================================================================================
+	// 更新 : 飾りのアニメーションを進める
+	//--------------------------------------------------------------------------------------
+	// 出していないフレームも進める。止めてしまうと、
+	// 出した瞬間に前回止まったところから続いてしまう。
+	//
+	// 継承先で Update を持つ場合は、先頭で UIBase::Update を呼ぶこと
+	//======================================================================================
+	void UIBase::Update(Engine::GameObject::ObjectContext& a_context)
+	{
+		for (Decoration::Decoration& _decoration : m_decorationVec)
+		{
+			Decoration::AdvanceAnimation(_decoration, a_context.dt);
+		}
+	}
+
 	void UIBase::Draw(Engine::GameObject::ObjectContext& a_context)
 	{
 		// 出さない指示が出ているものは描かない
 		if (!m_isVisible) return;
 
+		DrawDecorations(a_context);
+	}
+
+	//======================================================================================
+	// 飾りの操作
+	//======================================================================================
+	Decoration::Decoration& UIBase::AddDecoration(Decoration::EDecorationType a_type)
+	{
+		Decoration::Decoration& _decoration = m_decorationVec.emplace_back();
+		_decoration.type = a_type;
+
+		// 名前が全部同じだと一覧で見分けられないので、種類と番号を入れておく
+		const char* _typeName = "Decoration";
+		switch (a_type)
+		{
+		case Decoration::EDecorationType::Image:   _typeName = "Image";   break;
+		case Decoration::EDecorationType::Text:    _typeName = "Text";    break;
+		case Decoration::EDecorationType::Polygon:
+		default:                                   _typeName = "Polygon"; break;
+		}
+		_decoration.name = std::string(_typeName) + std::to_string(m_decorationVec.size());
+
+		return _decoration;
+	}
+
+	Decoration::Decoration* UIBase::FindDecoration(const std::string& a_name)
+	{
+		for (Decoration::Decoration& _decoration : m_decorationVec)
+		{
+			if (_decoration.name == a_name) return &_decoration;
+		}
+		return nullptr;
+	}
+
+	//======================================================================================
+	// 飾りの描画
+	//======================================================================================
+	Decoration::ParentTransform UIBase::MakeParentTransform() const
+	{
+		Decoration::ParentTransform _parent = {};
+		_parent.pixelPos = m_pixelPos;
+		_parent.rotation = m_rotation;
+		_parent.scale = m_scale;
+		_parent.layer = m_layer;
+		_parent.color = m_color;
+
+		return _parent;
+	}
+
+	void UIBase::DrawDecorations(
+		Engine::GameObject::ObjectContext& a_context,
+		const Decoration::DrawOverride& a_override)
+	{
+		// 出さない指示はここでまとめて弾く。
+		// 継承先が Draw を自前で持っていても、切れば必ず消えるようにするため
+		if (!m_isVisible) return;
+		if (m_decorationVec.empty()) return;
 		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
+		if (!a_context.pServices->pResourceManager) return;
 
 		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
 		if (!_pGE) return;
 
-		// 座標・サイズ(px)、回転(度)、正規化ピボット[0,1]をそのまま渡す。
-		// NDC変換・アスペクト補正・回転・ピボット処理はエンジン側(SubmitUI)が行う。
-		_pGE->SubmitUI(
-			m_texRef,
-			m_pixelPos,
-			m_pixelSize,
-			m_color,
-			m_rotation,
-			m_layer,
-			m_uvOffset,
-			m_pivot
-		);
+		const Decoration::ParentTransform _parent = MakeParentTransform();
+
+		// 配列の順に積む : 後ろにあるものほど手前に出る
+		for (const Decoration::Decoration& _decoration : m_decorationVec)
+		{
+			Decoration::DrawDecoration(
+				_pGE,
+				a_context.pServices->pResourceManager,
+				_decoration,
+				_parent,
+				a_override);
+		}
 	}
+
+	void UIBase::RequestDecorationResources(Engine::GameObject::ObjectContext& a_context)
+	{
+		if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
+
+		for (Decoration::Decoration& _decoration : m_decorationVec)
+		{
+			Decoration::RequestResources(_decoration, a_context.pServices->pResourceManager);
+		}
+	}
+
+	//======================================================================================
+	// シリアライズ
+	//--------------------------------------------------------------------------------------
+	// 前半はテクスチャを1枚だけ持っていた頃の並びをそのまま残してある。
+	// 順番を崩すと、既に保存されているシーンが読めなくなるため。
+	// 飾りの配列は末尾へ足し、配列を持たない古いシーンだけ TexGUID から作り直す
+	//======================================================================================
 	void UIBase::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
 	{
-		a_ar.GUIDField("TexGUID", m_texGUID);
+		// ---- 旧形式の名残(読み書きは続けるが、使うのは引き継ぎのときだけ) ----
+		a_ar.GUIDField("TexGUID", m_legacyTexGUID);
+
 		a_ar.Field("Color", m_color);
 
 		a_ar.Field("PosPixel", m_pixelPos);
 		a_ar.Field("SizePixel", m_pixelSize);
-		a_ar.Field("m_rotation",m_rotation);
-		a_ar.Field("m_pivot",m_pivot);
-		a_ar.Field("m_uvOffset",m_uvOffset);
+		a_ar.Field("m_rotation", m_rotation);
+		a_ar.Field("m_pivot", m_pivot);
+		a_ar.Field("m_uvOffset", m_legacyUvOffset);
 		a_ar.Field("m_layer", m_layer);
 		a_ar.Field("m_scale", m_scale);
 
@@ -57,19 +151,62 @@ namespace App::Object
 		//    (バイナリは並び順で読むので、間に挟むと既存のデータがずれる)
 		a_ar.Field("IsVisible", m_isVisible);
 
+		// ---- 飾り ----
+		size_t _decorationCount = m_decorationVec.size();
+		const bool _hasDecorationArray = a_ar.BeginArray("Decorations", _decorationCount);
+		if (_hasDecorationArray)
+		{
+			m_decorationVec.resize(_decorationCount);
+
+			for (size_t _i = 0; _i < _decorationCount; ++_i)
+			{
+				if (!a_ar.BeginObject(_i)) continue;
+
+				Decoration::ArchiveDecoration(a_ar, m_decorationVec[_i]);
+
+				a_ar.EndObject();
+			}
+			a_ar.EndArray();
+		}
+
 		m_editSize = m_pixelSize;
 
-		// 読み込み時は復元したGUIDでテクスチャを引き直す。
-		// 実体が届くのを待つ必要はないので、要求だけ出して先へ進む。
-		// 描画側は IsReady を見て、まだのフレームは描かない
-		if (a_ar.IsLoading())
-		{
-			if (!m_texGUID.IsValid()) return;
-			if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
+		if (!a_ar.IsLoading()) return;
 
-			m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
+		//----------------------------------------------------------------------------------
+		// 旧形式からの引き継ぎ
+		//
+		// 飾りの配列を持たないシーンだけが対象。
+		// Init が既定の飾りを作っている継承先では、その画像へ保存されていたGUIDを移す
+		// (作り直すと、継承先が入れた大きさや色まで消えてしまうため)
+		//----------------------------------------------------------------------------------
+		if (!_hasDecorationArray && m_legacyTexGUID.IsValid())
+		{
+			Decoration::Decoration* _pImage = nullptr;
+			for (Decoration::Decoration& _decoration : m_decorationVec)
+			{
+				if (_decoration.type != Decoration::EDecorationType::Image) continue;
+				_pImage = &_decoration;
+				break;
+			}
+
+			if (_pImage == nullptr)
+			{
+				_pImage = &AddDecoration(Decoration::EDecorationType::Image);
+				_pImage->pixelSize = m_pixelSize;
+				_pImage->pivot = m_pivot;
+			}
+
+			_pImage->texGUID = m_legacyTexGUID;
+			_pImage->uvOffset = m_legacyUvOffset;
 		}
+
+		// 読み込み時は復元したGUIDでテクスチャ・フォントを引き直す。
+		// 実体が届くのを待つ必要はないので、要求だけ出して先へ進む
+		// (描画側は IsReady を見て、まだのフレームは描かない)
+		RequestDecorationResources(a_context);
 	}
+
 	//======================================================================================
 	// カーソル位置をUIのピクセル座標へ直す
 	//--------------------------------------------------------------------------------------
@@ -164,6 +301,9 @@ namespace App::Object
 		return (std::fabs(_u) <= _half.x) && (std::fabs(_v) <= _half.y);
 	}
 
+	//======================================================================================
+	// インスペクター
+	//======================================================================================
 	void UIBase::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
 		if (!a_context.pServices) return;
@@ -179,25 +319,10 @@ namespace App::Object
 		ImGui::SameLine();
 		ImGui::TextDisabled("(切ると描画も入力も止まる)");
 
-		// テクスチャの編集
-		if (ImGui::CollapsingHeader("Texture"))
-		{
-			// テクスチャ選択
-			if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
-				"Change Texture",
-				"Texture",
-				m_texGUID))
-			{
-				// テクスチャの差し替え : 届くまでは描画側がスキップする
-				m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
-			}
-			Engine::Editor::EditorHelper::DrawTexture(m_texRef, 256, 256);
-		}
-
 		ImGui::Spacing();
 
-		// 色 : テクスチャに掛ける乗算色。畳まずに常に出しておく
-		// (白いテクスチャを1枚用意して、色だけで作り分けられるようにするため)
+		// 色 : 全ての飾りへ乗算で掛かる。畳まずに常に出しておく
+		// (白い板ポリを1つ置いて、色だけで作り分けられるようにするため)
 		Engine::Editor::EditorHelper::DrawColorEdit("Color", m_color);
 
 		ImGui::Spacing();
@@ -205,7 +330,7 @@ namespace App::Object
 		ImGui::Spacing();
 
 		// 座標系
-		ImGui::DragFloat2("PixelPos",&m_pixelPos.x,1.0f);						// スクリーン座標
+		ImGui::DragFloat2("PixelPos", &m_pixelPos.x, 1.0f);						// スクリーン座標
 		ImGui::Spacing();
 
 		ImGui::DragFloat("Rotation", &m_rotation, 0.1f, -360.0f, 360.0f);
@@ -221,25 +346,15 @@ namespace App::Object
 		{
 			m_editSize = m_pixelSize / m_scale;
 		}
+		ImGui::TextDisabled("アンカー自身の矩形(当たり判定・判定円の基準)。見た目は飾り側のサイズ");
+
 		ImGui::Spacing();
 
 		// 初期化用ボタン
 		if (ImGui::Button("RefreshTransform"))
 		{
 			m_pixelPos = { _w / 2.0f,_h / 2.0f };
-
-			const auto* _pTex = a_context.pServices->pResourceManager->Get(m_texRef);
-			if (_pTex)
-			{
-				const auto& _desc = _pTex->GetDesc();
-				m_pixelSize.x = _desc.Width;
-				m_pixelSize.y = _desc.Height;
-			}
-			else
-			{
-				m_pixelSize = { _w / 4 ,_h / 4 };
-			}
-			
+			m_pixelSize = { _w / 4 ,_h / 4 };
 			m_rotation = 0.0f;
 		}
 
@@ -250,10 +365,135 @@ namespace App::Object
 		// ピボット : 正規化[0,1]。(0.5,0.5)=中心, (0,0)=左上, (1,1)=右下。
 		// この点が PixelPos に配置され、回転の中心にもなる。
 		ImGui::DragFloat2("Pivot (0-1)", &m_pivot.x, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat2("UVOffset", &m_uvOffset.x, 0.01f);
 		ImGui::DragFloat("LayerZ", &m_layer, 1.0f);
-		
+
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		// 飾り
+		DrawDecorationListInspector(a_context);
 	}
+
+	//======================================================================================
+	// 飾りの一覧
+	//--------------------------------------------------------------------------------------
+	// 描く順は配列順なので、並べ替えがそのまま重なり順になる。
+	// 開いている1つだけ中身を出す形にしてあるのは、飾りが増えると
+	// 全部展開したときにインスペクターが縦に流れて使えなくなるため
+	//======================================================================================
+	void UIBase::DrawDecorationListInspector(Engine::GameObject::ObjectContext& a_context)
+	{
+		auto* _pResourceManager = a_context.pServices ? a_context.pServices->pResourceManager : nullptr;
+
+		ImGui::SeparatorText("Decorations");
+		ImGui::TextDisabled("配列の順に描きます(下にあるものほど手前)");
+
+		// ---- 追加 ----
+		if (Engine::Editor::EditorHelper::CreateButton("Add Polygon"))
+		{
+			AddDecoration(Decoration::EDecorationType::Polygon);
+			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
+		}
+		ImGui::SameLine();
+		if (Engine::Editor::EditorHelper::CreateButton("Add Image"))
+		{
+			AddDecoration(Decoration::EDecorationType::Image);
+			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
+		}
+		ImGui::SameLine();
+		if (Engine::Editor::EditorHelper::CreateButton("Add Text"))
+		{
+			AddDecoration(Decoration::EDecorationType::Text);
+			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
+		}
+
+		// ---- 全削除 ----
+		// 戻せないので Ctrl を押している間だけ効かせる
+		if (!m_decorationVec.empty())
+		{
+			ImGui::SameLine();
+			if (Engine::Editor::EditorHelper::DeleteButton("Clear All") && ImGui::GetIO().KeyCtrl)
+			{
+				m_decorationVec.clear();
+				m_editDecorationIndex = -1;
+			}
+			ImGui::SetItemTooltip("Ctrl+クリックで全部消す");
+		}
+
+		ImGui::Spacing();
+
+		// 一覧を回している間に配列を触ると足元が崩れるので、操作は覚えておいて後でまとめて行う
+		int _removeIndex = -1;
+		int _swapIndex = -1;		// この番号と次の番号を入れ替える
+
+		for (int _i = 0; _i < static_cast<int>(m_decorationVec.size()); ++_i)
+		{
+			Decoration::Decoration& _decoration = m_decorationVec[_i];
+
+			ImGui::PushID(_i);
+
+			//----------------------------------------------------------------------
+			// 1行ぶん : [X][↑][↓] 名前
+			//
+			// ボタンを先に置くこと。
+			// Selectable は残りの幅を全部使うので、後ろへ並べると
+			// ボタンが行の外まで押し出されて押せなくなる
+			//----------------------------------------------------------------------
+			if (Engine::Editor::EditorHelper::DeleteSmallButton("X")) _removeIndex = _i;
+			ImGui::SetItemTooltip("この飾りを消す");
+
+			ImGui::SameLine();
+			if (ImGui::ArrowButton("##Up", ImGuiDir_Up) && _i > 0) _swapIndex = _i - 1;
+
+			ImGui::SameLine();
+			if (ImGui::ArrowButton("##Down", ImGuiDir_Down) &&
+				_i + 1 < static_cast<int>(m_decorationVec.size()))
+			{
+				_swapIndex = _i;
+			}
+
+			// 開閉 : 開いているものだけ中身を出す
+			ImGui::SameLine();
+			const bool _isOpen = (m_editDecorationIndex == _i);
+			const std::string _label =
+				std::to_string(_i) + " : " + (_decoration.name.empty() ? "(no name)" : _decoration.name);
+
+			if (ImGui::Selectable(_label.c_str(), _isOpen))
+			{
+				m_editDecorationIndex = _isOpen ? -1 : _i;
+			}
+
+			if (_isOpen)
+			{
+				ImGui::Indent();
+				Decoration::DrawDecorationInspector(_decoration, _pResourceManager);
+				ImGui::Unindent();
+				ImGui::Separator();
+			}
+
+			ImGui::PopID();
+		}
+
+		if (_swapIndex >= 0)
+		{
+			std::swap(m_decorationVec[_swapIndex], m_decorationVec[_swapIndex + 1]);
+
+			// 開いていたものを追いかける
+			if (m_editDecorationIndex == _swapIndex)          m_editDecorationIndex = _swapIndex + 1;
+			else if (m_editDecorationIndex == _swapIndex + 1) m_editDecorationIndex = _swapIndex;
+		}
+
+		if (_removeIndex >= 0)
+		{
+			m_decorationVec.erase(m_decorationVec.begin() + _removeIndex);
+
+			// 消したぶん番号がずれる
+			if (m_editDecorationIndex == _removeIndex)     m_editDecorationIndex = -1;
+			else if (m_editDecorationIndex > _removeIndex) --m_editDecorationIndex;
+		}
+	}
+
 	bool UIBase::DrawGizmo(const Engine::GameObject::ObjectGizmoContext& a_ctx, Engine::GameObject::ObjectContext& a_context)
 	{
 		// シーンビュー上にドラッグ可能なハンドルを出してピクセル座標を編集する

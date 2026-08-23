@@ -28,13 +28,6 @@ namespace App::Object
 		if (!a_context.pServices) return;
 		if (!a_context.pServices->pAssetDatabase || !a_context.pServices->pResourceManager) return;
 
-		// GUID未設定(新規追加)なら既定テクスチャを引く。
-		// シーン読み込み時は Archive で復元済みのGUIDを尊重する。
-		if (!m_texGUID.IsValid())
-		{
-			m_texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(TARGET_BOX_TEXTURE_PATH);
-		}
-
 		// 新規追加直後はサイズが0で何も見えないので、既定サイズを入れておく。
 		// シーン読み込み時はこの後の Archive で保存値に上書きされる。
 		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f)
@@ -43,22 +36,42 @@ namespace App::Object
 			m_editSize = m_pixelSize;
 		}
 
-		// 実体の到着は待たない。描画側が IsReady を見てスキップする
-		if (m_texGUID.IsValid())
+		//--------------------------------------------------------------
+		// 既定の枠を1つ用意する
+		//
+		// 作るのは飾りを1つも持っていないときだけ。
+		// シーン読み込み時はこの後の Archive が保存された飾りで置き換える
+		//--------------------------------------------------------------
+		if (m_decorationVec.empty())
 		{
-			m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
+			Decoration::Decoration& _box = AddDecoration(Decoration::EDecorationType::Image);
+			_box.name = "TargetBox";
+			_box.group = GROUP_NORMAL;
+			_box.pixelSize = m_pixelSize;
+			_box.texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(TARGET_BOX_TEXTURE_PATH);
 		}
 
-		// ロック枠は差し替え前提なので既定パスは持たない。
-		// 未設定の間はロック中でも通常枠のテクスチャで描く。
-		if (m_lockTexGUID.IsValid())
+		// 実体の到着は待たない。描画側が IsReady を見てスキップする
+		RequestDecorationResources(a_context);
+	}
+
+	//======================================================================================
+	// その群の飾りを持っているか
+	//======================================================================================
+	bool TargetBoxHUD::HasDecorationGroup(uint32_t a_group) const
+	{
+		for (const Decoration::Decoration& _decoration : m_decorationVec)
 		{
-			m_lockTexRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_lockTexGUID);
+			if (_decoration.group == a_group) return true;
 		}
+		return false;
 	}
 
 	void TargetBoxHUD::Update(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 飾りのアニメーションを進める
+		UIBase::Update(a_context);
+
 		// このフレームぶんを作り直す
 		m_targetScreenPosVec.clear();
 		m_isLocked = false;
@@ -113,43 +126,40 @@ namespace App::Object
 	void TargetBoxHUD::Draw(Engine::GameObject::ObjectContext& a_context)
 	{
 		if (m_targetScreenPosVec.empty() && !m_isLocked) return;
-		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
 
-		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
-		if (!_pGE) return;
+		//--------------------------------------------------------------
+		// 画面内の敵 : 群 0 の飾りを、位置だけ差し替えて敵の数ぶん出す
+		//--------------------------------------------------------------
+		Decoration::DrawOverride _normal = {};
+		_normal.isUsePos = true;
+		_normal.isUseGroup = true;
+		_normal.group = GROUP_NORMAL;
 
-		// 見た目(サイズ・色・回転など)は全ボックス共通。位置だけ敵ごとに差し替える
 		for (const Math::Vector2& _screenPos : m_targetScreenPosVec)
 		{
-			_pGE->SubmitUI(
-				m_texRef,
-				_screenPos,
-				m_pixelSize,
-				m_color,
-				m_rotation,
-				m_layer,
-				m_uvOffset,
-				m_pivot
-			);
+			_normal.pixelPos = _screenPos;
+			DrawDecorations(a_context, _normal);
 		}
 
-		// ロック中の相手だけロック用テクスチャで上に描く。
-		// 未設定なら通常のテクスチャで代用する(枠が消えるより分かりやすい)
-		if (m_isLocked)
-		{
-			const auto& _lockTex = m_lockTexGUID.IsValid() ? m_lockTexRef : m_texRef;
+		if (!m_isLocked) return;
 
-			_pGE->SubmitUI(
-				_lockTex,
-				m_lockedScreenPos,
-				m_pixelSize * m_lockSizeScale,
-				m_lockColor,
-				m_rotation,
-				m_layer,
-				m_uvOffset,
-				m_pivot
-			);
-		}
+		//--------------------------------------------------------------
+		// ロック中の相手
+		//
+		// 専用の飾り(群 1)があればそれを、無ければ通常枠を LockColor で染めて代用する。
+		// 枠が消えてしまうより、色が変わったほうがロックされたことが分かるため
+		//--------------------------------------------------------------
+		const bool _hasLockDecoration = HasDecorationGroup(GROUP_LOCK);
+
+		Decoration::DrawOverride _lock = {};
+		_lock.isUsePos = true;
+		_lock.pixelPos = m_lockedScreenPos;
+		_lock.scale = m_lockSizeScale;
+		_lock.tint = m_lockColor;
+		_lock.isUseGroup = true;
+		_lock.group = _hasLockDecoration ? GROUP_LOCK : GROUP_NORMAL;
+
+		DrawDecorations(a_context, _lock);
 	}
 
 	void TargetBoxHUD::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
@@ -157,17 +167,26 @@ namespace App::Object
 		// テクスチャ・色・サイズなどの共通ぶん
 		UIBase::Archive(a_ar, a_context);
 
-		a_ar.GUIDField("LockTexGUID", m_lockTexGUID);
+		// 旧形式(ロック枠テクスチャ1枚)の名残。並びを変えないため読み書きは続ける
+		a_ar.GUIDField("LockTexGUID", m_legacyLockTexGUID);
 		a_ar.Field("LockSizeScale", m_lockSizeScale);
 		a_ar.Field("LockColor", m_lockColor);
 
-		// 読み込み時は復元したGUIDでロック枠のテクスチャを引き直す
-		if (a_ar.IsLoading())
-		{
-			if (!m_lockTexGUID.IsValid()) return;
-			if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
+		if (!a_ar.IsLoading()) return;
 
-			m_lockTexRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_lockTexGUID);
+		//--------------------------------------------------------------
+		// 旧形式からの引き継ぎ
+		// ロック枠のテクスチャを持っていたシーンは、群 1 の飾りへ移し替える
+		//--------------------------------------------------------------
+		if (m_legacyLockTexGUID.IsValid() && !HasDecorationGroup(GROUP_LOCK))
+		{
+			Decoration::Decoration& _lockBox = AddDecoration(Decoration::EDecorationType::Image);
+			_lockBox.name = "LockBox";
+			_lockBox.group = GROUP_LOCK;
+			_lockBox.pixelSize = m_pixelSize;
+			_lockBox.texGUID = m_legacyLockTexGUID;
+
+			RequestDecorationResources(a_context);
 		}
 	}
 
@@ -183,24 +202,13 @@ namespace App::Object
 
 		if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
 
-		// 通常枠(画面内の敵)の色は UIBase の Color。ロック枠だけここで別に持つ
+		// ロック枠へ掛ける色。飾りの色へ乗算で乗る
 		Engine::Editor::EditorHelper::DrawColorEdit("LockColor", m_lockColor);
-
-		// ロック中に使うテクスチャ(赤い枠)
-		if (ImGui::CollapsingHeader("Lock Texture"))
-		{
-			if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
-				"Change Lock Texture",
-				"Texture",
-				m_lockTexGUID))
-			{
-				m_lockTexRef =
-					a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_lockTexGUID);
-			}
-			Engine::Editor::EditorHelper::DrawTexture(m_lockTexRef, 256, 256);
-		}
-
 		ImGui::DragFloat("LockSizeScale", &m_lockSizeScale, 0.01f, 0.0f, 8.0f);
+
+		ImGui::TextDisabled("飾りの Group : 0 = 通常枠 / 1 = ロック枠");
+		ImGui::Text("Lock decoration : %s",
+			HasDecorationGroup(GROUP_LOCK) ? "yes" : "no (通常枠を LockColor で代用)");
 
 		// 枠は画面内の敵すべてに出る。
 		// ロック(赤枠)の判定半径と距離はプレイヤー側(LockOnTargetComponent)の設定

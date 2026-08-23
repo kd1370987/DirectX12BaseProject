@@ -27,16 +27,18 @@ namespace App::Object
 		if (!a_context.pServices) return;
 		if (!a_context.pServices->pAssetDatabase || !a_context.pServices->pResourceManager) return;
 
-		// GUID未設定(新規追加)ならデフォルトのテスト用テクスチャを引く。
-		// シーン読み込み時は Archive で復元済みのGUIDを尊重する。
-		if (!m_texGUID.IsValid())
+		// 既定のレティクルを1つ用意する。作るのは飾りを1つも持っていないときだけで、
+		// シーン読み込み時はこの後の Archive が保存された飾りで置き換える
+		if (m_decorationVec.empty())
 		{
-			m_texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(RETICLE_TEXTURE_PATH);
+			Decoration::Decoration& _reticle = AddDecoration(Decoration::EDecorationType::Image);
+			_reticle.name = "Reticle";
+			_reticle.pixelSize = m_pixelSize;
+			_reticle.texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(RETICLE_TEXTURE_PATH);
 		}
-		if (!m_texGUID.IsValid()) return;
 
 		// 実体の到着は待たない。描画側が IsReady を見てスキップする
-		m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
+		RequestDecorationResources(a_context);
 	}
 
 	float CombatReticleHUD::CalcCollectRadius() const
@@ -48,6 +50,9 @@ namespace App::Object
 
 	void CombatReticleHUD::Update(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 飾りのアニメーションを進める
+		UIBase::Update(a_context);
+
 		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld) return;
 
@@ -95,7 +100,7 @@ namespace App::Object
 
 		ImGui::Text("Missile Lock");
 		ImGui::Text("Collect radius : %.0f px", CalcCollectRadius());
-		ImGui::TextDisabled("この円の内側に入った敵をミサイルが溜めます(表示サイズに内接)");
+		ImGui::TextDisabled("この円の内側に入った敵をミサイルが溜めます(アンカーの PixelSize に内接)");
 		ImGui::TextDisabled("中心は PixelPos。倍率や弾数はプレイヤーの MissileLockComponent");
 	}
 }

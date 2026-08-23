@@ -28,8 +28,9 @@ namespace App::Object
 	/// 押した/乗っている といった状態は IsHovered / IsPressed / IsClicked でも取れるので、
 	/// コールバックを使わずに呼び出し側で毎フレーム見に行く形でもよい。
 	///
-	/// ・当たり判定は描画そのものと同じ矩形を使う(位置・サイズ・ピボット・回転すべて追従)。
-	///   見えている絵と判定がずれないようにするため、UIBase の値からその場で組み立てる。
+	/// ・当たり判定は UIBase のアンカー矩形(PixelPos / PixelSize / Pivot / Rotation)を使う。
+	///   飾りは何枚でも生やせるので、そのどれかではなくアンカーを唯一の基準にしてある。
+	///   絵に合わせたいときは、アンカーの大きさを絵に合わせること。
 	/// ・押下は「押し始めも離しも矩形の内側」で成立させる。押したまま外へ逃がせば
 	///   取り消せる、よくあるボタンの作法に合わせてある。
 	/// ・入力はプレイモード中しか受け取らない(InputManager 側で止まる)。
@@ -109,8 +110,8 @@ namespace App::Object
 		// (判定そのものは UIBase の共通実装。自分の位置・大きさを渡すだけ)
 		bool IsPointInsideSelf(const Math::Vector2& a_uiPos) const;
 
-		// 今の状態に対応する色を返す
-		const Math::Color& GetStateColor() const;
+		// 今の状態に対応する色を返す(飾りの色へ乗算で掛ける)
+		Math::Color GetStateColor() const;
 
 	private:
 
@@ -124,7 +125,7 @@ namespace App::Object
 		// 名前で持たせているのは、キー割り当てを入力側の登録だけで変えられるようにするため。
 		std::string m_clickActionName = "UIClick";
 
-		// 状態ごとの色。UIBase の Color が Normal ぶんに当たる
+		// 状態ごとの色。UIBase の Color へ乗算で掛かる(白のままなら見た目が変わらない)
 		Math::Color m_hoverColor    = { 1.0f, 1.0f, 1.0f, 1.0f };
 		Math::Color m_pressColor    = { 0.7f, 0.7f, 0.7f, 1.0f };
 		Math::Color m_disableColor  = { 0.4f, 0.4f, 0.4f, 0.6f };

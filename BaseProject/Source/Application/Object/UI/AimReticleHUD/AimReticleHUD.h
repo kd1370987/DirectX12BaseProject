@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../UIBase.h"
 
@@ -11,8 +11,9 @@ namespace App::Object
 	/// 「この円の内側に入った敵だけがロック対象になる」判定そのものを表す UI。
 	///
 	/// 判定の中心と半径は、この UI が毎フレーム プレイヤーの LockOnTargetComponent へ
-	/// 書き込む。判定を別に持つと「枠の内側なのにロックされない」ズレが起きるので、
-	/// 実際に描いている見た目を唯一の基準にする。
+	/// 書き込む。基準になるのは UIBase のアンカー(PixelPos / PixelSize)。
+	/// 飾りは何枚でも生やせるので、そのどれかではなくアンカーを唯一の基準にしてある
+	/// (見た目に合わせたいときは、アンカーの大きさを飾りに合わせること)。
 	/// </summary>
 	class AimReticleHUD : public UIBase
 	{
@@ -44,9 +45,9 @@ namespace App::Object
 
 	private:
 
-		// 判定半径を表示サイズから作るか。
-		// true  : 描いている画像の半分 × radiusScale(見た目と判定が必ず一致する)
-		// false : lockRadius をそのまま使う(画像に余白がある時などに手で詰める)
+		// 判定半径をアンカーの大きさ(PixelSize)から作るか。
+		// true  : PixelSize の半分 × radiusScale
+		// false : lockRadius をそのまま使う(絵に余白がある時などに手で詰める)
 		bool  m_isUseTextureSize = true;
 
 		float m_radiusScale = 1.0f;		// 表示サイズから作るときの倍率

@@ -33,6 +33,9 @@ namespace App::Object
 {
 	void UIButton::Update(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 飾りのアニメーションを進める
+		UIBase::Update(a_context);
+
 		// 「このフレームに押し切られたか」は毎フレーム作り直す
 		m_isClicked = false;
 
@@ -114,23 +117,12 @@ namespace App::Object
 		// 出さない指示が出ているものは描かない(UIBase::Draw と同じ扱い)
 		if (!m_isVisible) return;
 
-		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
+		// 飾りはそのまま、色だけ状態ぶんを掛けて描く。
+		// 飾り側の色を書き換えないのは、次のフレームまで汚れが残らないようにするため
+		Decoration::DrawOverride _override = {};
+		_override.tint = GetStateColor();
 
-		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
-		if (!_pGE) return;
-
-		// 状態ごとの色以外は UIBase と同じ。
-		// UIBase::Draw を呼べないのは色だけ差し替えたいため
-		_pGE->SubmitUI(
-			m_texRef,
-			m_pixelPos,
-			m_pixelSize,
-			GetStateColor(),
-			m_rotation,
-			m_layer,
-			m_uvOffset,
-			m_pivot
-		);
+		DrawDecorations(a_context, _override);
 	}
 
 	//======================================================================================
@@ -145,7 +137,14 @@ namespace App::Object
 		return EUIButtonState::Normal;
 	}
 
-	const Math::Color& UIButton::GetStateColor() const
+	//======================================================================================
+	// 状態ごとの色
+	//--------------------------------------------------------------------------------------
+	// 返す色は「掛ける色」。UIBase の Color と飾りの Color の上へ乗算で乗る。
+	// 置き換えではなく乗算にしてあるのは、飾りが複数あるとき
+	// (枠・文字・アイコン)にそれぞれの色を潰さずに、まとめて暗くしたいため
+	//======================================================================================
+	Math::Color UIButton::GetStateColor() const
 	{
 		switch (GetState())
 		{
@@ -155,8 +154,8 @@ namespace App::Object
 
 		case EUIButtonState::Normal:
 		default:
-			// 通常時は UIBase の色。白テクスチャ1枚を色で作り分ける運用に合わせる
-			return m_color;
+			// 通常時は何も掛けない
+			return Math::Color::White();
 		}
 	}
 
@@ -219,9 +218,9 @@ namespace App::Object
 
 		ImGui::Spacing();
 
-		// 状態ごとの色。通常時の色は UIBase 側の Color
+		// 状態ごとの色。飾りの色へ乗算で掛かる
 		ImGui::SeparatorText("State Color");
-		ImGui::TextDisabled("Normal は上の Color を使う");
+		ImGui::TextDisabled("飾りの色へ乗算で掛かる(Normal は掛けない)");
 		Engine::Editor::EditorHelper::DrawColorEdit("Hover", m_hoverColor);
 		Engine::Editor::EditorHelper::DrawColorEdit("Press", m_pressColor);
 		Engine::Editor::EditorHelper::DrawColorEdit("Disable", m_disableColor);

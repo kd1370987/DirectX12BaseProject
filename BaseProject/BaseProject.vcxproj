@@ -249,6 +249,7 @@
     <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp" />
+    <ClCompile Include="Source\Application\Object\UI\Decoration.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp" />
     <ClCompile Include="Source\Application\Object\Scene\SceneAmbientObject\SceneAmbientObject.cpp" />
@@ -608,6 +609,7 @@
     <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\BoostComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\ChargeDashComponent.h" />
+    <ClInclude Include="Source\Application\Object\UI\Decoration.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ScoreSystem\ScoreSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem\DeathEventClearSystem.h" />
     <ClInclude Include="Source\Application\Object\UI\ScoreHUD\ScoreHUD.h" />

@@ -8,20 +8,27 @@ namespace App::Object
 	/// 敵へ重ねて表示するターゲットボックスHUD。
 	///
 	/// 出す相手は LockOnTargetSystem がプレイヤーの LockOnTargetComponent へ書いた結果。
-	///   レティクル内の敵           … 通常テクスチャ(黄色の枠)
-	///   そのうち画面中央に最も近い … ロックテクスチャ(赤い枠)
+	///   レティクル内の敵           … 群 0 の飾り(黄色の枠)
+	///   そのうち画面中央に最も近い … 群 1 の飾り(赤い枠)
 	///
 	/// スクリーン座標はロック判定側が計算済みのものをそのまま使う。ここで射影をやり直すと、
 	/// 条件のわずかな差で「枠は出ているのにロックされない」といったズレが起きるため。
 	///
 	/// 位置は毎フレーム作り直すので、UIBase の PixelPos は使わない。
-	/// (サイズ・色・回転・ピボットなどの見た目は UIBase 側の値を全ボックス共通で使う)
+	/// 見た目は飾りをそのまま使い、位置だけ敵ごとに差し替えて出す。
+	///
+	/// 群 1 の飾りを1つも持たない場合は、群 0 の飾りを LockColor で染めて代用する
+	/// (枠が消えるより分かりやすいため)。
 	/// </summary>
 	class TargetBoxHUD : public UIBase
 	{
 	public:
 
-		// 初期化処理 : ターゲットボックス用テクスチャの読み込み
+		// 飾りの群 : 0 = 画面内の敵に出す枠 / 1 = ロック中の相手に出す枠
+		static constexpr uint32_t GROUP_NORMAL = 0;
+		static constexpr uint32_t GROUP_LOCK = 1;
+
+		// 初期化処理 : 既定の枠を用意する
 		void Init(Engine::GameObject::ObjectContext& a_context) override;
 
 		// 更新処理 : プレイヤーのロック結果からスクリーン座標を集める
@@ -52,15 +59,15 @@ namespace App::Object
 
 	private:
 
-		// ロック中の相手に使うテクスチャ(赤い枠)。
-		// 通常の枠(黄色)は UIBase の m_texRef / m_texGUID を使う。
-		Engine::ResourceRef<Engine::Resource::Texture> m_lockTexRef = {};
-		Engine::GUID m_lockTexGUID = {};
+		// その群の飾りを持っているか
+		bool HasDecorationGroup(uint32_t a_group) const;
+
+	private:
 
 		// ロック枠の拡大率(通常枠のピクセルサイズに掛ける)
 		float m_lockSizeScale = 1.0f;
 
-		// ロック枠の色。通常枠(黄色)は UIBase の m_color を使う
+		// ロック枠へ掛ける色。群 1 を持たないときは通常枠をこの色で染める
 		Math::Color m_lockColor = Engine::Color::RED;
 
 		// このフレームに描くボックスのスクリーン座標(px, 左上原点)。
@@ -70,5 +77,8 @@ namespace App::Object
 		// ロック中の相手のスクリーン座標(px)。isLocked が false のフレームは描かない
 		Math::Vector2 m_lockedScreenPos = {};
 		bool m_isLocked = false;
+
+		// 旧形式(ロック枠テクスチャ1枚)からの引き継ぎ用
+		Engine::GUID m_legacyLockTexGUID = {};
 	};
 }

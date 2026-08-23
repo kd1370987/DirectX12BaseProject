@@ -36,12 +36,9 @@ namespace App::Object
 			};
 		}
 
-		// テクスチャは差し替え前提なので既定パスは持たない。
+		// 飾りは差し替え前提なので既定の絵は持たない。
 		// 実体の到着は待たない(描画側が IsReady を見てスキップする)
-		if (m_texGUID.IsValid())
-		{
-			m_texRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_texGUID);
-		}
+		RequestDecorationResources(a_context);
 	}
 
 	float AimReticleHUD::CalcLockRadius() const
@@ -55,6 +52,9 @@ namespace App::Object
 
 	void AimReticleHUD::Update(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 飾りのアニメーションを進める
+		UIBase::Update(a_context);
+
 		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld) return;
 
@@ -114,6 +114,7 @@ namespace App::Object
 
 		// 判定半径の作り方
 		ImGui::Checkbox("UseTextureSize", &m_isUseTextureSize);
+		ImGui::SetItemTooltip("アンカーの PixelSize から作る(飾りの大きさではない)");
 		if (m_isUseTextureSize)
 		{
 			ImGui::DragFloat("RadiusScale", &m_radiusScale, 0.01f, 0.0f, 4.0f);

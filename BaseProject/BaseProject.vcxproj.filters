@@ -2514,6 +2514,9 @@
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp">
       <Filter>Source\Application\Object\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\Decoration.cpp">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp">
       <Filter>Source\Application\Object\UI\UIButton</Filter>
     </ClCompile>
@@ -3957,6 +3960,9 @@
       <Filter>Source\Application\Object\Sequence\SceneSequence</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\UIBase.h">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\Decoration.h">
       <Filter>Source\Application\Object\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\UIButton\UIButton.h">

@@ -1,4 +1,4 @@
-#include "ScoreHUD.h"
+﻿#include "ScoreHUD.h"
 
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/MainEngine.h"
@@ -34,6 +34,9 @@ namespace App::Object
 
 	void ScoreHUD::Update(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 飾りのアニメーションを進める
+		UIBase::Update(a_context);
+
 		// 戻りを進める
 		if (m_punchTimer > 0.0f)
 		{
@@ -67,40 +70,30 @@ namespace App::Object
 		int a_index,
 		float a_scale)
 	{
-		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
-		if (!_pGE) return;
-
-		const Math::Vector2 _size = m_pixelSize * a_scale;
-
 		// 桁の送りは「元の大きさ」で決める。
 		// 弾んでいる間の大きさで送ると、拡大するたびに桁が横へ広がってしまう
 		const float _step = m_pixelSize.x + m_digitSpacing;
-
-		Math::Vector2 _pos = m_pixelPos;
-		_pos.x += _step * static_cast<float>(a_index);
 
 		//--------------------------------------------------------------
 		// 1枚に並んだ数字から1コマだけ切り出す
 		//
 		// uv * uvScale + uvOffset なので、倍率がコマの幅、
-		// オフセットが「何コマ目か」になる
+		// オフセットが「何コマ目か」になる。
+		// どちらも AtlasCount から出せるので、飾り側の設定には頼らず差し替える
 		//--------------------------------------------------------------
 		const float _cellWidth = 1.0f / static_cast<float>(m_atlasCount);
 
-		const Math::Vector2 _uvScale  = { _cellWidth, 1.0f };
-		const Math::Vector2 _uvOffset = { _cellWidth * static_cast<float>(a_digit), 0.0f };
+		Decoration::DrawOverride _override = {};
+		_override.isUsePos = true;
+		_override.pixelPos = m_pixelPos;
+		_override.pixelPos.x += _step * static_cast<float>(a_index);
+		_override.scale = a_scale;
 
-		_pGE->SubmitUI(
-			m_texRef,
-			_pos,
-			_size,
-			m_color,
-			m_rotation,
-			m_layer,
-			_uvOffset,
-			m_pivot,
-			_uvScale
-		);
+		_override.isUseUvScale = true;
+		_override.uvScale = { _cellWidth, 1.0f };
+		_override.uvOffsetAdd = { _cellWidth * static_cast<float>(a_digit), 0.0f };
+
+		DrawDecorations(a_context, _override);
 	}
 
 	void ScoreHUD::Draw(Engine::GameObject::ObjectContext& a_context)
@@ -169,7 +162,8 @@ namespace App::Object
 		ImGui::Spacing();
 
 		ImGui::Text("Score");
-		ImGui::TextDisabled("0〜9 を横一列に並べた1枚のテクスチャを指定すること");
+		ImGui::TextDisabled("画像の飾りを1つ置き、0〜9 を横一列に並べたテクスチャを指定すること");
+		ImGui::TextDisabled("コマの切り出し(UVScale / UVOffset)は AtlasCount から自動で決まる");
 
 		// 何を出すか。中身は GlobalGameContext から貰う
 		Engine::Editor::EditorHelper::DrawEnumCombo("ValueKind", m_valueKind);
@@ -188,7 +182,7 @@ namespace App::Object
 		ImGui::TextDisabled("テクスチャに並んでいるコマ数(0〜9 だけなら 10)");
 
 		ImGui::DragFloat("DigitSpacing", &m_digitSpacing, 0.5f);
-		ImGui::TextDisabled("桁と桁の間隔(px)。PixelSize が1桁ぶんの大きさ");
+		ImGui::TextDisabled("桁と桁の間隔(px)。アンカーの PixelSize.x が1桁ぶんの送り幅");
 
 		ImGui::Separator();
 		ImGui::DragFloat("PunchScale", &m_punchScale, 0.01f, 1.0f, 4.0f);
