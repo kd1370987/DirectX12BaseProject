@@ -2,6 +2,8 @@
 
 #include "../../../../Engine/GameObject/BaseObject/BaseObject.h"
 
+#include "../../SequenceBgm.h"
+
 namespace App::Object
 {
 	/// <summary>
@@ -112,5 +114,10 @@ namespace App::Object
 		EHomeMode m_mode = EHomeMode::Home;	// 今見ている場所
 
 		bool m_isBound = false;	// ボタンへ差し込み済みか
+
+		//-------------------------------------------------------------------
+		// BGM
+		//-------------------------------------------------------------------
+		SequenceBgm m_bgm = {};
 	};
 }

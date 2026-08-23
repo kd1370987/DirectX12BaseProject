@@ -2523,6 +2523,9 @@
     <ClCompile Include="Source\Application\Object\UI\Decoration.cpp">
       <Filter>Source\Application\Object\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Object\SequenceBgm.cpp">
+      <Filter>Source\Application\Object</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp">
       <Filter>Source\Application\Object\UI\UIButton</Filter>
     </ClCompile>
@@ -2569,6 +2572,9 @@
       <Filter>Source\Engine\Option\ProjectOptions</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Option\ProjectOptions\CursorOption.cpp">
+      <Filter>Source\Engine\Option\ProjectOptions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Option\ProjectOptions\AudioOption.cpp">
       <Filter>Source\Engine\Option\ProjectOptions</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\MouseCursor\MouseCursor.cpp">
@@ -3252,6 +3258,9 @@
       <Filter>Source\Application\Object\Sequence\MissionSelect</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\ObjectPicker.h">
+      <Filter>Source\Application\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\SequenceBgm.h">
       <Filter>Source\Application\Object</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\ScoreTargetComponent.h">
@@ -4027,6 +4036,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Option\ProjectOptions\CursorOption.h">
       <Filter>Source\Engine\Option\ProjectOptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Option\ProjectOptions\AudioOption.h">
+      <Filter>Source\Engine\Option\ProjectOptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Audio\SoundGroup.h">
+      <Filter>Source\Engine\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\MouseCursor\MouseCursor.h">
       <Filter>Source\Engine\Graphics\MouseCursor</Filter>

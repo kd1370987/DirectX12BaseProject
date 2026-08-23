@@ -3,6 +3,8 @@
 
 #include "../../../Game/GlobalGameContext.h"
 
+#include "../../SequenceBgm.h"
+
 namespace App::Object
 {
 	/// <summary>
@@ -105,6 +107,9 @@ namespace App::Object
 
 		// 更新処理 : 経過時間を進め、条件を満たしたウェーブを出す
 		void Update(Engine::GameObject::ObjectContext& a_context) override;
+
+		// 解放処理 : 借りているBGMを返す
+		void Release(Engine::GameObject::ObjectContext& a_context) override;
 
 		// アーカイブ
 		void Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context) override;
@@ -230,6 +235,11 @@ namespace App::Object
 		bool  m_isPlayerFound = false;		// プレイヤーを一度でも見つけたか
 											// (湧く前の1フレームを死亡と間違えないため)
 		bool  m_isStarted = false;			// 最初の更新を通ったか(記録を消す判定に使う)
+
+		//-------------------------------------------------------------------
+		// BGM
+		//-------------------------------------------------------------------
+		SequenceBgm m_bgm = {};
 
 		//=======================================================================
 		// エディター用(保存しない)

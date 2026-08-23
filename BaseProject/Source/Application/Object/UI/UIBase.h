@@ -64,6 +64,30 @@ namespace App::Object
 		void SetVisible(bool a_isVisible) override { m_isVisible = a_isVisible; }
 
 		//-----------------------------------------------------------------------
+		// カーソルへの反応
+		//
+		// 判定は UIBase が持つ。押されて何をするかは持たないので、
+		// 背景でもパネルでも「乗ったら枠を出す」「押したら縮む」が付けられる。
+		// 実際に押されたときの処理を差し込みたいものだけ UIButton を使う
+		//-----------------------------------------------------------------------
+
+		// カーソルが乗っているか
+		bool IsHovered() const { return m_isHovered; }
+
+		// 押されている最中か(押しっぱなし)
+		bool IsPressed() const { return m_isPressed; }
+
+		// このフレームに押し切られたか(押して離した瞬間だけ true)
+		bool IsClicked() const { return m_isClicked; }
+
+		// 今の状態 : 飾りの反応(Decoration::UIReaction)へ渡すもの
+		Decoration::EUIState GetUIState() const;
+
+		// 触れるかどうか。切ると乗っても押しても反応しない(Disabled 扱い)
+		bool IsInteractable() const { return m_isInteractable; }
+		void SetInteractable(bool a_isInteractable) { m_isInteractable = a_isInteractable; }
+
+		//-----------------------------------------------------------------------
 		// 飾り
 		//-----------------------------------------------------------------------
 
@@ -136,6 +160,46 @@ namespace App::Object
 		// 飾りの一覧をインスペクターへ出す(追加・削除・並べ替え)
 		void DrawDecorationListInspector(Engine::GameObject::ObjectContext& a_context);
 
+		// カーソルの当たり判定と押下の進行(UIBase::Update から)
+		void UpdateInteraction(Engine::GameObject::ObjectContext& a_context);
+
+		// UIのピクセル座標が自分の判定矩形の内側にあるか
+		bool IsPointInsideSelf(const Math::Vector2& a_uiPos) const;
+
+		/// <summary>
+		/// 飾りが占めている範囲(アンカーからの相対, px)を求める
+		/// </summary>
+		/// <param name="a_outCenter">範囲の中心(アンカーからのずれ)</param>
+		/// <param name="a_outSize">範囲の大きさ</param>
+		/// <returns>大きさを持つ飾りが1つも無ければ false</returns>
+		/// <remarks>
+		/// アニメーションと反応のぶんは入れない。
+		/// 入れると、乗って大きくなった瞬間に判定も広がって、
+		/// 縁で「乗る→離れる」を繰り返してちらつく
+		/// </remarks>
+		bool CalcDecorationBounds(Math::Vector2& a_outCenter, Math::Vector2& a_outSize) const;
+
+		/// <summary>
+		/// 音を鳴らす
+		/// </summary>
+		/// <remarks>
+		/// インスタンスは初めて鳴らすときに借りる。
+		/// UIは画面ぶん並ぶので、鳴らさないものにまで先に確保させると席が尽きる。
+		///
+		/// 間引きの残り時間が残っているうちは鳴らさない。
+		/// インスタンスは1つで Play は頭出しの鳴らし直しになるため、
+		/// 判定の縁でカーソルが揺れると毎フレーム鳴り直してしまう
+		/// (残響が重なって、だんだん大きくなったように聞こえる)
+		/// </remarks>
+		void PlayUISound(
+			Engine::GameObject::ObjectContext& a_context,
+			const Engine::GUID& a_guid,
+			Engine::Handle<Engine::Resource::SoundInstance>& a_inoutHandle,
+			float& a_inoutCoolTime);
+
+		// 借りている音のインスタンスを返す
+		void ReleaseUISounds(Engine::GameObject::ObjectContext& a_context);
+
 	protected:
 
 		//-----------------------------------------------------------------------
@@ -158,6 +222,46 @@ namespace App::Object
 
 		// 表示するか。切ると描画も入力も止まる
 		bool m_isVisible = true;
+
+		//-----------------------------------------------------------------------
+		// カーソルへの反応(保存される)
+		//-----------------------------------------------------------------------
+		// 押下に使う入力アクション名。InputManager へ登録した名前を指す。
+		// 名前で持たせているのは、キー割り当てを入力側の登録だけで変えられるようにするため
+		std::string m_clickActionName = "UIClick";
+
+		// 当たり判定の余白(px)。見た目より広く/狭く取りたいとき用
+		Math::Vector2 m_hitPadding = { 0.0f, 0.0f };
+
+		// 触れるかどうか。切ると Disabled 扱いになる
+		bool m_isInteractable = true;
+
+		// 乗った瞬間 / 押した瞬間に鳴らす音
+		Engine::GUID m_hoverSoundGUID = {};
+		Engine::GUID m_pressSoundGUID = {};
+		float m_soundVolume = 1.0f;
+
+		// 同じ音を鳴らし直す最短間隔(秒)。0 で間引かない
+		float m_soundMinInterval = 0.08f;
+
+		//-----------------------------------------------------------------------
+		// 状態(保存しない)
+		//-----------------------------------------------------------------------
+		bool m_isHovered = false;	// カーソルが乗っている
+		bool m_isPressed = false;	// 押されている最中
+		bool m_isClicked = false;	// このフレームに押し切られた
+
+		// 矩形の内側で押し始めたか。
+		// これを見ておかないと、外で押してUIの上で離しただけで反応してしまう
+		bool m_isPressStartedInside = false;
+
+		// 借りている音のインスタンス。初めて鳴らすときに取り、Release で返す
+		Engine::Handle<Engine::Resource::SoundInstance> m_hoverSoundHandle = {};
+		Engine::Handle<Engine::Resource::SoundInstance> m_pressSoundHandle = {};
+
+		// 次に鳴らせるまでの残り時間(秒)
+		float m_hoverSoundCoolTime = 0.0f;
+		float m_pressSoundCoolTime = 0.0f;
 
 		// 飾り : 配列の順に描くので、後ろにあるものほど手前に出る
 		std::vector<Decoration::Decoration> m_decorationVec = {};

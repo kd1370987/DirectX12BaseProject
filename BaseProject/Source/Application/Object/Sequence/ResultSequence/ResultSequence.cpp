@@ -1,4 +1,4 @@
-#include "ResultSequence.h"
+﻿#include "ResultSequence.h"
 
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/GameObject/GameObjectManager/GameObjectManager.h"
@@ -45,6 +45,9 @@ namespace App::Object
 
 		// ボタンへの差し込み(済んでいれば何もしない)
 		TryBindButton(a_context);
+
+		// BGM : 初回で鳴らし始め、フェードを進める
+		m_bgm.Update(a_context);
 	}
 
 	//======================================================================================
@@ -100,6 +103,9 @@ namespace App::Object
 	//======================================================================================
 	void ResultSequence::Release(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 借りているBGMを返す
+		m_bgm.Release(a_context);
+
 		if (!m_isReleaseCursorLock) return;
 		if (!a_context.pServices) return;
 		if (!a_context.pServices->pInputManager || !a_context.pServices->pOptionManager) return;
@@ -120,6 +126,8 @@ namespace App::Object
 		a_ar.GUIDField("HomeButtonGUID", m_homeButtonGUID);
 		a_ar.GUIDField("TitleSceneGUID", m_titleSceneGUID);
 		a_ar.Field("IsReleaseCursorLock", m_isReleaseCursorLock);
+
+		m_bgm.Archive(a_ar);
 	}
 
 	//======================================================================================
@@ -171,6 +179,8 @@ namespace App::Object
 		ImGui::SeparatorText("Title Scene");
 
 		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Scene", "Scene", m_titleSceneGUID);
+
+		m_bgm.DrawInspector(a_context);
 
 		ImGui::SeparatorText("Cursor");
 

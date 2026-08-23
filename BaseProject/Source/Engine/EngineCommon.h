@@ -168,6 +168,7 @@ namespace Engine::Resource
 #include "Engine/Resource/Data/Model/Model.h"								// モデル
 #include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"					// クアッドポリゴン
 #include "Resource/Data/Prefab/Prefab.h"									// プレハブ
+#include "Audio/SoundGroup.h"												// 音のグループ(サウンドより先に読む)
 #include "Resource/Data/Sound/Sound.h"										// サウンド
 #include "Resource/Data/AudioBehavior/AudioBehavior.h"					// サウンドの流れ(始動/継続/終了)
 #include "Resource/Data/AnimatorAsset/AnimatorAsset.h"						// アニメーション

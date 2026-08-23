@@ -2,6 +2,8 @@
 
 #include "../../../../Engine/GameObject/BaseObject/BaseObject.h"
 
+#include "../../SequenceBgm.h"
+
 namespace App::Object
 {
 	/// <summary>
@@ -72,5 +74,10 @@ namespace App::Object
 
 		// 二重に遷移要求を出さないための印
 		bool m_isSceneRequested = false;
+
+		//-------------------------------------------------------------------
+		// BGM
+		//-------------------------------------------------------------------
+		SequenceBgm m_bgm = {};
 	};
 }

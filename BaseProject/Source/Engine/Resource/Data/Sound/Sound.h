@@ -40,9 +40,36 @@ namespace Engine::Resource
 		void Resume();			// 再開
 
 		// ---- 設定 ----
-		void SetVolume(float a_vol);				// ボリューム設定 : 1.0f が 100%
+
+		/// <summary>
+		/// ボリューム設定 : 1.0f が 100%
+		/// </summary>
+		/// <remarks>
+		/// ここへ渡すのは「呼び出し側の都合だけで決めた音量」。
+		/// 実際に鳴るのは これ × グループ音量 × マスター音量 になる。
+		/// 設定画面の値を掛けてから渡す必要はない
+		/// </remarks>
+		void SetVolume(float a_vol);
+
 		void SetPos(const DXSM::Vector3& a_pos);	// 3Dサウンド座標設定
 		void SetCurveDistanceScaler(float a_val);	// 減衰倍率設定 : 1 = 通常 ... FLT_MIN～FLT_MAX
+
+		//==================================================================
+		// グループ
+		//==================================================================
+
+		// どのグループの音か。オプションの音量はこの単位で掛かる
+		void SetGroup(Audio::ESoundGroup a_group);
+		Audio::ESoundGroup GetGroup() const { return m_group; }
+
+		/// <summary>
+		/// グループ音量・マスター音量を掛け直して送り直す
+		/// </summary>
+		/// <remarks>
+		/// 設定が変わったときに AudioManager がまとめて呼ぶ。
+		/// 鳴らしている側は自分では気付けない(更新が止まっているシーンもある)ため
+		/// </remarks>
+		void RefreshVolume();
 
 		// ---- 取得 ----
 		bool IsPlay();			// 再生中か否か
@@ -61,6 +88,12 @@ namespace Engine::Resource
 		DirectX::AudioEmitter m_emitter;
 
 		bool m_is3D = false;
+
+		// 呼び出し側が指定した音量。実際に送るときはグループとマスターを掛ける
+		float m_volume = 1.0f;
+
+		// どのグループの音か
+		Audio::ESoundGroup m_group = Audio::ESoundGroup::Se;
 	};
 
 	/// <summary>

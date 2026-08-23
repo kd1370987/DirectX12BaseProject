@@ -6,6 +6,7 @@
 #include "ProjectOptions/BuildConfig.h"
 #include "ProjectOptions/InputOption.h"
 #include "ProjectOptions/CursorOption.h"
+#include "ProjectOptions/AudioOption.h"
 
 // グラフィックスオプション
 #include "GraphicsOptions/GIOptions.h"
@@ -47,6 +48,10 @@ namespace Engine::Option
 		// 自前で描くマウスカーソルの設定
 		const ProjectOptions::CursorOption& GetCursorOption() const { return m_cursorOption; }
 		ProjectOptions::CursorOption& RefCursorOption() { return m_cursorOption; }
+
+		// 音量設定(マスター + グループごと)
+		const ProjectOptions::AudioOption& GetAudioOption() const { return m_audioOption; }
+		ProjectOptions::AudioOption& RefAudioOption() { return m_audioOption; }
 
 		// ---- グラフィックス ---- 
 		// GI設定
@@ -91,6 +96,7 @@ namespace Engine::Option
 		ProjectOptions::BuildConfig m_buildConfig = {};
 		ProjectOptions::InputOption m_inputOption = {};
 		ProjectOptions::CursorOption m_cursorOption = {};
+		ProjectOptions::AudioOption m_audioOption = {};
 
 		// グラフィックスオプション
 		GraphicsOptions::GIOption m_giOptions = {};

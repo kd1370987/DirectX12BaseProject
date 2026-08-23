@@ -4,6 +4,58 @@
 
 namespace Engine::Audio
 {
+	//======================================================================================
+	// 音量
+	//======================================================================================
+	void AudioManager::SetMasterVolume(float a_volume)
+	{
+		const float _volume = std::clamp(a_volume, 0.0f, 1.0f);
+		if (m_masterVolume == _volume) return;
+
+		m_masterVolume = _volume;
+		RefreshAllVolume();
+	}
+
+	void AudioManager::SetGroupVolume(ESoundGroup a_group, float a_volume)
+	{
+		const size_t _index = static_cast<size_t>(a_group);
+		if (_index >= m_groupVolumeArray.size()) return;
+
+		const float _volume = std::clamp(a_volume, 0.0f, 1.0f);
+		if (m_groupVolumeArray[_index] == _volume) return;
+
+		m_groupVolumeArray[_index] = _volume;
+		RefreshAllVolume();
+	}
+
+	float AudioManager::GetGroupVolume(ESoundGroup a_group) const
+	{
+		const size_t _index = static_cast<size_t>(a_group);
+		if (_index >= m_groupVolumeArray.size()) return 1.0f;
+
+		return m_groupVolumeArray[_index];
+	}
+
+	float AudioManager::CalcVolumeScale(ESoundGroup a_group) const
+	{
+		return m_masterVolume * GetGroupVolume(a_group);
+	}
+
+	//======================================================================================
+	// 鳴っているものすべてへ音量を送り直す
+	//--------------------------------------------------------------------------------------
+	// 鳴らしている側は設定が変わったことに気付けない
+	// (重ねたシーンのように更新が止まっているものもある)ので、ここから送り込む
+	//======================================================================================
+	void AudioManager::RefreshAllVolume()
+	{
+		for (auto& _instance : m_soundInstancePool.RefAll())
+		{
+			if (!_instance.has_value()) continue;
+			_instance->RefreshVolume();
+		}
+	}
+
 	bool AudioManager::Init()
 	{
 		
@@ -91,15 +143,17 @@ namespace Engine::Audio
 	{
 		return m_soundInstancePool.Ref(a_handle);
 	}
-	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(const std::string& a_filePath, bool a_is3D)
+	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(
+		const std::string& a_filePath, bool a_is3D, ESoundGroup a_group)
 	{
 		// ファイルパスの存在チェック
 		if(a_filePath.empty()) return Handle<Resource::SoundInstance>();
 		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_filePath);
-		return RequestSoundInstance(_guid, a_is3D);
+		return RequestSoundInstance(_guid, a_is3D, a_group);
 
 	}
-	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(const Engine::GUID& a_guid, bool a_is3D)
+	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(
+		const Engine::GUID& a_guid, bool a_is3D, ESoundGroup a_group)
 	{
 		// サウンドエンジンがなければ発行しない
 		if (!m_upAudioEngine)
@@ -130,6 +184,10 @@ namespace Engine::Audio
 			_instance.Init(_soundRef, a_is3D);// インスタンスの初期化
 		}
 
+		// グループの札を付けてから預ける。
+		// 以降この音は、そのグループの音量とマスター音量が掛かった状態で鳴る
+		_instance.SetGroup(a_group);
+
 		return m_soundInstancePool.Add(std::move(_instance));
 	}
 	void AudioManager::ReleaseSoundInstance(const Handle<Resource::SoundInstance>& a_handle)
@@ -142,7 +200,11 @@ namespace Engine::Audio
 		m_soundInstancePool.Remove(a_handle);
 	}
 	AudioManager::AudioManager()
-	{}
+	{
+		// グループ音量は既定で素通し。
+		// 実際の値は起動時にオプション(AudioOption)から流し込まれる
+		m_groupVolumeArray.fill(1.0f);
+	}
 	AudioManager::~AudioManager()
 	{
 		// 本来は MainEngine::Release() から明示的に解放されている想定。

@@ -1,6 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include "../../../../Engine/GameObject/BaseObject/BaseObject.h"
+
+#include "../../SequenceBgm.h"
 
 namespace App::Object
 {
@@ -80,6 +82,16 @@ namespace App::Object
 		// 固定したままだとカーソルが毎フレーム中央へ戻され、ボタンを狙えない
 		bool m_isReleaseCursorLock = true;
 
+		/// <summary>
+		/// ポーズ中に下のゲームBGMへ掛ける倍率
+		/// </summary>
+		/// <remarks>
+		/// ポーズ画面はゲームのシーンへ重ねて出るので、下の曲は鳴り続ける。
+		/// 絞らないと、ポーズ側のBGMや効果音が埋もれる。
+		/// 1.0 にすれば何もしない
+		/// </remarks>
+		float m_gameBgmDuck = 0.35f;
+
 		//-------------------------------------------------------------------
 		// 状態(保存しない)
 		//-------------------------------------------------------------------
@@ -89,5 +101,10 @@ namespace App::Object
 
 		// 二重に要求を出さないための印
 		bool m_isClosing = false;
+
+		//-------------------------------------------------------------------
+		// BGM
+		//-------------------------------------------------------------------
+		SequenceBgm m_bgm = {};
 	};
 }

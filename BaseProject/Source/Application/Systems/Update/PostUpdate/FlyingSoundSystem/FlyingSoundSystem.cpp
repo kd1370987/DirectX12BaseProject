@@ -86,7 +86,7 @@ void FlyingSoundSystem::Init(Engine::ECS::World& a_world)
 							_pInstance->SetCurveDistanceScaler(_flyingSound.distanceScaler);
 							_pInstance->Play3D(_pos, _flyingSound.isLoop);
 
-							// Play3D は音量を 1 に戻すので、鳴らした後に設定する
+							// Play3D は覚えている音量で鳴らし直すので、ここで指定しておく
 							_pInstance->SetVolume(_flyingSound.vol);
 							continue;
 						}

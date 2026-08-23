@@ -67,6 +67,10 @@ namespace App::Object
 
 	void SceneSequence::Update(Engine::GameObject::ObjectContext& a_context)
 	{
+		// BGM は先に進める。この後の早期リターンで止めてしまうと、
+		// ポーズを開いた瞬間にフェードが固まる
+		m_bgm.Update(a_context);
+
 		if (!a_context.pWorld) return;
 
 		// ポーズ画面を重ねる/戻ってきたことを拾う。
@@ -722,6 +726,15 @@ namespace App::Object
 	//======================================================================================
 	// シリアライズ : 設定値だけを保存する(進行状況は保存しない)
 	//======================================================================================
+	//======================================================================================
+	// 解放
+	//======================================================================================
+	void SceneSequence::Release(Engine::GameObject::ObjectContext& a_context)
+	{
+		// 借りているBGMを返す
+		m_bgm.Release(a_context);
+	}
+
 	void SceneSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
 	{
 		//----------------------------------------------------------------------
@@ -809,6 +822,11 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		a_ar.GUIDField("PauseSceneGUID", m_pauseSceneGUID);
 		a_ar.StringField("PauseActionName", m_pauseActionName);
+
+		//----------------------------------------------------------------------
+		// BGM
+		//----------------------------------------------------------------------
+		m_bgm.Archive(a_ar);
 	}
 
 	//======================================================================================
@@ -821,6 +839,10 @@ namespace App::Object
 		if (ImGui::Button("Reset Progress")) ResetProgress();
 
 		ImGui::TextDisabled("Gizmo : select a position below (Ctrl to snap)");
+
+		ImGui::Separator();
+
+		m_bgm.DrawInspector(a_context);
 
 		ImGui::Separator();
 

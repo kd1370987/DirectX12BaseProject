@@ -9,13 +9,34 @@
 #include "Engine/Option/OptionManager.h"	// ウィンドウ解像度(px)取得用
 #include "Engine/Input/InputManager/InputManager.h"	// カーソル位置の取得用
 #include "Engine/Window/NativeWindow.h"				// クライアント領域の実サイズ取得用
+#include "Engine/Audio/AudioManager.h"				// 乗った音・押した音
 
 #include "../../../Engine/Editor/Helper/EditorHelper.h"
 
 namespace App::Object
 {
+	namespace
+	{
+		// 度で回す : IsPointInside と同じ向き(時計回り)
+		Math::Vector2 RotateDeg(const Math::Vector2& a_value, float a_degree)
+		{
+			if (a_degree == 0.0f) return a_value;
+
+			const float _rad = DirectX::XMConvertToRadians(a_degree);
+			const float _cos = std::cos(_rad);
+			const float _sin = std::sin(_rad);
+
+			return {
+				a_value.x * _cos - a_value.y * _sin,
+				a_value.x * _sin + a_value.y * _cos
+			};
+		}
+	}
+
 	void UIBase::Release(Engine::GameObject::ObjectContext& a_context)
-	{}
+	{
+		ReleaseUISounds(a_context);
+	}
 
 	//======================================================================================
 	// 更新 : 飾りのアニメーションを進める
@@ -27,10 +48,281 @@ namespace App::Object
 	//======================================================================================
 	void UIBase::Update(Engine::GameObject::ObjectContext& a_context)
 	{
+		// カーソルの当たり判定と押下の進行
+		UpdateInteraction(a_context);
+
+		// 飾りは今の状態を受け取って、そこへ寄っていく
+		const Decoration::EUIState _state = GetUIState();
+
 		for (Decoration::Decoration& _decoration : m_decorationVec)
 		{
-			Decoration::AdvanceAnimation(_decoration, a_context.dt);
+			Decoration::AdvanceAnimation(_decoration, _state, a_context.dt);
 		}
+	}
+
+	//======================================================================================
+	// 今の状態
+	//======================================================================================
+	Decoration::EUIState UIBase::GetUIState() const
+	{
+		if (!m_isInteractable) return Decoration::EUIState::Disabled;
+		if (m_isPressed)       return Decoration::EUIState::Pressed;
+		if (m_isHovered)       return Decoration::EUIState::Hovered;
+
+		return Decoration::EUIState::Normal;
+	}
+
+	//======================================================================================
+	// カーソルの当たり判定と押下の進行
+	//--------------------------------------------------------------------------------------
+	// ・当たり判定はアンカーの矩形(PixelPos / PixelSize / Pivot / Rotation)を使う。
+	//   飾りは何枚でも生やせるので、そのどれかではなくアンカーを唯一の基準にしてある。
+	//
+	// ・押下は「押し始めも離しも矩形の内側」で成立させる。押したまま外へ逃がせば
+	//   取り消せる、よくあるボタンの作法に合わせてある。
+	//
+	// ・入力はプレイモード中しか受け取らない(InputManager 側で止まる)。
+	//   エディター操作でUIが光ったり押されたりしない。
+	//======================================================================================
+	void UIBase::UpdateInteraction(Engine::GameObject::ObjectContext& a_context)
+	{
+		// 鳴らし直しの間引きを進める。
+		// 反応しない状態でも進めておかないと、無効にしている間に止まってしまう
+		if (m_hoverSoundCoolTime > 0.0f) m_hoverSoundCoolTime = std::max(m_hoverSoundCoolTime - a_context.dt, 0.0f);
+		if (m_pressSoundCoolTime > 0.0f) m_pressSoundCoolTime = std::max(m_pressSoundCoolTime - a_context.dt, 0.0f);
+
+		// 「このフレームに押し切られたか」は毎フレーム作り直す
+		m_isClicked = false;
+
+		// 乗った瞬間を見るために、前のフレームの状態を控えておく
+		const bool _wasHovered = m_isHovered;
+
+		//==================================================================
+		// 反応しない状態
+		//------------------------------------------------------------------
+		// ・出していない(見えていないものは触れない)
+		// ・無効にされている
+		// ・プレイモードでない / エディターで文字を打っている
+		// このときは状態を全部落とす。押しっぱなしのまま無効にされて、
+		// 有効へ戻した瞬間に押し切られたことにならないようにする。
+		//==================================================================
+		if (!a_context.pServices || !a_context.pServices->pInputManager ||
+			!m_isVisible || !m_isInteractable ||
+			!a_context.pServices->pInputManager->IsGameInputEnable())
+		{
+			m_isHovered = false;
+			m_isPressed = false;
+			m_isPressStartedInside = false;
+			return;
+		}
+
+		auto& _input = *a_context.pServices->pInputManager;
+
+		//==================================================================
+		// カーソルが乗っているか
+		//==================================================================
+		Math::Vector2 _cursorPos = {};
+		const bool _hasCursor = CalcCursorUIPos(a_context, _cursorPos);
+
+		m_isHovered = _hasCursor && IsPointInsideSelf(_cursorPos);
+
+		// 乗った瞬間だけ鳴らす。乗っている間ずっとだと鳴り続けてしまう
+		if (m_isHovered && !_wasHovered)
+		{
+			PlayUISound(a_context, m_hoverSoundGUID, m_hoverSoundHandle, m_hoverSoundCoolTime);
+		}
+
+		//==================================================================
+		// 押下の進行
+		//==================================================================
+		const bool _isPressMoment   = _input.IsPress(m_clickActionName);	// 押した瞬間
+		const bool _isHoldMoment    = _input.IsHold(m_clickActionName);		// 押している間
+		const bool _isReleaseMoment = _input.IsRelease(m_clickActionName);	// 離した瞬間
+
+		// 内側で押し始めたときだけ受け付ける
+		if (_isPressMoment && m_isHovered)
+		{
+			m_isPressStartedInside = true;
+
+			// 押し切るまで待つと手応えが遅れるので、押した瞬間に鳴らす
+			PlayUISound(a_context, m_pressSoundGUID, m_pressSoundHandle, m_pressSoundCoolTime);
+		}
+
+		m_isPressed = m_isPressStartedInside && _isHoldMoment;
+
+		if (_isReleaseMoment)
+		{
+			// 押し始めと離しの両方が内側なら成立
+			m_isClicked = (m_isPressStartedInside && m_isHovered);
+
+			m_isPressStartedInside = false;
+			m_isPressed = false;
+		}
+
+		// 押していないのに押し始めの記録が残っていたら落とす
+		// (ボタンを離した瞬間を取りこぼした場合の保険)
+		if (!_isHoldMoment && !_isReleaseMoment)
+		{
+			m_isPressStartedInside = false;
+			m_isPressed = false;
+		}
+	}
+
+	//======================================================================================
+	// 自分の判定矩形の内側か
+	//--------------------------------------------------------------------------------------
+	// 判定そのものは静的な共通実装。ここは矩形を組み立てて渡すだけ。
+	//
+	// 使う矩形は2通り :
+	//   PixelSize が入っている … アンカーの矩形をそのまま使う(判定を絵とずらしたいとき用)
+	//   PixelSize が 0        … 飾りが占めている範囲から作る
+	//
+	// 後者を用意してあるのは、見た目を飾り側へ移したことで
+	// アンカーの大きさを入れ忘れやすくなったため。
+	// 幅0の矩形はどこにも当たらないので、そのままだと
+	// 「置いて飾りを付けたのに、乗っても何も起きない」になる。
+	//======================================================================================
+	bool UIBase::IsPointInsideSelf(const Math::Vector2& a_uiPos) const
+	{
+		// アンカーに大きさが入っていればそちらを優先する
+		if (m_pixelSize.x > 0.0f && m_pixelSize.y > 0.0f)
+		{
+			return UIBase::IsPointInside(
+				a_uiPos,
+				m_pixelPos,
+				m_pixelSize,
+				m_pivot,
+				m_rotation,
+				m_hitPadding);
+		}
+
+		// 飾りの範囲から作る
+		Math::Vector2 _center = {};
+		Math::Vector2 _size = {};
+		if (!CalcDecorationBounds(_center, _size)) return false;
+
+		// 範囲の中心を指す点。回転と倍率はアンカーのものが乗る
+		const Math::Vector2 _pos = m_pixelPos + RotateDeg(_center * m_scale, m_rotation);
+
+		return UIBase::IsPointInside(
+			a_uiPos,
+			_pos,
+			_size * m_scale,
+			{ 0.5f, 0.5f },		// 中心を出しているのでピボットは中央
+			m_rotation,
+			m_hitPadding);
+	}
+
+	//======================================================================================
+	// 飾りが占めている範囲
+	//======================================================================================
+	bool UIBase::CalcDecorationBounds(Math::Vector2& a_outCenter, Math::Vector2& a_outSize) const
+	{
+		bool _hasAny = false;
+		float _minX = 0.0f, _minY = 0.0f, _maxX = 0.0f, _maxY = 0.0f;
+
+		for (const Decoration::Decoration& _decoration : m_decorationVec)
+		{
+			if (!_decoration.isVisible) continue;
+
+			// 文字は大きさをフォントから組み立てるので、ここでは測れない。
+			// 文字だけのUIに判定を持たせたいときは PixelSize を入れること
+			if (_decoration.type == Decoration::EDecorationType::Text) continue;
+
+			const Math::Vector2 _size = _decoration.pixelSize * _decoration.scale;
+			if (_size.x <= 0.0f || _size.y <= 0.0f) continue;
+
+			// 飾り自身の回転を掛けた4隅を取り、それを囲む矩形にする
+			const Math::Vector2 _topLeft = {
+				-_decoration.pivot.x * _size.x,
+				-_decoration.pivot.y * _size.y
+			};
+			const Math::Vector2 _cornerArray[4] = {
+				_topLeft,
+				{ _topLeft.x + _size.x, _topLeft.y },
+				{ _topLeft.x,           _topLeft.y + _size.y },
+				{ _topLeft.x + _size.x, _topLeft.y + _size.y },
+			};
+
+			for (const Math::Vector2& _corner : _cornerArray)
+			{
+				const Math::Vector2 _point =
+					_decoration.offsetPos + RotateDeg(_corner, _decoration.rotation);
+
+				if (!_hasAny)
+				{
+					_minX = _maxX = _point.x;
+					_minY = _maxY = _point.y;
+					_hasAny = true;
+					continue;
+				}
+
+				_minX = std::min(_minX, _point.x);
+				_minY = std::min(_minY, _point.y);
+				_maxX = std::max(_maxX, _point.x);
+				_maxY = std::max(_maxY, _point.y);
+			}
+		}
+
+		if (!_hasAny) return false;
+
+		a_outCenter = { (_minX + _maxX) * 0.5f, (_minY + _maxY) * 0.5f };
+		a_outSize   = { _maxX - _minX, _maxY - _minY };
+
+		return true;
+	}
+
+	//======================================================================================
+	// 音
+	//======================================================================================
+	void UIBase::PlayUISound(
+		Engine::GameObject::ObjectContext& a_context,
+		const Engine::GUID& a_guid,
+		Engine::Handle<Engine::Resource::SoundInstance>& a_inoutHandle,
+		float& a_inoutCoolTime)
+	{
+		if (!a_guid.IsValid()) return;
+		if (!a_context.pServices || !a_context.pServices->pAudioManager) return;
+
+		//--------------------------------------------------------------
+		// 間引き
+		//
+		// 判定の縁でカーソルが揺れると、乗った/離れたが毎フレーム入れ替わる。
+		// インスタンスは1つなので音自体は重ならないが、頭出しの鳴らし直しが
+		// 連続すると残響が積み上がって、だんだん大きくなったように聞こえる
+		//--------------------------------------------------------------
+		if (a_inoutCoolTime > 0.0f) return;
+		a_inoutCoolTime = m_soundMinInterval;
+
+		auto* _pAudioManager = a_context.pServices->pAudioManager;
+
+		// 初めて鳴らすときに借りる。画面に並ぶUI全部が先に確保すると席が尽きる
+		if (!a_inoutHandle.IsValid())
+		{
+			// 画面に出す音なので 2D で発行する(定位を付けない)。
+			// UI の札を付けておくと、設定画面の UI 音量がそのまま効く
+			a_inoutHandle = _pAudioManager->RequestSoundInstance(
+				a_guid, false, Engine::Audio::ESoundGroup::Ui);
+		}
+
+		if (auto* _pInstance = _pAudioManager->RefInstance(a_inoutHandle))
+		{
+			_pInstance->SetVolume(m_soundVolume);
+			_pInstance->Play(false);
+		}
+	}
+
+	void UIBase::ReleaseUISounds(Engine::GameObject::ObjectContext& a_context)
+	{
+		// サウンドインスタンスのプールはアプリ寿命なので、借りた側が必ず返す
+		if (!a_context.pServices || !a_context.pServices->pAudioManager) return;
+
+		auto* _pAudioManager = a_context.pServices->pAudioManager;
+		_pAudioManager->ReleaseSoundInstance(m_hoverSoundHandle);
+		_pAudioManager->ReleaseSoundInstance(m_pressSoundHandle);
+
+		m_hoverSoundHandle = {};
+		m_pressSoundHandle = {};
 	}
 
 	void UIBase::Draw(Engine::GameObject::ObjectContext& a_context)
@@ -150,6 +442,15 @@ namespace App::Object
 		// 出し分けの状態。※ 追加は必ずここより上でなく末尾へ
 		//    (バイナリは並び順で読むので、間に挟むと既存のデータがずれる)
 		a_ar.Field("IsVisible", m_isVisible);
+
+		// ---- カーソルへの反応 ----
+		a_ar.StringField("ClickActionName", m_clickActionName);
+		a_ar.Field("HitPadding", m_hitPadding);
+		a_ar.Field("IsInteractable", m_isInteractable);
+		a_ar.GUIDField("HoverSoundGUID", m_hoverSoundGUID);
+		a_ar.GUIDField("PressSoundGUID", m_pressSoundGUID);
+		a_ar.Field("SoundVolume", m_soundVolume);
+		a_ar.Field("SoundMinInterval", m_soundMinInterval);
 
 		// ---- 飾り ----
 		size_t _decorationCount = m_decorationVec.size();
@@ -366,6 +667,71 @@ namespace App::Object
 		// この点が PixelPos に配置され、回転の中心にもなる。
 		ImGui::DragFloat2("Pivot (0-1)", &m_pivot.x, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("LayerZ", &m_layer, 1.0f);
+
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		//----------------------------------------------------------------------
+		// カーソルへの反応
+		//
+		// 見た目の変化は飾り側(Decoration の Reaction)。ここは判定と音だけ
+		//----------------------------------------------------------------------
+		ImGui::SeparatorText("Interaction");
+
+		ImGui::Checkbox("Interactable", &m_isInteractable);
+		ImGui::SameLine();
+		ImGui::TextDisabled("(切ると Disabled 扱いになる)");
+
+		ImGui::InputText("ClickAction", &m_clickActionName);
+		ImGui::TextDisabled("InputManager へ登録したアクション名");
+
+		ImGui::DragFloat2("HitPadding", &m_hitPadding.x, 1.0f);
+		ImGui::TextDisabled("判定の矩形へ足す余白(px)");
+
+		//----------------------------------------------------------------------
+		// いま効いている判定を出す
+		//
+		// 幅0の矩形はどこにも当たらないので、乗らない原因がここだと分かるようにする
+		//----------------------------------------------------------------------
+		if (m_pixelSize.x > 0.0f && m_pixelSize.y > 0.0f)
+		{
+			ImGui::Text("Hit : %.0f x %.0f (PixelSize)", m_pixelSize.x, m_pixelSize.y);
+		}
+		else
+		{
+			Math::Vector2 _center = {};
+			Math::Vector2 _size = {};
+			if (CalcDecorationBounds(_center, _size))
+			{
+				ImGui::Text("Hit : %.0f x %.0f (飾りの範囲)", _size.x, _size.y);
+				ImGui::TextDisabled("PixelSize が 0 なので飾りの範囲を使っています");
+			}
+			else
+			{
+				ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "Hit : なし");
+				ImGui::TextDisabled("PixelSize も飾りの大きさも 0 です。カーソルに反応しません");
+			}
+		}
+
+		ImGui::Spacing();
+
+		// 音を差し替えたら、借りているインスタンスを返して取り直させる
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("HoverSound", "Sound", m_hoverSoundGUID))
+		{
+			ReleaseUISounds(a_context);
+		}
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("PressSound", "Sound", m_pressSoundGUID))
+		{
+			ReleaseUISounds(a_context);
+		}
+		ImGui::DragFloat("SoundVolume", &m_soundVolume, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("SoundMinInterval", &m_soundMinInterval, 0.01f, 0.0f, 1.0f);
+		ImGui::TextDisabled("鳴らし直す最短間隔(秒)。縁で揺れて鳴り続けるのを止める");
+
+		// 実行中の状態は表示のみ
+		static const char* _stateName[] = { "Normal", "Hovered", "Pressed", "Disabled" };
+		ImGui::Text("State : %s", _stateName[static_cast<int>(GetUIState())]);
 
 		ImGui::Spacing();
 		ImGui::Separator();

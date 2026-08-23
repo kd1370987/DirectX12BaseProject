@@ -31,6 +31,10 @@ namespace Engine::Resource
 		// Sound(= DirectX::SoundEffect) が解放されないようにする
 		m_soundRef = a_resourceRef;
 
+		// 音量を一度も指定されないまま鳴らされても、
+		// グループ音量とマスター音量が効いている状態にしておく
+		RefreshVolume();
+
 		return true;
 	}
 	void SoundInstance::Play(bool a_isLoop)
@@ -57,7 +61,11 @@ namespace Engine::Resource
 		}
 
 		m_upSoundInstance->Stop();
-		m_upSoundInstance->SetVolume(1);
+
+		// 覚えている音量(× グループ × マスター)で鳴らし直す。
+		// 以前はここで生の 1 を入れていたので、
+		// 鳴らす前に指定した音量もグループ音量も捨てられていた
+		RefreshVolume();
 
 		m_upSoundInstance->Play(a_isLoop);
 
@@ -91,10 +99,38 @@ namespace Engine::Resource
 		if (!m_upSoundInstance) return;
 		m_upSoundInstance->Resume();
 	}
+	//======================================================================================
+	// 音量
+	//--------------------------------------------------------------------------------------
+	// 覚えるのは「呼び出し側が指定した音量」だけ。
+	// 実際に送るときにグループ音量とマスター音量を掛ける。
+	//
+	// こうしておくと、設定画面で BGM を絞ったときに
+	// 鳴らしている側(進行役・コンポーネント)を1つも触らずに効かせられる。
+	// 逆に呼び出し側が設定値を掛けてから渡す作りにすると、
+	// 設定を変えるたびに全員へ知らせて回ることになる。
+	//======================================================================================
 	void SoundInstance::SetVolume(float a_vol)
 	{
+		m_volume = a_vol;
+		RefreshVolume();
+	}
+
+	void SoundInstance::SetGroup(Audio::ESoundGroup a_group)
+	{
+		if (m_group == a_group) return;
+
+		m_group = a_group;
+		RefreshVolume();
+	}
+
+	void SoundInstance::RefreshVolume()
+	{
 		if (!m_upSoundInstance) return;
-		m_upSoundInstance->SetVolume(a_vol);
+
+		const float _scale = Audio::AudioManager::Instance().CalcVolumeScale(m_group);
+
+		m_upSoundInstance->SetVolume(std::clamp(m_volume * _scale, 0.0f, 1.0f));
 		Apply3D();
 	}
 	void SoundInstance::SetPos(const DXSM::Vector3 & a_pos)

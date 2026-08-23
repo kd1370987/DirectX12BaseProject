@@ -53,6 +53,9 @@ namespace App::Object
 
 		// ボタンへの差し込み(済んでいれば何もしない)
 		TryBindButtons(a_context);
+
+		// BGM : 初回で鳴らし始め、フェードを進める
+		m_bgm.Update(a_context);
 	}
 
 	//======================================================================================
@@ -177,6 +180,9 @@ namespace App::Object
 	//======================================================================================
 	void HomeSequence::Release(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 借りているBGMを返す
+		m_bgm.Release(a_context);
+
 		if (!m_isReleaseCursorLock) return;
 		if (!a_context.pServices) return;
 		if (!a_context.pServices->pInputManager || !a_context.pServices->pOptionManager) return;
@@ -212,6 +218,8 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		a_ar.Field("IsWarehouseInteractable", m_isWarehouseInteractable);
 		a_ar.Field("IsReleaseCursorLock", m_isReleaseCursorLock);
+
+		m_bgm.Archive(a_ar);
 
 		if (a_ar.IsLoading())
 		{
@@ -280,6 +288,8 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// その他
 		//----------------------------------------------------------------------
+		m_bgm.DrawInspector(a_context);
+
 		ImGui::SeparatorText("Cursor");
 		ImGui::Checkbox("ReleaseCursorLock", &m_isReleaseCursorLock);
 		ImGui::TextDisabled("ホームの間はカーソルの中央固定を切る");

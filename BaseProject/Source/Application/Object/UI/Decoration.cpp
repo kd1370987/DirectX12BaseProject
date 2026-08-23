@@ -215,7 +215,15 @@ namespace App::Object::Decoration
 			Math::Vector2 size = {};		// 大きさ(px)
 			float rotation = 0.0f;			// 回転(度)
 			float layer = 0.0f;				// Z順
-			Math::Color color = {};			// 最終色
+			Math::Color color = {};			// 最終色(飾り自身の色まで掛けたもの)
+
+			/// <summary>飾り自身の色を除いた掛かり具合(親の色 × その場の色 × アニメ)</summary>
+			/// <remarks>
+			/// 枠は飾り本体とは別の色を持つので、最終色から逆算せずにこれを掛ける。
+			/// ここを通さないと、反応で消したはずの枠だけ residual に残る
+			/// </remarks>
+			Math::Color modulate = {};
+
 			Math::Vector2 uvOffset = {};	// UVオフセット
 			Math::Vector2 uvScale = { 1.0f, 1.0f };	// UV倍率
 			float uniformScale = 1.0f;		// 枠の太さ・字間など、1軸で効かせたいもの用
@@ -229,6 +237,21 @@ namespace App::Object::Decoration
 			AnimResult _anim = {};
 			if (a_decoration.opTweenAnim.has_value())      ApplyTween(*a_decoration.opTweenAnim, _anim);
 			if (a_decoration.opOscillationAnim.has_value()) ApplyOscillation(*a_decoration.opOscillationAnim, _anim);
+
+			// カーソルへの反応 : 目標へ寄せた結果(current)を掛ける。
+			// 寄せる処理そのものは AdvanceAnimation が行う
+			if (a_decoration.opReaction.has_value())
+			{
+				const UIReaction& _reaction = *a_decoration.opReaction;
+
+				_anim.colorMul *= _reaction.current.color;
+				_anim.scaleMul *= _reaction.current.scale;
+				_anim.positionAdd += _reaction.current.offsetAdd;
+
+				// 出さない状態は透明にして消す。
+				// 描画側で弾かずアルファで消しているのは、途中の割合で薄く出せるようにするため
+				_anim.colorMul.a *= _reaction.visibleRate;
+			}
 
 			Resolved _out = {};
 
@@ -244,7 +267,8 @@ namespace App::Object::Decoration
 			_out.rotation = a_parent.rotation + a_decoration.rotation + _anim.rotationAdd;
 			_out.layer = a_parent.layer + a_decoration.layerOffset;
 
-			_out.color = a_parent.color * a_decoration.color * a_override.tint * _anim.colorMul;
+			_out.modulate = a_parent.color * a_override.tint * _anim.colorMul;
+			_out.color = _out.modulate * a_decoration.color;
 			_out.uvOffset = a_decoration.uvOffset + a_override.uvOffsetAdd + _anim.uvAdd;
 			_out.uvScale = a_override.isUseUvScale ? a_override.uvScale : a_decoration.uvScale;
 
@@ -537,8 +561,63 @@ namespace App::Object::Decoration
 	//======================================================================================
 	// 時間を進める
 	//======================================================================================
-	void AdvanceAnimation(Decoration& a_decoration, float a_deltaTime)
+	namespace
 	{
+		// 親の状態に対応する見た目を選ぶ
+		UIStateStyle PickStateStyle(const UIReaction& a_reaction, EUIState a_state)
+		{
+			switch (a_state)
+			{
+			case EUIState::Hovered:  return a_reaction.hovered;
+			case EUIState::Pressed:  return a_reaction.pressed;
+			case EUIState::Disabled: return a_reaction.disabled;
+
+			case EUIState::Normal:
+			default:
+				// 素のまま(掛けても足しても変わらない値)
+				return UIStateStyle();
+			}
+		}
+
+		// 反応を目標へ寄せる
+		void AdvanceReaction(UIReaction& a_reaction, EUIState a_parentState, float a_deltaTime)
+		{
+			const UIStateStyle _target = PickStateStyle(a_reaction, a_parentState);
+
+			const bool _isVisibleState =
+				Engine::Utility::HasFlag(a_reaction.visibleState, ToStateFlag(a_parentState));
+			const float _targetVisible = _isVisibleState ? 1.0f : 0.0f;
+
+			//----------------------------------------------------------------------
+			// 寄せる割合
+			//
+			// 1 - exp(-speed * dt) にしてあるのは、フレームレートが変わっても
+			// 同じ速さで寄るようにするため(dt をそのまま掛けると重いときほど速く寄る)。
+			// 初回だけ補間しないのは、出た瞬間に Normal から寄り始めてちらつくのを避けるため
+			//----------------------------------------------------------------------
+			float _rate = 1.0f;
+			if (a_reaction.blendSpeed > 0.0f && a_reaction.isInitialized)
+			{
+				_rate = 1.0f - std::exp(-a_reaction.blendSpeed * a_deltaTime);
+			}
+
+			a_reaction.current.color     = Lerp(a_reaction.current.color, _target.color, _rate);
+			a_reaction.current.scale     = Lerp(a_reaction.current.scale, _target.scale, _rate);
+			a_reaction.current.offsetAdd = Lerp(a_reaction.current.offsetAdd, _target.offsetAdd, _rate);
+			a_reaction.visibleRate       = Lerp(a_reaction.visibleRate, _targetVisible, _rate);
+
+			a_reaction.isInitialized = true;
+		}
+	}
+
+	void AdvanceAnimation(Decoration& a_decoration, EUIState a_parentState, float a_deltaTime)
+	{
+		// カーソルへの反応
+		if (a_decoration.opReaction.has_value())
+		{
+			AdvanceReaction(*a_decoration.opReaction, a_parentState, a_deltaTime);
+		}
+
 		if (a_decoration.opTweenAnim.has_value())
 		{
 			UIAnimation& _anim = *a_decoration.opTweenAnim;
@@ -623,8 +702,9 @@ namespace App::Object::Decoration
 		}
 
 		// ---- 枠 ----
-		// 枠の色は親の色も乗せる。UI全体を薄くしたときに枠だけ残らないようにするため
-		const Math::Color _edgeColor = a_parent.color * a_decoration.edgeColor * a_override.tint;
+		// 塗りと同じ掛かり具合(親の色・その場の色・アニメ・反応)を通す。
+		// ここを飛ばすと、反応で消したはずの枠だけ残ってしまう
+		const Math::Color _edgeColor = _resolved.modulate * a_decoration.edgeColor;
 		DrawEdge(a_pGraphicsEngine, a_decoration, _resolved, _localTopLeft, _edgeColor);
 	}
 
@@ -655,6 +735,13 @@ namespace App::Object::Decoration
 		{
 			a_ar.Field(a_name + "Start", a_element.start);
 			a_ar.Field(a_name + "End", a_element.end);
+		}
+
+		void ArchiveStateStyle(Engine::Persistence::Archive& a_ar, const std::string& a_name, UIStateStyle& a_style)
+		{
+			a_ar.Field(a_name + "Color", a_style.color);
+			a_ar.Field(a_name + "Scale", a_style.scale);
+			a_ar.Field(a_name + "Offset", a_style.offsetAdd);
 		}
 
 		template<typename T>
@@ -732,6 +819,28 @@ namespace App::Object::Decoration
 			a_decoration.opTweenAnim.reset();
 		}
 
+		//----------------------------------------------------------------------------------
+		// カーソルへの反応
+		//----------------------------------------------------------------------------------
+		bool _hasReaction = a_decoration.opReaction.has_value();
+		a_ar.Field("HasReaction", _hasReaction);
+		if (_hasReaction)
+		{
+			if (!a_decoration.opReaction.has_value()) a_decoration.opReaction = UIReaction();
+
+			UIReaction& _reaction = *a_decoration.opReaction;
+			a_ar.Field("ReactionVisibleState", _reaction.visibleState);
+			a_ar.Field("ReactionBlendSpeed", _reaction.blendSpeed);
+
+			ArchiveStateStyle(a_ar, "ReactionHovered", _reaction.hovered);
+			ArchiveStateStyle(a_ar, "ReactionPressed", _reaction.pressed);
+			ArchiveStateStyle(a_ar, "ReactionDisabled", _reaction.disabled);
+		}
+		else
+		{
+			a_decoration.opReaction.reset();
+		}
+
 		bool _hasOscillation = a_decoration.opOscillationAnim.has_value();
 		a_ar.Field("HasOscillation", _hasOscillation);
 		if (_hasOscillation)
@@ -769,6 +878,27 @@ namespace App::Object::Decoration
 		bool DrawColorValue(const char* a_label, Math::Color& a_value)
 		{
 			return Engine::Editor::EditorHelper::DrawColorEdit(a_label, a_value);
+		}
+
+		// 状態1つぶんの見た目
+		bool DrawStateStyleUI(const char* a_label, UIStateStyle& a_style)
+		{
+			if (!ImGui::TreeNode(a_label)) return false;
+
+			bool _isChanged = false;
+
+			if (Engine::Editor::EditorHelper::DrawColorEdit("Color", a_style.color)) _isChanged = true;
+			ImGui::SetItemTooltip("元の色へ乗算(白で変化なし)");
+
+			if (ImGui::DragFloat2("Scale", &a_style.scale.x, 0.01f, 0.0f, 16.0f)) _isChanged = true;
+			ImGui::SetItemTooltip("大きさへ乗算(1で等倍)");
+
+			if (ImGui::DragFloat2("Offset", &a_style.offsetAdd.x, 0.5f)) _isChanged = true;
+			ImGui::SetItemTooltip("位置へ加算(px)");
+
+			ImGui::TreePop();
+
+			return _isChanged;
 		}
 
 		// トゥイーンの1チャンネルぶん
@@ -977,6 +1107,42 @@ namespace App::Object::Decoration
 				if (Engine::Editor::EditorHelper::DrawColorEdit("EdgeColor", a_decoration.edgeColor)) _isChanged = true;
 				Engine::Editor::EditorHelper::DrawEnumFlagsCombo("EdgeSide", a_decoration.edgeSide);
 			}
+		}
+
+		//----------------------------------------------------------------------------------
+		// カーソルへの反応
+		//----------------------------------------------------------------------------------
+		ImGui::Spacing();
+		ImGui::SeparatorText("Reaction");
+
+		bool _hasReaction = a_decoration.opReaction.has_value();
+		if (ImGui::Checkbox("Reaction", &_hasReaction))
+		{
+			if (_hasReaction) a_decoration.opReaction = UIReaction();
+			else              a_decoration.opReaction.reset();
+			_isChanged = true;
+		}
+		ImGui::SetItemTooltip("親のUIにカーソルが乗った / 押されたときに反応する");
+
+		if (a_decoration.opReaction.has_value())
+		{
+			UIReaction& _reaction = *a_decoration.opReaction;
+
+			ImGui::Indent();
+			ImGui::PushID("Reaction");
+
+			Engine::Editor::EditorHelper::DrawEnumFlagsCombo("VisibleState", _reaction.visibleState);
+			ImGui::TextDisabled("この状態のときだけ出す(カーソル時だけ枠を出す等)");
+
+			if (ImGui::DragFloat("BlendSpeed", &_reaction.blendSpeed, 0.5f, 0.0f, 120.0f)) _isChanged = true;
+			ImGui::SetItemTooltip("切り替わりの速さ。0 で即時");
+
+			if (DrawStateStyleUI("Hovered", _reaction.hovered))  _isChanged = true;
+			if (DrawStateStyleUI("Pressed", _reaction.pressed))  _isChanged = true;
+			if (DrawStateStyleUI("Disabled", _reaction.disabled)) _isChanged = true;
+
+			ImGui::PopID();
+			ImGui::Unindent();
 		}
 
 		//----------------------------------------------------------------------------------

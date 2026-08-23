@@ -1,6 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include "../../../../Engine/GameObject/BaseObject/BaseObject.h"
+
+#include "../../SequenceBgm.h"
 
 namespace App::Object
 {
@@ -68,5 +70,10 @@ namespace App::Object
 		//-------------------------------------------------------------------
 		bool m_isBound = false;			// 差し込み済みか
 		bool m_isSceneRequested = false;	// 二重に遷移要求を出さないための印
+
+		//-------------------------------------------------------------------
+		// BGM
+		//-------------------------------------------------------------------
+		SequenceBgm m_bgm = {};
 	};
 }

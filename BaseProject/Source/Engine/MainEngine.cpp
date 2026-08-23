@@ -127,6 +127,11 @@ namespace Engine
 		// オーディオエンジンの初期化
 		Audio::AudioManager::Instance().Init();
 
+		// 保存されている音量を流し込む。
+		// オプションの読み込みはこれより前に済んでいるが、
+		// AudioManager がまだ無い状態では入れられないのでここで反映する
+		Option::OptionManager::GetInstance().GetAudioOption().Apply();
+
 		// アセットマネージャー作成
 		InitializeAssetDatabase();
 

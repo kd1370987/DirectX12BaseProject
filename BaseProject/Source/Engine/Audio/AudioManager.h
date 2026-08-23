@@ -75,8 +75,40 @@ namespace Engine::Audio
 		/// true で3Dサウンド用インスタンスを発行する。
 		/// Play3D / SetPos / Apply3D はこれを true にしたインスタンスでしか使えない
 		/// </param>
-		Handle<Resource::SoundInstance> RequestSoundInstance(const std::string& a_filePath, bool a_is3D = false);
-		Handle<Resource::SoundInstance> RequestSoundInstance(const Engine::GUID& a_guid, bool a_is3D = false);
+		/// <param name="a_group">
+		/// 音のグループ。オプションの音量はこの単位で掛かる。
+		/// 省略すると効果音(Se)扱い
+		/// </param>
+		Handle<Resource::SoundInstance> RequestSoundInstance(
+			const std::string& a_filePath, bool a_is3D = false,
+			ESoundGroup a_group = ESoundGroup::Se);
+		Handle<Resource::SoundInstance> RequestSoundInstance(
+			const Engine::GUID& a_guid, bool a_is3D = false,
+			ESoundGroup a_group = ESoundGroup::Se);
+
+		//----------------------------------------------------------------------------------
+		// 音量設定
+		//----------------------------------------------------------------------------------
+
+		/// <summary>
+		/// マスター音量 : 全部の音へ掛かる
+		/// </summary>
+		/// <remarks>
+		/// 変えた瞬間に鳴っているもの全部へ送り直す。
+		/// 更新が止まっているシーンの音(ポーズ中のゲームBGMなど)にも効かせるため
+		/// </remarks>
+		void SetMasterVolume(float a_volume);
+		float GetMasterVolume() const { return m_masterVolume; }
+
+		// グループ音量 : そのグループの音へ掛かる
+		void SetGroupVolume(ESoundGroup a_group, float a_volume);
+		float GetGroupVolume(ESoundGroup a_group) const;
+
+		/// <summary>
+		/// そのグループの音へ掛ける倍率(マスター込み)
+		/// </summary>
+		/// <remarks>SoundInstance が実際に送る音量を出すのに使う</remarks>
+		float CalcVolumeScale(ESoundGroup a_group) const;
 
 		/// <summary>
 		/// 発行したサウンドインスタンスを停止して破棄する
@@ -84,6 +116,11 @@ namespace Engine::Audio
 		/// </summary>
 		/// <param name="a_handle">RequestSoundInstance が返したハンドル : 無効なら何もしない</param>
 		void ReleaseSoundInstance(const Handle<Resource::SoundInstance>& a_handle);
+
+	private:
+
+		// 鳴っているものすべてへ音量を送り直す
+		void RefreshAllVolume();
 
 	private:
 
@@ -99,6 +136,15 @@ namespace Engine::Audio
 
 		// 現在再生中のサウンド管理リスト
 		Pool::ItemPool<Resource::SoundInstance> m_soundInstancePool;
+
+		//----------------------------------------------------------------------------------
+		// 音量
+		//
+		// 保存はオプション側(AudioOption)。ここは実行中の値を持つだけで、
+		// 起動時とエディターでの変更時にオプションから流し込まれる
+		//----------------------------------------------------------------------------------
+		float m_masterVolume = 1.0f;
+		std::array<float, SOUND_GROUP_COUNT> m_groupVolumeArray = {};
 
 	// シングルトン
 	private:

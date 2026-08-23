@@ -46,6 +46,9 @@ namespace App::Object
 
 		// ボタンへの差し込み(済んでいれば何もしない)
 		TryBindButton(a_context);
+
+		// BGM : 初回で鳴らし始め、フェードを進める
+		m_bgm.Update(a_context);
 	}
 
 	//======================================================================================
@@ -103,6 +106,9 @@ namespace App::Object
 	//======================================================================================
 	void TitleSequence::Release(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 借りているBGMを返す
+		m_bgm.Release(a_context);
+
 		if (!m_isReleaseCursorLock) return;
 		if (!a_context.pServices) return;
 		if (!a_context.pServices->pInputManager || !a_context.pServices->pOptionManager) return;
@@ -123,6 +129,8 @@ namespace App::Object
 		a_ar.GUIDField("PlayButtonGUID", m_playButtonGUID);
 		a_ar.GUIDField("NextSceneGUID", m_nextSceneGUID);
 		a_ar.Field("IsReleaseCursorLock", m_isReleaseCursorLock);
+
+		m_bgm.Archive(a_ar);
 	}
 
 	//======================================================================================
@@ -174,6 +182,8 @@ namespace App::Object
 		ImGui::SeparatorText("Next Scene");
 
 		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Scene", "Scene", m_nextSceneGUID);
+
+		m_bgm.DrawInspector(a_context);
 
 		ImGui::SeparatorText("Cursor");
 

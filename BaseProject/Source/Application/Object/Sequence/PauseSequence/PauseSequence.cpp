@@ -1,4 +1,4 @@
-#include "PauseSequence.h"
+﻿#include "PauseSequence.h"
 
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/GameObject/GameObjectManager/GameObjectManager.h"
@@ -46,6 +46,18 @@ namespace App::Object
 
 		// ボタンへの差し込み(済んでいれば何もしない)
 		TryBindButtons(a_context);
+
+		//==============================================================
+		// BGM
+		//--------------------------------------------------------------
+		// 自分のBGMは絞りの対象から外す。対象のままだと自分で自分を小さくする。
+		// 下のゲームBGMは重ねている間ずっと絞っておく : 毎フレーム入れているのは、
+		// 別の誰かが戻してしまっても押し切れるようにするため
+		//==============================================================
+		m_bgm.SetDuckTarget(false);
+		SequenceBgm::SetGlobalDuck(m_gameBgmDuck);
+
+		m_bgm.Update(a_context);
 
 		//==============================================================
 		// 開いたのと同じキーで閉じる
@@ -131,6 +143,12 @@ namespace App::Object
 	//======================================================================================
 	void PauseSequence::Release(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 借りているBGMを返す
+		m_bgm.Release(a_context);
+
+		// 絞ったぶんを戻す。戻し忘れると、ゲームへ帰った後も小さいままになる
+		SequenceBgm::SetGlobalDuck(1.0f);
+
 		if (!m_isReleaseCursorLock) return;
 		if (!a_context.pServices) return;
 		if (!a_context.pServices->pInputManager || !a_context.pServices->pOptionManager) return;
@@ -153,6 +171,9 @@ namespace App::Object
 		a_ar.GUIDField("ExitSceneGUID", m_exitSceneGUID);
 		a_ar.StringField("PauseActionName", m_pauseActionName);
 		a_ar.Field("IsReleaseCursorLock", m_isReleaseCursorLock);
+		a_ar.Field("GameBgmDuck", m_gameBgmDuck);
+
+		m_bgm.Archive(a_ar);
 	}
 
 	//======================================================================================
@@ -218,6 +239,11 @@ namespace App::Object
 
 		ImGui::InputText("Pause Action", &m_pauseActionName);
 		ImGui::TextDisabled("これを押しても閉じる。開くのと同じ名前にしておく");
+
+		m_bgm.DrawInspector(a_context);
+
+		ImGui::DragFloat("GameBgmDuck", &m_gameBgmDuck, 0.01f, 0.0f, 1.0f);
+		ImGui::TextDisabled("ポーズ中、下のゲームBGMへ掛ける倍率(1で絞らない)");
 
 		ImGui::SeparatorText("Cursor");
 

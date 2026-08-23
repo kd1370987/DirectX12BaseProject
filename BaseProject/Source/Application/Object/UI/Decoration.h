@@ -155,6 +155,91 @@ namespace App::Object::Decoration
 	};
 
 	//======================================================================================
+	// UIの状態 : 飾りが親から受け取る
+	//======================================================================================
+	enum class EUIState : uint32_t
+	{
+		Normal = 0,		// 何もされていない
+		Hovered,		// カーソルが乗っている
+		Pressed,		// 押されている最中
+		Disabled,		// 押せない
+	};
+
+	// 出す状態の絞り込み用(ビットフラグなので値は2の冪)
+	enum class EUIStateFlag : uint32_t
+	{
+		NONE		= 0,
+		NORMAL		= 1 << 0,
+		HOVERED		= 1 << 1,
+		PRESSED		= 1 << 2,
+		DISABLED	= 1 << 3,
+
+		ALL			= NORMAL | HOVERED | PRESSED | DISABLED,
+	};
+	ENUM_ATTR_BITFLAG(EUIStateFlag);
+
+	// 状態を絞り込み用のビットへ
+	constexpr EUIStateFlag ToStateFlag(EUIState a_state)
+	{
+		switch (a_state)
+		{
+		case EUIState::Hovered:  return EUIStateFlag::HOVERED;
+		case EUIState::Pressed:  return EUIStateFlag::PRESSED;
+		case EUIState::Disabled: return EUIStateFlag::DISABLED;
+
+		case EUIState::Normal:
+		default:                 return EUIStateFlag::NORMAL;
+		}
+	}
+
+	//--------------------------------------------------------------------------------------
+	// 状態1つぶんの見た目 : Normal からの差
+	//--------------------------------------------------------------------------------------
+	struct UIStateStyle
+	{
+		Math::Color color = Engine::Color::WHITE;	// 元の色へ乗算(白で変化なし)
+		Math::Vector2 scale = { 1.0f, 1.0f };		// 大きさへ乗算(1で等倍)
+		Math::Vector2 offsetAdd = {};				// 位置へ加算(px)
+	};
+
+	//--------------------------------------------------------------------------------------
+	// 親(UI)の状態に対する反応
+	//
+	// アニメーションと同じく optional。付いている飾りだけがカーソルに反応する。
+	//
+	// visibleState で「出す状態」を絞れるので、
+	// 「カーソルが乗ったときだけ枠を出す」は
+	//   板ポリの飾りを1つ置いて、visibleState を HOVERED だけにする
+	// で作れる。大きさを変えたいなら hovered.scale、色なら hovered.color。
+	//
+	// 音は飾りではなく UI 側(UIBase)が1組だけ持つ。
+	// 飾りごとに持たせると、複数付けたときに同時に重なって鳴ってしまう。
+	//--------------------------------------------------------------------------------------
+	struct UIReaction
+	{
+		// 出す状態 : ここに入っていない状態では描かない
+		EUIStateFlag visibleState = EUIStateFlag::ALL;
+
+		// 状態ごとの見た目(Normal は素のまま)
+		UIStateStyle hovered = {};
+		UIStateStyle pressed = {};
+		UIStateStyle disabled = {};
+
+		/// <summary>
+		/// 切り替わりの速さ(1秒あたりの寄り具合)。0 で即時
+		/// </summary>
+		/// <remarks>
+		/// 出し入れも同じ速さでアルファを寄せる。ぱっと消えるより目に優しい
+		/// </remarks>
+		float blendSpeed = 14.0f;
+
+		//---- ランタイム(保存しない) ----
+		UIStateStyle current = {};	// いま適用している値。ここを目標へ寄せていく
+		float visibleRate = 1.0f;	// 出ている割合(0で完全に透明)
+		bool isInitialized = false;	// 初回は補間せずに合わせる(出た瞬間に寄り始めない)
+	};
+
+	//======================================================================================
 	// デコレーションの種類
 	//======================================================================================
 	enum class EDecorationType : uint32_t
@@ -238,6 +323,11 @@ namespace App::Object::Decoration
 		//----------------------------------------------------------------------------------
 		std::optional<UIAnimation> opTweenAnim;					// 始点から終点へ動かすなら付与
 		std::optional<UIProceduralAnimation> opOscillationAnim;	// 揺らし続けるなら付与
+
+		//----------------------------------------------------------------------------------
+		// カーソルへの反応
+		//----------------------------------------------------------------------------------
+		std::optional<UIReaction> opReaction;					// カーソルに反応させるなら付与
 	};
 
 	//======================================================================================
@@ -286,9 +376,10 @@ namespace App::Object::Decoration
 	//======================================================================================
 
 	/// <summary>
-	/// アニメーションの時間を進める : 出していないフレームも進める(UIBase::Update から)
+	/// アニメーションと反応を進める : 出していないフレームも進める(UIBase::Update から)
 	/// </summary>
-	void AdvanceAnimation(Decoration& a_decoration, float a_deltaTime);
+	/// <param name="a_parentState">親(UI)の今の状態。反応を付けていない飾りでは使わない</param>
+	void AdvanceAnimation(Decoration& a_decoration, EUIState a_parentState, float a_deltaTime);
 
 	/// <summary>
 	/// デコレーションを1つ描く

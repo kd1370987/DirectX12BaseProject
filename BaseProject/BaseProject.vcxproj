@@ -250,6 +250,7 @@
     <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp" />
     <ClCompile Include="Source\Application\Object\UI\Decoration.cpp" />
+    <ClCompile Include="Source\Application\Object\SequenceBgm.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp" />
     <ClCompile Include="Source\Application\Object\Scene\SceneAmbientObject\SceneAmbientObject.cpp" />
@@ -479,6 +480,7 @@
     <ClCompile Include="Source\Engine\Option\OptionManager.cpp" />
     <ClCompile Include="Source\Engine\Option\ProjectOptions\InputOption.cpp" />
     <ClCompile Include="Source\Engine\Option\ProjectOptions\CursorOption.cpp" />
+    <ClCompile Include="Source\Engine\Option\ProjectOptions\AudioOption.cpp" />
     <ClCompile Include="Source\Engine\Graphics\MouseCursor\MouseCursor.cpp" />
     <ClCompile Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp" />
     <ClCompile Include="Source\Engine\Particle\ParticleBufferManager.cpp" />
@@ -619,6 +621,7 @@
     <ClInclude Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.h" />
     <ClInclude Include="Source\Application\Object\Sequence\MissionSelect\MissionSelect.h" />
     <ClInclude Include="Source\Application\Object\ObjectPicker.h" />
+    <ClInclude Include="Source\Application\Object\SequenceBgm.h" />
     <ClInclude Include="Source\Application\Components\Character\ScoreTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\BoosterEffectComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\AttachmentSlotsComponent.h" />
@@ -965,6 +968,8 @@
     <ClInclude Include="Source\Engine\Option\ProjectOptions\BuildConfig.h" />
     <ClInclude Include="Source\Engine\Option\ProjectOptions\InputOption.h" />
     <ClInclude Include="Source\Engine\Option\ProjectOptions\CursorOption.h" />
+    <ClInclude Include="Source\Engine\Option\ProjectOptions\AudioOption.h" />
+    <ClInclude Include="Source\Engine\Audio\SoundGroup.h" />
     <ClInclude Include="Source\Engine\Graphics\MouseCursor\MouseCursor.h" />
     <ClInclude Include="Source\Engine\Particle\Core\EmitterData.h" />
     <ClInclude Include="Source\Engine\Particle\Core\ParticleData.h" />
