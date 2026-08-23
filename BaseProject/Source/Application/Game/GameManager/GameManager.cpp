@@ -20,6 +20,7 @@
 #include "Application/Object/UI/MissileLockBoxHUD/MissileLockBoxHUD.h"
 #include "Application/Object/UI/UIButton/UIButton.h"
 #include "Application/Object/UI/UIImage/UIImage.h"
+#include "Application/Object/UI/UIGauge/UIGauge.h"
 #include "Application/Object/Sequence/TitleSequence/TitleSequence.h"
 #include "Application/Object/Sequence/HomeSequence/HomeSequence.h"
 #include "Application/Object/Sequence/PauseSequence/PauseSequence.h"
@@ -281,6 +282,8 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::PauseSequence>("PauseSequence");
 			// ミッションセレクト。ホームから出し入れされ、選ぶと確認ボックスを出して出撃する
 			_objRegistry.RegisterType<App::Object::MissionSelect>("MissionSelect");
+			// ゲージ(HP / オーバーヒート / ブーストなど)。値は SetValue で外から入れる
+			_objRegistry.RegisterType<App::Object::UIGauge>("UIGauge");
 		}
 
 		// ワールドの初期化関数登録

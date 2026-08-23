@@ -13,8 +13,12 @@ VSOutput VSMain(VSInput a_input)
 	float2 _ndc = _uiData.pos + _uiData.axisX * _q.x + _uiData.axisY * _q.y;
 
 	// 構造体にしてPSへ
+	//
+	// Zは常に0。layer は「どの順で描くか」を決めるためのものでCPU側が並べ替えに使う。
+	// ここへ入れてしまうと、深度を使っていないので重なりには効かないのに、
+	// 0〜1 の外を指定したときだけクリップされて絵が消える
 	VSOutput _out;
-	_out.pos = float4(_ndc, _uiData.layer, 1);
+	_out.pos = float4(_ndc, 0.0f, 1);
 	// 倍率 → オフセットの順。1枚に並べた絵から1コマだけ切り出すときは
 	// 倍率でコマの大きさ、オフセットで何コマ目かを指定する
 	_out.uv = a_input.uv * _uiData.uvScale + _uiData.uvOffset;

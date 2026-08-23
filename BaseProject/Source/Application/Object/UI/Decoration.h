@@ -355,7 +355,16 @@ namespace App::Object::Decoration
 		bool isUsePos = false;
 		Math::Vector2 pixelPos = {};
 
-		float scale = 1.0f;							// さらに掛ける倍率
+		float scale = 1.0f;							// さらに掛ける倍率(位置のずれにも掛かる)
+
+		/// <summary>大きさだけへ掛ける倍率(軸ごと)</summary>
+		/// <remarks>
+		/// ゲージのように「横だけ縮める」ために使う。
+		/// scale と違って位置のずれや枠の太さには掛からないので、
+		/// 縮めても枠の太さや文字の大きさは変わらない
+		/// </remarks>
+		Math::Vector2 sizeScale = { 1.0f, 1.0f };
+
 		Math::Color tint = Engine::Color::WHITE;	// さらに掛ける色
 		Math::Vector2 uvOffsetAdd = {};				// UVオフセットへ足す
 

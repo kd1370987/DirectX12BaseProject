@@ -210,7 +210,9 @@ namespace Engine::Graphics
 
 		DXSM::Vector4 color;		// 色調補正
 
-		float layer;				// Z順
+		// 重なり順 : 大きいほど手前。
+		// UIパスは深度を持たないので、これを見てCPU側が積んだ順を並べ替える
+		float layer;
 		UINT texIndex;				// SRVインデックス
 
 		// UVに掛ける倍率。1つのテクスチャに並べた絵を切り出すために使う

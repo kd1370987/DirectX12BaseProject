@@ -1,0 +1,252 @@
+﻿#pragma once
+
+#include "../UIBase.h"
+
+namespace App::Object
+{
+	/// <summary>
+	/// ゲージの伸び縮みの向き
+	/// </summary>
+	/// <remarks>
+	/// 減ったぶんをどちら側から削るか。
+	/// 動かさない場所をピボットにして、そこを固定したまま横幅を縮める。
+	///
+	/// ※ 値は保存されるので、増やすときは末尾へ足すこと
+	/// </remarks>
+	enum class EGaugeAnchor : uint32_t
+	{
+		Left,	// 左端を固定して右から減る
+		Right,	// 右端を固定して左から減る
+		Center,	// 中央を固定して両側から減る(中央から外へ伸びる)
+	};
+
+	/// <summary>
+	/// 数値の出し方
+	/// </summary>
+	enum class EGaugeTextFormat : uint32_t
+	{
+		None,			// 出さない
+		Value,			// 現在値だけ        (例 : 72)
+		ValueAndMax,	// 現在値と最大値    (例 : 72/100)
+		Percent,		// 割合              (例 : 72%)
+	};
+
+	/// <summary>
+	/// 誰の値を出すか
+	/// </summary>
+	/// <remarks>
+	/// 見るエンティティの決め方。持ち主を毎フレーム引き直すので、
+	/// ロックが外れた・敵が消えた といった入れ替わりにそのまま追従する
+	/// </remarks>
+	enum class EGaugeTarget : uint32_t
+	{
+		Manual,				// 外から SetTargetEntity で入れる
+		Player,				// 操作しているプレイヤー
+		LockedEnemy,		// プレイヤーがロックしている敵
+		PlayerRightWeapon,	// プレイヤーの右手武器(オーバーヒート用)
+		PlayerLeftWeapon,	// プレイヤーの左手武器(オーバーヒート用)
+	};
+
+	/// <summary>
+	/// 何の値を出すか
+	/// </summary>
+	/// <remarks>
+	/// 対応するコンポーネントを持っていなければ、そのフレームは何も出さない。
+	/// 「HPを出すゲージにロック中の敵を入れたが、その敵はHPを持っていない」
+	/// といった組み合わせでも落ちないようにするため
+	/// </remarks>
+	enum class EGaugeSource : uint32_t
+	{
+		Manual,			// 外から SetValue で入れる(コンポーネントを見ない)
+		Health,			// HealthComponent      : currentHealth / maxHealth
+		BoostFuel,		// BoostComponent       : currentFuel / maxFuel
+		Overheat,		// GunStateComponent    : heat / heatLimit
+		ChargeDash,		// ChargeDashComponent  : chargeTimer / chargeTime
+	};
+
+	/// <summary>
+	/// 残量ごとの色
+	/// </summary>
+	struct GaugeColorStop
+	{
+		float ratio = 0.0f;							// この残量(0〜1)のときの色
+		Math::Color color = Engine::Color::WHITE;
+	};
+
+	//======================================================================================
+	// ゲージUI : HP / オーバーヒート / ブーストのエナジーなど
+	//
+	// 受け取るのは「現在値」と「最大値」の2つだけ。何の値かは知らない。
+	// 入れるのは持っている側(SetValue)で、UIButton が SetOnClick で外から
+	// ふるまいを差し込むのと同じ作り。
+	//
+	// ・伸び縮みは飾り1つの横幅で表す
+	//     指定した名前の飾り(既定 "Fill")の横幅へ残量を掛けて描く。
+	//     残す側の端をピボットにするので、そこを固定したまま反対側から削れていく。
+	//     縮めるのは大きさだけで、枠の太さや位置のずれには掛からない。
+	//
+	// ・枠・背景・下地は同じUIへ飾りとして並べる
+	//     配列順がそのまま重なり順なので、下地 → 中身 → 枠 の順に置けばよい。
+	//
+	// ・数値は Text の飾りへ流し込む
+	//     置き場所は飾りの OffsetPos なので、ゲージの中でも脇でも好きな位置に置ける。
+	//     文字を出すにはフォントの割り当てが要る。
+	//
+	// ・残量で色が変わる
+	//     「この残量でこの色」を並べておくと、そのときの残量に応じた色が
+	//     中身の飾りへ掛かる。なめらかに混ぜるか、しきい値でパッと切り替えるかを選べる。
+	//======================================================================================
+	class UIGauge : public UIBase
+	{
+	public:
+
+		//=======================================================================
+		// 値
+		//=======================================================================
+
+		/// <summary>
+		/// 表示する値を入れる
+		/// </summary>
+		/// <param name="a_current">現在値</param>
+		/// <param name="a_max">最大値。0以下だと空として扱う</param>
+		/// <remarks>Source が Manual のときだけ効く。それ以外は毎フレーム上書きされる</remarks>
+		void SetValue(float a_current, float a_max);
+
+		/// <summary>
+		/// 見るエンティティを入れる
+		/// </summary>
+		/// <remarks>Target が Manual のときだけ効く</remarks>
+		void SetTargetEntity(Engine::ECS::Entity a_entity) { m_targetEntity = a_entity; }
+		Engine::ECS::Entity GetTargetEntity() const { return m_targetEntity; }
+
+		// 現在値だけ差し替える(最大値は据え置き)
+		void SetCurrent(float a_current);
+
+		float GetCurrent() const { return m_current; }
+		float GetMax() const { return m_max; }
+
+		// 残量(0〜1)
+		float GetRatio() const;
+
+		//=======================================================================
+		// オブジェクト
+		//=======================================================================
+
+		// 更新処理 : 数値の流し込みと、ピボットの合わせ込み
+		void Update(Engine::GameObject::ObjectContext& a_context) override;
+
+		// 描画処理 : 中身だけ横に縮めて描く
+		void Draw(Engine::GameObject::ObjectContext& a_context) override;
+
+		// アーカイブ
+		void Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context) override;
+
+		//=======================================================================
+		// エディター用
+		//=======================================================================
+
+		// ヒエラルキー/インスペクター表示名
+		const char* GetEditorName() const override { return "UIGauge"; }
+
+		// インスペクター
+		void DrawInspector(Engine::GameObject::ObjectContext& a_context) override;
+
+	private:
+
+		//-------------------------------------------------------------------
+		// 値の取り込み
+		//-------------------------------------------------------------------
+
+		// 設定に沿って見るエンティティを決める
+		void UpdateTargetEntity(Engine::ECS::World* a_pWorld);
+
+		// 見ているエンティティから値を取る。取れたら true
+		bool FetchValue(Engine::ECS::World* a_pWorld);
+
+		// 操作しているプレイヤーを探す(見つからなければ無効なエンティティ)
+		static Engine::ECS::Entity FindPlayer(Engine::ECS::World* a_pWorld);
+
+		// プレイヤーの武器スロットから武器のエンティティを引く
+		static Engine::ECS::Entity FindPlayerWeapon(Engine::ECS::World* a_pWorld, bool a_isRight);
+
+		// 残量に対応する色を出す
+		Math::Color CalcGaugeColor(float a_ratio) const;
+
+		// 数値を Text の飾りへ流し込む(変わったときだけ)
+		void ApplyValueText();
+
+		// 中身の飾りのピボットを、伸び縮みの向きへ合わせる
+		void ApplyFillPivot();
+
+		// 表示する文字列を作る
+		std::string MakeValueText() const;
+
+	private:
+
+		//-------------------------------------------------------------------
+		// 設定(保存される) : ゲージ
+		//-------------------------------------------------------------------
+		// 横幅を縮める飾りの名前。ここに入れた名前の飾りが「中身」になる
+		std::string m_fillDecorationName = "Fill";
+
+		// どちら側を固定して縮めるか
+		EGaugeAnchor m_anchor = EGaugeAnchor::Left;
+
+		//-------------------------------------------------------------------
+		// 設定(保存される) : 色
+		//-------------------------------------------------------------------
+		// 残量ごとの色。残量の小さい順に並べて持つ
+		std::vector<GaugeColorStop> m_colorStopVec = {
+			{ 0.0f, { 1.0f, 0.25f, 0.20f, 1.0f } },	// 空に近い : 赤
+			{ 0.35f,{ 1.0f, 0.85f, 0.25f, 1.0f } },	// 半分以下 : 黄
+			{ 0.70f,{ 0.35f,1.0f,  0.45f, 1.0f } },	// 十分     : 緑
+		};
+
+		// なめらかに混ぜるか。切ると、しきい値でパッと切り替わる
+		bool m_isBlendColor = true;
+
+		//-------------------------------------------------------------------
+		// 設定(保存される) : 数値
+		//-------------------------------------------------------------------
+		// 数値を流し込む Text 飾りの名前
+		std::string m_textDecorationName = "Value";
+
+		EGaugeTextFormat m_textFormat = EGaugeTextFormat::Value;
+
+		// 小数点以下の桁数
+		int m_decimals = 0;
+
+		//-------------------------------------------------------------------
+		// 設定(保存される) : どこから値を取るか
+		//-------------------------------------------------------------------
+		EGaugeTarget m_target = EGaugeTarget::Manual;
+		EGaugeSource m_source = EGaugeSource::Manual;
+
+		/// <summary>
+		/// 値が取れないフレームは何も描かないか
+		/// </summary>
+		/// <remarks>
+		/// ロックしていない・相手がそのコンポーネントを持っていない、といったとき用。
+		/// 切ると最後に取れた値を出したままにする。
+		///
+		/// Visible ではなく描画だけを止めるのは、
+		/// 進行役(HomeSequence など)が握っている出し入れと取り合いにならないようにするため
+		/// </remarks>
+		bool m_isHideWhenNoValue = true;
+
+		//-------------------------------------------------------------------
+		// 値(保存しない)
+		//-------------------------------------------------------------------
+		float m_current = 100.0f;
+		float m_max = 100.0f;
+
+		// 見ているエンティティ
+		Engine::ECS::Entity m_targetEntity = Engine::ECS::Limits::INVALID_ENTITY;
+
+		// このフレームに値を取れたか
+		bool m_hasValue = true;
+
+		// 最後に流し込んだ文字列。変わったときだけ書き換える
+		std::string m_appliedText = {};
+	};
+}

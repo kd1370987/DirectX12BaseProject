@@ -252,6 +252,7 @@
     <ClCompile Include="Source\Application\Object\UI\Decoration.cpp" />
     <ClCompile Include="Source\Application\Object\SequenceBgm.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp" />
+    <ClCompile Include="Source\Application\Object\UI\UIGauge\UIGauge.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp" />
     <ClCompile Include="Source\Application\Object\Scene\SceneAmbientObject\SceneAmbientObject.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp" />
@@ -681,6 +682,7 @@
     <ClInclude Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.h" />
     <ClInclude Include="Source\Application\Object\UI\UIBase.h" />
     <ClInclude Include="Source\Application\Object\UI\UIButton\UIButton.h" />
+    <ClInclude Include="Source\Application\Object\UI\UIGauge\UIGauge.h" />
     <ClInclude Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.h" />
     <ClInclude Include="Source\Application\Object\Scene\SceneAmbientObject\SceneAmbientObject.h" />
     <ClInclude Include="Source\Application\Object\UI\UIImage\UIImage.h" />

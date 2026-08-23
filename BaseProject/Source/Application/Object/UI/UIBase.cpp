@@ -407,6 +407,36 @@ namespace App::Object
 		}
 	}
 
+	void UIBase::DrawDecorationAt(
+		Engine::GameObject::ObjectContext& a_context,
+		size_t a_index,
+		const Decoration::DrawOverride& a_override)
+	{
+		if (!m_isVisible) return;
+		if (a_index >= m_decorationVec.size()) return;
+		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
+		if (!a_context.pServices->pResourceManager) return;
+
+		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
+		if (!_pGE) return;
+
+		Decoration::DrawDecoration(
+			_pGE,
+			a_context.pServices->pResourceManager,
+			m_decorationVec[a_index],
+			MakeParentTransform(),
+			a_override);
+	}
+
+	int UIBase::FindDecorationIndex(const std::string& a_name) const
+	{
+		for (size_t _i = 0; _i < m_decorationVec.size(); ++_i)
+		{
+			if (m_decorationVec[_i].name == a_name) return static_cast<int>(_i);
+		}
+		return -1;
+	}
+
 	void UIBase::RequestDecorationResources(Engine::GameObject::ObjectContext& a_context)
 	{
 		if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
@@ -666,7 +696,8 @@ namespace App::Object
 		// ピボット : 正規化[0,1]。(0.5,0.5)=中心, (0,0)=左上, (1,1)=右下。
 		// この点が PixelPos に配置され、回転の中心にもなる。
 		ImGui::DragFloat2("Pivot (0-1)", &m_pivot.x, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("LayerZ", &m_layer, 1.0f);
+		ImGui::DragFloat("Layer", &m_layer, 0.1f);
+		ImGui::TextDisabled("重なり順。大きいほど手前(同じ値なら置いた順)");
 
 		ImGui::Spacing();
 		ImGui::Separator();

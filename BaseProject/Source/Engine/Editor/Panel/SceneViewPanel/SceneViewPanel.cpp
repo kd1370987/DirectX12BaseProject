@@ -902,10 +902,10 @@ namespace Engine::Editor
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Create new scene"))
+				if (ImGui::MenuItem("Create new scene..."))
 				{
-					// TODO: 新規シーン生成処理、m_currentSceneGUIDのクリアなど
-					ENGINE_LOG("新規シーンを作成する処理はまだありません。");
+					m_openCreatePopup = true;
+					m_sceneNameInput = "";
 				}
 
 				ImGui::Separator();
@@ -987,6 +987,7 @@ namespace Engine::Editor
 		// ポップアップ処理
 		LoadScenePopup();
 		SaveScenePopup();
+		CreateScenePopup();
 
 		// 実際のセーブ処理の実行
 		if (m_doOverwrite)
@@ -1093,6 +1094,56 @@ namespace Engine::Editor
 			ImGui::EndPopup();
 		}
 	}
+	//======================================================================================
+	// 新規シーンの作成
+	//--------------------------------------------------------------------------------------
+	// 空のシーンをアセットとして書き出してから、そのまま開く。
+	//
+	// 「名前を付けて保存」は今開いている中身を別名で書き出すものなので、
+	// 空から始めたいときには使えない(前のシーンの中身が付いてくる)。
+	//======================================================================================
+	void SceneViewPanel::CreateScenePopup()
+	{
+		if (m_openCreatePopup) { ImGui::OpenPopup("Create New Scene"); m_openCreatePopup = false; }
+		if (!ImGui::BeginPopupModal("Create New Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) return;
+
+		ImGui::Text("Input Filename (.scene) : ");
+
+		const bool _isEnterPressed =
+			ImGui::InputText("##newscenename", &m_sceneNameInput, ImGuiInputTextFlags_EnterReturnsTrue);
+
+		ImGui::TextDisabled("Asset/Scenes/<名前>/ へ空のシーンを作って開きます");
+
+		// 名前が無いままは押させない
+		ImGui::BeginDisabled(m_sceneNameInput.empty());
+		const bool _isCreatePressed = ImGui::Button("Create", ImVec2(120, 0));
+		ImGui::EndDisabled();
+
+		if ((_isCreatePressed || _isEnterPressed) && !m_sceneNameInput.empty())
+		{
+			const Engine::GUID _guid =
+				Engine::Scene::SceneManager::Instance().CreateEmptyScene("", m_sceneNameInput);
+
+			if (_guid.IsValid())
+			{
+				// 作った先をこのまま開く。
+				// 中身は空なので、上書き保存の行き先もここになる
+				Engine::Scene::SceneManager::Instance().SetNextScene(_guid, Scene::SceneChangeType::Replace);
+
+				m_currentSceneGUID = _guid;
+				m_canOverwrite = true;
+
+				ImGui::CloseCurrentPopup();
+			}
+			// 失敗(同名がある等)のときは閉じない。理由はログへ出ている
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+
+		ImGui::EndPopup();
+	}
+
 	void SceneViewPanel::OpenSavePopup()
 	{
 		m_openSaveAsPopup = true;

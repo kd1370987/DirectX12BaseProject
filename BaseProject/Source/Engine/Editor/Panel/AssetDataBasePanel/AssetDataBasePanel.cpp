@@ -2,6 +2,8 @@
 
 #include "../../Helper/EditorHelper.h"
 
+#include "../../../Scene/SceneManager/SceneManager.h"
+
 namespace Engine::Editor
 {
 	AssetDataBasePanel::AssetDataBasePanel()
@@ -32,6 +34,11 @@ namespace Engine::Editor
 
 		m_assetCreateFuncs["EffectAsset"] = [](const std::string& path, const std::string& name) {
 			Resource::EffectAssetIO::Create(path, name);
+			};
+
+		// 空のシーン。作るだけで開かない(開くのはシーンビューのメニュー)
+		m_assetCreateFuncs["Scene"] = [](const std::string& path, const std::string& name) {
+			Engine::Scene::SceneManager::Instance().CreateEmptyScene(path, name);
 			};
 	}
 	void AssetDataBasePanel::OnDrawImGui(EditorContext& a_editContext)

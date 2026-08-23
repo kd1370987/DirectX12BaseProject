@@ -263,7 +263,7 @@ namespace App::Object::Decoration
 			const Math::Vector2 _offset = (a_decoration.offsetPos + _anim.positionAdd) * _out.uniformScale;
 			_out.anchorPos = _basePos + RotateDeg(_offset, a_parent.rotation);
 
-			_out.size = a_decoration.pixelSize * _out.uniformScale * _anim.scaleMul;
+			_out.size = a_decoration.pixelSize * _out.uniformScale * _anim.scaleMul * a_override.sizeScale;
 			_out.rotation = a_parent.rotation + a_decoration.rotation + _anim.rotationAdd;
 			_out.layer = a_parent.layer + a_decoration.layerOffset;
 
@@ -1034,7 +1034,8 @@ namespace App::Object::Decoration
 		if (ImGui::DragFloat("Rotation", &a_decoration.rotation, 0.1f, -360.0f, 360.0f)) _isChanged = true;
 		if (ImGui::DragFloat("Scale", &a_decoration.scale, 0.01f, 0.0f, 64.0f)) _isChanged = true;
 		if (ImGui::DragFloat2("Pivot (0-1)", &a_decoration.pivot.x, 0.01f, 0.0f, 1.0f)) _isChanged = true;
-		if (ImGui::DragFloat("LayerOffset", &a_decoration.layerOffset, 0.01f)) _isChanged = true;
+		if (ImGui::DragFloat("LayerOffset", &a_decoration.layerOffset, 0.1f)) _isChanged = true;
+		ImGui::SetItemTooltip("親のレイヤーへ足す。大きいほど手前");
 		if (Engine::Editor::EditorHelper::DrawColorEdit("Color", a_decoration.color)) _isChanged = true;
 
 		ImGui::Spacing();

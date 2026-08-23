@@ -112,6 +112,70 @@ namespace Engine::Scene
 		}
 	}
 
+	//======================================================================================
+	// 空のシーンを作る
+	//======================================================================================
+	Engine::GUID SceneManager::CreateEmptyScene(const std::string& a_path, const std::string& a_name)
+	{
+		if (a_name.empty())
+		{
+			ENGINE_WARNING("[Scene] 名前が空のためシーンを作成できません");
+			return Engine::GUID();
+		}
+
+		//------------------------------------------------------------------
+		// 置き場所を決める
+		//
+		// 「名前を付けて保存」と同じ並びにしておく。
+		// シーンごとにフォルダを掘るのは、後から一緒に置きたいものが出てくるため
+		//   Asset/Scenes/<サブフォルダ>/<名前>/<名前>.ojscene
+		//------------------------------------------------------------------
+		std::string _dirPath = "Asset/Scenes/";
+		if (!a_path.empty()) _dirPath += a_path + "/";
+		_dirPath += a_name;
+
+		const std::string _basePath = _dirPath + "/" + a_name;
+
+		// すでにないかチェック
+		const Engine::GUID _checkGUID = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);
+		if (_checkGUID != Engine::DefaultGUID)
+		{
+			ENGINE_WARNING("[Scene] すでに同じ名前のシーンがあります : %s", _basePath.c_str());
+			return Engine::GUID();
+		}
+
+		std::error_code _errorCode = {};
+		std::filesystem::create_directories(_dirPath, _errorCode);
+		if (_errorCode)
+		{
+			ENGINE_WARNING("[Scene] フォルダを作成できません : %s", _dirPath.c_str());
+			return Engine::GUID();
+		}
+
+		// アセットデータベースに場所を作る
+		const Engine::GUID _guid = Resource::AssetDatabase::Instance().AddMetaData(_basePath, "Scene");
+
+		//------------------------------------------------------------------
+		// 空の中身を書き出す
+		//
+		// 開いているシーンには触らない。作るだけで、開くかどうかは呼び出し側が決める
+		//------------------------------------------------------------------
+		{
+			BaseScene _emptyScene;
+			_emptyScene.Enter();
+			_emptyScene.SetGUID(_guid);
+
+			Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dirPath, a_name, "scene");
+			_emptyScene.Archive(_ar);
+
+			_emptyScene.Exit();
+		}
+
+		ENGINE_LOG("[Scene] 新規作成 : %s", _basePath.c_str());
+
+		return _guid;
+	}
+
 	bool SceneManager::PushScene(const Engine::GUID& a_guid)
 	{
 		// シーンの新規作成 : GUIDからロードする

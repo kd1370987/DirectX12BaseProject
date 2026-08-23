@@ -20,7 +20,7 @@ struct UIData
 
 	float4 color;		// 色調補正
 
-	float layer;		// Z順
+	float layer;		// 重なり順(CPU側の並べ替えに使う。VSでは読まない)
 	uint texIndex;		// SRVインデックス
 	float2 uvScale;		// UVに掛ける倍率(uv * uvScale + uvOffset)。既定は(1,1)
 };

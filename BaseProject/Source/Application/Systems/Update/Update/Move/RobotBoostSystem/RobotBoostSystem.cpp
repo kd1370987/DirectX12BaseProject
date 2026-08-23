@@ -6,6 +6,7 @@
 #include "../../../../../Components/Character/Robot/BoostComponent.h"
 #include "../../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../../Components/Character/LookAngleComponent.h"
+#include "../../../../../Components/Force/MovementComponent.h"
 
 //==============================================================================
 // RobotBoostSystem
@@ -38,6 +39,20 @@
 // ・VelocityComponent は目標速度で、実際の移動は MovementIntegrationSystem が
 //   MovementComponent の加速度/減速度で追従させる。ここで差し替えても急にワープはしない。
 //   (水平だけが加減速の対象。上下は目標速度がそのまま出る)
+//
+// ・踏み込み(タップブースト)
+//   押した瞬間だけ倍率を掛けても効かない。目標速度は実速度が加速度で追いかける作りで、
+//   プレイヤーの加速度は 150 前後。1フレーム(1/60秒)では 2.5m/秒 ほどしか乗らないうちに
+//   目標が元へ戻ってしまうので、倍率がまるごと均されて消えていた。
+//
+//   直すにあたって2つ入れてある。
+//     (1) 蹴り出した瞬間は実速度(MovementComponent.velocity)へ直接書いて、
+//         その場で最高速へ乗せる(ChargeDashSystem と同じ手)
+//     (2) tapBoostTime のあいだ目標速度を倍率から boostPower まで落としていく。
+//         実速度はそれを追いかけるので、一番速い瞬間から徐々に遅くなる
+//
+//   踏み込みの向きは蹴り出したときのものを使う。毎フレーム入力から取り直すと、
+//   途中でスティックを離した瞬間に「入力なし = 真上」へ向きが飛ぶ。
 //==============================================================================
 void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 {
@@ -67,20 +82,45 @@ void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 				// 実際に飛べたかどうかは毎フレームここで決め直す
 				_boostComp.isBoosting = false;
 
-				// 回復
-				if (_boostComp.maxFuel >= _boostComp.currentFuel)
+				//----------------------------------------------------------
+				// 燃料の回復
+				//
+				// 押している間は回復しない。
+				// 回復と消費が同じフレームで走ると、実際に減るのは差ぶんだけになり、
+				// 「回復量を上回る消費を設定しないと永久に飛べる」状態になっていた。
+				// 押してから離すまでは回復を止めて、消費した量がそのまま減るようにする。
+				//
+				// 上限で頭打ちにするのも兼ねる。以前は超えてから止めていたので、
+				// 満タンのフレームに1回ぶん余分に足されて max をわずかに超えていた
+				//----------------------------------------------------------
+				if (!_boostComp.isBoostIntent)
 				{
-					_boostComp.currentFuel += _boostComp.fuelRegeneration * a_ctx.dt;
+					_boostComp.currentFuel = (std::min)(
+						_boostComp.currentFuel + _boostComp.fuelRegeneration * a_ctx.dt,
+						_boostComp.maxFuel);
 				}
 
-				// 押されていなければ何もしない
-				// (押した瞬間と押しっぱなしは同じフレームで両方成立するので、初動を優先する)
+				// 踏み込みの残り時間を進める
+				if (_boostComp.tapBoostTimer > 0.0f)
+				{
+					_boostComp.tapBoostTimer = (std::max)(0.0f, _boostComp.tapBoostTimer - a_ctx.dt);
+				}
+
+				// 押した瞬間と押しっぱなしは同じフレームで両方成立するので、初動を優先する
 				const bool _isTap  = _boostComp.isBoostTriger;
 				const bool _isHold = _boostComp.isBoostIntent;
-				if (!_isTap && !_isHold) continue;
 
-				// 使用量より燃料が下回っていたらブーストできない
-				if (_boostComp.currentFuel <= _boostComp.boostFuel) continue;
+				// 今このフレームで吹かす入力が来ているか
+				const bool _isBoostInput = (_isTap || _isHold);
+
+				// 踏み込みが残っている間は、離していても水平の押し出しだけ続ける
+				const bool _isTapActive = (_boostComp.tapBoostTimer > 0.0f);
+
+				if (!_isBoostInput && !_isTapActive) continue;
+
+				// 使用量より燃料が下回っていたらブーストできない。
+				// 踏み込みは蹴り出したときに払い済みなので、残っている間は止めない
+				if (!_isTapActive && _boostComp.currentFuel <= _boostComp.boostFuel) continue;
 
 				//----------------------------------------------------------
 				// 進む向きを決める
@@ -111,36 +151,95 @@ void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 				// 視点の前方ではなくワールドの上を使うので、
 				// 下を向いていても「何も入れずに吹かせば上がる」で固定できる。
 				// 下がりたいときは急降下(LCtrl)を入れて上下入力の側で決める
-				if (_dir.LengthSquared() <= 1e-6f)
+				//
+				// ※ 押しているときだけ。踏み込みの余韻で入力を離しているだけのフレームまで
+				//    上昇に振ると、蹴り出した後にボタンを離すと勝手に浮き上がる
+				if (_isBoostInput && _dir.LengthSquared() <= 1e-6f)
 				{
 					_dir = { 0.0f, 1.0f, 0.0f };
 					_applyVertical = true;
 				}
 
-				// 向きが決まらなければ吹かさない
-				float _lenSq = _dir.LengthSquared();
-				if (!(_lenSq > 1e-6f)) continue;
-				_dir /= std::sqrt(_lenSq);
+				// 向きが決まらないときは、踏み込みが残っていればそちらだけで押し出す
+				const float _lenSq = _dir.LengthSquared();
+				if (_lenSq > 1e-6f) _dir /= std::sqrt(_lenSq);
+				else                _dir = { 0.0f, 0.0f, 0.0f };
 
 				//----------------------------------------------------------
-				// 推力
+				// 蹴り出し : 燃料を払って踏み込みを始める
+				//
+				// 向きも一緒に覚える。毎フレーム入力から取り直すと、
+				// 途中で入力を切った瞬間に向きが飛んでしまう
 				//----------------------------------------------------------
-				float _speed = 0.0f;
 				if (_isTap)
 				{
-					// 初動は tapBoostScale の分だけ速く
-					_speed = _boostComp.boostPower * _boostComp.tapBoostScale;
 					_boostComp.currentFuel -= _boostComp.boostFuel;
+					_boostComp.tapBoostTimer = (std::max)(_boostComp.tapBoostTime, 0.0f);
+					_boostComp.tapBoostDir = { _dir.x, 0.0f, _dir.z };
 				}
-				else
+
+				//----------------------------------------------------------
+				// 水平の押し出し
+				//
+				// 踏み込みが残っている間は、蹴り出した向きへ
+				// tapBoostScale 倍から boostPower まで落としながら押す。
+				// 一番速いのは蹴り出した瞬間で、そこから徐々に遅くなる。
+				//
+				// 踏み込みが切れていれば、押している間だけ boostPower で押す
+				//----------------------------------------------------------
+				const bool _isTapPush =
+					(_boostComp.tapBoostTimer > 0.0f) &&
+					(_boostComp.tapBoostTime > 0.0f) &&
+					(_boostComp.tapBoostDir.LengthSquared() > 1e-6f);
+
+				if (_isTapPush)
 				{
-					_speed = _boostComp.boostPower;
+					// 1(蹴り出した瞬間) → 0(踏み込み終わり)
+					const float _tapRate =
+						std::clamp(_boostComp.tapBoostTimer / _boostComp.tapBoostTime, 0.0f, 1.0f);
+
+					const float _speed = _boostComp.boostPower *
+						(1.0f + (_boostComp.tapBoostScale - 1.0f) * _tapRate);
+
+					_velComp.value.x = _boostComp.tapBoostDir.x * _speed;
+					_velComp.value.z = _boostComp.tapBoostDir.z * _speed;
+				}
+				else if (_isBoostInput && (_dir.x != 0.0f || _dir.z != 0.0f))
+				{
+					_velComp.value.x = _dir.x * _boostComp.boostPower;
+					_velComp.value.z = _dir.z * _boostComp.boostPower;
+				}
+
+				// 押しっぱなしの継続ぶん。踏み込み中は蹴り出しで払い済みなので取らない
+				if (_isHold && !_isTap && !_isTapPush)
+				{
 					_boostComp.currentFuel -= _boostComp.boostFuelPerSec * a_ctx.dt;
 				}
 
-				// 水平の目標速度を差し替える
-				_velComp.value.x = _dir.x * _speed;
-				_velComp.value.z = _dir.z * _speed;
+				//----------------------------------------------------------
+				// 蹴り出した瞬間だけ実速度へも直接入れる
+				//
+				// 目標速度だけだと、実速度が乗るまでに加速度ぶんの時間がかかる。
+				// 踏み込みは「押した瞬間が一番速い」ことに意味があるので、
+				// 加速を飛ばしてその場で最高速へ乗せる(ChargeDashSystem と同じ手)。
+				//
+				// MovementComponent をクエリに入れずに RefData で引くのは依存が輪になるため。
+				// RefData は持っていないコンポーネントでも非nullを返すので、
+				// 必ず HasComponent で確かめてから引くこと
+				//----------------------------------------------------------
+				if (_isTap && _isTapPush && a_ctx.pWorld)
+				{
+					const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+
+					if (a_ctx.pWorld->HasComponent<MovementComponent>(_self))
+					{
+						if (auto* _pMovement = a_ctx.pWorld->RefData<MovementComponent>(_self))
+						{
+							_pMovement->velocity.x = _velComp.value.x;
+							_pMovement->velocity.z = _velComp.value.z;
+						}
+					}
+				}
 
 				// 上下は該当する場合だけ。触らない間は Y が残るので、
 				// 直前に GravitySystem が足した落下ぶんがそのまま効く
@@ -151,12 +250,16 @@ void RobotBoostSystem::Init(Engine::ECS::World& a_world)
 				//   なるため、倍率ぶんがそのフレームの移動量に直接乗る。
 				//   boostPower 30 / tapBoostScale 2 / 60fps だと1フレームで 1m 上へ跳び、
 				//   上入力だけでブーストしたときに瞬間移動して見えていた。
-				if (_applyVertical)
+				// ※ 押しているフレームだけ。踏み込みの余韻で離しているだけのときに
+				//   上下を書くと、蹴り出した後に手を離しても浮き続ける
+				if (_applyVertical && _isBoostInput)
 				{
 					_velComp.value.y = _dir.y * _boostComp.boostPower;
 				}
 
-				_boostComp.isBoosting = true;
+				// 噴射の演出と音はここを見ている。
+				// 踏み込みの余韻だけのフレームは「吹かしている」ことにしない
+				_boostComp.isBoosting = _isBoostInput;
 			}
 		}
 	);

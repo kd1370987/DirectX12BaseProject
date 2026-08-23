@@ -63,6 +63,7 @@ namespace Engine::Editor
 		// シーンファイル操作
 		void LoadScenePopup();
 		void SaveScenePopup();
+		void CreateScenePopup();
 
 		void OpenSavePopup();
 		void SaveScene(const Engine::GUID& a_guid);
@@ -98,6 +99,7 @@ namespace Engine::Editor
 		bool m_isLoadScenePopup = false;
 		bool m_openLoadPopup = false;
 		bool m_openSaveAsPopup = false;
+		bool m_openCreatePopup = false;
 		std::string m_sceneNameInput = "";
 
 		// 操作用変数

@@ -1450,6 +1450,9 @@
     <Filter Include="Source\Application\Object\UI\UIImage">
       <UniqueIdentifier>{c8d2e3f4-9a51-4b62-8d73-1e84f5a6b703}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\UI\UIGauge">
+      <UniqueIdentifier>{1b890504-cbda-42a6-9729-0f9364a04ec5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Object\UI\UIButton">
       <UniqueIdentifier>{b7c1d2e3-8f40-4a51-9c62-0d73e4f5a601}</UniqueIdentifier>
     </Filter>
@@ -2528,6 +2531,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp">
       <Filter>Source\Application\Object\UI\UIButton</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIGauge\UIGauge.cpp">
+      <Filter>Source\Application\Object\UI\UIGauge</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp">
       <Filter>Source\Application\Object\Sequence\TitleSequence</Filter>
@@ -3988,6 +3994,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\UIButton\UIButton.h">
       <Filter>Source\Application\Object\UI\UIButton</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\UIGauge\UIGauge.h">
+      <Filter>Source\Application\Object\UI\UIGauge</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.h">
       <Filter>Source\Application\Object\Sequence\TitleSequence</Filter>

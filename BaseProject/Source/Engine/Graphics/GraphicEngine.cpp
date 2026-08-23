@@ -365,6 +365,24 @@ namespace Engine::Graphics
 			m_instanceDataVec, m_subSetDataVec, m_meshInstanceDataVec, m_meshMaterialDataVec,
 			m_boneMatrixVec
 		);
+		//------------------------------------------------------------------
+		// UIをレイヤー順に並べ替える
+		//
+		// UIパスは深度を持たない(DepthEnable(false))ので、重なりを決めるのは
+		// 描く順そのもの。並べ替えないとレイヤーの値がどこにも効かない。
+		//
+		// 小さいものから描く = 大きいほど手前。
+		// 同じ値のものは積んだ順を崩さないよう stable_sort を使う
+		// (1つのUIが持つ飾りは配列順で重なっているため、崩すと絵が入れ替わる)
+		//------------------------------------------------------------------
+		std::stable_sort(
+			m_uiDrawItemVec.begin(), m_uiDrawItemVec.end(),
+			[](const UIData& a, const UIData& b)
+			{
+				return a.layer < b.layer;
+			}
+		);
+
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateUIBuffer(m_uiDrawItemVec);
 
 

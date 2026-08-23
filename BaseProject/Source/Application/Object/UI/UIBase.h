@@ -154,6 +154,21 @@ namespace App::Object
 			Engine::GameObject::ObjectContext& a_context,
 			const Decoration::DrawOverride& a_override = {});
 
+		/// <summary>
+		/// 飾りを1つだけ描く
+		/// </summary>
+		/// <remarks>
+		/// 飾りごとに違う差し替えを掛けたいとき用(ゲージの中身だけ横に縮める等)。
+		/// 自分で順に回して呼べば、配列順の重なりはそのまま保たれる
+		/// </remarks>
+		void DrawDecorationAt(
+			Engine::GameObject::ObjectContext& a_context,
+			size_t a_index,
+			const Decoration::DrawOverride& a_override = {});
+
+		// 名前から飾りの番号を引く(見つからなければ -1)
+		int FindDecorationIndex(const std::string& a_name) const;
+
 		// 保存されているGUIDから、飾りのテクスチャ・フォントを引き直す
 		void RequestDecorationResources(Engine::GameObject::ObjectContext& a_context);
 

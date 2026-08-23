@@ -66,24 +66,42 @@ namespace Engine::Resource::Compiler
 			_cpResult.ReleaseAndGetAddressOf()	// 出力先
 		);
 
-		_cpResult->GetStatus(&_hr);
-
-		if (FAILED(_hr))
+		//------------------------------------------------------------------
+		// 結果が返ってこないことがある
+		//
+		// インクルードが解決できない等、コンパイルへ入る前に折れると
+		// Compile が失敗を返して _cpResult が空のままになる。
+		// そこを見ずに GetStatus を呼ぶと nullptr を触って落ちるので、
+		// シェーダーの記述ミス1つで起動ごと落ちていた
+		//------------------------------------------------------------------
+		if (FAILED(_hr) || !_cpResult)
 		{
-			if (_cpResult)
-			{
-				ComPtr<IDxcBlobEncoding> _errorBlob;
-				_hr = _cpResult->GetErrorBuffer(&_errorBlob);
-				if (SUCCEEDED(_hr) && _errorBlob)
-				{
-					const char* _pErrorMsg = static_cast<const char*>(_errorBlob->GetBufferPointer());
-					ENGINE_ERRLOG(false, "シェーダーコンパイルエラー:\n%s", _pErrorMsg);
-					return nullptr;
-				}
-			}
+			ENGINE_ERRLOG(false, "シェーダーのコンパイルを開始できませんでした : %s", a_path.c_str());
+			return nullptr;
 		}
-		_cpResult->GetResult(&_cpResultBlob);
 
+		HRESULT _status = E_FAIL;
+		_cpResult->GetStatus(&_status);
+
+		if (FAILED(_status))
+		{
+			ComPtr<IDxcBlobEncoding> _errorBlob;
+			if (SUCCEEDED(_cpResult->GetErrorBuffer(&_errorBlob)) && _errorBlob)
+			{
+				const char* _pErrorMsg = static_cast<const char*>(_errorBlob->GetBufferPointer());
+				ENGINE_ERRLOG(false, "シェーダーコンパイルエラー: %s\n%s", a_path.c_str(), _pErrorMsg);
+			}
+			else
+			{
+				// 中身が取れなくても、どのファイルで折れたかだけは残す
+				ENGINE_ERRLOG(false, "シェーダーコンパイルエラー(詳細不明) : %s", a_path.c_str());
+			}
+
+			// 失敗を空のまま返すと、呼び出し側が中身のあるBlobとして扱ってしまう
+			return nullptr;
+		}
+
+		_cpResult->GetResult(&_cpResultBlob);
 
 		return _cpResultBlob;
 	}

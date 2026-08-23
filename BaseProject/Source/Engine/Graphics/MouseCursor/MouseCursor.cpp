@@ -1,4 +1,4 @@
-#include "MouseCursor.h"
+﻿#include "MouseCursor.h"
 
 #include "../GraphicEngine.h"
 #include "../../MainEngine.h"
@@ -140,13 +140,17 @@ namespace Engine::Graphics
 		// ホットスポットをピボットに渡す。
 		// SubmitUI はピボットの位置が指定座標に来るように描くので、
 		// 画像の中の尖端がそのままカーソル位置に重なる
+		// カーソルはどのUIよりも手前。
+		// レイヤーは並べ替えのための値なので、大きくしても絵が消えることはない
+		constexpr float _CURSOR_LAYER = 10000.0f;
+
 		a_pGraphicsEngine->SubmitUI(
 			m_texRef,
 			_renderPos,
 			Math::Vector2(_cursorOp.sizePixel, _cursorOp.sizePixel),
 			_cursorOp.color,
 			0.0f,
-			0.0f,
+			_CURSOR_LAYER,
 			Math::Vector2(0.0f, 0.0f),
 			_cursorOp.hotspot
 		);
