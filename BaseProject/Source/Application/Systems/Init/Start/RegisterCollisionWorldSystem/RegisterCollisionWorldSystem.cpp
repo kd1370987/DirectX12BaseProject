@@ -32,8 +32,10 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				const ModelComponent& _modelComp = a_modelArray[_i];
 				const LocalTransformComponent& _transComp = a_transArray[_i];
 
-				// エンティティが、ダイナミックレイヤーならスキップ
-				if (_collComp.layer == Layer::DiynamicObject) continue;
+				// エンティティが、ダイナミックレイヤーならスキップ。
+				// 弾は撃った側でレイヤーが分かれているので、名前で1つずつ見ずに
+				// IsDynamicLayer へ寄せる(増やしたときにここを直し忘れないため)
+				if (IsDynamicLayer(_collComp.layer)) continue;
 
 				// ワールド行列計算
 				Math::Matrix _mat = {};
@@ -70,6 +72,11 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				}
 				_inst.worldMat = _mat;
 				_inst.worldAABB = _worldAABB;
+
+				// レイヤーも入れておく。クエリ側がマスクで弾くので、
+				// 入れ忘れると地形が「どのレイヤーでもない」ものになる
+				_inst.layer = static_cast<uint32_t>(_collComp.layer);
+
 				_collComp.collWorldHandle = _pCollWorld->AllcateStaticEntity(_inst);
 				
 			}

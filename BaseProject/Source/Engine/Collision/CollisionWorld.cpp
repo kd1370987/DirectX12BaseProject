@@ -325,7 +325,9 @@ namespace Engine::Collision
 			bool(*a_modelFunc)(const TInfo&, const Resource::Model*, const DirectX::XMFLOAT4X4&, Result&),
 			Result& a_outResult,
 			// 自分以外にもう1つ除外したい相手(弾から見た発射元など)。既定は除外なし
-			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY)
+			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY,
+			// 当たりに行きたいレイヤーのビット和。既定は全レイヤー(=弾かない)
+			uint32_t a_layerMask = kLayerMaskAll)
 		{
 			if (a_nodes.empty()) return false;
 
@@ -356,6 +358,15 @@ namespace Engine::Collision
 						// 同じフレームに重なっている他の相手を拾えなくなる。
 						if (a_ignoreID != ECS::Limits::INVALID_ENTITY &&
 							a_ignoreID == _instance.entity) continue;
+
+						// レイヤーで弾く。
+						// 自分が撃った弾同士のように「当たってほしくない組み合わせ」は
+						// ここで落とす。形状の判定まで行かせない。
+						//
+						// layer が 0 のインスタンスはレイヤーを入れていない登録元のもの。
+						// 弾いてしまうと当たり判定ごと消えるので、そのまま通す
+						if (_instance.layer != 0 &&
+							(a_layerMask & _instance.layer) == 0) continue;
 
 						if (_instance.collShape.type == EShapeType::Mesh)
 						{
@@ -461,28 +472,28 @@ namespace Engine::Collision
 	}
 
 	bool CollisionWorld::VsSphere(const SphereInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID,
-		const ECS::Entity& a_ignoreID)
+		const ECS::Entity& a_ignoreID, uint32_t a_layerMask)
 	{
 		// 静的 → 動的の順に走査し、どちらかで最初に触れたエンティティを返す
 		if (QueryOverlap(
 			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
-			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult, a_ignoreID)) return true;
+			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult, a_ignoreID, a_layerMask)) return true;
 
 		return QueryOverlap(
 			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
-			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult, a_ignoreID);
+			a_info, a_myID, &Engine::Collision::Sphere::VSModel, a_outResult, a_ignoreID, a_layerMask);
 	}
 
 	bool CollisionWorld::VsCapsule(const CapsuleInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID,
-		const ECS::Entity& a_ignoreID)
+		const ECS::Entity& a_ignoreID, uint32_t a_layerMask)
 	{
 		if (QueryOverlap(
 			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
-			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult, a_ignoreID)) return true;
+			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult, a_ignoreID, a_layerMask)) return true;
 
 		return QueryOverlap(
 			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
-			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult, a_ignoreID);
+			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult, a_ignoreID, a_layerMask);
 	}
 
 	bool CollisionWorld::VsBox(const BoxInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)

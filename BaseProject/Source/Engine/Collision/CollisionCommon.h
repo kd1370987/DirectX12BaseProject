@@ -36,8 +36,15 @@ namespace Engine::Collision
 
 		// モデル全体のAABBをワールド空間に変換したボックス
 		DirectX::BoundingBox worldAABB = {};
+
+		// このインスタンスが属するレイヤー(アプリ側の Layer をそのまま入れる)。
+		// クエリ側はこれをマスクで見て、当たりに行かない相手を先に弾く。
+		// 0 のままなら「レイヤー未設定」として弾かない(既存の登録元を壊さないため)
 		uint32_t layer = 0;
 	};
+
+	// レイヤーマスクの既定値。すべてのレイヤーが対象(=今までどおり弾かない)
+	inline constexpr uint32_t kLayerMaskAll = 0xFFFFFFFFu;
 
 	// ヒットした際に帰ってくる情報
 	struct Result

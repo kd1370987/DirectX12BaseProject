@@ -36,18 +36,25 @@ namespace Engine::Collision
 
 		// ---- オーバーラップ系クエリ（触れているエンティティを1つ返す） ----
 		// いずれもワールド空間のプリミティブを渡す。a_myID は自分自身を除外するためのID。
+		//
+		// a_layerMask : 当たりに行きたいレイヤーのビット和(アプリ側の collideLayer)。
+		//               インスタンスの layer と重ならない相手は判定に入らない。
+		//               既定は全レイヤーなので、渡していない呼び出しは今までどおり。
+		//               レイヤーが未設定(0)のインスタンスは弾かずに通す。
 
 		// 球判定
 		// a_ignoreID : 自分以外にもう1つだけ除外したい相手。
 		//              弾から見た発射元(銃口が体の中にあるので必ず触れてしまう)を想定。
 		bool VsSphere(const SphereInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY,
-			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY);
+			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY,
+			uint32_t a_layerMask = kLayerMaskAll);
 
 		// カプセル判定
 		// a_ignoreID : 自分以外にもう1体だけ判定から外す(弾から見た発射元など)。
 		// 弾の連続判定(移動前→移動後を結んだカプセル)で銃口の本体を拾わないために要る
 		bool VsCapsule(const CapsuleInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY,
-			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY);
+			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY,
+			uint32_t a_layerMask = kLayerMaskAll);
 
 		// ボックス(AABB)判定
 		bool VsBox(const BoxInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);

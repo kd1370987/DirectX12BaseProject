@@ -7,13 +7,14 @@
 #include "Engine/Collision/CollisionWorld.h"
 
 #include "Application/Components/Collision/SphereCollider.h"
+#include "Application/Components/Collision/Collider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Character/Weapon/Projectile/ProjectileComponent.h"
 #include "Application/InstanceResource/HitEventResource.h"
 
 void HitDetectSystem::Init(Engine::ECS::World& a_world)
 {
-	a_world.ActiveTask<const SphereColliderComponent, Engine::ECS::CollisionEvent, const LocalTransformComponent>(
+	a_world.ActiveTask<const SphereColliderComponent, Engine::ECS::CollisionEvent, const LocalTransformComponent, const ColliderComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"HitDetectSystem",
 		[]
@@ -24,7 +25,8 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 			ActiveTag* a_tags,
 			const SphereColliderComponent* a_sphereArray,
 			Engine::ECS::CollisionEvent* a_eventArray,
-			const LocalTransformComponent* a_transArray
+			const LocalTransformComponent* a_transArray,
+			const ColliderComponent* a_collArray
 			)
 		{
 			auto* _pCollWorld = &a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
@@ -40,6 +42,12 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 			{
 				const SphereColliderComponent& _sphere = a_sphereArray[_i];
 				const LocalTransformComponent& _trans = a_transArray[_i];
+
+				// 当たりに行くレイヤー。
+				// 弾は発射のたびに ProjectileSpawn が撃った側で入れ替えているので、
+				// 自分側の弾のレイヤーはここに入っていない(自分の弾同士がすり抜ける)
+				const uint32_t _layerMask = static_cast<uint32_t>(a_collArray[_i].collideLayer);
+
 				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
 				// 投射物なら、与えるダメージと発射元を拾っておく。
@@ -90,7 +98,7 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 						_capsuleInfo.pointB = _nowPos;
 						_capsuleInfo.radius = _sphere.radius;
 
-						_isHit   = _pCollWorld->VsCapsule(_capsuleInfo, _res, _self, _shooter);
+						_isHit   = _pCollWorld->VsCapsule(_capsuleInfo, _res, _self, _shooter, _layerMask);
 						_isSwept = true;
 					}
 				}
@@ -102,7 +110,7 @@ void HitDetectSystem::Init(Engine::ECS::World& a_world)
 					_info.origin = _nowPos;
 					_info.radius = _sphere.radius;
 
-					_isHit = _pCollWorld->VsSphere(_info, _res, _self, _shooter);
+					_isHit = _pCollWorld->VsSphere(_info, _res, _self, _shooter, _layerMask);
 				}
 
 				// 次フレームの判定の起点にする。当たったかどうかに関わらず更新する

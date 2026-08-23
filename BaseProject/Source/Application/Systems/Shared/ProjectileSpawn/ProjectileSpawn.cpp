@@ -9,9 +9,62 @@
 #include "../../../Components/Character/Weapon/Projectile/ProjectileComponent.h"
 #include "../../../Components/Hierarchy/HierarchyComponent.h"
 #include "../../../Components/Collision/Collider.h"
+#include "../../../Components/Tag/EnemyTag.h"
 
 namespace App::Systems::ProjectileSpawn
 {
+	namespace
+	{
+		//------------------------------------------------------------------------------
+		// この弾がどちら側のものかを決める
+		//
+		// プレイヤーも敵もまったく同じ弾/ミサイルのプレハブを撃つので、
+		// どちら側かはプレハブに書いておけない。撃った本体を見てここで決める。
+		//
+		// タグが付いているのは本体だけで、銃は子エンティティのことがある。
+		// ResolveShooterEntity と同じように親を辿って探す
+		// (撃った本体が渡ってくる前提だが、辿っておけば銃を直接渡されても壊れない)。
+		// 見つからなければプレイヤー側とみなす。
+		//------------------------------------------------------------------------------
+		Layer ResolveProjectileLayer(Engine::ECS::World& a_world, Engine::ECS::Entity a_shooter)
+		{
+			constexpr int _kMaxDepth = 8;
+
+			Engine::ECS::Entity _entity = a_shooter;
+
+			for (int _d = 0; _d < _kMaxDepth; ++_d)
+			{
+				if (_entity == Engine::ECS::Limits::INVALID_ENTITY) break;
+
+				if (a_world.HasComponent<EnemyTag>(_entity)) return Layer::EnemyProjectile;
+
+				if (!a_world.HasComponent<HierarchyComponent>(_entity)) break;
+				const auto* _pHierarchy = a_world.RefData<HierarchyComponent>(_entity);
+				if (!_pHierarchy) break;
+				_entity = _pHierarchy->parentID;
+			}
+
+			return Layer::PlayerProjectile;
+		}
+
+		//------------------------------------------------------------------------------
+		// その弾が当たりに行く相手
+		//
+		// 地形(StaticObject)と機体(DiynamicObject)には今までどおり当たる。
+		// 弾同士は「相手側の弾」だけ。自分側を入れると、同じ銃口から続けて出た弾や
+		// 斉射したミサイルが発射直後にぶつかって消える。
+		// 相手側は残してあるので、敵のミサイルは今までどおり撃ち落とせる。
+		//------------------------------------------------------------------------------
+		Layer MakeProjectileCollideLayer(Layer a_myLayer)
+		{
+			const Layer _otherSide = (a_myLayer == Layer::EnemyProjectile)
+				? Layer::PlayerProjectile
+				: Layer::EnemyProjectile;
+
+			return Layer::StaticObject | Layer::DiynamicObject | _otherSide;
+		}
+	}
+
 	Engine::ECS::Entity ResolveShooterEntity(
 		Engine::ECS::World& a_world,
 		Engine::ECS::Entity a_gunEntity)
@@ -120,6 +173,24 @@ namespace App::Systems::ProjectileSpawn
 				_proj.hasPrevPos = true;
 
 				std::memcpy(_it->second.data(), &_proj, sizeof(_proj));
+			}
+		}
+		// 撃った側でレイヤーを入れ替える。
+		// プレハブに書いてあるレイヤーは、どちらが撃ったか分からない状態の値なので
+		// ここで必ず上書きする(プレハブ側をいじっても発射された弾には効かない)
+		{
+			auto _collID = a_world.GetCompTypeID<ColliderComponent>();
+			auto _it = _data.find(_collID);
+			if (_sig.test(_collID) &&
+				_it != _data.end() && _it->second.size() >= sizeof(ColliderComponent))
+			{
+				ColliderComponent _coll = {};
+				std::memcpy(&_coll, _it->second.data(), sizeof(_coll));
+
+				_coll.layer        = ResolveProjectileLayer(a_world, a_shooter);
+				_coll.collideLayer = MakeProjectileCollideLayer(_coll.layer);
+
+				std::memcpy(_it->second.data(), &_coll, sizeof(_coll));
 			}
 		}
 		// 誘導弾なら追う相手を入れる(持っていない弾には足さない)

@@ -41,8 +41,9 @@ void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 				const ModelComponent& _modelComp = a_modelArray[_i];
 				const LocalTransformComponent& _transComp = a_transArray[_i];
 
-				// 動的レイヤー以外(静的)はここでは扱わない
-				if (_collComp.layer != Layer::DiynamicObject) continue;
+				// 動的レイヤー以外(静的)はここでは扱わない。
+				// 弾のレイヤーも動く側なので IsDynamicLayer で見る
+				if (!IsDynamicLayer(_collComp.layer)) continue;
 
 				// ワールド行列計算
 				Math::Matrix _tMat = Math::Matrix::CreateTranslation(_transComp.pos);
