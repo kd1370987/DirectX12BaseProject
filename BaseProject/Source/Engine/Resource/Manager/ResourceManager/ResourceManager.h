@@ -412,6 +412,7 @@ namespace Engine::Resource
 		ResourceData<Sound> m_soundData;										// サウンド
 		ResourceData<AudioBehavior> m_audioBehaviorData;						// サウンドの流れ(始動/継続/終了)
 		ResourceData<EffectAsset> m_effectAssetData;							// エフェクト(パーティクル+メッシュ)
+		ResourceData<Font> m_fontData;											// フォント(.ttf/.otf/.ttc)
 
 		// 非同期ロードの実行先 : 未登録なら同期で読む
 		std::atomic<Thread::JobSystem*> m_pJobSystem = nullptr;
@@ -1023,6 +1024,7 @@ namespace Engine::Resource
 	template<> inline ResourceData<Sound>& ResourceManager::RefData<Sound>() { return m_soundData; }
 	template<> inline ResourceData<AudioBehavior>& ResourceManager::RefData<AudioBehavior>() { return m_audioBehaviorData; }
 	template<> inline ResourceData<EffectAsset>& ResourceManager::RefData<EffectAsset>() { return m_effectAssetData; }
+	template<> inline ResourceData<Font>& ResourceManager::RefData<Font>() { return m_fontData; }
 
 	// プールの取得
 	template<> inline const ResourceData<Model>& ResourceManager::GetData<Model>() const { return  m_modelData; }
@@ -1039,6 +1041,7 @@ namespace Engine::Resource
 	template<> inline const ResourceData<Sound>& ResourceManager::GetData<Sound>() const { return m_soundData; }
 	template<> inline const ResourceData<AudioBehavior>& ResourceManager::GetData<AudioBehavior>() const { return m_audioBehaviorData; }
 	template<> inline const ResourceData<EffectAsset>& ResourceManager::GetData<EffectAsset>() const { return m_effectAssetData; }
+	template<> inline const ResourceData<Font>& ResourceManager::GetData<Font>() const { return m_fontData; }
 }
 
 namespace Engine

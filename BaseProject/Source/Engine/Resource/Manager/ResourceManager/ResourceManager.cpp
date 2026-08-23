@@ -11,6 +11,9 @@ namespace Engine::Resource
 		// ここで解放し損ねたリソースはシングルトンの静的破棄まで生き残ってしまい、
 		// 破棄順が保証されない他マネージャー(AudioEngine など)を掴んだまま落ちる。
 		// リソース型を追加したらここにも必ず足すこと。
+		// フォント : アトラステクスチャを ResourceRef で握っているのでテクスチャより先に捨てる
+		ReleaseData<Font>();
+
 		ReleaseData<Model>();
 		ReleaseData<Material>();
 		ReleaseData<Mesh>();
@@ -55,6 +58,9 @@ namespace Engine::Resource
 		SweepUnused<AudioBehavior>();
 		SweepUnused<ActionStateMachineAsset>();
 		SweepUnused<AnimatorAsset>();
+
+		// フォントもアトラステクスチャを ResourceRef で握っているので、テクスチャより先に片付ける
+		SweepUnused<Font>();
 
 		// モデルは中身(メッシュ・マテリアル・アニメーション)を ResourceRef で握っているので、
 		// モデルが消えた後でないと下は 0 にならない

@@ -174,6 +174,7 @@ namespace Engine::Resource
 #include "Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"	// アクション用ステートマシン
 #include "Resource/Data/Particles/ParticlesAsset.h"							// パーティクル
 #include "Resource/Data/EffectAsset/EffectAsset.h"							// エフェクト(パーティクル+メッシュのまとめ)
+#include "Resource/Data/Font/Font.h"									// フォント(.ttf/.otf/.ttc)
 // 
 //-----------------------------------------------------------------------------------------
 #include "Resource/Manager/ResourceManager/ResourceManager.h"	// マネージャー

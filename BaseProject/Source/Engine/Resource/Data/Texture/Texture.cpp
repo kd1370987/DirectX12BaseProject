@@ -63,6 +63,7 @@ namespace Engine::Resource
 		// 変数保存
 		m_name = a_desc.name;
 		m_useFlg = a_desc.usage;
+		m_srvComponentMapping = a_desc.srvComponentMapping;
 		if (a_desc.opClerValue.has_value())
 		{
 			m_clearValue = a_desc.opClerValue.value();
@@ -197,7 +198,7 @@ namespace Engine::Resource
 			_srvDesc.Format = HasFlag(m_useFlg, TextureUsage::DSV) ? DXGI_FORMAT_R32_FLOAT : m_desc.Format;
 			_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 			_srvDesc.Texture2D.MipLevels = m_desc.MipLevels;
-			_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			_srvDesc.Shader4ComponentMapping = m_srvComponentMapping;
 
 			// 登録
 			m_srvHandle = 

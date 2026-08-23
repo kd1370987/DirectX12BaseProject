@@ -14,6 +14,7 @@
 #include "../Data/Sound/IO/SoundIO.h"
 #include "../Data/AudioBehavior/IO/AudioBehaviorIO.h"
 #include "../Data/EffectAsset/IO/EffectAssetIO.h"
+#include "../Data/Font/IO/FontIO.h"
 namespace Engine::Resource
 {
 	// ロード処理の中間用クラス
@@ -160,6 +161,16 @@ namespace Engine::Resource
 		static EffectAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return EffectAssetIO::LoadFromFile(a_path);
+		}
+	};
+	// フォント
+	template<>
+	struct DefaultLoader<Font>
+	{
+		static Font LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		{
+			// アトラステクスチャをGPUへ転送するため、コンテキストをそのまま渡す
+			return FontIO::LoadFromFile(a_path, a_pContext);
 		}
 	};
 }

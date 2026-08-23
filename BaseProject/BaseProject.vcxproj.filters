@@ -364,6 +364,12 @@
     <Filter Include="Source\Engine\Resource\Data\Model">
       <UniqueIdentifier>{5ca1df84-3886-47f6-ab35-e5ef1b7cfea6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Font">
+      <UniqueIdentifier>{68571e6c-ecf9-4f83-9582-afad21a67940}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\Font\IO">
+      <UniqueIdentifier>{0045187e-62c2-403c-b56b-980e8d1bff3f}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Resource\Data\Texture">
       <UniqueIdentifier>{c31d7aef-d478-45e5-9ac9-505426b409e8}</UniqueIdentifier>
     </Filter>
@@ -1724,6 +1730,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Texture\Texture.cpp">
       <Filter>Source\Engine\Resource\Data\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Font\Font.cpp">
+      <Filter>Source\Engine\Resource\Data\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\Data\Font\IO\FontIO.cpp">
+      <Filter>Source\Engine\Resource\Data\Font\IO</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Animation\Animation.cpp">
       <Filter>Source\Engine\Resource\Data\Animation</Filter>
@@ -3478,6 +3490,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Texture\Texture.h">
       <Filter>Source\Engine\Resource\Data\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Font\Font.h">
+      <Filter>Source\Engine\Resource\Data\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Data\Font\IO\FontIO.h">
+      <Filter>Source\Engine\Resource\Data\Font\IO</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass\DebugLinePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass</Filter>

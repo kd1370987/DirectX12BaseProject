@@ -23,6 +23,17 @@ namespace Engine::Resource
 		// テクスチャの使用方法
 		TextureUsage usage = TextureUsage::None;
 
+		/// <summary>
+		/// SRVで読むときの成分の並び替え(スウィズル)
+		/// </summary>
+		/// <remarks>
+		/// 1成分だけのテクスチャ(R8_UNORMのフォントアトラスなど)を
+		/// シェーダー側で rgba すべてに配りたいときに使う。
+		/// 既定はそのまま(R,G,B,A)。
+		/// 例: D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(0,0,0,0) で (r,r,r,r) になる
+		/// </remarks>
+		UINT srvComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
 		std::optional<DXSM::Color> opClerValue;
 	};
 
@@ -68,6 +79,9 @@ namespace Engine::Resource
 		std::string m_name = "none";						// テクスチャの名前	
 		D3D12_RESOURCE_DESC m_desc;							// テクスチャの仕様書
 		TextureUsage m_useFlg = TextureUsage::None;			// テクスチャの使用方法
+
+		// SRVの成分並び替え : 1成分テクスチャを rgba へ配るときに使う
+		UINT m_srvComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		// クリアカラー
 		DXSM::Color m_clearValue = {0,0,0,1};

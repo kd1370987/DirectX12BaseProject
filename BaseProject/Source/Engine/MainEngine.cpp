@@ -675,6 +675,13 @@ namespace Engine
 		_effect.AddExtensions(".ojeffect");
 		_effect.AddExtensions(".obeffect");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_effect);
+		// フォント : 変換を挟まず .ttf などをそのまま読む
+		Resource::TypeExtension _font = {};
+		_font.type = "Font";
+		_font.AddExtensions(".ttf");
+		_font.AddExtensions(".otf");
+		_font.AddExtensions(".ttc");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_font);
 		// 全アセットに一括でメタファイル作成
 		// すでにあれば無視
 		Resource::AssetDatabase::Instance().CreateMetaFileForAllAssets();

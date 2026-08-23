@@ -11,7 +11,7 @@
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 #include "Application/InstanceResource/HitEventResource.h"
-#include "Application/Components/Character/ScoreTargetComponent.h"
+#include "Application/Components/Character/HealthComponent.h"
 
 namespace App::Object
 {
@@ -144,15 +144,20 @@ namespace App::Object
 			if (_event.shooter != _player) continue;
 
 			//--------------------------------------------------------------
-			// 手応えを出すのは「倒す相手」に当てたときだけ
+			// 手応えを出すのは「ダメージが通る相手」に当てたときだけ
 			//
 			// 弾は壁でも地面でも味方の部品でも同じように当たる。
 			// そこまで音とマークが出ると、何に当てても当たった気になってしまい、
 			// 狙う価値のある相手に当てた合図として働かなくなる。
-			// 相手として置かれているかは ScoreTargetComponent の有無で見る
+			//
+			// 見るのは HealthComponent の有無。
+			// 以前は ScoreTargetComponent(点数を持っている印)で見ていたが、
+			// あれは「倒したら何点入るか」を表す得点側の都合で、
+			// 手応えを出すかどうかとは別の話。実際どのプレハブにも付いておらず、
+			// 条件が一度も成立しないためマーカーが出ていなかった。
 			//--------------------------------------------------------------
 			if (_event.victim == Engine::ECS::Limits::INVALID_ENTITY) continue;
-			if (!_pWorld->HasComponent<ScoreTargetComponent>(_event.victim)) continue;
+			if (!_pWorld->HasComponent<HealthComponent>(_event.victim)) continue;
 
 			OnHit(a_context);
 			break;

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../../../Engine/GameObject/BaseObject/BaseObject.h"
+#include "Decoration.h"
 
 namespace App::Object
 {
