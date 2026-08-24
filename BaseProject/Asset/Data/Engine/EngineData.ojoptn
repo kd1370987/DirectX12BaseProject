@@ -4,7 +4,7 @@
         "groupVolume1": 0.2370000034570694,
         "groupVolume2": 0.5569999814033508,
         "groupVolume3": 1.0,
-        "masterVolume": 0.5210000276565552
+        "masterVolume": 0.49799999594688416
     },
     "BloomOption": {
         "enable": true,
@@ -66,12 +66,12 @@
         "whitePoint": 1.0499999523162842
     },
     "WindowOption": {
-        "WindowTitle": "DirectX12Game",
+        "WindowTitle": "VECTOR REGIN",
         "isTitleFPS": true,
         "isVsync": false,
         "targetFrameRate": 120,
         "windowHeight": 1080,
-        "windowMode": 2,
+        "windowMode": 0,
         "windowWidth": 1920
     }
 }

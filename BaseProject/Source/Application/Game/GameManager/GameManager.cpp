@@ -16,6 +16,7 @@
 #include "Application/Object/UI/AimReticleHUD/AimReticleHUD.h"
 #include "Application/Object/UI/HitEffectHUD/HitEffectHUD.h"
 #include "Application/Object/UI/ScoreHUD/ScoreHUD.h"
+#include "../../Object/UI/WaveAnnounceHUD/WaveAnnounceHUD.h"
 #include "Application/Object/Sequence/ResultSequence/ResultSequence.h"
 #include "Application/Object/UI/MissileLockBoxHUD/MissileLockBoxHUD.h"
 #include "Application/Object/UI/UIButton/UIButton.h"
@@ -94,6 +95,7 @@
 #include "../../Components/Character/LockOnTargetComponent.h"
 #include "../../Components/Resource/SoundComponent.h"
 #include "../../Components/Character/PatrolComponent.h"
+#include "../../Components/Character/CloseCombatComponent.h"
 #include "../../Components/Character/Weapon/Projectile/HomingComponent.h"
 #include "../../Components/Character/Weapon/Projectile/ProjectileComponent.h"
 #include "../../Components/Character/Weapon/Missile/MissileLockComponent.h"
@@ -192,6 +194,7 @@
 #include "../../Systems/Update/PreUpdate/HitEventClearSystem/HitEventClearSystem.h"
 #include "../../Systems/Update/PreUpdate/DeathEventClearSystem/DeathEventClearSystem.h"
 #include "../../Systems/Update/PreUpdate/EnemyShootIntentSystem/EnemyShootIntentSystem.h"
+#include "../../Systems/Update/PreUpdate/CloseCombatIntentSystem/CloseCombatIntentSystem.h"
 #include "../../Systems/Update/PreUpdate/BossCombatIntentSystem/BossCombatIntentSystem.h"
 #include "../../Systems/Update/PreUpdate/HomingSystem/HomingSystem.h"
 #include "../../Systems/Update/PostUpdate/HitSoundSystem/HitSoundSystem.h"
@@ -212,6 +215,7 @@
 #include "../../Components/Character/DeathEffectComponent.h"
 #include "../../Components/Effect/ExplosionComponent.h"
 #include "../../InstanceResource/DeathEventResource.h"
+#include "../../InstanceResource/WaveAnnounceResource.h"
 #include "../../Systems/Update/PostUpdate/DeathEffectSystem/DeathEffectSystem.h"
 #include "../../Systems/Update/PostUpdate/ScoreSystem/ScoreSystem.h"
 #include "../../Systems/Update/PostUpdate/ExplosionSystem/ExplosionSystem.h"
@@ -284,6 +288,9 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::MissionSelect>("MissionSelect");
 			// ゲージ(HP / オーバーヒート / ブーストなど)。値は SetValue で外から入れる
 			_objRegistry.RegisterType<App::Object::UIGauge>("UIGauge");
+			// ウェーブが出た合図(何番目かの表示と音)。
+			// タイプIDは登録順なので、必ずここから下へ足すこと
+			_objRegistry.RegisterType<App::Object::WaveAnnounceHUD>("WaveAnnounceHUD");
 		}
 
 		// ワールドの初期化関数登録
@@ -354,6 +361,8 @@ namespace App::Game
 				a_pWorld->RegisterComponent<CameraDeadZoneComponent>("CameraDeadZoneComponent");
 				a_pWorld->RegisterComponent<AdditivePoseComponent>("AdditivePoseComponent");
 				a_pWorld->RegisterComponent<AimTargetPosComponent>("AimTargetPosComponent");
+				// 近距離型の敵の「足を止めて撃つ / 撃たずに動き直す」のリズム
+				a_pWorld->RegisterComponent<CloseCombatComponent>("CloseCombatComponent");
 				a_pWorld->RegisterComponent<PatrolComponent>("PatrolComponent");
 				a_pWorld->RegisterComponent<TargetEntityComponent>("TargetEntityComponent");
 				// プレイヤーのレティクル内の敵とロック対象。HUDと旋回が読む
@@ -423,6 +432,10 @@ namespace App::Game
 				// 誘導弾の進行方向決め。速度を書くだけなので Physics の積分より前に置く
 				a_pWorld->RegisterSystem<HomingSystem>();
 				a_pWorld->RegisterSystem<EnemyMoveIntentSystem>();
+				// 近距離型の敵の撃つ/動くのリズム。
+				// EnemyMoveIntentSystem が書いた移動入力を攻撃圏の中だけ上書きするので、
+				// 必ずあちらの後ろに置くこと(PatrolComponent を読んで辺は張ってある)
+				a_pWorld->RegisterSystem<CloseCombatIntentSystem>();
 				// 見失い探索のフェーズ(EnemyMoveIntentSystem が進める)を FSM パラメータへ
 				a_pWorld->RegisterSystem<LostTargetBridgeSystem>();
 				a_pWorld->RegisterSystem<StateMachineCommitSystem>();
@@ -548,6 +561,7 @@ namespace App::Game
 				a_pWorld->AddResource<ResourceWaitResource>();
 				a_pWorld->AddResource<HitEventResource>();
 				a_pWorld->AddResource<DeathEventResource>();
+				a_pWorld->AddResource<WaveAnnounceResource>();
 				a_pWorld->AddResource<FlyingSoundResource>();
 
 				// 初期化

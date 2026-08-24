@@ -10,6 +10,7 @@
 #include "../../../Components/Hierarchy/HierarchyComponent.h"
 #include "../../../Components/Collision/Collider.h"
 #include "../../../Components/Tag/EnemyTag.h"
+#include "../../../Components/Resource/ModelComponent.h"
 
 namespace App::Systems::ProjectileSpawn
 {
@@ -46,6 +47,16 @@ namespace App::Systems::ProjectileSpawn
 
 			return Layer::PlayerProjectile;
 		}
+
+		//------------------------------------------------------------------------------
+		// 敵が撃った弾の発光色
+		//
+		// 弾のプレハブはプレイヤーと共用なので、絵の違いもここで付けるしかない。
+		// 撃ち合っている最中に「今飛んでいるのがどちらの弾か」を色で分ける。
+		// 強さ(emissiveIntensity)はプレハブの値をそのまま使う。色だけ差し替えれば
+		// 弾ごとの光り方(バレットは強め/ミサイルは弱め)の作り分けが残る。
+		//------------------------------------------------------------------------------
+		constexpr Math::Vector3 kEnemyProjectileEmissive = { 0.60f, 0.15f, 1.00f };	// 紫
 
 		//------------------------------------------------------------------------------
 		// その弾が当たりに行く相手
@@ -175,6 +186,11 @@ namespace App::Systems::ProjectileSpawn
 				std::memcpy(_it->second.data(), &_proj, sizeof(_proj));
 			}
 		}
+
+		// この弾がどちら側のものか。レイヤーと発光色の両方で使う
+		const bool _isEnemySide =
+			(ResolveProjectileLayer(a_world, a_shooter) == Layer::EnemyProjectile);
+
 		// 撃った側でレイヤーを入れ替える。
 		// プレハブに書いてあるレイヤーは、どちらが撃ったか分からない状態の値なので
 		// ここで必ず上書きする(プレハブ側をいじっても発射された弾には効かない)
@@ -187,12 +203,29 @@ namespace App::Systems::ProjectileSpawn
 				ColliderComponent _coll = {};
 				std::memcpy(&_coll, _it->second.data(), sizeof(_coll));
 
-				_coll.layer        = ResolveProjectileLayer(a_world, a_shooter);
+				_coll.layer        = _isEnemySide ? Layer::EnemyProjectile : Layer::PlayerProjectile;
 				_coll.collideLayer = MakeProjectileCollideLayer(_coll.layer);
 
 				std::memcpy(_it->second.data(), &_coll, sizeof(_coll));
 			}
 		}
+		// 敵が撃った弾は発光色を紫にする。
+		// レイヤーと同じで、どちら側の弾かはここでしか分からない
+		{
+			auto _modelID = a_world.GetCompTypeID<ModelComponent>();
+			auto _it = _data.find(_modelID);
+			if (_isEnemySide && _sig.test(_modelID) &&
+				_it != _data.end() && _it->second.size() >= sizeof(ModelComponent))
+			{
+				ModelComponent _model = {};
+				std::memcpy(&_model, _it->second.data(), sizeof(_model));
+
+				_model.emissiveColor = kEnemyProjectileEmissive;
+
+				std::memcpy(_it->second.data(), &_model, sizeof(_model));
+			}
+		}
+
 		// 誘導弾なら追う相手を入れる(持っていない弾には足さない)
 		{
 			auto _homingID = a_world.GetCompTypeID<HomingComponent>();

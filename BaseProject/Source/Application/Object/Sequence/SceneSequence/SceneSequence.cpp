@@ -10,6 +10,7 @@
 #include "Application/Components/Character/Boss/BossComponent.h"
 #include "Application/Components/Character/HealthComponent.h"
 #include "Application/Utility/PrefabSpawnHelper.h"
+#include "Application/InstanceResource/WaveAnnounceResource.h"
 #include "Application/Components/Tag/PlayerControllTag.h"
 #include "Application/Game/GameManager/GameManager.h"
 
@@ -459,6 +460,18 @@ namespace App::Object
 				_params);
 
 			if (_isSpawned) ++_wave.spawnCount;
+		}
+
+		//------------------------------------------------------------------
+		// 出たことを知らせる(表示と音は WaveAnnounceHUD の担当)
+		//------------------------------------------------------------------
+		// ここは「何番目が出たか」を置くだけで、見た目も音も持たない。
+		// 1体も出せなかったウェーブでも知らせる。ウェーブが進んだこと自体は
+		// 起きているので、黙って飛ばすと進行が止まったように見える
+		if (a_context.pWorld->HasResource<WaveAnnounceResource>())
+		{
+			a_context.pWorld->GetResource<WaveAnnounceResource>().Push(
+				static_cast<int>(a_index), static_cast<int>(m_waves.size()));
 		}
 	}
 

@@ -682,6 +682,9 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate\HomingSystem">
       <UniqueIdentifier>{d4a71e6b-5b92-4f38-b247-ae60c135f9d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem">
+      <UniqueIdentifier>{3a2db145-f78c-4e68-99c8-3dd7752580ff}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem">
       <UniqueIdentifier>{e5b82f7c-6ca3-4049-c358-bf71d246a0e9}</UniqueIdentifier>
     </Filter>
@@ -1471,6 +1474,9 @@
     <Filter Include="Source\Application\Object\UI\AimReticleHUD">
       <UniqueIdentifier>{8c41b2a7-5d63-4e19-9a08-3f7b2c6e4d15}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\UI\WaveAnnounceHUD">
+      <UniqueIdentifier>{c59d7e01-7d42-41b4-ac87-a11018f0899d}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Object\UI\HitEffectHUD">
       <UniqueIdentifier>{8c41b2a7-5d63-4e19-9a08-3f7b2c6e4d16}</UniqueIdentifier>
     </Filter>
@@ -1946,6 +1952,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\HomingSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem\CloseCombatIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem\EnemyShootIntentSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem</Filter>
@@ -2513,6 +2522,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.cpp">
       <Filter>Source\Application\Object\UI\MissileLockBoxHUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\WaveAnnounceHUD\WaveAnnounceHUD.cpp">
+      <Filter>Source\Application\Object\UI\WaveAnnounceHUD</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp">
       <Filter>Source\Application\Object\UI\HitEffectHUD</Filter>
@@ -3149,6 +3161,9 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\HomingSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem\CloseCombatIntentSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem\EnemyShootIntentSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem</Filter>
     </ClInclude>
@@ -3163,6 +3178,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Move\EnemyMovementSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\CloseCombatComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\PatrolComponent.h">
       <Filter>Source\Application\Components\Character</Filter>
@@ -3872,6 +3890,9 @@
     <ClInclude Include="Source\Application\Components\Character\DeathEffectComponent.h">
       <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\WaveAnnounceResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\DeathEventResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
@@ -3979,6 +4000,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.h">
       <Filter>Source\Application\Object\UI\MissileLockBoxHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\WaveAnnounceHUD\WaveAnnounceHUD.h">
+      <Filter>Source\Application\Object\UI\WaveAnnounceHUD</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.h">
       <Filter>Source\Application\Object\UI\HitEffectHUD</Filter>

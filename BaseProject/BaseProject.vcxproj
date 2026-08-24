@@ -246,6 +246,7 @@
     <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.cpp" />
+    <ClCompile Include="Source\Application\Object\UI\WaveAnnounceHUD\WaveAnnounceHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp" />
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp" />
@@ -530,6 +531,7 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem\CloseCombatIntentSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem\EnemyShootIntentSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem\LostTargetBridgeSystem.cpp" />
@@ -678,6 +680,7 @@
     <ClInclude Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.h" />
+    <ClInclude Include="Source\Application\Object\UI\WaveAnnounceHUD\WaveAnnounceHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.h" />
     <ClInclude Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.h" />
     <ClInclude Include="Source\Application\Object\UI\UIBase.h" />
@@ -750,6 +753,7 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\DeathStateSystem\DeathStateSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.h" />
     <ClInclude Include="Source\Application\Components\Character\DeathEffectComponent.h" />
+    <ClInclude Include="Source\Application\InstanceResource\WaveAnnounceResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\DeathEventResource.h" />
     <ClInclude Include="Source\Application\Components\Common\LifeTimeComponent.h" />
     <ClInclude Include="Source\Application\Components\Effect\EffectComponent.h" />
@@ -1032,11 +1036,13 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem\CloseCombatIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem\EnemyShootIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem\LostTargetBridgeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.h" />
+    <ClInclude Include="Source\Application\Components\Character\CloseCombatComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\PatrolComponent.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.h" />

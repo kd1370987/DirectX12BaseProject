@@ -5,6 +5,7 @@
 #include "../../../../Components/Tag/EnemyTag.h"
 #include "../../../../Components/Character/TargetEntityComponent.h"
 #include "../../../../Components/Character/Boss/BossComponent.h"
+#include "../../../../Components/Character/CloseCombatComponent.h"
 #include "../../../../Components/Intent/ActionIntentComponent.h"
 
 //==============================================================================
@@ -28,6 +29,10 @@
 // ・ボスは除外する。ボスは距離ではなく戦闘開始命令で撃ち始め、撃つ/休むのリズムも
 //   自分で持つので、BossCombatIntentSystem が同じ ActionIntentComponent を書く。
 //   どちらも書き手になると実行順が登録順頼みになり、撃つ/撃たないが安定しない。
+// ・近距離型(CloseCombatComponent 保持者)も除外する。
+//   あちらは撃つ/動くを交互に切り替えるので、撃つかどうかは間合いだけでは決まらない。
+//   CloseCombatIntentSystem が同じ ActionIntentComponent を書くため、
+//   両方が書き手になると登録順しだいで撃ちっぱなしになる。
 //==============================================================================
 void EnemyShootIntentSystem::Init(Engine::ECS::World& a_world)
 {
@@ -58,6 +63,6 @@ void EnemyShootIntentSystem::Init(Engine::ECS::World& a_world)
 				_intent.isRightWeaponShoot = _shoot;
 			}
 		},
-		Engine::ECS::Exclude<BossComponent>{}
+		Engine::ECS::Exclude<BossComponent, CloseCombatComponent>{}
 	);
 }

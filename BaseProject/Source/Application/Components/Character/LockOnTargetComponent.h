@@ -28,7 +28,8 @@ struct LockOnTargetComponent
 	// UI と判定を別々に持つと「枠の内側なのにロックされない」ズレが起きるため、
 	// 実際に描いている UI 側を基準にする。
 	float reticleRadius = 160.0f;	// 判定の半径(px)
-	float maxDistance   = 300.0f;	// ロック可能な距離(m)。0 以下なら距離で切らない
+	float maxDistance   = 300.0f;	// ロック(赤枠)が可能な距離(m)。0 以下なら距離で切らない。
+				// 枠(黄色)には効かない。画面に映っていれば距離に関係なく出る
 	float targetOffsetY = 0.0f;		// 敵の原点から上へずらす量(m)。原点が足元のモデルで胴体に枠を合わせる用
 
 	// ---- レティクル(ランタイム。AimReticleHUD が書く) ----

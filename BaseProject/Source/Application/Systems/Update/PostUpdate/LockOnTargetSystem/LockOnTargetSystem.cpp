@@ -24,7 +24,9 @@
 //   レティクル内で最近 … lockedEntity(HUD が赤い枠で囲い、プレイヤーが体を向ける)
 //
 // ・枠(画面内)とロック(レティクル内)は条件が別。枠が出ている相手すべてが
-//   ロック対象になるわけではない。距離(maxDistance)は両方に効く。
+//   ロック対象になるわけではない。
+//   距離(maxDistance)が効くのはロックだけで、枠は距離を見ない。
+//   遠くの敵にも枠が出ないと、湧いたウェーブがどこに居るのか画面から分からないため。
 //
 // ・PostUpdate に置く理由
 //     判定はスクリーン座標で行うので、カメラと敵の「今フレームの」ワールド行列が要る。
@@ -131,12 +133,6 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 							Math::Vector3 _worldPos = { _em._41, _em._42, _em._43 };
 							_worldPos.y += _lockOn.targetOffsetY;
 
-							// 距離で足切り(0 以下なら距離では切らない)
-							if (_lockOn.maxDistance > 0.0f)
-							{
-								if ((_worldPos - _playerPos).Length() > _lockOn.maxDistance) continue;
-							}
-
 							//------------------------------------------------------
 							// ワールド → スクリーン
 							//------------------------------------------------------
@@ -180,6 +176,15 @@ void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
 							//------------------------------------------------------
 							// 枠(画面内)より狭い条件。枠が出ている相手すべてが
 							// ロック対象になるわけではない
+							//
+							// 距離で足切り(0 以下なら距離では切らない)。
+							// 効くのはロックだけ。枠(上)は距離を見ない。
+							// 遠くの敵にも枠が出ないと、湧いたウェーブがどこに居るのか
+							// 画面から分からないため。ロックのほうを外すと、
+							// 届きもしない距離の相手に体を向けて撃ち始めてしまう
+							if (_lockOn.maxDistance > 0.0f &&
+								(_worldPos - _playerPos).Length() > _lockOn.maxDistance) continue;
+
 							const float _distFromCenter = (_screenPos - _reticleCenter).Length();
 							if (_distFromCenter > _reticleRadius) continue;
 
