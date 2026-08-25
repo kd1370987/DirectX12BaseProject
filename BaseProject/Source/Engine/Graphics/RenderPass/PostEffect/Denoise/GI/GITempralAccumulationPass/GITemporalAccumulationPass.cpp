@@ -1,4 +1,4 @@
-#include "GITemporalAccumulationPass.h"
+﻿#include "GITemporalAccumulationPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -39,7 +39,7 @@ namespace Engine::Graphics
 
 			// シェーダーとルートシグネチャの設定
 			uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
-			auto* _pBlob = _cpBuilder.SetShader("Asset/Shader/Compute/TemporalAccumulationShader/TemporalAccumulationShader.cso", "TemporalAccumulationPass", _csIndex);
+			auto* _pBlob = _cpBuilder.SetShader("Asset/Shader/Source/Lighting/Denoise/GI/TemporalAccumulationShader.cso", "TemporalAccumulationPass", _csIndex);
 			_cpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
 			_cpBuilder.SetHeapMode(ERGHeapMode::Default);
 			_cpBuilder.SetFrameParity(_parity);

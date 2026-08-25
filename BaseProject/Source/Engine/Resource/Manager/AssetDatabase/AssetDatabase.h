@@ -79,6 +79,17 @@ namespace Engine::Resource
 
 		const AssetProperty* GetAssetProperty(const Engine::GUID& a_guid) const;
 		const AssetProperty* GetAssetProperty(const std::string& a_filePath) const;
+
+		/// <summary>
+		/// GUIDからメタ情報を引く。見つからなくてもログを出さない
+		/// </summary>
+		/// <remarks>
+		/// GetAssetProperty は見つからないとログを出すので、エディターのように
+		/// 毎フレーム引く場所では使えない(参照が1つ切れているだけでログが埋まる)。
+		/// 「引けたら出す・駄目なら出さない」を判断するためのもの。
+		/// 返るのは m_assetMap の実体なので、アセットパネルが配っているものと同じポインタ。
+		/// </remarks>
+		AssetProperty* FindAssetProperty(const Engine::GUID& a_guid);
 	private:
 
 		// 新たにメタファイルの内容を作成して返す

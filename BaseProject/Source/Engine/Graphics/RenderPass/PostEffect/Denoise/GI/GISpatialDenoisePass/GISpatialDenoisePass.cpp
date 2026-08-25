@@ -1,4 +1,4 @@
-#include "GISpatialDenoisePass.h"
+﻿#include "GISpatialDenoisePass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -25,7 +25,7 @@ namespace Engine::Graphics
 	{
 		if (a_passCount <= 0) return;
 
-		const std::string _shaderPath = "Asset/Shader/Compute/Denoise/GI/GISpatialDenoiseShader.cso";
+		const std::string _shaderPath = "Asset/Shader/Source/Lighting/Denoise/GI/GISpatialDenoiseShader.cso";
 
 		// PSO共通化のため先にルートシグネチャ設定
 		a_pPSOManager->Request(_shaderPath);

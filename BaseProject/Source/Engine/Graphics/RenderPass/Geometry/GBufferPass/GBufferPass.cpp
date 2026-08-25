@@ -42,18 +42,18 @@ namespace Engine::Graphics
 		_msBuilder.WriteRTV("GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT);
 
 		// シェーダー関係セット
-		auto _guidMS = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Mesh/UberMS.cso");
+		auto _guidMS = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Geometry/MeshShader/UberMS.cso");
 		auto _msHandle = Resource::ResourceManager::Instance().LoadImmediate<Resource::Shader>(_guidMS);
 		_node.pipelineBuilder.RegisterMeshShader(EShaderPermutationFlags::Static, _msHandle);
 		_node.pipelineBuilder.RegisterMeshShader(EShaderPermutationFlags::Skinned, _msHandle);
 
-		auto _guidAS = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Mesh/TestAS.cso");
+		auto _guidAS = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Geometry/MeshShader/TestAS.cso");
 		auto _asHandle = Resource::ResourceManager::Instance().LoadImmediate<Resource::Shader>(_guidAS);
 		_node.pipelineBuilder.RegisterAmplificationShader(EShaderPermutationFlags::Static, _asHandle);
 		_node.pipelineBuilder.RegisterAmplificationShader(EShaderPermutationFlags::Skinned, _asHandle);
 
 		// ルートシグネチャセット
-		_spPassData->rootSigHandle = a_pPSOManager->Request("Asset/Shader/Source/Mesh/UberMS.cso");
+		_spPassData->rootSigHandle = a_pPSOManager->Request("Asset/Shader/Source/Geometry/MeshShader/UberMS.cso");
 
 		// 深度テスト設定
 		_node.pipelineBuilder.SetDepthConfig(

@@ -6,8 +6,6 @@
 #include "Engine/Resource/Data/Prefab/Prefab.h"
 #include "Engine/Resource/Data/Model/Model.h"
 
-#include "Application/Components/Tag/ActiveCameraTag.h"
-#include "Application/Components/Tag/CameraTag.h"
 #include "Application/Components/Tag/EnemyTag.h"
 #include "Application/Components/Camera/ProjMatComponent.h"
 #include "Application/Components/Intent/ActionIntentComponent.h"
@@ -17,6 +15,8 @@
 #include "Application/Components/Character/Weapon/Gun/GunStateComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
+
+#include "Application/InstanceResource/SingletonEntityResource.h"
 
 #include "Application/Components/Character/Boss/BossComponent.h"
 
@@ -81,26 +81,30 @@ void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
 			Math::Matrix _viewProjMat = Math::Matrix::Identity();
 			bool _hasCamera = false;
 
-			a_ctx.pWorld->ForEach<const ActiveCameraTag, const CameraTag, const ProjMatComponent, const WorldMatrixComponent>(
-				[&](
-					Engine::ECS::ArchetypeChunk* a_pCamChunk,
-					uint32_t a_camCount,
-					const ActiveCameraTag* a_activeCamTagArray,
-					const CameraTag* a_camTagArray,
-					const ProjMatComponent* a_projMatArray,
-					const WorldMatrixComponent* a_camWorldMatArray
-				)
+			// どのカメラで映しているかは MainCameraSystem が決めて
+			// SingletonEntityResource へ置いてあるので、ここでは探さずに引くだけ
+			if (a_ctx.pWorld->HasResource<SingletonEntityResource>())
+			{
+				const Engine::ECS::Entity _camera =
+					a_ctx.pWorld->GetResource<SingletonEntityResource>().mainCamera;
+
+				if (_camera != Engine::ECS::Limits::INVALID_ENTITY &&
+					a_ctx.pWorld->IsAliveEntity(_camera) &&
+					a_ctx.pWorld->HasComponent<ProjMatComponent>(_camera) &&
+					a_ctx.pWorld->HasComponent<WorldMatrixComponent>(_camera))
 				{
-					// アクティブカメラは1台の想定。先に見つかったものを使う
-					if (_hasCamera || a_camCount == 0) return;
+					const auto* _pProjMat  = a_ctx.pWorld->RefData<ProjMatComponent>(_camera);
+					const auto* _pWorldMat = a_ctx.pWorld->RefData<WorldMatrixComponent>(_camera);
 
-					const Math::Matrix _camWorldMat = a_camWorldMatArray[0].worldMat;
-					const Math::Matrix _projMat     = a_projMatArray[0].projMat;
+					if (_pProjMat && _pWorldMat)
+					{
+						const Math::Matrix _camWorldMat = _pWorldMat->worldMat;
 
-					_viewProjMat = _camWorldMat.Invert() * _projMat;
-					_hasCamera   = true;
+						_viewProjMat = _camWorldMat.Invert() * _pProjMat->projMat;
+						_hasCamera   = true;
+					}
 				}
-			);
+			}
 
 			const Math::Vector2 _defaultCenter = { _w * 0.5f, _h * 0.5f };
 

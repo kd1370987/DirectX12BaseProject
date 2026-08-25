@@ -1,4 +1,4 @@
-#include "ShadowSpatialDenoisePass.h"
+﻿#include "ShadowSpatialDenoisePass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -15,7 +15,7 @@ namespace Engine::Graphics
 {
 	void AddShadowSpatialDenoisePass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
 	{
-		const std::string _shaderPath = "Asset/Shader/Compute/Denoise/Shadow/ShadowSpatialDenoiseShader.cso";
+		const std::string _shaderPath = "Asset/Shader/Source/Lighting/Denoise/Shadow/ShadowSpatialDenoiseShader.cso";
 
 		// PSO共通化のため先にルートシグネチャ設定
 		a_pPSOManager->Request(_shaderPath);

@@ -41,8 +41,8 @@ namespace Engine::Graphics
 		// このVSは SV_VertexID / SV_InstanceID だけで頂点を生成し、頂点バッファを読まない。
 		// StaticLayout を宣言すると IA が頂点バッファを要求し、直前のパスが残したバッファ
 		// (パーティクルのクアッド等)を読もうとして #210 警告が出るため、空レイアウトを使う。
-		auto* _pBlob = _rpBuilder.SetVS(_sPso, "Asset/Shader/Source/DebugLineShader/DebugLineVS.cso", D3D12::Input::gEmptyLayout);
-		_rpBuilder.SetPS(_sPso, "Asset/Shader/Source/DebugLineShader/DebugLinePS.cso");
+		auto* _pBlob = _rpBuilder.SetVS(_sPso, "Asset/Shader/Source/Debug/DebugLine/DebugLineVS.cso", D3D12::Input::gEmptyLayout);
+		_rpBuilder.SetPS(_sPso, "Asset/Shader/Source/Debug/DebugLine/DebugLinePS.cso");
 		_sPso.DepthEnable(true);
 		_sPso.DepthWriteMask(false);
 		_sPso.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);

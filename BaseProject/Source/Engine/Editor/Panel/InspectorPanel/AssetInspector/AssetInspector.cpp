@@ -1,9 +1,15 @@
 ﻿#include "AssetInspector.h"
 
 #include "ResourceDraw/ResourceDraw.h"
+#include "AssetLink.h"
 
 void Engine::Editor::Inspector::AssetInspector(EditorContext& a_editContext)
 {
+	// 参照先アセットから戻るためのバー。
+	// 未選択でも出す(直前に見ていたものへ戻れるようにしておく)
+	DrawAssetNavBar(a_editContext);
+	ImGui::Separator();
+
 	// アセットが選択チェック
 	if (!a_editContext.pAssetProp)
 	{
@@ -13,6 +19,7 @@ void Engine::Editor::Inspector::AssetInspector(EditorContext& a_editContext)
 
 	// アセットが選択されている場合
 	// メタ情報
+	ImGui::Text("Name : %s", a_editContext.pAssetProp->fileName.c_str());
 	ImGui::Text("GUID : %s",a_editContext.pAssetProp->guid.String().c_str());
 	ImGui::Separator();
 	ImGui::Text("FilePath");

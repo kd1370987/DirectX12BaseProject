@@ -6,6 +6,8 @@
 #include "../../../../Components/Resource/ModelComponent.h"
 #include "../../../../Components/Transform/LocalTransformComponent.h"
 
+#include "../../../Shared/HierarchyTransform/HierarchyTransform.h"
+
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
 #include "Engine/Collision/Collision.h"
@@ -23,14 +25,13 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 			StartTag* a_startTag,
 			ColliderComponent* a_collArray,
 			const ModelComponent* a_modelArray,
-			const LocalTransformComponent* a_transArray
+			const LocalTransformComponent*		// 行列は親を辿って組むのでここでは使わない
 			)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				ColliderComponent& _collComp = a_collArray[_i];
 				const ModelComponent& _modelComp = a_modelArray[_i];
-				const LocalTransformComponent& _transComp = a_transArray[_i];
 
 				// エンティティが、ダイナミックレイヤーならスキップ。
 				// 弾は撃った側でレイヤーが分かれているので、名前で1つずつ見ずに
@@ -38,11 +39,14 @@ void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
 				if (IsDynamicLayer(_collComp.layer)) continue;
 
 				// ワールド行列計算
-				Math::Matrix _mat = {};
-				Math::Matrix _tMat = Math::Matrix::CreateTranslation(_transComp.pos);
-				Math::Matrix _rMat = Math::Matrix::CreateFromQuaternion(_transComp.quat);
-				Math::Matrix _sMat = Math::Matrix::CreateScale(_transComp.scale);
-				_mat = _sMat * _rMat * _tMat;
+				//
+				// 自分のローカルだけで組んではいけない。
+				// グループノードの下にぶら下げたステージ物は、絵は親込みの行列
+				// (WorldMatrixComponent)で出るので、当たり判定だけ親の分ずれる。
+				// WorldMatrixComponent は PostUpdate で作られるものなので
+				// Start の今はまだ入っていない。親を辿って自前で組む
+				Math::Matrix _mat = App::Systems::HierarchyTransform::CalcWorldMatrix(
+					*a_ctx.pWorld, a_pChunk->entityData[_i]);
 
 				// モデルのAABB計算
 				const auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);

@@ -478,6 +478,14 @@ namespace Engine::Resource
 		return GetAssetProperty(GetGUIDFromFilePath(a_filePath));
 	}
 
+	AssetProperty* AssetDatabase::FindAssetProperty(const Engine::GUID& a_guid)
+	{
+		auto _it = m_assetMap.find(a_guid);
+		if (_it == m_assetMap.end()) return nullptr;
+
+		return &_it->second;
+	}
+
 	
 
 	nlohmann::json AssetDatabase::CreateMetaData(const std::filesystem::path& a_srcFile)

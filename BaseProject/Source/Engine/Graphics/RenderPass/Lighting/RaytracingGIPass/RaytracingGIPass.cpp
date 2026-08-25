@@ -92,7 +92,7 @@ namespace Engine::Graphics
 		};
 
 		Raytracing::RayPSODesc _psoInit = {};
-		_psoInit.shaderPass = "Asset/Shader/Ray/GIShader/RaytracingGI.hlsl";
+		_psoInit.shaderPass = "Asset/Shader/Source/Raytracing/GI/RaytracingGI.hlsl";
 		_psoInit.AddShader(L"RayGen", Raytracing::LocalRootSignature::RayGen, Raytracing::ShaderCategory::RayGenerator);
 		_psoInit.AddShader(L"Miss", Raytracing::LocalRootSignature::Empty, Raytracing::ShaderCategory::Miss);
 		_psoInit.AddShader(L"ClosestHit", Raytracing::LocalRootSignature::PBRMaterialHit, Raytracing::ShaderCategory::ClosestHit);

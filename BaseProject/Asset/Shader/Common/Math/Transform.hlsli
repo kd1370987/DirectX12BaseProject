@@ -2,8 +2,9 @@
 #ifndef TRANSFORM_HLSLI
 #define TRANSFORM_HLSLI
 
-#include "../CB/CBCamera.hlsli"
-
+// g_camera(CameraData)を前提にする。
+// 定数バッファのレジスタはパスごとに張るものなので、インクルードする側が
+// ルートシグネチャの定義箇所で宣言してから、このヘッダーを読むこと
 // 頂点座標をワールド座標へ
 // 行ベクトルと列行列を期待する
 float4 Transform_LocalToWorld(float3 a_localPos,float4x4 a_worldMat)

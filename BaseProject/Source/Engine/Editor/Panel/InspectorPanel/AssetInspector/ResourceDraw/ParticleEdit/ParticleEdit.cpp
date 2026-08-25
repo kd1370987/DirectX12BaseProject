@@ -1,5 +1,7 @@
 ﻿#include "ParticleEdit.h"
 
+#include "../../AssetLink.h"
+
 #include "../../../../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../../../../../Resource/Data/Texture/IO/TextureIO.h"
 
@@ -8,7 +10,7 @@ namespace Engine::Editor::Inspector
 	//-----------------------------------------------------------------------------------------
 	// パーティクルアセットの編集・詳細表示
 	//-----------------------------------------------------------------------------------------
-	void ParticleEdit(Resource::ParticlesAsset* a_pParticles)
+	void ParticleEdit(Resource::ParticlesAsset* a_pParticles, EditorContext* a_pEditContext)
 	{
 		if (!a_pParticles) { return; }
 
@@ -158,6 +160,9 @@ namespace Engine::Editor::Inspector
 			// ロードされていなかったら止まる
 			a_pParticles->SetTexture(_selectedGUID, Resource::TextureIO::LoadTexture(_selectedGUID, TexColor::WHITE));
 		}
+
+		// 今指しているテクスチャ。押せばテクスチャのインスペクターへ飛べる
+		DrawAssetLink(a_pEditContext, "Texture :", a_pParticles->GetTexGUID());
 
 		// テクスチャの画像を表示
 		if (_pTex)

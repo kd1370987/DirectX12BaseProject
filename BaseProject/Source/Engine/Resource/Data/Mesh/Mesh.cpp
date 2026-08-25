@@ -53,13 +53,14 @@ bool Engine::Resource::Mesh::CreateFloat(
 	CreateMeshMetaData(m_vertices, m_subsets, m_isSkinMesh);
 
 	// ラスタライザーデータ(IASetVertexBuffers用の個別VB/IB)はここでは作らない。
-	// 現在の描画経路は GBuffer がメッシュシェーダー、レイトレがメガバッファ直参照で、
-	// 個別VB/IBを使う RenderContext::BindMesh() の唯一の呼び出し元である
-	// GraphicsEngine::DrawQueue() がどこからも呼ばれていない。
-	// 中身はメガバッファへ入れた頂点/インデックスと完全に同一なので、
-	// 作るとロードした全ジオメトリの未使用コピーがUPLOADヒープに常駐することになる。
-	// 従来型のラスタパスを復活させる時は、そのパスを使うメッシュに対してのみ
-	// CreateRasterData() を呼ぶこと。
+	// モデルの描画経路はメッシュシェーダーとレイトレだけで、どちらもメガバッファを
+	// 直接読む。中身はメガバッファへ入れた頂点/インデックスと同一なので、
+	// ここで作るとロードした全ジオメトリの未使用コピーがUPLOADヒープに常駐する。
+	//
+	// 作る経路は CreateRasterData() として残してある。IAを使うパスを足すときは、
+	// そのパスが使うメッシュに対してだけ呼ぶこと。
+	// (パーティクルとUIのポリゴンインスタンシングはこれを使わない。
+	//  共有のクアッドを RenderContext が持っていて、そちらを張る)
 
 	// レイトレデータ : メガバッファへの転送コマンドを積む
 	m_opRtData.emplace();

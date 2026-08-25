@@ -37,7 +37,7 @@ void Engine::Graphics::AddSkinningPass(D3D12::PipelineStateManager* a_pPSOManage
 
 	// シェーダー
 	auto* _pBlob = _rpBuilder.SetShader(
-		"Asset/Shader/Compute/Skinning/Skinning.cso",
+		"Asset/Shader/Source/Geometry/Skinning/Skinning.cso",
 		"SkinningCS",
 		_spPassData->csIndex
 	);

@@ -40,10 +40,8 @@ ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 		// (どのシェーダーがどのヘッダーに依存しているかを持っていないので、
 		//  取りこぼすくらいなら余分に焼き直す方に倒している)
 		//
-		// ※ 以前は "Asset\\Shader\\Mesh" を見ていたが、そのディレクトリは存在せず
-		//    (実体は Asset\Shader\Source\Mesh)、fs::exists で弾かれて素通りしていた。
-		//    そのため MeshCommon.hlsli や RootSignatureLayout.hlsli など
-		//    Source 配下のヘッダーを直しても再コンパイルが走らなかった。
+		// シェーダーはすべて Common(共有ヘッダー)と Source(各パス)の下にあるので、
+		// この2つでツリー全体を覆える。
 		auto _newestHlsliTime = fs::file_time_type::min();
 		std::vector<fs::path> _includeDirs = {
 			"Asset\\Shader\\Common",
@@ -167,7 +165,6 @@ ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 	{
 		_args = {
 			L"-I", L"Asset\\Shader\\Common", // 共通ヘッダーのインクルードパス
-			L"-I", L"Asset\\Shader\\Mesh",   // メッシュ用パス
 			L"-Zi",                          // デバッグ情報
 			L"-Qembed_debug"                 // PDB埋め込み
 		};

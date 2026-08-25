@@ -54,6 +54,20 @@ namespace Engine::Editor
 		// 選択中のアセット
 		Resource::AssetProperty* pAssetProp = nullptr;
 
+		//==============================================================================
+		// アセットを辿った履歴(戻る用)
+		//
+		// インスペクターから参照先のアセットへ飛べるようにしたので、
+		// 飛ぶ前に見ていたものを積んでおいて戻れるようにする。
+		// 実体ポインタではなくGUIDで持つ : アセットデータベースを作り直すと
+		// AssetProperty の置き場所ごと変わるため、後から引き直せる形にしておく。
+		// 積む・戻るの操作は AssetLink 側(GUIDから実体を引ける場所)にある。
+		//==============================================================================
+		std::vector<Engine::GUID> assetHistoryVec = {};
+
+		// 履歴の上限。これを超えたら古いものから捨てる
+		static constexpr size_t kAssetHistoryMax = 32;
+
 		// 選択中のエンティティ
 		std::vector<ECS::Entity> selectedEntities = { ECS::Limits::INVALID_ENTITY };	// 一番先頭が単体選択、インスペクター表示
 		bool m_isSelecting = false;													// LCtr押下中は複数選択できる

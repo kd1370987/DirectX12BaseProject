@@ -42,7 +42,7 @@ namespace Engine::Graphics
 		// シェーダー
 		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 		auto* _pBlob = _cpBuilder.SetShader(
-			"Asset/Shader/Compute/Bloom/BloomExtractShader/BloomExtractShader.cso",
+			"Asset/Shader/Source/PostProcess/Bloom/BloomExtractShader.cso",
 			"BloomExtractShader",
 			_csIndex
 		);

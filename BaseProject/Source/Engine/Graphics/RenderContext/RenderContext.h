@@ -143,16 +143,11 @@ namespace Engine::Graphics
 		// a_boneMatVec : このフレームに描くワールドすべてのボーン行列を連結したもの。
 		// シーンから直接引かず渡してもらう(重ねて描くときに描く側しか全体を知らないため)
 		void UpdateBuffer(
-			const std::vector<InstanceData>& a_instanceVec,
-			const std::vector<SubSetData>& a_subsetVec,
 			const std::vector<MeshInstanceData>& a_mesInstance,
 			const std::vector<MeshMaterial>& a_mesMaterial,
 			const std::vector<Resource::BoneMatrix>& a_boneMatVec
 		);
 		void UpdateUIBuffer(const std::vector<UIData>& a_uiInstanceVec);
-
-		// インデックスバインド
-		void BindIndex(UINT a_instanceBufferIndex, UINT a_subsetBufferIndex, UINT a_rootIndex = 1);
 
 		// バッファバインド
 		void ComputeBindBonePalletBuffer(UINT a_rootIndex);
@@ -193,23 +188,6 @@ namespace Engine::Graphics
 
 		// プリミティブトポロジーセット
 		void SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri);
-
-	
-		void BindMaterialSRV(
-			UINT a_index,
-			const Resource::Material* a_pMaterial
-		);
-		void BindMaterialSRV(
-			UINT a_index,
-			const Handle<Resource::Material>& a_materialHandle
-		);
-
-		void BindMesh(const Handle<Resource::Mesh>& a_meshHandle);
-
-
-		// モデルの描画
-		void Draw(const Resource::Mesh* a_pMesh,UINT a_subIdx);
-		void Draw(const Handle<Resource::Mesh>& a_meshHandle,UINT a_subIdx);
 
 		// パーティクルやUIなどの描画用
 		void DrawPolygonInstancing(UINT a_count);
@@ -261,11 +239,6 @@ namespace Engine::Graphics
 		// 現在セットしているCBV_SRV_UAVヒープのキャッシュ(&m_copyHeap か &m_bindLessHeap)。
 		// ヒープセット関数で更新し、SRV/UAVのバインドはこのヒープに対して行う。
 		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>*	m_pCurrentHeap = nullptr;
-
-		// オブジェクト単位データ
-		D3D12::StaticStructuredBuffer<InstanceData> m_instanceBuffer;
-		// サブメッシュ単位データ
-		D3D12::StaticStructuredBuffer<SubSetData> m_subsetBuffer;
 
 		// ボーン用データ
 		D3D12::DynamicStructuredBuffer<Resource::BoneMatrix> m_boneBuffer;

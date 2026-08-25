@@ -12,7 +12,7 @@ namespace Engine::Option::GraphicsOptions
 	// ここから選べるようにしてある。
 	//
 	// ※ 値は保存されるので、増やすときは必ず末尾に足すこと
-	// ※ HLSL 側 TONEMAP_TYPE_*(Asset/Shader/Common/CB/CBToneMapOption.hlsli)と
+	// ※ HLSL 側 TONEMAP_TYPE_*(Asset/Shader/Common/RootParameters/ToneMapOptionData.hlsli)と
 	//    数値を合わせること
 	//======================================================================================
 	enum class EToneMapType : uint32_t
@@ -31,7 +31,7 @@ namespace Engine::Option::GraphicsOptions
 	// カメラのコンポーネントではなくこちらで持つ。
 	//
 	// 実際の送信は ToneMapPass が定数バッファへ詰めて行う。
-	// ※ HLSL 側(Asset/Shader/Common/CB/CBToneMapOption.hlsli)と並びを合わせること
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/ToneMapOptionData.hlsli)と並びを合わせること
 	//======================================================================================
 	struct ToneMapOption : IOption
 	{

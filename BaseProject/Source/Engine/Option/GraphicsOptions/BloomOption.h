@@ -10,7 +10,7 @@ namespace Engine::Option::GraphicsOptions
 	// カメラのコンポーネントではなくこちらで持つ(ライティング調整値と同じ扱い)。
 	//
 	// 実際の送信は BloomExtractPass / BloomCompositePass が定数バッファへ詰めて行う。
-	// ※ HLSL 側(Asset/Shader/Common/CB/CBBloomOption.hlsli)と並びを合わせること
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/BloomOptionData.hlsli)と並びを合わせること
 	struct BloomOption : IOption
 	{
 		float threshold = 1.0f;		// 高輝度として抽出し始める輝度

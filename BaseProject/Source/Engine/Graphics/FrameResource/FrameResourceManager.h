@@ -31,10 +31,6 @@ namespace Engine::Graphics
 
 		AmbientData m_ambientData = {};
 
-		// 毎フレームクリアされて初めから詰め込まれるデータ
-		std::vector<InstanceData>	m_instanceDataVec = {};			// １メッシュ = １インスタンスとしたデータの配列
-		std::vector<SubSetData>		m_subsetDataVec = {};			// メッシュが持つサブセット情報
-
 		// レイ用メッシュ頂点情報メガバッファ
 		Pool::RangePool<Resource::RTVertex>	m_rtVerticesVec = {};	// 頂点バッファ
 		Pool::RangePool<uint32_t>			m_rtIndexVec = {};		// インデックスバッファ

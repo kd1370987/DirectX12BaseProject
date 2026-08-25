@@ -77,10 +77,6 @@ namespace Engine::Graphics
 		// インスタンスデータ
 		bool isAnimation = false;
 
-		// 構造体インデックス
-		UINT instanceIndex = 0;
-		UINT subsetIndex = 0;
-
 		// メッシュシェーダー用インデックス
 		UINT meshInstanceIndex = 0;
 		UINT meshMaterialIndex = 0;
@@ -342,9 +338,7 @@ namespace Engine::Graphics
 		);
 
 		// 追加
-		UINT SetInstanceData(const InstanceData& a_instanceData);
 		UINT SetInstanceData(const MeshInstanceData& a_instanceData);
-		UINT SetSubSetData(const SubSetData& a_subsetData);
 		UINT SetMeshMaterialData(const MeshMaterial& a_subsetData);
 		void AddItem(const LightWeightDrawItem& a_item);
 
@@ -352,7 +346,6 @@ namespace Engine::Graphics
 		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex);
 
 		// パスの描画実行
-		void DrawQueue(Graphics::RenderContext* a_pCtx, uint8_t a_passIndex);
 		void BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex);
 		// 配列取得
 		const std::vector<SkinningDispatchItem>& GetSkinningImtes() const { return m_skinningDispathItemVec; }
@@ -405,8 +398,6 @@ namespace Engine::Graphics
 			const Resource::ShadingModelTable* a_pShadingModel,
 			const DXSM::Matrix& a_mat,
 			const DXSM::Matrix& a_prevMat,
-			uint32_t a_instanceIdx,
-			uint32_t a_subsetIdx,
 			bool a_isAnimation,
 			uint32_t a_animatedVertexStart,
 			const DXSM::Color& a_albedoScale,
@@ -476,11 +467,9 @@ namespace Engine::Graphics
 		DoFOptionCB m_cbDoF = {};
 		
 		// オブジェクト単位データ
-		std::vector<InstanceData> m_instanceDataVec = {};
 		std::vector<MeshInstanceData> m_meshInstanceDataVec = {};
 
 		// サブセット単位データ
-		std::vector<SubSetData> m_subSetDataVec = {};
 		std::vector<MeshMaterial> m_meshMaterialDataVec = {};
 
 		//--------------------------------------------------------------------------------------------

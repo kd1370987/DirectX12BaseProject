@@ -1,4 +1,4 @@
-#include "ShadowTemporalAccumulationPass.h"
+﻿#include "ShadowTemporalAccumulationPass.h"
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
@@ -36,7 +36,7 @@ namespace Engine::Graphics
 
 			// シェーダーのコンパイルとルートシグネチャの取得
 			uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
-			auto* _pBlob = _cpBuilder.SetShader("Asset/Shader/Compute/Denoise/Shadow/ShadowTemporalAccumullationShader.cso", "ShadowTemporalAccumullationShader", _csIndex);
+			auto* _pBlob = _cpBuilder.SetShader("Asset/Shader/Source/Lighting/Denoise/Shadow/ShadowTemporalAccumullationShader.cso", "ShadowTemporalAccumullationShader", _csIndex);
 			_cpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
 			_cpBuilder.SetHeapMode(ERGHeapMode::Default);
 			_cpBuilder.SetFrameParity(_parity);

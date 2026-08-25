@@ -1,6 +1,8 @@
 #include "EffectAssetEdit.h"
 
 #include "../../../../../Helper/EditorHelper.h"
+
+#include "../../AssetLink.h"
 #include "../../../../../EffectEditor/EffectEditor.h"
 #include "../../../../../Editor.h"
 #include "../../../../../../Resource/Manager/AssetDatabase/AssetDatabase.h"
@@ -9,8 +11,13 @@ namespace Engine::Editor::Inspector
 {
 	namespace
 	{
-		// 割り当てたアセットのファイル名を出す。GUIDだけでは何を指しているか分からないため
-		void DrawAssignedName(const Engine::GUID& a_guid)
+		//-----------------------------------------------------------------------------------------
+		// 割り当てたアセットを出す。GUIDだけでは何を指しているか分からないため
+		//
+		// アセットインスペクターから来ているときはリンクになり、押すと中身へ飛べる。
+		// エフェクトエディターから来ているときは飛び先が無いので名前のまま
+		//-----------------------------------------------------------------------------------------
+		void DrawAssignedName(EditorContext* a_pEditContext, const Engine::GUID& a_guid)
 		{
 			if (a_guid == Engine::DefaultGUID)
 			{
@@ -19,8 +26,7 @@ namespace Engine::Editor::Inspector
 				return;
 			}
 
-			const auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(a_guid);
-			ImGui::TextDisabled("%s", _fileName.c_str());
+			DrawAssetLink(a_pEditContext, "", a_guid);
 		}
 
 		//-----------------------------------------------------------------------------------------
@@ -44,7 +50,7 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		// パーティクル1件
 		//-----------------------------------------------------------------------------------------
-		bool ParticlePartEdit(Resource::EffectParticlePart& a_part)
+		bool ParticlePartEdit(EditorContext* a_pEditContext, Resource::EffectParticlePart& a_part)
 		{
 			bool _isChanged = false;
 
@@ -53,7 +59,7 @@ namespace Engine::Editor::Inspector
 			{
 				_isChanged = true;
 			}
-			DrawAssignedName(a_part.particleGUID);
+			DrawAssignedName(a_pEditContext, a_part.particleGUID);
 
 			if (a_part.IsValid())
 			{
@@ -141,7 +147,7 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		// メッシュ1件
 		//-----------------------------------------------------------------------------------------
-		bool MeshPartEdit(Resource::EffectMeshPart& a_part)
+		bool MeshPartEdit(EditorContext* a_pEditContext, Resource::EffectMeshPart& a_part)
 		{
 			bool _isChanged = false;
 
@@ -150,7 +156,7 @@ namespace Engine::Editor::Inspector
 			{
 				_isChanged = true;
 			}
-			DrawAssignedName(a_part.modelGUID);
+			DrawAssignedName(a_pEditContext, a_part.modelGUID);
 
 			if (a_part.IsValid())
 			{
@@ -193,7 +199,7 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		// サウンド1件
 		//-----------------------------------------------------------------------------------------
-		bool SoundPartEdit(Resource::EffectSoundPart& a_part)
+		bool SoundPartEdit(EditorContext* a_pEditContext, Resource::EffectSoundPart& a_part)
 		{
 			bool _isChanged = false;
 
@@ -202,7 +208,7 @@ namespace Engine::Editor::Inspector
 			{
 				_isChanged = true;
 			}
-			DrawAssignedName(a_part.soundGUID);
+			DrawAssignedName(a_pEditContext, a_part.soundGUID);
 
 			if (a_part.IsValid())
 			{
@@ -268,7 +274,8 @@ namespace Engine::Editor::Inspector
 	void EffectAssetEdit(
 		const Engine::GUID& a_guid,
 		Resource::EffectAsset* a_pEffect,
-		bool a_isShowOpenEditorButton)
+		bool a_isShowOpenEditorButton,
+		EditorContext* a_pEditContext)
 	{
 		if (!a_pEffect) { return; }
 
@@ -338,7 +345,7 @@ namespace Engine::Editor::Inspector
 					_removeParticleIndex = static_cast<int>(_i);
 				}
 
-				if (ParticlePartEdit(_particleParts[_i])) _isChanged = true;
+				if (ParticlePartEdit(a_pEditContext, _particleParts[_i])) _isChanged = true;
 
 				ImGui::TreePop();
 			}
@@ -383,7 +390,7 @@ namespace Engine::Editor::Inspector
 					_removeMeshIndex = static_cast<int>(_i);
 				}
 
-				if (MeshPartEdit(_meshParts[_i])) _isChanged = true;
+				if (MeshPartEdit(a_pEditContext, _meshParts[_i])) _isChanged = true;
 
 				ImGui::TreePop();
 			}
@@ -432,7 +439,7 @@ namespace Engine::Editor::Inspector
 					_removeSoundIndex = static_cast<int>(_i);
 				}
 
-				if (SoundPartEdit(_soundParts[_i])) _isChanged = true;
+				if (SoundPartEdit(a_pEditContext, _soundParts[_i])) _isChanged = true;
 
 				ImGui::TreePop();
 			}

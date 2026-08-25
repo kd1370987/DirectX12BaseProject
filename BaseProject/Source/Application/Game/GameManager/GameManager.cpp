@@ -38,7 +38,6 @@
 
 // コンポーネント
 #include "Application/Components/Tag/RenderTag/RayTag.h"
-#include "Application/Components/Tag/ActiveCameraTag.h"
 #include "Application/Components/Tag/CameraTag.h"
 #include "Application/Components/Tag/PlayerControllTag.h"
 #include "Application/Components/Tag/CameraControllTag.h"
@@ -121,6 +120,7 @@
 #include "Application/Systems/Update/Physics/Integral/PositionIntegrationSystem/PositionIntegrationSystem.h"
 #include "Application/Systems/Update/Physics/Integral/MovementIntegrationSystem/MovementIntegrationSystem.h"
 #include "Application/Systems/Update/Camera/TPSSystem/TPSSystem.h"
+#include "Application/Systems/Update/PreUpdate/MainCameraSystem/MainCameraSystem.h"
 #include "Application/Systems/Update/Camera/CameraProjUpdateSystem/CameraProjUpdateSystem.h"
 #include "Application/Systems/Update/Camera/AimTargetSystem/AimTargetSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
@@ -222,6 +222,7 @@
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
+#include "Application/InstanceResource/SingletonEntityResource.h"
 #include "Application/InstanceResource/ResourceWaitResource.h"
 #include "../../InstanceResource/AdditiveBoneEntry.h"
 #include "Application/InstanceResource/HitEventResource.h"
@@ -307,7 +308,6 @@ namespace App::Game
 
 				a_pWorld->RegisterComponent<RayTag>("RayTag");
 
-				a_pWorld->RegisterComponent<ActiveCameraTag>("ActiveCameraTag");
 				a_pWorld->RegisterComponent<CameraTag>("CameraTag");
 				a_pWorld->RegisterComponent<CameraControllTag>("CameraControllTag");
 				a_pWorld->RegisterComponent<PlayerControllTag>("PlayerControllTag");
@@ -472,6 +472,9 @@ namespace App::Game
 				// スピードで動く画角(TPSSystem が fovBoost を書く)を射影行列へ反映する。
 				// CameraParamComponent を読むので TPSSystem より後に回る
 				a_pWorld->RegisterSystem<CameraProjUpdateSystem>();
+				// 映すカメラを1台選んで SingletonEntityResource へ置く。
+				// 使う側(狙点・ロックオン・描画のカメラ設定)より手前の帯(PreUpdate)で回る
+				a_pWorld->RegisterSystem<MainCameraSystem>();
 				// カメラ姿勢が確定した後に狙点レイを撃つ(TPSSystem より後に登録すること)
 				a_pWorld->RegisterSystem<AimTargetSystem>();
 				a_pWorld->RegisterSystem<CalcMatrixSystem>();
@@ -558,6 +561,7 @@ namespace App::Game
 
 				// シングルトンインスタンスの登録
 				a_pWorld->AddResource<HierarchyResource>();
+				a_pWorld->AddResource<SingletonEntityResource>();
 				a_pWorld->AddResource<ResourceWaitResource>();
 				a_pWorld->AddResource<HitEventResource>();
 				a_pWorld->AddResource<DeathEventResource>();

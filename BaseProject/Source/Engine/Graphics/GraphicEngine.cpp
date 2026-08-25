@@ -362,7 +362,7 @@ namespace Engine::Graphics
 		// ボーン行列は上の GameManager::Draw() で描くワールドぶんだけ積まれている。
 		// 「今の一番上のシーン」から引いてはいけない(ポーズ中は後ろのゲームのボーンが載らない)
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(
-			m_instanceDataVec, m_subSetDataVec, m_meshInstanceDataVec, m_meshMaterialDataVec,
+			m_meshInstanceDataVec, m_meshMaterialDataVec,
 			m_boneMatrixVec
 		);
 		//------------------------------------------------------------------
@@ -415,11 +415,9 @@ namespace Engine::Graphics
 		m_boneBaseIndexMap.clear();
 
 		// オブジェクトデータの消去
-		ClearAndReserve(m_instanceDataVec, 10000);
 		ClearAndReserve(m_meshInstanceDataVec, 10000);
 
 		// サブセット情報の消去
-		ClearAndReserve(m_subSetDataVec, 10000);
 		ClearAndReserve(m_meshMaterialDataVec, 10000);
 
 		// 被写界深度は毎フレーム、アクティブカメラが設定し直す。
@@ -676,25 +674,6 @@ namespace Engine::Graphics
 			DXSM::Matrix _prevMat = _nodeTransMat * a_prevMatrix;
 
 			// -----------------------------------------------------
-			// パイプライン用 GPUデータの構築
-			// -----------------------------------------------------
-			InstanceData _instanceData = {};
-			_instanceData.worldMat = _mat.Transpose();
-			_instanceData.prevWorldMat = _prevMat.Transpose();
-			_instanceData.boneStartIndex = 0;
-			_instanceData.boneCount = 0;
-
-			SubSetData _subSetData = {};
-			_subSetData.baseColorScale = _pMaterial->baseColor * a_albedoScale;
-			_subSetData.emissiveColorScale = _pMaterial->emissive * a_emissiveScale;
-			_subSetData.emissiveAdd = a_emissiveAdd;
-			_subSetData.metallic = _pMaterial->metallic;
-			_subSetData.roughness = _pMaterial->roughness;
-
-			uint32_t _instanceIdx = SetInstanceData(_instanceData);
-			uint32_t _subsetIdx = SetSubSetData(_subSetData);
-
-			// -----------------------------------------------------
 			// PermutationFlags の構築
 			// -----------------------------------------------------
 			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
@@ -717,7 +696,7 @@ namespace Engine::Graphics
 			// -----------------------------------------------------
 			RegisterDrawCommandToPasses(
 				_cmd, _pMesh, _pMaterial, _pShadingModel,
-				_mat, _prevMat, _instanceIdx, _subsetIdx,
+				_mat, _prevMat,
 				_isAnimation, 0 /*animatedVertexStart*/,
 				a_albedoScale, a_emissiveScale, a_emissiveAdd, _psoKey);
 		}
@@ -745,8 +724,11 @@ namespace Engine::Graphics
 		auto* _data = _pool.Get(a_animData);
 		if (!_data) return;
 
-		// このワールドのボーン行列をパレットへ積み、GPU上の土台を得る
-		const uint32_t _boneBaseIndex = AcquireBoneBaseIndex(a_world);
+		// このワールドのボーン行列をパレットへ積む。
+		// 戻り値の土台位置はここでは使わない(頂点をスキニングするのはコンピュートの
+		// スキニングパスで、描画側はその結果の頂点バッファを読むだけ)。
+		// ただし積むこと自体はそのパスに要るので、呼び出しを外してはいけない
+		AcquireBoneBaseIndex(a_world);
 
 		// モデルが持っている描画コマンド（サブセット）を展開
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
@@ -783,26 +765,6 @@ namespace Engine::Graphics
 
 			DXSM::Matrix _prevMat = _nodeTransMat * a_prevMatrix;
 
-			// -----------------------------------------------------
-			// GPU用データの構築
-			// -----------------------------------------------------
-			InstanceData _instanceData = {};
-			_instanceData.worldMat = _mat.Transpose();
-			_instanceData.prevWorldMat = _prevMat.Transpose();
-			// 頂点シェーダーが引くのもGPU上の位置なので土台を足す
-			_instanceData.boneStartIndex = static_cast<int>(_boneBaseIndex + a_boneHandle.startIndex);
-			_instanceData.boneCount = a_boneHandle.count;
-
-			SubSetData _subSetData = {};
-			_subSetData.baseColorScale = a_albedoScale;
-			_subSetData.emissiveColorScale = a_emissiveScale;
-			_subSetData.emissiveAdd = a_emissiveAdd;
-			_subSetData.metallic = _pMaterial->metallic;
-			_subSetData.roughness = _pMaterial->roughness;
-
-			uint32_t _instanceIdx = SetInstanceData(_instanceData);
-			uint32_t _subsetIdx = SetSubSetData(_subSetData);
-
 			// =========================================================
 			// PermutationFlags を構築
 			// =========================================================
@@ -829,7 +791,7 @@ namespace Engine::Graphics
 			// =========================================================
 			RegisterDrawCommandToPasses(
 				_cmd, _pMesh, _pMaterial, _pShadingModel,
-				_mat, _prevMat, _instanceIdx, _subsetIdx,
+				_mat, _prevMat,
 				_isAnimation, _animatedVertexStart,
 				a_albedoScale, a_emissiveScale, a_emissiveAdd, _psoKey);
 		}
@@ -874,22 +836,10 @@ namespace Engine::Graphics
 		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, _size, a_color, a_rotation, a_layer, a_uvOffset, a_pivot);
 	}
 
-	UINT GraphicsEngine::SetInstanceData(const InstanceData& a_instanceData)
-	{
-		UINT _index = static_cast<UINT>(m_instanceDataVec.size());
-		m_instanceDataVec.push_back(a_instanceData);
-		return _index;
-	}
 	UINT GraphicsEngine::SetInstanceData(const MeshInstanceData& a_instanceData)
 	{
 		UINT _index = static_cast<UINT>(m_meshInstanceDataVec.size());
 		m_meshInstanceDataVec.push_back(a_instanceData);
-		return _index;
-	}
-	UINT GraphicsEngine::SetSubSetData(const SubSetData& a_subsetData)
-	{
-		UINT _index = static_cast<UINT>(m_subSetDataVec.size());
-		m_subSetDataVec.push_back(a_subsetData);
 		return _index;
 	}
 	UINT GraphicsEngine::SetMeshMaterialData(const MeshMaterial& a_subsetData)
@@ -932,60 +882,6 @@ namespace Engine::Graphics
 		);
 
 		return std::span<const LightWeightDrawItem>(_itStart, _itEnd);
-	}
-
-	void GraphicsEngine::DrawQueue(Graphics::RenderContext* a_pCtx, uint8_t a_passIndex)
-	{
-		// キャッシュ : 同じものが続く間はバインドし直さない
-		Handle<Resource::Material> _lastMaterialHandle = {};
-		Handle<Resource::Mesh> _lastMeshHandle = {};
-		uint8_t _lastPSO = 0xFF;
-
-		// 指定タイプの命令キューを取得
-		auto _itemVec = GetPassItems(a_passIndex);
-		if (_itemVec.empty()) return;
-
-		for (auto& _item : _itemVec)
-		{
-			uint8_t  _psoID = _item.GetPSOID();
-			// ----------------------------------------------------
-			// PSOの切り替え
-			// ----------------------------------------------------
-			if (_psoID != _lastPSO)
-			{
-				auto* _pPSO = m_pPipelineStateManager->GetPSO(_psoID);
-				if (!_pPSO) continue;
-				a_pCtx->SetGraphicPSO(_pPSO);
-
-				_lastPSO = _psoID;
-			}
-			// ----------------------------------------------------
-			// マテリアルのバインド
-			// ----------------------------------------------------
-			if (!(_item.materialHandle == _lastMaterialHandle))
-			{
-				a_pCtx->BindMaterialSRV(5, _item.materialHandle);
-				_lastMaterialHandle = _item.materialHandle;
-			}
-			// ----------------------------------------------------
-			// メッシュのバインド
-			// ----------------------------------------------------
-			if (!(_item.meshHandle == _lastMeshHandle))
-			{
-				a_pCtx->BindMesh(_item.meshHandle);
-				_lastMeshHandle = _item.meshHandle;
-			}
-
-			// バッファインデックスセット
-			a_pCtx->BindIndex(
-				_item.instanceIndex,
-				_item.subsetIndex,
-				1
-			);
-
-			// メッシュ描画
-			a_pCtx->Draw(_item.meshHandle, _item.subIndex);
-		}
 	}
 
 	void GraphicsEngine::BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex)
@@ -1223,8 +1119,6 @@ namespace Engine::Graphics
 		const Resource::ShadingModelTable* a_pShadingModel,
 		const DXSM::Matrix& a_mat,
 		const DXSM::Matrix& a_prevMat,
-		uint32_t a_instanceIdx,
-		uint32_t a_subsetIdx,
 		bool a_isAnimation,
 		uint32_t a_animatedVertexStart,
 		const DXSM::Color& a_albedoScale,
@@ -1289,8 +1183,6 @@ namespace Engine::Graphics
 					_item.sortKey.bits.materialID = a_cmd.materialHandle.GetIndex();
 					_item.isAnimation = a_isAnimation;
 					_item.subIndex = a_cmd.subIdx;
-					_item.instanceIndex = a_instanceIdx;
-					_item.subsetIndex = a_subsetIdx;
 					_item.meshInstanceIndex = _meshInstanceIdx;
 					_item.subsetMeshletCount = a_pMesh->GetMeshShaderData().subsetMeshlets[a_cmd.subIdx].meshletCount;
 					_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());

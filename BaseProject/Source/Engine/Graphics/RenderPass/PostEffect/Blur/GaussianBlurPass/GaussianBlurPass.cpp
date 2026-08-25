@@ -1,4 +1,4 @@
-#include "GaussianBlurPass.h"
+﻿#include "GaussianBlurPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -67,7 +67,7 @@ namespace Engine::Graphics
 		// PSOはデスクのハッシュでキャッシュされるので、何回登録しても実体は1つで済む
 		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 		auto* _pBlob = _cpBuilder.SetShader(
-			"Asset/Shader/Compute/PostEffect/Blur/GaussianBlurShader.cso",
+			"Asset/Shader/Source/PostProcess/Blur/GaussianBlurShader.cso",
 			"GaussianBlurShader",
 			_csIndex
 		);

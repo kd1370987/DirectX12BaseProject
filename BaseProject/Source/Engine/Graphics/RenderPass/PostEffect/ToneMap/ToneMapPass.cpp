@@ -1,4 +1,4 @@
-#include "ToneMapPass.h"
+﻿#include "ToneMapPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -65,7 +65,7 @@ namespace Engine::Graphics
 		// シェーダー
 		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 		auto* _pBlob = _cpBuilder.SetShader(
-			"Asset/Shader/Compute/PostEffect/ToneMap/ToneMapShader.cso",
+			"Asset/Shader/Source/PostProcess/ToneMap/ToneMapShader.cso",
 			"ToneMapShader",
 			_csIndex
 		);

@@ -69,8 +69,8 @@ namespace Engine::Graphics
 		// ---- 加算合成 : 光り物。重ねるほど明るくなり、描く順番に依存しない ----
 		{
 			auto& _pso = _rpBuilder.CreatePSODesc("ParticleDraw_Additive", _spPassData->additiveIndex);
-			_pBlob = _rpBuilder.SetVS(_pso, "Asset/Shader/Source/ParticleShader/ParticleVS.cso", D3D12::Input::gParticleInputLayout);
-			_rpBuilder.SetPS(_pso, "Asset/Shader/Source/ParticleShader/ParticlePS.cso");
+			_pBlob = _rpBuilder.SetVS(_pso, "Asset/Shader/Source/Particle/Draw/ParticleVS.cso", D3D12::Input::gParticleInputLayout);
+			_rpBuilder.SetPS(_pso, "Asset/Shader/Source/Particle/Draw/ParticlePS.cso");
 
 			_pso.BlendEnable(true);
 			_pso.SrcBlend(D3D12_BLEND_SRC_ALPHA, 0);
@@ -87,8 +87,8 @@ namespace Engine::Graphics
 		// ---- 半透明合成 : 煙や破片。背景を明るくせず、前のものが後ろを隠す ----
 		{
 			auto& _pso = _rpBuilder.CreatePSODesc("ParticleDraw_AlphaBlend", _spPassData->alphaBlendIndex);
-			_rpBuilder.SetVS(_pso, "Asset/Shader/Source/ParticleShader/ParticleVS.cso", D3D12::Input::gParticleInputLayout);
-			_rpBuilder.SetPS(_pso, "Asset/Shader/Source/ParticleShader/ParticlePS.cso");
+			_rpBuilder.SetVS(_pso, "Asset/Shader/Source/Particle/Draw/ParticleVS.cso", D3D12::Input::gParticleInputLayout);
+			_rpBuilder.SetPS(_pso, "Asset/Shader/Source/Particle/Draw/ParticlePS.cso");
 
 			_pso.BlendEnable(true);
 			_pso.SrcBlend(D3D12_BLEND_SRC_ALPHA, 0);

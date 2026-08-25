@@ -60,16 +60,6 @@ namespace Engine::Graphics
 		}
 	};
 
-	// バッファインデックス
-	struct alignas(256) BufferIndexData
-	{
-		UINT instanceIndex = 0;
-		UINT subsetIndex = 0;
-
-		float pad0;
-		float pad1;
-	};
-
 	// 環境データ
 	//
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/AmbientData.hlsli)と
@@ -121,7 +111,7 @@ namespace Engine::Graphics
 	//   horizonHeight : ドームの中心の高さ(ワールドY)。ここが地平線になる
 	//   radius        : ドームの半径。小さいほどカメラの上下で地平線が強く動く
 	//
-	// ※ HLSL 側(Asset/Shader/Common/CB/CBSky.hlsli の SkyData)と並びを合わせること
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/SkyData.hlsli)と並びを合わせること
 	//----------------------------------------------------------------------------------
 	struct SkyData
 	{
@@ -142,7 +132,7 @@ namespace Engine::Graphics
 	// 被写界深度(DoF)の調整値
 	// アクティブカメラの FocusParamComponent を CamSetShaderSystem が詰め、
 	// CoCパスとDoFパスの両方へ送る。
-	// ※ HLSL 側(Asset/Shader/Common/CB/CBDoFOption.hlsli)と並びを合わせること
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/DoFOptionData.hlsli)と並びを合わせること
 	struct DoFOptionCB
 	{
 		float focusDistance;	// ピントが合う距離(カメラからの深度)
@@ -158,7 +148,7 @@ namespace Engine::Graphics
 
 	// 川瀬式ブルームの調整値
 	// OptionManager の BloomOption を、抽出パスと合成パスの両方が詰めて送る。
-	// ※ HLSL 側(Asset/Shader/Common/CB/CBBloomOption.hlsli)と並びを合わせること
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/BloomOptionData.hlsli)と並びを合わせること
 	struct BloomOptionCB
 	{
 		float threshold;	// 高輝度として抽出し始める輝度
@@ -169,26 +159,12 @@ namespace Engine::Graphics
 
 	// ガウシアンブラーパスの設定値
 	// 入力の解像度とボケ幅はパスごとに違うので、登録時に決めた値を毎フレーム送る。
-	// ※ HLSL 側(Asset/Shader/Compute/PostEffect/Blur/GaussianBlurShader.hlsl)と並びを合わせること
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/GaussianBlurSetting.hlsli)と並びを合わせること
 	struct GaussianBlurCB
 	{
 		DirectX::XMFLOAT2 srcTexelSize;	// 入力テクスチャの1テクセルぶんのUV(= 1 / 入力解像度)
 		float sigma;					// ガウス分布の標準偏差(入力テクセル単位)
 		int   tapRadius;				// 片側のタップ数(0でブラーなし)
-	};
-
-	// インスタンスデータ
-	struct InstanceData
-	{
-		// ワールド座標
-		DirectX::XMFLOAT4X4 worldMat;		// 現在フレーム
-		DirectX::XMFLOAT4X4 prevWorldMat;	// １フレーム前
-
-		// ボーン情報
-		int boneStartIndex = 0;
-		int boneCount = 0;
-
-		DirectX::XMFLOAT2 pad;
 	};
 
 	// UIデータ
@@ -220,22 +196,6 @@ namespace Engine::Graphics
 		// uv * uvScale + uvOffset の順で効く。既定は等倍。
 		// row3 の余りに入れているので、構造体の大きさは変わらない
 		DXSM::Vector2 uvScale = { 1.0f, 1.0f };
-	};
-
-	// サブメッシュ単位データ
-	// ※ HLSL 側(Asset/Shader/Common/RootParameters/SubsetData.hlsli)と並びを合わせること
-	struct SubSetData
-	{
-		// テクスチャスケール
-		DirectX::XMFLOAT4 baseColorScale = {};
-		DirectX::XMFLOAT3 emissiveColorScale = {};
-		float metallic = 0.0f;
-		float roughness = 0.0f;
-
-		// マテリアルとは独立した自己発光(ModelComponent の 発光色 × 発光強度)。
-		// emissiveColorScale はエミッシブテクスチャに掛ける倍率なので、テクスチャを
-		// 持たないモデルは何倍しても光らない。こちらは加算なので単体で光らせられる。
-		DirectX::XMFLOAT3 emissiveAdd = {};
 	};
 
 	// ボーンデータ

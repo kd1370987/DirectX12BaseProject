@@ -15,6 +15,23 @@ struct CameraParamComponent
 	// 派生値なので保存しない。
 	float fovBoost		= 0.0f;
 
+	//======================================================================================
+	// このカメラで画面を映すかどうか
+	//--------------------------------------------------------------------------------------
+	// もとは ActiveCameraTag という空のタグで表していたが、
+	//   ・タグの付け外しはシグネチャの張り替え(エンティティの引っ越し)になるので、
+	//     カメラを切り替えるだけで1フレーム遅れる
+	//   ・エディターでは「付いている/付いていない」でしか見えず、
+	//     カメラの設定を見ているつもりでも切り替えは別の場所を触ることになる
+	// ので、カメラ自身の持ち物にした。
+	//
+	// 実際にどれが映すかは MainCameraSystem が毎フレーム見て、
+	// SingletonEntityResource.mainCamera へ書き込む。
+	// 立っているカメラが複数あったときは先に見つかったものが勝つので、
+	// 切り替えるときは前のカメラを false にすること。
+	//======================================================================================
+	bool isActive = true;
+
 	// 画角などが変わったので射影行列を作り直す必要がある
 	bool isDirty = false;
 
@@ -32,6 +49,10 @@ struct Engine::ECS::ComponentTraits<CameraParamComponent>
 		a_ar.Field("aspectRatio",_comp.aspectRatio);
 		a_ar.Field("nearZ",_comp.nearZ);
 		a_ar.Field("farZ",_comp.farZ);
+
+		// 既存のシーン/プレハブにはこのキーが無い。
+		// その場合は既定値(true)のまま残るので、今までどおり映るカメラとして動く
+		a_ar.Field("isActive",_comp.isActive);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -39,6 +60,9 @@ struct Engine::ECS::ComponentTraits<CameraParamComponent>
 		CameraParamComponent& _comp = Engine::Editor::GetValue<CameraParamComponent>(a_context.pData);
 
 		bool _isEdit = false;
+
+		// 映すかどうかの切り替え。射影行列には関係しないので _isEdit には混ぜない
+		ImGui::Checkbox("IsActive", &_comp.isActive);
 
 		_isEdit |= ImGui::DragFloat("Fov", &_comp.fovY);
 		_isEdit |= ImGui::DragFloat("Aspect", &_comp.aspectRatio);

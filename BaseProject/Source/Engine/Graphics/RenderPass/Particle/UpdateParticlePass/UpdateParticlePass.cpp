@@ -39,7 +39,7 @@ namespace Engine::Graphics
 
 		// シェーダーセット
 		auto* _pBlob = _cpBuilder.SetShader(
-			"Asset/Shader/Compute/Particle/UpdateParticle/UpdateParticleShader.cso",
+			"Asset/Shader/Source/Particle/Update/UpdateParticleShader.cso",
 			"UpdateParticleShader",
 			_spPassData->csIndex
 		);

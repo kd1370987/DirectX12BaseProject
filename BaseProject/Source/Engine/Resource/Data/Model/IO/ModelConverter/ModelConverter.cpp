@@ -136,34 +136,42 @@ namespace Engine::Resource::Converter
 			if (a_destModel.collisionMeshNodeIndices.size() == 0)
 			{
 				a_destModel.collisionMeshNodeIndices = a_destModel.drawMeshNodeIndices;
+			}
 
-				for (auto& _idx : a_destModel.collisionMeshNodeIndices)
+			// 判定ノードが持つメッシュにBVHを作る
+			//
+			// この構築は以前フォールバックの中(判定用ノードが無かったとき)にしかなく、
+			// 名前に COL を付けた判定用メッシュを1つでも入れたモデルは
+			// 判定ノードとして登録だけされてBVHが空のままだった。
+			// BVHTraverser は空を見た時点で false を返すので、
+			// 「COLを用意したのに一切当たらない」という壊れ方をする。
+			// 判定に使うノードが決まったあとで必ず通す
+			for (auto& _idx : a_destModel.collisionMeshNodeIndices)
+			{
+				for (auto& _meshIdx : a_destModel.originalNodes[_idx].meshIndices)
 				{
-					for (auto& _meshIdx : a_destModel.originalNodes[_idx].meshIndices)
+					const auto& _srcMesh = a_rawModel.meshes[_meshIdx];
+
+					// 頂点配列作成
+					std::vector<DirectX::XMFLOAT3> _collisionVertices;
+					_collisionVertices.resize(_srcMesh.vertices.size());
+
+					for (size_t _j = 0; _j < _srcMesh.vertices.size(); ++_j)
 					{
-						const auto& _srcMesh = a_rawModel.meshes[_meshIdx];
-
-						// 頂点配列作成
-						std::vector<DirectX::XMFLOAT3> _collisionVertices;
-						_collisionVertices.resize(_srcMesh.vertices.size());
-
-						for (size_t _j = 0; _j < _srcMesh.vertices.size(); ++_j)
-						{
-							_collisionVertices[_j] = _srcMesh.vertices[_j].pos;
-						}
-						std::vector<UINT> _indices = {};
-						_indices.reserve(_srcMesh.faces.size() * 3);
-						for (auto& _f : _srcMesh.faces)
-						{
-							_indices.push_back(_f.idx[0]);
-							_indices.push_back(_f.idx[1]);
-							_indices.push_back(_f.idx[2]);
-						}
-						a_destModel.MeshVec[_meshIdx].CreateCollisionMesh(
-							_collisionVertices,
-							_indices
-						);
+						_collisionVertices[_j] = _srcMesh.vertices[_j].pos;
 					}
+					std::vector<UINT> _indices = {};
+					_indices.reserve(_srcMesh.faces.size() * 3);
+					for (auto& _f : _srcMesh.faces)
+					{
+						_indices.push_back(_f.idx[0]);
+						_indices.push_back(_f.idx[1]);
+						_indices.push_back(_f.idx[2]);
+					}
+					a_destModel.MeshVec[_meshIdx].CreateCollisionMesh(
+						_collisionVertices,
+						_indices
+					);
 				}
 			}
 		}

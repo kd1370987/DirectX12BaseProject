@@ -1,4 +1,4 @@
-#include "Shader.h"
+﻿#include "Shader.h"
 
 #include "../../Data/Shader/IO/Importer/Rasterizer/RasterizerImport.h"
 
@@ -24,15 +24,11 @@ void Engine::Resource::Shader::LoadInternal(
 	{
 		// シェーダー自身のディレクトリは RequestShader 側で必ず追加されるので、ここには含めない
 		_setting = {
-			L"-I", L"Asset\\Shader\\Ray",
-			L"-I", L"Asset\\Shader\\Source\\Mesh",
-			L"-I", L"Asset\\Shader\\Source\\DebugLineShader",
 			L"-I", L"Asset\\Shader\\Common",
-			L"-I", L"Asset\\Shader\\Common\\CB",
+			L"-I", L"Asset\\Shader\\Common\\Lighting",
 			L"-I", L"Asset\\Shader\\Common\\Math",
 			L"-I", L"Asset\\Shader\\Common\\RootParameters",
 			L"-I", L"Asset\\Shader\\Common\\Shape",
-			L"-I", L"Asset\\Shader\\Common\\Struct",
 			L"-Zi",
 			L"-Qembed_debug"
 		};

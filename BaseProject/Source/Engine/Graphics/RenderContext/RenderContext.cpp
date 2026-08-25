@@ -45,8 +45,6 @@ namespace Engine::Graphics
 		);
 
 		// バッファ作成
-		m_instanceBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);						// インスタンスデータ
-		m_subsetBuffer.Create(a_desc.pDevice, a_pCmdList, 1600, nullptr);						// サブセット情報用バッファ
 		m_boneBuffer.Create(a_desc.pDevice, a_desc.boneElementNum);								// ボーン行列用
 		m_debugLineBuffer.Create(a_desc.pDevice, a_pCmdList, 10000, nullptr);					// 形状描画用バッファ
 
@@ -101,8 +99,6 @@ namespace Engine::Graphics
 		m_bindLessHeap.Release();
 
 		// 各構造体バッファ解放
-		m_instanceBuffer.Release();
-		m_subsetBuffer.Release();
 		m_boneBuffer.Release();
 		m_debugLineBuffer.Release();
 		m_meshInstanceBuffer.Release();
@@ -386,29 +382,17 @@ namespace Engine::Graphics
 	}
 
 	void RenderContext::UpdateBuffer(
-		const std::vector<InstanceData>& a_instanceVec,
-		const std::vector<SubSetData>& a_subsetVec,
 		const std::vector<MeshInstanceData>& a_mesInstance,
 		const std::vector<MeshMaterial>& a_mesMaterial,
 		const std::vector<Resource::BoneMatrix>& a_boneMatVec)
 	{
 		// インスタンスデータバッファ
-		if(!a_instanceVec.empty())
-		{
-			m_instanceBuffer.UpdateData(a_instanceVec.data(), a_instanceVec.size() * sizeof(InstanceData));
-			m_instanceBuffer.Update(m_pCmdList);
-		}
 		if (!a_mesInstance.empty())
 		{
 			m_meshInstanceBuffer.UpdateData(a_mesInstance.data(),a_mesInstance.size() * sizeof(MeshInstanceData));
 			m_meshInstanceBuffer.Update(m_pCmdList);
 		}
-		// サブセットデータバッファ
-		if(!a_subsetVec.empty())
-		{
-			m_subsetBuffer.UpdateData(a_subsetVec.data(), a_subsetVec.size() * sizeof(SubSetData));
-			m_subsetBuffer.Update(m_pCmdList);
-		}
+		// マテリアルデータバッファ
 		if (!a_mesMaterial.empty())
 		{
 			m_meshMaterialBuffer.UpdateData(a_mesMaterial.data(),a_mesMaterial.size() * sizeof(MeshMaterial));
@@ -447,19 +431,6 @@ namespace Engine::Graphics
 		// (ボーン用 m_boneBuffer と同じ運用に揃える)
 		m_uiInstanceBuffer.ResetForNewFrame();
 		m_uiInstanceBuffer.AllocateAndWrite(a_uiInstanceVec);
-	}
-
-	void RenderContext::BindIndex(UINT a_instanceBufferIndex, UINT a_subsetBufferIndex, UINT a_rootIndex)
-	{
-		BufferIndexData _indexData = {};
-		_indexData.instanceIndex = a_instanceBufferIndex;
-		_indexData.subsetIndex = a_subsetBufferIndex;
-		// インデックスバインド
-		BindCB()->BindAndAttachDataRootCBV<BufferIndexData>(
-			m_pCmdList,
-			a_rootIndex,
-			_indexData
-		);
 	}
 
 	void RenderContext::ComputeBindBonePalletBuffer(UINT a_rootIndex)
@@ -611,62 +582,6 @@ namespace Engine::Graphics
 	void RenderContext::SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri)
 	{
 		m_pCmdList->IASetPrimitiveTopology(a_pri);
-	}
-
-	void RenderContext::BindMaterialSRV(UINT a_index, const Resource::Material* a_pMaterial)
-	{
-		// SRVの送信
-		std::vector<Handle<Resource::Texture>> _texVec = {};
-		_texVec.push_back(a_pMaterial->baseColorTex);
-		_texVec.push_back(a_pMaterial->metaRoughTex);
-		_texVec.push_back(a_pMaterial->emissiveTex);
-		_texVec.push_back(a_pMaterial->normalTex);
-		BindSRV(a_index, _texVec);
-	}
-
-	void RenderContext::BindMaterialSRV(UINT a_index, const Handle<Resource::Material>& a_materialHandle)
-	{
-		const auto* _pMaterial = Resource::ResourceManager::Instance().Get(a_materialHandle);
-		if (!_pMaterial) return;
-
-		std::vector<Handle<Resource::Texture>> _texVec = {};
-		_texVec.push_back(_pMaterial->baseColorTex);
-		_texVec.push_back(_pMaterial->metaRoughTex);
-		_texVec.push_back(_pMaterial->emissiveTex);
-		_texVec.push_back(_pMaterial->normalTex);
-		BindSRV(a_index, _texVec);
-		
-	}
-
-	void RenderContext::BindMesh(const Handle<Resource::Mesh>& a_meshHandle)
-	{
-		const auto* _pMesh = Resource::ResourceManager::Instance().Get(a_meshHandle);
-		if (!_pMesh) return;
-
-		if (!_pMesh->HasRasterData()) return;
-		const auto& _vertView = _pMesh->GetRasterData().vertexBuffer.GetView();
-		const auto& _pIndexView = _pMesh->GetRasterData().indexBuffer.GetView();
-
-		m_pCmdList->IASetVertexBuffers(0, 1, &_vertView);
-		m_pCmdList->IASetIndexBuffer(&_pIndexView);
-	}
-
-	void RenderContext::Draw(const Resource::Mesh* a_pMesh, UINT a_subIdx)
-	{
-		// 描画
-		UINT _faceCount = static_cast<UINT>(a_pMesh->GetMetaData().subsets[a_subIdx].faceCount);
-		UINT _faceStart = static_cast<UINT>(a_pMesh->GetMetaData().subsets[a_subIdx].faceStart);
-		m_pCmdList->DrawIndexedInstanced(
-			_faceCount * 3, 1, _faceStart * 3, 0, 0
-		);
-	}
-
-	void RenderContext::Draw(const Handle<Resource::Mesh>& a_meshHandle, UINT a_subIdx)
-	{
-		const auto* _pMesh = Resource::ResourceManager::Instance().Get(a_meshHandle);
-		if (!_pMesh) return;
-
-		Draw(_pMesh, a_subIdx);
 	}
 
 	void RenderContext::DrawPolygonInstancing(UINT a_count)

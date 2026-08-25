@@ -2,6 +2,8 @@
 
 #include "../../../../../Helper/EditorHelper.inl"
 
+#include "../../AssetLink.h"
+
 namespace Engine::Editor::Inspector
 {
 	//-----------------------------------------------------------------------------------------
@@ -33,6 +35,7 @@ namespace Engine::Editor::Inspector
 			a_pMaterial->shedingModelGUID,
 			a_pMaterial->shadingModelHandle
 		);
+		DrawAssetLink(&a_editContext, "ShadingModel :", a_pMaterial->shedingModelGUID);
 
 		ImGui::Separator();
 
@@ -45,6 +48,7 @@ namespace Engine::Editor::Inspector
 				a_pMaterial->baseColorTexGUID,
 				a_pMaterial->baseColorTex
 			);
+			DrawAssetLink(&a_editContext, "Texture :", a_pMaterial->baseColorTexGUID);
 			ImGui::DragFloat4("AlbedScale", &a_pMaterial->baseColor.x, 0.01f, 0.0f);
 			Editor::EditorHelper::DrawTexture(a_pMaterial->baseColorTex, 256, 256);
 		}
@@ -56,6 +60,7 @@ namespace Engine::Editor::Inspector
 				a_pMaterial->metaRoughTexGUID,
 				a_pMaterial->metaRoughTex
 			);
+			DrawAssetLink(&a_editContext, "Texture :", a_pMaterial->metaRoughTexGUID);
 			ImGui::DragFloat("MetallicScale", &a_pMaterial->metallic, 0.01f, 0.0f);
 			ImGui::DragFloat("RoughnessScale", &a_pMaterial->roughness, 0.01f, 0.0f);
 			Editor::EditorHelper::DrawTexture(a_pMaterial->metaRoughTex, 256, 256);
@@ -68,6 +73,7 @@ namespace Engine::Editor::Inspector
 				a_pMaterial->emissiveTexGUID,
 				a_pMaterial->emissiveTex
 			);
+			DrawAssetLink(&a_editContext, "Texture :", a_pMaterial->emissiveTexGUID);
 			ImGui::DragFloat3("EmissiveScale", &a_pMaterial->emissive.x, 0.01f, 0.0f);
 			Editor::EditorHelper::DrawTexture(a_pMaterial->emissiveTex, 256, 256);
 		}
@@ -79,6 +85,7 @@ namespace Engine::Editor::Inspector
 				a_pMaterial->normalTexGUID,
 				a_pMaterial->normalTex
 			);
+			DrawAssetLink(&a_editContext, "Texture :", a_pMaterial->normalTexGUID);
 			Editor::EditorHelper::DrawTexture(a_pMaterial->normalTex, 256, 256);
 		}
 	}

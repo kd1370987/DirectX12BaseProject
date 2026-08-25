@@ -1,4 +1,4 @@
-#include "CoCPass.h"
+﻿#include "CoCPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -34,7 +34,7 @@ namespace Engine::Graphics
 		// シェーダー
 		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 		auto* _pBlob = _cpBuilder.SetShader(
-			"Asset/Shader/Compute/PostEffect/DoF/CoCShader.cso",
+			"Asset/Shader/Source/PostProcess/DoF/CoCShader.cso",
 			"CoCShader",
 			_csIndex
 		);

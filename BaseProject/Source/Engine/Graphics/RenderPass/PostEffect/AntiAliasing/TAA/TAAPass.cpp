@@ -1,4 +1,4 @@
-#include "TAAPass.h"
+﻿#include "TAAPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -43,7 +43,7 @@ namespace Engine::Graphics
 
 			// シェーダーセット
 			uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
-			auto* _pBlob = _cpBuilder.SetShader("Asset/Shader/Compute/AntiAliasing/TAA/TAA.cso", "TAAShader", _csIndex);
+			auto* _pBlob = _cpBuilder.SetShader("Asset/Shader/Source/PostProcess/TAA/TAA.cso", "TAAShader", _csIndex);
 			// ルートシグネチャセット
 			_cpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
 			_cpBuilder.SetHeapMode(ERGHeapMode::Default);

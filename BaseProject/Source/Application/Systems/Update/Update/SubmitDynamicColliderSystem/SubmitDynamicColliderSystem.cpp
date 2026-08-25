@@ -6,6 +6,8 @@
 #include "../../../../Components/Resource/ModelComponent.h"
 #include "../../../../Components/Transform/LocalTransformComponent.h"
 
+#include "../../../Shared/HierarchyTransform/HierarchyTransform.h"
+
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
 #include "Engine/Collision/Collision.h"
@@ -30,7 +32,7 @@ void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 			ActiveTag* a_tags,
 			const ColliderComponent* a_collArray,
 			const ModelComponent* a_modelArray,
-			const LocalTransformComponent* a_transArray
+			const LocalTransformComponent*		// 行列は親を辿って組むのでここでは使わない
 			)
 		{
 			auto* _pCollWorld = &a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
@@ -39,17 +41,18 @@ void SubmitDynamicColliderSystem::Init(Engine::ECS::World& a_world)
 			{
 				const ColliderComponent& _collComp = a_collArray[_i];
 				const ModelComponent& _modelComp = a_modelArray[_i];
-				const LocalTransformComponent& _transComp = a_transArray[_i];
 
 				// 動的レイヤー以外(静的)はここでは扱わない。
 				// 弾のレイヤーも動く側なので IsDynamicLayer で見る
 				if (!IsDynamicLayer(_collComp.layer)) continue;
 
 				// ワールド行列計算
-				Math::Matrix _tMat = Math::Matrix::CreateTranslation(_transComp.pos);
-				Math::Matrix _rMat = Math::Matrix::CreateFromQuaternion(_transComp.quat);
-				Math::Matrix _sMat = Math::Matrix::CreateScale(_transComp.scale);
-				Math::Matrix _mat = _sMat * _rMat * _tMat;
+				//
+				// 静的側(RegisterCollisionWorldSystem)と同じ組み方を使う。
+				// 今は動くものが root 直下ばかりで親の分が抜けても表に出ないが、
+				// 親付きのコライダーを1つ置いた時点で絵とずれる
+				Math::Matrix _mat = App::Systems::HierarchyTransform::CalcWorldMatrix(
+					*a_ctx.pWorld, a_pChunk->entityData[_i]);
 
 				// モデル取得
 				const auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);

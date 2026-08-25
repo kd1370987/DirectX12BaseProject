@@ -42,7 +42,7 @@ namespace Engine::Graphics
 
 		// シェーダーセット
 		auto* _pBlob = _cpBuilder.SetShader(
-			"Asset/Shader/Compute/Particle/EmitParticle/EmitParticleShaeder.cso",
+			"Asset/Shader/Source/Particle/Emit/EmitParticleShaeder.cso",
 			"EmitParticleShader",
 			_spPassData->csIndex
 		);

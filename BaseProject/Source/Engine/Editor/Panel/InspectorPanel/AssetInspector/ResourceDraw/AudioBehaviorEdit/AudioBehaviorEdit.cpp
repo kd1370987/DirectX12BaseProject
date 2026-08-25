@@ -1,6 +1,8 @@
 #include "AudioBehaviorEdit.h"
 
 #include "../../../../../Helper/EditorHelper.h"
+
+#include "../../AssetLink.h"
 #include "../../../../../../Audio/AudioManager.h"
 #include "../../../../../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 
@@ -40,7 +42,7 @@ namespace Engine::Editor::Inspector
 		// 「空欄なら鳴らさない」がこのアセットの前提なので、
 		// 設定していない状態も正しい状態として見せる
 		//-----------------------------------------------------------------------------------------
-		bool SoundPartEdit(Resource::SoundPart& a_part, Resource::EAudioPhase a_phase)
+		bool SoundPartEdit(EditorContext& a_editContext, Resource::SoundPart& a_part, Resource::EAudioPhase a_phase)
 		{
 			bool _isChanged = false;
 
@@ -52,11 +54,11 @@ namespace Engine::Editor::Inspector
 				_isChanged = true;
 			}
 
-			// 割り当てたファイル名を出しておく(GUIDだけでは何の音か分からないため)
+			// 割り当てた音を出しておく(GUIDだけでは何の音か分からないため)。
+			// そのまま押せば音アセットのインスペクターへ飛べる
 			if (a_part.IsValid())
 			{
-				const auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(a_part.soundGUID);
-				ImGui::TextDisabled("%s", _fileName.c_str());
+				DrawAssetLink(&a_editContext, "", a_part.soundGUID);
 
 				ImGui::SameLine();
 				if (EditorHelper::DeleteButton("Clear"))
@@ -171,7 +173,7 @@ namespace Engine::Editor::Inspector
 				break;
 			}
 
-			if (SoundPartEdit(a_pBehavior->RefPart(_phase), _phase))
+			if (SoundPartEdit(a_editContext, a_pBehavior->RefPart(_phase), _phase))
 			{
 				_isChanged = true;
 			}

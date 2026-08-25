@@ -1,6 +1,111 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Asset\Shader">
+      <UniqueIdentifier>{9ed406b3-4512-43a6-8dde-13bdaa5d9236}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common">
+      <UniqueIdentifier>{22ab27e7-cf08-432f-a901-e4aeb85dc3f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\Lighting">
+      <UniqueIdentifier>{8fb461d9-e275-405c-d3aa-61cf90e52b36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\Math">
+      <UniqueIdentifier>{1901ede7-79d0-4a9d-83c7-d5009263e94a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\RootParameters">
+      <UniqueIdentifier>{ec6afe83-5448-4aff-b9a7-89c850e9037e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Common\Shape">
+      <UniqueIdentifier>{b4042d9b-eb54-458a-afcf-5320ce553bfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source">
+      <UniqueIdentifier>{cc9dc5a7-2f85-4209-bb7a-ac97ab6da640}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Debug">
+      <UniqueIdentifier>{9ec9f70d-8771-5e8f-9c56-961d81232f9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Debug\DebugLine">
+      <UniqueIdentifier>{9f3a6928-e0fc-50ec-af71-71a20a522b4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Geometry">
+      <UniqueIdentifier>{05dc55d1-75ff-5ed8-98aa-dc4b61b15b26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Geometry\GBuffer">
+      <UniqueIdentifier>{d49743f0-585d-5974-91f9-3ec1bb09dad8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Geometry\MeshShader">
+      <UniqueIdentifier>{799510a2-25f5-5e51-af42-f8f0d2493edc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Geometry\Skinning">
+      <UniqueIdentifier>{7c7ec90a-23b5-5771-83b9-673a75792754}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Lighting">
+      <UniqueIdentifier>{944c246e-211c-520e-99ea-37324788db5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Lighting\Deferred">
+      <UniqueIdentifier>{209b8381-8b45-507f-9737-33f6502a0245}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Lighting\Denoise">
+      <UniqueIdentifier>{4220df30-ac2b-5039-93a3-ee91f8959924}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Lighting\Denoise\GI">
+      <UniqueIdentifier>{7479230b-3589-5be7-ae0e-3eee36897632}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Lighting\Denoise\Shadow">
+      <UniqueIdentifier>{74ca4c4b-8e03-5a9f-ac1e-038f2ede0d46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Lighting\Sky">
+      <UniqueIdentifier>{99302ec2-2612-54fb-859a-0a4237e05013}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Lighting\UpScale">
+      <UniqueIdentifier>{f7726b58-7859-5a3f-a08e-5d2dd86fdf90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Particle">
+      <UniqueIdentifier>{2df056ce-ff5a-5eca-bb16-b17abcf7e8fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Particle\Draw">
+      <UniqueIdentifier>{064fd241-24c7-5214-bc14-f5b9c1be9eed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Particle\Emit">
+      <UniqueIdentifier>{c157f1c7-a74e-5bef-82fb-6d5a4eee1064}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Particle\Update">
+      <UniqueIdentifier>{772a88ee-9eca-5a5c-9c1f-e0213a172398}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\PostProcess">
+      <UniqueIdentifier>{fa20a201-970a-5a23-acda-617c876340c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\PostProcess\Bloom">
+      <UniqueIdentifier>{86d3781f-1ea6-5961-a810-83a9f1cc3def}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\PostProcess\Blur">
+      <UniqueIdentifier>{432ef254-f01e-59ae-bf8d-c84525f7086f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\PostProcess\DoF">
+      <UniqueIdentifier>{d3019fd1-5587-5c4a-831f-ca0e552c0e24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\PostProcess\TAA">
+      <UniqueIdentifier>{0d6be609-695a-5f28-a333-f3b8d1350f9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\PostProcess\ToneMap">
+      <UniqueIdentifier>{3260eec0-0d7e-5508-b443-af39188de064}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Raytracing">
+      <UniqueIdentifier>{1968a833-5a63-5f60-9e3a-9af853d584de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Raytracing\FullRaytracing">
+      <UniqueIdentifier>{476bc150-56b7-5eea-950e-e6dcd4cf77da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Raytracing\GI">
+      <UniqueIdentifier>{a41f331b-7447-5778-a9c2-b2d86f735f87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Raytracing\Shadow">
+      <UniqueIdentifier>{8dd7e944-caa4-52a1-affd-f71add906938}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\UI">
+      <UniqueIdentifier>{3fc54d1a-15bc-4a74-b634-b58f02fe9c37}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\MouseCursor">
       <UniqueIdentifier>{c0de0f01-1111-4222-8333-0000c0de0f01}</UniqueIdentifier>
     </Filter>
@@ -76,6 +181,9 @@
     <Filter Include="Source\Application\Systems\Shared\ProjectileSpawn">
       <UniqueIdentifier>{8a1b0c02-4f2e-4c3a-9d51-7e6b2f0a9102}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Shared\HierarchyTransform">
+      <UniqueIdentifier>{8a1b0c04-4f2e-4c3a-9d51-7e6b2f0a9104}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Components\Character\Weapon\Missile">
       <UniqueIdentifier>{8a1b0c03-4f2e-4c3a-9d51-7e6b2f0a9103}</UniqueIdentifier>
     </Filter>
@@ -90,9 +198,6 @@
     </Filter>
     <Filter Include="Asset">
       <UniqueIdentifier>{7cbb302a-b997-4612-a99b-30898bdb4d67}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader">
-      <UniqueIdentifier>{9ed406b3-4512-43a6-8dde-13bdaa5d9236}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics">
       <UniqueIdentifier>{6ff526d7-ee38-4be8-8fd8-0b85917fddf9}</UniqueIdentifier>
@@ -232,6 +337,9 @@
     <Filter Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem">
       <UniqueIdentifier>{a1c7f2e4-7b41-4d9e-9c62-0e3f5a8d1b77}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem">
+      <UniqueIdentifier>{7c1a4f52-3b6d-4a90-9e1f-2d5c8b0a41e7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\Camera\TPSSystem">
       <UniqueIdentifier>{eff4e858-a3a9-4f9f-a51a-3b9ae7f28481}</UniqueIdentifier>
     </Filter>
@@ -273,21 +381,6 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderGraph">
       <UniqueIdentifier>{faeedf32-9637-470c-bae5-f88b29fa74e0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source">
-      <UniqueIdentifier>{cc9dc5a7-2f85-4209-bb7a-ac97ab6da640}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source\QuadRenderingShader">
-      <UniqueIdentifier>{3374d3dd-87ac-4f6b-aa65-e30fdc0fde34}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source\ZPreShader">
-      <UniqueIdentifier>{0b143661-65ff-4b30-bb80-d87eef28d888}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source\GBufferShader">
-      <UniqueIdentifier>{f087fe0a-b487-41d2-96c4-ccd507e0996d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source\DeferredLightingShader">
-      <UniqueIdentifier>{b44b6e49-c1be-485b-a652-9f9732478622}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Editor\Panel\LogPanel">
       <UniqueIdentifier>{1e8eaa4a-e3f0-4c01-85b5-1eb7065a71ed}</UniqueIdentifier>
@@ -337,17 +430,8 @@
     <Filter Include="Source\Engine\Animation\AnimationEvaluator">
       <UniqueIdentifier>{92203f8b-16d4-4ea8-a1cc-eda91ae7c482}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Source\Screen2DShader">
-      <UniqueIdentifier>{2c96e27e-f605-4ae0-b40e-a78de7768d85}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw">
       <UniqueIdentifier>{d315c984-99cf-4bc8-aa90-3b388df863ad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source\ForwardLightingShader">
-      <UniqueIdentifier>{eb44b64b-2ec7-4517-8223-e7b0272a5244}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source\DebugLineShader">
-      <UniqueIdentifier>{4fb4a89d-b31e-4a0a-bca6-899dcc27166e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderContext\ShapeDraw">
       <UniqueIdentifier>{f84af803-ebe6-4293-805e-b49bb0870354}</UniqueIdentifier>
@@ -396,9 +480,6 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Data\QuadPolygon">
       <UniqueIdentifier>{7683df0e-a1b6-4bf0-a1b3-b7f5f25af163}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Ray">
-      <UniqueIdentifier>{d30e0299-14a8-4417-be9d-6996057f87bf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Raytracing">
       <UniqueIdentifier>{5cf1431f-421d-402b-994e-1a5fb6bf445a}</UniqueIdentifier>
@@ -607,9 +688,6 @@
     <Filter Include="Source\Engine\Resource\Data\Mesh\CollisionMesh">
       <UniqueIdentifier>{b6ffb845-47ab-4c22-97b1-e1e737d62e16}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Ray\GIShader">
-      <UniqueIdentifier>{4f754aed-db16-43c6-8dd0-9b8b6e22b53e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Utility\Math\Vector">
       <UniqueIdentifier>{5b2f4a10-9c7d-4e21-8f36-2a4d61b0c701}</UniqueIdentifier>
     </Filter>
@@ -727,21 +805,6 @@
     <Filter Include="Source\Engine\Editor\Panel\ProfilerPanel">
       <UniqueIdentifier>{ca050a17-b355-47f7-b972-aacb3cebcc83}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Ray\RayShadowShader">
-      <UniqueIdentifier>{fa448bb5-8379-4ae5-95cc-671635fde6b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Common">
-      <UniqueIdentifier>{22ab27e7-cf08-432f-a901-e4aeb85dc3f3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Common\Math">
-      <UniqueIdentifier>{1901ede7-79d0-4a9d-83c7-d5009263e94a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Common\CB">
-      <UniqueIdentifier>{d125e5db-0211-483f-8513-45c7a213c9d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Common\RootParameters">
-      <UniqueIdentifier>{ec6afe83-5448-4aff-b9a7-89c850e9037e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Draw\PostDraw">
       <UniqueIdentifier>{a648d06a-296e-450b-ada4-3803fcf6e6ec}</UniqueIdentifier>
     </Filter>
@@ -753,21 +816,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem">
       <UniqueIdentifier>{71ba85ac-ccd3-4aa7-8bcf-9715e7cb75d6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute">
-      <UniqueIdentifier>{0f860c13-cd63-44bf-b321-a6ffa6d68e59}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\PostEffect\ToneMap">
-      <UniqueIdentifier>{72e0ef99-6ee1-4a0e-a3bd-da790d47e3e8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\TemporalAccumulationShader">
-      <UniqueIdentifier>{02c2faa4-cd28-4187-bc61-583fe69efc8c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Denoise">
-      <UniqueIdentifier>{f1df3f93-146f-403d-8ec5-ed4643506ebc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Denoise\GI">
-      <UniqueIdentifier>{f6a1238d-2bb0-4dfe-ab0a-7be12c6f9cf2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderGraph\RGData">
       <UniqueIdentifier>{694b6e9f-b2bf-438c-87a2-a1ccedb47cf9}</UniqueIdentifier>
@@ -793,29 +841,11 @@
     <Filter Include="Source\Application\Object\Scene\SceneAmbientObject">
       <UniqueIdentifier>{c0de0020-1111-4222-8333-0000c0de0020}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compute\Sky">
-      <UniqueIdentifier>{c0de0021-1111-4222-8333-0000c0de0021}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Option\GraphicsOptions">
       <UniqueIdentifier>{0d25129d-d165-4472-aff5-df486ed58360}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Option\DebugOptions">
       <UniqueIdentifier>{3f6b90c2-5d47-4a18-8e73-1c94a2f60db5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Anti-aliasing">
-      <UniqueIdentifier>{a41220f6-f1b7-4069-a1d9-269a2a50eeee}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Anti-aliasing\TAA">
-      <UniqueIdentifier>{9336f68d-956c-40c2-a141-54f3962bdfd8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Ligthting">
-      <UniqueIdentifier>{c13e6ebd-e8f6-4d7f-83a9-42d41203a500}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Ligthting\DeferredLighting">
-      <UniqueIdentifier>{c67241c8-24bb-4dea-8283-eeb3a9887e28}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Denoise\Shadow">
-      <UniqueIdentifier>{7669dd34-e9ef-43f2-a062-87fd31c8227e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Components\Character\Robot">
       <UniqueIdentifier>{6291cffc-5cbb-46ce-abbc-4aa653a1dff1}</UniqueIdentifier>
@@ -913,12 +943,6 @@
     <Filter Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem">
       <UniqueIdentifier>{3bc7d0d3-feee-45e2-84f7-774902bbd308}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compute\Particle">
-      <UniqueIdentifier>{514e1cff-c9d7-4616-9afe-8a151d24a3cf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source\ParticleShader">
-      <UniqueIdentifier>{127b0df1-240b-4724-8b27-77f1fff08525}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Utility\Debug">
       <UniqueIdentifier>{61e8de91-a24f-4c93-aefe-608f4296c768}</UniqueIdentifier>
     </Filter>
@@ -949,12 +973,6 @@
     <Filter Include="Source\Engine\Time\FPSController">
       <UniqueIdentifier>{eb7609a8-47f1-429c-95c3-9178a5e4f9bd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compute\Particle\UpdateParticle">
-      <UniqueIdentifier>{9d237a33-d1bc-4f4f-8264-ce5cb58dce05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Particle\EmitParticle">
-      <UniqueIdentifier>{739a94c6-a921-4e67-92f1-46a5f4a3405f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\Particle">
       <UniqueIdentifier>{93b33bf0-5bc8-4c76-8963-a17878e78eeb}</UniqueIdentifier>
     </Filter>
@@ -969,9 +987,6 @@
     </Filter>
     <Filter Include="Source\Engine\Utility\String">
       <UniqueIdentifier>{a89720f8-c303-4c35-961b-802545baf70a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Common\Shape">
-      <UniqueIdentifier>{b4042d9b-eb54-458a-afcf-5320ce553bfb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\InstanceResource">
       <UniqueIdentifier>{631cda0a-7bfc-472c-bc4e-6fd36f60cfbf}</UniqueIdentifier>
@@ -1017,12 +1032,6 @@
     </Filter>
     <Filter Include="Source\Engine\D3D12\Builder\PipelineBuilder">
       <UniqueIdentifier>{21970f9f-fd61-43a9-bcfb-31491b71e03c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source\Test">
-      <UniqueIdentifier>{35846641-bf2e-481d-9881-205d130ab91f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source\Mesh">
-      <UniqueIdentifier>{781f418c-bae8-4b0f-b530-26bf0583461e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer">
       <UniqueIdentifier>{2605fc2c-b224-47ad-8e73-ba20a9718a62}</UniqueIdentifier>
@@ -1129,12 +1138,6 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\DoFPass">
       <UniqueIdentifier>{5c813ea6-bf42-4d39-a077-3e9c6db2f803}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compute\PostEffect">
-      <UniqueIdentifier>{6d924fb7-c053-4e4a-b188-4fad7ec30914}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\PostEffect\DoF">
-      <UniqueIdentifier>{7ea350c8-d164-4f5b-c299-50be8fd41a25}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom">
       <UniqueIdentifier>{8fb461d9-e275-4a6c-93aa-61cf9ae52b36}</UniqueIdentifier>
     </Filter>
@@ -1153,24 +1156,6 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass">
       <UniqueIdentifier>{d409b62e-37ca-4fb1-c8ff-b614ef3a708b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compute\Bloom">
-      <UniqueIdentifier>{e51ac73f-48db-4a02-d900-c725fa4b819c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Bloom\BloomExtractShader">
-      <UniqueIdentifier>{f62bd840-59ec-4b13-ea11-d836ab5c92ad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Bloom\KawaseBlurShader">
-      <UniqueIdentifier>{073ce951-6afd-4c24-fb22-e947bc6da3be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\Bloom\BloomCompositeShader">
-      <UniqueIdentifier>{184dfa62-7b0e-4d35-0c33-fa58cd7eb4cf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Compute\PostEffect\Blur">
-      <UniqueIdentifier>{295e0b73-8c1f-4e46-1d44-0b69de8fc5d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Common\Lighting">
-      <UniqueIdentifier>{8fb461d9-e275-405c-d3aa-61cf90e52b36}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\Skinning">
       <UniqueIdentifier>{fff8ef66-d42d-4687-b96b-a7792394f519}</UniqueIdentifier>
     </Filter>
@@ -1183,14 +1168,8 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\Utility\PostHistoryPass">
       <UniqueIdentifier>{6cf8b0fa-118e-4e11-840d-e915298e350a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compute\Skinning">
-      <UniqueIdentifier>{f52814e5-2fc5-4329-b600-af980ebb83ef}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\FrameResource">
       <UniqueIdentifier>{bde7cce5-ae5f-4a73-be26-1d7a44ed84f6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Common\Struct">
-      <UniqueIdentifier>{0c473a89-0e73-4582-9782-963770d192a7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem">
       <UniqueIdentifier>{42b34ae5-8f12-4b9e-a20b-14528524dcf1}</UniqueIdentifier>
@@ -1279,9 +1258,6 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\UpScale\FullRaytracingUpScalePass">
       <UniqueIdentifier>{252c48b1-8d00-4de1-bed5-be1c689c5946}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset\Shader\Compute\UpScale">
-      <UniqueIdentifier>{1458f2c8-df39-40c1-abe7-6353418cbc2a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder">
       <UniqueIdentifier>{5bd4e1be-14d1-4770-8038-0749d35e7b9d}</UniqueIdentifier>
     </Filter>
@@ -1368,9 +1344,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem">
       <UniqueIdentifier>{6e959bf9-d070-486e-90b1-7fd73d7cf1ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Character\Weapon">
-      <UniqueIdentifier>{b7c5e066-4a5a-423a-8883-94ab61a27334}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Components\Character\Weapon\Gun">
       <UniqueIdentifier>{e5853aec-2a82-4d9e-9ef7-776b42616acd}</UniqueIdentifier>
@@ -1488,9 +1461,6 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\UI\UIPass">
       <UniqueIdentifier>{a4296c28-f517-4366-9d1e-1fc28a4862be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Asset\Shader\Source\UI">
-      <UniqueIdentifier>{3fc54d1a-15bc-4a74-b634-b58f02fe9c37}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Option\ProjectOptions">
       <UniqueIdentifier>{85c28754-0169-46eb-a78c-4b7f7853703d}</UniqueIdentifier>
@@ -1644,6 +1614,9 @@
     <ClCompile Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.cpp">
       <Filter>Source\Application\Systems\Shared\ProjectileSpawn</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Shared\HierarchyTransform\HierarchyTransform.cpp">
+      <Filter>Source\Application\Systems\Shared\HierarchyTransform</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Shared\MissileSalvo\MissileSalvo.cpp">
       <Filter>Source\Application\Systems\Shared\MissileSalvo</Filter>
     </ClCompile>
@@ -1679,6 +1652,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem\CameraProjUpdateSystem.cpp">
       <Filter>Source\Application\Systems\Update\Camera\CameraProjUpdateSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem\MainCameraSystem.cpp">
+      <Filter>Source\Application\Systems\Update\PreUpdate\MainCameraSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp">
       <Filter>Source\Engine\Editor\ImGui</Filter>
@@ -2283,6 +2259,9 @@
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetLink.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
     </ClCompile>
@@ -2720,9 +2699,6 @@
     <ClInclude Include="Source\Application\Components\Tag\CameraTag.h">
       <Filter>Source\Application\Components\Tag</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\ActiveCameraTag.h">
-      <Filter>Source\Application\Components\Tag</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Force\MovementComponent.h">
       <Filter>Source\Application\Components\Force</Filter>
     </ClInclude>
@@ -2776,6 +2752,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem\CameraProjUpdateSystem.h">
       <Filter>Source\Application\Systems\Update\Camera\CameraProjUpdateSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem\MainCameraSystem.h">
+      <Filter>Source\Application\Systems\Update\PreUpdate\MainCameraSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
@@ -3431,6 +3410,9 @@
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\SingletonEntityResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\HitEventResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
@@ -3672,6 +3654,9 @@
       <Filter>Source\Engine\Editor\Panel\InspectorPanel</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetLink.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.h">
@@ -3953,6 +3938,9 @@
     <ClInclude Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.h">
       <Filter>Source\Application\Systems\Shared\ProjectileSpawn</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Shared\HierarchyTransform\HierarchyTransform.h">
+      <Filter>Source\Application\Systems\Shared\HierarchyTransform</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Shared\MissileSalvo\MissileSalvo.h">
       <Filter>Source\Application\Systems\Shared\MissileSalvo</Filter>
     </ClInclude>
@@ -4184,58 +4172,29 @@
     <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector4.h">
       <Filter>Source\Engine\Utility\Math\Vector</Filter>
     </ClInclude>
-      <ClInclude Include="Source\Application\Components\Camera\CameraDeadZoneComponent.h">
+    <ClInclude Include="Source\Application\Components\Camera\CameraDeadZoneComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
-</ItemGroup>
+    <ClInclude Include="Source\Engine\Utility\EnumFlags.h" />
+  </ItemGroup>
   <ItemGroup>
-    <None Include="Asset\Shader\Source\ZPreShader\ZPreShader.hlsli">
-      <Filter>Asset\Shader\Source\ZPreShader</Filter>
+    <None Include="Asset\Shader\Common\Math\CalcLighting.hlsli">
+      <Filter>Asset\Shader\Common\Math</Filter>
     </None>
-    <None Include="Asset\Shader\Source\GBufferShader\GBufferShader.hlsli">
-      <Filter>Asset\Shader\Source\GBufferShader</Filter>
+    <None Include="Asset\Shader\Common\Math\CalcNormal.hlsli">
+      <Filter>Asset\Shader\Common\Math</Filter>
     </None>
-    <None Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingShader.hlsli">
-      <Filter>Asset\Shader\Source\DeferredLightingShader</Filter>
+    <None Include="Asset\Shader\Source\Raytracing\Raytracing.hlsli">
+      <Filter>Asset\Shader\Source\Raytracing</Filter>
     </None>
-    <None Include="Asset\Shader\Source\CalcLighting.hlsli">
-      <Filter>Asset\Shader\Source</Filter>
+    <None Include="Asset\Shader\Common\RootSignatureLayout.hlsli">
+      <Filter>Asset\Shader\Common</Filter>
     </None>
-    <None Include="Asset\Shader\Source\CalcNormal.hlsli">
-      <Filter>Asset\Shader\Source</Filter>
+    <None Include="Asset\Shader\Source\Debug\DebugLine\DebugLineRoot.hlsli">
+      <Filter>Asset\Shader\Source\Debug\DebugLine</Filter>
     </None>
-    <None Include="Asset\Shader\Source\Screen2DShader\Screen2DShader.hlsli">
-      <Filter>Asset\Shader\Source\Screen2DShader</Filter>
-    </None>
-    <None Include="Asset\Shader\Ray\Raytracing.hlsli">
-      <Filter>Asset\Shader\Ray</Filter>
-    </None>
-    <None Include="Asset\Shader\Source\RootSignatureLayout.hlsli">
-      <Filter>Asset\Shader\Source</Filter>
-    </None>
-    <None Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingRoot.hlsli">
-      <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
-    </None>
-    <None Include="Asset\Shader\Source\DebugLineShader\DebugLineRoot.hlsli">
-      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
-    </None>
-    <None Include="Asset\Shader\Common\CB\CBCamera.hlsli">
-      <Filter>Asset\Shader\Common\CB</Filter>
-    </None>
-    <None Include="Asset\Shader\Common\CB\CBDoFOption.hlsli">
-      <Filter>Asset\Shader\Common\CB</Filter>
-    </None>
-    <None Include="Asset\Shader\Common\CB\CBBloomOption.hlsli">
-      <Filter>Asset\Shader\Common\CB</Filter>
-    </None>
-    <None Include="Asset\Shader\Common\CB\CBToneMapOption.hlsli">
-      <Filter>Asset\Shader\Common\CB</Filter>
-    </None>
-    <None Include="Asset\Shader\Common\CB\CBSky.hlsli">
-      <Filter>Asset\Shader\Common\CB</Filter>
-    </None>
-    <None Include="Asset\Shader\Compute\Sky\SkyShader.hlsl">
-      <Filter>Asset\Shader\Compute\Sky</Filter>
+    <None Include="Asset\Shader\Source\Lighting\Sky\SkyShader.hlsl">
+      <Filter>Asset\Shader\Source\Lighting\Sky</Filter>
     </None>
     <None Include="Asset\Shader\Common\Lighting\Fog.hlsli">
       <Filter>Asset\Shader\Common\Lighting</Filter>
@@ -4246,19 +4205,7 @@
     <None Include="Asset\Shader\Common\Math\Transform.hlsli">
       <Filter>Asset\Shader\Common\Math</Filter>
     </None>
-    <None Include="Asset\Shader\Common\RootParameters\InstanceData.hlsli">
-      <Filter>Asset\Shader\Common\RootParameters</Filter>
-    </None>
-    <None Include="Asset\Shader\Common\RootParameters\SubsetData.hlsli">
-      <Filter>Asset\Shader\Common\RootParameters</Filter>
-    </None>
     <None Include="Asset\Shader\Common\RootParameters\BonePalletData.hlsli">
-      <Filter>Asset\Shader\Common\RootParameters</Filter>
-    </None>
-    <None Include="Asset\Shader\Common\RootParameters\BufferIndex.hlsli">
-      <Filter>Asset\Shader\Common\RootParameters</Filter>
-    </None>
-    <None Include="Asset\Shader\Common\RootParameters\Material.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
     <None Include="Asset\Shader\Common\RootParameters\AmbientData.hlsli">
@@ -4267,8 +4214,53 @@
     <None Include="Asset\Shader\Common\RootParameters\Particle.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
-    <None Include="Asset\Shader\Source\ParticleShader\ParticleShader.hlsli">
-      <Filter>Asset\Shader\Source\ParticleShader</Filter>
+    <None Include="Asset\Shader\Common\RootParameters\BloomOptionData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\CameraData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\DebugLineData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\DenoiseSetting.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\DoFOptionData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\GaussianBlurSetting.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\LightingOptionData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\MeshShaderData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\RaytracingData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\SkinningInfo.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\SkyData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\ToneMapOptionData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\UIData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\UpScaleSetting.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\Vertex.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\Particle\Draw\ParticleShader.hlsli">
+      <Filter>Asset\Shader\Source\Particle\Draw</Filter>
     </None>
     <None Include="Asset\Shader\Common\Math\Hash.hlsli">
       <Filter>Asset\Shader\Common\Math</Filter>
@@ -4282,35 +4274,29 @@
     <None Include="Asset\Shader\Common\Shape\Sphere.hlsli">
       <Filter>Asset\Shader\Common\Shape</Filter>
     </None>
-    <None Include="Asset\Shader\Source\Mesh\MeshCommon.hlsli">
-      <Filter>Asset\Shader\Source\Mesh</Filter>
+    <None Include="Asset\Shader\Source\Geometry\MeshShader\MeshCommon.hlsli">
+      <Filter>Asset\Shader\Source\Geometry\MeshShader</Filter>
     </None>
-    <None Include="Asset\Shader\Source\Mesh\ProceduralMS.hlsl">
-      <Filter>Asset\Shader\Source\Mesh</Filter>
+    <None Include="Asset\Shader\Source\Geometry\MeshShader\UberMS.hlsl">
+      <Filter>Asset\Shader\Source\Geometry\MeshShader</Filter>
     </None>
-    <None Include="Asset\Shader\Source\Mesh\UberMS.hlsl">
-      <Filter>Asset\Shader\Source\Mesh</Filter>
+    <None Include="Asset\Shader\Source\Raytracing\Shadow\RayShadow.hlsli">
+      <Filter>Asset\Shader\Source\Raytracing\Shadow</Filter>
     </None>
-    <None Include="Asset\Shader\Ray\RayShadow.hlsli">
-      <Filter>Asset\Shader\Ray</Filter>
+    <None Include="Asset\Shader\Source\Raytracing\GI\RayGI.hlsli">
+      <Filter>Asset\Shader\Source\Raytracing\GI</Filter>
     </None>
-    <None Include="Asset\Shader\Ray\RayGI.hlsli">
-      <Filter>Asset\Shader\Ray</Filter>
+    <None Include="Asset\Shader\Source\Raytracing\FullRaytracing\Raytracing.hlsl">
+      <Filter>Asset\Shader\Source\Raytracing\FullRaytracing</Filter>
     </None>
-    <None Include="Asset\Shader\Ray\Raytracing.hlsl">
-      <Filter>Asset\Shader\Ray</Filter>
+    <None Include="Asset\Shader\Source\Geometry\Skinning\Skinning.hlsli">
+      <Filter>Asset\Shader\Source\Geometry\Skinning</Filter>
     </None>
-    <None Include="Asset\Shader\Common\Struct\Vertex.hlsli">
-      <Filter>Asset\Shader\Common\Struct</Filter>
+    <None Include="Asset\Shader\Source\Geometry\GBuffer\MeshGBufferPS.hlsl">
+      <Filter>Asset\Shader\Source\Geometry\GBuffer</Filter>
     </None>
-    <None Include="Asset\Shader\Compute\Skinning\Skinning.hlsli">
-      <Filter>Asset\Shader\Compute\Skinning</Filter>
-    </None>
-    <None Include="Asset\Shader\Source\GBufferShader\MeshGBufferPS.hlsl">
-      <Filter>Asset\Shader\Source\GBufferShader</Filter>
-    </None>
-    <None Include="Asset\Shader\Source\Mesh\TestAS.hlsl">
-      <Filter>Asset\Shader\Source\Mesh</Filter>
+    <None Include="Asset\Shader\Source\Geometry\MeshShader\TestAS.hlsl">
+      <Filter>Asset\Shader\Source\Geometry\MeshShader</Filter>
     </None>
     <None Include="Asset\Shader\Source\UI\UI.hlsli">
       <Filter>Asset\Shader\Source\UI</Filter>
@@ -4323,116 +4309,74 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Asset\Shader\Compute\PostEffect\ToneMap\ToneMapShader.hlsl">
-      <Filter>Asset\Shader\Compute\PostEffect\ToneMap</Filter>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\ToneMap\ToneMapShader.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\ToneMap</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\ZPreShader\ZPreVS.hlsl">
-      <Filter>Asset\Shader\Source\ZPreShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\Raytracing\GI\RaytracingGI.hlsl">
+      <Filter>Asset\Shader\Source\Raytracing\GI</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\GBufferShader\GBufferPS.hlsl">
-      <Filter>Asset\Shader\Source\GBufferShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\Raytracing\Shadow\RayShadowShader.hlsl">
+      <Filter>Asset\Shader\Source\Raytracing\Shadow</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\GBufferShader\GBufferVS.hlsl">
-      <Filter>Asset\Shader\Source\GBufferShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\Lighting\Denoise\GI\TemporalAccumulationShader.hlsl">
+      <Filter>Asset\Shader\Source\Lighting\Denoise\GI</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingPS.hlsl">
-      <Filter>Asset\Shader\Source\DeferredLightingShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\Lighting\Denoise\GI\GISpatialDenoiseShader.hlsl">
+      <Filter>Asset\Shader\Source\Lighting\Denoise\GI</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\DeferredLightingShader\DeferredLightingVS.hlsl">
-      <Filter>Asset\Shader\Source\DeferredLightingShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\TAA\TAA.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\TAA</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\GBufferShader\AnimationGBufferVS.hlsl">
-      <Filter>Asset\Shader\Source\GBufferShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\DoF\CoCShader.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\DoF</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\Screen2DShader\Screen2DVS.hlsl">
-      <Filter>Asset\Shader\Source\Screen2DShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\DoF\DoFShader.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\DoF</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\Screen2DShader\Screen2DPS.hlsl">
-      <Filter>Asset\Shader\Source\Screen2DShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Bloom\BloomExtractShader.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\Bloom</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingVS.hlsl">
-      <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Bloom\KawaseBlurShader.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\Bloom</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\ForwardLightingShader\ForwardLightingPS.hlsl">
-      <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Bloom\BloomCompositeShader.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\Bloom</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\ForwardLightingShader\AnimationForwardLightingVS.hlsl">
-      <Filter>Asset\Shader\Source\ForwardLightingShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Blur\GaussianBlurShader.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\Blur</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\ZPreShader\AnimationZPreVS.hlsl">
-      <Filter>Asset\Shader\Source\ZPreShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\Lighting\Deferred\DeferredLightingShader.hlsl">
+      <Filter>Asset\Shader\Source\Lighting\Deferred</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Ray\GIShader\RaytracingGI.hlsl">
-      <Filter>Asset\Shader\Ray\GIShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\Lighting\Denoise\Shadow\ShadowTemporalAccumullationShader.hlsl">
+      <Filter>Asset\Shader\Source\Lighting\Denoise\Shadow</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Ray\RayShadowShader\RayShadowShader.hlsl">
-      <Filter>Asset\Shader\Ray\RayShadowShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\Lighting\Denoise\Shadow\ShadowSpatialDenoiseShader.hlsl">
+      <Filter>Asset\Shader\Source\Lighting\Denoise\Shadow</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\TemporalAccumulationShader\TemporalAccumulationShader.hlsl">
-      <Filter>Asset\Shader\Compute\TemporalAccumulationShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\Particle\Emit\EmitParticleShaeder.hlsl">
+      <Filter>Asset\Shader\Source\Particle\Emit</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Denoise\GI\GISpatialDenoiseShader.hlsl">
-      <Filter>Asset\Shader\Compute\Denoise\GI</Filter>
+    <FxCompile Include="Asset\Shader\Source\Particle\Update\UpdateParticleShader.hlsl">
+      <Filter>Asset\Shader\Source\Particle\Update</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\AntiAliasing\TAA\TAA.hlsl">
-      <Filter>Asset\Shader\Compute\Anti-aliasing\TAA</Filter>
+    <FxCompile Include="Asset\Shader\Source\Particle\Draw\ParticleVS.hlsl">
+      <Filter>Asset\Shader\Source\Particle\Draw</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\PostEffect\DoF\CoCShader.hlsl">
-      <Filter>Asset\Shader\Compute\PostEffect\DoF</Filter>
+    <FxCompile Include="Asset\Shader\Source\Particle\Draw\ParticlePS.hlsl">
+      <Filter>Asset\Shader\Source\Particle\Draw</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\PostEffect\DoF\DoFShader.hlsl">
-      <Filter>Asset\Shader\Compute\PostEffect\DoF</Filter>
+    <FxCompile Include="Asset\Shader\Source\Debug\DebugLine\DebugLinePS.hlsl">
+      <Filter>Asset\Shader\Source\Debug\DebugLine</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Bloom\BloomExtractShader\BloomExtractShader.hlsl">
-      <Filter>Asset\Shader\Compute\Bloom\BloomExtractShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\Debug\DebugLine\DebugLineVS.hlsl">
+      <Filter>Asset\Shader\Source\Debug\DebugLine</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Bloom\KawaseBlurShader\KawaseBlurShader.hlsl">
-      <Filter>Asset\Shader\Compute\Bloom\KawaseBlurShader</Filter>
+    <FxCompile Include="Asset\Shader\Source\Geometry\Skinning\Skinning.hlsl">
+      <Filter>Asset\Shader\Source\Geometry\Skinning</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Bloom\BloomCompositeShader\BloomCompositeShader.hlsl">
-      <Filter>Asset\Shader\Compute\Bloom\BloomCompositeShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\PostEffect\Blur\GaussianBlurShader.hlsl">
-      <Filter>Asset\Shader\Compute\PostEffect\Blur</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Lighting\DeferredLighting\DeferredLightingShader.hlsl">
-      <Filter>Asset\Shader\Compute\Ligthting\DeferredLighting</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Denoise\Shadow\ShadowTemporalAccumullationShader.hlsl">
-      <Filter>Asset\Shader\Compute\Denoise\Shadow</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Denoise\Shadow\ShadowSpatialDenoiseShader.hlsl">
-      <Filter>Asset\Shader\Compute\Denoise\Shadow</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Particle\EmitParticle\EmitParticleShaeder.hlsl">
-      <Filter>Asset\Shader\Compute\Particle\EmitParticle</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Particle\UpdateParticle\UpdateParticleShader.hlsl">
-      <Filter>Asset\Shader\Compute\Particle\UpdateParticle</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\ParticleShader\ParticleVS.hlsl">
-      <Filter>Asset\Shader\Source\ParticleShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\ParticleShader\ParticlePS.hlsl">
-      <Filter>Asset\Shader\Source\ParticleShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\Test\testPS.hlsl">
-      <Filter>Asset\Shader\Source\Test</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\Test\TestMS.hlsl">
-      <Filter>Asset\Shader\Source\Test</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLinePS.hlsl">
-      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\DebugLineShader\DebugLineVS.hlsl">
-      <Filter>Asset\Shader\Source\DebugLineShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\Skinning\Skinning.hlsl">
-      <Filter>Asset\Shader\Compute\Skinning</Filter>
-    </FxCompile>
-    <FxCompile Include="Asset\Shader\Compute\UpScale\UpScaleCS.hlsl">
-      <Filter>Asset\Shader\Compute\UpScale</Filter>
+    <FxCompile Include="Asset\Shader\Source\Lighting\UpScale\UpScaleCS.hlsl">
+      <Filter>Asset\Shader\Source\Lighting\UpScale</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

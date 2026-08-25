@@ -1,4 +1,4 @@
-#include "BloomCompositePass.h"
+﻿#include "BloomCompositePass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -51,7 +51,7 @@ namespace Engine::Graphics
 		// シェーダー
 		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 		auto* _pBlob = _cpBuilder.SetShader(
-			"Asset/Shader/Compute/Bloom/BloomCompositeShader/BloomCompositeShader.cso",
+			"Asset/Shader/Source/PostProcess/Bloom/BloomCompositeShader.cso",
 			"BloomCompositeShader",
 			_csIndex
 		);

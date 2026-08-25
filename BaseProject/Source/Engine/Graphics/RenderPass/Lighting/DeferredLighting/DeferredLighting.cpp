@@ -27,7 +27,7 @@ namespace Engine::Graphics
 		// シェーダー
 		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 		auto* _pBlob = _rpBuilder.SetShader(
-			"Asset/Shader/Compute/Lighting/DeferredLighting/DeferredLightingShader.cso",
+			"Asset/Shader/Source/Lighting/Deferred/DeferredLightingShader.cso",
 			"DeferredLightingShader",
 			_csIndex
 		);

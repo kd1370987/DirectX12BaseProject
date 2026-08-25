@@ -1,5 +1,7 @@
 #include "ModelEdit.h"
 
+#include "../../AssetLink.h"
+
 namespace Engine::Editor::Inspector
 {
 	namespace
@@ -98,7 +100,7 @@ namespace Engine::Editor::Inspector
 	//-----------------------------------------------------------------------------------------
 	// モデルの詳細表示
 	//-----------------------------------------------------------------------------------------
-	void ModelEdit(EditorContext&, Resource::Model* a_pModel)
+	void ModelEdit(EditorContext& a_editContext, Resource::Model* a_pModel)
 	{
 		if (!a_pModel) { return; }
 
@@ -142,13 +144,18 @@ namespace Engine::Editor::Inspector
 
 				const auto* _pAnim = Resource::ResourceManager::Instance().Ref(_animHandleVec[_i]);
 
-				// 未ロードの場合はGUIDだけ表示
+				// 未ロードでもアセットとしては飛べるので、リンクだけは出す
 				if (!_pAnim)
 				{
-					std::string _guidStr = (_i < _assetData.animationGUIDs.size())
-						? _assetData.animationGUIDs[_i].String()
-						: std::string("unknown");
-					ImGui::Text("[%zu] (not loaded) %s", _i, _guidStr.c_str());
+					const Engine::GUID _animGUID = (_i < _assetData.animationGUIDs.size())
+						? _assetData.animationGUIDs[_i]
+						: Engine::DefaultGUID;
+
+					const std::string _index = "[" + std::to_string(_i) + "]";
+					DrawAssetLink(&a_editContext, _index.c_str(), _animGUID);
+					ImGui::SameLine();
+					ImGui::TextDisabled("(not loaded)");
+
 					ImGui::PopID();
 					continue;
 				}
@@ -157,7 +164,7 @@ namespace Engine::Editor::Inspector
 				{
 					if (_i < _assetData.animationGUIDs.size())
 					{
-						ImGui::Text("GUID      : %s", _assetData.animationGUIDs[_i].String().c_str());
+						DrawAssetLink(&a_editContext, "Asset     :", _assetData.animationGUIDs[_i]);
 					}
 					ImGui::Text("MaxLength : %.3f frame", _pAnim->maxLength);
 					ImGui::Text("AnimNodes : %zu", _pAnim->nodes.size());
@@ -198,26 +205,33 @@ namespace Engine::Editor::Inspector
 			const auto& _meshHandleVec = a_pModel->GetMeshHandles();
 			for (size_t _i = 0; _i < _meshHandleVec.size(); ++_i)
 			{
-				std::string _guidStr = (_i < _assetData.meshGUIDs.size())
-					? _assetData.meshGUIDs[_i].String()
-					: std::string("unknown");
+				const Engine::GUID _meshGUID = (_i < _assetData.meshGUIDs.size())
+					? _assetData.meshGUIDs[_i]
+					: Engine::DefaultGUID;
+
+				ImGui::PushID(static_cast<int>(_i));
+
+				// 中身を見に行けるように、まず飛べる見出しを出す
+				const std::string _index = "[" + std::to_string(_i) + "]";
+				DrawAssetLink(&a_editContext, _index.c_str(), _meshGUID);
 
 				const auto* _pMesh = Resource::ResourceManager::Instance().Ref(_meshHandleVec[_i]);
 				if (!_pMesh)
 				{
-					ImGui::Text("[%zu] (not loaded) %s", _i, _guidStr.c_str());
+					ImGui::SameLine();
+					ImGui::TextDisabled("(not loaded)");
+					ImGui::PopID();
 					continue;
 				}
 
-				ImGui::PushID(static_cast<int>(_i));
-				if (ImGui::TreeNode("MeshNode", "[%zu] %s", _i, _guidStr.c_str()))
-				{
-					const auto& _metaData = _pMesh->GetMetaData();
-					ImGui::Text("Vertices   : %zu", _pMesh->GetVertexVec().size());
-					ImGui::Text("Subsets    : %zu", _metaData.subsets.size());
-					ImGui::Text("IsSkinMesh : %s", _metaData.isSkinMesh ? "true" : "false");
-					ImGui::TreePop();
-				}
+				// ここで出すのは概要だけ。詳しくはリンク先のメッシュインスペクタで見る
+				const auto& _metaData = _pMesh->GetMetaData();
+				ImGui::SameLine();
+				ImGui::TextDisabled("verts=%zu subsets=%zu%s",
+					_pMesh->GetVertexVec().size(),
+					_metaData.subsets.size(),
+					_metaData.isSkinMesh ? " [Skin]" : "");
+
 				ImGui::PopID();
 			}
 		}
@@ -228,20 +242,27 @@ namespace Engine::Editor::Inspector
 			const auto& _materialHandleVec = a_pModel->GetMaterialHandles();
 			for (size_t _i = 0; _i < _materialHandleVec.size(); ++_i)
 			{
-				std::string _guidStr = (_i < _assetData.materialGUIDs.size())
-					? _assetData.materialGUIDs[_i].String()
-					: std::string("unknown");
+				const Engine::GUID _materialGUID = (_i < _assetData.materialGUIDs.size())
+					? _assetData.materialGUIDs[_i]
+					: Engine::DefaultGUID;
+
+				ImGui::PushID(static_cast<int>(_i));
 
 				const auto* _pMaterial = Resource::ResourceManager::Instance().Ref(_materialHandleVec[_i]);
+
+				// 表示はマテリアル名を優先する(ファイル名と食い違うことがある)。
+				// ロードできていなければアセット名に任せる
+				const std::string _index = "[" + std::to_string(_i) + "]";
+				DrawAssetLink(&a_editContext, _index.c_str(), _materialGUID,
+					_pMaterial ? _pMaterial->name.c_str() : nullptr);
+
 				if (!_pMaterial)
 				{
-					ImGui::Text("[%zu] (not loaded) %s", _i, _guidStr.c_str());
-					continue;
+					ImGui::SameLine();
+					ImGui::TextDisabled("(not loaded)");
 				}
 
-				ImGui::Text("[%zu] %s", _i, _pMaterial->name.c_str());
-				ImGui::SameLine();
-				ImGui::TextDisabled("%s", _guidStr.c_str());
+				ImGui::PopID();
 			}
 		}
 

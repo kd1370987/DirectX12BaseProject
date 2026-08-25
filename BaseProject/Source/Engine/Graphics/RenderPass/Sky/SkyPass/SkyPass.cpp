@@ -1,4 +1,4 @@
-#include "SkyPass.h"
+﻿#include "SkyPass.h"
 
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderGraph/RGPassBuilder/RGPassBuilder.h"
@@ -63,7 +63,7 @@ namespace Engine::Graphics
 		// シェーダー
 		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 		auto* _pBlob = _cpBuilder.SetShader(
-			"Asset/Shader/Compute/Sky/SkyShader.cso",
+			"Asset/Shader/Source/Lighting/Sky/SkyShader.cso",
 			"SkyShader",
 			_csIndex
 		);

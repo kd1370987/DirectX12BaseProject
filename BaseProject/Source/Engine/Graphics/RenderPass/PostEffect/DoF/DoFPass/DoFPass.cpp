@@ -1,4 +1,4 @@
-#include "DoFPass.h"
+﻿#include "DoFPass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -42,7 +42,7 @@ namespace Engine::Graphics
 		// シェーダー
 		uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 		auto* _pBlob = _cpBuilder.SetShader(
-			"Asset/Shader/Compute/PostEffect/DoF/DoFShader.cso",
+			"Asset/Shader/Source/PostProcess/DoF/DoFShader.cso",
 			"DoFShader",
 			_csIndex
 		);

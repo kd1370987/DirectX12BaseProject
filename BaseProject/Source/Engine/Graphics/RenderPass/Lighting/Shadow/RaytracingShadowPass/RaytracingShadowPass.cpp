@@ -74,7 +74,7 @@ namespace Engine::Graphics
 
 		// PSOの作成
 		Raytracing::RayPSODesc _psoInit = {};
-		_psoInit.shaderPass = "Asset/Shader/Ray/RayShadowShader/RayShadowShader.hlsl";
+		_psoInit.shaderPass = "Asset/Shader/Source/Raytracing/Shadow/RayShadowShader.hlsl";
 		_psoInit.AddShader(L"RayGen", Raytracing::LocalRootSignature::RayGen, Raytracing::ShaderCategory::RayGenerator);
 		_psoInit.AddShader(L"ShadowCHS", Raytracing::LocalRootSignature::PBRMaterialHit, Raytracing::ShaderCategory::ClosestHit);
 		_psoInit.AddShader(L"ShadowMiss", Raytracing::LocalRootSignature::Empty, Raytracing::ShaderCategory::Miss);

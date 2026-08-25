@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //==========================================================================================
 //
@@ -44,6 +44,32 @@ namespace App::Utility
 	/// </param>
 	/// <returns>生成コマンドを積めたら true</returns>
 	bool SpawnEffectAt(
+		Engine::ECS::World& a_world,
+		const Engine::GUID& a_effectGUID,
+		const Math::Vector3& a_pos,
+		bool a_isDestroyOnFinish = true,
+		const Math::Vector3& a_emitDir = {},
+		float a_scale = 1.0f);
+
+	/// <summary>
+	/// エフェクトアセットを指定座標で再生し、作ったエンティティを返す(即時生成)
+	/// </summary>
+	/// <remarks>
+	/// SpawnEffectAt との違いは「その場で作って ID を返す」ところだけ。
+	/// 出したあとも位置を動かし続けたい・こちらの都合で消したい、という
+	/// 相手を握っておきたい場面(環境のチリなど)向け。
+	///
+	/// ただし即時生成はチャンクの並びを変えるので、
+	/// **ECS の反復中に呼んではいけない**。
+	/// 呼んでよいのはシステムの外 : GameObject の Update / Draw など。
+	/// システムの中から出すときは今までどおり SpawnEffectAt(遅延)を使うこと。
+	///
+	/// 返ったエンティティは PostDeserialize から始まるので、
+	/// アセットの解決(EffectFixupSystem)が済むのは次の BeginFrame。
+	/// それまでは何も出ないが、位置は入れておいてよい。
+	/// </remarks>
+	/// <returns>作ったエンティティ。作れなければ INVALID_ENTITY</returns>
+	Engine::ECS::Entity SpawnEffectAtNow(
 		Engine::ECS::World& a_world,
 		const Engine::GUID& a_effectGUID,
 		const Math::Vector3& a_pos,

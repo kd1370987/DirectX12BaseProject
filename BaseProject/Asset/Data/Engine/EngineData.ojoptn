@@ -33,7 +33,7 @@
         "textureGUID": "eaa92474-cfe9-4399-bc6e-9078675e454b"
     },
     "DebugDrawOption": {
-        "drawWire": false
+        "drawWire": true
     },
     "GIOption": {
         "TAblendRate": 0.09000000357627869,
@@ -66,12 +66,12 @@
         "whitePoint": 1.0499999523162842
     },
     "WindowOption": {
-        "WindowTitle": "VECTOR REGIN",
+        "WindowTitle": "VECTOR REIGN",
         "isTitleFPS": true,
         "isVsync": false,
         "targetFrameRate": 120,
         "windowHeight": 1080,
-        "windowMode": 0,
+        "windowMode": 2,
         "windowWidth": 1920
     }
 }

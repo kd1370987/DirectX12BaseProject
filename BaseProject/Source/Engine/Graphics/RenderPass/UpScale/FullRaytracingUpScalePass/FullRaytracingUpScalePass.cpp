@@ -1,4 +1,4 @@
-#include "FullRaytracingUpScalePass.h"
+﻿#include "FullRaytracingUpScalePass.h"
 
 #include "Engine/Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
@@ -26,7 +26,7 @@ void Engine::Graphics::AddFullRaytracingUpScalePass(
 	// シェーダーセット
 	uint8_t _csIndex = RenderPassNode::kInvalidPSOIndex;
 	auto* _pBlob = _cpBuilder.SetShader(
-		"Asset/Shader/Compute/UpScale/UpScaleCS.cso",
+		"Asset/Shader/Source/Lighting/UpScale/UpScaleCS.cso",
 		"FullRaytracingUpScaleShader",
 		_csIndex
 	);

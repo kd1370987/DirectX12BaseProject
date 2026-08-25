@@ -5,6 +5,8 @@
 #include "../../../../../../Graphics/RenderPassRegistry/RenderPassRegistry.h"
 #include "../../../../../Helper/EditorHelper.h"
 
+#include "../../AssetLink.h"
+
 namespace Engine::Editor::Inspector
 {
 	//-----------------------------------------------------------------------------------------
@@ -83,10 +85,9 @@ namespace Engine::Editor::Inspector
 			// 登録済みシェーダーの表示と削除
 			for (size_t _i = 0; _i < _registeredGUIDs.size(); ++_i)
 			{
-				// シェーダーアセット名取得
-				auto _shaderName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(_registeredGUIDs[_i]);
+				// 中身(エントリポイントなど)を見に行けるようにリンクで出す
+				DrawAssetLink(&a_editContext, " ", _registeredGUIDs[_i]);
 
-				ImGui::Text(" %s", _shaderName.c_str());
 				ImGui::SameLine(ImGui::GetWindowWidth() - 80.0f);
 
 				// 削除ボタン
