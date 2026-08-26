@@ -48,8 +48,8 @@ namespace App::Object
 		// GraphicsEngine の初期値と同じものを入れておく。
 		// 置いた瞬間に真っ暗になると「壊れている」ように見えるため
 		m_ambient.ambientColorScale = { 0.0f, 0.0f, 0.0f };
-		m_ambient.dlDir             = { 0.5f, -1.0f, 0.5f };
-		m_ambient.dlColor           = { 4.0f, 4.0f, 4.0f };
+		m_dlDir                     = { 0.5f, -1.0f, 0.5f };
+		m_dlColor                   = { 4.0f, 4.0f, 4.0f };
 	}
 
 	//======================================================================================
@@ -130,6 +130,14 @@ namespace App::Object
 		if (!_pGE) return;
 
 		_pGE->SetSkyTexture({});
+
+		// 平行光の席を返す。
+		// 返さないままシーンを読み直すと席が減り、最後は上限に達して太陽が出なくなる
+		if (m_dlHandle.IsValid())
+		{
+			_pGE->RefLightManager()->RemoveLight(m_dlHandle);
+			m_dlHandle = {};
+		}
 	}
 
 	//======================================================================================
@@ -149,14 +157,37 @@ namespace App::Object
 		_pGE->SetAmbientData(m_ambient);
 		_pGE->SetSkyData(m_sky);
 		_pGE->SetSkyTexture(m_skyTexRef);
+
+		//----------------------------------------------------------------------------
+		// 平行光
+		//
+		// 席が無ければ取る。生成直後だけでなく、シーンを読み直した後もここを通る
+		// (ハンドルは保存しないため)。
+		// 上限に達していると無効が返るので、そのフレームは何もしない
+		//----------------------------------------------------------------------------
+		auto* _pLightManager = _pGE->RefLightManager();
+		if (!m_dlHandle.IsValid())
+		{
+			m_dlHandle = _pLightManager->AllocateDL();
+		}
+
+		if (auto* _pLight = _pLightManager->RefLight(m_dlHandle))
+		{
+			_pLight->dir   = { m_dlDir.x, m_dlDir.y, m_dlDir.z };
+			_pLight->color = { m_dlColor.x, m_dlColor.y, m_dlColor.z, 1.0f };
+
+			// 色を 1.0 超えで持たせる従来の形をそのまま残すため、強さは掛けない。
+			// (ポイントライトのように色と明るさを分けたくなったらここへ欄を足す)
+			_pLight->brightness = 1.0f;
+		}
 	}
 
 	void SceneAmbientObject::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
 	{
 		// ---- 環境光・平行光 ----
 		a_ar.Field("AmbientColor", m_ambient.ambientColorScale);
-		a_ar.Field("DLDir", m_ambient.dlDir);
-		a_ar.Field("DLColor", m_ambient.dlColor);
+		a_ar.Field("DLDir", m_dlDir);
+		a_ar.Field("DLColor", m_dlColor);
 
 		// ---- 高さフォグ ----
 		a_ar.Field("HeightFogColor", m_ambient.heightFogColor);
@@ -356,8 +387,12 @@ namespace App::Object
 		ImGui::SeparatorText("Lighting");
 
 		ImGui::DragFloat3("AmbientColor", &m_ambient.ambientColorScale.x, 0.01f);
-		ImGui::DragFloat3("DLColor", &m_ambient.dlColor.x, 0.01f);
-		ImGui::DragFloat3("DLDir", &m_ambient.dlDir.x, 0.01f);
+		ImGui::DragFloat3("DLColor", &m_dlColor.x, 0.01f);
+		ImGui::DragFloat3("DLDir", &m_dlDir.x, 0.01f);
+		if (!m_dlHandle.IsValid())
+		{
+			ImGui::TextDisabled("(平行光の席が取れていません : 上限かも)");
+		}
 	}
 
 	void SceneAmbientObject::DrawFogInspector()

@@ -1,6 +1,6 @@
 // ルートパラメーターの構造体
 #include "../../../Common/RootParameters/CameraData.hlsli"
-#include "../../../Common/RootParameters/AmbientData.hlsli"
+#include "../../../Common/RootParameters/LightData.hlsli"
 #include "../../../Common/RootParameters/RaytracingData.hlsli"
 
 // ヘルパー関数
@@ -12,7 +12,7 @@
 //
 //   CBV(b0)         カメラ
 //   CBV(b1)         GBufferのSRVインデックス
-//   CBV(b10)        環境光(ライトの向きを取る)
+//   CBV(b10)        主光源(平行光の向きと色)
 //   SRV(t0)         TLAS
 //   UAVテーブル(u0) 影マスク出力
 //
@@ -28,9 +28,9 @@ cbuffer CBGBufferIndex : register(b1)
 	RayShadowGBufferIndex g_gbuffer;
 }
 
-cbuffer CBAmbient : register(b10)
+cbuffer CBSunLight : register(b10)
 {
-	AmbientData g_ambient;
+	SunLightData g_sun;
 }
 
 RaytracingAccelerationStructure	g_raytracingWorld	: register(t0);

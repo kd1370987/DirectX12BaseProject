@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "CBData.h"
+#include "LightManager/LightManager.h"
 
 namespace Engine
 {
@@ -182,6 +183,14 @@ namespace Engine::Graphics
 
 		void SetSkyTexture(const Handle<Resource::Texture>& a_handle);
 		const Handle<Resource::Texture>& GetSkyTexture() const;
+
+		// ライト
+		//
+		// ライトの実体はここのプールに置き、持ち主(シーンのオブジェクトなど)はハンドルだけ持つ。
+		// GetFrameLightData() が返すのは今フレームぶんの GPU バッファで、
+		// Execute() の中で詰め直されるのでレンダーパスからのみ引くこと。
+		LightManager* RefLightManager();
+		const FrameLightData& GetFrameLightData() const;
 		//--------------------------------------------------------------------------------------------
 		// 計算コマンド : スキニング
 		//--------------------------------------------------------------------------------------------
@@ -465,6 +474,14 @@ namespace Engine::Graphics
 
 		// 被写界深度データ(アクティブカメラの FocusParamComponent から毎フレーム設定)
 		DoFOptionCB m_cbDoF = {};
+
+		// ライト本体のプール
+		LightManager m_lightManager = {};
+
+		// GPUへ渡すライト配列。
+		// UPLOADヒープへ直接書き込むので、GPUがまだ前フレームを読んでいる領域を
+		// 上書きしないようフレームぶん持つ(レンダーコンテキストと同じ数)
+		FrameLightData m_frameLightDataArr[CPU_FRAME_COUNT] = {};
 		
 		// オブジェクト単位データ
 		std::vector<MeshInstanceData> m_meshInstanceDataVec = {};

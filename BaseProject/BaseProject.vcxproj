@@ -274,6 +274,7 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.cpp" />
@@ -712,6 +713,8 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.h" />
+    <ClInclude Include="Source\Application\Components\Light\PointLightComponent.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.h" />
@@ -924,6 +927,8 @@
     <ClInclude Include="Source\Engine\Graphics\CBData.h" />
     <ClInclude Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h" />
+    <ClInclude Include="Source\Engine\Graphics\LightManager\Core\Light.h" />
+    <ClInclude Include="Source\Engine\Graphics\LightManager\Core\Shadow.h" />
     <ClInclude Include="Source\Engine\Graphics\LightManager\LightManager.h" />
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshAllocationHandle.h" />
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.h" />
@@ -1134,6 +1139,7 @@
     <None Include="Asset\Shader\Common\Math\Normal.hlsli" />
     <None Include="Asset\Shader\Common\Math\Transform.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\AmbientData.hlsli" />
+    <None Include="Asset\Shader\Common\RootParameters\LightData.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\BloomOptionData.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\BonePalletData.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\CameraData.hlsli" />

@@ -11,6 +11,7 @@
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 #include "Engine/D3D12/CBAllocator/CBAllocator.h"
+#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "Engine/Option/OptionManager.h"
 
@@ -80,6 +81,34 @@ namespace Engine::Graphics
 			_lightCB.directionalIntensity = _lightOp.directionalIntensity;
 			_lightCB.dielectricF0         = _lightOp.dielectricF0;
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 4, _lightCB);
+
+			// ライト
+			//
+			// ライト配列はレンダーグラフの資源ではないので、SrvTable(2) の宣言には乗らない。
+			// GraphicsEngine が Execute() で今フレームぶんを詰め直したものを、ここで直接張る。
+			// ルートパラメータ番号5/6 = DEFERRED_ROOT_SIG 末尾に足した t7-t8 と b12。
+			//
+			// テーブルは並べた順にディスクリプタが入るので、t7 = ポイント / t8 = 平行光 の順を崩さないこと
+			const auto& _frameLight = a_pGE->GetFrameLightData();
+			const D3D12_CPU_DESCRIPTOR_HANDLE _lightSrvArr[] = {
+				D3D12::DescriptorHeapManager::Instance().GetCPU(_frameLight.plBuffer.GetSRV()),
+				D3D12::DescriptorHeapManager::Instance().GetCPU(_frameLight.dlBuffer.GetSRV()),
+			};
+			a_pCtx->ComputeBindSRV(5, _lightSrvArr);
+
+			// ライト数
+			// StructuredBuffer は要素数を持たないので、ループの上限をCBで渡す。
+			// HLSL の LightCountData と同じレイアウトで詰める
+			struct LightCountCB
+			{
+				uint32_t directionalNum;
+				uint32_t pointNum;
+				uint32_t pad[2];
+			};
+			LightCountCB _countCB = {};
+			_countCB.directionalNum = _frameLight.dlCount;
+			_countCB.pointNum       = _frameLight.plCount;
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, 6, _countCB);
 
 			// 実行
 			// 切り上げ : 解像度が8の倍数でないと末尾タイルが実行されず端が処理されない

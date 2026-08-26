@@ -2,6 +2,7 @@
 
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Graphics/CBData.h"
+#include "Engine/Graphics/LightManager/Core/Light.h"	// 平行光の実体はここの型
 
 namespace App::Object
 {
@@ -139,6 +140,22 @@ namespace App::Object
 		// 環境光・平行光・フォグ。定数バッファそのままの形で持つ
 		// (シェーダーへ送る単位と分けても、二重に持ち替えるだけなので合わせてある)
 		Engine::Graphics::AmbientData m_ambient = {};
+
+		//---------------------------------------------------------------------------------
+		// 平行光(太陽)
+		//
+		// 値はここが持ち、実体は LightManager の席へ毎フレーム流し込む。
+		//
+		// AmbientData から出したのは、影(RaytracingShadowPass)とGI(RaytracingGIPass)が
+		// レイを飛ばす先と、ディファードが足す光を1か所にまとめるため。
+		// 平行光をシーンに1つだけ置くのはこの3つが同じ1本を前提にしているからで、
+		// 2つ目以降を足しても影を落とすのは先頭の1つだけになる。
+		//---------------------------------------------------------------------------------
+		DirectX::XMFLOAT3 m_dlDir = { 0.5f, -1.0f, 0.5f };		// 向き(光の進む向き)
+		DirectX::XMFLOAT3 m_dlColor = { 4.0f, 4.0f, 4.0f };		// 色(1.0超え可)
+
+		// LightManager から借りている席。保存しない(添字はシーンごとに振り直される)
+		Engine::Handle<Engine::Graphics::DirectionalLight> m_dlHandle = {};
 
 		// カメラに追従するチリ
 		Dast m_dast = {};

@@ -45,6 +45,7 @@
 #include "Application/Components/Character/Robot/BoosterEffectComponent.h"
 #include "Application/Components/Character/Robot/ChargeDashComponent.h"
 #include "Application/Components/Character/ScoreTargetComponent.h"
+#include "Application/Components/Light/PointLightComponent.h"
 #include "Application/Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "Application/Components/Resource/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
@@ -105,6 +106,7 @@
 #include "Application/Systems/Update/PostUpdate/CalcNodeSystem/CalcNodeSystem.h"
 #include "Application/Systems/Update/PostUpdate/FollowAnimationNodeSystem/FollowAnimationNodeSystem.h"
 #include "Application/Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
+#include "Application/Systems/Draw/PreDraw/PointLightSystem/PointLightSystem.h"
 #include "Application/Systems/Draw/Draw/StaticObjectDrawSystem/StaticObjectDrawSystem.h"
 #include "Application/Systems/Draw/Draw/DynamicObjectDrawSystem/DynamicObjectDrawSystem.h"
 #include "Application/Systems/Draw/Draw/AnimationOptionalDraw/AnimationOptionalDraw.h"
@@ -299,6 +301,8 @@ namespace App::ECS
 		a_world.RegisterComponent<ChargeDashComponent>("ChargeDashComponent");
 		// 倒す相手であることの印と、倒したときに入るスコア
 		a_world.RegisterComponent<ScoreTargetComponent>("ScoreTargetComponent");
+		// エンティティの位置を光源にする点光源。実体は LightManager のプールにある
+		a_world.RegisterComponent<PointLightComponent>("PointLightComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -354,6 +358,9 @@ namespace App::ECS
 		// 湧いた瞬間に鳴らす音(エフェクト用)。インスタンスは SoundFixupSystem が先に用意する
 		a_world.RegisterSystem<SpawnSoundSystem>();
 		a_world.RegisterSystem<CamSetShaderSystem>();
+		// 点光源の位置と設定値を LightManager へ送る。
+		// GPUバッファへ詰め直されるのは描画フェーズの後なので、この帯で間に合う
+		a_world.RegisterSystem<PointLightSystem>();
 		a_world.RegisterSystem<InputMoveSystem>();
 		a_world.RegisterSystem<GravitySystem>();
 		a_world.RegisterSystem<RotationSystem>();

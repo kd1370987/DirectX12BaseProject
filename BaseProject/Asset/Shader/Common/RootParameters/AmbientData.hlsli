@@ -1,4 +1,5 @@
 // シーン全体に掛かる環境光・フォグ。
+// 平行光はここではなく LightManager が持つ(LightData.hlsli)。
 // ※ CPU 側 Engine::Graphics::AmbientData と並びを合わせること。
 //    float3 は16バイト境界をまたぐと次の境界へ押し出されるので、pad を削らないこと
 #ifndef ROOTPARAM_AMBIENT_DATA_HLSLI
@@ -8,11 +9,6 @@ struct AmbientData
 {
 	float3 ambientColor;
 	float pad;
-
-	float3 DL_Dir;			// ディレクショナルライトの向き(ワールド空間)
-	float pad1;
-	float3 DL_Color;
-	float pad2;
 
 	// 高さフォグ
 	float3 heightFogColor;

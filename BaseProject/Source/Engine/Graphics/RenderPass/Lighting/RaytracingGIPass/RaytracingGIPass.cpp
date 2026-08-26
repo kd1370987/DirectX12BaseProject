@@ -56,7 +56,7 @@ namespace Engine::Graphics
 		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,1} });	// インスタンス配列
 		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,2} });	// マテリアル
 		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 1);		// GBufferインデックス
-		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 10);		// ライト
+		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 10);		// 主光源
 		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,3} });	// 頂点
 		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,4} });
 			_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::SRV,5} }); // アニメ済み頂点バッファ(t5)	// インデックス
@@ -174,12 +174,15 @@ namespace Engine::Graphics
 				_gbIdx
 			);
 
-			// ライト
-			const AmbientData& _ambient = a_pGE->GetAmbientData();
-			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(
+			// 主光源
+			//
+			// レイは平行光へ1本しか飛ばさないので、配列ではなく先頭の1つだけを受け取る。
+			// 実体は LightManager が持っていて、詰め直しは GraphicsEngine::Execute() 側で済んでいる
+			const auto _sunCB = a_pGE->RefLightManager()->GetSunLightCB();
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(
 				_pCmdList,
 				6,
-				_ambient
+				_sunCB
 			);
 			// メッシュ情報バインド
 			//a_pCtx->ComputeBindSRVBindLess(7, a_pGE->GetVertexCPUHandle());

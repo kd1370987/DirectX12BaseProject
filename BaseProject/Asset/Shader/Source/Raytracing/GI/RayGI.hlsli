@@ -1,6 +1,6 @@
 // ルートパラメーターの構造体
 #include "../../../Common/RootParameters/CameraData.hlsli"
-#include "../../../Common/RootParameters/AmbientData.hlsli"
+#include "../../../Common/RootParameters/LightData.hlsli"
 #include "../../../Common/RootParameters/RaytracingData.hlsli"
 #include "../../../Common/RootParameters/Vertex.hlsli"
 
@@ -34,9 +34,9 @@ cbuffer CBGBufferIndex : register(b1)
 	RayGIGBufferIndex g_gbuffer;
 }
 
-cbuffer CBAmbient : register(b10)
+cbuffer CBSunLight : register(b10)
 {
-	AmbientData g_ambient;
+	SunLightData g_sun;
 }
 
 RaytracingAccelerationStructure	g_raytracingWorld	: register(t0);

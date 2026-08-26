@@ -50,7 +50,7 @@ namespace Engine::Graphics
 		_rayGlobal.AddRoot(D3D12::RootParameterType::RootSRV, 0);		// TLAS
 		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::UAV,0} });	// 出力
 		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 1);		// GBufferIndex
-		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 10);		// ライト
+		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 10);		// 主光源
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 
@@ -155,12 +155,15 @@ namespace Engine::Graphics
 				_gbIdx
 			);
 
-			// ライト
-			const AmbientData& _ambient = a_pGE->GetAmbientData();
-			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(
+			// 主光源
+			//
+			// レイは平行光へ1本しか飛ばさないので、配列ではなく先頭の1つだけを受け取る。
+			// 実体は LightManager が持っていて、詰め直しは GraphicsEngine::Execute() 側で済んでいる
+			const auto _sunCB = a_pGE->RefLightManager()->GetSunLightCB();
+			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(
 				_pCmdList,
 				4,
-				_ambient
+				_sunCB
 			);
 
 			// ディスパッチ

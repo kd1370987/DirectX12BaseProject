@@ -91,7 +91,7 @@ void TraceLightRay(inout RayPayload a_rayPayload, float3 a_normal, float3 a_geoN
 	float3 _rayDirW = WorldRayDirection(); // レイのワールド空間での方向
 	float3 _rayOriginW = WorldRayOrigin(); // レイのワールド空間での開始位置
 	float3 _posW = _rayOriginW + _hitT * _rayDirW; // レイが当たった位置を計算
-	float3 _ligDir = normalize(-g_ambient.DL_Dir); // 光の方向
+	float3 _ligDir = normalize(-g_sun.dir); // 光の方向
 
 	// 光源の方向にレイを飛ばす
 	RayDesc _ray;
@@ -415,7 +415,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	// 直接光が当たってる
 	if (a_payload.hit == 0)
 	{
-		float3 _ligDir = normalize(-g_ambient.DL_Dir);
+		float3 _ligDir = normalize(-g_sun.dir);
 		// ジオメトリ法線がライトに対して背を向けている場合強制的に影にする
 		//float _GdotL = dot(_geoNormal, _ligDir);
 		//if (_GdotL > 0.0f)
@@ -444,7 +444,7 @@ void ClosestHit(inout RayPayload a_payload, in BuiltInTriangleIntersectionAttrib
 	float3 _albedo = albedoTex.SampleLevel(gSamp, _uv, lod).rgb * _material.baseColor.xyz;
 
 	// 最終的な色の合成
-	float3 _directLight = (_lig / 3.141592f) * g_ambient.DL_Color; // ライトの色をかける
+	float3 _directLight = (_lig / 3.141592f) * (g_sun.color.rgb * g_sun.brightness); // ライトの色をかける
 	float3 _indirectLight = _refPayload.color; // 飛んだ先から持ち帰ってきた色
 
 	// アルベド * (直接光 + 間接光) + エミッシブ(自己発光)

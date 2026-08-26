@@ -122,6 +122,15 @@ namespace Engine::Graphics
 			m_upRenderContextVec.push_back(std::move(_upCtx));
 		}
 
+		// ライト
+		// バッファは上限ぶんを固定確保する(FrameLightData::Create の中)。
+		// ライトが増えるたびに作り直すと、GPUが読んでいる最中のリソースを解放することになる
+		m_lightManager.Init();
+		for (auto& _frameLight : m_frameLightDataArr)
+		{
+			_frameLight.Create(_pDevice);
+		}
+
 		// レンダーパスの登録
 		m_upRenderPassRegistry = std::make_unique<RenderPassRegistry>();
 		// ラスター関係
@@ -249,8 +258,6 @@ namespace Engine::Graphics
 		// 定数バッファ初期化
 		m_cbAmbient = {};
 		m_cbAmbient.ambientColorScale = { 0,0,0 };
-		m_cbAmbient.dlDir = { 0.5f,-1.0f,0.5f };
-		m_cbAmbient.dlColor = { 4.0f,4.0f,4.0f };
 
 		// バッファ管理クラス
 		BufferSizeDesc _bufferSizeDesc = {};
@@ -274,6 +281,14 @@ namespace Engine::Graphics
 			_ctx->Release();
 			_ctx.reset();
 		}
+
+		// ライト解放
+		// プールを空にした時点で配り済みのライトハンドルはすべて無効になる
+		for (auto& _frameLight : m_frameLightDataArr)
+		{
+			_frameLight.Release();
+		}
+		m_lightManager.Release();
 
 		// レンダーグラフの一時リソース(GBuffer/TAA/各種RTなどのテクスチャ・バッファ)を解放。
 		// デストラクタ任せにすると LIVE_DEVICE として残るため、ここで明示的に解放する。
@@ -385,6 +400,10 @@ namespace Engine::Graphics
 
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateUIBuffer(m_uiDrawItemVec);
 
+		// ライトをGPUバッファへ詰め直す。
+		// レンダーパスが引くのはこの結果なので、必ずレンダーグラフの実行より前に済ませる
+		m_lightManager.BuildFrameData(m_frameLightDataArr[m_currentFrameIndex]);
+
 
 		// 描画アイテムをソート
 		std::sort(
@@ -449,6 +468,16 @@ namespace Engine::Graphics
 	RenderGraph* GraphicsEngine::RefRenderGraph()
 	{
 		return m_upRenderGraph.get();
+	}
+
+	LightManager* GraphicsEngine::RefLightManager()
+	{
+		return &m_lightManager;
+	}
+
+	const FrameLightData& GraphicsEngine::GetFrameLightData() const
+	{
+		return m_frameLightDataArr[m_currentFrameIndex];
 	}
 	void GraphicsEngine::SetCameraMat(const DXSM::Matrix& a_worldMat)
 	{

@@ -40,8 +40,16 @@ void RayGen()
 	float2 _enc = _normalTex.Load(int3(_id, 0)).rg; // 法線
 	float3 _normal = DecsodeNormal(_enc); // 法線を復元
 
+	// 平行光が1つも無いシーンでは影の落としようがないので、影なし(白)で埋める。
+	// 0 のまま計算に入れると向きが不定になり、影が縞になって出る
+	if (g_sun.enable == 0)
+	{
+		gOutPut[_id] = float4(1, 1, 1, 1);
+		return;
+	}
+
 	// 光源へ向かうベクトル
-	float3 _lightDir = normalize(-g_ambient.DL_Dir);
+	float3 _lightDir = normalize(-g_sun.dir);
 	
 	// 光が当たらない裏面はレイを飛ばさず影(0,0,0)にする
 	float _NdotL = dot(_normal, _lightDir);

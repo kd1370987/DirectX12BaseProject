@@ -337,6 +337,12 @@
     <Filter Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem">
       <UniqueIdentifier>{644a61c0-8983-477a-957e-fd10b32ffe37}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem">
+      <UniqueIdentifier>{7f2c1a90-4d63-4a1e-9c05-2b8e6f31d47a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Light">
+      <UniqueIdentifier>{c41b8e57-9a20-4f6d-b3e8-5d07a2c9186f}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Init">
       <UniqueIdentifier>{8e76d589-19f7-49ba-9c3b-eb65b949f5ce}</UniqueIdentifier>
     </Filter>
@@ -1009,6 +1015,9 @@
     <Filter Include="Source\Engine\Graphics\LightManager">
       <UniqueIdentifier>{175f6740-bef4-4d67-8fb6-0c9d05fb78d3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\LightManager\Core">
+      <UniqueIdentifier>{d36b2d33-33f8-46bd-8ebc-673736a32fe3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\MeshBufferAllocator">
       <UniqueIdentifier>{4cdb53e6-823d-442f-af6a-eba9acee921b}</UniqueIdentifier>
     </Filter>
@@ -1679,6 +1688,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp">
       <Filter>Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\PreDraw\PointLightSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.cpp">
       <Filter>Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem</Filter>
@@ -3017,6 +3029,12 @@
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h">
       <Filter>Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.h">
+      <Filter>Source\Application\Systems\Draw\PreDraw\PointLightSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Light\PointLightComponent.h">
+      <Filter>Source\Application\Components\Light</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.h">
       <Filter>Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem</Filter>
     </ClInclude>
@@ -3659,6 +3677,12 @@
     <ClInclude Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.h">
       <Filter>Source\Engine\Graphics\FrameResource</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\LightManager\Core\Light.h">
+      <Filter>Source\Engine\Graphics\LightManager\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\LightManager\Core\Shadow.h">
+      <Filter>Source\Engine\Graphics\LightManager\Core</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\LightManager\LightManager.h">
       <Filter>Source\Engine\Graphics\LightManager</Filter>
     </ClInclude>
@@ -4279,6 +4303,9 @@
       <Filter>Asset\Shader\Common\Math</Filter>
     </None>
     <None Include="Asset\Shader\Common\RootParameters\AmbientData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\LightData.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
     <None Include="Asset\Shader\Common\RootParameters\BloomOptionData.hlsli">
