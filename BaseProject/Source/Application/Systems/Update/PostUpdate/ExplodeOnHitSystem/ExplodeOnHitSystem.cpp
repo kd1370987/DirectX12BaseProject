@@ -1,6 +1,6 @@
 #include "ExplodeOnHitSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/ECS/Internal/CollisionEvent.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
@@ -21,7 +21,7 @@
 // 敵のように「殴られても耐える」ものまで一撃で消えてしまうため、
 // 体力持ちの死亡は HealthSystem 側に一本化している。
 //==============================================================================
-void ExplodeOnHitSystem::Init(Engine::ECS::World& a_world)
+void ExplodeOnHitSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const Engine::ECS::CollisionEvent, ExplodeOnHitComponent>(
 		Engine::ECS::ESystemType::PostUpdate,

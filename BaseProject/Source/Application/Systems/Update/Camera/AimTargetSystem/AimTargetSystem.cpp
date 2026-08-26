@@ -1,6 +1,6 @@
 ﻿#include "AimTargetSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Tag/CameraTag.h"
 #include "Application/Components/Camera/FollowTargetComponent.h"
@@ -39,7 +39,7 @@
 //   「カメラの姿勢を書く TPSSystem より後ろに並ぶ」ための依存で、
 //   これが無いと1フレーム前の向きで狙うことになる。
 //==========================================================================================
-void AimTargetSystem::Init(Engine::ECS::World& a_world)
+void AimTargetSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::Camera,

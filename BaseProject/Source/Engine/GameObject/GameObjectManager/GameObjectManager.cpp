@@ -138,12 +138,20 @@ namespace Engine::GameObject
 				if (a_ar.IsSaving())
 				{
 					// --------------------------------------------------
-					// 保存 : タイプインデックス / GUID / データ を書き出す
+					// 保存 : タイプID / GUID / データ を書き出す
 					// --------------------------------------------------
 					BaseObject* _pObject = m_upObjectVec[_i].get();
 
 					// C++型から登録済みタイプIDを引く
+					// (登録名のハッシュなので、GameManager::Init の登録順を変えても値は動かない)
 					ObjectTypeID _typeID = _registry.GetTypeID(std::type_index(typeid(*_pObject)));
+
+					// 未登録のクラスは読み込み時に復元できない。
+					// 黙って書き出すとシーンから消えたようにしか見えないので、ここで気付かせる
+					if (_typeID == INVALID_OBJECT_TYPE_ID)
+					{
+						ENGINE_WARNING("[GameObjectManager] 未登録のクラスを保存しようとしました : %s", typeid(*_pObject).name());
+					}
 
 					// GUIDが未発行なら発行しておく
 					Engine::GUID _guid = _pObject->GetGUID();
@@ -171,17 +179,28 @@ namespace Engine::GameObject
 				else
 				{
 					// --------------------------------------------------
-					// 読み込み : タイプインデックスからクラスを復元する
+					// 読み込み : タイプIDからクラスを復元する
 					// --------------------------------------------------
-					ObjectTypeID _typeID = INVALID_OBJECT_TYPE_ID;
+					// シーンに書かれている値(登録名のハッシュ)。
+					// 登録名を変えたクラスもあるので、引くのは ResolveTypeID を通す
+					uint32_t _savedTypeID = INVALID_OBJECT_TYPE_ID;
 					Engine::GUID _guid = {};
 					Engine::GUID _parentGUID = {};
-					a_ar.Field("TypeIndex", _typeID);
+					a_ar.Field("TypeIndex", _savedTypeID);
 					a_ar.GUIDField("GUID", _guid);
 					a_ar.GUIDField("ParentGUID", _parentGUID);
 
+					ObjectTypeID _typeID = _registry.ResolveTypeID(_savedTypeID);
+
 					// ファクトリで実体を生成
 					auto _upObject = _registry.Create(_typeID);
+					if (!_upObject)
+					{
+						// 生成できないと、このオブジェクトはシーンから静かに消える。
+						// バイナリで読んでいる場合は Data を読み飛ばせず以降が全部ずれるので、
+						// 「なぜか消えた」ではなく原因が分かるようにしておく
+						ENGINE_WARNING("[GameObjectManager] タイプIDからクラスを復元できませんでした : %u", _savedTypeID);
+					}
 					if (_upObject)
 					{
 						// GUIDを復元して登録

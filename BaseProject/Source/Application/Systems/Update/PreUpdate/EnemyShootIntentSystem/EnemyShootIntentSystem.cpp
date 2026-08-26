@@ -1,6 +1,6 @@
 ﻿#include "EnemyShootIntentSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Tag/EnemyTag.h"
 #include "../../../../Components/Character/TargetEntityComponent.h"
@@ -34,7 +34,7 @@
 //   CloseCombatIntentSystem が同じ ActionIntentComponent を書くため、
 //   両方が書き手になると登録順しだいで撃ちっぱなしになる。
 //==============================================================================
-void EnemyShootIntentSystem::Init(Engine::ECS::World& a_world)
+void EnemyShootIntentSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const EnemyTag, const TargetEntityComponent, ActionIntentComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

@@ -1,13 +1,13 @@
 ﻿#include "PositionIntegrationSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Force/VelocityComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 
 #include "Application/Components/Force/MovementComponent.h"
 
-void PositionIntegrationSystem::Init(Engine::ECS::World& a_world)
+void PositionIntegrationSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const VelocityComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,

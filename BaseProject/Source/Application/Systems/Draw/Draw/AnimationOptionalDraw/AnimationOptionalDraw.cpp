@@ -1,6 +1,6 @@
 ﻿#include "AnimationOptionalDraw.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "../../../../../Engine/Graphics/GraphicEngine.h"
@@ -13,7 +13,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
-void AnimationOptionalDrawSystem::Init(Engine::ECS::World& a_world)
+void AnimationOptionalDrawSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<
 		const WorldMatrixComponent,

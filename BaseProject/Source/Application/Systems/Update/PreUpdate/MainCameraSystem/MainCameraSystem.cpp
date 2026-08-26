@@ -1,6 +1,6 @@
 ﻿#include "MainCameraSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Tag/CameraTag.h"
 #include "Application/Components/Camera/CameraParamComponent.h"
@@ -33,7 +33,7 @@
 //   ActiveTask はチャンクごとに呼ばれるので「最初の1台」を選ぶには
 //   呼び出しをまたいだ状態が要るのと、ActiveTag を書く扱いになるのを避けるため。
 //==========================================================================================
-void MainCameraSystem::Init(Engine::ECS::World& a_world)
+void MainCameraSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PreUpdate,

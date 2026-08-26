@@ -1,7 +1,7 @@
 ﻿#include "UIGauge.h"
 
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Editor/Helper/EditorHelper.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"

@@ -1,6 +1,6 @@
 ﻿#include "HomingSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/Weapon/Projectile/HomingComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
@@ -36,7 +36,7 @@
 // ・自分の位置は LocalTransform を見る。弾は親を持たない(ワールド=ローカル)し、
 //   WorldMatrix は前フレームの PostUpdate の値なので、生成直後は入っていない。
 //==============================================================================
-void HomingSystem::Init(Engine::ECS::World& a_world)
+void HomingSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<HomingComponent, VelocityComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

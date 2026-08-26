@@ -1,6 +1,6 @@
 ﻿#include "LockOnRotationSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
@@ -79,7 +79,7 @@ namespace
 	}
 }
 
-void LockOnRotationSystem::Init(Engine::ECS::World& a_world)
+void LockOnRotationSystem::Init(App::ECS::World& a_world)
 {
 	//==========================================================================
 	// ステートマシンを持つプレイヤー(本命)

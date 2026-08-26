@@ -1,6 +1,6 @@
 ﻿#include "RotationSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Character/LookAngleComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
@@ -19,7 +19,7 @@
 // ・プレイヤーは ActionState を見て挙動を切り替える LockOnRotationSystem が
 //   姿勢を書くので、二重書き込みにならないよう PlayerControllTag を除外する。
 //==============================================================================
-void RotationSystem::Init(Engine::ECS::World& a_world)
+void RotationSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const LookAngleComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,

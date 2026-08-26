@@ -1,6 +1,6 @@
 #include "ChargeDashSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../../Components/Force/VelocityComponent.h"
 #include "../../../../../Components/Force/MovementComponent.h"
@@ -53,7 +53,7 @@
 //   (書き手同士の順序は登録順で決まる。読み手の MovementIntegrationSystem とは
 //    Velocity の読み書きで辺が張られるので、登録位置に関わらず後ろへ回る)。
 //==============================================================================
-void ChargeDashSystem::Init(Engine::ECS::World& a_world)
+void ChargeDashSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<ChargeDashComponent, VelocityComponent, const MoveIntentComponent,
 		const LookAngleComponent>(

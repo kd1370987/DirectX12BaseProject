@@ -1,6 +1,6 @@
 #include "DeathEffectSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Character/DeathEffectComponent.h"
 #include "Application/Components/Character/HealthComponent.h"
@@ -40,7 +40,7 @@
 //   HitEventResource と同じく捨てる係を分けてある(DeathEventClearSystem / PreUpdate)。
 //   先に読んだ方が消す形だと、読み手が増えたときに登録順で動いたり動かなかったりする。
 //==============================================================================
-void DeathEffectSystem::Init(Engine::ECS::World& a_world)
+void DeathEffectSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,

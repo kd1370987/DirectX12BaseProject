@@ -1,6 +1,6 @@
 #include "HealthSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Character/HealthComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
@@ -37,7 +37,7 @@
 // ・PostUpdate 帯。ヒットを積むのは Physics 帯の HitDetectSystem、
 //   消すのは次フレーム PreUpdate の HitEventClearSystem なので、その間で読む。
 //==============================================================================
-void HealthSystem::Init(Engine::ECS::World& a_world)
+void HealthSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<HealthComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::PostUpdate,

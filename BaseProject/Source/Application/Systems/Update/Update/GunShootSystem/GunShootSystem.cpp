@@ -1,6 +1,6 @@
 ﻿#include "GunShootSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/Prefab/Prefab.h"
 
@@ -96,7 +96,7 @@ namespace
 	// ミサイルと共通なので App::Systems::ProjectileSpawn へ寄せてある。
 }
 
-void GunShootSystem::Init(Engine::ECS::World& a_world)
+void GunShootSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<GunStateComponent, const WeaponTriggerComponent, const WorldMatrixComponent,
 		const ModelComponent>(

@@ -1,6 +1,6 @@
 ﻿#include "CameraStartSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Camera/ProjMatComponent.h"
 #include "../../../../Components/Camera/CameraParamComponent.h"
@@ -12,7 +12,7 @@
 
 #include "../../../../../Engine/Option/OptionManager.h"
 
-void CameraStartSystem::Init(Engine::ECS::World& a_world)
+void CameraStartSystem::Init(App::ECS::World& a_world)
 {
 	a_world.StartTask<CameraParamComponent,ProjMatComponent>(
 		Engine::ECS::ESystemType::Start,

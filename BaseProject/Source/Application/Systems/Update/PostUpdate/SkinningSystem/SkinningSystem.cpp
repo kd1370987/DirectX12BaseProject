@@ -1,13 +1,13 @@
 ﻿#include "SkinningSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Resource/ModelComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Resource/SkeletonPoseComponent.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-void SkinningSystem::Init(Engine::ECS::World& a_world)
+void SkinningSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ModelComponent, NodePoseComponent, SkeletonPoseComponent>(
 		Engine::ECS::ESystemType::Animation,

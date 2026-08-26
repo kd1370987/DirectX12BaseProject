@@ -1,7 +1,7 @@
 ﻿#include "SceneSequence.h"
 
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Editor/Editor.h"
 #include "Engine/Common/Color.h"

@@ -1,6 +1,6 @@
 ﻿#include "EffectUpdateSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../../Components/Effect/EffectAssetComponent.h"
 #include "../../../../../Components/Transform/WorldMatrixComponent.h"
@@ -21,7 +21,7 @@
 // 実フレーム時間(a_ctx.dt)が要るので Update フェーズで回す
 // (Draw フェーズは dt = 0 のため、ここでやらないと時間が進まない)。
 //==========================================================================================
-void EffectUpdateSystem::Init(Engine::ECS::World& a_world)
+void EffectUpdateSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<EffectAssetComponent>(
 		Engine::ECS::ESystemType::Update,

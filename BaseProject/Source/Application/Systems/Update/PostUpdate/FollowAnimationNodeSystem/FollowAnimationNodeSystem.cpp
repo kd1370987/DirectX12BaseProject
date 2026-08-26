@@ -1,5 +1,5 @@
 ﻿#include "FollowAnimationNodeSystem.h"
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Hierarchy/FollowAnimationNodeComponent.h"
 #include "../../../../Components/Hierarchy/HierarchyComponent.h"
@@ -7,7 +7,7 @@
 
 #include "Application/Components/Transform/LocalTransformComponent.h"
 
-void FollowAnimationNodeSystem::Init(Engine::ECS::World& a_world)
+void FollowAnimationNodeSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const FollowAnimationNodeComponent, const HierarchyComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::PostUpdate,

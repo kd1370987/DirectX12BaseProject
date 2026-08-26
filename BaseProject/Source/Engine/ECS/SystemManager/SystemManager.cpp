@@ -3,6 +3,12 @@
 namespace Engine::ECS
 {
 
+	void SystemManager::Hold(std::shared_ptr<ISystem> a_spSystem)
+	{
+		if (!a_spSystem) return;
+		m_systemVec.push_back(std::move(a_spSystem));
+	}
+
 	void SystemManager::Init()
 	{
 		m_systemVec.clear();

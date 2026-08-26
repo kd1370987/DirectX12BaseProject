@@ -1,6 +1,7 @@
 ﻿#include "HierarchyPanel.h"
 
 #include "Engine/ECS/World/World.h"
+#include "../../../../Application/ECS/PhaseTag/PhaseTag.h"	// ライフサイクルのフェーズタグ
 
 #include "../../../Scene/BaseScene/BaseScene.h"
 #include "../../../Scene/SceneManager/SceneManager.h"

@@ -37,7 +37,11 @@ namespace Engine::Scene
 	//======================================================================================
 	std::unique_ptr<Engine::ECS::World> CreateSceneWorld()
 	{
-		auto _upWorld = std::make_unique<Engine::ECS::World>();
+		// 実体を作るのは上位層(App::ECS::World)。
+		// エンジンは基盤の Engine::ECS::World としてしか触らない
+		auto _upWorld = SceneManager::Instance().CreateWorld();
+		if (!_upWorld) return nullptr;
+
 		_upWorld->Init();
 
 		// アプリ寿命のサービスを差し込む。
@@ -68,8 +72,9 @@ namespace Engine::Scene
 		// システムは a_ctx.pWorld->GetResource<CollisionWorld>() で引くこと。
 		_upWorld->AddResource<Collision::CollisionWorld>();
 
-		// コンポーネントとシステムの登録
-		SceneManager::Instance().InvokeWorldInitCallback(_upWorld.get());
+		// ゲーム固有のコンポーネントとシステムの登録。
+		// 何を登録するかはワールドの実体(派生)が持っている
+		_upWorld->RegisterGameTypes();
 
 		return _upWorld;
 	}

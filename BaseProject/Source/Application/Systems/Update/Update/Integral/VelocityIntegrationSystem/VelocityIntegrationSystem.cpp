@@ -1,10 +1,10 @@
 ﻿#include "VelocityIntegrationSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Force/VelocityComponent.h"
 
-void VelocityIntegrationSystem::Init(Engine::ECS::World& a_world)
+void VelocityIntegrationSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<VelocityComponent>(
 		Engine::ECS::ESystemType::Update,

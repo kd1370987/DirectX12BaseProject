@@ -1,6 +1,6 @@
 ﻿#include "EnemyMoveIntentSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/TargetEntityComponent.h"
 #include "../../../../Components/Character/PatrolComponent.h"
@@ -35,7 +35,7 @@
 //   (プレイヤーはカメラ相対。消費側が別システムなので解釈を分けてよい)。
 //   実速度への変換は EnemyMovementSystem が行う。
 //==============================================================================
-void EnemyMoveIntentSystem::Init(Engine::ECS::World& a_world)
+void EnemyMoveIntentSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const TargetEntityComponent, PatrolComponent, const LocalTransformComponent, MoveIntentComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

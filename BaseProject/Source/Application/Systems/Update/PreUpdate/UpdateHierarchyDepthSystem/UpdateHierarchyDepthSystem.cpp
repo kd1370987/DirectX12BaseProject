@@ -1,11 +1,11 @@
 ﻿#include "UpdateHierarchyDepthSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Hierarchy/HierarchyComponent.h"
 #include "../../../../InstanceResource/HierarchyResource.h"
 
-void UpdateHierarchyDepthSystem::Init(Engine::ECS::World& a_world)
+void UpdateHierarchyDepthSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const HierarchyComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

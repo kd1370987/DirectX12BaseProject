@@ -1,6 +1,6 @@
 ﻿#include "BossCombatIntentSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/Boss/BossComponent.h"
 #include "../../../../Components/Character/TargetEntityComponent.h"
@@ -200,7 +200,7 @@ namespace
 	}
 }
 
-void BossCombatIntentSystem::Init(Engine::ECS::World& a_world)
+void BossCombatIntentSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<
 		const TargetEntityComponent,

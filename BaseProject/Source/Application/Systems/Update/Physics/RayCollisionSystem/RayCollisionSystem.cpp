@@ -1,6 +1,6 @@
 #include "RayCollisionSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Collision/Collider.h"
 #include "Application/Components/Collision/RayCollider.h"
@@ -14,7 +14,7 @@
 #include "Engine/Common/Color.h"
 
 
-void RayCollisionSystem::Init(Engine::ECS::World& a_world)
+void RayCollisionSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ColliderComponent, const RayColliderComponent, LocalTransformComponent, VelocityComponent, StateMachineComponent>(
 		Engine::ECS::ESystemType::Physics,

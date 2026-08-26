@@ -1,6 +1,6 @@
 ﻿#include "ParticleEmitSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../../Components/Resource/ParticlesComponent.h"
 
@@ -19,7 +19,7 @@
 // あわせて、isPlay の立ち上がり / 立ち下がりで出す火花(pendingSparkEmitCount)も決める。
 // 立ち下がりは isPlay が false のフレームに出すので、本体が止まった後も1フレームだけ発生する。
 //==========================================================================================
-void ParticleEmitSystem::Init(Engine::ECS::World& a_world)
+void ParticleEmitSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<ParticlesComponent>(
 		Engine::ECS::ESystemType::Update,

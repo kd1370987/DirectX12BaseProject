@@ -1,6 +1,6 @@
 ﻿#include "ThrusterEffectSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "../../../../Components/Character/Robot/BoostComponent.h"
@@ -36,7 +36,7 @@
 // 以前はブースターに ParticlesComponent を直に付けていて、
 // それ向けの分岐もここにあったが、ブースターは全て EffectAsset へ移したので消した。
 //==========================================================================================
-void ThrusterEffectSystem::Init(Engine::ECS::World& a_world)
+void ThrusterEffectSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const AttachmentSlotsComponent, const MoveIntentComponent, const VelocityComponent, const BoostComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

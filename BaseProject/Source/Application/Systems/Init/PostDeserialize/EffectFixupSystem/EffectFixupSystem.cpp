@@ -1,6 +1,6 @@
 ﻿#include "EffectFixupSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Effect/EffectAssetComponent.h"
@@ -22,7 +22,7 @@
 // どれも「その瞬間が来たら出すもの」なので進行状態は持たず、ハンドルを引くだけ。
 // 死んだ瞬間・踏み込んだ瞬間・撃った瞬間に読み込みが走らないよう、生成時に解決しておく。
 //==========================================================================================
-void EffectFixupSystem::Init(Engine::ECS::World& a_world)
+void EffectFixupSystem::Init(App::ECS::World& a_world)
 {
 	//--------------------------------------------------------------------------
 	// 再生するエフェクト : ハンドルと進行状態

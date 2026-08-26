@@ -2,15 +2,6 @@
 
 #include "../Internal/EntityLocation.h"
 
-// エンティティに初めからつけるためこの二つはインクルード
-#include "../../../Application/Components/Persistence/GUIDComponent.h"		// GUID
-#include "../../../Application/Components/Persistence/NameComponent.h"		// 名前
-#include "../../../Application/Components/Hierarchy/HierarchyComponent.h"	// 親子関係(解放を子へ広げるのに使う)
-
-// シングルトンリソース
-#include "../../../Application/InstanceResource/HierarchyResource.h"		// 階層保持
-#include "../../../Application/InstanceResource/ResourceWaitResource.h"	// リソース到着待ち
-
 
 namespace Engine::ECS
 {
@@ -46,32 +37,16 @@ namespace Engine::ECS
 	//======================================================================================
 	void World::Release()
 	{
-		TransitionPhase<ActiveTag, ReleaseTag>();
+		// 積まれたままの引っ越しを片付けてから消す
+		ApplyChangeSignatures();
 
-		// エンティティの引っ越し
-		for (auto& _chanCmd : m_changeEntityVec)
+		// 生きているエンティティを全部削除予定へ積む。
+		// 借りているものは RemoveEntity が解放フックを呼んで返す
+		for (const auto& _loca : m_entityManager.GetAllEntityLocation())
 		{
-			ChangeSignature(_chanCmd);
+			if (!_loca.pArchetypeChunk) continue;
+			AddRemoveEntity(_loca.pArchetypeChunk->entityData[_loca.chunkIndex]);
 		}
-		m_changeEntityVec.clear();
-
-		// 削除前にリリース処理を走らせる
-		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
-		// 解放処理がされたエンティティたちは削除予定に追加
-		ForEach<ReleaseTag>(
-			[this]
-			(
-				ArchetypeChunk* a_pChunk,
-				uint32_t a_count,
-				ReleaseTag* a_releaseTag
-				)
-			{
-				for (uint32_t _i = 0; _i < a_count; ++_i)
-				{
-					AddRemoveEntity(a_pChunk->entityData[_i]);
-				}
-			}
-		);
 
 		// エンティティの一括削除
 		RemoveEntityStorage();
@@ -84,99 +59,31 @@ namespace Engine::ECS
 		m_entityManager.Init();
 	}
 
+	//======================================================================================
+	// フレームの先頭処理
+	//--------------------------------------------------------------------------------------
+	// 基盤がやるのは「1フレームの間に積まれた命令を捌く」ところまで。
+	//   システムのソート → 生成 → 引っ越し → 削除 → リフレッシュ
+	//
+	// 初期化フェーズを進めるといったライフサイクルの決めごとは持たないので、
+	// それを持つ層(App::ECS::World)が override して間に差し込むこと。
+	//======================================================================================
 	void World::BeginFrame()
 	{
-		// 階層の変更通知をリセット
-		auto& _res = GetResource<HierarchyResource>();
-		_res.isDirty = false;
-
 		// システムのソート
 		m_systemManager.Sort();
 
 		// エンティティの一括作成
 		CreateAllEntity();
-		// ---------------------------------------------------------
+
 		// エンティティの引っ越し
 		ApplyChangeSignatures();
-		// ---------------------------------------------------------
-		// 解放されるものの子孫にもタグを広げる。
-		// 引っ越しが済んだ後に呼ぶので、この時点で親にはもうタグが付いている。
-		// ここで広げておけば、親子ともに同じフレームの Release フェーズを通ってから消える
-		PropagateReleaseToChildren();
-		// ---------------------------------------------------------
-		// 削除前にリリース処理を走らせる
-		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
-		// 解放処理がされたエンティティたちは削除予定に追加
-		ForEach<ReleaseTag>(
-			[this]
-			(
-				ArchetypeChunk* a_pChunk,
-				uint32_t a_count,
-				ReleaseTag* a_releaseTag
-				)
-			{
-				for (uint32_t _i = 0; _i < a_count; ++_i)
-				{
-					AddRemoveEntity(a_pChunk->entityData[_i]);
-				}
-			}
-		);
 
 		// エンティティの一括削除
 		RemoveEntityStorage();
 
-		// エンティティ削除後にエンティティをリフレッシュ
-		// 作り直しに回されたものは PostDeserializeTag が予約されるだけなので、
-		// ここで流しておかないと下の初期化フェーズに乗り遅れて1フレーム待たされる
+		// 作り直しに回されたものを流す
 		RefreshEntities();
-		ApplyChangeSignatures();
-
-		// ---------------------------------------------------------
-		// 初期化システムズ
-		// PostDeserialize -> Awake -> Start -> Active をこの1回の BeginFrame で通しきる。
-		// 各フェーズの遷移ごとに引っ越しを流し込むのがその要。
-		//
-		// TransitionPhase はタグの張り替えを「予約」するだけなので、流さないと反映が
-		// 次の BeginFrame になる。つまりフェーズが1段進むのに1フレームかかり、
-		// 生成命令を出してから描画されるまで4フレーム待たされていた
-		// (弾やエフェクトが遅れて見える原因)。
-		//
-		// システムが実行中に足したコンポーネントも、遷移の前に流しておくこと。
-		// TransitionPhase は張り替え先をその場のシグネチャから作るので、予約が
-		// 残っていると後から流したほうに上書きされて消える。
-		RunSystem(Engine::ECS::ESystemType::PostDeserialize, 0.0f);
-		ApplyChangeSignatures();
-		TransitionPhase<PostDeserializeTag, AwakeTag>();
-		ApplyChangeSignatures();
-	
-		RunSystem(Engine::ECS::ESystemType::Awake, 0.0f);
-		ApplyChangeSignatures();
-
-		// リソースが揃ったエンティティだけ Start へ進める。
-		// 揃っていないものは AwakeTag のまま残り、次のフレームで再判定される。
-		//
-		// Start の中で個別にスキップしないのは、同じエンティティに
-		// Start 系が複数ぶら下がっていて「一部だけ走った」状態を作れないため。
-		// 領域確保をするシステムがあるので、二重実行はそのままリークになる
-		{
-			auto& _waitRes = GetResource<ResourceWaitResource>();
-
-			TransitionPhase<AwakeTag, StartTag>(
-				[&_waitRes](Entity a_entity)
-				{
-					return !_waitRes.IsWaiting(a_entity);
-				}
-			);
-
-			ApplyChangeSignatures();
-
-			// 判定はフレームごとにやり直す
-			_waitRes.waitingEntities.clear();
-		}
-
-		RunSystem(Engine::ECS::ESystemType::Start, 0.0f);
-		ApplyChangeSignatures();
-		TransitionPhase<StartTag, ActiveTag>();
 		ApplyChangeSignatures();
 	}
 
@@ -197,8 +104,8 @@ namespace Engine::ECS
 		}
 		m_changeEntityVec.clear();
 
-		// エンティティの構成が変わったので階層の作り直しを促す
-		GetResource<HierarchyResource>().isDirty = true;
+		// エンティティの構成が変わったことを派生へ知らせる
+		OnEntityStructureChanged();
 	}
 
 	void World::AddEntity(const Signature& a_sig)
@@ -218,12 +125,9 @@ namespace Engine::ECS
 	{
 		// エンティティIDの生成
 		Signature _sig = a_sig;
-		_sig.set(GetCompTypeID<PostDeserializeTag>());		// 初めて通るシステムフェーズ
 
-		if (_sig.test(GetCompTypeID<ActiveTag>()))
-		{
-			_sig.reset(GetCompTypeID<ActiveTag>());
-		}
+		// 生まれた直後に何を載せるかは派生が決める(初期化フェーズのタグなど)
+		OnCreateEntitySignature(_sig);
 
 		ECS::Entity _entity = m_entityManager.CreateEntity(_sig);
 
@@ -294,9 +198,8 @@ namespace Engine::ECS
 		{
 			CreateEntity(_sig);
 
-			// エンティティの追加があったため階層の変更を通知する
-			auto& _res = GetResource<HierarchyResource>();
-			_res.isDirty = true;
+			// エンティティの構成が変わったことを派生へ知らせる
+			OnEntityStructureChanged();
 		}
 		m_addEntityVec.clear();
 
@@ -320,9 +223,8 @@ namespace Engine::ECS
 				memcpy(_dst, _buffer.data(), _copy);
 			}
 
-			// 階層の変更を通知
-			auto& _res = GetResource<HierarchyResource>();
-			_res.isDirty = true;
+			// エンティティの構成が変わったことを派生へ知らせる
+			OnEntityStructureChanged();
 		}
 		m_addEntityDataVec.clear();
 	}
@@ -337,9 +239,8 @@ namespace Engine::ECS
 		{
 			RemoveEntity(_entity);
 
-			// エンティティの追加があったため階層の変更を通知する
-			auto& _res = GetResource<HierarchyResource>();
-			_res.isDirty = true;
+			// エンティティの構成が変わったことを派生へ知らせる
+			OnEntityStructureChanged();
 		}
 
 		// 空にする
@@ -355,148 +256,18 @@ namespace Engine::ECS
 	}
 
 	//======================================================================================
-	// 解放されるエンティティの子孫にも ReleaseTag を広げる
+	// エンティティの解放予約
 	//--------------------------------------------------------------------------------------
-	// HierarchyComponent が持っているのは親だけなので、子は「親が誰か」を見て探す。
-	// 親→子の対応表はどこにも無く、作っても親子が変わるたびに作り直しになるため、
-	// 解放が起きたフレームだけ層ごとに舐める。
+	// 基盤は次の BeginFrame で消すだけ。借りているものは RemoveEntity が
+	// 解放フックを呼んで返す。
 	//
-	//   1周目 : 親が解放される子
-	//   2周目 : その子が親になっている孫
-	//   ...
-	// 新しく見つからなくなったら終わり。すでに対象に入っているものは飛ばすので、
-	// 親子が循環していても止まる。
-	//
-	// タグを付けるのは全部見終わってから。反復の最中に引っ越しをかけると
-	// チャンクの中身が動いて、走査そのものが壊れる。
+	// 消える前に後始末のフェーズを通したい層は override すること。
 	//======================================================================================
-	void World::PropagateReleaseToChildren()
-	{
-		const ComponentTypeID _releaseTypeID = GetCompTypeID<ReleaseTag>();
-		const ComponentTypeID _activeTypeID  = GetCompTypeID<ActiveTag>();
-		if (_releaseTypeID == Limits::INVALID_COMPONENTTYPEID) return;
-
-		//----------------------------------------------------------------------
-		// このフレームに解放されるもの
-		//----------------------------------------------------------------------
-		std::unordered_set<Entity> _releasing = {};
-
-		ForEach<ReleaseTag>(
-			[&_releasing]
-			(
-				ArchetypeChunk* a_pChunk,
-				uint32_t a_count,
-				ReleaseTag* a_releaseTag
-				)
-			{
-				for (uint32_t _i = 0; _i < a_count; ++_i)
-				{
-					_releasing.insert(a_pChunk->entityData[_i]);
-				}
-			}
-		);
-
-		if (_releasing.empty()) return;
-
-		//----------------------------------------------------------------------
-		// 子・孫…と辿って集める
-		//----------------------------------------------------------------------
-		// 深さの保険。親子が循環していなくてもここで必ず止まる
-		constexpr int _kMaxDepth = 32;
-
-		std::vector<Entity> _found = {};
-		std::vector<Entity> _targets = {};
-
-		for (int _depth = 0; _depth < _kMaxDepth; ++_depth)
-		{
-			_found.clear();
-
-			ForEach<const HierarchyComponent>(
-				[&_releasing, &_found]
-				(
-					ArchetypeChunk* a_pChunk,
-					uint32_t a_count,
-					const HierarchyComponent* a_hierarchyArray
-					)
-				{
-					for (uint32_t _i = 0; _i < a_count; ++_i)
-					{
-						const Entity _parent = a_hierarchyArray[_i].parentID;
-						if (_parent == Limits::INVALID_ENTITY) continue;
-
-						// 親が解放されないなら、この子はそのまま残す
-						if (!_releasing.contains(_parent)) continue;
-
-						// すでに対象になっているものは数えない(循環よけも兼ねる)
-						const Entity _child = a_pChunk->entityData[_i];
-						if (_releasing.contains(_child)) continue;
-
-						_found.push_back(_child);
-					}
-				}
-			);
-
-			// これ以上ぶら下がっていない
-			if (_found.empty()) break;
-
-			for (const Entity& _child : _found)
-			{
-				_releasing.insert(_child);
-				_targets.push_back(_child);
-			}
-		}
-
-		if (_targets.empty()) return;
-
-		//----------------------------------------------------------------------
-		// タグを付ける(走査が終わってから)
-		//----------------------------------------------------------------------
-		for (const Entity& _child : _targets)
-		{
-			Signature _sig = m_entityManager.GetSignature(_child);
-
-			// もう動かす必要はないので Active から外して Release へ移す。
-			// この後すぐ Release フェーズが走るので、借りているものは返ってから消える
-			if (_activeTypeID != Limits::INVALID_COMPONENTTYPEID)
-			{
-				_sig.reset(_activeTypeID);
-			}
-			_sig.set(_releaseTypeID);
-
-			ChangeEntityCmd _cmd = {};
-			_cmd.entity = _child;
-			_cmd.toSig = _sig;
-
-			ChangeSignature(_cmd);
-		}
-
-		// 階層が変わったので通知しておく
-		GetResource<HierarchyResource>().isDirty = true;
-	}
-
 	void World::AddReleaseEntity(const ECS::Entity& a_entity)
 	{
 		if (a_entity == ECS::Limits::INVALID_ENTITY) return;
 
-		Signature _sig = m_entityManager.GetSignature(a_entity);
-
-		// すでに解放待ちなら積み直さない(寿命と撃破が同じフレームに重なる等)
-		if (_sig.test(GetCompTypeID<ReleaseTag>())) return;
-
-		// もう動かす必要はないので Active から外して Release へ移す。
-		// BeginFrame では「引っ越し → Release実行 → ReleaseTag付きを削除」の順に流れるので、
-		// 次のフレームの頭で解放処理まで済ませて消える
-		if (_sig.test(GetCompTypeID<ActiveTag>()))
-		{
-			_sig.reset(GetCompTypeID<ActiveTag>());
-		}
-		_sig.set(GetCompTypeID<ReleaseTag>());
-
-		ChangeEntityCmd _cmd = {};
-		_cmd.entity = a_entity;
-		_cmd.toSig = _sig;
-
-		AddChangeSigCommand(_cmd);
+		AddRemoveEntity(a_entity);
 	}
 
 	void World::RemoveEntity(const ECS::Entity& a_entity)
@@ -559,34 +330,16 @@ namespace Engine::ECS
 		_release(a_pData);
 	}
 
+	//======================================================================================
+	// GUIDからエンティティを探す
+	//--------------------------------------------------------------------------------------
+	// 基盤のエンティティは「番号」でしかなく、保存をまたいで残る識別子は持たない。
+	// GUIDを載せるコンポーネントを定義した層が override して探す。
+	//======================================================================================
 	Entity World::GetEntity(const Engine::GUID& a_guid)
 	{
-		Entity _res = Limits::INVALID_ENTITY;
-
-		ForEach<GUIDComponent>(
-			[&a_guid,&_res](
-				ArchetypeChunk* a_chunk,
-				uint32_t a_count,
-				GUIDComponent* a_guidArray
-			)
-			{ 
-
-				if (_res != Limits::INVALID_ENTITY) return;
-
-				for(size_t _i= 0; _i < a_count; ++_i)
-				{
-					if (_res != Limits::INVALID_ENTITY) continue;
-
-					GUIDComponent& _comp = a_guidArray[_i];
-					if (_comp.guid == a_guid)
-					{
-						_res = a_chunk->entityData[_i];
-					}
-				}
-			}
-		);
-
-		return _res;
+		(void)a_guid;
+		return Limits::INVALID_ENTITY;
 	}
 
 	void World::AddComponent(ComponentTypeID a_typeID, Entity a_entity,uint8_t* a_pData)
@@ -600,11 +353,10 @@ namespace Engine::ECS
 		// 命令の発行
 		ChangeEntityCmd	_cmd = {};
 		_cmd.entity = a_entity;
-		if (_oldSig.test(GetCompTypeID<ActiveTag>()))
-		{
-			_oldSig.set(GetCompTypeID<PostDeserializeTag>());
-			_oldSig.reset(GetCompTypeID<ActiveTag>());
-		}
+
+		// 構成が変わったので初期化からやり直させる(判断と中身は派生が持つ)
+		OnReenterInitSignature(_oldSig);
+
 		_cmd.toSig = _oldSig;
 
 		// 初期化データはディープコピーして保持
@@ -680,13 +432,13 @@ namespace Engine::ECS
 		// 対象は次の2つ。どちらも退避したバッファに対して呼ぶので、
 		// ハンドルを空にした結果は引っ越し先へそのまま伝わる。
 		//
-		//   ・外されるコンポーネント   : この先持ち主がいなくなる
-		//   ・PostDeserialize へ入り直す : 直後に fixup が取り直すので、
-		//                              ここで返さないと二重に持つことになる
+		//   ・外されるコンポーネント     : この先持ち主がいなくなる
+		//   ・初期化へ入り直すエンティティ : 直後に取り直されるので、
+		//                                ここで返さないと二重に持つことになる
+		//
+		// 「初期化へ入り直すかどうか」の判断は派生が持つ(基盤はフェーズを知らない)
 		//------------------------------------------------------------------
-		const ComponentTypeID _postDeserializeID = GetCompTypeID<PostDeserializeTag>();
-		const bool _isBackToFixup =
-			a_cmd.toSig.test(_postDeserializeID) && !_oldSig.test(_postDeserializeID);
+		const bool _isBackToFixup = IsReenteringInit(_oldSig, a_cmd.toSig);
 
 		for (auto& [_compID, _buffer] : _oldData)
 		{
@@ -806,31 +558,15 @@ namespace Engine::ECS
 		return m_systemManager.GetCompileTaskMap();
 	}
 
+	//======================================================================================
+	// リフレッシュ(作り直し)の消化
+	//--------------------------------------------------------------------------------------
+	// 基盤には「作り直す」という工程が無いので、積まれたものを捨てるだけ。
+	// 初期化フェーズを持つ層(App::ECS::World)が override して、
+	// 後始末を通してから初期化へ戻す。
+	//======================================================================================
 	void World::RefreshEntities()
 	{
-		// 頻繁に呼ばれることはない想定なのでfor分内のエンティティを処理するのみ
-		// リリースタグの付与
-		for (auto& _entity : m_refreshEntityVec)
-		{
-			auto _sig = GetSignature(_entity);
-			if (_sig.test(GetCompTypeID<ActiveTag>()))
-			{
-				_sig.reset(GetCompTypeID<ActiveTag>());
-			}
-			_sig.set(GetCompTypeID<ReleaseTag>());
-			ChangeEntityCmd _cmd = {};
-			_cmd.entity = _entity;
-			_cmd.toSig = _sig;
-			ChangeSignature(_cmd);
-		}
-
-		// リリース処理
-		RunSystem(Engine::ECS::ESystemType::Release, 0.0f);
-
-		// リリースされたものを初期化処理に回す
-		TransitionPhase<ReleaseTag,PostDeserializeTag>();
-
-		// コマンドクリア
 		m_refreshEntityVec.clear();
 	}
 

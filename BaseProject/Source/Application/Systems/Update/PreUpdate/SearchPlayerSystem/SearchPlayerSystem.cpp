@@ -1,6 +1,6 @@
 ﻿#include "SearchPlayerSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/TargetEntityComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
@@ -65,7 +65,7 @@ namespace
 	}
 }
 
-void SearchPlayerSystem::Init(Engine::ECS::World& a_world)
+void SearchPlayerSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const WorldMatrixComponent, TargetEntityComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

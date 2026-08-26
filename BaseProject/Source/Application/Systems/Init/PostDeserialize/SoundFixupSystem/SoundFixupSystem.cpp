@@ -1,6 +1,6 @@
 ﻿#include "SoundFixupSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Resource/SoundComponent.h"
@@ -18,7 +18,7 @@
 // AudioBehaviorComponent はファイル1つではなく「音の流れ」を指すので、
 // まずアセットを解決してから、その定義に沿ってフェーズぶんのインスタンスを発行する。
 //==========================================================================================
-void SoundFixupSystem::Init(Engine::ECS::World& a_world)
+void SoundFixupSystem::Init(App::ECS::World& a_world)
 {
 	a_world.PostDeserializeTask<SoundComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,

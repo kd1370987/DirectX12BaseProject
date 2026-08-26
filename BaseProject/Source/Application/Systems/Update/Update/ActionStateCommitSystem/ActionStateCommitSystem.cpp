@@ -1,12 +1,12 @@
 ﻿#include "ActionStateCommitSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Resource/ActionStateComponent.h"
 
 #include "Engine/Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 
-void ActionStateCommitSystem::Init(Engine::ECS::World& a_world)
+void ActionStateCommitSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<ActionStateComponent>(
 		Engine::ECS::ESystemType::Update,

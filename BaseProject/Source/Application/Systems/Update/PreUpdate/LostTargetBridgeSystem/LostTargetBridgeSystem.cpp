@@ -1,6 +1,6 @@
 ﻿#include "LostTargetBridgeSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/PatrolComponent.h"
 #include "../../../../Components/Resource/ActionStateComponent.h"
@@ -28,7 +28,7 @@
 // ・PatrolComponent を「読む」ので、それを書く EnemyMoveIntentSystem の後ろへ
 //   自動的に回る(同じ PreUpdate 帯)。
 //==============================================================================
-void LostTargetBridgeSystem::Init(Engine::ECS::World& a_world)
+void LostTargetBridgeSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const PatrolComponent, ActionStateComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

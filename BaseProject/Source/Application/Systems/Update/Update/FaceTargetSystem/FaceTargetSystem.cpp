@@ -1,6 +1,6 @@
 ﻿#include "FaceTargetSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/TargetEntityComponent.h"
 #include "../../../../Components/Character/LookAngleComponent.h"
@@ -31,7 +31,7 @@
 //   表せるようにするため。設計図やノードが取れないときは従来どおり旋回する。
 // ・Update 帯に置く。書いた quat は PostUpdate の行列計算で反映される。
 //==============================================================================
-void FaceTargetSystem::Init(Engine::ECS::World& a_world)
+void FaceTargetSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const TargetEntityComponent, const ActionStateComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,

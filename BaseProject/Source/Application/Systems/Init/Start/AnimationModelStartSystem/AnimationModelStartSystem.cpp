@@ -1,6 +1,6 @@
 ﻿#include "AnimationModelStartSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
@@ -9,7 +9,7 @@
 #include "../../../../Components/Resource/NodePoseComponent.h"
 #include "../../../../Components/Resource/SkeletonPoseComponent.h"
 
-void AnimationModelStartSystem::Init(Engine::ECS::World& a_world)
+void AnimationModelStartSystem::Init(App::ECS::World& a_world)
 {
 	a_world.StartTask<const ModelComponent,AnimatorComponent,NodePoseComponent,SkeletonPoseComponent>(
 		// StartTag を見るので Start フェーズで回す。

@@ -1,9 +1,9 @@
 #include "CollisionEventClearSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/ECS/Internal/CollisionEvent.h"
 
-void CollisionEventClearSystem::Init(Engine::ECS::World& a_world)
+void CollisionEventClearSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<Engine::ECS::CollisionEvent>(
 		Engine::ECS::ESystemType::PreUpdate,

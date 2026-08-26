@@ -6,7 +6,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 #include "Application/Components/Character/Weapon/Missile/MissileLockComponent.h"

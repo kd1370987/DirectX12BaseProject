@@ -1,6 +1,6 @@
 ﻿#include "ExplosionSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Effect/ExplosionComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
@@ -30,7 +30,7 @@
 //   時間差は EffectAsset のパーツごとの EffectTiming で表せる。
 //   詳しくは ExplosionComponent の説明を参照。
 //==============================================================================
-void ExplosionSystem::Init(Engine::ECS::World& a_world)
+void ExplosionSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<ExplosionComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::PostUpdate,

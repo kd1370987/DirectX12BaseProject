@@ -12,12 +12,6 @@
 
 #include "../Internal/SystemComon.h"
 
-#include "../../../Application/Components/Tag/SystemPhaseTag/ActiveTag.h"
-#include "../../../Application/Components/Tag/SystemPhaseTag/AwakeTag.h"
-#include "../../../Application/Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
-#include "../../../Application/Components/Tag/SystemPhaseTag/StartTag.h"
-#include "../../../Application/Components/Tag/SystemPhaseTag/ReleaseTag.h"
-
 namespace Engine::ECS
 {
 
@@ -60,15 +54,28 @@ namespace Engine::ECS
 		void Init();	// 生成後に実行
 		bool IsInit();	// 初期化されているかどうか
 
+		//----------------------------------------------------------------------------------
+		// ゲーム固有の型(コンポーネント / システム)を登録する
+		//
+		// 呼ぶ場所は基盤(シーンのワールド生成)が決め、中身は派生が持つ。
+		// サービスとリソースを差し込んだ後に一度だけ呼ばれる。
+		//----------------------------------------------------------------------------------
+		virtual void RegisterGameTypes() {}
+
 		// 解放時に実行
 		// 解放処理 : エンティティを全部消す
 		// (コンポーネントが借りているリソースは解放フックが返す)
-		void Release();
+		//
+		// 基盤は「全部消す」だけ。消す前に何かを走らせたい層は override すること
+		virtual void Release();
 		void ClearMemory();	// 任意のリセットしたいタイミング
 
 		// フレームの初めに呼び出す関数
 		// シングルフレームで実行したい、生成や破棄、引っ越しを行う
-		void BeginFrame();
+		//
+		// 基盤がやるのは「積まれた命令を捌く」ところまで。
+		// ライフサイクル(初期化フェーズの進行)を持つ層は override して差し込む
+		virtual void BeginFrame();
 
 		/// <summary>
 		/// コンポーネントが借りているものを返させる
@@ -150,22 +157,27 @@ namespace Engine::ECS
 		void RemoveEntityStorage();
 
 		/// <summary>
-		/// エンティティに ReleaseTag を付けて解放予約する : 削除はすべてこれを通す
-		///
-		/// 次の BeginFrame で ActiveTag が外れて Release フェーズが走り、
-		/// そのまま削除される。
-		/// 借りているものを返してから消えるので、寿命切れの弾やエフェクト、
-		/// 撃破された敵、エディターでの削除で各種プールが漏れない。
+		/// エンティティの解放を予約する : 削除はすべてこれを通す
+		/// </summary>
+		/// <remarks>
+		/// 基盤は次の BeginFrame で消すだけ。
+		/// 消える前に後始末を走らせたい層(App::ECS::World)は override して、
+		/// 解放フェーズを通してから消えるようにしている。
 		///
 		/// 解放処理を通さない即時削除(AddRemoveEntity / RemoveEntity)は、
-		/// 借りているものを返す機会がないまま消えて漏れるため private にしてある。
-		/// </summary>
-		void AddReleaseEntity(const Entity& a_entity);
+		/// 借りているものを返す機会がないまま消えて漏れるため protected にしてある。
+		/// </remarks>
+		virtual void AddReleaseEntity(const Entity& a_entity);
 
 		//------------------------------------------------------------------------------------------
 		// エンティティの検索
 		//------------------------------------------------------------------------------------------
-		Entity GetEntity(const Engine::GUID& a_guid);		// GUIDからの検索
+		/// <summary>GUIDからエンティティを探す</summary>
+		/// <remarks>
+		/// 基盤はエンティティに識別子を持たせないので、常に INVALID_ENTITY を返す。
+		/// GUIDを持つコンポーネントを定義した層が override する
+		/// </remarks>
+		virtual Entity GetEntity(const Engine::GUID& a_guid);
 
 		//------------------------------------------------------------------------------------------
 		// エンティティの操作
@@ -243,9 +255,9 @@ namespace Engine::ECS
 		// 
 		//==========================================================================================
 
-		// システムの登録
-		template<typename System>
-		void RegisterSystem();
+		// システム実体の寿命を預ける。
+		// 生成と Init(タスク登録)は上位層が済ませてから渡すこと
+		void HoldSystem(std::shared_ptr<ISystem> a_spSystem) { m_systemManager.Hold(std::move(a_spSystem)); }
 
 		// システムの実行
 		// システムフェーズを指定してデルタタイムを渡す
@@ -299,34 +311,10 @@ namespace Engine::ECS
 			Exclude<Excludes...> a_ex = {}
 		);
 
-		// フェーズごとの専用登録関数
-		template<typename ...Components, typename... Excludes, typename Func>
-		void PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
-		template<typename ...Components, typename... Excludes, typename Func>
-		void AwakeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
-		template<typename ...Components, typename... Excludes, typename Func>
-		void StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
-		template<typename ...Components, typename... Excludes, typename Func>
-		void ActiveTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
-		template<typename ...Components, typename... Excludes, typename Func>
-		void ReleaseTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
-
 		// カスタムタスク登録
 		// システム内で何度もForEachなどを使うときに使用
 		template<typename ...Read, typename... Write, typename Func>
 		void RegisterCustomTask(ESystemType a_phase, ReadList<Read...>,WriteList<Write...>,Func a_func);
-
-		// フェーズごとの専用関数
-		template<typename ...Read, typename... Write, typename Func>
-		void PostDeserializeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
-		template<typename ...Read, typename... Write, typename Func>
-		void AwakeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
-		template<typename ...Read, typename... Write, typename Func>
-		void StartCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
-		template<typename ...Read, typename... Write, typename Func>
-		void ActiveCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
-		template<typename ...Read, typename... Write, typename Func>
-		void ReleaseCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
 
 		//==========================================================================================
 		// 
@@ -346,30 +334,44 @@ namespace Engine::ECS
 		template<typename ResourceType>
 		bool HasResource() const;
 
-	private:
+	protected:
 
-		// リフレッシュリストにたまったエンティティを一括で処理する
-		void RefreshEntities();
+		//==========================================================================================
+		//
+		// 派生への差し込み口
+		//
+		// 基盤はエンティティの入れ物と実行の仕組みだけを持ち、
+		// 「生まれた直後に何を載せるか」「消える前に何を走らせるか」といった
+		// ライフサイクルの決めごとは持たない。
+		// その決めごとを持つ層(App::ECS::World)がここを override する。
+		//
+		//==========================================================================================
 
-		/// <summary>
-		/// 解放されるエンティティの子孫にも ReleaseTag を広げる
-		/// </summary>
-		/// <remarks>
-		/// BeginFrame の「引っ越し」が済んだ直後(Release フェーズを走らせる前)に呼ぶこと。
-		/// そこなら親のタグが付き終わっているので、同じフレームのうちに
-		/// 親子まとめて解放処理を通してから消せる。
-		///
-		/// 親を消したのに子だけ残ると、宙に浮いたブースターや武器がその場に取り残される。
-		/// 消す側(寿命・撃破・エディターの削除)が毎回子を辿るのは書き漏らすので、
-		/// 削除の出口が1つしかないここで面倒を見る。
-		/// </remarks>
-		void PropagateReleaseToChildren();
+		// ※ タイプIDの取得(GetCompTypeID)が非constなので、フックも非constで持つ
+
+		/// <summary>新しく作るエンティティのシグネチャへ、初期状態を載せる</summary>
+		virtual void OnCreateEntitySignature(Signature& a_sig) { (void)a_sig; }
+
+		/// <summary>構成が変わったエンティティを、初期化からやり直させる</summary>
+		virtual void OnReenterInitSignature(Signature& a_sig) { (void)a_sig; }
+
+		/// <summary>初期化のやり直しに入るかどうか(借りているものを返す判断に使う)</summary>
+		virtual bool IsReenteringInit(const Signature& a_from, const Signature& a_to)
+		{
+			(void)a_from; (void)a_to; return false;
+		}
+
+		/// <summary>エンティティの増減・引っ越しがあった</summary>
+		virtual void OnEntityStructureChanged() {}
+
+		/// <summary>リフレッシュリストにたまったエンティティを一括で処理する</summary>
+		virtual void RefreshEntities();
 
 		//------------------------------------------------------------------------------------------
 		// エンティティの即時削除
 		//
-		// Release フェーズを通さずに消すので、外からは使わせない。
-		// 解放処理を終えたエンティティを実際に片付ける最後の一手として、
+		// 後始末を通さずに消すので、外からは使わせない。
+		// 片付け終わったエンティティを実際に消す最後の一手として、
 		// BeginFrame / Release からのみ呼ぶこと。削除の入口は AddReleaseEntity。
 		//------------------------------------------------------------------------------------------
 
@@ -379,7 +381,7 @@ namespace Engine::ECS
 		// エンティティの削除
 		void RemoveEntity(const Entity& a_entity);
 
-	private:
+	protected:
 
 		// マネージャー軍
 		EntityManager m_entityManager;
@@ -416,7 +418,7 @@ namespace Engine::ECS
 	public:
 		// コンストラクタデストラクタ
 		World();
-		~World();
+		virtual ~World();
 
 		// コピー禁止
 		World(const World&) = delete;
@@ -469,12 +471,6 @@ namespace Engine::ECS
 	{
 		auto _id = m_componentMetaRegistry.GetTypeID(typeid(Comp));
 		return GetCompFunc(_id);
-	}
-
-	template<typename System>
-	inline void World::RegisterSystem()
-	{
-		m_systemManager.Register<System>(this);
 	}
 
 	template<typename ...Components, typename Func>
@@ -593,8 +589,8 @@ namespace Engine::ECS
 			{
 				using _CompType = std::remove_const_t<Components>;
 
-				// フェーズタグ(ActiveTag など)は「データ」ではなく問い合わせ条件なので、
-				// 実行順を決める依存(read/write)には含めない。
+				// 問い合わせ専用のタグ(App::ECS のフェーズタグなど)は「データ」ではなく
+				// 絞り込み条件なので、実行順を決める依存(read/write)には含めない。
 				//
 				// 含めてしまうと、ActiveTask は先頭に ActiveTag を非constで足すので
 				// 「全ての ActiveTask が ActiveTag の書き手」になる。一方 ActiveCustomTask は
@@ -602,16 +598,10 @@ namespace Engine::ECS
 				// ActiveTask が1つでも現れた瞬間に相互依存(循環)が成立して
 				// トポロジカルソートが失敗する。タグは誰も書き換えないので外すのが正しい。
 				//
+				// どの型がタグなのかは IsQueryOnlyTag の特殊化で上位層が宣言する。
 				// 問い合わせ用のシグネチャは DispatchTask が Components... から作り直すので、
 				// ここで外してもタグによる絞り込みは効いたまま。
-				constexpr bool _isPhaseTag =
-					std::is_same_v<_CompType, ActiveTag> ||
-					std::is_same_v<_CompType, StartTag> ||
-					std::is_same_v<_CompType, AwakeTag> ||
-					std::is_same_v<_CompType, PostDeserializeTag> ||
-					std::is_same_v<_CompType, ReleaseTag>;
-
-				if constexpr (!_isPhaseTag)
+				if constexpr (!IsQueryOnlyTag_v<_CompType>)
 				{
 					// const がついていたら読み込み用
 					// const を外した元の型でTypeIDを取得
@@ -677,31 +667,6 @@ namespace Engine::ECS
 			);
 		}
 	}
-	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
-	{
-		RegisterTask<PostDeserializeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
-	}
-	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::AwakeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
-	{
-		RegisterTask<AwakeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
-	}
-	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
-	{
-		RegisterTask<StartTag, Components...>(a_phase, a_taskName,  a_func,a_ex);
-	}
-	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::ActiveTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
-	{
-		RegisterTask<ActiveTag, Components...>(a_phase, a_taskName,a_func, a_ex);
-	}
-	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::ReleaseTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
-	{
-		RegisterTask<ReleaseTag, Components...>(a_phase, a_taskName, a_func, a_ex);
-	}
 	template<typename ...Read, typename ...Write, typename Func>
 	inline void World::RegisterCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
@@ -725,56 +690,6 @@ namespace Engine::ECS
 			};
 
 		m_systemManager.AddSystemTask(a_phase, _task,"CatamTask");
-	}
-	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::PostDeserializeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
-	{
-		RegisterCustomTask(
-			a_phase,
-			ReadList<Read...>{},
-			WriteList<Write...>{},
-			a_func
-		);
-	}
-	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::AwakeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
-	{
-		RegisterCustomTask(
-			a_phase,
-			ReadList<Read...>{},
-			WriteList<Write...>{},
-			a_func
-		);
-	}
-	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::StartCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
-	{
-		RegisterCustomTask(
-			a_phase,
-			ReadList<Read...>{},
-			WriteList<Write...>{},
-			a_func
-		);
-	}
-	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::ActiveCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
-	{
-		RegisterCustomTask(
-			a_phase,
-			ReadList<Read...>{},
-			WriteList<Write...>{},
-			a_func
-		);
-	}
-	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::ReleaseCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
-	{
-		RegisterCustomTask(
-			a_phase,
-			ReadList<Read...>{},
-			WriteList<Write...>{},
-			a_func
-		);
 	}
 	template<typename ResourceType, typename ...Args>
 	inline void World::AddResource(Args && ...a_args)

@@ -1,6 +1,6 @@
 ﻿#include "MissileSalvoSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Option/OptionManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/Prefab/Prefab.h"
@@ -49,7 +49,7 @@
 // ・ボスは溜め方が違う(相手が最初からプレイヤー1体に決まっている)ので除外する。
 //==========================================================================================
 
-void MissileSalvoSystem::Init(Engine::ECS::World& a_world)
+void MissileSalvoSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<MissileLockComponent, const AttachmentSlotsComponent,
 		const ActionIntentComponent, const WorldMatrixComponent>(

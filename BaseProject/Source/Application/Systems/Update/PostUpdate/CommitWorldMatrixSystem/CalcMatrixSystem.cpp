@@ -1,12 +1,12 @@
 ﻿#include "CalcMatrixSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "../../../../Components/Hierarchy/HierarchyComponent.h"
 
-void CalcMatrixSystem::Init(Engine::ECS::World& a_world)
+void CalcMatrixSystem::Init(App::ECS::World& a_world)
 {
 	// ヒエラルキーがついていない単体オブジェクトに対して最終行列を作成する
 	a_world.ActiveTask<const LocalTransformComponent, WorldMatrixComponent>(

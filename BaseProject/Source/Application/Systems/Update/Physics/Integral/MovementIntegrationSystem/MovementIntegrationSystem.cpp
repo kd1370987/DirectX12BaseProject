@@ -1,6 +1,6 @@
 ﻿#include "MovementIntegrationSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Force/VelocityComponent.h"
 #include "Application/Components/Force/MovementComponent.h"
@@ -21,7 +21,7 @@
 // ・MovementComponent を持たない側は PositionIntegrationSystem が
 //   目標速度をそのまま積分する(あちらは Exclude<MovementComponent>)。
 //==============================================================================
-void MovementIntegrationSystem::Init(Engine::ECS::World& a_world)
+void MovementIntegrationSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const VelocityComponent, MovementComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,

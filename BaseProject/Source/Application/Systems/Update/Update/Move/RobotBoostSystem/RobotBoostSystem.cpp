@@ -1,6 +1,6 @@
 ﻿#include "RobotBoostSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../../Components/Force/VelocityComponent.h"
 #include "../../../../../Components/Character/Robot/BoostComponent.h"
@@ -54,7 +54,7 @@
 //   踏み込みの向きは蹴り出したときのものを使う。毎フレーム入力から取り直すと、
 //   途中でスティックを離した瞬間に「入力なし = 真上」へ向きが飛ぶ。
 //==============================================================================
-void RobotBoostSystem::Init(Engine::ECS::World& a_world)
+void RobotBoostSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<BoostComponent, VelocityComponent, const MoveIntentComponent,
 		const LookAngleComponent>(

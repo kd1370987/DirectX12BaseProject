@@ -1,6 +1,6 @@
 ﻿#include "FlyingSoundSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Audio/AudioManager.h"
 
 #include "Application/Components/Character/FlyingSound.h"
@@ -30,7 +30,7 @@
 //   1フレームに1回だけ走らせたいのでカスタムタスクで登録する。
 // ・位置はワールド行列から取る。リスナー側(AudioListenerSystem)と同じ PostUpdate 帯。
 //==============================================================================
-void FlyingSoundSystem::Init(Engine::ECS::World& a_world)
+void FlyingSoundSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,

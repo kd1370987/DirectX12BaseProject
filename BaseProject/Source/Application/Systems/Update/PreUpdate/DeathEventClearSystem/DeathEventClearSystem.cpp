@@ -1,6 +1,6 @@
 #include "DeathEventClearSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/InstanceResource/DeathEventResource.h"
 
@@ -15,7 +15,7 @@
 // 先に読んだ方がクリアしてしまうと、後から登録されたシステムが
 // 登録順に振り回されて動いたり動かなかったりするため。
 //==============================================================================
-void DeathEventClearSystem::Init(Engine::ECS::World& a_world)
+void DeathEventClearSystem::Init(App::ECS::World& a_world)
 {
 	// コンポーネントを回さないのでカスタムタスクで登録する(フレームに1回だけ走る)
 	a_world.RegisterCustomTask(

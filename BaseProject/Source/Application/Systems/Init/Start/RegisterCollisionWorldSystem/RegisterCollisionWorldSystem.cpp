@@ -1,6 +1,6 @@
 ﻿#include "RegisterCollisionWorldSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Collision/Collider.h"
 #include "../../../../Components/Resource/ModelComponent.h"
@@ -13,7 +13,7 @@
 #include "Engine/Collision/Collision.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-void RegisterCollisionWorldSystem::Init(Engine::ECS::World& a_world)
+void RegisterCollisionWorldSystem::Init(App::ECS::World& a_world)
 {
 	a_world.StartTask<ColliderComponent, const ModelComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::Start,

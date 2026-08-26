@@ -1,6 +1,6 @@
 ﻿#include "CameraProjUpdateSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Camera/CameraParamComponent.h"
 #include "../../../../Components/Camera/ProjMatComponent.h"
@@ -10,7 +10,7 @@
 //
 // 画角(fovY + fovBoost)が動いたカメラの射影行列を作り直す。
 //==========================================================================================
-void CameraProjUpdateSystem::Init(Engine::ECS::World& a_world)
+void CameraProjUpdateSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<CameraParamComponent, ProjMatComponent>(
 		Engine::ECS::ESystemType::Camera,

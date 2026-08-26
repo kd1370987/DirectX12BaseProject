@@ -1,6 +1,6 @@
 ﻿#include "RayAnimationModelStartSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
@@ -11,7 +11,7 @@
 
 #include "../../../../Components/Tag/RenderTag/RayTag.h"
 
-void RayAnimationModelSystem::Init(Engine::ECS::World& a_world)
+void RayAnimationModelSystem::Init(App::ECS::World& a_world)
 {
 	a_world.StartTask<const ModelComponent,const RayTag,AnimatorComponent, NodePoseComponent, SkeletonPoseComponent>(
 		// StartTag を見るので Start フェーズで回す

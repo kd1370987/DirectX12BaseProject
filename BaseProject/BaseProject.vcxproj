@@ -78,6 +78,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <!-- 別フォルダの同名 .cpp が同じ .obj を上書きしないよう、ソースの階層をそのまま出力先へ写す -->
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -116,6 +118,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <!-- 別フォルダの同名 .cpp が同じ .obj を上書きしないよう、ソースの階層をそのまま出力先へ写す -->
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -155,6 +159,8 @@
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <!-- 別フォルダの同名 .cpp が同じ .obj を上書きしないよう、ソースの階層をそのまま出力先へ写す -->
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -196,6 +202,8 @@
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <!-- 別フォルダの同名 .cpp が同じ .obj を上書きしないよう、ソースの階層をそのまま出力先へ写す -->
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -423,6 +431,8 @@
     <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.cpp" />
     <ClCompile Include="Source\Engine\GameObject\BaseObject\BaseObject.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.cpp" />
+    <ClCompile Include="Source\Application\ECS\World\World.cpp" />
+    <ClCompile Include="Source\Application\ECS\World\WorldTypeRegister.cpp" />
     <ClCompile Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
@@ -860,7 +870,6 @@
     <ClInclude Include="Source\Engine\ECS\ResourceWrapper\ResourceWrapper.h" />
     <ClInclude Include="Source\Engine\ECS\SystemManager\SystemManager.h" />
     <ClInclude Include="Source\Engine\ECS\System\ISystem\ISystem.h" />
-    <ClInclude Include="Source\Engine\ECS\System\SystemBase\SystemBase.h" />
     <ClInclude Include="Source\Engine\ECS\World\World.h" />
     <ClInclude Include="Source\Engine\Editor\Editor.h" />
     <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h" />
@@ -900,6 +909,17 @@
     <None Include="Source\Engine\Editor\Helper\EditorHelper.inl" />
     <ClInclude Include="Source\Engine\GameObject\BaseObject\BaseObject.h" />
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.h" />
+    <ClInclude Include="Source\Application\Components\Resource\SoundComponent.h" />
+    <ClInclude Include="Source\Application\Game\GlobalGameContext.h" />
+    <ClInclude Include="Source\Engine\Collision\NarrowPhase\PrimitiveHelper\PrimitiveHelper.h" />
+    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\DynamicStructuredBuffer.h" />
+    <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h" />
+    <ClInclude Include="Source\Engine\Option\GraphicsOptions\ToneMapOption.h" />
+    <ClInclude Include="Source\Engine\Utility\Pool\RangeAllocator\RangeAllocator.h" />
+    <ClInclude Include="Source\Application\ECS\ISystem\ISystem.h" />
+    <ClInclude Include="Source\Application\ECS\PhaseTag\PhaseTag.h" />
+    <ClInclude Include="Source\Application\ECS\World\World.h" />
+    <ClInclude Include="Source\Application\ECS\World\WorldTypeRegister.h" />
     <ClInclude Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\CBData.h" />
     <ClInclude Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.h" />

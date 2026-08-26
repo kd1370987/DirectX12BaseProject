@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Engine/ECS/System/SystemBase/SystemBase.h"
+#include "Application/ECS/ISystem/ISystem.h"
 
 // OBBコライダーのテスト用システム
 // コリジョンワールドと重なり判定し、結果をデバッグワイヤーで表示する
-class OBBCollisionSystem : public Engine::ECS::SystemBase
+class OBBCollisionSystem : public App::ECS::ISystem
 {
 public:
 
-	void Init(Engine::ECS::World& a_world) override;
+	void Init(App::ECS::World& a_world) override;
 };

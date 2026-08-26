@@ -1,6 +1,6 @@
 ﻿#include "DynamicObjectDrawSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/MainEngine.h"
 #include "../../../../../Engine/Graphics/GraphicEngine.h"
 
@@ -11,7 +11,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
 
-void DynamicObjectDrawSystem::Init(Engine::ECS::World& a_world)
+void DynamicObjectDrawSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const WorldMatrixComponent,const PreviousWorldMatrixComponent, const ModelComponent>(
 		Engine::ECS::ESystemType::Draw,

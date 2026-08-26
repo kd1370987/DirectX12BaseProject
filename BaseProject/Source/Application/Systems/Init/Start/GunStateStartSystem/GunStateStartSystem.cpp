@@ -1,12 +1,12 @@
 ﻿#include "GunStateStartSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/Weapon/Gun/GunStateComponent.h"
 #include "../../../../Components/Resource/ModelComponent.h"
 #include "../../../../Components/Effect/EffectAssetComponent.h"
 
-void GunStateStartSystem::Init(Engine::ECS::World& a_world)
+void GunStateStartSystem::Init(App::ECS::World& a_world)
 {
 	a_world.StartTask<const ModelComponent,GunStateComponent>(
 		Engine::ECS::ESystemType::Start,

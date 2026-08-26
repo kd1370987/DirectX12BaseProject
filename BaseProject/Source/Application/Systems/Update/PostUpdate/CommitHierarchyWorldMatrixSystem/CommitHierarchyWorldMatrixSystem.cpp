@@ -1,5 +1,5 @@
 ﻿#include "CommitHierarchyWorldMatrixSystem.h"
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
@@ -7,7 +7,7 @@
 
 #include "../../../../InstanceResource/HierarchyResource.h"
 
-void CommitHierarchyWorldMatrixSystem::Init(Engine::ECS::World& a_world)
+void CommitHierarchyWorldMatrixSystem::Init(App::ECS::World& a_world)
 {
 	// ヒエラルキーがついていない単体オブジェクトに対して最終行列を作成する
 	a_world.ActiveCustomTask(

@@ -1,6 +1,6 @@
 #include "EnemyMovementSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../../Components/Character/PatrolComponent.h"
@@ -22,7 +22,7 @@
 //   水平速度をゲート・スケールするので、本システムは Update 帯で
 //   ActionBehaviorSystem より前に登録すること。
 //==============================================================================
-void EnemyMovementSystem::Init(Engine::ECS::World& a_world)
+void EnemyMovementSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const MoveIntentComponent, const PatrolComponent, const MovementComponent,
 		VelocityComponent>(

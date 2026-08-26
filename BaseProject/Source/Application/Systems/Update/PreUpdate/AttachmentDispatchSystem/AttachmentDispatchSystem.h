@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/ECS/System/SystemBase/SystemBase.h"
+#include "Application/ECS/ISystem/ISystem.h"
 
 //==========================================================================================
 // AttachmentDispatchSystem
@@ -14,9 +14,9 @@
 // 「今撃てるのか・何をどう撃つのか」(GunShootSystem + GunStateComponent)は、
 // 子エンティティ側がすべて自分で判断する。
 //==========================================================================================
-class AttachmentDispatchSystem : public Engine::ECS::SystemBase
+class AttachmentDispatchSystem : public App::ECS::ISystem
 {
 public:
 
-	void Init(Engine::ECS::World& a_world) override;
+	void Init(App::ECS::World& a_world) override;
 };

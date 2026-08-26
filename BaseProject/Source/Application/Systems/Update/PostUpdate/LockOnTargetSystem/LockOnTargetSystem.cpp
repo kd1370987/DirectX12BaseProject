@@ -1,6 +1,6 @@
 ﻿#include "LockOnTargetSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Option/OptionManager.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
@@ -38,7 +38,7 @@
 // ・スクリーン座標もここで作って持たせる。HUD 側で射影をやり直すと、
 //   条件のわずかな違いで「枠は出るのにロックされない」といったズレが起きる。
 //==========================================================================================
-void LockOnTargetSystem::Init(Engine::ECS::World& a_world)
+void LockOnTargetSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const PlayerControllTag, const WorldMatrixComponent, LockOnTargetComponent>(
 		Engine::ECS::ESystemType::PostUpdate,

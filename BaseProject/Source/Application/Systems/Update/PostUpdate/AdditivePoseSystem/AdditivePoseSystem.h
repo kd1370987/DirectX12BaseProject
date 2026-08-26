@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/ECS/System/SystemBase/SystemBase.h"
+#include "Application/ECS/ISystem/ISystem.h"
 
 // クリップ適用後・ワールド行列計算前に、ノードのローカル行列へ加算回転を合成する。
 //
@@ -12,10 +12,10 @@
 //   CalcNodeSystem(local → world)
 //
 // AnimationSystem より前で書き込むとバインドポーズリセットで消える。
-class AdditivePoseSystem : public Engine::ECS::SystemBase
+class AdditivePoseSystem : public App::ECS::ISystem
 {
 public:
 
 
-	void Init(Engine::ECS::World& a_world) override;
+	void Init(App::ECS::World& a_world) override;
 };

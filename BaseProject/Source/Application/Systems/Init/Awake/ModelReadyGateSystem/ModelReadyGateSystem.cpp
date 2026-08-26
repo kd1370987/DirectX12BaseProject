@@ -1,13 +1,13 @@
 ﻿#include "ModelReadyGateSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../../Components/Resource/ModelComponent.h"
 #include "../../../../InstanceResource/ResourceWaitResource.h"
 
-void ModelReadyGateSystem::Init(Engine::ECS::World& a_world)
+void ModelReadyGateSystem::Init(App::ECS::World& a_world)
 {
 	a_world.AwakeTask<const ModelComponent>(
 		Engine::ECS::ESystemType::Awake,

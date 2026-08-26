@@ -1,6 +1,6 @@
 #include "BossMissileSalvoSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Character/Boss/BossComponent.h"
 #include "Application/Components/Character/TargetEntityComponent.h"
@@ -31,7 +31,7 @@
 //     WorldMatrixComponent を読むので CalcMatrixSystem /
 //     CommitHierarchyWorldMatrixSystem より自動的に後ろへ回る(プレイヤー側と同じ)。
 //==========================================================================================
-void BossMissileSalvoSystem::Init(Engine::ECS::World& a_world)
+void BossMissileSalvoSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<
 		BossComponent,

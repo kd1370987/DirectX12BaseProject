@@ -1,10 +1,10 @@
 ﻿#include "GravitySystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Application/Components/Force/VelocityComponent.h"
 #include "Application/Components/Force/GravityComponent.h"
 
-void GravitySystem::Init(Engine::ECS::World& a_world)
+void GravitySystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const GravityComponent, VelocityComponent>(
 		Engine::ECS::ESystemType::Physics,

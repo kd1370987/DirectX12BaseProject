@@ -1,5 +1,5 @@
 ﻿#include "RegisterAnimatedRayWorldSystem.h"
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
@@ -12,7 +12,7 @@
 
 #include "../../../../../Engine/MainEngine.h"
 #include "../../../../../Engine/Graphics/GraphicEngine.h"
-void RegisterAnimatedRayWorldSystem::Init(Engine::ECS::World& a_world)
+void RegisterAnimatedRayWorldSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<
 		const RayTag,

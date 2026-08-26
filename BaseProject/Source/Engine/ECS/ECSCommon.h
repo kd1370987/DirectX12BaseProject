@@ -30,6 +30,21 @@ namespace Engine::ECS
 
 	using Flg = uint8_t;
 
+	//--------------------------------------------------------------------------------------
+	// 問い合わせ専用のタグかどうか
+	//
+	// エンティティの絞り込みにだけ使い、実行順を決める依存(read/write)には数えない
+	// コンポーネントを、上位層がここを特殊化して宣言する。
+	//
+	// 基盤はどの型がそれに当たるかを知らない。ゲーム側のライフサイクルタグ
+	// (App::ECS のフェーズタグ)がこれを true にしている。
+	//--------------------------------------------------------------------------------------
+	template<typename T>
+	struct IsQueryOnlyTag : std::false_type {};
+
+	template<typename T>
+	inline constexpr bool IsQueryOnlyTag_v = IsQueryOnlyTag<T>::value;
+
 	// シリアライズ、デシリアライズ用関数
 	using SerializeFunc = void(*)(const void*, nlohmann::json&);
 	using DeserializeFunc = void(*)(void*, const nlohmann::json&);

@@ -38,9 +38,13 @@ namespace Engine::ECS
 		// 初期化
 		void Init();
 
-		// システムの登録
-		template<typename System>
-		void Register(World* a_world);
+		//----------------------------------------------------------------------------------
+		// システム実体の寿命を預かる
+		//
+		// タスクの登録(Init)は上位層が済ませてから渡す。基盤はシステムが
+		// 何を引数に取るかを知らないので、生成と初期化には関与しない。
+		//----------------------------------------------------------------------------------
+		void Hold(std::shared_ptr<ISystem> a_spSystem);
 
 		// システムの更新
 		// システムのフェーズを指定、コンテキストを入れる
@@ -90,19 +94,5 @@ namespace Engine::ECS
 		// 変更があるかどうか
 		bool m_isChange = false;
 	};
-
-	template<typename System>
-	inline void SystemManager::Register(World* a_world)
-	{
-		static_assert(std::is_base_of_v<ISystem, System>, "ISystemを継承していません");
-
-		// システム実体は Init でタスクを登録するだけの入れ物。
-		// 実行はタスク側で行うので、ここでは寿命の保持だけする。
-		// (フェーズでの分類は不要。フェーズはタスク登録の引数が持つ)
-		std::shared_ptr<ISystem> _spSys = std::make_shared<System>();
-		_spSys->Init(*a_world);
-
-		m_systemVec.push_back(std::move(_spSys));
-	}
 
 }

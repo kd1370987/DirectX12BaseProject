@@ -1,6 +1,6 @@
 #include "HitSoundSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Resource/HitSoundComponent.h"
 #include "Application/InstanceResource/HitEventResource.h"
@@ -22,7 +22,7 @@
 // ・SoundInstance は1コンポーネントに1つしか無く、Play は頭出しの鳴らし直しになる。
 //   連射を受けている間に音が潰れ続けないよう minInterval で間引く。
 //==============================================================================
-void HitSoundSystem::Init(Engine::ECS::World& a_world)
+void HitSoundSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<HitSoundComponent>(
 		Engine::ECS::ESystemType::PostUpdate,

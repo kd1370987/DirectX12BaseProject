@@ -4,7 +4,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Option/OptionManager.h"			// ウィンドウ解像度(px)取得用
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 #include "Application/Components/Character/LockOnTargetComponent.h"

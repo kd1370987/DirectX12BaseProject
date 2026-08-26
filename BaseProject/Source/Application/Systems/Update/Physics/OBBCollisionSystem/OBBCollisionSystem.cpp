@@ -1,6 +1,6 @@
 ﻿#include "OBBCollisionSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Collision/OBBCollider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
@@ -10,7 +10,7 @@
 #include "Engine/Editor/Editor.h"
 #include "Engine/Common/Color.h"
 
-void OBBCollisionSystem::Init(Engine::ECS::World& a_world)
+void OBBCollisionSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const OBBColliderComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,

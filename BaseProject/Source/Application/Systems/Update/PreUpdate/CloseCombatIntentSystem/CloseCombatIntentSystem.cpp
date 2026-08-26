@@ -1,6 +1,6 @@
 #include "CloseCombatIntentSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/CloseCombatComponent.h"
 #include "../../../../Components/Character/PatrolComponent.h"
@@ -34,7 +34,7 @@
 //   真横だけだと間合いがずれたまま戻らず、詰め/離しだけだと
 //   ただの前後移動になって近距離戦らしくならない。
 //==============================================================================
-void CloseCombatIntentSystem::Init(Engine::ECS::World& a_world)
+void CloseCombatIntentSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const TargetEntityComponent, const PatrolComponent, const LocalTransformComponent,
 		CloseCombatComponent, MoveIntentComponent, ActionIntentComponent>(

@@ -1,6 +1,6 @@
 ﻿#include "AdditivePoseLinkSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/AnimatorAsset/AnimatorAsset.h"
 
@@ -9,7 +9,7 @@
 #include "Application/Components/Character/Robot/AdditivePoseComponent.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
 
-void AdditivePoseLinkSystem::Init(Engine::ECS::World& a_world)
+void AdditivePoseLinkSystem::Init(App::ECS::World& a_world)
 {
 	a_world.StartTask<const ModelComponent, const StateMachineComponent, AdditivePoseComponent>(
 		Engine::ECS::ESystemType::Start,

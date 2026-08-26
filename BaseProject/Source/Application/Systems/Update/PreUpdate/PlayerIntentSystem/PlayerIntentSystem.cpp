@@ -1,5 +1,5 @@
 ﻿#include "PlayerIntentSystem.h"
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Intent/ActionIntentComponent.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
@@ -17,7 +17,7 @@
 // プログラム側から足したパラメータもそのままエディターの一覧に出る。
 // (定義済みならエディターで設定した型/デフォルト値をそのまま使う)
 //==========================================================================================
-void PlayerIntentSystem::Init(Engine::ECS::World& a_world)
+void PlayerIntentSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const MoveIntentComponent, const BoostComponent,StateMachineComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

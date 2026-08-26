@@ -1,6 +1,6 @@
 #include "CharacterMovementSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../../../Components/Intent/MoveIntentComponent.h"
@@ -18,7 +18,7 @@
 // ・移動速度は MovementComponent.moveSpeed。加速度/減速度で実速度へ均すのは
 //   MovementIntegrationSystem(Physics 帯)の担当なので、ここは目標値を作るだけ。
 //==============================================================================
-void CharacterMovementSystem::Init(Engine::ECS::World& a_world)
+void CharacterMovementSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const LookAngleComponent, const MoveIntentComponent, const MovementComponent,
 		VelocityComponent, StateMachineComponent>(

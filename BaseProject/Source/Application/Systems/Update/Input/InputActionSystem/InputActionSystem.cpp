@@ -1,11 +1,11 @@
 ﻿#include "InputActionSystem.h"
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Intent/ActionIntentComponent.h"
 #include "../../../../Components/Tag/PlayerControllTag.h"
 
 
-void InputActionSystem::Init(Engine::ECS::World& a_world)
+void InputActionSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const PlayerControllTag, ActionIntentComponent>(
 		Engine::ECS::ESystemType::Input,

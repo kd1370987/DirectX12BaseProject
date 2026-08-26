@@ -41,9 +41,19 @@ namespace Engine::Scene
 		void Update(float a_dt);							// 更新
 		void Draw();										// 描画
 
-		// コールバック処理
-		void SetWorldInitCallback(std::function<void(Engine::ECS::World* a_pWorld)> a_callback);	// セット
-		void InvokeWorldInitCallback(Engine::ECS::World* a_pWorld);									// 呼び出し
+		//------------------------------------------------------------------------------------------
+		// ワールドの作り手
+		//
+		// シーンが持つワールドの「種類」を決めるのは上位層(App::ECS::World)。
+		// エンジンは基盤の Engine::ECS::World としてしか触らないので、
+		// 実体を作るところだけ差し込んでもらう。
+		//
+		// 差し込み忘れるとシーンにワールドが無い状態になるため、CreateWorld はログを出す。
+		//------------------------------------------------------------------------------------------
+		using WorldFactory = std::function<std::unique_ptr<Engine::ECS::World>()>;
+
+		void SetWorldFactory(WorldFactory a_factory);			// セット
+		std::unique_ptr<Engine::ECS::World> CreateWorld();		// 呼び出し
 
 		//------------------------------------------------------------------------------------------
 		// シーンの新規作成
@@ -135,8 +145,8 @@ namespace Engine::Scene
 		// シーン切り替え命令スタック
 		std::queue<SceneChangeCmd> m_sceneChangeCmd = {};
 
-		// ワールドを設定するためのコールバック関数
-		std::function<void(Engine::ECS::World* a_pWorld)> m_worldInitCallback = nullptr;
+		// ワールドの実体を作る関数(上位層が差し込む)
+		WorldFactory m_worldFactory = nullptr;
 
 	private:
 		// シングルトン化

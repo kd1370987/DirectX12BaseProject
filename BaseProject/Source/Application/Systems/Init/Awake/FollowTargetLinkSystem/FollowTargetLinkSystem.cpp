@@ -1,11 +1,11 @@
 ﻿#include "FollowTargetLinkSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Persistence/GUIDComponent.h"
 #include "../../../../Components/Camera/FollowTargetComponent.h""
 
-void FollowTargetLinkSystem::Init(Engine::ECS::World& a_world)
+void FollowTargetLinkSystem::Init(App::ECS::World& a_world)
 {
 	a_world.AwakeTask<const GUIDComponent,FollowTargetComponent>(
 		// AwakeTag を見るので Awake フェーズで回す

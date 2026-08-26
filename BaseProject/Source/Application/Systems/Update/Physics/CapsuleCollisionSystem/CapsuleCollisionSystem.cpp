@@ -1,6 +1,6 @@
 ﻿#include "CapsuleCollisionSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Collision/CapsuleCollider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
@@ -39,7 +39,7 @@ namespace
 	}
 }
 
-void CapsuleCollisionSystem::Init(Engine::ECS::World& a_world)
+void CapsuleCollisionSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const CapsuleColliderComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,

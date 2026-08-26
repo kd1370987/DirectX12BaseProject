@@ -1,6 +1,6 @@
 #include "ScoreSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Character/ScoreTargetComponent.h"
 #include "Application/Components/Character/HealthComponent.h"
@@ -39,7 +39,7 @@
 //   リザルトへ持っていく数字なので、シーンを切り替えると作り直される
 //   ワールドのリソースに置くと消えてしまう。
 //==============================================================================
-void ScoreSystem::Init(Engine::ECS::World& a_world)
+void ScoreSystem::Init(App::ECS::World& a_world)
 {
 	// コンポーネントを回さないのでカスタムタスクで登録する(フレームに1回だけ走る)
 	a_world.ActiveCustomTask(

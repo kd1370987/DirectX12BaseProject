@@ -1,6 +1,6 @@
 ﻿#include "ScreenUIDrawSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/MainEngine.h"
 
 #include "Application/Components/Resource/UIComponent.h"
@@ -11,7 +11,7 @@
 //#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-void ScreenUIDrawSystem::Init(Engine::ECS::World& a_world)
+void ScreenUIDrawSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const WorldMatrixComponent, const UIComponent>(
 		Engine::ECS::ESystemType::Draw,

@@ -1,11 +1,11 @@
 ﻿#include "StateMachineCommitSystem.h"
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Resource/StateMachineComponent.h"
 
 #include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-void StateMachineCommitSystem::Init(Engine::ECS::World& a_world)
+void StateMachineCommitSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<StateMachineComponent>(
 		Engine::ECS::ESystemType::Update,

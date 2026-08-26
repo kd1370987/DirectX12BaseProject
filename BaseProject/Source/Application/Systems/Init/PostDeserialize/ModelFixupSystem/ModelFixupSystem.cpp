@@ -1,12 +1,12 @@
 ﻿#include "ModelFixupSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Resource/ModelComponent.h"
 #include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-void ModelFixupSystem::Init(Engine::ECS::World& a_world)
+void ModelFixupSystem::Init(App::ECS::World& a_world)
 {
 	a_world.PostDeserializeTask<ModelComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,

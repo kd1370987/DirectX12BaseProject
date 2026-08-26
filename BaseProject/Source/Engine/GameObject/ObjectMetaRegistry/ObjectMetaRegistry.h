@@ -7,9 +7,22 @@
 // ComponentMetaRegistry のオブジェクト版にあたる。
 //
 //   - GameManager::Init で Instance() を生成し、各クラスを RegisterType で登録する。
-//   - 登録したクラスは「タイプインデックス(ObjectTypeID)」で引ける。
+//   - 登録したクラスは「タイプID(ObjectTypeID)」で引ける。
 //   - シーン保存時は各オブジェクトの ObjectTypeID / GUID / データ を書き出し、
 //     読み込み時は ObjectTypeID からクラス情報(ファクトリ)を引いてインスタンスを復元する。
+//
+//------------------------------------------------------------------------------------------
+// タイプIDは「登録名のハッシュ」で決まる
+//
+// 以前は登録順(0,1,2...)で振っていたため、GameManager::Init の途中へ RegisterType を
+// 1行挟むだけで、それ以降のクラスのIDが全部ずれて既存シーンが壊れていた。
+// 「必ず末尾へ足すこと」というコメント運用で凌いでいたが、破ったときに
+// 何も言わずに別クラスが復元されるため、事故ったときの原因が非常に追いにくい。
+//
+// 現在は名前(RegisterType の第1引数)から作るので、
+//   ・登録順を入れ替えても、間に挿しても、既存シーンに影響しない
+//   ・逆に「登録名」を変えるとIDが変わるので、名前はシーンの一部だと思って扱うこと
+// という性質になる。名前を変えたいときは MigrateName で旧名を引き継がせる。
 //
 //==========================================================================================
 
@@ -17,18 +30,23 @@
 
 namespace Engine::GameObject
 {
-	// ランタイム用のクラスID(登録順に振られる)。
-	// シーンファイルにはこの値を書き出すため、登録順(GameManager::Init)を変えると
-	// 既存シーンとの互換が崩れる点に注意(コンポーネントのタイプIDと同じ運用)。
+	// ランタイム用のクラスID(登録名のFNV-1aハッシュ)。
+	// シーンファイルへはこの値を書き出す。
 	using ObjectTypeID = uint32_t;
 
 	// 無効値
 	inline constexpr ObjectTypeID INVALID_OBJECT_TYPE_ID = 0xFFFFFFFF;
 
+	/// <summary>登録名からタイプIDを作る(登録・参照の両方でここを通す)</summary>
+	inline ObjectTypeID MakeObjectTypeID(const std::string& a_name)
+	{
+		return static_cast<ObjectTypeID>(Engine::String::ToHash(a_name));
+	}
+
 	// クラスのメタ情報
 	struct ObjectMeta
 	{
-		std::string name = "none";	// 表示名 / シリアライズ補助
+		std::string name = "none";	// 表示名 / タイプIDの元になる文字列
 	};
 
 	// クラスに付随する処理
@@ -53,11 +71,28 @@ namespace Engine::GameObject
 		template<typename T>
 		ObjectTypeID RegisterType(const std::string& a_name);
 
+		//----------------------------------------------------------------------------------
+		// 旧名の引き継ぎ
+		//
+		// 登録名を変えるとタイプIDも変わるので、そのままでは旧名で保存された
+		// シーンのオブジェクトが復元できなくなる。RegisterType の直後にこれを呼ぶと、
+		// 旧名のIDも同じクラスへ流れるようになる。
+		//----------------------------------------------------------------------------------
+		void MigrateName(const std::string& a_oldName, const std::string& a_currentName);
+
 		// タイプIDの取得
 		template<typename T>
 		ObjectTypeID GetTypeID() const;								// C++型から
 		ObjectTypeID GetTypeID(const std::string& a_name) const;	// クラス名から
 		ObjectTypeID GetTypeID(const std::type_index& a_index) const;	// タイプインデックスから
+
+		//----------------------------------------------------------------------------------
+		// シーンから読んだ値をタイプIDへ解決する
+		//
+		//   1. そのまま登録済みIDとして引く
+		//   2. 駄目なら旧名のIDとして引き直す(MigrateName で張った別名)
+		//----------------------------------------------------------------------------------
+		ObjectTypeID ResolveTypeID(uint32_t a_savedValue) const;
 
 		// メタ情報取得
 		const ObjectMeta& GetMeta(ObjectTypeID a_id) const;
@@ -80,8 +115,12 @@ namespace Engine::GameObject
 		std::unordered_map<std::string, ObjectTypeID>		m_nameMap;
 
 		// タイプID → 情報
+		// AddObject の一覧はこの表をそのまま舐めるので、別名(MigrateName)は入れないこと
 		std::unordered_map<ObjectTypeID, ObjectMeta> m_metaMap;
 		std::unordered_map<ObjectTypeID, ObjectFunc> m_funcMap;
+
+		// 旧名のタイプID → 現行のタイプID(MigrateName で張る)
+		std::unordered_map<ObjectTypeID, ObjectTypeID> m_aliasMap;
 	};
 
 	template<typename T>
@@ -103,8 +142,29 @@ namespace Engine::GameObject
 			return _existing;
 		}
 
-		// 新しいタイプIDを登録順で発行
-		ObjectTypeID _typeID = static_cast<ObjectTypeID>(m_metaMap.size());
+		// 登録名からタイプIDを作る(登録順には一切依存しない)
+		const ObjectTypeID _typeID = MakeObjectTypeID(a_name);
+
+		//----------------------------------------------------------------------------------
+		// 名前のチェック
+		//
+		// ここで弾かれるのは「別クラスが同じIDになる」ケースだけで、放っておくと
+		// シーンの復元時に静かに別クラスが生えてくる。起動時に必ず気付けるよう、
+		// ログを出して登録自体を諦める(そのクラスはシーンに出てこなくなる)。
+		//----------------------------------------------------------------------------------
+		// 0 は未初期化のメモリと、INVALID は「引けなかった」と区別が付かない
+		if (_typeID == 0 || _typeID == INVALID_OBJECT_TYPE_ID)
+		{
+			ENGINE_WARNING("[ObjectMetaRegistry] タイプIDが無効値になりました。登録名を変えてください : %s", a_name.c_str());
+			assert(0 && "ObjectTypeID が無効値 : 登録名を変えること");
+			return INVALID_OBJECT_TYPE_ID;
+		}
+		if (auto _it = m_metaMap.find(_typeID); _it != m_metaMap.end())
+		{
+			ENGINE_WARNING("[ObjectMetaRegistry] タイプIDが衝突しました : %s <-> %s", a_name.c_str(), _it->second.name.c_str());
+			assert(0 && "ObjectTypeID の衝突 : どちらかの登録名を変えること");
+			return INVALID_OBJECT_TYPE_ID;
+		}
 
 		// メタ情報
 		ObjectMeta _meta = {};

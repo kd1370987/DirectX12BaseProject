@@ -1,6 +1,7 @@
 ﻿#include "SceneManager.h"
 
 #include "../BaseScene/BaseScene.h"
+#include "../../ECS/World/World.h"	// unique_ptr<World> を扱うので完全型が要る
 
 #include "Engine/MainEngine.h"
 
@@ -101,17 +102,20 @@ namespace Engine::Scene
 		}
 	}
 
-	void SceneManager::SetWorldInitCallback(std::function<void(Engine::ECS::World* a_pWorld)> a_callback)
+	void SceneManager::SetWorldFactory(WorldFactory a_factory)
 	{
-		m_worldInitCallback = a_callback;
+		m_worldFactory = std::move(a_factory);
 	}
 
-	void SceneManager::InvokeWorldInitCallback(Engine::ECS::World * a_pWorld)
+	std::unique_ptr<Engine::ECS::World> SceneManager::CreateWorld()
 	{
-		if (m_worldInitCallback)
-		{
-			m_worldInitCallback(a_pWorld);
-		}
+		// ここで返せないとシーンがワールドを持てない。
+		// 差し込みはアプリ起動時に一度きりなので、起動直後に気付ける
+		ENGINE_ERRLOG(m_worldFactory != nullptr, "[SceneManager] ワールドの作り手が差し込まれていません");
+
+		if (!m_worldFactory) return nullptr;
+
+		return m_worldFactory();
 	}
 
 	//======================================================================================

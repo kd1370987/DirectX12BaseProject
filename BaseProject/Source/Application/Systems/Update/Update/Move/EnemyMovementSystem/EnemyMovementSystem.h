@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Engine/ECS/System/SystemBase/SystemBase.h"
+#include "Application/ECS/ISystem/ISystem.h"
 
-class EnemyMovementSystem : public Engine::ECS::SystemBase
+class EnemyMovementSystem : public App::ECS::ISystem
 {
 public:
-	void Init(Engine::ECS::World& a_world) override;
+	void Init(App::ECS::World& a_world) override;
 };

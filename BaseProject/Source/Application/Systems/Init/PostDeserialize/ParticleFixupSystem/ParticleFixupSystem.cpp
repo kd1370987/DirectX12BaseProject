@@ -1,12 +1,12 @@
 ﻿#include "ParticleFixupSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Resource/ParticlesComponent.h"
 #include "../../../../../Engine/Resource/Data/Particles/ParticlesAsset.h"
 
-void ParticleFixupSystem::Init(Engine::ECS::World& a_world)
+void ParticleFixupSystem::Init(App::ECS::World& a_world)
 {
 	a_world.PostDeserializeTask<ParticlesComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,

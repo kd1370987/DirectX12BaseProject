@@ -1,6 +1,6 @@
 ﻿#include "EffectDrawSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/Particle/ParticleBufferManager.h"
@@ -21,7 +21,7 @@
 // パーツ側は「そこからどうずらすか」しか持たないので、
 // 同じエフェクトを別の場所・別の相手に付け回せる。
 //==========================================================================================
-void EffectDrawSystem::Init(Engine::ECS::World& a_world)
+void EffectDrawSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const EffectAssetComponent, const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::Draw,

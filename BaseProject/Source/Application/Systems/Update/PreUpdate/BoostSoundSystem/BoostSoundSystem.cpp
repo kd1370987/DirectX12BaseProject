@@ -1,6 +1,6 @@
 ﻿#include "BoostSoundSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "../../../../Components/Character/Robot/BoostComponent.h"
@@ -33,7 +33,7 @@
 // 子エンティティと親自身の AudioBehaviorComponent はこのクエリに含まれないため
 // World::RefData で横断参照する(構造変更は行わないので反復中でも安全)。
 //==========================================================================================
-void BoostSoundSystem::Init(Engine::ECS::World& a_world)
+void BoostSoundSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const AttachmentSlotsComponent, const BoostComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

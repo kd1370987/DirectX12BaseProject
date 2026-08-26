@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "Engine/ECS/System/SystemBase/SystemBase.h"
+#include "Application/ECS/ISystem/ISystem.h"
 
-class RayCollisionSystem : public Engine::ECS::SystemBase
+class RayCollisionSystem : public App::ECS::ISystem
 {
 public:
 
-	void Init(Engine::ECS::World& a_world) override;
+	void Init(App::ECS::World& a_world) override;
 };

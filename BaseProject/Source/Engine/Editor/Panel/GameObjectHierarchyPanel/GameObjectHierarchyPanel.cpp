@@ -78,11 +78,16 @@ namespace Engine::Editor
 				// 数が増えると探せなくなるのでクラス名で絞り込めるようにする
 				const std::string& _search = EditorHelper::DrawSearchBox();
 
-				// タイプインデックス順に並べて表示(map は順不同のため一旦ソート)
+				// クラス名順に並べて表示(map は順不同のため一旦ソート)
+				// タイプIDは登録名のハッシュなので、IDで並べても意味のある順にはならない
 				std::vector<GameObject::ObjectTypeID> _ids;
 				_ids.reserve(_allMeta.size());
 				for (const auto& [_id, _meta] : _allMeta) _ids.push_back(_id);
-				std::sort(_ids.begin(), _ids.end());
+				std::sort(_ids.begin(), _ids.end(),
+					[&_allMeta](GameObject::ObjectTypeID a_lhs, GameObject::ObjectTypeID a_rhs)
+					{
+						return _allMeta.at(a_lhs).name < _allMeta.at(a_rhs).name;
+					});
 
 				for (GameObject::ObjectTypeID _id : _ids)
 				{

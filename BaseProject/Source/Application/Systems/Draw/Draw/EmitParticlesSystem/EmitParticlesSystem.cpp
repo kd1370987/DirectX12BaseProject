@@ -1,6 +1,6 @@
 ﻿#include "EmitParticlesSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "../../../../../Engine/Graphics/GraphicEngine.h"
@@ -22,7 +22,7 @@
 // 火花(pendingSparkEmitCount)がある場合は、同じ発生源から別アセットを
 // もう1回 emit する。点火/消火のフレームは本体と火花が同時に出る。
 //==========================================================================================
-void EmitParticleSystem::Init(Engine::ECS::World& a_world)
+void EmitParticleSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ParticlesComponent, const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::Draw,

@@ -1,11 +1,11 @@
 ﻿#pragma once
 
-#include "Engine/ECS/System/SystemBase/SystemBase.h"
+#include "Application/ECS/ISystem/ISystem.h"
 
 // パラメータから遷移を評価し、現在ステートを確定する
-class ActionStateCommitSystem : public Engine::ECS::SystemBase
+class ActionStateCommitSystem : public App::ECS::ISystem
 {
 public:
 
-	void Init(Engine::ECS::World& a_world) override;
+	void Init(App::ECS::World& a_world) override;
 };

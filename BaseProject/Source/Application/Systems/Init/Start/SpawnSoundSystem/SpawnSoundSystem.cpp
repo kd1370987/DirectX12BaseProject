@@ -1,6 +1,6 @@
 #include "SpawnSoundSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Audio/AudioManager.h"
 
 #include "Application/Components/Resource/SoundComponent.h"
@@ -21,7 +21,7 @@
 //   PostDeserialize からやり直しになるため、そのときは鳴り直す。
 // ・isLoop も見る。単発の効果音は false、湧いてから鳴りっぱなしにしたい音は true。
 //==============================================================================
-void SpawnSoundSystem::Init(Engine::ECS::World& a_world)
+void SpawnSoundSystem::Init(App::ECS::World& a_world)
 {
 	a_world.StartTask<SoundComponent>(
 		Engine::ECS::ESystemType::Start,

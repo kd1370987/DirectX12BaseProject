@@ -1,6 +1,6 @@
 #include "HealthFixupSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Character/HealthComponent.h"
@@ -13,7 +13,7 @@
 // シーンから読み込まれたエンティティも、プレハブから撃ち出されたエンティティも
 // 必ず PostDeserialize を通るので、ここで初期化すれば取りこぼしがない。
 //==============================================================================
-void HealthFixupSystem::Init(Engine::ECS::World& a_world)
+void HealthFixupSystem::Init(App::ECS::World& a_world)
 {
 	a_world.PostDeserializeTask<HealthComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,

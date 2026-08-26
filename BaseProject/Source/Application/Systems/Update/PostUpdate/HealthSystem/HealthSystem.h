@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Engine/ECS/System/SystemBase/SystemBase.h"
+#include "Application/ECS/ISystem/ISystem.h"
 
 // 受けたヒットぶん体力を減らし、0 になったら自分を消すシステム。
-class HealthSystem : public Engine::ECS::SystemBase
+class HealthSystem : public App::ECS::ISystem
 {
 public:
 
-	void Init(Engine::ECS::World& a_world) override;
+	void Init(App::ECS::World& a_world) override;
 };

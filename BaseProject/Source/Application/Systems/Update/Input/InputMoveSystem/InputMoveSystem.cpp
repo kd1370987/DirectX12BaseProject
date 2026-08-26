@@ -1,6 +1,6 @@
 ﻿#include "InputMoveSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Character/Robot/BoostComponent.h"
@@ -10,7 +10,7 @@
 
 #include "Application/Components/Character/LookAngleComponent.h"
 
-void InputMoveSystem::Init(Engine::ECS::World& a_world)
+void InputMoveSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const PlayerControllTag, MoveIntentComponent, LookAngleComponent,BoostComponent>(
 		Engine::ECS::ESystemType::Input,

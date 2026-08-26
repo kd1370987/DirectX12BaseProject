@@ -1,12 +1,12 @@
 ﻿#include "AnimationStateSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../../Components/Resource/AnimatorComponent.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
 
-void AnimationStateSystem::Init(Engine::ECS::World& a_world)
+void AnimationStateSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const StateMachineComponent,AnimatorComponent>(
 		Engine::ECS::ESystemType::Animation,

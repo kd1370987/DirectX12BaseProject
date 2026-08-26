@@ -1,6 +1,6 @@
 ﻿#include "SightStateBridgeSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Character/TargetEntityComponent.h"
 #include "../../../../Components/Resource/ActionStateComponent.h"
@@ -35,7 +35,7 @@
 //   「書く SearchPlayerSystem → 読む本システム」の順(RAW)で自動的に後ろに回る。
 // ・パラメータを読む ActionStateCommitSystem は Update 帯なので必ず後になる。
 //==============================================================================
-void SightStateBridgeSystem::Init(Engine::ECS::World& a_world)
+void SightStateBridgeSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const TargetEntityComponent, ActionStateComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

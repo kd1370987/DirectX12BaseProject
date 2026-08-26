@@ -1,11 +1,11 @@
 ﻿#include "HierarchyLinkSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "../../../../Components/Persistence/GUIDComponent.h"
 #include "../../../../Components/Hierarchy/HierarchyComponent.h"
 
-void HierarchyLinkSystem::Init(Engine::ECS::World& a_world)
+void HierarchyLinkSystem::Init(App::ECS::World& a_world)
 {
 	a_world.AwakeTask<const GUIDComponent, HierarchyComponent>(
 		// AwakeTag を見るので Awake フェーズで回す。

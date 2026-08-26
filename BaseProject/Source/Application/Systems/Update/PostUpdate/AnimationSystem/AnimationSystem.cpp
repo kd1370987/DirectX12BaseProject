@@ -1,6 +1,6 @@
 ﻿#include "AnimationSystem.h"
 
-#include "Engine/ECS/World/World.h"
+#include "Application/ECS/World/World.h"
 
 #include "Application/Components/Resource/ModelComponent.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
@@ -8,7 +8,7 @@
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-void AnimationSystem::Init(Engine::ECS::World& a_world)
+void AnimationSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const ModelComponent, AnimatorComponent, NodePoseComponent>(
 		Engine::ECS::ESystemType::Animation,

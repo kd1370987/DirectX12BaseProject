@@ -1,5 +1,6 @@
 ﻿#include "SceneViewPanel.h"
 #include "../../../MainEngine.h"
+#include "../../../../Application/ECS/PhaseTag/PhaseTag.h"	// ライフサイクルのフェーズタグ
 #include "../../../Graphics/GraphicEngine.h"
 #include "../../../Graphics/RenderGraph/RenderGraph.h"
 #include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
