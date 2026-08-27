@@ -460,6 +460,9 @@
     <Filter Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem">
       <UniqueIdentifier>{a1c7f2e4-7b41-4d9e-9c62-0e3f5a8d1b77}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Camera\RadialBlurSpeedSystem">
+      <UniqueIdentifier>{74109b56-de4f-42fa-a8cc-ee283b86493b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\Camera\TPSSystem">
       <UniqueIdentifier>{eff4e858-a3a9-4f9f-a51a-3b9ae7f28481}</UniqueIdentifier>
     </Filter>
@@ -1117,6 +1120,9 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass">
       <UniqueIdentifier>{d409b62e-37ca-4fb1-c8ff-b614ef3a708b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass">
+      <UniqueIdentifier>{c5fd2c9d-abc1-495e-8d2b-8c6660280d38}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise">
       <UniqueIdentifier>{c19b419f-679a-45a5-88eb-01176422c4fb}</UniqueIdentifier>
     </Filter>
@@ -1540,6 +1546,9 @@
     <Filter Include="Source\Engine\Window">
       <UniqueIdentifier>{4903a1c3-ef1a-452c-aa19-3c12f2daf394}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Source\PostProcess\Distortion">
+      <UniqueIdentifier>{71ae1542-91b0-4c4e-988d-81985052d328}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
@@ -1781,6 +1790,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem\CameraProjUpdateSystem.cpp">
       <Filter>Source\Application\Systems\Update\Camera\CameraProjUpdateSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Camera\RadialBlurSpeedSystem\RadialBlurSpeedSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Camera\RadialBlurSpeedSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp">
       <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
@@ -2295,6 +2307,9 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass\GaussianBlurPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass\RadialBlurPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass</Filter>
     </ClCompile>
@@ -2658,6 +2673,9 @@
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\FocusParamComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\RadialBlurComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h">
@@ -3124,6 +3142,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem\CameraProjUpdateSystem.h">
       <Filter>Source\Application\Systems\Update\Camera\CameraProjUpdateSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Camera\RadialBlurSpeedSystem\RadialBlurSpeedSystem.h">
+      <Filter>Source\Application\Systems\Update\Camera\RadialBlurSpeedSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h">
       <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
@@ -3767,6 +3788,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass\GaussianBlurPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass\RadialBlurPass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass</Filter>
     </ClInclude>
@@ -4261,6 +4285,9 @@
     <FxCompile Include="Asset\Shader\Source\PostProcess\Blur\GaussianBlurShader.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\Blur</Filter>
     </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Blur\RadialBlurCS.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\Blur</Filter>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\PostProcess\DoF\CoCShader.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\DoF</Filter>
     </FxCompile>
@@ -4324,6 +4351,9 @@
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
     <None Include="Asset\Shader\Common\RootParameters\DoFOptionData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\RadialBlurOptionData.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
     <None Include="Asset\Shader\Common\RootParameters\GaussianBlurSetting.hlsli">
@@ -4415,6 +4445,9 @@
     </None>
     <None Include="Source\Engine\Editor\Helper\EditorHelper.inl">
       <Filter>Source\Engine\Editor\Helper</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\PostProcess\Distortion\FishEyeCS.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\Distortion</Filter>
     </None>
   </ItemGroup>
 </Project>

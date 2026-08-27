@@ -186,13 +186,17 @@ namespace App::Object
 		/// </summary>
 		/// <param name="a_outCenter">範囲の中心(アンカーからのずれ)</param>
 		/// <param name="a_outSize">範囲の大きさ</param>
+		/// <param name="a_isIncludeAnim">アニメーション・反応で変わった今の大きさも含めるか</param>
 		/// <returns>大きさを持つ飾りが1つも無ければ false</returns>
 		/// <remarks>
-		/// アニメーションと反応のぶんは入れない。
-		/// 入れると、乗って大きくなった瞬間に判定も広がって、
-		/// 縁で「乗る→離れる」を繰り返してちらつく
+		/// 含める場合も素の矩形は必ず範囲へ入れる(素の矩形と今の矩形の合併を返す)。
+		/// 今の矩形だけにすると、乗ると縮む反応を付けたときに
+		/// 「乗る→縮んで外れる→戻って乗る」を繰り返してちらつくため
 		/// </remarks>
-		bool CalcDecorationBounds(Math::Vector2& a_outCenter, Math::Vector2& a_outSize) const;
+		bool CalcDecorationBounds(
+			Math::Vector2& a_outCenter,
+			Math::Vector2& a_outSize,
+			bool a_isIncludeAnim = false) const;
 
 		/// <summary>
 		/// 音を鳴らす
@@ -247,6 +251,17 @@ namespace App::Object
 
 		// 当たり判定の余白(px)。見た目より広く/狭く取りたいとき用
 		Math::Vector2 m_hitPadding = { 0.0f, 0.0f };
+
+		/// <summary>判定を飾りの今の大きさへ追従させるか</summary>
+		/// <remarks>
+		/// 立てると、アニメーションや反応で伸び縮みした今の見た目から判定を作る。
+		/// アンカーの PixelSize は動かないので、切ったままだと
+		/// 「出るときに拡大するUI」「乗ると膨らむボタン」の広がったぶんには当たらない。
+		///
+		/// 立てている間は PixelSize より飾りの範囲が優先される
+		/// (測れる飾りが1つも無いときだけ PixelSize へ戻る)
+		/// </remarks>
+		bool m_isHitFollowAnim = false;
 
 		// 触れるかどうか。切ると Disabled 扱いになる
 		bool m_isInteractable = true;

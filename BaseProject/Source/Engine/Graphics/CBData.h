@@ -143,6 +143,22 @@ namespace Engine::Graphics
 		float pad1;
 	};
 
+	// ラジアルブラーの調整値
+	// アクティブカメラの RadialBlurComponent を CamSetShaderSystem が詰め、
+	// RadialBlurPass へ送る。
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/RadialBlurOptionData.hlsli)と並びを合わせること
+	struct RadialBlurOptionCB
+	{
+		DirectX::XMFLOAT2 blurCenter;	// ブラーの中心(UV : 画面左上が0、右下が1)
+		float strength;					// 引きずる長さ(UV単位。中心からの距離に比例して伸びる)
+		int   sampleCount;				// サンプル数
+
+		float radius;					// ここまで(中心からのUV距離)はボカさない
+		float falloff;					// radius から先の効きの立ち上がり
+		int   enable;					// 0 ならボカさずそのまま通す
+		float pad0;
+	};
+
 	// 川瀬式ブルームの調整値
 	// OptionManager の BloomOption を、抽出パスと合成パスの両方が詰めて送る。
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/BloomOptionData.hlsli)と並びを合わせること

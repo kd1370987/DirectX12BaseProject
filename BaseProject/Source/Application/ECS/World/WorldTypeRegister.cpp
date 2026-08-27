@@ -1,4 +1,4 @@
-#include "WorldTypeRegister.h"
+﻿#include "WorldTypeRegister.h"
 
 #include "World.h"
 
@@ -16,6 +16,7 @@
 #include "Application/Components/Tag/CameraControllTag.h"
 #include "Application/Components/Camera/CameraParamComponent.h"
 #include "Application/Components/Camera/FocusParamComponent.h"
+#include "Application/Components/Camera/RadialBlurComponent.h"
 #include "Application/Components/Camera/ProjMatComponent.h"
 #include "Application/Components/Camera/FollowTargetComponent.h"
 #include "Application/Components/Camera/TPSOffsetComponent.h"
@@ -96,6 +97,7 @@
 #include "Application/Systems/Update/Camera/TPSSystem/TPSSystem.h"
 #include "Application/Systems/Update/PreUpdate/MainCameraSystem/MainCameraSystem.h"
 #include "Application/Systems/Update/Camera/CameraProjUpdateSystem/CameraProjUpdateSystem.h"
+#include "Application/Systems/Update/Camera/RadialBlurSpeedSystem/RadialBlurSpeedSystem.h"
 #include "Application/Systems/Update/Camera/AimTargetSystem/AimTargetSystem.h"
 #include "Application/Systems/Update/PostUpdate/CommitWorldMatrixSystem/CalcMatrixSystem.h"
 #include "Application/Systems/Update/PostUpdate/LockOnTargetSystem/LockOnTargetSystem.h"
@@ -223,6 +225,7 @@ namespace App::ECS
 		a_world.RegisterComponent<CameraParamComponent>("CameraParamComponent");
 		a_world.RegisterComponent<ProjMatComponent>("ProjMatComponent");
 		a_world.RegisterComponent<FocusParamComponent>("FocusParamComponent");
+		a_world.RegisterComponent<RadialBlurComponent>("RadialBlurComponent");
 		a_world.RegisterComponent<FollowTargetComponent>("FollowTargetComponent");
 		a_world.RegisterComponent<TPSOffsetComponent>("TPSOffsetComponent");
 		a_world.RegisterComponent<TPSLookAngleComponent>("TPSLookAngleComponent");
@@ -385,6 +388,9 @@ namespace App::ECS
 		// スピードで動く画角(TPSSystem が fovBoost を書く)を射影行列へ反映する。
 		// CameraParamComponent を読むので TPSSystem より後に回る
 		a_world.RegisterSystem<CameraProjUpdateSystem>();
+		// スピードに応じたラジアルブラーの強さ。
+		// 画角と同じ speed01 を読むので、それを書く TPSSystem より後に回る
+		a_world.RegisterSystem<RadialBlurSpeedSystem>();
 		// 映すカメラを1台選んで SingletonEntityResource へ置く。
 		// 使う側(狙点・ロックオン・描画のカメラ設定)より手前の帯(PreUpdate)で回る
 		a_world.RegisterSystem<MainCameraSystem>();

@@ -45,6 +45,7 @@
 #include "RenderPass/PostEffect/DoF/CoCPass/CoCPass.h"
 #include "RenderPass/PostEffect/DoF/DoFPass/DoFPass.h"
 #include "RenderPass/PostEffect/Blur/GaussianBlurPass/GaussianBlurPass.h"
+#include "RenderPass/PostEffect/Blur/RadialBlurPass/RadialBlurPass.h"
 #include "RenderPass/PostEffect/Bloom/BloomExtractPass/BloomExtractPass.h"
 #include "RenderPass/PostEffect/Bloom/KawaseBlurPass/KawaseBlurPass.h"
 #include "RenderPass/PostEffect/Bloom/BloomCompositePass/BloomCompositePass.h"
@@ -228,6 +229,13 @@ namespace Engine::Graphics
 			// メインカラーへ加算合成して固定名へ戻す
 			AddBloomCompositePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 		}
+
+		// ラジアルブラー。ブルームの後に登録すること。
+		// 光ったところごと放射状に流れてほしいので、逆にすると
+		// 引きずった跡だけが後から光ってしまう。
+		// (同一フェーズ内はリソースのバージョンで依存が決まるため、登録順が
+		//  「ブルーム合成の出力を読む」という関係の解決に効く)
+		AddRadialBlurPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 
 		AddShadowTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		// 影はテンポラルのみだと履歴依存が強くゴーストが出るため、蓄積後にスペースデノイズをかける。
@@ -444,6 +452,9 @@ namespace Engine::Graphics
 		// 前フレームの値でボケ続けることなく素通しになる
 		m_cbDoF = {};
 
+		// ラジアルブラーも同じ。設定し直されなかったフレームは無効(流れない)
+		m_cbRadialBlur = {};
+
 		// デバッグ用配列のクリア
 		Editor::MainEditor::Instance().ClearBuffer();
 	}
@@ -500,6 +511,14 @@ namespace Engine::Graphics
 	const DoFOptionCB& GraphicsEngine::GetDoFData() const
 	{
 		return m_cbDoF;
+	}
+	void GraphicsEngine::SetRadialBlurData(const RadialBlurOptionCB& a_data)
+	{
+		m_cbRadialBlur = a_data;
+	}
+	const RadialBlurOptionCB& GraphicsEngine::GetRadialBlurData() const
+	{
+		return m_cbRadialBlur;
 	}
 	void GraphicsEngine::SetCameraOverride(const DXSM::Matrix& a_worldMat, const DXSM::Matrix& a_projMat)
 	{

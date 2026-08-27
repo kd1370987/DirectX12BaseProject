@@ -173,81 +173,98 @@ namespace App::Object
 	//--------------------------------------------------------------------------------------
 	// 判定そのものは静的な共通実装。ここは矩形を組み立てて渡すだけ。
 	//
-	// 使う矩形は2通り :
-	//   PixelSize が入っている … アンカーの矩形をそのまま使う(判定を絵とずらしたいとき用)
-	//   PixelSize が 0        … 飾りが占めている範囲から作る
+	// 使う矩形は3通り :
+	//   HitFollowAnim が立っている … 飾りの今の範囲(アニメーション・反応込み)から作る
+	//   PixelSize が入っている     … アンカーの矩形をそのまま使う(判定を絵とずらしたいとき用)
+	//   PixelSize が 0            … 飾りが占めている範囲(素の大きさ)から作る
 	//
-	// 後者を用意してあるのは、見た目を飾り側へ移したことで
+	// 飾りから作る道を用意してあるのは、見た目を飾り側へ移したことで
 	// アンカーの大きさを入れ忘れやすくなったため。
 	// 幅0の矩形はどこにも当たらないので、そのままだと
 	// 「置いて飾りを付けたのに、乗っても何も起きない」になる。
+	//
+	// HitFollowAnim は絵の大きさが動くもの用。アンカーの矩形は動かないので、
+	// 切ったままだと大きくなった絵のふちがどこにも当たらない
 	//======================================================================================
 	bool UIBase::IsPointInsideSelf(const Math::Vector2& a_uiPos) const
 	{
-		// アンカーに大きさが入っていればそちらを優先する
-		if (m_pixelSize.x > 0.0f && m_pixelSize.y > 0.0f)
+		// アンカーに大きさが入っていても、今の絵へ追従させる指示があれば飾りを優先する
+		const bool _isUseDecorationBounds =
+			m_isHitFollowAnim || m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f;
+
+		if (_isUseDecorationBounds)
 		{
-			return UIBase::IsPointInside(
-				a_uiPos,
-				m_pixelPos,
-				m_pixelSize,
-				m_pivot,
-				m_rotation,
-				m_hitPadding);
+			Math::Vector2 _center = {};
+			Math::Vector2 _size = {};
+			if (CalcDecorationBounds(_center, _size, m_isHitFollowAnim))
+			{
+				// 範囲の中心を指す点。回転と倍率はアンカーのものが乗る
+				const Math::Vector2 _pos = m_pixelPos + RotateDeg(_center * m_scale, m_rotation);
+
+				return UIBase::IsPointInside(
+					a_uiPos,
+					_pos,
+					_size * m_scale,
+					{ 0.5f, 0.5f },		// 中心を出しているのでピボットは中央
+					m_rotation,
+					m_hitPadding);
+			}
+
+			// 測れる飾りが1つも無ければアンカーの矩形へ戻る(文字だけのUIなど)
 		}
 
-		// 飾りの範囲から作る
-		Math::Vector2 _center = {};
-		Math::Vector2 _size = {};
-		if (!CalcDecorationBounds(_center, _size)) return false;
-
-		// 範囲の中心を指す点。回転と倍率はアンカーのものが乗る
-		const Math::Vector2 _pos = m_pixelPos + RotateDeg(_center * m_scale, m_rotation);
+		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f) return false;
 
 		return UIBase::IsPointInside(
 			a_uiPos,
-			_pos,
-			_size * m_scale,
-			{ 0.5f, 0.5f },		// 中心を出しているのでピボットは中央
+			m_pixelPos,
+			m_pixelSize,
+			m_pivot,
 			m_rotation,
 			m_hitPadding);
 	}
 
 	//======================================================================================
 	// 飾りが占めている範囲
+	//--------------------------------------------------------------------------------------
+	// a_isIncludeAnim を立てると、素の矩形に加えて
+	// 「アニメーション・反応を掛けた今の矩形」も範囲へ入れる(2つの合併)。
+	//
+	// 今の矩形だけに差し替えないのは、乗ると縮む反応を付けたときに
+	// 「乗る→縮んで外れる→戻って乗る」が毎フレーム入れ替わってちらつくため。
+	// 合併にしておけば判定が素の大きさより痩せないので、広がる側だけが効く
 	//======================================================================================
-	bool UIBase::CalcDecorationBounds(Math::Vector2& a_outCenter, Math::Vector2& a_outSize) const
+	bool UIBase::CalcDecorationBounds(
+		Math::Vector2& a_outCenter,
+		Math::Vector2& a_outSize,
+		bool a_isIncludeAnim) const
 	{
 		bool _hasAny = false;
 		float _minX = 0.0f, _minY = 0.0f, _maxX = 0.0f, _maxY = 0.0f;
 
-		for (const Decoration::Decoration& _decoration : m_decorationVec)
+		// 矩形1つぶんを範囲へ足す : 回転を掛けた4隅を取り、それを囲む矩形にする
+		const auto _addRect = [&](
+			const Math::Vector2& a_offset,
+			const Math::Vector2& a_size,
+			const Math::Vector2& a_pivot,
+			float a_rotation)
 		{
-			if (!_decoration.isVisible) continue;
+			if (a_size.x <= 0.0f || a_size.y <= 0.0f) return;
 
-			// 文字は大きさをフォントから組み立てるので、ここでは測れない。
-			// 文字だけのUIに判定を持たせたいときは PixelSize を入れること
-			if (_decoration.type == Decoration::EDecorationType::Text) continue;
-
-			const Math::Vector2 _size = _decoration.pixelSize * _decoration.scale;
-			if (_size.x <= 0.0f || _size.y <= 0.0f) continue;
-
-			// 飾り自身の回転を掛けた4隅を取り、それを囲む矩形にする
 			const Math::Vector2 _topLeft = {
-				-_decoration.pivot.x * _size.x,
-				-_decoration.pivot.y * _size.y
+				-a_pivot.x * a_size.x,
+				-a_pivot.y * a_size.y
 			};
 			const Math::Vector2 _cornerArray[4] = {
 				_topLeft,
-				{ _topLeft.x + _size.x, _topLeft.y },
-				{ _topLeft.x,           _topLeft.y + _size.y },
-				{ _topLeft.x + _size.x, _topLeft.y + _size.y },
+				{ _topLeft.x + a_size.x, _topLeft.y },
+				{ _topLeft.x,            _topLeft.y + a_size.y },
+				{ _topLeft.x + a_size.x, _topLeft.y + a_size.y },
 			};
 
 			for (const Math::Vector2& _corner : _cornerArray)
 			{
-				const Math::Vector2 _point =
-					_decoration.offsetPos + RotateDeg(_corner, _decoration.rotation);
+				const Math::Vector2 _point = a_offset + RotateDeg(_corner, a_rotation);
 
 				if (!_hasAny)
 				{
@@ -262,6 +279,39 @@ namespace App::Object
 				_maxX = std::max(_maxX, _point.x);
 				_maxY = std::max(_maxY, _point.y);
 			}
+		};
+
+		for (const Decoration::Decoration& _decoration : m_decorationVec)
+		{
+			if (!_decoration.isVisible) continue;
+
+			// 文字は大きさをフォントから組み立てるので、ここでは測れない。
+			// 文字だけのUIに判定を持たせたいときは PixelSize を入れること
+			if (_decoration.type == Decoration::EDecorationType::Text) continue;
+
+			const Math::Vector2 _size = _decoration.pixelSize * _decoration.scale;
+			if (_size.x <= 0.0f || _size.y <= 0.0f) continue;
+
+			// 素の矩形
+			_addRect(_decoration.offsetPos, _size, _decoration.pivot, _decoration.rotation);
+
+			if (!a_isIncludeAnim) continue;
+
+			//----------------------------------------------------------------------
+			// 今の矩形 : 描画と同じ合成結果を使う
+			//
+			// 反応で消している飾り(visibleRate が 0 に寄っているもの)も
+			// 大きさとしては数える。透明な枠のぶんまで判定が伸びるのが困るなら、
+			// その飾りの isVisible を切ること
+			//----------------------------------------------------------------------
+			const Decoration::DecorationTransform _now =
+				Decoration::CalcCurrentTransform(_decoration);
+
+			_addRect(
+				_decoration.offsetPos + _now.offsetAdd,
+				_size * _now.scaleMul,
+				_decoration.pivot,
+				_decoration.rotation + _now.rotationAdd);
 		}
 
 		if (!_hasAny) return false;
@@ -500,6 +550,9 @@ namespace App::Object
 			a_ar.EndArray();
 		}
 
+		// ---- ここから下は後から足したもの : 追加は必ず末尾へ ----
+		a_ar.Field("HitFollowAnim", m_isHitFollowAnim);
+
 		m_editSize = m_pixelSize;
 
 		if (!a_ar.IsLoading()) return;
@@ -720,29 +773,42 @@ namespace App::Object
 		ImGui::DragFloat2("HitPadding", &m_hitPadding.x, 1.0f);
 		ImGui::TextDisabled("判定の矩形へ足す余白(px)");
 
+		ImGui::Checkbox("HitFollowAnim", &m_isHitFollowAnim);
+		ImGui::TextDisabled("飾りのアニメ・反応で大きくなったぶんも判定に入れる(PixelSize より優先)");
+
 		//----------------------------------------------------------------------
 		// いま効いている判定を出す
 		//
 		// 幅0の矩形はどこにも当たらないので、乗らない原因がここだと分かるようにする
 		//----------------------------------------------------------------------
-		if (m_pixelSize.x > 0.0f && m_pixelSize.y > 0.0f)
+		Math::Vector2 _hitCenter = {};
+		Math::Vector2 _hitSize = {};
+		const bool _hasHitBounds = CalcDecorationBounds(_hitCenter, _hitSize, m_isHitFollowAnim);
+
+		if (m_isHitFollowAnim && _hasHitBounds)
+		{
+			// 実行中は毎フレーム変わる。止まっているときは素の大きさと同じ
+			ImGui::Text("Hit : %.0f x %.0f (飾りの範囲/アニメ込み)",
+				_hitSize.x * m_scale, _hitSize.y * m_scale);
+		}
+		else if (m_pixelSize.x > 0.0f && m_pixelSize.y > 0.0f)
 		{
 			ImGui::Text("Hit : %.0f x %.0f (PixelSize)", m_pixelSize.x, m_pixelSize.y);
+
+			if (m_isHitFollowAnim)
+			{
+				ImGui::TextDisabled("HitFollowAnim は立っていますが、測れる飾りが無いので PixelSize です");
+			}
+		}
+		else if (_hasHitBounds)
+		{
+			ImGui::Text("Hit : %.0f x %.0f (飾りの範囲)", _hitSize.x * m_scale, _hitSize.y * m_scale);
+			ImGui::TextDisabled("PixelSize が 0 なので飾りの範囲を使っています");
 		}
 		else
 		{
-			Math::Vector2 _center = {};
-			Math::Vector2 _size = {};
-			if (CalcDecorationBounds(_center, _size))
-			{
-				ImGui::Text("Hit : %.0f x %.0f (飾りの範囲)", _size.x, _size.y);
-				ImGui::TextDisabled("PixelSize が 0 なので飾りの範囲を使っています");
-			}
-			else
-			{
-				ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "Hit : なし");
-				ImGui::TextDisabled("PixelSize も飾りの大きさも 0 です。カーソルに反応しません");
-			}
+			ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "Hit : なし");
+			ImGui::TextDisabled("PixelSize も飾りの大きさも 0 です。カーソルに反応しません");
 		}
 
 		ImGui::Spacing();

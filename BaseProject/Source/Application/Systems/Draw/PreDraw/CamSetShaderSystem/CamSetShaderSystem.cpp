@@ -9,6 +9,7 @@
 
 #include "Application/Components/Camera/CameraParamComponent.h"
 #include "Application/Components/Camera/FocusParamComponent.h"
+#include "Application/Components/Camera/RadialBlurComponent.h"
 #include "Application/Components/Camera/ProjMatComponent.h"
 
 #include "Application/InstanceResource/SingletonEntityResource.h"
@@ -28,7 +29,7 @@ void CamSetShaderSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PreDraw,
-		Engine::ECS::ReadList<CameraTag, ProjMatComponent, WorldMatrixComponent>{},
+		Engine::ECS::ReadList<CameraTag, ProjMatComponent, WorldMatrixComponent, FocusParamComponent, RadialBlurComponent>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)
 		{
@@ -55,28 +56,51 @@ void CamSetShaderSystem::Init(App::ECS::World& a_world)
 			_pGE->SetProjMat(_pProjMat->projMat);
 
 			//============================================================
-			// 被写界深度(DoF)
+			// 画面効果の設定
 			//------------------------------------------------------------
-			// ピントはカメラの持ち物なので FocusParamComponent から送る。
-			// 持っていないカメラもあるので、あるときだけ送る。
-			// (無いことを理由に打ち切ると、ピント設定を持たないカメラが
-			//  ビュー/射影行列ごと設定されなくなってしまう)
+			// ピントもラジアルブラーもカメラの持ち物なので、それぞれの
+			// コンポーネントから送る。持っていないカメラもあるので、
+			// あるときだけ送る。
+			// (無いことを理由に打ち切ると、その設定を持たないカメラが
+			//  ビュー/射影行列ごと設定されなくなってしまう。
+			//  片方が無いだけでもう片方まで送られないのも同じ理由で不可)
 			//
-			// 未設定のフレームは GraphicsEngine 側でリセット済み = ボケなし。
+			// 未設定のフレームは GraphicsEngine 側でリセット済み = 効果なし。
 			//============================================================
-			if (!a_ctx.pWorld->HasComponent<FocusParamComponent>(_camera)) return;
 
-			const auto* _pFocus = a_ctx.pWorld->RefData<FocusParamComponent>(_camera);
-			if (!_pFocus) return;
+			// 被写界深度(DoF)
+			if (a_ctx.pWorld->HasComponent<FocusParamComponent>(_camera))
+			{
+				if (const auto* _pFocus = a_ctx.pWorld->RefData<FocusParamComponent>(_camera))
+				{
+					Engine::Graphics::DoFOptionCB _dofCB = {};
+					_dofCB.focusDistance	= _pFocus->focusDistance;
+					_dofCB.focusRange		= _pFocus->focusRange;
+					_dofCB.nearRange		= _pFocus->nearRange;
+					_dofCB.farRange			= _pFocus->farRange;
+					_dofCB.maxBlurRadius	= _pFocus->maxBlurRadius;
+					_dofCB.enable			= _pFocus->enable ? 1 : 0;
+					_pGE->SetDoFData(_dofCB);
+				}
+			}
 
-			Engine::Graphics::DoFOptionCB _dofCB = {};
-			_dofCB.focusDistance	= _pFocus->focusDistance;
-			_dofCB.focusRange		= _pFocus->focusRange;
-			_dofCB.nearRange		= _pFocus->nearRange;
-			_dofCB.farRange			= _pFocus->farRange;
-			_dofCB.maxBlurRadius	= _pFocus->maxBlurRadius;
-			_dofCB.enable			= _pFocus->enable ? 1 : 0;
-			_pGE->SetDoFData(_dofCB);
+			// ラジアルブラー
+			if (a_ctx.pWorld->HasComponent<RadialBlurComponent>(_camera))
+			{
+				if (const auto* _pRadial = a_ctx.pWorld->RefData<RadialBlurComponent>(_camera))
+				{
+					Engine::Graphics::RadialBlurOptionCB _radialCB = {};
+					_radialCB.blurCenter	= { _pRadial->blurCenter.x, _pRadial->blurCenter.y };
+					// 速度から作った量 + 常時掛かる量。
+					// 速度ぶんを書いているのは RadialBlurSpeedSystem(Camera帯)
+					_radialCB.strength		= _pRadial->GetStrength();
+					_radialCB.sampleCount	= _pRadial->sampleCount;
+					_radialCB.radius		= _pRadial->radius;
+					_radialCB.falloff		= _pRadial->falloff;
+					_radialCB.enable		= _pRadial->enable ? 1 : 0;
+					_pGE->SetRadialBlurData(_radialCB);
+				}
+			}
 		}
 	);
 }

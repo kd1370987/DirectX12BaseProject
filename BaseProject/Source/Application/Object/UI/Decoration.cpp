@@ -229,10 +229,13 @@ namespace App::Object::Decoration
 			float uniformScale = 1.0f;		// 枠の太さ・字間など、1軸で効かせたいもの用
 		};
 
-		Resolved Resolve(
-			const Decoration& a_decoration,
-			const ParentTransform& a_parent,
-			const DrawOverride& a_override)
+		//----------------------------------------------------------------------------------
+		// アニメーションと反応を1つにまとめる
+		//
+		// 描画(Resolve)と当たり判定(CalcCurrentTransform)の両方がここを通る。
+		// 別々に組み立てると、絵は大きくなっているのに判定は素のまま、というずれが起きる
+		//----------------------------------------------------------------------------------
+		AnimResult MakeAnimResult(const Decoration& a_decoration)
 		{
 			AnimResult _anim = {};
 			if (a_decoration.opTweenAnim.has_value())      ApplyTween(*a_decoration.opTweenAnim, _anim);
@@ -252,6 +255,16 @@ namespace App::Object::Decoration
 				// 描画側で弾かずアルファで消しているのは、途中の割合で薄く出せるようにするため
 				_anim.colorMul.a *= _reaction.visibleRate;
 			}
+
+			return _anim;
+		}
+
+		Resolved Resolve(
+			const Decoration& a_decoration,
+			const ParentTransform& a_parent,
+			const DrawOverride& a_override)
+		{
+			const AnimResult _anim = MakeAnimResult(a_decoration);
 
 			Resolved _out = {};
 
@@ -608,6 +621,21 @@ namespace App::Object::Decoration
 
 			a_reaction.isInitialized = true;
 		}
+	}
+
+	//======================================================================================
+	// いま効いているアニメーション・反応の量
+	//======================================================================================
+	DecorationTransform CalcCurrentTransform(const Decoration& a_decoration)
+	{
+		const AnimResult _anim = MakeAnimResult(a_decoration);
+
+		DecorationTransform _out = {};
+		_out.offsetAdd   = _anim.positionAdd;
+		_out.scaleMul    = _anim.scaleMul;
+		_out.rotationAdd = _anim.rotationAdd;
+
+		return _out;
 	}
 
 	void AdvanceAnimation(Decoration& a_decoration, EUIState a_parentState, float a_deltaTime)

@@ -167,6 +167,13 @@ namespace Engine::Graphics
 		// 誰も設定しなかったフレームは無効(ボケなし)として扱われる。
 		void SetDoFData(const DoFOptionCB& a_data);
 		const DoFOptionCB& GetDoFData() const;
+
+		// ラジアルブラーの調整値
+		// DoF と同じくカメラの持ち物なので、アクティブカメラの RadialBlurComponent から
+		// CamSetShaderSystem が毎フレーム詰める。RadialBlurPass はこれを読む。
+		// 誰も設定しなかったフレームは無効(流れない)として扱われる。
+		void SetRadialBlurData(const RadialBlurOptionCB& a_data);
+		const RadialBlurOptionCB& GetRadialBlurData() const;
 		// 環境データ
 		void SetAmbientData(const AmbientData& a_data);
 		const AmbientData& GetAmbientData() const;
@@ -474,6 +481,9 @@ namespace Engine::Graphics
 
 		// 被写界深度データ(アクティブカメラの FocusParamComponent から毎フレーム設定)
 		DoFOptionCB m_cbDoF = {};
+
+		// ラジアルブラーデータ(アクティブカメラの RadialBlurComponent から毎フレーム設定)
+		RadialBlurOptionCB m_cbRadialBlur = {};
 
 		// ライト本体のプール
 		LightManager m_lightManager = {};

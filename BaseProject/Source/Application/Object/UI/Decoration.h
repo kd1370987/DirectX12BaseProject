@@ -42,10 +42,6 @@ namespace App::Object::Decoration
 
 	//======================================================================================
 	// アニメーションで動かすチャンネル
-	//
-	// 「持っているだけで全部動く」形にすると、触っていないチャンネルまで
-	// end(既定値 = 0)へ向かってしまい、指定した覚えのない縮小や透明化が起きる。
-	// 動かすものをここで明示する
 	//======================================================================================
 	enum class EAnimChannel : uint32_t
 	{
@@ -60,6 +56,9 @@ namespace App::Object::Decoration
 	};
 	ENUM_ATTR_BITFLAG(EAnimChannel);
 
+	//--------------------------------------------------------------------------------------
+	// イージングアニメーション
+	//--------------------------------------------------------------------------------------
 	template<typename T>
 	struct AnimElement
 	{
@@ -68,14 +67,7 @@ namespace App::Object::Decoration
 	};
 
 	//--------------------------------------------------------------------------------------
-	// 周期運動1つぶん
-	//
-	// 既定は「中心から ±amplitude 振る」。中心は、足すチャンネル(位置・回転)なら 0、
-	// 掛けるチャンネル(大きさ・色)なら 1 なので、振幅0で何も起きない。
-	//
-	// isUseLimit を立てると amplitude は使わず、minValue〜maxValue の間を往復する。
-	// 「アルファは 0.3〜0.8 の間だけ。完全に不透明にはしない」のように、
-	// 振れ幅ではなく届く範囲そのものを決めたいときはこちら
+	// 周期運動
 	//--------------------------------------------------------------------------------------
 	template<typename T>
 	struct Oscillation
@@ -113,9 +105,6 @@ namespace App::Object::Decoration
 
 	//--------------------------------------------------------------------------------------
 	// ずっと揺らし続ける(周期運動)
-	//
-	// 値は sin。振幅 0(または上下限が同じ値)のチャンネルは何も起きないが、
-	// 明示できたほうが読みやすいので channels は分けて持つ
 	//--------------------------------------------------------------------------------------
 	struct UIProceduralAnimation
 	{
@@ -130,9 +119,6 @@ namespace App::Object::Decoration
 
 	//======================================================================================
 	// 方向 : 枠をどの辺に出すか
-	//
-	// ビットフラグなので値は必ず2の冪にすること。
-	// (連番にすると LEFT|RIGHT が UP|DOWN|LEFT と同じ値になってしまう)
 	//======================================================================================
 	enum class EDirection : uint32_t
 	{
@@ -203,17 +189,8 @@ namespace App::Object::Decoration
 	};
 
 	//--------------------------------------------------------------------------------------
-	// 親(UI)の状態に対する反応
-	//
-	// アニメーションと同じく optional。付いている飾りだけがカーソルに反応する。
-	//
-	// visibleState で「出す状態」を絞れるので、
-	// 「カーソルが乗ったときだけ枠を出す」は
-	//   板ポリの飾りを1つ置いて、visibleState を HOVERED だけにする
-	// で作れる。大きさを変えたいなら hovered.scale、色なら hovered.color。
-	//
-	// 音は飾りではなく UI 側(UIBase)が1組だけ持つ。
-	// 飾りごとに持たせると、複数付けたときに同時に重なって鳴ってしまう。
+	// 親の状態に対する反応
+	// アニメーションと同じく 付いている飾りだけがカーソルに反応する。
 	//--------------------------------------------------------------------------------------
 	struct UIReaction
 	{
@@ -221,17 +198,11 @@ namespace App::Object::Decoration
 		EUIStateFlag visibleState = EUIStateFlag::ALL;
 
 		// 状態ごとの見た目(Normal は素のまま)
-		UIStateStyle hovered = {};
-		UIStateStyle pressed = {};
-		UIStateStyle disabled = {};
+		UIStateStyle hovered = {};	// 重なっている
+		UIStateStyle pressed = {};	// 押された
+		UIStateStyle disabled = {};	// 押されることがない
 
-		/// <summary>
-		/// 切り替わりの速さ(1秒あたりの寄り具合)。0 で即時
-		/// </summary>
-		/// <remarks>
-		/// 出し入れも同じ速さでアルファを寄せる。ぱっと消えるより目に優しい
-		/// </remarks>
-		float blendSpeed = 14.0f;
+		float blendSpeed = 14.0f;　	// 切り替わりの速さ
 
 		//---- ランタイム(保存しない) ----
 		UIStateStyle current = {};	// いま適用している値。ここを目標へ寄せていく
@@ -250,84 +221,69 @@ namespace App::Object::Decoration
 	};
 
 	//======================================================================================
-	// デコレーション1つぶん
-	//
-	// 使わない種類のフィールドはそのまま眠っているだけ。
-	// 種類ごとに配列を分けると描画順が種類順に固定されてしまい、
-	// 「枠の上に文字、その上にアイコン」のような重ね方ができなくなるため、
-	// 1つの struct にまとめて配列1本で持つ
+	// デコレーション : UIに付属する飾り
 	//======================================================================================
 	struct Decoration
 	{
 		EDecorationType type = EDecorationType::Polygon;
 
-		std::string name = "Decoration";	// エディターの見出し用
-		bool isVisible = true;				// 出すか
-
-		/// <summary>
-		/// 群番号
-		/// </summary>
-		/// <remarks>
-		/// 「この飾りだけを別の場所へ出したい」HUD 用の仕分け札。
-		/// 例) TargetBoxHUD は 0 を通常枠、1 をロック枠として使い分ける。
-		/// 使わない UI は全部 0 のままでよい(UIBase::Draw は群を絞らない)
-		/// </remarks>
-		uint32_t group = 0;
+		std::string name		= "Decoration";	// エディターの見出し用
+		bool		isVisible	= true;			// 出すか
+		uint32_t	group		= 0;			// グループ番号、別の場所へ出す際に使う
 
 		//----------------------------------------------------------------------------------
 		// 親(UI)からの相対トランスフォーム
 		//----------------------------------------------------------------------------------
-		Math::Vector2 offsetPos = {};			// 親のピボット位置からのずれ(px, 親の回転前)
-		Math::Vector2 pixelSize = { 64.0f, 64.0f };	// 大きさ(px) ※Textは fontPixelSize が優先
-		float rotation = 0.0f;					// 親の回転へ加算(度)
-		float scale = 1.0f;						// 親の倍率へ乗算
-		Math::Vector2 pivot = { 0.5f, 0.5f };	// 回転軸/基準点(正規化[0,1], 0.5=中心)
-		float layerOffset = 0.0f;				// 親のZへ加算
-		Math::Color color = Engine::Color::WHITE;	// 親の色へ乗算
+		Math::Vector2	offsetPos	= {};						// 親のピボット位置からのずれ(px, 親の回転前)
+		Math::Vector2	pixelSize	= { 64.0f, 64.0f };			// 大きさ(px) ※Textは fontPixelSize が優先
+		float			rotation	= 0.0f;						// 親の回転へ加算(度)
+		float			scale		= 1.0f;						// 親の倍率へ乗算
+		Math::Vector2	pivot		= { 0.5f, 0.5f };			// 回転軸/基準点(正規化[0,1], 0.5=中心)
+		float			layerOffset = 0.0f;						// 親のZへ加算
+		Math::Color		color		= Engine::Color::WHITE;		// 親の色へ乗算
 
 		//----------------------------------------------------------------------------------
 		// Polygon / Image 共通
 		//----------------------------------------------------------------------------------
-		Math::Vector2 uvOffset = {};			// UVスクロール・コマ送り
-		Math::Vector2 uvScale = { 1.0f, 1.0f };	// 1枚に並べた絵から1コマ切り出すときの倍率
+		Math::Vector2	uvOffset	= {};						// UVスクロール・コマ送り
+		Math::Vector2	uvScale		= { 1.0f, 1.0f };			// 1枚に並べた絵から1コマ切り出すときの倍率
 
 		//----------------------------------------------------------------------------------
 		// Image
 		//----------------------------------------------------------------------------------
-		Engine::GUID texGUID = {};
-		// 実体への参照は保存しない : 読み込み時に texGUID から引き直す
-		Engine::ResourceRef<Engine::Resource::Texture> texRef = {};
+		Engine::GUID texGUID = {};										// 保存用
+		Engine::ResourceRef<Engine::Resource::Texture> texRef = {};		// ランタイム用
 
 		//----------------------------------------------------------------------------------
 		// 枠(Polygon / Image どちらでも出せる)
 		//----------------------------------------------------------------------------------
-		bool isFill = true;								// 中を塗るか(false で枠だけ)
-		Math::Color edgeColor = Engine::Color::WHITE;	// 枠の色(親の色へ乗算)
-		float edgePixel = 0.0f;							// 枠の太さ(px)。0 で枠なし
-		EDirection edgeSide = EDirection::ALL;			// どの辺に出すか
+		bool		isFill		= true;					// 中を塗るか(false で枠だけ)
+		Math::Color edgeColor	= Engine::Color::WHITE;	// 枠の色(親の色へ乗算)
+		float		edgePixel	= 0.0f;					// 枠の太さ(px)。0 で枠なし
+		EDirection	edgeSide	= EDirection::ALL;		// どの辺に出すか
 
 		//----------------------------------------------------------------------------------
 		// Text
 		//----------------------------------------------------------------------------------
-		std::string text = "Text";
+		std::string	text = "Text";
 		Engine::GUID fontGUID = {};
 		Engine::ResourceRef<Engine::Resource::Font> fontRef = {};
 
-		float fontPixelSize = 32.0f;			// 出したい文字の高さ(px)
-		float lineSpacing = 1.0f;				// 行送りの倍率(1.0 でフォントの既定)
-		float charSpacing = 0.0f;				// 字間へ足す量(px)
-		ETextAlign textAlign = ETextAlign::Center;
+		float		fontPixelSize	= 32.0f;				// 出したい文字の高さ(px)
+		float		lineSpacing		= 1.0f;					// 行送りの倍率(1.0 でフォントの既定)
+		float		charSpacing		= 0.0f;					// 字間へ足す量(px)
+		ETextAlign	textAlign		= ETextAlign::Center;	// 出現位置
 
 		//----------------------------------------------------------------------------------
 		// アニメーション
 		//----------------------------------------------------------------------------------
-		std::optional<UIAnimation> opTweenAnim;					// 始点から終点へ動かすなら付与
-		std::optional<UIProceduralAnimation> opOscillationAnim;	// 揺らし続けるなら付与
+		std::optional<UIAnimation>				opTweenAnim;		// 始点から終点へ動かすなら付与
+		std::optional<UIProceduralAnimation>	opOscillationAnim;	// 揺らし続けるなら付与
 
 		//----------------------------------------------------------------------------------
 		// カーソルへの反応
 		//----------------------------------------------------------------------------------
-		std::optional<UIReaction> opReaction;					// カーソルに反応させるなら付与
+		std::optional<UIReaction>				opReaction;			// カーソルに反応させるなら付与
 	};
 
 	//======================================================================================
@@ -379,6 +335,28 @@ namespace App::Object::Decoration
 		bool isUseGroup = false;
 		uint32_t group = 0;
 	};
+
+	//======================================================================================
+	// 今の見た目の値(アニメーション・反応を掛けたあと)
+	//
+	// 当たり判定を絵に合わせるためのもの。描画側も同じものを組み立てて使っている。
+	// 色とUVは判定に関係しないので入れていない
+	//======================================================================================
+	struct DecorationTransform
+	{
+		Math::Vector2 offsetAdd = {};				// offsetPos へ足す量(px, 親の倍率が掛かる前)
+		Math::Vector2 scaleMul = { 1.0f, 1.0f };	// pixelSize へ掛ける倍率
+		float rotationAdd = 0.0f;					// rotation へ足す角度(度)
+	};
+
+	/// <summary>
+	/// いま効いているアニメーション・反応の量を取り出す
+	/// </summary>
+	/// <remarks>
+	/// 進行そのものは AdvanceAnimation が持つので、ここは覗くだけ。
+	/// トゥイーン・周期運動・カーソルへの反応の3つを掛け合わせた結果が返る
+	/// </remarks>
+	DecorationTransform CalcCurrentTransform(const Decoration& a_decoration);
 
 	//======================================================================================
 	// 操作
