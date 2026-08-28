@@ -1546,6 +1546,9 @@
     <Filter Include="Asset\Shader\Source\PostProcess\Distortion">
       <UniqueIdentifier>{71ae1542-91b0-4c4e-988d-81985052d328}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline">
+      <UniqueIdentifier>{d4933552-c71b-4be1-9083-2a1c348a797a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
@@ -2618,6 +2621,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\UIManager.cpp">
       <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -4228,6 +4234,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\UIManager.h">
       <Filter>Source\Application\Object\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
