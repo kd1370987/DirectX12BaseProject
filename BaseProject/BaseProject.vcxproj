@@ -254,6 +254,7 @@
     <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.cpp" />
+    <ClCompile Include="Source\Application\Object\UI\UIManager.cpp" />
     <ClCompile Include="Source\Application\Object\UI\WaveAnnounceHUD\WaveAnnounceHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp" />
     <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp" />
@@ -491,7 +492,6 @@
     <ClCompile Include="Source\Engine\JobSystem\JobSystem.cpp" />
     <ClCompile Include="Source\Engine\MainEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\RenderingOption.cpp" />
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\WindowOption.cpp" />
@@ -633,6 +633,7 @@
     <ClInclude Include="Source\Application\Components\Character\Robot\BoostComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\ChargeDashComponent.h" />
     <ClInclude Include="Source\Application\Object\UI\Decoration.h" />
+    <ClInclude Include="Source\Application\Object\UI\UIManager.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ScoreSystem\ScoreSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem\DeathEventClearSystem.h" />
     <ClInclude Include="Source\Application\Object\UI\ScoreHUD\ScoreHUD.h" />
@@ -997,7 +998,6 @@
     <ClInclude Include="Source\Engine\EngineCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\GIOptions.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\RenderingOption.h" />

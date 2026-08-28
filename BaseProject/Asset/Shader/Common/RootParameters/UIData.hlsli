@@ -23,6 +23,11 @@ struct UIData
 	float layer;		// 重なり順。CPU側の並べ替え用で、VSでは読まない
 	uint texIndex;		// SRVインデックス
 	float2 uvScale;		// uv * uvScale + uvOffset。既定は(1,1)
+
+	// 湾曲
+	float2 curveCenter;		// ローカルの湾曲基準点
+	float curveRadius;		// 半径
+	float curveAngle;		// UIの曲がる量
 };
 
 #endif

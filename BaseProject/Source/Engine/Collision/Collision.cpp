@@ -5,7 +5,6 @@
 #include "../MainEngine.h"
 
 #include "../Graphics/RenderContext/RenderContext.h"
-#include "../Graphics/RenderContext/ShapeDraw/ShapeDraw.h"
 
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
 

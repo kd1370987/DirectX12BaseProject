@@ -209,6 +209,11 @@ namespace Engine::Graphics
 		// uv * uvScale + uvOffset の順で効く。既定は等倍。
 		// row3 の余りに入れているので、構造体の大きさは変わらない
 		DXSM::Vector2 uvScale = { 1.0f, 1.0f };
+
+		// 湾曲
+		Math::Vector2 curveCenter = {};		// ローカルの基準点
+		float curveRadius;					// 半径
+		float curveAngle;					// UIの曲がる量
 	};
 
 	// ボーンデータ

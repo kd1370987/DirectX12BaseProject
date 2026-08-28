@@ -1030,9 +1030,6 @@
     <Filter Include="Source\Engine\Graphics\RenderContext">
       <UniqueIdentifier>{ac53ba98-b34c-40d7-aee4-ecaa9ee05c09}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderContext\ShapeDraw">
-      <UniqueIdentifier>{f84af803-ebe6-4293-805e-b49bb0870354}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderGraph">
       <UniqueIdentifier>{faeedf32-9637-470c-bae5-f88b29fa74e0}</UniqueIdentifier>
     </Filter>
@@ -2247,9 +2244,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.cpp">
-      <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RenderGraph.cpp">
       <Filter>Source\Engine\Graphics\RenderGraph</Filter>
     </ClCompile>
@@ -2621,6 +2615,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Window\NativeWindow.cpp">
       <Filter>Source\Engine\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIManager.cpp">
+      <Filter>Source\Application\Object\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3719,9 +3716,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderContext\ShapeDraw\ShapeDraw.h">
-      <Filter>Source\Engine\Graphics\RenderContext\ShapeDraw</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderGraph\RGCommon.h">
       <Filter>Source\Engine\Graphics\RenderGraph</Filter>
     </ClInclude>
@@ -4231,6 +4225,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Window\NativeWindow.h">
       <Filter>Source\Engine\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\UIManager.h">
+      <Filter>Source\Application\Object\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

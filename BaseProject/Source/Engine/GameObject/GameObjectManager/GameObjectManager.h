@@ -63,6 +63,14 @@ namespace Engine::GameObject
 		/// </summary>
 		bool IsManaged(const BaseObject* a_pObject) const;
 
+		/// <summary>
+		/// 全オブジェクトの更新前処理
+		/// </summary>
+		/// <remarks>
+		/// 消える指示が出ているものを配列から外し、そのあと全員の PreUpdate を回す。
+		/// カーソルの取り合い(ObjectContext::cursorClaim)はここで作り直すので、
+		/// 名乗りは必ず Update より前に揃う
+		/// </remarks>
 		void PreUpdate();
 
 		/// <summary>

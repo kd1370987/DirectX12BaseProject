@@ -17,7 +17,6 @@ namespace Engine::Graphics
 {
 	// 前方宣言
 	class RenderGraph;
-	class ShapeRenderer;
 	class GraphicsEngine;
 
 	// レンダーコンテキスト作成時に必要な情報
@@ -25,9 +24,6 @@ namespace Engine::Graphics
 	{
 		// D3Dオブジェクトのキャッシュ
 		D3D12::Device* pDevice = nullptr;
-
-		// クラスのキャッシュ
-		ShapeRenderer*					pShapeRender	= nullptr;
 
 		// アロケーターのメモリ容量
 		size_t cbAllocatorMemSize = 32 * 1024 * 1024;
@@ -123,9 +119,6 @@ namespace Engine::Graphics
 		// 深度値バッファのクリア
 		void ClearDSV( const Handle<D3D12::DSV>& a_DSVHandle);
 		void ClearDSV( const D3D12_CPU_DESCRIPTOR_HANDLE& a_DSVHandle);
-
-		// 矩形描画のためのクラス取得
-		ShapeRenderer* RefShapeDraw();
 
 		// ヒープのセット(セットしたヒープを m_pCurrentHeap にキャッシュする)
 		void BindHeap();
@@ -223,7 +216,6 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		D3D12::Device* m_pDevice = nullptr;						// デバイス
 		GraphicsEngine* m_pGraphicsEngine = nullptr;			// オーナー
-		ShapeRenderer* m_pShapeDraw = nullptr;					// 形状描画クラス
 
 		//--------------------------------------------------------------------------------------------
 		// フレーム限定リソース

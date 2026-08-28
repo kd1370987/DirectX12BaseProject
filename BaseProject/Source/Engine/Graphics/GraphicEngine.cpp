@@ -9,7 +9,6 @@
 
 // グラフィックス関係
 #include "RenderContext/RenderContext.h"
-#include "RenderContext/ShapeDraw/ShapeDraw.h"
 #include "RenderGraph/RenderGraph.h"
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../Particle/ParticleBufferManager.h"
@@ -101,10 +100,6 @@ namespace Engine::Graphics
 
 		m_pPipelineStateManager = a_desc.pPipelineStateManager;
 
-		// 形状描画クラス構築
-		m_upShapeRender = std::make_unique<ShapeRenderer>();
-
-
 		// レンダーコンテキストの作成
 		for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
 		{
@@ -112,7 +107,6 @@ namespace Engine::Graphics
 
 			RenderContextDesc _desc = {};
 			_desc.pDevice = _pDevice;
-			_desc.pShapeRender = m_upShapeRender.get();
 
 			_desc.cbAllocatorMemSize = 32 * 1024 * 1024;
 			// シーンを重ねて描くとき(ポーズ画面など)は全ワールドのボーン行列を
@@ -853,7 +847,9 @@ namespace Engine::Graphics
 		);
 	}
 
-	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_uvScale)
+	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_uvScale, const Math::Vector2& a_curveCenter,
+		float a_curveRadius,
+		float a_curveAngle)
 	{
 		auto& _resMgr = Resource::ResourceManager::Instance();
 
@@ -866,10 +862,12 @@ namespace Engine::Graphics
 		if (!_pTex) return;
 
 		// サイズは呼び出し側の指定値をそのまま使う
-		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, a_screenRect, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, a_uvScale);
+		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, a_screenRect, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, a_uvScale,a_curveCenter,a_curveRadius,a_curveAngle);
 	}
 
-	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, float a_scale, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot)
+	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, float a_scale, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_curveCenter,
+		float a_curveRadius,
+		float a_curveAngle)
 	{
 		auto& _resMgr = Resource::ResourceManager::Instance();
 
@@ -881,7 +879,7 @@ namespace Engine::Graphics
 
 		// テクスチャの元サイズにスケールを掛けたものを表示サイズにする
 		Math::Vector2 _size = { _pTex->GetDesc().Width * a_scale, _pTex->GetDesc().Height * a_scale };
-		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, _size, a_color, a_rotation, a_layer, a_uvOffset, a_pivot);
+		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, _size, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, {1.0f,1.0f}, a_curveCenter, a_curveRadius, a_curveAngle);
 	}
 
 	UINT GraphicsEngine::SetInstanceData(const MeshInstanceData& a_instanceData)
@@ -1266,7 +1264,11 @@ namespace Engine::Graphics
 		float a_layer,
 		const Math::Vector2& a_uvOffset,
 		const Math::Vector2& a_pivot,
-		const Math::Vector2& a_uvScale)
+		const Math::Vector2& a_uvScale,
+		const Math::Vector2& a_curveCenter,
+		float a_curveRadius,
+		float a_curveAngle
+	)
 	{
 		// スクリーン解像度(px)
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
@@ -1315,6 +1317,9 @@ namespace Engine::Graphics
 		_data.color = Math::DX::ToVector4(a_color);
 		_data.layer = a_layer;
 		_data.texIndex = a_texIndex;
+		_data.curveCenter = a_curveCenter;
+		_data.curveAngle = a_curveAngle;
+		_data.curveRadius = a_curveRadius;
 		m_uiDrawItemVec.push_back(_data);
 	}
 }

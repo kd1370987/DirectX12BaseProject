@@ -202,7 +202,7 @@ namespace App::Object::Decoration
 		UIStateStyle pressed = {};	// 押された
 		UIStateStyle disabled = {};	// 押されることがない
 
-		float blendSpeed = 14.0f;　	// 切り替わりの速さ
+		float blendSpeed = 14.0f;
 
 		//---- ランタイム(保存しない) ----
 		UIStateStyle current = {};	// いま適用している値。ここを目標へ寄せていく
@@ -298,6 +298,14 @@ namespace App::Object::Decoration
 		Math::Color color = Engine::Color::WHITE;	// 全デコレーションへ掛かる色
 	};
 
+	// 親しか持たない固有の設定、子供全体にかかる
+	struct ParentOption
+	{
+		Math::Vector2 curveCenter = {};
+		float curveRadius = 0.0f;
+		float curveAngle = 0.0f;
+	};
+
 	//======================================================================================
 	// 描くときの一時的な上書き
 	//
@@ -381,6 +389,7 @@ namespace App::Object::Decoration
 		Engine::Resource::ResourceManager* a_pResourceManager,
 		const Decoration& a_decoration,
 		const ParentTransform& a_parent,
+		const ParentOption& a_parentOp,
 		const DrawOverride& a_override = {});
 
 	/// <summary>

@@ -13,7 +13,6 @@
 #include "../../D3D12/PipelineStateManager/PipelineStateManager.h"
 #include "../GraphicEngine.h"
 #include "../MeshBufferAllocator/MeshBufferAllocator.h"
-#include "ShapeDraw/ShapeDraw.h"
 
 #include "../../ECS/World/World.h"
 
@@ -34,9 +33,6 @@ namespace Engine::Graphics
 
 		// デバイスのキャッシュ
 		m_pDevice = a_desc.pDevice;
-
-		// ポインタのキャッシュ
-		m_pShapeDraw = a_desc.pShapeRender;
 
 		// ルート定数バッファアロケーター
 		m_upCBAllocator = std::make_unique<CBAllocator>();
@@ -88,7 +84,6 @@ namespace Engine::Graphics
 		m_pCmdList = nullptr;		// コマンドリスト
 
 		// 形状描画用データ解放
-		m_pShapeDraw = nullptr;
 		m_spQuadPolygon.reset();
 
 		// ルート定数バッファ用アロケーター解放
@@ -327,12 +322,6 @@ namespace Engine::Graphics
 	void RenderContext::ClearDSV(const D3D12_CPU_DESCRIPTOR_HANDLE& a_DSVHandle)
 	{
 		D3D12::ClearDepthStencilView(m_pCmdList,a_DSVHandle);
-	}
-
-
-	ShapeRenderer* RenderContext::RefShapeDraw()
-	{
-		return m_pShapeDraw;
 	}
 
 	void RenderContext::BindHeap()

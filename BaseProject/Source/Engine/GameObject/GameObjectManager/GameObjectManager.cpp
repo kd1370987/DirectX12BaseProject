@@ -42,6 +42,16 @@ namespace Engine::GameObject
 				--_idx;	// swap してきた要素を再チェックする
 			}
 		}
+
+		// カーソルの取り合いは毎フレーム作り直す。
+		// 消えたオブジェクトのアドレスを持ち越さないよう、名乗りを集める前に空にする
+		m_objContext.cursorClaim = {};
+
+		// 名乗りを集める : 全員ぶん揃ってから、Update 側で誰が取ったかを見る
+		for (auto& _upObject : m_upObjectVec)
+		{
+			_upObject->PreUpdate(m_objContext);
+		}
 	}
 	void GameObjectManager::Update(float a_dt)
 	{
@@ -196,9 +206,6 @@ namespace Engine::GameObject
 					auto _upObject = _registry.Create(_typeID);
 					if (!_upObject)
 					{
-						// 生成できないと、このオブジェクトはシーンから静かに消える。
-						// バイナリで読んでいる場合は Data を読み飛ばせず以降が全部ずれるので、
-						// 「なぜか消えた」ではなく原因が分かるようにしておく
 						ENGINE_WARNING("[GameObjectManager] タイプIDからクラスを復元できませんでした : %u", _savedTypeID);
 					}
 					if (_upObject)

@@ -9,6 +9,7 @@ namespace Engine::Resource
 		~QuadPolygon() = default;
 		NON_COPYABLE_MOVABLE(QuadPolygon);
 		void Init();
+		void Init(uint32_t a_widthVertNum,uint32_t a_heightVertNum);
 
 		const D3D12_VERTEX_BUFFER_VIEW& GetVBView()
 		{

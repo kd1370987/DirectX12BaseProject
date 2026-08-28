@@ -30,7 +30,6 @@ namespace Engine::Graphics
 {
 	// 前方宣言
 	class RenderGraph;
-	class ShapeRenderer;
 	class RenderContext;
 	class RenderPassRegistry;
 	class MeshBufferAllocator;
@@ -328,7 +327,10 @@ namespace Engine::Graphics
 			float a_layer = 0,
 			const Math::Vector2& a_uvOffset = {},
 			const Math::Vector2& a_pivot = { 0.5f, 0.5f },
-			const Math::Vector2& a_uvScale = { 1.0f, 1.0f }
+			const Math::Vector2& a_uvScale = { 1.0f, 1.0f },
+			const Math::Vector2& a_curveCenter = { 0.0f, 0.0f },
+			float a_curveRadius = 0.0f,
+			float a_curveAngle = 0.0f
 		);
 
 		/// <summary>
@@ -350,7 +352,10 @@ namespace Engine::Graphics
 			float a_rotationDeg = 0,
 			float a_layer = 0,
 			const Math::Vector2& a_uvOffset = {},
-			const Math::Vector2& a_pivot = { 0.5f, 0.5f }
+			const Math::Vector2& a_pivot = { 0.5f, 0.5f },
+			const Math::Vector2& a_curveCenter = { 0.0f, 0.0f },
+			float a_curveRadius = 0.0f,
+			float a_curveAngle = 0.0f
 		);
 
 		// 追加
@@ -432,7 +437,11 @@ namespace Engine::Graphics
 			float a_layer,
 			const Math::Vector2& a_uvOffset,
 			const Math::Vector2& a_pivot,
-			const Math::Vector2& a_uvScale = { 1.0f, 1.0f });
+			const Math::Vector2& a_uvScale = { 1.0f, 1.0f },
+			const Math::Vector2& a_curveCenter = { 0.0f, 0.0f },
+			float a_curveRadius = 0.0f,
+			float a_curveAngle = 0.0f
+		);
 	private:
 		//--------------------------------------------------------------------------------------------
 		// 主要クラス
@@ -443,9 +452,6 @@ namespace Engine::Graphics
 
 		// PSOやルートシグネチャの管理
 		D3D12::PipelineStateManager* m_pPipelineStateManager = nullptr;
-
-		// 形状描画クラス
-		std::unique_ptr<ShapeRenderer> m_upShapeRender = nullptr;
 
 		// レンダーパスの登録場所
 		std::unique_ptr<RenderPassRegistry> m_upRenderPassRegistry = nullptr;

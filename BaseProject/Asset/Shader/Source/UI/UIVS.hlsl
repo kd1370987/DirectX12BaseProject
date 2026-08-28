@@ -10,7 +10,23 @@ VSOutput VSMain(VSInput a_input)
 	// クアッド頂点(-1..1)を線形変換する基底(axisX/axisY)とNDC中心(pos)として渡している。
 	// ここでは基底に沿ってクアッド頂点を配置するだけ。
 	float2 _q = a_input.pos.xy;	// -1..1
+
+	if (_uiData.curveAngle > 0)
+	{
+		// -1 ～ 1 を 角度に変換
+		float _angle = _q.x * (_uiData.curveAngle * 0.5f);
+
+		// 円弧上の位置
+		float2 _arc = _uiData.curveCenter + float2(sin(_angle), -cos(_angle)) * _uiData.curveRadius;
+
+		// 元の上下方向を保持
+		_q = _arc;
+		_q.y += a_input.pos.y;
+	}
+
+	// ndc空間座標に変換
 	float2 _ndc = _uiData.pos + _uiData.axisX * _q.x + _uiData.axisY * _q.y;
+	
 
 	// 構造体にしてPSへ
 	//

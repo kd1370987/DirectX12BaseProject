@@ -118,7 +118,11 @@ namespace Engine
 
 		// ジョブシステム起動
 		m_upJobSystem = std::make_unique<Thread::JobSystem>();
-		m_upJobSystem->Init(8);
+		{
+			uint32_t _threadCount = std::thread::hardware_concurrency();
+			_threadCount -= 5;
+			m_upJobSystem->Init(_threadCount);
+		}
 
 		// 非同期ロードの実行先として登録する。
 		// ResourceManager 側からエンジンのシングルトンを引かせないよう、ここで渡す
@@ -171,17 +175,7 @@ namespace Engine
 			return;
 		}
 
-		//==============================================================
-		// 自前のマウスカーソル
-		//--------------------------------------------------------------
-		// OSのカーソルはクライアント領域では消し、代わりに設定された画像を
-		// カーソル位置へ描く。設定は CursorOption。
-		//
-		// 描く先はモードで変わる。
-		//   ゲーム   : UIパス(GraphicsEngine::Execute がUIを積み終えた後に呼ぶ)
-		//   それ以外 : ImGuiの最前面レイヤー。ここで登録しておく
-		//              (登録した関数は ImGui のフレームの中で呼ばれる)
-		//==============================================================
+		// マウスカーソル
 		m_upMouseCursor = std::make_unique<Graphics::MouseCursor>();
 		m_upMouseCursor->Init();
 
@@ -194,19 +188,6 @@ namespace Engine
 
 		// ダイレクトキューの実行
 		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
-
-		m_upJobSystem->PushJob(
-			[]() 
-			{
-				int _test = 0;
-				for (int _i = 0; _i < 10000; ++_i)
-				{
-					_test++;
-				}
-				ENGINE_LOG("テストジョブ");
-			}
-		);
-
 	}
 
 	void MainEngine::Release()

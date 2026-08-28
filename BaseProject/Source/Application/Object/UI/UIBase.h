@@ -29,6 +29,16 @@ namespace App::Object
 		// 解放処理
 		void Release(Engine::GameObject::ObjectContext& a_context) override;
 
+		/// <summary>
+		/// 更新前処理 : カーソルの上に居ると名乗る
+		/// </summary>
+		/// <remarks>
+		/// 重なっているUIのうち手前の1つだけが反応するように、
+		/// 判定そのものはここで済ませて、勝ち負けは Update で見る。
+		/// 継承先で持つ場合は、先頭で UIBase::PreUpdate を呼ぶこと
+		/// </remarks>
+		void PreUpdate(Engine::GameObject::ObjectContext& a_context) override;
+
 		// 更新処理 : 飾りのアニメーションを進める
 		void Update(Engine::GameObject::ObjectContext& a_context) override;
 
@@ -69,6 +79,11 @@ namespace App::Object
 		// 判定は UIBase が持つ。押されて何をするかは持たないので、
 		// 背景でもパネルでも「乗ったら枠を出す」「押したら縮む」が付けられる。
 		// 実際に押されたときの処理を差し込みたいものだけ UIButton を使う
+		//
+		// 重なったときは **手前の1つだけ** が反応する(Layer が大きいほど手前。
+		// 同じ値なら後に描かれるほう)。下になったUIは矩形の中にカーソルが居ても
+		// 乗っていない扱いになるので、上のパネルごしに裏のボタンが押せることはない。
+		// カーソルを通したい(奥のUIを押させたい)ものは Interactable を切ること
 		//-----------------------------------------------------------------------
 
 		// カーソルが乗っているか
@@ -141,6 +156,7 @@ namespace App::Object
 
 		// 今のアンカーの状態を Decoration へ渡す形で取り出す
 		Decoration::ParentTransform MakeParentTransform() const;
+		Decoration::ParentOption MakeParentOption() const;
 
 		/// <summary>
 		/// 飾りを全部描く
@@ -177,6 +193,13 @@ namespace App::Object
 
 		// カーソルの当たり判定と押下の進行(UIBase::Update から)
 		void UpdateInteraction(Engine::GameObject::ObjectContext& a_context);
+
+		/// <summary>カーソルを受け取れる状態か(出ていて・触れて・プレイモード中)</summary>
+		/// <remarks>
+		/// 名乗り(PreUpdate)と進行(UpdateInteraction)で同じ条件を見るために切り出してある。
+		/// ここがずれると、反応しないUIが名乗って下のUIを塞ぐ
+		/// </remarks>
+		bool IsCursorReceivable(Engine::GameObject::ObjectContext& a_context) const;
 
 		// UIのピクセル座標が自分の判定矩形の内側にあるか
 		bool IsPointInsideSelf(const Math::Vector2& a_uiPos) const;
@@ -224,7 +247,6 @@ namespace App::Object
 		//-----------------------------------------------------------------------
 		// アンカー(保存される)
 		//-----------------------------------------------------------------------
-
 		// 色 : 全ての飾りへ乗算で掛かる
 		Math::Color m_color = Engine::Color::WHITE;
 
@@ -239,6 +261,12 @@ namespace App::Object
 		Math::Vector2 m_editSize = {};			// エディターでいじる際のピクセルサイズ
 		float m_scale = 1.0f;					// 等倍スケール用
 
+		// 湾曲
+		Math::Vector2 m_curveCenter = {};		// ローカルでの中心点
+		float m_curveRadius = 0.0f;				// 半径
+		float m_curveAngle = 0.0f;				// 強度
+
+
 		// 表示するか。切ると描画も入力も止まる
 		bool m_isVisible = true;
 
@@ -252,15 +280,8 @@ namespace App::Object
 		// 当たり判定の余白(px)。見た目より広く/狭く取りたいとき用
 		Math::Vector2 m_hitPadding = { 0.0f, 0.0f };
 
-		/// <summary>判定を飾りの今の大きさへ追従させるか</summary>
-		/// <remarks>
-		/// 立てると、アニメーションや反応で伸び縮みした今の見た目から判定を作る。
-		/// アンカーの PixelSize は動かないので、切ったままだと
-		/// 「出るときに拡大するUI」「乗ると膨らむボタン」の広がったぶんには当たらない。
-		///
-		/// 立てている間は PixelSize より飾りの範囲が優先される
-		/// (測れる飾りが1つも無いときだけ PixelSize へ戻る)
-		/// </remarks>
+		// 判定を飾りの今の大きさへ追従させるか
+		// 立てている間は PixelSize より飾りの範囲が優先される
 		bool m_isHitFollowAnim = false;
 
 		// 触れるかどうか。切ると Disabled 扱いになる
@@ -277,9 +298,13 @@ namespace App::Object
 		//-----------------------------------------------------------------------
 		// 状態(保存しない)
 		//-----------------------------------------------------------------------
-		bool m_isHovered = false;	// カーソルが乗っている
+		bool m_isHovered = false;	// カーソルが乗っている(かつ自分が手前)
 		bool m_isPressed = false;	// 押されている最中
 		bool m_isClicked = false;	// このフレームに押し切られた
+
+		// 矩形の中にカーソルが居るか。PreUpdate で見た結果。
+		// これが true でも、手前に別のUIが重なっていれば m_isHovered は false になる
+		bool m_isCursorInside = false;
 
 		// 矩形の内側で押し始めたか。
 		// これを見ておかないと、外で押してUIの上で離しただけで反応してしまう

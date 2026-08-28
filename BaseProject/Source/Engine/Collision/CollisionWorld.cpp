@@ -2,7 +2,6 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/Graphics/RenderContext/ShapeDraw/ShapeDraw.h"
 
 #include "MidPhase/BVHTraverser/BVHTraverser.h"
 #include "Collision.h"
@@ -122,13 +121,6 @@ namespace Engine::Collision
 	void CollisionWorld::BuildWorld()
 	{
 		ReBuildStaticTLAS();
-
-		// ここでTLASノードのAABBを ShapeRenderer へ積んでいたが、積み先の頂点配列は
-		// RenderContext::Clear() のリセットが無効化されたままで一度もクリアされず、
-		// なおかつ描画にも使われていない(GetVertexVec の呼び出し元が存在しない)。
-		// 静的ノード数 × 24頂点 が毎フレーム溜まり続けるだけだったので削除した。
-		// TLASを可視化したい場合は、毎フレーム ClearBuffer されるデバッグライン側
-		// (MainEditor::DrawBox) を使うこと。
 	}
 	void CollisionWorld::BuildDynamicWorld()
 	{

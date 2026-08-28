@@ -227,6 +227,10 @@ namespace App::Object::Decoration
 			Math::Vector2 uvOffset = {};	// UVオフセット
 			Math::Vector2 uvScale = { 1.0f, 1.0f };	// UV倍率
 			float uniformScale = 1.0f;		// 枠の太さ・字間など、1軸で効かせたいもの用
+
+			Math::Vector2 curveCenter = {};
+			float curveAngle = 0.0f;
+			float curveRadius = 0.0f;
 		};
 
 		//----------------------------------------------------------------------------------
@@ -261,7 +265,8 @@ namespace App::Object::Decoration
 
 		Resolved Resolve(
 			const Decoration& a_decoration,
-			const ParentTransform& a_parent,
+			const ParentTransform& a_parentTr,
+			const ParentOption& a_parentOp,
 			const DrawOverride& a_override)
 		{
 			const AnimResult _anim = MakeAnimResult(a_decoration);
@@ -269,21 +274,25 @@ namespace App::Object::Decoration
 			Resolved _out = {};
 
 			// 親の倍率 × 自分の倍率 × その場の倍率
-			_out.uniformScale = a_parent.scale * a_decoration.scale * a_override.scale;
+			_out.uniformScale = a_parentTr.scale * a_decoration.scale * a_override.scale;
 
 			// ずれは親の回転で回してから足す : 親を回すと飾りが親の周りを回る
-			const Math::Vector2 _basePos = a_override.isUsePos ? a_override.pixelPos : a_parent.pixelPos;
+			const Math::Vector2 _basePos = a_override.isUsePos ? a_override.pixelPos : a_parentTr.pixelPos;
 			const Math::Vector2 _offset = (a_decoration.offsetPos + _anim.positionAdd) * _out.uniformScale;
-			_out.anchorPos = _basePos + RotateDeg(_offset, a_parent.rotation);
+			_out.anchorPos = _basePos + RotateDeg(_offset, a_parentTr.rotation);
 
 			_out.size = a_decoration.pixelSize * _out.uniformScale * _anim.scaleMul * a_override.sizeScale;
-			_out.rotation = a_parent.rotation + a_decoration.rotation + _anim.rotationAdd;
-			_out.layer = a_parent.layer + a_decoration.layerOffset;
+			_out.rotation = a_parentTr.rotation + a_decoration.rotation + _anim.rotationAdd;
+			_out.layer = a_parentTr.layer + a_decoration.layerOffset;
 
-			_out.modulate = a_parent.color * a_override.tint * _anim.colorMul;
+			_out.modulate = a_parentTr.color * a_override.tint * _anim.colorMul;
 			_out.color = _out.modulate * a_decoration.color;
 			_out.uvOffset = a_decoration.uvOffset + a_override.uvOffsetAdd + _anim.uvAdd;
 			_out.uvScale = a_override.isUseUvScale ? a_override.uvScale : a_decoration.uvScale;
+
+			_out.curveCenter = a_parentOp.curveCenter;
+			_out.curveRadius = a_parentOp.curveRadius;
+			_out.curveAngle = a_parentOp.curveAngle;
 
 			return _out;
 		}
@@ -303,7 +312,11 @@ namespace App::Object::Decoration
 			const Math::Vector2& a_size,
 			const Math::Color& a_color,
 			const Math::Vector2& a_uvOffset,
-			const Math::Vector2& a_uvScale)
+			const Math::Vector2& a_uvScale,
+			const Math::Vector2& a_curveCenter = { 0.0f, 0.0f },
+			float a_curveRadius = 0.0f,
+			float a_curveAngle = 0.0f
+		)
 		{
 			if (a_size.x <= 0.0f || a_size.y <= 0.0f) return;
 			if (a_color.a <= 0.0f) return;
@@ -319,7 +332,10 @@ namespace App::Object::Decoration
 				a_resolved.layer,
 				a_uvOffset,
 				{ 0.0f, 0.0f },		// ずれで位置を決めているのでピボットは左上固定
-				a_uvScale
+				a_uvScale,
+				a_curveCenter,
+				a_curveRadius,
+				a_curveAngle
 			);
 		}
 
@@ -351,7 +367,7 @@ namespace App::Object::Decoration
 					SubmitLocalRect(
 						a_pGE, _white, a_resolved,
 						a_localTopLeft + a_offset, a_edgeSize,
-						a_edgeColor, {}, { 1.0f, 1.0f });
+						a_edgeColor, {}, { 1.0f, 1.0f },a_resolved.curveCenter,a_resolved.curveRadius,a_resolved.curveAngle);
 				};
 
 			if (HasFlag(a_decoration.edgeSide, EDirection::UP))    _submit({ 0.0f, 0.0f }, { _size.x, _thickY });
@@ -677,7 +693,8 @@ namespace App::Object::Decoration
 		Engine::Graphics::GraphicsEngine* a_pGraphicsEngine,
 		Engine::Resource::ResourceManager* a_pResourceManager,
 		const Decoration& a_decoration,
-		const ParentTransform& a_parent,
+		const ParentTransform& a_parentTr,
+		const ParentOption& a_parentOp,
 		const DrawOverride& a_override)
 	{
 		if (a_pGraphicsEngine == nullptr || a_pResourceManager == nullptr) return;
@@ -686,7 +703,7 @@ namespace App::Object::Decoration
 		// 群で絞られているなら、対象外は描かない
 		if (a_override.isUseGroup && a_decoration.group != a_override.group) return;
 
-		const Resolved _resolved = Resolve(a_decoration, a_parent, a_override);
+		const Resolved _resolved = Resolve(a_decoration, a_parentTr, a_parentOp, a_override);
 
 		// 文字はグリフごとに矩形を組むので別経路
 		if (a_decoration.type == EDecorationType::Text)
@@ -725,7 +742,9 @@ namespace App::Object::Decoration
 				SubmitLocalRect(
 					a_pGraphicsEngine, _texHandle, _resolved,
 					_localTopLeft, _resolved.size,
-					_resolved.color, _resolved.uvOffset, _resolved.uvScale);
+					_resolved.color, _resolved.uvOffset, _resolved.uvScale,
+					_resolved.curveCenter, _resolved.curveRadius, _resolved.curveAngle
+				);
 			}
 		}
 

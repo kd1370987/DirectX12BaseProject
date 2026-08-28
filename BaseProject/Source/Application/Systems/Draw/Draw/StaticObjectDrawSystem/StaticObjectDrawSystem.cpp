@@ -10,7 +10,6 @@
 #include "Application/Components/Resource/ModelComponent.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/Graphics/RenderContext/ShapeDraw/ShapeDraw.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Application/Components/Resource/AnimatorComponent.h"

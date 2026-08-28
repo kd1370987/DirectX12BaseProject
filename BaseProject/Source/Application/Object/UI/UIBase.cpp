@@ -39,6 +39,40 @@ namespace App::Object
 	}
 
 	//======================================================================================
+	// 更新前 : カーソルの上に居ると名乗る
+	//--------------------------------------------------------------------------------------
+	// 重なっているUIのうち手前の1つだけを反応させるための前半分。
+	//
+	// 「自分の矩形にカーソルが居るか」までをここで出し、受け取り手を決めるのは
+	// マネージャーが集めた名乗りが揃ってから(UpdateInteraction)。
+	// 各UIがその場で hover を決めてしまうと、重なりを知らないまま全員が光る。
+	//
+	// ※位置を Update で動かすUIは、名乗りが1フレーム前の位置になる
+	//======================================================================================
+	void UIBase::PreUpdate(Engine::GameObject::ObjectContext& a_context)
+	{
+		m_isCursorInside = false;
+
+		// 反応しないUIは名乗らない。名乗ると、自分は光らないのに
+		// 下のUIだけを塞ぐ「見えない蓋」になってしまう
+		if (!IsCursorReceivable(a_context)) return;
+
+		Math::Vector2 _cursorPos = {};
+		if (!CalcCursorUIPos(a_context, _cursorPos)) return;
+
+		m_isCursorInside = IsPointInsideSelf(_cursorPos);
+
+		// 押している最中は、カーソルが矩形から外れても持ち続ける。
+		// 押したまま手を滑らせただけで下のUIが光り始めるのを止めるため
+		// (押し切りが成立するかどうかは UpdateInteraction が矩形で見ている)
+		const bool _isCapture = m_isPressStartedInside;
+
+		if (!m_isCursorInside && !_isCapture) return;
+
+		a_context.ClaimCursor(this, m_layer, _isCapture);
+	}
+
+	//======================================================================================
 	// 更新 : 飾りのアニメーションを進める
 	//--------------------------------------------------------------------------------------
 	// 出していないフレームも進める。止めてしまうと、
@@ -81,6 +115,10 @@ namespace App::Object
 	// ・押下は「押し始めも離しも矩形の内側」で成立させる。押したまま外へ逃がせば
 	//   取り消せる、よくあるボタンの作法に合わせてある。
 	//
+	// ・乗っているかは PreUpdate の名乗りの結果を使う。重なっているときは
+	//   手前の1つだけが受け取り手になるので、下になったUIは矩形の中に
+	//   カーソルが居ても乗っていない扱いになる。
+	//
 	// ・入力はプレイモード中しか受け取らない(InputManager 側で止まる)。
 	//   エディター操作でUIが光ったり押されたりしない。
 	//======================================================================================
@@ -106,13 +144,12 @@ namespace App::Object
 		// このときは状態を全部落とす。押しっぱなしのまま無効にされて、
 		// 有効へ戻した瞬間に押し切られたことにならないようにする。
 		//==================================================================
-		if (!a_context.pServices || !a_context.pServices->pInputManager ||
-			!m_isVisible || !m_isInteractable ||
-			!a_context.pServices->pInputManager->IsGameInputEnable())
+		if (!IsCursorReceivable(a_context))
 		{
 			m_isHovered = false;
 			m_isPressed = false;
 			m_isPressStartedInside = false;
+			m_isCursorInside = false;
 			return;
 		}
 
@@ -120,11 +157,11 @@ namespace App::Object
 
 		//==================================================================
 		// カーソルが乗っているか
+		//
+		// 矩形の中に居るか(PreUpdate)と、重なりの取り合いに勝ったかの両方。
+		// 手前に別のUIが重なっているフレームは、下のUIはここで落ちる
 		//==================================================================
-		Math::Vector2 _cursorPos = {};
-		const bool _hasCursor = CalcCursorUIPos(a_context, _cursorPos);
-
-		m_isHovered = _hasCursor && IsPointInsideSelf(_cursorPos);
+		m_isHovered = m_isCursorInside && a_context.IsCursorOwner(this);
 
 		// 乗った瞬間だけ鳴らす。乗っている間ずっとだと鳴り続けてしまう
 		if (m_isHovered && !_wasHovered)
@@ -166,6 +203,24 @@ namespace App::Object
 			m_isPressStartedInside = false;
 			m_isPressed = false;
 		}
+	}
+
+	//======================================================================================
+	// カーソルを受け取れる状態か
+	//--------------------------------------------------------------------------------------
+	// ・出していない(見えていないものは触れない)
+	// ・無効にされている
+	// ・プレイモードでない / エディターで文字を打っている
+	//
+	// 名乗り(PreUpdate)と進行(UpdateInteraction)で同じ条件を見ること。
+	// ここがずれると、反応しないUIが名乗って下のUIを塞ぐ
+	//======================================================================================
+	bool UIBase::IsCursorReceivable(Engine::GameObject::ObjectContext& a_context) const
+	{
+		if (!a_context.pServices || !a_context.pServices->pInputManager) return false;
+		if (!m_isVisible || !m_isInteractable) return false;
+
+		return a_context.pServices->pInputManager->IsGameInputEnable();
 	}
 
 	//======================================================================================
@@ -429,6 +484,16 @@ namespace App::Object
 		return _parent;
 	}
 
+	Decoration::ParentOption UIBase::MakeParentOption() const
+	{
+		Decoration::ParentOption _parent = {};
+		_parent.curveCenter = m_curveCenter;
+		_parent.curveRadius = m_curveRadius;
+		_parent.curveAngle = m_curveAngle;
+
+		return _parent;
+	}
+
 	void UIBase::DrawDecorations(
 		Engine::GameObject::ObjectContext& a_context,
 		const Decoration::DrawOverride& a_override)
@@ -443,7 +508,8 @@ namespace App::Object
 		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
 		if (!_pGE) return;
 
-		const Decoration::ParentTransform _parent = MakeParentTransform();
+		const Decoration::ParentTransform _parentTr = MakeParentTransform();
+		const Decoration::ParentOption _parentOp = MakeParentOption();
 
 		// 配列の順に積む : 後ろにあるものほど手前に出る
 		for (const Decoration::Decoration& _decoration : m_decorationVec)
@@ -452,7 +518,8 @@ namespace App::Object
 				_pGE,
 				a_context.pServices->pResourceManager,
 				_decoration,
-				_parent,
+				_parentTr,
+				_parentOp,
 				a_override);
 		}
 	}
@@ -475,6 +542,7 @@ namespace App::Object
 			a_context.pServices->pResourceManager,
 			m_decorationVec[a_index],
 			MakeParentTransform(),
+			MakeParentOption(),
 			a_override);
 	}
 
@@ -734,6 +802,11 @@ namespace App::Object
 
 		ImGui::Spacing();
 
+		// 湾曲オプション
+		ImGui::DragFloat2("CurveCenter",&m_curveCenter.x);
+		ImGui::DragFloat("CurveRadius",&m_curveRadius);
+		ImGui::DragFloat("CurveAngle",&m_curveAngle);
+
 		// 初期化用ボタン
 		if (ImGui::Button("RefreshTransform"))
 		{
@@ -829,6 +902,14 @@ namespace App::Object
 		// 実行中の状態は表示のみ
 		static const char* _stateName[] = { "Normal", "Hovered", "Pressed", "Disabled" };
 		ImGui::Text("State : %s", _stateName[static_cast<int>(GetUIState())]);
+
+		// 重なりの取り合いの結果。
+		// 「矩形には入っているのに反応しない」の原因がここだと分かるようにする
+		if (m_isCursorInside && !a_context.IsCursorOwner(this))
+		{
+			ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.3f, 1.0f),
+				"Cursor : 手前の別UIに取られています(Layer %.1f)", m_layer);
+		}
 
 		ImGui::Spacing();
 		ImGui::Separator();
