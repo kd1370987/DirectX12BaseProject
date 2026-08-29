@@ -71,10 +71,9 @@ namespace Engine::Graphics
 		// 既定はコピー用ヒープをカレントにしておく
 		m_pCurrentHeap = &m_copyHeap;
 
-
-		// クワッドポリゴン
-		m_spQuadPolygon = std::make_shared<Resource::QuadPolygon>();
-		m_spQuadPolygon->Init();
+		// 描画用の板ポリはフレームごとに変わらないので、
+		// コンテキストの数だけ作らずグラフィックスエンジンが1つずつ持っている
+		// (GraphicsEngine::RefQuadPolygon / RefCurvedQuadPolygon)
 	}
 
 	void RenderContext::Release()
@@ -82,9 +81,6 @@ namespace Engine::Graphics
 		// リンク解除
 		m_pDevice = nullptr;		// デバイス
 		m_pCmdList = nullptr;		// コマンドリスト
-
-		// 形状描画用データ解放
-		m_spQuadPolygon.reset();
 
 		// ルート定数バッファ用アロケーター解放
 		m_upCBAllocator->Release();
@@ -459,18 +455,59 @@ namespace Engine::Graphics
 		m_pCmdList->SetGraphicsRootShaderResourceView(10, _pBufferManager->GetPrevAnimatedVertexBuffer().GetResource()->GetGPUVirtualAddress());
 	}
 
-	void RenderContext::BindUIBuffer(UINT a_rootIndex)
+	void RenderContext::BindUIBuffer(UINT a_rootIndex, UINT a_startInstance)
 	{
-		m_pCmdList->SetGraphicsRootShaderResourceView(a_rootIndex,m_uiInstanceBuffer.GetGPUVirtualAddress());
+		// ルートSRVは「先頭要素のアドレス」を渡すだけなので、
+		// 途中から張りたいときは要素ぶんバイト数を進める
+		const D3D12_GPU_VIRTUAL_ADDRESS _address =
+			m_uiInstanceBuffer.GetGPUVirtualAddress() +
+			static_cast<UINT64>(a_startInstance) * sizeof(UIData);
+
+		m_pCmdList->SetGraphicsRootShaderResourceView(a_rootIndex, _address);
 	}
 
-	void RenderContext::DrawUI()
+	void RenderContext::DrawUI(UINT a_rootIndex)
 	{
 		const auto& _uiDataVec = m_pGraphicsEngine->GetUIDataBuffer();
 		if (_uiDataVec.empty()) return;
 
-		size_t _uiInstanceCount = _uiDataVec.size();
-		DrawPolygonInstancing(static_cast<UINT>(_uiInstanceCount));
+		auto* _pFlatPolygon   = m_pGraphicsEngine->RefQuadPolygon();
+		auto* _pCurvedPolygon = m_pGraphicsEngine->RefCurvedQuadPolygon();
+		if (!_pFlatPolygon || !_pCurvedPolygon) return;
+
+		//------------------------------------------------------------------
+		// 湾曲するUIだけ、横に分割した板ポリで描く
+		//
+		// 使う板ポリが変わる = 別のドローになるので、湾曲の有無で2回に分ける。
+		// ただし配列はレイヤー順に並んでいて、UIパスは深度を持たない(積んだ順が
+		// そのまま重なり)ので、「湾曲するものを全部まとめて後から描く」ことはできない。
+		// 前後関係が入れ替わって、下にあるはずのUIが手前に出てしまう。
+		//
+		// そこで同じ種類が続く区間ごとに1回ずつ描く。並び順はそのままなので重なりは崩れず、
+		// 湾曲UIが混ざっていないフレームは今までどおり1回のドローで終わる
+		//------------------------------------------------------------------
+		size_t _runStart = 0;
+		while (_runStart < _uiDataVec.size())
+		{
+			const bool _isCurved = _uiDataVec[_runStart].IsCurved();
+
+			// 同じ種類が続くところまで伸ばす
+			size_t _runEnd = _runStart + 1;
+			while (_runEnd < _uiDataVec.size() && _uiDataVec[_runEnd].IsCurved() == _isCurved)
+			{
+				++_runEnd;
+			}
+
+			// SV_InstanceID は毎回0から数え直されるので、区間の頭を先頭にして張り直す
+			BindUIBuffer(a_rootIndex, static_cast<UINT>(_runStart));
+
+			DrawPolygonInstancing(
+				_isCurved ? _pCurvedPolygon : _pFlatPolygon,
+				static_cast<UINT>(_runEnd - _runStart)
+			);
+
+			_runStart = _runEnd;
+		}
 	}
 
 	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)
@@ -575,9 +612,16 @@ namespace Engine::Graphics
 
 	void RenderContext::DrawPolygonInstancing(UINT a_count)
 	{
+		DrawPolygonInstancing(m_pGraphicsEngine->RefQuadPolygon(), a_count);
+	}
+
+	void RenderContext::DrawPolygonInstancing(Resource::QuadPolygon* a_pPolygon, UINT a_count)
+	{
+		if (!a_pPolygon) return;
+
 		// ポリゴンの頂点、インデックスバッファをバインド
-		const D3D12_VERTEX_BUFFER_VIEW& _vbView = m_spQuadPolygon->GetVBView();
-		const D3D12_INDEX_BUFFER_VIEW& _ibView = m_spQuadPolygon->GetIBView();
+		const D3D12_VERTEX_BUFFER_VIEW& _vbView = a_pPolygon->GetVBView();
+		const D3D12_INDEX_BUFFER_VIEW& _ibView = a_pPolygon->GetIBView();
 		m_pCmdList->IASetVertexBuffers(0,1,&_vbView);
 		m_pCmdList->IASetIndexBuffer(&_ibView);
 
@@ -586,7 +630,7 @@ namespace Engine::Graphics
 
 		// GPUインスタンシング
 		m_pCmdList->DrawIndexedInstanced(
-			_indexCount,	// インデックス数(四角形なら6)
+			_indexCount,	// インデックス数(4頂点の1枚板なら6、分割板ならその分だけ増える)
 			a_count,		// 描画するオブジェクト数(インスタンス数)
 			0,
 			0,

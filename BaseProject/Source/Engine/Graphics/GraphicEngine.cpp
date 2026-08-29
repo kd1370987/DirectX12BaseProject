@@ -14,6 +14,7 @@
 #include "../Particle/ParticleBufferManager.h"
 #include "RenderPassRegistry/RenderPassRegistry.h"
 #include "MeshBufferAllocator/MeshBufferAllocator.h"
+#include "../Resource/Data/QuadPolygon/QuadPolygon.h"
 #include "MouseCursor/MouseCursor.h"
 
 // シーン
@@ -45,6 +46,7 @@
 #include "RenderPass/PostEffect/DoF/DoFPass/DoFPass.h"
 #include "RenderPass/PostEffect/Blur/GaussianBlurPass/GaussianBlurPass.h"
 #include "RenderPass/PostEffect/Blur/RadialBlurPass/RadialBlurPass.h"
+#include "RenderPass/PostEffect/Distortion/FishEyePass/FishEyePass.h"
 #include "RenderPass/PostEffect/Bloom/BloomExtractPass/BloomExtractPass.h"
 #include "RenderPass/PostEffect/Bloom/KawaseBlurPass/KawaseBlurPass.h"
 #include "RenderPass/PostEffect/Bloom/BloomCompositePass/BloomCompositePass.h"
@@ -116,6 +118,25 @@ namespace Engine::Graphics
 			_upCtx->Init(this, a_pCmdList, _desc);
 			m_upRenderContextVec.push_back(std::move(_upCtx));
 		}
+
+		//------------------------------------------------------------------
+		// 描画用の板ポリ
+		//
+		// UIもパーティクルも同じものを使い回すだけで、フレームごとに書き換えたりしない。
+		// レンダーコンテキストに持たせるとフレーム数ぶん同じ頂点バッファができるので、
+		// エンジンが1つずつ持って配る。
+		//
+		// 湾曲用は横に kCurveDivision 分割したもの。
+		// 4頂点の板をいくら曲げようとしても、間に頂点が無いのでまっすぐな
+		// 台形にしかならない(頂点シェーダーは頂点の位置しか動かせない)。
+		// 縦は分割しない : 曲げる量はUVのx(横位置)だけで決まるので、
+		// 横に割りさえすれば弧になり、縦を割っても頂点が増えるだけで形は変わらない
+		//------------------------------------------------------------------
+		m_upQuadPolygon = std::make_unique<Resource::QuadPolygon>();
+		m_upQuadPolygon->Init();
+
+		m_upCurvedQuadPolygon = std::make_unique<Resource::QuadPolygon>();
+		m_upCurvedQuadPolygon->Init(kCurveDivision + 1, 2);
 
 		// ライト
 		// バッファは上限ぶんを固定確保する(FrameLightData::Create の中)。
@@ -231,6 +252,13 @@ namespace Engine::Graphics
 		//  「ブルーム合成の出力を読む」という関係の解決に効く)
 		AddRadialBlurPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
 
+		// 魚眼レンズ。ラジアルブラーの後に登録すること。
+		// 引きずった跡ごとレンズで歪んでほしいので、逆にすると
+		// 歪ませた絵の上をまっすぐ流すことになって噛み合わない。
+		// (同一フェーズ内はリソースのバージョンで依存が決まるため、登録順が
+		//  「ラジアルブラーの出力を読む」という関係の解決に効く)
+		AddFishEyePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
+
 		AddShadowTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		// 影はテンポラルのみだと履歴依存が強くゴーストが出るため、蓄積後にスペースデノイズをかける。
 		// NotSort は登録順で実行されるので、必ずテンポラルの後に登録すること。
@@ -299,6 +327,10 @@ namespace Engine::Graphics
 		{
 			m_upRenderGraph->Release();
 		}
+
+		// 板ポリ解放
+		m_upQuadPolygon.reset();
+		m_upCurvedQuadPolygon.reset();
 
 		// 各リンク解除
 		m_pPipelineStateManager = nullptr;
@@ -449,6 +481,9 @@ namespace Engine::Graphics
 		// ラジアルブラーも同じ。設定し直されなかったフレームは無効(流れない)
 		m_cbRadialBlur = {};
 
+		// 魚眼レンズも同じ。設定し直されなかったフレームは無効(歪まない)
+		m_cbFishEye = {};
+
 		// デバッグ用配列のクリア
 		Editor::MainEditor::Instance().ClearBuffer();
 	}
@@ -513,6 +548,14 @@ namespace Engine::Graphics
 	const RadialBlurOptionCB& GraphicsEngine::GetRadialBlurData() const
 	{
 		return m_cbRadialBlur;
+	}
+	void GraphicsEngine::SetFishEyeData(const FishEyeOptionCB& a_data)
+	{
+		m_cbFishEye = a_data;
+	}
+	const FishEyeOptionCB& GraphicsEngine::GetFishEyeData() const
+	{
+		return m_cbFishEye;
 	}
 	void GraphicsEngine::SetCameraOverride(const DXSM::Matrix& a_worldMat, const DXSM::Matrix& a_projMat)
 	{
@@ -847,9 +890,7 @@ namespace Engine::Graphics
 		);
 	}
 
-	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_uvScale, const Math::Vector2& a_curveCenter,
-		float a_curveRadius,
-		float a_curveAngle)
+	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_uvScale, float a_curveK, float a_curveOffsetX)
 	{
 		auto& _resMgr = Resource::ResourceManager::Instance();
 
@@ -862,12 +903,10 @@ namespace Engine::Graphics
 		if (!_pTex) return;
 
 		// サイズは呼び出し側の指定値をそのまま使う
-		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, a_screenRect, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, a_uvScale,a_curveCenter,a_curveRadius,a_curveAngle);
+		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, a_screenRect, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, a_uvScale, a_curveK, a_curveOffsetX);
 	}
 
-	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, float a_scale, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_curveCenter,
-		float a_curveRadius,
-		float a_curveAngle)
+	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, float a_scale, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, float a_curveK, float a_curveOffsetX)
 	{
 		auto& _resMgr = Resource::ResourceManager::Instance();
 
@@ -879,7 +918,7 @@ namespace Engine::Graphics
 
 		// テクスチャの元サイズにスケールを掛けたものを表示サイズにする
 		Math::Vector2 _size = { _pTex->GetDesc().Width * a_scale, _pTex->GetDesc().Height * a_scale };
-		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, _size, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, {1.0f,1.0f}, a_curveCenter, a_curveRadius, a_curveAngle);
+		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, _size, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, {1.0f,1.0f}, a_curveK, a_curveOffsetX);
 	}
 
 	UINT GraphicsEngine::SetInstanceData(const MeshInstanceData& a_instanceData)
@@ -1265,9 +1304,8 @@ namespace Engine::Graphics
 		const Math::Vector2& a_uvOffset,
 		const Math::Vector2& a_pivot,
 		const Math::Vector2& a_uvScale,
-		const Math::Vector2& a_curveCenter,
-		float a_curveRadius,
-		float a_curveAngle
+		float a_curveK,
+		float a_curveOffsetX
 	)
 	{
 		// スクリーン解像度(px)
@@ -1317,9 +1355,15 @@ namespace Engine::Graphics
 		_data.color = Math::DX::ToVector4(a_color);
 		_data.layer = a_layer;
 		_data.texIndex = a_texIndex;
-		_data.curveCenter = a_curveCenter;
-		_data.curveAngle = a_curveAngle;
-		_data.curveRadius = a_curveRadius;
+		// 湾曲。
+		// 反りは「弧の中心からの横ずれ(px)」で決まるので、シェーダーが px へ戻せるように
+		// このクアッドの実寸(半分の大きさ)も一緒に送る。
+		// NDCの基底(axisX/axisY)からは画面解像度なしにpxを復元できないため
+		_data.curveK = a_curveK;
+		_data.curveOffsetX = a_curveOffsetX;
+		_data.curveHalfWidth = _halfPx.x;
+		_data.curveInvHalfHeight = (_halfPx.y > 0.0f) ? (1.0f / _halfPx.y) : 0.0f;
+
 		m_uiDrawItemVec.push_back(_data);
 	}
 }

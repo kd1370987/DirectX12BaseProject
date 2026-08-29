@@ -80,11 +80,14 @@ namespace Engine::Graphics
 		_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
 			{
 				// ヒープ・ルートシグネチャ・PSOはグラフが実行前に張り終えている。
-				// ここでは三角形トポロジに切り替え、UIインスタンスバッファ(t0)を張って描くだけ。
+				// ここでは三角形トポロジに切り替えて描くだけ。
 				// (DrawPolygonInstancing はトポロジを設定しないため、ここで明示する)
+				//
+				// UIインスタンスバッファ(t0)を張るのは DrawUI の中。
+				// 湾曲するUIは板ポリが変わるぶんドローが分かれ、その都度
+				// 区間の先頭へバッファを張り直す必要があるため、渡すのはルート番号だけ
 				a_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				a_pCtx->BindUIBuffer(0);
-				a_pCtx->DrawUI();
+				a_pCtx->DrawUI(0);
 			};
 
 		// パス登録

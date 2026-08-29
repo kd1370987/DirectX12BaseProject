@@ -1120,6 +1120,12 @@
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass">
       <UniqueIdentifier>{c5fd2c9d-abc1-495e-8d2b-8c6660280d38}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Distortion">
+      <UniqueIdentifier>{c7b62f69-2bd1-4ec8-b882-108715abb962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Distortion\FishEyePass">
+      <UniqueIdentifier>{05e8cbd2-818e-4dc5-ab20-56ad051d36b6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise">
       <UniqueIdentifier>{c19b419f-679a-45a5-88eb-01176422c4fb}</UniqueIdentifier>
     </Filter>
@@ -2307,6 +2313,9 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass\RadialBlurPass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Distortion\FishEyePass\FishEyePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Distortion\FishEyePass</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass</Filter>
     </ClCompile>
@@ -2679,6 +2688,9 @@
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\RadialBlurComponent.h">
+      <Filter>Source\Application\Components\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Camera\FishEyeComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h">
@@ -3791,6 +3803,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass\RadialBlurPass.h">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Distortion\FishEyePass\FishEyePass.h">
+      <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Distortion\FishEyePass</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h">
       <Filter>Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass</Filter>
     </ClInclude>
@@ -4362,6 +4377,9 @@
     <None Include="Asset\Shader\Common\RootParameters\RadialBlurOptionData.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
+    <None Include="Asset\Shader\Common\RootParameters\FishEyeOptionData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
     <None Include="Asset\Shader\Common\RootParameters\GaussianBlurSetting.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
@@ -4452,8 +4470,8 @@
     <None Include="Source\Engine\Editor\Helper\EditorHelper.inl">
       <Filter>Source\Engine\Editor\Helper</Filter>
     </None>
-    <None Include="Asset\Shader\Source\PostProcess\Distortion\FishEyeCS.hlsl">
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Distortion\FishEyeCS.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\Distortion</Filter>
-    </None>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 {
     "Files": [
+        ".cso",
         ".hlsl"
     ],
     "GUID": "9dad06b1-091f-449e-8edb-7f10b77e159c",

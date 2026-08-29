@@ -261,10 +261,15 @@ namespace App::Object
 		Math::Vector2 m_editSize = {};			// エディターでいじる際のピクセルサイズ
 		float m_scale = 1.0f;					// 等倍スケール用
 
-		// 湾曲
-		Math::Vector2 m_curveCenter = {};		// ローカルでの中心点
-		float m_curveRadius = 0.0f;				// 半径
-		float m_curveAngle = 0.0f;				// 強度
+		// 湾曲(飾りも含めてこのUI全体に「1本の弧」として掛かる)
+		//
+		// 曲げても幅は変わらない。角度を入れた分だけ反るだけ。
+		// 弧は PixelSize を -1..1 として張るので、枠と中身のように幅が違う飾りでも
+		// 同じ弧に乗る(ゲージの残量が枠から外れない)。PixelSize が0だと曲がらない。
+		// 曲げるUIは横に分割した板ポリで描かれる(UIData::IsCurved を見て切り替わる)
+		Math::Vector2 m_curveCenter = {};		// 弧の頂点。PixelSizeを-1..1とした座標(x=横位置 / y=上下のずらし)
+		float m_curveRadius = 1.0f;				// 反りの深さの倍率(1で素直な円弧。0も1として扱う)
+		float m_curveAngle = 0.0f;				// 開き角(ラジアン)。0で曲げない。正で山なり、負で谷
 
 
 		// 表示するか。切ると描画も入力も止まる

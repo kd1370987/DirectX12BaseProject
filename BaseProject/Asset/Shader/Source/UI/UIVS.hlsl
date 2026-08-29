@@ -11,17 +11,31 @@ VSOutput VSMain(VSInput a_input)
 	// ここでは基底に沿ってクアッド頂点を配置するだけ。
 	float2 _q = a_input.pos.xy;	// -1..1
 
-	if (_uiData.curveAngle > 0)
+	//------------------------------------------------------------------
+	// 湾曲
+	//
+	// 板ポリは横に分割してある(GraphicsEngine::kCurveDivision)ので、
+	// ここで頂点を持ち上げ下げすると本当に曲がる。
+	//
+	// 弧の中心から横へ dx 離れた点を、下へ k*dx^2 ずらすだけ(円弧の二次近似)。
+	// 横は一切動かさないので、曲げてもUIの幅は変わらない。
+	//
+	// dx はUIの共通ローカル(px)で測る。枠・中身・文字と複数のクアッドに分かれても、
+	// 全部が同じ1本の弧に乗るようにするため(クアッドごとに自分の幅で曲げると、
+	// 幅の違う中身と枠が別々の曲がり方になってしまう)。
+	//
+	// 開き角・半径・弧の中心はCPU側(Decoration::Resolve)で k と横ずれへ畳んである
+	//------------------------------------------------------------------
+	if (_uiData.curveK != 0.0f)
 	{
-		// -1 ～ 1 を 角度に変換
-		float _angle = _q.x * (_uiData.curveAngle * 0.5f);
+		// この頂点が弧の中心からどれだけ横にずれているか(px)
+		float _dx = _uiData.curveOffsetX + _q.x * _uiData.curveHalfWidth;
 
-		// 円弧上の位置
-		float2 _arc = _uiData.curveCenter + float2(sin(_angle), -cos(_angle)) * _uiData.curveRadius;
+		// 反り(px)。正のkで中央が上に膨らむ(山なり)
+		float _bowPixel = -_uiData.curveK * _dx * _dx;
 
-		// 元の上下方向を保持
-		_q = _arc;
-		_q.y += a_input.pos.y;
+		// クアッド座標(半分の高さが1)へ直して足す
+		_q.y += _bowPixel * _uiData.curveInvHalfHeight;
 	}
 
 	// ndc空間座標に変換

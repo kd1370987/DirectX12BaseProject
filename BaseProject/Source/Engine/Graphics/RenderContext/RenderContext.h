@@ -152,8 +152,12 @@ namespace Engine::Graphics
 		void BindMeshlet();
 
 		// UI関連
-		void BindUIBuffer(UINT a_rootIndex);
-		void DrawUI();
+		//
+		// SV_InstanceID は DrawIndexedInstanced の StartInstanceLocation を含まない
+		// (必ず0から数え直す)ので、途中から描きたいときはバッファの先頭アドレス自体を
+		// ずらして張り直す。a_startInstance はそのための「何番目から張るか」
+		void BindUIBuffer(UINT a_rootIndex, UINT a_startInstance = 0);
+		void DrawUI(UINT a_rootIndex);
 
 		void DrawQueueDispathMesh(uint8_t a_passIndex);
 
@@ -183,7 +187,9 @@ namespace Engine::Graphics
 		void SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri);
 
 		// パーティクルやUIなどの描画用
+		// 板ポリを指定しない側はフラットな1枚板(4頂点)で描く
 		void DrawPolygonInstancing(UINT a_count);
+		void DrawPolygonInstancing(Resource::QuadPolygon* a_pPolygon, UINT a_count);
 
 		// 形状描画用
 		void DrawShape();
@@ -237,9 +243,6 @@ namespace Engine::Graphics
 
 		// デバッグライン用頂点
 		D3D12::StaticStructuredBuffer<DebugLineData> m_debugLineBuffer;
-
-		// 描画用ポリゴン
-		std::shared_ptr<Resource::QuadPolygon> m_spQuadPolygon = nullptr;
 
 		// メッシュシェーダー用データ
 		D3D12::StaticStructuredBuffer<MeshInstanceData>		m_meshInstanceBuffer;

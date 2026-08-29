@@ -10,6 +10,7 @@
 #include "Application/Components/Camera/CameraParamComponent.h"
 #include "Application/Components/Camera/FocusParamComponent.h"
 #include "Application/Components/Camera/RadialBlurComponent.h"
+#include "Application/Components/Camera/FishEyeComponent.h"
 #include "Application/Components/Camera/ProjMatComponent.h"
 
 #include "Application/InstanceResource/SingletonEntityResource.h"
@@ -29,7 +30,7 @@ void CamSetShaderSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PreDraw,
-		Engine::ECS::ReadList<CameraTag, ProjMatComponent, WorldMatrixComponent, FocusParamComponent, RadialBlurComponent>{},
+		Engine::ECS::ReadList<CameraTag, ProjMatComponent, WorldMatrixComponent, FocusParamComponent, RadialBlurComponent, FishEyeComponent>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)
 		{
@@ -58,7 +59,7 @@ void CamSetShaderSystem::Init(App::ECS::World& a_world)
 			//============================================================
 			// 画面効果の設定
 			//------------------------------------------------------------
-			// ピントもラジアルブラーもカメラの持ち物なので、それぞれの
+			// ピントもラジアルブラーも魚眼レンズもカメラの持ち物なので、それぞれの
 			// コンポーネントから送る。持っていないカメラもあるので、
 			// あるときだけ送る。
 			// (無いことを理由に打ち切ると、その設定を持たないカメラが
@@ -99,6 +100,19 @@ void CamSetShaderSystem::Init(App::ECS::World& a_world)
 					_radialCB.falloff		= _pRadial->falloff;
 					_radialCB.enable		= _pRadial->enable ? 1 : 0;
 					_pGE->SetRadialBlurData(_radialCB);
+				}
+			}
+
+			// 魚眼レンズ
+			if (a_ctx.pWorld->HasComponent<FishEyeComponent>(_camera))
+			{
+				if (const auto* _pFishEye = a_ctx.pWorld->RefData<FishEyeComponent>(_camera))
+				{
+					Engine::Graphics::FishEyeOptionCB _fishEyeCB = {};
+					_fishEyeCB.center	= { _pFishEye->center.x, _pFishEye->center.y };
+					_fishEyeCB.strength	= _pFishEye->strength;
+					_fishEyeCB.enable	= _pFishEye->enable ? 1 : 0;
+					_pGE->SetFishEyeData(_fishEyeCB);
 				}
 			}
 		}

@@ -77,9 +77,11 @@ namespace Engine::Resource
 				const size_t _index = static_cast<size_t>(_y) * a_widthVertNum + _x;
 
 				// 頂点データ作成
+				// vは上下反転。座標の-1(下)がテクスチャの下端(v=1)に当たる
+				// (4頂点版の並びに合わせる)
 				_vertices[_index] = {
 					{_posX, _posY, 0.0f, 1.0f},
-					{_u, 1.0f - _y}
+					{_u, 1.0f - _v}
 				};
 			}
 		}

@@ -159,6 +159,16 @@ namespace Engine::Graphics
 		float pad0;
 	};
 
+	// 魚眼レンズの調整値
+	// アクティブカメラの FishEyeComponent を CamSetShaderSystem が詰めて送る。
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/FishEyeOptionData.hlsli)と並びを合わせること
+	struct FishEyeOptionCB
+	{
+		DirectX::XMFLOAT2 center;		// 歪みの中心(UV : 画面左上が0、右下が1)
+		float strength;					// 歪みの強さ(0で歪まない。正で樽型、負で糸巻き型)
+		int   enable;					// 0 なら歪ませずそのまま通す
+	};
+
 	// 川瀬式ブルームの調整値
 	// OptionManager の BloomOption を、抽出パスと合成パスの両方が詰めて送る。
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/BloomOptionData.hlsli)と並びを合わせること
@@ -211,9 +221,27 @@ namespace Engine::Graphics
 		DXSM::Vector2 uvScale = { 1.0f, 1.0f };
 
 		// 湾曲
-		Math::Vector2 curveCenter = {};		// ローカルの基準点
-		float curveRadius;					// 半径
-		float curveAngle;					// UIの曲がる量
+		//
+		// 「弧の中心から横へ dx 離れた点を、下へ k*dx^2 ずらす」だけの形にしてある。
+		// 開き角・半径・弧の中心といった作り手が触る値は、CPU側(Decoration::Resolve)で
+		// この4つへ畳んである。
+		//
+		// こうしているのは、1つのUIが枠・中身・文字と複数のクアッドに分かれるため。
+		// クアッドごとに自分の幅で曲げると、幅の違う中身(ゲージの残量など)と枠が
+		// 別々の弧に乗ってしまう。ずれをUIの共通ローカル(px)で測れば1本の弧に乗る
+		float curveK = 0.0f;				// 反りの強さ(1/px)。0で曲げない
+		float curveOffsetX = 0.0f;			// 弧の中心からこのクアッドの中心までの横ずれ(px)
+		float curveHalfWidth = 0.0f;		// このクアッドの半幅(px)
+		float curveInvHalfHeight = 0.0f;	// このクアッドの半分の高さの逆数(1/px)
+
+		// 曲げるかどうか。
+		// 曲げるものは横に分割した板ポリで描く必要があるので、
+		// 描く側(RenderContext::DrawUI)がこれを見て使う板ポリを選ぶ。
+		//
+		// 頂点シェーダー(UIVS)側の分岐より必ず広く拾うこと。
+		// こちらが取りこぼすと、曲げるつもりのUIが4頂点の板で来て曲がらない
+		// (逆に多めに拾うぶんには、分割板でまっすぐ描かれるだけで害はない)
+		bool IsCurved() const { return curveK != 0.0f; }
 	};
 
 	// ボーンデータ

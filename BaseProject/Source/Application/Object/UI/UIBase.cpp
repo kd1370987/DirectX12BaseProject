@@ -487,6 +487,11 @@ namespace App::Object
 	Decoration::ParentOption UIBase::MakeParentOption() const
 	{
 		Decoration::ParentOption _parent = {};
+
+		// 弧はUIにつき1本。飾りごとの大きさではなくアンカーの矩形を基準に張るので、
+		// 幅の違う枠と中身(ゲージの残量など)が同じ弧に乗る
+		_parent.parentSize = m_pixelSize;
+
 		_parent.curveCenter = m_curveCenter;
 		_parent.curveRadius = m_curveRadius;
 		_parent.curveAngle = m_curveAngle;
@@ -586,6 +591,11 @@ namespace App::Object
 		a_ar.Field("m_uvOffset", m_legacyUvOffset);
 		a_ar.Field("m_layer", m_layer);
 		a_ar.Field("m_scale", m_scale);
+
+		// 湾曲(UI全体に1本の弧として掛かる)
+		a_ar.Field("CurveCenter", m_curveCenter);
+		a_ar.Field("CurveRadius", m_curveRadius);
+		a_ar.Field("CurveAngle", m_curveAngle);
 
 		// 出し分けの状態。※ 追加は必ずここより上でなく末尾へ
 		//    (バイナリは並び順で読むので、間に挟むと既存のデータがずれる)
@@ -803,9 +813,22 @@ namespace App::Object
 		ImGui::Spacing();
 
 		// 湾曲オプション
-		ImGui::DragFloat2("CurveCenter",&m_curveCenter.x);
-		ImGui::DragFloat("CurveRadius",&m_curveRadius);
-		ImGui::DragFloat("CurveAngle",&m_curveAngle);
+		// 曲げても幅は変わらない。反りだけが増えていく。
+		// 弧は上の PixelSize を -1..1 として張るので、幅0だと曲がらない
+		ImGui::DragFloat("CurveAngle", &m_curveAngle, 0.01f, -3.0f, 3.0f);
+		ImGui::TextDisabled("開き角(ラジアン)。0で曲げない / 正で山なり・負で谷");
+		ImGui::DragFloat("CurveRadius", &m_curveRadius, 0.01f, 0.0f, 4.0f);
+		ImGui::TextDisabled("反りの深さの倍率。1で素直な円弧(0も1として扱う)");
+		ImGui::DragFloat2("CurveCenter", &m_curveCenter.x, 0.01f);
+		ImGui::TextDisabled("弧の頂点。PixelSizeを-1..1とした座標(x=横位置 / y=上下のずらし)");
+
+		// 端がどれだけ下がるかを出しておく : 数字だけだと効き具合が読めない
+		if (m_curveAngle != 0.0f)
+		{
+			const float _depth = (m_curveRadius > 0.0f) ? m_curveRadius : 1.0f;
+			const float _sag = m_pixelSize.x * 0.5f * std::tan(m_curveAngle * 0.25f) * _depth;
+			ImGui::Text("端の反り : %.1f px", _sag);
+		}
 
 		// 初期化用ボタン
 		if (ImGui::Button("RefreshTransform"))

@@ -25,9 +25,18 @@ struct UIData
 	float2 uvScale;		// uv * uvScale + uvOffset。既定は(1,1)
 
 	// 湾曲
-	float2 curveCenter;		// ローカルの湾曲基準点
-	float curveRadius;		// 半径
-	float curveAngle;		// UIの曲がる量
+	//
+	// 「弧の中心から横へ dx 離れた点を、下へ k*dx^2 ずらす」だけの形にしてある。
+	// 開き角・半径・弧の中心といった作り手が触る値はCPU側(Decoration::Resolve)で
+	// この4つへ畳んである。
+	//
+	// こうしているのは、1つのUIが枠・中身・文字と複数のクアッドに分かれるため。
+	// クアッドごとに自分の幅で曲げると、幅の違う中身と枠が別々の弧に乗ってしまう。
+	// ずれをUIの共通ローカル(px)で測れば、どのクアッドも同じ1本の弧に乗る
+	float curveK;				// 反りの強さ(1/px)。0で曲げない
+	float curveOffsetX;			// 弧の中心からこのクアッドの中心までの横ずれ(px)
+	float curveHalfWidth;		// このクアッドの半幅(px)
+	float curveInvHalfHeight;	// このクアッドの半分の高さの逆数(1/px)
 };
 
 #endif

@@ -461,6 +461,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\KawaseBlurPass\KawaseBlurPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass\GaussianBlurPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass\RadialBlurPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Distortion\FishEyePass\FishEyePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass\CoCPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\DoFPass\DoFPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.cpp" />
@@ -625,6 +626,7 @@
     <ClInclude Include="Source\Application\Components\Camera\FollowTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\ProjMatComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\RadialBlurComponent.h" />
+    <ClInclude Include="Source\Application\Components\Camera\FishEyeComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\TPSCameraStateComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\TPSFollowComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\TPSLookAngleComponent.h" />
@@ -962,6 +964,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Bloom\KawaseBlurPass\KawaseBlurPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\GaussianBlurPass\GaussianBlurPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Blur\RadialBlurPass\RadialBlurPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Distortion\FishEyePass\FishEyePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\CoCPass\CoCPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\DoF\DoFPass\DoFPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderPass\PostEffect\Denoise\GI\GISpatialDenoisePass\GISpatialDenoisePass.h" />
@@ -1158,6 +1161,7 @@
     <None Include="Asset\Shader\Common\RootParameters\MeshShaderData.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\Particle.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\RadialBlurOptionData.hlsli" />
+    <None Include="Asset\Shader\Common\RootParameters\FishEyeOptionData.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\RaytracingData.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\SkinningInfo.hlsli" />
     <None Include="Asset\Shader\Common\RootParameters\SkyData.hlsli" />
@@ -1181,9 +1185,20 @@
     <None Include="Asset\Shader\Source\UI\UI.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Asset\Shader\Source\PostProcess\Distortion\FishEyeCS.hlsl">
-      <FileType>Document</FileType>
-    </None>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Distortion\FishEyeCS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\PostProcess\TAA\TAA.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>

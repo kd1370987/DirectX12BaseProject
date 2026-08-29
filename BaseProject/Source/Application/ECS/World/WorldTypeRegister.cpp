@@ -17,6 +17,7 @@
 #include "Application/Components/Camera/CameraParamComponent.h"
 #include "Application/Components/Camera/FocusParamComponent.h"
 #include "Application/Components/Camera/RadialBlurComponent.h"
+#include "Application/Components/Camera/FishEyeComponent.h"
 #include "Application/Components/Camera/ProjMatComponent.h"
 #include "Application/Components/Camera/FollowTargetComponent.h"
 #include "Application/Components/Camera/TPSOffsetComponent.h"
@@ -226,6 +227,7 @@ namespace App::ECS
 		a_world.RegisterComponent<ProjMatComponent>("ProjMatComponent");
 		a_world.RegisterComponent<FocusParamComponent>("FocusParamComponent");
 		a_world.RegisterComponent<RadialBlurComponent>("RadialBlurComponent");
+		a_world.RegisterComponent<FishEyeComponent>("FishEyeComponent");
 		a_world.RegisterComponent<FollowTargetComponent>("FollowTargetComponent");
 		a_world.RegisterComponent<TPSOffsetComponent>("TPSOffsetComponent");
 		a_world.RegisterComponent<TPSLookAngleComponent>("TPSLookAngleComponent");

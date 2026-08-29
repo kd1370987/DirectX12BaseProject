@@ -22,6 +22,7 @@ namespace Engine
 		class Mesh;
 		class Material;
 		class ShadingModelTable;
+		class QuadPolygon;
 		struct ModelDrawCommand;
 	}
 }
@@ -173,6 +174,13 @@ namespace Engine::Graphics
 		// 誰も設定しなかったフレームは無効(流れない)として扱われる。
 		void SetRadialBlurData(const RadialBlurOptionCB& a_data);
 		const RadialBlurOptionCB& GetRadialBlurData() const;
+
+		// 魚眼レンズの調整値
+		// これもカメラの持ち物。アクティブカメラの FishEyeComponent から
+		// CamSetShaderSystem が毎フレーム詰める。FishEyePass はこれを読む。
+		// 誰も設定しなかったフレームは無効(歪まない)として扱われる。
+		void SetFishEyeData(const FishEyeOptionCB& a_data);
+		const FishEyeOptionCB& GetFishEyeData() const;
 		// 環境データ
 		void SetAmbientData(const AmbientData& a_data);
 		const AmbientData& GetAmbientData() const;
@@ -318,6 +326,16 @@ namespace Engine::Graphics
 		/// UVに掛ける倍率(uv * uvScale + uvOffset)。既定は等倍。
 		/// 1枚に並べた絵から1コマだけ出すときに、倍率でコマの大きさを指定する
 		/// </param>
+		/// <param name="a_curveK">
+		/// 湾曲の強さ(1/px)。0で曲げない。
+		/// 弧の中心から横へ dx(px) 離れた点が k*dx^2 だけ下がる。
+		/// 開き角などの作り手が触る値からの変換は Decoration::Resolve が持つ
+		/// </param>
+		/// <param name="a_curveOffsetX">
+		/// 弧の中心から、このクアッドの中心までの横ずれ(px)。
+		/// 1つのUIが枠・中身・文字と複数のクアッドに分かれても、
+		/// これを正しく渡せば全部が同じ1本の弧に乗る
+		/// </param>
 		void SubmitUI(
 			const Handle<Resource::Texture>& a_texHandle,
 			const Math::Vector2& a_pixelPos,
@@ -328,9 +346,8 @@ namespace Engine::Graphics
 			const Math::Vector2& a_uvOffset = {},
 			const Math::Vector2& a_pivot = { 0.5f, 0.5f },
 			const Math::Vector2& a_uvScale = { 1.0f, 1.0f },
-			const Math::Vector2& a_curveCenter = { 0.0f, 0.0f },
-			float a_curveRadius = 0.0f,
-			float a_curveAngle = 0.0f
+			float a_curveK = 0.0f,
+			float a_curveOffsetX = 0.0f
 		);
 
 		/// <summary>
@@ -344,6 +361,16 @@ namespace Engine::Graphics
 		/// <param name="a_layer">Z順</param>
 		/// <param name="a_uvOffset">UVオフセット</param>
 		/// <param name="a_pivot">回転軸/基準点(正規化[0,1], 0.5=中心)</param>
+		/// <param name="a_curveK">
+		/// 湾曲の強さ(1/px)。0で曲げない。
+		/// 弧の中心から横へ dx(px) 離れた点が k*dx^2 だけ下がる。
+		/// 開き角などの作り手が触る値からの変換は Decoration::Resolve が持つ
+		/// </param>
+		/// <param name="a_curveOffsetX">
+		/// 弧の中心から、このクアッドの中心までの横ずれ(px)。
+		/// 1つのUIが枠・中身・文字と複数のクアッドに分かれても、
+		/// これを正しく渡せば全部が同じ1本の弧に乗る
+		/// </param>
 		void SubmitUI(
 			const Handle<Resource::Texture>& a_texHandle,
 			const Math::Vector2& a_pixelPos,
@@ -353,9 +380,8 @@ namespace Engine::Graphics
 			float a_layer = 0,
 			const Math::Vector2& a_uvOffset = {},
 			const Math::Vector2& a_pivot = { 0.5f, 0.5f },
-			const Math::Vector2& a_curveCenter = { 0.0f, 0.0f },
-			float a_curveRadius = 0.0f,
-			float a_curveAngle = 0.0f
+			float a_curveK = 0.0f,
+			float a_curveOffsetX = 0.0f
 		);
 
 		// 追加
@@ -375,6 +401,23 @@ namespace Engine::Graphics
 		MeshBufferAllocator* RefMeshBufferAllocator() { return m_upMeshBufferAllocator.get(); }
 
 		const std::vector<UIData>& GetUIDataBuffer() { return m_uiDrawItemVec; }
+
+		//--------------------------------------------------------------------------------------------
+		// 描画用の板ポリ
+		//
+		// UIもパーティクルも同じ板ポリを使い回すので、フレームごとのレンダーコンテキストではなく
+		// エンジンが1つずつ持つ(以前はコンテキストの数だけ同じ頂点バッファを作っていた)。
+		//
+		//   フラット … 4頂点の1枚板。曲げないものはすべてこれ
+		//   湾曲用   … 横に kCurveDivision 分割した板。頂点が無いと曲げようがないので、
+		//               UIの湾曲(UIData::IsCurved)が有効なものだけこちらで描く
+		//--------------------------------------------------------------------------------------------
+
+		// UIの湾曲用板ポリの横分割数
+		static constexpr uint32_t kCurveDivision = 32;
+
+		Resource::QuadPolygon* RefQuadPolygon()			{ return m_upQuadPolygon.get(); }
+		Resource::QuadPolygon* RefCurvedQuadPolygon()	{ return m_upCurvedQuadPolygon.get(); }
 
 	private:
 
@@ -438,9 +481,8 @@ namespace Engine::Graphics
 			const Math::Vector2& a_uvOffset,
 			const Math::Vector2& a_pivot,
 			const Math::Vector2& a_uvScale = { 1.0f, 1.0f },
-			const Math::Vector2& a_curveCenter = { 0.0f, 0.0f },
-			float a_curveRadius = 0.0f,
-			float a_curveAngle = 0.0f
+			float a_curveK = 0.0f,
+			float a_curveOffsetX = 0.0f
 		);
 	private:
 		//--------------------------------------------------------------------------------------------
@@ -461,6 +503,11 @@ namespace Engine::Graphics
 
 		//メッシュバッファ管理
 		std::unique_ptr<MeshBufferAllocator> m_upMeshBufferAllocator = nullptr;
+
+		// 描画用の板ポリ(UI・パーティクル共用)。
+		// フラットは4頂点の1枚板、湾曲用は横に kCurveDivision 分割したもの
+		std::unique_ptr<Resource::QuadPolygon> m_upQuadPolygon = nullptr;
+		std::unique_ptr<Resource::QuadPolygon> m_upCurvedQuadPolygon = nullptr;
 	
 		//--------------------------------------------------------------------------------------------
 		// GPU送信用データ
@@ -490,6 +537,9 @@ namespace Engine::Graphics
 
 		// ラジアルブラーデータ(アクティブカメラの RadialBlurComponent から毎フレーム設定)
 		RadialBlurOptionCB m_cbRadialBlur = {};
+
+		// 魚眼レンズデータ(アクティブカメラの FishEyeComponent から毎フレーム設定)
+		FishEyeOptionCB m_cbFishEye = {};
 
 		// ライト本体のプール
 		LightManager m_lightManager = {};

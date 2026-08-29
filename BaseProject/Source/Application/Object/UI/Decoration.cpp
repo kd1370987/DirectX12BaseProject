@@ -228,9 +228,14 @@ namespace App::Object::Decoration
 			Math::Vector2 uvScale = { 1.0f, 1.0f };	// UV倍率
 			float uniformScale = 1.0f;		// 枠の太さ・字間など、1軸で効かせたいもの用
 
-			Math::Vector2 curveCenter = {};
-			float curveAngle = 0.0f;
-			float curveRadius = 0.0f;
+			// 湾曲(親の設定を、そのまま渡せる形へ畳んだもの)
+			float curveK = 0.0f;			// 反りの強さ(1/px)。0で曲げない
+			float curveOriginX = 0.0f;		// 弧の頂点の横位置(親のアンカーからのpx)
+			float curveShiftY = 0.0f;		// 曲げたときに全体を上下へずらす量(px)
+
+			// 親の回転を掛ける前の、この飾りのずれ(px)。
+			// 弧の中心からの横ずれを測るのに使う(回した後の座標では測れない)
+			Math::Vector2 localOffset = {};
 		};
 
 		//----------------------------------------------------------------------------------
@@ -290,9 +295,34 @@ namespace App::Object::Decoration
 			_out.uvOffset = a_decoration.uvOffset + a_override.uvOffsetAdd + _anim.uvAdd;
 			_out.uvScale = a_override.isUseUvScale ? a_override.uvScale : a_decoration.uvScale;
 
-			_out.curveCenter = a_parentOp.curveCenter;
-			_out.curveRadius = a_parentOp.curveRadius;
-			_out.curveAngle = a_parentOp.curveAngle;
+			//--------------------------------------------------------------
+			// 湾曲
+			//
+			// 「開き角・深さ・弧の中心」を、シェーダーがそのまま使える
+			//   反りの強さ k(1/px) と 弧の頂点の位置(px)
+			// へここで畳む。畳んでおけば、枠・中身・文字がどんな大きさでも
+			// 同じ k と同じ頂点を見るので、全部が1本の弧に乗る。
+			//
+			// k は「親の矩形の端で、円弧と同じだけ反る」ように決める。
+			//   半幅 W を開き角 A で曲げたときの反り = W * tan(A/4)
+			//   反りを k*W^2 で作るので k = tan(A/4) / W
+			//
+			// 幅ではなく高さを基準にすると、ゲージのような横長で背の低いUIが
+			// ほとんど反らない(見た目上まったく曲がらない)ので必ず幅で測る
+			//--------------------------------------------------------------
+			const float _halfSpanX = a_parentOp.parentSize.x * 0.5f * a_parentTr.scale;
+			const float _halfSpanY = a_parentOp.parentSize.y * 0.5f * a_parentTr.scale;
+
+			// 深さの倍率。0(既定値)のままでも曲がるように1として扱う
+			const float _curveDepth = (a_parentOp.curveRadius > 0.0f) ? a_parentOp.curveRadius : 1.0f;
+
+			if (a_parentOp.curveAngle != 0.0f && _halfSpanX > 0.0f)
+			{
+				_out.curveK = std::tan(a_parentOp.curveAngle * 0.25f) * _curveDepth / _halfSpanX;
+			}
+			_out.curveOriginX = a_parentOp.curveCenter.x * _halfSpanX;
+			_out.curveShiftY = a_parentOp.curveCenter.y * _halfSpanY;
+			_out.localOffset = _offset;
 
 			return _out;
 		}
@@ -312,16 +342,26 @@ namespace App::Object::Decoration
 			const Math::Vector2& a_size,
 			const Math::Color& a_color,
 			const Math::Vector2& a_uvOffset,
-			const Math::Vector2& a_uvScale,
-			const Math::Vector2& a_curveCenter = { 0.0f, 0.0f },
-			float a_curveRadius = 0.0f,
-			float a_curveAngle = 0.0f
+			const Math::Vector2& a_uvScale
 		)
 		{
 			if (a_size.x <= 0.0f || a_size.y <= 0.0f) return;
 			if (a_color.a <= 0.0f) return;
 
-			const Math::Vector2 _pos = a_resolved.anchorPos + RotateDeg(a_localTopLeft, a_resolved.rotation);
+			// 曲げたときの上下のずらしはローカルで足してから回す
+			const Math::Vector2 _localTopLeft = {
+				a_localTopLeft.x,
+				a_localTopLeft.y + a_resolved.curveShiftY
+			};
+			const Math::Vector2 _pos = a_resolved.anchorPos + RotateDeg(_localTopLeft, a_resolved.rotation);
+
+			// この矩形の中心が、弧の頂点からどれだけ横にずれているか(px)。
+			//
+			// 飾りのずれ(回転前) + 矩形のずれ + 矩形の半幅 で、親のローカルでの中心が出る。
+			// ここを矩形ごとに正しく渡すから、幅の違う枠と中身(ゲージの残量)が
+			// 同じ1本の弧に乗る。矩形の中で閉じて曲げると別々の曲がり方になってしまう
+			const float _curveOffsetX =
+				a_resolved.localOffset.x + a_localTopLeft.x + a_size.x * 0.5f - a_resolved.curveOriginX;
 
 			a_pGE->SubmitUI(
 				a_texHandle,
@@ -333,9 +373,8 @@ namespace App::Object::Decoration
 				a_uvOffset,
 				{ 0.0f, 0.0f },		// ずれで位置を決めているのでピボットは左上固定
 				a_uvScale,
-				a_curveCenter,
-				a_curveRadius,
-				a_curveAngle
+				a_resolved.curveK,
+				_curveOffsetX
 			);
 		}
 
@@ -367,7 +406,7 @@ namespace App::Object::Decoration
 					SubmitLocalRect(
 						a_pGE, _white, a_resolved,
 						a_localTopLeft + a_offset, a_edgeSize,
-						a_edgeColor, {}, { 1.0f, 1.0f },a_resolved.curveCenter,a_resolved.curveRadius,a_resolved.curveAngle);
+						a_edgeColor, {}, { 1.0f, 1.0f });
 				};
 
 			if (HasFlag(a_decoration.edgeSide, EDirection::UP))    _submit({ 0.0f, 0.0f }, { _size.x, _thickY });
@@ -742,8 +781,7 @@ namespace App::Object::Decoration
 				SubmitLocalRect(
 					a_pGraphicsEngine, _texHandle, _resolved,
 					_localTopLeft, _resolved.size,
-					_resolved.color, _resolved.uvOffset, _resolved.uvScale,
-					_resolved.curveCenter, _resolved.curveRadius, _resolved.curveAngle
+					_resolved.color, _resolved.uvOffset, _resolved.uvScale
 				);
 			}
 		}
