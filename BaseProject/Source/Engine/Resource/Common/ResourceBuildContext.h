@@ -3,6 +3,11 @@
 namespace Engine::Graphics
 {
 	class MeshBufferAllocator;
+
+	namespace Pipeline
+	{
+		class PassMetaRegistry;
+	}
 }
 
 namespace Engine::Resource
@@ -31,6 +36,10 @@ namespace Engine::Resource
 
 		// ---- 作成時に使うマネージャー ----
 		Graphics::MeshBufferAllocator* pMeshBufferAllocator = nullptr;
+
+		// レンダリングパイプラインを読むときに使う。
+		// 保存されているのはパスの型IDだけなので、実体を作り直すのに一覧が要る
+		Graphics::Pipeline::PassMetaRegistry* pPassMetaRegistry = nullptr;
 		ResourceManager* pResourceManager = nullptr;
 		AssetDatabase* pAssetDatabase = nullptr;
 

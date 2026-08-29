@@ -275,6 +275,8 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem\CameraPipelineSubmitSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem\CameraPipelineFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.cpp" />
@@ -444,6 +446,14 @@
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVersionManager\RGResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\FinalOutputPass\FinalOutputPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\GraphicsPipeline\GraphicsPipeline.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\IO\RenderingPipelineAssetIO.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource\VirtualResource.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\TestGBufferPass\TestGBufferPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPassRegistry\RenderPassRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\DebugLinePass\DebugLinePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderPass\Geometry\FullRaytracingPass\FullRaytracingPass.cpp" />
@@ -720,6 +730,8 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem\CameraPipelineSubmitSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem\CameraPipelineFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.h" />
     <ClInclude Include="Source\Application\Components\Light\PointLightComponent.h" />
     <ClInclude Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.h" />
@@ -816,6 +828,14 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\FinalOutputPass\FinalOutputPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\GraphicsPipeline\GraphicsPipeline.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\IO\RenderingPipelineAssetIO.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource\VirtualResource.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\TestGBufferPass\TestGBufferPass.h" />
     <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\GroupTopologicalSort.h" />
     <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\TopologicalSort.h" />
     <ClInclude Include="Source\Engine\Utility\EnumFlags.h" />

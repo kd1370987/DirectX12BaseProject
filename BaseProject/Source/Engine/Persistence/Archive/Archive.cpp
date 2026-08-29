@@ -117,8 +117,38 @@ namespace Engine::Persistence
 		return std::filesystem::exists(m_jsonPath, _ec);
 	}
 
+	//======================================================================================
+	// メモリ上のJSONだけを相手にするアーカイブ
+	//
+	// ファイルを開かないので、m_ofs / m_ifs はどちらも閉じたまま。
+	// 各 Field はストリームが開いているかを見てから書くので、JSON側だけが動く
+	//======================================================================================
+	Archive::Archive(Mode a_mode, nlohmann::json& a_json)
+	{
+		m_mode = a_mode;
+		m_format = ArchiveFormat::Json;
+		m_isMemory = true;
+
+		if (a_mode == Mode::Save)
+		{
+			m_pMemoryJson = &a_json;
+			m_json = nlohmann::json::object();
+		}
+		else
+		{
+			m_json = a_json;
+		}
+	}
+
 	Archive::~Archive()
 	{
+		// メモリ相手のときはファイルへ書き出さない
+		if (m_isMemory)
+		{
+			if (IsSaving() && m_pMemoryJson) *m_pMemoryJson = std::move(m_json);
+			return;
+		}
+
 		if (m_ofs.is_open()) m_ofs.close();
 		if (m_ifs.is_open()) m_ifs.close();
 

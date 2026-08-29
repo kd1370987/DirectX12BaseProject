@@ -13,6 +13,10 @@
 #include "AudioBehaviorEdit/AudioBehaviorEdit.h"
 #include "EffectAssetEdit/EffectAssetEdit.h"
 
+#include "Engine/MainEngine.h"
+#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/RenderingPipeline/IO/RenderingPipelineAssetIO.h"
+
 #include "../../../../../Resource/Data/Model/IO/ModelConverter/ModelConverter.h"
 
 // プレハブ編集用(ECSのエンティティインスペクタと同じ構成で描く)
@@ -229,6 +233,30 @@ namespace Engine::Editor::Inspector
 		if (!_pEffect) { return; }
 
 		EffectAssetEdit(_guid, _pEffect, true, &a_editContext);
+	}
+
+	//-----------------------------------------------------------------------------------------
+	// レンダリングパイプライン
+	// ノードエディタはアセット自身が持っているので、ここは呼び出しとセーブだけ
+	//-----------------------------------------------------------------------------------------
+	void RenderingPipelineDraw(EditorContext& a_editContext)
+	{
+		auto _guid = a_editContext.pAssetProp->guid;
+
+		auto* _pPipeline = ResolveAsset<Graphics::Pipeline::RenderingPipelineAsset>(_guid);
+		if (!_pPipeline) { return; }
+
+		// ロード直後はレジストリが入っていないことがあるので、ここで必ず通しておく
+		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+		_pPipeline->SetMetaRegistry(_pGE ? _pGE->RefPassMetaRegistry() : nullptr);
+
+		if (ImGui::Button("Save"))
+		{
+			_pPipeline->Save(a_editContext.pAssetProp->filePath);
+		}
+		ImGui::Separator();
+
+		_pPipeline->DrawEditor();
 	}
 
 	//-----------------------------------------------------------------------------------------

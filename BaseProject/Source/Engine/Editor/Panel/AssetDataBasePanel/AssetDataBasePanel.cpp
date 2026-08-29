@@ -4,6 +4,11 @@
 
 #include "../../../Scene/SceneManager/SceneManager.h"
 
+// パイプラインの作成には、パス一覧(GraphicsEngine が持つ)が要る
+#include "../../../MainEngine.h"
+#include "../../../Graphics/GraphicEngine.h"
+#include "../../../Graphics/RenderingPipeline/IO/RenderingPipelineAssetIO.h"
+
 namespace Engine::Editor
 {
 	AssetDataBasePanel::AssetDataBasePanel()
@@ -34,6 +39,13 @@ namespace Engine::Editor
 
 		m_assetCreateFuncs["EffectAsset"] = [](const std::string& path, const std::string& name) {
 			Resource::EffectAssetIO::Create(path, name);
+			};
+
+		// レンダリングパイプライン : パスの一覧はグラフィックスエンジンが持っているので引いて渡す
+		m_assetCreateFuncs["RenderingPipelineAsset"] = [](const std::string& path, const std::string& name) {
+			auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+			Graphics::Pipeline::RenderingPipelineAssetIO::Create(
+				path, name, _pGE ? _pGE->RefPassMetaRegistry() : nullptr);
 			};
 
 		// 空のシーン。作るだけで開かない(開くのはシーンビューのメニュー)

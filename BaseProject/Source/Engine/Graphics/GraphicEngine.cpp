@@ -17,6 +17,12 @@
 #include "../Resource/Data/QuadPolygon/QuadPolygon.h"
 #include "MouseCursor/MouseCursor.h"
 
+// [TEST] 新レンダーグラフ(RenderingPipeline)の動作確認用 : 確認が済んだらこの2つのincludeごと消すこと
+#include "RenderingPipeline/RenderingPipeline.h"
+#include "RenderingPipeline/RenderingPipelineMetaRegistry.h"
+#include "RenderingPipeline/GraphicsPipeline/GraphicsPipeline.h"
+#include "RenderingPipeline/RenderingPipeline.h"
+
 // シーン
 #include "../Scene/BaseScene/BaseScene.h"
 #include "../Scene/SceneManager/SceneManager.h"
@@ -301,10 +307,224 @@ namespace Engine::Graphics
 			_bufferSizeDesc
 		);
 
+		//------------------------------------------------------------------------------------
+		// 生成できるパスの一覧を作る。
+		// パイプラインアセットのロードで型IDからパスを作り直すのに使うので、
+		// リソースを読み始めるより前に用意しておく必要がある
+		//------------------------------------------------------------------------------------
+		m_upPassMetaRegistry = std::make_unique<Pipeline::PassMetaRegistry>();
+		Pipeline::RegisterBuiltinPasses(*m_upPassMetaRegistry);
+	}
+
+	// RenderGraph / Texture が完全型として見えるここで生成・破棄を定義する
+	GraphicsEngine::CameraPipelineData::CameraPipelineData() = default;
+	GraphicsEngine::CameraPipelineData::~CameraPipelineData() = default;
+
+	Pipeline::PassMetaRegistry* GraphicsEngine::RefPassMetaRegistry()
+	{
+		return m_upPassMetaRegistry.get();
+	}
+
+	//==========================================================================================
+	//
+	// カメラごとの描画構成(新レンダーグラフ)
+	//
+	//==========================================================================================
+	void GraphicsEngine::SubmitCamera(const CameraSubmitDesc& a_desc)
+	{
+		// 描画構成を持たないカメラは新経路に乗らない
+		if (!a_desc.pipelineHandle.IsValid()) return;
+
+		// 同じカメラが居れば使い回す(実行インスタンスを作り直さないため)
+		CameraPipelineData* _pCamera = nullptr;
+		for (auto& _upCamera : m_cameras)
+		{
+			if (!_upCamera) continue;
+			if (_upCamera->pWorld != a_desc.pWorld) continue;
+			if (_upCamera->entity != a_desc.entity) continue;
+
+			_pCamera = _upCamera.get();
+			break;
+		}
+
+		if (!_pCamera)
+		{
+			m_cameras.push_back(std::make_unique<CameraPipelineData>());
+			_pCamera = m_cameras.back().get();
+			_pCamera->pWorld = a_desc.pWorld;
+			_pCamera->entity = a_desc.entity;
+		}
+
+		_pCamera->pipelineHandle = a_desc.pipelineHandle;
+		_pCamera->order = a_desc.order;
+		_pCamera->isMain = a_desc.isMain;
+		_pCamera->isSubmitted = true;
+
+		// 行列はこのカメラ専用の定数バッファ用。
+		// 従来経路のカメラ設定(SetCameraMat)とは別物なので混ぜない。
+		//
+		// GPUへ詰める形(viewProj や逆行列)を作るのはパスをつなぎ込む段でよいので、
+		// ここではビューと射影だけ入れておく
+		DirectX::XMStoreFloat4x4(&_pCamera->cpuData.viewMat, a_desc.worldMat.Invert());
+		DirectX::XMStoreFloat4x4(&_pCamera->cpuData.projMat, a_desc.projMat);
+
+		// 0 のままなら画面の描画解像度に追従する
+		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const UINT _width = (a_desc.viewportWidth != 0) ? a_desc.viewportWidth : static_cast<UINT>(_winOp.windowWidth);
+		const UINT _height = (a_desc.viewportHeight != 0) ? a_desc.viewportHeight : static_cast<UINT>(_winOp.windowHeight);
+
+		// サイズが変わっていたら次の実行で作り直す
+		if (_pCamera->builtWidth != _width || _pCamera->builtHeight != _height)
+		{
+			_pCamera->builtWidth = _width;
+			_pCamera->builtHeight = _height;
+			_pCamera->builtStructureVersion = 0;		// 0 は「まだ組んでいない」印
+		}
+	}
+
+	// 積まれたカメラの実行インスタンスを用意して回す。
+	// 従来のレンダーグラフとは独立していて、こちらはバックバッファへ触らない
+	void GraphicsEngine::ExecuteCameraPipelines()
+	{
+		// 今フレーム積まれたものだけを順番に並べる
+		m_sortedCameras.clear();
+		m_pMainCamera = nullptr;
+
+		for (auto& _upCamera : m_cameras)
+		{
+			if (!_upCamera || !_upCamera->isSubmitted) continue;
+
+			m_sortedCameras.push_back(_upCamera.get());
+			if (_upCamera->isMain) m_pMainCamera = _upCamera.get();
+		}
+		if (m_sortedCameras.empty()) return;
+
+		std::stable_sort(
+			m_sortedCameras.begin(), m_sortedCameras.end(),
+			[](const CameraPipelineData* a, const CameraPipelineData* b)
+			{
+				return a->order < b->order;
+			}
+		);
+
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pRenderContext = m_upRenderContextVec[m_currentFrameIndex].get();
+		auto& _resourceManager = Resource::ResourceManager::Instance();
+
+		for (CameraPipelineData* _pCamera : m_sortedCameras)
+		{
+			// 設計図がまだ読めていなければ何もしない
+			auto* _pAsset = _resourceManager.Ref(_pCamera->pipelineHandle);
+			if (!_pAsset) continue;
+
+			// エディターで構成を触ると版が上がる。
+			// 版が違えば、この実行インスタンスは古いので組み直す
+			const uint32_t _version = _pAsset->GetStructureVersion();
+			const bool _isRebuild = (!_pCamera->upPipeline) || (_pCamera->builtStructureVersion != _version);
+
+			if (_isRebuild)
+			{
+				// ---- 最終出力テクスチャ ----
+				if (!_pCamera->upFinalTex ||
+					_pCamera->upFinalTex->GetDesc().Width != _pCamera->builtWidth ||
+					_pCamera->upFinalTex->GetDesc().Height != _pCamera->builtHeight)
+				{
+					if (_pCamera->upFinalTex) _pCamera->upFinalTex->Release();
+
+					_pCamera->upFinalTex = std::make_unique<Resource::Texture>();
+
+					Resource::TextureCreateDesc _texDesc = {};
+					_texDesc.name = "CameraFinal";
+					_texDesc.width = _pCamera->builtWidth;
+					_texDesc.height = _pCamera->builtHeight;
+					_texDesc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+					_texDesc.usage = Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;
+					_texDesc.opClerValue = DXSM::Color(0.f, 0.f, 0.f, 1.f);
+					_pCamera->upFinalTex->Create(_texDesc);
+				}
+
+				// ---- 実行インスタンスを設計図から作る ----
+				if (!_pCamera->upPipeline)
+				{
+					_pCamera->upPipeline = std::make_unique<Pipeline::GraphicsPipeline>();
+				}
+
+				if (!_pCamera->upPipeline->BuildFrom(*_pAsset, *m_upPassMetaRegistry)) continue;
+
+				_pCamera->upPipeline->SetViewportSize(_pCamera->builtWidth, _pCamera->builtHeight);
+
+				// このカメラの最終出力を、グラフの外から差し込む。
+				// パスはこの名前で出力スロットを宣言すれば画面ぶんへ描ける
+				_pCamera->upPipeline->ImportResource(
+					kCameraOutputName,
+					_pCamera->upFinalTex.get(),
+					D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+				if (!_pCamera->upPipeline->Compile(_pDevice)) continue;
+
+				_pCamera->builtStructureVersion = _version;
+			}
+
+			_pCamera->upPipeline->Render(_pRenderContext);
+		}
+	}
+
+	// 積まれなかったカメラを捨てる。
+	// カメラが消えたのに実行インスタンスとテクスチャが残り続けるのを防ぐ
+	void GraphicsEngine::PruneCameraPipelines()
+	{
+		for (auto& _upCamera : m_cameras)
+		{
+			if (!_upCamera || _upCamera->isSubmitted) continue;
+
+			if (_upCamera->upPipeline) _upCamera->upPipeline->Release();
+			if (_upCamera->upFinalTex) _upCamera->upFinalTex->Release();
+		}
+
+		m_cameras.erase(
+			std::remove_if(m_cameras.begin(), m_cameras.end(),
+				[](const std::unique_ptr<CameraPipelineData>& a_upCamera)
+				{ return !a_upCamera || !a_upCamera->isSubmitted; }),
+			m_cameras.end());
+
+		// 次のフレームぶんの積み直しに備える
+		for (auto& _upCamera : m_cameras)
+		{
+			if (_upCamera) _upCamera->isSubmitted = false;
+		}
+
+		m_sortedCameras.clear();
+		m_pMainCamera = nullptr;
+	}
+
+	const Resource::Texture* GraphicsEngine::GetCameraFinalTexture(const ECS::World* a_pWorld, uint32_t a_entity) const
+	{
+		for (const auto& _upCamera : m_cameras)
+		{
+			if (!_upCamera) continue;
+			if (_upCamera->pWorld != a_pWorld) continue;
+			if (_upCamera->entity != a_entity) continue;
+
+			return _upCamera->upFinalTex.get();
+		}
+		return nullptr;
 	}
 
 	void GraphicsEngine::Release()
 	{
+		// カメラごとのパイプラインが抱えているGPUリソースを先に手放す。
+		// DescriptorHeapManager の解放より前でないとビューが残る
+		for (auto& _upCamera : m_cameras)
+		{
+			if (!_upCamera) continue;
+			if (_upCamera->upPipeline) _upCamera->upPipeline->Release();
+			if (_upCamera->upFinalTex) _upCamera->upFinalTex->Release();
+		}
+		m_cameras.clear();
+		m_sortedCameras.clear();
+		m_pMainCamera = nullptr;
+
+
 		// レンダーコンテキスト解放
 		for (auto& _ctx : m_upRenderContextVec)
 		{
@@ -448,6 +668,11 @@ namespace Engine::Graphics
 			}
 		);
 
+		// カメラごとの描画構成(新レンダーグラフ)。
+		// 従来経路とは並走していて、こちらは各カメラの最終出力テクスチャへ描くだけ。
+		// バックバッファへ出すのは下の従来経路のまま
+		ExecuteCameraPipelines();
+
 		// レンダーパス実行
 		m_upRenderGraph->Execute(this, m_upRenderContextVec[m_currentFrameIndex].get());
 
@@ -457,6 +682,10 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::EndFrame()
 	{
+		// 今フレーム積まれなかったカメラを捨てる
+		PruneCameraPipelines();
+
+
 		// 描画命令をクリアしてメモリ領域を確保しておく
 		ClearAndReserve(m_lightWeightDrawItemVec, 10000);
 		ClearAndReserve(m_uiDrawItemVec, 10000);

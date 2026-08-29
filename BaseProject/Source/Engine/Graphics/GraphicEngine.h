@@ -36,6 +36,43 @@ namespace Engine::Graphics
 	class MeshBufferAllocator;
 	struct PSOKey;
 
+	// 作り直し中の新レンダーグラフ。
+	// Engine::Graphics::Pipeline に入っているのは、
+	// 既存の Engine::Graphics::RenderGraph と名前がぶつからないようにするため
+	namespace Pipeline
+	{
+		class PassMetaRegistry;
+		class GraphicsPipeline;
+		class RenderingPipelineAsset;
+	}
+
+	//==========================================================================================
+	// カメラ1台ぶんの描画要求
+	//
+	// 毎フレーム積む。積まれなかったカメラは消えたものとして、
+	// フレームの終わりに実行インスタンスごと捨てる
+	//==========================================================================================
+	struct CameraSubmitDesc
+	{
+		// このカメラを識別する鍵。
+		// エンティティの添字はワールドごとに振り直されるので、ワールドと組で持つ
+		const ECS::World* pWorld = nullptr;
+		uint32_t entity = 0;
+
+		// 使う描画構成(設計図)
+		Handle<Pipeline::RenderingPipelineAsset> pipelineHandle = {};
+
+		DXSM::Matrix worldMat = DXSM::Matrix::Identity;
+		DXSM::Matrix projMat = DXSM::Matrix::Identity;
+
+		// 0 なら画面の描画解像度に追従する
+		UINT viewportWidth = 0;
+		UINT viewportHeight = 0;
+
+		int order = 0;			// 小さいものから回す
+		bool isMain = false;	// 画面に出るカメラか
+	};
+
 	// グラフィックスエンジンの初期化に必要な情報
 	struct GraphicsEngineDesc
 	{
@@ -142,6 +179,33 @@ namespace Engine::Graphics
 		Graphics::RenderPassRegistry* RefRenderPassRegistry();
 
 		RenderGraph* RefRenderGraph();
+
+		//--------------------------------------------------------------------------------------------
+		// 生成できるパスの一覧
+		//
+		// パイプラインアセットは「パスの型ID」しか保存しないので、
+		// 読み込むときに実体を作り直すためこの一覧が要る。
+		// ResourceBuildContext 経由でローダーへ渡される(ScopedResourceBuild が詰める)
+		//--------------------------------------------------------------------------------------------
+		Pipeline::PassMetaRegistry* RefPassMetaRegistry();
+
+		//--------------------------------------------------------------------------------------------
+		// カメラごとの描画構成(新レンダーグラフ)
+		//
+		// 従来のレンダーグラフとは並走する。
+		// パイプラインを持つカメラだけが新しい経路を通り、自分の最終出力テクスチャへ描く。
+		// バックバッファへ出すのは従来経路のままなので、
+		// 全パスの移植が済むまで画面の見た目は変わらない
+		//--------------------------------------------------------------------------------------------
+		// 毎フレーム積む。積まなかったカメラはフレームの終わりに捨てられる
+		void SubmitCamera(const CameraSubmitDesc& a_desc);
+
+		// このカメラが描いた絵。モニターへ映したいときはこれを引く
+		const Resource::Texture* GetCameraFinalTexture(const ECS::World* a_pWorld, uint32_t a_entity) const;
+
+		// 新経路でパスが出力先として使うリソース名。
+		// この名前で出力スロットを宣言したパスが、カメラの最終出力へ描くことになる
+		static constexpr const char* kCameraOutputName = "CameraOutput";
 
 		//--------------------------------------------------------------------------------------------
 		// GPU送信用データ
@@ -469,6 +533,15 @@ namespace Engine::Graphics
 			const DXSM::Vector3& a_emissiveAdd,
 			PSOKey a_psoKey);
 
+		//--------------------------------------------------------------------------------------------
+		// カメラごとのパイプライン(新レンダーグラフ)
+		//--------------------------------------------------------------------------------------------
+		// 積まれたカメラの実行インスタンスを用意して回す
+		void ExecuteCameraPipelines();
+
+		// 積まれなかったカメラを捨てる(フレームの終わり)
+		void PruneCameraPipelines();
+
 		// ピクセル空間で回転・アスペクト補正・ピボットを解決し、UIData(NDC基底)を
 		// 1件バッファへ積む(SubmitUI 各オーバーロード共通)。
 		void PushUIData(
@@ -503,6 +576,10 @@ namespace Engine::Graphics
 
 		//メッシュバッファ管理
 		std::unique_ptr<MeshBufferAllocator> m_upMeshBufferAllocator = nullptr;
+
+		// 生成できるパスの型情報。インスタンスは持たない。
+		// パイプラインアセットのロード時に、型IDからパスを作り直すのに使う
+		std::unique_ptr<Pipeline::PassMetaRegistry> m_upPassMetaRegistry = nullptr;
 
 		// 描画用の板ポリ(UI・パーティクル共用)。
 		// フラットは4頂点の1枚板、湾曲用は横に kCurveDivision 分割したもの
@@ -579,5 +656,70 @@ namespace Engine::Graphics
 		std::vector<Resource::BoneMatrix> m_boneMatrixVec = {};
 		std::unordered_map<const ECS::World*, uint32_t> m_boneBaseIndexMap = {};
 
+
+		//--------------------------------------------------------------------------------------------
+		// カメラ1台ぶんの描画データ
+		//
+		// パイプラインアセット(設計図)はリソースマネージャーが持ち、カメラはハンドルで参照する。
+		// 実行用のグラフ(upRenderGraph)はカメラごとに1つ作る :
+		// 設計図をそのまま回すと、同じアセットを指した2台が GBuffer も定数バッファも
+		// 取り合って壊れるため。RenderGraph::BuildFrom() で設計図から複製する。
+		//
+		// 最終出力はどのカメラも自前のテクスチャへ描き、
+		// メインカメラのものだけを最後にバックバッファへコピーする。
+		// こうしておくとパス側は「メインかどうか」を知らなくてよく、
+		// 同じアセットをメインにもモニターにも使い回せる
+		//--------------------------------------------------------------------------------------------
+		struct CameraPipelineData
+		{
+			// unique_ptr の中身(GraphicsPipeline)がこのヘッダーでは不完全型なので、
+			// 生成と破棄は GraphicEngine.cpp 側(完全型が見える場所)に置く
+			CameraPipelineData();
+			~CameraPipelineData();
+
+			// このカメラを識別する鍵
+			const ECS::World* pWorld = nullptr;
+			uint32_t entity = 0;
+
+			CameraData cpuData = {};
+			CameraData gpuData = {};
+
+			// 描画用の配列
+
+			// 使用するパイプラインのハンドル(設計図・所有しない)
+			Handle<Pipeline::RenderingPipelineAsset> pipelineHandle = {};
+
+			// このカメラ専用の実行インスタンス。
+			// pipelineHandle の中身が差し替わったら作り直す
+			std::unique_ptr<Pipeline::GraphicsPipeline> upPipeline = nullptr;
+
+			// このカメラの最終出力
+			std::unique_ptr<Resource::Texture> upFinalTex = nullptr;
+
+			// 組み直しの判定用。
+			// 設計図をエディターで触ると版が上がるので、そのときだけ作り直す
+			uint32_t builtStructureVersion = 0;
+			UINT builtWidth = 0;
+			UINT builtHeight = 0;
+
+			// 今フレーム積まれたか。積まれなかったものは捨てる
+			bool isSubmitted = false;
+
+			// 描画する順番 : モニターに映すカメラを先に回してから本編を描く、といった並べ替え用
+			int order = 0;
+			bool isMain = false;
+		};
+
+		// 描画するパイプラインたち。
+		// unique_ptr で持つのは、m_sortedCameras と m_pMainCamera が実体を指しているため。
+		// 値のまま vector に入れると、カメラを1台足しただけで再確保が起きて
+		// 保持しているポインタが全部ダングリングする
+		std::vector<std::unique_ptr<CameraPipelineData>> m_cameras = {};
+
+		// 使う順番などによりカメラをソートした配列
+		std::vector<CameraPipelineData*> m_sortedCameras = {};
+
+		// バックバッファに描画するもの
+		CameraPipelineData* m_pMainCamera = nullptr;
 	};
 }

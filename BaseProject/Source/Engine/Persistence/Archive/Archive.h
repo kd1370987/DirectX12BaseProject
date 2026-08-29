@@ -40,6 +40,16 @@ namespace Engine::Persistence
 			const std::string& a_ext,
 			ArchiveFormat a_format = ArchiveFormat::Auto
 		);
+		//----------------------------------------------------------------------------------
+		// メモリ上のJSONだけを相手にするアーカイブ
+		//
+		// ファイルには一切触らない。「書いてすぐ読み直す」用途
+		// (アセットの複製など)のために用意している。
+		//   Save : a_json へ書き出す(デストラクタで反映)
+		//   Load : a_json から読み込む
+		//----------------------------------------------------------------------------------
+		Archive(Mode a_mode, nlohmann::json& a_json);
+
 		// クローズ処理を実行
 		~Archive();
 
@@ -114,6 +124,10 @@ namespace Engine::Persistence
 		std::string m_fileDir;		// ディレクトリ
 		std::string m_binPath;
 		std::string m_jsonPath;
+
+		// メモリ上のJSONだけを相手にしているか : true ならファイルへは書かない
+		bool m_isMemory = false;
+		nlohmann::json* m_pMemoryJson = nullptr;		// Save のときの書き出し先
 
 		// 現在注目しているJSONノードのポインタ（参照）をスタックで管理する
 		std::stack<nlohmann::json*> m_jsonNodeStack;

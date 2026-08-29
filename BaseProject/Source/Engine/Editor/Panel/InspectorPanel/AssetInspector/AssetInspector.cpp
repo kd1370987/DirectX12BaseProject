@@ -84,4 +84,8 @@ void Engine::Editor::Inspector::AssetInspector(EditorContext& a_editContext)
 	{
 		EffectAssetDraw(a_editContext);
 	}
+	else if (_type == "RenderingPipelineAsset")
+	{
+		RenderingPipelineDraw(a_editContext);
+	}
 }

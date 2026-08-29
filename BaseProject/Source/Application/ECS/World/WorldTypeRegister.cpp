@@ -109,6 +109,8 @@
 #include "Application/Systems/Update/PostUpdate/CalcNodeSystem/CalcNodeSystem.h"
 #include "Application/Systems/Update/PostUpdate/FollowAnimationNodeSystem/FollowAnimationNodeSystem.h"
 #include "Application/Systems/Draw/PreDraw/CamSetShaderSystem/CamSetShaderSystem.h"
+#include "Application/Systems/Draw/PreDraw/CameraPipelineSubmitSystem/CameraPipelineSubmitSystem.h"
+#include "Application/Systems/Init/PostDeserialize/CameraPipelineFixupSystem/CameraPipelineFixupSystem.h"
 #include "Application/Systems/Draw/PreDraw/PointLightSystem/PointLightSystem.h"
 #include "Application/Systems/Draw/Draw/StaticObjectDrawSystem/StaticObjectDrawSystem.h"
 #include "Application/Systems/Draw/Draw/DynamicObjectDrawSystem/DynamicObjectDrawSystem.h"
@@ -363,6 +365,10 @@ namespace App::ECS
 		// 湧いた瞬間に鳴らす音(エフェクト用)。インスタンスは SoundFixupSystem が先に用意する
 		a_world.RegisterSystem<SpawnSoundSystem>();
 		a_world.RegisterSystem<CamSetShaderSystem>();
+		// 描画構成を持つカメラを全部 GraphicsEngine へ送る(新レンダーグラフ)。
+		// メインカメラ1台ぶんを送る CamSetShaderSystem とは別で、こちらは並走する経路
+		a_world.RegisterSystem<CameraPipelineSubmitSystem>();
+		a_world.RegisterSystem<CameraPipelineFixupSystem>();
 		// 点光源の位置と設定値を LightManager へ送る。
 		// GPUバッファへ詰め直されるのは描画フェーズの後なので、この帯で間に合う
 		a_world.RegisterSystem<PointLightSystem>();

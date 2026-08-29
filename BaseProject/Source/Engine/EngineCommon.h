@@ -13,6 +13,7 @@
 
 // ---- 共通変数・固定値 ----
 #include "Engine/Common/Color.h"						// 色
+#include "Engine/Common/ID.h"							// ID
 #include "Engine/Common/Handle.h"						// ハンドル
 #include "Engine/Common/EngineConfigTypes.h"			// エンジン基盤設定
 

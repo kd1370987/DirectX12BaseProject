@@ -661,6 +661,12 @@ namespace Engine
 		_effect.AddExtensions(".ojeffect");
 		_effect.AddExtensions(".obeffect");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_effect);
+		// レンダリングパイプライン(レンダーグラフの設計図)
+		Resource::TypeExtension _renderingPipeline = {};
+		_renderingPipeline.type = "RenderingPipelineAsset";
+		_renderingPipeline.AddExtensions(".ojrpipe");
+		_renderingPipeline.AddExtensions(".obrpipe");
+		Resource::AssetDatabase::Instance().AddSupporedExtensions(_renderingPipeline);
 		// フォント : 変換を挟まず .ttf などをそのまま読む
 		Resource::TypeExtension _font = {};
 		_font.type = "Font";

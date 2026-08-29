@@ -337,6 +337,12 @@
     <Filter Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem">
       <UniqueIdentifier>{644a61c0-8983-477a-957e-fd10b32ffe37}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem">
+      <UniqueIdentifier>{3258cbaf-4e1b-4c7a-a85c-854c3c2a6c21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem">
+      <UniqueIdentifier>{f0c87379-e84d-42cb-9ac1-9bbd8add66a8}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem">
       <UniqueIdentifier>{7f2c1a90-4d63-4a1e-9c05-2b8e6f31d47a}</UniqueIdentifier>
     </Filter>
@@ -1555,6 +1561,27 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline">
       <UniqueIdentifier>{d4933552-c71b-4be1-9083-2a1c348a797a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\FinalOutputPass">
+      <UniqueIdentifier>{5710f7cd-771e-440e-8924-9a612cba3d9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\GraphicsPipeline">
+      <UniqueIdentifier>{ab220b89-9ec6-4ec0-9538-8d734b24b4fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\IO">
+      <UniqueIdentifier>{1d8f60f4-0210-470e-82f7-c2e5ee91c753}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph">
+      <UniqueIdentifier>{3434ef20-24b1-4ae2-a218-794ae1c0e688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource">
+      <UniqueIdentifier>{12131d21-65ac-4ac2-955a-0d7bfa370add}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource">
+      <UniqueIdentifier>{13de0e27-cbb7-441d-a7d7-aef2ae4254eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\TestGBufferPass">
+      <UniqueIdentifier>{3a2101f9-c5da-48e9-a89b-f21d0c768d2c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
@@ -1703,6 +1730,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp">
       <Filter>Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem\CameraPipelineSubmitSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem\CameraPipelineFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.cpp">
       <Filter>Source\Application\Systems\Draw\PreDraw\PointLightSystem</Filter>
@@ -2634,6 +2667,30 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\FinalOutputPass\FinalOutputPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\FinalOutputPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\GraphicsPipeline\GraphicsPipeline.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\IO\RenderingPipelineAssetIO.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource\VirtualResource.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\TestGBufferPass\TestGBufferPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\TestGBufferPass</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Library\Include\ImGuizmo-master\ImGuizmo.h">
@@ -3061,6 +3118,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h">
       <Filter>Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem\CameraPipelineSubmitSystem.h">
+      <Filter>Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem\CameraPipelineFixupSystem.h">
+      <Filter>Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.h">
       <Filter>Source\Application\Systems\Draw\PreDraw\PointLightSystem</Filter>
@@ -4252,6 +4315,30 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\FinalOutputPass\FinalOutputPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\FinalOutputPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\GraphicsPipeline\GraphicsPipeline.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\IO\RenderingPipelineAssetIO.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource\VirtualResource.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\TestGBufferPass\TestGBufferPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\TestGBufferPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

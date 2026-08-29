@@ -25,6 +25,7 @@ namespace Engine::Resource
 
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 		m_context.pMeshBufferAllocator = _pGE ? _pGE->RefMeshBufferAllocator() : nullptr;
+		m_context.pPassMetaRegistry = _pGE ? _pGE->RefPassMetaRegistry() : nullptr;
 	}
 
 	ScopedResourceBuild::~ScopedResourceBuild()

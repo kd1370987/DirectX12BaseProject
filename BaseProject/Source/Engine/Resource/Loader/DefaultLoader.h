@@ -15,6 +15,9 @@
 #include "../Data/AudioBehavior/IO/AudioBehaviorIO.h"
 #include "../Data/EffectAsset/IO/EffectAssetIO.h"
 #include "../Data/Font/IO/FontIO.h"
+
+// レンダリングパイプライン : Engine::Resource ではなく Engine::Graphics::Pipeline に居る
+#include "../../Graphics/RenderingPipeline/IO/RenderingPipelineAssetIO.h"
 namespace Engine::Resource
 {
 	// ロード処理の中間用クラス
@@ -36,6 +39,20 @@ namespace Engine::Resource
 	// -----------------------------------------------------
 	// テンプレート特殊化
 	// -----------------------------------------------------
+	// レンダリングパイプライン
+	//
+	// 保存されているのはパスの型IDだけなので、実体を作り直すのにレジストリが要る。
+	// レジストリはビルドコンテキスト経由で受け取る(GraphicsEngine が持ち主)
+	template<>
+	struct DefaultLoader<Graphics::Pipeline::RenderingPipelineAsset>
+	{
+		static Graphics::Pipeline::RenderingPipelineAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		{
+			return Graphics::Pipeline::RenderingPipelineAssetIO::LoadFromFile(
+				a_path, a_pContext ? a_pContext->pPassMetaRegistry : nullptr);
+		}
+	};
+
 	// モデル
 	template<>
 	struct DefaultLoader<Model>
