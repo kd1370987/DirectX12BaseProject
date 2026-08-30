@@ -31,7 +31,7 @@ namespace Engine::Graphics::Pipeline
 
 	// 選択中に出る詳細側のUI
 	// ノードの中に詰めると線が見えなくなるので、細かい設定はこちらへ置く
-	bool TestGBufferPass::EditUpdate()
+	EPassEditResult TestGBufferPass::EditUpdate()
 	{
 		bool _isEdit = false;
 
@@ -61,7 +61,8 @@ namespace Engine::Graphics::Pipeline
 			ImGui::TreePop();
 		}
 
-		return _isEdit;
+		// どれもリソースの要件が変わるので、組み直しが要る
+		return _isEdit ? EPassEditResult::Structure : EPassEditResult::None;
 	}
 
 	// ノードの中に出すUI : ピンと削除ボタンは呼び出し側が描くので、ここは固有分だけ

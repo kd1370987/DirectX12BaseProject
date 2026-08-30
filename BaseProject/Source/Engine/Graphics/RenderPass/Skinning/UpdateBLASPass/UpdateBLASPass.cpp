@@ -21,17 +21,17 @@
 
 namespace Engine::Graphics
 {
-	void Engine::Graphics::AddUpdateBLASPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
+	//======================================================================================
+	// スキニング結果からBLASを更新する
+	//
+	// カメラに依存せず、フレームに1回で足りるのでレンダーグラフには載せない。
+	// シェーダーもPSOも使わないので用意する関数は無い。
+	// 中身は旧 UpdateBLASPass の実行関数をそのまま移したもの
+	//======================================================================================
+	void ExecuteUpdateBLAS(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
-		// ノード・ビルダー作成
-		RenderPassNode _node = {};
-		_node.name = "AddUpdateBLASPass";
-		_node.phase = a_phase;
-		RGComputePassBuilder _rpBuilder(&_node);
-
-		// 実行関数
-		_node.executeFunc = [](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
-			{
+		if (!a_pGE || !a_pCtx) return;
+		{
 				auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 
 				auto* _pMA = a_pGE->RefMeshBufferAllocator();
@@ -66,10 +66,6 @@ namespace Engine::Graphics
 						_animMesh.instanceBLAS.UAVBarrier(_pCmdList);
 					}
 				}
-			};
-
-		// パス登録
-		_node.phase = a_phase;
-		a_pRegistry->RegisterPass(_node);
+		}
 	}
 }

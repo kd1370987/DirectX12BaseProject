@@ -19,10 +19,16 @@
 // 作り直し中のこちらと、既存の Engine::Graphics::RenderGraph を同じTUで共存させるため。
 //
 //==========================================================================================
+// このヘッダーは ResourceManager 経由で EngineCommon の途中から取り込まれるため、
+// GraphicCommon より先に読まれることがある。必要なものは明示的に含める
+#include "../GraphicCommon.h"
+#include "../ShadingPipelineBuilder/ShadingPipelineBuilder.h"
+
 // 実行時に渡ってくるもの : このヘッダーでは中身を知らなくてよい
 namespace Engine::Graphics
 {
 	class RenderContext;
+	class GraphicsEngine;
 }
 
 namespace Engine::Graphics::Pipeline
@@ -121,6 +127,14 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		uint32_t slotID = 0;		// pinName から作る安定ID : 並びが変わっても動かない
 
+		//----------------------------------------------------------------------------------
+		// シェーダーのどのルートパラメータへ張るか
+		//
+		// -1 なら張らない(RTV/DSV のように出力先として使うだけのスロット)。
+		// 同じ番号を指定したスロットは、宣言した順に1つのディスクリプタテーブルへ並ぶ
+		//----------------------------------------------------------------------------------
+		int rootParamIndex = -1;
+
 		// このスロットが繋がっていないとパスが成立しないか。
 		// Validation で「必須Inputの未接続」として弾く
 		bool isRequired = true;
@@ -135,6 +149,19 @@ namespace Engine::Graphics::Pipeline
 	};
 
 	//======================================================================================
+	// パスを編集した結果
+	//
+	// 設計図をエディターで触ったとき、カメラが回している実行インスタンスへ
+	// どこまで反映し直す必要があるかを表す
+	//======================================================================================
+	enum class EPassEditResult : uint8_t
+	{
+		None,		// 何も変わっていない
+		Param,		// パラメータだけ : 実行インスタンスへ値を写せばよい
+		Structure	// リソースの要件が変わった : グラフごと組み直す
+	};
+
+	//======================================================================================
 	// パスへ渡す実行コンテキスト
 	//
 	// パスが RenderGraph の中身を直接知らずに、自分のスロットから
@@ -146,11 +173,38 @@ namespace Engine::Graphics::Pipeline
 	struct PassContext
 	{
 		RenderGraph* pGraph = nullptr;						// 仮想/物理リソースを引く
+		GraphicsEngine* pGraphicsEngine = nullptr;			// 描画アイテム・ライト・カメラを引く
 		RenderContext* pRenderContext = nullptr;			// 実行時のみ
 		D3D12::GraphicsCommandList* pCmdList = nullptr;		// 実行時のみ
 
 		// スロットに割り当てられたGPUリソースを引く : 未割り当てなら nullptr
 		D3D12::GPUResource* GetResource(const Slot& a_slot) const;
+	};
+
+	// パスが使うパイプラインの種類
+	enum class EPassPipelineType : uint8_t
+	{
+		Graphics,
+		Compute
+	};
+
+	// 実行前にグラフが張るディスクリプタヒープ
+	enum class EPassHeapMode : uint8_t
+	{
+		None,					// パス側で張る
+		Default,				// 通常のヒープ
+		BindlessWithSampler		// バインドレス + サンプラー
+	};
+
+	// 焼き込み済みのバインド1件
+	struct PassBind
+	{
+		enum class EType : uint8_t { SrvTable, Uav };
+
+		EType type = EType::SrvTable;
+		UINT rootIndex = 0;
+		uint16_t firstHandle = 0;	// descriptorTable への開始添字
+		uint16_t count = 1;
 	};
 
 	// 接続線 : 条件はなし
@@ -206,10 +260,11 @@ namespace Engine::Graphics::Pipeline
 
 		// エディター用
 		//
-		// EditUpdate は「リソースの要件が変わったか」を返す。
-		// フォーマットやスケールを触るとグラフを組み直す必要があるので、
-		// 変えたときは true を返すこと(アセット側が Dirty にする)
-		virtual bool EditUpdate() = 0;		// パスの情報を編集する用
+		// EditUpdate は「どこまで反映し直す必要があるか」を返す。
+		//   Param     : 値を写すだけでよいもの(色・強度など)
+		//   Structure : フォーマットやスケールのようにリソースの要件が変わるもの
+		// 返し忘れると、設計図だけ変わって画面が変わらない状態になる
+		virtual EPassEditResult EditUpdate() = 0;		// パスの情報を編集する用
 		virtual void EditNode() = 0;		// パスのノード情報を編集する用
 
 		// シリアライズ
@@ -269,6 +324,37 @@ namespace Engine::Graphics::Pipeline
 		// ノード/ピンのIDを確保する : すでに振られているものはそのまま(ロード後の追加宣言用)
 		void EnsureEditorIDs(const std::function<int()>& a_generateID);
 
+		//----------------------------------------------------------------------------------
+		// モデル描画
+		//----------------------------------------------------------------------------------
+		// このパスがモデルを受け取るか、受け取るならどちらのキューか。
+		// 振り分けはマテリアルの透明モードで決まる(シェーディングモデルは使わない)
+		EGeometryQueue GetGeometryQueue() const { return m_geometryQueue; }
+
+		// このパスで使うピクセルシェーダー : 空なら深度だけ書くパス
+		const Handle<Resource::Shader>& GetDefaultPSHandle() const { return m_defaultPSHandle; }
+
+		// PSOの組み立て。出力フォーマットが確定したところでグラフが Init を呼ぶ
+		ShadingPipelineBuilder& RefPipelineBuilder() { return m_pipelineBuilder; }
+
+		//----------------------------------------------------------------------------------
+		// グラフが実行前に張るもの
+		//
+		// ここに入れておくと、パスの Update() は
+		// 「定数バッファを詰めて Dispatch/Draw する」だけで済む
+		//----------------------------------------------------------------------------------
+		EPassPipelineType GetPipelineType() const { return m_pipelineType; }
+		EPassHeapMode GetHeapMode() const { return m_heapMode; }
+		const Handle<ID3D12RootSignature>& GetRootSignature() const { return m_rootSigHandle; }
+		uint8_t GetPSOIndex() const { return m_psoIndex; }
+
+		static constexpr uint8_t kInvalidPSOIndex = 255;
+
+		// 描画アイテムのソートキーに入るパス番号。
+		// グラフのコンパイル時に GraphicsEngine から配られる
+		uint8_t GetPassIndex() const { return m_passIndex; }
+		void SetPassIndex(uint8_t a_index) { m_passIndex = a_index; }
+
 		int GetNodeID() const { return m_nodeID; }
 		void SetNodeID(int a_nodeID) { m_nodeID = a_nodeID; }
 
@@ -287,7 +373,47 @@ namespace Engine::Graphics::Pipeline
 			const std::string& a_pinName,
 			EAccessType a_accessType = EAccessType::SRV,
 			EPassSlotType a_type = EPassSlotType::Texture,
-			bool a_isRequired = true);
+			bool a_isRequired = true,
+			int a_rootParamIndex = -1);
+
+		//----------------------------------------------------------------------------------
+		// コンピュートシェーダーの用意
+		//
+		// 継承先の Compile() から呼ぶ。
+		// シェーダーからルートシグネチャを起こし、PSOまで作って控える
+		//----------------------------------------------------------------------------------
+		//----------------------------------------------------------------------------------
+		// ラスタ(頂点+ピクセル)シェーダーの用意
+		//
+		// 出力フォーマットは、このパスのRTVスロットから引く。
+		// 深度やブレンドの設定は a_configure で書き換える
+		//----------------------------------------------------------------------------------
+		bool SetupRasterShader(
+			const PassContext& a_context,
+			const std::string& a_vsPath,
+			const std::string& a_psPath,
+			const D3D12_INPUT_LAYOUT_DESC& a_inputLayout,
+			const std::string& a_psoName,
+			const std::function<void(D3D12::GraphicsPipelineDesc&)>& a_configure = nullptr,
+			EPassHeapMode a_heapMode = EPassHeapMode::Default);
+
+		bool SetupComputeShader(
+			const PassContext& a_context,
+			const std::string& a_csPath,
+			const std::string& a_psoName,
+			EPassHeapMode a_heapMode = EPassHeapMode::Default);
+
+		//----------------------------------------------------------------------------------
+		// 画面全体を回すディスパッチ
+		//
+		// 8x8 のタイルで割り切れないぶんを切り上げる。
+		// 切り捨てると末尾のタイルが実行されず、画面の端が処理されない
+		//----------------------------------------------------------------------------------
+		void DispatchFullScreen(const PassContext& a_context) const;
+
+		// 指定スロットのリソース解像度で回す。
+		// 縮小段のように入出力で解像度が違うパスで使う
+		void DispatchForSlot(const PassContext& a_context, const Slot& a_slot) const;
 
 		// 出力ピン : このパスが作るリソースなので、フォーマットまでここで決める
 		// a_isTemporal を立てると、このリソースはフレーム間で入れ替わる2枚組になる。
@@ -298,7 +424,8 @@ namespace Engine::Graphics::Pipeline
 			DXGI_FORMAT a_format,
 			EAccessType a_accessType = EAccessType::RTV,
 			EPassSlotType a_type = EPassSlotType::Texture,
-			bool a_isTemporal = false);
+			bool a_isTemporal = false,
+			int a_rootParamIndex = -1);
 
 		// ---- パス情報 ----
 		// メタ
@@ -313,6 +440,18 @@ namespace Engine::Graphics::Pipeline
 		// リソース
 		std::vector<Slot> m_inputSlots = {};		// 入力
 		std::vector<Slot> m_outputSlots = {};		// 出力
+
+		// ---- モデル描画 ----
+		EGeometryQueue m_geometryQueue = EGeometryQueue::None;
+		Handle<Resource::Shader> m_defaultPSHandle = {};
+		ShadingPipelineBuilder m_pipelineBuilder = {};
+		uint8_t m_passIndex = 255;		// 未割り当て
+
+		// ---- グラフが実行前に張るもの ----
+		EPassPipelineType m_pipelineType = EPassPipelineType::Graphics;
+		EPassHeapMode m_heapMode = EPassHeapMode::None;
+		Handle<ID3D12RootSignature> m_rootSigHandle = {};
+		uint8_t m_psoIndex = kInvalidPSOIndex;
 
 		// ---- エディター用情報 ----
 		// ノード
@@ -394,6 +533,10 @@ namespace Engine::Graphics::Pipeline
 		// 0 は「まだ何も組んでいない」印として使うので 1 から始める
 		uint32_t GetStructureVersion() const { return m_structureVersion; }
 
+		// パラメータだけが変わるたびに上がる版。
+		// カメラ側はこれが変わったら、組み直さずに値を写すだけで済む
+		uint32_t GetParamVersion() const { return m_paramVersion; }
+
 
 		//==================================================================================
 		// エディター
@@ -450,6 +593,9 @@ namespace Engine::Graphics::Pipeline
 
 		// 構成の版
 		uint32_t m_structureVersion = 1;
+
+		// パラメータの版
+		uint32_t m_paramVersion = 1;
 		Engine::GUID m_pendingDeletePass = {};	// このフレーム内で削除予約されたパス
 	};
 }

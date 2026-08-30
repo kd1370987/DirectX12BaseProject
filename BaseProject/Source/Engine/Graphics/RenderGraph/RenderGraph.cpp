@@ -476,6 +476,22 @@ namespace Engine::Graphics
 		return nullptr;
 	}
 
+	std::vector<RenderPassNode*> RenderGraph::GetGeometryPasses(EGeometryQueue a_queue) const
+	{
+		std::vector<RenderPassNode*> _result = {};
+		if (a_queue == EGeometryQueue::None) return _result;
+
+		// 実行順のまま返す。並べ替えはソートキー側(passIndex)が持つ
+		for (auto* _pPass : m_sortedPasses)
+		{
+			if (!_pPass) continue;
+			if (_pPass->geometryQueue != a_queue) continue;
+
+			_result.push_back(_pPass);
+		}
+		return _result;
+	}
+
 	RenderPassNode* RenderGraph::GetPass(UINT a_passHash)
 	{
 		for (auto* _pass : m_sortedPasses)

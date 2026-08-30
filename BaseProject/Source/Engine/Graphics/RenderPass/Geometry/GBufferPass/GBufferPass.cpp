@@ -52,6 +52,14 @@ namespace Engine::Graphics
 		_node.pipelineBuilder.RegisterAmplificationShader(EShaderPermutationFlags::Static, _asHandle);
 		_node.pipelineBuilder.RegisterAmplificationShader(EShaderPermutationFlags::Skinned, _asHandle);
 
+		// 不透明のモデルを受け取る。
+		// PSはこのパスの都合なので、シェーディングモデルではなくここで持つ
+		_node.geometryQueue = EGeometryQueue::Opaque;
+		{
+			auto _guidPS = Resource::AssetDatabase::Instance().GetGUIDFromFilePath("Asset/Shader/Source/Geometry/GBuffer/MeshGBufferPS.cso");
+			_node.defaultPSHandle = Resource::ResourceManager::Instance().LoadImmediate<Resource::Shader>(_guidPS);
+		}
+
 		// ルートシグネチャセット
 		_spPassData->rootSigHandle = a_pPSOManager->Request("Asset/Shader/Source/Geometry/MeshShader/UberMS.cso");
 

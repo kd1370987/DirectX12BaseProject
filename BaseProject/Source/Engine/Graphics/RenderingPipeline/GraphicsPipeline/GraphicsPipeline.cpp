@@ -34,7 +34,7 @@ namespace Engine::Graphics::Pipeline
 	}
 
 	// 解析そのものは RenderGraph 側。ここは順番を守って呼ぶだけにする
-	bool GraphicsPipeline::Compile(D3D12::Device* a_pDevice)
+	bool GraphicsPipeline::Compile(GraphicsEngine* a_pGraphicsEngine, D3D12::Device* a_pDevice)
 	{
 		m_isCompiled = false;
 
@@ -45,20 +45,20 @@ namespace Engine::Graphics::Pipeline
 		// エディターから構成だけ確かめたいときは渡さずに呼べる
 		if (a_pDevice)
 		{
-			if (!m_renderGraph.AllocateResources(a_pDevice)) return false;
+			if (!m_renderGraph.AllocateResources(a_pGraphicsEngine, a_pDevice)) return false;
 		}
 
 		m_isCompiled = true;
 		return true;
 	}
 
-	void GraphicsPipeline::Render(RenderContext* a_pRenderContext)
+	void GraphicsPipeline::Render(GraphicsEngine* a_pGraphicsEngine, RenderContext* a_pRenderContext)
 	{
 		// コンパイルが通っていないグラフは、リソースの実体も
 		// バリアの前提も揃っていないので走らせない
 		if (!m_isCompiled) return;
 
-		m_renderGraph.Execute(a_pRenderContext);
+		m_renderGraph.Execute(a_pGraphicsEngine, a_pRenderContext);
 	}
 
 	void GraphicsPipeline::Release()

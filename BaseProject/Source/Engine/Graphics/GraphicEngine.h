@@ -44,6 +44,7 @@ namespace Engine::Graphics
 		class PassMetaRegistry;
 		class GraphicsPipeline;
 		class RenderingPipelineAsset;
+		class Pass;
 	}
 
 	//==========================================================================================
@@ -202,6 +203,16 @@ namespace Engine::Graphics
 
 		// このカメラが描いた絵。モニターへ映したいときはこれを引く
 		const Resource::Texture* GetCameraFinalTexture(const ECS::World* a_pWorld, uint32_t a_entity) const;
+
+		//--------------------------------------------------------------------------------------------
+		// 画面へ出す絵をどちらの経路から取るか
+		//
+		// 既定は従来のレンダーグラフ。立てると、メインカメラの
+		// パイプラインが描いた絵をバックバッファへ写して置き換える。
+		// 移植中の見比べ用で、全パスの移植が済んだら要らなくなる
+		//--------------------------------------------------------------------------------------------
+		void SetPresentFromPipeline(bool a_isUse) { m_isPresentFromPipeline = a_isUse; }
+		bool IsPresentFromPipeline() const { return m_isPresentFromPipeline; }
 
 		// 新経路でパスが出力先として使うリソース名。
 		// この名前で出力スロットを宣言したパスが、カメラの最終出力へ描くことになる
@@ -507,8 +518,7 @@ namespace Engine::Graphics
 		bool FetchDrawResources(
 			const Resource::ModelDrawCommand& a_cmd,
 			const Resource::Mesh*& a_pOutMesh,
-			const Resource::Material*& a_pOutMaterial,
-			const Resource::ShadingModelTable*& a_pOutShadingModel);
+			const Resource::Material*& a_pOutMaterial);
 
 		// マテリアルとスケールからメッシュシェーダー用マテリアルデータを構築する。
 		MeshMaterial BuildMeshMaterial(
@@ -523,7 +533,6 @@ namespace Engine::Graphics
 			const Resource::ModelDrawCommand& a_cmd,
 			const Resource::Mesh* a_pMesh,
 			const Resource::Material* a_pMaterial,
-			const Resource::ShadingModelTable* a_pShadingModel,
 			const DXSM::Matrix& a_mat,
 			const DXSM::Matrix& a_prevMat,
 			bool a_isAnimation,
@@ -541,6 +550,16 @@ namespace Engine::Graphics
 
 		// 積まれなかったカメラを捨てる(フレームの終わり)
 		void PruneCameraPipelines();
+
+		// メインカメラのパイプラインが描いた絵をバックバッファへ写す
+		void PresentFromPipeline(D3D12::GraphicsCommandList* a_pCmdList);
+
+		// 新パイプラインのモデル描画パスへ、このパス番号を配る。
+		// 従来のレンダーグラフは 0 から順に使うので、こちらは上から取って衝突を避ける
+		uint8_t AcquirePipelinePassIndex();
+
+		// 新パイプラインの、モデルを受け取るパスを集める
+		std::vector<Pipeline::Pass*> CollectPipelineGeometryPasses(EGeometryQueue a_queue) const;
 
 		// ピクセル空間で回転・アスペクト補正・ピボットを解決し、UIData(NDC基底)を
 		// 1件バッファへ積む(SubmitUI 各オーバーロード共通)。
@@ -699,6 +718,7 @@ namespace Engine::Graphics
 			// 組み直しの判定用。
 			// 設計図をエディターで触ると版が上がるので、そのときだけ作り直す
 			uint32_t builtStructureVersion = 0;
+			uint32_t builtParamVersion = 0;
 			UINT builtWidth = 0;
 			UINT builtHeight = 0;
 
@@ -721,5 +741,12 @@ namespace Engine::Graphics
 
 		// バックバッファに描画するもの
 		CameraPipelineData* m_pMainCamera = nullptr;
+
+		// 画面へ出す絵を新パイプラインから取るか(移植中の見比べ用)
+		bool m_isPresentFromPipeline = false;
+
+		// 新パイプラインのパスへ配るパス番号。
+		// 255 から下って使う(従来経路は 0 から上っていく)
+		uint8_t m_nextPipelinePassIndex = 255;
 	};
 }

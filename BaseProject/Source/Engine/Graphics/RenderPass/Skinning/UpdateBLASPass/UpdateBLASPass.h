@@ -11,5 +11,10 @@ namespace Engine::Graphics
 {
 	class RenderPassRegistry;
 
-	void AddUpdateBLASPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase);
+	//======================================================================================
+	// スキニング結果からのBLAS更新
+	//
+	// カメラに依存せず、フレームに1回で足りる計算なのでレンダーグラフには載せない
+	//======================================================================================
+	void ExecuteUpdateBLAS(GraphicsEngine* a_pGE, RenderContext* a_pCtx);
 }

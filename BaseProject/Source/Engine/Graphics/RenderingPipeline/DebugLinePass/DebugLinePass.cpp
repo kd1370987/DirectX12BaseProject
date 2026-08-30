@@ -1,0 +1,63 @@
+﻿#include "DebugLinePass.h"
+
+#include "../../RenderContext/RenderContext.h"
+
+namespace Engine::Graphics::Pipeline
+{
+	void DebugLinePass::SetupSlots()
+	{
+		// 深度は読むだけ(線がモデルに隠れるようにする)
+		DeclareInput("Depth", EAccessType::Depth_Read);
+
+		Slot& _color = DeclareOutput("Color", "AfterTAAColor", DXGI_FORMAT_R16G16B16A16_FLOAT,
+			EAccessType::RTV);
+		_color.loadOp = ELoadOp::Load;
+	}
+
+	void DebugLinePass::Compile(const PassContext& a_context)
+	{
+		SetupRasterShader(
+			a_context,
+			"Asset/Shader/Source/Debug/DebugLine/DebugLineVS.cso",
+			"Asset/Shader/Source/Debug/DebugLine/DebugLinePS.cso",
+			// このVSは SV_VertexID / SV_InstanceID だけで頂点を作り、頂点バッファを読まない。
+			// レイアウトを宣言すると IA が直前のパスの残したバッファを読もうとして警告が出る
+			D3D12::Input::gEmptyLayout,
+			"DebugLinePSO",
+			[](D3D12::GraphicsPipelineDesc& a_pso)
+			{
+				a_pso.DepthEnable(true);
+				a_pso.DepthWriteMask(false);
+				a_pso.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
+				a_pso.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+			},
+			EPassHeapMode::Default);
+	}
+
+	void DebugLinePass::Update(const PassContext& a_context)
+	{
+		RenderContext* _pCtx = a_context.pRenderContext;
+		if (!_pCtx) return;
+
+		_pCtx->SetPrimitive(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		_pCtx->BindCamera();
+		_pCtx->BindGraphicsDebugLineBuffer(1);
+
+		_pCtx->DrawShape();
+	}
+
+	EPassEditResult DebugLinePass::EditUpdate()
+	{
+		ImGui::TextDisabled("当たり判定やレイのデバッグ線を描きます");
+		return EPassEditResult::None;
+	}
+
+	void DebugLinePass::EditNode()
+	{}
+
+	void DebugLinePass::Archive(Engine::Persistence::Archive& a_arch)
+	{
+		(void)a_arch;
+	}
+}

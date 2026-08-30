@@ -95,6 +95,27 @@ namespace Engine::Graphics::Pipeline
 		return true;
 	}
 
+	// 形は同じままなので、パスをGUIDで突き合わせて中身だけ写す
+	void RenderGraph::SyncParamsFrom(const RenderGraph& a_source)
+	{
+		for (const auto& _upSrcPass : a_source.m_passes)
+		{
+			if (!_upSrcPass) continue;
+
+			Pass* _pDst = FindPass(_upSrcPass->GetGUID());
+			if (!_pDst) continue;
+
+			nlohmann::json _json = {};
+			{
+				Persistence::Archive _saveArch(Persistence::Archive::Mode::Save, _json);
+				_upSrcPass->ArchivePass(_saveArch);
+			}
+
+			Persistence::Archive _loadArch(Persistence::Archive::Mode::Load, _json);
+			_pDst->ArchivePass(_loadArch);
+		}
+	}
+
 	void RenderGraph::Archive(Persistence::Archive& a_arch, const PassMetaRegistry& a_registry)
 	{
 		a_arch.Field("idCounter", m_idCounter);
@@ -289,9 +310,6 @@ namespace Engine::Graphics::Pipeline
 		const Engine::GUID& a_srcPassGUID, uint32_t a_srcSlotID,
 		const Engine::GUID& a_dstPassGUID, uint32_t a_dstSlotID)
 	{
-		// 自分自身へつなぐと必ず循環するので通さない
-		if (a_srcPassGUID == a_dstPassGUID) return false;
-
 		Pass* _pSrc = FindPass(a_srcPassGUID);
 		Pass* _pDst = FindPass(a_dstPassGUID);
 		if (!_pSrc || !_pDst) return false;
@@ -300,6 +318,11 @@ namespace Engine::Graphics::Pipeline
 		const Slot* _pSrcSlot = _pSrc->FindOutputSlot(a_srcSlotID);
 		const Slot* _pDstSlot = _pDst->FindInputSlot(a_dstSlotID);
 		if (!_pSrcSlot || !_pDstSlot) return false;
+
+		// 自分自身へのつなぎは基本的に循環になるので通さない。
+		// ただし Temporal は前フレームの結果を読むだけなので、
+		// TAA のように「自分の履歴を自分で読む」構成は許す
+		if (a_srcPassGUID == a_dstPassGUID && !_pSrcSlot->isTemporal) return false;
 
 		// 繋いだ瞬間に弾けるものはここで弾く。
 		// 残り(必須未接続・循環)はグラフ全体を見ないと分からないので Validate() 側
@@ -580,7 +603,7 @@ namespace Engine::Graphics::Pipeline
 		}
 	}
 
-	bool RenderGraph::AllocateResources(D3D12::Device* a_pDevice)
+	bool RenderGraph::AllocateResources(GraphicsEngine* a_pGraphicsEngine, D3D12::Device* a_pDevice)
 	{
 		// Temporal は物理を2枚使うので、必要な枚数を先に数える
 		size_t _requiredCount = 0;
@@ -679,7 +702,7 @@ namespace Engine::Graphics::Pipeline
 		// 出力先(RTV/DSV)を焼き込んでから、各パスへランタイムデータを作らせる。
 		// この順でないとパスがディスクリプタを引けない
 		ResolveDescriptors();
-		CompilePasses();
+		CompilePasses(a_pGraphicsEngine);
 
 		return _isSuccess;
 	}
@@ -1135,7 +1158,7 @@ namespace Engine::Graphics::Pipeline
 	// ランタイム実行
 	//
 	//======================================================================================
-	void RenderGraph::Execute(RenderContext* a_pRenderContext)
+	void RenderGraph::Execute(GraphicsEngine* a_pGraphicsEngine, RenderContext* a_pRenderContext)
 	{
 		if (!a_pRenderContext) return;
 
@@ -1154,6 +1177,7 @@ namespace Engine::Graphics::Pipeline
 
 		PassContext _context = {};
 		_context.pGraph = this;
+		_context.pGraphicsEngine = a_pGraphicsEngine;
 		_context.pRenderContext = a_pRenderContext;
 		_context.pCmdList = _pCmdList;
 
@@ -1190,6 +1214,11 @@ namespace Engine::Graphics::Pipeline
 			{
 				a_pRenderContext->ClearDSV(_compiledPass.dsvHandle[_parity]);
 			}
+
+			// ---- グラフが張るもの ----
+			// ヒープ・ルートシグネチャ・PSO・ディスクリプタテーブル。
+			// ここまで済ませておくと、パスは定数バッファと Dispatch/Draw だけでよくなる
+			if (_compiledPass.pPass) ApplyStaticBindings(a_pRenderContext, _compiledPass, _parity);
 
 			// ---- パス本体 ----
 			if (_compiledPass.pPass) _compiledPass.pPass->Update(_context);
@@ -1252,6 +1281,65 @@ namespace Engine::Graphics::Pipeline
 		}
 	}
 
+	// 宣言から焼き込んだものを張る。
+	// 実行時に文字列やスロットを引き直すことはもう無い
+	void RenderGraph::ApplyStaticBindings(RenderContext* a_pRenderContext, const CompiledPass& a_compiledPass, uint32_t a_parity)
+	{
+		Pass* _pPass = a_compiledPass.pPass;
+		if (!_pPass || !a_pRenderContext) return;
+
+		const bool _isCompute = (_pPass->GetPipelineType() == EPassPipelineType::Compute);
+
+		// ヒープ
+		switch (_pPass->GetHeapMode())
+		{
+		case EPassHeapMode::Default:				a_pRenderContext->BindHeap();						break;
+		case EPassHeapMode::BindlessWithSampler:	a_pRenderContext->BindCopyHeapAndSumplerBindLess();	break;
+		default: break;
+		}
+
+		// ルートシグネチャ : ハンドルから実体を引くのは使う直前
+		if (_pPass->GetRootSignature().IsValid())
+		{
+			if (_isCompute)	a_pRenderContext->SetComputeRootSignature(_pPass->GetRootSignature());
+			else			a_pRenderContext->SetGraphicsRootSignature(_pPass->GetRootSignature());
+		}
+
+		// パイプラインステート
+		if (_pPass->GetPSOIndex() != Pass::kInvalidPSOIndex)
+		{
+			if (_isCompute)	a_pRenderContext->SetComputePSO(_pPass->GetPSOIndex());
+			else			a_pRenderContext->SetGraphicPSO(_pPass->GetPSOIndex());
+		}
+
+		// ルートシグネチャが無いとディスクリプタテーブルは張れない
+		if (a_compiledPass.binds.empty()) return;
+		if (!_pPass->GetRootSignature().IsValid()) return;
+
+		const auto& _table = a_compiledPass.descriptorTable[a_parity];
+		for (const PassBind& _bind : a_compiledPass.binds)
+		{
+			if (static_cast<size_t>(_bind.firstHandle) + _bind.count > _table.size()) continue;
+
+			std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> _handles(
+				_table.data() + _bind.firstHandle, _bind.count);
+
+			switch (_bind.type)
+			{
+			case PassBind::EType::SrvTable:
+				if (_isCompute)	a_pRenderContext->ComputeBindSRV(_bind.rootIndex, _handles);
+				else			a_pRenderContext->BindSRV(_bind.rootIndex, _handles);
+				break;
+
+			case PassBind::EType::Uav:
+				a_pRenderContext->BindUAV(_bind.rootIndex, _handles[0]);
+				break;
+
+			default: break;
+			}
+		}
+	}
+
 	// 各パスの出力先を焼き込む。
 	// 実行時にスロットから引き直すと毎フレーム同じ探索を繰り返すことになる
 	void RenderGraph::ResolveDescriptors()
@@ -1284,11 +1372,24 @@ namespace Engine::Graphics::Pipeline
 			Pass* _pPass = _compiledPass.pPass;
 			if (!_pPass) continue;
 
+			// PSOを焼くのに要る出力フォーマット。偶奇で変わらないので片方だけ集める
+			std::vector<DXGI_FORMAT> _rtvFormatVec = {};
+			DXGI_FORMAT _dsvFormat = DXGI_FORMAT_UNKNOWN;
+
 			for (uint32_t _parity = 0; _parity < 2; ++_parity)
 			{
 				// ---- 出力側 : RTV / DSV ----
 				for (const Slot& _out : _pPass->GetOutputSlots())
 				{
+					if (_parity == 0)
+					{
+						const VirtualResource* _pVirtual = GetVirtualResource(_out.resourceHandle);
+						const DXGI_FORMAT _format = _pVirtual ? _pVirtual->GetFormat() : DXGI_FORMAT_UNKNOWN;
+
+						if (_out.accessType == EAccessType::RTV)				_rtvFormatVec.push_back(_format);
+						else if (_out.accessType == EAccessType::Depth_Write)	_dsvFormat = _format;
+					}
+
 					D3D12::GPUResource* _pResource = _refResource(_out, _parity);
 					if (!_pResource) continue;
 
@@ -1327,14 +1428,85 @@ namespace Engine::Graphics::Pipeline
 					break;
 				}
 			}
+
+			// 出力フォーマットが決まったので、このパスのPSOを組めるようにする。
+			// 同じ名前・同じフォーマットならPSOは使い回される
+			_pPass->RefPipelineBuilder().Init(
+				_rtvFormatVec, _dsvFormat, static_cast<UINT>(Engine::String::ToHash(_pPass->GetName())));
+
+			//------------------------------------------------------------------------------
+			// SRV / UAV のディスクリプタテーブル
+			//
+			// ルートパラメータ番号を指定したスロットだけを、番号ごとにまとめて並べる。
+			// 入力を先に見るのは、宣言順がそのままテーブルの並びになるため
+			//------------------------------------------------------------------------------
+			_compiledPass.descriptorTable[0].clear();
+			_compiledPass.descriptorTable[1].clear();
+			_compiledPass.binds.clear();
+
+			// 同じ番号のスロットを集める(番号の小さい順に張る)
+			std::map<int, std::vector<const Slot*>> _rootSlotMap = {};
+			for (const Slot& _in : _pPass->GetInputSlots())
+			{
+				if (_in.rootParamIndex < 0) continue;
+				_rootSlotMap[_in.rootParamIndex].push_back(&_in);
+			}
+			for (const Slot& _out : _pPass->GetOutputSlots())
+			{
+				if (_out.rootParamIndex < 0) continue;
+				_rootSlotMap[_out.rootParamIndex].push_back(&_out);
+			}
+
+			auto& _heap = D3D12::DescriptorHeapManager::Instance();
+			for (const auto& [_rootIndex, _slotVec] : _rootSlotMap)
+			{
+				PassBind _bind = {};
+				_bind.rootIndex = static_cast<UINT>(_rootIndex);
+				_bind.firstHandle = static_cast<uint16_t>(_compiledPass.descriptorTable[0].size());
+				_bind.count = static_cast<uint16_t>(_slotVec.size());
+
+				// UAV は1つのルートパラメータに1本だけ。それ以外はSRVテーブルとして扱う
+				const bool _isUAV = (!_slotVec.empty() && _slotVec[0]->accessType == EAccessType::UAV);
+				_bind.type = _isUAV ? PassBind::EType::Uav : PassBind::EType::SrvTable;
+
+				for (uint32_t _parity = 0; _parity < 2; ++_parity)
+				{
+					for (const Slot* _pSlot : _slotVec)
+					{
+						D3D12::GPUResource* _pResource = _refResource(*_pSlot, _parity);
+						if (!_pResource)
+						{
+							_compiledPass.descriptorTable[_parity].push_back({ 0 });
+							continue;
+						}
+
+						switch (_pSlot->accessType)
+						{
+						case EAccessType::UAV:
+							_compiledPass.descriptorTable[_parity].push_back(_heap.GetCPU(_pResource->GetUAV()));
+							break;
+
+						// 深度を読むときも、シェーダーからは SRV として引く
+						case EAccessType::SRV:
+						case EAccessType::Depth_Read:
+						default:
+							_compiledPass.descriptorTable[_parity].push_back(_heap.GetCPU(_pResource->GetSRV()));
+							break;
+						}
+					}
+				}
+
+				_compiledPass.binds.push_back(_bind);
+			}
 		}
 	}
 
 	// リソースが揃ったところで各パスのランタイムデータを構築させる
-	void RenderGraph::CompilePasses()
+	void RenderGraph::CompilePasses(GraphicsEngine* a_pGraphicsEngine)
 	{
 		PassContext _context = {};
 		_context.pGraph = this;
+		_context.pGraphicsEngine = a_pGraphicsEngine;
 
 		for (CompiledPass& _compiledPass : m_compilePasses)
 		{

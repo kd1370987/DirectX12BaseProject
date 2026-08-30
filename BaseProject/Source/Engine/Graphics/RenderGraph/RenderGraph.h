@@ -145,6 +145,10 @@ namespace Engine::Graphics
 
 		RenderPassNode* GetPass(UINT a_passHash);
 
+		// モデルを受け取るパスを実行順に返す。
+		// 描画アイテムの振り分けはマテリアルの透明モードで決まる
+		std::vector<RenderPassNode*> GetGeometryPasses(EGeometryQueue a_queue) const;
+
 	private:
 		// テンポラルインデックス更新 : フレーム用テンポラル
 		void Swap();

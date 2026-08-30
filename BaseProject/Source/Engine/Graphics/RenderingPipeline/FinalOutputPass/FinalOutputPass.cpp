@@ -46,7 +46,7 @@ namespace Engine::Graphics::Pipeline
 		a_context.pCmdList->CopyResource(_pDst->GetResource(), _pSrc->GetResource());
 	}
 
-	bool FinalOutputPass::EditUpdate()
+	EPassEditResult FinalOutputPass::EditUpdate()
 	{
 		ImGui::TextDisabled("このノードの絵がカメラの最終出力になります");
 
@@ -54,8 +54,8 @@ namespace Engine::Graphics::Pipeline
 		if (_pInSlot && _pInSlot->IsConnected())	ImGui::Text("Input : %s", _pInSlot->name.c_str());
 		else										ImGui::TextDisabled("Input : (not connected)");
 
-		// 触れる設定を持たないので、組み直しは要らない
-		return false;
+		// 触れる設定を持たない
+		return EPassEditResult::None;
 	}
 
 	void FinalOutputPass::EditNode()

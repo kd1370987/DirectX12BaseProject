@@ -1,6 +1,11 @@
 ﻿#include "RenderingPipeline.h"
 
 #include "RenderGraph/RenderGraph.h"
+
+#include "../RenderContext/RenderContext.h"
+#include "../../D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "../../Resource/Data/Shader/IO/ShaderIO.h"
+#include "../GraphicEngine.h"
 #include "RenderingPipelineMetaRegistry.h"
 
 namespace Engine::Graphics::Pipeline
@@ -262,13 +267,156 @@ namespace Engine::Graphics::Pipeline
 		}
 	}
 
-	Slot& Pass::DeclareInput(const std::string& a_pinName, EAccessType a_accessType, EPassSlotType a_type, bool a_isRequired)
+	void Pass::DispatchFullScreen(const PassContext& a_context) const
+	{
+		if (!a_context.pRenderContext || !a_context.pGraph) return;
+
+		// このパイプラインの描画解像度で回す(カメラごとに違うことがある)
+		const UINT _width = static_cast<UINT>(a_context.pGraph->GetViewportWidth());
+		const UINT _height = a_context.pGraph->GetViewportHeight();
+		if (_width == 0 || _height == 0) return;
+
+		a_context.pRenderContext->Dispatch((_width + 7) / 8, (_height + 7) / 8, 1);
+	}
+
+	void Pass::DispatchForSlot(const PassContext& a_context, const Slot& a_slot) const
+	{
+		if (!a_context.pRenderContext || !a_context.pGraph) return;
+
+		const VirtualResource* _pRes = a_context.pGraph->GetVirtualResource(a_slot.resourceHandle);
+		if (!_pRes) return;
+
+		const UINT _width = static_cast<UINT>(_pRes->GetWidth());
+		const UINT _height = _pRes->GetHeight();
+		if (_width == 0 || _height == 0) return;
+
+		a_context.pRenderContext->Dispatch((_width + 7) / 8, (_height + 7) / 8, 1);
+	}
+
+	// 頂点+ピクセルシェーダーからルートシグネチャとPSOを作る。
+	// 出力フォーマットはこのパスのRTVスロットから引くので、
+	// リソースが決まった後(Compile)でないと正しく作れない
+	bool Pass::SetupRasterShader(
+		const PassContext& a_context,
+		const std::string& a_vsPath,
+		const std::string& a_psPath,
+		const D3D12_INPUT_LAYOUT_DESC& a_inputLayout,
+		const std::string& a_psoName,
+		const std::function<void(D3D12::GraphicsPipelineDesc&)>& a_configure,
+		EPassHeapMode a_heapMode)
+	{
+		if (!a_context.pGraphicsEngine || !a_context.pGraph) return false;
+
+		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
+		if (!_pPSOManager) return false;
+
+		D3D12::GraphicsPipelineDesc _desc = {};
+		_desc.SetName(a_psoName);
+		_desc.SetInputLayout(a_inputLayout);
+
+		// 頂点シェーダー : ルートシグネチャもこのブロブから起こす
+		auto _vsHandle = Resource::ShaderIO::Request(a_vsPath);
+		auto* _pVS = Resource::ResourceManager::Instance().Ref(_vsHandle);
+		if (!_pVS || !_pVS->Get())
+		{
+			ENGINE_WARNING("[Pass] 頂点シェーダーが読めません : %s", a_vsPath.c_str());
+			return false;
+		}
+		_desc.SetVS(_pVS->GetByteCode());
+
+		// ピクセルシェーダー : 深度だけ書くパスでは空でよい
+		if (!a_psPath.empty())
+		{
+			auto _psHandle = Resource::ShaderIO::Request(a_psPath);
+			if (auto* _pPS = Resource::ResourceManager::Instance().Ref(_psHandle))
+			{
+				_desc.SetPS(_pPS->GetByteCode());
+			}
+		}
+
+		m_rootSigHandle = _pPSOManager->Request(_pVS->Get());
+		if (!m_rootSigHandle.IsValid())
+		{
+			ENGINE_WARNING("[Pass] ルートシグネチャが作れません : %s", a_vsPath.c_str());
+			return false;
+		}
+		_desc.SetRootSignature(_pPSOManager->GetRootSignature(m_rootSigHandle));
+
+		// 出力フォーマット : 宣言したRTVスロットの並び順がそのままレンダーターゲットの順になる
+		for (const Slot& _out : m_outputSlots)
+		{
+			if (_out.accessType != EAccessType::RTV) continue;
+
+			const VirtualResource* _pRes = a_context.pGraph->GetVirtualResource(_out.resourceHandle);
+			if (!_pRes) continue;
+
+			_desc.AddRenderTargetFormat(_pRes->GetFormat());
+		}
+
+		// 深度・ブレンド・トポロジなどパス固有の設定
+		if (a_configure) a_configure(_desc);
+
+		const auto _psoHandle = _pPSOManager->RequestHandle(_desc);
+		m_psoIndex = static_cast<uint8_t>(_psoHandle.GetIndex());
+
+		m_pipelineType = EPassPipelineType::Graphics;
+		m_heapMode = a_heapMode;
+		return true;
+	}
+
+	// コンピュートシェーダーからルートシグネチャとPSOを作る。
+	// 宣言だけで済むように、グラフが実行前に張れる形で控えておく
+	bool Pass::SetupComputeShader(
+		const PassContext& a_context,
+		const std::string& a_csPath,
+		const std::string& a_psoName,
+		EPassHeapMode a_heapMode)
+	{
+		if (!a_context.pGraphicsEngine) return false;
+
+		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
+		if (!_pPSOManager) return false;
+
+		// シェーダー
+		auto _csHandle = Resource::ShaderIO::Request(a_csPath);
+		auto* _pShader = Resource::ResourceManager::Instance().Ref(_csHandle);
+		if (!_pShader || !_pShader->Get())
+		{
+			ENGINE_WARNING("[Pass] コンピュートシェーダーが読めません : %s", a_csPath.c_str());
+			return false;
+		}
+
+		// ルートシグネチャ : シェーダーに埋まっている定義から起こす
+		m_rootSigHandle = _pPSOManager->Request(_pShader->Get());
+		if (!m_rootSigHandle.IsValid())
+		{
+			ENGINE_WARNING("[Pass] ルートシグネチャが作れません : %s", a_csPath.c_str());
+			return false;
+		}
+
+		// PSO
+		D3D12::ComputePipelineDesc _desc = {};
+		_desc.SetName(a_psoName);
+		_desc.desc.CS.pShaderBytecode = _pShader->Get()->GetBufferPointer();
+		_desc.desc.CS.BytecodeLength = _pShader->Get()->GetBufferSize();
+		_desc.SetRootSignature(_pPSOManager->GetRootSignature(m_rootSigHandle));
+
+		const auto _psoHandle = _pPSOManager->RequestHandle(_desc);
+		m_psoIndex = static_cast<uint8_t>(_psoHandle.GetIndex());
+
+		m_pipelineType = EPassPipelineType::Compute;
+		m_heapMode = a_heapMode;
+		return true;
+	}
+
+	Slot& Pass::DeclareInput(const std::string& a_pinName, EAccessType a_accessType, EPassSlotType a_type, bool a_isRequired, int a_rootParamIndex)
 	{
 		Slot _slot = {};
 		_slot.isIn = true;
 		_slot.pinName = a_pinName;
 		_slot.slotID = MakeSlotID(a_pinName);
 		_slot.isRequired = a_isRequired;
+		_slot.rootParamIndex = a_rootParamIndex;
 		_slot.type = a_type;
 		_slot.accessType = a_accessType;
 
@@ -283,11 +431,13 @@ namespace Engine::Graphics::Pipeline
 		DXGI_FORMAT a_format,
 		EAccessType a_accessType,
 		EPassSlotType a_type,
-		bool a_isTemporal)
+		bool a_isTemporal,
+		int a_rootParamIndex)
 	{
 		Slot _slot = {};
 		_slot.isIn = false;
 		_slot.isTemporal = a_isTemporal;
+		_slot.rootParamIndex = a_rootParamIndex;
 		_slot.pinName = a_pinName;
 		_slot.slotID = MakeSlotID(a_pinName);
 		_slot.isRequired = false;		// 出力は自分が作るので、繋がっていなくても成立する
@@ -726,7 +876,13 @@ namespace Engine::Graphics::Pipeline
 			// パス固有の設定(フォーマットやスケールなど)もリソースの要件を変えるので、
 			// 触られたら Dirty にする。
 			// 値を確定したところ(ドラッグを離した等)で1回だけ立つ
-			if (_pPass->EditUpdate()) SetDirty();
+			// パラメータだけなら組み直さず、カメラ側へ値を写すだけで済ませる
+			switch (_pPass->EditUpdate())
+			{
+			case EPassEditResult::Structure:	SetDirty();			break;
+			case EPassEditResult::Param:		++m_paramVersion;	break;
+			default: break;
+			}
 
 			ImGui::PopID();
 		}

@@ -14,45 +14,52 @@
 
 #include "Engine/Option/OptionManager.h"
 #include "../../../Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
+#include "../../../Resource/Data/Shader/IO/ShaderIO.h"
+#include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
 
-void Engine::Graphics::AddSkinningPass(D3D12::PipelineStateManager* a_pPSOManager, RenderPassRegistry* a_pRegistry, const EDrawPhase& a_phase)
+namespace
 {
-	// ランタイム用データ
-	struct RuntimeData
+	// スキニングはカメラに依存せず、フレームに1回でよい計算なので
+	// レンダーグラフのパスにはしていない。
+	// ルートシグネチャとPSOは1度だけ用意して、ここへ置いておく
+	struct SkinningRuntime
 	{
-		Handle<ID3D12RootSignature> rootSigHandle = {};
-		uint8_t csIndex;
-		D3D12::PipelineStateManager* pPSOManager;
-
+		Engine::Handle<ID3D12RootSignature> rootSigHandle = {};
+		uint8_t csIndex = 255;
+		Engine::D3D12::PipelineStateManager* pPSOManager = nullptr;
 	};
-	auto _spPassData = std::make_shared<RuntimeData>();
-	_spPassData->pPSOManager = a_pPSOManager;
+	SkinningRuntime g_skinning = {};
+}
 
+void Engine::Graphics::SetupSkinning(D3D12::PipelineStateManager* a_pPSOManager)
+{
+	if (!a_pPSOManager) return;
+	g_skinning.pPSOManager = a_pPSOManager;
 
-	// ノード・ビルダー作成
-	RenderPassNode _node = {};
-	_node.name = "SkinningPass";
-	_node.phase = a_phase;
-	RGComputePassBuilder _rpBuilder(&_node);
+	// シェーダーからルートシグネチャとコンピュートPSOを起こす
+	auto _csHandle = Resource::ShaderIO::Request("Asset/Shader/Source/Geometry/Skinning/Skinning.cso");
+	auto* _pShader = Resource::ResourceManager::Instance().Ref(_csHandle);
+	if (!_pShader || !_pShader->Get()) return;
 
-	// シェーダー
-	auto* _pBlob = _rpBuilder.SetShader(
-		"Asset/Shader/Source/Geometry/Skinning/Skinning.cso",
-		"SkinningCS",
-		_spPassData->csIndex
-	);
-	// ルートシグネチャ
-	_spPassData->rootSigHandle = _rpBuilder.SetRootSignature(a_pPSOManager, _pBlob);
+	g_skinning.rootSigHandle = a_pPSOManager->Request(_pShader->Get());
 
-	// 依存関係構築
+	D3D12::ComputePipelineDesc _desc = {};
+	_desc.SetName("SkinningCS");
+	_desc.desc.CS.pShaderBytecode = _pShader->Get()->GetBufferPointer();
+	_desc.desc.CS.BytecodeLength = _pShader->Get()->GetBufferSize();
+	_desc.SetRootSignature(a_pPSOManager->GetRootSignature(g_skinning.rootSigHandle));
 
+	g_skinning.csIndex = static_cast<uint8_t>(a_pPSOManager->RequestHandle(_desc).GetIndex());
+}
 
-	// コンパイル
-	_rpBuilder.ResolveAndCompile(a_pPSOManager);
+// 中身は旧 SkinningPass の実行関数をそのまま移したもの
+void Engine::Graphics::ExecuteSkinning(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
+{
+	if (!a_pGE || !a_pCtx) return;
+	if (!g_skinning.pPSOManager) return;
 
-	// 実行関数
-	_node.executeFunc = [_spPassData](GraphicsEngine* a_pGE, RenderContext* a_pCtx, const RGPassResources& a_res)
-		{
+	auto* _spPassData = &g_skinning;
+	{
 			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 			auto* _pPso = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
 
@@ -123,9 +130,5 @@ void Engine::Graphics::AddSkinningPass(D3D12::PipelineStateManager* a_pPSOManage
 				UINT _x = (_info.vertexCount + 63) / 64;
 				a_pCtx->Dispatch(_x, 1, 1);
 			}
-		};
-
-	// パス登録
-	_node.phase = a_phase;
-	a_pRegistry->RegisterPass(_node);
+	}
 }

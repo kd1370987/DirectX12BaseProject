@@ -63,10 +63,10 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		// 検証 -> 実行順の決定 -> 仮想リソース構築 -> バリア構築 -> 各パスの Compile。
 		// a_pDevice を渡すと、続けて物理リソースの割り当てまで済ませる
-		bool Compile(D3D12::Device* a_pDevice = nullptr);
+		bool Compile(GraphicsEngine* a_pGraphicsEngine = nullptr, D3D12::Device* a_pDevice = nullptr);
 
 		// コンパイル済みのグラフを実行する
-		void Render(RenderContext* a_pRenderContext);
+		void Render(GraphicsEngine* a_pGraphicsEngine, RenderContext* a_pRenderContext);
 
 		// GPUリソースを手放す。
 		// DescriptorHeapManager の解放より前に呼ぶこと

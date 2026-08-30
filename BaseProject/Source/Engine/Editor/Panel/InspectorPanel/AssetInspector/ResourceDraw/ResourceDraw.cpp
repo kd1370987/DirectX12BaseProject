@@ -254,6 +254,18 @@ namespace Engine::Editor::Inspector
 		{
 			_pPipeline->Save(a_editContext.pAssetProp->filePath);
 		}
+
+		// 画面をこのパイプラインの絵に差し替えるかどうか(移植中の見比べ用)。
+		// 実際に映るのは、このアセットを設定したメインカメラのぶん
+		if (_pGE)
+		{
+			bool _isPresent = _pGE->IsPresentFromPipeline();
+			ImGui::SameLine();
+			if (ImGui::Checkbox("Present from pipeline", &_isPresent))
+			{
+				_pGE->SetPresentFromPipeline(_isPresent);
+			}
+		}
 		ImGui::Separator();
 
 		_pPipeline->DrawEditor();

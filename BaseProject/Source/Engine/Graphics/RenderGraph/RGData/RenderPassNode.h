@@ -171,6 +171,17 @@ namespace Engine::Graphics
 		// シェーディングパイプライン
 		ShadingPipelineBuilder pipelineBuilder;
 
+		// ---- モデル描画パスの設定 ----
+		// このパスがモデルを受け取るか、受け取るならどちらのキューか。
+		// None のパスには描画アイテムが流れない
+		EGeometryQueue geometryQueue = EGeometryQueue::None;
+
+		// このパスで使うピクセルシェーダー。
+		// もとはシェーディングモデルがパスごとに持っていたが、
+		// 「どのPSで描くか」はパス自身の都合なのでこちらへ移した。
+		// 空ならPS無し(深度だけを書く ZPre など)
+		Handle<Resource::Shader> defaultPSHandle = {};
+
 		// ---- コンパイル後データ ----
 		uint8_t passIndex = 255;						// ソートキー用インデックス
 		std::map<std::string, uint8_t> psoIndexMap;		// PSOのインデックスマップ

@@ -64,7 +64,7 @@
 #include "RenderPass/Present/CopyToBackBufferPass/CopyToBackBufferPass.h"
 
 #include "RenderPass/Particle/UpdateParticlePass/UpdateParticlePass.h"
-#include "RenderPass/Particle/EmitParticlePass/EmitParticlePass.h"
+#include "RenderPass/Particle/ParticleSimulation/ParticleSimulation.h"
 
 #include "RenderPass/Skinning/SkinningPass.h"
 #include "RenderPass/Skinning/UpdateBLASPass/UpdateBLASPass.h"
@@ -158,8 +158,10 @@ namespace Engine::Graphics
 		// ラスター関係
 
 
-		AddSkinningPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
-		AddUpdateBLASPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
+		// スキニングとBLAS更新はカメラに依存せず、フレームに1回で足りる。
+		// レンダーグラフのパスにはせず、Execute() から直接呼ぶ
+		SetupSkinning(m_pPipelineStateManager);
+		SetupParticleSimulation(m_pPipelineStateManager);
 
 		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
 		AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
@@ -283,8 +285,6 @@ namespace Engine::Graphics
 			"GISpatialDenoisePass", "DenoiseGI", "FinalGI", 2, DXGI_FORMAT_R16G16B16A16_FLOAT);
 		AddFullRaytracingUpScalePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
 		// パーティクル
-		AddEmitParticlePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Particle);
-		AddUpdateParticlePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Particle);
 		AddParticlePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Particle);
 
 		// レンダーグラフの構築
@@ -330,6 +330,39 @@ namespace Engine::Graphics
 	// カメラごとの描画構成(新レンダーグラフ)
 	//
 	//==========================================================================================
+	// 従来経路のパス番号は RenderPassRegistry が 0 から順に配っている。
+	// こちらは 255 から下って取ることで、同じ番号のバケットを踏まないようにする
+	uint8_t GraphicsEngine::AcquirePipelinePassIndex()
+	{
+		const uint8_t _index = m_nextPipelinePassIndex;
+		if (m_nextPipelinePassIndex > 0) --m_nextPipelinePassIndex;
+		return _index;
+	}
+
+	std::vector<Pipeline::Pass*> GraphicsEngine::CollectPipelineGeometryPasses(EGeometryQueue a_queue) const
+	{
+		std::vector<Pipeline::Pass*> _result = {};
+		if (a_queue == EGeometryQueue::None) return _result;
+
+		for (const auto& _upCamera : m_cameras)
+		{
+			if (!_upCamera || !_upCamera->upPipeline) continue;
+			if (!_upCamera->upPipeline->IsCompiled()) continue;
+
+			const auto* _pGraph = _upCamera->upPipeline->GetRenderGraph();
+			if (!_pGraph) continue;
+
+			for (const auto& _compiledPass : _pGraph->GetCompiledPasses())
+			{
+				if (!_compiledPass.pPass) continue;
+				if (_compiledPass.pPass->GetGeometryQueue() != a_queue) continue;
+
+				_result.push_back(_compiledPass.pPass);
+			}
+		}
+		return _result;
+	}
+
 	void GraphicsEngine::SubmitCamera(const CameraSubmitDesc& a_desc)
 	{
 		// 描画構成を持たないカメラは新経路に乗らない
@@ -422,6 +455,17 @@ namespace Engine::Graphics
 			const uint32_t _version = _pAsset->GetStructureVersion();
 			const bool _isRebuild = (!_pCamera->upPipeline) || (_pCamera->builtStructureVersion != _version);
 
+			// 形は同じでパラメータだけ動いたときは、値を写すだけで済ませる。
+			// 色を触るたびにグラフを組み直すと、リソースまで作り直しになってしまう
+			if (!_isRebuild && _pCamera->builtParamVersion != _pAsset->GetParamVersion())
+			{
+				if (const auto* _pSrcGraph = _pAsset->GetRenderGraph())
+				{
+					_pCamera->upPipeline->RefRenderGraph()->SyncParamsFrom(*_pSrcGraph);
+				}
+				_pCamera->builtParamVersion = _pAsset->GetParamVersion();
+			}
+
 			if (_isRebuild)
 			{
 				// ---- 最終出力テクスチャ ----
@@ -460,12 +504,23 @@ namespace Engine::Graphics
 					_pCamera->upFinalTex.get(),
 					D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-				if (!_pCamera->upPipeline->Compile(_pDevice)) continue;
+				if (!_pCamera->upPipeline->Compile(this, _pDevice)) continue;
+
+				// モデルを受け取るパスへパス番号を配る。
+				// 描画アイテムのソートキーにこの番号が入り、パスはそれで自分のぶんを引く
+				for (const auto& _compiledPass : _pCamera->upPipeline->GetRenderGraph()->GetCompiledPasses())
+				{
+					if (!_compiledPass.pPass) continue;
+					if (_compiledPass.pPass->GetGeometryQueue() == EGeometryQueue::None) continue;
+
+					_compiledPass.pPass->SetPassIndex(AcquirePipelinePassIndex());
+				}
 
 				_pCamera->builtStructureVersion = _version;
+				_pCamera->builtParamVersion = _pAsset->GetParamVersion();
 			}
 
-			_pCamera->upPipeline->Render(_pRenderContext);
+			_pCamera->upPipeline->Render(this, _pRenderContext);
 		}
 	}
 
@@ -495,6 +550,45 @@ namespace Engine::Graphics
 
 		m_sortedCameras.clear();
 		m_pMainCamera = nullptr;
+	}
+
+	// メインカメラのパイプラインが描いた絵をバックバッファへ写す。
+	// バックバッファと最終出力はどちらも R8G8B8A8_UNORM・同じ大きさなのでそのままコピーできる
+	void GraphicsEngine::PresentFromPipeline(D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		if (!m_isPresentFromPipeline) return;
+		if (!a_pCmdList) return;
+		if (!m_pMainCamera) return;
+
+		// コンパイルが通っていないパイプラインは何も描いていない。
+		// 真っ黒で上書きすると原因が分からなくなるので、従来経路の絵を残す
+		if (!m_pMainCamera->upPipeline || !m_pMainCamera->upPipeline->IsCompiled()) return;
+
+		Resource::Texture* _pFinalTex = m_pMainCamera->upFinalTex.get();
+		if (!_pFinalTex) return;
+
+		auto& _d3d = D3D12::D3D12Wrapper::Instance();
+		ID3D12Resource* _pBackBuffer = _d3d.GetCurrentBackBuffer();
+		if (!_pBackBuffer) return;
+
+		// バックバッファはこの時点で RENDER_TARGET。コピー先へ落とす
+		D3D12::ResourceBarrier(
+			a_pCmdList, _pBackBuffer,
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_COPY_DEST);
+
+		// 最終出力側はグラフが入口のステートへ戻してある
+		_pFinalTex->Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+		a_pCmdList->CopyResource(_pBackBuffer, _pFinalTex->GetResource());
+
+		// この後の描画(エディターのImGuiなど)が続くので元へ戻す
+		D3D12::ResourceBarrier(
+			a_pCmdList, _pBackBuffer,
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+		_pFinalTex->Barrier(a_pCmdList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	}
 
 	const Resource::Texture* GraphicsEngine::GetCameraFinalTexture(const ECS::World* a_pWorld, uint32_t a_entity) const
@@ -668,6 +762,20 @@ namespace Engine::Graphics
 			}
 		);
 
+		//------------------------------------------------------------------
+		// カメラに依存しない毎フレームの計算
+		//
+		// スキニングの結果とBLASは、どのカメラの描画でも同じものを読む。
+		// カメラごとに回すと同じ計算を何度も走らせることになるので、
+		// パイプラインより前でまとめて1回だけ通す
+		//------------------------------------------------------------------
+		ExecuteSkinning(this, m_upRenderContextVec[m_currentFrameIndex].get());
+		ExecuteUpdateBLAS(this, m_upRenderContextVec[m_currentFrameIndex].get());
+
+		// 発生と更新は間のUAVバリアごと1つの関数にまとめてある。
+		// 分けるとバリアを挟み忘れて、空きスロットが減り続ける不具合が戻る
+		ExecuteParticleSimulation(this, m_upRenderContextVec[m_currentFrameIndex].get());
+
 		// カメラごとの描画構成(新レンダーグラフ)。
 		// 従来経路とは並走していて、こちらは各カメラの最終出力テクスチャへ描くだけ。
 		// バックバッファへ出すのは下の従来経路のまま
@@ -675,6 +783,10 @@ namespace Engine::Graphics
 
 		// レンダーパス実行
 		m_upRenderGraph->Execute(this, m_upRenderContextVec[m_currentFrameIndex].get());
+
+		// 新パイプラインの絵で画面を置き換える(移植中の見比べ用)。
+		// 従来経路が描き終わった後に上書きするので、切り替えは1フラグで済む
+		PresentFromPipeline(_pCmdList);
 
 		D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
 		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(nullptr);
@@ -977,8 +1089,7 @@ namespace Engine::Graphics
 			// -----------------------------------------------------
 			const Resource::Mesh* _pMesh = nullptr;
 			const Resource::Material* _pMaterial = nullptr;
-			const Resource::ShadingModelTable* _pShadingModel = nullptr;
-			if (!FetchDrawResources(_cmd, _pMesh, _pMaterial, _pShadingModel)) continue;
+			if (!FetchDrawResources(_cmd, _pMesh, _pMaterial)) continue;
 
 			// -----------------------------------------------------
 			// 行列計算
@@ -1009,7 +1120,7 @@ namespace Engine::Graphics
 			// 各パスへの描画アイテム登録(共通処理)
 			// -----------------------------------------------------
 			RegisterDrawCommandToPasses(
-				_cmd, _pMesh, _pMaterial, _pShadingModel,
+				_cmd, _pMesh, _pMaterial,
 				_mat, _prevMat,
 				_isAnimation, 0 /*animatedVertexStart*/,
 				a_albedoScale, a_emissiveScale, a_emissiveAdd, _psoKey);
@@ -1048,11 +1159,10 @@ namespace Engine::Graphics
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
 		for (const auto& _cmd : _drawCmdVec)
 		{
-			// メッシュ・マテリアル・シェーディングモデルの取得と検証
+			// メッシュ・マテリアルの取得と検証
 			const Resource::Mesh* _pMesh = nullptr;
 			const Resource::Material* _pMaterial = nullptr;
-			const Resource::ShadingModelTable* _pShadingModel = nullptr;
-			if (!FetchDrawResources(_cmd, _pMesh, _pMaterial, _pShadingModel)) continue;
+			if (!FetchDrawResources(_cmd, _pMesh, _pMaterial)) continue;
 
 			// -----------------------------------------------------
 			// アニメーション用頂点オフセットの検索
@@ -1104,7 +1214,7 @@ namespace Engine::Graphics
 			// 各パスへ描画アイテムを投げる(共通処理)
 			// =========================================================
 			RegisterDrawCommandToPasses(
-				_cmd, _pMesh, _pMaterial, _pShadingModel,
+				_cmd, _pMesh, _pMaterial,
 				_mat, _prevMat,
 				_isAnimation, _animatedVertexStart,
 				a_albedoScale, a_emissiveScale, a_emissiveAdd, _psoKey);
@@ -1384,11 +1494,13 @@ namespace Engine::Graphics
 		return static_cast<int>(_pTex->GetSRV().GetIndex());
 	}
 
+	// シェーディングモデルはもう引かない。
+	// 以前はここで解決できないと描画コマンドごと捨てていたので、
+	// シェーディングモデルを持たないマテリアルは何も描かれなかった
 	bool GraphicsEngine::FetchDrawResources(
 		const Resource::ModelDrawCommand& a_cmd,
 		const Resource::Mesh*& a_pOutMesh,
-		const Resource::Material*& a_pOutMaterial,
-		const Resource::ShadingModelTable*& a_pOutShadingModel)
+		const Resource::Material*& a_pOutMaterial)
 	{
 		auto& _resManager = Resource::ResourceManager::Instance();
 
@@ -1399,10 +1511,6 @@ namespace Engine::Graphics
 		// マテリアル
 		a_pOutMaterial = _resManager.Get(a_cmd.materialHandle);
 		if (!a_pOutMaterial) return false;
-
-		// シェーディングモデル
-		a_pOutShadingModel = _resManager.Get(a_pOutMaterial->shadingModelHandle);
-		if (!a_pOutShadingModel) return false;
 
 		return true;
 	}
@@ -1430,7 +1538,6 @@ namespace Engine::Graphics
 		const Resource::ModelDrawCommand& a_cmd,
 		const Resource::Mesh* a_pMesh,
 		const Resource::Material* a_pMaterial,
-		const Resource::ShadingModelTable* a_pShadingModel,
 		const DXSM::Matrix& a_mat,
 		const DXSM::Matrix& a_prevMat,
 		bool a_isAnimation,
@@ -1440,9 +1547,57 @@ namespace Engine::Graphics
 		const DXSM::Vector3& a_emissiveAdd,
 		PSOKey a_psoKey)
 	{
-		for (UINT _passHash : a_pShadingModel->GetPassHashes())
+		// マテリアルの透明モードで、どちらのキューへ流すかを決める。
+		// Mask はアルファで抜くだけで前後関係は不透明と同じ扱いなので Opaque
+		const EGeometryQueue _queue = (a_pMaterial->alphaMode == Resource::Alpha::Blend)
+			? EGeometryQueue::Transparent
+			: EGeometryQueue::Opaque;
+
+		// 新パイプライン側のパスへも同じアイテムを流す。
+		// パスごとにPSOもパス番号も違うので、パスの数だけ登録することになる
+		for (auto* _pPipelinePass : CollectPipelineGeometryPasses(_queue))
 		{
-			auto* _pPassNode = m_upRenderGraph->GetPass(_passHash);
+			if (!_pPipelinePass) continue;
+
+			MeshMaterial _meshMaterial = BuildMeshMaterial(a_pMaterial, a_albedoScale, a_emissiveScale, a_emissiveAdd);
+			const auto& _msData = a_pMesh->GetMeshShaderData();
+
+			MeshInstanceData _meshInstanceData = {};
+			_meshInstanceData.worldMat = a_mat.Transpose();
+			_meshInstanceData.prevWorldMat = a_prevMat.Transpose();
+			_meshInstanceData.materialOffset = SetMeshMaterialData(_meshMaterial);
+			_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _msData.subsetMeshlets[a_cmd.subIdx].meshletOffset;
+			_meshInstanceData.vertexOffset = a_pMesh->GetRtData().vertexHandle.startIndex;
+			_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
+			_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
+			_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex + _msData.subsetMeshlets[a_cmd.subIdx].cullOffset;
+			_meshInstanceData.meshletCount = _msData.subsetMeshlets[a_cmd.subIdx].meshletCount;
+			_meshInstanceData.animatedVertexStart = a_animatedVertexStart;
+			_meshInstanceData.isAnimated = a_isAnimation ? 1 : 0;
+
+			PSOKey _pipelineKey = a_psoKey;
+			_pipelineKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
+			_pipelineKey.psHandle = _pPipelinePass->GetDefaultPSHandle();
+
+			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, nullptr, m_pPipelineStateManager);
+
+			Engine::Graphics::LightWeightDrawItem _item = {};
+			_item.meshHandle = a_cmd.meshHandle;
+			_item.materialHandle = a_cmd.materialHandle;
+			_item.sortKey.bits.meshID = a_cmd.meshHandle.GetIndex();
+			_item.sortKey.bits.materialID = a_cmd.materialHandle.GetIndex();
+			_item.isAnimation = a_isAnimation;
+			_item.subIndex = a_cmd.subIdx;
+			_item.meshInstanceIndex = SetInstanceData(_meshInstanceData);
+			_item.subsetMeshletCount = _msData.subsetMeshlets[a_cmd.subIdx].meshletCount;
+			_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
+			_item.sortKey.bits.passIndex = _pPipelinePass->GetPassIndex();
+
+			AddItem(_item);
+		}
+
+		for (auto* _pPassNode : m_upRenderGraph->GetGeometryPasses(_queue))
+		{
 			if (!_pPassNode) continue;
 
 			uint32_t _meshInstanceIdx = UINT32_MAX;
@@ -1506,20 +1661,14 @@ namespace Engine::Graphics
 				};
 
 			// -----------------------------------------------------
-			// シェーダーハンドルの展開と登録
+			// 登録
+			//
+			// どのPSで描くかはパス自身が持っている。
+			// もとはシェーディングモデルがパスごとにPSの配列を持っていて、
+			// 1つのサブセットが複数回登録されることがあったが、
+			// 実際には1本しか入っていなかったので1回に固定した
 			// -----------------------------------------------------
-			auto _spanShaderHandles = a_pShadingModel->GetShaderHandles(_passHash);
-			if (_spanShaderHandles.empty())
-			{
-				AddDrawItemFunc(Handle<Resource::Shader>()); // 空のハンドルで1回登録
-			}
-			else
-			{
-				for (const auto& _shader : _spanShaderHandles)
-				{
-					AddDrawItemFunc(_shader); // 各シェーダーごとに登録
-				}
-			}
+			AddDrawItemFunc(_pPassNode->defaultPSHandle);
 		}
 	}
 

@@ -69,6 +69,16 @@ namespace Engine::Graphics::Pipeline
 		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle[2] = { { 0 }, { 0 } };
 		bool hasDSV = false;
 		bool isDepthClear = false;
+
+		//----------------------------------------------------------------------------------
+		// 焼き込み済みのバインド
+		//
+		// スロットが指定したルートパラメータ番号ごとに、
+		// ディスクリプタを連続領域へ並べておく。
+		// 実行時は範囲を渡すだけで張れる
+		//----------------------------------------------------------------------------------
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> descriptorTable[2] = {};
+		std::vector<PassBind> binds = {};
 	};
 
 	// =====================================================================================
@@ -117,6 +127,10 @@ namespace Engine::Graphics::Pipeline
 		// 設計図のグラフから実行用のグラフを組み立てる。
 		// パスは型IDから作り直して Archive 経由で中身を写すので、実体は別物になる
 		bool BuildFrom(const RenderGraph& a_source, const PassMetaRegistry& a_registry);
+
+		// 設計図側のパスのパラメータだけを写す。
+		// グラフの形は変わらないので、組み直さずに済ませたいときに使う
+		void SyncParamsFrom(const RenderGraph& a_source);
 
 		// パス構成と配線の保存・読込。
 		// 読込側はレジストリから型IDでパスを作り直す
@@ -186,7 +200,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 仮想リソースの要件どおりに物理リソースを作る(または作り直す)。
 		// Compile() の後に呼ぶこと
-		bool AllocateResources(D3D12::Device* a_pDevice);
+		bool AllocateResources(GraphicsEngine* a_pGraphicsEngine, D3D12::Device* a_pDevice);
 
 		// 物理リソースの実体を破棄する。
 		// ディスクリプタヒープにビューを持つので、
@@ -248,7 +262,7 @@ namespace Engine::Graphics::Pipeline
 
 		// コンパイル済みの順にパスを回す。
 		// バリアの発行・レンダーターゲット切り替え・クリアまでここが面倒を見る
-		void Execute(RenderContext* a_pRenderContext);
+		void Execute(GraphicsEngine* a_pGraphicsEngine, RenderContext* a_pRenderContext);
 
 		// 実行順に並んだパス
 		const std::vector<CompiledPass>& GetCompiledPasses() const { return m_compilePasses; }
@@ -309,6 +323,9 @@ namespace Engine::Graphics::Pipeline
 		// 積んであるバリアへ物理リソースのポインタを埋める(AllocateResources の後)
 		void ResolveBarrierResources();
 
+		// 宣言から焼き込んだヒープ・ルートシグネチャ・PSO・テーブルを張る
+		void ApplyStaticBindings(RenderContext* a_pRenderContext, const CompiledPass& a_compiledPass, uint32_t a_parity);
+
 		// 各パスの出力先(RTV/DSV)とクリア指定を焼き込む(AllocateResources の後)。
 		// Temporal のぶんは偶数フレーム用と奇数フレーム用の両方を作る
 		void ResolveDescriptors();
@@ -318,7 +335,7 @@ namespace Engine::Graphics::Pipeline
 		void ClearTemporalResources(RenderContext* a_pRenderContext);
 
 		// 全パスの Compile() を実行順に呼ぶ(リソースが揃ってから)
-		void CompilePasses();
+		void CompilePasses(GraphicsEngine* a_pGraphicsEngine);
 
 		// パスのインスタンス配列 : 実体はここが持つ
 		std::vector<std::unique_ptr<Pass>> m_passes = {};

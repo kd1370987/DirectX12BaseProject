@@ -25,6 +25,9 @@ namespace Engine::Graphics
 		RenderPassNode _node = {};
 		_node.name = "ZPre";
 		_node.phase = a_phase;
+
+		// 不透明のモデルを受け取る。深度だけ書くのでPSは無し
+		_node.geometryQueue = EGeometryQueue::Opaque;
 		RGMeshShaderPassBuilder _msBuilder(&_node);
 
 
