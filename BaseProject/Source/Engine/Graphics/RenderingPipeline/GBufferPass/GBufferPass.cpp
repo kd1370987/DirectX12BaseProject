@@ -1,4 +1,4 @@
-#include "GBufferPass.h"
+﻿#include "GBufferPass.h"
 
 #include "../../GraphicEngine.h"
 #include "../../RenderContext/RenderContext.h"
@@ -13,11 +13,16 @@ namespace Engine::Graphics::Pipeline
 		// 不透明のモデルを受け取る
 		m_geometryQueue = EGeometryQueue::Opaque;
 
+		// ZPre が前に居るなら、その深度をそのまま受け取って描く。
+		// 繋がっていなければ自分でクリアして書く(OnLinksResolved で切り替える)
+		DeclareInput("PreDepth", EAccessType::Depth_Write, EPassSlotType::Texture, false);
+
 		//----------------------------------------------------------------------------------
 		// 出力
 		//
-		// Albedo は最終出力へそのままコピーして確認できるよう、
-		// バックバッファと同じ R8G8B8A8_UNORM にしてある(旧版は _SRGB)
+		// Albedo は sRGB。ライティングは線形の値で計算するので、
+		// ここを UNORM にするとガンマのかかった値をそのまま線形として扱うことになり、
+		// 暗く濁った絵になる
 		//----------------------------------------------------------------------------------
 		auto _declareRT = [this](const char* a_pin, const char* a_name, DXGI_FORMAT a_format) -> Slot&
 			{
@@ -26,7 +31,7 @@ namespace Engine::Graphics::Pipeline
 				return _slot;
 			};
 
-		_declareRT("Albedo",	"GBufferAlbedo",	DXGI_FORMAT_R8G8B8A8_UNORM);
+		_declareRT("Albedo",	"GBufferAlbedo",	DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 		_declareRT("Normal",	"GBufferNormal",	DXGI_FORMAT_R16G16_FLOAT);
 		_declareRT("Material",	"GBufferMaterial",	DXGI_FORMAT_R8G8B8A8_UNORM);
 		_declareRT("Emissive",	"GBufferEmissive",	DXGI_FORMAT_R11G11B10_FLOAT);
@@ -36,6 +41,19 @@ namespace Engine::Graphics::Pipeline
 		Slot& _depth = DeclareOutput(
 			"Depth", "SceneDepth", DXGI_FORMAT_R32_TYPELESS, EAccessType::Depth_Write);
 		_depth.loadOp = ELoadOp::Clear;
+	}
+
+	// 前段(ZPre)から深度をもらっているならクリアしない。
+	// クリアしてしまうと前段が書いた深度が消えて、ZPre を置いた意味が無くなる
+	void GBufferPass::OnLinksResolved()
+	{
+		const Slot* _pPreDepth = FindInputSlot(MakeSlotID("PreDepth"));
+		const bool _isPreDepth = (_pPreDepth && _pPreDepth->IsConnected());
+
+		Slot* _pDepth = FindOutputSlot(MakeSlotID("Depth"));
+		if (!_pDepth) return;
+
+		_pDepth->loadOp = _isPreDepth ? ELoadOp::Load : ELoadOp::Clear;
 	}
 
 	void GBufferPass::Compile(const PassContext& a_context)
@@ -68,9 +86,18 @@ namespace Engine::Graphics::Pipeline
 		// ---- ルートシグネチャ ----
 		m_rootSigHandle = _pPSOManager->Request("Asset/Shader/Source/Geometry/MeshShader/UberMS.cso");
 
-		// ---- 深度 ----
-		// 自分で深度を書くので、ZPre 前提の EQUAL ではなく LESS_EQUAL
-		m_pipelineBuilder.SetDepthConfig(true, true, D3D12_COMPARISON_FUNC_LESS_EQUAL);
+		//----------------------------------------------------------------------------------
+		// 深度テスト
+		//
+		// ZPre が前に居るなら、深度はもう埋まっている。
+		// 書かずに EQUAL で「ZPreと完全に一致するピクセルだけ」描く(旧版と同じ)。
+		// 単体で置かれたときだけ自分で書くので LESS_EQUAL にする
+		//----------------------------------------------------------------------------------
+		const Slot* _pPreDepth = FindInputSlot(MakeSlotID("PreDepth"));
+		const bool _isPreDepth = (_pPreDepth && _pPreDepth->IsConnected());
+
+		if (_isPreDepth)	m_pipelineBuilder.SetDepthConfig(true, false, D3D12_COMPARISON_FUNC_EQUAL);
+		else				m_pipelineBuilder.SetDepthConfig(true, true, D3D12_COMPARISON_FUNC_LESS_EQUAL);
 	}
 
 	void GBufferPass::Update(const PassContext& a_context)

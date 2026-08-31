@@ -5,6 +5,7 @@
 #include "FinalOutputPass/FinalOutputPass.h"
 #include "TestClearPass/TestClearPass.h"
 #include "GBufferPass/GBufferPass.h"
+#include "DeferredLightingPass/DeferredLightingPass.h"
 
 // ---- ポストプロセス ----
 #include "RadialBlurPass/RadialBlurPass.h"
@@ -35,6 +36,11 @@
 
 // ---- リソース操作 ----
 #include "CopyPass/CopyPass.h"
+#include "ParticlePass/ParticlePass.h"
+
+// ---- レイトレ ----
+#include "RaytracingShadowPass/RaytracingShadowPass.h"
+#include "RaytracingGIPass/RaytracingGIPass.h"
 
 namespace Engine::Graphics::Pipeline
 {
@@ -91,6 +97,9 @@ namespace Engine::Graphics::Pipeline
 		// 不透明モデルをGBufferへ描く(既存パスの移植)
 		a_registry.RegisterType<GBufferPass>("GBufferPass");
 
+		// GBufferと影・GIを合成して色を作る(既存パスの移植)
+		a_registry.RegisterType<DeferredLightingPass>("DeferredLightingPass");
+
 		// ---- ポストプロセス ----
 		a_registry.RegisterType<RadialBlurPass>("RadialBlurPass");
 		a_registry.RegisterType<FishEyePass>("FishEyePass");
@@ -120,6 +129,13 @@ namespace Engine::Graphics::Pipeline
 
 		// リソースを写すだけの汎用パス(履歴の作成などに使う)
 		a_registry.RegisterType<CopyPass>("CopyPass");
+
+		// パーティクル描画(発生と更新は GraphicsEngine 側)
+		a_registry.RegisterType<ParticlePass>("ParticlePass");
+
+		// ---- レイトレ ----
+		a_registry.RegisterType<RaytracingShadowPass>("RaytracingShadowPass");
+		a_registry.RegisterType<RaytracingGIPass>("RaytracingGIPass");
 
 		// 配線が通っているかを画面の色で確かめる用
 		a_registry.RegisterType<TestClearPass>("TestClearPass");

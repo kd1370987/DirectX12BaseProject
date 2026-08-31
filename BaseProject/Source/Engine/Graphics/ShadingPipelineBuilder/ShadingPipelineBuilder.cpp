@@ -128,14 +128,23 @@ namespace Engine::Graphics
 			// =========================================================
 			// Pixel Shader の解決 (マテリアル・ShadingModelから取得)
 			// =========================================================
-			auto* _pShadingModel = Resource::ResourceManager::Instance().Get(a_key.shadingModelTableHandle);
-			if (_pShadingModel)
-			{
-				// ZPreかつ不透明(Opaque)なら、PSのセットをスキップ
-				bool _isZPrePass = (m_passNameHash == Engine::String::ToHash("ZPre"));
-				bool _isOpaque = !(a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::AlphaMasked);
+			// ZPreかつ不透明(Opaque)なら、PSのセットをスキップ
+			bool _isZPrePass = (m_passNameHash == Engine::String::ToHash("ZPre"));
+			bool _isOpaque = !(a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::AlphaMasked);
 
-				if (!(_isZPrePass && _isOpaque))
+			if (!(_isZPrePass && _isOpaque))
+			{
+				// パスが自分のPSを持っているなら、それで描く。
+				//
+				// 「どのPSで描くかはパス自身が持っている」のが今の形なので、こちらが本筋。
+				// 表を引くのは、まだPSを持っていないパスのための後方互換。
+				// 表はパス名で引くため、ノードの名前を変えると引けなくなる
+				auto* _pPassPS = Resource::ResourceManager::Instance().Get(a_key.psHandle);
+				if (_pPassPS)
+				{
+					_builder.SetPS(_pPassPS->GetByteCode());
+				}
+				else if (auto* _pShadingModel = Resource::ResourceManager::Instance().Get(a_key.shadingModelTableHandle))
 				{
 					auto _spanShaderHandles = _pShadingModel->GetShaderHandles(m_passNameHash);
 					for (auto& _shaderHandle : _spanShaderHandles)

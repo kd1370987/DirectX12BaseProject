@@ -235,16 +235,36 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Library\Include\imgui-docking\imgui.cpp" />
-    <ClCompile Include="..\Library\Include\imgui-docking\imgui_demo.cpp" />
-    <ClCompile Include="..\Library\Include\imgui-docking\imgui_draw.cpp" />
-    <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_dx12.cpp" />
-    <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\Library\Include\imgui-docking\imgui_stdlib.cpp" />
-    <ClCompile Include="..\Library\Include\imgui-docking\imgui_tables.cpp" />
-    <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp" />
-    <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp" />
-    <ClCompile Include="..\Library\Include\imnodes-master\imnodes.cpp" />
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui.cpp">
+      <ObjectFileName>$(IntDir)External\imgui.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_demo.cpp">
+      <ObjectFileName>$(IntDir)External\imgui_demo.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_draw.cpp">
+      <ObjectFileName>$(IntDir)External\imgui_draw.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_dx12.cpp">
+      <ObjectFileName>$(IntDir)External\imgui_impl_dx12.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_win32.cpp">
+      <ObjectFileName>$(IntDir)External\imgui_impl_win32.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_stdlib.cpp">
+      <ObjectFileName>$(IntDir)External\imgui_stdlib.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_tables.cpp">
+      <ObjectFileName>$(IntDir)External\imgui_tables.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp">
+      <ObjectFileName>$(IntDir)External\imgui_widgets.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
+      <ObjectFileName>$(IntDir)External\ImGuizmo.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\Library\Include\imnodes-master\imnodes.cpp">
+      <ObjectFileName>$(IntDir)External\imnodes.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="Source\Application\App.cpp" />
     <ClCompile Include="Source\Application\Editor\CompEditHelper\CompEditHelper.cpp" />
     <ClCompile Include="Source\Application\Game\GameFlowStateMachine\GameFlowStateMachine.cpp" />
@@ -446,6 +466,11 @@
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVersionManager\RGResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RaytracingShadowPass\RaytracingShadowPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RaytracingGIPass\RaytracingGIPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\DeferredLightingPass\DeferredLightingPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\StandardPipeline\StandardPipeline.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\ParticlePass\ParticlePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\CopyPass\CopyPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\ZPrePass\ZPrePass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\SkyPass\SkyPass.cpp" />
@@ -851,6 +876,11 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RaytracingShadowPass\RaytracingShadowPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RaytracingGIPass\RaytracingGIPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\DeferredLightingPass\DeferredLightingPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\StandardPipeline\StandardPipeline.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\ParticlePass\ParticlePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\CopyPass\CopyPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\ZPrePass\ZPrePass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\SkyPass\SkyPass.h" />

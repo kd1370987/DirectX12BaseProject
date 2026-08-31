@@ -232,9 +232,26 @@ namespace Engine::Graphics::Pipeline
 		// 初期化 : GUIDを振って、継承先のスロット宣言を走らせる
 		void Init();
 
+		//----------------------------------------------------------------------------------
+		// シェーディングモデル表を引くときの名前
+		//
+		// モデルを受け取るパスは、マテリアルのシェーディングモデル表から
+		// 自分用のピクセルシェーダーを引く。その鍵がこの名前。
+		//
+		// 表示名(GetName)とは別にしてあるのは、表示名がエディターで自由に変えられるから。
+		// 表示名で引くと、ノードの名前を変えただけでシェーダーが見つからなくなり、
+		// ピクセルシェーダー無しのPSOが焼かれて真っ黒になる
+		//----------------------------------------------------------------------------------
+		virtual const char* GetShadingPassName() const { return nullptr; }
+
 		// 継承先で自分の入出力スロットを宣言する
 		// DeclareInput / DeclareOutput をここから呼ぶ
 		virtual void SetupSlots() {}
+
+		// 配線が確定した直後(コンパイルの頭)に呼ばれる。
+		// 「前段が居るかどうかで振る舞いが変わる」パスがここで自分のスロットを整える。
+		// 例 : ZPre が前に居るなら GBuffer は深度をクリアしない
+		virtual void OnLinksResolved() {}
 
 		// システム上で前のパスができて、パスのアウトプットスロットから接続された際に呼ばれる
 		// ピン名とデータを指定して、コンパイル時ようにためておく。
@@ -346,9 +363,13 @@ namespace Engine::Graphics::Pipeline
 		EPassPipelineType GetPipelineType() const { return m_pipelineType; }
 		EPassHeapMode GetHeapMode() const { return m_heapMode; }
 		const Handle<ID3D12RootSignature>& GetRootSignature() const { return m_rootSigHandle; }
-		uint8_t GetPSOIndex() const { return m_psoIndex; }
 
-		static constexpr uint8_t kInvalidPSOIndex = 255;
+		// PSOはハンドルで持つ。
+		//
+		// 8bitの添字へ落として持つと、PSOの通し番号が256を超えたところで
+		// 別のPSOへすり替わる(コンピュートのつもりでグラフィックスのPSOを張る等)。
+		// パイプラインはパスの数だけPSOを作るので、旧経路と合わせるとすぐ届く
+		const Handle<ID3D12PipelineState>& GetPSOHandle() const { return m_psoHandle; }
 
 		// 描画アイテムのソートキーに入るパス番号。
 		// グラフのコンパイル時に GraphicsEngine から配られる
@@ -369,12 +390,26 @@ namespace Engine::Graphics::Pipeline
 		// スロット宣言 : 継承先の SetupSlots から呼ぶ
 		//----------------------------------------------------------------------------------
 		// 入力ピン : リソースの中身はつながった相手からもらうので、ここでは役割だけ決める
+		//
+		// a_isTemporal を立てると「前のフレームの結果を読むピン」になる。
+		// 実行順の辺にならないので自分自身の出力へ繋げられる(TAAの履歴など)。
+		// 立てないピンは今フレームの書き込み結果を読む
 		Slot& DeclareInput(
 			const std::string& a_pinName,
 			EAccessType a_accessType = EAccessType::SRV,
 			EPassSlotType a_type = EPassSlotType::Texture,
 			bool a_isRequired = true,
-			int a_rootParamIndex = -1);
+			int a_rootParamIndex = -1,
+			bool a_isTemporal = false);
+
+		//----------------------------------------------------------------------------------
+		// 描き足すパス用 : 入力ピンに来たリソースを、そのまま出力先にする
+		//
+		// 「前段の絵の上に重ねる」パスは、書く先が前段のリソースそのもの。
+		// 配線が決まらないと相手が分からないので、OnLinksResolved から呼ぶ。
+		// 繋がっていなければ宣言時の既定のまま(単体で置いても動く)
+		//----------------------------------------------------------------------------------
+		void FollowInputToOutput(const std::string& a_inPinName, const std::string& a_outPinName);
 
 		//----------------------------------------------------------------------------------
 		// コンピュートシェーダーの用意
@@ -395,7 +430,11 @@ namespace Engine::Graphics::Pipeline
 			const D3D12_INPUT_LAYOUT_DESC& a_inputLayout,
 			const std::string& a_psoName,
 			const std::function<void(D3D12::GraphicsPipelineDesc&)>& a_configure = nullptr,
-			EPassHeapMode a_heapMode = EPassHeapMode::Default);
+			EPassHeapMode a_heapMode = EPassHeapMode::Default,
+			// PSOの受け取り先。
+			// 渡すと m_psoHandle には入れないので、グラフは自動でPSOを張らない。
+			// ブレンド違いを複数持って描くときに選び分けるパス(パーティクル)で使う
+			Handle<ID3D12PipelineState>* a_pOutPSOHandle = nullptr);
 
 		bool SetupComputeShader(
 			const PassContext& a_context,
@@ -451,7 +490,7 @@ namespace Engine::Graphics::Pipeline
 		EPassPipelineType m_pipelineType = EPassPipelineType::Graphics;
 		EPassHeapMode m_heapMode = EPassHeapMode::None;
 		Handle<ID3D12RootSignature> m_rootSigHandle = {};
-		uint8_t m_psoIndex = kInvalidPSOIndex;
+		Handle<ID3D12PipelineState> m_psoHandle = {};
 
 		// ---- エディター用情報 ----
 		// ノード

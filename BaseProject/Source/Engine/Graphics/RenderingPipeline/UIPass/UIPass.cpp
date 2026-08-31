@@ -6,10 +6,19 @@ namespace Engine::Graphics::Pipeline
 {
 	void UIPass::SetupSlots()
 	{
+		// 描き足す先 : 「前段が描いた絵の上に重ねる」という順序をこの線で表す
+		DeclareInput("Color", EAccessType::RTV, EPassSlotType::Texture, false);
+
 		// すでに描かれている絵へ重ねるので Load
-		Slot& _color = DeclareOutput("Color", "AfterTAAColor", DXGI_FORMAT_R16G16B16A16_FLOAT,
-			EAccessType::RTV);
+		//Slot& _color = DeclareOutput("Color", "AfterTAAColor", DXGI_FORMAT_R16G16B16A16_FLOAT,EAccessType::RTV);
+		Slot& _color = DeclareOutput("Color", "AfterUI", DXGI_FORMAT_R16G16B16A16_FLOAT,EAccessType::RTV);
 		_color.loadOp = ELoadOp::Load;
+	}
+
+	// 描き足す先が繋がっていれば、そのリソースへ重ねる
+	void UIPass::OnLinksResolved()
+	{
+		FollowInputToOutput("Color", "Color");
 	}
 
 	void UIPass::Compile(const PassContext& a_context)

@@ -239,13 +239,23 @@ namespace Engine::Editor
 			ImGui::End();
 			return;
 		}
-		auto* _pRG = _pGE->RefRenderGraph();
-		if (!_pRG)
+		// パイプラインを設定したカメラが居るなら、そのカメラが描いた絵を出す。
+		// 従来のレンダーグラフの FinalColor を出してしまうと、
+		// パイプラインに通していないパス(UIなど)の絵まで見えることになる
+		const auto* _pTex = _pGE->GetPresentTexture();
+
+		// パイプライン経路が生きていないときだけ従来経路の絵へ落ちる
+		if (!_pTex)
 		{
-			ImGui::End();
-			return;
+			auto* _pRG = _pGE->RefRenderGraph();
+			if (!_pRG)
+			{
+				ImGui::End();
+				return;
+			}
+			_pTex = _pRG->GetTmepTexture("FinalColor");
 		}
-		const auto* _pTex = _pRG->GetTmepTexture("FinalColor");
+
 		if (!_pTex)
 		{
 			ImGui::End();

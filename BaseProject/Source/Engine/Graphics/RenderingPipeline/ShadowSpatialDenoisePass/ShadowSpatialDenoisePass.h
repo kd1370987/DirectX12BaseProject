@@ -29,6 +29,13 @@ namespace Engine::Graphics::Pipeline
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
+		// コードから組むとき用 : 出力の名前を決める
+		void SetResourceName(const std::string& a_resourceName)
+		{
+			m_resourceName = a_resourceName;
+			ApplyResourceName();
+		}
+
 	private:
 
 		// 出力リソース名 : 段を複数置くときに取り合わないよう変えられるようにする

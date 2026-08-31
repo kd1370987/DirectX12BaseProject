@@ -29,6 +29,14 @@ namespace Engine::Graphics::Pipeline
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
+		// コードから組むとき用 : 段ごとに変える値をまとめて決める
+		void Configure(const std::string& a_resourceName, int a_stepSize)
+		{
+			m_resourceName = a_resourceName;
+			m_cb.stepSize = a_stepSize;
+			ApplyResourceName();
+		}
+
 	private:
 
 		// 出力リソース名 : 段を複数置くときに取り合わないよう変えられるようにする

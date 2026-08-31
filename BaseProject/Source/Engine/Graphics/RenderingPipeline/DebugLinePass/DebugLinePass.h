@@ -15,6 +15,7 @@ namespace Engine::Graphics::Pipeline
 		~DebugLinePass() override = default;
 
 		void SetupSlots() override;
+		void OnLinksResolved() override;
 
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;

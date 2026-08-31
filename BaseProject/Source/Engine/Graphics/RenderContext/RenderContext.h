@@ -122,6 +122,16 @@ namespace Engine::Graphics
 
 		// ヒープのセット(セットしたヒープを m_pCurrentHeap にキャッシュする)
 		void BindHeap();
+
+		// UAVのテクスチャを塗りつぶす。
+		//
+		// ClearUnorderedAccessViewFloat は「シェーダー可視ヒープ上のGPUハンドル」と
+		// 「非シェーダー可視のCPUハンドル」の両方を要求する。
+		// 前者はその場でコピーして作る
+		void ClearUAV(
+			D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle,
+			ID3D12Resource* a_pResource,
+			const float a_color[4]);
 		void BindCopyHeapAndSumplerBindLess();
 
 		void Dispatch(UINT a_x,UINT a_y,UINT a_z);
@@ -182,6 +192,10 @@ namespace Engine::Graphics
 		void SetGraphicPSO(uint8_t a_pPsoIndex);
 		void SetComputePSO(ID3D12PipelineState* a_pPSO);
 		void SetComputePSO(uint8_t a_pPsoIndex);
+
+		// ハンドルで張る版(PSOの通し番号が8bitに収まらなくなっても壊れない)
+		void SetGraphicPSO(const Handle<ID3D12PipelineState>& a_handle);
+		void SetComputePSO(const Handle<ID3D12PipelineState>& a_handle);
 
 		// プリミティブトポロジーセット
 		void SetPrimitive(D3D12_PRIMITIVE_TOPOLOGY a_pri);

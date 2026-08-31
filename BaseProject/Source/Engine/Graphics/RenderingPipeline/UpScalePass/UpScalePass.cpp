@@ -2,6 +2,7 @@
 
 #include "../../RenderContext/RenderContext.h"
 #include "../../GraphicEngine.h"
+#include "../RenderGraph/RenderGraph.h"
 
 namespace Engine::Graphics::Pipeline
 {
@@ -28,18 +29,47 @@ namespace Engine::Graphics::Pipeline
 		if (!a_context.pRenderContext || !a_context.pCmdList) return;
 		if (!a_context.pGraphicsEngine) return;
 
+		// カメラCB(b0) : シェーダー側でワールド座標を復元してエッジ判定に使う
 		a_context.pRenderContext->ComputeBindRootCBV(0, a_context.pGraphicsEngine->GetCameraData());
-		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 1, m_cb);
+
+		// 倍率は繋がれた解像度から求める。
+		// GIがハーフ解像度なら2。ノードの繋ぎ替えで解像度が変わっても付いてくる
+		UpScaleCB _cb = m_cb;
+		_cb.scaleRatio = CalcScaleRatio(a_context);
+
+		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 1, _cb);
 
 		DispatchFullScreen(a_context);
+	}
+
+	// 入力に対する出力の倍率。
+	// 繋がれているリソースの実サイズから求めるので、ハーフでもクォーターでも合う
+	float UpScalePass::CalcScaleRatio(const PassContext& a_context) const
+	{
+		if (!a_context.pGraph) return m_cb.scaleRatio;
+
+		const Slot* _pIn = FindInputSlot(MakeSlotID("GI"));
+		const Slot* _pOut = FindOutputSlot(MakeSlotID("Result"));
+		if (!_pIn || !_pOut) return m_cb.scaleRatio;
+
+		const VirtualResource* _pInRes = a_context.pGraph->GetVirtualResource(_pIn->resourceHandle);
+		const VirtualResource* _pOutRes = a_context.pGraph->GetVirtualResource(_pOut->resourceHandle);
+		if (!_pInRes || !_pOutRes) return m_cb.scaleRatio;
+
+		const float _inWidth = static_cast<float>(_pInRes->GetWidth());
+		const float _outWidth = static_cast<float>(_pOutRes->GetWidth());
+		if (_inWidth <= 0.0f || _outWidth <= 0.0f) return m_cb.scaleRatio;
+
+		return _outWidth / _inWidth;
 	}
 
 	EPassEditResult UpScalePass::EditUpdate()
 	{
 		bool _isEdit = false;
 
-		_isEdit |= ImGui::DragFloat("PhiDepth", &m_cb.phiDepth, 0.01f, 0.0f);
-		_isEdit |= ImGui::DragFloat("PhiNormal", &m_cb.phiNormal, 0.1f, 0.0f);
+		ImGui::TextDisabled("ScaleRatio : %.2f (繋がれた解像度から自動)", m_cb.scaleRatio);
+		_isEdit |= ImGui::DragFloat("DepthSigma", &m_cb.depthSigma, 0.001f, 0.0f);
+		_isEdit |= ImGui::DragFloat("NormalPower", &m_cb.normalPower, 0.1f, 0.0f);
 
 		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 	}
@@ -49,7 +79,7 @@ namespace Engine::Graphics::Pipeline
 
 	void UpScalePass::Archive(Engine::Persistence::Archive& a_arch)
 	{
-		a_arch.Field("phiDepth", m_cb.phiDepth);
-		a_arch.Field("phiNormal", m_cb.phiNormal);
+		a_arch.Field("depthSigma", m_cb.depthSigma);
+		a_arch.Field("normalPower", m_cb.normalPower);
 	}
 }

@@ -9,6 +9,12 @@ namespace Engine::Graphics::Pipeline
 	{
 		DeclareInput("Depth", EAccessType::SRV, EPassSlotType::Texture, true, kRootDepthSRV);
 
+		// 描き足す先。
+		// 中身は出力と同じものなので、シェーダーへは張らない(ルート番号を持たせない)。
+		// 「前段が描いた絵の上に描く」という順序を、この線1本で表している
+		DeclareInput("Color", EAccessType::UAV, EPassSlotType::Texture, false);
+		DeclareInput("Velocity", EAccessType::UAV, EPassSlotType::Texture, false);
+
 		// 色と速度へ書き足す。すでに描かれているぶんは残すので Load
 		Slot& _color = DeclareOutput("Color", "AfterLighting", DXGI_FORMAT_R16G16B16A16_FLOAT,
 			EAccessType::UAV, EPassSlotType::Texture, false, kRootColorUAV);
@@ -17,6 +23,14 @@ namespace Engine::Graphics::Pipeline
 		Slot& _velocity = DeclareOutput("Velocity", "GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT,
 			EAccessType::UAV, EPassSlotType::Texture, false, kRootVelocityUAV);
 		_velocity.loadOp = ELoadOp::Load;
+	}
+
+	// 描き足す先が繋がっていれば、そのリソースへ書く。
+	// 空は「ライティングの結果」と「速度」の2枚へ描き足す
+	void SkyPass::OnLinksResolved()
+	{
+		FollowInputToOutput("Color", "Color");
+		FollowInputToOutput("Velocity", "Velocity");
 	}
 
 	void SkyPass::Compile(const PassContext& a_context)

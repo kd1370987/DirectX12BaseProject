@@ -16,6 +16,9 @@ namespace Engine::Graphics::Pipeline
 	public:
 		~ZPrePass() override = default;
 
+		// シェーディングモデル表はこの名前で引く(表示名とは別)
+		const char* GetShadingPassName() const override { return "ZPre"; }
+
 		void SetupSlots() override;
 
 		void Compile(const PassContext& a_context) override;

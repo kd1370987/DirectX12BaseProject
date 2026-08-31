@@ -552,17 +552,33 @@ namespace Engine::Graphics
 		m_pMainCamera = nullptr;
 	}
 
+	// パイプラインの絵で画面を置き換えられる状態か。
+	//
+	// ここが false のあいだは従来のレンダーグラフが画面を作る。
+	// コンパイルが通っていないパイプラインは何も描いていないので、
+	// 真っ黒で上書きせずに従来経路の絵を残す
+	bool GraphicsEngine::IsPipelinePresentActive() const
+	{
+		if (!m_isPresentFromPipeline) return false;
+		if (!m_pMainCamera) return false;
+		if (!m_pMainCamera->upPipeline || !m_pMainCamera->upPipeline->IsCompiled()) return false;
+
+		return m_pMainCamera->upFinalTex != nullptr;
+	}
+
+	// 画面へ出す絵。パイプライン経路が生きていなければ nullptr
+	const Resource::Texture* GraphicsEngine::GetPresentTexture() const
+	{
+		if (!IsPipelinePresentActive()) return nullptr;
+		return m_pMainCamera->upFinalTex.get();
+	}
+
 	// メインカメラのパイプラインが描いた絵をバックバッファへ写す。
 	// バックバッファと最終出力はどちらも R8G8B8A8_UNORM・同じ大きさなのでそのままコピーできる
 	void GraphicsEngine::PresentFromPipeline(D3D12::GraphicsCommandList* a_pCmdList)
 	{
-		if (!m_isPresentFromPipeline) return;
 		if (!a_pCmdList) return;
-		if (!m_pMainCamera) return;
-
-		// コンパイルが通っていないパイプラインは何も描いていない。
-		// 真っ黒で上書きすると原因が分からなくなるので、従来経路の絵を残す
-		if (!m_pMainCamera->upPipeline || !m_pMainCamera->upPipeline->IsCompiled()) return;
+		if (!IsPipelinePresentActive()) return;
 
 		Resource::Texture* _pFinalTex = m_pMainCamera->upFinalTex.get();
 		if (!_pFinalTex) return;
@@ -781,11 +797,22 @@ namespace Engine::Graphics
 		// バックバッファへ出すのは下の従来経路のまま
 		ExecuteCameraPipelines();
 
-		// レンダーパス実行
-		m_upRenderGraph->Execute(this, m_upRenderContextVec[m_currentFrameIndex].get());
+		//------------------------------------------------------------------
+		// 従来のレンダーグラフ(移植中の並走経路)
+		//
+		// パイプラインの絵を画面へ出しているあいだは回さない。
+		// 回すと、パイプラインに通していないパス(UIなど)まで描かれてしまい、
+		// 「繋いでいないのに映る」状態になる。同じ絵を2回描くことにもなる。
+		//
+		// エフェクトエディターだけは従来経路の FinalColor を見ているので、
+		// 開いているあいだは例外として回し続ける
+		//------------------------------------------------------------------
+		if (!IsPipelinePresentActive() || m_isLegacyRenderGraphRequired)
+		{
+			m_upRenderGraph->Execute(this, m_upRenderContextVec[m_currentFrameIndex].get());
+		}
 
-		// 新パイプラインの絵で画面を置き換える(移植中の見比べ用)。
-		// 従来経路が描き終わった後に上書きするので、切り替えは1フラグで済む
+		// パイプラインの絵で画面を置き換える
 		PresentFromPipeline(_pCmdList);
 
 		D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
@@ -1308,6 +1335,12 @@ namespace Engine::Graphics
 		return std::span<const LightWeightDrawItem>(_itStart, _itEnd);
 	}
 
+	void GraphicsEngine::BindPSO(Graphics::RenderContext* a_pCtx, const Handle<ID3D12PipelineState>& a_handle)
+	{
+		if (!a_pCtx) return;
+		a_pCtx->SetGraphicPSO(a_handle);
+	}
+
 	void GraphicsEngine::BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex)
 	{
 		auto* _pPSO = m_pPipelineStateManager->GetPSO(a_psoIndex);
@@ -1580,6 +1613,17 @@ namespace Engine::Graphics
 			_pipelineKey.psHandle = _pPipelinePass->GetDefaultPSHandle();
 
 			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, nullptr, m_pPipelineStateManager);
+
+			// ソートキーのPSO番号は8bitしかない。
+			// 収まらない番号を入れると、描くときにまったく別のPSOを引いてしまうので積まない。
+			// (無効ハンドルは 0xFFFF なのでここで弾かれる)
+			if (_psoHandle.GetIndex() > 0xFF)
+			{
+				ENGINE_WARNING(
+					"[GraphicsEngine] PSO番号がソートキーに収まりません(%u) : %s",
+					_psoHandle.GetIndex(), _pPipelinePass->GetName().c_str());
+				continue;
+			}
 
 			Engine::Graphics::LightWeightDrawItem _item = {};
 			_item.meshHandle = a_cmd.meshHandle;

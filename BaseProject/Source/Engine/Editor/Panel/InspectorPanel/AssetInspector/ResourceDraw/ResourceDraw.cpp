@@ -255,8 +255,11 @@ namespace Engine::Editor::Inspector
 			_pPipeline->Save(a_editContext.pAssetProp->filePath);
 		}
 
-		// 画面をこのパイプラインの絵に差し替えるかどうか(移植中の見比べ用)。
-		// 実際に映るのは、このアセットを設定したメインカメラのぶん
+		// 画面をどちらの経路の絵にするか(移植中の見比べ用)。
+		//
+		// 既定はパイプライン側。立っているあいだは従来のレンダーグラフを回さないので、
+		// このパイプラインに通していないパスの絵は混ざらない。
+		// 下ろすと従来経路へ戻る。実際に映るのは、このアセットを設定したメインカメラのぶん
 		if (_pGE)
 		{
 			bool _isPresent = _pGE->IsPresentFromPipeline();
@@ -265,6 +268,10 @@ namespace Engine::Editor::Inspector
 			{
 				_pGE->SetPresentFromPipeline(_isPresent);
 			}
+
+			ImGui::SameLine();
+			if (_pGE->IsPipelinePresentActive())	ImGui::TextDisabled("| 画面 : パイプライン");
+			else								ImGui::TextDisabled("| 画面 : 旧レンダーグラフ");
 		}
 		ImGui::Separator();
 

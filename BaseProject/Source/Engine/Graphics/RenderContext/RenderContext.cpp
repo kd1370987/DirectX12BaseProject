@@ -466,6 +466,25 @@ namespace Engine::Graphics
 		m_pCmdList->SetGraphicsRootShaderResourceView(a_rootIndex, _address);
 	}
 
+	// UAVのテクスチャを塗りつぶす
+	void RenderContext::ClearUAV(
+		D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle,
+		ID3D12Resource* a_pResource,
+		const float a_color[4])
+	{
+		if (!m_pCmdList || !a_pResource) return;
+		if (a_cpuHandle.ptr == 0) return;
+
+		// GPUハンドルはシェーダー可視ヒープの上にしか作れない
+		BindHeap();
+
+		const D3D12_GPU_DESCRIPTOR_HANDLE _gpu =
+			CopyToCurrentHeap(std::span<const D3D12_CPU_DESCRIPTOR_HANDLE>(&a_cpuHandle, 1));
+		if (_gpu.ptr == 0) return;
+
+		m_pCmdList->ClearUnorderedAccessViewFloat(_gpu, a_cpuHandle, a_pResource, a_color, 0, nullptr);
+	}
+
 	void RenderContext::DrawUI(UINT a_rootIndex)
 	{
 		const auto& _uiDataVec = m_pGraphicsEngine->GetUIDataBuffer();
@@ -594,6 +613,26 @@ namespace Engine::Graphics
 	void RenderContext::SetComputePSO(ID3D12PipelineState* a_pPSO)
 	{
 		m_pCmdList->SetPipelineState(a_pPSO);
+	}
+
+	// ハンドルで張る版。
+	// 8bitの添字と違って世代まで見るので、無効なものは黙って弾ける
+	void RenderContext::SetGraphicPSO(const Handle<ID3D12PipelineState>& a_handle)
+	{
+		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
+		if (!_pPsoManager) return;
+		auto* _pPSO = _pPsoManager->GetPSO(a_handle);
+		if (!_pPSO) return;
+		SetGraphicPSO(_pPSO);
+	}
+
+	void RenderContext::SetComputePSO(const Handle<ID3D12PipelineState>& a_handle)
+	{
+		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
+		if (!_pPsoManager) return;
+		auto* _pPSO = _pPsoManager->GetPSO(a_handle);
+		if (!_pPSO) return;
+		SetComputePSO(_pPSO);
 	}
 
 	void RenderContext::SetComputePSO(uint8_t a_pPsoIndex)

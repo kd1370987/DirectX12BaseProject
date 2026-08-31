@@ -9,7 +9,9 @@ namespace Engine::Graphics::Pipeline
 		// ルートパラメータ : 0=SRVテーブル / 1=UAV
 		// テーブルの並びはシェーダー側の t0..t4 と同じ順にすること
 		DeclareInput("Color", EAccessType::SRV, EPassSlotType::Texture, true, 0);
-		DeclareInput(kHistoryInName, EAccessType::SRV, EPassSlotType::Texture, true, 0);
+		// 履歴は前フレームの結果を読むピン。
+		// 実行順の辺にならないので、自分の出力へそのまま繋いで回せる
+		DeclareInput(kHistoryInName, EAccessType::SRV, EPassSlotType::Texture, true, 0, true);
 		DeclareInput("Velocity", EAccessType::SRV, EPassSlotType::Texture, true, 0);
 		DeclareInput("Depth", EAccessType::SRV, EPassSlotType::Texture, true, 0);
 		DeclareInput("Normal", EAccessType::SRV, EPassSlotType::Texture, true, 0);

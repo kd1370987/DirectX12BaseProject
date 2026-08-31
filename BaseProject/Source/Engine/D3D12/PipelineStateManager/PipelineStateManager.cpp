@@ -387,6 +387,12 @@ namespace Engine::D3D12
 
 	ID3D12PipelineState* PipelineStateManager::GetPSO(uint8_t a_rawIdx8bit)
 	{
+		// 8bitの生添字は、描画アイテムのソートキーから来る。
+		// 無効ハンドル(添字0xFFFF)を8bitへ落とすと 255 になるため、
+		// まだ255個も作っていない時期に配列の外を踏む。
+		// 呼び出し側は nullptr を「張らない」として扱うので、ここで止める
+		if (a_rawIdx8bit >= m_pPsoVec.size()) return nullptr;
+
 		return m_pPsoVec[a_rawIdx8bit];
 	}
 

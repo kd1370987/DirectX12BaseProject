@@ -1,4 +1,5 @@
 ﻿#include "RenderingPipeline.h"
+#include "StandardPipeline/StandardPipeline.h"
 
 #include "RenderGraph/RenderGraph.h"
 
@@ -80,7 +81,6 @@ namespace Engine::Graphics::Pipeline
 		_pPin->width = a_slotData.width;
 		_pPin->height = a_slotData.height;
 		_pPin->scale = a_slotData.scale;
-		_pPin->isTemporal = a_slotData.isTemporal;
 		_pPin->resourceHandle = a_slotData.resourceHandle;
 	}
 
@@ -100,7 +100,6 @@ namespace Engine::Graphics::Pipeline
 		_pPin->width = 0;
 		_pPin->height = 0;
 		_pPin->scale = 1.f;
-		_pPin->isTemporal = false;
 		_pPin->resourceHandle = {};
 	}
 
@@ -303,7 +302,8 @@ namespace Engine::Graphics::Pipeline
 		const D3D12_INPUT_LAYOUT_DESC& a_inputLayout,
 		const std::string& a_psoName,
 		const std::function<void(D3D12::GraphicsPipelineDesc&)>& a_configure,
-		EPassHeapMode a_heapMode)
+		EPassHeapMode a_heapMode,
+		Handle<ID3D12PipelineState>* a_pOutPSOHandle)
 	{
 		if (!a_context.pGraphicsEngine || !a_context.pGraph) return false;
 
@@ -357,7 +357,11 @@ namespace Engine::Graphics::Pipeline
 		if (a_configure) a_configure(_desc);
 
 		const auto _psoHandle = _pPSOManager->RequestHandle(_desc);
-		m_psoIndex = static_cast<uint8_t>(_psoHandle.GetIndex());
+
+		// 受け取り先を渡されたらそちらへ。
+		// m_psoHandle は無効のままにしておくと、グラフはPSOを張らずパスに任せる
+		if (a_pOutPSOHandle)	*a_pOutPSOHandle = _psoHandle;
+		else					m_psoHandle = _psoHandle;
 
 		m_pipelineType = EPassPipelineType::Graphics;
 		m_heapMode = a_heapMode;
@@ -401,15 +405,45 @@ namespace Engine::Graphics::Pipeline
 		_desc.desc.CS.BytecodeLength = _pShader->Get()->GetBufferSize();
 		_desc.SetRootSignature(_pPSOManager->GetRootSignature(m_rootSigHandle));
 
-		const auto _psoHandle = _pPSOManager->RequestHandle(_desc);
-		m_psoIndex = static_cast<uint8_t>(_psoHandle.GetIndex());
+		m_psoHandle = _pPSOManager->RequestHandle(_desc);
 
 		m_pipelineType = EPassPipelineType::Compute;
 		m_heapMode = a_heapMode;
 		return true;
 	}
 
-	Slot& Pass::DeclareInput(const std::string& a_pinName, EAccessType a_accessType, EPassSlotType a_type, bool a_isRequired, int a_rootParamIndex)
+	// 入力に来たリソースをそのまま出力先にする。
+	// 上書きではなく描き足すパス(スカイ・パーティクル・UIなど)がこれを通す
+	void Pass::FollowInputToOutput(const std::string& a_inPinName, const std::string& a_outPinName)
+	{
+		Slot* _pOut = FindOutputSlot(MakeSlotID(a_outPinName));
+		if (!_pOut) return;
+
+		const Slot* _pIn = FindInputSlot(MakeSlotID(a_inPinName));
+		if (!_pIn || !_pIn->IsConnected())
+		{
+			// 描き足す先が繋がっていない = このパスが最初に描く。
+			//
+			// Load のままにすると前フレームの中身がそのまま残り、
+			// 「UIパスと出口だけのパイプライン」でもUIの後ろに前フレームの絵が出てしまう。
+			// 描き足す相手が居ないのだから、まず消してから描く
+			_pOut->loadOp = ELoadOp::Clear;
+			return;
+		}
+
+		// 実体に関わるところだけをもらう。
+		// アクセスの種類(RTV/UAV)は自分の描き方なので触らない
+		_pOut->name = _pIn->name;
+		_pOut->format = _pIn->format;
+		_pOut->width = _pIn->width;
+		_pOut->height = _pIn->height;
+		_pOut->scale = _pIn->scale;
+
+		// 前段の絵を消さない
+		_pOut->loadOp = ELoadOp::Load;
+	}
+
+	Slot& Pass::DeclareInput(const std::string& a_pinName, EAccessType a_accessType, EPassSlotType a_type, bool a_isRequired, int a_rootParamIndex, bool a_isTemporal)
 	{
 		Slot _slot = {};
 		_slot.isIn = true;
@@ -419,6 +453,10 @@ namespace Engine::Graphics::Pipeline
 		_slot.rootParamIndex = a_rootParamIndex;
 		_slot.type = a_type;
 		_slot.accessType = a_accessType;
+
+		// 前フレームを読むピンかどうかはピン自身の役割。
+		// つないだ相手からもらうものではないので、線を張り直しても変わらない
+		_slot.isTemporal = a_isTemporal;
 
 		// name(リソース名)はつながって初めて埋まる
 		m_inputSlots.push_back(std::move(_slot));
@@ -571,7 +609,9 @@ namespace Engine::Graphics::Pipeline
 		auto _fileDir = Engine::File::GetDirFromPath(a_baseFilePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_baseFilePath);
 
-		Persistence::Archive _arch(Persistence::Archive::Mode::Save, _fileDir, _fileName, kExtension);
+		// 読み込みと同じくJSON固定(理由は RenderingPipelineAssetIO::LoadFromFile を参照)
+		Persistence::Archive _arch(Persistence::Archive::Mode::Save, _fileDir, _fileName, kExtension,
+			Persistence::Archive::ArchiveFormat::Json);
 		Archive(_arch);
 	}
 
@@ -604,6 +644,25 @@ namespace Engine::Graphics::Pipeline
 
 		ImGui::SameLine();
 		ImGui::TextDisabled("| Pass : %d", static_cast<int>(m_upRenderGraph->GetPasses().size()));
+
+		// 既存の描画と同じ流れを一式組む。
+		// 今入っているものは全部捨てるので、押し間違いが痛い分だけ確認を挟む
+		ImGui::SameLine();
+		if (ImGui::Button("Standard")) ImGui::OpenPopup("StandardPipelinePopup");
+
+		if (ImGui::BeginPopup("StandardPipelinePopup"))
+		{
+			ImGui::TextDisabled("今のパスと配線をすべて捨てて組み直します");
+			if (Engine::Editor::EditorHelper::CreateButton("Build") && m_pMetaRegistry)
+			{
+				BuildStandardPipeline(*this, *m_pMetaRegistry);
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel")) ImGui::CloseCurrentPopup();
+
+			ImGui::EndPopup();
+		}
 
 		ImGui::Separator();
 

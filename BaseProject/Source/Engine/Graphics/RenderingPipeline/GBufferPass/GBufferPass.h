@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../RenderingPipeline.h"
 
@@ -21,7 +21,11 @@ namespace Engine::Graphics::Pipeline
 	public:
 		~GBufferPass() override = default;
 
+		// シェーディングモデル表はこの名前で引く(表示名とは別)
+		const char* GetShadingPassName() const override { return "GBuffer"; }
+
 		void SetupSlots() override;
+		void OnLinksResolved() override;
 
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;

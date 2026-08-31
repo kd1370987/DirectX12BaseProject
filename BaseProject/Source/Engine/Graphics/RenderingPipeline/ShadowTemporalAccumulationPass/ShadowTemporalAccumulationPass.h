@@ -27,5 +27,17 @@ namespace Engine::Graphics::Pipeline
 		void EditNode() override;
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
+
+	private:
+
+		// シェーダーへ送る調整値
+		// ※ HLSL 側と並びを合わせること(GIのテンポラルと同じ形)
+		struct ShadowTACB
+		{
+			float phiDepth;		// 深度の感度(履歴を捨てる判定)
+			float phiNormal;	// 法線の感度
+			float blendRate;	// 今フレームを混ぜる割合
+		};
+		ShadowTACB m_cb = { 1.0f, 32.0f, 0.1f };
 	};
 }

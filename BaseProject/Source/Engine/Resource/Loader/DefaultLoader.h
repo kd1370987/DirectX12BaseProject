@@ -18,6 +18,8 @@
 
 // レンダリングパイプライン : Engine::Resource ではなく Engine::Graphics::Pipeline に居る
 #include "../../Graphics/RenderingPipeline/IO/RenderingPipelineAssetIO.h"
+
+#include "../Common/ScopedResourceBuild.h"
 namespace Engine::Resource
 {
 	// ロード処理の中間用クラス
@@ -48,8 +50,14 @@ namespace Engine::Resource
 	{
 		static Graphics::Pipeline::RenderingPipelineAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
+			// コンテキストを持たない経路から来ることがある(エディタの単体ロードなど。
+			// ResourceManager::LoadImmediate は既定が nullptr)。
+			// レジストリが無いとパスを1つも作り直せず、中身が空のまま読み終わってしまうので、
+			// 渡されていなければここで開いて受け取る
+			ResourceBuildScope _scope(a_pContext);
+
 			return Graphics::Pipeline::RenderingPipelineAssetIO::LoadFromFile(
-				a_path, a_pContext ? a_pContext->pPassMetaRegistry : nullptr);
+				a_path, _scope.GetContext().pPassMetaRegistry);
 		}
 	};
 

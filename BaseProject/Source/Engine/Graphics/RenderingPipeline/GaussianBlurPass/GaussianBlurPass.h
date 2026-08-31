@@ -29,6 +29,16 @@ namespace Engine::Graphics::Pipeline
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
+		// コードから組むとき用 : 段ごとに変える値をまとめて決める
+		void Configure(const std::string& a_resourceName, float a_outputScale, float a_sigma, int a_tapRadius)
+		{
+			m_resourceName = a_resourceName;
+			m_outputScale = a_outputScale;
+			m_sigma = a_sigma;
+			m_tapRadius = a_tapRadius;
+			ApplyOutputScale();
+		}
+
 	private:
 
 		// 出力の解像度スケールをスロットへ反映する。

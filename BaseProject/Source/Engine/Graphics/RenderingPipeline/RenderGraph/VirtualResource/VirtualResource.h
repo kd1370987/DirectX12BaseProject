@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 //==========================================================================================
 //
 // VirtualResource (Engine::Graphics::Pipeline)
@@ -80,12 +80,16 @@ namespace Engine::Graphics::Pipeline
 		// 使う物理リソースの枚数
 		uint32_t GetPhysicalCount() const { return m_isTemporal ? 2u : 1u; }
 
-		// スロットの向きから、どちらのスライスを触るかを決める。
-		// 出力(書き込み)は Current、入力(読み取り)は Previous
-		static uint32_t ToSlice(bool a_isIn, bool a_isTemporal)
+		// スロットから、どちらのスライスを触るかを決める。
+		//
+		// 書き込みは必ず Current(今フレームぶん)。
+		// 読み取りは、そのピンが「前フレームを読む」と宣言しているときだけ Previous になる。
+		// 履歴を読むのはピンの役割であってリソースの都合ではないので、
+		// 同じ2枚組リソースでも、ただの後段が読めば今フレームの結果が返る
+		static uint32_t ToSlice(const Slot& a_slot, bool a_isResourceTemporal)
 		{
-			if (!a_isTemporal) return 0;
-			return a_isIn ? 1u : 0u;
+			if (!a_isResourceTemporal) return 0;
+			return (a_slot.isIn && a_slot.isTemporal) ? 1u : 0u;
 		}
 
 		// フレームの入口でのステート。

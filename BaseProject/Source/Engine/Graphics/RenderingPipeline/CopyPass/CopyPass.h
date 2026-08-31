@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../RenderingPipeline.h"
 
@@ -32,6 +32,16 @@ namespace Engine::Graphics::Pipeline
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
+		// コードから組むとき用 : 出力の名前とフォーマットを決める。
+		// エディターで打ち替えるのと同じことをする
+		void Configure(const std::string& a_resourceName, int a_formatIndex, bool a_isTemporal = false)
+		{
+			m_resourceName = a_resourceName;
+			m_formatIndex = a_formatIndex;
+			m_isTemporal = a_isTemporal;
+			ApplyOutput();
+		}
+
 	private:
 
 		// スロットへ出力の設定を反映する
@@ -39,6 +49,11 @@ namespace Engine::Graphics::Pipeline
 
 		// 写し先のリソース名 : ノードごとに変える
 		std::string m_resourceName = "CopyResult";
+
+		// 履歴として使うなら立てる。
+		// 2枚持ちになり、「前フレームを読む」と宣言したピンからは1つ前の中身が読める。
+		// GBufferの前フレーム(PrevDepth / PrevNormal)を作るのがこれ
+		bool m_isTemporal = false;
 
 		// 写し先のフォーマット。入力と揃っていないとコピーできない
 		int m_formatIndex = 0;

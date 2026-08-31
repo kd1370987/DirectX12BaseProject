@@ -207,12 +207,34 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// 画面へ出す絵をどちらの経路から取るか
 		//
-		// 既定は従来のレンダーグラフ。立てると、メインカメラの
-		// パイプラインが描いた絵をバックバッファへ写して置き換える。
-		// 移植中の見比べ用で、全パスの移植が済んだら要らなくなる
+		// 既定は新パイプライン。パイプラインを設定したカメラが居れば、そのカメラが描いた絵を
+		// 画面へ出し、従来のレンダーグラフは回さない。
+		// 下ろすと従来経路へ戻る(移植中の見比べ用で、移植が済んだら要らなくなる)
 		//--------------------------------------------------------------------------------------------
 		void SetPresentFromPipeline(bool a_isUse) { m_isPresentFromPipeline = a_isUse; }
 		bool IsPresentFromPipeline() const { return m_isPresentFromPipeline; }
+
+		//--------------------------------------------------------------------------------------------
+		// パイプラインの絵で画面を置き換えられる状態か
+		//
+		// メインカメラにパイプラインが設定されていて、組み上がっているときだけ true。
+		// これが立っているあいだは従来のレンダーグラフを回さないので、
+		// パイプラインに通していないパス(UIなど)の絵が混ざらない
+		//--------------------------------------------------------------------------------------------
+		bool IsPipelinePresentActive() const;
+
+		// 画面へ出す絵。
+		// パイプライン経路が生きていればそのカメラの最終出力、そうでなければ nullptr
+		// (呼び出し側は従来経路の FinalColor へ落ちる)
+		const Resource::Texture* GetPresentTexture() const;
+
+		//--------------------------------------------------------------------------------------------
+		// 従来のレンダーグラフを回し続ける必要があるか
+		//
+		// エフェクトエディターは従来経路の FinalColor を見ているので、
+		// 開いているあいだは止められない。毎フレーム持ち主(MainEngine)が立て直す
+		//--------------------------------------------------------------------------------------------
+		void SetLegacyRenderGraphRequired(bool a_isRequired) { m_isLegacyRenderGraphRequired = a_isRequired; }
 
 		// 新経路でパスが出力先として使うリソース名。
 		// この名前で出力スロットを宣言したパスが、カメラの最終出力へ描くことになる
@@ -469,6 +491,7 @@ namespace Engine::Graphics
 
 		// パスの描画実行
 		void BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex);
+		void BindPSO(Graphics::RenderContext* a_pCtx, const Handle<ID3D12PipelineState>& a_handle);
 		// 配列取得
 		const std::vector<SkinningDispatchItem>& GetSkinningImtes() const { return m_skinningDispathItemVec; }
 
@@ -743,7 +766,10 @@ namespace Engine::Graphics
 		CameraPipelineData* m_pMainCamera = nullptr;
 
 		// 画面へ出す絵を新パイプラインから取るか(移植中の見比べ用)
-		bool m_isPresentFromPipeline = false;
+		bool m_isPresentFromPipeline = true;
+
+		// 従来のレンダーグラフを回さないといけないか(エフェクトエディターが見ている間)
+		bool m_isLegacyRenderGraphRequired = false;
 
 		// 新パイプラインのパスへ配るパス番号。
 		// 255 から下って使う(従来経路は 0 から上っていく)

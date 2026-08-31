@@ -1564,6 +1564,21 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline">
       <UniqueIdentifier>{d4933552-c71b-4be1-9083-2a1c348a797a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RaytracingShadowPass">
+      <UniqueIdentifier>{0ece27d4-0909-4402-b4e8-9da1907e8b5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RaytracingGIPass">
+      <UniqueIdentifier>{c0ff8fc1-e656-4c3b-9c3b-5e928f0cd27e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\DeferredLightingPass">
+      <UniqueIdentifier>{320b1b31-e289-4927-8f5f-eeeff4f1808a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\StandardPipeline">
+      <UniqueIdentifier>{374ca61c-aaaa-474a-8efd-dd41e1e3f52a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\ParticlePass">
+      <UniqueIdentifier>{fb20d9b9-29c9-4c4e-be18-f285d238d4f0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\CopyPass">
       <UniqueIdentifier>{cc8186bd-1171-48f8-9067-7df205bb885a}</UniqueIdentifier>
     </Filter>
@@ -2738,6 +2753,21 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RaytracingShadowPass\RaytracingShadowPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RaytracingShadowPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RaytracingGIPass\RaytracingGIPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RaytracingGIPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\DeferredLightingPass\DeferredLightingPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\DeferredLightingPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\StandardPipeline\StandardPipeline.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\StandardPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\ParticlePass\ParticlePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\ParticlePass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\CopyPass\CopyPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\CopyPass</Filter>
@@ -4456,6 +4486,21 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RaytracingShadowPass\RaytracingShadowPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RaytracingShadowPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RaytracingGIPass\RaytracingGIPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RaytracingGIPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\DeferredLightingPass\DeferredLightingPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\DeferredLightingPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\StandardPipeline\StandardPipeline.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\StandardPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\ParticlePass\ParticlePass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\ParticlePass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\CopyPass\CopyPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\CopyPass</Filter>

@@ -776,7 +776,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 出力は Current、入力は Previous。
 		// それをフレームの偶奇でひっくり返したものが実際の物理になる
-		const uint32_t _slice = VirtualResource::ToSlice(a_slot.isIn, _pVirtual->IsTemporal());
+		const uint32_t _slice = VirtualResource::ToSlice(a_slot, _pVirtual->IsTemporal());
 		const uint32_t _index = _pVirtual->IsTemporal() ? ((GetFrameParity() + _slice) & 1u) : 0u;
 
 		return RefGPUResource(a_slot.resourceHandle, _index);
@@ -841,8 +841,19 @@ namespace Engine::Graphics::Pipeline
 		// リソースタイプ : テクスチャにバッファは繋げない
 		if (a_srcSlot.type != a_dstSlot.type) return _fail("リソースタイプが違います(Texture/Buffer)");
 
-		// アクセスタイプ : 作る側が書き込み、受ける側が読み取りになっていること
+		// アクセスタイプ : 作る側が書き込みになっていること
 		if (!IsWriteAccess(a_srcSlot.accessType)) return _fail("接続元が書き込みアクセスではありません");
+
+		// 「すでに描かれている絵へ描き足す」つなぎ。
+		// 受け側も書き込みアクセスなら、消して描き直すのではなく重ねる意味になる。
+		// スカイ・パーティクル・UI のように、前段の結果へ上描きするパスがこれで前段の後ろに並ぶ。
+		//
+		// 書き方(RTV/UAV/深度)が揃っている必要は無い。
+		// コンピュートが描いた絵へラスタで描き足す組み合わせは普通にある
+		// (スカイ(UAV) -> パーティクル(RTV) / 魚眼(UAV) -> デバッグ線(RTV))。
+		// ステートはグラフが受け側のアクセスへ遷移させるので、ここで揃える必要は無い
+		if (IsWriteAccess(a_dstSlot.accessType)) return true;
+
 		if (!IsReadAccess(a_dstSlot.accessType))  return _fail("接続先が読み取りアクセスではありません");
 
 		return true;
@@ -1085,6 +1096,14 @@ namespace Engine::Graphics::Pipeline
 		// 仮想リソースは入力スロットの名前まで埋まっていないと組めない
 		ApplyLinks();
 
+		// 前段が居るかどうかでスロットの扱いが変わるパスに、整える機会を渡す。
+		// 仮想リソースを組む前でないと、クリアの有無などが結果に乗らない
+		for (auto& _upPass : m_passes)
+		{
+			if (!_upPass) continue;
+			_upPass->OnLinksResolved();
+		}
+
 		// 配線から仮想リソースを組み直す。
 		// 実体を作るのは AllocateResources() の仕事なので、ここではGPUに触らない
 		BuildVirtualResources();
@@ -1102,27 +1121,43 @@ namespace Engine::Graphics::Pipeline
 		}
 		if (_nodes.empty()) return true;
 
-		// ---- 依存の判定 ----
-		// lhs のインプットに来ているリソースを rhs がアウトプットしているなら、
-		// rhs が先に走らないと lhs の入力がそろわない = lhs は rhs に依存している
-		auto _isDepends = [](const Pass* a_pLhs, const Pass* a_pRhs)
+		//----------------------------------------------------------------------------------
+		// 依存の洗い出し
+		//
+		// 「つないだ相手」だけを辺にする。リソース名で突き合わせると、
+		// 同じリソースへ描き足すパスが並んだときに全員が互いの書き手になって循環する
+		// (ライティング → 空 → パーティクルはどれも AfterLighting を読んで書く)。
+		// 線は「この出力の後に走れ」という指示そのものなので、これだけを見ればよい
+		//----------------------------------------------------------------------------------
+		std::unordered_map<Engine::GUID, std::unordered_set<Engine::GUID>> _dependMap = {};
+		for (const auto& [_srcGUID, _connectionVec] : m_connectionMap)
+		{
+			for (const Connection& _connection : _connectionVec)
+			{
+				// 自分自身へのつなぎは順序を持たない
+				if (_connection.dstPassGUID == _srcGUID) continue;
+
+				Pass* _pDst = FindPass(_connection.dstPassGUID);
+				if (!_pDst) continue;
+
+				// Temporal は前フレームの結果を読むので、同フレームの書き手を待たない。
+				// 辺にしてしまうと「History を読んで History を書く」構成が循環になる
+				const Slot* _pDstSlot = _pDst->FindInputSlot(_connection.dstSlotID);
+				if (_pDstSlot && _pDstSlot->isTemporal) continue;
+
+				_dependMap[_connection.dstPassGUID].insert(_srcGUID);
+			}
+		}
+
+		// lhs の入力が rhs から来ているなら、rhs が先に走らないと入力がそろわない
+		auto _isDepends = [&_dependMap](const Pass* a_pLhs, const Pass* a_pRhs)
 			{
 				if (!a_pLhs || !a_pRhs) return false;
 
-				for (const Slot& _in : a_pLhs->GetInputSlots())
-				{
-					// つながっていないピンは飛ばす
-					if (!_in.IsConnected()) continue;
+				auto _it = _dependMap.find(a_pLhs->GetGUID());
+				if (_it == _dependMap.end()) return false;
 
-					// Temporal は前フレームの結果を読むので、
-					// 同フレームの書き手を待つ必要がない = 辺にしない。
-					// 辺にしてしまうと「History を読んで History を書く」構成が循環になる
-					if (_in.isTemporal) continue;
-
-					// 外部から持ち込まれたリソースはどのパスも出力していないので辺にならない
-					if (a_pRhs->HasOutputSlot(_in.name)) return true;
-				}
-				return false;
+				return _it->second.find(a_pRhs->GetGUID()) != _it->second.end();
 			};
 
 		// ---- 依存の向きどおりに一本へ並べる ----
@@ -1195,13 +1230,18 @@ namespace Engine::Graphics::Pipeline
 			}
 
 			// ---- レンダーターゲット切り替え ----
-			// 出力を1つも持たないパス(コンピュートなど)では張り替えない
+			// 出力を1つも持たないパス(コンピュートなど)では張り替えない。
+			//
+			// 空のディスクリプタ(ptr == 0)を渡すと OMSetRenderTargets の中で落ちるので、
+			// 焼き込みが入っているかどうかまで見てから渡す
 			const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& _rtvHandles = _compiledPass.rtvHandles[_parity];
-			if (!_rtvHandles.empty() || _compiledPass.hasDSV)
+			const bool _hasDSV = _compiledPass.hasDSV && (_compiledPass.dsvHandle[_parity].ptr != 0);
+
+			if (!_rtvHandles.empty() || _hasDSV)
 			{
 				a_pRenderContext->SetRenderTargets(
 					_rtvHandles,
-					_compiledPass.hasDSV ? &_compiledPass.dsvHandle[_parity] : nullptr);
+					_hasDSV ? &_compiledPass.dsvHandle[_parity] : nullptr);
 			}
 
 			// ---- クリア ----
@@ -1210,7 +1250,7 @@ namespace Engine::Graphics::Pipeline
 				if (_index >= _rtvHandles.size()) continue;
 				a_pRenderContext->ClearRenderTarget(_rtvHandles[_index]);
 			}
-			if (_compiledPass.isDepthClear)
+			if (_compiledPass.isDepthClear && _hasDSV)
 			{
 				a_pRenderContext->ClearDSV(_compiledPass.dsvHandle[_parity]);
 			}
@@ -1274,6 +1314,19 @@ namespace Engine::Graphics::Pipeline
 					_pResource->Barrier(_pCmdList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 					a_pRenderContext->ClearDSV(_heapManager.GetCPU(_pResource->GetDSV()));
 				}
+				else if (_virtual.HasUsage(Resource::TextureUsage::UAV))
+				{
+					// 履歴(TAA・デノイズ)はどれもUAVのテクスチャ。
+					// ここを消さないと、割り当て直後の1枚目が前に使われていた絵のまま残り、
+					// 履歴を混ぜ続けるパスがいつまでもその残骸を引きずる
+					_pResource->Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+					const float _clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+					a_pRenderContext->ClearUAV(
+						_heapManager.GetCPU(_pResource->GetUAV()),
+						_pResource->GetResource(),
+						_clearColor);
+				}
 
 				// クリアのために動かしたぶんを入口のステートへ戻す
 				_pResource->Barrier(_pCmdList, _virtual.GetInitialState(_slice));
@@ -1306,10 +1359,10 @@ namespace Engine::Graphics::Pipeline
 		}
 
 		// パイプラインステート
-		if (_pPass->GetPSOIndex() != Pass::kInvalidPSOIndex)
+		if (_pPass->GetPSOHandle().IsValid())
 		{
-			if (_isCompute)	a_pRenderContext->SetComputePSO(_pPass->GetPSOIndex());
-			else			a_pRenderContext->SetGraphicPSO(_pPass->GetPSOIndex());
+			if (_isCompute)	a_pRenderContext->SetComputePSO(_pPass->GetPSOHandle());
+			else			a_pRenderContext->SetGraphicPSO(_pPass->GetPSOHandle());
 		}
 
 		// ルートシグネチャが無いとディスクリプタテーブルは張れない
@@ -1353,7 +1406,7 @@ namespace Engine::Graphics::Pipeline
 				const VirtualResource* _pVirtual = GetVirtualResource(a_slot.resourceHandle);
 				if (!_pVirtual) return nullptr;
 
-				const uint32_t _slice = VirtualResource::ToSlice(a_slot.isIn, _pVirtual->IsTemporal());
+				const uint32_t _slice = VirtualResource::ToSlice(a_slot, _pVirtual->IsTemporal());
 				const uint32_t _index = _pVirtual->IsTemporal() ? ((a_parity + _slice) & 1u) : 0u;
 
 				return RefGPUResource(a_slot.resourceHandle, _index);
@@ -1378,6 +1431,10 @@ namespace Engine::Graphics::Pipeline
 
 			for (uint32_t _parity = 0; _parity < 2; ++_parity)
 			{
+				// この偶奇で書き込みDSVを決めたか。
+				// 偶奇をまたいで持ち越すと、片方の焼き込みが丸ごと抜ける
+				bool _isDepthWriteBound = false;
+
 				// ---- 出力側 : RTV / DSV ----
 				for (const Slot& _out : _pPass->GetOutputSlots())
 				{
@@ -1407,14 +1464,21 @@ namespace Engine::Graphics::Pipeline
 					{
 						_compiledPass.dsvHandle[_parity] = _heapManager.GetCPU(_pResource->GetDSV());
 						_compiledPass.hasDSV = true;
+						_isDepthWriteBound = true;
 
 						if (_out.loadOp == ELoadOp::Clear) _compiledPass.isDepthClear = true;
 					}
 				}
 
 				// ---- 入力側 : 深度を読むだけのパスは読み取り専用DSVを張る ----
-				// 出力側で書き込みDSVを決めていたらそちらを優先する
-				if (_compiledPass.hasDSV) continue;
+				//
+				// 出力側で書き込みDSVを決めていたらそちらを優先する。
+				// ここで見るのは「この偶奇で決めたか」であって hasDSV ではない。
+				// hasDSV は偶奇をまたいで立ちっぱなしになるので、それで打ち切ると
+				// 偶数フレームぶんだけ焼いて奇数フレームぶんが 0 のまま残り、
+				// 深度を読むだけのパス(パーティクル・デバッグ線)が
+				// 空のDSVで OMSetRenderTargets を叩いて落ちる
+				if (_isDepthWriteBound) continue;
 
 				for (const Slot& _in : _pPass->GetInputSlots())
 				{
@@ -1430,9 +1494,14 @@ namespace Engine::Graphics::Pipeline
 			}
 
 			// 出力フォーマットが決まったので、このパスのPSOを組めるようにする。
-			// 同じ名前・同じフォーマットならPSOは使い回される
+			//
+			// 鍵にするのはシェーディングモデル表の名前。
+			// 名乗らないパス(モデルを受け取らないパス)は表示名で構わない
+			const char* _pShadingName = _pPass->GetShadingPassName();
+			const std::string& _psoKeyName = _pShadingName ? std::string(_pShadingName) : _pPass->GetName();
+
 			_pPass->RefPipelineBuilder().Init(
-				_rtvFormatVec, _dsvFormat, static_cast<UINT>(Engine::String::ToHash(_pPass->GetName())));
+				_rtvFormatVec, _dsvFormat, static_cast<UINT>(Engine::String::ToHash(_psoKeyName)));
 
 			//------------------------------------------------------------------------------
 			// SRV / UAV のディスクリプタテーブル
@@ -1587,7 +1656,7 @@ namespace Engine::Graphics::Pipeline
 
 				// Temporal は2枚の物理が別々の遷移をたどるので、カーソルもスライスごとに追う。
 				// 出力は Current(書く側)、入力は Previous(読む側)
-				const uint32_t _slice = VirtualResource::ToSlice(a_slot.isIn, _res.IsTemporal());
+				const uint32_t _slice = VirtualResource::ToSlice(a_slot, _res.IsTemporal());
 
 				const D3D12_RESOURCE_STATES _before = _res.GetCurrentState(_slice);
 				const D3D12_RESOURCE_STATES _after = VirtualResource::ToResourceState(a_slot.accessType);

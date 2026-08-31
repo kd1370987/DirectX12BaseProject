@@ -1,4 +1,4 @@
-#include "CopyPass.h"
+﻿#include "CopyPass.h"
 
 namespace Engine::Graphics::Pipeline
 {
@@ -31,7 +31,8 @@ namespace Engine::Graphics::Pipeline
 		// シェーダーを通さないので、読み書きともコピーのアクセスにする
 		DeclareInput("Source", EAccessType::CopySrc);
 
-		DeclareOutput("Result", m_resourceName, ToFormat(m_formatIndex), EAccessType::CopyDst);
+		DeclareOutput("Result", m_resourceName, ToFormat(m_formatIndex), EAccessType::CopyDst,
+			EPassSlotType::Texture, m_isTemporal);
 	}
 
 	void CopyPass::ApplyOutput()
@@ -41,6 +42,7 @@ namespace Engine::Graphics::Pipeline
 
 		_pOut->name = m_resourceName;
 		_pOut->format = ToFormat(m_formatIndex);
+		_pOut->isTemporal = m_isTemporal;
 	}
 
 	void CopyPass::Compile(const PassContext& a_context)
@@ -93,6 +95,7 @@ namespace Engine::Graphics::Pipeline
 			ImGui::EndCombo();
 		}
 
+		if (ImGui::Checkbox("History", &m_isTemporal)) _isStructure = true;
 		ImGui::TextDisabled("入力と同じフォーマット・大きさにすること");
 
 		if (!_isStructure) return EPassEditResult::None;
@@ -109,6 +112,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		a_arch.StringField("resourceName", m_resourceName);
 		a_arch.Field("formatIndex", m_formatIndex);
+		a_arch.Field("isTemporal", m_isTemporal);
 
 		// 値が入ったのはスロットを作った後なので、ここで反映し直す
 		if (a_arch.IsLoading()) ApplyOutput();

@@ -10,11 +10,14 @@ namespace Engine::Graphics::Pipeline
 		// ルートパラメータ : 0=カメラCB / 1=調整値CB / 2=SRVテーブル / 3=UAV
 		DeclareInput("GI", EAccessType::SRV, EPassSlotType::Texture, true, 2);
 		DeclareInput("Velocity", EAccessType::SRV, EPassSlotType::Texture, true, 2);
-		DeclareInput("History", EAccessType::SRV, EPassSlotType::Texture, true, 2);
+		// 履歴は前フレームの結果を読むピン。
+		// 実行順の辺にならないので、自分の出力へそのまま繋いで回せる
+		DeclareInput("History", EAccessType::SRV, EPassSlotType::Texture, true, 2, true);
 		DeclareInput("Depth", EAccessType::SRV, EPassSlotType::Texture, true, 2);
 		DeclareInput("Normal", EAccessType::SRV, EPassSlotType::Texture, true, 2);
-		DeclareInput("PrevDepth", EAccessType::SRV, EPassSlotType::Texture, true, 2);
-		DeclareInput("PrevNormal", EAccessType::SRV, EPassSlotType::Texture, true, 2);
+		// 1つ前のフレームのGBuffer。前フレームを読むピンなので実行順の辺にならない
+		DeclareInput("PrevDepth", EAccessType::SRV, EPassSlotType::Texture, true, 2, true);
+		DeclareInput("PrevNormal", EAccessType::SRV, EPassSlotType::Texture, true, 2, true);
 
 		// GIはハーフ解像度。フレーム間で入れ替わる履歴でもある
 		Slot& _out = DeclareOutput("HistoryOut", "GITAHistory", DXGI_FORMAT_R16G16B16A16_FLOAT,
