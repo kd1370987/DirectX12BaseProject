@@ -493,7 +493,24 @@ namespace Engine::Graphics
 					_pCamera->upPipeline = std::make_unique<Pipeline::GraphicsPipeline>();
 				}
 
-				if (!_pCamera->upPipeline->BuildFrom(*_pAsset, *m_upPassMetaRegistry)) continue;
+				//--------------------------------------------------------------
+				// 組めなかったときは黙って旧経路の絵に戻る。
+				//
+				// 黙って戻ると「繋いでいないパスの絵が出ている」ようにしか見えないので、
+				// 版が変わるたびに1回だけ理由を知らせる
+				// (個々の理由は RenderGraph::Compile が並べて出す)
+				//--------------------------------------------------------------
+				auto _reportFail = [&]()
+					{
+						if (_pCamera->reportedFailVersion == _version) return;
+						_pCamera->reportedFailVersion = _version;
+
+						ENGINE_WARNING(
+							"[GraphicsEngine] パイプラインを組めませんでした。旧レンダーグラフの絵に戻ります : %s",
+							_pAsset->GetName().c_str());
+					};
+
+				if (!_pCamera->upPipeline->BuildFrom(*_pAsset, *m_upPassMetaRegistry)) { _reportFail(); continue; }
 
 				_pCamera->upPipeline->SetViewportSize(_pCamera->builtWidth, _pCamera->builtHeight);
 
@@ -504,7 +521,7 @@ namespace Engine::Graphics
 					_pCamera->upFinalTex.get(),
 					D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-				if (!_pCamera->upPipeline->Compile(this, _pDevice)) continue;
+				if (!_pCamera->upPipeline->Compile(this, _pDevice)) { _reportFail(); continue; }
 
 				// モデルを受け取るパスへパス番号を配る。
 				// 描画アイテムのソートキーにこの番号が入り、パスはそれで自分のぶんを引く

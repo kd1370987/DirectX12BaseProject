@@ -12,8 +12,9 @@ namespace Engine::Graphics::Pipeline
 {
 	void ParticlePass::SetupSlots()
 	{
-		// 深度は読むだけ : 半透明なので書かず、手前のものには隠される
-		DeclareInput("Depth", EAccessType::Depth_Read);
+		// 深度は読むだけ : 半透明なので書かず、手前のものには隠される。
+		// 単体で置いた構成も作れるよう任意にしてある
+		DeclareInput("Depth", EAccessType::Depth_Read, EPassSlotType::Texture, false);
 
 		// 描き足す先 : 「前段が描いた絵の上に重ねる」という順序をこの線で表す
 		DeclareInput("Color", EAccessType::RTV, EPassSlotType::Texture, false);
@@ -33,14 +34,27 @@ namespace Engine::Graphics::Pipeline
 
 	void ParticlePass::Compile(const PassContext& a_context)
 	{
+		// 深度が繋がっていなければ深度テストごと切る。
+		// PSOだけ深度ありにすると、グラフがDSVを張らないぶんと食い違って描画が落とされる
+		const Slot* _pDepth = FindInputSlot(MakeSlotID("Depth"));
+		const bool _isDepth = (_pDepth && _pDepth->IsConnected());
+
 		// 深度は共通 : 半透明なので深度は書かず、手前のものには隠される
-		auto _setupCommon = [](D3D12::GraphicsPipelineDesc& a_pso)
+		auto _setupCommon = [_isDepth](D3D12::GraphicsPipelineDesc& a_pso)
 			{
 				a_pso.desc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-				a_pso.DepthEnable(true);
-				a_pso.DepthWriteMask(D3D12_DEPTH_WRITE_MASK_ZERO);
-				a_pso.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
+				if (_isDepth)
+				{
+					a_pso.DepthEnable(true);
+					a_pso.DepthWriteMask(D3D12_DEPTH_WRITE_MASK_ZERO);
+					a_pso.DepthFunc(D3D12_COMPARISON_FUNC_LESS_EQUAL);
+				}
+				else
+				{
+					a_pso.DepthEnable(false);
+					a_pso.StencilEnable(false);
+				}
 			};
 
 		const std::string _vsPath = "Asset/Shader/Source/Particle/Draw/ParticleVS.cso";

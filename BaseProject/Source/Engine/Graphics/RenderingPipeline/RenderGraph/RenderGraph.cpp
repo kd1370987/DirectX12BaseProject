@@ -1092,16 +1092,58 @@ namespace Engine::Graphics::Pipeline
 			return false;
 		}
 
-		// 並べ替えの前に、今の線の状態を入力スロットへ反映しておく。
-		// 仮想リソースは入力スロットの名前まで埋まっていないと組めない
-		ApplyLinks();
-
-		// 前段が居るかどうかでスロットの扱いが変わるパスに、整える機会を渡す。
-		// 仮想リソースを組む前でないと、クリアの有無などが結果に乗らない
-		for (auto& _upPass : m_passes)
+		//----------------------------------------------------------------------------------
+		// 線の状態をスロットへ反映する
+		//
+		// ApplyLinks は「接続元の出力スロット」を入力へ写す。
+		// ところが描き足すパスは OnLinksResolved で自分の出力名を入力に合わせるので、
+		// 1往復では数珠つなぎの末尾まで名前が伝わらない。
+		//
+		//   魚眼(FishEyeColor) → デバッグ線 → UI → トーンマップ
+		//
+		// この並びだと、UI の入力にはデバッグ線が「まだ合わせる前」の名前が入り、
+		// UI だけが誰も書かない別のテクスチャへ描いてしまう
+		// (画面には UI しか出ない・前フレームの中身が残る)。
+		// 変化が止まるまで往復させる
+		//----------------------------------------------------------------------------------
 		{
-			if (!_upPass) continue;
-			_upPass->OnLinksResolved();
+			// 出力名の一覧。これが変わらなくなったら落ち着いたとみなす
+			auto _snapshotNames = [this]()
+				{
+					std::vector<std::string> _nameVec = {};
+					for (const auto& _upPass : m_passes)
+					{
+						if (!_upPass) continue;
+						for (const Slot& _out : _upPass->GetOutputSlots())
+						{
+							_nameVec.push_back(_out.name);
+						}
+					}
+					return _nameVec;
+				};
+
+			// 最悪でもパスの数だけ回れば端まで伝わる(+1 は変化なしの確認ぶん)
+			const size_t _maxLoop = m_passes.size() + 1;
+			std::vector<std::string> _prevNameVec = {};
+
+			for (size_t _i = 0; _i < _maxLoop; ++_i)
+			{
+				ApplyLinks();
+
+				for (auto& _upPass : m_passes)
+				{
+					if (!_upPass) continue;
+					_upPass->OnLinksResolved();
+				}
+
+				std::vector<std::string> _nameVec = _snapshotNames();
+				if (_nameVec == _prevNameVec) break;
+
+				_prevNameVec = std::move(_nameVec);
+			}
+
+			// 最後にもう一度配り直して、入力を最新の出力名に揃える
+			ApplyLinks();
 		}
 
 		// 配線から仮想リソースを組み直す。

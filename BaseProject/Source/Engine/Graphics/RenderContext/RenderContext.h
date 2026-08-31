@@ -246,7 +246,21 @@ namespace Engine::Graphics
 		// コピー用ヒープ
 		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_copyHeap;		// ラスタライザ用
 		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_bindLessHeap;	// バインドレス用
-		UINT m_currentHeapOffset = 0;
+		//----------------------------------------------------------------------------------
+		// テーブル用に切り出す領域(リング)の先頭
+		//
+		// ヒープごとに数える。1本の数え上げを2つのヒープで使い回すと、
+		// ビンドレス用ヒープ側で「グローバルヒープの丸写し」の上に書いてしまい、
+		// そのインデックスを引いていた絵が別のものに化ける
+		//----------------------------------------------------------------------------------
+		UINT m_copyHeapOffset = 0;			// ラスタ用 : 先頭から使う
+		UINT m_bindLessHeapOffset = 0;		// ビンドレス用 : 丸写しの後ろから使う
+
+		// ビンドレス用ヒープの、丸写しが終わる位置(= リングの開始位置)
+		UINT m_bindLessRingStart = 0;
+
+		// テーブル用に足すぶん。ビンドレス用ヒープはこのぶんだけ大きく作る
+		static constexpr UINT kBindLessRingSize = 4096;
 
 		// 現在セットしているCBV_SRV_UAVヒープのキャッシュ(&m_copyHeap か &m_bindLessHeap)。
 		// ヒープセット関数で更新し、SRV/UAVのバインドはこのヒープに対して行う。

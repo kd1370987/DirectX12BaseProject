@@ -60,10 +60,13 @@ namespace Engine::Graphics
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			0
 		);
+		// ビンドレス用は先頭がグローバルヒープの丸写しで埋まる。
+		// テーブルを張るぶんはその後ろへ確保しておく
+		m_bindLessRingStart = _heapSize;
 		m_bindLessHeap.Create(
 			m_pDevice,
 			L"BindLess",
-			_heapSize,
+			_heapSize + kBindLessRingSize,
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			0
 		);
@@ -103,8 +106,9 @@ namespace Engine::Graphics
 		m_upCBAllocator->ResetUse();
 		//m_pShapeDraw->Reset();
 
-		// コピーヒープのリセット。カレントヒープも既定へ戻す
-		m_currentHeapOffset = 0;
+		// リングのリセット。カレントヒープも既定へ戻す
+		m_copyHeapOffset = 0;
+		m_bindLessHeapOffset = m_bindLessRingStart;
 		m_pCurrentHeap = &m_copyHeap;
 	}
 
@@ -163,13 +167,17 @@ namespace Engine::Graphics
 
 	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::CopyToCurrentHeap(std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
 	{
-		// 今の空きインデックスから連続領域を確保
+		// 今の空きインデックスから連続領域を確保。
+		// 数え上げはヒープごとに持つ(共用すると丸写しの上へ書いてしまう)
+		const bool _isBindLess = (m_pCurrentHeap == &m_bindLessHeap);
+		UINT& _offset = _isBindLess ? m_bindLessHeapOffset : m_copyHeapOffset;
+
 		UINT _count = static_cast<UINT>(a_cpuHandles.size());
-		UINT _startIdx = m_currentHeapOffset;
-		m_currentHeapOffset += _count;
+		UINT _startIdx = _offset;
+		_offset += _count;
 
 		// ヒープサイズが足りなければ無効ハンドルを返す
-		if (m_currentHeapOffset >= m_pCurrentHeap->GetMaxSize()) return D3D12_GPU_DESCRIPTOR_HANDLE{};
+		if (_offset >= m_pCurrentHeap->GetMaxSize()) return D3D12_GPU_DESCRIPTOR_HANDLE{};
 
 		// カレントヒープの確保領域へ1個ずつコピー(空ハンドルはスキップ)
 		for (UINT _i = 0; _i < _count; ++_i)

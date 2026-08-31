@@ -741,6 +741,10 @@ namespace Engine::Graphics
 			// 組み直しの判定用。
 			// 設計図をエディターで触ると版が上がるので、そのときだけ作り直す
 			uint32_t builtStructureVersion = 0;
+
+			// 組めなかったことを知らせた版。
+			// 失敗すると毎フレーム組み直しに来るので、同じ版で何度も言わないための印
+			uint32_t reportedFailVersion = 0;
 			uint32_t builtParamVersion = 0;
 			UINT builtWidth = 0;
 			UINT builtHeight = 0;
