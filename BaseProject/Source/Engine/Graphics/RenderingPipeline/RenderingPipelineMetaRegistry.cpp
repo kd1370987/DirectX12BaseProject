@@ -1,47 +1,47 @@
 ﻿#include "RenderingPipelineMetaRegistry.h"
 
 // ---- 登録する標準パス ----
-#include "TestGBufferPass/TestGBufferPass.h"
-#include "FinalOutputPass/FinalOutputPass.h"
-#include "TestClearPass/TestClearPass.h"
-#include "GBufferPass/GBufferPass.h"
-#include "DeferredLightingPass/DeferredLightingPass.h"
+#include "RenderingPasses/Test/TestGBufferPass/TestGBufferPass.h"
+#include "RenderingPasses/Present/FinalOutputPass/FinalOutputPass.h"
+#include "RenderingPasses/Test/TestClearPass/TestClearPass.h"
+#include "RenderingPasses/Geometry/GBufferPass/GBufferPass.h"
+#include "RenderingPasses/Lighting/DeferredLightingPass/DeferredLightingPass.h"
 
 // ---- ポストプロセス ----
-#include "RadialBlurPass/RadialBlurPass.h"
-#include "FishEyePass/FishEyePass.h"
-#include "CoCPass/CoCPass.h"
-#include "DoFPass/DoFPass.h"
-#include "TAAPass/TAAPass.h"
+#include "RenderingPasses/PostEffect/Blur/RadialBlurPass/RadialBlurPass.h"
+#include "RenderingPasses/PostEffect/Distortion/FishEyePass/FishEyePass.h"
+#include "RenderingPasses/PostEffect/DoF/CoCPass/CoCPass.h"
+#include "RenderingPasses/PostEffect/DoF/DoFPass/DoFPass.h"
+#include "RenderingPasses/PostEffect/AntiAliasing/TAAPass/TAAPass.h"
 
 // ---- ブルーム ----
-#include "BloomExtractPass/BloomExtractPass.h"
-#include "GaussianBlurPass/GaussianBlurPass.h"
-#include "KawaseBlurPass/KawaseBlurPass.h"
-#include "BloomCompositePass/BloomCompositePass.h"
+#include "RenderingPasses/PostEffect/Bloom/BloomExtractPass/BloomExtractPass.h"
+#include "RenderingPasses/PostEffect/Blur/GaussianBlurPass/GaussianBlurPass.h"
+#include "RenderingPasses/PostEffect/Bloom/KawaseBlurPass/KawaseBlurPass.h"
+#include "RenderingPasses/PostEffect/Bloom/BloomCompositePass/BloomCompositePass.h"
 
 // ---- デノイズ ----
-#include "ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
-#include "ShadowSpatialDenoisePass/ShadowSpatialDenoisePass.h"
-#include "GITemporalAccumulationPass/GITemporalAccumulationPass.h"
-#include "GISpatialDenoisePass/GISpatialDenoisePass.h"
-#include "UpScalePass/UpScalePass.h"
+#include "RenderingPasses/PostEffect/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
+#include "RenderingPasses/PostEffect/Denoise/Shadow/ShadowSpatialDenoisePass/ShadowSpatialDenoisePass.h"
+#include "RenderingPasses/PostEffect/Denoise/GI/GITemporalAccumulationPass/GITemporalAccumulationPass.h"
+#include "RenderingPasses/PostEffect/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
+#include "RenderingPasses/UpScale/UpScalePass/UpScalePass.h"
 
 // ---- ジオメトリ・提示 ----
-#include "ZPrePass/ZPrePass.h"
-#include "SkyPass/SkyPass.h"
-#include "ToneMapPass/ToneMapPass.h"
-#include "UIPass/UIPass.h"
-#include "DebugLinePass/DebugLinePass.h"
+#include "RenderingPasses/Geometry/ZPrePass/ZPrePass.h"
+#include "RenderingPasses/Sky/SkyPass/SkyPass.h"
+#include "RenderingPasses/PostEffect/ToneMap/ToneMapPass/ToneMapPass.h"
+#include "RenderingPasses/UI/UIPass/UIPass.h"
+#include "RenderingPasses/Geometry/DebugLinePass/DebugLinePass.h"
 
 // ---- リソース操作 ----
-#include "CopyPass/CopyPass.h"
-#include "BlendPass/BlendPass.h"
-#include "ParticlePass/ParticlePass.h"
+#include "RenderingPasses/Utility/CopyPass/CopyPass.h"
+#include "RenderingPasses/Utility/BlendPass/BlendPass.h"
+#include "RenderingPasses/Geometry/ParticlePass/ParticlePass.h"
 
 // ---- レイトレ ----
-#include "RaytracingShadowPass/RaytracingShadowPass.h"
-#include "RaytracingGIPass/RaytracingGIPass.h"
+#include "RenderingPasses/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
+#include "RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
 
 namespace Engine::Graphics::Pipeline
 {
