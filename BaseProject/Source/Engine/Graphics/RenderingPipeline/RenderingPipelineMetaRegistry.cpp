@@ -36,6 +36,7 @@
 
 // ---- リソース操作 ----
 #include "CopyPass/CopyPass.h"
+#include "BlendPass/BlendPass.h"
 #include "ParticlePass/ParticlePass.h"
 
 // ---- レイトレ ----
@@ -129,6 +130,9 @@ namespace Engine::Graphics::Pipeline
 
 		// リソースを写すだけの汎用パス(履歴の作成などに使う)
 		a_registry.RegisterType<CopyPass>("CopyPass");
+
+		// リソースブレンド用のパス
+		a_registry.RegisterType<BlendPass>("BlendPass");
 
 		// パーティクル描画(発生と更新は GraphicsEngine 側)
 		a_registry.RegisterType<ParticlePass>("ParticlePass");

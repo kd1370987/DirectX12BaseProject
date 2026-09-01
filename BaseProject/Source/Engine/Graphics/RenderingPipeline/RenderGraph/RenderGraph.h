@@ -66,6 +66,11 @@ namespace Engine::Graphics::Pipeline
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rtvHandles[2] = {};
 		std::vector<size_t> clearRtvIndices = {};		// rtvHandles のうちクリアするもの
 
+		// 上と同じ並びのクリア色。
+		// スロットが宣言した色(=生成時のクリアバリュー)をそのまま使わないと、
+		// 透明で消したいレイヤーが不透明黒で塗られる(UIだけを描いた板の背景が真っ黒になる)
+		std::vector<Math::Color> clearRtvColors = {};
+
 		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle[2] = { { 0 }, { 0 } };
 		bool hasDSV = false;
 		bool isDepthClear = false;

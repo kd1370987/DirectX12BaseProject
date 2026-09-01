@@ -588,7 +588,7 @@ namespace Engine::D3D12
 		);
 
 		// バッファクリア
-		const float _clearColor[] = { 0.0f,0.0f,0.0f,1.0f };
+		const float _clearColor[] = { 0.0f,0.0f,1.0f,1.0f };
 		m_pCmdList->ClearRenderTargetView(_cpuHandle, _clearColor, 0, nullptr);		// レンダーターゲット
 	}
 

@@ -84,6 +84,6 @@ namespace Engine::Resource
 		UINT m_srvComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		// クリアカラー
-		DXSM::Color m_clearValue = {0,0,0,1};
+		DXSM::Color m_clearValue = {0,0,0,0};
 	};
 }

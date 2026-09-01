@@ -50,11 +50,14 @@ ComPtr<ID3D12Resource> Engine::Resource::CreateTexture(
 		}
 		else
 		{
+			// 既定は透明な黒。Texture::m_clearValue の初期値と必ず揃えること。
+			// ここと食い違うと、実際のクリア色が生成時のクリアバリューと合わず、
+			// ドライバの高速クリアが効かないうえに警告が出る
 			clearValue.Format = _desc.Format;
 			clearValue.Color[0] = 0;
 			clearValue.Color[1] = 0;
 			clearValue.Color[2] = 0;
-			clearValue.Color[3] = 1;
+			clearValue.Color[3] = 0;
 		}
 		_pClear = &clearValue;
 	}

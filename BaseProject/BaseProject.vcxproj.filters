@@ -1666,6 +1666,12 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\TestGBufferPass">
       <UniqueIdentifier>{3a2101f9-c5da-48e9-a89b-f21d0c768d2c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\BlendPass">
+      <UniqueIdentifier>{0f49fa04-9e30-48d8-9cb4-4f479caadba3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\PostProcess\Blend">
+      <UniqueIdentifier>{b4a92785-85e1-48ab-bdfa-b13e7299a937}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
@@ -2858,6 +2864,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\TestGBufferPass\TestGBufferPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\TestGBufferPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\BlendPass\BlendPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\BlendPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -4592,6 +4601,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\TestGBufferPass\TestGBufferPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\TestGBufferPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\BlendPass\BlendPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\BlendPass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\Debug\DebugLine\DebugLinePS.hlsl">
@@ -4811,6 +4823,9 @@
     </None>
     <FxCompile Include="Asset\Shader\Source\PostProcess\Distortion\FishEyeCS.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\Distortion</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Blend\BlendCS.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\Blend</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

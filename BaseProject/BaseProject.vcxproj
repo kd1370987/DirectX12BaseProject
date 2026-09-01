@@ -465,6 +465,7 @@
     <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGPassBuilder\RGPassBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderGraph\RGVersionManager\RGResourceManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\BlendPass\BlendPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RaytracingShadowPass\RaytracingShadowPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RaytracingGIPass\RaytracingGIPass.cpp" />
@@ -875,6 +876,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\BlendPass\BlendPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RaytracingShadowPass\RaytracingShadowPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RaytracingGIPass\RaytracingGIPass.h" />
@@ -1281,6 +1283,20 @@
     <None Include="Asset\Shader\Source\UI\UI.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Blend\BlendCS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\PostProcess\Distortion\FishEyeCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>

@@ -114,7 +114,12 @@ namespace Engine::Graphics
 
 		// レンダーターゲットのクリア
 		void ClearRenderTarget(const Handle<Resource::Texture>& a_texHandle);
-		void ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_rtvHandle);
+
+		// 色を渡さないと既定の不透明黒(0,0,0,1)で塗る。
+		// 後段でアルファ合成される中間ターゲットは、必ず透明黒を渡すこと
+		void ClearRenderTarget(
+			const D3D12_CPU_DESCRIPTOR_HANDLE& a_rtvHandle,
+			const DirectX::XMFLOAT4& a_clearColor = { 0.f, 0.f, 0.f, 1.f });
 
 		// 深度値バッファのクリア
 		void ClearDSV( const Handle<D3D12::DSV>& a_DSVHandle);

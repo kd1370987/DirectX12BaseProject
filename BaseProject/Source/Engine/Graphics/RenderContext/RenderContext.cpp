@@ -311,9 +311,9 @@ namespace Engine::Graphics
 		D3D12::ClearRenderTargetView(m_pCmdList, _cpu, _tex->GetClearColor());
 	}
 
-	void RenderContext::ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_rtvHandle)
+	void RenderContext::ClearRenderTarget(const D3D12_CPU_DESCRIPTOR_HANDLE& a_rtvHandle, const DirectX::XMFLOAT4& a_clearColor)
 	{
-		D3D12::ClearRenderTargetView(m_pCmdList,a_rtvHandle);
+		D3D12::ClearRenderTargetView(m_pCmdList, a_rtvHandle, a_clearColor);
 	}
 
 

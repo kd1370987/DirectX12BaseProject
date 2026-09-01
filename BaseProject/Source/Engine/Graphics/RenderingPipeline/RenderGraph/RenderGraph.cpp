@@ -1287,10 +1287,15 @@ namespace Engine::Graphics::Pipeline
 			}
 
 			// ---- クリア ----
-			for (size_t _index : _compiledPass.clearRtvIndices)
+			for (size_t _i = 0; _i < _compiledPass.clearRtvIndices.size(); ++_i)
 			{
+				const size_t _index = _compiledPass.clearRtvIndices[_i];
 				if (_index >= _rtvHandles.size()) continue;
-				a_pRenderContext->ClearRenderTarget(_rtvHandles[_index]);
+
+				const Math::Color& _clearColor = _compiledPass.clearRtvColors[_i];
+				a_pRenderContext->ClearRenderTarget(
+					_rtvHandles[_index],
+					DirectX::XMFLOAT4(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a));
 			}
 			if (_compiledPass.isDepthClear && _hasDSV)
 			{
@@ -1459,6 +1464,7 @@ namespace Engine::Graphics::Pipeline
 			_compiledPass.rtvHandles[0].clear();
 			_compiledPass.rtvHandles[1].clear();
 			_compiledPass.clearRtvIndices.clear();
+			_compiledPass.clearRtvColors.clear();
 			_compiledPass.dsvHandle[0] = { 0 };
 			_compiledPass.dsvHandle[1] = { 0 };
 			_compiledPass.hasDSV = false;
@@ -1500,6 +1506,13 @@ namespace Engine::Graphics::Pipeline
 						if (_parity == 0 && _out.loadOp == ELoadOp::Clear)
 						{
 							_compiledPass.clearRtvIndices.push_back(_compiledPass.rtvHandles[0].size() - 1);
+
+							// 色は仮想リソース側から引く。
+							// 生成時のクリアバリューもここから作っているので、
+							// 同じものを渡さないとドライバの最適化が効かず警告も出る
+							const VirtualResource* _pClearTarget = GetVirtualResource(_out.resourceHandle);
+							_compiledPass.clearRtvColors.push_back(
+								_pClearTarget ? _pClearTarget->GetClearColor() : _out.clearColor);
 						}
 					}
 					else if (_out.accessType == EAccessType::Depth_Write)
