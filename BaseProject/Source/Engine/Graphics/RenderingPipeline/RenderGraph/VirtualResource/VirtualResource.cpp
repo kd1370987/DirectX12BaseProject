@@ -27,6 +27,9 @@ namespace Engine::Graphics::Pipeline
 
 		m_physicalIndex[0] = ResourceHandle::INVALID_INDEX;
 		m_physicalIndex[1] = ResourceHandle::INVALID_INDEX;
+
+		// 区間は実行順が決まってから RenderGraph が入れる
+		ResetLifetime();
 	}
 
 	void VirtualResource::SetupAsImported(const std::string& a_name, EPassSlotType a_type, D3D12_RESOURCE_STATES a_initialState)
@@ -56,6 +59,10 @@ namespace Engine::Graphics::Pipeline
 
 		m_physicalIndex[0] = ResourceHandle::INVALID_INDEX;
 		m_physicalIndex[1] = ResourceHandle::INVALID_INDEX;
+
+		// 区間は実行順が決まってから RenderGraph が入れる。
+		// 外部リソースは使い回せないが、どこで触られているかは同じように分かる
+		ResetLifetime();
 	}
 
 	void VirtualResource::MergeSlot(const Slot& a_slot)

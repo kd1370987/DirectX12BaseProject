@@ -463,7 +463,7 @@
     <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\LightManager\LightManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\AliasingResource\AliasingResource.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\BlendPass\BlendPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass\MonitorPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.cpp" />
@@ -844,7 +844,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\AliasingResource\AliasingResource.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\BlendPass\BlendPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass\MonitorPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h" />

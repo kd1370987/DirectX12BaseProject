@@ -136,6 +136,8 @@ namespace Engine::Editor
 				if (_virtual.IsImported()) ImGui::TextDisabled("外部から差し込まれたリソース");
 				if (_virtual.IsTemporal()) ImGui::TextDisabled("履歴つき(2枚組)");
 
+				DrawLifetime(*_pGraph, _virtual);
+
 				ImGui::Separator();
 
 				DrawResourceImage(*_pGraph, _i, _virtual.GetPhysicalCount());
@@ -144,6 +146,49 @@ namespace Engine::Editor
 			}
 		}
 		ImGui::EndChild();
+	}
+
+	//======================================================================================
+	// 生存区間 : このリソースに触る最初のパスと最後のパス
+	//
+	// 区間が重ならないリソース同士は同じ実体を使い回せる。
+	// 使い回せない事情があるものはその理由まで出す
+	//======================================================================================
+	void RenderGraphResourceViewPanel::DrawLifetime(
+		const Graphics::Pipeline::RenderGraph& a_graph, const Graphics::Pipeline::VirtualResource& a_resource)
+	{
+		if (!a_resource.HasLifetime())
+		{
+			ImGui::TextDisabled("lifetime : どのパスも触っていません");
+			return;
+		}
+
+		const auto& _compiledVec = a_graph.GetCompiledPasses();
+
+		auto _passName = [&_compiledVec](uint32_t a_index) -> const char*
+			{
+				if (a_index >= _compiledVec.size()) return "?";
+				if (!_compiledVec[a_index].pPass) return "?";
+
+				return _compiledVec[a_index].pPass->GetName().c_str();
+			};
+
+		const uint32_t _first = a_resource.GetFirstPassIndex();
+		const uint32_t _last = a_resource.GetLastPassIndex();
+
+		ImGui::Text("lifetime : #%u %s  ->  #%u %s",
+			_first, _passName(_first),
+			_last, _passName(_last));
+
+		// 何パスぶん抱えているか。長いものほど使い回しの邪魔になる
+		ImGui::SameLine();
+		ImGui::TextDisabled("(%u パス)", _last - _first + 1);
+
+		if (a_resource.IsAliasable()) return;
+
+		// 使い回せない理由
+		if (a_resource.IsImported())		ImGui::TextDisabled("  実体がグラフの外にあるので使い回せません");
+		else if (a_resource.IsTemporal())	ImGui::TextDisabled("  区間がフレームをまたぐので使い回せません");
 	}
 
 	//======================================================================================

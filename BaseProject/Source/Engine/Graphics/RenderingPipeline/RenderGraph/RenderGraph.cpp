@@ -483,7 +483,7 @@ namespace Engine::Graphics::Pipeline
 		{
 			if (!_upPass) continue;
 
-			for (const Slot& _out : _upPass->GetOutputSlots())
+			for (Slot& _out : _upPass->RefOutputSlots())
 			{
 				if (_out.name.empty()) continue;
 				FindOrCreateVirtual(_out.name, _out).MergeSlot(_out);
@@ -580,6 +580,7 @@ namespace Engine::Graphics::Pipeline
 
 		m_resourceNameMap[a_name] = static_cast<uint32_t>(m_virtualResourceVec.size());
 		m_virtualResourceVec.push_back(std::move(_res));
+
 		return m_virtualResourceVec.back();
 	}
 
@@ -1213,6 +1214,7 @@ namespace Engine::Graphics::Pipeline
 			return false;
 		}
 
+		// コンパイル後のパスに入れる
 		m_compilePasses.reserve(_sortedVec.size());
 		for (Pass* _pPass : _sortedVec)
 		{
@@ -1220,6 +1222,10 @@ namespace Engine::Graphics::Pipeline
 			_compiledPass.pPass = _pPass;
 			m_compilePasses.push_back(std::move(_compiledPass));
 		}
+
+		// ---- リソースの生存区間を出す ----
+		// 実行順が決まって初めて「何番目から何番目まで要るか」が言える
+		BuildResourceLifetimes();
 
 		// ---- リソースのステート遷移を積む ----
 		BuildBarriers();
@@ -1636,6 +1642,70 @@ namespace Engine::Graphics::Pipeline
 		{
 			if (!_compiledPass.pPass) continue;
 			_compiledPass.pPass->Compile(_context);
+		}
+	}
+
+	//======================================================================================
+	// ヒープのサイズを計算する(エイリアシング用 : 未実装)
+	//
+	// 生存区間は BuildResourceLifetimes() が仮想リソースへ入れてあるので、
+	// ここで集め直す必要はない。使えるのは次の3つ。
+	//
+	//   _res.IsAliasable()                 : 使い回してよいリソースか
+	//                                        (外部リソース・履歴つき・区間なしは除かれる)
+	//   _res.GetFirstPassIndex() / GetLastPassIndex()
+	//                                      : 実行順での区間(m_compilePasses の添字)
+	//   _res.IsLifetimeOverlapped(_other)  : 区間が重なっているか
+	//
+	// 区間が重ならないもの同士を同じ席へ寄せていけば、
+	// 同時に要る最大量が m_maxSize / m_maxNum になる
+	//======================================================================================
+	void RenderGraph::CalcHeapSize()
+	{
+		m_aliasingVec.clear();
+		m_maxNum = 0;
+		m_maxSize = 0;
+	}
+
+	//======================================================================================
+	// リソースの生存区間を出す
+	//
+	// 並べ替えが済んだ m_compilePasses を頭から見て、
+	// 各リソースを「最初に触ったパス」と「最後に触ったパス」で挟む。
+	//
+	// 区間の外ではそのリソースの中身が誰にも要らないので、
+	// 区間が重ならないもの同士は同じ実体を使い回せる(エイリアシング)。
+	// 今はまだ 1リソース = 1実体で作っているが、判断材料はここで揃う。
+	//
+	// 読み書きのどちらでも「触った」として数える。
+	// 書いた瞬間から要るようになり、最後に読まれた時点で要らなくなるため
+	//======================================================================================
+	void RenderGraph::BuildResourceLifetimes()
+	{
+		for (VirtualResource& _res : m_virtualResourceVec)
+		{
+			_res.ResetLifetime();
+		}
+
+		for (uint32_t _passIndex = 0; _passIndex < static_cast<uint32_t>(m_compilePasses.size()); ++_passIndex)
+		{
+			const Pass* _pPass = m_compilePasses[_passIndex].pPass;
+			if (!_pPass) continue;
+
+			auto _extend = [&](const std::vector<Slot>& a_slotVec)
+				{
+					for (const Slot& _slot : a_slotVec)
+					{
+						// 繋がっていないピンはどのリソースも指していない
+						if (!_slot.resourceHandle.IsValid()) continue;
+						if (_slot.resourceHandle.index >= m_virtualResourceVec.size()) continue;
+
+						m_virtualResourceVec[_slot.resourceHandle.index].ExtendLifetime(_passIndex);
+					}
+				};
+
+			_extend(_pPass->GetInputSlots());
+			_extend(_pPass->GetOutputSlots());
 		}
 	}
 

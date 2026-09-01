@@ -5,6 +5,7 @@
 namespace Engine::Graphics::Pipeline
 {
 	class RenderGraph;
+	class VirtualResource;
 }
 
 namespace Engine::Editor
@@ -23,6 +24,10 @@ namespace Engine::Editor
 		void OnDrawImGui(EditorContext& a_editContext) override;
 
 	private:
+
+		// 生存区間(このリソースに触る最初と最後のパス)を出す
+		void DrawLifetime(
+			const Graphics::Pipeline::RenderGraph& a_graph, const Graphics::Pipeline::VirtualResource& a_resource);
 
 		// リソース1本ぶんの絵を出す。履歴つきなら2枚並べる
 		void DrawResourceImage(

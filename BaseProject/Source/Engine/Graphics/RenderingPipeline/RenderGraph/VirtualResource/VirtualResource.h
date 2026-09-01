@@ -118,6 +118,72 @@ namespace Engine::Graphics::Pipeline
 		void SetPhysicalIndex(uint32_t a_index, uint32_t a_slice = 0) { m_physicalIndex[a_slice & 1] = a_index; }
 
 		//----------------------------------------------------------------------------------
+		// 生存区間
+		//
+		// このリソースに触る最初のパスと最後のパス。
+		// 添字は RenderGraph::GetCompiledPasses() の並び = 実行順そのもの。
+		//
+		// 「触る」は読み書きのどちらでもよい。区間の外ではこのリソースの中身が
+		// 誰にも要らないということなので、区間が重ならないリソース同士は
+		// 同じ実体を使い回せる(エイリアシング)。
+		//
+		// 区間は配線から決まるので、実体を作るより前に出せる。
+		// RenderGraph が並べ替えを終えた直後に組み立てる
+		//----------------------------------------------------------------------------------
+		static constexpr uint32_t INVALID_PASS_INDEX = static_cast<uint32_t>(-1);
+
+		uint32_t GetFirstPassIndex() const { return m_firstPassIndex; }
+		uint32_t GetLastPassIndex() const { return m_lastPassIndex; }
+
+		// どのパスも触っていないか。
+		// 出力しただけで誰も読まないリソースはここが false にならない(書いた本人が触っている)。
+		// true になるのは、宣言だけあって配線から外れたものだけ
+		bool HasLifetime() const { return m_firstPassIndex != INVALID_PASS_INDEX; }
+
+		// 区間を空にする(組み立て直しの前に呼ぶ)
+		void ResetLifetime()
+		{
+			m_firstPassIndex = INVALID_PASS_INDEX;
+			m_lastPassIndex = INVALID_PASS_INDEX;
+		}
+
+		// このパスが触ったことを区間へ足す。実行順に呼ばなくても正しく広がる
+		void ExtendLifetime(uint32_t a_passIndex)
+		{
+			if (a_passIndex == INVALID_PASS_INDEX) return;
+
+			if (!HasLifetime())
+			{
+				m_firstPassIndex = a_passIndex;
+				m_lastPassIndex = a_passIndex;
+				return;
+			}
+
+			if (a_passIndex < m_firstPassIndex) m_firstPassIndex = a_passIndex;
+			if (a_passIndex > m_lastPassIndex)  m_lastPassIndex = a_passIndex;
+		}
+
+		//----------------------------------------------------------------------------------
+		// 実体を使い回せるリソースか
+		//
+		// ・外部から差し込まれたもの : 実体はグラフの外の持ち物。勝手に他へ貸せない
+		// ・履歴つき(Temporal)       : 前フレームに書いた中身を今フレームが読む。
+		//                              区間がフレームをまたぐので、この並びだけでは判断できない
+		// ・誰も触らないもの         : 区間が無いので比べようがない
+		//----------------------------------------------------------------------------------
+		bool IsAliasable() const { return !m_isImported && !m_isTemporal && HasLifetime(); }
+
+		// 生存区間が重なっているか。
+		// 重なっていなければ、同じ実体を順番に使い回せる
+		bool IsLifetimeOverlapped(const VirtualResource& a_other) const
+		{
+			if (!HasLifetime() || !a_other.HasLifetime()) return false;
+
+			return m_firstPassIndex <= a_other.m_lastPassIndex
+				&& a_other.m_firstPassIndex <= m_lastPassIndex;
+		}
+
+		//----------------------------------------------------------------------------------
 		// スロットのアクセスタイプ -> テクスチャの用途フラグ
 		//----------------------------------------------------------------------------------
 		// 書き込み側は、あとから読めるように SRV も一緒に立てる
@@ -159,5 +225,10 @@ namespace Engine::Graphics::Pipeline
 
 		// --- 物理リソースとの紐付け ---
 		uint32_t m_physicalIndex[2] = { ResourceHandle::INVALID_INDEX, ResourceHandle::INVALID_INDEX };
+
+		// --- 生存区間(実行順の添字) ---
+		// 触るパスが1つもなければどちらも INVALID_PASS_INDEX のまま
+		uint32_t m_firstPassIndex = INVALID_PASS_INDEX;
+		uint32_t m_lastPassIndex = INVALID_PASS_INDEX;
 	};
 }

@@ -299,6 +299,9 @@ namespace Engine::Graphics::Pipeline
 		// 名前ごとに1つ起こして、その名前を触っている全スロットの要件を足し込む
 		void BuildVirtualResources();
 
+		// 実行順が決まったあとに、各リソースの生存区間(最初/最後のパス)を出す
+		void BuildResourceLifetimes();
+
 		// 名前で引いて、無ければ作る
 		VirtualResource& FindOrCreateVirtual(const std::string& a_name, const Slot& a_outputSlot);
 
@@ -342,6 +345,13 @@ namespace Engine::Graphics::Pipeline
 		// 全パスの Compile() を実行順に呼ぶ(リソースが揃ってから)
 		void CompilePasses(GraphicsEngine* a_pGraphicsEngine);
 
+		//----------------------------------------------------------------------------------
+		// エイリアシング計算
+		//----------------------------------------------------------------------------------
+		void CalcHeapSize();			// ヒープのサイズを計算する
+
+	private:
+
 		// パスのインスタンス配列 : 実体はここが持つ
 		std::vector<std::unique_ptr<Pass>> m_passes = {};
 
@@ -379,5 +389,18 @@ namespace Engine::Graphics::Pipeline
 
 		// ノード/ピン/線に配る連番
 		int m_idCounter = 0;
+
+		// エイリアシング
+		uint32_t m_maxNum = 0;		// 最大同時使用数
+		size_t m_maxSize = 0;		// 幅 * 高さ * フォーマットのサイズを足し合わせた最大数
+
+		struct Aliasing
+		{
+			size_t maxSize = 0;			// 使われていた際の最大サイズ
+			bool isUsed = false;		// 使われているかどうか
+		};
+
+		std::vector<Aliasing> m_aliasingVec = {};
+
 	};
 }
