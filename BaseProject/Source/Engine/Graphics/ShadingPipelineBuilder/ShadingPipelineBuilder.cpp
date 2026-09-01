@@ -1,5 +1,4 @@
 ﻿#include "ShadingPipelineBuilder.h"
-#include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../D3D12/PipelineStateManager/PipelineStateManager.h"
 
@@ -18,7 +17,7 @@ namespace Engine::Graphics
 	}
 
 
-	Handle<ID3D12PipelineState> ShadingPipelineBuilder::Request(PSOKey a_key, RenderGraph* a_pRenderGraph, D3D12::PipelineStateManager* a_pPSOManager)
+	Handle<ID3D12PipelineState> ShadingPipelineBuilder::Request(PSOKey a_key, D3D12::PipelineStateManager* a_pPSOManager)
 	{
 		// キャッシュを検索
 		auto _it = m_psoMap.find(a_key);

@@ -28,7 +28,20 @@ namespace Engine::Graphics::Pipeline
 
 		// カメラとスカイはエンジンの持ち物。パスの調整値ではないのでそのまま引く
 		_pCB->BindAndAttachDataComputeRootCBV<CameraData>(a_context.pCmdList, 0, a_context.pGraphicsEngine->GetCameraData());
-		_pCB->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 1, m_cb);
+		//----------------------------------------------------------------------------------
+		// 調整値の出どころ
+		//
+		// カメラが FocusParamComponent を持っていれば、CamSetShaderSystem が
+		// 毎フレーム値を送ってくる(速度に応じて動くのはこちら)。
+		// 送られてこないフレームは、このパスがアセットに保存している自分の値を使う。
+		//
+		// カメラ側を優先しないと、演出でボケや流れが動かなくなる
+		//----------------------------------------------------------------------------------
+		const DoFOptionCB& _cb = a_context.pGraphicsEngine->IsDoFOverride()
+			? a_context.pGraphicsEngine->GetDoFData()
+			: m_cb;
+
+		_pCB->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 1, _cb);
 		_pCB->BindAndAttachDataComputeRootCBV<SkyData>(a_context.pCmdList, 4, a_context.pGraphicsEngine->GetSkyData());
 
 		DispatchFullScreen(a_context);
@@ -49,6 +62,8 @@ namespace Engine::Graphics::Pipeline
 
 		// DoFPass 側にも同じ調整値がある。両方を合わせること
 		ImGui::TextDisabled("DoFPass と同じ値にすること");
+		ImGui::TextDisabled("カメラが FocusParamComponent を持つあいだはそちらの値が優先される");
+
 
 		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 	}

@@ -37,6 +37,7 @@
 // ---- リソース操作 ----
 #include "RenderingPasses/Utility/CopyPass/CopyPass.h"
 #include "RenderingPasses/Utility/BlendPass/BlendPass.h"
+#include "RenderingPasses/Utility/MonitorPass/MonitorPass.h"
 #include "RenderingPasses/Geometry/ParticlePass/ParticlePass.h"
 
 // ---- レイトレ ----
@@ -133,6 +134,9 @@ namespace Engine::Graphics::Pipeline
 
 		// リソースブレンド用のパス
 		a_registry.RegisterType<BlendPass>("BlendPass");
+
+		// パスの間にはさんで、流れている絵をノードの中に出す確認用
+		a_registry.RegisterType<MonitorPass>("MonitorPass");
 
 		// パーティクル描画(発生と更新は GraphicsEngine 側)
 		a_registry.RegisterType<ParticlePass>("ParticlePass");

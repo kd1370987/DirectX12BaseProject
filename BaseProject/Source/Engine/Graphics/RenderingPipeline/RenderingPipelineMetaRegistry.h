@@ -12,6 +12,15 @@ namespace Engine::Graphics::Pipeline
 		// 立っているパスは1つのグラフに必ず1つだけ常駐し、
 		// エディターの追加一覧には出さず、削除もさせない
 		bool isFinalPass = false;
+
+		//----------------------------------------------------------------------------------
+		// シェーディングモデル表を引くときの鍵(モデルを受け取らないパスは空)
+		//
+		// 表はこの名前ごとにピクセルシェーダーを持つ。
+		// 表を編集する画面が「どのパス名を並べればよいか」を知るために、
+		// 登録のときに型から1つ作って読み出しておく
+		//----------------------------------------------------------------------------------
+		std::string shadingPassName = {};
 	};
 
 	// パスに付随する関数
@@ -103,6 +112,16 @@ namespace Engine::Graphics::Pipeline
 		// ファクトリ
 		PassFunc _func = {};
 		_func.factory = []() -> std::unique_ptr<Pass> {return std::make_unique<T>(); };
+
+		// シェーディングモデル表の鍵は型ごとに決まっている。
+		// 固定文字列を返すだけの関数なので、スロット宣言を通していない実体からでも読める
+		if (std::unique_ptr<Pass> _upProbe = _func.factory())
+		{
+			if (const char* _pShadingName = _upProbe->GetShadingPassName())
+			{
+				_meta.shadingPassName = _pShadingName;
+			}
+		}
 
 		// 各対応表へ登録
 		m_typeIndexMap.emplace(_typeIdx, _typeID);

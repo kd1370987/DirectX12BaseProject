@@ -487,10 +487,6 @@ namespace Engine
 				m_upGraphicsEngine->SetCameraOverride(_camWorld, _camProj);
 				_isOverride = true;
 			}
-
-			// エフェクトエディターは従来のレンダーグラフの絵(FinalColor)を見ている。
-			// 開いているあいだは、パイプライン経路が生きていても従来経路を止められない
-			m_upGraphicsEngine->SetLegacyRenderGraphRequired(_isOverride);
 		}
 
 		if (!_isOverride && m_appMode == EAppMode::Editor)

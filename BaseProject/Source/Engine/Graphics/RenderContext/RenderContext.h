@@ -16,7 +16,6 @@ namespace Engine::D3D12
 namespace Engine::Graphics
 {
 	// 前方宣言
-	class RenderGraph;
 	class GraphicsEngine;
 
 	// レンダーコンテキスト作成時に必要な情報

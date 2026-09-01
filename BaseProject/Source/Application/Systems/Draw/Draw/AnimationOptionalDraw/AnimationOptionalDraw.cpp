@@ -2,7 +2,6 @@
 
 #include "Application/ECS/World/World.h"
 #include "Engine/MainEngine.h"
-#include "Engine/Graphics/RenderGraph/RenderGraph.h"
 #include "../../../../../Engine/Graphics/GraphicEngine.h"
 
 #include "Application/Components/Resource/SkeletonPoseComponent.h"

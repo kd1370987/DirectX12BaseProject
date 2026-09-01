@@ -2,7 +2,6 @@
 #include "../../../MainEngine.h"
 #include "../../../../Application/ECS/PhaseTag/PhaseTag.h"	// ライフサイクルのフェーズタグ
 #include "../../../Graphics/GraphicEngine.h"
-#include "../../../Graphics/RenderGraph/RenderGraph.h"
 #include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "../../../Scene/BaseScene/BaseScene.h"
@@ -233,32 +232,17 @@ namespace Engine::Editor
 		if (!_pWorld || !_pWorld->IsInit()) return;
 
 		// 現在の最終出力テクスチャを取得
+		// ウィンドウの Begin / End は PanelManager が持っている。
+		// ここで End を呼ぶと1つ多く閉じることになるので、抜けるだけにすること
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
-		if (!_pGE)
-		{
-			ImGui::End();
-			return;
-		}
-		// パイプラインを設定したカメラが居るなら、そのカメラが描いた絵を出す。
-		// 従来のレンダーグラフの FinalColor を出してしまうと、
-		// パイプラインに通していないパス(UIなど)の絵まで見えることになる
+		if (!_pGE) return;
+
+		// 画面に出るカメラが描いた絵をそのまま出す。
+		// パイプラインを持つカメラが1台も居なければ何も描かれていない
 		const auto* _pTex = _pGE->GetPresentTexture();
-
-		// パイプライン経路が生きていないときだけ従来経路の絵へ落ちる
 		if (!_pTex)
 		{
-			auto* _pRG = _pGE->RefRenderGraph();
-			if (!_pRG)
-			{
-				ImGui::End();
-				return;
-			}
-			_pTex = _pRG->GetTmepTexture("FinalColor");
-		}
-
-		if (!_pTex)
-		{
-			ImGui::End();
+			ImGui::TextDisabled("画面に出るカメラに描画構成(RenderingPipelineAsset)が設定されていません");
 			return;
 		}
 

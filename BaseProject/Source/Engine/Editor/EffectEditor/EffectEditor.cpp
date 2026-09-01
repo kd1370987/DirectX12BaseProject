@@ -1,4 +1,4 @@
-#include "EffectEditor.h"
+﻿#include "EffectEditor.h"
 
 #include "../Editor.h"
 #include "../Helper/EditorHelper.h"
@@ -12,7 +12,6 @@
 #include "../../Scene/BaseScene/BaseScene.h"
 #include "../../Collision/CollisionWorld.h"
 #include "../../Graphics/GraphicEngine.h"
-#include "../../Graphics/RenderGraph/RenderGraph.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../Option/OptionManager.h"
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
@@ -80,6 +79,20 @@ namespace Engine::Editor
 		m_selectedParticlePart = 0;
 
 		EnsureWorld();
+
+		//----------------------------------------------------------------------------------
+		// 描画構成を借りる
+		//
+		// ゲームのシーンが直前まで画面を作っていた構成をそのまま使う。
+		// ここで別のものを組むと、合わせた見た目がゲームへ持っていくとずれる。
+		//
+		// 借りるのは開いた瞬間の1回だけ。開いているあいだはこちらのカメラが
+		// メインになるので、毎フレーム引き直すと自分の値を借り直すことになる
+		//----------------------------------------------------------------------------------
+		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
+		{
+			m_pipelineHandle = _pGE->GetLastMainPipelineHandle();
+		}
 
 		// カメラは開くたびに定位置へ。
 		// 前回どこかへ飛ばしたまま開くと、出したものが画面の外から始まってしまう
@@ -295,8 +308,44 @@ namespace Engine::Editor
 		m_upWorld->RunSystem(ECS::ESystemType::Draw, 0.0f);
 		m_upWorld->RunSystem(ECS::ESystemType::PostDraw, 0.0f);
 
+		//----------------------------------------------------------------------------------
+		// このプレビューのカメラを積む
+		//
+		// このワールドにはカメラのエンティティが居ないので、
+		// CameraPipelineSubmitSystem は何も送らない。ここで直接送る。
+		//
+		// isMain を立てるのは、ゲームのカメラが1台も積まれないこのあいだに
+		// 画面を作る役が居なくなるのを防ぐため。
+		// 実際に見えるのはモーダルの中なので、バックバッファの中身は問題にならない
+		//----------------------------------------------------------------------------------
+		SubmitPreviewCamera();
+
 		// 大きさの目安になる格子
 		if (m_isDrawGrid) DrawGrid();
+	}
+
+	void EffectEditor::SubmitPreviewCamera()
+	{
+		if (!m_upWorld || !m_upCamera) return;
+		if (!m_pipelineHandle.IsValid()) return;
+
+		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+		if (!_pGE) return;
+
+		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+
+		Engine::Graphics::CameraSubmitDesc _desc = {};
+		_desc.pWorld			= m_upWorld.get();
+		_desc.entity			= PREVIEW_CAMERA_ENTITY;
+		_desc.pipelineHandle	= m_pipelineHandle;
+		_desc.worldMat			= m_upCamera->GetWorldMatrix();
+		_desc.projMat			= m_upCamera->GetProjMatrix();
+		_desc.viewportWidth		= static_cast<UINT>(_winOp.windowWidth);
+		_desc.viewportHeight	= static_cast<UINT>(_winOp.windowHeight);
+		_desc.order				= 0;
+		_desc.isMain			= true;
+
+		_pGE->SubmitCamera(_desc);
 	}
 
 	void EffectEditor::DrawGrid() const
@@ -455,12 +504,15 @@ namespace Engine::Editor
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGE) { ImGui::TextDisabled("GraphicsEngine がありません"); return; }
 
-		auto* _pRG = _pGE->RefRenderGraph();
-		if (!_pRG) { ImGui::TextDisabled("RenderGraph がありません"); return; }
+		if (!m_pipelineHandle.IsValid())
+		{
+			ImGui::TextDisabled("描画構成が決まっていません(シーンを一度開いてから開き直してください)");
+			return;
+		}
 
-		// シーンビューと同じ最終出力を出す。
-		// ゲームのシーンと同じレンダーグラフを通っているので、ここで見えているものが本番の見え方
-		const auto* _pTex = _pRG->GetTmepTexture("FinalColor");
+		// このプレビューのカメラが描いた絵をそのまま出す。
+		// ゲームのシーンと同じ設計図を通っているので、ここで見えているものが本番の見え方
+		const auto* _pTex = _pGE->GetCameraFinalTexture(m_upWorld.get(), PREVIEW_CAMERA_ENTITY);
 		if (!_pTex) { ImGui::TextDisabled("出力テクスチャがまだありません"); return; }
 
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();

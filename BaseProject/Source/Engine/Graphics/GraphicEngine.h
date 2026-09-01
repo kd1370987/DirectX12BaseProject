@@ -30,20 +30,18 @@ namespace Engine
 namespace Engine::Graphics
 {
 	// 前方宣言
-	class RenderGraph;
 	class RenderContext;
-	class RenderPassRegistry;
 	class MeshBufferAllocator;
 	struct PSOKey;
 
-	// 作り直し中の新レンダーグラフ。
-	// Engine::Graphics::Pipeline に入っているのは、
-	// 既存の Engine::Graphics::RenderGraph と名前がぶつからないようにするため
+	// レンダリングパイプライン。
+	// 設計図(RenderingPipelineAsset)とカメラごとの実行インスタンスに分かれている
 	namespace Pipeline
 	{
 		class PassMetaRegistry;
 		class GraphicsPipeline;
 		class RenderingPipelineAsset;
+		class RenderGraph;
 		class Pass;
 	}
 
@@ -177,10 +175,6 @@ namespace Engine::Graphics
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
 		D3D12::PipelineStateManager* RefPipelineStateManager();
-		Graphics::RenderPassRegistry* RefRenderPassRegistry();
-
-		RenderGraph* RefRenderGraph();
-
 		//--------------------------------------------------------------------------------------------
 		// 生成できるパスの一覧
 		//
@@ -205,36 +199,51 @@ namespace Engine::Graphics
 		const Resource::Texture* GetCameraFinalTexture(const ECS::World* a_pWorld, uint32_t a_entity) const;
 
 		//--------------------------------------------------------------------------------------------
-		// 画面へ出す絵をどちらの経路から取るか
+		// 設計図のパスに対応する、実際に動いている実行インスタンスのパスを引く
 		//
-		// 既定は新パイプライン。パイプラインを設定したカメラが居れば、そのカメラが描いた絵を
-		// 画面へ出し、従来のレンダーグラフは回さない。
-		// 下ろすと従来経路へ戻る(移植中の見比べ用で、移植が済んだら要らなくなる)
+		// エディターが触っているのは設計図(RenderingPipelineAsset)側のパスで、
+		// これは一度も実行されない = リソースの実体を持たない。
+		// モニターのように「今フレーム流れている中身」をノードに出すパスは、
+		// ここを通して実行インスタンス側の自分を借りてくる。
+		//
+		// GUIDは BuildFrom の複製で引き継がれるので、これが設計図と実行を結ぶ鍵になる。
+		// 同じ設計図を複数のカメラが使っていればメインカメラのものを返す
 		//--------------------------------------------------------------------------------------------
-		void SetPresentFromPipeline(bool a_isUse) { m_isPresentFromPipeline = a_isUse; }
-		bool IsPresentFromPipeline() const { return m_isPresentFromPipeline; }
+		Pipeline::Pass* FindPipelinePass(const Engine::GUID& a_passGUID) const;
 
 		//--------------------------------------------------------------------------------------------
-		// パイプラインの絵で画面を置き換えられる状態か
+		// 直近に画面を作っていたカメラの描画構成
 		//
-		// メインカメラにパイプラインが設定されていて、組み上がっているときだけ true。
-		// これが立っているあいだは従来のレンダーグラフを回さないので、
-		// パイプラインに通していないパス(UIなど)の絵が混ざらない
+		// ゲームのシーンを止めて別のワールドを描く画面(エフェクトエディター)が、
+		// 「本番と同じ絵作り」で見るために借りる。
+		// 一度もカメラが積まれていなければ無効ハンドル
+		//--------------------------------------------------------------------------------------------
+		const Handle<Pipeline::RenderingPipelineAsset>& GetLastMainPipelineHandle() const { return m_lastMainPipelineHandle; }
+
+		//--------------------------------------------------------------------------------------------
+		// エディター用 : 今フレーム回っているカメラのグラフを順に見る
+		//
+		// リソースの中身を覗くパネルが使う。
+		// 実行インスタンスはカメラごとにあるので、どのカメラのものかが分かるよう
+		// 表示用の名前を添えて返す
+		//--------------------------------------------------------------------------------------------
+		struct PipelineGraphView
+		{
+			std::string name = {};								// 表示名(設計図の名前 + メインかどうか)
+			const Pipeline::RenderGraph* pGraph = nullptr;		// そのカメラの実行グラフ
+		};
+		std::vector<PipelineGraphView> CollectPipelineGraphs() const;
+
+		//--------------------------------------------------------------------------------------------
+		// 画面へ出す絵ができているか
+		//
+		// 画面に出るカメラに描画構成が設定されていて、組み上がっているときだけ true。
+		// カメラが描画構成を持たなければ何も描かれない
 		//--------------------------------------------------------------------------------------------
 		bool IsPipelinePresentActive() const;
 
-		// 画面へ出す絵。
-		// パイプライン経路が生きていればそのカメラの最終出力、そうでなければ nullptr
-		// (呼び出し側は従来経路の FinalColor へ落ちる)
+		// 画面へ出す絵。組み上がっていなければ nullptr
 		const Resource::Texture* GetPresentTexture() const;
-
-		//--------------------------------------------------------------------------------------------
-		// 従来のレンダーグラフを回し続ける必要があるか
-		//
-		// エフェクトエディターは従来経路の FinalColor を見ているので、
-		// 開いているあいだは止められない。毎フレーム持ち主(MainEngine)が立て直す
-		//--------------------------------------------------------------------------------------------
-		void SetLegacyRenderGraphRequired(bool a_isRequired) { m_isLegacyRenderGraphRequired = a_isRequired; }
 
 		// 新経路でパスが出力先として使うリソース名。
 		// この名前で出力スロットを宣言したパスが、カメラの最終出力へ描くことになる
@@ -258,26 +267,29 @@ namespace Engine::Graphics
 		void SetCameraOverride(const DXSM::Matrix& a_worldMat, const DXSM::Matrix& a_projMat);
 		void ClearCameraOverride();
 
-		// 被写界深度(DoF)の調整値
-		// カメラの持ち物なので、アクティブカメラの FocusParamComponent から
-		// CamSetShaderSystem が毎フレーム詰める。CoCパス/DoFパスはこれを読む。
-		// 誰も設定しなかったフレームは無効(ボケなし)として扱われる。
+		//--------------------------------------------------------------------------------------------
+		// カメラ発の画面効果(被写界深度 / ラジアルブラー / 魚眼レンズ)
+		//
+		// どれもカメラの持ち物で、アクティブカメラのコンポーネントから
+		// CamSetShaderSystem が毎フレーム詰める。速度に応じて動く値がここに乗る。
+		//
+		// パス側はアセットに保存した自分の値を既定として持っているので、
+		// 「今フレーム、カメラから送られてきたか」を Is～Override() で見て、
+		// 送られていればそちらを優先する。
+		// 送られなかったフレームは EndFrame でフラグが落ちるので、
+		// パスは自分の値へ戻る(効果が前フレームの値で固まらない)
+		//--------------------------------------------------------------------------------------------
 		void SetDoFData(const DoFOptionCB& a_data);
 		const DoFOptionCB& GetDoFData() const;
+		bool IsDoFOverride() const { return m_isDoFOverride; }
 
-		// ラジアルブラーの調整値
-		// DoF と同じくカメラの持ち物なので、アクティブカメラの RadialBlurComponent から
-		// CamSetShaderSystem が毎フレーム詰める。RadialBlurPass はこれを読む。
-		// 誰も設定しなかったフレームは無効(流れない)として扱われる。
 		void SetRadialBlurData(const RadialBlurOptionCB& a_data);
 		const RadialBlurOptionCB& GetRadialBlurData() const;
+		bool IsRadialBlurOverride() const { return m_isRadialBlurOverride; }
 
-		// 魚眼レンズの調整値
-		// これもカメラの持ち物。アクティブカメラの FishEyeComponent から
-		// CamSetShaderSystem が毎フレーム詰める。FishEyePass はこれを読む。
-		// 誰も設定しなかったフレームは無効(歪まない)として扱われる。
 		void SetFishEyeData(const FishEyeOptionCB& a_data);
 		const FishEyeOptionCB& GetFishEyeData() const;
+		bool IsFishEyeOverride() const { return m_isFishEyeOverride; }
 		// 環境データ
 		void SetAmbientData(const AmbientData& a_data);
 		const AmbientData& GetAmbientData() const;
@@ -577,12 +589,20 @@ namespace Engine::Graphics
 		// メインカメラのパイプラインが描いた絵をバックバッファへ写す
 		void PresentFromPipeline(D3D12::GraphicsCommandList* a_pCmdList);
 
-		// 新パイプラインのモデル描画パスへ、このパス番号を配る。
-		// 従来のレンダーグラフは 0 から順に使うので、こちらは上から取って衝突を避ける
-		uint8_t AcquirePipelinePassIndex();
+		// 新パイプラインのモデル描画パスへパス番号を配り直す。
+		// 取りっぱなしにすると組み直しのたびに番号が枯れるので、
+		// どこか1つでも組み直したら全カメラぶんをまとめて配る
+		void AssignPipelinePassIndices();
 
-		// 新パイプラインの、モデルを受け取るパスを集める
-		std::vector<Pipeline::Pass*> CollectPipelineGeometryPasses(EGeometryQueue a_queue) const;
+		//--------------------------------------------------------------------------------------------
+		// 新パイプラインの、モデルを受け取るパスの一覧
+		//
+		// 描画アイテムはサブセット1つごとにパスの数だけ積むので、この一覧は
+		// 1フレームに何万回も引かれる。毎回集め直すと submit がそれだけで重くなるため、
+		// フレームの頭で1回作って引くだけにする
+		//--------------------------------------------------------------------------------------------
+		void RefreshPipelineGeometryPassCache();
+		const std::vector<Pipeline::Pass*>& GetPipelineGeometryPasses(EGeometryQueue a_queue) const;
 
 		// ピクセル空間で回転・アスペクト補正・ピボットを解決し、UIData(NDC基底)を
 		// 1件バッファへ積む(SubmitUI 各オーバーロード共通)。
@@ -609,12 +629,6 @@ namespace Engine::Graphics
 
 		// PSOやルートシグネチャの管理
 		D3D12::PipelineStateManager* m_pPipelineStateManager = nullptr;
-
-		// レンダーパスの登録場所
-		std::unique_ptr<RenderPassRegistry> m_upRenderPassRegistry = nullptr;
-
-		// レンダーグラフ
-		std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;
 
 		//メッシュバッファ管理
 		std::unique_ptr<MeshBufferAllocator> m_upMeshBufferAllocator = nullptr;
@@ -653,6 +667,12 @@ namespace Engine::Graphics
 
 		// 被写界深度データ(アクティブカメラの FocusParamComponent から毎フレーム設定)
 		DoFOptionCB m_cbDoF = {};
+
+		// 今フレーム、カメラから画面効果の値が送られてきたか。
+		// EndFrame で落とすので、送られなかったフレームはパス側の値が使われる
+		bool m_isDoFOverride = false;
+		bool m_isRadialBlurOverride = false;
+		bool m_isFishEyeOverride = false;
 
 		// ラジアルブラーデータ(アクティブカメラの RadialBlurComponent から毎フレーム設定)
 		RadialBlurOptionCB m_cbRadialBlur = {};
@@ -769,14 +789,21 @@ namespace Engine::Graphics
 		// バックバッファに描画するもの
 		CameraPipelineData* m_pMainCamera = nullptr;
 
+		// モデルを受け取るパスの一覧(フレームの頭で作り直す)。
+		// 実体はカメラのグラフが持っているので、ここは参照を並べるだけ
+		std::vector<Pipeline::Pass*> m_pipelineOpaquePassVec = {};
+		std::vector<Pipeline::Pass*> m_pipelineTransparentPassVec = {};
+
+		// 直近にメインだったカメラの描画構成。
+		// カメラが1台も積まれないフレーム(ゲームを止めているとき)でも、
+		// 最後に画面を作っていた構成を借りられるように残しておく
+		Handle<Pipeline::RenderingPipelineAsset> m_lastMainPipelineHandle = {};
+
 		// 画面へ出す絵を新パイプラインから取るか(移植中の見比べ用)
-		bool m_isPresentFromPipeline = true;
 
 		// 従来のレンダーグラフを回さないといけないか(エフェクトエディターが見ている間)
-		bool m_isLegacyRenderGraphRequired = false;
 
 		// 新パイプラインのパスへ配るパス番号。
 		// 255 から下って使う(従来経路は 0 から上っていく)
-		uint8_t m_nextPipelinePassIndex = 255;
 	};
 }

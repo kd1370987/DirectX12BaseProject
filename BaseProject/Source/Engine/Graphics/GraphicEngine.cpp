@@ -9,19 +9,16 @@
 
 // グラフィックス関係
 #include "RenderContext/RenderContext.h"
-#include "RenderGraph/RenderGraph.h"
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../Particle/ParticleBufferManager.h"
-#include "RenderPassRegistry/RenderPassRegistry.h"
 #include "MeshBufferAllocator/MeshBufferAllocator.h"
 #include "../Resource/Data/QuadPolygon/QuadPolygon.h"
 #include "MouseCursor/MouseCursor.h"
 
-// [TEST] 新レンダーグラフ(RenderingPipeline)の動作確認用 : 確認が済んだらこの2つのincludeごと消すこと
+// レンダリングパイプライン
 #include "RenderingPipeline/RenderingPipeline.h"
 #include "RenderingPipeline/RenderingPipelineMetaRegistry.h"
 #include "RenderingPipeline/GraphicsPipeline/GraphicsPipeline.h"
-#include "RenderingPipeline/RenderingPipeline.h"
 
 // シーン
 #include "../Scene/BaseScene/BaseScene.h"
@@ -33,48 +30,19 @@
 // オプション
 #include "../Option/OptionManager.h"
 
-// レンダーパス
-#include "RenderPass/Geometry/ZPrePass/ZPrePass.h"
-#include "RenderPass/Geometry/GBufferPass/GBufferPass.h"
-#include "RenderPass/Geometry/DebugLinePass/DebugLinePass.h"
-#include "RenderPass/Geometry/ParticlePass/ParticlePass.h"
-#include "RenderPass/Geometry/FullRaytracingPass/FullRaytracingPass.h"
+// カメラに依存しない、フレームに1回のGPU処理
+#include "FrameCompute/SkinningPass/SkinningPass.h"
+#include "FrameCompute/UpdateBLASPass/UpdateBLASPass.h"
+#include "FrameCompute/ParticleSimulation/ParticleSimulation.h"
 
-#include "RenderPass/Lighting/DeferredLighting/DeferredLighting.h"
-#include "RenderPass/Lighting/RaytracingGIPass/RaytracingGIPass.h"
 
-#include "RenderPass/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
 
-#include "RenderPass/Sky/SkyPass/SkyPass.h"
 
-#include "RenderPass/PostEffect/AntiAliasing/TAA/TAAPass.h"
-#include "RenderPass/PostEffect/DoF/CoCPass/CoCPass.h"
-#include "RenderPass/PostEffect/DoF/DoFPass/DoFPass.h"
-#include "RenderPass/PostEffect/Blur/GaussianBlurPass/GaussianBlurPass.h"
-#include "RenderPass/PostEffect/Blur/RadialBlurPass/RadialBlurPass.h"
-#include "RenderPass/PostEffect/Distortion/FishEyePass/FishEyePass.h"
-#include "RenderPass/PostEffect/Bloom/BloomExtractPass/BloomExtractPass.h"
-#include "RenderPass/PostEffect/Bloom/KawaseBlurPass/KawaseBlurPass.h"
-#include "RenderPass/PostEffect/Bloom/BloomCompositePass/BloomCompositePass.h"
-#include "RenderPass/PostEffect/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
-#include "RenderPass/PostEffect/Denoise/GI/GITempralAccumulationPass/GITemporalAccumulationPass.h"
-#include "RenderPass/PostEffect/Denoise/Shadow/ShadowSpatialDenoisePass/ShadowSpatialDenoisePass.h"
-#include "RenderPass/PostEffect/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
-#include "RenderPass/PostEffect/ToneMap/ToneMapPass.h"
-#include "RenderPass/Present/CopyToBackBufferPass/CopyToBackBufferPass.h"
 
-#include "RenderPass/Particle/UpdateParticlePass/UpdateParticlePass.h"
-#include "RenderPass/Particle/ParticleSimulation/ParticleSimulation.h"
 
-#include "RenderPass/Skinning/SkinningPass.h"
-#include "RenderPass/Skinning/UpdateBLASPass/UpdateBLASPass.h"
 
-#include "RenderPass/Utility/GBufferHistoryPass/GBufferHistoryPass.h"
-#include "RenderPass/Utility/PostHistoryPass/PostHistoryPass.h"
 
-#include "RenderPass/UpScale/FullRaytracingUpScalePass/FullRaytracingUpScalePass.h"
 
-#include "RenderPass/UI/UIPass/UIPass.h"
 
 
 // テスト
@@ -153,143 +121,15 @@ namespace Engine::Graphics
 			_frameLight.Create(_pDevice);
 		}
 
-		// レンダーパスの登録
-		m_upRenderPassRegistry = std::make_unique<RenderPassRegistry>();
-		// ラスター関係
-
-
-		// スキニングとBLAS更新はカメラに依存せず、フレームに1回で足りる。
-		// レンダーグラフのパスにはせず、Execute() から直接呼ぶ
+		//------------------------------------------------------------------------------------
+		// カメラに依存しない、フレームに1回で足りるGPU処理
+		//
+		// スキニング・BLAS更新・パーティクルの発生と更新は、どのカメラの描画でも
+		// 同じ結果を読む。パイプラインのパスにすると、カメラの数だけ同じ計算を回すことになる。
+		// ここで用意して Execute() から直接呼ぶ
+		//------------------------------------------------------------------------------------
 		SetupSkinning(m_pPipelineStateManager);
 		SetupParticleSimulation(m_pPipelineStateManager);
-
-		AddZPrePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Setup);
-		AddGBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
-		AddDebugLinePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
-		// 最終段 : HDR をトーンマップして FinalColor を作り、それをバックバッファへ載せる。
-		// どちらも Present 帯。FinalColor の書き手→読み手の関係でグラフがこの順に並べる
-		AddToneMapPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
-		AddCopyToBackBufferPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Present);
-		//AddFullRaytracingPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Geometry);
-
-		// 影レイトレは GBuffer の深度と法線からピクセル位置・裏面判定を復元するため、
-		// 必ず GBufferPass(Geometry) より後で実行する必要がある。
-		// Shadow フェーズ(=1) は Geometry フェーズ(=2) より前に走るため、以前は
-		// 「今フレームの深度 + 前フレームの法線」で影を計算してしまい、カメラ移動時に
-		// 輪郭で裏面カリング/バイアスが誤爆して黒いゴーストが出ていた。
-		// GI と同じ Raytracing フェーズ(=3, Geometry の後)へ移動して現在フレームの法線を読む。
-		AddRaytracingShadowPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Raytracing);
-		AddRaytracingGIPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Raytracing);
-		AddDeferredLighting(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Lighting);
-		// スカイはライティングの結果(AfterLighting)へ直接描くので、必ずディファードライティングより後。
-		// 同一フェーズ内はトポロジカルソートで並ぶが、この2つの間には
-		// 「読む→書く」の関係が無い(スカイは上書きするだけ)ので辺が張られない。
-		// 辺が無いものは登録順で並ぶため、ここの順番がそのまま実行順になる
-		AddSkyPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Lighting);
-		AddGBufferHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
-		AddPostHistoryPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::HistoryUpdate);
-
-		AddUIPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::UI);
-
-		AddTAAPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
-
-		// 被写界深度。ボカした絵にTAAを掛けると履歴がにじむので、必ずTAAの後に登録する。
-		// (同一フェーズ内はリソースのバージョンで依存が決まるため、登録順が
-		//  「TAAの出力を読む」という関係の解決に効く)
-		AddCoCPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
-		AddDoFPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
-
-		// ------------------------------------------------------------------
-		// 川瀬式ブルーム
-		//
-		//   抽出(等倍) → 1/2 → 1/4 → 1/8 → 1/16 と縮小しながらガウシアンブラー
-		//              → 4枚を平均して1枚に → メインカラーへ加算
-		//
-		// 縮小率ごとにボケの広がりが変わるので、それを重ねると
-		// 「芯は明るく、外へ行くほどゆるく広がる」ブルーム特有の減衰になる。
-		// 同じ広がりを1回の大きなブラーで出そうとするとタップ数が跳ね上がるため、
-		// 縮小バッファを積むこの形が安い。
-		//
-		// 等倍へ戻す拡大パスは持たない。合流(KawaseBlurPass)がUVでサンプリングするので、
-		// 解像度の違いはサンプラーのバイリニアが吸収してくれる。
-		//
-		// 合成はメインカラー(AfterTAAColor)を読んで書き戻すので、必ずDoFより後に登録する。
-		// (同一フェーズ内はリソースのバージョンで依存が決まるため、登録順が
-		//  「DoFの出力を読む」という関係の解決に効く)
-		// ------------------------------------------------------------------
-		{
-			// 高輝度成分の抽出(等倍)
-			AddBloomExtractPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
-
-			// 各段の解像度スケール
-			constexpr float kBloomScales[4] = { 0.5f, 0.25f, 0.125f, 0.0625f };
-
-			// ブラーの広がり。すべて縮小後の低解像度で回るので広め(5x5)に取れる
-			constexpr float kBlurSigma = 1.2f;
-			constexpr int   kBlurTapRadius = 2;
-
-			const std::string _extractName = "BloomExtract";
-
-			// 縮小 : 1つ前の段を入力にして半分ずつ小さくしていく
-			for (int _i = 0; _i < 4; ++_i)
-			{
-				const float _srcScale = (_i == 0) ? 1.0f : kBloomScales[_i - 1];
-				const std::string _srcName = (_i == 0) ? _extractName : ("BloomBlurDown" + std::to_string(_i - 1));
-
-				AddGaussianBlurPass(
-					m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess,
-					"BloomBlurDownPass" + std::to_string(_i),
-					_srcName,
-					"BloomBlurDown" + std::to_string(_i),
-					_srcScale, kBloomScales[_i],
-					kBlurSigma, kBlurTapRadius
-				);
-			}
-
-			// 4枚を1枚のブルームへまとめる（拡大はここのサンプリングが兼ねる）
-			AddKawaseBlurPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
-
-			// メインカラーへ加算合成して固定名へ戻す
-			AddBloomCompositePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
-		}
-
-		// ラジアルブラー。ブルームの後に登録すること。
-		// 光ったところごと放射状に流れてほしいので、逆にすると
-		// 引きずった跡だけが後から光ってしまう。
-		// (同一フェーズ内はリソースのバージョンで依存が決まるため、登録順が
-		//  「ブルーム合成の出力を読む」という関係の解決に効く)
-		AddRadialBlurPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
-
-		// 魚眼レンズ。ラジアルブラーの後に登録すること。
-		// 引きずった跡ごとレンズで歪んでほしいので、逆にすると
-		// 歪ませた絵の上をまっすぐ流すことになって噛み合わない。
-		// (同一フェーズ内はリソースのバージョンで依存が決まるため、登録順が
-		//  「ラジアルブラーの出力を読む」という関係の解決に効く)
-		AddFishEyePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::PostProcess);
-
-		AddShadowTemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
-		// 影はテンポラルのみだと履歴依存が強くゴーストが出るため、蓄積後にスペースデノイズをかける。
-		// NotSort は登録順で実行されるので、必ずテンポラルの後に登録すること。
-		AddShadowSpatialDenoisePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
-
-		// テンポラルデノイズ前に生のRayGIへ一度スペースデノイズをかける(プリデノイズ)。
-		// NotSort は登録順で実行されるため、必ずテンポラルパスより前に登録すること。
-		// RayGI は R16G16B16A16_FLOAT(HDR) なので、出力も同フォーマットにしてレンジを潰さない。
-		AddGISpatialDenoisePass(
-			m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort,
-			"GIPreSpatialDenoisePass", "RayGI", "RayGIDenoised", 2, DXGI_FORMAT_R16G16B16A16_FLOAT);
-
-		AddGITemporalAccumulationPass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
-		// GIは最後までHDRを保つため、スペースデノイズの出力(FinalGI)/中間バッファもR16Fにする
-		AddGISpatialDenoisePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort,
-			"GISpatialDenoisePass", "DenoiseGI", "FinalGI", 2, DXGI_FORMAT_R16G16B16A16_FLOAT);
-		AddFullRaytracingUpScalePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::NotSort);
-		// パーティクル
-		AddParticlePass(m_pPipelineStateManager, m_upRenderPassRegistry.get(), Graphics::EDrawPhase::Particle);
-
-		// レンダーグラフの構築
-		m_upRenderGraph = std::make_unique<RenderGraph>();
-		m_upRenderGraph->Init(m_upRenderPassRegistry.get());
 
 		// 定数バッファ初期化
 		m_cbAmbient = {};
@@ -327,22 +167,66 @@ namespace Engine::Graphics
 
 	//==========================================================================================
 	//
-	// カメラごとの描画構成(新レンダーグラフ)
+	// カメラごとの描画構成
 	//
 	//==========================================================================================
-	// 従来経路のパス番号は RenderPassRegistry が 0 から順に配っている。
-	// こちらは 255 から下って取ることで、同じ番号のバケットを踏まないようにする
-	uint8_t GraphicsEngine::AcquirePipelinePassIndex()
+	//======================================================================================
+	// モデルを受け取るパスへパス番号を配り直す
+	//
+	// 番号は描画アイテムのソートキーに入り、パスはそれで自分のぶんを引く。
+	//
+	// 組み直しのたびに新しい番号を取って返さない作りにすると、番号が減り続けて
+	// やがて別のパスと同じ番号になり、他所のアイテムを別のPSOで描き始める。
+	// シーンを切り替えるたびにカメラが作り直されるので、これは必ず起きる。
+	//
+	// どこか1つでも組み直したら、全カメラぶんをまとめて配り直す。
+	// 組み直しは構成を触ったときだけなので、毎フレームの費用にはならない
+	//======================================================================================
+	void GraphicsEngine::AssignPipelinePassIndices()
 	{
-		const uint8_t _index = m_nextPipelinePassIndex;
-		if (m_nextPipelinePassIndex > 0) --m_nextPipelinePassIndex;
-		return _index;
+		// ソートキーのパス番号は8bit。上から順に配る
+		uint8_t _next = 255;
+
+		for (auto& _upCamera : m_cameras)
+		{
+			if (!_upCamera || !_upCamera->upPipeline) continue;
+			if (!_upCamera->upPipeline->IsCompiled()) continue;
+
+			const auto* _pGraph = _upCamera->upPipeline->GetRenderGraph();
+			if (!_pGraph) continue;
+
+			for (const auto& _compiledPass : _pGraph->GetCompiledPasses())
+			{
+				if (!_compiledPass.pPass) continue;
+				if (_compiledPass.pPass->GetGeometryQueue() == EGeometryQueue::None) continue;
+
+				_compiledPass.pPass->SetPassIndex(_next);
+
+				// 0 まで来たら配り切り。ここへ届く構成は組み方がおかしい
+				if (_next == 0)
+				{
+					ENGINE_WARNING("[GraphicsEngine] モデルを受け取るパスが多すぎます。パス番号が足りません");
+					return;
+				}
+				--_next;
+			}
+		}
 	}
 
-	std::vector<Pipeline::Pass*> GraphicsEngine::CollectPipelineGeometryPasses(EGeometryQueue a_queue) const
+	//======================================================================================
+	// モデルを受け取るパスの一覧を作り直す
+	//
+	// 描画アイテムはサブセット1つごとに、これらのパスの数だけ積む。
+	// つまりこの一覧は1フレームに何万回も引かれるので、
+	// そのたびに全カメラを走査して配列を確保していると submit がそれだけで重くなる。
+	//
+	// カメラとパスの顔ぶれが変わるのはフレームの境目だけなので、
+	// フレームの頭で1回作って、あとは引くだけにする
+	//======================================================================================
+	void GraphicsEngine::RefreshPipelineGeometryPassCache()
 	{
-		std::vector<Pipeline::Pass*> _result = {};
-		if (a_queue == EGeometryQueue::None) return _result;
+		m_pipelineOpaquePassVec.clear();
+		m_pipelineTransparentPassVec.clear();
 
 		for (const auto& _upCamera : m_cameras)
 		{
@@ -355,12 +239,27 @@ namespace Engine::Graphics
 			for (const auto& _compiledPass : _pGraph->GetCompiledPasses())
 			{
 				if (!_compiledPass.pPass) continue;
-				if (_compiledPass.pPass->GetGeometryQueue() != a_queue) continue;
 
-				_result.push_back(_compiledPass.pPass);
+				switch (_compiledPass.pPass->GetGeometryQueue())
+				{
+				case EGeometryQueue::Opaque:		m_pipelineOpaquePassVec.push_back(_compiledPass.pPass);		break;
+				case EGeometryQueue::Transparent:	m_pipelineTransparentPassVec.push_back(_compiledPass.pPass);	break;
+				default: break;
+				}
 			}
 		}
-		return _result;
+	}
+
+	const std::vector<Pipeline::Pass*>& GraphicsEngine::GetPipelineGeometryPasses(EGeometryQueue a_queue) const
+	{
+		static const std::vector<Pipeline::Pass*> _empty = {};
+
+		switch (a_queue)
+		{
+		case EGeometryQueue::Opaque:		return m_pipelineOpaquePassVec;
+		case EGeometryQueue::Transparent:	return m_pipelineTransparentPassVec;
+		default:							return _empty;
+		}
 	}
 
 	void GraphicsEngine::SubmitCamera(const CameraSubmitDesc& a_desc)
@@ -428,7 +327,13 @@ namespace Engine::Graphics
 			if (!_upCamera || !_upCamera->isSubmitted) continue;
 
 			m_sortedCameras.push_back(_upCamera.get());
-			if (_upCamera->isMain) m_pMainCamera = _upCamera.get();
+			if (_upCamera->isMain)
+			{
+				m_pMainCamera = _upCamera.get();
+
+				// ゲームを止めているあいだも借りられるよう控えておく
+				m_lastMainPipelineHandle = _upCamera->pipelineHandle;
+			}
 		}
 		if (m_sortedCameras.empty()) return;
 
@@ -444,6 +349,10 @@ namespace Engine::Graphics
 		auto* _pRenderContext = m_upRenderContextVec[m_currentFrameIndex].get();
 		auto& _resourceManager = Resource::ResourceManager::Instance();
 
+		// 組み直したカメラがあったか。1台でもあればパス番号を配り直す
+		bool _isAnyRebuilt = false;
+
+		// ---- 設計図から実行インスタンスを用意する ----
 		for (CameraPipelineData* _pCamera : m_sortedCameras)
 		{
 			// 設計図がまだ読めていなければ何もしない
@@ -523,21 +432,50 @@ namespace Engine::Graphics
 
 				if (!_pCamera->upPipeline->Compile(this, _pDevice)) { _reportFail(); continue; }
 
-				// モデルを受け取るパスへパス番号を配る。
-				// 描画アイテムのソートキーにこの番号が入り、パスはそれで自分のぶんを引く
-				for (const auto& _compiledPass : _pCamera->upPipeline->GetRenderGraph()->GetCompiledPasses())
-				{
-					if (!_compiledPass.pPass) continue;
-					if (_compiledPass.pPass->GetGeometryQueue() == EGeometryQueue::None) continue;
-
-					_compiledPass.pPass->SetPassIndex(AcquirePipelinePassIndex());
-				}
-
 				_pCamera->builtStructureVersion = _version;
 				_pCamera->builtParamVersion = _pAsset->GetParamVersion();
-			}
 
+				// パス番号はカメラをまたいで一意でないといけないので、
+				// 全部組み終わってからまとめて配る
+				_isAnyRebuilt = true;
+			}
+		}
+
+		// ---- パス番号を配り直してから回す ----
+		if (_isAnyRebuilt)
+		{
+			AssignPipelinePassIndices();
+
+			// 組み直しで古いパスは消えている。
+			// 一覧が消えたパスを指したままにならないよう作り直す
+			RefreshPipelineGeometryPassCache();
+		}
+
+		for (CameraPipelineData* _pCamera : m_sortedCameras)
+		{
+			if (!_pCamera->upPipeline) continue;
 			_pCamera->upPipeline->Render(this, _pRenderContext);
+		}
+
+		//----------------------------------------------------------------------------------
+		// 描き終わった絵を「読める状態」にしておく
+		//
+		// グラフは最終出力を差し込まれたときのステート(RENDER_TARGET)へ戻して終わる。
+		// ところがこの絵を読むのはグラフの外 : シーンビューやエフェクトエディターのImGui、
+		// モニターに映すUIで、どれもシェーダーリソースとして読む。
+		// RENDER_TARGET のまま読ませると不正なアクセスになるので、ここで移しておく。
+		//
+		// 次のフレームでグラフが書きに来るときは、リソースが自分で持っている
+		// 今のステートから遷移し直すので、ここで変えておいても食い違わない
+		//----------------------------------------------------------------------------------
+		auto* _pCmdList = _pRenderContext->GetCurrentCmdList();
+		if (_pCmdList)
+		{
+			for (CameraPipelineData* _pCamera : m_sortedCameras)
+			{
+				if (!_pCamera->upFinalTex) continue;
+				_pCamera->upFinalTex->Barrier(_pCmdList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			}
 		}
 	}
 
@@ -565,18 +503,36 @@ namespace Engine::Graphics
 			if (_upCamera) _upCamera->isSubmitted = false;
 		}
 
+		// この並びは毎フレーム作り直すので捨ててよい
 		m_sortedCameras.clear();
-		m_pMainCamera = nullptr;
+
+		//----------------------------------------------------------------------------------
+		// 画面に出るカメラは、消えていなければ指したままにする
+		//
+		// ここで必ず nullptr にすると、次のフレームの頭で回るエディターの描画から
+		// 「画面に出ている絵」が引けなくなる。
+		// エディターのウィジェットを組むのは BeginDraw、カメラを積み直すのは
+		// そのあとの Execute なので、間はここで残した値が使われる。
+		//
+		// 消えたカメラを指したままにはできないので、生き残っているかだけ確かめる
+		//----------------------------------------------------------------------------------
+		bool _isMainAlive = false;
+		for (const auto& _upCamera : m_cameras)
+		{
+			if (_upCamera.get() != m_pMainCamera) continue;
+
+			_isMainAlive = true;
+			break;
+		}
+		if (!_isMainAlive) m_pMainCamera = nullptr;
 	}
 
-	// パイプラインの絵で画面を置き換えられる状態か。
+	// 画面へ出せる絵ができているか。
 	//
-	// ここが false のあいだは従来のレンダーグラフが画面を作る。
-	// コンパイルが通っていないパイプラインは何も描いていないので、
-	// 真っ黒で上書きせずに従来経路の絵を残す
+	// 画面に出るカメラに描画構成が設定されていて、組み上がっているときだけ true。
+	// 組めていないパイプラインは何も描いていないので、そのまま出すと真っ黒になる
 	bool GraphicsEngine::IsPipelinePresentActive() const
 	{
-		if (!m_isPresentFromPipeline) return false;
 		if (!m_pMainCamera) return false;
 		if (!m_pMainCamera->upPipeline || !m_pMainCamera->upPipeline->IsCompiled()) return false;
 
@@ -621,7 +577,69 @@ namespace Engine::Graphics
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-		_pFinalTex->Barrier(a_pCmdList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		// 最終出力はこの後 ImGui が読むので、読める状態のまま置いておく
+		_pFinalTex->Barrier(a_pCmdList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	}
+
+	// 設計図のパスと同じGUIDを持つ、実行インスタンス側のパスを返す。
+	//
+	// メインカメラを先に見るのは、同じ設計図を複数のカメラが使っているときに
+	// 「画面に出ている絵」と、ノードに出る中身を揃えるため
+	Pipeline::Pass* GraphicsEngine::FindPipelinePass(const Engine::GUID& a_passGUID) const
+	{
+		if (!a_passGUID.IsValid()) return nullptr;
+
+		auto _findIn = [&a_passGUID](const CameraPipelineData* a_pCamera) -> Pipeline::Pass*
+			{
+				if (!a_pCamera || !a_pCamera->upPipeline) return nullptr;
+				if (!a_pCamera->upPipeline->IsCompiled()) return nullptr;
+
+				// この名前空間では RenderGraph は従来経路のものを指すので、必ず修飾する
+				Pipeline::RenderGraph* _pGraph = a_pCamera->upPipeline->RefRenderGraph();
+				if (!_pGraph) return nullptr;
+
+				return _pGraph->FindPass(a_passGUID);
+			};
+
+		if (Pipeline::Pass* _pPass = _findIn(m_pMainCamera)) return _pPass;
+
+		for (const auto& _upCamera : m_cameras)
+		{
+			if (_upCamera.get() == m_pMainCamera) continue;
+			if (Pipeline::Pass* _pPass = _findIn(_upCamera.get())) return _pPass;
+		}
+
+		return nullptr;
+	}
+
+	std::vector<GraphicsEngine::PipelineGraphView> GraphicsEngine::CollectPipelineGraphs() const
+	{
+		std::vector<PipelineGraphView> _result = {};
+		_result.reserve(m_cameras.size());
+
+		auto& _resourceManager = Resource::ResourceManager::Instance();
+
+		for (const auto& _upCamera : m_cameras)
+		{
+			if (!_upCamera || !_upCamera->upPipeline) continue;
+			if (!_upCamera->upPipeline->IsCompiled()) continue;
+
+			const Pipeline::RenderGraph* _pGraph = _upCamera->upPipeline->GetRenderGraph();
+			if (!_pGraph) continue;
+
+			// 設計図の名前でどのカメラか分かるようにする。
+			// 同じ設計図を複数のカメラが使っていることもあるので、メインには印を付ける
+			std::string _name = "Pipeline";
+			if (const auto* _pAsset = _resourceManager.Ref(_upCamera->pipelineHandle))
+			{
+				_name = _pAsset->GetName();
+			}
+			if (_upCamera->isMain) _name += " (Main)";
+
+			_result.push_back({ std::move(_name), _pGraph });
+		}
+
+		return _result;
 	}
 
 	const Resource::Texture* GraphicsEngine::GetCameraFinalTexture(const ECS::World* a_pWorld, uint32_t a_entity) const
@@ -667,14 +685,6 @@ namespace Engine::Graphics
 		}
 		m_lightManager.Release();
 
-		// レンダーグラフの一時リソース(GBuffer/TAA/各種RTなどのテクスチャ・バッファ)を解放。
-		// デストラクタ任せにすると LIVE_DEVICE として残るため、ここで明示的に解放する。
-		// DescriptorHeapManager の解放より前に呼ぶ必要がある。
-		if (m_upRenderGraph)
-		{
-			m_upRenderGraph->Release();
-		}
-
 		// 板ポリ解放
 		m_upQuadPolygon.reset();
 		m_upCurvedQuadPolygon.reset();
@@ -692,6 +702,10 @@ namespace Engine::Graphics
 		// 今から使うレンダーコンテキスをクリア
 		m_currentFrameIndex = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 		m_upRenderContextVec[m_currentFrameIndex]->Clear();
+
+		// モデルを受け取るパスの一覧を作り直す。
+		// このフレームの描画アイテムはここで作った一覧に沿って積まれる
+		RefreshPipelineGeometryPassCache();
 	}
 	void GraphicsEngine::Execute()
 	{
@@ -814,22 +828,7 @@ namespace Engine::Graphics
 		// バックバッファへ出すのは下の従来経路のまま
 		ExecuteCameraPipelines();
 
-		//------------------------------------------------------------------
-		// 従来のレンダーグラフ(移植中の並走経路)
-		//
-		// パイプラインの絵を画面へ出しているあいだは回さない。
-		// 回すと、パイプラインに通していないパス(UIなど)まで描かれてしまい、
-		// 「繋いでいないのに映る」状態になる。同じ絵を2回描くことにもなる。
-		//
-		// エフェクトエディターだけは従来経路の FinalColor を見ているので、
-		// 開いているあいだは例外として回し続ける
-		//------------------------------------------------------------------
-		if (!IsPipelinePresentActive() || m_isLegacyRenderGraphRequired)
-		{
-			m_upRenderGraph->Execute(this, m_upRenderContextVec[m_currentFrameIndex].get());
-		}
-
-		// パイプラインの絵で画面を置き換える
+		// メインカメラが描いた絵をバックバッファへ載せる
 		PresentFromPipeline(_pCmdList);
 
 		D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
@@ -858,16 +857,21 @@ namespace Engine::Graphics
 		// サブセット情報の消去
 		ClearAndReserve(m_meshMaterialDataVec, 10000);
 
-		// 被写界深度は毎フレーム、アクティブカメラが設定し直す。
-		// ここで落としておけば、カメラが居ない/ピント設定を持たないフレームは
-		// 前フレームの値でボケ続けることなく素通しになる
+		//------------------------------------------------------------------
+		// 画面効果は毎フレーム、アクティブカメラが設定し直す。
+		//
+		// ここで落としておけば、カメラが居ない/その設定を持たないフレームは
+		// 前フレームの値で効き続けることがない。
+		// フラグを下ろすと、パスはアセットに保存した自分の値へ戻る
+		//------------------------------------------------------------------
 		m_cbDoF = {};
+		m_isDoFOverride = false;
 
-		// ラジアルブラーも同じ。設定し直されなかったフレームは無効(流れない)
 		m_cbRadialBlur = {};
+		m_isRadialBlurOverride = false;
 
-		// 魚眼レンズも同じ。設定し直されなかったフレームは無効(歪まない)
 		m_cbFishEye = {};
+		m_isFishEyeOverride = false;
 
 		// デバッグ用配列のクリア
 		Editor::MainEditor::Instance().ClearBuffer();
@@ -886,15 +890,6 @@ namespace Engine::Graphics
 	{
 		return m_pPipelineStateManager;
 	}
-	Graphics::RenderPassRegistry* GraphicsEngine::RefRenderPassRegistry()
-	{
-		return m_upRenderPassRegistry.get();
-	}
-	RenderGraph* GraphicsEngine::RefRenderGraph()
-	{
-		return m_upRenderGraph.get();
-	}
-
 	LightManager* GraphicsEngine::RefLightManager()
 	{
 		return &m_lightManager;
@@ -921,6 +916,9 @@ namespace Engine::Graphics
 	void GraphicsEngine::SetDoFData(const DoFOptionCB& a_data)
 	{
 		m_cbDoF = a_data;
+
+		// 今フレームはカメラが決めた値を使う
+		m_isDoFOverride = true;
 	}
 	const DoFOptionCB& GraphicsEngine::GetDoFData() const
 	{
@@ -929,6 +927,9 @@ namespace Engine::Graphics
 	void GraphicsEngine::SetRadialBlurData(const RadialBlurOptionCB& a_data)
 	{
 		m_cbRadialBlur = a_data;
+
+		// 今フレームはカメラが決めた値を使う
+		m_isRadialBlurOverride = true;
 	}
 	const RadialBlurOptionCB& GraphicsEngine::GetRadialBlurData() const
 	{
@@ -937,6 +938,9 @@ namespace Engine::Graphics
 	void GraphicsEngine::SetFishEyeData(const FishEyeOptionCB& a_data)
 	{
 		m_cbFishEye = a_data;
+
+		// 今フレームはカメラが決めた値を使う
+		m_isFishEyeOverride = true;
 	}
 	const FishEyeOptionCB& GraphicsEngine::GetFishEyeData() const
 	{
@@ -1605,7 +1609,7 @@ namespace Engine::Graphics
 
 		// 新パイプライン側のパスへも同じアイテムを流す。
 		// パスごとにPSOもパス番号も違うので、パスの数だけ登録することになる
-		for (auto* _pPipelinePass : CollectPipelineGeometryPasses(_queue))
+		for (auto* _pPipelinePass : GetPipelineGeometryPasses(_queue))
 		{
 			if (!_pPipelinePass) continue;
 
@@ -1629,7 +1633,7 @@ namespace Engine::Graphics
 			_pipelineKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
 			_pipelineKey.psHandle = _pPipelinePass->GetDefaultPSHandle();
 
-			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, nullptr, m_pPipelineStateManager);
+			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, m_pPipelineStateManager);
 
 			// ソートキーのPSO番号は8bitしかない。
 			// 収まらない番号を入れると、描くときにまったく別のPSOを引いてしまうので積まない。
@@ -1657,80 +1661,6 @@ namespace Engine::Graphics
 			AddItem(_item);
 		}
 
-		for (auto* _pPassNode : m_upRenderGraph->GetGeometryPasses(_queue))
-		{
-			if (!_pPassNode) continue;
-
-			uint32_t _meshInstanceIdx = UINT32_MAX;
-
-			// -----------------------------------------------------
-			// メッシュシェーダー対応パスの場合のデータ構築
-			// -----------------------------------------------------
-			if (_pPassNode->pipelineBuilder.HasMeshShader())
-			{
-				a_psoKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
-
-				MeshMaterial _meshMaterial = BuildMeshMaterial(a_pMaterial, a_albedoScale, a_emissiveScale, a_emissiveAdd);
-
-				const auto& _msData = a_pMesh->GetMeshShaderData();
-
-				MeshInstanceData _meshInstanceData = {};
-				_meshInstanceData.worldMat = a_mat.Transpose();
-				_meshInstanceData.prevWorldMat = a_prevMat.Transpose();
-				_meshInstanceData.materialOffset = SetMeshMaterialData(_meshMaterial);
-
-				_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _msData.subsetMeshlets[a_cmd.subIdx].meshletOffset;
-				_meshInstanceData.vertexOffset = a_pMesh->GetRtData().vertexHandle.startIndex;
-				_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
-				_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
-
-				_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex + _msData.subsetMeshlets[a_cmd.subIdx].cullOffset;
-				_meshInstanceData.meshletCount = a_pMesh->GetMeshShaderData().subsetMeshlets[a_cmd.subIdx].meshletCount;
-
-				// アニメーション結果のスタートインデックス(非アニメ時は0)
-				_meshInstanceData.animatedVertexStart = a_animatedVertexStart;
-				_meshInstanceData.isAnimated = a_isAnimation ? 1 : 0;
-
-				_meshInstanceIdx = SetInstanceData(_meshInstanceData);
-			}
-
-			// -----------------------------------------------------
-			// 描画アイテム登録用のローカルヘルパー
-			// -----------------------------------------------------
-			auto AddDrawItemFunc = [&](const auto& a_psHandle)
-				{
-					a_psoKey.psHandle = a_psHandle;
-					auto _psoHandle = _pPassNode->pipelineBuilder.Request(a_psoKey, m_upRenderGraph.get(), m_pPipelineStateManager);
-
-					Engine::Graphics::LightWeightDrawItem _item = {};
-
-					// 描画時に引き直すためのハンドル
-					_item.meshHandle = a_cmd.meshHandle;
-					_item.materialHandle = a_cmd.materialHandle;
-
-					// ソートキーは同じ状態をまとめるためのものなので、添え字だけで足りる
-					_item.sortKey.bits.meshID = a_cmd.meshHandle.GetIndex();
-					_item.sortKey.bits.materialID = a_cmd.materialHandle.GetIndex();
-					_item.isAnimation = a_isAnimation;
-					_item.subIndex = a_cmd.subIdx;
-					_item.meshInstanceIndex = _meshInstanceIdx;
-					_item.subsetMeshletCount = a_pMesh->GetMeshShaderData().subsetMeshlets[a_cmd.subIdx].meshletCount;
-					_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
-					_item.sortKey.bits.passIndex = _pPassNode->passIndex;
-
-					AddItem(_item);
-				};
-
-			// -----------------------------------------------------
-			// 登録
-			//
-			// どのPSで描くかはパス自身が持っている。
-			// もとはシェーディングモデルがパスごとにPSの配列を持っていて、
-			// 1つのサブセットが複数回登録されることがあったが、
-			// 実際には1本しか入っていなかったので1回に固定した
-			// -----------------------------------------------------
-			AddDrawItemFunc(_pPassNode->defaultPSHandle);
-		}
 	}
 
 	void GraphicsEngine::PushUIData(

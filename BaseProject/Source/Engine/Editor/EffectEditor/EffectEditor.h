@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace Engine
 {
@@ -8,6 +8,7 @@ namespace Engine
 		class EffectAsset;
 		class ParticlesAsset;
 	}
+	namespace Graphics::Pipeline { class RenderingPipelineAsset; }
 }
 
 namespace Engine::Editor
@@ -87,6 +88,10 @@ namespace Engine::Editor
 		/// </remarks>
 		void UpdateCamera(float a_dt);
 
+		// このプレビューのカメラを GraphicsEngine へ積む。
+		// このワールドにはカメラのエンティティが居ないので、システム任せにできない
+		void SubmitPreviewCamera();
+
 		/// <summary>
 		/// カメラの割り込み行列を取得する
 		/// </summary>
@@ -151,6 +156,19 @@ namespace Engine::Editor
 		// シーンビューと同じフリーカメラ。
 		// プレビュー専用の実体を持つ(シーンビュー側の位置を動かさないため)
 		std::unique_ptr<EditorCamera> m_upCamera = nullptr;
+
+		//----------------------------------------------------------------------------------
+		// 描画構成
+		//
+		// このワールドを描くのに使うパイプライン。
+		// 開いた時点でゲームが使っていたものを借りるので、絵作りは本番と揃う。
+		// カメラが一度も積まれていなければ無効のままで、プレビューは出ない
+		//----------------------------------------------------------------------------------
+		Engine::Handle<Engine::Graphics::Pipeline::RenderingPipelineAsset> m_pipelineHandle = {};
+
+		// このプレビューのカメラを GraphicsEngine 側で識別する鍵。
+		// ワールドが違えば別のカメラとして扱われるので、添字は固定でよい
+		static constexpr uint32_t PREVIEW_CAMERA_ENTITY = 0;
 
 		//----------------------------------------------------------------------------------
 		// 再生

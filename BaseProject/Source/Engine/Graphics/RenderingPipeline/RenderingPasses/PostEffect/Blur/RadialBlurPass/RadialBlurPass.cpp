@@ -1,6 +1,7 @@
 ﻿#include "RadialBlurPass.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/Graphics/GraphicEngine.h"
 
 namespace Engine::Graphics::Pipeline
 {
@@ -24,8 +25,21 @@ namespace Engine::Graphics::Pipeline
 	{
 		if (!a_context.pRenderContext || !a_context.pCmdList) return;
 
+		//----------------------------------------------------------------------------------
+		// 調整値の出どころ
+		//
+		// カメラが RadialBlurComponent を持っていれば、CamSetShaderSystem が
+		// 毎フレーム値を送ってくる(速度に応じて動くのはこちら)。
+		// 送られてこないフレームは、このパスがアセットに保存している自分の値を使う。
+		//
+		// カメラ側を優先しないと、演出でボケや流れが動かなくなる
+		//----------------------------------------------------------------------------------
+		const RadialBlurOptionCB& _cb = a_context.pGraphicsEngine && a_context.pGraphicsEngine->IsRadialBlurOverride()
+			? a_context.pGraphicsEngine->GetRadialBlurData()
+			: m_cb;
+
 		// ヒープ・ルートシグネチャ・PSO・SRV/UAV はグラフが張り終えている
-		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 0, m_cb);
+		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 0, _cb);
 		DispatchFullScreen(a_context);
 	}
 
@@ -43,6 +57,8 @@ namespace Engine::Graphics::Pipeline
 		_isEdit |= ImGui::DragFloat("Falloff", &m_cb.falloff, 0.01f, 0.0f, 8.0f);
 
 		// 値が変わるだけなのでグラフは組み直さない
+		ImGui::TextDisabled("カメラが RadialBlurComponent を持つあいだはそちらの値が優先される");
+
 		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 	}
 

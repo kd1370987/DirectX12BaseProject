@@ -2,7 +2,7 @@
 
 #include "../../../../../../MainEngine.h"
 #include "../../../../../../Graphics/GraphicEngine.h"
-#include "../../../../../../Graphics/RenderPassRegistry/RenderPassRegistry.h"
+#include "../../../../../../Graphics/RenderingPipeline/RenderingPipelineMetaRegistry.h"
 #include "../../../../../Helper/EditorHelper.h"
 
 #include "../../AssetLink.h"
@@ -35,17 +35,45 @@ namespace Engine::Editor::Inspector
 
 		auto* _pGraphicsEngine = Engine::MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGraphicsEngine) { return; }
-		auto* _pRenderPassRegistry = _pGraphicsEngine->RefRenderPassRegistry();
-		if (!_pRenderPassRegistry) { return; }
+		auto* _pPassMetaRegistry = _pGraphicsEngine->RefPassMetaRegistry();
+		if (!_pPassMetaRegistry) { return; }
 
-		// レンダーパス一覧を取得
-		auto& _passNodeVec = _pRenderPassRegistry->RefPassNodes();
 		// アセットデータベースからシェーダー一覧を取得
 		auto _shaderMetaVec = Resource::AssetDatabase::Instance().GetTypeMetaVec("Shader");
 
-		for (const auto& _passNode : _passNodeVec)
+		//----------------------------------------------------------------------------------
+		// 表に並べるパス名を集める
+		//
+		// 表が持っているのは「パス名 -> ピクセルシェーダー」の対応なので、
+		// 並べるのはモデルを受け取るパスだけでよい(GBuffer / ZPre など)。
+		// 同じ鍵を複数のパスが使うこともあるので、名前で重複を落とす。
+		//
+		// 実際に置かれているパスではなく登録済みの型から集めるのは、
+		// パイプラインにまだ置いていないパスぶんも先に設定しておけるようにするため
+		//----------------------------------------------------------------------------------
+		std::vector<std::string> _passNameVec = {};
+		for (const auto& [_typeID, _meta] : _pPassMetaRegistry->GetAllMeta())
 		{
-			const auto& _passName = _passNode->name;
+			if (_meta.shadingPassName.empty()) continue;
+
+			if (std::find(_passNameVec.begin(), _passNameVec.end(), _meta.shadingPassName) != _passNameVec.end())
+			{
+				continue;
+			}
+			_passNameVec.push_back(_meta.shadingPassName);
+		}
+
+		// 一覧の並びが毎回変わると探しづらいので名前順に固定する
+		std::sort(_passNameVec.begin(), _passNameVec.end());
+
+		if (_passNameVec.empty())
+		{
+			ImGui::TextDisabled("モデルを受け取るパスが登録されていません");
+			return;
+		}
+
+		for (const auto& _passName : _passNameVec)
+		{
 
 			// このパスがテーブルに登録されているか判定
 			bool _isActive = a_pTable->HasPass(_passName);

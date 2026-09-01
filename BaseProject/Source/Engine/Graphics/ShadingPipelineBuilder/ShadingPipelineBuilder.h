@@ -9,7 +9,6 @@ namespace Engine::D3D12
 
 namespace Engine::Graphics
 {
-	class RenderGraph;
 
 	
 
@@ -34,7 +33,7 @@ namespace Engine::Graphics
 		/// </summary>
 		/// <param name="a_key">PSO検索用キー</param>
 		/// <returns>PSOマネージャーから帰ってきたハンドルを返す</returns>
-		Handle<ID3D12PipelineState> Request(PSOKey a_key, RenderGraph* a_pRenderGraph, D3D12::PipelineStateManager* a_pPSOManager);
+		Handle<ID3D12PipelineState> Request(PSOKey a_key, D3D12::PipelineStateManager* a_pPSOManager);
 
 		/// <summary>
 		/// フラグに対応したVSを登録する
