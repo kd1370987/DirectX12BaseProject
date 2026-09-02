@@ -1579,11 +1579,14 @@
     <Filter Include="Asset\Shader\Source\PostProcess\Blend">
       <UniqueIdentifier>{b4a92785-85e1-48ab-bdfa-b13e7299a937}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler">
+      <UniqueIdentifier>{50cda4b6-2603-4250-bad7-87fc5e19af62}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap">
-      <UniqueIdentifier>{8e0aa42e-36b8-4741-9aa3-732f4b55109c}</UniqueIdentifier>
+      <UniqueIdentifier>{bc7dcfb5-4c42-4828-9378-72d76e382f92}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal">
-      <UniqueIdentifier>{a4797a74-c7c3-4abc-88e5-97aaa81dbab8}</UniqueIdentifier>
+      <UniqueIdentifier>{e6d94f4a-853f-424b-aee0-968e187c02f5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -2687,6 +2690,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceAllocator.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler\RenderGraphCompiler.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -4333,6 +4342,12 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\ResourceBarrier.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceAllocator.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler\RenderGraphCompiler.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
