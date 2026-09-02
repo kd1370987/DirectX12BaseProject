@@ -10,81 +10,19 @@
 // 仮想リソース / 物理リソースの配列もここが持つ(マネージャークラスは置かない)。
 //   Compile()           : 実行順の解決 + 仮想リソースの構築(GPU不要)
 //   AllocateResources() : 仮想リソースの要件どおりに物理リソースを作る(GPU必要)
-//
-// 既存の Engine::Graphics::RenderGraph とは別物。
-// 作り直し中のこちらは Engine::Graphics::Pipeline 名前空間に入っている。
-//
 //==========================================================================================
 #include "../RenderingPipeline.h"
-#include "VirtualResource/VirtualResource.h"
+#include "Resource/VirtualResource/VirtualResource.h"
 #include "PhysicalResource/PhysicalResource.h"
+#include "Internal/CompiledPass.h"
+#include "Internal/ResourceBarrier.h"
+
+
+#include "Resource/ResourceRegistry.h"
 
 namespace Engine::Graphics::Pipeline
 {
 	class PassMetaRegistry;
-
-	// =====================================================================================
-	// リソースバリア(コンパイル時に計算済みのもの)
-	// =====================================================================================
-	struct ResourceBarrier
-	{
-		ResourceHandle handle = {};								// どの仮想リソースか
-
-		// このバリアが触るスライス([0]=Current/書く側 [1]=Previous/読む側)。
-		// Temporal でないリソースは常に 0
-		uint32_t slice = 0;
-
-		// 実体 : AllocateResources 後に埋まる。
-		// Temporal は偶数フレームと奇数フレームで別の物理を触るので、両方を焼き込んでおく
-		D3D12::GPUResource* pResource[2] = { nullptr, nullptr };
-
-		D3D12_RESOURCE_STATES before = D3D12_RESOURCE_STATE_COMMON;
-		D3D12_RESOURCE_STATES after = D3D12_RESOURCE_STATE_COMMON;
-
-		// UAV -> UAV : ステートは変わらないが、前の書き込みの完了を待たせる必要がある
-		bool isUAVBarrier = false;
-	};
-
-	// =====================================================================================
-	// コンパイル済みのパス
-	//
-	// 実行順に一本で並ぶ。前から順に「バリアを張ってからパスを回す」だけでよい形にする
-	// =====================================================================================
-	struct CompiledPass
-	{
-		Pass* pPass = nullptr;							// 実体は m_passes が持つ
-		std::vector<ResourceBarrier> preBarriers = {};	// このパスの直前に張るバリア
-
-		//----------------------------------------------------------------------------------
-		// 焼き込み済みの出力先
-		//
-		// 物理リソースが決まったところで引いておく。
-		// 実行時にスロットから引き直すと、毎フレーム同じ探索を繰り返すことになる
-		//----------------------------------------------------------------------------------
-		// Temporal を含むと出力先がフレームで変わるので、偶数/奇数の2セットを焼き込む。
-		// clear の対象や DSV の有無は並びが同じなので1つで足りる
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rtvHandles[2] = {};
-		std::vector<size_t> clearRtvIndices = {};		// rtvHandles のうちクリアするもの
-
-		// 上と同じ並びのクリア色。
-		// スロットが宣言した色(=生成時のクリアバリュー)をそのまま使わないと、
-		// 透明で消したいレイヤーが不透明黒で塗られる(UIだけを描いた板の背景が真っ黒になる)
-		std::vector<Math::Color> clearRtvColors = {};
-
-		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle[2] = { { 0 }, { 0 } };
-		bool hasDSV = false;
-		bool isDepthClear = false;
-
-		//----------------------------------------------------------------------------------
-		// 焼き込み済みのバインド
-		//
-		// スロットが指定したルートパラメータ番号ごとに、
-		// ディスクリプタを連続領域へ並べておく。
-		// 実行時は範囲を渡すだけで張れる
-		//----------------------------------------------------------------------------------
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> descriptorTable[2] = {};
-		std::vector<PassBind> binds = {};
-	};
 
 	// =====================================================================================
 	// グラフの検証結果
@@ -236,7 +174,7 @@ namespace Engine::Graphics::Pipeline
 		// このグラフに Temporal リソースが1つでもあるか
 		bool HasTemporalResource() const;
 
-		const std::vector<VirtualResource>& GetVirtualResources() const { return m_virtualResourceVec; }
+		//const std::vector<VirtualResource>& GetVirtualResources() const { return m_virtualResourceVec; }
 		const std::vector<std::unique_ptr<PhysicalResource>>& GetPhysicalResources() const { return m_physicalResourceVec; }
 
 		//----------------------------------------------------------------------------------
@@ -364,15 +302,17 @@ namespace Engine::Graphics::Pipeline
 
 		// ---- リソース ----
 
+		ResourceRegistry m_resourceRegistry;
+
 		// 仮想リソース : Compile のたびに組み直す
-		std::unordered_map<std::string, uint32_t> m_resourceNameMap = {};
-		std::vector<VirtualResource> m_virtualResourceVec = {};
+		//std::unordered_map<std::string, uint32_t> m_resourceNameMap = {};
+		//std::vector<VirtualResource> m_virtualResourceVec = {};
 
 		// 物理リソース : 今は仮想1つにつき1つなので、添字は仮想側と一致する
 		std::vector<std::unique_ptr<PhysicalResource>> m_physicalResourceVec = {};
 
 		// 外部から差し込まれたリソース
-		std::vector<ImportedResource> m_importedResourceVec = {};
+		//std::vector<ImportedResource> m_importedResourceVec = {};
 
 		// 描画解像度 : スロットのサイズが 0 のときの土台
 		UINT64 m_viewportWidth = 0;

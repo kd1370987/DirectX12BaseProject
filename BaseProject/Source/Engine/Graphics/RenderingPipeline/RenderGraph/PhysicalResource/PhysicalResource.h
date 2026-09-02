@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 //==========================================================================================
 //
 // PhysicalResource (Engine::Graphics::Pipeline)
@@ -14,7 +14,7 @@
 // 配列の持ち主は RenderGraph。マネージャークラスは置かない。
 //
 //==========================================================================================
-#include "../VirtualResource/VirtualResource.h"
+#include "../Resource/VirtualResource/VirtualResource.h"
 
 namespace Engine::Graphics::Pipeline
 {

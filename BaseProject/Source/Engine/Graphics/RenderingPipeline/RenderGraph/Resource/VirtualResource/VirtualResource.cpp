@@ -1,5 +1,7 @@
 ﻿#include "VirtualResource.h"
 
+#include "../../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+
 namespace Engine::Graphics::Pipeline
 {
 	void VirtualResource::SetupFromOutputSlot(const std::string& a_name, const Slot& a_slot)
@@ -30,6 +32,9 @@ namespace Engine::Graphics::Pipeline
 
 		// 区間は実行順が決まってから RenderGraph が入れる
 		ResetLifetime();
+
+		// アロケーションサイズを求める
+		CalcAllocationSize();
 	}
 
 	void VirtualResource::SetupAsImported(const std::string& a_name, EPassSlotType a_type, D3D12_RESOURCE_STATES a_initialState)
@@ -125,6 +130,32 @@ namespace Engine::Graphics::Pipeline
 	bool VirtualResource::HasUsage(Resource::TextureUsage a_usage) const
 	{
 		return (m_usage & a_usage) != Resource::TextureUsage::None;
+	}
+
+	void VirtualResource::CalcAllocationSize()
+	{
+		m_allocationSize = 0;
+		m_allocationAlignment = 0;
+
+		D3D12_RESOURCE_DESC _desc = {};
+		_desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		_desc.Alignment = 0;
+		_desc.Width = m_width;
+		_desc.Height = m_height;
+		_desc.DepthOrArraySize = 1;
+		_desc.MipLevels = 1;
+		_desc.Format = m_format;
+		_desc.SampleDesc.Count = 1;
+		_desc.SampleDesc.Quality = 0;
+		_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		if (!_pDevice) return;
+
+		D3D12_RESOURCE_ALLOCATION_INFO _info = _pDevice->GetResourceAllocationInfo(0,1,&_desc);
+		m_allocationSize = _info.SizeInBytes;
+		m_allocationAlignment = _info.Alignment;
 	}
 
 	Resource::TextureUsage VirtualResource::ToUsage(EAccessType a_accessType, bool a_isWrite)

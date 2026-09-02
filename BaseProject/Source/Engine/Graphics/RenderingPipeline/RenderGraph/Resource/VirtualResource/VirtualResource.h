@@ -14,7 +14,7 @@
 // 配列の持ち主は RenderGraph。マネージャークラスは置かない。
 //
 //==========================================================================================
-#include "../../RenderingPipeline.h"
+#include "../../../RenderingPipeline.h"
 
 namespace Engine::Graphics::Pipeline
 {
@@ -183,6 +183,11 @@ namespace Engine::Graphics::Pipeline
 				&& a_other.m_firstPassIndex <= m_lastPassIndex;
 		}
 
+		void CalcAllocationSize();
+
+		uint64_t GetAllocationSize() const { return m_allocationSize; }
+		uint64_t GetAllocationAlignment() const { return m_allocationAlignment; }
+
 		//----------------------------------------------------------------------------------
 		// スロットのアクセスタイプ -> テクスチャの用途フラグ
 		//----------------------------------------------------------------------------------
@@ -210,6 +215,10 @@ namespace Engine::Graphics::Pipeline
 		UINT m_height = 0;
 		float m_scale = 1.f;		// width / height が 0 のときに描画解像度へ掛ける倍率
 		Resource::TextureUsage m_usage = Resource::TextureUsage::None;
+
+		// --- 予想サイズ ---
+		uint64_t m_allocationSize;			// 実体となったときに使用される予定のメモリサイズ
+		uint64_t m_allocationAlignment;
 
 		// --- クリア ---
 		Math::Color m_clearColor = { 0.f, 0.f, 0.f, 1.f };

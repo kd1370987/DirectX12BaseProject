@@ -716,8 +716,10 @@ namespace Engine::Graphics::Pipeline
 		}
 		m_physicalResourceVec.clear();
 
-		m_resourceNameMap.clear();
-		m_virtualResourceVec.clear();
+		m_resourceRegistry.Clear();
+
+		//m_resourceNameMap.clear();
+		//m_virtualResourceVec.clear();
 
 		// 仮想リソースが消えたので、それを指していたバリアも捨てる
 		for (CompiledPass& _compiledPass : m_compilePasses)
@@ -1665,6 +1667,116 @@ namespace Engine::Graphics::Pipeline
 		m_aliasingVec.clear();
 		m_maxNum = 0;
 		m_maxSize = 0;
+
+		struct Usager
+		{
+			uint32_t usageCount = 0;
+			uint64_t allocationSize = 0;
+			uint64_t allocationAlignment = 0;
+		};
+
+		struct AliaSlot
+		{
+			uint64_t allocationSize = 0;
+			uint64_t allocationAlignment = 0;
+
+			// このスロットを最後に使用したVirtualResuorceの終了パス
+			uint32_t lastPassIndex = 0;
+		};
+
+		std::vector<AliaSlot> _slots;
+
+		// エイリアシングできる仮想リソースのみ配列に入れる
+		std::vector<const VirtualResource*> _resources;
+		for (const auto& _vRes : m_virtualResourceVec)
+		{
+			if (!_vRes.IsAliasable()) continue;
+			_resources.push_back(&_vRes);
+		}
+
+		// ライフタイム開始順に並べ替え
+		std::sort(
+			_resources.begin(),
+			_resources.end(),
+			[](const VirtualResource* a_l,const VirtualResource* a_r)
+			{
+				return a_l->GetFirstPassIndex() < a_r->GetFirstPassIndex();
+			}
+		);
+
+		// VirtualResource を Alias Slot へ割り当てる
+		for (const VirtualResource* _vRes : _resources)
+		{
+			const uint32_t _firstPass = _vRes->GetFirstPassIndex();
+			const uint32_t _lastPass = _vRes->GetLastPassIndex();
+
+			bool _assigned = false;
+
+			// 既存スロットを探す
+			for (auto& _slot : _slots)
+			{
+				// 前のResrouceのライフタイムが終了しているのなら再利用可能
+				if (_slot.lastPassIndex < _firstPass)
+				{
+					_slot.lastPassIndex = _lastPass;
+					_slot.allocationSize = std::max(_slot.allocationSize,_vRes->GetAllocationSize());
+					_slot.allocationAlignment = std::max(_slot.allocationAlignment,_vRes->GetAllocationAlignment());
+
+					_assigned = true;
+					break;
+				}
+			}
+
+			// 再利用できる Slot がなければ新たに作成
+			if (!_assigned)
+			{
+				AliaSlot _newSlot{};
+				_newSlot.lastPassIndex = _lastPass;
+				_newSlot.allocationSize = _vRes->GetAllocationSize();
+				_newSlot.allocationAlignment = _vRes->GetAllocationAlignment();
+
+				_slots.push_back(_newSlot);
+			}
+		}
+
+		// 最大同時使用数
+		uint32_t _maxUsageCount = static_cast<uint32_t>(_slots.size());
+
+		// ヒープサイズを計算
+		uint32_t _maxHeapSize = 0;
+		for (const auto& _slot : _slots)
+		{
+			_maxHeapSize = Math::Alignment::Up(_maxHeapSize,_slot.allocationAlignment);
+			_maxHeapSize += _slot.allocationSize;
+		}
+
+
+		std::vector<Usager> _usages;
+		_usages.resize(m_passes.size());
+
+
+		for (const auto& _vRes : m_virtualResourceVec)
+		{
+			// エイリアシング可能かチェック
+			if (!_vRes.IsAliasable()) continue;
+
+			// パスの使用されている数に足す
+			for (uint32_t _passIdx = _vRes.GetFirstPassIndex(); _passIdx <= _vRes.GetLastPassIndex(); ++_passIdx)
+			{
+				auto& _u = _usages[_passIdx];
+				_u.usageCount++;
+				_u.allocationSize = std::max(_u.allocationSize,_vRes.GetAllocationSize());
+				_u.allocationAlignment = std::max(_u.allocationAlignment,_vRes.GetAllocationAlignment());
+			}
+		}
+
+		// 同時使用する最大数を求める
+		uint32_t _maxConcurrent = 0;
+		for (const Usager& _count : _usages)
+		{
+			_maxConcurrent = std::max(_maxConcurrent, _count.usageCount);
+		}
+
 	}
 
 	//======================================================================================
