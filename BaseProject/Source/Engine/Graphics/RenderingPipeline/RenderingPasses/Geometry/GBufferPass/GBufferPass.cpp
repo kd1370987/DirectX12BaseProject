@@ -54,6 +54,13 @@ namespace Engine::Graphics::Pipeline
 		if (!_pDepth) return;
 
 		_pDepth->loadOp = _isPreDepth ? ELoadOp::Load : ELoadOp::Clear;
+
+		// ZPre がいるなら、その深度そのものへ描く。
+		//
+		// 以前は互いに "SceneDepth" という同じ名前を宣言しているだけで合流していたが、
+		// 識別子が「作ったパス + 出力ピン」になったので、名前を揃えても別物になる。
+		// どのリソースへ描くのかをここで明示する
+		AliasOutputToInput("PreDepth", "Depth");
 	}
 
 	void GBufferPass::Compile(const PassContext& a_context)

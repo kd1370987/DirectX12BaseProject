@@ -55,6 +55,9 @@ namespace Engine::Graphics::Pipeline
 		bool _isParam = false;
 		bool _isStructure = false;
 
+		// 出力リソースの表示名。
+		// 同一性は「作ったパス + 出力ピン」で決まるので、ここが被っても中身は混ざらない。
+		// リソース一覧やデバッグ表示で見分けるためのラベル
 		char _nameBuf[128] = {};
 		std::snprintf(_nameBuf, sizeof(_nameBuf), "%s", m_resourceName.c_str());
 		if (ImGui::InputText("ResourceName", _nameBuf, sizeof(_nameBuf)))

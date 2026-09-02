@@ -7,18 +7,18 @@
 // 「何を持っているか」だけを担当し、ImGui / ImNodes には一切触らない。
 // 編集UIは RenderingPipelineAsset 側の責務。
 //
-// 仮想リソース / 物理リソースの配列もここが持つ(マネージャークラスは置かない)。
+// 仮想リソースと外部リソースの出し入れは ResourceRegistry へ預ける。
+// 物理リソースの配列だけはここが持つ(エイリアシングを入れるときに作り直す)。
 //   Compile()           : 実行順の解決 + 仮想リソースの構築(GPU不要)
 //   AllocateResources() : 仮想リソースの要件どおりに物理リソースを作る(GPU必要)
 //==========================================================================================
 #include "../RenderingPipeline.h"
-#include "Resource/VirtualResource/VirtualResource.h"
-#include "PhysicalResource/PhysicalResource.h"
-#include "Internal/CompiledPass.h"
-#include "Internal/ResourceBarrier.h"
-
-
 #include "Resource/ResourceRegistry.h"
+#include "PhysicalResource/PhysicalResource.h"
+#include "Internal/ResourceBarrier.h"
+#include "Internal/CompiledPass.h"
+#include "Resource/ResourceAllocator.h"
+
 
 namespace Engine::Graphics::Pipeline
 {
@@ -150,8 +150,8 @@ namespace Engine::Graphics::Pipeline
 		// DescriptorHeapManager の解放より前に呼ぶこと
 		void ReleaseResources();
 
-		// 名前から仮想リソースを引く : 無ければ無効ハンドル
-		ResourceHandle FindResource(const std::string& a_name) const;
+		// 識別子から仮想リソースを引く : 無ければ無効ハンドル
+		ResourceHandle FindResource(ResourceID a_resourceID) const;
 
 		const VirtualResource* GetVirtualResource(ResourceHandle a_handle) const;
 		VirtualResource* RefVirtualResource(ResourceHandle a_handle);
@@ -174,7 +174,7 @@ namespace Engine::Graphics::Pipeline
 		// このグラフに Temporal リソースが1つでもあるか
 		bool HasTemporalResource() const;
 
-		//const std::vector<VirtualResource>& GetVirtualResources() const { return m_virtualResourceVec; }
+		const std::vector<VirtualResource>& GetVirtualResources() const { return m_resourceRegistry.GetVirtualResources(); }
 		const std::vector<std::unique_ptr<PhysicalResource>>& GetPhysicalResources() const { return m_physicalResourceVec; }
 
 		//----------------------------------------------------------------------------------
@@ -221,17 +221,18 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		int GenerateID() { return ++m_idCounter; }
 
+		// コンパイル済みのパスと、バリアをクリア
+		void ClearCompiledData();
+
 	private:
 
-		// 外部から差し込まれたリソースの控え。
-		// Compile() が仮想リソース配列を作り直すので、元の情報はこちらに残しておく
-		struct ImportedResource
-		{
-			std::string name = "";
-			EPassSlotType type = EPassSlotType::Texture;
-			D3D12::GPUResource* pResource = nullptr;
-			D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;
-		};
+		// 出力ピンへ「自分のパス + 自分のスロットID」の識別子を焼く。
+		// 描き足すパスは配線の解決中にこれを差し替えるので、必ずその前に呼ぶこと
+		void StampResourceIDs();
+
+		// 実行順に沿って配線を1回だけ解決する。
+		// 前段の出力が確定してから後段へ渡るので、往復させなくても端まで届く
+		void ResolveLinksInOrder(const std::vector<Pass*>& a_sortedVec);
 
 		// パスの入出力スロットから仮想リソースを組み直す。
 		// 名前ごとに1つ起こして、その名前を触っている全スロットの要件を足し込む
@@ -240,8 +241,9 @@ namespace Engine::Graphics::Pipeline
 		// 実行順が決まったあとに、各リソースの生存区間(最初/最後のパス)を出す
 		void BuildResourceLifetimes();
 
-		// 名前で引いて、無ければ作る
-		VirtualResource& FindOrCreateVirtual(const std::string& a_name, const Slot& a_outputSlot);
+		// 同じリソースを2つ以上のパスが作っていないかを見る。
+		// 名前が確定してからでないと描き足しと見分けられないので、配線を解決した後に呼ぶこと
+		void ValidateResourceWriters();
 
 		// スロットへ、割り当てた仮想リソースの参照を書き戻す
 		void WriteBackSlotHandles();
@@ -283,11 +285,6 @@ namespace Engine::Graphics::Pipeline
 		// 全パスの Compile() を実行順に呼ぶ(リソースが揃ってから)
 		void CompilePasses(GraphicsEngine* a_pGraphicsEngine);
 
-		//----------------------------------------------------------------------------------
-		// エイリアシング計算
-		//----------------------------------------------------------------------------------
-		void CalcHeapSize();			// ヒープのサイズを計算する
-
 	private:
 
 		// パスのインスタンス配列 : 実体はここが持つ
@@ -296,51 +293,29 @@ namespace Engine::Graphics::Pipeline
 		// 接続線 : キーは接続元(出力側)パスのGUID
 		std::unordered_map<Engine::GUID, std::vector<Connection>> m_connectionMap = {};
 
-		// コンパイル後のパス配列(m_passes の中身を指すだけ)とバリア
-		std::vector<CompiledPass> m_compilePasses = {};
-		std::vector<ResourceBarrier> m_endBarriers = {};
-
-		// ---- リソース ----
-
-		ResourceRegistry m_resourceRegistry;
-
-		// 仮想リソース : Compile のたびに組み直す
-		//std::unordered_map<std::string, uint32_t> m_resourceNameMap = {};
-		//std::vector<VirtualResource> m_virtualResourceVec = {};
+		// リソース
+		ResourceRegistry m_resourceRegistry = {};	// 仮想リソースと外部リソースの持ち主
+		ResourceAllocator m_resourceAllocator;		// リソースの割り当てを管理
 
 		// 物理リソース : 今は仮想1つにつき1つなので、添字は仮想側と一致する
 		std::vector<std::unique_ptr<PhysicalResource>> m_physicalResourceVec = {};
 
-		// 外部から差し込まれたリソース
-		//std::vector<ImportedResource> m_importedResourceVec = {};
+		// 実行用
+		std::vector<CompiledPass> m_compilePasses = {};
+		std::vector<ResourceBarrier> m_endBarriers = {};
 
 		// 描画解像度 : スロットのサイズが 0 のときの土台
 		UINT64 m_viewportWidth = 0;
 		UINT m_viewportHeight = 0;
 
-		// 直近の検証結果
+		// 検証
 		mutable std::vector<ValidationIssue> m_validationIssueVec = {};
 
-		// 実行したフレーム数 : Temporal の役割を入れ替えるのに使う
-		uint32_t m_frameIndex = 0;
-
-		// 割り当て直後に一度だけ Temporal をクリアする
-		bool m_isTemporalClearPending = false;
+		// テンポラル
+		uint32_t m_frameIndex = 0;					// 実行したフレーム数
+		bool m_isTemporalClearPending = false;		// 割り当て直後に一度だけ Temporal をクリアする
 
 		// ノード/ピン/線に配る連番
 		int m_idCounter = 0;
-
-		// エイリアシング
-		uint32_t m_maxNum = 0;		// 最大同時使用数
-		size_t m_maxSize = 0;		// 幅 * 高さ * フォーマットのサイズを足し合わせた最大数
-
-		struct Aliasing
-		{
-			size_t maxSize = 0;			// 使われていた際の最大サイズ
-			bool isUsed = false;		// 使われているかどうか
-		};
-
-		std::vector<Aliasing> m_aliasingVec = {};
-
 	};
 }

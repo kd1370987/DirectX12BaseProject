@@ -11,7 +11,7 @@
 // 外部で作られたリソース(バックバッファ・フレームリソースなど)だけは
 // RenderGraph::ImportResource() で明示的に差し込む。
 //
-// 配列の持ち主は RenderGraph。マネージャークラスは置かない。
+// 配列の持ち主は ResourceRegistry。
 //
 //==========================================================================================
 #include "../../../RenderingPipeline.h"
@@ -28,8 +28,9 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		// 構築
 		//----------------------------------------------------------------------------------
-		// 出力スロットから要件を起こす(このリソースを作るパスのスロット)
-		void SetupFromOutputSlot(const std::string& a_name, const Slot& a_slot);
+		// 出力スロットから要件を起こす(このリソースを作るパスのスロット)。
+		// 識別子と表示名もこのスロットから取る
+		void SetupFromOutputSlot(const Slot& a_slot);
 
 		// 外部で作られたリソースとして起こす : サイズやフォーマットは向こうの持ち物
 		void SetupAsImported(const std::string& a_name, EPassSlotType a_type, D3D12_RESOURCE_STATES a_initialState);
@@ -46,6 +47,9 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		// アクセサ
 		//----------------------------------------------------------------------------------
+		// 同一性はこちら。名前はあくまで表示用のラベル
+		const ResourceID& GetResourceID() const { return m_resourceID; }
+
 		const std::string& GetName() const { return m_name; }
 
 		EPassSlotType GetType() const { return m_type; }
@@ -206,6 +210,10 @@ namespace Engine::Graphics::Pipeline
 	private:
 
 		// リソーステクスチャの作成情報
+		//
+		// m_resourceID が同一性。m_name は表示用のラベルでしかないので、
+		// 名前が同じでも識別子が違えば別のリソースになる
+		ResourceID m_resourceID = {};
 		std::string m_name = "none";
 		EPassSlotType m_type = EPassSlotType::Texture;
 

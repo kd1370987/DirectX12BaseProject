@@ -1558,7 +1558,10 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph">
       <UniqueIdentifier>{3434ef20-24b1-4ae2-a218-794ae1c0e688}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource">
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource">
+      <UniqueIdentifier>{a1f4c2d0-7b3e-4c58-9a61-2d8e5f0b7c31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource">
       <UniqueIdentifier>{12131d21-65ac-4ac2-955a-0d7bfa370add}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource">
@@ -1575,6 +1578,12 @@
     </Filter>
     <Filter Include="Asset\Shader\Source\PostProcess\Blend">
       <UniqueIdentifier>{b4a92785-85e1-48ab-bdfa-b13e7299a937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap">
+      <UniqueIdentifier>{8e0aa42e-36b8-4741-9aa3-732f4b55109c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal">
+      <UniqueIdentifier>{a4797a74-c7c3-4abc-88e5-97aaa81dbab8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -2655,8 +2664,11 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource\VirtualResource.cpp">
-      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceRegistry.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource</Filter>
@@ -2672,6 +2684,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass\MonitorPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -4283,8 +4298,11 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource\VirtualResource.h">
-      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource</Filter>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceRegistry.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource</Filter>
@@ -4300,6 +4318,21 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass\MonitorPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Common\ID.h">
+      <Filter>Source\Engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Common\Index.h">
+      <Filter>Source\Engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\CompiledPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\ResourceBarrier.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

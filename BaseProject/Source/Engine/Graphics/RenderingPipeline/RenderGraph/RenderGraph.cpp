@@ -408,6 +408,115 @@ namespace Engine::Graphics::Pipeline
 	}
 
 	//======================================================================================
+	// 出力ピンへ識別子を焼く
+	//
+	// 「どのパスのどの出力ピンが作ったリソースか」を、配線を解決する前に確定させる。
+	//
+	// 描き足すパスは、このあとの OnLinksResolved で入力からもらった識別子へ差し替える。
+	// 毎回ここで焼き直すので、前回のコンパイルで差し替わっていても元へ戻る
+	//======================================================================================
+	void RenderGraph::StampResourceIDs()
+	{
+		for (auto& _upPass : m_passes)
+		{
+			if (!_upPass) continue;
+
+			const Engine::GUID& _passGUID = _upPass->GetGUID();
+
+			for (Slot& _out : _upPass->RefOutputSlots())
+			{
+				// グラフの外へ書き出すピンだけは、差し込む側と名前で待ち合わせる
+				_out.resourceID = _out.importName.empty()
+					? ResourceID::FromOutputSlot(_passGUID, _out.slotID)
+					: ResourceID::FromImportName(_out.importName);
+			}
+		}
+	}
+
+	//======================================================================================
+	// 配線を実行順に1回だけ解決する
+	//
+	// ApplyLinks は「接続元の出力スロット」を入力へ写すだけなので、これ単体では
+	// 描き足すパス(OnLinksResolved で自分の出力名を入力に合わせるもの)の数珠つなぎに
+	// 追いつけない。
+	//
+	//   魚眼(FishEyeColor) → デバッグ線 → UI → トーンマップ
+	//
+	// 前段の出力が決まる前に後段が名前を受け取ってしまうと、UI だけが誰も書かない
+	// 別のテクスチャへ描くことになる(画面に UI しか出ない・前フレームの絵が残る)。
+	//
+	// 依存順に「入力を引き込む → 出力を決めさせる」を1回ずつやれば、
+	// 後段を見るときには前段の出力がもう確定しているので、往復させる必要がない
+	//======================================================================================
+	void RenderGraph::ResolveLinksInOrder(const std::vector<Pass*>& a_sortedVec)
+	{
+		// 接続を入力側から引けるようにしておく。
+		// m_connectionMap は出力側が鍵なので、そのままだと
+		// 「このパスの入力へ誰が来ているか」を毎回全走査することになる
+		struct IncomingLink
+		{
+			Engine::GUID srcPassGUID = {};
+			uint32_t srcSlotID = 0;
+			uint32_t dstSlotID = 0;
+		};
+
+		std::unordered_map<Engine::GUID, std::vector<IncomingLink>> _incomingMap = {};
+		for (const auto& [_srcGUID, _connectionVec] : m_connectionMap)
+		{
+			for (const Connection& _connection : _connectionVec)
+			{
+				IncomingLink _link = {};
+				_link.srcPassGUID = _srcGUID;
+				_link.srcSlotID = _connection.srcSlotID;
+				_link.dstSlotID = _connection.dstSlotID;
+
+				_incomingMap[_connection.dstPassGUID].push_back(_link);
+			}
+		}
+
+		// 入力を一旦すべて外す : 「今つながっている線」だけが正
+		for (auto& _upPass : m_passes)
+		{
+			if (!_upPass) continue;
+
+			for (const Slot& _in : _upPass->GetInputSlots())
+			{
+				_upPass->ClearInput(_in.slotID);
+			}
+		}
+
+		// 実行順に1回ずつ
+		for (Pass* _pPass : a_sortedVec)
+		{
+			if (!_pPass) continue;
+
+			// この時点で前段の出力はもう動かない
+			auto _it = _incomingMap.find(_pPass->GetGUID());
+			if (_it != _incomingMap.end())
+			{
+				for (const IncomingLink& _link : _it->second)
+				{
+					Pass* _pSrc = FindPass(_link.srcPassGUID);
+					if (!_pSrc) continue;
+
+					const Slot* _pSrcSlot = _pSrc->FindOutputSlot(_link.srcSlotID);
+					if (!_pSrcSlot) continue;
+
+					_pPass->SetInput(_link.dstSlotID, *_pSrcSlot);
+				}
+			}
+
+			// 入力がそろったので、このパスに出力を決めさせる
+			_pPass->OnLinksResolved();
+		}
+
+		// 前フレームを読むピン(Temporal)は実行順の辺にならないので、
+		// 書き手が自分より後ろに居ることがある。そこだけは1周では埋まらない。
+		// 出力はもう確定しているので、最後に配り直せば落ち着く
+		ApplyLinks();
+	}
+
+	//======================================================================================
 	//
 	// リソース
 	//
@@ -424,58 +533,34 @@ namespace Engine::Graphics::Pipeline
 		D3D12_RESOURCE_STATES a_initialState,
 		EPassSlotType a_type)
 	{
-		// 同じ名前があれば差し替える
-		for (ImportedResource& _imported : m_importedResourceVec)
-		{
-			if (_imported.name != a_name) continue;
-
-			_imported.type = a_type;
-			_imported.pResource = a_pResource;
-			_imported.initialState = a_initialState;
-			return;
-		}
-
-		ImportedResource _imported = {};
-		_imported.name = a_name;
-		_imported.type = a_type;
-		_imported.pResource = a_pResource;
-		_imported.initialState = a_initialState;
-		m_importedResourceVec.push_back(std::move(_imported));
+		m_resourceRegistry.ImportResource(a_name, a_pResource, a_initialState, a_type);
 	}
 
 	void RenderGraph::RemoveImportedResource(const std::string& a_name)
 	{
-		m_importedResourceVec.erase(
-			std::remove_if(m_importedResourceVec.begin(), m_importedResourceVec.end(),
-				[&a_name](const ImportedResource& a_imported) { return a_imported.name == a_name; }),
-			m_importedResourceVec.end());
+		m_resourceRegistry.RemoveImportedResource(a_name);
 	}
 
 	void RenderGraph::ClearImportedResources()
 	{
-		m_importedResourceVec.clear();
+		m_resourceRegistry.ClearImportedResource();
+	}
+
+	void RenderGraph::ClearCompiledData()
+	{
+		m_compilePasses.clear();
+		m_endBarriers.clear();
 	}
 
 	// 仮想リソースを、パスの入出力スロットから組み直す。
 	// 「同じ名前 = 同じリソース」なので、名前ごとに1つ起こして要件を足し込んでいく
 	void RenderGraph::BuildVirtualResources()
 	{
-		m_resourceNameMap.clear();
-		m_virtualResourceVec.clear();
+		m_resourceRegistry.ClearVirtualResources();
 
 		// ---- 外部から差し込まれたものを先に並べる ----
 		// パスが知らないリソース(バックバッファなど)もここで席を持つ
-		for (const ImportedResource& _imported : m_importedResourceVec)
-		{
-			if (_imported.name.empty()) continue;
-			if (m_resourceNameMap.find(_imported.name) != m_resourceNameMap.end()) continue;
-
-			VirtualResource _res = {};
-			_res.SetupAsImported(_imported.name, _imported.type, _imported.initialState);
-
-			m_resourceNameMap[_imported.name] = static_cast<uint32_t>(m_virtualResourceVec.size());
-			m_virtualResourceVec.push_back(std::move(_res));
-		}
+		m_resourceRegistry.SetupImportedResources();
 
 		// ---- 出力スロットから起こす ----
 		// フォーマットやサイズを知っているのは作る側だけなので、先に出力を全部通す
@@ -485,8 +570,8 @@ namespace Engine::Graphics::Pipeline
 
 			for (Slot& _out : _upPass->RefOutputSlots())
 			{
-				if (_out.name.empty()) continue;
-				FindOrCreateVirtual(_out.name, _out).MergeSlot(_out);
+				if (!_out.resourceID.IsValid()) continue;
+				m_resourceRegistry.Request(_out).MergeSlot(_out);
 			}
 		}
 
@@ -501,8 +586,8 @@ namespace Engine::Graphics::Pipeline
 				// つながっていないピンは飛ばす
 				if (!_in.IsConnected()) continue;
 
-				auto _it = m_resourceNameMap.find(_in.name);
-				if (_it == m_resourceNameMap.end())
+				VirtualResource* _pRes = m_resourceRegistry.RefByID(_in.resourceID);
+				if (!_pRes)
 				{
 					// どのパスも作っていない = Import し忘れているリソース。
 					// 黙って落とすと後で実体が無くて落ちるので出しておく
@@ -512,12 +597,12 @@ namespace Engine::Graphics::Pipeline
 					continue;
 				}
 
-				m_virtualResourceVec[_it->second].MergeSlot(_in);
+				_pRes->MergeSlot(_in);
 			}
 		}
 
 		// ---- 実サイズを決める ----
-		for (VirtualResource& _res : m_virtualResourceVec)
+		for (VirtualResource& _res : m_resourceRegistry.RefVirtualResources())
 		{
 			_res.ResolveSize(m_viewportWidth, m_viewportHeight);
 		}
@@ -536,8 +621,9 @@ namespace Engine::Graphics::Pipeline
 	// あとでエイリアシング(使い回し)を入れるときの判断材料になる
 	void RenderGraph::ResolveStoreOps()
 	{
-		// どこかの入力に来ているリソース名を集める
-		std::unordered_set<std::string> _consumedNameSet = {};
+		// どこかの入力に来ているリソースを集める。
+		// 名前ではなく識別子で見ること : 表示名が同じでも別のリソースがありうる
+		std::unordered_set<ResourceID> _consumedIDSet = {};
 		for (const auto& _upPass : m_passes)
 		{
 			if (!_upPass) continue;
@@ -545,7 +631,7 @@ namespace Engine::Graphics::Pipeline
 			for (const Slot& _in : _upPass->GetInputSlots())
 			{
 				if (!_in.IsConnected()) continue;
-				_consumedNameSet.insert(_in.name);
+				_consumedIDSet.insert(_in.resourceID);
 			}
 		}
 
@@ -560,28 +646,11 @@ namespace Engine::Graphics::Pipeline
 				const VirtualResource* _pVirtual = GetVirtualResource(_out.resourceHandle);
 				const bool _isImported = (_pVirtual && _pVirtual->IsImported());
 
-				const bool _isConsumed = _isImported || (_consumedNameSet.count(_out.name) != 0);
+				const bool _isConsumed = _isImported || (_consumedIDSet.count(_out.resourceID) != 0);
 
 				_out.storeOp = _isConsumed ? EStoreOp::Store : EStoreOp::DontCare;
 			}
 		}
-	}
-
-	VirtualResource& RenderGraph::FindOrCreateVirtual(const std::string& a_name, const Slot& a_outputSlot)
-	{
-		auto _it = m_resourceNameMap.find(a_name);
-		if (_it != m_resourceNameMap.end())
-		{
-			return m_virtualResourceVec[_it->second];
-		}
-
-		VirtualResource _res = {};
-		_res.SetupFromOutputSlot(a_name, a_outputSlot);
-
-		m_resourceNameMap[a_name] = static_cast<uint32_t>(m_virtualResourceVec.size());
-		m_virtualResourceVec.push_back(std::move(_res));
-
-		return m_virtualResourceVec.back();
 	}
 
 	// 実行時にパスが「自分のスロット -> GPUリソース」を O(1) で引けるようにする
@@ -591,7 +660,7 @@ namespace Engine::Graphics::Pipeline
 			{
 				for (Slot& _slot : a_slotVec)
 				{
-					_slot.resourceHandle = FindResource(_slot.name);
+					_slot.resourceHandle = FindResource(_slot.resourceID);
 				}
 			};
 
@@ -608,7 +677,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		// Temporal は物理を2枚使うので、必要な枚数を先に数える
 		size_t _requiredCount = 0;
-		for (const VirtualResource& _virtual : m_virtualResourceVec)
+		for (const VirtualResource& _virtual : m_resourceRegistry.GetVirtualResources())
 		{
 			_requiredCount += _virtual.GetPhysicalCount();
 		}
@@ -627,10 +696,8 @@ namespace Engine::Graphics::Pipeline
 
 		bool _isSuccess = true;
 		size_t _physicalCursor = 0;
-		for (size_t _i = 0; _i < m_virtualResourceVec.size(); ++_i)
+		for (VirtualResource& _virtual : m_resourceRegistry.RefVirtualResources())
 		{
-			VirtualResource& _virtual = m_virtualResourceVec[_i];
-
 			// この仮想リソースが使う物理の席を確保する
 			const uint32_t _sliceCount = _virtual.GetPhysicalCount();
 			for (uint32_t _slice = 0; _slice < _sliceCount; ++_slice)
@@ -648,13 +715,7 @@ namespace Engine::Graphics::Pipeline
 			if (_virtual.IsImported())
 			{
 				// 外部リソースは実体を作らず、参照だけもらい受ける
-				D3D12::GPUResource* _pExternal = nullptr;
-				for (const ImportedResource& _imported : m_importedResourceVec)
-				{
-					if (_imported.name != _virtual.GetName()) continue;
-					_pExternal = _imported.pResource;
-					break;
-				}
+				D3D12::GPUResource* _pExternal = m_resourceRegistry.FindImportedResource(_virtual.GetName());
 
 				if (!_pExternal)
 				{
@@ -716,10 +777,8 @@ namespace Engine::Graphics::Pipeline
 		}
 		m_physicalResourceVec.clear();
 
-		m_resourceRegistry.Clear();
-
-		//m_resourceNameMap.clear();
-		//m_virtualResourceVec.clear();
+		// 外部リソースの控えは差し込んだ側の持ち物なので、ここで捨てるのは仮想リソースだけ
+		m_resourceRegistry.ClearVirtualResources();
 
 		// 仮想リソースが消えたので、それを指していたバリアも捨てる
 		for (CompiledPass& _compiledPass : m_compilePasses)
@@ -732,26 +791,26 @@ namespace Engine::Graphics::Pipeline
 		WriteBackSlotHandles();
 	}
 
-	ResourceHandle RenderGraph::FindResource(const std::string& a_name) const
+	ResourceHandle RenderGraph::FindResource(ResourceID a_resourceID) const
 	{
-		auto _it = m_resourceNameMap.find(a_name);
-		if (_it == m_resourceNameMap.end()) return {};
+		const Index<VirtualResource> _index = m_resourceRegistry.Find(a_resourceID);
+		if (!_index.IsValid()) return {};
 
 		ResourceHandle _handle = {};
-		_handle.index = _it->second;
+		_handle.index = _index.value;
 		return _handle;
 	}
 
 	const VirtualResource* RenderGraph::GetVirtualResource(ResourceHandle a_handle) const
 	{
-		if (!a_handle.IsValid() || a_handle.index >= m_virtualResourceVec.size()) return nullptr;
-		return &m_virtualResourceVec[a_handle.index];
+		if (!a_handle.IsValid()) return nullptr;
+		return m_resourceRegistry.Get(Index<VirtualResource>(a_handle.index));
 	}
 
 	VirtualResource* RenderGraph::RefVirtualResource(ResourceHandle a_handle)
 	{
-		if (!a_handle.IsValid() || a_handle.index >= m_virtualResourceVec.size()) return nullptr;
-		return &m_virtualResourceVec[a_handle.index];
+		if (!a_handle.IsValid()) return nullptr;
+		return m_resourceRegistry.Ref(Index<VirtualResource>(a_handle.index));
 	}
 
 	PhysicalResource* RenderGraph::RefPhysicalResource(ResourceHandle a_handle, uint32_t a_slice) const
@@ -787,7 +846,7 @@ namespace Engine::Graphics::Pipeline
 
 	bool RenderGraph::HasTemporalResource() const
 	{
-		for (const VirtualResource& _virtual : m_virtualResourceVec)
+		for (const VirtualResource& _virtual : m_resourceRegistry.GetVirtualResources())
 		{
 			if (_virtual.IsTemporal()) return true;
 		}
@@ -1096,65 +1155,15 @@ namespace Engine::Graphics::Pipeline
 		}
 
 		//----------------------------------------------------------------------------------
-		// 線の状態をスロットへ反映する
+		// 実行順を先に決める
 		//
-		// ApplyLinks は「接続元の出力スロット」を入力へ写す。
-		// ところが描き足すパスは OnLinksResolved で自分の出力名を入力に合わせるので、
-		// 1往復では数珠つなぎの末尾まで名前が伝わらない。
+		// 依存の辺は「つないだ相手」だけで決まり、リソース名を一切見ない。
+		// 先に並べてしまえば、名前の伝播は依存順に1回流すだけで端まで届く。
 		//
-		//   魚眼(FishEyeColor) → デバッグ線 → UI → トーンマップ
-		//
-		// この並びだと、UI の入力にはデバッグ線が「まだ合わせる前」の名前が入り、
-		// UI だけが誰も書かない別のテクスチャへ描いてしまう
-		// (画面には UI しか出ない・前フレームの中身が残る)。
-		// 変化が止まるまで往復させる
+		// (以前はここが逆で、名前を往復させて落ち着くまで回してから並べ替えていた。
+		//  ApplyLinks が unordered_map を回る = 伝播順がばらばらなので、
+		//  1往復では数珠つなぎの末尾まで届かず、パスの数だけ回る必要があった)
 		//----------------------------------------------------------------------------------
-		{
-			// 出力名の一覧。これが変わらなくなったら落ち着いたとみなす
-			auto _snapshotNames = [this]()
-				{
-					std::vector<std::string> _nameVec = {};
-					for (const auto& _upPass : m_passes)
-					{
-						if (!_upPass) continue;
-						for (const Slot& _out : _upPass->GetOutputSlots())
-						{
-							_nameVec.push_back(_out.name);
-						}
-					}
-					return _nameVec;
-				};
-
-			// 最悪でもパスの数だけ回れば端まで伝わる(+1 は変化なしの確認ぶん)
-			const size_t _maxLoop = m_passes.size() + 1;
-			std::vector<std::string> _prevNameVec = {};
-
-			for (size_t _i = 0; _i < _maxLoop; ++_i)
-			{
-				ApplyLinks();
-
-				for (auto& _upPass : m_passes)
-				{
-					if (!_upPass) continue;
-					_upPass->OnLinksResolved();
-				}
-
-				std::vector<std::string> _nameVec = _snapshotNames();
-				if (_nameVec == _prevNameVec) break;
-
-				_prevNameVec = std::move(_nameVec);
-			}
-
-			// 最後にもう一度配り直して、入力を最新の出力名に揃える
-			ApplyLinks();
-		}
-
-		// 配線から仮想リソースを組み直す。
-		// 実体を作るのは AllocateResources() の仕事なので、ここではGPUに触らない
-		BuildVirtualResources();
-
-		if (m_passes.empty()) return true;
-
 		// ---- 並べ替え対象を生ポインタで集める ----
 		// 実体は m_passes(unique_ptr)が持ち続ける。並べ替えるのは参照だけ
 		std::vector<Pass*> _nodes = {};
@@ -1164,7 +1173,6 @@ namespace Engine::Graphics::Pipeline
 			if (!_upPass) continue;
 			_nodes.push_back(_upPass.get());
 		}
-		if (_nodes.empty()) return true;
 
 		//----------------------------------------------------------------------------------
 		// 依存の洗い出し
@@ -1207,7 +1215,8 @@ namespace Engine::Graphics::Pipeline
 
 		// ---- 依存の向きどおりに一本へ並べる ----
 		std::vector<Pass*> _sortedVec = {};
-		if (!Engine::Algorithm::Graph::TopologicalSort(_nodes, _sortedVec, _isDepends))
+		if (!_nodes.empty() &&
+			!Engine::Algorithm::Graph::TopologicalSort(_nodes, _sortedVec, _isDepends))
 		{
 			// 循環すると結果からパスが抜け落ちる。中途半端な順序で走らせない
 			ENGINE_WARNING("[RenderGraph] パスの並べ替えに失敗しました : 入出力が循環しています");
@@ -1215,6 +1224,22 @@ namespace Engine::Graphics::Pipeline
 			m_endBarriers.clear();
 			return false;
 		}
+
+		// ---- 配線をスロットへ反映する ----
+		// 先に出力ピンの識別子を焼いてから、実行順どおりに1回流す。
+		// 描き足すパスは、その流れの中で前段の識別子を引き継ぐ
+		StampResourceIDs();
+		ResolveLinksInOrder(_sortedVec);
+
+		// 名前が確定したので、同じリソースを2つ以上のパスが作っていないかを見る
+		ValidateResourceWriters();
+
+		// 配線から仮想リソースを組み直す。
+		// 実体を作るのは AllocateResources() の仕事なので、ここではGPUに触らない
+		BuildVirtualResources();
+
+		// パスが1つも無いグラフ : 差し込まれた外部リソースだけを起こして終わり
+		if (_sortedVec.empty()) return true;
 
 		// コンパイル後のパスに入れる
 		m_compilePasses.reserve(_sortedVec.size());
@@ -1344,9 +1369,10 @@ namespace Engine::Graphics::Pipeline
 
 		auto& _heapManager = D3D12::DescriptorHeapManager::Instance();
 
-		for (uint32_t _i = 0; _i < static_cast<uint32_t>(m_virtualResourceVec.size()); ++_i)
+		const std::vector<VirtualResource>& _virtualVec = m_resourceRegistry.GetVirtualResources();
+		for (uint32_t _i = 0; _i < static_cast<uint32_t>(_virtualVec.size()); ++_i)
 		{
-			const VirtualResource& _virtual = m_virtualResourceVec[_i];
+			const VirtualResource& _virtual = _virtualVec[_i];
 
 			if (!_virtual.IsTemporal()) continue;
 			if (_virtual.IsBuffer()) continue;		// バッファは書き手が埋める前提
@@ -1648,135 +1674,79 @@ namespace Engine::Graphics::Pipeline
 	}
 
 	//======================================================================================
-	// ヒープのサイズを計算する(エイリアシング用 : 未実装)
+	// 同じリソースを2つ以上のパスが作っていないか
 	//
-	// 生存区間は BuildResourceLifetimes() が仮想リソースへ入れてあるので、
-	// ここで集め直す必要はない。使えるのは次の3つ。
+	// 識別子が「作ったパス + 出力ピン」になったので、同じパスクラスを並べても
+	// 勝手に別のリソースになる。ここへ引っかかるのは、
+	// 複数のパスが同じ外部リソース名(DeclareImportedOutput)へ書き出している場合だけ。
+	// 外部リソースは名前で待ち合わせるしかないので、そこだけは今も衝突しうる。
 	//
-	//   _res.IsAliasable()                 : 使い回してよいリソースか
-	//                                        (外部リソース・履歴つき・区間なしは除かれる)
-	//   _res.GetFirstPassIndex() / GetLastPassIndex()
-	//                                      : 実行順での区間(m_compilePasses の添字)
-	//   _res.IsLifetimeOverlapped(_other)  : 区間が重なっているか
+	// ただし描き足すパスは、前段が作ったリソースへ重ねるのが仕事なので
+	// 書き手が複数居て正しい。「同じリソースを読んでいない = 自分が作っている」で見分ける。
 	//
-	// 区間が重ならないもの同士を同じ席へ寄せていけば、
-	// 同時に要る最大量が m_maxSize / m_maxNum になる
+	// 識別子は配線を解決して初めて確定するので、必ずその後に呼ぶこと
 	//======================================================================================
-	void RenderGraph::CalcHeapSize()
+	void RenderGraph::ValidateResourceWriters()
 	{
-		m_aliasingVec.clear();
-		m_maxNum = 0;
-		m_maxSize = 0;
-
-		struct Usager
+		// リソースごとに「自分では読まずに書いているパス」を集める
+		struct Writers
 		{
-			uint32_t usageCount = 0;
-			uint64_t allocationSize = 0;
-			uint64_t allocationAlignment = 0;
+			std::string label = "";					// 出しても分かるように表示名を控える
+			std::vector<const Pass*> passVec = {};
 		};
+		std::unordered_map<ResourceID, Writers> _creatorMap = {};
 
-		struct AliaSlot
+		for (const auto& _upPass : m_passes)
 		{
-			uint64_t allocationSize = 0;
-			uint64_t allocationAlignment = 0;
+			if (!_upPass) continue;
 
-			// このスロットを最後に使用したVirtualResuorceの終了パス
-			uint32_t lastPassIndex = 0;
-		};
-
-		std::vector<AliaSlot> _slots;
-
-		// エイリアシングできる仮想リソースのみ配列に入れる
-		std::vector<const VirtualResource*> _resources;
-		for (const auto& _vRes : m_virtualResourceVec)
-		{
-			if (!_vRes.IsAliasable()) continue;
-			_resources.push_back(&_vRes);
-		}
-
-		// ライフタイム開始順に並べ替え
-		std::sort(
-			_resources.begin(),
-			_resources.end(),
-			[](const VirtualResource* a_l,const VirtualResource* a_r)
+			for (const Slot& _out : _upPass->GetOutputSlots())
 			{
-				return a_l->GetFirstPassIndex() < a_r->GetFirstPassIndex();
-			}
-		);
+				if (!_out.resourceID.IsValid()) continue;
 
-		// VirtualResource を Alias Slot へ割り当てる
-		for (const VirtualResource* _vRes : _resources)
-		{
-			const uint32_t _firstPass = _vRes->GetFirstPassIndex();
-			const uint32_t _lastPass = _vRes->GetLastPassIndex();
-
-			bool _assigned = false;
-
-			// 既存スロットを探す
-			for (auto& _slot : _slots)
-			{
-				// 前のResrouceのライフタイムが終了しているのなら再利用可能
-				if (_slot.lastPassIndex < _firstPass)
+				// 同じリソースが入力にも来ていれば描き足し : このパスは作り手ではない
+				bool _isFollower = false;
+				for (const Slot& _in : _upPass->GetInputSlots())
 				{
-					_slot.lastPassIndex = _lastPass;
-					_slot.allocationSize = std::max(_slot.allocationSize,_vRes->GetAllocationSize());
-					_slot.allocationAlignment = std::max(_slot.allocationAlignment,_vRes->GetAllocationAlignment());
+					if (!_in.IsConnected()) continue;
+					if (_in.resourceID != _out.resourceID) continue;
 
-					_assigned = true;
+					_isFollower = true;
 					break;
 				}
-			}
+				if (_isFollower) continue;
 
-			// 再利用できる Slot がなければ新たに作成
-			if (!_assigned)
+				Writers& _writers = _creatorMap[_out.resourceID];
+				_writers.label = _out.name;
+				_writers.passVec.push_back(_upPass.get());
+			}
+		}
+
+		for (const auto& [_resourceID, _writers] : _creatorMap)
+		{
+			if (_writers.passVec.size() <= 1) continue;
+
+			// 誰の話か分かるように、書いているパスを並べて出す
+			std::string _passNames = {};
+			for (const Pass* _pPass : _writers.passVec)
 			{
-				AliaSlot _newSlot{};
-				_newSlot.lastPassIndex = _lastPass;
-				_newSlot.allocationSize = _vRes->GetAllocationSize();
-				_newSlot.allocationAlignment = _vRes->GetAllocationAlignment();
-
-				_slots.push_back(_newSlot);
+				if (!_passNames.empty()) _passNames += " / ";
+				_passNames += _pPass->GetName();
 			}
+
+			const std::string _message =
+				"リソース \"" + _writers.label + "\" を複数のパスが作っています : " + _passNames +
+				" (同じ1枚に相乗りします。描き足すつもりなら入力へ繋いでください)";
+
+			ValidationIssue _issue = {};
+			_issue.level = ValidationIssue::ELevel::Warning;
+			_issue.passGUID = _writers.passVec.front()->GetGUID();
+			_issue.message = _message;
+			m_validationIssueVec.push_back(std::move(_issue));
+
+			// Compile はエラーしか並べて出さないので、ここで出しておく
+			ENGINE_WARNING("[RenderGraph] %s", _message.c_str());
 		}
-
-		// 最大同時使用数
-		uint32_t _maxUsageCount = static_cast<uint32_t>(_slots.size());
-
-		// ヒープサイズを計算
-		uint32_t _maxHeapSize = 0;
-		for (const auto& _slot : _slots)
-		{
-			_maxHeapSize = Math::Alignment::Up(_maxHeapSize,_slot.allocationAlignment);
-			_maxHeapSize += _slot.allocationSize;
-		}
-
-
-		std::vector<Usager> _usages;
-		_usages.resize(m_passes.size());
-
-
-		for (const auto& _vRes : m_virtualResourceVec)
-		{
-			// エイリアシング可能かチェック
-			if (!_vRes.IsAliasable()) continue;
-
-			// パスの使用されている数に足す
-			for (uint32_t _passIdx = _vRes.GetFirstPassIndex(); _passIdx <= _vRes.GetLastPassIndex(); ++_passIdx)
-			{
-				auto& _u = _usages[_passIdx];
-				_u.usageCount++;
-				_u.allocationSize = std::max(_u.allocationSize,_vRes.GetAllocationSize());
-				_u.allocationAlignment = std::max(_u.allocationAlignment,_vRes.GetAllocationAlignment());
-			}
-		}
-
-		// 同時使用する最大数を求める
-		uint32_t _maxConcurrent = 0;
-		for (const Usager& _count : _usages)
-		{
-			_maxConcurrent = std::max(_maxConcurrent, _count.usageCount);
-		}
-
 	}
 
 	//======================================================================================
@@ -1794,7 +1764,7 @@ namespace Engine::Graphics::Pipeline
 	//======================================================================================
 	void RenderGraph::BuildResourceLifetimes()
 	{
-		for (VirtualResource& _res : m_virtualResourceVec)
+		for (VirtualResource& _res : m_resourceRegistry.RefVirtualResources())
 		{
 			_res.ResetLifetime();
 		}
@@ -1809,10 +1779,10 @@ namespace Engine::Graphics::Pipeline
 					for (const Slot& _slot : a_slotVec)
 					{
 						// 繋がっていないピンはどのリソースも指していない
-						if (!_slot.resourceHandle.IsValid()) continue;
-						if (_slot.resourceHandle.index >= m_virtualResourceVec.size()) continue;
+						VirtualResource* _pRes = RefVirtualResource(_slot.resourceHandle);
+						if (!_pRes) continue;
 
-						m_virtualResourceVec[_slot.resourceHandle.index].ExtendLifetime(_passIndex);
+						_pRes->ExtendLifetime(_passIndex);
 					}
 				};
 
@@ -1838,7 +1808,7 @@ namespace Engine::Graphics::Pipeline
 		m_endBarriers.clear();
 
 		// 各リソースのカーソルをフレーム入口へ戻してから積み始める
-		for (VirtualResource& _res : m_virtualResourceVec)
+		for (VirtualResource& _res : m_resourceRegistry.RefVirtualResources())
 		{
 			_res.ResetStateToInitial();
 		}
@@ -1851,9 +1821,10 @@ namespace Engine::Graphics::Pipeline
 		// ---- フレームの終わりに入口のステートへ戻す ----
 		// グラフは毎フレーム同じ手順で回るので、戻しておかないと
 		// 次のフレームで before が食い違ってバリアが張られなくなる
-		for (uint32_t _i = 0; _i < static_cast<uint32_t>(m_virtualResourceVec.size()); ++_i)
+		std::vector<VirtualResource>& _virtualVec = m_resourceRegistry.RefVirtualResources();
+		for (uint32_t _i = 0; _i < static_cast<uint32_t>(_virtualVec.size()); ++_i)
 		{
-			VirtualResource& _res = m_virtualResourceVec[_i];
+			VirtualResource& _res = _virtualVec[_i];
 
 			const uint32_t _sliceCount = _res.GetPhysicalCount();
 			for (uint32_t _slice = 0; _slice < _sliceCount; ++_slice)
@@ -1887,9 +1858,11 @@ namespace Engine::Graphics::Pipeline
 				if (a_slot.accessType == EAccessType::None) return;
 
 				const uint32_t _resIndex = a_slot.resourceHandle.index;
-				if (_resIndex >= m_virtualResourceVec.size()) return;
 
-				VirtualResource& _res = m_virtualResourceVec[_resIndex];
+				VirtualResource* _pRes = RefVirtualResource(a_slot.resourceHandle);
+				if (!_pRes) return;
+
+				VirtualResource& _res = *_pRes;
 
 				// Temporal は2枚の物理が別々の遷移をたどるので、カーソルもスライスごとに追う。
 				// 出力は Current(書く側)、入力は Previous(読む側)

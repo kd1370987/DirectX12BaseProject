@@ -38,21 +38,51 @@ namespace Engine::Graphics::Pipeline
 				{
 					return a_imported.name == a_name;
 				}
-			)
+			),
+			m_importedResourceVec.end()
 		);
 	}
 	void ResourceRegistry::ClearImportedResource()
 	{
 		m_importedResourceVec.clear();
 	}
-	VirtualResource& ResourceRegistry::Request(
-		const std::string& a_name,
-		const Slot& a_outputSlot
-	)
+	D3D12::GPUResource* ResourceRegistry::FindImportedResource(const std::string& a_name) const
 	{
-		// リソース名で検索
-		auto _it = m_resourceNameMap.find(a_name);
-		if (_it != m_resourceNameMap.end())
+		// 控えの配列から名前で探す
+		for (const ImportedResource& _imported : m_importedResourceVec)
+		{
+			if (_imported.name != a_name) continue;
+			return _imported.pResource;
+		}
+		return nullptr;
+	}
+	void ResourceRegistry::SetupImportedResources()
+	{
+		for (const ImportedResource& _imported : m_importedResourceVec)
+		{
+			if (_imported.name.empty()) continue;
+
+			// 外部リソースの識別子は名前から起こす。
+			// パスの出力ピン側も同じ名前から起こすので、ここで席を取っておけば合流する
+			const ResourceID _resourceID = ResourceID::FromImportName(_imported.name);
+
+			// 既に席があるものは飛ばす
+			if (m_resourceIDMap.find(_resourceID) != m_resourceIDMap.end()) continue;
+
+			// 外部で作られたリソースとして起こす
+			VirtualResource _vRes = {};
+			_vRes.SetupAsImported(_imported.name, _imported.type, _imported.initialState);
+
+			// 配列に登録
+			m_resourceIDMap[_resourceID] = static_cast<uint32_t>(m_virtualResourceVec.size());
+			m_virtualResourceVec.push_back(std::move(_vRes));
+		}
+	}
+	VirtualResource& ResourceRegistry::Request(const Slot& a_outputSlot)
+	{
+		// 識別子で検索
+		auto _it = m_resourceIDMap.find(a_outputSlot.resourceID);
+		if (_it != m_resourceIDMap.end())
 		{
 			// あれば返す
 			return m_virtualResourceVec[_it->second];
@@ -60,30 +90,40 @@ namespace Engine::Graphics::Pipeline
 
 		// アウトプットスロットから仮想リソースを作成
 		VirtualResource _vRes = {};
-		_vRes.SetupFromOutputSlot(a_name,a_outputSlot);
+		_vRes.SetupFromOutputSlot(a_outputSlot);
 
 		// 配列に登録
-		m_resourceNameMap[a_name] = static_cast<uint32_t>(m_virtualResourceVec.size());
+		m_resourceIDMap[a_outputSlot.resourceID] = static_cast<uint32_t>(m_virtualResourceVec.size());
 		m_virtualResourceVec.push_back(std::move(_vRes));
 
 		return m_virtualResourceVec.back();
 	}
-	Index<VirtualResource> ResourceRegistry::Find(const std::string& a_name) const
+	Index<VirtualResource> ResourceRegistry::Find(ResourceID a_resourceID) const
 	{
-		// リソース名で検索
-		auto _it = m_resourceNameMap.find(a_name);
-		if (_it == m_resourceNameMap.end()) return {};
+		if (!a_resourceID.IsValid()) return {};
+
+		// 識別子で検索
+		auto _it = m_resourceIDMap.find(a_resourceID);
+		if (_it == m_resourceIDMap.end()) return {};
 
 		// インデックスを生成して返す
 		Index<VirtualResource> _idx(_it->second);
 		return _idx;
 	}
+	VirtualResource* ResourceRegistry::RefByID(ResourceID a_resourceID)
+	{
+		return Ref(Find(a_resourceID));
+	}
 	void ResourceRegistry::Clear()
 	{
-		m_resourceNameMap.clear();
-		m_virtualResourceVec.clear();
+		ClearVirtualResources();
 
 		ClearImportedResource();
+	}
+	void ResourceRegistry::ClearVirtualResources()
+	{
+		m_resourceIDMap.clear();
+		m_virtualResourceVec.clear();
 	}
 	const VirtualResource* ResourceRegistry::Get(Index<VirtualResource> a_idx) const
 	{

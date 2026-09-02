@@ -53,6 +53,30 @@ namespace Engine::Graphics::Pipeline
 		return static_cast<uint32_t>(Engine::String::ToHash(a_pinName));
 	}
 
+	//======================================================================================
+	// 仮想リソースの識別子
+	//======================================================================================
+	ResourceID ResourceID::FromOutputSlot(const Engine::GUID& a_passGUID, uint32_t a_slotID)
+	{
+		ResourceID _id = {};
+		_id.passGUID = a_passGUID;
+
+		// 万一ハッシュが無効値と同じになっても「無効」に化けないようずらしておく
+		_id.slotID = (a_slotID == INVALID_SLOT_ID) ? (a_slotID - 1) : a_slotID;
+		return _id;
+	}
+
+	ResourceID ResourceID::FromImportName(const std::string& a_name)
+	{
+		// 作り手のパスが居ないので GUID は空のまま。
+		// パスの出力は必ず有効なGUIDを持つので、こちらとぶつかることはない
+		ResourceID _id = {};
+
+		const uint32_t _hash = Pass::MakeSlotID(a_name);
+		_id.slotID = (_hash == INVALID_SLOT_ID) ? (_hash - 1) : _hash;
+		return _id;
+	}
+
 	void Pass::SetInput(const std::string& a_pinName, const Slot& a_slotData)
 	{
 		SetInput(MakeSlotID(a_pinName), a_slotData);
@@ -76,6 +100,7 @@ namespace Engine::Graphics::Pipeline
 
 		// ピンの役割(pinName / pinID / accessType / type / isIn)は自分の持ち物なので触らない。
 		// リソースの実体に関わる部分だけ、前のパスの出力から丸ごともらう
+		_pPin->resourceID = a_slotData.resourceID;
 		_pPin->name = a_slotData.name;
 		_pPin->format = a_slotData.format;
 		_pPin->width = a_slotData.width;
@@ -95,30 +120,13 @@ namespace Engine::Graphics::Pipeline
 		if (!_pPin) return;
 
 		// つながっていた情報だけ落とす(役割は残す)
+		_pPin->resourceID = {};
 		_pPin->name.clear();
 		_pPin->format = DXGI_FORMAT_UNKNOWN;
 		_pPin->width = 0;
 		_pPin->height = 0;
 		_pPin->scale = 1.f;
 		_pPin->resourceHandle = {};
-	}
-
-	const Slot& Pass::GetSlot(const std::string& a_name)
-	{
-		// 出力を先に見る : 「このパスが作ったリソース」を取りに来る呼ばれ方が主
-		for (Slot& _out : m_outputSlots)
-		{
-			if (_out.name == a_name) return _out;
-		}
-		for (Slot& _in : m_inputSlots)
-		{
-			if (_in.name == a_name) return _in;
-		}
-
-		// 見つからないときに参照を返せないので、空スロットを返して呼び出し側で弾けるようにする
-		static const Slot s_emptySlot = {};
-		ENGINE_WARNING("[Pass] スロットが見つかりません : %s <- %s", m_name.c_str(), a_name.c_str());
-		return s_emptySlot;
 	}
 
 	// 共通部分をここで処理して、固有データは継承先の Archive() へ渡す。
@@ -180,15 +188,6 @@ namespace Engine::Graphics::Pipeline
 
 		// 継承先固有のデータ
 		Archive(a_arch);
-	}
-
-	bool Pass::HasOutputSlot(const std::string& a_name) const
-	{
-		for (const Slot& _out : m_outputSlots)
-		{
-			if (_out.name == a_name) return true;
-		}
-		return false;
 	}
 
 	Slot* Pass::FindInputSlot(uint32_t a_slotID)
@@ -412,36 +411,21 @@ namespace Engine::Graphics::Pipeline
 		return true;
 	}
 
-	// 入力に来たリソースをそのまま出力先にする。
-	// 上書きではなく描き足すパス(スカイ・パーティクル・UIなど)がこれを通す
-	void Pass::FollowInputToOutput(const std::string& a_inPinName, const std::string& a_outPinName)
+	// 入力に来たリソースを、そのまま自分の出力先として引き継ぐ。
+	//
+	// リソースの同一性は識別子で決まるので、出力名を前段と揃えるだけでは合流しない。
+	// 「前段と同じリソースへ描く」パスは必ずここを通すこと
+	bool Pass::AliasOutputToInput(const std::string& a_inPinName, const std::string& a_outPinName)
 	{
 		Slot* _pOut = FindOutputSlot(MakeSlotID(a_outPinName));
-		if (!_pOut) return;
+		if (!_pOut) return false;
 
 		const Slot* _pIn = FindInputSlot(MakeSlotID(a_inPinName));
-		if (!_pIn || !_pIn->IsConnected())
-		{
-			// 描き足す先が繋がっていない = このパスが最初に描く。
-			//
-			// Load のままにすると前フレームの中身がそのまま残り、
-			// 「UIパスと出口だけのパイプライン」でもUIの後ろに前フレームの絵が出てしまう。
-			// 描き足す相手が居ないのだから、まず消してから描く
-			_pOut->loadOp = ELoadOp::Clear;
-
-			// 消す色は「透明な黒」。
-			//
-			// 描き足す相手が居ないということは、この板は絵そのものではなく
-			// 単体のレイヤー(UIだけを描いた板など)であり、後段で下の絵へ
-			// アルファ合成される。ここを不透明黒(a=1)で消すと、何も描かれて
-			// いない部分まで「不透明な黒がある」と主張することになり、
-			// 合成した先でUIの背景が真っ黒に塗り潰される
-			_pOut->clearColor = { 0.f, 0.f, 0.f, 0.f };
-			return;
-		}
+		if (!_pIn || !_pIn->IsConnected()) return false;
 
 		// 実体に関わるところだけをもらう。
 		// アクセスの種類(RTV/UAV)は自分の描き方なので触らない
+		_pOut->resourceID = _pIn->resourceID;
 		_pOut->name = _pIn->name;
 		_pOut->format = _pIn->format;
 		_pOut->width = _pIn->width;
@@ -450,6 +434,33 @@ namespace Engine::Graphics::Pipeline
 
 		// 前段の絵を消さない
 		_pOut->loadOp = ELoadOp::Load;
+		return true;
+	}
+
+	// 上書きではなく描き足すパス(スカイ・パーティクル・UIなど)がこれを通す
+	void Pass::FollowInputToOutput(const std::string& a_inPinName, const std::string& a_outPinName)
+	{
+		// 引き継げたならそれで終わり
+		if (AliasOutputToInput(a_inPinName, a_outPinName)) return;
+
+		Slot* _pOut = FindOutputSlot(MakeSlotID(a_outPinName));
+		if (!_pOut) return;
+
+		// 描き足す先が繋がっていない = このパスが最初に描く。
+		//
+		// Load のままにすると前フレームの中身がそのまま残り、
+		// 「UIパスと出口だけのパイプライン」でもUIの後ろに前フレームの絵が出てしまう。
+		// 描き足す相手が居ないのだから、まず消してから描く
+		_pOut->loadOp = ELoadOp::Clear;
+
+		// 消す色は「透明な黒」。
+		//
+		// 描き足す相手が居ないということは、この板は絵そのものではなく
+		// 単体のレイヤー(UIだけを描いた板など)であり、後段で下の絵へ
+		// アルファ合成される。ここを不透明黒(a=1)で消すと、何も描かれて
+		// いない部分まで「不透明な黒がある」と主張することになり、
+		// 合成した先でUIの背景が真っ黒に塗り潰される
+		_pOut->clearColor = { 0.f, 0.f, 0.f, 0.f };
 	}
 
 	Slot& Pass::DeclareInput(const std::string& a_pinName, EAccessType a_accessType, EPassSlotType a_type, bool a_isRequired, int a_rootParamIndex, bool a_isTemporal)
@@ -495,6 +506,19 @@ namespace Engine::Graphics::Pipeline
 
 		m_outputSlots.push_back(std::move(_slot));
 		return m_outputSlots.back();
+	}
+
+	Slot& Pass::DeclareImportedOutput(
+		const std::string& a_pinName,
+		const std::string& a_importName,
+		EAccessType a_accessType)
+	{
+		// 実体は外から差し込まれるので、フォーマットはこちらでは決めない
+		Slot& _slot = DeclareOutput(a_pinName, a_importName, DXGI_FORMAT_UNKNOWN, a_accessType);
+
+		// 名前で待ち合わせる印。Compile の頭で、識別子がこの名前から起こされる
+		_slot.importName = a_importName;
+		return _slot;
 	}
 
 	//======================================================================================

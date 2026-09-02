@@ -1,12 +1,13 @@
 ﻿#include "VirtualResource.h"
 
-#include "../../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../../../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 namespace Engine::Graphics::Pipeline
 {
-	void VirtualResource::SetupFromOutputSlot(const std::string& a_name, const Slot& a_slot)
+	void VirtualResource::SetupFromOutputSlot(const Slot& a_slot)
 	{
-		m_name = a_name;
+		m_resourceID = a_slot.resourceID;
+		m_name = a_slot.name;
 		m_type = a_slot.type;
 		m_format = a_slot.format;
 		m_width = a_slot.width;
@@ -39,6 +40,9 @@ namespace Engine::Graphics::Pipeline
 
 	void VirtualResource::SetupAsImported(const std::string& a_name, EPassSlotType a_type, D3D12_RESOURCE_STATES a_initialState)
 	{
+		// 外部リソースは作り手のパスが居ないので、識別子は名前から起こす。
+		// 差し込む側とパスの出力ピンは、この名前で待ち合わせる
+		m_resourceID = ResourceID::FromImportName(a_name);
 		m_name = a_name;
 		m_type = a_type;
 

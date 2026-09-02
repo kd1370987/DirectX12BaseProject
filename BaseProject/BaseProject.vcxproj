@@ -501,7 +501,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\GraphicsPipeline\GraphicsPipeline.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\IO\RenderingPipelineAssetIO.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource\VirtualResource.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceRegistry.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass\TestGBufferPass.cpp" />
@@ -844,7 +845,11 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h" />
+    <ClInclude Include="Source\Engine\Common\ID.h" />
+    <ClInclude Include="Source\Engine\Common\Index.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\CompiledPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\ResourceBarrier.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\BlendPass\BlendPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass\MonitorPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h" />
@@ -882,7 +887,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\GraphicsPipeline\GraphicsPipeline.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\IO\RenderingPipelineAssetIO.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\VirtualResource\VirtualResource.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceRegistry.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass\TestGBufferPass.h" />

@@ -89,6 +89,47 @@ namespace Engine::Graphics::Pipeline
 		bool operator!=(const ResourceHandle& a_other) const { return !(*this == a_other); }
 	};
 
+	//======================================================================================
+	// 仮想リソースの識別子
+	//
+	// 「どのパスのどの出力ピンが作ったリソースか」。
+	//
+	// 以前はリソース名(文字列)が同一性そのもので、「同じ名前 = 同じリソース」だった。
+	// そのため同じパスクラスを2つ置くと出力名がぶつかり、黙って1枚のテクスチャへ
+	// 相乗りしていた(ブラーの縮小段を並べるのに、エディターで名前を打ち分ける必要があった)。
+	//
+	// 作り手のインスタンスと出力ピンで決めれば、何個並べても勝手に別物になる。
+	// パスの型ID(ID<Pass>)ではなくインスタンスのGUIDなのはそのため。
+	// 型IDは同じクラスを2つ置くと被るので、インスタンスの識別には使えない。
+	//
+	// 名前は表示用のラベルとして残っているだけで、同一性には関わらない。
+	// 例外はグラフの外から差し込まれるリソースで、
+	// 差し込む側とパス側が名前で待ち合わせるしかないため、そこだけ名前から起こす
+	//======================================================================================
+	struct ResourceID
+	{
+		static constexpr uint32_t INVALID_SLOT_ID = static_cast<uint32_t>(-1);
+
+		Engine::GUID passGUID = {};					// 作ったパス : 外部リソースなら空のまま
+		uint32_t slotID = INVALID_SLOT_ID;			// その出力スロットID : 外部リソースなら名前のハッシュ
+
+		bool IsValid() const { return slotID != INVALID_SLOT_ID; }
+
+		bool operator==(const ResourceID& a_other) const
+		{
+			return slotID == a_other.slotID && passGUID == a_other.passGUID;
+		}
+		bool operator!=(const ResourceID& a_other) const { return !(*this == a_other); }
+
+		// パスの出力ピンから起こす : 同じクラスを何個置いても別物になる
+		static ResourceID FromOutputSlot(const Engine::GUID& a_passGUID, uint32_t a_slotID);
+
+		// グラフの外から差し込まれるリソースから起こす。
+		// 作り手のパスが居ないので GUID は空のまま。
+		// パスの出力は必ず有効なGUIDを持つので、こちらとぶつかることはない
+		static ResourceID FromImportName(const std::string& a_name);
+	};
+
 	// リソース、パスの入出力データ
 	struct Slot
 	{
@@ -117,6 +158,21 @@ namespace Engine::Graphics::Pipeline
 		// ランタイム時用
 		// Compile() で、このスロットが指す仮想リソースが割り当てられる
 		ResourceHandle resourceHandle = {};
+
+		//----------------------------------------------------------------------------------
+		// このスロットが指しているリソースの識別子
+		//
+		// 出力ピン : Compile の頭で「自分のパス + 自分のスロットID」が焼かれる。
+		//            描き足すパスだけは、そのあと入力からもらったものへ差し替わる
+		// 入力ピン : つながった相手の出力からそのまま写る
+		//
+		// name は表示用のラベル。名前が同じでも、これが違えば別のリソース
+		//----------------------------------------------------------------------------------
+		ResourceID resourceID = {};
+
+		// グラフの外から差し込まれるリソースへ書き出す出力ピンなら、その名前。
+		// 空でなければ識別子を名前から起こして、ImportResource 側と待ち合わせる
+		std::string importName = "";
 
 		//----------------------------------------------------------------------------------
 		// スロットの識別
@@ -263,10 +319,6 @@ namespace Engine::Graphics::Pipeline
 		void ClearInput(uint32_t a_slotID);
 		void ClearInput(const std::string& a_pinName);
 
-		// システム上でアウトプットを取得したいときに呼ばれる
-		// アウトプットスロットはパス内で定義する
-		const Slot& GetSlot(const std::string& a_name);
-
 		// コンパイル : パスの設定されている情報からランタイムデータを構築する。
 		// 物理リソースが割り当てられた後に呼ばれるので、ここでディスクリプタまで引ける
 		virtual void Compile(const PassContext& a_context) = 0;
@@ -304,9 +356,6 @@ namespace Engine::Graphics::Pipeline
 		// パスの外からスロットの中身を書き換えるのはここだけにすること
 		std::vector<Slot>& RefInputSlots() { return m_inputSlots; }
 		std::vector<Slot>& RefOutputSlots() { return m_outputSlots; }
-
-		// 指定名のリソースをこのパスが出力しているか
-		bool HasOutputSlot(const std::string& a_name) const;
 
 		// スロットIDから引く : 無ければ nullptr
 		Slot* FindInputSlot(uint32_t a_slotID);
@@ -403,11 +452,22 @@ namespace Engine::Graphics::Pipeline
 			bool a_isTemporal = false);
 
 		//----------------------------------------------------------------------------------
+		// 入力ピンに来たリソースを、そのまま自分の出力先として引き継ぐ
+		//
+		// 「どのリソースへ描くか」だけを合わせる版。繋がっていなければ何もせず false。
+		//
+		// リソースの同一性が名前ではなく識別子になったので、
+		// 「前段と同じリソースへ描く」つもりのパスは必ずここを通すこと。
+		// 出力名を前段と揃えるだけでは、もう合流しない
+		//----------------------------------------------------------------------------------
+		bool AliasOutputToInput(const std::string& a_inPinName, const std::string& a_outPinName);
+
+		//----------------------------------------------------------------------------------
 		// 描き足すパス用 : 入力ピンに来たリソースを、そのまま出力先にする
 		//
 		// 「前段の絵の上に重ねる」パスは、書く先が前段のリソースそのもの。
 		// 配線が決まらないと相手が分からないので、OnLinksResolved から呼ぶ。
-		// 繋がっていなければ宣言時の既定のまま(単体で置いても動く)
+		// 上の引き継ぎに加えて、相手が居ないときの「まず消してから描く」まで面倒をみる
 		//----------------------------------------------------------------------------------
 		void FollowInputToOutput(const std::string& a_inPinName, const std::string& a_outPinName);
 
@@ -465,6 +525,18 @@ namespace Engine::Graphics::Pipeline
 			EPassSlotType a_type = EPassSlotType::Texture,
 			bool a_isTemporal = false,
 			int a_rootParamIndex = -1);
+
+		//----------------------------------------------------------------------------------
+		// グラフの外から差し込まれるリソースへ書き出す出力ピン
+		//
+		// 実体は RenderGraph::ImportResource() で差し込まれるので、
+		// フォーマットも大きさも向こうの持ち物。
+		// 識別子だけは名前から起こして、差し込む側と待ち合わせる
+		//----------------------------------------------------------------------------------
+		Slot& DeclareImportedOutput(
+			const std::string& a_pinName,
+			const std::string& a_importName,
+			EAccessType a_accessType = EAccessType::CopyDst);
 
 		// ---- パス情報 ----
 		// メタ
@@ -636,5 +708,20 @@ namespace Engine::Graphics::Pipeline
 		// パラメータの版
 		uint32_t m_paramVersion = 1;
 		Engine::GUID m_pendingDeletePass = {};	// このフレーム内で削除予約されたパス
+	};
+}
+
+namespace std
+{
+	// 仮想リソースの対応表の鍵に使う
+	template<>
+	struct hash<Engine::Graphics::Pipeline::ResourceID>
+	{
+		size_t operator()(const Engine::Graphics::Pipeline::ResourceID& a_id) const noexcept
+		{
+			const size_t _hash = a_id.passGUID.Hash();
+			return _hash ^ (static_cast<size_t>(a_id.slotID)
+				+ 0x9e3779b97f4a7c15ull + (_hash << 6) + (_hash >> 2));
+		}
 	};
 }

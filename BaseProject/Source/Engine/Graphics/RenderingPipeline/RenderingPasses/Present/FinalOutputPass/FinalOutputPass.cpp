@@ -10,12 +10,13 @@ namespace Engine::Graphics::Pipeline
 		// シェーダーを通さないぶん、フォーマットと大きさは入口と出口で揃っている必要がある
 		DeclareInput(kInputName, EAccessType::CopySrc);
 
-		// 出力の名前は GraphicsEngine がカメラの最終出力を差し込むときの名前と同じ。
-		// 同じ名前なので、仮想リソースの構築でその外部リソースへ合流する
-		DeclareOutput(
+		// 出力先は GraphicsEngine がカメラの最終出力として差し込む外部リソース。
+		//
+		// リソースの同一性はふつう「作ったパス + 出力ピン」で決まるが、
+		// 差し込む側にはパスが居ない。ここだけは名前で待ち合わせる
+		DeclareImportedOutput(
 			"Output",
 			GraphicsEngine::kCameraOutputName,
-			DXGI_FORMAT_UNKNOWN,		// 実体は外から差し込まれるので、こちらでは決めない
 			EAccessType::CopyDst);
 	}
 
