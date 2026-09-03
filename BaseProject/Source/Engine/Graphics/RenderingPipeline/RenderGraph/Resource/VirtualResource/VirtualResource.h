@@ -14,7 +14,7 @@
 // 配列の持ち主は ResourceRegistry。
 //
 //==========================================================================================
-#include "../../../RenderingPipeline.h"
+#include "../../../Core/Slot.h"
 
 namespace Engine::Graphics::Pipeline
 {

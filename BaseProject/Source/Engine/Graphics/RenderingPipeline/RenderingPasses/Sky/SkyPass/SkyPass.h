@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/Graphics/RenderingPipeline/RenderingPipeline.h"
+#include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
 
 namespace Engine::Graphics::Pipeline
 {

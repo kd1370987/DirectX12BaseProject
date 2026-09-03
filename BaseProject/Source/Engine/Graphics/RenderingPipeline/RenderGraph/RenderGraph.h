@@ -12,17 +12,24 @@
 //   Compile()           : 実行順の解決 + 仮想リソースの構築(GPU不要)
 //   AllocateResources() : 仮想リソースの要件どおりに物理リソースを作る(GPU必要)
 //==========================================================================================
-#include "../RenderingPipeline.h"
-#include "Resource/ResourceRegistry.h"
-#include "PhysicalResource/PhysicalResource.h"
+// 実行順とバリアは値で持つので実体が要る。
+// パス・リソース・レジストリは持ち方(unique_ptr / 参照)が決まっているので前方宣言で足りる
+#include "../Core/ResourceID.h"
+#include "../Core/PipelineEnums.h"
+#include "../Core/PassContext.h"	// GraphicsEngine / RenderContext の前方宣言もここ
+#include "../Internal/Connection.h"
 #include "Internal/ResourceBarrier.h"
 #include "Internal/CompiledPass.h"
-#include "Resource/ResourceAllocator.h"
-
 
 namespace Engine::Graphics::Pipeline
 {
+	class Pass;
+	struct Slot;
 	class PassMetaRegistry;
+	class VirtualResource;
+	class PhysicalResource;
+	class ResourceRegistry;
+	class ResourceAllocator;
 
 	// =====================================================================================
 	// グラフの検証結果
@@ -47,8 +54,10 @@ namespace Engine::Graphics::Pipeline
 	{
 	public:
 
-		RenderGraph() = default;
-		~RenderGraph() = default;
+		// 中身を unique_ptr / 前方宣言で持つので、生成と破棄は
+		// 完全型が見える .cpp 側に置く
+		RenderGraph();
+		~RenderGraph();
 
 		// パスの実体を抱えるのでコピー禁止
 		RenderGraph(const RenderGraph&) = delete;
@@ -96,6 +105,7 @@ namespace Engine::Graphics::Pipeline
 		Pass* FindPassByPinID(int a_pinID, Slot** a_ppOutSlot, bool* a_pOutIsInput);
 
 		const std::vector<std::unique_ptr<Pass>>& GetPasses() const { return m_passes; }
+		std::vector<std::unique_ptr<Pass>>& RefPasses() { return m_passes; }
 
 		//----------------------------------------------------------------------------------
 		// つなぎ
@@ -174,7 +184,7 @@ namespace Engine::Graphics::Pipeline
 		// このグラフに Temporal リソースが1つでもあるか
 		bool HasTemporalResource() const;
 
-		const std::vector<VirtualResource>& GetVirtualResources() const { return m_resourceRegistry.GetVirtualResources(); }
+		const std::vector<VirtualResource>& GetVirtualResources() const;
 		const std::vector<std::unique_ptr<PhysicalResource>>& GetPhysicalResources() const { return m_physicalResourceVec; }
 
 		//----------------------------------------------------------------------------------
@@ -224,49 +234,27 @@ namespace Engine::Graphics::Pipeline
 		// コンパイル済みのパスと、バリアをクリア
 		void ClearCompiledData();
 
-	private:
-
-		// 出力ピンへ「自分のパス + 自分のスロットID」の識別子を焼く。
-		// 描き足すパスは配線の解決中にこれを差し替えるので、必ずその前に呼ぶこと
-		void StampResourceIDs();
-
-		// 実行順に沿って配線を1回だけ解決する。
-		// 前段の出力が確定してから後段へ渡るので、往復させなくても端まで届く
-		void ResolveLinksInOrder(const std::vector<Pass*>& a_sortedVec);
-
-		// パスの入出力スロットから仮想リソースを組み直す。
-		// 名前ごとに1つ起こして、その名前を触っている全スロットの要件を足し込む
-		void BuildVirtualResources();
-
-		// 実行順が決まったあとに、各リソースの生存区間(最初/最後のパス)を出す
-		void BuildResourceLifetimes();
-
-		// 同じリソースを2つ以上のパスが作っていないかを見る。
-		// 名前が確定してからでないと描き足しと見分けられないので、配線を解決した後に呼ぶこと
-		void ValidateResourceWriters();
-
-		// スロットへ、割り当てた仮想リソースの参照を書き戻す
+		//----------------------------------------------------------------------------------
+		// RenderGraphCompiler へ渡す口
+		//
+		// コンパイルはグラフの中身を触るが、順序とリソースの解決は別のクラスの仕事なので
+		// 必要なものだけをここから見せる
+		//----------------------------------------------------------------------------------
+		// スロットへ、割り当てた仮想リソースの参照を書き戻す。
+		// 実行時にパスが「自分のスロット -> GPUリソース」を O(1) で引けるようにする
 		void WriteBackSlotHandles();
 
-		// 出力スロットの StoreOp を決める。
-		// 後続のどこかが読んでいれば Store、誰も読まなければ DontCare
-		void ResolveStoreOps();
+		// 検証で拾った不備を1件足す
+		void AddIssue(ValidationIssue&& a_issue);
+
+		ResourceRegistry* RefResourceRegistry() { return m_upResourceRegistry.get(); }
+
+	private:
 
 		// 型IDからパスを作り直して、アーカイブから中身を流し込む。
 		// 保存の読込と、設計図からの複製の両方がここを通る
 		std::unique_ptr<Pass> CreatePassFromArchive(
 			const PassMetaRegistry& a_registry, ID<Pass> a_typeID, Persistence::Archive& a_arch);
-
-		//----------------------------------------------------------------------------------
-		// バリア構築フェーズ
-		//----------------------------------------------------------------------------------
-		// 並んだパスを先頭から見て、各リソースのステート遷移を積む。
-		// GPUには触らないので、実体(pResource)はここでは埋めない
-		void BuildBarriers();
-
-		// パス1つぶんのバリアを積む。
-		// 読みを先に、書きを後に見て、ステートが変わるところで1本ずつ積んでいく
-		void BuildPassBarriers(CompiledPass& a_compiledPass);
 
 		// 積んであるバリアへ物理リソースのポインタを埋める(AllocateResources の後)
 		void ResolveBarrierResources();
@@ -285,6 +273,7 @@ namespace Engine::Graphics::Pipeline
 		// 全パスの Compile() を実行順に呼ぶ(リソースが揃ってから)
 		void CompilePasses(GraphicsEngine* a_pGraphicsEngine);
 
+
 	private:
 
 		// パスのインスタンス配列 : 実体はここが持つ
@@ -294,8 +283,8 @@ namespace Engine::Graphics::Pipeline
 		std::unordered_map<Engine::GUID, std::vector<Connection>> m_connectionMap = {};
 
 		// リソース
-		ResourceRegistry m_resourceRegistry = {};	// 仮想リソースと外部リソースの持ち主
-		ResourceAllocator m_resourceAllocator;		// リソースの割り当てを管理
+		std::unique_ptr<ResourceRegistry> m_upResourceRegistry = nullptr;	// 仮想リソースと外部リソースの持ち主
+		std::unique_ptr<ResourceAllocator> m_upResourceAllocator = nullptr;	// リソースの割り当てを管理
 
 		// 物理リソース : 今は仮想1つにつき1つなので、添字は仮想側と一致する
 		std::vector<std::unique_ptr<PhysicalResource>> m_physicalResourceVec = {};

@@ -1588,6 +1588,18 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal">
       <UniqueIdentifier>{e6d94f4a-853f-424b-aee0-968e187c02f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\Core">
+      <UniqueIdentifier>{3894b448-ef4a-4fd7-8e85-4634f2675016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\Core\Pass">
+      <UniqueIdentifier>{01b9ee68-eb6b-4d3d-a87f-e1544d4837b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\Internal">
+      <UniqueIdentifier>{aadaf467-7c7c-4d3f-996f-7263ef9cead3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset">
+      <UniqueIdentifier>{f80cf745-d50f-4086-a0d1-f4be90db9575}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
@@ -2562,8 +2574,14 @@
     <ClCompile Include="Source\Application\Object\UI\UIManager.cpp">
       <Filter>Source\Application\Object\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.cpp">
-      <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\Core\Pass\Pass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\Core\Pass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\Internal\Connection.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\Internal</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset\RenderingPipelineAsset.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\FrameCompute\SkinningPass\SkinningPass.cpp">
       <Filter>Source\Engine\Graphics\FrameCompute\SkinningPass</Filter>
@@ -4204,6 +4222,30 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\PipelineEnums.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\ResourceID.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\Slot.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\PassContext.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\Pass\Pass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\Core\Pass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Internal\PassBind.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Internal\Connection.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset\RenderingPipelineAsset.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\FrameCompute\SkinningPass\SkinningPass.h">
       <Filter>Source\Engine\Graphics\FrameCompute\SkinningPass</Filter>

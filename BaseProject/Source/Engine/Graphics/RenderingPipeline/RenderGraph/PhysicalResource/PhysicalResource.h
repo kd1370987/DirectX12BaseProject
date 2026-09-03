@@ -14,10 +14,11 @@
 // 配列の持ち主は RenderGraph。マネージャークラスは置かない。
 //
 //==========================================================================================
-#include "../Resource/VirtualResource/VirtualResource.h"
-
+// 参照しか持たないので実体は要らない
 namespace Engine::Graphics::Pipeline
 {
+	class VirtualResource;
+
 	class PhysicalResource
 	{
 	public:

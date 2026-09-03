@@ -1,6 +1,11 @@
 ﻿#pragma once
+#include "ResourceBarrier.h"
+#include "../../Internal/PassBind.h"
+
 namespace Engine::Graphics::Pipeline
 {
+	class Pass;
+
 
 	// =====================================================================================
 	// コンパイル済みのパス

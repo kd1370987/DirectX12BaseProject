@@ -3,7 +3,7 @@
 #include "../../Components/Camera/ProjMatComponent.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Graphics/RenderingPipeline/RenderingPipeline.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"
 #include "Engine/Editor/Helper/EditorHelper.inl"
 
 struct CameraParamComponent

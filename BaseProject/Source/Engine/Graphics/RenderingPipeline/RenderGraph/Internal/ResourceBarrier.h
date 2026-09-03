@@ -1,4 +1,11 @@
 ﻿#pragma once
+#include "../../Core/ResourceID.h"
+
+namespace Engine::D3D12
+{
+	class GPUResource;
+}
+
 namespace Engine::Graphics::Pipeline
 {
 	// =====================================================================================

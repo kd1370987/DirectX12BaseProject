@@ -1,6 +1,13 @@
 ﻿#include "RenderGraph.h"
 
 #include "../RenderingPipelineMetaRegistry.h"
+#include "RenderGraphCompiler/RenderGraphCompiler.h"
+
+// ヘッダーでは前方宣言にしてあるので、実体はここで揃える
+#include "../Core/Pass/Pass.h"
+#include "Resource/ResourceRegistry.h"
+#include "Resource/ResourceAllocator.h"
+#include "PhysicalResource/PhysicalResource.h"
 
 // 実行時に触るもの
 #include "../../RenderContext/RenderContext.h"
@@ -8,6 +15,20 @@
 
 namespace Engine::Graphics::Pipeline
 {
+	// レジストリと割り当ては unique_ptr で持つので、
+	// 完全型が見えるここで作って、ここで捨てる
+	RenderGraph::RenderGraph()
+		: m_upResourceRegistry(std::make_unique<ResourceRegistry>())
+		, m_upResourceAllocator(std::make_unique<ResourceAllocator>())
+	{}
+
+	RenderGraph::~RenderGraph() = default;
+
+	const std::vector<VirtualResource>& RenderGraph::GetVirtualResources() const
+	{
+		return m_upResourceRegistry->GetVirtualResources();
+	}
+
 	// スロットに割り当てられたGPUリソースを引く
 	D3D12::GPUResource* PassContext::GetResource(const Slot& a_slot) const
 	{
@@ -408,115 +429,6 @@ namespace Engine::Graphics::Pipeline
 	}
 
 	//======================================================================================
-	// 出力ピンへ識別子を焼く
-	//
-	// 「どのパスのどの出力ピンが作ったリソースか」を、配線を解決する前に確定させる。
-	//
-	// 描き足すパスは、このあとの OnLinksResolved で入力からもらった識別子へ差し替える。
-	// 毎回ここで焼き直すので、前回のコンパイルで差し替わっていても元へ戻る
-	//======================================================================================
-	void RenderGraph::StampResourceIDs()
-	{
-		for (auto& _upPass : m_passes)
-		{
-			if (!_upPass) continue;
-
-			const Engine::GUID& _passGUID = _upPass->GetGUID();
-
-			for (Slot& _out : _upPass->RefOutputSlots())
-			{
-				// グラフの外へ書き出すピンだけは、差し込む側と名前で待ち合わせる
-				_out.resourceID = _out.importName.empty()
-					? ResourceID::FromOutputSlot(_passGUID, _out.slotID)
-					: ResourceID::FromImportName(_out.importName);
-			}
-		}
-	}
-
-	//======================================================================================
-	// 配線を実行順に1回だけ解決する
-	//
-	// ApplyLinks は「接続元の出力スロット」を入力へ写すだけなので、これ単体では
-	// 描き足すパス(OnLinksResolved で自分の出力名を入力に合わせるもの)の数珠つなぎに
-	// 追いつけない。
-	//
-	//   魚眼(FishEyeColor) → デバッグ線 → UI → トーンマップ
-	//
-	// 前段の出力が決まる前に後段が名前を受け取ってしまうと、UI だけが誰も書かない
-	// 別のテクスチャへ描くことになる(画面に UI しか出ない・前フレームの絵が残る)。
-	//
-	// 依存順に「入力を引き込む → 出力を決めさせる」を1回ずつやれば、
-	// 後段を見るときには前段の出力がもう確定しているので、往復させる必要がない
-	//======================================================================================
-	void RenderGraph::ResolveLinksInOrder(const std::vector<Pass*>& a_sortedVec)
-	{
-		// 接続を入力側から引けるようにしておく。
-		// m_connectionMap は出力側が鍵なので、そのままだと
-		// 「このパスの入力へ誰が来ているか」を毎回全走査することになる
-		struct IncomingLink
-		{
-			Engine::GUID srcPassGUID = {};
-			uint32_t srcSlotID = 0;
-			uint32_t dstSlotID = 0;
-		};
-
-		std::unordered_map<Engine::GUID, std::vector<IncomingLink>> _incomingMap = {};
-		for (const auto& [_srcGUID, _connectionVec] : m_connectionMap)
-		{
-			for (const Connection& _connection : _connectionVec)
-			{
-				IncomingLink _link = {};
-				_link.srcPassGUID = _srcGUID;
-				_link.srcSlotID = _connection.srcSlotID;
-				_link.dstSlotID = _connection.dstSlotID;
-
-				_incomingMap[_connection.dstPassGUID].push_back(_link);
-			}
-		}
-
-		// 入力を一旦すべて外す : 「今つながっている線」だけが正
-		for (auto& _upPass : m_passes)
-		{
-			if (!_upPass) continue;
-
-			for (const Slot& _in : _upPass->GetInputSlots())
-			{
-				_upPass->ClearInput(_in.slotID);
-			}
-		}
-
-		// 実行順に1回ずつ
-		for (Pass* _pPass : a_sortedVec)
-		{
-			if (!_pPass) continue;
-
-			// この時点で前段の出力はもう動かない
-			auto _it = _incomingMap.find(_pPass->GetGUID());
-			if (_it != _incomingMap.end())
-			{
-				for (const IncomingLink& _link : _it->second)
-				{
-					Pass* _pSrc = FindPass(_link.srcPassGUID);
-					if (!_pSrc) continue;
-
-					const Slot* _pSrcSlot = _pSrc->FindOutputSlot(_link.srcSlotID);
-					if (!_pSrcSlot) continue;
-
-					_pPass->SetInput(_link.dstSlotID, *_pSrcSlot);
-				}
-			}
-
-			// 入力がそろったので、このパスに出力を決めさせる
-			_pPass->OnLinksResolved();
-		}
-
-		// 前フレームを読むピン(Temporal)は実行順の辺にならないので、
-		// 書き手が自分より後ろに居ることがある。そこだけは1周では埋まらない。
-		// 出力はもう確定しているので、最後に配り直せば落ち着く
-		ApplyLinks();
-	}
-
-	//======================================================================================
 	//
 	// リソース
 	//
@@ -533,17 +445,17 @@ namespace Engine::Graphics::Pipeline
 		D3D12_RESOURCE_STATES a_initialState,
 		EPassSlotType a_type)
 	{
-		m_resourceRegistry.ImportResource(a_name, a_pResource, a_initialState, a_type);
+		m_upResourceRegistry->ImportResource(a_name, a_pResource, a_initialState, a_type);
 	}
 
 	void RenderGraph::RemoveImportedResource(const std::string& a_name)
 	{
-		m_resourceRegistry.RemoveImportedResource(a_name);
+		m_upResourceRegistry->RemoveImportedResource(a_name);
 	}
 
 	void RenderGraph::ClearImportedResources()
 	{
-		m_resourceRegistry.ClearImportedResource();
+		m_upResourceRegistry->ClearImportedResource();
 	}
 
 	void RenderGraph::ClearCompiledData()
@@ -552,105 +464,9 @@ namespace Engine::Graphics::Pipeline
 		m_endBarriers.clear();
 	}
 
-	// 仮想リソースを、パスの入出力スロットから組み直す。
-	// 「同じ名前 = 同じリソース」なので、名前ごとに1つ起こして要件を足し込んでいく
-	void RenderGraph::BuildVirtualResources()
+	void RenderGraph::AddIssue(ValidationIssue&& a_issue)
 	{
-		m_resourceRegistry.ClearVirtualResources();
-
-		// ---- 外部から差し込まれたものを先に並べる ----
-		// パスが知らないリソース(バックバッファなど)もここで席を持つ
-		m_resourceRegistry.SetupImportedResources();
-
-		// ---- 出力スロットから起こす ----
-		// フォーマットやサイズを知っているのは作る側だけなので、先に出力を全部通す
-		for (auto& _upPass : m_passes)
-		{
-			if (!_upPass) continue;
-
-			for (Slot& _out : _upPass->RefOutputSlots())
-			{
-				if (!_out.resourceID.IsValid()) continue;
-				m_resourceRegistry.Request(_out).MergeSlot(_out);
-			}
-		}
-
-		// ---- 入力スロットの要件を足し込む ----
-		// 読む側は用途フラグ(SRV/UAV/DSV)だけを足す
-		for (auto& _upPass : m_passes)
-		{
-			if (!_upPass) continue;
-
-			for (const Slot& _in : _upPass->GetInputSlots())
-			{
-				// つながっていないピンは飛ばす
-				if (!_in.IsConnected()) continue;
-
-				VirtualResource* _pRes = m_resourceRegistry.RefByID(_in.resourceID);
-				if (!_pRes)
-				{
-					// どのパスも作っていない = Import し忘れているリソース。
-					// 黙って落とすと後で実体が無くて落ちるので出しておく
-					ENGINE_WARNING(
-						"[RenderGraph] 入力に来ているリソースを誰も作っていません : %s <- %s",
-						_upPass->GetName().c_str(), _in.name.c_str());
-					continue;
-				}
-
-				_pRes->MergeSlot(_in);
-			}
-		}
-
-		// ---- 実サイズを決める ----
-		for (VirtualResource& _res : m_resourceRegistry.RefVirtualResources())
-		{
-			_res.ResolveSize(m_viewportWidth, m_viewportHeight);
-		}
-
-		// ---- スロットへ割り当て結果を書き戻す ----
-		WriteBackSlotHandles();
-
-		// ---- 後続に使われているかを出力スロットへ書き戻す ----
-		ResolveStoreOps();
-	}
-
-	// 出力したリソースが後続で使われるかどうかを StoreOp に落とす。
-	//
-	// 今は「使われ方を把握するための情報」でしかないが、
-	// リソースの生存区間が分かる形にしておくと、
-	// あとでエイリアシング(使い回し)を入れるときの判断材料になる
-	void RenderGraph::ResolveStoreOps()
-	{
-		// どこかの入力に来ているリソースを集める。
-		// 名前ではなく識別子で見ること : 表示名が同じでも別のリソースがありうる
-		std::unordered_set<ResourceID> _consumedIDSet = {};
-		for (const auto& _upPass : m_passes)
-		{
-			if (!_upPass) continue;
-
-			for (const Slot& _in : _upPass->GetInputSlots())
-			{
-				if (!_in.IsConnected()) continue;
-				_consumedIDSet.insert(_in.resourceID);
-			}
-		}
-
-		for (auto& _upPass : m_passes)
-		{
-			if (!_upPass) continue;
-
-			for (Slot& _out : _upPass->RefOutputSlots())
-			{
-				// 外部から差し込まれたリソース(このカメラの最終出力など)は
-				// グラフの外で使われるので、誰も読んでいなくても残す
-				const VirtualResource* _pVirtual = GetVirtualResource(_out.resourceHandle);
-				const bool _isImported = (_pVirtual && _pVirtual->IsImported());
-
-				const bool _isConsumed = _isImported || (_consumedIDSet.count(_out.resourceID) != 0);
-
-				_out.storeOp = _isConsumed ? EStoreOp::Store : EStoreOp::DontCare;
-			}
-		}
+		m_validationIssueVec.push_back(std::move(a_issue));
 	}
 
 	// 実行時にパスが「自分のスロット -> GPUリソース」を O(1) で引けるようにする
@@ -677,7 +493,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		// Temporal は物理を2枚使うので、必要な枚数を先に数える
 		size_t _requiredCount = 0;
-		for (const VirtualResource& _virtual : m_resourceRegistry.GetVirtualResources())
+		for (const VirtualResource& _virtual : m_upResourceRegistry->GetVirtualResources())
 		{
 			_requiredCount += _virtual.GetPhysicalCount();
 		}
@@ -696,7 +512,7 @@ namespace Engine::Graphics::Pipeline
 
 		bool _isSuccess = true;
 		size_t _physicalCursor = 0;
-		for (VirtualResource& _virtual : m_resourceRegistry.RefVirtualResources())
+		for (VirtualResource& _virtual : m_upResourceRegistry->RefVirtualResources())
 		{
 			// この仮想リソースが使う物理の席を確保する
 			const uint32_t _sliceCount = _virtual.GetPhysicalCount();
@@ -715,7 +531,7 @@ namespace Engine::Graphics::Pipeline
 			if (_virtual.IsImported())
 			{
 				// 外部リソースは実体を作らず、参照だけもらい受ける
-				D3D12::GPUResource* _pExternal = m_resourceRegistry.FindImportedResource(_virtual.GetName());
+				D3D12::GPUResource* _pExternal = m_upResourceRegistry->FindImportedResource(_virtual.GetName());
 
 				if (!_pExternal)
 				{
@@ -758,7 +574,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 実体ができて入口のステートが確定したので、バリアを積み直してから実体を結びつける。
 		// Compile() の時点ではまだ実体が無く、before は仮の値で積んでいる
-		BuildBarriers();
+		RenderGraphCompiler(this).BuildBarriers(m_compilePasses, m_endBarriers);
 		ResolveBarrierResources();
 
 		// 出力先(RTV/DSV)を焼き込んでから、各パスへランタイムデータを作らせる。
@@ -778,7 +594,7 @@ namespace Engine::Graphics::Pipeline
 		m_physicalResourceVec.clear();
 
 		// 外部リソースの控えは差し込んだ側の持ち物なので、ここで捨てるのは仮想リソースだけ
-		m_resourceRegistry.ClearVirtualResources();
+		m_upResourceRegistry->ClearVirtualResources();
 
 		// 仮想リソースが消えたので、それを指していたバリアも捨てる
 		for (CompiledPass& _compiledPass : m_compilePasses)
@@ -793,7 +609,7 @@ namespace Engine::Graphics::Pipeline
 
 	ResourceHandle RenderGraph::FindResource(ResourceID a_resourceID) const
 	{
-		const Index<VirtualResource> _index = m_resourceRegistry.Find(a_resourceID);
+		const Index<VirtualResource> _index = m_upResourceRegistry->Find(a_resourceID);
 		if (!_index.IsValid()) return {};
 
 		ResourceHandle _handle = {};
@@ -804,13 +620,13 @@ namespace Engine::Graphics::Pipeline
 	const VirtualResource* RenderGraph::GetVirtualResource(ResourceHandle a_handle) const
 	{
 		if (!a_handle.IsValid()) return nullptr;
-		return m_resourceRegistry.Get(Index<VirtualResource>(a_handle.index));
+		return m_upResourceRegistry->Get(Index<VirtualResource>(a_handle.index));
 	}
 
 	VirtualResource* RenderGraph::RefVirtualResource(ResourceHandle a_handle)
 	{
 		if (!a_handle.IsValid()) return nullptr;
-		return m_resourceRegistry.Ref(Index<VirtualResource>(a_handle.index));
+		return m_upResourceRegistry->Ref(Index<VirtualResource>(a_handle.index));
 	}
 
 	PhysicalResource* RenderGraph::RefPhysicalResource(ResourceHandle a_handle, uint32_t a_slice) const
@@ -846,7 +662,7 @@ namespace Engine::Graphics::Pipeline
 
 	bool RenderGraph::HasTemporalResource() const
 	{
-		for (const VirtualResource& _virtual : m_resourceRegistry.GetVirtualResources())
+		for (const VirtualResource& _virtual : m_upResourceRegistry->GetVirtualResources())
 		{
 			if (_virtual.IsTemporal()) return true;
 		}
@@ -1136,126 +952,19 @@ namespace Engine::Graphics::Pipeline
 
 	// パスの入出力スロットから実行順を決めて m_compilePasses へ流し込む
 	// 前から順に「バリアを張ってパスを回す」だけでよい、一本の配列にする
+	//
+	// 順序とリソースの解決そのものは RenderGraphCompiler の仕事。
+	// ここは結果を受け取って自分のコンパイル済みデータへ移すだけにする
 	bool RenderGraph::Compile()
 	{
-		m_compilePasses.clear();
-		m_endBarriers.clear();
+		// 失敗しても中途半端な状態で走らせないよう、先に捨てておく
+		ClearCompiledData();
 
-		// 繋ぎ方だけで分かる不備を先に洗い出す。
-		// ここを通さずに進むと、原因が「ソート失敗」や「実体が無い」に化けて追いにくい
-		if (!Validate())
-		{
-			for (const ValidationIssue& _issue : m_validationIssueVec)
-			{
-				if (_issue.level != ValidationIssue::ELevel::Error) continue;
-				ENGINE_WARNING("[RenderGraph] %s", _issue.message.c_str());
-			}
-			ENGINE_WARNING("[RenderGraph] 検証に失敗したためコンパイルを中止しました");
-			return false;
-		}
+		CompileResult _result = RenderGraphCompiler(this).Compile();
+		if (!_result.isSuccess) return false;
 
-		//----------------------------------------------------------------------------------
-		// 実行順を先に決める
-		//
-		// 依存の辺は「つないだ相手」だけで決まり、リソース名を一切見ない。
-		// 先に並べてしまえば、名前の伝播は依存順に1回流すだけで端まで届く。
-		//
-		// (以前はここが逆で、名前を往復させて落ち着くまで回してから並べ替えていた。
-		//  ApplyLinks が unordered_map を回る = 伝播順がばらばらなので、
-		//  1往復では数珠つなぎの末尾まで届かず、パスの数だけ回る必要があった)
-		//----------------------------------------------------------------------------------
-		// ---- 並べ替え対象を生ポインタで集める ----
-		// 実体は m_passes(unique_ptr)が持ち続ける。並べ替えるのは参照だけ
-		std::vector<Pass*> _nodes = {};
-		_nodes.reserve(m_passes.size());
-		for (auto& _upPass : m_passes)
-		{
-			if (!_upPass) continue;
-			_nodes.push_back(_upPass.get());
-		}
-
-		//----------------------------------------------------------------------------------
-		// 依存の洗い出し
-		//
-		// 「つないだ相手」だけを辺にする。リソース名で突き合わせると、
-		// 同じリソースへ描き足すパスが並んだときに全員が互いの書き手になって循環する
-		// (ライティング → 空 → パーティクルはどれも AfterLighting を読んで書く)。
-		// 線は「この出力の後に走れ」という指示そのものなので、これだけを見ればよい
-		//----------------------------------------------------------------------------------
-		std::unordered_map<Engine::GUID, std::unordered_set<Engine::GUID>> _dependMap = {};
-		for (const auto& [_srcGUID, _connectionVec] : m_connectionMap)
-		{
-			for (const Connection& _connection : _connectionVec)
-			{
-				// 自分自身へのつなぎは順序を持たない
-				if (_connection.dstPassGUID == _srcGUID) continue;
-
-				Pass* _pDst = FindPass(_connection.dstPassGUID);
-				if (!_pDst) continue;
-
-				// Temporal は前フレームの結果を読むので、同フレームの書き手を待たない。
-				// 辺にしてしまうと「History を読んで History を書く」構成が循環になる
-				const Slot* _pDstSlot = _pDst->FindInputSlot(_connection.dstSlotID);
-				if (_pDstSlot && _pDstSlot->isTemporal) continue;
-
-				_dependMap[_connection.dstPassGUID].insert(_srcGUID);
-			}
-		}
-
-		// lhs の入力が rhs から来ているなら、rhs が先に走らないと入力がそろわない
-		auto _isDepends = [&_dependMap](const Pass* a_pLhs, const Pass* a_pRhs)
-			{
-				if (!a_pLhs || !a_pRhs) return false;
-
-				auto _it = _dependMap.find(a_pLhs->GetGUID());
-				if (_it == _dependMap.end()) return false;
-
-				return _it->second.find(a_pRhs->GetGUID()) != _it->second.end();
-			};
-
-		// ---- 依存の向きどおりに一本へ並べる ----
-		std::vector<Pass*> _sortedVec = {};
-		if (!_nodes.empty() &&
-			!Engine::Algorithm::Graph::TopologicalSort(_nodes, _sortedVec, _isDepends))
-		{
-			// 循環すると結果からパスが抜け落ちる。中途半端な順序で走らせない
-			ENGINE_WARNING("[RenderGraph] パスの並べ替えに失敗しました : 入出力が循環しています");
-			m_compilePasses.clear();
-			m_endBarriers.clear();
-			return false;
-		}
-
-		// ---- 配線をスロットへ反映する ----
-		// 先に出力ピンの識別子を焼いてから、実行順どおりに1回流す。
-		// 描き足すパスは、その流れの中で前段の識別子を引き継ぐ
-		StampResourceIDs();
-		ResolveLinksInOrder(_sortedVec);
-
-		// 名前が確定したので、同じリソースを2つ以上のパスが作っていないかを見る
-		ValidateResourceWriters();
-
-		// 配線から仮想リソースを組み直す。
-		// 実体を作るのは AllocateResources() の仕事なので、ここではGPUに触らない
-		BuildVirtualResources();
-
-		// パスが1つも無いグラフ : 差し込まれた外部リソースだけを起こして終わり
-		if (_sortedVec.empty()) return true;
-
-		// コンパイル後のパスに入れる
-		m_compilePasses.reserve(_sortedVec.size());
-		for (Pass* _pPass : _sortedVec)
-		{
-			CompiledPass _compiledPass = {};
-			_compiledPass.pPass = _pPass;
-			m_compilePasses.push_back(std::move(_compiledPass));
-		}
-
-		// ---- リソースの生存区間を出す ----
-		// 実行順が決まって初めて「何番目から何番目まで要るか」が言える
-		BuildResourceLifetimes();
-
-		// ---- リソースのステート遷移を積む ----
-		BuildBarriers();
+		m_compilePasses = std::move(_result.compiledPassVec);
+		m_endBarriers = std::move(_result.endBarrierVec);
 
 		// 各パスの Compile() はここでは呼ばない。
 		// 物理リソースが決まってからでないとディスクリプタを引けないので、
@@ -1369,7 +1078,7 @@ namespace Engine::Graphics::Pipeline
 
 		auto& _heapManager = D3D12::DescriptorHeapManager::Instance();
 
-		const std::vector<VirtualResource>& _virtualVec = m_resourceRegistry.GetVirtualResources();
+		const std::vector<VirtualResource>& _virtualVec = m_upResourceRegistry->GetVirtualResources();
 		for (uint32_t _i = 0; _i < static_cast<uint32_t>(_virtualVec.size()); ++_i)
 		{
 			const VirtualResource& _virtual = _virtualVec[_i];
@@ -1674,235 +1383,10 @@ namespace Engine::Graphics::Pipeline
 	}
 
 	//======================================================================================
-	// 同じリソースを2つ以上のパスが作っていないか
-	//
-	// 識別子が「作ったパス + 出力ピン」になったので、同じパスクラスを並べても
-	// 勝手に別のリソースになる。ここへ引っかかるのは、
-	// 複数のパスが同じ外部リソース名(DeclareImportedOutput)へ書き出している場合だけ。
-	// 外部リソースは名前で待ち合わせるしかないので、そこだけは今も衝突しうる。
-	//
-	// ただし描き足すパスは、前段が作ったリソースへ重ねるのが仕事なので
-	// 書き手が複数居て正しい。「同じリソースを読んでいない = 自分が作っている」で見分ける。
-	//
-	// 識別子は配線を解決して初めて確定するので、必ずその後に呼ぶこと
-	//======================================================================================
-	void RenderGraph::ValidateResourceWriters()
-	{
-		// リソースごとに「自分では読まずに書いているパス」を集める
-		struct Writers
-		{
-			std::string label = "";					// 出しても分かるように表示名を控える
-			std::vector<const Pass*> passVec = {};
-		};
-		std::unordered_map<ResourceID, Writers> _creatorMap = {};
-
-		for (const auto& _upPass : m_passes)
-		{
-			if (!_upPass) continue;
-
-			for (const Slot& _out : _upPass->GetOutputSlots())
-			{
-				if (!_out.resourceID.IsValid()) continue;
-
-				// 同じリソースが入力にも来ていれば描き足し : このパスは作り手ではない
-				bool _isFollower = false;
-				for (const Slot& _in : _upPass->GetInputSlots())
-				{
-					if (!_in.IsConnected()) continue;
-					if (_in.resourceID != _out.resourceID) continue;
-
-					_isFollower = true;
-					break;
-				}
-				if (_isFollower) continue;
-
-				Writers& _writers = _creatorMap[_out.resourceID];
-				_writers.label = _out.name;
-				_writers.passVec.push_back(_upPass.get());
-			}
-		}
-
-		for (const auto& [_resourceID, _writers] : _creatorMap)
-		{
-			if (_writers.passVec.size() <= 1) continue;
-
-			// 誰の話か分かるように、書いているパスを並べて出す
-			std::string _passNames = {};
-			for (const Pass* _pPass : _writers.passVec)
-			{
-				if (!_passNames.empty()) _passNames += " / ";
-				_passNames += _pPass->GetName();
-			}
-
-			const std::string _message =
-				"リソース \"" + _writers.label + "\" を複数のパスが作っています : " + _passNames +
-				" (同じ1枚に相乗りします。描き足すつもりなら入力へ繋いでください)";
-
-			ValidationIssue _issue = {};
-			_issue.level = ValidationIssue::ELevel::Warning;
-			_issue.passGUID = _writers.passVec.front()->GetGUID();
-			_issue.message = _message;
-			m_validationIssueVec.push_back(std::move(_issue));
-
-			// Compile はエラーしか並べて出さないので、ここで出しておく
-			ENGINE_WARNING("[RenderGraph] %s", _message.c_str());
-		}
-	}
-
-	//======================================================================================
-	// リソースの生存区間を出す
-	//
-	// 並べ替えが済んだ m_compilePasses を頭から見て、
-	// 各リソースを「最初に触ったパス」と「最後に触ったパス」で挟む。
-	//
-	// 区間の外ではそのリソースの中身が誰にも要らないので、
-	// 区間が重ならないもの同士は同じ実体を使い回せる(エイリアシング)。
-	// 今はまだ 1リソース = 1実体で作っているが、判断材料はここで揃う。
-	//
-	// 読み書きのどちらでも「触った」として数える。
-	// 書いた瞬間から要るようになり、最後に読まれた時点で要らなくなるため
-	//======================================================================================
-	void RenderGraph::BuildResourceLifetimes()
-	{
-		for (VirtualResource& _res : m_resourceRegistry.RefVirtualResources())
-		{
-			_res.ResetLifetime();
-		}
-
-		for (uint32_t _passIndex = 0; _passIndex < static_cast<uint32_t>(m_compilePasses.size()); ++_passIndex)
-		{
-			const Pass* _pPass = m_compilePasses[_passIndex].pPass;
-			if (!_pPass) continue;
-
-			auto _extend = [&](const std::vector<Slot>& a_slotVec)
-				{
-					for (const Slot& _slot : a_slotVec)
-					{
-						// 繋がっていないピンはどのリソースも指していない
-						VirtualResource* _pRes = RefVirtualResource(_slot.resourceHandle);
-						if (!_pRes) continue;
-
-						_pRes->ExtendLifetime(_passIndex);
-					}
-				};
-
-			_extend(_pPass->GetInputSlots());
-			_extend(_pPass->GetOutputSlots());
-		}
-	}
-
-	//======================================================================================
 	//
 	// バリア構築
 	//
 	//======================================================================================
-
-	// 並んだパスを先頭から見て、リソースのステートが変わるところにバリアを積む。
-	// 積み先は「そのパスの直前」なので、実行側は
-	// 「preBarriers を張る -> パスを回す」を前から繰り返すだけでよい。
-	//
-	// GPUには触らないので実体(pResource)はここでは埋めない。
-	// AllocateResources() の後に ResolveBarrierResources() で埋める
-	void RenderGraph::BuildBarriers()
-	{
-		m_endBarriers.clear();
-
-		// 各リソースのカーソルをフレーム入口へ戻してから積み始める
-		for (VirtualResource& _res : m_resourceRegistry.RefVirtualResources())
-		{
-			_res.ResetStateToInitial();
-		}
-
-		for (CompiledPass& _compiledPass : m_compilePasses)
-		{
-			BuildPassBarriers(_compiledPass);
-		}
-
-		// ---- フレームの終わりに入口のステートへ戻す ----
-		// グラフは毎フレーム同じ手順で回るので、戻しておかないと
-		// 次のフレームで before が食い違ってバリアが張られなくなる
-		std::vector<VirtualResource>& _virtualVec = m_resourceRegistry.RefVirtualResources();
-		for (uint32_t _i = 0; _i < static_cast<uint32_t>(_virtualVec.size()); ++_i)
-		{
-			VirtualResource& _res = _virtualVec[_i];
-
-			const uint32_t _sliceCount = _res.GetPhysicalCount();
-			for (uint32_t _slice = 0; _slice < _sliceCount; ++_slice)
-			{
-				const D3D12_RESOURCE_STATES _before = _res.GetCurrentState(_slice);
-				const D3D12_RESOURCE_STATES _after = _res.GetInitialState(_slice);
-				if (_before == _after) continue;
-
-				ResourceBarrier _barrier = {};
-				_barrier.handle.index = _i;
-				_barrier.slice = _slice;
-				_barrier.before = _before;
-				_barrier.after = _after;
-				m_endBarriers.push_back(_barrier);
-
-				_res.SetCurrentState(_after, _slice);
-			}
-		}
-	}
-
-	void RenderGraph::BuildPassBarriers(CompiledPass& a_compiledPass)
-	{
-		a_compiledPass.preBarriers.clear();
-
-		Pass* _pPass = a_compiledPass.pPass;
-		if (!_pPass) return;
-
-		auto _pushBarrier = [&](const Slot& a_slot)
-			{
-				if (!a_slot.resourceHandle.IsValid()) return;
-				if (a_slot.accessType == EAccessType::None) return;
-
-				const uint32_t _resIndex = a_slot.resourceHandle.index;
-
-				VirtualResource* _pRes = RefVirtualResource(a_slot.resourceHandle);
-				if (!_pRes) return;
-
-				VirtualResource& _res = *_pRes;
-
-				// Temporal は2枚の物理が別々の遷移をたどるので、カーソルもスライスごとに追う。
-				// 出力は Current(書く側)、入力は Previous(読む側)
-				const uint32_t _slice = VirtualResource::ToSlice(a_slot, _res.IsTemporal());
-
-				const D3D12_RESOURCE_STATES _before = _res.GetCurrentState(_slice);
-				const D3D12_RESOURCE_STATES _after = VirtualResource::ToResourceState(a_slot.accessType);
-
-				const bool _isStateChanged = (_before != _after);
-
-				// UAV -> UAV はステートが変わらないが、
-				// 前の書き込みが終わるのを待たせないと結果が混ざる
-				const bool _isUAVtoUAV =
-					(_before == D3D12_RESOURCE_STATE_UNORDERED_ACCESS &&
-						_after == D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
-				if (!_isStateChanged && !_isUAVtoUAV) return;
-
-				ResourceBarrier _barrier = {};
-				_barrier.handle.index = _resIndex;
-				_barrier.slice = _slice;
-				_barrier.before = _before;
-				_barrier.after = _after;
-				_barrier.isUAVBarrier = _isUAVtoUAV;
-				a_compiledPass.preBarriers.push_back(_barrier);
-
-				_res.SetCurrentState(_after, _slice);
-			};
-
-		// 読みを先に、書きを後に見る。
-		// 同じパスが読んでから書くリソースの遷移順を崩さないため
-		for (const Slot& _in : _pPass->GetInputSlots())
-		{
-			_pushBarrier(_in);
-		}
-		for (const Slot& _out : _pPass->GetOutputSlots())
-		{
-			_pushBarrier(_out);
-		}
-	}
 
 	// 積んであるバリアへ物理リソースのポインタを埋める。
 	// バリアを積む時点(Compile)ではまだ実体が無いので、割り当てが済んでから解決する

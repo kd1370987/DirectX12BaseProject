@@ -2,6 +2,7 @@
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
 
 namespace Engine::Graphics::Pipeline
 {

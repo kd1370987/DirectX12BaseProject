@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 //==========================================================================================
 //
 // StandardPipeline
@@ -15,7 +15,7 @@
 //   → デバッグ線 → UI → トーンマップ → 出口
 //
 //==========================================================================================
-#include "../RenderingPipeline.h"
+#include "../RenderingPipelineAsset/RenderingPipelineAsset.h"
 
 namespace Engine::Graphics::Pipeline
 {

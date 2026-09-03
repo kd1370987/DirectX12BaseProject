@@ -7,6 +7,8 @@ namespace Engine::D3D12
 
 namespace Engine::Graphics
 {
+	class GraphicsEngine;
+	class RenderContext;
 
 	//======================================================================================
 	// スキニング結果からのBLAS更新

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 //==========================================================================================
 //
 // RenderingPipelineAssetIO
@@ -12,7 +12,7 @@
 // レジストリは ResourceBuildContext 経由で渡ってくる(GraphicsEngine が持ち主)。
 //
 //==========================================================================================
-#include "../RenderingPipeline.h"
+#include "../RenderingPipelineAsset/RenderingPipelineAsset.h"
 
 namespace Engine::Graphics::Pipeline
 {

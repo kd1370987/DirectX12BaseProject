@@ -1,9 +1,10 @@
-#include "RaytracingGIPass.h"
+﻿#include "RaytracingGIPass.h"
 
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
 
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"

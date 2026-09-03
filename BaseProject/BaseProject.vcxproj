@@ -468,7 +468,9 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\BlendPass\BlendPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass\MonitorPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\Core\Pass\Pass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\Internal\Connection.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset\RenderingPipelineAsset.cpp" />
     <ClCompile Include="Source\Engine\Graphics\FrameCompute\SkinningPass\SkinningPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\FrameCompute\UpdateBLASPass\UpdateBLASPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\FrameCompute\ParticleSimulation\ParticleSimulation.cpp" />
@@ -857,6 +859,14 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\BlendPass\BlendPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass\MonitorPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\PipelineEnums.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\ResourceID.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\Slot.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\PassContext.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\Pass\Pass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Internal\PassBind.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Internal\Connection.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset\RenderingPipelineAsset.h" />
     <ClInclude Include="Source\Engine\Graphics\FrameCompute\SkinningPass\SkinningPass.h" />
     <ClInclude Include="Source\Engine\Graphics\FrameCompute\UpdateBLASPass\UpdateBLASPass.h" />
     <ClInclude Include="Source\Engine\Graphics\FrameCompute\ParticleSimulation\ParticleSimulation.h" />

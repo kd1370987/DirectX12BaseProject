@@ -5,6 +5,8 @@
 // グラフィックス系
 #include "../../../Graphics/GraphicEngine.h"
 #include "../../../Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
+#include "../../../Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
+#include "../../../Graphics/RenderingPipeline/Core/Pass/Pass.h"
 
 // D3D系
 #include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"

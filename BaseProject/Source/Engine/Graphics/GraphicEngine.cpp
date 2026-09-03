@@ -16,7 +16,9 @@
 #include "MouseCursor/MouseCursor.h"
 
 // レンダリングパイプライン
-#include "RenderingPipeline/RenderingPipeline.h"
+#include "RenderingPipeline/Core/Pass/Pass.h"
+#include "RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"
+#include "RenderingPipeline/RenderGraph/RenderGraph.h"
 #include "RenderingPipeline/RenderingPipelineMetaRegistry.h"
 #include "RenderingPipeline/GraphicsPipeline/GraphicsPipeline.h"
 
@@ -314,47 +316,41 @@ namespace Engine::Graphics
 		}
 	}
 
-	// 積まれたカメラの実行インスタンスを用意して回す。
-	// 従来のレンダーグラフとは独立していて、こちらはバックバッファへ触らない
-	void GraphicsEngine::ExecuteCameraPipelines()
+	//======================================================================================
+	// 設計図が変わったカメラの実行インスタンスを組み直す
+	//
+	// フレームの頭(BeginFrame)から呼ぶこと。
+	//
+	// 組み直すと AssignPipelinePassIndices がパス番号を配り直す。
+	// 描画アイテムは積むときにそのパス番号を焼き込んでいるので、
+	// アイテムを積んだ後に配り直すと、引くときに別のパスのアイテムを拾い、
+	// そのアイテムが持つ他所のPSOを張ってしまう
+	// (ルートシグネチャも出力フォーマットも噛み合わずデバイスが飛ぶ)。
+	//
+	// アイテムを1つも積んでいないフレームの頭でやれば、番号とアイテムは必ず揃う
+	//======================================================================================
+	void GraphicsEngine::RebuildCameraPipelines(bool a_isNewOnly)
 	{
-		// 今フレーム積まれたものだけを順番に並べる
-		m_sortedCameras.clear();
-		m_pMainCamera = nullptr;
-
-		for (auto& _upCamera : m_cameras)
-		{
-			if (!_upCamera || !_upCamera->isSubmitted) continue;
-
-			m_sortedCameras.push_back(_upCamera.get());
-			if (_upCamera->isMain)
-			{
-				m_pMainCamera = _upCamera.get();
-
-				// ゲームを止めているあいだも借りられるよう控えておく
-				m_lastMainPipelineHandle = _upCamera->pipelineHandle;
-			}
-		}
-		if (m_sortedCameras.empty()) return;
-
-		std::stable_sort(
-			m_sortedCameras.begin(), m_sortedCameras.end(),
-			[](const CameraPipelineData* a, const CameraPipelineData* b)
-			{
-				return a->order < b->order;
-			}
-		);
-
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
-		auto* _pRenderContext = m_upRenderContextVec[m_currentFrameIndex].get();
 		auto& _resourceManager = Resource::ResourceManager::Instance();
 
 		// 組み直したカメラがあったか。1台でもあればパス番号を配り直す
 		bool _isAnyRebuilt = false;
 
+		// GPUの完了待ちは重いので、実際に捨てにかかる直前に1回だけ
+		bool _isGPUWaited = false;
+
 		// ---- 設計図から実行インスタンスを用意する ----
-		for (CameraPipelineData* _pCamera : m_sortedCameras)
+		//
+		// フレームの頭から呼ばれたときは、今フレームぶんの積み込み(SubmitCamera)が
+		// まだ来ていない。見るのは「前フレームまでに積まれて生き残ったカメラ」= m_cameras。
+		// 今フレームに初めて現れるカメラはここには居ないので、
+		// そのぶんは ExecuteCameraPipelines が a_isNewOnly で拾う
+		for (auto& _upCamera : m_cameras)
 		{
+			CameraPipelineData* _pCamera = _upCamera.get();
+			if (!_pCamera) continue;
+
 			// 設計図がまだ読めていなければ何もしない
 			auto* _pAsset = _resourceManager.Ref(_pCamera->pipelineHandle);
 			if (!_pAsset) continue;
@@ -363,6 +359,19 @@ namespace Engine::Graphics
 			// 版が違えば、この実行インスタンスは古いので組み直す
 			const uint32_t _version = _pAsset->GetStructureVersion();
 			const bool _isRebuild = (!_pCamera->upPipeline) || (_pCamera->builtStructureVersion != _version);
+
+			//--------------------------------------------------------------
+			// フレームの途中から呼ばれたときは、初めて組むカメラだけを見る
+			//
+			// すでに実行インスタンスを持っているカメラを組み直すと、そのパスの
+			// 番号が変わる。今フレームの描画アイテムはもう古い番号で積まれているので、
+			// 番号だけが動くと引き違いが起きる(別のパスのPSOを張って落ちる)。
+			//
+			// 初めて組むカメラは m_cameras の末尾に足されたばかりで、
+			// パス一覧にも入っていない = そのカメラ宛のアイテムは1つも無い。
+			// 番号を配り直しても先に並ぶカメラの番号は動かないので、ここは通してよい
+			//--------------------------------------------------------------
+			if (a_isNewOnly && _pCamera->upPipeline) continue;
 
 			// 形は同じでパラメータだけ動いたときは、値を写すだけで済ませる。
 			// 色を触るたびにグラフを組み直すと、リソースまで作り直しになってしまう
@@ -377,10 +386,48 @@ namespace Engine::Graphics
 
 			if (_isRebuild)
 			{
+				//--------------------------------------------------------------
+				// ここから先は古いパスとGPUリソースを捨てにかかる。
+				//
+				// 途中で失敗して continue しても、捨てたことは取り消せない。
+				// 印は「組み直すと決めた時点」で立てて、
+				// パス番号の配り直しと一覧の作り直しを必ず通す
+				//--------------------------------------------------------------
+				_isAnyRebuilt = true;
+
+				// 最終出力テクスチャを作り直すか : 待つかどうかの判定にも使う
+				const bool _isFinalTexRebuild =
+					(!_pCamera->upFinalTex ||
+					 _pCamera->upFinalTex->GetDesc().Width != _pCamera->builtWidth ||
+					 _pCamera->upFinalTex->GetDesc().Height != _pCamera->builtHeight);
+
+				//--------------------------------------------------------------
+				// GPUが前のフレームを走らせ終わるのを待つ
+				//
+				// このあとテクスチャとディスクリプタをその場で解放して、
+				// すぐ同じ枠を取り直す。まだ実行中のコマンドリストが
+				// それらを参照していると、解放済みのリソースを読みに行ったり、
+				// 使用中のディスクリプタを上書きすることになる。
+				//
+				// 待つのは「捨てるものがあるとき」だけ。
+				// 初めて組むカメラは解放するものが何も無いので待たない。
+				// ここで無条件に待つと起動時に止まる : FrameManager::Init が
+				// 先頭フレームのフェンス値を 1 へ進めておく一方、実際に 1 が
+				// シグナルされるのは最初の EndFrame なので、それより前に
+				// WaitForAll を通すと永久に返ってこない
+				//--------------------------------------------------------------
+				const bool _isDestructive =
+					(_pCamera->upPipeline != nullptr) ||
+					(_pCamera->upFinalTex != nullptr && _isFinalTexRebuild);
+
+				if (_isDestructive && !_isGPUWaited)
+				{
+					D3D12::D3D12Wrapper::Instance().WaitForFrame();
+					_isGPUWaited = true;
+				}
+
 				// ---- 最終出力テクスチャ ----
-				if (!_pCamera->upFinalTex ||
-					_pCamera->upFinalTex->GetDesc().Width != _pCamera->builtWidth ||
-					_pCamera->upFinalTex->GetDesc().Height != _pCamera->builtHeight)
+				if (_isFinalTexRebuild)
 				{
 					if (_pCamera->upFinalTex) _pCamera->upFinalTex->Release();
 
@@ -436,8 +483,7 @@ namespace Engine::Graphics
 				_pCamera->builtParamVersion = _pAsset->GetParamVersion();
 
 				// パス番号はカメラをまたいで一意でないといけないので、
-				// 全部組み終わってからまとめて配る
-				_isAnyRebuilt = true;
+				// 全部組み終わってからまとめて配る(印は上で立てている)
 			}
 		}
 
@@ -450,6 +496,44 @@ namespace Engine::Graphics
 			// 一覧が消えたパスを指したままにならないよう作り直す
 			RefreshPipelineGeometryPassCache();
 		}
+	}
+
+	// 積まれたカメラの実行インスタンスを回す。
+	// 組み直しは RebuildCameraPipelines がフレームの頭で済ませてある
+	void GraphicsEngine::ExecuteCameraPipelines()
+	{
+		// 今フレームに初めて現れたカメラだけ、ここで組んでおく。
+		// 待つと1フレーム何も映らないので、シーン切り替えのたびに画面が飛ぶ
+		RebuildCameraPipelines(true);
+
+		// 今フレーム積まれたものだけを順番に並べる
+		m_sortedCameras.clear();
+		m_pMainCamera = nullptr;
+
+		for (auto& _upCamera : m_cameras)
+		{
+			if (!_upCamera || !_upCamera->isSubmitted) continue;
+
+			m_sortedCameras.push_back(_upCamera.get());
+			if (_upCamera->isMain)
+			{
+				m_pMainCamera = _upCamera.get();
+
+				// ゲームを止めているあいだも借りられるよう控えておく
+				m_lastMainPipelineHandle = _upCamera->pipelineHandle;
+			}
+		}
+		if (m_sortedCameras.empty()) return;
+
+		std::stable_sort(
+			m_sortedCameras.begin(), m_sortedCameras.end(),
+			[](const CameraPipelineData* a, const CameraPipelineData* b)
+			{
+				return a->order < b->order;
+			}
+		);
+
+		auto* _pRenderContext = m_upRenderContextVec[m_currentFrameIndex].get();
 
 		for (CameraPipelineData* _pCamera : m_sortedCameras)
 		{
@@ -702,6 +786,11 @@ namespace Engine::Graphics
 		// 今から使うレンダーコンテキスをクリア
 		m_currentFrameIndex = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 		m_upRenderContextVec[m_currentFrameIndex]->Clear();
+
+		// 設計図が変わったカメラの実行インスタンスを組み直す。
+		// 描画アイテムを1つも積んでいない今のうちに済ませることで、
+		// 配り直したパス番号とアイテムのパス番号が食い違わないようにする
+		RebuildCameraPipelines(false);
 
 		// モデルを受け取るパスの一覧を作り直す。
 		// このフレームの描画アイテムはここで作った一覧に沿って積まれる

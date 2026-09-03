@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 //==========================================================================================
 //
 // GraphicsPipeline (Engine::Graphics::Pipeline)
@@ -18,10 +18,13 @@
 // GBuffer も定数バッファも取り合って壊れるため。
 //
 //==========================================================================================
-#include "../RenderGraph/RenderGraph.h"
+// グラフは unique_ptr で抱えるだけなので、実体はここでは要らない
+#include "../Core/PipelineEnums.h"
+#include "../Core/PassContext.h"	// GraphicsEngine / RenderContext の前方宣言もここ
 
 namespace Engine::Graphics::Pipeline
 {
+	class RenderGraph;
 	class RenderingPipelineAsset;
 	class PassMetaRegistry;
 
@@ -29,8 +32,10 @@ namespace Engine::Graphics::Pipeline
 	{
 	public:
 
-		GraphicsPipeline() = default;
-		~GraphicsPipeline() = default;
+		// RenderGraph を unique_ptr で持つので、生成と破棄は
+		// 完全型が見える .cpp 側に置く
+		GraphicsPipeline();
+		~GraphicsPipeline();
 
 		// パスの実体を抱えるのでコピー禁止
 		GraphicsPipeline(const GraphicsPipeline&) = delete;
@@ -75,15 +80,15 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		// アクセサ
 		//----------------------------------------------------------------------------------
-		RenderGraph* RefRenderGraph() { return &m_renderGraph; }
-		const RenderGraph* GetRenderGraph() const { return &m_renderGraph; }
+		RenderGraph* RefRenderGraph() { return m_upRenderGraph.get(); }
+		const RenderGraph* GetRenderGraph() const { return m_upRenderGraph.get(); }
 
 		// 直近のコンパイルが通っているか
 		bool IsCompiled() const { return m_isCompiled; }
 
 	private:
 
-		RenderGraph m_renderGraph = {};
+		std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;
 
 		// Compile() が通っているか。通っていないグラフは実行しない
 		bool m_isCompiled = false;

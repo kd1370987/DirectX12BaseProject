@@ -1,4 +1,7 @@
-#include "PhysicalResource.h"
+﻿#include "PhysicalResource.h"
+
+// ヘッダーでは前方宣言にしてあるので、実体はここで揃える
+#include "../Resource/VirtualResource/VirtualResource.h"
 
 namespace Engine::Graphics::Pipeline
 {
