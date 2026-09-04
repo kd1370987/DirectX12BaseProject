@@ -245,6 +245,10 @@ namespace Engine::Graphics::Pipeline
 
 		ResourceRegistry* RefResourceRegistry() { return m_upResourceRegistry.get(); }
 
+		// 割り当ての結果 : まだコンパイルを通していなければ空。
+		// 実行には要らないが、使い回しの様子を覗くのに要る
+		const ResourceAllocator* GetResourceAllocator() const { return m_upResourceAllocator.get(); }
+
 	private:
 
 		// 型IDからパスを作り直して、アーカイブから中身を流し込む。

@@ -22,17 +22,24 @@ namespace Engine::Graphics::Pipeline
 	// 今までは先に RenderGraph.h を通した翻訳単位でだけ通っていた
 	class VirtualResource;
 
-	/// <summary>
-	/// 割り当てられた場所
-	/// </summary>
+	//======================================================================================
+	// 割り当てられた場所
+	//
+	// 大きさと詰め方は VirtualResource 自身が GetAllocationSize / GetAllocationAlignment で
+	// 持っているので、ここには置かない(写すと二重管理になる)。
+	// ここが持つのは「どこへ置いたか」と「その席を直前に使っていたのは誰か」だけ
+	//======================================================================================
 	struct AllocationInfo
 	{
-		uint64_t offset = 0;
-		uint64_t size = 0;
-		uint64_t alignment = 0;
-		uint32_t slotIndex = 0;			// 割り当てられたスロット番号
+		// 席に着けなかったことを表す。
+		// 既定を 0 にすると「スロット0に着いた」と見分けがつかず、
+		// 使い回しの対象外(外部リソース・履歴つき)が全部0番へ化ける
+		static constexpr uint32_t INVALID_SLOT_INDEX = static_cast<uint32_t>(-1);
 
-		// このスロットを直前に使っていたリソース
+		uint32_t slotIndex = INVALID_SLOT_INDEX;	// 割り当てられたスロット番号
+		uint64_t offset = 0;						// ヒープ内での位置
+
+		// このスロットを直前に使っていたリソース : エイリアシングバリアの before になる
 		VirtualResource* pPrevVRes = nullptr;
 	};
 

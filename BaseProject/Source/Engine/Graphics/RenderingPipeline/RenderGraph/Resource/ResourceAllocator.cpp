@@ -102,10 +102,9 @@ namespace Engine::Graphics::Pipeline
 			AllocationInfo _info = _vRes->GetAllocationInfo();
 			const auto& _slot = m_slots[_info.slotIndex];
 
-			// スロットの開始オフセットをベースに、リソース自身のアライメントを最終確認して書き込み
+			// スロットの開始オフセットをベースに、リソース自身のアライメントを最終確認して書き込み。
+			// 大きさと詰め方はリソース自身が持っているので、ここへ写さない
 			_info.offset = Math::Alignment::Up(_slot.offset,_vRes->GetAllocationAlignment());
-			_info.size = _vRes->GetAllocationSize();
-			_info.alignment = _vRes->GetAllocationAlignment();
 
 			_vRes->SetAllocationInfo(_info);
 		}

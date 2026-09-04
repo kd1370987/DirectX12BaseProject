@@ -466,6 +466,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler\RenderGraphCompiler.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceAllocator.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Diagnostics\AliasingReport.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\BlendPass\BlendPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass\MonitorPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\Core\Pass\Pass.cpp" />
@@ -857,6 +858,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\ResourceBarrier.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler\RenderGraphCompiler.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceAllocator.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Diagnostics\AliasingReport.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\BlendPass\BlendPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass\MonitorPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h" />

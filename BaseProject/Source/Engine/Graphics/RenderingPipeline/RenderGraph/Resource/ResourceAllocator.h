@@ -35,6 +35,9 @@ namespace Engine::Graphics::Pipeline
 		uint32_t GetMaxUageSlot() const { return m_maxUageSlot; }
 		uint64_t GetMaxHeapSize() const { return m_maxHeapSize; }
 
+		// 割り当ての結果。使い回しの様子を外から覗くのに使う
+		const std::vector<AllocationSlot>& GetSlots() const { return m_slots; }
+
 	private:
 
 		std::vector<AllocationSlot> m_slots;
