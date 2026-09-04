@@ -13,16 +13,15 @@ namespace Engine::Graphics::Pipeline
 		GraphHeap() = default;
 		~GraphHeap() = default;
 
-		void Create(D3D12::Device* a_pDevice,UINT64 a_maxWidth,UINT a_maxHeight);
+		void Create(D3D12::Device* a_pDevice,UINT64 a_maxHeapSize);
+
+		// 参照
+		ID3D12Heap* RefHeap() { return m_cpHeap.Get(); }
+		UINT64 GetMaxHeapSize() const { return m_maxHeapSize; }
 
 	private:
 
 		ComPtr<ID3D12Heap> m_cpHeap = nullptr;
-		UINT64 m_width = 0;
-		UINT m_height = 0;
-
-		
-		UINT m_currentOffset = 0;
-
+		UINT64 m_maxHeapSize = 0;
 	};
 }

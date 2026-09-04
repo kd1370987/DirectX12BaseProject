@@ -30,6 +30,7 @@ namespace Engine::Graphics::Pipeline
 	class PhysicalResource;
 	class ResourceRegistry;
 	class ResourceAllocator;
+	class GraphHeap;
 
 	// =====================================================================================
 	// グラフの検証結果
@@ -306,5 +307,8 @@ namespace Engine::Graphics::Pipeline
 
 		// ノード/ピン/線に配る連番
 		int m_idCounter = 0;
+
+		// このグラフ専用のヒープ領域
+		std::unique_ptr<GraphHeap> m_upGraphHeap = nullptr;
 	};
 }

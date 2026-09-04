@@ -3,11 +3,11 @@
 #include "../RenderingPipelineMetaRegistry.h"
 #include "RenderGraphCompiler/RenderGraphCompiler.h"
 
-// ヘッダーでは前方宣言にしてあるので、実体はここで揃える
 #include "../Core/Pass/Pass.h"
 #include "Resource/ResourceRegistry.h"
 #include "Resource/ResourceAllocator.h"
 #include "PhysicalResource/PhysicalResource.h"
+#include "GraphHeap/GraphHeap.h"
 
 // 実行時に触るもの
 #include "../../RenderContext/RenderContext.h"
@@ -957,14 +957,30 @@ namespace Engine::Graphics::Pipeline
 	// ここは結果を受け取って自分のコンパイル済みデータへ移すだけにする
 	bool RenderGraph::Compile()
 	{
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+
 		// 失敗しても中途半端な状態で走らせないよう、先に捨てておく
 		ClearCompiledData();
 
+		// パスのコンパイル
 		CompileResult _result = RenderGraphCompiler(this).Compile();
 		if (!_result.isSuccess) return false;
 
 		m_compilePasses = std::move(_result.compiledPassVec);
 		m_endBarriers = std::move(_result.endBarrierVec);
+
+		// 仮想リソースがすべて出来上がったのでヒープを作成する
+
+		// アロケーターでヒープ作成情報を作成
+		if (!m_upResourceAllocator) m_upResourceAllocator = std::make_unique<ResourceAllocator>();
+		m_upResourceAllocator->CalcHeapSize(m_upResourceRegistry->GetVirtualResources());
+
+		// ヒープ作成
+		if (!m_upGraphHeap) m_upGraphHeap = std::make_unique<GraphHeap>();
+		m_upGraphHeap->Create(
+			_pDevice,
+			m_upResourceAllocator->GetMaxHeapSize()
+		);
 
 		// 各パスの Compile() はここでは呼ばない。
 		// 物理リソースが決まってからでないとディスクリプタを引けないので、

@@ -18,6 +18,20 @@
 
 namespace Engine::Graphics::Pipeline
 {
+	/// <summary>
+	/// 割り当てられた場所
+	/// </summary>
+	struct AllocationInfo
+	{
+		uint64_t offset = 0;
+		uint64_t size = 0;
+		uint64_t alignment = 0;
+		uint32_t slotIndex = 0;			// 割り当てられたスロット番号
+
+		// このスロットを直前に使っていたリソース
+		VirtualResource* pPrevVRes = nullptr;
+	};
+
 	class VirtualResource
 	{
 	public:
@@ -167,6 +181,10 @@ namespace Engine::Graphics::Pipeline
 			if (a_passIndex > m_lastPassIndex)  m_lastPassIndex = a_passIndex;
 		}
 
+		// アロケーターで割り当てられた場所を覚える
+		void SetAllocationInfo(const AllocationInfo& a_info) { m_allocationInfo = a_info; }
+		const AllocationInfo& GetAllocationInfo() const { return m_allocationInfo; }
+
 		//----------------------------------------------------------------------------------
 		// 実体を使い回せるリソースか
 		//
@@ -242,6 +260,7 @@ namespace Engine::Graphics::Pipeline
 
 		// --- 物理リソースとの紐付け ---
 		uint32_t m_physicalIndex[2] = { ResourceHandle::INVALID_INDEX, ResourceHandle::INVALID_INDEX };
+		AllocationInfo m_allocationInfo = {};
 
 		// --- 生存区間(実行順の添字) ---
 		// 触るパスが1つもなければどちらも INVALID_PASS_INDEX のまま

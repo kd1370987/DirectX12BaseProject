@@ -8,11 +8,14 @@ namespace Engine::Graphics::Pipeline
 	/// </summary>
 	struct AllocationSlot
 	{
+		uint64_t offset = 0;					// ヒープ内でこのスロットの開始位置
 		uint64_t allocationSize = 0;
 		uint64_t allocationAlignment = 0;
 
 		// このスロットを最後に使用したVirtualResuorceの終了パス
 		uint32_t lastPassIndex = 0;
+
+		VirtualResource* pLastResource = nullptr;
 	};
 
 	/// <summary>
@@ -23,10 +26,10 @@ namespace Engine::Graphics::Pipeline
 	public:
 
 		/// <summary>
-		/// ヒープのサイズを計算する
+		/// ヒープサイズと各スロットのオフセットを決める
 		/// </summary>
-		/// <param name="a_virtualResources">作られた仮想リソースたち</param>
-		void CalcHeapSize(const std::vector<VirtualResource>& a_virtualResources);
+		/// <param name="a_virtualResources"></param>
+		void CalcAllocation(std::vector<VirtualResource>& a_virtualResources);
 
 		// ヒープの定義取得
 		uint32_t GetMaxUageSlot() const { return m_maxUageSlot; }

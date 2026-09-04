@@ -61,6 +61,15 @@ namespace Engine::Graphics::Pipeline
 			std::vector<CompiledPass>& a_compiledPassVec,
 			std::vector<ResourceBarrier>& a_outEndBarrierVec);
 
+		/// <summary>
+		/// エイリアシングバリアを積む
+		/// </summary>
+		/// <param name="a_compiledPassVec"></param>
+		/// <param name="a_outEndBarrierVec"></param>
+		void BuildAliasingBarriers(
+			std::vector<CompiledPass>& a_compiledPassVec,
+			std::vector<AliasingBarrier>& a_outEndBarrierVec);
+
 	private:
 
 		//----------------------------------------------------------------------------------
@@ -90,8 +99,9 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		// バリア構築フェーズ
 		//----------------------------------------------------------------------------------
-		// パス一つ分のバリアを積む
+		// パス一つ分のバリアを積む : リソースステート遷移
 		void BuildPassBarriers(CompiledPass& a_compiledPass);
+
 
 	private:
 

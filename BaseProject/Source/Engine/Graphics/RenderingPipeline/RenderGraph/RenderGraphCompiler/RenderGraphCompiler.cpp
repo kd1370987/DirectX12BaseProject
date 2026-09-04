@@ -527,6 +527,26 @@ namespace Engine::Graphics::Pipeline
 			}
 		}
 	}
+	void RenderGraphCompiler::BuildAliasingBarriers(std::vector<CompiledPass>& a_compiledPassVec, std::vector<AliasingBarrier>& a_outEndBarrierVec)
+	{
+		for (const VirtualResource& _vRes : m_pRenderGraph->GetVirtualResources())
+		{
+			const auto& _info = _vRes.GetAllocationInfo();
+
+			// 初回使用ならバリアはいらない
+			if (!_info.pPrevVRes) continue;
+
+			// リソースが使われる初めのパスにのみ張る
+			const uint32_t _firstPass = _vRes.GetFirstPassIndex();
+
+			// バリア構築
+			AliasingBarrier _barrier = {};
+			//_barrier.before = _info.pPrevVRes->GetResourceID();		// 前回のリソース
+			//_barrier.after = _vRes.GetResourceID();					// バリア後リソース
+
+			a_compiledPassVec[_firstPass].preAliasingBarriers.push_back(_barrier);
+		}
+	}
 	void RenderGraphCompiler::BuildPassBarriers(CompiledPass& a_compiledPass)
 	{
 		a_compiledPass.preBarriers.clear();
