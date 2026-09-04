@@ -108,12 +108,8 @@ namespace Engine::Editor
 
 		if (ImGui::BeginChild("ResourceViewScrollRegion", ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_AlwaysVerticalScrollbar))
 		{
-			const auto& _virtualVec = _pGraph->GetVirtualResources();
-
-			for (uint32_t _i = 0; _i < static_cast<uint32_t>(_virtualVec.size()); ++_i)
+			for (const auto& _virtual : _pGraph->GetVirtualResources())
 			{
-				const auto& _virtual = _virtualVec[_i];
-
 				if (!EditorHelper::IsMatchSearch(_search, _virtual.GetName())) continue;
 
 				if (!ImGui::TreeNodeEx(_virtual.GetName().c_str(),
@@ -142,7 +138,7 @@ namespace Engine::Editor
 
 				ImGui::Separator();
 
-				DrawResourceImage(*_pGraph, _i, _virtual.GetPhysicalCount());
+				DrawResourceImage(*_pGraph, _virtual);
 
 				ImGui::TreePop();
 			}
@@ -199,14 +195,14 @@ namespace Engine::Editor
 	// 履歴つきは2枚あるので、今フレーム書く側と前フレームぶんを並べる
 	//======================================================================================
 	void RenderGraphResourceViewPanel::DrawResourceImage(
-		const Graphics::Pipeline::RenderGraph& a_graph, uint32_t a_resourceIndex, uint32_t a_sliceCount)
+		const Graphics::Pipeline::RenderGraph& a_graph, const Graphics::Pipeline::VirtualResource& a_resource)
 	{
-		Graphics::Pipeline::ResourceHandle _handle = {};
-		_handle.index = a_resourceIndex;
+		const Graphics::Pipeline::ResourceID _resourceID = a_resource.GetResourceID();
+		const uint32_t _sliceCount = a_resource.GetPhysicalCount();
 
-		for (uint32_t _slice = 0; _slice < a_sliceCount; ++_slice)
+		for (uint32_t _slice = 0; _slice < _sliceCount; ++_slice)
 		{
-			D3D12::GPUResource* _pResource = a_graph.RefGPUResource(_handle, _slice);
+			D3D12::GPUResource* _pResource = a_graph.RefGPUResource(_resourceID, _slice);
 			if (!_pResource)
 			{
 				ImGui::TextDisabled("実体がありません");
@@ -221,7 +217,7 @@ namespace Engine::Editor
 				continue;
 			}
 
-			if (a_sliceCount > 1)
+			if (_sliceCount > 1)
 			{
 				ImGui::TextDisabled(_slice == 0 ? "今フレーム" : "前フレーム");
 			}

@@ -131,7 +131,7 @@ namespace Engine::Graphics::Pipeline
 		const Slot* _pOut = FindOutputSlot(MakeSlotID("GI"));
 		if (!_pOut) return;
 
-		const VirtualResource* _pOutVirtual = a_context.pGraph->GetVirtualResource(_pOut->resourceHandle);
+		const VirtualResource* _pOutVirtual = a_context.pGraph->GetVirtualResource(_pOut->resourceID);
 		if (!_pOutVirtual) return;
 
 		m_shaderTable.CommitInstanceBindLess(

@@ -53,8 +53,8 @@ namespace Engine::Graphics::Pipeline
 		const Slot* _pOut = FindOutputSlot(MakeSlotID("Result"));
 		if (!_pIn || !_pOut) return m_cb.scaleRatio;
 
-		const VirtualResource* _pInRes = a_context.pGraph->GetVirtualResource(_pIn->resourceHandle);
-		const VirtualResource* _pOutRes = a_context.pGraph->GetVirtualResource(_pOut->resourceHandle);
+		const VirtualResource* _pInRes = a_context.pGraph->GetVirtualResource(_pIn->resourceID);
+		const VirtualResource* _pOutRes = a_context.pGraph->GetVirtualResource(_pOut->resourceID);
 		if (!_pInRes || !_pOutRes) return m_cb.scaleRatio;
 
 		const float _inWidth = static_cast<float>(_pInRes->GetWidth());

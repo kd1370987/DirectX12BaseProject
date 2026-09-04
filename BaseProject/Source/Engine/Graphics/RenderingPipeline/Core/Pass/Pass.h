@@ -98,7 +98,7 @@ namespace Engine::Graphics::Pipeline
 		const std::vector<Slot>& GetInputSlots() const { return m_inputSlots; }
 		const std::vector<Slot>& GetOutputSlots() const { return m_outputSlots; }
 
-		// 書き換え用 : RenderGraph が Compile 時に resourceHandle を書き戻すために使う。
+		// 書き換え用 : RenderGraph が Compile 時に resourceID を焼き込むために使う。
 		// パスの外からスロットの中身を書き換えるのはここだけにすること
 		std::vector<Slot>& RefInputSlots() { return m_inputSlots; }
 		std::vector<Slot>& RefOutputSlots() { return m_outputSlots; }

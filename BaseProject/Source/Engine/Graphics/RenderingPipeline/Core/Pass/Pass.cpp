@@ -88,7 +88,6 @@ namespace Engine::Graphics::Pipeline
 		_pPin->width = a_slotData.width;
 		_pPin->height = a_slotData.height;
 		_pPin->scale = a_slotData.scale;
-		_pPin->resourceHandle = a_slotData.resourceHandle;
 	}
 
 	void Pass::ClearInput(const std::string& a_pinName)
@@ -108,7 +107,6 @@ namespace Engine::Graphics::Pipeline
 		_pPin->width = 0;
 		_pPin->height = 0;
 		_pPin->scale = 1.f;
-		_pPin->resourceHandle = {};
 	}
 
 	// 共通部分をここで処理して、固有データは継承先の Archive() へ渡す。
@@ -263,7 +261,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		if (!a_context.pRenderContext || !a_context.pGraph) return;
 
-		const VirtualResource* _pRes = a_context.pGraph->GetVirtualResource(a_slot.resourceHandle);
+		const VirtualResource* _pRes = a_context.pGraph->GetVirtualResource(a_slot.resourceID);
 		if (!_pRes) return;
 
 		const UINT _width = static_cast<UINT>(_pRes->GetWidth());
@@ -328,7 +326,7 @@ namespace Engine::Graphics::Pipeline
 		{
 			if (_out.accessType != EAccessType::RTV) continue;
 
-			const VirtualResource* _pRes = a_context.pGraph->GetVirtualResource(_out.resourceHandle);
+			const VirtualResource* _pRes = a_context.pGraph->GetVirtualResource(_out.resourceID);
 			if (!_pRes) continue;
 
 			_desc.AddRenderTargetFormat(_pRes->GetFormat());

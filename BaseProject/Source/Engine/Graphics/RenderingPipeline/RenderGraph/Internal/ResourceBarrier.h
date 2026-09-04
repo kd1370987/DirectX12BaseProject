@@ -13,7 +13,7 @@ namespace Engine::Graphics::Pipeline
 	// =====================================================================================
 	struct ResourceBarrier
 	{
-		ResourceHandle handle = {};								// どの仮想リソースか
+		ResourceID resourceID = {};								// どの仮想リソースか
 
 		// このバリアが触るスライス([0]=Current/書く側 [1]=Previous/読む側)。
 		// Temporal でないリソースは常に 0

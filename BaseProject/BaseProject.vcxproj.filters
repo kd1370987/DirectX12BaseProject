@@ -4391,6 +4391,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler\RenderGraphCompiler.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\AliasingBarrier.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Asset\Shader\Source\Debug\DebugLine\DebugLinePS.hlsl">

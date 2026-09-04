@@ -374,8 +374,8 @@ namespace Engine::Graphics::Pipeline
 			_vRes.ResolveSize(m_pRenderGraph->GetViewportWidth(), m_pRenderGraph->GetViewportHeight());
 		}
 
-		// スロットへ割り当て結果を書き戻す
-		m_pRenderGraph->WriteBackSlotHandles();
+		// スロットは識別子をそのまま持っているので、書き戻すものは無い。
+		// この先で GetVirtualResource を引けば、今作った席がそのまま返る
 
 		// 後続に使われているかを出力スロットへ書き戻す
 		ResolveStoreOps();
@@ -410,7 +410,7 @@ namespace Engine::Graphics::Pipeline
 			{
 				// 外部から差し込まれたリソース(このカメラの最終出力など)は
 				// グラフの外で使われるので、誰も読んでいなくても残す
-				const VirtualResource* _pVirtual = m_pRenderGraph->GetVirtualResource(_out.resourceHandle);
+				const VirtualResource* _pVirtual = m_pRenderGraph->GetVirtualResource(_out.resourceID);
 				const bool _isImported = (_pVirtual && _pVirtual->IsImported());
 
 				const bool _isConsumed = _isImported || (_consumedIDSet.count(_out.resourceID) != 0);
@@ -455,7 +455,7 @@ namespace Engine::Graphics::Pipeline
 					for (const Slot& _slot : a_slotVec)
 					{
 						// つながっていないピンはどのリソースも指していない
-						VirtualResource* _pVRes = m_pRenderGraph->RefVirtualResource(_slot.resourceHandle);
+						VirtualResource* _pVRes = m_pRenderGraph->RefVirtualResource(_slot.resourceID);
 						if (!_pVRes) continue;
 
 						_pVRes->ExtendLifetime(_passIdx);
@@ -503,11 +503,8 @@ namespace Engine::Graphics::Pipeline
 		// フレームの終わりに入口のステートへ戻す。
 		// グラフは毎フレーム同じ手順で回るので、戻しておかないと
 		// 次のフレームで before が食い違ってバリアが張られなくなる
-		std::vector<VirtualResource>& _vResVec = _pResRegistry->RefVirtualResources();
-		for (uint32_t _idx = 0; _idx < static_cast<uint32_t>(_vResVec.size()); ++_idx)
+		for (VirtualResource& _vRes : _pResRegistry->RefVirtualResources())
 		{
-			VirtualResource& _vRes = _vResVec[_idx];
-
 			const uint32_t _sliceCount = _vRes.GetPhysicalCount();
 			for (uint32_t _slice = 0; _slice < _sliceCount; ++_slice)
 			{
@@ -517,7 +514,7 @@ namespace Engine::Graphics::Pipeline
 
 				// バリアに積む
 				ResourceBarrier _barrier = {};
-				_barrier.handle.index = _idx;
+				_barrier.resourceID = _vRes.GetResourceID();
 				_barrier.slice = _slice;
 				_barrier.before = _before;
 				_barrier.after = _after;
@@ -541,8 +538,8 @@ namespace Engine::Graphics::Pipeline
 
 			// バリア構築
 			AliasingBarrier _barrier = {};
-			//_barrier.before = _info.pPrevVRes->GetResourceID();		// 前回のリソース
-			//_barrier.after = _vRes.GetResourceID();					// バリア後リソース
+			_barrier.before = _info.pPrevVRes->GetResourceID();		// 前回のリソース
+			_barrier.after = _vRes.GetResourceID();					// バリア後リソース
 
 			a_compiledPassVec[_firstPass].preAliasingBarriers.push_back(_barrier);
 		}
@@ -556,12 +553,10 @@ namespace Engine::Graphics::Pipeline
 
 		auto _pushBarrier = [&](const Slot& a_slot)
 			{
-				if (!a_slot.resourceHandle.IsValid()) return;
+				if (!a_slot.resourceID.IsValid()) return;
 				if (a_slot.accessType == EAccessType::None) return;
 
-				const uint32_t _resIdx = a_slot.resourceHandle.index;
-
-				VirtualResource* _pVRes = m_pRenderGraph->RefVirtualResource(a_slot.resourceHandle);
+				VirtualResource* _pVRes = m_pRenderGraph->RefVirtualResource(a_slot.resourceID);
 				if (!_pVRes) return;
 
 				// テンポラルは２枚の物理リソースが別々の遷移をたどるので、ステートもスライスごとに追う
@@ -582,7 +577,7 @@ namespace Engine::Graphics::Pipeline
 				if (!_isStateChanged && !_isUAVtoUAV) return;
 
 				ResourceBarrier _barrier = {};
-				_barrier.handle.index = _resIdx;
+				_barrier.resourceID = a_slot.resourceID;
 				_barrier.slice = _slice;
 				_barrier.before = _before;
 				_barrier.after = _after;

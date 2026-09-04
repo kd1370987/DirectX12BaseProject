@@ -48,6 +48,7 @@ namespace Engine::Graphics::Pipeline
 		Index<VirtualResource> Find(ResourceID a_resourceID) const;
 
 		// 識別子から仮想リソースの実体を引く : 無ければ nullptr
+		const VirtualResource* GetByID(ResourceID a_resourceID) const;
 		VirtualResource* RefByID(ResourceID a_resourceID);
 
 		// 消去

@@ -28,8 +28,8 @@ namespace Engine::Graphics::Pipeline
 		m_initialState[1] = D3D12_RESOURCE_STATE_COMMON;
 		ResetStateToInitial();
 
-		m_physicalIndex[0] = ResourceHandle::INVALID_INDEX;
-		m_physicalIndex[1] = ResourceHandle::INVALID_INDEX;
+		m_physicalIndex[0] = INVALID_PHYSICAL_INDEX;
+		m_physicalIndex[1] = INVALID_PHYSICAL_INDEX;
 
 		// 区間は実行順が決まってから RenderGraph が入れる
 		ResetLifetime();
@@ -66,8 +66,8 @@ namespace Engine::Graphics::Pipeline
 		m_initialState[1] = a_initialState;
 		ResetStateToInitial();
 
-		m_physicalIndex[0] = ResourceHandle::INVALID_INDEX;
-		m_physicalIndex[1] = ResourceHandle::INVALID_INDEX;
+		m_physicalIndex[0] = INVALID_PHYSICAL_INDEX;
+		m_physicalIndex[1] = INVALID_PHYSICAL_INDEX;
 
 		// 区間は実行順が決まってから RenderGraph が入れる。
 		// 外部リソースは使い回せないが、どこで触られているかは同じように分かる

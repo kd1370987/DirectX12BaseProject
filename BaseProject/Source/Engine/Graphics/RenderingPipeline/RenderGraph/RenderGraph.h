@@ -161,16 +161,15 @@ namespace Engine::Graphics::Pipeline
 		// DescriptorHeapManager の解放より前に呼ぶこと
 		void ReleaseResources();
 
-		// 識別子から仮想リソースを引く : 無ければ無効ハンドル
-		ResourceHandle FindResource(ResourceID a_resourceID) const;
-
-		const VirtualResource* GetVirtualResource(ResourceHandle a_handle) const;
-		VirtualResource* RefVirtualResource(ResourceHandle a_handle);
+		// 識別子から仮想リソースを引く : 無ければ nullptr。
+		// 添字のキャッシュは持たず、そのつどレジストリの対応表を引く
+		const VirtualResource* GetVirtualResource(ResourceID a_resourceID) const;
+		VirtualResource* RefVirtualResource(ResourceID a_resourceID);
 
 		// 割り当てられた実体 : まだ AllocateResources を通していなければ nullptr。
 		// a_slice は [0]=Current(書く側) / [1]=Previous(読む側)
-		PhysicalResource* RefPhysicalResource(ResourceHandle a_handle, uint32_t a_slice = 0) const;
-		D3D12::GPUResource* RefGPUResource(ResourceHandle a_handle, uint32_t a_slice = 0) const;
+		PhysicalResource* RefPhysicalResource(ResourceID a_resourceID, uint32_t a_slice = 0) const;
+		D3D12::GPUResource* RefGPUResource(ResourceID a_resourceID, uint32_t a_slice = 0) const;
 
 		// スロットから、今のフレームで触るべき実体を引く。
 		// Temporal なら出力は Current、入力は Previous を返す
@@ -241,10 +240,6 @@ namespace Engine::Graphics::Pipeline
 		// コンパイルはグラフの中身を触るが、順序とリソースの解決は別のクラスの仕事なので
 		// 必要なものだけをここから見せる
 		//----------------------------------------------------------------------------------
-		// スロットへ、割り当てた仮想リソースの参照を書き戻す。
-		// 実行時にパスが「自分のスロット -> GPUリソース」を O(1) で引けるようにする
-		void WriteBackSlotHandles();
-
 		// 検証で拾った不備を1件足す
 		void AddIssue(ValidationIssue&& a_issue);
 

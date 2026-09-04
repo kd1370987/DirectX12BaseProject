@@ -1,32 +1,19 @@
 ﻿#pragma once
 //==========================================================================================
 //
-// ResourceID / ResourceHandle (Engine::Graphics::Pipeline)
+// ResourceID (Engine::Graphics::Pipeline)
 //
-// 仮想リソースの「同一性」と「参照」。
-//   ResourceID     : どのパスのどの出力ピンが作ったリソースか(同一性)
-//   ResourceHandle : RenderGraph が持つ仮想リソース配列の添字(参照)
+// 仮想リソースの「同一性」であり、そのまま「参照」でもある。
+// どのパスのどの出力ピンが作ったリソースかを表す。
+//
+// 以前は参照だけを別に切り出した ResourceHandle(仮想リソース配列の添字)があったが、
+// 中身は識別子から引いた添字を焼いておくキャッシュでしかなく、
+// 「同じものを指すのに2通りの書き方がある」ぶんだけ食い違いの余地があった。
+// 引き直しは ResourceRegistry の対応表1回で済むので、識別子だけに寄せている
 //
 //==========================================================================================
 namespace Engine::Graphics::Pipeline
 {
-	// 仮想リソースの参照
-	//
-	// 中身は RenderGraph が持つ仮想リソース配列の添字だけ。
-	// 実行順はピンの接続から決まるので、既存の RGResourceHandle のような
-	// 世代(version)は持たせていない
-	struct ResourceHandle
-	{
-		static constexpr uint32_t INVALID_INDEX = static_cast<uint32_t>(-1);
-
-		uint32_t index = INVALID_INDEX;
-
-		bool IsValid() const { return index != INVALID_INDEX; }
-
-		bool operator==(const ResourceHandle& a_other) const { return index == a_other.index; }
-		bool operator!=(const ResourceHandle& a_other) const { return !(*this == a_other); }
-	};
-
 	//======================================================================================
 	// 仮想リソースの識別子
 	//

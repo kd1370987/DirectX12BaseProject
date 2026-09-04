@@ -31,7 +31,7 @@ namespace Engine::Editor
 
 		// リソース1本ぶんの絵を出す。履歴つきなら2枚並べる
 		void DrawResourceImage(
-			const Graphics::Pipeline::RenderGraph& a_graph, uint32_t a_resourceIndex, uint32_t a_sliceCount);
+			const Graphics::Pipeline::RenderGraph& a_graph, const Graphics::Pipeline::VirtualResource& a_resource);
 
 	private:
 

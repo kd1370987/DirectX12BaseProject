@@ -852,6 +852,7 @@
     <ClInclude Include="Source\Engine\Common\ID.h" />
     <ClInclude Include="Source\Engine\Common\Index.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\AliasingBarrier.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\CompiledPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\ResourceBarrier.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler\RenderGraphCompiler.h" />

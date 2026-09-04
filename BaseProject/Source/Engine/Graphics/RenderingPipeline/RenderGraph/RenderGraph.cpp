@@ -469,26 +469,6 @@ namespace Engine::Graphics::Pipeline
 		m_validationIssueVec.push_back(std::move(a_issue));
 	}
 
-	// 実行時にパスが「自分のスロット -> GPUリソース」を O(1) で引けるようにする
-	void RenderGraph::WriteBackSlotHandles()
-	{
-		auto _assign = [this](std::vector<Slot>& a_slotVec)
-			{
-				for (Slot& _slot : a_slotVec)
-				{
-					_slot.resourceHandle = FindResource(_slot.resourceID);
-				}
-			};
-
-		for (auto& _upPass : m_passes)
-		{
-			if (!_upPass) continue;
-
-			_assign(_upPass->RefInputSlots());
-			_assign(_upPass->RefOutputSlots());
-		}
-	}
-
 	bool RenderGraph::AllocateResources(GraphicsEngine* a_pGraphicsEngine, D3D12::Device* a_pDevice)
 	{
 		// Temporal は物理を2枚使うので、必要な枚数を先に数える
@@ -602,36 +582,24 @@ namespace Engine::Graphics::Pipeline
 			_compiledPass.preBarriers.clear();
 		}
 		m_endBarriers.clear();
-
-		// スロットが持っている参照も無効化しておく
-		WriteBackSlotHandles();
 	}
 
-	ResourceHandle RenderGraph::FindResource(ResourceID a_resourceID) const
+	// 仮想リソースは Compile のたびに組み直されるので、
+	// 識別子から引き直す。スロット側に添字を焼いておくと、
+	// 組み直しのたびに全スロットを舐めて直しに行くことになる
+	const VirtualResource* RenderGraph::GetVirtualResource(ResourceID a_resourceID) const
 	{
-		const Index<VirtualResource> _index = m_upResourceRegistry->Find(a_resourceID);
-		if (!_index.IsValid()) return {};
-
-		ResourceHandle _handle = {};
-		_handle.index = _index.value;
-		return _handle;
+		return m_upResourceRegistry->GetByID(a_resourceID);
 	}
 
-	const VirtualResource* RenderGraph::GetVirtualResource(ResourceHandle a_handle) const
+	VirtualResource* RenderGraph::RefVirtualResource(ResourceID a_resourceID)
 	{
-		if (!a_handle.IsValid()) return nullptr;
-		return m_upResourceRegistry->Get(Index<VirtualResource>(a_handle.index));
+		return m_upResourceRegistry->RefByID(a_resourceID);
 	}
 
-	VirtualResource* RenderGraph::RefVirtualResource(ResourceHandle a_handle)
+	PhysicalResource* RenderGraph::RefPhysicalResource(ResourceID a_resourceID, uint32_t a_slice) const
 	{
-		if (!a_handle.IsValid()) return nullptr;
-		return m_upResourceRegistry->Ref(Index<VirtualResource>(a_handle.index));
-	}
-
-	PhysicalResource* RenderGraph::RefPhysicalResource(ResourceHandle a_handle, uint32_t a_slice) const
-	{
-		const VirtualResource* _pVirtual = GetVirtualResource(a_handle);
+		const VirtualResource* _pVirtual = GetVirtualResource(a_resourceID);
 		if (!_pVirtual) return nullptr;
 
 		const uint32_t _physicalIndex = _pVirtual->GetPhysicalIndex(a_slice);
@@ -640,16 +608,16 @@ namespace Engine::Graphics::Pipeline
 		return m_physicalResourceVec[_physicalIndex].get();
 	}
 
-	D3D12::GPUResource* RenderGraph::RefGPUResource(ResourceHandle a_handle, uint32_t a_slice) const
+	D3D12::GPUResource* RenderGraph::RefGPUResource(ResourceID a_resourceID, uint32_t a_slice) const
 	{
-		PhysicalResource* _pPhysical = RefPhysicalResource(a_handle, a_slice);
+		PhysicalResource* _pPhysical = RefPhysicalResource(a_resourceID, a_slice);
 		return _pPhysical ? _pPhysical->RefResource() : nullptr;
 	}
 
 	// スロットの向きと今のフレームの偶奇から、触るべき実体を決める
 	D3D12::GPUResource* RenderGraph::RefGPUResource(const Slot& a_slot) const
 	{
-		const VirtualResource* _pVirtual = GetVirtualResource(a_slot.resourceHandle);
+		const VirtualResource* _pVirtual = GetVirtualResource(a_slot.resourceID);
 		if (!_pVirtual) return nullptr;
 
 		// 出力は Current、入力は Previous。
@@ -657,7 +625,7 @@ namespace Engine::Graphics::Pipeline
 		const uint32_t _slice = VirtualResource::ToSlice(a_slot, _pVirtual->IsTemporal());
 		const uint32_t _index = _pVirtual->IsTemporal() ? ((GetFrameParity() + _slice) & 1u) : 0u;
 
-		return RefGPUResource(a_slot.resourceHandle, _index);
+		return RefGPUResource(a_slot.resourceID, _index);
 	}
 
 	bool RenderGraph::HasTemporalResource() const
@@ -973,7 +941,7 @@ namespace Engine::Graphics::Pipeline
 
 		// アロケーターでヒープ作成情報を作成
 		if (!m_upResourceAllocator) m_upResourceAllocator = std::make_unique<ResourceAllocator>();
-		m_upResourceAllocator->CalcHeapSize(m_upResourceRegistry->GetVirtualResources());
+		m_upResourceAllocator->CalcAllocation(m_upResourceRegistry->RefVirtualResources());
 
 		// ヒープ作成
 		if (!m_upGraphHeap) m_upGraphHeap = std::make_unique<GraphHeap>();
@@ -1094,20 +1062,16 @@ namespace Engine::Graphics::Pipeline
 
 		auto& _heapManager = D3D12::DescriptorHeapManager::Instance();
 
-		const std::vector<VirtualResource>& _virtualVec = m_upResourceRegistry->GetVirtualResources();
-		for (uint32_t _i = 0; _i < static_cast<uint32_t>(_virtualVec.size()); ++_i)
+		for (const VirtualResource& _virtual : m_upResourceRegistry->GetVirtualResources())
 		{
-			const VirtualResource& _virtual = _virtualVec[_i];
-
 			if (!_virtual.IsTemporal()) continue;
 			if (_virtual.IsBuffer()) continue;		// バッファは書き手が埋める前提
 
-			ResourceHandle _handle = {};
-			_handle.index = _i;
+			const ResourceID _resourceID = _virtual.GetResourceID();
 
 			for (uint32_t _slice = 0; _slice < _virtual.GetPhysicalCount(); ++_slice)
 			{
-				D3D12::GPUResource* _pResource = RefGPUResource(_handle, _slice);
+				D3D12::GPUResource* _pResource = RefGPUResource(_resourceID, _slice);
 				if (!_pResource) continue;
 
 				if (_virtual.HasUsage(Resource::TextureUsage::RTV))
@@ -1209,13 +1173,13 @@ namespace Engine::Graphics::Pipeline
 		// Temporal でなければ偶奇に関わらず同じものになる
 		auto _refResource = [this](const Slot& a_slot, uint32_t a_parity) -> D3D12::GPUResource*
 			{
-				const VirtualResource* _pVirtual = GetVirtualResource(a_slot.resourceHandle);
+				const VirtualResource* _pVirtual = GetVirtualResource(a_slot.resourceID);
 				if (!_pVirtual) return nullptr;
 
 				const uint32_t _slice = VirtualResource::ToSlice(a_slot, _pVirtual->IsTemporal());
 				const uint32_t _index = _pVirtual->IsTemporal() ? ((a_parity + _slice) & 1u) : 0u;
 
-				return RefGPUResource(a_slot.resourceHandle, _index);
+				return RefGPUResource(a_slot.resourceID, _index);
 			};
 
 		for (CompiledPass& _compiledPass : m_compilePasses)
@@ -1247,7 +1211,7 @@ namespace Engine::Graphics::Pipeline
 				{
 					if (_parity == 0)
 					{
-						const VirtualResource* _pVirtual = GetVirtualResource(_out.resourceHandle);
+						const VirtualResource* _pVirtual = GetVirtualResource(_out.resourceID);
 						const DXGI_FORMAT _format = _pVirtual ? _pVirtual->GetFormat() : DXGI_FORMAT_UNKNOWN;
 
 						if (_out.accessType == EAccessType::RTV)				_rtvFormatVec.push_back(_format);
@@ -1269,7 +1233,7 @@ namespace Engine::Graphics::Pipeline
 							// 色は仮想リソース側から引く。
 							// 生成時のクリアバリューもここから作っているので、
 							// 同じものを渡さないとドライバの最適化が効かず警告も出る
-							const VirtualResource* _pClearTarget = GetVirtualResource(_out.resourceHandle);
+							const VirtualResource* _pClearTarget = GetVirtualResource(_out.resourceID);
 							_compiledPass.clearRtvColors.push_back(
 								_pClearTarget ? _pClearTarget->GetClearColor() : _out.clearColor);
 						}
@@ -1412,7 +1376,7 @@ namespace Engine::Graphics::Pipeline
 			{
 				for (ResourceBarrier& _barrier : a_barrierVec)
 				{
-					const VirtualResource* _pVirtual = GetVirtualResource(_barrier.handle);
+					const VirtualResource* _pVirtual = GetVirtualResource(_barrier.resourceID);
 					if (!_pVirtual)
 					{
 						_barrier.pResource[0] = nullptr;
@@ -1428,7 +1392,7 @@ namespace Engine::Graphics::Pipeline
 							? ((_parity + _barrier.slice) & 1u)
 							: 0u;
 
-						_barrier.pResource[_parity] = RefGPUResource(_barrier.handle, _index);
+						_barrier.pResource[_parity] = RefGPUResource(_barrier.resourceID, _index);
 					}
 				}
 			};

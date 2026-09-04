@@ -110,6 +110,10 @@ namespace Engine::Graphics::Pipeline
 		Index<VirtualResource> _idx(_it->second);
 		return _idx;
 	}
+	const VirtualResource* ResourceRegistry::GetByID(ResourceID a_resourceID) const
+	{
+		return Get(Find(a_resourceID));
+	}
 	VirtualResource* ResourceRegistry::RefByID(ResourceID a_resourceID)
 	{
 		return Ref(Find(a_resourceID));

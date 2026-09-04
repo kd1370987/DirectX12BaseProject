@@ -13,8 +13,8 @@ namespace Engine::Graphics::Pipeline
 	// =====================================================================================
 	struct AliasingBarrier
 	{
-		ResourceHandle before = {};
-		ResourceHandle after = {};
+		ResourceID before = {};
+		ResourceID after = {};
 
 		// 実体化後に焼きこむ
 		D3D12::GPUResource* pBeforeResource[2] = { nullptr,nullptr };

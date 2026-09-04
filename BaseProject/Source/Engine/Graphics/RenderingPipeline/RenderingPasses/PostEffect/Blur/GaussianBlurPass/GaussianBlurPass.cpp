@@ -45,7 +45,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 1テクセルぶんのUVは入力の解像度から求める。
 		// 縮小段では入力と出力で解像度が違うので、出力側で計算すると滲み方がずれる
-		const VirtualResource* _pInRes = a_context.pGraph->GetVirtualResource(_pIn->resourceHandle);
+		const VirtualResource* _pInRes = a_context.pGraph->GetVirtualResource(_pIn->resourceID);
 		if (!_pInRes) return;
 
 		const float _srcWidth = static_cast<float>(_pInRes->GetWidth());

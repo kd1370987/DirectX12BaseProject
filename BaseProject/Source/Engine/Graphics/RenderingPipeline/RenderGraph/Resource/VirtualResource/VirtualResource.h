@@ -18,6 +18,10 @@
 
 namespace Engine::Graphics::Pipeline
 {
+	// AllocationInfo が先に実体を持つので、ここで名前だけ通しておく。
+	// 今までは先に RenderGraph.h を通した翻訳単位でだけ通っていた
+	class VirtualResource;
+
 	/// <summary>
 	/// 割り当てられた場所
 	/// </summary>
@@ -131,7 +135,12 @@ namespace Engine::Graphics::Pipeline
 
 		// 割り当てられた物理リソースの添字。
 		// Temporal のときだけ [1] も使う。
-		// あとでエイリアシング(使い回し)を入れるときにここがずれる
+		// あとでエイリアシング(使い回し)を入れるときにここがずれる。
+		//
+		// 指す先は RenderGraph が持つ物理リソース配列であって、仮想リソースの並びではない。
+		// 仮想リソース側の参照は ResourceID なので、番兵もこちらで持つ
+		static constexpr uint32_t INVALID_PHYSICAL_INDEX = static_cast<uint32_t>(-1);
+
 		uint32_t GetPhysicalIndex(uint32_t a_slice = 0) const { return m_physicalIndex[a_slice & 1]; }
 		void SetPhysicalIndex(uint32_t a_index, uint32_t a_slice = 0) { m_physicalIndex[a_slice & 1] = a_index; }
 
@@ -259,7 +268,7 @@ namespace Engine::Graphics::Pipeline
 		D3D12_RESOURCE_STATES m_currentState[2] = { D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COMMON };
 
 		// --- 物理リソースとの紐付け ---
-		uint32_t m_physicalIndex[2] = { ResourceHandle::INVALID_INDEX, ResourceHandle::INVALID_INDEX };
+		uint32_t m_physicalIndex[2] = { INVALID_PHYSICAL_INDEX, INVALID_PHYSICAL_INDEX };
 		AllocationInfo m_allocationInfo = {};
 
 		// --- 生存区間(実行順の添字) ---
