@@ -16,6 +16,9 @@ namespace Engine::Graphics::Pipeline
 
 		// ヒープ作成
 		HRESULT _hr = a_pDevice->CreateHeap(&_heapDesc, IID_PPV_ARGS(&m_cpHeap));
-		ENGINE_ERRLOG(FAILED(_hr),"グラフヒープの作成に失敗");
+		if (FAILED(_hr))
+		{
+			ENGINE_ERRLOG(false, "グラフヒープの作成に失敗");
+		}
 	}
 }

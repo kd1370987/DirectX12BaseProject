@@ -260,9 +260,21 @@ namespace Engine::Graphics::Pipeline
 		// 縮小段のように入出力で解像度が違うパスで使う
 		void DispatchForSlot(const PassContext& a_context, const Slot& a_slot) const;
 
+		//----------------------------------------------------------------------------------
 		// 出力ピン : このパスが作るリソースなので、フォーマットまでここで決める
+		//
 		// a_isTemporal を立てると、このリソースはフレーム間で入れ替わる2枚組になる。
-		// 前フレームの結果を読みたい履歴バッファ(TAA History など)に使う
+		// 前フレームの結果を読みたい履歴バッファ(TAA History など)に使う。
+		//
+		// サイズの決め方は2通り。
+		//   a_width / a_height を 0 のまま  : 描画解像度 × a_scale。普通はこちら
+		//   a_width / a_height を明示        : その大きさで固定(LUT など解像度に依らないもの)
+		//
+		// スロットを宣言するのは Pass::Init() で、まだどのカメラも解像度を渡していない。
+		// 絶対値で書くと解像度違いのカメラやウィンドウのリサイズに追従できないので、
+		// 画面ぶんのリソースは 0 のままにしておくこと。
+		// バッファは a_width をバイト数として使う(解像度は掛からない)
+		//----------------------------------------------------------------------------------
 		Slot& DeclareOutput(
 			const std::string& a_pinName,
 			const std::string& a_resourceName,
@@ -270,7 +282,10 @@ namespace Engine::Graphics::Pipeline
 			EAccessType a_accessType = EAccessType::RTV,
 			EPassSlotType a_type = EPassSlotType::Texture,
 			bool a_isTemporal = false,
-			int a_rootParamIndex = -1);
+			int a_rootParamIndex = -1,
+			UINT64 a_width = 0,
+			UINT a_height = 0,
+			float a_scale = 1.f);
 
 		//----------------------------------------------------------------------------------
 		// グラフの外から差し込まれるリソースへ書き出す出力ピン

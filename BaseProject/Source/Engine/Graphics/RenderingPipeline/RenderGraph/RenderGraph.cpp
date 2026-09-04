@@ -930,25 +930,29 @@ namespace Engine::Graphics::Pipeline
 		// 失敗しても中途半端な状態で走らせないよう、先に捨てておく
 		ClearCompiledData();
 
+		RenderGraphCompiler _rg(this);
+
 		// パスのコンパイル
-		CompileResult _result = RenderGraphCompiler(this).Compile();
+		CompileResult _result = _rg.Compile();
 		if (!_result.isSuccess) return false;
 
 		m_compilePasses = std::move(_result.compiledPassVec);
 		m_endBarriers = std::move(_result.endBarrierVec);
 
-		// 仮想リソースがすべて出来上がったのでヒープを作成する
+		// 占有サイズは仮想リソースが要件を受け取った時点で出ているので、
+		// ここで計算し直す必要はない
 
+		// 仮想リソースがすべて出来上がったのでヒープを作成する
 		// アロケーターでヒープ作成情報を作成
 		if (!m_upResourceAllocator) m_upResourceAllocator = std::make_unique<ResourceAllocator>();
 		m_upResourceAllocator->CalcAllocation(m_upResourceRegistry->RefVirtualResources());
 
+		// エイリアシングバリアを作成
+		_rg.BuildAliasingBarriers(m_compilePasses);
+
 		// ヒープ作成
 		if (!m_upGraphHeap) m_upGraphHeap = std::make_unique<GraphHeap>();
-		m_upGraphHeap->Create(
-			_pDevice,
-			m_upResourceAllocator->GetMaxHeapSize()
-		);
+		m_upGraphHeap->Create(_pDevice,m_upResourceAllocator->GetMaxHeapSize());
 
 		// 各パスの Compile() はここでは呼ばない。
 		// 物理リソースが決まってからでないとディスクリプタを引けないので、

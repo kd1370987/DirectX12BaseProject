@@ -47,8 +47,11 @@ namespace Engine::Graphics::Pipeline
 		// 構築
 		//----------------------------------------------------------------------------------
 		// 出力スロットから要件を起こす(このリソースを作るパスのスロット)。
-		// 識別子と表示名もこのスロットから取る
-		void SetupFromOutputSlot(const Slot& a_slot);
+		// 識別子と表示名もこのスロットから取る。
+		//
+		// 描画解像度も一緒に受け取る。スロットのサイズは「0 = 解像度に従う」なので、
+		// 土台が無いと実サイズが出せず、占有サイズも出せないため
+		void SetupFromOutputSlot(const Slot& a_slot, UINT64 a_baseWidth, UINT a_baseHeight);
 
 		// 外部で作られたリソースとして起こす : サイズやフォーマットは向こうの持ち物
 		void SetupAsImported(const std::string& a_name, EPassSlotType a_type, D3D12_RESOURCE_STATES a_initialState);
@@ -58,8 +61,9 @@ namespace Engine::Graphics::Pipeline
 		// 読み込み側(入力スロット)は用途フラグだけを足す
 		void MergeSlot(const Slot& a_slot);
 
-		// width / height が 0 のときに、描画解像度から実サイズを決める。
-		// 明示サイズが入っているものはそのまま(scale は掛けない)
+		// 描画解像度を受け取り直して、実サイズと占有サイズを出し直す。
+		// 宣言が 0 のところだけ「解像度 × scale」で埋まる(明示サイズはそのまま)。
+		// 何度呼んでも同じ結果になるので、要件が変わるたびに通してよい
 		void ResolveSize(UINT64 a_baseWidth, UINT a_baseHeight);
 
 		//----------------------------------------------------------------------------------
@@ -214,6 +218,9 @@ namespace Engine::Graphics::Pipeline
 				&& a_other.m_firstPassIndex <= m_lastPassIndex;
 		}
 
+		// 実体を作ったらヒープをどれだけ食うか。
+		// 実サイズ・フォーマット・用途フラグが揃っていないと出せないので、
+		// 要件が変わったら ResolveSize から呼び直される
 		void CalcAllocationSize();
 
 		uint64_t GetAllocationSize() const { return m_allocationSize; }
@@ -236,6 +243,10 @@ namespace Engine::Graphics::Pipeline
 
 	private:
 
+		// 宣言値と土台の解像度から実サイズを決めて、占有サイズまで出す。
+		// 土台がまだ無ければ何もしない(サイズを決められないだけで、異常ではない)
+		void ResolveSizeAndAllocation();
+
 		// リソーステクスチャの作成情報
 		//
 		// m_resourceID が同一性。m_name は表示用のラベルでしかないので、
@@ -246,14 +257,31 @@ namespace Engine::Graphics::Pipeline
 
 		// --- 要件(出力スロットから起こす) ---
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
-		UINT64 m_width = 0;			// バッファのときはバイト数として扱う
-		UINT m_height = 0;
-		float m_scale = 1.f;		// width / height が 0 のときに描画解像度へ掛ける倍率
 		Resource::TextureUsage m_usage = Resource::TextureUsage::None;
 
+		//----------------------------------------------------------------------------------
+		// サイズ : 宣言値と実サイズを分けて持つ
+		//
+		// 宣言値は「0 = 描画解像度に従う」の意味を持ったままの、スロットが言ってきた値。
+		// 実サイズはそれを土台の解像度で解決した後の値で、実体を作るのはこちら。
+		//
+		// 分けていないと、一度解決して実サイズが入った後に別の書き手が
+		// scale を変えてきても、「もう 0 ではない」と見なされて効かなくなる
+		// (描き足しで2つ目の書き手が来るとき)
+		//----------------------------------------------------------------------------------
+		UINT64 m_declWidth = 0;		// 宣言された横 : バッファのときはバイト数として扱う
+		UINT m_declHeight = 0;		// 宣言された縦
+		float m_scale = 1.f;		// 宣言が 0 のときに描画解像度へ掛ける倍率
+
+		UINT64 m_baseWidth = 0;		// 土台の描画解像度 : 解決に使う
+		UINT m_baseHeight = 0;
+
+		UINT64 m_width = 0;			// 解決後の実サイズ : バッファのときはバイト数
+		UINT m_height = 0;
+
 		// --- 予想サイズ ---
-		uint64_t m_allocationSize;			// 実体となったときに使用される予定のメモリサイズ
-		uint64_t m_allocationAlignment;
+		uint64_t m_allocationSize = 0;		// 実体となったときに使用される予定のメモリサイズ
+		uint64_t m_allocationAlignment = 0;
 
 		// --- クリア ---
 		Math::Color m_clearColor = { 0.f, 0.f, 0.f, 1.f };

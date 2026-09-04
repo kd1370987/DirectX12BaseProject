@@ -4,15 +4,21 @@
 
 namespace Engine::Graphics::Pipeline
 {
-	void VirtualResource::SetupFromOutputSlot(const Slot& a_slot)
+	void VirtualResource::SetupFromOutputSlot(const Slot& a_slot, UINT64 a_baseWidth, UINT a_baseHeight)
 	{
 		m_resourceID = a_slot.resourceID;
 		m_name = a_slot.name;
 		m_type = a_slot.type;
 		m_format = a_slot.format;
-		m_width = a_slot.width;
-		m_height = a_slot.height;
+
+		// スロットが言ってきた値は宣言としてそのまま持つ。
+		// 0 は「解像度に従う」の意味なので、ここで潰してはいけない
+		m_declWidth = a_slot.width;
+		m_declHeight = a_slot.height;
 		m_scale = a_slot.scale;
+
+		m_baseWidth = a_baseWidth;
+		m_baseHeight = a_baseHeight;
 
 		m_usage = ToUsage(a_slot.accessType, true);
 
@@ -34,8 +40,9 @@ namespace Engine::Graphics::Pipeline
 		// 区間は実行順が決まってから RenderGraph が入れる
 		ResetLifetime();
 
-		// アロケーションサイズを求める
-		CalcAllocationSize();
+		// 実サイズと占有サイズは、生まれたこの時点で出しておく。
+		// 読み手が用途フラグを足すと変わりうるので、MergeSlot でも出し直す
+		ResolveSizeAndAllocation();
 	}
 
 	void VirtualResource::SetupAsImported(const std::string& a_name, EPassSlotType a_type, D3D12_RESOURCE_STATES a_initialState)
@@ -46,12 +53,20 @@ namespace Engine::Graphics::Pipeline
 		m_name = a_name;
 		m_type = a_type;
 
-		// 外部で作られた実体をそのまま使うので、こちらでサイズやフォーマットは決めない
+		// 外部で作られた実体をそのまま使うので、こちらでサイズやフォーマットは決めない。
+		// ヒープも食わないので占有サイズは 0 のまま
 		m_format = DXGI_FORMAT_UNKNOWN;
+		m_declWidth = 0;
+		m_declHeight = 0;
+		m_baseWidth = 0;
+		m_baseHeight = 0;
 		m_width = 0;
 		m_height = 0;
 		m_scale = 1.f;
 		m_usage = Resource::TextureUsage::None;
+
+		m_allocationSize = 0;
+		m_allocationAlignment = 0;
 
 		m_clearColor = { 0.f, 0.f, 0.f, 1.f };
 		m_isClear = false;
@@ -92,8 +107,8 @@ namespace Engine::Graphics::Pipeline
 		{
 			// フォーマットとサイズは書き込み側が主導権を持つ
 			if (a_slot.format != DXGI_FORMAT_UNKNOWN) m_format = a_slot.format;
-			if (a_slot.width != 0) m_width = a_slot.width;
-			if (a_slot.height != 0) m_height = a_slot.height;
+			if (a_slot.width != 0) m_declWidth = a_slot.width;
+			if (a_slot.height != 0) m_declHeight = a_slot.height;
 			m_scale = a_slot.scale;
 
 			// 一度でもクリア指定が入ったら、クリアバリューを持つリソースとして作る
@@ -103,6 +118,10 @@ namespace Engine::Graphics::Pipeline
 				m_clearColor = a_slot.clearColor;
 			}
 		}
+
+		// 書き手はサイズとフォーマットを、読み手は用途フラグを変える。
+		// どちらも占有サイズに効くので、足し込むたびに出し直す
+		ResolveSizeAndAllocation();
 	}
 
 	void VirtualResource::ResolveSize(UINT64 a_baseWidth, UINT a_baseHeight)
@@ -110,25 +129,57 @@ namespace Engine::Graphics::Pipeline
 		// 外部リソースは実体が向こうにあるので触らない
 		if (m_isImported) return;
 
-		// バッファは width をバイト数として使っているので、解像度を掛けても意味がない
-		if (IsBuffer()) return;
+		m_baseWidth = a_baseWidth;
+		m_baseHeight = a_baseHeight;
 
-		// 明示的にサイズが入っているものはそのまま
-		if (m_width != 0 && m_height != 0) return;
-
-		if (a_baseWidth == 0 || a_baseHeight == 0)
+		// テクスチャで宣言が 0 なら、土台の解像度が無いと決めようがない。
+		// バッファは宣言のバイト数だけで決まるので解像度は要らない
+		if (!IsBuffer() && (m_declWidth == 0 || m_declHeight == 0) &&
+			(a_baseWidth == 0 || a_baseHeight == 0))
 		{
 			ENGINE_WARNING("[VirtualResource] 描画解像度が設定されていないためサイズを決められません : %s", m_name.c_str());
 			return;
 		}
 
+		ResolveSizeAndAllocation();
+	}
+
+	// 宣言値と土台の解像度から実サイズを出す。
+	// 宣言側は触らないので、何度呼んでも同じ結果になる
+	void VirtualResource::ResolveSizeAndAllocation()
+	{
+		if (m_isImported) return;
+
+		if (IsBuffer())
+		{
+			// バッファは width をバイト数として使っているので、解像度を掛けても意味がない
+			m_width = m_declWidth;
+			m_height = 1;
+
+			CalcAllocationSize();
+			return;
+		}
+
+		m_width = m_declWidth;
+		m_height = m_declHeight;
+
+		// 宣言が 0 のところだけ解像度から埋める。
 		// スケール指定 : ハーフ解像度のGIバッファなどはここで 0.5 が掛かる
-		if (m_width == 0)  m_width = static_cast<UINT64>(static_cast<float>(a_baseWidth) * m_scale);
-		if (m_height == 0) m_height = static_cast<UINT>(static_cast<float>(a_baseHeight) * m_scale);
+		if (m_width == 0 || m_height == 0)
+		{
+			// 土台がまだ来ていないなら決められない。
+			// 異常かどうかは呼び手(ResolveSize)が判断する
+			if (m_baseWidth == 0 || m_baseHeight == 0) return;
+
+			if (m_width == 0)  m_width = static_cast<UINT64>(static_cast<float>(m_baseWidth) * m_scale);
+			if (m_height == 0) m_height = static_cast<UINT>(static_cast<float>(m_baseHeight) * m_scale);
+		}
 
 		// 0 にすると生成に失敗するので、最低1ピクセルは残す
 		if (m_width == 0)  m_width = 1;
 		if (m_height == 0) m_height = 1;
+
+		CalcAllocationSize();
 	}
 
 	bool VirtualResource::HasUsage(Resource::TextureUsage a_usage) const
@@ -141,23 +192,62 @@ namespace Engine::Graphics::Pipeline
 		m_allocationSize = 0;
 		m_allocationAlignment = 0;
 
-		D3D12_RESOURCE_DESC _desc = {};
-		_desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		_desc.Alignment = 0;
-		_desc.Width = m_width;
-		_desc.Height = m_height;
-		_desc.DepthOrArraySize = 1;
-		_desc.MipLevels = 1;
-		_desc.Format = m_format;
-		_desc.SampleDesc.Count = 1;
-		_desc.SampleDesc.Quality = 0;
-		_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		_desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		// 外部リソースの実体はグラフの外の持ち物なので、こちらのヒープは食わない
+		if (m_isImported) return;
 
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 		if (!_pDevice) return;
 
+		D3D12_RESOURCE_DESC _desc = {};
+		_desc.Alignment = 0;
+		_desc.DepthOrArraySize = 1;
+		_desc.MipLevels = 1;
+		_desc.SampleDesc.Count = 1;
+		_desc.SampleDesc.Quality = 0;
+
+		if (IsBuffer())
+		{
+			// まだサイズが決まっていない : 決まってから出し直される
+			if (m_width == 0) return;
+
+			_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+			_desc.Width = m_width;			// width にバイト数が入っている
+			_desc.Height = 1;
+			_desc.Format = DXGI_FORMAT_UNKNOWN;
+			_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+			// PhysicalResource::Create が立てるフラグに合わせる
+			_desc.Flags = HasUsage(Resource::TextureUsage::UAV)
+				? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
+				: D3D12_RESOURCE_FLAG_NONE;
+		}
+		else
+		{
+			// 要件がまだ揃っていない : 揃ってから出し直される
+			if (m_width == 0 || m_height == 0) return;
+			if (m_format == DXGI_FORMAT_UNKNOWN) return;
+
+			_desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+			_desc.Width = m_width;
+			_desc.Height = m_height;
+			_desc.Format = m_format;
+			_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+
+			// 用途フラグは詰み方と大きさを変える。
+			// 実際に作るときと同じものを渡さないと、見積もりが実体とずれる
+			_desc.Flags = Resource::GetResourceFlags(m_usage);
+		}
+
 		D3D12_RESOURCE_ALLOCATION_INFO _info = _pDevice->GetResourceAllocationInfo(0,1,&_desc);
+
+		// 通らない組み合わせを渡すと SizeInBytes が UINT64_MAX で返る。
+		// そのまま足すとヒープサイズが桁あふれするので、0 のままにしておく
+		if (_info.SizeInBytes == UINT64_MAX)
+		{
+			ENGINE_WARNING("[VirtualResource] 占有サイズを見積もれませんでした : %s", m_name.c_str());
+			return;
+		}
+
 		m_allocationSize = _info.SizeInBytes;
 		m_allocationAlignment = _info.Alignment;
 	}

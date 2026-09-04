@@ -65,10 +65,7 @@ namespace Engine::Graphics::Pipeline
 		/// エイリアシングバリアを積む
 		/// </summary>
 		/// <param name="a_compiledPassVec"></param>
-		/// <param name="a_outEndBarrierVec"></param>
-		void BuildAliasingBarriers(
-			std::vector<CompiledPass>& a_compiledPassVec,
-			std::vector<AliasingBarrier>& a_outEndBarrierVec);
+		void BuildAliasingBarriers(std::vector<CompiledPass>& a_compiledPassVec);
 
 	private:
 

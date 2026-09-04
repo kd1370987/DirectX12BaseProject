@@ -330,6 +330,11 @@ namespace Engine::Graphics::Pipeline
 		// 外部リソースを仮想リソースとして先に登録 : パスが知らないもの(バックバッファなど)も席を持つ
 		_pResRegistry->SetupImportedResources();
 
+		// スロットのサイズは「0 = 描画解像度に従う」なので、席を作る時点で土台を渡す。
+		// これで生まれた瞬間に実サイズと占有サイズが出る
+		const UINT64 _baseWidth = m_pRenderGraph->GetViewportWidth();
+		const UINT _baseHeight = m_pRenderGraph->GetViewportHeight();
+
 		// 出力スロットから仮想リソースを作成していく。
 		// フォーマットやサイズを知っているのは作る側だけなので、先に出力を全部通す
 		for (auto& _upPass : m_pRenderGraph->RefPasses())
@@ -339,7 +344,7 @@ namespace Engine::Graphics::Pipeline
 			for (Slot& _out : _upPass->RefOutputSlots())
 			{
 				if (!_out.resourceID.IsValid()) continue;
-				_pResRegistry->Request(_out).MergeSlot(_out);
+				_pResRegistry->Request(_out, _baseWidth, _baseHeight).MergeSlot(_out);
 			}
 		}
 
@@ -368,10 +373,12 @@ namespace Engine::Graphics::Pipeline
 			}
 		}
 
-		// サイズを決める
+		// サイズを確定させる。
+		// 生成と足し込みの時点で出してあるので普段はここで変わらないが、
+		// 土台が無いまま作られたものはここで拾って警告を出す
 		for (VirtualResource& _vRes : _pResRegistry->RefVirtualResources())
 		{
-			_vRes.ResolveSize(m_pRenderGraph->GetViewportWidth(), m_pRenderGraph->GetViewportHeight());
+			_vRes.ResolveSize(_baseWidth, _baseHeight);
 		}
 
 		// スロットは識別子をそのまま持っているので、書き戻すものは無い。
@@ -524,7 +531,7 @@ namespace Engine::Graphics::Pipeline
 			}
 		}
 	}
-	void RenderGraphCompiler::BuildAliasingBarriers(std::vector<CompiledPass>& a_compiledPassVec, std::vector<AliasingBarrier>& a_outEndBarrierVec)
+	void RenderGraphCompiler::BuildAliasingBarriers(std::vector<CompiledPass>& a_compiledPassVec)
 	{
 		for (const VirtualResource& _vRes : m_pRenderGraph->GetVirtualResources())
 		{

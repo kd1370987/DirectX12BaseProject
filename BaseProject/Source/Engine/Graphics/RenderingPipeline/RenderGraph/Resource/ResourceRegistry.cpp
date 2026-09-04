@@ -78,7 +78,7 @@ namespace Engine::Graphics::Pipeline
 			m_virtualResourceVec.push_back(std::move(_vRes));
 		}
 	}
-	VirtualResource& ResourceRegistry::Request(const Slot& a_outputSlot)
+	VirtualResource& ResourceRegistry::Request(const Slot& a_outputSlot, UINT64 a_baseWidth, UINT a_baseHeight)
 	{
 		// 識別子で検索
 		auto _it = m_resourceIDMap.find(a_outputSlot.resourceID);
@@ -90,7 +90,7 @@ namespace Engine::Graphics::Pipeline
 
 		// アウトプットスロットから仮想リソースを作成
 		VirtualResource _vRes = {};
-		_vRes.SetupFromOutputSlot(a_outputSlot);
+		_vRes.SetupFromOutputSlot(a_outputSlot, a_baseWidth, a_baseHeight);
 
 		// 配列に登録
 		m_resourceIDMap[a_outputSlot.resourceID] = static_cast<uint32_t>(m_virtualResourceVec.size());

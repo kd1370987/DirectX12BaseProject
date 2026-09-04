@@ -470,7 +470,10 @@ namespace Engine::Graphics::Pipeline
 		EAccessType a_accessType,
 		EPassSlotType a_type,
 		bool a_isTemporal,
-		int a_rootParamIndex)
+		int a_rootParamIndex,
+		UINT64 a_width,
+		UINT a_height,
+		float a_scale)
 	{
 		Slot _slot = {};
 		_slot.isIn = false;
@@ -483,6 +486,11 @@ namespace Engine::Graphics::Pipeline
 		_slot.type = a_type;
 		_slot.accessType = a_accessType;
 		_slot.format = a_format;
+
+		// 0 のままなら描画解像度に従う。明示された場合だけその大きさで固定される
+		_slot.width = a_width;
+		_slot.height = a_height;
+		_slot.scale = a_scale;
 
 		m_outputSlots.push_back(std::move(_slot));
 		return m_outputSlots.back();

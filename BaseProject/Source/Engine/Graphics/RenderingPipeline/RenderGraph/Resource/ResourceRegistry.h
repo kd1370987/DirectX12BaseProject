@@ -41,8 +41,11 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		// 仮想リソース
 		//----------------------------------------------------------------------------------
-		// 出力スロットの識別子で引いて、なければ新規生成
-		VirtualResource& Request(const Slot& a_outputSlot);
+		// 出力スロットの識別子で引いて、なければ新規生成。
+		//
+		// 描画解像度も渡す : スロットのサイズは「0 = 解像度に従う」なので、
+		// 土台が無いと生成した時点で実サイズも占有サイズも出せない
+		VirtualResource& Request(const Slot& a_outputSlot, UINT64 a_baseWidth, UINT a_baseHeight);
 
 		// 識別子から仮想リソースを引く
 		Index<VirtualResource> Find(ResourceID a_resourceID) const;
