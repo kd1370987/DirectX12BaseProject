@@ -40,7 +40,7 @@ namespace Engine::Graphics::Pipeline
 		uint64_t offset = 0;						// ヒープ内での位置
 
 		// このスロットを直前に使っていたリソース : エイリアシングバリアの before になる
-		VirtualResource* pPrevVRes = nullptr;
+		ResourceID prevVResID;
 	};
 
 	class VirtualResource
@@ -224,6 +224,16 @@ namespace Engine::Graphics::Pipeline
 			return m_firstPassIndex <= a_other.m_lastPassIndex
 				&& a_other.m_firstPassIndex <= m_lastPassIndex;
 		}
+
+		//----------------------------------------------------------------------------------
+		// 実体を作るときの要件を、テクスチャ生成の宣言へ落とす
+		//
+		// 占有サイズの見積もりも実体の生成も、必ずこれで起こした同じ宣言を通すこと。
+		// 別々に組むと、片方だけ直したときに見積もりと実体が静かにずれて、
+		// 確保した席にリソースが収まらなくなる。
+		// バッファはこちらを通らない(テクスチャの宣言では表せない)
+		//----------------------------------------------------------------------------------
+		Resource::TextureCreateDesc ToTextureCreateDesc() const;
 
 		// 実体を作ったらヒープをどれだけ食うか。
 		// 実サイズ・フォーマット・用途フラグが揃っていないと出せないので、

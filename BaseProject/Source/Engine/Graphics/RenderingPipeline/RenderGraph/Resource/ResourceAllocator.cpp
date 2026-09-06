@@ -35,8 +35,12 @@ namespace Engine::Graphics::Pipeline
 
 			bool _assigned = false;
 
-			// 既存スロットを探す
-			for(size_t _i = 0; _i < m_slots.size(); ++_i)
+			// 既存スロットを探す。
+			//
+			// 使い回しを切っているときはここを通らないので、必ず新しい席になる。
+			// 実体は placed のまま重ならないので、
+			// 「置き場所を変えたせい」と「使い回したせい」を切り分けられる
+			for(size_t _i = 0; s_isAliasingEnabled && _i < m_slots.size(); ++_i)
 			{
 				auto& _slot = m_slots[_i];
 
@@ -47,12 +51,12 @@ namespace Engine::Graphics::Pipeline
 					// 仮想リソースに一時的にスロットインデックスを記録
 					AllocationInfo _info = _vRes->GetAllocationInfo();
 					_info.slotIndex = static_cast<uint32_t>(_i);
-					_info.pPrevVRes = _slot.pLastResource;
+					_info.prevVResID = _slot.lastResourceID;
 					_vRes->SetAllocationInfo(_info);
 
 					// スロットの情報を更新
 					_slot.lastPassIndex = _lastPass;
-					_slot.pLastResource = _vRes;
+					_slot.lastResourceID = _vRes->GetResourceID();
 					_slot.allocationSize = std::max(_slot.allocationSize, _vRes->GetAllocationSize());
 					_slot.allocationAlignment = std::max(_slot.allocationAlignment, _vRes->GetAllocationAlignment());
 
@@ -70,12 +74,12 @@ namespace Engine::Graphics::Pipeline
 				_newSlot.lastPassIndex = _lastPass;
 				_newSlot.allocationSize = _vRes->GetAllocationSize();
 				_newSlot.allocationAlignment = _vRes->GetAllocationAlignment();
-				_newSlot.pLastResource = _vRes;
+				_newSlot.lastResourceID = _vRes->GetResourceID();
 
 				// 仮想リソースに一時的にスロットインデックスを記録
 				AllocationInfo _info = _vRes->GetAllocationInfo();
 				_info.slotIndex = static_cast<uint32_t>(m_slots.size());
-				_info.pPrevVRes = nullptr;
+				_info.prevVResID = {};
 				_vRes->SetAllocationInfo(_info);
 
 				m_slots.push_back(_newSlot);

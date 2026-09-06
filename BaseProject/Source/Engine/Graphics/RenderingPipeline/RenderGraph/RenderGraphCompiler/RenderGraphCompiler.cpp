@@ -531,22 +531,47 @@ namespace Engine::Graphics::Pipeline
 			}
 		}
 	}
+	//--------------------------------------------------------------------------------------
+	// エイリアシングバリアを積む
+	//
+	// 席の使い手が入れ替わる継ぎ目に張る。触る最初のパスの直前で1回だけでよい。
+	//
+	// ■ 席の一人目にも張ること
+	//
+	// グラフは毎フレーム同じ順で回るので、席の使い手は
+	//   ... → 席の最後の使い手 → (フレームの切れ目) → 席の一人目 → ...
+	// と輪になっている。つまり一人目が乗るメモリには、
+	// 前のフレームでその席を最後に使ったリソースの中身が残っている。
+	//
+	// 「前に使っていた人が居ない = 一人目」でバリアを飛ばしていると、
+	// 1フレーム目だけ正しくて2フレーム目から継ぎ目が1つ抜ける。
+	// 絵が毎回壊れるわけではないので、見つけにくい形で出る
+	//
+	// ■ 一人目の before は空のまま
+	//
+	// 空の識別子は実体を引いたときに nullptr になり、D3D12 では
+	// 「このヒープのどれかが前の使い手」という保守的な指定になる。
+	// 席の最後の使い手へ巻き戻すより緩いが、確実で、輪の巻き戻しを持たなくて済む
+	//--------------------------------------------------------------------------------------
 	void RenderGraphCompiler::BuildAliasingBarriers(std::vector<CompiledPass>& a_compiledPassVec)
 	{
 		for (const VirtualResource& _vRes : m_pRenderGraph->GetVirtualResources())
 		{
 			const auto& _info = _vRes.GetAllocationInfo();
 
-			// 初回使用ならバリアはいらない
-			if (!_info.pPrevVRes) continue;
+			// 席に着いていないものは使い回しの対象外。
+			// (外部リソース・履歴つき・配線から外れたもの)
+			// 実体を独り占めしているので、そもそも継ぎ目が無い
+			if (_info.slotIndex == AllocationInfo::INVALID_SLOT_INDEX) continue;
 
 			// リソースが使われる初めのパスにのみ張る
 			const uint32_t _firstPass = _vRes.GetFirstPassIndex();
+			if (_firstPass >= a_compiledPassVec.size()) continue;
 
 			// バリア構築
 			AliasingBarrier _barrier = {};
-			_barrier.before = _info.pPrevVRes->GetResourceID();		// 前回のリソース
-			_barrier.after = _vRes.GetResourceID();					// バリア後リソース
+			_barrier.before = _info.prevVResID;		// 前回のリソース : 席の一人目なら空
+			_barrier.after = _vRes.GetResourceID();	// バリア後リソース
 
 			a_compiledPassVec[_firstPass].preAliasingBarriers.push_back(_barrier);
 		}

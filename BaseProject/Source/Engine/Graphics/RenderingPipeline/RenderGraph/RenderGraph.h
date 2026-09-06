@@ -249,6 +249,10 @@ namespace Engine::Graphics::Pipeline
 		// 実行には要らないが、使い回しの様子を覗くのに要る
 		const ResourceAllocator* GetResourceAllocator() const { return m_upResourceAllocator.get(); }
 
+		// 実体の置き場所 : AllocateResources() で用意される。
+		// IsValid() が false のときは、各リソースを個別に作ること(committed)
+		GraphHeap* RefGraphHeap() const { return m_upGraphHeap.get(); }
+
 	private:
 
 		// 型IDからパスを作り直して、アーカイブから中身を流し込む。

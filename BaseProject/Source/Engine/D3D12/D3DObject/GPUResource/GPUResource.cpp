@@ -48,6 +48,45 @@ namespace Engine::D3D12
 		// 成功
 		return true;
 	}
+	bool GPUResource::Create(D3D12::Device* a_pDevice, ID3D12Heap* a_pHeap, uint64_t a_heapOffset, const D3D12_RESOURCE_DESC& a_resDesc, D3D12_RESOURCE_STATES a_initialState, size_t a_strideSize, size_t a_elementNum, const D3D12_CLEAR_VALUE* a_pClearValue)
+	{
+		if (!a_pHeap)
+		{
+			ENGINE_ERRLOG(false, "配置先のヒープが空です");
+			return false;
+		}
+
+		// リソースサイズ計算
+		m_strideSize = a_strideSize;
+		m_elementNum = a_elementNum;
+		m_bufferSize = m_strideSize * m_elementNum;
+
+		// ステート設定
+		m_currentState = a_initialState;
+
+		// フォーマットセット
+		m_format = a_resDesc.Format;
+
+		// 指定されたヒープ上のオフセットに作成する
+		auto _hr = a_pDevice->CreatePlacedResource(
+			a_pHeap,
+			a_heapOffset,
+			&a_resDesc,
+			a_initialState,
+			a_pClearValue,
+			IID_PPV_ARGS(m_cpResource.ReleaseAndGetAddressOf())
+		);
+		if (FAILED(_hr))
+		{
+			// 席の大きさ不足・オフセットのアライメント違反・
+			// ヒープのフラグ違い(Tier1で種別が混在)あたりが原因になりやすい
+			ENGINE_ERRLOG(false, "CreatePlacedResource に失敗 : offset=%llu", a_heapOffset);
+			return false;
+		}
+
+		// 成功
+		return true;
+	}
 	void GPUResource::Release()
 	{
 		m_cpResource.Reset();
@@ -76,6 +115,17 @@ namespace Engine::D3D12
 
 		// ステートの更新
 		m_currentState = a_nextState;
+	}
+	void GPUResource::AliasingBarrier(D3D12::GraphicsCommandList* a_pCmdList, GPUResource* a_pBeforeResource)
+	{
+		D3D12_RESOURCE_BARRIER _barrier = {};
+		_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_ALIASING;
+		_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+
+		_barrier.Aliasing.pResourceBefore = a_pBeforeResource ? a_pBeforeResource->GetResource() : nullptr;
+		_barrier.Aliasing.pResourceAfter = GetResource();
+
+		a_pCmdList->ResourceBarrier(1,&_barrier);
 	}
 	ID3D12Resource* GPUResource::GetResource() const
 	{

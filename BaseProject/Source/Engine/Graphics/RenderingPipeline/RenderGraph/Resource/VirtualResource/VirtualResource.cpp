@@ -2,6 +2,9 @@
 
 #include "../../../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
+// 占有サイズの見積もりと実体の生成で、同じ仕様書を通すために要る
+#include "../../../../../Resource/Data/Texture/IO/Creater/TextureCreater.h"
+
 namespace Engine::Graphics::Pipeline
 {
 	void VirtualResource::SetupFromOutputSlot(const Slot& a_slot, UINT64 a_baseWidth, UINT a_baseHeight)
@@ -187,6 +190,30 @@ namespace Engine::Graphics::Pipeline
 		return (m_usage & a_usage) != Resource::TextureUsage::None;
 	}
 
+	// 実体を作るときの要件を、テクスチャ生成の宣言へ落とす。
+	//
+	// 見積もり(CalcAllocationSize)も生成(PhysicalResource::Create)も必ずここを通す。
+	// 別々に組むと、片方だけ直したときに見積もりと実体が静かにずれる
+	Resource::TextureCreateDesc VirtualResource::ToTextureCreateDesc() const
+	{
+		Resource::TextureCreateDesc _desc = {};
+		_desc.name = m_name;
+		_desc.width = m_width;
+		_desc.height = m_height;
+		_desc.format = m_format;
+		_desc.usage = m_usage;
+
+		// RTV / DSV はクリアバリューを作成時に渡しておかないと、
+		// クリアのたびにドライバ側で最適化が効かず警告も出る
+		if (HasUsage(Resource::TextureUsage::RTV) ||
+			HasUsage(Resource::TextureUsage::DSV))
+		{
+			_desc.opClerValue = m_clearColor;
+		}
+
+		return _desc;
+	}
+
 	void VirtualResource::CalcAllocationSize()
 	{
 		m_allocationSize = 0;
@@ -198,28 +225,23 @@ namespace Engine::Graphics::Pipeline
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 		if (!_pDevice) return;
 
+		//----------------------------------------------------------------------------------
+		// 見積もりに渡す仕様書は、実体を作るときのものと一字一句同じでないといけない。
+		// 食い違うと、確保した席にリソースが収まらない
+		//----------------------------------------------------------------------------------
 		D3D12_RESOURCE_DESC _desc = {};
-		_desc.Alignment = 0;
-		_desc.DepthOrArraySize = 1;
-		_desc.MipLevels = 1;
-		_desc.SampleDesc.Count = 1;
-		_desc.SampleDesc.Quality = 0;
 
 		if (IsBuffer())
 		{
 			// まだサイズが決まっていない : 決まってから出し直される
 			if (m_width == 0) return;
 
-			_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-			_desc.Width = m_width;			// width にバイト数が入っている
-			_desc.Height = 1;
-			_desc.Format = DXGI_FORMAT_UNKNOWN;
-			_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-			// PhysicalResource::Create が立てるフラグに合わせる
-			_desc.Flags = HasUsage(Resource::TextureUsage::UAV)
-				? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
-				: D3D12_RESOURCE_FLAG_NONE;
+			// GPUBuffer::Create が組むものに合わせる(width にバイト数が入っている)
+			_desc = CD3DX12_RESOURCE_DESC::Buffer(
+				m_width,
+				HasUsage(Resource::TextureUsage::UAV)
+					? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
+					: D3D12_RESOURCE_FLAG_NONE);
 		}
 		else
 		{
@@ -227,15 +249,9 @@ namespace Engine::Graphics::Pipeline
 			if (m_width == 0 || m_height == 0) return;
 			if (m_format == DXGI_FORMAT_UNKNOWN) return;
 
-			_desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-			_desc.Width = m_width;
-			_desc.Height = m_height;
-			_desc.Format = m_format;
-			_desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-
-			// 用途フラグは詰み方と大きさを変える。
-			// 実際に作るときと同じものを渡さないと、見積もりが実体とずれる
-			_desc.Flags = Resource::GetResourceFlags(m_usage);
+			// 実体を作るときと同じ宣言から起こす。
+			// 用途フラグは詰み方と大きさを変えるので、ここを別に組んではいけない
+			_desc = Resource::BuildTextureResourceDesc(ToTextureCreateDesc());
 		}
 
 		D3D12_RESOURCE_ALLOCATION_INFO _info = _pDevice->GetResourceAllocationInfo(0,1,&_desc);

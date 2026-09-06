@@ -51,6 +51,17 @@ namespace Engine::Resource
 		void Create(IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,TextureUsage a_texUsage = TextureUsage::RTV);
 
 		/// <summary>
+		/// 指定のヒープ上に作成する(placed)
+		/// </summary>
+		/// <remarks>
+		/// 中身は committed 版とまったく同じで、実体をどこに置くかだけが違う。
+		/// 席は呼び手が確保しておくこと。
+		/// 大きさと詰め方は BuildTextureResourceDesc() から起こした仕様書を
+		/// GetResourceAllocationInfo へ渡して求める : 同じ仕様書でないと席に収まらない
+		/// </remarks>
+		void Create(ID3D12Heap* a_pHeap,UINT64 a_heapOffset,const TextureCreateDesc& a_desc);
+
+		/// <summary>
 		/// 元のPNGなどのパスを基準に横にDDSテクスチャを作成する
 		/// </summary>
 		void Save(const std::string& a_srcPath);
@@ -70,6 +81,10 @@ namespace Engine::Resource
 		const DXSM::Color& GetClearColor() { return m_clearValue; }
 
 	private:
+
+		// 実体が出来たあとの共通処理 : 要件の控え・デバッグ名・ビューの登録。
+		// committed / placed のどちらから来ても同じでないといけないので1箇所に寄せる
+		void SetupFromDesc(const TextureCreateDesc& a_desc);
 
 		// ビューの作成
 		void CreateView();

@@ -1,4 +1,4 @@
-#include "AliasingReport.h"
+﻿#include "AliasingReport.h"
 
 #include "../RenderGraph.h"
 #include "../Resource/ResourceAllocator.h"
@@ -63,6 +63,7 @@ namespace Engine::Graphics::Pipeline
 		for (const VirtualResource& _virtual : a_graph.GetVirtualResources())
 		{
 			const AllocationInfo& _info = _virtual.GetAllocationInfo();
+			const auto _pVRes = a_graph.GetVirtualResource(_info.prevVResID);
 
 			AliasingReportEntry _entry = {};
 			_entry.resourceID = _virtual.GetResourceID();
@@ -91,10 +92,10 @@ namespace Engine::Graphics::Pipeline
 			}
 
 			// 直前にこの席を使っていたリソース : エイリアシングバリアの before と同じもの
-			if (_info.pPrevVRes)
+			if (_info.prevVResID.IsValid())
 			{
-				_entry.prevResourceID = _info.pPrevVRes->GetResourceID();
-				_entry.prevName = _info.pPrevVRes->GetName();
+				_entry.prevResourceID = _info.prevVResID;
+				_entry.prevName = _pVRes->GetName();
 			}
 
 			// 席が実際にどこまで使われたか

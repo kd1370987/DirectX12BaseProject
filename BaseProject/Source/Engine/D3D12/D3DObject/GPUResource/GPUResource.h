@@ -28,13 +28,25 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(GPUResource);
 
 		// 作成
-		bool Create(D3D12::Device* pDevice ,const GPUResourceDesc& a_desc);
+		bool Create(D3D12::Device* a_pDevice ,const GPUResourceDesc& a_desc);
+
+		// 指定のヒープ上に作成する(placed)
+		//
+		// a_resDesc は、その席を確保したときに GetResourceAllocationInfo へ渡したものと
+		// 同じでなければならない。食い違うと確保した席に収まらない。
+		//
+		// a_pClearValue は RTV / DSV のときだけ渡す(バッファは必ず nullptr)。
+		// 渡さないとクリアのたびにドライバ側で最適化が効かず警告も出る
+		bool Create(D3D12::Device* a_pDevice,ID3D12Heap* a_pHeap, uint64_t a_heapOffset,const D3D12_RESOURCE_DESC& a_resDesc,D3D12_RESOURCE_STATES a_initialState,size_t a_strideSize,size_t a_elementNum,const D3D12_CLEAR_VALUE* a_pClearValue = nullptr);
 
 		// 解放
 		virtual void Release();
 
 		// ステート遷移
 		virtual void Barrier(D3D12::GraphicsCommandList* a_pCmdList,D3D12_RESOURCE_STATES a_nextState);
+
+		// エイリアシングバリア
+		void AliasingBarrier(D3D12::GraphicsCommandList* a_pCmdList, GPUResource* a_pBeforeResource);
 
 		// アクセサ
 		virtual ID3D12Resource* GetResource() const;

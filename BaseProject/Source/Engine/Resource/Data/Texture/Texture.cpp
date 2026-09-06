@@ -54,22 +54,28 @@ namespace Engine::Resource
 
 	void Engine::Resource::Texture::Create(const TextureCreateDesc& a_desc)
 	{
-		// リソース作成 : GPUリソースの作成は使っていない
-		m_cpResource = Engine::Resource::CreateTexture(a_desc, &m_desc);
-		m_currentState = D3D12_RESOURCE_STATE_COMMON;
+		// デバイスの取得
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
 
-		m_cpResource.Get()->SetName(Engine::String::ToWideString(a_desc.name).c_str());
+		// 仕様書とクリアバリューを組む : 組むのは Creater の役
+		m_desc = BuildTextureResourceDesc(a_desc);
+		std::optional<D3D12_CLEAR_VALUE> _opClearValue = BuildTextureClearValue(a_desc, m_desc);
 
-		// 変数保存
-		m_name = a_desc.name;
-		m_useFlg = a_desc.usage;
-		m_srvComponentMapping = a_desc.srvComponentMapping;
-		if (a_desc.opClerValue.has_value())
-		{
-			m_clearValue = a_desc.opClerValue.value();
-		}
-		// ビューの登録
-		CreateView();
+		// GPUリソースDesc作成
+		D3D12::GPUResourceDesc _resourceDesc = {};
+		_resourceDesc.heapType		= D3D12_HEAP_TYPE_DEFAULT;
+		_resourceDesc.resourceDesc	= m_desc;
+		_resourceDesc.farstState	= D3D12_RESOURCE_STATE_COMMON;
+		_resourceDesc.format		= a_desc.format;
+		_resourceDesc.pClearValue	= _opClearValue.has_value() ? &_opClearValue.value() : nullptr;
+
+		// テクスチャに要素数の概念は無いので、strideSize / elementNum は 0 のまま
+
+		// リソース作成 : 実体・ステート・フォーマットは基底が面倒を見る
+		if (!GPUResource::Create(_pDevice, _resourceDesc)) return;
+
+		SetupFromDesc(a_desc);
 	}
 
 	void Texture::Create(IDXGISwapChain* a_pSwapChain, UINT a_backBufferIndex, TextureUsage a_texUsage)
@@ -87,6 +93,55 @@ namespace Engine::Resource
 		// メンバ作成
 		m_name = _name;
 		m_useFlg = a_texUsage;
+		CreateView();
+	}
+
+	void Texture::Create(ID3D12Heap* a_pHeap, UINT64 a_heapOffset, const TextureCreateDesc& a_desc)
+	{
+		// デバイスの取得
+		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
+
+		// 仕様書とクリアバリューを組む。
+		// 席を確保したときの見積もりと同じものでなければ収まらないので、
+		// committed 版とまったく同じ経路を通す
+		m_desc = BuildTextureResourceDesc(a_desc);
+		std::optional<D3D12_CLEAR_VALUE> _opClearValue = BuildTextureClearValue(a_desc, m_desc);
+
+		// リソース作成 : 置き場所だけが committed 版との違い。
+		// テクスチャに要素数の概念は無いので strideSize / elementNum は 0
+		const bool _isSuccess = GPUResource::Create(
+			_pDevice,
+			a_pHeap,
+			a_heapOffset,
+			m_desc,
+			D3D12_RESOURCE_STATE_COMMON,
+			0,
+			0,
+			_opClearValue.has_value() ? &_opClearValue.value() : nullptr
+		);
+		if (!_isSuccess) return;
+
+		SetupFromDesc(a_desc);
+	}
+
+	// 実体が出来たあとの共通処理。
+	// committed / placed で食い違うと、置き場所を変えただけで絵が変わることになる
+	void Texture::SetupFromDesc(const TextureCreateDesc& a_desc)
+	{
+		// 変数保存
+		m_name = a_desc.name;
+		m_useFlg = a_desc.usage;
+		m_srvComponentMapping = a_desc.srvComponentMapping;
+		if (a_desc.opClerValue.has_value())
+		{
+			m_clearValue = a_desc.opClerValue.value();
+		}
+
+		// 基底が付けた通し番号の名前を、こちらの名前で上書きする
+		m_cpResource->SetName(Engine::String::ToWideString(m_name).c_str());
+
+		// ビューの登録
 		CreateView();
 	}
 

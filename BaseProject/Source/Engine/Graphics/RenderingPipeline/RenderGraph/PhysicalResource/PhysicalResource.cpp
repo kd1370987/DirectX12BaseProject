@@ -5,7 +5,33 @@
 
 namespace Engine::Graphics::Pipeline
 {
-	bool PhysicalResource::Create(D3D12::Device* a_pDevice, const VirtualResource& a_virtual)
+	bool PhysicalResource::ResolvePlacement(const VirtualResource& a_virtual, ID3D12Heap* a_pHeap, uint64_t* a_pOutOffset)
+	{
+		if (a_pOutOffset) *a_pOutOffset = 0;
+
+		// ヒープが用意できていない(サイズ0・Tier1・作成失敗)
+		if (!a_pHeap) return false;
+
+		// 外部リソースの実体はグラフの外の持ち物
+		if (a_virtual.IsImported()) return false;
+
+		// バッファはまだ placed の口が無い(GPUBuffer 側が未対応)。
+		// 今のところグラフにバッファのスロットを宣言するパスは無い
+		if (a_virtual.IsBuffer()) return false;
+
+		// 席に着いていないものは実体を独り占めするので、個別に作る。
+		// (履歴つき・配線から外れたもの)
+		const AllocationInfo& _info = a_virtual.GetAllocationInfo();
+		if (_info.slotIndex == AllocationInfo::INVALID_SLOT_INDEX) return false;
+
+		// 大きさを見積もれていないなら席の大きさも 0 なので、置いても収まらない
+		if (a_virtual.GetAllocationSize() == 0) return false;
+
+		if (a_pOutOffset) *a_pOutOffset = _info.offset;
+		return true;
+	}
+
+	bool PhysicalResource::Create(D3D12::Device* a_pDevice, const VirtualResource& a_virtual, ID3D12Heap* a_pHeap)
 	{
 		// 作り直しなので、前の実体はここで手放す
 		Release();
@@ -68,22 +94,33 @@ namespace Engine::Graphics::Pipeline
 
 		m_upTexture = std::make_unique<Resource::Texture>();
 
-		Resource::TextureCreateDesc _desc = {};
-		_desc.name = a_virtual.GetName();
-		_desc.width = m_width;
-		_desc.height = m_height;
-		_desc.format = m_format;
-		_desc.usage = m_usage;
+		// 宣言は仮想リソースが持つ。
+		// 占有サイズの見積もり(CalcAllocationSize)と同じものを通さないと、
+		// 確保した席にリソースが収まらない
+		const Resource::TextureCreateDesc _texDesc = a_virtual.ToTextureCreateDesc();
 
-		// RTV / DSV はクリアバリューを作成時に渡しておかないと、
-		// クリアのたびにドライバ側で最適化が効かず警告も出る
-		if (a_virtual.HasUsage(Resource::TextureUsage::RTV) ||
-			a_virtual.HasUsage(Resource::TextureUsage::DSV))
+		uint64_t _heapOffset = 0;
+		if (ResolvePlacement(a_virtual, a_pHeap, &_heapOffset))
 		{
-			_desc.opClerValue = a_virtual.GetClearColor();
-		}
+			m_upTexture->Create(a_pHeap, _heapOffset, _texDesc);
 
-		m_upTexture->Create(_desc);
+			// 置けたときだけ場所を覚える。
+			// 失敗したまま覚えると、次の IsMatch が空の実体を使い回してしまう
+			if (!m_upTexture->GetResource())
+			{
+				ENGINE_WARNING("[PhysicalResource] ヒープ上に置けませんでした : %s (offset=%llu)",
+					a_virtual.GetName().c_str(), _heapOffset);
+				m_upTexture.reset();
+				return false;
+			}
+
+			m_pHeap = a_pHeap;
+			m_heapOffset = _heapOffset;
+		}
+		else
+		{
+			m_upTexture->Create(_texDesc);
+		}
 
 		m_pResource = m_upTexture.get();
 		return true;
@@ -98,7 +135,7 @@ namespace Engine::Graphics::Pipeline
 		m_pResource = a_pResource;
 	}
 
-	bool PhysicalResource::IsMatch(const VirtualResource& a_virtual) const
+	bool PhysicalResource::IsMatch(const VirtualResource& a_virtual, ID3D12Heap* a_pHeap) const
 	{
 		// 実体を持っていなければ作るしかない
 		if (!m_pResource) return false;
@@ -108,6 +145,19 @@ namespace Engine::Graphics::Pipeline
 
 		// 外部参照なら中身はこちらの管轄外
 		if (m_isOutsideResource) return true;
+
+		//----------------------------------------------------------------------------------
+		// 置き場所
+		//
+		// 席は再コンパイルのたびに動くので、フォーマットも大きさも同じなのに
+		// 別の場所を指したままになることがある。
+		// ここを見ないと、古い場所に置いたままの実体を使い回してしまう
+		//----------------------------------------------------------------------------------
+		uint64_t _heapOffset = 0;
+		const bool _isPlaced = ResolvePlacement(a_virtual, a_pHeap, &_heapOffset);
+
+		if (_isPlaced != IsPlaced()) return false;
+		if (_isPlaced && (m_pHeap != a_pHeap || m_heapOffset != _heapOffset)) return false;
 
 		if (m_isBuffer != a_virtual.IsBuffer()) return false;
 
@@ -140,6 +190,10 @@ namespace Engine::Graphics::Pipeline
 		m_pResource = nullptr;
 		m_isOutsideResource = false;
 		m_isBuffer = false;
+
+		// 置き場所も忘れる : 覚えたままだと IsMatch が古い場所と比べてしまう
+		m_pHeap = nullptr;
+		m_heapOffset = 0;
 
 		m_format = DXGI_FORMAT_UNKNOWN;
 		m_width = 0;

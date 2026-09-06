@@ -471,6 +471,19 @@ namespace Engine::Graphics::Pipeline
 
 	bool RenderGraph::AllocateResources(GraphicsEngine* a_pGraphicsEngine, D3D12::Device* a_pDevice)
 	{
+		//----------------------------------------------------------------------------------
+		// ヒープの用意
+		//
+		// どの席へ置くかと必要な大きさは Compile() で出ている。
+		// 用意できなければ IsValid() が false になり、各リソースを個別に作ることになる
+		//----------------------------------------------------------------------------------
+		if (!m_upGraphHeap) m_upGraphHeap = std::make_unique<GraphHeap>();
+		m_upGraphHeap->Create(a_pDevice, m_upResourceAllocator->GetMaxHeapSize());
+
+		// 席に着いたものはこのヒープへ置く。
+		// 用意できていなければ nullptr が渡り、全部を個別に作る形に戻る
+		ID3D12Heap* _pGraphHeap = m_upGraphHeap->IsValid() ? m_upGraphHeap->RefHeap() : nullptr;
+
 		// Temporal は物理を2枚使うので、必要な枚数を先に数える
 		size_t _requiredCount = 0;
 		for (const VirtualResource& _virtual : m_upResourceRegistry->GetVirtualResources())
@@ -530,10 +543,11 @@ namespace Engine::Graphics::Pipeline
 				PhysicalResource* _pSlicePhysical = m_physicalResourceVec[_selfIndex + _slice].get();
 				if (!_pSlicePhysical) continue;
 
-				// 要件が変わっていなければ前フレームの実体をそのまま使う
-				if (!_pSlicePhysical->IsMatch(_virtual))
+				// 要件が変わっていなければ前フレームの実体をそのまま使う。
+				// 置き場所が動いたときもここで false になる
+				if (!_pSlicePhysical->IsMatch(_virtual, _pGraphHeap))
 				{
-					if (!_pSlicePhysical->Create(a_pDevice, _virtual))
+					if (!_pSlicePhysical->Create(a_pDevice, _virtual, _pGraphHeap))
 					{
 						_isSuccess = false;
 						continue;
@@ -580,8 +594,13 @@ namespace Engine::Graphics::Pipeline
 		for (CompiledPass& _compiledPass : m_compilePasses)
 		{
 			_compiledPass.preBarriers.clear();
+			_compiledPass.preAliasingBarriers.clear();
 		}
 		m_endBarriers.clear();
+
+		// 実体を全部手放したあとでヒープを捨てる。
+		// 置いたリソースがヒープの参照を握っているので、この順でないと意味がない
+		if (m_upGraphHeap) m_upGraphHeap->Release();
 	}
 
 	// 仮想リソースは Compile のたびに組み直されるので、
@@ -925,8 +944,6 @@ namespace Engine::Graphics::Pipeline
 	// ここは結果を受け取って自分のコンパイル済みデータへ移すだけにする
 	bool RenderGraph::Compile()
 	{
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
-
 		// 失敗しても中途半端な状態で走らせないよう、先に捨てておく
 		ClearCompiledData();
 
@@ -942,17 +959,18 @@ namespace Engine::Graphics::Pipeline
 		// 占有サイズは仮想リソースが要件を受け取った時点で出ているので、
 		// ここで計算し直す必要はない
 
-		// 仮想リソースがすべて出来上がったのでヒープを作成する
-		// アロケーターでヒープ作成情報を作成
+		// 仮想リソースがすべて出来上がったので、どの席へ置くかを決める。
+		// 必要なヒープの大きさもここで出る
 		if (!m_upResourceAllocator) m_upResourceAllocator = std::make_unique<ResourceAllocator>();
 		m_upResourceAllocator->CalcAllocation(m_upResourceRegistry->RefVirtualResources());
 
 		// エイリアシングバリアを作成
 		_rg.BuildAliasingBarriers(m_compilePasses);
 
-		// ヒープ作成
-		if (!m_upGraphHeap) m_upGraphHeap = std::make_unique<GraphHeap>();
-		m_upGraphHeap->Create(_pDevice,m_upResourceAllocator->GetMaxHeapSize());
+		// ヒープの実体はここでは作らない。
+		// この関数はGPUに触らない約束(設計図側のグラフもここを通るので、
+		// 作ると使いもしないヒープをエディターが抱え込む)。
+		// 実体は AllocateResources() で用意する
 
 		// 各パスの Compile() はここでは呼ばない。
 		// 物理リソースが決まってからでないとディスクリプタを引けないので、
@@ -990,6 +1008,18 @@ namespace Engine::Graphics::Pipeline
 
 		for (CompiledPass& _compiledPass : m_compilePasses)
 		{
+			// ---- エイリアシングバリア ----
+			//for (const auto& _barrier : _compiledPass.preAliasingBarriers)
+			//{
+			//	// ResourceID から実際のリソースへ解決
+			//	D3D12::GPUResource* _pBefore = RefGPUResource(_barrier.before, _parity);
+			//	D3D12::GPUResource* _pAfter = RefGPUResource(_barrier.after, _parity);
+
+			//	if (!_pAfter) continue;
+
+			//	_pAfter->AliasingBarrier(_pCmdList,_pBefore);
+			//}
+
 			// ---- バリア ----
 			// UAVバリアは既存グラフと同じく今は張らない(状態遷移のみ)
 			for (const ResourceBarrier& _barrier : _compiledPass.preBarriers)

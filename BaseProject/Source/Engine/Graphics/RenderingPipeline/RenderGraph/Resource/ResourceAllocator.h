@@ -1,4 +1,7 @@
 ﻿#pragma once
+
+#include "../../Core/ResourceID.h"
+
 namespace Engine::Graphics::Pipeline
 {
 	class VirtualResource;
@@ -15,7 +18,7 @@ namespace Engine::Graphics::Pipeline
 		// このスロットを最後に使用したVirtualResuorceの終了パス
 		uint32_t lastPassIndex = 0;
 
-		VirtualResource* pLastResource = nullptr;
+		ResourceID lastResourceID;
 	};
 
 	/// <summary>
@@ -31,6 +34,21 @@ namespace Engine::Graphics::Pipeline
 		/// <param name="a_virtualResources"></param>
 		void CalcAllocation(std::vector<VirtualResource>& a_virtualResources);
 
+		//----------------------------------------------------------------------------------
+		// 席の使い回しをするか(デバッグ用の切り替え)
+		//
+		// 切ると 1リソース = 1席になる。実体はヒープ上に置かれたまま(placed)だが、
+		// 生存区間が重ならないもの同士でも席を分け合わないので、絵は使い回し前と同じになる。
+		//
+		// 絵がおかしいときにここを切って直れば原因は使い回し側、
+		// 切っても直らなければ置き場所(placed)側、と切り分けられる。
+		// 移行が終わっても残しておく価値がある
+		//
+		// 全グラフに効く。切り替えたら Compile からやり直すこと
+		//----------------------------------------------------------------------------------
+		static void SetAliasingEnabled(bool a_isEnabled) { s_isAliasingEnabled = a_isEnabled; }
+		static bool IsAliasingEnabled() { return s_isAliasingEnabled; }
+
 		// ヒープの定義取得
 		uint32_t GetMaxUageSlot() const { return m_maxUageSlot; }
 		uint64_t GetMaxHeapSize() const { return m_maxHeapSize; }
@@ -43,5 +61,9 @@ namespace Engine::Graphics::Pipeline
 		std::vector<AllocationSlot> m_slots;
 		uint32_t m_maxUageSlot = 0;
 		uint64_t m_maxHeapSize = 0;
+
+		// 既定は切っておく。
+		// まず placed だけを通して絵が変わらないことを確かめてから入れる
+		inline static bool s_isAliasingEnabled = false;
 	};
 }
