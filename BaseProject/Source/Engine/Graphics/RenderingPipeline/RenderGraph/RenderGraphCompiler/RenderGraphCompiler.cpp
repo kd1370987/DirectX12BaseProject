@@ -512,7 +512,7 @@ namespace Engine::Graphics::Pipeline
 		// 次のフレームで before が食い違ってバリアが張られなくなる
 		for (VirtualResource& _vRes : _pResRegistry->RefVirtualResources())
 		{
-			const uint32_t _sliceCount = _vRes.GetPhysicalCount();
+			const uint32_t _sliceCount = _vRes.GetEntityCount();
 			for (uint32_t _slice = 0; _slice < _sliceCount; ++_slice)
 			{
 				const D3D12_RESOURCE_STATES _before = _vRes.GetCurrentState(_slice);

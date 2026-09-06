@@ -6,7 +6,6 @@
 #include "../Core/Pass/Pass.h"
 #include "Resource/ResourceRegistry.h"
 #include "Resource/ResourceAllocator.h"
-#include "PhysicalResource/PhysicalResource.h"
 #include "GraphHeap/GraphHeap.h"
 
 // 実行時に触るもの
@@ -484,46 +483,19 @@ namespace Engine::Graphics::Pipeline
 		// 用意できていなければ nullptr が渡り、全部を個別に作る形に戻る
 		ID3D12Heap* _pGraphHeap = m_upGraphHeap->IsValid() ? m_upGraphHeap->RefHeap() : nullptr;
 
-		// Temporal は物理を2枚使うので、必要な枚数を先に数える
-		size_t _requiredCount = 0;
-		for (const VirtualResource& _virtual : m_upResourceRegistry->GetVirtualResources())
-		{
-			_requiredCount += _virtual.GetPhysicalCount();
-		}
-
-		while (m_physicalResourceVec.size() < _requiredCount)
-		{
-			m_physicalResourceVec.push_back(std::make_unique<PhysicalResource>());
-		}
-
-		// 減ったぶんは実体を手放してから切り詰める
-		for (size_t _i = _requiredCount; _i < m_physicalResourceVec.size(); ++_i)
-		{
-			if (m_physicalResourceVec[_i]) m_physicalResourceVec[_i]->Release();
-		}
-		m_physicalResourceVec.resize(_requiredCount);
-
+		//----------------------------------------------------------------------------------
+		// 実体を作る
+		//
+		// 仮想リソースはコンパイルのたびに組み直されるので、実体は必ず新品になる。
+		// 「要件が同じなら前のものを使い回す」判定はもう要らない
+		//----------------------------------------------------------------------------------
 		bool _isSuccess = true;
-		size_t _physicalCursor = 0;
 		for (VirtualResource& _virtual : m_upResourceRegistry->RefVirtualResources())
 		{
-			// この仮想リソースが使う物理の席を確保する
-			const uint32_t _sliceCount = _virtual.GetPhysicalCount();
-			for (uint32_t _slice = 0; _slice < _sliceCount; ++_slice)
-			{
-				_virtual.SetPhysicalIndex(static_cast<uint32_t>(_physicalCursor + _slice), _slice);
-			}
-			if (_sliceCount == 1) _virtual.SetPhysicalIndex(static_cast<uint32_t>(_physicalCursor), 1);
-
-			PhysicalResource* _pPhysical = m_physicalResourceVec[_physicalCursor].get();
-			const size_t _selfIndex = _physicalCursor;
-			_physicalCursor += _sliceCount;
-
-			if (!_pPhysical) continue;
-
 			if (_virtual.IsImported())
 			{
-				// 外部リソースは実体を作らず、参照だけもらい受ける
+				// 外部リソースは実体を作らず、参照だけもらい受ける。
+				// フレーム入口のステートも向こうが宣言した値のままにする
 				D3D12::GPUResource* _pExternal = m_upResourceRegistry->FindImportedResource(_virtual.GetName());
 
 				if (!_pExternal)
@@ -533,32 +505,23 @@ namespace Engine::Graphics::Pipeline
 					continue;
 				}
 
-				_pPhysical->Import(_pExternal);
+				_virtual.ImportEntity(_pExternal);
 				continue;
 			}
 
-			// Temporal のぶんも含めて、必要な枚数だけ作る
-			for (uint32_t _slice = 0; _slice < _sliceCount; ++_slice)
+			if (!_virtual.CreateEntity(a_pDevice, _pGraphHeap))
 			{
-				PhysicalResource* _pSlicePhysical = m_physicalResourceVec[_selfIndex + _slice].get();
-				if (!_pSlicePhysical) continue;
+				_isSuccess = false;
+				continue;
+			}
 
-				// 要件が変わっていなければ前フレームの実体をそのまま使う。
-				// 置き場所が動いたときもここで false になる
-				if (!_pSlicePhysical->IsMatch(_virtual, _pGraphHeap))
-				{
-					if (!_pSlicePhysical->Create(a_pDevice, _virtual, _pGraphHeap))
-					{
-						_isSuccess = false;
-						continue;
-					}
+			// 作りたてなので、1フレーム目に中身を読まれないようクリアしておく
+			if (_virtual.IsTemporal()) m_isTemporalClearPending = true;
 
-					// 作り直したので、1フレーム目に中身を読まれないようクリアしておく
-					if (_virtual.IsTemporal()) m_isTemporalClearPending = true;
-				}
-
-				// 生成直後のステートがフレーム入口のステートになる(バリアの起点)
-				if (D3D12::GPUResource* _pRes = _pSlicePhysical->RefResource())
+			// 生成直後のステートがフレーム入口のステートになる(バリアの起点)
+			for (uint32_t _slice = 0; _slice < _virtual.GetEntityCount(); ++_slice)
+			{
+				if (D3D12::GPUResource* _pRes = _virtual.RefEntity(_slice))
 				{
 					_virtual.SetInitialState(_pRes->GetState(), _slice);
 				}
@@ -581,11 +544,12 @@ namespace Engine::Graphics::Pipeline
 
 	void RenderGraph::ReleaseResources()
 	{
-		for (auto& _upPhysical : m_physicalResourceVec)
+		// 実体は仮想リソースが持っているので、捨てる前にディスクリプタごと返させる。
+		// (配列を捨てるだけでもデストラクタが通るが、順番を目に見える形にしておく)
+		for (VirtualResource& _virtual : m_upResourceRegistry->RefVirtualResources())
 		{
-			if (_upPhysical) _upPhysical->Release();
+			_virtual.ReleaseEntity();
 		}
-		m_physicalResourceVec.clear();
 
 		// 外部リソースの控えは差し込んだ側の持ち物なので、ここで捨てるのは仮想リソースだけ
 		m_upResourceRegistry->ClearVirtualResources();
@@ -616,21 +580,10 @@ namespace Engine::Graphics::Pipeline
 		return m_upResourceRegistry->RefByID(a_resourceID);
 	}
 
-	PhysicalResource* RenderGraph::RefPhysicalResource(ResourceID a_resourceID, uint32_t a_slice) const
-	{
-		const VirtualResource* _pVirtual = GetVirtualResource(a_resourceID);
-		if (!_pVirtual) return nullptr;
-
-		const uint32_t _physicalIndex = _pVirtual->GetPhysicalIndex(a_slice);
-		if (_physicalIndex >= m_physicalResourceVec.size()) return nullptr;
-
-		return m_physicalResourceVec[_physicalIndex].get();
-	}
-
 	D3D12::GPUResource* RenderGraph::RefGPUResource(ResourceID a_resourceID, uint32_t a_slice) const
 	{
-		PhysicalResource* _pPhysical = RefPhysicalResource(a_resourceID, a_slice);
-		return _pPhysical ? _pPhysical->RefResource() : nullptr;
+		const VirtualResource* _pVirtual = GetVirtualResource(a_resourceID);
+		return _pVirtual ? _pVirtual->RefEntity(a_slice) : nullptr;
 	}
 
 	// スロットの向きと今のフレームの偶奇から、触るべき実体を決める
@@ -1130,7 +1083,7 @@ namespace Engine::Graphics::Pipeline
 
 			const ResourceID _resourceID = _virtual.GetResourceID();
 
-			for (uint32_t _slice = 0; _slice < _virtual.GetPhysicalCount(); ++_slice)
+			for (uint32_t _slice = 0; _slice < _virtual.GetEntityCount(); ++_slice)
 			{
 				D3D12::GPUResource* _pResource = RefGPUResource(_resourceID, _slice);
 				if (!_pResource) continue;

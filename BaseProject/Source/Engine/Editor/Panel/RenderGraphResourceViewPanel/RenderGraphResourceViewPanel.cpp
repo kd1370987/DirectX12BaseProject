@@ -258,7 +258,7 @@ namespace Engine::Editor
 		const Graphics::Pipeline::RenderGraph& a_graph, const Graphics::Pipeline::VirtualResource& a_resource)
 	{
 		const Graphics::Pipeline::ResourceID _resourceID = a_resource.GetResourceID();
-		const uint32_t _sliceCount = a_resource.GetPhysicalCount();
+		const uint32_t _sliceCount = a_resource.GetEntityCount();
 
 		for (uint32_t _slice = 0; _slice < _sliceCount; ++_slice)
 		{

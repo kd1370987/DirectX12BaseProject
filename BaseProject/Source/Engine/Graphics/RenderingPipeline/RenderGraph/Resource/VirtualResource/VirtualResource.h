@@ -48,7 +48,18 @@ namespace Engine::Graphics::Pipeline
 	public:
 
 		VirtualResource() = default;
-		~VirtualResource() = default;
+
+		// 実体を抱えるので、捨てるときにディスクリプタまで返す。
+		// ResourceRegistry はコンパイルのたびに配列ごと作り直すので、
+		// ここで返さないとハンドルが漏れ続ける
+		~VirtualResource();
+
+		// 実体を抱えるのでコピー禁止。
+		// 配列が再確保されるときはムーブで運ばれる
+		VirtualResource(const VirtualResource&) = delete;
+		VirtualResource& operator=(const VirtualResource&) = delete;
+		VirtualResource(VirtualResource&&) = default;
+		VirtualResource& operator=(VirtualResource&&) = default;
 
 		//----------------------------------------------------------------------------------
 		// 構築
@@ -110,8 +121,8 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		bool IsTemporal() const { return m_isTemporal; }
 
-		// 使う物理リソースの枚数
-		uint32_t GetPhysicalCount() const { return m_isTemporal ? 2u : 1u; }
+		// 使う実体の枚数
+		uint32_t GetEntityCount() const { return m_isTemporal ? 2u : 1u; }
 
 		// スロットから、どちらのスライスを触るかを決める。
 		//
@@ -144,16 +155,40 @@ namespace Engine::Graphics::Pipeline
 			m_currentState[1] = m_initialState[1];
 		}
 
-		// 割り当てられた物理リソースの添字。
-		// Temporal のときだけ [1] も使う。
-		// あとでエイリアシング(使い回し)を入れるときにここがずれる。
+		//----------------------------------------------------------------------------------
+		// 実体
 		//
-		// 指す先は RenderGraph が持つ物理リソース配列であって、仮想リソースの並びではない。
-		// 仮想リソース側の参照は ResourceID なので、番兵もこちらで持つ
-		static constexpr uint32_t INVALID_PHYSICAL_INDEX = static_cast<uint32_t>(-1);
+		// 仮想リソースが自分で抱える。以前は別クラス(PhysicalResource)の配列を
+		// 添字で指していたが、1対1にしかならないうえ、コンパイルのたびに
+		// 添字を張り直す必要があり、食い違いの温床になっていた。
+		//
+		// Temporal のときだけ [1] も使う。
+		// 外部から差し込まれたものは実体を持たず、向こうの実体を指すだけ
+		//----------------------------------------------------------------------------------
+		// 要件どおりに実体を作る。
+		// a_pHeap を渡すと、席に着いているものはその上へ置く(placed)
+		bool CreateEntity(D3D12::Device* a_pDevice, ID3D12Heap* a_pHeap);
 
-		uint32_t GetPhysicalIndex(uint32_t a_slice = 0) const { return m_physicalIndex[a_slice & 1]; }
-		void SetPhysicalIndex(uint32_t a_index, uint32_t a_slice = 0) { m_physicalIndex[a_slice & 1] = a_index; }
+		// 外部で作られた実体を参照するだけ(こちらは持たない)
+		void ImportEntity(D3D12::GPUResource* a_pResource);
+
+		// 実体とディスクリプタを手放す。
+		// DescriptorHeapManager の解放より前に通すこと
+		void ReleaseEntity();
+
+		// 割り当てられた実体 : まだ作っていなければ nullptr。
+		//
+		// 履歴つきでなければ実体は1枚しかないので、どちらのスライスを聞かれても同じものを返す。
+		// ここで素直に [1] を返すと、呼び手が IsTemporal() を見忘れたときだけ
+		// 静かに nullptr になり、バリアが1本抜けるような形で出る
+		D3D12::GPUResource* RefEntity(uint32_t a_slice = 0) const
+		{
+			return m_entity[m_isTemporal ? (a_slice & 1) : 0].pResource;
+		}
+
+		// ヒープ上に置けたか。
+		// AllocationInfo が言う「置くつもりだったか」とは別で、こちらは結果
+		bool IsPlaced() const { return m_isPlaced; }
 
 		//----------------------------------------------------------------------------------
 		// 生存区間
@@ -264,6 +299,23 @@ namespace Engine::Graphics::Pipeline
 		// 土台がまだ無ければ何もしない(サイズを決められないだけで、異常ではない)
 		void ResolveSizeAndAllocation();
 
+		// 実体をヒープ上へ置くか。置くなら a_pOutOffset にヒープ内の位置が入る
+		bool ResolvePlacement(ID3D12Heap* a_pHeap, uint64_t* a_pOutOffset) const;
+
+		//----------------------------------------------------------------------------------
+		// 実体1枚ぶん
+		//
+		// 自前で作ったときは upTexture / upBuffer のどちらかが実体を抱え、
+		// pResource はそれを指す。
+		// 外部から差し込まれたときは pResource だけが向こうの実体を指す
+		//----------------------------------------------------------------------------------
+		struct Entity
+		{
+			std::unique_ptr<Resource::Texture> upTexture = nullptr;
+			std::unique_ptr<D3D12::GPUBuffer> upBuffer = nullptr;
+			D3D12::GPUResource* pResource = nullptr;
+		};
+
 		// リソーステクスチャの作成情報
 		//
 		// m_resourceID が同一性。m_name は表示用のラベルでしかないので、
@@ -312,8 +364,13 @@ namespace Engine::Graphics::Pipeline
 		D3D12_RESOURCE_STATES m_initialState[2] = { D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COMMON };
 		D3D12_RESOURCE_STATES m_currentState[2] = { D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COMMON };
 
-		// --- 物理リソースとの紐付け ---
-		uint32_t m_physicalIndex[2] = { INVALID_PHYSICAL_INDEX, INVALID_PHYSICAL_INDEX };
+		// --- 実体 ---
+		// [0]=Current / [1]=Previous。Temporal でなければ [0] だけ使う
+		Entity m_entity[2] = {};
+
+		// 実際にヒープ上へ置けたか(置いた場所は AllocationInfo が持つ)
+		bool m_isPlaced = false;
+
 		AllocationInfo m_allocationInfo = {};
 
 		// --- 生存区間(実行順の添字) ---

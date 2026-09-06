@@ -1,6 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit">
+      <UniqueIdentifier>{92a28953-5ff5-4e10-8786-c4d41c64eb19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\ImGui\ImNode\Core">
+      <UniqueIdentifier>{4d9661c1-b679-491a-864b-66af3fb9a86e}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Diagnostics">
       <UniqueIdentifier>{a7f3c9d2-4b81-4e6a-9c15-8d2e7f0b3a64}</UniqueIdentifier>
     </Filter>
@@ -1567,9 +1573,6 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource">
       <UniqueIdentifier>{12131d21-65ac-4ac2-955a-0d7bfa370add}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource">
-      <UniqueIdentifier>{13de0e27-cbb7-441d-a7d7-aef2ae4254eb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass">
       <UniqueIdentifier>{3a2101f9-c5da-48e9-a89b-f21d0c768d2c}</UniqueIdentifier>
     </Filter>
@@ -1605,6 +1608,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.cpp">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.cpp">
+      <Filter>Source\Engine\Editor\ImGui\ImNode\Core</Filter>
+    </ClCompile>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
       <Filter>Library\Include\ImGuizmo-master</Filter>
     </ClCompile>
@@ -2694,9 +2703,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.cpp">
-      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
     </ClCompile>
@@ -2723,6 +2729,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.h">
+      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.h">
+      <Filter>Source\Engine\Editor\ImGui\ImNode\Core</Filter>
+    </ClInclude>
     <ClInclude Include="..\Library\Include\ImGuizmo-master\ImGuizmo.h">
       <Filter>Library\Include\ImGuizmo-master</Filter>
     </ClInclude>
@@ -4360,9 +4372,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.h">
-      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>

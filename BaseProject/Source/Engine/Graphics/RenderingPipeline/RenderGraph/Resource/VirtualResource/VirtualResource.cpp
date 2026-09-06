@@ -37,9 +37,6 @@ namespace Engine::Graphics::Pipeline
 		m_initialState[1] = D3D12_RESOURCE_STATE_COMMON;
 		ResetStateToInitial();
 
-		m_physicalIndex[0] = INVALID_PHYSICAL_INDEX;
-		m_physicalIndex[1] = INVALID_PHYSICAL_INDEX;
-
 		// 区間は実行順が決まってから RenderGraph が入れる
 		ResetLifetime();
 
@@ -83,9 +80,6 @@ namespace Engine::Graphics::Pipeline
 		m_initialState[0] = a_initialState;
 		m_initialState[1] = a_initialState;
 		ResetStateToInitial();
-
-		m_physicalIndex[0] = INVALID_PHYSICAL_INDEX;
-		m_physicalIndex[1] = INVALID_PHYSICAL_INDEX;
 
 		// 区間は実行順が決まってから RenderGraph が入れる。
 		// 外部リソースは使い回せないが、どこで触られているかは同じように分かる
@@ -192,7 +186,7 @@ namespace Engine::Graphics::Pipeline
 
 	// 実体を作るときの要件を、テクスチャ生成の宣言へ落とす。
 	//
-	// 見積もり(CalcAllocationSize)も生成(PhysicalResource::Create)も必ずここを通す。
+	// 見積もり(CalcAllocationSize)も生成(CreateEntity)も必ずここを通す。
 	// 別々に組むと、片方だけ直したときに見積もりと実体が静かにずれる
 	Resource::TextureCreateDesc VirtualResource::ToTextureCreateDesc() const
 	{
@@ -212,6 +206,177 @@ namespace Engine::Graphics::Pipeline
 		}
 
 		return _desc;
+	}
+
+	//======================================================================================
+	//
+	// 実体
+	//
+	//======================================================================================
+	VirtualResource::~VirtualResource()
+	{
+		ReleaseEntity();
+	}
+
+	// 実体をヒープ上へ置くか。
+	//
+	// 置けない条件はどれも「そもそも席を持っていない」ことに帰着する。
+	// 履歴つき(Temporal)は使い回しの対象外なので席を持たず、
+	// 2枚の実体が同じオフセットへ重なる心配もここで消える
+	bool VirtualResource::ResolvePlacement(ID3D12Heap* a_pHeap, uint64_t* a_pOutOffset) const
+	{
+		if (a_pOutOffset) *a_pOutOffset = 0;
+
+		// ヒープが用意できていない(サイズ0・Tier1・作成失敗)
+		if (!a_pHeap) return false;
+
+		// 外部リソースの実体はグラフの外の持ち物
+		if (m_isImported) return false;
+
+		// バッファはまだ placed の口が無い(GPUBuffer 側が未対応)
+		if (IsBuffer()) return false;
+
+		// 席に着いていないものは実体を独り占めするので、個別に作る
+		if (m_allocationInfo.slotIndex == AllocationInfo::INVALID_SLOT_INDEX) return false;
+
+		// 大きさを見積もれていないなら席の大きさも 0 なので、置いても収まらない
+		if (m_allocationSize == 0) return false;
+
+		if (a_pOutOffset) *a_pOutOffset = m_allocationInfo.offset;
+		return true;
+	}
+
+	bool VirtualResource::CreateEntity(D3D12::Device* a_pDevice, ID3D12Heap* a_pHeap)
+	{
+		// 作り直しなので、前の実体はここで手放す
+		ReleaseEntity();
+
+		if (m_isImported)
+		{
+			ENGINE_WARNING("[VirtualResource] 外部リソースは ImportEntity で入れること : %s", m_name.c_str());
+			return false;
+		}
+
+		if (!a_pDevice)
+		{
+			ENGINE_WARNING("[VirtualResource] デバイスが無いので実体を作れません : %s", m_name.c_str());
+			return false;
+		}
+
+		const uint32_t _entityCount = GetEntityCount();
+
+		//----------------------------------------------------------------------------------
+		// バッファ
+		//----------------------------------------------------------------------------------
+		if (IsBuffer())
+		{
+			if (m_width == 0)
+			{
+				ENGINE_WARNING("[VirtualResource] バッファのサイズが0です : %s", m_name.c_str());
+				return false;
+			}
+
+			D3D12::GPUBufferDesc _desc = {};
+			_desc.elementNum = 1;
+			_desc.strideSize = static_cast<size_t>(m_width);	// width にバイト数が入っている
+			_desc.heapType = D3D12_HEAP_TYPE_DEFAULT;
+
+			// UAV として触るなら生成時にフラグを立てておく必要がある
+			_desc.flags = HasUsage(Resource::TextureUsage::UAV)
+				? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
+				: D3D12_RESOURCE_FLAG_NONE;
+
+			for (uint32_t _slice = 0; _slice < _entityCount; ++_slice)
+			{
+				auto _upBuffer = std::make_unique<D3D12::GPUBuffer>();
+
+				if (!_upBuffer->Create(a_pDevice, _desc))
+				{
+					ENGINE_WARNING("[VirtualResource] バッファの生成に失敗しました : %s", m_name.c_str());
+					ReleaseEntity();
+					return false;
+				}
+
+				m_entity[_slice].pResource = _upBuffer.get();
+				m_entity[_slice].upBuffer = std::move(_upBuffer);
+			}
+
+			return true;
+		}
+
+		//----------------------------------------------------------------------------------
+		// テクスチャ
+		//----------------------------------------------------------------------------------
+		if (m_format == DXGI_FORMAT_UNKNOWN)
+		{
+			ENGINE_WARNING("[VirtualResource] フォーマットが決まっていません : %s", m_name.c_str());
+			return false;
+		}
+		if (m_width == 0 || m_height == 0)
+		{
+			ENGINE_WARNING("[VirtualResource] サイズが0です : %s", m_name.c_str());
+			return false;
+		}
+
+		// 席を確保したときの見積もりと同じ宣言を通す。
+		// 別に組むと確保した席に収まらない
+		const Resource::TextureCreateDesc _texDesc = ToTextureCreateDesc();
+
+		uint64_t _heapOffset = 0;
+		const bool _isPlaced = ResolvePlacement(a_pHeap, &_heapOffset);
+
+		for (uint32_t _slice = 0; _slice < _entityCount; ++_slice)
+		{
+			auto _upTexture = std::make_unique<Resource::Texture>();
+
+			if (_isPlaced) _upTexture->Create(a_pHeap, _heapOffset, _texDesc);
+			else           _upTexture->Create(_texDesc);
+
+			// Texture::Create は失敗を返さないので、実体が入ったかで見る
+			if (!_upTexture->GetResource())
+			{
+				ENGINE_WARNING("[VirtualResource] テクスチャの生成に失敗しました : %s (placed=%d offset=%llu)",
+					m_name.c_str(), _isPlaced ? 1 : 0, _heapOffset);
+
+				_upTexture->Release();
+				ReleaseEntity();
+				return false;
+			}
+
+			m_entity[_slice].pResource = _upTexture.get();
+			m_entity[_slice].upTexture = std::move(_upTexture);
+		}
+
+		m_isPlaced = _isPlaced;
+		return true;
+	}
+
+	void VirtualResource::ImportEntity(D3D12::GPUResource* a_pResource)
+	{
+		// 実体を持っていたなら手放してから参照へ切り替える
+		ReleaseEntity();
+
+		// 外部の実体はこちらで解放しないので、指すだけにする
+		m_entity[0].pResource = a_pResource;
+		m_entity[1].pResource = a_pResource;
+	}
+
+	void VirtualResource::ReleaseEntity()
+	{
+		for (Entity& _entity : m_entity)
+		{
+			// unique_ptr の破棄でも ComPtr は解放されるが、Release() を先に呼ぶことで
+			// ディスクリプタヒープのハンドルも確実に返却し、破棄タイミングに依存しないようにする。
+			// 外部から借りているだけのものは実体を持たないので、ここは素通りする
+			if (_entity.upTexture) _entity.upTexture->Release();
+			if (_entity.upBuffer)  _entity.upBuffer->Release();
+
+			_entity.upTexture.reset();
+			_entity.upBuffer.reset();
+			_entity.pResource = nullptr;
+		}
+
+		m_isPlaced = false;
 	}
 
 	void VirtualResource::CalcAllocationSize()

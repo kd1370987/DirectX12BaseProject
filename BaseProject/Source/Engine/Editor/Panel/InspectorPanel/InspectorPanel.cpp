@@ -8,6 +8,13 @@
 #include "../../../GameObject/GameObjectManager/GameObjectManager.h"
 #include "../../../Scene/SceneManager/SceneManager.h"
 
+// AssetInspector を前方宣言で持つので、生成と破棄はここ(完全型が見える場所)に置く
+Engine::Editor::InspectorPanel::InspectorPanel()
+	: m_upAssetInspector(std::make_unique<Inspector::AssetInspector>())
+{}
+
+Engine::Editor::InspectorPanel::~InspectorPanel() = default;
+
 void Engine::Editor::InspectorPanel::OnDrawImGui(EditorContext& a_editContext)
 {
 	switch (a_editContext.eInspectorType)
@@ -19,7 +26,7 @@ void Engine::Editor::InspectorPanel::OnDrawImGui(EditorContext& a_editContext)
 		Inspector::EntityInspector(a_editContext);
 		break;
 	case EInspectorType::Asset:
-		Inspector::AssetInspector(a_editContext);
+		if (m_upAssetInspector) m_upAssetInspector->Draw(a_editContext);
 		break;
 	case EInspectorType::Game:
 		// GameObjectManager管理下のオブジェクトのエディターを描画

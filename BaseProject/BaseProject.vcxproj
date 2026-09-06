@@ -448,6 +448,8 @@
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp" />
+    <ClCompile Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\InspectorPanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.cpp" />
@@ -508,7 +510,6 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass\TestGBufferPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp" />
@@ -906,7 +907,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\PhysicalResource\PhysicalResource.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass\TestGBufferPass.h" />
     <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\GroupTopologicalSort.h" />
@@ -1004,6 +1004,8 @@
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.h" />
+    <ClInclude Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.h" />
+    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\InspectorPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\IPanel.h" />

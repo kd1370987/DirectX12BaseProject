@@ -8,9 +8,9 @@
 // 編集UIは RenderingPipelineAsset 側の責務。
 //
 // 仮想リソースと外部リソースの出し入れは ResourceRegistry へ預ける。
-// 物理リソースの配列だけはここが持つ(エイリアシングを入れるときに作り直す)。
+// 実体は仮想リソース自身が抱えるので、ここは配列を持たない。
 //   Compile()           : 実行順の解決 + 仮想リソースの構築(GPU不要)
-//   AllocateResources() : 仮想リソースの要件どおりに物理リソースを作る(GPU必要)
+//   AllocateResources() : 仮想リソースの要件どおりに実体を作る(GPU必要)
 //==========================================================================================
 // 実行順とバリアは値で持つので実体が要る。
 // パス・リソース・レジストリは持ち方(unique_ptr / 参照)が決まっているので前方宣言で足りる
@@ -27,7 +27,6 @@ namespace Engine::Graphics::Pipeline
 	struct Slot;
 	class PassMetaRegistry;
 	class VirtualResource;
-	class PhysicalResource;
 	class ResourceRegistry;
 	class ResourceAllocator;
 	class GraphHeap;
@@ -152,11 +151,11 @@ namespace Engine::Graphics::Pipeline
 		void RemoveImportedResource(const std::string& a_name);
 		void ClearImportedResources();
 
-		// 仮想リソースの要件どおりに物理リソースを作る(または作り直す)。
+		// 仮想リソースの要件どおりに実体を作る。
 		// Compile() の後に呼ぶこと
 		bool AllocateResources(GraphicsEngine* a_pGraphicsEngine, D3D12::Device* a_pDevice);
 
-		// 物理リソースの実体を破棄する。
+		// リソースの実体を破棄する。
 		// ディスクリプタヒープにビューを持つので、
 		// DescriptorHeapManager の解放より前に呼ぶこと
 		void ReleaseResources();
@@ -168,7 +167,6 @@ namespace Engine::Graphics::Pipeline
 
 		// 割り当てられた実体 : まだ AllocateResources を通していなければ nullptr。
 		// a_slice は [0]=Current(書く側) / [1]=Previous(読む側)
-		PhysicalResource* RefPhysicalResource(ResourceID a_resourceID, uint32_t a_slice = 0) const;
 		D3D12::GPUResource* RefGPUResource(ResourceID a_resourceID, uint32_t a_slice = 0) const;
 
 		// スロットから、今のフレームで触るべき実体を引く。
@@ -185,7 +183,6 @@ namespace Engine::Graphics::Pipeline
 		bool HasTemporalResource() const;
 
 		const std::vector<VirtualResource>& GetVirtualResources() const;
-		const std::vector<std::unique_ptr<PhysicalResource>>& GetPhysicalResources() const { return m_physicalResourceVec; }
 
 		//----------------------------------------------------------------------------------
 		// 検証
@@ -260,7 +257,7 @@ namespace Engine::Graphics::Pipeline
 		std::unique_ptr<Pass> CreatePassFromArchive(
 			const PassMetaRegistry& a_registry, ID<Pass> a_typeID, Persistence::Archive& a_arch);
 
-		// 積んであるバリアへ物理リソースのポインタを埋める(AllocateResources の後)
+		// 積んであるバリアへ実体のポインタを埋める(AllocateResources の後)
 		void ResolveBarrierResources();
 
 		// 宣言から焼き込んだヒープ・ルートシグネチャ・PSO・テーブルを張る
@@ -289,9 +286,6 @@ namespace Engine::Graphics::Pipeline
 		// リソース
 		std::unique_ptr<ResourceRegistry> m_upResourceRegistry = nullptr;	// 仮想リソースと外部リソースの持ち主
 		std::unique_ptr<ResourceAllocator> m_upResourceAllocator = nullptr;	// リソースの割り当てを管理
-
-		// 物理リソース : 今は仮想1つにつき1つなので、添字は仮想側と一致する
-		std::vector<std::unique_ptr<PhysicalResource>> m_physicalResourceVec = {};
 
 		// 実行用
 		std::vector<CompiledPass> m_compilePasses = {};

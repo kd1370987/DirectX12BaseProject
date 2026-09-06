@@ -15,7 +15,6 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicEngine.h"
-#include "Engine/Graphics/RenderingPipeline/IO/RenderingPipelineAssetIO.h"
 
 #include "../../../../../Resource/Data/Model/IO/ModelConverter/ModelConverter.h"
 
@@ -239,35 +238,6 @@ namespace Engine::Editor::Inspector
 	// レンダリングパイプライン
 	// ノードエディタはアセット自身が持っているので、ここは呼び出しとセーブだけ
 	//-----------------------------------------------------------------------------------------
-	void RenderingPipelineDraw(EditorContext& a_editContext)
-	{
-		auto _guid = a_editContext.pAssetProp->guid;
-
-		auto* _pPipeline = ResolveAsset<Graphics::Pipeline::RenderingPipelineAsset>(_guid);
-		if (!_pPipeline) { return; }
-
-		// ロード直後はレジストリが入っていないことがあるので、ここで必ず通しておく
-		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
-		_pPipeline->SetMetaRegistry(_pGE ? _pGE->RefPassMetaRegistry() : nullptr);
-
-		if (ImGui::Button("Save"))
-		{
-			_pPipeline->Save(a_editContext.pAssetProp->filePath);
-		}
-
-		// 画面が出ているかどうか。
-		// 組めていないと画面は真っ黒になるので、ここで分かるようにしておく
-		if (_pGE)
-		{
-			ImGui::SameLine();
-			if (_pGE->IsPipelinePresentActive())	ImGui::TextDisabled("| 画面 : 出力中");
-			else								ImGui::TextDisabled("| 画面 : 出ていません");
-		}
-		ImGui::Separator();
-
-		_pPipeline->DrawEditor();
-	}
-
 	//-----------------------------------------------------------------------------------------
 	// プレハブ
 	// ECS のエンティティインスペクタと同じ構成で、コンポーネントを追加・削除・編集する

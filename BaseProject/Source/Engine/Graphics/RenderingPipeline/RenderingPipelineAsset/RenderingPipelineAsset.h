@@ -6,7 +6,8 @@
 // レンダーグラフ1本ぶんを持つアセット。カメラごとに参照する。
 //
 // パス・つなぎ・実行順は RenderGraph の持ち物で、ここは
-// 「グラフを1つ抱えて、それを編集するUIを出す」役に徹する。
+// 「グラフを1つ抱える」役に徹する。
+// 編集UIは Editor 側(RenderingPipelineEditor)の責務で、ここは ImNodes を知らない。
 //
 // 中身は unique_ptr と生ポインタで持つだけなので、
 // RenderGraph も Pass もこのヘッダーでは前方宣言で足りる
@@ -22,7 +23,7 @@ namespace Engine::Graphics::Pipeline
 	// カメラごとに参照する
 	//
 	// パス・つなぎ・実行順は RenderGraph の持ち物で、ここは
-	// 「グラフを1つ抱えて、それを編集するUIを出す」役に徹する
+	// 「グラフを1つ抱える」役に徹する
 	class RenderingPipelineAsset
 	{
 	public:
@@ -30,7 +31,7 @@ namespace Engine::Graphics::Pipeline
 		RenderingPipelineAsset();
 		~RenderingPipelineAsset();
 
-		// ImNodesEditorContext* を生ポインタで所有するためコピー禁止。
+		// RenderGraph を unique_ptr で抱えるのでコピー禁止。
 		// ムーブは許可する : ResourceManager のプールは Add(T&&) で実体をムーブ代入するので、
 		// ムーブできないとプールに載せられない
 		RenderingPipelineAsset(const RenderingPipelineAsset&) = delete;
@@ -57,6 +58,9 @@ namespace Engine::Graphics::Pipeline
 
 		// 生成できるパスの一覧をもらい受ける : 持ち主から渡す(シングルトン直引きはしない)
 		void SetMetaRegistry(PassMetaRegistry* a_pRegistry) { m_pMetaRegistry = a_pRegistry; }
+
+		// 編集UI(エディター側)がパスを足すのに要る
+		PassMetaRegistry* RefMetaRegistry() const { return m_pMetaRegistry; }
 
 		//----------------------------------------------------------------------------------
 		// グラフの出口
@@ -87,6 +91,9 @@ namespace Engine::Graphics::Pipeline
 		void SetDirty() { m_isDirty = true; ++m_structureVersion; }
 		bool IsDirty() const { return m_isDirty; }
 
+		// パラメータだけが変わった : 組み直しは要らず、カメラ側へ値を写すだけで済む
+		void SetParamDirty() { ++m_paramVersion; }
+
 		// 構成が変わるたびに上がる版。
 		// カメラごとの実行インスタンスは、これが変わったときだけ組み直す。
 		// 0 は「まだ何も組んでいない」印として使うので 1 から始める
@@ -96,41 +103,7 @@ namespace Engine::Graphics::Pipeline
 		// カメラ側はこれが変わったら、組み直さずに値を写すだけで済む
 		uint32_t GetParamVersion() const { return m_paramVersion; }
 
-
-		//==================================================================================
-		// エディター
-		//==================================================================================
-
-		void DrawEditor();
-
-		//----------------------------------------------------------------------------------
-		// ImNodesコンテキスト管理(グラフごとに独立して複数開けるように専用で持つ)
-		//----------------------------------------------------------------------------------
-		void EnsureContext();			// コンテキスト生成
-		void DestroyContext();			// コンテキスト破棄
-
-		// ロード直後に呼ぶ : メインスレッド外から障らないための遅延反映
-		void RequestApplyLoadPositions() { m_applyPositions = true; }
-
-		// セーブ直後に呼ぶ : ImNodes 上の現在座標をノードへ書き戻す
-		void SyncPositions();
-
 	private:
-
-		//----------------------------------------------------------------------------------
-		// エディター内部
-		//----------------------------------------------------------------------------------
-		void DrawValidation();				// 検証結果の一覧
-		void DrawNodeEditor();				// ノードエディタ本体
-		void DrawNode(Pass& a_pass);		// ノード1つ分の枠とピン
-		void DrawAddPass();					// パス追加ボタン + ポップアップ
-		void DrawSelectedPassDetail();		// 選択中パスの詳細(EditUpdate)
-
-		void HandleCreateLink();			// 線が引かれたときの処理
-		void HandleDeleteSelection();		// Delete キーでの削除
-
-		// パスを追加して、ノード座標を ImNodes 側へ反映するところまで
-		void AddPassFromEditor(ID<Pass> a_typeID);
 
 		// 表示名
 		std::string m_name = "RenderingPipeline";
@@ -141,11 +114,6 @@ namespace Engine::Graphics::Pipeline
 		// パス・つなぎ・実行順を持つグラフ本体
 		std::unique_ptr<RenderGraph> m_upRenderGraph = nullptr;
 
-		// ---- エディター用 ----
-
-		ImNodesEditorContext* m_context = nullptr;
-		bool m_applyPositions = false;			// Load後、次のDrawで座標反映する
-
 		// 構成が変わってからコンパイルを通していない。
 		// 読み込み直後は一度通す必要があるので true から始める
 		bool m_isDirty = true;
@@ -155,6 +123,5 @@ namespace Engine::Graphics::Pipeline
 
 		// パラメータの版
 		uint32_t m_paramVersion = 1;
-		Engine::GUID m_pendingDeletePass = {};	// このフレーム内で削除予約されたパス
 	};
 }
