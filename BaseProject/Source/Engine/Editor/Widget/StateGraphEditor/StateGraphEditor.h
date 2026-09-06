@@ -4,7 +4,7 @@
 // StateGraphEditor<TNode>
 //
 // StateGraph<TNode> を編集する汎用ノードエディタUI(ImNodes)。
-// Animator / ゲームプレイFSM / GameFlow で共通の
+// Animator / ゲームプレイFSM で共通の
 // 「ノード枠・ピン・遷移線・パラメータ編集・遷移条件ポップアップ」をここに一本化する。
 //
 // マシンごとに違うのは “ノード内部に何を描くか” だけなので、

@@ -4,8 +4,6 @@
 
 namespace App::Game
 {
-	class GameFlowStateMachine;
-
 	/// <summary>
 	/// シングルトン
 	/// ゲーム全体を通しての流れを管理するクラス
@@ -51,17 +49,31 @@ namespace App::Game
 
 	private:
 
+		/// <summary>
+		/// ゲーム設定の読み込み : Init から一度だけ
+		/// </summary>
+		void LoadGameSetting();
+
+		/// <summary>
+		/// ゲーム設定の保存 : エディターの Save ボタンから
+		/// </summary>
+		void SaveGameSetting();
+
+		/// <summary>
+		/// ゲーム設定の編集UI(起動時に立ち上げるシーンを選ぶ)
+		/// </summary>
+		void DrawGameSettingEdit();
+
+	private:
+
 		// シーンをまたいで保持できる情報
 		GlobalGameContext m_gameData;
-
-		// 現在のフローのハッシュ値
-		UINT m_currentFlowHash = 0;
 
 		// 一時停止フラグ（ポーズ画面用）
 		bool m_isPaused = false;
 
-		// ゲームフロウ管理用
-		std::unique_ptr<GameFlowStateMachine> m_upGameFlowMachine = nullptr;
+		// ゲーム開始時の初回シーン : 起動時に出現させる
+		Engine::GUID m_farstScene;
 
 		Engine::Handle<Engine::Resource::SoundInstance> m_testHandle = { };
 

@@ -39,19 +39,28 @@
 #include "Engine/Input/InputDevice/Button/InputButtonForWindows/InputButtonForWindows.h"
 #include "Engine/Input/InputDevice/Button/InputButtonForXInput/InputButtonForXInput.h"
 
-// ゲームフロウ
-#include "../GameFlowStateMachine/GameFlowStateMachine.h"
-
 #include "../../../Engine/Audio/AudioManager.h"
 
 namespace App::Game
 {
+	//======================================================================================
+	// ゲーム設定ファイルの置き場所
+	//
+	// 持っているのは「起動時に立ち上げるシーン」だけ。アセットではないので
+	// AssetDatabase には載せず、エンジン設定(EngineData)と同じく Asset/Data の下へ直接置く。
+	//======================================================================================
+	namespace
+	{
+		constexpr const char* GameSettingDir  = "Asset/Data/Game";
+		constexpr const char* GameSettingName = "GameData";
+		constexpr const char* GameSettingExt  = "gmdt";
+	}
+
 	void App::Game::GameManager::Init()
 	{
 
-		// ゲームフロウの読み込み
-		m_upGameFlowMachine = std::make_unique<GameFlowStateMachine>();
-		m_upGameFlowMachine->Load("Asset/Scenes/Flow/Flow.scene");
+		// ゲーム設定(起動時に立ち上げるシーン)の読み込み
+		LoadGameSetting();
 
 		// テスト : 音源読み込み
 		m_testHandle = Engine::Audio::AudioManager::Instance().RequestSoundInstance("Asset/Sound/TEST/test.wav");
@@ -148,10 +157,6 @@ namespace App::Game
 			Engine::Input::InputButtonForWindows _test('T');
 			_keyboard.AddButton("Test", std::make_shared<Engine::Input::InputButtonForWindows>(_test));
 
-			// シーン遷移用
-			Engine::Input::InputButtonForWindows _scene('R');
-			_keyboard.AddButton("Scene", std::make_shared<Engine::Input::InputButtonForWindows>(_scene));
-
 			// ポーズ : ゲーム中はポーズ画面を重ね、ポーズ中は閉じて戻る。
 			// 拾うのは重ねる側(SceneSequence)と閉じる側(PauseSequence)の2つで、
 			// どちらも「一番上のシーン」しか更新されないので取り合いにならない
@@ -198,26 +203,22 @@ namespace App::Game
 		}
 
 		// 最初のシーンを挿入
-		Engine::GUID _initScene = m_upGameFlowMachine->Start();
-		if (_initScene != Engine::DefaultGUID)
+		if (m_farstScene.IsValid())
 		{
-			Engine::Scene::SceneManager::Instance().SetNextScene(_initScene, Engine::Scene::SceneChangeType::Push);
+			Engine::Scene::SceneManager::Instance().SetNextScene(m_farstScene, Engine::Scene::SceneChangeType::Push);
 		}
 		else
 		{
-			ENGINE_ERRLOG(false,"初めのシーンが見つかりません");
+			ENGINE_ERRLOG(false,"初めのシーンが設定されていません");
 		}
 
 		// エディター関数登録
 		Engine::Editor::MainEditor::Instance().RegisterEditFunc(
 			[&]()
 			{
-				if (ImGui::Begin("GameFlowEdit"))
+				if (ImGui::Begin("GameSetting"))
 				{
-					if(m_upGameFlowMachine)
-					{
-						m_upGameFlowMachine->EditImGui();
-					}
+					DrawGameSettingEdit();
 				}
 				ImGui::End();
 			}
@@ -225,25 +226,10 @@ namespace App::Game
 	}
 	void GameManager::Update(float a_dt)
 	{	
-		m_upGameFlowMachine->SetTrigger("ON_START");
-
-		if (Engine::Input::InputManager::Instance().IsPress("Scene"))
-		{
-			m_upGameFlowMachine->SetTrigger("ToTitle");
-		}
-
 		if (Engine::Input::InputManager::Instance().IsPress("Test"))
 		{
 			auto* _pSoundInstance = Engine::Audio::AudioManager::Instance().RefInstance(m_testHandle);
 			_pSoundInstance->Play();
-		}
-			
-		// 遷移チェック
-		Engine::GUID _nextScene;
-		if (m_upGameFlowMachine->Evaluate(_nextScene))
-		{
-			// 遷移が発生したので、指定された新しいシーンをロード！
-			Engine::Scene::SceneManager::Instance().SetNextScene(_nextScene, Engine::Scene::SceneChangeType::Replace);
 		}
 
 		// タイマー開始
@@ -273,6 +259,48 @@ namespace App::Game
 	void GameManager::EditDraw()
 	{
 
+	}
+	//======================================================================================
+	// ゲーム設定の読み込み / 保存
+	//
+	// 中身は初回シーンのGUIDが1つだけ。エディターで選び直したら Save ボタンで書き戻す。
+	//======================================================================================
+	void GameManager::LoadGameSetting()
+	{
+		Engine::Persistence::Archive _arch(
+			Engine::Persistence::Archive::Mode::Load,
+			GameSettingDir, GameSettingName, GameSettingExt);
+
+		_arch.Field("m_farstScene", m_farstScene);
+	}
+	void GameManager::SaveGameSetting()
+	{
+		Engine::Persistence::Archive _arch(
+			Engine::Persistence::Archive::Mode::Save,
+			GameSettingDir, GameSettingName, GameSettingExt);
+
+		_arch.Field("m_farstScene", m_farstScene);
+	}
+	//======================================================================================
+	// ゲーム設定の編集UI
+	//
+	// 選んだ時点では覚えるだけで、ファイルへ残すのは Save ボタン
+	//======================================================================================
+	void GameManager::DrawGameSettingEdit()
+	{
+		ImGui::Text("Farst Scene : %s", m_farstScene.String().c_str());
+
+		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			"##FarstScene",
+			"Scene",
+			m_farstScene);
+
+		ImGui::Separator();
+
+		if (ImGui::Button("Save"))
+		{
+			SaveGameSetting();
+		}
 	}
 	GameManager::GameManager()
 	{}

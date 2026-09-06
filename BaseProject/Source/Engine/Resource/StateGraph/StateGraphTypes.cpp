@@ -88,8 +88,8 @@ namespace Engine::StateGraph
 	//======================================================================================
 	// 遷移評価(共有アルゴリズム)
 	//
-	// 挙動は既存の StateMachineAsset::EvaluateNextState /
-	// GameFlowStateMachine::Evaluate と一致させている(抽出のみ、仕様変更なし)。
+	// 挙動は既存の StateMachineAsset::EvaluateNextState と
+	// 一致させている(抽出のみ、仕様変更なし)。
 	//======================================================================================
 	UINT EvaluateTransition(
 		const std::unordered_map<UINT, std::vector<TransitionArrow>>& a_arrowMap,
