@@ -18,6 +18,7 @@ namespace Engine::Graphics::Pipeline
 {
 	class Pass;
 	class RenderGraph;
+	class VirtualResource;
 
 	// =====================================================================================
 	// コンパイル結果
@@ -98,6 +99,10 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		// パス一つ分のバリアを積む : リソースステート遷移
 		void BuildPassBarriers(CompiledPass& a_compiledPass);
+
+		// 席を引き継いだ直後の中身をならすとき、どのステートで Discard を呼ぶか。
+		// COMMON はならす必要が無いことを表す
+		static D3D12_RESOURCE_STATES ToDiscardState(const VirtualResource& a_vRes);
 
 
 	private:

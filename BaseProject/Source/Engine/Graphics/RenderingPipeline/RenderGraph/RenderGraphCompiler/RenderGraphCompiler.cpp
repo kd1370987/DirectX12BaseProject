@@ -532,6 +532,33 @@ namespace Engine::Graphics::Pipeline
 		}
 	}
 	//--------------------------------------------------------------------------------------
+	// 引き継いだ直後に中身をならすとき、どのステートで Discard を呼ぶか
+	// (COMMON = ならす必要が無い)
+	//
+	// D3D12 が初期化を要求するのは、レンダーターゲット / 深度のフラグを立てて
+	// 作ったリソースだけ。UAV や SRV だけのものは対象外。
+	//
+	// 判断の基準は「どのフラグで作ったか」であって、
+	// そのパスがそのリソースをどう書くかではない。
+	// AfterLighting は DeferredLightingPass が UAV で書き始めるが、
+	// 後段の SkyPass / ParticlePass が RTV で書くので ALLOW_RENDER_TARGET 付きで作られる。
+	// アクセスタイプで判断すると、ここを取りこぼす
+	//
+	// Discard 自体は書き込みステートでしか呼べないので、
+	// 呼ぶ側がここで返したステートまで遷移させてから呼ぶこと
+	//--------------------------------------------------------------------------------------
+	D3D12_RESOURCE_STATES RenderGraphCompiler::ToDiscardState(const VirtualResource& a_vRes)
+	{
+		// バッファは Discard の対象外
+		if (a_vRes.IsBuffer()) return D3D12_RESOURCE_STATE_COMMON;
+
+		if (a_vRes.HasUsage(Resource::TextureUsage::DSV)) return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+		if (a_vRes.HasUsage(Resource::TextureUsage::RTV)) return D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+		return D3D12_RESOURCE_STATE_COMMON;
+	}
+
+	//--------------------------------------------------------------------------------------
 	// エイリアシングバリアを積む
 	//
 	// 席の使い手が入れ替わる継ぎ目に張る。触る最初のパスの直前で1回だけでよい。
@@ -572,6 +599,7 @@ namespace Engine::Graphics::Pipeline
 			AliasingBarrier _barrier = {};
 			_barrier.before = _info.prevVResID;		// 前回のリソース : 席の一人目なら空
 			_barrier.after = _vRes.GetResourceID();	// バリア後リソース
+			_barrier.discardState = ToDiscardState(_vRes);
 
 			a_compiledPassVec[_firstPass].preAliasingBarriers.push_back(_barrier);
 		}

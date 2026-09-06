@@ -1009,16 +1009,16 @@ namespace Engine::Graphics::Pipeline
 		for (CompiledPass& _compiledPass : m_compilePasses)
 		{
 			// ---- エイリアシングバリア ----
-			//for (const auto& _barrier : _compiledPass.preAliasingBarriers)
-			//{
-			//	// ResourceID から実際のリソースへ解決
-			//	D3D12::GPUResource* _pBefore = RefGPUResource(_barrier.before, _parity);
-			//	D3D12::GPUResource* _pAfter = RefGPUResource(_barrier.after, _parity);
+			// 席の使い手が入れ替わる継ぎ目。
+			// メモリの持ち主が変わってから遷移させるので、ステート遷移より前に張る
+			for (const AliasingBarrier& _barrier : _compiledPass.preAliasingBarriers)
+			{
+				D3D12::GPUResource* _pAfter = _barrier.pAfterResource[_parity];
+				if (!_pAfter) continue;
 
-			//	if (!_pAfter) continue;
-
-			//	_pAfter->AliasingBarrier(_pCmdList,_pBefore);
-			//}
+				// before が nullptr なら「このヒープのどれかが前の使い手」の意味になる
+				_pAfter->AliasingBarrier(_pCmdList, _barrier.pBeforeResource[_parity]);
+			}
 
 			// ---- バリア ----
 			// UAVバリアは既存グラフと同じく今は張らない(状態遷移のみ)
@@ -1029,6 +1029,33 @@ namespace Engine::Graphics::Pipeline
 				if (_barrier.isUAVBarrier) continue;
 
 				_pResource->Barrier(_pCmdList, _barrier.after);
+			}
+
+			// ---- 引き継いだ中身をならす ----
+			//
+			// エイリアシング直後の中身は未定義で、前の使い手が残したものが乗っている。
+			// レンダーターゲット / 深度のフラグ付きで作ったリソースは、
+			// 一度ならしてからでないと使えない(D3D12の要求)。
+			//
+			// Discard は書き込みステートでしか呼べないので、そこまで遷移させてから呼び、
+			// このパスが求めるステートへ戻す。
+			// 戻さないと、遷移が要らないと判断されたパスがそのまま走ってしまう。
+			//
+			// このパスがどのみちクリアするリソースでも重ねて呼ぶが、実害は無い
+			for (const AliasingBarrier& _barrier : _compiledPass.preAliasingBarriers)
+			{
+				if (_barrier.discardState == D3D12_RESOURCE_STATE_COMMON) continue;
+
+				D3D12::GPUResource* _pAfter = _barrier.pAfterResource[_parity];
+				if (!_pAfter) continue;
+
+				// 上のステート遷移まで通した、今この瞬間のステート。
+				// GPUResource が自分で追っているので、割り込んで遷移させても食い違わない
+				const D3D12_RESOURCE_STATES _passState = _pAfter->GetState();
+
+				_pAfter->Barrier(_pCmdList, _barrier.discardState);
+				_pCmdList->DiscardResource(_pAfter->GetResource(), nullptr);
+				_pAfter->Barrier(_pCmdList, _passState);
 			}
 
 			// ---- レンダーターゲット切り替え ----
@@ -1436,5 +1463,29 @@ namespace Engine::Graphics::Pipeline
 			_resolve(_compiledPass.preBarriers);
 		}
 		_resolve(m_endBarriers);
+
+		//----------------------------------------------------------------------------------
+		// エイリアシングバリア
+		//
+		// 使い回しの対象からは履歴つき(Temporal)を外してあるので、
+		// フレームの偶奇で実体が入れ替わることはない。両方に同じものを入れる。
+		//
+		// before は席の一人目だと空の識別子で、引くと nullptr になる。
+		// D3D12 ではこれが「このヒープのどれかが前の使い手」の意味になるので、
+		// 引けなかったこと自体は異常ではない
+		//----------------------------------------------------------------------------------
+		for (CompiledPass& _compiledPass : m_compilePasses)
+		{
+			for (AliasingBarrier& _barrier : _compiledPass.preAliasingBarriers)
+			{
+				D3D12::GPUResource* _pBefore = RefGPUResource(_barrier.before, 0);
+				D3D12::GPUResource* _pAfter = RefGPUResource(_barrier.after, 0);
+
+				_barrier.pBeforeResource[0] = _pBefore;
+				_barrier.pBeforeResource[1] = _pBefore;
+				_barrier.pAfterResource[0] = _pAfter;
+				_barrier.pAfterResource[1] = _pAfter;
+			}
+		}
 	}
 }

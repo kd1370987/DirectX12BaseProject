@@ -23,8 +23,25 @@ namespace Engine::Graphics::Pipeline
 		// この継ぎ目から席を使い始めるリソース
 		ResourceID after = {};
 
-		// 実体化後に焼きこむ
+		//----------------------------------------------------------------------------------
+		// 引き継いだ直後に中身を捨てるとき、どのステートで Discard を呼ぶか
+		//
+		// COMMON はならす必要が無いことを表す。
+		//
+		// D3D12 が「使う前に Discard / Clear / Copy でならすこと」を要求するのは、
+		// レンダーターゲット / 深度のフラグを立てて作ったリソースだけ。
+		// UAV や SRV だけで作ったものは対象外なので COMMON のままになる。
+		//
+		// 要求の対象かどうかは「どのフラグで作ったか」で決まり、
+		// そのパスがどう書くかとは関係が無い。
+		// (UAVで書き始めるリソースでも、後段がRTVで書くならフラグは立っている)
+		//----------------------------------------------------------------------------------
+		D3D12_RESOURCE_STATES discardState = D3D12_RESOURCE_STATE_COMMON;
+
+		// 実体化後に焼きこむ。
+		// 使い回しの対象は履歴つき(Temporal)を除いてあるので、
+		// 偶数フレームと奇数フレームで実体は変わらない(両方に同じものが入る)
 		D3D12::GPUResource* pBeforeResource[2] = { nullptr,nullptr };
-		D3D12::GPUResource* pAffterResource[2] = { nullptr,nullptr };
+		D3D12::GPUResource* pAfterResource[2] = { nullptr,nullptr };
 	};
 }

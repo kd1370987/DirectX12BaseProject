@@ -62,8 +62,8 @@ namespace Engine::Graphics::Pipeline
 		uint32_t m_maxUageSlot = 0;
 		uint64_t m_maxHeapSize = 0;
 
-		// 既定は切っておく。
-		// まず placed だけを通して絵が変わらないことを確かめてから入れる
-		inline static bool s_isAliasingEnabled = false;
+		// 使い回しを入れた状態が既定。
+		// 絵がおかしいときに切って直れば、原因は置き場所ではなく使い回し側
+		inline static bool s_isAliasingEnabled = true;
 	};
 }
