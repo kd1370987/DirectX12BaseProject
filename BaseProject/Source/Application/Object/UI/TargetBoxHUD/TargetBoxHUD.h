@@ -29,7 +29,8 @@ namespace App::Object
 		static constexpr uint32_t GROUP_LOCK = 1;
 
 		// 初期化処理 : 既定の枠を用意する
-		void Init(Engine::GameObject::ObjectContext& a_context) override;
+		void PostDeserialize(Engine::GameObject::ObjectContext& a_context) override;
+		void Awake(Engine::GameObject::ObjectContext& a_context) override;
 
 		// 更新処理 : プレイヤーのロック結果からスクリーン座標を集める
 		void Update(Engine::GameObject::ObjectContext& a_context) override;

@@ -67,7 +67,8 @@ namespace Engine::GameObject
 		/// 全オブジェクトの更新前処理
 		/// </summary>
 		/// <remarks>
-		/// 消える指示が出ているものを配列から外し、そのあと全員の PreUpdate を回す。
+		/// 消える指示が出ているものを配列から外し、まだ初期化を通していないものを
+		/// 通しきってから、全員の PreUpdate を回す。
 		/// カーソルの取り合い(ObjectContext::cursorClaim)はここで作り直すので、
 		/// 名乗りは必ず Update より前に揃う
 		/// </remarks>
@@ -101,9 +102,27 @@ namespace Engine::GameObject
 		// GUID→実体の対応表を更新しつつ末尾に追加する共通処理
 		BaseObject* Register(std::unique_ptr<BaseObject> a_upObject);
 
+		/// <summary>
+		/// まだ初期化を通していないものを PostDeserialize -> Awake -> Start と進める
+		/// </summary>
+		/// <remarks>
+		/// ECS の World::BeginFrame と同じで、3つのフェーズをこの1回で通しきる。
+		/// 1フェーズごとに全員を回すのが要で、こうしておくと
+		/// 「相手がまだ前のフェーズを通っていない」状態で次に入ることがない。
+		/// (シーン読み込みの直後・エディターでの追加直後・毎フレームの頭で呼ばれる)
+		/// </remarks>
+		void RunInitPhases();
+
+		// 指定フェーズに居るものだけを1回ずつ呼んで、次のフェーズへ送る
+		void RunInitPhase(EObjectInitPhase a_phase);
+
 	private:
 
 		ObjectContext m_objContext = {};
+
+		// 初期化を通していないものが居るか。
+		// 居ないときに毎フレーム配列を舐めないようにするための札
+		bool m_isPendingInit = false;
 
 		std::vector<std::unique_ptr<BaseObject>> m_upObjectVec = {};
 
@@ -126,9 +145,9 @@ namespace Engine::GameObject
 		_guid.Create();
 		_upObject->SetGUID(_guid);
 
-		// 追加して初期化
+		// 追加して初期化(この場で3つのフェーズを通しきる)
 		T* _pObject = static_cast<T*>(Register(std::move(_upObject)));
-		_pObject->Init(m_objContext);
+		RunInitPhases();
 		return _pObject;
 	}
 }

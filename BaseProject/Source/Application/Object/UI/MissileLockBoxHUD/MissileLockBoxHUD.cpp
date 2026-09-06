@@ -22,14 +22,13 @@ namespace App::Object
 		constexpr float DEFAULT_BOX_SIZE = 80.0f;
 	}
 
-	void MissileLockBoxHUD::Init(Engine::GameObject::ObjectContext& a_context)
+	void MissileLockBoxHUD::PostDeserialize(Engine::GameObject::ObjectContext& a_context)
 	{
 		// リソース周りはコンテキストが運んできたサービスを使う
-		if (!a_context.pServices) return;
-		if (!a_context.pServices->pAssetDatabase || !a_context.pServices->pResourceManager) return;
+		if (!a_context.pServices || !a_context.pServices->pAssetDatabase) return;
 
-		// 新規追加直後はサイズが0で何も見えないので、既定サイズと色を入れておく。
-		// シーン読み込み時はこの後の Archive で保存値に上書きされる。
+		// サイズが0のままだと何も見えないので、既定サイズと色を入れておく。
+		// 保存値を読み終えた後に見るので、シーンに入っている値は潰さない
 		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f)
 		{
 			m_pixelSize = { DEFAULT_BOX_SIZE, DEFAULT_BOX_SIZE };
@@ -39,8 +38,8 @@ namespace App::Object
 			m_color = Math::Color(1.0f, 1.0f, 0.0f, 1.0f);
 		}
 
-		// 既定の枠を1つ用意する。作るのは飾りを1つも持っていないときだけで、
-		// シーン読み込み時はこの後の Archive が保存された飾りで置き換える
+		// 既定の枠を1つ用意する。作るのは飾りを1つも持っていないときだけなので、
+		// 保存された飾りを持つシーンでは何もしない
 		if (m_decorationVec.empty())
 		{
 			Decoration::Decoration& _box = AddDecoration(Decoration::EDecorationType::Image);
@@ -48,7 +47,13 @@ namespace App::Object
 			_box.pixelSize = m_pixelSize;
 			_box.texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(LOCK_BOX_TEXTURE_PATH);
 		}
+	}
 
+	//======================================================================================
+	// リソースの要求
+	//======================================================================================
+	void MissileLockBoxHUD::Awake(Engine::GameObject::ObjectContext& a_context)
+	{
 		// 実体の到着は待たない。描画側が IsReady を見てスキップする
 		RequestDecorationResources(a_context);
 	}

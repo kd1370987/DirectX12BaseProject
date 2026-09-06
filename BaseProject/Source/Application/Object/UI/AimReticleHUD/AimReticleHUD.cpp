@@ -17,13 +17,12 @@ namespace App::Object
 		constexpr float DEFAULT_RETICLE_SIZE = 160.0f;
 	}
 
-	void AimReticleHUD::Init(Engine::GameObject::ObjectContext& a_context)
+	void AimReticleHUD::PostDeserialize(Engine::GameObject::ObjectContext& a_context)
 	{
-		if (!a_context.pServices) return;
-		if (!a_context.pServices->pOptionManager || !a_context.pServices->pResourceManager) return;
+		if (!a_context.pServices || !a_context.pServices->pOptionManager) return;
 
-		// 新規追加直後はサイズが0で何も見えないので、既定サイズと画面中央を入れておく。
-		// シーン読み込み時はこの後の Archive で保存値に上書きされる。
+		// サイズが0のままだと何も見えないので、既定サイズと画面中央を入れておく。
+		// 保存値を読み終えた後に見るので、シーンに入っている値は潰さない
 		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f)
 		{
 			m_pixelSize = { DEFAULT_RETICLE_SIZE, DEFAULT_RETICLE_SIZE };
@@ -35,7 +34,13 @@ namespace App::Object
 				static_cast<float>(_winOp.windowHeight) * 0.5f
 			};
 		}
+	}
 
+	//======================================================================================
+	// リソースの要求
+	//======================================================================================
+	void AimReticleHUD::Awake(Engine::GameObject::ObjectContext& a_context)
+	{
 		// 飾りは差し替え前提なので既定の絵は持たない。
 		// 実体の到着は待たない(描画側が IsReady を見てスキップする)
 		RequestDecorationResources(a_context);

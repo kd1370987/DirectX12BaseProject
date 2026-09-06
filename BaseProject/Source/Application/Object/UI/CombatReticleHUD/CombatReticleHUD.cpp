@@ -21,14 +21,13 @@ namespace App::Object
 		constexpr const char* RETICLE_TEXTURE_PATH = "Asset/Texture/Test/uiTest.png";
 	}
 
-	void CombatReticleHUD::Init(Engine::GameObject::ObjectContext& a_context)
+	void CombatReticleHUD::PostDeserialize(Engine::GameObject::ObjectContext& a_context)
 	{
 		// リソース周りはコンテキストが運んできたサービスを使う
-		if (!a_context.pServices) return;
-		if (!a_context.pServices->pAssetDatabase || !a_context.pServices->pResourceManager) return;
+		if (!a_context.pServices || !a_context.pServices->pAssetDatabase) return;
 
-		// 既定のレティクルを1つ用意する。作るのは飾りを1つも持っていないときだけで、
-		// シーン読み込み時はこの後の Archive が保存された飾りで置き換える
+		// 既定のレティクルを1つ用意する。作るのは飾りを1つも持っていないときだけなので、
+		// 保存された飾りを持つシーンでは何もしない
 		if (m_decorationVec.empty())
 		{
 			Decoration::Decoration& _reticle = AddDecoration(Decoration::EDecorationType::Image);
@@ -36,7 +35,13 @@ namespace App::Object
 			_reticle.pixelSize = m_pixelSize;
 			_reticle.texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(RETICLE_TEXTURE_PATH);
 		}
+	}
 
+	//======================================================================================
+	// リソースの要求
+	//======================================================================================
+	void CombatReticleHUD::Awake(Engine::GameObject::ObjectContext& a_context)
+	{
 		// 実体の到着は待たない。描画側が IsReady を見てスキップする
 		RequestDecorationResources(a_context);
 	}

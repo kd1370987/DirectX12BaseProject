@@ -36,7 +36,7 @@ namespace App::Object
 	public:
 
 		// 初期化処理 : 出し入れに使うマネージャーを覚える
-		void Init(Engine::GameObject::ObjectContext& a_context) override;
+		void Awake(Engine::GameObject::ObjectContext& a_context) override;
 
 		// 更新処理 : ボタンへの差し込みと、カーソルが乗っているミッションの追跡
 		void Update(Engine::GameObject::ObjectContext& a_context) override;
@@ -145,7 +145,7 @@ namespace App::Object
 		// 状態(保存しない)
 		//-------------------------------------------------------------------
 		// 出し入れに使うマネージャー。
-		// SetVisible はコンテキストを受け取れないので、Init で受け取ったものを覚えておく
+		// SetVisible はコンテキストを受け取れないので、Awake で受け取ったものを覚えておく
 		// (シングルトンを名指ししないための経路は保ったまま、押した瞬間に反映できる)
 		Engine::GameObject::GameObjectManager* m_pObjectManager = nullptr;
 

@@ -25,7 +25,8 @@ namespace App::Object
 	public:
 
 		// 初期化処理 : 飾りの絵と音を用意する
-		void Init(Engine::GameObject::ObjectContext& a_context) override;
+		void PostDeserialize(Engine::GameObject::ObjectContext& a_context) override;
+		void Awake(Engine::GameObject::ObjectContext& a_context) override;
 
 		// 解放処理 : サウンドインスタンスを返す
 		void Release(Engine::GameObject::ObjectContext& a_context) override;

@@ -6,7 +6,7 @@ namespace Engine::GameObject
 {
 	GameObjectManager::GameObjectManager(Engine::ECS::World* a_pWorld)
 	{
-		// 以降 Init/Update/Draw/Archive へ渡すコンテキストに載せておく。
+		// 以降の初期化フェーズ/Update/Draw/Archive へ渡すコンテキストに載せておく。
 		// サービス群はワールドが持っているものをそのまま使う
 		// (シーン側で組んだ1つの束を、システムとオブジェクトで共有する)
 		m_objContext.pWorld = a_pWorld;
@@ -42,6 +42,10 @@ namespace Engine::GameObject
 				--_idx;	// swap してきた要素を再チェックする
 			}
 		}
+
+		// まだ初期化を通していないものをここで通しきる。
+		// 消えるものを外した後に呼ぶので、追加してすぐ消されたものへは手を出さない
+		RunInitPhases();
 
 		// カーソルの取り合いは毎フレーム作り直す。
 		// 消えたオブジェクトのアドレスを持ち越さないよう、名乗りを集める前に空にする
@@ -86,7 +90,60 @@ namespace Engine::GameObject
 		}
 
 		m_upObjectVec.push_back(std::move(a_upObject));
+
+		// 生成直後は1つもフェーズを通っていない
+		m_isPendingInit = true;
+
 		return _pObject;
+	}
+
+	//======================================================================================
+	// 初期化フェーズ
+	//======================================================================================
+	void GameObjectManager::RunInitPhases()
+	{
+		// 通していないものが居なければ何もしない
+		if (!m_isPendingInit) return;
+		m_isPendingInit = false;
+
+		RunInitPhase(EObjectInitPhase::PostDeserialize);
+		RunInitPhase(EObjectInitPhase::Awake);
+		RunInitPhase(EObjectInitPhase::Start);
+	}
+
+	void GameObjectManager::RunInitPhase(EObjectInitPhase a_phase)
+	{
+		// フェーズの中で新しいオブジェクトが足されることがあるので、
+		// 参照を持ち越さず添字で回す(push_back の再確保で壊れるため)。
+		// 後ろに積まれたものは、まだ前のフェーズに居れば素通りし、
+		// Register が札を立て直しているので次の RunInitPhases で拾われる
+		for (size_t _idx = 0; _idx < m_upObjectVec.size(); ++_idx)
+		{
+			BaseObject* _pObject = m_upObjectVec[_idx].get();
+			if (!_pObject) continue;
+			if (_pObject->GetInitPhase() != a_phase) continue;
+
+			switch (a_phase)
+			{
+			case EObjectInitPhase::PostDeserialize:
+				_pObject->PostDeserialize(m_objContext);
+				_pObject->SetInitPhase(EObjectInitPhase::Awake);
+				break;
+
+			case EObjectInitPhase::Awake:
+				_pObject->Awake(m_objContext);
+				_pObject->SetInitPhase(EObjectInitPhase::Start);
+				break;
+
+			case EObjectInitPhase::Start:
+				_pObject->Start(m_objContext);
+				_pObject->SetInitPhase(EObjectInitPhase::Active);
+				break;
+
+			default:
+				break;
+			}
+		}
 	}
 
 	BaseObject* GameObjectManager::AddObjectByTypeID(ObjectTypeID a_typeID)
@@ -103,9 +160,9 @@ namespace Engine::GameObject
 		_guid.Create();
 		_upObject->SetGUID(_guid);
 
-		// 追加して初期化
+		// 追加して初期化(この場で3つのフェーズを通しきる)
 		BaseObject* _pObject = Register(std::move(_upObject));
-		_pObject->Init(m_objContext);
+		RunInitPhases();
 		return _pObject;
 	}
 
@@ -218,8 +275,10 @@ namespace Engine::GameObject
 						_upObject->SetParentGUID(_parentGUID);
 						BaseObject* _pObject = Register(std::move(_upObject));
 
-						// 既定初期化 → 保存データで上書き復元
-						_pObject->Init(m_objContext);
+						// 保存データの復元。
+						// 初期化フェーズは全員を読み終えてから下でまとめて回す
+						// (PostDeserialize が既定値で保存値を潰さず、
+						//  Start では他のオブジェクトが出揃っているようにするため)
 						if (a_ar.BeginGroup("Data"))
 						{
 							_pObject->Archive(a_ar, m_objContext);
@@ -231,6 +290,13 @@ namespace Engine::GameObject
 				a_ar.EndObject();
 			}
 			a_ar.EndArray();
+		}
+
+		// 読み込みは全員ぶんを並べ終えてから初期化フェーズを回す。
+		// ここまで来れば FindByGUID で互いを引けるので、Start でのつなぎが成立する
+		if (a_ar.IsLoading())
+		{
+			RunInitPhases();
 		}
 	}
 }

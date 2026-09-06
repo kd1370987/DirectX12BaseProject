@@ -19,7 +19,7 @@
 //     判定も見た目も UIButton のものがそのまま効くので、ここで作り直すものが無い。
 //
 // ・押した瞬間に確認ボックスを出す
-//     コールバックの中でも配下へ反映できるよう、マネージャーを Init で覚えてある。
+//     コールバックの中でも配下へ反映できるよう、マネージャーを Awake で覚えてある。
 //     頼まれごとを覚えて次の更新で処理する形にすると、押してから1フレーム遅れて出る。
 //
 // ・確認中は一覧を押せなくする
@@ -30,7 +30,7 @@ namespace App::Object
 	//======================================================================================
 	// 初期化
 	//======================================================================================
-	void MissionSelect::Init(Engine::GameObject::ObjectContext& a_context)
+	void MissionSelect::Awake(Engine::GameObject::ObjectContext& a_context)
 	{
 		m_pObjectManager = a_context.pObjectManager;
 	}
@@ -40,7 +40,7 @@ namespace App::Object
 	//======================================================================================
 	void MissionSelect::Update(Engine::GameObject::ObjectContext& a_context)
 	{
-		// Init より先に読み込みが走る経路でも取りこぼさないように、ここでも拾っておく
+		// Awake より先に読み込みが走る経路でも取りこぼさないように、ここでも拾っておく
 		if (m_pObjectManager == nullptr) m_pObjectManager = a_context.pObjectManager;
 
 		// ボタンへの差し込み(済んでいれば何もしない)

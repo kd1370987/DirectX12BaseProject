@@ -20,7 +20,8 @@ namespace App::Object
 	public:
 
 		// 初期化処理 : レティクルテクスチャの読み込み
-		void Init(Engine::GameObject::ObjectContext& a_context) override;
+		void PostDeserialize(Engine::GameObject::ObjectContext& a_context) override;
+		void Awake(Engine::GameObject::ObjectContext& a_context) override;
 
 		// 更新処理 : 判定の中心と半径をプレイヤーへ渡す
 		void Update(Engine::GameObject::ObjectContext& a_context) override;

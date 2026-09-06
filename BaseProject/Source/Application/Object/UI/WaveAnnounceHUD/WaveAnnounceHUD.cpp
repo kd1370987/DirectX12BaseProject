@@ -23,13 +23,12 @@ namespace App::Object
 		constexpr float DEFAULT_SCREEN_Y_RATE = 0.28f;
 	}
 
-	void WaveAnnounceHUD::Init(Engine::GameObject::ObjectContext& a_context)
+	void WaveAnnounceHUD::PostDeserialize(Engine::GameObject::ObjectContext& a_context)
 	{
-		if (!a_context.pServices) return;
-		if (!a_context.pServices->pOptionManager || !a_context.pServices->pResourceManager) return;
+		if (!a_context.pServices || !a_context.pServices->pOptionManager) return;
 
-		// 新規追加直後はサイズが0で何も見えないので、既定サイズと表示位置を入れておく。
-		// シーン読み込み時はこの後の Archive で保存値に上書きされる。
+		// サイズが0のままだと何も見えないので、既定サイズと表示位置を入れておく。
+		// 保存値を読み終えた後に見るので、シーンに入っている値は潰さない
 		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f)
 		{
 			m_pixelSize = { DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT };
@@ -41,7 +40,13 @@ namespace App::Object
 				static_cast<float>(_winOp.windowHeight) * DEFAULT_SCREEN_Y_RATE
 			};
 		}
+	}
 
+	//======================================================================================
+	// リソースの要求
+	//======================================================================================
+	void WaveAnnounceHUD::Awake(Engine::GameObject::ObjectContext& a_context)
+	{
 		// 飾り(文字・枠)は差し替え前提なので既定の絵は持たない
 		RequestDecorationResources(a_context);
 

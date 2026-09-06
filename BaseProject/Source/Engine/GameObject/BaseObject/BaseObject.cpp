@@ -1,10 +1,6 @@
 ﻿#include "BaseObject.h"
 namespace Engine::GameObject
 {
-	void BaseObject::Init(ObjectContext& a_context)
-	{
-
-	}
 	void BaseObject::Release(ObjectContext& a_context)
 	{
 

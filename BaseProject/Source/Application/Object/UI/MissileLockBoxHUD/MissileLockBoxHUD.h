@@ -23,7 +23,8 @@ namespace App::Object
 	public:
 
 		// 初期化処理 : 枠テクスチャの読み込み
-		void Init(Engine::GameObject::ObjectContext& a_context) override;
+		void PostDeserialize(Engine::GameObject::ObjectContext& a_context) override;
+		void Awake(Engine::GameObject::ObjectContext& a_context) override;
 
 		// 更新処理 : プレイヤーの溜め結果からスクリーン座標を集める
 		void Update(Engine::GameObject::ObjectContext& a_context) override;

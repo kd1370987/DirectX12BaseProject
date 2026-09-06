@@ -106,6 +106,23 @@ namespace Engine::GameObject
 	};
 
 	/// <summary>
+	/// 初期化フェーズ
+	/// </summary>
+	/// <remarks>
+	/// ECSのシステム分類(PostDeserialize / Awake / Start)と同じ並び。
+	/// 生成したオブジェクトはこの順に1つずつ通り、通し終えたものが Active になる。
+	/// 進めるのは GameObjectManager::RunInitPhases で、フェーズごとに全員を回すので
+	/// 「相手がまだ前のフェーズを通っていない」状態で次に入ることがない。
+	/// </remarks>
+	enum class EObjectInitPhase : uint8_t
+	{
+		PostDeserialize,	// 生成直後 : まだ1つも通っていない
+		Awake,
+		Start,
+		Active,				// 3つとも通し終えた(以降は Update だけ)
+	};
+
+	/// <summary>
 	/// 奥部ジェクトに継承させるベース
 	/// </summary>
 	class BaseObject
@@ -115,7 +132,44 @@ namespace Engine::GameObject
 		BaseObject() = default;
 		virtual ~BaseObject() = default;
 
-		virtual void Init(ObjectContext& a_context);
+		//=======================================================================
+		// 初期化 : ECSと同じく3つのフェーズに分けてある
+		//
+		// 生成したオブジェクトは PostDeserialize -> Awake -> Start の順に
+		// 1回ずつ通る。フェーズごとに全員を回すので、後のフェーズでは
+		// 「同じシーンの全員が前のフェーズを済ませている」ことを当てにしてよい。
+		//=======================================================================
+
+		/// <summary>
+		/// 保存データを読み終えた直後に呼ばれる
+		/// </summary>
+		/// <remarks>
+		/// 自分のデータだけで完結する整え直しを置く場所。
+		/// 新規追加した直後の既定値入れ(大きさ・既定の飾りなど)もここでやる。
+		///
+		/// Archive の後に走るので、保存値を既定値で潰す心配がない。
+		/// 逆に、他のオブジェクトを引くのはまだ早い(相手はここを通っていない)。
+		/// </remarks>
+		virtual void PostDeserialize(ObjectContext& a_context) {}
+
+		/// <summary>
+		/// 全員の PostDeserialize が済んでから呼ばれる
+		/// </summary>
+		/// <remarks>
+		/// リソースの要求(テクスチャ・音)や、コンテキストから受け取ったものを
+		/// 覚えておく処理を置く場所。データはもう最終形になっている。
+		/// </remarks>
+		virtual void Awake(ObjectContext& a_context) {}
+
+		/// <summary>
+		/// 全員の Awake が済んでから呼ばれる(最初の Update より前)
+		/// </summary>
+		/// <remarks>
+		/// 他のオブジェクトを当てにしてよいのはここから。
+		/// GUIDで引いた相手へコールバックを差し込む、といった「つなぎ」を置く。
+		/// </remarks>
+		virtual void Start(ObjectContext& a_context) {}
+
 		virtual void Release(ObjectContext& a_context);
 
 		/// <summary>
@@ -207,6 +261,12 @@ namespace Engine::GameObject
 		const Engine::GUID& GetGUID() const { return m_guid; }
 
 		//=======================================================================
+		// 初期化フェーズ : 進めるのは GameObjectManager
+		//=======================================================================
+		EObjectInitPhase GetInitPhase() const { return m_initPhase; }
+		void SetInitPhase(EObjectInitPhase a_phase) { m_initPhase = a_phase; }
+
+		//=======================================================================
 		// ヒエラルキー上の親 : エディターで並びをまとめるためだけのもの
 		//=======================================================================
 
@@ -236,5 +296,8 @@ namespace Engine::GameObject
 
 		// ヒエラルキー上の親(エディターの並びだけに効く)。無効なら根
 		Engine::GUID m_parentGUID = {};
+
+		// どこまで初期化を通したか。生成直後は何も通っていない
+		EObjectInitPhase m_initPhase = EObjectInitPhase::PostDeserialize;
 	};
 }

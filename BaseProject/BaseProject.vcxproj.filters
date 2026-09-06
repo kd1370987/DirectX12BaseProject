@@ -4,9 +4,6 @@
     <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit">
       <UniqueIdentifier>{92a28953-5ff5-4e10-8786-c4d41c64eb19}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\ImGui\ImNode\Core">
-      <UniqueIdentifier>{4d9661c1-b679-491a-864b-66af3fb9a86e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Diagnostics">
       <UniqueIdentifier>{a7f3c9d2-4b81-4e6a-9c15-8d2e7f0b3a64}</UniqueIdentifier>
     </Filter>
@@ -1600,13 +1597,13 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset">
       <UniqueIdentifier>{f80cf745-d50f-4086-a0d1-f4be90db9575}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Scene\SceneInitializer">
+      <UniqueIdentifier>{504214b1-9661-44f5-bcab-3054ea9dea5b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.cpp">
-      <Filter>Source\Engine\Editor\ImGui\ImNode\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
       <Filter>Library\Include\ImGuizmo-master</Filter>
@@ -2715,13 +2712,14 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler\RenderGraphCompiler.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.cpp" />
+    <ClCompile Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.cpp">
+      <Filter>Source\Application\Object\Scene\SceneInitializer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.h">
-      <Filter>Source\Engine\Editor\ImGui\ImNode\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\ImGuizmo-master\ImGuizmo.h">
       <Filter>Library\Include\ImGuizmo-master</Filter>
@@ -4393,6 +4391,10 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\AliasingBarrier.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.h" />
+    <ClInclude Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.h">
+      <Filter>Source\Application\Object\Scene\SceneInitializer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
