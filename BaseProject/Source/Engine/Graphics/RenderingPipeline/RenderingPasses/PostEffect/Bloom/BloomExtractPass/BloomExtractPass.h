@@ -22,10 +22,13 @@ namespace Engine::Graphics::Pipeline
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;
 
-		EPassEditResult EditUpdate() override;
-		void EditNode() override;
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
+
+		// 編集対象の値 : エディターはここだけを触る。
+		// 実体は下の m_cb で、シェーダーへはそのまま送られる
+		using Params = BloomOptionCB;
+		Params& RefParams() { return m_cb; }
 
 	private:
 

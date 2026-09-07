@@ -38,16 +38,32 @@ namespace Engine::Resource
 		}
 	};
 
+	// アセットグループ : タイプごとに分けるプロパティを作る中間素材
+	// 初回にできたものを基準として集める
+	struct AssetGroup
+	{
+		std::string					type = "";			// タイプ : 初回のものを入れる
+		std::string					basePath = "";		// 拡張子なしのベースパス(実際の綴り)
+		std::string					fileName = "";		// ファイル名
+		std::vector<std::string>	extensions = {};	// そのベースパスに付いている拡張子
+	};
+
 	// ゲームに使用する外部アセットを管理する
 	class AssetDatabase
 	{
 	public:
+
+		//-----------------------------------------------------------------------------------------------------
+		// 初期化
+		//-----------------------------------------------------------------------------------------------------
 
 		// アセットの上位フォルダと作成拡張子指定
 		void Init(
 			const std::string& a_assetFilePath,
 			const std::string& a_metafileExtension
 		);
+		// 解放処理
+		void Release();
 
 		// 読み込みたい拡張子があれば追加
 		void AddSupporedExtensions(const TypeExtension& a_data);
@@ -55,11 +71,18 @@ namespace Engine::Resource
 		// アセットフォルダ以下を検索して、すべてのアセットにメタファイルを作る
 		void CreateMetaFileForAllAssets();
 
-		// すべてのメタファイルを削除して再構築する
-		void RebuildAllMetaData();
-
 		// ランタイム用情報へと変換
 		void CreateRuntimeData();
+
+		//-----------------------------------------------------------------------------------------------------
+		// 更新
+		//-----------------------------------------------------------------------------------------------------
+
+		// クロールディレクトリ以下を監視する。ランタイム中で行うが、エディターモードのみで実行すべき
+		void Update();
+
+		// すべてのメタファイルを削除して再構築する
+		void RebuildAllMetaData();		
 
 		// ランタイム中にファイルが追加された際に追加される
 		Engine::GUID AddMetaData(const std::string& a_newFilePath,const std::string& a_type);
@@ -92,6 +115,24 @@ namespace Engine::Resource
 		AssetProperty* FindAssetProperty(const Engine::GUID& a_guid);
 	private:
 
+		//-----------------------------------------------------------------------------------------------------
+		// ロックを取らない実装
+		//
+		// m_mutex は std::mutex なので同じスレッドから二重に取れない。
+		// ロック済みの関数から公開関数を呼ぶと自分の解放を待って固まるため、
+		// 処理をまたぐときは公開関数ではなくこちらを呼ぶこと。
+		// 呼ぶ側が m_mutex を取っていることが前提。
+		//-----------------------------------------------------------------------------------------------------
+
+		// アセットフォルダ以下を検索して、すべてのアセットにメタファイルを作る
+		void CreateMetaFileForAllAssetsInternal();
+
+		// ランタイム用情報へと変換
+		void CreateRuntimeDataInternal();
+
+		// 別スレッドでファイルの変更を監視する関数
+		void FileWatch();
+
 		// 新たにメタファイルの内容を作成して返す
 		nlohmann::json CreateMetaData(const std::filesystem::path& a_srcFile);
 
@@ -100,6 +141,14 @@ namespace Engine::Resource
 
 		// アセットツリーの更新
 		void RefreshAssetTree();
+
+		// ファイル単体でのプロパティ操作
+		void AddFileProperty(const std::filesystem::path& a_filePath);
+		void RemoveFileProperty(const std::filesystem::path& a_filePath);
+		void ChangeFileName(const std::filesystem::path& a_filePath);
+
+		// ファイルパスの拡張子からアセットのタイプを検出
+		std::string GetAssetType(const std::filesystem::path& a_filePath);
 
 	private:
 
@@ -116,6 +165,21 @@ namespace Engine::Resource
 
 		// 階層構造
 		AssetNode m_assetRootNode = {};
+
+		// ランタイム中のディレクトリ管理
+
+		std::thread m_fileWatcherThread;
+		std::atomic_bool m_isWatching = false;
+		std::mutex m_mutex;
+
+		std::atomic_bool m_isDirtyDir = false;		// ディレクトリ以下で変更があったかどうか
+		HANDLE m_dirHandle;				// ディレクトリハンドル
+
+		// 中間バッファ
+		std::array<std::byte, 64 * 1024> m_buffer;											// 変更点
+		std::unordered_map<std::string, std::vector<AssetGroup>> m_typeAssetGroupTemp = {};	// 変更をためるバッファ
+		std::unordered_map<Engine::GUID, AssetProperty> m_changedAssetPropMap = { };		// 既存に対しての変更点
+
 
 
 	// シングルトン

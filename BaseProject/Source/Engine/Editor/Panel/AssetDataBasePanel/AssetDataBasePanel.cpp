@@ -171,10 +171,10 @@ namespace Engine::Editor
 						// 検索中は名前が一致しないものも除外
 						if (!_isShowAsset(_asset, a_tabName)) { continue; }
 
-						bool _sel = (a_editContext.pAssetProp && a_editContext.pAssetProp->guid == _asset->guid);
+						bool _sel = (a_editContext.selectedAssetGUID == _asset->guid);
 						if (ImGui::Selectable(_asset->fileName.c_str(), _sel))
 						{
-							a_editContext.pAssetProp = _asset;
+							a_editContext.SelectAsset(_asset);
 						}
 					}
 					if (!a_name.empty())

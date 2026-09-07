@@ -1,4 +1,4 @@
-#include "TestClearPass.h"
+﻿#include "TestClearPass.h"
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
@@ -35,25 +35,14 @@ namespace Engine::Graphics::Pipeline
 		const D3D12_CPU_DESCRIPTOR_HANDLE _rtv =
 			D3D12::DescriptorHeapManager::Instance().GetCPU(_pResource->GetRTV());
 
-		const float _color[4] = { m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a };
+		const float _color[4] = { m_params.clearColor.r, m_params.clearColor.g, m_params.clearColor.b, m_params.clearColor.a };
 		a_context.pCmdList->ClearRenderTargetView(_rtv, _color, 0, nullptr);
 	}
 
-	EPassEditResult TestClearPass::EditUpdate()
-	{
-		ImGui::TextDisabled("出力テクスチャを指定色で塗るだけのパスです");
 
-		// 自分で塗るので、色を変えてもリソースの作り直しは要らない。
-		// Param を返すと、カメラが回している実行インスタンスへ値だけが写る
-		if (Editor::EditorHelper::DrawColorEdit("ClearColor", m_clearColor)) return EPassEditResult::Param;
-		return EPassEditResult::None;
-	}
-
-	void TestClearPass::EditNode()
-	{}
 
 	void TestClearPass::Archive(Engine::Persistence::Archive& a_arch)
 	{
-		a_arch.Field("clearColor", m_clearColor);
+		a_arch.Field("clearColor", m_params.clearColor);
 	}
 }

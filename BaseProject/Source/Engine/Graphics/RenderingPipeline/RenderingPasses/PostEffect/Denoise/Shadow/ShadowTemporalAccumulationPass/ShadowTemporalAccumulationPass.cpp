@@ -46,21 +46,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult ShadowTemporalAccumulationPass::EditUpdate()
-	{
-		ImGui::TextDisabled("HistoryOut を History へ繋いでください");
-		ImGui::TextDisabled("(Temporal なので前フレームのぶんが入ります)");
 
-		bool _isEdit = false;
-		_isEdit |= ImGui::DragFloat("PhiDepth", &m_cb.phiDepth, 0.01f, 0.0f);
-		_isEdit |= ImGui::DragFloat("PhiNormal", &m_cb.phiNormal, 0.1f, 0.0f);
-		_isEdit |= ImGui::DragFloat("BlendRate", &m_cb.blendRate, 0.01f, 0.0f, 1.0f);
-
-		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void ShadowTemporalAccumulationPass::EditNode()
-	{}
 
 	void ShadowTemporalAccumulationPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

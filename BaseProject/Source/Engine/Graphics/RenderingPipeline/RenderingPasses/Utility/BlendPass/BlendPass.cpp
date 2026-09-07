@@ -27,13 +27,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult BlendPass::EditUpdate()
-	{
-		return EPassEditResult();
-	}
 
-	void BlendPass::EditNode()
-	{}
 
 	void BlendPass::Archive(Engine::Persistence::Archive& a_arch)
 	{}

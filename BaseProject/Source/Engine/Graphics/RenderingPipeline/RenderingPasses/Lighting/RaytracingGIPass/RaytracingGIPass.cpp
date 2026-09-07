@@ -189,15 +189,7 @@ namespace Engine::Graphics::Pipeline
 		Raytracing::RayEngine::Instance().Dispatch(_pCtx, m_shaderTable);
 	}
 
-	EPassEditResult RaytracingGIPass::EditUpdate()
-	{
-		ImGui::TextDisabled("レイを飛ばして間接光を求めます(ハーフ解像度)");
-		if (!m_isReady) ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "PSO not ready");
-		return EPassEditResult::None;
-	}
 
-	void RaytracingGIPass::EditNode()
-	{}
 
 	void RaytracingGIPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

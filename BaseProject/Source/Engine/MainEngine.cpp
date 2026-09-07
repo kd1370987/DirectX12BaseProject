@@ -93,7 +93,7 @@ namespace Engine
 		_desc.windowMode = _winOp.windowMode;
 		if (!m_upWindow->Create(_desc))
 		{
-			assert(0 && "ウィンドウ作成失敗");
+			ENGINE_ERRLOG(false, "ウィンドウ作成失敗");
 			return;
 		}
 
@@ -218,6 +218,8 @@ namespace Engine
 
 		// リソースの解放（Sound = DirectX::SoundEffect もここで解放される）
 		Resource::ResourceManager::Instance().Release();
+
+		Resource::AssetDatabase::Instance().Release();
 
 		// オーディオエンジンの解放。
 		// SoundEffect が AudioEngine を参照しているため、必ずリソース解放の後に行う。
@@ -346,6 +348,7 @@ namespace Engine
 			}
 		}
 
+		Resource::AssetDatabase::Instance().Update();
 
 		return true;
 	}

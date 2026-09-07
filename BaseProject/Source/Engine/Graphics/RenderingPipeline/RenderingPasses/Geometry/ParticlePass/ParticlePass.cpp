@@ -197,15 +197,7 @@ namespace Engine::Graphics::Pipeline
 		}
 	}
 
-	EPassEditResult ParticlePass::EditUpdate()
-	{
-		ImGui::TextDisabled("発生と更新は GraphicsEngine 側で毎フレーム1回走ります");
-		ImGui::TextDisabled("このパスは描画だけを担当します");
-		return EPassEditResult::None;
-	}
 
-	void ParticlePass::EditNode()
-	{}
 
 	void ParticlePass::Archive(Engine::Persistence::Archive& a_arch)
 	{

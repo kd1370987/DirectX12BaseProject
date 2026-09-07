@@ -63,15 +63,7 @@ namespace Engine::Graphics::Pipeline
 		_pCtx->DrawQueueDispathMesh(GetPassIndex());
 	}
 
-	EPassEditResult ZPrePass::EditUpdate()
-	{
-		ImGui::TextDisabled("不透明モデルの深度だけを書きます");
-		ImGui::Text("PassIndex : %d", static_cast<int>(GetPassIndex()));
-		return EPassEditResult::None;
-	}
 
-	void ZPrePass::EditNode()
-	{}
 
 	void ZPrePass::Archive(Engine::Persistence::Archive& a_arch)
 	{

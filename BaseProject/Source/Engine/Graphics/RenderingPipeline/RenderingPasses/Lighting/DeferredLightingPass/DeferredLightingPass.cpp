@@ -1,4 +1,4 @@
-#include "DeferredLightingPass.h"
+﻿#include "DeferredLightingPass.h"
 
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
@@ -79,19 +79,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult DeferredLightingPass::EditUpdate()
-	{
-		bool _isEdit = false;
 
-		_isEdit |= ImGui::DragFloat("GIIntensity", &m_cb.giIntensity, 0.01f, 0.0f);
-		_isEdit |= ImGui::DragFloat("DirectionalIntensity", &m_cb.directionalIntensity, 0.01f, 0.0f);
-		_isEdit |= ImGui::DragFloat("DielectricF0", &m_cb.dielectricF0, 0.001f, 0.0f, 1.0f);
-
-		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void DeferredLightingPass::EditNode()
-	{}
 
 	void DeferredLightingPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

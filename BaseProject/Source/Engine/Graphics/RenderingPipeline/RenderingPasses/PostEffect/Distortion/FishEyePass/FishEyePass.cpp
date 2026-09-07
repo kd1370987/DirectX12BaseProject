@@ -40,25 +40,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult FishEyePass::EditUpdate()
-	{
-		bool _isEdit = false;
 
-		bool _isEnable = (m_cb.enable != 0);
-		if (ImGui::Checkbox("Enable", &_isEnable)) { m_cb.enable = _isEnable ? 1 : 0; _isEdit = true; }
-
-		_isEdit |= ImGui::DragFloat2("Center", &m_cb.center.x, 0.01f);
-
-		// 正で樽型、負で糸巻き型
-		_isEdit |= ImGui::DragFloat("Strength", &m_cb.strength, 0.01f, -2.0f, 2.0f);
-
-		ImGui::TextDisabled("カメラが FishEyeComponent を持つあいだはそちらの値が優先される");
-
-		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void FishEyePass::EditNode()
-	{}
 
 	void FishEyePass::Archive(Engine::Persistence::Archive& a_arch)
 	{

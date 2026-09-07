@@ -29,13 +29,58 @@ namespace Engine::Resource
 		// 初期化
 		m_assetsFilePath = a_assetFilePath;
 		m_metafileExtension = a_metafileExtension;
+
+		m_dirHandle = INVALID_HANDLE_VALUE;
+
+		// ディレクトリ以下の更新検知用にハンドルを作成
+		m_dirHandle = CreateFileW(
+			String::ToWideString(a_assetFilePath).c_str(),
+			FILE_LIST_DIRECTORY,
+			FILE_SHARE_READ |
+			FILE_SHARE_WRITE |
+			FILE_SHARE_DELETE,
+			nullptr,
+			OPEN_EXISTING,
+			FILE_FLAG_BACKUP_SEMANTICS,
+			nullptr
+		);
+
+		if (m_dirHandle == INVALID_HANDLE_VALUE)
+		{
+			ENGINE_ERRLOG(false,"[AssetDatabase] ディレクトリ監視の開始に失敗");
+			return;
+		}
+
+		m_isWatching = true;
+
+		m_fileWatcherThread = std::thread(&AssetDatabase::FileWatch, this);
+	}
+	void AssetDatabase::Release()
+	{
+		m_isWatching = false;
+
+		// ハンドルの解放
+		if (m_dirHandle != INVALID_HANDLE_VALUE)
+		{
+			CancelIoEx(m_dirHandle, nullptr);
+			CloseHandle(m_dirHandle);
+			m_dirHandle = INVALID_HANDLE_VALUE;
+		}
+
+		// 監視スレッドの終了
+		if (m_fileWatcherThread.joinable())
+		{
+			m_fileWatcherThread.join();
+		}
 	}
 	void AssetDatabase::AddSupporedExtensions(const TypeExtension& a_data)
 	{
+		std::unique_lock _gard(m_mutex);
 		m_assetTypeExtensionsMap[a_data.type] = a_data;
 	}
 	Engine::GUID AssetDatabase::AddMetaData(const std::string& a_baseFilePath, const std::string& a_type)
 	{
+		std::unique_lock _gard(m_mutex);
 		// 拡張子なしの論理パス
 		std::filesystem::path _basePath(a_baseFilePath);				// ファイルパス
 		std::filesystem::create_directories(_basePath.parent_path());	// 親フォルダを作成
@@ -52,7 +97,7 @@ namespace Engine::Resource
 			// 既存のメタファイルがあればそこから取得
 			std::ifstream _ifs(_metaPath.string());
 			_ifs >> _json;
-			_ifs.close(); // ★念のためcloseを追加
+			_ifs.close(); // 念のためcloseを追加
 			_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DefaultGUID.String()));
 		}
 		else
@@ -119,6 +164,11 @@ namespace Engine::Resource
 	}
 	void AssetDatabase::CreateMetaFileForAllAssets()
 	{
+		std::unique_lock _gard(m_mutex);
+		CreateMetaFileForAllAssetsInternal();
+	}
+	void AssetDatabase::CreateMetaFileForAllAssetsInternal()
+	{
 		//----------------------------------------------------------------------
 		// 拡張子なしのベースパスごとに拡張子をまとめる
 		//----------------------------------------------------------------------
@@ -132,11 +182,6 @@ namespace Engine::Resource
 		//
 		// 実際に使うベースパスの綴りは、最初に見つけたものを採用する。
 		//----------------------------------------------------------------------
-		struct AssetGroup
-		{
-			std::string              basePath   = "";	// 拡張子なしのベースパス(実際の綴り)
-			std::vector<std::string> extensions = {};	// そのベースパスに付いている拡張子
-		};
 
 		std::map<std::string, AssetGroup> _assetGroups;
 
@@ -257,8 +302,203 @@ namespace Engine::Resource
 		}
 	}
 
+	void AssetDatabase::Update()
+	{
+		std::unique_lock _gard(m_mutex);
+
+		// 変更が検知されていればランタイムデータを書き換える : メインスレッド
+		if (!m_isDirtyDir) return;
+		m_isDirtyDir = false;
+
+		// 既存のプロパティに対する変更
+		for (auto& [_guid, _prop] : m_changedAssetPropMap)
+		{
+			// 登録されている拡張子がなければすでにメタデータを必要とする実データが消えている
+			if (_prop.extensionsVec.empty())
+			{
+				const Engine::GUID _removeGUID = _guid;
+
+				//----------------------------------------------------------------------
+				// 実体が無くなったのでメタファイルも消す
+				//
+				// 残すと次の起動で CreateRuntimeData が実体の無いアセットを
+				// そのまま復活させてしまう(あちらの実体チェックは無効化されている)。
+				// 消したメタファイル自身も通知として返ってくるが、
+				// .assetmeta は登録タイプに無いので GetAssetType が弾く
+				//----------------------------------------------------------------------
+				std::error_code _ec;
+				std::filesystem::remove(_prop.filePath + m_metafileExtension, _ec);
+
+				// タイプ別の配列からも取り除く(アセット選択の一覧に残さない)
+				auto _typeIt = m_typeMetaMap.find(_prop.type);
+				if (_typeIt != m_typeMetaMap.end())
+				{
+					std::erase_if(
+						_typeIt->second,
+						[&_removeGUID](const AssetProperty& a_prop) { return a_prop.guid == _removeGUID; }
+					);
+				}
+
+				m_assetMap.erase(_removeGUID);
+				continue;
+			}
+			// 配列だけでも良かったが、一応すべて上書き
+			m_assetMap[_guid] = _prop;
+
+			// メタファイルのパス
+			std::filesystem::path _metaPath = _prop.filePath + m_metafileExtension;
+
+			// メタファイルが存在している前提なので更新
+			nlohmann::json _json;
+			if (std::filesystem::exists(_metaPath))
+			{
+				std::ifstream _ifs(_metaPath.string());
+				if (_ifs.is_open())
+				{
+					_ifs >> _json;
+					_ifs.close();
+				}
+			}
+
+			// 拡張子リストを常に最新の状態に更新
+			auto _array = nlohmann::json::array();
+			for (const auto& _ext : _prop.extensionsVec)
+			{
+				_array.push_back(_ext); 
+			}
+			_json["Files"] = _array;
+
+			// ファイルに保存
+			std::ofstream _metafile(_metaPath);
+			_metafile << _json.dump(4);
+			_metafile.close();
+		}
+
+		// 新規に追加
+		for (auto& [_type, _groupVec] : m_typeAssetGroupTemp)
+		{
+			// グループごとにメタファイルを作成していく
+			for (auto& _group : _groupVec)
+			{
+				// 作成するメタファイルのフルパスを作成
+				std::filesystem::path _metaPath = _group.basePath + m_metafileExtension;
+
+				// メタファイルの作成（すでに存在していれば既存のGUIDを使う）
+				nlohmann::json _json;
+				Engine::GUID _guid;
+
+				// 拡張子リスト : メタファイルへ書くものと登録するもので同じものを使う
+				std::vector<std::string> _extensionsVec = {};
+
+				// 念のため既存のメタファイルがないかチェック
+				if (std::filesystem::exists(_metaPath))
+				{
+					// 既存のメタファイルがあればそこから取得
+					std::ifstream _ifs(_metaPath.string());
+					_ifs >> _json;
+					_ifs.close();
+					_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DefaultGUID.String()));
+
+					//--------------------------------------------------------------
+					// 書いてある拡張子リストを土台にする
+					//
+					// アセットのフォルダを丸ごと持ち込むと .assetmeta も付いてくる。
+					// 通知で拾えるのは今回届いた分だけなので、
+					// 元から書いてあるものを残したうえで今回の分を足す。
+					//
+					// ただし実体が無いものは引き継がない。
+					// GetFilePathFromGUID は .ob/.oj を優先して返すため、
+					// 消えた独自データが載ったままだと存在しないパスを掴んで
+					// 読み込みに失敗する(足りない分は後から届く通知で戻る)
+					//--------------------------------------------------------------
+					if (_json.contains("Files"))
+					{
+						for (const auto& _extJson : _json["Files"])
+						{
+							auto _ext = _extJson.get<std::string>();
+							if (!std::filesystem::exists(_group.basePath + _ext)) continue;
+
+							_extensionsVec.push_back(_ext);
+						}
+					}
+				}
+
+				// GUIDが引けないメタファイル(壊れている・手で作られた)なら発行し直す
+				if (!_guid.IsValid())
+				{
+					_guid.Create();
+				}
+				_json["GUID"] = _guid.String();
+
+				// タイプは書いてあるものを優先する(持ち込んだメタファイルの種別を勝手に変えない)
+				if (!_json.contains("Type")) _json["Type"] = _type;
+
+				// 今回検出した拡張子を足す(すでに載っているものは足さない)
+				for (const auto& _ext : _group.extensions)
+				{
+					if (std::find(_extensionsVec.begin(), _extensionsVec.end(), _ext) != _extensionsVec.end()) continue;
+
+					_extensionsVec.push_back(_ext);
+				}
+
+				//------------------------------------------------------------------
+				// メタファイルへ書き戻す
+				//
+				// 既存のメタファイルがあった場合も必ず通すこと。
+				// 新規作成のときだけ書いていると Files が古いまま残り、
+				// ディスクの内容とランタイムデータが食い違う
+				//------------------------------------------------------------------
+				auto _array = nlohmann::json::array();
+				for (const auto& _ext : _extensionsVec)
+				{
+					_array.push_back(_ext);
+				}
+				_json["Files"] = _array;
+
+				std::ofstream _metafile(_metaPath);
+				_metafile << _json.dump(4);
+				_metafile.close();
+
+				// -----------------------------------------------------
+				// ランタイムデータの作成と更新
+				// -----------------------------------------------------
+				AssetProperty _prop;
+				_prop.filePath = _group.basePath;
+				_prop.fileName = _group.fileName;
+				// タイプは今書き出したメタファイルに合わせる(CreateRuntimeDataと同じ引き方)
+				_prop.type = JSONHelper::GetValue<std::string>("Type", _json, _group.type);
+				_prop.guid = _guid;
+				_prop.extensionsVec = _extensionsVec;
+
+				// GUIDをキーにして登録
+				m_assetMap[_prop.guid] = _prop;
+
+				// m_typeMetaMap の重複登録を防ぎつつ更新
+				auto& _metaVec = m_typeMetaMap[_prop.type];
+				auto _it = std::find_if(_metaVec.begin(), _metaVec.end(), [&_guid](const AssetProperty& p) { return p.guid == _guid; });
+				if (_it != _metaVec.end())
+				{
+					*_it = _prop; // 既存なら上書き
+				}
+				else
+				{
+					_metaVec.push_back(_prop); // 新規なら追加
+				}
+			}
+		}
+
+		// -----------------------------------------------------
+		// ツリー階層構造の再構築
+		// -----------------------------------------------------
+		RefreshAssetTree();
+
+		m_typeAssetGroupTemp.clear();
+		m_changedAssetPropMap.clear();
+	}
+
 	void AssetDatabase::RebuildAllMetaData()
 	{
+		std::unique_lock _gard(m_mutex);
 		// ディレクトリが存在しない場合は処理をしない
 		if (!std::filesystem::exists(m_assetsFilePath)) return;
 
@@ -282,15 +522,21 @@ namespace Engine::Resource
 		}
 
 		// メタファイルを完全にクリーンな状態から作り直す
-		CreateMetaFileForAllAssets();
+		// ロックはこの関数で取っているので、公開関数ではなく実装側を呼ぶこと
+		CreateMetaFileForAllAssetsInternal();
 
 		// ランタイムデータを最新のものに更新
-		CreateRuntimeData();
+		CreateRuntimeDataInternal();
 
 		Engine::Editor::MainEditor::Instance().AddLog("All Asset Rebuild MetaData");
 	}
 
 	void AssetDatabase::CreateRuntimeData()
+	{
+		std::unique_lock _gard(m_mutex);
+		CreateRuntimeDataInternal();
+	}
+	void AssetDatabase::CreateRuntimeDataInternal()
 	{
 		m_assetMap.clear();
 		m_typeMetaMap.clear();
@@ -480,6 +726,7 @@ namespace Engine::Resource
 
 	AssetProperty* AssetDatabase::FindAssetProperty(const Engine::GUID& a_guid)
 	{
+		std::unique_lock _gard(m_mutex);
 		auto _it = m_assetMap.find(a_guid);
 		if (_it == m_assetMap.end()) return nullptr;
 
@@ -487,6 +734,90 @@ namespace Engine::Resource
 	}
 
 	
+
+	void AssetDatabase::FileWatch()
+	{
+		while (m_isWatching)
+		{
+
+			// ディレクトリ以下の更新を調べる
+			DWORD _bytesReturned = 0;
+
+			if (!ReadDirectoryChangesW(
+				m_dirHandle,							// 監視するディレクトリのハンドル
+				m_buffer.data(),						// 通知を書き込むバッファ
+				static_cast<DWORD>(m_buffer.size()),	// バッファサイズ
+				TRUE,									// サブディレクトリも監視
+				FILE_NOTIFY_CHANGE_FILE_NAME |			// 作成・削除・名前変更
+				FILE_NOTIFY_CHANGE_LAST_WRITE |			// ファイル変更
+				FILE_NOTIFY_CHANGE_SIZE,				// サイズ変更
+				&_bytesReturned,						// 実際に書き込まれたサイズ
+				nullptr,								// 同期処理なのでnullptr
+				nullptr									// 非同期完了ルーチンを行わない
+			))
+			{
+				if (!m_isWatching) break;
+				ENGINE_ERRLOG(false, "[AssetDatabase] ディレクトリ変更監視に失敗");
+				break;
+			}
+
+			{
+
+				std::unique_lock _gard(m_mutex);
+
+				// 変更内容を取得
+				auto* _info = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(m_buffer.data());
+
+				while (true)
+				{
+					// ファイルパス : UTF-16 -> std::wstring
+					std::filesystem::path _fileName(_info->FileName, _info->FileName + _info->FileNameLength / sizeof(wchar_t));
+					std::filesystem::path _filePath = m_assetsFilePath / _fileName;			// Assetを含めたパスになる
+
+					// 変更内容
+					switch (_info->Action)
+					{
+					case FILE_ACTION_ADDED:
+					{
+						// 追加
+						AddFileProperty(_filePath);
+						break;
+					}
+					case FILE_ACTION_REMOVED:
+					{
+						// 削除
+						RemoveFileProperty(_filePath);
+						break;
+					}
+					case FILE_ACTION_MODIFIED:
+					{
+						// 変更 : GUIDとファイルの位置だけを見ているので、内容が変わっても処理しない
+						break;
+					}
+					case FILE_ACTION_RENAMED_OLD_NAME:
+					{
+						// 名前変更前
+						break;
+					}
+					case FILE_ACTION_RENAMED_NEW_NAME:
+					{
+						// 名前変更後
+						break;
+					}
+					}
+
+
+					// 次がなければ抜ける
+					if (_info->NextEntryOffset == 0) break;
+
+					// 次の通知へオフセット分進める
+					_info = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(reinterpret_cast<std::byte*>(_info) + _info->NextEntryOffset);
+				}
+
+				m_isDirtyDir = true;
+			}
+		}
+	}
 
 	nlohmann::json AssetDatabase::CreateMetaData(const std::filesystem::path& a_srcFile)
 	{
@@ -568,5 +899,187 @@ namespace Engine::Resource
 		}
 
 		return;
+	}
+	void AssetDatabase::AddFileProperty(const std::filesystem::path& a_filePath)
+	{
+		auto _assetType = GetAssetType(a_filePath);			// アセットタイプを取得
+		if (_assetType.empty())
+		{
+			//空なら必要のないアセットなので処理を飛ばす
+			return;
+		}
+
+		ENGINE_LOG(
+			"[Resource] ファイルの新規追加を検出しました。Type : %s, Path : %s", _assetType.c_str(), a_filePath.string().c_str()
+		);
+
+		// 入力されたパスから拡張子を取り除き、ベースパスとして正規化する
+		std::filesystem::path _basePath = a_filePath.parent_path() / a_filePath.stem();
+		std::string _normBasePath = _basePath.lexically_normal().generic_string();
+		std::string _fileExt = a_filePath.extension().string();
+
+		//--------------------------------------------------------------------------
+		// まだメインスレッドへ渡していない変更を先に見る
+		//
+		// 1回の通知で同じアセットの拡張子が並んで届く(.gltf と .obmdl をまとめて
+		// 置いたときなど)。ここより先に m_assetMap から作り直してしまうと、
+		// 直前に積んだ拡張子が毎回上書きで消える
+		//--------------------------------------------------------------------------
+		for (auto& [_guid, _pendingProp] : m_changedAssetPropMap)
+		{
+			// 登録されているベースパス、アセットタイプと比較
+			if (_pendingProp.filePath != _normBasePath) continue;
+			if (_pendingProp.type != _assetType) continue;
+
+			// 同じ拡張子が二重に届くことがあるので重複は積まない
+			auto& _extVec = _pendingProp.extensionsVec;
+			if (std::find(_extVec.begin(), _extVec.end(), _fileExt) == _extVec.end())
+			{
+				_extVec.push_back(_fileExt);
+			}
+			return;
+		}
+
+		// 既存のものと同じグループがあればそこに所属する
+		for (const auto& [_guid, _assetProp] : m_assetMap)
+		{
+			// 登録されているベースパス、アセットタイプと比較
+			if (_assetProp.filePath != _normBasePath) continue;
+			if (_assetProp.type != _assetType) continue;
+
+			// 既存のプロパティを変更して、保存
+			AssetProperty _newProp = _assetProp;
+			auto& _extVec = _newProp.extensionsVec;
+			if (std::find(_extVec.begin(), _extVec.end(), _fileExt) == _extVec.end())
+			{
+				_extVec.push_back(_fileExt);
+			}
+			m_changedAssetPropMap[_guid] = _newProp;
+			return;
+		}
+
+		// 追加待ちのグループに同じベースパスがあればそこへ足す
+		// (作りかけのグループを見ないと、同じアセットのグループが拡張子の数だけ出来る)
+		auto& _groupVec = m_typeAssetGroupTemp[_assetType];
+		for (auto& _group : _groupVec)
+		{
+			if (_group.basePath != _normBasePath) continue;
+
+			if (std::find(_group.extensions.begin(), _group.extensions.end(), _fileExt)
+				== _group.extensions.end())
+			{
+				_group.extensions.push_back(_fileExt);
+			}
+			return;
+		}
+
+		// なければ新規作成
+		AssetGroup _group = {};
+		_group.fileName = _basePath.filename().string();
+		_group.basePath = _normBasePath;
+		_group.type = _assetType;
+		_group.extensions.push_back(_fileExt);
+		_groupVec.push_back(_group);
+	}
+	void AssetDatabase::RemoveFileProperty(const std::filesystem::path & a_filePath)
+	{
+		auto _assetType = GetAssetType(a_filePath);			// アセットタイプを取得
+		if (_assetType.empty())
+		{
+			//空なら必要のないアセットなので処理を飛ばす
+			return;
+		}
+
+		ENGINE_LOG(
+			"[Resource] ファイルの削除を検出しました。Type : %s, Path : %s", _assetType.c_str(), a_filePath.string().c_str()
+		);
+
+		// 入力されたパスから拡張子を取り除き、ベースパスとして正規化する
+		std::filesystem::path _basePath = a_filePath.parent_path() / a_filePath.stem();
+		std::string _normBasePath = _basePath.lexically_normal().generic_string();
+		std::string _fileExt = a_filePath.extension().string();
+
+		//--------------------------------------------------------------------------
+		// まだメインスレッドへ渡していない変更を先に見る
+		//
+		// .gltf と .obmdl をまとめて消すと通知が2件並んで届く。
+		// ここより先に m_assetMap から作り直すと1件目で消した拡張子が戻ってしまい、
+		// 配列がいつまでも空にならない = メタファイルが消えないままになる
+		//--------------------------------------------------------------------------
+		for (auto& [_guid, _pendingProp] : m_changedAssetPropMap)
+		{
+			// 登録されているベースパス、アセットタイプと比較
+			if (_pendingProp.filePath != _normBasePath) continue;
+			if (_pendingProp.type != _assetType) continue;
+
+			std::erase(_pendingProp.extensionsVec, _fileExt);
+			return;
+		}
+
+		// 既存のものと同じグループがあればそこから取り除く
+		for (const auto& [_guid, _assetProp] : m_assetMap)
+		{
+			// 登録されているベースパス、アセットタイプと比較
+			if (_assetProp.filePath != _normBasePath) continue;
+			if (_assetProp.type != _assetType) continue;
+
+			// 変更用のプロパティ
+			AssetProperty _newProp = _assetProp;
+
+			// 配列上に今回のがあれば取り除く
+			std::erase(_newProp.extensionsVec, _fileExt);
+
+			// 変更されたデータのみ入れて削除はメインスレッド側で一括で行う
+			m_changedAssetPropMap[_guid] = _newProp;
+			return;
+		}
+
+		//--------------------------------------------------------------------------
+		// 追加待ちのグループから取り除く
+		//
+		// 置いてすぐ消した場合、まだ m_assetMap には入っていない。
+		// ここで抜かないと、消えたファイルのメタファイルを Update が作ってしまう
+		//--------------------------------------------------------------------------
+		auto _groupIt = m_typeAssetGroupTemp.find(_assetType);
+		if (_groupIt == m_typeAssetGroupTemp.end()) return;
+
+		auto& _groupVec = _groupIt->second;
+		for (auto& _group : _groupVec)
+		{
+			if (_group.basePath != _normBasePath) continue;
+
+			std::erase(_group.extensions, _fileExt);
+			break;
+		}
+
+		// 拡張子が全部無くなったグループは作らない
+		std::erase_if(_groupVec, [](const AssetGroup& a_group) { return a_group.extensions.empty(); });
+	}
+	void AssetDatabase::ChangeFileName(const std::filesystem::path & a_filePath)
+	{
+		ENGINE_LOG("ファイル名の変更を検出しました : %s", a_filePath.string().c_str());
+	}
+	std::string AssetDatabase::GetAssetType(const std::filesystem::path& a_filePath)
+	{
+		std::string _fileExt = a_filePath.extension().string();
+
+		// サポートされた拡張子と一致するかチェック
+		for (auto& [_type, _typeExt] : m_assetTypeExtensionsMap)
+		{
+			// ベース拡張子のチェック (.gltf など)
+			for (const auto& _ext : _typeExt.extensions)
+			{
+				if (_fileExt == _ext) return _type;
+			}
+
+			// 独自規格のチェック (.ob, .oj)
+			for (const auto& _tExt : _typeExt.typeExt)
+			{
+				if (_fileExt.find(_tExt) == 0) return _type;
+			}
+		}
+
+		// 見つからなければ空を返す
+		return {};
 	}
 }

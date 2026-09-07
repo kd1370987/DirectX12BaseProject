@@ -59,14 +59,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult SkyPass::EditUpdate()
-	{
-		ImGui::TextDisabled("空の設定は SceneAmbientObject の持ち物です");
-		return EPassEditResult::None;
-	}
 
-	void SkyPass::EditNode()
-	{}
 
 	void SkyPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

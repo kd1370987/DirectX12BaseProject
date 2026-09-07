@@ -46,8 +46,6 @@ namespace Engine::Graphics::Pipeline
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;
 
-		EPassEditResult EditUpdate() override;
-		void EditNode() override;
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
@@ -55,17 +53,42 @@ namespace Engine::Graphics::Pipeline
 		// フォーマットと大きさは入力からもらうので指定しない
 		void Configure(const std::string& a_resourceName)
 		{
-			m_resourceName = a_resourceName;
+			m_params.resourceName = a_resourceName;
 			ApplyOutput();
 		}
 
 		// ノードに出しているテクスチャ : 持っていなければ nullptr
 		const Resource::Texture* GetPreviewTexture() const { return m_upPreviewTex.get(); }
 
-	private:
+		//----------------------------------------------------------------------------------
+		// 編集対象の値 : エディターはここだけを触る
+		//----------------------------------------------------------------------------------
+		struct Params
+		{
+			// 写し先のリソース名 : ノードごとに変える。
+			// 同じ名前のモニターを2つ置くと、同じリソースへ2回書くことになるので分けること
+			std::string resourceName = "MonitorResult";
+
+			// ノードに出すかどうか。
+			// 下ろしているあいだは写しを取らないので、コピー1回ぶん軽くなる
+			bool isPreview = true;
+
+			// ノード内に出す幅(ピクセル)。高さは元の縦横比から出す。
+			// 表示だけの値なので実行インスタンスへは配らない
+			float previewWidth = 240.0f;
+		};
+		Params& RefParams() { return m_params; }
 
 		// スロットへ出力の設定を反映する
 		void ApplyOutput();
+
+		// ノードに出す中身を持っているパスを返す。
+		// 自分が実行インスタンスならそのまま自分、設計図側なら実行インスタンスを探す
+		const MonitorPass* ResolveViewSource();
+
+	private:
+
+		Params m_params = {};
 
 		//----------------------------------------------------------------------------------
 		// 写し先に使えるフォーマットへ直す
@@ -83,29 +106,11 @@ namespace Engine::Graphics::Pipeline
 		// モニター用テクスチャを手放す
 		void ReleasePreviewTexture();
 
-		// ノードに出す中身を持っているパスを返す。
-		// 自分が実行インスタンスならそのまま自分、設計図側なら実行インスタンスを探す
-		const MonitorPass* ResolveViewSource();
-
-	private:
-
-		// 写し先のリソース名 : ノードごとに変える。
-		// 同じ名前のモニターを2つ置くと、同じリソースへ2回書くことになるので分けること
-		std::string m_resourceName = "MonitorResult";
-
 		//----------------------------------------------------------------------------------
 		// モニター用のテクスチャ(グラフの外の持ち物)
 		//
 		// 実行インスタンスだけが中身を持つ。設計図側は最後まで空のまま
 		//----------------------------------------------------------------------------------
 		std::unique_ptr<Resource::Texture> m_upPreviewTex = nullptr;
-
-		// ノードに出すかどうか。
-		// 下ろしているあいだは写しを取らないので、コピー1回ぶん軽くなる
-		bool m_isPreview = true;
-
-		// ノード内に出す幅(ピクセル)。高さは元の縦横比から出す。
-		// 表示だけの値なので実行インスタンスへは配らない
-		float m_previewWidth = 240.0f;
 	};
 }

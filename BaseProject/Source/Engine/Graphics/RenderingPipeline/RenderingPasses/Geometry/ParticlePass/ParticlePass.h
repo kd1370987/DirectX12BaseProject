@@ -25,8 +25,6 @@ namespace Engine::Graphics::Pipeline
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;
 
-		EPassEditResult EditUpdate() override;
-		void EditNode() override;
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 

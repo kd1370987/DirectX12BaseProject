@@ -66,10 +66,10 @@ namespace Engine::Editor::Inspector
 
 		// 同じものを開き直したときは履歴だけが伸びるので積まない
 		if (a_isPushHistory &&
-			a_editContext.pAssetProp &&
-			a_editContext.pAssetProp->guid != a_guid)
+			a_editContext.selectedAssetGUID.IsValid() &&
+			a_editContext.selectedAssetGUID != a_guid)
 		{
-			a_editContext.assetHistoryVec.push_back(a_editContext.pAssetProp->guid);
+			a_editContext.assetHistoryVec.push_back(a_editContext.selectedAssetGUID);
 
 			// 古いものから捨てる
 			if (a_editContext.assetHistoryVec.size() > EditorContext::kAssetHistoryMax)
@@ -78,7 +78,7 @@ namespace Engine::Editor::Inspector
 			}
 		}
 
-		a_editContext.pAssetProp = _pAsset;
+		a_editContext.SelectAsset(_pAsset);
 		a_editContext.eInspectorType = EInspectorType::Asset;
 
 		return true;

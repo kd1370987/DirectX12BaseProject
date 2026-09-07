@@ -35,15 +35,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult TAAPass::EditUpdate()
-	{
-		ImGui::TextDisabled("History 出力を History 入力へ繋いでください");
-		ImGui::TextDisabled("(Temporal なので前フレームのぶんが入ります)");
-		return EPassEditResult::None;
-	}
 
-	void TAAPass::EditNode()
-	{}
 
 	void TAAPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

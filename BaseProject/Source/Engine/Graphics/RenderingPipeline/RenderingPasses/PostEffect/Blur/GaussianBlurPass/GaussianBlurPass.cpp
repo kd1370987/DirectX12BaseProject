@@ -11,7 +11,7 @@ namespace Engine::Graphics::Pipeline
 		// ルートパラメータ : 0=ブラー設定CB / 1=SRVテーブル / 2=UAV
 		DeclareInput("Color", EAccessType::SRV, EPassSlotType::Texture, true, 1);
 
-		DeclareOutput("Result", m_resourceName, DXGI_FORMAT_R16G16B16A16_FLOAT,
+		DeclareOutput("Result", m_params.resourceName, DXGI_FORMAT_R16G16B16A16_FLOAT,
 			EAccessType::UAV, EPassSlotType::Texture, false, 2);
 
 		ApplyOutputScale();
@@ -22,12 +22,12 @@ namespace Engine::Graphics::Pipeline
 		Slot* _pOut = FindOutputSlot(MakeSlotID("Result"));
 		if (!_pOut) return;
 
-		_pOut->name = m_resourceName;
+		_pOut->name = m_params.resourceName;
 
 		// width / height は 0 のままにして、描画解像度 × scale で決めさせる
 		_pOut->width = 0;
 		_pOut->height = 0;
-		_pOut->scale = m_outputScale;
+		_pOut->scale = m_params.outputScale;
 	}
 
 	void GaussianBlurPass::Compile(const PassContext& a_context)
@@ -54,53 +54,22 @@ namespace Engine::Graphics::Pipeline
 
 		GaussianBlurCB _cb = {};
 		_cb.srcTexelSize = { 1.0f / _srcWidth, 1.0f / _srcHeight };
-		_cb.sigma = m_sigma;
-		_cb.tapRadius = m_tapRadius;
+		_cb.sigma = m_params.sigma;
+		_cb.tapRadius = m_params.tapRadius;
 		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 0, _cb);
 
 		// 回すのは出力の解像度
 		DispatchForSlot(a_context, *_pOut);
 	}
 
-	EPassEditResult GaussianBlurPass::EditUpdate()
-	{
-		bool _isParam = false;
-		bool _isStructure = false;
 
-		// 出力リソースの表示名。
-		// 同一性は「作ったパス + 出力ピン」で決まるので、ここが被っても中身は混ざらない。
-		// リソース一覧やデバッグ表示で見分けるためのラベル
-		char _nameBuf[128] = {};
-		std::snprintf(_nameBuf, sizeof(_nameBuf), "%s", m_resourceName.c_str());
-		if (ImGui::InputText("ResourceName", _nameBuf, sizeof(_nameBuf)))
-		{
-			m_resourceName = _nameBuf;
-			_isStructure = true;
-		}
-
-		// 解像度が変わるとテクスチャを作り直すので組み直しが要る
-		if (ImGui::DragFloat("OutputScale", &m_outputScale, 0.01f, 0.01f, 1.0f)) _isStructure = true;
-
-		_isParam |= ImGui::DragFloat("Sigma", &m_sigma, 0.01f, 0.01f, 16.0f);
-		_isParam |= ImGui::DragInt("TapRadius", &m_tapRadius, 1, 1, 8);
-
-		if (_isStructure)
-		{
-			ApplyOutputScale();
-			return EPassEditResult::Structure;
-		}
-		return _isParam ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void GaussianBlurPass::EditNode()
-	{}
 
 	void GaussianBlurPass::Archive(Engine::Persistence::Archive& a_arch)
 	{
-		a_arch.StringField("resourceName", m_resourceName);
-		a_arch.Field("outputScale", m_outputScale);
-		a_arch.Field("sigma", m_sigma);
-		a_arch.Field("tapRadius", m_tapRadius);
+		a_arch.StringField("resourceName", m_params.resourceName);
+		a_arch.Field("outputScale", m_params.outputScale);
+		a_arch.Field("sigma", m_params.sigma);
+		a_arch.Field("tapRadius", m_params.tapRadius);
 
 		// 値が入ったのはスロットを作った後なので、ここで反映し直す
 		if (a_arch.IsLoading()) ApplyOutputScale();

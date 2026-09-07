@@ -27,23 +27,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult BloomCompositePass::EditUpdate()
-	{
-		bool _isEdit = false;
 
-		bool _isEnable = (m_cb.enable != 0);
-		if (ImGui::Checkbox("Enable", &_isEnable)) { m_cb.enable = _isEnable ? 1 : 0; _isEdit = true; }
-
-		_isEdit |= ImGui::DragFloat("Intensity", &m_cb.intensity, 0.01f, 0.0f);
-
-		// 抽出のしきい値は BloomExtractPass 側。合成では使わないが並びを合わせて持っている
-		ImGui::TextDisabled("Threshold / SoftKnee は BloomExtractPass 側");
-
-		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void BloomCompositePass::EditNode()
-	{}
 
 	void BloomCompositePass::Archive(Engine::Persistence::Archive& a_arch)
 	{

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 //==========================================================================================
 //
 // RenderingPipelineEditor (Engine::Editor::Inspector)
@@ -16,6 +16,7 @@
 //
 //==========================================================================================
 #include "../../../../../ImGui/ImNode/Core/NodeGraphEditor.h"
+#include "PassEditor/PassEditor.h"
 
 namespace Engine::Graphics::Pipeline
 {
@@ -31,7 +32,11 @@ namespace Engine::Editor::Inspector
 
 		explicit RenderingPipelineEditor(const Engine::GUID& a_assetGUID)
 			: m_assetGUID(a_assetGUID)
-		{}
+		{
+			// パスの種類ごとの編集UIを揃える。
+			// 実体は型ごとに1つで状態を持たないので、開くたびに作り直して構わない
+			RegisterBuiltinPassEditors(m_passEditorRegistry);
+		}
 
 		~RenderingPipelineEditor() override = default;
 
@@ -83,5 +88,9 @@ namespace Engine::Editor::Inspector
 		// このフレーム内で削除予約されたパス。
 		// パス配列を回している最中に消すとイテレータが壊れるので、後でまとめて消す
 		Engine::GUID m_pendingDeletePass = {};
+
+		// パスの種類ごとの編集UI。
+		// 以前は Pass 自身が ImGui を呼んでいたぶんがここへ移っている
+		PassEditorRegistry m_passEditorRegistry = {};
 	};
 }

@@ -73,14 +73,9 @@ namespace Engine::Graphics::Pipeline
 		// バリア・レンダーターゲット切り替え・クリアはグラフ側が済ませてある
 		virtual void Update(const PassContext& a_context) = 0;
 
-		// エディター用
-		//
-		// EditUpdate は「どこまで反映し直す必要があるか」を返す。
-		//   Param     : 値を写すだけでよいもの(色・強度など)
-		//   Structure : フォーマットやスケールのようにリソースの要件が変わるもの
-		// 返し忘れると、設計図だけ変わって画面が変わらない状態になる
-		virtual EPassEditResult EditUpdate() = 0;		// パスの情報を編集する用
-		virtual void EditNode() = 0;		// パスのノード情報を編集する用
+		// 編集UIはここには置かない。
+		// パスの種類ごとの ImGui は Editor 側(PassEditorRegistry)の持ち物で、
+		// パスは「何を持っているか」を公開 Params で見せるだけにする
 
 		// シリアライズ
 		//

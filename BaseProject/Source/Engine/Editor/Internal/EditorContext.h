@@ -51,8 +51,38 @@ namespace Engine::Editor
 		// 現在のインスペクターモード
 		EInspectorType eInspectorType = EInspectorType::None;
 
+		//==============================================================================
 		// 選択中のアセット
-		Resource::AssetProperty* pAssetProp = nullptr;
+		//
+		// 実体はアセットデータベースが持っているものを指しているだけ。
+		// ランタイム中にファイルが消えるとその要素ごと消えるので、ポインタだけを
+		// 持っていると解放済みメモリを描きにいってしまう。
+		// 選択の本体はGUIDにして、ポインタは毎フレーム引き直したものを入れる
+		// (引き直すのは PanelManager::ValidateContext。描画より前に一度だけ通る)。
+		// 直接書き換えず SelectAsset / ClearAssetSelection を通すこと。
+		//==============================================================================
+		Resource::AssetProperty* pAssetProp = nullptr;	// 引き直された実体
+		Engine::GUID selectedAssetGUID = {};			// 選択の本体
+
+		// アセットを選択する
+		void SelectAsset(Resource::AssetProperty* a_pAssetProp)
+		{
+			if (!a_pAssetProp)
+			{
+				ClearAssetSelection();
+				return;
+			}
+
+			pAssetProp = a_pAssetProp;
+			selectedAssetGUID = a_pAssetProp->guid;
+		}
+
+		// アセットの選択を外す
+		void ClearAssetSelection()
+		{
+			pAssetProp = nullptr;
+			selectedAssetGUID = {};
+		}
 
 		//==============================================================================
 		// アセットを辿った履歴(戻る用)

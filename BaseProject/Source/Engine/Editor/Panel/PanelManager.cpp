@@ -60,6 +60,36 @@ namespace  Engine::Editor
 	void PanelManager::ValidateContext()
 	{
 		//------------------------------------------------------------------
+		// 選択中のアセット
+		//
+		// 実体はアセットデータベースの持ち物で、ランタイム中にファイルが
+		// 消えるとその要素ごと消える。前フレームのポインタをそのまま使うと
+		// 解放済みメモリを描きにいくので、毎フレームGUIDから引き直す。
+		// 引けなければそのアセットは消えているので選択を外す
+		//------------------------------------------------------------------
+		if (m_editContext.selectedAssetGUID.IsValid())
+		{
+			m_editContext.pAssetProp =
+				Resource::AssetDatabase::Instance().FindAssetProperty(m_editContext.selectedAssetGUID);
+
+			if (!m_editContext.pAssetProp)
+			{
+				m_editContext.ClearAssetSelection();
+
+				// インスペクターが Asset のまま「選択なし」で残らないようにする
+				if (m_editContext.eInspectorType == EInspectorType::Asset)
+				{
+					m_editContext.eInspectorType = EInspectorType::None;
+				}
+			}
+		}
+		else
+		{
+			// GUIDが無いのにポインタだけ残っている状態を作らない
+			m_editContext.pAssetProp = nullptr;
+		}
+
+		//------------------------------------------------------------------
 		// ECSエンティティ
 		//------------------------------------------------------------------
 		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();

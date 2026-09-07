@@ -31,8 +31,8 @@ namespace Engine::Graphics::Pipeline
 		// シェーダーを通さないので、読み書きともコピーのアクセスにする
 		DeclareInput("Source", EAccessType::CopySrc);
 
-		DeclareOutput("Result", m_resourceName, ToFormat(m_formatIndex), EAccessType::CopyDst,
-			EPassSlotType::Texture, m_isTemporal);
+		DeclareOutput("Result", m_params.resourceName, ToFormat(m_params.formatIndex), EAccessType::CopyDst,
+			EPassSlotType::Texture, m_params.isTemporal);
 	}
 
 	void CopyPass::ApplyOutput()
@@ -40,9 +40,9 @@ namespace Engine::Graphics::Pipeline
 		Slot* _pOut = FindOutputSlot(MakeSlotID("Result"));
 		if (!_pOut) return;
 
-		_pOut->name = m_resourceName;
-		_pOut->format = ToFormat(m_formatIndex);
-		_pOut->isTemporal = m_isTemporal;
+		_pOut->name = m_params.resourceName;
+		_pOut->format = ToFormat(m_params.formatIndex);
+		_pOut->isTemporal = m_params.isTemporal;
 	}
 
 	void CopyPass::Compile(const PassContext& a_context)
@@ -68,54 +68,13 @@ namespace Engine::Graphics::Pipeline
 		a_context.pCmdList->CopyResource(_pDst->GetResource(), _pSrc->GetResource());
 	}
 
-	EPassEditResult CopyPass::EditUpdate()
-	{
-		bool _isStructure = false;
 
-		// 出力リソースの表示名。
-		// 同一性は「作ったパス + 出力ピン」で決まるので、ここが被っても中身は混ざらない。
-		// リソース一覧やデバッグ表示で見分けるためのラベル
-		char _nameBuf[128] = {};
-		std::snprintf(_nameBuf, sizeof(_nameBuf), "%s", m_resourceName.c_str());
-		if (ImGui::InputText("ResourceName", _nameBuf, sizeof(_nameBuf)))
-		{
-			m_resourceName = _nameBuf;
-			_isStructure = true;
-		}
-
-		if (ImGui::BeginCombo("Format", ToFormatName(m_formatIndex)))
-		{
-			for (int _i = 0; _i < kFormatCount; ++_i)
-			{
-				const bool _isSelected = (m_formatIndex == _i);
-				if (ImGui::Selectable(ToFormatName(_i), _isSelected))
-				{
-					m_formatIndex = _i;
-					_isStructure = true;
-				}
-				if (_isSelected) ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
-		}
-
-		if (ImGui::Checkbox("History", &m_isTemporal)) _isStructure = true;
-		ImGui::TextDisabled("入力と同じフォーマット・大きさにすること");
-
-		if (!_isStructure) return EPassEditResult::None;
-
-		// リソースを作り直すので組み直しが要る
-		ApplyOutput();
-		return EPassEditResult::Structure;
-	}
-
-	void CopyPass::EditNode()
-	{}
 
 	void CopyPass::Archive(Engine::Persistence::Archive& a_arch)
 	{
-		a_arch.StringField("resourceName", m_resourceName);
-		a_arch.Field("formatIndex", m_formatIndex);
-		a_arch.Field("isTemporal", m_isTemporal);
+		a_arch.StringField("resourceName", m_params.resourceName);
+		a_arch.Field("formatIndex", m_params.formatIndex);
+		a_arch.Field("isTemporal", m_params.isTemporal);
 
 		// 値が入ったのはスロットを作った後なので、ここで反映し直す
 		if (a_arch.IsLoading()) ApplyOutput();

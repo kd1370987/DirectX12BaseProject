@@ -20,9 +20,7 @@ namespace Engine::Graphics::Pipeline
 		// ランタイム中はこの関数のみで処理する
 		void Update(const PassContext& a_context) override;
 
-		// エディター用
-		EPassEditResult EditUpdate() override;		// パスの情報を編集する用
-		void EditNode() override;		// パスのノード情報を編集する用
+		// エディター用		// パスの情報を編集する用		// パスのノード情報を編集する用
 
 		// シリアライズ : 共通部分は Pass::ArchivePass が処理するので、ここは固有データだけ
 		void Archive(Engine::Persistence::Archive& a_arch) override;

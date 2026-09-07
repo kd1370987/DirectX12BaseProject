@@ -18,7 +18,7 @@ namespace Engine::Graphics::Pipeline
 
 		// フォーマットと大きさは OnLinksResolved で入力からもらう。
 		// ここで決め打つと、繋いだ相手と食い違ったときにコピーが通らない
-		DeclareOutput("Result", m_resourceName, DXGI_FORMAT_R8G8B8A8_UNORM, EAccessType::CopyDst);
+		DeclareOutput("Result", m_params.resourceName, DXGI_FORMAT_R8G8B8A8_UNORM, EAccessType::CopyDst);
 	}
 
 	void MonitorPass::ApplyOutput()
@@ -26,7 +26,7 @@ namespace Engine::Graphics::Pipeline
 		Slot* _pOut = FindOutputSlot(MakeSlotID("Result"));
 		if (!_pOut) return;
 
-		_pOut->name = m_resourceName;
+		_pOut->name = m_params.resourceName;
 	}
 
 	//======================================================================================
@@ -42,7 +42,7 @@ namespace Engine::Graphics::Pipeline
 		if (!_pOut) return;
 
 		// 名前はロード直後などに落ちていることがあるので、ここでも揃えておく
-		_pOut->name = m_resourceName;
+		_pOut->name = m_params.resourceName;
 
 		const Slot* _pIn = FindInputSlot(MakeSlotID("Source"));
 		if (!_pIn || !_pIn->IsConnected()) return;
@@ -106,7 +106,7 @@ namespace Engine::Graphics::Pipeline
 		// 写し終わりに PIXEL_SHADER_RESOURCE へ置いておくと、
 		// このフレームの後半で走る ImGui がそのまま読める
 		//----------------------------------------------------------------------------------
-		if (!m_isPreview || !m_upPreviewTex) return;
+		if (!m_params.isPreview || !m_upPreviewTex) return;
 
 		m_upPreviewTex->Barrier(a_context.pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
 		a_context.pCmdList->CopyResource(m_upPreviewTex->GetResource(), _pSrc->GetResource());
@@ -192,76 +192,13 @@ namespace Engine::Graphics::Pipeline
 		return static_cast<const MonitorPass*>(_pRuntime);
 	}
 
-	EPassEditResult MonitorPass::EditUpdate()
-	{
-		EPassEditResult _result = EPassEditResult::None;
 
-		// 出力リソースの表示名。
-		// 同一性は「作ったパス + 出力ピン」で決まるので、ここが被っても中身は混ざらない。
-		// リソース一覧やデバッグ表示で見分けるためのラベル
-		char _nameBuf[128] = {};
-		std::snprintf(_nameBuf, sizeof(_nameBuf), "%s", m_resourceName.c_str());
-		if (ImGui::InputText("ResourceName", _nameBuf, sizeof(_nameBuf)))
-		{
-			m_resourceName = _nameBuf;
-			ApplyOutput();
-
-			// リソースを作り直すので組み直しが要る
-			_result = EPassEditResult::Structure;
-		}
-
-		// 写しを取るかどうかは実行インスタンス側の振る舞いなので、値を配る必要がある
-		if (ImGui::Checkbox("Preview", &m_isPreview) && _result == EPassEditResult::None)
-		{
-			_result = EPassEditResult::Param;
-		}
-
-		// 表示の大きさは設計図側でしか使わないので、配らない
-		ImGui::DragFloat("PreviewWidth", &m_previewWidth, 1.0f, 64.0f, 1024.0f);
-
-		ImGui::TextDisabled("フォーマットと大きさは入力から受け取る");
-
-		return _result;
-	}
-
-	void MonitorPass::EditNode()
-	{
-		if (!m_isPreview)
-		{
-			ImGui::TextDisabled("Preview : off");
-			return;
-		}
-
-		// 設計図のパスは実行されないので、中身は実行インスタンスから借りる
-		const MonitorPass* _pView = ResolveViewSource();
-		const Resource::Texture* _pTex = _pView ? _pView->GetPreviewTexture() : nullptr;
-
-		if (!_pTex || !_pTex->GetImGuiSRV().IsValid())
-		{
-			// カメラがこのパイプラインを回していないあいだはここに来る
-			ImGui::TextDisabled("表示するものがありません");
-			return;
-		}
-
-		const D3D12_RESOURCE_DESC& _desc = _pTex->GetDesc();
-		if (_desc.Width == 0 || _desc.Height == 0) return;
-
-		const auto _gpuHandle =
-			D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
-
-		const float _aspect = static_cast<float>(_desc.Height) / static_cast<float>(_desc.Width);
-		const ImVec2 _size(m_previewWidth, m_previewWidth * _aspect);
-
-		ImGui::Image(static_cast<ImTextureID>(_gpuHandle.ptr), _size);
-
-		ImGui::TextDisabled("%llu x %u", _desc.Width, _desc.Height);
-	}
 
 	void MonitorPass::Archive(Engine::Persistence::Archive& a_arch)
 	{
-		a_arch.StringField("resourceName", m_resourceName);
-		a_arch.Field("isPreview", m_isPreview);
-		a_arch.Field("previewWidth", m_previewWidth);
+		a_arch.StringField("resourceName", m_params.resourceName);
+		a_arch.Field("isPreview", m_params.isPreview);
+		a_arch.Field("previewWidth", m_params.previewWidth);
 
 		// 値が入ったのはスロットを作った後なので、ここで反映し直す
 		if (a_arch.IsLoading()) ApplyOutput();

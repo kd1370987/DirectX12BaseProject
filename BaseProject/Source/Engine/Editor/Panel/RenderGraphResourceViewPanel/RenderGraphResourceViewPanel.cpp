@@ -360,9 +360,6 @@ namespace Engine::Editor
 			ImGui::SameLine();
 			ImGui::TextDisabled("(1本ずつ作れば %s : %.1f%% 削減)", ToByteText(_aliasedTotal).c_str(), _rate);
 		}
-
-		// 実体はまだヒープに載っていないので、そのことを隠さない
-		ImGui::TextDisabled("※ 実体は個別に作られています。この図は「ヒープに載せたらこう詰まる」という見積もりです");
 	}
 
 	//======================================================================================

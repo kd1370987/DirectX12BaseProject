@@ -20,10 +20,21 @@ namespace Engine::Graphics::Pipeline
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;
 
-		EPassEditResult EditUpdate() override;
-		void EditNode() override;
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
+
+		struct UpScaleCB
+		{
+			float scaleRatio;	// 入力に対する出力の倍率。実際の解像度から毎フレーム求める
+			float depthSigma;	// ビュー深度に対する相対値(0.05 = 距離の5%まで同じ面とみなす)
+			float normalPower;	// pow()の指数。小さいとエッジ判定がほぼ効かない
+			float pad;
+		};
+
+		// 編集対象の値 : エディターはここだけを触る。
+		// 実体は下の m_cb で、シェーダーへはそのまま送られる
+		using Params = UpScaleCB;
+		Params& RefParams() { return m_cb; }
 
 	private:
 
@@ -39,13 +50,6 @@ namespace Engine::Graphics::Pipeline
 		//    移植時にここを別物(phiDepth/phiNormal)にしてしまい、
 		//    scaleRatio へ 1.0 が入ってハーフ解像度のGIを等倍で読んでいた
 		//----------------------------------------------------------------------------------
-		struct UpScaleCB
-		{
-			float scaleRatio;	// 入力に対する出力の倍率。実際の解像度から毎フレーム求める
-			float depthSigma;	// ビュー深度に対する相対値(0.05 = 距離の5%まで同じ面とみなす)
-			float normalPower;	// pow()の指数。小さいとエッジ判定がほぼ効かない
-			float pad;
-		};
 		UpScaleCB m_cb = { 2.0f, 0.05f, 32.0f, 0.0f };
 	};
 }

@@ -27,8 +27,6 @@ namespace Engine::Graphics::Pipeline
 		void Update(const PassContext& a_context) override;
 
 		// エディター用
-		EPassEditResult EditUpdate() override;
-		void EditNode() override;
 
 		// シリアライズ : 固有のパラメータを持たない
 		void Archive(Engine::Persistence::Archive& a_arch) override;

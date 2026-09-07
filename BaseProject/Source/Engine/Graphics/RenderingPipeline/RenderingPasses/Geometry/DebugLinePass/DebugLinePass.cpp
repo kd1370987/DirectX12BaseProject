@@ -75,14 +75,7 @@ namespace Engine::Graphics::Pipeline
 		_pCtx->DrawShape();
 	}
 
-	EPassEditResult DebugLinePass::EditUpdate()
-	{
-		ImGui::TextDisabled("当たり判定やレイのデバッグ線を描きます");
-		return EPassEditResult::None;
-	}
 
-	void DebugLinePass::EditNode()
-	{}
 
 	void DebugLinePass::Archive(Engine::Persistence::Archive& a_arch)
 	{

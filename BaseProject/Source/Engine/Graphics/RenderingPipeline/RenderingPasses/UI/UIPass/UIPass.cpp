@@ -66,14 +66,7 @@ namespace Engine::Graphics::Pipeline
 		_pCtx->DrawUI(0);
 	}
 
-	EPassEditResult UIPass::EditUpdate()
-	{
-		ImGui::TextDisabled("深度を持たないので、積んだ順がそのまま前後になります");
-		return EPassEditResult::None;
-	}
 
-	void UIPass::EditNode()
-	{}
 
 	void UIPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

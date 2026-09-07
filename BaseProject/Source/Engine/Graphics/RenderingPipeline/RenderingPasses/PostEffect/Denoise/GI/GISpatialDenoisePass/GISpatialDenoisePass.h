@@ -24,24 +24,20 @@ namespace Engine::Graphics::Pipeline
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;
 
-		EPassEditResult EditUpdate() override;
-		void EditNode() override;
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
 		// コードから組むとき用 : 段ごとに変える値をまとめて決める
 		void Configure(const std::string& a_resourceName, int a_stepSize)
 		{
-			m_resourceName = a_resourceName;
-			m_cb.stepSize = a_stepSize;
+			m_params.resourceName = a_resourceName;
+			m_params.cb.stepSize = a_stepSize;
 			ApplyResourceName();
 		}
 
-	private:
-
-		// 出力リソース名 : 段を複数置くときに取り合わないよう変えられるようにする
-		std::string m_resourceName = "DenoisedGI";
-
+		//----------------------------------------------------------------------------------
+		// 編集対象の値 : エディターはここだけを触る
+		//----------------------------------------------------------------------------------
 		// シェーダーへ送る調整値
 		struct DenoiseCB
 		{
@@ -50,9 +46,21 @@ namespace Engine::Graphics::Pipeline
 			float phiNormal;	// 法線の感度(大きいほど法線のずれに敏感)
 			float phiColor;		// 輝度の感度(ノイズとディティールの境界制御)
 		};
-		DenoiseCB m_cb = { 1, 1.0f, 32.0f, 4.0f };
+
+		struct Params
+		{
+			// 出力リソース名 : 段を複数置くときに取り合わないよう変えられるようにする
+			std::string resourceName = "DenoisedGI";
+
+			DenoiseCB cb = { 1, 1.0f, 32.0f, 4.0f };
+		};
+		Params& RefParams() { return m_params; }
 
 		// スロットへ出力名を反映する
 		void ApplyResourceName();
+
+	private:
+
+		Params m_params = {};
 	};
 }

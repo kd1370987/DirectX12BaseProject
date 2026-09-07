@@ -45,21 +45,7 @@ namespace Engine::Graphics::Pipeline
 		if (_pOut) DispatchForSlot(a_context, *_pOut);
 	}
 
-	EPassEditResult GITemporalAccumulationPass::EditUpdate()
-	{
-		bool _isEdit = false;
 
-		_isEdit |= ImGui::DragFloat("PhiDepth", &m_cb.phiDepth, 0.01f, 0.0f);
-		_isEdit |= ImGui::DragFloat("PhiNormal", &m_cb.phiNormal, 0.1f, 0.0f);
-		_isEdit |= ImGui::DragFloat("BlendRate", &m_cb.blendRate, 0.01f, 0.0f, 1.0f);
-
-		ImGui::TextDisabled("HistoryOut を History へ繋いでください");
-
-		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void GITemporalAccumulationPass::EditNode()
-	{}
 
 	void GITemporalAccumulationPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

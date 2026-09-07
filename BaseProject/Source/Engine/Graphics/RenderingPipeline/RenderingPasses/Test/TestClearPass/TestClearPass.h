@@ -24,18 +24,25 @@ namespace Engine::Graphics::Pipeline
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;
 
-		EPassEditResult EditUpdate() override;
-		void EditNode() override;
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
 		// 出力スロット名
 		static constexpr const char* kOutputName = "Color";
 
+		//----------------------------------------------------------------------------------
+		// 編集対象の値 : エディターはここだけを触る
+		//----------------------------------------------------------------------------------
+		struct Params
+		{
+			// 塗る色。グラフのクリア指定ではなく自分で塗るので、
+			// 色を変えてもリソースを作り直さなくてよい
+			Math::Color clearColor = { 0.1f, 0.3f, 0.6f, 1.0f };
+		};
+		Params& RefParams() { return m_params; }
+
 	private:
 
-		// 塗る色。グラフのクリア指定ではなく自分で塗るので、
-		// 色を変えてもリソースを作り直さなくてよい
-		Math::Color m_clearColor = { 0.1f, 0.3f, 0.6f, 1.0f };
+		Params m_params = {};
 	};
 }

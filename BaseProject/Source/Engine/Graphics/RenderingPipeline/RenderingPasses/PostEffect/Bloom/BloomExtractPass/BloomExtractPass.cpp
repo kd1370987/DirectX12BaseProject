@@ -26,24 +26,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult BloomExtractPass::EditUpdate()
-	{
-		bool _isEdit = false;
 
-		bool _isEnable = (m_cb.enable != 0);
-		if (ImGui::Checkbox("Enable", &_isEnable)) { m_cb.enable = _isEnable ? 1 : 0; _isEdit = true; }
-
-		_isEdit |= ImGui::DragFloat("Threshold", &m_cb.threshold, 0.01f, 0.0f);
-		_isEdit |= ImGui::DragFloat("SoftKnee", &m_cb.softKnee, 0.01f, 0.0f, 1.0f);
-
-		// 強さは合成側で効く。抽出側は同じCBを使うので並びを合わせて持っている
-		_isEdit |= ImGui::DragFloat("Intensity", &m_cb.intensity, 0.01f, 0.0f);
-
-		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void BloomExtractPass::EditNode()
-	{}
 
 	void BloomExtractPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

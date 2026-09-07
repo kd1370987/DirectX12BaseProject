@@ -1,4 +1,4 @@
-#include "RaytracingShadowPass.h"
+﻿#include "RaytracingShadowPass.h"
 
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
@@ -164,15 +164,7 @@ namespace Engine::Graphics::Pipeline
 		_pCmdList->DispatchRays(&_desc);
 	}
 
-	EPassEditResult RaytracingShadowPass::EditUpdate()
-	{
-		ImGui::TextDisabled("主光源へレイを1本飛ばして遮蔽を求めます");
-		if (!m_isReady) ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "PSO not ready");
-		return EPassEditResult::None;
-	}
 
-	void RaytracingShadowPass::EditNode()
-	{}
 
 	void RaytracingShadowPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

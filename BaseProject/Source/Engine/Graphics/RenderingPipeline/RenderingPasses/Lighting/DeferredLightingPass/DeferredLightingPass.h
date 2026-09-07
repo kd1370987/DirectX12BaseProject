@@ -22,15 +22,9 @@ namespace Engine::Graphics::Pipeline
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;
 
-		EPassEditResult EditUpdate() override;
-		void EditNode() override;
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
-	private:
-
-		// ライティングの調整値
-		// ※ HLSL の LightingOptionData と並びを合わせること
 		struct LightingOptionCB
 		{
 			float giIntensity;			// 間接光の強さ
@@ -38,6 +32,16 @@ namespace Engine::Graphics::Pipeline
 			float dielectricF0;			// 非金属の基準反射率
 			float pad;
 		};
+
+		// 編集対象の値 : エディターはここだけを触る。
+		// 実体は下の m_cb で、シェーダーへはそのまま送られる
+		using Params = LightingOptionCB;
+		Params& RefParams() { return m_cb; }
+
+	private:
+
+		// ライティングの調整値
+		// ※ HLSL の LightingOptionData と並びを合わせること
 		LightingOptionCB m_cb = { 1.0f, 1.0f, 0.04f, 0.0f };
 	};
 }

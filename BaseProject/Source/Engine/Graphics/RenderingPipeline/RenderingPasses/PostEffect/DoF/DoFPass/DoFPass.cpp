@@ -42,28 +42,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult DoFPass::EditUpdate()
-	{
-		bool _isEdit = false;
 
-		bool _isEnable = (m_cb.enable != 0);
-		if (ImGui::Checkbox("Enable", &_isEnable)) { m_cb.enable = _isEnable ? 1 : 0; _isEdit = true; }
-
-		_isEdit |= ImGui::DragFloat("FocusDistance", &m_cb.focusDistance, 0.1f, 0.0f);
-		_isEdit |= ImGui::DragFloat("FocusRange", &m_cb.focusRange, 0.1f, 0.0f);
-		_isEdit |= ImGui::DragFloat("NearRange", &m_cb.nearRange, 0.1f, 0.0f);
-		_isEdit |= ImGui::DragFloat("FarRange", &m_cb.farRange, 0.1f, 0.0f);
-		_isEdit |= ImGui::DragFloat("MaxBlurRadius", &m_cb.maxBlurRadius, 0.1f, 0.0f);
-
-		ImGui::TextDisabled("CoCPass と同じ値にすること");
-		ImGui::TextDisabled("カメラが FocusParamComponent を持つあいだはそちらの値が優先される");
-
-
-		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void DoFPass::EditNode()
-	{}
 
 	void DoFPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

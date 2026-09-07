@@ -64,19 +64,7 @@ namespace Engine::Graphics::Pipeline
 		return _outWidth / _inWidth;
 	}
 
-	EPassEditResult UpScalePass::EditUpdate()
-	{
-		bool _isEdit = false;
 
-		ImGui::TextDisabled("ScaleRatio : %.2f (繋がれた解像度から自動)", m_cb.scaleRatio);
-		_isEdit |= ImGui::DragFloat("DepthSigma", &m_cb.depthSigma, 0.001f, 0.0f);
-		_isEdit |= ImGui::DragFloat("NormalPower", &m_cb.normalPower, 0.1f, 0.0f);
-
-		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void UpScalePass::EditNode()
-	{}
 
 	void UpScalePass::Archive(Engine::Persistence::Archive& a_arch)
 	{

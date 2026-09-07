@@ -28,15 +28,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult KawaseBlurPass::EditUpdate()
-	{
-		ImGui::TextDisabled("縮小4段をまとめて1枚のブルームにします");
-		ImGui::TextDisabled("Down0 が一番大きい段(1/2)です");
-		return EPassEditResult::None;
-	}
 
-	void KawaseBlurPass::EditNode()
-	{}
 
 	void KawaseBlurPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

@@ -43,27 +43,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult RadialBlurPass::EditUpdate()
-	{
-		bool _isEdit = false;
 
-		bool _isEnable = (m_cb.enable != 0);
-		if (ImGui::Checkbox("Enable", &_isEnable)) { m_cb.enable = _isEnable ? 1 : 0; _isEdit = true; }
-
-		_isEdit |= ImGui::DragFloat2("BlurCenter", &m_cb.blurCenter.x, 0.01f);
-		_isEdit |= ImGui::DragFloat("Strength", &m_cb.strength, 0.001f, 0.0f, 1.0f);
-		_isEdit |= ImGui::DragInt("SampleCount", &m_cb.sampleCount, 1, 1, 64);
-		_isEdit |= ImGui::DragFloat("Radius", &m_cb.radius, 0.01f, 0.0f, 2.0f);
-		_isEdit |= ImGui::DragFloat("Falloff", &m_cb.falloff, 0.01f, 0.0f, 8.0f);
-
-		// 値が変わるだけなのでグラフは組み直さない
-		ImGui::TextDisabled("カメラが RadialBlurComponent を持つあいだはそちらの値が優先される");
-
-		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void RadialBlurPass::EditNode()
-	{}
 
 	void RadialBlurPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

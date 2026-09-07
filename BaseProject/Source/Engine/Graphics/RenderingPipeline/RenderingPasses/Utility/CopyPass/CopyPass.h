@@ -27,8 +27,6 @@ namespace Engine::Graphics::Pipeline
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;
 
-		EPassEditResult EditUpdate() override;
-		void EditNode() override;
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
@@ -36,31 +34,41 @@ namespace Engine::Graphics::Pipeline
 		// エディターで打ち替えるのと同じことをする
 		void Configure(const std::string& a_resourceName, int a_formatIndex, bool a_isTemporal = false)
 		{
-			m_resourceName = a_resourceName;
-			m_formatIndex = a_formatIndex;
-			m_isTemporal = a_isTemporal;
+			m_params.resourceName = a_resourceName;
+			m_params.formatIndex = a_formatIndex;
+			m_params.isTemporal = a_isTemporal;
 			ApplyOutput();
 		}
 
-	private:
+		//----------------------------------------------------------------------------------
+		// 編集対象の値 : エディターはここだけを触る
+		//----------------------------------------------------------------------------------
+		struct Params
+		{
+			// 写し先のリソース名 : ノードごとに変える
+			std::string resourceName = "CopyResult";
+
+			// 履歴として使うなら立てる。
+			// 2枚持ちになり、「前フレームを読む」と宣言したピンからは1つ前の中身が読める。
+			// GBufferの前フレーム(PrevDepth / PrevNormal)を作るのがこれ
+			bool isTemporal = false;
+
+			// 写し先のフォーマット。入力と揃っていないとコピーできない
+			int formatIndex = 0;
+		};
+		Params& RefParams() { return m_params; }
 
 		// スロットへ出力の設定を反映する
 		void ApplyOutput();
 
-		// 写し先のリソース名 : ノードごとに変える
-		std::string m_resourceName = "CopyResult";
-
-		// 履歴として使うなら立てる。
-		// 2枚持ちになり、「前フレームを読む」と宣言したピンからは1つ前の中身が読める。
-		// GBufferの前フレーム(PrevDepth / PrevNormal)を作るのがこれ
-		bool m_isTemporal = false;
-
-		// 写し先のフォーマット。入力と揃っていないとコピーできない
-		int m_formatIndex = 0;
-
 		// 選べるフォーマット : よく使うものだけ並べてある
-		static DXGI_FORMAT ToFormat(int a_index);
 		static const char* ToFormatName(int a_index);
 		static constexpr int kFormatCount = 5;
+
+	private:
+
+		Params m_params = {};
+
+		static DXGI_FORMAT ToFormat(int a_index);
 	};
 }

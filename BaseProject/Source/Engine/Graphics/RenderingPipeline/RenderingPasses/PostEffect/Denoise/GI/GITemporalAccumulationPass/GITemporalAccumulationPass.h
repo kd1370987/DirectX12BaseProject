@@ -21,20 +21,24 @@ namespace Engine::Graphics::Pipeline
 		void Compile(const PassContext& a_context) override;
 		void Update(const PassContext& a_context) override;
 
-		EPassEditResult EditUpdate() override;
-		void EditNode() override;
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
-	private:
-
-		// シェーダーへ送る調整値
 		struct GITACB
 		{
 			float phiDepth;		// 深度の感度(履歴を捨てる判定)
 			float phiNormal;	// 法線の感度
 			float blendRate;	// 今フレームを混ぜる割合
 		};
+
+		// 編集対象の値 : エディターはここだけを触る。
+		// 実体は下の m_cb で、シェーダーへはそのまま送られる
+		using Params = GITACB;
+		Params& RefParams() { return m_cb; }
+
+	private:
+
+		// シェーダーへ送る調整値
 		GITACB m_cb = { 1.0f, 32.0f, 0.1f };
 	};
 }

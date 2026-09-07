@@ -31,43 +31,8 @@ namespace Engine::Graphics::Pipeline
 
 	// 選択中に出る詳細側のUI
 	// ノードの中に詰めると線が見えなくなるので、細かい設定はこちらへ置く
-	EPassEditResult TestGBufferPass::EditUpdate()
-	{
-		bool _isEdit = false;
-
-		if (ImGui::TreeNodeEx("Output", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			for (Slot& _out : m_outputSlots)
-			{
-				ImGui::PushID(_out.pinID);
-				ImGui::Text("%s : %s", _out.pinName.c_str(), _out.name.c_str());
-				// どれもリソースの要件を変えるので、触られたら組み直しが要る
-				_isEdit |= Editor::EditorHelper::DrawEnumCombo("LoadOp", _out.loadOp);
-				_isEdit |= Editor::EditorHelper::DrawEnumCombo("Access", _out.accessType);
-				_isEdit |= ImGui::DragFloat("Scale", &_out.scale, 0.01f, 0.01f, 4.0f);
-				ImGui::Separator();
-				ImGui::PopID();
-			}
-			ImGui::TreePop();
-		}
-
-		if (ImGui::TreeNodeEx("Input", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			for (const Slot& _in : m_inputSlots)
-			{
-				if (_in.IsConnected())	ImGui::Text("%s : %s", _in.pinName.c_str(), _in.name.c_str());
-				else					ImGui::TextDisabled("%s : (not connected)", _in.pinName.c_str());
-			}
-			ImGui::TreePop();
-		}
-
-		// どれもリソースの要件が変わるので、組み直しが要る
-		return _isEdit ? EPassEditResult::Structure : EPassEditResult::None;
-	}
 
 	// ノードの中に出すUI : ピンと削除ボタンは呼び出し側が描くので、ここは固有分だけ
-	void TestGBufferPass::EditNode()
-	{}
 
 	// このパスは固有のパラメータをまだ持っていないので何もしない。
 	// 定数バッファなどを足したらここへ書く

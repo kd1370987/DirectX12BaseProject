@@ -1,0 +1,657 @@
+﻿//==========================================================================================
+//
+// BuiltinPassEditors (Engine::Editor::Inspector)
+//
+// エンジン標準のパス30種ぶんの編集UI。
+//
+// 以前はパスごとの .cpp に EditNode() / EditUpdate() として書かれていたので、
+// ランタイムのパスが ImGui を直接呼んでいた。中身はそのままここへ移してある。
+//
+// 編集対象の値はパス側の公開 Params を通して触る。
+// 触れるものが増えたら、まずパス側の Params に足すこと
+//
+// 実体は型ごとに1つだけ作られ、状態は持たない(編集対象は毎回渡される)
+//
+//==========================================================================================
+#include "PassEditor.h"
+
+#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+
+#include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
+
+// ---- Geometry ----
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Geometry/ZPrePass/ZPrePass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Geometry/GBufferPass/GBufferPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Geometry/ParticlePass/ParticlePass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Geometry/DebugLinePass/DebugLinePass.h"
+
+// ---- Lighting ----
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/DeferredLightingPass/DeferredLightingPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
+
+// ---- Denoise ----
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Denoise/GI/GITemporalAccumulationPass/GITemporalAccumulationPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Denoise/Shadow/ShadowSpatialDenoisePass/ShadowSpatialDenoisePass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
+
+// ---- PostEffect ----
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/AntiAliasing/TAAPass/TAAPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Bloom/BloomExtractPass/BloomExtractPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Bloom/BloomCompositePass/BloomCompositePass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Bloom/KawaseBlurPass/KawaseBlurPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Blur/GaussianBlurPass/GaussianBlurPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Blur/RadialBlurPass/RadialBlurPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Distortion/FishEyePass/FishEyePass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/DoF/CoCPass/CoCPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/DoF/DoFPass/DoFPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/ToneMap/ToneMapPass/ToneMapPass.h"
+
+// ---- Sky / Present / UI ----
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Sky/SkyPass/SkyPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Present/FinalOutputPass/FinalOutputPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/UI/UIPass/UIPass.h"
+
+// ---- Utility / Test ----
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/UpScale/UpScalePass/UpScalePass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Utility/BlendPass/BlendPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Utility/CopyPass/CopyPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Utility/MonitorPass/MonitorPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Test/TestClearPass/TestClearPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Test/TestGBufferPass/TestGBufferPass.h"
+
+namespace Engine::Editor::Inspector
+{
+	using namespace Engine::Graphics::Pipeline;
+
+	namespace
+	{
+		//----------------------------------------------------------------------------------
+		// 説明だけを出すパス用の土台
+		//
+		// 触れる設定を持たないものが11個あるので、行数を増やさないためにまとめてある
+		//----------------------------------------------------------------------------------
+		template<class TPass>
+		class NoteOnlyEditor : public PassEditor<TPass>
+		{
+		public:
+			explicit NoteOnlyEditor(std::initializer_list<const char*> a_notes)
+				: m_notes(a_notes)
+			{}
+
+		protected:
+			EPassEditResult OnDrawDetail(TPass& a_pass) override
+			{
+				(void)a_pass;
+				for (const char* _pNote : m_notes) ImGui::TextDisabled("%s", _pNote);
+				return EPassEditResult::None;
+			}
+
+		private:
+			std::vector<const char*> m_notes = {};
+		};
+
+		//----------------------------------------------------------------------------------
+		// 出力リソース名の入力欄
+		//
+		// 同一性は「作ったパス + 出力ピン」で決まるので、ここが被っても中身は混ざらない。
+		// リソース一覧やデバッグ表示で見分けるためのラベル
+		//----------------------------------------------------------------------------------
+		bool DrawResourceName(std::string& a_name)
+		{
+			char _nameBuf[128] = {};
+			std::snprintf(_nameBuf, sizeof(_nameBuf), "%s", a_name.c_str());
+
+			if (!ImGui::InputText("ResourceName", _nameBuf, sizeof(_nameBuf))) return false;
+
+			a_name = _nameBuf;
+			return true;
+		}
+
+		// 有効/無効のチェックボックス : CB では int で持っているので橋渡しする
+		bool DrawEnableCheck(int& a_enable)
+		{
+			bool _isEnable = (a_enable != 0);
+			if (!ImGui::Checkbox("Enable", &_isEnable)) return false;
+
+			a_enable = _isEnable ? 1 : 0;
+			return true;
+		}
+
+		//==================================================================================
+		//
+		// Geometry
+		//
+		//==================================================================================
+		class ZPreEditor : public PassEditor<ZPrePass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(ZPrePass& a_pass) override
+			{
+				ImGui::TextDisabled("不透明モデルの深度だけを書きます");
+				ImGui::Text("PassIndex : %d", static_cast<int>(a_pass.GetPassIndex()));
+				return EPassEditResult::None;
+			}
+		};
+
+		class GBufferEditor : public PassEditor<GBufferPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(GBufferPass& a_pass) override
+			{
+				ImGui::TextDisabled("不透明モデルをGBufferへ描きます");
+				ImGui::Text("PassIndex : %d", static_cast<int>(a_pass.GetPassIndex()));
+				return EPassEditResult::None;
+			}
+		};
+
+		//==================================================================================
+		//
+		// Lighting
+		//
+		//==================================================================================
+		class DeferredLightingEditor : public PassEditor<DeferredLightingPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(DeferredLightingPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = false;
+
+				_isEdit |= ImGui::DragFloat("GIIntensity", &_params.giIntensity, 0.01f, 0.0f);
+				_isEdit |= ImGui::DragFloat("DirectionalIntensity", &_params.directionalIntensity, 0.01f, 0.0f);
+				_isEdit |= ImGui::DragFloat("DielectricF0", &_params.dielectricF0, 0.001f, 0.0f, 1.0f);
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		// レイトレ2種は PSO が組めているかだけが違う
+		template<class TPass>
+		class RaytracingEditor : public PassEditor<TPass>
+		{
+		public:
+			explicit RaytracingEditor(const char* a_pNote) : m_pNote(a_pNote) {}
+
+		protected:
+			EPassEditResult OnDrawDetail(TPass& a_pass) override
+			{
+				ImGui::TextDisabled("%s", m_pNote);
+				if (!a_pass.IsReady()) ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "PSO not ready");
+				return EPassEditResult::None;
+			}
+
+		private:
+			const char* m_pNote = "";
+		};
+
+		//==================================================================================
+		//
+		// Denoise
+		//
+		//==================================================================================
+		// 空間デノイズ2種は中身が同じ
+		template<class TPass>
+		class SpatialDenoiseEditor : public PassEditor<TPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(TPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isParam = false;
+
+				const bool _isStructure = DrawResourceName(_params.resourceName);
+
+				// 段ごとに 1, 2, 4, 8... と変える
+				_isParam |= ImGui::DragInt("StepSize", &_params.cb.stepSize, 1, 1, 64);
+				_isParam |= ImGui::DragFloat("PhiDepth", &_params.cb.phiDepth, 0.01f, 0.0f);
+				_isParam |= ImGui::DragFloat("PhiNormal", &_params.cb.phiNormal, 0.1f, 0.0f);
+				_isParam |= ImGui::DragFloat("PhiColor", &_params.cb.phiColor, 0.01f, 0.0f);
+
+				if (_isStructure)
+				{
+					a_pass.ApplyResourceName();
+					return EPassEditResult::Structure;
+				}
+				return _isParam ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		// 時間デノイズ2種も中身が同じ
+		template<class TPass>
+		class TemporalAccumulationEditor : public PassEditor<TPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(TPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = false;
+
+				_isEdit |= ImGui::DragFloat("PhiDepth", &_params.phiDepth, 0.01f, 0.0f);
+				_isEdit |= ImGui::DragFloat("PhiNormal", &_params.phiNormal, 0.1f, 0.0f);
+				_isEdit |= ImGui::DragFloat("BlendRate", &_params.blendRate, 0.01f, 0.0f, 1.0f);
+
+				ImGui::TextDisabled("HistoryOut を History へ繋いでください");
+				ImGui::TextDisabled("(Temporal なので前フレームのぶんが入ります)");
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		//==================================================================================
+		//
+		// Bloom
+		//
+		//==================================================================================
+		class BloomExtractEditor : public PassEditor<BloomExtractPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(BloomExtractPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = DrawEnableCheck(_params.enable);
+
+				_isEdit |= ImGui::DragFloat("Threshold", &_params.threshold, 0.01f, 0.0f);
+				_isEdit |= ImGui::DragFloat("SoftKnee", &_params.softKnee, 0.01f, 0.0f, 1.0f);
+
+				// 強さは合成側で効く。抽出側は同じCBを使うので並びを合わせて持っている
+				_isEdit |= ImGui::DragFloat("Intensity", &_params.intensity, 0.01f, 0.0f);
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		class BloomCompositeEditor : public PassEditor<BloomCompositePass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(BloomCompositePass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = DrawEnableCheck(_params.enable);
+
+				_isEdit |= ImGui::DragFloat("Intensity", &_params.intensity, 0.01f, 0.0f);
+
+				// 抽出のしきい値は BloomExtractPass 側。合成では使わないが並びを合わせて持っている
+				ImGui::TextDisabled("Threshold / SoftKnee は BloomExtractPass 側");
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		//==================================================================================
+		//
+		// Blur
+		//
+		//==================================================================================
+		class GaussianBlurEditor : public PassEditor<GaussianBlurPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(GaussianBlurPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isParam = false;
+
+				bool _isStructure = DrawResourceName(_params.resourceName);
+
+				// 解像度が変わるとテクスチャを作り直すので組み直しが要る
+				if (ImGui::DragFloat("OutputScale", &_params.outputScale, 0.01f, 0.01f, 1.0f)) _isStructure = true;
+
+				_isParam |= ImGui::DragFloat("Sigma", &_params.sigma, 0.01f, 0.01f, 16.0f);
+				_isParam |= ImGui::DragInt("TapRadius", &_params.tapRadius, 1, 1, 8);
+
+				if (_isStructure)
+				{
+					a_pass.ApplyOutputScale();
+					return EPassEditResult::Structure;
+				}
+				return _isParam ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		class RadialBlurEditor : public PassEditor<RadialBlurPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(RadialBlurPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = DrawEnableCheck(_params.enable);
+
+				_isEdit |= ImGui::DragFloat2("BlurCenter", &_params.blurCenter.x, 0.01f);
+				_isEdit |= ImGui::DragFloat("Strength", &_params.strength, 0.001f, 0.0f, 1.0f);
+				_isEdit |= ImGui::DragInt("SampleCount", &_params.sampleCount, 1, 1, 64);
+				_isEdit |= ImGui::DragFloat("Radius", &_params.radius, 0.01f, 0.0f, 2.0f);
+				_isEdit |= ImGui::DragFloat("Falloff", &_params.falloff, 0.01f, 0.0f, 8.0f);
+
+				// 値が変わるだけなのでグラフは組み直さない
+				ImGui::TextDisabled("カメラが RadialBlurComponent を持つあいだはそちらの値が優先される");
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		//==================================================================================
+		//
+		// Distortion / DoF / ToneMap
+		//
+		//==================================================================================
+		class FishEyeEditor : public PassEditor<FishEyePass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(FishEyePass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = DrawEnableCheck(_params.enable);
+
+				_isEdit |= ImGui::DragFloat2("Center", &_params.center.x, 0.01f);
+
+				// 正で樽型、負で糸巻き型
+				_isEdit |= ImGui::DragFloat("Strength", &_params.strength, 0.01f, -2.0f, 2.0f);
+
+				ImGui::TextDisabled("カメラが FishEyeComponent を持つあいだはそちらの値が優先される");
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		// CoC と DoF は同じ調整値を持つ(両方を合わせる必要がある)
+		template<class TPass>
+		class DoFParamEditor : public PassEditor<TPass>
+		{
+		public:
+			explicit DoFParamEditor(const char* a_pPairNote) : m_pPairNote(a_pPairNote) {}
+
+		protected:
+			EPassEditResult OnDrawDetail(TPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = DrawEnableCheck(_params.enable);
+
+				_isEdit |= ImGui::DragFloat("FocusDistance", &_params.focusDistance, 0.1f, 0.0f);
+				_isEdit |= ImGui::DragFloat("FocusRange", &_params.focusRange, 0.1f, 0.0f);
+				_isEdit |= ImGui::DragFloat("NearRange", &_params.nearRange, 0.1f, 0.0f);
+				_isEdit |= ImGui::DragFloat("FarRange", &_params.farRange, 0.1f, 0.0f);
+				_isEdit |= ImGui::DragFloat("MaxBlurRadius", &_params.maxBlurRadius, 0.1f, 0.0f);
+
+				ImGui::TextDisabled("%s", m_pPairNote);
+				ImGui::TextDisabled("カメラが FocusParamComponent を持つあいだはそちらの値が優先される");
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+
+		private:
+			const char* m_pPairNote = "";
+		};
+
+		class ToneMapEditor : public PassEditor<ToneMapPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(ToneMapPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = false;
+
+				int _type = static_cast<int>(_params.type);
+				if (ImGui::DragInt("Type", &_type, 1, 0, 8)) { _params.type = static_cast<uint32_t>(_type); _isEdit = true; }
+
+				_isEdit |= ImGui::DragFloat("Exposure", &_params.exposure, 0.01f, 0.0f);
+				_isEdit |= ImGui::DragFloat("WhitePoint", &_params.whitePoint, 0.1f, 0.0f);
+
+				ImGui::TextDisabled("HDR -> LDR。これより後ろにポストプロセスを置かないこと");
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		//==================================================================================
+		//
+		// Present
+		//
+		//==================================================================================
+		class FinalOutputEditor : public PassEditor<FinalOutputPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(FinalOutputPass& a_pass) override
+			{
+				ImGui::TextDisabled("このノードの絵がカメラの最終出力になります");
+
+				const Slot* _pInSlot = a_pass.FindInputSlot(Pass::MakeSlotID(FinalOutputPass::kInputName));
+				if (_pInSlot && _pInSlot->IsConnected())	ImGui::Text("Input : %s", _pInSlot->name.c_str());
+				else										ImGui::TextDisabled("Input : (not connected)");
+
+				// 触れる設定を持たない
+				return EPassEditResult::None;
+			}
+		};
+
+		//==================================================================================
+		//
+		// Utility
+		//
+		//==================================================================================
+		class UpScaleEditor : public PassEditor<UpScalePass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(UpScalePass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = false;
+
+				ImGui::TextDisabled("ScaleRatio : %.2f (繋がれた解像度から自動)", _params.scaleRatio);
+				_isEdit |= ImGui::DragFloat("DepthSigma", &_params.depthSigma, 0.001f, 0.0f);
+				_isEdit |= ImGui::DragFloat("NormalPower", &_params.normalPower, 0.1f, 0.0f);
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		class CopyEditor : public PassEditor<CopyPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(CopyPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+
+				bool _isStructure = DrawResourceName(_params.resourceName);
+
+				if (ImGui::BeginCombo("Format", CopyPass::ToFormatName(_params.formatIndex)))
+				{
+					for (int _i = 0; _i < CopyPass::kFormatCount; ++_i)
+					{
+						const bool _isSelected = (_params.formatIndex == _i);
+						if (ImGui::Selectable(CopyPass::ToFormatName(_i), _isSelected))
+						{
+							_params.formatIndex = _i;
+							_isStructure = true;
+						}
+						if (_isSelected) ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
+
+				if (ImGui::Checkbox("History", &_params.isTemporal)) _isStructure = true;
+				ImGui::TextDisabled("入力と同じフォーマット・大きさにすること");
+
+				if (!_isStructure) return EPassEditResult::None;
+
+				// リソースを作り直すので組み直しが要る
+				a_pass.ApplyOutput();
+				return EPassEditResult::Structure;
+			}
+		};
+
+		class MonitorEditor : public PassEditor<MonitorPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(MonitorPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				EPassEditResult _result = EPassEditResult::None;
+
+				if (DrawResourceName(_params.resourceName))
+				{
+					a_pass.ApplyOutput();
+
+					// リソースを作り直すので組み直しが要る
+					_result = EPassEditResult::Structure;
+				}
+
+				// 写しを取るかどうかは実行インスタンス側の振る舞いなので、値を配る必要がある
+				if (ImGui::Checkbox("Preview", &_params.isPreview) && _result == EPassEditResult::None)
+				{
+					_result = EPassEditResult::Param;
+				}
+
+				// 表示の大きさは設計図側でしか使わないので、配らない
+				ImGui::DragFloat("PreviewWidth", &_params.previewWidth, 1.0f, 64.0f, 1024.0f);
+
+				ImGui::TextDisabled("フォーマットと大きさは入力から受け取る");
+
+				return _result;
+			}
+
+			void OnDrawNode(MonitorPass& a_pass) override
+			{
+				const auto& _params = a_pass.RefParams();
+
+				if (!_params.isPreview)
+				{
+					ImGui::TextDisabled("Preview : off");
+					return;
+				}
+
+				// 設計図のパスは実行されないので、中身は実行インスタンスから借りる
+				const MonitorPass* _pView = a_pass.ResolveViewSource();
+				const Resource::Texture* _pTex = _pView ? _pView->GetPreviewTexture() : nullptr;
+
+				if (!_pTex || !_pTex->GetImGuiSRV().IsValid())
+				{
+					// カメラがこのパイプラインを回していないあいだはここに来る
+					ImGui::TextDisabled("表示するものがありません");
+					return;
+				}
+
+				const D3D12_RESOURCE_DESC& _desc = _pTex->GetDesc();
+				if (_desc.Width == 0 || _desc.Height == 0) return;
+
+				const auto _gpuHandle =
+					D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
+
+				const float _aspect = static_cast<float>(_desc.Height) / static_cast<float>(_desc.Width);
+				const ImVec2 _size(_params.previewWidth, _params.previewWidth * _aspect);
+
+				ImGui::Image(static_cast<ImTextureID>(_gpuHandle.ptr), _size);
+
+				ImGui::TextDisabled("%llu x %u", _desc.Width, _desc.Height);
+			}
+		};
+
+		//==================================================================================
+		//
+		// Test
+		//
+		//==================================================================================
+		class TestClearEditor : public PassEditor<TestClearPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(TestClearPass& a_pass) override
+			{
+				ImGui::TextDisabled("出力テクスチャを指定色で塗るだけのパスです");
+
+				// 自分で塗るので、色を変えてもリソースの作り直しは要らない。
+				// Param を返すと、カメラが回している実行インスタンスへ値だけが写る
+				if (EditorHelper::DrawColorEdit("ClearColor", a_pass.RefParams().clearColor)) return EPassEditResult::Param;
+				return EPassEditResult::None;
+			}
+		};
+
+		class TestGBufferEditor : public PassEditor<TestGBufferPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(TestGBufferPass& a_pass) override
+			{
+				bool _isEdit = false;
+
+				if (ImGui::TreeNodeEx("Output", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					for (Slot& _out : a_pass.RefOutputSlots())
+					{
+						ImGui::PushID(_out.pinID);
+						ImGui::Text("%s : %s", _out.pinName.c_str(), _out.name.c_str());
+						// どれもリソースの要件を変えるので、触られたら組み直しが要る
+						_isEdit |= EditorHelper::DrawEnumCombo("LoadOp", _out.loadOp);
+						_isEdit |= EditorHelper::DrawEnumCombo("Access", _out.accessType);
+						_isEdit |= ImGui::DragFloat("Scale", &_out.scale, 0.01f, 0.01f, 4.0f);
+						ImGui::Separator();
+						ImGui::PopID();
+					}
+					ImGui::TreePop();
+				}
+
+				if (ImGui::TreeNodeEx("Input", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					for (const Slot& _in : a_pass.GetInputSlots())
+					{
+						if (_in.IsConnected())	ImGui::Text("%s : %s", _in.pinName.c_str(), _in.name.c_str());
+						else					ImGui::TextDisabled("%s : (not connected)", _in.pinName.c_str());
+					}
+					ImGui::TreePop();
+				}
+
+				// どれもリソースの要件が変わるので、組み直しが要る
+				return _isEdit ? EPassEditResult::Structure : EPassEditResult::None;
+			}
+		};
+	}
+
+	//======================================================================================
+	//
+	// 登録
+	//
+	//======================================================================================
+	void RegisterBuiltinPassEditors(PassEditorRegistry& a_registry)
+	{
+		// ---- Geometry ----
+		a_registry.Register<ZPrePass, ZPreEditor>();
+		a_registry.Register<GBufferPass, GBufferEditor>();
+		a_registry.Register<ParticlePass, NoteOnlyEditor<ParticlePass>>(std::initializer_list<const char*>{ "発生と更新は GraphicsEngine 側で毎フレーム1回走ります", "このパスは描画だけを担当します" });
+		a_registry.Register<DebugLinePass, NoteOnlyEditor<DebugLinePass>>(std::initializer_list<const char*>{ "当たり判定やレイのデバッグ線を描きます" });
+
+		// ---- Lighting ----
+		a_registry.Register<DeferredLightingPass, DeferredLightingEditor>();
+		a_registry.Register<RaytracingGIPass, RaytracingEditor<RaytracingGIPass>>("レイを飛ばして間接光を求めます(ハーフ解像度)");
+		a_registry.Register<RaytracingShadowPass, RaytracingEditor<RaytracingShadowPass>>("主光源へレイを1本飛ばして遮蔽を求めます");
+
+		// ---- Denoise ----
+		a_registry.Register<GISpatialDenoisePass, SpatialDenoiseEditor<GISpatialDenoisePass>>();
+		a_registry.Register<ShadowSpatialDenoisePass, SpatialDenoiseEditor<ShadowSpatialDenoisePass>>();
+		a_registry.Register<GITemporalAccumulationPass, TemporalAccumulationEditor<GITemporalAccumulationPass>>();
+		a_registry.Register<ShadowTemporalAccumulationPass, TemporalAccumulationEditor<ShadowTemporalAccumulationPass>>();
+
+		// ---- PostEffect ----
+		a_registry.Register<TAAPass, NoteOnlyEditor<TAAPass>>(std::initializer_list<const char*>{ "History 出力を History 入力へ繋いでください", "(Temporal なので前フレームのぶんが入ります)" });
+		a_registry.Register<BloomExtractPass, BloomExtractEditor>();
+		a_registry.Register<BloomCompositePass, BloomCompositeEditor>();
+		a_registry.Register<KawaseBlurPass, NoteOnlyEditor<KawaseBlurPass>>(std::initializer_list<const char*>{ "縮小4段をまとめて1枚のブルームにします", "Down0 が一番大きい段(1/2)です" });
+		a_registry.Register<GaussianBlurPass, GaussianBlurEditor>();
+		a_registry.Register<RadialBlurPass, RadialBlurEditor>();
+		a_registry.Register<FishEyePass, FishEyeEditor>();
+		a_registry.Register<CoCPass, DoFParamEditor<CoCPass>>("DoFPass と同じ値にすること");
+		a_registry.Register<DoFPass, DoFParamEditor<DoFPass>>("CoCPass と同じ値にすること");
+		a_registry.Register<ToneMapPass, ToneMapEditor>();
+
+		// ---- Sky / Present / UI ----
+		a_registry.Register<SkyPass, NoteOnlyEditor<SkyPass>>(std::initializer_list<const char*>{ "空の設定は SceneAmbientObject の持ち物です" });
+		a_registry.Register<FinalOutputPass, FinalOutputEditor>();
+		a_registry.Register<UIPass, NoteOnlyEditor<UIPass>>(std::initializer_list<const char*>{ "深度を持たないので、積んだ順がそのまま前後になります" });
+
+		// ---- Utility / Test ----
+		a_registry.Register<UpScalePass, UpScaleEditor>();
+		a_registry.Register<BlendPass, NoteOnlyEditor<BlendPass>>(std::initializer_list<const char*>{});
+		a_registry.Register<CopyPass, CopyEditor>();
+		a_registry.Register<MonitorPass, MonitorEditor>();
+		a_registry.Register<TestClearPass, TestClearEditor>();
+		a_registry.Register<TestGBufferPass, TestGBufferEditor>();
+	}
+}

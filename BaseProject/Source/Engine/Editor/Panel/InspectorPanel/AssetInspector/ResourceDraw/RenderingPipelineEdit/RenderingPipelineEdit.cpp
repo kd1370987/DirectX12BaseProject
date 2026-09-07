@@ -1,4 +1,4 @@
-#include "RenderingPipelineEdit.h"
+﻿#include "RenderingPipelineEdit.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicEngine.h"
@@ -260,11 +260,20 @@ namespace Engine::Editor::Inspector
 			// 触られたら Dirty にする。
 			// 値を確定したところ(ドラッグを離した等)で1回だけ立つ。
 			// パラメータだけなら組み直さず、カメラ側へ値を写すだけで済ませる
-			switch (_pPass->EditUpdate())
+			IPassEditor* _pEditor = m_passEditorRegistry.Find(*_pPass);
+			if (!_pEditor)
 			{
-			case EPassEditResult::Structure:	m_pAsset->SetDirty();			break;
-			case EPassEditResult::Param:		m_pAsset->SetParamDirty();		break;
-			default: break;
+				// 登録漏れ : 触れないだけで動きはするので、気づけるように出しておく
+				ImGui::TextDisabled("編集UIが登録されていません");
+			}
+			else
+			{
+				switch (_pEditor->DrawDetail(*_pPass))
+				{
+				case EPassEditResult::Structure:	m_pAsset->SetDirty();			break;
+				case EPassEditResult::Param:		m_pAsset->SetParamDirty();		break;
+				default: break;
+				}
 			}
 
 			ImGui::PopID();
@@ -339,8 +348,12 @@ namespace Engine::Editor::Inspector
 			ImNodes::EndOutputAttribute();
 		}
 
-		// パス固有のノード内UI
-		a_pass.EditNode();
+		// パス固有のノード内UI。
+		// パスは ImGui を知らないので、種類ごとの編集UIをレジストリから引く
+		if (IPassEditor* _pEditor = m_passEditorRegistry.Find(a_pass))
+		{
+			_pEditor->DrawNode(a_pass);
+		}
 
 		// 出口は常駐なので消させない
 		if (!m_pAsset->IsFinalPass(a_pass))

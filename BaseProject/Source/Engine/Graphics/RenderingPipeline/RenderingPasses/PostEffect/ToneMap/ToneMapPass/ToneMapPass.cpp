@@ -27,23 +27,7 @@ namespace Engine::Graphics::Pipeline
 		DispatchFullScreen(a_context);
 	}
 
-	EPassEditResult ToneMapPass::EditUpdate()
-	{
-		bool _isEdit = false;
 
-		int _type = static_cast<int>(m_cb.type);
-		if (ImGui::DragInt("Type", &_type, 1, 0, 8)) { m_cb.type = static_cast<uint32_t>(_type); _isEdit = true; }
-
-		_isEdit |= ImGui::DragFloat("Exposure", &m_cb.exposure, 0.01f, 0.0f);
-		_isEdit |= ImGui::DragFloat("WhitePoint", &m_cb.whitePoint, 0.1f, 0.0f);
-
-		ImGui::TextDisabled("HDR -> LDR。これより後ろにポストプロセスを置かないこと");
-
-		return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-	}
-
-	void ToneMapPass::EditNode()
-	{}
 
 	void ToneMapPass::Archive(Engine::Persistence::Archive& a_arch)
 	{

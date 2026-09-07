@@ -124,15 +124,7 @@ namespace Engine::Graphics::Pipeline
 		_pCtx->DrawQueueDispathMesh(GetPassIndex());
 	}
 
-	EPassEditResult GBufferPass::EditUpdate()
-	{
-		ImGui::TextDisabled("不透明モデルをGBufferへ描きます");
-		ImGui::Text("PassIndex : %d", static_cast<int>(GetPassIndex()));
-		return EPassEditResult::None;
-	}
 
-	void GBufferPass::EditNode()
-	{}
 
 	void GBufferPass::Archive(Engine::Persistence::Archive& a_arch)
 	{
