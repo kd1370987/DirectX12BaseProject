@@ -53,4 +53,64 @@ namespace App::Game
 
 		float mouseSensitivity = 1.0f;		// マウス感度
 	};
+
+	//------------------------------------------------------------------------------
+	// アクション1つの読み書き
+	//------------------------------------------------------------------------------
+	// 「どのアクションで反応するか」を持つオブジェクト(UIのボタンなど)用。
+	//
+	// 保存は enum の値ではなく名前。数値のままだと、アクションを足したり
+	// 並べ替えたりしただけで別のアクションを指してしまう。
+	// 読めない名前(消えたアクションや、名前で持っていた頃の古いデータ)は
+	// 呼び出し側の既定を残す。
+	//------------------------------------------------------------------------------
+	inline void ActionField(
+		Engine::Persistence::Archive& a_ar, const std::string& a_name, EGameAction& a_action)
+	{
+		std::string _actionName{ magic_enum::enum_name(a_action) };
+		a_ar.StringField(a_name, _actionName);
+
+		if (!a_ar.IsLoading()) return;
+
+		const auto _loaded = magic_enum::enum_cast<EGameAction>(_actionName);
+		if (_loaded.has_value()) a_action = _loaded.value();
+	}
+
+	//------------------------------------------------------------------------------
+	// 既定の割り当て
+	//------------------------------------------------------------------------------
+	// ユーザーデータに何も入っていないときと、エディターの「既定へ戻す」で使う。
+	// 後からアクションを足したときも、保存済みのデータに無いものはここから補う。
+	//
+	// 視点のマウス軸(EGameAction::Look)はキーではないので、ここには入れない。
+	// 割り当てに関係なく InputActionManager がマウスへ積む。
+	//------------------------------------------------------------------------------
+	inline InputSettings MakeDefaultInputSettings()
+	{
+		InputSettings _settings;
+
+		// ---- キーボード / マウスボタン ----
+		_settings.keyboard[EGameAction::Move] = AxisInputData{ 'W', 'D', 'S', 'A' };			// 移動
+		_settings.keyboard[EGameAction::Look] = AxisInputData{ VK_UP, VK_RIGHT, VK_DOWN, VK_LEFT };	// 視点(キー操作)
+
+		_settings.keyboard[EGameAction::Boost]       = ButtonInputData{ VK_LSHIFT };			// ブースト
+		_settings.keyboard[EGameAction::ChargeBoost] = ButtonInputData{ VK_SPACE };			// チャージブースト
+		_settings.keyboard[EGameAction::Down]        = ButtonInputData{ VK_LCONTROL };		// 下方向ブースト
+
+		_settings.keyboard[EGameAction::LWeaponAttack] = ButtonInputData{ VK_LBUTTON };		// 左武器攻撃
+		_settings.keyboard[EGameAction::RWeaponAttack] = ButtonInputData{ VK_RBUTTON };		// 右武器攻撃
+
+		_settings.keyboard[EGameAction::LMissileLock] = ButtonInputData{ 'Q' };				// 左肩ミサイル
+		_settings.keyboard[EGameAction::RMissileLock] = ButtonInputData{ 'E' };				// 右肩ミサイル
+
+		_settings.keyboard[EGameAction::Pose] = ButtonInputData{ VK_ESCAPE };				// 一時停止
+
+		// ---- UI ----
+		_settings.keyboard[EGameAction::Select]     = ButtonInputData{ VK_LBUTTON };			// 決定
+		_settings.keyboard[EGameAction::Back]       = ButtonInputData{ VK_BACK };			// 戻る
+		_settings.keyboard[EGameAction::Menu]       = ButtonInputData{ VK_ESCAPE };			// メニュー
+		_settings.keyboard[EGameAction::BottonMove] = AxisInputData{ VK_UP, VK_RIGHT, VK_DOWN, VK_LEFT };	// 項目の移動
+
+		return _settings;
+	}
 }

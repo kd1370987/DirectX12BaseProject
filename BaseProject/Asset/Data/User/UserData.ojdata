@@ -1,0 +1,93 @@
+{
+    "Input": {
+        "Keyboard": [
+            {
+                "Action": "Look",
+                "Down": 40,
+                "Left": 37,
+                "Right": 39,
+                "Type": "Axis",
+                "Up": 38
+            },
+            {
+                "Action": "Move",
+                "Down": 83,
+                "Left": 65,
+                "Right": 68,
+                "Type": "Axis",
+                "Up": 87
+            },
+            {
+                "Action": "Down",
+                "Key": 162,
+                "Type": "Button"
+            },
+            {
+                "Action": "Boost",
+                "Key": 160,
+                "Type": "Button"
+            },
+            {
+                "Action": "ChargeBoost",
+                "Key": 32,
+                "Type": "Button"
+            },
+            {
+                "Action": "RWeaponAttack",
+                "Key": 2,
+                "Type": "Button"
+            },
+            {
+                "Action": "LWeaponAttack",
+                "Key": 1,
+                "Type": "Button"
+            },
+            {
+                "Action": "RMissileLock",
+                "Key": 69,
+                "Type": "Button"
+            },
+            {
+                "Action": "LMissileLock",
+                "Key": 81,
+                "Type": "Button"
+            },
+            {
+                "Action": "Pose",
+                "Key": 27,
+                "Type": "Button"
+            },
+            {
+                "Action": "Select",
+                "Key": 1,
+                "Type": "Button"
+            },
+            {
+                "Action": "Back",
+                "Key": 8,
+                "Type": "Button"
+            },
+            {
+                "Action": "Menu",
+                "Key": 27,
+                "Type": "Button"
+            },
+            {
+                "Action": "BottonMove",
+                "Down": 40,
+                "Left": 37,
+                "Right": 39,
+                "Type": "Axis",
+                "Up": 38
+            }
+        ],
+        "Mouse": [],
+        "MouseSensitivity": 1.0
+    },
+    "Sound": {
+        "BgmVol": 100,
+        "MainVol": 50,
+        "SeVol": 100,
+        "UiVol": 100
+    }
+}

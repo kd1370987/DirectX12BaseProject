@@ -4,6 +4,8 @@
 
 #include "../../SequenceBgm.h"
 
+#include "../../../Game/Core/InputSettings.h"
+
 namespace App::Object
 {
 	/// <summary>
@@ -76,7 +78,7 @@ namespace App::Object
 		Engine::GUID m_exitSceneGUID = {};
 
 		// 閉じるのにも使う入力アクション名。開くのと同じキーにしておく
-		std::string m_pauseActionName = "Pause";
+		Game::EGameAction m_pauseAction = Game::EGameAction::Pose;
 
 		// ポーズの間はカーソルの中央固定を切るか。
 		// 固定したままだとカーソルが毎フレーム中央へ戻され、ボタンを狙えない

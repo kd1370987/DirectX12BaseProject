@@ -29,18 +29,6 @@
 #include "../../Object/Scene/SceneAmbientObject/SceneAmbientObject.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 
-
-// インプット
-#include "Engine/Input/InputCollector/InputCollector.h"
-#include "Engine/Input/InputDevice/Axis/InputAxisForWindowsMouse/InputAxisForWindowsMouse.h"
-#include "Engine/Input/InputDevice/Axis/InputAxisForWindows/InputAxisForWindows.h"
-#include "Engine/Input/InputDevice/Axis/InputAxisForXInput/InputAxisForXInput.h"
-
-#include "Engine/Input/InputDevice/Button/InputButtonForWindows/InputButtonForWindows.h"
-#include "Engine/Input/InputDevice/Button/InputButtonForXInput/InputButtonForXInput.h"
-
-#include "../../../Engine/Audio/AudioManager.h"
-
 // App
 #include "../UserData/UserData.h"
 #include "../InputActions/InputManager/InputActionManager.h"
@@ -69,15 +57,14 @@ namespace App::Game
 		if (!m_upUserData)
 		{
 			m_upUserData = std::make_unique<UserData>();
-			Engine::Persistence::Archive _ar(Engine::Persistence::Archive::Mode::Load, "Asset/Data/User", "UserData", "data");
-			m_upUserData->Archive(_ar);
+			m_upUserData->Load();
 		}
 
 		// 入力設定の復元
 		if (!m_upInputActionManager)
 		{
 			m_upInputActionManager = std::make_unique<Input::InputActionManager>();
-			m_upInputActionManager->Init(*m_upUserData.get());
+			m_upInputActionManager->Init(m_upUserData.get());
 		}
 
 		// ------------------------------------------------------------------
@@ -126,86 +113,6 @@ namespace App::Game
 		);
 
 
-		// キーボード
-		{
-			Engine::Input::InputCollector _keyboard;
-			Engine::Input::InputButtonForWindows _add('T');
-			_keyboard.AddButton("Add", std::make_shared<Engine::Input::InputButtonForWindows>(_add));
-			Engine::Input::InputButtonForWindows _save('K');
-			_keyboard.AddButton("Save", std::make_shared<Engine::Input::InputButtonForWindows>(_save));
-
-			// 移動
-			Engine::Input::InputAxisForWindows _move('W', 'D', 'S', 'A');
-			_keyboard.AddAxis("Move", std::make_shared<Engine::Input::InputAxisForWindows>(_move));
-			// ジャンプ
-			Engine::Input::InputButtonForWindows _jump(VK_SPACE);
-			_keyboard.AddButton("Jump", std::make_shared<Engine::Input::InputButtonForWindows>(_jump));
-			// 急降下 : ジャンプ(上昇)の逆で、押している間は下向きの入力になる
-			// (エディターの複数選択も LCtrl だが、あちらは ImGui 側で見ているので共存する)
-			Engine::Input::InputButtonForWindows _dive(VK_LCONTROL);
-			_keyboard.AddButton("Dive", std::make_shared<Engine::Input::InputButtonForWindows>(_dive));
-			// ブースト
-			Engine::Input::InputButtonForWindows _boost(VK_LSHIFT);
-			_keyboard.AddButton("Boost", std::make_shared<Engine::Input::InputButtonForWindows>(_boost));
-			// 視点
-			Engine::Input::InputAxisForWindows _look(VK_UP, VK_RIGHT, VK_DOWN, VK_LEFT);
-			_keyboard.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForWindows>(_look));
-
-
-			Engine::Input::InputButtonForWindows _debugCamUp('E');
-			_keyboard.AddButton("FreeCamUp", std::make_shared<Engine::Input::InputButtonForWindows>(_debugCamUp));
-			Engine::Input::InputButtonForWindows _debugCamDown('Q');
-			_keyboard.AddButton("FreeCamDown", std::make_shared<Engine::Input::InputButtonForWindows>(_debugCamDown));
-
-			// テスト用ボタン
-			Engine::Input::InputButtonForWindows _test('T');
-			_keyboard.AddButton("Test", std::make_shared<Engine::Input::InputButtonForWindows>(_test));
-
-			// ポーズ : ゲーム中はポーズ画面を重ね、ポーズ中は閉じて戻る。
-			// 拾うのは重ねる側(SceneSequence)と閉じる側(PauseSequence)の2つで、
-			// どちらも「一番上のシーン」しか更新されないので取り合いにならない
-			Engine::Input::InputButtonForWindows _pause(VK_ESCAPE);
-			_keyboard.AddButton("Pause", std::make_shared<Engine::Input::InputButtonForWindows>(_pause));
-
-			// ---- マウスボタン ----
-			// 武器 : 左クリックで左手、右クリックで右手。
-			// 撃てるかどうかは武器側(GunStateComponent / GunShootSystem)の担当で、
-			// ここで作るのは「押されている」という命令だけ
-			Engine::Input::InputButtonForWindows _shootLeft(VK_LBUTTON);
-			_keyboard.AddButton("ShootLeft", std::make_shared<Engine::Input::InputButtonForWindows>(_shootLeft));
-			Engine::Input::InputButtonForWindows _shootRight(VK_RBUTTON);
-			_keyboard.AddButton("ShootRight", std::make_shared<Engine::Input::InputButtonForWindows>(_shootRight));
-
-			// UIのボタン押下。UIButton が既定で見に行くアクション名
-			// (左手の武器と同じ左クリックだが、意味が別なので名前を分けておく)
-			Engine::Input::InputButtonForWindows _uiClick(VK_LBUTTON);
-			_keyboard.AddButton("UIClick", std::make_shared<Engine::Input::InputButtonForWindows>(_uiClick));
-
-			// ミサイル : 押している間ターゲットを溜め、離すと一斉射
-			// (デバッグカメラの FreeCamUp と同じ E キー。使う場面が別なので共存させる)
-			Engine::Input::InputButtonForWindows _missile('E');
-			_keyboard.AddButton("Missile", std::make_shared<Engine::Input::InputButtonForWindows>(_missile));
-
-			Engine::Input::InputManager::Instance().AddDevice("Keyboard", std::make_unique<Engine::Input::InputCollector>(_keyboard));
-		}
-		// マウス
-		{
-			// 視点
-			Engine::Input::InputCollector _mouse;
-			_mouse.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForWindowsMouse>());
-
-			Engine::Input::InputManager::Instance().AddDevice("Mouse", std::make_unique<Engine::Input::InputCollector>(_mouse));
-
-		}
-		// コントローラー
-		{
-			//Engine::Input::InputCollector _cont;
-			//_cont.AddAxis("Look", std::make_shared<Engine::Input::InputAxisForXInput>(0,false));
-			//_cont.AddAxis("Move", std::make_shared<Engine::Input::InputAxisForXInput>(0,true));
-
-			//Engine::Input::InputManager::Instance().AddDevice("Controller", std::make_unique<Engine::Input::InputCollector>(_cont));
-		}
-
 		// 最初のシーンを挿入
 		if (m_farstScene.IsValid())
 		{
@@ -230,12 +137,6 @@ namespace App::Game
 	}
 	void GameManager::Update(float a_dt)
 	{	
-		if (Engine::Input::InputManager::Instance().IsPress("Test"))
-		{
-			auto* _pSoundInstance = Engine::Audio::AudioManager::Instance().RefInstance(m_testHandle);
-			_pSoundInstance->Play();
-		}
-
 		// タイマー開始
 		Engine::Editor::MainEditor::Instance().StartTimer("GameUpdate");
 		

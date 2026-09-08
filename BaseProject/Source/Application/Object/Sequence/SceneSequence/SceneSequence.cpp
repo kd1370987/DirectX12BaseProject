@@ -4,6 +4,7 @@
 #include "Application/ECS/World/World.h"
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Editor/Editor.h"
+#include "Engine/Editor/Helper/EditorHelper.h"
 #include "Engine/Common/Color.h"
 
 #include "Application/Components/Hierarchy/SpawnerComponent.h"
@@ -307,7 +308,7 @@ namespace App::Object
 		if (m_result != App::Game::EGameResult::None) return;
 
 		if (!a_context.pServices || !a_context.pServices->pInputManager) return;
-		if (!a_context.pServices->pInputManager->IsPress(m_pauseActionName)) return;
+		if (!a_context.pServices->pInputManager->IsPress(m_pauseAction)) return;
 
 		// 重ねる。実際に積まれるのは次のフレームの初め
 		Engine::Scene::SceneManager::Instance().SetNextScene(
@@ -834,7 +835,7 @@ namespace App::Object
 		// ポーズ(重ねるシーン)
 		//----------------------------------------------------------------------
 		a_ar.GUIDField("PauseSceneGUID", m_pauseSceneGUID);
-		a_ar.StringField("PauseActionName", m_pauseActionName);
+		Game::ActionField(a_ar, "PauseActionName", m_pauseAction);
 
 		//----------------------------------------------------------------------
 		// BGM
@@ -911,7 +912,7 @@ namespace App::Object
 				ImGui::TextDisabled("(未設定 : ポーズしません)");
 			}
 
-			ImGui::InputText("Pause Action", &m_pauseActionName);
+			Engine::Editor::EditorHelper::DrawEnumCombo("Pause Action", m_pauseAction);
 			ImGui::TextDisabled("InputManager へ登録したアクション名(既定 : Esc)");
 
 			ImGui::Text("Paused    : %s", m_isPauseRequested ? "yes" : "no");

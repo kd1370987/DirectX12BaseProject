@@ -82,8 +82,6 @@ namespace App::Game
 		// ゲーム開始時の初回シーン : 起動時に出現させる
 		Engine::GUID m_farstScene;
 
-		Engine::Handle<Engine::Resource::SoundInstance> m_testHandle = { };
-
 		// ユーザーデータ
 		std::unique_ptr<UserData> m_upUserData;
 

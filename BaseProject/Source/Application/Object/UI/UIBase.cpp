@@ -172,9 +172,9 @@ namespace App::Object
 		//==================================================================
 		// 押下の進行
 		//==================================================================
-		const bool _isPressMoment   = _input.IsPress(m_clickActionName);	// 押した瞬間
-		const bool _isHoldMoment    = _input.IsHold(m_clickActionName);		// 押している間
-		const bool _isReleaseMoment = _input.IsRelease(m_clickActionName);	// 離した瞬間
+		const bool _isPressMoment   = _input.IsPress(m_clickAction);	// 押した瞬間
+		const bool _isHoldMoment    = _input.IsHold(m_clickAction);		// 押している間
+		const bool _isReleaseMoment = _input.IsRelease(m_clickAction);	// 離した瞬間
 
 		// 内側で押し始めたときだけ受け付ける
 		if (_isPressMoment && m_isHovered)
@@ -602,7 +602,9 @@ namespace App::Object
 		a_ar.Field("IsVisible", m_isVisible);
 
 		// ---- カーソルへの反応 ----
-		a_ar.StringField("ClickActionName", m_clickActionName);
+		// 名前で書き出す。アクション名で持っていた頃の古いシーンは
+		// 読めない名前になるので、そのときは既定(Select)のまま残る
+		Game::ActionField(a_ar, "ClickActionName", m_clickAction);
 		a_ar.Field("HitPadding", m_hitPadding);
 		a_ar.Field("IsInteractable", m_isInteractable);
 		a_ar.GUIDField("HoverSoundGUID", m_hoverSoundGUID);
@@ -865,7 +867,7 @@ namespace App::Object
 		ImGui::SameLine();
 		ImGui::TextDisabled("(切ると Disabled 扱いになる)");
 
-		ImGui::InputText("ClickAction", &m_clickActionName);
+		Engine::Editor::EditorHelper::DrawEnumCombo("ClickAction", m_clickAction);
 		ImGui::TextDisabled("InputManager へ登録したアクション名");
 
 		ImGui::DragFloat2("HitPadding", &m_hitPadding.x, 1.0f);

@@ -2,6 +2,7 @@
 #include "../../../../Engine/GameObject/BaseObject/BaseObject.h"
 
 #include "../../../Game/GlobalGameContext.h"
+#include "../../../Game/Core/InputSettings.h"
 
 #include "../../SequenceBgm.h"
 
@@ -221,7 +222,7 @@ namespace App::Object
 		Engine::GUID m_pauseSceneGUID = {};
 
 		// ポーズに使う入力アクション名(InputManager へ登録した名前)
-		std::string m_pauseActionName = "Pause";
+		Game::EGameAction m_pauseAction = Game::EGameAction::Pose;
 
 		// ---- 状態(保存しない) ----
 		// ポーズ画面を重ねるよう頼んだか。重ねている間このシーンは更新されないので、

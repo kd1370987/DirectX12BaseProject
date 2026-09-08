@@ -10,6 +10,8 @@
 
 #include "Application/Components/Character/LookAngleComponent.h"
 
+#include "Application/Game/Core/InputSettings.h"
+
 void InputMoveSystem::Init(App::ECS::World& a_world)
 {
 	a_world.ActiveTask<const PlayerControllTag, MoveIntentComponent, LookAngleComponent,BoostComponent>(
@@ -32,7 +34,7 @@ void InputMoveSystem::Init(App::ECS::World& a_world)
 			Math::Vector2 _look = {};
 
 			// 移動
-			_inputMove = a_ctx.pServices->pInputManager->GetAxisState("Move");
+			_inputMove = a_ctx.pServices->pInputManager->GetAxisState(App::Game::EGameAction::Move);
 
 			//--------------------------------------------------------------
 			// 上下の入力
@@ -51,19 +53,20 @@ void InputMoveSystem::Init(App::ECS::World& a_world)
 			// 押している間は2倍、離したフレームには4倍の入力が入ってしまう。
 			// (押したフレームは Press|Hold なので IsHold でも拾える)
 			//--------------------------------------------------------------
-			const bool _isJumpHold = a_ctx.pServices->pInputManager->IsHold("Jump");
-			const bool _isJumpRelease = a_ctx.pServices->pInputManager->IsRelease("Jump");
+			const bool _isJumpHold = a_ctx.pServices->pInputManager->IsHold(App::Game::EGameAction::ChargeBoost);
+			const bool _isJumpRelease = a_ctx.pServices->pInputManager->IsRelease(App::Game::EGameAction::ChargeBoost);
 
-			const float _diveInput = a_ctx.pServices->pInputManager->IsHold("Dive") ? 1.0f : 0.0f;
+			const float _diveInput =
+				a_ctx.pServices->pInputManager->IsHold(App::Game::EGameAction::Down) ? 1.0f : 0.0f;
 
 			_move = { _inputMove.x, -_diveInput, _inputMove.y };
 
 			// ブースト
-			bool _isHold = a_ctx.pServices->pInputManager->IsHold("Boost");			// 押されっぱなし
-			bool _isPress = a_ctx.pServices->pInputManager->IsPress("Boost");		// 押した瞬間
+			bool _isHold = a_ctx.pServices->pInputManager->IsHold(App::Game::EGameAction::Boost);		// 押されっぱなし
+			bool _isPress = a_ctx.pServices->pInputManager->IsPress(App::Game::EGameAction::Boost);		// 押した瞬間
 
 			// 視点
-			_look = a_ctx.pServices->pInputManager->GetAxisState("Look");
+			_look = a_ctx.pServices->pInputManager->GetAxisState(App::Game::EGameAction::Look);
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

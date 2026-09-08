@@ -29,6 +29,19 @@ namespace App::Game
 
 		
 
+		//------------------------------------------------------------------------------
+		// 保存先
+		//------------------------------------------------------------------------------
+		// 読み書きする場所はこの3つだけが持つ。設定画面からも保存するため、
+		// 呼ぶ側にパスを配らずに Load/Save を通させる。
+		static constexpr const char* FILE_DIR  = "Asset/Data/User";
+		static constexpr const char* FILE_NAME = "UserData";
+		static constexpr const char* FILE_EXT  = "data";
+
+		// ファイルからの復元 / ファイルへの保存
+		void Load();
+		void Save();
+
 		// ユーザーデータすべてのアーカイブ処理
 		void Archive(Engine::Persistence::Archive& a_ar);
 

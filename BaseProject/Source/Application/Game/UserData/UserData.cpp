@@ -131,6 +131,22 @@ namespace App::Game
 	//==========================================================================================
 	// ユーザーデータすべて
 	//==========================================================================================
+	void UserData::Load()
+	{
+		Engine::Persistence::Archive _ar(
+			Engine::Persistence::Archive::Mode::Load, FILE_DIR, FILE_NAME, FILE_EXT);
+
+		Archive(_ar);
+	}
+
+	void UserData::Save()
+	{
+		Engine::Persistence::Archive _ar(
+			Engine::Persistence::Archive::Mode::Save, FILE_DIR, FILE_NAME, FILE_EXT);
+
+		Archive(_ar);
+	}
+
 	void UserData::Archive(Engine::Persistence::Archive& a_ar)
 	{
 		GameDataArchive(a_ar);

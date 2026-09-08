@@ -68,7 +68,7 @@ namespace App::Object
 		//==============================================================
 		if (!m_isClosing && a_context.pServices && a_context.pServices->pInputManager)
 		{
-			if (a_context.pServices->pInputManager->IsPress(m_pauseActionName))
+			if (a_context.pServices->pInputManager->IsPress(m_pauseAction))
 			{
 				RequestResume();
 			}
@@ -169,7 +169,7 @@ namespace App::Object
 		a_ar.GUIDField("ResumeButtonGUID", m_resumeButtonGUID);
 		a_ar.GUIDField("ExitButtonGUID", m_exitButtonGUID);
 		a_ar.GUIDField("ExitSceneGUID", m_exitSceneGUID);
-		a_ar.StringField("PauseActionName", m_pauseActionName);
+		Game::ActionField(a_ar, "PauseActionName", m_pauseAction);
 		a_ar.Field("IsReleaseCursorLock", m_isReleaseCursorLock);
 		a_ar.Field("GameBgmDuck", m_gameBgmDuck);
 
@@ -237,7 +237,7 @@ namespace App::Object
 
 		ImGui::SeparatorText("Input");
 
-		ImGui::InputText("Pause Action", &m_pauseActionName);
+		Engine::Editor::EditorHelper::DrawEnumCombo("Pause Action", m_pauseAction);
 		ImGui::TextDisabled("これを押しても閉じる。開くのと同じ名前にしておく");
 
 		m_bgm.DrawInspector(a_context);

@@ -3,6 +3,8 @@
 #include "../../../Engine/GameObject/BaseObject/BaseObject.h"
 #include "Decoration.h"
 
+#include "../../Game/Core/InputSettings.h"
+
 namespace App::Object
 {
 	//======================================================================================
@@ -278,9 +280,10 @@ namespace App::Object
 		//-----------------------------------------------------------------------
 		// カーソルへの反応(保存される)
 		//-----------------------------------------------------------------------
-		// 押下に使う入力アクション名。InputManager へ登録した名前を指す。
-		// 名前で持たせているのは、キー割り当てを入力側の登録だけで変えられるようにするため
-		std::string m_clickActionName = "UIClick";
+		// 押下に使う入力アクション。どのキーで押されるかは持たない
+		// (割り当ては InputActionManager がユーザーデータから作る)。
+		// 保存はアクション名なので、並べ替えても指す先は変わらない
+		Game::EGameAction m_clickAction = Game::EGameAction::Select;
 
 		// 当たり判定の余白(px)。見た目より広く/狭く取りたいとき用
 		Math::Vector2 m_hitPadding = { 0.0f, 0.0f };
