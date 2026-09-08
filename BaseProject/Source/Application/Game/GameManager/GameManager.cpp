@@ -41,6 +41,10 @@
 
 #include "../../../Engine/Audio/AudioManager.h"
 
+// App
+#include "../UserData/UserData.h"
+#include "../InputActions/InputManager/InputActionManager.h"
+
 namespace App::Game
 {
 	//======================================================================================
@@ -58,12 +62,23 @@ namespace App::Game
 
 	void App::Game::GameManager::Init()
 	{
-
 		// ゲーム設定(起動時に立ち上げるシーン)の読み込み
 		LoadGameSetting();
 
-		// テスト : 音源読み込み
-		m_testHandle = Engine::Audio::AudioManager::Instance().RequestSoundInstance("Asset/Sound/TEST/test.wav");
+		// ユーザーデータの復元
+		if (!m_upUserData)
+		{
+			m_upUserData = std::make_unique<UserData>();
+			Engine::Persistence::Archive _ar(Engine::Persistence::Archive::Mode::Load, "Asset/Data/User", "UserData", "data");
+			m_upUserData->Archive(_ar);
+		}
+
+		// 入力設定の復元
+		if (!m_upInputActionManager)
+		{
+			m_upInputActionManager = std::make_unique<Input::InputActionManager>();
+			m_upInputActionManager->Init(*m_upUserData.get());
+		}
 
 		// ------------------------------------------------------------------
 		// ECS外オブジェクト(GameObject)のクラスをメタマネージャーへ登録する。
@@ -82,28 +97,17 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::AimReticleHUD>("AimReticleHUD");
 			_objRegistry.RegisterType<App::Object::HitEffectHUD>("HitEffectHUD");
 			_objRegistry.RegisterType<App::Object::MissileLockBoxHUD>("MissileLockBoxHUD");
-			// 押せるUI。押されて何をするかは SetOnClick で外から差し込む
-			_objRegistry.RegisterType<App::Object::UIButton>("UIButton");
-			// 置くだけの画像(タイトルの背景など)
-			_objRegistry.RegisterType<App::Object::UIImage>("UIImage");
-			// タイトル画面の進行役。ボタンへ「押されたらシーンを切り替える」を差し込む
-			_objRegistry.RegisterType<App::Object::TitleSequence>("TitleSequence");
-			// シーンの環境設定(環境光・平行光・フォグ・空)。シーンに1つ置く。
-			_objRegistry.RegisterType<App::Object::SceneAmbientObject>("SceneAmbientObject");
-			// スコアの表示。数える側(ScoreSystem)とは分かれていて、ここは出すだけ
-			_objRegistry.RegisterType<App::Object::ScoreHUD>("ScoreHUD");
-			// リザルト画面の進行役。ホームのボタンへ「押されたらタイトルへ」を差し込む
-			_objRegistry.RegisterType<App::Object::ResultSequence>("ResultSequence");
-			// ホーム画面の進行役。ステージセレクト(一覧・詳細・出撃)と倉庫のボタンを束ねる
-			_objRegistry.RegisterType<App::Object::HomeSequence>("HomeSequence");
-			// ポーズ画面の進行役。重ねたシーンを閉じる側(重ねるのは SceneSequence)
-			_objRegistry.RegisterType<App::Object::PauseSequence>("PauseSequence");
-			// ミッションセレクト。ホームから出し入れされ、選ぶと確認ボックスを出して出撃する
-			_objRegistry.RegisterType<App::Object::MissionSelect>("MissionSelect");
-			// ゲージ(HP / オーバーヒート / ブーストなど)。値は SetValue で外から入れる
-			_objRegistry.RegisterType<App::Object::UIGauge>("UIGauge");
-			// ウェーブが出た合図(何番目かの表示と音)
-			_objRegistry.RegisterType<App::Object::WaveAnnounceHUD>("WaveAnnounceHUD");
+			_objRegistry.RegisterType<App::Object::UIButton>("UIButton");						// 押せるUI。押されて何をするかは SetOnClick で外から差し込む
+			_objRegistry.RegisterType<App::Object::UIImage>("UIImage");							// 置くだけの画像(タイトルの背景など)
+			_objRegistry.RegisterType<App::Object::TitleSequence>("TitleSequence");				// タイトル画面の進行役。ボタンへ「押されたらシーンを切り替える」を差し込む
+			_objRegistry.RegisterType<App::Object::SceneAmbientObject>("SceneAmbientObject");	// シーンの環境設定(環境光・平行光・フォグ・空)。シーンに1つ置く。
+			_objRegistry.RegisterType<App::Object::ScoreHUD>("ScoreHUD");						// スコアの表示。数える側(ScoreSystem)とは分かれていて、ここは出すだけ
+			_objRegistry.RegisterType<App::Object::ResultSequence>("ResultSequence");			// リザルト画面の進行役。ホームのボタンへ「押されたらタイトルへ」を差し込む
+			_objRegistry.RegisterType<App::Object::HomeSequence>("HomeSequence");				// ホーム画面の進行役。ステージセレクト(一覧・詳細・出撃)と倉庫のボタンを束ねる
+			_objRegistry.RegisterType<App::Object::PauseSequence>("PauseSequence");				// ポーズ画面の進行役。重ねたシーンを閉じる側(重ねるのは SceneSequence)
+			_objRegistry.RegisterType<App::Object::MissionSelect>("MissionSelect");				// ミッションセレクト。ホームから出し入れされ、選ぶと確認ボックスを出して出撃する
+			_objRegistry.RegisterType<App::Object::UIGauge>("UIGauge");							// ゲージ(HP / オーバーヒート / ブーストなど)。値は SetValue で外から入れる
+			_objRegistry.RegisterType<App::Object::WaveAnnounceHUD>("WaveAnnounceHUD");			// ウェーブが出た合図(何番目かの表示と音)
 		}
 
 		// ------------------------------------------------------------------

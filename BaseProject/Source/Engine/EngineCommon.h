@@ -131,6 +131,7 @@ namespace Engine::Resource
 // 入力
 // 
 //==========================================================================================
+#include "Input/Core/InputAction.h"									// アクションID
 #include "Input/InputManager/InputManager.h"
 #include "Input/InputCollector/InputCollector.h"
 #include "Input/InputDevice/Axis/InputAxisBase.h"

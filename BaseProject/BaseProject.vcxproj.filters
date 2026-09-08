@@ -1117,6 +1117,9 @@
     <Filter Include="Source\Engine\Input">
       <UniqueIdentifier>{aabcc0c4-0c56-484a-8244-197b1e0f8f99}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Input\Core">
+      <UniqueIdentifier>{74d100d3-d201-481e-ad99-a91bf238a139}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Input\InputCollector">
       <UniqueIdentifier>{b035f981-695f-4e8d-9227-d5f2ac500724}</UniqueIdentifier>
     </Filter>
@@ -1605,6 +1608,15 @@
     </Filter>
     <Filter Include="Source\Application\Game\UserData">
       <UniqueIdentifier>{fefc270d-c5b2-49df-a1e9-0867b35733e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Game\InputActions">
+      <UniqueIdentifier>{817d1ea4-ab7c-40a5-a33a-10ac6536e33d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Scene\InputBinding">
+      <UniqueIdentifier>{7827d0cb-3aba-428c-90a2-0a205540d230}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Game\InputActions\InputManager">
+      <UniqueIdentifier>{cd2a8b37-fc10-494e-a304-a675badd8309}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -2730,6 +2742,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Game\UserData\UserData.cpp">
       <Filter>Source\Application\Game\UserData</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Scene\InputBinding\InputBinding.cpp">
+      <Filter>Source\Application\Object\Scene\InputBinding</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Game\InputActions\InputManager\InputActionManager.cpp">
+      <Filter>Source\Application\Game\InputActions\InputManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3867,6 +3885,9 @@
     <ClInclude Include="Source\Engine\Input\InputDevice\Button\InputButtonForXInput\InputButtonForXInput.h">
       <Filter>Source\Engine\Input\InputDevice\Button\InputButtonForXInput</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Input\Core\InputAction.h">
+      <Filter>Source\Engine\Input\Core</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Input\InputManager\InputManager.h">
       <Filter>Source\Engine\Input\InputManager</Filter>
     </ClInclude>
@@ -4416,6 +4437,18 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Game\UserData\UserData.h">
       <Filter>Source\Application\Game\UserData</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Game\InputActions\GameActions.h">
+      <Filter>Source\Application\Game\InputActions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Game\InputActions\UIActions.h">
+      <Filter>Source\Application\Game\InputActions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Scene\InputBinding\InputBinding.h">
+      <Filter>Source\Application\Object\Scene\InputBinding</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Game\InputActions\InputManager\InputActionManager.h">
+      <Filter>Source\Application\Game\InputActions\InputManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

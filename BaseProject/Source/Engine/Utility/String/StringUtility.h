@@ -49,8 +49,11 @@ namespace Engine::String
 	/// <remarks>
 	/// 名前をIDとして持ちたい所で使う。実行ごとに値は変わらないので保存しても良いが、
 	/// 衝突しない保証は無いので、突き合わせに使うなら元の文字列も持っておくこと。
+	///
+	/// constexpr なので、文字列リテラルを渡した場合はコンパイル時に値が決まる。
+	/// 「名前をそのままIDの定数にする」ような使い方ができる。
 	/// </remarks>
-	inline UINT ToHash(const std::string& a_data)
+	inline constexpr UINT ToHash(std::string_view a_data)
 	{
 		// FNV-1a 32-bit
 		const UINT _fnv_prime = 16777691u;

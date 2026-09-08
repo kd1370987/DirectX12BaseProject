@@ -8,7 +8,7 @@ namespace App::Object
 	{
 	public:
 
-
+		void Start(Engine::GameObject::ObjectContext& a_context)override;
 
 	private:
 

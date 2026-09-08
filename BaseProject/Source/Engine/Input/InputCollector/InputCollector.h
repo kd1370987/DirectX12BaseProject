@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../Core/InputAction.h"
+
 namespace Engine::Input
 {
 	class InputButtonBase;
@@ -12,6 +14,11 @@ namespace Engine::Input
 	/// キーボードやゲームパッド等のそれぞれのInputCollectorが必要
 	/// ゲームで使う入力Indexの管理もここで行う
 	/// </summary>
+	/// <remarks>
+	/// ボタンと軸は ActionID(uint32_t)を鍵にして持つ。
+	/// 引数の ActionKey は番号・enum class・文字列のどれでも受け取れるので、
+	/// 呼ぶ側は今までどおり名前で書いても、ゲーム側の enum をそのまま渡してもよい。
+	/// </remarks>
 	class InputCollector
 	{
 	public:
@@ -41,8 +48,8 @@ namespace Engine::Input
 		bool IsSomethigInput();
 
 		// 任意の入力状況の取得
-		short GetButtonState(std::string_view a_name) const;
-		DXSM::Vector2 GetAxisState(std::string_view a_name) const;
+		short GetButtonState(ActionKey a_action) const;
+		DXSM::Vector2 GetAxisState(ActionKey a_action) const;
 
 		// 入力デバイスの状態の取得と設定
 		EActiveState GetActiveState() const { return m_state; }
@@ -63,15 +70,15 @@ namespace Engine::Input
 		bool IsKeepOnReset() const { return m_isKeepOnReset; }
 
 		// アプリケーションボタンの追加・上書き
-		void AddButton(std::string_view a_name, InputButtonBase* a_pButton);
-		void AddButton(std::string_view a_name, std::shared_ptr<InputButtonBase> a_spButton);
+		void AddButton(ActionKey a_action, InputButtonBase* a_pButton);
+		void AddButton(ActionKey a_action, std::shared_ptr<InputButtonBase> a_spButton);
 
 		// 入力軸の追加・上書き
-		void AddAxis(std::string_view a_name, InputAxisBase* a_pAxis);
-		void AddAxis(std::string_view a_name, std::shared_ptr<InputAxisBase> a_spAxis);
+		void AddAxis(ActionKey a_action, InputAxisBase* a_pAxis);
+		void AddAxis(ActionKey a_action, std::shared_ptr<InputAxisBase> a_spAxis);
 
-		const std::shared_ptr<InputButtonBase> GetButton(std::string_view a_name)  const;
-		const std::shared_ptr<InputAxisBase> GetAxis(std::string_view a_name) const;
+		const std::shared_ptr<InputButtonBase> GetButton(ActionKey a_action)  const;
+		const std::shared_ptr<InputAxisBase> GetAxis(ActionKey a_action) const;
 
 	private:
 
@@ -79,9 +86,9 @@ namespace Engine::Input
 		void Release();
 
 	private:
-		// 登録されているデバイス
-		std::unordered_map<std::string, std::shared_ptr<InputButtonBase>> m_spButtonMap;
-		std::unordered_map<std::string, std::shared_ptr<InputAxisBase>> m_spAxisMap;
+		// 登録されているデバイス(鍵はアクションID)
+		std::unordered_map<ActionID, std::shared_ptr<InputButtonBase>> m_spButtonMap;
+		std::unordered_map<ActionID, std::shared_ptr<InputAxisBase>> m_spAxisMap;
 
 		// 有効
 		EActiveState m_state = EActiveState::Enable;

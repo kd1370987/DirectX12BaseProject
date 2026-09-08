@@ -10,6 +10,8 @@
 #include "../../MainEngine.h"
 #include "../../Window/NativeWindow.h"
 #include "../../Option/OptionManager.h"
+#include "InputManager.h"
+#include "InputManager.h"
 
 namespace Engine::Input
 {
@@ -328,7 +330,7 @@ namespace Engine::Input
 	}
 
 	// 任意のアプリケーションボタンの入力状態を取得
-	short InputManager::GetButtonState(std::string_view a_name) const
+	short InputManager::GetButtonState(ActionKey a_action) const
 	{
 		if (!m_isActive) return InputButtonBase::EState::Free;
 		// プレイモード以外はゲーム入力を渡さない
@@ -343,32 +345,32 @@ namespace Engine::Input
 			// 有効な時のみ入力に影響を与える
 			if (_device.second->GetActiveState() == InputCollector::EActiveState::Enable)
 			{
-				_buttonState |= _device.second->GetButtonState(a_name);
+				_buttonState |= _device.second->GetButtonState(a_action);
 			}
 		}
 		return _buttonState;
 	}
 
 	// 任意のアプリケーションボタンが押されていない状態か判定
-	bool InputManager::IsFree(std::string_view a_name) const
+	bool InputManager::IsFree(ActionKey a_action) const
 	{
 		if (!m_isActive) return false;
-		return (GetButtonState(a_name) == InputButtonBase::EState::Free);
+		return (GetButtonState(a_action) == InputButtonBase::EState::Free);
 	}
-	bool InputManager::IsPress(std::string_view a_name) const
+	bool InputManager::IsPress(ActionKey a_action) const
 	{
 		if (!m_isActive) return false;
-		return (GetButtonState(a_name) & InputButtonBase::EState::Press);
+		return (GetButtonState(a_action) & InputButtonBase::EState::Press);
 	}
-	bool InputManager::IsHold(std::string_view a_name) const
+	bool InputManager::IsHold(ActionKey a_action) const
 	{
 		if (!m_isActive) return false;
-		return (GetButtonState(a_name) & InputButtonBase::EState::Hold);
+		return (GetButtonState(a_action) & InputButtonBase::EState::Hold);
 	}
-	bool InputManager::IsRelease(std::string_view a_name) const
+	bool InputManager::IsRelease(ActionKey a_action) const
 	{
 		if (!m_isActive) return false;
-		return (GetButtonState(a_name) & InputButtonBase::EState::Release);
+		return (GetButtonState(a_action) & InputButtonBase::EState::Release);
 	}
 
 	//======================================================================================
@@ -378,7 +380,7 @@ namespace Engine::Input
 	// (モードの切り替え)を拾うためのもの。
 	// 反対に「エディター操作に反応してほしくないもの」はこちらを使わないこと。
 	//======================================================================================
-	short InputManager::GetSystemButtonState(std::string_view a_name) const
+	short InputManager::GetSystemButtonState(ActionKey a_action) const
 	{
 		if (!m_isActive) return InputButtonBase::EState::Free;
 
@@ -390,25 +392,25 @@ namespace Engine::Input
 			// 有効な時のみ入力に影響を与える
 			if (_device.second->GetActiveState() == InputCollector::EActiveState::Enable)
 			{
-				_buttonState |= _device.second->GetButtonState(a_name);
+				_buttonState |= _device.second->GetButtonState(a_action);
 			}
 		}
 		return _buttonState;
 	}
 
-	bool InputManager::IsSystemPress(std::string_view a_name) const
+	bool InputManager::IsSystemPress(ActionKey a_action) const
 	{
-		return (GetSystemButtonState(a_name) & InputButtonBase::EState::Press);
+		return (GetSystemButtonState(a_action) & InputButtonBase::EState::Press);
 	}
 
-	bool InputManager::IsSystemHold(std::string_view a_name) const
+	bool InputManager::IsSystemHold(ActionKey a_action) const
 	{
-		return (GetSystemButtonState(a_name) & InputButtonBase::EState::Hold);
+		return (GetSystemButtonState(a_action) & InputButtonBase::EState::Hold);
 	}
 
 	// 任意の軸の入力状態を取得
 	// 指定した入力デバイスの任意の軸の入力状d態を2次元ベクトルで取得する
-	DXSM::Vector2 InputManager::GetAxisState(std::string_view a_name) const
+	DXSM::Vector2 InputManager::GetAxisState(ActionKey a_action) const
 	{
 		if (!m_isActive) return DXSM::Vector2(0.0f, 0.0f);
 		// プレイモード以外はゲーム入力を渡さない
@@ -428,7 +430,7 @@ namespace Engine::Input
 			if (_collector.second->GetActiveState() == InputCollector::EActiveState::Enable)
 			{
 				DXSM::Vector2 _nowDeviceAxis = {};
-				_nowDeviceAxis = _collector.second->GetAxisState(a_name);
+				_nowDeviceAxis = _collector.second->GetAxisState(a_action);
 
 				// 入力がなければスキップ
 				if (_nowDeviceAxis.LengthSquared() == 0.0f) continue;
@@ -507,3 +509,5 @@ namespace Engine::Input
 		Release();
 	}
 }
+
+

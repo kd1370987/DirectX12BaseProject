@@ -268,7 +268,9 @@
     <ClCompile Include="Source\Application\App.cpp" />
     <ClCompile Include="Source\Application\Editor\CompEditHelper\CompEditHelper.cpp" />
     <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp" />
+    <ClCompile Include="Source\Application\Game\InputActions\InputManager\InputActionManager.cpp" />
     <ClCompile Include="Source\Application\Game\UserData\UserData.cpp" />
+    <ClCompile Include="Source\Application\Object\Scene\InputBinding\InputBinding.cpp" />
     <ClCompile Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.cpp" />
     <ClCompile Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.cpp" />
     <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp" />
@@ -671,7 +673,10 @@
     <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\BoostComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Robot\ChargeDashComponent.h" />
+    <ClInclude Include="Source\Application\Game\Core\InputSettings.h" />
+    <ClInclude Include="Source\Application\Game\InputActions\InputManager\InputActionManager.h" />
     <ClInclude Include="Source\Application\Game\UserData\UserData.h" />
+    <ClInclude Include="Source\Application\Object\Scene\InputBinding\InputBinding.h" />
     <ClInclude Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.h" />
     <ClInclude Include="Source\Application\Object\UI\Decoration.h" />
     <ClInclude Include="Source\Application\Object\UI\UIManager.h" />
@@ -1042,6 +1047,7 @@
     <ClInclude Include="Source\Engine\Graphics\PSOKey.h" />
     <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h" />
     <ClInclude Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.h" />
+    <ClInclude Include="Source\Engine\Input\Core\InputAction.h" />
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.h" />

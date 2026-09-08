@@ -2,8 +2,15 @@
 
 #include "../GlobalGameContext.h"
 
+namespace App::Input
+{
+	class InputActionManager;
+}
+
 namespace App::Game
 {
+	class UserData;
+
 	/// <summary>
 	/// シングルトン
 	/// ゲーム全体を通しての流れを管理するクラス
@@ -76,6 +83,13 @@ namespace App::Game
 		Engine::GUID m_farstScene;
 
 		Engine::Handle<Engine::Resource::SoundInstance> m_testHandle = { };
+
+		// ユーザーデータ
+		std::unique_ptr<UserData> m_upUserData;
+
+		// ---- 設定 ----
+		// 入力
+		std::unique_ptr<Input::InputActionManager> m_upInputActionManager;
 
 	// シングルトン
 	private:

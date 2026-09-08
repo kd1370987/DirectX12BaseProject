@@ -89,9 +89,9 @@ namespace Engine::Input
 	}
 
 	// 任意のアプリケーションボタンの入力情報取得
-	short InputCollector::GetButtonState(std::string_view a_name) const
+	short InputCollector::GetButtonState(ActionKey a_action) const
 	{
-		const std::shared_ptr<InputButtonBase>& _spButton = GetButton(a_name);
+		const std::shared_ptr<InputButtonBase>& _spButton = GetButton(a_action);
 
 		if (!_spButton)
 		{
@@ -102,9 +102,9 @@ namespace Engine::Input
 	}
 
 	// 任意の軸の入力情報取得
-	DXSM::Vector2 InputCollector::GetAxisState(std::string_view a_name) const
+	DXSM::Vector2 InputCollector::GetAxisState(ActionKey a_action) const
 	{
-		const std::shared_ptr<InputAxisBase>& _spAxis = GetAxis(a_name);
+		const std::shared_ptr<InputAxisBase>& _spAxis = GetAxis(a_action);
 
 		if (!_spAxis)
 		{
@@ -116,36 +116,36 @@ namespace Engine::Input
 
 	// アプリケーションボタンの追加
 	// 生ポインタの追加関数は必ず、newした生ポインタを引数として渡すこと
-	void InputCollector::AddButton(std::string_view a_name, InputButtonBase* a_pButton)
+	void InputCollector::AddButton(ActionKey a_action, InputButtonBase* a_pButton)
 	{
-		AddButton(a_name.data(), std::shared_ptr<InputButtonBase>(a_pButton));
+		AddButton(a_action, std::shared_ptr<InputButtonBase>(a_pButton));
 	}
-	void InputCollector::AddButton(std::string_view a_name, std::shared_ptr<InputButtonBase> a_spButton)
+	void InputCollector::AddButton(ActionKey a_action, std::shared_ptr<InputButtonBase> a_spButton)
 	{
-		m_spButtonMap[a_name.data()] = a_spButton;
+		m_spButtonMap[a_action.id] = a_spButton;
 	}
-	void InputCollector::AddAxis(std::string_view a_name, InputAxisBase* a_pAxis)
+	void InputCollector::AddAxis(ActionKey a_action, InputAxisBase* a_pAxis)
 	{
-		AddAxis(a_name.data(),std::shared_ptr<InputAxisBase>(a_pAxis));
+		AddAxis(a_action, std::shared_ptr<InputAxisBase>(a_pAxis));
 	}
-	void InputCollector::AddAxis(std::string_view a_name, std::shared_ptr<InputAxisBase> a_spAxis)
+	void InputCollector::AddAxis(ActionKey a_action, std::shared_ptr<InputAxisBase> a_spAxis)
 	{
-		m_spAxisMap[a_name.data()] = a_spAxis;
+		m_spAxisMap[a_action.id] = a_spAxis;
 	}
 
 	// 取得
-	const std::shared_ptr<InputButtonBase> InputCollector::GetButton(std::string_view a_name) const
+	const std::shared_ptr<InputButtonBase> InputCollector::GetButton(ActionKey a_action) const
 	{
-		auto _buttonIt = m_spButtonMap.find(a_name.data());
+		auto _buttonIt = m_spButtonMap.find(a_action.id);
 		if (_buttonIt == m_spButtonMap.end())
 		{
 			return nullptr;
 		}
 		return _buttonIt->second;
 	}
-	const std::shared_ptr<InputAxisBase> InputCollector::GetAxis(std::string_view a_name) const
+	const std::shared_ptr<InputAxisBase> InputCollector::GetAxis(ActionKey a_action) const
 	{
-		auto _axisIt = m_spAxisMap.find(a_name.data());
+		auto _axisIt = m_spAxisMap.find(a_action.id);
 
 		if (_axisIt == m_spAxisMap.end())
 		{

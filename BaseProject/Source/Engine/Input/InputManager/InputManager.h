@@ -1,10 +1,27 @@
 ﻿#pragma once
 
+#include "../Core/InputAction.h"
+
 namespace Engine::Input
 {
 	class InputCollector;
 
-	// 様々な入力を管理するクラス : 複数のInputCllectorを管理
+	/// <summary>
+	/// 様々な入力を管理するクラス : 複数のInputCllectorを管理
+	/// </summary>
+	/// <remarks>
+	/// アクションの指定は ActionID(uint32_t)。取得も登録もこの番号を鍵にしている。
+	/// 引数の ActionKey は番号・enum class・文字列のどれでも受け取れるので、
+	///
+	///   InputManager::Instance().IsPress(EGameAction::Boost);	// ゲーム側の enum
+	///   InputManager::Instance().IsPress("Boost");				// 名前(ハッシュを通る)
+	///
+	/// のどちらでも書ける。名前を渡した場合はハッシュ値が番号になるので、
+	/// 登録と取得で同じ書き方を通していれば混ぜても構わない。
+	///
+	/// 注意 : 番号の衝突はエンジン側では防げない。
+	/// ゲーム側で複数の enum を用意する場合は、開始値をずらして重ならないようにすること。
+	/// </remarks>
 	class InputManager
 	{
 	public:
@@ -20,7 +37,9 @@ namespace Engine::Input
 		static constexpr const char* SYSTEM_DEVICE_NAME = "System";
 
 		// エディター / ゲームの切り替え : Ctrl+P
-		static constexpr const char* SYSTEM_ACTION_TOGGLE_APPMODE = "ToggleAppMode";
+		// 名前から作った番号なので、ゲーム側の enum の値とはまず重ならない
+		static constexpr const char* SYSTEM_ACTION_TOGGLE_APPMODE_NAME = "ToggleAppMode";
+		static constexpr ActionID SYSTEM_ACTION_TOGGLE_APPMODE = ToActionID(SYSTEM_ACTION_TOGGLE_APPMODE_NAME);
 
 		// 初期化
 		void Init();
@@ -68,12 +87,12 @@ namespace Engine::Input
 		bool GetCursorClientPos(Math::Vector2& a_outPos) const;
 
 		// すべての有効な入力装置からのボタン入力状態を取得
-		short GetButtonState(std::string_view a_name) const;
+		short GetButtonState(ActionKey a_action) const;
 
-		bool IsFree(std::string_view a_name) const;
-		bool IsPress(std::string_view a_name) const;
-		bool IsHold(std::string_view a_name) const;
-		bool IsRelease(std::string_view a_name) const;
+		bool IsFree(ActionKey a_action) const;
+		bool IsPress(ActionKey a_action) const;
+		bool IsHold(ActionKey a_action) const;
+		bool IsRelease(ActionKey a_action) const;
 
 		/// <summary>
 		/// プレイモードでなくても拾いたい入力の状態を取得する
@@ -87,12 +106,12 @@ namespace Engine::Input
 		/// こちらはその一段外側で、アプリのモードを見ずに状態を返す。
 		/// ゲームの操作には使わないこと(エディター操作中にも反応してしまう)。
 		/// </remarks>
-		short GetSystemButtonState(std::string_view a_name) const;
-		bool IsSystemPress(std::string_view a_name) const;
-		bool IsSystemHold(std::string_view a_name) const;
+		short GetSystemButtonState(ActionKey a_action) const;
+		bool IsSystemPress(ActionKey a_action) const;
+		bool IsSystemHold(ActionKey a_action) const;
 
 		// すべての有効な入力装置からの軸入力状態を取得
-		DXSM::Vector2 GetAxisState(std::string_view a_name) const;
+		DXSM::Vector2 GetAxisState(ActionKey a_action) const;
 
 		// 入力装置の登録
 		void AddDevice(std::string_view a_name,InputCollector* a_pInputDevice);
