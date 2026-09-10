@@ -38,13 +38,13 @@ std::optional<D3D12_CLEAR_VALUE> Engine::Resource::BuildTextureClearValue(
 		// 既定は透明な黒。Texture::m_clearValue の初期値と必ず揃えること。
 		// ここと食い違うと、実際のクリア色が生成時のクリアバリューと合わず、
 		// ドライバの高速クリアが効かないうえに警告が出る
-		const DXSM::Color _color = a_desc.opClerValue.value_or(DXSM::Color(0.f, 0.f, 0.f, 0.f));
+		const Math::Color _color = a_desc.opClerValue.value_or(Math::Color(0.f, 0.f, 0.f, 0.f));
 
 		_clearValue.Format = a_resourceDesc.Format;
-		_clearValue.Color[0] = _color.R();
-		_clearValue.Color[1] = _color.G();
-		_clearValue.Color[2] = _color.B();
-		_clearValue.Color[3] = _color.A();
+		_clearValue.Color[0] = _color.r;
+		_clearValue.Color[1] = _color.g;
+		_clearValue.Color[2] = _color.b;
+		_clearValue.Color[3] = _color.a;
 
 		return _clearValue;
 	}

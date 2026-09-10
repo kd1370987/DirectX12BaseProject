@@ -30,8 +30,8 @@ namespace Engine::Editor
 		// 行列取得 : GraphicsEngine へ割り込ませるために使う
 		//-------------------------------------------------------------------
 		// カメラのワールド行列(ビュー行列ではない)
-		const DXSM::Matrix& GetWorldMatrix() const { return m_worldMat; }
-		const DXSM::Matrix& GetProjMatrix()  const { return m_projMat; }
+		const Math::Matrix& GetWorldMatrix() const { return m_worldMat; }
+		const Math::Matrix& GetProjMatrix()  const { return m_projMat; }
 
 		//-------------------------------------------------------------------
 		// 状態
@@ -60,18 +60,18 @@ namespace Engine::Editor
 		/// <summary>
 		/// 位置と向きを直接入れる(初期位置へ戻す用)
 		/// </summary>
-		void SetPose(const DXSM::Vector3& a_pos, float a_yawDeg, float a_pitchDeg);
+		void SetPose(const Math::Vector3& a_pos, float a_yawDeg, float a_pitchDeg);
 
 		// パラメーター調整用UI
 		void DrawEditUI();
 
 		// マウス座標からスクリーン上の近平面からレイを飛ばす用の設定を作成
-		Collision::RayInfo ScreenPointToRay(const DXSM::Vector2& a_mousePos,float a_maxDistance = 1000);
+		Collision::RayInfo ScreenPointToRay(const Math::Vector2& a_mousePos,float a_maxDistance = 1000);
 
 	private:
 
 		// 現在の姿勢からクォータニオンを作る
-		DXSM::Quaternion CalcRotation() const;
+		Math::Quaternion CalcRotation() const;
 
 		void UpdateRotation();
 		void UpdateMove(float a_dt);
@@ -80,7 +80,7 @@ namespace Engine::Editor
 	private:
 
 		// 姿勢
-		DXSM::Vector3 m_pos = { 0.0f, 3.0f, -10.0f };
+		Math::Vector3 m_pos = { 0.0f, 3.0f, -10.0f };
 		float m_yaw   = 0.0f;	// 度
 		float m_pitch = 0.0f;	// 度
 
@@ -100,8 +100,8 @@ namespace Engine::Editor
 		bool m_isViewportHovered = false;
 
 		// 出力
-		DXSM::Matrix m_worldMat = DXSM::Matrix::Identity;
-		DXSM::Matrix m_projMat  = DXSM::Matrix::Identity;
+		Math::Matrix m_worldMat = Math::Matrix::Identity();
+		Math::Matrix m_projMat  = Math::Matrix::Identity();
 
 		// 真上・真下を向くと視線とUpベクトルが平行になり行列が破綻するため手前で止める
 		static constexpr float MAX_PITCH = 89.0f;

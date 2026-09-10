@@ -104,7 +104,7 @@ void Engine::Resource::Mesh::CreateRtData(
 	m_opRtData->Create(a_ctx, a_subset);
 }
 
-void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<DirectX::XMFLOAT3>& a_vertices, const std::vector<UINT>& a_indices)
+void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<Math::Vector3>& a_vertices, const std::vector<UINT>& a_indices)
 {
 	auto& _collMesh = m_opCollMesh.emplace();
 	_collMesh.Create(a_vertices,a_indices);
@@ -133,12 +133,18 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 	std::vector<DirectX::CullData> _cullData;
 
 	// 位置情報だけの配列を作成
-	std::vector<DirectX::XMFLOAT3> _positions;
+	std::vector<Math::Vector3> _positions;
 	_positions.reserve(a_vertices.size());
 	for (const auto& v : a_vertices)
 	{
 		_positions.push_back(v.pos);
 	}
+
+	// DirectXMesh は XMFLOAT3 の配列しか受け取らない。
+	// Math::Vector3 とはバイナリ配置が同じ(static_assert 済み)なので、
+	// 詰め替えずに先頭アドレスをそのまま渡す
+	const DirectX::XMFLOAT3* _pPositions =
+		reinterpret_cast<const DirectX::XMFLOAT3*>(_positions.data());
 
 	for (const auto& _subset : m_meshMetaData.subsets)
 	{
@@ -161,7 +167,7 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 		auto _hr = DirectX::ComputeMeshlets(
 			_subsetIndices.data(), 
 			_subsetIndices.size() / 3,
-			_positions.data(), 
+			_pPositions, 
 			_positions.size(),
 			nullptr,
 			_dxMeshlets, 
@@ -201,7 +207,7 @@ void Engine::Resource::Mesh::CreateMeshShaderData(
 		// ---------------------------------------------------------
 		std::vector<DirectX::CullData> _subsetCullData(_dxMeshlets.size());
 		_hr = DirectX::ComputeCullData(
-			_positions.data(),			// 頂点座標の配列 : 全頂点
+			_pPositions,				// 頂点座標の配列 : 全頂点
 			_positions.size(),			// 頂点座標の総数
 			_dxMeshlets.data(),			// 生成されたサブセットのメッシュレット
 			_dxMeshlets.size(),			// メッシュレット数

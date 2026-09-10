@@ -40,7 +40,7 @@ namespace Engine::Graphics::Pipeline
 		{
 			int depth;
 			int normal;
-			DirectX::XMFLOAT2 pad2;
+			Math::Vector2 pad2;
 		};
 
 		Raytracing::RayPSO m_rayPSO = {};

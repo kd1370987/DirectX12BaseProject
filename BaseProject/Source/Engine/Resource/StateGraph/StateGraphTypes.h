@@ -79,7 +79,7 @@ namespace Engine::StateGraph
 		std::string		name = "";
 
 		// エディター表示用
-		DXSM::Vector2	editorPos = {};
+		Math::Vector2	editorPos = {};
 		int				nodeID = 0;		// ノード自身のID
 		int				inPinID = 0;	// 入力ピン
 		int				outPinID = 0;	// 出力ピン

@@ -20,7 +20,7 @@ namespace Engine::Resource::Converter
 				float g = ((float)((_srcColor >> 16) & 0xFF)) / 255.0f;
 				float b = ((float)((_srcColor >> 8) & 0xFF)) / 255.0f;
 				float a = ((float)((_srcColor >> 0) & 0xFF)) / 255.0f;
-				_dstVertex.color = DirectX::XMFLOAT4(r, g, b, a);
+				_dstVertex.color = Math::Color(r, g, b, a);
 
 				_dstVertex.normal = _srcVertex.normal;
 				_dstVertex.pos = _srcVertex.pos;
@@ -153,7 +153,7 @@ namespace Engine::Resource::Converter
 					const auto& _srcMesh = a_rawModel.meshes[_meshIdx];
 
 					// 頂点配列作成
-					std::vector<DirectX::XMFLOAT3> _collisionVertices;
+					std::vector<Math::Vector3> _collisionVertices;
 					_collisionVertices.resize(_srcMesh.vertices.size());
 
 					for (size_t _j = 0; _j < _srcMesh.vertices.size(); ++_j)

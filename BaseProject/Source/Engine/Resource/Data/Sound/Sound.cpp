@@ -47,7 +47,7 @@ namespace Engine::Resource
 		// 再生
 		m_upSoundInstance->Play(a_isLoop);
 	}
-	void SoundInstance::Play3D(const DXSM::Vector3 & a_pos, bool a_isLoop)
+	void SoundInstance::Play3D(const Math::Vector3 & a_pos, bool a_isLoop)
 	{
 		if (!m_upSoundInstance) return;
 
@@ -133,7 +133,7 @@ namespace Engine::Resource
 		m_upSoundInstance->SetVolume(std::clamp(m_volume * _scale, 0.0f, 1.0f));
 		Apply3D();
 	}
-	void SoundInstance::SetPos(const DXSM::Vector3 & a_pos)
+	void SoundInstance::SetPos(const Math::Vector3 & a_pos)
 	{
 		if (!m_upSoundInstance) return;
 		m_emitter.SetPosition(a_pos);

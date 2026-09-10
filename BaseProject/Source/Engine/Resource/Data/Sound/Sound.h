@@ -30,7 +30,7 @@ namespace Engine::Resource
 		//==================================================================
 		// ---- 再生 ----
 		void Play(bool a_isLoop = false);									// 2D再生
-		void Play3D(const DXSM::Vector3& a_pos, bool a_isLoop = false);		// 3D再生 : 再生座標が必要になる
+		void Play3D(const Math::Vector3& a_pos, bool a_isLoop = false);		// 3D再生 : 再生座標が必要になる
 
 		void Apply3D();														// Emitterの情報を適応
 
@@ -51,7 +51,7 @@ namespace Engine::Resource
 		/// </remarks>
 		void SetVolume(float a_vol);
 
-		void SetPos(const DXSM::Vector3& a_pos);	// 3Dサウンド座標設定
+		void SetPos(const Math::Vector3& a_pos);	// 3Dサウンド座標設定
 		void SetCurveDistanceScaler(float a_val);	// 減衰倍率設定 : 1 = 通常 ... FLT_MIN～FLT_MAX
 
 		//==================================================================

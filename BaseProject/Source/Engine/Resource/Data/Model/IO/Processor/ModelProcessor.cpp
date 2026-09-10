@@ -11,7 +11,7 @@ namespace Engine::Resource::Processor
 		// 掛け算・逆行列と可換( M(A*B) == M(A)*M(B), M(A^-1) == M(A)^-1 )なので、
 		// ワールド行列を組み立てた後にまとめて適用しても結果は変わらない。
 		//===================================================
-		void XMFLOAT4X4MirrorZ(DirectX::XMFLOAT4X4& a_mat)
+		void MatrixMirrorZ(Math::Matrix& a_mat)
 		{
 			// 回転のZミラーリング
 			a_mat._13 *= -1;
@@ -52,9 +52,9 @@ namespace Engine::Resource::Processor
 		//-------------------------------------------------
 		for (auto& _node : a_model.nodes)
 		{
-			XMFLOAT4X4MirrorZ(_node.localTransform);
-			XMFLOAT4X4MirrorZ(_node.worldTransform);
-			XMFLOAT4X4MirrorZ(_node.inverseBindMatrix);
+			MatrixMirrorZ(_node.localTransform);
+			MatrixMirrorZ(_node.worldTransform);
+			MatrixMirrorZ(_node.inverseBindMatrix);
 		}
 
 		//-------------------------------------------------
@@ -108,16 +108,16 @@ namespace Engine::Resource::Processor
 			for (auto& _vertex : _mesh.vertices)
 			{
 				// 接線が存在する場合はスキップ
-				DXSM::Vector3 _tangent = _vertex.tangent;
+				Math::Vector3 _tangent = _vertex.tangent;
 				if (_tangent.LengthSquared() > 0.0f)	continue;
 
-				DXSM::Vector3 _normal = _vertex.normal;
+				Math::Vector3 _normal = _vertex.normal;
 
 				// 法線と平衡になりにくい基準ベクトルを用意
-				DXSM::Vector3 _ref = (fabs(_normal.y) < 0.999f) ? DXSM::Vector3::Up : DXSM::Vector3::Forward;
+				Math::Vector3 _ref = (fabs(_normal.y) < 0.999f) ? Math::Vector3::Up() : Math::Vector3::Backward();
 
 				// クロス結果を求めて正規化
-				DXSM::Vector3 _t = _ref.Cross(_normal);
+				Math::Vector3 _t = _ref.Cross(_normal);
 				_t.Normalize();
 
 				// 結果を格納

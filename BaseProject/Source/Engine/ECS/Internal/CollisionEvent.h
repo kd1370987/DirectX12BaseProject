@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 namespace Engine::ECS
 {
 	// 当たり判定の結果を受け取るコンポーネント(①方式)。
@@ -7,8 +7,8 @@ namespace Engine::ECS
 	struct CollisionEvent
 	{
 		Entity            other  = Limits::INVALID_ENTITY;	// 当たった相手(INVALID=未ヒット)
-		DirectX::XMFLOAT3 hitPos = { 0.0f, 0.0f, 0.0f };		// 当たった位置(エフェクト発生点)
-		DirectX::XMFLOAT3 hitDir = { 0.0f, 0.0f, 0.0f };		// 法線 or 相手方向
+		Math::Vector3 hitPos = { 0.0f, 0.0f, 0.0f };		// 当たった位置(エフェクト発生点)
+		Math::Vector3 hitDir = { 0.0f, 0.0f, 0.0f };		// 法線 or 相手方向
 	};
 }
 

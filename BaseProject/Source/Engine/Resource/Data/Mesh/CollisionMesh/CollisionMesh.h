@@ -5,7 +5,7 @@ namespace Engine::Resource
 	// 当たり判定用座標付きトライアングル
 	struct CollisionTriangle
 	{
-		DirectX::XMFLOAT3 v[3];
+		Math::Vector3 v[3];
 	};
 
 	// 一つのボックス・依存関係
@@ -32,7 +32,7 @@ namespace Engine::Resource
 		void Archive(Persistence::Archive& a_ar);
 
 		// 作成
-		void Create(const std::vector<DirectX::XMFLOAT3>& a_vertices,const std::vector<UINT>& a_indices);
+		void Create(const std::vector<Math::Vector3>& a_vertices,const std::vector<UINT>& a_indices);
 
 		// 解放
 		void Release();

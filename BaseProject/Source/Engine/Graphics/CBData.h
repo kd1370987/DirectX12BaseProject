@@ -6,56 +6,58 @@ namespace Engine::Graphics
 	{
 		// 現在フレームのデータ
 		// ジッターありデータ
-		DirectX::XMFLOAT4X4 viewMat = {};			// ビュー行列
-		DirectX::XMFLOAT4X4 projMat = {};			// 射影行列
-		DirectX::XMFLOAT4X4 viewInvMat = {};		// ビュー行列
-		DirectX::XMFLOAT4X4 projInvMat = {};		// 射影逆行列
-		DirectX::XMFLOAT4X4 viewProjMat = {};
-		DirectX::XMFLOAT4X4 invViewProjMat = {};
+		Math::Matrix viewMat = {};			// ビュー行列
+		Math::Matrix projMat = {};			// 射影行列
+		Math::Matrix viewInvMat = {};		// ビュー行列
+		Math::Matrix projInvMat = {};		// 射影逆行列
+		Math::Matrix viewProjMat = {};
+		Math::Matrix invViewProjMat = {};
 
 		// モーションベクター用
-		DirectX::XMFLOAT4X4 nonJitteredProj;		// ジッターなし投影行列
-		DirectX::XMFLOAT4X4 nonJitteredViewProj;	// ジッターなしビュープロジェクション行列
-		DirectX::XMFLOAT4X4 nonJitteredInvViewProj;	// ジッターなしビュープロジェクション行列
+		Math::Matrix nonJitteredProj;		// ジッターなし投影行列
+		Math::Matrix nonJitteredViewProj;	// ジッターなしビュープロジェクション行列
+		Math::Matrix nonJitteredInvViewProj;	// ジッターなしビュープロジェクション行列
 
 		// 1フレーム前のデータ
-		DirectX::XMFLOAT4X4 prevView;
-		DirectX::XMFLOAT4X4 prevProj;
-		DirectX::XMFLOAT4X4 prevViewProj;
+		Math::Matrix prevView;
+		Math::Matrix prevProj;
+		Math::Matrix prevViewProj;
 
 
-		DirectX::XMFLOAT4 pos = { 0.0f,0.0f,0.0f,0.0f };	// カメラのワールド座標
-		DirectX::XMFLOAT2 jitterOffset = {};
-		DirectX::XMFLOAT2 prevJitterOffset = {};
+		Math::Vector4 pos = { 0.0f,0.0f,0.0f,0.0f };	// カメラのワールド座標
+		Math::Vector2 jitterOffset = {};
+		Math::Vector2 prevJitterOffset = {};
 
-		DXSM::Vector4 frustumPlanes[6] = {};
+		Math::Vector4 frustumPlanes[6] = {};
 
 		/// <summary>
 		/// フラスタムの平面を求める : すでに構造体内にデータが入っている前提での処理
 		/// </summary>
-		void ExtractFrustumPlanes(const DXSM::Matrix& viewProj) // ★引数で転置前の行列を受け取る
+		void ExtractFrustumPlanes(const Math::Matrix& viewProj) // ★引数で転置前の行列を受け取る
 		{
 			const auto& _m = viewProj;
 			// 各平面の抽出 : x , y , z は法線ベクトル , w は原点からの距離
 			// [0] 左平面
-			frustumPlanes[0] = DXSM::Vector4(_m._14 + _m._11, _m._24 + _m._21, _m._34 + _m._31, _m._44 + _m._41);
+			frustumPlanes[0] = Math::Vector4(_m._14 + _m._11, _m._24 + _m._21, _m._34 + _m._31, _m._44 + _m._41);
 			// [1] 右平面
-			frustumPlanes[1] = DXSM::Vector4(_m._14 - _m._11, _m._24 - _m._21, _m._34 - _m._31, _m._44 - _m._41);
+			frustumPlanes[1] = Math::Vector4(_m._14 - _m._11, _m._24 - _m._21, _m._34 - _m._31, _m._44 - _m._41);
 			// [2] 下平面
-			frustumPlanes[2] = DXSM::Vector4(_m._14 + _m._12, _m._24 + _m._22, _m._34 + _m._32, _m._44 + _m._42);
+			frustumPlanes[2] = Math::Vector4(_m._14 + _m._12, _m._24 + _m._22, _m._34 + _m._32, _m._44 + _m._42);
 			// [3] 上平面
-			frustumPlanes[3] = DXSM::Vector4(_m._14 - _m._12, _m._24 - _m._22, _m._34 - _m._32, _m._44 - _m._42);
+			frustumPlanes[3] = Math::Vector4(_m._14 - _m._12, _m._24 - _m._22, _m._34 - _m._32, _m._44 - _m._42);
 			// [4] 近平面 (DirectXはZが0～1なので _13 等になる)
-			frustumPlanes[4] = DXSM::Vector4(_m._13, _m._23, _m._33, _m._43);
+			frustumPlanes[4] = Math::Vector4(_m._13, _m._23, _m._33, _m._43);
 			// [5] 遠平面
-			frustumPlanes[5] = DXSM::Vector4(_m._14 - _m._13, _m._24 - _m._23, _m._34 - _m._33, _m._44 - _m._43);
+			frustumPlanes[5] = Math::Vector4(_m._14 - _m._13, _m._24 - _m._23, _m._34 - _m._33, _m._44 - _m._43);
 
 			// 平面の平均化（正規化）
-			for (int _i = 0; _i < 6; ++_i)
+			// 法線(xyz)の長さで割る。距離(w)も同じ倍率で揃える必要があるので4成分まとめて掛ける
+			for (auto& _plane : frustumPlanes)
 			{
-				DirectX::XMVECTOR _plane = frustumPlanes[_i];
-				_plane = DirectX::XMPlaneNormalize(_plane); // 法線ベクトルの長さを正規化 : Wも合わせてスケール
-				frustumPlanes[_i] = _plane;
+				const float _len = Math::Vector3(_plane.x, _plane.y, _plane.z).Length();
+
+				// 長さ0の平面は0のままにする(0除算でNaNを撒かない)
+				_plane *= (_len > 0.0f) ? (1.0f / _len) : 0.0f;
 			}
 		}
 	};
@@ -71,14 +73,14 @@ namespace Engine::Graphics
 	struct alignas(256) AmbientData
 	{
 		// 環境光
-		DirectX::XMFLOAT3 ambientColorScale = {0,0,0};
+		Math::Vector3 ambientColorScale = {0,0,0};
 		float pad0;
 		//------------------------------------------------------------------------------
 		// 高さフォグ
 		// heightFogHeight を境に、denseDown で指定した側へ heightFogMaxRange 進むまでを
 		// 0%→100% で線形グラデーションする。マックスレンジより先は 100%(フォグ色一色)。
 		//------------------------------------------------------------------------------
-		DirectX::XMFLOAT3 heightFogColor = { 0.5f, 0.6f, 0.7f };	// フォグの色
+		Math::Vector3 heightFogColor = { 0.5f, 0.6f, 0.7f };	// フォグの色
 		float heightFogMaxRange = 30.0f;							// 100% になるまでの距離(基準高さから)
 
 		float heightFogHeight    = 0.0f;	// フォグが出始める高さ(ワールドY)
@@ -91,12 +93,12 @@ namespace Engine::Graphics
 		// distanceFogStart から distanceFogMaxRange までを 0%→100% で線形グラデーション
 		// する。どちらもカメラからの深度。マックスレンジより奥は 100%。
 		//------------------------------------------------------------------------------
-		DirectX::XMFLOAT3 distanceFogColor = { 0.5f, 0.6f, 0.7f };	// フォグの色
+		Math::Vector3 distanceFogColor = { 0.5f, 0.6f, 0.7f };	// フォグの色
 		float distanceFogMaxRange = 200.0f;							// 100% になる距離
 
 		float distanceFogStart  = 30.0f;	// フォグが出始める距離
 		int   distanceFogEnable = 0;		// 0 なら計算ごとスキップ
-		DirectX::XMFLOAT2 pad4;
+		Math::Vector2 pad4;
 	};
 
 	//----------------------------------------------------------------------------------
@@ -149,7 +151,7 @@ namespace Engine::Graphics
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/RadialBlurOptionData.hlsli)と並びを合わせること
 	struct RadialBlurOptionCB
 	{
-		DirectX::XMFLOAT2 blurCenter;	// ブラーの中心(UV : 画面左上が0、右下が1)
+		Math::Vector2 blurCenter;	// ブラーの中心(UV : 画面左上が0、右下が1)
 		float strength;					// 引きずる長さ(UV単位。中心からの距離に比例して伸びる)
 		int   sampleCount;				// サンプル数
 
@@ -164,7 +166,7 @@ namespace Engine::Graphics
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/FishEyeOptionData.hlsli)と並びを合わせること
 	struct FishEyeOptionCB
 	{
-		DirectX::XMFLOAT2 center;		// 歪みの中心(UV : 画面左上が0、右下が1)
+		Math::Vector2 center;		// 歪みの中心(UV : 画面左上が0、右下が1)
 		float strength;					// 歪みの強さ(0で歪まない。正で樽型、負で糸巻き型)
 		int   enable;					// 0 なら歪ませずそのまま通す
 	};
@@ -185,7 +187,7 @@ namespace Engine::Graphics
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/GaussianBlurSetting.hlsli)と並びを合わせること
 	struct GaussianBlurCB
 	{
-		DirectX::XMFLOAT2 srcTexelSize;	// 入力テクスチャの1テクセルぶんのUV(= 1 / 入力解像度)
+		Math::Vector2 srcTexelSize;	// 入力テクスチャの1テクセルぶんのUV(= 1 / 入力解像度)
 		float sigma;					// ガウス分布の標準偏差(入力テクセル単位)
 		int   tapRadius;				// 片側のタップ数(0でブラーなし)
 	};
@@ -201,13 +203,13 @@ namespace Engine::Graphics
 	// シェーダーは pos + axisX*q.x + axisY*q.y を計算するだけでよい。
 	struct UIData
 	{
-		DXSM::Vector2 pos;			// クアッド中心のNDC座標(平行移動成分)
-		DXSM::Vector2 axisX;		// クアッドx方向の基底(NDC, 回転・アスペクト込み)
+		Math::Vector2 pos;			// クアッド中心のNDC座標(平行移動成分)
+		Math::Vector2 axisX;		// クアッドx方向の基底(NDC, 回転・アスペクト込み)
 
-		DXSM::Vector2 axisY;		// クアッドy方向の基底(NDC, 回転・アスペクト込み)
-		DXSM::Vector2 uvOffset;		// UVをずらす際のオフセット
+		Math::Vector2 axisY;		// クアッドy方向の基底(NDC, 回転・アスペクト込み)
+		Math::Vector2 uvOffset;		// UVをずらす際のオフセット
 
-		DXSM::Vector4 color;		// 色調補正
+		Math::Vector4 color;		// 色調補正
 
 		// 重なり順 : 大きいほど手前。
 		// UIパスは深度を持たないので、これを見てCPU側が積んだ順を並べ替える
@@ -218,7 +220,7 @@ namespace Engine::Graphics
 		// (数字の 0〜9 を横に並べたものから1文字だけ出す、など)。
 		// uv * uvScale + uvOffset の順で効く。既定は等倍。
 		// row3 の余りに入れているので、構造体の大きさは変わらない
-		DXSM::Vector2 uvScale = { 1.0f, 1.0f };
+		Math::Vector2 uvScale = { 1.0f, 1.0f };
 
 		// 湾曲
 		//
@@ -247,7 +249,7 @@ namespace Engine::Graphics
 	// ボーンデータ
 	struct BonePallete
 	{
-		DirectX::XMFLOAT4X4 mat;
+		Math::Matrix mat;
 	};
 
 	// デバッグライン用データ
@@ -260,17 +262,17 @@ namespace Engine::Graphics
 	};
 	struct DebugLineData
 	{
-		DirectX::XMFLOAT4	color;
-		DirectX::XMFLOAT4X4 worldMat;
+		Math::Color		color;
+		Math::Matrix worldMat;
 		UINT shapeType;
 	};
 
 	// ---- メッシュシェーダー用構造体 ----
 	struct MeshInstanceData
 	{
-		DXSM::Matrix worldMat;			// 現在フレームのワールド行列
+		Math::Matrix worldMat;			// 現在フレームのワールド行列
 
-		DXSM::Matrix prevWorldMat;		// １フレーム前のワールド行列
+		Math::Matrix prevWorldMat;		// １フレーム前のワールド行列
 
 		uint32_t materialOffset;			// メッシュが参照するマテリアル
 		uint32_t meshletOffset;				// メッシュレットオフセット
@@ -283,14 +285,14 @@ namespace Engine::Graphics
 		uint32_t cullStart;					// カリングバッファオフセット
 
 		uint32_t meshletCount;				// メッシュレットカウント
-		DXSM::Vector3 pad;
+		Math::Vector3 pad;
 	};
 	struct MeshMaterial
 	{
 		// マテリアルのテクスチャスケール値
-		DXSM::Vector4 baseColor;
+		Math::Color baseColor;
 
-		DXSM::Vector3 emissive;
+		Math::Vector3 emissive;
 		float metallic;
 
 		float roughness;
@@ -298,7 +300,7 @@ namespace Engine::Graphics
 		// マテリアルとは独立した自己発光(ModelComponent の 発光色 × 発光強度)。
 		// emissive はエミッシブテクスチャに掛ける倍率なので、テクスチャを持たない
 		// モデルは何倍しても光らない。こちらは加算なので単体で光らせられる。
-		DXSM::Vector3 emissiveAdd;
+		Math::Vector3 emissiveAdd;
 
 		// テクスチャのSRVインデックス
 		int albedoIndex;					// アルベド

@@ -184,9 +184,10 @@ namespace Engine::Collision
 
 				float _boxDist = 0.0f;
 				// レイがTLASノード（ワールド空間のAABB）と交差しているか
+				// BoundingBox::Intersects は XMVECTOR しか受けないので、渡す直前に積む
 				if (_node.box.Intersects(
-					DirectX::XMLoadFloat3(&a_ray.origin),
-					DirectX::XMLoadFloat3(&a_ray.direction),
+					Math::DX::Load(a_ray.origin),
+					Math::DX::Load(a_ray.direction),
 					_boxDist))
 				{
 					if (_boxDist > a_closestDist) continue; // すでに手前で当たっているものより遠ければスキップ
@@ -235,7 +236,7 @@ namespace Engine::Collision
 									a_bestResult = {};
 									a_bestResult.hitEntity = _instance.entity;
 									a_bestResult.hitDistance = _d;
-									a_bestResult.hitPos = DXSM::Vector3(a_ray.origin) + DXSM::Vector3(a_ray.direction) * _d;
+									a_bestResult.hitPos = Math::Vector3(a_ray.origin) + Math::Vector3(a_ray.direction) * _d;
 									a_bestResult.isHit = true;
 									a_isHit = true;
 								}
@@ -269,7 +270,7 @@ namespace Engine::Collision
 		// 呼び出し側の正規化漏れや、カメラ行列などから流れ込んだNaNで落とさないよう、
 		// ここで一度だけ整えてから走査する。
 		//==================================================================================
-		auto _isFinite3 = [](const DirectX::XMFLOAT3& a_v)
+		auto _isFinite3 = [](const Math::Vector3& a_v)
 		{
 			return std::isfinite(a_v.x) && std::isfinite(a_v.y) && std::isfinite(a_v.z);
 		};
@@ -279,7 +280,7 @@ namespace Engine::Collision
 
 		RayInfo _ray = a_ray;
 		{
-			DXSM::Vector3 _dir(_ray.direction);
+			Math::Vector3 _dir(_ray.direction);
 			float _lenSq = _dir.LengthSquared();
 			if (_lenSq < 1e-12f) return false;				// 長さゼロは方向が定まらない
 			_dir /= std::sqrt(_lenSq);
@@ -317,7 +318,7 @@ namespace Engine::Collision
 			const std::vector<CollisionInstance>& a_instVec,
 			const TInfo& a_worldInfo,
 			const ECS::Entity& a_myID,
-			bool(*a_modelFunc)(const TInfo&, const Resource::Model*, const DirectX::XMFLOAT4X4&, Result&),
+			bool(*a_modelFunc)(const TInfo&, const Resource::Model*, const Math::Matrix&, Result&),
 			Result& a_outResult,
 			// 自分以外にもう1つ除外したい相手(弾から見た発射元など)。既定は除外なし
 			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY,
@@ -497,7 +498,7 @@ namespace Engine::Collision
 		OBBInfo _obb;
 		_obb.center = a_info.center;
 		_obb.extents = a_info.extents;
-		_obb.orientation = DXSM::Quaternion::Identity;
+		_obb.orientation = Math::Quaternion::Identity();
 
 		if (QueryOverlap(
 			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
@@ -537,7 +538,7 @@ namespace Engine::Collision
 		constexpr float _minDepth = 1e-4f;	// これ以下のめり込みは無視
 		constexpr float _bias = 1e-3f;		// 完全に離すための微小バイアス
 
-		DXSM::Vector3 _total = {};
+		Math::Vector3 _total = {};
 		bool _anyPush = false;
 
 		// 反復して複数面（床＋壁など）を解決する

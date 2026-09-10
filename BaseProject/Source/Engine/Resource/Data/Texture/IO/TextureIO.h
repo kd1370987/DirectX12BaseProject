@@ -29,16 +29,16 @@ namespace Engine::Resource
 		/// <returns>リソースマネージャーに登録されたハンドル</returns>
 		static Handle<Texture> LoadTexture(
 			const Engine::GUID& a_guid,
-			const DXSM::Color& a_defaultColor,
+			const Math::Color& a_defaultColor,
 			const ResourceBuildContext* a_pContext = nullptr
 		);
 
 	private:
 
 		// 色からGUIDを返す
-		static Engine::GUID GetColorGUID(const DXSM::Color& a_color);
+		static Engine::GUID GetColorGUID(const Math::Color& a_color);
 
 		// 単色テクスチャ作成 
-		static Texture CreateColorTexture(const DXSM::Color& a_color);
+		static Texture CreateColorTexture(const Math::Color& a_color);
 	};
 }

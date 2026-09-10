@@ -71,12 +71,12 @@ namespace Engine::D3D12
 	inline void ClearRenderTargetView(
 		GraphicsCommandList* a_pCmdList,
 		D3D12_CPU_DESCRIPTOR_HANDLE a_renderTargetView,
-		DirectX::XMFLOAT4 a_colorRGBA = { 0.0f,0.0f,0.0f,1.0f },
+		Math::Color a_colorRGBA = { 0.0f,0.0f,0.0f,1.0f },
 		UINT a_numRects = 0,
 		const D3D12_RECT* a_pRects = nullptr
 	)
 	{
-		const float _color[] = { a_colorRGBA.x,a_colorRGBA.y ,a_colorRGBA.z ,a_colorRGBA.w };
+		const float _color[] = { a_colorRGBA.r,a_colorRGBA.g ,a_colorRGBA.b ,a_colorRGBA.a };
 		a_pCmdList->ClearRenderTargetView(
 			a_renderTargetView,
 			_color,

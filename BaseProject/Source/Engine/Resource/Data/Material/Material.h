@@ -65,7 +65,7 @@ namespace Engine::Resource
 		Engine::GUID normalTexGUID = {};
 
 		// 基本色
-		DirectX::XMFLOAT4			baseColor = { 1,1,1,1 };
+		Math::Color				baseColor = { 1,1,1,1 };
 		ResourceRef<Engine::Resource::Texture> baseColorTex = {};
 
 		// メタリック・ラフネス
@@ -74,7 +74,7 @@ namespace Engine::Resource
 		ResourceRef<Engine::Resource::Texture> metaRoughTex = {};
 
 		// エミッシブ
-		DirectX::XMFLOAT3			emissive = { 1.0f,1.0f,1.0f };
+		Math::Vector3			emissive = { 1.0f,1.0f,1.0f };
 		ResourceRef<Engine::Resource::Texture> emissiveTex = {};
 
 		// 法線マップ

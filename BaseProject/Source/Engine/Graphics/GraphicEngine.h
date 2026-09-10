@@ -62,8 +62,8 @@ namespace Engine::Graphics
 		// 使う描画構成(設計図)
 		Handle<Pipeline::RenderingPipelineAsset> pipelineHandle = {};
 
-		DXSM::Matrix worldMat = DXSM::Matrix::Identity;
-		DXSM::Matrix projMat = DXSM::Matrix::Identity;
+		Math::Matrix worldMat = Math::Matrix::Identity();
+		Math::Matrix projMat = Math::Matrix::Identity();
 
 		// 0 なら画面の描画解像度に追従する
 		UINT viewportWidth = 0;
@@ -263,8 +263,8 @@ namespace Engine::Graphics
 		// GPU送信用データ
 		//--------------------------------------------------------------------------------------------
 		// カメラ
-		void SetCameraMat(const DXSM::Matrix& a_worldMat);
-		void SetProjMat(const DXSM::Matrix& a_projMat);
+		void SetCameraMat(const Math::Matrix& a_worldMat);
+		void SetProjMat(const Math::Matrix& a_projMat);
 
 		const CameraData& GetCameraData() const;
 		const CameraData& GetGPUCameraData() const;
@@ -274,7 +274,7 @@ namespace Engine::Graphics
 		// ECS側のカメラ設定は Execute() 内の Draw フェーズ(PreDraw)で行われるため、
 		// 単に SetCameraMat を先に呼んでも上書きされてしまう。
 		// ここに積んでおくと、ECS側の設定が終わった後・GPUデータ作成の直前に適用される。
-		void SetCameraOverride(const DXSM::Matrix& a_worldMat, const DXSM::Matrix& a_projMat);
+		void SetCameraOverride(const Math::Matrix& a_worldMat, const Math::Matrix& a_projMat);
 		void ClearCameraOverride();
 
 		//--------------------------------------------------------------------------------------------
@@ -359,10 +359,10 @@ namespace Engine::Graphics
 		void SubmitModel(
 			ECS::World& a_world,
 			const Resource::Model* a_pModel,
-			const DXSM::Matrix& a_worldMatrix,
-			const DXSM::Color& a_albedoScale = Color::WHITE,
-			const DXSM::Vector3& a_emissiveScale = {1,1,1},
-			const DXSM::Vector3& a_emissiveAdd = {0,0,0}
+			const Math::Matrix& a_worldMatrix,
+			const Math::Color& a_albedoScale = Color::WHITE,
+			const Math::Vector3& a_emissiveScale = {1,1,1},
+			const Math::Vector3& a_emissiveAdd = {0,0,0}
 		);
 		/// <summary>
 		/// 指定したモデルを指定の座標に描画する命令 : 即時実行ではなく、コマンドとしてためたのちに一括で実行される
@@ -377,11 +377,11 @@ namespace Engine::Graphics
 		void SubmitModel(
 			ECS::World& a_world,
 			const Resource::Model* a_pModel,
-			const DXSM::Matrix& a_worldMatrix,
-			const DXSM::Matrix& a_prevMatrix,
-			const DXSM::Color& a_albedoScale = Color::WHITE,
-			const DXSM::Vector3& a_emissiveScale = { 1,1,1 },
-			const DXSM::Vector3& a_emissiveAdd = { 0,0,0 }
+			const Math::Matrix& a_worldMatrix,
+			const Math::Matrix& a_prevMatrix,
+			const Math::Color& a_albedoScale = Color::WHITE,
+			const Math::Vector3& a_emissiveScale = { 1,1,1 },
+			const Math::Vector3& a_emissiveAdd = { 0,0,0 }
 		);
 		/// <summary>
 		/// 指定したモデルを指定の座標に描画する命令 : 即時実行ではなく、コマンドとしてためたのちに一括で実行される
@@ -399,14 +399,14 @@ namespace Engine::Graphics
 		void SubmitModel(
 			ECS::World& a_world,
 			const Resource::Model* a_pModel,
-			const DXSM::Matrix& a_worldMatrix,
-			const DXSM::Matrix& a_prevMatrix,
+			const Math::Matrix& a_worldMatrix,
+			const Math::Matrix& a_prevMatrix,
 			const RangeHandle<Resource::BoneMatrix>& a_boneHandle,
 			const RangeHandle<Resource::NodePoseMatrix>& a_nodePoseHandle,
 			const Handle<Raytracing::DynamicRaytracingData>& a_animData,
-			const DXSM::Color& a_albedoScale = Color::WHITE,
-			const DXSM::Vector3& a_emissiveScale = { 1,1,1 },
-			const DXSM::Vector3& a_emissiveAdd = { 0,0,0 }
+			const Math::Color& a_albedoScale = Color::WHITE,
+			const Math::Vector3& a_emissiveScale = { 1,1,1 },
+			const Math::Vector3& a_emissiveAdd = { 0,0,0 }
 		);
 
 		/// <summary>
@@ -418,12 +418,12 @@ namespace Engine::Graphics
 		/// <param name="dynamicHandle">ダイナミックリソースハンドル</param>
 		/// <param name="nodePoseHnandle">ノードポーズハンドル</param>
 		void SubmitModel(
-			const DXSM::Matrix& a_worldMat,				// ワールド行列
-			const DXSM::Vector4& a_colorScale,			// 色スケール
-			const DXSM::Vector3& a_emissiveScale,		// エミッシブスケール
+			const Math::Matrix& a_worldMat,				// ワールド行列
+			const Math::Color& a_colorScale,			// 色スケール
+			const Math::Vector3& a_emissiveScale,		// エミッシブスケール
 			const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
 			const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle,
-			const DXSM::Vector3& a_emissiveAdd = { 0,0,0 }	// 自己発光(加算)
+			const Math::Vector3& a_emissiveAdd = { 0,0,0 }	// 自己発光(加算)
 		);
 
 		//--------------------------------------------------------------------------------------------
@@ -578,9 +578,9 @@ namespace Engine::Graphics
 		// マテリアルとスケールからメッシュシェーダー用マテリアルデータを構築する。
 		MeshMaterial BuildMeshMaterial(
 			const Resource::Material* a_pMaterial,
-			const DXSM::Color& a_albedoScale,
-			const DXSM::Vector3& a_emissiveScale,
-			const DXSM::Vector3& a_emissiveAdd);
+			const Math::Color& a_albedoScale,
+			const Math::Vector3& a_emissiveScale,
+			const Math::Vector3& a_emissiveAdd);
 
 		// 1つの描画コマンドを、シェーディングモデルが持つ全パスへ登録する共通処理。
 		// (メッシュシェーダー用データ構築・PSO要求・描画アイテム登録をまとめて行う)
@@ -588,13 +588,13 @@ namespace Engine::Graphics
 			const Resource::ModelDrawCommand& a_cmd,
 			const Resource::Mesh* a_pMesh,
 			const Resource::Material* a_pMaterial,
-			const DXSM::Matrix& a_mat,
-			const DXSM::Matrix& a_prevMat,
+			const Math::Matrix& a_mat,
+			const Math::Matrix& a_prevMat,
 			bool a_isAnimation,
 			uint32_t a_animatedVertexStart,
-			const DXSM::Color& a_albedoScale,
-			const DXSM::Vector3& a_emissiveScale,
-			const DXSM::Vector3& a_emissiveAdd,
+			const Math::Color& a_albedoScale,
+			const Math::Vector3& a_emissiveScale,
+			const Math::Vector3& a_emissiveAdd,
 			PSOKey a_psoKey);
 
 		//--------------------------------------------------------------------------------------------
@@ -689,11 +689,11 @@ namespace Engine::Graphics
 
 		// カメラの割り込み用
 		bool m_isCameraOverride = false;
-		DXSM::Matrix m_cameraOverrideWorldMat = DXSM::Matrix::Identity;
-		DXSM::Matrix m_cameraOverrideProjMat = DXSM::Matrix::Identity;
-		DXSM::Matrix m_prevViewMat = {};
-		DXSM::Matrix m_prevProjMat = {};
-		DXSM::Matrix m_prevNonJitteredViewProj = {};
+		Math::Matrix m_cameraOverrideWorldMat = Math::Matrix::Identity();
+		Math::Matrix m_cameraOverrideProjMat = Math::Matrix::Identity();
+		Math::Matrix m_prevViewMat = {};
+		Math::Matrix m_prevProjMat = {};
+		Math::Matrix m_prevNonJitteredViewProj = {};
 		int m_totlaFrameCount = 0;
 
 		// 環境データ

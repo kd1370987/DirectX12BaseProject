@@ -305,7 +305,7 @@ namespace Engine::Resource
 		return _cpRes;
 	}
 
-	ComPtr<ID3D12Resource> Engine::Resource::DefaultTexture(DirectX::XMFLOAT4 a_color)
+	ComPtr<ID3D12Resource> Engine::Resource::DefaultTexture(Math::Color a_color)
 	{
 		ComPtr<ID3D12Resource> _cpRes = nullptr;
 		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
@@ -323,10 +323,10 @@ namespace Engine::Resource
 			uint8_t* _row = _image->pixels + _h * _image->rowPitch;
 			for (size_t _x = 0; _x < _image->width; ++_x)
 			{
-				_row[_x * 4 + 0] = a_color.x;// R
-				_row[_x * 4 + 1] = a_color.y;// G
-				_row[_x * 4 + 2] = a_color.z;// B
-				_row[_x * 4 + 3] = a_color.w;// A
+				_row[_x * 4 + 0] = static_cast<uint8_t>(a_color.r);// R
+				_row[_x * 4 + 1] = static_cast<uint8_t>(a_color.g);// G
+				_row[_x * 4 + 2] = static_cast<uint8_t>(a_color.b);// B
+				_row[_x * 4 + 3] = static_cast<uint8_t>(a_color.a);// A
 			}
 		}
 		_meta = _sImg.GetMetadata();

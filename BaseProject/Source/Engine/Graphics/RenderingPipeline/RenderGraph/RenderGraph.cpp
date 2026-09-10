@@ -1033,10 +1033,9 @@ namespace Engine::Graphics::Pipeline
 				const size_t _index = _compiledPass.clearRtvIndices[_i];
 				if (_index >= _rtvHandles.size()) continue;
 
-				const Math::Color& _clearColor = _compiledPass.clearRtvColors[_i];
 				a_pRenderContext->ClearRenderTarget(
 					_rtvHandles[_index],
-					DirectX::XMFLOAT4(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a));
+					_compiledPass.clearRtvColors[_i]);
 			}
 			if (_compiledPass.isDepthClear && _hasDSV)
 			{

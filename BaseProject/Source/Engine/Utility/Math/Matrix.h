@@ -89,6 +89,16 @@ namespace Math
 		//-----------------------------------------------------------------------------------------------------
 		// ※ どちらも自分は書き換えず、結果を返す。捨てたらコンパイルエラーにする
 		[[nodiscard]] Matrix Invert()    const noexcept;
+
+		/// <summary>
+		/// 逆行列を作り、行列式も受け取る
+		/// </summary>
+		/// <remarks>
+		/// 逆行列が作れたかを呼ぶ側で判定したいとき用。
+		/// スケール0やNaNが混ざった行列は行列式が 0 / NaN になるので、
+		/// 使う前に std::isfinite と 0 の両方を見ること(NaN は == 0.0f を素通りする)
+		/// </remarks>
+		[[nodiscard]] Matrix Invert(float& a_outDeterminant) const noexcept;
 		[[nodiscard]] Matrix Transpose() const noexcept;
 
 		/// <summary>スケール / 回転 / 平行移動へ分解する</summary>
@@ -101,6 +111,7 @@ namespace Math
 		static constexpr Matrix Identity() noexcept { return Matrix(); }
 
 		static Matrix CreateTranslation(const Vector3& a_pos) noexcept;
+		static Matrix CreateTranslation(float a_x, float a_y, float a_z) noexcept;
 		static Matrix CreateScale(const Vector3& a_scale) noexcept;
 		static Matrix CreateScale(float a_scale) noexcept;
 		static Matrix CreateScale(float a_x, float a_y, float a_z) noexcept;
@@ -111,6 +122,16 @@ namespace Math
 		static Matrix CreateTRS(const Vector3& a_pos, const Quaternion& a_rotation, const Vector3& a_scale) noexcept;
 
 		/// <summary>左手系のビュー行列。このエンジンは左手系なので LookAt は必ずこちら</summary>
+		/// <summary>
+		/// 位置と向きからワールド行列を作る
+		/// </summary>
+		/// <param name="a_forward">前方。このエンジンの前方(+Z)がそのまま第3行に入る</param>
+		/// <remarks>
+		/// SimpleMath の CreateWorld は右手系で、渡した forward を反転して Z 軸に入れる。
+		/// こちらは渡した forward をそのまま Z 軸にするので、-forward を渡さないこと
+		/// </remarks>
+		static Matrix CreateWorld(const Vector3& a_pos, const Vector3& a_forward, const Vector3& a_up) noexcept;
+
 		static Matrix CreateLookAt(const Vector3& a_eye, const Vector3& a_target, const Vector3& a_up) noexcept;
 
 		/// <summary>左手系の透視投影行列(画角はラジアン)</summary>

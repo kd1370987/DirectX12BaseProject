@@ -43,7 +43,7 @@ namespace Engine::Resource
 		std::string			nodeName;							// 対象ノード名(保存用)
 		UINT				nodeNameHash = 0;					// ロード時に nodeName から張り直す
 		float				share = 1.0f;						// チェーン内での配分(合計1.0が目安)
-		DXSM::Vector3		axisScale = { 1.0f, 1.0f, 1.0f };	// Lag用: 各軸の効き(符号で左右反転)
+		Math::Vector3		axisScale = { 1.0f, 1.0f, 1.0f };	// Lag用: 各軸の効き(符号で左右反転)
 		EAdditiveChannel	channel = EAdditiveChannel::Aim;
 
 		void Archive(Persistence::Archive& a_arch);

@@ -58,7 +58,7 @@ namespace Engine::Resource
 		);
 		// BVHでの当たり判定構築
 		void CreateCollisionMesh(
-			const std::vector<DirectX::XMFLOAT3>& a_vertices,
+			const std::vector<Math::Vector3>& a_vertices,
 			const std::vector<UINT>& a_indices
 		);
 		// メッシュシェーダー用データの作成 : メッシュレット生成(CPU)と転送コマンドの記録

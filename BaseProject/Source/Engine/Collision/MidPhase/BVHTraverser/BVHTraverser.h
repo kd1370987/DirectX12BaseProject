@@ -78,9 +78,10 @@ namespace Engine::Collision
 						int _triIdx = a_collisionMesh.triangleIndiccesVec[_node.dataStart + _i];
 						const auto& _triangle = a_collisionMesh.triangleVec[_triIdx];
 						// 三角形の頂点取得
-						DirectX::XMVECTOR _v0 = DirectX::XMLoadFloat3(&_triangle.v[0]);
-						DirectX::XMVECTOR _v1 = DirectX::XMLoadFloat3(&_triangle.v[1]);
-						DirectX::XMVECTOR _v2 = DirectX::XMLoadFloat3(&_triangle.v[2]);
+						// TestTriangle は三角形ごとに走る最内周なので、SIMD のまま渡す
+						const DirectX::XMVECTOR _v0 = Math::DX::Load(_triangle.v[0]);
+						const DirectX::XMVECTOR _v1 = Math::DX::Load(_triangle.v[1]);
+						const DirectX::XMVECTOR _v2 = Math::DX::Load(_triangle.v[2]);
 						float _triDist = 0.0f;
 
 						// 判定
@@ -154,9 +155,10 @@ namespace Engine::Collision
 					int _triIdx = a_collisionMesh.triangleIndiccesVec[_node.dataStart + _i];
 					const auto& _triangle = a_collisionMesh.triangleVec[_triIdx];
 
-					DirectX::XMVECTOR _v0 = DirectX::XMLoadFloat3(&_triangle.v[0]);
-					DirectX::XMVECTOR _v1 = DirectX::XMLoadFloat3(&_triangle.v[1]);
-					DirectX::XMVECTOR _v2 = DirectX::XMLoadFloat3(&_triangle.v[2]);
+					// TestTriangle は三角形ごとに走る最内周なので、SIMD のまま渡す
+					const DirectX::XMVECTOR _v0 = Math::DX::Load(_triangle.v[0]);
+					const DirectX::XMVECTOR _v1 = Math::DX::Load(_triangle.v[1]);
+					const DirectX::XMVECTOR _v2 = Math::DX::Load(_triangle.v[2]);
 
 					float _dummyTriDist = 0.0f;
 					if (NarrowPhase::TestTriangle(a_localPrimitive, _v0, _v1, _v2, _dummyTriDist))
@@ -166,9 +168,8 @@ namespace Engine::Collision
 						a_outLocalResult.hitDistance = 0.0f;
 
 						// 接触点の目安として当たった三角形の重心を返す
-						DirectX::XMVECTOR _center = DirectX::XMVectorScale(
-							DirectX::XMVectorAdd(DirectX::XMVectorAdd(_v0, _v1), _v2), 1.0f / 3.0f);
-						DirectX::XMStoreFloat3(&a_outLocalResult.hitPos, _center);
+						a_outLocalResult.hitPos =
+							(_triangle.v[0] + _triangle.v[1] + _triangle.v[2]) * (1.0f / 3.0f);
 						return true;
 					}
 				}

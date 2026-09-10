@@ -32,7 +32,7 @@ namespace Engine::Resource
 	);
 
 	// 色を指定してデフォルトテクスチャ生成
-	ComPtr<ID3D12Resource> DefaultTexture(DirectX::XMFLOAT4 a_color);
+	ComPtr<ID3D12Resource> DefaultTexture(Math::Color a_color);
 
 	// 白テクスチャ
 	ComPtr<ID3D12Resource> WhiteTexture();

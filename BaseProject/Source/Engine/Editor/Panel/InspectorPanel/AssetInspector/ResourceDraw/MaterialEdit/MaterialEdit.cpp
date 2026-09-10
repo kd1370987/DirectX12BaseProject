@@ -49,7 +49,7 @@ namespace Engine::Editor::Inspector
 				a_pMaterial->baseColorTex
 			);
 			DrawAssetLink(&a_editContext, "Texture :", a_pMaterial->baseColorTexGUID);
-			ImGui::DragFloat4("AlbedScale", &a_pMaterial->baseColor.x, 0.01f, 0.0f);
+			ImGui::DragFloat4("AlbedScale", a_pMaterial->baseColor.Data(), 0.01f, 0.0f);
 			Editor::EditorHelper::DrawTexture(a_pMaterial->baseColorTex, 256, 256);
 		}
 		if (ImGui::CollapsingHeader("Metallic / Roughness"))

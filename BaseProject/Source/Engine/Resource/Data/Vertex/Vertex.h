@@ -6,14 +6,14 @@ namespace Engine::Resource
 	// 頂点
 	struct Vertex
 	{
-		DirectX::XMFLOAT3 pos = {};
-		DirectX::XMFLOAT4 color = Engine::Color::RED;
+		Math::Vector3 pos = {};
+		Math::Color color = Engine::Color::RED;
 	};
 
 	struct SimpleVertex
 	{
-		DirectX::XMFLOAT4 pos = { 0.0f,0.0f,0.0f,0.0f };
-		DirectX::XMFLOAT2 uv = { 0.0f,0.0f };
+		Math::Vector4 pos = { 0.0f,0.0f,0.0f,0.0f };
+		Math::Vector2 uv = { 0.0f,0.0f };
 	};
 
 	//==========================================================
@@ -21,22 +21,22 @@ namespace Engine::Resource
 	//==========================================================
 	struct MeshVertex8bit
 	{
-		DirectX::XMFLOAT3		pos = { 0.0f,0.0f,0.0f };				// 座標
-		DirectX::XMFLOAT2		uv = { 0.0f,0.0f };					// uv座標
+		Math::Vector3		pos = { 0.0f,0.0f,0.0f };				// 座標
+		Math::Vector2		uv = { 0.0f,0.0f };					// uv座標
 		unsigned int			color = 0xFFFFFFFF;					// RGBA(各色0～255のUINT型)
-		DirectX::XMFLOAT3		normal = { 0.5f,0.5f,0.5f };			// 法線
-		DirectX::XMFLOAT3		tangent = { 1.0f,1.0f,1.0f };				// 接線
+		Math::Vector3		normal = { 0.5f,0.5f,0.5f };			// 法線
+		Math::Vector3		tangent = { 1.0f,1.0f,1.0f };				// 接線
 
 		std::array<short, 4>	skinIndexList = {};			// スキニングIndexリスト
 		std::array<float, 4>	skinWeightList = {};			// スキニングウェイトリスト
 	};
 	struct MeshVertexFloat
 	{
-		DirectX::XMFLOAT3		pos = { 0.0f,0.0f,0.0f };					// 座標
-		DirectX::XMFLOAT3		normal = { 0.5f,0.5f,0.5f };					// 法線
-		DirectX::XMFLOAT2		uv = { 0.0f,0.0f };						// uv座標
-		DirectX::XMFLOAT3		tangent = { 1.0f,1.0f,1.0f };				// 接線
-		DirectX::XMFLOAT4		color = { 1.0f,1.0f,1.0f,1.0f };					// RGBA(各色0.0f～1.0fのFLOAT型)
+		Math::Vector3		pos = { 0.0f,0.0f,0.0f };					// 座標
+		Math::Vector3		normal = { 0.5f,0.5f,0.5f };					// 法線
+		Math::Vector2		uv = { 0.0f,0.0f };						// uv座標
+		Math::Vector3		tangent = { 1.0f,1.0f,1.0f };				// 接線
+		Math::Color			color = { 1.0f,1.0f,1.0f,1.0f };					// RGBA(各色0.0f～1.0fのFLOAT型)
 
 		std::array<short, 4>	skinIndexList = {};			// スキニングIndexリスト
 		std::array<float, 4>	skinWeightList = {};			// スキニングウェイトリスト
@@ -47,11 +47,11 @@ namespace Engine::Resource
 	//==========================================================
 	struct RTVertex
 	{
-		DXSM::Vector3 pos;
-		DXSM::Vector3 normal;
-		DXSM::Vector2 uv;
-		DXSM::Vector3 tangent;
-		DXSM::Vector4 color;
+		Math::Vector3 pos;
+		Math::Vector3 normal;
+		Math::Vector2 uv;
+		Math::Vector3 tangent;
+		Math::Color color;
 
 		RTVertex& operator=(const MeshVertexFloat& a_vertFloat)
 		{

@@ -151,8 +151,8 @@ namespace App::Object
 		// 平行光をシーンに1つだけ置くのはこの3つが同じ1本を前提にしているからで、
 		// 2つ目以降を足しても影を落とすのは先頭の1つだけになる。
 		//---------------------------------------------------------------------------------
-		DirectX::XMFLOAT3 m_dlDir = { 0.5f, -1.0f, 0.5f };		// 向き(光の進む向き)
-		DirectX::XMFLOAT3 m_dlColor = { 4.0f, 4.0f, 4.0f };		// 色(1.0超え可)
+		Math::Vector3 m_dlDir = { 0.5f, -1.0f, 0.5f };		// 向き(光の進む向き)
+		Math::Vector3 m_dlColor = { 4.0f, 4.0f, 4.0f };		// 色(1.0超え可)
 
 		// LightManager から借りている席。保存しない(添字はシーンごとに振り直される)
 		Engine::Handle<Engine::Graphics::DirectionalLight> m_dlHandle = {};

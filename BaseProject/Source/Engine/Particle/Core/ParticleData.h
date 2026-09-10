@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 namespace Engine::Particle
 {
 	//======================================================================================
@@ -35,10 +35,10 @@ namespace Engine::Particle
 	/// </remarks>
 	struct ParticleData
 	{
-		DirectX::XMFLOAT3 pos;		// 現在のワールド座標
+		Math::Vector3 pos;		// 現在のワールド座標
 		float life;					// 残り寿命
 
-		DirectX::XMFLOAT3 velocity;	// 現在の移動ベクトル
+		Math::Vector3 velocity;	// 現在の移動ベクトル
 		float size;					// サイズ
 
 		// 発生した時点の寿命。

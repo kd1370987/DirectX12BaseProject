@@ -35,7 +35,7 @@ namespace Engine::Editor
 		const Math::Vector3 EFFECT_ORIGIN = { 0.0f, 0.0f, 0.0f };
 
 		// カメラの定位置。原点に出るエフェクトが正面に収まる位置
-		const DXSM::Vector3 CAMERA_HOME_POS = { 0.0f, 2.5f, -8.0f };
+		const Math::Vector3 CAMERA_HOME_POS = { 0.0f, 2.5f, -8.0f };
 		constexpr float CAMERA_HOME_YAW = 0.0f;
 		constexpr float CAMERA_HOME_PITCH = 10.0f;
 	}
@@ -351,8 +351,8 @@ namespace Engine::Editor
 
 	void EffectEditor::DrawGrid() const
 	{
-		const DXSM::Color _lineColor(0.30f, 0.32f, 0.36f, 1.0f);
-		const DXSM::Color _axisColor(0.55f, 0.58f, 0.65f, 1.0f);
+		const Math::Color _lineColor(0.30f, 0.32f, 0.36f, 1.0f);
+		const Math::Color _axisColor(0.55f, 0.58f, 0.65f, 1.0f);
 
 		// 積む先はエンジン側の置き場。エディターも他と同じ経路で入れる
 		auto* _pDebugDraw = MainEngine::Instance().RefGraphicsEngine()->RefDebugDraw();
@@ -365,10 +365,10 @@ namespace Engine::Editor
 		for (int _i = -_count; _i <= _count; ++_i)
 		{
 			const float _p = static_cast<float>(_i);
-			const DXSM::Color& _col = (_i == 0) ? _axisColor : _lineColor;
+			const Math::Color& _col = (_i == 0) ? _axisColor : _lineColor;
 
-			_pDebugDraw->DrawLine(DXSM::Vector3(_p, 0.0f, -_half), DXSM::Vector3(_p, 0.0f, _half), _col);
-			_pDebugDraw->DrawLine(DXSM::Vector3(-_half, 0.0f, _p), DXSM::Vector3(_half, 0.0f, _p), _col);
+			_pDebugDraw->DrawLine(Math::Vector3(_p, 0.0f, -_half), Math::Vector3(_p, 0.0f, _half), _col);
+			_pDebugDraw->DrawLine(Math::Vector3(-_half, 0.0f, _p), Math::Vector3(_half, 0.0f, _p), _col);
 		}
 	}
 
@@ -382,7 +382,7 @@ namespace Engine::Editor
 		m_upCamera->Update(a_dt);
 	}
 
-	bool EffectEditor::TryGetCameraOverride(DXSM::Matrix& a_outWorldMat, DXSM::Matrix& a_outProjMat) const
+	bool EffectEditor::TryGetCameraOverride(Math::Matrix& a_outWorldMat, Math::Matrix& a_outProjMat) const
 	{
 		if (!m_isOpen || !m_upCamera) return false;
 

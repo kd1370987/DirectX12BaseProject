@@ -9,7 +9,7 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		// 行列を読み取り専用で表示
 		//-----------------------------------------------------------------------------------------
-		void DrawMatrixText(const char* a_label, const DirectX::XMFLOAT4X4& a_mat)
+		void DrawMatrixText(const char* a_label, const Math::Matrix& a_mat)
 		{
 			if (!ImGui::TreeNode(a_label)) { return; }
 

@@ -48,6 +48,17 @@ namespace Math
 		return _result;
 	}
 
+	Vector3 Vector3::TransformCoord(const Vector3& a_value, const Matrix& a_matrix) noexcept
+	{
+		const DirectX::XMVECTOR _v = DirectX::XMVectorSet(a_value.x, a_value.y, a_value.z, 0.0f);
+		const DirectX::XMMATRIX _m = DirectX::XMLoadFloat4x4(
+			reinterpret_cast<const DirectX::XMFLOAT4X4*>(&a_matrix));
+
+		DirectX::XMFLOAT3 _result = {};
+		DirectX::XMStoreFloat3(&_result, DirectX::XMVector3TransformCoord(_v, _m));
+		return _result;
+	}
+
 	Vector3 Vector3::TransformNormal(const Vector3& a_value, const Matrix& a_matrix) noexcept
 	{
 		const DirectX::XMVECTOR _v = DirectX::XMVectorSet(a_value.x, a_value.y, a_value.z, 0.0f);

@@ -112,12 +112,12 @@ namespace Engine::Raytracing
 		BuildSubObjectHelper::ShaderConfigSubObject _shaderConfig;
 		struct RayPayload
 		{
-			DXSM::Vector3 color;
+			Math::Vector3 color;
 			float pad;
 			int hit;
-			DXSM::Vector3 pad3_0;
+			Math::Vector3 pad3_0;
 			int depth;
-			DXSM::Vector3 pad3_1;
+			Math::Vector3 pad3_1;
 		};
 		if(a_desc.payloadSize == 0)
 		{

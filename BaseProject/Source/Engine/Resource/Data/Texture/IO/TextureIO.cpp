@@ -28,7 +28,7 @@ namespace Engine::Resource
 		_tex.Import(a_path);
 		return _tex;
 	}
-	Texture TextureIO::CreateColorTexture(const DXSM::Color& a_color)
+	Texture TextureIO::CreateColorTexture(const Math::Color& a_color)
 	{
 		std::string _name = "ColorTex_";
 		// カラーチェック
@@ -56,7 +56,7 @@ namespace Engine::Resource
 
 		return _tex;
 	}
-	Engine::GUID TextureIO::GetColorGUID(const DXSM::Color& a_color)
+	Engine::GUID TextureIO::GetColorGUID(const Math::Color& a_color)
 	{
 		if (a_color == TexColor::WHITE)  return Engine::GUID(WHITE_TEXTURE_GUIDSTR);
 		if (a_color == TexColor::BLACK)  return Engine::GUID(BLACK_TEXTURE_GUIDSTR);
@@ -69,7 +69,7 @@ namespace Engine::Resource
 
 	Handle<Texture> TextureIO::LoadTexture(
 		const Engine::GUID& a_guid,
-		const DXSM::Color& a_defaultColor,
+		const Math::Color& a_defaultColor,
 		const ResourceBuildContext* a_pContext
 	)
 	{

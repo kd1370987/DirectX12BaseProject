@@ -21,11 +21,11 @@ namespace Engine::Raytracing
 
 
 	void Engine::Raytracing::RayWorld::Register(
-		const DXSM::Matrix& a_worldMat,
+		const Math::Matrix& a_worldMat,
 		const Engine::Handle<Engine::Resource::Model>& a_modelHandle,
-		const DXSM::Vector4& a_colorScale,
-		const DXSM::Vector3& a_emissiveScale,
-		const DXSM::Vector3& a_emissiveAdd
+		const Math::Color& a_colorScale,
+		const Math::Vector3& a_emissiveScale,
+		const Math::Vector3& a_emissiveAdd
 	)
 	{
 		m_isDrity = true;
@@ -43,7 +43,7 @@ namespace Engine::Raytracing
 				const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
 				if (!_pMesh) continue;
 
-				DXSM::Matrix _nodeMat = _node.worldTransform;
+				Math::Matrix _nodeMat = _node.worldTransform;
 
 				// インスタンス作成
 				Engine::Raytracing::Instance _rayInst = {};
@@ -63,8 +63,8 @@ namespace Engine::Raytracing
 					if (!_pMate) continue;
 	
 					Material _mat = {};
-					DXSM::Vector4 _baseColor = _pMate->baseColor;
-					DXSM::Vector3 _emiColor = _pMate->emissive;
+					Math::Color _baseColor = _pMate->baseColor;
+					Math::Vector3 _emiColor = _pMate->emissive;
 					_mat.baseColor = _baseColor * a_colorScale;
 					_mat.metallic = _pMate->metallic;
 					_mat.roughness = _pMate->roughness;
@@ -88,13 +88,13 @@ namespace Engine::Raytracing
 
 	void RayWorld::Register(
 		ECS::World& a_world,
-		const DXSM::Matrix& a_worldMat,
+		const Math::Matrix& a_worldMat,
 		const Engine::Handle<Engine::Resource::Model>& a_modelHandle,
 		const Handle<DynamicRaytracingData>& a_dynamicDataHandle,
 		const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatHandle,
-		const DXSM::Vector4& a_colorScale, 
-		const DXSM::Vector3& a_emissiveScale,
-		const DXSM::Vector3& a_emissiveAdd
+		const Math::Color& a_colorScale, 
+		const Math::Vector3& a_emissiveScale,
+		const Math::Vector3& a_emissiveAdd
 	)
 	{
 		// ノード行列取得
@@ -149,8 +149,8 @@ namespace Engine::Raytracing
 					if (!_pMate) continue;
 
 					Material _mat = {};
-					DXSM::Vector4 _baseColor = _pMate->baseColor;
-					DXSM::Vector3 _emiColor = _pMate->emissive;
+					Math::Color _baseColor = _pMate->baseColor;
+					Math::Vector3 _emiColor = _pMate->emissive;
 					_mat.baseColor			= _baseColor * a_colorScale;
 					_mat.metallic			= _pMate->metallic;
 					_mat.roughness			= _pMate->roughness;

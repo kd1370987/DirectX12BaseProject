@@ -48,7 +48,7 @@ namespace
 	//======================================================================================
 	struct HudPainter
 	{
-		DirectX::XMMATRIX	viewProj	= DirectX::XMMatrixIdentity();
+		Math::Matrix		viewProj	= Math::Matrix::Identity();
 		ImVec2				origin		= {};		// 画像左上(スクリーン絶対座標)
 		ImVec2				size		= {};		// 画像の表示サイズ
 		ImDrawList*			pDrawList	= nullptr;
@@ -57,16 +57,16 @@ namespace
 		// ワールド座標 → シーンビュー画像上のスクリーン座標。
 		// カメラの後ろ(w<=0)にある点は描けないので false を返す。
 		//----------------------------------------------------------------------------------
-		bool ToScreen(const DXSM::Vector3& a_world, ImVec2& a_out) const
+		bool ToScreen(const Math::Vector3& a_world, ImVec2& a_out) const
 		{
-			// w で割る必要があるので TransformCoord ではなく Transform を使う
-			DirectX::XMVECTOR _clip = DirectX::XMVector3Transform(Math::DX::Load(a_world), viewProj);
+			// w で割る必要があるので、4成分のまま受け取る
+			const Math::Vector4 _clip = Math::Vector4::Transform(a_world, viewProj);
 
-			const float _w = DirectX::XMVectorGetW(_clip);
+			const float _w = _clip.w;
 			if (_w <= 1e-4f) return false;
 
-			const float _ndcX = DirectX::XMVectorGetX(_clip) / _w;
-			const float _ndcY = DirectX::XMVectorGetY(_clip) / _w;
+			const float _ndcX = _clip.x / _w;
+			const float _ndcY = _clip.y / _w;
 
 			a_out.x = origin.x + (_ndcX * 0.5f + 0.5f) * size.x;
 			a_out.y = origin.y + (1.0f - (_ndcY * 0.5f + 0.5f)) * size.y;
@@ -76,7 +76,7 @@ namespace
 		//----------------------------------------------------------------------------------
 		// 位置を示す丸+十字のマーカー。ラベルを渡すと右下に文字を添える。
 		//----------------------------------------------------------------------------------
-		void Marker(const DXSM::Vector3& a_world, ImU32 a_col, const char* a_label, float a_radius = 5.0f) const
+		void Marker(const Math::Vector3& a_world, ImU32 a_col, const char* a_label, float a_radius = 5.0f) const
 		{
 			ImVec2 _sp;
 			if (!ToScreen(a_world, _sp)) return;
@@ -97,7 +97,7 @@ namespace
 		//----------------------------------------------------------------------------------
 		// ワールド空間の線分。どちらかの端がカメラ後ろなら描かない。
 		//----------------------------------------------------------------------------------
-		void Line(const DXSM::Vector3& a_from, const DXSM::Vector3& a_to, ImU32 a_col, float a_thickness = 1.5f) const
+		void Line(const Math::Vector3& a_from, const Math::Vector3& a_to, ImU32 a_col, float a_thickness = 1.5f) const
 		{
 			ImVec2 _a, _b;
 			if (!ToScreen(a_from, _a)) return;
@@ -108,9 +108,9 @@ namespace
 		//----------------------------------------------------------------------------------
 		// 方向を示す矢印。矢じりはスクリーン空間で作るので、向きに関わらず同じ大きさで見える。
 		//----------------------------------------------------------------------------------
-		void Arrow(const DXSM::Vector3& a_from, const DXSM::Vector3& a_dir, float a_length, ImU32 a_col, const char* a_label) const
+		void Arrow(const Math::Vector3& a_from, const Math::Vector3& a_dir, float a_length, ImU32 a_col, const char* a_label) const
 		{
-			const DXSM::Vector3 _tip = a_from + a_dir * a_length;
+			const Math::Vector3 _tip = a_from + a_dir * a_length;
 
 			ImVec2 _a, _b;
 			if (!ToScreen(a_from, _a)) return;
@@ -142,11 +142,11 @@ namespace
 		//----------------------------------------------------------------------------------
 		// 指定軸を法線とする円。半径のばらつきなどを見せるのに使う。
 		//----------------------------------------------------------------------------------
-		void Circle(const DXSM::Vector3& a_center, const DXSM::Vector3& a_axis, float a_radius, ImU32 a_col) const
+		void Circle(const Math::Vector3& a_center, const Math::Vector3& a_axis, float a_radius, ImU32 a_col) const
 		{
 			if (a_radius <= 0.0f) return;
 
-			DXSM::Vector3 _u, _v;
+			Math::Vector3 _u, _v;
 			MakeBasis(a_axis, _u, _v);
 
 			constexpr int _segments = 24;
@@ -155,7 +155,7 @@ namespace
 			for (int _i = 0; _i <= _segments; ++_i)
 			{
 				const float _rad = DirectX::XM_2PI * static_cast<float>(_i) / static_cast<float>(_segments);
-				const DXSM::Vector3 _p = a_center + (_u * std::cos(_rad) + _v * std::sin(_rad)) * a_radius;
+				const Math::Vector3 _p = a_center + (_u * std::cos(_rad) + _v * std::sin(_rad)) * a_radius;
 
 				ImVec2 _sp;
 				if (!ToScreen(_p, _sp)) { _hasPrev = false; continue; }
@@ -168,16 +168,16 @@ namespace
 		//----------------------------------------------------------------------------------
 		// 発生方向の拡散角を示すコーン(母線 + 底面の円)。
 		//----------------------------------------------------------------------------------
-		void Cone(const DXSM::Vector3& a_apex, const DXSM::Vector3& a_dir, float a_length, float a_angleDeg, ImU32 a_col) const
+		void Cone(const Math::Vector3& a_apex, const Math::Vector3& a_dir, float a_length, float a_angleDeg, ImU32 a_col) const
 		{
 			if (a_angleDeg <= 0.0f || a_length <= 0.0f) return;
 
 			// 90度以上は円錐にならないので描画上の上限を設ける
 			const float _angle = DirectX::XMConvertToRadians(std::min(a_angleDeg, 89.0f));
 			const float _radius = a_length * std::tan(_angle);
-			const DXSM::Vector3 _center = a_apex + a_dir * a_length;
+			const Math::Vector3 _center = a_apex + a_dir * a_length;
 
-			DXSM::Vector3 _u, _v;
+			Math::Vector3 _u, _v;
 			MakeBasis(a_dir, _u, _v);
 
 			// 母線(4本だけ描いて円錐と分かる程度に留める)
@@ -196,15 +196,15 @@ namespace
 		//----------------------------------------------------------------------------------
 		// 軸に直交する正規直交基底を作る。軸と平行にならない参照ベクトルを選ぶ。
 		//----------------------------------------------------------------------------------
-		static void MakeBasis(const DXSM::Vector3& a_axis, DXSM::Vector3& a_outU, DXSM::Vector3& a_outV)
+		static void MakeBasis(const Math::Vector3& a_axis, Math::Vector3& a_outU, Math::Vector3& a_outV)
 		{
-			DXSM::Vector3 _axis = a_axis;
-			if (_axis.LengthSquared() < 1e-8f) _axis = DXSM::Vector3(0.0f, 0.0f, 1.0f);
+			Math::Vector3 _axis = a_axis;
+			if (_axis.LengthSquared() < 1e-8f) _axis = Math::Vector3(0.0f, 0.0f, 1.0f);
 			_axis.Normalize();
 
-			const DXSM::Vector3 _ref = (std::fabs(_axis.y) > 0.99f)
-				? DXSM::Vector3(1.0f, 0.0f, 0.0f)
-				: DXSM::Vector3(0.0f, 1.0f, 0.0f);
+			const Math::Vector3 _ref = (std::fabs(_axis.y) > 0.99f)
+				? Math::Vector3(1.0f, 0.0f, 0.0f)
+				: Math::Vector3(0.0f, 1.0f, 0.0f);
 
 			a_outU = _axis.Cross(_ref);
 			a_outU.Normalize();
@@ -303,13 +303,13 @@ namespace Engine::Editor
 
 		// 画像左上を基準にしたローカルマウス座標
 		ImVec2 _mousePos = ImGui::GetMousePos();
-		DXSM::Vector2 _localMouse = {};
+		Math::Vector2 _localMouse = {};
 		_localMouse.x = _mousePos.x - a_pos.x;
 		_localMouse.y = _mousePos.y - a_pos.y;
 
 		// 表示サイズ → レンダーターゲット解像度へスケール
 		if (a_rect.x <= 0.0f || a_rect.y <= 0.0f) return;
-		DXSM::Vector2 _gameMouse = {};
+		Math::Vector2 _gameMouse = {};
 		_gameMouse.x = _localMouse.x * (static_cast<float>(_windowOp.windowWidth)  / a_rect.x);
 		_gameMouse.y = _localMouse.y * (static_cast<float>(_windowOp.windowHeight) / a_rect.y);
 
@@ -332,7 +332,7 @@ namespace Engine::Editor
 		// レイ方向を正規化しておく(AABB判定は単位ベクトルを前提にしている)
 		Collision::RayInfo _ray = a_ray;
 		{
-			DXSM::Vector3 _dir(_ray.direction);
+			Math::Vector3 _dir(_ray.direction);
 			if (_dir.LengthSquared() < 1e-12f) return _picked;
 			_dir.Normalize();
 			_ray.direction = _dir;
@@ -353,14 +353,14 @@ namespace Engine::Editor
 					const auto* _pModel = Resource::ResourceManager::Instance().Get(a_models[_i].handle);
 					if (!_pModel) continue;
 
-					DirectX::XMMATRIX _instWorld = Math::DX::Load(a_worlds[_i].worldMat);
-
 					// 描画メッシュノードごとに判定
 					for (int _nodeIdx : _pModel->GetDrawNodeVec())
 					{
 						const Engine::Resource::Node& _node = _pModel->GetOriginalNodeVec()[_nodeIdx];
-						DirectX::XMMATRIX _nodeGlobal = Math::DX::Load(_node.worldTransform);
-						DirectX::XMMATRIX _meshWorld = DirectX::XMMatrixMultiply(_nodeGlobal, _instWorld);
+
+						// ノード変換をインスタンスのワールドへ重ねる
+						const Math::Matrix _meshWorld =
+							_node.worldTransform * a_worlds[_i].worldMat;
 
 						for (int _meshIdx : _node.meshIndices)
 						{
@@ -370,8 +370,12 @@ namespace Engine::Editor
 
 							// --- ブロードフェーズ ---
 							// まずワールドAABBで大まかに枝刈りし、無関係なメッシュの三角形走査を省く。
+							// BoundingBox::Transform / TriangleTests は SIMD の型しか受けないので、
+							// ここから下だけ積んだものを使い回す
+							const DirectX::XMMATRIX _meshWorldSimd = Math::DX::Load(_meshWorld);
+
 							DirectX::BoundingBox _worldBox;
-							_pMesh->GetMetaData().aabb.Transform(_worldBox, _meshWorld);
+							_pMesh->GetMetaData().aabb.Transform(_worldBox, _meshWorldSimd);
 							float _boxDist = 0.0f;
 							if (!Collision::NarrowPhase::TestAABB(_ray, _worldBox, _boxDist)) continue;
 							if (_boxDist > _closest) continue;	// 既に手前で当たっていれば不要
@@ -383,17 +387,17 @@ namespace Engine::Editor
 							const auto& _faces = _pMesh->GetFaceVec();
 							const size_t _vertCount = _verts.size();
 
-							DirectX::XMVECTOR _ro = Math::DX::Load(_ray.origin);
-							DirectX::XMVECTOR _rd = Math::DX::Load(_ray.direction);	// 正規化済み
+							const DirectX::XMVECTOR _ro = Math::DX::Load(_ray.origin);
+							const DirectX::XMVECTOR _rd = Math::DX::Load(_ray.direction);	// 正規化済み
 
 							for (const auto& _f : _faces)
 							{
 								// 不正インデックス保護
 								if (_f.idx[0] >= _vertCount || _f.idx[1] >= _vertCount || _f.idx[2] >= _vertCount) continue;
 
-								DirectX::XMVECTOR _p0 = DirectX::XMVector3TransformCoord(Math::DX::Load(_verts[_f.idx[0]].pos), _meshWorld);
-								DirectX::XMVECTOR _p1 = DirectX::XMVector3TransformCoord(Math::DX::Load(_verts[_f.idx[1]].pos), _meshWorld);
-								DirectX::XMVECTOR _p2 = DirectX::XMVector3TransformCoord(Math::DX::Load(_verts[_f.idx[2]].pos), _meshWorld);
+								const DirectX::XMVECTOR _p0 = DirectX::XMVector3TransformCoord(Math::DX::Load(_verts[_f.idx[0]].pos), _meshWorldSimd);
+								const DirectX::XMVECTOR _p1 = DirectX::XMVector3TransformCoord(Math::DX::Load(_verts[_f.idx[1]].pos), _meshWorldSimd);
+								const DirectX::XMVECTOR _p2 = DirectX::XMVector3TransformCoord(Math::DX::Load(_verts[_f.idx[2]].pos), _meshWorldSimd);
 
 								float _t = 0.0f;
 								if (DirectX::TriangleTests::Intersects(_ro, _rd, _p0, _p1, _p2, _t))
@@ -448,24 +452,20 @@ namespace Engine::Editor
 		const auto& _camData = _pGE->GetCPUCameraData();
 
 		// Pos/Quat/Scale から 4x4ワールド行列を合成
-		DirectX::XMVECTOR _vScale = Math::DX::Load(_pTrsComp->scale);
-		DirectX::XMVECTOR _vQuat = Math::DX::Load(_pTrsComp->quat);
-		DirectX::XMVECTOR _vPos = Math::DX::Load(_pTrsComp->pos);
-
-		// アフィン変換行列を作成(親を持つ場合、これは親基準のローカル行列)
-		DirectX::XMMATRIX _mLocal = DirectX::XMMatrixAffineTransformation(_vScale, DirectX::XMVectorZero(), _vQuat, _vPos);
+		// (親を持つ場合、これは親基準のローカル行列)
+		const Math::Matrix _mLocal =
+			Math::Matrix::CreateTRS(_pTrsComp->pos, _pTrsComp->quat, _pTrsComp->scale);
 
 		// 親のワールド行列を取得する。
 		// LocalTransform は親基準なので、そのままギズモへ渡すと親が動いている分だけ
 		// ギズモが実際の見た目の位置からずれる。CommitHierarchyWorldMatrixSystem と
 		// 同じ world = local * parentWorld で合成してから渡す。
-		DirectX::XMMATRIX _mParent = DirectX::XMMatrixIdentity();
+		Math::Matrix _mParent = Math::Matrix::Identity();
 		const bool _hasParent = TryGetParentWorldMatrix(a_pWorld, _primaryEntity, _mParent);
 
-		DirectX::XMMATRIX _mWorld = _hasParent ? (_mLocal * _mParent) : _mLocal;
+		const Math::Matrix _mWorld = _hasParent ? (_mLocal * _mParent) : _mLocal;
 
-		DirectX::XMFLOAT4X4 _worldFloat4x4;
-		_worldFloat4x4 = Math::DX::StoreMatrix(_mWorld);
+		Math::Matrix _worldFloat4x4 = _mWorld;
 		float _snapValues[3] = { 1.0f, 1.0f, 1.0f };
 		bool _isSnap = ImGui::IsKeyDown(ImGuiKey_LeftCtrl); // Ctrlキーを押している時だけスナップ
 		// マニピュレーターの操作
@@ -482,15 +482,17 @@ namespace Engine::Editor
 		// ギズモをドラッグ中ならコンポーネントを更新
 		if (ImGuizmo::IsUsing())
 		{
-			DirectX::XMMATRIX _updatedWorld = Math::DX::Load(_worldFloat4x4);
-
 			// 移動のみのギズモなので、ワールド空間での平行移動量だけを取り出す。
 			// 行列を分解して書き戻す方式だと複数エンティティへ同じ操作を配れないため、
 			// 「移動量」に落としてから選択中の各エンティティへ適用する。
-			DirectX::XMVECTOR _worldDelta = DirectX::XMVectorSubtract(_updatedWorld.r[3], _mWorld.r[3]);
+			const Math::Vector3 _worldDelta =
+				_worldFloat4x4.Translation() - _mWorld.Translation();
 
 			// 動いていないフレームは何もしない(isDirtyを立て続けないため)
-			if (DirectX::XMVector3NearEqual(_worldDelta, DirectX::XMVectorZero(), DirectX::XMVectorReplicate(1e-8f)))
+			constexpr float _MOVE_EPS = 1e-8f;
+			if (std::fabs(_worldDelta.x) <= _MOVE_EPS &&
+				std::fabs(_worldDelta.y) <= _MOVE_EPS &&
+				std::fabs(_worldDelta.z) <= _MOVE_EPS)
 			{
 				return;
 			}
@@ -509,7 +511,7 @@ namespace Engine::Editor
 		}
 	}
 
-	void SceneViewPanel::TranslateEntity(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, DirectX::FXMVECTOR a_worldDelta)
+	void SceneViewPanel::TranslateEntity(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, const Math::Vector3& a_worldDelta)
 	{
 		if (!a_pWorld) return;
 		if (!a_pWorld->HasComponent<LocalTransformComponent>(a_entity)) return;
@@ -518,24 +520,23 @@ namespace Engine::Editor
 		if (!_pTrsComp) return;
 
 		// LocalTransform は親基準なので、ワールドの移動量を親空間へ変換してから足す
-		DirectX::XMVECTOR _localDelta = a_worldDelta;
+		Math::Vector3 _localDelta = a_worldDelta;
 
-		DirectX::XMMATRIX _mParent = DirectX::XMMatrixIdentity();
+		Math::Matrix _mParent = Math::Matrix::Identity();
 		if (TryGetParentWorldMatrix(a_pWorld, a_entity, _mParent))
 		{
-			DirectX::XMVECTOR _det;
-			DirectX::XMMATRIX _invParent = DirectX::XMMatrixInverse(&_det, _mParent);
+			float _det = 0.0f;
+			const Math::Matrix _invParent = _mParent.Invert(_det);
 
 			// 親のスケールが0などで逆行列が作れない場合、
 			// そのまま書き戻すとローカルがNaNで壊れるので動かさない。
-			if (DirectX::XMVector4Equal(_det, DirectX::XMVectorZero())) return;
+			if (_det == 0.0f) return;
 
 			// 位置ではなく変位なので TransformNormal(平行移動成分を無視)を使う
-			_localDelta = DirectX::XMVector3TransformNormal(a_worldDelta, _invParent);
+			_localDelta = Math::Vector3::TransformNormal(a_worldDelta, _invParent);
 		}
 
-		DirectX::XMVECTOR _pos = DirectX::XMVectorAdd(Math::DX::Load(_pTrsComp->pos), _localDelta);
-		_pTrsComp->pos = Math::DX::StoreVector3(_pos);
+		_pTrsComp->pos += _localDelta;
 		_pTrsComp->isDirty = true;
 
 		// ワールド行列も同フレーム中に追従させる。
@@ -544,9 +545,8 @@ namespace Engine::Editor
 		{
 			if (auto* _pWorldComp = a_pWorld->RefData<WorldMatrixComponent>(a_entity))
 			{
-				DirectX::XMMATRIX _mWorld = Math::DX::Load(_pWorldComp->worldMat);
-				_mWorld.r[3] = DirectX::XMVectorAdd(_mWorld.r[3], a_worldDelta);
-				_pWorldComp->worldMat = Math::DX::StoreMatrix(_mWorld);
+				_pWorldComp->worldMat.SetTranslation(
+					_pWorldComp->worldMat.Translation() + a_worldDelta);
 			}
 		}
 	}
@@ -573,9 +573,9 @@ namespace Engine::Editor
 		}
 		return false;
 	}
-	bool SceneViewPanel::TryGetParentWorldMatrix(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, DirectX::XMMATRIX& a_outParentMat)
+	bool SceneViewPanel::TryGetParentWorldMatrix(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, Math::Matrix& a_outParentMat)
 	{
-		a_outParentMat = DirectX::XMMatrixIdentity();
+		a_outParentMat = Math::Matrix::Identity();
 
 		if (!a_pWorld) return false;
 		if (a_entity == ECS::Limits::INVALID_ENTITY) return false;
@@ -592,7 +592,7 @@ namespace Engine::Editor
 		auto* _pParentWorldComp = a_pWorld->RefData<WorldMatrixComponent>(_parent);
 		if (!_pParentWorldComp) return false;
 
-		a_outParentMat = Math::DX::Load(_pParentWorldComp->worldMat);
+		a_outParentMat = _pParentWorldComp->worldMat;
 		return true;
 	}
 	void SceneViewPanel::DrawEntityHUD(const ImVec2& a_pos, const ImVec2& a_rect, const ECS::Entity& a_entity, Engine::ECS::World* a_pWorld)
@@ -607,9 +607,7 @@ namespace Engine::Editor
 		const auto& _camData = _pGE->GetCPUCameraData();
 
 		HudPainter _hud;
-		_hud.viewProj =
-			Math::DX::Load(_camData.viewMat) *
-			Math::DX::Load(_camData.projMat);
+		_hud.viewProj = _camData.viewMat * _camData.projMat;
 		_hud.origin = a_pos;
 		_hud.size = a_rect;
 		_hud.pDrawList = ImGui::GetWindowDrawList();
@@ -620,36 +618,32 @@ namespace Engine::Editor
 		// ワールド行列を持たないエンティティでもオフセットは見せたいので、
 		// その場合は LocalTransform から組む(親を持たないものと同じ扱いになる)。
 		//==================================================================================
-		DXSM::Matrix _world = DXSM::Matrix::Identity;
+		Math::Matrix _world = Math::Matrix::Identity();
 		if (a_pWorld->HasComponent<WorldMatrixComponent>(a_entity))
 		{
 			if (auto* _pWorldComp = a_pWorld->RefData<WorldMatrixComponent>(a_entity))
 			{
-				_world = DXSM::Matrix(_pWorldComp->worldMat);
+				_world = Math::Matrix(_pWorldComp->worldMat);
 			}
 		}
 		else if (a_pWorld->HasComponent<LocalTransformComponent>(a_entity))
 		{
 			if (auto* _pTrsComp = a_pWorld->RefData<LocalTransformComponent>(a_entity))
 			{
-				_world = DXSM::Matrix(DirectX::XMMatrixAffineTransformation(
-					Math::DX::Load(_pTrsComp->scale),
-					DirectX::XMVectorZero(),
-					Math::DX::Load(_pTrsComp->quat),
-					Math::DX::Load(_pTrsComp->pos)));
+				_world = Math::Matrix::CreateTRS(_pTrsComp->pos, _pTrsComp->quat, _pTrsComp->scale);
 			}
 		}
-		const DXSM::Vector3 _originPos = _world.Translation();
+		const Math::Vector3 _originPos = _world.Translation();
 
 		//==================================================================================
 		// 親子関係
 		// 親の原点と線で結び、どこを基準にしたローカル座標なのかを一目で分かるようにする。
 		//==================================================================================
-		DirectX::XMMATRIX _mParent = DirectX::XMMatrixIdentity();
+		Math::Matrix _mParent = Math::Matrix::Identity();
 		const bool _hasParent = TryGetParentWorldMatrix(a_pWorld, a_entity, _mParent);
 		if (_hasParent)
 		{
-			const DXSM::Vector3 _parentPos = DXSM::Matrix(_mParent).Translation();
+			const Math::Vector3 _parentPos = _mParent.Translation();
 			_hud.Line(_parentPos, _originPos, HUD_COL_PARENT, 1.5f);
 			_hud.Marker(_parentPos, HUD_COL_PARENT, "Parent", 4.0f);
 		}
@@ -664,18 +658,18 @@ namespace Engine::Editor
 		{
 			if (auto* _pFollowNode = a_pWorld->RefData<FollowAnimationNodeComponent>(a_entity))
 			{
-				const DirectX::XMMATRIX _offsetMat =
-					DirectX::XMMatrixRotationQuaternion(Math::DX::Load(_pFollowNode->offsetRotation)) *
-					DirectX::XMMatrixScalingFromVector(Math::DX::Load(_pFollowNode->offsetScale)) *
-					DirectX::XMMatrixTranslationFromVector(Math::DX::Load(_pFollowNode->offsetPosition));
+				// FollowAnimationNodeSystem と同じ並び(回転→拡縮→平行移動)で組む
+				const Math::Matrix _offsetMat =
+					Math::Matrix::CreateFromQuaternion(_pFollowNode->offsetRotation) *
+					Math::Matrix::CreateScale(_pFollowNode->offsetScale) *
+					Math::Matrix::CreateTranslation(_pFollowNode->offsetPosition);
 
 				// offsetScale が 0 だと逆行列を作れないので、その時はノード位置を出さない
-				DirectX::XMVECTOR _det;
-				const DirectX::XMMATRIX _invOffset = DirectX::XMMatrixInverse(&_det, _offsetMat);
-				if (!DirectX::XMVector4Equal(_det, DirectX::XMVectorZero()))
+				float _det = 0.0f;
+				const Math::Matrix _invOffset = _offsetMat.Invert(_det);
+				if (_det != 0.0f)
 				{
-					const DirectX::XMMATRIX _nodeWorld = _invOffset * Math::DX::Load(_world);
-					const DXSM::Vector3 _nodePos = DXSM::Matrix(_nodeWorld).Translation();
+					const Math::Vector3 _nodePos = (_invOffset * _world).Translation();
 					_hud.Marker(_nodePos, HUD_COL_OFFSET, "Node", 4.0f);
 					_hud.Line(_nodePos, _originPos, HUD_COL_OFFSET, 1.5f);
 					_hud.Marker(_originPos, HUD_COL_OFFSET, "NodeOffset", 5.0f);
@@ -692,30 +686,30 @@ namespace Engine::Editor
 		{
 			if (auto* _pParticles = a_pWorld->RefData<ParticlesComponent>(a_entity))
 			{
-				DXSM::Vector3 _emitPos;
-				DXSM::Vector3 _emitDir;
+				Math::Vector3 _emitPos;
+				Math::Vector3 _emitDir;
 
 				switch (_pParticles->emitSpace)
 				{
 				case EEmitSpace::WorldMatrix:
 					_emitPos = _originPos;
-					_emitDir = DXSM::Vector3(_world._31, _world._32, _world._33);
+					_emitDir = Math::Vector3(_world._31, _world._32, _world._33);
 					break;
 
 				case EEmitSpace::LocalOffset:
-					_emitPos = DXSM::Vector3::Transform(DXSM::Vector3(_pParticles->posOffset), _world);
-					_emitDir = DXSM::Vector3::TransformNormal(DXSM::Vector3(_pParticles->emitDir), _world);
+					_emitPos = Math::Vector3::Transform(Math::Vector3(_pParticles->posOffset), _world);
+					_emitDir = Math::Vector3::TransformNormal(Math::Vector3(_pParticles->emitDir), _world);
 					break;
 
 				case EEmitSpace::FixedWorld:
 				default:
-					_emitPos = DXSM::Vector3(_pParticles->worldPos);
-					_emitDir = DXSM::Vector3(_pParticles->emitDir);
+					_emitPos = Math::Vector3(_pParticles->worldPos);
+					_emitDir = Math::Vector3(_pParticles->emitDir);
 					break;
 				}
 
 				if (_emitDir.LengthSquared() > 1e-8f) _emitDir.Normalize();
-				else                                  _emitDir = DXSM::Vector3(0.0f, 0.0f, 1.0f);
+				else                                  _emitDir = Math::Vector3(0.0f, 0.0f, 1.0f);
 
 				// 矢印の長さは見やすさ優先の固定値。拡散コーンもこの長さを基準に描く。
 				constexpr float _arrowLength = 1.5f;
@@ -751,14 +745,14 @@ namespace Engine::Editor
 		{
 			if (auto* _pFocus = a_pWorld->RefData<CameraFocusTargetComponent>(a_entity))
 			{
-				DXSM::Quaternion _orbit = DXSM::Quaternion::Identity;
+				Math::Quaternion _orbit = Math::Quaternion::Identity();
 				if (a_pWorld->HasComponent<LookAngleComponent>(a_entity))
 				{
 					if (auto* _pLookAng = a_pWorld->RefData<LookAngleComponent>(a_entity))
 					{
 						// 角度は度で保持されている。Vector3 オーバーロードは軸が
 						// 入れ替わるのでスカラー版を明示的に使う(TPSSystem と同じ式)。
-						_orbit = DXSM::Quaternion::CreateFromYawPitchRoll(
+						_orbit = Math::Quaternion::CreateFromYawPitchRoll(
 							DirectX::XMConvertToRadians(_pLookAng->Yaw),
 							DirectX::XMConvertToRadians(-_pLookAng->Pitch),
 							0.0f);
@@ -766,8 +760,8 @@ namespace Engine::Editor
 					}
 				}
 
-				const DXSM::Vector3 _focusPos =
-					_originPos + DXSM::Vector3::Transform(DXSM::Vector3(_pFocus->offsetPos), _orbit);
+				const Math::Vector3 _focusPos =
+					_originPos + Math::Vector3::Transform(Math::Vector3(_pFocus->offsetPos), _orbit);
 				_hud.Line(_originPos, _focusPos, HUD_COL_CAMERA, 1.0f);
 				_hud.Marker(_focusPos, HUD_COL_CAMERA, "FocusOffset", 5.0f);
 			}
@@ -801,8 +795,8 @@ namespace Engine::Editor
 				if (_pTargetTrs)
 				{
 					// ピボット = ターゲット座標 + 上方向 * y
-					const DXSM::Vector3 _pivot =
-						DXSM::Vector3(_pTargetTrs->pos) + DXSM::Vector3::Up * _pOffset->y;
+					const Math::Vector3 _pivot =
+						Math::Vector3(_pTargetTrs->pos) + Math::Vector3::Up() * _pOffset->y;
 
 					_hud.Marker(_pivot, HUD_COL_CAMERA, "TPS Pivot", 5.0f);
 					// ピボットから現在のカメラ位置まで。ここの長さが実際の引き量になる。
@@ -810,8 +804,8 @@ namespace Engine::Editor
 				}
 				else
 				{
-					const DXSM::Vector3 _offsetPos =
-						_originPos + DXSM::Vector3(_pOffset->x, _pOffset->y, _pOffset->z);
+					const Math::Vector3 _offsetPos =
+						_originPos + Math::Vector3(_pOffset->x, _pOffset->y, _pOffset->z);
 					_hud.Line(_originPos, _offsetPos, HUD_COL_CAMERA, 1.0f);
 					_hud.Marker(_offsetPos, HUD_COL_CAMERA, "TPS Offset", 5.0f);
 				}

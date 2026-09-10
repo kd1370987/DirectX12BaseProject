@@ -9,7 +9,7 @@ namespace Engine::Resource
 {
 	void Engine::Resource::Texture::Import(
 		const std::string& a_filePath,
-		const DirectX::XMFLOAT4& a_defoltData
+		const Math::Color& a_defoltData
 	)
 	{
 		// SRVとして使用
@@ -36,7 +36,7 @@ namespace Engine::Resource
 		CreateView();
 	}
 
-	void Texture::Create(const std::string& a_name, const DirectX::XMFLOAT4& a_defoltData)
+	void Texture::Create(const std::string& a_name, const Math::Color& a_defoltData)
 	{
 
 		ComPtr<ID3D12Resource> _cpRes = nullptr;

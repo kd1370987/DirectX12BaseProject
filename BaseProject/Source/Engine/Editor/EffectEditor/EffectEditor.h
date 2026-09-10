@@ -96,7 +96,7 @@ namespace Engine::Editor
 		/// カメラの割り込み行列を取得する
 		/// </summary>
 		/// <returns>開いていなければ false(割り込まない)</returns>
-		bool TryGetCameraOverride(DXSM::Matrix& a_outWorldMat, DXSM::Matrix& a_outProjMat) const;
+		bool TryGetCameraOverride(Math::Matrix& a_outWorldMat, Math::Matrix& a_outProjMat) const;
 
 		/// <summary>
 		/// ポップアップの描画。MainEditor がパネルの後に呼ぶ

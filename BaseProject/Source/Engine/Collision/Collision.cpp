@@ -39,7 +39,8 @@ DirectX::BoundingBox Engine::Collision::CalcModelLocalAABB(
 		if (_nodeIdx < 0 || _nodeIdx >= static_cast<int>(_nodeVec.size())) continue;
 		const auto& _node = _nodeVec[_nodeIdx];
 
-		DirectX::XMMATRIX _nodeGlobal = DirectX::XMLoadFloat4x4(&_node.worldTransform);
+		// BoundingBox::Transform は XMMATRIX しか受けないので、ここだけ積んで渡す
+		const DirectX::XMMATRIX _nodeGlobal = Math::DX::Load(_node.worldTransform);
 
 		for (int _meshIdx : _node.meshIndices)
 		{
@@ -91,14 +92,11 @@ DirectX::BoundingBox Engine::Collision::CalcModelLocalAABB(
 bool Engine::Collision::Ray::VSModel(
 	const RayInfo& a_rayInfo,
 	const Engine::Resource::Model* a_pModel,
-	const DirectX::XMFLOAT4X4& a_worldMat,
+	const Math::Matrix& a_worldMat,
 	Result& a_outResult
 )
 {
 	if (!a_pModel) return false;
-
-	// インスタンスのワールド行列をロード
-	DirectX::XMMATRIX _instWorld = DirectX::XMLoadFloat4x4(&a_worldMat);
 
 	// 複数サブメッシュのうち「最も手前」のヒットを採用する
 	bool _hitAny = false;
@@ -111,11 +109,8 @@ bool Engine::Collision::Ray::VSModel(
 		// ノード取得
 		const Engine::Resource::Node& _node = a_pModel->GetOriginalNodeVec()[_idx];
 
-		DirectX::XMMATRIX _nodeGlobal = DirectX::XMLoadFloat4x4(&_node.worldTransform);
-		DirectX::XMMATRIX _combinedWorld = DirectX::XMMatrixMultiply(_nodeGlobal, _instWorld);
-
-		DirectX::XMFLOAT4X4 _meshWorldMat;
-		DirectX::XMStoreFloat4x4(&_meshWorldMat, _combinedWorld);
+		// ノード変換をインスタンスのワールドへ重ねる
+		const Math::Matrix _meshWorldMat = _node.worldTransform * a_worldMat;
 
 		for (auto& _meshIdx : _node.meshIndices)
 		{
@@ -149,7 +144,7 @@ bool Engine::Collision::Ray::VSModel(
 bool Engine::Collision::Ray::VSMesh(
 	const RayInfo& a_rayInfo,
 	const Engine::Resource::Mesh* a_pMesh,
-	const DirectX::XMFLOAT4X4& a_worldMat,
+	const Math::Matrix& a_worldMat,
 	Result& a_outResult
 )
 {
@@ -160,45 +155,39 @@ bool Engine::Collision::Ray::VSMesh(
 	const auto& _collisionMesh = a_pMesh->GetCollisionMesh();
 
 	// レイをモデル空間にするためにワールド行列の逆行列を作る
-	DirectX::XMVECTOR _errVec;
-	DirectX::XMMATRIX _world = DirectX::XMLoadFloat4x4(&a_worldMat);
-	DirectX::XMMATRIX _invWorld = DirectX::XMMatrixInverse(&_errVec, _world);	// 逆ワールド行列
+	float _det = 0.0f;
+	const Math::Matrix _invWorld = a_worldMat.Invert(_det);
 
 	// 行列式のチェック。
 	// ワールド行列にNaNが混ざっていると行列式もNaNになるが、NaN との == 比較は必ず false に
 	// なるため「== 0.0f」だけでは素通りしてしまう。
 	// その場合レイをローカル空間へ変換した結果もNaNになり、
 	// BoundingBox::Intersects の XMVector3IsUnit アサートで停止する。
-	float _det = DirectX::XMVectorGetX(_errVec);
 	if (!std::isfinite(_det) || _det == 0.0f)
 	{
 		return false;
 	}
 
 	// レイをモデル空間に変更
-	DirectX::XMVECTOR _rayOrigin = DirectX::XMLoadFloat3(&a_rayInfo.origin);
-	_rayOrigin = DirectX::XMVector3TransformCoord(_rayOrigin, _invWorld);
+	const Math::Vector3 _rayOrigin = Math::Vector3::TransformCoord(a_rayInfo.origin, _invWorld);
 
 	// 方向は正規化する前の長さを取っておく。
 	// 呼び出し側(CollisionWorld::Raycast)でワールド方向は単位化済みなので、
 	// この長さがそのまま「ワールドで1進む＝ローカルで何進むか」の倍率になる。
 	// (この方向に限れば非等方スケールでも厳密)
-	DirectX::XMVECTOR _dirRaw = DirectX::XMVector3TransformNormal(
-		DirectX::XMLoadFloat3(&a_rayInfo.direction), _invWorld);
+	const Math::Vector3 _dirRaw = Math::Vector3::TransformNormal(a_rayInfo.direction, _invWorld);
 
 	// スケールが極端に小さい/大きい行列では、逆行列変換後のベクトルが
 	// 0 や無限大になり、正規化した結果が NaN になることがある。
 	// そのまま BoundingBox::Intersects へ渡すと XMVector3IsUnit のアサートで止まるため、
 	// ここで長さが正常であることを確認しておく。
-	float _dirLen = DirectX::XMVectorGetX(DirectX::XMVector3Length(_dirRaw));
+	const float _dirLen = _dirRaw.Length();
 	if (!std::isfinite(_dirLen) || _dirLen < 1e-12f) return false;
-
-	DirectX::XMVECTOR _direction = DirectX::XMVectorScale(_dirRaw, 1.0f / _dirLen);
 
 	// ローカルレイを作成
 	RayInfo _localRay = {};
-	DirectX::XMStoreFloat3(&_localRay.origin, _rayOrigin);
-	DirectX::XMStoreFloat3(&_localRay.direction, _direction);
+	_localRay.origin = _rayOrigin;
+	_localRay.direction = _dirRaw * (1.0f / _dirLen);
 
 	// 射程もローカル空間の長さへ変換する。
 	// ここでワールドの値をそのまま入れると、ノードにスケールが掛かったモデル
@@ -215,16 +204,10 @@ bool Engine::Collision::Ray::VSMesh(
 	if (BVHTraverser::Traverse(_localRay, _collisionMesh, _localRes))
 	{
 		// ローカル空間からワールド空間へ戻す
-		DirectX::XMVECTOR _hitLocal = DirectX::XMLoadFloat3(&_localRes.hitPos);
-		DirectX::XMVECTOR _hitWorld = DirectX::XMVector3TransformCoord(_hitLocal, _world);
-		DirectX::XMStoreFloat3(&a_outResult.hitPos, _hitWorld);
+		a_outResult.hitPos = Math::Vector3::TransformCoord(_localRes.hitPos, a_worldMat);
 
 		// ワールド距離を戻す
-		DirectX::XMVECTOR _rayOriginWorld = DirectX::XMLoadFloat3(&a_rayInfo.origin);
-		DirectX::XMVECTOR _diff = DirectX::XMVectorSubtract(_hitWorld, _rayOriginWorld);
-		float _worldDist = DirectX::XMVectorGetX(DirectX::XMVector3Length(_diff));
-
-		a_outResult.hitDistance = _worldDist;
+		a_outResult.hitDistance = (a_outResult.hitPos - a_rayInfo.origin).Length();
 		a_outResult.isHit = true;
 		return true;
 	}
@@ -283,44 +266,41 @@ namespace
 
 	CapsuleInfo TransformToLocal(const CapsuleInfo& a_w, DirectX::FXMMATRIX a_inv)
 	{
-		DirectX::XMVECTOR _a = DirectX::XMVector3TransformCoord(DirectX::XMLoadFloat3(&a_w.pointA), a_inv);
-		DirectX::XMVECTOR _b = DirectX::XMVector3TransformCoord(DirectX::XMLoadFloat3(&a_w.pointB), a_inv);
+		const Math::Matrix _inv = Math::DX::StoreMatrix(a_inv);
 
 		// 半径は行列のスケール（各基底ベクトルの長さの最大）で拡縮する
-		float _sx = DirectX::XMVectorGetX(DirectX::XMVector3Length(a_inv.r[0]));
-		float _sy = DirectX::XMVectorGetX(DirectX::XMVector3Length(a_inv.r[1]));
-		float _sz = DirectX::XMVectorGetX(DirectX::XMVector3Length(a_inv.r[2]));
-		float _scale = std::max(_sx, std::max(_sy, _sz));
+		const float _sx = _inv.Right().Length();
+		const float _sy = _inv.Up().Length();
+		const float _sz = _inv.Forward().Length();
+		const float _scale = std::max(_sx, std::max(_sy, _sz));
 
 		CapsuleInfo _o;
-		DirectX::XMStoreFloat3(&_o.pointA, _a);
-		DirectX::XMStoreFloat3(&_o.pointB, _b);
+		_o.pointA = Math::Vector3::TransformCoord(a_w.pointA, _inv);
+		_o.pointB = Math::Vector3::TransformCoord(a_w.pointB, _inv);
 		_o.radius = a_w.radius * _scale;
 		return _o;
 	}
 
 	// プリミティブ vs メッシュ（オーバーラップ）
 	template<typename TInfo>
-	bool OverlapMesh(const TInfo& a_worldInfo, const Engine::Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult)
+	bool OverlapMesh(const TInfo& a_worldInfo, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
 	{
 		if (!a_pMesh || !a_pMesh->HasCollisionMesh()) return false;
 		const auto& _collisionMesh = a_pMesh->GetCollisionMesh();
 
 		// ワールド行列の逆行列でプリミティブをメッシュローカルへ
-		DirectX::XMVECTOR _errVec;
-		DirectX::XMMATRIX _world = DirectX::XMLoadFloat4x4(&a_worldMat);
-		DirectX::XMMATRIX _invWorld = DirectX::XMMatrixInverse(&_errVec, _world);
-		if (DirectX::XMVectorGetX(_errVec) == 0.0f) return false;
+		float _det = 0.0f;
+		const Math::Matrix _invWorld = a_worldMat.Invert(_det);
+		if (_det == 0.0f) return false;
 
-		TInfo _local = TransformToLocal(a_worldInfo, _invWorld);
+		// DirectXCollision の Transform は XMMATRIX しか受けないので、渡す直前に積む
+		TInfo _local = TransformToLocal(a_worldInfo, Math::DX::Load(_invWorld));
 
 		Result _localRes = {};
 		if (Engine::Collision::BVHTraverser::TraverseOverlap(_local, _collisionMesh, _localRes))
 		{
 			// ローカルの接触点をワールドへ戻す
-			DirectX::XMVECTOR _hitLocal = DirectX::XMLoadFloat3(&_localRes.hitPos);
-			DirectX::XMVECTOR _hitWorld = DirectX::XMVector3TransformCoord(_hitLocal, _world);
-			DirectX::XMStoreFloat3(&a_outResult.hitPos, _hitWorld);
+			a_outResult.hitPos = Math::Vector3::TransformCoord(_localRes.hitPos, a_worldMat);
 			a_outResult.hitDistance = 0.0f;
 			a_outResult.isHit = true;
 			return true;
@@ -330,21 +310,16 @@ namespace
 
 	// プリミティブ vs モデル（オーバーラップ）
 	template<typename TInfo>
-	bool OverlapModel(const TInfo& a_worldInfo, const Engine::Resource::Model* a_pModel, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult)
+	bool OverlapModel(const TInfo& a_worldInfo, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
 	{
 		if (!a_pModel) return false;
-
-		DirectX::XMMATRIX _instWorld = DirectX::XMLoadFloat4x4(&a_worldMat);
 
 		for (int _idx : a_pModel->GetCollisionMeshNodeVec())
 		{
 			const Engine::Resource::Node& _node = a_pModel->GetOriginalNodeVec()[_idx];
 
-			DirectX::XMMATRIX _nodeGlobal = DirectX::XMLoadFloat4x4(&_node.worldTransform);
-			DirectX::XMMATRIX _combinedWorld = DirectX::XMMatrixMultiply(_nodeGlobal, _instWorld);
-
-			DirectX::XMFLOAT4X4 _meshWorldMat;
-			DirectX::XMStoreFloat4x4(&_meshWorldMat, _combinedWorld);
+			// ノード変換をインスタンスのワールドへ重ねる
+			const Math::Matrix _meshWorldMat = _node.worldTransform * a_worldMat;
 
 			for (auto& _meshIdx : _node.meshIndices)
 			{
@@ -362,11 +337,11 @@ namespace
 	}
 
 	// 行列の最大スケール（各基底ベクトル長の最大）
-	float MaxScale(DirectX::FXMMATRIX a_m)
+	float MaxScale(const Math::Matrix& a_m)
 	{
-		float _sx = DirectX::XMVectorGetX(DirectX::XMVector3Length(a_m.r[0]));
-		float _sy = DirectX::XMVectorGetX(DirectX::XMVector3Length(a_m.r[1]));
-		float _sz = DirectX::XMVectorGetX(DirectX::XMVector3Length(a_m.r[2]));
+		const float _sx = a_m.Right().Length();
+		const float _sy = a_m.Up().Length();
+		const float _sz = a_m.Forward().Length();
 		return std::max(_sx, std::max(_sy, _sz));
 	}
 
@@ -394,9 +369,9 @@ namespace
 				{
 					int _triIdx = a_mesh.triangleIndiccesVec[_node.dataStart + _i];
 					const auto& _tri = a_mesh.triangleVec[_triIdx];
-					DXSM::Vector3 _a = _tri.v[0];
-					DXSM::Vector3 _b = _tri.v[1];
-					DXSM::Vector3 _c = _tri.v[2];
+					Math::Vector3 _a = _tri.v[0];
+					Math::Vector3 _b = _tri.v[1];
+					Math::Vector3 _c = _tri.v[2];
 
 					Contact _ct = NarrowPhase::CapsuleTriangleContact(
 						a_localCap.pointA, a_localCap.pointB, a_localCap.radius, _a, _b, _c);
@@ -419,67 +394,60 @@ namespace
 
 // ---- 各プリミティブの公開関数（共通テンプレートへ委譲） ------------------------------
 
-bool Engine::Collision::Sphere::VSModel(const SphereInfo& a_info, const Engine::Resource::Model* a_pModel, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult)
+bool Engine::Collision::Sphere::VSModel(const SphereInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
 	return OverlapModel(a_info, a_pModel, a_worldMat, a_outResult);
 }
-bool Engine::Collision::Sphere::VSMesh(const SphereInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult)
+bool Engine::Collision::Sphere::VSMesh(const SphereInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
 	return OverlapMesh(a_info, a_pMesh, a_worldMat, a_outResult);
 }
 
-bool Engine::Collision::Capsule::VSModel(const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult)
+bool Engine::Collision::Capsule::VSModel(const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
 	return OverlapModel(a_info, a_pModel, a_worldMat, a_outResult);
 }
-bool Engine::Collision::Capsule::VSMesh(const CapsuleInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult)
+bool Engine::Collision::Capsule::VSMesh(const CapsuleInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
 	return OverlapMesh(a_info, a_pMesh, a_worldMat, a_outResult);
 }
 
-bool Engine::Collision::Capsule::ResolveVSMesh(const CapsuleInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat, Contact& a_outContact)
+bool Engine::Collision::Capsule::ResolveVSMesh(const CapsuleInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Contact& a_outContact)
 {
 	if (!a_pMesh || !a_pMesh->HasCollisionMesh()) return false;
 	const auto& _collisionMesh = a_pMesh->GetCollisionMesh();
 
 	// カプセルをメッシュローカルへ
-	DirectX::XMVECTOR _errVec;
-	DirectX::XMMATRIX _world = DirectX::XMLoadFloat4x4(&a_worldMat);
-	DirectX::XMMATRIX _invWorld = DirectX::XMMatrixInverse(&_errVec, _world);
-	if (DirectX::XMVectorGetX(_errVec) == 0.0f) return false;
+	float _det = 0.0f;
+	const Math::Matrix _invWorld = a_worldMat.Invert(_det);
+	if (_det == 0.0f) return false;
 
-	CapsuleInfo _local = TransformToLocal(a_info, _invWorld);
+	// TransformToLocal は DirectXCollision に合わせて XMMATRIX を受けるので、渡す直前に積む
+	CapsuleInfo _local = TransformToLocal(a_info, Math::DX::Load(_invWorld));
 
 	// ローカル空間で最も深い接触を取得
 	Contact _localContact = CapsuleDeepestContactLocal(_local, _collisionMesh);
 	if (!_localContact.hit) return false;
 
 	// 法線・深さをワールドへ戻す
-	DirectX::XMVECTOR _nLocal = DirectX::XMLoadFloat3(&_localContact.normal);
-	DirectX::XMVECTOR _nWorld = DirectX::XMVector3Normalize(DirectX::XMVector3TransformNormal(_nLocal, _world));
-
-	DirectX::XMStoreFloat3(&a_outContact.normal, _nWorld);
-	a_outContact.depth = _localContact.depth * MaxScale(_world);	// ローカル長→ワールド長
+	a_outContact.normal = Math::Vector3::TransformNormal(_localContact.normal, a_worldMat).Normalized();
+	a_outContact.depth = _localContact.depth * MaxScale(a_worldMat);	// ローカル長→ワールド長
 	a_outContact.hit = true;
 	return true;
 }
 
-bool Engine::Collision::Capsule::ResolveVSModel(const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const DirectX::XMFLOAT4X4& a_worldMat, Contact& a_outContact)
+bool Engine::Collision::Capsule::ResolveVSModel(const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Contact& a_outContact)
 {
 	if (!a_pModel) return false;
 
 	Contact _best;
-	DirectX::XMMATRIX _instWorld = DirectX::XMLoadFloat4x4(&a_worldMat);
 
 	for (int _idx : a_pModel->GetCollisionMeshNodeVec())
 	{
 		const Engine::Resource::Node& _node = a_pModel->GetOriginalNodeVec()[_idx];
 
-		DirectX::XMMATRIX _nodeGlobal = DirectX::XMLoadFloat4x4(&_node.worldTransform);
-		DirectX::XMMATRIX _combinedWorld = DirectX::XMMatrixMultiply(_nodeGlobal, _instWorld);
-
-		DirectX::XMFLOAT4X4 _meshWorldMat;
-		DirectX::XMStoreFloat4x4(&_meshWorldMat, _combinedWorld);
+		// ノード変換をインスタンスのワールドへ重ねる
+		const Math::Matrix _meshWorldMat = _node.worldTransform * a_worldMat;
 
 		for (auto& _meshIdx : _node.meshIndices)
 		{
@@ -500,20 +468,20 @@ bool Engine::Collision::Capsule::ResolveVSModel(const CapsuleInfo& a_info, const
 	return true;
 }
 
-bool Engine::Collision::OBB::VSModel(const OBBInfo& a_info, const Engine::Resource::Model* a_pModel, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult)
+bool Engine::Collision::OBB::VSModel(const OBBInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
 	return OverlapModel(a_info, a_pModel, a_worldMat, a_outResult);
 }
-bool Engine::Collision::OBB::VSMesh(const OBBInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult)
+bool Engine::Collision::OBB::VSMesh(const OBBInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
 	return OverlapMesh(a_info, a_pMesh, a_worldMat, a_outResult);
 }
 
-bool Engine::Collision::Frustum::VSModel(const FrustumInfo& a_info, const Engine::Resource::Model* a_pModel, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult)
+bool Engine::Collision::Frustum::VSModel(const FrustumInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
 	return OverlapModel(a_info, a_pModel, a_worldMat, a_outResult);
 }
-bool Engine::Collision::Frustum::VSMesh(const FrustumInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const DirectX::XMFLOAT4X4& a_worldMat, Result& a_outResult)
+bool Engine::Collision::Frustum::VSMesh(const FrustumInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
 	return OverlapMesh(a_info, a_pMesh, a_worldMat, a_outResult);
 }

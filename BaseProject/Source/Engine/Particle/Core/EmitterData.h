@@ -10,10 +10,10 @@ namespace Engine::Particle
 	/// </remarks>
 	struct EmitterData
 	{
-		DirectX::XMFLOAT3 emitPos;		// 発生源のワールド座標
+		Math::Vector3 emitPos;		// 発生源のワールド座標
 		UINT emitCount;					// 発生させる数
 
-		DirectX::XMFLOAT3 emitDirection;	// 発生させたい方向
+		Math::Vector3 emitDirection;	// 発生させたい方向
 		float baseScale;					// エミッター専用のスケール
 
 		// ---- ランダム要素 ----

@@ -110,11 +110,11 @@ namespace Engine::Particle
 		// ローカルで進めた飛距離までそのスケールで縮んでしまう。
 		// 粒は最初からワールドの尺で飛ばしたいので、軸の長さを 1 に揃える
 		//----------------------------------------------------------------------
-		DXSM::Matrix _mat = a_ownerWorld;
+		Math::Matrix _mat = a_ownerWorld;
 		{
-			DXSM::Vector3 _axisX(_mat._11, _mat._12, _mat._13);
-			DXSM::Vector3 _axisY(_mat._21, _mat._22, _mat._23);
-			DXSM::Vector3 _axisZ(_mat._31, _mat._32, _mat._33);
+			Math::Vector3 _axisX(_mat._11, _mat._12, _mat._13);
+			Math::Vector3 _axisY(_mat._21, _mat._22, _mat._23);
+			Math::Vector3 _axisZ(_mat._31, _mat._32, _mat._33);
 
 			if (_axisX.LengthSquared() > 1e-12f) _axisX.Normalize();
 			if (_axisY.LengthSquared() > 1e-12f) _axisY.Normalize();

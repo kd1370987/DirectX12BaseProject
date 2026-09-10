@@ -39,7 +39,7 @@ namespace Engine::Editor
 
 		// ワールド空間の移動量をエンティティへ加算する。
 		// 親を持つ場合は LocalTransform が親基準なので、移動量も親空間へ変換してから足す。
-		void TranslateEntity(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, DirectX::FXMVECTOR a_worldDelta);
+		void TranslateEntity(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, const Math::Vector3& a_worldDelta);
 
 		// 祖先に選択中のエンティティがいるか。
 		// 親と子を同時に選んでいると、親の移動が子へ伝播したうえに子自身も動いて二重に移動してしまうので、
@@ -48,7 +48,7 @@ namespace Engine::Editor
 
 		// 選択エンティティの親のワールド行列を取得する。
 		// 親がいない/親のワールドがまだ無い場合は単位行列を入れて false を返す。
-		bool TryGetParentWorldMatrix(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, DirectX::XMMATRIX& a_outParentMat);
+		bool TryGetParentWorldMatrix(Engine::ECS::World* a_pWorld, const ECS::Entity& a_entity, Math::Matrix& a_outParentMat);
 
 		// ギズモに載せられない情報(各種オフセット位置・パーティクルの発生方向など)を
 		// シーンビュー画像の上へ直接描くHUD。

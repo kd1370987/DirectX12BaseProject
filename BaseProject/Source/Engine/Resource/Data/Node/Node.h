@@ -21,9 +21,9 @@ namespace Engine::Resource
 
 		std::vector<int>		meshIndices;				// メッシュのインデックスリスト
 
-		DirectX::XMFLOAT4X4		localTransform = {};				// 直属の親ボーンからの行列
-		DirectX::XMFLOAT4X4		worldTransform = {};				// 原点からの行列
-		DirectX::XMFLOAT4X4		boneInverseWorldMatrix = {};		// 原点からの逆行列
+		Math::Matrix		localTransform = {};				// 直属の親ボーンからの行列
+		Math::Matrix		worldTransform = {};				// 原点からの行列
+		Math::Matrix		boneInverseWorldMatrix = {};		// 原点からの逆行列
 
 		int						parent = -1;				// 親インデックス
 		std::vector<int>		children;					// 子供へのインデックスリスト

@@ -21,7 +21,7 @@ namespace Engine::Collision::NarrowPhase
 		DirectX::XMVECTOR _edge2 = DirectX::XMVectorSubtract(a_v2, a_v0);	// b
 
 		// レイの発射方向
-		DirectX::XMVECTOR _dir = DirectX::XMLoadFloat3(&a_ray.direction);
+		const DirectX::XMVECTOR _dir = Math::DX::Load(a_ray.direction);
 
 		// レイと三角形が平行かどうかを求める
 		// _det == 0  : 平行
@@ -40,7 +40,7 @@ namespace Engine::Collision::NarrowPhase
 		float _invDet = 1.0f / _det;
 
 		// レイの発射座標
-		DirectX::XMVECTOR _origin = DirectX::XMLoadFloat3(&a_ray.origin);
+		const DirectX::XMVECTOR _origin = Math::DX::Load(a_ray.origin);
 		DirectX::XMVECTOR _tvec = DirectX::XMVectorSubtract(_origin,a_v0);
 
 		// u座標を求める
@@ -103,10 +103,9 @@ namespace Engine::Collision::NarrowPhase
 		a_outDist = 0.0f;
 
 		// 三角形の頂点を取り出す
-		DXSM::Vector3 _a, _b, _c;
-		DirectX::XMStoreFloat3(&_a, a_v0);
-		DirectX::XMStoreFloat3(&_b, a_v1);
-		DirectX::XMStoreFloat3(&_c, a_v2);
+		const Math::Vector3 _a = Math::DX::StoreVector3(a_v0);
+		const Math::Vector3 _b = Math::DX::StoreVector3(a_v1);
+		const Math::Vector3 _c = Math::DX::StoreVector3(a_v2);
 
 		// 線分と三角形の最近接距離が半径以下なら当たり
 		float _distSq = ClosestDistSqSegmentTriangle(a_info.pointA, a_info.pointB, _a, _b, _c);

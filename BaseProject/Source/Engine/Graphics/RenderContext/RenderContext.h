@@ -118,7 +118,7 @@ namespace Engine::Graphics
 		// 後段でアルファ合成される中間ターゲットは、必ず透明黒を渡すこと
 		void ClearRenderTarget(
 			const D3D12_CPU_DESCRIPTOR_HANDLE& a_rtvHandle,
-			const DirectX::XMFLOAT4& a_clearColor = { 0.f, 0.f, 0.f, 1.f });
+			const Math::Color& a_clearColor = { 0.f, 0.f, 0.f, 1.f });
 
 		// 深度値バッファのクリア
 		void ClearDSV( const Handle<D3D12::DSV>& a_DSVHandle);

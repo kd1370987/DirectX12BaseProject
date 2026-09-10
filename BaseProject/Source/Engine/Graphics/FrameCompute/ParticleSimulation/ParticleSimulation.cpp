@@ -186,10 +186,10 @@ namespace Engine::Graphics
 			struct UpdateCB
 			{
 				float deltaTime;
-				DirectX::XMFLOAT3 gravity;
+				Math::Vector3 gravity;
 
 				float drag;
-				DirectX::XMFLOAT3 pad;
+				Math::Vector3 pad;
 			};
 			// 固定値だと実フレームレートと寿命の減りが一致しない(重いほど長生きする)ため
 			// 実際の経過時間を渡す

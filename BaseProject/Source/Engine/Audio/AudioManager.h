@@ -9,10 +9,10 @@ namespace Engine::Audio
 	/// </summary>
 	struct ListenerData
 	{
-		DXSM::Vector3 pos      = { 0.0f, 0.0f, 0.0f };	// ワールド座標
-		DXSM::Vector3 front    = { 0.0f, 0.0f, 1.0f };	// 前方 : このエンジンは左手系で +Z が前
-		DXSM::Vector3 up       = { 0.0f, 1.0f, 0.0f };	// 上方向
-		DXSM::Vector3 velocity = { 0.0f, 0.0f, 0.0f };	// 速度(m/秒)。ドップラーに使う
+		Math::Vector3 pos      = { 0.0f, 0.0f, 0.0f };	// ワールド座標
+		Math::Vector3 front    = { 0.0f, 0.0f, 1.0f };	// 前方 : このエンジンは左手系で +Z が前
+		Math::Vector3 up       = { 0.0f, 1.0f, 0.0f };	// 上方向
+		Math::Vector3 velocity = { 0.0f, 0.0f, 0.0f };	// 速度(m/秒)。ドップラーに使う
 	};
 
 	/// <summary>

@@ -62,6 +62,15 @@ namespace Math
 		return Store(DirectX::XMMatrixInverse(nullptr, Load(*this)));
 	}
 
+	Matrix Matrix::Invert(float& a_outDeterminant) const noexcept
+	{
+		DirectX::XMVECTOR _det = {};
+		const Matrix _result = Store(DirectX::XMMatrixInverse(&_det, Load(*this)));
+
+		a_outDeterminant = DirectX::XMVectorGetX(_det);
+		return _result;
+	}
+
 	Matrix Matrix::Transpose() const noexcept
 	{
 		return Store(DirectX::XMMatrixTranspose(Load(*this)));
@@ -97,6 +106,11 @@ namespace Math
 	Matrix Matrix::CreateTranslation(const Vector3& a_pos) noexcept
 	{
 		return Store(DirectX::XMMatrixTranslation(a_pos.x, a_pos.y, a_pos.z));
+	}
+
+	Matrix Matrix::CreateTranslation(float a_x, float a_y, float a_z) noexcept
+	{
+		return Store(DirectX::XMMatrixTranslation(a_x, a_y, a_z));
 	}
 
 	Matrix Matrix::CreateScale(const Vector3& a_scale) noexcept
@@ -137,6 +151,23 @@ namespace Math
 			DirectX::XMMatrixTranslation(a_pos.x, a_pos.y, a_pos.z);
 
 		return Store(_m);
+	}
+
+	Matrix Matrix::CreateWorld(const Vector3& a_pos, const Vector3& a_forward, const Vector3& a_up) noexcept
+	{
+		// 渡された前方を、そのまま第3行(+Z)に据える。
+		// SimpleMath の CreateWorld は右手系で forward を反転してから入れるが、
+		// このエンジンは +Z が前なので反転しない
+		Vector3 _zAxis = a_forward.Normalized();
+		Vector3 _xAxis = a_up.Cross(_zAxis).Normalized();
+		Vector3 _yAxis = _zAxis.Cross(_xAxis);
+
+		return Matrix(
+			_xAxis.x, _xAxis.y, _xAxis.z, 0.0f,
+			_yAxis.x, _yAxis.y, _yAxis.z, 0.0f,
+			_zAxis.x, _zAxis.y, _zAxis.z, 0.0f,
+			a_pos.x,  a_pos.y,  a_pos.z,  1.0f
+		);
 	}
 
 	Matrix Matrix::CreateLookAt(const Vector3& a_eye, const Vector3& a_target, const Vector3& a_up) noexcept

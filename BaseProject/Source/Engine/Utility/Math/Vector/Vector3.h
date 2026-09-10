@@ -104,6 +104,26 @@ namespace Math
 		}
 
 		//-----------------------------------------------------------------------------------------------------
+		// Min / Max
+		// 成分ごとに小さい方・大きい方を取る(AABB を組むときに使う)
+		static constexpr Vector3 Min(const Vector3& a_a, const Vector3& a_b) noexcept
+		{
+			return {
+				(a_a.x < a_b.x) ? a_a.x : a_b.x,
+				(a_a.y < a_b.y) ? a_a.y : a_b.y,
+				(a_a.z < a_b.z) ? a_a.z : a_b.z
+			};
+		}
+		static constexpr Vector3 Max(const Vector3& a_a, const Vector3& a_b) noexcept
+		{
+			return {
+				(a_a.x > a_b.x) ? a_a.x : a_b.x,
+				(a_a.y > a_b.y) ? a_a.y : a_b.y,
+				(a_a.z > a_b.z) ? a_a.z : a_b.z
+			};
+		}
+
+		//-----------------------------------------------------------------------------------------------------
 		// Transform : 他の構造体に依存するので .cpp 側
 		//-----------------------------------------------------------------------------------------------------
 
@@ -112,6 +132,15 @@ namespace Math
 
 		/// <summary>行列を適用する(平行移動を含む。座標の変換用)</summary>
 		static Vector3 Transform(const Vector3& a_value, const Matrix& a_matrix) noexcept;
+
+		/// <summary>
+		/// 行列を適用し、w で割る(射影行列を掛けた座標を戻すとき用)
+		/// </summary>
+		/// <remarks>
+		/// アフィン行列(ワールド行列やその逆行列)なら w は常に1なので Transform と同じ結果になる。
+		/// 射影が混ざる行列ではこちらでないと合わない
+		/// </remarks>
+		static Vector3 TransformCoord(const Vector3& a_value, const Matrix& a_matrix) noexcept;
 
 		/// <summary>行列を適用する(平行移動を含まない。法線や方向ベクトルの変換用)</summary>
 		static Vector3 TransformNormal(const Vector3& a_value, const Matrix& a_matrix) noexcept;

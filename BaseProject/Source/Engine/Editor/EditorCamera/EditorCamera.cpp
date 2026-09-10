@@ -47,11 +47,11 @@ namespace Engine::Editor
 		BuildMatrix();
 	}
 
-	DXSM::Quaternion EditorCamera::CalcRotation() const
+	Math::Quaternion EditorCamera::CalcRotation() const
 	{
 		// Vector3 を取る CreateFromYawPitchRoll は引数の軸順が入れ替わるため、
 		// スカラー版(yaw, pitch, roll)を明示的に使う
-		DXSM::Quaternion _rot = DXSM::Quaternion::CreateFromYawPitchRoll(
+		Math::Quaternion _rot = Math::Quaternion::CreateFromYawPitchRoll(
 			DirectX::XMConvertToRadians(m_yaw),
 			DirectX::XMConvertToRadians(m_pitch),
 			0.0f
@@ -90,19 +90,19 @@ namespace Engine::Editor
 		}
 
 		// このエンジンは左手系でローカル +Z が前方
-		const DXSM::Quaternion _rot = CalcRotation();
-		const DXSM::Vector3 _forward = DXSM::Vector3::Transform(DXSM::Vector3(0.0f, 0.0f, 1.0f), _rot);
-		const DXSM::Vector3 _right   = DXSM::Vector3::Transform(DXSM::Vector3(1.0f, 0.0f, 0.0f), _rot);
+		const Math::Quaternion _rot = CalcRotation();
+		const Math::Vector3 _forward = Math::Vector3::Transform(Math::Vector3(0.0f, 0.0f, 1.0f), _rot);
+		const Math::Vector3 _right   = Math::Vector3::Transform(Math::Vector3(1.0f, 0.0f, 0.0f), _rot);
 
-		DXSM::Vector3 _move = DXSM::Vector3::Zero;
+		Math::Vector3 _move = Math::Vector3::Zero();
 		if (ImGui::IsKeyDown(ImGuiKey_W)) _move += _forward;
 		if (ImGui::IsKeyDown(ImGuiKey_S)) _move -= _forward;
 		if (ImGui::IsKeyDown(ImGuiKey_D)) _move += _right;
 		if (ImGui::IsKeyDown(ImGuiKey_A)) _move -= _right;
 
 		// 上下だけはワールドのY軸基準。カメラの傾きに引きずられない方が扱いやすい
-		if (ImGui::IsKeyDown(ImGuiKey_E)) _move += DXSM::Vector3::Up;
-		if (ImGui::IsKeyDown(ImGuiKey_Q)) _move -= DXSM::Vector3::Up;
+		if (ImGui::IsKeyDown(ImGuiKey_E)) _move += Math::Vector3::Up();
+		if (ImGui::IsKeyDown(ImGuiKey_Q)) _move -= Math::Vector3::Up();
 
 		if (_move.LengthSquared() < 1e-8f) return;
 		_move.Normalize();
@@ -113,7 +113,7 @@ namespace Engine::Editor
 		m_pos += _move * _speed * a_dt;
 	}
 
-	void EditorCamera::SetPose(const DXSM::Vector3& a_pos, float a_yawDeg, float a_pitchDeg)
+	void EditorCamera::SetPose(const Math::Vector3& a_pos, float a_yawDeg, float a_pitchDeg)
 	{
 		m_pos = a_pos;
 		m_yaw = a_yawDeg;
@@ -126,8 +126,8 @@ namespace Engine::Editor
 	{
 		// カメラのワールド行列(GraphicsEngine 側で反転してビュー行列にされる)
 		m_worldMat =
-			DXSM::Matrix::CreateFromQuaternion(CalcRotation()) *
-			DXSM::Matrix::CreateTranslation(m_pos);
+			Math::Matrix::CreateFromQuaternion(CalcRotation()) *
+			Math::Matrix::CreateTranslation(m_pos);
 
 		// 射影行列。アスペクトはウィンドウ設定から取る(ECS側のカメラと同じ作り方)
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
@@ -135,7 +135,7 @@ namespace Engine::Editor
 			? static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHeight)
 			: 16.0f / 9.0f;
 
-		m_projMat = DirectX::XMMatrixPerspectiveFovLH(
+		m_projMat = Math::Matrix::CreatePerspectiveFieldOfView(
 			DirectX::XMConvertToRadians(m_fovY),
 			_aspect,
 			m_nearZ,
@@ -177,13 +177,20 @@ namespace Engine::Editor
 			m_moveSpeed = 10.0f;
 		}
 	}
-	Collision::RayInfo EditorCamera::ScreenPointToRay(const DXSM::Vector2& a_mousePos, float a_maxDistance)
+	Collision::RayInfo EditorCamera::ScreenPointToRay(const Math::Vector2& a_mousePos, float a_maxDistance)
 	{
 		// スクリーン情報取得
 		const auto& _windowOp = Option::OptionManager::GetInstance().GetWindowOption();
 
+		// スクリーン座標を逆射影して、近平面と遠平面のワールド座標を取る。
+		// XMVector3Unproject に相当するものは Math 側に無いので、
+		// ここだけ DirectXMath へ積んで渡し、結果を Math 型で受け取る
+		const DirectX::XMMATRIX _proj = Math::DX::Load(m_projMat);
+		const DirectX::XMMATRIX _view = Math::DX::Load(m_worldMat.Invert());
+		const DirectX::XMMATRIX _world = DirectX::XMMatrixIdentity();
+
 		// 近平面上の位置を取得
-		DXSM::Vector3 _nearPos = DirectX::XMVector3Unproject(
+		const Math::Vector3 _nearPos = Math::DX::StoreVector3(DirectX::XMVector3Unproject(
 			DirectX::XMVectorSet(a_mousePos.x, a_mousePos.y, 0.0f, 1.0f),
 			0,
 			0,
@@ -191,13 +198,13 @@ namespace Engine::Editor
 			static_cast<float>(_windowOp.windowHeight),
 			0.0f,
 			1.0f,
-			m_projMat,
-			m_worldMat.Invert(),
-			DXSM::Matrix::Identity
-		);
+			_proj,
+			_view,
+			_world
+		));
 
 		// 前方の座標を取得
-		DXSM::Vector3 _farPos = DirectX::XMVector3Unproject(
+		const Math::Vector3 _farPos = Math::DX::StoreVector3(DirectX::XMVector3Unproject(
 			DirectX::XMVectorSet(a_mousePos.x, a_mousePos.y, 1.0f, 1.0f),
 			0,
 			0,
@@ -205,13 +212,13 @@ namespace Engine::Editor
 			static_cast<float>(_windowOp.windowHeight),
 			0.0f,
 			1.0f,
-			m_projMat,
-			m_worldMat.Invert(),
-			DXSM::Matrix::Identity
-		);
+			_proj,
+			_view,
+			_world
+		));
 
 		// レイの射出方向を取得
-		DXSM::Vector3 _dir = _farPos - _nearPos;
+		Math::Vector3 _dir = _farPos - _nearPos;
 
 		Collision::RayInfo _rayInfo = {};
 		_rayInfo.origin = _nearPos;

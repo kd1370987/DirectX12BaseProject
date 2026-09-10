@@ -60,7 +60,7 @@ namespace Engine::Editor::Inspector
 		ImGui::Text("Usage      : %s", MakeUsageString(a_pTexture->GetUsage()).c_str());
 
 		const auto& _clearColor = a_pTexture->GetClearColor();
-		ImGui::Text("ClearColor : %.3f, %.3f, %.3f, %.3f", _clearColor.x, _clearColor.y, _clearColor.z, _clearColor.w);
+		ImGui::Text("ClearColor : %.3f, %.3f, %.3f, %.3f", _clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
 
 		ImGui::Separator();
 

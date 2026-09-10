@@ -5,34 +5,33 @@
 namespace Engine::Graphics
 {
 	void DebugDraw::DrawLine(
-		const DirectX::SimpleMath::Vector3& a_startPos,
-		const DirectX::SimpleMath::Vector3& a_endPos,
-		const DirectX::SimpleMath::Color& a_color
+		const Math::Vector3& a_startPos,
+		const Math::Vector3& a_endPos,
+		const Math::Color& a_color
 	)
 	{
 		if (!CanPush()) return;
 
 		// 方向と長さを求める
-		DXSM::Vector3 _dir = a_endPos - a_startPos;
+		Math::Vector3 _dir = a_endPos - a_startPos;
 		float _length = _dir.Length();
 
 		// 長さがゼロに近い場合は描画をスキップ
 		if (_length < 0.0001f) return;
 
 		// 正規化された方向ベクトル
-		DXSM::Vector3 _dirNorm = _dir / _length;
+		Math::Vector3 _dirNorm = _dir / _length;
 
 		// 真上・真下を向いている時のジンバルロックを防ぐためのUpベクトル
-		DXSM::Vector3 _up = (std::abs(_dirNorm.y) > 0.999f) ? DXSM::Vector3::UnitX : DXSM::Vector3::UnitY;
+		Math::Vector3 _up = (std::abs(_dirNorm.y) > 0.999f) ? Math::Vector3::Right() : Math::Vector3::Up();
 
 		// Z軸方向に伸びるようにスケール
-		DXSM::Matrix _scaleMat = DXSM::Matrix::CreateScale(1.0f, 1.0f, _length);
+		Math::Matrix _scaleMat = Math::Matrix::CreateScale(1.0f, 1.0f, _length);
 
 		// 向きと位置を適用。
-		// ラインメッシュはローカル +Z 方向に伸びているので、+Z を _dirNorm に向けたい。
-		// ただし CreateWorld は右手系で、渡した forward を反転して Z 軸に入れる(zaxis = -forward)。
-		// このエンジンは左手系なので、反転を打ち消すために -_dirNorm を渡す。
-		DXSM::Matrix _worldMat = DXSM::Matrix::CreateWorld(a_startPos, -_dirNorm, _up);
+		// ラインメッシュはローカル +Z 方向に伸びているので、+Z を _dirNorm に向ける。
+		// Math::Matrix::CreateWorld は渡した前方をそのまま Z 軸に据える(SimpleMath と違い反転しない)
+		const Math::Matrix _worldMat = Math::Matrix::CreateWorld(a_startPos, _dirNorm, _up);
 
 		// データ作成
 		DebugLineData _data = {};
@@ -44,7 +43,7 @@ namespace Engine::Graphics
 		m_lineDataVec.push_back(_data);
 	}
 
-	void DebugDraw::DrawBox(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color)
+	void DebugDraw::DrawBox(const Math::Matrix& a_worldMat, const Math::Color& a_color)
 	{
 		if (!CanPush()) return;
 
@@ -56,33 +55,33 @@ namespace Engine::Graphics
 		m_lineDataVec.push_back(_data);
 	}
 
-	void DebugDraw::DrawBox(const DirectX::BoundingBox& a_aabb, const DirectX::SimpleMath::Color& a_color)
+	void DebugDraw::DrawBox(const DirectX::BoundingBox& a_aabb, const Math::Color& a_color)
 	{
 		// Extents は「中心からの半分の長さ」なので、全体サイズにするために 2倍 してスケールにする
-		DXSM::Vector3 _scale = DXSM::Vector3(a_aabb.Extents) * 2.0f;
+		Math::Vector3 _scale = Math::Vector3(a_aabb.Extents) * 2.0f;
 
-		DXSM::Matrix _worldMat =
-			DXSM::Matrix::CreateScale(_scale) *
-			DXSM::Matrix::CreateTranslation(a_aabb.Center);
+		Math::Matrix _worldMat =
+			Math::Matrix::CreateScale(_scale) *
+			Math::Matrix::CreateTranslation(a_aabb.Center);
 
 		// 既存の行列受け取り用DrawBoxへ委譲
 		DrawBox(_worldMat, a_color);
 	}
 
-	void DebugDraw::DrawBox(const DirectX::BoundingOrientedBox& a_obb, const DirectX::SimpleMath::Color& a_color)
+	void DebugDraw::DrawBox(const DirectX::BoundingOrientedBox& a_obb, const Math::Color& a_color)
 	{
 		// OBBは回転も持っているので、クォータニオンから回転行列を作成して挟む
-		DXSM::Vector3 _scale = DXSM::Vector3(a_obb.Extents) * 2.0f;
+		Math::Vector3 _scale = Math::Vector3(a_obb.Extents) * 2.0f;
 
-		DXSM::Matrix _worldMat =
-			DXSM::Matrix::CreateScale(_scale) *
-			DXSM::Matrix::CreateFromQuaternion(a_obb.Orientation) *
-			DXSM::Matrix::CreateTranslation(a_obb.Center);
+		Math::Matrix _worldMat =
+			Math::Matrix::CreateScale(_scale) *
+			Math::Matrix::CreateFromQuaternion(a_obb.Orientation) *
+			Math::Matrix::CreateTranslation(a_obb.Center);
 
 		DrawBox(_worldMat, a_color);
 	}
 
-	void DebugDraw::DrawCapsule(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color)
+	void DebugDraw::DrawCapsule(const Math::Matrix& a_worldMat, const Math::Color& a_color)
 	{
 		if (!CanPush()) return;
 
@@ -94,7 +93,7 @@ namespace Engine::Graphics
 		m_lineDataVec.push_back(_data);
 	}
 
-	void DebugDraw::DrawSphere(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color)
+	void DebugDraw::DrawSphere(const Math::Matrix& a_worldMat, const Math::Color& a_color)
 	{
 		if (!CanPush()) return;
 
@@ -106,25 +105,25 @@ namespace Engine::Graphics
 		m_lineDataVec.push_back(_data);
 	}
 
-	void DebugDraw::DrawSphere(const DirectX::BoundingSphere& a_sphere, const DirectX::SimpleMath::Color& a_color)
+	void DebugDraw::DrawSphere(const DirectX::BoundingSphere& a_sphere, const Math::Color& a_color)
 	{
 		// HLSL側のスフィアが直径1.0（半径0.5）で作られているため、
 		// Radiusに合わせるために直径分のスケールをかける
 		float _scale = a_sphere.Radius * 2.0f;
 
-		DXSM::Matrix _worldMat =
-			DXSM::Matrix::CreateScale(_scale) *
-			DXSM::Matrix::CreateTranslation(a_sphere.Center);
+		Math::Matrix _worldMat =
+			Math::Matrix::CreateScale(_scale) *
+			Math::Matrix::CreateTranslation(a_sphere.Center);
 
 		DrawSphere(_worldMat, a_color);
 	}
 
 	void DebugDraw::DrawRay(
-		const DirectX::SimpleMath::Vector3& a_startPos,
-		const DirectX::SimpleMath::Vector3& a_dir,
+		const Math::Vector3& a_startPos,
+		const Math::Vector3& a_dir,
 		float a_length,
 		bool a_isHit,
-		const DirectX::SimpleMath::Color& a_color
+		const Math::Color& a_color
 	)
 	{
 		if (!CanPush()) return;
@@ -134,7 +133,7 @@ namespace Engine::Graphics
 
 		if (a_isHit)
 		{
-			auto _mat = DXSM::Matrix::CreateTranslation(_endPos);
+			auto _mat = Math::Matrix::CreateTranslation(_endPos);
 			DrawSphere(_mat, Color::RED);
 		}
 	}

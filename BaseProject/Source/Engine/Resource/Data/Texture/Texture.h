@@ -34,7 +34,7 @@ namespace Engine::Resource
 		/// </remarks>
 		UINT srvComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		std::optional<DXSM::Color> opClerValue;
+		std::optional<Math::Color> opClerValue;
 	};
 
 	class Texture : public D3D12::GPUResource
@@ -45,8 +45,8 @@ namespace Engine::Resource
 		NON_COPYABLE_MOVABLE(Texture);
 
 		// テクスチャ生成
-		void Import(const std::string& a_filePath,const DirectX::XMFLOAT4& a_defoltData = { 255,255,255,255 });
-		void Create(const std::string& a_name, const DirectX::XMFLOAT4& a_defoltData);
+		void Import(const std::string& a_filePath,const Math::Color& a_defoltData = { 255,255,255,255 });
+		void Create(const std::string& a_name, const Math::Color& a_defoltData);
 		void Create(const TextureCreateDesc& a_desc);
 		void Create(IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,TextureUsage a_texUsage = TextureUsage::RTV);
 
@@ -78,7 +78,7 @@ namespace Engine::Resource
 		const D3D12_RESOURCE_DESC& GetDesc() const;	// テクスチャ設定
 
 		// クリアバリュー
-		const DXSM::Color& GetClearColor() { return m_clearValue; }
+		const Math::Color& GetClearColor() { return m_clearValue; }
 
 	private:
 
@@ -99,6 +99,6 @@ namespace Engine::Resource
 		UINT m_srvComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		// クリアカラー
-		DXSM::Color m_clearValue = {0,0,0,0};
+		Math::Color m_clearValue = {0,0,0,0};
 	};
 }

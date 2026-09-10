@@ -36,9 +36,9 @@ namespace Engine::Graphics
 		Pool::RangePool<uint32_t>			m_rtIndexVec = {};		// インデックスバッファ
 
 		// 前フレーム計算用キャッシュ
-		DXSM::Matrix m_prevViewMat = {};
-		DXSM::Matrix m_prevProjMat = {};
-		DXSM::Matrix m_prevNonJitteredViewProj = {};
+		Math::Matrix m_prevViewMat = {};
+		Math::Matrix m_prevProjMat = {};
+		Math::Matrix m_prevNonJitteredViewProj = {};
 		int m_totlaFrameCount = 0;
 	};
 

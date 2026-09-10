@@ -21,7 +21,7 @@ namespace Engine::Raytracing
 		// --- 16 Bytes (Offset: 16) ---
 		UINT isAnimated;        // アニメーション対象かどうかのフラグ (0: Static, 1: Animated)
 		UINT animatedVertexStart; // アニメ済み頂点バッファ内の参照開始オフセット (isAnimated==1のとき使用)
-		DXSM::Vector2 pad0;     // 16バイトアライメント用のパディング
+		Math::Vector2 pad0;     // 16バイトアライメント用のパディング
 	}; // Total: 32 Bytes
 
 	/// <summary>
@@ -30,10 +30,10 @@ namespace Engine::Raytracing
 	struct Material
 	{
 		// --- 16 Bytes (Offset: 0) ---
-		DXSM::Vector4       baseColor;              // xyz: BaseColor, w: Alpha
+		Math::Color         baseColor;              // rgb: BaseColor, a: Alpha
 
 		// --- 16 Bytes (Offset: 16) ---
-		DirectX::XMFLOAT3   emissive;               // 発光カラー
+		Math::Vector3   emissive;               // 発光カラー
 		float               metallic;               // 金属度
 
 		// --- 16 Bytes (Offset: 32) ---
@@ -45,14 +45,14 @@ namespace Engine::Raytracing
 		// --- 16 Bytes (Offset: 48) ---
 		UINT                normalIndex;            // NormalマップテクスチャのSRVインデックス
 		UINT                startIndexLocation;     // インデックスバッファ内のサブメッシュ開始位置
-		DirectX::XMFLOAT2   pad0;                   // 16バイトアライメント用のパディング
+		Math::Vector2   pad0;                   // 16バイトアライメント用のパディング
 
 		// --- 16 Bytes (Offset: 64) ---
 		// マテリアルとは独立した自己発光(ModelComponent の 発光色 × 発光強度)。
 		// emissive はマテリアルの発光色に倍率を掛けたものなので、発光しない
 		// マテリアル(emissive = 0)は何倍しても光らない。こちらは加算なので単体で光る。
 		// GBuffer側の SubSetData::emissiveAdd / MeshMaterial::emissiveAdd と同じ値が入る。
-		DirectX::XMFLOAT3   emissiveAdd;            // 自己発光(加算・1.0超え可)
+		Math::Vector3   emissiveAdd;            // 自己発光(加算・1.0超え可)
 		float               pad1;                   // 16バイトアライメント用のパディング
 	}; // Total: 80 Bytes
 
@@ -67,7 +67,7 @@ namespace Engine::Raytracing
 	struct Instance
 	{
 		// 空間情報
-		DXSM::Matrix worldMat = DXSM::Matrix::Identity; // TLASに登録する際のトランスフォーム
+		Math::Matrix worldMat = Math::Matrix::Identity(); // TLASに登録する際のトランスフォーム
 		const BLAS* pBLAS = nullptr;                    // 参照するBLAS（動的モデルの場合は毎フレーム更新されたBLASを指す）
 
 		// --- ジオメトリ参照情報 ---
@@ -124,10 +124,10 @@ namespace Engine::Raytracing
 
 	struct DynamicRaytracingRequest
 	{
-		DXSM::Matrix worldMat;				// ワールド行列
-		DXSM::Vector4 colorScale;			// 色スケール
-		DXSM::Vector3 emissiveScale;		// エミッシブスケール
-		DXSM::Vector3 emissiveAdd;			// 自己発光(加算・1.0超え可)
+		Math::Matrix worldMat;				// ワールド行列
+		Math::Color colorScale;			// 色スケール
+		Math::Vector3 emissiveScale;		// エミッシブスケール
+		Math::Vector3 emissiveAdd;			// 自己発光(加算・1.0超え可)
 
 		Engine::Handle<DynamicRaytracingData> dynamicHandle = {};
 		Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle = {};

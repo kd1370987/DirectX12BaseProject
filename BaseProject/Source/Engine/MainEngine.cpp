@@ -479,8 +479,8 @@ namespace Engine
 		// 描いているのがあちらの確認用ワールドなので、フリーカメラで見ても何も映らない
 		{
 			auto* _pEffectEditor = Editor::MainEditor::Instance().RefEffectEditor();
-			DXSM::Matrix _camWorld = {};
-			DXSM::Matrix _camProj = {};
+			Math::Matrix _camWorld = {};
+			Math::Matrix _camProj = {};
 			if (_pEffectEditor && _pEffectEditor->TryGetCameraOverride(_camWorld, _camProj))
 			{
 				m_upGraphicsEngine->SetCameraOverride(_camWorld, _camProj);

@@ -62,11 +62,11 @@ namespace Engine::Raytracing
 	}
 
 	void Engine::Raytracing::RayEngine::RegistModel(
-		const DirectX::XMFLOAT4X4& a_worldMat,
+		const Math::Matrix& a_worldMat,
 		const Engine::Handle<Resource::Model>& a_modelHandle,
-		const DXSM::Vector4& a_colorScale,
-		const DXSM::Vector3& a_emissiveScale,
-		const DXSM::Vector3& a_emissiveAdd
+		const Math::Color& a_colorScale,
+		const Math::Vector3& a_emissiveScale,
+		const Math::Vector3& a_emissiveAdd
 	)
 	{
 		if (!m_upRayWorld)
@@ -80,7 +80,7 @@ namespace Engine::Raytracing
 		m_isCommit = false;
 	}
 
-	void RayEngine::RegisterSkinningModel(ECS::World& a_world, const DXSM::Matrix& a_worldMat, const Engine::Handle<Engine::Resource::Model>& a_modelHandle, const Handle<DynamicRaytracingData>& a_dynamicData, const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatVec, const DXSM::Vector4& a_colorScale, const DXSM::Vector3& a_emissiveScale, const DXSM::Vector3& a_emissiveAdd)
+	void RayEngine::RegisterSkinningModel(ECS::World& a_world, const Math::Matrix& a_worldMat, const Engine::Handle<Engine::Resource::Model>& a_modelHandle, const Handle<DynamicRaytracingData>& a_dynamicData, const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatVec, const Math::Color& a_colorScale, const Math::Vector3& a_emissiveScale, const Math::Vector3& a_emissiveAdd)
 	{
 		if (!m_upRayWorld)
 		{

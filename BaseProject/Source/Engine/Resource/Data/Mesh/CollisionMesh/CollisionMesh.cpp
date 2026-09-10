@@ -4,7 +4,7 @@ namespace Engine::Resource
 	struct BuildTriangle
 	{
 		int originalIndex = 0;			// 元のトライアングルでのインデックス
-		DirectX::XMFLOAT3 centroid;		// 三角形の中心点
+		Math::Vector3 centroid;		// 三角形の中心点
 	};
 
 	// 再帰的にBVHを子駆逐する内部関数
@@ -23,7 +23,7 @@ namespace Engine::Resource
 
 		// このノードに含まれる全三角形を含むAABBを計算
 		// 全頂点を集めて１つのAABBを作成
-		std::vector<DirectX::XMFLOAT3> _points;
+		std::vector<Math::Vector3> _points;
 		_points.reserve(a_count * 3);
 		for (int _i = 0; _i < a_count; ++_i)
 		{
@@ -33,8 +33,14 @@ namespace Engine::Resource
 			_points.push_back(_tri.v[1]);
 			_points.push_back(_tri.v[2]);
 		}
+		// この CreateFromPoints は先頭アドレスとストライドで配列を舐めるだけ。
+		// Math::Vector3 は XMFLOAT3 とバイナリ配置が同じ(static_assert 済み)なので、
+		// 詰め替えずにそのまま渡す
 		DirectX::BoundingBox::CreateFromPoints(
-			a_outMesh.nodeVec[_nodeIndex].box, _points.size(), _points.data(), sizeof(DirectX::XMFLOAT3));
+			a_outMesh.nodeVec[_nodeIndex].box,
+			_points.size(),
+			reinterpret_cast<const DirectX::XMFLOAT3*>(_points.data()),
+			sizeof(Math::Vector3));
 
 		// 終了条件
 		// ポリゴン数が閾値以下なら葉ノードにする
@@ -123,7 +129,7 @@ namespace Engine::Resource
 	}
 
 	void Engine::Resource::CollisionMesh::Create(
-		const std::vector<DirectX::XMFLOAT3>& a_vertices, 
+		const std::vector<Math::Vector3>& a_vertices, 
 		const std::vector<UINT>& a_indices
 	)
 	{

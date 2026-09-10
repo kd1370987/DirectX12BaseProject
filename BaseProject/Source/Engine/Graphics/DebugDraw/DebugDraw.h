@@ -33,29 +33,29 @@ namespace Engine::Graphics
 		//===================================================================
 
 		void DrawLine(
-			const DirectX::SimpleMath::Vector3& a_startPos,
-			const DirectX::SimpleMath::Vector3& a_endPos,
-			const DirectX::SimpleMath::Color& a_color = Color::WHITE
+			const Math::Vector3& a_startPos,
+			const Math::Vector3& a_endPos,
+			const Math::Color& a_color = Color::WHITE
 		);
 
-		void DrawBox(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
-		void DrawBox(const DirectX::BoundingBox& a_aabb, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
-		void DrawBox(const DirectX::BoundingOrientedBox& a_obb, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
+		void DrawBox(const Math::Matrix& a_worldMat, const Math::Color& a_color = Color::WHITE);
+		void DrawBox(const DirectX::BoundingBox& a_aabb, const Math::Color& a_color = Color::WHITE);
+		void DrawBox(const DirectX::BoundingOrientedBox& a_obb, const Math::Color& a_color = Color::WHITE);
 
-		void DrawCapsule(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
+		void DrawCapsule(const Math::Matrix& a_worldMat, const Math::Color& a_color = Color::WHITE);
 
-		void DrawSphere(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
-		void DrawSphere(const DirectX::BoundingSphere& a_sphere, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
+		void DrawSphere(const Math::Matrix& a_worldMat, const Math::Color& a_color = Color::WHITE);
+		void DrawSphere(const DirectX::BoundingSphere& a_sphere, const Math::Color& a_color = Color::WHITE);
 
 		/// <summary>
 		/// レイを線で出し、当たっていれば終点に球を置く
 		/// </summary>
 		void DrawRay(
-			const DirectX::SimpleMath::Vector3& a_startPos,
-			const DirectX::SimpleMath::Vector3& a_dir,
+			const Math::Vector3& a_startPos,
+			const Math::Vector3& a_dir,
 			float a_length,
 			bool a_isHit,
-			const DirectX::SimpleMath::Color& a_color = Color::WHITE
+			const Math::Color& a_color = Color::WHITE
 		);
 
 		//===================================================================

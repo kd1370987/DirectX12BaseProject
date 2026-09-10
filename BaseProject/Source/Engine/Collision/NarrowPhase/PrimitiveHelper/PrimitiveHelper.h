@@ -44,35 +44,36 @@ namespace Engine::Collision::NarrowPhase
 	// カプセルを包む保守的な AABB（ブロードフェーズ用）
 	inline DirectX::BoundingBox MakeCapsuleAABB(const CapsuleInfo& a_info)
 	{
-		DXSM::Vector3 _min = DXSM::Vector3::Min(a_info.pointA, a_info.pointB);
-		DXSM::Vector3 _max = DXSM::Vector3::Max(a_info.pointA, a_info.pointB);
-		DXSM::Vector3 _r = { a_info.radius, a_info.radius, a_info.radius };
+		Math::Vector3 _min = Math::Vector3::Min(a_info.pointA, a_info.pointB);
+		Math::Vector3 _max = Math::Vector3::Max(a_info.pointA, a_info.pointB);
+		Math::Vector3 _r = { a_info.radius, a_info.radius, a_info.radius };
 		_min -= _r;
 		_max += _r;
 
+		// CreateFromPoints は XMVECTOR しか受けないので、渡す直前に積む
 		DirectX::BoundingBox _box;
-		DirectX::BoundingBox::CreateFromPoints(_box, _min, _max);
+		DirectX::BoundingBox::CreateFromPoints(_box, Math::DX::Load(_min), Math::DX::Load(_max));
 		return _box;
 	}
 
 	// ---- カプセル用の幾何計算（線分と三角形の最近接距離） ------------------------------
 
 	// 点 a_p から三角形 abc への最近接点を返す（Ericson: Real-Time Collision Detection）
-	inline DXSM::Vector3 ClosestPtPointTriangle(
-		const DXSM::Vector3& a_p,
-		const DXSM::Vector3& a_a,
-		const DXSM::Vector3& a_b,
-		const DXSM::Vector3& a_c)
+	inline Math::Vector3 ClosestPtPointTriangle(
+		const Math::Vector3& a_p,
+		const Math::Vector3& a_a,
+		const Math::Vector3& a_b,
+		const Math::Vector3& a_c)
 	{
-		DXSM::Vector3 _ab = a_b - a_a;
-		DXSM::Vector3 _ac = a_c - a_a;
-		DXSM::Vector3 _ap = a_p - a_a;
+		Math::Vector3 _ab = a_b - a_a;
+		Math::Vector3 _ac = a_c - a_a;
+		Math::Vector3 _ap = a_p - a_a;
 
 		float _d1 = _ab.Dot(_ap);
 		float _d2 = _ac.Dot(_ap);
 		if (_d1 <= 0.0f && _d2 <= 0.0f) return a_a;			// 頂点A領域
 
-		DXSM::Vector3 _bp = a_p - a_b;
+		Math::Vector3 _bp = a_p - a_b;
 		float _d3 = _ab.Dot(_bp);
 		float _d4 = _ac.Dot(_bp);
 		if (_d3 >= 0.0f && _d4 <= _d3) return a_b;			// 頂点B領域
@@ -84,7 +85,7 @@ namespace Engine::Collision::NarrowPhase
 			return a_a + _ab * _v;
 		}
 
-		DXSM::Vector3 _cp = a_p - a_c;
+		Math::Vector3 _cp = a_p - a_c;
 		float _d5 = _ab.Dot(_cp);
 		float _d6 = _ac.Dot(_cp);
 		if (_d6 >= 0.0f && _d5 <= _d6) return a_c;			// 頂点C領域
@@ -112,13 +113,13 @@ namespace Engine::Collision::NarrowPhase
 
 	// 線分 p1q1 と 線分 p2q2 の最近接距離の二乗を返す
 	inline float ClosestDistSqSegmentSegment(
-		const DXSM::Vector3& a_p1, const DXSM::Vector3& a_q1,
-		const DXSM::Vector3& a_p2, const DXSM::Vector3& a_q2)
+		const Math::Vector3& a_p1, const Math::Vector3& a_q1,
+		const Math::Vector3& a_p2, const Math::Vector3& a_q2)
 	{
 		constexpr float _EPS = 1e-8f;
-		DXSM::Vector3 _d1 = a_q1 - a_p1;	// 線分1の方向
-		DXSM::Vector3 _d2 = a_q2 - a_p2;	// 線分2の方向
-		DXSM::Vector3 _r = a_p1 - a_p2;
+		Math::Vector3 _d1 = a_q1 - a_p1;	// 線分1の方向
+		Math::Vector3 _d2 = a_q2 - a_p2;	// 線分2の方向
+		Math::Vector3 _r = a_p1 - a_p2;
 		float _a = _d1.Dot(_d1);
 		float _e = _d2.Dot(_d2);
 		float _f = _d2.Dot(_r);
@@ -128,7 +129,7 @@ namespace Engine::Collision::NarrowPhase
 		if (_a <= _EPS && _e <= _EPS)
 		{
 			// 両方が点
-			DXSM::Vector3 _diff = a_p1 - a_p2;
+			Math::Vector3 _diff = a_p1 - a_p2;
 			return _diff.Dot(_diff);
 		}
 		if (_a <= _EPS)
@@ -156,32 +157,32 @@ namespace Engine::Collision::NarrowPhase
 			}
 		}
 
-		DXSM::Vector3 _c1 = a_p1 + _d1 * _s;
-		DXSM::Vector3 _c2 = a_p2 + _d2 * _t;
-		DXSM::Vector3 _diff = _c1 - _c2;
+		Math::Vector3 _c1 = a_p1 + _d1 * _s;
+		Math::Vector3 _c2 = a_p2 + _d2 * _t;
+		Math::Vector3 _diff = _c1 - _c2;
 		return _diff.Dot(_diff);
 	}
 
 	// 線分 pq が 三角形 abc を貫いているか（Möller–Trumbore を線分区間で判定）
 	inline bool SegmentIntersectsTriangle(
-		const DXSM::Vector3& a_p, const DXSM::Vector3& a_q,
-		const DXSM::Vector3& a_a, const DXSM::Vector3& a_b, const DXSM::Vector3& a_c)
+		const Math::Vector3& a_p, const Math::Vector3& a_q,
+		const Math::Vector3& a_a, const Math::Vector3& a_b, const Math::Vector3& a_c)
 	{
 		constexpr float _EPS = 1e-7f;
-		DXSM::Vector3 _dir = a_q - a_p;
-		DXSM::Vector3 _e1 = a_b - a_a;
-		DXSM::Vector3 _e2 = a_c - a_a;
+		Math::Vector3 _dir = a_q - a_p;
+		Math::Vector3 _e1 = a_b - a_a;
+		Math::Vector3 _e2 = a_c - a_a;
 
-		DXSM::Vector3 _pvec = _dir.Cross(_e2);
+		Math::Vector3 _pvec = _dir.Cross(_e2);
 		float _det = _e1.Dot(_pvec);
 		if (std::fabs(_det) < _EPS) return false;	// 平行
 
 		float _inv = 1.0f / _det;
-		DXSM::Vector3 _tvec = a_p - a_a;
+		Math::Vector3 _tvec = a_p - a_a;
 		float _u = _tvec.Dot(_pvec) * _inv;
 		if (_u < 0.0f || _u > 1.0f) return false;
 
-		DXSM::Vector3 _qvec = _tvec.Cross(_e1);
+		Math::Vector3 _qvec = _tvec.Cross(_e1);
 		float _v = _dir.Dot(_qvec) * _inv;
 		if (_v < 0.0f || _u + _v > 1.0f) return false;
 
@@ -191,14 +192,14 @@ namespace Engine::Collision::NarrowPhase
 
 	// 線分 p1q1 と 線分 p2q2 の最近接点ペアを求め、距離の二乗を返す（押し出し用）
 	inline float ClosestPtSegmentSegment(
-		const DXSM::Vector3& a_p1, const DXSM::Vector3& a_q1,
-		const DXSM::Vector3& a_p2, const DXSM::Vector3& a_q2,
-		DXSM::Vector3& a_outC1, DXSM::Vector3& a_outC2)
+		const Math::Vector3& a_p1, const Math::Vector3& a_q1,
+		const Math::Vector3& a_p2, const Math::Vector3& a_q2,
+		Math::Vector3& a_outC1, Math::Vector3& a_outC2)
 	{
 		constexpr float _EPS = 1e-8f;
-		DXSM::Vector3 _d1 = a_q1 - a_p1;
-		DXSM::Vector3 _d2 = a_q2 - a_p2;
-		DXSM::Vector3 _r = a_p1 - a_p2;
+		Math::Vector3 _d1 = a_q1 - a_p1;
+		Math::Vector3 _d2 = a_q2 - a_p2;
+		Math::Vector3 _r = a_p1 - a_p2;
 		float _a = _d1.Dot(_d1);
 		float _e = _d2.Dot(_d2);
 		float _f = _d2.Dot(_r);
@@ -209,7 +210,7 @@ namespace Engine::Collision::NarrowPhase
 		{
 			a_outC1 = a_p1;
 			a_outC2 = a_p2;
-			DXSM::Vector3 _diff = a_outC1 - a_outC2;
+			Math::Vector3 _diff = a_outC1 - a_outC2;
 			return _diff.Dot(_diff);
 		}
 		if (_a <= _EPS)
@@ -237,36 +238,36 @@ namespace Engine::Collision::NarrowPhase
 
 		a_outC1 = a_p1 + _d1 * _s;
 		a_outC2 = a_p2 + _d2 * _t;
-		DXSM::Vector3 _diff = a_outC1 - a_outC2;
+		Math::Vector3 _diff = a_outC1 - a_outC2;
 		return _diff.Dot(_diff);
 	}
 
 	// 線分 pq と 三角形 abc の最近接点ペア（線分上・三角形上）を求め、距離の二乗を返す
 	// ※ 貫通ケースは別途 SegmentIntersectsTriangle で扱うこと
 	inline float ClosestPtSegmentTriangle(
-		const DXSM::Vector3& a_p, const DXSM::Vector3& a_q,
-		const DXSM::Vector3& a_a, const DXSM::Vector3& a_b, const DXSM::Vector3& a_c,
-		DXSM::Vector3& a_outOnSeg, DXSM::Vector3& a_outOnTri)
+		const Math::Vector3& a_p, const Math::Vector3& a_q,
+		const Math::Vector3& a_a, const Math::Vector3& a_b, const Math::Vector3& a_c,
+		Math::Vector3& a_outOnSeg, Math::Vector3& a_outOnTri)
 	{
 		float _best = 1e30f;
 
 		// 端点 p → 三角形
 		{
-			DXSM::Vector3 _t = ClosestPtPointTriangle(a_p, a_a, a_b, a_c);
+			Math::Vector3 _t = ClosestPtPointTriangle(a_p, a_a, a_b, a_c);
 			float _d = (a_p - _t).LengthSquared();
 			if (_d < _best) { _best = _d; a_outOnSeg = a_p; a_outOnTri = _t; }
 		}
 		// 端点 q → 三角形
 		{
-			DXSM::Vector3 _t = ClosestPtPointTriangle(a_q, a_a, a_b, a_c);
+			Math::Vector3 _t = ClosestPtPointTriangle(a_q, a_a, a_b, a_c);
 			float _d = (a_q - _t).LengthSquared();
 			if (_d < _best) { _best = _d; a_outOnSeg = a_q; a_outOnTri = _t; }
 		}
 		// 線分 → 各辺
-		const DXSM::Vector3 _tri[3] = { a_a, a_b, a_c };
+		const Math::Vector3 _tri[3] = { a_a, a_b, a_c };
 		for (int _i = 0; _i < 3; ++_i)
 		{
-			DXSM::Vector3 _c1, _c2;
+			Math::Vector3 _c1, _c2;
 			float _d = ClosestPtSegmentSegment(a_p, a_q, _tri[_i], _tri[(_i + 1) % 3], _c1, _c2);
 			if (_d < _best) { _best = _d; a_outOnSeg = _c1; a_outOnTri = _c2; }
 		}
@@ -275,13 +276,13 @@ namespace Engine::Collision::NarrowPhase
 
 	// カプセル(線分pq＋半径r) と 三角形abc の押し出し接触を求める
 	inline Contact CapsuleTriangleContact(
-		const DXSM::Vector3& a_p, const DXSM::Vector3& a_q, float a_radius,
-		const DXSM::Vector3& a_a, const DXSM::Vector3& a_b, const DXSM::Vector3& a_c)
+		const Math::Vector3& a_p, const Math::Vector3& a_q, float a_radius,
+		const Math::Vector3& a_a, const Math::Vector3& a_b, const Math::Vector3& a_c)
 	{
 		Contact _contact;
 
 		// 面法線（縮退三角形は無視）
-		DXSM::Vector3 _n = (a_b - a_a).Cross(a_c - a_a);
+		Math::Vector3 _n = (a_b - a_a).Cross(a_c - a_a);
 		float _nLen = _n.Length();
 		if (_nLen < 1e-8f) return _contact;
 		_n /= _nLen;
@@ -289,7 +290,7 @@ namespace Engine::Collision::NarrowPhase
 		// 線分が面を貫通しているケース：面法線方向へ深く押し出す
 		if (SegmentIntersectsTriangle(a_p, a_q, a_a, a_b, a_c))
 		{
-			DXSM::Vector3 _mid = (a_p + a_q) * 0.5f;
+			Math::Vector3 _mid = (a_p + a_q) * 0.5f;
 			float _sd = (_mid - a_a).Dot(_n);				// 中心の符号付き距離
 			_contact.normal = (_sd >= 0.0f) ? _n : -_n;		// 中心のある側へ押す
 			_contact.depth = a_radius + std::fabs(_sd);
@@ -298,12 +299,12 @@ namespace Engine::Collision::NarrowPhase
 		}
 
 		// 最近接点ペアから押し出し量・向きを求める
-		DXSM::Vector3 _onSeg, _onTri;
+		Math::Vector3 _onSeg, _onTri;
 		float _distSq = ClosestPtSegmentTriangle(a_p, a_q, a_a, a_b, a_c, _onSeg, _onTri);
 		float _dist = std::sqrt(_distSq);
 		if (_dist >= a_radius) return _contact;				// 触れていない
 
-		DXSM::Vector3 _dir = _onSeg - _onTri;
+		Math::Vector3 _dir = _onSeg - _onTri;
 		float _dl = _dir.Length();
 		_contact.normal = (_dl > 1e-6f) ? (_dir / _dl) : _n;	// 退避方向（潰れていたら面法線）
 		_contact.depth = a_radius - _dist;
@@ -313,15 +314,15 @@ namespace Engine::Collision::NarrowPhase
 
 	// 線分 pq と 三角形 abc の最近接距離の二乗を返す
 	inline float ClosestDistSqSegmentTriangle(
-		const DXSM::Vector3& a_p, const DXSM::Vector3& a_q,
-		const DXSM::Vector3& a_a, const DXSM::Vector3& a_b, const DXSM::Vector3& a_c)
+		const Math::Vector3& a_p, const Math::Vector3& a_q,
+		const Math::Vector3& a_a, const Math::Vector3& a_b, const Math::Vector3& a_c)
 	{
 		// 面を貫いていれば距離0
 		if (SegmentIntersectsTriangle(a_p, a_q, a_a, a_b, a_c)) return 0.0f;
 
 		// 端点 → 三角形
-		DXSM::Vector3 _cp = ClosestPtPointTriangle(a_p, a_a, a_b, a_c);
-		DXSM::Vector3 _cq = ClosestPtPointTriangle(a_q, a_a, a_b, a_c);
+		Math::Vector3 _cp = ClosestPtPointTriangle(a_p, a_a, a_b, a_c);
+		Math::Vector3 _cq = ClosestPtPointTriangle(a_q, a_a, a_b, a_c);
 		float _best = std::min((a_p - _cp).LengthSquared(), (a_q - _cq).LengthSquared());
 
 		// 線分 → 三角形の各辺

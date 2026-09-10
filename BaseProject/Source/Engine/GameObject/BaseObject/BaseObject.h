@@ -98,11 +98,11 @@ namespace Engine::GameObject
 	/// </summary>
 	struct ObjectGizmoContext
 	{
-		DirectX::XMFLOAT4X4 viewMat = {};		// カメラのビュー行列
-		DirectX::XMFLOAT4X4 projMat = {};		// カメラのプロジェクション行列
+		Math::Matrix viewMat = {};		// カメラのビュー行列
+		Math::Matrix projMat = {};		// カメラのプロジェクション行列
 
-		DXSM::Vector2 viewportPos = {};			// シーンビュー画像の左上(スクリーン絶対座標, px)
-		DXSM::Vector2 viewportSize = {};		// シーンビュー画像の表示サイズ(px)
+		Math::Vector2 viewportPos = {};			// シーンビュー画像の左上(スクリーン絶対座標, px)
+		Math::Vector2 viewportSize = {};		// シーンビュー画像の表示サイズ(px)
 	};
 
 	/// <summary>

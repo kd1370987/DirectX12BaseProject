@@ -632,15 +632,17 @@ namespace Engine::Resource
 		};
 
 		// ---- 配置 : 相手の行列基準のローカル配置を合成する ----
-		const DirectX::XMMATRIX _local =
-			DirectX::XMMatrixScaling(_scale.x, _scale.y, _scale.z) *
-			DirectX::XMMatrixRotationRollPitchYaw(
-				DirectX::XMConvertToRadians(_part.rotation.x),
+		// rotation は度で持っているのでラジアンへ直す。
+		// CreateFromYawPitchRoll の並びは (yaw=Y, pitch=X, roll=Z)
+		const Math::Matrix _local =
+			Math::Matrix::CreateScale(_scale) *
+			Math::Matrix::CreateFromYawPitchRoll(
 				DirectX::XMConvertToRadians(_part.rotation.y),
+				DirectX::XMConvertToRadians(_part.rotation.x),
 				DirectX::XMConvertToRadians(_part.rotation.z)) *
-			DirectX::XMMatrixTranslation(_part.posOffset.x, _part.posOffset.y, _part.posOffset.z);
+			Math::Matrix::CreateTranslation(_part.posOffset);
 
-		a_outWorld = Math::DX::StoreMatrix(_local * Math::DX::Load(a_ownerWorld));
+		a_outWorld = _local * a_ownerWorld;
 
 		// ---- 色 : アルファだけ終値へ寄せる ----
 		a_outColorScale = _part.colorScale;

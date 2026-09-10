@@ -304,8 +304,8 @@ namespace Engine::Graphics
 		//
 		// GPUへ詰める形(viewProj や逆行列)を作るのはパスをつなぎ込む段でよいので、
 		// ここではビューと射影だけ入れておく
-		DirectX::XMStoreFloat4x4(&_pCamera->cpuData.viewMat, a_desc.worldMat.Invert());
-		DirectX::XMStoreFloat4x4(&_pCamera->cpuData.projMat, a_desc.projMat);
+		_pCamera->cpuData.viewMat = a_desc.worldMat.Invert();
+		_pCamera->cpuData.projMat = a_desc.projMat;
 
 		// 0 のままなら画面の描画解像度に追従する
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
@@ -444,7 +444,7 @@ namespace Engine::Graphics
 					_texDesc.height = _pCamera->builtHeight;
 					_texDesc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
 					_texDesc.usage = Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;
-					_texDesc.opClerValue = DXSM::Color(0.f, 0.f, 0.f, 1.f);
+					_texDesc.opClerValue = Math::Color(0.f, 0.f, 0.f, 1.f);
 					_pCamera->upFinalTex->Create(_texDesc);
 				}
 
@@ -1006,7 +1006,7 @@ namespace Engine::Graphics
 	{
 		return m_frameLightDataArr[m_currentFrameIndex];
 	}
-	void GraphicsEngine::SetCameraMat(const DXSM::Matrix& a_worldMat)
+	void GraphicsEngine::SetCameraMat(const Math::Matrix& a_worldMat)
 	{
 		// 座標を代入
 		m_cbCamera.pos = { a_worldMat._41,a_worldMat._42,a_worldMat._43 ,1 };
@@ -1015,7 +1015,7 @@ namespace Engine::Graphics
 		m_cbCamera.viewMat = a_worldMat.Invert();
 		m_cbCamera.viewInvMat = a_worldMat;
 	}
-	void GraphicsEngine::SetProjMat(const DXSM::Matrix& a_projMat)
+	void GraphicsEngine::SetProjMat(const Math::Matrix& a_projMat)
 	{
 		m_cbCamera.projMat = a_projMat;
 		m_cbCamera.projInvMat = a_projMat.Invert();
@@ -1053,7 +1053,7 @@ namespace Engine::Graphics
 	{
 		return m_cbFishEye;
 	}
-	void GraphicsEngine::SetCameraOverride(const DXSM::Matrix& a_worldMat, const DXSM::Matrix& a_projMat)
+	void GraphicsEngine::SetCameraOverride(const Math::Matrix& a_worldMat, const Math::Matrix& a_projMat)
 	{
 		m_isCameraOverride = true;
 		m_cameraOverrideWorldMat = a_worldMat;
@@ -1205,10 +1205,10 @@ namespace Engine::Graphics
 	void GraphicsEngine::SubmitModel(
 		ECS::World& a_world,
 		const Resource::Model* a_pModel,
-		const DXSM::Matrix& a_worldMatrix,
-		const DXSM::Color& a_albedoScale,
-		const DXSM::Vector3& a_emissiveScale,
-		const DXSM::Vector3& a_emissiveAdd
+		const Math::Matrix& a_worldMatrix,
+		const Math::Color& a_albedoScale,
+		const Math::Vector3& a_emissiveScale,
+		const Math::Vector3& a_emissiveAdd
 	)
 	{
 		SubmitModel(
@@ -1225,11 +1225,11 @@ namespace Engine::Graphics
 	void GraphicsEngine::SubmitModel(
 		ECS::World& a_world,
 		const Resource::Model* a_pModel,
-		const DXSM::Matrix& a_worldMatrix,
-		const DXSM::Matrix& a_prevMatrix,
-		const DXSM::Color& a_albedoScale,
-		const DXSM::Vector3& a_emissiveScale,
-		const DXSM::Vector3& a_emissiveAdd
+		const Math::Matrix& a_worldMatrix,
+		const Math::Matrix& a_prevMatrix,
+		const Math::Color& a_albedoScale,
+		const Math::Vector3& a_emissiveScale,
+		const Math::Vector3& a_emissiveAdd
 	)
 	{
 		if (!a_pModel) return;
@@ -1249,9 +1249,9 @@ namespace Engine::Graphics
 			// -----------------------------------------------------
 			// 行列計算
 			// -----------------------------------------------------
-			DXSM::Matrix _nodeTransMat(a_pModel->GetOriginalNodeVec()[_cmd.nodeIndex].worldTransform);
-			DXSM::Matrix _mat = _nodeTransMat * a_worldMatrix;
-			DXSM::Matrix _prevMat = _nodeTransMat * a_prevMatrix;
+			Math::Matrix _nodeTransMat(a_pModel->GetOriginalNodeVec()[_cmd.nodeIndex].worldTransform);
+			Math::Matrix _mat = _nodeTransMat * a_worldMatrix;
+			Math::Matrix _prevMat = _nodeTransMat * a_prevMatrix;
 
 			// -----------------------------------------------------
 			// PermutationFlags の構築
@@ -1285,14 +1285,14 @@ namespace Engine::Graphics
 	void GraphicsEngine::SubmitModel(
 		ECS::World& a_world,
 		const Resource::Model* a_pModel,
-		const DXSM::Matrix& a_worldMatrix,
-		const DXSM::Matrix& a_prevMatrix,
+		const Math::Matrix& a_worldMatrix,
+		const Math::Matrix& a_prevMatrix,
 		const RangeHandle<Resource::BoneMatrix>& a_boneHandle,
 		const RangeHandle<Resource::NodePoseMatrix>& a_nodePoseHandle,
 		const Handle<Raytracing::DynamicRaytracingData>& a_animData,
-		const DXSM::Color& a_albedoScale,
-		const DXSM::Vector3& a_emissiveScale,
-		const DXSM::Vector3& a_emissiveAdd
+		const Math::Color& a_albedoScale,
+		const Math::Vector3& a_emissiveScale,
+		const Math::Vector3& a_emissiveAdd
 	)
 	{
 		// ノード行列取得
@@ -1339,10 +1339,10 @@ namespace Engine::Graphics
 			// モデル差し替え直後などで描画コマンドとポーズ領域のサイズが食い違った場合は
 			// クラッシュさせずこのコマンドの描画をスキップする
 			if (_cmd.nodeIndex >= _nodePoseMatVec.size()) continue;
-			DXSM::Matrix _nodeTransMat(_nodePoseMatVec[_cmd.nodeIndex].world);
-			DXSM::Matrix _mat = _nodeTransMat * a_worldMatrix;
+			Math::Matrix _nodeTransMat(_nodePoseMatVec[_cmd.nodeIndex].world);
+			Math::Matrix _mat = _nodeTransMat * a_worldMatrix;
 
-			DXSM::Matrix _prevMat = _nodeTransMat * a_prevMatrix;
+			Math::Matrix _prevMat = _nodeTransMat * a_prevMatrix;
 
 			// =========================================================
 			// PermutationFlags を構築
@@ -1376,7 +1376,7 @@ namespace Engine::Graphics
 		}
 	}
 
-	void GraphicsEngine::SubmitModel(const DXSM::Matrix& a_worldMat, const DXSM::Vector4& a_colorScale, const DXSM::Vector3& a_emissiveScale, const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle, const DXSM::Vector3& a_emissiveAdd)
+	void GraphicsEngine::SubmitModel(const Math::Matrix& a_worldMat, const Math::Color& a_colorScale, const Math::Vector3& a_emissiveScale, const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle, const Math::Vector3& a_emissiveAdd)
 	{
 
 		m_dynamicRayRequestVec.push_back(
@@ -1515,24 +1515,24 @@ namespace Engine::Graphics
 		}
 
 		// カメラの行列を一時的に取得
-		DXSM::Matrix _viewMat = m_cbCamera.viewMat;
-		DXSM::Matrix _projMat = m_cbCamera.projMat;
-		DXSM::Matrix _invViewMat = m_cbCamera.viewInvMat;
-		DXSM::Matrix _invProjMat = m_cbCamera.projInvMat;
+		Math::Matrix _viewMat = m_cbCamera.viewMat;
+		Math::Matrix _projMat = m_cbCamera.projMat;
+		Math::Matrix _invViewMat = m_cbCamera.viewInvMat;
+		Math::Matrix _invProjMat = m_cbCamera.projInvMat;
 
 		// モーションベクター用のジッターなしViewProjを計算
-		DXSM::Matrix _nonJitteredViewProj = _viewMat * _projMat;
-		DXSM::Matrix _nonJitteredInvViewProj = _nonJitteredViewProj.Invert();
+		Math::Matrix _nonJitteredViewProj = _viewMat * _projMat;
+		Math::Matrix _nonJitteredInvViewProj = _nonJitteredViewProj.Invert();
 
 		// 描画用のジッターあり投影行列を作成
-		DXSM::Matrix _jitteredProjMat = _projMat;
+		Math::Matrix _jitteredProjMat = _projMat;
 		_jitteredProjMat._31 += _jitterX;
 		_jitteredProjMat._32 += _jitterY;
 
 		// 描画用のジッターありViewProjとその逆行列を計算
-		DXSM::Matrix _jitteredViewProj = _viewMat * _jitteredProjMat;
-		DXSM::Matrix _invJitteredProj = _jitteredProjMat.Invert();
-		DXSM::Matrix _invJitteredViewProj = _jitteredViewProj.Invert();
+		Math::Matrix _jitteredViewProj = _viewMat * _jitteredProjMat;
+		Math::Matrix _invJitteredProj = _jitteredProjMat.Invert();
+		Math::Matrix _invJitteredViewProj = _jitteredViewProj.Invert();
 
 		// GPU転送用バッファへの詰め込み
 		m_cbGPUCamera.pos = m_cbCamera.pos;
@@ -1680,9 +1680,9 @@ namespace Engine::Graphics
 
 	MeshMaterial GraphicsEngine::BuildMeshMaterial(
 		const Resource::Material* a_pMaterial,
-		const DXSM::Color& a_albedoScale,
-		const DXSM::Vector3& a_emissiveScale,
-		const DXSM::Vector3& a_emissiveAdd)
+		const Math::Color& a_albedoScale,
+		const Math::Vector3& a_emissiveScale,
+		const Math::Vector3& a_emissiveAdd)
 	{
 		MeshMaterial _meshMaterial = {};
 		_meshMaterial.baseColor = a_pMaterial->baseColor * a_albedoScale;
@@ -1701,13 +1701,13 @@ namespace Engine::Graphics
 		const Resource::ModelDrawCommand& a_cmd,
 		const Resource::Mesh* a_pMesh,
 		const Resource::Material* a_pMaterial,
-		const DXSM::Matrix& a_mat,
-		const DXSM::Matrix& a_prevMat,
+		const Math::Matrix& a_mat,
+		const Math::Matrix& a_prevMat,
 		bool a_isAnimation,
 		uint32_t a_animatedVertexStart,
-		const DXSM::Color& a_albedoScale,
-		const DXSM::Vector3& a_emissiveScale,
-		const DXSM::Vector3& a_emissiveAdd,
+		const Math::Color& a_albedoScale,
+		const Math::Vector3& a_emissiveScale,
+		const Math::Vector3& a_emissiveAdd,
 		PSOKey a_psoKey)
 	{
 		// マテリアルの透明モードで、どちらのキューへ流すかを決める。
@@ -1798,8 +1798,8 @@ namespace Engine::Graphics
 
 		// 半サイズ(px)と、ピボット(正規化[0,1])からクアッド中心までのオフセット(px)。
 		// (0.5 - pivot) * size がクアッド中心のピボットからのずれ。
-		const DXSM::Vector2 _halfPx = { a_pixelSize.x * 0.5f, a_pixelSize.y * 0.5f };
-		const DXSM::Vector2 _pivotOffPx = {
+		const Math::Vector2 _halfPx = { a_pixelSize.x * 0.5f, a_pixelSize.y * 0.5f };
+		const Math::Vector2 _pivotOffPx = {
 			(0.5f - a_pivot.x) * a_pixelSize.x,
 			(0.5f - a_pivot.y) * a_pixelSize.y
 		};
@@ -1813,12 +1813,12 @@ namespace Engine::Graphics
 		// この基底(+X=右, +Y=上)を回転行列 R(θ) で回す。
 		//   axisXpx = R*( halfX,      0) = ( halfX*cos, halfX*sin)
 		//   axisYpx = R*(     0, -halfY) = ( halfY*sin,-halfY*cos)
-		const DXSM::Vector2 _centerPx = {
+		const Math::Vector2 _centerPx = {
 			a_pixelPos.x + (_pivotOffPx.x * _cos - _pivotOffPx.y * _sin),
 			a_pixelPos.y + (_pivotOffPx.x * _sin + _pivotOffPx.y * _cos)
 		};
-		const DXSM::Vector2 _axisXpx = { _halfPx.x * _cos,  _halfPx.x * _sin };
-		const DXSM::Vector2 _axisYpx = { _halfPx.y * _sin, -_halfPx.y * _cos };
+		const Math::Vector2 _axisXpx = { _halfPx.x * _cos,  _halfPx.x * _sin };
+		const Math::Vector2 _axisYpx = { _halfPx.y * _sin, -_halfPx.y * _cos };
 
 		// ピクセル(左上原点/Y下向き) → NDC(中心原点/Y上向き)。
 		// 点は原点シフトあり、方向ベクトルはスケールのみ(Yは符号反転)。
