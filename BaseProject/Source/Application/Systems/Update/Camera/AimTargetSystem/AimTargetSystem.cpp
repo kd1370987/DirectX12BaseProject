@@ -13,7 +13,7 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
-#include "Engine/Editor/Editor.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
 //==========================================================================================
@@ -206,12 +206,12 @@ void AimTargetSystem::Init(App::ECS::World& a_world)
 			// デバッグ表示(赤=ロック狙点, 青=ヒット, 白=空振り)
 			if (_isLockAim)
 			{
-				a_ctx.pServices->pMainEditor->DrawLine(
+				a_ctx.pServices->pDebugDraw->DrawLine(
 					_info.origin, Math::Vector3(_pAim->pos), Engine::Color::RED);
 			}
 			else
 			{
-				a_ctx.pServices->pMainEditor->DrawRay(
+				a_ctx.pServices->pDebugDraw->DrawRay(
 					_info.origin, _info.direction, _info.maxDistance, _isHit,
 					_isHit ? Engine::Color::BLUE : Engine::Color::WHITE);
 			}

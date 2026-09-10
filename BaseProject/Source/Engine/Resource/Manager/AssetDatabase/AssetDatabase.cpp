@@ -514,9 +514,7 @@ namespace Engine::Resource
 				// 万が一ファイルロック等で消せなかった場合のログ出力
 				if (_ec)
 				{
-					Engine::Editor::MainEditor::Instance().AddLog(
-						"DeleteMetaFile False : %s", _entry.path().string().c_str()
-					);
+					ENGINE_LOG("DeleteMetaFile False : %s", _entry.path().string().c_str());
 				}
 			}
 		}
@@ -528,7 +526,7 @@ namespace Engine::Resource
 		// ランタイムデータを最新のものに更新
 		CreateRuntimeDataInternal();
 
-		Engine::Editor::MainEditor::Instance().AddLog("All Asset Rebuild MetaData");
+		ENGINE_LOG("All Asset Rebuild MetaData");
 	}
 
 	void AssetDatabase::CreateRuntimeData()
@@ -559,7 +557,7 @@ namespace Engine::Resource
 			}
 			catch (const nlohmann::json::parse_error&)
 			{
-				Engine::Editor::MainEditor::Instance().AddLog("ファイルオープンエラー : %s",_entry.path().string().c_str());
+				ENGINE_WARNING("ファイルオープンエラー : %s", _entry.path().string().c_str());
 				continue;
 			}
 

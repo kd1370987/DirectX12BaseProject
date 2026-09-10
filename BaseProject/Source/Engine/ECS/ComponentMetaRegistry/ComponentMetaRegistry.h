@@ -90,7 +90,7 @@ namespace Engine::ECS
 		std::type_index _typeIdx = typeid(Comp);
 		if (Limits::INVALID_COMPONENTTYPEID != GetTypeID(_typeIdx))
 		{
-			Engine::Editor::MainEditor::Instance().AddLog("すでに登録済みです : %s\n", a_name.c_str());
+			ENGINE_LOG("すでに登録済みです : %s\n", a_name.c_str());
 			return GetTypeID(_typeIdx);
 		}
 

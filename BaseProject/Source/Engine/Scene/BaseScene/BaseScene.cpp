@@ -14,6 +14,8 @@
 #include "../../Collision/CollisionWorld.h"
 #include "../../Input/InputManager/InputManager.h"
 #include "../../Editor/Editor.h"
+#include "../../Graphics/GraphicEngine.h"
+#include "../../Graphics/DebugDraw/DebugDraw.h"
 #include "../../Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "../../Audio/AudioManager.h"
 #include "../../GameObject/GameObjectManager/GameObjectManager.h"
@@ -52,11 +54,11 @@ namespace Engine::Scene
 		_services.pResourceManager	= &Engine::Resource::ResourceManager::Instance();
 		_services.pAssetDatabase	= &Engine::Resource::AssetDatabase::Instance();
 		_services.pInputManager		= &Engine::Input::InputManager::Instance();
-		_services.pMainEditor		= &Engine::Editor::MainEditor::Instance();
 		_services.pRayEngine		= &Engine::Raytracing::RayEngine::Instance();
 		_services.pAudioManager		= &Engine::Audio::AudioManager::Instance();
 		_services.pJobSystem		= Engine::MainEngine::Instance().RefJobSystem();
 		_services.pOptionManager	= &Engine::Option::OptionManager::GetInstance();
+		_services.pDebugDraw		= Engine::MainEngine::Instance().RefGraphicsEngine()->RefDebugDraw();
 		_upWorld->SetEngineServices(_services);
 
 		// 当たり判定の空間。
@@ -163,8 +165,10 @@ namespace Engine::Scene
 	void BaseScene::Draw()
 	{
 		// 静的コライダーのAABBをデバッグ表示へ積む。
-		// 実際に出すかどうかは MainEditor 側(デバッグ表示の設定)が決める
-		m_upWorld->GetResource<Engine::Collision::CollisionWorld>().DrawDebug();
+		// 積む先はエンジン側の置き場で、実際に出すかどうかは
+		// DebugDrawOption(エディターの表示設定)が決める
+		m_upWorld->GetResource<Engine::Collision::CollisionWorld>()
+			.DrawDebug(m_upWorld->RefEngineServices()->pDebugDraw);
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::PreDraw, 0.0f);
 

@@ -14,6 +14,7 @@
 #include "MeshBufferAllocator/MeshBufferAllocator.h"
 #include "../Resource/Data/QuadPolygon/QuadPolygon.h"
 #include "MouseCursor/MouseCursor.h"
+#include "DebugDraw/DebugDraw.h"
 
 // レンダリングパイプライン
 #include "RenderingPipeline/Core/Pass/Pass.h"
@@ -77,6 +78,10 @@ namespace Engine::Graphics
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
 		m_pPipelineStateManager = a_desc.pPipelineStateManager;
+
+		// デバッグ用ワイヤーの置き場。
+		// レンダーコンテキストが毎フレーム中身を読むので、先に用意しておく
+		m_upDebugDraw = std::make_unique<DebugDraw>();
 
 		// レンダーコンテキストの作成
 		for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
@@ -773,6 +778,9 @@ namespace Engine::Graphics
 		m_upQuadPolygon.reset();
 		m_upCurvedQuadPolygon.reset();
 
+		// デバッグ用ワイヤー解放
+		m_upDebugDraw.reset();
+
 		// 各リンク解除
 		m_pPipelineStateManager = nullptr;
 
@@ -905,12 +913,21 @@ namespace Engine::Graphics
 		// カメラごとに回すと同じ計算を何度も走らせることになるので、
 		// パイプラインより前でまとめて1回だけ通す
 		//------------------------------------------------------------------
-		ExecuteSkinning(this, m_upRenderContextVec[m_currentFrameIndex].get());
-		ExecuteUpdateBLAS(this, m_upRenderContextVec[m_currentFrameIndex].get());
+		{
+			ENGINE_PROFILE_SCOPE("GPUSkinning");
+			ExecuteSkinning(this, m_upRenderContextVec[m_currentFrameIndex].get());
+		}
+		{
+			ENGINE_PROFILE_SCOPE("BLASUpdate");
+			ExecuteUpdateBLAS(this, m_upRenderContextVec[m_currentFrameIndex].get());
+		}
 
 		// 発生と更新は間のUAVバリアごと1つの関数にまとめてある。
 		// 分けるとバリアを挟み忘れて、空きスロットが減り続ける不具合が戻る
-		ExecuteParticleSimulation(this, m_upRenderContextVec[m_currentFrameIndex].get());
+		{
+			ENGINE_PROFILE_SCOPE("ParticleSimulation");
+			ExecuteParticleSimulation(this, m_upRenderContextVec[m_currentFrameIndex].get());
+		}
 
 		// カメラごとの描画構成(新レンダーグラフ)。
 		// 従来経路とは並走していて、こちらは各カメラの最終出力テクスチャへ描くだけ。
@@ -962,8 +979,9 @@ namespace Engine::Graphics
 		m_cbFishEye = {};
 		m_isFishEyeOverride = false;
 
-		// デバッグ用配列のクリア
-		Editor::MainEditor::Instance().ClearBuffer();
+		// デバッグ用配列のクリア。
+		// 積む側(システム・GameObject・エンジン内部)はこのフレームの更新で入れ直す
+		if (m_upDebugDraw) m_upDebugDraw->Clear();
 	}
 
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const

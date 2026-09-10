@@ -32,6 +32,7 @@ namespace Engine::Graphics
 	// 前方宣言
 	class RenderContext;
 	class MeshBufferAllocator;
+	class DebugDraw;
 	struct PSOKey;
 
 	// レンダリングパイプライン。
@@ -538,6 +539,16 @@ namespace Engine::Graphics
 		Resource::QuadPolygon* RefQuadPolygon()			{ return m_upQuadPolygon.get(); }
 		Resource::QuadPolygon* RefCurvedQuadPolygon()	{ return m_upCurvedQuadPolygon.get(); }
 
+		//--------------------------------------------------------------------------------------------
+		// デバッグ用ワイヤー
+		//
+		// 積む場所はエンジン側(DebugDraw)。エディターは表示のオンオフを持つだけで、
+		// エンジンやアプリからエディターを名指しすることはない。
+		// 中身は EndFrame で捨てられるので、積んだフレームのうちに描かれる
+		//--------------------------------------------------------------------------------------------
+		DebugDraw* RefDebugDraw() { return m_upDebugDraw.get(); }
+		const DebugDraw* GetDebugDraw() const { return m_upDebugDraw.get(); }
+
 	private:
 
 		// このワールドのボーン行列をボーンパレットへ積み、GPU上の開始位置を返す。
@@ -663,6 +674,11 @@ namespace Engine::Graphics
 		// フラットは4頂点の1枚板、湾曲用は横に kCurveDivision 分割したもの
 		std::unique_ptr<Resource::QuadPolygon> m_upQuadPolygon = nullptr;
 		std::unique_ptr<Resource::QuadPolygon> m_upCurvedQuadPolygon = nullptr;
+
+		// デバッグ用ワイヤーの置き場。
+		// 積む側(システム・GameObject・エンジン内部)はここへ入れ、
+		// DebugLinePass が RenderContext 経由で読む
+		std::unique_ptr<DebugDraw> m_upDebugDraw = nullptr;
 	
 		//--------------------------------------------------------------------------------------------
 		// GPU送信用データ

@@ -366,15 +366,10 @@ namespace Engine
 		Editor::MainEditor::Instance().Update(GetDeltaTime());
 
 		// 描画開始 : ここでフレームインデックスが更新され、そのフレームのGPU完了を待機する
-
-		Engine::Editor::MainEditor::Instance().StartTimer("D3D12WrapperBeginFrame");
-		D3D12::D3D12Wrapper::Instance().BeginFrame();
-		Engine::Editor::MainEditor::Instance().StopTimer("D3D12WrapperBeginFrame");
-
-		// GPU計測結果の読み戻し
-		// タイムスタンプはGPUが実行し終えて初めて確定するので、
-		// 上のGPU待機を抜けた直後がフレーム中で唯一の安全な読み出し地点になる
-		Editor::MainEditor::Instance().CollectGPUProfileResult();
+		{
+			ENGINE_PROFILE_SCOPE("D3D12WrapperBeginFrame");
+			D3D12::D3D12Wrapper::Instance().BeginFrame();
+		}
 
 		// 今から使うフレームに登録されているファンクションを実行して空にする
 		// BeginFrameの待機を終えた後に実行することで、このインデックスを前回使ったフレームの
@@ -397,51 +392,52 @@ namespace Engine
 	{
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 
-		Editor::MainEditor::Instance().StartTimer("EditorPhase");
-
-		// ゲームモード以外の処理
-		if (m_appMode != EAppMode::Game)
 		{
-			auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
-			// ディスクリプタヒープをセット
-			ID3D12DescriptorHeap* _heaps[] = {
-					D3D12::DescriptorHeapManager::Instance().GetImGuiHeap()
-			};
-			_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+			ENGINE_PROFILE_SCOPE("EditorPhase");
 
-			// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
-			auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
-				D3D12::D3D12Wrapper::Instance().GetCurrentBackBufferTex().GetRTV()
-			);
+			// ゲームモード以外の処理
+			if (m_appMode != EAppMode::Game)
+			{
+				auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
+				// ディスクリプタヒープをセット
+				ID3D12DescriptorHeap* _heaps[] = {
+						D3D12::DescriptorHeapManager::Instance().GetImGuiHeap()
+				};
+				_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 
-			// レンダーターゲットを設定
-			_pCmdList->OMSetRenderTargets(
-				1,
-				&_cpuHandle,
-				FALSE,
-				nullptr
-			);
+				// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
+				auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
+					D3D12::D3D12Wrapper::Instance().GetCurrentBackBufferTex().GetRTV()
+				);
 
-			// 新しいリストにビューポートとシザー矩形もセットする
-			// ビューポートとシザー矩形を設定
-			_pCmdList->RSSetViewports(1, &D3D12::D3D12Wrapper::Instance().GetViewport());
-			_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
+				// レンダーターゲットを設定
+				_pCmdList->OMSetRenderTargets(
+					1,
+					&_cpuHandle,
+					FALSE,
+					nullptr
+				);
 
-			// エディター描画
-			Engine::Editor::MainEditor::Instance().Draw(_pCmdList);
-			D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
+				// 新しいリストにビューポートとシザー矩形もセットする
+				// ビューポートとシザー矩形を設定
+				_pCmdList->RSSetViewports(1, &D3D12::D3D12Wrapper::Instance().GetViewport());
+				_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
+
+				// エディター描画
+				Engine::Editor::MainEditor::Instance().Draw(_pCmdList);
+				D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
+			}
+
+			m_upGraphicsEngine->EndFrame();
+
+		}	// EditorPhase
+
+		{
+			ENGINE_PROFILE_SCOPE("EndFramePhase");
+
+			// 描画終了
+			D3D12::D3D12Wrapper::Instance().EndFrame(_winOp.isVsync);
 		}
-
-		m_upGraphicsEngine->EndFrame();
-
-		Editor::MainEditor::Instance().StopTimer("EditorPhase");
-
-		Editor::MainEditor::Instance().StartTimer("EndFramePhase");
-
-		// 描画終了
-		D3D12::D3D12Wrapper::Instance().EndFrame(_winOp.isVsync);
-
-		Editor::MainEditor::Instance().StopTimer("EndFramePhase");
 	}
 
 	UINT MainEngine::GetFPS()

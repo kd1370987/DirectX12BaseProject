@@ -430,8 +430,6 @@
     <ClCompile Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\PanelManager.cpp" />
     <ClCompile Include="Source\Engine\Editor\Profiler\Profiler.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Profiler\CPUProfiler\CPUProfiler.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Profiler\GPUProfiler\GPUProfiler.cpp" />
     <ClCompile Include="Source\Engine\Editor\EditorCamera\EditorCamera.cpp" />
     <ClCompile Include="Source\Engine\Editor\EffectEditor\EffectEditor.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.cpp" />
@@ -541,6 +539,7 @@
     <ClCompile Include="Source\Engine\Option\ProjectOptions\InputOption.cpp" />
     <ClCompile Include="Source\Engine\Option\ProjectOptions\CursorOption.cpp" />
     <ClCompile Include="Source\Engine\Option\ProjectOptions\AudioOption.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\DebugDraw\DebugDraw.cpp" />
     <ClCompile Include="Source\Engine\Graphics\MouseCursor\MouseCursor.cpp" />
     <ClCompile Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp" />
     <ClCompile Include="Source\Engine\Particle\ParticleBufferManager.cpp" />
@@ -992,9 +991,6 @@
     <ClInclude Include="Source\Engine\Editor\Internal\EditorContext.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\PanelManager.h" />
     <ClInclude Include="Source\Engine\Editor\Profiler\Profiler.h" />
-    <ClInclude Include="Source\Engine\Editor\Profiler\CPUProfiler\CPUProfiler.h" />
-    <ClInclude Include="Source\Engine\Editor\Profiler\GPUProfiler\GPUProfiler.h" />
-    <ClInclude Include="Source\Engine\Editor\Internal\EditorTimer.h" />
     <ClInclude Include="Source\Engine\Editor\EditorCamera\EditorCamera.h" />
     <ClInclude Include="Source\Engine\Editor\EffectEditor\EffectEditor.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.h" />
@@ -1085,6 +1081,7 @@
     <ClInclude Include="Source\Engine\Option\ProjectOptions\CursorOption.h" />
     <ClInclude Include="Source\Engine\Option\ProjectOptions\AudioOption.h" />
     <ClInclude Include="Source\Engine\Audio\SoundGroup.h" />
+    <ClInclude Include="Source\Engine\Graphics\DebugDraw\DebugDraw.h" />
     <ClInclude Include="Source\Engine\Graphics\MouseCursor\MouseCursor.h" />
     <ClInclude Include="Source\Engine\Particle\Core\EmitterData.h" />
     <ClInclude Include="Source\Engine\Particle\Core\ParticleData.h" />
@@ -1186,6 +1183,7 @@
     <ClInclude Include="Source\Engine\Time\TimeManager.h" />
     <ClInclude Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.h" />
     <ClInclude Include="Source\Engine\Utility\Debug\DebugLog.h" />
+    <ClInclude Include="Source\Engine\Utility\Debug\Profile\Time\TimeProfileScope.h" />
     <ClInclude Include="Source\Engine\Utility\GUID\GUID.h" />
     <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONHelper.h" />
     <ClInclude Include="Source\Engine\Utility\Math\Alignment.h" />

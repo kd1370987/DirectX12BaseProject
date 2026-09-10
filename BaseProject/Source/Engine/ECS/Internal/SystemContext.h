@@ -17,9 +17,9 @@ namespace Engine::Input
 {
 	class InputManager;
 }
-namespace Engine::Editor
+namespace Engine::Graphics
 {
-	class MainEditor;
+	class DebugDraw;
 }
 namespace Engine::Raytracing
 {
@@ -50,11 +50,16 @@ namespace Engine::ECS
 		Resource::ResourceManager*	pResourceManager	= nullptr;
 		Resource::AssetDatabase*	pAssetDatabase		= nullptr;
 		Input::InputManager*		pInputManager		= nullptr;
-		Editor::MainEditor*			pMainEditor			= nullptr;
 		Raytracing::RayEngine*		pRayEngine			= nullptr;
 		Audio::AudioManager*		pAudioManager		= nullptr;
 		Thread::JobSystem*			pJobSystem			= nullptr;
 		Option::OptionManager*		pOptionManager		= nullptr;
+
+		// デバッグ用ワイヤーの置き場(GraphicsEngine が持っている)。
+		// 以前はここに MainEditor を入れてシステムから直接描かせていたが、
+		// アプリからエディターへの依存になるのでエンジン側の置き場に差し替えた。
+		// 表示のオンオフは DebugDrawOption が持ち、エディターはそれを触るだけ
+		Graphics::DebugDraw*		pDebugDraw			= nullptr;
 	};
 
 	/// <summary>

@@ -10,7 +10,7 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
-#include "Engine/Editor/Editor.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
 
@@ -52,7 +52,7 @@ void RayCollisionSystem::Init(App::ECS::World& a_world)
 				bool _isHit = _pCollWorld->Raycast(_info, _res, a_pChunk->entityData[_i]);
 
 				// プローブのデバッグ表示（緑=接地, 赤=空中。終点に球）
-				a_ctx.pServices->pMainEditor->DrawRay(
+				a_ctx.pServices->pDebugDraw->DrawRay(
 					_info.origin, _info.direction, _info.maxDistance, _isHit,
 					_isHit ? Engine::Color::GREEN : Engine::Color::RED);
 

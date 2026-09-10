@@ -961,6 +961,7 @@ namespace Engine::Graphics::Pipeline
 
 		for (CompiledPass& _compiledPass : m_compilePasses)
 		{
+			ENGINE_PROFILE_SCOPE(_compiledPass.pPass->GetName());
 			// ---- エイリアシングバリア ----
 			// 席の使い手が入れ替わる継ぎ目。
 			// メモリの持ち主が変わってから遷移させるので、ステート遷移より前に張る

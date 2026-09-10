@@ -61,57 +61,63 @@ void Application::MainLoop()
 {
 	while (true)
 	{
-		// プロファイラのフレーム開始
-		Engine::Editor::MainEditor::Instance().BeginProfileFrame();
-
-		Engine::Editor::MainEditor::Instance().StartTimer("MainLoop");
-		Engine::Editor::MainEditor::Instance().StartTimer("MainLoop_Updatea");
-
-		// フレーム開始
-		if (!Engine::MainEngine::Instance().BeginFrame())
-		{
-			break;
-		}
-
-		// モード切替
+		//===========================================================================
+		// このフレームぶんの計測
 		//
-		// 入力はすべて InputManager 経由で取る。キーの割り当て(Ctrl+P)も
-		// InputManager が持っているので、ここが見るのは「押されたかどうか」だけ。
-		//
-		// 押した瞬間(Press)なので押しっぱなしで連続発火しない。
-		// エディターに居るときに押すものなので、プレイモードを見ない
-		// IsSystemPress で取ること(IsPress はプレイモード以外だと常に無入力を返す)。
-		ToggleAppMode();
-
-		// ゲームの更新
-		App::Game::GameManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
-
-		Engine::Editor::MainEditor::Instance().StopTimer("MainLoop_Updatea");
-
-		Engine::Editor::MainEditor::Instance().StartTimer("MainLoop_Draw");
-
-		// 描画
-		Engine::Editor::MainEditor::Instance().StartTimer("BeginDraw");
-		Engine::MainEngine::Instance().BeginDraw();				// 描画開始
-		Engine::Editor::MainEditor::Instance().StopTimer("BeginDraw");
+		// 計測は ENGINE_PROFILE_SCOPE を置くだけ。スコープを抜けた時点で
+		// 結果がエディター(Profiler)へ飛ぶので、集計する EndProfileFrame よりは
+		// 内側で閉じておくこと
+		//===========================================================================
 		{
-			// ゲームの描画
-			//App::Game::GameManager::Instance().Draw();
-			// 命令の実行
-			Engine::Editor::MainEditor::Instance().StartTimer("RGDraw");
-			Engine::MainEngine::Instance().ExecuteDrawCmd();
-			Engine::Editor::MainEditor::Instance().StopTimer("RGDraw");
+			ENGINE_PROFILE_SCOPE("MainLoop");
+
+			{
+				ENGINE_PROFILE_SCOPE("MainLoop_Update");
+
+				// フレーム開始
+				if (!Engine::MainEngine::Instance().BeginFrame())
+				{
+					break;
+				}
+
+				// モード切替
+				ToggleAppMode();
+
+				// ゲームの更新
+				App::Game::GameManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
+			}
+
+			{
+				ENGINE_PROFILE_SCOPE("MainLoop_Draw");
+
+				// 描画開始
+				{
+					ENGINE_PROFILE_SCOPE("BeginDraw");
+					Engine::MainEngine::Instance().BeginDraw();
+				}
+
+				{
+					// ゲームの描画
+					//App::Game::GameManager::Instance().Draw();
+					// 命令の実行
+					ENGINE_PROFILE_SCOPE("RGDraw");
+					Engine::MainEngine::Instance().ExecuteDrawCmd();
+				}
+
+				// 描画終了
+				{
+					ENGINE_PROFILE_SCOPE("EndDraw");
+					Engine::MainEngine::Instance().EndDraw();
+				}
+			}
+
+			// フレーム終了
+			Engine::MainEngine::Instance().EndFrame();
 		}
-		Engine::Editor::MainEditor::Instance().StartTimer("EndDraw");
-		Engine::MainEngine::Instance().EndDraw();						// 描画終了
-		Engine::Editor::MainEditor::Instance().StopTimer("EndDraw");
-		Engine::Editor::MainEditor::Instance().StopTimer("MainLoop_Draw");
-		// フレーム終了
-		Engine::MainEngine::Instance().EndFrame();
-		Engine::Editor::MainEditor::Instance().StopTimer("MainLoop");
 
 		// プロファイラのフレーム終了
-		// ここで平均の確定と表示用の並べ替えが行われ、次フレームのパネル描画で使われる
+		// ここで受け取った結果の集計・平均の確定・表示用の並べ替えが行われ、
+		// 次フレームのパネル描画で使われる
 		Engine::Editor::MainEditor::Instance().EndProfileFrame();
 	}
 }

@@ -714,7 +714,7 @@ namespace Engine::ECS
 		// 見つからなければエラー
 		if(_it == m_resourceMap.end())
 		{
-			Editor::MainEditor::Instance().ErrorLog("ECS::World : Resource not found");
+			ENGINE_ERROR("ECS::World : Resource not found");
 		}
 
 		// RTTIによる型チェックを行わずに型が一致している前提でキャスト

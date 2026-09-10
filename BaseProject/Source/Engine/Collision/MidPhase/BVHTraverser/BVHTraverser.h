@@ -66,9 +66,6 @@ namespace Engine::Collision
 			// NarrowPhaseを呼び出し、AABB判定をする
 			if (NarrowPhase::TestAABB(a_localPrimitive, _node.box, _boxDist))
 			{
-
-				Editor::MainEditor::Instance().DrawBox(_node.box);
-
 				// 範囲外
 				if (_boxDist > _closestDist) continue;
 

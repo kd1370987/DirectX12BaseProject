@@ -52,74 +52,60 @@ namespace Engine::Editor
 		void OnSceneChanged();
 
 		//=======================================================================
-		// ログ関連
+		// ログについて
+		//
+		// 積む口はエディターではなくマクロ側にある。
+		//
+		//   ENGINE_LOG      … ふつうの記録
+		//   ENGINE_WARNING  … 続行するが不都合なこと
+		//   ENGINE_ERROR    … 失敗として残すが、止めはしない
+		//   ENGINE_ERRLOG   … 条件を満たさなければ記録して止める(assert)
+		//
+		// エディターは Init で Debug::SetLogCallback を登録し、届いた行を
+		// LogPanel へ流すだけ。エンジンやアプリがエディターを名指しする必要はない。
+		//
+		// ここに AddLog / ErrorLog を置いていた頃は、Archive・PipelineState・
+		// World・リソースの保存処理がエディターを直接呼んでいて依存が逆流していた。
+		// 同じことをしないよう、口はマクロ1本に絞ってある
 		//=======================================================================
-	public:
-		// ログの追加
-		// 文字列と可変引数でログを追加する関数
-		void AddLog(const char* a_fmt, ...);
-		void AddLogVector(const float* a_data, const size_t& a_size);
-		// 行列をログに追加する関数
-		void AddLogMatrix(const std::string& a_name, const DirectX::XMFLOAT4X4& a_mat);
-
-		// 処理はおとさないが、不都合な処理が走った警告を出す用のログ
-		void WarningLog(const char* a_fmt, ...);
-
-		// 処理を落とす際に呼び出す
-		void ErrorLog(const char* a_fmt, ...);
 
 		//=======================================================================
 		// 計測関連
-		// 実測はProfilerが行う。ここはその入口だけを提供する
+		//
+		// 計測そのものは ENGINE_PROFILE_SCOPE (Engine::Debug::TimeProfileScope) が行い、
+		// 結果はコールバックで Profiler へ届く。
+		// ここが持つのは、その結果をフレームごとにまとめる区切りだけ
 		//=======================================================================
-		// フレームの開始・終了 : メインループの先頭と末尾で呼ぶ
-		void BeginProfileFrame();
+		// フレームの終わり : メインループの末尾で呼ぶ
+		// 受け取った結果の集計と表示用データの作成はここで走る
 		void EndProfileFrame();
 
-		// GPU計測結果の読み戻し : GPU待機を抜けた直後に呼ぶ
-		void CollectGPUProfileResult();
-
-		// 計測開始 : コマンドリストを渡すとGPU時間も測る
-		void StartTimer(const std::string& a_name, D3D12::GraphicsCommandList* a_pCmdList = nullptr);
-		// 計測終了
-		void StopTimer(const std::string& a_name, D3D12::GraphicsCommandList* a_pCmdList = nullptr);
-
-		// プロファイラの取得
-		Profiler* RefProfiler() { return m_upProfiler.get(); }
+		//=======================================================================
+		// デバッグ描画について
+		//
+		// ワイヤーを積む場所はエンジン側(Engine::Graphics::DebugDraw)に移した。
+		// ここに Draw～ を置いていた頃は、積みたい側(ECSのシステム・GameObject・
+		// コリジョン)がすべてエディターを名指ししていて、依存が逆流していた。
+		//
+		//   積む   : SystemContext / ObjectContext の pServices->pDebugDraw
+		//            エンジン内部なら GraphicsEngine::RefDebugDraw()
+		//   出す   : DebugLinePass が RenderContext 経由で読む
+		//   オンオフ: DebugDrawOption::drawWire(オプションパネルから触る)
+		//
+		// エディットはエディターの仕事なので、表示設定はここではなく
+		// OptionManager が持っている
+		//=======================================================================
 
 		//=======================================================================
-		// デバッグ描画用
-		//=======================================================================
-		// ライン描画
-		void DrawLine(
-			const DirectX::SimpleMath::Vector3& a_startPos,
-			const DirectX::SimpleMath::Vector3& a_endPos,
-			const DirectX::SimpleMath::Color& a_color = Color::WHITE
-		);
-
-		void DrawBox(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
-		void DrawBox(const DirectX::BoundingBox& a_aabb, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
-		void DrawBox(const DirectX::BoundingOrientedBox& a_obb, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
-		void DrawCapsule(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
-		void DrawSphere(const DirectX::SimpleMath::Matrix& a_worldMat, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
-		void DrawSphere(const DirectX::BoundingSphere& a_sphere, const DirectX::SimpleMath::Color& a_color = Color::WHITE);
-
-		// レイとヒット時に球体を出す
-		void DrawRay(
-			const DirectX::SimpleMath::Vector3& a_startPos,
-			const DirectX::SimpleMath::Vector3& a_dir,
-			float a_length,
-			bool a_isHit,
-			const DirectX::SimpleMath::Color& a_color = Color::WHITE
-		);
-
-		void ClearBuffer();
-		const std::vector<Graphics::DebugLineData>& GetDebugLineDataVec() const;
-
-
-
-		//=======================================================================
-		// デバッグ描画関数登録
+		// エディターに出す ImGui の登録
+		//
+		// 自分の設定をエディターのウィンドウへ出したいものが、その描画処理を預ける。
+		// 呼ばれるのは毎フレームのエディター描画中。
+		//
+		// デバッグ用のワイヤー(線・箱・球)とは関係がない。あちらは
+		// Engine::Graphics::DebugDraw なので間違えないこと。
+		//
+		// 登録は Init のあとに行うこと(Init が登録済みのものを捨てる)
 		//=======================================================================
 		void RegisterEditFunc(std::function<void()> a_func);
 
@@ -150,13 +136,6 @@ namespace Engine::Editor
 
 	private:
 
-		// デバッグ形状を1つ積んでよいか。
-		// オプション(DebugDrawOption::drawWire)のオンオフと、バッファの空きをまとめて見る。
-		// 各 Draw～ の入口はここだけを見ればよい
-		bool CanPushDebugShape();
-
-	private:
-
 		// ImGuiコンテキスト
 		std::unique_ptr<ImGuiContext> m_upImGuiContext = nullptr;
 
@@ -178,10 +157,6 @@ namespace Engine::Editor
 
 		// エディター用関数登録
 		std::vector<std::function<void()>> m_editFuncVec = {};
-
-		// デバッグ描画用データ
-		std::vector<Graphics::DebugLineData> m_debugLineDataVec = {};
-		UINT m_debugLineDataCapacity = 10000;
 
 		bool m_isInit = false;
 

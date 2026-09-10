@@ -16,7 +16,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			Editor::MainEditor::Instance().ErrorLog("グラフィックス用パイプラインステートの生成に失敗");
+			ENGINE_ERROR("グラフィックス用パイプラインステートの生成に失敗");
 			return false;
 		}
 
@@ -33,7 +33,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			Editor::MainEditor::Instance().ErrorLog("コンピュート用シェーダーの作成に失敗");
+			ENGINE_ERROR("コンピュート用シェーダーの作成に失敗");
 			return false;
 		}
 

@@ -137,25 +137,17 @@ namespace App::Game
 	}
 	void GameManager::Update(float a_dt)
 	{	
-		// タイマー開始
-		Engine::Editor::MainEditor::Instance().StartTimer("GameUpdate");
-		
+		ENGINE_PROFILE_SCOPE("GameUpdate");
+
 		// シーンマネージャーの更新
 		Engine::Scene::SceneManager::Instance().Update(a_dt);
-
-		// タイマーストップ
-		Engine::Editor::MainEditor::Instance().StopTimer("GameUpdate");
 	}
 	void GameManager::Draw()
 	{
-		// タイマー開始
-		Engine::Editor::MainEditor::Instance().StartTimer("GameDraw");
+		ENGINE_PROFILE_SCOPE("GameDraw");
 
 		// シーンの描画 : 描画命令を積むだけで実行はしない
 		Engine::Scene::SceneManager::Instance().Draw();
-
-		// タイマーストップ
-		Engine::Editor::MainEditor::Instance().StopTimer("GameDraw");
 	}
 	void GameManager::Release()
 	{}

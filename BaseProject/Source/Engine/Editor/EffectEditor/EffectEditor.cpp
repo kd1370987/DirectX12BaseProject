@@ -12,6 +12,7 @@
 #include "../../Scene/BaseScene/BaseScene.h"
 #include "../../Collision/CollisionWorld.h"
 #include "../../Graphics/GraphicEngine.h"
+#include "../../Graphics/DebugDraw/DebugDraw.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../Option/OptionManager.h"
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
@@ -353,7 +354,9 @@ namespace Engine::Editor
 		const DXSM::Color _lineColor(0.30f, 0.32f, 0.36f, 1.0f);
 		const DXSM::Color _axisColor(0.55f, 0.58f, 0.65f, 1.0f);
 
-		auto& _editor = MainEditor::Instance();
+		// 積む先はエンジン側の置き場。エディターも他と同じ経路で入れる
+		auto* _pDebugDraw = MainEngine::Instance().RefGraphicsEngine()->RefDebugDraw();
+		if (!_pDebugDraw) return;
 
 		// 格子はエフェクトの発生位置(原点)に敷く
 		const float _half = m_gridSize;
@@ -364,8 +367,8 @@ namespace Engine::Editor
 			const float _p = static_cast<float>(_i);
 			const DXSM::Color& _col = (_i == 0) ? _axisColor : _lineColor;
 
-			_editor.DrawLine(DXSM::Vector3(_p, 0.0f, -_half), DXSM::Vector3(_p, 0.0f, _half), _col);
-			_editor.DrawLine(DXSM::Vector3(-_half, 0.0f, _p), DXSM::Vector3(_half, 0.0f, _p), _col);
+			_pDebugDraw->DrawLine(DXSM::Vector3(_p, 0.0f, -_half), DXSM::Vector3(_p, 0.0f, _half), _col);
+			_pDebugDraw->DrawLine(DXSM::Vector3(-_half, 0.0f, _p), DXSM::Vector3(_half, 0.0f, _p), _col);
 		}
 	}
 

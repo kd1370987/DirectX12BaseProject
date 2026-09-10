@@ -3,7 +3,7 @@
 #include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Application/ECS/World/World.h"
 #include "Engine/Input/InputManager/InputManager.h"
-#include "Engine/Editor/Editor.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Editor/Helper/EditorHelper.h"
 #include "Engine/Common/Color.h"
 
@@ -629,19 +629,19 @@ namespace App::Object
 	{
 		if (!a_context.pServices) return;
 
-		auto* _pEditor = a_context.pServices->pMainEditor;
-		if (!_pEditor) return;
+		auto* _pDebugDraw = a_context.pServices->pDebugDraw;
+		if (!_pDebugDraw) return;
 
 		// 位置の十字(縦は上方向だけ伸ばして地面基準に見せる)
 		auto _drawCross = [&](const Math::Vector3& a_pos, float a_size, const Math::Color& a_color)
 			{
-				_pEditor->DrawLine(
+				_pDebugDraw->DrawLine(
 					a_pos - Math::Vector3(a_size, 0.0f, 0.0f),
 					a_pos + Math::Vector3(a_size, 0.0f, 0.0f), a_color);
-				_pEditor->DrawLine(
+				_pDebugDraw->DrawLine(
 					a_pos - Math::Vector3(0.0f, 0.0f, a_size),
 					a_pos + Math::Vector3(0.0f, 0.0f, a_size), a_color);
-				_pEditor->DrawLine(
+				_pDebugDraw->DrawLine(
 					a_pos, a_pos + Math::Vector3(0.0f, a_size, 0.0f), a_color);
 			};
 
@@ -670,14 +670,14 @@ namespace App::Object
 				_drawCross(_pos, MARKER_SIZE, _color);
 
 				// ウェーブとのつながり
-				_pEditor->DrawLine(_wave.pos, _pos, _baseColor);
+				_pDebugDraw->DrawLine(_wave.pos, _pos, _baseColor);
 
 				// 向き
 				Math::Vector3 _dir = { _settings.dir.x, 0.0f, _settings.dir.z };
 				if (_dir.LengthSquared() > 1e-6f)
 				{
 					_dir.Normalize();
-					_pEditor->DrawLine(_pos, _pos + _dir * (MARKER_SIZE * 2.0f), Engine::Color::BLUE);
+					_pDebugDraw->DrawLine(_pos, _pos + _dir * (MARKER_SIZE * 2.0f), Engine::Color::BLUE);
 				}
 			}
 		}

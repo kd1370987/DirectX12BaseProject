@@ -24,22 +24,6 @@ namespace Engine::Editor
 		}
 	}
 
-	void LogPanel::AddLog(const char* a_fmt, ...)
-	{
-		if (!a_fmt) return;
-
-		// 書式を解決してから積む。
-		// 本文への追記は描画スレッドが FlushPending() で行う
-		char _buf[2048];
-
-		va_list _args = nullptr;
-		va_start(_args, a_fmt);
-		vsnprintf(_buf, sizeof(_buf), a_fmt, _args);
-		va_end(_args);
-
-		AddLogRow(_buf);
-	}
-
 	void LogPanel::AddLogRow(const char* a_text)
 	{
 		if (!a_text) return;

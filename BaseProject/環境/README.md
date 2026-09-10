@@ -17,6 +17,8 @@ BaseProject のクラス依存を Excalidraw 形式で書き出したもの。
 
 `Preview/*.svg` は同じ配置の確認用。ブラウザや VS でそのまま開ける。
 
+図から出した改善点を、どの順番で直すかは [REFACTORING_PLAN.md](REFACTORING_PLAN.md) にまとめてある。
+
 ## 表記
 
 | 見た目 | 意味 |

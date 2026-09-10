@@ -19,8 +19,7 @@ namespace Engine::Editor::Inspector
 			// ファイルパス取得
 			auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_pParticles->GetGUID());
 			a_pParticles->Save(_filePath);
-			MainEditor::Instance().AddLog("%s", _filePath.c_str());
-			MainEditor::Instance().AddLog(" : Save Particles\n");
+			ENGINE_LOG("%s: Save Particles", _filePath.c_str());
 		}
 
 		// パラメーター変更

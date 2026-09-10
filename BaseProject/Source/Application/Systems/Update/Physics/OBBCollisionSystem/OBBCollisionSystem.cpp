@@ -7,7 +7,7 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
-#include "Engine/Editor/Editor.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
 void OBBCollisionSystem::Init(App::ECS::World& a_world)
@@ -48,7 +48,7 @@ void OBBCollisionSystem::Init(App::ECS::World& a_world)
 				_drawObb.Center = _center;
 				_drawObb.Extents = _obb.extents;
 				_drawObb.Orientation = _trans.quat;
-				a_ctx.pServices->pMainEditor->DrawBox(
+				a_ctx.pServices->pDebugDraw->DrawBox(
 					_drawObb, _isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}
 		}

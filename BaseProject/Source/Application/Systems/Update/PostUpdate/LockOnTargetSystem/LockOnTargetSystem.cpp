@@ -11,7 +11,7 @@
 
 #include "Application/InstanceResource/SingletonEntityResource.h"
 
-#include "Engine/Editor/Editor.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
 //==========================================================================================
@@ -212,16 +212,16 @@ void LockOnTargetSystem::Init(App::ECS::World& a_world)
 				// 重なっているのにモデルが横を向いて見えるなら、原因はモデル側
 				// (メッシュの正面が +Z からずれている)。
 				//==============================================================
-				if (_lockOn.IsLocked() && a_ctx.pServices->pMainEditor)
+				if (_lockOn.IsLocked() && a_ctx.pServices->pDebugDraw)
 				{
-					auto* _pEditor = a_ctx.pServices->pMainEditor;
+					auto* _pDebugDraw = a_ctx.pServices->pDebugDraw;
 
 					Math::Vector3 _toTarget = Math::Vector3(_lockOn.lockedPos) - _playerPos;
 					_toTarget.y = 0.0f;
 					if (_toTarget.LengthSquared() > 1e-6f)
 					{
 						_toTarget.Normalize();
-						_pEditor->DrawLine(_playerPos, _playerPos + _toTarget * 10.0f, Engine::Color::GREEN);
+						_pDebugDraw->DrawLine(_playerPos, _playerPos + _toTarget * 10.0f, Engine::Color::GREEN);
 					}
 
 					// 自機の前方(左手系 +Z = ワールド行列の第3行)
@@ -230,7 +230,7 @@ void LockOnTargetSystem::Init(App::ECS::World& a_world)
 					if (_forward.LengthSquared() > 1e-6f)
 					{
 						_forward.Normalize();
-						_pEditor->DrawLine(_playerPos, _playerPos + _forward * 10.0f, Engine::Color::RED);
+						_pDebugDraw->DrawLine(_playerPos, _playerPos + _forward * 10.0f, Engine::Color::RED);
 					}
 				}
 			}

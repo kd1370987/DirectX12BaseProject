@@ -1069,12 +1069,6 @@
     <Filter Include="Source\Engine\Editor\Profiler">
       <UniqueIdentifier>{a1c0f001-1111-4a10-9f01-000000000001}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\Profiler\CPUProfiler">
-      <UniqueIdentifier>{a1c0f001-1111-4a10-9f01-000000000002}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Profiler\GPUProfiler">
-      <UniqueIdentifier>{a1c0f001-1111-4a10-9f01-000000000003}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Editor\Widget">
       <UniqueIdentifier>{d8eec145-b06d-5ed3-9a71-b7a1bbc25882}</UniqueIdentifier>
     </Filter>
@@ -1107,6 +1101,9 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\MeshBufferAllocator">
       <UniqueIdentifier>{4cdb53e6-823d-442f-af6a-eba9acee921b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\DebugDraw">
+      <UniqueIdentifier>{c0de0f02-2222-4333-8444-0000c0de0f02}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\MouseCursor">
       <UniqueIdentifier>{c0de0f01-1111-4222-8333-0000c0de0f01}</UniqueIdentifier>
@@ -1428,6 +1425,12 @@
     </Filter>
     <Filter Include="Source\Engine\Utility\Debug">
       <UniqueIdentifier>{61e8de91-a24f-4c93-aefe-608f4296c768}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Utility\Debug\Profile">
+      <UniqueIdentifier>{61e8de91-a24f-4c93-aefe-608f4296c769}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Utility\Debug\Profile\Time">
+      <UniqueIdentifier>{61e8de91-a24f-4c93-aefe-608f4296c76a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Utility\File">
       <UniqueIdentifier>{c0de0010-1111-4222-8333-0000c0de0010}</UniqueIdentifier>
@@ -2301,12 +2304,6 @@
     <ClCompile Include="Source\Engine\Editor\Profiler\Profiler.cpp">
       <Filter>Source\Engine\Editor\Profiler</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Profiler\CPUProfiler\CPUProfiler.cpp">
-      <Filter>Source\Engine\Editor\Profiler\CPUProfiler</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Profiler\GPUProfiler\GPUProfiler.cpp">
-      <Filter>Source\Engine\Editor\Profiler\GPUProfiler</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\BaseObject\BaseObject.cpp">
       <Filter>Source\Engine\GameObject\BaseObject</Filter>
     </ClCompile>
@@ -2327,6 +2324,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp">
       <Filter>Source\Engine\Graphics\MeshBufferAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\DebugDraw\DebugDraw.cpp">
+      <Filter>Source\Engine\Graphics\DebugDraw</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\MouseCursor\MouseCursor.cpp">
       <Filter>Source\Engine\Graphics\MouseCursor</Filter>
@@ -3723,9 +3723,6 @@
     <ClInclude Include="Source\Engine\Editor\Internal\EditorContext.h">
       <Filter>Source\Engine\Editor\Internal</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Internal\EditorTimer.h">
-      <Filter>Source\Engine\Editor\Internal</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\IPanel.h">
       <Filter>Source\Engine\Editor\Panel</Filter>
     </ClInclude>
@@ -3810,12 +3807,6 @@
     <ClInclude Include="Source\Engine\Editor\Profiler\Profiler.h">
       <Filter>Source\Engine\Editor\Profiler</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Profiler\CPUProfiler\CPUProfiler.h">
-      <Filter>Source\Engine\Editor\Profiler\CPUProfiler</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Profiler\GPUProfiler\GPUProfiler.h">
-      <Filter>Source\Engine\Editor\Profiler\GPUProfiler</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h">
       <Filter>Source\Engine\Editor\Widget\StateGraphEditor</Filter>
     </ClInclude>
@@ -3860,6 +3851,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.h">
       <Filter>Source\Engine\Graphics\MeshBufferAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\DebugDraw\DebugDraw.h">
+      <Filter>Source\Engine\Graphics\DebugDraw</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\MouseCursor\MouseCursor.h">
       <Filter>Source\Engine\Graphics\MouseCursor</Filter>
@@ -4199,6 +4193,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Debug\DebugLog.h">
       <Filter>Source\Engine\Utility\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Debug\Profile\Time\TimeProfileScope.h">
+      <Filter>Source\Engine\Utility\Debug\Profile\Time</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\File\FileUtility.h">
       <Filter>Source\Engine\Utility\File</Filter>

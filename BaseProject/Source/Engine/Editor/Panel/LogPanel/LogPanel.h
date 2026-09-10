@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../IPanel.h"
 
@@ -15,7 +15,7 @@ namespace Engine::Editor
 	/// ジョブとしてワーカースレッドで走り、その中の ENGINE_LOG / ENGINE_ERRLOG が
 	/// そのままこのパネルへ流れ込むため。
 	///
-	/// そこで追加(AddLog / AddLogRow)は**文字列をキューへ積むだけ**にして、
+	/// そこで追加(AddLogRow)は**文字列をキューへ積むだけ**にして、
 	/// ImGuiTextBuffer と行オフセットは描画スレッドが FlushPending() で触る。
 	/// この2つを複数スレッドから触ると、
 	///   ・ImVector の再確保と、他スレッドのインデックス参照がかち合って解放済みメモリを読む
@@ -35,11 +35,10 @@ namespace Engine::Editor
 		// ログのクリア
 		void Clear();
 
-		// ログの追加 : 書式と可変引数
-		void AddLog(const char* a_fmt, ...);
-
-		// 書式を解釈せずにそのまま追加する。
-		// '%' を含む文字列を流し込むときはこちらを使う
+		// ログを1行積む。
+		// 書式は解釈しないので、'%' を含む文字列(パスや割合)でも落ちない。
+		// 積む側はログ用マクロ(ENGINE_LOG など)で、ここへは
+		// MainEditor が登録したコールバック越しに届く
 		void AddLogRow(const char* a_text);
 
 	private:

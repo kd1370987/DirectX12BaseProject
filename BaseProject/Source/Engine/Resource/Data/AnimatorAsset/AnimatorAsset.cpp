@@ -169,8 +169,7 @@ namespace Engine::Resource
 			auto _guid = ResourceManager::Instance().GetCache<AnimatorAsset>(a_handle);
 			auto _path = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
 			Save(_path);
-			Editor::MainEditor::Instance().AddLog("%s", _path.c_str());
-			Editor::MainEditor::Instance().AddLog(" : Save AnimatorAsset\n");
+			ENGINE_LOG("%s : Save AnimatorAsset", _path.c_str());
 		}
 		ImGui::Separator();
 

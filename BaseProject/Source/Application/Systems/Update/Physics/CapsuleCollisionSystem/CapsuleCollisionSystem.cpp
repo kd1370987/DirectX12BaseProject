@@ -7,7 +7,7 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
-#include "Engine/Editor/Editor.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
 namespace
@@ -23,19 +23,19 @@ namespace
 	// ※ ベースが「半球半径 == 円柱半長」固定比のため、a_height != a_radius*2 のときは
 	//    上下のキャップが楕円に伸びる（当たり判定の線分自体は常に一致）。
 	void DrawCapsuleUpright(
-		Engine::Editor::MainEditor* a_pEditor,
+		Engine::Graphics::DebugDraw* a_pDebugDraw,
 		const Math::Vector3& a_center,
 		float a_radius,
 		float a_height,
 		const Math::Color& a_color)
 	{
-		if (!a_pEditor) return;
+		if (!a_pDebugDraw) return;
 
 		Math::Matrix _mat =
 			Math::Matrix::CreateScale(a_radius * 2.0f, a_height, a_radius * 2.0f) *
 			Math::Matrix::CreateTranslation(a_center);
 
-		a_pEditor->DrawCapsule(_mat, a_color);
+		a_pDebugDraw->DrawCapsule(_mat, a_color);
 	}
 }
 
@@ -83,7 +83,7 @@ void CapsuleCollisionSystem::Init(App::ECS::World& a_world)
 				// デバッグ描画（押し出しが起きたら赤、なければ緑）。押し出し後の中心で描画。
 				Math::Vector3 _drawCenter = _center + _correction;
 				DrawCapsuleUpright(
-					a_ctx.pServices->pMainEditor,
+					a_ctx.pServices->pDebugDraw,
 					_drawCenter, _cap.radius, _cap.height,
 					_isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}

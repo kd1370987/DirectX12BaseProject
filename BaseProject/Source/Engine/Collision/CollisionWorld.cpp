@@ -2,6 +2,7 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 
 #include "MidPhase/BVHTraverser/BVHTraverser.h"
 #include "Collision.h"
@@ -146,11 +147,13 @@ namespace Engine::Collision
 		m_staticInstanceVec.clear();
 		m_staticNodeVec.clear();
 	}
-	void CollisionWorld::DrawDebug()
+	void CollisionWorld::DrawDebug(Graphics::DebugDraw* a_pDebugDraw)
 	{
+		if (!a_pDebugDraw) return;
+
 		for (auto& _instance : m_staticInstanceVec)
 		{
-			Editor::MainEditor::Instance().DrawBox(_instance.worldAABB);
+			a_pDebugDraw->DrawBox(_instance.worldAABB);
 		}
 	}
 	namespace

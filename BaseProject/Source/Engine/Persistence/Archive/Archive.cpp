@@ -30,7 +30,7 @@ namespace Engine::Persistence
 				m_ofs.open(m_binPath, std::ios::binary);
 				if (!m_ofs.is_open())
 				{
-					Editor::MainEditor::Instance().ErrorLog("Not open archive : %s", m_binPath.c_str());
+					ENGINE_ERROR("Not open archive : %s", m_binPath.c_str());
 				}
 			}
 
@@ -63,7 +63,7 @@ namespace Engine::Persistence
 				}
 				else
 				{
-					Editor::MainEditor::Instance().ErrorLog("Not Faund Json : %s", m_jsonPath.c_str());
+					ENGINE_ERROR("Not Faund Json : %s", m_jsonPath.c_str());
 				}
 			}
 			else if (_loadBin)
@@ -71,7 +71,7 @@ namespace Engine::Persistence
 				m_ifs.open(m_binPath, std::ios::binary);
 				if (!m_ifs.is_open())
 				{
-					Editor::MainEditor::Instance().ErrorLog("Not Found Binary : %s", m_binPath.c_str());
+					ENGINE_ERROR("Not Found Binary : %s", m_binPath.c_str());
 				}
 			}
 			break;

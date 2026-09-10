@@ -40,7 +40,7 @@ namespace Engine::Editor
 		// ディスクリプタヒープ使用率
 		void DrawDescriptorHeapUsage();
 
-		// 関数ごとの計測結果(Profilerが並べ替え済み)
+		// スコープごとの計測結果(ENGINE_PROFILE_SCOPE / Profilerが並べ替え済み)
 		void DrawTimerTable(Profiler* a_pProfiler);
 	};
 }

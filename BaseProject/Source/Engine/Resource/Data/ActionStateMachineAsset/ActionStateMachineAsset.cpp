@@ -85,8 +85,7 @@ namespace Engine::Resource
 			auto _guid = ResourceManager::Instance().GetCache<ActionStateMachineAsset>(a_handle);
 			auto _path = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
 			Save(_path);
-			Editor::MainEditor::Instance().AddLog("%s", _path.c_str());
-			Editor::MainEditor::Instance().AddLog(" : Save ActionStateMachineAsset\n");
+			ENGINE_LOG("%s : Save ActionStateMachineAsset", _path.c_str());
 		}
 		ImGui::Separator();
 

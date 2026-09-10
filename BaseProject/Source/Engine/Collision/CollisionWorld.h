@@ -1,4 +1,10 @@
 ﻿#pragma once
+
+namespace Engine::Graphics
+{
+	class DebugDraw;
+}
+
 namespace Engine::Collision
 {
 	// 当たり判定を処理する専用の空間
@@ -28,8 +34,10 @@ namespace Engine::Collision
 		// シーンの更新時などに呼び出す。ワールドのリセット
 		void Clear();
 
-		// デバッグ用でワールドを見るための関数
-		void DrawDebug();
+		// デバッグ用でワールドを見るための関数。
+		// 静的インスタンスのAABBを、渡された置き場へ積む。
+		// 実際に出るかどうかは DebugDrawOption(エディターの表示設定)が決める
+		void DrawDebug(Graphics::DebugDraw* a_pDebugDraw);
 
 		// レイ判定
 		bool Raycast(const RayInfo& a_ray,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);

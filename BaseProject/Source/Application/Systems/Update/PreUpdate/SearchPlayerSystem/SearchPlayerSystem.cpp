@@ -6,7 +6,7 @@
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 #include "../../../../Components/Tag/PlayerControllTag.h"
 
-#include "Engine/Editor/Editor.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
 //==============================================================================
@@ -43,12 +43,12 @@ namespace
 
 	// 索敵範囲を水平の円でデバッグ描画する
 	void DrawRangeCircle(
-		Engine::Editor::MainEditor* a_pEditor,
+		Engine::Graphics::DebugDraw* a_pDebugDraw,
 		const Math::Vector3&        a_center,	// 円の中心(敵の位置)
 		float                       a_radius,	// 半径
 		const Math::Color&          a_color)
 	{
-		if (!a_pEditor)         return;
+		if (!a_pDebugDraw)         return;
 		if (a_radius <= 1e-4f)  return;
 
 		constexpr int _kSeg = 32;	// 円周の分割数
@@ -59,7 +59,7 @@ namespace
 			float _t = (DirectX::XM_2PI * _s) / _kSeg;
 			Math::Vector3 _p = a_center + Math::Vector3(std::sin(_t), 0.0f, std::cos(_t)) * a_radius;
 
-			if (_s > 0) a_pEditor->DrawLine(_prev, _p, a_color);
+			if (_s > 0) a_pDebugDraw->DrawLine(_prev, _p, a_color);
 			_prev = _p;
 		}
 	}
@@ -176,13 +176,13 @@ void SearchPlayerSystem::Init(App::ECS::World& a_world)
 				//   攻撃可能距離 : 黄(戦闘中のみ。圏内は破線ではなく色で判別できないので
 				//                  IsInAttackRange はインスペクタで見る)
 				//==================================================
-				auto* _pEditor = a_ctx.pServices->pMainEditor;
-				DrawRangeCircle(_pEditor, _selfPos, _detect,
+				auto* _pDebugDraw = a_ctx.pServices->pDebugDraw;
+				DrawRangeCircle(_pDebugDraw, _selfPos, _detect,
 					_target.isFind ? Engine::Color::RED : Engine::Color::GREEN);
 				if (_target.isFind)
 				{
-					DrawRangeCircle(_pEditor, _selfPos, _detectExit, Engine::Color::BLUE);
-					DrawRangeCircle(_pEditor, _selfPos, _attack, kAttackRangeColor);
+					DrawRangeCircle(_pDebugDraw, _selfPos, _detectExit, Engine::Color::BLUE);
+					DrawRangeCircle(_pDebugDraw, _selfPos, _attack, kAttackRangeColor);
 				}
 			}
 		}

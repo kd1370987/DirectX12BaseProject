@@ -23,6 +23,7 @@
 
 // ---- デバッグ用 ---- 
 #include "Utility/Debug/DebugLog.h"						// ログ出力
+#include "Utility/Debug/Profile/Time/TimeProfileScope.h"	// スコープ計測(ENGINE_PROFILE_SCOPE)
 
 // ---- 共通数学 ----
 #include "Utility/Math/Alignment.h"						// アライメント

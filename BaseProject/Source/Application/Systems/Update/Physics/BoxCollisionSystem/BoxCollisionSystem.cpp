@@ -7,7 +7,7 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
-#include "Engine/Editor/Editor.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
 void BoxCollisionSystem::Init(App::ECS::World& a_world)
@@ -46,7 +46,7 @@ void BoxCollisionSystem::Init(App::ECS::World& a_world)
 				DirectX::BoundingBox _drawBox;
 				_drawBox.Center = _center;
 				_drawBox.Extents = _box.extents;
-				a_ctx.pServices->pMainEditor->DrawBox(
+				a_ctx.pServices->pDebugDraw->DrawBox(
 					_drawBox, _isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}
 		}

@@ -35,18 +35,21 @@ namespace Engine::Editor
 		ImGui::Separator();
 		ImGui::Spacing();
 
-		// 下部にこれまでの「関数ごとの詳細な計測結果（ソート済みテーブル）」を表示する
+		// 下部にこれまでの「スコープごとの詳細な計測結果（ソート済みテーブル）」を表示する
 		DrawTimerTable(a_editContext.pProfiler);
 	}
 
 	//======================================================================================
-	// 関数ごとの計測結果
+	// スコープごとの計測結果
 	//
-	// 並べ替えまで Profiler が済ませているので、ここは受け取った順に並べるだけ
+	// ENGINE_PROFILE_SCOPE が投げてくるのは「名前と1回ぶんの時間」だけで、
+	// 平均や最小最大の組み立てと並べ替えは Profiler が済ませている。
+	// ここは受け取った順に並べるだけ
 	//======================================================================================
 	void ProfilerPanel::DrawTimerTable(Profiler* a_pProfiler)
 	{
 		ImGui::Text("CPU Detail Timings");
+		ImGui::TextDisabled("ENGINE_PROFILE_SCOPE");
 
 		if (!a_pProfiler)
 		{
@@ -68,6 +71,13 @@ namespace Engine::Editor
 		}
 		ImGui::Separator();
 
+		const auto& _results = a_pProfiler->GetResults();
+		if (_results.empty())
+		{
+			ImGui::TextDisabled("No scope has been measured yet.");
+			return;
+		}
+
 		// 描画
 		constexpr ImGuiTableFlags _tableFlags =
 			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp;
@@ -76,47 +86,49 @@ namespace Engine::Editor
 		{
 			ImGui::TableSetupColumn("Title");
 			ImGui::TableSetupColumn("CPU(ms)");
-			ImGui::TableSetupColumn("GPU(ms)");
 			ImGui::TableSetupColumn("Avg(ms)");
 			ImGui::TableSetupColumn("Min(ms)");
 			ImGui::TableSetupColumn("Max(ms)");
-			ImGui::TableSetupColumn("Count");
+			ImGui::TableSetupColumn("Calls");
+			ImGui::TableSetupColumn("Total");
 			ImGui::TableHeadersRow();
 
-			for (const auto& _result : a_pProfiler->GetResults())
+			for (const auto& _result : _results)
 			{
-				const Timer& _timer = _result.timer;
+				const ScopeTimer& _timer = _result.timer;
 
 				ImGui::TableNextRow();
 
 				ImGui::TableSetColumnIndex(0);
 				ImGui::Text("%s", _result.name.c_str());
 
+				// このフレームで通らなかったものは、直近の値を出しても嘘になるので伏せる
 				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("%.3f", _timer.time);
-
-				// GPU計測はコマンドリストを渡した項目だけ入る
-				ImGui::TableSetColumnIndex(2);
-				if (_timer.gpuTime > 0.0)
+				if (_timer.callCount > 0)
 				{
-					ImGui::Text("%.3f", _timer.gpuTime);
+					ImGui::Text("%.3f", _timer.time);
 				}
 				else
 				{
 					ImGui::TextDisabled("-");
 				}
 
-				ImGui::TableSetColumnIndex(3);
+				ImGui::TableSetColumnIndex(2);
 				ImGui::Text("%.3f", _timer.averageTime);
 
-				ImGui::TableSetColumnIndex(4);
+				ImGui::TableSetColumnIndex(3);
 				ImGui::Text("%.3f", _timer.minTime);
 
-				ImGui::TableSetColumnIndex(5);
+				ImGui::TableSetColumnIndex(4);
 				ImGui::Text("%.3f", _timer.maxTime);
 
+				// このフレームで通った回数 : ループの中で計っているものはここが伸びる
+				ImGui::TableSetColumnIndex(5);
+				ImGui::Text("%d", _timer.callCount);
+
+				// リセット以降の総計測回数
 				ImGui::TableSetColumnIndex(6);
-				ImGui::Text("%d", _timer.totalCount);
+				ImGui::Text("%d", _timer.totalCallCount);
 			}
 			ImGui::EndTable();
 		}

@@ -7,7 +7,7 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Collision/CollisionWorld.h"
-#include "Engine/Editor/Editor.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
 void SphereCollisionSystem::Init(App::ECS::World& a_world)
@@ -52,7 +52,7 @@ void SphereCollisionSystem::Init(App::ECS::World& a_world)
 				DirectX::BoundingSphere _drawSphere;
 				_drawSphere.Center = _center;
 				_drawSphere.Radius = _sphere.radius;
-				a_ctx.pServices->pMainEditor->DrawSphere(
+				a_ctx.pServices->pDebugDraw->DrawSphere(
 					_drawSphere, _isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}
 		}

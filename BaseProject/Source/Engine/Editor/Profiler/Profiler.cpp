@@ -1,97 +1,113 @@
 ﻿#include "Profiler.h"
 
-#include "CPUProfiler/CPUProfiler.h"
-#include "GPUProfiler/GPUProfiler.h"
-
-#include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
-
 namespace Engine::Editor
 {
-	Profiler::Profiler() = default;
-	Profiler::~Profiler() = default;
-
 	//======================================================================================
-	// 初期化
-	//======================================================================================
-	void Profiler::Init()
-	{
-		m_upCPUProfiler = std::make_unique<CPUProfiler>();
-		m_upGPUProfiler = std::make_unique<GPUProfiler>();
-
-		m_upGPUProfiler->Init();
-
-		m_frameCount = 0;
-	}
-
-	//======================================================================================
-	// 解放
-	// リードバックバッファをマップしっぱなしにしているので、デバイス破棄より前に外す
-	//======================================================================================
-	void Profiler::Release()
-	{
-		if (m_upGPUProfiler)
-		{
-			m_upGPUProfiler->Releasse();
-		}
-	}
-
-	//======================================================================================
-	// フレーム開始
+	// 計測結果の受け取り
 	//
-	// GPUクエリの割り当てを先頭に戻すだけ
-	// このフレームで積まれる GPU計測より前に呼ばれている必要がある
+	// ここはワーカースレッドから呼ばれることがあるので、積むだけにして何も触らない
+	// (ログパネルと同じ考え方。集計はメインスレッドのEndFrameでやる)
 	//======================================================================================
-	void Profiler::BeginFrame()
+	void Profiler::PushResult(const Debug::ProfileResult& a_result)
 	{
-		if (m_upGPUProfiler)
-		{
-			m_upGPUProfiler->BeginFrame();
-		}
+		std::lock_guard<std::mutex> _lock(m_pendingMutex);
+		m_pendingResults.push_back(a_result);
 	}
 
 	//======================================================================================
-	// GPU計測結果の読み戻し
+	// フレーム末尾の集計
 	//
-	// タイムスタンプはコマンドリストがGPUで実行されて初めて確定するので、
-	// フレーム末尾ではなく「GPU待機を抜けた直後」に呼ぶ
-	// 読めるのは待機が保証しているフレームぶんなので、数フレーム前の結果になる
-	//======================================================================================
-	void Profiler::CollectGPUResult()
-	{
-		if (!m_upGPUProfiler) return;
-
-		// GetDirectCommandList() はプールからリストを確保する副作用付きなので呼ばない
-		// (読み戻しにコマンドリストは不要)
-		m_upGPUProfiler->EndFrame(
-			D3D12::D3D12Wrapper::Instance().GetCommandQueue(),
-			m_timers
-		);
-	}
-
-	//======================================================================================
-	// フレーム終了
+	// 1. 受け取り待ちを掃き出して、名前ごとにこのフレームぶんを足す
+	// 2. フレームの合計を確定させ、最小・最大を更新する
+	// 3. 平均レートに達していたら平均を取り直す
+	// 4. 表示用の並べ替え済み配列を作り直す
 	//
-	// 平均レートに達したら平均を確定させ、表示用の並べ替え済み配列を作り直す
 	// パネルが読むのは常に「前フレームまでに確定した結果」になる
 	//======================================================================================
 	void Profiler::EndFrame()
 	{
-		// 平均の確定
+		//-----------------------------------------------------------------
+		// 1. 受け取り待ちを掃き出す
+		//
+		// ロックしている間に集計まで済ませると、計測側(別スレッド)を
+		// そのぶん待たせることになるので、入れ物ごと持ち出してすぐ手を放す
+		//-----------------------------------------------------------------
+		std::vector<Debug::ProfileResult> _results;
+		{
+			std::lock_guard<std::mutex> _lock(m_pendingMutex);
+			_results.swap(m_pendingResults);
+		}
+
+		for (const auto& _result : _results)
+		{
+			// 未登録の名前はここで作る
+			ScopeTimer& _timer = m_timers[_result.name];
+
+			_timer.pendingTime += _result.ms;
+			++_timer.pendingCallCount;
+			++_timer.totalCallCount;
+		}
+
+		//-----------------------------------------------------------------
+		// 2. このフレームぶんを確定させる
+		//-----------------------------------------------------------------
+		for (auto& [_name, _timer] : m_timers)
+		{
+			_timer.time = _timer.pendingTime;
+			_timer.callCount = _timer.pendingCallCount;
+
+			_timer.pendingTime = 0.0;
+			_timer.pendingCallCount = 0;
+
+			// このフレームで一度も通らなかったものは平均に混ぜない
+			//
+			// 混ぜてしまうと「たまにしか通らないが重い処理」の平均が
+			// 通らなかったフレームの0で薄まって、軽く見えてしまう
+			if (_timer.callCount <= 0) continue;
+
+			_timer.accumulatedTime += _timer.time;
+			++_timer.sampleFrameCount;
+
+			// 最小・最大
+			// 初回は比較対象がないのでそのまま入れる
+			if (!_timer.hasSample)
+			{
+				_timer.hasSample = true;
+				_timer.minTime = _timer.time;
+				_timer.maxTime = _timer.time;
+				_timer.averageTime = _timer.time;	// 平均が確定するまでの暫定値
+			}
+			else
+			{
+				_timer.minTime = std::min(_timer.minTime, _timer.time);
+				_timer.maxTime = std::max(_timer.maxTime, _timer.time);
+			}
+		}
+
+		//-----------------------------------------------------------------
+		// 3. 平均の確定
+		// 累積をフレーム数で割って平均に反映し、次の区間のために累積を空にする
+		//-----------------------------------------------------------------
 		++m_frameCount;
 		if (m_frameCount >= m_avelageRate)
 		{
 			m_frameCount = 0;
 
-			if (m_upCPUProfiler)
+			for (auto& [_name, _timer] : m_timers)
 			{
-				for (auto& [_name, _timer] : m_timers)
-				{
-					m_upCPUProfiler->FixAverage(_timer);
-				}
+				// この区間で一度も通らなかったものは、前回の平均を残す
+				if (_timer.sampleFrameCount <= 0) continue;
+
+				_timer.averageTime = _timer.accumulatedTime / static_cast<double>(_timer.sampleFrameCount);
+
+				_timer.accumulatedTime = 0.0;
+				_timer.sampleFrameCount = 0;
 			}
 		}
 
-		// 表示用のスナップショットを作る
+		//-----------------------------------------------------------------
+		// 4. 表示用のスナップショットを作る
+		//-----------------------------------------------------------------
 		m_results.clear();
 		m_results.reserve(m_timers.size());
 		for (const auto& [_name, _timer] : m_timers)
@@ -102,7 +118,7 @@ namespace Engine::Editor
 		// 平均時間の降順(重い順)に並べ替え
 		std::sort(
 			m_results.begin(), m_results.end(),
-			[](const TimerResult& a_lhs, const TimerResult& a_rhs)
+			[](const ScopeTimerResult& a_lhs, const ScopeTimerResult& a_rhs)
 			{
 				return a_lhs.timer.averageTime > a_rhs.timer.averageTime;
 			}
@@ -110,59 +126,20 @@ namespace Engine::Editor
 	}
 
 	//======================================================================================
-	// 計測開始
-	// 未登録の名前はここで作る
-	//======================================================================================
-	void Profiler::StartTimer(const std::string& a_name, D3D12::GraphicsCommandList* a_pCmdList)
-	{
-		if (!m_upCPUProfiler) return;
-
-		Timer& _timer = m_timers[a_name];
-
-		m_upCPUProfiler->Start(_timer);
-
-		// コマンドリストがあればGPU計測もする
-		if (!a_pCmdList) return;
-		if (!m_upGPUProfiler) return;
-
-		m_upGPUProfiler->Start(a_pCmdList, _timer);
-	}
-
-	//======================================================================================
-	// 計測終了
-	//======================================================================================
-	void Profiler::StopTimer(const std::string& a_name, D3D12::GraphicsCommandList* a_pCmdList)
-	{
-		if (!m_upCPUProfiler) return;
-
-		auto _it = m_timers.find(a_name);
-		if (_it == m_timers.end())
-		{
-			ENGINE_LOG("開始していない計測を終了しようとしました : %s", a_name.c_str());
-			return;
-		}
-
-		m_upCPUProfiler->Stop(_it->second);
-
-		// コマンドリストがあればGPU計測もする
-		if (!a_pCmdList) return;
-		if (!m_upGPUProfiler) return;
-
-		m_upGPUProfiler->End(a_pCmdList, _it->second);
-	}
-
-	//======================================================================================
 	// リセット
+	//
+	// 名前ごと消してしまう
+	// 計測箇所は毎フレーム名乗ってくるので、生きているものは次のフレームで戻ってくる
 	//======================================================================================
 	void Profiler::ResetAll()
 	{
-		if (!m_upCPUProfiler) return;
-
-		for (auto& [_name, _timer] : m_timers)
 		{
-			m_upCPUProfiler->Reset(_timer);
+			std::lock_guard<std::mutex> _lock(m_pendingMutex);
+			m_pendingResults.clear();
 		}
 
+		m_timers.clear();
+		m_results.clear();
 		m_frameCount = 0;
 	}
 }

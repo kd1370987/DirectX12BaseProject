@@ -12,6 +12,7 @@
 #include "../../D3D12/PipelineStateManager/PipelineStateManager.h"
 #include "../GraphicEngine.h"
 #include "../MeshBufferAllocator/MeshBufferAllocator.h"
+#include "../DebugDraw/DebugDraw.h"
 
 #include "../../ECS/World/World.h"
 
@@ -404,7 +405,7 @@ namespace Engine::Graphics
 		}
 
 		// デバッグライン用バッファ更新
-		const auto& _debugVec = Editor::MainEditor::Instance().GetDebugLineDataVec();
+		const auto& _debugVec = m_pGraphicsEngine->GetDebugDraw()->GetLineDataVec();
 		if (!_debugVec.empty())
 		{
 			m_debugLineBuffer.UpdateData(_debugVec.data(), _debugVec.size() * sizeof(DebugLineData));
@@ -711,7 +712,7 @@ namespace Engine::Graphics
 
 	void RenderContext::DrawShape()
 	{
-		const auto& _debugVec = Editor::MainEditor::Instance().GetDebugLineDataVec();
+		const auto& _debugVec = m_pGraphicsEngine->GetDebugDraw()->GetLineDataVec();
 		if (_debugVec.empty()) return;
 		m_pCmdList->DrawInstanced(
 			136,
