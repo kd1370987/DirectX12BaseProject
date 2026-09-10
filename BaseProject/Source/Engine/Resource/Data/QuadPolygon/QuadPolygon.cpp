@@ -4,7 +4,7 @@
 
 namespace Engine::Resource
 {
-	void QuadPolygon::Init()
+	void QuadPolygon::Init(D3D12::DescriptorHeapManager* a_pHeapManager)
 	{
 		Engine::Resource::SimpleVertex _vertices[] = {
 			{
@@ -28,6 +28,7 @@ namespace Engine::Resource
 		// 頂点バッファ作成
 		if (!m_vertexBuffer.CreateAndUpload(
 			D3D12::D3D12Wrapper::Instance().GetDevice(),
+			a_pHeapManager,
 			4,
 			_vertices
 		))
@@ -41,12 +42,12 @@ namespace Engine::Resource
 		_desc.count = _indices.size();
 		_desc.pData = _indices.data();
 		_desc.format = DXGI_FORMAT_R32_UINT;
-		if (!m_indexBuffer.Create(D3D12::D3D12Wrapper::Instance().GetDevice(),_desc))
+		if (!m_indexBuffer.Create(D3D12::D3D12Wrapper::Instance().GetDevice(),a_pHeapManager,_desc))
 		{
 			assert(0 && "いたポリのインデックスバッファ作成失敗");
 		}
 	}
-	void QuadPolygon::Init(uint32_t a_widthVertNum, uint32_t a_heightVertNum)
+	void QuadPolygon::Init(D3D12::DescriptorHeapManager* a_pHeapManager, uint32_t a_widthVertNum, uint32_t a_heightVertNum)
 	{
 		ENGINE_ERRLOG((a_widthVertNum >= 2),"ポリゴンを生成するのに、横の頂点数が足りません");
 		ENGINE_ERRLOG((a_heightVertNum >= 2),"ポリゴンを生成するのに、縦の頂点数が足りません");
@@ -89,7 +90,7 @@ namespace Engine::Resource
 		// 頂点バッファ作成
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 
-		if (!m_vertexBuffer.CreateAndUpload(_pDevice,_vertNum,_vertices.data()))
+		if (!m_vertexBuffer.CreateAndUpload(_pDevice,a_pHeapManager,_vertNum,_vertices.data()))
 		{
 			ENGINE_ERRLOG(false, "いたポリの頂点バッファ作成失敗");
 		}
@@ -127,7 +128,7 @@ namespace Engine::Resource
 		_desc.count = _indices.size();
 		_desc.pData = _indices.data();
 		_desc.format = DXGI_FORMAT_R32_UINT;
-		if (!m_indexBuffer.Create(D3D12::D3D12Wrapper::Instance().GetDevice(), _desc))
+		if (!m_indexBuffer.Create(D3D12::D3D12Wrapper::Instance().GetDevice(), a_pHeapManager, _desc))
 		{
 			ENGINE_ERRLOG(false, "いたポリのインデックスバッファ作成失敗");
 		}

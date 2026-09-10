@@ -52,12 +52,10 @@ namespace Engine::D3D12
 		m_upCommandContext->RefCopyPool()->Release();
 		m_upCommandContext->RefComputePool()->Release();
 
-		// バックバッファ解放
-		m_pCurrentRenderTarget = nullptr;
-		for (auto& _tex : m_backBuffers)
-		{
-			_tex.Release();
-		}
+		// バックバッファ解放。
+		// 通常は MainEngine がディスクリプタヒープを捨てる前に済ませているので、
+		// ここへ来たときは何も残っていない
+		ReleaseBackBuffer();
 
 		// DX12オブジェクト解放
 		m_cpSwapChain.Reset();
@@ -538,13 +536,27 @@ namespace Engine::D3D12
 		m_scissorRect.bottom = a_windowHeight;
 	}
 
-	void D3D12Wrapper::CreateBackBuffer()
+	void D3D12Wrapper::CreateBackBuffer(DescriptorHeapManager* a_pHeapManager)
 	{
+		// RTVの置き場を控える
+		m_pHeapManager = a_pHeapManager;
+
 		// バックバッファをスワップチェインから取得
 		for (UINT _i = 0; _i < BACKBUFFER_COUNT; ++_i)
 		{
-			m_backBuffers[_i].Create(m_cpSwapChain.Get(), _i, Resource::TextureUsage::RTV);
+			m_backBuffers[_i].Create(a_pHeapManager, m_cpSwapChain.Get(), _i, Resource::TextureUsage::RTV);
 		}
+	}
+
+	void D3D12Wrapper::ReleaseBackBuffer()
+	{
+		m_pCurrentRenderTarget = nullptr;
+		for (auto& _tex : m_backBuffers)
+		{
+			_tex.Release();
+		}
+
+		m_pHeapManager = nullptr;
 	}
 
 
@@ -575,7 +587,7 @@ namespace Engine::D3D12
 	void D3D12Wrapper::SetBackBuffer()
 	{
 		// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
-		auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
+		auto _cpuHandle = m_pHeapManager->GetCPU(
 			m_backBuffers[m_currentBackBufferIndex].GetRTV()
 		);
 

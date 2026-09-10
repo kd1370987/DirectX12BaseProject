@@ -1,8 +1,13 @@
-#pragma once
+﻿#pragma once
 
 namespace Engine::Resource
 {
 	class Texture;
+}
+
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
 }
 
 namespace Engine::Graphics
@@ -29,7 +34,11 @@ namespace Engine::Graphics
 	public:
 
 		// 初期化・解放
-		void Init();
+		/// <summary>
+		/// 初期化
+		/// </summary>
+		/// <param name="a_pHeapManager">ImGuiへ渡すSRVを引くためのディスクリプタヒープ(借り物)</param>
+		void Init(D3D12::DescriptorHeapManager* a_pHeapManager);
 		void Release();
 
 		/// <summary>
@@ -64,6 +73,10 @@ namespace Engine::Graphics
 		bool TryGetCursorClientPos(Math::Vector2& a_outClientPos) const;
 
 	private:
+
+		// ImGuiへ渡すSRVを引くためのディスクリプタヒープ(借り物)。
+		// 実体は GraphicsEngine が持っている
+		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
 
 		// 描画に使うテクスチャ。設定のGUIDが変わったら読み直す
 		ResourceRef<Resource::Texture> m_texRef = {};

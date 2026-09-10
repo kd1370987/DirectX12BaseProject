@@ -32,8 +32,10 @@ namespace Engine::Graphics::Pipeline
 
 		// ステートはグラフが RENDER_TARGET へ遷移済み。
 		// レンダーターゲットの切り替えもグラフが済ませてあるので、ここは塗るだけでよい
+		if (!a_context.pHeapManager) return;
+
 		const D3D12_CPU_DESCRIPTOR_HANDLE _rtv =
-			D3D12::DescriptorHeapManager::Instance().GetCPU(_pResource->GetRTV());
+			a_context.pHeapManager->GetCPU(_pResource->GetRTV());
 
 		const float _color[4] = { m_params.clearColor.r, m_params.clearColor.g, m_params.clearColor.b, m_params.clearColor.a };
 		a_context.pCmdList->ClearRenderTargetView(_rtv, _color, 0, nullptr);

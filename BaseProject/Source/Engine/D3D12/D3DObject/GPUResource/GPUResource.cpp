@@ -91,13 +91,28 @@ namespace Engine::D3D12
 	{
 		m_cpResource.Reset();
 
-		DescriptorHeapManager::Instance().Free(m_srvHandle);
-		DescriptorHeapManager::Instance().Free(m_uavHandle);
-		DescriptorHeapManager::Instance().Free(m_rtvHandle);
-		DescriptorHeapManager::Instance().Free(m_dsvHandle);
-		DescriptorHeapManager::Instance().Free(m_readOnlyDsvHandle);
-		DescriptorHeapManager::Instance().FreeImGuiSRV(m_imguiSRVHandle);
+		// ビューを取ったときに預かったヒープへ返す。
+		// 一度も取っていない(= nullptr)なら返すものが無い
+		if (m_pHeapManager)
+		{
+			m_pHeapManager->Free(m_srvHandle);
+			m_pHeapManager->Free(m_uavHandle);
+			m_pHeapManager->Free(m_rtvHandle);
+			m_pHeapManager->Free(m_dsvHandle);
+			m_pHeapManager->Free(m_readOnlyDsvHandle);
+			m_pHeapManager->FreeImGuiSRV(m_imguiSRVHandle);
+		}
 
+		// ハンドルを空にする。
+		// 同じリソースへ Release が二度来ても、返し済みの席を二重に返さないため
+		m_srvHandle = {};
+		m_uavHandle = {};
+		m_rtvHandle = {};
+		m_dsvHandle = {};
+		m_readOnlyDsvHandle = {};
+		m_imguiSRVHandle = {};
+
+		m_pHeapManager = nullptr;
 	}
 	void GPUResource::Barrier(D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
 	{

@@ -10,6 +10,7 @@ namespace Engine::Resource
 namespace Engine::D3D12
 {
 	class RootSignature;
+	class DescriptorHeapManager;
 }
 
 
@@ -23,6 +24,9 @@ namespace Engine::Graphics
 	{
 		// D3Dオブジェクトのキャッシュ
 		D3D12::Device* pDevice = nullptr;
+
+		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている
+		D3D12::DescriptorHeapManager* pHeapManager = nullptr;
 
 		// アロケーターのメモリ容量
 		size_t cbAllocatorMemSize = 32 * 1024 * 1024;
@@ -109,6 +113,15 @@ namespace Engine::Graphics
 
 		// 直接GPUアドレスを取得
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
+
+		//--------------------------------------------------------------------------------------
+		// ビューの置き場(借り物)
+		//
+		// 実体は GraphicsEngine が持っている。
+		// フレームの描画中にハンドルからCPU/GPUハンドルを引きたいものは、
+		// シングルトンではなくここから借りること
+		//--------------------------------------------------------------------------------------
+		D3D12::DescriptorHeapManager* RefDescriptorHeapManager() const { return m_pHeapManager; }
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandleBindLess(Handle<D3D12::SRV> a_handle);
 
 		// レンダーターゲットのクリア
@@ -240,6 +253,7 @@ namespace Engine::Graphics
 		// 参照
 		//--------------------------------------------------------------------------------------------
 		D3D12::Device* m_pDevice = nullptr;						// デバイス
+		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;	// ビューの置き場(借り物)
 		GraphicsEngine* m_pGraphicsEngine = nullptr;			// オーナー
 
 		//--------------------------------------------------------------------------------------------

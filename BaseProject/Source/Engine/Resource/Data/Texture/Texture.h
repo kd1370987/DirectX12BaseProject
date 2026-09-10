@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Resource
 {
 	const std::string WHITE_TEXTURE_GUIDSTR		=	"00000000-0000-0000-0000-000000000001";
@@ -44,11 +49,17 @@ namespace Engine::Resource
 		~Texture() = default;
 		NON_COPYABLE_MOVABLE(Texture);
 
+		//--------------------------------------------------------------------------------------------
 		// テクスチャ生成
-		void Import(const std::string& a_filePath,const Math::Color& a_defoltData = { 255,255,255,255 });
-		void Create(const std::string& a_name, const Math::Color& a_defoltData);
-		void Create(const TextureCreateDesc& a_desc);
-		void Create(IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,TextureUsage a_texUsage = TextureUsage::RTV);
+		//
+		// 先頭のディスクリプタヒープは、このテクスチャのビュー(SRV/RTV/DSV/UAV)を置く先。
+		// 実体は GraphicsEngine が持っているので、呼び出し側はコンテキストから受け取ったものを渡す。
+		// 渡したものは控えられ、Release() で同じところへ返る
+		//--------------------------------------------------------------------------------------------
+		void Import(D3D12::DescriptorHeapManager* a_pHeapManager,const std::string& a_filePath,const Math::Color& a_defoltData = { 255,255,255,255 });
+		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,const std::string& a_name, const Math::Color& a_defoltData);
+		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,const TextureCreateDesc& a_desc);
+		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,TextureUsage a_texUsage = TextureUsage::RTV);
 
 		/// <summary>
 		/// 指定のヒープ上に作成する(placed)
@@ -59,7 +70,7 @@ namespace Engine::Resource
 		/// 大きさと詰め方は BuildTextureResourceDesc() から起こした仕様書を
 		/// GetResourceAllocationInfo へ渡して求める : 同じ仕様書でないと席に収まらない
 		/// </remarks>
-		void Create(ID3D12Heap* a_pHeap,UINT64 a_heapOffset,const TextureCreateDesc& a_desc);
+		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,ID3D12Heap* a_pHeap,UINT64 a_heapOffset,const TextureCreateDesc& a_desc);
 
 		/// <summary>
 		/// 元のPNGなどのパスを基準に横にDDSテクスチャを作成する
@@ -84,10 +95,10 @@ namespace Engine::Resource
 
 		// 実体が出来たあとの共通処理 : 要件の控え・デバッグ名・ビューの登録。
 		// committed / placed のどちらから来ても同じでないといけないので1箇所に寄せる
-		void SetupFromDesc(const TextureCreateDesc& a_desc);
+		void SetupFromDesc(D3D12::DescriptorHeapManager* a_pHeapManager, const TextureCreateDesc& a_desc);
 
 		// ビューの作成
-		void CreateView();
+		void CreateView(D3D12::DescriptorHeapManager* a_pHeapManager);
 	private:
 
 		// リソース

@@ -77,7 +77,7 @@ namespace Engine::Graphics::Pipeline
 		}
 
 		// 物理リソースが割り当てられた後に呼ばれるので、ここで実体の形を見られる
-		EnsurePreviewTexture(a_context.GetResource(*_pIn));
+		EnsurePreviewTexture(a_context.pHeapManager, a_context.GetResource(*_pIn));
 	}
 
 	void MonitorPass::Update(const PassContext& a_context)
@@ -116,7 +116,7 @@ namespace Engine::Graphics::Pipeline
 	//======================================================================================
 	// モニター用テクスチャの用意
 	//======================================================================================
-	void MonitorPass::EnsurePreviewTexture(D3D12::GPUResource* a_pSource)
+	void MonitorPass::EnsurePreviewTexture(D3D12::DescriptorHeapManager* a_pHeapManager, D3D12::GPUResource* a_pSource)
 	{
 		if (!a_pSource || !a_pSource->GetResource())
 		{
@@ -161,7 +161,7 @@ namespace Engine::Graphics::Pipeline
 		_desc.usage = Resource::TextureUsage::SRV;
 
 		m_upPreviewTex = std::make_unique<Resource::Texture>();
-		m_upPreviewTex->Create(_desc);
+		m_upPreviewTex->Create(a_pHeapManager, _desc);
 	}
 
 	void MonitorPass::ReleasePreviewTexture()

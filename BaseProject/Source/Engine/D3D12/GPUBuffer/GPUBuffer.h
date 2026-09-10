@@ -4,6 +4,9 @@
 
 namespace Engine::D3D12
 {
+	// 前方宣言
+	class DescriptorHeapManager;
+
 	struct GPUBufferDesc
 	{
 		size_t strideSize = 0;
@@ -31,7 +34,9 @@ namespace Engine::D3D12
 		void Write(const void* a_pData,size_t a_size);
 
 	protected:
-		Handle<SRV> AllocateSRV(D3D12::Device* a_pDevice,ID3D12Resource* a_pRes,const D3D12_SHADER_RESOURCE_VIEW_DESC& a_desc);
-		Handle<UAV> AllocateUAV(D3D12::Device* a_pDevice,ID3D12Resource* a_pRes,const D3D12_UNORDERED_ACCESS_VIEW_DESC& a_desc);
+		// ビューの確保。
+		// 渡されたヒープは m_pHeapManager に控えて、Release() で同じところへ返す
+		Handle<SRV> AllocateSRV(D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,ID3D12Resource* a_pRes,const D3D12_SHADER_RESOURCE_VIEW_DESC& a_desc);
+		Handle<UAV> AllocateUAV(D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,ID3D12Resource* a_pRes,const D3D12_UNORDERED_ACCESS_VIEW_DESC& a_desc);
 	};
 }

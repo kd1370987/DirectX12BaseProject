@@ -2,7 +2,7 @@
 
 namespace Engine::D3D12
 {
-	bool DynamicIndexBuffer::Create(D3D12::Device* a_pDebice, const IndexBufferDesc& a_desc)
+	bool DynamicIndexBuffer::Create(D3D12::Device* a_pDebice, DescriptorHeapManager* a_pHeapManager, const IndexBufferDesc& a_desc)
 	{
 		// リソース作成
 		DynamicBufferDesc _desc = {};
@@ -10,7 +10,7 @@ namespace Engine::D3D12
 		_desc.strideSize = (a_desc.format == DXGI_FORMAT_R16_UINT) ? 2 : 4;
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
 
-		if (!DynamicBuffer::Create(a_pDebice, _desc))
+		if (!DynamicBuffer::Create(a_pDebice, a_pHeapManager, _desc))
 		{
 			assert(0 && "インデックスバッファ作成時にリソース作成失敗");
 			return false;

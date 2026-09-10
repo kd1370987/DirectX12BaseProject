@@ -18,6 +18,7 @@ namespace Engine::Particle
 		/// </summary>
 		void Init(
 			D3D12::Device* a_pDevice,
+			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList
 		);
 
@@ -113,6 +114,10 @@ namespace Engine::Particle
 		bool IsLoaded(const Handle<Resource::ParticlesAsset>& a_handle);
 
 	private:
+		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
+		// プールは非同期に作られるので、Init で受け取ったものを持ち続ける
+		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
+
 		// アセットと 1対1 で紐づくバッファ群のマップ
 		std::unordered_map<Handle<Resource::ParticlesAsset>, std::unique_ptr<GPUParticlePool>> m_pools;
 

@@ -10,6 +10,7 @@ namespace Engine
 		class RootSignatureManager;
 
 		class PipelineStateManager;
+		class DescriptorHeapManager;
 	}
 
 	namespace ECS
@@ -171,6 +172,17 @@ namespace Engine::Graphics
 		GraphicsEngine();
 		~GraphicsEngine();
 
+		//--------------------------------------------------------------------------------------------
+		// ディスクリプタヒープの初期化・解放
+		//
+		// 他の初期化とは別段にしてある。
+		// ・作るのが一番早い : バックバッファのRTVを取るのに要るので Init より前に通す
+		// ・捨てるのが一番遅い : パーティクル/レイトレ/PSO/バックバッファ/遅延解放キューが
+		//   Release() の後にディスクリプタを返してくるため、そこまで生かしておく
+		//--------------------------------------------------------------------------------------------
+		bool InitDescriptorHeap(D3D12::Device* a_pDevice);
+		void ReleaseDescriptorHeap();
+
 		// 初期化・解放
 		void Init(D3D12::GraphicsCommandList* a_pCmdList, const GraphicsEngineDesc& a_desc);
 		void Release();
@@ -185,6 +197,12 @@ namespace Engine::Graphics
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
 		D3D12::PipelineStateManager* RefPipelineStateManager();
+
+		// ディスクリプタヒープ。
+		// これを直接引くのはコンテキストを組み立てる側だけにして、
+		// 使う側はコンテキスト経由で受け取ること
+		D3D12::DescriptorHeapManager* RefDescriptorHeapManager();
+		const D3D12::DescriptorHeapManager* GetDescriptorHeapManager() const;
 		//--------------------------------------------------------------------------------------------
 		// 生成できるパスの一覧
 		//
@@ -662,6 +680,9 @@ namespace Engine::Graphics
 
 		// PSOやルートシグネチャの管理
 		D3D12::PipelineStateManager* m_pPipelineStateManager = nullptr;
+
+		// ディスクリプタヒープ。アプリに1つだけ存在する
+		std::unique_ptr<D3D12::DescriptorHeapManager> m_upDescriptorHeapManager = nullptr;
 
 		//メッシュバッファ管理
 		std::unique_ptr<MeshBufferAllocator> m_upMeshBufferAllocator = nullptr;

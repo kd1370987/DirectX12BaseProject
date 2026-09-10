@@ -6,7 +6,7 @@
 
 namespace Engine::Particle
 {
-	void Engine::Particle::GPUParticlePool::Init(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList,Engine::Handle<Resource::ParticlesAsset> a_particleHandle)
+	void Engine::Particle::GPUParticlePool::Init(D3D12::Device* a_pDevice, D3D12::DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList,Engine::Handle<Resource::ParticlesAsset> a_particleHandle)
 	{
 		auto* _pParticleAsset = Resource::ResourceManager::Instance().Get(a_particleHandle);
 		if (!_pParticleAsset)
@@ -19,9 +19,9 @@ namespace Engine::Particle
 		m_assetHandle = a_particleHandle;
 
 		// バッファの作成
-		m_particlePool.Create(a_pDevice, m_maxCapacity);
-		m_deadList.Create(a_pDevice,m_maxCapacity);
-		m_counterBuffer.Create(a_pDevice,1);
+		m_particlePool.Create(a_pDevice, a_pHeapManager, m_maxCapacity);
+		m_deadList.Create(a_pDevice, a_pHeapManager, m_maxCapacity);
+		m_counterBuffer.Create(a_pDevice, a_pHeapManager, 1);
 
 		// バッファの初期化用データの作成
 		std::vector<uint32_t> _initDeadList(m_maxCapacity);
@@ -43,9 +43,9 @@ namespace Engine::Particle
 		D3D12::DynamicBufferDesc _countDesc = { 1, sizeof(uint32_t), D3D12_RESOURCE_FLAG_NONE };
 		D3D12::DynamicBufferDesc _particleDesc = { m_maxCapacity, sizeof(ParticleData), D3D12_RESOURCE_FLAG_NONE };
 
-		_spDeadListUpload->Create(a_pDevice, _deadDesc);
-		_spCounterUpload->Create(a_pDevice, _countDesc);
-		_spParticleUpload->Create(a_pDevice, _particleDesc);
+		_spDeadListUpload->Create(a_pDevice, a_pHeapManager, _deadDesc);
+		_spCounterUpload->Create(a_pDevice, a_pHeapManager, _countDesc);
+		_spParticleUpload->Create(a_pDevice, a_pHeapManager, _particleDesc);
 
 		// データを書き込む
 		_spDeadListUpload->UpdateData(_initDeadList.data(), m_maxCapacity * sizeof(uint32_t));

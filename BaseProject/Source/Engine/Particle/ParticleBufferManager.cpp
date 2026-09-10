@@ -8,9 +8,13 @@ namespace Engine::Particle
 {
 	void Engine::Particle::ParticleBufferManager::Init(
 		D3D12::Device* a_pDevice,
+		D3D12::DescriptorHeapManager* a_pHeapManager,
 		D3D12::GraphicsCommandList* a_pCmdList
 	)
 	{
+		// ビューの置き場を控える : プールは非同期に作られるので、そこまで持ち回る
+		m_pHeapManager = a_pHeapManager;
+
 		// パーティクルのデータとバッファ自体は軽いのでいったん初期化時に全生成
 		//auto _propVec = Resource::AssetDatabase::Instance().GetTypeMetaVec("ParticlesAsset");
 		//for (const auto& _prop : _propVec)
@@ -280,8 +284,8 @@ namespace Engine::Particle
 			// ロード処理
 			[this,_pDevice,a_handle](D3D12::GraphicsCommandList* a_pCmdList)
 			{
-				m_pools[a_handle]->Init(_pDevice, a_pCmdList, a_handle);
-				m_emitBuffer[a_handle].Create(_pDevice, a_pCmdList, 100, nullptr);
+				m_pools[a_handle]->Init(_pDevice, m_pHeapManager, a_pCmdList, a_handle);
+				m_emitBuffer[a_handle].Create(_pDevice, m_pHeapManager, a_pCmdList, 100, nullptr);
 			},
 			// コールバック処理
 			[this,a_handle]()

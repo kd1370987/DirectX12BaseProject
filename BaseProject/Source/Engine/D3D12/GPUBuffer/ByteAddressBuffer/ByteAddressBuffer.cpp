@@ -1,7 +1,7 @@
 ﻿#include "ByteAddressBuffer.h"
 namespace Engine::D3D12
 {
-	bool Engine::D3D12::ByteAddressBuffer::Create(D3D12::Device* a_pDevice, const ByteAddressBufferDesc& a_desc)
+	bool Engine::D3D12::ByteAddressBuffer::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, const ByteAddressBufferDesc& a_desc)
 	{
 		// リソース作成
 		DynamicBufferDesc _desc = {};
@@ -9,7 +9,7 @@ namespace Engine::D3D12
 		_desc.strideSize = a_desc.strideSize;
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
 
-		if (!DynamicBuffer::Create(a_pDevice, _desc))
+		if (!DynamicBuffer::Create(a_pDevice, a_pHeapManager, _desc))
 		{
 			ENGINE_ERRLOG(false,"バイトアドレスバッファの作成に失敗");
 			return false;
@@ -24,7 +24,7 @@ namespace Engine::D3D12
 		_srv.Buffer.StructureByteStride = 0;
 		_srv.Format = DXGI_FORMAT_R32_TYPELESS;
 		_srv.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;
-		m_srvHandle = AllocateSRV(a_pDevice,GetResource(),_srv);
+		m_srvHandle = AllocateSRV(a_pDevice,a_pHeapManager,GetResource(),_srv);
 		return true;
 	}
 }

@@ -1,6 +1,5 @@
 ﻿#include "Material.h"
 
-#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/D3D12//D3DObject/DescriptorHeap/DescriptorHeap.h"
 
 //#include "Engine/Resource/Manager/TextureManager/TextureManager.h"

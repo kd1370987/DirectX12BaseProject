@@ -1,4 +1,10 @@
 ﻿#pragma once
+
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Editor
 {
 	// 前方宣言
@@ -20,7 +26,7 @@ namespace Engine::Editor
 	public:
 
 		// 初期化
-		bool Init(HWND a_hwnd);
+		bool Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager);
 
 		// 解放
 		void Release();

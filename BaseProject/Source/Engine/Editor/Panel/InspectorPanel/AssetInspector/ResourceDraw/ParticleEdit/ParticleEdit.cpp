@@ -2,7 +2,7 @@
 
 #include "../../AssetLink.h"
 
-#include "../../../../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../../../../../Editor/Helper/EditorHelper.h"
 #include "../../../../../../Resource/Data/Texture/IO/TextureIO.h"
 
 namespace Engine::Editor::Inspector
@@ -166,7 +166,7 @@ namespace Engine::Editor::Inspector
 		// テクスチャの画像を表示
 		if (_pTex)
 		{
-			auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
+			auto _gpuHandle = EditorHelper::GetImGuiTexHandle(_pTex->GetImGuiSRV());
 			EditorHelper::DrawSRVView(_gpuHandle, static_cast<float>(_pTex->GetDesc().Width), static_cast<float>(_pTex->GetDesc().Height));
 		}
 	}

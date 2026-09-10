@@ -1,6 +1,5 @@
 ﻿#include "CBAllocator.h"
 
-#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 void CBAllocator::Release()
 {

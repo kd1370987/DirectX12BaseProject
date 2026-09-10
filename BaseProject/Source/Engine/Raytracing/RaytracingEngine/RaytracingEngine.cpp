@@ -97,6 +97,7 @@ namespace Engine::Raytracing
 
 	void Engine::Raytracing::RayEngine::CommitWorld(
 		D3D12::Device* a_pDevice,
+		D3D12::DescriptorHeapManager* a_pHeapManager,
 		D3D12::GraphicsCommandList* a_pCmdList
 	)
 	{
@@ -106,7 +107,7 @@ namespace Engine::Raytracing
 			m_upRayWorld = std::make_unique<RayWorld>();
 		}
 		// ヒットグループ数がいるが仮置き
-		m_upRayWorld->Init(a_pDevice,a_pCmdList,2);
+		m_upRayWorld->Init(a_pDevice,a_pHeapManager,a_pCmdList,2);
 	}
 
 	void Engine::Raytracing::RayEngine::BeginFrame()

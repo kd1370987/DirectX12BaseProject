@@ -284,6 +284,11 @@ namespace Engine::Graphics::Pipeline
 		std::unordered_map<Engine::GUID, std::vector<Connection>> m_connectionMap = {};
 
 		// リソース
+		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
+		// AllocateResources で受け取り、焼き込み(ResolveDescriptors)と
+		// 初回クリアがハンドルからCPUハンドルを引くのに使う
+		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
+
 		std::unique_ptr<ResourceRegistry> m_upResourceRegistry = nullptr;	// 仮想リソースと外部リソースの持ち主
 		std::unique_ptr<ResourceAllocator> m_upResourceAllocator = nullptr;	// リソースの割り当てを管理
 

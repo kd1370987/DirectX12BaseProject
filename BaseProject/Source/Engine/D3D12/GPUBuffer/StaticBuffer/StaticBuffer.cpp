@@ -6,13 +6,14 @@ namespace Engine::D3D12
 {
 	void StaticBuffer::Release()
 	{
+		// SRVの返却は GPUResource::Release() の中で済む
+		// (m_srvHandle は基底が持っていて、返したあと空にされる)
 		GPUResource::Release();
 		m_gpuBuffer.Release();
-
-		D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
 	}
 	bool StaticBuffer::Create(
 		D3D12::Device* a_pDevice, 
+		DescriptorHeapManager* a_pHeapManager,
 		GraphicsCommandList* a_pCmdList,
 		const StaticBufferDesc& a_desc,
 		const void* a_pInitData
@@ -23,7 +24,7 @@ namespace Engine::D3D12
 		_desc.elementNum = a_desc.elementNum;
 		_desc.strideSize = a_desc.strideSize;
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
-		if (!DynamicBuffer::Create(a_pDevice, _desc))
+		if (!DynamicBuffer::Create(a_pDevice, a_pHeapManager, _desc))
 		{
 			assert(0 && "リソース作成失敗");
 			return false;
@@ -126,8 +127,14 @@ namespace Engine::D3D12
 		return m_gpuBuffer.GetGPUVirtualAddress();
 	}
 
-	void StaticBuffer::CreateSRVInternal(D3D12::Device* a_pDevice)
+	void StaticBuffer::CreateSRVInternal(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager)
 	{
+		if (!a_pHeapManager)
+		{
+			ENGINE_ERRLOG(false, "SRVの確保先ディスクリプタヒープが渡されていません");
+			return;
+		}
+
 		// 仕様書作成
 		D3D12_SHADER_RESOURCE_VIEW_DESC _desc = {};
 		_desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
@@ -139,7 +146,8 @@ namespace Engine::D3D12
 		_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 		// ハンドルをもらう
-		m_srvHandle = DescriptorHeapManager::Instance().Allocate<SRV>(a_pDevice, m_gpuBuffer.GetResource(), &_desc);
+		m_pHeapManager = a_pHeapManager;
+		m_srvHandle = a_pHeapManager->Allocate<SRV>(a_pDevice, m_gpuBuffer.GetResource(), &_desc);
 	}
 
 	void StaticBuffer::CopyToGPU(GraphicsCommandList* a_pCmdList)

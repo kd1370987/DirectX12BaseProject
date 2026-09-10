@@ -1,7 +1,7 @@
 ﻿#include "DynamicBuffer.h"
 #include "../../DescriptorHeapManager/DescriptorHeapManager.h"
 
-bool Engine::D3D12::DynamicBuffer::Create(D3D12::Device* a_pDevice, const DynamicBufferDesc& a_desc)
+bool Engine::D3D12::DynamicBuffer::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, const DynamicBufferDesc& a_desc)
 {
 	// リソース作成
 	GPUBufferDesc _desc = {};
@@ -27,7 +27,7 @@ bool Engine::D3D12::DynamicBuffer::Create(D3D12::Device* a_pDevice, const Dynami
 	_srvDesc.Buffer.NumElements = m_elementNum;
 	_srvDesc.Buffer.StructureByteStride = m_strideSize;
 	_srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-	m_srvHandle = AllocateSRV(a_pDevice,GetResource(),_srvDesc);
+	m_srvHandle = AllocateSRV(a_pDevice,a_pHeapManager,GetResource(),_srvDesc);
 
 	return true;
 }

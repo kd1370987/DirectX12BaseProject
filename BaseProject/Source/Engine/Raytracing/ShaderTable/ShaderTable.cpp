@@ -232,10 +232,13 @@ D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::ShaderTable::GetTextureGPUHandle
 	const auto* _pEmiTex = Resource::ResourceManager::Instance().Get(a_pMaterial->emissiveTex);
 	const auto* _pNormalTex = Resource::ResourceManager::Instance().Get(a_pMaterial->normalTex);
 
-	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pBaseTex->GetSRV()));
-	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pMetaTex->GetSRV()));
-	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pEmiTex->GetSRV()));
-	_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_pNormalTex->GetSRV()));
+	// ビューの置き場はレンダーコンテキストから借りる
+	auto* _pHeapManager = a_pRCT->RefDescriptorHeapManager();
+
+	_cpuHandles.push_back(_pHeapManager->GetCPU(_pBaseTex->GetSRV()));
+	_cpuHandles.push_back(_pHeapManager->GetCPU(_pMetaTex->GetSRV()));
+	_cpuHandles.push_back(_pHeapManager->GetCPU(_pEmiTex->GetSRV()));
+	_cpuHandles.push_back(_pHeapManager->GetCPU(_pNormalTex->GetSRV()));
 
 	return a_pRCT->GetGPUHandle(_cpuHandles);
 }

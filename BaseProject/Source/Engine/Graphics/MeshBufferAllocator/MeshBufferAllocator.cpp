@@ -5,16 +5,17 @@ namespace Engine::Graphics
 
 	void MeshBufferAllocator::Init(
 		D3D12::Device* a_pDevice,
+		D3D12::DescriptorHeapManager* a_pHeapManager,
 		D3D12::GraphicsCommandList* a_pCmdList,
 		const BufferSizeDesc& a_bufferSizes
 	)
 	{
 		// メッシュ用バッファ作成 : サイズはもらい受ける
-		m_staticVerticesBuffer.Create(a_pDevice,a_pCmdList,a_bufferSizes.staticVertexBufferSize);
-		m_indexBuffer.Create(a_pDevice,a_pCmdList,a_bufferSizes.indexBufferSize);
-		m_animatedVertexBuffer.Create(a_pDevice,a_bufferSizes.animatedVertexBufferSize);
+		m_staticVerticesBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,a_bufferSizes.staticVertexBufferSize);
+		m_indexBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,a_bufferSizes.indexBufferSize);
+		m_animatedVertexBuffer.Create(a_pDevice,a_pHeapManager,a_bufferSizes.animatedVertexBufferSize);
 		// 前フレーム用も同じサイズで作成(同じオフセットで参照するため)
-		m_prevAnimatedVertexBuffer.Create(a_pDevice,a_bufferSizes.animatedVertexBufferSize);
+		m_prevAnimatedVertexBuffer.Create(a_pDevice,a_pHeapManager,a_bufferSizes.animatedVertexBufferSize);
 
 		size_t _size = sizeof(MeshInstanceData);
 
@@ -25,10 +26,10 @@ namespace Engine::Graphics
 		//  sizeof(DirectX::CullData) は 24 バイトなので 1000万要素だと 229MiB を無駄に常駐させることになる)
 		constexpr size_t kMaxMeshletNum = 100000;
 
-		m_meshletBuffer.Create(a_pDevice,a_pCmdList,kMaxMeshletNum);
-		m_uniqueVertexIndicesBuffer.Create(a_pDevice, a_pCmdList, 10000000);
-		m_meshTriangleBuffer.Create(a_pDevice, a_pCmdList, 10000000);
-		m_meshletCullDataBuffer.Create(a_pDevice,a_pCmdList,kMaxMeshletNum);
+		m_meshletBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,kMaxMeshletNum);
+		m_uniqueVertexIndicesBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, 10000000);
+		m_meshTriangleBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, 10000000);
+		m_meshletCullDataBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,kMaxMeshletNum);
 	}
 
 	void MeshBufferAllocator::Release()

@@ -15,6 +15,11 @@ namespace Engine
 	}
 }
 
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Raytracing
 {
 	class RayWorld;
@@ -54,6 +59,7 @@ namespace Engine::Raytracing
 		);
 		// レイトレワールドの構築
 		void CommitWorld(D3D12::Device* a_pDevice,
+			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList);
 
 		// フレーム開始処理

@@ -8,6 +8,7 @@
 namespace Engine::Resource
 {
 	void Engine::Resource::Texture::Import(
+		D3D12::DescriptorHeapManager* a_pHeapManager,
 		const std::string& a_filePath,
 		const Math::Color& a_defoltData
 	)
@@ -33,10 +34,10 @@ namespace Engine::Resource
 		}
 
 		// ビューの登録
-		CreateView();
+		CreateView(a_pHeapManager);
 	}
 
-	void Texture::Create(const std::string& a_name, const Math::Color& a_defoltData)
+	void Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, const std::string& a_name, const Math::Color& a_defoltData)
 	{
 
 		ComPtr<ID3D12Resource> _cpRes = nullptr;
@@ -49,10 +50,10 @@ namespace Engine::Resource
 		m_useFlg = TextureUsage::SRV;
 
 		// ビューの登録
-		CreateView();
+		CreateView(a_pHeapManager);
 	}
 
-	void Engine::Resource::Texture::Create(const TextureCreateDesc& a_desc)
+	void Engine::Resource::Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, const TextureCreateDesc& a_desc)
 	{
 		// デバイスの取得
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
@@ -75,10 +76,10 @@ namespace Engine::Resource
 		// リソース作成 : 実体・ステート・フォーマットは基底が面倒を見る
 		if (!GPUResource::Create(_pDevice, _resourceDesc)) return;
 
-		SetupFromDesc(a_desc);
+		SetupFromDesc(a_pHeapManager, a_desc);
 	}
 
-	void Texture::Create(IDXGISwapChain* a_pSwapChain, UINT a_backBufferIndex, TextureUsage a_texUsage)
+	void Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, IDXGISwapChain* a_pSwapChain, UINT a_backBufferIndex, TextureUsage a_texUsage)
 	{
 		// スワップチェインからバックバッファを生成
 		a_pSwapChain->GetBuffer(
@@ -93,10 +94,10 @@ namespace Engine::Resource
 		// メンバ作成
 		m_name = _name;
 		m_useFlg = a_texUsage;
-		CreateView();
+		CreateView(a_pHeapManager);
 	}
 
-	void Texture::Create(ID3D12Heap* a_pHeap, UINT64 a_heapOffset, const TextureCreateDesc& a_desc)
+	void Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, ID3D12Heap* a_pHeap, UINT64 a_heapOffset, const TextureCreateDesc& a_desc)
 	{
 		// デバイスの取得
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
@@ -122,12 +123,12 @@ namespace Engine::Resource
 		);
 		if (!_isSuccess) return;
 
-		SetupFromDesc(a_desc);
+		SetupFromDesc(a_pHeapManager, a_desc);
 	}
 
 	// 実体が出来たあとの共通処理。
 	// committed / placed で食い違うと、置き場所を変えただけで絵が変わることになる
-	void Texture::SetupFromDesc(const TextureCreateDesc& a_desc)
+	void Texture::SetupFromDesc(D3D12::DescriptorHeapManager* a_pHeapManager, const TextureCreateDesc& a_desc)
 	{
 		// 変数保存
 		m_name = a_desc.name;
@@ -142,7 +143,7 @@ namespace Engine::Resource
 		m_cpResource->SetName(Engine::String::ToWideString(m_name).c_str());
 
 		// ビューの登録
-		CreateView();
+		CreateView(a_pHeapManager);
 	}
 
 	void Texture::Save(const std::string& a_srcPath)
@@ -201,11 +202,20 @@ namespace Engine::Resource
 		GPUResource::Release();
 	}
 
-	void Texture::CreateView()
+	void Texture::CreateView(D3D12::DescriptorHeapManager* a_pHeapManager)
 	{
 		// デバイスの取得
 		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
 		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
+
+		if (!a_pHeapManager)
+		{
+			ENGINE_ERRLOG(false, "ビューの確保先ディスクリプタヒープが渡されていません : %s", m_name.c_str());
+			return;
+		}
+
+		// 返却先を控える : Release() でここへ返す
+		m_pHeapManager = a_pHeapManager;
 
 		// テクスチャの使用方法にRTが含まれているのならRTVを登録
 		if (HasFlag(m_useFlg, TextureUsage::RTV))
@@ -217,7 +227,7 @@ namespace Engine::Resource
 
 			// ディスクリプタヒープに登録
 			m_rtvHandle =
-				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::RTV>(_pDevice, m_cpResource.Get(), &_rtvDesc);
+				a_pHeapManager->Allocate<D3D12::RTV>(_pDevice, m_cpResource.Get(), &_rtvDesc);
 		}
 
 		// テクスチャの使用方法にDSが含まれているのなら
@@ -230,19 +240,19 @@ namespace Engine::Resource
 
 			// ディスクリプタヒープに登録
 			m_dsvHandle =
-				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
+				a_pHeapManager->Allocate<D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
 
 			// リードオンリーのDSV作成
 			_dsvDesc.Flags = D3D12_DSV_FLAG_READ_ONLY_DEPTH;
 			m_readOnlyDsvHandle =
-				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
+				a_pHeapManager->Allocate<D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
 		}
 
 		// テクスチャの使用方法にUAが含まれているのなら
 		if (HasFlag(m_useFlg, TextureUsage::UAV))
 		{
 			m_uavHandle =
-				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::UAV>(_pDevice, m_cpResource.Get(), nullptr);
+				a_pHeapManager->Allocate<D3D12::UAV>(_pDevice, m_cpResource.Get(), nullptr);
 		}
 
 		// テクスチャの仕様方法SRが含まれているのなら
@@ -257,11 +267,11 @@ namespace Engine::Resource
 
 			// 登録
 			m_srvHandle = 
-				D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(_pDevice, m_cpResource.Get(), &_srvDesc);
+				a_pHeapManager->Allocate<D3D12::SRV>(_pDevice, m_cpResource.Get(), &_srvDesc);
 
 			// 同時にImGuiも登録
 			m_imguiSRVHandle = 
-				D3D12::DescriptorHeapManager::Instance().AllocateImGuiSRV(m_cpResource.Get(), &_srvDesc);
+				a_pHeapManager->AllocateImGuiSRV(m_cpResource.Get(), &_srvDesc);
 		}
 	}
 

@@ -3,6 +3,7 @@ namespace Engine::Resource
 {
 	void Engine::Resource::RasterizationMesh::Create(
 		D3D12::Device* a_pDevice,
+		D3D12::DescriptorHeapManager* a_pHeapManager,
 		const std::vector<MeshVertexFloat>& a_vertices,
 		const std::vector<MeshFace>& a_face, 
 		DXGI_FORMAT a_indexFormat
@@ -11,6 +12,7 @@ namespace Engine::Resource
 		// 頂点バッファ作成
 		if (!vertexBuffer.CreateAndUpload(
 			a_pDevice,
+			a_pHeapManager,
 			(UINT)a_vertices.size(),
 			a_vertices.data()
 		))
@@ -33,7 +35,7 @@ namespace Engine::Resource
 		_desc.count = _indices.size();
 		_desc.pData = _indices.data();
 		_desc.format = a_indexFormat;
-		if (!indexBuffer.Create(a_pDevice, _desc))
+		if (!indexBuffer.Create(a_pDevice, a_pHeapManager, _desc))
 		{
 			assert(0 && "インデックスバッファの生成に失敗");
 			return;

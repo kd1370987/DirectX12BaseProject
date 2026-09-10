@@ -2,7 +2,6 @@
 #include "../../../MainEngine.h"
 #include "../../../../Application/ECS/PhaseTag/PhaseTag.h"	// ライフサイクルのフェーズタグ
 #include "../../../Graphics/GraphicEngine.h"
-#include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "../../../Scene/BaseScene/BaseScene.h"
 #include "../../../Scene/SceneManager/SceneManager.h"
@@ -247,7 +246,7 @@ namespace Engine::Editor
 		}
 
 		// テクスチャの描画 : 実際に描画した範囲も取得
-		auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
+		auto _gpuHandle = EditorHelper::GetImGuiTexHandle(_pTex->GetImGuiSRV());
 		// 表示アスペクトは実解像度(カメラ/アンプロジェクトが使う windowWidth/Height)に合わせる。
 		// ここがずれるとスクリーン→ゲーム座標のスケールが X/Y で食い違い、ピッキングが横方向にずれる。
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();

@@ -1,4 +1,4 @@
-#include "ScopedResourceBuild.h"
+﻿#include "ScopedResourceBuild.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicEngine.h"
@@ -26,6 +26,9 @@ namespace Engine::Resource
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 		m_context.pMeshBufferAllocator = _pGE ? _pGE->RefMeshBufferAllocator() : nullptr;
 		m_context.pPassMetaRegistry = _pGE ? _pGE->RefPassMetaRegistry() : nullptr;
+
+		// ビューの置き場。実体はグラフィックスエンジンの持ち物
+		m_context.pHeapManager = _pGE ? _pGE->RefDescriptorHeapManager() : nullptr;
 	}
 
 	ScopedResourceBuild::~ScopedResourceBuild()

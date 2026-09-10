@@ -30,7 +30,7 @@ namespace Engine::Editor
 	{}
 
 
-	bool MainEditor::Init(HWND a_hwnd)
+	bool MainEditor::Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager)
 	{
 		if (m_isInit) return true;
 
@@ -40,7 +40,7 @@ namespace Engine::Editor
 		if (!m_upImGuiContext)
 		{
 			m_upImGuiContext = std::make_unique<ImGuiContext>();
-			m_upImGuiContext->Init(a_hwnd);
+			m_upImGuiContext->Init(a_hwnd, a_pHeapManager);
 		}
 		// エディター用フリーカメラ
 		if (!m_upEditorCamera)

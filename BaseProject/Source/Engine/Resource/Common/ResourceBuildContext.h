@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace Engine::Graphics
 {
@@ -8,6 +8,11 @@ namespace Engine::Graphics
 	{
 		class PassMetaRegistry;
 	}
+}
+
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
 }
 
 namespace Engine::Resource
@@ -27,6 +32,11 @@ namespace Engine::Resource
 	{
 		// ---- デバイス ----
 		D3D12::Device* pDevice = nullptr;
+
+		// ---- ビューの置き場 ----
+		// 実体は GraphicsEngine が持っている。
+		// ビュー(SRV/RTV/DSV/UAV)を取るものは、シングルトンではなくここから借りること
+		D3D12::DescriptorHeapManager* pHeapManager = nullptr;
 
 		// ---- コマンドリスト ----
 		// モデル1体につき1本ずつ確保され、ビルドが終わったところで呼び出し側がsubmitする

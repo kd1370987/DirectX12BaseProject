@@ -101,7 +101,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 入力の実体に合わせてモニター用テクスチャを用意する。
 		// すでに同じ形のものを持っていれば作り直さない
-		void EnsurePreviewTexture(D3D12::GPUResource* a_pSource);
+		void EnsurePreviewTexture(D3D12::DescriptorHeapManager* a_pHeapManager, D3D12::GPUResource* a_pSource);
 
 		// モニター用テクスチャを手放す
 		void ReleasePreviewTexture();

@@ -25,6 +25,7 @@ namespace Engine::D3D12
 		/// <returns>作成に成功すればtrue</returns>
 		bool Create(
 			D3D12::Device* a_pDevice, 
+			DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList,
 			UINT a_elementNum,
 			size_t a_strideSize,

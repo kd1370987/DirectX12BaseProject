@@ -8,12 +8,25 @@ namespace Engine::D3D12
 	class SamplerAllocator;
 
 	// ディスクリプタヒープを管理
+	//
+	// 実体は GraphicsEngine が unique_ptr で1つだけ持つ。
+	// 参照する側はシングルトンを引かず、コンテキスト経由で受け取ったポインタを使うこと
+	// (PassContext / ResourceBuildContext / EditorContext、
+	//  下位のD3D12層は生成時に受け取ったポインタを保持する)
 	class DescriptorHeapManager
 	{
 	public:
 
+		DescriptorHeapManager();
+		~DescriptorHeapManager();
+		NON_COPYABLE_MOVABLE(DescriptorHeapManager);
+
 		// 初期化と解放
+		//
+		// デバイスは保持する。以前は D3D12Wrapper から引いていたが、
+		// D3D12Wrapper ⇄ DescriptorHeapManager の循環になるためここで受け取る
 		bool Init(
+			D3D12::Device* a_pDevice,
 			UINT a_cbvCount,
 			UINT a_srvCount,
 			UINT a_uavCount,
@@ -98,6 +111,9 @@ namespace Engine::D3D12
 
 	private:
 
+		// 借り物。Init で受け取ったものを持ち続ける
+		D3D12::Device* m_pDevice = nullptr;
+
 		// ヒープ本体
 		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavHeap;
 		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_DSV>			m_dsvHeap;
@@ -124,23 +140,6 @@ namespace Engine::D3D12
 		Engine::Handle<SAMPLER> m_linerWrap;
 		Engine::Handle<SAMPLER> m_pointClamp;
 		Engine::Handle<SAMPLER> m_shadow;
-
-		// シングルトン
-	private:
-		DescriptorHeapManager();
-		~DescriptorHeapManager();
-
-		// コピー禁止
-		DescriptorHeapManager(const DescriptorHeapManager&) = delete;
-		void operator=(const DescriptorHeapManager&) = delete;
-
-	public:
-
-		static DescriptorHeapManager& Instance()
-		{
-			static DescriptorHeapManager instance;
-			return instance;
-		}
 	};
 	template<IsHeapType T>
 	inline Handle<T> DescriptorHeapManager::Allocate(D3D12::Device* a_pDevice, ID3D12Resource* a_pResource, const typename T::DescType* a_desc)

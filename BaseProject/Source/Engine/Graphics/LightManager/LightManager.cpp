@@ -6,13 +6,13 @@ namespace Engine::Graphics
 	// FrameLightData
 	//---------------------------------------------------------------------------------------
 
-	bool FrameLightData::Create(D3D12::Device* a_pDevice)
+	bool FrameLightData::Create(D3D12::Device* a_pDevice, D3D12::DescriptorHeapManager* a_pHeapManager)
 	{
 		// 要素数は上限固定で確保する
 		// ライトが増えるたびにバッファを作り直すと、GPU が読んでいる最中のリソースを
 		// 開放することになるため、最初から最大数ぶん取っておく
-		if (!dlBuffer.Create(a_pDevice, MAX_DIRECTIONAL_LIGHTS)) return false;
-		if (!plBuffer.Create(a_pDevice, MAX_POINT_LIGHTS)) return false;
+		if (!dlBuffer.Create(a_pDevice, a_pHeapManager, MAX_DIRECTIONAL_LIGHTS)) return false;
+		if (!plBuffer.Create(a_pDevice, a_pHeapManager, MAX_POINT_LIGHTS)) return false;
 
 		return true;
 	}

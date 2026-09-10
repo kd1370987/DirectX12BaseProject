@@ -1,6 +1,8 @@
 ﻿#include "EditorHelper.h"
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../MainEngine.h"
+#include "../../Graphics/GraphicEngine.h"
 #include "../../Resource/Data/Model/Model.h"
 #include "../../Resource/Data/Texture/Texture.h"
 #include "../../Resource/Data/Animation/Animation.h"
@@ -440,7 +442,7 @@ namespace Engine::Editor
 			ImGui::Text("Not find texture");
 			return { 0,0 };
 		}
-		auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
+		auto _gpuHandle = GetImGuiTexHandle(_pTex->GetImGuiSRV());
 
 		ImTextureID _imTex = (ImTextureID)(_gpuHandle.ptr);
 
@@ -458,6 +460,17 @@ namespace Engine::Editor
 
 		// 実際に描画したサイズを返す
 		return ImVec2(drawWidth, drawHeight);
+	}
+
+	D3D12_GPU_DESCRIPTOR_HANDLE EditorHelper::GetImGuiTexHandle(const Handle<D3D12::ImGuiSRV>& a_imguiSRVHandle)
+	{
+		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+		if (!_pGE) return {};
+
+		auto* _pHeapManager = _pGE->RefDescriptorHeapManager();
+		if (!_pHeapManager) return {};
+
+		return _pHeapManager->GetImGuiSRVGPUHandle(a_imguiSRVHandle);
 	}
 
 	//======================================================================================

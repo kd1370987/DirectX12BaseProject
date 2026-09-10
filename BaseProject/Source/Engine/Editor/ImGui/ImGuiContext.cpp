@@ -6,10 +6,31 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Editor
 {
-	bool ImGuiContext::Init(HWND a_hwnd)
+	namespace
 	{
+		//--------------------------------------------------------------------------------------
+		// ImGuiバックエンドのディスクリプタ確保コールバックが使うヒープ
+		//
+		// ImGui_ImplDX12_InitInfo の Alloc/Free はキャプチャを持てない生の関数ポインタなので、
+		// Init で受け取ったものをここへ置いてコールバックから引く。
+		// ImGuiのコンテキストはアプリに1つしか無いので実体も1つで足りる
+		//--------------------------------------------------------------------------------------
+		D3D12::DescriptorHeapManager* g_pImGuiHeapManager = nullptr;
+	}
+
+	bool ImGuiContext::Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager)
+	{
+		if (!a_pHeapManager)
+		{
+			ENGINE_ERRLOG(false, "ImGuiの初期化にディスクリプタヒープが渡されていません");
+			return false;
+		}
+
 		auto& _pD3DWrapper = Engine::D3D12::D3D12Wrapper::Instance();
-		auto& _pDescriptorManager = D3D12::DescriptorHeapManager::Instance();
+		auto& _pDescriptorManager = *a_pHeapManager;
+
+		// バックエンドのコールバックから引けるようにしておく
+		g_pImGuiHeapManager = a_pHeapManager;
 
 		// ウィンドウが乗っているモニターの表示スケールを取得
 		// DPI対応の有効化自体は NativeWindow::Create の中で
@@ -67,12 +88,14 @@ namespace Engine::Editor
 		_initInfo.SrvDescriptorAllocFn =
 			[](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE* a_pOutCPU, D3D12_GPU_DESCRIPTOR_HANDLE* a_pOutGPU)
 			{
-				D3D12::DescriptorHeapManager::Instance().AllocateImGuiBackendDescriptor(a_pOutCPU, a_pOutGPU);
+				if (!g_pImGuiHeapManager) return;
+				g_pImGuiHeapManager->AllocateImGuiBackendDescriptor(a_pOutCPU, a_pOutGPU);
 			};
 		_initInfo.SrvDescriptorFreeFn =
 			[](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle, D3D12_GPU_DESCRIPTOR_HANDLE)
 			{
-				D3D12::DescriptorHeapManager::Instance().FreeImGuiBackendDescriptor(a_cpuHandle);
+				if (!g_pImGuiHeapManager) return;
+				g_pImGuiHeapManager->FreeImGuiBackendDescriptor(a_cpuHandle);
 			};
 
 		ImGui_ImplDX12_Init(&_initInfo);

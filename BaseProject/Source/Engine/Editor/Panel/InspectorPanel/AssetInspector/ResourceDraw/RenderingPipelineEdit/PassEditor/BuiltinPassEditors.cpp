@@ -16,7 +16,6 @@
 #include "PassEditor.h"
 
 #include "Engine/Editor/Helper/EditorHelper.h"
-#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
 
@@ -536,7 +535,7 @@ namespace Engine::Editor::Inspector
 				if (_desc.Width == 0 || _desc.Height == 0) return;
 
 				const auto _gpuHandle =
-					D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
+					EditorHelper::GetImGuiTexHandle(_pTex->GetImGuiSRV());
 
 				const float _aspect = static_cast<float>(_desc.Height) / static_cast<float>(_desc.Width);
 				const ImVec2 _size(_params.previewWidth, _params.previewWidth * _aspect);

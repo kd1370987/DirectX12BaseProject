@@ -1,13 +1,19 @@
 ﻿#include "DescriptorHeapManager.h"
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 #include "Allocator/SamplerAllocator/SamplerAllocator.h"
 
 namespace Engine::D3D12
 {
-	bool DescriptorHeapManager::Init(UINT a_cbvCount, UINT a_srvCount, UINT a_uavCount, UINT a_rtvCount, UINT a_dsvCount)
+	bool DescriptorHeapManager::Init(D3D12::Device* a_pDevice, UINT a_cbvCount, UINT a_srvCount, UINT a_uavCount, UINT a_rtvCount, UINT a_dsvCount)
 	{
-		D3D12::Device* _device = D3D12Wrapper::Instance().GetDevice();
+		if (!a_pDevice)
+		{
+			ENGINE_ERRLOG(false, "DescriptorHeapManager::Init にデバイスが渡されていません");
+			return false;
+		}
+
+		m_pDevice = a_pDevice;
+		D3D12::Device* _device = m_pDevice;
 
 		// ヒープ作成
 		m_cbv_srv_uavHeap.Create(
@@ -128,6 +134,8 @@ namespace Engine::D3D12
 		m_rtvHeap.Release();
 		m_samplerHeap.Release();
 		m_imguiHeap.Release();
+
+		m_pDevice = nullptr;
 	}
 
 	
@@ -190,9 +198,7 @@ namespace Engine::D3D12
 
 	Handle<ImGuiSRV> DescriptorHeapManager::AllocateImGuiSRV(ID3D12Resource* a_pResource, const D3D12_SHADER_RESOURCE_VIEW_DESC* a_desc)
 	{
-		auto* _pDevice = D3D12Wrapper::Instance().GetDevice();
-
-		return m_ImGuiSRVAllocator.Allocate(_pDevice, a_pResource, a_desc);
+		return m_ImGuiSRVAllocator.Allocate(m_pDevice, a_pResource, a_desc);
 	}
 
 	void DescriptorHeapManager::FreeImGuiSRV(const Handle<ImGuiSRV>& a_handle)

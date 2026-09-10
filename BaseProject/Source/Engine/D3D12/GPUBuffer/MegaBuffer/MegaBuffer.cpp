@@ -6,6 +6,7 @@ namespace Engine::D3D12
 {
 	bool Engine::D3D12::MegaBuffer::Create(
 		D3D12::Device* a_pDevice,
+		DescriptorHeapManager* a_pHeapManager,
 		D3D12::GraphicsCommandList* a_pCmdList,
 		size_t a_elemetNum,
 		size_t a_strideSize
@@ -34,7 +35,9 @@ namespace Engine::D3D12
 		_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 		// ハンドルをもらう
-		m_srvHandle = AllocateSRV(a_pDevice, GetResource(), _desc);
+		m_srvHandle = AllocateSRV(a_pDevice, a_pHeapManager, GetResource(), _desc);
+
+		return true;
 	}
 
 

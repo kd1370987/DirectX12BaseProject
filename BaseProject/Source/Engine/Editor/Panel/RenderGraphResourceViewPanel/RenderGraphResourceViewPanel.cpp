@@ -9,7 +9,7 @@
 #include "../../../Graphics/RenderingPipeline/Core/Pass/Pass.h"
 
 // D3D系
-#include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../Helper/EditorHelper.h"
 
 namespace Engine::Editor
 {
@@ -290,7 +290,7 @@ namespace Engine::Editor
 			const float _drawHeight = _drawWidth / _aspectRatio;
 
 			auto _gpuHandle =
-				D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pResource->GetImGuiSRV());
+				EditorHelper::GetImGuiTexHandle(_pResource->GetImGuiSRV());
 
 			EditorHelper::DrawSRVView(_gpuHandle, _drawWidth, _drawHeight);
 		}

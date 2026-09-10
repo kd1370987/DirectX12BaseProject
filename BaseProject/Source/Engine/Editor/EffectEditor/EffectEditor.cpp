@@ -13,7 +13,6 @@
 #include "../../Collision/CollisionWorld.h"
 #include "../../Graphics/GraphicEngine.h"
 #include "../../Graphics/DebugDraw/DebugDraw.h"
-#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../Option/OptionManager.h"
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
@@ -536,7 +535,7 @@ namespace Engine::Editor
 			_size.x = _maxH * _aspect;
 		}
 
-		auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
+		auto _gpuHandle = EditorHelper::GetImGuiTexHandle(_pTex->GetImGuiSRV());
 		ImGui::Image((ImTextureID)(_gpuHandle.ptr), _size);
 
 		// フリーカメラへホバー状態を渡す。

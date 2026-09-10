@@ -173,10 +173,14 @@ namespace Engine::Raytracing
 
 	void Engine::Raytracing::RayWorld::Init(
 		D3D12::Device* a_pDevice,
+		D3D12::DescriptorHeapManager* a_pHeapManager,
 		D3D12::GraphicsCommandList* a_pCmdList, 
 		uint32_t a_hitGroupNum
 	)
 	{	
+		// ビューの置き場を控える
+		m_pHeapManager = a_pHeapManager;
+
 		// GPU実行のためキューリセット
 		// 仮置き
 		UINT _maxInstanceNum = 1000;
@@ -187,17 +191,17 @@ namespace Engine::Raytracing
 			m_upTLAS = std::make_unique<TLAS>();
 		}
 		m_upTLAS->SetHitGroupNum(a_hitGroupNum);
-		m_upTLAS->Create(a_pDevice, a_pCmdList, _maxInstanceNum);
+		m_upTLAS->Create(a_pDevice, a_pHeapManager, a_pCmdList, _maxInstanceNum);
 
 		// インスタンスデータ作成
 		m_instanceDataVec.clear();
 		m_instanceDataVec.resize(_maxInstanceNum);
-		m_instanceDataBuffer.Create(a_pDevice, a_pCmdList, _maxInstanceNum, m_instanceDataVec.data());
+		m_instanceDataBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, _maxInstanceNum, m_instanceDataVec.data());
 
 		// マテリアルデータ作成
 		m_materialVec.clear();
 		m_materialVec.resize(_maxInstanceNum);
-		m_materialDataBuffer.Create(a_pDevice, a_pCmdList, _maxInstanceNum, m_materialVec.data());
+		m_materialDataBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, _maxInstanceNum, m_materialVec.data());
 	}
 
 	void RayWorld::Release()
@@ -282,22 +286,22 @@ namespace Engine::Raytracing
 
 	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRV()
 	{
-		return D3D12::DescriptorHeapManager::Instance().GetGPU(m_instanceDataBuffer.GetSRVHandle());
+		return m_pHeapManager->GetGPU(m_instanceDataBuffer.GetSRVHandle());
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRVCPU()
 	{
-		return D3D12::DescriptorHeapManager::Instance().GetCPU(m_instanceDataBuffer.GetSRVHandle());
+		return m_pHeapManager->GetCPU(m_instanceDataBuffer.GetSRVHandle());
 	}
 
 	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRV()
 	{
-		return D3D12::DescriptorHeapManager::Instance().GetGPU(m_materialDataBuffer.GetSRVHandle());
+		return m_pHeapManager->GetGPU(m_materialDataBuffer.GetSRVHandle());
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRVCPU()
 	{
-		return D3D12::DescriptorHeapManager::Instance().GetCPU(m_materialDataBuffer.GetSRVHandle());
+		return m_pHeapManager->GetCPU(m_materialDataBuffer.GetSRVHandle());
 	}
 	int RayWorld::GetTexHepaIndex(const Handle<Resource::Texture>& a_handle) const
 	{

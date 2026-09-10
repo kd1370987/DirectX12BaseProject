@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Editor
 {
 	class ImGuiContext
@@ -10,7 +15,8 @@ namespace Engine::Editor
 		/// 初期化
 		/// </summary>
 		/// <param name="a_hwnd">メインウィンドウハンドル</param>
-		bool Init(HWND a_hwnd);
+		/// <param name="a_pHeapManager">ImGui用ヒープの持ち主(借り物)</param>
+		bool Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager);
 
 		/// <summary>
 		/// 解放

@@ -24,6 +24,7 @@ namespace Engine::D3D12
 		/// <returns></returns>
 		bool Create(
 			D3D12::Device* a_pDevice,
+			DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList,
 			size_t a_elemetNum
 		);
@@ -65,12 +66,12 @@ namespace Engine::D3D12
 		RangeAllocator<T> m_rangeAllocator;
 	};
 	template<typename T>
-	inline bool MegaStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList, size_t a_elemetNum)
+	inline bool MegaStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList, size_t a_elemetNum)
 	{
 		// アロケーターの作成
 		m_rangeAllocator.Init(a_elemetNum);
 
-		return MegaBuffer::Create(a_pDevice,a_pCmdList,a_elemetNum,sizeof(T));
+		return MegaBuffer::Create(a_pDevice,a_pHeapManager,a_pCmdList,a_elemetNum,sizeof(T));
 	}
 	template<typename T>
 	inline RangeHandle<T> MegaStructuredBuffer<T>::AllocateAndUpload(const T* a_pData, UINT a_count)

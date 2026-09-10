@@ -139,22 +139,27 @@ namespace Engine
 		// アセットマネージャー作成
 		InitializeAssetDatabase();
 
-		// ディスクリプタヒープテーブルマネージャーの初期化
-		if (!D3D12::DescriptorHeapManager::Instance().Init(100, 4000,100,100,10))
+		// 描画周りの器を先に作る。
+		// ディスクリプタヒープはグラフィックスエンジンの持ち物なので、
+		// バックバッファのRTVを取るより前に用意しておく必要がある
+		m_upGraphicsEngine = std::make_unique<Graphics::GraphicsEngine>();
+
+		// ディスクリプタヒープの初期化
+		if (!m_upGraphicsEngine->InitDescriptorHeap(_pDev))
 		{
 			assert(0 && "ディスクリプタヒープマネージャーの初期化に失敗");
 			return;
 		}
+		auto* _pHeapManager = m_upGraphicsEngine->RefDescriptorHeapManager();
 
 		// パイプラインステート・ルートシグネチャ管理
 		m_upPipelineStateManager = std::make_unique<D3D12::PipelineStateManager>();
 		m_upPipelineStateManager->Init(D3D12::D3D12Wrapper::Instance().GetDevice());
 
 		// バックバッファの生成
-		D3D12::D3D12Wrapper::Instance().CreateBackBuffer();
+		D3D12::D3D12Wrapper::Instance().CreateBackBuffer(_pHeapManager);
 
 		// 描画周り初期化
-		m_upGraphicsEngine = std::make_unique<Graphics::GraphicsEngine>();
 		Graphics::GraphicsEngineDesc _geDesc = {};
 		_geDesc.width = static_cast<UINT>(_winOp.windowWidth);
 		_geDesc.height = static_cast<UINT>(_winOp.windowHeight);
@@ -163,13 +168,13 @@ namespace Engine
 
 		// パーティクルブッファの生成
 		m_upParticleManager = std::make_unique<Particle::ParticleBufferManager>();
-		m_upParticleManager->Init(_pDev,_pCmdList);
+		m_upParticleManager->Init(_pDev,_pHeapManager,_pCmdList);
 
 		// レイトレワールド構築
-		Engine::Raytracing::RayEngine::Instance().CommitWorld(_pDev,_pCmdList);
+		Engine::Raytracing::RayEngine::Instance().CommitWorld(_pDev,_pHeapManager,_pCmdList);
 
 		// エディター初期化
-		if (!Engine::Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle()))
+		if (!Engine::Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle(), _pHeapManager))
 		{
 			assert(0 && "エディターの初期化に失敗");
 			return;
@@ -177,7 +182,7 @@ namespace Engine
 
 		// マウスカーソル
 		m_upMouseCursor = std::make_unique<Graphics::MouseCursor>();
-		m_upMouseCursor->Init();
+		m_upMouseCursor->Init(_pHeapManager);
 
 		Engine::Editor::MainEditor::Instance().RegisterEditFunc(
 			[this]()
@@ -229,9 +234,9 @@ namespace Engine
 		// エディター（ImGui）解放
 		Engine::Editor::MainEditor::Instance().Release();
 
-		// グラフィックスエンジンの解放（RenderContextなどが持つリソースを解放）
+		// グラフィックスエンジンの解放（RenderContextなどが持つリソースを解放）。
+		// ディスクリプタヒープはまだ捨てない : この後に解放されるものがビューを返してくる
 		m_upGraphicsEngine->Release();
-		m_upGraphicsEngine.reset();
 
 		// パーティクルのGPUバッファ解放。
 		// これらはディスクリプタヒープにハンドルを持つため、
@@ -250,9 +255,6 @@ namespace Engine
 		m_upPipelineStateManager->Release();
 		m_upPipelineStateManager.reset();
 
-		// ディスクリプタヒープマネージャー解放
-		D3D12::DescriptorHeapManager::Instance().Release();
-
 		// 遅延解放キューを空にする
 		// 全GPU作業の完了を待ってから実行し、デバイスより先にリソースを解放しきる
 		D3D12::D3D12Wrapper::Instance().WaitForFrame();
@@ -264,6 +266,15 @@ namespace Engine
 			}
 			_releaseQueue.clear();
 		}
+
+		// バックバッファのRTVを返す。
+		// ディスクリプタヒープを捨てるより前でないとビューが残る
+		D3D12::D3D12Wrapper::Instance().ReleaseBackBuffer();
+
+		// ディスクリプタヒープ解放。
+		// ビューを預けていたものが全部片付いたこの位置が最後になる
+		m_upGraphicsEngine->ReleaseDescriptorHeap();
+		m_upGraphicsEngine.reset();
 
 		// 描画エンジンの解放
 		D3D12::D3D12Wrapper::Instance().Release();
@@ -399,14 +410,16 @@ namespace Engine
 			if (m_appMode != EAppMode::Game)
 			{
 				auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
+				auto* _pHeapManager = m_upGraphicsEngine->RefDescriptorHeapManager();
+
 				// ディスクリプタヒープをセット
 				ID3D12DescriptorHeap* _heaps[] = {
-						D3D12::DescriptorHeapManager::Instance().GetImGuiHeap()
+						_pHeapManager->GetImGuiHeap()
 				};
 				_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 
 				// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
-				auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
+				auto _cpuHandle = _pHeapManager->GetCPU(
 					D3D12::D3D12Wrapper::Instance().GetCurrentBackBufferTex().GetRTV()
 				);
 

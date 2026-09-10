@@ -390,6 +390,17 @@ namespace Engine::Editor
 			float a_minSize = 100, float a_maxSize = 500
 		);
 
+		/// <summary>
+		/// ImGuiへ渡すテクスチャハンドル(ImGui用SRVのGPUハンドル)を引く
+		/// </summary>
+		/// <remarks>
+		/// ディスクリプタヒープの実体は GraphicsEngine が持っているので、
+		/// エディターは MainEngine -> GraphicsEngine を辿って借りる。
+		/// パネルごとにこの経路を書くと同じ辿り方が散るため、ここへ寄せてある。
+		/// まだ描画周りが出来ていない・ハンドルが無効なときは ptr==0 が返る
+		/// </remarks>
+		static D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiTexHandle(const Handle<D3D12::ImGuiSRV>& a_imguiSRVHandle);
+
 		//--------------------------------------------------------------------------------------
 		// 行列・回転
 		//--------------------------------------------------------------------------------------

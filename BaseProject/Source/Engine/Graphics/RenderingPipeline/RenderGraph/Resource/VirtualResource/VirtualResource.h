@@ -16,6 +16,11 @@
 //==========================================================================================
 #include "../../../Core/Slot.h"
 
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Graphics::Pipeline
 {
 	// AllocationInfo が先に実体を持つので、ここで名前だけ通しておく。
@@ -167,7 +172,7 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		// 要件どおりに実体を作る。
 		// a_pHeap を渡すと、席に着いているものはその上へ置く(placed)
-		bool CreateEntity(D3D12::Device* a_pDevice, ID3D12Heap* a_pHeap);
+		bool CreateEntity(D3D12::Device* a_pDevice, D3D12::DescriptorHeapManager* a_pHeapManager, ID3D12Heap* a_pHeap);
 
 		// 外部で作られた実体を参照するだけ(こちらは持たない)
 		void ImportEntity(D3D12::GPUResource* a_pResource);

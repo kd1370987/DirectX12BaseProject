@@ -1,7 +1,7 @@
 ﻿#include "TextureEdit.h"
 
 #include "../../../../../../Option/OptionManager.h"
-#include "../../../../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../../../../../Editor/Helper/EditorHelper.h"
 
 namespace Engine::Editor::Inspector
 {
@@ -66,7 +66,7 @@ namespace Engine::Editor::Inspector
 
 		// ---- 画像の描画 ----
 		auto _winOp = Option::OptionManager::GetInstance().GetWindowOption();
-		auto _gpuHandle = D3D12::DescriptorHeapManager::Instance().GetImGuiSRVGPUHandle(a_pTexture->GetImGuiSRV());
+		auto _gpuHandle = EditorHelper::GetImGuiTexHandle(a_pTexture->GetImGuiSRV());
 		EditorHelper::DrawSRVView(_gpuHandle, _winOp.windowWidth, _winOp.windowHeight);
 	}
 }

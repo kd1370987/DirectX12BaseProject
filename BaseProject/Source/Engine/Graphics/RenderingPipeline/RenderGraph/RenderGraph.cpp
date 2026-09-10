@@ -9,6 +9,7 @@
 #include "GraphHeap/GraphHeap.h"
 
 // 実行時に触るもの
+#include "../../GraphicEngine.h"
 #include "../../RenderContext/RenderContext.h"
 #include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
@@ -470,6 +471,9 @@ namespace Engine::Graphics::Pipeline
 
 	bool RenderGraph::AllocateResources(GraphicsEngine* a_pGraphicsEngine, D3D12::Device* a_pDevice)
 	{
+		// ビューの置き場を控える : 焼き込みと初回クリアがここから引く
+		m_pHeapManager = a_pGraphicsEngine ? a_pGraphicsEngine->RefDescriptorHeapManager() : nullptr;
+
 		//----------------------------------------------------------------------------------
 		// ヒープの用意
 		//
@@ -509,7 +513,7 @@ namespace Engine::Graphics::Pipeline
 				continue;
 			}
 
-			if (!_virtual.CreateEntity(a_pDevice, _pGraphHeap))
+			if (!_virtual.CreateEntity(a_pDevice, m_pHeapManager, _pGraphHeap))
 			{
 				_isSuccess = false;
 				continue;
@@ -958,6 +962,7 @@ namespace Engine::Graphics::Pipeline
 		_context.pGraphicsEngine = a_pGraphicsEngine;
 		_context.pRenderContext = a_pRenderContext;
 		_context.pCmdList = _pCmdList;
+		_context.pHeapManager = m_pHeapManager;
 
 		for (CompiledPass& _compiledPass : m_compilePasses)
 		{
@@ -1074,7 +1079,8 @@ namespace Engine::Graphics::Pipeline
 		D3D12::GraphicsCommandList* _pCmdList = a_pRenderContext->GetCurrentCmdList();
 		if (!_pCmdList) return;
 
-		auto& _heapManager = D3D12::DescriptorHeapManager::Instance();
+		if (!m_pHeapManager) return;
+		auto& _heapManager = *m_pHeapManager;
 
 		for (const VirtualResource& _virtual : m_upResourceRegistry->GetVirtualResources())
 		{
@@ -1181,7 +1187,8 @@ namespace Engine::Graphics::Pipeline
 	// 実行時にスロットから引き直すと毎フレーム同じ探索を繰り返すことになる
 	void RenderGraph::ResolveDescriptors()
 	{
-		auto& _heapManager = D3D12::DescriptorHeapManager::Instance();
+		if (!m_pHeapManager) return;
+		auto& _heapManager = *m_pHeapManager;
 
 		// スロットとフレームの偶奇から実体を引く。
 		// Temporal でなければ偶奇に関わらず同じものになる
@@ -1318,7 +1325,7 @@ namespace Engine::Graphics::Pipeline
 				_rootSlotMap[_out.rootParamIndex].push_back(&_out);
 			}
 
-			auto& _heap = D3D12::DescriptorHeapManager::Instance();
+			auto& _heap = *m_pHeapManager;
 			for (const auto& [_rootIndex, _slotVec] : _rootSlotMap)
 			{
 				PassBind _bind = {};
@@ -1368,6 +1375,7 @@ namespace Engine::Graphics::Pipeline
 		PassContext _context = {};
 		_context.pGraph = this;
 		_context.pGraphicsEngine = a_pGraphicsEngine;
+		_context.pHeapManager = m_pHeapManager;
 
 		for (CompiledPass& _compiledPass : m_compilePasses)
 		{

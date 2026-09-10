@@ -1,4 +1,10 @@
 ﻿#pragma once
+
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Resource
 {
 	//==========================================================
@@ -9,6 +15,7 @@ namespace Engine::Resource
 		// 作成
 		void Create(
 			D3D12::Device* a_pDevice,
+			D3D12::DescriptorHeapManager* a_pHeapManager,
 			const std::vector<MeshVertexFloat>& a_vertices,
 			const std::vector<MeshFace>& a_face,
 			DXGI_FORMAT a_indexFormat

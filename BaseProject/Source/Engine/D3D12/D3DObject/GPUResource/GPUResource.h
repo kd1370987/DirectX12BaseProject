@@ -1,6 +1,9 @@
 ﻿#pragma once
 namespace Engine::D3D12
 {
+	// 前方宣言
+	class DescriptorHeapManager;
+
 	// リソース作成用構造体
 	struct GPUResourceDesc
 	{
@@ -69,6 +72,17 @@ namespace Engine::D3D12
 		const DXGI_FORMAT& GetFormat() const { return m_format; }
 
 	protected:
+
+		//--------------------------------------------------------------------------------------------
+		// ビューを預けているディスクリプタヒープ(借り物)
+		//
+		// 実体は GraphicsEngine が持っている。ここは「どこへ返すのか」の控えで、
+		// ビューを取ったときに受け取ったものをそのまま持ち続ける。
+		// Release() の引数を増やさずに返却先へ辿れるようにするため
+		// (Release() は virtual で呼び出し側が多く、引数を増やすと全部に波及する)。
+		// ビューを1つも持たないリソースでは nullptr のまま
+		//--------------------------------------------------------------------------------------------
+		DescriptorHeapManager* m_pHeapManager = nullptr;
 
 		// データ
 		ComPtr<ID3D12Resource> m_cpResource = nullptr;

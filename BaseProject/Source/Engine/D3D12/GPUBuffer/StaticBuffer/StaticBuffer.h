@@ -26,6 +26,7 @@ namespace Engine::D3D12
 		// 作成
 		bool Create(
 			D3D12::Device* a_pDevice, 
+			DescriptorHeapManager* a_pHeapManager,
 			GraphicsCommandList* a_pCmdList,
 			const StaticBufferDesc& a_desc,
 			const void* a_pInitData
@@ -77,7 +78,7 @@ namespace Engine::D3D12
 	protected:
 
 		// SRVの作成
-		void CreateSRVInternal(D3D12::Device* a_pDevice);
+		void CreateSRVInternal(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager);
 
 		// GPUバッファへデータをコピー
 		void CopyToGPU(GraphicsCommandList* a_pCmdList);

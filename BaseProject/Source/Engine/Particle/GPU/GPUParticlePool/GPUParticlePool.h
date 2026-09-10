@@ -21,6 +21,7 @@ namespace Engine::Particle
 		/// <param name="a_particleHandle">パーティクルアセットのハンドル</param>
 		void Init(
 			D3D12::Device* a_pDevice,
+			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList,
 			Engine::Handle<Resource::ParticlesAsset> a_particleHandle
 		);

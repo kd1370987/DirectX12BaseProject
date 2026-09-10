@@ -56,9 +56,10 @@ namespace Engine::Graphics::Pipeline
 		// GraphicsEngine が Execute() で今フレームぶんを詰め直したものを、ここで直接張る。
 		// テーブルは並べた順にディスクリプタが入るので、t7 = ポイント / t8 = 平行光 の順を崩さないこと
 		const auto& _frameLight = _pGE->GetFrameLightData();
+		auto* _pHeapManager = a_context.pHeapManager;
 		const D3D12_CPU_DESCRIPTOR_HANDLE _lightSrvArr[] = {
-			D3D12::DescriptorHeapManager::Instance().GetCPU(_frameLight.plBuffer.GetSRV()),
-			D3D12::DescriptorHeapManager::Instance().GetCPU(_frameLight.dlBuffer.GetSRV()),
+			_pHeapManager->GetCPU(_frameLight.plBuffer.GetSRV()),
+			_pHeapManager->GetCPU(_frameLight.dlBuffer.GetSRV()),
 		};
 		_pCtx->ComputeBindSRV(5, _lightSrvArr);
 

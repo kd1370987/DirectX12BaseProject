@@ -15,6 +15,11 @@ namespace Engine::Graphics
 	class GraphicsEngine;
 }
 
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Graphics::Pipeline
 {
 	class RenderGraph;
@@ -35,6 +40,10 @@ namespace Engine::Graphics::Pipeline
 		GraphicsEngine* pGraphicsEngine = nullptr;			// 描画アイテム・ライト・カメラを引く
 		RenderContext* pRenderContext = nullptr;			// 実行時のみ
 		D3D12::GraphicsCommandList* pCmdList = nullptr;		// 実行時のみ
+
+		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
+		// ハンドルからCPU/GPUハンドルを引きたいパスはここから借りること
+		D3D12::DescriptorHeapManager* pHeapManager = nullptr;
 
 		// スロットに割り当てられたGPUリソースを引く : 未割り当てなら nullptr
 		D3D12::GPUResource* GetResource(const Slot& a_slot) const;

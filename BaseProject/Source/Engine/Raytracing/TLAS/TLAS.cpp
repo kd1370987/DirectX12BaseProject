@@ -4,6 +4,7 @@
 
 void Engine::Raytracing::TLAS::Create(
 	D3D12::Device* a_pDevice,
+	D3D12::DescriptorHeapManager* a_pHeapManager,
 	D3D12::GraphicsCommandList* a_pCmdList,
 	UINT a_maxInstanceNum
 )
@@ -116,7 +117,9 @@ void Engine::Raytracing::TLAS::Create(
 	_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
 	_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	_srvDesc.RaytracingAccelerationStructure.Location = GetGPUAddress();
-	m_srvHandle = D3D12::DescriptorHeapManager::Instance().Allocate<D3D12::SRV>(a_pDevice,nullptr,&_srvDesc);
+	// 返却先を控える
+	m_pHeapManager = a_pHeapManager;
+	m_srvHandle = a_pHeapManager->Allocate<D3D12::SRV>(a_pDevice,nullptr,&_srvDesc);
 
 }
 
@@ -129,7 +132,12 @@ void Engine::Raytracing::TLAS::Release()
 	m_cpResource.Reset();
 	m_cpScratch.Reset();
 
-	D3D12::DescriptorHeapManager::Instance().Free(m_srvHandle);
+	if (m_pHeapManager)
+	{
+		m_pHeapManager->Free(m_srvHandle);
+		m_srvHandle = {};
+		m_pHeapManager = nullptr;
+	}
 }
 
 void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList,const std::vector<Instance>& a_instanceVec)
@@ -191,7 +199,7 @@ void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList,con
 
 D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::TLAS::GetGPUHandle()
 {
-	return D3D12::DescriptorHeapManager::Instance().GetGPU(m_srvHandle);
+	return m_pHeapManager->GetGPU(m_srvHandle);
 }
 
 void Engine::Raytracing::TLAS::CreateBuffer(

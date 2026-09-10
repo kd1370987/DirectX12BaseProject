@@ -6,6 +6,7 @@ namespace Engine::D3D12
 	class CommandContext;
 	class FrameManager;
 	class AsyncGPUManager;
+	class DescriptorHeapManager;
 
 	/// <summary>
 	/// まとまった単位(モデル1体など)でGPUへ転送するためのバッチ
@@ -80,8 +81,22 @@ namespace Engine::D3D12
 		void ExecuteComputeCommandList();
 
 
+		//--------------------------------------------------------------------------------------------
 		// バックバッファ作成
-		void CreateBackBuffer();
+		//
+		// RTVの置き場としてディスクリプタヒープを受け取り、そのまま控える。
+		// SetBackBuffer() でCPUハンドルを引くのと、ReleaseBackBuffer() で返すのに使う
+		//--------------------------------------------------------------------------------------------
+		void CreateBackBuffer(DescriptorHeapManager* a_pHeapManager);
+
+		//--------------------------------------------------------------------------------------------
+		// バックバッファだけを解放する
+		//
+		// バックバッファはRTVをディスクリプタヒープに預けているので、
+		// ヒープを捨てるより前に返しておく必要がある。
+		// Release() の中からも呼ばれる(二度呼んでも何もしない)
+		//--------------------------------------------------------------------------------------------
+		void ReleaseBackBuffer();
 
 		// ==========================================================
 		// 非同期処理用インターフェース
@@ -185,6 +200,10 @@ namespace Engine::D3D12
 		ComPtr<Adapter>					m_cpAdapter = nullptr;				// GPU実体
 
 		bool m_isDynamicResourceSupported = false;								// ダイナミックリソースが使えるかどうか
+
+		// バックバッファのRTVを預けているディスクリプタヒープ(借り物)。
+		// 実体は GraphicsEngine が持っている
+		DescriptorHeapManager* m_pHeapManager = nullptr;
 
 		// バックバッファー関係
 		Resource::Texture					m_backBuffers[BACKBUFFER_COUNT];	// バックバッファ

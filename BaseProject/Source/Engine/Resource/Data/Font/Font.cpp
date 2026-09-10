@@ -26,6 +26,7 @@ namespace Engine::Resource
 		{
 			return (a_pContext && a_pContext->pResourceManager) ? *a_pContext->pResourceManager : ResourceManager::Instance();
 		}
+
 	}
 
 	//==========================================================================================
@@ -78,8 +79,13 @@ namespace Engine::Resource
 		// そのまま扱えるので、フォント専用のシェーダー分岐が要らない
 		_desc.srvComponentMapping = D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(0, 0, 0, 0);
 
+		// ビューの置き場はコンテキストから引く。
+		// ローダ経路は省略できるので、渡されていなければその場で開く
+		// (転送は要らないが、ヒープの引き先を1箇所にまとめるためこの形にしてある)
+		ResourceBuildScope _scope(a_pContext);
+
 		Texture _tex = {};
-		_tex.Create(_desc);
+		_tex.Create(_scope.GetContext().pHeapManager, _desc);
 		if (!_tex.GetResource())
 		{
 			ENGINE_WARNING("[Font] アトラステクスチャの作成に失敗しました");

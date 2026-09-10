@@ -2,6 +2,11 @@
 
 #include "Core/Light.h"
 
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Graphics
 {
 	// ライト数上限 : FrameLightData の GPU バッファ要素数と、割り当て時の上限判定に使う
@@ -36,7 +41,7 @@ namespace Engine::Graphics
 		uint32_t plCount = 0;
 
 		// 作成 解放
-		bool Create(D3D12::Device* a_pDevice);
+		bool Create(D3D12::Device* a_pDevice, D3D12::DescriptorHeapManager* a_pHeapManager);
 		void Release();
 	};
 

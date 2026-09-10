@@ -13,7 +13,7 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(StaticStructuredBuffer);
 
 		// 作成
-		void Create(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList,UINT a_elementNum,const T* a_pInitData);
+		void Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList,UINT a_elementNum,const T* a_pInitData);
 
 		// アクセサ
 		const D3D12_SHADER_RESOURCE_VIEW_DESC& GetView() const;
@@ -24,13 +24,13 @@ namespace Engine::D3D12
 		D3D12_SHADER_RESOURCE_VIEW_DESC m_view = {};
 	};
 	template<typename T>
-	inline void StaticStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList, UINT a_elementNum, const T* a_pInitData)
+	inline void StaticStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList, UINT a_elementNum, const T* a_pInitData)
 	{
 		StaticBufferDesc _desc = {};
 		_desc.elementNum = a_elementNum;
 		_desc.strideSize = sizeof(T);
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
-		if (!StaticBuffer::Create(a_pDevice, a_pCmdList, _desc, (void*)a_pInitData))
+		if (!StaticBuffer::Create(a_pDevice, a_pHeapManager, a_pCmdList, _desc, (void*)a_pInitData))
 		{
 			assert(0 && "ストラクチャバッファの生成に失敗");
 			return;
@@ -48,7 +48,7 @@ namespace Engine::D3D12
 		m_view.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 		// SRV作成
-		StaticBuffer::CreateSRVInternal(a_pDevice);
+		StaticBuffer::CreateSRVInternal(a_pDevice, a_pHeapManager);
 	}
 	template<typename T>
 	inline const D3D12_SHADER_RESOURCE_VIEW_DESC& StaticStructuredBuffer<T>::GetView() const

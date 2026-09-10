@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Raytracing
 {
 
@@ -10,6 +15,7 @@ namespace Engine::Raytracing
 		// 作成
 		void Create(
 			D3D12::Device* a_pDevice,
+			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList,
 			UINT a_maxInstanceNum
 		);
@@ -60,8 +66,10 @@ namespace Engine::Raytracing
 		const uint32_t m_maxInstanceCount = 1000;
 		D3D12_RAYTRACING_INSTANCE_DESC* m_pInstanceDesc = nullptr;		// マップしておく
 
-		// SRVハンドル
+		// SRVハンドルと、その置き場(借り物)。
+		// 実体は GraphicsEngine が持っているので、Create で受け取ったものを控えて Release で返す
 		Engine::Handle<D3D12::SRV> m_srvHandle = {};
+		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
 
 		// ヒットグループ数
 		uint32_t m_hitGroupNum = 0;

@@ -10,15 +10,23 @@ namespace Engine::Resource
 		/// テクスチャの作成 : フライウェイトではないので呼び出し回数に注意
 		/// </summary>
 		/// <param name="a_initData">作成用構造体</param>
+		/// <param name="a_pContext">ビルドコンテキスト : ビューの置き場はここから引く</param>
 		/// <returns>リソースマネージャーに登録されたハンドル</returns>
-		static Handle<Texture> Create(const TextureCreateDesc& a_initData);
+		static Handle<Texture> Create(
+			const TextureCreateDesc& a_initData,
+			const ResourceBuildContext* a_pContext = nullptr
+		);
 
 		/// <summary>
 		/// デフォルトロード
 		/// </summary>
 		/// <param name="a_path">ファイルパス</param>
+		/// <param name="a_pContext">ビルドコンテキスト : ビューの置き場はここから引く</param>
 		/// <returns>テクスチャの実体</returns>
-		static Texture LoadFromFile(const std::string& a_path);
+		static Texture LoadFromFile(
+			const std::string& a_path,
+			const ResourceBuildContext* a_pContext = nullptr
+		);
 
 		/// <summary>
 		/// デフォルトカラーを指定してテクスチャを読み込める
@@ -39,6 +47,6 @@ namespace Engine::Resource
 		static Engine::GUID GetColorGUID(const Math::Color& a_color);
 
 		// 単色テクスチャ作成 
-		static Texture CreateColorTexture(const Math::Color& a_color);
+		static Texture CreateColorTexture(const Math::Color& a_color, const ResourceBuildContext& a_ctx);
 	};
 }

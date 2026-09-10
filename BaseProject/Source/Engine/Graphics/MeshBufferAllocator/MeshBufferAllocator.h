@@ -2,6 +2,11 @@
 
 #include "MeshAllocationHandle.h"
 
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Graphics
 {
 	struct BufferSizeDesc
@@ -27,6 +32,7 @@ namespace Engine::Graphics
 		/// <param name="a_maxMeshlets">最大メッシュレット数</param>
 		void Init(
 			D3D12::Device* a_pDevice,
+			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList,
 			const BufferSizeDesc& a_bufferSizes
 		);

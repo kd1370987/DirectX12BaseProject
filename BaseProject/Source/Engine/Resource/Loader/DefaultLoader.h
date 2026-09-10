@@ -77,7 +77,7 @@ namespace Engine::Resource
 	{
 		static Texture LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
-			return TextureIO::LoadFromFile(a_path);
+			return TextureIO::LoadFromFile(a_path, a_pContext);
 		}
 	};
 	// アニメーター

@@ -69,6 +69,31 @@ namespace Engine::Graphics
 	GraphicsEngine::~GraphicsEngine()
 	{}
 
+	bool GraphicsEngine::InitDescriptorHeap(D3D12::Device* a_pDevice)
+	{
+		// 各ビューの席数。SRVはテクスチャ1枚につき1つ取るので、ここだけ桁が違う
+		constexpr UINT kCBVCount = 100;
+		constexpr UINT kSRVCount = 4000;
+		constexpr UINT kUAVCount = 100;
+		constexpr UINT kRTVCount = 100;
+		constexpr UINT kDSVCount = 10;
+
+		m_upDescriptorHeapManager = std::make_unique<D3D12::DescriptorHeapManager>();
+
+		return m_upDescriptorHeapManager->Init(
+			a_pDevice,
+			kCBVCount, kSRVCount, kUAVCount, kRTVCount, kDSVCount
+		);
+	}
+
+	void GraphicsEngine::ReleaseDescriptorHeap()
+	{
+		if (!m_upDescriptorHeapManager) return;
+
+		m_upDescriptorHeapManager->Release();
+		m_upDescriptorHeapManager.reset();
+	}
+
 	void GraphicsEngine::Init(
 		D3D12::GraphicsCommandList* a_pCmdList,
 		const GraphicsEngineDesc& a_desc
@@ -90,6 +115,7 @@ namespace Engine::Graphics
 
 			RenderContextDesc _desc = {};
 			_desc.pDevice = _pDevice;
+			_desc.pHeapManager = m_upDescriptorHeapManager.get();
 
 			_desc.cbAllocatorMemSize = 32 * 1024 * 1024;
 			// シーンを重ねて描くとき(ポーズ画面など)は全ワールドのボーン行列を
@@ -114,10 +140,10 @@ namespace Engine::Graphics
 		// 横に割りさえすれば弧になり、縦を割っても頂点が増えるだけで形は変わらない
 		//------------------------------------------------------------------
 		m_upQuadPolygon = std::make_unique<Resource::QuadPolygon>();
-		m_upQuadPolygon->Init();
+		m_upQuadPolygon->Init(m_upDescriptorHeapManager.get());
 
 		m_upCurvedQuadPolygon = std::make_unique<Resource::QuadPolygon>();
-		m_upCurvedQuadPolygon->Init(kCurveDivision + 1, 2);
+		m_upCurvedQuadPolygon->Init(m_upDescriptorHeapManager.get(), kCurveDivision + 1, 2);
 
 		// ライト
 		// バッファは上限ぶんを固定確保する(FrameLightData::Create の中)。
@@ -125,7 +151,7 @@ namespace Engine::Graphics
 		m_lightManager.Init();
 		for (auto& _frameLight : m_frameLightDataArr)
 		{
-			_frameLight.Create(_pDevice);
+			_frameLight.Create(_pDevice, m_upDescriptorHeapManager.get());
 		}
 
 		//------------------------------------------------------------------------------------
@@ -150,6 +176,7 @@ namespace Engine::Graphics
 		m_upMeshBufferAllocator = std::make_unique<MeshBufferAllocator>();
 		m_upMeshBufferAllocator->Init(
 			_pDevice,
+			m_upDescriptorHeapManager.get(),
 			a_pCmdList,
 			_bufferSizeDesc
 		);
@@ -445,7 +472,7 @@ namespace Engine::Graphics
 					_texDesc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
 					_texDesc.usage = Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;
 					_texDesc.opClerValue = Math::Color(0.f, 0.f, 0.f, 1.f);
-					_pCamera->upFinalTex->Create(_texDesc);
+					_pCamera->upFinalTex->Create(m_upDescriptorHeapManager.get(), _texDesc);
 				}
 
 				// ---- 実行インスタンスを設計図から作る ----
@@ -784,6 +811,10 @@ namespace Engine::Graphics
 		// 各リンク解除
 		m_pPipelineStateManager = nullptr;
 
+		// ディスクリプタヒープはここでは捨てない。
+		// この後に解放されるもの(パーティクル/レイトレ/PSO/バックバッファ/遅延解放キュー)が
+		// まだビューを返してくるので、ReleaseDescriptorHeap() を最後に呼ぶこと
+
 
 		m_upMeshBufferAllocator->Release();
 
@@ -844,7 +875,7 @@ namespace Engine::Graphics
 			D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATE_RENDER_TARGET
 		);
-		auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
+		auto _cpuHandle = m_upDescriptorHeapManager->GetCPU(
 			D3D12::D3D12Wrapper::Instance().GetCurrentBackBufferTex().GetRTV()
 		);
 		float _clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f }; // 背景色
@@ -996,6 +1027,14 @@ namespace Engine::Graphics
 	D3D12::PipelineStateManager* GraphicsEngine::RefPipelineStateManager()
 	{
 		return m_pPipelineStateManager;
+	}
+	D3D12::DescriptorHeapManager* GraphicsEngine::RefDescriptorHeapManager()
+	{
+		return m_upDescriptorHeapManager.get();
+	}
+	const D3D12::DescriptorHeapManager* GraphicsEngine::GetDescriptorHeapManager() const
+	{
+		return m_upDescriptorHeapManager.get();
 	}
 	LightManager* GraphicsEngine::RefLightManager()
 	{

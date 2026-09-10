@@ -17,7 +17,7 @@ namespace Engine::D3D12
 		/// </summary>
 		/// <param name="a_pDevice">デバイス</param>
 		/// <param name="a_maxElementCount">最大要素数</param>
-		bool Create(D3D12::Device* a_pDevice, size_t a_maxElementCount);
+		bool Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_maxElementCount);
 
 		/// <summary>
 		/// オフセットのリセット毎フレーム開始時に呼ぶ
@@ -43,7 +43,7 @@ namespace Engine::D3D12
 		uint32_t m_currentOffset = 0;
 	};
 	template<typename T>
-	inline bool DynamicStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, size_t a_maxElementCount)
+	inline bool DynamicStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_maxElementCount)
 	{
 		// 親クラスの Create に渡す設定を構築
 		DynamicBufferDesc _desc = {};
@@ -64,10 +64,10 @@ namespace Engine::D3D12
 		_srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 		// ハンドルをもらう
-		m_srvHandle = AllocateSRV(a_pDevice, GetResource(), _srvDesc);
+		m_srvHandle = AllocateSRV(a_pDevice, a_pHeapManager, GetResource(), _srvDesc);
 
 		// 親クラスの Create を呼ぶ（中でリソース確保、Map、SRV生成が行われる）
-		return DynamicBuffer::Create(a_pDevice, _desc);
+		return DynamicBuffer::Create(a_pDevice, a_pHeapManager, _desc);
 	}
 	template<typename T>
 	inline void DynamicStructuredBuffer<T>::ResetForNewFrame()

@@ -10,6 +10,11 @@ namespace Engine
 	}
 }
 
+namespace Engine::D3D12
+{
+	class DescriptorHeapManager;
+}
+
 namespace Engine::Raytracing
 {
 	class TLAS;
@@ -43,6 +48,7 @@ namespace Engine::Raytracing
 		// 初期化
 		void Init(
 			D3D12::Device* a_pDevice,
+			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList, 
 			uint32_t a_hitGroupNum
 		);
@@ -84,6 +90,9 @@ namespace Engine::Raytracing
 		std::vector<InstanceData> m_instanceDataVec = {};
 		Engine::D3D12::StaticStructuredBuffer<Material>     m_materialDataBuffer;
 		std::vector<Material> m_materialVec = {};
+
+		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている
+		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
 
 		std::vector<Instance> m_instanceVec = {};		// レイトレワールドインスタンス
 		std::unique_ptr<TLAS> m_upTLAS = nullptr;		// レイトレワールドTLAS

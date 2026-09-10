@@ -246,7 +246,7 @@ namespace Engine::Graphics::Pipeline
 		return true;
 	}
 
-	bool VirtualResource::CreateEntity(D3D12::Device* a_pDevice, ID3D12Heap* a_pHeap)
+	bool VirtualResource::CreateEntity(D3D12::Device* a_pDevice, D3D12::DescriptorHeapManager* a_pHeapManager, ID3D12Heap* a_pHeap)
 	{
 		// 作り直しなので、前の実体はここで手放す
 		ReleaseEntity();
@@ -290,6 +290,8 @@ namespace Engine::Graphics::Pipeline
 			{
 				auto _upBuffer = std::make_unique<D3D12::GPUBuffer>();
 
+				// GPUBuffer::Create はビューを作らない(グラフのバッファはビューを持たない)ので、
+				// ディスクリプタヒープは渡さない
 				if (!_upBuffer->Create(a_pDevice, _desc))
 				{
 					ENGINE_WARNING("[VirtualResource] バッファの生成に失敗しました : %s", m_name.c_str());
@@ -329,8 +331,8 @@ namespace Engine::Graphics::Pipeline
 		{
 			auto _upTexture = std::make_unique<Resource::Texture>();
 
-			if (_isPlaced) _upTexture->Create(a_pHeap, _heapOffset, _texDesc);
-			else           _upTexture->Create(_texDesc);
+			if (_isPlaced) _upTexture->Create(a_pHeapManager, a_pHeap, _heapOffset, _texDesc);
+			else           _upTexture->Create(a_pHeapManager, _texDesc);
 
 			// Texture::Create は失敗を返さないので、実体が入ったかで見る
 			if (!_upTexture->GetResource())

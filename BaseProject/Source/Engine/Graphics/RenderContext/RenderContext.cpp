@@ -34,6 +34,9 @@ namespace Engine::Graphics
 		// デバイスのキャッシュ
 		m_pDevice = a_desc.pDevice;
 
+		// ビューの置き場をキャッシュ : 以降はここから引く
+		m_pHeapManager = a_desc.pHeapManager;
+
 		// ルート定数バッファアロケーター
 		m_upCBAllocator = std::make_unique<CBAllocator>();
 		m_upCBAllocator->RootCBVCreate(
@@ -41,18 +44,18 @@ namespace Engine::Graphics
 		);
 
 		// バッファ作成
-		m_boneBuffer.Create(a_desc.pDevice, a_desc.boneElementNum);								// ボーン行列用
-		m_debugLineBuffer.Create(a_desc.pDevice, a_pCmdList, 10000, nullptr);					// 形状描画用バッファ
+		m_boneBuffer.Create(a_desc.pDevice, m_pHeapManager, a_desc.boneElementNum);								// ボーン行列用
+		m_debugLineBuffer.Create(a_desc.pDevice, m_pHeapManager, a_pCmdList, 10000, nullptr);					// 形状描画用バッファ
 
 		// メッシュ用データの作成
-		m_meshInstanceBuffer.Create(a_desc.pDevice, a_pCmdList, 100000, nullptr);
-		m_meshMaterialBuffer.Create(a_desc.pDevice, a_pCmdList, 100000, nullptr);
+		m_meshInstanceBuffer.Create(a_desc.pDevice, m_pHeapManager, a_pCmdList, 100000, nullptr);
+		m_meshMaterialBuffer.Create(a_desc.pDevice, m_pHeapManager, a_pCmdList, 100000, nullptr);
 
 		// UIインスタンス
-		m_uiInstanceBuffer.Create(a_desc.pDevice,10000);
+		m_uiInstanceBuffer.Create(a_desc.pDevice, m_pHeapManager, 10000);
 
 		// コピー戦略用SRVヒープの作成
-		UINT _heapSize = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize();
+		UINT _heapSize = m_pHeapManager->GetCBVSRVUAVHeapSize();
 		m_copyHeap.Create(
 			m_pDevice,
 			L"CopyHeap",
@@ -84,6 +87,7 @@ namespace Engine::Graphics
 		// リンク解除
 		m_pDevice = nullptr;		// デバイス
 		m_pCmdList = nullptr;		// コマンドリスト
+		m_pHeapManager = nullptr;	// ビューの置き場(借り物)
 
 		// ルート定数バッファ用アロケーター解放
 		m_upCBAllocator->Release();
@@ -158,7 +162,7 @@ namespace Engine::Graphics
 			if (_texHandle == Handle<Resource::Texture>()) continue;
 			const auto* _tex = Resource::ResourceManager::Instance().Get(_texHandle);
 			if (!_tex) continue;
-			_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_tex->GetSRV()));
+			_cpuHandles.push_back(m_pHeapManager->GetCPU(_tex->GetSRV()));
 		}
 
 		// バインド
@@ -222,7 +226,7 @@ namespace Engine::Graphics
 
 	void RenderContext::BindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
 	{
-		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_srvHandle);
+		auto _cpu = m_pHeapManager->GetCPU(a_srvHandle);
 		BindSRV(a_rootIdx, _cpu);
 	}
 
@@ -238,7 +242,7 @@ namespace Engine::Graphics
 
 	void RenderContext::ComputeBindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
 	{
-		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_srvHandle);
+		auto _cpu = m_pHeapManager->GetCPU(a_srvHandle);
 		ComputeBindSRV(a_rootIdx, _cpu);
 	}
 
@@ -258,7 +262,7 @@ namespace Engine::Graphics
 
 	void RenderContext::BindUAV(UINT a_rootIdx, Handle<D3D12::UAV> a_uavHandle)
 	{
-		auto _cpuHandle = D3D12::DescriptorHeapManager::Instance().GetCPU(a_uavHandle);
+		auto _cpuHandle = m_pHeapManager->GetCPU(a_uavHandle);
 		BindUAV(a_rootIdx,_cpuHandle);
 	}
 
@@ -269,7 +273,7 @@ namespace Engine::Graphics
 		_cpuHandles.reserve(a_uavHandles.size());
 		for (const auto& _handle : a_uavHandles)
 		{
-			_cpuHandles.push_back(D3D12::DescriptorHeapManager::Instance().GetCPU(_handle));
+			_cpuHandles.push_back(m_pHeapManager->GetCPU(_handle));
 		}
 		ComputeBindTable(a_rootIdx, _cpuHandles);
 	}
@@ -305,7 +309,7 @@ namespace Engine::Graphics
 		{
 			return;
 		}
-		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(_tex->GetRTV());
+		auto _cpu = m_pHeapManager->GetCPU(_tex->GetRTV());
 
 		// CPUハンドルと、テクスチャ作成時のクリアバリューをセット
 		D3D12::ClearRenderTargetView(m_pCmdList, _cpu, _tex->GetClearColor());
@@ -319,7 +323,7 @@ namespace Engine::Graphics
 
 	void RenderContext::ClearDSV(const Handle<D3D12::DSV>& a_DSVHandle)
 	{
-		auto _cpu = D3D12::DescriptorHeapManager::Instance().GetCPU(a_DSVHandle);
+		auto _cpu = m_pHeapManager->GetCPU(a_DSVHandle);
 		D3D12::ClearDepthStencilView(m_pCmdList,_cpu);
 	}
 
@@ -342,10 +346,10 @@ namespace Engine::Graphics
 
 	void RenderContext::BindCopyHeapAndSumplerBindLess()
 	{
-		ID3D12DescriptorHeap* _srcHeap = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeap();
+		ID3D12DescriptorHeap* _srcHeap = m_pHeapManager->GetCBVSRVUAVHeap();
 
 		// ヒープ丸ごとコピー
-		UINT _heapNum = D3D12::DescriptorHeapManager::Instance().GetCBVSRVUAVHeapSize();
+		UINT _heapNum = m_pHeapManager->GetCBVSRVUAVHeapSize();
 		m_pDevice->CopyDescriptorsSimple(
 			_heapNum,
 			m_bindLessHeap.GetCPU(0),
@@ -356,7 +360,7 @@ namespace Engine::Graphics
 		// ディスクリプタヒープをセット
 		ID3D12DescriptorHeap* _heaps[] = {
 			m_bindLessHeap.GetHeap(),
-			D3D12::DescriptorHeapManager::Instance().RefSamplerHeap()
+			m_pHeapManager->RefSamplerHeap()
 		};
 		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
 
@@ -689,7 +693,7 @@ namespace Engine::Graphics
 	void RenderContext::ChangeBackBuffer()
 	{
 		// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
-		auto _cpuHandle = Engine::D3D12::DescriptorHeapManager::Instance().GetCPU(
+		auto _cpuHandle = m_pHeapManager->GetCPU(
 			D3D12::D3D12Wrapper::Instance().GetCurrentBackBufferTex().GetRTV()
 		);
 

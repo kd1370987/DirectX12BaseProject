@@ -3,16 +3,20 @@
 #include "../../../Manager/AssetDatabase/AssetDatabase.h"
 #include "../../../Manager/ResourceManager/ResourceManager.h"
 
-#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
+
+#include "../../../Common/ScopedResourceBuild.h"
 
 namespace Engine::Resource
 {
-	Handle<Texture> TextureIO::Create(const TextureCreateDesc& a_initData)
+	Handle<Texture> TextureIO::Create(const TextureCreateDesc& a_initData, const ResourceBuildContext* a_pContext)
 	{
+		// ビューの置き場はコンテキストから引く : 渡されていなければその場で開く
+		ResourceBuildScope _scope(a_pContext);
+
 		// テクスチャ作成
 		Texture _tex;
-		_tex.Create(a_initData);
+		_tex.Create(_scope.GetContext().pHeapManager, a_initData);
 
 		// リソースマネージャーに登録
 		auto _handle = ResourceManager::Instance().Add(std::move(_tex));
@@ -22,13 +26,15 @@ namespace Engine::Resource
 		return _handle;
 	}
 
-	Texture TextureIO::LoadFromFile(const std::string& a_path)
+	Texture TextureIO::LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 	{
+		ResourceBuildScope _scope(a_pContext);
+
 		Texture _tex = {};
-		_tex.Import(a_path);
+		_tex.Import(_scope.GetContext().pHeapManager, a_path);
 		return _tex;
 	}
-	Texture TextureIO::CreateColorTexture(const Math::Color& a_color)
+	Texture TextureIO::CreateColorTexture(const Math::Color& a_color, const ResourceBuildContext& a_ctx)
 	{
 		std::string _name = "ColorTex_";
 		// カラーチェック
@@ -52,7 +58,7 @@ namespace Engine::Resource
 
 		// テクスチャ作成
 		Texture _tex;
-		_tex.Create(_name, a_color);
+		_tex.Create(a_ctx.pHeapManager, _name, a_color);
 
 		return _tex;
 	}
@@ -93,7 +99,8 @@ namespace Engine::Resource
 		if (_handle == Handle<Texture>())
 		{
 			// まだ誰もこの色のテクスチャを作っていなければ、実体を生成
-			Texture _newTex = CreateColorTexture(a_defaultColor);
+			ResourceBuildScope _scope(a_pContext);
+			Texture _newTex = CreateColorTexture(a_defaultColor, _scope.GetContext());
 
 			// 生成した実体を、色専用のGUIDと一緒にResourceManagerに登録する
 			_handle = _resMgr.AddResourceAndGUID(std::move(_newTex), _colorGuid);

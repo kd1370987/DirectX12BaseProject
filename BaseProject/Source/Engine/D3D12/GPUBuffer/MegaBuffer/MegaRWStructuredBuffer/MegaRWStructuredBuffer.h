@@ -22,6 +22,7 @@ namespace Engine::D3D12
 		/// <returns></returns>
 		bool Create(
 			D3D12::Device* a_pDevice,
+			DescriptorHeapManager* a_pHeapManager,
 			UINT a_elemetNum
 		);
 
@@ -49,7 +50,7 @@ namespace Engine::D3D12
 	};
 
 	template<typename T>
-	inline bool MegaRWStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, UINT a_elemetNum)
+	inline bool MegaRWStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, UINT a_elemetNum)
 	{
 		// アロケーターの作成
 		m_rangeAllocator.Init(static_cast<uint32_t>(a_elemetNum));
@@ -88,8 +89,8 @@ namespace Engine::D3D12
 		_uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 
 		// ハンドルをもらう
-		m_srvHandle = AllocateSRV(a_pDevice, GetResource(), _srvDesc);
-		m_uavHandle = AllocateUAV(a_pDevice, GetResource(), _uavDesc);
+		m_srvHandle = AllocateSRV(a_pDevice, a_pHeapManager, GetResource(), _srvDesc);
+		m_uavHandle = AllocateUAV(a_pDevice, a_pHeapManager, GetResource(), _uavDesc);
 
 		return true;
 	}

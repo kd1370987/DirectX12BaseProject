@@ -11,8 +11,10 @@
 
 namespace Engine::Graphics
 {
-	void MouseCursor::Init()
+	void MouseCursor::Init(D3D12::DescriptorHeapManager* a_pHeapManager)
 	{
+		m_pHeapManager = a_pHeapManager;
+
 		// 実際の読み込み要求は Update で出す。
 		// 設定はエディターから触れるので、初回だけでなく「変わったら読み直す」形に
 		// 寄せておいたほうが分岐が一箇所で済む
@@ -204,8 +206,7 @@ namespace Engine::Graphics
 		};
 		const ImVec2 _max = { _min.x + _size, _min.y + _size };
 
-		const auto _gpuHandle = D3D12::DescriptorHeapManager::Instance()
-			.GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
+		const auto _gpuHandle = m_pHeapManager->GetImGuiSRVGPUHandle(_pTex->GetImGuiSRV());
 
 		ImGui::GetForegroundDrawList()->AddImage(
 			(ImTextureID)(_gpuHandle.ptr),

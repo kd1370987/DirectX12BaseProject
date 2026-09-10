@@ -14,8 +14,8 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(DynamicVertexBuffer);
 
 		// 作成
-		bool Create(D3D12::Device* a_pDevice,size_t a_elementNum);
-		bool CreateAndUpload(D3D12::Device* a_pDevice,size_t a_elementNum, const void* a_pInitData);
+		bool Create(D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,size_t a_elementNum);
+		bool CreateAndUpload(D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,size_t a_elementNum, const void* a_pInitData);
 
 		// アクセサ
 		const D3D12_VERTEX_BUFFER_VIEW& GetView() const;
@@ -26,7 +26,7 @@ namespace Engine::D3D12
 
 	};
 	template<typename T>
-	inline bool DynamicVertexBuffer<T>::Create(D3D12::Device* a_pDevice, size_t a_elementNum)
+	inline bool DynamicVertexBuffer<T>::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_elementNum)
 	{
 		// リソース作成
 		DynamicBufferDesc _desc = {};
@@ -34,7 +34,7 @@ namespace Engine::D3D12
 		_desc.strideSize = sizeof(T);
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
 
-		if (!DynamicBuffer::Create(a_pDevice,_desc))
+		if (!DynamicBuffer::Create(a_pDevice,a_pHeapManager,_desc))
 		{
 			assert(0 && "リソース作成失敗");
 			return false;
@@ -49,7 +49,7 @@ namespace Engine::D3D12
 		return true;
 	}
 	template<typename T>
-	inline bool DynamicVertexBuffer<T>::CreateAndUpload(D3D12::Device* a_pDevice, size_t a_elementNum, const void* a_pInitData)
+	inline bool DynamicVertexBuffer<T>::CreateAndUpload(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_elementNum, const void* a_pInitData)
 	{		
 		// リソース作成
 		DynamicBufferDesc _desc = {};
@@ -57,7 +57,7 @@ namespace Engine::D3D12
 		_desc.strideSize = sizeof(T);
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
 
-		if (!DynamicBuffer::Create(a_pDevice, _desc))
+		if (!DynamicBuffer::Create(a_pDevice, a_pHeapManager, _desc))
 		{
 			assert(0 && "リソース作成失敗");
 			return false;
